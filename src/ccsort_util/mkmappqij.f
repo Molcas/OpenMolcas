@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
        subroutine mkmappqij
-c
-c     this routine prepair mapd,mapi
-c     for <pq|ij> for p,q, i>=j to mapd1,mapi1
-c
+!
+!     this routine prepair mapd,mapi
+!     for <pq|ij> for p,q, i>=j to mapd1,mapi1
+!
 #include "ccsort.fh"
 #include "reorg.fh"
-c
-c     help variables
-c
+!
+!     help variables
+!
        integer symi,symj,symp,symq,sympq,sympqi
        integer nhelp,possition,length
-c
-c*    set mapi1 to zero
-c
+!
+!*    set mapi1 to zero
+!
        do 1 symi=1,nsym
        do 2 symq=1,nsym
        do 3 symp=1,nsym
@@ -30,9 +30,9 @@ c
  3      continue
  2      continue
  1      continue
-c
-c     def zero-th row
-c
+!
+!     def zero-th row
+!
        mapd1(0,1)=5
        mapd1(0,2)=5
        mapd1(0,3)=1
@@ -49,10 +49,10 @@ c
        symj=sympqi
        if (symj.gt.symi) goto 102
        nhelp=nhelp+1
-c
-c     calc. length
+!
+!     calc. length
        length=noa(symi)*noa(symj)*NORB(symp)*NORB(symq)
-c
+!
        mapd1(nhelp,1)=possition
        mapd1(nhelp,2)=length
        mapd1(nhelp,3)=symp
@@ -60,14 +60,14 @@ c
        mapd1(nhelp,5)=symi
        mapd1(nhelp,6)=symj
        possition=possition+length
-c
+!
        mapi1(symp,symq,symi)=nhelp
-c
+!
  102    continue
  101    continue
  100    continue
-c
+!
        mapd1(0,5)=nhelp
-c
+!
        return
        end

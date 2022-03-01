@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Markus P. Fuelscher                              *
-*               1993, Per Ake Malmqvist                                *
-*               Pavel Neogrady                                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Markus P. Fuelscher                              *
+!               1993, Per Ake Malmqvist                                *
+!               Pavel Neogrady                                         *
+!***********************************************************************
        Subroutine RdInpPN(run_triples,run_sort)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     - read input                                                     *
-*     - set defaults                                                   *
-*                                                                      *
-*     calling parameters: none                                         *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher and P.-AA. Malmqvist                              *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*     reduced by P.N.                                                  *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     - read input                                                     *
+!     - set defaults                                                   *
+!                                                                      *
+!     calling parameters: none                                         *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher and P.-AA. Malmqvist                              *
+!     University of Lund, Sweden, 1993                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!     reduced by P.N.                                                  *
+!                                                                      *
+!***********************************************************************
        Implicit Real*8 (A-H,O-Z)
 
 
@@ -40,19 +40,19 @@
 #include "ccsort.fh"
 #include "reorg.fh"
 #include "motra.fh"
-*
+!
        Real*8 Weights(mxRoot)
        Parameter ( nCmd =20 )
        Character*4 Command,Cmd(nCmd)
        Character*72  Line,Blank
-       Data Cmd /'TITL','END ','CCSD','CCT ','CLOS',
-     &           'OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF',
-     &           'DENO','SHIF','ACCU','ADAP','EXTR','TRIP','NOSO',
+       Data Cmd /'TITL','END ','CCSD','CCT ','CLOS',                    &
+     &           'OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF',      &
+     &           'DENO','SHIF','ACCU','ADAP','EXTR','TRIP','NOSO',      &
      &           'ITER'/
        Logical run_triples,run_sort
 
-*
-*---  Initialize -------------------------------------------------------*
+!
+!---  Initialize -------------------------------------------------------*
        Do i=1,72
        Blank(i:i)=' '
        End Do
@@ -72,7 +72,7 @@
        IFJAC=0
        RFpert=.false.
        NTIT=0
-c
+!
        lunsta=21
        luna1=22
        luna2=23
@@ -83,30 +83,30 @@ c
        lunda1=9
        lunda2=10
        lunpublic=29
-c
-*---  Open JOBIPH and LUONEM files ------------------------------------*
-*
-*.    Job interface
+!
+!---  Open JOBIPH and LUONEM files ------------------------------------*
+!
+!.    Job interface
        JOBIPH=15
-*.    Job interface
+!.    Job interface
        CALL DANAME(JOBIPH,'JOBIPH')
-*
-*---  Read input from JOBIPH file -------------------------------------*
+!
+!---  Read input from JOBIPH file -------------------------------------*
        IAD15=0
        CALL iDAFILE(JOBIPH,2,IADR15,15,IAD15)
-cDIVNUO
+!DIVNUO
        IAD15=IADR15(1)
-       CALL WR_RASSCF_Info(JOBIPH,2,iAd15,
-     &                     NACTEL,ISPIN,NSYM,LSYM,
-     &                     NFRO,NISH,NASH,NDEL,NBAS,8,
-     &                     NAME,LENIN8*MXORB,
-     &                     NCONF,HEADER,2*72,
-     &                     TITLE,4*18*MXTIT,POTNUC,
-     &                     LROOTS,NROOTS,IROOT,MXROOT,NRAS1,
+       CALL WR_RASSCF_Info(JOBIPH,2,iAd15,                              &
+     &                     NACTEL,ISPIN,NSYM,LSYM,                      &
+     &                     NFRO,NISH,NASH,NDEL,NBAS,8,                  &
+     &                     NAME,LENIN8*MXORB,                           &
+     &                     NCONF,HEADER,2*72,                           &
+     &                     TITLE,4*18*MXTIT,POTNUC,                     &
+     &                     LROOTS,NROOTS,IROOT,MXROOT,NRAS1,            &
      &                     NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
-c
-c     define defaults for REORG
-c
+!
+!     define defaults for REORG
+!
        ntAsh = 0
        do isym = 1,nSym
          ntAsh = ntAsh+nAsh(iSym)
@@ -119,21 +119,21 @@ c
          ndelr(nhelp)=NDEL(nhelp)
          nfror(nhelp)=NFRO(nhelp)
        end do
-CGG       fullprint=0
+!GG       fullprint=0
        noop=0
        iokey=1
        zrkey=1
        run_triples=.true.
        run_sort=.true.
-*
-*---  Read input from TRAONE file -------------------------------------*
+!
+!---  Read input from TRAONE file -------------------------------------*
       Call RdTraOne
       Do iSym=1,nSym
         nFror(iSym) = nFroX(iSym)
         nDelr(iSym) = nDelX(iSym)
       End Do
-*
-*---  Read input from LuSpool -----------------------------------------*
+!
+!---  Read input from LuSpool -----------------------------------------*
       LuSpool = 17
       Call SpoolInp(LuSpool)
       Rewind(LuSpool)
@@ -149,10 +149,10 @@ CGG       fullprint=0
        If ( Command.eq.Cmd(iCmd) ) jCmd=iCmd
        End Do
        If ( jCmd.eq.0 ) Goto 9930
- 20     Goto (100,2100,200,300,400,500,600,700,900,1000,1100,1200,
+ 20     Goto (100,2100,200,300,400,500,600,700,900,1000,1100,1200,      &
      & 1300,1400,1500,1600,1700,1800,1900,2000) jCmd
-*
-*---  process TITLE    command ----------------------------------------*
+!
+!---  process TITLE    command ----------------------------------------*
  100   continue
        Read(LuSpool,'(A)',End=9910) Line
        Command=Line(1:4)
@@ -167,87 +167,87 @@ CGG       fullprint=0
        nTit=nTit+1
        If ( nTit.le.mxTit ) Read (Line,'(18A4)') (Title(nTit,i),i=1,18)
        Goto 100
-c---  CCSD command ------------
+!---  CCSD command ------------
  200   continue
        cckey=1
        t3key=0
        run_triples=.false.
        goto 100
-c---  CCT  command ------------
+!---  CCT  command ------------
  300   continue
        cckey=1
        t3key=1
        run_triples=.true.
        goto 100
-c---  CLOSed  command ------------
+!---  CLOSed  command ------------
  400   continue
        clopkey=2
        goto 100
-c---  OPEN  command ------------
+!---  OPEN  command ------------
  500   continue
        clopkey=1
        goto 100
-c---  FROZen  command ------------
+!---  FROZen  command ------------
  600   continue
        read (LuSpool,*) (nfror(nhelp),nhelp=1,nsym)
        goto 100
-c---  DELEte  command ------------
+!---  DELEte  command ------------
  700   continue
        read (LuSpool,*) (ndelr(nhelp),nhelp=1,nsym)
        goto 100
-*
-c---  PRINt  command ------------
+!
+!---  PRINt  command ------------
  900   continue
        read (LuSpool,*) fullprint
        goto 100
-*
-c---  NOOPeration  command ------------
+!
+!---  NOOPeration  command ------------
  1000  continue
        noop=1
        goto 100
-*
-c---  IOKEy  command ------------
+!
+!---  IOKEy  command ------------
  1100  continue
        read (LuSpool,*) iokey
        if ((iokey.lt.1).or.(iokey.gt.2)) then
        iokey=2
        end if
        goto 100
-*
-c---  ZROFf  command ------------
+!
+!---  ZROFf  command ------------
  1200  continue
        zrkey=0
        goto 100
 
-c---  DENO command ---------
+!---  DENO command ---------
 1300  continue
       goto 100
-*
-c---  SHIF command ---------
+!
+!---  SHIF command ---------
 1400  continue
       goto 100
-c---  ACCU command ---------
+!---  ACCU command ---------
 1500  continue
       goto 100
-c---  ADAP command ---------
+!---  ADAP command ---------
 1600  continue
       goto 100
-c---  EXTR command ---------
+!---  EXTR command ---------
 1700  continue
       goto 100
-c---  TRIP command ---------
+!---  TRIP command ---------
 1800  continue
       goto 100
-c---  NOSOrt  command ------------
+!---  NOSOrt  command ------------
 1900   continue
        run_sort=.false.
        goto 100
-c---  ITER command ---------
+!---  ITER command ---------
 2000  continue
       goto 100
-*
-*
-*---  The end of the input section, complete input processing ---------*
+!
+!
+!---  The end of the input section, complete input processing ---------*
  2100  continue
        NFROT=0
        NISHT=0
@@ -283,35 +283,35 @@ c---  ITER command ---------
          NDELT=NDELT+NDEL(ISYM)
          NBAST=NBAST+NBAS(ISYM)
        END DO
-*
-*---  Identify the wave function type ---------------------------------*
+!
+!---  Identify the wave function type ---------------------------------*
        ISCF=0
        IF(NASHT.EQ.0) ISCF=1
        IF(NACTEL.EQ.2*NASHT) ISCF=1
        if ( iSpin.gt.1 )  then
          IF((ISPIN.EQ.NACTEL+1).AND.(NACTEL.EQ.NASHT)) ISCF=2
        end if
-c
-c     test agreement between REORG input and JOBIPH
-c       if (clopkey.ne.(3-ISCF)) then
-c         write(6,*) ' Diference in closed/open specification'
-c         write(6,*) ' Plaese, correct REORG input file'
-c         write(6,*)   clopkey,ISCF
-c         Call Quit(16)
-c       end if
-*
-c      Should not be necessary anymore, let's just hardwire it in.
-c      This will save a keyword
+!
+!     test agreement between REORG input and JOBIPH
+!       if (clopkey.ne.(3-ISCF)) then
+!         write(6,*) ' Diference in closed/open specification'
+!         write(6,*) ' Plaese, correct REORG input file'
+!         write(6,*)   clopkey,ISCF
+!         Call Quit(16)
+!       end if
+!
+!      Should not be necessary anymore, let's just hardwire it in.
+!      This will save a keyword
        clopkey = 3-ISCF
-*---  Identify the reference function ---------------------------------*
+!---  Identify the reference function ---------------------------------*
        IF(ISCF.GT.0) THEN
        LROOT=1
        NROOTS=1
        IROOT(1)=1
        END IF
        IF(LROOT.EQ.0 .AND. NROOTS.EQ.1) LROOT=IROOT(1)
-*
-*---  Create the symmetry multiplication table ------------------------*
+!
+!---  Create the symmetry multiplication table ------------------------*
        MUL(1,1)=1
        M=1
        DO N=1,3
@@ -326,12 +326,12 @@ c      This will save a keyword
        END DO
        Call Close_LuSpool(LuSpool)
 
-*
-*
-*---  Exit ------------------------------------------------------------*
+!
+!
+!---  Exit ------------------------------------------------------------*
        Return
-*
-*---  Error exits -----------------------------------------------------*
+!
+!---  Error exits -----------------------------------------------------*
  9910  Write(6,*)
        Write(6,*) ' *** input error ***'
        Write(6,*) ' hitting end of file mark'
