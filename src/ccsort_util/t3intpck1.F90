@@ -40,29 +40,29 @@ real*8 r(1:dima,1:dimbc)
 ! help variables
 integer a, b, c, bc, adda, length, iaddr
 
-! if there are no beta virtuals - goto write section
-if (nvb(symq)*nvb(symr)*nvb(syms) == 0) then
-  goto 200
-end if
+! if there are no beta virtuals - skip to write section
+if (nvb(symq)*nvb(symr)*nvb(syms) /= 0) then
 
-! calc additional constant for a
-adda = nob(symr)
+  ! calc additional constant for a
+  adda = nob(symr)
 
-! do packing
+  ! do packing
 
-bc = 0
-do b=nob(symq)+1,nob(symq)+nvb(symq)
-  do c=nob(syms)+1,b
-    bc = bc+1
-    do a=1,nvb(symr)
-      r(a,bc) = vint(b,a+adda,c)
+  bc = 0
+  do b=nob(symq)+1,nob(symq)+nvb(symq)
+    do c=nob(syms)+1,b
+      bc = bc+1
+      do a=1,nvb(symr)
+        r(a,bc) = vint(b,a+adda,c)
+      end do
     end do
   end do
-end do
+
+end if
 
 ! write section
 
-200 length = dima*dimbc
+length = dima*dimbc
 if (length > 0) then
   iaddr = daddr(lunt3)
   call ddafile(lunt3,1,r(1,1),length,iaddr)

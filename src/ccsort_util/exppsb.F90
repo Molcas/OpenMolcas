@@ -158,27 +158,24 @@ do KOLD=1,KUP
         ind(4) = lold
         j1 = ind(nj)
         l1 = ind(nl)
-        if (symq == syms) then
-          if (l1 > j1) then
-            goto 21
+        if ((symq /= syms) .or. (l1 <= j1)) then
+          i1 = ind(ni)
+          k1 = ind(nk)
+
+          m3 = nshow(i1)+1
+          jn(m3,i1) = j1
+          kn(m3,i1) = k1
+          ln(m3,i1) = l1
+          valn(m3,i1) = val1
+          nshow(i1) = m3
+
+          if (m3 == nsize) then
+            call zasun(i1,nsize,valn,jn,kn,ln)
+            nshow(i1) = 0
           end if
         end if
-        i1 = ind(ni)
-        k1 = ind(nk)
 
-        m3 = nshow(i1)+1
-        jn(m3,i1) = j1
-        kn(m3,i1) = k1
-        ln(m3,i1) = l1
-        valn(m3,i1) = val1
-        nshow(i1) = m3
-
-        if (m3 == nsize) then
-          call zasun(i1,nsize,valn,jn,kn,ln)
-          nshow(i1) = 0
-        end if
-
-        21 if (yes234 == 1) then
+        if (yes234 == 1) then
 
           !:2 combination (ij|kl) -> (ji|kl)
           ind(1) = jold
@@ -187,112 +184,100 @@ do KOLD=1,KUP
           ind(4) = lold
           j1 = ind(nj)
           l1 = ind(nl)
-          if (symq == syms) then
-            if (l1 > j1) then
-              goto 31
+          if ((symq /= syms) .or. (l1 <= j1)) then
+            i1 = ind(ni)
+            k1 = ind(nk)
+
+            m3 = nshow(i1)+1
+            jn(m3,i1) = j1
+            kn(m3,i1) = k1
+            ln(m3,i1) = l1
+            valn(m3,i1) = val1
+            nshow(i1) = m3
+
+            if (m3 == nsize) then
+              call zasun(i1,nsize,valn,jn,kn,ln)
+              nshow(i1) = 0
             end if
-          end if
-          i1 = ind(ni)
-          k1 = ind(nk)
-
-          m3 = nshow(i1)+1
-          jn(m3,i1) = j1
-          kn(m3,i1) = k1
-          ln(m3,i1) = l1
-          valn(m3,i1) = val1
-          nshow(i1) = m3
-
-          if (m3 == nsize) then
-            call zasun(i1,nsize,valn,jn,kn,ln)
-            nshow(i1) = 0
           end if
 
           !:3 combination (ij|kl) -> (ij|lk)
-          31 ind(1) = iold
+          ind(1) = iold
           ind(2) = jold
           ind(3) = lold
           ind(4) = kold
           j1 = ind(nj)
           l1 = ind(nl)
-          if (symq == syms) then
-            if (l1 > j1) then
-              goto 41
+          if ((symq /= syms) .or. (l1 <= j1)) then
+            i1 = ind(ni)
+            k1 = ind(nk)
+
+            m3 = nshow(i1)+1
+            jn(m3,i1) = j1
+            kn(m3,i1) = k1
+            ln(m3,i1) = l1
+            valn(m3,i1) = val1
+            nshow(i1) = m3
+
+            if (m3 == nsize) then
+              call zasun(i1,nsize,valn,jn,kn,ln)
+              nshow(i1) = 0
             end if
-          end if
-          i1 = ind(ni)
-          k1 = ind(nk)
-
-          m3 = nshow(i1)+1
-          jn(m3,i1) = j1
-          kn(m3,i1) = k1
-          ln(m3,i1) = l1
-          valn(m3,i1) = val1
-          nshow(i1) = m3
-
-          if (m3 == nsize) then
-            call zasun(i1,nsize,valn,jn,kn,ln)
-            nshow(i1) = 0
           end if
 
           !:4 combination (ij|kl) -> (ji|lk)
-          41 ind(1) = jold
+          ind(1) = jold
           ind(2) = iold
           ind(3) = lold
           ind(4) = kold
           j1 = ind(nj)
           l1 = ind(nl)
-          if (symq == syms) then
-            if (l1 > j1) then
-              goto 51
+          if ((symq /= syms) .or. (l1 <= j1)) then
+            i1 = ind(ni)
+            k1 = ind(nk)
+
+            m3 = nshow(i1)+1
+            jn(m3,i1) = j1
+            kn(m3,i1) = k1
+            ln(m3,i1) = l1
+            valn(m3,i1) = val1
+            nshow(i1) = m3
+
+            if (m3 == nsize) then
+              call zasun(i1,nsize,valn,jn,kn,ln)
+              nshow(i1) = 0
             end if
-          end if
-          i1 = ind(ni)
-          k1 = ind(nk)
-
-          m3 = nshow(i1)+1
-          jn(m3,i1) = j1
-          kn(m3,i1) = k1
-          ln(m3,i1) = l1
-          valn(m3,i1) = val1
-          nshow(i1) = m3
-
-          if (m3 == nsize) then
-            call zasun(i1,nsize,valn,jn,kn,ln)
-            nshow(i1) = 0
           end if
 
         end if
 
         !:5 combination (ij|kl) -> (kl|ij)
-        51 if (yes5 == 1) then
+        if (yes5 == 1) then
           ind(1) = kold
           ind(2) = lold
           ind(3) = iold
           ind(4) = jold
           j1 = ind(nj)
           l1 = ind(nl)
-          if (symq == syms) then
-            if (l1 > j1) then
-              goto 61
+          if ((symq /= syms) .or. (l1 <= j1)) then
+            i1 = ind(ni)
+            k1 = ind(nk)
+
+            m3 = nshow(i1)+1
+            jn(m3,i1) = j1
+            kn(m3,i1) = k1
+            ln(m3,i1) = l1
+            valn(m3,i1) = val1
+            nshow(i1) = m3
+
+            if (m3 == nsize) then
+              call zasun(i1,nsize,valn,jn,kn,ln)
+              nshow(i1) = 0
             end if
-          end if
-          i1 = ind(ni)
-          k1 = ind(nk)
-
-          m3 = nshow(i1)+1
-          jn(m3,i1) = j1
-          kn(m3,i1) = k1
-          ln(m3,i1) = l1
-          valn(m3,i1) = val1
-          nshow(i1) = m3
-
-          if (m3 == nsize) then
-            call zasun(i1,nsize,valn,jn,kn,ln)
-            nshow(i1) = 0
           end if
         end if
 
-        61 if (yes678 == 1) then
+        if (yes678 == 1) then
 
           !:6 combination (ij|kl) -> (lk|ij)
           ind(1) = lold
@@ -301,83 +286,74 @@ do KOLD=1,KUP
           ind(4) = jold
           j1 = ind(nj)
           l1 = ind(nl)
-          if (symq == syms) then
-            if (l1 > j1) then
-              goto 71
+          if ((symq /= syms) .or. (l1 <= j1)) then
+            i1 = ind(ni)
+            k1 = ind(nk)
+
+            m3 = nshow(i1)+1
+            jn(m3,i1) = j1
+            kn(m3,i1) = k1
+            ln(m3,i1) = l1
+            valn(m3,i1) = val1
+            nshow(i1) = m3
+
+            if (m3 == nsize) then
+              call zasun(i1,nsize,valn,jn,kn,ln)
+              nshow(i1) = 0
             end if
-          end if
-          i1 = ind(ni)
-          k1 = ind(nk)
-
-          m3 = nshow(i1)+1
-          jn(m3,i1) = j1
-          kn(m3,i1) = k1
-          ln(m3,i1) = l1
-          valn(m3,i1) = val1
-          nshow(i1) = m3
-
-          if (m3 == nsize) then
-            call zasun(i1,nsize,valn,jn,kn,ln)
-            nshow(i1) = 0
           end if
 
           !:7 combination (ij|kl) -> (kl|ji)
-          71 ind(1) = kold
+          ind(1) = kold
           ind(2) = lold
           ind(3) = jold
           ind(4) = iold
           j1 = ind(nj)
           l1 = ind(nl)
-          if (symq == syms) then
-            if (l1 > j1) then
-              goto 81
+          if ((symq /= syms) .or. (l1 <= j1)) then
+            i1 = ind(ni)
+            k1 = ind(nk)
+
+            m3 = nshow(i1)+1
+            jn(m3,i1) = j1
+            kn(m3,i1) = k1
+            ln(m3,i1) = l1
+            valn(m3,i1) = val1
+            nshow(i1) = m3
+
+            if (m3 == nsize) then
+              call zasun(i1,nsize,valn,jn,kn,ln)
+              nshow(i1) = 0
             end if
-          end if
-          i1 = ind(ni)
-          k1 = ind(nk)
-
-          m3 = nshow(i1)+1
-          jn(m3,i1) = j1
-          kn(m3,i1) = k1
-          ln(m3,i1) = l1
-          valn(m3,i1) = val1
-          nshow(i1) = m3
-
-          if (m3 == nsize) then
-            call zasun(i1,nsize,valn,jn,kn,ln)
-            nshow(i1) = 0
           end if
 
           !:8 combination (ij|kl) -> (lk|ji)
-          81 ind(1) = lold
+          ind(1) = lold
           ind(2) = kold
           ind(3) = jold
           ind(4) = iold
           j1 = ind(nj)
           l1 = ind(nl)
-          if (symq == syms) then
-            if (l1 > j1) then
-              goto 100
+          if ((symq /= syms) .or. (l1 <= j1)) then
+            i1 = ind(ni)
+            k1 = ind(nk)
+
+            m3 = nshow(i1)+1
+            jn(m3,i1) = j1
+            kn(m3,i1) = k1
+            ln(m3,i1) = l1
+            valn(m3,i1) = val1
+            nshow(i1) = m3
+
+            if (m3 == nsize) then
+              call zasun(i1,nsize,valn,jn,kn,ln)
+              nshow(i1) = 0
             end if
-          end if
-          i1 = ind(ni)
-          k1 = ind(nk)
-
-          m3 = nshow(i1)+1
-          jn(m3,i1) = j1
-          kn(m3,i1) = k1
-          ln(m3,i1) = l1
-          valn(m3,i1) = val1
-          nshow(i1) = m3
-
-          if (m3 == nsize) then
-            call zasun(i1,nsize,valn,jn,kn,ln)
-            nshow(i1) = 0
           end if
 
         end if
 
-        100 indtemp = indtemp+1
+        indtemp = indtemp+1
 
       end do
     end do

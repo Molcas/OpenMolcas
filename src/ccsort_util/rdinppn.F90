@@ -46,7 +46,7 @@ character*4 Command, Cmd(nCmd)
 character*72 Line, Blank
 data Cmd/'TITL','END ','CCSD','CCT ','CLOS','OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF','DENO','SHIF','ACCU','ADAP','EXTR', &
          'TRIP','NOSO','ITER'/
-logical run_triples, run_sort
+logical run_triples, run_sort, Skip
 
 !---  Initialize -------------------------------------------------------*
 do i=1,72
@@ -129,108 +129,102 @@ call SpoolInp(LuSpool)
 rewind(LuSpool)
 Command = '&REO'
 call RdNlst(LuSpool,'CCSDT')
-10 read(LuSpool,'(A)',end=9910) Line
-if (Line(1:1) == '*') goto 10
-if (Line == Blank) goto 10
+do
+  read(LuSpool,'(A)',iostat=istatus) Line
+  if (istatus < 0) call Error(1)
+  if ((Line(1:1) /= '*') .and. (Line /= Blank)) exit
+end do
 Command = Line(1:4)
 call UpCase(Command)
 jCmd = 0
 do iCmd=1,nCmd
   if (Command == Cmd(iCmd)) jCmd = iCmd
 end do
-if (jCmd == 0) goto 9930
-20 goto(100,2100,200,300,400,500,600,700,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000) jCmd
-
-!---  process TITLE    command ----------------------------------------*
-100 continue
-read(LuSpool,'(A)',end=9910) Line
-Command = Line(1:4)
-call UpCase(Command)
-if (Command(1:1) == '*') goto 100
-jCmd = 0
-do iCmd=1,nCmd
-  if (Command == Cmd(iCmd)) jCmd = iCmd
+if (jCmd == 0) call Error(2)
+Skip = .false.
+do
+  select case (jCmd)
+    case default !(1) !TITL
+      !---  process TITLE command -------------------------------------*
+      do
+        read(LuSpool,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        Command = Line(1:4)
+        call UpCase(Command)
+        if (Command(1:1) == '*') cycle
+        jCmd = 0
+        do iCmd=1,nCmd
+          if (Command == Cmd(iCmd)) jCmd = iCmd
+        end do
+        if (jCmd /= 0) exit
+        if (nTit >= mxTit) cycle
+        nTit = nTit+1
+        if (nTit <= mxTit) read(Line,'(18A4)') (Title(nTit,i),i=1,18)
+      end do
+    case (2) !END
+      exit
+    case (3) !CCSD
+      !---  CCSD  command ---------------------------------------------*
+      cckey = 1
+      t3key = 0
+      run_triples = .false.
+      jCmd = 1
+    case (4) !CCT
+      !---  CCT  command ----------------------------------------------*
+      cckey = 1
+      t3key = 1
+      run_triples = .true.
+      jCmd = 1
+    case (5) !CLOS
+      !---  CLOSed  command -------------------------------------------*
+      clopkey = 2
+      jCmd = 1
+    case (6) !OPEN
+      !---  OPEN  command ---------------------------------------------*
+      clopkey = 1
+      jCmd = 1
+    case (7) !FROZ
+      !---  FROZen  command -------------------------------------------*
+      read(LuSpool,*) (nfror(nhelp),nhelp=1,nsym)
+      jCmd = 1
+    case (8) !DELE
+      !---  DELEte  command -------------------------------------------*
+      read(LuSpool,*) (ndelr(nhelp),nhelp=1,nsym)
+      jCmd = 1
+    case (9) !PRIN
+      !---  PRINt  command --------------------------------------------*
+      read(LuSpool,*) fullprint
+      jCmd = 1
+    case (10) !NOOP
+      !---  NOOPeration  command --------------------------------------*
+      noop = 1
+      jCmd = 1
+    case (11) !IOKE
+      !---  IOKEy  command --------------------------------------------*
+      read(LuSpool,*) iokey
+      if ((iokey < 1) .or. (iokey > 2)) iokey = 2
+      jCmd = 1
+    case (12) !ZROF
+      !---  ZROFf  command --------------------------------------------*
+      zrkey = 0
+      jCmd = 1
+    case (19) !NOSO
+      !---  NOSOrt  command -------------------------------------------*
+      run_sort = .false.
+      jCmd = 1
+    case (13:18,20) !DENO, SHIF, ACCU, ADAP, EXTR, TRIP, ITER
+      !---  DENO  command ---------------------------------------------*
+      !---  SHIF  command ---------------------------------------------*
+      !---  ACCU  command ---------------------------------------------*
+      !---  ADAP  command ---------------------------------------------*
+      !---  EXTR  command ---------------------------------------------*
+      !---  TRIP  command ---------------------------------------------*
+      !---  ITER  command ---------------------------------------------*
+      jCmd = 1
+  end select
 end do
-if (jCmd /= 0) goto 20
-if (nTit >= mxTit) goto 100
-nTit = nTit+1
-if (nTit <= mxTit) read(Line,'(18A4)') (Title(nTit,i),i=1,18)
-goto 100
-!---  CCSD command ------------
-200 continue
-cckey = 1
-t3key = 0
-run_triples = .false.
-goto 100
-!---  CCT  command ------------
-300 continue
-cckey = 1
-t3key = 1
-run_triples = .true.
-goto 100
-!---  CLOSed  command ------------
-400 continue
-clopkey = 2
-goto 100
-!---  OPEN  command ------------
-500 continue
-clopkey = 1
-goto 100
-!---  FROZen  command ------------
-600 continue
-read(LuSpool,*) (nfror(nhelp),nhelp=1,nsym)
-goto 100
-!---  DELEte  command ------------
-700 continue
-read(LuSpool,*) (ndelr(nhelp),nhelp=1,nsym)
-goto 100
-!---  PRINt  command ------------
-900 continue
-read(LuSpool,*) fullprint
-goto 100
-!---  NOOPeration  command ------------
-1000 continue
-noop = 1
-goto 100
-!---  IOKEy  command ------------
-1100 continue
-read(LuSpool,*) iokey
-if ((iokey < 1) .or. (iokey > 2)) then
-  iokey = 2
-end if
-goto 100
-!---  ZROFf  command ------------
-1200 continue
-zrkey = 0
-goto 100
-!---  DENO command ---------
-1300 continue
-goto 100
-!---  SHIF command ---------
-1400 continue
-goto 100
-!---  ACCU command ---------
-1500 continue
-goto 100
-!---  ADAP command ---------
-1600 continue
-goto 100
-!---  EXTR command ---------
-1700 continue
-goto 100
-!---  TRIP command ---------
-1800 continue
-goto 100
-!---  NOSOrt  command ------------
-1900 continue
-run_sort = .false.
-goto 100
-!---  ITER command ---------
-2000 continue
-goto 100
 
 !---  The end of the input section, complete input processing ---------*
-2100 continue
 NFROT = 0
 NISHT = 0
 NASHT = 0
@@ -311,17 +305,26 @@ call Close_LuSpool(LuSpool)
 !---  Exit ------------------------------------------------------------*
 return
 
+contains
+
 !---  Error exits -----------------------------------------------------*
-9910 write(6,*)
-write(6,*) ' *** input error ***'
-write(6,*) ' hitting end of file mark'
-write(6,*)
-call Quit_OnUserError()
-9930 write(6,*)
-write(6,*) ' *** input error ***'
-write(6,*) ' unknown input'
-write(6,*) ' line: ',Line
-write(6,*)
-call Quit_OnUserError()
+subroutine Error(code)
+
+  integer :: code
+
+  write(6,*)
+  select case (code)
+    case (1)
+      write(6,*) ' *** input error ***'
+      write(6,*) ' hitting end of file mark'
+    case (2)
+      write(6,*) ' *** input error ***'
+      write(6,*) ' unknown input'
+      write(6,*) ' line: ',Line
+  end select
+  write(6,*)
+  call Quit_OnUserError()
+
+end subroutine Error
 
 end subroutine RdInpPN

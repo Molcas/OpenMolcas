@@ -56,9 +56,7 @@ do ii=1,mapd2(0,5)
   symj = mapd2(ii,6)
 
   ! skip this step if length=0
-  if (length == 0) then
-    goto 100
-  end if
+  if (length == 0) cycle
 
   ! vanish #2
   call ccsort_mv0zero(length,length,wrk(possv2))
@@ -126,7 +124,6 @@ do ii=1,mapd2(0,5)
 
   end if
 
-  100 continue
 end do
 
 return

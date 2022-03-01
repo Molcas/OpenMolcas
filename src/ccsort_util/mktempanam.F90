@@ -26,33 +26,20 @@ lun = lunpublic
 call molcas_open(lun,'TEMP000')
 !open(unit=lun,file='TEMP000')
 
-itemp = 0
-do k1=1,9
-  itemp = itemp+1
-  if (itemp > mbas) goto 500
-  write(lun,99) k1
-99 format(6hTEMP00,i1)
+do k1=1,mbas
+  if (k1 < 10) then
+    write(lun,99) k1
+  else if (k1 < 100) then
+    write(lun,199) k1
+  else
+    write(lun,299) k1
+  end if
 end do
 
-do k1=10,99
-  itemp = itemp+1
-  if (itemp > mbas) goto 500
-  write(lun,199) k1
-199 format(5hTEMP0,i2)
-end do
-
-do k1=100,mbas
-  itemp = itemp+1
-  if (itemp > mbas) goto 500
-  write(lun,299) k1
-299 format(4hTEMP,i3)
-end do
-
-500 rewind(lun)
+rewind(lun)
 
 do itemp=1,mbas
   read(lun,599) tmpnam(itemp)
-599 format(a7)
 end do
 
 rewind(lun)
@@ -60,5 +47,10 @@ write(lun,*) ' File scratched'
 close(lun)
 
 return
+
+99 format('TEMP00',i1)
+199 format('TEMP0',i2)
+299 format('TEMP',i3)
+599 format(a7)
 
 end subroutine mktempanam

@@ -45,7 +45,7 @@ do symp=1,nsym
     do symi=1,nsym
       sympqi = mul(sympq,symi)
       symj = sympqi
-      if (symj > symi) goto 102
+      if (symj > symi) cycle
       nhelp = nhelp+1
 
       ! calc. length
@@ -61,7 +61,6 @@ do symp=1,nsym
 
       mapi1(symp,symq,symi) = nhelp
 
-      102 continue
     end do
   end do
 end do

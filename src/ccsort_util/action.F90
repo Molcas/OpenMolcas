@@ -173,7 +173,7 @@ do symp=1,nsym
         ickey = 1
       end if
 
-      if (vsize == 0) goto 800
+      if (vsize == 0) cycle
 
       if (fullprint > 1) then
         write(6,'(6X,A,I4,4X,4I2)') 'Block',typ(symp,symq,symr),symp,symq,symr,syms
@@ -280,7 +280,7 @@ do symp=1,nsym
           call unpackk_ic_3(p,Work(iOff),ndimvi,Work(iOff_Vic))
         end if
 
-        ! goto 500
+        ! cycle
 
         ! add integrals to T3nam if needed (v nacechranej forme)
 
@@ -364,10 +364,9 @@ do symp=1,nsym
           call addintabc1(Work(iOff),wrksize,p-nob(1),Work(iOff),ndimv1)
         end if
 
-        !500 continue
       end do
 
-      ! goto 800
+      ! cycle
 
       ! close temp files
       !call closetemp(norb(symp))
@@ -376,10 +375,9 @@ do symp=1,nsym
         call GetMem('CCSORT','Free','Real',iOff_Vic,vsize)
       end if
 
-      800 continue
     end do
 
-    ! goto 900
+    ! cycle
 
     if ((nsym > 1) .and. (symp >= symq)) then
       ! add contributions to INTAB comming from symp,sumq and close TEMPDA1 file
@@ -389,10 +387,9 @@ do symp=1,nsym
       call vf('TEMPDA1 ',lunda1)
     end if
 
-    !900 continue
   end do
 
-  ! goto 1000
+  ! cycle
 
   ! add contributions to INTA1-4 if there are some virtuals in symp symmetry
   ! and close TEMPDA2 files
@@ -403,7 +400,6 @@ do symp=1,nsym
   call vf('TEMPDA2 ',lunda2)
   !end if
 
-  !1000 continue
 end do
 
 ! if T3 are required, reorganize T3nam file

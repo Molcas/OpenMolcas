@@ -24,9 +24,7 @@ integer lun, irec0, length, recl
 ! help variables
 integer ilow, iup, need, irec, i
 
-if (length == 0) then
-  return
-end if
+if (length == 0) return
 
 ! def need,ilow,iup,irec
 
@@ -35,19 +33,21 @@ ilow = 1
 iup = 0
 irec = irec0
 
-1 if (recl >= need) then
-  iup = iup+need
-else
-  iup = iup+recl
-end if
+do
+  if (recl >= need) then
+    iup = iup+need
+  else
+    iup = iup+recl
+  end if
 
-read(lun,rec=irec) (vector(i),i=ilow,iup)
+  read(lun,rec=irec) (vector(i),i=ilow,iup)
 
-need = need-(iup-ilow+1)
-irec = irec+1
-ilow = ilow+recl
+  need = need-(iup-ilow+1)
+  irec = irec+1
+  ilow = ilow+recl
 
-if (need > 0) goto 1
+  if (need <= 0) exit
+end do
 
 return
 

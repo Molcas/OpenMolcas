@@ -95,9 +95,9 @@ do NSI=1,NSYM
       NSLM = NSK
       if (NSK == NSI) NSLM = NSJ
       do NSL=1,NSLM
-        if (NSIJK /= NSL) GO TO 303
+        if (NSIJK /= NSL) cycle
         NORBP = NORB(NSI)*NORB(NSJ)*NORB(NSK)*NORB(NSL)
-        if (NORBP == 0) GO TO 303
+        if (NORBP == 0) cycle
         ISPQRS = ISPQRS+1
 
         ! def
@@ -296,10 +296,8 @@ do NSI=1,NSYM
                   idishelp = 1
                 end if
 
-                if (IND < INDMAX) GO TO 404
-                IND = 0
+                if (IND >= INDMAX) IND = 0
 
-                404 continue
               end do
             end do
           end do
@@ -329,8 +327,6 @@ do NSI=1,NSYM
 
         !***************************************************************
 
-
-        303 continue
       end do
     end do
   end do

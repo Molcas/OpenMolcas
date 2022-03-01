@@ -82,10 +82,8 @@ else if (nind == 2) then
   do sp=1,nsym
 
     sq = mul(stot,sp)
-    if ((typ == 1) .and. (sp < sq)) then
-      ! Meggie out
-      goto 100
-    end if
+    ! Meggie out
+    if ((typ == 1) .and. (sp < sq)) cycle
 
     nhelp1 = dimm(typp,sp)
     nhelp2 = dimm(typq,sq)
@@ -112,7 +110,6 @@ else if (nind == 2) then
     poss = poss+mapd(i,2)
     i = i+1
 
-    100 continue
   end do
 
 else if (nind == 3) then
@@ -133,10 +130,8 @@ else if (nind == 3) then
       spq = mul(sp,sq)
 
       sr = mul(stot,spq)
-      if ((typ == 2) .and. (sq < sr)) then
-        ! Meggie out
-        goto 201
-      end if
+      ! Meggie out
+      if ((typ == 2) .and. (sq < sr)) cycle
 
       nhelp1 = dimm(typp,sp)
       nhelp2 = dimm(typq,sq)
@@ -166,7 +161,6 @@ else if (nind == 3) then
       poss = poss+mapd(i,2)
       i = i+1
 
-      201 continue
     end do
   end do
 
@@ -196,10 +190,8 @@ else if (nind == 4) then
         spqr = mul(spq,sr)
 
         ss = mul(stot,spqr)
-        if (((typ == 3) .or. (typ == 4)) .and. (sr < ss)) then
-          ! Meggie out
-          goto 302
-        end if
+        ! Meggie out
+        if (((typ == 3) .or. (typ == 4)) .and. (sr < ss)) cycle
 
         nhelp1 = dimm(typp,sp)
         nhelp2 = dimm(typq,sq)
@@ -242,7 +234,6 @@ else if (nind == 4) then
         poss = poss+mapd(i,2)
         i = i+1
 
-302     continue
       end do
     end do
   end do
