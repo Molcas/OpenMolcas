@@ -12,7 +12,8 @@
 !               1993, Per Ake Malmqvist                                *
 !               Pavel Neogrady                                         *
 !***********************************************************************
-       Subroutine RdInpPN(run_triples,run_sort)
+
+subroutine RdInpPN(run_triples,run_sort)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -33,314 +34,294 @@
 !     reduced by P.N.                                                  *
 !                                                                      *
 !***********************************************************************
-       Implicit Real*8 (A-H,O-Z)
 
-
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
 #include "ccsort.fh"
 #include "reorg.fh"
 #include "motra.fh"
-!
-       Real*8 Weights(mxRoot)
-       Parameter ( nCmd =20 )
-       Character*4 Command,Cmd(nCmd)
-       Character*72  Line,Blank
-       Data Cmd /'TITL','END ','CCSD','CCT ','CLOS',                    &
-     &           'OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF',      &
-     &           'DENO','SHIF','ACCU','ADAP','EXTR','TRIP','NOSO',      &
-     &           'ITER'/
-       Logical run_triples,run_sort
+real*8 Weights(mxRoot)
+parameter(nCmd=20)
+character*4 Command, Cmd(nCmd)
+character*72 Line, Blank
+data Cmd/'TITL','END ','CCSD','CCT ','CLOS','OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF','DENO','SHIF','ACCU','ADAP','EXTR', &
+         'TRIP','NOSO','ITER'/
+logical run_triples, run_sort
 
-!
 !---  Initialize -------------------------------------------------------*
-       Do i=1,72
-       Blank(i:i)=' '
-       End Do
-       LROOT=0
-       MAXIT=0
-       CONV=1.0D-06
-       THRSHN=1.0D-10
-       THRSHS=1.0D-08
-       THRSHF=0.05D0
-       ORBIN='DEFAULT '
-       THRENE=1.50D0
-       ORBIT='DEFAULT '
-       THROCC=0.0D0
-       FOCKTYPE='STANDARD'
-       HZERO='STANDARD'
-       METHOD='CONJ'
-       IFJAC=0
-       RFpert=.false.
-       NTIT=0
-!
-       lunsta=21
-       luna1=22
-       luna2=23
-       luna3=24
-       luna4=25
-       lunab=50
-       lunt3=26
-       lunda1=9
-       lunda2=10
-       lunpublic=29
-!
+do i=1,72
+  Blank(i:i) = ' '
+end do
+LROOT = 0
+MAXIT = 0
+CONV = 1.0D-06
+THRSHN = 1.0D-10
+THRSHS = 1.0D-08
+THRSHF = 0.05d0
+ORBIN = 'DEFAULT '
+THRENE = 1.50d0
+ORBIT = 'DEFAULT '
+THROCC = 0.0d0
+FOCKTYPE = 'STANDARD'
+HZERO = 'STANDARD'
+METHOD = 'CONJ'
+IFJAC = 0
+RFpert = .false.
+NTIT = 0
+
+lunsta = 21
+luna1 = 22
+luna2 = 23
+luna3 = 24
+luna4 = 25
+lunab = 50
+lunt3 = 26
+lunda1 = 9
+lunda2 = 10
+lunpublic = 29
+
 !---  Open JOBIPH and LUONEM files ------------------------------------*
-!
-!.    Job interface
-       JOBIPH=15
-!.    Job interface
-       CALL DANAME(JOBIPH,'JOBIPH')
-!
+
+! Job interface
+JOBIPH = 15
+! Job interface
+call DANAME(JOBIPH,'JOBIPH')
+
 !---  Read input from JOBIPH file -------------------------------------*
-       IAD15=0
-       CALL iDAFILE(JOBIPH,2,IADR15,15,IAD15)
+IAD15 = 0
+call iDAFILE(JOBIPH,2,IADR15,15,IAD15)
 !DIVNUO
-       IAD15=IADR15(1)
-       CALL WR_RASSCF_Info(JOBIPH,2,iAd15,                              &
-     &                     NACTEL,ISPIN,NSYM,LSYM,                      &
-     &                     NFRO,NISH,NASH,NDEL,NBAS,8,                  &
-     &                     NAME,LENIN8*MXORB,                           &
-     &                     NCONF,HEADER,2*72,                           &
-     &                     TITLE,4*18*MXTIT,POTNUC,                     &
-     &                     LROOTS,NROOTS,IROOT,MXROOT,NRAS1,            &
-     &                     NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
-!
-!     define defaults for REORG
-!
-       ntAsh = 0
-       do isym = 1,nSym
-         ntAsh = ntAsh+nAsh(iSym)
-       end do
-       cckey=1
-       t3key=1
-       clopkey=1
-       if ( ntAsh.eq.0 ) clopkey=2
-       do nhelp=1,nsym
-         ndelr(nhelp)=NDEL(nhelp)
-         nfror(nhelp)=NFRO(nhelp)
-       end do
-!GG       fullprint=0
-       noop=0
-       iokey=1
-       zrkey=1
-       run_triples=.true.
-       run_sort=.true.
-!
+IAD15 = IADR15(1)
+call WR_RASSCF_Info(JOBIPH,2,iAd15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,8,NAME,LENIN8*MXORB,NCONF,HEADER,2*72,TITLE, &
+                    4*18*MXTIT,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
+
+! define defaults for REORG
+
+ntAsh = 0
+do isym=1,nSym
+  ntAsh = ntAsh+nAsh(iSym)
+end do
+cckey = 1
+t3key = 1
+clopkey = 1
+if (ntAsh == 0) clopkey = 2
+do nhelp=1,nsym
+  ndelr(nhelp) = NDEL(nhelp)
+  nfror(nhelp) = NFRO(nhelp)
+end do
+!GG fullprint = 0
+noop = 0
+iokey = 1
+zrkey = 1
+run_triples = .true.
+run_sort = .true.
+
 !---  Read input from TRAONE file -------------------------------------*
-      Call RdTraOne
-      Do iSym=1,nSym
-        nFror(iSym) = nFroX(iSym)
-        nDelr(iSym) = nDelX(iSym)
-      End Do
-!
+call RdTraOne()
+do iSym=1,nSym
+  nFror(iSym) = nFroX(iSym)
+  nDelr(iSym) = nDelX(iSym)
+end do
+
 !---  Read input from LuSpool -----------------------------------------*
-      LuSpool = 17
-      Call SpoolInp(LuSpool)
-      Rewind(LuSpool)
-       Command='&REO'
-       Call RdNlst(LuSpool,'CCSDT')
- 10    Read(LuSpool,'(A)',End=9910) Line
-       If ( Line(1:1).eq.'*' ) Goto 10
-       If ( Line.eq.Blank ) Goto 10
-       Command=Line(1:4)
-       Call UpCase(Command)
-       jCmd=0
-       Do iCmd=1,nCmd
-       If ( Command.eq.Cmd(iCmd) ) jCmd=iCmd
-       End Do
-       If ( jCmd.eq.0 ) Goto 9930
- 20     Goto (100,2100,200,300,400,500,600,700,900,1000,1100,1200,      &
-     & 1300,1400,1500,1600,1700,1800,1900,2000) jCmd
-!
+LuSpool = 17
+call SpoolInp(LuSpool)
+rewind(LuSpool)
+Command = '&REO'
+call RdNlst(LuSpool,'CCSDT')
+10 read(LuSpool,'(A)',end=9910) Line
+if (Line(1:1) == '*') goto 10
+if (Line == Blank) goto 10
+Command = Line(1:4)
+call UpCase(Command)
+jCmd = 0
+do iCmd=1,nCmd
+  if (Command == Cmd(iCmd)) jCmd = iCmd
+end do
+if (jCmd == 0) goto 9930
+20 goto(100,2100,200,300,400,500,600,700,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000) jCmd
+
 !---  process TITLE    command ----------------------------------------*
- 100   continue
-       Read(LuSpool,'(A)',End=9910) Line
-       Command=Line(1:4)
-       Call UpCase(Command)
-       If ( Command(1:1).eq.'*' ) Goto 100
-       jCmd=0
-       Do iCmd=1,nCmd
-       If ( Command.eq.Cmd(iCmd) ) jCmd=iCmd
-       End Do
-       If ( jCmd.ne.0 ) Goto 20
-       if (nTit.ge.mxTit) Goto 100
-       nTit=nTit+1
-       If ( nTit.le.mxTit ) Read (Line,'(18A4)') (Title(nTit,i),i=1,18)
-       Goto 100
+100 continue
+read(LuSpool,'(A)',end=9910) Line
+Command = Line(1:4)
+call UpCase(Command)
+if (Command(1:1) == '*') goto 100
+jCmd = 0
+do iCmd=1,nCmd
+  if (Command == Cmd(iCmd)) jCmd = iCmd
+end do
+if (jCmd /= 0) goto 20
+if (nTit >= mxTit) goto 100
+nTit = nTit+1
+if (nTit <= mxTit) read(Line,'(18A4)') (Title(nTit,i),i=1,18)
+goto 100
 !---  CCSD command ------------
- 200   continue
-       cckey=1
-       t3key=0
-       run_triples=.false.
-       goto 100
+200 continue
+cckey = 1
+t3key = 0
+run_triples = .false.
+goto 100
 !---  CCT  command ------------
- 300   continue
-       cckey=1
-       t3key=1
-       run_triples=.true.
-       goto 100
+300 continue
+cckey = 1
+t3key = 1
+run_triples = .true.
+goto 100
 !---  CLOSed  command ------------
- 400   continue
-       clopkey=2
-       goto 100
+400 continue
+clopkey = 2
+goto 100
 !---  OPEN  command ------------
- 500   continue
-       clopkey=1
-       goto 100
+500 continue
+clopkey = 1
+goto 100
 !---  FROZen  command ------------
- 600   continue
-       read (LuSpool,*) (nfror(nhelp),nhelp=1,nsym)
-       goto 100
+600 continue
+read(LuSpool,*) (nfror(nhelp),nhelp=1,nsym)
+goto 100
 !---  DELEte  command ------------
- 700   continue
-       read (LuSpool,*) (ndelr(nhelp),nhelp=1,nsym)
-       goto 100
-!
+700 continue
+read(LuSpool,*) (ndelr(nhelp),nhelp=1,nsym)
+goto 100
 !---  PRINt  command ------------
- 900   continue
-       read (LuSpool,*) fullprint
-       goto 100
-!
+900 continue
+read(LuSpool,*) fullprint
+goto 100
 !---  NOOPeration  command ------------
- 1000  continue
-       noop=1
-       goto 100
-!
+1000 continue
+noop = 1
+goto 100
 !---  IOKEy  command ------------
- 1100  continue
-       read (LuSpool,*) iokey
-       if ((iokey.lt.1).or.(iokey.gt.2)) then
-       iokey=2
-       end if
-       goto 100
-!
+1100 continue
+read(LuSpool,*) iokey
+if ((iokey < 1) .or. (iokey > 2)) then
+  iokey = 2
+end if
+goto 100
 !---  ZROFf  command ------------
- 1200  continue
-       zrkey=0
-       goto 100
-
+1200 continue
+zrkey = 0
+goto 100
 !---  DENO command ---------
-1300  continue
-      goto 100
-!
+1300 continue
+goto 100
 !---  SHIF command ---------
-1400  continue
-      goto 100
+1400 continue
+goto 100
 !---  ACCU command ---------
-1500  continue
-      goto 100
+1500 continue
+goto 100
 !---  ADAP command ---------
-1600  continue
-      goto 100
+1600 continue
+goto 100
 !---  EXTR command ---------
-1700  continue
-      goto 100
+1700 continue
+goto 100
 !---  TRIP command ---------
-1800  continue
-      goto 100
+1800 continue
+goto 100
 !---  NOSOrt  command ------------
-1900   continue
-       run_sort=.false.
-       goto 100
+1900 continue
+run_sort = .false.
+goto 100
 !---  ITER command ---------
-2000  continue
-      goto 100
-!
-!
-!---  The end of the input section, complete input processing ---------*
- 2100  continue
-       NFROT=0
-       NISHT=0
-       NASHT=0
-       NRAS1T=0
-       NRAS2T=0
-       NRAS3T=0
-       NOSHT=0
-       NSSHT=0
-       NDELT=0
-       NORBT=0
-       NBAST=0
-       NBAS2=0
-       NORB1=0
-       DO ISYM=1,NSYM
-         NIES(ISYM)=NISHT
-         NAES(ISYM)=NASHT
-         NSES(ISYM)=NSSHT
-         NOSH(ISYM)=NISH(ISYM)+NASH(ISYM)
-         NSSH(ISYM)=NBAS(ISYM)-NFRO(ISYM)-NOSH(ISYM)-NDEL(ISYM)
-         NORB(ISYM)=NOSH(ISYM)+NSSH(ISYM)
-         NORBT=NORBT+NORB(ISYM)
-         NBAS2=NBAS2+NBAS(ISYM)**2
-         NORB1=NORB1+(NORB(ISYM)**2+NORB(ISYM))/2
-         NFROT=NFROT+NFRO(ISYM)
-         NISHT=NISHT+NISH(ISYM)
-         NASHT=NASHT+NASH(ISYM)
-         NOSHT=NOSHT+NOSH(ISYM)
-         NRAS1T=NRAS1T+NRAS1(ISYM)
-         NRAS2T=NRAS2T+NRAS2(ISYM)
-         NRAS3T=NRAS3T+NRAS3(ISYM)
-         NSSHT=NSSHT+NSSH(ISYM)
-         NDELT=NDELT+NDEL(ISYM)
-         NBAST=NBAST+NBAS(ISYM)
-       END DO
-!
-!---  Identify the wave function type ---------------------------------*
-       ISCF=0
-       IF(NASHT.EQ.0) ISCF=1
-       IF(NACTEL.EQ.2*NASHT) ISCF=1
-       if ( iSpin.gt.1 )  then
-         IF((ISPIN.EQ.NACTEL+1).AND.(NACTEL.EQ.NASHT)) ISCF=2
-       end if
-!
-!     test agreement between REORG input and JOBIPH
-!       if (clopkey.ne.(3-ISCF)) then
-!         write(6,*) ' Diference in closed/open specification'
-!         write(6,*) ' Plaese, correct REORG input file'
-!         write(6,*)   clopkey,ISCF
-!         Call Quit(16)
-!       end if
-!
-!      Should not be necessary anymore, let's just hardwire it in.
-!      This will save a keyword
-       clopkey = 3-ISCF
-!---  Identify the reference function ---------------------------------*
-       IF(ISCF.GT.0) THEN
-       LROOT=1
-       NROOTS=1
-       IROOT(1)=1
-       END IF
-       IF(LROOT.EQ.0 .AND. NROOTS.EQ.1) LROOT=IROOT(1)
-!
-!---  Create the symmetry multiplication table ------------------------*
-       MUL(1,1)=1
-       M=1
-       DO N=1,3
-         DO I=1,M
-           DO J=1,M
-             MUL(I+M,J)=M+MUL(I,J)
-             MUL(I,J+M)=MUL(I+M,J)
-             MUL(I+M,J+M)=MUL(I,J)
-           END DO
-         END DO
-         M=2*M
-       END DO
-       Call Close_LuSpool(LuSpool)
+2000 continue
+goto 100
 
+!---  The end of the input section, complete input processing ---------*
+2100 continue
+NFROT = 0
+NISHT = 0
+NASHT = 0
+NRAS1T = 0
+NRAS2T = 0
+NRAS3T = 0
+NOSHT = 0
+NSSHT = 0
+NDELT = 0
+NORBT = 0
+NBAST = 0
+NBAS2 = 0
+NORB1 = 0
+do ISYM=1,NSYM
+  NIES(ISYM) = NISHT
+  NAES(ISYM) = NASHT
+  NSES(ISYM) = NSSHT
+  NOSH(ISYM) = NISH(ISYM)+NASH(ISYM)
+  NSSH(ISYM) = NBAS(ISYM)-NFRO(ISYM)-NOSH(ISYM)-NDEL(ISYM)
+  NORB(ISYM) = NOSH(ISYM)+NSSH(ISYM)
+  NORBT = NORBT+NORB(ISYM)
+  NBAS2 = NBAS2+NBAS(ISYM)**2
+  NORB1 = NORB1+(NORB(ISYM)**2+NORB(ISYM))/2
+  NFROT = NFROT+NFRO(ISYM)
+  NISHT = NISHT+NISH(ISYM)
+  NASHT = NASHT+NASH(ISYM)
+  NOSHT = NOSHT+NOSH(ISYM)
+  NRAS1T = NRAS1T+NRAS1(ISYM)
+  NRAS2T = NRAS2T+NRAS2(ISYM)
+  NRAS3T = NRAS3T+NRAS3(ISYM)
+  NSSHT = NSSHT+NSSH(ISYM)
+  NDELT = NDELT+NDEL(ISYM)
+  NBAST = NBAST+NBAS(ISYM)
+end do
+
+!---  Identify the wave function type ---------------------------------*
+ISCF = 0
+if (NASHT == 0) ISCF = 1
+if (NACTEL == 2*NASHT) ISCF = 1
+if (iSpin > 1) then
+  if ((ISPIN == NACTEL+1) .and. (NACTEL == NASHT)) ISCF = 2
+end if
+
+! test agreement between REORG input and JOBIPH
+!if (clopkey /= (3-ISCF)) then
+!  write(6,*) ' Diference in closed/open specification'
+!  write(6,*) ' Plaese, correct REORG input file'
+!  write(6,*) clopkey,ISCF
+!  call Quit(16)
+!end if
 !
-!
+!  Should not be necessary anymore, let's just hardwire it in.
+!  This will save a keyword
+clopkey = 3-ISCF
+!---  Identify the reference function ---------------------------------*
+if (ISCF > 0) then
+  LROOT = 1
+  NROOTS = 1
+  IROOT(1) = 1
+end if
+if ((LROOT == 0) .and. (NROOTS == 1)) LROOT = IROOT(1)
+
+!---  Create the symmetry multiplication table ------------------------*
+MUL(1,1) = 1
+M = 1
+do N=1,3
+  do I=1,M
+    do J=1,M
+      MUL(I+M,J) = M+MUL(I,J)
+      MUL(I,J+M) = MUL(I+M,J)
+      MUL(I+M,J+M) = MUL(I,J)
+    end do
+  end do
+  M = 2*M
+end do
+call Close_LuSpool(LuSpool)
+
 !---  Exit ------------------------------------------------------------*
-       Return
-!
+return
+
 !---  Error exits -----------------------------------------------------*
- 9910  Write(6,*)
-       Write(6,*) ' *** input error ***'
-       Write(6,*) ' hitting end of file mark'
-       Write(6,*)
-       Call Quit_OnUserError()
- 9930  Write(6,*)
-       Write(6,*) ' *** input error ***'
-       Write(6,*) ' unknown input'
-       Write(6,*) ' line: ',Line
-       Write(6,*)
-       Call Quit_OnUserError()
-       End
+9910 write(6,*)
+write(6,*) ' *** input error ***'
+write(6,*) ' hitting end of file mark'
+write(6,*)
+call Quit_OnUserError()
+9930 write(6,*)
+write(6,*) ' *** input error ***'
+write(6,*) ' unknown input'
+write(6,*) ' line: ',Line
+write(6,*)
+call Quit_OnUserError()
+
+end subroutine RdInpPN

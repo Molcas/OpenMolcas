@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Subroutine ChkInp_ccsort
+
+subroutine ChkInp_ccsort()
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -16,48 +17,44 @@
 !                                                                      *
 !***********************************************************************
 
-       Implicit Real*8 (A-H,O-Z)
-
+implicit real*8(A-H,O-Z)
 #include "ccsort.fh"
 #include "motra.fh"
-!
-!
-!      Just print warning...
-       If ( IPT2.eq.0 ) then
-         Write(6,*)
-         Write(6,*) '       !!!!!WARNING!!!!!'
-         Write(6,*)
-         Write(6,*) '      *** input error ***'
-         Write(6,*) '  The JOBIPH file does not include '//             &
-     &                 'canonical orbitals'
-         Write(6,*)
-         Write(6,*) '       !!!!!WARNING!!!!!'
-         Write(6,*)
-!        Call Quit_OnUserError()
-       End If
-!
-       If ( NCONF.ne.1 ) then
-         Write(6,*)
-         Write(6,*) '  *** input error ***'
-         Write(6,*) '  The JOBIPH file does not include '//             &
-     &                 'a RHF or ROHF wave function'
-         Write(6,*)
-         Call Quit_OnUserError()
-       End If
-!
-       iErr = 0
-       If ( nSym.ne.nSymX ) iErr = 1
-       Do iSym = 1,nSym
-         If ( nBas(iSym).ne.nBasX(iSym) ) iErr = 1
-       End Do
-       If ( iErr.ne.0 ) then
-         Write(6,*)
-         Write(6,*) '  *** input error ***'
-         Write(6,*) '  The JOBIPH and the TRAONE files '//              &
-     &                 'are inconsistent'
-         Write(6,*)
-         Call Quit_OnUserError()
-       End If
-!
-       Return
-       End
+
+! Just print warning...
+if (IPT2 == 0) then
+  write(6,*)
+  write(6,*) '       !!!!!WARNING!!!!!'
+  write(6,*)
+  write(6,*) '      *** input error ***'
+  write(6,*) '  The JOBIPH file does not include canonical orbitals'
+  write(6,*)
+  write(6,*) '       !!!!!WARNING!!!!!'
+  write(6,*)
+  !call Quit_OnUserError()
+end if
+
+if (NCONF /= 1) then
+  write(6,*)
+  write(6,*) '  *** input error ***'
+  write(6,*) '  The JOBIPH file does not include a RHF or ROHF wave function'
+  write(6,*)
+  call Quit_OnUserError()
+end if
+
+iErr = 0
+if (nSym /= nSymX) iErr = 1
+do iSym=1,nSym
+  if (nBas(iSym) /= nBasX(iSym)) iErr = 1
+end do
+if (iErr /= 0) then
+  write(6,*)
+  write(6,*) '  *** input error ***'
+  write(6,*) '  The JOBIPH and the TRAONE files are inconsistent'
+  write(6,*)
+  call Quit_OnUserError()
+end if
+
+return
+
+end subroutine ChkInp_ccsort

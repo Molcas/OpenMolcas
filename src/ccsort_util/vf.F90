@@ -8,19 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine vf (name,lun)
-!
-!      this routine open file vanisf file with a given name
-!      name - name of the vanished file (I)
-!      lun  - lun number with which file will be opened (I)
-!
-       character*8 name
-       integer lun
-!
-       call molcas_open(lun,name)
-!       open (unit=lun,file=name)
-       write (lun,*) ' File scratched'
-       close (lun)
-!
-       return
-       end
+
+subroutine vf(name,lun)
+! this routine opens file vanisf file with a given name
+! name - name of the vanished file (I)
+! lun  - lun number with which file will be opened (I)
+
+character*8 name
+integer lun
+
+call molcas_open(lun,name)
+!open(unit=lun,file=name)
+write(lun,*) ' File scratched'
+close(lun)
+
+return
+
+end subroutine vf

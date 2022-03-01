@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine ccsort_wrtmap (lun,mapd,mapi,rc)
+
+subroutine ccsort_wrtmap(lun,mapd,mapi,rc)
+! this routine writes required mapd and mapi to open unformatted file
+! with number lun
 !
-!     this routine write required mapd and mapi to opened unformatted file
-!     with number lun
-!
-!     lun   - Logical unit number of file, where mediate will be stored (Input)
-!     mapd  - direct map matrix corresponding to given mediate (Input)
-!     mapi  - inverse map matrix corresponding to given mediate (Input)
-!     rc    - return (error) code (Output)
-!
-       integer lun,rc
-       integer mapd(0:512,1:6)
-       integer mapi(1:8,1:8,1:8)
-!
-       rc=0
-!
-!1    write mapd
-!
-       write (lun) mapd,mapi
-!
-       return
-       end
+! lun   - Logical unit number of file, where mediate will be stored (Input)
+! mapd  - direct map matrix corresponding to given mediate (Input)
+! mapi  - inverse map matrix corresponding to given mediate (Input)
+! rc    - return (error) code (Output)
+
+integer lun, rc
+integer mapd(0:512,1:6)
+integer mapi(1:8,1:8,1:8)
+
+rc = 0
+
+! write mapd
+
+write(lun) mapd,mapi
+
+return
+
+end subroutine ccsort_wrtmap

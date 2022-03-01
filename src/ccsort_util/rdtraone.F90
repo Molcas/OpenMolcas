@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RdTraOne
+
+subroutine RdTraOne()
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -19,26 +20,21 @@
 #include "Molcas.fh"
 #include "motra.fh"
 #include "SysDef.fh"
+integer iDisk, LuTraOne
+integer TocTraOne(64)
+character*(LENIN8) BsLbl(MxOrb)
 
-      Integer iDisk,LuTraOne
-      Integer TocTraOne(64)
-      Character*(LENIN8) BsLbl(MxOrb)
+LuTraOne = 3
 
-      LuTraOne = 3
-
-      Call DaName(LuTraOne,'TRAONE')
+call DaName(LuTraOne,'TRAONE')
 
 !ulf
-      iDisk=0
+iDisk = 0
 
-      Call WR_MOTRA_Info(LuTraOne,2,iDisk,                              &
-     &                   TocTraOne,64,                                  &
-     &                   EcorX,                                         &
-     &                   nSymX,                                         &
-     &                   nBasX,nOrbX,nFroX,nDelX,8,                     &
-     &                   BsLbl,LENIN8*MxOrb)
+call WR_MOTRA_Info(LuTraOne,2,iDisk,TocTraOne,64,EcorX,nSymX,nBasX,nOrbX,nFroX,nDelX,8,BsLbl,LENIN8*MxOrb)
 
-      Call Daclos(LuTraOne)
+call Daclos(LuTraOne)
 
-      Return
-      End
+return
+
+end subroutine RdTraOne

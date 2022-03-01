@@ -8,32 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine dawri (lun,length,vector)
-!
-!     this routine write length-R8 numbers to opened unformatted file
-!     with number lun at the given possition as one record
-!
-!     lun    - Logical unit number of file, where mediate will be stored (Input)
-!     length - # of R8 numbers to be written  (Input)
-!     vector - space, where numbers are stored  (Input)
 
+subroutine dawri(lun,length,vector)
+! this routine writes length-R8 numbers to open unformatted file
+! with number lun at the given position as one record
 !
+! lun    - Logical unit number of file, where mediate will be stored (Input)
+! length - # of R8 numbers to be written (Input)
+! vector - space, where numbers are stored (Input)
+
 #include "files_ccsd.fh"
 #include "reorg.fh"
-
 #include "SysDef.fh"
-!
-       integer lun,length
-       real*8 vector(1:length)
-!
-       if (iokey.eq.1) then
-!      Fortran IO
-       write (lun) vector
-!
-       else
-!      MOLCAS IO
-       call ddafile (lun,1,vector,length,daddr(lun))
-       end if
-!
-       return
-       end
+integer lun, length
+real*8 vector(1:length)
+
+if (iokey == 1) then
+  ! Fortran IO
+  write(lun) vector
+
+else
+  ! MOLCAS IO
+  call ddafile(lun,1,vector,length,daddr(lun))
+end if
+
+return
+
+end subroutine dawri

@@ -8,24 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine inittemp (num)
-!
-!     this routine initialize status matrix
-!     num - number of files to be used (I)
-!
-       implicit real*8 (a-h,o-z)
+
+subroutine inittemp(num)
+! this routine initializes status matrix
+! num - number of files to be used (I)
+
+implicit real*8(a-h,o-z)
 #include "reorg.fh"
-       integer num
-!
-!     help variables
-!
-       integer nhelp
-!
-       do nhelp=1,num
-       stattemp(nhelp)=0
-       nrectemp(nhelp)=0
-       lrectemp(nhelp)=0
-       end do
-!
-       return
-       end
+integer num
+! help variables
+integer nhelp
+
+do nhelp=1,num
+  stattemp(nhelp) = 0
+  nrectemp(nhelp) = 0
+  lrectemp(nhelp) = 0
+end do
+
+return
+
+end subroutine inittemp

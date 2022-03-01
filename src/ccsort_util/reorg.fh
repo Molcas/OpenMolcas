@@ -66,7 +66,7 @@
        integer idis(1:8,1:8,1:8)
        common /ccsort_expand2/ np,nq,nr,ns,typ,idis
 !
-!6.1  four mapd,mapi matrices and corresponding initial possitions variables
+!6.1  four mapd,mapi matrices and corresponding initial positions variables
 !     for details see docc.txt
 !
        integer poss10,poss20,poss30,poss40
@@ -125,10 +125,10 @@
        integer recl
        parameter (recl=100)
 !
-!9.1  abmap - help map for storing of addresses in direct acces file TEMPDA1
+!9.1  abmap - help map for storing of addresses in direct access file TEMPDA1
 !GM    integer abmap(1:mbas,1:mbas,1:8)
 !
-!9.2  abmam - help map for storing of addresses in direct acces file TEMPDA2
+!9.2  abmam - help map for storing of addresses in direct access file TEMPDA2
 !GM    integer ammap(1:mbas,1:8,1:8)
 !
 !GM    common /da/ abmap,ammap

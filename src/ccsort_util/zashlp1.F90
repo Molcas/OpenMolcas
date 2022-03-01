@@ -8,11 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine zashlp1 (lunpublic,pp,length)
+
+subroutine zashlp1(lunpublic,pp,length)
 
 #include "SysDef.fh"
-        integer lunpublic,length
-        character*(RtoB+ItoB) pp(1:length)
-        write (lunpublic) pp
-        return
-        end
+integer lunpublic, length
+character*(RtoB+ItoB) pp(1:length)
+
+write(lunpublic) pp
+
+return
+
+end subroutine zashlp1

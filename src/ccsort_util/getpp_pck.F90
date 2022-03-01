@@ -8,14 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine getpp_pck (lunpublic,pp,length)
-!
+
+subroutine getpp_pck(lunpublic,pp,length)
 
 #include "SysDef.fh"
-       integer lunpublic,length
-       character*(RtoB+ItoB) pp(1:length)
-!
-       read (lunpublic) pp
-!
-       return
-       end
+integer lunpublic, length
+character*(RtoB+ItoB) pp(1:length)
+
+read(lunpublic) pp
+
+return
+
+end subroutine getpp_pck

@@ -8,28 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine unpackk (i,vint,ndimv1,ndimv2,ndimv3,key)
+
+subroutine unpackk(i,vint,ndimv1,ndimv2,ndimv3,key)
+! unpackk process control routine
 !
-!      unpackk process control routine
-!
-!     i      - value of pivot index (I)
-!     vint   - array of integrals (O)
-!     ndimv1 - first dimension of vint (norb(symj)) (I)
-!     ndimv2 - second dimension of vint (norb(symk)) (I)
-!     ndimv3 - third dimension of vint (norb(syml)) (I)
-!     key    - reduced storing key (I)
-!     = 0 if symj is not syml
-!     = 1 if symj = syml
-!
+! i      - value of pivot index (I)
+! vint   - array of integrals (O)
+! ndimv1 - first dimension of vint (norb(symj)) (I)
+! ndimv2 - second dimension of vint (norb(symk)) (I)
+! ndimv3 - third dimension of vint (norb(syml)) (I)
+! key    - reduced storing key (I)
+!          = 0 if symj is not syml
+!          = 1 if symj = syml
+
 #include "reorg.fh"
-       integer i,ndimv1,ndimv2,ndimv3,key
-       real*8 vint(1:ndimv1,1:ndimv2,1:ndimv3)
-!
-       if (zrkey.eq.1) then
-         call unpackk_zr (i,vint,ndimv1,ndimv2,ndimv3,key)
-       else
-         call unpackk_pck (i,vint,ndimv1,ndimv2,ndimv3,key)
-       end if
-!
-       return
-       end
+integer i, ndimv1, ndimv2, ndimv3, key
+real*8 vint(1:ndimv1,1:ndimv2,1:ndimv3)
+
+if (zrkey == 1) then
+  call unpackk_zr(i,vint,ndimv1,ndimv2,ndimv3,key)
+else
+  call unpackk_pck(i,vint,ndimv1,ndimv2,ndimv3,key)
+end if
+
+return
+
+end subroutine unpackk
