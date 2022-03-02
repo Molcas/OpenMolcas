@@ -23,12 +23,12 @@ subroutine fokupdate2(foka,symp,i,vint,ndimv1,ndimv2,ndimv3)
 ! ndimv2  - second dimension (norb(symi)) (I)
 ! ndimv3  - third dimension (norb(symp)) (I)
 
+use ccsort_global, only: NORB
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: symp, i, ndimv1, ndimv2, ndimv3
 real(kind=wp) :: foka(*), vint(ndimv1,ndimv2,ndimv3)
-#include "ccsort.fh"
 integer(kind=iwp) :: nhelp1, nhelp2, p, pq, q
 
 ! calculate shift

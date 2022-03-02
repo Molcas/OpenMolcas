@@ -13,11 +13,11 @@ subroutine initintabc1()
 ! this routine writes corresponding mapd and mapi to INTAB
 ! for nonsymmetrical (C1) case
 
+use ccsort_global, only: lunab, mapd3, mapi3, NORB, NSYM, pos30
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
-#include "reorg.fh"
-#include "ccsort.fh"
 integer(kind=iwp) :: ii, length, pos, rc, syma, symab, symb, symp, symq
 
 ! def symab

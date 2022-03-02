@@ -24,13 +24,12 @@ subroutine abpack(wrk,wrksize,syma,symb,symp,symq,a,vint,ndimv1,ndimv2,ndimv3,ab
 ! ndimv3- 3rd dimension of vint - norb(symq) (I)
 ! abmap - map for storing of addresses in DA file TEMPDA1 (I)
 
+use ccsort_global, only: lunda1, mbas, nob, NORB, nvb, pos30, reclen
 use Definitions, only: wp, iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: wrksize, syma, symb, symp, symq, a, ndimv1, ndimv2, ndimv3, abmap(mbas,mbas,8)
 real(kind=wp) :: wrk(wrksize), vint(ndimv1,ndimv2,ndimv3)
-#include "ccsort.fh"
 integer(kind=iwp) :: b, bup, bvint, irec0, length, p, pq, q
 
 !T if there are no ab pair, or no integrals in _a_bpq block return

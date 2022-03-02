@@ -28,13 +28,12 @@ subroutine t3intpck1(vint,r,dimv1,dimv2,dimv3,dima,dimbc,symq,symr,syms,nob,nvb)
 ! nob   - number of beta occupied in each irrep (I)
 ! nvb   - number of beta virtuals in each irrep (I)
 
+use ccsort_global, only: daddr, lunt3
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dimv1, dimv2, dimv3, dima, dimbc, symq, symr, syms, nob(8), nvb(8)
 real(kind=wp) :: vint(dimv1,dimv2,dimv3), r(dima,dimbc)
-#include "reorg.fh"
-#include "files_ccsd.fh"
 integer(kind=iwp) :: a, adda, b, bc, c, iaddr, length
 
 ! if there are no beta virtuals - skip to write section

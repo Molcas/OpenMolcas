@@ -17,13 +17,13 @@ subroutine zasun_pck(i1,length,valn,jn,kn,ln)
 ! length - number of valid integrals in block (I)
 ! this routine has also jn,kn,ln,valn
 ! and stattemp and tmpnam as inputs, but they are
-! transported through commons  in reorg.fh
+! imported from ccsort_global
 
+use ccsort_global, only: iokey, lrectemp, lunpublic, mbas, nrectemp, nsize, stattemp, tmpnam
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, ItoB, RtoB
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
 real(kind=wp) :: valn(nsize,mbas)
 integer(kind=iwp) :: ihelp, iRec, m2

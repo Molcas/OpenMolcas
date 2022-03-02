@@ -14,7 +14,7 @@ subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,pos0,post,mapd,mapi)
 ! but some changes were done:
 ! 1) mmul is substituted by mul
 ! 2) dimm is added, since using of ccsd1.com is impossible
-! 3) ccsd1.com is replaced by ccsort.fh
+! 3) ccsd1.com is replaced by ccsort_global
 !
 ! nind   - number of indices (I)
 ! typ    - typ of mediate (I)
@@ -46,11 +46,12 @@ subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,pos0,post,mapd,mapi)
 ! N.B. (this routine cannot run with +OP2)
 ! N.B. this routine does not test stupidities
 
+use ccsort_global, only: noa, nob, NSYM, nva, nvb
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, pos0, post, mapd(0:512,6), mapi(8,8,8)
-#include "ccsort.fh"
 integer(kind=iwp) :: dimm(5,8), i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, rsk1, rsk2, sp, spq, spqr, sq, sr, ss
 
 ! !!!!!!!! def dimm to je tu len terazky, lebo nemozeme pouzivat ccsd1.com !!!!

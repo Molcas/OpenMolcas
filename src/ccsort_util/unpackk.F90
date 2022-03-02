@@ -21,12 +21,12 @@ subroutine unpackk(i,vint,ndimv1,ndimv2,ndimv3,key)
 !          = 0 if symj is not syml
 !          = 1 if symj = syml
 
+use ccsort_global, only: zrkey
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, key
 real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3)
-#include "reorg.fh"
 
 if (zrkey == 1) then
   call unpackk_zr(i,vint,ndimv1,ndimv2,ndimv3,key)

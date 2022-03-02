@@ -22,13 +22,13 @@ subroutine unpackk_zr(i,vint,ndimv1,ndimv2,ndimv3,key)
 !          = 0 if symj is not syml
 !          = 1 if symj = syml
 
+use ccsort_global, only: iokey, jh, kh, lh, lrectemp, lunpublic, nrectemp, nsize, tmpnam, valh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, key
 real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3)
-#include "reorg.fh"
 integer(kind=iwp) :: daddr, ihelp, ires, length, nhelp, nrec
 integer(kind=iwp), allocatable :: iBuf(:)
 integer(kind=iwp), parameter :: constj = 1024**2, constk = 1024
@@ -73,10 +73,10 @@ do nrec=1,nrectemp(i)
 
   do nhelp=1,length
     ihelp = iBuf(nhelp)
-    jh(nhelp) = int(ihelp/constj)
+    jh(nhelp) = int(ihelp/constj,kind=kind(jh))
     ires = ihelp-constj*jh(nhelp)
-    kh(nhelp) = int(ires/constk)
-    lh(nhelp) = ires-constk*kh(nhelp)
+    kh(nhelp) = int(ires/constk,kind=kind(jh))
+    lh(nhelp) = int(ires-constk*kh(nhelp),kind=kind(lh))
   end do
 
   if (key == 0) then

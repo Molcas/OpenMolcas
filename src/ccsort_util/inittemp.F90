@@ -13,10 +13,10 @@ subroutine inittemp(num)
 ! this routine initializes status matrix
 ! num - number of files to be used (I)
 
+use ccsort_global, only: lrectemp, nrectemp, stattemp
 use Definitions, only: iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: num
 
 stattemp(1:num) = 0

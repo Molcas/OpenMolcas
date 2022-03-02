@@ -18,12 +18,11 @@ subroutine dawrtmap(lun,mapd,mapi,rc)
 ! mapi  - inverse map matrix corresponding to given mediate (Input)
 ! rc    - return (error) code (Output)
 
+use ccsort_global, only: daddr, iokey
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: lun, mapd(0:512,6), mapi(8,8,8), rc
-#include "files_ccsd.fh"
-#include "reorg.fh"
 
 rc = 0
 

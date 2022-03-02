@@ -17,12 +17,13 @@ subroutine t3reorg(wrk,wrksize,noa,nsym)
 ! noa   - array with occupation numbers
 ! nsym  - actual number of irreps
 
+use ccsort_global, only: lunt3, mapdri, mapiri, mbas, posri0
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, noa(8), nsym
 real(kind=wp) :: wrk(wrksize)
-#include "reorg.fh"
+#include "t3int.fh"
 integer(kind=iwp) :: i, iaddr, iindex, iPosPack, iri, length, posri, post, symi
 
 ! def iPosPack

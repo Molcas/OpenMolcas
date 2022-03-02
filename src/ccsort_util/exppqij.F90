@@ -30,13 +30,13 @@ subroutine exppqij(wrk,wrksize,typv2,typp,typq,typr,typs,directyes,inverseyes)
 !
 ! it also defines new mapd2,mapi2 corresponding to #2
 
+use ccsort_global, only: mapd1, mapd2, mapi1, mapi2, pos20
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, typv2, typp, typq, typr, typs, directyes, inverseyes
 real(kind=wp) :: wrk(wrksize)
-#include "reorg.fh"
 integer(kind=iwp) :: ii, iiv1d, iiv1i, length, post, posv1d, posv1i, posv2, symi, symj, symp, symq
 
 ! get mapd mapi of <p,q r,s> into mapd2,mapi2

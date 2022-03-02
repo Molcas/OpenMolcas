@@ -18,11 +18,11 @@ subroutine ireorg2(symp,typp,pup,rc)
 ! pup   - summation limit
 ! rc    - return (error) code (O)
 
+use ccsort_global, only: noa, nob, NORB, nva, nvb
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: symp, typp, pup, rc
-#include "ccsort.fh"
 
 select case (typp)
   case (1)

@@ -31,14 +31,13 @@ subroutine exppsb(symp,symq,symr,syms,valn,jn,kn,ln)
 ! 7 - si>sk, si>sj, sk=sl
 ! 8 - si>sk, si>sj, sk>sl
 
+use ccsort_global, only: fullprint, idis, LUINTM, mbas, NORB, np, nq, nr, ns, nshow, nsize, typ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: symp, symq, symr, syms, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
 real(kind=wp) :: valn(nsize,mbas)
-#include "ccsort.fh"
 #include "tratoc.fh"
 integer(kind=iwp) :: i1, idis13, ilow, ind(4), indtemp, iold, iup, j1, jlow, jold, jup, k1, kold, kup, l1, lold, lup, m3, nhelp1, &
                      nhelp2, ni, nj, nk, nl, nsi, nsj, nsk, nsl, typp, yes234, yes5, yes678

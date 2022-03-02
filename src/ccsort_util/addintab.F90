@@ -13,13 +13,13 @@ subroutine addintab(wrk,wrksize,syma,symb,abmap)
 ! this routine adds contributions to open INTAB1 file,
 ! comming from ab syma,symb
 
+use ccsort_global, only: lunab, lunda1, mapd3, mapi3, mbas, NORB, NSYM, nvb, pos30, reclen
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: wrksize, syma, symb, abmap(mbas,mbas,8)
 real(kind=wp) :: wrk(wrksize)
-#include "ccsort.fh"
 integer(kind=iwp) :: a, b, bup, ii, irec0, length, pos, pos3, rc, symab, symp, symq
 
 ! def symab

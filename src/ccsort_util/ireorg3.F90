@@ -21,11 +21,11 @@ subroutine ireorg3(symp,typp,typpv1,paddv1,rc)
 ! paddv1- constant to be added (O) pv1 = pv2+paddv1
 ! rc    - return (error) code (O)
 
+use ccsort_global, only: noa, nob, nva, nvb
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: symp, typp, typpv1, paddv1, rc
-#include "ccsort.fh"
 
 rc = 0
 

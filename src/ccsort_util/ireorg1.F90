@@ -25,8 +25,6 @@ subroutine ireorg1(symp,symq,symr,syms,typp,typq,typr,typs,pospv1,posqv1,posrv1,
 ! fact       - multiplication factors (usually +-1.0) (I)
 ! dimpq,rs   - dimensions of V2 (I)
 ! dimt-x     - dimensions of V1 (I)
-!
-! reorg.fh may not be included
 
 use Definitions, only: wp, iwp
 

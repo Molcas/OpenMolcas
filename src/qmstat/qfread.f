@@ -61,7 +61,7 @@
 #include "tratoc.fh"
 #include "warnings.h"
 
-      Parameter (IndMax=nTraBuf) !nTraBuf definied in tratoc.fh
+      Parameter (IndMax=nTraBuf) !nTraBuf defined in tratoc.fh
 
       Dimension Coord(MxAt*3),Chge(MxAt),CoordCC(3*3),ChgeCC(3)
       Dimension Cmo(MxBas**2),Cmo_S(MxBas**2),Occu(MxBas),Dummy(MxBas)

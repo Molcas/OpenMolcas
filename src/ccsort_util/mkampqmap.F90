@@ -12,12 +12,12 @@
 subroutine mkampqmap(ammap,syma,rc)
 ! this routine prepares ammap
 
+use ccsort_global, only: noa, mbas, NORB, NSYM, nvb, reclen
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: ammap(mbas,8,8), syma, rc
-#include "ccsort.fh"
 integer(kind=iwp) :: a, irec, lengthmpq, nrecc, nrest, symam, symm, symp, symq
 
 !T test, if there are any a in this symmetry

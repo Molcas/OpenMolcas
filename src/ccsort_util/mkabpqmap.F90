@@ -12,12 +12,12 @@
 subroutine mkabpqmap(abmap,syma,symb,rc)
 ! this routine prepares abmap
 
+use ccsort_global, only: mbas, NORB, NSYM, nvb, reclen
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: abmap(mbas,mbas,8), syma, symb, rc
-#include "ccsort.fh"
 integer(kind=iwp) :: a, b, bup, irec, lengthpq, nrecc, nrest, symab, symp, symq
 
 !T test, if there are any ab pair

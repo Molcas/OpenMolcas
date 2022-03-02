@@ -13,12 +13,12 @@ subroutine initwrk(length)
 ! this routine calculates required size of work space and
 ! defines initial positions of work vectors
 
+use ccsort_global, only: fullprint, mapdri, mapiri, noa, NORB, NSYM, pos10, pos20, pos30, posri0, t3key
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: length
-#include "ccsort.fh"
-#include "reorg.fh"
 integer(kind=iwp) :: n, norbmax, sizempq, sizeri, sizev1, sizev2, sizevint, syma, symi, symj, symm, symmp, symp, sympq, sympqi, symq
 
 !1 def maxsize of vint

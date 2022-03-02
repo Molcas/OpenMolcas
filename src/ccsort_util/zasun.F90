@@ -15,10 +15,10 @@ subroutine zasun(i1,length,valn,jn,kn,ln)
 ! i1 - number of pivot index (I)
 ! length - number of valid integrals in block (I)
 
+use ccsort_global, only: mbas, nsize, zrkey
 use Definitions, only: wp, iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
 real(kind=wp) :: valn(nsize,mbas)
 

@@ -23,16 +23,16 @@ subroutine mkintsta(wrk,wrksize,foka,fokb)
 ! expandfok
 ! wrtmediate (from SYMM)
 
+use ccsort_global, only: daddr, iokey, mapd2, mapi2
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize), foka(*), fokb(*)
-#include "reorg.fh"
-#include "files_ccsd.fh"
-integer(kind=iwp) :: rc
+integer(kind=iwp) :: lunsta, rc
 
 ! open INTSTA file
+lunsta = 21
 if (iokey == 1) then
   ! Fortarn IO
   call molcas_binaryopen_vanilla(lunsta,'INTSTA')

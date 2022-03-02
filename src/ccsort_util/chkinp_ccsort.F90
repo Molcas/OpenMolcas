@@ -17,11 +17,10 @@ subroutine ChkInp_ccsort()
 !                                                                      *
 !***********************************************************************
 
+use ccsort_global, only: IPT2, NBAS, nBasX, NCONF, NSYM, nSymX
 use Definitions, only: iwp, u6
 
 implicit none
-#include "ccsort.fh"
-#include "motra.fh"
 integer(kind=iwp) :: iErr, iSym
 
 ! Just print warning...

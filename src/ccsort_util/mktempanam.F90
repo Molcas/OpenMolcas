@@ -18,10 +18,10 @@ subroutine mktempanam()
 ! tmp-anam - array of TEMP file names (Transported through common /tmnames/)
 ! this routine (I)
 
+use ccsort_global, only: lunpublic, mbas, tmpnam
 use Definitions, only: iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: itemp, k1, lun
 
 lun = lunpublic

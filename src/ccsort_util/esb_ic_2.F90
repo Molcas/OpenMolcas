@@ -17,14 +17,13 @@ subroutine esb_ic_2(symp,symq,Vic,dimp,dimq,pqind)
 ! It finds corresponding (IJ|KL) and expands it to
 ! matrix vic (pr,qs)
 
+use ccsort_global, only: idis, LUINTM, mbas, NORB, np, nq, nr, ns, typ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: symp, symq, dimp, dimq, pqind(mbas,mbas)
 real(kind=wp) :: Vic(dimp*(dimp+1)/2,dimq*(dimq+1)/2)
-#include "ccsort.fh"
 #include "tratoc.fh"
 integer(kind=iwp) :: i, i1, idis13, ilow, ind(4), indtemp, iold, iup, j, j1, jlow, jold, jup, k1, kold, kup, l1, lold, lup, maxx, &
                      ni, nj, nk, nl, nsi, nsj, nsk, nsl, typp, yes234, yes5, yes678

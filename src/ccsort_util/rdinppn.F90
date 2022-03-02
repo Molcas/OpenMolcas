@@ -35,17 +35,19 @@ subroutine RdInpPN(run_triples,run_sort)
 !                                                                      *
 !***********************************************************************
 
+use ccsort_global, only: cckey, clopkey, fullprint, IADR15, iokey, IPT2, ISCF, ISPIN, JOBIPH, LROOT, LSYM, luna1, luna2, luna3, &
+                         luna4, lunab, lunda1, lunda2, lunpublic, lunt3, NACTEL, NASH, NASHT, NBAS, NCONF, NDEL, ndelr, nDelX, &
+                         NELE3, NFRO, nfror, nFroX, NHOLE1, NISH, NISHT, noop, NORB, NROOTS, NSSH, NSSHT, NSYM, t3key, zrkey
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp) :: run_triples, run_sort
-#include "ccsort.fh"
-#include "reorg.fh"
-#include "motra.fh"
-integer(kind=iwp) :: i, IAD15, iCmd, istatus, isym, J, jCmd, LROOTS, LuSpool, M, N, nhelp, ntAsh
-character(len=72) :: Line
+#include "rasdim.fh"
+integer(kind=iwp) :: IAD15, iCmd, IROOT(mxRoot), istatus, isym, jCmd, LROOTS, LuSpool, nhelp, NOSH, NRAS1(8), NRAS2(8), NRAS3(8), &
+                     ntAsh, nTit
+real(kind=wp) :: POTNUC
+character(len=72) :: Header(2), Line, Title(mxTit)
 character(len=4) :: Command
 real(kind=wp), allocatable :: Weights(:)
 character(len=LenIn8), allocatable :: CName(:)
@@ -54,23 +56,8 @@ character(len=4), parameter :: Cmd(20) = ['TITL','END ','CCSD','CCT ','CLOS','OP
 
 !---  Initialize -------------------------------------------------------*
 LROOT = 0
-MAXIT = 0
-CONV = 1.0e-6_wp
-THRSHN = 1.0e-10_wp
-THRSHS = 1.0e-8_wp
-THRSHF = 0.05_wp
-ORBIN = 'DEFAULT '
-THRENE = 1.5_wp
-ORBIT = 'DEFAULT '
-THROCC = Zero
-FOCKTYPE = 'STANDARD'
-HZERO = 'STANDARD'
-METHOD = 'CONJ'
-IFJAC = 0
-RFpert = .false.
-NTIT = 0
+nTit = 0
 
-lunsta = 21
 luna1 = 22
 luna2 = 23
 luna3 = 24
@@ -81,7 +68,7 @@ lunda1 = 9
 lunda2 = 10
 lunpublic = 29
 
-!---  Open JOBIPH and LUONEM files ------------------------------------*
+!---  Open JOBIPH file ------------------------------------------------*
 
 ! Job interface
 JOBIPH = 15
@@ -95,8 +82,8 @@ call iDAFILE(JOBIPH,2,IADR15,15,IAD15)
 IAD15 = IADR15(1)
 call mma_allocate(CName,mxOrb,label='CName')
 call mma_allocate(Weights,mxRoot,label='Weights')
-call WR_RASSCF_Info(JOBIPH,2,iAd15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,8,CName,LenIn8*MxOrb,NCONF,HEADER,2*72,TITLE, &
-                    4*18*MXTIT,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
+call WR_RASSCF_Info(JOBIPH,2,iAd15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,8,CName,LenIn8*MxOrb,NCONF,Header,2*72,Title, &
+                    72*mxTit,POTNUC,LROOTS,NROOTS,IROOT,mxRoot,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
 call mma_deallocate(CName)
 call mma_deallocate(Weights)
 
@@ -159,7 +146,7 @@ do
         if (jCmd /= 0) exit
         if (nTit >= mxTit) cycle
         nTit = nTit+1
-        if (nTit <= mxTit) read(Line,'(18A4)') (Title(nTit,i),i=1,18)
+        if (nTit <= mxTit) read(Line,'(A72)') Title(nTit)
       end do
     case (2) !END
       exit
@@ -225,39 +212,16 @@ do
 end do
 
 !---  The end of the input section, complete input processing ---------*
-NFROT = 0
 NISHT = 0
 NASHT = 0
-NRAS1T = 0
-NRAS2T = 0
-NRAS3T = 0
-NOSHT = 0
 NSSHT = 0
-NDELT = 0
-NORBT = 0
-NBAST = 0
-NBAS2 = 0
-NORB1 = 0
 do ISYM=1,NSYM
-  NIES(ISYM) = NISHT
-  NAES(ISYM) = NASHT
-  NSES(ISYM) = NSSHT
-  NOSH(ISYM) = NISH(ISYM)+NASH(ISYM)
-  NSSH(ISYM) = NBAS(ISYM)-NFRO(ISYM)-NOSH(ISYM)-NDEL(ISYM)
-  NORB(ISYM) = NOSH(ISYM)+NSSH(ISYM)
-  NORBT = NORBT+NORB(ISYM)
-  NBAS2 = NBAS2+NBAS(ISYM)**2
-  NORB1 = NORB1+(NORB(ISYM)**2+NORB(ISYM))/2
-  NFROT = NFROT+NFRO(ISYM)
+  NOSH = NISH(ISYM)+NASH(ISYM)
+  NSSH(ISYM) = NBAS(ISYM)-NFRO(ISYM)-NOSH-NDEL(ISYM)
+  NORB(ISYM) = NOSH+NSSH(ISYM)
   NISHT = NISHT+NISH(ISYM)
   NASHT = NASHT+NASH(ISYM)
-  NOSHT = NOSHT+NOSH(ISYM)
-  NRAS1T = NRAS1T+NRAS1(ISYM)
-  NRAS2T = NRAS2T+NRAS2(ISYM)
-  NRAS3T = NRAS3T+NRAS3(ISYM)
   NSSHT = NSSHT+NSSH(ISYM)
-  NDELT = NDELT+NDEL(ISYM)
-  NBAST = NBAST+NBAS(ISYM)
 end do
 
 !---  Identify the wave function type ---------------------------------*
@@ -285,19 +249,6 @@ if (ISCF > 0) then
 end if
 if ((LROOT == 0) .and. (NROOTS == 1)) LROOT = IROOT(1)
 
-!---  Create the symmetry multiplication table ------------------------*
-MUL(1,1) = 1
-M = 1
-do N=1,3
-  do I=1,M
-    do J=1,M
-      MUL(I+M,J) = M+MUL(I,J)
-      MUL(I,J+M) = MUL(I+M,J)
-      MUL(I+M,J+M) = MUL(I,J)
-    end do
-  end do
-  M = 2*M
-end do
 call Close_LuSpool(LuSpool)
 
 !---  Exit ------------------------------------------------------------*

@@ -13,12 +13,12 @@ subroutine mkmapampq(syma)
 ! this routine prepares mapd,mapi
 ! for <am|pq> for given syma, m, p,q to mapd2,mapi2
 
+use ccsort_global, only: mapd2, mapi2, noa, NORB, NSYM, pos20
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: syma
-#include "ccsort.fh"
-#include "reorg.fh"
 integer(kind=iwp) :: length, nhelp, pos, symm, symmp, symp, symq
 
 ! set mapi1 to zero

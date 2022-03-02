@@ -39,13 +39,13 @@ subroutine mkaddress(NOIPSB)
 !
 ! N.B. typ,idis,np,nq,nr,ns are transferred through common block /edpand2/
 
+use ccsort_global, only: fullprint, idis, LUINTM, NORB, np, nq, nr, ns, NSYM, typ
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: NOIPSB(106)
-#include "ccsort.fh"
-#include "reorg.fh"
 #include "tratoc.fh"
 integer(kind=iwp) :: idishelp, idistemp, ilow, IND, INDT, iold, ISPQRS, iup, jlow, jold, jup, kold, kup, lold, lup, N_INT, norbp, &
                      nsi, nsij, nsijk, nsj, nsk, nsl, NSLM, p, pa, q, qa, r, ra, s, sense !, idispsb(106)

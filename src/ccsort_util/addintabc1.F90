@@ -14,13 +14,12 @@ subroutine addintabc1(wrk,wrksize,a,vint,ndimv)
 ! for nonsymmetrical (C1) case
 ! from integrals vv _a(u,p,q)
 
+use ccsort_global, only: lunab, nob, NORB, nvb, pos30
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, a, ndimv
 real(kind=wp) :: wrk(wrksize), vint(ndimv,ndimv,ndimv)
-#include "reorg.fh"
-#include "ccsort.fh"
 integer(kind=iwp) :: b, bvint, length, p, pos, q
 
 !T if there are no _a_b,pq integrals in this symab, skip summation over ab

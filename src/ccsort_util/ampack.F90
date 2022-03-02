@@ -24,13 +24,12 @@ subroutine ampack(wrk,wrksize,syma,symm,symp,symq,a,vint,ndimv1,ndimv2,ndimv3,am
 ! ndimv3- 3rd dimension of vint - norb(symq) (I)
 ! ammap - map for storing of addresses in DA file TEMPDA2 (I)
 
+use ccsort_global, only: lunda2, mbas, noa, NORB, nvb, pos30, reclen
 use Definitions, only: wp, iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: wrksize, syma, symm, symp, symq, a, ndimv1, ndimv2, ndimv3, ammap(mbas,8,8)
 real(kind=wp) :: wrk(wrksize), vint(ndimv1,ndimv2,ndimv3)
-#include "ccsort.fh"
 integer(kind=iwp) :: irec0, length, m, p, pq, q
 
 !T if there are no a, or no integrals in _a_mpq block return

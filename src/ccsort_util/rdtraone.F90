@@ -17,13 +17,14 @@ subroutine RdTraOne()
 !                                                                      *
 !***********************************************************************
 
+use ccsort_global, only: nBasX, nDelX, nFroX, nSymX
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
-#include "motra.fh"
-integer(kind=iwp) :: iDisk, LuTraOne, TocTraOne(64)
+integer(kind=iwp) :: iDisk, LuTraOne, nOrbX(8), TocTraOne(64)
+real(kind=wp) :: EcorX
 character(len=LenIn8), allocatable :: BsLbl(:)
 
 LuTraOne = 3

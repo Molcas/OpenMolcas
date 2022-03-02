@@ -11,14 +11,16 @@
 
 subroutine action_ccsort(foka,fokb,fi,eps)
 
+use ccsort_global, only: clopkey, daddr, Escf, fullprint, iokey, ISPIN, LSYM, luna1, luna2, luna3, luna4, lunab, lunda1, lunda2, &
+                         lunt3, mapdri, mapiri, maxspace, mbas, NACTEL, noa, nob, NORB, nsize, NSYM, nva, nvb, posri0, reclen, &
+                         t3key, typ
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-#include "reorg.fh"
 real(kind=wp) :: foka(mbas*(mbas+1)/2), fokb(mbas*(mbas+1)/2), fi(*), eps(mbas)
-#include "ccsort.fh"
-#include "files_ccsd.fh"
+#include "t3int.fh"
 integer(kind=iwp) :: a, freespace, ickey, keyred, ndimv1, ndimv2, ndimv3, ndimvi, p, post, rc, symp, sympq, sympqr, symq, symr, &
                      syms, t3help1, t3help2, t3help3, t3help4, vsize, wrksize
 integer(kind=iwp), allocatable :: AMMAP(:,:,:), ABMAP(:,:,:), JN(:,:), KN(:,:), LN(:,:), PQIND(:,:)
@@ -97,8 +99,8 @@ call mkmappqij()
 if (nsym == 1) call initintabc1()
 
 ! allocate space for ammap,abmap
-call mma_Allocate(AMMAP,mbas,8,8,Label='AMMAP')
-call mma_Allocate(ABMAP,mbas,mbas,8,Label='ABMAP')
+call mma_allocate(AMMAP,mbas,8,8,Label='AMMAP')
+call mma_allocate(ABMAP,mbas,mbas,8,Label='ABMAP')
 
 do symp=1,nsym
 
@@ -370,8 +372,8 @@ end do
 if (t3key == 1) call t3reorg(CCSORT,wrksize,noa,nsym)
 
 ! release space for ammap,abmap
-call mma_Deallocate(AMMAP)
-call mma_Deallocate(ABMAP)
+call mma_deallocate(AMMAP)
+call mma_deallocate(ABMAP)
 
 ! close files INTA1,INTA2,INTA3 and INTA4, INTAB1
 

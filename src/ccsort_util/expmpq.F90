@@ -31,13 +31,13 @@ subroutine expmpq(wrk,wrksize,syma,typv3,typm,typp,typq,directyes,inverseyes)
 !
 ! it also defines new mapd2,mapi2 corresponding to #2
 
+use ccsort_global, only: mapd2, mapd3, mapi2, mapi3, pos30
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer wrksize, syma, typv3, typm, typp, typq, directyes, inverseyes
 real(kind=wp) :: wrk(wrksize)
-#include "reorg.fh"
 integer(kind=iwp) :: ii, iiv2d, iiv2i, length, post, posv2d, posv2i, posv3, symm, symp, symq
 
 ! get mapd mapi of <m,a|p,q> as _a(m,p q) into mapd3,mapi3

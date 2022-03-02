@@ -8,6 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!2    name for joined T3 integral file
+       character*6 t3nam
+       parameter (t3nam='T3VVVO')
+!
+       integer mxt3pos
+       parameter (mxt3pos=1024) ! = mbas = maxorb
+!
 !3    array for storing positions of (ab|ci) blocks for given i
        integer T3IntPos(1:mxt3pos)
 !

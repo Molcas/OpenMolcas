@@ -13,13 +13,12 @@ subroutine expandfok(wrk,wrksize,fok)
 ! This routine expands fok operator to #2
 ! it also defines new mapd2,mapi2
 
+use ccsort_global, only: mapd2, mapi2, NORB, NSYM, pos20
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize), fok(*)
-#include "reorg.fh"
-#include "ccsort.fh"
 integer(kind=iwp) :: p, postemp, pqfok, pqwrk, q, qpwrk, symp
 
 ! set mapi zero

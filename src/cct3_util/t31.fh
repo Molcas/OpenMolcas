@@ -109,13 +109,6 @@ c
      & symimin,symimax,symjmin,symjmax,imin,imax,jmin,jmax
 c
 c     ------  special T3 part ------
-c
-c2    name for joined T3 integral file
-       character*6 t3nam
-       parameter (t3nam='T3VVVO')
-c
-       integer mxt3pos
-       parameter (mxt3pos=maxorb)
 #include "t3int.fh"
 c
 c5    diska address file

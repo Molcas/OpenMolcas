@@ -34,12 +34,12 @@ subroutine PrInpPN()
 !                                                                      *
 !***********************************************************************
 
+use ccsort_global, only: cckey, clopkey, fullprint, iokey, ISCF, ISPIN, LROOT, LSYM, NACTEL, NASH, NASHT, NBAS, NCONF, NDEL, &
+                         ndelr, NELE3, NFRO, nfror, NHOLE1, NISH, NISHT, noop, NROOTS, NSSH, NSSHT, NSYM, t3key, zrkey
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "ccsort.fh"
-#include "reorg.fh"
 integer(kind=iwp) :: iSym
 !LD character(len=120) :: BlLine, Line, StLine
 !LD character(len=8) :: Fmt1, Fmt2

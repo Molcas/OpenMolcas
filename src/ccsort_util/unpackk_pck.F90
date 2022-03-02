@@ -22,13 +22,13 @@ subroutine unpackk_pck(i,vint,ndimv1,ndimv2,ndimv3,key)
 !          = 0 if symj is not syml
 !          = 1 if symj = syml
 
+use ccsort_global, only: iokey, jh, kh, lh, lrectemp, lunpublic, nrectemp, nsize, tmpnam, valh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, ItoB, RtoB
 
 implicit none
 integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, key
 real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3)
-#include "reorg.fh"
 integer(kind=iwp) :: daddr, ihelp, ires, length, nhelp, nrec
 character(len=RtoB+ItoB) :: pphelp
 real(kind=wp) :: rhelp
@@ -77,10 +77,10 @@ do nrec=1,nrectemp(i)
     rhelp = transfer(pphelp(1:RtoB),rhelp)
     ihelp = transfer(pphelp(RtoB+1:),ihelp)
     valh(nhelp) = rhelp
-    jh(nhelp) = int(ihelp/constj)
+    jh(nhelp) = int(ihelp/constj,kind=kind(jh))
     ires = ihelp-constj*jh(nhelp)
-    kh(nhelp) = int(ires/constk)
-    lh(nhelp) = ires-constk*kh(nhelp)
+    kh(nhelp) = int(ires/constk,kind=kind(kh))
+    lh(nhelp) = int(ires-constk*kh(nhelp),kind=kind(lh))
   end do
 
   if (key == 0) then

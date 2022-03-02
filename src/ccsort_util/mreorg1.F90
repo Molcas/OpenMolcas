@@ -15,8 +15,8 @@ subroutine mreorg1(symp,symq,symr,typp,typq,typr,pospv1,posqv1,posrv1,typpv1,typ
 ! v2 may be of type 0,2 (typv2) while type v1 is always 0
 ! symp-symr and typp-typr are symmetries and types of p-r indices
 ! pospv1-posrv1 are corresponding positions of p-r indices in v1
-! N.B. v1 and v2 have no direct relation to #1 or #2, since here there
-! is no reorg.fh included, v1,v2 corresponds to arbitrary matrices
+! N.B. v1 and v2 have no direct relation to #1 or #2, since they
+! are not imported, v1,v2 corresponds to arbitrary matrices
 !
 ! symp-r     - symmetries of p-r (I)
 ! typp-r     - types of indices p-r in V2 (I)
@@ -27,8 +27,7 @@ subroutine mreorg1(symp,symq,symr,typp,typq,typr,pospv1,posqv1,posrv1,typpv1,typ
 ! fact       - multiplication factors (usually +-1.0) (I)
 ! dimp,qr    - dimensions of V2 (I)
 ! dimt-s     - dimensions of V1 (I)
-!
-! reorg.fh may not be included
+
 
 use Definitions, only: wp, iwp
 

@@ -12,13 +12,12 @@
 subroutine mkampq(wrk,wrksize,a,ammap)
 ! this routine reconstructs #2 V2<_a,m|p,q> from corresponding TEMPDA2 file
 
+use ccsort_global, only: lunda2, mapd2, mapi2, mbas, NSYM, reclen
 use Definitions, only: wp, iwp
 
 implicit none
-#include "reorg.fh"
 integer(kind=iwp) :: wrksize, a, ammap(mbas,8,8)
 real(kind=wp) :: wrk(wrksize)
-#include "ccsort.fh"
 integer(kind=iwp) :: iiv2, irec0, length, pos, symm, symp
 
 ! loops over symmetry combinations

@@ -13,11 +13,11 @@ subroutine mkmappqij()
 ! this routine prepares mapd,mapi
 ! for <pq|ij> for p,q, i>=j to mapd1,mapi1
 
+use ccsort_global, only: mapd1, mapi1, noa, NORB, NSYM, pos10
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
-#include "ccsort.fh"
-#include "reorg.fh"
 integer(kind=iwp) :: length, nhelp, pos, symi, symj, symp, sympq, sympqi, symq
 
 ! set mapi1 to zero
