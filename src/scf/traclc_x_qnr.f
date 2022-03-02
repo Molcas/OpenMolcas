@@ -10,29 +10,48 @@
 !                                                                      *
 ! Copyright (C) 2017,2022, Roland Lindh                                *
 !***********************************************************************
-      Subroutine TraClc_x(kOptim,FrstDs)
+      Subroutine TraClc_x_qNR(kOptim,QNR1st,CInter,nCI,nD,nOV,iter,LLx)
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer kOptim
-      Logical FrstDs
+      Integer kOptim,nCI,nD,nOV,iter,LLx
+      Logical QNR1st
+      Real*8 CInter(nCI,nD)
+      Real*8, Dimension(:,:), Allocatable:: Xn
 
       If (kOptim.eq.1) Return
 
 !     Extrapolation case.
 !
-!     gradients: energy derivatives w.r.t the antisymmetric matrix, X,
-!                which defines the orbital rotations, exp[P(X)]
+!     displacements: del = -H^(-1)g, where g=dE/dX_m
 
-!---  only DIIS, compute gradients
 
-      If (FrstDs) Then
-!        On first iteration compute all gradients and put them on file.
-         Call GrdClc('All',.False.)
-         FrstDs=.FALSE.
+      If (QNR1st) Then
+
+!------  1st QNR step, reset kOptim to 1
+
+         kOptim = 1
+         CInter(1,1) = One
+         CInter(1,nD) = One
+
+!        init 1st orb rot parameter X1 (set it to zero)
+         Call mma_allocate(Xn,nOV,nD,Label='Xn')
+         Call FZero(Xn,nOV*nD)
+!        and store it on appropriate LList
+         Call PutVec(Xn,nOV*nD,iter,'NOOP',LLx)
+         Call mma_deallocate(Xn)
+
+!        compute actual gradient
+         Call GrdClc('All',.True.)
+
+         QNR1st=.FALSE.
       Else
-!        Compute just the last one.
-         Call GrdClc('Lst',.False.)
+
+!        Note that the required displacements are actually computed
+!        in linser!
+
+         Call GrdClc('Lst',.True.)
+
       End If
 
       Return
