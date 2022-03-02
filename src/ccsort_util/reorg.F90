@@ -44,17 +44,15 @@ logical(kind=iwp) :: run_triples
 integer(kind=iwp) :: IRETURN
 #include "ccsort.fh"
 #include "reorg.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iad15, ij, ipFOKA, ipFOKB, j, lad15, NOIPSB(106), ntot2, ntot3
-real(kind=wp) :: ene(mxRoot,mxIter), EPS(mbas), EPSRAS(mbas)
+integer(kind=iwp) :: i, iad15, ij, j, lad15, NOIPSB(106), ntot2, ntot3
 logical(kind=iwp) :: run_sort
-real(kind=wp), allocatable :: FI(:), FIRAS(:)
+real(kind=wp), allocatable :: Ene(:,:), EPS(:), EPSRAS(:), FI(:), FIRAS(:), FOKA(:), FOKB(:)
 integer(kind=iwp), external :: iPrintLevel
 
 fullprint = 0
 if (iPrintLevel(-1) <= 0) fullprint = -1
-call mma_Allocate(FIRAS,mbas*mbas,Label='FIRAS')
-call mma_Allocate(FI,mbas*mbas,Label='FI')
+call mma_allocate(FIRAS,mbas*mbas,Label='FIRAS')
+call mma_allocate(FI,mbas*mbas,Label='FI')
 
 ! READ AND ECHO INPUT DATA, READ JOBIPH, PRINT INPUT DATA,
 call RDINPPN(run_triples,run_sort)
@@ -73,6 +71,8 @@ if (run_sort) then
 
   ! pick the total energy from the JOBIPH file
 
+  call mma_allocate(Ene,mxRoot,mxIter)
+
   iad15 = iadr15(6)
   lad15 = mxroot*mxiter
   call dDaFile(JOBIPH,2,Ene,lad15,iad15)
@@ -85,6 +85,7 @@ if (run_sort) then
     Escf = Ene(LROOT,i)
     i = i+1
   end do
+  call mma_deallocate(Ene)
   if (fullprint >= 0) then
     write(u6,*)
     write(u6,'(6X,A,F16.8)') 'SCF energy:',Escf
@@ -99,11 +100,16 @@ if (run_sort) then
 
   ! get eps from previous RASSCF
 
+  call mma_allocate(eps,mbas,label='eps')
+  call mma_allocate(epsras,ntot2,label='epsras')
+
   iad15 = iadr15(11)
-  call ddafile(JOBIPH,2,epsras(1),ntot2,iad15)
+  call ddafile(JOBIPH,2,epsras,ntot2,iad15)
 
   ! reduce fi,eps and update n's
   call mod1(nsym,nfro,nish,nash,nssh,ndel,norb,nfror,ndelr,firas,fi,epsras,eps)
+
+  call mma_deallocate(epsras)
 
   ! def diagonal Fok for closed shell
 
@@ -155,12 +161,13 @@ if (run_sort) then
 
   ! open TRAINT and call action
 
-  call GetMem('FOKA','ALLO','REAL',ipFOKA,(mbas**2+mbas)/2)
-  call GetMem('FOKB','ALLO','REAL',ipFOKB,(mbas**2+mbas)/2)
+  call mma_allocate(FOKA,mbas*(mbas+1)/2,label='FOKA')
+  call mma_allocate(FOKB,mbas*(mbas+1)/2,label='FOKB')
 
-  call action_ccsort(Work(ipFOKA),Work(ipFOKB),fi,eps)
-  call GetMem('FOKA','FREE','REAL',ipFOKA,(mbas**2+mbas)/2)
-  call GetMem('FOKB','FREE','REAL',ipFOKB,(mbas**2+mbas)/2)
+  call action_ccsort(FOKA,FOKB,fi,eps)
+  call mma_deallocate(FOKA)
+  call mma_deallocate(FOKB)
+  call mma_deallocate(eps)
 
   ! close files
 
@@ -175,8 +182,8 @@ end if
 
 ireturn = 0
 
-call mma_Deallocate(FIRAS)
-call mma_Deallocate(FI)
+call mma_deallocate(FIRAS)
+call mma_deallocate(FI)
 
 return
 

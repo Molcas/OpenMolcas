@@ -12,17 +12,17 @@
 subroutine action_ccsort(foka,fokb,fi,eps)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 #include "reorg.fh"
 real(kind=wp) :: foka(mbas*(mbas+1)/2), fokb(mbas*(mbas+1)/2), fi(*), eps(mbas)
-#include "WrkSpc.fh"
 #include "ccsort.fh"
 #include "files_ccsd.fh"
-integer(kind=iwp) :: a, freespace, ickey, iOff, iOff_valn, iOff_Vic, ipJN, ipKN, ipLN, ipPQIND, keyred, ndimv1, ndimv2, ndimv3, &
-                     ndimvi, p, post, rc, symp, sympq, sympqr, symq, symr, syms, t3help1, t3help2, t3help3, t3help4, vsize, wrksize
-integer(kind=iwp), allocatable :: AMMAP(:,:,:), ABMAP(:,:,:)
+integer(kind=iwp) :: a, freespace, ickey, keyred, ndimv1, ndimv2, ndimv3, ndimvi, p, post, rc, symp, sympq, sympqr, symq, symr, &
+                     syms, t3help1, t3help2, t3help3, t3help4, vsize, wrksize
+integer(kind=iwp), allocatable :: AMMAP(:,:,:), ABMAP(:,:,:), JN(:,:), KN(:,:), LN(:,:), PQIND(:,:)
+real(kind=wp), allocatable :: CCSORT(:), CCSORT2(:), VALN(:,:)
 
 ! distribute memory
 
@@ -32,18 +32,17 @@ call initwrk(wrksize)
 !.2 test if allocation of required memory is possible
 
 !.2.1 allocate work space
-
-call GetMem('CCSORT','Max','Real',maxspace,maxspace)
+call mma_maxdble(maxspace)
 maxspace = maxspace-4
 if (maxspace < wrksize) then
   write(u6,*) ' Allocation of work space failed!'
   write(u6,*) ' Increase the size of the variable MOLCAS_MEM'
   call Abend()
 end if
-call GetMem('CCSORT','Allo','Real',iOff,wrksize)
+call mma_allocate(CCSORT,wrksize,label='CCSORT')
 
 !.3 set wrk = 0
-call ccsort_mv0zero(wrksize,wrksize,Work(iOff))
+call ccsort_mv0zero(wrksize,wrksize,CCSORT)
 
 ! def foka,fokb
 
@@ -154,13 +153,12 @@ do symp=1,nsym
       if (fullprint > 1) write(u6,'(6X,A,I4,4X,4I2)') 'Block',typ(symp,symq,symr),symp,symq,symr,syms
 
       ! test for incore expansion
-      freespace = 0
-      call GetMem('CCSORT','Max','Real',freespace,freespace)
+      call mma_maxdble(freespace)
       freespace = freespace-4
       if (fullprint >= 2) then
         write(u6,*)
         write(u6,'(6X,A,I10)') 'Available freespace   ',freespace
-        write(u6,'(6X,A,I10)') 'Available freespace/MB',freespace/131072
+        write(u6,'(6X,A,I10)') 'Available freespace/MB',freespace*RtoB/1024**2
         write(u6,'(6X,A,I10)') 'Incore expansion      ',vsize+mbas*mbas
         write(u6,'(6X,A,I10)') 'Out of core expansion ',4*nsize*mbas
       end if
@@ -171,23 +169,23 @@ do symp=1,nsym
           write(u6,*)
           write(u6,'(6X,A)') 'Incore expansion      '
         end if
-        call GetMem('CCSORT','Allo','Real',iOff_Vic,vsize)
+        call mma_allocate(CCSORT2,vsize,label='CCSORT2')
 
         if (ickey == 1) then
           ! case V(p,q,r,s)
-          call esb_ic_1(symp,symq,symr,syms,Work(iOff_Vic),norb(symp),norb(symq),norb(symr),norb(syms))
+          call esb_ic_1(symp,symq,symr,syms,CCSORT2,norb(symp),norb(symq),norb(symr),norb(syms))
 
         else if (ickey == 2) then
           ! case V(pr,qs)
-          call GetMem('PQIND','ALLO','INTE',ipPQIND,mbas*mbas)
-          call esb_ic_2(symp,symq,Work(iOff_Vic),norb(symp),norb(symq),iWork(ipPQIND))
-          call GetMem('PQIND','FREE','INTE',ipPQIND,mbas*mbas)
+          call mma_allocate(PQIND,mbas,mbas,label='PQIND')
+          call esb_ic_2(symp,symq,CCSORT2,norb(symp),norb(symq),PQIND)
+          call mma_deallocate(PQIND)
 
         else
           ! case V(prqs)
-          call GetMem('PQIND','ALLO','INTE',ipPQIND,mbas*mbas)
-          call esb_ic_3(symp,Work(iOff_Vic),norb(symp),iWork(ipPQIND))
-          call GetMem('PQIND','FREE','INTE',ipPQIND,mbas*mbas)
+          call mma_allocate(PQIND,mbas,mbas,label='PQIND')
+          call esb_ic_3(symp,CCSORT2,norb(symp),PQIND)
+          call mma_deallocate(PQIND)
 
         end if
 
@@ -204,18 +202,18 @@ do symp=1,nsym
         end if
 
         ! allocate space for valn,jn,kn,ln
-        call GetMem('VALN','ALLO','REAL',iOff_valn,nsize*mbas)
-        call GetMem('JN','ALLO','INTE',ipJN,nsize*mbas)
-        call GetMem('KN','ALLO','INTE',ipKN,nsize*mbas)
-        call GetMem('LN','ALLO','INTE',ipLN,nsize*mbas)
+        call mma_allocate(VALN,nsize,mbas,label='VALN')
+        call mma_allocate(JN,nsize,mbas,label='JN')
+        call mma_allocate(KN,nsize,mbas,label='KN')
+        call mma_allocate(LN,nsize,mbas,label='LN')
 
-        call exppsb(symp,symq,symr,syms,Work(iOff_valn),iWork(ipJN),iWork(ipKN),iWork(ipLN))
+        call exppsb(symp,symq,symr,syms,VALN,JN,KN,LN)
 
         ! release space for valn,jn,kn,ln
-        call GetMem('VALN','FREE','REAL',iOff_valn,nsize*mbas)
-        call GetMem('JN','FREE','INTE',ipJN,nsize*mbas)
-        call GetMem('KN','FREE','INTE',ipKN,nsize*mbas)
-        call GetMem('LN','FREE','INTE',ipLN,nsize*mbas)
+        call mma_deallocate(VALN)
+        call mma_deallocate(JN)
+        call mma_deallocate(KN)
+        call mma_deallocate(LN)
 
       end if
 
@@ -237,19 +235,19 @@ do symp=1,nsym
           else
             keyred = 0
           end if
-          call unpackk(p,Work(iOff),ndimv1,ndimv2,ndimv3,keyred)
+          call unpackk(p,CCSORT,ndimv1,ndimv2,ndimv3,keyred)
 
         else if (ickey == 1) then
           ! else Incore expansions
 
           ! case V(p,q,r,s)
-          call unpackk_ic_1(p,Work(iOff),ndimv1,ndimv2,ndimv3,Work(iOff_Vic),ndimvi)
+          call unpackk_ic_1(p,CCSORT,ndimv1,ndimv2,ndimv3,CCSORT2,ndimvi)
         else if (ickey == 2) then
           ! case V(pr,qs)
-          call unpackk_ic_2(p,Work(iOff),ndimvi,ndimv1,Work(iOff_Vic))
+          call unpackk_ic_2(p,CCSORT,ndimvi,ndimv1,CCSORT2)
         else
           ! case V(prqs)
-          call unpackk_ic_3(p,Work(iOff),ndimvi,Work(iOff_Vic))
+          call unpackk_ic_3(p,CCSORT,ndimvi,CCSORT2)
         end if
 
         ! cycle
@@ -275,7 +273,7 @@ do symp=1,nsym
               t3help3 = nvb(syms)
 
               ! do packing
-              call t3intpck2(Work(iOff),Work(iOff+posri0-1),ndimv1,ndimv2,ndimv3,t3help1,t3help2,t3help3,symq,symr,syms,nob,nvb)
+              call t3intpck2(CCSORT,CCSORT(posri0),ndimv1,ndimv2,ndimv3,t3help1,t3help2,t3help3,symq,symr,syms,nob,nvb)
 
             else if (symq == syms) then
 
@@ -293,7 +291,7 @@ do symp=1,nsym
               t3help2 = nvb(symq)*(nvb(symq)+1)/2
 
               ! do packing
-              call t3intpck1(Work(iOff),Work(iOff+posri0-1),ndimv1,ndimv2,ndimv3,t3help1,t3help2,symq,symr,syms,nob,nvb)
+              call t3intpck1(CCSORT,CCSORT(posri0),ndimv1,ndimv2,ndimv3,t3help1,t3help2,symq,symr,syms,nob,nvb)
 
             end if
           end if
@@ -302,18 +300,18 @@ do symp=1,nsym
         ! add integrals to #1 <pq|ij> if needed
 
         ! contributions only for symi(r)>=symj(s)
-        if (symr >= syms) call addpqij(Work(iOff),wrksize,symp,symq,symr,syms,p,Work(iOff),ndimv1,ndimv2,ndimv3)
+        if (symr >= syms) call addpqij(CCSORT,wrksize,symp,symq,symr,syms,p,CCSORT,ndimv1,ndimv2,ndimv3)
 
         ! updete fok if necessary (only for open shell case)
 
         if (clopkey == 1) then
 
           if ((symp == symr) .and. (symq == syms) .and. (p > nob(symp)) .and. (p <= (noa(symp)))) then
-            call fokupdate1(foka,fokb,symq,p,Work(iOff),ndimv1,ndimv2,ndimv3)
+            call fokupdate1(foka,fokb,symq,p,CCSORT,ndimv1,ndimv2,ndimv3)
           end if
 
           if ((symp == syms) .and. (symq == symr) .and. (p > nob(symp)) .and. (p <= (noa(symp)))) then
-            call fokupdate2(foka,symq,p,Work(iOff),ndimv1,ndimv2,ndimv3)
+            call fokupdate2(foka,symq,p,CCSORT,ndimv1,ndimv2,ndimv3)
           end if
 
         end if
@@ -322,15 +320,15 @@ do symp=1,nsym
         ! and pack _a_brs to direct access file TEMPDA1 if needed and symm in not C1
         if (p > nob(symp)) then
           a = p-nob(symp)
-          call ampack(Work(iOff),wrksize,symp,symq,symr,syms,a,Work(iOff),ndimv1,ndimv2,ndimv3,AMMAP)
+          call ampack(CCSORT,wrksize,symp,symq,symr,syms,a,CCSORT,ndimv1,ndimv2,ndimv3,AMMAP)
           if ((nsym > 1) .and. (symp >= symq)) then
-            call abpack(Work(iOff),wrksize,symp,symq,symr,syms,a,Work(iOff),ndimv1,ndimv2,ndimv3,ABMAP)
+            call abpack(CCSORT,wrksize,symp,symq,symr,syms,a,CCSORT,ndimv1,ndimv2,ndimv3,ABMAP)
           end if
         end if
 
         ! add INTAB file (for nonsymmetrical (C1) state)
 
-        if ((nsym == 1) .and. (p > nob(1))) call addintabc1(Work(iOff),wrksize,p-nob(1),Work(iOff),ndimv1)
+        if ((nsym == 1) .and. (p > nob(1))) call addintabc1(CCSORT,wrksize,p-nob(1),CCSORT,ndimv1)
 
       end do
 
@@ -339,7 +337,7 @@ do symp=1,nsym
       ! close temp files
       !call closetemp(norb(symp))
 
-      if (ickey >= 1) call GetMem('CCSORT','Free','Real',iOff_Vic,vsize)
+      if (ickey >= 1) call mma_deallocate(CCSORT2)
 
     end do
 
@@ -348,7 +346,7 @@ do symp=1,nsym
     if ((nsym > 1) .and. (symp >= symq)) then
       ! add contributions to INTAB comming from symp,sumq and close TEMPDA1 file
       ! only for symmetrical cases; only for syma>=symb
-      call addintab(Work(iOff),wrksize,symp,symq,ABMAP)
+      call addintab(CCSORT,wrksize,symp,symq,ABMAP)
       close(lunda1)
       call vf('TEMPDA1 ',lunda1)
     end if
@@ -361,7 +359,7 @@ do symp=1,nsym
   ! and close TEMPDA2 files
 
   !if (nvb(symp) > 0) then
-  call addinta(Work(iOff),wrksize,symp,AMMAP)
+  call addinta(CCSORT,wrksize,symp,AMMAP)
   close(lunda2)
   call vf('TEMPDA2 ',lunda2)
   !end if
@@ -369,7 +367,7 @@ do symp=1,nsym
 end do
 
 ! if T3 are required, reorganize T3nam file
-if (t3key == 1) call t3reorg(Work(iOff),wrksize,noa,nsym)
+if (t3key == 1) call t3reorg(CCSORT,wrksize,noa,nsym)
 
 ! release space for ammap,abmap
 call mma_Deallocate(AMMAP)
@@ -398,7 +396,7 @@ end if
 
 ! def static integrals (file INTSTA)
 
-call mkintsta(Work(iOff),wrksize,foka,fokb)
+call mkintsta(CCSORT,wrksize,foka,fokb)
 
 ! write general informations to INPDAT
 
@@ -408,7 +406,7 @@ write(1) NACTEL,ISPIN,NSYM,LSYM,mul,noa,nob,nva,nvb,norb,eps,Escf
 close(1)
 
 ! Release the memory
-call GetMem('CCSORT','Free','Real',iOff,wrksize)
+call mma_deallocate(CCSORT)
 
 return
 

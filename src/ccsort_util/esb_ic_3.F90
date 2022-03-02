@@ -17,6 +17,7 @@ subroutine esb_ic_3(symp,Vic,dimp,pqind)
 ! It finds corresponding (IJ|KL) and expands it to
 ! matrix vic (prqs)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -27,7 +28,8 @@ real(kind=wp) :: Vic((dimp*(dimp+1)/2)*((dimp*(dimp+1)/2)+1)/2)
 #include "tratoc.fh"
 integer(kind=iwp) :: i, i1, idis13, ik, ikjl, ilow, ind(4), indtemp, iold, iup, j, j1, jl, jlow, jold, jup, k1, kold, kup, l1, &
                      lold, lup, maxx, ni, nj, nk, nl, nsi, nsj, nsk, nsl
-real(kind=wp) :: TWO(nTraBuf), val1
+real(kind=wp) :: val1
+real(kind=wp), allocatable :: TWO(:)
 
 !I calc pqind
 
@@ -66,6 +68,8 @@ NSI = ind(1)
 NSJ = ind(2)
 NSK = ind(3)
 NSL = ind(4)
+
+call mma_allocate(TWO,nTraBuf,label='TWO')
 
 indtemp = nTraBuf+1
 KUP = NORB(NSK)
@@ -130,6 +134,8 @@ do KOLD=1,KUP
     end do
   end do
 end do
+
+call mma_deallocate(TWO)
 
 return
 

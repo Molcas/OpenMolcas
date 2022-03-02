@@ -17,13 +17,14 @@ subroutine RdTraOne()
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 #include "Molcas.fh"
 #include "motra.fh"
 integer(kind=iwp) :: iDisk, LuTraOne, TocTraOne(64)
-character(len=LenIn8) :: BsLbl(MxOrb)
+character(len=LenIn8), allocatable :: BsLbl(:)
 
 LuTraOne = 3
 
@@ -32,7 +33,9 @@ call DaName(LuTraOne,'TRAONE')
 !ulf
 iDisk = 0
 
+call mma_allocate(BsLbl,MxOrb,label='BsLbl')
 call WR_MOTRA_Info(LuTraOne,2,iDisk,TocTraOne,64,EcorX,nSymX,nBasX,nOrbX,nFroX,nDelX,8,BsLbl,LenIn8*MxOrb)
+call mma_deallocate(BsLbl)
 
 call Daclos(LuTraOne)
 

@@ -19,24 +19,26 @@ subroutine zasun_pck(i1,length,valn,jn,kn,ln)
 ! and stattemp and tmpnam as inputs, but they are
 ! transported through commons  in reorg.fh
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, ItoB, RtoB
 
 implicit none
 #include "reorg.fh"
 integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
 real(kind=wp) :: valn(nsize,mbas)
-integer(kind=iwp) :: ihelp, iRec, jkl(nsize), m2
+integer(kind=iwp) :: ihelp, iRec, m2
 real(kind=wp) :: rhelp
-character(len=RtoB+ItoB) :: pp(nsize), pphelp
+character(len=RtoB+ItoB) :: pphelp
+character(len=RtoB+ItoB), allocatable :: pp(:)
 integer(kind=iwp), parameter :: constj = 1024**2, constk = 1024
 
 ! pack indices and integral values
 
-jkl(1:length) = ln(1:length,i1)+constj*jn(1:length,i1)+constk*kn(1:length,i1)
+call mma_allocate(pp,length,label='pp')
 
 do m2=1,length
   rhelp = valn(m2,i1)
-  ihelp = jkl(m2)
+  ihelp = ln(m2,i1)+constj*jn(m2,i1)+constk*kn(m2,i1)
   pphelp(1:RtoB) = transfer(rhelp,pphelp(1:RtoB))
   pphelp(RtoB+1:) = transfer(ihelp,pphelp(RtoB+1:))
   pp(m2) = pphelp
@@ -84,6 +86,8 @@ else
   call daclos(lunpublic)
 
 end if
+
+call mma_deallocate(pp)
 
 nrectemp(i1) = nrectemp(i1)+1
 lrectemp(i1) = length

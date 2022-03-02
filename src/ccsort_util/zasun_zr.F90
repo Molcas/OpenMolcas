@@ -19,18 +19,21 @@ subroutine zasun_zr(i1,length,valn,jn,kn,ln)
 ! and stattemp and tmpnam as inputs, but they are
 ! transported through commons  in reorg.fh
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "reorg.fh"
 integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
 real(kind=wp) :: valn(nsize,mbas)
-integer(kind=iwp) :: i, f_iostat, jkl(nsize) !, iRec
+integer(kind=iwp) :: i, f_iostat !, iRec
 logical(kind=iwp) :: is_error
-integer(kind=iwp) :: constj = 1024*1024, constk = 1024
+integer(kind=iwp), allocatable :: jkl(:)
+integer(kind=iwp), parameter :: constj = 1024*1024, constk = 1024
 
 ! pack indices
 
+call mma_allocate(jkl,length,label='jkl')
 jkl(1:length) = ln(1:length,i1)+constj*jn(1:length,i1)+constk*kn(1:length,i1)
 
 ! open corresponding TEMP file in corresponding form
@@ -75,6 +78,8 @@ else
   call daclos(lunpublic)
 
 end if
+
+call mma_deallocate(jkl)
 
 nrectemp(i1) = nrectemp(i1)+1
 lrectemp(i1) = length

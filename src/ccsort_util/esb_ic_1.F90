@@ -15,6 +15,7 @@ subroutine esb_ic_1(symp,symq,symr,syms,Vic,dimp,dimq,dimr,dims)
 ! It finds corresponding (IJ|KL) and expands it to
 ! matrix vic (np,nq,nr,ns)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -25,7 +26,8 @@ real(kind=wp) :: Vic(dimp,dimq,dimr,dims)
 #include "tratoc.fh"
 integer(kind=iwp) :: i1, idis13, ilow, ind(4), indtemp, iold, iup, j1, jlow, jold, jup, k1, kold, kup, l1, lold, lup, ni, nj, nk, &
                      nl, nsi, nsj, nsk, nsl, typp, yes234, yes5, yes678
-real(kind=wp) :: TWO(nTraBuf), val1
+real(kind=wp) :: val1
+real(kind=wp), allocatable :: TWO(:)
 
 !I get address
 idis13 = idis(symp,symq,symr)
@@ -82,6 +84,8 @@ NSI = ind(1)
 NSJ = ind(2)
 NSK = ind(3)
 NSL = ind(4)
+
+call mma_allocate(TWO,nTraBuf,label='TWO')
 
 indtemp = nTraBuf+1
 KUP = NORB(NSK)
@@ -228,6 +232,8 @@ do KOLD=1,KUP
     end do
   end do
 end do
+
+call mma_deallocate(TWO)
 
 return
 

@@ -110,7 +110,7 @@ c
 c
 c     ------  special T3 part ------
 c
-c2    name for joinded T3 integral file
+c2    name for joined T3 integral file
        character*6 t3nam
        parameter (t3nam='T3VVVO')
 c

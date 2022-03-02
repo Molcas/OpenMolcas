@@ -183,7 +183,7 @@
 !
 !     ------  special T3 part ------
 !
-!2    name for joinded T3 integral file
+!2    name for joined T3 integral file
        character*6 t3nam
        parameter (t3nam='T3VVVO')
 !

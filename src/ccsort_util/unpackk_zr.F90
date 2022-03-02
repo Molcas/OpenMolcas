@@ -22,13 +22,15 @@ subroutine unpackk_zr(i,vint,ndimv1,ndimv2,ndimv3,key)
 !          = 0 if symj is not syml
 !          = 1 if symj = syml
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, key
 real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3)
 #include "reorg.fh"
-integer(kind=iwp) :: daddr, iBuf(nsize), ihelp, ires, length, nhelp, nrec
+integer(kind=iwp) :: daddr, ihelp, ires, length, nhelp, nrec
+integer(kind=iwp), allocatable :: iBuf(:)
 integer(kind=iwp), parameter :: constj = 1024**2, constk = 1024
 
 ! set vint=0
@@ -47,6 +49,8 @@ else
   call daname(lunpublic,tmpnam(i))
   daddr = 0
 end if
+
+call mma_allocate(iBuf,nsize)
 
 do nrec=1,nrectemp(i)
 
@@ -87,6 +91,8 @@ do nrec=1,nrectemp(i)
   end if
 
 end do
+
+call mma_deallocate(iBuf)
 
 if (iokey == 1) then
   ! Fortran IO

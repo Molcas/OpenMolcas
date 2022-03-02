@@ -35,6 +35,7 @@ subroutine RdInpPN(run_triples,run_sort)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -44,9 +45,10 @@ logical(kind=iwp) :: run_triples, run_sort
 #include "reorg.fh"
 #include "motra.fh"
 integer(kind=iwp) :: i, IAD15, iCmd, istatus, isym, J, jCmd, LROOTS, LuSpool, M, N, nhelp, ntAsh
-real(kind=wp) :: Weights(mxRoot)
 character(len=72) :: Line
 character(len=4) :: Command
+real(kind=wp), allocatable :: Weights(:)
+character(len=LenIn8), allocatable :: CName(:)
 character(len=4), parameter :: Cmd(20) = ['TITL','END ','CCSD','CCT ','CLOS','OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF', &
                                           'DENO','SHIF','ACCU','ADAP','EXTR','TRIP','NOSO','ITER']
 
@@ -91,8 +93,12 @@ IAD15 = 0
 call iDAFILE(JOBIPH,2,IADR15,15,IAD15)
 !DIVNUO
 IAD15 = IADR15(1)
-call WR_RASSCF_Info(JOBIPH,2,iAd15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,8,NAME,LENIN8*MXORB,NCONF,HEADER,2*72,TITLE, &
+call mma_allocate(CName,mxOrb,label='CName')
+call mma_allocate(Weights,mxRoot,label='Weights')
+call WR_RASSCF_Info(JOBIPH,2,iAd15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,8,CName,LenIn8*MxOrb,NCONF,HEADER,2*72,TITLE, &
                     4*18*MXTIT,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
+call mma_deallocate(CName)
+call mma_deallocate(Weights)
 
 ! define defaults for REORG
 

@@ -31,6 +31,7 @@ subroutine exppsb(symp,symq,symr,syms,valn,jn,kn,ln)
 ! 7 - si>sk, si>sj, sk=sl
 ! 8 - si>sk, si>sj, sk>sl
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -41,7 +42,8 @@ real(kind=wp) :: valn(nsize,mbas)
 #include "tratoc.fh"
 integer(kind=iwp) :: i1, idis13, ilow, ind(4), indtemp, iold, iup, j1, jlow, jold, jup, k1, kold, kup, l1, lold, lup, m3, nhelp1, &
                      nhelp2, ni, nj, nk, nl, nsi, nsj, nsk, nsl, typp, yes234, yes5, yes678
-real(kind=wp) :: TWO(nTraBuf), val1
+real(kind=wp) :: val1
+real(kind=wp), allocatable :: TWO(:)
 
 !I get address
 idis13 = idis(symp,symq,symr)
@@ -102,6 +104,8 @@ NSI = ind(1)
 NSJ = ind(2)
 NSK = ind(3)
 NSL = ind(4)
+
+call mma_allocate(TWO,nTraBuf,label='TWO')
 
 indtemp = nTraBuf+1
 KUP = NORB(NSK)
@@ -347,6 +351,8 @@ do KOLD=1,KUP
     end do
   end do
 end do
+
+call mma_deallocate(TWO)
 
 !IV write the rest integrals if needed
 
