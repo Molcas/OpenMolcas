@@ -13,71 +13,14 @@
 *               1992, Piotr Borowski                                   *
 *               1995,1996, Martin Schuetz                              *
 *               2003, Valera Veryazov                                  *
-*               2016,2017, Roland Lindh                                *
+*               2016,2017,2022, Roland Lindh                           *
 ************************************************************************
-      SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
-      use SCF_Arrays
-      Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "stdalloc.fh"
-      Logical FstItr
-      Character(LEN=*) Meth
-      Character(LEN=256) wfctl_version
-*
-      nD = iUHF + 1
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Allocate memory for some arrays
-*
-      nTr=MxIter
-      Call mma_allocate(TrDh,nTR**2,nD,Label='TrDh')
-      Call mma_allocate(TrDP,nTR**2,nD,Label='TrDP')
-      Call mma_allocate(TrDD,nTR**2,nD,Label='TrDD')
-      nCI = MxOptm + 1
-      Call mma_allocate(CInter,nCI,nD,Label='CInter')
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call GetEnvF('MOLCAS_SCF',wfctl_version)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Select Case(WfCtl_Version(1:3))
-
-      Case ('NEW')
-         Call WfCtl_SCF_New     (iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
-     &                           Dens,Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,
-     &                           CInter,EOrb,OccNo,HDiag,Vxc,TrM,nBT,
-     &                           nDens,nD,nTr,nBB,nCI,nnB,nOV
-     &                          )
-
-      Case Default
-         Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
-     &                           Dens,Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,
-     &                           CInter,EOrb,OccNo,HDiag,Vxc,TrM,nBT,
-     &                           nDens,nD,nTr,nBB,nCI,nnB,nOV
-     &                          )
-      End Select
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call mma_deallocate(CInter)
-      Call mma_deallocate(TrDD)
-      Call mma_deallocate(TrDP)
-      Call mma_deallocate(TrDh)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
-      End
-      SubRoutine WfCtl_SCF_Internal(
+      SubRoutine WfCtl_SCF_New(
      &                      iTerm,Meth,FstItr,SIntTh,
      &                      OneHam,TwoHam,Dens,Ovrlp,Fock,
      &                      TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,HDiag,
      &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB,mOV
-     &                             )
+     &                        )
 ************************************************************************
 *                                                                      *
 *     purpose: Optimize SCF wavefunction.                              *
@@ -99,6 +42,7 @@
 *     University of Lund, Sweden, 1992,95,96                           *
 *     UHF, V.Veryazov, 2003                                            *
 *     Cleanup, R. Lindh, 2016                                          *
+*     Adaptation to single optimization procedure, R. Lindh, 2022      *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -148,6 +92,16 @@
 #endif
       Dimension Dummy(1),iDummy(7,8)
       External DNRM2_
+
+      Write (6,*)
+      Write (6,*) "===================================================="
+      Write (6,*) "===================================================="
+      Write (6,*) "==                                                =="
+      Write (6,*) "==     Running the new experimental SCF driver    =="
+      Write (6,*) "==                                                =="
+      Write (6,*) "===================================================="
+      Write (6,*) "====================================================
+      Write (6,*)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -213,7 +167,7 @@
       iterSt=iter0
       iterso=0        ! number of second order steps.
       kOptim=1
-      Iter_no_Diis=2
+      Iter_no_Diis=1
 *                                                                      *
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
@@ -223,6 +177,8 @@
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
 *                                                                      *
+      DiisTh=1.0D0
+      QNRTh=1.0D0
       DiisTh=Max(DiisTh,QNRTh)
 *
 *     If DIIS is turned off make threhold for activation impossible
@@ -237,7 +193,7 @@
 *
       If (.NOT. Damping) Then
          DiisTh=DiisTh*1.0D99
-         Iter_no_Diis=1
+         Iter_no_Diis=0  ! This dosn'r work!!!!
       End If
 *
 *---  turn temporarily off DIIS & QNR/DIIS, if Aufbau is active...
@@ -329,9 +285,15 @@
 *======================================================================*
 *                                                                      *
       Do 100 iter_ = iterSt+1, iterSt+nIter(nIterP)
+         Write (6,*)
+         Write (6,*)  'iter_:',iter_
+         Write (6,*)
+         Write (6,*) 'iOpt(Initial)=',iOpt
+         Write (6,*) 'QNR1St=',QNR1st
          iter = iter_
          IterX=IterX+1
          WarnCfg=.false.
+         Write (6,*) 'IterX=',IterX
 *
          If(.not.Aufb.and.iter.gt.MaxFlip) AllowFlip=.false.
 
@@ -380,17 +342,23 @@
 *        2017-02-03: add energy criterion to make sure that the DIIS
 *                    gets some decent to work with.
 *
-         If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
-     &             .AND. ABS(EDiff).lt.1.0D-1)) Then
+         Write (6,*) 'DMOMax=',DMOMax
+         Write (6,*) 'EDiff=',EDiff
+         Write (6,*) 'Iter_No_Diis=',Iter_No_Diis
+*        If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
+*    &             .AND. ABS(EDiff).lt.1.0D-1)) Then
+         If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis)) Then
 *
 *           Reset kOptim such that the extraploation scheme is not
 *           corrupted by iterations with too high energies. Those can
 *           not be used in the scheme.
 *
+            Write (6,*) 'Case(1)'
             If (iOpt.eq.0) kOptim=2
             iOpt=1
             Iter_DIIS = Iter_DIIS + 1
          End If
+         Write (6,*) 'iOpt,kOptim,Iter_DIIS:',iOpt,kOptim,Iter_DIIS
 *
 *        Test if the DIIS scheme will be operating in an orbital
 *        rotation mode or linear combination of density matrices. This
@@ -403,7 +371,9 @@
 *
          If (iOpt.ge.2 .OR.
      &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
+*    &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.1))
      &      Then
+            Write (6,*) 'Case(2)'
             If (RSRFO) Then
                iOpt=3
                kOptim=2
@@ -429,6 +399,8 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+         Write (6,*) 'kOptim(Final)=',kOptim
+         Write (6,*) 'iOpt(Final)=',iOpt
          If ( iOpt.eq.0 ) Then
 *                                                                      *
 ************************************************************************
@@ -455,8 +427,6 @@
 *              DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
 *
                iOpt_DIIS=1 ! EDIIS option
-*              iOpt_DIIS=2 ! ADIIS option (untested option)
-*              iOpt_DIIS=3 ! LDIIS option (not implemented option)
 *
                Call DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,MxIter,nD,
      &                     iOpt_DIIS,Ind)

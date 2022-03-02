@@ -52,8 +52,7 @@
       PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
       Real*8, Allocatable :: TmpVec(:), Diag(:), TVec(:), TAV(:),
      &                       TRes(:)
-      Real*8 :: Dum=0.0D0
-
+      Real*8 :: Dum(1)=0.0D0
 *
 #include "stdalloc.fh"
 #include "real.fh"
@@ -67,7 +66,6 @@
 #endif
       n=m+1
 
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
       Call NrmClc(    g,m,'Davidson_SCF','g')
@@ -141,7 +139,7 @@
          END IF
       END DO
 #ifdef _DEBUGPRINT_
-*     Write (6,*) 'Index_D=',Index_D
+      Write (6,*) 'Index_D=',Index_D
 #endif
 
 *---- Setup the initial subspace
@@ -274,11 +272,19 @@
 #endif
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
           call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          [Dum],-1,info)
-          nTmp=INT(Dum)
+     &                          Dum,-1,info)
+          If (info/=0) Then
+             Write (6,*) 'info(2)/=0', info
+             Call Abend()
+          End If
+          nTmp=Max(1,INT(Dum(1)))
           Call mma_allocate(TmpVec,nTmp,Label='TmpVec')
           call dsyev_('V','L',mk,EVec,maxk,EVal,
      &                          TmpVec,nTmp,info)
+          If (info/=0) Then
+             Write (6,*) 'info(2)/=0', info
+             Call Abend()
+          End If
           Call mma_deallocate(TmpVec)
           CALL JacOrd2(EVal,EVec,mk,maxk)
           call dcopy_(k,EVal,1,Eig,1)
@@ -408,8 +414,8 @@
           call dcopy_(mink*n,TmpVec,1,Sub,1)
           Call mma_deallocate(TmpVec)
 
-*----     To make sure Sub' is orthonormal, add the vectors one by one
-*
+!----     To make sure Sub' is orthonormal, add the vectors one by one
+!
           j=0
           i=0
           DO WHILE ((j .LT. mink) .AND. (i .LT. mk))
@@ -417,8 +423,8 @@
             Call Add_Vector(n,j,Sub,Sub(1,i),Thr3)
           END DO
 
-*----     j should be mink, but who knows...
-*
+!----     j should be mink, but who knows...
+!
 #ifdef _DEBUGPRINT_
           IF (j .LT. mink) THEN
             WRITE(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j

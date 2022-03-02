@@ -70,13 +70,13 @@
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Tmp,nInter+1,Label='Tmp')
 *
-      Call DZero(Vec,(nInter+1)*NumVal)
-      Call DZero(Tmp,nInter+1)
+      Vec(:)=Zero
+      Tmp(:)=Zero
  998  Continue
          Iter=Iter+1
 #ifdef _DEBUGPRINT_
-*        Write (Lu,*) 'Iter=',Iter
-*        Write (Lu,*) 'A_RFO=',A_RFO
+         Write (Lu,*) 'Iter=',Iter
+         Write (Lu,*) 'A_RFO=',A_RFO
 #endif
 *                                                                      *
 ************************************************************************
