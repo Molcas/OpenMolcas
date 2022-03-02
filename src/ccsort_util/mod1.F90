@@ -17,22 +17,12 @@ subroutine mod1(nsym,nfro,nish,nash,nssh,ndel,norb,nfror,ndelr,firas,fi,epsras,e
 ! 1) reduce firas, epsras if nfror>nfro, ndelr>ndel
 ! 2) redefine nfro,nish,nash,nssh,ndel,norb to proper ones
 
-integer nsym
-integer nfro(1:8)
-integer ndel(1:8)
-integer nish(1:8)
-integer nash(1:8)
-integer nssh(1:8)
-integer norb(1:8)
-integer nfror(1:8)
-integer ndelr(1:8)
-real*8 fi(*)
-real*8 firas(*)
-real*8 eps(*)
-real*8 epsras(*)
-! help variables
-integer p, q, pqras, pqnew, pras, pnew, isym
-integer ndf, ndd, nup, nlow
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nsym, nfro(8), nish(8), nash(8), nssh(8), ndel(8), norb(8), nfror(8), ndelr(8)
+real(kind=wp) :: firas(*), fi(*), epsras(*), eps(*)
+integer(kind=iwp) :: isym, ndd, ndf, nlow, nup, p, pnew, pqnew, pqras, pras, q
 
 !1 reduce fi
 

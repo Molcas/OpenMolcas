@@ -21,53 +21,57 @@ subroutine ireorg3(symp,typp,typpv1,paddv1,rc)
 ! paddv1- constant to be added (O) pv1 = pv2+paddv1
 ! rc    - return (error) code (O)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: symp, typp, typpv1, paddv1, rc
 #include "ccsort.fh"
-integer symp, typp, typpv1, paddv1, rc
 
 rc = 0
 
-if ((typp == 1) .or. (typp == 2)) then
-  if ((typpv1 == 1) .or. (typpv1 == 2) .or. (typpv1 == 5)) then
-    paddv1 = 0
-  else
-    rc = 1
-    ! RC=1 : typp=1 or 2, incompatible typpv1 (Stup)
+select case (typp)
+  case (1,2)
+    if ((typpv1 == 1) .or. (typpv1 == 2) .or. (typpv1 == 5)) then
+      paddv1 = 0
+    else
+      rc = 1
+      ! RC=1 : typp=1 or 2, incompatible typpv1 (Stup)
+      return
+    end if
+  case (3)
+    if (typpv1 == 3) then
+      paddv1 = 0
+    else if (typpv1 == 4) then
+      paddv1 = nvb(symp)-nva(symp)
+    else if (typpv1 == 5) then
+      paddv1 = noa(symp)
+    else
+      rc = 2
+      ! RC=2 : typp=3, incompatible typpv1 (Stup)
+      return
+    end if
+  case (4)
+    if (typpv1 == 4) then
+      paddv1 = 0
+    else if (typpv1 == 5) then
+      paddv1 = nob(symp)
+    else
+      rc = 3
+      ! RC=3 : typp=4, incompatible typpv1 (Stup)
+      return
+    end if
+  case (5)
+    if (typpv1 == 5) then
+      paddv1 = 0
+    else
+      ! RC=4 : typp=5, incompatible typpv1 (Stup)
+      return
+    end if
+  case default
+    rc = 5
+    ! RC=5 : improper typp (Stup)
     return
-  end if
-else if (typp == 3) then
-  if (typpv1 == 3) then
-    paddv1 = 0
-  else if (typpv1 == 4) then
-    paddv1 = nvb(symp)-nva(symp)
-  else if (typpv1 == 5) then
-    paddv1 = noa(symp)
-  else
-    rc = 2
-    ! RC=2 : typp=3, incompatible typpv1 (Stup)
-    return
-  end if
-else if (typp == 4) then
-  if (typpv1 == 4) then
-    paddv1 = 0
-  else if (typpv1 == 5) then
-    paddv1 = nob(symp)
-  else
-    rc = 3
-    ! RC=3 : typp=4, incompatible typpv1 (Stup)
-    return
-  end if
-else if (typp == 5) then
-  if (typpv1 == 5) then
-    paddv1 = 0
-  else
-    ! RC=4 : typp=5, incompatible typpv1 (Stup)
-    return
-  end if
-else
-  rc = 5
-  ! RC=5 : improper typp (Stup)
-  return
-end if
+end select
 
 return
 

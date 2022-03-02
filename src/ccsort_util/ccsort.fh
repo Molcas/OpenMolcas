@@ -15,6 +15,8 @@
 !     When changing the parameters make shure they match the definitions
 !     in the file rasdim.fh which defines the dimensions the JOBIPH
 !
+       INTEGER MXEXT,MXTU,MXTUV,MXTGEU,MXTGTU,MXIGEJ,MXIGTJ,MXAGEB,     &
+     & MXAGTB
        PARAMETER (MXEXT=MXBAS)
 !FUE  end modification
        PARAMETER (MXTU=MXACT**2,MXTUV=MXACT*MXTU,                       &
@@ -31,7 +33,7 @@
      & IASYM,IESYM,                                                     &
      & IINAIS,IACTIS,IEXTIS,                                            &
      & LIST,LROOT,NROOTS,IROOT,IADR15,NBAS2,                            &
-     & NORB1,IAD1M,NELE3,NHOLE1,                                        &
+     & NORB1,IAD1M,NELE3,NHOLE1,IPT2,                                   &
      & noa,nob,nva,nvb
        REAL*8 CONV,THRSHN,THRSHS,THRSHF,THRENE,THROCC,                  &
      & POTNUC,ECORE,EREF
@@ -51,11 +53,16 @@
 !@    COMMON/VARIA/ EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),     &
 !@    &    EDEA(MXACT),EDIP(MXACT),EOCORR(MXACT,0:2),                   &
 !@    &    POCC(MXACT,0:2),EASUM,DENORM
+       INTEGER NCMO,LCMO,NFIMO,LFIMO,NFAMO,LFAMO,NFIFA,LFIFA,NHONE,     &
+     & LHONE,NDREF,LDREF,NPREF,LPREF
        COMMON/ALLO/  NCMO,LCMO,NFIMO,LFIMO,NFAMO,LFAMO,NFIFA,LFIFA,     &
      & NHONE,LHONE,NDREF,LDREF,NPREF,LPREF
+       INTEGER LUINTA,LUONEA,JOBIPH,LUMORB,LUONEM,LUHLF1,LUHLF2,LUHLF3, &
+     & LUINTM,LUDMAT,LUVECT,LUEXT
        COMMON/CCSORT_UNITS/ LUINTA,LUONEA,JOBIPH,LUMORB,LUONEM,         &
      & LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUVECT,LUEXT
 ! Excitation operators, sizes and offsets
+       INTEGER NCASES,NASUP,NISUP,NINDEP,NEXC,NEXCES,NREDCO
        PARAMETER (NCASES=13)
        COMMON/CCSORT_STRUCT/ NASUP(8,NCASES),NISUP(8,NCASES),           &
      & NINDEP(8,NCASES),                                                &

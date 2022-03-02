@@ -24,12 +24,12 @@ subroutine ccsort_wrtmediate(wrk,wrksize,lun,mapd,mapi,rc)
 ! 1 - mapd, mapi
 ! 2 - one record with complete mediate
 
-#include "wrk.fh"
-integer lun, rc
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-! help variables
-integer im, length, poss0
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lun, mapd(0:512,6), mapi(8,8,8), rc
+real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp) :: im, length, pos0
 
 rc = 0
 
@@ -53,8 +53,8 @@ if (length == 0) then
   return
 end if
 
-poss0 = mapd(1,1)
-call ccsort_wri(lun,length,wrk(poss0))
+pos0 = mapd(1,1)
+call ccsort_wri(lun,length,wrk(pos0))
 
 return
 

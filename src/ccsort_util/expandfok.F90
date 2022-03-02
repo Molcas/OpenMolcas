@@ -13,22 +13,18 @@ subroutine expandfok(wrk,wrksize,fok)
 ! This routine expands fok operator to #2
 ! it also defines new mapd2,mapi2
 
-#include "wrk.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize), fok(*)
 #include "reorg.fh"
 #include "ccsort.fh"
-real*8 fok(*)
-! help variables
-integer symp, symq, symr, posstemp, pqwrk, qpwrk, pqfok, p, q
+integer(kind=iwp) :: p, postemp, pqfok, pqwrk, q, qpwrk, symp
 
 ! set mapi zero
 
-do symr=1,nsym
-  do symq=1,nsym
-    do symp=1,nsym
-      mapi2(symp,symq,symr) = 0
-    end do
-  end do
-end do
+mapi2(1:nsym,1:nsym,1:nsym) = 0
 
 ! def zeroth row of mapd
 
@@ -39,13 +35,13 @@ mapd2(0,4) = 0
 mapd2(0,5) = nsym
 mapd2(0,6) = 0
 
-posstemp = poss20
+postemp = pos20
 pqfok = 0
 do symp=1,nsym
 
   ! def mapd,mapi
 
-  mapd2(symp,1) = posstemp
+  mapd2(symp,1) = postemp
   mapd2(symp,2) = norb(symp)*norb(symp)
   mapd2(symp,3) = symp
   mapd2(symp,4) = symp
@@ -61,8 +57,8 @@ do symp=1,nsym
       ! calc pq and qp position in work and fok
       ! and write integrals to this positions
 
-      pqwrk = posstemp+(norb(symp)*(p-1)+q)-1
-      qpwrk = posstemp+(norb(symp)*(q-1)+p)-1
+      pqwrk = postemp+(norb(symp)*(p-1)+q)-1
+      qpwrk = postemp+(norb(symp)*(q-1)+p)-1
       pqfok = pqfok+1
       wrk(pqwrk) = fok(pqfok)
       wrk(qpwrk) = fok(pqfok)
@@ -70,7 +66,7 @@ do symp=1,nsym
     end do
   end do
 
-  posstemp = posstemp+mapd2(symp,2)
+  postemp = postemp+mapd2(symp,2)
 
 end do
 

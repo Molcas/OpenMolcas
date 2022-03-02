@@ -35,33 +35,32 @@ subroutine RdInpPN(run_triples,run_sort)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+logical(kind=iwp) :: run_triples, run_sort
 #include "ccsort.fh"
 #include "reorg.fh"
 #include "motra.fh"
-real*8 Weights(mxRoot)
-parameter(nCmd=20)
-character*4 Command, Cmd(nCmd)
-character*72 Line, Blank
-data Cmd/'TITL','END ','CCSD','CCT ','CLOS','OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF','DENO','SHIF','ACCU','ADAP','EXTR', &
-         'TRIP','NOSO','ITER'/
-logical run_triples, run_sort, Skip
+integer(kind=iwp) :: i, IAD15, iCmd, istatus, isym, J, jCmd, LROOTS, LuSpool, M, N, nhelp, ntAsh
+real(kind=wp) :: Weights(mxRoot)
+character(len=72) :: Line
+character(len=4) :: Command
+character(len=4), parameter :: Cmd(20) = ['TITL','END ','CCSD','CCT ','CLOS','OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF', &
+                                          'DENO','SHIF','ACCU','ADAP','EXTR','TRIP','NOSO','ITER']
 
 !---  Initialize -------------------------------------------------------*
-do i=1,72
-  Blank(i:i) = ' '
-end do
 LROOT = 0
 MAXIT = 0
-CONV = 1.0D-06
-THRSHN = 1.0D-10
-THRSHS = 1.0D-08
-THRSHF = 0.05d0
+CONV = 1.0e-6_wp
+THRSHN = 1.0e-10_wp
+THRSHS = 1.0e-8_wp
+THRSHF = 0.05_wp
 ORBIN = 'DEFAULT '
-THRENE = 1.50d0
+THRENE = 1.5_wp
 ORBIT = 'DEFAULT '
-THROCC = 0.0d0
+THROCC = Zero
 FOCKTYPE = 'STANDARD'
 HZERO = 'STANDARD'
 METHOD = 'CONJ'
@@ -105,10 +104,8 @@ cckey = 1
 t3key = 1
 clopkey = 1
 if (ntAsh == 0) clopkey = 2
-do nhelp=1,nsym
-  ndelr(nhelp) = NDEL(nhelp)
-  nfror(nhelp) = NFRO(nhelp)
-end do
+ndelr(1:nsym) = NDEL(1:nsym)
+nfror(1:nsym) = NFRO(1:nsym)
 !GG fullprint = 0
 noop = 0
 iokey = 1
@@ -118,10 +115,8 @@ run_sort = .true.
 
 !---  Read input from TRAONE file -------------------------------------*
 call RdTraOne()
-do iSym=1,nSym
-  nFror(iSym) = nFroX(iSym)
-  nDelr(iSym) = nDelX(iSym)
-end do
+nFror(1:nSym) = nFroX(1:nSym)
+nDelr(1:nSym) = nDelX(1:nSym)
 
 !---  Read input from LuSpool -----------------------------------------*
 LuSpool = 17
@@ -132,16 +127,15 @@ call RdNlst(LuSpool,'CCSDT')
 do
   read(LuSpool,'(A)',iostat=istatus) Line
   if (istatus < 0) call Error(1)
-  if ((Line(1:1) /= '*') .and. (Line /= Blank)) exit
+  if ((Line(1:1) /= '*') .and. (Line /= '')) exit
 end do
 Command = Line(1:4)
 call UpCase(Command)
 jCmd = 0
-do iCmd=1,nCmd
+do iCmd=1,size(Cmd)
   if (Command == Cmd(iCmd)) jCmd = iCmd
 end do
 if (jCmd == 0) call Error(2)
-Skip = .false.
 do
   select case (jCmd)
     case default !(1) !TITL
@@ -153,7 +147,7 @@ do
         call UpCase(Command)
         if (Command(1:1) == '*') cycle
         jCmd = 0
-        do iCmd=1,nCmd
+        do iCmd=1,size(Cmd)
           if (Command == Cmd(iCmd)) jCmd = iCmd
         end do
         if (jCmd /= 0) exit
@@ -264,15 +258,13 @@ end do
 ISCF = 0
 if (NASHT == 0) ISCF = 1
 if (NACTEL == 2*NASHT) ISCF = 1
-if (iSpin > 1) then
-  if ((ISPIN == NACTEL+1) .and. (NACTEL == NASHT)) ISCF = 2
-end if
+if ((iSpin > 1) .and. (ISPIN == NACTEL+1) .and. (NACTEL == NASHT)) ISCF = 2
 
 ! test agreement between REORG input and JOBIPH
 !if (clopkey /= (3-ISCF)) then
-!  write(6,*) ' Diference in closed/open specification'
-!  write(6,*) ' Plaese, correct REORG input file'
-!  write(6,*) clopkey,ISCF
+!  write(u6,*) ' Diference in closed/open specification'
+!  write(u6,*) ' Plaese, correct REORG input file'
+!  write(u6,*) clopkey,ISCF
 !  call Quit(16)
 !end if
 !
@@ -312,17 +304,17 @@ subroutine Error(code)
 
   integer :: code
 
-  write(6,*)
+  write(u6,*)
   select case (code)
     case (1)
-      write(6,*) ' *** input error ***'
-      write(6,*) ' hitting end of file mark'
+      write(u6,*) ' *** input error ***'
+      write(u6,*) ' hitting end of file mark'
     case (2)
-      write(6,*) ' *** input error ***'
-      write(6,*) ' unknown input'
-      write(6,*) ' line: ',Line
+      write(u6,*) ' *** input error ***'
+      write(u6,*) ' unknown input'
+      write(u6,*) ' line: ',Line
   end select
-  write(6,*)
+  write(u6,*)
   call Quit_OnUserError()
 
 end subroutine Error

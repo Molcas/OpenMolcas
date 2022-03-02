@@ -35,20 +35,21 @@ subroutine REORG(run_triples,IRETURN)
 !
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+logical(kind=iwp) :: run_triples
+integer(kind=iwp) :: IRETURN
 #include "ccsort.fh"
 #include "reorg.fh"
-#include "intgrl.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-real*8 EPSRAS(1:mbas)
-real*8 EPS(1:mbas)
-real*8 ene(mxRoot,mxIter)
-!real*8 Ene(25,50)
-integer NOIPSB(106)
-logical run_triples, run_sort
-real*8, allocatable :: FIRAS(:), FI(:)
+integer(kind=iwp) :: i, iad15, ij, ipFOKA, ipFOKB, j, lad15, NOIPSB(106), ntot2, ntot3
+real(kind=wp) :: ene(mxRoot,mxIter), EPS(mbas), EPSRAS(mbas)
+logical(kind=iwp) :: run_sort
+real(kind=wp), allocatable :: FI(:), FIRAS(:)
+integer(kind=iwp), external :: iPrintLevel
 
 fullprint = 0
 if (iPrintLevel(-1) <= 0) fullprint = -1
@@ -75,20 +76,20 @@ if (run_sort) then
   iad15 = iadr15(6)
   lad15 = mxroot*mxiter
   call dDaFile(JOBIPH,2,Ene,lad15,iad15)
-  EScf = 0.0d0
+  EScf = Zero
   i = 1
 
   ! take the last non-zero energy stored
 
-  do while ((Ene(LROOT,i) /= 0.0d0) .and. (i <= mxIter))
+  do while ((Ene(LROOT,i) /= Zero) .and. (i <= mxIter))
     Escf = Ene(LROOT,i)
     i = i+1
   end do
   if (fullprint >= 0) then
-    write(6,*)
-    write(6,'(6X,A,F16.8)') 'SCF energy:',Escf
-    write(6,'(6X,A)') '-----------'
-    write(6,*)
+    write(u6,*)
+    write(u6,'(6X,A,F16.8)') 'SCF energy:',Escf
+    write(u6,'(6X,A)') '-----------'
+    write(u6,*)
   end if
 
   ! get fi from previous RASSCF
@@ -106,47 +107,39 @@ if (run_sort) then
 
   ! def diagonal Fok for closed shell
 
-  if (clopkey == 2) then
-    call mod2(nsym,nish,nash,nssh,norb,fi,eps)
-  end if
+  if (clopkey == 2) call mod2(nsym,nish,nash,norb,fi,eps)
 
   ! define noa,nob,nva,nvb
 
-  do i=1,nsym
-    noa(i) = nish(i)+nash(i)
-    nob(i) = nish(i)
-    nva(i) = nssh(i)
-    nvb(i) = nssh(i)+nash(i)
-  end do
+  noa(1:nsym) = nish(1:nsym)+nash(1:nsym)
+  nob(1:nsym) = nish(1:nsym)
+  nva(1:nsym) = nssh(1:nsym)
+  nvb(1:nsym) = nssh(1:nsym)+nash(1:nsym)
 
   if (nsym < 8) then
-    do i=1+nsym,8
-      noa(i) = 0
-      nob(i) = 0
-      nva(i) = 0
-      nvb(i) = 0
-    end do
+    noa(nsym+1:8) = 0
+    nob(nsym+1:8) = 0
+    nva(nsym+1:8) = 0
+    nvb(nsym+1:8) = 0
   end if
 
   if (fullprint > 1) then
-    write(6,*)
-    write(6,'(6X,A)') 'Diagonal Fock matrix elements and orbital energies:'
-    write(6,'(6X,A)') '---------------------------------------------------'
-    write(6,*)
-    write(6,'(6X,A)') '----------------------------------------'
-    write(6,'(6X,A)') '   i      F(i,i)           eps(i)       '
-    write(6,'(6X,A)') '----------------------------------------'
+    write(u6,*)
+    write(u6,'(6X,A)') 'Diagonal Fock matrix elements and orbital energies:'
+    write(u6,'(6X,A)') '---------------------------------------------------'
+    write(u6,*)
+    write(u6,'(6X,A)') '----------------------------------------'
+    write(u6,'(6X,A)') '   i      F(i,i)           eps(i)       '
+    write(u6,'(6X,A)') '----------------------------------------'
     ij = 0
     do i=1,norb(1)
       do j=1,i
         ij = ij+1
-        if (i == j) then
-          write(6,'(6X,I4,2F18.10)') i,fi(ij),eps(i)
-        end if
+        if (i == j) write(u6,'(6X,I4,2F18.10)') i,fi(ij),eps(i)
       end do
     end do
-    write(6,'(6X,A)') '----------------------------------------'
-    write(6,*)
+    write(u6,'(6X,A)') '----------------------------------------'
+    write(u6,*)
   end if
 
   ! prepare address (stupid)
@@ -165,7 +158,7 @@ if (run_sort) then
   call GetMem('FOKA','ALLO','REAL',ipFOKA,(mbas**2+mbas)/2)
   call GetMem('FOKB','ALLO','REAL',ipFOKB,(mbas**2+mbas)/2)
 
-  call action(Work(ipFOKA),Work(ipFOKB),fi,eps)
+  call action_ccsort(Work(ipFOKA),Work(ipFOKB),fi,eps)
   call GetMem('FOKA','FREE','REAL',ipFOKA,(mbas**2+mbas)/2)
   call GetMem('FOKB','FREE','REAL',ipFOKB,(mbas**2+mbas)/2)
 
@@ -176,8 +169,8 @@ if (run_sort) then
 
 else
   ! case, when SORT was skipped
-  write(6,*) ' SORT part was skipped'
-  write(6,*) ' Input parameters are from last actual run of SORT'
+  write(u6,*) ' SORT part was skipped'
+  write(u6,*) ' Input parameters are from last actual run of SORT'
 end if
 
 ireturn = 0

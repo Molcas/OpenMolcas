@@ -31,36 +31,24 @@ subroutine exppsb(symp,symq,symr,syms,valn,jn,kn,ln)
 ! 7 - si>sk, si>sj, sk=sl
 ! 8 - si>sk, si>sj, sk>sl
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "reorg.fh"
+integer(kind=iwp) :: symp, symq, symr, syms, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
+real(kind=wp) :: valn(nsize,mbas)
 #include "ccsort.fh"
-integer symp, symq, symr, syms
-real*8 valn(1:nsize,1:mbas)
-integer jn(1:nsize,1:mbas)
-integer kn(1:nsize,1:mbas)
-integer ln(1:nsize,1:mbas)
-! help variables
-integer idis13, indtemp
-integer ni, nj, nk, nl, nsi, nsj, nsk, nsl, i1, j1, k1, l1
-integer iup, ilow, jup, jlow, kup, lup, iold, jold, kold, lold
-integer nhelp1, nhelp2, m3
-integer yes234, yes5, yes678
-integer typp
-integer ind(1:4)
 #include "tratoc.fh"
-integer INDMAX
-parameter(INDMAX=nTraBuf)
-real*8 TWO(INDMAX)
+integer(kind=iwp) :: i1, idis13, ilow, ind(4), indtemp, iold, iup, j1, jlow, jold, jup, k1, kold, kup, l1, lold, lup, m3, nhelp1, &
+                     nhelp2, ni, nj, nk, nl, nsi, nsj, nsk, nsl, typp, yes234, yes5, yes678
+real(kind=wp) :: TWO(nTraBuf), val1
 
 !I get address
 idis13 = idis(symp,symq,symr)
 
 !II preparing nshow vector
 
-do nhelp1=1,norb(symp)
-  nshow(nhelp1) = 0
-end do
+nshow(1:norb(symp)) = 0
 
 !III.1 define order of indices
 
@@ -115,35 +103,35 @@ NSJ = ind(2)
 NSK = ind(3)
 NSL = ind(4)
 
-indtemp = indmax+1
+indtemp = nTraBuf+1
 KUP = NORB(NSK)
 do KOLD=1,KUP
-  if (fullprint >= 3) write(6,*) ' * K ind ',KOLD
+  if (fullprint >= 3) write(u6,*) ' * K ind ',KOLD
 
   LUP = NORB(NSL)
   if (NSK == NSL) LUP = KOLD
   do LOLD=1,LUP
-    if (fullprint >= 3) write(6,*) ' ** L ind ',LOLD
+    if (fullprint >= 3) write(u6,*) ' ** L ind ',LOLD
 
     ILOW = 1
     if (NSI == NSK) ILOW = KOLD
     IUP = NORB(NSI)
     do IOLD=ILOW,IUP
-      if (fullprint >= 3) write(6,*) ' *** I ind ',IOLD
+      if (fullprint >= 3) write(u6,*) ' *** I ind ',IOLD
 
       JLOW = 1
       if ((NSI == NSK) .and. (IOLD == KOLD)) JLOW = LOLD
       JUP = NORB(NSJ)
       if (NSI == NSJ) JUP = IOLD
       do JOLD=JLOW,JUP
-        if (fullprint >= 3) write(6,*) ' **** J ind ',JOLD
+        if (fullprint >= 3) write(u6,*) ' **** J ind ',JOLD
 
         ! read block of integrals if necessary
 
-        if (indtemp == (indmax+1)) then
+        if (indtemp == (nTraBuf+1)) then
           indtemp = 1
           ! read block
-          call dDAFILE(LUINTM,2,TWO,INDMAX,IDIS13)
+          call dDAFILE(LUINTM,2,TWO,nTraBuf,IDIS13)
         end if
 
         ! write integrals to appropriate positions
@@ -364,9 +352,7 @@ end do
 
 do nhelp1=1,norb(symp)
   nhelp2 = nshow(nhelp1)
-  if (nhelp2 > 0) then
-    call zasun(nhelp1,nhelp2,valn,jn,kn,ln)
-  end if
+  if (nhelp2 > 0) call zasun(nhelp1,nhelp2,valn,jn,kn,ln)
 end do
 
 return

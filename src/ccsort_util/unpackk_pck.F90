@@ -22,20 +22,16 @@ subroutine unpackk_pck(i,vint,ndimv1,ndimv2,ndimv3,key)
 !          = 0 if symj is not syml
 !          = 1 if symj = syml
 
-#include "reorg.fh"
+use Definitions, only: wp, iwp, ItoB, RtoB
 
-#include "SysDef.fh"
-integer i, ndimv1, ndimv2, ndimv3, key
-real*8 vint(1:ndimv1,1:ndimv2,1:ndimv3)
-! help variables
-integer nhelp, length, daddr, nrec
-integer constj
-parameter(constj=1048576)
-integer constk
-parameter(constk=1024)
-character*(RtoB+ItoB) pp(1:nsize), pphelp
-real*8 rhelp
-integer ihelp, ires
+implicit none
+integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, key
+real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3)
+#include "reorg.fh"
+integer(kind=iwp) :: daddr, ihelp, ires, length, nhelp, nrec
+character(len=RtoB+ItoB) :: pp(nsize), pphelp
+real(kind=wp) :: rhelp
+integer(kind=iwp), parameter :: constj = 1024**2, constk = 1024
 
 ! set vint=0
 

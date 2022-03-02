@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,poss0,posst,mapd,mapi)
+subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,pos0,post,mapd,mapi)
 ! N.B. This routine is in principle copy of those in T3,
 ! but some changes were done:
 ! 1) mmul is substituted by mul
@@ -23,8 +23,8 @@ subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,poss0,posst,mapd,mapi
 ! typr   - typ of index r (I)
 ! typs   - typ of index s (I)
 ! stot   - overall symmetry of the mediate (I)
-! poss0  - initial position of mediate (I)
-! posst  - final position of the mediate (O)
+! pos0   - initial position of mediate (I)
+! post   - final position of the mediate (O)
 ! mapd   - direct map of the mediate (O)
 ! mapi   - inverse map of the mediate (O)
 !
@@ -46,48 +46,36 @@ subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,poss0,posst,mapd,mapi
 ! N.B. (this routine cannot run with +OP2)
 ! N.B. this routine does not test stupidities
 
-integer nind, typ, typp, typq, typr, typs, stot, poss0, posst
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, pos0, post, mapd(0:512,6), mapi(8,8,8)
 #include "ccsort.fh"
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-integer dimm(1:5,1:8)
-! help variables
-integer sp, sq, sr, ss, spq, spqr
-integer nsymq, nsymr
-integer poss, i, nhelp1, nhelp2, nhelp3, nhelp4
-integer rsk1, rsk2
+integer(kind=iwp) :: dimm(5,8), i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, rsk1, rsk2, sp, spq, spqr, sq, sr, ss
 
 ! !!!!!!!! def dimm to je tu len terazky, lebo nemozeme pouzivat ccsd1.com !!!!
 
 ! Tutok musim cosi inicializovat
 ss = 0
-poss = 0
+pos = 0
 rsk1 = 0
 rsk2 = 0
-do i=1,nsym
-  dimm(1,i) = noa(i)
-  dimm(2,i) = nob(i)
-  dimm(3,i) = nva(i)
-  dimm(4,i) = nvb(i)
-  dimm(5,i) = nva(i)+noa(i)
-end do
+dimm(1,1:nsym) = noa(1:nsym)
+dimm(2,1:nsym) = nob(1:nsym)
+dimm(3,1:nsym) = nva(1:nsym)
+dimm(4,1:nsym) = nvb(1:nsym)
+dimm(5,1:nsym) = nva(1:nsym)+noa(1:nsym)
 
 ! vanishing mapi files
 
-do nhelp1=1,nsym
-  do nhelp2=1,nsym
-    do nhelp3=1,nsym
-      mapi(nhelp3,nhelp2,nhelp1) = 0
-    end do
-  end do
-end do
+mapi(1:nsym,1:nsym,1:nsym) = 0
 
+i = 1
+pos = pos0
 if (nind == 1) then
 
   ! matrix A(p)
 
-  i = 1
-  poss = poss0
   sp = mul(stot,1)
 
   nhelp1 = dimm(typp,sp)
@@ -96,7 +84,7 @@ if (nind == 1) then
   mapi(1,1,1) = i
 
   ! def position
-  mapd(i,1) = poss
+  mapd(i,1) = pos
 
   ! def length
   mapd(i,2) = nhelp1
@@ -107,15 +95,12 @@ if (nind == 1) then
   mapd(i,5) = 0
   mapd(i,6) = 0
 
-  poss = poss+mapd(i,2)
+  pos = pos+mapd(i,2)
   i = i+1
 
 else if (nind == 2) then
 
   ! matrix A(p,q)
-
-  i = 1
-  poss = poss0
 
   do sp=1,nsym
 
@@ -130,7 +115,7 @@ else if (nind == 2) then
     mapi(sp,1,1) = i
 
     ! def position
-    mapd(i,1) = poss
+    mapd(i,1) = pos
 
     ! def length
     if ((typ == 1) .and. (sp == sq)) then
@@ -145,7 +130,7 @@ else if (nind == 2) then
     mapd(i,5) = 0
     mapd(i,6) = 0
 
-    poss = poss+mapd(i,2)
+    pos = pos+mapd(i,2)
     i = i+1
 
   end do
@@ -179,9 +164,6 @@ else if (nind == 3) then
     rsk2 = 1
   end if
 
-  i = 1
-  poss = poss0
-
   do sp=1,nsym
     if (rsk1 == 1) then
       nsymq = sp
@@ -204,7 +186,7 @@ else if (nind == 3) then
       mapi(sp,sq,1) = i
 
       ! def position
-      mapd(i,1) = poss
+      mapd(i,1) = pos
 
       ! def length
       if ((typ == 1) .and. (sp == sq)) then
@@ -245,7 +227,7 @@ else if (nind == 3) then
       mapd(i,5) = sr
       mapd(i,6) = 0
 
-      poss = poss+mapd(i,2)
+      pos = pos+mapd(i,2)
       i = i+1
 
     end do
@@ -254,9 +236,6 @@ else if (nind == 3) then
 else if (nind == 4) then
 
   ! matrix A(p,q,r,s)
-
-  i = 1
-  poss = poss0
 
   do sp=1,nsym
     if ((typ == 1) .or. (typ == 4)) then
@@ -289,7 +268,7 @@ else if (nind == 4) then
         mapi(sp,sq,sr) = i
 
         ! def position
-        mapd(i,1) = poss
+        mapd(i,1) = pos
 
         ! def length
         if ((typ == 1) .and. (sp == sq)) then
@@ -318,7 +297,7 @@ else if (nind == 4) then
         mapd(i,5) = sr
         mapd(i,6) = ss
 
-        poss = poss+mapd(i,2)
+        pos = pos+mapd(i,2)
         i = i+1
 
       end do
@@ -327,7 +306,7 @@ else if (nind == 4) then
 
 end if
 
-posst = poss
+post = pos
 
 ! definition of other coll
 

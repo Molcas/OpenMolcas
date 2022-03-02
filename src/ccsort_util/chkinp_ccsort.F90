@@ -17,41 +17,47 @@ subroutine ChkInp_ccsort()
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "ccsort.fh"
 #include "motra.fh"
+integer(kind=iwp) :: iErr, iSym
 
 ! Just print warning...
 if (IPT2 == 0) then
-  write(6,*)
-  write(6,*) '       !!!!!WARNING!!!!!'
-  write(6,*)
-  write(6,*) '      *** input error ***'
-  write(6,*) '  The JOBIPH file does not include canonical orbitals'
-  write(6,*)
-  write(6,*) '       !!!!!WARNING!!!!!'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '       !!!!!WARNING!!!!!'
+  write(u6,*)
+  write(u6,*) '      *** input error ***'
+  write(u6,*) '  The JOBIPH file does not include canonical orbitals'
+  write(u6,*)
+  write(u6,*) '       !!!!!WARNING!!!!!'
+  write(u6,*)
   !call Quit_OnUserError()
 end if
 
 if (NCONF /= 1) then
-  write(6,*)
-  write(6,*) '  *** input error ***'
-  write(6,*) '  The JOBIPH file does not include a RHF or ROHF wave function'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '  *** input error ***'
+  write(u6,*) '  The JOBIPH file does not include a RHF or ROHF wave function'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 
 iErr = 0
 if (nSym /= nSymX) iErr = 1
 do iSym=1,nSym
-  if (nBas(iSym) /= nBasX(iSym)) iErr = 1
+  if (nBas(iSym) /= nBasX(iSym)) then
+    iErr = 1
+    exit
+  end if
 end do
 if (iErr /= 0) then
-  write(6,*)
-  write(6,*) '  *** input error ***'
-  write(6,*) '  The JOBIPH and the TRAONE files are inconsistent'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '  *** input error ***'
+  write(u6,*) '  The JOBIPH and the TRAONE files are inconsistent'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 

@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ireorg(wrk,wrksize,symp,symq,symr,syms,typp,typq,typr,typs,posspv1,possqv1,possrv1,posssv1,typpv1,typqv1,typrv1,typsv1, &
-                  typv2,possv10,possv20,fact)
+subroutine ireorg(wrk,wrksize,symp,symq,symr,syms,typp,typq,typr,typs,pospv1,posqv1,posrv1,possv1,typpv1,typqv1,typrv1,typsv1, &
+                  typv2,posv10,posv20,fact)
 ! this routine is up level routine for ireorg1 (also more detailed
 ! description can be found there).
 ! v1 must be of type 0, v2 can be 0,1,3 and 4
@@ -19,34 +19,30 @@ subroutine ireorg(wrk,wrksize,symp,symq,symr,syms,typp,typq,typr,typs,posspv1,po
 !
 ! symp-s     - symmetries of p-s (I)
 ! typp-s     - types of indices p-s in V2 (I)
-! possp-sv1  - positions of p-s ind. in v1 (I)
+! posp-sv1   - positions of p-s ind. in v1 (I)
 ! typp-sv1   - types of indices, corresponding to p-s in V1 (I)
 ! typv2      - type of V2 (0,1,2,4) (I)
-! possv10,20 - initial positions of V1 and V2 in wrk (I)
-! fact       - multiplication factors (usually +-1.0d0) (I)
+! posv10,20  - initial positions of V1 and V2 in wrk (I)
+! fact       - multiplication factors (usually +-1.0) (I)
 
-#include "wrk.fh"
-#include "reorg.fh"
-#include "ccsort.fh"
-integer symp, symq, symr, syms, typp, typq, typr, typs
-integer posspv1, possqv1, possrv1, posssv1, typpv1, typqv1, typrv1, typsv1
-integer typv2, possv10, possv20
-real*8 fact
-! help variables
-integer ind(1:4)
-integer rc, dimpq, dimrs
-integer :: nhelp = -1, mhelp = -1
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, symp, symq, symr, syms, typp, typq, typr, typs, pospv1, posqv1, posrv1, possv1, typpv1, typqv1, &
+                     typrv1, typsv1, typv2, posv10, posv20
+real(kind=wp) :: wrk(wrksize), fact
+integer(kind=iwp) :: dimpq, dimrs, ind(4), mhelp = -1, nhelp = -1, rc
 
 ! define dimensions of V1
 
 call ireorg2(symp,typpv1,nhelp,rc)
-ind(posspv1) = nhelp
+ind(pospv1) = nhelp
 call ireorg2(symq,typqv1,nhelp,rc)
-ind(possqv1) = nhelp
+ind(posqv1) = nhelp
 call ireorg2(symr,typrv1,nhelp,rc)
-ind(possrv1) = nhelp
+ind(posrv1) = nhelp
 call ireorg2(syms,typsv1,nhelp,rc)
-ind(posssv1) = nhelp
+ind(possv1) = nhelp
 
 ! def dimpq,dimrs
 
@@ -70,8 +66,8 @@ end if
 
 ! use ireorg1
 
-call ireorg1(symp,symq,symr,syms,typp,typq,typr,typs,posspv1,possqv1,possrv1,posssv1,typpv1,typqv1,typrv1,typsv1,typv2, &
-             wrk(possv10),wrk(possv20),fact,dimpq,dimrs,ind(1),ind(2),ind(3),ind(4))
+call ireorg1(symp,symq,symr,syms,typp,typq,typr,typs,pospv1,posqv1,posrv1,possv1,typpv1,typqv1,typrv1,typsv1,typv2,wrk(posv10), &
+             wrk(posv20),fact,dimpq,dimrs,ind(1),ind(2),ind(3),ind(4))
 
 return
 

@@ -12,21 +12,19 @@
 !               1995,1996, Pavel Neogrady                              *
 !***********************************************************************
 
-subroutine mod2(nsym,nish,nash,nssh,norb,fi,eps)
+subroutine mod2(nsym,nish,nash,norb,fi,eps)
 ! this routine defines fi(p,q) = delta(p,q).eps(p)
 ! and redefines nish=nish+nash, nash=0
 !
 ! this is suitable for closed shell case
 
-integer nsym
-integer nish(1:8)
-integer nash(1:8)
-integer nssh(1:8)
-integer norb(1:8)
-real*8 fi(*)
-real*8 eps(*)
-! help variables
-integer p, q, isym, pq, padd
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nsym, nish(8), nash(8), norb(8)
+real(kind=wp) :: fi(*), eps(*)
+integer(kind=iwp) :: isym, p, padd, pq, q
 
 !1 redefine foki
 
@@ -40,7 +38,7 @@ do isym=1,nsym
       if (p == q) then
         fi(pq) = eps(padd+p)
       else
-        fi(pq) = 0.0d0
+        fi(pq) = Zero
       end if
     end do
   end do
@@ -56,7 +54,5 @@ do isym=1,nsym
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(nssh)
 
 end subroutine mod2

@@ -9,28 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine action(foka,fokb,fi,eps)
+subroutine action_ccsort(foka,fokb,fi,eps)
 
-implicit real*8(a-h,o-z)
-! work file declaration
-integer wrksize
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "ccsort.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "reorg.fh"
+real(kind=wp) :: foka(mbas*(mbas+1)/2), fokb(mbas*(mbas+1)/2), fi(*), eps(mbas)
+#include "WrkSpc.fh"
+#include "ccsort.fh"
 #include "files_ccsd.fh"
-real*8 fi(*)
-real*8 eps(mbas)
-! help variables
-integer symp, symq, symr, syms, sympq, sympqr
-integer ndimv1, ndimv2, ndimv3, ndimvi
-integer p, a, posst, rc
-integer keyred, vsize, freespace, ickey, iOff_Vic, iOff
-integer t3help1, t3help2, t3help3, t3help4
-integer ipJN, ipKN, ipLN, iOff_valn
-integer, allocatable :: AMMAP(:,:,:), ABMAP(:,:,:)
-real*8 foka((mbas**2+mbas)/2)
-real*8 fokb((mbas**2+mbas)/2)
+integer(kind=iwp) :: a, freespace, ickey, iOff, iOff_valn, iOff_Vic, ipJN, ipKN, ipLN, ipPQIND, keyred, ndimv1, ndimv2, ndimv3, &
+                     ndimvi, p, post, rc, symp, sympq, sympqr, symq, symr, syms, t3help1, t3help2, t3help3, t3help4, vsize, wrksize
+integer(kind=iwp), allocatable :: AMMAP(:,:,:), ABMAP(:,:,:)
 
 ! distribute memory
 
@@ -44,8 +36,8 @@ call initwrk(wrksize)
 call GetMem('CCSORT','Max','Real',maxspace,maxspace)
 maxspace = maxspace-4
 if (maxspace < wrksize) then
-  write(6,*) ' Allocation of work space failed!'
-  write(6,*) ' Increase the size of the variable MOLCAS_MEM'
+  write(u6,*) ' Allocation of work space failed!'
+  write(u6,*) ' Increase the size of the variable MOLCAS_MEM'
   call Abend()
 end if
 call GetMem('CCSORT','Allo','Real',iOff,wrksize)
@@ -60,21 +52,15 @@ do symp=1,nsym
   ndimv1 = ndimv1+(norb(symp)+1)*norb(symp)/2
 end do
 
-do ndimv2=1,ndimv1
-  foka(ndimv2) = fi(ndimv2)
-  fokb(ndimv2) = fi(ndimv2)
-end do
+foka(1:ndimv1) = fi(1:ndimv1)
+fokb(1:ndimv1) = fi(1:ndimv1)
 
 ! make names
 
 call mktempanam()
 
-! if T3 are requited, define T3IntPoss and calc T3Off
-if (t3key == 1) then
-  call DefT3par(noa,nsym)
-  do symp=1,4
-  end do
-end if
+! if T3 are requited, define T3IntPos and calc T3Off
+if (t3key == 1) call DefT3par(noa,nsym)
 
 ! open files INTA1,INTA2,INTA3,INTA4 and INTAB
 
@@ -109,9 +95,7 @@ end if
 call mkmappqij()
 
 ! make head of INTAB file for nonsymmetrical (C1) case
-if (nsym == 1) then
-  call initintabc1()
-end if
+if (nsym == 1) call initintabc1()
 
 ! allocate space for ammap,abmap
 call mma_Allocate(AMMAP,mbas,8,8,Label='AMMAP')
@@ -119,40 +103,32 @@ call mma_Allocate(ABMAP,mbas,mbas,8,Label='ABMAP')
 
 do symp=1,nsym
 
-  if (fullprint > 0) then
-    write(6,'(6X,A,2X,I2)') 'Symmetry of the pivot index',symp
-  end if
+  if (fullprint > 0) write(u6,'(6X,A,2X,I2)') 'Symmetry of the pivot index',symp
 
   ! define #V2 (for <_a,m,p,q>)
   call mkmapampq(symp)
 
   ! if T3 are required, make maps for R_i
-  if ((t3key == 1) .and. (noa(symp) > 0)) then
-    ! get mapd and mapi for  R_i(a,bc)
-    call ccsort_t3grc0(3,8,4,4,4,0,symp,possri0,posst,mapdri,mapiri)
-  end if
+  ! get mapd and mapi for  R_i(a,bc)
+  if ((t3key == 1) .and. (noa(symp) > 0)) call ccsort_t3grc0(3,8,4,4,4,0,symp,posri0,post,mapdri,mapiri)
 
   ! open TEMPDA2 fils for <am|rs> integrals, if there are some virtiuals
   ! in symp symmetry
   if (nvb(symp) > 0) then
     call mkampqmap(AMMAP,symp,rc)
-    call daopen('TEMPDA2 ',lunda2,recl,1)
+    call daopen('TEMPDA2 ',lunda2,reclen)
   end if
 
   do symq=1,nsym
     sympq = mul(symp,symq)
 
-    if ((nsym > 1) .and. (symp >= symq)) then
     ! open direct access file here, to enable exact specification of
     ! the number of records (only for symmetrical cases; syma>=symb)
     ! N.B. nrec is not needed now
-      call daopen('TEMPDA1 ',lunda1,recl,1)
-    end if
+    if ((nsym > 1) .and. (symp >= symq)) call daopen('TEMPDA1 ',lunda1,reclen)
 
     ! make abmap for syma>=symb
-    if (symp >= symq) then
-      call mkabpqmap(ABMAP,symp,symq,rc)
-    end if
+    if (symp >= symq) call mkabpqmap(ABMAP,symp,symq,rc)
 
     do symr=1,nsym
       sympqr = mul(sympq,symr)
@@ -175,27 +151,25 @@ do symp=1,nsym
 
       if (vsize == 0) cycle
 
-      if (fullprint > 1) then
-        write(6,'(6X,A,I4,4X,4I2)') 'Block',typ(symp,symq,symr),symp,symq,symr,syms
-      end if
+      if (fullprint > 1) write(u6,'(6X,A,I4,4X,4I2)') 'Block',typ(symp,symq,symr),symp,symq,symr,syms
 
       ! test for incore expansion
       freespace = 0
       call GetMem('CCSORT','Max','Real',freespace,freespace)
       freespace = freespace-4
       if (fullprint >= 2) then
-        write(6,*)
-        write(6,'(6X,A,I10)') 'Available freespace   ',freespace
-        write(6,'(6X,A,I10)') 'Available freespace/MB',freespace/131072
-        write(6,'(6X,A,I10)') 'Incore expansion      ',vsize+mbas*mbas
-        write(6,'(6X,A,I10)') 'Out of core expansion ',4*nsize*mbas
+        write(u6,*)
+        write(u6,'(6X,A,I10)') 'Available freespace   ',freespace
+        write(u6,'(6X,A,I10)') 'Available freespace/MB',freespace/131072
+        write(u6,'(6X,A,I10)') 'Incore expansion      ',vsize+mbas*mbas
+        write(u6,'(6X,A,I10)') 'Out of core expansion ',4*nsize*mbas
       end if
 
       if (freespace >= (vsize+mbas*mbas)) then
         ! INCORE EXPANSION
         if (fullprint >= 1) then
-          write(6,*)
-          write(6,'(6X,A)') 'Incore expansion      '
+          write(u6,*)
+          write(u6,'(6X,A)') 'Incore expansion      '
         end if
         call GetMem('CCSORT','Allo','Real',iOff_Vic,vsize)
 
@@ -221,13 +195,11 @@ do symp=1,nsym
         ! OUT OF CORE EXPANSION
         ! init temp files and realize expansion of this block
         ickey = 0
-        if (fullprint >= 1) then
-          write(6,'(6X,A)') 'Out of core expansion '
-        end if
+        if (fullprint >= 1) write(u6,'(6X,A)') 'Out of core expansion '
         call inittemp(norb(symp))
         if (freespace < (4*nsize*mbas)) then
-          write(6,*) ' Allocation of work space for Out-of-core failed!'
-          write(6,*) ' Increase the size of the variable MOLCAS_MEM'
+          write(u6,*) ' Allocation of work space for Out-of-core failed!'
+          write(u6,*) ' Increase the size of the variable MOLCAS_MEM'
           call Abend()
         end if
 
@@ -295,7 +267,7 @@ do symp=1,nsym
               end do
               t3help4 = t3help4+p
               t3help1 = mapiri(symr,symq,1)
-              daddr(lunt3) = T3IntPoss(t3help4)+T3Off(t3help1,symp)
+              daddr(lunt3) = T3IntPos(t3help4)+T3Off(t3help1,symp)
 
               ! def required parameters
               t3help1 = nvb(symr)
@@ -303,7 +275,7 @@ do symp=1,nsym
               t3help3 = nvb(syms)
 
               ! do packing
-              call t3intpck2(Work(iOff),Work(iOff+possri0-1),ndimv1,ndimv2,ndimv3,t3help1,t3help2,t3help3,symq,symr,syms,nob,nvb)
+              call t3intpck2(Work(iOff),Work(iOff+posri0-1),ndimv1,ndimv2,ndimv3,t3help1,t3help2,t3help3,symq,symr,syms,nob,nvb)
 
             else if (symq == syms) then
 
@@ -314,14 +286,14 @@ do symp=1,nsym
               end do
               t3help4 = t3help4+p
               t3help1 = mapiri(symr,symq,1)
-              daddr(lunt3) = T3IntPoss(t3help4)+T3Off(t3help1,symp)
+              daddr(lunt3) = T3IntPos(t3help4)+T3Off(t3help1,symp)
 
               ! def required parameters
               t3help1 = nvb(symr)
               t3help2 = nvb(symq)*(nvb(symq)+1)/2
 
               ! do packing
-              call t3intpck1(Work(iOff),Work(iOff+possri0-1),ndimv1,ndimv2,ndimv3,t3help1,t3help2,symq,symr,syms,nob,nvb)
+              call t3intpck1(Work(iOff),Work(iOff+posri0-1),ndimv1,ndimv2,ndimv3,t3help1,t3help2,symq,symr,syms,nob,nvb)
 
             end if
           end if
@@ -329,10 +301,8 @@ do symp=1,nsym
 
         ! add integrals to #1 <pq|ij> if needed
 
-        if (symr >= syms) then
-          ! contributions only for symi(r)>=symj(s)
-          call addpqij(Work(iOff),wrksize,symp,symq,symr,syms,p,Work(iOff),ndimv1,ndimv2,ndimv3)
-        end if
+        ! contributions only for symi(r)>=symj(s)
+        if (symr >= syms) call addpqij(Work(iOff),wrksize,symp,symq,symr,syms,p,Work(iOff),ndimv1,ndimv2,ndimv3)
 
         ! updete fok if necessary (only for open shell case)
 
@@ -360,9 +330,7 @@ do symp=1,nsym
 
         ! add INTAB file (for nonsymmetrical (C1) state)
 
-        if ((nsym == 1) .and. (p > nob(1))) then
-          call addintabc1(Work(iOff),wrksize,p-nob(1),Work(iOff),ndimv1)
-        end if
+        if ((nsym == 1) .and. (p > nob(1))) call addintabc1(Work(iOff),wrksize,p-nob(1),Work(iOff),ndimv1)
 
       end do
 
@@ -371,9 +339,7 @@ do symp=1,nsym
       ! close temp files
       !call closetemp(norb(symp))
 
-      if (ickey >= 1) then
-        call GetMem('CCSORT','Free','Real',iOff_Vic,vsize)
-      end if
+      if (ickey >= 1) call GetMem('CCSORT','Free','Real',iOff_Vic,vsize)
 
     end do
 
@@ -403,11 +369,7 @@ do symp=1,nsym
 end do
 
 ! if T3 are required, reorganize T3nam file
-if (t3key == 1) then
-  call t3reorg(Work(iOff),wrksize,noa,nsym)
-  do symp=1,4
-  end do
-end if
+if (t3key == 1) call t3reorg(Work(iOff),wrksize,noa,nsym)
 
 ! release space for ammap,abmap
 call mma_Deallocate(AMMAP)
@@ -450,4 +412,4 @@ call GetMem('CCSORT','Free','Real',iOff,wrksize)
 
 return
 
-end subroutine action
+end subroutine action_ccsort

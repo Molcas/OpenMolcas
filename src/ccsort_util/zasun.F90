@@ -15,12 +15,12 @@ subroutine zasun(i1,length,valn,jn,kn,ln)
 ! i1 - number of pivot index (I)
 ! length - number of valid integrals in block (I)
 
-integer length, i1
+use Definitions, only: wp, iwp
+
+implicit none
 #include "reorg.fh"
-real*8 valn(1:nsize,1:mbas)
-integer jn(1:nsize,1:mbas)
-integer kn(1:nsize,1:mbas)
-integer ln(1:nsize,1:mbas)
+integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
+real(kind=wp) :: valn(nsize,mbas)
 
 if (zrkey == 1) then
   call zasun_zr(i1,length,valn,jn,kn,ln)

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine mreorg(wrk,wrksize,symp,symq,symr,typp,typq,typr,posspv2,possqv2,possrv2,typpv2,typqv2,typrv2,typv3,possv20,possv30,fact)
+subroutine mreorg(wrk,wrksize,symp,symq,symr,typp,typq,typr,pospv2,posqv2,posrv2,typpv2,typqv2,typrv2,typv3,posv20,posv30,fact)
 ! this routine is up level routine for mreorg1 (also more detailed
 ! description can be found there).
 ! #2 must be of type 0, #3 can be 0, and 2
@@ -18,31 +18,28 @@ subroutine mreorg(wrk,wrksize,symp,symq,symr,typp,typq,typr,posspv2,possqv2,poss
 !
 ! symp-r     - symmetries of p-r (I)
 ! typp-r     - types of indices p-r in V2 (I)
-! possp-rv2  - positions of p-r ind. in V2 (I)
+! posp-rv2   - positions of p-r ind. in V2 (I)
 ! typp-rv2   - types of indices, corresponding to p-r in V2 (I)
 ! typv3      - type of V3 (0,2) (I)
-! possv20,30 - initial positions of V2 and V3 in wrk (I)
-! fact       - multiplication factors (usually +-1.0d0) (I)
+! posv20,30  - initial positions of V2 and V3 in wrk (I)
+! fact       - multiplication factors (usually +-1.0) (I)
 
-#include "wrk.fh"
-#include "reorg.fh"
-#include "ccsort.fh"
-integer symp, symq, symr, typp, typq, typr
-integer posspv2, possqv2, possrv2, typpv2, typqv2, typrv2
-integer typv3, possv20, possv30
-real*8 fact
-! help variables
-integer ind(1:4)
-integer nhelp, mhelp, rc, dimp, dimqr
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, symp, symq, symr, typp, typq, typr, pospv2, posqv2, posrv2, typpv2, typqv2, typrv2, typv3, posv20, &
+                     posv30
+real(kind=wp) :: wrk(wrksize), fact
+integer(kind=iwp) :: dimp, dimqr, ind(4), mhelp, nhelp, rc
 
 ! define dimensions of V2
 
 call ireorg2(symp,typpv2,nhelp,rc)
-ind(posspv2) = nhelp
+ind(pospv2) = nhelp
 call ireorg2(symq,typqv2,nhelp,rc)
-ind(possqv2) = nhelp
+ind(posqv2) = nhelp
 call ireorg2(symr,typrv2,nhelp,rc)
-ind(possrv2) = nhelp
+ind(posrv2) = nhelp
 
 ! def dimp,dimqr
 
@@ -59,7 +56,7 @@ end if
 
 ! use mreorg1
 
-call mreorg1(symp,symq,symr,typp,typq,typr,posspv2,possqv2,possrv2,typpv2,typqv2,typrv2,typv3,wrk(possv20),wrk(possv30),fact,dimp, &
+call mreorg1(symp,symq,symr,typp,typq,typr,pospv2,posqv2,posrv2,typpv2,typqv2,typrv2,typv3,wrk(posv20),wrk(posv30),fact,dimp, &
              dimqr,ind(1),ind(2),ind(3))
 
 return

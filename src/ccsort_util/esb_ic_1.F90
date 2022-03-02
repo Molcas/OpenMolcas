@@ -15,24 +15,17 @@ subroutine esb_ic_1(symp,symq,symr,syms,Vic,dimp,dimq,dimr,dims)
 ! It finds corresponding (IJ|KL) and expands it to
 ! matrix vic (np,nq,nr,ns)
 
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: symp, symq, symr, syms, dimp, dimq, dimr, dims
+real(kind=wp) :: Vic(dimp,dimq,dimr,dims)
 #include "reorg.fh"
 #include "ccsort.fh"
-integer symp, symq, symr, syms
-integer dimp, dimq, dimr, dims
-real*8 Vic(1:dimp,1:dimq,1:dimr,1:dims)
-real*8 val1
-integer idis13, indtemp
-integer ni, nj, nk, nl, nsi, nsj, nsk, nsl, i1, j1, k1, l1
-integer iup, ilow, jup, jlow, kup, lup, iold, jold, kold, lold
-! help variables
-integer yes234, yes5, yes678
-integer typp
-integer ind(1:4)
 #include "tratoc.fh"
-integer INDMAX
-parameter(INDMAX=nTraBuf)
-real*8 TWO(INDMAX)
+integer(kind=iwp) :: i1, idis13, ilow, ind(4), indtemp, iold, iup, j1, jlow, jold, jup, k1, kold, kup, l1, lold, lup, ni, nj, nk, &
+                     nl, nsi, nsj, nsk, nsl, typp, yes234, yes5, yes678
+real(kind=wp) :: TWO(nTraBuf), val1
 
 !I get address
 idis13 = idis(symp,symq,symr)
@@ -90,7 +83,7 @@ NSJ = ind(2)
 NSK = ind(3)
 NSL = ind(4)
 
-indtemp = indmax+1
+indtemp = nTraBuf+1
 KUP = NORB(NSK)
 do KOLD=1,KUP
 
@@ -111,10 +104,10 @@ do KOLD=1,KUP
 
         ! read block of integrals if necessary
 
-        if (indtemp == (indmax+1)) then
+        if (indtemp == (nTraBuf+1)) then
           indtemp = 1
           ! read block
-          call dDAFILE(LUINTM,2,TWO,INDMAX,IDIS13)
+          call dDAFILE(LUINTM,2,TWO,nTraBuf,IDIS13)
         end if
 
         ! write integrals to appropriate positions
@@ -132,15 +125,7 @@ do KOLD=1,KUP
         i1 = ind(ni)
         k1 = ind(nk)
 
-        if (i1 <= dimp) then
-          if (j1 <= dimq) then
-            if (k1 <= dimr) then
-              if (l1 <= dims) then
-                Vic(i1,j1,k1,l1) = val1
-              end if
-            end if
-          end if
-        end if
+        if ((i1 <= dimp) .and. (j1 <= dimq) .and. (k1 <= dimr) .and. (l1 <= dims)) Vic(i1,j1,k1,l1) = val1
 
         if (yes234 == 1) then
 
@@ -154,15 +139,7 @@ do KOLD=1,KUP
           i1 = ind(ni)
           k1 = ind(nk)
 
-          if (i1 <= dimp) then
-            if (j1 <= dimq) then
-              if (k1 <= dimr) then
-                if (l1 <= dims) then
-                  Vic(i1,j1,k1,l1) = val1
-                end if
-              end if
-            end if
-          end if
+          if ((i1 <= dimp) .and. (j1 <= dimq) .and. (k1 <= dimr) .and. (l1 <= dims)) Vic(i1,j1,k1,l1) = val1
 
           !:3 combination (ij|kl) -> (ij|lk)
           ind(1) = iold
@@ -174,15 +151,7 @@ do KOLD=1,KUP
           i1 = ind(ni)
           k1 = ind(nk)
 
-          if (i1 <= dimp) then
-            if (j1 <= dimq) then
-              if (k1 <= dimr) then
-                if (l1 <= dims) then
-                  Vic(i1,j1,k1,l1) = val1
-                end if
-              end if
-            end if
-          end if
+          if ((i1 <= dimp) .and. (j1 <= dimq) .and. (k1 <= dimr) .and. (l1 <= dims)) Vic(i1,j1,k1,l1) = val1
 
           !:4 combination (ij|kl) -> (ji|lk)
           ind(1) = jold
@@ -194,15 +163,7 @@ do KOLD=1,KUP
           i1 = ind(ni)
           k1 = ind(nk)
 
-          if (i1 <= dimp) then
-            if (j1 <= dimq) then
-              if (k1 <= dimr) then
-                if (l1 <= dims) then
-                  Vic(i1,j1,k1,l1) = val1
-                end if
-              end if
-            end if
-          end if
+          if ((i1 <= dimp) .and. (j1 <= dimq) .and. (k1 <= dimr) .and. (l1 <= dims)) Vic(i1,j1,k1,l1) = val1
 
         end if
 
@@ -217,15 +178,7 @@ do KOLD=1,KUP
           i1 = ind(ni)
           k1 = ind(nk)
 
-          if (i1 <= dimp) then
-            if (j1 <= dimq) then
-              if (k1 <= dimr) then
-                if (l1 <= dims) then
-                  Vic(i1,j1,k1,l1) = val1
-                end if
-              end if
-            end if
-          end if
+          if ((i1 <= dimp) .and. (j1 <= dimq) .and. (k1 <= dimr) .and. (l1 <= dims)) Vic(i1,j1,k1,l1) = val1
 
         end if
 
@@ -241,15 +194,7 @@ do KOLD=1,KUP
           i1 = ind(ni)
           k1 = ind(nk)
 
-          if (i1 <= dimp) then
-            if (j1 <= dimq) then
-              if (k1 <= dimr) then
-                if (l1 <= dims) then
-                  Vic(i1,j1,k1,l1) = val1
-                end if
-              end if
-            end if
-          end if
+          if ((i1 <= dimp) .and. (j1 <= dimq) .and. (k1 <= dimr) .and. (l1 <= dims)) Vic(i1,j1,k1,l1) = val1
 
           !:7 combination (ij|kl) -> (kl|ji)
           ind(1) = kold
@@ -261,15 +206,7 @@ do KOLD=1,KUP
           i1 = ind(ni)
           k1 = ind(nk)
 
-          if (i1 <= dimp) then
-            if (j1 <= dimq) then
-              if (k1 <= dimr) then
-                if (l1 <= dims) then
-                  Vic(i1,j1,k1,l1) = val1
-                end if
-              end if
-            end if
-          end if
+          if ((i1 <= dimp) .and. (j1 <= dimq) .and. (k1 <= dimr) .and. (l1 <= dims)) Vic(i1,j1,k1,l1) = val1
 
           !:8 combination (ij|kl) -> (lk|ji)
           ind(1) = lold
@@ -281,15 +218,7 @@ do KOLD=1,KUP
           i1 = ind(ni)
           k1 = ind(nk)
 
-          if (i1 <= dimp) then
-            if (j1 <= dimq) then
-              if (k1 <= dimr) then
-                if (l1 <= dims) then
-                  Vic(i1,j1,k1,l1) = val1
-                end if
-              end if
-            end if
-          end if
+          if ((i1 <= dimp) .and. (j1 <= dimq) .and. (k1 <= dimr) .and. (l1 <= dims)) Vic(i1,j1,k1,l1) = val1
 
         end if
 

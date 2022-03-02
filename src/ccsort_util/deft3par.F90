@@ -13,7 +13,7 @@ subroutine DefT3par(noa,nsym)
 ! this routine does:
 ! 0) Open t3nam file, with lunt3 lun
 ! define parameters, required for T3 integral handling, namely
-! 1) def T3IndPoss(i)
+! 1) def T3IndPos(i)
 !    address positions for all occupied orbitals in t3nam file
 ! 2) def T3Off(ii,isym)
 !    relative shifts of address for ii-th block of R_i(a,bc)
@@ -22,14 +22,15 @@ subroutine DefT3par(noa,nsym)
 ! noa   - array with occupation numbers
 ! nsym  - actual number of irreps
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: noa(8), nsym
 #include "reorg.fh"
 #include "files_ccsd.fh"
-integer noa(1:8)
-integer nsym
-! help variables
-integer iorb, ii, i, symi, length, posst, idum(1)
-real*8 dum(1)
+integer(kind=iwp) :: i, idum(1), ii, iorb, length, post, symi
+real(kind=wp) :: dum(1)
 
 !0  open t3nam file
 !lunt3= 1
@@ -38,10 +39,10 @@ call daname(lunt3,t3nam)
 !1 set address poiter to 0
 daddr(lunt3) = 0
 
-!2 first record in t3nam file is T3IntPoss
-!  (emulate writing of T3IntPoss)
+!2 first record in t3nam file is T3IntPos
+!  (emulate writing of T3IntPos)
 idum(1) = 0
-dum(1) = 0.0d0
+dum(1) = Zero
 call idafile(lunt3,0,idum,mbas,daddr(lunt3))
 
 iorb = 0
@@ -49,14 +50,14 @@ iorb = 0
 do symi=1,nsym
 
   !3.1 make mapd and mapi for  R_i(a,bc)
-  call ccsort_t3grc0(3,8,4,4,4,0,symi,possri0,posst,mapdri,mapiri)
+  call ccsort_t3grc0(3,8,4,4,4,0,symi,posri0,post,mapdri,mapiri)
 
   !3.2 cycle over occupied orbitals in symi
   do i=1,noa(symi)
 
   !3.2.1 save initial address for this orbital
     iorb = iorb+1
-    T3IntPoss(iorb) = daddr(lunt3)
+    T3IntPos(iorb) = daddr(lunt3)
 
     !3.2.2 emulate writing of mapd and mapp
     call idafile(lunt3,0,idum,513*6,daddr(lunt3))
@@ -68,9 +69,7 @@ do symi=1,nsym
       !3.2.3.1 def T3Off(ii,symi)
       !        note, that iorb is always proper one, since only besides
       !        first occ. orbital in given irrep T3Off is defined
-      if (i == 1) then
-        T3Off(ii,symi) = daddr(lunt3)-T3IntPoss(iorb)
-      end if
+      if (i == 1) T3Off(ii,symi) = daddr(lunt3)-T3IntPos(iorb)
 
       !3.2.3.2 emulate writing of each block
       length = mapdri(ii,2)

@@ -19,33 +19,20 @@ subroutine zasun_pck(i1,length,valn,jn,kn,ln)
 ! and stattemp and tmpnam as inputs, but they are
 ! transported through commons  in reorg.fh
 
-implicit real*8(a-h,o-z)
-integer length, i1
+use Definitions, only: wp, iwp, ItoB, RtoB
+
+implicit none
 #include "reorg.fh"
-#include "SysDef.fh"
-real*8 valn(1:nsize,1:mbas)
-integer jn(1:nsize,1:mbas)
-integer kn(1:nsize,1:mbas)
-integer ln(1:nsize,1:mbas)
-! help variable
-integer m2, iRec
-integer jkl(1:nsize)
-integer constj
-parameter(constj=1048576)
-integer constk
-parameter(constk=1024)
-character*(RtoB+ItoB) pp(1:nsize), pphelp
-real*8 rhelp
-integer ihelp
+integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
+real(kind=wp) :: valn(nsize,mbas)
+integer(kind=iwp) :: ihelp, iRec, jkl(nsize), m2
+real(kind=wp) :: rhelp
+character(len=RtoB+ItoB) :: pp(nsize), pphelp
+integer(kind=iwp), parameter :: constj = 1024**2, constk = 1024
 
 ! pack indices and integral values
 
-do m2=1,length
-  jkl(m2) = ln(m2,i1)+constj*jn(m2,i1)
-end do
-do m2=1,length
-  jkl(m2) = jkl(m2)+constk*kn(m2,i1)
-end do
+jkl(1:length) = ln(1:length,i1)+constj*jn(1:length,i1)+constk*kn(1:length,i1)
 
 do m2=1,length
   rhelp = valn(m2,i1)

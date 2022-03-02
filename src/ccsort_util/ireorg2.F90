@@ -18,24 +18,27 @@ subroutine ireorg2(symp,typp,pup,rc)
 ! pup   - summation limit
 ! rc    - return (error) code (O)
 
-#include "ccsort.fh"
-integer symp, typp, pup, rc
+use Definitions, only: iwp
 
-if (typp == 1) then
-  pup = noa(symp)
-else if (typp == 2) then
-  pup = nob(symp)
-else if (typp == 3) then
-  pup = nva(symp)
-else if (typp == 4) then
-  pup = nvb(symp)
-else if (typp == 5) then
-  pup = norb(symp)
-else
-  rc = 1
-  ! RC=1 : bad typp (Stup)
-  return
-end if
+implicit none
+integer(kind=iwp) :: symp, typp, pup, rc
+#include "ccsort.fh"
+
+select case (typp)
+  case (1)
+    pup = noa(symp)
+  case (2)
+    pup = nob(symp)
+  case (3)
+    pup = nva(symp)
+  case (4)
+    pup = nvb(symp)
+  case (5)
+    pup = norb(symp)
+  case default
+    rc = 1
+    ! RC=1 : bad typp (Stup)
+end select
 
 return
 

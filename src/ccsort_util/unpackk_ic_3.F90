@@ -19,13 +19,12 @@ subroutine unpackk_ic_3(i,vint,ndimvi,Vic)
 ! ndimvi - (norb(symi)) (I)
 ! Vic    - incore expanded block of integrals (I)
 
-#include "reorg.fh"
-#include "SysDef.fh"
-integer i, ndimvi
-real*8 vint(1:ndimvi,1:ndimvi,1:ndimvi)
-real*8 Vic(1:(ndimvi*(ndimvi+1)/2)*(1+ndimvi*(ndimvi+1)/2)/2)
-! help variables
-integer j, k, l, ik, jl, ikjl
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: i, ndimvi
+real(kind=wp) :: vint(ndimvi,ndimvi,ndimvi), Vic((ndimvi*(ndimvi+1)/2)*(ndimvi*(ndimvi+1)/2+1)/2)
+integer(kind=iwp) :: ik, ikjl, j, jl, k, l
 
 do k=1,ndimvi
 

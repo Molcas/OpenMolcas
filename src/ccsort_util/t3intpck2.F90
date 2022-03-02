@@ -29,22 +29,17 @@ subroutine t3intpck2(vint,r,dimv1,dimv2,dimv3,dima,dimb,dimc,symq,symr,syms,nob,
 ! nob   - number of beta occupied in each irrep (I)
 ! nvb   - number of beta virtuals in each irrep (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "reorg.fh"
 #include "files_ccsd.fh"
-integer symq, symr, syms
-integer dimv1, dimv2, dimv3, dima, dimb, dimc
-integer nob(1:8)
-integer nvb(1:8)
-real*8 vint(1:dimv1,1:dimv2,1:dimv3)
-real*8 r(1:dima,1:dimb,1:dimc)
-! help variables
-integer a, b, c, adda, addb, addc, length, iaddr
+integer(kind=iwp) :: dimv1, dimv2, dimv3, dima, dimb, dimc, symq, symr, syms, nob(8), nvb(8)
+real(kind=wp) :: vint(dimv1,dimv2,dimv3), r(dima,dimb,dimc)
+integer(kind=iwp) :: a, adda, addb, addc, b, c, iaddr, length
 
 ! if there are no beta virtuals - skip
-if (nvb(symq)*nvb(symr)*nvb(syms) == 0) then
-  return
-end if
+if (nvb(symq)*nvb(symr)*nvb(syms) == 0) return
 
 ! calc additional constants for a,b,c
 adda = nob(symr)

@@ -18,9 +18,11 @@ subroutine mktempanam()
 ! tmp-anam - array of TEMP file names (Transported through common /tmnames/)
 ! this routine (I)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "reorg.fh"
-integer lun, itemp, k1
+integer(kind=iwp) :: itemp, k1, lun
 
 lun = lunpublic
 call molcas_open(lun,'TEMP000')

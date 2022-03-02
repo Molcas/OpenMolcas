@@ -8,10 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!3    array for storing possitions of (ab|ci) blocks for given i
-       integer T3IntPoss(1:mxt3pos)
+!3    array for storing positions of (ab|ci) blocks for given i
+       integer T3IntPos(1:mxt3pos)
 !
 !4    array for disk address offsets in t3nam file
        integer T3Off(1:512,1:8)
 !
-       common /cmmt31/ T3IntPoss,T3Off
+       common /cmmt31/ T3IntPos,T3Off

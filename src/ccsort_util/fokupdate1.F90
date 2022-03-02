@@ -25,22 +25,20 @@ subroutine fokupdate1(foka,fokb,symp,i,vint,ndimv1,ndimv2,ndimv3)
 ! ndimv2  - second dimension (norb(symi)) (I)
 ! ndimv3  - third dimension (norb(symp)) (I)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: symp, i, ndimv1, ndimv2, ndimv3
+real(kind=wp) :: foka(*), fokb(*), vint(ndimv1,ndimv2,ndimv3)
 #include "ccsort.fh"
-real*8 foka(*)
-real*8 fokb(*)
-real*8 vint(1:ndimv1,1:ndimv2,1:ndimv3)
-integer symp, i, ndimv1, ndimv2, ndimv3
-!  help variables
-integer nhelp1, nhelp2, p, q, pq
+integer(kind=iwp) :: nhelp1, nhelp2, p, pq, q
 
 ! calculate shift
 
 nhelp1 = 0
-if (symp > 1) then
-  do nhelp2=1,symp-1
-    nhelp1 = nhelp1+(norb(nhelp2)**2+norb(nhelp2))/2
-  end do
-end if
+do nhelp2=1,symp-1
+  nhelp1 = nhelp1+(norb(nhelp2)**2+norb(nhelp2))/2
+end do
 
 ! add integral
 

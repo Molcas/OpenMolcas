@@ -12,13 +12,13 @@
 subroutine mkampqmap(ammap,syma,rc)
 ! this routine prepares ammap
 
+use Definitions, only: iwp
+
+implicit none
 #include "reorg.fh"
+integer(kind=iwp) :: ammap(mbas,8,8), syma, rc
 #include "ccsort.fh"
-integer syma, rc
-integer ammap(1:mbas,1:8,1:8)
-! help variables
-integer a, symp, symq, symm, symam
-integer lengthmpq, nrecc, nrest, irec
+integer(kind=iwp) :: a, irec, lengthmpq, nrecc, nrest, symam, symm, symp, symq
 
 !T test, if there are any a in this symmetry
 
@@ -26,9 +26,9 @@ if (nvb(syma) == 0) then
   rc = 1
   ! RC=1 : there are no a in this symmetry
   return
-else
-  rc = 0
 end if
+
+rc = 0
 
 ! def initial address
 
@@ -45,11 +45,9 @@ do symm=1,nsym
     ! and determine shift in initial positions
 
     lengthmpq = noa(symm)*norb(symp)*norb(symq)
-    nrecc = int(lengthmpq/recl)
-    nrest = lengthmpq-nrecc*recl
-    if (nrest > 0) then
-      nrecc = nrecc+1
-    end if
+    nrecc = int(lengthmpq/reclen)
+    nrest = lengthmpq-nrecc*reclen
+    if (nrest > 0) nrecc = nrecc+1
 
     do a=1,nvb(syma)
 

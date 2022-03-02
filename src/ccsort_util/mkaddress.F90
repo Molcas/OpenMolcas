@@ -39,22 +39,17 @@ subroutine mkaddress(NOIPSB)
 !
 ! N.B. typ,idis,np,nq,nr,ns are transferred through common block /edpand2/
 
-implicit real*8(A-H,O-Z)
-#include "tratoc.fh"
-integer INDMAX, MXFUNC
-parameter(INDMAX=nTraBuf,MXFUNC=200)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: NOIPSB(106)
 #include "ccsort.fh"
 #include "reorg.fh"
-integer NOIPSB(106)
-!integer idispsb(106)
-! help variables
-integer sense
-integer p, q, r, s, pa, qa, ra
-integer IND, INDT, ISPQRS, NINT, NSLM, idistemp, idishelp
-integer jlow, ilow, iup, jup, kup, lup, iold, jold, kold, lold
-integer norbp, nsi, nsj, nsk, nsl, nsij, nsijk
-real*8 dum(1)
+#include "tratoc.fh"
+integer(kind=iwp) :: idishelp, idistemp, ilow, IND, INDT, iold, ISPQRS, iup, jlow, jold, jup, kold, kup, lold, lup, N_INT, norbp, &
+                     nsi, nsij, nsijk, nsj, nsk, nsl, NSLM, p, pa, q, qa, r, ra, s, sense !, idispsb(106)
+real(kind=wp) :: dum(1)
 
 !FUE - pick the start addresses of each symmetry allowed integral
 !FUE   block from the tranformed two electron integral file
@@ -69,21 +64,15 @@ INDT = 0
 !FUE idistemp = 1
 !FUE idisadd = 150
 
-do NSI=1,NSYM
-  do NSJ=1,NSYM
-    do NSK=1,NSYM
-      typ(NSI,NSJ,NSK) = 0
-    end do
-  end do
-end do
+typ(1:NSYM,1:NSYM,1:NSYM) = 0
 
 if (fullprint > 0) then
-  write(6,'(6X,A)') 'Transformed integral blocks:'
-  write(6,'(6X,A)') '----------------------------'
-  write(6,*)
-  write(6,'(6X,A)') 'block  symmetry      no. of        no. of '
-  write(6,'(6X,A)') ' no.    spec.        orbitals     integrals'
-  write(6,'(6X,A)') '-------------------------------------------'
+  write(u6,'(6X,A)') 'Transformed integral blocks:'
+  write(u6,'(6X,A)') '----------------------------'
+  write(u6,*)
+  write(u6,'(6X,A)') 'block  symmetry      no. of        no. of '
+  write(u6,'(6X,A)') ' no.    spec.        orbitals     integrals'
+  write(u6,'(6X,A)') '-------------------------------------------'
 end if
 
 ISPQRS = 0
@@ -262,9 +251,9 @@ do NSI=1,NSYM
         ! THIS LOOPING IS COPIED FROM THE MANUAL OF THE 4-INDEX
         ! TRANSFORMATION PROGRAM
         !
-        ! NINT COUNTS INTEGRAL LABELS IN THE GIVEN SYMMETRY BLOCK
+        ! N_INT COUNTS INTEGRAL LABELS IN THE GIVEN SYMMETRY BLOCK
 
-        NINT = 0
+        N_INT = 0
         KUP = NORB(NSK)
         do KOLD=1,KUP
 
@@ -285,18 +274,18 @@ do NSI=1,NSYM
 
                 IND = IND+1
                 INDT = INDT+1
-                NINT = NINT+1
+                N_INT = N_INT+1
                 idishelp = idishelp+1
-                if (idishelp > INDMAX) then
+                if (idishelp > nTraBuf) then
                   !FUE - all integrals in the reord were processed, hence
                   !FUE   update the disk address by a dummy I/O
-                  dum(1) = 0.0d0
-                  call dDaFile(LUINTM,0,dum,INDMAX,idistemp)
+                  dum(1) = Zero
+                  call dDaFile(LUINTM,0,dum,nTraBuf,idistemp)
                   !FUE idistemp = idistemp+idisadd
                   idishelp = 1
                 end if
 
-                if (IND >= INDMAX) IND = 0
+                if (IND >= nTraBuf) IND = 0
 
               end do
             end do
@@ -305,25 +294,21 @@ do NSI=1,NSYM
         if (idishelp > 0) then
           !FUE - all integrals in the reord were processed, hence
           !FUE   update the disk address by a dummy I/O
-          dum(1) = 0.0d0
-          call dDaFile(LUINTM,0,dum,INDMAX,idistemp)
+          dum(1) = Zero
+          call dDaFile(LUINTM,0,dum,nTraBuf,idistemp)
           !FUE idistemp = idistemp+idisadd
         end if
 
         ! WRITING THE LAST RECORD OF LABELS IN THE GIVEN SYMMETRY BLOCK
         ! RECORDS ON LUPACK ARE FORMATTED TO 28KB LENGTH
 
-        if (IND /= 0) then
-          IND = 0
-        end if
+        if (IND /= 0) IND = 0
 
-        NOIPSB(ISPQRS) = NINT
+        NOIPSB(ISPQRS) = N_INT
 
         !***************************************************************
 
-        if (fullprint > 0) then
-          write(6,'(6X,I5,2X,4I2,2X,4I4,2X,I8)') ISPQRS,NSI,NSJ,NSK,NSL,IUP,JUP,KUP,LUP,NINT
-        end if
+        if (fullprint > 0) write(u6,'(6X,I5,2X,4I2,2X,4I4,2X,I8)') ISPQRS,NSI,NSJ,NSK,NSL,IUP,JUP,KUP,LUP,N_INT
 
         !***************************************************************
 
@@ -331,9 +316,7 @@ do NSI=1,NSYM
     end do
   end do
 end do
-if (fullprint > 0) then
-  write(6,'(6X,A)') '-------------------------------------------'
-end if
+if (fullprint > 0) write(u6,'(6X,A)') '-------------------------------------------'
 
 return
 

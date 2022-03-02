@@ -21,9 +21,12 @@ subroutine unpackk(i,vint,ndimv1,ndimv2,ndimv3,key)
 !          = 0 if symj is not syml
 !          = 1 if symj = syml
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, key
+real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3)
 #include "reorg.fh"
-integer i, ndimv1, ndimv2, ndimv3, key
-real*8 vint(1:ndimv1,1:ndimv2,1:ndimv3)
 
 if (zrkey == 1) then
   call unpackk_zr(i,vint,ndimv1,ndimv2,ndimv3,key)

@@ -18,14 +18,12 @@ subroutine dawrtmap(lun,mapd,mapi,rc)
 ! mapi  - inverse map matrix corresponding to given mediate (Input)
 ! rc    - return (error) code (Output)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: lun, mapd(0:512,6), mapi(8,8,8), rc
 #include "files_ccsd.fh"
 #include "reorg.fh"
-
-#include "SysDef.fh"
-
-integer lun, rc
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
 
 rc = 0
 

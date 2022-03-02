@@ -11,10 +11,12 @@
 
 subroutine getpp_zr(lunpublic,pp,ipp,length)
 
-#include "SysDef.fh"
-integer lunpublic, length
-real*8 pp(1:length)
-integer ipp(1:length)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: lunpublic, length
+real(kind=wp) :: pp(length)
+integer(kind=iwp) :: ipp(length)
 
 read(lunpublic) pp,ipp
 

@@ -24,20 +24,18 @@ subroutine abpack(wrk,wrksize,syma,symb,symp,symq,a,vint,ndimv1,ndimv2,ndimv3,ab
 ! ndimv3- 3rd dimension of vint - norb(symq) (I)
 ! abmap - map for storing of addresses in DA file TEMPDA1 (I)
 
-#include "wrk.fh"
-#include "ccsort.fh"
+use Definitions, only: wp, iwp
+
+implicit none
 #include "reorg.fh"
-integer syma, symb, symp, symq, a, ndimv1, ndimv2, ndimv3
-real*8 vint(1:ndimv1,1:ndimv2,1:ndimv3)
-integer abmap(1:mbas,1:mbas,1:8)
-! help variables
-integer p, q, pq, irec0, length, b, bup, bvint
+integer(kind=iwp) :: wrksize, syma, symb, symp, symq, a, ndimv1, ndimv2, ndimv3, abmap(mbas,mbas,8)
+real(kind=wp) :: wrk(wrksize), vint(ndimv1,ndimv2,ndimv3)
+#include "ccsort.fh"
+integer(kind=iwp) :: b, bup, bvint, irec0, length, p, pq, q
 
 !T if there are no ab pair, or no integrals in _a_bpq block return
 
-if (nvb(syma)*nvb(symb)*norb(symp)*norb(symq) == 0) then
-  return
-end if
+if (nvb(syma)*nvb(symb)*norb(symp)*norb(symq) == 0) return
 
 ! def length of _a_b(p,q) block
 
@@ -56,7 +54,7 @@ do b=1,bup
 
   ! map _a_b(pq) block into #v3
 
-  pq = poss30-1
+  pq = pos30-1
   do q=1,norb(symq)
     do p=1,norb(symp)
       pq = pq+1
@@ -67,7 +65,7 @@ do b=1,bup
   ! put this block to appropriate position in direct access file
 
   irec0 = abmap(a,b,symp)
-  call dawrite(lunda1,irec0,wrk(poss30),length,recl)
+  call dawrite(lunda1,irec0,wrk(pos30),length,reclen)
 
 end do
 

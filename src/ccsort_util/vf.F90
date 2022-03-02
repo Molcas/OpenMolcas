@@ -9,16 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine vf(name,lun)
+subroutine vf(fname,lun)
 ! this routine opens file vanisf file with a given name
-! name - name of the vanished file (I)
+! fname- name of the vanished file (I)
 ! lun  - lun number with which file will be opened (I)
 
-character*8 name
-integer lun
+use Definitions, only: iwp
 
-call molcas_open(lun,name)
-!open(unit=lun,file=name)
+implicit none
+character(len=8) :: fname
+integer(kind=iwp) :: lun
+
+call molcas_open(lun,fname)
+!open(unit=lun,file=fname)
 write(lun,*) ' File scratched'
 close(lun)
 

@@ -17,10 +17,13 @@ subroutine ccsort_rea(lun,length,vector)
 ! length - # of R8 numbers to be read (Input)
 ! vector - space, where numbers are stored after reading (Output)
 
-integer lun, length, i
-real*8 vector(1:length)
+use Definitions, only: wp, iwp
 
-read(lun) (vector(i),i=1,length)
+implicit none
+integer(kind=iwp) :: lun, length
+real(kind=wp) :: vector(length)
+
+read(lun) vector(:)
 
 return
 

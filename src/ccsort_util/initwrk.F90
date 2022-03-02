@@ -13,20 +13,19 @@ subroutine initwrk(length)
 ! this routine calculates required size of work space and
 ! defines initial positions of work vectors
 
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: length
 #include "ccsort.fh"
 #include "reorg.fh"
-! help variables
-integer n
-integer sizevint, sizev1, sizev2, sizempq, length, norbmax, sizeri
-integer symp, symq, symi, symj, sympq, sympqi, symm, symmp, syma
+integer(kind=iwp) :: n, norbmax, sizempq, sizeri, sizev1, sizev2, sizevint, syma, symi, symj, symm, symmp, symp, sympq, sympqi, symq
 
-!1def maxsize of vint
+!1 def maxsize of vint
 
 norbmax = norb(1)
 do n=1,nsym
-  if (norb(n) > norbmax) then
-    norbmax = norb(n)
-  end if
+  if (norb(n) > norbmax) norbmax = norb(n)
 end do
 
 sizevint = norbmax*norbmax*norbmax
@@ -67,9 +66,7 @@ do syma=1,nsym
     end do
   end do
 
-  if (sizempq < length) then
-    sizempq = length
-  end if
+  if (sizempq < length) sizempq = length
 
 end do
 
@@ -81,33 +78,31 @@ if (t3key == 1) then
   do symi=1,nsym
     call ccsort_t3grc0(3,8,4,4,4,0,symi,1,length,mapdri,mapiri)
     length = length-1
-    if (length > sizeri) then
-      sizeri = length
-    end if
+    if (length > sizeri) sizeri = length
   end do
 end if
 
 ! ******* distribution of memory ******
 
-poss10 = 1+sizevint
-poss20 = poss10+sizev1
-poss30 = poss20+sizev2
-possri0 = poss30+sizempq
-length = possri0+sizeri-1
+pos10 = 1+sizevint
+pos20 = pos10+sizev1
+pos30 = pos20+sizev2
+posri0 = pos30+sizempq
+length = posri0+sizeri-1
 
 if (fullprint > 1) then
-  write(6,*)
-  write(6,'(6X,A)') 'size of help (work) vectors:'
-  write(6,'(6X,A)') '----------------------------'
-  write(6,*)
-  write(6,'(6X,A,I8)') 'Vints     V0 required : ',sizevint
-  write(6,'(6X,A,I8)') 'PQIJ ints V1 required : ',sizev1
-  write(6,'(6X,A,I8)') '          V2 required : ',sizev2
-  write(6,'(6X,A,I8)') 'AMIJ ints V3 required : ',sizempq
-  write(6,'(6X,A,I8)') 'R_i mtx   Ri required : ',sizeri
+  write(u6,*)
+  write(u6,'(6X,A)') 'size of help (work) vectors:'
+  write(u6,'(6X,A)') '----------------------------'
+  write(u6,*)
+  write(u6,'(6X,A,I8)') 'Vints     V0 required : ',sizevint
+  write(u6,'(6X,A,I8)') 'PQIJ ints V1 required : ',sizev1
+  write(u6,'(6X,A,I8)') '          V2 required : ',sizev2
+  write(u6,'(6X,A,I8)') 'AMIJ ints V3 required : ',sizempq
+  write(u6,'(6X,A,I8)') 'R_i mtx   Ri required : ',sizeri
 end if
 
-if (fullprint >= 0) write(6,'(6X,A,I20)') 'Required WRK size-sum : ',length
+if (fullprint >= 0) write(u6,'(6X,A,I20)') 'Required WRK size-sum : ',length
 
 return
 

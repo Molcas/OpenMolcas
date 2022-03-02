@@ -24,20 +24,18 @@ subroutine ampack(wrk,wrksize,syma,symm,symp,symq,a,vint,ndimv1,ndimv2,ndimv3,am
 ! ndimv3- 3rd dimension of vint - norb(symq) (I)
 ! ammap - map for storing of addresses in DA file TEMPDA2 (I)
 
-#include "wrk.fh"
-#include "ccsort.fh"
+use Definitions, only: wp, iwp
+
+implicit none
 #include "reorg.fh"
-integer syma, symm, symp, symq, a, ndimv1, ndimv2, ndimv3
-real*8 vint(1:ndimv1,1:ndimv2,1:ndimv3)
-integer ammap(1:mbas,1:8,1:8)
-! help variables
-integer m, p, q, pq, irec0, length
+integer(kind=iwp) :: wrksize, syma, symm, symp, symq, a, ndimv1, ndimv2, ndimv3, ammap(mbas,8,8)
+real(kind=wp) :: wrk(wrksize), vint(ndimv1,ndimv2,ndimv3)
+#include "ccsort.fh"
+integer(kind=iwp) :: irec0, length, m, p, pq, q
 
 !T if there are no a, or no integrals in _a_mpq block return
 
-if (nvb(syma)*noa(symm)*norb(symp)*norb(symq) == 0) then
-  return
-end if
+if (nvb(syma)*noa(symm)*norb(symp)*norb(symq) == 0) return
 
 ! def length of _a(m,p,q) block
 
@@ -45,7 +43,7 @@ length = noa(symm)*norb(symp)*norb(symq)
 
 ! map _a(mpq) block into #v3
 
-pq = poss30-1
+pq = pos30-1
 
 do q=1,norb(symq)
   do p=1,norb(symp)
@@ -59,7 +57,7 @@ end do
 ! put this block to appropriate position in direct access file
 
 irec0 = ammap(a,symm,symp)
-call dawrite(lunda2,irec0,wrk(poss30),length,recl)
+call dawrite(lunda2,irec0,wrk(pos30),length,reclen)
 
 return
 

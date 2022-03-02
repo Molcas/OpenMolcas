@@ -18,16 +18,15 @@ subroutine addinta(wrk,wrksize,syma,ammap)
 ! wrtmap
 ! wri
 
-#include "wrk.fh"
-#include "reorg.fh"
-#include "ccsort.fh"
-integer syma
-integer ammap(1:mbas,1:8,1:8)
-! help variables
+use Definitions, only: wp, iwp
 
-integer lenefaaaa, lenefbaab, lenefbbbb, lenefabab
-integer lenejaaaa, lenejbaab, lenejbaba, lenejbbbb, lenejabab, lenejabba
-integer posst, rc, a
+implicit none
+#include "reorg.fh"
+integer(kind=iwp) :: wrksize, syma, ammap(mbas,8,8)
+real(kind=wp) :: wrk(wrksize)
+#include "ccsort.fh"
+integer(kind=iwp) :: a, lenefaaaa, lenefabab, lenefbaab, lenefbbbb, lenejaaaa, lenejabab, lenejabba, lenejbaab, lenejbaba, &
+                     lenejbbbb, post, rc
 
 ! mapd2 and mapi2 of #2 <_a,m|p,q> are prepared
 
@@ -35,40 +34,40 @@ integer posst, rc, a
 ! define lengths of this mediates
 
 !1   to INTA1 <m,_a||ef>aaaa, <m,_a||ef>baab
-call ccsort_grc0(3,2,1,3,3,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,2,1,3,3,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenefaaaa)
 call dawrtmap(luna1,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,2,3,4,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,0,2,3,4,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenefbaab)
 call dawrtmap(luna1,mapd3,mapi3,rc)
 
 !2   to INTA2 <m,_a||ef>bbbb, <m,_a||ef>abab
-call ccsort_grc0(3,2,2,4,4,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,2,2,4,4,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenefbbbb)
 call dawrtmap(luna2,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,1,3,4,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,0,1,3,4,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenefabab)
 call dawrtmap(luna2,mapd3,mapi3,rc)
 
 !3   to INTA3 <m,_a||ej>aaaa, <m,_a||ej>baab, <m,_a||ej>baba
-call ccsort_grc0(3,0,1,3,1,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,0,1,3,1,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenejaaaa)
 call dawrtmap(luna3,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,2,3,2,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,0,2,3,2,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenejbaab)
 call dawrtmap(luna3,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,2,4,1,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,0,2,4,1,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenejbaba)
 call dawrtmap(luna3,mapd3,mapi3,rc)
 
 !4   to INTA4 <m,_a||ej>bbbb, <m,_a||ej>abba, <m,_a||ej>abab
-call ccsort_grc0(3,0,2,4,2,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,0,2,4,2,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenejbbbb)
 call dawrtmap(luna4,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,1,4,1,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,0,1,4,1,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenejabba)
 call dawrtmap(luna4,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,1,3,2,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,0,1,3,2,0,syma,pos30,post,mapd3,mapi3)
 call deflength(mapd3,lenejabab)
 call dawrtmap(luna4,mapd3,mapi3,rc)
 

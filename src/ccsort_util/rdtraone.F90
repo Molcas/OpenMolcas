@@ -17,12 +17,13 @@ subroutine RdTraOne()
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: iwp
+
+implicit none
 #include "Molcas.fh"
 #include "motra.fh"
-#include "SysDef.fh"
-integer iDisk, LuTraOne
-integer TocTraOne(64)
-character*(LENIN8) BsLbl(MxOrb)
+integer(kind=iwp) :: iDisk, LuTraOne, TocTraOne(64)
+character(len=LenIn8) :: BsLbl(MxOrb)
 
 LuTraOne = 3
 
@@ -31,7 +32,7 @@ call DaName(LuTraOne,'TRAONE')
 !ulf
 iDisk = 0
 
-call WR_MOTRA_Info(LuTraOne,2,iDisk,TocTraOne,64,EcorX,nSymX,nBasX,nOrbX,nFroX,nDelX,8,BsLbl,LENIN8*MxOrb)
+call WR_MOTRA_Info(LuTraOne,2,iDisk,TocTraOne,64,EcorX,nSymX,nBasX,nOrbX,nFroX,nDelX,8,BsLbl,LenIn8*MxOrb)
 
 call Daclos(LuTraOne)
 

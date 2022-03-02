@@ -11,18 +11,16 @@
 
 subroutine ccsort_mv0zero(DD,LENGTH,MAT)
 
-integer DD
-integer LENGTH
-real*8 MAT(1:DD)
-integer INIT
-real*8 ZERO
-data ZERO/0.0D+00/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: DD, LENGTH
+real(kind=wp) :: MAT(DD)
 
 ! ...loop over all elements
 
-do INIT=1,LENGTH
-  MAT(INIT) = ZERO
-end do
+MAT(1:LENGTH) = Zero
 
 return
 

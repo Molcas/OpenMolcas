@@ -12,14 +12,13 @@
 subroutine mkabpqmap(abmap,syma,symb,rc)
 ! this routine prepares abmap
 
-#include "reorg.fh"
-#include "ccsort.fh"
+use Definitions, only: iwp
 
-integer abmap(1:mbas,1:mbas,1:8)
-integer syma, symb, rc
-! help variables
-integer a, b, bup, symp, symq, symab
-integer lengthpq, nrecc, nrest, irec
+implicit none
+#include "reorg.fh"
+integer(kind=iwp) :: abmap(mbas,mbas,8), syma, symb, rc
+#include "ccsort.fh"
+integer(kind=iwp) :: a, b, bup, irec, lengthpq, nrecc, nrest, symab, symp, symq
 
 !T test, if there are any ab pair
 
@@ -27,9 +26,9 @@ if (nvb(syma)*nvb(symb) == 0) then
   rc = 1
   ! RC=1 : there are no ab pair in this symmetry
   return
-else
-  rc = 0
 end if
+
+rc = 0
 
 ! def initial address
 
@@ -45,11 +44,9 @@ do symp=1,nsym
   ! and determine shift in initial positions
 
   lengthpq = norb(symp)*norb(symq)
-  nrecc = int(lengthpq/recl)
-  nrest = lengthpq-nrecc*recl
-  if (nrest > 0) then
-    nrecc = nrecc+1
-  end if
+  nrecc = int(lengthpq/reclen)
+  nrest = lengthpq-nrecc*reclen
+  if (nrest > 0) nrecc = nrecc+1
 
   do a=1,nvb(syma)
 

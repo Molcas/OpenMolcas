@@ -9,39 +9,34 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine mreorg1(symp,symq,symr,typp,typq,typr,posspv1,possqv1,possrv1,typpv1,typqv1,typrv1,typv2,v1,v2,fact,dimp,dimqr,dimt, &
+subroutine mreorg1(symp,symq,symr,typp,typq,typr,pospv1,posqv1,posrv1,typpv1,typqv1,typrv1,typv2,v1,v2,fact,dimp,dimqr,dimt, &
                    dimu,dimv)
 ! this routine maps v2(p,qr) <+ fact . v1 (t,u,v)
 ! v2 may be of type 0,2 (typv2) while type v1 is always 0
 ! symp-symr and typp-typr are symmetries and types of p-r indices
-! posspv1-possrv1 are corresponding positions of p-r indices in v1
+! pospv1-posrv1 are corresponding positions of p-r indices in v1
 ! N.B. v1 and v2 have no direct relation to #1 or #2, since here there
 ! is no reorg.fh included, v1,v2 corresponds to arbitrary matrices
 !
 ! symp-r     - symmetries of p-r (I)
 ! typp-r     - types of indices p-r in V2 (I)
-! possp-rv1  - positions of p-r ind. in v1 (I)
+! posp-rv1   - positions of p-r ind. in v1 (I)
 ! typp-rv1   - types of indices, corresponding to p-r in V1 (I)
 ! typv2      - type of V2 (0,1,2,4) (I)
 ! v1,v2      - arrays V1 and V2  (I,O)
-! fact       - multiplication factors (usually +-1.0d0) (I)
+! fact       - multiplication factors (usually +-1.0) (I)
 ! dimp,qr    - dimensions of V2 (I)
 ! dimt-s     - dimensions of V1 (I)
 !
 ! reorg.fh may not be included
 
-#include "ccsort.fh"
-integer symp, symq, symr, typp, typq, typr
-integer posspv1, possqv1, possrv1
-integer typpv1, typqv1, typrv1, typv2
-integer dimp, dimqr, dimt, dimu, dimv
-real*8 v2(1:dimp,1:dimqr)
-real*8 v1(1:dimt,1:dimu,1:dimv)
-real*8 fact
-! help variables
-integer p, q, r, qr, pup, qup, rup, rc, qryes
-integer paddv1, qaddv1, raddv1
-integer ind(1:4)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: symp, symq, symr, typp, typq, typr, pospv1, posqv1, posrv1, typpv1, typqv1, typrv1, typv2, dimp, dimqr, &
+                     dimt, dimu, dimv
+real(kind=wp) :: v1(dimt,dimu,dimv), v2(dimp,dimqr), fact
+integer(kind=iwp) :: ind(4), p, paddv1, pup, q, qaddv1, qr, qryes, qup, r, raddv1, rc, rup
 
 ! def additional constants
 
@@ -73,13 +68,13 @@ if (qryes == 1) then
 
   qr = 0
   do q=2,qup
-    ind(possqv1) = qaddv1+q
+    ind(posqv1) = qaddv1+q
     do r=1,q-1
-      ind(possrv1) = raddv1+r
+      ind(posrv1) = raddv1+r
       qr = qr+1
 
       do p=1,pup
-        ind(posspv1) = paddv1+p
+        ind(pospv1) = paddv1+p
 
         v2(p,qr) = v2(p,qr)+fact*v1(ind(1),ind(2),ind(3))
 
@@ -93,13 +88,13 @@ else
 
   qr = 0
   do r=1,rup
-    ind(possrv1) = raddv1+r
+    ind(posrv1) = raddv1+r
     do q=1,qup
-      ind(possqv1) = qaddv1+q
+      ind(posqv1) = qaddv1+q
       qr = qr+1
 
       do p=1,pup
-        ind(posspv1) = paddv1+p
+        ind(pospv1) = paddv1+p
 
         v2(p,qr) = v2(p,qr)+fact*v1(ind(1),ind(2),ind(3))
 

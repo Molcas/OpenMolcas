@@ -31,41 +31,41 @@ subroutine expmpq(wrk,wrksize,syma,typv3,typm,typp,typq,directyes,inverseyes)
 !
 ! it also defines new mapd2,mapi2 corresponding to #2
 
-#include "wrk.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer wrksize, syma, typv3, typm, typp, typq, directyes, inverseyes
+real(kind=wp) :: wrk(wrksize)
 #include "reorg.fh"
-#include "ccsort.fh"
-integer typv3, typp, typq, typm, syma, directyes, inverseyes
-! help variables
-integer symp, symq, symm, possv3, length
-integer ii, iiv2d, iiv2i, possv2d, possv2i
-integer posst
+integer(kind=iwp) :: ii, iiv2d, iiv2i, length, post, posv2d, posv2i, posv3, symm, symp, symq
 
 ! get mapd mapi of <m,a|p,q> as _a(m,p q) into mapd3,mapi3
 
-call ccsort_grc0(3,typv3,typm,typp,typq,0,syma,poss30,posst,mapd3,mapi3)
+call ccsort_grc0(3,typv3,typm,typp,typq,0,syma,pos30,post,mapd3,mapi3)
 
 ! realize reorganization psb
 
 do ii=1,mapd3(0,5)
 
   ! def parameters of #3
-  possv3 = mapd3(ii,1)
+  posv3 = mapd3(ii,1)
   length = mapd3(ii,2)
   symm = mapd3(ii,3)
   symp = mapd3(ii,4)
   symq = mapd3(ii,5)
 
   ! vanish #3
-  call ccsort_mv0zero(length,length,wrk(possv3))
+  call ccsort_mv0zero(length,length,wrk(posv3))
 
   if (directyes == 1) then
 
     ! def position #2 direct (i.e.
     iiv2d = mapi2(symm,symq,1)
-    possv2d = mapd2(iiv2d,1)
+    posv2d = mapd2(iiv2d,1)
 
     ! do #3 <m a p q> <- #2 <a m q p> (i.e. direct)
-    call mreorg(wrk,wrksize,symm,symp,symq,typm,typp,typq,1,3,2,1,5,5,typv3,possv2d,possv3,1.0d0)
+    call mreorg(wrk,wrksize,symm,symp,symq,typm,typp,typq,1,3,2,1,5,5,typv3,posv2d,posv3,One)
 
   end if
 
@@ -73,10 +73,10 @@ do ii=1,mapd3(0,5)
 
     ! def position #2 inverse (i.e. #2 <symq,symp| symi,symj>)
     iiv2i = mapi2(symm,symp,1)
-    possv2i = mapd2(iiv2i,1)
+    posv2i = mapd2(iiv2i,1)
 
     ! do #3 <m a q p> <- - #2 <a m p q> (i.e. inverse)
-    call mreorg(wrk,wrksize,symm,symp,symq,typm,typp,typq,1,2,3,1,5,5,typv3,possv2i,possv3,-1.0d0)
+    call mreorg(wrk,wrksize,symm,symp,symq,typm,typp,typq,1,2,3,1,5,5,typv3,posv2i,posv3,-One)
 
   end if
 

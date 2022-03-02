@@ -13,17 +13,15 @@ subroutine inittemp(num)
 ! this routine initializes status matrix
 ! num - number of files to be used (I)
 
-implicit real*8(a-h,o-z)
-#include "reorg.fh"
-integer num
-! help variables
-integer nhelp
+use Definitions, only: iwp
 
-do nhelp=1,num
-  stattemp(nhelp) = 0
-  nrectemp(nhelp) = 0
-  lrectemp(nhelp) = 0
-end do
+implicit none
+#include "reorg.fh"
+integer(kind=iwp) :: num
+
+stattemp(1:num) = 0
+nrectemp(1:num) = 0
+lrectemp(1:num) = 0
 
 return
 

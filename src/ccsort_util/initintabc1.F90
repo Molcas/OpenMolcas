@@ -13,11 +13,13 @@ subroutine initintabc1()
 ! this routine writes corresponding mapd and mapi to INTAB
 ! for nonsymmetrical (C1) case
 
+use Definitions, only: iwp
+
+implicit none
 #include "reorg.fh"
 #include "ccsort.fh"
-! help variables
-integer nhelp, length, symp, symq, symab
-integer poss, ii, syma, symb, rc
+integer(kind=iwp) :: ii, length, pos, rc, syma, symab, symb, symp, symq
+
 ! def symab
 syma = 1
 symb = 1
@@ -27,13 +29,7 @@ symab = mul(syma,symb)
 
 ! set mapi3=0 (partly)
 
-do nhelp=1,nsym
-  do symq=1,nsym
-    do symp=1,nsym
-      mapi3(symp,symq,nhelp) = 0
-    end do
-  end do
-end do
+mapi3(1:nsym,1:nsym,1:nsym) = 0
 
 ! def 0-th row
 
@@ -46,20 +42,20 @@ mapd3(0,6) = 0
 
 ! def other rows
 
-poss = poss30
+pos = pos30
 do ii=1,nsym
 
   symp = ii
   symq = mul(symab,symp)
   length = norb(symp)*norb(symq)
-  mapd3(ii,1) = poss
+  mapd3(ii,1) = pos
   mapd3(ii,2) = length
   mapd3(ii,3) = symp
   mapd3(ii,4) = symq
   mapd3(ii,5) = 1
   mapd3(ii,6) = 1
   mapi3(symp,1,1) = ii
-  poss = poss+length
+  pos = pos+length
 
 end do
 

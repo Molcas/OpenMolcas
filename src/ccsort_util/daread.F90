@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine daread(lun,irec0,vector,length,recl)
+subroutine daread(lun,irec0,vector,length,reclen)
 ! this routine reads vector with required length from
 ! open direct access file lun starting from record number
 ! irec0
@@ -17,12 +17,14 @@ subroutine daread(lun,irec0,vector,length,recl)
 ! irec0 - initial record number (I)
 ! vector- vector (O)
 ! length- number of R8 data to be read (I)
-! recl  - length of one record in lun in R8 (I)
+! reclen- length of one record in lun in R8 (I)
 
-real*8 vector(1:length)
-integer lun, irec0, length, recl
-! help variables
-integer ilow, iup, need, irec, i
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: lun, irec0, length, reclen
+real(kind=wp) :: vector(length)
+integer(kind=iwp) :: i, ilow, irec, iup, need
 
 if (length == 0) return
 
@@ -34,17 +36,17 @@ iup = 0
 irec = irec0
 
 do
-  if (recl >= need) then
+  if (reclen >= need) then
     iup = iup+need
   else
-    iup = iup+recl
+    iup = iup+reclen
   end if
 
   read(lun,rec=irec) (vector(i),i=ilow,iup)
 
   need = need-(iup-ilow+1)
   irec = irec+1
-  ilow = ilow+recl
+  ilow = ilow+reclen
 
   if (need <= 0) exit
 end do

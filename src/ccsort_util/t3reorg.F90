@@ -17,27 +17,24 @@ subroutine t3reorg(wrk,wrksize,noa,nsym)
 ! noa   - array with occupation numbers
 ! nsym  - actual number of irreps
 
-implicit none
-#include "wrk.fh"
-#include "reorg.fh"
-#include "files_ccsd.fh"
-integer noa(1:8)
-integer nsym
-! help variables
-integer length, iri, possri
-integer posst
-integer symi, i, iaddr, iindex, iPossPack
+use Definitions, only: wp, iwp
 
-! def iPossPack
-!   iPossPack - position of (maps+Ri) set in packed
+implicit none
+integer(kind=iwp) :: wrksize, noa(8), nsym
+real(kind=wp) :: wrk(wrksize)
+#include "reorg.fh"
+integer(kind=iwp) :: i, iaddr, iindex, iPosPack, iri, length, posri, post, symi
+
+! def iPosPack
+!   iPosPack - position of (maps+Ri) set in packed
 !               (i.e. final) of T3nam file
-iPossPack = T3IntPoss(1)
+iPosPack = T3IntPos(1)
 
 iindex = 0
 do symi=1,nsym
 
   !0 get map's of R_i(a,bc)
-  call ccsort_t3grc0(3,8,4,4,4,0,symi,possri0,posst,mapdri,mapiri)
+  call ccsort_t3grc0(3,8,4,4,4,0,symi,posri0,post,mapdri,mapiri)
 
   do i=1,noa(symi)
     iindex = iindex+1
@@ -46,17 +43,15 @@ do symi=1,nsym
     !  actually written in t3man file
     do iri=1,mapdri(0,5)
 
-    !1.1 iind address of this R_i block in t3nam file
-      iaddr = T3IntPoss(iindex)+T3Off(iri,symi)
+      !1.1 iind address of this R_i block in t3nam file
+      iaddr = T3IntPos(iindex)+T3Off(iri,symi)
 
-    !1.2 def position of of this block in R1
-      possri = mapdri(iri,1)
+      !1.2 def position of of this block in R1
+      posri = mapdri(iri,1)
 
-    !1.3 read integrals into proper position
+      !1.3 read integrals into proper position
       length = mapdri(iri,2)
-      if (length > 0) then
-        call ddafile(lunt3,2,wrk(possri),length,iaddr)
-      end if
+      if (length > 0) call ddafile(lunt3,2,wrk(posri),length,iaddr)
 
     end do
 
@@ -64,8 +59,8 @@ do symi=1,nsym
     !  1) mapdri, mapiri
     !  2) R_i
     !2.1 def final (packed) address for i-th set (maps+Ri)
-    T3intPoss(iindex) = iPossPack
-    iaddr = T3intPoss(iindex)
+    T3intPos(iindex) = iPosPack
+    iaddr = T3intPos(iindex)
 
     !2.2 write maps
     call idafile(lunt3,1,mapdri,3078,iaddr)
@@ -79,18 +74,18 @@ do symi=1,nsym
     !length = mapdri(iri,1)+mapdri(iri,2)-mapdri(1,1)
 
     !2.4 write Ri as one block
-    call ddafile(lunt3,1,wrk(possri0),length,iaddr)
+    call ddafile(lunt3,1,wrk(posri0),length,iaddr)
 
     !2.5 save updated address as a new packed (final) position for next i
-    iPossPack = iaddr
+    iPosPack = iaddr
 
   end do
 end do
 
-!3 store new packed (final) addresses T3IntPoss in t3nam file
+!3 store new packed (final) addresses T3IntPos in t3nam file
 !  (at the beggining)
 iaddr = 0
-call idafile(lunt3,1,T3IntPoss,mbas,iaddr)
+call idafile(lunt3,1,T3IntPos,mbas,iaddr)
 
 !4 close t3nam file
 call daclos(lunt3)

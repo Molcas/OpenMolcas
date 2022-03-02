@@ -12,14 +12,14 @@
 subroutine mkampq(wrk,wrksize,a,ammap)
 ! this routine reconstructs #2 V2<_a,m|p,q> from corresponding TEMPDA2 file
 
-#include "wrk.fh"
+use Definitions, only: wp, iwp
+
+implicit none
 #include "reorg.fh"
+integer(kind=iwp) :: wrksize, a, ammap(mbas,8,8)
+real(kind=wp) :: wrk(wrksize)
 #include "ccsort.fh"
-integer a
-integer ammap(1:mbas,1:8,1:8)
-! help variables
-integer symm, symp
-integer iiv2, length, poss, irec0
+integer(kind=iwp) :: iiv2, irec0, length, pos, symm, symp
 
 ! loops over symmetry combinations
 do symm=1,nsym
@@ -30,12 +30,10 @@ do symm=1,nsym
 
     irec0 = ammap(a,symm,symp)
     iiv2 = mapi2(symm,symp,1)
-    poss = mapd2(iiv2,1)
+    pos = mapd2(iiv2,1)
     length = mapd2(iiv2,2)
 
-    if (length > 0) then
-      call daread(lunda2,irec0,wrk(poss),length,recl)
-    end if
+    if (length > 0) call daread(lunda2,irec0,wrk(pos),length,reclen)
 
   end do
 end do

@@ -12,12 +12,11 @@
 subroutine deflength(mapd,length)
 ! this routine defines length of mediate, described by mapd
 
-integer mapd(0:512,1:6)
-integer length
+use Definitions, only: iwp
 
-! help variable
-
-integer ii
+implicit none
+integer(kind=iwp) :: mapd(0:512,6), length
+integer(kind=iwp) :: ii
 
 ii = mapd(0,5)
 length = mapd(ii,1)+mapd(ii,2)-mapd(1,1)

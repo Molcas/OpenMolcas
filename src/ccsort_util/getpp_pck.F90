@@ -11,9 +11,11 @@
 
 subroutine getpp_pck(lunpublic,pp,length)
 
-#include "SysDef.fh"
-integer lunpublic, length
-character*(RtoB+ItoB) pp(1:length)
+use Definitions, only: iwp, ItoB, RtoB
+
+implicit none
+integer(kind=iwp) :: lunpublic, length
+character(len=RtoB+ItoB) :: pp(length)
 
 read(lunpublic) pp
 

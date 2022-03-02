@@ -17,24 +17,17 @@ subroutine esb_ic_3(symp,Vic,dimp,pqind)
 ! It finds corresponding (IJ|KL) and expands it to
 ! matrix vic (prqs)
 
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "reorg.fh"
+integer(kind=iwp) :: symp, dimp, pqind(mbas,mbas)
+real(kind=wp) :: Vic((dimp*(dimp+1)/2)*((dimp*(dimp+1)/2)+1)/2)
 #include "ccsort.fh"
-integer symp, dimp
-!LD integer symp,dimp,dimq
-real*8 Vic(1:(dimp*(dimp+1)/2)*((dimp*(dimp+1)/2)+1)/2)
-real*8 val1
-integer idis13, indtemp
-integer ni, nj, nk, nl, nsi, nsj, nsk, nsl, i1, j1, k1, l1
-integer iup, ilow, jup, jlow, kup, lup, iold, jold, kold, lold
-integer pqind(1:mbas,1:mbas)
-! help variables
-integer i, j, maxx, ik, jl, ikjl
-integer ind(1:4)
 #include "tratoc.fh"
-integer INDMAX
-parameter(INDMAX=nTraBuf)
-real*8 TWO(INDMAX)
+integer(kind=iwp) :: i, i1, idis13, ik, ikjl, ilow, ind(4), indtemp, iold, iup, j, j1, jl, jlow, jold, jup, k1, kold, kup, l1, &
+                     lold, lup, maxx, ni, nj, nk, nl, nsi, nsj, nsk, nsl
+real(kind=wp) :: TWO(nTraBuf), val1
 
 !I calc pqind
 
@@ -74,35 +67,35 @@ NSJ = ind(2)
 NSK = ind(3)
 NSL = ind(4)
 
-indtemp = indmax+1
+indtemp = nTraBuf+1
 KUP = NORB(NSK)
 do KOLD=1,KUP
-  if (fullprint >= 3) write(6,*) ' * K ind ',KOLD
+  if (fullprint >= 3) write(u6,*) ' * K ind ',KOLD
 
   LUP = NORB(NSL)
   if (NSK == NSL) LUP = KOLD
   do LOLD=1,LUP
-    if (fullprint >= 3) write(6,*) ' ** L ind ',LOLD
+    if (fullprint >= 3) write(u6,*) ' ** L ind ',LOLD
 
     ILOW = 1
     if (NSI == NSK) ILOW = KOLD
     IUP = NORB(NSI)
     do IOLD=ILOW,IUP
-      if (fullprint >= 3) write(6,*) ' *** I ind ',IOLD
+      if (fullprint >= 3) write(u6,*) ' *** I ind ',IOLD
 
       JLOW = 1
       if ((NSI == NSK) .and. (IOLD == KOLD)) JLOW = LOLD
       JUP = NORB(NSJ)
       if (NSI == NSJ) JUP = IOLD
       do JOLD=JLOW,JUP
-        if (fullprint >= 3) write(6,*) ' **** J ind ',JOLD
+        if (fullprint >= 3) write(u6,*) ' **** J ind ',JOLD
 
         ! read block of integrals if necessary
 
-        if (indtemp == (indmax+1)) then
+        if (indtemp == (nTraBuf+1)) then
           indtemp = 1
           ! read block
-          call dDAFILE(LUINTM,2,TWO,INDMAX,IDIS13)
+          call dDAFILE(LUINTM,2,TWO,nTraBuf,IDIS13)
         end if
 
         ! write integrals to appropriate positions

@@ -17,8 +17,11 @@ subroutine ccsort_wri(lun,length,vector)
 ! length - # of R8 numbers to be written (Input)
 ! vector - space, where numbers are stored Input)
 
-integer lun, length
-real*8 vector(1:length)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: lun, length
+real(kind=wp) :: vector(length)
 
 write(lun) vector
 

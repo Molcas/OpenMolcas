@@ -17,19 +17,20 @@ subroutine mkintsta(wrk,wrksize,foka,fokb)
 ! <ab||ij>aaaa,<ab||ij>bbbb,<ab||ij>abab
 !
 ! N.B. 1. work file #1 is used for <ij|pq> integrals, #2,3,4
-! must be free. possb0 must be defined
+! must be free. posb0 must be defined
 ! N.B. 2. this routine can be used only after definition of <ij|pq>
 ! N.B. 3. this routine use following help routines:
 ! expandfok
 ! wrtmediate (from SYMM)
 
-#include "wrk.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize), foka(*), fokb(*)
 #include "reorg.fh"
 #include "files_ccsd.fh"
-real*8 foka(*)
-real*8 fokb(*)
-! help variables
-integer rc
+integer(kind=iwp) :: rc
 
 ! open INTSTA file
 if (iokey == 1) then

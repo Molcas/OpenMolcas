@@ -20,13 +20,12 @@ subroutine unpackk_ic_2(i,vint,ndimvi,ndimvj,Vic)
 ! ndimvj - (norb(symj)) (I)
 ! Vic    - incore expanded block of integrals (I)
 
-#include "reorg.fh"
-#include "SysDef.fh"
-integer i, ndimvi, ndimvj
-real*8 vint(1:ndimvj,1:ndimvi,1:ndimvj)
-real*8 Vic(1:(ndimvi*(ndimvi+1)/2),1:(ndimvj*(ndimvj+1)/2))
-! help variables
-integer j, k, l, ik, jl
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: i, ndimvi, ndimvj
+real(kind=wp) vint(ndimvj,ndimvi,ndimvj), Vic(ndimvi*(ndimvi+1)/2,ndimvj*(ndimvj+1)/2)
+integer(kind=iwp) :: ik, j, jl, k, l
 
 do k=1,ndimvi
   if (i >= k) then

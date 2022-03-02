@@ -9,31 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine daopen(name,lun,recl,nrec)
+subroutine daopen(fname,lun,reclen)
 ! this routine opens direct access file
 !
-! name  - name of the file A8 (I)
+! fname - name of the file A8 (I)
 ! lun   - logical unit number (I)
-! recl  - record length in R8 (I)
-! nrec  - number of records (if needed) (I)
+! reclen- record length in R8 (I)
 
-integer lun, recl, nrec
-character*8 name
-! help variables
-integer recln, f_iostat
-logical is_error
+use Definitions, only: iwp
+
+implicit none
+character(len=8) :: fname
+integer(kind=iwp) :: lun, reclen
+integer(kind=iwp) :: f_iostat, recln
+logical(kind=iwp) :: is_error
 
 #ifdef _DECAXP_
-recln = recl*2
+recln = reclen*2
 #else
-recln = recl*8
+recln = reclen*8
 #endif
 
-call molcas_open_ext2(lun,name,'direct','unformatted',f_iostat,.true.,recln,'unknown',is_error)
-!open(unit=lun,file=name,form='unformatted',access='direct',recl=recln)
+call molcas_open_ext2(lun,fname,'direct','unformatted',f_iostat,.true.,recln,'unknown',is_error)
+!open(unit=lun,file=fname,form='unformatted',access='direct',recl=recln)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nrec)
 
 end subroutine daopen

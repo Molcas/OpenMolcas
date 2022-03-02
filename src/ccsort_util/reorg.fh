@@ -69,7 +69,7 @@
 !6.1  four mapd,mapi matrices and corresponding initial positions variables
 !     for details see docc.txt
 !
-       integer poss10,poss20,poss30,poss40
+       integer pos10,pos20,pos30,pos40
        integer mapd1(0:512,1:6)
        integer mapi1(1:8,1:8,1:8)
        integer mapd2(0:512,1:6)
@@ -79,17 +79,17 @@
        integer mapd4(0:512,1:6)
        integer mapi4(1:8,1:8,1:8)
 !
-       common /workcom1/ mapd1,mapd2,mapd3,mapd4,poss10,poss20,poss30,  &
-     & poss40,                                                          &
+       common /workcom1/ mapd1,mapd2,mapd3,mapd4,pos10,pos20,pos30,     &
+     & pos40,                                                           &
      & mapi1,mapi2,mapi3,mapi4
 !
 !6.2  mapd and mapi for R_i matrix, required for making T3 integrals
 !
-       integer possri0
+       integer posri0
        integer mapdri(0:512,1:6)
        integer mapiri(1:8,1:8,1:8)
 !
-       common /workcom2/ mapdri,mapiri,possri0
+       common /workcom2/ mapdri,mapiri,posri0
 !
 !7    lun for files, where sorted integrals are stored 21-25
 !
@@ -119,11 +119,11 @@
 !
 !8    parameters for direct access file
 !
-!8.1  lun and recl (in R8 words) for direct access TEMPDA1,TEMPDA2
+!8.1  lun and reclen (in R8 words) for direct access TEMPDA1,TEMPDA2
 !
        integer lunda1,lunda2
-       integer recl
-       parameter (recl=100)
+       integer reclen
+       parameter (reclen=100)
 !
 !9.1  abmap - help map for storing of addresses in direct access file TEMPDA1
 !GM    integer abmap(1:mbas,1:mbas,1:8)
@@ -173,7 +173,7 @@
 !
 !8    parameters for direct access file
 !
-!8.1  lun and recl (in R8 words) for direct access TEMPDA1,TEMPDA2
+!8.1  lun and reclen (in R8 words) for direct access TEMPDA1,TEMPDA2
 !
 !
 !FUE   added to transport total energies

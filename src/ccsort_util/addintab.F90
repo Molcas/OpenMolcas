@@ -13,14 +13,14 @@ subroutine addintab(wrk,wrksize,syma,symb,abmap)
 ! this routine adds contributions to open INTAB1 file,
 ! comming from ab syma,symb
 
-#include "wrk.fh"
+use Definitions, only: wp, iwp
+
+implicit none
 #include "reorg.fh"
+integer(kind=iwp) :: wrksize, syma, symb, abmap(mbas,mbas,8)
+real(kind=wp) :: wrk(wrksize)
 #include "ccsort.fh"
-integer syma, symb
-integer abmap(1:mbas,1:mbas,1:8)
-! help variables
-integer nhelp, length, symp, symq, symab, irec0, poss3
-integer poss, a, b, bup, ii, rc
+integer(kind=iwp) :: a, b, bup, ii, irec0, length, pos, pos3, rc, symab, symp, symq
 
 ! def symab
 symab = mul(syma,symb)
@@ -29,13 +29,7 @@ symab = mul(syma,symb)
 
 ! set mapi3=0 (partly)
 
-do nhelp=1,nsym
-  do symq=1,nsym
-    do symp=1,nsym
-      mapi3(symp,symq,nhelp) = 0
-    end do
-  end do
-end do
+mapi3(1:nsym,1:nsym,1:nsym) = 0
 
 ! def 0-th row
 
@@ -48,20 +42,20 @@ mapd3(0,6) = 0
 
 ! def other rows
 
-poss = poss30
+pos = pos30
 do ii=1,nsym
 
   symp = ii
   symq = mul(symab,symp)
   length = norb(symp)*norb(symq)
-  mapd3(ii,1) = poss
+  mapd3(ii,1) = pos
   mapd3(ii,2) = length
   mapd3(ii,3) = symp
   mapd3(ii,4) = symq
   mapd3(ii,5) = 1
   mapd3(ii,6) = 1
   mapi3(symp,1,1) = ii
-  poss = poss+length
+  pos = pos+length
 
 end do
 
@@ -70,9 +64,7 @@ call dawrtmap(lunab,mapd3,mapi3,rc)
 
 !T if there are no _a_b,pq integrals in this symab, skip summation over ab
 
-if ((mapd3(nsym,1)+mapd3(nsym,2)) == poss30) then
-  return
-end if
+if ((mapd3(nsym,1)+mapd3(nsym,2)) == pos30) return
 
 ! loop over a,b
 
@@ -95,20 +87,18 @@ do a=1,nvb(syma)
 
       ! def corresponding position and length in #3
       ii = mapi3(symp,1,1)
-      poss3 = mapd3(ii,1)
+      pos3 = mapd3(ii,1)
       length = mapd3(ii,2)
 
       ! read this block to #3
-      if (length > 0) then
-        call daread(lunda1,irec0,wrk(poss3),length,recl)
-      end if
+      if (length > 0) call daread(lunda1,irec0,wrk(pos3),length,reclen)
 
     end do
 
     ! since there must be some integrals, write them to TEMPAB
 
     call deflength(mapd3,length)
-    call dawri(lunab,length,wrk(poss30))
+    call dawri(lunab,length,wrk(pos30))
 
   end do
 end do

@@ -21,17 +21,13 @@ subroutine unpackk_ic_1(i,vint,ndimv1,ndimv2,ndimv3,Vic,ndimvi)
 ! Vic    - incore expanded block of integrals (I)
 ! ndimvi - first dimension of Vic norb(symi) (I)
 
-#include "reorg.fh"
-#include "SysDef.fh"
-integer i, ndimv1, ndimv2, ndimv3, ndimvi
-real*8 vint(1:ndimv1*ndimv2*ndimv3)
-real*8 Vic(1:ndimvi,1:ndimv1*ndimv2*ndimv3)
-! help variables
-integer jkl
+use Definitions, only: wp, iwp
 
-do jkl=1,ndimv1*ndimv2*ndimv3
-  vint(jkl) = Vic(i,jkl)
-end do
+implicit none
+integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, ndimvi
+real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3), Vic(ndimvi,ndimv1,ndimv2,ndimv3)
+
+vint(:,:,:) = Vic(i,:,:,:)
 
 return
 

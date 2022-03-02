@@ -13,21 +13,16 @@ subroutine mkmappqij()
 ! this routine prepares mapd,mapi
 ! for <pq|ij> for p,q, i>=j to mapd1,mapi1
 
+use Definitions, only: iwp
+
+implicit none
 #include "ccsort.fh"
 #include "reorg.fh"
-! help variables
-integer symi, symj, symp, symq, sympq, sympqi
-integer nhelp, position, length
+integer(kind=iwp) :: length, nhelp, pos, symi, symj, symp, sympq, sympqi, symq
 
 ! set mapi1 to zero
 
-do symi=1,nsym
-  do symq=1,nsym
-    do symp=1,nsym
-      mapi1(symp,symq,symi) = 0
-    end do
-  end do
-end do
+mapi1(1:nsym,1:nsym,1:nsym) = 0
 
 ! def zero-th row
 
@@ -38,7 +33,7 @@ mapd1(0,4) = 1
 mapd1(0,6) = 3
 
 nhelp = 0
-position = poss10
+pos = pos10
 do symp=1,nsym
   do symq=1,nsym
     sympq = mul(symp,symq)
@@ -51,13 +46,13 @@ do symp=1,nsym
       ! calc. length
       length = noa(symi)*noa(symj)*NORB(symp)*NORB(symq)
 
-      mapd1(nhelp,1) = position
+      mapd1(nhelp,1) = pos
       mapd1(nhelp,2) = length
       mapd1(nhelp,3) = symp
       mapd1(nhelp,4) = symq
       mapd1(nhelp,5) = symi
       mapd1(nhelp,6) = symj
-      position = position+length
+      pos = pos+length
 
       mapi1(symp,symq,symi) = nhelp
 

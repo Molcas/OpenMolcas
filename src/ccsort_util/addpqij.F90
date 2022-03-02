@@ -13,29 +13,26 @@ subroutine addpqij(wrk,wrksize,symp,symq,symi,symj,p,vint,ndimv1,ndimv2,ndimv3)
 ! this routine adds corresponding part to <pq|ij> record (#1)
 ! coming from read integrals with pivot index p vint_p(q,i,j)
 
-#include "wrk.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, symp, symq, symi, symj, p, ndimv1, ndimv2, ndimv3
+real(kind=wp) :: wrk(wrksize), vint(ndimv1,ndimv2,ndimv3)
 #include "reorg.fh"
 #include "ccsort.fh"
-integer symi, symj, symp, symq, p, ndimv1, ndimv2, ndimv3
-real*8 vint(1:ndimv1,1:ndimv2,1:ndimv3)
-! help variables
-integer ii, ij, i, j, poss0, possij0, q, pqij
+integer(kind=iwp) :: i, ii, ij, j, pos0, posij0, pqij, q
 
 ! find number of this symmetry combination
 ! and initial position of this symmetry block in (1)
 
 ii = mapi1(symp,symq,symi)
-poss0 = mapd1(ii,1)
+pos0 = mapd1(ii,1)
 
 !T0   if symi<symj return
-if (symi < symj) then
-  return
-end if
+if (symi < symj) return
 
 !T1   return, if length is 0
-if (mapd1(ii,2) == 0) then
-  return
-end if
+if (mapd1(ii,2) == 0) return
 
 do j=1,noa(symj)
   do i=1,noa(symi)
@@ -43,10 +40,10 @@ do j=1,noa(symj)
     ! def ij index and initial position for <p,q,i,j> integral
 
     ij = (j-1)*noa(symi)+i
-    possij0 = poss0+(norb(symp)*norb(symq))*(ij-1)
+    posij0 = pos0+(norb(symp)*norb(symq))*(ij-1)
 
     do q=1,norb(symq)
-      pqij = possij0-1+norb(symp)*(q-1)+p
+      pqij = posij0-1+norb(symp)*(q-1)+p
       wrk(pqij) = vint(q,i,j)
     end do
 

@@ -14,19 +14,18 @@ subroutine addintabc1(wrk,wrksize,a,vint,ndimv)
 ! for nonsymmetrical (C1) case
 ! from integrals vv _a(u,p,q)
 
-#include "wrk.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, a, ndimv
+real(kind=wp) :: wrk(wrksize), vint(ndimv,ndimv,ndimv)
 #include "reorg.fh"
 #include "ccsort.fh"
-integer a, ndimv
-real*8 vint(1:ndimv,1:ndimv,1:ndimv)
-! help variables
-integer poss, b, bvint, p, q, length
+integer(kind=iwp) :: b, bvint, length, p, pos, q
 
 !T if there are no _a_b,pq integrals in this symab, skip summation over ab
 
-if (nvb(1) == 0) then
-  return
-end if
+if (nvb(1) == 0) return
 
 ! loop over b
 
@@ -34,18 +33,18 @@ do b=1,a
   bvint = b+nob(1)
 
   ! map <_a,b|p,q> to wrk in #3
-  poss = poss30
+  pos = pos30
   do q=1,norb(1)
     do p=1,norb(1)
-      wrk(poss) = vint(bvint,p,q)
-      poss = poss+1
+      wrk(pos) = vint(bvint,p,q)
+      pos = pos+1
     end do
   end do
 
   ! since there must be some integrals, write them to TEMPAB
 
-  length = poss-poss30
-  call dawri(lunab,length,wrk(poss30))
+  length = pos-pos30
+  call dawri(lunab,length,wrk(pos30))
 
 end do
 
