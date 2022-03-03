@@ -21,9 +21,12 @@ use ccsort_global, only: fullprint, idis, LUINTM, mbas, NORB, np, nq, nr, ns
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: symp, dimp, pqind(mbas,mbas)
-real(kind=wp) :: Vic((dimp*(dimp+1)/2)*((dimp*(dimp+1)/2)+1)/2)
+integer(kind=iwp), intent(in) :: symp, dimp
+real(kind=wp), intent(_OUT_) :: Vic((dimp*(dimp+1)/2)*((dimp*(dimp+1)/2)+1)/2)
+integer(kind=iwp), intent(out) :: pqind(mbas,mbas)
 #include "tratoc.fh"
 integer(kind=iwp) :: i, i1, idis13, ik, ikjl, ilow, ind(4), indtemp, iold, iup, j, j1, jl, jlow, jold, jup, k1, kold, kup, l1, &
                      lold, lup, maxx, ni, nj, nk, nl, nsi, nsj, nsk, nsl

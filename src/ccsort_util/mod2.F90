@@ -21,9 +21,14 @@ subroutine mod2(nsym,nish,nash,norb,fi,eps)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nsym, nish(8), nash(8), norb(8)
-real(kind=wp) :: fi(*), eps(*)
+integer(kind=iwp), intent(in) :: nsym, norb(8)
+integer(kind=iwp), intent(inout) :: nish(8)
+integer(kind=iwp), intent(out) :: nash(8)
+real(kind=wp), intent(_OUT_) :: fi(*)
+real(kind=wp), intent(in) :: eps(*)
 integer(kind=iwp) :: isym, p, padd, pq, q
 
 !1 redefine foki
@@ -48,10 +53,8 @@ end do
 
 !2 redefine n's
 
-do isym=1,nsym
-  nish(isym) = nish(isym)+nash(isym)
-  nash(isym) = 0
-end do
+nish(1:nsym) = nish(1:nsym)+nash(1:nsym)
+nash(1:nsym) = 0
 
 return
 

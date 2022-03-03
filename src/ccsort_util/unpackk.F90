@@ -25,8 +25,8 @@ use ccsort_global, only: zrkey
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, key
-real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3)
+integer(kind=iwp), intent(in) :: i, ndimv1, ndimv2, ndimv3, key
+real(kind=wp), intent(out) :: vint(ndimv1,ndimv2,ndimv3)
 
 if (zrkey == 1) then
   call unpackk_zr(i,vint,ndimv1,ndimv2,ndimv3,key)

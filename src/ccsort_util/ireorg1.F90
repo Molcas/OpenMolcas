@@ -29,9 +29,10 @@ subroutine ireorg1(symp,symq,symr,syms,typp,typq,typr,typs,pospv1,posqv1,posrv1,
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: symp, symq, symr, syms, typp, typq, typr, typs, pospv1, posqv1, posrv1, possv1, typpv1, typqv1, typrv1, &
-                     typsv1, typv2, dimpq, dimrs, dimt, dimu, dimv, dimx
-real(kind=wp) :: v1(dimt,dimu,dimv,dimx), v2(dimpq,dimrs), fact
+integer(kind=iwp), intent(in) :: symp, symq, symr, syms, typp, typq, typr, typs, pospv1, posqv1, posrv1, possv1, typpv1, typqv1, &
+                                 typrv1, typsv1, typv2, dimpq, dimrs, dimt, dimu, dimv, dimx
+real(kind=wp), intent(in) :: v1(dimt,dimu,dimv,dimx), fact
+real(kind=wp), intent(inout) :: v2(dimpq,dimrs)
 integer(kind=iwp) :: ind(4), p, paddv1 = -1, pq, pqyes, pup = 0, q, qaddv1 = -1, qup = 0, r, raddv1 = -1, rc, rs, rsyes, rup = 0, &
                      s, saddv1 = -1, sup = 0
 

@@ -42,7 +42,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: run_triples, run_sort
+logical(kind=iwp), intent(out) :: run_triples, run_sort
 #include "rasdim.fh"
 integer(kind=iwp) :: IAD15, iCmd, IROOT(mxRoot), istatus, isym, jCmd, LROOTS, LuSpool, nhelp, NOSH, NRAS1(8), NRAS2(8), NRAS3(8), &
                      ntAsh, nTit

@@ -18,7 +18,7 @@ use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: length
+integer(kind=iwp), intent(out) :: length
 integer(kind=iwp) :: n, norbmax, sizempq, sizeri, sizev1, sizev2, sizevint, syma, symi, symj, symm, symmp, symp, sympq, sympqi, symq
 
 !1 def maxsize of vint

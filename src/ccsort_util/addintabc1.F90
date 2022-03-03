@@ -17,9 +17,12 @@ subroutine addintabc1(wrk,wrksize,a,vint,ndimv)
 use ccsort_global, only: lunab, nob, NORB, nvb, pos30
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, a, ndimv
-real(kind=wp) :: wrk(wrksize), vint(ndimv,ndimv,ndimv)
+integer(kind=iwp), intent(in) :: wrksize, a, ndimv
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(in) :: vint(ndimv,ndimv,ndimv)
 integer(kind=iwp) :: b, bvint, length, p, pos, q
 
 !T if there are no _a_b,pq integrals in this symab, skip summation over ab

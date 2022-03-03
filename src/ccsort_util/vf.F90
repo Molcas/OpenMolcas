@@ -17,8 +17,8 @@ subroutine vf(fname,lun)
 use Definitions, only: iwp
 
 implicit none
-character(len=8) :: fname
-integer(kind=iwp) :: lun
+character(len=8), intent(in) :: fname
+integer(kind=iwp), intent(in) :: lun
 
 call molcas_open(lun,fname)
 !open(unit=lun,file=fname)

@@ -18,9 +18,11 @@ subroutine zasun(i1,length,valn,jn,kn,ln)
 use ccsort_global, only: mbas, nsize, zrkey
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
-real(kind=wp) :: valn(nsize,mbas)
+integer(kind=iwp), intent(in) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
+real(kind=wp), intent(_IN_) :: valn(nsize,mbas)
 
 if (zrkey == 1) then
   call zasun_zr(i1,length,valn,jn,kn,ln)

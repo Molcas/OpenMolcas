@@ -20,9 +20,11 @@ subroutine t3reorg(wrk,wrksize,noa,nsym)
 use ccsort_global, only: lunt3, mapdri, mapiri, mbas, posri0
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, noa(8), nsym
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, noa(8), nsym
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 #include "t3int.fh"
 integer(kind=iwp) :: i, iaddr, iindex, iPosPack, iri, length, posri, post, symi
 

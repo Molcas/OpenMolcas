@@ -15,18 +15,19 @@ subroutine zasun_zr(i1,length,valn,jn,kn,ln)
 !
 ! i1 - number of pivot index (I)
 ! length - number of valid integrals in block (I)
-! this routine has also jn,kn,ln,valn
-! and stattemp and tmpnam as inputs, but they are
-! imported from ccsort_global
+! this routine has also stattemp and tmpnam as inputs,
+! but they are imported from ccsort_global
 
 use ccsort_global, only: iokey, lrectemp, lunpublic, mbas, nrectemp, nsize, stattemp, tmpnam
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
-real(kind=wp) :: valn(nsize,mbas)
-integer(kind=iwp) :: i, f_iostat !, iRec
+integer(kind=iwp), intent(in) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
+real(kind=wp), intent(_IN_) :: valn(nsize,mbas)
+integer(kind=iwp) :: f_iostat !, iRec
 logical(kind=iwp) :: is_error
 integer(kind=iwp), allocatable :: jkl(:)
 integer(kind=iwp), parameter :: constj = 1024*1024, constk = 1024
@@ -65,7 +66,7 @@ if (iokey == 1) then
 
   end if
 
-  write(lunpublic) (valn(i,i1),i=1,length),(jkl(i),i=1,length)
+  write(lunpublic) valn(1:length,i1),jkl(1:length)
   close(lunpublic)
 
 else
@@ -73,7 +74,7 @@ else
   ! MOLCAS IO
 
   call daname(lunpublic,tmpnam(i1))
-  call ddafile(lunpublic,1,valn(1,i1),length,stattemp(i1))
+  call ddafile(lunpublic,1,valn(:,i1),length,stattemp(i1))
   call idafile(lunpublic,1,jkl,length,stattemp(i1))
   call daclos(lunpublic)
 

@@ -27,9 +27,12 @@ subroutine abpack(wrk,wrksize,syma,symb,symp,symq,a,vint,ndimv1,ndimv2,ndimv3,ab
 use ccsort_global, only: lunda1, mbas, nob, NORB, nvb, pos30, reclen
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, syma, symb, symp, symq, a, ndimv1, ndimv2, ndimv3, abmap(mbas,mbas,8)
-real(kind=wp) :: wrk(wrksize), vint(ndimv1,ndimv2,ndimv3)
+integer(kind=iwp), intent(in) :: wrksize, syma, symb, symp, symq, a, ndimv1, ndimv2, ndimv3, abmap(mbas,mbas,8)
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(in) :: vint(ndimv1,ndimv2,ndimv3)
 integer(kind=iwp) :: b, bup, bvint, irec0, length, p, pq, q
 
 !T if there are no ab pair, or no integrals in _a_bpq block return

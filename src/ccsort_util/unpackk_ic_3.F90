@@ -22,8 +22,9 @@ subroutine unpackk_ic_3(i,vint,ndimvi,Vic)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i, ndimvi
-real(kind=wp) :: vint(ndimvi,ndimvi,ndimvi), Vic((ndimvi*(ndimvi+1)/2)*(ndimvi*(ndimvi+1)/2+1)/2)
+integer(kind=iwp), intent(in) :: i, ndimvi
+real(kind=wp), intent(out) :: vint(ndimvi,ndimvi,ndimvi)
+real(kind=wp), intent(in) :: Vic((ndimvi*(ndimvi+1)/2)*(ndimvi*(ndimvi+1)/2+1)/2)
 integer(kind=iwp) :: ik, ikjl, j, jl, k, l
 
 do k=1,ndimvi

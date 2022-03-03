@@ -19,8 +19,8 @@ subroutine daopen(fname,lun,reclen)
 use Definitions, only: iwp
 
 implicit none
-character(len=8) :: fname
-integer(kind=iwp) :: lun, reclen
+character(len=8), intent(in) :: fname
+integer(kind=iwp), intent(in) :: lun, reclen
 integer(kind=iwp) :: f_iostat, recln
 logical(kind=iwp) :: is_error
 

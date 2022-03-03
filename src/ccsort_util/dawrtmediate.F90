@@ -26,9 +26,13 @@ subroutine dawrtmediate(wrk,wrksize,lun,mapd,mapi,rc)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lun, mapd(0:512,6), mapi(8,8,8), rc
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, lun
+real(kind=wp), intent(_IN_) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: mapd(0:512,6), mapi(8,8,8)
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: im, length, pos0
 
 rc = 0
@@ -50,11 +54,10 @@ end do
 if (length == 0) then
   ! RC=1 : there is nothing to write, length of mediate is 0
   rc = 1
-  return
+else
+  pos0 = mapd(1,1)
+  call dawri(lun,length,wrk(pos0))
 end if
-
-pos0 = mapd(1,1)
-call dawri(lun,length,wrk(pos0))
 
 return
 

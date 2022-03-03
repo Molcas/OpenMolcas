@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine t3intpck1(vint,r,dimv1,dimv2,dimv3,dima,dimbc,symq,symr,syms,nob,nvb)
-! this routines pack integral block symi,symq,symr,syms
+! this routine packs integral block symi,symq,symr,syms
 ! R_i(a,bc) = V_i(b,a,c)
 ! for symq(b)=syms(c)
 ! and writes R block onto proper place of open t3nam file - lunt3
@@ -32,8 +32,9 @@ use ccsort_global, only: daddr, lunt3
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimv1, dimv2, dimv3, dima, dimbc, symq, symr, syms, nob(8), nvb(8)
-real(kind=wp) :: vint(dimv1,dimv2,dimv3), r(dima,dimbc)
+integer(kind=iwp), intent(in) :: dimv1, dimv2, dimv3, dima, dimbc, symq, symr, syms, nob(8), nvb(8)
+real(kind=wp), intent(in) :: vint(dimv1,dimv2,dimv3)
+real(kind=wp), intent(out) :: r(dima,dimbc)
 integer(kind=iwp) :: a, adda, b, bc, c, iaddr, length
 
 ! if there are no beta virtuals - skip to write section

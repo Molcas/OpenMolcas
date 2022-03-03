@@ -12,16 +12,20 @@
 !               1995,1996, Pavel Neogrady                              *
 !***********************************************************************
 
-subroutine mod1(nsym,nfro,nish,nash,nssh,ndel,norb,nfror,ndelr,firas,fi,epsras,eps)
+subroutine mod1(nsym,nfro,nish,nssh,ndel,norb,nfror,ndelr,firas,fi,epsras,eps)
 ! this routine does:
 ! 1) reduce firas, epsras if nfror>nfro, ndelr>ndel
-! 2) redefine nfro,nish,nash,nssh,ndel,norb to proper ones
+! 2) redefine nfro,nish,nssh,ndel,norb to proper ones
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nsym, nfro(8), nish(8), nash(8), nssh(8), ndel(8), norb(8), nfror(8), ndelr(8)
-real(kind=wp) :: firas(*), fi(*), epsras(*), eps(*)
+integer(kind=iwp), intent(in) :: nsym, ndel(8), nfror(8), ndelr(8)
+integer(kind=iwp), intent(inout) :: nfro(8), nish(8), nssh(8), norb(8)
+real(kind=wp), intent(in) :: firas(*), epsras(*)
+real(kind=wp), intent(_OUT_) :: fi(*), eps(*)
 integer(kind=iwp) :: isym, ndd, ndf, nlow, nup, p, pnew, pqnew, pqras, pras, q
 
 !1 reduce fi
@@ -74,15 +78,12 @@ do isym=1,nsym
 
 end do
 
-!3 define new nfro,nish,nash,nssh,ndel,norb
+!3 define new nfro,nish,nssh,ndel,norb
 
-do isym=1,nsym
-  nash(isym) = nash(isym)
-  nish(isym) = nish(isym)-nfror(isym)+nfro(isym)
-  nssh(isym) = nssh(isym)-ndelr(isym)+ndel(isym)
-  norb(isym) = norb(isym)-nfror(isym)+nfro(isym)-ndelr(isym)+ndel(isym)
-  nfro(isym) = nfror(isym)
-end do
+nish(1:nsym) = nish(1:nsym)-nfror(1:nsym)+nfro(1:nsym)
+nssh(1:nsym) = nssh(1:nsym)-ndelr(1:nsym)+ndel(1:nsym)
+norb(1:nsym) = norb(1:nsym)-nfror(1:nsym)+nfro(1:nsym)-ndelr(1:nsym)+ndel(1:nsym)
+nfro(1:nsym) = nfror(1:nsym)
 
 return
 

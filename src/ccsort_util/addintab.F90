@@ -17,9 +17,11 @@ use ccsort_global, only: lunab, lunda1, mapd3, mapi3, mbas, NORB, NSYM, nvb, pos
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, syma, symb, abmap(mbas,mbas,8)
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, syma, symb, abmap(mbas,mbas,8)
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 integer(kind=iwp) :: a, b, bup, ii, irec0, length, pos, pos3, rc, symab, symp, symq
 
 ! def symab

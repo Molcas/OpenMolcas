@@ -21,8 +21,12 @@ subroutine dawrtmap(lun,mapd,mapi,rc)
 use ccsort_global, only: daddr, iokey
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: lun, mapd(0:512,6), mapi(8,8,8), rc
+integer(kind=iwp), intent(in) :: lun
+integer(kind=iwp), intent(_IN_) :: mapd(0:512,6), mapi(8,8,8)
+integer(kind=iwp), intent(out) :: rc
 
 rc = 0
 

@@ -26,17 +26,18 @@ subroutine exppqij(wrk,wrksize,typv2,typp,typq,typr,typs,directyes,inverseyes)
 !
 ! foreign routines used:
 ! grc0
-! ccsort_mv0zero
 !
 ! it also defines new mapd2,mapi2 corresponding to #2
 
 use ccsort_global, only: mapd1, mapd2, mapi1, mapi2, pos20
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, typv2, typp, typq, typr, typs, directyes, inverseyes
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, typv2, typp, typq, typr, typs, directyes, inverseyes
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 integer(kind=iwp) :: ii, iiv1d, iiv1i, length, post, posv1d, posv1i, posv2, symi, symj, symp, symq
 
 ! get mapd mapi of <p,q r,s> into mapd2,mapi2
@@ -59,7 +60,7 @@ do ii=1,mapd2(0,5)
   if (length == 0) cycle
 
   ! vanish #2
-  call ccsort_mv0zero(length,length,wrk(posv2))
+  wrk(posv2:posv2+length-1) = Zero
 
   if (symi >= symj) then
     ! case symi>=symj - integrals in #1 are in that shape

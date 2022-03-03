@@ -29,8 +29,9 @@ use ccsort_global, only: NORB
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: symp, i, ndimv1, ndimv2, ndimv3
-real(kind=wp) :: foka(*), fokb(*), vint(ndimv1,ndimv2,ndimv3)
+real(kind=wp), intent(inout) :: foka(*), fokb(*)
+integer(kind=iwp), intent(in) :: symp, i, ndimv1, ndimv2, ndimv3
+real(kind=wp), intent(in) :: vint(ndimv1,ndimv2,ndimv3)
 integer(kind=iwp) :: nhelp1, nhelp2, p, pq, q
 
 ! calculate shift

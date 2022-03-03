@@ -21,9 +21,11 @@ subroutine addinta(wrk,wrksize,syma,ammap)
 use ccsort_global, only: luna1, luna2, luna3, luna4, mapd3, mapi3, mbas, nva, nvb, pos30
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, syma, ammap(mbas,8,8)
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, syma, ammap(mbas,8,8)
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 integer(kind=iwp) :: a, lenefaaaa, lenefabab, lenefbaab, lenefbbbb, lenejaaaa, lenejabab, lenejabba, lenejbaab, lenejbaba, &
                      lenejbbbb, post, rc
 

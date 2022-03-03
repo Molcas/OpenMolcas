@@ -16,8 +16,11 @@ use ccsort_global, only: noa, nob, NSYM, nva, nvb
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, pos0, post, mapd(0:512,6), mapi(8,8,8)
+integer(kind=iwp), intent(in) :: nind, typ, typp, typq, typr, typs, stot, pos0
+integer(kind=iwp), intent(out) :: post, mapd(0:512,6), mapi(8,8,8)
 integer(kind=iwp) :: dimm(4,8), i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, sp, spq, spqr, sq, sr, ss
 
 ! !!!!!!!! def dimm to je tu len terazky !!!!

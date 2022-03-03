@@ -16,9 +16,12 @@ subroutine expandfok(wrk,wrksize,fok)
 use ccsort_global, only: mapd2, mapi2, NORB, NSYM, pos20
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize), fok(*)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(in) :: fok(*)
 integer(kind=iwp) :: p, postemp, pqfok, pqwrk, q, qpwrk, symp
 
 ! set mapi zero

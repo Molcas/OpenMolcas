@@ -16,9 +16,15 @@ use ccsort_global, only: noa, mbas, NORB, NSYM, nvb, reclen
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ammap(mbas,8,8), syma, rc
+integer(kind=iwp), intent(_OUT_) :: ammap(mbas,8,8)
+integer(kind=iwp), intent(in) :: syma
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: a, irec, lengthmpq, nrecc, nrest, symam, symm, symp, symq
+
+rc = 0
 
 !T test, if there are any a in this symmetry
 
@@ -27,8 +33,6 @@ if (nvb(syma) == 0) then
   ! RC=1 : there are no a in this symmetry
   return
 end if
-
-rc = 0
 
 ! def initial address
 

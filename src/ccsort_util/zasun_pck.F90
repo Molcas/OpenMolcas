@@ -24,8 +24,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, ItoB, RtoB
 
 implicit none
-integer(kind=iwp) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
-real(kind=wp) :: valn(nsize,mbas)
+integer(kind=iwp), intent(in) :: i1, length, jn(nsize,mbas), kn(nsize,mbas), ln(nsize,mbas)
+real(kind=wp), intent(in) :: valn(nsize,mbas)
 integer(kind=iwp) :: ihelp, iRec, m2
 real(kind=wp) :: rhelp
 character(len=RtoB+ItoB) :: pphelp
@@ -74,7 +74,7 @@ if (iokey == 1) then
 
   end if
 
-  call zashlp1(lunpublic,pp,length)
+  write(lunpublic) pp
   close(lunpublic)
 
 else

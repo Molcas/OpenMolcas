@@ -22,7 +22,10 @@ use ccsort_global, only: noa, nob, NORB, nva, nvb
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: symp, typp, pup, rc
+integer(kind=iwp), intent(in) :: symp, typp
+integer(kind=iwp), intent(out) :: pup, rc
+
+rc = 0
 
 select case (typp)
   case (1)

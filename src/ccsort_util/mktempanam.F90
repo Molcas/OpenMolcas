@@ -15,7 +15,7 @@ subroutine mktempanam()
 ! tmpnam and tmanam arrays (mbas-maximum number of basis functions)
 !
 ! variables used:
-! tmp-anam - array of TEMP file names (Transported through common /tmnames/)
+! tmpnam - array of TEMP file names (imported from ccsort_global)
 ! this routine (I)
 
 use ccsort_global, only: lunpublic, mbas, tmpnam

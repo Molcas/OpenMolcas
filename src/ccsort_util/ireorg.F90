@@ -28,9 +28,10 @@ subroutine ireorg(wrk,wrksize,symp,symq,symr,syms,typp,typq,typr,typs,pospv1,pos
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, symp, symq, symr, syms, typp, typq, typr, typs, pospv1, posqv1, posrv1, possv1, typpv1, typqv1, &
-                     typrv1, typsv1, typv2, posv10, posv20
-real(kind=wp) :: wrk(wrksize), fact
+integer(kind=iwp), intent(in) :: wrksize, symp, symq, symr, syms, typp, typq, typr, typs, pospv1, posqv1, posrv1, possv1, typpv1, &
+                                 typqv1, typrv1, typsv1, typv2, posv10, posv20
+real(kind=wp), intent(inout) :: wrk(wrksize)
+real(kind=wp), intent(in) :: fact
 integer(kind=iwp) :: dimpq, dimrs, ind(4), mhelp = -1, nhelp = -1, rc
 
 ! define dimensions of V1

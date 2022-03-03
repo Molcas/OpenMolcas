@@ -28,13 +28,13 @@ subroutine mreorg1(symp,symq,symr,typp,typq,typr,pospv1,posqv1,posrv1,typpv1,typ
 ! dimp,qr    - dimensions of V2 (I)
 ! dimt-s     - dimensions of V1 (I)
 
-
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: symp, symq, symr, typp, typq, typr, pospv1, posqv1, posrv1, typpv1, typqv1, typrv1, typv2, dimp, dimqr, &
-                     dimt, dimu, dimv
-real(kind=wp) :: v1(dimt,dimu,dimv), v2(dimp,dimqr), fact
+integer(kind=iwp), intent(in) :: symp, symq, symr, typp, typq, typr, pospv1, posqv1, posrv1, typpv1, typqv1, typrv1, typv2, dimp, &
+                                 dimqr, dimt, dimu, dimv
+real(kind=wp), intent(in) :: v1(dimt,dimu,dimv), fact
+real(kind=wp), intent(inout) :: v2(dimp,dimqr)
 integer(kind=iwp) :: ind(4), p, paddv1, pup, q, qaddv1, qr, qryes, qup, r, raddv1, rc, rup
 
 ! def additional constants

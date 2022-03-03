@@ -24,11 +24,12 @@ subroutine unpackk_pck(i,vint,ndimv1,ndimv2,ndimv3,key)
 
 use ccsort_global, only: iokey, jh, kh, lh, lrectemp, lunpublic, nrectemp, nsize, tmpnam, valh
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, ItoB, RtoB
 
 implicit none
-integer(kind=iwp) :: i, ndimv1, ndimv2, ndimv3, key
-real(kind=wp) :: vint(ndimv1,ndimv2,ndimv3)
+integer(kind=iwp), intent(in) :: i, ndimv1, ndimv2, ndimv3, key
+real(kind=wp), intent(out) :: vint(ndimv1,ndimv2,ndimv3)
 integer(kind=iwp) :: daddr, ihelp, ires, length, nhelp, nrec
 character(len=RtoB+ItoB) :: pphelp
 real(kind=wp) :: rhelp
@@ -37,8 +38,7 @@ integer(kind=iwp), parameter :: constj = 1024**2, constk = 1024
 
 ! set vint=0
 
-nhelp = ndimv1*ndimv2*ndimv3
-call ccsort_mv0zero(nhelp,nhelp,vint)
+vint(:,:,:) = Zero
 
 ! open corresponding TEMP file
 
@@ -64,7 +64,7 @@ do nrec=1,nrectemp(i)
 
   if (iokey == 1) then
     ! Fortran IO
-    call getpp_pck(lunpublic,pp,length)
+    read(lunpublic) pp(1:length)
   else
     ! MOLCAS IO
     call cdafile(lunpublic,2,pp,(RtoB+ItoB)*length,daddr)

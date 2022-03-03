@@ -23,9 +23,9 @@ subroutine dawrite(lun,irec0,vector,length,reclen)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lun, irec0, length, reclen
-real(kind=wp) :: vector(length)
-integer(kind=iwp) :: i, ilow, irec, iup, need
+integer(kind=iwp), intent(in) :: lun, irec0, length, reclen
+real(kind=wp), intent(in) :: vector(length)
+integer(kind=iwp) :: ilow, irec, iup, need
 
 if (length == 0) return
 
@@ -43,7 +43,7 @@ do
     iup = iup+reclen
   end if
 
-  write(lun,rec=irec) (vector(i),i=ilow,iup)
+  write(lun,rec=irec) vector(ilow:iup)
 
   need = need-(iup-ilow+1)
   irec = irec+1

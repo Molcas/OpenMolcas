@@ -17,7 +17,7 @@ use ccsort_global, only: lrectemp, nrectemp, stattemp
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: num
+integer(kind=iwp), intent(in) :: num
 
 stattemp(1:num) = 0
 nrectemp(1:num) = 0

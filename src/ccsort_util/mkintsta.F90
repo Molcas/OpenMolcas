@@ -26,9 +26,12 @@ subroutine mkintsta(wrk,wrksize,foka,fokb)
 use ccsort_global, only: daddr, iokey, mapd2, mapi2
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize), foka(*), fokb(*)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(in) :: foka(*), fokb(*)
 integer(kind=iwp) :: lunsta, rc
 
 ! open INTSTA file

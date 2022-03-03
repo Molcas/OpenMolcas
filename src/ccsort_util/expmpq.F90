@@ -27,17 +27,18 @@ subroutine expmpq(wrk,wrksize,syma,typv3,typm,typp,typq,directyes,inverseyes)
 !
 ! foreign routines used:
 ! grc0
-! ccsort_mv0zero
 !
 ! it also defines new mapd2,mapi2 corresponding to #2
 
 use ccsort_global, only: mapd2, mapd3, mapi2, mapi3, pos30
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer wrksize, syma, typv3, typm, typp, typq, directyes, inverseyes
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, syma, typv3, typm, typp, typq, directyes, inverseyes
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 integer(kind=iwp) :: ii, iiv2d, iiv2i, length, post, posv2d, posv2i, posv3, symm, symp, symq
 
 ! get mapd mapi of <m,a|p,q> as _a(m,p q) into mapd3,mapi3
@@ -56,7 +57,7 @@ do ii=1,mapd3(0,5)
   symq = mapd3(ii,5)
 
   ! vanish #3
-  call ccsort_mv0zero(length,length,wrk(posv3))
+  wrk(posv3:posv3+length-1) = Zero
 
   if (directyes == 1) then
 

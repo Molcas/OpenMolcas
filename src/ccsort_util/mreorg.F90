@@ -27,9 +27,10 @@ subroutine mreorg(wrk,wrksize,symp,symq,symr,typp,typq,typr,pospv2,posqv2,posrv2
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, symp, symq, symr, typp, typq, typr, pospv2, posqv2, posrv2, typpv2, typqv2, typrv2, typv3, posv20, &
-                     posv30
-real(kind=wp) :: wrk(wrksize), fact
+integer(kind=iwp), intent(in) :: wrksize, symp, symq, symr, typp, typq, typr, pospv2, posqv2, posrv2, typpv2, typqv2, typrv2, &
+                                 typv3, posv20, posv30
+real(kind=wp), intent(inout) :: wrk(wrksize)
+real(kind=wp), intent(in) :: fact
 integer(kind=iwp) :: dimp, dimqr, ind(4), mhelp, nhelp, rc
 
 ! define dimensions of V2

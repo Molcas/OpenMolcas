@@ -15,7 +15,8 @@ subroutine deflength(mapd,length)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mapd(0:512,6), length
+integer(kind=iwp), intent(in) :: mapd(0:512,6)
+integer(kind=iwp), intent(out) :: length
 integer(kind=iwp) :: ii
 
 ii = mapd(0,5)

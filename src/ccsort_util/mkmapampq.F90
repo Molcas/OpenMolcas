@@ -18,7 +18,7 @@ use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: syma
+integer(kind=iwp), intent(in) :: syma
 integer(kind=iwp) :: length, nhelp, pos, symm, symmp, symp, symq
 
 ! set mapi1 to zero

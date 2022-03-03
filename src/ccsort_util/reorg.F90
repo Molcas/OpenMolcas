@@ -42,8 +42,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: run_triples
-integer(kind=iwp) :: IRETURN
+logical(kind=iwp), intent(out) :: run_triples
+integer(kind=iwp), intent(out) :: IRETURN
 #include "rasdim.fh"
 integer(kind=iwp) :: i, iad15, ij, j, lad15, NOIPSB(106), ntot2, ntot3
 logical(kind=iwp) :: run_sort
@@ -108,7 +108,7 @@ if (run_sort) then
   call ddafile(JOBIPH,2,epsras,ntot2,iad15)
 
   ! reduce fi,eps and update n's
-  call mod1(nsym,nfro,nish,nash,nssh,ndel,norb,nfror,ndelr,firas,fi,epsras,eps)
+  call mod1(nsym,nfro,nish,nssh,ndel,norb,nfror,ndelr,firas,fi,epsras,eps)
 
   call mma_deallocate(epsras)
 

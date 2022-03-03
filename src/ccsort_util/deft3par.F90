@@ -27,7 +27,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: noa(8), nsym
+integer(kind=iwp), intent(in) :: noa(8), nsym
 #include "t3int.fh"
 integer(kind=iwp) :: i, idum(1), ii, iorb, length, post, symi
 real(kind=wp) :: dum(1)
@@ -55,7 +55,7 @@ do symi=1,nsym
   !3.2 cycle over occupied orbitals in symi
   do i=1,noa(symi)
 
-  !3.2.1 save initial address for this orbital
+    !3.2.1 save initial address for this orbital
     iorb = iorb+1
     T3IntPos(iorb) = daddr(lunt3)
 

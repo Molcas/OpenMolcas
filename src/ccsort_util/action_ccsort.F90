@@ -16,10 +16,12 @@ use ccsort_global, only: clopkey, daddr, Escf, fullprint, iokey, ISPIN, LSYM, lu
                          t3key, typ
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-real(kind=wp) :: foka(mbas*(mbas+1)/2), fokb(mbas*(mbas+1)/2), fi(*), eps(mbas)
+real(kind=wp), intent(out) :: foka(mbas*(mbas+1)/2), fokb(mbas*(mbas+1)/2)
+real(kind=wp), intent(in) :: fi(*), eps(mbas)
 #include "t3int.fh"
 integer(kind=iwp) :: a, freespace, ickey, keyred, ndimv1, ndimv2, ndimv3, ndimvi, p, post, rc, symp, sympq, sympqr, symq, symr, &
                      syms, t3help1, t3help2, t3help3, t3help4, vsize, wrksize
@@ -44,7 +46,7 @@ end if
 call mma_allocate(CCSORT,wrksize,label='CCSORT')
 
 !.3 set wrk = 0
-call ccsort_mv0zero(wrksize,wrksize,CCSORT)
+CCSORT(:) = Zero
 
 ! def foka,fokb
 
