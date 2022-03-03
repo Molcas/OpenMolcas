@@ -31,6 +31,7 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !                                                                      *
 !***********************************************************************
 
+use csfbas, only: CONF, KCFTP, KDFTP, KDTOC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6, r8
@@ -55,7 +56,6 @@ real(kind=r8), external :: ddot_
 #include "ciinfo.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-#include "csfbas.fh"
 #include "strnum.fh"
 #include "timers.fh"
 
@@ -153,8 +153,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       call mma_allocate(Scr,MXXWS,label='EXHSCR')
       MXSpli = iDimBlockA
       !nAAblock = MXSpli*(MXSpli+1)/2
-      call ipCSFSplit(Diag,IPCSFtot,IPCNFtot,nConf,MXSpli,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,Scr, &
-                      NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
+      call ipCSFSplit(Diag,IPCSFtot,IPCNFtot,nConf,MXSpli,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM), &
+                      NAEL+NBEL,NAEL,NBEL,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
       !call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Diag,nConf)
       call mma_deallocate(Scr)
       !call mma_deallocate(Diag)
@@ -177,8 +177,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       ! 'condition' goes to DiagOrd as a percentage if PerSplit
       if (EnerSplit) condition = gapSpli/auToeV
       if (PerSplit) condition = percSpli
-      call DiagOrd(Diag,DiagCNF,IPCSFtot,IPCNFtot,nConf,condition,ITER,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE, &
-                   NAC,Scr,NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS)
+      call DiagOrd(Diag,DiagCNF,IPCSFtot,IPCNFtot,nConf,condition,ITER,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,Scr, &
+                   NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS)
       if (DBG) then
         call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Diag,nConf)
         call DVCPRT('Diagonal elements of Hamilt. matrix in CNF',' ',DiagCNF,NCNASM(STSYM))
@@ -238,8 +238,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       end if
       !call Compute_Umn(BVEC,NPCNF,NCNASM(STSYM),EnInSplit,NPCNF+1,1,DHAM)
       !call SPLITCSF(AABlock,EnInSplit,DHAM,
-      call get_Umn(AABlock,EnInSplit,DHAM,IPCSFtot,IPCNFtot,nconf,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC, &
-                   NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,iDimBlockA,iDimBlockACNF,TUVX,iterSplit,ITER,IPRINT,ExFac,IREOTS)
+      call get_Umn(AABlock,EnInSplit,DHAM,IPCSFtot,IPCNFtot,nconf,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC, &
+                   NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,iDimBlockA,iDimBlockACNF,TUVX,iterSplit,ITER,IPRINT,ExFac,IREOTS)
       call xflush(u6)
       if (DBG) then
         call TRIPRT('AA block of the Hamiltonian Matrix',' ',AABlock,iDimBlockA)
@@ -304,8 +304,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !call CmSplit(IPCSFtot,IPCNFtot,
       call cwtime(C_get_Cm1,W_get_Cm1)
       call get_Cm(IPCSFtot,IPCNFtot,nConf,NCNASM(STSYM),iDimBlockA,iDimBlockACNF,SplitV(:,lRootSplit),EnFinSplit,Work(KDTOC), &
-                  iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS,FordSplit, &
-                  TotSplitV)
+                  iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS,FordSplit,TotSplitV)
       call cwtime(C_get_Cm2,W_get_Cm2)
       C_get_Cm3 = C_get_Cm3+C_get_Cm2-C_get_Cm1
       W_get_Cm3 = W_get_Cm3+W_get_Cm2-W_get_Cm1
@@ -393,8 +392,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_maxDBLE(MXXWS)
     call mma_allocate(Scr,MXXWS,label='EXHSCR')
     call GET_IREOTS(IREOTS,NAC)
-    call PHPCSF(AABlock,iSel,IPCNF,MXSpli,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM), &
-                NAEL+NBEL,NAEL,NBEL,iDimBlockA,iDimBlockACNF,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
+    call PHPCSF(AABlock,iSel,IPCNF,MXSpli,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL, &
+                NBEL,iDimBlockA,iDimBlockACNF,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
     call mma_deallocate(Scr)
     if (DBG) then
       call TRIPRT('AA block of the Hamiltonian Matrix',' ',AABlock,iDimBlockA)
@@ -492,7 +491,7 @@ else ! Do it IF there is CIRESTART
   call mma_allocate(vkcnf,nactel,label='kcnf')
   !do i=1,lRootSplit
   call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
-  call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Tmp1,Tmp2,vkcnf)
+  call Reord2(NAC,NACTEL,STSYM,1,CONF,iWork(KCFTP),Tmp1,Tmp2,vkcnf)
   call Save_CI_vec(1,nConf,Tmp2,LuDavid)
   !write(u6,'(A,I2)') 'Start vector of root',i
   !if (DBG) then

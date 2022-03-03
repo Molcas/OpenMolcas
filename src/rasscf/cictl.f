@@ -61,6 +61,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use csfbas, only: CONF, KCFTP
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -81,7 +82,6 @@
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='CICTL   ')
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -783,7 +783,7 @@ c
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
          if(.not.iDoGas)then
           Call Reord2(NAC,NACTEL,STSYM,0,
-     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                CONF,iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
 c        end if
 c         call getmem('kcnf','free','inte',ivkcnf,nactel)
@@ -827,7 +827,7 @@ C.. printout of the wave function
      c                 prwthr,' for root', i
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
-          call gasprwf(iwork(lw12),nac,nactel,stsym,iwork(kiconf(1)),
+          call gasprwf(iwork(lw12),nac,nactel,stsym,conf,
      c                 iwork(kcftp),work(lw4),iwork(ivkcnf))
           End If
          end if
@@ -851,7 +851,7 @@ C.. printout of the wave function
 * reorder it according to the split graph GUGA conventions
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,0,
-     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                CONF,iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           call getmem('kcnf','free','inte',ivkcnf,nactel)
 * save reorder CI vector on disk

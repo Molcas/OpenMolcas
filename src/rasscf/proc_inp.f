@@ -25,6 +25,7 @@
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
 #endif
+      use csfbas, only: CONF, KCFTP
       use Fock_util_global, only: DoCholesky
       use write_orbital_files, only: OrbFiles
       use fcidump, only: DumpOnly
@@ -61,7 +62,6 @@
 #include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
-#include "csfbas.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
 #include "rasscf_lucia.fh"
@@ -3344,7 +3344,7 @@ C Test read failed. JOBOLD cannot be used.
       IF (ICICH.EQ.1) THEN
         CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
         CALL UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
-     *             IWORK(KICONF(1)),IWORK(KCFTP),IWORK(LUG2SG),
+     *             CONF,IWORK(KCFTP),IWORK(LUG2SG),
      *             ICI,JCJ,CCI,MXROOT)
         CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
       END IF

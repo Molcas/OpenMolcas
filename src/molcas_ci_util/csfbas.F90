@@ -8,9 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER         MXCNSM
-      PARAMETER(MXCNSM = 8 )
-      INTEGER         KDFTP,KCFTP,KDTOC,MAXOP_LUCIA,                    &
-     &                KICONF,KICTS
-      COMMON/CSFBAS/  KDFTP,KCFTP,KDTOC,MAXOP_LUCIA,                    &
-     &                KICONF(MXCNSM),KICTS(MXCNSM)
+
+module csfbas
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: KCFTP, KDFTP, KDTOC, MAXOP_LUCIA
+integer(kind=iwp), allocatable :: CONF(:), CTS(:)
+
+public :: CONF, CTS, KCFTP, KDFTP, KDTOC, MAXOP_LUCIA
+
+end module csfbas
