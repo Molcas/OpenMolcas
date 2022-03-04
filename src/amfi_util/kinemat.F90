@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine kinemat(L,ndim,evtkin,type1,type2,Energy)
+subroutine kinemat(ndim,evtkin,type1,type2,Energy)
 !bs this routine generates the kinematic A-factors=sqrt((E+mc^2)/(2E))
 !bs (type1) and   c*A/(E+mc^2) (type2)
 !bs The c in the second kinematic factor comes from Jan Almloef and
@@ -43,7 +43,5 @@ do Irun=1,ndim
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(L)
 
 end subroutine kinemat

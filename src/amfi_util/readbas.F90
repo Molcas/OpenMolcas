@@ -54,43 +54,42 @@ do I=0,lMax
   iCore(I) = 0
 end do
 call RdNLst(IN,'AMFI')
-123 read(IN,'(A4)') Word
-if (IfTest) write(OUT,'(A4)') Word
-call UpCase(Word)
-if (WORD == 'BONN') then
-  Bonn = .true.
-  goto 123
-else if (WORD == 'BREI') then
-  Breit = .true.
-  goto 123
-else if (WORD == 'FINI') then
-  iFinite = 1
-  read(IN,*) Exp_finite
-  goto 123
-else if (WORD == 'SAME') then
-  SameOrb = .true.
-  goto 123
-else if (WORD == 'AIMP') then
-  AIMP = .true.
-  read(IN,*) lDel,(iCore(I),I=0,ldel)
-  if (IfTest) then
-    write(OUT,*)
-    write(OUT,*) 'CORE to be deleted '
-    write(OUT,*) '   L   #orbs.  '
-    write(OUT,*)
-    do I=0,lDel
-      write(OUT,'(2I5)') I,iCore(I)
-    end do
-  end if
-  goto 124
-else if (Word == 'ONEO') then
-  OneOnly = .true.
-  write(OUT,*) ' Only one-electron integrals!!'
-  write(OUT,*) ' Probably useful for test-purposes only'
-  goto 123
-end if
+do
+  read(IN,'(A4)') Word
+  if (IfTest) write(OUT,'(A4)') Word
+  call UpCase(Word)
+  select case (WORD)
+    case ('BONN')
+      Bonn = .true.
+    case ('BREI')
+      Breit = .true.
+    case ('FINI')
+      iFinite = 1
+      read(IN,*) Exp_finite
+    case ('SAME')
+      SameOrb = .true.
+    case ('AIMP')
+      AIMP = .true.
+      read(IN,*) lDel,(iCore(I),I=0,ldel)
+      if (IfTest) then
+        write(OUT,*)
+        write(OUT,*) 'CORE to be deleted '
+        write(OUT,*) '   L   #orbs.  '
+        write(OUT,*)
+        do I=0,lDel
+          write(OUT,'(2I5)') I,iCore(I)
+        end do
+      end if
+      exit
+    case ('ONEO')
+      OneOnly = .true.
+      write(OUT,*) ' Only one-electron integrals!!'
+      write(OUT,*) ' Probably useful for test-purposes only'
+    case default
+      exit
+  end select
+end do
 
-124 continue
 if (IfTest) then
   write(OUT,*) ' AMFI: '
   if (BONN) then
@@ -300,25 +299,26 @@ if (AIMP) then
   ikeeporb = 0
   numbprev = 0
   do irun=1,numbofcart
-    4712 if ((irun == 1) .or. ((irun >= 2) .and. (noff(irun,1) == numbprev+1))) then
-      Lval = Loffunction(irun)
-      number = nOff(irun,1)
-      itype = nOff(irun,2)
-      if (itype <= icore(lval)) then
-        write(OUT,777) number,itype,lval
-        idelpersym(IREDoffunction(irun)) = idelpersym(IREDoffunction(irun))+1
-        numbprev = number
-      else
-        ikeeporb = ikeeporb+1
-        ikeeplist(ikeeporb) = number
-        numbprev = number
+    do
+      if ((irun == 1) .or. ((irun >= 2) .and. (noff(irun,1) == numbprev+1))) then
+        Lval = Loffunction(irun)
+        number = nOff(irun,1)
+        itype = nOff(irun,2)
+        if (itype <= icore(lval)) then
+          write(OUT,777) number,itype,lval
+          idelpersym(IREDoffunction(irun)) = idelpersym(IREDoffunction(irun))+1
+          numbprev = number
+        else
+          ikeeporb = ikeeporb+1
+          ikeeplist(ikeeporb) = number
+          numbprev = number
+        end if
+        exit
       end if
-    else
       ikeeporb = ikeeporb+1
       ikeeplist(ikeeporb) = numbprev+1
       numbprev = numbprev+1
-      goto 4712
-    end if
+    end do
   end do
   ikeeporb = 0
   do nsymrun=1,numbofsym

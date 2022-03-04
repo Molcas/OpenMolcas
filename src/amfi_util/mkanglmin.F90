@@ -36,7 +36,8 @@ dimension angintSO(ncont1,ncont2,ncont3,ncont4), angintOO(ncont1,ncont2,ncont3,n
 ! preroots: some prefactors: sqrt( (l(+1))/(2l+1))
 ! clebsch:  some clebsch gordans, that appear regulary
 dimension dummy(0:*)
-logical bonn, breiT, sameorb
+logical bonn, breit, sameorb
+
 root2 = sqrt(2.0d0)
 root2inv = 1d0/root2
 

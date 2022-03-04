@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine angular(Lhigh,keep,keepcart,makemean,bonn,breit,sameorb,ifinite,onecartx,onecarty,onecartz,powexp,coulovlp,preXZ,preY, &
-                   icheckxy,icheckz,interxyz,isgnprod)
+subroutine angular(Lhigh,keep,makemean,bonn,breit,sameorb,ifinite,onecartx,onecarty,onecartz,powexp,coulovlp,preXZ,preY,icheckxy, &
+                   icheckz,interxyz,isgnprod)
 !bs COMBINES THE RADIAL INTEGRALS WITH THE ANGULAR FACTORS
 !
 !bs if keep=.true. then
@@ -29,7 +29,7 @@ implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
 real*8, allocatable :: ConOO(:), ConSO(:), CartOO(:), CartSO(:), AngOO(:), AngSO(:)
-logical keep, keepcart, makemean, bonn, breiT, sameorb, cleaner, NFINI
+logical keep, makemean, bonn, breit, sameorb, cleaner, NFINI
 !bs NFINI means not finite nucleus
 dimension onecartX(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), onecartY(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), &
           onecartZ(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), &
@@ -176,7 +176,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                 ncont = ncontrac(l1)*ncontrac(l2)*ncontrac(l3)*ncontrac(l4)
                 mxangint = jblock*ncont
                 !bs determine the size icont4 for the radial integrals
-                call gencoulDIM(l1,l2,l3,l4,makemean,bonn,breit,sameorb,icont4)
+                call gencoulDIM(l1,l2,l3,l4,makemean,icont4)
 
                 call mma_allocate(ANGSO,mxangint,Label='AngSO')
                 call mma_allocate(ANGOO,mxangint,Label='AngOO')
@@ -363,7 +363,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                             call tosigX(m1,m2,m3,m4,AngSO(1+iangfirst),mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3), &
                                         ncontrac(l4),CartSO,preXZ,interxyz(1,abs(m1),abs(m2),abs(m3),abs(m4)),isgnprod,cleaner)
 
-                            if ((.not. bonn) .and. (.not. breiT)) &
+                            if ((.not. bonn) .and. (.not. breit)) &
                               call tosigX(m1,m2,m3,m4,AngOO(1+iangfirst),mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3), &
                                           ncontrac(l4),cartOO,preXZ,interxyz(1,abs(m1),abs(m2),abs(m3),abs(m4)),isgnprod,cleaner)
                             if (makemean) then ! generate mean-field-contributions
@@ -382,7 +382,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                   if ((m1 == m2) .and. (l3 /= 0) .and. (l3 /= l1)) then
                                     if ((m3 < m4) .and. (abs(m4+m3) == 1)) then
                                       !bs for the "Bonn-approach"   exchange cartexOO by cartexSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean34a(cartSO,cartSO,occup(1,l1),AOcoeffs(1,1,l1), &
                                                                     onecartx(1,1,ipnt(m3+l3+1,m4+l4+1),l3),ncontrac(l3), &
                                                                     ncontrac(l1),noccorb(l2),sameorb)
@@ -394,7 +394,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                     end if
                                     if ((m3 > m4) .and. (abs(m4+m3) == 1)) then
                                       !bs for the "Bonn-approach"   exchange cartexOO by cartexSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean34b(CartSO,CartSO,occup(1,l1),AOcoeffs(1,1,l1), &
                                                                     onecartx(1,1,ipnt(m3+l3+1,m4+l4+1),l3),ncontrac(l3), &
                                                                     ncontrac(l1),noccorb(l2),sameorb)
@@ -407,7 +407,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                   else if ((m3 == m4) .and. (l1 /= 0)) then
                                     if (m1 < m2 .and. abs(m1+m2) == 1) then
                                       !bs for the "Bonn-approach"   exchange cartexOO by cartexSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean12a(CartSO,CartSO,occup(1,l3),AOcoeffs(1,1,l3), &
                                                                     onecartx(1,1,ipnt(m1+l1+1,m2+l2+1),l1),ncontrac(l1), &
                                                                     ncontrac(l3),noccorb(l3),sameorb)
@@ -419,7 +419,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                     end if
                                     if ((m1 > m2) .and. (abs(m1+m2) == 1)) then
                                       !bs for the "Bonn-approach"   exchange cartexOO by cartexSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean12b(cartSO,CartSO,occup(1,l3),AOcoeffs(1,1,l3), &
                                                                     onecartx(1,1,ipnt(m1+l1+1,m2+l2+1),l1),ncontrac(l1), &
                                                                     ncontrac(l3),noccorb(l3),sameorb)
@@ -470,7 +470,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                   if ((m1 == m2) .and. (l3 /= 0) .and. (l3 /= l1)) then
                                     if ((m3 < m4) .and. (abs(m3-m4) == 1)) then
                                       !bs for the "Bonn-approach"   exchange carteYOO by carteYSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean34a(CartSO,CartSO,occup(1,l1),AOcoeffs(1,1,l1), &
                                                                     onecartY(1,1,ipnt(m3+l3+1,m4+l4+1),l3),ncontrac(l3), &
                                                                     ncontrac(l1),noccorb(l2),sameorb)
@@ -482,7 +482,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                     end if
                                     if ((m3 > m4) .and. (abs(m3-m4) == 1)) then
                                       !bs for the "Bonn-approach"   exchange carteYOO by carteYSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean34b(CartSO,CartSO,occup(1,l1),AOcoeffs(1,1,l1), &
                                                                     onecartY(1,1,ipnt(m3+l3+1,m4+l4+1),l3),ncontrac(l3), &
                                                                     ncontrac(l1),noccorb(l2),sameorb)
@@ -495,7 +495,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                   else if ((m3 == m4) .and. (l1 /= 0)) then
                                     if ((m1 < m2) .and. (abs(m1-m2) == 1)) then
                                       !bs for the "Bonn-approach"   exchange carteOO by carteSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean12a(CartSO,CartSO,occup(1,l3),AOcoeffs(1,1,l3), &
                                                                     onecartY(1,1,ipnt(m1+l1+1,m2+l2+1),l1),ncontrac(l1), &
                                                                     ncontrac(l3),noccorb(l3),sameorb)
@@ -507,7 +507,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                     end if
                                     if ((m1 > m2) .and. (abs(m1-m2) == 1)) then
                                       !bs for the "Bonn-approach"   exchange carteYOO by carteYSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean12b(CartSO,CartSO,occup(1,l3),AOcoeffs(1,1,l3), &
                                                                     onecartY(1,1,ipnt(m1+l1+1,m2+l2+1),l1),ncontrac(l1), &
                                                                     ncontrac(l3),noccorb(l3),sameorb)
@@ -558,7 +558,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                   if ((m1 == m2) .and. (l3 /= 0) .and. (l3 /= l1)) then
                                     if ((m3 < m4) .and. (m3 == -m4)) then
                                       !bs for the "Bonn-approach"   exchange carteOO by carteSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean34a(CartSO,CartSO,occup(1,l1),AOcoeffs(1,1,l1), &
                                                                     onecartz(1,1,ipnt(m3+l3+1,m4+l4+1),l3),ncontrac(l3), &
                                                                     ncontrac(l1),noccorb(l2),sameorb)
@@ -570,7 +570,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                     end if
                                     if ((m3 > m4) .and. (m3 == -m4)) then
                                       !bs for the "Bonn-approach"   exchange carteOO by carteSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean34b(CartSO,CartSO,occup(1,l1),AOcoeffs(1,1,l1), &
                                                                     onecartz(1,1,ipnt(m3+l3+1,m4+l4+1),l3),ncontrac(l3), &
                                                                     ncontrac(l1),noccorb(l2),sameorb)
@@ -583,7 +583,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                   else if ((m3 == m4) .and. (l1 /= 0)) then
                                     if (m1 < m2 .and. m1 == -m2) then
                                       !bs for the "Bonn-approach"   exchange carteOO by carteSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean12a(CartSO,CartSO,occup(1,l3),AOcoeffs(1,1,l3), &
                                                                     onecartz(1,1,ipnt(m1+l1+1,m2+l2+1),l1),ncontrac(l1), &
                                                                     ncontrac(l3),noccorb(l3),sameorb)
@@ -595,7 +595,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                                     end if
                                     if ((m1 > m2) .and. (m1 == -m2)) then
                                       !bs for the "Bonn-approach"   exchange carteOO by carteSO
-                                      if (bonn .or. breiT) then
+                                      if (bonn .or. breit) then
                                         if (NFINI) call two2mean12b(cartSO,CartSO,occup(1,l3),AOcoeffs(1,1,l3), &
                                                                     onecartz(1,1,ipnt(m1+l1+1,m2+l2+1),l1),ncontrac(l1), &
                                                                     ncontrac(l3),noccorb(l3),sameorb)
@@ -647,7 +647,5 @@ do l1=0,Lhigh   ! improving is probably possible...
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(keepcart)
 
 end subroutine angular

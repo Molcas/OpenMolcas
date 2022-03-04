@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gencoulDIM(l1,l2,l3,l4,makemean,bonn,breit,sameorb,icont4)
+subroutine gencoulDIM(l1,l2,l3,l4,makemean,icont4)
 !bs SUBROUTINE to calculate the dimemsion of the radial integral
 !bs arrays. BASICALLY GENCOUL WITHOUT EXPLICIT INTEGRAL CALCULATION
 !bs integrals for the four angular momenta l1-l4
@@ -17,7 +17,7 @@ subroutine gencoulDIM(l1,l2,l3,l4,makemean,bonn,breit,sameorb,icont4)
 implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "param.fh"
-logical makemean, bonn, breit, sameorb
+logical makemean
 
 !bs first of all, this routine determines, for which L
 !bs values the radial integrals have to be solved
@@ -109,11 +109,5 @@ Lstarter(4) = Lstarter(3)+nanz*Lblocks(3)
 icont4 = Lstarter(4)+nanz*Lblocks(4)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(bonn)
-  call Unused_logical(breit)
-  call Unused_logical(sameorb)
-end if
 
 end subroutine gencoulDIM

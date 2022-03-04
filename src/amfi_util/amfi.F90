@@ -98,10 +98,7 @@ subroutine amfi(IN,LUPROP,iCenter)
 
 implicit real*8(a-h,o-z)
 #include "para.fh"
-logical keep    ! parameter to decide about keeping angular
-!bs                     ! integrals in memory
-logical keepcart    ! parameter to decide about keeping cartesian
-!bs                         ! integrals in memory
+logical keep       ! parameter to decide about keeping angular integrals in memory
 logical makemean   ! 'true' =   generating a meanfield
 logical bonn       ! 'true' = Bonn-approach for spin-other orbit
 logical breit      ! if breit is set, BREIT-PAULI only
@@ -135,12 +132,6 @@ integer, allocatable :: checkxy(:), checkz(:), interxyz(:,:), SgnProd(:)
 !bs #####################################################################
 !bs        version without  all angular integrals in memory
 keep = .false.
-!bs #####################################################################
-!bs        version without  all cartesian integrals in memory
-keepcart = .false.
-!bs #####################################################################
-!bs        version with all cartesian integrals in memory
-!keepcart = .true.
 !bs #####################################################################
 ifinite = 0
 !bs initialize tables with double facultatives...
@@ -179,59 +170,60 @@ OneContr(:) = 0.0d0
 CoulOvlp(:) = 0.0d0
 PowExp(:) = 0.0d0
 
-123 if (ifinite == 2) call finite()
+do
+  if (ifinite == 2) call finite()
 
-! Lhigh is the highest l-value in the basis set
-if (makemean .and. (.not. oneonly) .and. (ifinite <= 1)) call getAOs(Lhigh)
-call genpowers(Lhigh,PowExp,CoulOvlp)
-! generate powers of exponents and overlaps
-!bs start generating modified contraction coefficients
-!bs generate starting adresses of contraction coefficients on contrarray
-call genstar(Lhigh)
-!bs generate ovlp of normalized primitives
-call genovlp(Lhigh,CoulOvlp)
-do lrun=0,Lhigh
-  !bs cont(L) arranges all the contraction coefficients for a given
-  !bs L-value and renormalizes them
-  call cont(lrun,breit,ifinite)
-end do
+  ! Lhigh is the highest l-value in the basis set
+  if (makemean .and. (.not. oneonly) .and. (ifinite <= 1)) call getAOs(Lhigh)
+  call genpowers(Lhigh,PowExp,CoulOvlp)
+  ! generate powers of exponents and overlaps
+  !bs start generating modified contraction coefficients
+  !bs generate starting adresses of contraction coefficients on contrarray
+  call genstar(Lhigh)
+  !bs generate ovlp of normalized primitives
+  call genovlp(Lhigh,CoulOvlp)
+  do lrun=0,Lhigh
+    !bs cont(L) arranges all the contraction coefficients for a given
+    !bs L-value and renormalizes them
+    call cont(lrun,breit,ifinite)
+  end do
 
-!bs beginning the angular part
-if (.not. oneonly) then
-  !BS write(6,*) '***************************************************'
-  !BS write(6,*) '********   beginning the 2e-part ******************'
-  !BS write(6,*) '***************************************************'
+  !bs beginning the angular part
+  if (.not. oneonly) then
+    !BS write(6,*) '***************************************************'
+    !BS write(6,*) '********   beginning the 2e-part ******************'
+    !BS write(6,*) '***************************************************'
 
-  !bs ###################################################################
-  !bs ###################################################################
-  !bs ###################################################################
+    !bs ###################################################################
+    !bs ###################################################################
+    !bs ###################################################################
 
-  idim1 = (2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)
-  idim2 = (Lmax+1)*(Lmax+1)*(Lmax+1)*(Lmax+1)
-  call mma_allocate(preY,idim1,Label='preY')
-  call mma_allocate(preXZ,idim1,Label='preXZ')
-  call mma_allocate(checkxy,idim2,Label='CheckXY')
-  call mma_allocate(checkz,idim2,Label='CheckZ')
-  call mma_allocate(interxyz,16,idim2,Label='InterXYZ')
-  call mma_allocate(SgnProd,idim1,Label='SgnProd')
+    idim1 = (2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)
+    idim2 = (Lmax+1)*(Lmax+1)*(Lmax+1)*(Lmax+1)
+    call mma_allocate(preY,idim1,Label='preY')
+    call mma_allocate(preXZ,idim1,Label='preXZ')
+    call mma_allocate(checkxy,idim2,Label='CheckXY')
+    call mma_allocate(checkz,idim2,Label='CheckZ')
+    call mma_allocate(interxyz,16,idim2,Label='InterXYZ')
+    call mma_allocate(SgnProd,idim1,Label='SgnProd')
 
-  ! subroutine for angular part
+    ! subroutine for angular part
 
-  call angular(Lhigh,keep,keepcart,makemean,bonn,breit,sameorb,ifinite,cartone(1,1),cartone(1,2),cartone(1,3),PowExp,CoulOvlp, &
-               preXZ,preY,checkxy,checkz,InterXYZ,SgnProd)
+    call angular(Lhigh,keep,makemean,bonn,breit,sameorb,ifinite,cartone(1,1),cartone(1,2),cartone(1,3),PowExp,CoulOvlp,preXZ,preY, &
+                 checkxy,checkz,InterXYZ,SgnProd)
 
-  call mma_deallocate(SgnProd)
-  call mma_deallocate(InterXYZ)
-  call mma_deallocate(CheckZ)
-  call mma_deallocate(CheckXY)
-  call mma_deallocate(preXZ)
-  call mma_deallocate(preY)
-end if
-if (ifinite == 1) then ! redo everything for finite core
+    call mma_deallocate(SgnProd)
+    call mma_deallocate(InterXYZ)
+    call mma_deallocate(CheckZ)
+    call mma_deallocate(CheckXY)
+    call mma_deallocate(preXZ)
+    call mma_deallocate(preY)
+  end if
+  if (ifinite /= 1) exit
+  ! redo everything for finite core
   !BS write(6,*) 'once more the two-electron integrals'
   ifinite = 2
-  goto 123
-end if
+end do
 !bs ####################################################################
 !bs ####################################################################
 !bs ####################################################################
@@ -245,7 +237,7 @@ call gen1overR3(Lhigh,oneoverR3)
 
 ! 1/r**3 for normalized functions
 
-call contandmult(Lhigh,makemean,AIMP,oneonly,numballcart,LUPROP,ifinite,CartOne,OneContr,oneoverR3,iCenter)
+call contandmult(Lhigh,AIMP,oneonly,numballcart,LUPROP,ifinite,CartOne,OneContr,oneoverR3,iCenter)
 
 !bs multiplies radial integrals with l,m-dependent
 !bs factors and contraction coefficients

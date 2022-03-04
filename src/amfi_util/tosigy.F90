@@ -102,147 +102,142 @@ if (interxyz(1) == 0) then
 end if
 prey1234 = preY(m1,m2,m3,m4)
 !write(6,*) 'prey ',prey1234
-!do while (interxyz(irun+1) > 0)
-if (interxyz(irun+1) <= 0) goto 777
-666 continue
-irun = irun+1
-!write(6,*) 'tosigy: ',irun,interxyz(irun)
+do while (interxyz(irun+1) > 0)
+  irun = irun+1
+  !write(6,*) 'tosigy: ',irun,interxyz(irun)
 
+  select case (interxyz(irun))
 
-!bs This could be done with gotos, but I am biased to hate those..
+    case (1)
+      ityp = mcombina(1,Mabs1,Mabs2,Mabs3,Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 1',' ')
+      iblock = mcombina(2,Mabs1,Mabs2,Mabs3,Mabs4)
+      factor = isgnM(1,1,1,1)*prey1234*dble(isgnprod(Mabs1,Mabs2,Mabs3,Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-if (interxyz(irun) == 1) then
-  ityp = mcombina(1,Mabs1,Mabs2,Mabs3,Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 1',' ')
-  iblock = mcombina(2,Mabs1,Mabs2,Mabs3,Mabs4)
-  factor = isgnM(1,1,1,1)*prey1234*dble(isgnprod(Mabs1,Mabs2,Mabs3,Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (2)
+      ityp = mcombina(1,-Mabs1,-Mabs2,-Mabs3,-Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 2',' ')
+      iblock = mcombina(2,-Mabs1,-Mabs2,-Mabs3,-Mabs4)
+      factor = isgnM(-1,-1,-1,-1)*prey1234*dble(isgnprod(-Mabs1,-Mabs2,-Mabs3,-Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 2) then
-  ityp = mcombina(1,-Mabs1,-Mabs2,-Mabs3,-Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 2',' ')
-  iblock = mcombina(2,-Mabs1,-Mabs2,-Mabs3,-Mabs4)
-  factor = isgnM(-1,-1,-1,-1)*prey1234*dble(isgnprod(-Mabs1,-Mabs2,-Mabs3,-Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (3)
+      ityp = mcombina(1,Mabs1,Mabs2,Mabs3,-Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 3',' ')
+      iblock = mcombina(2,Mabs1,Mabs2,Mabs3,-Mabs4)
+      factor = isgnM(1,1,1,-1)*prey1234*dble(isgnprod(Mabs1,Mabs2,Mabs3,-Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 3) then
-  ityp = mcombina(1,Mabs1,Mabs2,Mabs3,-Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 3',' ')
-  iblock = mcombina(2,Mabs1,Mabs2,Mabs3,-Mabs4)
-  factor = isgnM(1,1,1,-1)*prey1234*dble(isgnprod(Mabs1,Mabs2,Mabs3,-Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (4)
+      ityp = mcombina(1,-Mabs1,-Mabs2,-Mabs3,Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 4',' ')
+      iblock = mcombina(2,-Mabs1,-Mabs2,-Mabs3,Mabs4)
+      factor = isgnM(-1,-1,-1,1)*prey1234*dble(isgnprod(-Mabs1,-Mabs2,-Mabs3,Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 4) then
-  ityp = mcombina(1,-Mabs1,-Mabs2,-Mabs3,Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 4',' ')
-  iblock = mcombina(2,-Mabs1,-Mabs2,-Mabs3,Mabs4)
-  factor = isgnM(-1,-1,-1,1)*prey1234*dble(isgnprod(-Mabs1,-Mabs2,-Mabs3,Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (5)
+      ityp = mcombina(1,Mabs1,Mabs2,-Mabs3,Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 5',' ')
+      iblock = mcombina(2,Mabs1,Mabs2,-Mabs3,Mabs4)
+      factor = isgnM(1,1,-1,1)*prey1234*dble(isgnprod(Mabs1,Mabs2,-Mabs3,Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 5) then
-  ityp = mcombina(1,Mabs1,Mabs2,-Mabs3,Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 5',' ')
-  iblock = mcombina(2,Mabs1,Mabs2,-Mabs3,Mabs4)
-  factor = isgnM(1,1,-1,1)*prey1234*dble(isgnprod(Mabs1,Mabs2,-Mabs3,Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (6)
+      ityp = mcombina(1,-Mabs1,-Mabs2,Mabs3,-Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 6',' ')
+      iblock = mcombina(2,-Mabs1,-Mabs2,Mabs3,-Mabs4)
+      factor = isgnM(-1,-1,1,-1)*prey1234*dble(isgnprod(-Mabs1,-Mabs2,Mabs3,-Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 6) then
-  ityp = mcombina(1,-Mabs1,-Mabs2,Mabs3,-Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 6',' ')
-  iblock = mcombina(2,-Mabs1,-Mabs2,Mabs3,-Mabs4)
-  factor = isgnM(-1,-1,1,-1)*prey1234*dble(isgnprod(-Mabs1,-Mabs2,Mabs3,-Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (7)
+      ityp = mcombina(1,Mabs1,-Mabs2,Mabs3,Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 7',' ')
+      iblock = mcombina(2,Mabs1,-Mabs2,Mabs3,Mabs4)
+      factor = isgnM(1,-1,1,1)*prey1234*dble(isgnprod(Mabs1,-Mabs2,Mabs3,Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 7) then
-  ityp = mcombina(1,Mabs1,-Mabs2,Mabs3,Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 7',' ')
-  iblock = mcombina(2,Mabs1,-Mabs2,Mabs3,Mabs4)
-  factor = isgnM(1,-1,1,1)*prey1234*dble(isgnprod(Mabs1,-Mabs2,Mabs3,Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (8)
+      ityp = mcombina(1,-Mabs1,Mabs2,-Mabs3,-Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 8',' ')
+      iblock = mcombina(2,-Mabs1,Mabs2,-Mabs3,-Mabs4)
+      factor = isgnM(-1,1,-1,-1)*prey1234*dble(isgnprod(-Mabs1,Mabs2,-Mabs3,-Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 8) then
-  ityp = mcombina(1,-Mabs1,Mabs2,-Mabs3,-Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 8',' ')
-  iblock = mcombina(2,-Mabs1,Mabs2,-Mabs3,-Mabs4)
-  factor = isgnM(-1,1,-1,-1)*prey1234*dble(isgnprod(-Mabs1,Mabs2,-Mabs3,-Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (9)
+      ityp = mcombina(1,-Mabs1,Mabs2,Mabs3,Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 9',' ')
+      iblock = mcombina(2,-Mabs1,Mabs2,Mabs3,Mabs4)
+      factor = isgnM(-1,1,1,1)*prey1234*dble(isgnprod(-Mabs1,Mabs2,Mabs3,Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 9) then
-  ityp = mcombina(1,-Mabs1,Mabs2,Mabs3,Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 9',' ')
-  iblock = mcombina(2,-Mabs1,Mabs2,Mabs3,Mabs4)
-  factor = isgnM(-1,1,1,1)*prey1234*dble(isgnprod(-Mabs1,Mabs2,Mabs3,Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (10)
+      ityp = mcombina(1,Mabs1,-Mabs2,-Mabs3,-Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 10',' ')
+      iblock = mcombina(2,Mabs1,-Mabs2,-Mabs3,-Mabs4)
+      factor = isgnM(1,-1,-1,-1)*prey1234*dble(isgnprod(Mabs1,-Mabs2,-Mabs3,-Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 10) then
-  ityp = mcombina(1,Mabs1,-Mabs2,-Mabs3,-Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 10',' ')
-  iblock = mcombina(2,Mabs1,-Mabs2,-Mabs3,-Mabs4)
-  factor = isgnM(1,-1,-1,-1)*prey1234*dble(isgnprod(Mabs1,-Mabs2,-Mabs3,-Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (11)
+      ityp = mcombina(1,Mabs1,Mabs2,-Mabs3,-Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 11',' ')
+      iblock = mcombina(2,Mabs1,Mabs2,-Mabs3,-Mabs4)
+      factor = isgnM(1,1,-1,-1)*prey1234*dble(isgnprod(Mabs1,Mabs2,-Mabs3,-Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 11) then
-  ityp = mcombina(1,Mabs1,Mabs2,-Mabs3,-Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 11',' ')
-  iblock = mcombina(2,Mabs1,Mabs2,-Mabs3,-Mabs4)
-  factor = isgnM(1,1,-1,-1)*prey1234*dble(isgnprod(Mabs1,Mabs2,-Mabs3,-Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (12)
+      ityp = mcombina(1,-Mabs1,-Mabs2,Mabs3,Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 12',' ')
+      iblock = mcombina(2,-Mabs1,-Mabs2,Mabs3,Mabs4)
+      factor = isgnM(-1,-1,1,1)*prey1234*dble(isgnprod(-Mabs1,-Mabs2,Mabs3,Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 12) then
-  ityp = mcombina(1,-Mabs1,-Mabs2,Mabs3,Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 12',' ')
-  iblock = mcombina(2,-Mabs1,-Mabs2,Mabs3,Mabs4)
-  factor = isgnM(-1,-1,1,1)*prey1234*dble(isgnprod(-Mabs1,-Mabs2,Mabs3,Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (13)
+      ityp = mcombina(1,Mabs1,-Mabs2,Mabs3,-Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 13',' ')
+      iblock = mcombina(2,Mabs1,-Mabs2,Mabs3,-Mabs4)
+      factor = isgnM(1,-1,1,-1)*prey1234*dble(isgnprod(Mabs1,-Mabs2,Mabs3,-Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 13) then
-  ityp = mcombina(1,Mabs1,-Mabs2,Mabs3,-Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 13',' ')
-  iblock = mcombina(2,Mabs1,-Mabs2,Mabs3,-Mabs4)
-  factor = isgnM(1,-1,1,-1)*prey1234*dble(isgnprod(Mabs1,-Mabs2,Mabs3,-Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (14)
+      ityp = mcombina(1,-Mabs1,Mabs2,-Mabs3,Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 14',' ')
+      iblock = mcombina(2,-Mabs1,Mabs2,-Mabs3,Mabs4)
+      factor = isgnM(-1,1,-1,1)*prey1234*dble(isgnprod(-Mabs1,Mabs2,-Mabs3,Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 14) then
-  ityp = mcombina(1,-Mabs1,Mabs2,-Mabs3,Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 14',' ')
-  iblock = mcombina(2,-Mabs1,Mabs2,-Mabs3,Mabs4)
-  factor = isgnM(-1,1,-1,1)*prey1234*dble(isgnprod(-Mabs1,Mabs2,-Mabs3,Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (15)
+      ityp = mcombina(1,Mabs1,-Mabs2,-Mabs3,Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 15',' ')
+      iblock = mcombina(2,Mabs1,-Mabs2,-Mabs3,Mabs4)
+      factor = isgnM(1,-1,-1,1)*prey1234*dble(isgnprod(Mabs1,-Mabs2,-Mabs3,Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 15) then
-  ityp = mcombina(1,Mabs1,-Mabs2,-Mabs3,Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 15',' ')
-  iblock = mcombina(2,Mabs1,-Mabs2,-Mabs3,Mabs4)
-  factor = isgnM(1,-1,-1,1)*prey1234*dble(isgnprod(Mabs1,-Mabs2,-Mabs3,Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+    case (16)
+      ityp = mcombina(1,-Mabs1,Mabs2,Mabs3,-Mabs4)
+      if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 16',' ')
+      iblock = mcombina(2,-Mabs1,Mabs2,Mabs3,-Mabs4)
+      factor = isgnM(-1,1,1,-1)*prey1234*dble(isgnprod(-Mabs1,Mabs2,Mabs3,-Mabs4))
+      if (ityp == 3) factor = -factor
+      call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
-else if (interxyz(irun) == 16) then
-  ityp = mcombina(1,-Mabs1,Mabs2,Mabs3,-Mabs4)
-  if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigy','wrong ityp in tosigY 16',' ')
-  iblock = mcombina(2,-Mabs1,Mabs2,Mabs3,-Mabs4)
-  factor = isgnM(-1,1,1,-1)*prey1234*dble(isgnprod(-Mabs1,Mabs2,Mabs3,-Mabs4))
-  if (ityp == 3) factor = -factor
-  call daxpint(angint(1,1,1,1,iblock),carteY,factor,ncontl1,ncontl2,ncontl3,ncontl4)
-
-end if
-!end do
-if (interxyz(irun+1) > 0) goto 666
-777 continue
+  end select
+end do
 if (cleaner) then
   do irun4=1,ncontl4
     do irun2=1,ncontl2

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine contandmult(Lhigh,makemean,AIMP,oneonly,numballcart,LUPROP,ifinite,onecart,onecontr,oneoverR3,iCenter)
+subroutine contandmult(Lhigh,AIMP,oneonly,numballcart,LUPROP,ifinite,onecart,onecontr,oneoverR3,iCenter)
 
 implicit real*8(a-h,o-z)
 #include "para.fh"
@@ -18,7 +18,7 @@ implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
 real*8, allocatable :: Dummy(:), OCA(:,:), OCA2(:,:), OCA3(:,:)
-logical makemean, AIMP, oneonly
+logical AIMP, oneonly
 character*8 xa, ya, za
 dimension xa(4), ya(4), za(4), onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3), &
           onecontr(mxcontL,MxcontL,-Lmax:Lmax,3,Lmax), oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
@@ -241,7 +241,5 @@ call mma_deallocate(OCA)
 call mma_deallocate(Dummy)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(makemean)
 
 end subroutine contandmult

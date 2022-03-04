@@ -36,7 +36,7 @@ else
 end if
 !bs kinemat generates kinematic factors in
 !bs the basis of eigenvectors
-call kinemat(L,nprimit(L),eval,type1,type2,Energy)
+call kinemat(nprimit(L),eval,type1,type2,Energy)
 !bs chngcont= changecont generates the contraction coeffs
 !bs including kinematic factors and even exponents as factors
 call chngcont(contrarray(iaddori(L)),contrarray(iaddtyp1(L)),contrarray(iaddtyp2(L)),contrarray(iaddtyp3(L)), &
