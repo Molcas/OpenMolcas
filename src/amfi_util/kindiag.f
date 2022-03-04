@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine kindiag(TKIN,TKINTRIA,ndim,evec,eval,breit)
       implicit real*8 (a-h,o-z)
-cbs   determines eigenvectors and -values of TKIN
-      dimension tkin(ndim,ndim),
-     *TKINTRIA((ndim*ndim+ndim)/2),eval(ndim),evec(ndim,ndim)
+!bs   determines eigenvectors and -values of TKIN
+      dimension tkin(ndim,ndim),                                        &
+     &TKINTRIA((ndim*ndim+ndim)/2),eval(ndim),evec(ndim,ndim)
       logical breit
-cbs   move symmetric matrix to triangular matrix
+!bs   move symmetric matrix to triangular matrix
       itria=1
       do irun2=1,ndim
       do irun1=1,irun2
@@ -30,9 +30,9 @@ cbs   move symmetric matrix to triangular matrix
       do irun1=1,ndim
       evec(irun1,irun1)=1d0
       enddo
-cbs   now diagonalize
+!bs   now diagonalize
             CALL Jacob(TKINTRIA,evec,ndim,ndim)
-cbs   get the eigenvalues
+!bs   get the eigenvalues
       do irun=1,ndim
       eval(irun)=TKINTRIA((irun*irun+irun)/2)
       enddo
@@ -41,7 +41,7 @@ cbs   get the eigenvalues
       eval(irun)=0d0
       enddo
       endif
-cbs   ensure normalization of the vectors.
+!bs   ensure normalization of the vectors.
       do IRUN=1,ndim
       fact=0d0
       do JRUN=1,ndim

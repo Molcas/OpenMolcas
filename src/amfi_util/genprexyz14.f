@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine genprexyz14(icheckz,interxyz)
       implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
       integer mcheckz
-      dimension icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax),
-     *interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)
-cbs #####################################################################
-cbs   some quick decision for interaction
-cbs #####################################################################
+      dimension icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax),                   &
+     &interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)
+!bs #####################################################################
+!bs   some quick decision for interaction
+!bs #####################################################################
       do M4=0,Lmax
       do M3=0,Lmax
       do M2=0,Lmax
@@ -27,9 +27,9 @@ cbs #####################################################################
       enddo
       enddo
       enddo
-cbs #####################################################################
-cbs   there are at most 16 possible combinations of signs ( 2**4)
-cbs #####################################################################
+!bs #####################################################################
+!bs   there are at most 16 possible combinations of signs ( 2**4)
+!bs #####################################################################
       do M4=0,Lmax
       do M3=0,Lmax
       do M2=0,Lmax

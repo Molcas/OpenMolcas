@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine genovlp(Lhigh,coulovlp)
       implicit real*8 (a-h,o-z)
-cbs   generates overlap of normalized  primitives.
+!bs   generates overlap of normalized  primitives.
 #include "para.fh"
 #include "param.fh"
-      dimension evecinv(MxprimL,MxprimL)
-     *,coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
+      dimension evecinv(MxprimL,MxprimL)                                &
+     &,coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
       do L=0,Lhigh
               do Jrun=1,nprimit(L)
               do Irun=1,nprimit(L)
         normovlp(Irun,Jrun,L)=coulovlp(irun,jrun,0,0,L,L)
               enddo
               enddo
-cbs   invert the matrix, not very elegant, but sufficient
+!bs   invert the matrix, not very elegant, but sufficient
       ipnt=0
       do jrun=1,nprimit(L)
       do irun=1,jrun
@@ -41,7 +41,7 @@ cbs   invert the matrix, not very elegant, but sufficient
       do irun=1,nprimit(L)
       eval(irun)=sqrt(scratchinv((irun*irun+irun)/2))
       enddo
-cbs   ensure normalization of the vectors.
+!bs   ensure normalization of the vectors.
       do IRUN=1,nprimit(L)
       fact=0d0
       do JRUN=1,nprimit(L)
@@ -52,7 +52,7 @@ cbs   ensure normalization of the vectors.
       evecinv(JRUN,IRUN)=fact*evecinv(JRUN,IRUN)
       enddo
       enddo
-cbs   now generate rootOVLP
+!bs   now generate rootOVLP
       do irun=1,nprimit(L)
       do jrun=1,nprimit(L)
       rootOVLP(irun,jrun,l)=0d0
@@ -61,12 +61,12 @@ cbs   now generate rootOVLP
       do jrun=1,nprimit(L)
       do irun=1,nprimit(L)
       do krun=1,nprimit(L)
-      rootOVLP(irun,jrun,L)=rootOVLP(irun,jrun,L)+
-     *evecinv(irun,krun)*evecinv(jrun,krun)*eval(krun)
+      rootOVLP(irun,jrun,L)=rootOVLP(irun,jrun,L)+                      &
+     &evecinv(irun,krun)*evecinv(jrun,krun)*eval(krun)
       enddo
       enddo
       enddo
-cbs   now generate rootOVLPinv
+!bs   now generate rootOVLPinv
       do irun=1,nprimit(L)
       eval(irun)=1d0/eval(irun)
       enddo
@@ -78,12 +78,12 @@ cbs   now generate rootOVLPinv
       do jrun=1,nprimit(L)
       do irun=1,nprimit(L)
       do krun=1,nprimit(L)
-      rootOVLPinv(irun,jrun,L)=rootOVLPinv(irun,jrun,L)+
-     *evecinv(irun,krun)*evecinv(jrun,krun)*eval(krun)
+      rootOVLPinv(irun,jrun,L)=rootOVLPinv(irun,jrun,L)+                &
+     &evecinv(irun,krun)*evecinv(jrun,krun)*eval(krun)
       enddo
       enddo
       enddo
-cbs   now generate OVLPinv
+!bs   now generate OVLPinv
       do irun=1,nprimit(L)
       eval(irun)=eval(irun)*eval(irun)
       enddo
@@ -95,8 +95,8 @@ cbs   now generate OVLPinv
       do jrun=1,nprimit(L)
       do irun=1,nprimit(L)
       do krun=1,nprimit(L)
-      OVLPinv(irun,jrun,L)=OVLPinv(irun,jrun,L)+
-     *evecinv(irun,krun)*evecinv(jrun,krun)*eval(krun)
+      OVLPinv(irun,jrun,L)=OVLPinv(irun,jrun,L)+                        &
+     &evecinv(irun,krun)*evecinv(jrun,krun)*eval(krun)
       enddo
       enddo
       enddo

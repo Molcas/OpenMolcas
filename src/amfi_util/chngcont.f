@@ -1,48 +1,48 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine chngcont(coeffs,coeffst1,coeffst1a,coeffst2,
-     *coeffst2a,ncont,nprims,evec,
-     *type1,type2,work,work2,work3,MxprimL,
-     *rootOVLP,OVLPinv,exponents)
-c###############################################################################
-cbs   purpose: makes out of old contraction coefficients(in normalized functions)
-cbs   new coefficients including the kinematical factors
-cbs   using the diagonal matrices on type1 and type2 (see subroutine kinemat)
-cbs   coeffst1a and coeffst2a additionally include the exponents alpha
-cbs   (that is why ....a). So the exponents in the integrals are moved
-cbs   to the contraction coefficients and not in some way into the primitive
-cbs   integrals.
-cbs
-cbs   the different cases for contracted integrals differ later on in the
-cbs   choice of different sets of contraction coefficients.
-cbs
-c###############################################################################
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine chngcont(coeffs,coeffst1,coeffst1a,coeffst2,           &
+     &coeffst2a,ncont,nprims,evec,                                      &
+     &type1,type2,work,work2,work3,MxprimL,                             &
+     &rootOVLP,OVLPinv,exponents)
+!###############################################################################
+!bs   purpose: makes out of old contraction coefficients(in normalized functions)
+!bs   new coefficients including the kinematical factors
+!bs   using the diagonal matrices on type1 and type2 (see subroutine kinemat)
+!bs   coeffst1a and coeffst2a additionally include the exponents alpha
+!bs   (that is why ....a). So the exponents in the integrals are moved
+!bs   to the contraction coefficients and not in some way into the primitive
+!bs   integrals.
+!bs
+!bs   the different cases for contracted integrals differ later on in the
+!bs   choice of different sets of contraction coefficients.
+!bs
+!###############################################################################
       implicit real*8 (a-h,o-z)
-      dimension coeffs(nprims,ncont),! original contraction coefficients
-     *coeffst1(nprims,ncont),        ! A * cont coeff
-     *coeffst1a(nprims,ncont),       ! A * alpha*cont coeff
-     *coeffst2a(nprims,ncont),       ! c*A/(E+m) * cont coeff
-     *coeffst2(nprims,ncont),        ! c*A/(E+m) * alpha *cont coeff
-     *evec(nprims,nprims),
-     *work(nprims,nprims) ,
-     *work2(nprims,nprims) ,
-     *work3(nprims,nprims) ,
-     *rootOVLP(MxprimL,*),
-     *OVLPinv(MxprimL,*),
-     *type1(*),type2(*),
-     *exponents(*)
-cbs
-cbs   first new coefficients for type1 (A)
-cbs   generate a transformation matrix on work
-cbs
+      dimension coeffs(nprims,ncont),                                   & ! original contraction coefficients
+     &coeffst1(nprims,ncont),                                           & ! A * cont coeff
+     &coeffst1a(nprims,ncont),                                          & ! A * alpha*cont coeff
+     &coeffst2a(nprims,ncont),                                          & ! c*A/(E+m) * cont coeff
+     &coeffst2(nprims,ncont),                                           & ! c*A/(E+m) * alpha *cont coeff
+     &evec(nprims,nprims),                                              &
+     &work(nprims,nprims) ,                                             &
+     &work2(nprims,nprims) ,                                            &
+     &work3(nprims,nprims) ,                                            &
+     &rootOVLP(MxprimL,*),                                              &
+     &OVLPinv(MxprimL,*),                                               &
+     &type1(*),type2(*),                                                &
+     &exponents(*)
+!bs
+!bs   first new coefficients for type1 (A)
+!bs   generate a transformation matrix on work
+!bs
       do J=1,nprims
       do I=1,nprims
       work(I,J)=0d0
@@ -50,7 +50,7 @@ cbs
       work3(I,J)=0d0
       enddo
       enddo
-cbs   build up the transformation matrix
+!bs   build up the transformation matrix
       do K=1,nprims
       do J=1,nprims
       do I=1,nprims
@@ -89,7 +89,7 @@ cbs   build up the transformation matrix
       coeffst1(I,K)=0d0
       enddo
       enddo
-cbs   now transform the vectors
+!bs   now transform the vectors
       do K=1,ncont
       do J=1,nprims
       do I=1,nprims
@@ -97,17 +97,17 @@ cbs   now transform the vectors
       enddo
       enddo
       enddo
-cbs
-cbs   now with exponent
-cbs
+!bs
+!bs   now with exponent
+!bs
       do K=1,ncont
       do I=1,nprims
       coeffst1a(I,K)=exponents(I)*coeffst1(I,K)
       enddo
       enddo
-cbs
-cbs   and now the same for the other type  A/(E+m)
-cbs
+!bs
+!bs   and now the same for the other type  A/(E+m)
+!bs
       do J=1,nprims
       do I=1,nprims
       work(I,J)=0d0
@@ -115,7 +115,7 @@ cbs
       work3(I,J)=0d0
       enddo
       enddo
-cbs   build up the transformation matrix
+!bs   build up the transformation matrix
       do K=1,nprims
       do J=1,nprims
       do I=1,nprims
@@ -154,7 +154,7 @@ cbs   build up the transformation matrix
       coeffst2(I,K)=0d0
       enddo
       enddo
-cbs   now transform the vectors
+!bs   now transform the vectors
       do K=1,ncont
       do J=1,nprims
       do I=1,nprims
@@ -162,9 +162,9 @@ cbs   now transform the vectors
       enddo
       enddo
       enddo
-cbs
-cbs   now with exponent
-cbs
+!bs
+!bs   now with exponent
+!bs
       do K=1,ncont
       do I=1,nprims
       coeffst2a(I,K)=exponents(I)*coeffst2(I,K)
