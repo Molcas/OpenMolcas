@@ -8,38 +8,42 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine kinemat(L,ndim,evtkin,type1,type2,Energy)
-      implicit real*8 (a-h,o-z)
-      parameter (fine=7.29735308D-03) !TO_BE_CHECKED
-!bs   at least it's identical with Odd's valuE
-      parameter (speed=1d0/fine)
-      parameter (speed2=speed*speed)
-      parameter (speed4=speed2*speed2)
-!bs   this routine generates the kinematic A-factors=sqrt((E+mc^2)/(2E))
-!bs   (type1) and   c*A/(E+mc^2) (type2)
-!bs   The c in the second kinematic factor comes from Jan Almloef and
-!bs   Odd Gropen in Rev in Comp.Chem. 8(1996)
-      dimension evtkin(*),type1(*),type2(*),Energy(*)
-!     E= sqrt(p**2 c**2 + m**2 c**4)
-!     p**2= 2*m*TKIN
-!     with m = 1
-      do Irun=1,ndim
-      if (evtkin(Irun).lt.0.0D0) call SysAbendMsg('kinemat',            &
-     & 'strange kinetic energy ',' ')
-      Energy(Irun)=(evtkin(Irun)+evtkin(Irun))*speed2+speed4
-      enddo
-      do Irun=1,ndim
-      Energy(Irun)=sqrt(energy(irun))
-      enddo
-      do Irun=1,ndim
-!     sqrt((E+mc^2)/(2E)):
-      type1(Irun)=sqrt(0.5d0*(1d0+speed2/Energy(Irun)))
-      enddo
-!      c*A/(E+mc^2)
-      do Irun=1,ndim
-      type2(Irun)=speed*type1(Irun)/(Energy(Irun)+speed2)
-      enddo
-      return
+
+subroutine kinemat(L,ndim,evtkin,type1,type2,Energy)
+!bs this routine generates the kinematic A-factors=sqrt((E+mc^2)/(2E))
+!bs (type1) and   c*A/(E+mc^2) (type2)
+!bs The c in the second kinematic factor comes from Jan Almloef and
+!bs Odd Gropen in Rev in Comp.Chem. 8(1996)
+
+implicit real*8(a-h,o-z)
+parameter(fine=7.29735308D-03) !TO_BE_CHECKED
+!bs at least it's identical with Odd's valuE
+parameter(speed=1d0/fine)
+parameter(speed2=speed*speed)
+parameter(speed4=speed2*speed2)
+dimension evtkin(*), type1(*), type2(*), Energy(*)
+
+! E= sqrt(p**2 c**2 + m**2 c**4)
+! p**2= 2*m*TKIN
+! with m = 1
+do Irun=1,ndim
+  if (evtkin(Irun) < 0.0d0) call SysAbendMsg('kinemat','strange kinetic energy ',' ')
+  Energy(Irun) = (evtkin(Irun)+evtkin(Irun))*speed2+speed4
+end do
+do Irun=1,ndim
+  Energy(Irun) = sqrt(energy(irun))
+end do
+do Irun=1,ndim
+  ! sqrt((E+mc^2)/(2E)):
+  type1(Irun) = sqrt(0.5d0*(1d0+speed2/Energy(Irun)))
+end do
+! c*A/(E+mc^2)
+do Irun=1,ndim
+  type2(Irun) = speed*type1(Irun)/(Energy(Irun)+speed2)
+end do
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(L)
-      end
+if (.false.) call Unused_integer(L)
+
+end subroutine kinemat

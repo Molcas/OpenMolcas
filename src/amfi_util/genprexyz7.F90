@@ -8,25 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine genprexyz7(preXZ)
-      implicit real*8(a-h,o-z)
+
+subroutine genprexyz7(preXZ)
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-      Dimension preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
-!bs #####################################################################
+dimension preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+
+!bs ####################################################################
 !bs   additional (-) signs from the (-i) factors  in the
 !bs   (-) linear combinations   (see tosigX(Y,Z).f)
-!bs #####################################################################
+!bs ####################################################################
 !bs   + - - -   =>   minus
-      do M4=-Lmax,-1
-      do M3=-Lmax,-1
-         do M2=-Lmax,-1
-!     do M1= 0,Lmax
-         call dscal_(Lmax+1,-1d0,preXZ(0,m2,m3,m4),1)
-!           preXZ(m1,m2,m3,m4)=-preXZ(m1,m2,m3,m4)
-!     enddo
-         enddo
-      enddo
-      enddo
-      return
-      end
+do M4=-Lmax,-1
+  do M3=-Lmax,-1
+    do M2=-Lmax,-1
+      !do M1=0,Lmax
+      call dscal_(Lmax+1,-1d0,preXZ(0,m2,m3,m4),1)
+      !preXZ(m1,m2,m3,m4) = -preXZ(m1,m2,m3,m4)
+      !end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine genprexyz7

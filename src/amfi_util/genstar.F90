@@ -8,25 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine genstar(Lhigh)
-      implicit real*8 (a-h,o-z)
-!bs   purpose: generate start adresses of contraction coeffs on
-!bs   contrarray for the different L-Blocks
+
+subroutine genstar(Lhigh)
+!bs purpose: generate start adresses of contraction coeffs on
+!bs contrarray for the different L-Blocks
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "param.fh"
-      istart=1
-      do L=0,Lhigh
-      inc=nprimit(L)*ncontrac(L)
-      iaddori(L)=istart
-      istart=istart+inc
-      iaddtyp1(L)=istart
-      istart=istart+inc
-      iaddtyp2(L)=istart
-      istart=istart+inc
-      iaddtyp3(L)=istart
-      istart=istart+inc
-      iaddtyp4(L)=istart
-      istart=istart+inc
-      enddo
-      return
-      end
+
+istart = 1
+do L=0,Lhigh
+  inc = nprimit(L)*ncontrac(L)
+  iaddori(L) = istart
+  istart = istart+inc
+  iaddtyp1(L) = istart
+  istart = istart+inc
+  iaddtyp2(L) = istart
+  istart = istart+inc
+  iaddtyp3(L) = istart
+  istart = istart+inc
+  iaddtyp4(L) = istart
+  istart = istart+inc
+end do
+
+return
+
+end subroutine genstar

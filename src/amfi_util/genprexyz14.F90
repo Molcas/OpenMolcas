@@ -8,38 +8,42 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine genprexyz14(icheckz,interxyz)
-      implicit real*8(a-h,o-z)
+
+subroutine genprexyz14(icheckz,interxyz)
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-      integer mcheckz
-      dimension icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax),                   &
-     &interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)
-!bs #####################################################################
+integer mcheckz
+dimension icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)
+
+!bs ####################################################################
 !bs   some quick decision for interaction
-!bs #####################################################################
-      do M4=0,Lmax
-      do M3=0,Lmax
-      do M2=0,Lmax
+!bs ####################################################################
+do M4=0,Lmax
+  do M3=0,Lmax
+    do M2=0,Lmax
       do M1=0,Lmax
-              icheckz(m1,m2,m3,m4)=mcheckz(m1,m2,m3,m4)
-      enddo
-      enddo
-      enddo
-      enddo
-!bs #####################################################################
+        icheckz(m1,m2,m3,m4) = mcheckz(m1,m2,m3,m4)
+      end do
+    end do
+  end do
+end do
+!bs ####################################################################
 !bs   there are at most 16 possible combinations of signs ( 2**4)
-!bs #####################################################################
-      do M4=0,Lmax
-      do M3=0,Lmax
-      do M2=0,Lmax
+!bs ####################################################################
+do M4=0,Lmax
+  do M3=0,Lmax
+    do M2=0,Lmax
       do M1=0,Lmax
-      do irun=1,16
-      interxyz(irun,m1,m2,m3,m4)=0
-      enddo
-      enddo
-      enddo
-      enddo
-      enddo
-      return
-      end
+        do irun=1,16
+          interxyz(irun,m1,m2,m3,m4) = 0
+        end do
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine genprexyz14

@@ -8,25 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine genprexyz11(preY)
-      implicit real*8(a-h,o-z)
+
+subroutine genprexyz11(preY)
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-      Dimension preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
-!bs #####################################################################
+dimension preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+
+!bs ####################################################################
 !bs   additional (-) signs from the (-i) factors  in the
 !bs   (-) linear combinations   (see tosigX(Y,Z).f)
-!bs #####################################################################
+!bs ####################################################################
 !bs   + +  - -  >   -
-      do M4=-Lmax,-1
-      do M3=-Lmax,-1
-      do M2=0,Lmax
-!     do M1=0,Lmax
-            call dscal_(Lmax+1,-1d0,preY(0,m2,m3,m4),1)
-!      preY(m1,m2,m3,m4)=-preY(m1,m2,m3,m4)
-!      enddo
-      enddo
-      enddo
-      enddo
-      return
-      end
+do M4=-Lmax,-1
+  do M3=-Lmax,-1
+    do M2=0,Lmax
+      !do M1=0,Lmax
+      call dscal_(Lmax+1,-1d0,preY(0,m2,m3,m4),1)
+      !preY(m1,m2,m3,m4) = -preY(m1,m2,m3,m4)
+      !end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine genprexyz11

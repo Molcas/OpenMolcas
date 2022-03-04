@@ -8,50 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine two2mean34b(carteSO,carteOO,occup,AOcoeffs,onecart,    &
-     &ncontmf,norbsum,noccorb,sameorb)
-      implicit real*8 (a-h,o-z)
+
+subroutine two2mean34b(carteSO,carteOO,occup,AOcoeffs,onecart,ncontmf,norbsum,noccorb,sameorb)
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
-      logical sameorb
-      dimension                                                         &
-     &carteSO(norbsum,ncontmf,norbsum,ncontmf),                         &
-     &carteOO(norbsum,ncontmf,norbsum,ncontmf),                         &
-     &occup(*),AOcoeffs(MxcontL,*),onecart(MxcontL,MxcontL)
-      if (sameorb) then
-      do icartleft=1,norbsum
-      do icartright=1,norbsum
-      coeff=0d0
+logical sameorb
+dimension carteSO(norbsum,ncontmf,norbsum,ncontmf), carteOO(norbsum,ncontmf,norbsum,ncontmf), occup(*), AOcoeffs(MxcontL,*), &
+          onecart(MxcontL,MxcontL)
+
+if (sameorb) then
+  do icartleft=1,norbsum
+    do icartright=1,norbsum
+      coeff = 0d0
       do Mrun=1,noccorb
-      coeff=coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*                 &
-     &      AOcoeffs(icartright,Mrun)
-      enddo
-      coeff=0.5D0*coeff
+        coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
+      end do
+      coeff = 0.5d0*coeff
       do irun=1,ncontmf
-      do jrun=1,ncontmf
-      onecart(irun,jrun)=onecart(irun,jrun)-coeff*                      &
-     &carteSO(icartleft,jrun,icartright,irun)
-      enddo
-      enddo
-      enddo
-      enddo
-      else
-      do icartleft=1,norbsum
-      do icartright=1,norbsum
-      coeff=0d0
+        do jrun=1,ncontmf
+          onecart(irun,jrun) = onecart(irun,jrun)-coeff*carteSO(icartleft,jrun,icartright,irun)
+        end do
+      end do
+    end do
+  end do
+else
+  do icartleft=1,norbsum
+    do icartright=1,norbsum
+      coeff = 0d0
       do Mrun=1,noccorb
-      coeff=coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*                 &
-     &      AOcoeffs(icartright,Mrun)
-      enddo
-      coeff=0.5D0*coeff
+        coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
+      end do
+      coeff = 0.5d0*coeff
       do irun=1,ncontmf
-      do jrun=1,ncontmf
-      onecart(irun,jrun)=onecart(irun,jrun)-coeff*                      &
-     &(carteSO(icartleft,jrun,icartright,irun)+                         &
-     &2d0*carteOO(icartleft,jrun,icartright,irun))
-      enddo
-      enddo
-      enddo
-      enddo
-      endif
-      return
-      end
+        do jrun=1,ncontmf
+          onecart(irun,jrun) = onecart(irun,jrun)- &
+                               coeff*(carteSO(icartleft,jrun,icartright,irun)+2d0*carteOO(icartleft,jrun,icartright,irun))
+        end do
+      end do
+    end do
+  end do
+end if
+
+return
+
+end subroutine two2mean34b

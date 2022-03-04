@@ -8,39 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine getpow(max,quot,quotpow,                               &
-     &nprim1,nprim2,nprim3,nprim4)
-!bs   generates some powers of for the prefactors of cfunct(X)
-!bs   look out for details there and in initfrac
-      implicit real*8 (a-h,o-z)
+
+subroutine getpow(max,quot,quotpow,nprim1,nprim2,nprim3,nprim4)
+!bs generates some powers of for the prefactors of cfunct(X)
+!bs look out for details there and in initfrac
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
-      dimension quotpow(nprim1,nprim2,                                  &
-     &nprim3,nprim4),                                                   &
-     &quot(nprim1,nprim2,nprim3,nprim4)
-      do irun4=1,nprim4
-      do irun3=1,nprim3
-      do irun2=1,nprim2
+dimension quotpow(nprim1,nprim2, nprim3,nprim4), quot(nprim1,nprim2,nprim3,nprim4)
+
+do irun4=1,nprim4
+  do irun3=1,nprim3
+    do irun2=1,nprim2
       do irun1=1,nprim1
-      quotpow(irun1,irun2,irun3,irun4)=                                 &
-     &sqrt(quot(irun1,irun2,irun3,irun4))
-      enddo
-      enddo
-      enddo
-      enddo
-      if (max.eq.1) return
-!bs
-      do irun=2,max
-      do irun4=1,nprim4
-      do irun3=1,nprim3
+        quotpow(irun1,irun2,irun3,irun4) = sqrt(quot(irun1,irun2,irun3,irun4))
+      end do
+    end do
+  end do
+end do
+if (max == 1) return
+
+do irun=2,max
+  do irun4=1,nprim4
+    do irun3=1,nprim3
       do irun2=1,nprim2
-      do irun1=1,nprim1
-      quotpow(irun1,irun2,irun3,irun4)=                                 &
-     &quotpow(irun1,irun2,irun3,irun4)*                                 &
-     &quot(irun1,irun2,irun3,irun4)
-      enddo
-      enddo
-      enddo
-      enddo
-      enddo
-      return
-      end
+        do irun1=1,nprim1
+          quotpow(irun1,irun2,irun3,irun4) = quotpow(irun1,irun2,irun3,irun4)*quot(irun1,irun2,irun3,irun4)
+        end do
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine getpow

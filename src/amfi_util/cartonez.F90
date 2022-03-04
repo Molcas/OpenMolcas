@@ -8,26 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine cartoneZ(L,Lmax,onecontr,ncontrac,                     &
-     &MxcontL,onecartZ)
-      implicit real*8 (a-h,o-z)
-      dimension onecontr(MxcontL,MxcontL,-Lmax:Lmax,3),                 &
-     &onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
-!bs   arranges the cartesian one-electron integrals for Z
-!bs   on a quadratic matrix
-      ipnt(I,J)=(max(i,j)*(max(i,j)-1))/2+min(i,j)
-!bs   - + Integrals    m || mprime     mprime=m
-      do Mprime=1,L
-      iaddr=ipnt(Mprime+L+1,-mprime+L+1)
-      do jcont=1,ncontrac
-      do icont=1,ncontrac
-      onecartZ(icont,jcont,iaddr)=                                      &
-     &onecartZ(icont,jcont,iaddr)+                                      &
-     &0.5d0*(                                                           &
-     &onecontr(icont,jcont,Mprime,2)-                                   &
-     &onecontr(icont,jcont,-Mprime,2))
-      enddo
-      enddo
-      enddo
-      return
-      end
+
+subroutine cartoneZ(L,Lmax,onecontr,ncontrac,MxcontL,onecartZ)
+!bs arranges the cartesian one-electron integrals for Z on a quadratic matrix
+
+implicit real*8(a-h,o-z)
+dimension onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
+!Statement function
+ipnt(I,J) = (max(i,j)*(max(i,j)-1))/2+min(i,j)
+
+!bs - + Integrals    m || mprime     mprime=m
+do Mprime=1,L
+  iaddr = ipnt(Mprime+L+1,-mprime+L+1)
+  do jcont=1,ncontrac
+    do icont=1,ncontrac
+      onecartZ(icont,jcont,iaddr) = onecartZ(icont,jcont,iaddr)+ &
+                                    0.5d0*(onecontr(icont,jcont,Mprime,2)-onecontr(icont,jcont,-Mprime,2))
+    end do
+  end do
+end do
+
+return
+
+end subroutine cartoneZ

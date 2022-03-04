@@ -8,23 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine genprexyz13(icheckxy)
-      implicit real*8(a-h,o-z)
+
+subroutine genprexyz13(icheckxy)
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-      integer mcheckxy
-      dimension icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax)
-!bs #####################################################################
+integer mcheckxy
+dimension icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax)
+
+!bs ####################################################################
 !bs   some quick decision for interaction
-!bs #####################################################################
-      do M4=0,Lmax
-      do M3=0,Lmax
-      do M2=0,Lmax
+!bs ####################################################################
+do M4=0,Lmax
+  do M3=0,Lmax
+    do M2=0,Lmax
       do M1=0,Lmax
-              icheckxy(m1,m2,m3,m4)=mcheckxy(m1,m2,m3,m4)
-      enddo
-      enddo
-      enddo
-      enddo
-      return
-      end
+        icheckxy(m1,m2,m3,m4) = mcheckxy(m1,m2,m3,m4)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine genprexyz13

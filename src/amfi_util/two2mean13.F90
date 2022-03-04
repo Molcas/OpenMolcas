@@ -8,33 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine two2mean13(carteSO,occup,AOcoeffs,onecart,             &
-     &ncontmf,norbsum,noccorb)
-!bs   gives the two first contributions
-!bs   < i M | j M >  with Malpha  and Mbeta
-!bs   the other orbit parts cancel
-      implicit real*8 (a-h,o-z)
+
+subroutine two2mean13(carteSO,occup,AOcoeffs,onecart,ncontmf,norbsum,noccorb)
+!bs gives the two first contributions
+!bs < i M | j M >  with Malpha  and Mbeta
+!bs the other orbit parts cancel
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
-      dimension carteSO(ncontmf,ncontmf,norbsum,norbsum),               &
-     &occup(*),AOcoeffs(MxcontL,*),onecart(MxcontL,MxcontL)
-      do icartleft=1,norbsum
-      do icartright=1,norbsum
-      coeff=0d0
-      do Mrun=1,noccorb
-      coeff=coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*                 &
-     &      AOcoeffs(icartright,Mrun)
-      enddo
-      do irun=1,ncontmf
+dimension carteSO(ncontmf,ncontmf,norbsum,norbsum), occup(*), AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
+
+do icartleft=1,norbsum
+  do icartright=1,norbsum
+    coeff = 0d0
+    do Mrun=1,noccorb
+      coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
+    end do
+    do irun=1,ncontmf
       do jrun=1,ncontmf
-      onecart(irun,jrun)=onecart(irun,jrun)+coeff*                      &
-     &carteSO(irun,jrun,icartleft,icartright)
-      enddo
-      enddo
-      enddo
-      enddo
-!     write(6,*) 'effective integrals'
-!     do jrun=1,ncontmf
-!     write(6,'(4E20.14)') (onecart(irun,jrun),irun=1,ncontmf)
-!     enddo
-      return
-      end
+        onecart(irun,jrun) = onecart(irun,jrun)+coeff*carteSO(irun,jrun,icartleft,icartright)
+      end do
+    end do
+  end do
+end do
+!write(6,*) 'effective integrals'
+!do jrun=1,ncontmf
+!  write(6,'(4E20.14)') (onecart(irun,jrun),irun=1,ncontmf)
+!end do
+
+return
+
+end subroutine two2mean13

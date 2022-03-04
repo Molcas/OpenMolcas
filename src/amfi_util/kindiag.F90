@@ -8,49 +8,53 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine kindiag(TKIN,TKINTRIA,ndim,evec,eval,breit)
-      implicit real*8 (a-h,o-z)
-!bs   determines eigenvectors and -values of TKIN
-      dimension tkin(ndim,ndim),                                        &
-     &TKINTRIA((ndim*ndim+ndim)/2),eval(ndim),evec(ndim,ndim)
-      logical breit
-!bs   move symmetric matrix to triangular matrix
-      itria=1
-      do irun2=1,ndim
-      do irun1=1,irun2
-      TKINTRIA(itria)=TKIN(irun1,irun2)
-      itria=itria+1
-      enddo
-      enddo
-      do irun2=1,ndim
-      do irun1=1,ndim
-      evec(irun1,irun2)=0d0
-      enddo
-      enddo
-      do irun1=1,ndim
-      evec(irun1,irun1)=1d0
-      enddo
-!bs   now diagonalize
-            CALL Jacob(TKINTRIA,evec,ndim,ndim)
-!bs   get the eigenvalues
-      do irun=1,ndim
-      eval(irun)=TKINTRIA((irun*irun+irun)/2)
-      enddo
-      if (breit) then
-      do irun=1,ndim
-      eval(irun)=0d0
-      enddo
-      endif
-!bs   ensure normalization of the vectors.
-      do IRUN=1,ndim
-      fact=0d0
-      do JRUN=1,ndim
-      fact=fact+evec(JRUN,IRUN)*evec(JRUN,IRUN)
-      enddo
-      fact=1d0/sqrt(fact)
-      do JRUN=1,ndim
-      evec(JRUN,IRUN)=fact*evec(JRUN,IRUN)
-      enddo
-      enddo
-      return
-      end
+
+subroutine kindiag(TKIN,TKINTRIA,ndim,evec,eval,breit)
+!bs determines eigenvectors and -values of TKIN
+
+implicit real*8(a-h,o-z)
+dimension tkin(ndim,ndim), TKINTRIA((ndim*ndim+ndim)/2), eval(ndim), evec(ndim,ndim)
+logical breit
+
+!bs move symmetric matrix to triangular matrix
+itria = 1
+do irun2=1,ndim
+  do irun1=1,irun2
+    TKINTRIA(itria) = TKIN(irun1,irun2)
+    itria = itria+1
+  end do
+end do
+do irun2=1,ndim
+  do irun1=1,ndim
+    evec(irun1,irun2) = 0d0
+  end do
+end do
+do irun1=1,ndim
+  evec(irun1,irun1) = 1d0
+end do
+!bs now diagonalize
+call Jacob(TKINTRIA,evec,ndim,ndim)
+!bs get the eigenvalues
+do irun=1,ndim
+  eval(irun) = TKINTRIA((irun*irun+irun)/2)
+end do
+if (breit) then
+  do irun=1,ndim
+    eval(irun) = 0d0
+  end do
+end if
+!bs ensure normalization of the vectors.
+do IRUN=1,ndim
+  fact = 0d0
+  do JRUN=1,ndim
+    fact = fact+evec(JRUN,IRUN)*evec(JRUN,IRUN)
+  end do
+  fact = 1d0/sqrt(fact)
+  do JRUN=1,ndim
+    evec(JRUN,IRUN) = fact*evec(JRUN,IRUN)
+  end do
+end do
+
+return
+
+end subroutine kindiag

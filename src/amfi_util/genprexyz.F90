@@ -8,23 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine genprexyz(preXZ)
-      implicit real*8(a-h,o-z)
+
+subroutine genprexyz(preXZ)
+
+implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-      Dimension preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
-!bs #####################################################################
+dimension preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+
+!bs ####################################################################
 !bs   prefactors preXZ und preY include the factors 1/root(2)
 !bs   for the +/- linear combinations of spherical harmonics
-!bs #####################################################################
-      do M4=-Lmax,Lmax
-      do M3=-Lmax,Lmax
-      do M2=-Lmax,Lmax
+!bs ####################################################################
+do M4=-Lmax,Lmax
+  do M3=-Lmax,Lmax
+    do M2=-Lmax,Lmax
       do M1=-Lmax,Lmax
-              preXZ(m1,m2,m3,m4)=0.25d0
-      enddo
-      enddo
-      enddo
-      enddo
-      return
-      end
+        preXZ(m1,m2,m3,m4) = 0.25d0
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine genprexyz
