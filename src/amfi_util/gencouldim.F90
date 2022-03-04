@@ -14,10 +14,14 @@ subroutine gencoulDIM(l1,l2,l3,l4,makemean,icont4)
 !bs arrays. BASICALLY GENCOUL WITHOUT EXPLICIT INTEGRAL CALCULATION
 !bs integrals for the four angular momenta l1-l4
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: l1, l2, l3, l4, icont4
+logical(kind=iwp) :: makemean
 #include "para.fh"
 #include "param.fh"
-logical makemean
+integer(kind=iwp) :: incl1, incl3, Lanf, Lend, nanz
 
 !bs first of all, this routine determines, for which L
 !bs values the radial integrals have to be solved

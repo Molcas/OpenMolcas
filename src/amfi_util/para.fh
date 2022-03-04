@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer Lmax,Lmax_occ,MxprimL,MxcontL,MxCart,ndfmx
       parameter (Lmax=6)
 ! ! max. angular momentum of basis functions  DO NOT INCREASE
 !bs                          TO MORE THAN SIX   !!!!!!!!!!!!!!!!!!!

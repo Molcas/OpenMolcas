@@ -11,26 +11,19 @@
 
 subroutine genprexyz11(preY)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One
+use Definitions, only: wp
+
+implicit none
 #include "para.fh"
-#include "Molcas.fh"
-dimension preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+real(kind=wp) :: preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 
 !bs ####################################################################
 !bs   additional (-) signs from the (-i) factors  in the
 !bs   (-) linear combinations   (see tosigX(Y,Z).f)
 !bs ####################################################################
 !bs   + +  - -  >   -
-do M4=-Lmax,-1
-  do M3=-Lmax,-1
-    do M2=0,Lmax
-      !do M1=0,Lmax
-      call dscal_(Lmax+1,-1d0,preY(0,m2,m3,m4),1)
-      !preY(m1,m2,m3,m4) = -preY(m1,m2,m3,m4)
-      !end do
-    end do
-  end do
-end do
+preY(0:,0:,:-1,:-1) = -preY(0:,0:,:-1,:-1)
 
 return
 

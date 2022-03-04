@@ -11,7 +11,7 @@
 
 subroutine chngcont(coeffs,coeffst1,coeffst1a,coeffst2,coeffst2a,ncont,nprims,evec,type1,type2,work,work2,work3,MxprimL,rootOVLP, &
                     OVLPinv,exponents)
-!###############################################################################
+!#######################################################################
 !bs purpose: makes out of old contraction coefficients(in normalized functions)
 !bs new coefficients including the kinematical factors
 !bs using the diagonal matrices on type1 and type2 (see subroutine kinemat)
@@ -22,28 +22,29 @@ subroutine chngcont(coeffs,coeffst1,coeffst1a,coeffst2,coeffst2a,ncont,nprims,ev
 !bs
 !bs the different cases for contracted integrals differ later on in the
 !bs choice of different sets of contraction coefficients.
-!###############################################################################
+!#######################################################################
 !coeffs    : original contraction coefficients
 !coeffst1  : A * cont coeff
 !coeffst1a : A * alpha*cont coeff
 !coeffst2a : c*A/(E+m) * cont coeff
 !coeffst2  : c*A/(E+m) * alpha *cont coeff
 
-implicit real*8(a-h,o-z)
-dimension coeffs(nprims,ncont), coeffst1(nprims,ncont), coeffst1a(nprims,ncont), coeffst2a(nprims,ncont), coeffst2(nprims,ncont), &
-          evec(nprims,nprims), work(nprims,nprims), work2(nprims,nprims), work3(nprims,nprims), rootOVLP(MxprimL,*), &
-          OVLPinv(MxprimL,*), type1(*), type2(*), exponents(*)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ncont, nprims, MxprimL
+real(kind=wp) :: coeffs(nprims,ncont), coeffst1(nprims,ncont), coeffst1a(nprims,ncont), coeffst2(nprims,ncont), &
+                 coeffst2a(nprims,ncont), evec(nprims,nprims), type1(*), type2(*), work(nprims,nprims), work2(nprims,nprims), &
+                 work3(nprims,nprims), rootOVLP(MxprimL,*), OVLPinv(MxprimL,*), exponents(*)
+integer(kind=iwp) :: I, J, K
 
 !bs first new coefficients for type1 (A)
 !bs generate a transformation matrix on work
 
-do J=1,nprims
-  do I=1,nprims
-    work(I,J) = 0d0
-    work2(I,J) = 0d0
-    work3(I,J) = 0d0
-  end do
-end do
+work(:,:) = Zero
+work2(:,:) = Zero
+work3(:,:) = Zero
 !bs build up the transformation matrix
 do K=1,nprims
   do J=1,nprims
@@ -66,11 +67,7 @@ do K=1,nprims
     end do
   end do
 end do
-do J=1,nprims
-  do I=1,nprims
-    work(I,J) = 0d0
-  end do
-end do
+work(:,:) = Zero
 do K=1,nprims
   do J=1,nprims
     do I=1,nprims
@@ -78,11 +75,7 @@ do K=1,nprims
     end do
   end do
 end do
-do K=1,ncont
-  do I=1,nprims
-    coeffst1(I,K) = 0d0
-  end do
-end do
+coeffst1(:,:) = Zero
 !bs now transform the vectors
 do K=1,ncont
   do J=1,nprims
@@ -102,13 +95,9 @@ end do
 
 !bs and now the same for the other type  A/(E+m)
 
-do J=1,nprims
-  do I=1,nprims
-    work(I,J) = 0d0
-    work2(I,J) = 0d0
-    work3(I,J) = 0d0
-  end do
-end do
+work(:,:) = Zero
+work2(:,:) = Zero
+work3(:,:) = Zero
 !bs build up the transformation matrix
 do K=1,nprims
   do J=1,nprims
@@ -131,11 +120,7 @@ do K=1,nprims
     end do
   end do
 end do
-do J=1,nprims
-  do I=1,nprims
-    work(I,J) = 0d0
-  end do
-end do
+work(:,:) = Zero
 do K=1,nprims
   do J=1,nprims
     do I=1,nprims
@@ -143,11 +128,7 @@ do K=1,nprims
     end do
   end do
 end do
-do K=1,ncont
-  do I=1,nprims
-    coeffst2(I,K) = 0d0
-  end do
-end do
+coeffst2(:,:) = Zero
 !bs now transform the vectors
 do K=1,ncont
   do J=1,nprims

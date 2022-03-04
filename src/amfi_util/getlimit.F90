@@ -14,7 +14,11 @@ subroutine getLIMIT(l1,l2,l3,l4,Lanf,Lend)
 !bs of the the coulomb-potential to interact
 !bs with l1-l4
 
-implicit integer(a-z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: l1, l2, l3, l4, Lanf, Lend
+integer(kind=iwp) :: lower1, lower2, lsum, lupper1, lupper2
 
 lower1 = abs(l1-l3)
 lower2 = abs(l2-l4)
@@ -30,9 +34,9 @@ if (mod(lsum,2) == 1) Lend = Lend-1
 !bs check the other parity
 lsum = Lanf+l2+l4
 if (mod(lsum,2) == 1) then
-  write(6,*) ' error in getLIMIT: '
-  write(6,*) ' parity inconsistency for '
-  write(6,*) 'l1,l2,l3,l4= ',l1,l2,l3,l4
+  write(u6,*) ' error in getLIMIT: '
+  write(u6,*) ' parity inconsistency for '
+  write(u6,*) 'l1,l2,l3,l4= ',l1,l2,l3,l4
   call Abend()
 end if
 

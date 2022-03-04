@@ -8,18 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine gencoul(l1,l2,l3,l4,makemean,bonn,breit,sameorb,cont4SO,cont4OO,icont4,powexp,coulovlp)
 !bs   SUBROUTINE to generate all required radial
 !bs   integrals for the four angular momenta l1-l4
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "para.fh"
+integer(kind=iwp) :: l1, l2, l3, l4, icont4
+logical(kind=iwp) :: makemean, bonn, breit, sameorb
+real(kind=wp) :: cont4SO(*), cont4OO(*), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), coulovlp(*)
 #include "param.fh"
-#include "Molcas.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Scr1(:), Scr2(:), Prim(:), Quot1(:), Quot2(:), QuotP1(:), QuotP2(:)
-logical makemean, bonn, breit, sameorb
-dimension cont4SO(*), cont4OO(*), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), coulovlp(*)
+integer(kind=iwp) :: incl1, incl3, ipow1, ipow2, istart, istart2, Lanf, Lend, Lrun, nanz, nprimprod
+real(kind=wp), allocatable :: Prim(:), Quot1(:), Quot2(:), QuotP1(:), QuotP2(:), Scr1(:), Scr2(:)
 
 !bs first of all, this routine determines, for which L
 !bs values the radial integrals have to be solved
@@ -82,7 +86,7 @@ end if
 if (Lblocks(1) > 0) then    ! integrals have to be calculated
   !bs### check, whether integrals fit on array ################
   if (Lstarter(1)+nanz*Lblocks(1) > icont4) then
-    write(6,*) 'end at: ',Lstarter(1)+nanz*Lblocks(1)
+    write(u6,*) 'end at: ',Lstarter(1)+nanz*Lblocks(1)
     call SysAbendMsg('gencoul','increase icont4 in amfi.f',' ')
   end if
   !bs### check, whether integrals fit on array ################
@@ -135,7 +139,7 @@ Lstarter(3) = Lstarter(2)+nanz*Lblocks(2)
 if (Lblocks(2) > 0) then
   !bs### check, whether integrals fit on array ################
   if (Lstarter(2)+2*nanz*Lblocks(2) > icont4) then
-    write(6,*) 'end at: ',Lstarter(2)+2*nanz*Lblocks(2)
+    write(u6,*) 'end at: ',Lstarter(2)+2*nanz*Lblocks(2)
     call SysAbendMsg('gencoul','increase icont4 in amfi.f',' ')
   end if
   !bs### check, whether integrals fit on array ################
@@ -183,7 +187,7 @@ Lstarter(4) = Lstarter(3)+nanz*Lblocks(3)
 if (Lblocks(4) > 0) then
   !bs### check, whether integrals fit on array ################
   if (Lstarter(4)+nanz*Lblocks(4) > icont4) then
-    write(6,*) 'end at: ',Lstarter(4)+nanz*Lblocks(4)
+    write(u6,*) 'end at: ',Lstarter(4)+nanz*Lblocks(4)
     call SysAbendMsg('gencoul','increase icont4 in amfi.f',' ')
   end if
   !bs### check, whether integrals fit on array ################

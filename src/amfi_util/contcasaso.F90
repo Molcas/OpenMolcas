@@ -10,14 +10,18 @@
 !***********************************************************************
 
 subroutine contcasaSO(l1,l2,l3,l4,nstart,primints,scratch1,scratch2,cont4SO)
-!bs contraction for powers (+2)  with alpha1*alpha3
+!bs contraction for powers (+2) with alpha1*alpha3
 !bs same orbit term
 !bs this is case a in the documentation
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: l1, l2, l3, l4, nstart
+real(kind=wp) :: primints(*), scratch1(*), scratch2(*), cont4SO(*)
 #include "para.fh"
 #include "param.fh"
-dimension ncont(4), nprim(4), primints(*), scratch1(*), scratch2(*), cont4SO(*)
+integer(kind=iwp) :: ilength, IRUN, ncont(4), nprim(4), nprod
 
 ncont(1) = ncontrac(l1)
 ncont(2) = ncontrac(l2)
@@ -33,17 +37,17 @@ nprod = ncont(1)*ncont(2)*ncont(3)*ncont(4)
 do IRUN=1,ilength
   scratch1(IRUN) = primints(IRUN)
 end do
-!write(6,*) 'scratch1 ',(scratch1(I),I=1,ilength)
-!write(6,*) 'contraction coeff'
-!write(6,*) (contrarray(iaddtyp4(l1)+I),I=0,nprim(1)-1)
-!write(6,*) (contrarray(iaddtyp1(l2)+I),I=0,nprim(2)-1)
-!write(6,*) (contrarray(iaddtyp4(l3)+I),I=0,nprim(3)-1)
-!write(6,*) (contrarray(iaddtyp1(l4)+I),I=0,nprim(4)-1)
+!write(u6,*) 'scratch1 ',(scratch1(I),I=1,ilength)
+!write(u6,*) 'contraction coeff'
+!write(u6,*) (contrarray(iaddtyp4(l1)+I),I=0,nprim(1)-1)
+!write(u6,*) (contrarray(iaddtyp1(l2)+I),I=0,nprim(2)-1)
+!write(u6,*) (contrarray(iaddtyp4(l3)+I),I=0,nprim(3)-1)
+!write(u6,*) (contrarray(iaddtyp1(l4)+I),I=0,nprim(4)-1)
 !ncont : i-th element is number of contracted functions i. index
 !nprim : i-th element is number of primitive functions  i. index
 call contract(contrarray(iaddtyp4(l1)),contrarray(iaddtyp1(l2)),contrarray(iaddtyp4(l3)),contrarray(iaddtyp1(l4)),ncont,nprim, &
               scratch1,scratch2)
-!write(6,*) 'nstart ',nstart
+!write(u6,*) 'nstart ',nstart
 do irun=1,nprod
   cont4SO(nstart+irun-1) = scratch1(irun)
 end do

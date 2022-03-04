@@ -10,15 +10,20 @@
 !***********************************************************************
 
 subroutine contcasaOO(l1,l2,l3,l4,nstart,primints,scratch1,scratch2,cont4OO)
-!bs contraction for powers (+2)  with alpha1*alpha3
+!bs contraction for powers (+2) with alpha1*alpha3
 !bs other-orbit term
 !bs use averaged integrals by interchanging kinematic factors
 !bs this is case a in the documentation
 
-implicit real*8(a-h,o-z)
+use Constants, only: Quart
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: l1, l2, l3, l4, nstart
+real(kind=wp) :: primints(*), scratch1(*), scratch2(*), cont4OO(*)
 #include "para.fh"
 #include "param.fh"
-dimension ncont(4), nprim(4), primints(*), scratch1(*), scratch2(*), cont4OO(*)
+integer(kind=iwp) :: ilength, IRUN, ncont(4), nprim(4), nprod
 
 ncont(1) = ncontrac(l1)
 ncont(2) = ncontrac(l2)
@@ -44,7 +49,7 @@ end do
 call contract(contrarray(iaddtyp2(l1)),contrarray(iaddtyp3(l2)),contrarray(iaddtyp4(l3)),contrarray(iaddtyp1(l4)),ncont,nprim, &
               scratch1,scratch2)
 do irun=1,nprod
-  cont4OO(nstart+irun-1) = 0.25d0*scratch1(irun)
+  cont4OO(nstart+irun-1) = Quart*scratch1(irun)
 end do
 
 !bs copy primitive integrals to scratch1
@@ -56,7 +61,7 @@ end do
 call contract(contrarray(iaddtyp4(l1)),contrarray(iaddtyp3(l2)),contrarray(iaddtyp2(l3)),contrarray(iaddtyp1(l4)),ncont,nprim, &
               scratch1,scratch2)
 do irun=1,nprod
-  cont4OO(nstart+irun-1) = cont4OO(nstart+irun-1)+0.25d0*scratch1(irun)
+  cont4OO(nstart+irun-1) = cont4OO(nstart+irun-1)+Quart*scratch1(irun)
 end do
 
 !bs copy primitive integrals to scratch1
@@ -68,7 +73,7 @@ end do
 call contract(contrarray(iaddtyp2(l1)),contrarray(iaddtyp1(l2)),contrarray(iaddtyp4(l3)),contrarray(iaddtyp3(l4)),ncont,nprim, &
      scratch1,scratch2)
 do irun=1,nprod
-  cont4OO(nstart+irun-1) = cont4OO(nstart+irun-1)+0.25d0*scratch1(irun)
+  cont4OO(nstart+irun-1) = cont4OO(nstart+irun-1)+Quart*scratch1(irun)
 end do
 
 !bs copy primitive integrals to scratch1
@@ -80,7 +85,7 @@ end do
 call contract(contrarray(iaddtyp4(l1)),contrarray(iaddtyp1(l2)),contrarray(iaddtyp2(l3)),contrarray(iaddtyp3(l4)),ncont,nprim, &
               scratch1,scratch2)
 do irun=1,nprod
-  cont4OO(nstart+irun-1) = cont4OO(nstart+irun-1)+0.25d0*scratch1(irun)
+  cont4OO(nstart+irun-1) = cont4OO(nstart+irun-1)+Quart*scratch1(irun)
 end do
 
 return

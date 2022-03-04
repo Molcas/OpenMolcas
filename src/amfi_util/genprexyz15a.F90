@@ -11,10 +11,12 @@
 
 subroutine genprexyz15a(icheckxy,icheckz,interxyz)
 
-implicit real*8(a-h,o-z)
-dimension icheckxy(*), icheckz(*), interxyz(16,*)
+use Definitions, only: iwp
+
+implicit none
 #include "para.fh"
-#include "Molcas.fh"
+integer(kind=iwp) :: icheckxy(*), icheckz(*), interxyz(16,*)
+integer(kind=iwp) :: ilauf, irun, M1, M2, M3, M4
 
 !bs the following M values are the ones from the cartesian
 !bs linear combinations. interxyz gives the sign sequence

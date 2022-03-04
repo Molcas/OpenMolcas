@@ -12,9 +12,15 @@
 subroutine cartoneZ(L,Lmax,onecontr,ncontrac,MxcontL,onecartZ)
 !bs arranges the cartesian one-electron integrals for Z on a quadratic matrix
 
-implicit real*8(a-h,o-z)
-dimension onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: L, Lmax, ncontrac, MxcontL
+real(kind=wp) :: onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
+integer(kind=iwp) :: iaddr, icont, jcont, Mprime
 !Statement function
+integer(kind=iwp) :: ipnt, I, J
 ipnt(I,J) = (max(i,j)*(max(i,j)-1))/2+min(i,j)
 
 !bs - + Integrals    m || mprime     mprime=m
@@ -23,7 +29,7 @@ do Mprime=1,L
   do jcont=1,ncontrac
     do icont=1,ncontrac
       onecartZ(icont,jcont,iaddr) = onecartZ(icont,jcont,iaddr)+ &
-                                    0.5d0*(onecontr(icont,jcont,Mprime,2)-onecontr(icont,jcont,-Mprime,2))
+                                    Half*(onecontr(icont,jcont,Mprime,2)-onecontr(icont,jcont,-Mprime,2))
     end do
   end do
 end do

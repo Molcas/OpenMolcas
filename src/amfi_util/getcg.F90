@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function getCG(j1,j2,j3,m1,m2,m3)
+function getCG(j1,j2,j3,m1,m2,m3)
 !bs this routine calculates the Clebsch-Gordan-coefficients
 !bs by actually calculating the 3j-symbol
 !bs  ---                 ---
@@ -23,24 +23,32 @@ real*8 function getCG(j1,j2,j3,m1,m2,m3)
 !bs                             |                 |
 !bs                             |  m1   m2  -m3   |
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: getCG
+integer(kind=iwp) :: j1, j2, j3, m1, m2, m3
+integer(kind=iwp) :: idummy
+real(kind=wp) :: fac1, fac2, sgn
+real(kind=wp), external :: regge3j
 
 !bs initialize CG-coefficient
-getCG = 0d0
+getCG = Zero
 !bs quick check
 if (m1+m2 /= m3) return
 if ((j1 < 0) .or. (j2 < 0) .or. (j3 < 0)) return
 !bs check the correct sign    beginning
 idummy = (j1+j2+m1-m2)/2
 if (mod(idummy,2) == 0) then
-  isign = 1
+  sgn = One
 else
-  isign = -1
+  sgn = -One
 end if
 !bs check the correct sign    end
-fac1 = sqrt(dble(j3+1))
+fac1 = sqrt(real(j3+1,kind=wp))
 fac2 = regge3j(j1,j2,j3,m1,m2,-m3)
-getCG = dble(isign)*fac1*fac2
+getCG = sgn*fac1*fac2
 
 return
 

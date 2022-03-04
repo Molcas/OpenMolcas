@@ -8,22 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine contone(L,oneoverR3,onecontr,Lmax,contcoeff,nprim,ncont,MxcontL,dummy,onecartx,onecartY,onecartZ,charge,oneonly)
 !bs contracts one-electron integrals and multiplies with l,m-dependent
 !bs factors for L-,L0,L+
 
-implicit real*8(a-h,o-z)
-dimension oneoverR3(*), onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), contcoeff(nprim,ncont), dummy(ncont,ncont), &
-          onecartx(MxcontL,MxcontL, (Lmax+Lmax+1)*(Lmax+1)), onecarty(MxcontL,MxcontL, (Lmax+Lmax+1)*(Lmax+1)), &
-          onecartz(MxcontL,MxcontL, (Lmax+Lmax+1)*(Lmax+1))
-logical oneonly
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: L, Lmax, nprim, ncont, MxcontL
+real(kind=wp) :: oneoverR3(*), onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), contcoeff(nprim,ncont), dummy(ncont,ncont), &
+                 onecartx(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), onecarty(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), &
+                 onecartz(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), charge
+integer(kind=iwp) :: icont1, icont2, iprim1, iprim2, iprod, irun, jrun, M
+real(kind=wp) :: factor0, factormin, factorplus
+logical(kind=iwp) :: oneonly
 !Statement function
+integer(kind=iwp) :: ipnt, I, J
 ipnt(I,J) = (max(i,j)*(max(i,j)-1))/2+min(i,j)
 
 !bs first of all cleaning dummy and onecontr
 do jrun=1,ncont
   do irun=1,ncont
-    dummy(irun,jrun) = 0d0
+    dummy(irun,jrun) = Zero
   end do
 end do
 if (oneonly) then
@@ -51,9 +59,9 @@ do icont2=1,ncont
 end do
 !bs start to add l,m dependent factors
 do M=-L,L
-  factormin = sqrt(dble(L*L-M*M+L+M))
-  factor0 = dble(M)
-  factorplus = sqrt(dble(L*L-M*M+L-M))
+  factormin = sqrt(real(L*L-M*M+L+M,kind=wp))
+  factor0 = real(M,kind=wp)
+  factorplus = sqrt(real(L*L-M*M+L-M,kind=wp))
   do irun=1,ncont
     do jrun=1,ncont
       onecontr(irun,jrun,M,1) = dummy(jrun,irun)*factormin  ! L-minus

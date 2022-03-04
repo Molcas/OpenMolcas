@@ -12,4 +12,5 @@
 !bs   odd powers of  x y z in the real harmonics
 !bs   this is used to check whether integrals in the
 !bs   cartesian representation appear
+      integer ipowxyz
       common  /ipowxyz/ ipowxyz(3,-Lmax:Lmax,0:Lmax)

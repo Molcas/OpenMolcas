@@ -19,7 +19,10 @@
 !bs   6. B1U: (0,0,1)
 !bs   7. B2U: (0,1,0)
 !bs   8. B3U: (1,0,0)
-      integer ipow2ired,iredorder,incrLM,shiftIRED,shiftIRIR
+      integer numbofsym,ipow2ired,iredorder,iredorderinv,nfunctions,    &
+     &nfunctperIRED,incrLM,shiftIRED,iredLM,shiftIRIR,Loffunction,      &
+     &Moffunction,Iredoffunction,Iredoffunctnew,IRwithLX,IRwithLY,      &
+     &IRwithLZ,mult,itotalperIR,nmbMperIRL,numbofcart
       common /ireduceD2H/ numbofsym,                                    & ! number of symmetries
      &ipow2ired(0:1,0:1,0:1),                                           & ! gives IR by checking powers
      &iredorder(8),                                                     & ! maybe reordering  of IRs is necessary

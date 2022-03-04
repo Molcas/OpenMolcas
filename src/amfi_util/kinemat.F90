@@ -15,32 +15,26 @@ subroutine kinemat(ndim,evtkin,type1,type2,Energy)
 !bs The c in the second kinematic factor comes from Jan Almloef and
 !bs Odd Gropen in Rev in Comp.Chem. 8(1996)
 
-implicit real*8(a-h,o-z)
-parameter(fine=7.29735308D-03) !TO_BE_CHECKED
-!bs at least it's identical with Odd's valuE
-parameter(speed=1d0/fine)
-parameter(speed2=speed*speed)
-parameter(speed4=speed2*speed2)
-dimension evtkin(*), type1(*), type2(*), Energy(*)
+use Constants, only: Zero, One, Half, speed => cLightAU
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ndim
+real(kind=wp) :: evtkin(ndim), type1(ndim), type2(ndim), Energy(ndim)
+integer(kind=iwp) :: irun
+real(kind=wp), parameter :: fine = One/speed, speed2 = speed**2, speed4 = speed2**2
 
 ! E= sqrt(p**2 c**2 + m**2 c**4)
 ! p**2= 2*m*TKIN
 ! with m = 1
-do Irun=1,ndim
-  if (evtkin(Irun) < 0.0d0) call SysAbendMsg('kinemat','strange kinetic energy ',' ')
-  Energy(Irun) = (evtkin(Irun)+evtkin(Irun))*speed2+speed4
+do irun=1,ndim
+  if (evtkin(irun) < Zero) call SysAbendMsg('kinemat','strange kinetic energy ',' ')
+  Energy(irun) = sqrt((evtkin(irun)+evtkin(irun))*speed2+speed4)
 end do
-do Irun=1,ndim
-  Energy(Irun) = sqrt(energy(irun))
-end do
-do Irun=1,ndim
-  ! sqrt((E+mc^2)/(2E)):
-  type1(Irun) = sqrt(0.5d0*(1d0+speed2/Energy(Irun)))
-end do
+! sqrt((E+mc^2)/(2E)):
+type1(:) = sqrt(Half*(One+speed2/Energy(:)))
 ! c*A/(E+mc^2)
-do Irun=1,ndim
-  type2(Irun) = speed*type1(Irun)/(Energy(Irun)+speed2)
-end do
+type2(:) = speed*type1(:)/(Energy(:)+speed2)
 
 return
 

@@ -11,24 +11,17 @@
 
 subroutine genprexyz6(preY,preXZ)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp
+
+implicit none
 #include "para.fh"
-#include "Molcas.fh"
-dimension preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+real(kind=wp) :: preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 
 !bs ####################################################################
 !bs   prefactors preXZ und preY include the factors 1/root(2)
 !bs   for the +/- linear combinations of spherical harmonics
 !bs ####################################################################
-do M4=-Lmax,Lmax
-  do M3=-Lmax,Lmax
-    do M2=-Lmax,Lmax
-      do M1=-Lmax,Lmax
-        preY(m1,m2,m3,m4) = preXZ(m1,m2,m3,m4)
-      end do
-    end do
-  end do
-end do
+preY(:,:,:,:) = preXZ(:,:,:,:)
 
 return
 

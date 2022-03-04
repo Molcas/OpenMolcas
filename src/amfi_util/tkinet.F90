@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function Tkinet(l,alpha1,alpha2)
+function Tkinet(l,alpha1,alpha2)
 !bs calculates the matrix element of kinetic energy
 !bs for primitive normalized functions with the same angular momentum l
 !bs and exponents alpha1 and alpha2
@@ -23,14 +23,19 @@ real*8 function Tkinet(l,alpha1,alpha2)
 !bs with alpha12=0.5*(alpha1+alpha2)
 !bs as alpha12 has the dimensions 1/length**2, this can not be that bad...
 
-implicit real*8(a-h,o-z)
+use Constants, only: Half, Quart
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Tkinet
+integer(kind=iwp) :: l
+real(kind=wp) :: alpha1, alpha2
+real(kind=wp) :: Alpha12, alphpro
 
 !bs alpha12 is the effective exponent
-Alpha12 = 0.5d0*(alpha1+alpha2)
+Alpha12 = Half*(alpha1+alpha2)
 alphpro = alpha1*alpha2
-ll3 = l+l+3
-ll7 = l+l+7
-Tkinet = 0.5d0*alpha12*dble(ll3)*(alphpro/(alpha12*alpha12))**(0.25d0*dble(ll7))
+Tkinet = Half*alpha12*real(2*l+3,kind=wp)*(alphpro/(alpha12*alpha12))**(Quart*real(2*l+7,kind=wp))
 
 return
 

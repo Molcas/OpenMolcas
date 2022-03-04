@@ -8,14 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine contcasb2SO(l1,l2,l3,l4,nstart,primints,scratch1,scratch2,cont4SO)
 !bs contraction for powers (0)  with alpha3
 !bs this is one of the cases b in the documentation
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: l1, l2, l3, l4, nstart
+real(kind=wp) :: primints(*), scratch1(*), scratch2(*), cont4SO(*)
 #include "para.fh"
 #include "param.fh"
-dimension ncont(4), nprim(4), primints(*), scratch1(*), scratch2(*), cont4SO(*)
+integer(kind=iwp) :: ilength, IRUN, ncont(4), nprim(4), nprod
 
 ncont(1) = ncontrac(l1)
 ncont(2) = ncontrac(l2)

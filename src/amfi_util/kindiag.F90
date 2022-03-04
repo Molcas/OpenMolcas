@@ -12,9 +12,15 @@
 subroutine kindiag(TKIN,TKINTRIA,ndim,evec,eval,breit)
 !bs determines eigenvectors and -values of TKIN
 
-implicit real*8(a-h,o-z)
-dimension tkin(ndim,ndim), TKINTRIA((ndim*ndim+ndim)/2), eval(ndim), evec(ndim,ndim)
-logical breit
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ndim
+real(kind=wp) :: tkin(ndim,ndim), TKINTRIA(ndim*(ndim+1)/2), evec(ndim,ndim), eval(ndim)
+logical(kind=iwp) :: breit
+integer(kind=iwp) :: irun, irun1, irun2, itria, JRUN
+real(kind=wp) :: fact
 
 !bs move symmetric matrix to triangular matrix
 itria = 1
@@ -24,35 +30,28 @@ do irun2=1,ndim
     itria = itria+1
   end do
 end do
-do irun2=1,ndim
-  do irun1=1,ndim
-    evec(irun1,irun2) = 0d0
-  end do
-end do
+evec(:,:) = Zero
 do irun1=1,ndim
-  evec(irun1,irun1) = 1d0
+  evec(irun1,irun1) = One
 end do
 !bs now diagonalize
 call Jacob(TKINTRIA,evec,ndim,ndim)
 !bs get the eigenvalues
-do irun=1,ndim
-  eval(irun) = TKINTRIA((irun*irun+irun)/2)
-end do
 if (breit) then
+  eval(:) = Zero
+else
   do irun=1,ndim
-    eval(irun) = 0d0
+    eval(irun) = TKINTRIA(irun*(irun+1)/2)
   end do
 end if
 !bs ensure normalization of the vectors.
 do IRUN=1,ndim
-  fact = 0d0
+  fact = Zero
   do JRUN=1,ndim
     fact = fact+evec(JRUN,IRUN)*evec(JRUN,IRUN)
   end do
-  fact = 1d0/sqrt(fact)
-  do JRUN=1,ndim
-    evec(JRUN,IRUN) = fact*evec(JRUN,IRUN)
-  end do
+  fact = One/sqrt(fact)
+  evec(:,IRUN) = fact*evec(:,IRUN)
 end do
 
 return

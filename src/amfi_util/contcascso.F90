@@ -8,14 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine contcascSO(l1,l2,l3,l4,nstart,primints,scratch1,scratch2,cont4SO)
 !bs contraction for powers (-2)  with factor 1
 !bs this is case c in the documentation
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: l1, l2, l3, l4, nstart
+real(kind=wp) :: primints(*), scratch1(*), scratch2(*), cont4SO(*)
 #include "para.fh"
 #include "param.fh"
-dimension ncont(4), nprim(4), primints(*), scratch1(*), scratch2(*), cont4SO(*)
+integer(kind=iwp) :: ilength, IRUN, ncont(4), nprim(4), nprod
 
 ncont(1) = ncontrac(l1)
 ncont(2) = ncontrac(l2)

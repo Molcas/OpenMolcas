@@ -11,11 +11,13 @@
 
 subroutine genprexyz13(icheckxy)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "para.fh"
-#include "Molcas.fh"
-integer mcheckxy
-dimension icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax)
+integer(kind=iwp) :: icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax)
+integer(kind=iwp) :: M1, M2, M3, M4
+integer(kind=iwp), external :: mcheckxy
 
 !bs ####################################################################
 !bs   some quick decision for interaction

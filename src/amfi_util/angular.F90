@@ -23,20 +23,27 @@ subroutine angular(Lhigh,keep,makemean,bonn,breit,sameorb,ifinite,onecartx,oneca
 !bs in order not to waste to much memory, the atomic
 !bs integrals are thrown away after each l,l,l,l-block
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "para.fh"
+integer(kind=iwp) :: Lhigh, ifinite, icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax), icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), &
+                     interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax), isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+logical(kind=iwp) :: keep, makemean, bonn, breit, sameorb
+real(kind=wp) :: onecartX(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), onecartY(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), &
+                 onecartZ(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), &
+                 coulovlp(*), preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 #include "param.fh"
-#include "Molcas.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: ConOO(:), ConSO(:), CartOO(:), CartSO(:), AngOO(:), AngSO(:)
-logical keep, makemean, bonn, breit, sameorb, cleaner, NFINI
+integer(kind=iwp) :: iangfirst, icont4, indx, indy, indz, inter2, inter3, inter4, jblock, l1, l2, l3, l4, Lleftmax, Lleftmin, &
+                     locstar, Lrightmax, Lrightmin, M1, m1upper, M2, m2upper, M3, M4, mblock, mblockx, mblocky, mblockz, mxangint, &
+                     ncont, numbcart
+logical(kind=iwp) :: cleaner, NFINI
+real(kind=wp), allocatable :: ConOO(:), ConSO(:), CartOO(:), CartSO(:), AngOO(:), AngSO(:)
 !bs NFINI means not finite nucleus
-dimension onecartX(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), onecartY(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), &
-          onecartZ(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), &
-          coulovlp(*), preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), &
-          icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax), icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax), &
-          isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 !Statement function
+integer(kind=iwp) :: ipnt, I, J
 ipnt(i,j) = (max(i,j)*max(i,j)-max(i,j))/2+min(i,j)
 
 !bs ####################################################################
@@ -46,9 +53,9 @@ ipnt(i,j) = (max(i,j)*max(i,j)-max(i,j))/2+min(i,j)
 call prefac(Lmax,preroots,clebsch)
 if (ifinite /= 2) then
   !bs clean array for one electron integrals
-  onecartX(:,:,:,:) = 0.0d0
-  onecartY(:,:,:,:) = 0.0d0
-  onecartZ(:,:,:,:) = 0.0d0
+  onecartX(:,:,:,:) = Zero
+  onecartY(:,:,:,:) = Zero
+  onecartZ(:,:,:,:) = Zero
   NFINI = .true.
 else
   NFINI = .false.
@@ -122,7 +129,7 @@ numbcart = 0
 !bs other orbit integrals  on carteXOO carteYOO and carteOO
 iangfirst = 0 ! first block of angular integrals
 !bs loop over all possible < l1 l2, l3 l4 > blocks
-!BS write(6,'(A)') '   L1   L2   L3   L4'
+!BS write(u6,'(A)') '   L1   L2   L3   L4'
 do l1=0,Lhigh   ! improving is probably possible...
   do l2=0,Lhigh
     do l3=0,l1
@@ -140,7 +147,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                 !bs additional check for mean-field
             if (((l1 == l3) .and. (l2 == l4)) .or. ((l1 == l2) .and. (l3 == l4))) then
               if (l1+l3 /= 0) then
-                !BS write(6,'(4I5)') l1,l2,l3,l4
+                !BS write(u6,'(4I5)') l1,l2,l3,l4
                 !BS now I determine the size of the angular integral arrays
                 jblock = 0
                 do m1=-l1,l1
@@ -221,8 +228,8 @@ do l1=0,Lhigh   ! improving is probably possible...
                           mcombina(1,m1,m2,m3,m4) = 1
                           mblock = mblock+1
                           if (locstar+ncont > mxangint) then
-                            write(6,*) 'not enough space allocated for angular integrals'
-                            write(6,*) 'increase mxangint to at least ',locstar+ncont
+                            write(u6,*) 'not enough space allocated for angular integrals'
+                            write(u6,*) 'increase mxangint to at least ',locstar+ncont
                             call Abend()
                           end if
                           !bs mkangLmin = make_angular_integrals_for_L- type operator
@@ -270,8 +277,8 @@ do l1=0,Lhigh   ! improving is probably possible...
                             mcombina(1,m1,m2,m3,m4) = 2
                             mblock = mblock+1
                             if (locstar+ncont > mxangint) then
-                              write(6,*) 'not enough space allocated for angular integrals'
-                              write(6,*) 'increase mxangint to at least ',locstar+ncont
+                              write(u6,*) 'not enough space allocated for angular integrals'
+                              write(u6,*) 'increase mxangint to at least ',locstar+ncont
                               call Abend()
                             end if
                             call mkangL0(Lmax,l1,l2,l3,l4,m1,m2,m3,m4,angSO(1+locstar),AngOO(1+locstar),Lfirst(1),Llast(1), &
@@ -625,9 +632,9 @@ do l1=0,Lhigh   ! improving is probably possible...
                 numbcart = numbcart+(mblockx+mblocky+mblockz)*ncont
                 !bs just controlling if x and y integrals have the same number of blocks
                 if (mblockx /= mblocky) then
-                  write(6,*) 'numbers of integrals for sigma_x and sigma_y not equal!'
-                  write(6,'(A12,4I3,2(A3,I5))') 'l1,l2,l3,l4 ',l1,l2,l3,l4,' X:',mblockx,' Y:',mblocky
-                  write(6,*) ' check the ipowxyz-array'
+                  write(u6,*) 'numbers of integrals for sigma_x and sigma_y not equal!'
+                  write(u6,'(A12,4I3,2(A3,I5))') 'l1,l2,l3,l4 ',l1,l2,l3,l4,' X:',mblockx,' Y:',mblocky
+                  write(u6,*) ' check the ipowxyz-array'
                   call Abend()
                 end if
                 !bs start adresses for the next <ll|ll> block of integrals

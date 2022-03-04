@@ -10,11 +10,18 @@
 !***********************************************************************
 
 subroutine gentkin(L,TKIN,nprims,exponents,rootOVLPinv)
-!bs   subroutine to generate the kinetic energy
+!bs subroutine to generate the kinetic energy
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: L, nprims
 #include "para.fh"
-dimension TKIN(nprims,nprims), exponents(*), dummy(MxprimL,MxprimL), dummy2(MxprimL,MxprimL), rootOVLPinv(MxprimL,MxprimL)
+real(kind=wp) :: TKIN(nprims,nprims), exponents(*), rootOVLPinv(MxprimL,MxprimL)
+integer(kind=iwp) :: irun, irun1, irun2, jrun, krun
+real(kind=wp) :: dummy(MxprimL,MxprimL), dummy2(MxprimL,MxprimL) !IFG
+real(kind=wp), external :: Tkinet
 
 !bs one triangular part of the matrix
 do irun2=1,nprims
@@ -31,8 +38,8 @@ end do
 !bs now transform by rootovlp*dummy*rootovlp
 do jrun=1,nprims
   do irun=1,nprims
-    TKIN(irun,jrun) = 0d0
-    dummy2(irun,jrun) = 0d0
+    TKIN(irun,jrun) = Zero
+    dummy2(irun,jrun) = Zero
   end do
 end do
 do irun=1,nprims

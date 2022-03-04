@@ -10,14 +10,19 @@
 !***********************************************************************
 
 subroutine daxpint(from,to,fact,ndim1,ndim2,ndim3,ndim4)
-
-implicit real*8(a-h,o-z)
 !bs subroutine similar to daxpy with interchange of two indices
 !bs change from physicists notation to chemists notaion
 !bs to(i,j,k,l)=to(i,j,k,l)+fact*from(i,k,j,l)
-dimension from(ndim1,ndim2,ndim3,ndim4), to(ndim1,ndim3,ndim2,ndim4)
 
-if (fact == 0d0) return
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ndim1, ndim2, ndim3, ndim4
+real(kind=wp) :: from(ndim1,ndim2,ndim3,ndim4), to(ndim1,ndim3,ndim2,ndim4), fact
+integer(kind=iwp) :: irun1, irun2, irun3, irun4
+
+if (fact == Zero) return
 do irun4=1,ndim4
   do irun3=1,ndim3
     do irun2=1,ndim2

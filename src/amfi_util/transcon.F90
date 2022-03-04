@@ -11,10 +11,16 @@
 
 subroutine transcon(contold,idim1,idim2,ovlp,contnew,nprim,ncont)
 
-implicit real*8(a-h,o-z)
-dimension contold(idim1,idim2), contnew(nprim,ncont),ovlp(idim1,idim1)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-!write(6,*) 'begin transcon nprim,ncont ',nprim,ncont
+implicit none
+integer(kind=iwp) :: idim1, idim2, nprim, ncont
+real(kind=wp) :: contold(idim1,idim2), ovlp(idim1,idim1), contnew(nprim,ncont)
+integer(kind=iwp) :: ICONT, Irun, Jrun
+real(kind=wp) :: xnorm
+
+!write(u6,*) 'begin transcon nprim,ncont ',nprim,ncont
 !bs copy old contraction coefficients in dense form to common block
 do Jrun=1,ncont
   do Irun=1,nprim
@@ -23,21 +29,21 @@ do Jrun=1,ncont
 end do
 !bs ensure normalization
 do ICONT=1,ncont
-  xnorm = 0d0
+  xnorm = Zero
   do Jrun=1,nprim
     do Irun=1,nprim
       xnorm = xnorm+contnew(Irun,ICONT)*contnew(Jrun,ICONT)*ovlp(Irun,Jrun)
-      !write(6,*) 'Icont,jrun,irun,xnorm ',icont,jrun,irun,xnorm
+      !write(u6,*) 'Icont,jrun,irun,xnorm ',icont,jrun,irun,xnorm
     end do
   end do
-  !write(6,*) 'ICONT ',ICONT,xnorm
-  xnorm = 1d0/sqrt(xnorm)
+  !write(u6,*) 'ICONT ',ICONT,xnorm
+  xnorm = One/sqrt(xnorm)
   !bs scale with normalization factor
   do Irun=1,nprim
     contnew(Irun,ICONT) = xnorm*contnew(Irun,ICONT)
   end do
 end do
-!write(6,*) 'end transcon nprim,ncont ',nprim,ncont
+!write(u6,*) 'end transcon nprim,ncont ',nprim,ncont
 
 return
 

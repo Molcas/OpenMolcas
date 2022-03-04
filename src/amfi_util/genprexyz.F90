@@ -11,24 +11,18 @@
 
 subroutine genprexyz(preXZ)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Quart
+use Definitions, only: wp
+
+implicit none
 #include "para.fh"
-#include "Molcas.fh"
-dimension preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+real(kind=wp) :: preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 
 !bs ####################################################################
 !bs   prefactors preXZ und preY include the factors 1/root(2)
 !bs   for the +/- linear combinations of spherical harmonics
 !bs ####################################################################
-do M4=-Lmax,Lmax
-  do M3=-Lmax,Lmax
-    do M2=-Lmax,Lmax
-      do M1=-Lmax,Lmax
-        preXZ(m1,m2,m3,m4) = 0.25d0
-      end do
-    end do
-  end do
-end do
+preXZ(:,:,:,:) = Quart
 
 return
 

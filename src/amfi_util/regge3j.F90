@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function regge3j(j1,j2,j3,m1,m2,m3)
+function regge3j(j1,j2,j3,m1,m2,m3)
 !bs uses magic square of regge (see Lindner pp. 38-39)
 !bs
 !bs  ---                                            ---
@@ -24,73 +24,78 @@ real*8 function regge3j(j1,j2,j3,m1,m2,m3)
 !bs |                                                  |
 !bs  ---                                            ---
 
-implicit real*8(a-h,o-z)
-dimension MAT(3,3)
-!BS logical testup,testdown
-integer facul, prim, nprim, iwork
-parameter(nprim=11,mxLinRE=36)
-!bs nprim is the number of prime-numbers
-dimension facul(nprim,0:mxLinRE), prim(nprim), iwork(nprim), ihigh(0:mxLinRE)
-data prim/2,3,5,7,11,13,17,19,23,29,31/        !prime numbers
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: regge3j
+integer(kind=iwp) :: j1, j2, j3, m1, m2, m3
+integer(kind=iwp), parameter :: mxLinRE = 36, nprim = 11
+integer(kind=iwp) :: I, ibm, icheck, Icoeff, ICOL, Icount, Idenom, IDUMMY, IFIRST, imaxi, imini, IROW, ISECOND, Isigma, Isgn, &
+                     isum, iwork(nprim), J, LIMIT, MAT(3,3)
+real(kind=wp) :: down, factor, up
+!BS logical(kind=iwp) :: testup,testdown
 ! decompose facultatives into powers of prime numbers
-data facul /0,0,0,0,0,0,0,0,0,0,0,   &
-            0,0,0,0,0,0,0,0,0,0,0,   &
-            1,0,0,0,0,0,0,0,0,0,0,   &
-            1,1,0,0,0,0,0,0,0,0,0,   &
-            3,1,0,0,0,0,0,0,0,0,0,   &
-            3,1,1,0,0,0,0,0,0,0,0,   &
-            4,2,1,0,0,0,0,0,0,0,0,   &
-            4,2,1,1,0,0,0,0,0,0,0,   &
-            7,2,1,1,0,0,0,0,0,0,0,   &
-            7,4,1,1,0,0,0,0,0,0,0,   &
-            8,4,2,1,0,0,0,0,0,0,0,   &
-            8,4,2,1,1,0,0,0,0,0,0,   &
-            10,5,2,1,1,0,0,0,0,0,0,  &
-            10,5,2,1,1,1,0,0,0,0,0,  &
-            11,5,2,2,1,1,0,0,0,0,0,  &
-            11,6,3,2,1,1,0,0,0,0,0,  &
-            15,6,3,2,1,1,0,0,0,0,0,  &
-            15,6,3,2,1,1,1,0,0,0,0,  &
-            16,8,3,2,1,1,1,0,0,0,0,  &
-            16,8,3,2,1,1,1,1,0,0,0,  &
-            18,8,4,2,1,1,1,1,0,0,0,  &
-            18,9,4,3,1,1,1,1,0,0,0,  &
-            19,9,4,3,2,1,1,1,0,0,0,  &
-            19,9,4,3,2,1,1,1,1,0,0,  &
-            22,10,4,3,2,1,1,1,1,0,0, &
-            22,10,6,3,2,1,1,1,1,0,0, &
-            23,10,6,3,2,2,1,1,1,0,0, &
-            23,13,6,3,2,2,1,1,1,0,0, &
-            25,13,6,4,2,2,1,1,1,0,0, &
-            25,13,6,4,2,2,1,1,1,1,0, &
-            26,14,7,4,2,2,1,1,1,1,0, &
-            26,14,7,4,2,2,1,1,1,1,1, &
-            31,14,7,4,2,2,1,1,1,1,1, &
-            31,15,7,4,3,2,1,1,1,1,1, &
-            32,15,7,4,3,3,1,1,1,1,1, &
-            32,15,8,5,3,3,1,1,1,1,1, &
-            34,17,8,5,3,3,1,1,1,1,1  &
-           /
-data ihigh /0,0,1,2,2,3,3,4,4,4,4,5,5,6,6,6,6,7,7,8,8,8,8,9,9,9,9,9,9,10,10,11,11,11,11,11,11/
+integer(kind=iwp), parameter :: facul(nprim,0:mxLinRE) = reshape([0,0,0,0,0,0,0,0,0,0,0,   &
+                                                                  0,0,0,0,0,0,0,0,0,0,0,   &
+                                                                  1,0,0,0,0,0,0,0,0,0,0,   &
+                                                                  1,1,0,0,0,0,0,0,0,0,0,   &
+                                                                  3,1,0,0,0,0,0,0,0,0,0,   &
+                                                                  3,1,1,0,0,0,0,0,0,0,0,   &
+                                                                  4,2,1,0,0,0,0,0,0,0,0,   &
+                                                                  4,2,1,1,0,0,0,0,0,0,0,   &
+                                                                  7,2,1,1,0,0,0,0,0,0,0,   &
+                                                                  7,4,1,1,0,0,0,0,0,0,0,   &
+                                                                  8,4,2,1,0,0,0,0,0,0,0,   &
+                                                                  8,4,2,1,1,0,0,0,0,0,0,   &
+                                                                  10,5,2,1,1,0,0,0,0,0,0,  &
+                                                                  10,5,2,1,1,1,0,0,0,0,0,  &
+                                                                  11,5,2,2,1,1,0,0,0,0,0,  &
+                                                                  11,6,3,2,1,1,0,0,0,0,0,  &
+                                                                  15,6,3,2,1,1,0,0,0,0,0,  &
+                                                                  15,6,3,2,1,1,1,0,0,0,0,  &
+                                                                  16,8,3,2,1,1,1,0,0,0,0,  &
+                                                                  16,8,3,2,1,1,1,1,0,0,0,  &
+                                                                  18,8,4,2,1,1,1,1,0,0,0,  &
+                                                                  18,9,4,3,1,1,1,1,0,0,0,  &
+                                                                  19,9,4,3,2,1,1,1,0,0,0,  &
+                                                                  19,9,4,3,2,1,1,1,1,0,0,  &
+                                                                  22,10,4,3,2,1,1,1,1,0,0, &
+                                                                  22,10,6,3,2,1,1,1,1,0,0, &
+                                                                  23,10,6,3,2,2,1,1,1,0,0, &
+                                                                  23,13,6,3,2,2,1,1,1,0,0, &
+                                                                  25,13,6,4,2,2,1,1,1,0,0, &
+                                                                  25,13,6,4,2,2,1,1,1,1,0, &
+                                                                  26,14,7,4,2,2,1,1,1,1,0, &
+                                                                  26,14,7,4,2,2,1,1,1,1,1, &
+                                                                  31,14,7,4,2,2,1,1,1,1,1, &
+                                                                  31,15,7,4,3,2,1,1,1,1,1, &
+                                                                  32,15,7,4,3,3,1,1,1,1,1, &
+                                                                  32,15,8,5,3,3,1,1,1,1,1, &
+                                                                  34,17,8,5,3,3,1,1,1,1,1  &
+                                                                 ],shape(facul)), &
+                                ihigh(0:mxLinRE) = [0,0,1,2,2,3,3,4,4,4,4,5,5,6,6,6,6,7,7,8,8,8,8,9,9,9,9,9,9,10,10,11,11,11,11, &
+                                                    11,11], &
+                                prim(nprim) = [2,3,5,7,11,13,17,19,23,29,31]        !prime numbers
 !bs facul,   integer array (nprim,0:mxLinRE) prime-expansion of factorials
 !bs mxLinRE, integer max. number for facul is given
 !bs nprim,   number of primes for expansion of factorials
 !bs prim,    integer array with the first nprim prime numbers
 !bs iwork)   integer array of size nprim
 
-regge3j = 0d0
-!write(6,'(A24,6I3)') '3J to be calculated for ',j1,j2,j3,m1,m2,m3
+regge3j = Zero
+!write(u6,'(A24,6I3)') '3J to be calculated for ',j1,j2,j3,m1,m2,m3
 !bs quick check  if =/= 0 at all
 icheck = m1+m2+m3
 if (icheck /= 0) then
-  !write(6,*) 'sum over m =/= 0'
+  !write(u6,*) 'sum over m =/= 0'
   return
 end if
 !bs check triangular relation (|j1-j2|<= j3 <= j1+j2 )
 imini = abs(j1-j2)
 imaxi = j1+j2
 if ((j3 < imini) .or. (j3 > imaxi)) then
-  !write(6,*) 'triangular relation not fulfilled'
+  !write(u6,*) 'triangular relation not fulfilled'
   return
 end if
 !bs quick check  if =/= 0 at all  end
@@ -111,7 +116,7 @@ do I=1,3
   do J=1,3
     !bs check for even numbers (2*integer) and positive or zero
     if ((mod(MAT(J,I),2) /= 0) .or. (MAT(J,I) < 0)) then
-      !write(6,*) 'J,I,MAT(J,I): ',J,I,MAT(J,I)
+      !write(u6,*) 'J,I,MAT(J,I): ',J,I,MAT(J,I)
       return
     end if
     MAT(J,I) = MAT(J,I)/2
@@ -128,14 +133,14 @@ do I=1,3
     ICOL = ICOL+MAT(J,I)
   end do
   if ((IROW /= Isigma) .or. (ICOL /= Isigma)) then
-    !write(6,*) 'I,IROW,ICOL ',I,IROW,ICOL
+    !write(u6,*) 'I,IROW,ICOL ',I,IROW,ICOL
     return
   end if
 end do
 !bs if j1+j2+j3 is odd: check for equal rows or columns
-Isign = 1
+Isgn = 1
 if (abs(mod(Isigma,2)) == 1) then
-  isign = -1
+  isgn = -1
   do I=1,3
     do J=I+1,3
       if ((MAT(1,I) == MAT(1,J)) .and. (MAT(2,I) == MAT(2,J)) .and. (MAT(3,I) == MAT(3,J))) return
@@ -156,12 +161,12 @@ do I=1,3
     end if
   end do
 end do
-!write(6,*) 'Matrix before commuting vectors'
+!write(u6,*) 'Matrix before commuting vectors'
 do ibm=1,3
-!write(6,'(3I5)') (Mat(ibm,j),j=1,3)
+!write(u6,'(3I5)') (Mat(ibm,j),j=1,3)
 end do
 if (IFIRST /= 1) then  !interchange rows
-  !write(6,*) 'IFIRST = ',ifirst
+  !write(u6,*) 'IFIRST = ',ifirst
   do I=1,3
     IDUMMY = MAT(1,I)
     MAT(1,I) = MAT(IFIRST,I)
@@ -169,7 +174,7 @@ if (IFIRST /= 1) then  !interchange rows
   end do
 end if
 if (ISECOND /= 1) then  !interchange columns
-  !write(6,*) 'ISECOND = ',isecond
+  !write(u6,*) 'ISECOND = ',isecond
   do I=1,3
     IDUMMY = MAT(I,1)
     MAT(I,1) = MAT(I,ISECOND)
@@ -177,9 +182,9 @@ if (ISECOND /= 1) then  !interchange columns
   end do
 end if
 !bs lowest element is now on (1,1)
-!write(6,*) 'Matrix after commuting vectors'
+!write(u6,*) 'Matrix after commuting vectors'
 !do ibm=1,3
-!  write(6,'(3I5)') (Mat(ibm,j),j=1,3)
+!  write(u6,'(3I5)') (Mat(ibm,j),j=1,3)
 !end do
 !bs begin to calculate Sum over s_n
 !bs first the simple cases
@@ -207,9 +212,9 @@ else !  all the cases with Mat(1,1) >= 3
   end do
 end if
 !bs additional sign from interchanging rows or columns
-if (ifirst /= 1) isum = isum*isign
-if (isecond /= 1) isum = isum*isign
-!write(6,*) 'isum = ',isum
+if (ifirst /= 1) isum = isum*isgn
+if (isecond /= 1) isum = isum*isgn
+!write(u6,*) 'isum = ',isum
 !bs Mat(2,3)+Mat(3,2)
 !bs (-)
 if (abs(mod((Mat(2,3)+Mat(3,2)),2)) == 1) isum = -isum
@@ -219,8 +224,8 @@ do I=1,LIMIT
   iwork(I) = facul(I,Mat(1,2))+facul(I,Mat(2,1))+facul(I,Mat(3,1))+facul(I,Mat(1,3))-facul(I,Mat(1,1))-facul(I,Mat(2,2))- &
              facul(I,Mat(3,3))-facul(I,(Isigma+1))-facul(I,Mat(2,3))-facul(I,Mat(3,2))
 end do
-!write(6,*) 'Iwork: ',(iwork(i),i=1,LIMIT)
-factor = 1d0
+!write(u6,*) 'Iwork: ',(iwork(i),i=1,LIMIT)
+factor = One
 !bs iup = 1
 !BS idown = 1
 !BS testup = .true.
@@ -231,12 +236,12 @@ factor = 1d0
 !BS     if (iup < 0) testup = .false. !check for Integer overflow
 !BS   end do
 !BS end do
-!BS up = dble(iup)
+!BS up = real(iup,kind=wp)
 !BS if  (.not. testup) then ! if the integers did not run correctly
-up = 1d0
+up = One
 do I=1,LIMIT
   do J=1,iwork(I)
-    up = up*dble(prim(i))
+    up = up*real(prim(i),kind=wp)
   end do
 end do
 !BS endif
@@ -246,22 +251,22 @@ end do
 !BS     if (idown < 0) testdown = .false.
 !BS   end do
 !BS end do
-!BS down = dble(idown)
+!BS down = real(idown,kind=wp)
 !BS if (.not. testdown) then
-down = 1d0
+down = One
 do I=1,LIMIT
   do J=1,-iwork(I)
-    down = down*dble(prim(i))
+    down = down*real(prim(i),kind=wp)
   end do
 end do
 !BS endif
 !if (.not. (testup .and. testdown)) then
-!  write(6,*) 'j1,j2,j3,m1,m2,m3 ',j1,j2,j3,m1,m2,m3
-!  write(6,*) 'iup,idown ',iup,idown,'up,down ',up,down
+!  write(u6,*) 'j1,j2,j3,m1,m2,m3 ',j1,j2,j3,m1,m2,m3
+!  write(u6,*) 'iup,idown ',iup,idown,'up,down ',up,down
 !end if
 factor = factor*up/down
 !bs final result
-regge3j = sqrt(factor)*dble(isum)
+regge3j = sqrt(factor)*real(isum,kind=wp)
 
 return
 

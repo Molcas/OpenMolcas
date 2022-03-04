@@ -15,11 +15,15 @@ subroutine cont(L,breit,ifinite)
 !bs   with angular momentum L
 !bs ####################################################################
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: L, ifinite
+logical(kind=iwp) :: breit
 #include "para.fh"
 #include "param.fh"
-dimension tkintria((MxprimL*MxprimL+MxprimL)/2)
-logical breit, breit_finite
+real(kind=wp) :: tkintria((MxprimL*MxprimL+MxprimL)/2) !IFG
+logical(kind=iwp) :: breit_finite
 
 breit_finite = .true.
 !bs transcon transfers and normalizes contracted functions

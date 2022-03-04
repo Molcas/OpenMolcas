@@ -11,23 +11,19 @@
 
 subroutine genprexyz5(preXZ)
 
-implicit real*8(a-h,o-z)
-#include "para.fh"
-#include "Molcas.fh"
-dimension preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+use Constants, only: Two
+use Definitions, only: wp
 
-roottwo = sqrt(2d0)
+implicit none
+#include "para.fh"
+real(kind=wp) :: preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+real(kind=wp), parameter :: roottwo = sqrt(Two)
+
 !bs ####################################################################
 !bs   prefactors preXZ und preY include the factors 1/root(2)
 !bs   for the +/- linear combinations of spherical harmonics
 !bs ####################################################################
-do M3=-Lmax,Lmax
-  do M2=-Lmax,Lmax
-    do M1=-Lmax,Lmax
-      preXZ(0,m1,m2,m3) = preXZ(0,m1,m2,m3)*roottwo
-    end do
-  end do
-end do
+preXZ(0,:,:,:) = preXZ(0,:,:,:)*roottwo
 
 return
 

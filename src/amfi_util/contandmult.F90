@@ -11,19 +11,25 @@
 
 subroutine contandmult(Lhigh,AIMP,oneonly,numballcart,LUPROP,ifinite,onecart,onecontr,oneoverR3,iCenter)
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "para.fh"
+integer(kind=iwp) :: Lhigh, numballcart, LUPROP, ifinite, iCenter
+logical(kind=iwp) :: AIMP, oneonly
+real(kind=wp) :: onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3), onecontr(mxcontL,MxcontL,-Lmax:Lmax,3,Lmax), &
+                 oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
 #include "param.fh"
 #include "ired.fh"
-#include "Molcas.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Dummy(:), OCA(:,:), OCA2(:,:), OCA3(:,:)
-logical AIMP, oneonly
-character*8 xa, ya, za
-dimension xa(4), ya(4), za(4), onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3), &
-          onecontr(mxcontL,MxcontL,-Lmax:Lmax,3,Lmax), oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
 #include "nucleus.fh"
+integer(kind=iwp) :: icartfirst, icartsec, ind1, ind2, ipntnew, ipntold, ipowx, ipowy, ipowz, ired1, ired2, iredfirst, iredired, &
+                     iredsec, irun, irun1, irun2, L, length3, Lrun, Mfirst, mrun, Msec, norb1, norb2, norbsh1, norbsh2
+character(len=8) :: xa(4), ya(4), za(4)
+real(kind=wp), allocatable :: Dummy(:), OCA(:,:), OCA2(:,:), OCA3(:,:)
 !Statement function
+integer(kind=iwp) :: IPNT, I, J
 IPNT(I,J) = (J*J-J)/2+I
 
 !bs get back the real number of functions for the finite nucleus
@@ -51,9 +57,9 @@ length3 = (numbalLcart*numbalLcart+numbalLcart)/2
 call mma_allocate(OCA,Length3,3,Label='OCA')
 call mma_allocate(OCA2,Length3,3,Label='OCA2')
 call mma_allocate(Dummy,MxContL**2,Label='Dummy')
-Dummy(:) = 0.0d0
-OCA(:,:) = 0.0d0
-OCA2(:,:) = 0.0d0
+Dummy(:) = Zero
+OCA(:,:) = Zero
+OCA2(:,:) = Zero
 
 !bs one-electron-integrals:
 !bs 1. index: number of first contracted function
@@ -65,7 +71,7 @@ OCA2(:,:) = 0.0d0
 !bs onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3)
 
 !bs generate one-electron integrals for all L greater/equal 1
-if (ifinite == 2) charge = 0d0 ! nuclear integrals are modelled for finite nucleus somewhere else
+if (ifinite == 2) charge = Zero ! nuclear integrals are modelled for finite nucleus somewhere else
 do L=1,Lhigh
   call contone(L,oneoverr3(1,L),onecontr(1,1,-Lmax,1,L),Lmax,contrarray(iaddtyp3(L)),nprimit(L),ncontrac(L),MxcontL,Dummy, &
                onecart(1,1,1,L,1),onecart(1,1,1,L,2),onecart(1,1,1,L,3),charge,oneonly)
@@ -182,8 +188,8 @@ do norb2=1,numballcarT
 end do
 if (.not. AIMP) then
   ! write a hermit-like file   b.s. 4.10.96
-  !BS write(6,*) 'number of orbitals ',numbalLcarT
-  !BS write(6,*) 'length of triangular matrix ', length3
+  !BS write(u6,*) 'number of orbitals ',numbalLcarT
+  !BS write(u6,*) 'length of triangular matrix ', length3
   !BS This was removed and will be done in SEWARD
   !BS open(LUPROP,status='UNKNOWN',form='UNFORMATTED',file='AOPROPER_MF')
   !BS rewind(LUPROP)
@@ -198,12 +204,12 @@ if (.not. AIMP) then
   !BS close(luprop)
 else
   !bs reorder for AIMP
-  !bs write(6,*) 'reorder integrals for AIMP'
+  !bs write(u6,*) 'reorder integrals for AIMP'
   length3 = ikeeporb*(ikeeporb+1)/2
   call mma_allocate(OCA3,length3,3,Label='OCA3')
-  OCA3(:,:) = 0.0d0
-  !bs write(6,*) 'number of orbitals ',ikeeporb
-  !bs write(6,*) 'length of triangular matrix ', length3
+  OCA3(:,:) = Zero
+  !bs write(u6,*) 'number of orbitals ',ikeeporb
+  !bs write(u6,*) 'length of triangular matrix ', length3
   do irun2=1,ikeeporb
     do irun1=1,irun2
       ind2 = ikeeplist(irun2)
@@ -216,7 +222,7 @@ else
       oca3(ipntnew,3) = oca2(ipntold,3)
     end do
   end do
-  !BS write(6,*) 'transfered to new blocks'
+  !BS write(u6,*) 'transfered to new blocks'
   !BS Luprop = 19
   !BS open(LUPROP,status='UNKNOWN',form='UNFORMATTED',file='AOPROPER_MF')
   !BS rewind(LUPROP)

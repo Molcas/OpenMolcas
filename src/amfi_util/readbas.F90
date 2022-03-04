@@ -9,33 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ReadBas(Lhigh,makemean,bonn,breit,symmetry,sameorb,AIMP,oneonly,ncont4,numballcart,IN,ifinite)
+subroutine ReadBas(Lhigh,makemean,bonn,breit,symmetry,sameorb,AIMP,oneonly,ncont4,numballcart,LUIN,ifinite)
 ! Suposed to read the maximum of l-values, the number of primitive and
 ! contracted functions, the exponents and contraction coefficients
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: Lhigh, ncont4, numballcart, LUIN, ifinite
+logical(kind=iwp) :: MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly
+character(len=4) :: Symmetry
 #include "para.fh"
 #include "param.fh"
 #include "ired.fh"
-#include "Molcas.fh"
-#include "stdalloc.fh"
-integer, allocatable :: nOff(:,:)
-character*4 Word
-character*4 Symmetry
-#ifdef _DEBUGPRINT_
-character*21 chCharge
-#endif
-character*54 Stars
-logical MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly, IfTest
 #include "nucleus.fh"
-integer OUT, iBeginIRed(8), iDelperSym(8)
-data IfTest/.false./
+integer(kind=iwp) :: I, iBeginIRed(8), icart, iDelperSym(8), ILINE, inired, iorbrun, ired, ired1, ired2, iredrun, Irun, ishifter, &
+                     isum, itype, JRUN, lDel, Lrun, Lval, mRun, nmax, nsym, nsymrun, numbprev, numbr
+character(len=54) :: Stars
+character(len=4) :: Word
+integer(kind=iwp), allocatable :: nOff(:,:)
+#ifdef _DEBUGPRINT_
+character(len=21) :: chCharge
+#define _TEST_ .true.
+#else
+#define _TEST_ .false.
+#endif
+logical(kind=iwp), parameter :: IfTest = _TEST_
 
 #ifdef _DEBUGPRINT_
-IfTest = .true.
 chCharge = '  Charge of nucleus: '
 #endif
-OUT = 6
 Stars = '******************************************************'
 Bonn = .false.
 Breit = .false.
@@ -45,18 +49,18 @@ OneOnly = .false.
 MakeMean = .true.
 
 if (IfTest) then
-  write(OUT,'(/,/,/,24X,A)') Stars
-  write(OUT,'(24X,2A)') '******** Starting Atomic Spin-Orbit MF code ********'
-  write(OUT,'(24X,A,/,/)') Stars
+  write(u6,'(/,/,/,24X,A)') Stars
+  write(u6,'(24X,2A)') '******** Starting Atomic Spin-Orbit MF code ********'
+  write(u6,'(24X,A,/,/)') Stars
 end if
 
 do I=0,lMax
   iCore(I) = 0
 end do
-call RdNLst(IN,'AMFI')
+call RdNLst(LUIN,'AMFI')
 do
-  read(IN,'(A4)') Word
-  if (IfTest) write(OUT,'(A4)') Word
+  read(LUIN,'(A4)') Word
+  if (IfTest) write(u6,'(A4)') Word
   call UpCase(Word)
   select case (WORD)
     case ('BONN')
@@ -65,65 +69,65 @@ do
       Breit = .true.
     case ('FINI')
       iFinite = 1
-      read(IN,*) Exp_finite
+      read(LUIN,*) Exp_finite
     case ('SAME')
       SameOrb = .true.
     case ('AIMP')
       AIMP = .true.
-      read(IN,*) lDel,(iCore(I),I=0,ldel)
+      read(LUIN,*) lDel,(iCore(I),I=0,ldel)
       if (IfTest) then
-        write(OUT,*)
-        write(OUT,*) 'CORE to be deleted '
-        write(OUT,*) '   L   #orbs.  '
-        write(OUT,*)
+        write(u6,*)
+        write(u6,*) 'CORE to be deleted '
+        write(u6,*) '   L   #orbs.  '
+        write(u6,*)
         do I=0,lDel
-          write(OUT,'(2I5)') I,iCore(I)
+          write(u6,'(2I5)') I,iCore(I)
         end do
       end if
       exit
     case ('ONEO')
       OneOnly = .true.
-      write(OUT,*) ' Only one-electron integrals!!'
-      write(OUT,*) ' Probably useful for test-purposes only'
+      write(u6,*) ' Only one-electron integrals!!'
+      write(u6,*) ' Probably useful for test-purposes only'
     case default
       exit
   end select
 end do
 
 if (IfTest) then
-  write(OUT,*) ' AMFI: '
+  write(u6,*) ' AMFI: '
   if (BONN) then
-    write(OUT,*) ' Bonn-approach for spin-other-orbit part'
+    write(u6,*) ' Bonn-approach for spin-other-orbit part'
   end if
   if (BREIT) then
-    write(OUT,*) ' Breit-Pauli type of the SO operator'
+    write(u6,*) ' Breit-Pauli type of the SO operator'
   else
-    write(OUT,*) ' Douglas-Kroll type of the SO operator'
+    write(u6,*) ' Douglas-Kroll type of the SO operator'
   end if
   if (iFinite == 0) then
-    write(OUT,*) ' Point nucleus '
+    write(u6,*) ' Point nucleus '
   else
-    write(OUT,*) ' Finite nucleus'
+    write(u6,*) ' Finite nucleus'
   end if
 end if
 
 Symmetry = 'D2H'
 NumbofSym = 8
 if (IfTest) then
-  write(OUT,*) ' Symmetry is D2H'
+  write(u6,*) ' Symmetry is D2H'
   if (SameOrb) then
-    write(OUT,*) ' Same-Orbit only'
+    write(u6,*) ' Same-Orbit only'
   else
-    write(OUT,*) ' Other-Orbit included'
+    write(u6,*) ' Other-Orbit included'
   end if
 end if
-read(IN,*) Charge,Lhigh
+read(LUIN,*) Charge,Lhigh
 if (Lhigh > Lmax) then
-  write(OUT,*) ' Sorry, so far this code deals only with maximum l-values of ',Lmax
+  write(u6,*) ' Sorry, so far this code deals only with maximum l-values of ',Lmax
   call Abend()
 end if
 #ifdef _DEBUGPRINT_
-write(OUT,'(A21,F5.2)') chCharge,Charge
+write(u6,'(A21,F5.2)') chCharge,Charge
 #endif
 call InitiRed()
 do iredrun=1,numbofsym
@@ -131,42 +135,42 @@ do iredrun=1,numbofsym
     nmbMperIRL(iredrun,Lrun) = 0
   end do
 end do
-if (IfTest) write(OUT,'(/,A)') '  Used SOC basis set: '
+if (IfTest) write(u6,'(/,A)') '  Used SOC basis set: '
 do Lrun=0,Lhigh
-  read(IN,*) nprimit(Lrun),ncontrac(Lrun)
+  read(LUIN,*) nprimit(Lrun),ncontrac(Lrun)
   if (IfTest) then
-    write(OUT,'(/,A,I2,A,I2)') '  nExp: ',nprimit(Lrun),' lAng: ',lRun
-    write(OUT,'(I3,I3)') nprimit(Lrun),ncontrac(Lrun)
+    write(u6,'(/,A,I2,A,I2)') '  nExp: ',nprimit(Lrun),' lAng: ',lRun
+    write(u6,'(I3,I3)') nprimit(Lrun),ncontrac(Lrun)
   end if
   if (nprimit(Lrun) > MxprimL) then
-    write(OUT,*) 'To many primitives for L=',Lrun,' increase MxprimL in para.fh or reduce the number of primitives to at least ', &
+    write(u6,*) 'To many primitives for L=',Lrun,' increase MxprimL in para.fh or reduce the number of primitives to at least ', &
                  MxprimL
     call Abend()
   end if
   if (ncontrac(Lrun) > MxcontL) then
-    write(OUT,*) ' To many contracted fncts for L=',Lrun, &
+    write(u6,*) ' To many contracted fncts for L=',Lrun, &
                  ' increase MxcontL in para.fh or reduce the number of contracted functions to at most ',MxcontL
     call Abend()
   end if
   if (ncontrac(Lrun) > nprimit(Lrun)) then
-    write(OUT,*) ' You have more contracted than uncontracted functions, I don''t believe that. Sorry!! '
+    write(u6,*) ' You have more contracted than uncontracted functions, I don''t believe that. Sorry!! '
     call Abend()
   end if
 
   ! Read input in MOLCAS-style
 
-  read(IN,*) (exponents(ILINE,Lrun),ILINE=1,nprimit(Lrun))
+  read(LUIN,*) (exponents(ILINE,Lrun),ILINE=1,nprimit(Lrun))
   do ILINE=1,nprimit(Lrun)
-    read(IN,*) (cntscrtch(ILINE,JRUN,Lrun),Jrun=1,ncontrac(Lrun))
+    read(LUIN,*) (cntscrtch(ILINE,JRUN,Lrun),Jrun=1,ncontrac(Lrun))
   end do
 
   ! End of reading for the current L-value
 
   if (IfTest) then
-    write(OUT,'(5E18.8)') (exponents(ILINE,Lrun),ILINE=1,nprimit(Lrun))
+    write(u6,'(5E18.8)') (exponents(ILINE,Lrun),ILINE=1,nprimit(Lrun))
     do Irun=1,ncontrac(Lrun)
-      write(OUT,*) ' orbital : ',irun
-      write(OUT,'(6(1X,F12.7))') (cntscrtch(I,Irun,Lrun),I=1,nprimit(Lrun))
+      write(u6,*) ' orbital : ',irun
+      write(u6,'(6(1X,F12.7))') (cntscrtch(I,Irun,Lrun),I=1,nprimit(Lrun))
     end do
   end if
 
@@ -184,14 +188,14 @@ do Lrun=0,Lhigh
       nmbMperIRL(ipOw2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),IpowxYz(3,mrun,Lrun)),lruN)+1
   end do
   if (IfTest) then
-    write(OUT,'(A,8I4)') ' Number of functions per IR: ',(nfunctions(iredrun,Lrun),iredrun=1,numbofsym)
+    write(u6,'(A,8I4)') ' Number of functions per IR: ',(nfunctions(iredrun,Lrun),iredrun=1,numbofsym)
   end if
 end do   ! End Do for loop over L-values
 
 if (IfTest) then
-  write(OUT,*) ' Distribution of M-values'
+  write(u6,*) ' Distribution of M-values'
   do Lrun=0,Lhigh
-    write(OUT,*) (nmbMperIRL(nsym,Lrun),nsym=1,numbofsym)
+    write(u6,*) (nmbMperIRL(nsym,Lrun),nsym=1,numbofsym)
   end do
 end if
 
@@ -211,7 +215,7 @@ do Lrun=0,Lhigh
   end do
 end do
 if (IfTest) then
-  write(OUT,'(A,8I3)') ' Total number of atomic functions per IRED ',(nfunctperIRED(iredrun),iredrun=1,numbofsym)
+  write(u6,'(A,8I3)') ' Total number of atomic functions per IRED ',(nfunctperIRED(iredrun),iredrun=1,numbofsym)
 end if
 isum = 0
 do iredrun=1,numbofsym
@@ -227,7 +231,7 @@ do iredrun=1,numbofsym
   end do
 end do
 if (IfTest) then
-  write(OUT,'(A,8I3)') 'including additional functions per IRED ',(itotalperIR(iredrun),iredrun=1,numbofsym)
+  write(u6,'(A,8I3)') 'including additional functions per IRED ',(itotalperIR(iredrun),iredrun=1,numbofsym)
 end if
 do iredrun=1,numbofsym
   ibeginIRED(iredrun) = 0
@@ -241,7 +245,7 @@ do lrun=0,Lhigh
 end do
 if (IfTest) then
   do lrun=0,Lhigh
-    write(OUT,'(A,I4,A,21I3)') 'L= ',lrun,' shifts inside the IRED',(incrLM(mrun,lrun),mrun=-lrun,lrun)
+    write(u6,'(A,I4,A,21I3)') 'L= ',lrun,' shifts inside the IRED',(incrLM(mrun,lrun),mrun=-lrun,lrun)
   end do
 end if
 shiftIRED(1) = 0
@@ -249,11 +253,11 @@ do iredrun=2,numbofsym
   shiftIRED(iredrun) = shiftIRED(iredrun-1)+itotalperIR(iredrun-1)
 end do
 if (IfTest) then
-  write(OUT,'(A,8I4)') 'shifts for the IREDs ',(shiftIRED(iredrun),iredrun=1,numbofsym)
+  write(u6,'(A,8I4)') 'shifts for the IREDs ',(shiftIRED(iredrun),iredrun=1,numbofsym)
   do lrun=0,Lhigh
     do mrun=-Lrun,Lrun
       do irun=1,ncontrac(lrun)
-        write(OUT,*) 'L,M,contr funct, absolute number ',lrun,mrun,irun,shiftired(iredLM(mrun,lrun))+incrLM(mrun,Lrun)+irun
+        write(u6,*) 'L,M,contr funct, absolute number ',lrun,mrun,irun,shiftired(iredLM(mrun,lrun))+incrLM(mrun,Lrun)+irun
       end do
     end do
   end do
@@ -295,23 +299,23 @@ if (AIMP) then
 
   ! Generate list of orbitals to be removed
 
-  if (IfTest) write(OUT,'(/,A)') '  Core removed for use with AIMP'
+  if (IfTest) write(u6,'(/,A)') '  Core removed for use with AIMP'
   ikeeporb = 0
   numbprev = 0
   do irun=1,numbofcart
     do
       if ((irun == 1) .or. ((irun >= 2) .and. (noff(irun,1) == numbprev+1))) then
         Lval = Loffunction(irun)
-        number = nOff(irun,1)
+        numbr = nOff(irun,1)
         itype = nOff(irun,2)
         if (itype <= icore(lval)) then
-          write(OUT,777) number,itype,lval
+          write(u6,777) numbr,itype,lval
           idelpersym(IREDoffunction(irun)) = idelpersym(IREDoffunction(irun))+1
-          numbprev = number
+          numbprev = numbr
         else
           ikeeporb = ikeeporb+1
-          ikeeplist(ikeeporb) = number
-          numbprev = number
+          ikeeplist(ikeeporb) = numbr
+          numbprev = numbr
         end if
         exit
       end if
@@ -328,8 +332,8 @@ if (AIMP) then
     ikeeporb = ikeeporb+nrtofiperIR(nsymrun)
   end do
   if (IfTest) then
-    write(OUT,'(A,8I3)') '  Number of funct. per IRED after removing core: ',(nrtofiperIR(iredrun),iredrun=1,numbofsym)
-    write(OUT,'(I4,A)') ikeeporb,' orbitals left after deleting core'
+    write(u6,'(A,8I3)') '  Number of funct. per IRED after removing core: ',(nrtofiperIR(iredrun),iredrun=1,numbofsym)
+    write(u6,'(I4,A)') ikeeporb,' orbitals left after deleting core'
   end if
 end if
 nmax = max(6,ncontrac(0))

@@ -14,13 +14,19 @@ subroutine two2mean13(carteSO,occup,AOcoeffs,onecart,ncontmf,norbsum,noccorb)
 !bs < i M | j M >  with Malpha  and Mbeta
 !bs the other orbit parts cancel
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "para.fh"
-dimension carteSO(ncontmf,ncontmf,norbsum,norbsum), occup(*), AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
+integer(kind=iwp) :: ncontmf, norbsum, noccorb
+real(kind=wp) :: carteSO(ncontmf,ncontmf,norbsum,norbsum), occup(*), AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
+integer(kind=iwp) :: icartleft, icartright, irun, jrun, Mrun
+real(kind=wp) :: coeff
 
 do icartleft=1,norbsum
   do icartright=1,norbsum
-    coeff = 0d0
+    coeff = Zero
     do Mrun=1,noccorb
       coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
     end do
@@ -31,9 +37,9 @@ do icartleft=1,norbsum
     end do
   end do
 end do
-!write(6,*) 'effective integrals'
+!write(u6,*) 'effective integrals'
 !do jrun=1,ncontmf
-!  write(6,'(4E20.14)') (onecart(irun,jrun),irun=1,ncontmf)
+!  write(u6,'(4E20.14)') (onecart(irun,jrun),irun=1,ncontmf)
 !end do
 
 return

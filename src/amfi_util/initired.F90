@@ -10,7 +10,6 @@
 !***********************************************************************
 
 subroutine initired()
-
 !bs initialize all information for irreducible representations
 !bs later on, it might be useful to have a switch for
 !bs changing to other orders of IREDs like e.g. in TURBOMOLE
@@ -26,10 +25,13 @@ subroutine initired()
 !
 ! that is  all. Good luck!!!
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "para.fh"
 #include "ired.fh"
-character*3 symmetry
+integer(kind=iwp) :: ired, IRLX, IRLY, IRLZ, irun, jred, jrun
+character(len=3) :: symmetry
 
 symmetry = 'D2H'  ! MOLCAS-Version
 if (symmetry == 'D2H') then
@@ -76,12 +78,12 @@ if (symmetry == 'D2H') then
       mult(jrun,irun) = mult(irun,jrun)
     end do
   end do
-  !BS write(6,*)
-  !BS write(6,*) 'multiplicitation table (Atkins,Child and Phillips)'
-  !BS write(6,*)
+  !BS write(u6,*)
+  !BS write(u6,*) 'multiplicitation table (Atkins,Child and Phillips)'
+  !BS write(u6,*)
   !BS do ired=1,8
-  !BS   write(6,'(8I5)') (mult(jred,ired),jred=1,8)
-  !BS   write(6,*)
+  !BS   write(u6,'(8I5)') (mult(jred,ired),jred=1,8)
+  !BS   write(u6,*)
   !BS end do
 
   IRLX = 4
@@ -109,12 +111,12 @@ if (symmetry == 'D2H') then
   ipow2ired(0,0,1) = iredorder(6)
   ipow2ired(0,1,0) = iredorder(7)
   ipow2ired(1,0,0) = iredorder(8)
-  !write(6,*) 'interacting IRs '
+  !write(u6,*) 'interacting IRs '
   do ired=1,8
     IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
     IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
     IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
+    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
   end do
 else if (symmetry == 'C2V') then
   !bs 1. A1 2. A2 3. B1 4. B2
@@ -135,12 +137,12 @@ else if (symmetry == 'C2V') then
       mult(jrun,irun) = mult(irun,jrun)
     end do
   end do
-  write(6,*)
-  write(6,*) 'multiplicitation table '
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'multiplicitation table '
+  write(u6,*)
   do ired=1,4
-    write(6,'(4I5)') (mult(jred,ired),jred=1,4)
-    write(6,*)
+    write(u6,'(4I5)') (mult(jred,ired),jred=1,4)
+    write(u6,*)
   end do
 
   IRLX = 4
@@ -162,12 +164,12 @@ else if (symmetry == 'C2V') then
   ipow2ired(0,0,1) = iredorder(1)
   ipow2ired(0,1,0) = iredorder(4)
   ipow2ired(1,0,0) = iredorder(3)
-  !write(6,*) 'interacting IRs '
+  !write(u6,*) 'interacting IRs '
   do ired=1,4
     IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
     IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
     IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
+    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
   end do
 else if (symmetry == 'D2 ') then
   !bs 1. A1 2. B1 3. B2 4. B3
@@ -187,12 +189,12 @@ else if (symmetry == 'D2 ') then
       mult(jrun,irun) = mult(irun,jrun)
     end do
   end do
-  write(6,*)
-  write(6,*) 'multiplicitation table '
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'multiplicitation table '
+  write(u6,*)
   do ired=1,4
-    write(6,'(4I5)') (mult(jred,ired),jred=1,4)
-    write(6,*)
+    write(u6,'(4I5)') (mult(jred,ired),jred=1,4)
+    write(u6,*)
   end do
 
   IRLX = 4
@@ -213,12 +215,12 @@ else if (symmetry == 'D2 ') then
   ipow2ired(0,0,1) = iredorder(2)
   ipow2ired(0,1,0) = iredorder(3)
   ipow2ired(1,0,0) = iredorder(4)
-  !write(6,*) 'interacting IRs '
+  !write(u6,*) 'interacting IRs '
   do ired=1,4
     IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
     IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
     IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
+    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
   end do
 else if (symmetry == 'C2H') then
   !bs assume 1.Ag 2.Au 3.Bg 4.Bu
@@ -239,12 +241,12 @@ else if (symmetry == 'C2H') then
       mult(jrun,irun) = mult(irun,jrun)
     end do
   end do
-  write(6,*)
-  write(6,*) 'multiplicitation table '
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'multiplicitation table '
+  write(u6,*)
   do ired=1,4
-    write(6,'(4I5)') (mult(jred,ired),jred=1,4)
-    write(6,*)
+    write(u6,'(4I5)') (mult(jred,ired),jred=1,4)
+    write(u6,*)
   end do
 
   IRLX = 3
@@ -265,15 +267,15 @@ else if (symmetry == 'C2H') then
   ipow2ired(0,0,1) = iredorder(2)
   ipow2ired(0,1,0) = iredorder(4)
   ipow2ired(1,0,0) = iredorder(4)
-  !write(6,*) 'interacting IRs '
+  !write(u6,*) 'interacting IRs '
   do ired=1,4
     IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
     IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
     IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
+    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
   end do
 else if (symmetry == 'CS ') then
-  write(6,*) 'CS in initired '
+  write(u6,*) 'CS in initired '
   !bs assume 1.A' 2.A'
   mult(2,1) = 2
 
@@ -285,12 +287,12 @@ else if (symmetry == 'CS ') then
       mult(jrun,irun) = mult(irun,jrun)
     end do
   end do
-  write(6,*)
-  write(6,*) 'multiplicitation table '
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'multiplicitation table '
+  write(u6,*)
   do ired=1,2
-    write(6,'(2I5)') (mult(jred,ired),jred=1,2)
-    write(6,*)
+    write(u6,'(2I5)') (mult(jred,ired),jred=1,2)
+    write(u6,*)
   end do
 
   IRLX = 2
@@ -309,12 +311,12 @@ else if (symmetry == 'CS ') then
   ipow2ired(0,0,1) = iredorder(2)
   ipow2ired(0,1,0) = iredorder(1)
   ipow2ired(1,0,0) = iredorder(1)
-  !write(6,*) 'interacting IRs '
+  !write(u6,*) 'interacting IRs '
   do ired=1,2
     IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
     IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
     IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
+    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
   end do
 end if
 

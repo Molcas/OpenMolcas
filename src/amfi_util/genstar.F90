@@ -13,9 +13,13 @@ subroutine genstar(Lhigh)
 !bs purpose: generate start adresses of contraction coeffs on
 !bs contrarray for the different L-Blocks
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: Lhigh
 #include "para.fh"
 #include "param.fh"
+integer(kind=iwp) :: inc, istart, L
 
 istart = 1
 do L=0,Lhigh

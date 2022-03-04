@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine trans_amfi(coeffs,idim1,idim2,ich,nolds1,nolds2,nolds3,nolds4,nnew1,nnew2,nnew3,nnew4,array1,array2)
 !bs makes the transformation for the ich-th index
 !coeffs                      : (nolds(ith),nnew(ith)) modified contraction coefficients
@@ -19,19 +20,18 @@ subroutine trans_amfi(coeffs,idim1,idim2,ich,nolds1,nolds2,nolds3,nolds4,nnew1,n
 !array1                      : array of size (nolds1,nolds2,nolds3,nolds4)
 !array2                      : array of size (nnew1,nnew2,nnew3,nnew4)
 
-implicit real*8(a-h,o-z)
-dimension coeffs(idim1,idim2), array1(nolds1,nolds2,nolds3,nolds4), array2(nnew1,nnew2,nnew3,nnew4)
-!write(6,*) 'begin trans ',ich
-!write(6,'(8I5)') nolds1,nolds2,nolds3,nolds4,nnew1,nnew2,nnew3,nnew4
-do ind4=1,nnew4
-  do ind3=1,nnew3
-    do ind2=1,nnew2
-      do ind1=1,nnew1
-        array2(ind1,ind2,ind3,ind4) = 0d0
-      end do
-    end do
-  end do
-end do
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: idim1, idim2, ich, nolds1, nolds2, nolds3, nolds4, nnew1, nnew2, nnew3, nnew4
+real(kind=wp) :: coeffs(idim1,idim2), array1(nolds1,nolds2,nolds3,nolds4), array2(nnew1,nnew2,nnew3,nnew4)
+integer(kind=iwp) :: ind1, ind2, ind3, ind4, ind5
+real(kind=wp) :: coeff
+
+!write(u6,*) 'begin trans ',ich
+!write(u6,'(8I5)') nolds1,nolds2,nolds3,nolds4,nnew1,nnew2,nnew3,nnew4
+array2(:,:,:,:) = Zero
 if (ich == 1) then
   do ind4=1,nnew4
     do ind3=1,nnew3
@@ -58,7 +58,7 @@ else if (ich == 2) then
       end do
     end do
   end do
-  !write(6,*) 'end  to transform second index '
+  !write(u6,*) 'end  to transform second index '
 else if (ich == 3) then
   do ind4=1,nnew4
     do ind5=1,nnew3
@@ -86,7 +86,7 @@ else if (ich == 4) then
     end do
   end do
 end if
-!write(6,*) 'end  trans '
+!write(u6,*) 'end  trans '
 
 return
 

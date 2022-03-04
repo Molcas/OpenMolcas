@@ -10,12 +10,18 @@
 !***********************************************************************
 
 subroutine genovlp(Lhigh,coulovlp)
-
 !bs   generates overlap of normalized  primitives.
-implicit real*8(a-h,o-z)
+
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "para.fh"
+integer(kind=iwp) :: Lhigh
+real(kind=wp) :: coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
 #include "param.fh"
-dimension evecinv(MxprimL,MxprimL), coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
+integer(kind=iwp) :: ipnt, Irun, Jrun, krun, L
+real(kind=wp) :: evecinv(MxprimL,MxprimL), fact !IFG
 
 do L=0,Lhigh
   do Jrun=1,nprimit(L)
@@ -33,11 +39,11 @@ do L=0,Lhigh
   end do
   do Jrun=1,nprimit(L)
     do Irun=1,MxprimL
-      evecinv(Irun,Jrun) = 0d0
+      evecinv(Irun,Jrun) = Zero
     end do
   end do
   do Jrun=1,nprimit(L)
-    evecinv(jrun,jrun) = 1d0
+    evecinv(jrun,jrun) = One
   end do
   call Jacob(scratchinv,evecinv,nprimit(L),MxprimL)
   do irun=1,nprimit(L)
@@ -45,11 +51,11 @@ do L=0,Lhigh
   end do
   !bs ensure normalization of the vectors.
   do IRUN=1,nprimit(L)
-    fact = 0d0
+    fact = Zero
     do JRUN=1,nprimit(L)
       fact = fact+evecinv(JRUN,IRUN)*evecinv(JRUN,IRUN)
     end do
-    fact = 1d0/sqrt(fact)
+    fact = One/sqrt(fact)
     do JRUN=1,nprimit(L)
       evecinv(JRUN,IRUN) = fact*evecinv(JRUN,IRUN)
     end do
@@ -57,7 +63,7 @@ do L=0,Lhigh
   !bs now generate rootOVLP
   do irun=1,nprimit(L)
     do jrun=1,nprimit(L)
-      rootOVLP(irun,jrun,l) = 0d0
+      rootOVLP(irun,jrun,l) = Zero
     end do
   end do
   do jrun=1,nprimit(L)
@@ -69,11 +75,11 @@ do L=0,Lhigh
   end do
   !bs now generate rootOVLPinv
   do irun=1,nprimit(L)
-    eval(irun) = 1d0/eval(irun)
+    eval(irun) = One/eval(irun)
   end do
   do irun=1,nprimit(L)
     do jrun=1,nprimit(L)
-      rootOVLPinv(irun,jrun,l) = 0d0
+      rootOVLPinv(irun,jrun,l) = Zero
     end do
   end do
   do jrun=1,nprimit(L)
@@ -89,7 +95,7 @@ do L=0,Lhigh
   end do
   do irun=1,nprimit(L)
     do jrun=1,nprimit(L)
-      OVLPinv(irun,jrun,l) = 0d0
+      OVLPinv(irun,jrun,l) = Zero
     end do
   end do
   do jrun=1,nprimit(L)

@@ -11,43 +11,48 @@
 
 subroutine Drv_AMFI(Label,ip,lOper,nComp,iAtmNr2,Charge2)
 
-use iSD_data
-use Basis_Info
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, Gaussian_Type, MolWgh, nBas, nCnttp, Nuclear_Model, Shells
 use DKH_Info, only: DKroll
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-external Rsv_Tsk
+implicit none
 #include "Molcas.fh"
+character(len=8) :: Label
+integer(kind=iwp) :: nComp, ip(nComp), lOper(nComp), iAtmNr2(mxdbsc)
+real(kind=wp) :: Charge2(mxdbsc)
 #include "angtp.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "nsd.fh"
-#include "setup.fh"
 #include "para.fh"
-integer, allocatable :: iDel(:)
-real*8, allocatable :: SOInt(:)
-real*8 Coor(3)
-logical EQ, IfTest, Rsv_Tsk
-character Label*8
-integer ip(nComp), lOper(nComp)
-integer iAtmNr2(mxdbsc)
-real*8 Charge2(mxdbsc)
-data IfTest/.false./
-
+integer(kind=iwp) :: i, iCase, iCenter, iCff_x, iCnt, iCnttp, iComp, id_Tsk, iExp_x, iShll, iSkal, jCnt, jCnttp, l, l_max, lDel, &
+                     LenInt, LenTot, Lu_AMFI, LUPROP, mdci, nBas_x, nCenter, nCenter_node, nCore, nExp_x, nSkal
+real(kind=wp) :: charge_x, Coor(3), Eta_Nuc
+logical(kind=iwp) :: EQ
+integer(kind=iwp), allocatable :: iDel(:)
+real(kind=wp), allocatable :: SOInt(:)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-IfTest = .true.
-write(6,*) ' In OneEl: Label',Label
-write(6,*) ' In OneEl: nComp'
-write(6,'(1X,8I5)') nComp
-write(6,*) ' In OneEl: lOper'
-write(6,'(1X,8I5)') lOper
-write(6,*) ' In OneEl: n2Tri'
+#define _TEST_ .true.
+#else
+#define _TEST_ .false.
+#endif
+logical(kind=iwp), parameter :: IfTest = _TEST_
+integer(kind=iwp), external :: n2Tri
+logical(kind=iwp), external :: Rsv_Tsk
+
+#ifdef _DEBUGPRINT_
+write(u6,*) ' In OneEl: Label',Label
+write(u6,*) ' In OneEl: nComp'
+write(u6,'(1X,8I5)') nComp
+write(u6,*) ' In OneEl: lOper'
+write(u6,'(1X,8I5)') lOper
+write(u6,*) ' In OneEl: n2Tri'
 do iComp=1,nComp
   ip(iComp) = n2Tri(lOper(iComp))
 end do
-write(6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
+write(u6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
 #endif
 
 Eta_Nuc = Zero
@@ -76,12 +81,12 @@ nCenter = 0
 do iSkal=1,nSkal
   nCenter = max(nCenter,iSD(10,iSkal))
   if (iSD(1,iSkal) > Lmax) then
-    write(6,*) ' Shells higher than '//Angtp(Lmax)//'-functions not allowed in AMFI.'
+    write(u6,*) ' Shells higher than '//Angtp(Lmax)//'-functions not allowed in AMFI.'
     call Quit_OnUserError()
   end if
   if ((iSD(1,iSkal) >= 2) .and. (iand(iSD(9,iSkal),1) /= 1)) then
-    write(6,*) ' Only real spherical harmonics allowed'
-    write(6,*) ' for AMFI.'
+    write(u6,*) ' Only real spherical harmonics allowed'
+    write(u6,*) ' for AMFI.'
     call Quit_OnUserError()
   end if
 end do
@@ -109,15 +114,15 @@ do iCenter=1,nCenter
       jCnttp = iSD(13,iSkal)
       jCnt = iSD(14,iSkal)
       if (EQ(Coor,dbsc(jCnttp)%Coor(1,jCnt))) then
-        write(6,*) 'Multiple instances of the same center!'
-        write(6,*) 'This is not allowed with AMFI.'
+        write(u6,*) 'Multiple instances of the same center!'
+        write(u6,*) 'This is not allowed with AMFI.'
         call Quit_OnUserError()
       end if
     end if
   end do
 end do
 if ((MolWgh /= 0) .and. (MolWgh /= 2)) then
-  write(6,*) ' AMFI integrals not implemented for symmetry adaptation a la MOLECULE'
+  write(u6,*) ' AMFI integrals not implemented for symmetry adaptation a la MOLECULE'
   call Quit_OnUserError()
 end if
 
@@ -137,7 +142,7 @@ do
   nCenter_node = nCenter_node+1
 
   write(Lu_AMFI,'(A)') ' &AMFI'
-  if (IfTest) write(6,'(A)') ' &AMFI'
+  if (IfTest) write(u6,'(A)') ' &AMFI'
 
   ! Find atom type
 
@@ -148,21 +153,19 @@ do
       if (mdci == iCenter) then
         if ((.not. DKroll) .and. (.not. dbsc(iCnttp)%SODK)) write(Lu_AMFI,'(A)') 'Breit-Pauli'
         if (IfTest) then
-          if ((.not. DKroll) .and. (.not. dbsc(iCnttp)%SODK)) write(6,'(A)') 'Breit-Pauli'
+          if ((.not. DKroll) .and. (.not. dbsc(iCnttp)%SODK)) write(u6,'(A)') 'Breit-Pauli'
         end if
         if (iAtmNr2(iCnttp) >= 1) then
-          charge_x = dble(iAtmNr2(iCnttp))
+          charge_x = real(iAtmNr2(iCnttp),kind=wp)
         else if ((iAtmNr2(iCnttp) <= 0) .and. (Charge2(iCnttp) == Zero)) then
-          charge_x = 0.0d0
+          charge_x = Zero
         else
-          write(6,*) 'Drv_AMFI: Invalid basis!'
-          write(6,*) 'iAtmNr=',iAtmNr2(iCnttp)
-          write(6,*) 'Charge2=',Charge2(iCnttp)
+          write(u6,*) 'Drv_AMFI: Invalid basis!'
+          write(u6,*) 'iAtmNr=',iAtmNr2(iCnttp)
+          write(u6,*) 'Charge2=',Charge2(iCnttp)
           call Abend()
         end if
-        if (Nuclear_Model == Gaussian_Type) then
-          Eta_Nuc = dbsc(iCnttp)%ExpNuc
-        end if
+        if (Nuclear_Model == Gaussian_Type) Eta_Nuc = dbsc(iCnttp)%ExpNuc
         exit outer
       end if
     end do
@@ -170,9 +173,9 @@ do
 
   if (Nuclear_Model == Gaussian_Type) then
     write(Lu_AMFI,'(A)') 'Finite'
-    if (IfTest) write(6,'(A)') 'Finite'
+    if (IfTest) write(u6,'(A)') 'Finite'
     write(Lu_AMFI,*) Eta_Nuc
-    if (IfTest) write(6,*) Eta_Nuc
+    if (IfTest) write(u6,*) Eta_Nuc
   end if
 
   ! Generate input for each atom
@@ -182,7 +185,7 @@ do
     if (iSD(10,iSkal) == iCenter) l_Max = max(l_Max,iSD(1,iSkal))
   end do
   if (l_max > LMax) then
-    write(6,*) 'AMFI integrals only implemented up to '//Angtp(Lmax)//'-functions.'
+    write(u6,*) 'AMFI integrals only implemented up to '//Angtp(Lmax)//'-functions.'
     call Quit_OnUserError()
   end if
 
@@ -203,7 +206,7 @@ do
       end if
     end do
   end do
-  if (IfTest) write(6,*) 'nCore: ',nCore
+  if (IfTest) write(u6,*) 'nCore: ',nCore
 
   ! Set up delete array
 
@@ -226,14 +229,14 @@ do
     end do
     write(Lu_AMFI,'(A)') 'AIMP'
     write(Lu_AMFI,*) lDel-1,(iDel(i),i=1,lDel)
-    if (IfTest) write(6,'(A)') 'AIMP'
-    if (IfTest) write(6,*) lDel,(iDel(i),i=1,lDel)
+    if (IfTest) write(u6,'(A)') 'AIMP'
+    if (IfTest) write(u6,*) lDel,(iDel(i),i=1,lDel)
     call mma_deallocate(iDel)
   end if
 
   write(Lu_AMFI,'(A)') '     '
   write(Lu_AMFI,'(3X,F5.1,I4)') charge_x,l_max
-  if (IfTest) write(6,*) charge_x,l_max
+  if (IfTest) write(u6,*) charge_x,l_max
 
   do l=0,l_max
     do iSkal=1,nSkal
@@ -259,21 +262,21 @@ do
         nBas_x = Shells(iShll)%nBasis
         nExp_x = Shells(iShll)%nExp
 
-        if (IfTest) write(6,*) 'iShll=',iShll
+        if (IfTest) write(u6,*) 'iShll=',iShll
         write(Lu_AMFI,*) nExp_x,nBas_x
-        if (IfTest) write(6,*) nExp_x,nBas_x
+        if (IfTest) write(u6,*) nExp_x,nBas_x
         write(Lu_AMFI,*) (Shells(iShll)%exp(iExp_x),iExp_x=1,nExp_x)
-        if (IfTest) write(6,*) (Shells(iShll)%exp(iExp_x),iExp_x=1,nExp_x)
+        if (IfTest) write(u6,*) (Shells(iShll)%exp(iExp_x),iExp_x=1,nExp_x)
         do iExp_x=1,nExp_x
           write(Lu_AMFI,*) (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),iCff_x=1,nBas_x)
-          if (IfTest) write(6,*) (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),iCff_x=1,nBas_x)
+          if (IfTest) write(u6,*) (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),iCff_x=1,nBas_x)
         end do
 
       end if
     end do
   end do
   write(Lu_AMFI,'(A)') 'End of Input'
-  if (IfTest) write(6,'(A)') 'End of Input'
+  if (IfTest) write(u6,'(A)') 'End of Input'
 
   ! Now call AMFI
 

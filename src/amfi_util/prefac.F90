@@ -11,16 +11,23 @@
 
 subroutine prefac(Lmax,preroots,clebsch)
 
-implicit real*8(a-h,o-z)
-dimension preroots(2,0:Lmax), clebsch(3,2,-Lmax:Lmax,0:Lmax)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: Lmax
+real(kind=wp) :: preroots(2,0:Lmax), clebsch(3,2,-Lmax:Lmax,0:Lmax)
+integer(kind=iwp) :: L, L2, M, M2
+real(kind=wp) :: fact
+real(kind=wp), external :: getCG
 
 !bs the roots appearing in front of all
 !bs the contributions
-!write(6,*) 'begin of prefac'
+!write(u6,*) 'begin of prefac'
 do L=0,Lmax
-  fact = 1d0/sqrt(dble(L+L+1))
-  preroots(1,L) = sqrt(dble(L))*fact
-  preroots(2,L) = sqrt(dble(L+1))*fact
+  fact = One/sqrt(real(L+L+1,kind=wp))
+  preroots(1,L) = sqrt(real(L,kind=wp))*fact
+  preroots(2,L) = sqrt(real(L+1,kind=wp))*fact
 end do
 !bs there are Clebsch-Gordan-Coefficients
 !bs which always appear:
@@ -45,11 +52,11 @@ end do
 !bs third index        m
 !bs fourth index       l
 
-!write(6,*),'start to generate CGs'
+!write(u6,*),'start to generate CGs'
 do L=0,Lmax
   L2 = L+L
   do M=-L,L
-    !write(6,*) 'L,M: ',L,M
+    !write(u6,*) 'L,M: ',L,M
     M2 = M+M
     !bs getCG calculates CG-coeffecients. In order to avoid fractions,
     !bs e.g. for spins, arguments are doubled values...

@@ -11,20 +11,26 @@
 
 subroutine two2mean12a(carteSO,carteOO,occup,AOcoeffs,onecart,ncontmf,norbsum,noccorb,sameorb)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
 #include "para.fh"
-logical sameorb
-dimension carteSO(ncontmf,norbsum,ncontmf,norbsum), carteOO(ncontmf,norbsum,ncontmf,norbsum), occup(*), AOcoeffs(MxcontL,*), &
-          onecart(MxcontL,MxcontL)
+integer(kind=iwp) :: ncontmf, norbsum, noccorb
+real(kind=wp) :: carteSO(ncontmf,norbsum,ncontmf,norbsum), carteOO(ncontmf,norbsum,ncontmf,norbsum), occup(*), &
+                 AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
+logical(kind=iwp) :: sameorb
+integer(kind=iwp) :: icartleft, icartright, irun, jrun, Mrun
+real(kind=wp) :: coeff
 
 if (sameorb) then
   do icartleft=1,norbsum
     do icartright=1,norbsum
-      coeff = 0d0
+      coeff = Zero
       do Mrun=1,noccorb
         coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
       end do
-      coeff = 0.5d0*coeff
+      coeff = Half*coeff
       do irun=1,ncontmf
         do jrun=1,ncontmf
           onecart(irun,jrun) = onecart(irun,jrun)-coeff*carteSO(irun,icartleft,jrun,icartright)
@@ -35,15 +41,15 @@ if (sameorb) then
 else
   do icartleft=1,norbsum
     do icartright=1,norbsum
-      coeff = 0d0
+      coeff = Zero
       do Mrun=1,noccorb
         coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
       end do
-      coeff = 0.5d0*coeff
+      coeff = Half*coeff
       do irun=1,ncontmf
         do jrun=1,ncontmf
           onecart(irun,jrun) = onecart(irun,jrun)- &
-                               coeff*(carteSO(irun,icartleft,jrun,icartright)+2d0*carteOO(irun,icartleft,jrun,icartright))
+                               coeff*(carteSO(irun,icartleft,jrun,icartright)+Two*carteOO(irun,icartleft,jrun,icartright))
         end do
       end do
     end do

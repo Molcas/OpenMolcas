@@ -11,11 +11,13 @@
 
 subroutine genprexyz14(icheckz,interxyz)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
 #include "para.fh"
-#include "Molcas.fh"
-integer mcheckz
-dimension icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)
+integer(kind=iwp) :: icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)
+integer(kind=iwp) :: M1, M2, M3, M4
+integer(kind=iwp), external :: mcheckz
 
 !bs ####################################################################
 !bs   some quick decision for interaction
@@ -30,19 +32,9 @@ do M4=0,Lmax
   end do
 end do
 !bs ####################################################################
-!bs   there are at most 16 possible combinations of signs ( 2**4)
+!bs   there are at most 16 possible combinations of signs (2**4)
 !bs ####################################################################
-do M4=0,Lmax
-  do M3=0,Lmax
-    do M2=0,Lmax
-      do M1=0,Lmax
-        do irun=1,16
-          interxyz(irun,m1,m2,m3,m4) = 0
-        end do
-      end do
-    end do
-  end do
-end do
+interxyz(:,:,:,:,:) = 0
 
 return
 

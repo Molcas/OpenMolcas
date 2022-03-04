@@ -13,28 +13,32 @@ subroutine SymTrafo(LUPROP,ip,lOper,nComp,nBas,nIrrep,Label,MolWgh,SOInt,LenTot)
 !bs   Purpose: combine SO-integrals from amfi to symmetry-adapted
 !bs   integrals on one file AOPROPER_MF_SYM
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: LUPROP, nComp, ip(nComp), lOper(nComp), nIrrep, nBas(0:nIrrep-1), MolWgh, LenTot
+character(len=8) :: Label
+real(kind=wp) :: SOInt(LenTot)
 #include "para.fh"
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: AMFI_Int(:,:), Scr(:,:)
-integer, allocatable :: iSO_info(:,:)
-parameter(maxorbs=MxOrb)
-parameter(maxcent=MxAtom)
-real*8 SOInt(LenTot)
-character*8 xa2
-character*3 end
-!BS character*20 filename
-logical EX
-!BS namelist /SYMTRA/ none
-dimension xa2(4)
-dimension ncent(maxorbs), Lval(maxorbs), mval(maxorbs), nadpt(maxorbs), nphase(8,maxorbs), idummy(8), Lhighcent(maxcent), &
-          Lcent(MxCart), Mcent(MxCart), ncontcent(0:Lmax), numballcart(maxcent)
-allocatable ifirstLM(:,:,:)
-integer ip(nComp), nBas(0:nIrrep-1), lOper(nComp), ipC(MxAtom)
-character Label*8
+integer(kind=iwp) :: iBas, icc, iCent, icentprev, icoeff, iComp, idummy(8), iIrrep, ijSO, ilcentprev, imcentprev, indx, indexi, &
+                     indexj, iOff, iOff2, iOpt, iorb, ipC(MxAtom), ipSCR, iRC, irun, isame, iSmLbl, iSO, iSO_a, iSO_r, istatus, & !IFG
+                     isymunit, iunit, j1, j12, j2, jcent, jcentprev, jlcentprev, jmcentprev, jrun, jsame, jSO, jSO_r, lauf, &
+                     laufalt, Lcent(MxCart), length3, length3_tot, Lhighcent(MxAtom), LLhigh, Lrun, Lval(MxOrb), Mcent(MxCart), & !IFG
+                     Mrun, mval(MxOrb), nadpt(MxOrb), ncent(MxOrb), ncontcent(0:Lmax), not_defined, nphase(8,MxOrb), nSOs, & !IFG
+                     numballcart(MxAtom), numbofcent, numboffunct, numboffunct3, numbofsym !IFG
+real(kind=wp) :: coeff, Sgn, tmp
+!BS character(len=20) :: filename
+character(len=8) :: xa2(4)
+character(len=3) :: send
+logical(kind=iwp) :: EX
+integer(kind=iwp), allocatable :: ifirstLM(:,:,:), iSO_info(:,:)
+real(kind=wp), allocatable :: AMFI_Int(:,:), Scr(:,:)
+integer(kind=iwp), external :: iPntSO, isfreeunit, n2Tri
 !Statement function
+integer(kind=iwp) :: IPNT, I, J
 IPNT(I,J) = (max(i,j)*max(i,j)-max(i,j))/2+min(i,j)
 
 ! These variables are just placeholders for reading
@@ -43,8 +47,7 @@ unused_var(idummy)
 unused_var(xa2)
 
 !#######################################################################
-end = '   '  ! added due to cray warnings. B.S. 04/10/04
-call mma_allocate(ifirstLM,[0,Lmax],[-Lmax,Lmax],[1,maxcent],label='ifirstLM')
+call mma_allocate(ifirstLM,[0,Lmax],[-Lmax,Lmax],[1,MxAtom],label='ifirstLM')
 
 ! read information from SYMINFO
 isymunit = isfreeunit(58)
@@ -54,32 +57,33 @@ call molcas_open(isymunit,'SYMINFO')
 rewind(isymunit)
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*) 'Symmetry adapation of the SO-integrals'
+write(u6,*) 'Symmetry adapation of the SO-integrals'
 #endif
 read(isymunit,*)
 read(isymunit,*)
 read(isymunit,*)
 numboffunct = 0
-do while (end /= 'END')
+send = ''
+do while (send /= 'END')
   numboffunct = numboffunct+1
-  read(isymunit,'(A3)') end
+  read(isymunit,'(A3)') send
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) 'there are totally ',numboffunct,' functions'
+write(u6,*) 'there are totally ',numboffunct,' functions'
 #endif
-if (numboffunct > maxorbs) call SysAbendMsg('symtrafo','increase maxorbs in symtrafo',' ')
+if (numboffunct > MxOrb) call SysAbendMsg('symtrafo','increase MxOrb in Molcas.fh',' ')
 rewind isymunit
 read(isymunit,*)
 read(isymunit,*)
 numbofcent = 0
 do irun=1,numboffunct
-  read(isymunit,*) index,ncent(irun),lval(irun),mval(irun),nadpt(irun),(nphase(I,irun),I=1,nadpt(irun))
+  read(isymunit,*) indx,ncent(irun),lval(irun),mval(irun),nadpt(irun),(nphase(I,irun),I=1,nadpt(irun))
   numbofcent = max(numbofcent,ncent(irun))
-  if (index /= irun) call SysAbendMsg('symtrafo','weird numbering  on SYMINFO',' ')
+  if (indx /= irun) call SysAbendMsg('symtrafo','weird numbering on SYMINFO',' ')
 end do
 close(iSymUnit)
 #ifdef _DEBUGPRINT_
-write(6,*) 'number of unique centres',numbofcent
+write(u6,*) 'number of unique centres',numbofcent
 #endif
 
 ! clean up arrays for new integrals
@@ -120,17 +124,18 @@ ipC(1:numbofcent) = -99
 do jcent=1,numbofcent
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'read integrals and info for centre ',jcent
+  write(u6,*) 'read integrals and info for centre ',jcent
 # endif
 
   ! Note that when running in parallel this list is incomplete.
   ! Hence, we process the centers which each process host.
 
-  read(iunit,end=199) iCent
+  read(iunit,iostat=istatus) iCent
+  if (istatus < 0) exit
   read(iunit) xa2,numbofsym,(idummy(I),i=1,numbofsym),numballcart(icent),(Lcent(i),I=1,numballcart(icent)), &
               (mcent(i),I=1,numballcart(icent)),Lhighcent(icent),(ncontcent(I),I=0,Lhighcent(icent))
 # ifdef _DEBUGPRINT_
-  write(6,*) numballcart(icent),'functions on centre ',icent
+  write(u6,*) numballcart(icent),'functions on centre ',icent
 # endif
   length3 = ipnt(numballcart(icent),numballcart(icent))
   ipC(iCent) = ipSCR
@@ -159,7 +164,7 @@ do jcent=1,numbofcent
     Lrun = Lcent(iorb)
     Mrun = Mcent(iorb)
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iorb,Lrun,mrun',iorb,Lrun,mrun
+    write(u6,*) 'iorb,Lrun,mrun',iorb,Lrun,mrun
 #   endif
     ifirstLM(Lrun,Mrun,icent) = min(iorb,ifirstLM(Lrun,Mrun,icent))
   end do
@@ -169,20 +174,19 @@ do jcent=1,numbofcent
   do Lrun=0,Lhighcent(icent)
     do Mrun=-Lrun,Lrun
       if (ifirstLM(Lrun,Mrun,icent) == not_defined) then
-        write(6,*) 'problems for centre,L,M ',icent,Lrun,Mrun
+        write(u6,*) 'problems for centre,L,M ',icent,Lrun,Mrun
         call SysAbendMsg('symtrafo','problems with L- and M-values',' ')
       end if
     end do
   end do
 end do    !end of loop over centres
-199 continue
 #ifdef _DEBUGPRINT_
-write(6,*) 'length3_tot=',length3_tot
+write(u6,*) 'length3_tot=',length3_tot
 call RecPrt('SCR(1,1)',' ',Scr(1,1),1,length3_tot)
 call RecPrt('SCR(1,2)',' ',Scr(1,2),1,length3_tot)
 call RecPrt('SCR(1,3)',' ',Scr(1,3),1,length3_tot)
 do iCent=1,numbofcent
-  write(6,*) ipC(iCent)
+  write(u6,*) ipC(iCent)
 end do
 #endif
 ! If this process does not have any blocks of integrals proceed
@@ -228,17 +232,17 @@ if (Length3_tot /= 0) then
 
             !bs the only cases where non-zero integrals occur
             if (nadpt(irun) == 1) then
-              coeff = 1d0
+              coeff = One
             else
               icoeff = 0
               do icc=1,nadpt(irun)
                 icoeff = icoeff+nphase(icc,irun)*nphase(icc,jrun)
               end do
-              coeff = dble(icoeff)
+              coeff = real(icoeff,kind=wp)
               if (MolWgh == 2) then
-                coeff = coeff/dble(nadpt(irun))
+                coeff = coeff/real(nadpt(irun),kind=wp)
               else
-                coeff = coeff/dble(nadpt(irun)*nadpt(irun))
+                coeff = coeff/real(nadpt(irun)*nadpt(irun),kind=wp)
               end if
             end if
             !bs determine indices of atomic integrals
@@ -249,9 +253,9 @@ if (Length3_tot /= 0) then
             if (ipC(nCent(iRun)) /= -99) then
               ipSCR = ipC(ncent(irun))-1+laufalt
               ! DebugDebug
-              !write(6,*) 'laufalt=',laufalt
-              !write(6,*) 'ip''s:',ipSCR
-              !write(6,*) Scr(ipSCR,1),Scr(ipSCR,2),Scr(ipSCR,3)
+              !write(u6,*) 'laufalt=',laufalt
+              !write(u6,*) 'ip''s:',ipSCR
+              !write(u6,*) Scr(ipSCR,1),Scr(ipSCR,2),Scr(ipSCR,3)
               ! DebugDebug
               Sgn = One
               if (indexi > indexj) Sgn = -Sgn
@@ -316,7 +320,7 @@ call mma_deallocate(ifirstLM)
 call mma_deallocate(iSO_info)
 call mma_deallocate(Scr)
 call mma_deallocate(AMFI_Int)
-!BS write(6,*) 'Symmetry transformation successfully done'
+!BS write(u6,*) 'Symmetry transformation successfully done'
 
 return
 

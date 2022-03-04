@@ -11,8 +11,8 @@
 ! Copyright (C) 1996,1997, Bernd Schimmelpfennig                       *
 !***********************************************************************
 
-subroutine amfi(IN,LUPROP,iCenter)
-!###########################################################################
+subroutine amfi(LUIN,LUPROP,iCenter)
+!#######################################################################
 !
 !          A M F I
 !
@@ -94,45 +94,51 @@ subroutine amfi(IN,LUPROP,iCenter)
 !  coefficients afterwards
 !
 !                                           8.5.97
-!###########################################################################
+!#######################################################################
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LUIN, LUPROP, iCenter
 #include "para.fh"
-logical keep       ! parameter to decide about keeping angular integrals in memory
-logical makemean   ! 'true' =   generating a meanfield
-logical bonn       ! 'true' = Bonn-approach for spin-other orbit
-logical breit      ! if breit is set, BREIT-PAULI only
-logical SAMEORB    ! parameter for same-orbit only
-logical AIMP       ! parameter to delete CORE for AIMP
-logical oneonly    ! parameter to use only oneelectron integrals
-character*4 symmetry
-parameter(Lpowmax=6)
-dimension ixyzpow(3*(Lpowmax+1)*(Lpowmax+1)) !
-!bs   the ones and zeros stand four odd and even powers of x,y,z
-!bs   if you want to go higher than l=6, you have to look up
-!bs   the powers yourself, and add them to the table
-data ixyzpow/0,0,0,                                                                            & ! s-function
-             0,1,0,0,0,1,1,0,0,                                                                & ! p-functions
-             1,1,0,0,1,1,0,0,0,1,0,1,0,0,0,                                                    & ! d-functions
-             0,1,0,1,1,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,0,                                        & ! f-functions
-             1,1,0,0,1,1,1,1,0,0,1,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,                            & ! g-functions
-             0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,                & ! h-functions
-             1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0     & ! i-functions
-            /
-#include "Molcas.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: oneoverR3(:), CartOne(:,:), OneContr(:), CoulOvlp(:), PowExp(:), preY(:), preXZ(:)
-integer, allocatable :: checkxy(:), checkz(:), interxyz(:,:), SgnProd(:)
 #include "ipowxyz.fh"
+integer(kind=iwp) :: icartdim, icoulovlpdim, idim1, idim2, ifinite, ionecontrdim, ioneoverR3dim, ipowexpdim, irun, jrun, lhigh, &
+                     lrun, Mval, ncont4, numballcart
+logical(kind=iwp) :: AIMP, bonn, breit, keep, makemean, oneonly, SAMEORB
+character(len=4) :: symmetry
+integer(kind=iwp), allocatable :: checkxy(:), checkz(:), interxyz(:,:), SgnProd(:)
+real(kind=wp), allocatable :: CartOne(:,:), CoulOvlp(:), OneContr(:), oneoverR3(:), PowExp(:), preXZ(:), preY(:)
+!bs the ones and zeros stand four odd and even powers of x,y,z
+!bs if you want to go higher than l=6, you have to look up
+!bs the powers yourself, and add them to the table
+integer(kind=iwp), parameter :: Lpowmax = 6, &
+                                ixyzpow(3*(Lpowmax+1)**2) = [                                                   &
+                                  0,0,0,                                                                        & ! s-function
+                                  0,1,0,0,0,1,1,0,0,                                                            & ! p-functions
+                                  1,1,0,0,1,1,0,0,0,1,0,1,0,0,0,                                                & ! d-functions
+                                  0,1,0,1,1,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,0,                                    & ! f-functions
+                                  1,1,0,0,1,1,1,1,0,0,1,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,                        & ! g-functions
+                                  0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,            & ! h-functions
+                                  1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0 & ! i-functions
+                                ]
+!keep     : parameter to decide about keeping angular integrals in memory
+!makemean : 'true' = generating a mean field
+!bonn     : 'true' = Bonn-approach for spin-other orbit
+!breit    : if breit is set, BREIT-PAULI only
+!SAMEORB  : parameter for same-orbit only
+!AIMP     : parameter to delete CORE for AIMP
+!oneonly  : parameter to use only one-electron integrals
 
-!##########################################################################
-!bs #####################################################################
+!#######################################################################
+!bs ####################################################################
 !bs        version with all angular integrals in memory
 !keep = .true.
-!bs #####################################################################
-!bs        version without  all angular integrals in memory
+!bs ####################################################################
+!bs        version without all angular integrals in memory
 keep = .false.
-!bs #####################################################################
+!bs ####################################################################
 ifinite = 0
 !bs initialize tables with double facultatives...
 call inidf()
@@ -152,7 +158,7 @@ do irun=0,Lmax
 end do
 !bs move some powers of x,y,z to the right place   END
 !bs read the input
-call readbas(Lhigh,makemean,bonn,breit,symmetry,sameorb,AIMP,oneonly,ncont4,numballcart,IN,ifinite)
+call readbas(Lhigh,makemean,bonn,breit,symmetry,sameorb,AIMP,oneonly,ncont4,numballcart,LUIN,ifinite)
 
 icartdim = mxcontL*MxcontL*(Lmax+Lmax+1)*(Lmax+1)*Lmax
 ionecontrdim = mxcontL*MxcontL*(2*Lmax+1)*3*Lmax
@@ -164,11 +170,11 @@ call mma_allocate(cartone,icartdim,3,Label='cartone')
 call mma_allocate(OneContr,ionecontrdim,Label='OneContr')
 call mma_allocate(CoulOvlp,icoulovlpdim,Label='coulovlp')
 call mma_allocate(PowExp,iPowExpDim,Label='PowExp')
-oneoverR3(:) = 0.0d0
-cartone(:,:) = 0.0d0
-OneContr(:) = 0.0d0
-CoulOvlp(:) = 0.0d0
-PowExp(:) = 0.0d0
+oneoverR3(:) = Zero
+cartone(:,:) = Zero
+OneContr(:) = Zero
+CoulOvlp(:) = Zero
+PowExp(:) = Zero
 
 do
   if (ifinite == 2) call finite()
@@ -190,13 +196,13 @@ do
 
   !bs beginning the angular part
   if (.not. oneonly) then
-    !BS write(6,*) '***************************************************'
-    !BS write(6,*) '********   beginning the 2e-part ******************'
-    !BS write(6,*) '***************************************************'
+    !BS write(u6,*) '***************************************************'
+    !BS write(u6,*) '********   beginning the 2e-part ******************'
+    !BS write(u6,*) '***************************************************'
 
-    !bs ###################################################################
-    !bs ###################################################################
-    !bs ###################################################################
+    !bs ################################################################
+    !bs ################################################################
+    !bs ################################################################
 
     idim1 = (2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)
     idim2 = (Lmax+1)*(Lmax+1)*(Lmax+1)*(Lmax+1)
@@ -221,15 +227,15 @@ do
   end if
   if (ifinite /= 1) exit
   ! redo everything for finite core
-  !BS write(6,*) 'once more the two-electron integrals'
+  !BS write(u6,*) 'once more the two-electron integrals'
   ifinite = 2
 end do
 !bs ####################################################################
 !bs ####################################################################
 !bs ####################################################################
-!BS write(6,*) '***************************************************'
-!BS write(6,*) '*******   beginning the 1-electron-part  **********'
-!BS write(6,*) '***************************************************'
+!BS write(u6,*) '***************************************************'
+!BS write(u6,*) '*******   beginning the 1-electron-part  **********'
+!BS write(u6,*) '***************************************************'
 
 !bs The one-electron spin-orbit integrals
 
@@ -246,9 +252,9 @@ call mma_deallocate(PowExp)
 call mma_deallocate(OneContr)
 call mma_deallocate(CartOne)
 call mma_deallocate(oneoverR3)
-!BS write(6,*) '***************************************************'
-!BS write(6,*) '*******   end of  the 1-electron-part    **********'
-!BS write(6,*) '***************************************************'
+!BS write(u6,*) '***************************************************'
+!BS write(u6,*) '*******   end of  the 1-electron-part    **********'
+!BS write(u6,*) '***************************************************'
 !bs ####################################################################
 !bs ####################################################################
 !bs ####################################################################

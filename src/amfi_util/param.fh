@@ -19,12 +19,13 @@
 !bs   ###############################################################################
 !bs   ################ parameter block ##############################################
 !bs   ###############################################################################
+      integer Lanz
       parameter (Lanz=Lmax+1)   ! number of angular momenta
 !bs   ###############################################################################
 !bs   ################ parameter block ##############################################
 !bs   ###############################################################################
 !bs   overlap of normalized functions
-      REAL*8   normovlp
+      REAL*8   normovlp,OVLPinv,rootOVLP,rootOVLPinv,scratchinv
       common  /normovl/  normovlp(MxprimL,MxprimL,0:Lmax),              &
      &OVLPinv(MxprimL,MxprimL,0:Lmax),                                  &
      &rootOVLP(MxprimL,MxprimL,0:Lmax),                                 &
@@ -34,21 +35,28 @@
 !bs   for each l-value there are five blocks of size (nprimit(l),ncontrac(l))
 !bs   the original contraction coefficients (for normalized functions)
 !bs   and four modified blocks  depending on different kinematic factors and included exponents
+      real*8 contrarray
+      integer iaddori,iaddtyp1,iaddtyp2,iaddtyp3,iaddtyp4
       common /contco/                                                   &
      &contrarray((Lmax+1)*5*MxcontL*MxprimL),                           &
 !bs   the following arrays hold the start adresses of the the contraction coefficients for each l-value
      &iaddori(0:Lmax),iaddtyp1(0:Lmax),iaddtyp2(0:Lmax),                &
      &iaddtyp3(0:Lmax),iaddtyp4(0:Lmax)
 !bs   the exponents
+      real*8 exponents
       common /expo/ exponents(MxprimL,0:Lmax)
 !bs   the numbers of primitive and contracted functions for each l-value
+      integer nprimit,ncontrac,nprimit_keep,ncontrac_keep
       common /dims/ nprimit(0:Lmax),ncontrac(0:Lmax),nprimit_keep,      &
      &ncontrac_keep
 !bs   scratch should explain itself ...........
+      real*8 scratch4,cntscrtch
+      integer mcombina
       common /scratch_amfi/                                             &
      &scratch4(4*MxprimL*MxprimL),                                      &
      &mcombina(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax),          &
      &cntscrtch(MxprimL,MxcontL,0:Lmax)
+      integer Lfirst,Llast,Lblocks,Lstarter,nblock,Lvalues
       common /contint/                                                  &
      &Lfirst(4),                                                        &
      &Llast(4),Lblocks(4),Lstarter(4),                                  &
@@ -64,13 +72,16 @@
 !bs   Lblocks gives the number of L-values
 !bs   Lstarter gives the adress of each integral block on cont4
 !bs   the following block contains a lot stuff for calculating the kinematic factors
+      real*8 TKIN,evec,eval,Energy,type1,type2
       common /diagonalize/ TKIN(MxprimL*MxprimL),evec(MxprimL*MxprimL), &
      &eval(MxprimL),Energy(MxprimL),type1(MxprimL),type2(MxprimL)
 !bs
 !bs   some factors that appear a lot of times
 !bs   in the angular factors
+      real*8 preroots,clebsch
       common /prefs/ preroots(2,0:Lmax),clebsch(3,2,-Lmax:Lmax,0:Lmax)
 !bs   common block with the cartesian integrals
+      integer mcombcart,istartX,istartY,istartZ,isignM
       common /cartint/                                                  &
      &mcombcart(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax),         &
      &istartX,istartY,istartZ,                                          &
@@ -98,6 +109,8 @@
 !    *powexp(MxprimL,MxprimL,0:Lmax,
 !    *0:Lmax,0:(Lmax+Lmax+5)),
 !bs   express AOs in contracted functions
+      real*8 AOcoeffs,occup
+      integer noccorb
       common /AOincont/ AOcoeffs(MxcontL,MxcontL,0:Lmax),               &
 !bs   first index: number of contracted function
 !bs   second index: number of AO
@@ -106,5 +119,6 @@
 !bs   occupation numbers
 !bs   first index: number of AO
 !bs   second index: L-value
+      integer icore,ikeeporb,ikeeplist,nrtofiperIR
       common /corelist/ icore(0:Lmax),ikeeporb,ikeeplist(Mxcart),       &
      &nrtofiperIR(8)

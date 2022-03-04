@@ -14,12 +14,17 @@ subroutine gen1overR3(Lhigh,oneoverR3)
 !bs taken the 1/r**3 formula from the documentation and included additional
 !bs factors for normalization
 
-implicit real*8(a-h,o-z)
+use Constants, only: Two, Quart, Pi
+use Definitions, only: wp, iwp
+
+implicit none
 #include "para.fh"
+integer(kind=iwp) :: Lhigh
+real(kind=wp) :: oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
 #include "param.fh"
 #include "dofuc.fh"
-#include "real.fh"
-dimension oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
+integer(kind=iwp) :: icount, iprim1, iprim2, L
+real(kind=wp) :: alpha1, alpha2
 
 do L=1,Lhigh
   icount = 0
@@ -28,7 +33,7 @@ do L=1,Lhigh
     do iprim1=1,iprim2
       alpha1 = exponents(iprim1,L)
       icount = icount+1
-      oneoverR3(icount,L) = sqrt(2d0/pi)*(df(L+L-2)*dble(2**(L+3))*(alpha1*alpha2)**(0.25d0*dble(L+L+3)))/ &
+      oneoverR3(icount,L) = sqrt(Two/Pi)*(df(L+L-2)*real(2**(L+3),kind=wp)*(alpha1*alpha2)**(Quart*real(L+L+3,kind=wp)))/ &
                             ((alpha1+alpha2)**L*df(L+L+1))
     end do
   end do

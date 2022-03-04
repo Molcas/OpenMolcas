@@ -12,16 +12,22 @@
 subroutine initfrac(nprimit1,nprimit2,nprimit3,nprimit4,quot1,quot2,expo1,expo2,expo3,expo4)
 !bs initialize some arrays with factors  needed for cfunct(x)
 
-implicit real*8(a-h,o-z)
-dimension expo1(*), expo2(*), expo3(*), expo4(*), quot1(nprimit1,nprimit2,nprimit3,nprimit4), &
-          quot2(nprimit1,nprimit2,nprimit3,nprimit4)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nprimit1, nprimit2, nprimit3, nprimit4
+real(kind=wp) :: quot1(nprimit1,nprimit2,nprimit3,nprimit4), quot2(nprimit1,nprimit2,nprimit3,nprimit4), expo1(*), expo2(*), &
+                 expo3(*), expo4(*)
+integer(kind=iwp) :: irun1, irun2, irun3, irun4
+real(kind=wp) :: sum24
 
 do irun4=1,nprimit4
   do irun3=1,nprimit3
     do irun2=1,nprimit2
       sum24 = expo2(irun2)+expo4(irun4)
       do irun1=1,nprimit1
-        quot1(irun1,irun2,irun3,irun4) = 1d0/(1d0+(expo1(irun1)+expo3(irun3))/sum24)
+        quot1(irun1,irun2,irun3,irun4) = One/(One+(expo1(irun1)+expo3(irun3))/sum24)
       end do
     end do
   end do
@@ -31,7 +37,7 @@ do irun4=1,nprimit4
     do irun2=1,nprimit2
       sum24 = expo2(irun2)+expo4(irun4)
       do irun1=1,nprimit1
-        quot2(irun1,irun2,irun3,irun4) = 1d0/(1d0+sum24/(expo1(irun1)+expo3(irun3)))
+        quot2(irun1,irun2,irun3,irun4) = One/(One+sum24/(expo1(irun1)+expo3(irun3)))
       end do
     end do
   end do

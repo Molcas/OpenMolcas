@@ -12,38 +12,42 @@
 subroutine getAOs(lhigh)
 !bs get expansions of atomic orbitals in contracted functions
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: lhigh
 #include "para.fh"
 #include "param.fh"
-character*12 occtext, occread
-character*18 textnorbmf, textnorbmf2
-logical EX
+integer(kind=iwp) :: icont, iorbital, lrun, Lu_33
+logical(kind=iwp) :: EX
+character(len=12) :: occread, occtext
+character(len=18) :: textnorbmf, textnorbmf2
+integer(kind=iwp), external :: IsFreeUnit
 
 occtext = 'OCCUPATION: '
 textnorbmf = 'Number of orbitals'
 call f_inquire('AO-expansion',EX)
 if (.not. EX) then
-  !BS write(6,*) 'get occupations from DATA-block'
+  !BS write(u6,*) 'get occupations from DATA-block'
   call getAOs2(lhigh)
   return
 end if
-Lu_33 = 33
-Lu_33 = IsFreeUnit(Lu_33)
+Lu_33 = IsFreeUnit(33)
 call molcas_open(Lu_33,'AO-expansion')
 !open(unit=Lu_33,file='AO-expansion',status='UNKNOWN')
-!BS write(6,*) 'Orbitals for mean-field'
+!BS write(u6,*) 'Orbitals for mean-field'
 do lrun=0,lhigh
-  !BS write(6,'(A3,I3)') 'L= ',lrun
+  !BS write(u6,'(A3,I3)') 'L= ',lrun
   read(Lu_33,'(A18,I3)') textnorbmf2,noccorb(lrun)
   if (textnorbmf /= textnorbmf2) call SysAbendMsg('getAOs','wrong keyword for number of orbitals in getAOs',' ')
-  !BS write(6,*) 'number of orbitals ',noccorb(lrun)
+  !BS write(u6,*) 'number of orbitals ',noccorb(lrun)
   do iorbital=1,noccorb(lrun)
     read(Lu_33,'(A12,F5.3)') occread,occup(iorbital,lrun)
-    !BS write(6,'(A,F8.4)') occtext,occup(iorbital,lrun)
+    !BS write(u6,'(A,F8.4)') occtext,occup(iorbital,lrun)
     if (occread /= occtext) call SysAbendMsg('getAOs','error reading AOs',' ')
     read(Lu_33,*) (AOcoeffs(icont,iorbital,lrun),icont=1,ncontrac(lrun))
-    !BS write(6,'(8F10.4)') (AOcoeffs(icont,iorbital,lrun),icont=1,ncontrac(lrun))
-    !BS write(6,*) ' '
+    !BS write(u6,'(8F10.4)') (AOcoeffs(icont,iorbital,lrun),icont=1,ncontrac(lrun))
+    !BS write(u6,*) ' '
     read(Lu_33,*)
   end do
 end do

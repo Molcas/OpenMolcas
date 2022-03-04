@@ -9,11 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function mcheckz(m1,m2,m3,m4)
+function mcheckz(m1,m2,m3,m4)
 !bs makes a check, if there is an interaction inbetween cartesian functions
 !bs with m-values m1-m4
 
-integer m1, m2, m3, m4, int12a, int12b, int34a, int34b
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: mcheckz
+integer(kind=iwp) :: m1, m2, m3, m4
+integer(kind=iwp) :: int12a, int12b, int34a, int34b
 
 mcheckz = 1
 int12a = m1+m2
