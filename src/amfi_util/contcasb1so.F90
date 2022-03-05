@@ -40,7 +40,7 @@ end do
 !nprim : i-th element is number of primitive functions  i. index
 call contract(contrarray(iaddtyp4(l1)),contrarray(iaddtyp1(l2)),contrarray(iaddtyp3(l3)),contrarray(iaddtyp1(l4)),ncont,nprim, &
               scratch1,scratch2)
-call dcopy_(nprod,scratch1(1),1,cont4SO(nstart),1)
+cont4SO(nstart:nstart+nprod-1) = scratch1(1:nprod)
 
 return
 

@@ -12,6 +12,7 @@
 subroutine genovlp(Lhigh,coulovlp)
 !bs   generates overlap of normalized  primitives.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -21,7 +22,10 @@ integer(kind=iwp) :: Lhigh
 real(kind=wp) :: coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
 #include "param.fh"
 integer(kind=iwp) :: ipnt, Irun, Jrun, krun, L
-real(kind=wp) :: evecinv(MxprimL,MxprimL), fact !IFG
+real(kind=wp) :: fact
+real(kind=wp), allocatable :: evecinv(:,:)
+
+call mma_allocate(evecinv,MxprimL,MxprimL,label='evecinv')
 
 do L=0,Lhigh
   do Jrun=1,nprimit(L)
@@ -37,11 +41,7 @@ do L=0,Lhigh
       scratchinv(ipnt) = normovlp(irun,jrun,L)
     end do
   end do
-  do Jrun=1,nprimit(L)
-    do Irun=1,MxprimL
-      evecinv(Irun,Jrun) = Zero
-    end do
-  end do
+  evecinv(:,1:nprimit(L)) = Zero
   do Jrun=1,nprimit(L)
     evecinv(jrun,jrun) = One
   end do
@@ -56,9 +56,7 @@ do L=0,Lhigh
       fact = fact+evecinv(JRUN,IRUN)*evecinv(JRUN,IRUN)
     end do
     fact = One/sqrt(fact)
-    do JRUN=1,nprimit(L)
-      evecinv(JRUN,IRUN) = fact*evecinv(JRUN,IRUN)
-    end do
+    evecinv(:,IRUN) = fact*evecinv(:,IRUN)
   end do
   !bs now generate rootOVLP
   do irun=1,nprimit(L)
@@ -106,6 +104,8 @@ do L=0,Lhigh
     end do
   end do
 end do
+
+call mma_deallocate(evecinv)
 
 return
 

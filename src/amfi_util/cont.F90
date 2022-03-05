@@ -22,7 +22,6 @@ integer(kind=iwp) :: L, ifinite
 logical(kind=iwp) :: breit
 #include "para.fh"
 #include "param.fh"
-real(kind=wp) :: tkintria((MxprimL*MxprimL+MxprimL)/2) !IFG
 logical(kind=iwp) :: breit_finite
 
 breit_finite = .true.
@@ -34,9 +33,9 @@ call gentkin(L,TKIN,nprimit(L),exponents(1,L),rootOVLPinv(1,1,L))
 !bs kindiag diagonalizes TKIN
 !bs for finite nucleus
 if ((ifinite == 2) .and. (L == 0)) then
-  call kindiag(TKIN,TKINTRIA,nprimit(L),evec,eval,breit_finite)
+  call kindiag(TKIN,nprimit(L),evec,eval,breit_finite)
 else
-  call kindiag(TKIN,TKINTRIA,nprimit(L),evec,eval,breit)
+  call kindiag(TKIN,nprimit(L),evec,eval,breit)
 end if
 !bs kinemat generates kinematic factors in
 !bs the basis of eigenvectors

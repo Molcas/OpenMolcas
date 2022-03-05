@@ -21,7 +21,7 @@ integer(kind=iwp) :: L, Lmax, nprim, ncont, MxcontL
 real(kind=wp) :: oneoverR3(*), onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), contcoeff(nprim,ncont), dummy(ncont,ncont), &
                  onecartx(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), onecarty(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), &
                  onecartz(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), charge
-integer(kind=iwp) :: icont1, icont2, iprim1, iprim2, iprod, irun, jrun, M
+integer(kind=iwp) :: icont1, icont2, iprim1, iprim2, irun, jrun, M
 real(kind=wp) :: factor0, factormin, factorplus
 logical(kind=iwp) :: oneonly
 !Statement function
@@ -35,13 +35,11 @@ do jrun=1,ncont
   end do
 end do
 if (oneonly) then
-  iprod = MxcontL*MxcontL*(Lmax+Lmax+1)*(Lmax+1)
-  call dzero(onecartx,iprod)
-  call dzero(onecarty,iprod)
-  call dzero(onecartz,iprod)
+  onecartx(:,:,:) = Zero
+  onecarty(:,:,:) = Zero
+  onecartz(:,:,:) = Zero
 end if
-iprod = 3*(Lmax+lmax+1)*MxcontL*MxcontL
-call dzero(onecontr,iprod)
+onecontr(:,:,:,:) = Zero
 !bs contract onto dummy
 do icont2=1,ncont
   do icont1=1,ncont

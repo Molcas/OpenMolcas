@@ -43,8 +43,7 @@ real(kind=wp), parameter :: fine = One/speed, speed2 = speed*speed
 
 !write(u6,*) 'begin tosigy '
 !bs cleaning up the integral-array
-irun = ncontl4*ncontl2*ncontl3*ncontl1
-call dzero(carteY,irun)
+carteY(:,:,:,:) = Zero
 !bs set some signs
 !bs isgnM will give an additonal minus-sign if both m-values
 !bs (cartesian and angular) are negative  see $$$$
@@ -203,7 +202,7 @@ do while (interxyz(irun+1) > 0)
 end do
 if (cleaner) then
   do irun=1,ncontl1
-    cartey(irun,irun,1:ncontl2,1:ncontl4) = Zero
+    carteY(irun,irun,1:ncontl2,1:ncontl4) = Zero
   end do
 end if
 

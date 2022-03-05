@@ -24,6 +24,7 @@ subroutine buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,prmints,nprim1,nprim2,nprim3,n
 ! nprim1,nprim2,nprim3,nprim4 : number of primitives
 ! expo1,expo2,expo3,expo4     : arrays with the exponents
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two, Eight, Half, Pi
 use Definitions, only: wp, iwp
 
@@ -36,9 +37,14 @@ real(kind=wp) :: prmints(nprim1,nprim2,nprim3,nprim4), expo1(nprim1), expo2(npri
 #include "param.fh"
 #include "dofuc.fh"
 integer(kind=iwp) :: index1, index2, index3, index4, irun1, irun2, irun3, irun4, k, krun, limit1, limit2, n1, n13, n2, n24, n3, n4
-real(kind=wp) :: a1324, a2413, alpha13, alpha24, alpha24inv, cfunctx1(MxprimL), cfunctx2(MxprimL), doff1, doff2, fact(MxprimL), & !IFG
-                 fact1, factor, frac(MxprimL), fraclist1(0:Lmax+3), fraclist2(0:Lmax+3), pow24, pow24inv !IFG
+real(kind=wp) :: a1324, a2413, alpha13, alpha24, alpha24inv, doff1, doff2, fact1, factor, fraclist1(0:Lmax+3), &
+                 fraclist2(0:Lmax+3), pow24, pow24inv
+real(kind=wp), allocatable :: cfunctx(:), fact(:), frac(:)
 real(kind=wp), parameter :: root8ovpi = sqrt(Eight/Pi)
+
+call mma_allocate(cfunctx,MxprimL,label='cfunctx')
+call mma_allocate(fact,MxprimL,label='fact')
+call mma_allocate(frac,MxprimL,label='frac')
 
 !bs ##################################################################
 !bs   prepare indices for coulint
@@ -104,14 +110,14 @@ else
         end if
         do irun1=1,limit1
           a1324 = alpha24inv*(expo1(irun1)+expo3(irun3))
-          Cfunctx1(irun1) = fraclist1(0)
+          Cfunctx(irun1) = fraclist1(0)
           frac(irun1) = a1324/(One+a1324)
           fact(irun1) = frac(irun1)
         end do
         !vocl loop,repeat(Lmax+3)
         do k=1,(index1-1)/2
           do irun1=1,limit1
-            Cfunctx1(irun1) = Cfunctx1(irun1)+fraclist1(k)*fact(irun1)
+            Cfunctx(irun1) = Cfunctx(irun1)+fraclist1(k)*fact(irun1)
           end do
           do irun1=1,limit1
             fact(irun1) = fact(irun1)*frac(irun1)
@@ -120,7 +126,7 @@ else
         do irun1=1,limit1
           alpha13 = Half*(expo1(irun1)+expo3(irun3))
           prmints(irun1,irun2,irun3,irun4) = quotpow1(irun1,irun2,irun3,irun4)*sqrt(alpha13)*power13(irun3,irun1)*pow24inv* &
-                                             Cfunctx1(irun1)
+                                             Cfunctx(irun1)
         end do
       end do
     end do
@@ -166,27 +172,30 @@ else
         end if
         do irun1=1,limit1
           a2413 = alpha24/(expo1(irun1)+expo3(irun3))
-          Cfunctx2(irun1) = fraclist2(0)
+          Cfunctx(irun1) = fraclist2(0)
           frac(irun1) = a2413/(One+a2413)
           fact(irun1) = frac(irun1)
         end do
         !vocl loop,repeat(Lmax+3)
         do k=1,(index3-1)/2
           do irun1=1,limit1
-            Cfunctx2(irun1) = Cfunctx2(irun1)+fraclist2(k)*fact(irun1)
+            Cfunctx(irun1) = Cfunctx(irun1)+fraclist2(k)*fact(irun1)
           end do
           do irun1=1,limit1
             fact(irun1) = fact(irun1)*frac(irun1)
           end do
         end do
         do irun1=1,limit1
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)+quotpow2(irun1,irun2,irun3,irun4)*Cfunctx2(irun1)* &
+          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)+quotpow2(irun1,irun2,irun3,irun4)*Cfunctx(irun1)* &
                                              pow24/power13(irun3,irun1)
         end do
       end do
     end do
   end do
 end if
+call mma_deallocate(cfunctx)
+call mma_deallocate(fact)
+call mma_deallocate(frac)
 !bs make some mirroring for identical l-values
 !bs for the case that l1=l3
 if (l1 == l3) then

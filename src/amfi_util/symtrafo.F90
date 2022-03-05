@@ -24,17 +24,17 @@ real(kind=wp) :: SOInt(LenTot)
 #include "para.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: iBas, icc, iCent, icentprev, icoeff, iComp, idummy(8), iIrrep, ijSO, ilcentprev, imcentprev, indx, indexi, &
-                     indexj, iOff, iOff2, iOpt, iorb, ipC(MxAtom), ipSCR, iRC, irun, isame, iSmLbl, iSO, iSO_a, iSO_r, istatus, & !IFG
-                     isymunit, iunit, j1, j12, j2, jcent, jcentprev, jlcentprev, jmcentprev, jrun, jsame, jSO, jSO_r, lauf, &
-                     laufalt, Lcent(MxCart), length3, length3_tot, Lhighcent(MxAtom), LLhigh, Lrun, Lval(MxOrb), Mcent(MxCart), & !IFG
-                     Mrun, mval(MxOrb), nadpt(MxOrb), ncent(MxOrb), ncontcent(0:Lmax), not_defined, nphase(8,MxOrb), nSOs, & !IFG
-                     numballcart(MxAtom), numbofcent, numboffunct, numboffunct3, numbofsym !IFG
+                     indexj, iOff, iOff2, iOpt, iorb, ipSCR, iRC, irun, isame, iSmLbl, iSO, iSO_a, iSO_r, istatus, isymunit, &
+                     iunit, j1, j12, j2, jcent, jcentprev, jlcentprev, jmcentprev, jrun, jsame, jSO, jSO_r, lauf, laufalt, &
+                     length3, length3_tot, LLhigh, Lrun, Mrun, ncontcent(0:Lmax), not_defined, nSOs, numbofcent, numboffunct, &
+                     numboffunct3, numbofsym
 real(kind=wp) :: coeff, Sgn, tmp
 !BS character(len=20) :: filename
 character(len=8) :: xa2(4)
 character(len=3) :: send
 logical(kind=iwp) :: EX
-integer(kind=iwp), allocatable :: ifirstLM(:,:,:), iSO_info(:,:)
+integer(kind=iwp), allocatable :: C(:), ifirstLM(:,:,:), iSO_info(:,:), Lcent(:), Lhighcent(:), Lval(:), Mcent(:), mval(:), &
+                                  nadpt(:), ncent(:), nphase(:,:), numballcart(:)
 real(kind=wp), allocatable :: AMFI_Int(:,:), Scr(:,:)
 integer(kind=iwp), external :: iPntSO, isfreeunit, n2Tri
 !Statement function
@@ -76,6 +76,11 @@ rewind isymunit
 read(isymunit,*)
 read(isymunit,*)
 numbofcent = 0
+call mma_allocate(ncent,numboffunct,label='ncent')
+call mma_allocate(Lval,numboffunct,label='Lval')
+call mma_allocate(mval,numboffunct,label='mval')
+call mma_allocate(nadpt,numboffunct,label='nadpt')
+call mma_allocate(nphase,8,numboffunct,label='nphase')
 do irun=1,numboffunct
   read(isymunit,*) indx,ncent(irun),lval(irun),mval(irun),nadpt(irun),(nphase(I,irun),I=1,nadpt(irun))
   numbofcent = max(numbofcent,ncent(irun))
@@ -116,11 +121,17 @@ Scr(:,:) = Zero
 ipSCR = 1
 length3_tot = 0
 
+call mma_allocate(C,numbofcent,label='C')
+call mma_allocate(numballcart,numbofcent,label='numballcart')
+call mma_allocate(Lcent,MxCart,label='Lcent')
+call mma_allocate(Mcent,MxCart,label='Mcent')
+call mma_allocate(Lhighcent,MxAtom,label='Lhighcent')
+
 ! In a MPI run not all atomic block will be available in
 ! all processes. Make up so we know later if a particular
 ! atom is present.
 
-ipC(1:numbofcent) = -99
+C(:) = -99
 do jcent=1,numbofcent
 
 # ifdef _DEBUGPRINT_
@@ -138,7 +149,7 @@ do jcent=1,numbofcent
   write(u6,*) numballcart(icent),'functions on centre ',icent
 # endif
   length3 = ipnt(numballcart(icent),numballcart(icent))
-  ipC(iCent) = ipSCR
+  C(iCent) = ipSCR
   read(iunit) (Scr(i,1),i=ipSCR,ipSCR+length3-1)
   read(iunit) xa2
   read(iunit) (Scr(i,2),i=ipSCR,ipSCR+length3-1)
@@ -180,13 +191,17 @@ do jcent=1,numbofcent
     end do
   end do
 end do    !end of loop over centres
+call mma_deallocate(numballcart)
+call mma_deallocate(Lcent)
+call mma_deallocate(Mcent)
+call mma_deallocate(Lhighcent)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'length3_tot=',length3_tot
 call RecPrt('SCR(1,1)',' ',Scr(1,1),1,length3_tot)
 call RecPrt('SCR(1,2)',' ',Scr(1,2),1,length3_tot)
 call RecPrt('SCR(1,3)',' ',Scr(1,3),1,length3_tot)
 do iCent=1,numbofcent
-  write(u6,*) ipC(iCent)
+  write(u6,*) C(iCent)
 end do
 #endif
 ! If this process does not have any blocks of integrals proceed
@@ -250,8 +265,8 @@ if (Length3_tot /= 0) then
             indexj = ifirstLM(lval(irun),mval(jrun),ncent(irun))+jsame-1
             laufalt = ipnt(indexi,indexj)
 
-            if (ipC(nCent(iRun)) /= -99) then
-              ipSCR = ipC(ncent(irun))-1+laufalt
+            if (C(nCent(iRun)) /= -99) then
+              ipSCR = C(ncent(irun))-1+laufalt
               ! DebugDebug
               !write(u6,*) 'laufalt=',laufalt
               !write(u6,*) 'ip''s:',ipSCR
@@ -270,6 +285,12 @@ if (Length3_tot /= 0) then
     end do ! jrun
   end do ! irun
 end if
+call mma_deallocate(C)
+call mma_deallocate(ncent)
+call mma_deallocate(Lval)
+call mma_deallocate(mval)
+call mma_deallocate(nadpt)
+call mma_deallocate(nphase)
 ! This test is not valid for parallel execusion, since here
 ! we have only incomplete lists.
 !if (lauf /= numboffunct3) call SysAbendMsg('symtrafo','error in numbering ',' ')
@@ -281,7 +302,7 @@ do iComp=1,nComp
       j2 = iSO_info(1,jSO)
       jSO_r = iSO_info(2,jSO)
       j12 = ieor(j1,j2)
-      if (iand(lOper(iComp),2**j12) == 0) cycle
+      if (.not. btest(lOper(iComp),j12)) cycle
 
       iOff = iPntSO(max(j1,j2),min(j1,j2),lOper(iComp),nBas)
       iOff = iOff+ip(iComp)-1

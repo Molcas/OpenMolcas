@@ -55,10 +55,10 @@ else
 end if
 !bs cleaning up
 if (bonn .or. breit .or. sameorb) then
-  call dzero(angintSO,ncontall)
+  angintSO(:,:,:,:) = Zero
 else
-  call dzero(angintSO,ncontall)
-  call dzero(angintOO,ncontall)
+  angintSO(:,:,:,:) = Zero
+  angintOO(:,:,:,:) = Zero
 end if
 !bs starting with the same-orbit-contributions
 !bs first term: ########################################################

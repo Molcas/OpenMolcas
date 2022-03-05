@@ -9,18 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine kindiag(TKIN,TKINTRIA,ndim,evec,eval,breit)
+subroutine kindiag(TKIN,ndim,evec,eval,breit)
 !bs determines eigenvectors and -values of TKIN
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ndim
-real(kind=wp) :: tkin(ndim,ndim), TKINTRIA(ndim*(ndim+1)/2), evec(ndim,ndim), eval(ndim)
+real(kind=wp) :: tkin(ndim,ndim), evec(ndim,ndim), eval(ndim)
 logical(kind=iwp) :: breit
 integer(kind=iwp) :: irun, irun1, irun2, itria, JRUN
 real(kind=wp) :: fact
+real(kind=wp), allocatable :: TKINTRIA(:)
+
+call mma_allocate(TKINTRIA,ndim*(ndim+1)/2,label='TKINTRIA')
 
 !bs move symmetric matrix to triangular matrix
 itria = 1
@@ -44,6 +48,7 @@ else
     eval(irun) = TKINTRIA(irun*(irun+1)/2)
   end do
 end if
+call mma_deallocate(TKINTRIA)
 !bs ensure normalization of the vectors.
 do IRUN=1,ndim
   fact = Zero

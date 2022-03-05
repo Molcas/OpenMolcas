@@ -84,7 +84,7 @@ do iSkal=1,nSkal
     write(u6,*) ' Shells higher than '//Angtp(Lmax)//'-functions not allowed in AMFI.'
     call Quit_OnUserError()
   end if
-  if ((iSD(1,iSkal) >= 2) .and. (iand(iSD(9,iSkal),1) /= 1)) then
+  if ((iSD(1,iSkal) >= 2) .and. (.not. btest(iSD(9,iSkal),0))) then
     write(u6,*) ' Only real spherical harmonics allowed'
     write(u6,*) ' for AMFI.'
     call Quit_OnUserError()

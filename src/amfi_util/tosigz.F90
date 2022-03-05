@@ -41,8 +41,7 @@ real(kind=wp) :: factor, prexz1234
 real(kind=wp), parameter :: fine = One/speed, speed2 = speed**2
 
 !bs cleaning up the integral-array
-irun = ncontl4*ncontl2*ncontl3*ncontl1
-call dzero(carteZ,irun)
+carteZ(:,:,:,:) = Zero
 !write(u6,*) 'begin tosigz'
 !bs set some signs
 !bs isgnM will give an additonal minus-sign if both m-values
@@ -184,7 +183,7 @@ do while (interxyz(irun+1) > 0)
 end do
 if (cleaner) then
   do irun=1,ncontl1
-    cartez(irun,irun,1:ncontl2,1:ncontl4) = Zero
+    carteZ(irun,irun,1:ncontl2,1:ncontl4) = Zero
   end do
 end if
 

@@ -20,7 +20,7 @@ integer(kind=iwp) :: lhigh
 #include "para.fh"
 #include "param.fh"
 #include "nucleus.fh"
-integer(kind=iwp) :: closedshells(0:LMAX), i, lrun, openshells(0:LMAX) !IFG
+integer(kind=iwp) :: closedshells(0:LMAX), i, lrun, openshells(0:LMAX)
 
 call getocc_ao(int(charge),closedshells,openshells)
 AOcoeffs(:,:,0:lhigh) = Zero

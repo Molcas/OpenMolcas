@@ -43,8 +43,7 @@ real(kind=wp), parameter :: fine = One/speed, speed2 = speed**2
 
 !write(u6,*) ' begin tosigx'
 !bs cleaning up the integral-array
-irun = ncontl1*ncontl2*ncontl3*ncontl4
-call dzero(cartex,irun)
+carteX(:,:,:,:) = Zero
 !bs set some signs
 !bs isgnM will give an additonal minus-sign if both m-values
 !bs (cartesian and angular) are negative  see $$$$
@@ -186,7 +185,7 @@ do while (interxyz(irun+1) > 0)
 end do
 if (cleaner) then
   do irun=1,ncontl1
-    cartex(irun,irun,:,:) = Zero
+    carteX(irun,irun,:,:) = Zero
   end do
 end if
 

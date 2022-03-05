@@ -12,6 +12,7 @@
 subroutine gentkin(L,TKIN,nprims,exponents,rootOVLPinv)
 !bs subroutine to generate the kinetic energy
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -20,8 +21,11 @@ integer(kind=iwp) :: L, nprims
 #include "para.fh"
 real(kind=wp) :: TKIN(nprims,nprims), exponents(*), rootOVLPinv(MxprimL,MxprimL)
 integer(kind=iwp) :: irun, irun1, irun2, jrun, krun
-real(kind=wp) :: dummy(MxprimL,MxprimL), dummy2(MxprimL,MxprimL) !IFG
+real(kind=wp), allocatable :: dummy(:,:), dummy2(:,:)
 real(kind=wp), external :: Tkinet
+
+call mma_allocate(dummy,MxprimL,MxprimL,label='dummy')
+call mma_allocate(dummy2,MxprimL,MxprimL,label='dummy2')
 
 !bs one triangular part of the matrix
 do irun2=1,nprims
@@ -36,12 +40,8 @@ do irun2=1,nprims-1
   end do
 end do
 !bs now transform by rootovlp*dummy*rootovlp
-do jrun=1,nprims
-  do irun=1,nprims
-    TKIN(irun,jrun) = Zero
-    dummy2(irun,jrun) = Zero
-  end do
-end do
+TKIN(1:nprims,1:nprims) = Zero
+dummy2(1:nprims,1:nprims) = Zero
 do irun=1,nprims
   do jrun=1,nprims
     do krun=1,nprims
@@ -56,6 +56,9 @@ do irun=1,nprims
     end do
   end do
 end do
+
+call mma_deallocate(dummy)
+call mma_deallocate(dummy2)
 
 return
 
