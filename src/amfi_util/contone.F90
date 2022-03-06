@@ -13,6 +13,7 @@ subroutine contone(L,oneoverR3,onecontr,Lmax,contcoeff,nprim,ncont,MxcontL,dummy
 !bs contracts one-electron integrals and multiplies with l,m-dependent
 !bs factors for L-,L0,L+
 
+use index_functions, only: iTri
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -24,9 +25,6 @@ real(kind=wp) :: oneoverR3(*), onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), contcoeff
 integer(kind=iwp) :: icont1, icont2, iprim1, iprim2, irun, jrun, M
 real(kind=wp) :: factor0, factormin, factorplus
 logical(kind=iwp) :: oneonly
-!Statement function
-integer(kind=iwp) :: ipnt, I, J
-ipnt(I,J) = (max(i,j)*(max(i,j)-1))/2+min(i,j)
 
 !bs first of all cleaning dummy and onecontr
 dummy(:,:) = Zero
@@ -41,7 +39,7 @@ do icont2=1,ncont
   do icont1=1,ncont
     do iprim2=1,nprim
       do iprim1=1,nprim
-        dummy(icont1,icont2) = dummy(icont1,icont2)+contcoeff(iprim1,icont1)*contcoeff(iprim2,icont2)*oneoverR3(ipnt(iprim1,iprim2))
+        dummy(icont1,icont2) = dummy(icont1,icont2)+contcoeff(iprim1,icont1)*contcoeff(iprim2,icont2)*oneoverR3(iTri(iprim1,iprim2))
       end do
     end do
   end do

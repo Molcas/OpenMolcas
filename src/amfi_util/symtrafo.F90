@@ -13,6 +13,7 @@ subroutine SymTrafo(LUPROP,ip,lOper,nComp,nBas,nIrrep,Label,MolWgh,SOInt,LenTot)
 !bs   Purpose: combine SO-integrals from amfi to symmetry-adapted
 !bs   integrals on one file AOPROPER_MF_SYM
 
+use index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -23,7 +24,7 @@ character(len=8) :: Label
 real(kind=wp) :: SOInt(LenTot)
 #include "para.fh"
 #include "Molcas.fh"
-integer(kind=iwp) :: iBas, icc, iCent, icentprev, icoeff, iComp, idummy(8), iIrrep, ijSO, ilcentprev, imcentprev, indx, indexi, &
+integer(kind=iwp) :: I, iBas, icc, iCent, icentprev, icoeff, iComp, idummy(8), iIrrep, ijSO, ilcentprev, imcentprev, indx, indexi, &
                      indexj, iOff, iOff2, iOpt, iorb, ipSCR, iRC, irun, isame, iSmLbl, iSO, iSO_a, iSO_r, istatus, isymunit, &
                      iunit, j1, j12, j2, jcent, jcentprev, jlcentprev, jmcentprev, jrun, jsame, jSO, jSO_r, lauf, laufalt, &
                      length3, length3_tot, LLhigh, Lrun, Mrun, ncontcent(0:Lmax), not_defined, nSOs, numbofcent, numboffunct, &
@@ -37,9 +38,6 @@ integer(kind=iwp), allocatable :: C(:), ifirstLM(:,:,:), iSO_info(:,:), Lcent(:)
                                   nadpt(:), ncent(:), nphase(:,:), numballcart(:)
 real(kind=wp), allocatable :: AMFI_Int(:,:), Scr(:,:)
 integer(kind=iwp), external :: iPntSO, isfreeunit, n2Tri
-!Statement function
-integer(kind=iwp) :: IPNT, I, J
-IPNT(I,J) = (max(i,j)*max(i,j)-max(i,j))/2+min(i,j)
 
 ! These variables are just placeholders for reading
 #include "macros.fh"
@@ -148,7 +146,7 @@ do jcent=1,numbofcent
 # ifdef _DEBUGPRINT_
   write(u6,*) numballcart(icent),'functions on centre ',icent
 # endif
-  length3 = ipnt(numballcart(icent),numballcart(icent))
+  length3 = iTri(numballcart(icent),numballcart(icent))
   C(iCent) = ipSCR
   read(iunit) (Scr(i,1),i=ipSCR,ipSCR+length3-1)
   read(iunit) xa2
@@ -165,7 +163,7 @@ do jcent=1,numbofcent
   end do
   Lhighcent(icent) = LLhigh
   !bs determize where the first function of a special type is..
-  not_defined = ipnt(numboffunct,numboffunct)+1
+  not_defined = iTri(numboffunct,numboffunct)+1
   do Lrun=0,Lhighcent(icent)
     ifirstLM(Lrun,-Lrun:Lrun,icent) = not_defined
   end do
@@ -261,7 +259,7 @@ if (Length3_tot /= 0) then
             !bs determine indices of atomic integrals
             indexi = ifirstLM(lval(irun),mval(irun),ncent(irun))+isame-1
             indexj = ifirstLM(lval(irun),mval(jrun),ncent(irun))+jsame-1
-            laufalt = ipnt(indexi,indexj)
+            laufalt = iTri(indexi,indexj)
 
             if (C(nCent(iRun)) /= -99) then
               ipSCR = C(ncent(irun))-1+laufalt
@@ -305,11 +303,11 @@ do iComp=1,nComp
       iOff = iPntSO(max(j1,j2),min(j1,j2),lOper(iComp),nBas)
       iOff = iOff+ip(iComp)-1
 
-      iOff2 = iPnt(iSO,jSO)
+      iOff2 = iTri(iSO,jSO)
 
       tmp = -AMFI_Int(iOff2,iComp)
       if (j1 == j2) then
-        ijSO = iPnt(iSO_r,jSO_r)
+        ijSO = iTri(iSO_r,jSO_r)
       else
         ijSO = (jSO_r-1)*nBas(j1)+iSO_r
       end if

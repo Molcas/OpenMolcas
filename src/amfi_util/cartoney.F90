@@ -12,6 +12,7 @@
 subroutine cartoneY(L,Lmax,onecontr,ncontrac,MxcontL,onecartY)
 !bs arranges the cartesian one-electron integrals for Y on a quadratic matrix
 
+use index_functions, only: iTri
 use Constants, only: Quart
 use Definitions, only: wp, iwp
 
@@ -20,27 +21,24 @@ integer(kind=iwp) :: L, Lmax, ncontrac, MxcontL
 real(kind=wp) :: onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), onecartY(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
 integer(kind=iwp) :: iaddr, M, Mprime
 real(kind=wp) :: pre
-!Statement function
-integer(kind=iwp) :: ipnt, I, J
-ipnt(I,J) = (max(i,j)*(max(i,j)-1))/2+min(i,j)
 
 !bs + + Integrals    m || mprime     mprime=m+1
 do Mprime=2,L
   M = mprime-1
-  iaddr = ipnt(Mprime+L+1,M+L+1)
+  iaddr = iTri(Mprime+L+1,M+L+1)
   onecartY(1:ncontrac,1:ncontrac,iaddr) = onecartY(1:ncontrac,1:ncontrac,iaddr)- &
                                           Quart*(onecontr(1:ncontrac,1:ncontrac,Mprime,1)+onecontr(1:ncontrac,1:ncontrac,-Mprime,3))
 end do
 !bs - - Integrals    m || mprime     mprime=m-1
 do Mprime=1,L-1
   M = mprime+1
-  iaddr = ipnt(-Mprime+L+1,-M+L+1)
+  iaddr = iTri(-Mprime+L+1,-M+L+1)
   onecartY(1:ncontrac,1:ncontrac,iaddr) = onecartY(1:ncontrac,1:ncontrac,iaddr)+ &
                                           Quart*(onecontr(1:ncontrac,1:ncontrac,Mprime,3)+onecontr(1:ncontrac,1:ncontrac,-Mprime,1))
 end do
 !bs  0 || 1 integrals
 pre = -sqrt(0.125_wp)
-iaddr = ipnt(L+1,L+2)
+iaddr = iTri(L+1,L+2)
 onecartY(1:ncontrac,1:ncontrac,iaddr) = onecartY(1:ncontrac,1:ncontrac,iaddr)+ &
                                         pre*(onecontr(1:ncontrac,1:ncontrac,1,1)+onecontr(1:ncontrac,1:ncontrac,-1,3))
 

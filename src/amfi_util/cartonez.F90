@@ -12,6 +12,7 @@
 subroutine cartoneZ(L,Lmax,onecontr,ncontrac,MxcontL,onecartZ)
 !bs arranges the cartesian one-electron integrals for Z on a quadratic matrix
 
+use index_functions, only: iTri
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
@@ -19,13 +20,10 @@ implicit none
 integer(kind=iwp) :: L, Lmax, ncontrac, MxcontL
 real(kind=wp) :: onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
 integer(kind=iwp) :: iaddr, Mprime
-!Statement function
-integer(kind=iwp) :: ipnt, I, J
-ipnt(I,J) = (max(i,j)*(max(i,j)-1))/2+min(i,j)
 
 !bs - + Integrals    m || mprime     mprime=m
 do Mprime=1,L
-  iaddr = ipnt(Mprime+L+1,-mprime+L+1)
+  iaddr = iTri(Mprime+L+1,-mprime+L+1)
   onecartZ(1:ncontrac,1:ncontrac,iaddr) = onecartZ(1:ncontrac,1:ncontrac,iaddr)+ &
                                           Half*(onecontr(1:ncontrac,1:ncontrac,Mprime,2)-onecontr(1:ncontrac,1:ncontrac,-Mprime,2))
 end do

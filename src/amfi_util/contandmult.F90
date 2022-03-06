@@ -11,6 +11,7 @@
 
 subroutine contandmult(Lhigh,AIMP,oneonly,numballcart,LUPROP,ifinite,onecart,onecontr,oneoverR3,iCenter)
 
+use index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -24,13 +25,10 @@ real(kind=wp) :: onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3), onecont
 #include "param.fh"
 #include "ired.fh"
 #include "nucleus.fh"
-integer(kind=iwp) :: icartfirst, icartsec, ind1, ind2, ipntnew, ipntold, ipowx, ipowy, ipowz, ired1, ired2, iredfirst, iredired, &
-                     iredsec, irun, irun1, irun2, L, length3, Lrun, Mfirst, mrun, Msec, norb1, norb2, norbsh1, norbsh2
+integer(kind=iwp) :: I, icartfirst, icartsec, ind1, ind2, ipntnew, ipntold, ipowx, ipowy, ipowz, ired1, ired2, iredfirst, &
+                     iredired, iredsec, irun, irun1, irun2, L, length3, Lrun, Mfirst, mrun, Msec, norb1, norb2, norbsh1, norbsh2
 character(len=8) :: xa(4), ya(4), za(4)
 real(kind=wp), allocatable :: Dummy(:), OCA(:,:), OCA2(:,:), OCA3(:,:)
-!Statement function
-integer(kind=iwp) :: IPNT, I, J
-IPNT(I,J) = (J*J-J)/2+I
 
 !bs get back the real number of functions for the finite nucleus
 if (ifinite == 2) ncontrac(0) = ncontrac_keep
@@ -201,8 +199,8 @@ else
     do irun1=1,irun2
       ind2 = ikeeplist(irun2)
       ind1 = ikeeplist(irun1)
-      ipntold = ipnt(ind1,ind2)
-      ipntnew = ipnt(irun1,irun2)
+      ipntold = iTri(ind1,ind2)
+      ipntnew = iTri(irun1,irun2)
 
       oca3(ipntnew,:) = oca2(ipntold,:)
     end do
