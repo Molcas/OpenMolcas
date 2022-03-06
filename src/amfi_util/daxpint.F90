@@ -20,18 +20,15 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: ndim1, ndim2, ndim3, ndim4
 real(kind=wp) :: from(ndim1,ndim2,ndim3,ndim4), to(ndim1,ndim3,ndim2,ndim4), fact
-integer(kind=iwp) :: irun1, irun2, irun3, irun4
+integer(kind=iwp) :: irun2, irun3
 
-if (fact == Zero) return
-do irun4=1,ndim4
+if (fact /= Zero) then
   do irun3=1,ndim3
     do irun2=1,ndim2
-      do irun1=1,ndim1
-        to(irun1,irun3,irun2,irun4) = to(irun1,irun3,irun2,irun4)+fact*from(irun1,irun2,irun3,irun4)
-      end do
+      to(:,irun3,irun2,:) = to(:,irun3,irun2,:)+fact*from(:,irun2,irun3,:)
     end do
   end do
-end do
+end if
 
 return
 

@@ -54,10 +54,10 @@ end do
 
 !write(u6,*),'start to generate CGs'
 do L=0,Lmax
-  L2 = L+L
+  L2 = 2*L
   do M=-L,L
     !write(u6,*) 'L,M: ',L,M
-    M2 = M+M
+    M2 = 2*M
     !bs getCG calculates CG-coeffecients. In order to avoid fractions,
     !bs e.g. for spins, arguments are doubled values...
     clebsch(1,1,M,L) = getCG(L2-2,2,L2,M2-2,2,M2)

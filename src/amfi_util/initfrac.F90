@@ -19,16 +19,14 @@ implicit none
 integer(kind=iwp) :: nprimit1, nprimit2, nprimit3, nprimit4
 real(kind=wp) :: quot1(nprimit1,nprimit2,nprimit3,nprimit4), quot2(nprimit1,nprimit2,nprimit3,nprimit4), expo1(*), expo2(*), &
                  expo3(*), expo4(*)
-integer(kind=iwp) :: irun1, irun2, irun3, irun4
+integer(kind=iwp) :: irun2, irun3, irun4
 real(kind=wp) :: sum24
 
 do irun4=1,nprimit4
   do irun3=1,nprimit3
     do irun2=1,nprimit2
       sum24 = expo2(irun2)+expo4(irun4)
-      do irun1=1,nprimit1
-        quot1(irun1,irun2,irun3,irun4) = One/(One+(expo1(irun1)+expo3(irun3))/sum24)
-      end do
+      quot1(1:nprimit1,irun2,irun3,irun4) = One/(One+(expo1(1:nprimit1)+expo3(irun3))/sum24)
     end do
   end do
 end do
@@ -36,9 +34,7 @@ do irun4=1,nprimit4
   do irun3=1,nprimit3
     do irun2=1,nprimit2
       sum24 = expo2(irun2)+expo4(irun4)
-      do irun1=1,nprimit1
-        quot2(irun1,irun2,irun3,irun4) = One/(One+sum24/(expo1(irun1)+expo3(irun3)))
-      end do
+      quot2(1:nprimit1,irun2,irun3,irun4) = One/(One+sum24/(expo1(1:nprimit1)+expo3(irun3)))
     end do
   end do
 end do

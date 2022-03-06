@@ -29,7 +29,7 @@ subroutine chngcont(coeffs,coeffst1,coeffst1a,coeffst2,coeffst2a,ncont,nprims,ev
 !coeffst2a : c*A/(E+m) * cont coeff
 !coeffst2  : c*A/(E+m) * alpha *cont coeff
 
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -37,113 +37,45 @@ integer(kind=iwp) :: ncont, nprims, MxprimL
 real(kind=wp) :: coeffs(nprims,ncont), coeffst1(nprims,ncont), coeffst1a(nprims,ncont), coeffst2(nprims,ncont), &
                  coeffst2a(nprims,ncont), evec(nprims,nprims), type1(*), type2(*), work(nprims,nprims), work2(nprims,nprims), &
                  work3(nprims,nprims), rootOVLP(MxprimL,*), OVLPinv(MxprimL,*), exponents(*)
-integer(kind=iwp) :: I, J, K
+integer(kind=iwp) :: K
 
 !bs first new coefficients for type1 (A)
 !bs generate a transformation matrix on work
 
-work(:,:) = Zero
-work2(:,:) = Zero
-work3(:,:) = Zero
 !bs build up the transformation matrix
 do K=1,nprims
-  do J=1,nprims
-    do I=1,nprims
-      work(I,J) = work(I,J)+evec(I,K)*type1(K)*evec(J,K)
-    end do
-  end do
+  work2(:,K) = type1(K)*evec(:,K)
 end do
-do K=1,nprims
-  do J=1,nprims
-    do I=1,nprims
-      work2(I,J) = work2(I,J)+work(I,K)*rootOVLP(K,J)
-    end do
-  end do
-end do
-do K=1,nprims
-  do J=1,nprims
-    do I=1,nprims
-      work3(I,J) = work3(I,J)+rootOVLP(I,K)*work2(K,J)
-    end do
-  end do
-end do
-work(:,:) = Zero
-do K=1,nprims
-  do J=1,nprims
-    do I=1,nprims
-      work(J,I) = work(J,I)+OVLPinv(I,K)*work3(K,J)
-    end do
-  end do
-end do
-coeffst1(:,:) = Zero
+call dgemm_('N','T',nprims,nprims,nprims,One,work2,nprims,evec,nprims,Zero,work,nprims)
+call dgemm_('N','N',nprims,nprims,nprims,One,work,nprims,rootOVLP,MxprimL,Zero,work2,nprims)
+call dgemm_('N','N',nprims,nprims,nprims,One,rootOVLP,MxprimL,work2,nprims,Zero,work3,nprims)
+call dgemm_('N','N',nprims,nprims,nprims,One,OVLPinv,MxprimL,work3,nprims,Zero,work,nprims)
 !bs now transform the vectors
-do K=1,ncont
-  do J=1,nprims
-    do I=1,nprims
-      coeffst1(I,K) = coeffst1(I,K)+work(J,I)*coeffs(J,K)
-    end do
-  end do
-end do
+call dgemm_('N','N',nprims,ncont,nprims,One,work,nprims,coeffs,nprims,Zero,coeffst1,nprims)
 
 !bs now with exponent
 
 do K=1,ncont
-  do I=1,nprims
-    coeffst1a(I,K) = exponents(I)*coeffst1(I,K)
-  end do
+  coeffst1a(:,K) = exponents(1:nprims)*coeffst1(:,K)
 end do
 
 !bs and now the same for the other type  A/(E+m)
 
-work(:,:) = Zero
-work2(:,:) = Zero
-work3(:,:) = Zero
 !bs build up the transformation matrix
 do K=1,nprims
-  do J=1,nprims
-    do I=1,nprims
-      work(I,J) = work(I,J)+evec(I,K)*type2(K)*evec(J,K)
-    end do
-  end do
+  work2(:,K) = type2(K)*evec(:,K)
 end do
-do K=1,nprims
-  do J=1,nprims
-    do I=1,nprims
-      work2(I,J) = work2(I,J)+work(I,K)*rootOVLP(K,J)
-    end do
-  end do
-end do
-do K=1,nprims
-  do J=1,nprims
-    do I=1,nprims
-      work3(I,J) = work3(I,J)+rootOVLP(I,K)*work2(K,J)
-    end do
-  end do
-end do
-work(:,:) = Zero
-do K=1,nprims
-  do J=1,nprims
-    do I=1,nprims
-      work(J,I) = work(J,I)+OVLPinv(I,K)*work3(K,J)
-    end do
-  end do
-end do
-coeffst2(:,:) = Zero
+call dgemm_('N','T',nprims,nprims,nprims,One,work2,nprims,evec,nprims,Zero,work,nprims)
+call dgemm_('N','N',nprims,nprims,nprims,One,work,nprims,rootOVLP,MxprimL,Zero,work2,nprims)
+call dgemm_('N','N',nprims,nprims,nprims,One,rootOVLP,MxprimL,work2,nprims,Zero,work3,nprims)
+call dgemm_('N','N',nprims,nprims,nprims,One,OVLPinv,MxprimL,work3,nprims,Zero,work,nprims)
 !bs now transform the vectors
-do K=1,ncont
-  do J=1,nprims
-    do I=1,nprims
-      coeffst2(I,K) = coeffst2(I,K)+work(J,I)*coeffs(J,K)
-    end do
-  end do
-end do
+call dgemm_('N','N',nprims,ncont,nprims,One,work,nprims,coeffs,nprims,Zero,coeffst2,nprims)
 
 !bs now with exponent
 
 do K=1,ncont
-  do I=1,nprims
-    coeffst2a(I,K) = exponents(I)*coeffst2(I,K)
-  end do
+  coeffst2a(:,K) = exponents(1:nprims)*coeffst2(:,K)
 end do
 
 return

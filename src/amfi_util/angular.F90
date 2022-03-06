@@ -24,7 +24,7 @@ subroutine angular(Lhigh,keep,makemean,bonn,breit,sameorb,ifinite,onecartx,oneca
 !bs integrals are thrown away after each l,l,l,l-block
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, Two, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -62,27 +62,39 @@ else
 end if
 
 !bs generate an array with sign for (even/odd) m-values
-isignM(0) = 1
-do I=2,Lmax,2
-  isignM(I) = 1
-  isignM(-I) = 1
-end do
-do I=1,Lmax,2
-  isignM(I) = -1
-  isignM(-I) = -1
-end do
-call genprexyz(preXZ)
-call genprexyz2(preXZ)
-call genprexyz3(preXZ)
-call genprexyz4(preXZ)
-call genprexyz5(preXZ)
-call genprexyz6(preY,preXZ)
-call genprexyz7(preXZ)
-call genprexyz8(preXZ)
-call genprexyz9(preXZ)
-call genprexyz10(preXZ)
-call genprexyz11(preY)
-call genprexyz12(preY)
+if (mod(Lmax,2) == 0) then
+  isignM(-Lmax:Lmax:2) = 1
+  isignM(-Lmax+1:Lmax-1:2) = -1
+else
+  isignM(-Lmax:Lmax:2) = -1
+  isignM(-Lmax+1:Lmax-1:2) = 1
+end if
+!bs ####################################################################
+!bs   prefactors preXZ und preY include the factors 1/root(2)
+!bs   for the +/- linear combinations of spherical harmonics
+!bs ####################################################################
+preXZ(:,:,:,:) = Quart
+preXZ(:,:,:,0) = preXZ(:,:,:,0)*sqrt(Two)
+preXZ(:,:,0,:) = preXZ(:,:,0,:)*sqrt(Two)
+preXZ(:,0,:,:) = preXZ(:,0,:,:)*sqrt(Two)
+preXZ(0,:,:,:) = preXZ(0,:,:,:)*sqrt(Two)
+preY(:,:,:,:) = preXZ(:,:,:,:)
+!bs ####################################################################
+!bs   additional (-) signs from the (-i) factors  in the
+!bs   (-) linear combinations   (see tosigX(Y,Z))
+!bs ####################################################################
+!bs   + - - -   =>   minus
+preXZ(0:,:-1,:-1,:-1) = -preXZ(0:,:-1,:-1,:-1)
+!bs   - + - -   =>   minus
+preXZ(:-1,0:,:-1,:-1) = -preXZ(:-1,0:,:-1,:-1)
+!bs   + + + -   =>   minus
+preXZ(0:,0:,0:,:-1) = -preXZ(0:,0:,0:,:-1)
+!bs   + + - +   =>   minus
+preXZ(0:,0:,:-1,0:) = -preXZ(0:,0:,:-1,0:)
+!bs   + + - -   =>   minus
+preY(0:,0:,:-1,:-1) = -preY(0:,0:,:-1,:-1)
+!bs   - - + +   =>   minus
+preY(:-1,:-1,0:,0:) = -preY(:-1,:-1,0:,0:)
 call genprexyz13(icheckxy)
 call genprexyz14(icheckz,interxyz)
 call genprexyz15a(icheckxy,icheckz,interxyz)
@@ -144,7 +156,7 @@ do l1=0,Lhigh   ! improving is probably possible...
           Lrightmin = abs(l3-l4)
           if (((Lrightmin-Lleftmax <= 1) .and. (Lrightmax-Lleftmin > -1)) .or. &
               ((Lleftmin-Lrightmax <= 1) .and. (Lleftmax-Lrightmin > -1))) then
-                !bs additional check for mean-field
+            !bs additional check for mean-field
             if (((l1 == l3) .and. (l2 == l4)) .or. ((l1 == l2) .and. (l3 == l4))) then
               if (l1+l3 /= 0) then
                 !BS write(u6,'(4I5)') l1,l2,l3,l4
@@ -201,16 +213,9 @@ do l1=0,Lhigh   ! improving is probably possible...
                 !bs which means integrals start at address 0
                 if (.not. keep) iangfirst = 0
                 locstar = iangfirst ! local starting adress counter
-                do m1=-l1,l1
-                  do m2=-l2,l2
-                    do m3=-l3,l3
-                      do m4=-l4,l4
-                        mcombina(1,m1,m2,m3,m4) = 0  ! will hold type of integrals (1,2,3)
-                        mcombina(2,m1,m2,m3,m4) = 0  ! will hold number of block
-                      end do
-                    end do
-                  end do
-                end do
+                ! col 1 will hold type of integrals (1,2,3)
+                ! col 2 will hold number of block
+                mcombina(:,-l1:l1,-l2:l2,-l3:l3,-l4:l4) = 0
                 do m1=-l1,l1
                   do m2=-l2,l2
                     do m3=-l3,l3
@@ -305,16 +310,9 @@ do l1=0,Lhigh   ! improving is probably possible...
                 !bs ###################################################################
                 !bs check out, which combinations of m-values will
                 !bs contribute to cartesian integrals
-                do m1=-l1,l1
-                  do m2=-l2,l2  ! these indices now run over the real harmonics
-                    do m3=-l3,l3
-                      do m4=-l4,l4
-                        mcombcart(1,m1,m2,m3,m4) = 0     ! will hold the type  x=1 y=2 z=3
-                        mcombcart(2,m1,m2,m3,m4) = 0     ! will hold the block number
-                      end do
-                    end do
-                  end do
-                end do
+                ! col 1 will hold the type  x=1 y=2 z=3
+                ! col 2 will hold the block number
+                mcombcart(:,-l1:l1,-l2:l2,-l3:l3,-l4:l4) = 0
                 mblockx = 0
                 mblocky = 0
                 mblockz = 0

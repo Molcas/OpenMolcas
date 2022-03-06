@@ -21,22 +21,21 @@ integer(kind=iwp) :: l1, l2, l3, l4, nstart
 real(kind=wp) :: primints(*), scratch1(*), scratch2(*), cont4SO(*)
 #include "para.fh"
 #include "param.fh"
-integer(kind=iwp) :: ilength, IRUN, ncont(4), nprim(4), nprod
+integer(kind=iwp) :: ilength, ncont(4), nprim(4), nprod
 
 ncont(1) = ncontrac(l1)
 ncont(2) = ncontrac(l2)
 ncont(3) = ncontrac(l3)
 ncont(4) = ncontrac(l4)
+nprod = ncont(1)*ncont(2)*ncont(3)*ncont(4)
 nprim(1) = nprimit(l1)
 nprim(2) = nprimit(l2)
 nprim(3) = nprimit(l3)
 nprim(4) = nprimit(l4)
 ilength = nprim(1)*nprim(2)*nprim(3)*nprim(4)
-nprod = ncont(1)*ncont(2)*ncont(3)*ncont(4)
+
 !bs copy primitive integrals to scratch1
-do IRUN=1,ilength
-  scratch1(IRUN) = primints(IRUN)
-end do
+scratch1(1:ilength) = primints(1:ilength)
 !write(u6,*) 'scratch1 ',(scratch1(I),I=1,ilength)
 !write(u6,*) 'contraction coeff'
 !write(u6,*) (contrarray(iaddtyp4(l1)+I),I=0,nprim(1)-1)
@@ -48,9 +47,7 @@ end do
 call contract(contrarray(iaddtyp4(l1)),contrarray(iaddtyp1(l2)),contrarray(iaddtyp4(l3)),contrarray(iaddtyp1(l4)),ncont,nprim, &
               scratch1,scratch2)
 !write(u6,*) 'nstart ',nstart
-do irun=1,nprod
-  cont4SO(nstart+irun-1) = scratch1(irun)
-end do
+cont4SO(nstart:nstart+nprod-1) = scratch1(1:nprod)
 
 return
 

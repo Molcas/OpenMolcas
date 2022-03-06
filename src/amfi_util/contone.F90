@@ -29,11 +29,7 @@ integer(kind=iwp) :: ipnt, I, J
 ipnt(I,J) = (max(i,j)*(max(i,j)-1))/2+min(i,j)
 
 !bs first of all cleaning dummy and onecontr
-do jrun=1,ncont
-  do irun=1,ncont
-    dummy(irun,jrun) = Zero
-  end do
-end do
+dummy(:,:) = Zero
 if (oneonly) then
   onecartx(:,:,:) = Zero
   onecarty(:,:,:) = Zero
@@ -50,16 +46,11 @@ do icont2=1,ncont
     end do
   end do
 end do
-do icont2=1,ncont
-  do icont1=1,ncont
-    dummy(icont1,icont2) = dummy(icont1,icont2)*charge
-  end do
-end do
 !bs start to add l,m dependent factors
 do M=-L,L
-  factormin = sqrt(real(L*L-M*M+L+M,kind=wp))
-  factor0 = real(M,kind=wp)
-  factorplus = sqrt(real(L*L-M*M+L-M,kind=wp))
+  factormin = charge*sqrt(real(L*L-M*M+L+M,kind=wp))
+  factor0 = charge*real(M,kind=wp)
+  factorplus = charge*sqrt(real(L*L-M*M+L-M,kind=wp))
   do irun=1,ncont
     do jrun=1,ncont
       onecontr(irun,jrun,M,1) = dummy(jrun,irun)*factormin  ! L-minus

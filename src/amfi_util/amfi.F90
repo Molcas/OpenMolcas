@@ -144,15 +144,11 @@ ifinite = 0
 call inidf()
 !bs move some powers of x,y,z to the right place   BEGIN
 !bs check if Lpowmax is high enough..
-if (Lpowmax < Lmax) then
-  call SysAbendMsg('amfi','increase lpowmax and edit ixyzpow',' ')
-end if
+if (Lpowmax < Lmax) call SysAbendMsg('amfi','increase lpowmax and edit ixyzpow',' ')
 jrun = 1
 do irun=0,Lmax
   do Mval=-irun,irun
-    ipowxyz(1,Mval,irun) = ixyzpow(jrun)
-    ipowxyz(2,Mval,irun) = ixyzpow(jrun+1)
-    ipowxyz(3,Mval,irun) = ixyzpow(jrun+2)
+    ipowxyz(:,Mval,irun) = ixyzpow(jrun:jrun+2)
     jrun = jrun+3
   end do
 end do

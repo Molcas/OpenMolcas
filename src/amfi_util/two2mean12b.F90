@@ -20,7 +20,7 @@ integer(kind=iwp) :: ncontmf, norbsum, noccorb
 real(kind=wp) :: carteSO(ncontmf,norbsum,ncontmf,norbsum), carteOO(ncontmf,norbsum,ncontmf,norbsum), occup(*), &
                  AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
 logical(kind=iwp) :: sameorb
-integer(kind=iwp) :: icartleft, icartright, irun, jrun, Mrun
+integer(kind=iwp) :: icartleft, icartright, jrun, Mrun
 real(kind=wp) :: coeff
 
 if (sameorb) then
@@ -31,10 +31,8 @@ if (sameorb) then
         coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
       end do
       coeff = Half*coeff
-      do irun=1,ncontmf
-        do jrun=1,ncontmf
-          onecart(irun,jrun) = onecart(irun,jrun)+coeff*carteSO(jrun,icartleft,irun,icartright)
-        end do
+      do jrun=1,ncontmf
+        onecart(1:ncontmf,jrun) = onecart(1:ncontmf,jrun)+coeff*carteSO(jrun,icartleft,1:ncontmf,icartright)
       end do
     end do
   end do
@@ -46,11 +44,10 @@ else
         coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
       end do
       coeff = Half*coeff
-      do irun=1,ncontmf
-        do jrun=1,ncontmf
-          onecart(irun,jrun) = onecart(irun,jrun)+ &
-                               coeff*(carteSO(jrun,icartleft,irun,icartright)+Two*carteOO(jrun,icartleft,irun,icartright))
-        end do
+      do jrun=1,ncontmf
+        onecart(1:ncontmf,jrun) = onecart(1:ncontmf,jrun)+ &
+                                  coeff*(carteSO(jrun,icartleft,1:ncontmf,icartright)+ &
+                                         Two*carteOO(jrun,icartleft,1:ncontmf,icartright))
       end do
     end do
   end do

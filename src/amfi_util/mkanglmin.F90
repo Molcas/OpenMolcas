@@ -28,7 +28,7 @@ real(kind=wp) :: angintSO(ncont1,ncont2,ncont3,ncont4), angintOO(ncont1,ncont2,n
                  caseb2OO(ncont1*ncont2*ncont3*ncont4,*), casecOO(ncont1*ncont2*ncont3*ncont4,*), preroots(2,0:Lmax), &
                  clebsch(3,2,-Lmax:Lmax,0:Lmax), dummy(0:*)
 logical(kind=iwp) :: bonn, breit, sameorb
-integer(kind=iwp) :: I, Kfirst, Klast, L, Lrun, M, ncontall
+integer(kind=iwp) :: Kfirst, Klast, L, Lrun, M, ncontall
 real(kind=wp) :: cheater, factor
 real(kind=wp), parameter :: root2 = sqrt(Two), root2inv = One/root2
 real(kind=wp), external :: LMdepang
@@ -65,9 +65,7 @@ end if
 !bs first term: ########################################################
 factor = -root2inv*preroots(2,l1)*preroots(2,l3)*clebsch(3,2,m1,l1)*clebsch(2,2,m3,l3)
 if (factor /= Zero) then
-  do I=0,Lmax+Lmax+1
-    dummy(I) = Zero
-  end do
+  dummy(:2*Lmax+1) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -76,10 +74,10 @@ if (factor /= Zero) then
       dummy(L) = LMdepang(L,M,l1+1,l2,l3+1,l4,m1+1,m2,m3,m4,cheater)
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -89,11 +87,9 @@ end if
 !bs second term: #######################################################
 factor = -root2inv*preroots(1,l1)*preroots(2,l3)*clebsch(3,1,m1,l1)*clebsch(2,2,m3,l3)
 if (factor /= Zero) then
-  do I=0,Lmax+Lmax+1
-    dummy(I) = Zero
-  end do
   Klast = 0
-  Kfirst = Lmax+Lmax+1 ! just to be sure ..
+  Kfirst = 2*Lmax+1 ! just to be sure ..
+  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -104,10 +100,10 @@ if (factor /= Zero) then
       dummy(L) = LMdepang(L,M,l1-1,l2,l3+1,l4,m1+1,m2,m3,m4,cheater)
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -131,10 +127,10 @@ if (factor /= Zero) then
     do L=Lfirst(3),Llast(3),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2OO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2OO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -144,11 +140,9 @@ end if
 !bs third term: ########################################################
 factor = -root2inv*preroots(2,l1)*preroots(1,l3)*clebsch(3,2,m1,l1)*clebsch(2,1,m3,l3)
 if (factor /= Zero) then
-  do I=0,Lmax+Lmax+1
-    dummy(I) = Zero
-  end do
   Klast = 0
-  Kfirst = Lmax+Lmax+1 ! just to be sure ..
+  Kfirst = 2*Lmax+1 ! just to be sure ..
+  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -159,10 +153,10 @@ if (factor /= Zero) then
       dummy(L) = LMdepang(L,M,l1+1,l2,l3-1,l4,m1+1,m2,m3,m4,cheater)
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -186,10 +180,10 @@ if (factor /= Zero) then
     do L=Lfirst(2),Llast(2),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1OO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1OO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -199,11 +193,9 @@ end if
 !bs fourth term: #######################################################
 factor = -root2inv*preroots(1,l1)*preroots(1,l3)*clebsch(3,1,m1,l1)*clebsch(2,1,m3,l3)
 if (factor /= Zero) then
-  do I=0,Lmax+Lmax+1
-    dummy(I) = Zero
-  end do
   Klast = 0
-  Kfirst = Lmax+Lmax+1 ! just to be sure ..
+  Kfirst = 2*Lmax+1 ! just to be sure ..
+  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -214,10 +206,10 @@ if (factor /= Zero) then
       dummy(L) = LMdepang(L,M,l1-1,l2,l3-1,l4,m1+1,m2,m3,m4,cheater)
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -241,10 +233,10 @@ if (factor /= Zero) then
     do L=Lfirst(2),Llast(2),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1OO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1OO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -268,10 +260,10 @@ if (factor /= Zero) then
     do L=Lfirst(3),Llast(3),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2OO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2OO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -295,10 +287,10 @@ if (factor /= Zero) then
     do L=Lfirst(4),Llast(4),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -308,9 +300,7 @@ end if
 !bs fifth term: ########################################################
 factor = -root2inv*preroots(2,l1)*preroots(2,l3)*clebsch(2,2,m1,l1)*clebsch(1,2,m3,l3)
 if (factor /= Zero) then
-  do I=0,Lmax+Lmax+1
-    dummy(I) = Zero
-  end do
+  dummy(:2*Lmax+1) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -319,10 +309,10 @@ if (factor /= Zero) then
       dummy(L) = LMdepang(L,M,l1+1,l2,l3+1,l4,m1,m2,m3-1,m4,cheater)
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -332,11 +322,9 @@ end if
 !bs sixth term: ########################################################
 factor = -root2inv*preroots(1,l1)*preroots(2,l3)*clebsch(2,1,m1,l1)*clebsch(1,2,m3,l3)
 if (factor /= Zero) then
-  do I=0,Lmax+Lmax+1
-    dummy(I) = Zero
-  end do
   Klast = 0
-  Kfirst = Lmax+Lmax+1 ! just to be sure ..
+  Kfirst = 2*Lmax+1 ! just to be sure ..
+  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -347,10 +335,10 @@ if (factor /= Zero) then
       dummy(L) = LMdepang(L,M,l1-1,l2,l3+1,l4,m1,m2,m3-1,m4,cheater)
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -374,10 +362,10 @@ if (factor /= Zero) then
     do L=Lfirst(3),Llast(3),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2OO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2OO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -387,11 +375,9 @@ end if
 !bs seventh term: ######################################################
 factor = -root2inv*preroots(2,l1)*preroots(1,l3)*clebsch(2,2,m1,l1)*clebsch(1,1,m3,l3)
 if (factor /= Zero) then
-  do I=0,Lmax+Lmax+1
-    dummy(I) = Zero
-  end do
   Klast = 0
-  Kfirst = Lmax+Lmax+1 ! just to be sure ..
+  Kfirst = 2*Lmax+1 ! just to be sure ..
+  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -402,10 +388,10 @@ if (factor /= Zero) then
       dummy(L) = LMdepang(L,M,l1+1,l2,l3-1,l4,m1,m2,m3-1,m4,cheater)
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -429,10 +415,10 @@ if (factor /= Zero) then
     do L=Lfirst(2),Llast(2),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1OO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1OO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -442,11 +428,9 @@ end if
 !bs eighth term: #######################################################
 factor = -root2inv*preroots(1,l1)*preroots(1,l3)*clebsch(2,1,m1,l1)*clebsch(1,1,m3,l3)
 if (factor /= Zero) then
-  do I=0,Lmax+Lmax+1
-    dummy(I) = Zero
-  end do
   Klast = 0
-  Kfirst = Lmax+Lmax+1 ! just to be sure ..
+  Kfirst = 2*Lmax+1 ! just to be sure ..
+  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -457,10 +441,10 @@ if (factor /= Zero) then
       dummy(L) = LMdepang(L,M,l1-1,l2,l3-1,l4,m1,m2,m3-1,m4,cheater)
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,Four*factor*dummy(L),caseaOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -484,10 +468,10 @@ if (factor /= Zero) then
     do L=Lfirst(2),Llast(2),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1OO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1SO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l3,kind=wp)*factor*dummy(L),caseb1OO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -511,10 +495,10 @@ if (factor /= Zero) then
     do L=Lfirst(3),Llast(3),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2OO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2SO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,-real(2+4*l1,kind=wp)*factor*dummy(L),caseb2OO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1
@@ -538,10 +522,10 @@ if (factor /= Zero) then
     do L=Lfirst(4),Llast(4),2
       if (dummy(L) /= Zero) then
         if (bonn .or. breit .or. sameorb) then
-          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecSO(1,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecSO(:,Lrun),1,angintSO,1)
         else
-          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecSO(1,Lrun),1,angintSO,1)
-          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecOO(1,Lrun),1,angintOO,1)
+          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecSO(:,Lrun),1,angintSO,1)
+          call daxpy_(ncontall,real(4*l1*l3+2*l1+2*l3+1,kind=wp)*factor*dummy(L),casecOO(:,Lrun),1,angintOO,1)
         end if
       end if
       Lrun = Lrun+1

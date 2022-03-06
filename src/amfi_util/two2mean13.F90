@@ -21,7 +21,7 @@ implicit none
 #include "para.fh"
 integer(kind=iwp) :: ncontmf, norbsum, noccorb
 real(kind=wp) :: carteSO(ncontmf,ncontmf,norbsum,norbsum), occup(*), AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
-integer(kind=iwp) :: icartleft, icartright, irun, jrun, Mrun
+integer(kind=iwp) :: icartleft, icartright, Mrun
 real(kind=wp) :: coeff
 
 do icartleft=1,norbsum
@@ -30,11 +30,7 @@ do icartleft=1,norbsum
     do Mrun=1,noccorb
       coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
     end do
-    do irun=1,ncontmf
-      do jrun=1,ncontmf
-        onecart(irun,jrun) = onecart(irun,jrun)+coeff*carteSO(irun,jrun,icartleft,icartright)
-      end do
-    end do
+    onecart(1:ncontmf,1:ncontmf) = onecart(1:ncontmf,1:ncontmf)+coeff*carteSO(1:ncontmf,1:ncontmf,icartleft,icartright)
   end do
 end do
 !write(u6,*) 'effective integrals'

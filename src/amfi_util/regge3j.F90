@@ -31,7 +31,7 @@ implicit none
 real(kind=wp) :: regge3j
 integer(kind=iwp) :: j1, j2, j3, m1, m2, m3
 integer(kind=iwp), parameter :: mxLinRE = 36, nprim = 11
-integer(kind=iwp) :: I, ibm, icheck, Icoeff, ICOL, Icount, Idenom, IDUMMY, IFIRST, imaxi, imini, IROW, ISECOND, Isigma, Isgn, &
+integer(kind=iwp) :: I, ibm, icheck, icoeff, ICOL, icount, Idenom, IDUMMY, IFIRST, imaxi, imini, IROW, ISECOND, Isigma, isgn, &
                      isum, iwork(nprim), J, LIMIT, MAT(3,3)
 real(kind=wp) :: down, factor, up
 !BS logical(kind=iwp) :: testup,testdown
@@ -138,7 +138,7 @@ do I=1,3
   end if
 end do
 !bs if j1+j2+j3 is odd: check for equal rows or columns
-Isgn = 1
+isgn = 1
 if (abs(mod(Isigma,2)) == 1) then
   isgn = -1
   do I=1,3
@@ -162,9 +162,9 @@ do I=1,3
   end do
 end do
 !write(u6,*) 'Matrix before commuting vectors'
-do ibm=1,3
-!write(u6,'(3I5)') (Mat(ibm,j),j=1,3)
-end do
+!do ibm=1,3
+!  write(u6,'(3I5)') (Mat(ibm,j),j=1,3)
+!end do
 if (IFIRST /= 1) then  !interchange rows
   !write(u6,*) 'IFIRST = ',ifirst
   do I=1,3
@@ -196,15 +196,15 @@ else if (Mat(1,1) == 2) then
   isum = Mat(2,3)*(Mat(2,3)-1)*Mat(3,2)*(Mat(3,2)-1)-2*Mat(2,3)*Mat(3,2)*Mat(2,2)*Mat(3,3)+Mat(2,2)*(Mat(2,2)-1)*Mat(3,3)* &
          (Mat(3,3)-1)
 else !  all the cases with Mat(1,1) >= 3
-  Icoeff = 1
-  do Ibm=Mat(3,2)-Mat(1,1)+1,Mat(3,2)
+  icoeff = 1
+  do ibm=Mat(3,2)-Mat(1,1)+1,Mat(3,2)
     icoeff = icoeff*ibm
   end do
-  do Ibm=Mat(2,3)-Mat(1,1)+1,Mat(2,3)
+  do ibm=Mat(2,3)-Mat(1,1)+1,Mat(2,3)
     icoeff = icoeff*ibm
   end do
   isum = icoeff
-  do Icount=1,MAT(1,1)
+  do icount=1,MAT(1,1)
     icoeff = -icoeff*(Mat(1,1)+1-icount)*(Mat(2,2)+1-icount)*(Mat(3,3)+1-icount)
     Idenom = icount*(Mat(2,3)-Mat(1,1)+icount)*(Mat(3,2)-Mat(1,1)+icount)
     icoeff = icoeff/Idenom

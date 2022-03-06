@@ -14,6 +14,7 @@ subroutine gencoul(l1,l2,l3,l4,makemean,bonn,breit,sameorb,cont4SO,cont4OO,icont
 !bs   integrals for the four angular momenta l1-l4
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -99,9 +100,9 @@ if (Lblocks(1) > 0) then    ! integrals have to be calculated
     ipow1 = 2+(l2+l4+Lrun)/2
     ipow2 = 2+(l1+l3+incl1+incl3+Lrun)/2
     !b those powers have to be generated...
-    call getpow(ipow1,Quot1,QuotP1,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+    QuotP1(:) = Quot1(:)**(real(ipow1,kind=wp)-Half)
     !bs those powers have to be generated...
-    call getpow(ipow2,Quot2,QuotP2,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+    QuotP2(:) = Quot2(:)**(real(ipow2,kind=wp)-Half)
     ! in buildcoul the radial integrals are calculated
     call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(1,l1), &
                    exponents(1,l2),exponents(1,l3),exponents(1,l4),powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),QuotP1,QuotP2, &
@@ -148,8 +149,8 @@ if (Lblocks(2) > 0) then
   do Lrun=Lfirst(2),Llast(2),2
     ipow1 = 2+(l2+l4+Lrun)/2
     ipow2 = 2+(l1+l3+incl1+incl3+Lrun)/2
-    call getpow(ipow1,Quot1,QuotP1,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
-    call getpow(ipow2,Quot2,QuotP2,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+    QuotP1(:) = Quot1(:)**(real(ipow1,kind=wp)-Half)
+    QuotP2(:) = Quot2(:)**(real(ipow2,kind=wp)-Half)
     call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(1,l1), &
                    exponents(1,l2),exponents(1,l3),exponents(1,l4),powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),QuotP1,QuotP2, &
                    coulovlp)
@@ -195,8 +196,8 @@ if (Lblocks(4) > 0) then
   do Lrun=Lfirst(4),Llast(4),2
     ipow1 = 2+(l2+l4+Lrun)/2
     ipow2 = 2+(l1+l3+incl1+incl3+Lrun)/2
-    call getpow(ipow1,Quot1,QuotP1,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
-    call getpow(ipow2,Quot2,QuotP2,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+    QuotP1(:) = Quot1(:)**(real(ipow1,kind=wp)-Half)
+    QuotP2(:) = Quot2(:)**(real(ipow2,kind=wp)-Half)
     call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(1,l1), &
                    exponents(1,l2),exponents(1,l3),exponents(1,l4),powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),QuotP1,QuotP2, &
                    coulovlp)
@@ -206,7 +207,7 @@ if (Lblocks(4) > 0) then
       call contcasCSO(l1,l2,l3,l4,istart,Prim,Scr1,Scr2,cont4SO)
       call contcasCOO(l1,l2,l3,l4,istart,prim,Scr1,Scr2,cont4OO)
     end if
-      istart = istart+nanz
+    istart = istart+nanz
   end do
 end if
 

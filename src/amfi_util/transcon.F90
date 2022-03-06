@@ -22,11 +22,7 @@ real(kind=wp) :: xnorm
 
 !write(u6,*) 'begin transcon nprim,ncont ',nprim,ncont
 !bs copy old contraction coefficients in dense form to common block
-do Jrun=1,ncont
-  do Irun=1,nprim
-    contnew(Irun,Jrun) = contold(Irun,Jrun)
-  end do
-end do
+contnew(:,:) = contold(1:nprim,1:ncont)
 !bs ensure normalization
 do ICONT=1,ncont
   xnorm = Zero
@@ -39,9 +35,7 @@ do ICONT=1,ncont
   !write(u6,*) 'ICONT ',ICONT,xnorm
   xnorm = One/sqrt(xnorm)
   !bs scale with normalization factor
-  do Irun=1,nprim
-    contnew(Irun,ICONT) = xnorm*contnew(Irun,ICONT)
-  end do
+  contnew(:,ICONT) = xnorm*contnew(:,ICONT)
 end do
 !write(u6,*) 'end transcon nprim,ncont ',nprim,ncont
 

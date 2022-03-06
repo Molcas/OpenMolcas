@@ -16,7 +16,7 @@ use Definitions, only: iwp, u6
 implicit none
 #include "para.fh"
 integer(kind=iwp) :: icharge, iclosed(0:LMAX), iopen(0:LMAX)
-integer(kind=iwp) :: iPL, irun
+integer(kind=iwp) :: iPL, ml
 integer(kind=iwp), parameter :: ichargemax = 103, &
                                 iclocc(0:Lmax_occ,0:ichargemax) = reshape([0,0,0,0, & !0
                                                                            0,0,0,0, & !1
@@ -344,14 +344,11 @@ end if
 iPL = iPrintLevel(-1)
 if (iPL >= 3) write(u6,'(A35,A30)') txt,occtxt(icharge)
 
-do irun=0,min(lmax,lmax_occ)
-  iclosed(irun) = iclocc(irun,icharge)
-  iopen(irun) = iopocc(irun,icharge)
-end do
-do irun=min(lmax,lmax_occ)+1,lmax
-  iclosed(irun) = 0
-  iopen(irun) = 0
-end do
+ml = min(lmax,lmax_occ)
+iclosed(:ml) = iclocc(0:ml,icharge)
+iclosed(ml+1:) = 0
+iopen(:ml) = iopocc(0:ml,icharge)
+iopen(ml+1:) = 0
 
 return
 

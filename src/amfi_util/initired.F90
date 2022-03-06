@@ -9,316 +9,193 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine initired()
+subroutine initired(symmetry)
 !bs initialize all information for irreducible representations
 !bs later on, it might be useful to have a switch for
 !bs changing to other orders of IREDs like e.g. in TURBOMOLE
 !
 ! HOW2ADD another symmetry:
 !
-! 1. add it in readbas.f to be accepted. Add the number of IRs
+! 1. add it in readbas to be accepted. Add the number of IRs
 !
 ! 2. copy one of the symmetry-blocks in this subroutine and
-!    edit the multiplication-table for the group
+!    edit the nired for the group
 !
 ! 3. assign the right IRs to L_X, L_Y and L_Z
 !
 ! that is  all. Good luck!!!
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
+character(len=3) :: symmetry
 #include "para.fh"
 #include "ired.fh"
-integer(kind=iwp) :: ired, IRLX, IRLY, IRLZ, irun, jred, jrun
-character(len=3) :: symmetry
+integer(kind=iwp) :: ired, IRLX, IRLY, IRLZ, jred, nired
+character(len=5) :: frmt
 
-symmetry = 'D2H'  ! MOLCAS-Version
-if (symmetry == 'D2H') then
-  mult(2,1) = 2
-  mult(3,1) = 3
-  mult(4,1) = 4
-  mult(5,1) = 5
-  mult(6,1) = 6
-  mult(7,1) = 7
-  mult(8,1) = 8
+mult(:,:) = Mul
+nired = 0
 
-  mult(3,2) = 4
-  mult(4,2) = 3
-  mult(5,2) = 6
-  mult(6,2) = 5
-  mult(7,2) = 8
-  mult(8,2) = 7
+select case (symmetry)
 
-  mult(4,3) = 2
-  mult(5,3) = 7
-  mult(6,3) = 8
-  mult(7,3) = 5
-  mult(8,3) = 6
+  case ('D2H') ! MOLCAS-Version
+    nired = 8
+    !BS write(u6,*)
+    !BS write(u6,*) 'multiplication table (Atkins,Child and Phillips)'
+    !BS write(u6,*)
+    !BS write(frmt,'("(",I1,"I5)")') nired
+    !BS do ired=1,nired
+    !BS   write(u6,frmt) (mult(jred,ired),jred=1,nired)
+    !BS   write(u6,*)
+    !BS end do
 
-  mult(5,4) = 8
-  mult(6,4) = 7
-  mult(7,4) = 6
-  mult(8,4) = 5
+    IRLX = 4
+    IRLY = 3
+    IRLZ = 2
+    !bs assume same order of ireds as Atkins Child and Phillips use..
+    !bs would lead to an order with 1 to 1, 2 to 2 ...
+    !bs however, this is the molecule/ seward order.
+    iredorder(1) = 1
+    iredorder(2) = 4
+    iredorder(3) = 6
+    iredorder(4) = 7
+    iredorder(5) = 8
+    iredorder(6) = 5
+    iredorder(7) = 3
+    iredorder(8) = 2
+    ipow2ired(0,0,0) = iredorder(1)
+    ipow2ired(1,1,0) = iredorder(2)
+    ipow2ired(1,0,1) = iredorder(3)
+    ipow2ired(0,1,1) = iredorder(4)
+    ipow2ired(1,1,1) = iredorder(5)
+    ipow2ired(0,0,1) = iredorder(6)
+    ipow2ired(0,1,0) = iredorder(7)
+    ipow2ired(1,0,0) = iredorder(8)
 
-  mult(6,5) = 2
-  mult(7,5) = 3
-  mult(8,5) = 4
-
-  mult(7,6) = 4
-  mult(8,6) = 3
-
-  mult(8,7) = 2
-
-  do ired=1,8
-    mult(ired,ired) = 1
-  end do
-  do irun=2,8
-    do jrun=1,irun-1
-      mult(jrun,irun) = mult(irun,jrun)
-    end do
-  end do
-  !BS write(u6,*)
-  !BS write(u6,*) 'multiplicitation table (Atkins,Child and Phillips)'
-  !BS write(u6,*)
-  !BS do ired=1,8
-  !BS   write(u6,'(8I5)') (mult(jred,ired),jred=1,8)
-  !BS   write(u6,*)
-  !BS end do
-
-  IRLX = 4
-  IRLY = 3
-  IRLZ = 2
-  !bs assume same order of ireds as Atkins Child and Phillips use..
-  !bs would lead to an order with 1 to 1, 2 to 2 ...
-  !bs however, this is the molecule/ seward order.
-  iredorder(1) = 1
-  iredorder(2) = 4
-  iredorder(3) = 6
-  iredorder(4) = 7
-  iredorder(5) = 8
-  iredorder(6) = 5
-  iredorder(7) = 3
-  iredorder(8) = 2
-  do ired=1,8
-    iredorderinv(iredorder(ired)) = ired
-  end do
-  ipow2ired(0,0,0) = iredorder(1)
-  ipow2ired(1,1,0) = iredorder(2)
-  ipow2ired(1,0,1) = iredorder(3)
-  ipow2ired(0,1,1) = iredorder(4)
-  ipow2ired(1,1,1) = iredorder(5)
-  ipow2ired(0,0,1) = iredorder(6)
-  ipow2ired(0,1,0) = iredorder(7)
-  ipow2ired(1,0,0) = iredorder(8)
-  !write(u6,*) 'interacting IRs '
-  do ired=1,8
-    IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
-    IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
-    IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
-  end do
-else if (symmetry == 'C2V') then
-  !bs 1. A1 2. A2 3. B1 4. B2
-  mult(2,1) = 2
-  mult(3,1) = 3
-  mult(4,1) = 4
-
-  mult(3,2) = 4
-  mult(4,2) = 3
-
-  mult(4,3) = 2
-
-  do ired=1,4
-    mult(ired,ired) = 1
-  end do
-  do irun=2,4
-    do jrun=1,irun-1
-      mult(jrun,irun) = mult(irun,jrun)
-    end do
-  end do
-  write(u6,*)
-  write(u6,*) 'multiplicitation table '
-  write(u6,*)
-  do ired=1,4
-    write(u6,'(4I5)') (mult(jred,ired),jred=1,4)
+  case ('C2V')
+    nired = 4
+    !bs 1. A1 2. A2 3. B1 4. B2
     write(u6,*)
-  end do
-
-  IRLX = 4
-  IRLY = 3
-  IRLZ = 2
-  !bs this is the molecule/seward order.
-  iredorder(1) = 1
-  iredorder(2) = 4
-  iredorder(3) = 2
-  iredorder(4) = 3
-  do ired=1,4
-    iredorderinv(iredorder(ired)) = ired
-  end do
-  ipow2ired(0,0,0) = iredorder(1)
-  ipow2ired(1,1,0) = iredorder(2)
-  ipow2ired(1,0,1) = iredorder(3)
-  ipow2ired(0,1,1) = iredorder(4)
-  ipow2ired(1,1,1) = iredorder(2)
-  ipow2ired(0,0,1) = iredorder(1)
-  ipow2ired(0,1,0) = iredorder(4)
-  ipow2ired(1,0,0) = iredorder(3)
-  !write(u6,*) 'interacting IRs '
-  do ired=1,4
-    IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
-    IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
-    IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
-  end do
-else if (symmetry == 'D2 ') then
-  !bs 1. A1 2. B1 3. B2 4. B3
-  mult(2,1) = 2
-  mult(3,1) = 3
-  mult(4,1) = 4
-
-  mult(3,2) = 4
-  mult(4,2) = 3
-  mult(4,3) = 2
-
-  do ired=1,4
-    mult(ired,ired) = 1
-  end do
-  do irun=2,4
-    do jrun=1,irun-1
-      mult(jrun,irun) = mult(irun,jrun)
-    end do
-  end do
-  write(u6,*)
-  write(u6,*) 'multiplicitation table '
-  write(u6,*)
-  do ired=1,4
-    write(u6,'(4I5)') (mult(jred,ired),jred=1,4)
+    write(u6,*) 'multiplication table '
     write(u6,*)
-  end do
-
-  IRLX = 4
-  IRLY = 3
-  IRLZ = 2
-  iredorder(1) = 1
-  iredorder(2) = 2
-  iredorder(3) = 3
-  iredorder(4) = 4
-  do ired=1,4
-    iredorderinv(iredorder(ired)) = ired
-  end do
-  ipow2ired(0,0,0) = iredorder(1)
-  ipow2ired(1,1,0) = iredorder(2)
-  ipow2ired(1,0,1) = iredorder(3)
-  ipow2ired(0,1,1) = iredorder(4)
-  ipow2ired(1,1,1) = iredorder(1)
-  ipow2ired(0,0,1) = iredorder(2)
-  ipow2ired(0,1,0) = iredorder(3)
-  ipow2ired(1,0,0) = iredorder(4)
-  !write(u6,*) 'interacting IRs '
-  do ired=1,4
-    IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
-    IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
-    IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
-  end do
-else if (symmetry == 'C2H') then
-  !bs assume 1.Ag 2.Au 3.Bg 4.Bu
-  mult(2,1) = 2
-  mult(3,1) = 3
-  mult(4,1) = 4
-
-  mult(3,2) = 4
-  mult(4,2) = 3
-
-  mult(4,3) = 2
-
-  do ired=1,4
-    mult(ired,ired) = 1
-  end do
-  do irun=2,4
-    do jrun=1,irun-1
-      mult(jrun,irun) = mult(irun,jrun)
+    write(frmt,'("(",I1,"I5)")') nired
+    do ired=1,nired
+      write(u6,frmt) (mult(jred,ired),jred=1,nired)
+      write(u6,*)
     end do
-  end do
-  write(u6,*)
-  write(u6,*) 'multiplicitation table '
-  write(u6,*)
-  do ired=1,4
-    write(u6,'(4I5)') (mult(jred,ired),jred=1,4)
+
+    IRLX = 4
+    IRLY = 3
+    IRLZ = 2
+    !bs this is the molecule/seward order.
+    iredorder(1) = 1
+    iredorder(2) = 4
+    iredorder(3) = 2
+    iredorder(4) = 3
+    ipow2ired(0,0,0) = iredorder(1)
+    ipow2ired(1,1,0) = iredorder(2)
+    ipow2ired(1,0,1) = iredorder(3)
+    ipow2ired(0,1,1) = iredorder(4)
+    ipow2ired(1,1,1) = iredorder(2)
+    ipow2ired(0,0,1) = iredorder(1)
+    ipow2ired(0,1,0) = iredorder(4)
+    ipow2ired(1,0,0) = iredorder(3)
+
+  case ('D2 ')
+    nired = 4
+    !bs 1. A1 2. B1 3. B2 4. B3
     write(u6,*)
-  end do
-
-  IRLX = 3
-  IRLY = 3
-  IRLZ = 1
-  iredorder(1) = 1
-  iredorder(2) = 2
-  iredorder(3) = 3
-  iredorder(4) = 4
-  do ired=1,4
-    iredorderinv(iredorder(ired)) = ired
-  end do
-  ipow2ired(0,0,0) = iredorder(1)
-  ipow2ired(1,1,0) = iredorder(1)
-  ipow2ired(1,0,1) = iredorder(3)
-  ipow2ired(0,1,1) = iredorder(3)
-  ipow2ired(1,1,1) = iredorder(2)
-  ipow2ired(0,0,1) = iredorder(2)
-  ipow2ired(0,1,0) = iredorder(4)
-  ipow2ired(1,0,0) = iredorder(4)
-  !write(u6,*) 'interacting IRs '
-  do ired=1,4
-    IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
-    IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
-    IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
-  end do
-else if (symmetry == 'CS ') then
-  write(u6,*) 'CS in initired '
-  !bs assume 1.A' 2.A'
-  mult(2,1) = 2
-
-  do ired=1,2
-    mult(ired,ired) = 1
-  end do
-  do irun=2,2
-    do jrun=1,irun-1
-      mult(jrun,irun) = mult(irun,jrun)
+    write(u6,*) 'multiplication table '
+    write(u6,*)
+    write(frmt,'("(",I1,"I5)")') nired
+    do ired=1,nired
+      write(u6,frmt) (mult(jred,ired),jred=1,nired)
+      write(u6,*)
     end do
-  end do
-  write(u6,*)
-  write(u6,*) 'multiplicitation table '
-  write(u6,*)
-  do ired=1,2
-    write(u6,'(2I5)') (mult(jred,ired),jred=1,2)
-    write(u6,*)
-  end do
 
-  IRLX = 2
-  IRLY = 2
-  IRLZ = 1
-  iredorder(1) = 1
-  iredorder(2) = 2
-  do ired=1,2
-    iredorderinv(iredorder(ired)) = ired
-  end do
-  ipow2ired(0,0,0) = iredorder(1)
-  ipow2ired(1,1,0) = iredorder(1)
-  ipow2ired(1,0,1) = iredorder(2)
-  ipow2ired(0,1,1) = iredorder(2)
-  ipow2ired(1,1,1) = iredorder(2)
-  ipow2ired(0,0,1) = iredorder(2)
-  ipow2ired(0,1,0) = iredorder(1)
-  ipow2ired(1,0,0) = iredorder(1)
-  !write(u6,*) 'interacting IRs '
-  do ired=1,2
-    IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
-    IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
-    IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-    !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
-  end do
-end if
+    IRLX = 4
+    IRLY = 3
+    IRLZ = 2
+    iredorder(1) = 1
+    iredorder(2) = 2
+    iredorder(3) = 3
+    iredorder(4) = 4
+    ipow2ired(0,0,0) = iredorder(1)
+    ipow2ired(1,1,0) = iredorder(2)
+    ipow2ired(1,0,1) = iredorder(3)
+    ipow2ired(0,1,1) = iredorder(4)
+    ipow2ired(1,1,1) = iredorder(1)
+    ipow2ired(0,0,1) = iredorder(2)
+    ipow2ired(0,1,0) = iredorder(3)
+    ipow2ired(1,0,0) = iredorder(4)
+
+  case ('C2H')
+    nired = 4
+    !bs assume 1.Ag 2.Au 3.Bg 4.Bu
+    write(u6,*)
+    write(u6,*) 'multiplication table '
+    write(u6,*)
+    write(frmt,'("(",I1,"I5)")') nired
+    do ired=1,nired
+      write(u6,frmt) (mult(jred,ired),jred=1,nired)
+      write(u6,*)
+    end do
+
+    IRLX = 3
+    IRLY = 3
+    IRLZ = 1
+    iredorder(1) = 1
+    iredorder(2) = 2
+    iredorder(3) = 3
+    iredorder(4) = 4
+    ipow2ired(0,0,0) = iredorder(1)
+    ipow2ired(1,1,0) = iredorder(1)
+    ipow2ired(1,0,1) = iredorder(3)
+    ipow2ired(0,1,1) = iredorder(3)
+    ipow2ired(1,1,1) = iredorder(2)
+    ipow2ired(0,0,1) = iredorder(2)
+    ipow2ired(0,1,0) = iredorder(4)
+    ipow2ired(1,0,0) = iredorder(4)
+
+  case ('CS ')
+    nired = 2
+    !bs assume 1.A' 2.A'
+    write(u6,*)
+    write(u6,*) 'multiplication table '
+    write(u6,*)
+    write(frmt,'("(",I1,"I5)")') nired
+    do ired=1,nired
+      write(u6,frmt) (mult(jred,ired),jred=1,nired)
+      write(u6,*)
+    end do
+
+    IRLX = 2
+    IRLY = 2
+    IRLZ = 1
+    iredorder(1) = 1
+    iredorder(2) = 2
+    ipow2ired(0,0,0) = iredorder(1)
+    ipow2ired(1,1,0) = iredorder(1)
+    ipow2ired(1,0,1) = iredorder(2)
+    ipow2ired(0,1,1) = iredorder(2)
+    ipow2ired(1,1,1) = iredorder(2)
+    ipow2ired(0,0,1) = iredorder(2)
+    ipow2ired(0,1,0) = iredorder(1)
+    ipow2ired(1,0,0) = iredorder(1)
+end select
+
+!write(u6,*) 'interacting IRs '
+do ired=1,nired
+  iredorderinv(iredorder(ired)) = ired
+end do
+do ired=1,nired
+  IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
+  IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
+  IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
+  !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
+end do
 
 return
 

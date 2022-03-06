@@ -22,9 +22,8 @@ integer(kind=iwp) :: L, ifinite
 logical(kind=iwp) :: breit
 #include "para.fh"
 #include "param.fh"
-logical(kind=iwp) :: breit_finite
+logical(kind=iwp), parameter :: breit_finite = .true.
 
-breit_finite = .true.
 !bs transcon transfers and normalizes contracted functions
 !bs ore more precizely the coefficients
 call transcon(cntscrtch(1,1,L),MxprimL,MxcontL,normovlp(1,1,L),contrarray(iaddori(L)),nprimit(L),ncontrac(L))

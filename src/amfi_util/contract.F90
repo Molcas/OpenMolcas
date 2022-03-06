@@ -26,7 +26,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp) :: coeffs1(*), coeffs2(*), coeffs3(*), coeffs4(*), arr1(*), arr2(*)
 integer(kind=iwp) :: ncont(4), nprim(4)
-integer(kind=iwp) :: IBM, ifirst, ifourth, isec, ithird, nnew(4), nolds(4)
+integer(kind=iwp) :: ifirst, ifourth, isec, ithird, nnew(4), nolds(4)
 real(kind=wp) :: ratio1, ratio2, ratio3, ratio4, xmax
 
 !bs makes four index transformations in a row....
@@ -36,10 +36,8 @@ ratio1 = real(nprim(1),kind=wp)/real(ncont(1),kind=wp)
 ratio2 = real(nprim(2),kind=wp)/real(ncont(2),kind=wp)
 ratio3 = real(nprim(3),kind=wp)/real(ncont(3),kind=wp)
 ratio4 = real(nprim(4),kind=wp)/real(ncont(4),kind=wp)
-do IBM=1,4
-  nolds(IBM) = nprim(IBM)
-  nnew(IBM) = nprim(IBM)
-end do
+nolds(:) = nprim(:)
+nnew(:) = nprim(:)
 !bs determine first, second,third and last index
 !***********************************************************************
 !bs determine the first

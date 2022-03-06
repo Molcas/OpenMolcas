@@ -26,11 +26,7 @@ real(kind=wp) :: df1, df12, df2, fact, fact1, fact2, factor
 !bs set some often used powers of exponents
 do L2=0,Lhigh
   do L1=0,L2
-    do irun1=1,nprimit(L1)
-      do irun2=1,nprimit(L2)
-        powexp(irun1,irun2,L1,L2,0) = One
-      end do
-    end do
+    powexp(1:nprimit(L1),1:nprimit(L2),L1,L2,0) = One
   end do
 end do
 do L2=0,Lhigh

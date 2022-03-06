@@ -38,18 +38,9 @@ if (ifinite == 2) ncontrac(0) = ncontrac_keep
 !bs subroutine to contract radial one-electron integrals
 !bs and multiply them with angular factors
 !#######################################################################
-xa(1) = '********'
-ya(1) = '********'
-za(1) = '********'
-xa(2) = '        '
-ya(2) = '        '
-Za(2) = '        '
-xa(3) = 'ANTISYMM'
-ya(3) = 'ANTISYMM'
-Za(3) = 'ANTISYMM'
-xa(4) = 'X1SPNORB'
-ya(4) = 'Y1SPNORB'
-ZA(4) = 'Z1SPNORB'
+xa(:) = ['********','        ','ANTISYMM','X1SPNORB']
+ya(:) = ['********','        ','ANTISYMM','Y1SPNORB']
+za(:) = ['********','        ','ANTISYMM','Z1SPNORB']
 
 !bs clean the arrays for cartesian integrals
 
@@ -110,7 +101,7 @@ do Lrun=1,Lhigh  !loop over L-values (integrals are diagonal in L)
         end if
         if ((mod(ipowx,2) == 1) .and. (mod(ipowy,2) == 0) .and. (mod(ipowz,2) == 1)) then
           do icartfirst=1,ncontrac(Lrun) ! loop first index
-            do icartsec=1,ncontrac(Lrun)   ! loop second index
+            do icartsec=1,ncontrac(Lrun) ! loop second index
               oca(iredired+icartsec,2) = oca(iredired+icartsec,2)+onecart(icartfirst,icartsec,mrun,Lrun,2)
             end do
             !bs shift pointer by number of functions in IR
@@ -119,7 +110,7 @@ do Lrun=1,Lhigh  !loop over L-values (integrals are diagonal in L)
         end if
         if ((mod(ipowx,2) == 1) .and. (mod(ipowy,2) == 1) .and. (mod(ipowz,2) == 0)) then
           do icartfirst=1,ncontrac(Lrun) ! loop first index
-            do icartsec=1,ncontrac(Lrun)   ! loop second index
+            do icartsec=1,ncontrac(Lrun) ! loop second index
               oca(iredired+icartsec,3) = oca(iredired+icartsec,3)+onecart(icartfirst,icartsec,mrun,Lrun,3)
             end do
             !bs shift pointer by number of functions in IR
@@ -133,7 +124,7 @@ do Lrun=1,Lhigh  !loop over L-values (integrals are diagonal in L)
         !bs calculate shift to get to the beginning of the block
         iredired = shiftIRIR((iredfirst*iredfirst-iredfirst)/2+iredsec)+incrLM(Msec,Lrun)*itotalperIR(iredfirst)+incrLM(Mfirst,Lrun)
         if ((mod(ipowx,2) == 0) .and. (mod(ipowy,2) == 1) .and. (mod(ipowz,2) == 1)) then
-          do icartsec=1,ncontrac(Lrun) !loopsecond index
+          do icartsec=1,ncontrac(Lrun)     !loop second index
             do icartfirst=1,ncontrac(Lrun) !loop first index
               oca(iredired+icartfirst,1) = oca(iredired+icartfirst,1)-onecart(icartsec,icartfirst,mrun,Lrun,1)
             end do
@@ -142,7 +133,7 @@ do Lrun=1,Lhigh  !loop over L-values (integrals are diagonal in L)
           end do
         end if
         if ((mod(ipowx,2) == 1) .and. (mod(ipowy,2) == 0) .and. (mod(ipowz,2) == 1)) then
-          do icartsec=1,ncontrac(Lrun) !loop second index
+          do icartsec=1,ncontrac(Lrun)     !loop second index
             do icartfirst=1,ncontrac(Lrun) !loop first index
               oca(iredired+icartfirst,2) = oca(iredired+icartfirst,2)-onecart(icartsec,icartfirst,mrun,Lrun,2)
             end do
@@ -151,7 +142,7 @@ do Lrun=1,Lhigh  !loop over L-values (integrals are diagonal in L)
           end do
         end if
         if ((mod(ipowx,2) == 1) .and. (mod(ipowy,2) == 1) .and. (mod(ipowz,2) == 0)) then
-          do icartsec=1,ncontrac(Lrun) !loop  second index
+          do icartsec=1,ncontrac(Lrun)     !loop  second index
             do icartfirst=1,ncontrac(Lrun) !loop first index
               oca(iredired+icartfirst,3) = oca(iredired+icartfirst,3)-onecart(icartsec,icartfirst,mrun,Lrun,3)
             end do
@@ -176,13 +167,9 @@ do norb2=1,numballcarT
     irun = irun+1
     iredired = shiftIRIR((ired2*ired2-ired2)/2+ired1)
     if (ired1 /= ired2) then
-      oca2(irun,1) = oca(iredired+norbsh2+(norbsH1-1)*itotalperIR(IREd2),1)
-      oca2(irun,2) = oca(iredired+norbsh2+(norbsH1-1)*itotalperIR(IREd2),2)
-      oca2(irun,3) = oca(iredired+norbsh2+(norbsH1-1)*itotalperIR(IREd2),3)
+      oca2(irun,:) = oca(iredired+norbsh2+(norbsH1-1)*itotalperIR(IREd2),:)
     else
-      oca2(irun,1) = oca(iredired+norbsh2*(norbsH2-1)/2+norbsh1,1)
-      oca2(irun,2) = oca(iredired+norbsh2*(norbsH2-1)/2+norbsh1,2)
-      oca2(irun,3) = oca(iredired+norbsh2*(norbsH2-1)/2+norbsh1,3)
+      oca2(irun,:) = oca(iredired+norbsh2*(norbsH2-1)/2+norbsh1,:)
     end if
   end do
 end do
@@ -217,9 +204,7 @@ else
       ipntold = ipnt(ind1,ind2)
       ipntnew = ipnt(irun1,irun2)
 
-      oca3(ipntnew,1) = oca2(ipntold,1)
-      oca3(ipntnew,2) = oca2(ipntold,2)
-      oca3(ipntnew,3) = oca2(ipntold,3)
+      oca3(ipntnew,:) = oca2(ipntold,:)
     end do
   end do
   !BS write(u6,*) 'transfered to new blocks'
@@ -231,9 +216,9 @@ else
   write(LUPROP) xa,numbofsym,(nrtofiperIR(I),i=1,numbofsym),ikeeporb,(Loffunction(ikeeplist(i)),i=1,ikeeporb), &
                 (Moffunction(ikeeplist(i)),I=1,ikeeporb),Lhigh,((NContrac(I)-icore(I)),I=0,Lhigh)
   write(LUPROP) (oca3(irun,1),irun=1,length3)
-  write(LUPROP) Ya
+  write(LUPROP) ya
   write(LUPROP) (oca3(irun,2),irun=1,length3)
-  write(LUPROP) Za
+  write(LUPROP) za
   write(LUPROP) (oca3(irun,3),irun=1,length3)
 
   call mma_deallocate(OCA3)

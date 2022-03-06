@@ -147,10 +147,8 @@ if (index3 == 1) then
         else
           limit1 = nprim1
         end if
-        do irun1=1,limit1
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)+pow24*quotpow2(irun1,irun2,irun3,irun4)/ &
-                                             power13(irun3,irun1)
-        end do
+        prmints(1:limit1,irun2,irun3,irun4) = prmints(1:limit1,irun2,irun3,irun4)+pow24*quotpow2(1:limit1,irun2,irun3,irun4)/ &
+                                              power13(irun3,1:limit1)
       end do
     end do
   end do
@@ -170,25 +168,19 @@ else
         else
           limit1 = nprim1
         end if
+        Cfunctx(1:limit1) = fraclist2(0)
         do irun1=1,limit1
           a2413 = alpha24/(expo1(irun1)+expo3(irun3))
-          Cfunctx(irun1) = fraclist2(0)
           frac(irun1) = a2413/(One+a2413)
           fact(irun1) = frac(irun1)
         end do
         !vocl loop,repeat(Lmax+3)
         do k=1,(index3-1)/2
-          do irun1=1,limit1
-            Cfunctx(irun1) = Cfunctx(irun1)+fraclist2(k)*fact(irun1)
-          end do
-          do irun1=1,limit1
-            fact(irun1) = fact(irun1)*frac(irun1)
-          end do
+          Cfunctx(1:limit1) = Cfunctx(1:limit1)+fraclist2(k)*fact(1:limit1)
+          fact(1:limit1) = fact(1:limit1)*frac(1:limit1)
         end do
-        do irun1=1,limit1
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)+quotpow2(irun1,irun2,irun3,irun4)*Cfunctx(irun1)* &
-                                             pow24/power13(irun3,irun1)
-        end do
+        prmints(1:limit1,irun2,irun3,irun4) = prmints(1:limit1,irun2,irun3,irun4)+ &
+                                              quotpow2(1:limit1,irun2,irun3,irun4)*Cfunctx(1:limit1)*pow24/power13(irun3,1:limit1)
       end do
     end do
   end do
@@ -202,9 +194,7 @@ if (l1 == l3) then
   do irun4=1,nprim4
     do irun3=1,nprim3
       do irun2=1,nprim2
-        do irun1=irun3+1,nprim1
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun3,irun2,irun1,irun4)
-        end do
+        prmints(irun3+1:,irun2,irun3,irun4) = prmints(irun3,irun2,irun3+1:,irun4)
       end do
     end do
   end do
@@ -214,9 +204,7 @@ if (l2 == l4) then
   do irun4=1,nprim4
     do irun3=1,nprim3
       do irun2=irun4+1,nprim2
-        do irun1=1,nprim1
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun4,irun3,irun2)
-        end do
+        prmints(1:nprim1,irun2,irun3,irun4) = prmints(1:nprim1,irun4,irun3,irun2)
       end do
     end do
   end do
@@ -225,10 +213,8 @@ end if
 do irun4=1,nprim4
   do irun3=1,nprim3
     do irun2=1,nprim2
-      do irun1=1,nprim1
-        prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)*coulovlp(irun4,irun2,0,0,l4,l2)* &
-                                           coulovlp(irun3,irun1,incl3,incl1,l3,l1)*root8ovpi
-      end do
+      prmints(:,irun2,irun3,irun4) = prmints(:,irun2,irun3,irun4)*coulovlp(irun4,irun2,0,0,l4,l2)* &
+                                     coulovlp(irun3,1:nprim1,incl3,incl1,l3,l1)*root8ovpi
     end do
   end do
 end do
@@ -250,10 +236,7 @@ if (incl1 == 1) then
   do irun4=1,nprim4
     do irun3=1,nprim3
       do irun2=1,nprim2
-        do irun1=1,nprim1
-          factor = fact1/sqrt(expo1(irun1))
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)*factor
-        end do
+        prmints(1:nprim1,irun2,irun3,irun4) = prmints(1:nprim1,irun2,irun3,irun4)*fact1/sqrt(expo1(1:nprim1))
       end do
     end do
   end do
@@ -262,10 +245,7 @@ else if (incl1 == -1) then
   do irun4=1,nprim4
     do irun3=1,nprim3
       do irun2=1,nprim2
-        do irun1=1,nprim1
-          factor = fact1*sqrt(expo1(irun1))
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)*factor
-        end do
+        prmints(1:nprim1,irun2,irun3,irun4) = prmints(1:nprim1,irun2,irun3,irun4)*fact1*sqrt(expo1(1:nprim1))
       end do
     end do
   end do
@@ -277,11 +257,9 @@ if (incl3 == 1) then
   fact1 = Half*sqrt(real(l3+l3+3,kind=wp))
   do irun4=1,nprim4
     do irun3=1,nprim3
+      factor = fact1/sqrt(expo3(irun3))
       do irun2=1,nprim2
-        do irun1=1,nprim1
-          factor = fact1/sqrt(expo3(irun3))
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)*factor
-        end do
+        prmints(1:nprim1,irun2,irun3,irun4) = prmints(1:nprim1,irun2,irun3,irun4)*factor
       end do
     end do
   end do
@@ -289,11 +267,9 @@ else if (incl3 == -1) then
   fact1 = Two/sqrt(real(l3+l3+1,kind=wp))
   do irun4=1,nprim4
     do irun3=1,nprim3
+      factor = fact1*sqrt(expo3(irun3))
       do irun2=1,nprim2
-        do irun1=1,nprim1
-          factor = fact1*sqrt(expo3(irun3))
-          prmints(irun1,irun2,irun3,irun4) = prmints(irun1,irun2,irun3,irun4)*factor
-        end do
+        prmints(1:nprim1,irun2,irun3,irun4) = prmints(1:nprim1,irun2,irun3,irun4)*factor
       end do
     end do
   end do

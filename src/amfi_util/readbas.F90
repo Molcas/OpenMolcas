@@ -54,9 +54,7 @@ if (IfTest) then
   write(u6,'(24X,A,/,/)') Stars
 end if
 
-do I=0,lMax
-  iCore(I) = 0
-end do
+iCore(:) = 0
 call RdNLst(LUIN,'AMFI')
 do
   read(LUIN,'(A4)') Word
@@ -129,12 +127,8 @@ end if
 #ifdef _DEBUGPRINT_
 write(u6,'(A21,F5.2)') chCharge,Charge
 #endif
-call InitiRed()
-do iredrun=1,numbofsym
-  do Lrun=0,Lhigh
-    nmbMperIRL(iredrun,Lrun) = 0
-  end do
-end do
+call InitiRed(Symmetry)
+nmbMperIRL(1:numbofsym,0:Lhigh) = 0
 if (IfTest) write(u6,'(/,A)') '  Used SOC basis set: '
 do Lrun=0,Lhigh
   read(LUIN,*) nprimit(Lrun),ncontrac(Lrun)
@@ -180,16 +174,14 @@ do Lrun=0,Lhigh
     nFunctions(iRedRun,Lrun) = 0
   end do
   do mRun=-Lrun,Lrun
-    nfunctions(ipow2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),Ipowxyz(3,mrun,Lrun)),Lrun) = &
+    nfunctions(ipow2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),ipowxyz(3,mrun,Lrun)),Lrun) = &
       nfunctions(ipow2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),ipowxyz(3,mrun,Lrun)),Lrun)+ncontrac(Lrun)
   end do
   do mRun=-Lrun,Lrun
-    nmbMperIRL(ipow2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),Ipowxyz(3,mrun,Lrun)),lruN) = &
-      nmbMperIRL(ipOw2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),IpowxYz(3,mrun,Lrun)),lruN)+1
+    nmbMperIRL(ipow2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),ipowxyz(3,mrun,Lrun)),Lrun) = &
+      nmbMperIRL(ipOw2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),ipowxYz(3,mrun,Lrun)),Lrun)+1
   end do
-  if (IfTest) then
-    write(u6,'(A,8I4)') ' Number of functions per IR: ',(nfunctions(iredrun,Lrun),iredrun=1,numbofsym)
-  end if
+  if (IfTest) write(u6,'(A,8I4)') ' Number of functions per IR: ',(nfunctions(iredrun,Lrun),iredrun=1,numbofsym)
 end do   ! End Do for loop over L-values
 
 if (IfTest) then
@@ -206,20 +198,14 @@ end do
 
 call mma_allocate(nOff,numbofcart,2,Label='nOff')
 
-do iredrun=1,numbofsym
-  nfunctperIRED(iredrun) = 0
-end do
+nfunctperIRED(1:numbofsym) = 0
 do Lrun=0,Lhigh
-  do iredrun=1,numbofsym
-    nfunctperIRED(iredrun) = nfunctperIRED(iredrun)+nfunctions(iredrun,Lrun)
-  end do
+  nfunctperIRED(1:numbofsym) = nfunctperIRED(1:numbofsym)+nfunctions(1:numbofsym,Lrun)
 end do
-if (IfTest) then
-  write(u6,'(A,8I3)') ' Total number of atomic functions per IRED ',(nfunctperIRED(iredrun),iredrun=1,numbofsym)
-end if
+if (IfTest) write(u6,'(A,8I3)') ' Total number of atomic functions per IRED ',(nfunctperIRED(iredrun),iredrun=1,numbofsym)
+itotalperIR(1:numbofsym) = nfunctperIRED(1:numbofsym)
 isum = 0
 do iredrun=1,numbofsym
-  itotalperIR(iredrun) = nfunctperIRED(iredrun)
   isum = isum+itotalperIR(iredrun)
 end do
 numballcart = isum
@@ -227,15 +213,13 @@ iorbrun = 0
 do iredrun=1,numbofsym
   do inired=1,itotalperIR(iredrun)
     iorbrun = iorbrun+1
-    IREDoffunctnew(Iorbrun) = iredrun
+    IREDoffunctnew(iorbrun) = iredrun
   end do
 end do
 if (IfTest) then
   write(u6,'(A,8I3)') 'including additional functions per IRED ',(itotalperIR(iredrun),iredrun=1,numbofsym)
 end if
-do iredrun=1,numbofsym
-  ibeginIRED(iredrun) = 0
-end do
+ibeginIRED(1:numbofsym) = 0
 do lrun=0,Lhigh
   do mrun=-lrun,lrun
     iredLM(mrun,lrun) = ipow2ired(ipowxyz(1,mrun,Lrun),ipowxyz(2,mrun,Lrun),ipowxyz(3,mrun,Lrun))
@@ -249,8 +233,8 @@ if (IfTest) then
   end do
 end if
 shiftIRED(1) = 0
-do iredrun=2,numbofsym
-  shiftIRED(iredrun) = shiftIRED(iredrun-1)+itotalperIR(iredrun-1)
+do iredrun=1,numbofsym-1
+  shiftIRED(iredrun+1) = shiftIRED(iredrun)+itotalperIR(iredrun)
 end do
 if (IfTest) then
   write(u6,'(A,8I4)') 'shifts for the IREDs ',(shiftIRED(iredrun),iredrun=1,numbofsym)
@@ -289,12 +273,8 @@ end do
 do irun=1,numbofcart
   nOff(irun,1) = irun
 end do
-do nsymrun=1,numbofsym
-  idelpersym(nsymrun) = 0
-end do
-do nsymrun=1,numbofsym
-  nrtofiperIR(nsymrun) = itotalperIR(nsymrun)
-end do
+idelpersym(1:numbofsym) = 0
+nrtofiperIR(1:numbofsym) = itotalperIR(1:numbofsym)
 if (AIMP) then
 
   ! Generate list of orbitals to be removed
@@ -325,9 +305,7 @@ if (AIMP) then
     end do
   end do
   ikeeporb = 0
-  do nsymrun=1,numbofsym
-    nrtofiperIR(nsymrun) = itotalperIR(nsymrun)-idelpersym(nsymrun)
-  end do
+  nrtofiperIR(1:numbofsym) = itotalperIR(1:numbofsym)-idelpersym(1:numbofsym)
   do nsymrun=1,numbofsym
     ikeeporb = ikeeporb+nrtofiperIR(nsymrun)
   end do

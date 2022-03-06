@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "para.fh"
 #include "dofuc.fh"
-integer(kind=iwp) :: ibm, irun, jbm
+integer(kind=iwp) :: irun, jbm
 
 df(0) = One
 df(1) = One
@@ -26,14 +26,10 @@ do irun=2,ndfmx
   df(irun) = real(irun,kind=wp)*df(irun-2)
 end do
 do jbm=0,ndfmx-1
-  do ibm=jbm,ndfmx
-    dffrac(ibm,jbm) = df(ibm)/df(jbm)
-  end do
+  dffrac(jbm:,jbm) = df(jbm:)/df(jbm)
 end do
 do jbm=1,ndfmx
-  do ibm=0,jbm-1
-    dffrac(ibm,jbm) = One/dffrac(jbm,ibm)
-  end do
+  dffrac(:jbm-1,jbm) = One/dffrac(jbm,:jbm-1)
 end do
 
 return

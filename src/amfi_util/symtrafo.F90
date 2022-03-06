@@ -167,9 +167,7 @@ do jcent=1,numbofcent
   !bs determize where the first function of a special type is..
   not_defined = ipnt(numboffunct,numboffunct)+1
   do Lrun=0,Lhighcent(icent)
-    do Mrun=-Lrun,Lrun
-      ifirstLM(Lrun,Mrun,icent) = not_defined
-    end do
+    ifirstLM(Lrun,-Lrun:Lrun,icent) = not_defined
   end do
   do iorb=1,numballcart(icent)
     Lrun = Lcent(iorb)
@@ -327,9 +325,7 @@ do iComp=1,nComp
   iSmLbl = lOper(iComp)
   call GADSum(SOInt(ip(iComp)),n2Tri(iSmLbl))
   call WrOne(iRC,iOpt,Label,iComp,SOInt(ip(iComp)),iSmLbl)
-  if (iRC /= 0) then
-    call SysAbendMsg('symtrafo','     Error in subroutine ONEEL ','     Abend in subroutine WrOne')
-  end if
+  if (iRC /= 0) call SysAbendMsg('symtrafo','     Error in subroutine ONEEL ','     Abend in subroutine WrOne')
 
 end do
 

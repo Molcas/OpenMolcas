@@ -27,8 +27,8 @@ AOcoeffs(:,:,0:lhigh) = Zero
 !BS write(u6,*) 'Orbitals for mean-field'
 do lrun=0,lhigh
   !BS write(u6,'(A3,I3)') 'L= ',lrun
+  occup(1:closedshells(lrun),lrun) = Two
   do i=1,closedshells(lrun)
-    occup(i,lrun) = Two
     AOcoeffs(i,i,lrun) = One
   end do
   noccorb(lrun) = closedshells(lrun)
@@ -38,12 +38,12 @@ do lrun=0,lhigh
     AOcoeffs(i,i,lrun) = One
     noccorb(lrun) = i
   end if
-  if (noccorb(lrun) > 0) then
-  !BS write(u6,'(A,I3)') 'number of orbitals ',noccorb(lrun)
-  !BS do iorbital=1,noccorb(lrun)
-  !BS   write(u6,'(A,8F8.4)') 'OCCUPATION: ',(occup(iorbital,lrun),iorbital=1,noccorb(lrun))
-  !BS end do
-  end if
+  !BS if (noccorb(lrun) > 0) then
+  !BS   write(u6,'(A,I3)') 'number of orbitals ',noccorb(lrun)
+  !BS   do iorbital=1,noccorb(lrun)
+  !BS     write(u6,'(A,8F8.4)') 'OCCUPATION: ',(occup(iorbital,lrun),iorbital=1,noccorb(lrun))
+  !BS   end do
+  !BS end if
 end do
 
 return

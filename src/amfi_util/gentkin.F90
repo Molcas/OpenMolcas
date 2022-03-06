@@ -13,49 +13,30 @@ subroutine gentkin(L,TKIN,nprims,exponents,rootOVLPinv)
 !bs subroutine to generate the kinetic energy
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: L, nprims
 #include "para.fh"
 real(kind=wp) :: TKIN(nprims,nprims), exponents(*), rootOVLPinv(MxprimL,MxprimL)
-integer(kind=iwp) :: irun, irun1, irun2, jrun, krun
+integer(kind=iwp) :: irun1, irun2
 real(kind=wp), allocatable :: dummy(:,:), dummy2(:,:)
 real(kind=wp), external :: Tkinet
 
-call mma_allocate(dummy,MxprimL,MxprimL,label='dummy')
-call mma_allocate(dummy2,MxprimL,MxprimL,label='dummy2')
+call mma_allocate(dummy,nprims,nprims,label='dummy')
+call mma_allocate(dummy2,nprims,nprims,label='dummy2')
 
-!bs one triangular part of the matrix
+!bs build the symmetric matrix
 do irun2=1,nprims
   do irun1=1,irun2
     dummy(irun1,irun2) = Tkinet(l,exponents(irun1),exponents(irun2))
+    dummy(irun2,irun1) = dummy(irun1,irun2)
   end do
 end do
-!bs copy to the other triangular part....
-do irun2=1,nprims-1
-  do irun1=irun2+1,nprims
-    dummy(irun1,irun2) = dummy(irun2,irun1)
-  end do
-end do
-!bs now transform by rootovlp*dummy*rootovlp
-TKIN(1:nprims,1:nprims) = Zero
-dummy2(1:nprims,1:nprims) = Zero
-do irun=1,nprims
-  do jrun=1,nprims
-    do krun=1,nprims
-      dummy2(irun,jrun) = dummy2(irun,jrun)+dummy(irun,krun)*rootovlpinv(krun,jrun)
-    end do
-  end do
-end do
-do irun=1,nprims
-  do jrun=1,nprims
-    do krun=1,nprims
-      Tkin(irun,jrun) = Tkin(irun,jrun)+dummy2(krun,jrun)*rootovlpinv(irun,krun)
-    end do
-  end do
-end do
+!bs now transform by rootOVLPinv*dummy*rootOVLPinv
+call dgemm_('N','N',nprims,nprims,nprims,One,dummy,nprims,rootOVLPinv,MxprimL,Zero,dummy2,nprims)
+call dgemm_('N','N',nprims,nprims,nprims,One,rootOVLPinv,MxprimL,dummy2,nprims,Zero,Tkin,nprims)
 
 call mma_deallocate(dummy)
 call mma_deallocate(dummy2)

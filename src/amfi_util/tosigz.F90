@@ -183,7 +183,7 @@ do while (interxyz(irun+1) > 0)
 end do
 if (cleaner) then
   do irun=1,ncontl1
-    carteZ(irun,irun,1:ncontl2,1:ncontl4) = Zero
+    carteZ(irun,irun,:,:) = Zero
   end do
 end if
 
