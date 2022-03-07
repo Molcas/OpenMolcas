@@ -13,6 +13,7 @@ subroutine SymTrafo(LUPROP,ip,lOper,nComp,nBas,nIrrep,Label,MolWgh,SOInt,LenTot)
 !bs   Purpose: combine SO-integrals from amfi to symmetry-adapted
 !bs   integrals on one file AOPROPER_MF_SYM
 
+use AMFI_global, only: Lmax, MxCart
 use index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -22,7 +23,6 @@ implicit none
 integer(kind=iwp) :: LUPROP, nComp, ip(nComp), lOper(nComp), nIrrep, nBas(0:nIrrep-1), MolWgh, LenTot
 character(len=8) :: Label
 real(kind=wp) :: SOInt(LenTot)
-#include "para.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: I, iBas, icc, iCent, icentprev, icoeff, iComp, idummy(8), iIrrep, ijSO, ilcentprev, imcentprev, indx, indexi, &
                      indexj, iOff, iOff2, iOpt, iorb, ipSCR, iRC, irun, isame, iSmLbl, iSO, iSO_a, iSO_r, istatus, isymunit, &

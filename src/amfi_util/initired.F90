@@ -25,17 +25,15 @@ subroutine initired(symmetry)
 !
 ! that is  all. Good luck!!!
 
+use AMFI_global, only: ipow2ired
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=3) :: symmetry
-#include "para.fh"
-#include "ired.fh"
-integer(kind=iwp) :: ired, IRLX, IRLY, IRLZ, jred, nired
+integer(kind=iwp) :: ired, iredorder(8), jred, nired
 character(len=5) :: frmt
 
-mult(:,:) = Mul
 nired = 0
 
 select case (symmetry)
@@ -47,13 +45,13 @@ select case (symmetry)
     !BS write(u6,*)
     !BS write(frmt,'("(",I1,"I5)")') nired
     !BS do ired=1,nired
-    !BS   write(u6,frmt) (mult(jred,ired),jred=1,nired)
+    !BS   write(u6,frmt) (Mul(jred,ired),jred=1,nired)
     !BS   write(u6,*)
     !BS end do
 
-    IRLX = 4
-    IRLY = 3
-    IRLZ = 2
+    !IRLX = 4
+    !IRLY = 3
+    !IRLZ = 2
     !bs assume same order of ireds as Atkins Child and Phillips use..
     !bs would lead to an order with 1 to 1, 2 to 2 ...
     !bs however, this is the molecule/ seward order.
@@ -65,6 +63,17 @@ select case (symmetry)
     iredorder(6) = 5
     iredorder(7) = 3
     iredorder(8) = 2
+    !bs irreducible representation of the cartesian functions in D2H
+    !bs order taken from Tables for Group theory:
+    !bs Atkins, Child and Phillips   Oxford University Press 1970
+    !bs 1. AG: only even powers (0,0,0)
+    !bs 2. B1G: (1,1,0)    L_z
+    !bs 3. B2G: (1,0,1)    L_y
+    !bs 4. B3G: (0,1,1)    L_x
+    !bs 5. AU:  (1,1,1)
+    !bs 6. B1U: (0,0,1)
+    !bs 7. B2U: (0,1,0)
+    !bs 8. B3U: (1,0,0)
     ipow2ired(0,0,0) = iredorder(1)
     ipow2ired(1,1,0) = iredorder(2)
     ipow2ired(1,0,1) = iredorder(3)
@@ -82,13 +91,13 @@ select case (symmetry)
     write(u6,*)
     write(frmt,'("(",I1,"I5)")') nired
     do ired=1,nired
-      write(u6,frmt) (mult(jred,ired),jred=1,nired)
+      write(u6,frmt) (Mul(jred,ired),jred=1,nired)
       write(u6,*)
     end do
 
-    IRLX = 4
-    IRLY = 3
-    IRLZ = 2
+    !IRLX = 4
+    !IRLY = 3
+    !IRLZ = 2
     !bs this is the molecule/seward order.
     iredorder(1) = 1
     iredorder(2) = 4
@@ -111,13 +120,13 @@ select case (symmetry)
     write(u6,*)
     write(frmt,'("(",I1,"I5)")') nired
     do ired=1,nired
-      write(u6,frmt) (mult(jred,ired),jred=1,nired)
+      write(u6,frmt) (Mul(jred,ired),jred=1,nired)
       write(u6,*)
     end do
 
-    IRLX = 4
-    IRLY = 3
-    IRLZ = 2
+    !IRLX = 4
+    !IRLY = 3
+    !IRLZ = 2
     iredorder(1) = 1
     iredorder(2) = 2
     iredorder(3) = 3
@@ -139,13 +148,13 @@ select case (symmetry)
     write(u6,*)
     write(frmt,'("(",I1,"I5)")') nired
     do ired=1,nired
-      write(u6,frmt) (mult(jred,ired),jred=1,nired)
+      write(u6,frmt) (Mul(jred,ired),jred=1,nired)
       write(u6,*)
     end do
 
-    IRLX = 3
-    IRLY = 3
-    IRLZ = 1
+    !IRLX = 3
+    !IRLY = 3
+    !IRLZ = 1
     iredorder(1) = 1
     iredorder(2) = 2
     iredorder(3) = 3
@@ -167,13 +176,13 @@ select case (symmetry)
     write(u6,*)
     write(frmt,'("(",I1,"I5)")') nired
     do ired=1,nired
-      write(u6,frmt) (mult(jred,ired),jred=1,nired)
+      write(u6,frmt) (Mul(jred,ired),jred=1,nired)
       write(u6,*)
     end do
 
-    IRLX = 2
-    IRLY = 2
-    IRLZ = 1
+    !IRLX = 2
+    !IRLY = 2
+    !IRLZ = 1
     iredorder(1) = 1
     iredorder(2) = 2
     ipow2ired(0,0,0) = iredorder(1)
@@ -187,15 +196,15 @@ select case (symmetry)
 end select
 
 !write(u6,*) 'interacting IRs '
-do ired=1,nired
-  iredorderinv(iredorder(ired)) = ired
-end do
-do ired=1,nired
-  IRwithLX(ired) = iredorder(mult(IRLX,iredorderinv(ired)))
-  IRwithLY(ired) = iredorder(mult(IRLY,iredorderinv(ired)))
-  IRwithLZ(ired) = iredorder(mult(IRLZ,iredorderinv(ired)))
-  !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
-end do
+!do ired=1,nired
+!  iredorderinv(iredorder(ired)) = ired
+!end do
+!do ired=1,nired
+!  IRwithLX(ired) = iredorder(Mul(IRLX,iredorderinv(ired)))
+!  IRwithLY(ired) = iredorder(Mul(IRLY,iredorderinv(ired)))
+!  IRwithLZ(ired) = iredorder(Mul(IRLZ,iredorderinv(ired)))
+!  !write(u6,*) IRwithLX(ired),IRwithLY(ired),IRwithLZ(ired)
+!end do
 
 return
 

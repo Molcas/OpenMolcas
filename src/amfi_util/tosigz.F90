@@ -25,11 +25,11 @@ subroutine tosigZ(m1,m2,m3,m4,angint,mcombina,ncontl1,ncontl2,ncontl3,ncontl4,ca
 !bs
 !bs only angular integrals of type 2 (sigma_0) contribute
 
+use AMFI_global, only: Lmax
 use Constants, only: Zero, One, speed => cLightAU
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: m1, m2, m3, m4, mcombina(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), ncontl1, ncontl2, ncontl3, ncontl4, &
                      interxyz(*), isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 !bs !!!!!!!!!!!changing now to the order of chemists notation!!!!!!!!!!

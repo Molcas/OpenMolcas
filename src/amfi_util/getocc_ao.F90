@@ -11,11 +11,11 @@
 
 subroutine getocc_ao(icharge,iclosed,iopen)
 
+use AMFI_global, only: Lmax, Lmax_occ
 use Definitions, only: iwp, u6
 
 implicit none
-#include "para.fh"
-integer(kind=iwp) :: icharge, iclosed(0:LMAX), iopen(0:LMAX)
+integer(kind=iwp) :: icharge, iclosed(0:Lmax), iopen(0:Lmax)
 integer(kind=iwp) :: iPL, ml
 integer(kind=iwp), parameter :: ichargemax = 103, &
                                 iclocc(0:Lmax_occ,0:ichargemax) = reshape([0,0,0,0, & !0

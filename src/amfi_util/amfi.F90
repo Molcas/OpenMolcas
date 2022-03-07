@@ -96,20 +96,20 @@ subroutine amfi(LUIN,LUPROP,iCenter)
 !                                           8.5.97
 !#######################################################################
 
+use AMFI_global, only: ipowxyz, MxcontL, MxprimL, Lmax
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: LUIN, LUPROP, iCenter
-#include "para.fh"
-#include "ipowxyz.fh"
 integer(kind=iwp) :: icartdim, icoulovlpdim, idim1, idim2, ifinite, ionecontrdim, ioneoverR3dim, ipowexpdim, irun, jrun, lhigh, &
                      lrun, Mval, ncont4, numballcart
 logical(kind=iwp) :: AIMP, bonn, breit, keep, makemean, oneonly, SAMEORB
 character(len=4) :: symmetry
 integer(kind=iwp), allocatable :: checkxy(:), checkz(:), interxyz(:,:), SgnProd(:)
-real(kind=wp), allocatable :: CartOne(:,:), CoulOvlp(:), OneContr(:), oneoverR3(:), PowExp(:), preXZ(:), preY(:)
+real(kind=wp), allocatable :: CartOne(:,:), CoulOvlp(:), Energy(:), evec(:,:), eval(:), OneContr(:), oneoverR3(:), PowExp(:), &
+                              preXZ(:), preY(:), scratch(:,:,:), TKIN(:,:), type1(:), type2(:)
 !bs the ones and zeros stand four odd and even powers of x,y,z
 !bs if you want to go higher than l=6, you have to look up
 !bs the powers yourself, and add them to the table
@@ -140,7 +140,7 @@ integer(kind=iwp), parameter :: Lpowmax = 6, &
 keep = .false.
 !bs ####################################################################
 ifinite = 0
-!bs initialize tables with double facultatives...
+!bs initialize tables with double factorials...
 call inidf()
 !bs move some powers of x,y,z to the right place   BEGIN
 !bs check if Lpowmax is high enough..
@@ -156,16 +156,23 @@ end do
 !bs read the input
 call readbas(Lhigh,makemean,bonn,breit,symmetry,sameorb,AIMP,oneonly,ncont4,numballcart,LUIN,ifinite)
 
-icartdim = mxcontL*MxcontL*(Lmax+Lmax+1)*(Lmax+1)*Lmax
-ionecontrdim = mxcontL*MxcontL*(2*Lmax+1)*3*Lmax
+icartdim = MxcontL*MxcontL*(Lmax+Lmax+1)*(Lmax+1)*Lmax
+ionecontrdim = MxcontL*MxcontL*(2*Lmax+1)*3*Lmax
 ioneoverR3dim = Lmax*(MxprimL*MxprimL+MxprimL)/2
 ipowexpdim = MxprimL*MxprimL*(Lmax+1)*(Lmax+1)*(Lmax+Lmax+6)
 icoulovlpdim = MxprimL*MxprimL*(Lmax+1)*(Lmax+1)*10
-call mma_allocate(oneoverR3,ioneoverR3dim,Label='oneoverR3')
-call mma_allocate(cartone,icartdim,3,Label='cartone')
-call mma_allocate(OneContr,ionecontrdim,Label='OneContr')
-call mma_allocate(CoulOvlp,icoulovlpdim,Label='coulovlp')
-call mma_allocate(PowExp,iPowExpDim,Label='PowExp')
+call mma_allocate(oneoverR3,ioneoverR3dim,label='oneoverR3')
+call mma_allocate(cartone,icartdim,3,label='cartone')
+call mma_allocate(OneContr,ionecontrdim,label='OneContr')
+call mma_allocate(CoulOvlp,icoulovlpdim,label='coulovlp')
+call mma_allocate(PowExp,iPowExpDim,label='PowExp')
+call mma_allocate(TKIN,MxprimL,MxprimL,label='TKIN')
+call mma_allocate(evec,MxprimL,MxprimL,label='evec')
+call mma_allocate(eval,MxprimL,label='eval')
+call mma_allocate(Energy,MxprimL,label='Energy')
+call mma_allocate(type1,MxprimL,label='type1')
+call mma_allocate(type2,MxprimL,label='type2')
+call mma_allocate(scratch,MxprimL,MxprimL,3,label='scratch')
 oneoverR3(:) = Zero
 cartone(:,:) = Zero
 OneContr(:) = Zero
@@ -179,15 +186,12 @@ do
   if (makemean .and. (.not. oneonly) .and. (ifinite <= 1)) call getAOs(Lhigh)
   call genpowers(Lhigh,PowExp,CoulOvlp)
   ! generate powers of exponents and overlaps
-  !bs start generating modified contraction coefficients
-  !bs generate starting adresses of contraction coefficients on contrarray
-  call genstar(Lhigh)
   !bs generate ovlp of normalized primitives
-  call genovlp(Lhigh,CoulOvlp)
+  call genovlp(Lhigh,CoulOvlp,eval)
   do lrun=0,Lhigh
     !bs cont(L) arranges all the contraction coefficients for a given
     !bs L-value and renormalizes them
-    call cont(lrun,breit,ifinite)
+    call cont(lrun,breit,ifinite,TKIN,evec,eval,Energy,type1,type2,scratch)
   end do
 
   !bs beginning the angular part
@@ -202,12 +206,12 @@ do
 
     idim1 = (2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)
     idim2 = (Lmax+1)*(Lmax+1)*(Lmax+1)*(Lmax+1)
-    call mma_allocate(preY,idim1,Label='preY')
-    call mma_allocate(preXZ,idim1,Label='preXZ')
-    call mma_allocate(checkxy,idim2,Label='CheckXY')
-    call mma_allocate(checkz,idim2,Label='CheckZ')
-    call mma_allocate(interxyz,16,idim2,Label='InterXYZ')
-    call mma_allocate(SgnProd,idim1,Label='SgnProd')
+    call mma_allocate(preY,idim1,label='preY')
+    call mma_allocate(preXZ,idim1,label='preXZ')
+    call mma_allocate(checkxy,idim2,label='CheckXY')
+    call mma_allocate(checkz,idim2,label='CheckZ')
+    call mma_allocate(interxyz,16,idim2,label='InterXYZ')
+    call mma_allocate(SgnProd,idim1,label='SgnProd')
 
     ! subroutine for angular part
 
@@ -248,6 +252,13 @@ call mma_deallocate(PowExp)
 call mma_deallocate(OneContr)
 call mma_deallocate(CartOne)
 call mma_deallocate(oneoverR3)
+call mma_deallocate(TKIN)
+call mma_deallocate(evec)
+call mma_deallocate(eval)
+call mma_deallocate(Energy)
+call mma_deallocate(type1)
+call mma_deallocate(type2)
+call mma_deallocate(scratch)
 !BS write(u6,*) '***************************************************'
 !BS write(u6,*) '*******   end of  the 1-electron-part    **********'
 !BS write(u6,*) '***************************************************'

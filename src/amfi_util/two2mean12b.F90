@@ -11,11 +11,11 @@
 
 subroutine two2mean12b(carteSO,carteOO,occup,AOcoeffs,onecart,ncontmf,norbsum,noccorb,sameorb)
 
+use AMFI_global, only: MxcontL
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: ncontmf, norbsum, noccorb
 real(kind=wp) :: carteSO(ncontmf,norbsum,ncontmf,norbsum), carteOO(ncontmf,norbsum,ncontmf,norbsum), occup(*), &
                  AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)

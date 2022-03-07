@@ -9,26 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cont(L,breit,ifinite)
+subroutine cont(L,breit,ifinite,TKIN,evec,eval,Energy,type1,type2,scratch)
 !bs ####################################################################
 !bs   cont prepares all required contraction coefficients for functions
 !bs   with angular momentum L
 !bs ####################################################################
 
+use AMFI_global, only: cntscrtch, contrarray, exponents, MxcontL, MxprimL, ncontrac, normovlp, nprimit, OVLPinv, rootOVLP, &
+                       rootOVLPinv
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: L, ifinite
 logical(kind=iwp) :: breit
-#include "para.fh"
-#include "param.fh"
+real(kind=wp) :: TKIN(MxprimL,MxprimL), evec(MxprimL,MxprimL), eval(MxprimL), Energy(MxprimL), type1(MxprimL), type2(MxprimL), &
+                 scratch(MxprimL,MxprimL,3)
 logical(kind=iwp), parameter :: breit_finite = .true.
 
 !bs transcon transfers and normalizes contracted functions
-!bs ore more precizely the coefficients
-call transcon(cntscrtch(1,1,L),MxprimL,MxcontL,normovlp(1,1,L),contrarray(iaddori(L)),nprimit(L),ncontrac(L))
-!bs gentkin generates the matrix of kinetic energy  TKIN
-call gentkin(L,TKIN,nprimit(L),exponents(1,L),rootOVLPinv(1,1,L))
+!bs ore more precisely the coefficients
+call transcon(cntscrtch(:,:,L),MxprimL,MxcontL,normovlp(:,:,L),contrarray(:,0,L),nprimit(L),ncontrac(L))
+!bs gentkin generates the matrix of kinetic energy TKIN
+call gentkin(L,TKIN,nprimit(L),exponents(:,L),rootOVLPinv(:,:,L))
 !bs kindiag diagonalizes TKIN
 !bs for finite nucleus
 if ((ifinite == 2) .and. (L == 0)) then
@@ -41,9 +43,8 @@ end if
 call kinemat(nprimit(L),eval,type1,type2,Energy)
 !bs chngcont= changecont generates the contraction coeffs
 !bs including kinematic factors and even exponents as factors
-call chngcont(contrarray(iaddori(L)),contrarray(iaddtyp1(L)),contrarray(iaddtyp2(L)),contrarray(iaddtyp3(L)), &
-              contrarray(iaddtyp4(L)),ncontrac(L),nprimit(L),evec,type1,type2,scratch4,scratch4(nprimit(L)*nprimit(L)+1), &
-              scratch4(2*nprimit(L)*nprimit(L)+1),MxprimL,rootOVLP(1,1,L),OVLPinv(1,1,L),exponents(1,L))
+call chngcont(contrarray(:,0,L),contrarray(:,1,L),contrarray(:,2,L),contrarray(:,3,L),contrarray(:,4,L),ncontrac(L),nprimit(L), &
+              evec,type1,type2,scratch(:,:,1),scratch(:,:,2),scratch(:,:,3),MxprimL,rootOVLP(:,:,L),OVLPinv(:,:,L),exponents(:,L))
 
 return
 

@@ -255,6 +255,12 @@
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
 
+#  define _DIMENSIONS_ 5
+#  define _DEF_LABEL_ 'imma_5D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
 #undef _SUBR_NAME_
 #undef _TYPE_
 #undef _DATA_NAME_

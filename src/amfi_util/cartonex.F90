@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine cartoneX(L,Lmax,onecontr,ncontrac,MxcontL,onecartX)
-!bs arranges the cartesian one-electron-integrals for X  on a quadratic matrix
+!bs arranges the cartesian one-electron-integrals for X on a square matrix
 
 use index_functions, only: iTri
 use Constants, only: Quart

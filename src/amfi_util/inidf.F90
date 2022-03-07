@@ -10,26 +10,22 @@
 !***********************************************************************
 
 subroutine inidf()
-!bs initializes the df on common block  with double facultatives
+!bs initializes the df on module with double factorials
 
+use AMFI_global, only: df, dffrac
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "para.fh"
-#include "dofuc.fh"
 integer(kind=iwp) :: irun, jbm
 
 df(0) = One
 df(1) = One
-do irun=2,ndfmx
+do irun=2,ubound(df,1)
   df(irun) = real(irun,kind=wp)*df(irun-2)
 end do
-do jbm=0,ndfmx-1
-  dffrac(jbm:,jbm) = df(jbm:)/df(jbm)
-end do
-do jbm=1,ndfmx
-  dffrac(:jbm-1,jbm) = One/dffrac(jbm,:jbm-1)
+do jbm=0,ubound(df,1)
+  dffrac(:,jbm) = df(:)/df(jbm)
 end do
 
 return

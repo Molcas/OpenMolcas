@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine cartoneZ(L,Lmax,onecontr,ncontrac,MxcontL,onecartZ)
-!bs arranges the cartesian one-electron integrals for Z on a quadratic matrix
+!bs arranges the cartesian one-electron integrals for Z on a square matrix
 
 use index_functions, only: iTri
 use Constants, only: Half

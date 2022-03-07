@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine cartoneY(L,Lmax,onecontr,ncontrac,MxcontL,onecartY)
-!bs arranges the cartesian one-electron integrals for Y on a quadratic matrix
+!bs arranges the cartesian one-electron integrals for Y on a square matrix
 
 use index_functions, only: iTri
 use Constants, only: Quart

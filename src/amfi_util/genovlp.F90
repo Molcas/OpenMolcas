@@ -9,24 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine genovlp(Lhigh,coulovlp)
+subroutine genovlp(Lhigh,coulovlp,eval)
 !bs generates overlap of normalized  primitives.
 
+use AMFI_global, only: Lmax, MxprimL, normovlp, nprimit, OVLPinv, rootOVLP, rootOVLPinv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: Lhigh
-real(kind=wp) :: coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
-#include "param.fh"
+real(kind=wp) :: coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax), eval(MxprimL)
 integer(kind=iwp) :: ipnt, Irun, Jrun, L, n
 real(kind=wp) :: fact
-real(kind=wp), allocatable :: evecinv(:,:), tmp(:,:)
+real(kind=wp), allocatable :: evecinv(:,:)
+real(kind=wp), allocatable, target :: scratch(:)
+real(kind=wp), pointer :: tmp(:,:)
 
 call mma_allocate(evecinv,MxprimL,MxprimL,label='evecinv')
-call mma_allocate(tmp,MxprimL,MxprimL,label='tmp')
+call mma_allocate(scratch,MxprimL**2,label='scratch')
+tmp(1:MxprimL,1:MxprimL) => scratch
 
 do L=0,Lhigh
   n = nprimit(L)
@@ -36,16 +38,16 @@ do L=0,Lhigh
   do jrun=1,n
     do irun=1,jrun
       ipnt = ipnt+1
-      scratchinv(ipnt) = normovlp(irun,jrun,L)
+      scratch(ipnt) = normovlp(irun,jrun,L)
     end do
   end do
   evecinv(:,1:n) = Zero
   do Jrun=1,n
     evecinv(jrun,jrun) = One
   end do
-  call Jacob(scratchinv,evecinv,n,MxprimL)
+  call Jacob(scratch,evecinv,n,MxprimL)
   do irun=1,n
-    eval(irun) = sqrt(scratchinv((irun*(irun+1))/2))
+    eval(irun) = sqrt(scratch((irun*(irun+1))/2))
   end do
   !bs ensure normalization of the vectors.
   do IRUN=1,n
@@ -73,8 +75,9 @@ do L=0,Lhigh
   call dgemm_('N','T',n,n,n,One,evecinv,MxprimL,tmp,MxprimL,Zero,OVLPinv(:,:,L),MxprimL)
 end do
 
+nullify(tmp)
 call mma_deallocate(evecinv)
-call mma_deallocate(tmp)
+call mma_deallocate(scratch)
 
 return
 

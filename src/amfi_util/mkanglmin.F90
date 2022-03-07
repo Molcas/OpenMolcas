@@ -20,13 +20,13 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lmax, l1, l2, l3, l4, m1, m2, m3, m4, Lfirst(*), Llast(*), Lblocks(*), ncont1, ncont2, ncont3, ncont4
+integer(kind=iwp) :: Lmax, l1, l2, l3, l4, m1, m2, m3, m4, Lfirst(4), Llast(4), Lblocks(4), ncont1, ncont2, ncont3, ncont4
 real(kind=wp) :: angintSO(ncont1,ncont2,ncont3,ncont4), angintOO(ncont1,ncont2,ncont3,ncont4), &
                  caseaSO(ncont1*ncont2*ncont3*ncont4,*), caseb1SO(ncont1*ncont2*ncont3*ncont4,*), &
                  caseb2SO(ncont1*ncont2*ncont3*ncont4,*), casecSO(ncont1*ncont2*ncont3*ncont4,*), &
                  caseaOO(ncont1*ncont2*ncont3*ncont4,*), caseb1OO(ncont1*ncont2*ncont3*ncont4,*), &
                  caseb2OO(ncont1*ncont2*ncont3*ncont4,*), casecOO(ncont1*ncont2*ncont3*ncont4,*), preroots(2,0:Lmax), &
-                 clebsch(3,2,-Lmax:Lmax,0:Lmax), dummy(0:*)
+                 clebsch(3,2,-Lmax:Lmax,0:Lmax), dummy(0:2*Lmax+1)
 logical(kind=iwp) :: bonn, breit, sameorb
 integer(kind=iwp) :: Kfirst, Klast, L, Lrun, M, ncontall
 real(kind=wp) :: cheater, factor
@@ -65,7 +65,7 @@ end if
 !bs first term: ########################################################
 factor = -root2inv*preroots(2,l1)*preroots(2,l3)*clebsch(3,2,m1,l1)*clebsch(2,2,m3,l3)
 if (factor /= Zero) then
-  dummy(:2*Lmax+1) = Zero
+  dummy(:) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -87,9 +87,9 @@ end if
 !bs second term: #######################################################
 factor = -root2inv*preroots(1,l1)*preroots(2,l3)*clebsch(3,1,m1,l1)*clebsch(2,2,m3,l3)
 if (factor /= Zero) then
+  dummy(:) = Zero
   Klast = 0
   Kfirst = 2*Lmax+1 ! just to be sure ..
-  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -140,9 +140,9 @@ end if
 !bs third term: ########################################################
 factor = -root2inv*preroots(2,l1)*preroots(1,l3)*clebsch(3,2,m1,l1)*clebsch(2,1,m3,l3)
 if (factor /= Zero) then
+  dummy(:) = Zero
   Klast = 0
   Kfirst = 2*Lmax+1 ! just to be sure ..
-  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -193,9 +193,9 @@ end if
 !bs fourth term: #######################################################
 factor = -root2inv*preroots(1,l1)*preroots(1,l3)*clebsch(3,1,m1,l1)*clebsch(2,1,m3,l3)
 if (factor /= Zero) then
+  dummy(:) = Zero
   Klast = 0
   Kfirst = 2*Lmax+1 ! just to be sure ..
-  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -300,7 +300,7 @@ end if
 !bs fifth term: ########################################################
 factor = -root2inv*preroots(2,l1)*preroots(2,l3)*clebsch(2,2,m1,l1)*clebsch(1,2,m3,l3)
 if (factor /= Zero) then
-  dummy(:2*Lmax+1) = Zero
+  dummy(:) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -322,9 +322,9 @@ end if
 !bs sixth term: ########################################################
 factor = -root2inv*preroots(1,l1)*preroots(2,l3)*clebsch(2,1,m1,l1)*clebsch(1,2,m3,l3)
 if (factor /= Zero) then
+  dummy(:) = Zero
   Klast = 0
   Kfirst = 2*Lmax+1 ! just to be sure ..
-  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -375,9 +375,9 @@ end if
 !bs seventh term: ######################################################
 factor = -root2inv*preroots(2,l1)*preroots(1,l3)*clebsch(2,2,m1,l1)*clebsch(1,1,m3,l3)
 if (factor /= Zero) then
+  dummy(:) = Zero
   Klast = 0
   Kfirst = 2*Lmax+1 ! just to be sure ..
-  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4
@@ -428,9 +428,9 @@ end if
 !bs eighth term: #######################################################
 factor = -root2inv*preroots(1,l1)*preroots(1,l3)*clebsch(2,1,m1,l1)*clebsch(1,1,m3,l3)
 if (factor /= Zero) then
+  dummy(:) = Zero
   Klast = 0
   Kfirst = 2*Lmax+1 ! just to be sure ..
-  dummy(:Kfirst) = Zero
   !bs get the L,M dependent coefficients
   if (Lblocks(1) > 0) then
     M = m2-m4

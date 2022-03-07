@@ -12,15 +12,13 @@
 subroutine getAOs2(lhigh)
 !bs get expansions of atomic orbitals in contracted functions
 
+use AMFI_global, only: AOcoeffs, charge, Lmax, noccorb, occup
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lhigh
-#include "para.fh"
-#include "param.fh"
-#include "nucleus.fh"
-integer(kind=iwp) :: closedshells(0:LMAX), i, lrun, openshells(0:LMAX)
+integer(kind=iwp) :: closedshells(0:Lmax), i, lrun, openshells(0:Lmax)
 
 call getocc_ao(int(charge),closedshells,openshells)
 AOcoeffs(:,:,0:lhigh) = Zero

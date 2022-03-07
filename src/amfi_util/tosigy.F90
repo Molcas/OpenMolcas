@@ -26,11 +26,11 @@ subroutine tosigY(m1,m2,m3,m4,angint,mcombina,ncontl1,ncontl2,ncontl3,ncontl4,ca
 !bs due to symmetry, there can be only integrals
 !bs with one or three (sigma_+ and sigma_-)  - combinations
 
+use AMFI_global, only: Lmax
 use Constants, only: Zero, One, speed => cLightAU
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: m1, m2, m3, m4, mcombina(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), ncontl1, ncontl2, ncontl3, ncontl4, &
                      interxyz(*), isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 !bs !!!!!!!!!!!changing now to the order of chemists notation!!!!!!!!!!

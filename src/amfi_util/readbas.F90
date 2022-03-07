@@ -13,6 +13,9 @@ subroutine ReadBas(Lhigh,makemean,bonn,breit,symmetry,sameorb,AIMP,oneonly,ncont
 ! Suposed to read the maximum of l-values, the number of primitive and
 ! contracted functions, the exponents and contraction coefficients
 
+use AMFI_global, only: charge, cntscrtch, Exp_finite, exponents, icore, ikeeplist, ikeeporb, incrLM, ipow2ired, ipowxyz, iredLM, &
+                       iredoffunctnew, itotalperIR, Lmax, Loffunction, Moffunction, MxcontL, MxprimL, ncontrac, nprimit, &
+                       nrtofiperIR, numbofsym, shiftIRED, shiftIRIR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
@@ -20,15 +23,11 @@ implicit none
 integer(kind=iwp) :: Lhigh, ncont4, numballcart, LUIN, ifinite
 logical(kind=iwp) :: MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly
 character(len=4) :: Symmetry
-#include "para.fh"
-#include "param.fh"
-#include "ired.fh"
-#include "nucleus.fh"
 integer(kind=iwp) :: I, iBeginIRed(8), icart, iDelperSym(8), ILINE, inired, iorbrun, ired, ired1, ired2, iredrun, Irun, ishifter, &
-                     isum, itype, JRUN, lDel, Lrun, Lval, mRun, nmax, nsym, nsymrun, numbprev, numbr
+                     isum, itype, JRUN, lDel, Lrun, Lval, mRun, nfunctperIRED(8), nmax, nsymrun, numbofcart, numbprev, numbr
 character(len=54) :: Stars
 character(len=4) :: Word
-integer(kind=iwp), allocatable :: nOff(:,:)
+integer(kind=iwp), allocatable :: IREDoffunction(:), nfunctions(:,:), nmbMperIRL(:,:), nOff(:,:)
 #ifdef _DEBUGPRINT_
 character(len=21) :: chCharge
 #define _TEST_ .true.
@@ -128,7 +127,9 @@ end if
 write(u6,'(A21,F5.2)') chCharge,Charge
 #endif
 call InitiRed(Symmetry)
-nmbMperIRL(1:numbofsym,0:Lhigh) = 0
+call mma_allocate(nfunctions,[1,numbofsym],[0,Lhigh],label='nfunctions')
+call mma_allocate(nmbMperIRL,[1,numbofsym],[0,Lhigh],label='nmbMperIRL')
+nmbMperIRL(:,:) = 0
 if (IfTest) write(u6,'(/,A)') '  Used SOC basis set: '
 do Lrun=0,Lhigh
   read(LUIN,*) nprimit(Lrun),ncontrac(Lrun)
@@ -137,17 +138,17 @@ do Lrun=0,Lhigh
     write(u6,'(I3,I3)') nprimit(Lrun),ncontrac(Lrun)
   end if
   if (nprimit(Lrun) > MxprimL) then
-    write(u6,*) 'To many primitives for L=',Lrun,' increase MxprimL in para.fh or reduce the number of primitives to at least ', &
-                 MxprimL
+    write(u6,*) 'Too many primitives for L=',Lrun, &
+                ' increase MxprimL in amfi_global or reduce the number of primitives to at least ',MxprimL
     call Abend()
   end if
   if (ncontrac(Lrun) > MxcontL) then
-    write(u6,*) ' To many contracted fncts for L=',Lrun, &
-                 ' increase MxcontL in para.fh or reduce the number of contracted functions to at most ',MxcontL
+    write(u6,*) ' Too many contracted functions for L=',Lrun, &
+                 ' increase MxcontL in amfi_global or reduce the number of contracted functions to at most ',MxcontL
     call Abend()
   end if
   if (ncontrac(Lrun) > nprimit(Lrun)) then
-    write(u6,*) ' You have more contracted than uncontracted functions, I don''t believe that. Sorry!! '
+    write(u6,*) ' You have more contracted than uncontracted functions, I do not believe that. Sorry! '
     call Abend()
   end if
 
@@ -187,7 +188,7 @@ end do   ! End Do for loop over L-values
 if (IfTest) then
   write(u6,*) ' Distribution of M-values'
   do Lrun=0,Lhigh
-    write(u6,*) (nmbMperIRL(nsym,Lrun),nsym=1,numbofsym)
+    write(u6,*) nmbMperIRL(:,Lrun)
   end do
 end if
 
@@ -202,6 +203,8 @@ nfunctperIRED(1:numbofsym) = 0
 do Lrun=0,Lhigh
   nfunctperIRED(1:numbofsym) = nfunctperIRED(1:numbofsym)+nfunctions(1:numbofsym,Lrun)
 end do
+call mma_deallocate(nfunctions)
+call mma_deallocate(nmbMperIRL)
 if (IfTest) write(u6,'(A,8I3)') ' Total number of atomic functions per IRED ',(nfunctperIRED(iredrun),iredrun=1,numbofsym)
 itotalperIR(1:numbofsym) = nfunctperIRED(1:numbofsym)
 isum = 0
@@ -258,12 +261,13 @@ do ired1=2,numbofsym
     end if
   end do
 end do
+call mma_allocate(IREDoffunction,numbofcart,label='IREDoffunction')
 do lrun=0,Lhigh
   do Mrun=-Lrun,Lrun
     ired = iredLM(Mrun,Lrun)
     ishifter = shiftIRED(ired)+incrLM(mrun,lrun)
     do icart=1,ncontrac(Lrun)
-      moffunction(ishifter+icart) = Mrun
+      Moffunction(ishifter+icart) = Mrun
       Loffunction(ishifter+icart) = Lrun
       IREDoffunction(ishifter+Icart) = ired
       nOff(ishifter+Icart,2) = icart
@@ -288,7 +292,7 @@ if (AIMP) then
         Lval = Loffunction(irun)
         numbr = nOff(irun,1)
         itype = nOff(irun,2)
-        if (itype <= icore(lval)) then
+        if (itype <= iCore(lval)) then
           write(u6,777) numbr,itype,lval
           idelpersym(IREDoffunction(irun)) = idelpersym(IREDoffunction(irun))+1
           numbprev = numbr
@@ -314,6 +318,7 @@ if (AIMP) then
     write(u6,'(I4,A)') ikeeporb,' orbitals left after deleting core'
   end if
 end if
+call mma_deallocate(IREDoffunction)
 nmax = max(6,ncontrac(0))
 do lrun=1,Lhigh
   nmax = max(nmax,ncontrac(lrun))

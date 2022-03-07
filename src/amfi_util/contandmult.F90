@@ -11,20 +11,19 @@
 
 subroutine contandmult(Lhigh,AIMP,oneonly,numballcart,LUPROP,ifinite,onecart,onecontr,oneoverR3,iCenter)
 
+use AMFI_global, only: charge, contrarray, icore, ikeeplist, ikeeporb, incrLM, ipowxyz, iredLM, iredoffunctnew, itotalperIR, &
+                       Lmax, Loffunction, Moffunction, MxcontL, MxprimL, ncontrac, ncontrac_keep, nprimit, nrtofiperIR, numbofsym, &
+                       shiftIRED, shiftIRIR
 use index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: Lhigh, numballcart, LUPROP, ifinite, iCenter
 logical(kind=iwp) :: AIMP, oneonly
-real(kind=wp) :: onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3), onecontr(mxcontL,MxcontL,-Lmax:Lmax,3,Lmax), &
-                 oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
-#include "param.fh"
-#include "ired.fh"
-#include "nucleus.fh"
+real(kind=wp) :: onecart(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3), onecontr(MxcontL,MxcontL,-Lmax:Lmax,3,Lmax), &
+                 oneoverR3(MxprimL*(MxprimL+1)/2,Lmax)
 integer(kind=iwp) :: I, icartfirst, icartsec, ind1, ind2, ipntnew, ipntold, ipowx, ipowy, ipowz, ired1, ired2, iredfirst, &
                      iredired, iredsec, irun, irun1, irun2, L, length3, Lrun, Mfirst, mrun, Msec, norb1, norb2, norbsh1, norbsh2
 character(len=8) :: xa(4), ya(4), za(4)
@@ -55,14 +54,14 @@ OCA2(:,:) = Zero
 !bs 2. index: number of second contracted function
 !bs 3. index: pointer(m1,m2)    m1< m2 otherwise change sign of integral
 !bs 4. index: L-value
-!bs onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,1),
-!bs onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,2),
-!bs onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3)
+!bs onecart(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,1),
+!bs onecart(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,2),
+!bs onecart(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3)
 
 !bs generate one-electron integrals for all L greater/equal 1
 if (ifinite == 2) charge = Zero ! nuclear integrals are modelled for finite nucleus somewhere else
 do L=1,Lhigh
-  call contone(L,oneoverr3(1,L),onecontr(1,1,-Lmax,1,L),Lmax,contrarray(iaddtyp3(L)),nprimit(L),ncontrac(L),MxcontL,Dummy, &
+  call contone(L,oneoverr3(1,L),onecontr(1,1,-Lmax,1,L),Lmax,contrarray(:,3,L),nprimit(L),ncontrac(L),MxcontL,Dummy, &
                onecart(1,1,1,L,1),onecart(1,1,1,L,2),onecart(1,1,1,L,3),charge,oneonly)
 end do
 
@@ -212,7 +211,7 @@ else
 
   write(LUPROP) iCenter
   write(LUPROP) xa,numbofsym,(nrtofiperIR(I),i=1,numbofsym),ikeeporb,(Loffunction(ikeeplist(i)),i=1,ikeeporb), &
-                (Moffunction(ikeeplist(i)),I=1,ikeeporb),Lhigh,((NContrac(I)-icore(I)),I=0,Lhigh)
+                (Moffunction(ikeeplist(i)),I=1,ikeeporb),Lhigh,((ncontrac(I)-icore(I)),I=0,Lhigh)
   write(LUPROP) (oca3(irun,1),irun=1,length3)
   write(LUPROP) ya
   write(LUPROP) (oca3(irun,2),irun=1,length3)

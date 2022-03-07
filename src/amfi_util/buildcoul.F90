@@ -24,18 +24,16 @@ subroutine buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,prmints,nprim1,nprim2,nprim3,n
 ! nprim1,nprim2,nprim3,nprim4 : number of primitives
 ! expo1,expo2,expo3,expo4     : arrays with the exponents
 
+use AMFI_global, only: dffrac, MxprimL, Lmax
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two, Eight, Half, Pi
 use Definitions, only: wp, iwp
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: l1, l2, l3, l4, incl1, incl3, Lrun, nprim1, nprim2, nprim3, nprim4
 real(kind=wp) :: prmints(nprim1,nprim2,nprim3,nprim4), expo1(nprim1), expo2(nprim2), expo3(nprim3), expo4(nprim4), &
                  power13(MxprimL,MxprimL), power24(MxprimL,MxprimL), quotpow1(nprim1,nprim2,nprim3,nprim4), &
                  quotpow2(nprim1,nprim2,nprim3,nprim4), coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
-#include "param.fh"
-#include "dofuc.fh"
 integer(kind=iwp) :: index1, index2, index3, index4, irun1, irun2, irun3, irun4, k, krun, limit1, limit2, n1, n13, n2, n24, n3, n4
 real(kind=wp) :: a1324, a2413, alpha13, alpha24, alpha24inv, doff1, doff2, fact1, factor, fraclist1(0:Lmax+3), &
                  fraclist2(0:Lmax+3), pow24, pow24inv

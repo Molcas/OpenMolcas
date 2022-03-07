@@ -12,12 +12,11 @@
 subroutine getAOs(lhigh)
 !bs get expansions of atomic orbitals in contracted functions
 
+use AMFI_global, only: AOcoeffs, ncontrac, noccorb, occup
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: lhigh
-#include "para.fh"
-#include "param.fh"
 integer(kind=iwp) :: icont, iorbital, lrun, Lu_33
 logical(kind=iwp) :: EX
 character(len=12) :: occread, occtext

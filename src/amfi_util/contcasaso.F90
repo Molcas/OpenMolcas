@@ -14,13 +14,12 @@ subroutine contcasaSO(l1,l2,l3,l4,nstart,primints,scratch1,scratch2,cont4SO)
 !bs same orbit term
 !bs this is case a in the documentation
 
+use AMFI_global, only: contrarray, ncontrac, nprimit
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: l1, l2, l3, l4, nstart
 real(kind=wp) :: primints(*), scratch1(*), scratch2(*), cont4SO(*)
-#include "para.fh"
-#include "param.fh"
 integer(kind=iwp) :: ilength, ncont(4), nprim(4), nprod
 
 ncont(1) = ncontrac(l1)
@@ -38,14 +37,13 @@ ilength = nprim(1)*nprim(2)*nprim(3)*nprim(4)
 scratch1(1:ilength) = primints(1:ilength)
 !write(u6,*) 'scratch1 ',(scratch1(I),I=1,ilength)
 !write(u6,*) 'contraction coeff'
-!write(u6,*) (contrarray(iaddtyp4(l1)+I),I=0,nprim(1)-1)
-!write(u6,*) (contrarray(iaddtyp1(l2)+I),I=0,nprim(2)-1)
-!write(u6,*) (contrarray(iaddtyp4(l3)+I),I=0,nprim(3)-1)
-!write(u6,*) (contrarray(iaddtyp1(l4)+I),I=0,nprim(4)-1)
+!write(u6,*) (contrarray(I,4,l1),I=1,nprim(1))
+!write(u6,*) (contrarray(I,1,l2),I=1,nprim(2))
+!write(u6,*) (contrarray(I,4,l3),I=1,nprim(3))
+!write(u6,*) (contrarray(I,1,l4),I=1,nprim(4))
 !ncont : i-th element is number of contracted functions i. index
 !nprim : i-th element is number of primitive functions  i. index
-call contract(contrarray(iaddtyp4(l1)),contrarray(iaddtyp1(l2)),contrarray(iaddtyp4(l3)),contrarray(iaddtyp1(l4)),ncont,nprim, &
-              scratch1,scratch2)
+call contract(contrarray(:,4,l1),contrarray(:,1,l2),contrarray(:,4,l3),contrarray(:,1,l4),ncont,nprim,scratch1,scratch2)
 !write(u6,*) 'nstart ',nstart
 cont4SO(nstart:nstart+nprod-1) = scratch1(1:nprod)
 

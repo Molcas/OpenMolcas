@@ -14,15 +14,13 @@ subroutine gen1overR3(Lhigh,oneoverR3)
 !bs taken the 1/r**3 formula from the documentation and included additional
 !bs factors for normalization
 
+use AMFI_global, only: df, exponents, MxprimL, nprimit, Lmax
 use Constants, only: Two, Quart, Pi
 use Definitions, only: wp, iwp
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: Lhigh
-real(kind=wp) :: oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
-#include "param.fh"
-#include "dofuc.fh"
+real(kind=wp) :: oneoverR3(MxprimL*(MxprimL+1)/2,Lmax)
 integer(kind=iwp) :: icount, iprim1, iprim2, L
 real(kind=wp) :: alpha1, alpha2
 

@@ -11,10 +11,10 @@
 
 subroutine genprexyz14(icheckz,interxyz)
 
+use AMFI_global, only: Lmax
 use Definitions, only: iwp
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)
 integer(kind=iwp) :: M1, M2, M3, M4
 integer(kind=iwp), external :: mcheckz

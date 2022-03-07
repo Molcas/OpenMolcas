@@ -11,6 +11,7 @@
 
 subroutine Drv_AMFI(Label,ip,lOper,nComp,iAtmNr2,Charge2)
 
+use AMFI_global, only: Lmax
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Gaussian_Type, MolWgh, nBas, nCnttp, Nuclear_Model, Shells
 use DKH_Info, only: DKroll
@@ -25,7 +26,6 @@ character(len=8) :: Label
 integer(kind=iwp) :: nComp, ip(nComp), lOper(nComp), iAtmNr2(mxdbsc)
 real(kind=wp) :: Charge2(mxdbsc)
 #include "angtp.fh"
-#include "para.fh"
 integer(kind=iwp) :: i, iCase, iCenter, iCff_x, iCnt, iCnttp, iComp, id_Tsk, iExp_x, iShll, iSkal, jCnt, jCnttp, l, l_max, lDel, &
                      LenInt, LenTot, Lu_AMFI, LUPROP, mdci, nBas_x, nCenter, nCenter_node, nCore, nExp_x, nSkal
 real(kind=wp) :: charge_x, Coor(3), Eta_Nuc

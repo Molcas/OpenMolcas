@@ -12,14 +12,14 @@
 subroutine gentkin(L,TKIN,nprims,exponents,rootOVLPinv)
 !bs subroutine to generate the kinetic energy
 
+use AMFI_global, only: MxprimL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: L, nprims
-#include "para.fh"
-real(kind=wp) :: TKIN(nprims,nprims), exponents(*), rootOVLPinv(MxprimL,MxprimL)
+real(kind=wp) :: TKIN(nprims,nprims), exponents(nprims), rootOVLPinv(MxprimL,MxprimL)
 integer(kind=iwp) :: irun1, irun2
 real(kind=wp), allocatable :: dummy(:,:), dummy2(:,:)
 real(kind=wp), external :: Tkinet

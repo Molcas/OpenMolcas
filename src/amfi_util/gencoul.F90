@@ -13,16 +13,15 @@ subroutine gencoul(l1,l2,l3,l4,makemean,bonn,breit,sameorb,cont4SO,cont4OO,icont
 !bs   SUBROUTINE to generate all required radial
 !bs   integrals for the four angular momenta l1-l4
 
+use AMFI_global, only: exponents, Lblocks, Lfirst, Llast, Lmax, Lstarter, Lvalues, MxprimL, nblock, ncontrac, nprimit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: l1, l2, l3, l4, icont4
 logical(kind=iwp) :: makemean, bonn, breit, sameorb
 real(kind=wp) :: cont4SO(*), cont4OO(*), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), coulovlp(*)
-#include "param.fh"
 integer(kind=iwp) :: incl1, incl3, ipow1, ipow2, istart, istart2, Lanf, Lend, Lrun, nanz, nprimprod
 real(kind=wp), allocatable :: Prim(:), Quot1(:), Quot2(:), QuotP1(:), QuotP2(:), Scr1(:), Scr2(:)
 
@@ -56,8 +55,8 @@ call mma_allocate(Prim,nPrimProd,Label='Prim')
 call mma_allocate(Scr1,nPrimProd,Label='Scr1')
 call mma_allocate(Scr2,nPrimProd,Label='Scr2')
 
-call initfrac(nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),Quot1,Quot2,exponents(1,l1),exponents(1,l2),exponents(1,l3), &
-              exponents(1,l4))
+call initfrac(nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),Quot1,Quot2,exponents(:,l1),exponents(:,l2),exponents(:,l3), &
+              exponents(:,l4))
 !bs prepare the powers needed for cfunctx
 !
 ! There are seven different CASES of integrals following
@@ -104,8 +103,8 @@ if (Lblocks(1) > 0) then    ! integrals have to be calculated
     !bs those powers have to be generated...
     QuotP2(:) = Quot2(:)**(real(ipow2,kind=wp)-Half)
     ! in buildcoul the radial integrals are calculated
-    call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(1,l1), &
-                   exponents(1,l2),exponents(1,l3),exponents(1,l4),powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),QuotP1,QuotP2, &
+    call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(:,l1), &
+                   exponents(:,l2),exponents(:,l3),exponents(:,l4),powexp(:,:,l3,l1,lrun),powexp(:,:,l4,l2,lrun),QuotP1,QuotP2, &
                    coulovlp)
     !bs in the contcas_ routines the integrals are contracted, including exponents as prefactors...
     if (bonn .or. breit .or. sameorb) then
@@ -151,8 +150,8 @@ if (Lblocks(2) > 0) then
     ipow2 = 2+(l1+l3+incl1+incl3+Lrun)/2
     QuotP1(:) = Quot1(:)**(real(ipow1,kind=wp)-Half)
     QuotP2(:) = Quot2(:)**(real(ipow2,kind=wp)-Half)
-    call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(1,l1), &
-                   exponents(1,l2),exponents(1,l3),exponents(1,l4),powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),QuotP1,QuotP2, &
+    call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(:,l1), &
+                   exponents(:,l2),exponents(:,l3),exponents(:,l4),powexp(:,:,l3,l1,lrun),powexp(:,:,l4,l2,lrun),QuotP1,QuotP2, &
                    coulovlp)
     if (bonn .or. breit .or. sameorb) then
       call contcasB1SO(l1,l2,l3,l4,istart,Prim,Scr1,Scr2,cont4SO)
@@ -198,8 +197,8 @@ if (Lblocks(4) > 0) then
     ipow2 = 2+(l1+l3+incl1+incl3+Lrun)/2
     QuotP1(:) = Quot1(:)**(real(ipow1,kind=wp)-Half)
     QuotP2(:) = Quot2(:)**(real(ipow2,kind=wp)-Half)
-    call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(1,l1), &
-                   exponents(1,l2),exponents(1,l3),exponents(1,l4),powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),QuotP1,QuotP2, &
+    call buildcoul(l1,l2,l3,l4,incl1,incl3,Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),exponents(:,l1), &
+                   exponents(:,l2),exponents(:,l3),exponents(:,l4),powexp(:,:,l3,l1,lrun),powexp(:,:,l4,l2,lrun),QuotP1,QuotP2, &
                    coulovlp)
     if (bonn .or. breit .or. sameorb) then
       call contcasCSO(l1,l2,l3,l4,istart,Prim,Scr1,Scr2,cont4SO)

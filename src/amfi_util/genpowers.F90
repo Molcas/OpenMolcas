@@ -11,15 +11,13 @@
 
 subroutine genpowers(Lhigh,powexp,coulovlp)
 
+use AMFI_global, only: df, exponents, Lmax, MxprimL, nprimit
 use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: Lhigh
 real(kind=wp) :: powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
-#include "param.fh"
-#include "dofuc.fh"
 integer(kind=iwp) :: incl1, incl2, iprim1, iprim2, irun1, irun2, L1, L2, Lrun, n1, n2
 real(kind=wp) :: df1, df12, df2, fact, fact1, fact2, factor
 

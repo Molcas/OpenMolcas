@@ -14,11 +14,11 @@ subroutine two2mean13(carteSO,occup,AOcoeffs,onecart,ncontmf,norbsum,noccorb)
 !bs < i M | j M >  with Malpha  and Mbeta
 !bs the other orbit parts cancel
 
+use AMFI_global, only: MxcontL
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: ncontmf, norbsum, noccorb
 real(kind=wp) :: carteSO(ncontmf,ncontmf,norbsum,norbsum), occup(*), AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
 integer(kind=iwp) :: icartleft, icartright, Mrun

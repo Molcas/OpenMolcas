@@ -23,31 +23,33 @@ subroutine angular(Lhigh,keep,makemean,bonn,breit,sameorb,ifinite,onecartx,oneca
 !bs in order not to waste to much memory, the atomic
 !bs integrals are thrown away after each l,l,l,l-block
 
+use AMFI_global, only: AOcoeffs, ipowxyz, Lblocks, Lfirst, Llast, Lmax, Lstarter, MxcontL, MxprimL, ncontrac, noccorb, occup
 use index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "para.fh"
 integer(kind=iwp) :: Lhigh, ifinite, icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax), icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), &
                      interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax), isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 logical(kind=iwp) :: keep, makemean, bonn, breit, sameorb
-real(kind=wp) :: onecartX(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), onecartY(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), &
-                 onecartZ(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), &
+real(kind=wp) :: onecartX(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), onecartY(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), &
+                 onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), &
                  coulovlp(*), preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
-#include "param.fh"
-integer(kind=iwp) :: iangfirst, icont4, indx, indy, indz, inter2, inter3, inter4, jblock, l1, l2, l3, l4, Lleftmax, Lleftmin, &
-                     locstar, Lrightmax, Lrightmin, M1, m1upper, M2, m2upper, M3, M4, mblock, mblockx, mblocky, mblockz, mxangint, &
-                     ncont, numbcart
+integer(kind=iwp) :: iangfirst, icont4, indx, indy, indz, inter2, inter3, inter4, isignM(-Lmax:Lmax), jblock, l1, l2, l3, l4, &
+                     Lleftmax, Lleftmin, locstar, Lrightmax, Lrightmin, M1, m1upper, M2, m2upper, M3, M4, mblock, mblockx, &
+                     mblocky, mblockz, mxangint, ncont, numbcart
+real(kind=wp) :: preroots(2,0:Lmax), scratch(0:2*Lmax+1)
 logical(kind=iwp) :: cleaner, NFINI
-real(kind=wp), allocatable :: ConOO(:), ConSO(:), CartOO(:), CartSO(:), AngOO(:), AngSO(:)
+integer(kind=iwp), allocatable :: mcombcart(:,:,:,:,:), mcombina(:,:,:,:,:)
+real(kind=wp), allocatable :: clebsch(:,:,:,:), ConOO(:), ConSO(:), CartOO(:), CartSO(:), AngOO(:), AngSO(:)
 !bs NFINI means not finite nucleus
 
 !bs ####################################################################
 !bs   some preparation of factors needed later on..                    #
 !bs ####################################################################
 !bs calculate some prefactors that will be needed quite often
+call mma_allocate(clebsch,[1,3],[1,2],[-Lmax,Lmax],[0,Lmax],label='clebsch')
 call prefac(Lmax,preroots,clebsch)
 if (ifinite /= 2) then
   !bs clean array for one electron integrals
@@ -133,6 +135,8 @@ end do
 !bs ####################################################################
 
 ! set some counters
+call mma_allocate(mcombina,[1,2],[-Lmax,Lmax],[-Lmax,Lmax],[-Lmax,Lmax],[-Lmax,Lmax],label='mcombina')
+call mma_allocate(mcombcart,[1,2],[-Lmax,Lmax],[-Lmax,Lmax],[-Lmax,Lmax],[-Lmax,Lmax],label='mcombcart')
 !bs counter for total number of cartesian integrals
 numbcart = 0
 !bs same orbit integrals integrals  on carteXSO carteYSO and carteSO
@@ -238,10 +242,10 @@ do l1=0,Lhigh   ! improving is probably possible...
                           !bs mkangLmin = make_angular_integrals_for_L- type operator
                           !bs really generates  the angular prefactors and combines them with
                           !bs the radial integrals
-                          call mkangLmin(Lmax,l1,l2,l3,l4,m1,m2,m3,m4,AngSO(1+locstar),AngOO(1+locstar),Lfirst(1),Llast(1), &
-                                         Lblocks(1),ncontrac(l1),ncontrac(l2),ncontrac(l3),ncontrac(l4),ConSO(Lstarter(1)), &
+                          call mkangLmin(Lmax,l1,l2,l3,l4,m1,m2,m3,m4,AngSO(1+locstar),AngOO(1+locstar),Lfirst,Llast,Lblocks, &
+                                         ncontrac(l1),ncontrac(l2),ncontrac(l3),ncontrac(l4),ConSO(Lstarter(1)), &
                                          ConSO(Lstarter(2)),ConSO(Lstarter(3)),ConSO(Lstarter(4)),ConOO(Lstarter(1)), &
-                                         ConOO(Lstarter(2)),ConOO(Lstarter(3)),ConOO(Lstarter(4)),preroots,clebsch,scratch4,bonn, &
+                                         ConOO(Lstarter(2)),ConOO(Lstarter(3)),ConOO(Lstarter(4)),preroots,clebsch,scratch,bonn, &
                                          breit,sameorb)
                           locstar = locstar+ncont ! increase starting address
                           mcombina(2,m1,m2,m3,m4) = mblock  ! set the block number
@@ -284,10 +288,10 @@ do l1=0,Lhigh   ! improving is probably possible...
                               write(u6,*) 'increase mxangint to at least ',locstar+ncont
                               call Abend()
                             end if
-                            call mkangL0(Lmax,l1,l2,l3,l4,m1,m2,m3,m4,angSO(1+locstar),AngOO(1+locstar),Lfirst(1),Llast(1), &
-                                         Lblocks(1),ncontrac(l1),ncontrac(l2),ncontrac(l3),ncontrac(l4),ConSO(Lstarter(1)), &
+                            call mkangL0(Lmax,l1,l2,l3,l4,m1,m2,m3,m4,angSO(1+locstar),AngOO(1+locstar),Lfirst,Llast,Lblocks, &
+                                         ncontrac(l1),ncontrac(l2),ncontrac(l3),ncontrac(l4),ConSO(Lstarter(1)), &
                                          ConSO(Lstarter(2)),ConSO(Lstarter(3)),ConSO(Lstarter(4)),ConOO(Lstarter(1)), &
-                                         ConOO(Lstarter(2)),ConOO(Lstarter(3)),ConOO(Lstarter(4)),preroots,clebsch,scratch4,bonn, &
+                                         ConOO(Lstarter(2)),ConOO(Lstarter(3)),ConOO(Lstarter(4)),preroots,clebsch,scratch,bonn, &
                                          breit,sameorb)
                             locstar = locstar+ncont
                             mcombina(2,m1,m2,m3,m4) = mblock
@@ -648,6 +652,9 @@ do l1=0,Lhigh   ! improving is probably possible...
     end do
   end do
 end do
+call mma_deallocate(clebsch)
+call mma_deallocate(mcombina)
+call mma_deallocate(mcombcart)
 
 return
 

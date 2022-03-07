@@ -14,14 +14,13 @@ subroutine contcasb1OO(l1,l2,l3,l4,nstart,primints,scratch1,scratch2,cont4OO)
 !bs this is one of the cases b in the documentation
 !bs use averaged integrals by interchanging kinematic factors
 
+use AMFI_global, only: contrarray, ncontrac, nprimit
 use Constants, only: Quart
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: l1, l2, l3, l4, nstart
 real(kind=wp) :: primints(*), scratch1(*), scratch2(*), cont4OO(*)
-#include "para.fh"
-#include "param.fh"
 integer(kind=iwp) :: ilength, ncont(4), nprim(4), nprod
 
 ncont(1) = ncontrac(l1)
@@ -39,32 +38,28 @@ ilength = nprim(1)*nprim(2)*nprim(3)*nprim(4)
 scratch1(1:ilength) = primints(1:ilength)
 !ncont : i-th element is number of contracted functions i. index
 !nprim : i-th element is number of primitive functions  i. index
-call contract(contrarray(iaddtyp2(l1)),contrarray(iaddtyp3(l2)),contrarray(iaddtyp3(l3)),contrarray(iaddtyp1(l4)),ncont,nprim, &
-              scratch1,scratch2)
+call contract(contrarray(:,2,l1),contrarray(:,3,l2),contrarray(:,3,l3),contrarray(:,1,l4),ncont,nprim,scratch1,scratch2)
 cont4OO(nstart:nstart+nprod-1) = Quart*scratch1(1:nprod)
 
 !bs copy primitive integrals to scratch1
 scratch1(1:ilength) = primints(1:ilength)
 !ncont : i-th element is number of contracted functions i. index
 !nprim : i-th element is number of primitive functions  i. index
-call contract(contrarray(iaddtyp4(l1)),contrarray(iaddtyp3(l2)),contrarray(iaddtyp1(l3)),contrarray(iaddtyp1(l4)),ncont,nprim, &
-              scratch1,scratch2)
+call contract(contrarray(:,4,l1),contrarray(:,3,l2),contrarray(:,1,l3),contrarray(:,1,l4),ncont,nprim,scratch1,scratch2)
 cont4OO(nstart:nstart+nprod-1) = cont4OO(nstart:nstart+nprod-1)+Quart*scratch1(1:nprod)
 
 !bs copy primitive integrals to scratch1
 scratch1(1:ilength) = primints(1:ilength)
 !ncont : i-th element is number of contracted functions i. index
 !nprim : i-th element is number of primitive functions  i. index
-call contract(contrarray(iaddtyp2(l1)),contrarray(iaddtyp1(l2)),contrarray(iaddtyp3(l3)),contrarray(iaddtyp3(l4)),ncont,nprim, &
-              scratch1,scratch2)
+call contract(contrarray(:,2,l1),contrarray(:,1,l2),contrarray(:,3,l3),contrarray(:,3,l4),ncont,nprim,scratch1,scratch2)
 cont4OO(nstart:nstart+nprod-1) = cont4OO(nstart:nstart+nprod-1)+Quart*scratch1(1:nprod)
 
 !bs copy primitive integrals to scratch1
 scratch1(1:ilength) = primints(1:ilength)
 !ncont : i-th element is number of contracted functions i. index
 !nprim : i-th element is number of primitive functions  i. index
-call contract(contrarray(iaddtyp4(l1)),contrarray(iaddtyp1(l2)),contrarray(iaddtyp1(l3)),contrarray(iaddtyp3(l4)),ncont,nprim, &
-              scratch1,scratch2)
+call contract(contrarray(:,4,l1),contrarray(:,1,l2),contrarray(:,1,l3),contrarray(:,3,l4),ncont,nprim,scratch1,scratch2)
 cont4OO(nstart:nstart+nprod-1) = cont4OO(nstart:nstart+nprod-1)+Quart*scratch1(1:nprod)
 
 return

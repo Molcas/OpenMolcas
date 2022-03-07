@@ -35,7 +35,7 @@ integer(kind=iwp) :: I, ibm, icheck, icoeff, ICOL, icount, Idenom, IDUMMY, IFIRS
                      isum, iwork(nprim), J, LIMIT, MAT(3,3)
 real(kind=wp) :: down, factor, up
 !BS logical(kind=iwp) :: testup,testdown
-! decompose facultatives into powers of prime numbers
+! decompose factorials into powers of prime numbers
 integer(kind=iwp), parameter :: facul(nprim,0:mxLinRE) = reshape([0,0,0,0,0,0,0,0,0,0,0,   &
                                                                   0,0,0,0,0,0,0,0,0,0,0,   &
                                                                   1,0,0,0,0,0,0,0,0,0,0,   &
