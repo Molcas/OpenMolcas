@@ -42,7 +42,7 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE)
 
       INTEGER I,N
-      INTEGER ITOL
+      INTEGER ITOL,IDX
       INTEGER JOB
       INTEGER IPROP
       INTEGER IAMFIX,IAMFIY,IAMFIZ,IAMX,IAMY,IAMZ
@@ -56,7 +56,7 @@
       REAL*8 AU2EV,AU2CM
       REAL*8 AMFIX,AMFIY,AMFIZ
       REAL*8 CG0,CGM,CGP,CGX,CGY
-      REAL*8 E,E0,E1,E2,E3,E_TMP,FACT,FRAC
+      REAL*8 E,E0,E1,E2,E3,E_TMP,FACT,FRAC,EI,EPSH,EPSS,ERMS,V2SUM
       REAL*8 HSOI,HSOR,HSOTOT
       REAL*8 OMEGA
       REAL*8 S1,S2,SM1,SM2
@@ -578,7 +578,19 @@ C Saving the ESO array in the RunFile.
       END IF
 
 C Put energy onto info file for automatic verification runs:
-      iTol=cho_x_gettol(8) ! reset thr iff Cholesky
+      EPSS=5.0D-11
+      EPSH=MAX(5.0D-10,ABS(ENSOR(1)+EMIN)*EPSS)
+      IDX=100
+      DO ISS=1,NSS
+       EI=(ENSOR(ISS)+EMIN)*EPSS
+       V2SUM=0.0D0
+       DO JSS=1,NSS
+        V2SUM=V2SUM+USOR(JSS,ISS)**2+USOI(JSS,ISS)**2
+       END DO
+       ERMS=SQRT(EPSH**2+EI**2)*V2SUM
+       IDX=MIN(IDX,INT(-LOG10(ERMS)))
+      END DO
+      iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
       Call Add_Info('ESO_LOW',ENSOR+EMIN,NSS,iTol)
 
       IF(IPGLOB.GE.VERBOSE) THEN
