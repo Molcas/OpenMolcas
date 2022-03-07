@@ -20,10 +20,10 @@ use AMFI_global, only: cntscrtch, contrarray, exponents, MxcontL, MxprimL, ncont
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: L, ifinite
-logical(kind=iwp) :: breit
-real(kind=wp) :: TKIN(MxprimL,MxprimL), evec(MxprimL,MxprimL), eval(MxprimL), Energy(MxprimL), type1(MxprimL), type2(MxprimL), &
-                 scratch(MxprimL,MxprimL,3)
+integer(kind=iwp), intent(in) :: L, ifinite
+logical(kind=iwp), intent(in) :: breit
+real(kind=wp), intent(out) :: TKIN(MxprimL,MxprimL), evec(MxprimL,MxprimL), eval(MxprimL), Energy(MxprimL), type1(MxprimL), &
+                              type2(MxprimL), scratch(MxprimL,MxprimL,3)
 logical(kind=iwp), parameter :: breit_finite = .true.
 
 !bs transcon transfers and normalizes contracted functions

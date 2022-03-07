@@ -17,7 +17,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lhigh
+integer(kind=iwp), intent(in) :: lhigh
 integer(kind=iwp) :: closedshells(0:Lmax), i, lrun, openshells(0:Lmax)
 
 call getocc_ao(int(charge),closedshells,openshells)

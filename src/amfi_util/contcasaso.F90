@@ -17,9 +17,12 @@ subroutine contcasaSO(l1,l2,l3,l4,nstart,primints,scratch1,scratch2,cont4SO)
 use AMFI_global, only: contrarray, ncontrac, nprimit
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: l1, l2, l3, l4, nstart
-real(kind=wp) :: primints(*), scratch1(*), scratch2(*), cont4SO(*)
+integer(kind=iwp), intent(in) :: l1, l2, l3, l4, nstart
+real(kind=wp), intent(in) :: primints(*)
+real(kind=wp), intent(_OUT_) :: scratch1(*), scratch2(*), cont4SO(*)
 integer(kind=iwp) :: ilength, ncont(4), nprim(4), nprod
 
 ncont(1) = ncontrac(l1)

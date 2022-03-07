@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: getCG
-integer(kind=iwp) :: j1, j2, j3, m1, m2, m3
+integer(kind=iwp), intent(in) :: j1, j2, j3, m1, m2, m3
 integer(kind=iwp) :: idummy
 real(kind=wp) :: fac1, fac2, sgn
 real(kind=wp), external :: regge3j

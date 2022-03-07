@@ -33,10 +33,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ncont, nprims, MxprimL
-real(kind=wp) :: coeffs(nprims,ncont), coeffst1(nprims,ncont), coeffst1a(nprims,ncont), coeffst2(nprims,ncont), &
-                 coeffst2a(nprims,ncont), evec(nprims,nprims), type1(*), type2(*), work(nprims,nprims), work2(nprims,nprims), &
-                 work3(nprims,nprims), rootOVLP(MxprimL,*), OVLPinv(MxprimL,*), exponents(*)
+integer(kind=iwp), intent(in) :: ncont, nprims, MxprimL
+real(kind=wp), intent(in) :: coeffs(nprims,ncont), evec(nprims,nprims), type1(*), type2(*), rootOVLP(MxprimL,*), &
+                             OVLPinv(MxprimL,*), exponents(*)
+real(kind=wp), intent(out) :: coeffst1(nprims,ncont), coeffst1a(nprims,ncont), coeffst2(nprims,ncont), coeffst2a(nprims,ncont), &
+                              work(nprims,nprims), work2(nprims,nprims), work3(nprims,nprims)
 integer(kind=iwp) :: K
 
 !bs first new coefficients for type1 (A)

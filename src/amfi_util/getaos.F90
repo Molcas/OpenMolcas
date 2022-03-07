@@ -16,7 +16,7 @@ use AMFI_global, only: AOcoeffs, ncontrac, noccorb, occup
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lhigh
+integer(kind=iwp), intent(in) :: lhigh
 integer(kind=iwp) :: icont, iorbital, lrun, Lu_33
 logical(kind=iwp) :: EX
 character(len=12) :: occread, occtext

@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ndim1, ndim2, ndim3, ndim4
-real(kind=wp) :: from(ndim1,ndim2,ndim3,ndim4), to(ndim1,ndim3,ndim2,ndim4), fact
+integer(kind=iwp), intent(in) :: ndim1, ndim2, ndim3, ndim4
+real(kind=wp), intent(in) :: from(ndim1,ndim2,ndim3,ndim4), fact
+real(kind=wp), intent(inout) :: to(ndim1,ndim3,ndim2,ndim4)
 integer(kind=iwp) :: irun2, irun3
 
 if (fact /= Zero) then

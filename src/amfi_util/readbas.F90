@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine ReadBas(Lhigh,makemean,bonn,breit,symmetry,sameorb,AIMP,oneonly,ncont4,numballcart,LUIN,ifinite)
-! Suposed to read the maximum of l-values, the number of primitive and
+! Supposed to read the maximum of l-values, the number of primitive and
 ! contracted functions, the exponents and contraction coefficients
 
 use AMFI_global, only: charge, cntscrtch, Exp_finite, exponents, icore, ikeeplist, ikeeporb, incrLM, ipow2ired, ipowxyz, iredLM, &
@@ -20,9 +20,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: Lhigh, ncont4, numballcart, LUIN, ifinite
-logical(kind=iwp) :: MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly
-character(len=4) :: Symmetry
+integer(kind=iwp), intent(out) :: Lhigh, ncont4, numballcart, ifinite
+logical(kind=iwp), intent(out) :: MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly
+character(len=4), intent(out) :: Symmetry
+integer(kind=iwp), intent(in) :: LUIN
 integer(kind=iwp) :: I, iBeginIRed(8), icart, iDelperSym(8), ILINE, inired, iorbrun, ired, ired1, ired2, iredrun, Irun, ishifter, &
                      isum, itype, JRUN, lDel, Lrun, Lval, mRun, nfunctperIRED(8), nmax, nsymrun, numbofcart, numbprev, numbr
 character(len=54) :: Stars
@@ -46,6 +47,7 @@ SameOrb = .false.
 AIMP = .false.
 OneOnly = .false.
 MakeMean = .true.
+ifinite = 0
 
 if (IfTest) then
   write(u6,'(/,/,/,24X,A)') Stars
@@ -144,7 +146,7 @@ do Lrun=0,Lhigh
   end if
   if (ncontrac(Lrun) > MxcontL) then
     write(u6,*) ' Too many contracted functions for L=',Lrun, &
-                 ' increase MxcontL in amfi_global or reduce the number of contracted functions to at most ',MxcontL
+                ' increase MxcontL in amfi_global or reduce the number of contracted functions to at most ',MxcontL
     call Abend()
   end if
   if (ncontrac(Lrun) > nprimit(Lrun)) then

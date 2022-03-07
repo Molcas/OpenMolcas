@@ -23,9 +23,13 @@ subroutine contract(coeffs1,coeffs2,coeffs3,coeffs4,ncont,nprim,arr1,arr2)
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: coeffs1(*), coeffs2(*), coeffs3(*), coeffs4(*), arr1(*), arr2(*)
-integer(kind=iwp) :: ncont(4), nprim(4)
+real(kind=wp), intent(in) :: coeffs1(*), coeffs2(*), coeffs3(*), coeffs4(*)
+integer(kind=iwp), intent(in) :: ncont(4), nprim(4)
+real(kind=wp), intent(inout) :: arr1(*)
+real(kind=wp), intent(_OUT_) :: arr2(*)
 integer(kind=iwp) :: ifirst, ifourth, isec, ithird, nnew(4), nolds(4)
 real(kind=wp) :: ratio1, ratio2, ratio3, ratio4, xmax
 

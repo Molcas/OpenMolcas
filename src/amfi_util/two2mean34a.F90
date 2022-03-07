@@ -16,10 +16,11 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ncontmf, norbsum, noccorb
-real(kind=wp) :: carteSO(norbsum,ncontmf,norbsum,ncontmf), carteOO(norbsum,ncontmf,norbsum,ncontmf), occup(*), &
-                 AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
-logical(kind=iwp) :: sameorb
+integer(kind=iwp), intent(in) :: ncontmf, norbsum, noccorb
+real(kind=wp), intent(in) :: carteSO(norbsum,ncontmf,norbsum,ncontmf), carteOO(norbsum,ncontmf,norbsum,ncontmf), occup(*), &
+                             AOcoeffs(MxcontL,*)
+real(kind=wp), intent(inout) :: onecart(MxcontL,MxcontL)
+logical(kind=iwp), intent(in) :: sameorb
 integer(kind=iwp) :: icartleft, icartright, Mrun
 real(kind=wp) :: coeff
 
@@ -42,9 +43,9 @@ else
         coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
       end do
       coeff = Half*coeff
-        onecart(1:ncontmf,1:ncontmf) = onecart(1:ncontmf,1:ncontmf)+ &
-                                       coeff*(carteSO(icartleft,1:ncontmf,icartright,1:ncontmf)+ &
-                                              Two*carteOO(icartleft,1:ncontmf,icartright,1:ncontmf))
+      onecart(1:ncontmf,1:ncontmf) = onecart(1:ncontmf,1:ncontmf)+ &
+                                     coeff*(carteSO(icartleft,1:ncontmf,icartright,1:ncontmf)+ &
+                                            Two*carteOO(icartleft,1:ncontmf,icartright,1:ncontmf))
     end do
   end do
 end if

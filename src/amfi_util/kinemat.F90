@@ -19,8 +19,9 @@ use Constants, only: Zero, One, Half, speed => cLightAU
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ndim
-real(kind=wp) :: evtkin(ndim), type1(ndim), type2(ndim), Energy(ndim)
+integer(kind=iwp), intent(in) :: ndim
+real(kind=wp), intent(in) :: evtkin(ndim)
+real(kind=wp), intent(out) :: type1(ndim), type2(ndim), Energy(ndim)
 integer(kind=iwp) :: irun
 real(kind=wp), parameter :: fine = One/speed, speed2 = speed**2, speed4 = speed2**2
 

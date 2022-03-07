@@ -15,8 +15,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lmax
-real(kind=wp) :: preroots(2,0:Lmax), clebsch(3,2,-Lmax:Lmax,0:Lmax)
+integer(kind=iwp), intent(in) :: Lmax
+real(kind=wp), intent(out) :: preroots(2,0:Lmax), clebsch(3,2,-Lmax:Lmax,0:Lmax)
 integer(kind=iwp) :: L, L2, M, M2
 real(kind=wp) :: fact
 real(kind=wp), external :: getCG

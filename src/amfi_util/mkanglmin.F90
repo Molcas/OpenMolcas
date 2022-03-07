@@ -20,20 +20,21 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lmax, l1, l2, l3, l4, m1, m2, m3, m4, Lfirst(4), Llast(4), Lblocks(4), ncont1, ncont2, ncont3, ncont4
-real(kind=wp) :: angintSO(ncont1,ncont2,ncont3,ncont4), angintOO(ncont1,ncont2,ncont3,ncont4), &
-                 caseaSO(ncont1*ncont2*ncont3*ncont4,*), caseb1SO(ncont1*ncont2*ncont3*ncont4,*), &
-                 caseb2SO(ncont1*ncont2*ncont3*ncont4,*), casecSO(ncont1*ncont2*ncont3*ncont4,*), &
-                 caseaOO(ncont1*ncont2*ncont3*ncont4,*), caseb1OO(ncont1*ncont2*ncont3*ncont4,*), &
-                 caseb2OO(ncont1*ncont2*ncont3*ncont4,*), casecOO(ncont1*ncont2*ncont3*ncont4,*), preroots(2,0:Lmax), &
-                 clebsch(3,2,-Lmax:Lmax,0:Lmax), dummy(0:2*Lmax+1)
-logical(kind=iwp) :: bonn, breit, sameorb
+integer(kind=iwp), intent(in) :: Lmax, l1, l2, l3, l4, m1, m2, m3, m4, Lfirst(4), Llast(4), Lblocks(4), ncont1, ncont2, ncont3, &
+                                 ncont4
+real(kind=wp), intent(out) :: angintSO(ncont1,ncont2,ncont3,ncont4), angintOO(ncont1,ncont2,ncont3,ncont4), dummy(0:2*Lmax+1)
+real(kind=wp), intent(in) :: caseaSO(ncont1*ncont2*ncont3*ncont4,*), caseb1SO(ncont1*ncont2*ncont3*ncont4,*), &
+                             caseb2SO(ncont1*ncont2*ncont3*ncont4,*), casecSO(ncont1*ncont2*ncont3*ncont4,*), &
+                             caseaOO(ncont1*ncont2*ncont3*ncont4,*), caseb1OO(ncont1*ncont2*ncont3*ncont4,*), &
+                             caseb2OO(ncont1*ncont2*ncont3*ncont4,*), casecOO(ncont1*ncont2*ncont3*ncont4,*), preroots(2,0:Lmax), &
+                             clebsch(3,2,-Lmax:Lmax,0:Lmax)
+logical(kind=iwp), intent(in) :: bonn, breit, sameorb
 integer(kind=iwp) :: Kfirst, Klast, L, Lrun, M, ncontall
 real(kind=wp) :: cheater, factor
 real(kind=wp), parameter :: root2 = sqrt(Two), root2inv = One/root2
 real(kind=wp), external :: LMdepang
 !bs all the arrays with the radial intgrls for
-!bs   this combination of l-values
+!bs this combination of l-values
 ! caseaSO:  (2,0)   intgrls with alpha1*alpha3
 ! caseb1SO: (0,0)   intgrls with alpha1
 ! caseb2SO: (0,0)   intgrls with alpha3

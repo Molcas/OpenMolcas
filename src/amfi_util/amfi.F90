@@ -102,7 +102,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LUIN, LUPROP, iCenter
+integer(kind=iwp), intent(in) :: LUIN, LUPROP, iCenter
 integer(kind=iwp) :: icartdim, icoulovlpdim, idim1, idim2, ifinite, ionecontrdim, ioneoverR3dim, ipowexpdim, irun, jrun, lhigh, &
                      lrun, Mval, ncont4, numballcart
 logical(kind=iwp) :: AIMP, bonn, breit, keep, makemean, oneonly, SAMEORB
@@ -139,7 +139,6 @@ integer(kind=iwp), parameter :: Lpowmax = 6, &
 !bs        version without all angular integrals in memory
 keep = .false.
 !bs ####################################################################
-ifinite = 0
 !bs initialize tables with double factorials...
 call inidf()
 !bs move some powers of x,y,z to the right place   BEGIN

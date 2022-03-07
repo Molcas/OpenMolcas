@@ -10,18 +10,21 @@
 !***********************************************************************
 
 subroutine gencoul(l1,l2,l3,l4,makemean,bonn,breit,sameorb,cont4SO,cont4OO,icont4,powexp,coulovlp)
-!bs   SUBROUTINE to generate all required radial
-!bs   integrals for the four angular momenta l1-l4
+!bs SUBROUTINE to generate all required radial
+!bs integrals for the four angular momenta l1-l4
 
 use AMFI_global, only: exponents, Lblocks, Lfirst, Llast, Lmax, Lstarter, Lvalues, MxprimL, nblock, ncontrac, nprimit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: l1, l2, l3, l4, icont4
-logical(kind=iwp) :: makemean, bonn, breit, sameorb
-real(kind=wp) :: cont4SO(*), cont4OO(*), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), coulovlp(*)
+integer(kind=iwp), intent(in) :: l1, l2, l3, l4, icont4
+logical(kind=iwp), intent(in) :: makemean, bonn, breit, sameorb
+real(kind=wp), intent(_OUT_) :: cont4SO(*), cont4OO(*)
+real(kind=wp), intent(in) :: powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), coulovlp(*)
 integer(kind=iwp) :: incl1, incl3, ipow1, ipow2, istart, istart2, Lanf, Lend, Lrun, nanz, nprimprod
 real(kind=wp), allocatable :: Prim(:), Quot1(:), Quot2(:), QuotP1(:), QuotP2(:), Scr1(:), Scr2(:)
 

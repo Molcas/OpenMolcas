@@ -18,8 +18,9 @@ use AMFI_global, only: Lblocks, Lfirst, Llast, Lstarter, Lvalues, nblock, ncontr
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: l1, l2, l3, l4, icont4
-logical(kind=iwp) :: makemean
+integer(kind=iwp), intent(in) :: l1, l2, l3, l4
+logical(kind=iwp), intent(in) :: makemean
+integer(kind=iwp), intent(out) :: icont4
 integer(kind=iwp) :: incl1, incl3, Lanf, Lend, nanz
 
 !bs first of all, this routine determines, for which L

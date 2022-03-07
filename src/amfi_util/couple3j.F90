@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: couple3J
-integer(kind=iwp) :: l1, l2, l3, m1, m2, m3
+integer(kind=iwp), intent(in) :: l1, l2, l3, m1, m2, m3
 integer(kind=iwp) :: l1d, l2d, l3d, m1d, m2d, m3d
 real(kind=wp) :: fac1, fac2, fac3
 real(kind=wp), parameter :: inv4pi = Quart/Pi

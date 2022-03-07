@@ -20,10 +20,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lhigh, numballcart, LUPROP, ifinite, iCenter
-logical(kind=iwp) :: AIMP, oneonly
-real(kind=wp) :: onecart(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3), onecontr(MxcontL,MxcontL,-Lmax:Lmax,3,Lmax), &
-                 oneoverR3(MxprimL*(MxprimL+1)/2,Lmax)
+integer(kind=iwp), intent(in) :: Lhigh, numballcart, LUPROP, ifinite, iCenter
+logical(kind=iwp), intent(in) :: AIMP, oneonly
+real(kind=wp), intent(inout) :: onecart(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3)
+real(kind=wp), intent(out) :: onecontr(MxcontL,MxcontL,-Lmax:Lmax,3,Lmax)
+real(kind=wp), intent(in) :: oneoverR3(MxprimL*(MxprimL+1)/2,Lmax)
 integer(kind=iwp) :: I, icartfirst, icartsec, ind1, ind2, ipntnew, ipntold, ipowx, ipowy, ipowz, ired1, ired2, iredfirst, &
                      iredired, iredsec, irun, irun1, irun2, L, length3, Lrun, Mfirst, mrun, Msec, norb1, norb2, norbsh1, norbsh2
 character(len=8) :: xa(4), ya(4), za(4)
@@ -41,7 +42,7 @@ za(:) = ['********','        ','ANTISYMM','Z1SPNORB']
 
 !bs clean the arrays for cartesian integrals
 
-length3 = (numbalLcart*numbalLcart+numbalLcart)/2
+length3 = numbalLcart*(numbalLcart+1)/2
 call mma_allocate(OCA,Length3,3,Label='OCA')
 call mma_allocate(OCA2,Length3,3,Label='OCA2')
 call mma_allocate(Dummy,MxContL**2,Label='Dummy')
@@ -61,8 +62,8 @@ OCA2(:,:) = Zero
 !bs generate one-electron integrals for all L greater/equal 1
 if (ifinite == 2) charge = Zero ! nuclear integrals are modelled for finite nucleus somewhere else
 do L=1,Lhigh
-  call contone(L,oneoverr3(1,L),onecontr(1,1,-Lmax,1,L),Lmax,contrarray(:,3,L),nprimit(L),ncontrac(L),MxcontL,Dummy, &
-               onecart(1,1,1,L,1),onecart(1,1,1,L,2),onecart(1,1,1,L,3),charge,oneonly)
+  call contone(L,oneoverr3(:,L),onecontr(:,:,-Lmax,1,L),Lmax,contrarray(:,3,L),nprimit(L),ncontrac(L),MxcontL,Dummy, &
+               onecart(:,:,:,L,1),onecart(:,:,:,L,2),onecart(:,:,:,L,3),charge,oneonly)
 end do
 
 !bs ********************************************************************
@@ -155,7 +156,7 @@ end do
 !bs copy integrals on arrays with no symmetry blocking at all
 !bs which means huge triangular matrices
 irun = 0
-do norb2=1,numballcarT
+do norb2=1,numballcart
   ired2 = iredoffunctnew(norb2)
   norbsh2 = norb2-shiftIRED(ired2)
   do norb1=1,norb2
@@ -172,7 +173,7 @@ do norb2=1,numballcarT
 end do
 if (.not. AIMP) then
   ! write a hermit-like file   b.s. 4.10.96
-  !BS write(u6,*) 'number of orbitals ',numbalLcarT
+  !BS write(u6,*) 'number of orbitals ',numbalLcart
   !BS write(u6,*) 'length of triangular matrix ', length3
   !BS This was removed and will be done in SEWARD
   !BS open(LUPROP,status='UNKNOWN',form='UNFORMATTED',file='AOPROPER_MF')
@@ -185,7 +186,7 @@ if (.not. AIMP) then
   write(LUPROP) (oca2(irun,2),irun=1,length3)
   write(LUPROP) Za
   write(LUPROP) (oca2(irun,3),irun=1,length3)
-  !BS close(luprop)
+  !BS close(LUPROP)
 else
   !bs reorder for AIMP
   !bs write(u6,*) 'reorder integrals for AIMP'
@@ -205,7 +206,7 @@ else
     end do
   end do
   !BS write(u6,*) 'transfered to new blocks'
-  !BS Luprop = 19
+  !BS LUPROP = 19
   !BS open(LUPROP,status='UNKNOWN',form='UNFORMATTED',file='AOPROPER_MF')
   !BS rewind(LUPROP)
 
@@ -219,7 +220,7 @@ else
   write(LUPROP) (oca3(irun,3),irun=1,length3)
 
   call mma_deallocate(OCA3)
-  !BS close(luprop)
+  !BS close(LUPROP)
 end if
 
 !bs that is it!!

@@ -18,8 +18,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lhigh
-real(kind=wp) :: coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax), eval(MxprimL)
+integer(kind=iwp), intent(in) :: Lhigh
+real(kind=wp), intent(in) :: coulovlp(MxprimL,MxprimL,-1:1,-1:1,0:Lmax,0:Lmax)
+real(kind=wp), intent(out) :: eval(MxprimL)
 integer(kind=iwp) :: ipnt, Irun, Jrun, L, n
 real(kind=wp) :: fact
 real(kind=wp), allocatable :: evecinv(:,:)

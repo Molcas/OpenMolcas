@@ -24,8 +24,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idim1, idim2, ich, nolds1, nolds2, nolds3, nolds4, nnew1, nnew2, nnew3, nnew4
-real(kind=wp) :: coeffs(idim1,idim2), array1(nolds1,nolds2,nolds3,nolds4), array2(nnew1,nnew2,nnew3,nnew4)
+integer(kind=iwp), intent(in) :: idim1, idim2, ich, nolds1, nolds2, nolds3, nolds4, nnew1, nnew2, nnew3, nnew4
+real(kind=wp), intent(in) :: coeffs(idim1,idim2), array1(nolds1,nolds2,nolds3,nolds4)
+real(kind=wp), intent(out) :: array2(nnew1,nnew2,nnew3,nnew4)
 integer(kind=iwp) :: ind1, ind2, ind3, ind4, ind5
 
 !write(u6,*) 'begin trans ',ich

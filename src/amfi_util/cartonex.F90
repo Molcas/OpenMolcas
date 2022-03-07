@@ -17,8 +17,9 @@ use Constants, only: Quart
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: L, Lmax, ncontrac, MxcontL
-real(kind=wp) :: onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), onecartX(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
+integer(kind=iwp), intent(in) :: L, Lmax, ncontrac, MxcontL
+real(kind=wp), intent(in) :: onecontr(MxcontL,MxcontL,-Lmax:Lmax,3)
+real(kind=wp), intent(inout) :: onecartX(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
 integer(kind=iwp) :: iaddr, M, Mprime
 real(kind=wp) :: pre
 

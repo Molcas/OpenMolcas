@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Drv_AMFI(Label,ip,lOper,nComp,iAtmNr2,Charge2)
+subroutine Drv_AMFI(Label,lOper,nComp,iAtmNr2,Charge2)
 
 use AMFI_global, only: Lmax
 use iSD_data, only: iSD
@@ -22,16 +22,15 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-character(len=8) :: Label
-integer(kind=iwp) :: nComp, ip(nComp), lOper(nComp), iAtmNr2(mxdbsc)
-real(kind=wp) :: Charge2(mxdbsc)
+character(len=8), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nComp, lOper(nComp), iAtmNr2(mxdbsc)
+real(kind=wp), intent(in) :: Charge2(mxdbsc)
 #include "angtp.fh"
-integer(kind=iwp) :: i, iCase, iCenter, iCff_x, iCnt, iCnttp, iComp, id_Tsk, iExp_x, iShll, iSkal, jCnt, jCnttp, l, l_max, lDel, &
-                     LenInt, LenTot, Lu_AMFI, LUPROP, mdci, nBas_x, nCenter, nCenter_node, nCore, nExp_x, nSkal
+integer(kind=iwp) :: i, iCase, iCenter, iCff_x, iCnt, iCnttp, id_Tsk, iExp_x, iShll, iSkal, jCnt, jCnttp, l, l_max, lDel, &
+                     Lu_AMFI, LUPROP, mdci, nBas_x, nCenter, nCenter_node, nCore, nExp_x, nSkal
 real(kind=wp) :: charge_x, Coor(3), Eta_Nuc
 logical(kind=iwp) :: EQ
 integer(kind=iwp), allocatable :: iDel(:)
-real(kind=wp), allocatable :: SOInt(:)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 #define _TEST_ .true.
@@ -39,7 +38,6 @@ real(kind=wp), allocatable :: SOInt(:)
 #define _TEST_ .false.
 #endif
 logical(kind=iwp), parameter :: IfTest = _TEST_
-integer(kind=iwp), external :: n2Tri
 logical(kind=iwp), external :: Rsv_Tsk
 
 #ifdef _DEBUGPRINT_
@@ -48,28 +46,9 @@ write(u6,*) ' In OneEl: nComp'
 write(u6,'(1X,8I5)') nComp
 write(u6,*) ' In OneEl: lOper'
 write(u6,'(1X,8I5)') lOper
-write(u6,*) ' In OneEl: n2Tri'
-do iComp=1,nComp
-  ip(iComp) = n2Tri(lOper(iComp))
-end do
-write(u6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
 #endif
 
 Eta_Nuc = Zero
-
-! Allocate memory for symmetry adapted one electron integrals.
-! Will just store the unique elements, i.e. low triangular blocks
-! and lower triangular elements in the diagonal blocks.
-
-ip(:) = -1
-LenTot = 0
-do iComp=1,nComp
-  ip(iComp) = 1+LenTot
-  LenInt = n2Tri(lOper(iComp))
-  LenTot = LenTot+LenInt+4
-end do
-call mma_allocate(SOInt,LenTot,label='SOInt')
-SOInt(:) = Zero
 
 ! Generate list of shell information
 
@@ -290,14 +269,13 @@ call Free_Tsk(id_Tsk)
 !end do
 close(Lu_AMFI)
 
-! Now symmetry adopt.
+! Now symmetry adapt.
 
 rewind(LUPROP)
-call SymTrafo(LUPROP,ip,lOper,nComp,nBas,nIrrep,Label,MolWgh,SOInt,LenTot)
+
+call SymTrafo(LUPROP,lOper,nComp,nBas,nIrrep,Label,MolWgh)
 
 close(LUPROP)
-
-call mma_deallocate(SOInt)
 
 return
 

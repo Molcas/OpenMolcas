@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ncontmf, norbsum, noccorb
-real(kind=wp) :: carteSO(ncontmf,ncontmf,norbsum,norbsum), occup(*), AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
+integer(kind=iwp), intent(in) :: ncontmf, norbsum, noccorb
+real(kind=wp), intent(in) :: carteSO(ncontmf,ncontmf,norbsum,norbsum), occup(*), AOcoeffs(MxcontL,*)
+real(kind=wp), intent(inout) :: onecart(MxcontL,MxcontL)
 integer(kind=iwp) :: icartleft, icartright, Mrun
 real(kind=wp) :: coeff
 

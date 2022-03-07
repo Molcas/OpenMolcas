@@ -25,8 +25,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: LMdepang
-integer(kind=iwp) :: L, M, l1, l2, l3, l4, m1, m2, m3, m4
-real(kind=wp) :: cheater
+integer(kind=iwp), intent(in) :: L, M, l1, l2, l3, l4, m1, m2, m3, m4
+real(kind=wp), intent(in) :: cheater
 integer(kind=iwp) :: isum
 real(kind=wp) :: fact1, fact2, fact3, sgn
 real(kind=wp), external :: couple3J

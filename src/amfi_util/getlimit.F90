@@ -17,7 +17,8 @@ subroutine getLIMIT(l1,l2,l3,l4,Lanf,Lend)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: l1, l2, l3, l4, Lanf, Lend
+integer(kind=iwp), intent(in) :: l1, l2, l3, l4
+integer(kind=iwp), intent(out) :: Lanf, Lend
 integer(kind=iwp) :: lower1, lower2, lsum, lupper1, lupper2
 
 lower1 = abs(l1-l3)

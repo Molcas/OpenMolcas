@@ -16,9 +16,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nprimit1, nprimit2, nprimit3, nprimit4
-real(kind=wp) :: quot1(nprimit1,nprimit2,nprimit3,nprimit4), quot2(nprimit1,nprimit2,nprimit3,nprimit4), expo1(*), expo2(*), &
-                 expo3(*), expo4(*)
+integer(kind=iwp), intent(in) :: nprimit1, nprimit2, nprimit3, nprimit4
+real(kind=wp), intent(out) :: quot1(nprimit1,nprimit2,nprimit3,nprimit4), quot2(nprimit1,nprimit2,nprimit3,nprimit4)
+real(kind=wp), intent(in) :: expo1(*), expo2(*), expo3(*), expo4(*)
 integer(kind=iwp) :: irun2, irun3, irun4
 real(kind=wp) :: sum24
 

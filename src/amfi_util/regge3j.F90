@@ -29,7 +29,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: regge3j
-integer(kind=iwp) :: j1, j2, j3, m1, m2, m3
+integer(kind=iwp), intent(in) :: j1, j2, j3, m1, m2, m3
 integer(kind=iwp), parameter :: mxLinRE = 36, nprim = 11
 integer(kind=iwp) :: I, ibm, icheck, icoeff, ICOL, icount, Idenom, IDUMMY, IFIRST, imaxi, imini, IROW, ISECOND, Isigma, isgn, &
                      isum, iwork(nprim), J, LIMIT, MAT(3,3)

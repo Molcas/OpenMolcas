@@ -16,10 +16,11 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ncontmf, norbsum, noccorb
-real(kind=wp) :: carteSO(ncontmf,norbsum,ncontmf,norbsum), carteOO(ncontmf,norbsum,ncontmf,norbsum), occup(*), &
-                 AOcoeffs(MxcontL,*), onecart(MxcontL,MxcontL)
-logical(kind=iwp) :: sameorb
+integer(kind=iwp), intent(in) :: ncontmf, norbsum, noccorb
+real(kind=wp), intent(in) :: carteSO(ncontmf,norbsum,ncontmf,norbsum), carteOO(ncontmf,norbsum,ncontmf,norbsum), occup(*), &
+                             AOcoeffs(MxcontL,*)
+real(kind=wp), intent(inout) :: onecart(MxcontL,MxcontL)
+logical(kind=iwp), intent(in) :: sameorb
 integer(kind=iwp) :: icartleft, icartright, Mrun
 real(kind=wp) :: coeff
 

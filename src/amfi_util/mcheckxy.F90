@@ -17,7 +17,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: mcheckxy
-integer(kind=iwp) :: m1, m2, m3, m4
+integer(kind=iwp), intent(in) :: m1, m2, m3, m4
 integer(kind=iwp) :: int12a, int12b, int34a, int34b
 
 mcheckxy = 1

@@ -17,9 +17,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ndim
-real(kind=wp) :: tkin(ndim,ndim), evec(ndim,ndim), eval(ndim)
-logical(kind=iwp) :: breit
+integer(kind=iwp), intent(in) :: ndim
+real(kind=wp), intent(in) :: tkin(ndim,ndim)
+real(kind=wp), intent(out) :: evec(ndim,ndim), eval(ndim)
+logical(kind=iwp), intent(in) :: breit
 integer(kind=iwp) :: irun, irun1, irun2, itria, JRUN
 real(kind=wp) :: fact
 real(kind=wp), allocatable :: TKINTRIA(:)

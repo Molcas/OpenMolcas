@@ -18,8 +18,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: L, nprims
-real(kind=wp) :: TKIN(nprims,nprims), exponents(nprims), rootOVLPinv(MxprimL,MxprimL)
+integer(kind=iwp), intent(in) :: L, nprims
+real(kind=wp), intent(out) :: TKIN(nprims,nprims)
+real(kind=wp), intent(in) :: exponents(nprims), rootOVLPinv(MxprimL,MxprimL)
 integer(kind=iwp) :: irun1, irun2
 real(kind=wp), allocatable :: dummy(:,:), dummy2(:,:)
 real(kind=wp), external :: Tkinet
@@ -30,7 +31,7 @@ call mma_allocate(dummy2,nprims,nprims,label='dummy2')
 !bs build the symmetric matrix
 do irun2=1,nprims
   do irun1=1,irun2
-    dummy(irun1,irun2) = Tkinet(l,exponents(irun1),exponents(irun2))
+    dummy(irun1,irun2) = Tkinet(L,exponents(irun1),exponents(irun2))
     dummy(irun2,irun1) = dummy(irun1,irun2)
   end do
 end do

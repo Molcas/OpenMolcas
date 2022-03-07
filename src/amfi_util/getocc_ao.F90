@@ -15,7 +15,8 @@ use AMFI_global, only: Lmax, Lmax_occ
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: icharge, iclosed(0:Lmax), iopen(0:Lmax)
+integer(kind=iwp), intent(in) :: icharge
+integer(kind=iwp), intent(out) :: iclosed(0:Lmax), iopen(0:Lmax)
 integer(kind=iwp) :: iPL, ml
 integer(kind=iwp), parameter :: ichargemax = 103, &
                                 iclocc(0:Lmax_occ,0:ichargemax) = reshape([0,0,0,0, & !0
@@ -332,7 +333,7 @@ character(len=30), parameter :: occtxt(0:ichargemax) = ['dummy atom (no integral
                                                         'Fm: [Rn]7s^2 6d^0 5f^12       ', &
                                                         'Md: [Rn]7s^2 6d^0 5f^13       ', &
                                                         'No: [Rn]7s^2 6d^0 5f^14       ', &
-                                                        'Lr: [Rn]7s^2 6d^1 5f^14       ' &
+                                                        'Lr: [Rn]7s^2 6d^1 5f^14       '  &
                                                        ]
 integer(kind=iwp), external :: iPrintLevel
 

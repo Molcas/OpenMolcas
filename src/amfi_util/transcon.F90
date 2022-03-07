@@ -15,13 +15,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idim1, idim2, nprim, ncont
-real(kind=wp) :: contold(idim1,idim2), ovlp(idim1,idim1), contnew(nprim,ncont)
+integer(kind=iwp), intent(in) :: idim1, idim2, nprim, ncont
+real(kind=wp), intent(in) :: contold(idim1,idim2), ovlp(idim1,idim1)
+real(kind=wp), intent(out) :: contnew(nprim,ncont)
 integer(kind=iwp) :: ICONT, Irun, Jrun
 real(kind=wp) :: xnorm
 
 !write(u6,*) 'begin transcon nprim,ncont ',nprim,ncont
-!bs copy old contraction coefficients in dense form to common block
+!bs copy old contraction coefficients in dense form
 contnew(:,:) = contold(1:nprim,1:ncont)
 !bs ensure normalization
 do ICONT=1,ncont

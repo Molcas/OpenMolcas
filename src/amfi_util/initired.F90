@@ -30,7 +30,7 @@ use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=3) :: symmetry
+character(len=3), intent(in) :: symmetry
 integer(kind=iwp) :: ired, iredorder(8), jred, nired
 character(len=5) :: frmt
 

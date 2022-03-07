@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SymTrafo(LUPROP,ip,lOper,nComp,nBas,nIrrep,Label,MolWgh,SOInt,LenTot)
-!bs   Purpose: combine SO-integrals from amfi to symmetry-adapted
-!bs   integrals on one file AOPROPER_MF_SYM
+subroutine SymTrafo(LUPROP,lOper,nComp,nBas,nIrrep,Label,MolWgh)
+!bs Purpose: combine SO-integrals from amfi to symmetry-adapted
+!bs integrals on one file AOPROPER_MF_SYM
 
 use AMFI_global, only: Lmax, MxCart
 use index_functions, only: iTri
@@ -20,23 +20,22 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LUPROP, nComp, ip(nComp), lOper(nComp), nIrrep, nBas(0:nIrrep-1), MolWgh, LenTot
-character(len=8) :: Label
-real(kind=wp) :: SOInt(LenTot)
+integer(kind=iwp), intent(in) :: LUPROP, nComp, lOper(nComp), nIrrep, nBas(0:nIrrep-1), MolWgh
+character(len=8), intent(in) :: Label
 #include "Molcas.fh"
 integer(kind=iwp) :: I, iBas, icc, iCent, icentprev, icoeff, iComp, idummy(8), iIrrep, ijSO, ilcentprev, imcentprev, indx, indexi, &
                      indexj, iOff, iOff2, iOpt, iorb, ipSCR, iRC, irun, isame, iSmLbl, iSO, iSO_a, iSO_r, istatus, isymunit, &
                      iunit, j1, j12, j2, jcent, jcentprev, jlcentprev, jmcentprev, jrun, jsame, jSO, jSO_r, lauf, laufalt, &
-                     length3, length3_tot, LLhigh, Lrun, Mrun, ncontcent(0:Lmax), not_defined, nSOs, numbofcent, numboffunct, &
-                     numboffunct3, numbofsym
-real(kind=wp) :: coeff, Sgn, tmp
+                     length3, length3_tot, LenInt, LenTot, LLhigh, Lrun, Mrun, ncontcent(0:Lmax), not_defined, nSOs, numbofcent, &
+                     numboffunct, numboffunct3, numbofsym
+real(kind=wp) :: coeff, Sgn
 !BS character(len=20) :: filename
 character(len=8) :: xa2(4)
 character(len=3) :: send
 logical(kind=iwp) :: EX
-integer(kind=iwp), allocatable :: C(:), ifirstLM(:,:,:), iSO_info(:,:), Lcent(:), Lhighcent(:), Lval(:), Mcent(:), mval(:), &
+integer(kind=iwp), allocatable :: C(:), ifirstLM(:,:,:), ip(:), iSO_info(:,:), Lcent(:), Lhighcent(:), Lval(:), Mcent(:), mval(:), &
                                   nadpt(:), ncent(:), nphase(:,:), numballcart(:)
-real(kind=wp), allocatable :: AMFI_Int(:,:), Scr(:,:)
+real(kind=wp), allocatable :: AMFI_Int(:,:), Scr(:,:), SOInt(:)
 integer(kind=iwp), external :: iPntSO, isfreeunit, n2Tri
 
 ! These variables are just placeholders for reading
@@ -92,14 +91,14 @@ write(u6,*) 'number of unique centres',numbofcent
 ! clean up arrays for new integrals
 numboffunct3 = (numboffunct*numboffunct+numboffunct)/2
 
-call mma_allocate(AMFI_Int,numboffunct3,3,Label='AMFI_Int')
+call mma_allocate(AMFI_Int,numboffunct3,3,label='AMFI_Int')
 AMFI_Int(:,:) = Zero
 
 nSOs = 0
 do iIrrep=0,nIrrep-1
   nSOs = nSOs+nBas(iIrrep)
 end do
-call mma_allocate(iSO_info,2,nSOs,Label='iSO_info')
+call mma_allocate(iSO_info,2,nSOs,label='iSO_info')
 iSO_a = 0
 do iIrrep=0,nIrrep-1
   iSO_r = 0
@@ -114,7 +113,7 @@ end do
 ! loop over unique centres to read integrals and information
 
 iunit = LUPROP
-call mma_allocate(Scr,numboffunct3,3,Label='Scr')
+call mma_allocate(Scr,numboffunct3,3,label='Scr')
 Scr(:,:) = Zero
 ipSCR = 1
 length3_tot = 0
@@ -287,7 +286,22 @@ call mma_deallocate(Lval)
 call mma_deallocate(mval)
 call mma_deallocate(nadpt)
 call mma_deallocate(nphase)
-! This test is not valid for parallel execusion, since here
+
+! Allocate memory for symmetry adapted one electron integrals.
+! Will just store the unique elements, i.e. low triangular blocks
+! and lower triangular elements in the diagonal blocks.
+
+call mma_allocate(ip,nComp,label='ip')
+LenTot = 0
+do iComp=1,nComp
+  ip(iComp) = 1+LenTot
+  LenInt = n2Tri(lOper(iComp))
+  LenTot = LenTot+LenInt+4
+end do
+call mma_allocate(SOInt,LenTot,label='SOInt')
+SOInt(:) = Zero
+
+! This test is not valid for parallel execution, since here
 ! we have only incomplete lists.
 !if (lauf /= numboffunct3) call SysAbendMsg('symtrafo','error in numbering ',' ')
 do iComp=1,nComp
@@ -305,13 +319,12 @@ do iComp=1,nComp
 
       iOff2 = iTri(iSO,jSO)
 
-      tmp = -AMFI_Int(iOff2,iComp)
       if (j1 == j2) then
         ijSO = iTri(iSO_r,jSO_r)
       else
         ijSO = (jSO_r-1)*nBas(j1)+iSO_r
       end if
-      SOInt(iOff+ijSO) = tmp
+      SOInt(iOff+ijSO) = -AMFI_Int(iOff2,iComp)
 
     end do
   end do
@@ -335,6 +348,8 @@ call mma_deallocate(ifirstLM)
 call mma_deallocate(iSO_info)
 call mma_deallocate(Scr)
 call mma_deallocate(AMFI_Int)
+call mma_deallocate(ip)
+call mma_deallocate(SOInt)
 !BS write(u6,*) 'Symmetry transformation successfully done'
 
 return

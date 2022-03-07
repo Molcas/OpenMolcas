@@ -15,7 +15,7 @@ use AMFI_global, only: Lmax
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax)
+integer(kind=iwp), intent(out) :: icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax)
 integer(kind=iwp) :: M1, M2, M3, M4
 integer(kind=iwp), external :: mcheckxy
 

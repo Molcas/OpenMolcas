@@ -30,12 +30,15 @@ use Constants, only: Zero, Two, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: Lhigh, ifinite, icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax), icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), &
-                     interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax), isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
-logical(kind=iwp) :: keep, makemean, bonn, breit, sameorb
-real(kind=wp) :: onecartX(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), onecartY(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), &
-                 onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), &
-                 coulovlp(*), preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+integer(kind=iwp), intent(in) :: Lhigh, ifinite
+logical(kind=iwp), intent(in) :: keep, makemean, bonn, breit, sameorb
+real(kind=wp), intent(inout) :: onecartX(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), &
+                                onecartY(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax), &
+                                onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax)
+real(kind=wp), intent(in) :: powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)), coulovlp(*)
+real(kind=wp), intent(out) :: preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+integer(kind=iwp), intent(out) :: icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax), icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax), &
+                                  interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax), isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 integer(kind=iwp) :: iangfirst, icont4, indx, indy, indz, inter2, inter3, inter4, isignM(-Lmax:Lmax), jblock, l1, l2, l3, l4, &
                      Lleftmax, Lleftmin, locstar, Lrightmax, Lrightmin, M1, m1upper, M2, m2upper, M3, M4, mblock, mblockx, &
                      mblocky, mblockz, mxangint, ncont, numbcart

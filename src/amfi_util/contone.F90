@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine contone(L,oneoverR3,onecontr,Lmax,contcoeff,nprim,ncont,MxcontL,dummy,onecartx,onecartY,onecartZ,charge,oneonly)
+subroutine contone(L,oneoverR3,onecontr,Lmax,contcoeff,nprim,ncont,MxcontL,dummy,onecartX,onecartY,onecartZ,charge,oneonly)
 !bs contracts one-electron integrals and multiplies with l,m-dependent
 !bs factors for L-,L0,L+
 
@@ -18,13 +18,14 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: L, Lmax, nprim, ncont, MxcontL
-real(kind=wp) :: oneoverR3(*), onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), contcoeff(nprim,ncont), dummy(ncont,ncont), &
-                 onecartx(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), onecarty(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), &
-                 onecartz(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), charge
-integer(kind=iwp) :: icont1, icont2, iprim1, iprim2, irun, jrun, M
+integer(kind=iwp), intent(in) :: L, Lmax, nprim, ncont, MxcontL
+real(kind=wp), intent(in) :: oneoverR3(*), contcoeff(nprim,ncont), charge
+real(kind=wp), intent(out) :: onecontr(MxcontL,MxcontL,-Lmax:Lmax,3), dummy(ncont,ncont)
+real(kind=wp), intent(inout) :: onecartX(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), &
+                                onecartY(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1)), onecartZ(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
+logical(kind=iwp), intent(in) :: oneonly
+integer(kind=iwp) :: icont1, icont2, iprim1, iprim2, M
 real(kind=wp) :: factor0, factormin, factorplus
-logical(kind=iwp) :: oneonly
 
 !bs first of all cleaning dummy and onecontr
 dummy(:,:) = Zero
@@ -35,11 +36,11 @@ if (oneonly) then
 end if
 onecontr(:,:,:,:) = Zero
 !bs contract onto dummy
-do icont2=1,ncont
-  do icont1=1,ncont
+do icont1=1,ncont
+  do icont2=1,ncont
     do iprim2=1,nprim
       do iprim1=1,nprim
-        dummy(icont1,icont2) = dummy(icont1,icont2)+contcoeff(iprim1,icont1)*contcoeff(iprim2,icont2)*oneoverR3(iTri(iprim1,iprim2))
+        dummy(icont2,icont1) = dummy(icont2,icont1)+contcoeff(iprim1,icont1)*contcoeff(iprim2,icont2)*oneoverR3(iTri(iprim1,iprim2))
       end do
     end do
   end do
@@ -49,26 +50,14 @@ do M=-L,L
   factormin = charge*sqrt(real(L*L-M*M+L+M,kind=wp))
   factor0 = charge*real(M,kind=wp)
   factorplus = charge*sqrt(real(L*L-M*M+L-M,kind=wp))
-  do irun=1,ncont
-    do jrun=1,ncont
-      onecontr(irun,jrun,M,1) = dummy(jrun,irun)*factormin  ! L-minus
-    end do
-  end do
-  do irun=1,ncont
-    do jrun=1,ncont
-      onecontr(irun,jrun,M,2) = dummy(jrun,irun)*factor0    ! L-0
-    end do
-  end do
-  do irun=1,ncont
-    do jrun=1,ncont
-      onecontr(irun,jrun,M,3) = dummy(jrun,irun)*factorplus ! L-plus
-    end do
-  end do
+  onecontr(1:ncont,1:ncont,M,1) = dummy*factormin  ! L-minus
+  onecontr(1:ncont,1:ncont,M,2) = dummy*factor0    ! L-0
+  onecontr(1:ncont,1:ncont,M,3) = dummy*factorplus ! L-plus
 end do
 !bs make the final cartesian integrals
-call cartoneX(L,Lmax,onecontr,ncont,MxcontL,onecartX(1,1,1))
-call cartoneY(L,Lmax,onecontr,ncont,MxcontL,onecartY(1,1,1))
-call cartoneZ(L,Lmax,onecontr,ncont,MxcontL,onecartZ(1,1,1))
+call cartoneX(L,Lmax,onecontr,ncont,MxcontL,onecartX)
+call cartoneY(L,Lmax,onecontr,ncont,MxcontL,onecartY)
+call cartoneZ(L,Lmax,onecontr,ncont,MxcontL,onecartZ)
 
 return
 

@@ -31,12 +31,12 @@ use Constants, only: Zero, One, speed => cLightAU
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: m1, m2, m3, m4, mcombina(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), ncontl1, ncontl2, ncontl3, ncontl4, &
-                     interxyz(*), isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+integer(kind=iwp), intent(in) :: m1, m2, m3, m4, mcombina(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax), ncontl1, ncontl2, &
+                                 ncontl3, ncontl4, interxyz(*), isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
+real(kind=wp), intent(in) :: angint(ncontl1,ncontl2,ncontl3,ncontl4,*), preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 !bs !!!!!!!!!!!changing now to the order of chemists notation!!!!!!!!!!
-real(kind=wp) :: angint(ncontl1,ncontl2,ncontl3,ncontl4,*), carteX(ncontl1,ncontl3,ncontl2,ncontl4), &
-                 preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
-logical(kind=iwp) :: cleaner
+real(kind=wp), intent(out) :: carteX(ncontl1,ncontl3,ncontl2,ncontl4)
+logical(kind=iwp), intent(in) :: cleaner
 integer(kind=iwp) :: iblock, irun, isgnM(-1:1,-1:1,-1:1,-1:1), ityp, Mabs1, Mabs2, Mabs3, Mabs4
 real(kind=wp) :: factor, prexz1234
 real(kind=wp), parameter :: fine = One/speed, speed2 = speed**2
@@ -74,112 +74,112 @@ do while (interxyz(irun+1) > 0)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 1',' ')
       iblock = mcombina(2,Mabs1,Mabs2,Mabs3,Mabs4)
       factor = real(isgnM(1,1,1,1),kind=wp)*prexz1234*real(isgnprod(Mabs1,Mabs2,Mabs3,Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (2)
       ityp = mcombina(1,-Mabs1,-Mabs2,-Mabs3,-Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 2',' ')
       iblock = mcombina(2,-Mabs1,-Mabs2,-Mabs3,-Mabs4)
       factor = real(isgnM(-1,-1,-1,-1),kind=wp)*prexz1234*real(isgnprod(-Mabs1,-Mabs2,-Mabs3,-Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (3)
       ityp = mcombina(1,Mabs1,Mabs2,Mabs3,-Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 3',' ')
       iblock = mcombina(2,Mabs1,Mabs2,Mabs3,-Mabs4)
       factor = real(isgnM(1,1,1,-1),kind=wp)*prexz1234*real(isgnprod(Mabs1,Mabs2,Mabs3,-Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (4)
       ityp = mcombina(1,-Mabs1,-Mabs2,-Mabs3,Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 4',' ')
       iblock = mcombina(2,-Mabs1,-Mabs2,-Mabs3,Mabs4)
       factor = real(isgnM(-1,-1,-1,1),kind=wp)*prexz1234*real(isgnprod(-Mabs1,-Mabs2,-Mabs3,Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (5)
       ityp = mcombina(1,Mabs1,Mabs2,-Mabs3,Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 5',' ')
       iblock = mcombina(2,Mabs1,Mabs2,-Mabs3,Mabs4)
       factor = real(isgnM(1,1,-1,1),kind=wp)*prexz1234*real(isgnprod(Mabs1,Mabs2,-Mabs3,Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (6)
       ityp = mcombina(1,-Mabs1,-Mabs2,Mabs3,-Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 6',' ')
       iblock = mcombina(2,-Mabs1,-Mabs2,Mabs3,-Mabs4)
       factor = real(isgnM(-1,-1,1,-1),kind=wp)*prexz1234*real(isgnprod(-Mabs1,-Mabs2,Mabs3,-Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (7)
       ityp = mcombina(1,Mabs1,-Mabs2,Mabs3,Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 7',' ')
       iblock = mcombina(2,Mabs1,-Mabs2,Mabs3,Mabs4)
       factor = real(isgnM(1,-1,1,1),kind=wp)*prexz1234*real(isgnprod(Mabs1,-Mabs2,Mabs3,Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (8)
       ityp = mcombina(1,-Mabs1,Mabs2,-Mabs3,-Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 8',' ')
       iblock = mcombina(2,-Mabs1,Mabs2,-Mabs3,-Mabs4)
       factor = real(isgnM(-1,1,-1,-1),kind=wp)*prexz1234*real(isgnprod(-Mabs1,Mabs2,-Mabs3,-Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (9)
       ityp = mcombina(1,-Mabs1,Mabs2,Mabs3,Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 9',' ')
       iblock = mcombina(2,-Mabs1,Mabs2,Mabs3,Mabs4)
       factor = real(isgnM(-1,1,1,1),kind=wp)*prexz1234*real(isgnprod(-Mabs1,Mabs2,Mabs3,Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (10)
       ityp = mcombina(1,Mabs1,-Mabs2,-Mabs3,-Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 10',' ')
       iblock = mcombina(2,Mabs1,-Mabs2,-Mabs3,-Mabs4)
       factor = real(isgnM(1,-1,-1,-1),kind=wp)*prexz1234*real(isgnprod(Mabs1,-Mabs2,-Mabs3,-Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (11)
       ityp = mcombina(1,Mabs1,Mabs2,-Mabs3,-Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 11',' ')
       iblock = mcombina(2,Mabs1,Mabs2,-Mabs3,-Mabs4)
       factor = real(isgnM(1,1,-1,-1),kind=wp)*prexz1234*real(isgnprod(Mabs1,Mabs2,-Mabs3,-Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (12)
       ityp = mcombina(1,-Mabs1,-Mabs2,Mabs3,Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 12',' ')
       iblock = mcombina(2,-Mabs1,-Mabs2,Mabs3,Mabs4)
       factor = real(isgnM(-1,-1,1,1),kind=wp)*prexz1234*real(isgnprod(-Mabs1,-Mabs2,Mabs3,Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (13)
       ityp = mcombina(1,Mabs1,-Mabs2,Mabs3,-Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 13',' ')
       iblock = mcombina(2,Mabs1,-Mabs2,Mabs3,-Mabs4)
       factor = real(isgnM(1,-1,1,-1),kind=wp)*prexz1234*real(isgnprod(Mabs1,-Mabs2,Mabs3,-Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (14)
       ityp = mcombina(1,-Mabs1,Mabs2,-Mabs3,Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 14',' ')
       iblock = mcombina(2,-Mabs1,Mabs2,-Mabs3,Mabs4)
       factor = real(isgnM(-1,1,-1,1),kind=wp)*prexz1234*real(isgnprod(-Mabs1,Mabs2,-Mabs3,Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (15)
       ityp = mcombina(1,Mabs1,-Mabs2,-Mabs3,Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 15',' ')
       iblock = mcombina(2,Mabs1,-Mabs2,-Mabs3,Mabs4)
       factor = real(isgnM(1,-1,-1,1),kind=wp)*prexz1234*real(isgnprod(Mabs1,-Mabs2,-Mabs3,Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
     case (16)
       ityp = mcombina(1,-Mabs1,Mabs2,Mabs3,-Mabs4)
       if ((ityp /= 1) .and. (ityp /= 3)) call SysAbendMsg('tosigx','wrong ityp in tosigX 16',' ')
       iblock = mcombina(2,-Mabs1,Mabs2,Mabs3,-Mabs4)
       factor = real(isgnM(-1,1,1,-1),kind=wp)*prexz1234*real(isgnprod(-Mabs1,Mabs2,Mabs3,-Mabs4),kind=wp)
-      call daxpint(angint(1,1,1,1,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
+      call daxpint(angint(:,:,:,:,iblock),carteX,factor,ncontl1,ncontl2,ncontl3,ncontl4)
 
   end select
 end do

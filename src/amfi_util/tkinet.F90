@@ -28,8 +28,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Tkinet
-integer(kind=iwp) :: l
-real(kind=wp) :: alpha1, alpha2
+integer(kind=iwp), intent(in) :: l
+real(kind=wp), intent(in) :: alpha1, alpha2
 real(kind=wp) :: Alpha12, alphpro
 
 !bs alpha12 is the effective exponent

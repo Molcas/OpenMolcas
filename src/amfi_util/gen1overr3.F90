@@ -19,8 +19,8 @@ use Constants, only: Two, Quart, Pi
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lhigh
-real(kind=wp) :: oneoverR3(MxprimL*(MxprimL+1)/2,Lmax)
+integer(kind=iwp), intent(in) :: Lhigh
+real(kind=wp), intent(out) :: oneoverR3(MxprimL*(MxprimL+1)/2,Lmax)
 integer(kind=iwp) :: icount, iprim1, iprim2, L
 real(kind=wp) :: alpha1, alpha2
 
