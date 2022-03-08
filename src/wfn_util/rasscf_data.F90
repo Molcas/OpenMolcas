@@ -12,6 +12,7 @@
 ! This is just an encapsulation of the common block in
 ! src/Include/rasscf.fh
 ! src/Include/rasdim.fh
+! src/rasscf/raswfn.fh
 ! into a data module
 
 module rasscf_data
@@ -21,5 +22,6 @@ implicit none
 ! Order of inclusion matters!
 #include "rasdim.fh"
 #include "rasscf.fh"
+! #include "raswfn.fh"
 
 end module rasscf_data

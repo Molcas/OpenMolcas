@@ -2047,7 +2047,7 @@ A list of these keywords is given below:
   sets with occupation numbers 0 (zero). The main use of these orbitals
   is to act as input to property calculations and for graphical
   presentations.
-  This keyword is on by default for up to ten roots.
+  This keyword is on by default for all roots.
 
   An example input follows in which five files are requested containing
   natural orbitals for roots one to five of a RASSCF calculation.

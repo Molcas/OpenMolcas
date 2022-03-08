@@ -15,18 +15,24 @@
 ************************************************************************
 
       module fciqmc_read_RDM
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
-      use rasscf_data, only : NRoots, iAdr15
+      use rasscf_data, only : NRoots, iAdr15, NAc ! , wfn_dens, wfn_spindens
       use general_data, only : nActEl
       ! Note that two_el_idx_flatten has also out parameters.
-      use index_symmetry, only : two_el_idx_flatten
+      use index_symmetry, only : one_el_idx, two_el_idx_flatten
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
 
       implicit none
+
+! TODO: Have to figure out how to encapsulate into rasscf_data
+#include "raswfn.fh"
 
       private
       public :: read_neci_RDM, cleanup
@@ -52,15 +58,19 @@
       subroutine read_neci_RDM(
      &    iroot, weight, tGUGA, ifinal, DMAT, DSPN, PSMAT, PAMAT
      &  )
+
           ! wrapper around `read_single_neci_(GUGA)_RDM` to average
           ! normal and GUGA density matrices for stochastic SA-MCSCF.
+
           integer(wp), intent(in) :: iroot(:), ifinal
           real(wp), intent(in) :: weight(:)
           logical, intent(in) :: tGUGA
           real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
           integer :: i, j, jDisk
           real(wp), allocatable :: temp_DMAT(:), temp_DSPN(:),
-     &                             temp_PSMAT(:), temp_PAMAT(:)
+     &                             temp_PSMAT(:), temp_PAMAT(:),
+     &                             decompressed_DMAT(:,:),
+     &                             decompressed_DSPN(:,:)
 
           ! position in memory to write density matrices to JOBIPH
           jDisk = iAdr15(3)
@@ -71,8 +81,9 @@
           call mma_allocate(temp_PSMAT, size(PSMAT))
           call mma_allocate(temp_PAMAT, size(PAMAT))
 
-          DMAT = 0.0_wp; DSPN = 0.0_wp
-          PSMAT = 0.0_wp; PAMAT = 0.0_wp
+          DMAT(:) = 0.0_wp; DSPN(:) = 0.0_wp
+          PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp
+
 
           do i = 1, NRoots
               do j = 1, size(iroot)
@@ -100,6 +111,24 @@
      &                       temp_DMAT, temp_DSPN, temp_PSMAT,
      &                       temp_PAMAT, jDisk
      &                    )
+#ifdef _HDF5_
+                          ! In final iteration load decompressed 1PDMs
+                          ! into HDF5 file.
+                          call expand_1rdm(temp_DMAT,
+     &                                     decompressed_DMAT)
+                          call mh5_put_dset(wfn_dens,
+     &                                      decompressed_DMAT,
+     &                                      [nac, nac, 1],
+     &                                      [0, 0, iroot(j) - 1])
+                          call expand_1rdm(temp_DSPN,
+     &                                     decompressed_DSPN)
+                          call mh5_put_dset(wfn_spindens,
+     &                                      decompressed_DSPN,
+     &                                      [nac, nac, 1],
+     &                                      [0, 0, iroot(j) - 1])
+                          end if
+#endif
+
                       end if
                   end if
               end do
@@ -225,7 +254,6 @@
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
 !>
-!>  This function is unmaintainable, someone has to rewrite it.
       subroutine read_single_neci_RDM(iroot, DMAT, DSPN, PSMAT, PAMAT)
           use Para_Info, only: MyRank
 #include "output_ras.fh"
@@ -539,6 +567,29 @@
         if (err == 0) write(u6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
 
+      subroutine expand_1rdm(dmat, decompressed_dmat)
+        ! Decompresses DMAT from subroutine read_neci_RDM from a
+        ! linearised vector with symmetry into the full, redundant, 1RDM
+        ! matrix.
+        real(wp), intent(in) :: dmat(:)
+        real(wp), allocatable, intent(out) :: decompressed_dmat(:,:)
+        integer :: dim, pq, p, q
+
+        ! maximum decompressed index of dmat
+        dim = ceiling(-0.5d0 + sqrt(2.0d0 * size(dmat)))
+        allocate(decompressed_dmat(dim, dim))
+        decompressed_dmat(:,:) = 0.0_wp
+        do pq = 1, size(dmat)
+          call one_el_idx(pq, p, q)
+          decompressed_dmat(p,q) = dmat(pq)
+        end do
+        do p = 1, dim
+          do q = 1, dim
+            if (p >= q) decompressed_dmat(q,p) =
+     &                        decompressed_dmat(p,q)
+          end do
+        end do
+      end subroutine expand_1rdm
 
       ! Add your deallocations here. Called when exiting rasscf.
       subroutine cleanup()
