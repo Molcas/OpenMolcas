@@ -126,7 +126,6 @@
      &                                      decompressed_DSPN,
      &                                      [nac, nac, 1],
      &                                      [0, 0, iroot(j) - 1])
-                          end if
 #endif
 
                       end if
