@@ -32,6 +32,7 @@ use Para_Info, only: King
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use stdalloc, only: mma_allocate, mma_deallocate
+use nq_Info, only: nAshT, Grid_Type, Moving_Grid
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -41,7 +42,6 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 #include "rctfld.fh"
 #include "disp.fh"
-#include "nq_info.fh"
 integer(kind=iwp) :: iDFT, iDumm, iEnd, iI, iIrrep, IK, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nAct(nIrrep), nDens, ng1, ng2, &
                      nRoots
 real(kind=wp) :: Dummy1(1), Dummy2(1), Dummy3(1), Dummy4, Dumm0(1), Dumm1(1), ExFac, TCpu1, TCpu2, TWall1, TWall2

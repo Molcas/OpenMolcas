@@ -19,9 +19,10 @@
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
       use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO, TabAO_Short
-      use nq_grid, only: GradRho, Sigma, Tau, Lapl, kAO
-      use nq_Grid, only: Ind_Grd, dRho_dR
+      use nq_grid, only: GradRho, Tau, Lapl, kAO
+      use nq_Grid, only: dRho_dR, iBfn_Index
       use nq_Grid, only: List_G
+      use nq_Info
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
 #endif
@@ -29,9 +30,9 @@
 #include "real.fh"
 #include "print.fh"
 #include "debug.fh"
-#include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
+#include "stdalloc.fh"
       Integer Index(nIndex)
       Real*8 Fact(mdc**2)
       Integer ipD(2)
@@ -41,6 +42,7 @@
       Integer, Parameter :: Index_d3(3,3) =
      &    Reshape([11,14,16, 12,17,19, 13,18,20],[3,3])
       Logical Do_Grad
+      Integer, Allocatable:: Ind_Grd(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -73,90 +75,78 @@
 ************************************************************************
 *                                                                      *
 *
-      iOff = 0
-      Do ilist_s=1,nlist_s
+      If (Do_Grad) Then
+         Call mma_Allocate(Ind_Grd,3,nAO,Label='Ind_Grd')
+         Ind_Grd(:,:)=0
+      End If
+
+      nBfn=SIZE(iBfn_Index,2)
+      If (nBfn/=nAO) Then
+         Write (6,*) 'mk_Rho: internal error!'
+         Call Abend()
+      End If
+      Factor = DBLE(2/nD)
+      Do iBfn = 1, nBfn
+         ilist_s=iBfn_Index(2,iBfn)
+         i1     =iBfn_Index(3,iBfn)
+         i2     =iBfn_Index(4,iBfn)
          iSkal = list_s(1,ilist_s)
+         kDCRE = list_s(2,ilist_s)
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
-         iBas_Eff=list_bas(1,ilist_s)
-         kDCRE=list_s(2,ilist_s)
-         iShell= iSD(11,iSkal)
          mdci  = iSD(10,iSkal)
-         index_i=list_bas(2,ilist_s)
+         iShell= iSD(11,iSkal)
+         iBas_Eff=list_bas(1,ilist_s)
+         index_i =list_bas(2,ilist_s)
          nFunc_i=iBas*iCmp
-         n_iBas=iBas_Eff*iCmp
 
-         If (Do_Grad) Then
-            Ind_Grd(1,iOff+1:iOff+n_iBas) = List_g(1,ilist_s)
-            Ind_Grd(2,iOff+1:iOff+n_iBas) = List_g(2,ilist_s)
-            Ind_Grd(3,iOff+1:iOff+n_iBas) = List_g(3,ilist_s)
-         End If
+         i_R=(i1-1)*iBas_Eff+i2
+         iCB = Index(index_i-1+i_R)
 
-*
-         jOff = 0
-         Do jlist_s=1,ilist_s
+         If (Do_Grad) Ind_Grd(:,iBfn)=List_g(:,ilist_s)
+
+         Do jBfn = 1, iBfn
+            jlist_s=iBfn_Index(2,jBfn)
+            j1     =iBfn_Index(3,jBfn)
+            j2     =iBfn_Index(4,jBfn)
             jSkal = list_s(1,jlist_s)
+            kDCRR = list_s(2,jlist_s)
             jCmp  = iSD( 2,jSkal)
             jBas  = iSD( 3,jSkal)
-            jBas_Eff=list_bas(1,jlist_s)
-            index_j =list_bas(2,jlist_s)
-            kDCRR=list_s(2,jlist_s)
             mdcj  = iSD(10,jSkal)
             jShell= iSD(11,jSkal)
+            jBas_Eff=list_bas(1,jlist_s)
+            index_j =list_bas(2,jlist_s)
             nFunc_j=jBas*jCmp
-            n_jBas=jBas_Eff*jCmp
-*
-            mDij=nFunc_i*nFunc_j
-*
-*---------- Get the Density
-*
+
+            j_R=(j1-1)*jBas_Eff+j2
+            jCB = Index(index_j-1+j_R)
+
             ijS=iTri(iShell,jShell)
             ip_Tmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-*
             ij = (mdcj-1)*mdc + mdci
-*
+
             iER=iEOr(kDCRE,kDCRR)
             lDCRER=NrOpr(iER)
-*
+
+            mDij=nFunc_i*nFunc_j
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
             ipD(1)=ip_D_a
             ipD(2)=ip_D_b
-*                                                                      *
-************************************************************************
-*                                                                      *
-*           Note that in the closer-shell case the density matrix is
-*           the total density, while in the open-shell case the density
-*           matrix is subdivided into the alpha and beta electron
-*           density
-*
-            Factor = DBLE(2/nD)
+
+            ij_D = (jCB-1)*nFunc_i + iCB - 1
             Do iD = 1, nD
-               Do j_R = 1, n_jBas
-                  jCB = Index(index_j-1+j_R)    ! Real index
-                  j_A = j_R + jOff            ! Absolute index
-*
-                  Do i_R = 1, n_iBas
-                     iCB = Index(index_i-1+i_R)
-                     i_A = i_R + iOff
-*
-                     ij_D = (jCB-1)*nFunc_i + iCB - 1
-                     DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)*Factor
-                     Dens_AO(i_A,j_A,iD) = DAij
-                     Dens_AO(j_A,i_A,iD) = DAij
-*
-                  End Do          ! iCB
-               End Do             ! jCB
+               DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)*Factor
+               Dens_AO(iBfn,jBfn,iD) = DAij
+               Dens_AO(jBfn,iBfn,iD) = DAij
             End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-            jOff = jOff + jBas_Eff*jCmp
-         End Do                      ! jlist_s
-         iOff = iOff + iBas_Eff*iCmp
-      End Do                         ! ilist_s
+
+         End Do
+
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -216,7 +206,7 @@
 *     contraction with the 1-particle density matrix.
 *
       If (Do_Grad) Then
-         TabAO_Short(1:kAO,:,:) = TabAO(1:kAO,:,:)
+         TabAO_Short(1:kAO,1:mGrid,:) = TabAO(1:kAO,1:mGrid,:)
          Call DGEMM_('N','N',kAO*mGrid,nAO*nD,nAO,
      &               One,TabAO_Short,kAO*mGrid,
      &                   Dens_AO,nAO,
@@ -232,7 +222,13 @@
 ************************************************************************
 *                                                                      *
       If (Allocated(dRho_dR))  dRho_dR(:,:,:)=Zero
-      If (Functional_Type.eq.LDA_Type) Then
+
+      Select Case(Functional_Type)
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      Case (LDA_Type)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -277,7 +273,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Else If (Functional_Type.eq.GGA_Type) Then
+      Case (GGA_Type)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -370,7 +366,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Else If (Functional_Type.eq.meta_GGA_Type1) Then
+      Case (meta_GGA_Type1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -484,7 +480,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Else If (Functional_Type.eq.meta_GGA_Type2) Then
+      Case (meta_GGA_Type2)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -648,53 +644,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Else If (Functional_Type.eq.CASDFT_Type) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         Rho(:,1:mGrid)=Zero
-         GradRho(:,1:mGrid)=Zero
-         Tau(:,1:mGrid)=Zero
-         Do iD = 1, nD
-            ix = (iD-1)*3 + 1
-            iy = (iD-1)*3 + 2
-            iz = (iD-1)*3 + 3
-            Do iAO = 1, nAO
-               Do iGrid = 1, mGrid
-                  Rho(iD,iGrid) = Rho(iD,iGrid)
-     &                          + Grid_AO(1,iGrid,iAO,iD)
-     &                          * TabAO(1,iGrid,iAO)
-                  GradRho(ix,iGrid)=GradRho(ix,iGrid)
-     &                          + Grid_AO(1,iGrid,iAO,iD)
-     &                          * TabAO(2,iGrid,iAO)
-     &                          + Grid_AO(2,iGrid,iAO,iD)
-     &                          * TabAO(1,iGrid,iAO)
-                  GradRho(iy,iGrid)=GradRho(iy,iGrid)
-     &                          + Grid_AO(1,iGrid,iAO,iD)
-     &                          * TabAO(3,iGrid,iAO)
-     &                          + Grid_AO(3,iGrid,iAO,iD)
-     &                          * TabAO(1,iGrid,iAO)
-                  GradRho(iz,iGrid)=GradRho(iz,iGrid)
-     &                          + Grid_AO(1,iGrid,iAO,iD)
-     &                          * TabAO(4,iGrid,iAO)
-     &                          + Grid_AO(4,iGrid,iAO,iD)
-     &                          * TabAO(1,iGrid,iAO)
-                  Tau(iD,iGrid) = Tau(iD,iGrid)
-     &                          + Grid_AO(5,iGrid,iAO,iD)
-     &                          * TabAO(5,iGrid,iAO)
-     &                          + Grid_AO(8,iGrid,iAO,iD)
-     &                          * TabAO(8,iGrid,iAO)
-     &                          + Grid_AO(10,iGrid,iAO,iD)
-     &                          * TabAO(10,iGrid,iAO)
-               End Do
-            End Do
-         End Do
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else
+      Case default
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -704,7 +654,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      End If
+      End Select
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -726,34 +676,9 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-       If (Allocated(Tau)) Tau(:,1:mGrid)=Half*Tau(:,1:mGrid)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*     Generate the sigma vectors
+*      Scale Tau to compy with the Libxc definition.
 *
-      If (Allocated(Sigma)) Then
-         If (nD.eq.1) Then
-            Do iGrid=1, mGrid
-               Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                       +GradRho(2,iGrid)**2
-     &                       +GradRho(3,iGrid)**2
-            End Do
-         Else
-            Do iGrid=1, mGrid
-               Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                       +GradRho(2,iGrid)**2
-     &                       +GradRho(3,iGrid)**2
-               Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
-     &                       +GradRho(2,iGrid)*GradRho(5,iGrid)
-     &                       +GradRho(3,iGrid)*GradRho(6,iGrid)
-               Sigma(3,iGrid)=GradRho(4,iGrid)**2
-     &                       +GradRho(5,iGrid)**2
-     &                       +GradRho(6,iGrid)**2
-            End Do
-         End If
-      End If
+       If (Allocated(Tau)) Tau(:,1:mGrid)=Half*Tau(:,1:mGrid)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -774,5 +699,6 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+      If (Allocated(Ind_grd))   Call mma_deAllocate(Ind_Grd)
       Return
       End

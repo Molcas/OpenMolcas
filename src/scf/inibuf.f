@@ -11,17 +11,17 @@
 * Copyright (C) 1998, Roland Lindh                                     *
 ************************************************************************
       SubRoutine IniBuf(nDisc,nCore)
-************************************************************************
-*                                                                      *
-*  Object: Initiate I/O buffer for semi-direct SCF                     *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    :                                                         *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Chemical Physics,                 *
-*             University of Lund, Sweden. October '98                  *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!  Object: Initiate I/O buffer for semi-direct SCF                     *
+!                                                                      *
+! Called from:                                                         *
+!                                                                      *
+! Calling    :                                                         *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Chemical Physics,                 *
+!             University of Lund, Sweden. October '98                  *
+!***********************************************************************
       use IOBUF
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
@@ -59,7 +59,7 @@
 *
       If (OnDisk.or.InCore) Then
          MemMin_Seward=1024**2 ! Real*8
-         Call GetMem('IniBuf','Max','Real',iDum,MaxMem)
+         Call mma_maxDBLE(MaxMem)
 *        lBuf in units of Real*8 per buffer
          lBuf=(1024*nCore)/(8*nBuf)
          if(InCore) then

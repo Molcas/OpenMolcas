@@ -360,7 +360,7 @@ do
       !isMULL = 1
       read(InUnit,'(A)') MULLPRT
       call upCASE(MULLPRT)
-      call LeftAd(MULLPRT)
+      MULLPRT = adjustl(MULLPRT)
       !if (MULLPRT(1:4) == 'LONG') isLONGPRT = 1
     case (39)
       ! SUBBLOCK

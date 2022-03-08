@@ -10,8 +10,8 @@
 !***********************************************************************
 
 subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,GRef,Occ,MO,DOut,mCoor,iGauss,nInc,isMOPack,PBlock,cMoBlock, &
-                     nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner,iType,NZ,E,WLine,nLine,WCoor,iPrintCount, &
-                     isDebug,isCutOff,iCutOff,isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
+                     nBytesPackedVal,dnorm,Crypt,isTheOne,isLine,iBinary,isEner,iType,NZ,E,WLine,nLine,WCoor,iPrintCount,isDebug, &
+                     isCutOff,iCutOff,isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
@@ -19,7 +19,6 @@ subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,GRef,Occ,MO,DOut,mCo
 #include "intent.fh"
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
@@ -27,12 +26,12 @@ integer(kind=iwp), intent(in) :: iRun, LuVal, LID, nShowMOs, nMOs, GRef(*), mCoo
                                  nBytesPackedVal, iBinary, iType(*), NZ(*), nLine, iCutOff(*), NBYTES, NINLINE
 logical(kind=iwp), intent(in) :: isDensity, isMOPack, isTheOne, isLine, isEner, isDebug, isCutOff, isSphere, isColor, isLuscus
 integer(kind=iwp), intent(inout) :: iPrintCount
-real(kind=wp), intent(in) :: Occ(*), MO(*), VbOcc, E(*), WCoor(3,mCoor), SphrDist(mCoor), SphrColor(mCoor)
+real(kind=wp), intent(in) :: Occ(*), MO(*), E(*), WCoor(3,mCoor), SphrDist(mCoor), SphrColor(mCoor)
 real(kind=wp), intent(_OUT_) :: DOut(*)
 character, intent(in) :: cMoBlock(*)
 real(kind=wp), intent(inout) :: dNorm, WLine(nLine,mCoor)
 character(len=7), intent(in) :: Crypt
-integer(kind=iwp) :: i, iActOrb, ib, ii, iii, iMOs, j, RC !, iYDelta(3)
+integer(kind=iwp) :: i, ib, ii, iii, iMOs, j, RC !, iActOrb, iYDelta(3)
 real(kind=wp) :: DumArr(2) !, xLimits(4)
 character :: bb
 character(len=128) :: Line
@@ -50,17 +49,17 @@ unused_var(nBytesPackedVal)
 
 !write(u6,*) 'entering DumpM2Msi'
 if (irun > 100) write(u6,*) iGauss,nbytes,nInc,ninline
-iActOrb = 0
+!iActOrb = 0
 iPrintCount = iPrintCount+1
 do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
   iMOs = GRef(i)
 
-  if (.not.(.false. .and. (Occ(iMOs) > Zero) .and. (Occ(iMOs) < Two))) then
-    call outmo(iMOs,1,MO,dumArr,DOut,mCoor,nMOs)
-  !else
+  !if ((Occ(iMOs) > Zero) .and. (Occ(iMOs) < Two)) then
   !  iActOrb = iActOrb+1
   !  call outmo(0,1,MO,VBmat(1+(iActOrb-1)*nMOs),DOut,mCoor,nMOs)
-  end if
+  !else
+  call outmo(iMOs,1,MO,dumArr,DOut,mCoor,nMOs)
+  !end if
 
   if ((.not. isLine) .and. (.not. isLuscus)) then
     write(line,'(a,i4)') 'Title= ',iMOs
@@ -176,27 +175,26 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
     j = GRef(i)
 
     if (isEner) then
-      if (.not.(.false. .and. (Occ(j) > Zero) .and. (Occ(j) < Two))) then
-        ib = iType(j)
-        bb = ' '
-        if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
-        if ((iRun == 1) .and. (iPrintCount == 1)) &
-          write(u6,'(a,i2,i5,f12.4," (",f4.2,") ",a)') 'GridName= ',NZ(j),NZ(j+nMOs),E(j),Occ(j),bb
-      else
-        !iActOrb = iActOrb+1
-        if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
-      end if
+      !if ((Occ(j) > Zero) .and. (Occ(j) < Two)) then
+      !  !iActOrb = iActOrb+1
+      !  if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
+      !else
+      ib = iType(j)
+      bb = ' '
+      if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
+      if ((iRun == 1) .and. (iPrintCount == 1)) &
+        write(u6,'(a,i2,i5,f12.4," (",f4.2,") ",a)') 'GridName= ',NZ(j),NZ(j+nMOs),E(j),Occ(j),bb
+      !end if
     else
-      if (.not.(.false. .and. (Occ(j) > Zero) .and. (Occ(j) < Two))) then
-        ib = iType(j)
-        bb = ' '
-        if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
-        if ((iRun == 1) .and. (iPrintCount == 1)) &
-          write(u6,'(a,i2,i5," (",f8.6,") ",a)') 'GridName= ',NZ(j),NZ(j+nMOs),Occ(j),bb
-      else
-        !iActOrb = iActOrb+1
-        if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
-      end if
+      !if ((Occ(j) > Zero) .and. (Occ(j) < Two)) then
+      !  !iActOrb = iActOrb+1
+      !  if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
+      !else
+      ib = iType(j)
+      bb = ' '
+      if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
+      if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(a,i2,i5," (",f8.6,") ",a)') 'GridName= ',NZ(j),NZ(j+nMOs),Occ(j),bb
+      !end if
     end if
   end if
 end do

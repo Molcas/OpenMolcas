@@ -47,9 +47,7 @@ use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
-use Data_Structures, only: Allocate_DSBA, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, Allocate_twxy, &
-                           Deallocate_DSBA, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, Deallocate_SBA, Deallocate_twxy, &
-                           DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
@@ -217,7 +215,7 @@ if ((nProcs > 1) .and. Update .and. Is_Real_Par()) then
 end if
 #endif
 do jDen=1,nDen
-  call Allocate_DSBA(KLT(jDen),nBas,nBas,nSym,aCase='TRI')
+  call Allocate_DT(KLT(jDen),nBas,nBas,nSym,aCase='TRI')
   KLT(jDen)%A0(:) = Zero
 end do
 
@@ -225,7 +223,7 @@ end do
 if (Update) call CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 ! allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-call Allocate_NDSBA(DIAH,nBas,nBas,nSym)
+call Allocate_DT(DIAH,nBas,nBas,nSym)
 DIAH%A0(:) = Zero
 
 ! allocate memory for the abs(C(l)[k])
@@ -360,10 +358,10 @@ do jSym=1,nSym
   if (NumCV < 1) cycle
 
   JNUM = 1
-  call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
+  call Allocate_DT(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
 
   iCase = 1 ! (wa|xy)
-  call Allocate_twxy(Scr,nAorb,nBas,JSYM,nSym,iCase)
+  call Allocate_DT(Scr,nAorb,nBas,JSYM,nSym,iCase)
 
   ! ****************     MEMORY MANAGEMENT SECTION    *****************
   !---------------------------------------------------------------
@@ -553,9 +551,9 @@ do jSym=1,nSym
         !***************************************************************
         !***************************************************************
         !                                                              *
-        call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
+        call Allocate_DT(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
         mDen = 1
-        call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
+        call Allocate_DT(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
 
         call CWTIME(TCX1,TWX1)
 
@@ -926,8 +924,8 @@ do jSym=1,nSym
 
         end do ! loop over densities
 
-        call Deallocate_Lab(Lab)
-        call Deallocate_L_Full(L_Full)
+        call Deallocate_DT(Lab)
+        call Deallocate_DT(L_Full)
         !                                                              *
         !***************************************************************
         !***************************************************************
@@ -988,9 +986,9 @@ do jSym=1,nSym
 
         ! Lvw,J , strictly LT storage
         iSwap = 5
-        call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
         iSwap = 0 ! Lvb,J are returned
-        call Allocate_SBA(Laq(1),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(1),nAorb,nBas,nVec,JSYM,nSym,iSwap)
         ! ----------------------------------------------------------------
         ! First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
         ! ----------------------------------------------------------------
@@ -1070,8 +1068,8 @@ do jSym=1,nSym
 
         if (irc /= 0) return
 
-        call Deallocate_SBA(Lxy)
-        call Deallocate_SBA(Laq(1))
+        call Deallocate_DT(Lxy)
+        call Deallocate_DT(Laq(1))
 
         ! --------------------------------------------------------------------
         ! --------------------------------------------------------------------
@@ -1121,7 +1119,7 @@ do jSym=1,nSym
 
   end do ! loop over red sets
 
-  call Deallocate_twxy(Scr)
+  call Deallocate_DT(Scr)
 
 end do ! loop over JSYM
 
@@ -1199,9 +1197,9 @@ call mma_deallocate(SumAClk)
 call mma_deallocate(MLk)
 call mma_deallocate(Ylk)
 call mma_deallocate(AbsC)
-call Deallocate_NDSBA(DIAH)
+call Deallocate_DT(DIAH)
 do jDen=1,nDen
-  call Deallocate_DSBA(KLT(jDen))
+  call Deallocate_DT(KLT(jDen))
 end do
 #ifdef _MOLCAS_MPP_
 if ((nProcs > 1) .and. Update .and. Is_Real_Par()) call mma_deallocate(DiagJ)

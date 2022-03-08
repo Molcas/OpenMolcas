@@ -12,7 +12,7 @@
 subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,orbe,orbe_b,iPol,LAllCenters)
 
 use MPProp_globals, only: AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot, BondMat, Cen_Lab, Cor, Labe
-use Data_Structures, only: Alloc_Alloc1DArray, Free_Alloc1DArray
+use Data_Structures, only: Allocate_DT, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -41,8 +41,8 @@ do i=1,nAtoms
   end do
 end do
 
-call Alloc_Alloc1DArray(AtMltPlTot,[0,nMltPl],'AtMltPlTot')
-call Alloc_Alloc1DArray(AtBoMltPlTot,[0,nMltPl],'AtBoMltPlTot')
+call Allocate_DT(AtMltPlTot,[0,nMltPl],'AtMltPlTot')
+call Allocate_DT(AtBoMltPlTot,[0,nMltPl],'AtBoMltPlTot')
 do iMltpl=0,nMltPl
   iComp = 0
   nComp = (iMltPl+1)*(iMltPl+2)/2
@@ -125,8 +125,8 @@ call Wr_MpProp(nAtoms,nCenters,nMltPl,iPol)
 !EB call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,orbe,iBond,
 call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,NOCOB_b,orbe,orbe_b,LAllCenters)
 
-call Free_Alloc1DArray(AtMltPlTot)
-call Free_Alloc1DArray(AtBoMltPlTot)
+call Deallocate_DT(AtMltPlTot)
+call Deallocate_DT(AtBoMltPlTot)
 
 call mma_deallocate(Cen_Lab)
 

@@ -59,13 +59,13 @@ do iA=1,nAt
       if (Diffed(2*(kauntA-1)+iDC)) then
         if (iDC == 1) then
           write(u6,403) kauntA,(EC(k,kauntA),k=1,3),DistType(iDC),Pot_Fac(4*(kauntA-1)+iDC),Two*Pot_Expo(2*(kauntA-1)+iDC),PP
-        elseif (iDC == 2) then
+        else if (iDC == 2) then
           write(u6,404) kauntA,(EC(k,kauntA),k=1,3),DistType(iDC),(Pot_Fac(4*(kauntA-1)+iDC+k),k=0,2),Two*Pot_Expo(2*(kauntA-1)+iDC)
         end if
       else
         if (iDC == 1) then
           write(u6,405) kauntA,(EC(k,kauntA),k=1,3),DistType(iDC),Pot_Fac(4*(kauntA-1)+iDC),'Point(inf)',PP
-        elseif (iDC == 2) then
+        else if (iDC == 2) then
           write(u6,406) kauntA,(EC(k,kauntA),k=1,3),DistType(iDC),(Pot_Fac(4*(kauntA-1)+iDC+k),k=0,2),'Point(inf)'
         end if
       end if

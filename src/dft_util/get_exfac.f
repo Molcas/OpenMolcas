@@ -13,18 +13,15 @@
 *     Return the factor which determines how much "exact exchange" that*
 *     should be included.                                              *
 ************************************************************************
-      use libxc_parameters
+      Use Functionals, Only: Get_Func_ExFac
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 Get_ExFac
       Character*(*) KSDFT
       Character*16  cTmp
-      logical l_casdft
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Get_ExFac=One
-*
 *     Write functional to run file.
 *
       If (KSDFT.ne.'Overlap') Then
@@ -34,9 +31,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      l_casdft = KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:'
-
-      If (l_casdft) Then
+      If (KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:') Then
          Get_ExFac=Zero
          Return
       End If
@@ -69,92 +64,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     M06-HF                                                           *
-*                                                                      *
-      Case ('M06HF')
-         Get_ExFac=One
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     TLYP                                                             *
-*                                                                      *
-      Case ('TLYP')
-         Get_ExFac=One
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B3LYP                                                            *
-*                                                                      *
-      Case ('B3LYP ')
-         Get_ExFac=LibXC_ExFac(XC_HYB_GGA_XC_B3LYP)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     O3LYP                                                            *
-*                                                                      *
-      Case ('O3LYP ')
-         Get_ExFac=LibXC_ExFac(XC_HYB_GGA_XC_O3LYP)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B2PLYP                                                           *
-*                                                                      *
-      Case ('B2PLYP')
-         Get_ExFac=0.530D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     O2PLYP                                                           *
-*                                                                      *
-      Case ('O2PLYP')
-         Get_ExFac=0.50D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B3LYP5                                                           *
-*                                                                      *
-      Case ('B3LYP5')
-         Get_ExFac=LibXC_ExFac(XC_HYB_GGA_XC_B3LYP5)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     S12H                                                             *
-*                                                                      *
-      Case ('S12H')
-         Get_ExFac=0.25d0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06                                                              *
-*                                                                      *
-      Case ('M06 ')
-         Get_ExFac=0.27D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06-2X                                                           *
-*                                                                      *
-      Case ('M062X')
-         Get_ExFac=0.54D0
-*
-************************************************************************
-*                                                                      *
-*     PBE0                                                             *
-*                                                                      *
-      Case ('PBE0')
-         Get_ExFac=0.25D0
-*
-************************************************************************
-*                                                                      *
-*    BR3P86                                                            *
-*                                                                      *
-      Case ('BR3P86')
-         Get_ExFac=0.22D0
-*                                                                      *
-************************************************************************
-*                                                                      *
       Case Default
-         Get_ExFac=0.0D0
+         Get_ExFac = Get_Func_ExFac(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -162,13 +73,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Contains
-      Function LibXC_ExFac(funcid)
-      Real*8 :: LibXC_ExFac
-      Integer(kind=LibxcInt) :: funcid
-      call xc_f03_func_init(xc_func(1),funcid,int(1, kind=LibxcInt))
-      LibXC_ExFac=xc_f03_hyb_exx_coef(xc_func(1))
-      call xc_f03_func_end(xc_func(1))
-      Return
-      End Function LibXC_ExFac
       End

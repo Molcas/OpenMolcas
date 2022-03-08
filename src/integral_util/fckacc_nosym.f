@@ -44,7 +44,7 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
-      use Real_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       Intrinsic Max
 #include "real.fh"
@@ -315,7 +315,7 @@ c Avoid unused argument warnings
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"

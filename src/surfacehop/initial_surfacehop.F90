@@ -11,7 +11,8 @@
 
 subroutine initial_surfacehop()
 
-use Tully_variables, only: tullyL, decoherence, DECO, Ethreshold, RandThreshold, tullySubVerb, fixedrandL, FixedRand, NSUBSTEPS
+use Tully_variables, only: tullyL, decoherence, DECO, Ethreshold, RandThreshold, tullySubVerb, fixedrandL, FixedRand, NSUBSTEPS, &
+                           rassi_ovlp, Run_rassi
 use Surfacehop_globals, only: lH5Restart
 use Constants, only: Zero, One, auTofs
 use Definitions, only: wp, iwp
@@ -29,6 +30,8 @@ tullySubVerb = .false.
 fixedrandL = .false.
 FixedRand = -One
 lH5Restart = .false.
+rassi_ovlp = .true.
+Run_rassi = .true.
 
 call qpg_dscalar('Timestep',Found)
 if (Found) then

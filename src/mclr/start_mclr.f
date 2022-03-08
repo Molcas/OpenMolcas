@@ -37,7 +37,7 @@
       call setup_MCLR(1)
 *
       If ((StepType.ne.'RUN2').and.(iAnd(kPrint,4).eq.4))
-     &    Write(6,*) 'Transformation of integrals'
+     &    Write(6,'(6X,A)') 'Transformation of integrals'
 *     For the mp2-gradient calculations we want the transformation
 *     routine to produce all integrals of the occupied and virtual
 *     orbitals so we tell it that the whole space is inactive and

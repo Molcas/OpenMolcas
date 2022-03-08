@@ -271,7 +271,7 @@ function fmm_RFF_boxes(LHS,RHS)
   RHS_up%box = fmm_parent_box(RHS%box)
   RHS_up%bra = fmm_parent_bra(RHS%bra)
 
-  fmm_RFF_boxes = .not.(fmm_NF_boxes(LHS_up,RHS_up))
+  fmm_RFF_boxes = .not. (fmm_NF_boxes(LHS_up,RHS_up))
 
 end function fmm_RFF_boxes
 

@@ -125,6 +125,7 @@ Per Åke Malmqvist
 Neil Martinsen-Burrell  
 Andy May  
 Manuela Merchán  
+Isabella C. D. Merritt  
 Samuel Mikes  
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
@@ -149,6 +150,7 @@ Markus Reiher
 H. Rieger  
 Björn O. Roos  
 Ulf Ryde  
+Andrzej J. Sadlej  
 Pawel Salek  
 Andrew M. Sand  
 Michael A. Saunders  

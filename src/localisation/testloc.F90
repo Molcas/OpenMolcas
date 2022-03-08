@@ -141,7 +141,7 @@ kU = 1
 kC = 1
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),CMO(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),CMO(kC1),Scr,nBas(iSym),nOrb2Loc(iSym))
   nTO = max(nOrb2Loc(iSym),1)
   call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),One,Umat(kU),nTO,Umat(kU),nTO,Zero,Scr,nTO)
   xErr = -huge(xErr)
@@ -175,7 +175,7 @@ kU = 1
 kC = 1
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),MOrig(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),MOrig(kC1),Scr,nBas(iSym),nOrb2Loc(iSym))
   mErr = 0
   xErr = -huge(xErr)
   ip0 = kU-1
@@ -194,7 +194,7 @@ do iSym=1,nSym
     mErr = mErr+1
   end if
   if (mErr == 0) then
-    call GetUmat_Localisation(Umat(kU),CMO(kC1),Ovlp(kC),CMO(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+    call GetUmat_Localisation(Umat(kU),CMO(kC1),Ovlp(kC),CMO(kC1),Scr,nBas(iSym),nOrb2Loc(iSym))
     xErr = -huge(xErr)
     ip0 = kU-1
     do j=1,nOrb2Loc(iSym)

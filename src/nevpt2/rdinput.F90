@@ -47,8 +47,7 @@ nr_states = 1
 
 do
   key = Get_Ln(LuSpool)
-  call LeftAd(key)
-  Line = key
+  Line = adjustl(key)
   if (Line(1:1) == '*') cycle
   if (Line == ' ') cycle
   call UpCase(Line)
@@ -84,13 +83,12 @@ do
       ! Select
       ! 3 1 2 4 -- 3 orbitals 1 2 4 are frozen
       key = Get_Ln(LuSpool)
-      call LeftAd(key)
       call UpCase(key)
+      key = adjustl(key)
       ! If the first line after the keyword contains 'SELECT'
       if (key(1:4) == 'SELE') then
         ! read in the number of frozen orbitals, then the list
         frozen_str = Get_Ln(LuSpool)
-        call LeftAd(frozen_str)
         read(frozen_str,*,iostat=iError) nr_frozen_orb
         if (iError > 0) call error(0)
         if (nr_frozen_orb <= 0) then
@@ -181,7 +179,7 @@ do
       !========= FILE =============
       ! Specifiy the name of the reference wfn file for NEVPT2.
       if (.not. next_non_comment(LuSpool,Line)) call error(1)
-      call LeftAd(line)
+      line = adjustl(line)
       call fileorb(Line,refwfnfile)
 
     case ('RDMR')

@@ -40,7 +40,7 @@
 ***                                                                  ***
 ************************************************************************
 ************************************************************************
-      use OFembed, only: OFE_first, Xsigma, dFMD
+      use OFembed, only: OFE_first, Xsigma, dFMD, NDSD
       use OFembed, only: Func_AB,Func_A,Func_B,Energy_NAD,
      &                   V_Nuc_AB,V_Nuc_BA,V_emb
       Implicit Real*8 (a-h,o-z)
@@ -184,14 +184,11 @@
      &                   Do_Grad,
      &                   Grad,nGrad,DFTFOCK)
 
-#ifdef _NOT_USED_
          If (KSDFT(1:4).eq.'NDSD') Then
-            l_NDSD=nFckDim*nh1
-            Call GetMem('NDSD','Allo','Real',ip_NDSD,l_NDSD)
-            call dcopy_(l_NDSD,F_DFT(:,1:nFckDim),1,Work(ip_NDSD),1)
+            Call mma_Allocate(NDSD,nh1,nFckDim,Label='NDSD')
+            NDSD(1:nh1,1:nFckDim)=F_DFT(1:nh1,1:nFckDim)
             KSDFT(1:4)='LDTF' !set to Thomas-Fermi for subsequent calls
          EndIf
-#endif
 
       EndIf
 *                                                                      *
@@ -342,15 +339,15 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       Do i=1,nFckDim
          Call daxpy_(nh1,-One,F_DFT(:,2+i),1,F_DFT(:,i),1)
       End Do
-#ifdef _NOT_USED_
 *
 *  NDSD potential for T_nad: add the (B)-dependent term
-      iFickB=ip_NDSD
-      Do i=1,nFckDim*Min(1,l_NDSD)
-         Call daxpy_(nh1,One,Work(iFickB),1,F_DFT(:,i),1)
-         If (kSpin.ne.1) iFickB=iFickB+nh1
-      End Do
-#endif
+      If (Allocated(NDSD)) Then
+         j=1
+         Do i=1,nFckDim
+            Call daxpy_(nh1,One,NDSD(:,j),1,F_DFT(:,i),1)
+            If (kSpin.ne.1) j=j+1
+         End Do
+      End If
 *
 *     Add the Nuc Attr potential (from subsystem B) and then
 *     put out the DFT Fock matrices from the (NAD) embedding potential
@@ -443,6 +440,7 @@ c Avoid unused argument warnings
      &                      D_DS,nh1,nD_DS,
      &                      Do_Grad,
      &                      Grad,nGrad,DFTFOCK)
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
       Character*(*) KSDFT
       Integer nh1, nFckDim, nD_DS
@@ -451,7 +449,6 @@ c Avoid unused argument warnings
       Real*8 Grad(nGrad)
       Character*4 DFTFOCK
 #include "real.fh"
-#include "nq_info.fh"
 #include "debug.fh"
       Logical  Do_MO,Do_TwoEl,F_nAsh
 *                                                                      *
@@ -494,6 +491,7 @@ c Avoid unused argument warnings
      &                       Do_Grad,
      &                       Grad,nGrad,DFTFOCK,F_corr)
       use OFembed, only: Do_Core
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
       Character*(*) KSDFT
       Integer nh1, nFckDim, nD_DS
@@ -503,7 +501,6 @@ c Avoid unused argument warnings
       Real*8 Grad(nGrad)
       Character*4 DFTFOCK
 #include "real.fh"
-#include "nq_info.fh"
 #include "debug.fh"
       Logical  Do_MO,Do_TwoEl,F_nAsh
 *                                                                      *
@@ -561,10 +558,10 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
       Subroutine Get_electrons(xnElect)
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
       Real*8 xnElect
 #include "real.fh"
-#include "nq_info.fh"
 
       xnElect = Dens_I
 

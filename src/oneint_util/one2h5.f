@@ -165,6 +165,7 @@
 *       MLTPL_XX, MLTPL_YY, MLTPL_ZZ, MLTPL_XY, MLTPL_YZ, MLTPL_XZ
 *       MLTPL_ORIG
 
+      use Symmetry_Info, only: Mul
       use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,
      &               mh5_close_dset
       implicit none
@@ -188,8 +189,6 @@
       integer :: i, j, iOff, jOff, iScrOff, iBas, jBas
 
       integer :: dsetid
-
-      integer, external :: symmetry
 
       nbast=0
       do isym=1,nsym
@@ -216,7 +215,7 @@
         jOff = 0
         nB1 = nBas(iSym)
         Do jSym = 1,iSym
-          mSym = symmetry(iSym,jSym)
+          mSym = Mul(iSym,jSym)
           nB2 = nBas(jSym)
           If (IAND(2**(mSym-1),iSyMsk).ne.0) Then
             If (iSym.eq.jSym) Then
@@ -273,7 +272,7 @@
         jOff = 0
         nB1 = nBas(iSym)
         Do jSym = 1,iSym
-          mSym = symmetry(iSym,jSym)
+          mSym = Mul(iSym,jSym)
           nB2 = nBas(jSym)
           If (IAND(2**(mSym-1),iSyMsk).ne.0) Then
             If (iSym.eq.jSym) Then

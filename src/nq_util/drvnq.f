@@ -32,19 +32,19 @@
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: List_G, IndGrd, iTab, Temp, SOs, Angular, Mem
-      use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp, nR_Eff
+      use nq_Grid, only: List_G, IndGrd, iTab, Temp, Angular, Mem
+      use nq_Grid, only: Coor, R2_trial, Pax, Fact, nR_Eff
       use nq_pdft, only: lGGA
-      use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
+      use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
       use nq_Structure, only: Close_NQ_Data
       use Grid_On_Disk
       use libxc
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
 #include "stdalloc.fh"
 #include "itmax.fh"
-#include "nq_info.fh"
 #include "setup.fh"
 #include "nsd.fh"
 #include "debug.fh"
@@ -60,10 +60,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Functional_Type.eq.CASDFT_Type) Then
-         Do_TwoEl        =.True.
-      End If
-*
       If (Do_TwoEl) Then
          Do_MO           =.True.
       End If
@@ -78,7 +74,7 @@
       Call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 *
       NQ_Status=Inactive
-      Call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
+      Call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,
      &              PThr,PMode,R_Min,LMax_NQ)
 *
       Call mma_deallocate(R_Min)
@@ -138,7 +134,11 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      If (Functional_type.eq.LDA_type) Then
+      Select Case (Functional_type)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (LDA_type)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -167,7 +167,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.GGA_type) Then
+      Case (GGA_type)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -197,7 +197,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.meta_GGA_type1) Then
+      Case (meta_GGA_type1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -229,7 +229,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.meta_GGA_type2) Then
+      Case (meta_GGA_type2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -261,32 +261,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.CASDFT_type) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        nD  definition is not consistent with the use here!
-*        This needs to be restructured.
-*
-         mAO=10
-         kAO=mAO
-
-         nRho=nD
-         nSigma=nD*(nD+1)/2
-         nGradRho=nD*3
-         nTau=nD
-         nLapl=0
-         If (Do_Grad) mdRho_dR=4*nD
-         If (Do_Grad) Then
-             Call WarningMessage(2,'CASDFT: Gradient not available.')
-             Call Abend()
-         End If
-*
-         nP2_ontop=6
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
+      Case Default
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -297,7 +272,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      End If
+      End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -362,18 +337,6 @@
          Do iIrrep = 0, mIrrep-1
             nMOs=nMOs+mBas(iIrrep)
          End Do
-         Call mma_Allocate(DoIt,nMOs,Label='DoIt')
-         iMO=0
-         Do iIrrep = 0, mIrrep-1
-            Do jMO = 1, nISh(iIrrep)+nASh(iIrrep)
-               iMO=iMO+1
-               DoIt(iMO)=1
-            End Do
-            Do jMO = 1, mBas(iIrrep)-nISh(iIrrep)-nASh(iIrrep)
-               iMO=iMO+1
-               DoIt(iMO)=1
-            End Do
-         End Do
       End If
 ***
 *     Prepare memory for two-electron integrals:
@@ -408,10 +371,6 @@
          nTmpPUVX=iStack
 *
       End If
-*
-      If (Functional_Type.eq.CASDFT_Type) Then
-         Call mma_allocate(P2_ontop,nP2_ontop,nGridMax,Label='P2_ontop')
-      Endif
 *
       If (Do_Grad) Then
          Call mma_allocate(List_g,3,nShell*nIrrep,Label='List_G')
@@ -459,7 +418,6 @@
       If (Allocated(D1MO)) Call mma_deallocate(D1MO)
       If (Allocated(P2MO)) Call mma_deallocate(P2MO)
       If (Allocated(CMO)) Call mma_deallocate(CMO)
-      If (Allocated(DoIt)) Call mma_deallocate(DoIt)
       If (l_casdft) Then
          Call mma_deallocate(F_xcb)
          Call mma_deallocate(F_xca)
@@ -492,9 +450,7 @@
 
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
-      If (Functional_type.eq.CASDFT_Type.or.l_casdft) Then
-         Call mma_deallocate(P2_ontop)
-      End If
+      If (Allocated(P2_ontop)) Call mma_deallocate(P2_ontop)
 *
       Call mma_deallocate(nR_Eff)
       Call mma_deallocate(Coor)
@@ -502,8 +458,6 @@
       Call Close_NQ_Data()
       Call mma_deallocate(Mem)
       Call mma_deallocate(Angular)
-      Call mma_deallocate(SOs)
-      Call mma_deallocate(Tmp)
       Call mma_deallocate(Fact)
       Call mma_deallocate(Maps2p)
       NQ_Status=Inactive
@@ -514,7 +468,11 @@
 *
       If (iGrid_Set.eq.Intermediate .and.
      &     Grid_Status.eq.Regenerate) iDisk_Set(Final)=iDisk_Grid
-      G_S(iGrid_Set)=Use_Old
+      If (Do_Grad) Then
+         G_S(iGrid_Set)=Regenerate
+      Else
+         G_S(iGrid_Set)=Use_Old
+      End If
 *
       iDisk_Grid=0
       Call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)

@@ -187,6 +187,7 @@ c         RecLab( 58)='GEO_nConnect    '
          RecLab( 76)='CSPF            '
 *        For MS-PDFT gradient
          RecLab( 77)='NCONF           '
+         RecLab( 78)='SH RASSI run    '
 *                     1234567890123456
 *
 *        Note, when the counter here exceeds 128 update this line

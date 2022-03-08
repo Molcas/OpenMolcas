@@ -26,7 +26,7 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use LundIO
-      use Real_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)

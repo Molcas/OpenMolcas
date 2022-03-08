@@ -47,13 +47,13 @@
 *       we eventually need one more vector
 *
         Call mma_allocate(Grad,lvec,Label='Grad')
-        Call iVPtr(LuGrd,Grad,lvec,inode)
-        Call SOrUpV(MemRsv,Grad,HDiag,lvec,ErrVec,'DISP','BFGS')
+        Call iVPtr(Grad,lvec,inode)
+        Call SOrUpV(Grad,HDiag,lvec,ErrVec,'DISP','BFGS')
         Call mma_deallocate(Grad)
 *
       Else
 *
-        Call iVPtr(LuGrd,ErrVec,lvec,inode)
+        Call iVPtr(ErrVec,lvec,inode)
 *
       End If
 *

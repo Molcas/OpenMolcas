@@ -38,7 +38,6 @@
 #include "file.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "WrkSpc.fh"
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT),
      &       Dens(mBT,nD)
 *

@@ -41,7 +41,7 @@ subroutine PSOAO1(nSO,MemPrm,MemMax,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc
 use aces_stuff, only: nGamma, Gamma_On
 use PSO_Stuff, only: lPSO
 use SOAO_Info, only: iAOtSO
-use Temporary_parameters, only: force_part_c, force_part_p
+use Gateway_global, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1

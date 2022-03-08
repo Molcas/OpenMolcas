@@ -827,13 +827,13 @@ c computing the XT as tensor's average:
       ibuf=0
       ibuf=9*(nT+nTempMagn)
       Call Add_Info('dM/dH    XTtens_dMdH',
-     &                              [dnrm2_(ibuf,XTtens_dMdH,1)],1,6)
+     &                              [dnrm2_(ibuf,XTtens_dMdH,1)],1,5)
       Call Add_Info('dM/dH    XTtens_MH',
      &                              [dnrm2_(ibuf,XTtens_MH,1)],1,6)
       ibuf=0
       ibuf=nT+nTempMagn
       Call Add_Info('dM/dH    XTM_dMdH',
-     &                              [dnrm2_(ibuf,XTM_dMdH,1)],1,6)
+     &                              [dnrm2_(ibuf,XTM_dMdH,1)],1,5)
       Call Add_Info('dM/dH    XTM_MH',
      &                              [dnrm2_(ibuf,XTM_MH,1)],1,6)
 C -------------------------------------------------------------------

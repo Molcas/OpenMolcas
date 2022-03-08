@@ -89,6 +89,7 @@
       Use, Intrinsic :: iso_c_binding, only: c_ptr
 #endif
       Use Interfaces_SCF, Only: TraClc_i
+      use LnkLst, only: SCF_V
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
@@ -101,7 +102,6 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "infso.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "llists.fh"
@@ -477,7 +477,7 @@
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
             Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,.FALSE.,CInter,nCI,nD,
-     &                    nOV,Lux,iter,memRsv,LLx)
+     &                    nOV,iter,LLx)
 *
             Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
 *
@@ -530,7 +530,7 @@
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
             Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,QNR1st,CInter,nCI,
-     &                    nD,nOV,Lux,iter,memRsv,LLx)
+     &                    nD,nOV,iter,LLx)
 *
             Call dGrd()
 *
@@ -564,26 +564,26 @@
 *-------    compute new displacement vector delta
 *           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
 *
-            Call SOrUpV(MemRsv,Grd1,HDiag,nOV*nD,Disp,'DISP','BFGS')
+            Call SOrUpV(Grd1,HDiag,nOV*nD,Disp,'DISP','BFGS')
 *
 *           from this, compute new orb rot parameter X(n+1)
 *
 *           X(n+1) = X(n) -H(-1)grd'(X(n))
 *
             Call Daxpy_(nOV*nD,-One,Disp,1,Xnp1,1)
-            Call PutVec(Xnp1,nOV*nD,Lux,iter+1,MemRsv,'NOOP',LLx)
+            Call PutVec(Xnp1,nOV*nD,iter+1,'NOOP',LLx)
 *
 *           get address of actual X(n) in corresponding LList
 *
-            jpXn=LstPtr(Lux,iter,LLx)
+            jpXn=LstPtr(iter,LLx)
 *
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
-            Call DZAXPY(nOV*nD,-One,Work(jpXn),1,Xnp1,1,Disp,1)
+            Call DZAXPY(nOV*nD,-One,SCF_V(jpXn)%A,1,Xnp1,1,Disp,1)
 *
 *           store dX(n) vector from Disp to LList
 *
-            Call PutVec(Disp,nOV*nD,LuDel,iter,MemRsv,'NOOP',LLDelt)
+            Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
 *
 *           compute Norm of dX(n)
 *
@@ -630,7 +630,7 @@
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
             Call TraClc_x(kOptim,iOpt.ge.2,FrstDs,QNR1st,CInter,nCI,
-     &                    nD,nOV,Lux,iter,memRsv,LLx)
+     &                    nD,nOV,iter,LLx)
 *
             Call dGrd()
 *
@@ -657,7 +657,7 @@
 *
 *           get last gradient grad(n) from LList
 *
-            Call GetVec(LuGrd,iter,LLGrad,inode,Grd1,nOV*nD)
+            Call GetVec(iter,LLGrad,inode,Grd1,nOV*nD)
 #ifdef _DEBUGPRINT_
             Call RecPrt('Wfctl: g(n)',' ',Grd1,1,nOV*nD)
 #endif
@@ -667,11 +667,11 @@
 *
             StepMax=0.3D0
             Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
-     &                      dqHdq,StepMax,AccCon(9:9),MemRsv)
+     &                      dqHdq,StepMax,AccCon(9:9))
 *
 *           store dX(n) vector from Disp to LList
 *
-            Call PutVec(Disp,nOV*nD,LuDel,iter,MemRsv,'NOOP',LLDelt)
+            Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
 #ifdef _DEBUGPRINT_
             Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
             Call RecPrt('Wfctl: dX(n)',' ',Disp,1,nOV*nD)

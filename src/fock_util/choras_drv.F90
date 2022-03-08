@@ -12,7 +12,7 @@
 subroutine CHORAS_DRV(nSym,nBas,nOcc,W_DSQ,W_DLT,W_FLT,ExFac,FSQ,W_CMO)
 
 use Fock_util_global, only: ALGO, Deco, Lunit, REORD
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type, Integer_Pointer
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, Integer_Pointer
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -24,7 +24,7 @@ real(kind=wp), intent(in) :: W_DSQ(*), W_DLT(*), ExFac, W_CMO(*)
 real(kind=wp), intent(inout) :: W_FLT(*)
 type(DSBA_Type), intent(inout) :: FSQ(1)
 integer(kind=iwp), parameter :: MaxDs = 1
-integer(kind=iwp) :: i, iUHF, ja, loff1, MinMem(8), nDen, NumV, rc
+integer(kind=iwp) :: i, nD, ja, loff1, MinMem(8), nDen, NumV, rc
 real(kind=wp) :: FactC(MaxDs), FactX(MaxDs), Thr, Ymax
 logical(kind=iwp) :: DoCoulomb(MaxDs), DoExchange(MaxDs)
 type(DSBA_Type) :: DDec, DLT(1), DSQ(1), FLT(1), MSQ(MaxDs), Vec
@@ -44,22 +44,22 @@ DoExchange(1) = ExFac /= Zero
 FactC(1) = One
 FactX(1) = Half*ExFac ! ExFac used for hybrid functionals
 
-call Allocate_DSBA(DLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
-call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
 
-call Allocate_DSBA(DSQ(1),nBas,nBas,nSym,Ref=W_DSQ)
+call Allocate_DT(DSQ(1),nBas,nBas,nSym,Ref=W_DSQ)
 
-iUHF = 0
+nD=1
 
 if (DECO) then ! use decomposed density
   ! ==============  Alternative A: Use decomposed density matrix =====
   call mma_allocate(nVec,nSym,Label='nVec')
 
   ! Allocate vectors representing decomposed density matrix:
-  call Allocate_DSBA(Vec,nBas,nBas,nSym)
+  call Allocate_DT(Vec,nBas,nBas,nSym)
 
   ! ------------------------------------------------------------------
-  call Allocate_DSBA(Ddec,nBas,nBas,nSym)
+  call Allocate_DT(Ddec,nBas,nBas,nSym)
   DDec%A0(:) = DSQ(1)%A0(:)
   do i=1,nSym
     ! Loop over symmetries
@@ -85,23 +85,23 @@ if (DECO) then ! use decomposed density
     end if
     ! End of loop over symmetries
   end do
-  call Deallocate_DSBA(DDec)
+  call Deallocate_DT(DDec)
   ! ------------------------------------------------------------------
 
   pNocc(1)%I1(1:) => nVec(1:)
 
-  call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec%A0)
+  call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec%A0)
 
   ! ========End of  Alternative A: Use decomposed density matrix =====
 else
 
   pNocc(1)%I1(1:) => nOcc(1:)
 
-  call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=W_CMO)
+  call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=W_CMO)
 
 end if
 
-call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
+call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
 
 ! Here follows a long if nest with six combinations:
 ! ALGO is 1,  REORD is .true. or .false., or
@@ -153,19 +153,19 @@ else
   call QUIT(rc)
 end if
 
-call CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
 if (rc /= 0) call Error(rc)
 
 pNocc(1)%I1 => null()
-call Deallocate_DSBA(MSQ(1))
+call Deallocate_DT(MSQ(1))
 if (DECO) then
-  call Deallocate_DSBA(Vec)
+  call Deallocate_DT(Vec)
   call mma_deallocate(nVec)
 end if
-call Deallocate_DSBA(DSQ(1))
-call Deallocate_DSBA(DLT(1))
-call Deallocate_DSBA(FLT(1))
+call Deallocate_DT(DSQ(1))
+call Deallocate_DT(DLT(1))
+call Deallocate_DT(FLT(1))
 
 return
 

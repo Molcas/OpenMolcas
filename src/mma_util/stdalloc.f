@@ -114,6 +114,12 @@
 #undef _TYPE_
 #undef _DATA_NAME_
 
+#define _FUNC_NAME_ b_cptr2loff
+#define _TYPE_ integer*1
+#include "cptr2loff_template.fh"
+#undef _FUNC_NAME_
+#undef _TYPE_
+
 ! _WITH_LEN_ enables a workaround for older gfortran
 #define _FUNC_NAME_ c_cptr2loff
 #define _TYPE_ character(len=*)
@@ -252,6 +258,26 @@
 #undef _SUBR_NAME_
 #undef _TYPE_
 #undef _DATA_NAME_
+
+* byte variants
+
+#define _SUBR_NAME_ bmma
+#define _TYPE_ integer*1
+
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'bmma_1D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
+#  define _DIMENSIONS_ 2
+#  define _DEF_LABEL_ 'bmma_2D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
+#undef _SUBR_NAME_
+#undef _TYPE_
 
 * character variants
 * (no _DATA_NAME_ defined to make sure size is counted in bytes)

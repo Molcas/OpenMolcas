@@ -23,8 +23,7 @@ function iNuclearChargeFromSymbol(Symbol)
 ! Author:  Per-Olof Widmark                                            *
 !          Lund University, Sweden                                     *
 ! Written: Feb. 2000                                                   *
-! Modified: March 2017, Ignacio Fdez. Galvan (use periodic_table.fh,   *
-!                                             i.e. Isotopes)           *
+! Modified: March 2017, Ignacio Fdez. Galvan (use PTab)                *
 !                                                                      *
 !***********************************************************************
 

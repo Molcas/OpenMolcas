@@ -21,7 +21,7 @@ subroutine Polar(ireturn)
 !***********************************************************************
 
 use loprop_arrays, only: LP_context_type
-use Data_Structures, only: Alloc_Alloc1DArray, Alloc1DArray_Type, Free_Alloc1DArray
+use Data_Structures, only: Allocate_DT, Alloc1DArray_Type, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -97,7 +97,7 @@ call mma_allocate(tmp,nTemp,label='tmp')
 call mma_allocate(Origin,[1,3],[0,lMax],label='Origin')
 call mma_allocate(sq_mu,[1,nBas1**2],[0,mElem-1],label='sq_mu')
 call mma_allocate(MPq,mElem,label='MPq')
-call Alloc_Alloc1DArray(imu,[0,mElem-1],label='imu')
+call Allocate_DT(imu,[0,mElem-1],label='imu')
 call Read_Multipole_Int(lMax,sq_mu,nBas,imu,Ttot,tmp,Origin,MPq,mElem,nBas1,nBas2,nBasMax,nTemp,nSym,LP_context%PInv,Restart, &
                         Utility)
 !                                                                      *
@@ -127,7 +127,7 @@ if (.not. NoField) then
   end do
   call mma_deallocate(h0)
 end if
-call Free_Alloc1DArray(imu)
+call Deallocate_DT(imu)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

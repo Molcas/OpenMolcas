@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
-      Subroutine ChoSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
+      Subroutine ChoSCF_Drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+     &                FLT,FLT_ab,nFLT,ExFac,FSQ,nOcc,nOcc_ab)
 C
 C     Thomas Bondo Pedersen, September 2010.
 C
@@ -20,12 +20,12 @@ C     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
 C     is called in case of local DF (LDF).
 C
       Implicit None
-      Integer iUHF, nSym, nFLT
+      Integer nBSQT, nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
       Real*8  DSQ_ab(*), DLT_ab(*)
       Real*8  FLT(*), FLT_ab(*)
-      Real*8  FSQ(*), FSQ_ab(*)
+      Real*8  FSQ(nBSQT,nD)
       Real*8  ExFac
 
       Logical DoLDF
@@ -33,12 +33,12 @@ C
 ************************************************************************
 *                                                                      *
       Interface
-      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
+      SUBROUTINE CHOSCF_DRV_Internal(nD,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
      &                               W_FSQ,W_FSQ_ab,
      &                               nOcc,nOcc_ab)
-      Integer iUHF, nSym
+      Integer nD, nSym
       Integer nBas(nSym)
       Real*8 W_FLT(*),W_FLT_ab(*)
       Real*8 W_FSQ(*),W_FSQ_ab(*)
@@ -55,18 +55,18 @@ C
 
       Call DecideOnLocalDF(DoLDF)
       If (DoLDF) Then
-         Call LDFSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
+         Call LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+     &                FLT,FLT_ab,nFLT,ExFac,nOcc,nOcc_ab)
       Else
-         Call ChoSCF_Drv_Internal(iUHF,nSym,nBas,DSQ,DLT,
+         Call ChoSCF_Drv_Internal(nD,nSym,nBas,DSQ,DLT,
      &                            DSQ_ab,DLT_ab,FLT,
      &                            FLT_ab,nFLT,ExFac,
-     &                            FSQ,FSQ_ab,
+     &                            FSQ(:,1),FSQ(:,2),
      &                            nOcc,nOcc_ab)
       End If
 
       End
-      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
+      SUBROUTINE CHOSCF_DRV_Internal(nD,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
      &                               W_FSQ,W_FSQ_ab,
@@ -74,12 +74,13 @@ C
 
       use Scf_Arrays, only: CMO
       Use Fock_util_global, only: Deco, Lunit
+      use Data_Structures, only: Allocate_DT, Deallocate_DT
       use Data_Structures, only: DSBA_Type, Integer_Pointer
-      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer iUHF, nSym
+      Integer nD, nSym
       Integer nBas(nSym), MinMem(nSym),rc
       Parameter (MaxDs = 3)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
@@ -95,7 +96,6 @@ C
 
 #include "choscf.fh"
 #include "choauf.fh"
-#include "spave.fh"
 
       Type (Integer_Pointer) :: pNocc(3)
 
@@ -109,13 +109,12 @@ C  **************************************************
 C  **************************************************
 
       rc=0
-
       Lunit(:) = -1
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      IF(iUHF.eq.0) THEN
+      IF(nD==1) THEN
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -129,12 +128,12 @@ C  **************************************************
 
          xFac = ExFac
 
-         Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
-         Call Allocate_DSBA(DSQ(1),nBas,nBas,nSym,Ref=W_DSQ)
-         Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+         Call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+         Call Allocate_DT(DSQ(1),nBas,nBas,nSym,Ref=W_DSQ)
+         Call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
          ! trick to use already allocated memory
-         Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
-         Call Allocate_DSBA(FSQ(1),nBas,nBas,nSym,            Ref=W_FSQ)
+         Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
+         Call Allocate_DT(FSQ(1),nBas,nBas,nSym,            Ref=W_FSQ)
 
          If (ExFac.eq.0.0d0) Then
             CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
@@ -148,8 +147,8 @@ C  **************************************************
 
        CALL set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 
-       Call Allocate_DSBA(Vec(1),nBas,nBas,nSym)
-       Call Allocate_DSBA(DDec(1),nBas,nBas,nSym)
+       Call Allocate_DT(Vec(1),nBas,nBas,nSym)
+       Call Allocate_DT(DDec(1),nBas,nBas,nSym)
        DDec(1)%A0(:) = DSQ(1)%A0(:)
 
        Do i=1,nSym
@@ -177,11 +176,11 @@ C  **************************************************
             nVec(i,1) = 0
           endif
        End Do
-       Call Deallocate_DSBA(DDec(1))
+       Call Deallocate_DT(DDec(1))
 
        pNocc(1)%I1(1:) => nVec(1:,1) ! occup. numbers
 
-       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
+       Call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
 
        FactX(1) = 0.5D0*ExFac ! ExFac used for hybrid functionals
 
@@ -189,11 +188,11 @@ C  **************************************************
 
          pNocc(1)%I1(1:) => nOcc(1:) ! occup. numbers
 
-         Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
+         Call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,
+      Call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,
      &                MinMem,loff1)
 *                                                                      *
 ************************************************************************
@@ -264,7 +263,7 @@ C  **************************************************
           Do iSym=1,nSym
              nIorb(iSym,1) = pNocc(1)%I1(iSym)
           End Do
-          Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
+          Call Allocate_DT(Cka(1),nIorb(:,1),nBas,nSym)
 
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
@@ -278,7 +277,7 @@ C  **************************************************
 
           CALL CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Cka(1),[DLT],xFac)
 
-          Call Deallocate_DSBA(Cka(1))
+          Call Deallocate_DT(Cka(1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -311,11 +310,11 @@ C  **************************************************
 *                                                                      *
       If (rc.ne.0) GOTO 999
 
-      IF (DECO) CALL deallocate_DSBA(Vec(1))
+      IF (DECO) CALL Deallocate_DT(Vec(1))
 
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) Then
 
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+         CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
       EndIf
 C----------------------------------------------------
@@ -323,12 +322,12 @@ C----------------------------------------------------
       Call GADSum(FLT(1)%A0,nFLT)
 
       pNocc(1)%I1=>Null()
-      Call Deallocate_DSBA(MSQ(1))
-      Call Deallocate_DSBA(FSQ(1))
-      Call Deallocate_DSBA(DSQ(1))
-      Call Deallocate_DSBA(KLT(1))
-      Call Deallocate_DSBA(FLT(1))
-      Call Deallocate_DSBA(DLT)
+      Call Deallocate_DT(MSQ(1))
+      Call Deallocate_DT(FSQ(1))
+      Call Deallocate_DT(DSQ(1))
+      Call Deallocate_DT(KLT(1))
+      Call Deallocate_DT(FLT(1))
+      Call Deallocate_DT(DLT)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -363,25 +362,25 @@ c      call get_iarray('nIsh beta',nOcc_ab,nSym)
 C Compute the total density Dalpha + Dbeta
       CALL DAXPY_(nFLT,1.0D0,W_DLT(1),1,W_DLT_ab(1),1)
 
-      Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT_ab)
+      Call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT_ab)
       ! alpha density SQ
-      Call Allocate_DSBA(DSQ(2),nBas,nBas,nSym,Ref=W_DSQ)
+      Call Allocate_DT(DSQ(2),nBas,nBas,nSym,Ref=W_DSQ)
       ! beta  density SQ
-      Call Allocate_DSBA(DSQ(3),nBas,nBas,nSym,Ref=W_DSQ_ab)
+      Call Allocate_DT(DSQ(3),nBas,nBas,nSym,Ref=W_DSQ_ab)
 
       ! Coulomb (... Falpha LT)
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+      Call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
       ! (... Fbeta LT)
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT_ab)
+      Call Allocate_DT(FLT(2),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT_ab)
 
       ! alpha exchange (... Falpha SQ)
-      Call Allocate_DSBA(FSQ(2),nBas,nBas,nSym,Ref=W_FSQ)
+      Call Allocate_DT(FSQ(2),nBas,nBas,nSym,Ref=W_FSQ)
       ! beta exchange (... Fbeta SQ)
-      Call Allocate_DSBA(FSQ(3),nBas,nBas,nSym,Ref=W_FSQ_ab)
+      Call Allocate_DT(FSQ(3),nBas,nBas,nSym,Ref=W_FSQ_ab)
 
       ! trick to use already allocated work
-      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
-      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ_ab)
+      Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
+      Call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ_ab)
 
       FactX(2) = 1.0D0*ExFac ! UHF SQ-density is not scaled
       FactX(3) = 1.0D0*ExFac
@@ -396,11 +395,11 @@ C Compute the total density Dalpha + Dbeta
 
        CALL set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 
-       Call Allocate_DSBA(Vec(1),nBas,nBas,nSym)
-       Call Allocate_DSBA(Vec(2),nBas,nBas,nSym)
+       Call Allocate_DT(Vec(1),nBas,nBas,nSym)
+       Call Allocate_DT(Vec(2),nBas,nBas,nSym)
 
-       Call Allocate_DSBA(DDec(1),nBas,nBas,nSym)
-       Call Allocate_DSBA(DDec(2),nBas,nBas,nSym)
+       Call Allocate_DT(DDec(1),nBas,nBas,nSym)
+       Call Allocate_DT(DDec(2),nBas,nBas,nSym)
        DDec(1)%A0(:)=DSQ(2)%A0(:)
        DDec(2)%A0(:)=DSQ(3)%A0(:)
 
@@ -452,28 +451,28 @@ C Compute the total density Dalpha + Dbeta
           endif
        End Do
 
-       Call deallocate_DSBA(DDec(2))
-       Call deallocate_DSBA(DDec(1))
+       Call deallocate_DT(DDec(2))
+       Call deallocate_DT(DDec(1))
 
        pNocc(1)%I1(1:) => nVec(1:,1) ! dummy
        pNocc(2)%I1(1:) => nVec(1:,1) ! alpha occup. numbers
        pNocc(3)%I1(1:) => nVec(1:,2) ! beta occup. numbers
 
-       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
-       Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=Vec(1)%A0)
-       Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=Vec(2)%A0)
+       Call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
+       Call Allocate_DT(MSQ(2),nBas,nBas,nSym,Ref=Vec(1)%A0)
+       Call Allocate_DT(MSQ(3),nBas,nBas,nSym,Ref=Vec(2)%A0)
       ELSE
        pNocc(1)%I1(1:) => nOcc(1:) ! dummy assignement
        pNocc(2)%I1(1:) => nOcc(1:) ! occup. numbers alpha MOs
        pNocc(3)%I1(1:) => nOcc_ab(1:) ! occup. numbers beta MOs
 
-       Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
-       Call Allocate_DSBA(MSQ(2),nBas,nBas,nSym,Ref=CMO(:,1))
-       Call Allocate_DSBA(MSQ(3),nBas,nBas,nSym,Ref=CMO(:,2))
+       Call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
+       Call Allocate_DT(MSQ(2),nBas,nBas,nSym,Ref=CMO(:,1))
+       Call Allocate_DT(MSQ(3),nBas,nBas,nSym,Ref=CMO(:,2))
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,
+      Call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,
      &                ALGO,REORD,MinMem,loff1)
 
 
@@ -529,8 +528,8 @@ C Compute the total density Dalpha + Dbeta
              nIorb(iSym,1) = pNocc(2)%I1(iSym)
              nIorb(iSym,2) = pNocc(3)%I1(iSym)
           End Do
-          Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
-          Call Allocate_DSBA(Cka(2),nIorb(:,2),nBas,nSym)
+          Call Allocate_DT(Cka(1),nIorb(:,1),nBas,nSym)
+          Call Allocate_DT(Cka(2),nIorb(:,2),nBas,nSym)
 
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
@@ -554,8 +553,8 @@ C Compute the total density Dalpha + Dbeta
           CALL CHO_FSCF(rc,nMat,FLT,nForb,nIorb,Cka,[DLT],ExFac)
 
 
-          Call Deallocate_DSBA(Cka(2))
-          Call Deallocate_DSBA(Cka(1))
+          Call Deallocate_DT(Cka(2))
+          Call Deallocate_DT(Cka(1))
 
           If (rc.ne.0) GOTO 999
 
@@ -583,8 +582,8 @@ C Compute the total density Dalpha + Dbeta
           CALL QUIT(rc)
       endif
 
-      IF(DECO) CALL deallocate_DSBA(Vec(2))
-      IF(DECO) CALL deallocate_DSBA(Vec(1))
+      IF(DECO) CALL deallocate_DT(Vec(2))
+      IF(DECO) CALL deallocate_DT(Vec(1))
 
 998   Continue
 
@@ -599,7 +598,7 @@ C --- To get the Fbeta in LT storage ----
 
 C --- Accumulates Coulomb and Exchange contributions
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) then
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+         CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
       Endif
 
 C----------------------------------------------------
@@ -627,18 +626,18 @@ C --- and pack the off-diagonal elements
          pNocc(1)%I1 => Null()
          pNocc(2)%I1 => Null()
          pNocc(3)%I1 => Null()
-         Call Deallocate_DSBA(MSQ(3))
-         Call Deallocate_DSBA(MSQ(2))
-         Call Deallocate_DSBA(MSQ(1))
-         Call Deallocate_DSBA(DSQ(3))
-         Call Deallocate_DSBA(DSQ(2))
-         Call Deallocate_DSBA(FSQ(3))
-         Call Deallocate_DSBA(FSQ(2))
-         Call Deallocate_DSBA(KLT(2))
-         Call Deallocate_DSBA(KLT(1))
-         Call Deallocate_DSBA(FLT(2))
-         Call Deallocate_DSBA(FLT(1))
-         Call Deallocate_DSBA(DLT)
+         Call Deallocate_DT(MSQ(3))
+         Call Deallocate_DT(MSQ(2))
+         Call Deallocate_DT(MSQ(1))
+         Call Deallocate_DT(DSQ(3))
+         Call Deallocate_DT(DSQ(2))
+         Call Deallocate_DT(FSQ(3))
+         Call Deallocate_DT(FSQ(2))
+         Call Deallocate_DT(KLT(2))
+         Call Deallocate_DT(KLT(1))
+         Call Deallocate_DT(FLT(2))
+         Call Deallocate_DT(FLT(1))
+         Call Deallocate_DT(DLT)
 *                                                                      *
 ************************************************************************
 ************************************************************************

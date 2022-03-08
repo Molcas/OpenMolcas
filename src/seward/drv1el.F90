@@ -29,14 +29,12 @@ use MpmC, only: Coor_MpM
 use PrpPnt, only: Den, Occ, Vec
 use External_Centers, only: Dxyz, AMP_Center, EF_Centers, DMS_Centers, nDMS, nEF, nOrdEF, nOrd_XF, nWel, OAM_Center, OMQ_Center, &
                             Wel_Info, XF
-use SW_file, only: SW_FileOrb
 use Symmetry_Info, only: iChBas
-use Temporary_Parameters, only: PrPrt, Short, Primitive_Pass
+use Gateway_global, only: Primitive_Pass, PrPrt, Short, SW_FileOrb
 use PAM2, only: iPAMcount, iPAMPrim, kCnttpPAM
 use DKH_Info, only: BSS, DKroll
 use Sizes_of_Seward, only: S
-use Real_Info, only: PotNuc, kVector
-use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt, DoFMM, EMFR, GIAO, lMXTC
+use Gateway_Info, only: Do_FckInt, DoFMM, EMFR, GIAO, kVector, lAMFI, lMXTC, lRel, NEMO, PotNuc, Vlct
 #ifdef _FDE_
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif

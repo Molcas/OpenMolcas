@@ -131,9 +131,6 @@ do IP=1,NBP
         !  (pq,Us) Sorting
         if (IOUT1 > IPQMX1) then
           IOUT1 = 1
-          !vv dO I=1,NOUS
-          !vv   call dDAFILE(LUHLF1,1,pqUS(1+IPQMX1*(I-1)),IPQMX1,IAD1)
-          !vv end do
           call dDAFILE(LUHLF1,1,pqUS,IPQMX1*NOUS,IAD1)
         end if
         call DCOPY_(NOUS,X3,1,pqUS(IOUT1),IPQMX1)
@@ -149,9 +146,6 @@ do IP=1,NBP
       ! (pq,rU) Sorting
       if (IOUT2 > IPQMX2) then
         IOUT2 = 1
-        !vv do I=1,NORU
-        !vv   call dDAFILE(LUHLF2,1,pqRU(1+IPQMX2*(I-1)),IPQMX2,IAD2)
-        !vv end do
         call dDAFILE(LUHLF2,1,pqRU,IPQMX2*NORU,IAD2)
       end if
       call DCOPY_(NORU,X3,1,pqRU(IOUT2),IPQMX2)
@@ -160,16 +154,13 @@ do IP=1,NBP
       ! (pq,rU) -> (pq,TU)
       if (icc /= 0) then
         if (ISR == ISS) then
-          call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
+          call DGEMM_Tri('T','N',NOCR,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCR)
         else
           call DGEMM_('T','N',NOCS,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCS)
         end if
         ! (pq,TU) Sorting
         if (IOUT3 > IPQMX3) then
           IOUT3 = 1
-          !vv do I=1,NOTU
-          !vv   call dDAFILE(LUHLF3,1,PQTU(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-          !vv enddo
           call dDAFILE(LUHLF3,1,PQTU,IPQMX3*NOTU,IAD3)
         end if
         call DCOPY_(NOTU,X2,1,PQTU(IOUT3),IPQMX3)
@@ -179,21 +170,12 @@ do IP=1,NBP
 end do
 !  Store last buffer
 if (IPQMX1 < NBPQ) then
-  !vv do i=1,NOUS
-  !vv   call dDAFILE(LUHLF1,1,pqUS(1+IPQMX1*(I-1)),IPQMX1,IAD1)
-  !vv end do
   call dDAFILE(LUHLF1,1,pqUS,IPQMX1*NOUS,IAD1)
 end if
 if (IPQMX2 < NBPQ) then
-  !vv do i=1,NORU
-  !vv   call dDAFILE(LUHLF2,1,pqRU(1+IPQMX2*(I-1)),IPQMX2,IAD2)
-  !vv end do
   call dDAFILE(LUHLF2,1,pqRU,IPQMX2*NORU,IAD2)
 end if
 if (IPQMX3 < NBPQ) then
-  !vv do i=1,NOTU
-  !vv   call dDAFILE(LUHLF3,1,PQTU(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-  !vv end do
   call dDAFILE(LUHLF3,1,PQTU,IPQMX3*NOTU,IAD3)
 end if
 

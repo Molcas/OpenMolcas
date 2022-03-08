@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: CH2=NH2+
-* Basis: STO-3G
+* Basis: 3-21G
 * Symmetry: C1
 * Features tested: Tully Surface Hop
 * Responsible person: Alessio Valentini
@@ -52,6 +52,7 @@ MDRLXROOT
  PSUB
  SUBSTEPS = 10
  FRAND = 0.01
+ NORASSI 
 
 &Alaska
 &Dynamix

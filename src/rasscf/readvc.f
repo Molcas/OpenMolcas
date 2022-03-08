@@ -250,7 +250,7 @@ C Local print level (if any)
            end if
         Else
            If (IPRLEV.ge.TERSE) then
-              Write(LF,*) '  File JOBOLD not found -- use JOBIPH.'
+              Write(LF,'(6X,A)') 'File JOBOLD not found -- use JOBIPH.'
            End If
            If (JOBIPH.gt.0) Then
               JOBOLD=JOBIPH

@@ -73,7 +73,7 @@
       DO
         Line1 = Get_Ln(Lu)
         CALL UpCase(Line1)
-        CALL LeftAd(Line1)
+        Line1 = adjustl(Line1)
         IF (Line1(1:4).eq.'VALU') EXIT
         iPos = INDEX(Line1,'=')
         IF (iPos.gt.0) THEN
@@ -83,18 +83,16 @@
           Line2 = Get_Ln(Lu)
           CALL UpCase(Line2)
         END IF
-        CALL LeftAd(Line2)
+        Line2 = adjustl(Line2)
 *       If a primitive is defined as "EDIFF", save its name
         IF (Line2(1:4).eq.'EDIF') THEN
           EDiffName = Line1
           iPos = INDEX(Line2,' ')
           Line2 = Line2(iPos+1:)
-          CALL LeftAd(Line2)
           READ(Line2,*,IOSTAT=Error) i
           IF (Error.ne.0) i=0
           iPos = INDEX(Line2,' ')
           Line2 = Line2(iPos+1:)
-          CALL LeftAd(Line2)
           READ(Line2,*,IOSTAT=Error) j
           IF (Error.ne.0) j=0
           iState(1)=MAX(i,j)
@@ -116,12 +114,12 @@
       DO
         Line1 = Get_Ln(Lu)
         CALL UpCase(Line1)
-        CALL LeftAd(Line1)
+        Line1 = adjustl(Line1)
 *       Read continuation lines
         DO WHILE (INDEX(Line1,'&').ne.0)
           Line1 = Get_Ln(Lu)
           CALL UpCase(Line1)
-          CALL LeftAd(Line1)
+          Line1 = adjustl(Line1)
         END DO
         IF (Line1(1:4).eq.'END ') EXIT
         iPos = INDEX(Line1,'=')

@@ -14,7 +14,7 @@ subroutine PCM_EF_grd(Grad,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: dCntr, dPnt, PCM_SQ, PCMiSph, PCMTess
-use Temporary_Parameters, only: PrPrt
+use Gateway_global, only: PrPrt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

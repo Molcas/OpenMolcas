@@ -12,7 +12,7 @@
 subroutine MP2gDens_setup()
 
 use MBPT2_Global, only: Density, DiaA, mAdDel, mAdFro, mAdOcc, mAdVir, Mp2Lagr, WDensity
-use Data_Structures, only: Allocate_DSBA
+use Data_Structures, only: Allocate_DT
 use Constants, only: Zero
 use Definitions, only: iwp
 
@@ -23,10 +23,10 @@ integer(kind=iwp) :: iSym, nExtT, nOccT
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call Allocate_DSBA(Density,nOrb+nDel,nOrb+nDel,nSym,label='MP2Density')
-call Allocate_DSBA(WDensity,nOrb+nDel,nOrb+nDel,nSym,label='MP2WDensity')
-call Allocate_DSBA(Mp2Lagr,nFro+nOcc,nExt+nDel,nSym,label='MP2Lagr')
-call Allocate_DSBA(DiaA,nFro+nOcc,nExt+nDel,nSym,Label='MP2DiaA')
+call Allocate_DT(Density,nOrb+nDel,nOrb+nDel,nSym,label='MP2Density')
+call Allocate_DT(WDensity,nOrb+nDel,nOrb+nDel,nSym,label='MP2WDensity')
+call Allocate_DT(Mp2Lagr,nFro+nOcc,nExt+nDel,nSym,label='MP2Lagr')
+call Allocate_DT(DiaA,nFro+nOcc,nExt+nDel,nSym,Label='MP2DiaA')
 
 Density%A0(:) = Zero
 WDensity%A0(:) = Zero

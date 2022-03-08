@@ -38,7 +38,7 @@ except ImportError:
 
 helptext = '''
 {1}################################################################################
-#                     Querying the Molcas basis set library                    #
+#                  Querying the OpenMolcas basis set library                   #
 ################################################################################{0}
 
 Use with a command-line argument that is a basis label in Molcas format:

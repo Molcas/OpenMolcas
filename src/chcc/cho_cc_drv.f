@@ -19,7 +19,7 @@ C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: DSBA_Type, SBA_Type
-      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: Allocate_DT, Deallocate_DT
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -153,7 +153,7 @@ C ------------------------------------------------------------------
             LREAD = nRS*nVec
 
             Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-            Call Allocate_SBA(Laq(1),nPorb,nBas,nVec,jSym,nSym,iSwap)
+            Call Allocate_DT(Laq(1),nPorb,nBas,nVec,jSym,nSym,iSwap)
             Call mma_allocate(Lpq,mTTVec*nVec,Label='Lpq')
 
 C --- BATCH over the vectors ----------------------------
@@ -261,7 +261,7 @@ C --------------------------------------------------------------------
 
 C --- free memory
             Call mma_deallocate(Lpq)
-            Call Deallocate_SBA(Laq(1))
+            Call Deallocate_DT(Laq(1))
             Call mma_deallocate(Lrs)
 
 999         CONTINUE

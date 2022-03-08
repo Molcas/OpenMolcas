@@ -118,7 +118,7 @@
 
 
       Subroutine Ini_PkR8(PkMode)
-      use Real_Info, only: PkAcc
+      use Gateway_Info, only: PkAcc
       Logical PkMode
 *
       Call inipkr8(PkAcc,PkMode)

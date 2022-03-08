@@ -36,8 +36,8 @@
       use iSD_data
       use Wrj12
       use Basis_Info, only: dbsc, nBas, nBas_Aux
-      use Temporary_Parameters, only: force_out_of_core
-      use Real_Info, only: CutInt
+      use Gateway_global, only: force_out_of_core
+      use Gateway_Info, only: CutInt
       use RICD_Info, only: LDF
       use Symmetry_Info, only: nIrrep
       use j12

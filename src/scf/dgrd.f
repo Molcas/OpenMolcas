@@ -12,13 +12,13 @@
 *     Compute the difference with the previous gradient
 *
       Subroutine dGrd()
+      use LnkLst, only: SCF_V
       Implicit None
 #include "mxdm.fh"
 #include "real.fh"
 #include "infscf.fh"
 #include "infso.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "file.fh"
 #include "llists.fh"
       Integer nD,jpgrd,inode
@@ -26,16 +26,16 @@
       Integer, External :: LstPtr
       nD=iUHF+1
       Call mma_allocate(Scr,nOV,nD,Label='Scr')
-      jpgrd=LstPtr(LuGrd,iter,LLGrad)
+      jpgrd=LstPtr(iter,LLGrad)
       Call GetNod(iter-1,LLGrad,inode)
       If (inode.eq.0) Then
          Write (6,*) 'inode.eq.0'
          Call Abend()
       End If
-      Call iVPtr(LuGrd,Scr,nOV*nD,inode)
-      Call DaXpY_(nOV*nD,-One,Work(jpgrd),1,Scr,1)
+      Call iVPtr(Scr,nOV*nD,inode)
+      Call DaXpY_(nOV*nD,-One,SCF_V(jpgrd)%A,1,Scr,1)
       Call DScal_(nOV*nD,-One,Scr,1)
-      Call PutVec(Scr,nOV*nD,LudGd,iter-1,MemRsv,'NOOP',LLdGrd)
+      Call PutVec(Scr,nOV*nD,iter-1,'NOOP',LLdGrd)
       Call mma_deallocate(Scr)
       Return
       End

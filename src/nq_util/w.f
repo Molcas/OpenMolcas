@@ -10,10 +10,10 @@
 ************************************************************************
       Subroutine W(R,ilist_p,Weights,list_p,nlist_p,nGrid,nRemoved)
       use NQ_Structure, only: NQ_Data
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "itmax.fh"
-#include "nq_info.fh"
 #include "debug.fh"
       Real*8 R(3,nGrid), Weights(nGrid)
       Integer list_p(nlist_p)

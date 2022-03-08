@@ -52,7 +52,7 @@
       use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "disp2.fh"
@@ -678,7 +678,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
       use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
-      use Real_Info, only: ThrInt, CutInt
+      use Gateway_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "disp2.fh"

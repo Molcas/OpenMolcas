@@ -326,10 +326,10 @@ c Avoid unused argument warnings
 *
           If (NAR*NAS.ne.0) Then
           IF(ISR.EQ.ISS) THEN
-            CALL MXMT(X2,        NBR,1,
-     *                CMR, 1,NBR,
-     *                X4,
-     *                NAR,NBR)
+            CALL DGEMM_Tri('T','N',NAR,NAR,NBR,
+     &                1.0D0,X2,NBR,
+     &                      CMR,NBR,
+     &                0.0D0,X4,NAR)
           ELSE
             CALL DGEMM_('T','N',
      &                  NAS,NAR,NBR,

@@ -41,6 +41,7 @@
 #endif
       use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 *
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
@@ -74,7 +75,6 @@
 #include "choauf.fh"
 
 #include "addcorr.fh"
-#include "spave.fh"
 
 *
 *     copy input from standard input to a local scratch file
@@ -117,7 +117,6 @@
       MxConstr=0
       klockan=1
       Do_Addc=.false.
-      Do_SpinAV=.false.
       iTer2run=2
 * KSDFT exch. and corr. scaling factors
       CoefX = 1.0D0
@@ -1025,7 +1024,7 @@ c      End If
  4600 Continue
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       KSDFT=Line(1:16)
       GoTo 1000
 *
@@ -1043,7 +1042,7 @@ c      End If
       Do_OFemb=.true.
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       OFE_KSDFT=Line(1:16)
       write(6,*)  '  --------------------------------------'
       write(6,*)  '   Orbital-Free Embedding Calculation'
@@ -1102,7 +1101,7 @@ c      End If
       Do_Addc=.True.
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       ADDC_KSDFT=Line(1:16)
       GoTo 1000
 *

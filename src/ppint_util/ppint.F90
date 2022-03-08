@@ -81,7 +81,7 @@ do iCnttp=1,nCnttp
   do kSh=dbsc(iCnttp)%iPP,dbsc(iCnttp)%iPP+dbsc(iCnttp)%nPP-1
     ! Skip if a cardholder shell
     if (Shells(kSh)%nExp <= 0) cycle
-    ncrr = int(Shells(kSh)%exp(1))
+    ncrr = int(Shells(kSh)%Exp(1))
     if (ncrr <= 500) nPP_S = nPP_S+1
   end do
   if (nPP_S == 0) cycle
@@ -113,9 +113,9 @@ do iCnttp=1,nCnttp
     iStrt = 1
     do iExp=1,Shells(kSh)%nExp/3
       npot = npot+1
-      ncr(npot) = int(Shells(kSh)%exp(iStrt))
-      zcr(npot) = Shells(kSh)%exp(iStrt+1)
-      ccr(npot) = Shells(kSh)%exp(iStrt+2)
+      ncr(npot) = int(Shells(kSh)%Exp(iStrt))
+      zcr(npot) = Shells(kSh)%Exp(iStrt+1)
+      ccr(npot) = Shells(kSh)%Exp(iStrt+2)
       iStrt = iStrt+3
     end do
   end do

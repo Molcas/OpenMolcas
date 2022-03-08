@@ -21,9 +21,9 @@ subroutine DKRelint_DP()
 !       exact decoupling BSS method.
 
 use Basis_Info, only: dbsc, nBas, ncnttp
-use DKH_Info, only: CLightAU, iRelae, iRFlag1, LDKroll, radiLD
+use DKH_Info, only: CLightAU, iRelae, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
-use Logical_Info, only: lMXTC
+use Gateway_Info, only: lMXTC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -32,7 +32,7 @@ implicit none
 integer(kind=iwp) :: dkhorder, dkhparam, i, i_Dim, iAngr, iBas, icnt, iCnttp, iComp, idbg, idum(1), iExp, iibas, iMEF, iOpt, &
                      iPrint, iProps, iRC, iRout, iSize, iSizec, iSizep, iSizes, iTemp, jCent, jExp, k, kAng, kC, kCof, kCofi, &
                      kCofj, kExp, kExpi, kExpj, ks, kz, L, lOper, lOper_save, Lu_One, n, n_Int, nAtoms, nBas_cont(8), &
-                     nBas_prim(8), nbl, nComp, nrSym, nSym, numb_props, Op, relmethod, xorder
+                     nBas_prim(8), nbl, nComp, nSym, numb_props, Op, relmethod, xorder
 real(kind=wp) :: rCofi, rCofj, rEpsilon, rExpi, rExpj, rI, rNorm, rSum, VELIT
 logical(kind=iwp) :: DoFullLT
 !character(len=3) :: paramtype
@@ -40,17 +40,13 @@ character(len=8) :: Label, pXpLbl
 integer(kind=iwp), allocatable :: indx(:), Loc(:), Map(:), Ind(:,:)
 real(kind=wp), allocatable :: iK(:), SS(:), V(:), pVp(:), K_Save(:), K_Done(:), U_L(:), U_S(:), X(:), pXp(:), Prop(:), Pmag(:), &
                               Y(:), P(:), G(:), Ev2(:,:), Eig(:,:), Sinv(:,:), Ew(:), E(:), Aa(:), Rr(:), Tt(:), Re1r(:,:), &
-                              Auxi(:,:), Twrk4(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
+                              Auxi(:,:), Tmp(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: nProp_Int
 #include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
 
-if (iRFlag1 == 1) then
-  call DKRelint()
-  return
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -603,7 +599,7 @@ else
     call mma_allocate(Tt,n,label='Tt')
     call mma_allocate(Re1r,n,n,label='Re1r')
     call mma_allocate(Auxi,n,n,label='Auxi')
-    call mma_allocate(Twrk4,n*200,label='Twrk4')
+    call mma_allocate(Tmp,iSize,label='Tmp')
     if (IRELAE == 0) then
       call mma_allocate(Even1,1,1,label='Even1')
       call mma_allocate(Pvpt,1,label='Pvpt')
@@ -618,7 +614,7 @@ else
 
     ! call to package relsew
 
-    call SCFCLI(idbg,rEpsilon,SS(k),iK(k),V(k),pVp(k),n,iSize,VELIT,Bu,P,G,Ev2,Eig,Sinv,Ew,E,Aa,Rr,Tt,Pvpt,Even1,Re1r,Auxi,Twrk4, &
+    call SCFCLI(idbg,rEpsilon,SS(k),iK(k),V(k),pVp(k),n,iSize,VELIT,Bu,P,G,Ev2,Eig,Sinv,Ew,E,Aa,Rr,Tt,Pvpt,Even1,Re1r,Auxi,Tmp, &
                 i_Dim)
 
     call mma_deallocate(P)
@@ -633,7 +629,7 @@ else
     call mma_deallocate(Tt)
     call mma_deallocate(Re1r)
     call mma_deallocate(Auxi)
-    call mma_deallocate(Twrk4)
+    call mma_deallocate(Tmp)
     call mma_deallocate(Even1)
     call mma_deallocate(Pvpt)
     call mma_deallocate(Bu)

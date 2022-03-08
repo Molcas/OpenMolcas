@@ -83,8 +83,8 @@
 *|      |               |       |integrals      |               |          |
 *---------------------------------------------------------------------------
 *
-c     use Temporary_parameters, only: force_part_c, force_part_p
-      use Temporary_parameters, only: force_part_p
+c     use Gateway_global, only: force_part_c, force_part_p
+      use Gateway_global, only: force_part_p
       use SOAO_Info, only: iAOtSO
       use pso_stuff
       use Sizes_of_Seward, only: S
