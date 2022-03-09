@@ -13,13 +13,13 @@
 
 subroutine COMP1(LJ,ITYP,L,IT2,II,IID,JJ,JJD,JTYP,ITAI)
 
-use guga_global, only: COUP, ICASE, ICOUP, ICOUP1, IOUT, IX, JNDX, LN, Lu_10, NBUF, NMAT
+use guga_global, only: COUP, IADD10, ICASE, ICOUP, ICOUP1, IOUT, IX, JNDX, LN, Lu_10, NBUF, NMAT
+use guga_util_global, only: COP, ICOP1, nCOP
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LJ, ITYP, L, IT2, II, IID, JJ, JJD, JTYP, ITAI(*)
-#include "cop.fh"
 integer(kind=iwp) :: IC1, IC2, ICT, IN_, IN2, IND, ITAIL, JND1, JND2, JOJ, KK1, KTYP
 real(kind=wp) :: FAC
 integer(kind=iwp), external :: ICUNP

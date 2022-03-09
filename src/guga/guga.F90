@@ -22,15 +22,15 @@
 
 subroutine GUGA(IRETURN)
 
-use guga_global, only: free_all, IPRINT, Lu_10, Lu_11, MXVERT, NBUF
+use guga_global, only: free_all, IADD10, IPRINT, Lu_10, Lu_11, MXVERT, NBUF
+use guga_util_global, only: IAD10
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp), intent(out) :: IRETURN
-#include "cop.fh"
-integer(kind=iwp) :: I, ISPAC, IST, KB, KBUF, KBUF2, LSTO, LW1, MCOP, NBINS, NCOR, NCORX, NTPB
+integer(kind=iwp) :: ISPAC, IST, KB, KBUF, KBUF2, LSTO, LW1, MCOP, NBINS, NCOR, NCORX, NTPB
 real(kind=wp) :: A, B, C
 integer(kind=iwp), allocatable :: L0(:), L1(:), L2(:), L3(:)
 integer(kind=iwp), external :: isFreeUnit
@@ -60,9 +60,7 @@ Lu_11 = isFreeUnit(11)
 call DANAME_wa(Lu_11,'TEMP01')
 Lu_10 = isFreeUnit(10)
 call DANAME(Lu_10,'CIGUGA')
-do I=1,9
-  IAD10(I) = 0
-end do
+IAD10(:) = 0
 IADD10 = 0
 call iDAFILE(Lu_10,1,IAD10,9,IADD10)
 

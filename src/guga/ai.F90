@@ -15,7 +15,8 @@
 
 subroutine AI(JTYP,ITAI,L0,L1,L2,L3)
 
-use guga_global, only: COUP, ICOUP, ICOUP1, ICH, IJ, IOUT, IRC, IWAY, IX, J1, J2, JNDX, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
+use guga_global, only: COUP, IADD10, ICOUP, ICOUP1, ICH, IJ, IOUT, IRC, IWAY, IX, J1, J2, JNDX, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -24,7 +25,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: JTYP, L0(*), L1(*), L2(*), L3(*)
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
-#include "cop.fh"
 integer(kind=iwp) :: I, ICP1, ICP2, II, IID, IJJ, IJM, IJS, IN_, IN2, IND, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, JJ, &
                      JJD, JMAX, JND1, JND2, JOUT, KM, NI
 real(kind=wp) :: CHKSUM

@@ -34,6 +34,7 @@
 *                                                                      *
 ************************************************************************
       use OccSets
+      use KSDFT_Info, only: CoefR, CoefX
       use OFembed
       use Functionals, only: Custom_File, Custom_Func
       use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
@@ -55,7 +56,6 @@
 #include "ldfscf.fh"
 #include "file.fh"
 #include "iprlv.fh"
-#include "ksdft.fh"
 #include "hfc_logical.fh"
 *
 *---- Define local variables
@@ -119,9 +119,6 @@
       klockan=1
       Do_Addc=.false.
       iTer2run=2
-* KSDFT exch. and corr. scaling factors
-      CoefX = 1.0D0
-      CoefR = 1.0D0
 * Delta_Tw correlation energy calculation
       Do_Tw=.false.
 * Read Cholesky info from runfile and save in infscf.fh

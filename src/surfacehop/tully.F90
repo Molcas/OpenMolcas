@@ -19,12 +19,10 @@ use Surfacehop_globals, only: lH5Restart
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8, u6
 
-#include "warnings.h"
-
 implicit none
 integer(kind=iwp), intent(in) :: NSTATE, NCI
 real(kind=wp), intent(inout) :: CIBigArray(NCI*NSTATE)
-
+#include "warnings.h"
 
 integer :: values(8) ! note default integer kind for date_and_time call
 character(len=8) :: date
@@ -92,7 +90,6 @@ if (.not. Found .and. lH5Restart) then
 end if
 #endif
 
-
 if (Found) then
   call Get_dScalar('Timestep',DT)
 end if
@@ -118,10 +115,10 @@ if (.not. Found) then
   end do
   write(u6,*) 'Gnuplot:',(Popul(j),j=1,NSTATE,1),(Venergy(j),j=1,NSTATE,1),Venergy(iRlxRoot)
   write(u6,*) 'Cannot do deltas at first step, see you later! '
-  firststep=.True.
+  firststep = .true.
   return
 else
-  firststep=.False.
+  firststep = .false.
   call Get_dArray('AllCIP',CIBigArrayP,NCI*NSTATE)
   call Get_dArray('VenergyP',VenergyP,NSTATE)
 end if
@@ -130,43 +127,43 @@ end if
 
 if (rassi_ovlp) then
   call Qpg_iscalar('SH RASSI run',Found)
-!  write(u6,*) 'Has RASSI ever been run?', Found
+  !write(u6,*) 'Has RASSI ever been run?', Found
   if (.not. Found) then ! RASSI never run before (step 2) or restart
-    Run_rassi=.True.
+    Run_rassi = .true.
   else
     call get_iscalar('SH RASSI run',RASSI_time_run)
-!    write(u6,*) 'RASSI_time_run variable = ',RASSI_time_run
-    if (RASSI_time_run.eq.0) then ! Need to run RASSI for this timestep still
-      Run_rassi=.True.
-    else if (RASSI_time_run.eq.1) then
-      Run_rassi=.False. ! RASSI already run for this timestep
+    !write(u6,*) 'RASSI_time_run variable = ',RASSI_time_run
+    if (RASSI_time_run == 0) then ! Need to run RASSI for this timestep still
+      Run_rassi = .true.
+    else if (RASSI_time_run == 1) then
+      Run_rassi = .false. ! RASSI already run for this timestep
     else
       write(u6,*) 'Problem checking if RASSI previously run'
-      call Finish(_RC_INTERNAL_ERROR_)
+      call Abend()
     end if
   end if
 
-! return to call RASSI in surfacehop.f90 if not yet run
+  ! return to call RASSI in surfacehop.f90 if not yet run
 
   if (Run_rassi) then
     write(u6,*) 'Calling RASSI...'
-    RASSI_time_run=1
-    call put_iscalar('SH RASSI run', RASSI_time_run)
+    RASSI_time_run = 1
+    call put_iscalar('SH RASSI run',RASSI_time_run)
     return
   else
     write(u6,*) 'RASSI already called, continuing...'
-    RASSI_time_run=0 ! Reset for next iteration
-    call put_iscalar('SH RASSI run', RASSI_time_run)
+    RASSI_time_run = 0 ! Reset for next iteration
+    call put_iscalar('SH RASSI run',RASSI_time_run)
     write(u6,*) ''
     call get_dArray('State Overlaps',readOVLP,NSTATE*2*NSTATE*2)
-!    do i=1,NSTATE*NSTATE*NSTATE*NSTATE
-!      write(u6,*) readOVLP(i)
-!    end do
+    !do i=1,NSTATE**4
+    !  write(u6,*) readOVLP(i)
+    !end do
     do t=1,NSTATE
       do tt=1,NSTATE
-        o=((2*t-1)*NSTATE)+tt
-        currOVLP_ras(tt,t)=readOVLP(o)  ! Transpose to match RASSI printed version
-        currOVLP_ras_2(tt,t)=readOVLP(o)  ! Make extra copy for root flipping correction
+        o = ((2*t-1)*NSTATE)+tt
+        currOVLP_ras(tt,t) = readOVLP(o)  ! Transpose to match RASSI printed version
+        currOVLP_ras_2(tt,t) = readOVLP(o)  ! Make extra copy for root flipping correction
       end do
     end do
   end if
@@ -204,7 +201,6 @@ do i=1,NSTATE
   write(u6,*) (Amatrix(i,j),j=1,NSTATE,1)
 end do
 
-
 ! Timestep:                      DT
 ! Total Energy                   Etot
 ! Coefficients:                  CIBigArray(i)      length = NCI*NSTATE
@@ -228,14 +224,14 @@ end do
 ! of the energy difference
 
 if (.not. rassi_ovlp) then
-! Original sign corrector/root reordering using CI vector product
+  ! Original sign corrector/root reordering using CI vector product
   write(u6,*) 'Using CI vector products for sign correction/root ordering'
   do i=1,NSTATE
     tempVector(i) = abs(Venergy(i)-Venergy(irlxRoot))
     tempVector2(i) = abs(Venergy(i)-Venergy(irlxRoot))
   end do
 
-! then I sort one of them, (relaxroot becomes first, it's zero)
+  ! then I sort one of them, (relaxroot becomes first, it's zero)
 
   do j=1,(NSTATE-1)
     do k=(j+1),NSTATE
@@ -290,9 +286,9 @@ if (.not. rassi_ovlp) then
 
 else
 
-! Sign correction and root reordering using RASSI overlap matrix <t-dt|t>
-! currOVLP has sign/root correction applied so |t> is changed - to match with prevOVLP
-! saveOVLP has sign/root correction applied so <t-dt| is changed - to match with next timesteps calculated overlap
+  ! Sign correction and root reordering using RASSI overlap matrix <t-dt|t>
+  ! currOVLP has sign/root correction applied so |t> is changed - to match with prevOVLP
+  ! saveOVLP has sign/root correction applied so <t-dt| is changed - to match with next timesteps calculated overlap
   write(u6,*) ''
   write(u6,*) 'Using RASSI overlap matrix for sign correction/root ordering'
 
@@ -310,7 +306,7 @@ else
       end if
     end do
     if (root_ovlp < 0.4) then
-      write(u6,*) 'WARNING: No overlap greater than 0.4 for root:', i
+      write(u6,*) 'WARNING: No overlap greater than 0.4 for root:',i
     end if
     if (root_ovlp_el /= i) then
       write(u6,*) 'Root rotation detected'
@@ -329,7 +325,7 @@ else
   ! Sign correction
   do i=1,NSTATE
     if (currOVLP(i,i) < 0) then
-      write(u6,*) 'Correcting sign for root', i
+      write(u6,*) 'Correcting sign for root',i
       do ii=1,NSTATE
         currOVLP(i,ii) = -currOVLP(i,ii)
       end do
@@ -356,11 +352,11 @@ else
         root_ovlp = abs(currOVLP_ras_2(i,j))
       end if
     end do
-!    if (root_ovlp < 0.4) then
-!      write(u6,*) 'WARNING: No overlap greater than 0.4 for root:', i
-!    end if
+    !if (root_ovlp < 0.4_wp) then
+    !  write(u6,*) 'WARNING: No overlap greater than 0.4 for root:', i
+    !end if
     if (root_ovlp_el /= i) then
-!      write(u6,*) 'Root rotation detected'
+      !write(u6,*) 'Root rotation detected'
       do ii=1,NSTATE
         saveOVLP(ii,i) = currOVLP_ras_2(ii,root_ovlp_el)
         currOVLP_ras_2(ii,root_ovlp_el) = currOVLP_ras_2(ii,i)
@@ -381,7 +377,6 @@ else
       end do
     end if
   end do
-
 
 end if
 !                                                                       !
@@ -423,7 +418,7 @@ if_normaltully: if (normalTully) then
         end if
       end do
     end do
-!    write(u6,*) 'NOT YET IMPLEMENTED'
+    !write(u6,*) 'NOT YET IMPLEMENTED'
   end if
 
   normalTully = .false.
@@ -484,7 +479,7 @@ else if_normaltully
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= j) then
-          D32matrix(i,j) = (prevOVLP(i,j) - prevOVLP(j,i))/(2*DT)
+          D32matrix(i,j) = (prevOVLP(i,j)-prevOVLP(j,i))/(2*DT)
         else
           D32matrix(i,j) = Zero
         end if
@@ -495,7 +490,7 @@ else if_normaltully
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= j) then
-          D12matrix(i,j) = (currOVLP(i,j) - currOVLP(j,i))/(2*DT)
+          D12matrix(i,j) = (currOVLP(i,j)-currOVLP(j,i))/(2*DT)
         else
           D12matrix(i,j) = Zero
         end if
@@ -516,8 +511,6 @@ else if_normaltully
   end do
 
 end if if_normaltully
-
-
 
 ! UNCOMMENT to print coefficients !!!
 ! Just a few coefficients
@@ -555,8 +548,8 @@ else
       iseed = InitSeed ! initial seed read from input
       write(u6,*) 'Seed number read from input file: ',iseed
     end if
-  ! or generate a new random seed number
   else
+    ! or generate a new random seed number
     call date_and_time(date,time,zone,values)
     ! Just milliseconds multiplied by seconds
     iseed = ((values(7)+1)*values(8)+1)
@@ -795,27 +788,27 @@ end if
 
 ! scale velocities
 !
-! call get_dArray('Velocities',vel,nsAtom*3)
+!call get_dArray('Velocities',vel,nsAtom*3)
 !
-! write(u6,*) 'Velocities before Hop:'
-! do i=1,nsAtom
-!   write(u6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
-! end do
-! EKIN=Etot-Venergy(iRlxRoot)
-! EKIN_target=Etot-Venergy(temproot)
-! scalfac=sqrt(Ekin_target/Ekin)
-! write(u6,*) Etot,Venergy(iRlxRoot),Venergy(temproot),EKIN,EKIN_target,scalfac
-! do i=1,nsAtom
-!   do j=1,3
-!     vel(3*(i-1)+j)=scalfac*vel(3*(i-1)+j)
-!   end do
-! end do
-! write(u6,*) 'Velocities after Hop:'
-! do i=1,nsAtom
-!   write(u6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
+!write(u6,*) 'Velocities before Hop:'
+!do i=1,nsAtom
+!  write(u6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
+!end do
+!EKIN = Etot-Venergy(iRlxRoot)
+!EKIN_target = Etot-Venergy(temproot)
+!scalfac = sqrt(Ekin_target/Ekin)
+!write(u6,*) Etot,Venergy(iRlxRoot),Venergy(temproot),EKIN,EKIN_target,scalfac
+!do i=1,nsAtom
+!  do j=1,3
+!    vel(3*(i-1)+j) = scalfac*vel(3*(i-1)+j)
 !  end do
+!end do
+!write(u6,*) 'Velocities after Hop:'
+!do i=1,nsAtom
+!  write(u6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
+!end do
 !
-! call put_dArray('Velocities',vel,nsAtom*3)
+!call put_dArray('Velocities',vel,nsAtom*3)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !
@@ -830,7 +823,7 @@ call put_zarray('AmatrixV',Amatrix,NSTATE*NSTATE)
 
 if (rassi_ovlp) then
   call Put_dArray('SH_Ovlp_Save',saveOVLP,NSTATE*NSTATE)
-endif
+end if
 !                                                                      !
 !                           END SAVING                                 !
 !                                                                      !

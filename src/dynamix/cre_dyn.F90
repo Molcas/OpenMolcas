@@ -156,7 +156,6 @@ if (Found) then
   call mh5_close_dset(surf_dsetid)
 end if
 
-
 ! Read number of states and configurations from rasscf.h5 file
 wfn_fileid = mh5_open_file_r('RASWFN')
 if (mh5_exists_attr(wfn_fileid,'NSTATES') .and. mh5_exists_attr(wfn_fileid,'NCONF')) then

@@ -37,7 +37,12 @@ Module nq_Info
       Integer OffBas(0:7),OffBasFro(0:7),OffPUVX(0:7)
       INTEGER OffUVX(0:7,0:7,0:7),nUVX(0:7,0:7,0:7)
       INTEGER OffVX(0:7,0:7),nVX(0:7,0:7)
-#include "functional_types.fh"
+      Integer, Parameter ::                                             &
+     &          Other_Type    =0,                                       &
+     &          LDA_Type      =1,                                       &
+     &          GGA_Type      =2,                                       &
+     &          meta_GGA_Type1=3,                                       &
+     &          meta_GGA_Type2=4
       Integer Grid_Type, Fixed_Grid, Moving_Grid
       Parameter(Fixed_Grid=0,Moving_Grid=1)
       Integer Angular_Prunning, On, Off, Rotational_Invariance,         &

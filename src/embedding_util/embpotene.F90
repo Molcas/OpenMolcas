@@ -197,13 +197,9 @@ end function embPotEneMODensities
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !call Square(inMatrix,unpackedMatrix,1,nBasFunc,nBasFunc)
 !! stefan: check T (transpose) whether it is correct...
-!call DGEMM_('T','N',nBasFunc,nBasFunc,nBasFunc, &
-!            One,unpackedMatrix,nBasFunc, &
-!            coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc, &
-!            Zero,halfTrafoMat,nBasFunc)
-!call DGEMM_Tri('T','N',nBasFunc,nBasFunc,nBasFunc,                    &
-!               One,halfTrafoMat,nBasFunc,                             &
-!                   coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc,  &
+!call DGEMM_('T','N',nBasFunc,nBasFunc,nBasFunc,One,unpackedMatrix,nBasFunc,coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc,Zero, &
+!            halfTrafoMat,nBasFunc)
+!call DGEMM_Tri('T','N',nBasFunc,nBasFunc,nBasFunc,One,halfTrafoMat,nBasFunc,coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc, &
 !               Zero,outMatrix,nBasFunc)
 !
 !call mma_deallocate(unpackedMatrix)

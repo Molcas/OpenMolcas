@@ -8,7 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module SpinAV
-Real*8, Allocatable :: DSc(:)
-Logical :: Do_SpinAV=.FALSE.
-End Module SpinAV
+
+module SpinAV
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+logical(kind=iwp) :: Do_SpinAV=.FALSE.
+real(kind=wp), allocatable :: DSc(:)
+
+public :: Do_SpinAV, DSc
+
+end module SpinAV

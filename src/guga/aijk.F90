@@ -15,7 +15,8 @@
 
 subroutine AIJK(ITAI,L0,L1,L2,L3)
 
-use guga_global, only: ICH, IOUT, IRC, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
+use guga_global, only: IADD10, ICH, IOUT, IRC, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
+use guga_util_global, only: COP, ICOP1, nCOP
 use Definitions, only: iwp, u6
 
 #include "intent.fh"
@@ -23,7 +24,6 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
 integer(kind=iwp), intent(in) :: L0(*), L1(*), L2(*), L3(*)
-#include "cop.fh"
 integer(kind=iwp) :: I, II, IID, IND, IT1, IT2, ITT1, ITT2, ITURN, J, JJ, JJD, K, L, NI, NJ, NK
 
 IOUT = 0

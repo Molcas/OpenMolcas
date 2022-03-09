@@ -26,20 +26,6 @@ RICD
 
 End Of Input
 
-* &RASSCF &END
-*Title
-* C2 singlet GS
-*FileOrb=$Project.InpOrb
-*Spin
-* 1
-*Nactel
-* 6 0 0
-*Inactive
-* 3
-*Ras2
-* 6
-*End Of Input
-
  &SCF &END
 FileOrb=$Project.RasOrb
 Title

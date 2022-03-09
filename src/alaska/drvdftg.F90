@@ -42,10 +42,9 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 #include "rctfld.fh"
 #include "disp.fh"
-integer(kind=iwp) :: iDFT, iDumm, iEnd, iI, iIrrep, IK, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nAct(nIrrep), nDens, ng1, ng2, &
-                     nRoots
-real(kind=wp) :: Dummy1(1), Dummy2(1), Dummy3(1), Dummy4, Dumm0(1), Dumm1(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
-logical(kind=iwp) :: First, Dff, Do_Grad, l_casdft
+integer(kind=iwp) :: iDFT, iEnd, iI, iIrrep, IK, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nAct(nIrrep), nDens, ng1, ng2, nRoots
+real(kind=wp) :: Dummy(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
+logical(kind=iwp) :: Do_Grad, l_casdft
 character(len=80) :: Label
 character(len=80) :: KSDFT
 character(len=8) Method
@@ -92,18 +91,15 @@ if (btest(iDFT,6)) then
 
   call StatusLine(' Alaska:',' Computing DFT gradients')
 
-  First = .true.
-  Dff = .false.
   call Get_cArray('DFT functional',KSDFT,80)
   ExFac = Zero ! Set to proper value at retrun!
   Do_Grad = .true.
   call Get_iScalar('Multiplicity',iSpin)
   !write(LuWr,*) 'DrvDFTg: KSDFT=',KSDFT
   !write(LuWr,*) 'DrvDFTg: ExFac=',ExFac
-  iDumm = 1
   call Get_cArray('Relax Method',Method,8)
   if (Method /= 'MSPDFT') then
-    call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
+    call DrvDFT(Dummy,nDens,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,DFTFOCK)
   else
     ! modifications for MS-PDFT gradient starting here
     call Get_iScalar('Number of roots',nRoots)
@@ -147,7 +143,7 @@ if (btest(iDFT,6)) then
         call Put_D1SAO(D1SAOMS((IK-1)*nDens+1),nDens)
       end if
       Temp2(:) = Zero
-      call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp2,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
+      call DrvDFT(Dummy,nDens,KSDFT,ExFac,Do_Grad,Temp2,nGrad,iSpin,DFTFOCK)
       jPrint = nPrint(112)
       if (jPrint >= 15) then
         Label = 'DFT Int Contribution'

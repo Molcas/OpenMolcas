@@ -13,7 +13,8 @@
 
 subroutine EMPTY(BUF,IBUF,LASTAD,SO,KBUF,NTPB)
 
-use guga_global, only: ICASE, ILIM, IOUT, IV0, JRC, LN, Lu_10, Lu_11, NBUF, NMAT
+use guga_global, only: IADD10, ICASE, ILIM, IOUT, IV0, JRC, LN, Lu_10, Lu_11, NBUF, NMAT
+use guga_util_global, only: COP, ICOP1, nCOP
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -24,7 +25,6 @@ integer(kind=iwp), intent(in) :: KBUF, LASTAD(*), NTPB
 real(kind=wp), intent(out) :: BUF(KBUF)
 integer(kind=iwp), intent(out) :: IBUF(KBUF+2)
 real(kind=wp), intent(_OUT_) :: SO(*)
-#include "cop.fh"
 integer(kind=iwp) :: I, IADR, ICLR, II, IIQQ, IJJ, IKK, IN_, IND, IOFF, IQ, ISUM, ITYP, IVL, IVL0, J, JJ, JJ1, JJ2, KK, LENGTH, NBX
 integer(kind=iwp), external :: ICUNP
 

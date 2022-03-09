@@ -68,6 +68,7 @@ set (sources
      xprop.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list
      isotopes.F90
      prppnt.F90
