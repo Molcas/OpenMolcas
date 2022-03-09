@@ -22,7 +22,8 @@
       use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
-      use rasscf_data, only : NRoots, iAdr15, NAc ! , wfn_dens, wfn_spindens
+      ! wfn_dens, wfn_spindens
+      use rasscf_data, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
       ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : one_el_idx, two_el_idx_flatten

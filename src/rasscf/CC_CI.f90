@@ -84,6 +84,8 @@ contains
 
         if (size(iroot) >= 2) then
             call abort_('SA-CC-CASSCF yet to be implemented.')
+            write(6,*) 'ifinal, weight have to be printed to compile NAGFOR.', &
+                ifinal, weight
         end if
 
         ! SOME DIRTY SETUPS

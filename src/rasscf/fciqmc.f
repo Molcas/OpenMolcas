@@ -35,7 +35,7 @@
       use rasscf_data, only: nAcPar, nAcPr2, nroots, iroot, weight
       use general_data, only: nSym, nConf
 
-      use CI_solver_util, only: wait_and_read, RDM_to_runfile
+      use CI_solver_util, only: wait_and_read
 
       use generic_CI, only: CI_solver_t
       use fciqmc_read_RDM, only: read_neci_RDM
