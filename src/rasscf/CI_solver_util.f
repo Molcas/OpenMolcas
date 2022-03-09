@@ -135,7 +135,7 @@
 *        ** ** ** ** ** ** ** 89  99
 *        ** ** ** ** ** ** ** 810 910 1010
 *        """""""""""""""""""""""""""""""""""
-* mimicking a system with (2 0 0 1 4 3 0 0)  actice orbitals (blocked by Irreps)
+* mimicking a system with (2 0 0 1 4 3 0 0)  active orbitals (blocked by Irreps)
 
 *           DMAT will be destroyed and replaced with a positive semi-definite one.
 *           N-representability will be preserved.

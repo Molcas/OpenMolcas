@@ -25,21 +25,23 @@ module spin_correlation
 
 contains
 
-  pure function spin_spin_correlation(spinfree_2rdm, spinfree_1rdm, &
+  pure function spin_spin_correlation(spinfree_2rdm, NActEl, &
         orb_range_i, orb_range_j) result(spin_correlation)
 
     !! spin-spin-correlation function using orbital-resolved 2RDMs.
     !! For details see Dobrautz et al. 2021, 10.1021/acs.jctc.1c00589.
 
-    real(dp), intent(in) :: spinfree_2rdm(:,:,:,:), spinfree_1rdm(:,:)
-    integer, intent(in) :: orb_range_i(:), orb_range_j(:)
+    real(dp), intent(in) :: spinfree_2rdm(:,:,:,:)
+    integer, intent(in) :: NActEl, orb_range_i(:), orb_range_j(:)
 
+    real(dp), allocatable :: spinfree_1rdm(NActEl,NActEl)
     real(dp) :: spin_correlation
     integer :: i, j
 
     spin_correlation = 0.0_dp
 
     ! spatial orbital labels p,q,r,s,...
+    spinfree_1rdm = contract_2rdm(spinfree_2rdm, NActEl)
     associate(ps => orb_range_i, qs => orb_range_j)
     do j = 1, size(ps)
       do i = 1, size(qs)
@@ -66,13 +68,12 @@ contains
     !! Calculate the spinfree-1-RDM by tracing out one particle of the
     !! 3-index spinfree TwoRDM D(x1, x1', x2, x2). For debug purposes only.
 
-    real(dp), intent(in) :: spinfree_2rdm(:,:,:,:)
+    real(dp), intent(in) :: spinfree_2rdm(nActEl,nActEl,nActEl,nActEl)
     integer, intent(in) :: nelec
 
-    real(dp), allocatable :: spinfree_1rdm(:,:)
+    real(dp), allocatable :: spinfree_1rdm(nActEl,nActEl)
     integer :: x, p, q
 
-    mma_allocate(spinfree_1rdm(nActEl, nActEl))
     spinfree_1rdm(:,:) = 0.0_dp
 
     do x = 1, size(spinfree_2rdm, dim=1)

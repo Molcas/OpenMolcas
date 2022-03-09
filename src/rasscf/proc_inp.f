@@ -966,6 +966,51 @@ C   No changing about read in orbital information from INPORB yet.
         Write(6,*) ' Response field will follow CISE root: ',ICIRFROOT
        End If
       End If
+*---  Process SSCR command --------------------------------------------*
+      if (keysscr) then
+        if (DBG) write(6,*) ' Spin-Spin-Correlation command was given.'
+        call SetPos(LUInput,'SSCR',Line,iRc)
+        if(iRc /=_RC_ALL_IS_WELL_) GoTo 9810
+        line=Get_Ln(LUInput)
+        line(80:80)='0'
+        ReadStatus=' Failure reading after Spin-Spin-Correlation keyword.'
+        Read(Line,*,Err=9920,End=9920) NOrbs,iall
+        ReadStatus=' O.K reading after Spin-Spin-Correlation keyword.'
+        if (NOrbs >= MXOrbs) then
+          WRITE(6,*) "Error: number of spatial orbitals exceeds maximum"
+          WRITE(6,*) "NOrbs = ", NOrbs
+          call abend()
+        end if
+        if (iall == 1) then
+          orb_range_i = [(i, i = 1, NOrbs)]
+          orb_range_j = [(i, i = 1, NOrbs)]
+        else
+          Line=Get_Ln(LUInput)
+          ReadStatus=' Failure reading after CIROOTS keyword.'
+          read(LUInput,*) (orb_range_i(i), i = 1, NOrbs)
+          read(LUInput,*) (orb_range_j(j), j = 1, NOrbs)
+          if (size(orb_range_i) /= orb_range_j) then
+            write(6,*) "error: numbers of spatial orbitals do not match"
+            write(6,*) "orb_range_i = ", orb_range_i
+            write(6,*) "orb_range_j = ", orb_range_j
+            call abend()
+          end if
+          do i = 1, NOrbs
+            do j = 1, NOrbs
+              if (orb_range_i(i) == orb_range_i(j)) then
+                write(6,*) "error: orbital range contains duplicates."
+                write(6,*) "orb_range_i = ", orb_range_i
+                call abend()
+              end if
+              if (orb_range_j(i) == orb_range_j(j)) then
+                write(6,*) "error: orbital range contains duplicates."
+                write(6,*) "orb_range_i = ", orb_range_i
+                call abend()
+              end if
+            end do
+          end do
+        end if
+      end if
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
       IF(KeyCIRO) Then
