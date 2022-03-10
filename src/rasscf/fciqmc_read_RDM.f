@@ -567,6 +567,7 @@
         if (err == 0) write(u6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
 
+#ifdef _HDF5_
       subroutine expand_1rdm(dmat, decompressed_dmat)
         ! Decompresses DMAT from subroutine read_neci_RDM from a
         ! linearised vector with symmetry into the full, redundant, 1RDM
@@ -590,6 +591,7 @@
           end do
         end do
       end subroutine expand_1rdm
+#endif
 
       ! Add your deallocations here. Called when exiting rasscf.
       subroutine cleanup()

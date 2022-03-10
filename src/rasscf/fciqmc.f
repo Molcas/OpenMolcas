@@ -235,7 +235,7 @@
             previous_NECIen(:) = 0.0_wp
         end if
         if (fake_run) then
-          NECIen = previous_NECIen
+          NECIen(:) = previous_NECIen(:)
         else if (DoEmbdNECI) then
             call make_inp(input_name, readpops=reuse_pops, tGUGA=tGUGA,
      &          GAS_spaces=GAS_spaces, GAS_particles=GAS_particles)
