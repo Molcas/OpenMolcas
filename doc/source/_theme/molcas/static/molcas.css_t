@@ -45,6 +45,10 @@ div.header, div.content, div.footer {
 
 /* Default body styles */
 
+* {
+  scrollbar-color: {{ theme_linkcolor }} {{ theme_faintcolor }} ;
+}
+
 a {
   color: {{ theme_linkcolor }};
 }
@@ -332,6 +336,7 @@ div.sidebar {
   font-size: 0.9em;
   background-color: {{ theme_sidebarbg }};
   color: {{ theme_sidebarcolor }};
+  scrollbar-color: {{ theme_sidebarcolor }} {{ theme_sidebarhlcolor }};
   padding: 1em;
   margin-top: -20px;
   border: solid {{ theme_headerbordercolor }};
