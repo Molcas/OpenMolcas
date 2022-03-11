@@ -216,16 +216,16 @@ C       call sqprt(work(iptrf),nbast)
 C
         !! Construct state-averaged density matrix
         Call DCopy_(nDRef,[0.0D+00],0,Work(ipWRK1),1)
-        Do iState = 1, nState
-          If (.not.IFSSDM) Then
+        If (IFSADREF) Then
+          Do iState = 1, nState
             Wgt  = 1.0D+00/nState
-          Else
-            Wgt = Work(LDWgt+iState-1+nState*(jState-1))
-          End If
-          If (abs(Wgt).le.1.0D-09) Cycle
-          Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
+            Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
+     *                  Work(ipWRK1),1)
+          End Do
+        Else
+          Call DaXpY_(nDRef,1.0D+00,Work(LDMix+nDRef*(jState-1)),1,
      *                Work(ipWRK1),1)
-        End Do
+        End If
         Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
 C       write(6,*) "state-averaged density matrix"
 C       call sqprt(work(iprdmsa),nasht)
@@ -670,7 +670,7 @@ C    *              0.0D+00,Work(ipRDMEIG),nAshT)
           Call DCopy_(nConf*nState,Work(ipCLag),1,Work(ipCLagT),1)
           Call DCopy_(nAshT**2,Work(ipRDMEIG),1,Work(ipEigT),1)
         End If
-        !! Use canonical CSFs rather than natural CSFs
+        !! Use canonical CSFs rather than natural CSFs in CLagEig
         ISAV = IDCIEX
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian

@@ -2903,7 +2903,7 @@ C
 C
       If (IfChol) Then
         Do JSYM=1,NSYM
-C         Call Get_Cholesky_Vectors(Aactive,Active,JSYM,
+C         Call Get_Cholesky_Vectors(Active,Active,JSYM,
 C    &                              Work(LBRA),nBra,
 C    &                              IBSTA,IBEND)
         END DO

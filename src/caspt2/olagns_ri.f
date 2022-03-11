@@ -2040,6 +2040,7 @@ C
       ICASE=12
       nINP = nINDEP(iSym,iCase)
       nASP = nASup(iSym,iCase)
+      nVec = 0
       If (nINP.ne.0) Then
         nISP = nISup(iSym,iCase)
         nVec = nINP*nISP
@@ -2131,7 +2132,7 @@ C
         ENDDO
       ENDDO
 C
-      CALL RHS_FREE(nINP,nISP,ipTP)
+      IF (nVec.ne.0) CALL RHS_FREE(nINP,nISP,ipTP)
 C
 C     ---- HM
 C
@@ -2139,6 +2140,7 @@ C
       ICASE=13
       nINM = nINDEP(iSym,iCase)
       nASM = nASup(iSym,iCase)
+      nVec = 0
       If (nINM.ne.0) Then
         nISM = nISup(iSym,iCase)
         nVec = nINM*nISM
@@ -2229,7 +2231,7 @@ C
         ENDDO
       ENDDO
 C
-      CALL RHS_FREE(nINM,nISM,ipTM)
+      If (nVec.ne.0) CALL RHS_FREE(nINM,nISM,ipTM)
 C
       Return
 C

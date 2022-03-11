@@ -159,6 +159,8 @@
           call PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
         end if
       end do
+C
+      If (IFGRDT) call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
 
 * Release all memory
       call getmem('CIREF','FREE','REAL',LCIREF,Nstate*NCONF)

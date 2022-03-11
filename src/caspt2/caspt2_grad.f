@@ -281,16 +281,16 @@ C
       End If
 C
       !! Add XDW-CASPT2 contributions: derivative of <alpha|H|beta> etc
-      If (IFDW) Then
-        !! OMGDER is computed in XMS basis, so back-transform to CASSCF
-        call sqprt(work(ipomgder),nstate)
-        Call DGEMM_('N','N',nState,nState,nState,
-     *              1.0D+00,U0,nState,Work(ipOMGDER),nState,
-     *              0.0D+00,UEFF,nState)
-        Call DGEMM_('N','T',nState,nState,nState,
-     *              1.0D+00,UEFF,nState,U0,nState,
-     *              0.0D+00,Work(ipOMGDER),nState)
-      End If
+C     If (IFDW) Then
+C       !! OMGDER is computed in XMS basis, so back-transform to CASSCF
+C       call sqprt(work(ipomgder),nstate)
+C       Call DGEMM_('N','N',nState,nState,nState,
+C    *              1.0D+00,U0,nState,Work(ipOMGDER),nState,
+C    *              0.0D+00,UEFF,nState)
+C       Call DGEMM_('N','T',nState,nState,nState,
+C    *              1.0D+00,UEFF,nState,U0,nState,
+C    *              0.0D+00,Work(ipOMGDER),nState)
+C     End If
 C
       !! Subtract the original rhs_sa.f or rhs_nac.f contribution
       !! For MS-type CASPT2, CASSCF part has to be determined by UEFF
