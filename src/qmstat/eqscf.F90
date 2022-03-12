@@ -654,18 +654,3 @@
 
       Return
       End
-
-
-!--------------------------------------------------------------------------*
-! A small internal subroutine to compute the Nemo exchange repulsion.      *
-!--------------------------------------------------------------------------*
-      Real*8 Function ExNemo(i,j,a)
-      Implicit Real*8 (a-h,o-z)
-#include "maxi.fh"
-#include "qminp.fh"
-      Real*8 a
-      Integer i,j
-!The function
-      ExNemo=Exp(-Sexrep(i,j)/a)*Sexre1(i,j)+Sexre2(i,j)*(a**20)
-      Return
-      End

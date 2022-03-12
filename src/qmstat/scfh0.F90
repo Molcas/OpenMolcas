@@ -212,13 +212,3 @@
 !
       Return
       End
-
-
-!
-!-- Little bastard.
-!
-      Integer Function iPair_qmstat(a,b)
-      Implicit Integer (a-z)
-      iPair_qmstat=(Max(a,b)*(Max(a,b)-1))/2+Min(a,b)
-      Return
-      End
