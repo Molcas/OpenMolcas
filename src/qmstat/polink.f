@@ -1,47 +1,47 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Ohrn                                            *
-************************************************************************
-*  Polink
-*
-*> @brief
-*>   Add the field from the QM-region onto the solvent. Include the field from the
-*>   polarizabilities in the solvent onto the QM-region.
-*>   (The effect of the static field is taken care of in hel.f)
-*> @author A. Ohrn
-*>
-*> @details
-*> To begin with we obtain the charge distribution of the QM-region
-*> as it exists due to the pressent density matrix (recall that it
-*> is the changes in the density matrix that causes the QM-region to
-*> be polarized). The field from these new multipoles are added on to
-*> solvent. We also include the reaction field from the QM-region.
-*> Then, with the new field from the QM-region included, we compute
-*> the field from the polarizabiolities in the solvent onto the QM-region,
-*> which is done just like in hel.f.
-*>
-*> @param[out]    Energy  The energy of the electrostatic interaction
-*> @param[in,out] iCall   An integer that tells if this is the first call in the iteration. Necessary for the copy of the one-particle Hamiltonian
-*> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
-*> @param[in]     iCi     Number of centers in QM-molecule
-*> @param[in]     iFil    Pointer to the static field from the solvent
-*> @param[out]    VpolMat The matrix due to polarization
-*> @param[in,out] fil     The field from the induced dipoles in the solvent
-*> @param[in]     polfac  A factor for the computation of the image
-*> @param[out]    poli    The solvent polarized field on QM-region
-*> @param[in]     iCstart Number to keep track of solvent molecules
-*> @param[in]     iTri    ``iOrb(1)*(iOrb(1)+1)/2``
-************************************************************************
-      Subroutine Polink(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac
-     &,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Ohrn                                            *
+!***********************************************************************
+!  Polink
+!
+!> @brief
+!>   Add the field from the QM-region onto the solvent. Include the field from the
+!>   polarizabilities in the solvent onto the QM-region.
+!>   (The effect of the static field is taken care of in hel.f)
+!> @author A. Ohrn
+!>
+!> @details
+!> To begin with we obtain the charge distribution of the QM-region
+!> as it exists due to the pressent density matrix (recall that it
+!> is the changes in the density matrix that causes the QM-region to
+!> be polarized). The field from these new multipoles are added on to
+!> solvent. We also include the reaction field from the QM-region.
+!> Then, with the new field from the QM-region included, we compute
+!> the field from the polarizabiolities in the solvent onto the QM-region,
+!> which is done just like in hel.f.
+!>
+!> @param[out]    Energy  The energy of the electrostatic interaction
+!> @param[in,out] iCall   An integer that tells if this is the first call in the iteration. Necessary for the copy of the one-particle Hamiltonian
+!> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
+!> @param[in]     iCi     Number of centers in QM-molecule
+!> @param[in]     iFil    Pointer to the static field from the solvent
+!> @param[out]    VpolMat The matrix due to polarization
+!> @param[in,out] fil     The field from the induced dipoles in the solvent
+!> @param[in]     polfac  A factor for the computation of the image
+!> @param[out]    poli    The solvent polarized field on QM-region
+!> @param[in]     iCstart Number to keep track of solvent molecules
+!> @param[in]     iTri    ``iOrb(1)*(iOrb(1)+1)/2``
+!***********************************************************************
+      Subroutine Polink(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac &
+     &,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP      &
      &,RoMat,xyzQuQ,CT)
       Implicit Real*8 (a-h,o-z)
 
@@ -50,16 +50,16 @@
 #include "qm1.fh"
 #include "WrkSpc.fh"
 
-      Dimension Fil(npart*npol,3),Qm(MxQCen),Dm(MxQCen,3),QQm(MxQCen,6)
-     &,Poli(MxQCen,10),Gunnar(10),Eil(MxPut*MxPol,3),xyzMyC(3),CofC(3)
-     &,VpolMat(MxOt),ChaNuc(MxAt),xyzMyQ(3),xyzMyI(3),xyzMyP(3)
+      Dimension Fil(npart*npol,3),Qm(MxQCen),Dm(MxQCen,3),QQm(MxQCen,6) &
+     &,Poli(MxQCen,10),Gunnar(10),Eil(MxPut*MxPol,3),xyzMyC(3),CofC(3)  &
+     &,VpolMat(MxOt),ChaNuc(MxAt),xyzMyQ(3),xyzMyI(3),xyzMyP(3)         &
      &,RoMat(MxOT)
       Dimension xyzQuQ(6),qQ(6),qD(6),qK(6),CT(3)
       Dimension iFil(MxQCen,10)
 
-*----------------------------------------------------------------------*
-* Begin with some zeros.                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Begin with some zeros.                                               *
+!----------------------------------------------------------------------*
       iCnum=iCStart/Ncent
       Do 2, i=1,iCi
         Qm(i)=0.0d0
@@ -75,12 +75,12 @@
           Eil(i,j)=0.0d0
 6645    Continue
 6644  Continue
-*----------------------------------------------------------------------*
-* Below we compute how the MME of the QM-molecule changes with the new *
-* density matrix Romat. What we actually do is a HF-SCF procedure with *
-* a MME-expanded density. A change in the density has the effect that  *
-* the set of multipoles in the MME are slightly perturbed.             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Below we compute how the MME of the QM-molecule changes with the new *
+! density matrix Romat. What we actually do is a HF-SCF procedure with *
+! a MME-expanded density. A change in the density has the effect that  *
+! the set of multipoles in the MME are slightly perturbed.             *
+!----------------------------------------------------------------------*
       Do 4, i=1,iTri
         Do 41, j=1,iCi
           Qm(j)=Cha(i,j)*Romat(i)+Qm(j)
@@ -123,12 +123,12 @@
         qQ(5)=qQ(5)+Qm(i)*(outxyz(i,2)-CT(2))*(outxyz(i,3)-CT(3))
         qQ(6)=qQ(6)+Qm(i)*(outxyz(i,3)-CT(3))*(outxyz(i,3)-CT(3))
         qD(1)=qD(1)+2*Dm(i,1)*(outxyz(i,1)-CT(1))
-        qD(2)=qD(2)+Dm(i,1)*(outxyz(i,2)-CT(2))
+        qD(2)=qD(2)+Dm(i,1)*(outxyz(i,2)-CT(2))                         &
      &             +Dm(i,2)*(outxyz(i,1)-CT(1))
-        qD(3)=qD(3)+Dm(i,1)*(outxyz(i,3)-CT(3))
+        qD(3)=qD(3)+Dm(i,1)*(outxyz(i,3)-CT(3))                         &
      &             +Dm(i,3)*(outxyz(i,1)-CT(1))
         qD(4)=qD(4)+2*Dm(i,2)*(outxyz(i,2)-CT(2))
-        qD(5)=qD(5)+Dm(i,2)*(outxyz(i,3)-CT(3))
+        qD(5)=qD(5)+Dm(i,2)*(outxyz(i,3)-CT(3))                         &
      &             +Dm(i,3)*(outxyz(i,2)-CT(2))
         qD(6)=qD(6)+2*Dm(i,3)*(outxyz(i,3)-CT(3))
         qK(1)=qK(1)+QQm(i,1)
@@ -171,16 +171,16 @@
           !no sign change, all in order with Boettcher, p.145.
         Energy=Energy+Polfac*xyzMyQ(i)*(xyzMyQ(i)+xyzMyi(i))
 9977  Continue
-*----------------------------------------------------------------------*
-* The multipoles of the QM-region, modified due to the polarization,   *
-* now interacts with each polarizability in the solvent.               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! The multipoles of the QM-region, modified due to the polarization,   *
+! now interacts with each polarizability in the solvent.               *
+!----------------------------------------------------------------------*
       Do 5, i=1,iCi
         Do 6, j=1+(nPol*iCnum),iAtom2
           Do 7, k=1,3
             Eil(j,k)=Eil(j,k)+Work(iFil(i,1)-1+j+(k-1)*nPart*nPol)*Qm(i)
             Do 8, l=1,3
-              Eil(j,k)=Eil(j,k)+Work(iFil(i,l+1)-1+j+(k-1)*nPart*nPol)
+              Eil(j,k)=Eil(j,k)+Work(iFil(i,l+1)-1+j+(k-1)*nPart*nPol)  &
      &                *Dm(i,l)
 8           Continue
          Eil(j,k)=Eil(j,k)+Work(iFil(i,5)-1+j+(k-1)*nPart*nPol)*QQm(i,1)
@@ -192,11 +192,11 @@
 7         Continue
 6       Continue
 5     Continue
-C...THIS IS LEBENSGEFAHRLICH (original comment says it all!)
-*----------------------------------------------------------------------*
-* We add up the field from the QM-region to the field on all the       *
-* solvent polarizabilities.                                            *
-*----------------------------------------------------------------------*
+!...THIS IS LEBENSGEFAHRLICH (original comment says it all!)
+!----------------------------------------------------------------------*
+! We add up the field from the QM-region to the field on all the       *
+! solvent polarizabilities.                                            *
+!----------------------------------------------------------------------*
       Do 10, i=1+(nPol*iCNum),iAtom2
         Iu=i-((i-1)/nPol)*nPol
         Do 11, j=1,3  !Here we add the QM-molecule image to the solvent
@@ -208,13 +208,13 @@ C...THIS IS LEBENSGEFAHRLICH (original comment says it all!)
                             !from the QM-region.
 11      Continue
 10    Continue
-*----------------------------------------------------------------------*
-* Now we wish to make the induced field from the solvent interact with *
-* the QM-region. The static field has already interacted in helstate.f.*
-* The reaction field of the QM-region in the dielectric cavity is      *
-* also included, excluding the quadrupoles and higher; they are        *
-* small anyway, so this is not a major restriction.                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Now we wish to make the induced field from the solvent interact with *
+! the QM-region. The static field has already interacted in helstate.f.*
+! The reaction field of the QM-region in the dielectric cavity is      *
+! also included, excluding the quadrupoles and higher; they are        *
+! small anyway, so this is not a major restriction.                    *
+!----------------------------------------------------------------------*
       Do 1801, i=1,10
         Gunnar(i)=0
 1801  Continue
@@ -222,7 +222,7 @@ C...THIS IS LEBENSGEFAHRLICH (original comment says it all!)
       Gunnar(3)=PolFac*(xyzMyP(2)+xyzMyQ(2)+xyzMyI(2)+xyzMyC(2))
       Gunnar(4)=PolFac*(xyzMyP(3)+xyzMyQ(3)+xyzMyI(3)+xyzMyC(3))
       Do 1304, l=1,iCi
-        Gunnar(1)=Gunnar(2)*outxyz(l,1)+Gunnar(3)*outxyz(l,2)
+        Gunnar(1)=Gunnar(2)*outxyz(l,1)+Gunnar(3)*outxyz(l,2)           &
      &           +Gunnar(4)*outxyz(l,3) !Potential from the apparent
         Do 1305, i=1,10          !surface charge, see Boettcher (4.22).
           Poli(l,i)=Gunnar(i)
@@ -231,7 +231,7 @@ C...THIS IS LEBENSGEFAHRLICH (original comment says it all!)
             Do 1307, k=1,3            !Compute the generalized field
                               !from induced dipoles in solvent on the
                               !QM-region cites.
-              Poli(l,i)=Poli(l,i)-Fil(j,k)*Pol(iu)
+              Poli(l,i)=Poli(l,i)-Fil(j,k)*Pol(iu)                      &
      &                 *Work(iFil(l,i)-1+j+(k-1)*nPart*nPol)
 1307        Continue
 1306      Continue
@@ -263,6 +263,6 @@ C...THIS IS LEBENSGEFAHRLICH (original comment says it all!)
 400   Continue
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(iCall)
       End

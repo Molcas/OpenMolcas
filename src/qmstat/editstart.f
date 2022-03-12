@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine EditStart
       Implicit Real*8 (a-h,o-z)
 
@@ -23,25 +23,25 @@
       Character Filstart*6,FilSlut*6,Head*200
       Logical Exist,ValidOrNot
 
-*
-*-- Inquire if file exists, and if so open it.
-*
+!
+!-- Inquire if file exists, and if so open it.
+!
       Write(FilStart,'(A5,i1.1)')'STFIL',NrStarti
       Call f_Inquire(FilStart,Exist)
       If(.not.Exist) then
         Write(6,*)
-        Write(6,*)'The input startfile given in the EDITstartfile'
+        Write(6,*)'The input startfile given in the EDITstartfile'      &
      &//' section was not found.'
         Call Quit(_RC_IO_ERROR_READ_)
       Endif
       iLu=73
       Call DaName(iLu,Filstart)
 
-*
-*-- Read header and coordinates.
-*
+!
+!-- Read header and coordinates.
+!
       iDisk=0
-      Call WrRdSim(iLu,2,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold
+      Call WrRdSim(iLu,2,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold         &
      &            ,GaOld,Esub)
       iDisk=iTcSim(1)
       Do 5,l=1,3
@@ -50,19 +50,19 @@
 5     Continue
       Call DaClos(iLu)
 
-*
-*-- Now take different paths depending of what user have requested in
-*   the input.
-*
+!
+!-- Now take different paths depending of what user have requested in
+!   the input.
+!
 
-*
-*-- If deleting solvent molecules.
-*
+!
+!-- If deleting solvent molecules.
+!
       If(DelOrAdd(1)) then
-*
-*----Find the solvent molecules fartherst away from origo and
-*    delete them.
-*
+!
+!----Find the solvent molecules fartherst away from origo and
+!    delete them.
+!
         Do 10, i=1,nDel
           rMax=0.0d0
           indMax=0
@@ -84,14 +84,14 @@
 50          Continue
 40        Continue
 10      Continue
-*
-*----Print the new set of coordinates to a startfile.
-*
+!
+!----Print the new set of coordinates to a startfile.
+!
         iLu=74
         Write(FilSlut,'(A5,i1.1)')'STFIL',NrStartu
         Call DaName(iLu,FilSlut)
         iDisk=0
-        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart-nDel,Gamold
+        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart-nDel,Gamold  &
      &              ,Gaold,Esub)
         iTcSim(1)=iDisk
         Do 70, l=1,3
@@ -99,12 +99,12 @@
           iTcSim(1+l)=iDisk
 70      Continue
         iDisk=0
-        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart-nDel,Gamold
+        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart-nDel,Gamold  &
      &              ,Gaold,Esub)
         Call DaClos(iLu)
-*
-*----If user wants, print print print.
-*
+!
+!----If user wants, print print print.
+!
         If(iPrint.ge.10) then
           Do 1001, i=1,(nPart-nDel)*nCent
             Coord(i,1)=Work(iC(1)+i-1)
@@ -116,9 +116,9 @@
         Endif
       Endif
 
-*
-*-- If adding solvent molecules.
-*
+!
+!-- If adding solvent molecules.
+!
       If(DelOrAdd(2)) then
         Do 301, i=1,nPart*nCent
           Coord(i,1)=Work(iC(1)+i-1)
@@ -126,26 +126,26 @@
           Coord(i,3)=Work(iC(3)+i-1)
 301     Continue
         If(nAdd.ne.0) then
-*---- Just an ugly trick for using nypart. It requires that the first
-*     slot contains the solvent coordinates, so we, temporarily, put
-*     them there.
+!---- Just an ugly trick for using nypart. It requires that the first
+!     slot contains the solvent coordinates, so we, temporarily, put
+!     them there.
           Do 3010, i=1,nCent
             Do 3011, j=1,3
               Coord(i,j)=Cordst(i,j)
 3011        Continue
 3010      Continue
-*---- Introduce the new particles. nPart is redefined.
+!---- Introduce the new particles. nPart is redefined.
           Call NyPart(nAdd,nPart,Coord,rStart,nCent,iSeed)
-*---- The ugly trick is reversed, and the first slot is retained.
+!---- The ugly trick is reversed, and the first slot is retained.
           Do 3012, i=1,nCent
             Do 3013, j=1,3
               Coord(i,j)=Work(iC(j)+i-1)
 3013        Continue
 3012      Continue
         Endif
-*
-*----Then dump new coordinates on designated startfile.
-*
+!
+!----Then dump new coordinates on designated startfile.
+!
         Do 3001, k=1,3
           Call GetMem('NewCoo','Allo','Real',iC2(k),nPart*nCent)
 3001    Continue
@@ -158,7 +158,7 @@
         Write(FilSlut,'(A5,i1.1)')'STFIL',NrStartu
         Call DaName(iLu,FilSlut)
         iDisk=0
-        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,RStart,nPart,Gamold
+        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,RStart,nPart,Gamold     &
      &              ,Gaold,Esub)
         iTcSim(1)=iDisk
         Do 270, l=1,3
@@ -166,7 +166,7 @@
           iTcSim(1+l)=iDisk
 270     Continue
         iDisk=0
-        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,RStart,nPart,Gamold
+        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,RStart,nPart,Gamold     &
      &              ,Gaold,Esub)
         Call DaClos(iLu)
         If(iPrint.ge.10) then
@@ -178,10 +178,10 @@
 3002    Continue
       Endif
 
-*
-*-- If requested, substitute all particles that are not of valid water
-*   geometry for, you guessed it, valid water molecules.
-*
+!
+!-- If requested, substitute all particles that are not of valid water
+!   geometry for, you guessed it, valid water molecules.
+!
       If(DelOrAdd(3)) then
         nRemoved=0
         Do 451, iPart=1,nPart
@@ -207,7 +207,7 @@
             dCMx=dCMx*(1.0d0/dble(nCent))
             dCMy=dCMy*(1.0d0/dble(nCent))
             dCMz=dCMz*(1.0d0/dble(nCent))
-*------ Check if the points are spread out, otherwise just delete.
+!------ Check if the points are spread out, otherwise just delete.
             dSpread=0.0d0
             Do 455, iCent=1,nCent
               dSpread=dSpread+(Work(iC(1)+ind+iCent-1)-dCMx)**2
@@ -236,14 +236,14 @@
           Endif
 451     Continue
         nPart=nPart-nRemoved
-*
-*----Print the new set of coordinates to a startfile.
-*
+!
+!----Print the new set of coordinates to a startfile.
+!
         iLu=74
         Write(FilSlut,'(A5,i1.1)')'STFIL',NrStartu
         Call DaName(iLu,FilSlut)
         iDisk=0
-        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold
+        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold       &
      &              ,Gaold,Esub)
         iTcSim(1)=iDisk
         Do 71, l=1,3
@@ -251,12 +251,12 @@
           iTcSim(1+l)=iDisk
 71      Continue
         iDisk=0
-        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold
+        Call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold       &
      &              ,Gaold,Esub)
         Call DaClos(iLu)
-*
-*----If user wants, print print print.
-*
+!
+!----If user wants, print print print.
+!
         If(iPrint.ge.10) then
           Do 1002, i=1,nPart*nCent
             Coord(i,1)=Work(iC(1)+i-1)
@@ -268,10 +268,10 @@
         Endif
       Endif
 
-*
-*-- If the user want to, print the coordinates in some format suitable
-*   for graphical representation.
-*
+!
+!-- If the user want to, print the coordinates in some format suitable
+!   for graphical representation.
+!
       If(DelOrAdd(4)) then
         If(cDumpForm(1:4).eq.'MOLD') then
           Do 444, iCent=1,nCent
@@ -283,15 +283,15 @@
         Endif
       Endif
 
-*
-*-- Deallocate.
-*
+!
+!-- Deallocate.
+!
       Do 501,l=1,3
         Call GetMem('Coordinates','Free','Real',iC(l),nPart*nCent)
 501   Continue
 
-*
-*-- This routine ends now!
-*
+!
+!-- This routine ends now!
+!
       Return
       End

@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
-*-- Subroutine with purpose to initialize and set defaults for the
-*   input section.
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+!-- Subroutine with purpose to initialize and set defaults for the
+!   input section.
+!
       Subroutine Qmstat_Init
       Implicit Real*8 (a-h,o-z)
 
@@ -19,7 +19,7 @@
 #include "qminp.fh"
 #include "files_qmstat.fh"
 
-*IO_stuff
+!IO_stuff
       StFilIn='STFIL0'
       SAFilIn='SAFIL0'
       StFilUt='STFIL0'
@@ -27,9 +27,9 @@
       BlockIn='BLOCIN'
       BlockUt='BLOCUT'
       SimEx='EXTRA0'
-*--Jose: File for the optimization procedure
+!--Jose: File for the optimization procedure
       FieldNuc='AVENUC'
-*--------
+!--------
       Do 101, i=1,MxJobs
         Write(JbName(i),'(A,i3.3)')'JOB',i
 101   Continue
@@ -48,7 +48,7 @@
       iLuBlockIn=3
       iLuBlockUt=4
       iRead=0
-*Defaults
+!Defaults
       nEqState=1
       Cut_Ex1=10.0d0
       Cut_Ex2=0.0d0
@@ -66,10 +66,10 @@
       NCENT = 5
       NPOL = 3
       NCHA = 4
-*Jose.Slater Penetration
+!Jose.Slater Penetration
       nSlSiteC=5
       lMltSlC=0
-*****
+!****
       nLvlShift=0
       Do 119, i=1,MxAt
         iExtr_Atm(i)=-1
@@ -81,7 +81,7 @@
       POL(1) = 5.932d0
       POL(2) = 0.641d0
       POL(3) = 0.641d0
-*Jose.Slater Penetration
+!Jose.Slater Penetration
       Cut_Elc=6.0d0
       DifSlExp=0.001d0
 
@@ -108,7 +108,7 @@
       SlPC(3)=1.0d0
       SlPC(4)=0.0d0
       SlPC(5)=0.0d0
-*******************************
+!******************************
       sExRep(1,1) = 2.092338000000000000d0
       sExRe1(1,1) = 158.998000000000000d0
       sExRe2(1,1) = 4.660090000000000d10
@@ -182,7 +182,7 @@
       MoAveRed=.false.
       lCiSelect=.false.
       EdSt=.false.
-*JoseMEP***** The dimension was increased from 8 to 12
+!JoseMEP***** The dimension was increased from 8 to 12
       Do 41, i=1,12
         DelOrAdd(i)=.false.
         lExtr(i)=.false.

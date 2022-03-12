@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine AOIntegrate(iCStart,nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C
-     &          ,iQ_Atoms,nAtomsCC,ipAOint,ipAOintpar,iV2,N,lmax
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine AOIntegrate(iCStart,nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C      &
+     &          ,iQ_Atoms,nAtomsCC,ipAOint,ipAOintpar,iV2,N,lmax        &
      &          ,Inside)
       Implicit Real*8 (a-h,o-z)
 
@@ -27,10 +27,10 @@
       Logical PrEne,PrOcc,Inside
       Dimension Dummy(1)
 
-*--------------------------------------------------------------------------*
-* Call Transrot. There we compute the rotation matrix for the classical    *
-* water under consideration. Used later.                                   *
-*--------------------------------------------------------------------------*
+!--------------------------------------------------------------------------*
+! Call Transrot. There we compute the rotation matrix for the classical    *
+! water under consideration. Used later.                                   *
+!--------------------------------------------------------------------------*
       Call TransRot(Cordst,N+1,Rot,Dx,Dy,Dz,Ax,Ay,Az)
       If(iPrint.ge.17) then
         Write(6,*)
@@ -39,11 +39,11 @@
         Write(6,*)(Rot(2,k),k=1,3)
         Write(6,*)(Rot(3,k),k=1,3)
       Endif
-*--------------------------------------------------------------------------*
-* Call OrbRot2. Given the rotation matrix (Rot) and the original MO-       *
-* coefficients, we transform them to new MO-coefficients. V2 is on input   *
-* the original MO-coefficients (stored in V3), and on output the rotated.  *
-*--------------------------------------------------------------------------*
+!--------------------------------------------------------------------------*
+! Call OrbRot2. Given the rotation matrix (Rot) and the original MO-       *
+! coefficients, we transform them to new MO-coefficients. V2 is on input   *
+! the original MO-coefficients (stored in V3), and on output the rotated.  *
+!--------------------------------------------------------------------------*
       Do 5201, iOrS=1,iOrb(2) !Collect original MO-coeff.
         Do 5202, iBaS=1,nBaseC
           V2(iBaS,iOrS)=V3(iBaS,iOrS)
@@ -71,7 +71,7 @@
 525     Continue
         Call NameRun('WRUNFIL')
         Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBaseC)
-        Call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC]
+        Call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC]       &
      &         ,iOrb(2),BsLbl,Dummy,Dummy,Work(ipPPP),3)
         Call GetMem('PrCMO','Free','Real',ipPPP,nBaseC*iOrb(2))
       Endif
@@ -88,17 +88,17 @@
         CasOri(2,m)=y+Dy
         CasOri(3,m)=z+Dz
 531   Continue
-*----------------------------------------------------------------------*
-* Compute overlap between the contracted basis functions on the water  *
-* molecule presently studied and the QM-molecule.                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Compute overlap between the contracted basis functions on the water  *
+! molecule presently studied and the QM-molecule.                      *
+!----------------------------------------------------------------------*
       Do i=1,nBaseQ
         Do j=1,nBaseC
           Sint(i,j)=0
           SintPar(i,j)=0
         Enddo
       Enddo
-      Call ContractOvl(Sint,SintPar,nBaseQ,nBaseC
+      Call ContractOvl(Sint,SintPar,nBaseQ,nBaseC                       &
      &    ,N,nCent,iEl,iQ_Atoms,nAtomsCC,iPrint,Inside)
       !To be able to use the fast matrix multiplication routine DGEMM_,
       !we have to put the Sint (and Sintpar) matrices in vector form.
@@ -113,7 +113,7 @@
 547   Continue
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
         Call Unused_integer(iCStart)
         Call Unused_integer(ipAOintpar)

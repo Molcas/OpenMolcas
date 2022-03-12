@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine AllenGinsberg(QMMethod,Eint,Poli,dNuc,Cha,Dip,Qua
-     &                        ,MxBaux,iVEC,nDim,iExtr_Atm,lEig,iEig
-     &                        ,iQ_Atoms,ip_ExpCento,E_Nuc_Part
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine AllenGinsberg(QMMethod,Eint,Poli,dNuc,Cha,Dip,Qua      &
+     &                        ,MxBaux,iVEC,nDim,iExtr_Atm,lEig,iEig     &
+     &                        ,iQ_Atoms,ip_ExpCento,E_Nuc_Part          &
      &                        ,lSlater,Eint_Nuc)
       Implicit Real*8 (a-h,o-z)
 
@@ -27,14 +27,14 @@
       Character QMMethod*5
       Logical lEig,Check1,Check2,lSlater
 
-*
-*-- Set up centre index set. The order of centres are decided by
-*   the MpProp-program and are hence collected in the get_center
-*   routine.
-*
-*
-*-- Atom centres
-*
+!
+!-- Set up centre index set. The order of centres are decided by
+!   the MpProp-program and are hence collected in the get_center
+!   routine.
+!
+!
+!-- Atom centres
+!
       Do 901, iAt=1,MxAt
         If(iExtr_Atm(iAt).eq.-1) then
           GoTo 902
@@ -45,9 +45,9 @@
       NExtrAt=iAt
 902   Continue
       NExtrAt=iAt-1
-*
-*-- Bond centres
-*
+!
+!-- Bond centres
+!
       kaunter=iQ_Atoms
       kaunt=NExtrAt
       Do 905, iAt=2,iQ_Atoms
@@ -65,37 +65,37 @@
           Endif
 906     Continue
 905   Continue
-*
-*-- A minor check.
-*
+!
+!-- A minor check.
+!
       NExpect=NExtrAt*(nExtrAt+1)/2
       NTotal=kaunt
       If(NTotal.ne.NExpect) then
         Write(6,*)
-        Write(6,*)' Error in atom specification for partial'
+        Write(6,*)' Error in atom specification for partial'            &
      &//' perturbation extraction.'
         Call Quit(_RC_GENERAL_ERROR_)
       Endif
 
-*
-*-- Compute partial nuclear contribution.
-*
+!
+!-- Compute partial nuclear contribution.
+!
       E_Nuc_Part=0.0d0
       Do 931, iAt=1,NExtrAt
         iCx=iCenSet(iAt)
         If(lSlater) then
-          E_Nuc_Part=E_Nuc_Part
+          E_Nuc_Part=E_Nuc_Part                                         &
      &         -(Eint_Nuc(iCx)+Poli(iCx,1))*dNuc(iCx)
         Else
-          E_Nuc_Part=E_Nuc_Part
+          E_Nuc_Part=E_Nuc_Part                                         &
      &         -(Eint(iCx,1)+Poli(iCx,1))*dNuc(iCx)
         Endif
 931   Continue
 
-*
-*-- Set up matrix elements for the partial perturbations.
-*   Compare with hel, helstate, polink and polins.
-*
+!
+!-- Set up matrix elements for the partial perturbations.
+!   Compare with hel, helstate, polink and polins.
+!
       Call GetMem('VelPart','Allo','Real',iVelP,nDim*(nDim+1)/2)
       Call GetMem('VpoPart','Allo','Real',iVpoP,nDim*(nDim+1)/2)
       call dcopy_(nDim*(nDim+1)/2,[ZERO],iZERO,Work(iVelP),iONE)
@@ -140,22 +140,22 @@
 912     Continue
 911   Continue
 
-*
-*-- Collect expectation value for the partial perturbation.
-*
-      Call Expectus(QMMethod,Work(iVelP),Work(iVelP),Work(iVpoP)
-     &             ,Work(iVpoP),MxBaux,iVEC,nDim,lEig,iEig
+!
+!-- Collect expectation value for the partial perturbation.
+!
+      Call Expectus(QMMethod,Work(iVelP),Work(iVelP),Work(iVpoP)        &
+     &             ,Work(iVpoP),MxBaux,iVEC,nDim,lEig,iEig              &
      &             ,ip_ExpCento)
 
-*
-*-- Deallocate.
-*
+!
+!-- Deallocate.
+!
       Call GetMem('VelPart','Free','Real',iVelP,nDim*(nDim+1)/2)
       Call GetMem('VpoPart','Free','Real',iVpoP,nDim*(nDim+1)/2)
 
-*
-*-- Howl
-*
+!
+!-- Howl
+!
 
       Return
       End

@@ -1,34 +1,34 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Ohrn                                            *
-************************************************************************
-*  ParaRoot
-*
-*> @brief
-*>   Manage the parallel tempering routine
-*> @author A. Ohrn
-*>
-*> @details
-*> If our system is difficult and has small transition elements
-*> in the Markov chain, we can use the parallel tempering to
-*> boost sampling. This routine is the root for this; it
-*> mainly handles the various configurations for the different
-*> temperature ensembles; also, manages the ensemble switch.
-*>
-*> @param[in]     Ract
-*> @param[in]     BetaBol
-*> @param[in]     Etot
-*> @param[in,out] CalledBefore
-*> @param[out]    SampleThis
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Ohrn                                            *
+!***********************************************************************
+!  ParaRoot
+!
+!> @brief
+!>   Manage the parallel tempering routine
+!> @author A. Ohrn
+!>
+!> @details
+!> If our system is difficult and has small transition elements
+!> in the Markov chain, we can use the parallel tempering to
+!> boost sampling. This routine is the root for this; it
+!> mainly handles the various configurations for the different
+!> temperature ensembles; also, manages the ensemble switch.
+!>
+!> @param[in]     Ract
+!> @param[in]     BetaBol
+!> @param[in]     Etot
+!> @param[in,out] CalledBefore
+!> @param[out]    SampleThis
+!***********************************************************************
       Subroutine ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)
       Implicit Real*8 (a-h,o-z)
       External Ranf
@@ -38,7 +38,7 @@
 #include "WrkSpc.fh"
 #include "constants.fh"
 
-*     Parameter (BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_)
+!     Parameter (BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_)
       Dimension iPermutation(2,MxParT)
       Dimension CordstTEMP(MxCen*MxPut,3)
       Logical CalledBefore,WeiterBitte,Accept,SampleThis
@@ -46,17 +46,17 @@
 
       BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
       Dum1=0.0d0
-*
-*-- If this is first time to call on this routine.
-*
+!
+!-- If this is first time to call on this routine.
+!
       If(.not.CalledBefore) then
         iTemp=0
         CalledBefore=.true.
       Endif
 
-*
-*-- See what to do.
-*
+!
+!-- See what to do.
+!
 999   Continue
       If(iTemp.lt.nTemp) then
         WeiterBitte=.true.
@@ -64,7 +64,7 @@
         Write(6,*)
         Write(6,*)'    Run a new temperature ensemble...',iTemp
 
-*----A logical variable to make parallel tempering sampling correct.
+!----A logical variable to make parallel tempering sampling correct.
         If(iTemp.eq.1) then
           SampleThis=.true.
         Else
@@ -78,24 +78,24 @@
         Write(6,*)'    Evaluate temperature ensemble interchanges.'
       Endif
 
-*
-*-- If we are to run a new ensemble.
-*
+!
+!-- If we are to run a new ensemble.
+!
       If(WeiterBitte) then
         iLuStIn=8+nStFilT(iTemp)
         iLuStUt=16+nStFilT(iTemp)
         Write(StFilIn(6:6),'(i1.1)')nStFilT(iTemp)
         Write(StFilUt(6:6),'(i1.1)')nStFilT(iTemp)
 
-*---- Collect coordinates from proper startfile.
+!---- Collect coordinates from proper startfile.
         Call Get8(Ract,Etot)
 
-*---- Set temperature.
+!---- Set temperature.
         BetaBol=1.0d0/(ParaTemps(iTemp)*BoltzK)
 
-*
-*-- If we are to attempt interchanges.
-*
+!
+!-- If we are to attempt interchanges.
+!
       Else
 
         Do 10, iPa=1,MxParT
@@ -103,8 +103,8 @@
           iPermutation(2,iPa)=iPa
 10      Continue
 
-*-- Construct permutations, treat nTemp.eq.2 as special case, the others
-*   are obtained with general algorithm.
+!-- Construct permutations, treat nTemp.eq.2 as special case, the others
+!   are obtained with general algorithm.
         If(nTemp.eq.2) then
           iPermutation(2,1)=2
           iPermutation(2,2)=1
@@ -120,7 +120,7 @@
             mTemp=nTemp
           Endif
 
-*------ Construct permutation for odd iMac
+!------ Construct permutation for odd iMac
           Do 12, iPa=1,mTemp,2
             iPermutation(2,iPa)=iPermutation(1,iPa+1)
             iPermutation(2,iPa+1)=iPermutation(1,iPa)
@@ -129,7 +129,7 @@
         Else
 
           mTemp=2*((nTemp-1)/2)
-*------ Contruct permutation for even iMac
+!------ Contruct permutation for even iMac
           Do 13, iPa=2,mTemp,2
             iPermutation(2,iPa)=iPermutation(1,iPa+1)
             iPermutation(2,iPa+1)=iPermutation(1,iPa)
@@ -138,9 +138,9 @@
 
 101     Continue
 
-*
-*-- Now attempt interchange.
-*
+!
+!-- Now attempt interchange.
+!
         iEnsemb=1
 2001    Continue
           If(iPermutation(1,iEnsemb).eq.iPermutation(2,iEnsemb)) then
@@ -148,7 +148,7 @@
             Go To 2001
           Endif
 
-*------ Collect energies for the permutations.
+!------ Collect energies for the permutations.
           iLuStIn=8+nStFilT(iPermutation(1,iEnsemb))
           iLuStUt=16+nStFilT(iPermutation(1,iEnsemb))
           Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(1,iEnsemb))
@@ -164,7 +164,7 @@
           B1=1.0d0/(BoltzK*T1)
           B2=1.0d0/(BoltzK*T2)
 
-*------ Make the Metropolis thing.
+!------ Make the Metropolis thing.
           BigDelta=(B2-B1)*(E2-E1)
           Expe=exp(BigDelta)
           Accept=.true.
@@ -174,7 +174,7 @@
           Endif
 
           If(Accept) then
-*-----Ct=C2
+!-----Ct=C2
             iLuStIn=8+nStFilT(iPermutation(2,iEnsemb))
             iLuStUt=16+nStFilT(iPermutation(2,iEnsemb))
             Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
@@ -185,7 +185,7 @@
                 CordstTEMP(j,i)=Cordst(j,i)
 222           Continue
 221         Continue
-*-----C2=C1
+!-----C2=C1
             iLuStIn=8+nStFilT(iPermutation(1,iEnsemb))
             iLuStUt=16+nStFilT(iPermutation(1,iEnsemb))
             Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(1,iEnsemb))
@@ -196,7 +196,7 @@
             Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
             Write(StFilUt(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
             Call Put8(R1,E1,Dum1,Dum1,Dum1)
-*-----C1=Ct
+!-----C1=Ct
             Do 223, i=1,3
               Do 224, j=1,nCent*nPart
                 Cordst(j,i)=CordstTEMP(j,i)
@@ -215,12 +215,12 @@
         If(iEnsemb.lt.nTemp) Go To 2001
         Write(6,*)
 
-*
-*-- Do some stuff before exit. The reason we go back up is that this
-*   way we will collect the right coordinates from first startfile.
-*   Observe that iTemp has been reset hence we are back at the
-*   square one again.
-*
+!
+!-- Do some stuff before exit. The reason we go back up is that this
+!   way we will collect the right coordinates from first startfile.
+!   Observe that iTemp has been reset hence we are back at the
+!   square one again.
+!
         Go To 999
 
       Endif

@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Ohrn                                            *
-************************************************************************
-*  MultiNew
-*
-*> @brief
-*>   Perform the MME in contracted AO-basis
-*> @author A. Ohrn
-*>
-*> @details
-*> (i) Read in the multipole integrals from Seward. (ii) Construct
-*> some data to simplify accessing the computed data. (iii) Make
-*> the actual MME.
-*>
-*> @note
-*> Requires numbers taken from ::qfread. We also need some integrals
-*> that supposedly have been computed by Seward.
-*>
-*> @param[in]  nAt      Number of atoms in QM-molecule
-*> @param[in]  nBas     Number of contracted basis functions
-*> @param[in]  nOcc     Number of basis functions of the \f$ i \f$ -th atom-type
-*> @param[in]  natyp    Number of atoms of the \f$ i \f$ -th atom-type
-*> @param[in]  nntyp    Number of atom-types
-*> @param[out] iMME     Pointer to the multicenter multipole expanded densities of unique pairs of contracted basis functions
-*> @param[out] iCenTri  Set of indices that tells to which center the \f$ i \f$ -th unique pair of basis functions in a lower triangulary stored matrix belongs
-*> @param[out] iCenTriT Just like \p iCenTri, but in square shape
-*> @param[out] nMlt     Highest multipole in MME
-*> @param[out] outxyz   Expansion centers in molecule
-************************************************************************
-      Subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Ohrn                                            *
+!***********************************************************************
+!  MultiNew
+!
+!> @brief
+!>   Perform the MME in contracted AO-basis
+!> @author A. Ohrn
+!>
+!> @details
+!> (i) Read in the multipole integrals from Seward. (ii) Construct
+!> some data to simplify accessing the computed data. (iii) Make
+!> the actual MME.
+!>
+!> @note
+!> Requires numbers taken from ::qfread. We also need some integrals
+!> that supposedly have been computed by Seward.
+!>
+!> @param[in]  nAt      Number of atoms in QM-molecule
+!> @param[in]  nBas     Number of contracted basis functions
+!> @param[in]  nOcc     Number of basis functions of the \f$ i \f$ -th atom-type
+!> @param[in]  natyp    Number of atoms of the \f$ i \f$ -th atom-type
+!> @param[in]  nntyp    Number of atom-types
+!> @param[out] iMME     Pointer to the multicenter multipole expanded densities of unique pairs of contracted basis functions
+!> @param[out] iCenTri  Set of indices that tells to which center the \f$ i \f$ -th unique pair of basis functions in a lower triangulary stored matrix belongs
+!> @param[out] iCenTriT Just like \p iCenTri, but in square shape
+!> @param[out] nMlt     Highest multipole in MME
+!> @param[out] outxyz   Expansion centers in molecule
+!***********************************************************************
+      Subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri        &
      &,iCenTriT,nMlt,outxyz,SlExpQ,lSlater)
       Implicit Real*8 (a-h,o-z)
 
@@ -50,7 +50,7 @@
       Dimension iX(6),iY(6),iMult(MxMltp,MxComp)
       Dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
       Dimension SlExpQ(MxMltp+1,MxQCen)
-*Jose.No Nuclear charges in Salter ,SlPQ(MxQCen)
+!Jose.No Nuclear charges in Salter ,SlPQ(MxQCen)
       Character MemLab*20,MMElab*20,ChCo*2,ChCo2*2
       Character*9 Integrals(3)
       Logical Lika, Changed1, Changed2, lSlater
@@ -58,9 +58,9 @@
       Data iY/1,2,3,2,3,3/
       Data Integrals/'MLTPL  0','MLTPL  1','MLTPL  2'/
       Dimension iDum(1)
-*----------------------------------------------------------------------*
-* Read the multipole integrals in contracted AO-basis.                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Read the multipole integrals in contracted AO-basis.                 *
+!----------------------------------------------------------------------*
       irc=-1
       Lu_One=49
       Lu_One=IsFreeUnit(Lu_One)
@@ -71,11 +71,11 @@
         Call Quit(_RC_IO_ERROR_READ_)
       Endif
 
-*
-*-- This loop will terminate when no more multipole integrals are
-*   available, hence there is not a problem that we apparently loop
-*   over MxMltpl, which is a fixed number.
-*
+!
+!-- This loop will terminate when no more multipole integrals are
+!   available, hence there is not a problem that we apparently loop
+!   over MxMltpl, which is a fixed number.
+!
       Do 100, iMlt=1,MxMltp
         nComp=iMlt*(iMlt+1)/2
         Do 101, iComp=1,nComp
@@ -87,7 +87,7 @@
           If(irc.ne.0) then
             If(iComp.ne.1) then
               Write(6,*)
-              Write(6,*)'ERROR! Failed to read number of one-electron i'
+              Write(6,*)'ERROR! Failed to read number of one-electron i'&
      &//'ntegrals.'
               Call Quit(_RC_IO_ERROR_READ_)
             Else  !Normal exit here.
@@ -103,7 +103,7 @@
             irc=-1
             iOpt=0
             iSmLbl=0
-            Call RdOne(irc,iOpt,integrals(iMlt),iComp
+            Call RdOne(irc,iOpt,integrals(iMlt),iComp                   &
      &               ,Work(iMult(iMlt,iComp)),iSmLbl) !Collect integrals
           Else
             Write(6,*)
@@ -118,12 +118,12 @@
 100   Continue
 199   Continue
 
-*----------------------------------------------------------------------*
-* Collect centers from preceeding MpProp calculation. Compute two      *
-* index vectors. First one gives index of atom on which the i:th basis *
-* function is centered. The other (iCenTri) gives to which center the  *
-* i:th unique basis function product belong.                           *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Collect centers from preceeding MpProp calculation. Compute two      *
+! index vectors. First one gives index of atom on which the i:th basis *
+! function is centered. The other (iCenTri) gives to which center the  *
+! i:th unique basis function product belong.                           *
+!----------------------------------------------------------------------*
       Call Get_Centers(nAt,xyz)
       kaunt=0
       Do 2001, i=1,nAt
@@ -141,16 +141,16 @@
           outxyz(kaunt,3)=xyz(i,j,3)
 2003    Continue
 2002  Continue
-*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
-*Jose. Collect data of the Slater representation of the Quantum System *
-* Prefactors, Exponents, PointNuclearCharges.                          *
-*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
+!Jose. Collect data of the Slater representation of the Quantum System *
+! Prefactors, Exponents, PointNuclearCharges.                          *
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
       If(lSlater) then
         Call Get_Slater(SlExpQ,LMltSlQ,outxyz,nAt)
 
         If(LMltSlQ+1.ne.nMlt) then
-        Write(6,*)'ERROR! Multipole order',LMltSlQ,' in DiffPr file is'
-     &//' different from order',nMlt-1,' in One-electron file. Check'
+        Write(6,*)'ERROR! Multipole order',LMltSlQ,' in DiffPr file is' &
+     &//' different from order',nMlt-1,' in One-electron file. Check'   &
      &//' your files.'
           Call Quit(_RC_GENERAL_ERROR_)
         Endif
@@ -215,21 +215,21 @@
 207     Continue
 206   Continue
 
-*----------------------------------------------------------------------*
-* Start the MME. To get a MME-dipole, we want <psi_i|x-x_o|psi_j> but  *
-* we have <psi_i|x-x_M|psi_j> where x_o is the chosen MME-center, while*
-* x_M is the center that Molcas uses. We transform in this manner:     *
-* <psi_i|x-x_o|psi_j>=<psi_i|x-x_M|psi_j>+(x_M-x_o)*<psi_i|psi_j>.     *
-* The quadrupole contains a further complication: not only must we     *
-* include more terms, but the dipole correction may not be the MME-    *
-* dipole due to that Molcas may not have used the same center for      *
-* dipoles and quadrupoles. Let have a look: <psi_i|(x-x_o)(y-y_o)|psi_j>=*
-* <psi_i|(x-x_M)(y-y_M)|psi_j>+(x_M-x_o)*<psi_i|y-y_M|psi_j>+...       *
-* But the last dipole term may need to be transformed further if y_M   *
-* for the quadrupoles are not the same as y_M for the dipoles. This is *
-* the explanation for the somewhat "sliskiga" expression below for the *
-* quadrupoles.                                                         *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Start the MME. To get a MME-dipole, we want <psi_i|x-x_o|psi_j> but  *
+! we have <psi_i|x-x_M|psi_j> where x_o is the chosen MME-center, while*
+! x_M is the center that Molcas uses. We transform in this manner:     *
+! <psi_i|x-x_o|psi_j>=<psi_i|x-x_M|psi_j>+(x_M-x_o)*<psi_i|psi_j>.     *
+! The quadrupole contains a further complication: not only must we     *
+! include more terms, but the dipole correction may not be the MME-    *
+! dipole due to that Molcas may not have used the same center for      *
+! dipoles and quadrupoles. Let have a look: <psi_i|(x-x_o)(y-y_o)|psi_j>=*
+! <psi_i|(x-x_M)(y-y_M)|psi_j>+(x_M-x_o)*<psi_i|y-y_M|psi_j>+...       *
+! But the last dipole term may need to be transformed further if y_M   *
+! for the quadrupoles are not the same as y_M for the dipoles. This is *
+! the explanation for the somewhat "sliskiga" expression below for the *
+! quadrupoles.                                                         *
+!----------------------------------------------------------------------*
       If(nMlt.gt.3) then  !This number is connected to for how high
                           !order of multipole we have implemented below.
         Write(6,*)
@@ -246,51 +246,51 @@
         Call GetMem(MMElab,'Allo','Real',iMME(iMlt),nSize)
 2101  Continue
 
-*
-*-- The MME.
-*
+!
+!-- The MME.
+!
       kaunt=0
       Do 211, iB1=1,nBas
         Do 212, iB2=1,iB1
-*
-*-- The charge. No translation.
-*
+!
+!-- The charge. No translation.
+!
           Work(iMME(1)+kaunt)=Work(iMult(1,1)+kaunt)
-*
-*-- The dipole. Translation gives rise to charge.
-*
+!
+!-- The dipole. Translation gives rise to charge.
+!
           Do 221, i=1,3
-            Corr=(CordMul(2,i)-xyz(nBasAt(iB1),nBasAt(iB2),i))
+            Corr=(CordMul(2,i)-xyz(nBasAt(iB1),nBasAt(iB2),i))          &
      &          *Work(iMult(1,1)+kaunt)
             Work(iMME(i+1)+kaunt)=Work(iMult(2,i)+kaunt)+Corr
 221       Continue
-*
-*-- The quadrupole. Translation gives rise to dipoles and charges.
-*   Also we have to keep track of the centers for the integrals computed
-*   by Seward.
-*
+!
+!-- The quadrupole. Translation gives rise to dipoles and charges.
+!   Also we have to keep track of the centers for the integrals computed
+!   by Seward.
+!
           Do 222, i=1,6
-          CorrDip1=(CordMul(3,iX(i))-xyz(nBasAt(iB1),nBasAt(iB2),iX(i)))
-     &            *(Work(iMult(2,iY(i))+kaunt)
-     &            +(CordMul(2,iY(i))-CordMul(3,iY(i)))
+          CorrDip1=(CordMul(3,iX(i))-xyz(nBasAt(iB1),nBasAt(iB2),iX(i)))&
+     &            *(Work(iMult(2,iY(i))+kaunt)                          &
+     &            +(CordMul(2,iY(i))-CordMul(3,iY(i)))                  &
      &            *Work(iMult(1,1)+kaunt))
-          CorrDip2=(CordMul(3,iY(i))-xyz(nBasAt(iB1),nBasAt(iB2),iY(i)))
-     &            *(Work(iMult(2,iX(i))+kaunt)
-     &            +(CordMul(2,iX(i))-CordMul(3,iX(i)))
+          CorrDip2=(CordMul(3,iY(i))-xyz(nBasAt(iB1),nBasAt(iB2),iY(i)))&
+     &            *(Work(iMult(2,iX(i))+kaunt)                          &
+     &            +(CordMul(2,iX(i))-CordMul(3,iX(i)))                  &
      &            *Work(iMult(1,1)+kaunt))
-          CorrOvl=(CordMul(3,iX(i))-xyz(nBasAt(iB1),nBasAt(iB2),iX(i)))
-     &           *(CordMul(3,iY(i))-xyz(nBasAt(iB1),nBasAt(iB2),iY(i)))
+          CorrOvl=(CordMul(3,iX(i))-xyz(nBasAt(iB1),nBasAt(iB2),iX(i))) &
+     &           *(CordMul(3,iY(i))-xyz(nBasAt(iB1),nBasAt(iB2),iY(i))) &
      &           *Work(iMult(1,1)+kaunt)
-          Work(iMME(i+4)+kaunt)=Work(iMult(3,i)+kaunt)
+          Work(iMME(i+4)+kaunt)=Work(iMult(3,i)+kaunt)                  &
      &                         +CorrDip1+CorrDip2+CorrOvl
 222       Continue
           kaunt=kaunt+1
 212     Continue
 211   Continue
 
-*
-*-- Deallocations.
-*
+!
+!-- Deallocations.
+!
       Do 301,iMlt=1,nMlt
         nComp=iMlt*(iMlt+1)/2
         Do 302, iComp=1,nComp

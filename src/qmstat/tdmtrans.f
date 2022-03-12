@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine TdmTrans(nBas)
       Implicit Real*8 (a-h,o-z)
 
@@ -25,15 +25,15 @@
 
       Logical Exist
 
-*
-*--- Sag hej till publiken.
-*
+!
+!--- Sag hej till publiken.
+!
       Write(6,*)
       Write(6,*)'     Transforming the transition density matrices.'
 
-*
-*--- Inquire if the ToFile is in WorkDir.
-*
+!
+!--- Inquire if the ToFile is in WorkDir.
+!
       Call f_Inquire(RassiM,Exist)
       If(.not.Exist) then
         Write(6,*)
@@ -49,24 +49,24 @@
         Call Quit(_RC_IO_ERROR_READ_)
       Endif
 
-*
-*--- Compute number of 'primitive' states.
-*
+!
+!--- Compute number of 'primitive' states.
+!
       nStatePrim=0
       Do 111, i=1,NrFiles
         nStatePrim=nStatePrim+NrStates(i)
 111   Continue
 
-*
-*--- Open EigV file and read information.
-*
+!
+!--- Open EigV file and read information.
+!
       Lu=92
       Call DaName(Lu,EigV)
       iDisk=0
 
-*
-*--- Read RASSCF overlap and H-matrix.
-*
+!
+!--- Read RASSCF overlap and H-matrix.
+!
       nSize=nStatePrim*(nStatePrim+1)/2
       Call GetMem('NonOrtH','Allo','Real',iNonH,nSize)
       Call GetMem('NonOrtS','Allo','Real',iNonS,nSize)
@@ -90,35 +90,35 @@
       Endif
       Call DaClos(Lu)
 
-*
-*--- Construct CASSI state basis.
-*
+!
+!--- Construct CASSI state basis.
+!
       Call ContRASBas(nBas,nStatePrim,iNonH,iNonS,iEig2)
       Call GetMem('NonOrtH','Free','Real',iNonH,nSize)
       Call GetMem('NonOrtS','Free','Real',iNonS,nSize)
 
-*
-*--- Now transform from 'primitive' RASSCF to 'contracted' RASSI states.
-*
+!
+!--- Now transform from 'primitive' RASSCF to 'contracted' RASSI states.
+!
       Call RasRasTrans(nBas(1),nStatePrim,iEig2,iPrint)
 
-*
-*--- If requested, obtain reduced MO-basis, otherwise just go as
-*    usual.
-*
+!
+!--- If requested, obtain reduced MO-basis, otherwise just go as
+!    usual.
+!
       If(MoAveRed) then
         Call MoReduce(nBas,nRedMO,ipAvRed)
         Write(TDMchar,'(A)')'TDMSCR'
         Call FetchTDM(nRedMO,nState,iBigT,TDMchar)
       Else
-        Write(6,*)'     ----- Use AO-representation of the transition'
+        Write(6,*)'     ----- Use AO-representation of the transition'  &
      &//' density matrix.'
         nRedMO=0 !Only a dummy.
       Endif
 
-*
-*--- Finished!
-*
+!
+!--- Finished!
+!
       Write(6,*)'     ...Done!'
 
       Return

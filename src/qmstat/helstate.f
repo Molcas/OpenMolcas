@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Ohrn                                            *
-************************************************************************
-*  HelState
-*
-*> @brief
-*>   Couple the electrostatic part of the solvent with the QM-region.
-*>   Only include the static part, no polarization at this moment
-*> @author A. Ohrn
-*>
-*> @note
-*> The quadrupoles are put in 'Buckingham-style'.
-*>
-*> @details
-*> Rather easy to follow. This subroutine is a slightly modified
-*> copy of hel.f. The interesting quantities are collected in
-*> \p Vmat and are later to be added to the 'RASSI-matrix'.
-*>
-*> @param[in]  Eint    Field from static part of solvent on the Qm-molecule centers
-*> @param[in]  nrstate Number of states in RASSI
-*> @param[in]  ici     Number of MME-centers
-*> @param[in]  Cha     Charges
-*> @param[in]  Dip     Dipoles
-*> @param[in]  Qua     Quadrupoles
-*> @param[out] Vmat    The electrostatic part of the solute-solvent interaction matrix
-*> @param[in]  iPrint  Print-level
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Ohrn                                            *
+!***********************************************************************
+!  HelState
+!
+!> @brief
+!>   Couple the electrostatic part of the solvent with the QM-region.
+!>   Only include the static part, no polarization at this moment
+!> @author A. Ohrn
+!>
+!> @note
+!> The quadrupoles are put in 'Buckingham-style'.
+!>
+!> @details
+!> Rather easy to follow. This subroutine is a slightly modified
+!> copy of hel.f. The interesting quantities are collected in
+!> \p Vmat and are later to be added to the 'RASSI-matrix'.
+!>
+!> @param[in]  Eint    Field from static part of solvent on the Qm-molecule centers
+!> @param[in]  nrstate Number of states in RASSI
+!> @param[in]  ici     Number of MME-centers
+!> @param[in]  Cha     Charges
+!> @param[in]  Dip     Dipoles
+!> @param[in]  Qua     Quadrupoles
+!> @param[out] Vmat    The electrostatic part of the solute-solvent interaction matrix
+!> @param[in]  iPrint  Print-level
+!***********************************************************************
       Subroutine HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat,iPrint)
       Implicit Real*8 (a-h,o-z)
 
@@ -73,6 +73,6 @@
 10    Continue
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(iPrint)
       End

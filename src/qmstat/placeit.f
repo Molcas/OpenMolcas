@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PlaceIt(Coord,iQ_Atoms,iCNum)
       Implicit Real*8 (a-h,o-z)
 
@@ -82,7 +82,7 @@
 52    Continue
 
       If(iPrint.ge.10) then  !Optional printing.
-        Write(Head,*)'Coordinates of the system after substitution and'
+        Write(Head,*)'Coordinates of the system after substitution and' &
      &//' reordening of solvent molecules.'
         Call Cooout(Head,Cordst,nPart,nCent)
       Endif
@@ -90,11 +90,11 @@
       Return
       End
 
-*----------------------------------------------------------------------*
-* With this function we wish to place the QM-molecule properly when we *
-* run with solvetn configurations from the sampfile. This we do by     *
-* making the center-of-masses to coincide.                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! With this function we wish to place the QM-molecule properly when we *
+! run with solvetn configurations from the sampfile. This we do by     *
+! making the center-of-masses to coincide.                             *
+!----------------------------------------------------------------------*
       Subroutine PlaceIt9(Coord,Cordst,info_atom,iQ_Atoms)
       Implicit Real*8 (a-h,o-z)
 

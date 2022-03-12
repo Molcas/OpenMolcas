@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine HaveWeConv(iCNum,iCStart,iQ_Atoms,Indma,iDT,FFp,xyzMyI
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine HaveWeConv(iCNum,iCStart,iQ_Atoms,Indma,iDT,FFp,xyzMyI &
      &,Egun,Energy,NVarv,JaNej,Haveri)
       Implicit Real*8 (a-h,o-z)
 
@@ -20,10 +20,10 @@
       Dimension FFp(npol*npart,3),xyzMyI(3)
       Logical JaNej,Haveri
 
-*----------------------------------------------------------------------*
-* With the new and the old induced dipoles, check if we have converged.*
-* We also have energy check.                                           *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! With the new and the old induced dipoles, check if we have converged.*
+! We also have energy check.                                           *
+!----------------------------------------------------------------------*
       JaNej=.true.
       Haveri=.false.
       Diffab=0
@@ -49,7 +49,7 @@
       If(nVarv.ge.itMax) then  !itMax is from input or default.
         Write(6,*)
         Write(6,*)'  No convergence for the induced dipoles.'
-        Write(6,*)'  Difference remaining after ',nVarv,' iterations: '
+        Write(6,*)'  Difference remaining after ',nVarv,' iterations: ' &
      &,Diffab
         Haveri=.true.
         iPrint=10
@@ -59,8 +59,8 @@
           imin=0
           Do 841, i=1,iq_atoms
             Do 843, k=0,ncent-1
-              dist=sqrt((cordst(i,1)-cordst(j+k,1))**2
-     &            +(cordst(i,2)-cordst(j+k,2))**2
+              dist=sqrt((cordst(i,1)-cordst(j+k,1))**2                  &
+     &            +(cordst(i,2)-cordst(j+k,2))**2                       &
      &            +(cordst(i,3)-cordst(j+k,3))**2)
               if(dist.lt.distmin) then
                 distmin=dist
@@ -69,7 +69,7 @@
               endif
 843         Continue
 841       Continue
-         Write(6,*)'solv.',j,'iq_atom',imin,'center',kmin+1
+         Write(6,*)'solv.',j,'iq_atom',imin,'center',kmin+1             &
      &            ,'dist',distmin
 842     Continue
         Write(6,*)

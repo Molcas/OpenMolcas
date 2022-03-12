@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine NiceOutPut(EelP,Gam,Gamma,BetaBol)
       Implicit Real*8 (a-h,o-z)
 
@@ -24,21 +24,21 @@
       Logical Eq,Pr,It,Cl,Qu
       External Len_TrimAO
 
-*
-*-- Enter.
-*
+!
+!-- Enter.
+!
 
-*
-*-- Make sure that the string is of correct length.
-*
+!
+!-- Make sure that the string is of correct length.
+!
       If(Len_TrimAO(EelP).ne.3) then
         Write(6,*)'Illegal call to NiceOutPut'
         Call Quit(_RC_INTERNAL_ERROR_)
       Endif
 
-*
-*-- Check what type of output that is requested.
-*
+!
+!-- Check what type of output that is requested.
+!
       Eq=.false.
       Pr=.false.
       It=.false.
@@ -50,19 +50,19 @@
       If(index(EelP,'C').ne.0) Cl=.true.
       If(index(EelP,'Q').ne.0) Qu=.true.
 
-*
-*-- Start printing!
-*
-*
-*-- With aid of concatenation, we here construct a header.
-*
+!
+!-- Start printing!
+!
+!
+!-- With aid of concatenation, we here construct a header.
+!
       Write(6,*)
       Write(6,*)
-      Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - - - -'
+      Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - - - -' &
      &//' - - - - - - - - - - - -'
-      Write(6,*)'  *   *   *   *   *   *   *   *   *   *   *   *   *  '
+      Write(6,*)'  *   *   *   *   *   *   *   *   *   *   *   *   *  ' &
      &//' *   *   *   *   *   * '
-      Write(6,*)' - - - - - - - - - - - - - - - - - - - - - - - - - - '
+      Write(6,*)' - - - - - - - - - - - - - - - - - - - - - - - - - - ' &
      &//'- - - - - - - - - - - -'
       Write(6,*)
       If(It) then
@@ -89,9 +89,9 @@
       iM3=Len_TrimAO(Word3)
       Write(6,*)Word1(1:iM1)//Word2(1:iM2)//Word3(1:iM3)
 
-*
-*-- Now dump a lot of information.
-*
+!
+!-- Now dump a lot of information.
+!
       If(It) then
         Write(6,*)
         Write(6,*)
@@ -101,14 +101,14 @@
         Write(6,12)'  Temperature(K)      Pressure(Atm.)   Permitivity'
         Write(6,13)Temp,Pres,Diel
         Write(6,12)'--Maximal MC-Step parameters'
-        Write(6,12)'  Translation(Ang.)   Rotation(deg.)   '
+        Write(6,12)'  Translation(Ang.)   Rotation(deg.)   '            &
      &//'Cavity Radius(Ang.)'
         Write(6,13)delX*Conver1,delFi/Conver2,delR*Conver1
         Write(6,12)'--Configuration data'
         Write(6,12)'  Initial conf.       Writing conf.    MC-Steps'
-        If(iNrIn.ge.0)
+        If(iNrIn.ge.0)                                                  &
      &  Write(6,14)iNrIn,iNrUt,nMicro*nMacro
-        If(iNrIn.lt.0)
+        If(iNrIn.lt.0)                                                  &
      &  Write(6,15)'   Random/Input',iNrUt,nMicro*nMacro
         If(QmType(1:4).ne.'RASS') then
         Write(6,12)'--Hartree-Fock simulation data'
@@ -138,11 +138,11 @@
         Endif
       Endif
       Write(6,*)
-      Write(6,*)' - - - - - - - - - - - - - - - - - - - - - - - - - - '
+      Write(6,*)' - - - - - - - - - - - - - - - - - - - - - - - - - - ' &
      &//'- - - - - - - - - - - -'
-      Write(6,*)'  *   *   *   *   *   *   *   *   *   *   *   *   *  '
+      Write(6,*)'  *   *   *   *   *   *   *   *   *   *   *   *   *  ' &
      &//' *   *   *   *   *   * '
-      Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - - - -'
+      Write(6,*)'- - - - - - - - - - - - - - - - - - - - - - - - - - -' &
      &//' - - - - - - - - - - - -'
       Write(6,*)
       If(iT) then
@@ -151,9 +151,9 @@
       Write(6,*)
       Endif
 
-*
-*-- Some formats
-*
+!
+!-- Some formats
+!
 11    Format('               ',A)
 12    Format('    ',A)
 13    Format('    ',3(F10.4,'        '))
@@ -165,11 +165,11 @@
 19    Format('    ',A,'               ',E11.4)
 20    Format('     ',E11.4,'           ',A)
 
-*
-*-- Tschuss
-*
+!
+!-- Tschuss
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
         Call Unused_real(Gam)
         Call Unused_real(Gamma)
@@ -178,10 +178,10 @@ c Avoid unused argument warnings
       End
 
 
-*-------------------------------------------------------------------------*
-* A subroutine that emulates the len_trim of later Fortran versions, but  *
-* that is missing in some Fortran 77 compilers.                           *
-*-------------------------------------------------------------------------*
+!-------------------------------------------------------------------------*
+! A subroutine that emulates the len_trim of later Fortran versions, but  *
+! that is missing in some Fortran 77 compilers.                           *
+!-------------------------------------------------------------------------*
       Integer Function Len_TrimAO(String)
       Character*(*) String
       Do 15,i=Len(String),1,-1

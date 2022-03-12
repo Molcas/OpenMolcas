@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
-*-- In this routine H_0 in RASSI basis is constructed, possibly with
-*   external perturbation added on.
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+!-- In this routine H_0 in RASSI basis is constructed, possibly with
+!   external perturbation added on.
+!
       Subroutine RasH0(nB)
       Implicit Real*8 (a-h,o-z)
 
@@ -36,9 +36,9 @@
         Write(6,*)'     -----RASSI H_0 eigenvalues:'
         Write(6,99)(DiagH0(k),k=1,nState)
       Else
-*
-*---- Collect one-electron perturbations.
-*
+!
+!---- Collect one-electron perturbations.
+!
         Lu_One=49
         Lu_One=IsFreeUnit(Lu_One)
         Call OpnOne(irc,0,'ONEINT',Lu_One)
@@ -47,7 +47,7 @@
           irc=-1
           iopt=0
           iSmLbl=0
-          Call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),Work(ipAOx)
+          Call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),Work(ipAOx) &
      &              ,iSmLbl)
           call dscal_(nBTri,ScalExt(iExt),Work(ipAOx),iONE)
           If(irc.ne.0) then
@@ -56,16 +56,16 @@
             Write(6,*)'Have Seward computed this integral?'
             Call Quit(_RC_IO_ERROR_READ_)
           Endif
-*
-*---- We need to know in which basis the TDM is and then transform
-*     the one-electron integrals to RASSI-basis.
-*
+!
+!---- We need to know in which basis the TDM is and then transform
+!     the one-electron integrals to RASSI-basis.
+!
           If(.not.MoAveRed) then
             Call GetMem('Transition','Allo','Real',ipAOG,nBTri)
             kaunter=0
             Do 102, iS1=1,nState
               Do 103, iS2=1,iS1
-                call dcopy_(nBTri,Work(iBigT+nBTri*kaunter),iONE
+                call dcopy_(nBTri,Work(iBigT+nBTri*kaunter),iONE        &
      &                    ,Work(ipAOG),iONE)
                 Element=Ddot_(nBTri,Work(ipAOG),iONE,Work(ipAOx),iONE)
                 kaunter=kaunter+1
@@ -81,15 +81,15 @@
             Call GetMem('SquareMO','Allo','Real',iSqMO,nRedMO**2)
             Call GetMem('MOExt','Allo','Real',ipMOx,nSize)
             Call Square(Work(ipAOx),Work(iSqAO),iONE,nB,nB)
-            Call Dgemm_('T','N',nRedMO,nB,nB,ONE,Work(ipAvRed)
+            Call Dgemm_('T','N',nRedMO,nB,nB,ONE,Work(ipAvRed)          &
      &                ,nB,Work(iSqAO),nB,ZERO,Work(iAUX),nRedMO)
-            Call Dgemm_('N','N',nRedMO,nRedMO,nB,ONE,Work(iAUX)
+            Call Dgemm_('N','N',nRedMO,nRedMO,nB,ONE,Work(iAUX)         &
      &                ,nRedMO,Work(ipAvRed),nB,ZERO,Work(iSqMO),nRedMO)
             Call SqToTri_Q(Work(iSqMO),Work(ipMOx),nRedMO)
             kaunter=0
             Do 104, iS1=1,nState
               Do 105, iS2=1,nState
-                call dcopy_(nSize,Work(iBigT+nSize*kaunter),iONE
+                call dcopy_(nSize,Work(iBigT+nSize*kaunter),iONE        &
      &                    ,Work(ipMOG),iONE)
                 Element=Ddot_(nSize,Work(ipMOG),iONE,Work(ipMOx),iONE)
                 kaunter=kaunter+1
@@ -105,9 +105,9 @@
 101     Continue
         Call GetMem('AOExt','Free','Real',ipAOx,nBTri+4)
         Call ClsOne(irc,Lu_One)
-*
-*-- If sufficient print level, print HmatState with perturbation added.
-*
+!
+!-- If sufficient print level, print HmatState with perturbation added.
+!
         If(iPrint.ge.5) then
           Write(6,*)
           Call TriPrt('H_0+External perturbation',' ',HmatState,nState)

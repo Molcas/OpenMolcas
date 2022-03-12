@@ -1,43 +1,43 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Ohrn                                            *
-************************************************************************
-*  OverLq
-*
-*> @brief
-*>   Compute overlap between primitve bases, which for bases of other type than s,
-*>   will mean that several overlaps between basis-functions are computed. One
-*>   function is on the solvent, the other in the QM-region. Observe that we do not
-*>   care about overlaps within the QM-region or among the solvent molecules.
-*> @author A. Ohrn
-*>
-*> @details
-*> Uses the formulas in \cite Tak1966-JPSJ-21-2313. It is hard to give any
-*> easy explanation, so if you want to understand exactly what is
-*> going on below, see the article, especially equations (2.4) and
-*> (2.12); then the source-code comments will provide you with
-*> sufficient information.
-*>
-*> @param[in]  Bori   Center for the QM-region contracted basis-function
-*> @param[in]  Cori   Like Bori, but for the solvent basis-function
-*> @param[in]  Alfa   Exponents for the primitive basis-functions that build this contracted function
-*> @param[in]  Beta   Like \p alfa, but for solvent
-*> @param[in]  iQ1    = ``1`` if s-type, = ``2`` if p-type, etc. for the function in the QM-region
-*> @param[in]  iQ2    Like \p iQ1, but for solvent function
-*> @param[in]  nExp1  How many primitives there are in this contracted function
-*> @param[in]  nExp2  Like \p nExp1, but for (surprise) the solvent
-*> @param[out] iPSint Pointer to the matrix of overlaps
-*> @param[in]  Trans  Transition matrix between Cartesian and spherical basis functions
-************************************************************************
-      Subroutine OverLq(Bori,Cori,Alfa,Beta,iQ1,iQ2,nExp1,nExp2,iPSint
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Ohrn                                            *
+!***********************************************************************
+!  OverLq
+!
+!> @brief
+!>   Compute overlap between primitve bases, which for bases of other type than s,
+!>   will mean that several overlaps between basis-functions are computed. One
+!>   function is on the solvent, the other in the QM-region. Observe that we do not
+!>   care about overlaps within the QM-region or among the solvent molecules.
+!> @author A. Ohrn
+!>
+!> @details
+!> Uses the formulas in \cite Tak1966-JPSJ-21-2313. It is hard to give any
+!> easy explanation, so if you want to understand exactly what is
+!> going on below, see the article, especially equations (2.4) and
+!> (2.12); then the source-code comments will provide you with
+!> sufficient information.
+!>
+!> @param[in]  Bori   Center for the QM-region contracted basis-function
+!> @param[in]  Cori   Like Bori, but for the solvent basis-function
+!> @param[in]  Alfa   Exponents for the primitive basis-functions that build this contracted function
+!> @param[in]  Beta   Like \p alfa, but for solvent
+!> @param[in]  iQ1    = ``1`` if s-type, = ``2`` if p-type, etc. for the function in the QM-region
+!> @param[in]  iQ2    Like \p iQ1, but for solvent function
+!> @param[in]  nExp1  How many primitives there are in this contracted function
+!> @param[in]  nExp2  Like \p nExp1, but for (surprise) the solvent
+!> @param[out] iPSint Pointer to the matrix of overlaps
+!> @param[in]  Trans  Transition matrix between Cartesian and spherical basis functions
+!***********************************************************************
+      Subroutine OverLq(Bori,Cori,Alfa,Beta,iQ1,iQ2,nExp1,nExp2,iPSint  &
      &                 ,Trans)
       Implicit Real*8 (a-h,o-z)
 
@@ -46,20 +46,20 @@
 #include "WrkSpc.fh"
 #include "warnings.h"
 
-* MaxAngqNr=4 means f-function is top. There is no limit in the
-* algorithm though, so if higher is needed, change this number.
+! MaxAngqNr=4 means f-function is top. There is no limit in the
+! algorithm though, so if higher is needed, change this number.
       Parameter(MaxAr=MxAngqNr*(MxAngqNr+1)/2)
       Dimension Bori(3),Cori(3),Alfa(MxCont),Beta(MxCont)
-      Dimension Trans(int(dble(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3
+      Dimension Trans(int(dble(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3&
      &                +3*MxAngqNr**4)/12))
       Dimension PAxyz(3),PBxyz(3),TheCent(3)
       Dimension FactorX(2*MxAngqNr+1),FactorY(2*MxAngqNr+1)
       Dimension FactorZ(2*MxAngqNr+1)
       Dimension nCartxQ(MaxAr),nCartyQ(MaxAr),nCartzQ(MaxAr)
       Dimension nCartxC(MaxAr),nCartyC(MaxAr),nCartzC(MaxAr)
-*----------------------------------------------------------------------*
-* Prepare some numbers for later.                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Prepare some numbers for later.                                      *
+!----------------------------------------------------------------------*
       ind=0
       nSpecific1=iQ1*(iQ1+1)/2 !Remember that each base consist of
       nSpecific2=iQ2*(iQ2+1)/2 !many functions - this is how many.
@@ -94,11 +94,11 @@
       Do 8, i=1,nBigP
         Work(iPSint+i-1)=0
 8     Continue
-      Separation=((Bori(1)-Cori(1))**2+(Bori(2)-Cori(2))**2
+      Separation=((Bori(1)-Cori(1))**2+(Bori(2)-Cori(2))**2             &
      &          +(Bori(3)-Cori(3))**2)
-*----------------------------------------------------------------------*
-* Start loop over primitives.                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Start loop over primitives.                                          *
+!----------------------------------------------------------------------*
       Kaunt=0
       Do 101, iP1=1,nExp1
         Do 102, iP2=1,nExp2
@@ -115,7 +115,7 @@
           Piconst=Piconst*SqPiconst  !That constant to the power of 3/2
           Expo=Alfa(iP1)*Beta(iP2)*Separation*Divide
           TheFirstFac=Piconst*exp(-Expo) !This is the exponential factor
-*Now we should get those difficult f-functions.
+!Now we should get those difficult f-functions.
           PAxyz(1)=TheCent(1)-Bori(1)
           PAxyz(2)=TheCent(2)-Bori(2)
           PAxyz(3)=TheCent(3)-Bori(3)
@@ -135,11 +135,11 @@
               loneZ=ncartzQ(iSp1)
               ltwoZ=ncartzC(iSp2)
               lsumZ=loneZ+ltwoZ
-              Call fFactor(loneX,ltwoX,lsumX,loneY,ltwoY,lsumY,loneZ
-     &                    ,ltwoZ,lsumZ,PAxyz,PBxyz,FactorX,FactorY
+              Call fFactor(loneX,ltwoX,lsumX,loneY,ltwoY,lsumY,loneZ    &
+     &                    ,ltwoZ,lsumZ,PAxyz,PBxyz,FactorX,FactorY      &
      &                    ,FactorZ)
-*Now we have the f-factors for this specific angular type of this
-*specific primitive basis-function. Now put things together.
+!Now we have the f-factors for this specific angular type of this
+!specific primitive basis-function. Now put things together.
               iUpX=lsumX/2 !Yes, it should be like this, even when lsumX
               iUpY=lsumY/2 !is odd.
               iUpZ=lsumZ/2
@@ -162,51 +162,51 @@
               Work(iPpS+kaunter-1)=Primequals
 104         Continue
 103       Continue
-*----------------------------------------------------------------------*
-* This was the overlap for the primitives in terms of cartesian        *
-* functions, but in the new qmstat we use spherical functions, so we   *
-* need to transform if any d-function or higher is involved. In the    *
-* matrix Trans the numbers for how spherical functions are expressed in*
-* cartesian functions are stored, including the extra normalization so *
-* that all d-functions (and higher) have the same combined contraction *
-* and normalization coefficient. The rest is just a matter of getting  *
-* the matrix multiplications right. The convention I use is this: The  *
-* matrix with the overlaps contain elements such as <psi_QM|psi_Solv>  *
-* in other words, the QM-orbitals count over the rows and the solvent  *
-* orbitals over the columns; observe however that this is NOT the way  *
-* the matrix enters from above, since there the fastest couting index  *
-* is over solvent orbitals (iSp2), so given this and the knowledge of  *
-* how Fortran stores multidimensional matrices, we can figure out when *
-* to transpose. All this means that if it is the QM-orbitals that are  *
-* to be transformed, the transformation matrix is multiplied from left,*
-* while it is multiplied from the right -- transposed of course -- if  *
-* it is the solvent orbitals that are to be transformed. In the case   *
-* that both orbitals are to be transformed we simply apply the trans-  *
-* formation matrix from both directions.                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! This was the overlap for the primitives in terms of cartesian        *
+! functions, but in the new qmstat we use spherical functions, so we   *
+! need to transform if any d-function or higher is involved. In the    *
+! matrix Trans the numbers for how spherical functions are expressed in*
+! cartesian functions are stored, including the extra normalization so *
+! that all d-functions (and higher) have the same combined contraction *
+! and normalization coefficient. The rest is just a matter of getting  *
+! the matrix multiplications right. The convention I use is this: The  *
+! matrix with the overlaps contain elements such as <psi_QM|psi_Solv>  *
+! in other words, the QM-orbitals count over the rows and the solvent  *
+! orbitals over the columns; observe however that this is NOT the way  *
+! the matrix enters from above, since there the fastest couting index  *
+! is over solvent orbitals (iSp2), so given this and the knowledge of  *
+! how Fortran stores multidimensional matrices, we can figure out when *
+! to transpose. All this means that if it is the QM-orbitals that are  *
+! to be transformed, the transformation matrix is multiplied from left,*
+! while it is multiplied from the right -- transposed of course -- if  *
+! it is the solvent orbitals that are to be transformed. In the case   *
+! that both orbitals are to be transformed we simply apply the trans-  *
+! formation matrix from both directions.                               *
+!----------------------------------------------------------------------*
           If(iQ1.ge.3.or.iQ2.ge.3) then !Check if any transformations
                                         !are necessary.
             If(iQ2.lt.3) then  !If only the base of the QM-region needs
                                !to be transformed.
               ind=1+(iQ1-3)*(3*iQ1**3+5*iQ1**2+12*iQ1+40)/12
-              Call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,ONE
-     &                  ,Trans(ind),nSph1,Work(iPps),nSpecific2,ZERO
+              Call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,ONE       &
+     &                  ,Trans(ind),nSph1,Work(iPps),nSpecific2,ZERO    &
      &                  ,Work(iPsphS),nSph1)
             Elseif(iQ1.lt.3) then !If only solvent base needs to be
                                   !transformed.
               ind=1+(iQ2-3)*(3*iQ2**3+5*iQ2**2+12*iQ2+40)/12
-              Call Dgemm_('T','T',nSph1,nSph2,nSpecific2,ONE
-     &                  ,Work(iPps),nSpecific2,Trans(ind),nSph2,ZERO
+              Call Dgemm_('T','T',nSph1,nSph2,nSpecific2,ONE            &
+     &                  ,Work(iPps),nSpecific2,Trans(ind),nSph2,ZERO    &
      &                  ,Work(iPsphS),nSph1)
             Else !Both QM-region and Solvent need to be transformed.
               ind1=1+(iQ1-3)*(3*iQ1**3+5*iQ1**2+12*iQ1+40)/12
               ind2=1+(iQ2-3)*(3*iQ2**3+5*iQ2**2+12*iQ2+40)/12
               Call GetMem('Intmd','Allo','Real',iPInte,nSph1*nSpecific2)
-              Call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,ONE
-     &                  ,Trans(ind1),nSph1,Work(iPps),nSpecific2,ZERO
+              Call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,ONE       &
+     &                  ,Trans(ind1),nSph1,Work(iPps),nSpecific2,ZERO   &
      &                  ,Work(iPInte),nSph1)
-              Call Dgemm_('N','T',nSph1,nSph2,nSpecific2,ONE
-     &                  ,Work(iPInte),nSph1,Trans(ind2),nSph2,ZERO
+              Call Dgemm_('N','T',nSph1,nSph2,nSpecific2,ONE            &
+     &                  ,Work(iPInte),nSph1,Trans(ind2),nSph2,ZERO      &
      &                  ,Work(iPsphS),nSph1)
               Call GetMem('Intmd','Free','Real',iPInte,nSph1*nSpecific2)
             Endif
@@ -219,16 +219,16 @@
 137           Continue
 136         Continue
           Endif
-*----------------------------------------------------------------------*
-* Put this thing in the slowly growing overlap matrix for the          *
-* primitive basis functions. The reason the index is so nasty is that  *
-* we compute small blocks of the matrix and now have to fit it in the  *
-* right place in the growing, much larger, matrix. Nasty!              *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Put this thing in the slowly growing overlap matrix for the          *
+! primitive basis functions. The reason the index is so nasty is that  *
+! we compute small blocks of the matrix and now have to fit it in the  *
+! right place in the growing, much larger, matrix. Nasty!              *
+!----------------------------------------------------------------------*
           krakna=0
           Do 141, j=0,nSph2-1
             Do 142, i=0,nSph1-1
-              jndex=i+j*nExp1*nSph1+(iP1-1)*nSph1
+              jndex=i+j*nExp1*nSph1+(iP1-1)*nSph1                       &
      &              +(iP2-1)*nExp1*nSph1*nSph2
               Work(iPSint+jndex)=Work(iPsphS+krakna)
               krakna=krakna+1
@@ -236,23 +236,23 @@
 141       Continue
 102     Continue
 101   Continue
-*----------------------------------------------------------------------*
-* Deallocate and ta'ta!                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Deallocate and ta'ta!                                                *
+!----------------------------------------------------------------------*
       Call GetMem('PrimCar','Free','Real',iPpS,nSizeCart)
       Call GetMem('PrimSph','Free','Real',iPsphS,nSizeSph)
 
       Return
       End
 
-*----------------------------------------------------------------------*
-* A function that returns the binomial coefficient. The coefficients   *
-* are stored since N and P will not under normal circumstances be      *
-* so large.                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! A function that returns the binomial coefficient. The coefficients   *
+! are stored since N and P will not under normal circumstances be      *
+! so large.                                                            *
+!----------------------------------------------------------------------*
       Integer Function NoverP_Q(N,P)
       Integer N,P,Bino(22)
-      Data (Bino(i),i=1,21)/1,1,1,1,2,1,1,3,3,1
+      Data (Bino(i),i=1,21)/1,1,1,1,2,1,1,3,3,1                         &
      &        ,1,4,6,4,1,1,5,10,10,5,1/
       NoverP_Q=1
       If(N.ge.6) then
@@ -264,12 +264,12 @@
       Endif
       Return
       End
-*----------------------------------------------------------------------*
-* A function that will return the double factorial. We do not expect   *
-* big numbers, so we do it brute-force. Observe that N must be odd, but*
-* to skip the if-sentence, we assume that the one who calls this       *
-* function has seen to that.                                           *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! A function that will return the double factorial. We do not expect   *
+! big numbers, so we do it brute-force. Observe that N must be odd, but*
+! to skip the if-sentence, we assume that the one who calls this       *
+! function has seen to that.                                           *
+!----------------------------------------------------------------------*
       Integer Function iDubFac(N)
       Integer N
       iDubFac=1
@@ -278,15 +278,15 @@
 1101  Continue
       Return
       End
-*----------------------------------------------------------------------*
-* A subroutine that computes those darn f-factors. They are definied   *
-* in equation (2.4) in the article cited above. As can be seen from    *
-* that equation, the computation of the f-factors is actually a matter *
-* of using the binomial theorem. This is what we do below and to make  *
-* the computation efficient the expression (2.4) is written as a       *
-* succint double sum.                                                  *
-*----------------------------------------------------------------------*
-      Subroutine fFactor(loneX,ltwoX,lsumX,loneY,ltwoY,lsumY,loneZ
+!----------------------------------------------------------------------*
+! A subroutine that computes those darn f-factors. They are definied   *
+! in equation (2.4) in the article cited above. As can be seen from    *
+! that equation, the computation of the f-factors is actually a matter *
+! of using the binomial theorem. This is what we do below and to make  *
+! the computation efficient the expression (2.4) is written as a       *
+! succint double sum.                                                  *
+!----------------------------------------------------------------------*
+      Subroutine fFactor(loneX,ltwoX,lsumX,loneY,ltwoY,lsumY,loneZ      &
      &                 ,ltwoZ,lsumZ,PAxyz,PBxyz,FactorX,FactorY,FactorZ)
       Implicit Real*8 (a-h,o-z)
 

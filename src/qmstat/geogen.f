@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Ohrn                                            *
-************************************************************************
-*  Geogen
-*
-*> @brief
-*>   Generate the new configuration in typical random manner
-*> @author A. Ohrn
-*>
-*> @details
-*> The creator of random geometries in typical Monte-Carlo fashion.
-*> The changes made are:
-*>
-*> 1. The dielectric radius is modified
-*> 2. Each coordinate *except* the \c iSta-1 -th molecule is changed
-*> 3. All molecules (with the above exception) are rotated around the oxygen (which approximately equals the CM)
-*> 4. Every molecule except the fixed ones are rotated slightly around one of the global \f$ x \f$-, \f$ y \f$- or \f$ z \f$-axes;
-*>    the purpose of this is to emulate a rotation of the central molecule and therefore make the system more dynamic.
-*>
-*> @param[in,out] Ract  The dielectric radius on input and the slightly perturbed radius on output
-*> @param[out]    Rold  Stores the input dielectric radius
-*> @param[in]     iCNum How many solvent places that are taken up by the QM-molecule
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Ohrn                                            *
+!***********************************************************************
+!  Geogen
+!
+!> @brief
+!>   Generate the new configuration in typical random manner
+!> @author A. Ohrn
+!>
+!> @details
+!> The creator of random geometries in typical Monte-Carlo fashion.
+!> The changes made are:
+!>
+!> 1. The dielectric radius is modified
+!> 2. Each coordinate *except* the \c iSta-1 -th molecule is changed
+!> 3. All molecules (with the above exception) are rotated around the oxygen (which approximately equals the CM)
+!> 4. Every molecule except the fixed ones are rotated slightly around one of the global \f$ x \f$-, \f$ y \f$- or \f$ z \f$-axes;
+!>    the purpose of this is to emulate a rotation of the central molecule and therefore make the system more dynamic.
+!>
+!> @param[in,out] Ract  The dielectric radius on input and the slightly perturbed radius on output
+!> @param[out]    Rold  Stores the input dielectric radius
+!> @param[in]     iCNum How many solvent places that are taken up by the QM-molecule
+!***********************************************************************
       Subroutine Geogen(Ract,Rold,iCNum,iQ_Atoms)
       Implicit Real*8 (a-h,o-z)
 
@@ -39,18 +39,18 @@
 
       Dimension Dq(3)
       External Ranf
-*------------------------------------------------------------------------*
-* Store old configuration.                                               *
-*------------------------------------------------------------------------*
+!------------------------------------------------------------------------*
+! Store old configuration.                                               *
+!------------------------------------------------------------------------*
       Do 12,i=1,nPart*nCent
         Do 13,j=1,3
           OldGeo(i,j)=Cordst(i,j)
 13      Continue
 12    Continue
-*------------------------------------------------------------------------*
-* Query which type of simulation this is, and if quantum then change     *
-* the quantum molecule.                                                  *
-*------------------------------------------------------------------------*
+!------------------------------------------------------------------------*
+! Query which type of simulation this is, and if quantum then change     *
+! the quantum molecule.                                                  *
+!------------------------------------------------------------------------*
       If(Qmeq.or.QmProd) then !Which coordinates to keep fixed.
         iSta=iCNum+1  !This sees to that the QM-molecule is excluded
                     !from the moves below.
@@ -63,9 +63,9 @@
 22        Continue
 21      Continue
       Endif
-*-----------------------------------------------------------------------*
-* Obtain the random-stuff and make small geometry change.               *
-*-----------------------------------------------------------------------*
+!-----------------------------------------------------------------------*
+! Obtain the random-stuff and make small geometry change.               *
+!-----------------------------------------------------------------------*
       Rold=Ract
       Ract=Ract+(ranf(iseed)-0.5)*DelR !Change in cavity radius
       Do 100, i=iSta,nPart !Which molecules to give new coordinates.
@@ -114,9 +114,9 @@
           Cordst(ij+k,2)=yNy+Cy
 113     Continue
 100   Continue
-*Here all other water molecules rotate around one of the three axes,
-*except the ones we fix, which in a qm-simulation is the
-*quantum particle.
+!Here all other water molecules rotate around one of the three axes,
+!except the ones we fix, which in a qm-simulation is the
+!quantum particle.
       A=ranf(iseed)
       B=(ranf(iseed)-0.5)*DelFi*0.1
       CB=Cos(B)
@@ -158,11 +158,11 @@
 221       Continue
         Endif
       Endif
-*---------------------------------------------------------------------*
-* Generate the image points that correspond with the new coordinates. *
-* We follow Friedman. Since no image is created here for the qm-      *
-* molecule, start with query.                                         *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+! Generate the image points that correspond with the new coordinates. *
+! We follow Friedman. Since no image is created here for the qm-      *
+! molecule, start with query.                                         *
+!---------------------------------------------------------------------*
       Ind=0    !The SM-defaults.
       iImage=1
       If(Qmeq.or.QmProd) then
@@ -207,8 +207,8 @@
 306       Continue
 303     Continue
 302   Continue
-*-----------------------------------------------------------------------*
-* Exit.                                                                 *
-*-----------------------------------------------------------------------*
+!-----------------------------------------------------------------------*
+! Exit.                                                                 *
+!-----------------------------------------------------------------------*
       Return
       End

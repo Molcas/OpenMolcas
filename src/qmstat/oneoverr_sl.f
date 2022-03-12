@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2011, Jose Manuel Hermida Ramon                        *
-************************************************************************
-      Subroutine OneOverR_Sl(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2011, Jose Manuel Hermida Ramon                        *
+!***********************************************************************
+      Subroutine OneOverR_Sl(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum     &
      &                  ,Eint,iQ_Atoms,outxyz,Eint_Nuc)
       Implicit Real*8 (a-h,o-z)
-*----------------------------------------------------------------------*
-*     Jose. Modification of the OneOverR subroutine to include the     *
-*     electrostatic penetration of the charge density in the           *
-*     electrostatic operator of the Hamiltonian. 2011-05-30            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Jose. Modification of the OneOverR subroutine to include the     *
+!     electrostatic penetration of the charge density in the           *
+!     electrostatic operator of the Hamiltonian. 2011-05-30            *
+!----------------------------------------------------------------------*
 
 #include "maxi.fh"
 #include "qminp.fh"
@@ -33,11 +33,11 @@
       Logical   lAtom
 
       EEdisp=0.0d0
-*----------------------------------------------------------------------*
-* Compute some distances and inverted distances etc. The potential,    *
-* the field and etc. and when we already have the numbers, we also do  *
-* the dispersion interaction.                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Compute some distances and inverted distances etc. The potential,    *
+! the field and etc. and when we already have the numbers, we also do  *
+! the dispersion interaction.                                          *
+!----------------------------------------------------------------------*
       iCi=(iQ_Atoms*(iQ_Atoms+1))/2
       Do 601, k=1,iCi
         lAtom=.false.
@@ -88,14 +88,14 @@
           Rab33i=S3e/R23
           Rab43i=S4e/R24
           Rab53i=S5e/R25
-*----------------------------------------------------------------------*
-* The dispersion interaction between QM-atoms and solvent is computed, *
-* with or without damping. The initial if-clause sees to that only     *
-* atom-centers are included, while bonds and virtual centers are       *
-* ignored.                                                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! The dispersion interaction between QM-atoms and solvent is computed, *
+! with or without damping. The initial if-clause sees to that only     *
+! atom-centers are included, while bonds and virtual centers are       *
+! ignored.                                                             *
+!----------------------------------------------------------------------*
           If(lAtom) then
-            Call DispEnergy(EEDisp,BoMah,BoMaO,rg1,rg2,rg3
+            Call DispEnergy(EEDisp,BoMah,BoMaO,rg1,rg2,rg3              &
      &                     ,Rab13i,Rab23i,Rab33i,k)
 
           Endif
@@ -124,12 +124,12 @@
           S3i=1/Rg3
           S4i=1/Rg4
           S5i=1/Rg5
-*----------------------------------------------------------------------*
-* Now we wrap up the electrostatics.                                   *
-*----------------------------------------------------------------------*
-* Jose. First we check if distance with at least one of the centers of *
-* the clasical molecule is inside the Cut-off                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Now we wrap up the electrostatics.                                   *
+!----------------------------------------------------------------------*
+! Jose. First we check if distance with at least one of the centers of *
+! the clasical molecule is inside the Cut-off                          *
+!----------------------------------------------------------------------*
           distMin=min(rg1,rg2)
           distMin=min(distMin,rg3)
           distMin=min(distMin,rg4)
@@ -166,15 +166,15 @@
                               ! quadrupole is L=2. In QmStat they
                               ! are 1, 2 and 3, respectively.
 
-              Call Sl_Grad(nSlSiteC,lMltSlC,CTemp,DTemp,DInvTemp
-     &               ,SlExpC,SlFactC,SlPC,nMltTemp,SlExpQ(1,k),DifSlExp
+              Call Sl_Grad(nSlSiteC,lMltSlC,CTemp,DTemp,DInvTemp        &
+     &               ,SlExpC,SlFactC,SlPC,nMltTemp,SlExpQ(1,k),DifSlExp &
      &               ,EintSl,EintSl_Nuc,lAtom)
 
-*-----------------------------------------------------------------------*
-* Change in the order of field gradients beacuse subroutine Sl_Grad
-* have the same order than Molcas xx=5, xy=6, xz=7, yy=8, yz=9 and zz=10
-* and we need the QmStat order: xx=5, xy=6, yy=7, xz=8, yz=9 and zz=10
-*-----------------------------------------------------------------------*
+!-----------------------------------------------------------------------*
+! Change in the order of field gradients beacuse subroutine Sl_Grad
+! have the same order than Molcas xx=5, xy=6, xz=7, yy=8, yz=9 and zz=10
+! and we need the QmStat order: xx=5, xy=6, yy=7, xz=8, yz=9 and zz=10
+!-----------------------------------------------------------------------*
               EintSlTemp=EintSl(7)
               EintSl(7)=EintSl(8)
               EintSl(8)=EintSlTemp
@@ -195,8 +195,8 @@
                               ! are 1, 2 and 3, respectively.
 
               ijhr=min(nMltTemp,1)
-              Call Sl_Grad(nSlSiteC,lMltSlC,CTemp,DTemp,DInvTemp
-     &                 ,SlExpC,SlFactC,SlPC,ijhr,SlExpQ(1,k),DifSlExp
+              Call Sl_Grad(nSlSiteC,lMltSlC,CTemp,DTemp,DInvTemp        &
+     &                 ,SlExpC,SlFactC,SlPC,ijhr,SlExpQ(1,k),DifSlExp   &
      &                 ,EintSl,EintSl_Nuc,lAtom)
 
               Do jhr=1,4
@@ -210,16 +210,16 @@
               go to 3456
             Endif
           Endif
-*----------------------------------------------------------------------*
-* The Eint(k,1) term will below turn into the interaction between
-* charges on water and the MME-charges on the QM-molecule.
-* Plus the interaction between the charge densities in Water and the
-* charge densities in QM-Molecule when the Penetration is evaluated
-*----------------------------------------------------------------------*
-          Eint(k,1)=-Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e
+!----------------------------------------------------------------------*
+! The Eint(k,1) term will below turn into the interaction between
+! charges on water and the MME-charges on the QM-molecule.
+! Plus the interaction between the charge densities in Water and the
+! charge densities in QM-Molecule when the Penetration is evaluated
+!----------------------------------------------------------------------*
+          Eint(k,1)=-Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e                &
      &             -Qsta(4)*S5e+Eint(k,1)
           If(lAtom) then
-            Eint_Nuc(k)=-Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e
+            Eint_Nuc(k)=-Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e            &
      &             -Qsta(4)*S5e+Eint_Nuc(k)
           Endif
 
@@ -230,11 +230,11 @@
          !a field we have a minus sign, but this minus sign we have
          !omitted in hel; therefore this calculation gives the right
          !number eventually.
-          Eint(k,2)=-Qsta(1)*RabX2*Rab23i-Qsta(2)*RabX3*Rab33i
+          Eint(k,2)=-Qsta(1)*RabX2*Rab23i-Qsta(2)*RabX3*Rab33i          &
      &-Qsta(3)*RabX4*Rab43i-Qsta(4)*RabX5*Rab53i+Eint(k,2)
-          Eint(k,3)=-Qsta(1)*RabY2*Rab23i-Qsta(2)*RabY3*Rab33i
+          Eint(k,3)=-Qsta(1)*RabY2*Rab23i-Qsta(2)*RabY3*Rab33i          &
      &-Qsta(3)*RabY4*Rab43i-Qsta(4)*RabY5*Rab53i+Eint(k,3)
-          Eint(k,4)=-Qsta(1)*RabZ2*Rab23i-Qsta(2)*RabZ3*Rab33i
+          Eint(k,4)=-Qsta(1)*RabZ2*Rab23i-Qsta(2)*RabZ3*Rab33i          &
      &-Qsta(3)*RabZ4*Rab43i-Qsta(4)*RabZ5*Rab53i+Eint(k,4)
           !And here it is the MME-quadrupoles that are prepared.
           !Change sign of charges, change sign two times of the
@@ -245,24 +245,24 @@
 
 3456      Continue
 
-          Eint(k,5)=Eint(k,5)-Qsta(1)*Ux2**2*Rab23i-Qsta(2)*Ux3**2
+          Eint(k,5)=Eint(k,5)-Qsta(1)*Ux2**2*Rab23i-Qsta(2)*Ux3**2      &
      &*Rab33i-Qsta(3)*Ux4**2*Rab43i-Qsta(4)*Ux5**2*Rab53i
-          Eint(k,7)=Eint(k,7)-Qsta(1)*Uy2**2*Rab23i-Qsta(2)*Uy3**2
+          Eint(k,7)=Eint(k,7)-Qsta(1)*Uy2**2*Rab23i-Qsta(2)*Uy3**2      &
      &*Rab33i-Qsta(3)*Uy4**2*Rab43i-Qsta(4)*Uy5**2*Rab53i
-          Eint(k,10)=Eint(k,10)-Qsta(1)*Uz2**2*Rab23i-Qsta(2)*Uz3**2
+          Eint(k,10)=Eint(k,10)-Qsta(1)*Uz2**2*Rab23i-Qsta(2)*Uz3**2    &
      &*Rab33i-Qsta(3)*Uz4**2*Rab43i-Qsta(4)*Uz5**2*Rab53i
-          Eint(k,6)=Eint(k,6)-Qsta(1)*Ux2*Uy2*Rab23i-Qsta(2)*Ux3
+          Eint(k,6)=Eint(k,6)-Qsta(1)*Ux2*Uy2*Rab23i-Qsta(2)*Ux3        &
      &*Uy3*Rab33i-Qsta(3)*Ux4*Rab43i*Uy4-Qsta(4)*Ux5*Rab53i*Uy5
-          Eint(k,8)=Eint(k,8)-Qsta(1)*Ux2*Uz2*Rab23i-Qsta(2)*Ux3
+          Eint(k,8)=Eint(k,8)-Qsta(1)*Ux2*Uz2*Rab23i-Qsta(2)*Ux3        &
      &*Uz3*Rab33i-Qsta(3)*Ux4*Rab43i*Uz4-Qsta(4)*Ux5*Rab53i*Uz5
-          Eint(k,9)=Eint(k,9)-Qsta(1)*Uz2*Uy2*Rab23i-Qsta(2)*Uz3
+          Eint(k,9)=Eint(k,9)-Qsta(1)*Uz2*Uy2*Rab23i-Qsta(2)*Uz3        &
      &*Uy3*Rab33i-Qsta(3)*Uz4*Rab43i*Uy4-Qsta(4)*Uz5*Rab53i*Uy5
 
 3466      Continue
 
-*----------------------------------------------------------------------*
-* And now a whole lot of grad(1/r) and higher...                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! And now a whole lot of grad(1/r) and higher...                       *
+!----------------------------------------------------------------------*
       !Unipoles.
           Work(iFil(k,1)-1+ip)=Rabx1*Rab13i
           Work(iFil(k,1)-1+ip+1)=Rabx2*Rab23i
@@ -317,11 +317,11 @@
           Work(iFil(k,7)-1+ip)=5*Uy1*Uy1*Ux1*Rab13i*S1e
           Work(iFil(k,7)-1+ip+1)=5*Uy2*Uy2*Ux2*Rab23i*S2e
           Work(iFil(k,7)-1+ip+2)=5*Uy3*Uy3*Ux3*Rab33i*S3e
-          Work(iFil(k,7)-1+nPart*nPol+ip)=(5*Uy1*(Uy1*Uy1-.4))
+          Work(iFil(k,7)-1+nPart*nPol+ip)=(5*Uy1*(Uy1*Uy1-.4))          &
      &                                   *Rab13i*S1e
-          Work(iFil(k,7)-1+nPart*nPol+ip+1)=(5*Uy2*(Uy2*Uy2-.4))
+          Work(iFil(k,7)-1+nPart*nPol+ip+1)=(5*Uy2*(Uy2*Uy2-.4))        &
      &                                   *Rab23i*S2e
-          Work(iFil(k,7)-1+nPart*nPol+ip+2)=(5*Uy3*(Uy3*Uy3-.4))
+          Work(iFil(k,7)-1+nPart*nPol+ip+2)=(5*Uy3*(Uy3*Uy3-.4))        &
      &                                   *Rab33i*S3e
           Work(iFil(k,7)-1+2*nPart*nPol+ip)=5*Uz1*Uy1*Uy1*Rab13i*S1e
           Work(iFil(k,7)-1+2*nPart*nPol+ip+1)=5*Uz2*Uy2*Uy2*Rab23i*S2e
@@ -333,21 +333,21 @@
           Work(iFil(k,10)-1+nPart*nPol+ip)=5*Uz1*Uz1*Uy1*Rab13i*S1e
           Work(iFil(k,10)-1+nPart*nPol+ip+1)=5*Uz2*Uz2*Uy2*Rab23i*S2e
           Work(iFil(k,10)-1+nPart*nPol+ip+2)=5*Uz3*Uz3*Uy3*Rab33i*S3e
-          Work(iFil(k,10)-1+2*nPart*nPol+ip)=(5*Uz1*(Uz1*Uz1-.4))
+          Work(iFil(k,10)-1+2*nPart*nPol+ip)=(5*Uz1*(Uz1*Uz1-.4))       &
      &                                      *Rab13i*S1e
-          Work(iFil(k,10)-1+2*nPart*nPol+ip+1)=(5*Uz2*(Uz2*Uz2-.4))
+          Work(iFil(k,10)-1+2*nPart*nPol+ip+1)=(5*Uz2*(Uz2*Uz2-.4))     &
      &                                      *Rab23i*S2e
-          Work(iFil(k,10)-1+2*nPart*nPol+ip+2)=(5*Uz3*(Uz3*Uz3-.4))
+          Work(iFil(k,10)-1+2*nPart*nPol+ip+2)=(5*Uz3*(Uz3*Uz3-.4))     &
      &                                      *Rab33i*S3e
       !Quadrupole -- xy-component.
           Work(iFil(k,6)-1+ip)=(5*Uy1*(Ux1*Ux1-.2))*Rab13i*S1e
           Work(iFil(k,6)-1+ip+1)=(5*Uy2*(Ux2*Ux2-.2))*Rab23i*S2e
           Work(iFil(k,6)-1+ip+2)=(5*Uy3*(Ux3*Ux3-.2))*Rab33i*S3e
-          Work(iFil(k,6)-1+nPart*nPol+ip)=(5*Ux1*(Uy1*Uy1-.2))
+          Work(iFil(k,6)-1+nPart*nPol+ip)=(5*Ux1*(Uy1*Uy1-.2))          &
      &                                   *Rab13i*S1e
-          Work(iFil(k,6)-1+nPart*nPol+ip+1)=(5*Ux2*(Uy2*Uy2-.2))
+          Work(iFil(k,6)-1+nPart*nPol+ip+1)=(5*Ux2*(Uy2*Uy2-.2))        &
      &                                   *Rab23i*S2e
-          Work(iFil(k,6)-1+nPart*nPol+ip+2)=(5*Ux3*(Uy3*Uy3-.2))
+          Work(iFil(k,6)-1+nPart*nPol+ip+2)=(5*Ux3*(Uy3*Uy3-.2))        &
      &                                   *Rab33i*S3e
           Work(iFil(k,6)-1+2*nPart*nPol+ip)=5*Uz1*Uy1*Ux1*Rab13i*S1e
           Work(iFil(k,6)-1+2*nPart*nPol+ip+1)=5*Uz2*Uy2*Ux2*Rab23i*S2e
@@ -359,42 +359,42 @@
           Work(iFil(k,8)-1+nPart*nPol+ip)=5*Uz1*Uy1*Ux1*Rab13i*S1e
           Work(iFil(k,8)-1+nPart*nPol+ip+1)=5*Uz2*Uy2*Ux2*Rab23i*S2e
           Work(iFil(k,8)-1+nPart*nPol+ip+2)=5*Uz3*Uy3*Ux3*Rab33i*S3e
-          Work(iFil(k,8)-1+2*nPart*nPol+ip)=(5*Ux1*(Uz1*Uz1-.2))
+          Work(iFil(k,8)-1+2*nPart*nPol+ip)=(5*Ux1*(Uz1*Uz1-.2))        &
      &                                     *Rab13i*S1e
-          Work(iFil(k,8)-1+2*nPart*nPol+ip+1)=(5*Ux2*(Uz2*Uz2-.2))
+          Work(iFil(k,8)-1+2*nPart*nPol+ip+1)=(5*Ux2*(Uz2*Uz2-.2))      &
      &                                     *Rab23i*S2e
-          Work(iFil(k,8)-1+2*nPart*nPol+ip+2)=(5*Ux3*(Uz3*Uz3-.2))
+          Work(iFil(k,8)-1+2*nPart*nPol+ip+2)=(5*Ux3*(Uz3*Uz3-.2))      &
      &                                     *Rab33i*S3e
       !Quadrupole -- yz-component.
           Work(iFil(k,9)-1+ip)=5*Uz1*Uy1*Ux1*Rab13i*S1e
           Work(iFil(k,9)-1+ip+1)=5*Uz2*Uy2*Ux2*Rab23i*S2e
           Work(iFil(k,9)-1+ip+2)=5*Uz3*Uy3*Ux3*Rab33i*S3e
-          Work(iFil(k,9)-1+nPart*nPol+ip)=(5*Uz1*(Uy1*Uy1-.2))
+          Work(iFil(k,9)-1+nPart*nPol+ip)=(5*Uz1*(Uy1*Uy1-.2))          &
      &                                   *Rab13i*S1e
-          Work(iFil(k,9)-1+nPart*nPol+ip+1)=(5*Uz2*(Uy2*Uy2-.2))
+          Work(iFil(k,9)-1+nPart*nPol+ip+1)=(5*Uz2*(Uy2*Uy2-.2))        &
      &                                   *Rab23i*S2e
-          Work(iFil(k,9)-1+nPart*nPol+ip+2)=(5*Uz3*(Uy3*Uy3-.2))
+          Work(iFil(k,9)-1+nPart*nPol+ip+2)=(5*Uz3*(Uy3*Uy3-.2))        &
      &                                   *Rab33i*S3e
-          Work(iFil(k,9)-1+2*nPart*nPol+ip)=(5*Uy1*(Uz1*Uz1-.2))
+          Work(iFil(k,9)-1+2*nPart*nPol+ip)=(5*Uy1*(Uz1*Uz1-.2))        &
      &                                   *Rab13i*S1e
-          Work(iFil(k,9)-1+2*nPart*nPol+ip+1)=(5*Uy2*(Uz2*Uz2-.2))
+          Work(iFil(k,9)-1+2*nPart*nPol+ip+1)=(5*Uy2*(Uz2*Uz2-.2))      &
      &                                   *Rab23i*S2e
-          Work(iFil(k,9)-1+2*nPart*nPol+ip+2)=(5*Uy3*(Uz3*Uz3-.2))
+          Work(iFil(k,9)-1+2*nPart*nPol+ip+2)=(5*Uy3*(Uz3*Uz3-.2))      &
      &                                   *Rab33i*S3e
-*----------------------------------------------------------------------*
-* If damping of the field is requested, then do it.                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! If damping of the field is requested, then do it.                    *
+!----------------------------------------------------------------------*
           If(FieldDamp) then
             Do 620, ijhr=1,10
               Do 621, jjhr=0,2
-                Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip)=
-     &          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip)
+                Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip)=                &
+     &          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip)                 &
      &          *(1-exp(CAFieldG*rg1))**CFexp
-                Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1)=
-     &          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1)
+                Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1)=              &
+     &          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1)               &
      &          *(1-exp(CBFieldG*rg2))**CFexp
-                Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2)=
-     &          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2)
+                Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2)=              &
+     &          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2)               &
      &          *(1-exp(CBFieldG*rg3))**CFexp
 621           Continue
 620         Continue

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine OffAtom(C1,C2,C3,C4,C5)
       Implicit Real*8 (a-z)
 
@@ -39,17 +39,17 @@
       E(2)=E(2)/LE
       E(3)=E(3)/LE
 
-      C4(1)=C1(1)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(1)
+      C4(1)=C1(1)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(1)       &
      &           +(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(1)
-      C4(2)=C1(2)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(2)
+      C4(2)=C1(2)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(2)       &
      &           +(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(2)
-      C4(3)=C1(3)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(3)
+      C4(3)=C1(3)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(3)       &
      &           +(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(3)
-      C5(1)=C1(1)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(1)
+      C5(1)=C1(1)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(1)       &
      &           -(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(1)
-      C5(2)=C1(2)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(2)
+      C5(2)=C1(2)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(2)       &
      &           -(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(2)
-      C5(3)=C1(3)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(3)
+      C5(3)=C1(3)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(3)       &
      &           -(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(3)
 
       Return
