@@ -8,9 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine MoReduce(nBas,MOsToKeep,ipAvRedMO)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine MoReduce(nBas,MOsToKeep,ipAvRedMO)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "files_qmstat.fh"
 #include "qminp.fh"
@@ -18,372 +19,336 @@
 #include "numbers.fh"
 #include "WrkSpc.fh"
 #include "lenin.fh"
+parameter(ReduceWarning=0.5d0)
+dimension nBas(MxSym), iTocBig(MxStOT)
+character Header*50, BsLbl*1
+dimension BsLbl(LENIN8*MxBas)
+logical LindMOs(MxBas), First
+data First/.true./
+dimension Dummy(1)
 
-      Parameter (ReduceWarning=0.5d0)
+! A word of welcome.
 
-      Dimension nBas(MxSym),iTocBig(MxStOT)
+write(6,*) '     ----- Transform to average natural MO-reduced basis.'
 
-      Character Header*50,BsLbl*1
+! First we accumulate the different density matrices.
 
-      Dimension BsLbl(LENIN8*MxBas)
+nSize = nBas(1)*(nBas(1)+1)/2
+weight = ONE/dble(nState)
+call GetMem('DenM','Allo','Real',iDin,nSize)
+call GetMem('DenA','Allo','Real',iDav,nSize)
+call dcopy_(nSize,[ZERO],iZERO,Work(iDav),iONE)
+do iS1=1,nState
+  do iS2=1,iS1
+    index = (iS1*(iS1-1)/2+iS2-1)*nSize
+    call dcopy_(nSize,Work(iBigT+index),iONE,Work(iDin),iONE)
+    if (iS1 /= iS2) goto 202
+    kaunt = 0
+    do iB1=1,nBas(1)
+      do iB2=1,iB1
+        if (iB1 == iB2) then
+          Fac = 1.0d0*weight
+        else
+          Fac = 0.5d0*weight
+        end if
+        Work(iDav+kaunt) = Work(iDav+kaunt)+Work(iDin+kaunt)*Fac
+        kaunt = kaunt+1
+      end do
+    end do
+202 continue
+  end do
+end do
 
-      Logical LindMOs(MxBas),First
+! Then since we are working in the non-orthogonal AO-basis,
+! it is necessary to orthogonalize before we diagonalize
+! accumulated density.
 
-      Data First /.true./
+call GetMem('Vecs','Allo','Real',iVecs,nBas(1)**2)
+call GetMem('Vecs2','Allo','Real',iVecs2,nBas(1)**2)
+call GetMem('AuxS','Allo','Real',iAUX,nBas(1)**2)
+call GetMem('OvlSs','Allo','Real',iSs,nBas(1)**2)
+call GetMem('OvlSs','Allo','Real',iSx,nSize)
+call GetMem('OvlSi','Allo','Real',iSst,nBas(1)**2)
+call GetMem('OvlSi','Allo','Real',iSt,nSize)
+call GetMem('DavSq','Allo','Real',iDavS,nBas(1)**2)
+call GetMem('Trans','Allo','Real',iTrans,nBas(1)**2)
+call GetMem('Trans','Allo','Real',iTransB,nBas(1)**2)
+call GetMem('OrtoAvDen','Allo','Real',iOtD,nBas(1)**2)
+call GetMem('OrtoAcDeT','Allo','Real',iOtDt,nSize)
+call GetMem('OvlS','Allo','Real',iS,nSize+4)
+call GetMem('Occs','Allo','Real',iOcc,nBas(1))
+kaunter = 0
+do iB1=1,nBas(1)
+  do iB2=1,nBas(1)
+    Work(iVecs+kaunter) = 0
+    if (iB1 == iB2) Work(iVecs+kaunter) = 1
+    kaunter = kaunter+1
+  end do
+end do
+! Symmetric orthogonalization, hence get overlap matrix, S.
+Lu_One = 92
+call OpnOne(irc,0,'ONEINT',Lu_One)
+irc = -1
+iopt = 0
+iSmLbl = 0
+icomp = 1
+call RdOne(irc,iopt,'Mltpl  0',icomp,Work(iS),iSmLbl)
+call Jacob(Work(iS),Work(iVecs),nBas(1),nBas(1))
+call dcopy_(nSize,[ZERO],iZERO,Work(iSx),iONE)
+call dcopy_(nSize,[ZERO],iZERO,Work(iSt),iONE)
+do i=1,nBas(1)
+  Sqroot = sqrt(Work(iS+i*(i+1)/2-1))
+  Work(iSx+i*(i+1)/2-1) = ONE/Sqroot
+  Work(iSt+i*(i+1)/2-1) = Sqroot
+end do
+call Square(Work(iSx),Work(iSs),iONE,nBas(1),nBas(1))
+call Square(Work(iSt),Work(iSst),iONE,nBas(1),nBas(1))
+! S^(-1/2)
+call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iVecs),nBas(1),Work(iSs),nBas(1),ZERO,Work(iAUX),nBas(1))
+call Dgemm_('N','T',nBas(1),nBas(1),nBas(1),ONE,Work(iAUX),nBas(1),Work(iVecs),nBas(1),ZERO,Work(iTrans),nBas(1))
+! S^(1/2)
+call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iVecs),nBas(1),Work(iSst),nBas(1),ZERO,Work(iAUX),nBas(1))
+call Dgemm_('N','T',nBas(1),nBas(1),nBas(1),ONE,Work(iAUX),nBas(1),Work(iVecs),nBas(1),ZERO,Work(iTransB),nBas(1))
+! The density matrix transforms 'inversely' from the matrix-elements,
+! thus let S^(1/2) transform it, not S^(-1/2) which applies to the
+! matrix elements.
+call Square(Work(iDav),Work(iDavS),iONE,nBas(1),nBas(1))
+call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTransB),nBas(1),Work(iDavS),nBas(1),ZERO,Work(iAUX),nBas(1))
+call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iAUX),nBas(1),Work(iTransB),nBas(1),ZERO,Work(iOtD),nBas(1))
+kaunter = 0
+do iB1=1,nBas(1)
+  do iB2=1,nBas(1)
+    Work(iVecs2+kaunter) = 0
+    if (iB1 == iB2) Work(iVecs2+kaunter) = 1
+    kaunter = kaunter+1
+  end do
+end do
+call SqToTri_Q(Work(iOtD),Work(iOtDt),nBas(1))
+call Jacob(Work(iOtDt),Work(iVecs2),nBas(1),nBas(1))
+! With diagonalized density matrix, collect occupation numbers and
+! natural orbital coefficients.
+call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTrans),nBas(1),Work(iVecs2),nBas(1),ZERO,Work(iAUX),nBas(1))
+kaunt = 0
+kaunter = 0
+do i=1,nBas(1)
+  do j=1,i
+    if (i == j) then
+      Work(iOcc+kaunt) = Work(iOtDt+kaunter)
+      kaunt = kaunt+1
+    end if
+    kaunter = kaunter+1
+  end do
+end do
+TraceFull = 0
+do i=1,nBas(1)
+  TraceFull = TraceFull+Work(iOcc+i-1)
+end do
+if (iPrint >= 10) then
+  call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBas(1))
+  write(Header,'(A)') 'All average transition density orbitals'
+  ThrOcc = -1D-0
+  call Primo(Header,.true.,.false.,ThrOcc,Dum,iONE,nBas(1),nBas(1),BsLbl,Dummy,Work(iOcc),Work(iAUX),-1)
+  write(6,*)
+  write(6,*) '  Trace = ',TraceFull
+end if
+! Deallocations.
+call GetMem('DenM','Free','Real',iDin,nSize)
+call GetMem('DenA','Free','Real',iDav,nSize)
+call GetMem('Vecs','Free','Real',iVecs,nBas(1)**2)
+call GetMem('Vecs2','Free','Real',iVecs2,nBas(1)**2)
+call GetMem('OvlSs','Free','Real',iSs,nBas(1)**2)
+call GetMem('OvlSs','Free','Real',iSx,nSize)
+call GetMem('OvlSi','Free','Real',iSst,nBas(1)**2)
+call GetMem('OvlSi','Free','Real',iSt,nSize)
+call GetMem('DavSq','Free','Real',iDavS,nBas(1)**2)
+call GetMem('Trans','Free','Real',iTrans,nBas(1)**2)
+call GetMem('Trans','Free','Real',iTransB,nBas(1)**2)
+call GetMem('OrtoAvDen','Free','Real',iOtD,nBas(1)**2)
+call GetMem('OrtoAcDeT','Free','Real',iOtDt,nSize)
+call GetMem('OvlS','Free','Real',iS,nSize+4)
 
-      Dimension Dummy(1)
+! Jetzt far wir mal wieder. Reduce MO-basis according to input criterion.
 
-!
-!--- A word of welcome.
-!
-      Write(6,*)'     ----- Transform to average natural MO-reduced'    &
-     &//' basis.'
-!
-!--- First we accumulate the different density matrices.
-!
-      nSize=nBas(1)*(nBas(1)+1)/2
-      weight=ONE/dble(nState)
-      Call GetMem('DenM','Allo','Real',iDin,nSize)
-      Call GetMem('DenA','Allo','Real',iDav,nSize)
-      call dcopy_(nSize,[ZERO],iZERO,Work(iDav),iONE)
-      Do 201, iS1=1,nState
-        Do 202, iS2=1,iS1
-          index=(iS1*(iS1-1)/2+iS2-1)*nSize
-          call dcopy_(nSize,Work(iBigT+index),iONE,Work(iDin),iONE)
-          If(iS1.ne.iS2) GoTo 202
-          kaunt=0
-          Do 203, iB1=1,nBas(1)
-            Do 204, iB2=1,iB1
-              If(iB1.eq.iB2) then
-                Fac=1.0d0*weight
-              Else
-                Fac=0.5d0*weight
-              Endif
-              Work(iDav+kaunt)=Work(iDav+kaunt)+Work(iDin+kaunt)*Fac
-              kaunt=kaunt+1
-204         Continue
-203       Continue
-202     Continue
-201   Continue
-!
-!--- Then since we are working in the non-orthogonal AO-basis,
-!    it is necessary to orthogonalize before we diagonalize
-!    accumulated density.
-!
-      Call GetMem('Vecs','Allo','Real',iVecs,nBas(1)**2)
-      Call GetMem('Vecs2','Allo','Real',iVecs2,nBas(1)**2)
-      Call GetMem('AuxS','Allo','Real',iAUX,nBas(1)**2)
-      Call GetMem('OvlSs','Allo','Real',iSs,nBas(1)**2)
-      Call GetMem('OvlSs','Allo','Real',iSx,nSize)
-      Call GetMem('OvlSi','Allo','Real',iSst,nBas(1)**2)
-      Call GetMem('OvlSi','Allo','Real',iSt,nSize)
-      Call GetMem('DavSq','Allo','Real',iDavS,nBas(1)**2)
-      Call GetMem('Trans','Allo','Real',iTrans,nBas(1)**2)
-      Call GetMem('Trans','Allo','Real',iTransB,nBas(1)**2)
-      Call GetMem('OrtoAvDen','Allo','Real',iOtD,nBas(1)**2)
-      Call GetMem('OrtoAcDeT','Allo','Real',iOtDt,nSize)
-      Call GetMem('OvlS','Allo','Real',iS,nSize+4)
-      Call GetMem('Occs','Allo','Real',iOcc,nBas(1))
-      kaunter=0
-      Do 211, iB1=1,nBas(1)
-        Do 212, iB2=1,nBas(1)
-          Work(iVecs+kaunter)=0
-          If(iB1.eq.iB2)Work(iVecs+kaunter)=1
-          kaunter=kaunter+1
-212     Continue
-211   Continue
-!--- Symmetric orthogonalization, hence get overlap matrix, S.
-      Lu_One=92
-      Call OpnOne(irc,0,'ONEINT',Lu_One)
-      irc=-1
-      iopt=0
-      iSmLbl=0
-      icomp=1
-      Call RdOne(irc,iopt,'Mltpl  0',icomp,Work(iS),iSmLbl)
-      Call Jacob(Work(iS),Work(iVecs),nBas(1),nBas(1))
-      call dcopy_(nSize,[ZERO],iZERO,Work(iSx),iONE)
-      call dcopy_(nSize,[ZERO],iZERO,Work(iSt),iONE)
-      Do 221, i=1,nBas(1)
-        Sqroot=sqrt(Work(iS+i*(i+1)/2-1))
-        Work(iSx+i*(i+1)/2-1)=ONE/Sqroot
-        Work(iSt+i*(i+1)/2-1)=Sqroot
-221   Continue
-      Call Square(Work(iSx),Work(iSs),iONE,nBas(1),nBas(1))
-      Call Square(Work(iSt),Work(iSst),iONE,nBas(1),nBas(1))
-!------S^(-1/2)
-      Call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iVecs)       &
-     &          ,nBas(1),Work(iSs),nBas(1),ZERO,Work(iAUX),nBas(1))
-      Call Dgemm_('N','T',nBas(1),nBas(1),nBas(1),ONE,Work(iAUX)        &
-     &          ,nBas(1),Work(iVecs),nBas(1),ZERO,Work(iTrans),nBas(1))
-!------S^(1/2)
-      Call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iVecs)       &
-     &          ,nBas(1),Work(iSst),nBas(1),ZERO,Work(iAUX),nBas(1))
-      Call Dgemm_('N','T',nBas(1),nBas(1),nBas(1),ONE,Work(iAUX)        &
-     &          ,nBas(1),Work(iVecs),nBas(1),ZERO,Work(iTransB),nBas(1))
-!--- The density matrix transforms 'inversly' from the matrix-elements,
-!    thus let S^(1/2) transform it, not S^(-1/2) which applies to the
-!    matrix elements.
-      Call Square(Work(iDav),Work(iDavS),iONE,nBas(1),nBas(1))
-      Call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTransB)     &
-     &          ,nBas(1),Work(iDavS),nBas(1),ZERO,Work(iAUX),nBas(1))
-      Call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iAUX)        &
-     &          ,nBas(1),Work(iTransB),nBas(1),ZERO,Work(iOtD),nBas(1))
-      kaunter=0
-      Do 213, iB1=1,nBas(1)
-        Do 214, iB2=1,nBas(1)
-          Work(iVecs2+kaunter)=0
-          If(iB1.eq.iB2)Work(iVecs2+kaunter)=1
-          kaunter=kaunter+1
-214     Continue
-213   Continue
-      Call SqToTri_Q(Work(iOtD),Work(iOtDt),nBas(1))
-      Call Jacob(Work(iOtDt),Work(iVecs2),nBas(1),nBas(1))
-!--- With diagonalized density matrix, collect occupation numbers and
-!    natural orbital coefficients.
-      Call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTrans)      &
-     &          ,nBas(1),Work(iVecs2),nBas(1),ZERO,Work(iAUX),nBas(1))
-      kaunt=0
-      kaunter=0
-      Do 231, i=1,nBas(1)
-        Do 232, j=1,i
-          If(i.eq.j) then
-            Work(iOcc+kaunt)=Work(iOtDt+kaunter)
-            kaunt=kaunt+1
-          Endif
-          kaunter=kaunter+1
-232     Continue
-231   Continue
-      TraceFull=0
-      Do 233, i=1,nBas(1)
-        TraceFull=TraceFull+Work(iOcc+i-1)
-233   Continue
-      If(iPrint.ge.10) then
-        Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBas(1))
-        Write(Header,'(A)')'All average transition density orbitals'
-        ThrOcc=-1D-0
-        Call Primo(Header,.true.,.false.,ThrOcc,Dum,iONE,nBas(1),nBas(1)&
-     &            ,BsLbl,Dummy,Work(iOcc),Work(iAUX),-1)
-        Write(6,*)
-        Write(6,*)'  Trace = ',TraceFull
-      Endif
-!--- Deallocations.
-      Call GetMem('DenM','Free','Real',iDin,nSize)
-      Call GetMem('DenA','Free','Real',iDav,nSize)
-      Call GetMem('Vecs','Free','Real',iVecs,nBas(1)**2)
-      Call GetMem('Vecs2','Free','Real',iVecs2,nBas(1)**2)
-      Call GetMem('OvlSs','Free','Real',iSs,nBas(1)**2)
-      Call GetMem('OvlSs','Free','Real',iSx,nSize)
-      Call GetMem('OvlSi','Free','Real',iSst,nBas(1)**2)
-      Call GetMem('OvlSi','Free','Real',iSt,nSize)
-      Call GetMem('DavSq','Free','Real',iDavS,nBas(1)**2)
-      Call GetMem('Trans','Free','Real',iTrans,nBas(1)**2)
-      Call GetMem('Trans','Free','Real',iTransB,nBas(1)**2)
-      Call GetMem('OrtoAvDen','Free','Real',iOtD,nBas(1)**2)
-      Call GetMem('OrtoAcDeT','Free','Real',iOtDt,nSize)
-      Call GetMem('OvlS','Free','Real',iS,nSize+4)
+MOsToKeep = 0
+do iB=1,nBas(1)
+  if (Work(iOcc+iB-1) >= ThrsRedOcc) then
+    LindMOs(iB) = .true.
+    MOsToKeep = MOsToKeep+1
+  else
+    LindMOs(iB) = .false.
+  end if
+end do
+nSize = nBas(1)*MOsToKeep
+call GetMem('UncleMoe','Allo','Real',ipAvRedMO,nSize)
+call GetMem('NewOccs','Allo','Real',iNewOcc,MOsToKeep)
+ind2 = 0
+ind3 = 0
+! Loop to suck-out the nice MOs.
+do iB=1,nBas(1)
+  if (LindMOs(iB)) then
+    ind1 = nBas(1)*(iB-1)
+    call dcopy_(nBas(1),Work(iAUX+ind1),iONE,Work(ipAvRedMO+ind2),iONE)
+    Work(iNewOcc+ind3) = Work(iOcc+iB-1)
+    ind2 = ind2+nBas(1)
+    ind3 = ind3+1
+  end if
+end do
+TraceRed = 0
+do i=1,MOsToKeep
+  TraceRed = TraceRed+Work(iNewOcc+i-1)
+end do
+! Make a trace check.
+if ((TraceFull-TraceRed) >= ReduceWarning) then
+  write(6,*)
+  write(6,*) 'WARNING!  With your occupation threshold, the density matrix trace'
+  write(6,*) 'differs by ',TraceFull-TraceRed,'.'
+  write(6,*) 'You should consider lowering the threshold!'
+end if
+if (iPrint >= 5) then
+  call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBas(1))
+  write(Header,'(A)') 'Reduced average orbitals'
+  ThrOcc = -1D-0
+  call Primo(Header,.true.,.false.,ThrOcc,Dum,iONE,nBas(1),[MOsToKeep],BsLbl,Dummy,Work(iNewOcc),Work(ipAvRedMO),-1)
+  write(6,*)
+  write(6,*) '  Trace = ',TraceRed,MOsToKeep
+end if
 
-!
-!--- Jetzt far wir mal wieder. Reduce MO-basis according to input
-!    criterion.
-!
-      MOsToKeep=0
-      Do 301, iB=1,nBas(1)
-        If(Work(iOcc+iB-1).ge.ThrsRedOcc) then
-          LindMOs(iB)=.true.
-          MOsToKeep=MOsToKeep+1
-        Else
-          LindMOs(iB)=.false.
-        Endif
-301   Continue
-      nSize=nBas(1)*MOsToKeep
-      Call GetMem('UncleMoe','Allo','Real',ipAvRedMO,nSize)
-      Call GetMem('NewOccs','Allo','Real',iNewOcc,MOsToKeep)
-      ind2=0
-      ind3=0
-!--- Loop to suck-out the nice MOs.
-      Do 302, iB=1,nBas(1)
-        If(LindMOs(iB)) then
-          ind1=nBas(1)*(iB-1)
-          call dcopy_(nBas(1),Work(iAUX+ind1),iONE,Work(ipAvRedMO+ind2) &
-     &              ,iONE)
-          Work(iNewOcc+ind3)=Work(iOcc+iB-1)
-          ind2=ind2+nBas(1)
-          ind3=ind3+1
-        Endif
-302   Continue
-      TraceRed=0
-      Do 303, i=1,MOsToKeep
-        TraceRed=TraceRed+Work(iNewOcc+i-1)
-303   Continue
-!--- Make a trace check.
-      If((TraceFull-TraceRed).ge.ReduceWarning) then
-        Write(6,*)
-        Write(6,*)'WARNING!  With your occupation threshold, the densit'&
-     &//'y matrix trace'
-        Write(6,*)'differs by ',TraceFull-TraceRed,'.'
-        Write(6,*)'You should consider lowering the threshold!'
-      Endif
-      If(iPrint.ge.5) then
-        Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBas(1))
-        Write(Header,'(A)')'Reduced average orbitals'
-        ThrOcc=-1D-0
-        Call Primo(Header,.true.,.false.,ThrOcc,Dum,iONE,nBas(1)        &
-     &            ,[MOsToKeep],BsLbl,Dummy,Work(iNewOcc)                &
-     &            ,Work(ipAvRedMO),-1)
-        Write(6,*)
-        Write(6,*)'  Trace = ',TraceRed,MOsToKeep
-      Endif
+! Time to reduce all individual density matrices in the big TDM to
+! the reduced MO-basis. Once more, observe that the density
+! transforms contravariantly. But sadly, we need to invert the
+! full square MO-matrix before we make reductions.
 
-!
-!--- Time to reduce all individual density matrices in the big TDM to
-!    the reduced MO-basis. Once more, observe that the density
-!    transforms contravariantly. But sadly, we need to invert the
-!    full square MO-matrix before we make reductions.
-!
-      Call GetMem('InverseC','Allo','Real',ipInv,nBas(1)**2)
-      Call MInv(Work(iAUX),Work(ipInv),Ising,Det,nBas(1))
+call GetMem('InverseC','Allo','Real',ipInv,nBas(1)**2)
+call MInv(Work(iAUX),Work(ipInv),Ising,Det,nBas(1))
 
-!
-!--- Now all those transformations and density reductions. To check for
-!    density losses, the overlaps are read. These partially transformed
-!    transition density matrix is stored in a scratch file.
-!
-      DiffMegaMax=0.0d0
-      nSize=nBas(1)*(nBas(1)+1)/2
-      nMtK=MOsToKeep*(MOsToKeep+1)/2
-      Call GetMem('Temporary','Allo','Real',ipTEMP,nBas(1)**2)
-      Call GetMem('MOtrDen','Allo','Real',ipTmoD,nBas(1)**2)
-      Call GetMem('MOreDen','Allo','Real',ipTreD,MOsToKeep**2)
-      Call GetMem('MOreDen','Allo','Real',ipTreT,nMtK)
-      Call GetMem('DenM','Allo','Real',iDin,nSize)
-      Call GetMem('DenMsq','Allo','Real',iDsq,nBas(1)**2)
-      Call GetMem('OvlS','Allo','Real',iS,nSize+4)
-      Call GetMem('Ssquare','Allo','Real',iSsq,nBas(1)**2)
-      Call GetMem('Strans','Allo','Real',iStrans,nBas(1)**2)
-      Call GetMem('Stri','Allo','Real',iStri,nMtK)
-      Lu_Scratch=57
-      Lu_Scratch=IsFreeUnit(Lu_Scratch)
-      Call DaName(Lu_Scratch,'TDMSCR')
-      irc=-1
-      iopt=0
-      iSmLbl=0
-      icomp=1
-      Call RdOne(irc,iopt,'Mltpl  0',icomp,Work(iS),iSmLbl)
-      Call ClsOne(irc,iopt)
-      iDiskUt=0
-      Call iDaFile(Lu_Scratch,1,iTocBig,MxStOT,iDiskUt)
-      Do 401, iS1=1,nState
-        Do 402, iS2=1,iS1
-!------- Collect this particular density matrix.
-          index=(iS1*(iS1-1)/2+iS2-1)*nSize
-          call dcopy_(nSize,Work(iBigT+index),iONE,Work(iDin),iONE)
-!------- Square it and correct the non-diagonal (recall convention)
-          Call Dsq(Work(iDin),Work(iDsq),iONE,nBas(1),nBas(1))
-!------- Contravariant transformation of density matrix.
-          Call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipInv)   &
-     &              ,nBas(1),Work(iDsq),nBas(1),ZERO,Work(ipTEMP)       &
-     &              ,nBas(1))
-          Call Dgemm_('N','T',nBas(1),nBas(1),nBas(1),ONE,Work(ipTEMP)  &
-     &              ,nBas(1),Work(ipInv),nBas(1),ZERO,Work(ipTmoD)      &
-     &              ,nBas(1))
-!------- Covariant transformation of overlap matrix.
-          Call Square(Work(iS),Work(iSsq),iONE,nBas(1),nBas(1))
-          Call Dgemm_('T','N',nBas(1),nBas(1),nBas(1),ONE,Work(iAUX)    &
-     &              ,nBas(1),Work(iSsq),nBas(1),ZERO,Work(ipTEMP)       &
-     &              ,nBas(1))
-          Call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipTEMP)  &
-     &              ,nBas(1),Work(iAUX),nBas(1),ZERO,Work(iStrans)      &
-     &              ,nBas(1))
-!------- How much charge ('overlap') is there in this density element?
-          ChargeNonReduced=Ddot_(nBas(1)**2,Work(ipTmoD),iONE           &
-     &                         ,Work(iStrans),iONE)
-!------- Reduction of density matrix and overlap matrix.
-          kaunter=0
-          ind1=0
-          Do 405, iM1=1,nBas(1)
-            Do 406, iM2=1,nBas(1)
-              If(LindMOs(iM1).and.LindMOs(iM2)) then
-                Work(ipTreD+ind1)=Work(ipTmoD+kaunter)
-                Work(iSsq+ind1)=Work(iStrans+kaunter)
-                ind1=ind1+1
-              Endif
-              kaunter=kaunter+1
-406         Continue
-405       Continue
-!------- Triangualize, jetzt!
-          kaunter=0
-          Do 407, iM1=1,MOsToKeep
-            Do 408, iM2=1,MOsToKeep
-              If(iM1.ne.iM2)Work(ipTreD+kaunter)=2*Work(ipTreD+kaunter)
-              kaunter=kaunter+1
-408         Continue
-407       Continue
-          Call SqToTri_Q(Work(ipTreD),Work(ipTreT),MOsToKeep)
-          Call SqToTri_Q(Work(iSsq),Work(iStri),MOsToKeep)
-!------- Compute total electronic charge of this reduced density.
-          ChargeReduced=Ddot_(nMtK,Work(ipTreT),iONE,Work(iStri),iONE)
-!------- Renormalize to get right charge ('overlap'); to safeguard
-!        against zero overlaps, make check.
-          If(abs(ChargeNonReduced).le.1D-7.or.                          &
-     &          abs(ChargeReduced).le.1D-7) then
-            Fac=1.0D0
-          Else
-            Fac=ChargeNonReduced/ChargeReduced
-          Endif
-          kaunter=0
-          Do 409, iM1=1,MOsToKeep
-            Do 410, iM2=1,iM1
-              Work(ipTreT+kaunter)=Work(ipTreT+kaunter)*Fac
-              kaunter=kaunter+1
-410         Continue
-409       Continue
-!------- If sufficient printlevel, show moment modifications.
-          If(iPrint.ge.10) then
-            Call MomentMod(ipTreT,ipTmoD,iAUX,MOsToKeep,nBas(1),LindMOs &
-     &                    ,iS1,iS2,First,DiffMax)
-            If(DiffMax.gt.DiffMegaMax) DiffMegaMax=DiffMax
-          Endif
-!------- Add previous disk address to T-o-C.
-          ind=iS1*(iS1+1)/2-iS1+iS2
-          iTocBig(ind)=iDiskUt
-!------- 'Because I will take a gigant dump on you!'
-          Call dDaFile(Lu_Scratch,1,Work(ipTreT),nMtk,iDiskUt)
-402     Continue
-401   Continue
-!--- The real table-of-content
-      iDiskUt=0
-      Call iDaFile(Lu_Scratch,1,iTocBig,MxStOT,iDiskUt)
-!--- Deallocations and closing.
-      Call GetMem('NewOccs','Free','Real',iNewOcc,MOsToKeep)
-      Call GetMem('InverseC','Free','Real',ipInv,nBas(1)**2)
-      Call GetMem('Temporary','Free','Real',ipTEMP,nBas(1)**2)
-      Call GetMem('MOtrDen','Free','Real',ipTmoD,nBas(1)**2)
-      Call GetMem('MOreDen','Free','Real',ipTreD,MOsToKeep**2)
-      Call GetMem('MOreDen','Free','Real',ipTreT,nMtK)
-      Call GetMem('DenM','Free','Real',iDin,nSize)
-      Call GetMem('DenMsq','Free','Real',iDsq,nBas(1)**2)
-      Call GetMem('OvlS','Free','Real',iS,nSize+4)
-      Call GetMem('Ssquare','Free','Real',iSsq,nBas(1)**2)
-      Call GetMem('Strans','Free','Real',iStrans,nBas(1)**2)
-      Call GetMem('Stri','Free','Real',iStri,nMtK)
-      Call GetMem('AuxS','Free','Real',iAUX,nBas(1)**2)
-      Call GetMem('Occs','Free','Real',iOcc,nBas(1))
-      Call DaClos(Lu_Scratch)
+! Now all those transformations and density reductions. To check for
+! density losses, the overlaps are read. These partially transformed
+! transition density matrix is stored in a scratch file.
 
-!
-!--- Report on the reduction.
-!
-      Write(6,*)
-      Write(6,90)'AO-basis ---> MO-basis reduction complete.'
-      Write(6,91)'From ',nBas(1),' functions to ',MosToKeep,'.'
-      Write(6,90)'Reduced basis renormalized to have same overlap as no'&
-     &//'n-reduced.'
-      If(iPrint.ge.10) then
-        Write(6,92)'Largest dipole difference is ',DiffMegaMax
-      Endif
-90    Format('        ',A)
-91    Format('        ',A,I3,A,I3,A)
-92    Format('        ',A,F10.7)
+DiffMegaMax = 0.0d0
+nSize = nBas(1)*(nBas(1)+1)/2
+nMtK = MOsToKeep*(MOsToKeep+1)/2
+call GetMem('Temporary','Allo','Real',ipTEMP,nBas(1)**2)
+call GetMem('MOtrDen','Allo','Real',ipTmoD,nBas(1)**2)
+call GetMem('MOreDen','Allo','Real',ipTreD,MOsToKeep**2)
+call GetMem('MOreDen','Allo','Real',ipTreT,nMtK)
+call GetMem('DenM','Allo','Real',iDin,nSize)
+call GetMem('DenMsq','Allo','Real',iDsq,nBas(1)**2)
+call GetMem('OvlS','Allo','Real',iS,nSize+4)
+call GetMem('Ssquare','Allo','Real',iSsq,nBas(1)**2)
+call GetMem('Strans','Allo','Real',iStrans,nBas(1)**2)
+call GetMem('Stri','Allo','Real',iStri,nMtK)
+Lu_Scratch = 57
+Lu_Scratch = IsFreeUnit(Lu_Scratch)
+call DaName(Lu_Scratch,'TDMSCR')
+irc = -1
+iopt = 0
+iSmLbl = 0
+icomp = 1
+call RdOne(irc,iopt,'Mltpl  0',icomp,Work(iS),iSmLbl)
+call ClsOne(irc,iopt)
+iDiskUt = 0
+call iDaFile(Lu_Scratch,1,iTocBig,MxStOT,iDiskUt)
+do iS1=1,nState
+  do iS2=1,iS1
+    ! Collect this particular density matrix.
+    index = (iS1*(iS1-1)/2+iS2-1)*nSize
+    call dcopy_(nSize,Work(iBigT+index),iONE,Work(iDin),iONE)
+    ! Square it and correct the non-diagonal (recall convention)
+    call Dsq(Work(iDin),Work(iDsq),iONE,nBas(1),nBas(1))
+    ! Contravariant transformation of density matrix.
+    call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipInv),nBas(1),Work(iDsq),nBas(1),ZERO,Work(ipTEMP),nBas(1))
+    call Dgemm_('N','T',nBas(1),nBas(1),nBas(1),ONE,Work(ipTEMP),nBas(1),Work(ipInv),nBas(1),ZERO,Work(ipTmoD),nBas(1))
+    ! Covariant transformation of overlap matrix.
+    call Square(Work(iS),Work(iSsq),iONE,nBas(1),nBas(1))
+    call Dgemm_('T','N',nBas(1),nBas(1),nBas(1),ONE,Work(iAUX),nBas(1),Work(iSsq),nBas(1),ZERO,Work(ipTEMP),nBas(1))
+    call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipTEMP),nBas(1),Work(iAUX),nBas(1),ZERO,Work(iStrans),nBas(1))
+    ! How much charge ('overlap') is there in this density element?
+    ChargeNonReduced = Ddot_(nBas(1)**2,Work(ipTmoD),iONE,Work(iStrans),iONE)
+    ! Reduction of density matrix and overlap matrix.
+    kaunter = 0
+    ind1 = 0
+    do iM1=1,nBas(1)
+      do iM2=1,nBas(1)
+        if (LindMOs(iM1) .and. LindMOs(iM2)) then
+          Work(ipTreD+ind1) = Work(ipTmoD+kaunter)
+          Work(iSsq+ind1) = Work(iStrans+kaunter)
+          ind1 = ind1+1
+        end if
+        kaunter = kaunter+1
+      end do
+    end do
+    ! Triangularize, jetzt!
+    kaunter = 0
+    do iM1=1,MOsToKeep
+      do iM2=1,MOsToKeep
+        if (iM1 /= iM2) Work(ipTreD+kaunter) = 2*Work(ipTreD+kaunter)
+        kaunter = kaunter+1
+      end do
+    end do
+    call SqToTri_Q(Work(ipTreD),Work(ipTreT),MOsToKeep)
+    call SqToTri_Q(Work(iSsq),Work(iStri),MOsToKeep)
+    ! Compute total electronic charge of this reduced density.
+    ChargeReduced = Ddot_(nMtK,Work(ipTreT),iONE,Work(iStri),iONE)
+    ! Renormalize to get right charge ('overlap'); to safeguard
+    ! against zero overlaps, make check.
+    if ((abs(ChargeNonReduced) <= 1D-7) .or. (abs(ChargeReduced) <= 1D-7)) then
+      Fac = 1.0d0
+    else
+      Fac = ChargeNonReduced/ChargeReduced
+    end if
+    kaunter = 0
+    do iM1=1,MOsToKeep
+      do iM2=1,iM1
+        Work(ipTreT+kaunter) = Work(ipTreT+kaunter)*Fac
+        kaunter = kaunter+1
+      end do
+    end do
+    ! If sufficient printlevel, show moment modifications.
+    if (iPrint >= 10) then
+      call MomentMod(ipTreT,ipTmoD,iAUX,MOsToKeep,nBas(1),LindMOs,iS1,iS2,First,DiffMax)
+      if (DiffMax > DiffMegaMax) DiffMegaMax = DiffMax
+    end if
+    ! Add previous disk address to T-o-C.
+    ind = iS1*(iS1+1)/2-iS1+iS2
+    iTocBig(ind) = iDiskUt
+    ! 'Because I will take a giant dump on you!'
+    call dDaFile(Lu_Scratch,1,Work(ipTreT),nMtk,iDiskUt)
+  end do
+end do
+! The real table-of-content
+iDiskUt = 0
+call iDaFile(Lu_Scratch,1,iTocBig,MxStOT,iDiskUt)
+! Deallocations and closing.
+call GetMem('NewOccs','Free','Real',iNewOcc,MOsToKeep)
+call GetMem('InverseC','Free','Real',ipInv,nBas(1)**2)
+call GetMem('Temporary','Free','Real',ipTEMP,nBas(1)**2)
+call GetMem('MOtrDen','Free','Real',ipTmoD,nBas(1)**2)
+call GetMem('MOreDen','Free','Real',ipTreD,MOsToKeep**2)
+call GetMem('MOreDen','Free','Real',ipTreT,nMtK)
+call GetMem('DenM','Free','Real',iDin,nSize)
+call GetMem('DenMsq','Free','Real',iDsq,nBas(1)**2)
+call GetMem('OvlS','Free','Real',iS,nSize+4)
+call GetMem('Ssquare','Free','Real',iSsq,nBas(1)**2)
+call GetMem('Strans','Free','Real',iStrans,nBas(1)**2)
+call GetMem('Stri','Free','Real',iStri,nMtK)
+call GetMem('AuxS','Free','Real',iAUX,nBas(1)**2)
+call GetMem('Occs','Free','Real',iOcc,nBas(1))
+call DaClos(Lu_Scratch)
 
-      Return
-      End
+! Report on the reduction.
+
+write(6,*)
+write(6,90) 'AO-basis ---> MO-basis reduction complete.'
+write(6,91) 'From ',nBas(1),' functions to ',MosToKeep,'.'
+write(6,90) 'Reduced basis renormalized to have same overlap as non-reduced.'
+if (iPrint >= 10) then
+  write(6,92) 'Largest dipole difference is ',DiffMegaMax
+end if
+90 format('        ',A)
+91 format('        ',A,I3,A,I3,A)
+92 format('        ',A,F10.7)
+
+return
+
+end subroutine MoReduce

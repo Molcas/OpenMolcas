@@ -41,316 +41,249 @@
 !> The subroutine has the parameter \c MxMltp that should be
 !> changed if higher multipoles are included.
 !***********************************************************************
-      Subroutine Sl_Grad(nCentA,lMaxA,Coord,Dist,DInv                   &
-     &                  ,ExpoA,FactorA,SlPA,lMaxB,ExpoB,dNeigh          &
-     &                  ,EintSl,EintSl_Nuc,lAtom)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine Sl_Grad(nCentA,lMaxA,Coord,Dist,DInv,ExpoA,FactorA,SlPA,lMaxB,ExpoB,dNeigh,EintSl,EintSl_Nuc,lAtom)
+
+implicit real*8(a-h,o-z)
 #include "warnings.h"
+parameter(MxMltp=2,MxK=(MxMltp*(MxMltp**2+6*MxMltp+11)+6)/6)
+dimension Coord(3,nCentA), Dist(nCentA), DInv(nCentA)
+dimension FactorA(4,nCentA), ExpoA(2,nCentA)
+dimension SlPA(nCentA), ExpoB(MxMltp+1)
+dimension EintSl(MxK), Colle(3)
+dimension TMPA((MxMltp+1)*(MxMltp+2)/2)
+dimension Rotte(3,3), v(3), TR(6,6)
+logical lDiffA, lDiffB, lTooSmall, lAtom
 
-      Parameter (MxMltp=2,MxK=(MxMltp*(MxMltp**2+6*MxMltp+11)+6)/6)
+! Some zeros.
+do ijhr=1,MxK
+  EintSl(ijhr) = 0.0d0
+end do
+EintSl_Nuc = 0.0d0
 
-      Dimension Coord(3,nCentA),Dist(nCentA),DInv(nCentA)
-      Dimension FactorA(4,nCentA),ExpoA(2,nCentA)
-      Dimension SlPA(nCentA),ExpoB(MxMltp+1)
+! Loop over all centers in molecule A.
 
-      Dimension EintSl(MxK),Colle(3)
-      Dimension TMPA((MxMltp+1)*(MxMltp+2)/2)
-      Dimension Rotte(3,3),v(3),TR(6,6)
+do iCA=1,nCentA
+  v(1) = Coord(1,iCA)
+  v(2) = Coord(2,iCA)
+  v(3) = Coord(3,iCA)
+  R = Dist(iCA)
+  Rinv = DInv(iCA)
 
-      Logical lDiffA,lDiffB,lTooSmall,lAtom
+  ! Obtain rotation matrix.
 
+  call Revolution(v,Rinv,Rotte)
 
-!-- Some zeros.
-      Do ijhr=1,MxK
-        EintSl(ijhr)=0.0d0
-      End do
-      EintSl_Nuc=0.0d0
+  ! Obtain the Matrix used to transform the Quadrupoles
+  ! This 6x6 matrix is really 6 matrix of 3x3 in diagonal form
+  ! Each element of each matrix gives the contribution from the
+  ! old quadrupole to the new quadrupole (new coordinate system)
+  ! Thus, if xx=1, xy=2, xz=3, yy=4, yz=5 and zz=6
+  ! QNew(1)=Qold(1)*TD(1,1)+Qold(2)*TD(1,2)+Qold(3)+TD(1,3)+...
+  ! So, to get field gradient for xx from the sigma interaction
+  ! (see Anders paper) we have
+  ! FG(xx)=FGSigma*(TD(6,1)-0.5(TD(1,1)*TD(4,1))). Remember that
+  ! the Energy contribution in sigma is calculated using spherical
+  ! harmonics so ESigma=FGSigma(Qnew(6)-0.5(Qnew(1)+Qnew(4)))
 
-!
-!-- Loop over all centers in molecule A.
-!
-      Do iCA=1,nCentA
-        v(1)=Coord(1,iCA)
-        v(2)=Coord(2,iCA)
-        v(3)=Coord(3,iCA)
-        R=Dist(iCA)
-        Rinv=DInv(iCA)
+  call M2Trans(Rotte,TR)
 
-!
-!---- Obtain rotation matrix.
-!
-        Call Revolution(v,Rinv,Rotte)
+  ! Loop over centres on A. Suck out exponents, factors and point-part. Rotate multipole.
 
-!--------- Obtain the Matrix used to transform the Quadrupoles
-!          This 6x6 matrix is really 6 matrix of 3x3 in diagonal form
-!          Each element of each matrix gives the contribution from the
-!          old quadrupole to the new quadrupole (new coordinate system)
-!          Thus, if xx=1, xy=2, xz=3, yy=4, yz=5 and zz=6
-!          QNew(1)=Qold(1)*TD(1,1)+Qold(2)*TD(1,2)+Qold(3)+TD(1,3)+...
-!          So, to get field gradient for xx from the sigma interaction
-!          (see Anders paper) we have
-!          FG(xx)=FGSigma*(TD(6,1)-0.5(TD(1,1)*TD(4,1))) . Remember that
-!          the Energy contribution in sigma is calculated using spherical
-!          armonics so ESigma=FGSigma(Qnew(6)-0.5(Qnew(1)+Qnew(4)))
-!
-        Call M2Trans(Rotte,TR)
-!
-!---- Loop over centres on A. Suck out exponents, factors and
-!     point-part. Rotate multipole.
-!
-        Do iLA=0,lMaxA
-          EA=ExpoA(iLA+1,iCA)
-          lDiffA=EA.gt.-1.0d0
-          nS=iLA*(iLA+1)*(iLA+2)/6
-          nT=(iLA+1)*(iLA+2)*(iLA+3)/6
-          kaunt=0
-          Do kComp=nS+1,nT
-            kaunt=kaunt+1
-            TMPA(kaunt)=FactorA(kComp,iCA)
-          Enddo
-!
-!------ Rotate and go over to spherical representation.
-!
-          Sigge=-1.0d0
-          Call Rotation_qmstat(iLA,TMPA,Rotte,Sigge)
+  do iLA=0,lMaxA
+    EA = ExpoA(iLA+1,iCA)
+    lDiffA = EA > -1.0d0
+    nS = iLA*(iLA+1)*(iLA+2)/6
+    nT = (iLA+1)*(iLA+2)*(iLA+3)/6
+    kaunt = 0
+    do kComp=nS+1,nT
+      kaunt = kaunt+1
+      TMPA(kaunt) = FactorA(kComp,iCA)
+    end do
 
-!
-!------- Jose. Only one center in B so not loop over centres on B.
-!              Not Suck out Factors since we do not use them here.
-!
+    ! Rotate and go over to spherical representation.
 
-          Do iLB=0,lMaxB
-            EB=ExpoB(iLB+1)
-            lDiffB=EB.gt.-1.0d0
-!
-!-------- There is not rotation of Multipoles in B since we do not use them.
-!
+    Sigge = -1.0d0
+    call Rotation_qmstat(iLA,TMPA,Rotte,Sigge)
 
-!
-!---- ELECTRON--ELECTRON.
-!
-!
-!------ Both diffuse.
-!
-            EAp=0.5d0*EA
-            EBp=0.5d0*EB
-            If(lDiffA.and.lDiffB) then
-              Call TKP(Tau,dKappa,Rho,RhoA,RhoB,EAp,EBp,R               &
-     &                ,dNeigh,lTooSmall)
-              Call ABBoth(iLA,iLB,TMPA                                  &
-     &                   ,Tau,dKappa,Rho,RhoA,RhoB                      &
-     &                   ,Rinv,lTooSmall,Colle)
-              If(iLB.eq.0) then
-                  EintSl(1)=EintSl(1)+Colle(1)
-              Else             ! if iLB not 0 then it is 1
-                If(iLA.eq.0) then
-                  Do ijhr=1,3
-                    EintSl(ijhr+1)=EintSl(ijhr+1)                       &
-     &                          +Colle(1)*Rotte(3,ijhr)
-                  End do
-                Else          ! if iLA is not 0 is 1
-                  Do ijhr=1,3
-                    EintSl(ijhr+1)=EintSl(ijhr+1)                       &
-     &              +Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)      &
-     &              +Colle(3)*Rotte(2,ijhr)
-                  End do
-                Endif
-              Endif
-!
-!------ One diffuse, one not diffuse.
-!
-            ElseIf(lDiffA.and..not.lDiffB) then
-              Call ABOne(iLA,iLB,TMPA                                   &
-     &                  ,EAp,R,Rinv,Colle,lDiffA)
-              If(iLB.eq.0) then
-                EintSl(1)=EintSl(1)+Colle(1)
-              ElseIf(iLB.eq.1) then
-                If(iLA.eq.0) then
-                  Do ijhr=1,3
-                    EintSl(ijhr+1)=EintSl(ijhr+1)                       &
-     &                          +Colle(1)*Rotte(3,ijhr)
-                  End do
-                Else       ! if iLA not 0 then it is 1
-                  Do ijhr=1,3
-                    EintSl(ijhr+1)=EintSl(ijhr+1)                       &
-     &              +Colle(1)*Rotte(3,ijhr)                             &
-     &              +Colle(2)*Rotte(1,ijhr)                             &
-     &              +Colle(3)*Rotte(2,ijhr)
-                  End do
-                Endif
-              ElseIf(iLB.eq.2) then
-                If(iLA.eq.0) then
-                  Do ijhr=1,6            ! Remember Qsigma=z2-0.5(x2+y2)
-                    EintSl(ijhr+4)=EintSl(ijhr+4)                       &
-     &                   +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)        &
-     &                   +TR(4,ijhr)))
-                  End do
-                Else              ! if iLA not 0 then it is 1
-                  Do ijhr=1,6            ! Remember Qsigma=z2-0.5(x2+y2)
-                                         ! QPi1=sqrt(3)*xz
-                                         ! QPi2=sqrt(3)*yz
-                    EintSl(ijhr+4)=EintSl(ijhr+4)                       &
-     &                +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)           &
-     &                +TR(4,ijhr)))                                     &
-     &                +Colle(2)*sqrt(3.0d0)*TR(3,ijhr)                  &
-     &                +Colle(3)*sqrt(3.0d0)*TR(5,ijhr)
-                  End do
-                Endif
-              Endif
+    ! Jose. Only one center in B so not loop over centres on B.
+    !       Not Suck out Factors since we do not use them here.
 
-            ElseIf(.not.lDiffA.and.lDiffB) then
-              Call ABOne(iLB,iLA,TMPA                                   &
-     &                  ,EBp,R,Rinv,Colle,lDiffA)
+    do iLB=0,lMaxB
+      EB = ExpoB(iLB+1)
+      lDiffB = EB > -1.0d0
 
-              If(iLB.eq.0) then
-                EintSl(1)=EintSl(1)+Colle(1)
-              Else            ! if iLB not 0 then it is 1
-                If(iLA.eq.0) then
-                  Do ijhr=1,3
-                    EintSl(ijhr+1)=EintSl(ijhr+1)                       &
-     &                          +Colle(1)*Rotte(3,ijhr)
-                  End do
-                Else      ! is the same for iLA 1 and 2
-                          ! because both have sigma pi1 and pi2
-                          ! components regarding to B
-                  Do ijhr=1,3
-                    EintSl(ijhr+1)=EintSl(ijhr+1)                       &
-     &              +Colle(1)*Rotte(3,ijhr)                             &
-     &              +Colle(2)*Rotte(1,ijhr)                             &
-     &              +Colle(3)*Rotte(2,ijhr)
-                  End do
-                Endif
-              Endif
-!
-!------ Neither diffuse.
-!
-            ElseIf(.not.lDiffA.and..not.lDiffB) then
-              Call ABNone(iLA,iLB,TMPA,Rinv,Colle)
+      ! There is no rotation of Multipoles in B since we do not use them.
 
-              If(iLB.eq.0) then
-                EintSl(1)=EintSl(1)+Colle(1)
-              ElseIf(iLB.eq.1) then
-                If(iLA.eq.0) then
-                  Do ijhr=1,3
-                    EintSl(ijhr+1)=EintSl(ijhr+1)                       &
-     &                          +Colle(1)*Rotte(3,ijhr)
-                  End do
-                Else      ! is the same for iLA 1 or 2
-                  Do ijhr=1,3
-                    EintSl(ijhr+1)=EintSl(ijhr+1)                       &
-     &              +Colle(1)*Rotte(3,ijhr)                             &
-     &              +Colle(2)*Rotte(1,ijhr)                             &
-     &              +Colle(3)*Rotte(2,ijhr)
-                  End do
-                Endif
-              ElseIf(iLB.eq.2) then
-                If(iLA.eq.0) then
-                  Do ijhr=1,6            ! Remember Qsigma=z2-0.5(x2+y2)
-                    EintSl(ijhr+4)=EintSl(ijhr+4)                       &
-     &                   +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)        &
-     &                   +TR(4,ijhr)))
-                  End do
-                ElseIf(iLA.eq.1) then
-                  Do ijhr=1,6            ! Remember Qsigma=z2-0.5(x2+y2)
-                                         ! QPi1=sqrt(3)*xz
-                                         ! QPi2=sqrt(3)*yz
-                    EintSl(ijhr+4)=EintSl(ijhr+4)                       &
-     &                +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)           &
-     &                +TR(4,ijhr)))                                     &
-     &                +Colle(2)*sqrt(3.d0)*TR(3,ijhr)                   &
-     &                +Colle(3)*sqrt(3.0d0)*TR(5,ijhr)
-                  End do
+      ! ELECTRON--ELECTRON.
 
-!------------------Jose. This will be for a d-d interaction
-!                  ElseIf(iLA.eq.2) then
-!                    Do ijhr=1,6         ! Remember Qsigma=z2-0.5(x2+y2)
-!                                        ! QPi1=sqrt(3)*xz
-!                                        ! QPi2=sqrt(3)*yz
-!                                        ! Del1=sqrt(3)*xy
-!                                        ! Del2=0.5*sqrt(3)*(x2-y2)
-!                      EintSl(ijhr+4)=EintSl(ijhr+4)
-!     &                  +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)
-!     &                  +TR(4,ijhr)))+Colle(2)*sqrt(3.d0)*TR(3,ijhr)
-!     &                  +Colle(3)*sqrt(3.0d0)*TR(5,ijhr)
-!     &                  +Colle(4)*sqrt(3.0d0)*TR(2,ijhr)
-!     &                  +Colle(5)*0.5d0*sqrt(3.0d0)*(TR(1,ijhr)
-!     &                  -TR(4,ijhr))
-!                    End do
-!------------------
-                Endif
-              Endif
+      EAp = 0.5d0*EA
+      EBp = 0.5d0*EB
+      if (lDiffA .and. lDiffB) then
+        ! Both diffuse.
 
-            Endif
-          Enddo
+        call TKP(Tau,dKappa,Rho,RhoA,RhoB,EAp,EBp,R,dNeigh,lTooSmall)
+        call ABBoth(iLA,iLB,TMPA,Tau,dKappa,Rho,RhoA,RhoB,Rinv,lTooSmall,Colle)
+        if (iLB == 0) then
+          EintSl(1) = EintSl(1)+Colle(1)
+        else ! if iLB not 0 then it is 1
+          if (iLA == 0) then
+            do ijhr=1,3
+              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
+            end do
+          else ! if iLA is not 0 is 1
+            do ijhr=1,3
+              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)+Colle(3)*Rotte(2,ijhr)
+            end do
+          end if
+        end if
 
-!
-!---- ELECTRON--POINT.
-!
-!------ Point on centre B.
-! Jose. Potential, Field and Field Gradient of Multipole
-! distribution in A on B (to obtain nuclear interaction in B)
-!
-          If(lAtom) then
-            If(lDiffA) then
-              Call ABOne(iLA,0,TMPA,EAp,R,Rinv,Colle,lDiffA)
-              EintSl_Nuc=EintSl_Nuc+Colle(1)
-            Else
-              Call ABNone(iLA,0,TMPA,Rinv,Colle)
-               EintSl_Nuc=EintSl_Nuc+Colle(1)
-            Endif
-          Endif
+      else if (lDiffA .and. (.not. lDiffB)) then
+        ! One diffuse, one not diffuse.
 
-!
+        call ABOne(iLA,iLB,TMPA,EAp,R,Rinv,Colle,lDiffA)
+        if (iLB == 0) then
+          EintSl(1) = EintSl(1)+Colle(1)
+        else if (iLB == 1) then
+          if (iLA == 0) then
+            do ijhr=1,3
+              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
+            end do
+          else ! if iLA not 0 then it is 1
+            do ijhr=1,3
+              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)+Colle(3)*Rotte(2,ijhr)
+            end do
+          end if
+        else if (iLB == 2) then
+          if (iLA == 0) then
+            do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
+              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))
+            end do
+          else ! if iLA not 0 then it is 1
+            do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz
+              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))+Colle(2)*sqrt(3.0d0)*TR(3,ijhr)+ &
+                               Colle(3)*sqrt(3.0d0)*TR(5,ijhr)
+            end do
+          end if
+        end if
 
-        Enddo
+      else if ((.not. lDiffA) .and. lDiffB) then
+        call ABOne(iLB,iLA,TMPA,EBp,R,Rinv,Colle,lDiffA)
 
-!---- ELECTRON--POINT.
-!
-!------ Point on centre A.
-! Jose. Potential, Field and Field Gradient of nuclear
-! charge in A on the B sites
-!
-        If(SlPA(iCA).gt.1.0d-8)then
-          Do iLB=0,lMaxB
-            EB=ExpoB(iLB+1)
-            lDiffB=EB.gt.-1.0d0
-            EBp=0.5d0*EB
+        if (iLB == 0) then
+          EintSl(1) = EintSl(1)+Colle(1)
+        else ! if iLB not 0 then it is 1
+          if (iLA == 0) then
+            do ijhr=1,3
+              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
+            end do
+          else ! is the same for iLA 1 and 2 because both have sigma pi1 and pi2 components regarding to B
+            do ijhr=1,3
+              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)+Colle(3)*Rotte(2,ijhr)
+            end do
+          end if
+        end if
+      else if ((.not. lDiffA) .and. (.not. lDiffB)) then
+        ! Neither diffuse.
 
-            If(lDiffB) then
-              Call ABOne(iLB,0,SlPA(iCA)                                &
-     &                  ,EBp,R,Rinv,Colle,.false.)
-            Else
-              Call ABNone(0,iLB,SlPA(iCA)                               &
-     &                     ,Rinv,Colle)
-            Endif
-            If(iLB.eq.0) then
-              EintSl(1)=EintSl(1)+Colle(1)
-            ElseIf(iLB.eq.1) then
-              Do ijhr=1,3
-                EintSl(ijhr+1)=EintSl(ijhr+1)                           &
-     &                      +Colle(1)*Rotte(3,ijhr)
-              End do
-            ElseIf(iLB.eq.2) then
-              Do ijhr=1,6               ! Remember Qsigma=z2-0.5(x2+y2)
-                EintSl(ijhr+4)=EintSl(ijhr+4)                           &
-     &               +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)            &
-     &               +TR(4,ijhr)))
-              End do
-            Endif
-          End do
+        call ABNone(iLA,iLB,TMPA,Rinv,Colle)
 
-!
-!---- POINT--POINT.
-! Jose. Potential of nuclear charge in A on B
-! (to obtain nuclear interaction in B)
-          If(lAtom) then
-            Call ABNone(0,0,SlPA(iCA),Rinv,Colle)
-             EintSl_Nuc=EintSl_Nuc+Colle(1)
-          Endif
-        Endif
+        if (iLB == 0) then
+          EintSl(1) = EintSl(1)+Colle(1)
+        else if (iLB == 1) then
+          if (iLA == 0) then
+            do ijhr=1,3
+              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
+            end do
+          else ! is the same for iLA 1 or 2
+            do ijhr=1,3
+              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)+Colle(3)*Rotte(2,ijhr)
+            end do
+          end if
+        else if (iLB == 2) then
+          if (iLA == 0) then
+            do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
+              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))
+            end do
+          else if (iLA == 1) then
+            do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz
+              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))+Colle(2)*sqrt(3.d0)*TR(3,ijhr)+ &
+                               Colle(3)*sqrt(3.0d0)*TR(5,ijhr)
+            end do
 
-      Enddo
+          !Jose. This will be for a d-d interaction
+          !else if (iLA == 2) then
+          !  do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz Del1=sqrt(3)*xy Del2=0.5*sqrt(3)*(x2-y2)
+          !            EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))+ &
+          !                             Colle(2)*sqrt(3.d0)*TR(3,ijhr)+Colle(3)*sqrt(3.0d0)*TR(5,ijhr)+ &
+          !                             Colle(4)*sqrt(3.0d0)*TR(2,ijhr)+Colle(5)*0.5d0*sqrt(3.0d0)*(TR(1,ijhr)-TR(4,ijhr))
+          !  end do
+          !--------
+          end if
+        end if
 
-      Return
-      End
+      end if
+    end do
+
+    ! ELECTRON--POINT.
+
+    ! Point on centre B.
+    ! Jose. Potential, Field and Field Gradient of Multipole
+    ! distribution in A on B (to obtain nuclear interaction in B)
+
+    if (lAtom) then
+      if (lDiffA) then
+        call ABOne(iLA,0,TMPA,EAp,R,Rinv,Colle,lDiffA)
+        EintSl_Nuc = EintSl_Nuc+Colle(1)
+      else
+        call ABNone(iLA,0,TMPA,Rinv,Colle)
+        EintSl_Nuc = EintSl_Nuc+Colle(1)
+      end if
+    end if
+
+  end do
+
+  ! ELECTRON--POINT.
+
+  ! Point on centre A.
+  ! Jose. Potential, Field and Field Gradient of nuclear
+  ! charge in A on the B sites
+
+  if (SlPA(iCA) > 1.0d-8) then
+    do iLB=0,lMaxB
+      EB = ExpoB(iLB+1)
+      lDiffB = EB > -1.0d0
+      EBp = 0.5d0*EB
+
+      if (lDiffB) then
+        call ABOne(iLB,0,SlPA(iCA),EBp,R,Rinv,Colle,.false.)
+      else
+        call ABNone(0,iLB,SlPA(iCA),Rinv,Colle)
+      end if
+      if (iLB == 0) then
+        EintSl(1) = EintSl(1)+Colle(1)
+      else if (iLB == 1) then
+        do ijhr=1,3
+          EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
+        end do
+      else if (iLB == 2) then
+        do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
+          EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))
+        end do
+      end if
+    end do
+
+    ! POINT--POINT.
+    ! Jose. Potential of nuclear charge in A on B
+    ! (to obtain nuclear interaction in B)
+    if (lAtom) then
+      call ABNone(0,0,SlPA(iCA),Rinv,Colle)
+      EintSl_Nuc = EintSl_Nuc+Colle(1)
+    end if
+  end if
+
+end do
+
+return
+
+end subroutine Sl_Grad

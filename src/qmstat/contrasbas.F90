@@ -8,150 +8,133 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!      Subroutine ContRASBas(nBas,nStatePrim,iNonH,iNonS,Eigis)
-      Subroutine ContRASBas(nBas,nStatePrim,iNonH,iNonS,iEig2)
-      Implicit Real*8 (a-h,o-z)
 
+!subroutine ContRASBas(nBas,nStatePrim,iNonH,iNonS,Eigis)
+subroutine ContRASBas(nBas,nStatePrim,iNonH,iNonS,iEig2)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qm2.fh"
 #include "numbers.fh"
 #include "WrkSpc.fh"
+dimension nBas(MxSym) !,Eigis(MxState,MxState)
 
-      Dimension nBas(MxSym)!,Eigis(MxState,MxState)
+! Hi y'all
 
-!
-!--- Hi y'all
-!
-      Write(6,*)'     ----- Constructing CASSI eigenstates.'
+write(6,*) '     ----- Constructing CASSI eigenstates.'
 
-!
-!--- Diagonalize overlap matrix.
-!
-      Call GetMem('EigV1','Allo','Real',iEig1,nStatePrim**2)
-      kaunter=0
-      Do 1, i=1,nStatePrim
-        Do 2, j=1,nStatePrim
-          If(i.eq.j) then
-            Work(iEig1+kaunter)=ONE
-          Else
-            Work(iEig1+kaunter)=ZERO
-          Endif
-          kaunter=kaunter+1
-2       Continue
-1     Continue
-      Call Jacob(Work(iNonS),Work(iEig1),nStatePrim,nStatePrim)
-      If(iPrint.ge.15) then
-        Call TriPrt('Diagonal RASSCF overlap matrix',' '                &
-     &             ,Work(iNonS),nStatePrim)
-      Endif
+! Diagonalize overlap matrix.
 
-!
-!--- Construct TS^(-1/2) for canonical orthogonalization.
-!
-      ii=0
-      Do 4, i=1,nStatePrim
-        ii=ii+i
-        x=1.0D00/Sqrt(Max(1.0D-14,Work(iNonS-1+ii)))
-        Do 5, k=1,nStatePrim
-          ind=k+nStatePrim*(i-1)-1
-          Work(iEig1+ind)=x*Work(iEig1+ind)
-5       Continue
-4     Continue
+call GetMem('EigV1','Allo','Real',iEig1,nStatePrim**2)
+kaunter = 0
+do i=1,nStatePrim
+  do j=1,nStatePrim
+    if (i == j) then
+      Work(iEig1+kaunter) = ONE
+    else
+      Work(iEig1+kaunter) = ZERO
+    end if
+    kaunter = kaunter+1
+  end do
+end do
+call Jacob(Work(iNonS),Work(iEig1),nStatePrim,nStatePrim)
+if (iPrint >= 15) then
+  call TriPrt('Diagonal RASSCF overlap matrix',' ',Work(iNonS),nStatePrim)
+end if
 
-!
-!--- Make reductions if requested.
-!
-      Call GetMem('RedEigV1','Allo','Real',iEig2,nStatePrim**2)
-      iT=0
-      If(ContrStateB) then
-        Do 61, iS=1,nStatePrim
-          kaunt=iS*(iS+1)/2-1
-          sss=Work(iNonS+kaunt)
-          If(sss.gt.ThrsCont) then
-            iT=iT+1
-            call dcopy_(nStatePrim,Work(iEig1+nStatePrim*(iS-1)),iONE   &
-     &                ,Work(iEig2+nStatePrim*(iT-1)),iONE)
-          Endif
-61      Continue
-        nStateRed=iT
-        Write(6,6199)'  ----- Contraction:',nStatePrim,' ---> '         &
-     &                                     ,nStateRed
-6199    Format(A,I3,A,I3)
-      Else
-        call dcopy_(nStatePrim**2,Work(iEig1),iONE,Work(iEig2),iONE)
-        nStateRed=nStatePrim
-      Endif
+! Construct TS^(-1/2) for canonical orthogonalization.
 
-!
-!--- Transform H and diagonalize in the original basis.
-!
-      nTri=nStateRed*(nStateRed+1)/2
-      Call GetMem('TEMP','Allo','Real',iTEMP,nStatePrim**2)
-      Call GetMem('SqH','Allo','Real',iSqH,nStatePrim**2)
-      Call GetMem('RedHSq','Allo','Real',iRedHSq,nStateRed**2)
-      Call GetMem('RedHTr','Allo','Real',iRedHTr,nTri)
-      Call Square(Work(iNonH),Work(iSqH),iONE,nStatePrim,nStatePrim)
-      Call Dgemm_('N','N',nStatePrim,nStateRed,nStatePrim,ONE,Work(iSqH)&
-     &          ,nStatePrim,Work(iEig2),nStatePrim,ZERO,Work(iTEMP)     &
-     &          ,nStatePrim)
-      Call Dgemm_('T','N',nStateRed,nStateRed,nStatePrim,ONE,Work(iEig2)&
-     &          ,nStatePrim,Work(iTEMP),nStatePrim,ZERO,Work(iRedHSq)   &
-     &          ,nStateRed)
-      Call SqToTri_Q(Work(iRedHSq),Work(iRedHTr),nStateRed)
-      Call Jacob(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
-      Call JacOrd(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
+ii = 0
+do i=1,nStatePrim
+  ii = ii+i
+  x = 1.0d00/sqrt(max(1.0D-14,Work(iNonS-1+ii)))
+  do k=1,nStatePrim
+    ind = k+nStatePrim*(i-1)-1
+    Work(iEig1+ind) = x*Work(iEig1+ind)
+  end do
+end do
 
-!
-!--- At this stage we have eigenvectors to the CASSI states and their
-!    eigenenergies, hence time to construct the first H_0 and store the
-!    eigenvectors for subsequent transformations.
-!
-      kaunter=0
-      nLvlInd=1
-      Do 55, iState=1,nStateRed
-        Do 56, jState=1,iState
-          kaunter=kaunter+1
-          HMatState(kaunter)=ZERO
-56      Continue
-        HMatState(kaunter)=Work(iRedHTr+kaunter-1)
-!---- If requested, introduce level-shift of states.
-        If(nLvlShift.ne.0) then
-          If(iState.eq.iLvlShift(nLvlInd)) then
-            HMatState(kaunter)=HMatState(kaunter)+dLvlShift(nLvlInd)
-            nLvlInd=nLvlInd+1
-          Endif
-        Endif
-55    Continue
+! Make reductions if requested.
 
-!
-!--- Print.
-!
-      If(iPrint.ge.10) then
-        Call TriPrt('RASSI Hamiltonian',' ',HMatState,nStateRed)
-        Write(6,*)
-        Call RecPrt('RASSI eigenvectors',' ',Work(iEig2),nStatePrim     &
-     &             ,nStateRed)
-      Endif
+call GetMem('RedEigV1','Allo','Real',iEig2,nStatePrim**2)
+iT = 0
+if (ContrStateB) then
+  do iS=1,nStatePrim
+    kaunt = iS*(iS+1)/2-1
+    sss = Work(iNonS+kaunt)
+    if (sss > ThrsCont) then
+      iT = iT+1
+      call dcopy_(nStatePrim,Work(iEig1+nStatePrim*(iS-1)),iONE,Work(iEig2+nStatePrim*(iT-1)),iONE)
+    end if
+  end do
+  nStateRed = iT
+  write(6,6199) '  ----- Contraction:',nStatePrim,' ---> ',nStateRed
+6199 format(A,I3,A,I3)
+else
+  call dcopy_(nStatePrim**2,Work(iEig1),iONE,Work(iEig2),iONE)
+  nStateRed = nStatePrim
+end if
 
-!
-!--- Deallocate.
-!
-      Call GetMem('EigV1','Free','Real',iEig1,nStatePrim**2)
-      Call GetMem('TEMP','Free','Real',iTEMP,nStatePrim**2)
-      Call GetMem('SqH','Free','Real',iSqH,nStatePrim**2)
-      Call GetMem('RedHSq','Free','Real',iRedHSq,nStateRed**2)
-      Call GetMem('RedHTr','Free','Real',iRedHTr,nTri)
+! Transform H and diagonalize in the original basis.
 
-!
-!--- OBSERVE! CAUTION! ATTENTION! The variable nState is defined.
-!
-      nState=nStateRed
+nTri = nStateRed*(nStateRed+1)/2
+call GetMem('TEMP','Allo','Real',iTEMP,nStatePrim**2)
+call GetMem('SqH','Allo','Real',iSqH,nStatePrim**2)
+call GetMem('RedHSq','Allo','Real',iRedHSq,nStateRed**2)
+call GetMem('RedHTr','Allo','Real',iRedHTr,nTri)
+call Square(Work(iNonH),Work(iSqH),iONE,nStatePrim,nStatePrim)
+call Dgemm_('N','N',nStatePrim,nStateRed,nStatePrim,ONE,Work(iSqH),nStatePrim,Work(iEig2),nStatePrim,ZERO,Work(iTEMP),nStatePrim)
+call Dgemm_('T','N',nStateRed,nStateRed,nStatePrim,ONE,Work(iEig2),nStatePrim,Work(iTEMP),nStatePrim,ZERO,Work(iRedHSq),nStateRed)
+call SqToTri_Q(Work(iRedHSq),Work(iRedHTr),nStateRed)
+call Jacob(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
+call JacOrd(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
 
-!
-!--- No parasan!
-!
-      Return
+! At this stage we have eigenvectors to the CASSI states and their
+! eigenenergies, hence time to construct the first H_0 and store the
+! eigenvectors for subsequent transformations.
+
+kaunter = 0
+nLvlInd = 1
+do iState=1,nStateRed
+  do jState=1,iState
+    kaunter = kaunter+1
+    HMatState(kaunter) = ZERO
+  end do
+  HMatState(kaunter) = Work(iRedHTr+kaunter-1)
+  ! If requested, introduce level-shift of states.
+  if (nLvlShift /= 0) then
+    if (iState == iLvlShift(nLvlInd)) then
+      HMatState(kaunter) = HMatState(kaunter)+dLvlShift(nLvlInd)
+      nLvlInd = nLvlInd+1
+    end if
+  end if
+end do
+
+! Print.
+
+if (iPrint >= 10) then
+  call TriPrt('RASSI Hamiltonian',' ',HMatState,nStateRed)
+  write(6,*)
+  call RecPrt('RASSI eigenvectors',' ',Work(iEig2),nStatePrim,nStateRed)
+end if
+
+! Deallocate.
+
+call GetMem('EigV1','Free','Real',iEig1,nStatePrim**2)
+call GetMem('TEMP','Free','Real',iTEMP,nStatePrim**2)
+call GetMem('SqH','Free','Real',iSqH,nStatePrim**2)
+call GetMem('RedHSq','Free','Real',iRedHSq,nStateRed**2)
+call GetMem('RedHTr','Free','Real',iRedHTr,nTri)
+
+! OBSERVE! CAUTION! ATTENTION! The variable nState is defined.
+
+nState = nStateRed
+
+! No parasan!
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(nBas)
-      End
+if (.false.) call Unused_integer_array(nBas)
+
+end subroutine ContRASBas

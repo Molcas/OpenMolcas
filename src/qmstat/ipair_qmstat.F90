@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!-- Little bastard.
-!
-      Integer Function iPair_qmstat(a,b)
-      Implicit Integer (a-z)
-      iPair_qmstat=(Max(a,b)*(Max(a,b)-1))/2+Min(a,b)
-      Return
-      End
+
+! Little bastard.
+integer function iPair_qmstat(a,b)
+
+implicit integer(a-z)
+
+iPair_qmstat = (max(a,b)*(max(a,b)-1))/2+min(a,b)
+
+return
+
+end function ipair_qmstat

@@ -34,45 +34,47 @@
 !> @param[out] Vmat    The electrostatic part of the solute-solvent interaction matrix
 !> @param[in]  iPrint  Print-level
 !***********************************************************************
-      Subroutine HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat,iPrint)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat,iPrint)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "WrkSpc.fh"
+dimension Eint(MxQCen,10), Vmat(MxOt)
+dimension Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen)
+dimension Qua(MxStOT,6,MxQCen)
 
-      Dimension Eint(MxQCen,10),Vmat(MxOt)
-      Dimension Cha(MxStOT,MxQCen),Dip(MxStOT,3,MxQCen)
-      Dimension Qua(MxStOT,6,MxQCen)
+kaunt = 0
+do i=1,nrState
+  do j=1,i
+    kaunt = kaunt+1
+    Vmat(kaunt) = 0.0d0
+  end do
+end do
 
-      kaunt=0
-      Do 9, i=1,nrState
-        Do 99, j=1,i
-          kaunt=kaunt+1
-          Vmat(kaunt)=0.0d0
-99      Continue
-9     Continue
+! The interaction between the distributed multipoles
+! and the generalized field from the solvent.
+kaunt = 0
+do i=1,nrState
+  do j=1,i
+    kaunt = kaunt+1
+    do k=1,ici
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,1)*Cha(kaunt,k)
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,2)*Dip(kaunt,1,k)
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,3)*Dip(kaunt,2,k)
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,4)*Dip(kaunt,3,k)
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,5)*Qua(kaunt,1,k)
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,7)*Qua(kaunt,3,k)
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,10)*Qua(kaunt,6,k)
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,6)*Qua(kaunt,2,k)*2
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,8)*Qua(kaunt,4,k)*2
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,9)*Qua(kaunt,5,k)*2
+    end do
+  end do
+end do
 
-      kaunt=0  !The interaction between the distributed multipoles
-               !and the generalized field from the solvent.
-      Do 10, i=1,nrState
-        Do 11, j=1,i
-          kaunt=kaunt+1
-          Do 12, k=1,ici
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,1)*Cha(kaunt,k)
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,2)*Dip(kaunt,1,k)
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,3)*Dip(kaunt,2,k)
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,4)*Dip(kaunt,3,k)
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,5)*Qua(kaunt,1,k)
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,7)*Qua(kaunt,3,k)
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,10)*Qua(kaunt,6,k)
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,6)*Qua(kaunt,2,k)*2
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,8)*Qua(kaunt,4,k)*2
-            Vmat(kaunt)=Vmat(kaunt)+Eint(k,9)*Qua(kaunt,5,k)*2
-12        Continue
-11      Continue
-10    Continue
-
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iPrint)
-      End
+if (.false.) call Unused_integer(iPrint)
+
+end subroutine HelState

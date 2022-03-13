@@ -8,10 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C       &
-     &                ,iBigForDeAll,nSizeBig,ip_UNCLE_MOE,nB)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iBigForDeAll,nSizeBig,ip_UNCLE_MOE,nB)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
@@ -22,232 +22,212 @@
 #include "WrkSpc.fh"
 #include "warnings.h"
 #include "constants.fh"
-
-      Parameter (Conver1=1.0d10*CONST_BOHR_RADIUS_IN_SI_)
-      Parameter (Conver2=2.0d0*Pi/360.0d0)
-!     Parameter (BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_)
-      Dimension nBas(1),nBas_C(1),nCnC_C(MxBasC),Coord(MxAt*3)
-      Dimension Eint(MxQCen,10),Poli(MxQCen,10)
-      Dimension iFP(3),iGP(3),iDT(3),iFi(3),iFil(MxQCen,10)
-      Dimension Smat(MxStOT),SmatPure(MxStOT),Vmat(MxStOT)
-      Dimension BoMaH(MxAt),BoMaO(MxAt)
+parameter(Conver1=1.0d10*CONST_BOHR_RADIUS_IN_SI_)
+parameter(Conver2=2.0d0*Pi/360.0d0)
+!parameter(BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_)
+dimension nBas(1), nBas_C(1), nCnC_C(MxBasC), Coord(MxAt*3)
+dimension Eint(MxQCen,10), Poli(MxQCen,10)
+dimension iFP(3), iGP(3), iDT(3), iFi(3), iFil(MxQCen,10)
+dimension Smat(MxStOT), SmatPure(MxStOT), Vmat(MxStOT)
+dimension BoMaH(MxAt), BoMaO(MxAt)
 !****Jose** Interaction with Slater type to consider Penetration
-      Dimension Eint_Nuc(MxAt)
+dimension Eint_Nuc(MxAt)
 !****JoseMEP**New variables for the MEP calculation
-      Dimension SumElcPot(MxQCen,10)
-      Dimension PertElcInt(MxBas*(MxBas+1)/2)
-      Character*4 Labjhr
+dimension SumElcPot(MxQCen,10)
+dimension PertElcInt(MxBas*(MxBas+1)/2)
+character*4 Labjhr
 !****
-      Character Memlabel*20,Memlaabe*20,Memlaaab*20,MemLaaaa*20
-      Character MemQFal*20,ChCo*2,ChCo2*2
-      Logical DidWeAccept,Haveri,Exist,CalledBefore,SampleThis,InCutOff
-      Character Head*200
-      Parameter (ExLim=10) !Over how long distance the exchange rep.
-                           !is computed, the solv-solv.
-      External Ranf
-      Dimension iDum(1)
+character Memlabel*20, Memlaabe*20, Memlaaab*20, MemLaaaa*20
+character MemQFal*20, ChCo*2, ChCo2*2
+logical DidWeAccept, Haveri, Exist, CalledBefore, SampleThis, InCutOff
+character Head*200
+parameter(ExLim=10) !Over how long distance the exchange rep. is computed, the solv-solv.
+external Ranf
+dimension iDum(1)
 
-!
 !-- Enter eqras.
-!
 
-!
-!-- Numbers, initializations, conversions.
-!
-      BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
-      Ract=Rstart              !Initial radie
-      delX=delX/Conver1        !angstrom-->Bohr
-      delFi=delFi*Conver2      !degree-->radian
-      delR=delR/Conver1        !angstrom-->Bohrn
-      CalledBefore=.false.
-      Samplethis=.true.
-      iBigForDeAll=iBigT
-      If(ParallelT) nMacro=nTemp*nMacro
+! Numbers, initializations, conversions.
 
-!
-!---- If we have vacuum, then no volume-pressure work is done, nor do we
-!     have any cavitation free-energy.
-!
-      If(abs(Diel-1).le.0.0001d0) then
-        Gamma=0
-        Gam=0
-      Else
-       If(SURF.le.0.0d0) then
-        Gamma=0
-        Gam=0
-       Else
-        Gamma=Pres*4.188790205d0*.52917d0**3*6.023d0*.00001d0           &
-     &       *1.01325d0/627.52d0/4.184d0
-        Gam=.0005973455d0/74d0*SURF
-       Endif
-      Endif
-!
-!--- More numbers.
-!
-      If(Temp.le.0.0d0) then
-        BetaBol=1.0d23
-      Else
-        BetaBol=1.0d0/(Temp*BoltzK)
-      Endif
-      DiFac=-(Diel-1.0d0)/(Diel+1.0d0)
-      Expran=0.0d0
-      iHowMSampIN=0
-      iHowMSampUT=0
-      nBaseC=nBas_C(1)
-      nBaseQ=nBas(1)
-      iTriBasQ=nBaseQ*(nBaseQ+1)/2
-      iTriState=nState*(nState+1)/2
-      timeCLAS=0
-      timeEX=0
-      timeEL=0
-      timeMC=0
+BoltzK = 1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
+Ract = Rstart         !Initial radie
+delX = delX/Conver1   !angstrom-->bohr
+delFi = delFi*Conver2 !degree-->radian
+delR = delR/Conver1   !angstrom-->bohr
+CalledBefore = .false.
+SampleThis = .true.
+iBigForDeAll = iBigT
+if (ParallelT) nMacro = nTemp*nMacro
 
+! If we have vacuum, then no volume-pressure work is done, nor do we
+! have any cavitation free-energy.
 
-!
-!---- If some damping has been requested, prepare it here and print.
-!
-      If((Dispdamp.or.FieldDamp).and.iPrint.ge.8) then
-        Write(6,*)
-        Write(6,*)'-----Various damping data.'
-        Write(6,*)
-      Endif
-      If(Dispdamp) then
+if (abs(Diel-1) <= 0.0001d0) then
+  Gamma = 0
+  Gam = 0
+else
+  if (SURF <= 0.0d0) then
+    Gamma = 0
+    Gam = 0
+  else
+    Gamma = Pres*4.188790205d0*.52917d0**3*6.023d0*.00001d0*1.01325d0/627.52d0/4.184d0
+    Gam = .0005973455d0/74d0*SURF
+  end if
+end if
 
-!
-!---- Construct the Born-Mayer parameters, a la Brdarski-Karlstrom
-!
-        Call BornMayerBK(iQ_Atoms,BoMaH,BoMaO)
-      Endif
+! More numbers.
 
-!
-!---- Damping of field.
-!
-      If(Fielddamp) then
-        if(iPrint.ge.8) then
-          Write(6,*)'  Damping the field between Qm-region and solvent.'
-          Write(6,*)'E_damp=E_0*(1-exp(alpha*distance))^N'
-          Write(6,*)'  alpha(QM-oxygen)   =',CAFieldG
-          Write(6,*)'  alpha(QM-hydrogen) =',CBFieldG
-          Write(6,*)'  N                  =',CFexp
-        endif
-      Endif
+if (Temp <= 0.0d0) then
+  BetaBol = 1.0d23
+else
+  BetaBol = 1.0d0/(Temp*BoltzK)
+end if
+DiFac = -(Diel-1.0d0)/(Diel+1.0d0)
+Expran = 0.0d0
+iHowMSampIN = 0
+iHowMSampUT = 0
+nBaseC = nBas_C(1)
+nBaseQ = nBas(1)
+iTriBasQ = nBaseQ*(nBaseQ+1)/2
+iTriState = nState*(nState+1)/2
+timeCLAS = 0
+timeEX = 0
+timeEL = 0
+timeMC = 0
 
-!
-!-- Check what type of simulation to run, and generate some output of
-!   outmost beauty.
-!
-      If(Qmeq.and.iRead.ne.9) then
-        Call NiceOutPut('EIQ',Gam,Gamma,BetaBol)
-      Elseif(QmProd.and.iRead.ne.9) then
-        Call NiceOutPut('PIQ',Gam,Gamma,BetaBol)
-        Call DaName(iLuSaUt,SaFilUt)
-        iDisk=0 !Put some dummy on the sampfile so we have space for
-                !the real number later.
-        iDum(1)=iHowMSampUT
-        Call iDaFile(iLuSaUt,1,iDum,1,iDisk)
-        !Below we make a check for extreme cases. Our algorithm to
-        !select sampling configurations sets this limit.
-        iProdMax=(2**30-1)*2
-        If((nMacro*nMicro).ge.iProdMax) then
-          Write(6,*)
-          Write(6,*)'WARNING! Too large numbers for nMacro and nMicro t'&
-     &//'o run production!'
-          Write(6,*)'   Their product must not be greater than 2**31!'
-          Write(6,*)'   If you wish to make such large samples, you ca' &
-     &//'n run several samplings and collect several sampfiles.'
-          Call Quit(_RC_INTERNAL_ERROR_)
-        Endif
-      Elseif(iRead.eq.9) then  !If we read from sampfile: open the
-                          !sampfile and read how many configurations
-                          !and open extract file.
-        Call NiceOutPut('SSS',Gam,Gamma,BetaBol)
-        Call DaName(iLuSaIn,SaFilIn)
-        iDiskSa=0
-        Call iDaFile(iLuSaIn,2,iDum,1,iDiskSa)
-        iHowMSampIN=iDum(1)
-        iLuExtr=54
-        iLuExtr=IsFreeUnit(iLuExtr)
-        Call OpnFl(SimEx,iLuExtr,Exist)
-        Write(iLuExtr,*)'Extract-File'
-        Write(iLuExtr,*)
-        !And put some words in the output
-        Write(6,*)
-        Write(6,*)'   Total number of sampled configurations:'          &
-     &           ,iHowMSampIN
-        Write(6,*)'   Reading from the file ',SaFilIn
-        Write(6,*)'   Summarizing data put on ',SimEx
-!*****JoseMEP
-      ! If we perform MEP calculation, first we make some zeros
-      ! and allocate some memory.
-        If(lExtr(8)) then
-          Do ijhr=1,MxQCen
-            Do jjhr=1,10
-               SumElcPot(ijhr,jjhr)=0.0d0
-               AvElcPot(ijhr,jjhr)=0.0d0
-            End do
-          End do
-          NCountField=0
+! If some damping has been requested, prepare it here and print.
 
-          iTriMaxBasQ=MxBas*(MxBas+1)/2
-          call dcopy_(iTriMaxBasQ,[ZERO],iZERO,PertNElcInt,iONE)
-          Call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iTriBasQ)
-          call dcopy_(iTriBasQ,[ZERO],iZERO,Work(ipAOSum),iONE)
-        Endif
-!*********
-      Else
-        Write(6,*)
-        Write(6,*)'An invalid number of iRead detected.'
-        Call Quit(_RC_INTERNAL_ERROR_)
-      Endif
+if ((Dispdamp .or. FieldDamp) .and. (iPrint >= 8)) then
+  write(6,*)
+  write(6,*) '-----Various damping data.'
+  write(6,*)
+end if
+if (Dispdamp) then
+
+  ! Construct the Born-Mayer parameters, a la Brdarski-Karlstrom
+
+  call BornMayerBK(iQ_Atoms,BoMaH,BoMaO)
+end if
+
+! Damping of field.
+
+if (Fielddamp) then
+  if (iPrint >= 8) then
+    write(6,*) '  Damping the field between Qm-region and solvent.'
+    write(6,*) '  E_damp=E_0*(1-exp(alpha*distance))^N'
+    write(6,*) '  alpha(QM-oxygen)   =',CAFieldG
+    write(6,*) '  alpha(QM-hydrogen) =',CBFieldG
+    write(6,*) '  N                  =',CFexp
+  end if
+end if
+
+! Check what type of simulation to run, and generate some output of
+! utmost beauty.
+
+if (Qmeq .and. (iRead /= 9)) then
+  call NiceOutPut('EIQ',Gam,Gamma,BetaBol)
+else if (QmProd .and. (iRead /= 9)) then
+  call NiceOutPut('PIQ',Gam,Gamma,BetaBol)
+  call DaName(iLuSaUt,SaFilUt)
+  iDisk = 0 !Put some dummy on the sampfile so we have space for the real number later.
+  iDum(1) = iHowMSampUT
+  call iDaFile(iLuSaUt,1,iDum,1,iDisk)
+  ! Below we make a check for extreme cases. Our algorithm to
+  ! select sampling configurations sets this limit.
+  iProdMax = (2**30-1)*2
+  if ((nMacro*nMicro) >= iProdMax) then
+    write(6,*)
+    write(6,*) 'WARNING! Too large numbers for nMacro and nMicro to run production!'
+    write(6,*) '   Their product must not be greater than 2**31!'
+    write(6,*) '   If you wish to make such large samples, you can run several samplings and collect several sampfiles.'
+    call Quit(_RC_INTERNAL_ERROR_)
+  end if
+else if (iRead == 9) then
+  ! If we read from sampfile: open the
+  ! sampfile and read how many configurations and open extract file.
+  call NiceOutPut('SSS',Gam,Gamma,BetaBol)
+  call DaName(iLuSaIn,SaFilIn)
+  iDiskSa = 0
+  call iDaFile(iLuSaIn,2,iDum,1,iDiskSa)
+  iHowMSampIN = iDum(1)
+  iLuExtr = 54
+  iLuExtr = IsFreeUnit(iLuExtr)
+  call OpnFl(SimEx,iLuExtr,Exist)
+  write(iLuExtr,*) 'Extract-File'
+  write(iLuExtr,*)
+  ! And put some words in the output
+  write(6,*)
+  write(6,*) '   Total number of sampled configurations:',iHowMSampIN
+  write(6,*) '   Reading from the file ',SaFilIn
+  write(6,*) '   Summarizing data put on ',SimEx
+  !*****JoseMEP
+  ! If we perform MEP calculation, first we make some zeros and allocate some memory.
+  if (lExtr(8)) then
+    do ijhr=1,MxQCen
+      do jjhr=1,10
+        SumElcPot(ijhr,jjhr) = 0.0d0
+        AvElcPot(ijhr,jjhr) = 0.0d0
+      end do
+    end do
+    NCountField = 0
+
+    iTriMaxBasQ = MxBas*(MxBas+1)/2
+    call dcopy_(iTriMaxBasQ,[ZERO],iZERO,PertNElcInt,iONE)
+    call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iTriBasQ)
+    call dcopy_(iTriBasQ,[ZERO],iZERO,Work(ipAOSum),iONE)
+  end if
+  !*********
+else
+  write(6,*)
+  write(6,*) 'An invalid number of iRead detected.'
+  call Quit(_RC_INTERNAL_ERROR_)
+end if
 !----------------------------------------------------------------------*
 ! If we have input file, then read from it.                            *
 !----------------------------------------------------------------------*
-      iCStart=(((iQ_Atoms-1)/nAtom)+1)*nCent+1
-      iCNum=(iCStart-1)/nCent
-      i9=0 !i9 is active if iRead.eq.9 and we are collecting
-            !configurations from the sampfile.
-58886 Continue
-      i9=i9+1
-      If(iRead.le.8.and.iRead.ge.6) then
-        Call Get8(Ract,Dum)
-      Elseif(iRead.eq.9) then
-        Call Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
-      Else
-        If(iExtra.gt.0) then
-          Call NyPart(iExtra,nPart,Cordst,Rstart,nCent,iSeed)
-        Endif
-        If(iPrint.ge.10) then
-          Write(Head,*)'Coordinates of the initial distribution.'
-          Call Cooout(Head,Cordst,nPart,nCent)
-        Endif
-      Endif
-!
-!-- Give a startvalue for the Total energy. The effect is that we
-!   always accept the first microstep.
-!
-      Etot=1D+10
+iCStart = (((iQ_Atoms-1)/nAtom)+1)*nCent+1
+iCNum = (iCStart-1)/nCent
+i9 = 0 !i9 is active if iRead == 9 and we are collecting configurations from the sampfile.
+58886 continue
+i9 = i9+1
+if ((iRead <= 8) .and. (iRead >= 6)) then
+  call Get8(Ract,Dum)
+else if (iRead == 9) then
+  call Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
+else
+  if (iExtra > 0) then
+    call NyPart(iExtra,nPart,Cordst,Rstart,nCent,iSeed)
+  end if
+  if (iPrint >= 10) then
+    write(Head,*) 'Coordinates of the initial distribution.'
+    call Cooout(Head,Cordst,nPart,nCent)
+  end if
+end if
 
-!
-!-- Some numbers.
-!
-      ncpart=Ncent*nPart
-      ncParm=ncPart-(nCent*icNum)
-      nClas=nPart-iCNum
-      indma=npart*npol
-      iCi=(iQ_Atoms*(iQ_Atoms+1))/2
+! Give a startvalue for the Total energy. The effect is that we
+! always accept the first microstep.
 
-!
-!-- Put QM-molecule in its place.
-!
-      If(iRead.eq.8.or.iRead.eq.0) then
-        Call PlaceIt(Coord,iQ_Atoms,iCNum)
-      Elseif(iRead.eq.6) then
-        Call PlaceIt9(Coord,Cordst,info_atom,iQ_Atoms)
-        If(iPrint.ge.10) then
-          Write(Head,*)'CM-centred coordinates after substitution.'
-          Call Cooout(Head,Cordst,nPart,nCent)
-        Endif
-      Endif
+Etot = 1D+10
+
+! Some numbers.
+
+ncpart = Ncent*nPart
+ncParm = ncPart-(nCent*icNum)
+nClas = nPart-iCNum
+indma = npart*npol
+iCi = (iQ_Atoms*(iQ_Atoms+1))/2
+
+! Put QM-molecule in its place.
+
+if ((iRead == 8) .or. (iRead == 0)) then
+  call PlaceIt(Coord,iQ_Atoms,iCNum)
+else if (iRead == 6) then
+  call PlaceIt9(Coord,Cordst,info_atom,iQ_Atoms)
+  if (iPrint >= 10) then
+    write(Head,*) 'CM-centred coordinates after substitution.'
+    call Cooout(Head,Cordst,nPart,nCent)
+  end if
+end if
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -255,420 +235,375 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 
-      iSnurr=0  !How many steps taken totally.
-!
-!---- The Macrosteps.
-!
-      Do 2000, iMacro=1,nMacro
-        Esav=0.0d0
-        If(iRead.eq.9) then
-          iAcc=1
-        Else
-          iAcc=0
-        Endif
+iSnurr = 0 !How many steps taken totally.
 
-!------ If we are running parallel tempering, then...
-        If(ParallelT) Call ParaRoot(Ract,BetaBol,Etot,CalledBefore      &
-     &                             ,SampleThis)
-!
-!------ The Microsteps.
-!
-        Do 2001, iMicro=1,nMicro
-          Call Timing(Cpu1,Tim1,Tim2,Tim3)
-          Eold=Etot
-          iSnurr=iSnurr+1
-!
-!-------- Generate new configuration, both solvent and QM-region.
-!
-          Call GeoGen(Ract,Rold,iCNum,iQ_Atoms)
-!
-!-------- Compute Solvent-solvent interaction.
-!
-          Call ClasClas(iCNum,iCStart,ncParm,Coord,iFP,iGP,iDT,iFI,iDist&
-     &                 ,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
-          Call QMPosition(EHam,Cordst,Coord,Forcek,dLJrep,Ract,iQ_Atoms)
-          Call Timing(Cpu2,Tim1,Tim2,Tim3)
-          timeCLAS=timeCLAS+(Cpu2-Cpu1)
-!--------------------------------------------------------------------------*
-! Work a bit with the quantum part.                                        *
-!--------------------------------------------------------------------------*
-          Do 4002, i=1,3
-            xyzMyQ(i)=0  !Dipoles for the QM-part, see polink.f.
-            xyzMyI(i)=0
-4002      Continue
-          nSize=3*nPol*nPart
-          Do 400, i=1,iCi  !Allocate memory for the field on the QM-mol.
-            Do 4000, j=1,10 !iCi: number of quantum molecule sites.
-              Write(MemQFal,'(A,i2.2,i2.2)')'Falt',i,j
-              Call GetMem(MemQFal,'Allo','Real',iFil(i,j),nSize)
-4000        Continue
-400       Continue
-          Do 401, i=1,iCi
-            Do 402, j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
-              Do 403, k=1,nPart*nPol !Classical polarisation sites
-                                     !including quantum molecule.
-                Work(iFil(i,j)-1+k)=0.0d0
-                Work(iFil(i,j)-1+k+nPart*nPol)=0.0d0
-                Work(iFil(i,j)-1+k+2*nPart*nPol)=0.0d0
-403           Continue
-              Eint(i,j)=0.0d0
-402         Continue
-          If (i.le.MxAt) Eint_Nuc(i)=0.0d0
-401       Continue
-!
-!-------- Compute the exchange operator.
-!
-          Call ExRas(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms              &
-     &              ,nAtomsCC,Ax,Ay,Az,iTriState,Smat,SmatPure          &
-     &              ,InCutOff,ipAOSum)
-          Call Timing(Cpu3,Tim1,Tim2,Tim3)
-          timeEX=timeEX+(Cpu3-Cpu2)
-!
-!------ Electrostatics commencing.
-!
-!
-!------ Compute various gradients of 1/r.
-!
-          If(lSlater) then
-            Call OneOverR_Sl(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp           &
-     &                      ,iCNum,Eint,iQ_Atoms,outxyzRAS              &
-     &                      ,Eint_Nuc)
-          Else
-            Call OneOverR(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp              &
-     &                   ,iCNum,Eint,iQ_Atoms,outxyzRAS)
-          Endif
+! The Macrosteps.
 
-!
-!----- Couple the point-charges in the solvent to the QM-region.
-!
-          Call HelState(Eint,nState,iCi,RasCha,RasDip,RasQua,Vmat       &
-     &                 ,iPrint)
-!
-!----- Let QM-region and solvent polarize.
-!
-          Call PolRas(iDist,iDistIM,iDT,iFI,iFP,iFil,iCStart            &
-     &               ,iTriState,VMat,Smat,DiFac,Ract,iCNum,Energy       &
-     &               ,nVarv,iSTC,Haveri,iQ_Atoms,ip_ExpVal,Poli)
-!
-!----- Energy from QM-nuclei interacting with solvent field.
-!
-          If(lSlater) then
-            Do 702, i=1,iQ_Atoms
-             Energy=Energy-Eint_Nuc(i)*ChaNuc(i)
-702        Continue
-          Else
-            Do 703, i=1,iQ_Atoms
-              Energy=Energy-Eint(i,1)*ChaNuc(i)
-703         Continue
-          Endif
-!
-!----- Some additional boost of short-range repulsion.
-!
-          Call BoostRep(AddRep,SmatPure,iSTC,nState,InCutOff)
-!
-!----- Sum-up what we will call QM-region energy.
-!
-          Energy=Energy-EEdisp+AddRep
-!----------------------------------------------------------------------*
-! Final induction and reaction field energies.                         *
-!----------------------------------------------------------------------*
-          Call ReaInd(iGP,iDT,iDistIm,iCNum,IndMa,NcParm,Sum1,s90um)
-          Call Timing(Cpu4,Tim1,Tim2,Tim3)
-          timeEL=timeEL+(Cpu4-Cpu3)
-!----------------------------------------------------------------------*
-! Construct the final energy.                                          *
-!----------------------------------------------------------------------*
-          EnCLAS=Elene+EHam-Edisp+Exrep+E2Die+ExDie
-          Etot=EnCLAS-0.5*S90um-Sum1+Gamma*Ract**3+Energy+Gam*Ract**2
-          Dele=Etot-Eold
-!----------------------------------------------------------------------*
-! Printing and various if requsted.                                    *
-!----------------------------------------------------------------------*
-          If(iPrint.ge.10) then
-            If(Haveri) Etot=999999
-            Write(6,*)
-            Write(6,*)'   ----Microstep',iMicro
-            Write(6,*)'         Number of iterations:',nVarv
-            Write(6,*)'         Total energy:',Etot
-            Write(6,*)'         Of which is'
-            Write(6,*)'            Pairwise solvent-solvent interaction'&
-     &//':',EnCLAS
-            Write(6,*)'              Solvent-solvent Electrostatic'     &
-     &,Elene
-            Write(6,*)'              Harmonic Spring:',EHam
-            Write(6,*)'              Solvent-solvent Dispersion:',-Edisp
-            Write(6,*)'              Solvent-solvent Exchange:',Exrep
-            Write(6,*)'            Energy of induced dipoles in field f'&
-     &//'rom explicit solvent:',-Sum1
-            Write(6,*)'            Energy of solvent charge distributio'&
-     &//'n in reaction field:',-0.5*S90um
-            Write(6,*)'            Solvent E-interaction with image:'   &
-     &,E2Die
-            Write(6,*)'            Solvent Repulsion with boundary:'    &
-     &,ExDie
-            Write(6,*)'            Solvent-Solute dispersion:',EEdisp
-            Write(6,*)'            Energy of QM-region:',Energy
-            Write(6,*)'              Higher order overlap exchange pair'&
-     &//'-term:',AddRep
-            Write(6,*)'            Surface tension term:',Gam*Ract**2
-            Write(6,*)'            Volume-pressure term:',Gamma*Ract**3
-            Write(6,*)'         Previous accepted energy:',Eold
-            Write(6,*)'         Difference:',Dele
-            Write(6,*)'         Total dipole in QM-region:(',-xyzMyQ(1),&
-     &',',-xyzMyQ(2),',',-xyzMyQ(3),')'
-            Write(6,*)'         Radie:',Ract
-            If(Haveri) then
-              Write(6,*)'    WARNING! SOME OF THE NUMBERS ABOVE HAVE N' &
-     &//'O MEANING SINCE THE POLARIZATION DID NOT CONVERGE!!!'
-              GoTo 8194
-            Endif
-          Endif
+do iMacro=1,nMacro
+  Esav = 0.0d0
+  if (iRead == 9) then
+    iAcc = 1
+  else
+    iAcc = 0
+  end if
 
-!
-!-- If we are collecting stuff from a sampfile, now is the time to put
-!   data on the extract file. If center-specific expectation values
-!   are requested, call Allen.
-!
-          If(iRead.eq.9) then
-            If(lExtr(6)) then
-              E_Nuc_Rubbet=0.0d0
-              If(lSlater) then
-                Do 6347, iAt=1,iQ_Atoms
-                  E_Nuc_Rubbet=E_Nuc_Rubbet                             &
-     &                  -(Eint_Nuc(iAt)+Poli(iAt,1))*ChaNuc(iAt)
-6347            Continue
-              Else
-                Do 6348, iAt=1,iQ_Atoms
-                  E_Nuc_Rubbet=E_Nuc_Rubbet                             &
-     &                  -(Eint(iAt,1)+Poli(iAt,1))*ChaNuc(iAt)
-6348            Continue
-              Endif
-            Endif
-            If(lExtr(7)) then
-              Call AllenGinsberg('RASSI',Eint,Poli,ChaNuc,RasCha,RasDip &
-     &                          ,RasQua,MxStOT,iSTC,nState,iExtr_Atm    &
-     &                          ,lExtr(4),iExtr_Eig,iQ_Atoms            &
-     &                          ,ip_ExpCento,E_Nuc_Part,lSlater         &
-     &                          ,Eint_Nuc)
-            Endif
-            Call Extract(iLuExtr,i9,Etot,xyzMyQ,HMatState,iSTC,iDt      &
-     &                  ,nState,HMatSOld,xyzQuQ,ip_ExpVal,ip_ExpCento   &
-     &                  ,E_Nuc_Rubbet,E_Nuc_Part)
-!***JoseMEP**********
-      ! If MEP option. Add electr. potential, field, etc
-      ! for all solvent config.
-            If(lExtr(8)) then
-              Labjhr='Add '
-              Call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot               &
-     &                     ,NCountField,PertElcInt,iONE                 &
-     &                     ,iONE,[iONE],[iONE],iONE)
-              NCountField=NCountField+1
-            Endif
-!******
-            GoTo 9090
-          Endif
+  ! If we are running parallel tempering, then...
+  if (ParallelT) call ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)
 
-!
-!-- Resume the MC-wrap up.
-!
-          Dele=Dele*BetaBol
-          DidWeAccept=.true.
-          If(Dele.lt.0) then
-            iAcc=iAcc+1
-          Else
-            Expe=Exp(-Dele)
-            Expran=ranf(iseed)
-            If(iPrint.ge.10) then
-              Write(6,*)'         Positive energy change!'
-              Write(6,*)'         Boltzmann weight:',Expe
-              Write(6,*)'         Random number:',ExpRan
-            Endif
-            iAcc=iAcc+1
-            If(Expe.lt.ExpRan) then
-              Call Oldge(iAcc,Etot,Eold,Ract,Rold)
-              DidWeAccept=.false.
-              If(iPrint.ge.10) then
-                Write(6,*)'         Not accepted!'
-              Endif
-            Endif
-          Endif
-          If(DidWeAccept)Esav=Esav+Etot
-!----------------------------------------------------------------------*
-! If this is a production run, then put stuff on the sampfile.         *
-!----------------------------------------------------------------------*
-          If(QmProd.and.iRead.ne.9) then
-            If(SampleThis) then
-              If(Inter.ne.0) then
-                Inte=(iSnurr/Inter)*Inter
-                If(Inte.eq.((iMacro-1)*nMicro+iMicro)) then
-                  Call Put9(Etot,Ract,iDT,iHowMSampUT,Gamma,Gam,Esav    &
-     &                     ,iDisk)
-                Endif
-              Endif
-            Endif
-          Endif
+  ! The Microsteps.
 
-!
-!-- Free memory.
-!
-9090      Continue
-          nSize=(nClas*(nClas-1)/2)*(nCent**2)
-          nSizeIm=(nClas*nCent)**2
-          Call GetMem('DistMat','Free','Real',iDist,nSize)
-          Call GetMem('DistMatIm','Free','Real',iDistIm,nSizeIm)
-          Do 90001,i=1,3
-            Write(ChCo,'(I1.1)')i
-            Write(MemLabel,*)'FP'//ChCo
-            Write(MemLaabe,*)'GP'//ChCo
-            Write(MemLaaab,*)'DT'//ChCo
-            Write(MemLaaaa,*)'FI'//ChCo
-            Call GetMem(MemLabel,'Free','Real',iFP(i),IndMa)
-            Call GetMem(MemLaabe,'Free','Real',iGP(i),IndMa)
-            Call GetMem(MemLaaab,'Free','Real',iDT(i),IndMa)
-            Call GetMem(MemLaaaa,'Free','Real',iFI(i),IndMa)
-90001     Continue
-          nSize=3*nPol*nPart
-          Do 90002, i=1,iCi
-            Do 90003, j=1,10
-              Write(ChCo,'(I2.2)')i
-              Write(ChCo2,'(I2.2)')j
-              Write(MemQFal,*)'Falt'//ChCo//ChCo2
-              Call GetMem(MemQFal,'Free','Real',iFil(i,j),nSize)
-90003       Continue
-90002     Continue
-          Call GetMem('Coeff','Free','Real',iSTC,nState**2)
-          Call Timing(Cpu5,Tim1,Tim2,Tim3)
-          timeMC=timeMC+(Cpu5-Cpu4)
+  do iMicro=1,nMicro
+    call Timing(Cpu1,Tim1,Tim2,Tim3)
+    Eold = Etot
+    iSnurr = iSnurr+1
 
-!---------------------------------------------------------------------*
-!-- End of Microstep.                                                 *
-!                                                                     *
-!---------------------------------------------------------------------*
-2001    Continue
-!---------------------------------------------------------------------*
-!-- Have we collected all sampled configurations? If no, go up again. *
-!   If yes, then close some files and take a little jump downwards to *
-!   the END!!!                                                        *
-!---------------------------------------------------------------------*
-!Jose***************************************
-! This point is also used to perform the Average of the Potential,
-! Field and Field gradients to obtain and average Electrostatic
-! perturbation. The Non-Electr. perturbation is also obtained here
-! it will be added directly to the One-electron file.
-!******************************************
+    ! Generate new configuration, both solvent and QM-region.
 
-        If(i9.lt.iHowMSampIN.and.iRead.eq.9) then
-          GoTo 58886
-        Elseif(i9.ge.iHowMSampIN.and.iRead.eq.9) then
-!*****JoseMEP**
-      ! If MEP option. Obtain the mean Potential, Field
-      ! and Field Gradients.
-      ! It si also obtained the average of the Non-Electrostatic
-      ! perturbation
-          If(lExtr(8)) then
-              Labjhr='Aver'
-              Call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot               &
-     &                     ,NCountField,PertElcInt,iONE                 &
-     &                     ,iONE,[iONE],[iONE],iONE)
-              AverFact=1.0d0/Dble(NCountField)
-              Call DaxPy_(iTriBasQ,AverFact,Work(ipAOSum),iONE          &
-     &                   ,PertNElcInt,iONE)
-              Call GetMem('SumOvlAOQ','Free','Real',ipAOSum,iTriBasQ)
-          Endif
-!********
+    call GeoGen(Ract,Rold,iCNum,iQ_Atoms)
 
-          Call DaClos(iLuSaIn)
-          Close(iLuExtr)
-          GoTo 58887
-        Endif
-!----------------------------------------------------------------------*
-! Write to startfile.                                                  *
-!----------------------------------------------------------------------*
-8194    Continue
-        ESav=Esav/Dble(iAcc)
-        Call Put8(Ract,Etot,Gamma,Gam,ESav)
-        If(Haveri) Call Quit(_RC_NOT_CONVERGED_)
-!----------------------------------------------------------------------*
-! Print some things here at the end of the macrostep.                  *
-!----------------------------------------------------------------------*
-        If(.not.ParallelT) then
-          jMacro=iMacro
-        Else
-          jMacro=1+(iMacro-1)/nTemp
-        Endif
-        Write(6,'(A,i4)')'---Macrostep ',jMacro
-        Write(6,'(A,i4)')'     Number of microsteps:',nMicro
-        Pr=100.0d0*(Dble(iAcc)/Dble(nMicro))
-        Write(6,'(A,i4,A,f5.1,A)')'     Number of acceptances:',iAcc,'('&
-     &                          ,Pr,'%)'
-        Write(6,'(A,f12.4)')'     Radie (a.u.):',Ract
-        Write(6,'(A,f16.8)')'     Average Energy (a.u.) in Macrostep:'  &
-     &                     ,Esav
-        Write(6,'(A,3(f12.4))')'     Total dipole in QM-region last mic'&
-     &//'rostep (a.u.):',-xyzMyQ(1),-xyzMyQ(2),-xyzMyQ(3)
-        Write(6,*)
-        Call xFlush(6)
-!--------------------------------------------------------------------------*
-! End of Macrostep.                                                        *
-!--------------------------------------------------------------------------*
-2000  Continue
+    ! Compute Solvent-solvent interaction.
+
+    call ClasClas(iCNum,iCStart,ncParm,Coord,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
+    call QMPosition(EHam,Cordst,Coord,Forcek,dLJrep,Ract,iQ_Atoms)
+    call Timing(Cpu2,Tim1,Tim2,Tim3)
+    timeCLAS = timeCLAS+(Cpu2-Cpu1)
+    !------------------------------------------------------------------*
+    ! Work a bit with the quantum part.                                *
+    !------------------------------------------------------------------*
+    do i=1,3
+      xyzMyQ(i) = 0  !Dipoles for the QM-part, see polink.
+      xyzMyI(i) = 0
+    end do
+    nSize = 3*nPol*nPart
+    do i=1,iCi !Allocate memory for the field on the QM-mol. iCi: number of quantum molecule sites.
+      do j=1,10
+        write(MemQFal,'(A,i2.2,i2.2)') 'Falt',i,j
+        call GetMem(MemQFal,'Allo','Real',iFil(i,j),nSize)
+      end do
+    end do
+    do i=1,iCi
+      do j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
+        do k=1,nPart*nPol !Classical polarisation sites including quantum molecule.
+          Work(iFil(i,j)-1+k) = 0.0d0
+          Work(iFil(i,j)-1+k+nPart*nPol) = 0.0d0
+          Work(iFil(i,j)-1+k+2*nPart*nPol) = 0.0d0
+        end do
+        Eint(i,j) = 0.0d0
+      end do
+      if (i <= MxAt) Eint_Nuc(i) = 0.0d0
+    end do
+
+    ! Compute the exchange operator.
+
+    call ExRas(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,iTriState,Smat,SmatPure,InCutOff,ipAOSum)
+    call Timing(Cpu3,Tim1,Tim2,Tim3)
+    timeEX = timeEX+(Cpu3-Cpu2)
+
+    ! Electrostatics commencing.
+
+    ! Compute various gradients of 1/r.
+
+    if (lSlater) then
+      call OneOverR_Sl(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyzRAS,Eint_Nuc)
+    else
+      call OneOverR(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyzRAS)
+    end if
+
+    ! Couple the point-charges in the solvent to the QM-region.
+
+    call HelState(Eint,nState,iCi,RasCha,RasDip,RasQua,Vmat,iPrint)
+
+    ! Let QM-region and solvent polarize.
+    call PolRas(iDist,iDistIM,iDT,iFI,iFP,iFil,iCStart,iTriState,VMat,Smat,DiFac,Ract,iCNum,Energy,nVarv,iSTC,Haveri,iQ_Atoms, &
+                ip_ExpVal,Poli)
+
+    ! Energy from QM-nuclei interacting with solvent field.
+
+    if (lSlater) then
+      do i=1,iQ_Atoms
+        Energy = Energy-Eint_Nuc(i)*ChaNuc(i)
+      end do
+    else
+      do i=1,iQ_Atoms
+        Energy = Energy-Eint(i,1)*ChaNuc(i)
+      end do
+    end if
+
+    ! Some additional boost of short-range repulsion.
+
+    call BoostRep(AddRep,SmatPure,iSTC,nState,InCutOff)
+
+    ! Sum-up what we will call QM-region energy.
+
+    Energy = Energy-EEdisp+AddRep
+
+    !------------------------------------------------------------------*
+    ! Final induction and reaction field energies.                     *
+    !------------------------------------------------------------------*
+    call ReaInd(iGP,iDT,iDistIm,iCNum,IndMa,NcParm,Sum1,s90um)
+    call Timing(Cpu4,Tim1,Tim2,Tim3)
+    timeEL = timeEL+(Cpu4-Cpu3)
+    !------------------------------------------------------------------*
+    ! Construct the final energy.                                      *
+    !------------------------------------------------------------------*
+    EnCLAS = Elene+EHam-Edisp+Exrep+E2Die+ExDie
+    Etot = EnCLAS-0.5*S90um-Sum1+Gamma*Ract**3+Energy+Gam*Ract**2
+    Dele = Etot-Eold
+    !------------------------------------------------------------------*
+    ! Printing and various if requested.                               *
+    !------------------------------------------------------------------*
+    if (iPrint >= 10) then
+      if (Haveri) Etot = 999999
+      write(6,*)
+      write(6,*) '   ----Microstep',iMicro
+      write(6,*) '         Number of iterations:',nVarv
+      write(6,*) '         Total energy:',Etot
+      write(6,*) '         Of which is'
+      write(6,*) '            Pairwise solvent-solvent interaction:',EnCLAS
+      write(6,*) '              Solvent-solvent Electrostatic',Elene
+      write(6,*) '              Harmonic Spring:',EHam
+      write(6,*) '              Solvent-solvent Dispersion:',-Edisp
+      write(6,*) '              Solvent-solvent Exchange:',Exrep
+      write(6,*) '            Energy of induced dipoles in field from explicit solvent:',-Sum1
+      write(6,*) '            Energy of solvent charge distribution in reaction field:',-0.5*S90um
+      write(6,*) '            Solvent E-interaction with image:',E2Die
+      write(6,*) '            Solvent Repulsion with boundary:',ExDie
+      write(6,*) '            Solvent-Solute dispersion:',EEdisp
+      write(6,*) '            Energy of QM-region:',Energy
+      write(6,*) '              Higher order overlap exchange pair-term:',AddRep
+      write(6,*) '            Surface tension term:',Gam*Ract**2
+      write(6,*) '            Volume-pressure term:',Gamma*Ract**3
+      write(6,*) '         Previous accepted energy:',Eold
+      write(6,*) '         Difference:',Dele
+      write(6,*) '         Total dipole in QM-region:(',-xyzMyQ(1),',',-xyzMyQ(2),',',-xyzMyQ(3),')'
+      write(6,*) '         Radie:',Ract
+      if (Haveri) then
+        write(6,*) '    WARNING! SOME OF THE NUMBERS ABOVE HAVE NO MEANING SINCE THE POLARIZATION DID NOT CONVERGE!!!'
+        goto 8194
+      end if
+    end if
+
+    ! If we are collecting stuff from a sampfile, now is the time to put
+    ! data on the extract file. If center-specific expectation values
+    ! are requested, call Allen.
+
+    if (iRead == 9) then
+      if (lExtr(6)) then
+        E_Nuc_Rubbet = 0.0d0
+        if (lSlater) then
+          do iAt=1,iQ_Atoms
+            E_Nuc_Rubbet = E_Nuc_Rubbet-(Eint_Nuc(iAt)+Poli(iAt,1))*ChaNuc(iAt)
+          end do
+        else
+          do iAt=1,iQ_Atoms
+            E_Nuc_Rubbet = E_Nuc_Rubbet-(Eint(iAt,1)+Poli(iAt,1))*ChaNuc(iAt)
+          end do
+        end if
+      end if
+      if (lExtr(7)) then
+        call AllenGinsberg('RASSI',Eint,Poli,ChaNuc,RasCha,RasDip,RasQua,MxStOT,iSTC,nState,iExtr_Atm,lExtr(4),iExtr_Eig,iQ_Atoms, &
+                           ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
+
+      end if
+      call Extract(iLuExtr,i9,Etot,xyzMyQ,HMatState,iSTC,iDt,nState,HMatSOld,xyzQuQ,ip_ExpVal,ip_ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
+      !***JoseMEP**********
+      ! If MEP option. Add electr. potential, field, etc. for all solvent config.
+      if (lExtr(8)) then
+        Labjhr = 'Add '
+        call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iONE,iONE,[iONE],[iONE],iONE)
+        NCountField = NCountField+1
+      end if
+      !********
+      goto 9090
+    end if
+
+    ! Resume the MC-wrap up.
+
+    Dele = Dele*BetaBol
+    DidWeAccept = .true.
+    if (Dele < 0) then
+      iAcc = iAcc+1
+    else
+      Expe = exp(-Dele)
+      Expran = ranf(iseed)
+      if (iPrint >= 10) then
+        write(6,*) '         Positive energy change!'
+        write(6,*) '         Boltzmann weight:',Expe
+        write(6,*) '         Random number:',ExpRan
+      end if
+      iAcc = iAcc+1
+      if (Expe < ExpRan) then
+        call Oldge(iAcc,Etot,Eold,Ract,Rold)
+        DidWeAccept = .false.
+        if (iPrint >= 10) then
+          write(6,*) '         Not accepted!'
+        end if
+      end if
+    end if
+    if (DidWeAccept) Esav = Esav+Etot
+    !------------------------------------------------------------------*
+    ! If this is a production run, then put stuff on the sampfile.     *
+    !------------------------------------------------------------------*
+    if (QmProd .and. (iRead /= 9)) then
+      if (SampleThis) then
+        if (Inter /= 0) then
+          Inte = (iSnurr/Inter)*Inter
+          if (Inte == ((iMacro-1)*nMicro+iMicro)) then
+            call Put9(Etot,Ract,iDT,iHowMSampUT,Gamma,Gam,Esav,iDisk)
+          end if
+        end if
+      end if
+    end if
+
+    ! Free memory.
+
+9090 continue
+    nSize = (nClas*(nClas-1)/2)*(nCent**2)
+    nSizeIm = (nClas*nCent)**2
+    call GetMem('DistMat','Free','Real',iDist,nSize)
+    call GetMem('DistMatIm','Free','Real',iDistIm,nSizeIm)
+    do i=1,3
+      write(ChCo,'(I1.1)') i
+      write(MemLabel,*) 'FP'//ChCo
+      write(MemLaabe,*) 'GP'//ChCo
+      write(MemLaaab,*) 'DT'//ChCo
+      write(MemLaaaa,*) 'FI'//ChCo
+      call GetMem(MemLabel,'Free','Real',iFP(i),IndMa)
+      call GetMem(MemLaabe,'Free','Real',iGP(i),IndMa)
+      call GetMem(MemLaaab,'Free','Real',iDT(i),IndMa)
+      call GetMem(MemLaaaa,'Free','Real',iFI(i),IndMa)
+    end do
+    nSize = 3*nPol*nPart
+    do i=1,iCi
+      do j=1,10
+        write(ChCo,'(I2.2)') i
+        write(ChCo2,'(I2.2)') j
+        write(MemQFal,*) 'Falt'//ChCo//ChCo2
+        call GetMem(MemQFal,'Free','Real',iFil(i,j),nSize)
+      end do
+    end do
+    call GetMem('Coeff','Free','Real',iSTC,nState**2)
+    call Timing(Cpu5,Tim1,Tim2,Tim3)
+    timeMC = timeMC+(Cpu5-Cpu4)
+
+    !------------------------------------------------------------------*
+    ! End of Microstep.                                                *
+    !------------------------------------------------------------------*
+  end do
+  !--------------------------------------------------------------------*
+  ! Have we collected all sampled configurations? If no, go up again.  *
+  ! If yes, then close some files and take a little jump downwards to  *
+  ! the END!!!                                                         *
+  !--------------------------------------------------------------------*
+  !Jose***************************************
+  ! This point is also used to perform the Average of the Potential,
+  ! Field and Field gradients to obtain and average Electrostatic
+  ! perturbation. The Non-Electr. perturbation is also obtained here
+  ! it will be added directly to the One-electron file.
+  !******************************************
+
+  if ((i9 < iHowMSampIN) .and. (iRead == 9)) then
+    goto 58886
+  else if ((i9 >= iHowMSampIN) .and. (iRead == 9)) then
+    !*****JoseMEP**
+    ! If MEP option. Obtain the mean Potential, Field and Field Gradients.
+    ! It is also obtained the average of the Non-Electrostatic perturbation
+    if (lExtr(8)) then
+      Labjhr = 'Aver'
+      call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iONE,iONE,[iONE],[iONE],iONE)
+
+      AverFact = 1.0d0/dble(NCountField)
+      call DaxPy_(iTriBasQ,AverFact,Work(ipAOSum),iONE,PertNElcInt,iONE)
+      call GetMem('SumOvlAOQ','Free','Real',ipAOSum,iTriBasQ)
+    end if
+    !********
+
+    call DaClos(iLuSaIn)
+    close(iLuExtr)
+    goto 58887
+  end if
+  !--------------------------------------------------------------------*
+  ! Write to startfile.                                                *
+  !--------------------------------------------------------------------*
+8194 continue
+  ESav = Esav/dble(iAcc)
+  call Put8(Ract,Etot,Gamma,Gam,ESav)
+  if (Haveri) call Quit(_RC_NOT_CONVERGED_)
+  !--------------------------------------------------------------------*
+  ! Print some things here at the end of the macrostep.                *
+  !--------------------------------------------------------------------*
+  if (.not. ParallelT) then
+    jMacro = iMacro
+  else
+    jMacro = 1+(iMacro-1)/nTemp
+  end if
+  write(6,'(A,i4)') '---Macrostep ',jMacro
+  write(6,'(A,i4)') '     Number of microsteps:',nMicro
+  Pr = 100.0d0*(dble(iAcc)/dble(nMicro))
+  write(6,'(A,i4,A,f5.1,A)') '     Number of acceptances:',iAcc,'(',Pr,'%)'
+  write(6,'(A,f12.4)') '     Radie (a.u.):',Ract
+  write(6,'(A,f16.8)') '     Average Energy (a.u.) in Macrostep:',Esav
+  write(6,'(A,3(f12.4))') '     Total dipole in QM-region last microstep (a.u.):',-xyzMyQ(1),-xyzMyQ(2),-xyzMyQ(3)
+  write(6,*)
+  call xFlush(6)
+  !--------------------------------------------------------------------*
+  ! End of Macrostep.                                                  *
+  !--------------------------------------------------------------------*
+end do
 !----------------------------------------------------------------------*
 ! Put some things on info-file. Used to make tests.                    *
 !----------------------------------------------------------------------*
-      Call Add_Info('Total Energy',[Etot],1,6)
-      Call Add_Info('Induction of system',[Sum1],1,6)
-      Call Add_Info('React. field int.',[s90um],1,6)
-      Call Add_Info('Solv-Solu Disp.',[EEdisp],1,6)
-      Call Add_Info('QM-region Energy',[Energy],1,6)
-      Call Add_Info('QM-region dipole',xyzMyQ,3,5)
-      RRRnVarv=dble(nVarv)
-      Call Add_Info('Pol.Iterations',[RRRnVarv],1,8)
+call Add_Info('Total Energy',[Etot],1,6)
+call Add_Info('Induction of system',[Sum1],1,6)
+call Add_Info('React. field int.',[s90um],1,6)
+call Add_Info('Solv-Solu Disp.',[EEdisp],1,6)
+call Add_Info('QM-region Energy',[Energy],1,6)
+call Add_Info('QM-region dipole',xyzMyQ,3,5)
+RRRnVarv = dble(nVarv)
+call Add_Info('Pol.Iterations',[RRRnVarv],1,8)
 !----------------------------------------------------------------------*
 ! Close some external files.                                           *
 !----------------------------------------------------------------------*
-58887 Continue
-      If(QmProd.and.iRead.ne.9) then
-        iDisk=0
-        iDum(1)=iHowMSampUT
-        Call iDaFile(iLuSaUt,1,iDum,1,iDisk)
-        Call DaClos(iLuSaUt)
-      Endif
-!--------------------------------------------------------------------------*
-! The End... be happy!                                                     *
-!--------------------------------------------------------------------------*
-      If(MoAveRed) then
-        nB=nRedMO
-        ip_UNCLE_MOE=ipAvRed
-      Else
-        nB=nBaseQ
-      Endif
-      nSizeBig=nState*(nState+1)*nB*(nB+1)/4
+58887 continue
+if (QmProd .and. (iRead /= 9)) then
+  iDisk = 0
+  iDum(1) = iHowMSampUT
+  call iDaFile(iLuSaUt,1,iDum,1,iDisk)
+  call DaClos(iLuSaUt)
+end if
+!----------------------------------------------------------------------*
+! The End... be happy!                                                 *
+!----------------------------------------------------------------------*
+if (MoAveRed) then
+  nB = nRedMO
+  ip_UNCLE_MOE = ipAvRed
+else
+  nB = nBaseQ
+end if
+nSizeBig = nState*(nState+1)*nB*(nB+1)/4
 
-      Write(6,*)
-      Write(6,*)
-      Write(6,*)' Time statistics. (hour:minute:second)'
-      Write(6,*)' -----------------------------------------------------'
-      it1h=int(timeCLAS)/3600
-      it1m=int(timeCLAS-it1h*3600)/60
-      t1s=timeCLAS-it1h*3600-it1m*60
-      Write(6,9)'   Time spent on pair-wise solvent-solvent interaction'&
-     &//'s: ',it1h,':',it1m,':',t1s
-      it2h=int(timeEX)/3600
-      it2m=int(timeEX-it2h*3600)/60
-      t2s=timeEX-it2h*3600-it2m*60
-      Write(6,9)'   Time spent on solvent-solute overlap calculations: '&
-     &,it2h,':',it2m,':',t2s
-      it3h=int(timeEL)/3600
-      it3m=int(timeEL-it3h*3600)/60
-      t3s=timeEL-it3h*3600-it3m*60
-      Write(6,9)'   Time spent on solvent and solute electrostatic inte'&
-     &//'raction: ',it3h,':',it3m,':',t3s
-      it4h=int(timeMC)/3600
-      it4m=int(timeMC-it4h*3600)/60
-      t4s=timeMC-it4h*3600-it4m*60
-      Write(6,9)'   Time spent on the Metropolis-Monte Carlo decision: '&
-     &,it4h,':',it4m,':',t4s
-9     Format(A,I4,A,I3,A,F5.2)
+write(6,*)
+write(6,*)
+write(6,*) ' Time statistics. (hour:minute:second)'
+write(6,*) ' -----------------------------------------------------'
+it1h = int(timeCLAS)/3600
+it1m = int(timeCLAS-it1h*3600)/60
+t1s = timeCLAS-it1h*3600-it1m*60
+write(6,9) '   Time spent on pair-wise solvent-solvent interactions: ',it1h,':',it1m,':',t1s
+it2h = int(timeEX)/3600
+it2m = int(timeEX-it2h*3600)/60
+t2s = timeEX-it2h*3600-it2m*60
+write(6,9) '   Time spent on solvent-solute overlap calculations: ',it2h,':',it2m,':',t2s
+it3h = int(timeEL)/3600
+it3m = int(timeEL-it3h*3600)/60
+t3s = timeEL-it3h*3600-it3m*60
+write(6,9) '   Time spent on solvent and solute electrostatic interaction: ',it3h,':',it3m,':',t3s
+it4h = int(timeMC)/3600
+it4m = int(timeMC-it4h*3600)/60
+t4s = timeMC-it4h*3600-it4m*60
+write(6,9) '   Time spent on the Metropolis-Monte Carlo decision: ',it4h,':',it4m,':',t4s
+9 format(A,I4,A,I3,A,F5.2)
 
-      Return
-      End
+return
+
+end subroutine EqRas

@@ -8,26 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!-- Compute some auxiliary numbers.
-!
-      Subroutine TKP(Tau,dKappa,Rho,RhoA,RhoB,EA,EB,R                   &
-     &              ,dNeigh,lTooSmall)
-      Implicit Real*8 (a-h,o-z)
 
+! Compute some auxiliary numbers.
+subroutine TKP(Tau,dKappa,Rho,RhoA,RhoB,EA,EB,R,dNeigh,lTooSmall)
 
-      Logical lTooSmall
+implicit real*8(a-h,o-z)
+logical lTooSmall
 
-      Tau=(EA-EB)/(EA+EB)
-      Rho=0.5d0*(EA+EB)*R
-      RhoA=(1+Tau)*Rho
-      RhoB=(1-Tau)*Rho
-      If(abs(Tau).gt.dNeigh) then
-        dKappa=0.5d0*(Tau+1.0d0/Tau)
-        lTooSmall=.false.
-      Else
-        lTooSmall=.true.
-      Endif
+Tau = (EA-EB)/(EA+EB)
+Rho = 0.5d0*(EA+EB)*R
+RhoA = (1+Tau)*Rho
+RhoB = (1-Tau)*Rho
+if (abs(Tau) > dNeigh) then
+  dKappa = 0.5d0*(Tau+1.0d0/Tau)
+  lTooSmall = .false.
+else
+  lTooSmall = .true.
+end if
 
-      Return
-      End
+return
+
+end subroutine TKP

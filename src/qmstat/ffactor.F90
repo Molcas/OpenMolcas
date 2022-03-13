@@ -10,82 +10,86 @@
 !                                                                      *
 ! Copyright (C) Anders Ohrn                                            *
 !***********************************************************************
+
 !----------------------------------------------------------------------*
-! A subroutine that computes those darn f-factors. They are definied   *
-! in equation (2.4) in the article cited above. As can be seen from    *
+! A subroutine that computes those darn f-factors. They are defined    *
+! in equation (2.4) in doi:10.1143/JPSJ.21.2313. As can be seen from   *
 ! that equation, the computation of the f-factors is actually a matter *
 ! of using the binomial theorem. This is what we do below and to make  *
 ! the computation efficient the expression (2.4) is written as a       *
 ! succint double sum.                                                  *
 !----------------------------------------------------------------------*
-      Subroutine fFactor(loneX,ltwoX,lsumX,loneY,ltwoY,lsumY,loneZ      &
-     &                 ,ltwoZ,lsumZ,PAxyz,PBxyz,FactorX,FactorY,FactorZ)
-      Implicit Real*8 (a-h,o-z)
+subroutine fFactor(loneX,ltwoX,lsumX,loneY,ltwoY,lsumY,loneZ,ltwoZ,lsumZ,PAxyz,PBxyz,FactorX,FactorY,FactorZ)
 
-      Parameter(MaxAngqNr=6,MaxAr=MaxAngqNr*(MaxAngqNr+1)/2)
-      Dimension FactorX(2*MaxAngqNr+1),FactorY(2*MaxAngqNr+1)
-      Dimension FactorZ(2*MaxAngqNr+1)
-      Dimension PAxyz(3),PBxyz(3)
+implicit real*8(a-h,o-z)
+parameter(MaxAngqNr=6,MaxAr=MaxAngqNr*(MaxAngqNr+1)/2)
+dimension FactorX(2*MaxAngqNr+1), FactorY(2*MaxAngqNr+1)
+dimension FactorZ(2*MaxAngqNr+1)
+dimension PAxyz(3), PBxyz(3)
 
-      Do 105, ia=0,lsumX !We use unrolled loops with regard to x,y and z
-        fff2=0          !therefore, here we start with the x-factors.
-        iLowB=max(0,ia-ltwoX)  !These lower and upper bounds have to do
-        iUpB=min(ia,loneX)   !with the allowed numbers in the binomial
-        Do 106, i=iLowB,iUpB  !coefficients.
-          fff1=NoverP_Q(loneX,i)*NoverP_Q(ltwoX,ia-i)
-          If(i.ne.0) then  !This is needed for some compilers (NAG_64)
-            PAraise=PAxyz(1)**i
-          Else
-            PAraise=1.0d0
-          Endif
-          If(ia-i.ne.0) then
-            PBraise=PBxyz(1)**(ia-i)
-          Else
-            PBraise=1.0d0
-          Endif
-          fff2=fff2+fff1*PAraise*PBraise
-106     Continue
-        FactorX(lsumX-ia+1)=fff2
-105   Continue
-      Do 115, ia=0,lsumY  !y-factors.
-        fff2=0
-        iLowB=max(0,ia-ltwoY)
-        iUpB=min(ia,loneY)
-        Do 116, i=iLowB,iUpB
-          fff1=NoverP_Q(loneY,i)*NoverP_Q(ltwoY,ia-i)
-          If(i.ne.0) then  !This is needed for some compilers (NAG_64)
-            PAraise=PAxyz(2)**i
-          Else
-            PAraise=1.0d0
-          Endif
-          If(ia-i.ne.0) then
-            PBraise=PBxyz(2)**(ia-i)
-          Else
-            PBraise=1.0
-          Endif
-          fff2=fff2+fff1*PAraise*PBraise
-116     Continue
-        FactorY(lsumY-ia+1)=fff2
-115   Continue
-      Do 125, ia=0,lsumZ  !z-factorz.
-        fff2=0
-        iLowB=max(0,ia-ltwoZ)
-        iUpB=min(ia,loneZ)
-        Do 126, i=iLowB,iUpB
-          fff1=NoverP_Q(loneZ,i)*NoverP_Q(ltwoZ,ia-i)
-          If(i.ne.0) then  !This is needed for some compilers (NAG_64)
-            PAraise=PAxyz(3)**i
-          Else
-            PAraise=1.0d0
-          Endif
-          If(ia-i.ne.0) then
-            PBraise=PBxyz(3)**(ia-i)
-          Else
-            PBraise=1.0d0
-          Endif
-          fff2=fff2+fff1*PAraise*PBraise
-126     Continue
-        Factorz(lsumZ-ia+1)=fff2
-125   Continue
-      Return
-      End
+do ia=0,lsumX !We use unrolled loops with regard to x,y and z therefore, here we start with the x-factors.
+  fff2 = 0
+  ! These lower and upper bounds have to do
+  !w ith the allowed numbers in the binomial coefficients.
+  iLowB = max(0,ia-ltwoX)
+  iUpB = min(ia,loneX)
+  do i=iLowB,iUpB
+    fff1 = NoverP_Q(loneX,i)*NoverP_Q(ltwoX,ia-i)
+    if (i /= 0) then  !This is needed for some compilers (NAG_64)
+      PAraise = PAxyz(1)**i
+    else
+      PAraise = 1.0d0
+    end if
+    if (ia-i /= 0) then
+      PBraise = PBxyz(1)**(ia-i)
+    else
+      PBraise = 1.0d0
+    end if
+    fff2 = fff2+fff1*PAraise*PBraise
+  end do
+  FactorX(lsumX-ia+1) = fff2
+end do
+do ia=0,lsumY !y-factors.
+  fff2 = 0
+  iLowB = max(0,ia-ltwoY)
+  iUpB = min(ia,loneY)
+  do i=iLowB,iUpB
+    fff1 = NoverP_Q(loneY,i)*NoverP_Q(ltwoY,ia-i)
+    if (i /= 0) then !This is needed for some compilers (NAG_64)
+      PAraise = PAxyz(2)**i
+    else
+      PAraise = 1.0d0
+    end if
+    if (ia-i /= 0) then
+      PBraise = PBxyz(2)**(ia-i)
+    else
+      PBraise = 1.0
+    end if
+    fff2 = fff2+fff1*PAraise*PBraise
+  end do
+  FactorY(lsumY-ia+1) = fff2
+end do
+do ia=0,lsumZ !z-factorz.
+  fff2 = 0
+  iLowB = max(0,ia-ltwoZ)
+  iUpB = min(ia,loneZ)
+  do i=iLowB,iUpB
+    fff1 = NoverP_Q(loneZ,i)*NoverP_Q(ltwoZ,ia-i)
+    if (i /= 0) then !This is needed for some compilers (NAG_64)
+      PAraise = PAxyz(3)**i
+    else
+      PAraise = 1.0d0
+    end if
+    if (ia-i /= 0) then
+      PBraise = PBxyz(3)**(ia-i)
+    else
+      PBraise = 1.0d0
+    end if
+    fff2 = fff2+fff1*PAraise*PBraise
+  end do
+  Factorz(lsumZ-ia+1) = fff2
+end do
+
+return
+
+end subroutine fFactor

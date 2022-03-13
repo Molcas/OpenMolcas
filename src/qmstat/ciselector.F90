@@ -8,56 +8,52 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine CiSelector(nEqState,nState,iSTC,nCIRef,iCIInd,dCIRef)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine CiSelector(nEqState,nState,iSTC,nCIRef,iCIInd,dCIRef)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "WrkSpc.fh"
+dimension iCIInd(MxState)
+dimension dCIRef(MxState)
 
-      Dimension iCIInd(MxState)
-      Dimension dCIRef(MxState)
+! Initial stuff
 
-!
-!-- Initial stuff
-!
-      dScalMAX=0.0d0
-      indMAX=1
-!
-!-- Compute relevant scalar products
-!
-      Do 501, iState=1,nState
-        dScal=0.0d0
-        Do 502, iRef=1,nCIRef
-          indBase=nState*(iState-1)
-          indx=indBase+iCIInd(iRef)-1
-          dScal=dScal+Work(iSTC+indx)*dCIRef(iRef)
-502     Continue
-        dScal=abs(dScal)
-!
-!---- Test if largest
-!
-        If(dScal.gt.dScalMAX) then
-          dScalMAX=dScal
-          indMAX=iState
-        Endif
-501   Continue
+dScalMAX = 0.0d0
+indMAX = 1
 
-!
-!-- If maximum overlap is small, scream!
-!
-      If(dScalMAX.lt.0.7071067811d0) then
-        Write(6,*)
-        Write(6,*)'   WARNING! Less than 50% of CISElect reference'     &
-     &//'found. Consider to redefine reference!'
-      Endif
+! Compute relevant scalar products
 
-!
-!-- Now set nEqState
-!
-      nEqState=indMAX
+do iState=1,nState
+  dScal = 0.0d0
+  do iRef=1,nCIRef
+    indBase = nState*(iState-1)
+    indx = indBase+iCIInd(iRef)-1
+    dScal = dScal+Work(iSTC+indx)*dCIRef(iRef)
+  end do
+  dScal = abs(dScal)
 
-!
-!-- Auf Wiedersehen
-!
-      Return
-      End
+  ! Test if largest
+
+  if (dScal > dScalMAX) then
+    dScalMAX = dScal
+    indMAX = iState
+  end if
+end do
+
+! If maximum overlap is small, scream!
+
+if (dScalMAX < 0.7071067811d0) then
+  write(6,*)
+  write(6,*) '   WARNING! Less than 50% of CISElect reference found. Consider to redefine reference!'
+end if
+
+! Now set nEqState
+
+nEqState = indMAX
+
+! Auf Wiedersehen
+
+return
+
+end subroutine CiSelector

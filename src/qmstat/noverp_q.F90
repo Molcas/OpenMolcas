@@ -10,23 +10,27 @@
 !                                                                      *
 ! Copyright (C) Anders Ohrn                                            *
 !***********************************************************************
+
 !----------------------------------------------------------------------*
 ! A function that returns the binomial coefficient. The coefficients   *
 ! are stored since N and P will not under normal circumstances be      *
 ! so large.                                                            *
 !----------------------------------------------------------------------*
-      Integer Function NoverP_Q(N,P)
-      Integer N,P,Bino(22)
-      Data (Bino(i),i=1,21)/1,1,1,1,2,1,1,3,3,1                         &
-     &        ,1,4,6,4,1,1,5,10,10,5,1/
+integer function NoverP_Q(N,P)
+
+integer N, P, Bino(22)
+data(Bino(i),i=1,21)/1,1,1,1,2,1,1,3,3,1,1,4,6,4,1,1,5,10,10,5,1/
 #include "warnings.h"
-      NoverP_Q=1
-      If(N.ge.6) then
-        Write(6,*)'Must extend NoverP_Q!'
-        Call Quit(_RC_INTERNAL_ERROR_)
-      Else
-        ind=(N+1)*(N+2)/2-(N-P)
-        NoverP_Q=Bino(ind)
-      Endif
-      Return
-      End
+
+NoverP_Q = 1
+if (N >= 6) then
+  write(6,*) 'Must extend NoverP_Q!'
+  call Quit(_RC_INTERNAL_ERROR_)
+else
+  ind = (N+1)*(N+2)/2-(N-P)
+  NoverP_Q = Bino(ind)
+end if
+
+return
+
+end function NoverP_Q

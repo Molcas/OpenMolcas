@@ -29,201 +29,198 @@
 !> @param[in,out] CalledBefore
 !> @param[out]    SampleThis
 !***********************************************************************
-      Subroutine ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)
-      Implicit Real*8 (a-h,o-z)
-      External Ranf
+
+subroutine ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)
+
+implicit real*8(a-h,o-z)
+external Ranf
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
 #include "constants.fh"
+!parameter(BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_)
+dimension iPermutation(2,MxParT)
+dimension CordstTEMP(MxCen*MxPut,3)
+logical CalledBefore, WeiterBitte, Accept, SampleThis
+save iTemp
 
-!     Parameter (BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_)
-      Dimension iPermutation(2,MxParT)
-      Dimension CordstTEMP(MxCen*MxPut,3)
-      Logical CalledBefore,WeiterBitte,Accept,SampleThis
-      Save iTemp
+BoltzK = 1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
+Dum1 = 0.0d0
 
-      BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
-      Dum1=0.0d0
-!
-!-- If this is first time to call on this routine.
-!
-      If(.not.CalledBefore) then
-        iTemp=0
-        CalledBefore=.true.
-      Endif
+! If this is first time to call on this routine.
 
-!
-!-- See what to do.
-!
-999   Continue
-      If(iTemp.lt.nTemp) then
-        WeiterBitte=.true.
-        iTemp=iTemp+1
-        Write(6,*)
-        Write(6,*)'    Run a new temperature ensemble...',iTemp
+if (.not. CalledBefore) then
+  iTemp = 0
+  CalledBefore = .true.
+end if
 
-!----A logical variable to make parallel tempering sampling correct.
-        If(iTemp.eq.1) then
-          SampleThis=.true.
-        Else
-          SampleThis=.false.
-        Endif
+! See what to do.
 
-      Else
-        WeiterBitte=.false.
-        iTemp=0
-        Write(6,*)
-        Write(6,*)'    Evaluate temperature ensemble interchanges.'
-      Endif
+999 continue
+if (iTemp < nTemp) then
+  WeiterBitte = .true.
+  iTemp = iTemp+1
+  write(6,*)
+  write(6,*) '    Run a new temperature ensemble...',iTemp
 
-!
-!-- If we are to run a new ensemble.
-!
-      If(WeiterBitte) then
-        iLuStIn=8+nStFilT(iTemp)
-        iLuStUt=16+nStFilT(iTemp)
-        Write(StFilIn(6:6),'(i1.1)')nStFilT(iTemp)
-        Write(StFilUt(6:6),'(i1.1)')nStFilT(iTemp)
+  ! A logical variable to make parallel tempering sampling correct.
+  if (iTemp == 1) then
+    SampleThis = .true.
+  else
+    SampleThis = .false.
+  end if
 
-!---- Collect coordinates from proper startfile.
-        Call Get8(Ract,Etot)
+else
+  WeiterBitte = .false.
+  iTemp = 0
+  write(6,*)
+  write(6,*) '    Evaluate temperature ensemble interchanges.'
+end if
 
-!---- Set temperature.
-        BetaBol=1.0d0/(ParaTemps(iTemp)*BoltzK)
+! If we are to run a new ensemble.
 
-!
-!-- If we are to attempt interchanges.
-!
-      Else
+if (WeiterBitte) then
+  iLuStIn = 8+nStFilT(iTemp)
+  iLuStUt = 16+nStFilT(iTemp)
+  write(StFilIn(6:6),'(i1.1)') nStFilT(iTemp)
+  write(StFilUt(6:6),'(i1.1)') nStFilT(iTemp)
 
-        Do 10, iPa=1,MxParT
-          iPermutation(1,iPa)=iPa
-          iPermutation(2,iPa)=iPa
-10      Continue
+  ! Collect coordinates from proper startfile.
+  call Get8(Ract,Etot)
 
-!-- Construct permutations, treat nTemp.eq.2 as special case, the others
-!   are obtained with general algorithm.
-        If(nTemp.eq.2) then
-          iPermutation(2,1)=2
-          iPermutation(2,2)=1
-          Go To 101
-        Endif
+  ! Set temperature.
+  BetaBol = 1.0d0/(ParaTemps(iTemp)*BoltzK)
 
-        PerType=Ranf(iseed)
-        If(PerType.lt.0.5D+0) then
+! If we are to attempt interchanges.
 
-          If(Mod(nTemp,2).eq.1) then
-            mTemp=nTemp-1
-          Else
-            mTemp=nTemp
-          Endif
+else
 
-!------ Construct permutation for odd iMac
-          Do 12, iPa=1,mTemp,2
-            iPermutation(2,iPa)=iPermutation(1,iPa+1)
-            iPermutation(2,iPa+1)=iPermutation(1,iPa)
-12        Continue
+  do iPa=1,MxParT
+    iPermutation(1,iPa) = iPa
+    iPermutation(2,iPa) = iPa
+  end do
 
-        Else
+  ! Construct permutations, treat nTemp == 2 as special case, the others
+  ! are obtained with general algorithm.
+  if (nTemp == 2) then
+    iPermutation(2,1) = 2
+    iPermutation(2,2) = 1
+    Go To 101
+  end if
 
-          mTemp=2*((nTemp-1)/2)
-!------ Contruct permutation for even iMac
-          Do 13, iPa=2,mTemp,2
-            iPermutation(2,iPa)=iPermutation(1,iPa+1)
-            iPermutation(2,iPa+1)=iPermutation(1,iPa)
-13        Continue
-        Endif
+  PerType = Ranf(iseed)
+  if (PerType < 0.5D+0) then
 
-101     Continue
+    if (mod(nTemp,2) == 1) then
+      mTemp = nTemp-1
+    else
+      mTemp = nTemp
+    end if
 
-!
-!-- Now attempt interchange.
-!
-        iEnsemb=1
-2001    Continue
-          If(iPermutation(1,iEnsemb).eq.iPermutation(2,iEnsemb)) then
-            iEnsemb=iEnsemb+1
-            Go To 2001
-          Endif
+    ! Construct permutation for odd iMac
+    do iPa=1,mTemp,2
+      iPermutation(2,iPa) = iPermutation(1,iPa+1)
+      iPermutation(2,iPa+1) = iPermutation(1,iPa)
+    end do
 
-!------ Collect energies for the permutations.
-          iLuStIn=8+nStFilT(iPermutation(1,iEnsemb))
-          iLuStUt=16+nStFilT(iPermutation(1,iEnsemb))
-          Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(1,iEnsemb))
-          Write(StFilUt(6:6),'(i1.1)')nStFilT(iPermutation(1,iEnsemb))
-          Call Get8(Dum,E1)
-          iLuStIn=8+nStFilT(iPermutation(2,iEnsemb))
-          iLuStUt=16+nStFilT(iPermutation(2,iEnsemb))
-          Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
-          Write(StFilUt(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
-          Call Get8(Dum,E2)
-          T1=ParaTemps(iPermutation(1,iEnsemb))
-          T2=ParaTemps(iPermutation(2,iEnsemb))
-          B1=1.0d0/(BoltzK*T1)
-          B2=1.0d0/(BoltzK*T2)
+  else
 
-!------ Make the Metropolis thing.
-          BigDelta=(B2-B1)*(E2-E1)
-          Expe=exp(BigDelta)
-          Accept=.true.
-          If(Expe.lt.1.0D+0) then
-            Expran=ranf(iseed)
-            If(Expe.lt.Expran) Accept=.false.
-          Endif
+    mTemp = 2*((nTemp-1)/2)
+    ! Contruct permutation for even iMac
+    do iPa=2,mTemp,2
+      iPermutation(2,iPa) = iPermutation(1,iPa+1)
+      iPermutation(2,iPa+1) = iPermutation(1,iPa)
+    end do
+  end if
 
-          If(Accept) then
-!-----Ct=C2
-            iLuStIn=8+nStFilT(iPermutation(2,iEnsemb))
-            iLuStUt=16+nStFilT(iPermutation(2,iEnsemb))
-            Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
-            Write(StFilUt(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
-            Call Get8(R2,E2)
-            Do 221, i=1,3
-              Do 222, j=1,nCent*nPart
-                CordstTEMP(j,i)=Cordst(j,i)
-222           Continue
-221         Continue
-!-----C2=C1
-            iLuStIn=8+nStFilT(iPermutation(1,iEnsemb))
-            iLuStUt=16+nStFilT(iPermutation(1,iEnsemb))
-            Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(1,iEnsemb))
-            Write(StFilUt(6:6),'(i1.1)')nStFilT(iPermutation(1,iEnsemb))
-            Call Get8(R1,E1)
-            iLuStIn=8+nStFilT(iPermutation(2,iEnsemb))
-            iLuStUt=16+nStFilT(iPermutation(2,iEnsemb))
-            Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
-            Write(StFilUt(6:6),'(i1.1)')nStFilT(iPermutation(2,iEnsemb))
-            Call Put8(R1,E1,Dum1,Dum1,Dum1)
-!-----C1=Ct
-            Do 223, i=1,3
-              Do 224, j=1,nCent*nPart
-                Cordst(j,i)=CordstTEMP(j,i)
-224           Continue
-223         Continue
-            iLuStIn=8+nStFilT(iPermutation(1,iEnsemb))
-            iLuStUt=16+nStFilT(iPermutation(1,iEnsemb))
-            Write(StFilIn(6:6),'(i1.1)')nStFilT(iPermutation(1,iEnsemb))
-            Write(StFilUt(6:6),'(i1.1)')nStFilT(iPermutation(1,iEnsemb))
-            Call Put8(R2,E2,Dum1,Dum1,Dum1)
-          Endif
+101 continue
 
-          iEnsemb=iEnsemb+2
-          If(Accept)Write(6,*)'            accepted!'
-          If(.not.Accept)Write(6,*)'            not accepted!'
-        If(iEnsemb.lt.nTemp) Go To 2001
-        Write(6,*)
+  ! Now attempt interchange.
 
-!
-!-- Do some stuff before exit. The reason we go back up is that this
-!   way we will collect the right coordinates from first startfile.
-!   Observe that iTemp has been reset hence we are back at the
-!   square one again.
-!
-        Go To 999
+  iEnsemb = 1
+2001 continue
+  if (iPermutation(1,iEnsemb) == iPermutation(2,iEnsemb)) then
+    iEnsemb = iEnsemb+1
+    Go To 2001
+  end if
 
-      Endif
+  ! Collect energies for the permutations.
+  iLuStIn = 8+nStFilT(iPermutation(1,iEnsemb))
+  iLuStUt = 16+nStFilT(iPermutation(1,iEnsemb))
+  write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(1,iEnsemb))
+  write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(1,iEnsemb))
+  call Get8(Dum,E1)
+  iLuStIn = 8+nStFilT(iPermutation(2,iEnsemb))
+  iLuStUt = 16+nStFilT(iPermutation(2,iEnsemb))
+  write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
+  write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
+  call Get8(Dum,E2)
+  T1 = ParaTemps(iPermutation(1,iEnsemb))
+  T2 = ParaTemps(iPermutation(2,iEnsemb))
+  B1 = 1.0d0/(BoltzK*T1)
+  B2 = 1.0d0/(BoltzK*T2)
 
-      Return
-      End
+  ! Make the Metropolis thing.
+  BigDelta = (B2-B1)*(E2-E1)
+  Expe = exp(BigDelta)
+  Accept = .true.
+  if (Expe < 1.0D+0) then
+    Expran = ranf(iseed)
+    if (Expe < Expran) Accept = .false.
+  end if
+
+  if (Accept) then
+    ! Ct=C2
+    iLuStIn = 8+nStFilT(iPermutation(2,iEnsemb))
+    iLuStUt = 16+nStFilT(iPermutation(2,iEnsemb))
+    write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
+    write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
+    call Get8(R2,E2)
+    do i=1,3
+      do j=1,nCent*nPart
+        CordstTEMP(j,i) = Cordst(j,i)
+      end do
+    end do
+    ! C2=C1
+    iLuStIn = 8+nStFilT(iPermutation(1,iEnsemb))
+    iLuStUt = 16+nStFilT(iPermutation(1,iEnsemb))
+    write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(1,iEnsemb))
+    write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(1,iEnsemb))
+    call Get8(R1,E1)
+    iLuStIn = 8+nStFilT(iPermutation(2,iEnsemb))
+    iLuStUt = 16+nStFilT(iPermutation(2,iEnsemb))
+    write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
+    write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
+    call Put8(R1,E1,Dum1,Dum1,Dum1)
+    ! C1=Ct
+    do i=1,3
+      do j=1,nCent*nPart
+        Cordst(j,i) = CordstTEMP(j,i)
+      end do
+    end do
+    iLuStIn = 8+nStFilT(iPermutation(1,iEnsemb))
+    iLuStUt = 16+nStFilT(iPermutation(1,iEnsemb))
+    write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(1,iEnsemb))
+    write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(1,iEnsemb))
+    call Put8(R2,E2,Dum1,Dum1,Dum1)
+  end if
+
+  iEnsemb = iEnsemb+2
+  if (Accept) write(6,*) '            accepted!'
+  if (.not. Accept) write(6,*) '            not accepted!'
+  if (iEnsemb < nTemp) Go To 2001
+  write(6,*)
+
+  ! Do some stuff before exit. The reason we go back up is that this
+  ! way we will collect the right coordinates from first startfile.
+  ! Observe that iTemp has been reset hence we are back at the
+  ! square one again.
+
+  Go To 999
+
+end if
+
+return
+
+end subroutine ParaRoot

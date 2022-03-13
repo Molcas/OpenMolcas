@@ -8,11 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine AverMEP(Kword,Eint,Poli,ici,SumElcPot                  &
-     &                  ,NCountField,PertElcInt                         &
-     &                  ,iQ_Atoms,nBas,nOcc,natyp,nntyp)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine AverMEP(Kword,Eint,Poli,ici,SumElcPot,NCountField,PertElcInt,iQ_Atoms,nBas,nOcc,natyp,nntyp)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "numbers.fh"
 #include "qminp.fh"
@@ -22,21 +21,20 @@
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-      Dimension Eint(MxQCen,10),Poli(MxQCen,10)
-      Dimension SumElcPot(MxQCen,10)
-      Dimension PertElcInt(MxBas*(MxBas+1)/2),SumOld(MxQCen,10)
-      Dimension iCent(MxBas*MxBas)
-      Dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
-      Dimension nOcc(*),natyp(*),ForceNuc(MxAt,3)
+dimension Eint(MxQCen,10), Poli(MxQCen,10)
+dimension SumElcPot(MxQCen,10)
+dimension PertElcInt(MxBas*(MxBas+1)/2), SumOld(MxQCen,10)
+dimension iCent(MxBas*MxBas)
+dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
+dimension nOcc(*), natyp(*), ForceNuc(MxAt,3)
+character*4 Kword
+character*20 MemLab, MemLab1
+logical Exist
+dimension iiDum(1)
 
-      Character*4 Kword
-      Character*20 MemLab,MemLab1
-      Logical Exist
-      Dimension iiDum(1)
-
-      Call UpCase(Kword)
+call UpCase(Kword)
 !**************
-! This subroutine include three different options. All have to do with the
+! This subroutine includes three different options. All have to do with the
 ! calculation of a Mean Electrostatic Potential, Field and Field gradients,
 ! and to evalute the perturbation of them in the One electron Hamiltoniam
 ! this perturbation is added to the SEWARD One Electron File.
@@ -44,259 +42,236 @@
 ! Option 2: Obtain the Average
 ! Option 3: Calculate the electrostatic perturbation energy integrals
 !           and add them to the one-electron file.
-! Calculation involve up to the field gradients because the charge density
+! Calculations involve up to the field gradients because the charge density
 ! is expanded to the quadrupoles. If the expansion is bigger the number 10
 ! must be changed, but also all the eqscf and eqras subroutines shoud be
-! change in the last option the array nMlt is used instead of the
+! changed. In the last option the array nMlt is used instead of the
 ! number so if a smaller expantion is used, non problem,
-! since this index take care of that.
+! since this index takes care of that.
 !*****************
-!
-!-- The keywords and their labels.
-!
-      If(Kword(1:4).eq.'ADD ') Go To 101
-      If(Kword(1:4).eq.'AVER') Go To 102
-      If(Kword(1:4).eq.'PERT') Go To 103
 
-101   Continue
-      Do 1001, i=1,iCi
-        Do 1002, j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
-          SumOld(i,j)=SumElcPot(i,j)
-          SumElcPot(i,j)=SumOld(i,j)+Eint(i,j)+Poli(i,j)
-1002    Continue
-1001  Continue
-      If(iPrint.ge.9) then
-        Write(6,*)'Total Sum Potential'
-        Do 1010, i=1,iCi
-           Write(6,*)(SumElcPot(i,j),j=1,10)
-1010    Continue
-      Endif
-      Go to 9999
+! The keywords and their labels.
 
-102   Continue
-      Do 2001, i=1,iCi
-        Do 2002, j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
-          AvElcPot(i,j)=SumElcPot(i,j)/Dble(NCountField)
-2002    Continue
-!
-!-- The order of Field gradients is changed in order to follow
-!-- the same order than Molcas
-!
-      AvTemp=AvElcPot(i,8)         ! This change is due to the
-      AvElcPot(i,8)=AvElcPot(i,7)  ! different order of quadrupoles
-      AvElcPot(i,7)=AvTemp         ! in QmStat and Molcas.
-2001  Continue                     ! QmStat:xx,xy,yy,xz,yz,zz
-                                   ! Molcas:xx,xy,xz,yy,yz,zz
+if (Kword(1:4) == 'ADD ') Go To 101
+if (Kword(1:4) == 'AVER') Go To 102
+if (Kword(1:4) == 'PERT') Go To 103
+
+101 continue
+do i=1,iCi
+  do j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
+    SumOld(i,j) = SumElcPot(i,j)
+    SumElcPot(i,j) = SumOld(i,j)+Eint(i,j)+Poli(i,j)
+  end do
+end do
+if (iPrint >= 9) then
+  write(6,*) 'Total Sum Potential'
+  do i=1,iCi
+    write(6,*) (SumElcPot(i,j),j=1,10)
+  end do
+end if
+Go to 9999
+
+102 continue
+do i=1,iCi
+  do j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
+    AvElcPot(i,j) = SumElcPot(i,j)/dble(NCountField)
+  end do
+
+  ! The order of Field gradients is changed in order to follow
+  ! the same order than Molcas
+
+  AvTemp = AvElcPot(i,8)         ! This change is due to the different order of quadrupoles in QmStat and Molcas.
+  AvElcPot(i,8) = AvElcPot(i,7)  ! QmStat:xx,xy,yy,xz,yz,zz Molcas:xx,xy,xz,yy,yz,zz
+  AvElcPot(i,7) = AvTemp
+end do
 
 !*******************************
 ! This multiplication comes because the off-diagonal
-! quadrupoles must be multiply by two since we use
+! quadrupoles must be multiplied by two since we use
 ! a triangular form to compute the Interaction
 ! Energy with the Electric Field Gradient.
-! Since it is easier multiply the Average potential
-! than the quadrupole for each pair of basis, we perform
+! Since it is easier to multiply the Average potential
+! than the quadrupole for each pair of bases, we perform
 ! the multiplication here
 !**********************
-      AvElcPot(i,6)=2.0d0*AvElcPot(i,6)
-      AvElcPot(i,7)=2.0d0*AvElcPot(i,7)
-      AvElcPot(i,9)=2.0d0*AvElcPot(i,9)
+AvElcPot(i,6) = 2.0d0*AvElcPot(i,6)
+AvElcPot(i,7) = 2.0d0*AvElcPot(i,7)
+AvElcPot(i,9) = 2.0d0*AvElcPot(i,9)
 !**********************
-      If(iPrint.ge.9) then
-        Write(6,*)'Total Averg Potential'
-        Do 1020, i=1,iCi
-           Write(6,*)(AvElcPot(i,j),j=1,10)
-1020    Continue
-      Endif
+if (iPrint >= 9) then
+  write(6,*) 'Total Averg Potential'
+  do i=1,iCi
+    write(6,*) (AvElcPot(i,j),j=1,10)
+  end do
+end if
 
-      Go to 9999
+Go to 9999
 
+103 continue
 
-103   Continue
-!
-!----First we read the multipoles expansion for each pair of basis.
-!----The index iCent(i) will give us to which center belongs each pair of basis.
-!
-      Call GetMem('Dummy','Allo','Inte',iDum,nBas**2)
-      Call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,iMME                 &
-     &             ,iCent,iWork(iDum),nMlt,outxyz,SlExpQ,.false.)
-      Call GetMem('Dummy','Free','Inte',iDum,nBas**2)
+! First we read the multipoles expansion for each pair of bases.
+! The index iCent(i) will give us to which center belongs each pair of bases.
 
+call GetMem('Dummy','Allo','Inte',iDum,nBas**2)
+call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyz,SlExpQ,.false.)
+call GetMem('Dummy','Free','Inte',iDum,nBas**2)
 
 !*********************
-! Calculate the forces for the nuclei
-! these forces will compensate parcially
-! the forces due to the electrons
-! They will be printed and added to the
-! RUNFILE in the optimization procedure
-! after Alaska module
+! Calculate the forces for the nuclei these forces will compensate partially
+! the forces due to the electrons, They will be printed and added to the
+! RUNFILE in the optimization procedure after Alaska module
 !********************
-! This model do not work
-! To calculate the forces in the nuclei
-! with a Slater representation since
-! you have to calculate the field
-! in a set of point charges and not in
-! distributed charges as the field is calculated
-! when used Slater representation
-! also there are a more dark and complicated
-! problem about the string interaction keeping
-! together the distributed electronic charge
-! and the point nuclear charge under different
-! forces.
+! This model does not work for calculating the forces in the nuclei
+! with a Slater representation since you have to calculate the field
+! in a set of point charges and not in distributed charges as the field
+! is calculated when used Slater representation also there is a more
+! dark and complicated problem about the string interaction keeping
+! together the distributed electronic charge and the point nuclear
+!  charge under different forces.
 !*********************
-      Do 2030, i=1,iQ_Atoms
-         Do 2032, j=1,3
-           ForceNuc(i,j)=ChaNuc(i)*AvElcPot(i,j+1)
-2032     Continue
-2030  Continue
-      iLuField=63
-      iLuField=IsFreeUnit(iLuField)
-      Call OpnFl(FieldNuc,iLuField,Exist)
-         Write(6,*)'FieldNuc',FieldNuc
-      Do 2036, i=1,iQ_Atoms
-         Write(iLuField,*)(ForceNuc(i,j),j=1,3)
-2036  Continue
-      Close(iLuField)
+do i=1,iQ_Atoms
+  do j=1,3
+    ForceNuc(i,j) = ChaNuc(i)*AvElcPot(i,j+1)
+  end do
+end do
+iLuField = 63
+iLuField = IsFreeUnit(iLuField)
+call OpnFl(FieldNuc,iLuField,Exist)
+write(6,*) 'FieldNuc',FieldNuc
+do i=1,iQ_Atoms
+  write(iLuField,*) (ForceNuc(i,j),j=1,3)
+end do
+close(iLuField)
 
-      If(iPrint.ge.9) then
-        Write(6,*)'Nuclei charge and Forces'
-        Do 1030, i=1,iQ_Atoms
-           Write(6,*)ChaNuc(i),(ForceNuc(i,j),j=1,3)
-1030    Continue
-      Endif
+if (iPrint >= 9) then
+  write(6,*) 'Nuclei charge and Forces'
+  do i=1,iQ_Atoms
+    write(6,*) ChaNuc(i),(ForceNuc(i,j),j=1,3)
+  end do
+end if
 !********************
 
-      nTyp=0
-      Do 3000, i=1,nMlt
-        nTyp=nTyp+i*(i+1)/2
-3000  Continue
-      Do 3001, i=1,(nBas*(nBas+1)/2)
-          PertElcInt(i)=0.0d0
-3001  Continue
+nTyp = 0
+do i=1,nMlt
+  nTyp = nTyp+i*(i+1)/2
+end do
+do i=1,(nBas*(nBas+1)/2)
+  PertElcInt(i) = 0.0d0
+end do
 
-!-- Put quadrupoles in Buckinghamform.
-!
-      Do 191, i1=1,nBas
-        Do 192, i2=1,i1
-          indMME=i2+i1*(i1-1)/2
-           Do 194, j=5,10
-             Work(iMME(j)+indMME-1)=                                    &
-     &                Work(iMME(j)+indMME-1)*1.5
-194        Continue
-          Tra=Work(iMME(5)+indMME-1)                                    &
-     &    +Work(iMME(8)+indMME-1)+Work(iMME(10)+indMME-1)
-          Tra=Tra/3
-          Work(iMME(5)+indMME-1)=Work(iMME(5)+indMME-1)-Tra
-          Work(iMME(8)+indMME-1)=Work(iMME(8)+indMME-1)-Tra
-          Work(iMME(10)+indMME-1)=Work(iMME(10)+indMME-1)-Tra
-192     Continue
-191   Continue
+! Put quadrupoles in Buckingham form.
 
+do i1=1,nBas
+  do i2=1,i1
+    indMME = i2+i1*(i1-1)/2
+    do j=5,10
+      Work(iMME(j)+indMME-1) = Work(iMME(j)+indMME-1)*1.5
+    end do
+    Tra = Work(iMME(5)+indMME-1)+Work(iMME(8)+indMME-1)+Work(iMME(10)+indMME-1)
+    Tra = Tra/3
+    Work(iMME(5)+indMME-1) = Work(iMME(5)+indMME-1)-Tra
+    Work(iMME(8)+indMME-1) = Work(iMME(8)+indMME-1)-Tra
+    Work(iMME(10)+indMME-1) = Work(iMME(10)+indMME-1)-Tra
+  end do
+end do
 
+irc = -1
+Lu_One = 49
+Lu_One = IsFreeUnit(Lu_One)
+call OpnOne(irc,0,'ONEINT',Lu_One)
+if (irc /= 0) then
+  write(6,*)
+  write(6,*) 'ERROR! Could not open one-electron integral file.'
+  call Quit(_RC_IO_ERROR_READ_)
+end if
 
-      irc=-1
-      Lu_One=49
-      Lu_One=IsFreeUnit(Lu_One)
-      Call OpnOne(irc,0,'ONEINT',Lu_One)
-      If(irc.ne.0) then
-        Write(6,*)
-        Write(6,*)'ERROR! Could not open one-electron integral file.'
-        Call Quit(_RC_IO_ERROR_READ_)
-      Endif
+! We read the size of the unperturbed Hamiltonian 'OneHam 0' in OneInt.
 
-!
-!---We Read the size of the unperturbed Hamiltonian 'OneHam 0' in OneInt.
-!
-      irc=-1
-      iOpt=1
-      iSmLbl=1
-      nSize=0
-      Call iRdOne(irc,iOpt,'OneHam 0',1,iiDum,iSmLbl)
-      nSize=iiDum(1)
-      If(irc.ne.0) then
-        Write(6,*)
-        Write(6,*)'ERROR! Failed to read number of one-electron i'      &
-     &//'ntegrals.'
-        Call Quit(_RC_IO_ERROR_READ_)
-      Endif
-      If(nSize.eq.0) then
-        Write(6,*)
-        Write(6,*)'ERROR! Problem reading size of unperturbed'          &
-     &//' Hamiltonian in OneInt'
-        Call Quit(_RC_IO_ERROR_READ_)
-      Endif
+irc = -1
+iOpt = 1
+iSmLbl = 1
+nSize = 0
+call iRdOne(irc,iOpt,'OneHam 0',1,iiDum,iSmLbl)
+nSize = iiDum(1)
+if (irc /= 0) then
+  write(6,*)
+  write(6,*) 'ERROR! Failed to read number of one-electron integrals.'
+  call Quit(_RC_IO_ERROR_READ_)
+end if
+if (nSize == 0) then
+  write(6,*)
+  write(6,*) 'ERROR! Problem reading size of unperturbed Hamiltonian in OneInt'
+  call Quit(_RC_IO_ERROR_READ_)
+end if
 
-!---Memory allocation for the unperturbed Hamiltonian
-      Write(MemLab,*)'MAver'
-      Call GetMem(MemLab,'Allo','Real',iH0,nSize+4)
-      irc=-1
-      iOpt=0
-      iSmLbl=0
+! Memory allocation for the unperturbed Hamiltonian
+write(MemLab,*) 'MAver'
+call GetMem(MemLab,'Allo','Real',iH0,nSize+4)
+irc = -1
+iOpt = 0
+iSmLbl = 0
 
-!---Read the unperturbed Hamiltonian
-      Call RdOne(irc,iOpt,'OneHam 0',1                                  &
-     &          ,Work(iH0),iSmLbl) !Collect non perturbed integrals
-      Write(MemLab1,*)'MAver1'
-      Call GetMem(MemLab1,'Allo','Real',iH1,nSize+4)
-      If(iPrint.ge.9) then
-        Call TriPrt('Non Perturb One-e',' ',Work(iH0),nBas)
-      Endif
-!
+! Read the unperturbed Hamiltonian
+call RdOne(irc,iOpt,'OneHam 0',1,Work(iH0),iSmLbl) !Collect non perturbed integrals
+write(MemLab1,*) 'MAver1'
+call GetMem(MemLab1,'Allo','Real',iH1,nSize+4)
+if (iPrint >= 9) then
+  call TriPrt('Non Perturb One-e',' ',Work(iH0),nBas)
+end if
 
-!---We perform the multiplication for each pair of basis in a triangular form.
-!---The perturbation is added to the unperturbed Hamiltonian 'iH0'.
-!
-      kaunta=0
-      Do 3003, iB1=1,nBas
-        Do 3004, iB2=1,iB1
-          kaunta=kaunta+1
-          indMME=iB2+iB1*(iB1-1)/2
-          Do 3005, iTyp=1,nTyp
-            PertElcInt(indMME)=PertElcInt(indMME)                       &
-     &        +AvElcPot(iCent(kaunta),iTyp)*Work(iMME(iTyp)+indMME-1)
-3005      Continue
-          Work(iH1+kaunta-1)=Work(iH0+kaunta-1)+PertElcInt(indMME)
-3004    Continue
-3003  Continue
+! We perform the multiplication for each pair of bases in a triangular form.
+! The perturbation is added to the unperturbed Hamiltonian 'iH0'.
 
-      If(iPrint.ge.9) then
-        Call TriPrt('H0+Elec One-e',' ',Work(iH1),nBas)
-      Endif
+kaunta = 0
+do iB1=1,nBas
+  do iB2=1,iB1
+    kaunta = kaunta+1
+    indMME = iB2+iB1*(iB1-1)/2
+    do iTyp=1,nTyp
+      PertElcInt(indMME) = PertElcInt(indMME)+AvElcPot(iCent(kaunta),iTyp)*Work(iMME(iTyp)+indMME-1)
+    end do
+    Work(iH1+kaunta-1) = Work(iH0+kaunta-1)+PertElcInt(indMME)
+  end do
+end do
 
-!---The non-Electrostatic perturbation is added. The PertNElcInt array comes
-!---throught the include file qminp.fh.
+if (iPrint >= 9) then
+  call TriPrt('H0+Elec One-e',' ',Work(iH1),nBas)
+end if
 
-      If(iPrint.ge.10) then
-        Call TriPrt('PertNElcInt-e',' ',PertNElcInt,nBas)
-      Endif
+! The non-Electrostatic perturbation is added. The PertNElcInt array comes
+! through the include file qminp.fh.
 
-      iTriBasQ=nBas*(nBas+1)/2
-      Call DaxPy_(iTriBasQ,ONE,PertNElcInt,iONE,Work(iH1),iONE)
+if (iPrint >= 10) then
+  call TriPrt('PertNElcInt-e',' ',PertNElcInt,nBas)
+end if
 
-      If(iPrint.ge.9) then
-        Call TriPrt('H0+Elec+nonEl One-e',' ',Work(iH1),nBas)
-      Endif
+iTriBasQ = nBas*(nBas+1)/2
+call DaxPy_(iTriBasQ,ONE,PertNElcInt,iONE,Work(iH1),iONE)
 
-!----The perturbed Hamiltonian 'H1' is writen in OneInt.
-      irc=-1
-      iOpt=0
-      iSmLbl=1
-      Call WrOne(irc,iOpt,'OneHam  ',1                                  &
-     &          ,Work(iH1),iSmLbl) !Write  perturbed integrals
-      If(iPrint.ge.9) then
-        Call TriPrt('Perturb One-e',' ',Work(iH1),nBas)
-      Endif
+if (iPrint >= 9) then
+  call TriPrt('H0+Elec+nonEl One-e',' ',Work(iH1),nBas)
+end if
 
-      If(iPrint.ge.10) then
-        Call TriPrt('Non Perturb One-e AGAIN',' ',Work(iH0),nBas)
-      Endif
+! The perturbed Hamiltonian 'H1' is writen in OneInt.
+irc = -1
+iOpt = 0
+iSmLbl = 1
+call WrOne(irc,iOpt,'OneHam  ',1,Work(iH1),iSmLbl) !Write  perturbed integrals
+if (iPrint >= 9) then
+  call TriPrt('Perturb One-e',' ',Work(iH1),nBas)
+end if
 
-      Call ClsOne(irc,Lu_One)
+if (iPrint >= 10) then
+  call TriPrt('Non Perturb One-e AGAIN',' ',Work(iH0),nBas)
+end if
 
-      Call GetMem(MemLab,'Free','Real',iH0,nSize+4)
-      Call GetMem(MemLab1,'Free','Real',iH1,nSize+4)
+call ClsOne(irc,Lu_One)
 
+call GetMem(MemLab,'Free','Real',iH0,nSize+4)
+call GetMem(MemLab1,'Free','Real',iH1,nSize+4)
 
-9999  Continue
+9999 continue
 
-      Return
-      End
+return
+
+end subroutine AverMEP

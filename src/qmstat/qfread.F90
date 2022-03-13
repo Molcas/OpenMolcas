@@ -41,14 +41,14 @@
 !> @param[out] nOcc     The total number of basis functions that belong to a certain basis-function type.
 !> @param[out] natyp    Number of atoms of the i:th basis-function type
 !***********************************************************************
-!******JoseMEP the last three variables are included to the MEP calculation
-      Subroutine Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBasCC,nCnC_C      &
-     &,nOcc,natyp,nntyp)
-      Implicit Real*8 (a-h,o-z)
 
-!-----------------------------------------------------------------------*
-! Variables                                                             *
-!-----------------------------------------------------------------------*
+!******JoseMEP the last three variables are included to the MEP calculation
+subroutine Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBasCC,nCnC_C,nOcc,natyp,nntyp)
+
+implicit real*8(a-h,o-z)
+!----------------------------------------------------------------------*
+! Variables                                                            *
+!----------------------------------------------------------------------*
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
@@ -60,349 +60,334 @@
 #include "WrkSpc.fh"
 #include "tratoc.fh"
 #include "warnings.h"
+parameter(IndMax=nTraBuf) !nTraBuf defined in tratoc.fh
+dimension Coord(MxAt*3), Chge(MxAt), CoordCC(3*3), ChgeCC(3)
+dimension Cmo(MxBas**2), Cmo_S(MxBas**2), Occu(MxBas), Dummy(MxBas)
+dimension nSh(MxAt), nfSh(MxAt,MxAngqNr), nCnC_C(MxBasC)
+dimension nOcc(MxBas), natyp(MxAt), natypC(MxAt), iDumm(MxBas)
+dimension nBas(MxSym), nBasCC(1), iCon(MxAt,MxPrCon)
+dimension iC_icon(MxAt,MxPrCon)
+character Line*120, BlLine*120, Title*100, OrbName*100, WhatGet*10
+character StLine*120
+dimension iDummy(1)
+integer ipACC
 
-      Parameter (IndMax=nTraBuf) !nTraBuf defined in tratoc.fh
+!----------------------------------------------------------------------*
+! Enter                                                                *
+!----------------------------------------------------------------------*
 
-      Dimension Coord(MxAt*3),Chge(MxAt),CoordCC(3*3),ChgeCC(3)
-      Dimension Cmo(MxBas**2),Cmo_S(MxBas**2),Occu(MxBas),Dummy(MxBas)
-
-      Dimension nSh(MxAt),nfSh(MxAt,MxAngqNr),nCnC_C(MxBasC)
-      Dimension nOcc(MxBas),natyp(MxAt),natypC(MxAt),iDumm(MxBas)
-      Dimension nBas(MxSym),nBasCC(1),iCon(MxAt,MxPrCon)
-      Dimension iC_icon(MxAt,MxPrCon)
-
-      Character Line*120,BlLine*120,Title*100,OrbName*100,WhatGet*10
-      Character StLine*120
-      Dimension iDummy(1)
-      Integer ipACC
-
-!-----------------------------------------------------------------------*
-! Enter                                                                 *
-!-----------------------------------------------------------------------*
-
-!------------------------------------------------------------------------*
-! Print the joblabel. It is obtained in get_input.f                      *
-!------------------------------------------------------------------------*
-      If(ATitle) then
-        lLine=Len(Line)
-        Do 9990, i=1,lLine
-          BlLine(i:i)=' '
-          StLine(i:i)='*'
-9990    Continue
-        Write(6,*)
-        Do 9991, i=1,6
-          Line=BlLine
-          If(i.eq.1.or.i.eq.6) Line=StLine
-          If(i.eq.3) Line='Project:'
-          If(i.eq.4) Write(Line,'(A72)')JobLab
-          Call Center_Text(Line)
-          Write(6,*)'*'//Line//'*'
-9991    Continue
-        Write(6,*)
-      Endif
-      Write(6,*)'Auxiliary data being read and pre-processed.'
+!----------------------------------------------------------------------*
+! Print the joblabel. It is obtained in get_input.f                    *
+!----------------------------------------------------------------------*
+if (ATitle) then
+  lLine = len(Line)
+  do i=1,lLine
+    BlLine(i:i) = ' '
+    StLine(i:i) = '*'
+  end do
+  write(6,*)
+  do i=1,6
+    Line = BlLine
+    if ((i == 1) .or. (i == 6)) Line = StLine
+    if (i == 3) Line = 'Project:'
+    if (i == 4) write(Line,'(A72)') JobLab
+    call Center_Text(Line)
+    write(6,*) '*'//Line//'*'
+  end do
+  write(6,*)
+end if
+write(6,*) 'Auxiliary data being read and pre-processed.'
 !----------------------------------------------------------------------*
 ! Collect some data from RUNFILE about the QM-region molecule.         *
 !----------------------------------------------------------------------*
-      Call Get_iScalar('nSym',nSym)
-      If(nSym.ne.1) then !A minor restriction, no symmetry allowed,
-                          !i.e. nSym=1.
-        Write(6,*)
-        Write(6,*)' QmStat does not run with symmetry!'
-        Write(6,*)' The perturbation from the solvent breaks all symmet'&
-     &//'ry.'
-        Call Quit(_RC_GENERAL_ERROR_)
-      Endif
-      Call Get_iScalar('Unique atoms',iQ_Atoms)
-      If(iQ_Atoms.gt.MxAt) then
-        Write(6,*)
-        Write(6,*)'Maximum number of atoms exceeded. Increase MxAt in ' &
-     &//'maxi.fh in QmStat source directory.'
-        Call Quit(_RC_GENERAL_ERROR_)
-      Endif
-      Call Get_dArray('Nuclear charge',Chge,iQ_Atoms)
-      Call Get_dArray('Unique Coordinates',Coord,3*iQ_Atoms)
-      Call Get_dArray('Center of Mass',CT,3)
-      Call Get_iArray('nBas',nBas,nSym)
-      If(nBas(1).gt.MxBas) then
-        Write(6,*)
-        Write(6,*)'Maximum number of basis functions exceeded. Increase'&
-     &//' MxBas in maxi.fh in QmStat source directory.'
-        Call Quit(_RC_GENERAL_ERROR_)
-      Endif
+call Get_iScalar('nSym',nSym)
+if (nSym /= 1) then !A minor restriction, no symmetry allowed, i.e. nSym=1.
+  write(6,*)
+  write(6,*) ' QmStat does not run with symmetry!'
+  write(6,*) ' The perturbation from the solvent breaks all symmetry.'
+  call Quit(_RC_GENERAL_ERROR_)
+end if
+call Get_iScalar('Unique atoms',iQ_Atoms)
+if (iQ_Atoms > MxAt) then
+  write(6,*)
+  write(6,*) 'Maximum number of atoms exceeded. Increase MxAt in maxi.fh in QmStat source directory.'
+  call Quit(_RC_GENERAL_ERROR_)
+end if
+call Get_dArray('Nuclear charge',Chge,iQ_Atoms)
+call Get_dArray('Unique Coordinates',Coord,3*iQ_Atoms)
+call Get_dArray('Center of Mass',CT,3)
+call Get_iArray('nBas',nBas,nSym)
+if (nBas(1) > MxBas) then
+  write(6,*)
+  write(6,*) 'Maximum number of basis functions exceeded. Increase MxBas in maxi.fh in QmStat source directory.'
+  call Quit(_RC_GENERAL_ERROR_)
+end if
 
-!------------------------------------------------------------------------*
-! Print elementary information about molecule.                           *
-!------------------------------------------------------------------------*
-      Write(6,*)
-      Write(6,*)'     ------------------------------'
-      Write(6,*)'     |       QM-region data       |'
-      Write(6,*)'     ------------------------------'
-      Write(6,*)
-      Write(6,'(A,15X,I5)')'      Number of basis functions:'           &
-     &                    ,(nBas(i),i=1,nSym)
-      Write(6,'(A,3F10.6)')'      Centre of mass =',(CT(kk),kk=1,3)
-      Call PrCoor
+!----------------------------------------------------------------------*
+! Print elementary information about molecule.                         *
+!----------------------------------------------------------------------*
+write(6,*)
+write(6,*) '     ------------------------------'
+write(6,*) '     |       QM-region data       |'
+write(6,*) '     ------------------------------'
+write(6,*)
+write(6,'(A,15X,I5)') '      Number of basis functions:',(nBas(i),i=1,nSym)
+write(6,'(A,3F10.6)') '      Centre of mass =',(CT(kk),kk=1,3)
+call PrCoor()
 
 !----------------------------------------------------------------------*
 ! If the Qmtype is SCF we now want the orbitals. On the other hand if  *
 ! we are running RASSI, another route must be taken, hence here we     *
-! inquire which QM-method that is used.                                *
+! inquire which QM-method is used.                                     *
 !----------------------------------------------------------------------*
-      If(QmType(1:3).eq.'SCF') then
-!----------------------------------------------------------------------*
-!      SSS    CCC  FFFFFF                                              *
-!     SS    CC     FF                                                  *
-!      SS  CC      FFFF                                                *
-!       SS  CC     FF                                                  *
-!     SSS    CCC   FF                                                  *
-!----------------------------------------------------------------------*
+if (QmType(1:3) == 'SCF') then
+  !--------------------------------------------------------------------*
+  !    SSS    CCC  FFFFFF                                              *
+  !   SS    CC     FF                                                  *
+  !    SS  CC      FFFF                                                *
+  !     SS  CC     FF                                                  *
+  !   SSS    CCC   FF                                                  *
+  !--------------------------------------------------------------------*
 
-!----------------------------------------------------------------------*
-! Print information about orbitals and store coefficients in new       *
-! variable.                                                            *
-!----------------------------------------------------------------------*
-        iLu=15
-        iLu=IsFreeUnit(iLu)
-        Write(OrbName,'(A)')'AVEORB'
-        Write(WhatGet,'(A)')'CO'
-        iWarn=1
-        Call RdVec(OrbName,iLu,WhatGet,nSym,nBas,nBas,Cmo,Occu,Dummy    &
-     &,iDumm,Title,iWarn,iErr)
-        If(iErr.ne.0) then
-          Write(6,*)
-          Write(6,*)'Error when reading AVEORB'
-          Write(6,*)
-          Call Quit(_RC_IO_ERROR_READ_)
-        Endif
-        kaunter=0
-        Call GetMem('OrbCoeffQ','Allo','Real',iV1,iOrb(1)*nBas(1))
-        Do 102,j=1,iOrb(1)
-          Do 103,k=1,nBas(1)
-            Work(iV1+kaunter)=Cmo(k+(j-1)*nBas(1))
-            kaunter=kaunter+1
-103       Continue
-102     Continue
-!        Write(6,'(A,I4)')'      Number of Orbitals:',iOrb(1)
-        Call Get_dScalar('PotNuc',PotNuc)
+  !--------------------------------------------------------------------*
+  ! Print information about orbitals and store coefficients in new     *
+  ! variable.                                                          *
+  !--------------------------------------------------------------------*
+  iLu = 15
+  iLu = IsFreeUnit(iLu)
+  write(OrbName,'(A)') 'AVEORB'
+  write(WhatGet,'(A)') 'CO'
+  iWarn = 1
+  call RdVec(OrbName,iLu,WhatGet,nSym,nBas,nBas,Cmo,Occu,Dummy,iDumm,Title,iWarn,iErr)
+  if (iErr /= 0) then
+    write(6,*)
+    write(6,*) 'Error when reading AVEORB'
+    write(6,*)
+    call Quit(_RC_IO_ERROR_READ_)
+  end if
+  kaunter = 0
+  call GetMem('OrbCoeffQ','Allo','Real',iV1,iOrb(1)*nBas(1))
+  do j=1,iOrb(1)
+    do k=1,nBas(1)
+      Work(iV1+kaunter) = Cmo(k+(j-1)*nBas(1))
+      kaunter = kaunter+1
+    end do
+  end do
+  !write(6,'(A,I4)') '      Number of Orbitals:',iOrb(1)
+  call Get_dScalar('PotNuc',PotNuc)
 
-      Elseif(QmType(1:4).eq.'RASS') then
-!----------------------------------------------------------------------*
-!     RRRR      AA      SSS   SSS   II                                 *
-!     RR  R    A  A    SS    SS     II                                 *
-!     RR R    AAAAAA    SS    SS    II                                 *
-!     RRR     AA  AA     SS    SS   II                                 *
-!     RR R    AA  AA   SSS   SSS    II                                 *
-!----------------------------------------------------------------------*
-        Call TdmTrans(nBas)
-      Endif
-      Write(6,*)
-      Write(6,*)
+else if (QmType(1:4) == 'RASS') then
+  !--------------------------------------------------------------------*
+  !   RRRR      AA      SSS   SSS   II                                 *
+  !   RR  R    A  A    SS    SS     II                                 *
+  !   RR R    AAAAAA    SS    SS    II                                 *
+  !   RRR     AA  AA     SS    SS   II                                 *
+  !   RR R    AA  AA   SSS   SSS    II                                 *
+  !--------------------------------------------------------------------*
+  call TdmTrans(nBas)
+end if
+write(6,*)
+write(6,*)
 !----------------------------------------------------------------------*
 ! Compute various information about system. This we use for computing  *
-! integrals later. GiveMeInfo collects stuff from seward, somtime with *
+! integrals later. GiveMeInfo collects stuff from seward, sometime with*
 ! some recomputations.                                                 *
 !----------------------------------------------------------------------*
-      Call GiveMeInfo(nBas(1),nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q     &
-     &,nCBoA_Q,nBonA_Q,ipE,ipC,nsh,nfsh,nSize,iPrint,MxAt,MxPrCon,MxBas &
-     &,MxAngqNr,ipACC,nACCSizeQ)
-      iBas=0
-      iAtom=0
-      kold=1
-      iold=1
-      indold=0
-      Do 149, i=1,nntyp
-        nOcc(i)=0
-149   Continue
-      Do 150, i=1,nntyp
-        na=natyp(i)
-        Do 151, j=1,na
-          ind=0
-          jnd=0
-          iAtom=iAtom+1
-          ChaNuc(iAtom)=Chge(iAtom)
-          info_atom(iAtom)=int(Chge(iAtom))
-          nShj=nSh(i)
-          Do 152, k=1,nShj
-            nnaa=nfsh(i,k)
-            Do 153, l=1,nnaa
-              ibas=ibas+1
-              indold=indold+1
-              nOcc(i)=nOcc(i)+2*k-1
-              ind=ind+1
-              iQang(ibas)=k
-              icont=Icon(i,ind)
-              iCharOnBasQ(ibas)=int(Chge(iAtom))
-              Do 1531, ix=1,2*k-1  !Here we construct an array of
-                If(k.ne.kold) then !indeces which is used to put right
-                  If(i.ne.iold) then !AO-overlap in right matrix pos.
-                    Indold=Indold+nfsh(iold,kold)*(2*kold-2)
-                    iold=i
-                  Else
-                    Indold=Indold+nfsh(i,kold)*(2*kold-2)
-                  Endif
-                  kold=k
-                Endif
-                iWoGehenQ(ibas,ix)=indold+nnaa*(ix-1)
-1531          Continue
-              Do 154, m=1,icont
-                jnd=jnd+1
-                alfa(ibas,m)=Work(ipE+i-1+MxAt*(jnd-1))
-                cont(ibas,m)=Work(ipC+i-1+MxAt*(jnd-1))
-154           Continue
-153         Continue
-152       Continue
-151     Continue
-150   Continue
-      Kmax=ibas
-      call dcopy_(nACCSizeQ,Work(ipACC),iONE,Trans,iONE)
-      Call GetMem('AccTransa','Free','Real',ipACC,nACCSizeQ)
-      Call GetMem('Exponents','Free','Real',ipE,nSize*MxAt) !Now we
-      Call GetMem('ContrCoef','Free','Real',ipC,nSize*MxAt) !do not
-                                             !need them, so deallocate.
+call GiveMeInfo(nBas(1),nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,ipE,ipC,nsh,nfsh,nSize,iPrint,MxAt,MxPrCon,MxBas, &
+                MxAngqNr,ipACC,nACCSizeQ)
+iBas = 0
+iAtom = 0
+kold = 1
+iold = 1
+indold = 0
+do i=1,nntyp
+  nOcc(i) = 0
+end do
+do i=1,nntyp
+  na = natyp(i)
+  do j=1,na
+    ind = 0
+    jnd = 0
+    iAtom = iAtom+1
+    ChaNuc(iAtom) = Chge(iAtom)
+    info_atom(iAtom) = int(Chge(iAtom))
+    nShj = nSh(i)
+    do k=1,nShj
+      nnaa = nfsh(i,k)
+      do l=1,nnaa
+        ibas = ibas+1
+        indold = indold+1
+        nOcc(i) = nOcc(i)+2*k-1
+        ind = ind+1
+        iQang(ibas) = k
+        icont = Icon(i,ind)
+        iCharOnBasQ(ibas) = int(Chge(iAtom))
+        do ix=1,2*k-1  !Here we construct an array of
+          if (k /= kold) then !indeces which is used to put right
+            if (i /= iold) then !AO-overlap in right matrix pos.
+              Indold = Indold+nfsh(iold,kold)*(2*kold-2)
+              iold = i
+            else
+              Indold = Indold+nfsh(i,kold)*(2*kold-2)
+            end if
+            kold = k
+          end if
+          iWoGehenQ(ibas,ix) = indold+nnaa*(ix-1)
+        end do
+        do m=1,icont
+          jnd = jnd+1
+          alfa(ibas,m) = Work(ipE+i-1+MxAt*(jnd-1))
+          cont(ibas,m) = Work(ipC+i-1+MxAt*(jnd-1))
+        end do
+      end do
+    end do
+  end do
+end do
+Kmax = ibas
+call dcopy_(nACCSizeQ,Work(ipACC),iONE,Trans,iONE)
+! Now we do not need them, so deallocate
+call GetMem('AccTransa','Free','Real',ipACC,nACCSizeQ)
+call GetMem('Exponents','Free','Real',ipE,nSize*MxAt)
+call GetMem('ContrCoef','Free','Real',ipC,nSize*MxAt)
 
-!------------------------------------------------------------------------*
-! Obtain and print information about solvent. This requires a renaming   *
-! of the runfile.                                                        *
-!------------------------------------------------------------------------*
-      Call NameRun('WRUNFIL')
-      Call Get_iScalar('nSym',nSymCC)
-      If(nSymCC.ne.1) then
-        Write(6,*)
-        Write(6,*)' QmStat does not run with symmetry!'
-        Call Quit(_RC_GENERAL_ERROR_)
-      Endif
-      Call Get_iScalar('Unique atoms',nAtomsCC)
-      If(nAtomsCC.ne.3) then
-        Write(6,*)
-        Write(6,*)'Now now... what strange solvent molecule do you try' &
-     &//' to feed QmStat with?'
-        Call Quit(_RC_GENERAL_ERROR_)
-      Endif
-      Call Get_dArray('Nuclear charge',ChgeCC,nAtomsCC)
-      Call Get_dArray('Unique Coordinates',CoordCC,3*nAtomsCC)
-      Call Get_iArray('nBas',nBasCC,nSymCC)
-      If(nBasCC(1).gt.MxBasC) then
-        Write(6,*)
-        Write(6,*)'Number of solvent molecule basis functions exceeded.'&
-     &//' Increase MxBasC in maxi.fh in QmStat source directory.'
-        Call Quit(_RC_GENERAL_ERROR_)
-      Endif
-      Write(6,*)
-      Write(6,*)'     ------------------------------'
-      Write(6,*)'     |   Solvent molecule data     |'
-      Write(6,*)'     ------------------------------'
-      Write(6,*)
-      Write(6,'(A,15X,I5)')'      Number of basis functions:'           &
-     &                    ,(nBasCC(i),i=1,nSymCC)
-      Call PrCoor
+!----------------------------------------------------------------------*
+! Obtain and print information about solvent. This requires a renaming *
+! of the runfile.                                                      *
+!----------------------------------------------------------------------*
+call NameRun('WRUNFIL')
+call Get_iScalar('nSym',nSymCC)
+if (nSymCC /= 1) then
+  write(6,*)
+  write(6,*) ' QmStat does not run with symmetry!'
+  call Quit(_RC_GENERAL_ERROR_)
+end if
+call Get_iScalar('Unique atoms',nAtomsCC)
+if (nAtomsCC /= 3) then
+  write(6,*)
+  write(6,*) 'Now now... what strange solvent molecule do you try to feed QmStat with?'
+  call Quit(_RC_GENERAL_ERROR_)
+end if
+call Get_dArray('Nuclear charge',ChgeCC,nAtomsCC)
+call Get_dArray('Unique Coordinates',CoordCC,3*nAtomsCC)
+call Get_iArray('nBas',nBasCC,nSymCC)
+if (nBasCC(1) > MxBasC) then
+  write(6,*)
+  write(6,*) 'Number of solvent molecule basis functions exceeded. Increase MxBasC in maxi.fh in QmStat source directory.'
+  call Quit(_RC_GENERAL_ERROR_)
+end if
+write(6,*)
+write(6,*) '     ------------------------------'
+write(6,*) '     |   Solvent molecule data     |'
+write(6,*) '     ------------------------------'
+write(6,*)
+write(6,'(A,15X,I5)') '      Number of basis functions:',(nBasCC(i),i=1,nSymCC)
+call PrCoor()
 
-!
-!--- Collect information about the solvent orbitals.
-!
-      iLu=16
-      iLu=IsFreeUnit(iLu)
-      Write(OrbName,'(A)')'SOLORB'
-      Write(WhatGet,'(A)')'CE'
-      iWarn=1
-      Call GetMem('OrbitalEnergy','Allo','Real',iOe,Sum(nBasCC))
-      Call RdVec(OrbName,iLu,WhatGet,nSymCC,nBasCC,nBasCC,Cmo_S         &
-     &,Dummy,Work(iOe),iDummy,Title,iWarn,iErr)
-      Do 22, i=1,iOrb(2)
-        c_orbene(i)=Work(iOe+i-1)
-22    Continue
-      Call GetMem('OrbitalEnergy','Free','Real',iOe,Sum(nBasCC))
+! Collect information about the solvent orbitals.
 
-!
-!--- We should not need two solvent orbital vectors, so this should
-!    be removed when the orbital rotation routine is fixed.
-!
-      Do 202,j=1,iOrb(2)
-        Do 203,k=1,nBasCC(1)
-          V3(k,j)=Cmo_S(k+(j-1)*nBasCC(1))
-203     Continue
-202   Continue
-!      Write(6,'(A,I4)')'      Number of Orbitals:',iOrb(2)
-      Write(6,*)
-      Write(6,*)
-!-----------------------------------------------------------------------*
-! And now basis set information.                                        *
-!-----------------------------------------------------------------------*
-      Call GiveMeInfo(nBasCC(1),nntypC,natypC,SavOri,iC_Icon,mPrimus    &
-     &,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nsh,nfsh,nSize,iPrint,MxAt     &
-     &,MxPrCon,MxBas,MxAngqNr,ipACC,nACCSizeC)
-      iBas=0
-      iAtom=0
-      kold=1
-      iold=1
-      indold=0
-      Do 250, i=1,nntypC  !Like the corresponding thing above for
-        na=natypC(i)       !the QM-region.
-        Do 251, j=1,na
-          ind=0
-          jnd=0
-          nShj=nSh(i)
-          iAtom=iAtom+1
-          Do 252, k=1,nShj
-            nnaa=nfsh(i,k)
-            Do 253, l=1,nnaa
-              ibas=ibas+1
-              indold=indold+1
-              nCnC_C(ibas)=nnaa
-              ind=ind+1
-              icont=iC_Icon(i,ind)
-              iqn(ibas)=k
-              iCharOnBasC(ibas)=int(ChgeCC(iAtom))
-              Do 2531, ix=1,2*k-1  !Here we construct an array of
-                If(k.ne.kold) then !indeces which is used to put right
-                  If(i.ne.iold) then !AO-overlap in right matrix pos.
-                    Indold=Indold+nfsh(iold,kold)*(2*kold-2)
-                    iold=i
-                  Else
-                    Indold=Indold+nfsh(i,kold)*(2*kold-2)
-                  Endif
-                  kold=k
-                Endif
-                iWoGehenC(ibas,ix)=indold+nnaa*(ix-1)
-2531          Continue
-              Do 254, m=1,icont
-                jnd=jnd+1
-                beta(ibas,m)=Work(ipE_C+i-1+MxAt*(jnd-1))
-                dont(ibas,m)=Work(ipC_C+i-1+MxAt*(jnd-1))
-254           Continue
-253         Continue
-252       Continue
-251     Continue
-250   Continue
-      Lmax=ibas
-      If(nACCSizeC.gt.nACCSizeQ) then
-        call dcopy_(nACCSizeC,Work(ipACC),iONE,Trans,iONE)
-      Endif
-      Call GetMem('AccTransa','Free','Real',ipACC,nACCSizeC)
-      Call GetMem('Exponents','Free','Real',ipE_C,nSize*MxAt) !Now we
-      Call GetMem('ContrCoef','Free','Real',ipC_C,nSize*MxAt) !do not
-                                             !need them, so deallocate.
-!
+iLu = 16
+iLu = IsFreeUnit(iLu)
+write(OrbName,'(A)') 'SOLORB'
+write(WhatGet,'(A)') 'CE'
+iWarn = 1
+call GetMem('OrbitalEnergy','Allo','Real',iOe,sum(nBasCC))
+call RdVec(OrbName,iLu,WhatGet,nSymCC,nBasCC,nBasCC,Cmo_S,Dummy,Work(iOe),iDummy,Title,iWarn,iErr)
+do i=1,iOrb(2)
+  c_orbene(i) = Work(iOe+i-1)
+end do
+call GetMem('OrbitalEnergy','Free','Real',iOe,sum(nBasCC))
+
+! We should not need two solvent orbital vectors, so this should
+! be removed when the orbital rotation routine is fixed.
+
+do j=1,iOrb(2)
+  do k=1,nBasCC(1)
+    V3(k,j) = Cmo_S(k+(j-1)*nBasCC(1))
+  end do
+end do
+!write(6,'(A,I4)') '      Number of Orbitals:',iOrb(2)
+write(6,*)
+write(6,*)
+!----------------------------------------------------------------------*
+! And now basis set information.                                       *
+!----------------------------------------------------------------------*
+call GiveMeInfo(nBasCC(1),nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nsh,nfsh,nSize,iPrint,MxAt, &
+                MxPrCon,MxBas,MxAngqNr,ipACC,nACCSizeC)
+iBas = 0
+iAtom = 0
+kold = 1
+iold = 1
+indold = 0
+do i=1,nntypC !Like the corresponding thing above for the QM-region.
+  na = natypC(i)
+  do j=1,na
+    ind = 0
+    jnd = 0
+    nShj = nSh(i)
+    iAtom = iAtom+1
+    do k=1,nShj
+      nnaa = nfsh(i,k)
+      do l=1,nnaa
+        ibas = ibas+1
+        indold = indold+1
+        nCnC_C(ibas) = nnaa
+        ind = ind+1
+        icont = iC_Icon(i,ind)
+        iqn(ibas) = k
+        iCharOnBasC(ibas) = int(ChgeCC(iAtom))
+        ! Here we construct an array of indices which is used to put right AO-overlap in right matrix pos.
+        do ix=1,2*k-1
+          if (k /= kold) then
+            if (i /= iold) then
+              Indold = Indold+nfsh(iold,kold)*(2*kold-2)
+              iold = i
+            else
+              Indold = Indold+nfsh(i,kold)*(2*kold-2)
+            end if
+            kold = k
+          end if
+          iWoGehenC(ibas,ix) = indold+nnaa*(ix-1)
+        end do
+        do m=1,icont
+          jnd = jnd+1
+          beta(ibas,m) = Work(ipE_C+i-1+MxAt*(jnd-1))
+          dont(ibas,m) = Work(ipC_C+i-1+MxAt*(jnd-1))
+        end do
+      end do
+    end do
+  end do
+end do
+Lmax = ibas
+if (nACCSizeC > nACCSizeQ) then
+  call dcopy_(nACCSizeC,Work(ipACC),iONE,Trans,iONE)
+end if
+! Now we do not need them, so deallocate.
+call GetMem('AccTransa','Free','Real',ipACC,nACCSizeC)
+call GetMem('Exponents','Free','Real',ipE_C,nSize*MxAt)
+call GetMem('ContrCoef','Free','Real',ipC_C,nSize*MxAt)
+
 !----------------------------------------------------------------------*
 ! A small test to see if max-limits are violated.                      *
 !----------------------------------------------------------------------*
-      If(Kmax.gt.MxBB.or.Lmax.gt.MxBB) then
-        Write(6,*)
-        Write(6,*)'ERROR! MxBB too small!'
-        Call Quit(_RC_INTERNAL_ERROR_)
-      Endif
+if ((Kmax > MxBB) .or. (Lmax > MxBB)) then
+  write(6,*)
+  write(6,*) 'ERROR! MxBB too small!'
+  call Quit(_RC_INTERNAL_ERROR_)
+end if
 !----------------------------------------------------------------------*
 ! The multipoles and the Hamiltonian matrix are radically different    *
 ! between the QM-method alternatives, so once more an inquire.         *
 !----------------------------------------------------------------------*
-      Call NameRun('RUNFILE')
-      If(QmType(1:3).eq.'SCF') then
-        Call ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
-      Elseif(QmType(1:4).eq.'RASS') then
-        Call RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
-      Endif
+call NameRun('RUNFILE')
+if (QmType(1:3) == 'SCF') then
+  call ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
+else if (QmType(1:4) == 'RASS') then
+  call RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
+end if
+
 !----------------------------------------------------------------------*
 ! Here is the end.                                                     *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Qfread

@@ -8,47 +8,44 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-! ALL SUBROUTINE HERE HAVE THE PURPOSE TO PUT OR GET NUMBERS ON/FROM
-! STARTFILES AND SAMPFILES.
-!
-      Subroutine Get8(Ract,Etot)
-      Implicit Real*8 (a-h,o-z)
 
+! GET NUMBERS FROM STARTFILE.
+subroutine Get8(Ract,Etot)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
+character Head*200
 
-      Character Head*200
+iDisk = 0
+call DaName(iLuStIn,StFilIn)
+call WrRdSim(iLuStIn,2,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold,GaOld,Esub)
+iDisk = iTcSim(1)
 
-      iDisk=0
-      Call DaName(iLuStIn,StFilIn)
-      Call WrRdSim(iLuStIn,2,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold     &
-     &,GaOld,Esub)
-      iDisk=iTcSim(1)
-!
-!---- In this loop we read the coordinates. The construction of Cordst
-!     makes this loop necessary. Maybe we should consider going to
-!     dynamic allocation.
-!
-      Do 1020, i=1,3
-        Call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
-        Call dDaFile(iLuStIn,2,Work(iCT),nPart*nCent,iDisk)
-        Do 1021, j=1,nCent*nPart
-          Cordst(j,i)=Work(iCT+j-1)
-1021    Continue
-        Call GetMem('CTemp','Free','Real',iCT,nPart*nCent)
-        iDisk=iTcSim(i+1)
-1020  Continue
-      Call DaClos(iLuStIn)
-!
-!---- If requested, print initial coordinates.
-!
-      If(iPrint.ge.10) then
-        Write(Head,*)'Coordinates read from startfile.'
-        Call Cooout(Head,Cordst,nPart,nCent)
-      Endif
+! In this loop we read the coordinates. The construction of Cordst
+! makes this loop necessary. Maybe we should consider going to
+! dynamic allocation.
 
-      Return
-      End
+do i=1,3
+  call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
+  call dDaFile(iLuStIn,2,Work(iCT),nPart*nCent,iDisk)
+  do j=1,nCent*nPart
+    Cordst(j,i) = Work(iCT+j-1)
+  end do
+  call GetMem('CTemp','Free','Real',iCT,nPart*nCent)
+  iDisk = iTcSim(i+1)
+end do
+call DaClos(iLuStIn)
+
+! If requested, print initial coordinates.
+
+if (iPrint >= 10) then
+  write(Head,*) 'Coordinates read from startfile.'
+  call Cooout(Head,Cordst,nPart,nCent)
+end if
+
+return
+
+end subroutine Get8

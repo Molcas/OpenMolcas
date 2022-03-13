@@ -8,34 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 !----------------------------------------------------------------------*
 ! A routine inspired by the wr_motra_info utility.                     *
 !----------------------------------------------------------------------*
-      Subroutine WrRdSim(iLu,iOpt,iDisk,iTcSim,nTcSim,Etot              &
-     &,Radie,nPart,Gamma,Gam,Esav)
-      Implicit Real*8 (a-h,o-z)
-      Dimension iTcSim(nTcSim)
-      Dimension Dum(1),iDum(1)
+subroutine WrRdSim(iLu,iOpt,iDisk,iTcSim,nTcSim,Etot,Radie,nPart,Gamma,Gam,Esav)
 
-      Call iDaFile(iLu,iOpt,iTcSim,nTcSim,iDisk)
-      Dum(1)=Etot
-      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
-      Etot=Dum(1)
-      Dum(1)=Radie
-      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
-      Radie=Dum(1)
-      iDum(1)=nPart
-      Call iDaFile(iLu,iOpt,iDum,1,iDisk)
-      nPart=iDum(1)
-      Dum(1)=Gamma
-      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
-      Gamma=Dum(1)
-      Dum(1)=Gam
-      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
-      Gam=Dum(1)
-      Dum(1)=Esav
-      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
-      Esav=Dum(1)
+implicit real*8(a-h,o-z)
+dimension iTcSim(nTcSim)
+dimension Dum(1), iDum(1)
 
-      Return
-      End
+call iDaFile(iLu,iOpt,iTcSim,nTcSim,iDisk)
+Dum(1) = Etot
+call dDaFile(iLu,iOpt,Dum,1,iDisk)
+Etot = Dum(1)
+Dum(1) = Radie
+call dDaFile(iLu,iOpt,Dum,1,iDisk)
+Radie = Dum(1)
+iDum(1) = nPart
+call iDaFile(iLu,iOpt,iDum,1,iDisk)
+nPart = iDum(1)
+Dum(1) = Gamma
+call dDaFile(iLu,iOpt,Dum,1,iDisk)
+Gamma = Dum(1)
+Dum(1) = Gam
+call dDaFile(iLu,iOpt,Dum,1,iDisk)
+Gam = Dum(1)
+Dum(1) = Esav
+call dDaFile(iLu,iOpt,Dum,1,iDisk)
+Esav = Dum(1)
+
+return
+
+end subroutine WrRdSim

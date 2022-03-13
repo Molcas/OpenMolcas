@@ -8,47 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!----------------------------------------------------------------------*
-!
-!----------------------------------------------------------------------*
-      Subroutine GeoRea(nskipp,quantum)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine GeoRea(nskipp,quantum)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "qminp.fh"
+logical quantum
+dimension Dum(1)
 
-      Logical quantum
-      Dimension Dum(1)
-!-----------------------------------------------------------------------*
-! Enter.                                                                *
-!-----------------------------------------------------------------------*
-!-----------------------------------------------------------------------*
-! Read!                                                                 *
-!-----------------------------------------------------------------------*
-      iDisk=0
-      If(nSkipp.ne.0.and.iPrint.ge.4) then      !If we are to skip
-        Write(6,*)' Reading from configuration ',nskipp,'.' !something.
-      Endif
-      Do 11, j=1,nSkipp+1
-        If(j.ne.1.and.iRead.ne.9) then
-          Call dDaFile(9,2,Dum,1,iDisk) !Etot
-          Call dDaFile(9,2,Dum,1,iDisk) !Ract
-          Call dDaFile(9,2,Dum,1,iDisk) !GamOld
-          Call dDaFile(9,2,Dum,1,iDisk) !Gam
-          Call dDaFile(9,2,Dum,1,iDisk) !ESub
-        Endif
-        If(iRead.eq.9) then  !If this is a sampfile we do not care about
-                          !the induced dipoles, so we just read them to
-                          !get rid of them.
-!          Do 12, i=1+nPol,IndMa
-!
-!12        Continue
-        Endif
-11    Continue
-!-----------------------------------------------------------------------*
-! Exit.                                                                 *
-!-----------------------------------------------------------------------*
-      Return
+!----------------------------------------------------------------------*
+! Enter.                                                               *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Read!                                                                *
+!----------------------------------------------------------------------*
+iDisk = 0
+!If we are to skip something.
+if ((nSkipp /= 0) .and. (iPrint >= 4)) write(6,*) ' Reading from configuration ',nskipp,'.'
+do j=1,nSkipp+1
+  if ((j /= 1) .and. (iRead /= 9)) then
+    call dDaFile(9,2,Dum,1,iDisk) !Etot
+    call dDaFile(9,2,Dum,1,iDisk) !Ract
+    call dDaFile(9,2,Dum,1,iDisk) !GamOld
+    call dDaFile(9,2,Dum,1,iDisk) !Gam
+    call dDaFile(9,2,Dum,1,iDisk) !ESub
+  end if
+  ! If this is a sampfile we do not care about
+  ! the induced dipoles, so we just read them to get rid of them.
+  !if (iRead == 9) then
+  !  do i=1+nPol,IndMa
+  !  end do
+  !end if
+end do
+
+!----------------------------------------------------------------------*
+! Exit.                                                                *
+!----------------------------------------------------------------------*
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_logical(quantum)
-      End
+if (.false.) call Unused_logical(quantum)
+
+end subroutine GeoRea

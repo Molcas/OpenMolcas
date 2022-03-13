@@ -617,8 +617,8 @@ C                                                                      C
       IF(DIPR) THEN
         WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
       END IF
-! this is to ensure that the total transistion strength is non-zero
-! Negative transitions strengths can occur for quadrupole transistions
+! this is to ensure that the total transition strength is non-zero
+! Negative transitions strengths can occur for quadrupole transitions
 ! due to the truncation of the Taylor expansion.
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN

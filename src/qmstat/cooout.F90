@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Cooout(Head,Cordst,nPart,nCent)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine Cooout(Head,Cordst,nPart,nCent)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
+dimension Cordst(MxCen*MxPut,3)
+character Head*200
 
-      Dimension Cordst(MxCen*MxPut,3)
-      Character Head*200
+write(6,*)
+write(6,*)
+write(6,'(A)') Head
+kaunter = 0
+do i=1,nPart
+  write(6,*) 'Molecule ',i
+  do j=1,nCent
+    kaunter = kaunter+1
+    write(6,*) (Cordst(kaunter,ii),ii=1,3)
+  end do
+end do
 
-      Write(6,*)
-      Write(6,*)
-      Write(6,'(A)')Head
-      kaunter=0
-      Do 1, i=1,nPart
-        Write(6,*)'Molecule ',i
-        Do 2, j=1,nCent
-          kaunter=kaunter+1
-          Write(6,*)(Cordst(kaunter,ii),ii=1,3)
-2       Continue
-1     Continue
+return
 
-      Return
-      End
+end subroutine Cooout

@@ -8,33 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine FetchTDM(nB,nS,iBigT,TDMchar)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine FetchTDM(nB,nS,iBigT,TDMchar)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "WrkSpc.fh"
+dimension iTocBig(MxStOT)
+character TDMchar*6
 
-      Dimension iTocBig(MxStOT)
+iDisk = 0
+kaunter = 0
+nSize = nB*(nB+1)/2
+index = 0
+Lu = 72
+Lu = IsFreeUnit(Lu)
+call DaName(Lu,TDMchar)
+call iDaFile(Lu,2,iTocBig,MxStOT,iDisk)
+do iS1=1,nS
+  do iS2=1,iS1
+    kaunter = kaunter+1
+    iDisk = iTocBig(kaunter)
+    call dDaFile(Lu,2,Work(iBigT+index),nSize,iDisk)
+    index = index+nSize
+  end do
+end do
+call DaClos(Lu)
 
-      Character TDMchar*6
+return
 
-      iDisk=0
-      kaunter=0
-      nSize=nB*(nB+1)/2
-      index=0
-      Lu=72
-      Lu=IsFreeUnit(Lu)
-      Call DaName(Lu,TDMchar)
-      Call iDaFile(Lu,2,iTocBig,MxStOT,iDisk)
-      Do 99991, iS1=1,nS
-        Do 99992, iS2=1,iS1
-          kaunter=kaunter+1
-          iDisk=iTocBig(kaunter)
-          Call dDaFile(Lu,2,Work(iBigT+index),nSize,iDisk)
-          index=index+nSize
-99992   Continue
-99991 Continue
-      Call DaClos(Lu)
-
-      Return
-      End
+end subroutine FetchTDM

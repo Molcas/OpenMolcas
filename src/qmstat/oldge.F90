@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!----------------------------------------------------------------------*
-!----------------------------------------------------------------------*
-      Subroutine Oldge(iAcc,Etot,Eold,Ract,Rold)
-      Implicit Real*8 (a-h,o-z)
 
+subroutine Oldge(iAcc,Etot,Eold,Ract,Rold)
+
+implicit real*8(a-h,o-z)
 #include "maxi.fh"
 #include "qminp.fh"
 
-      iAcc=iAcc-1
-      Etot=Eold
-      Ract=Rold
-      icCom=0
-      Do 100, i=1,nPart
-        Do 101, j=1,nCent
-          icCom=icCom+1
-          Do 102, k=1,3
-            Cordst(icCom,k)=OldGeo(icCom,k)
-102       Continue
-101     Continue
-100   Continue
-      Return
-      End
+iAcc = iAcc-1
+Etot = Eold
+Ract = Rold
+icCom = 0
+do i=1,nPart
+  do j=1,nCent
+    icCom = icCom+1
+    do k=1,3
+      Cordst(icCom,k) = OldGeo(icCom,k)
+    end do
+  end do
+end do
+
+return
+
+end subroutine Oldge
