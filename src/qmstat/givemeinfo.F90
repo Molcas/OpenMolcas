@@ -56,9 +56,10 @@ nntyp = nCnttp
 ! with integers, such that 1=s-orbitals, 2=p-orbitals, 3=d-orbitals... *
 !----------------------------------------------------------------------*
 !ii = 0 !ii is number of basis sets.
-!10 Continue
-!ii = ii+1
-!if (dbsc(ii)%nCntr /= 0) Go To 10
+!do
+!  ii = ii+1
+!  if (dbsc(ii)%nCntr == 0) exit
+!end do
 !ii = ii-1
 !if (ii == 0) then
 !  write(6,*)

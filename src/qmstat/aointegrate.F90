@@ -73,7 +73,7 @@ if (iPrint >= 25) then !Optional print-out.
   call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,Work(ipPPP),3)
   call GetMem('PrCMO','Free','Real',ipPPP,nBaseC*iOrb(2))
 end if
-do m=1,lMax !New basis function origo definied.
+do m=1,lMax !New basis function origo defined.
   x = 0
   y = 0
   z = 0

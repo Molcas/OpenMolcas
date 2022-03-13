@@ -35,9 +35,10 @@ end if
 rewind(Lu)
 
 ! Read until you get standard line
-10 continue
-read(Lu,'(A)') TheLine
-if (TheLine /= '* All centers') Go To 10
+do
+  read(Lu,'(A)') TheLine
+  if (TheLine == '* All centers') exit
+end do
 read(Lu,*) i
 
 ! Read atom centers.

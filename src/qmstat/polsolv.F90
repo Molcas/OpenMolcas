@@ -55,13 +55,12 @@ do i=1+(nPol*iCNum),nPart*nPol !The real part.
   do j=1+(nPol*iCnum),nPart*nPol
     idel1 = (i-1)/nPol
     idel2 = (j-1)/nPol
-    if (idel1 == idel2) goto 744
+    if (idel1 == idel2) cycle
     Skal = xx(i,j)*Work(iDt(1)+i-1)+yy(i,j)*Work(iDt(2)+i-1)+zz(i,j)*Work(iDt(3)+i-1)
     Skal = Skal*3
     Work(iFi(1)+j-1) = Work(iFi(1)+j-1)-(Work(iDt(1)+i-1)-Skal*xx(i,j))*rr3(i,j)
     Work(iFi(2)+j-1) = Work(iFi(2)+j-1)-(Work(iDt(2)+i-1)-Skal*yy(i,j))*rr3(i,j)
     Work(iFi(3)+j-1) = Work(iFi(3)+j-1)-(Work(iDt(3)+i-1)-Skal*zz(i,j))*rr3(i,j)
-744 continue
   end do
 end do
 do i=1+(nPol*iCnum),nPart*nPol !The image part.

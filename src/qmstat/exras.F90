@@ -25,7 +25,7 @@ logical Inside, NearBy, InCutOff
 
 !----------------------------------------------------------------------*
 ! Deduce how much the QM-molecule is translated from its position as   *
-! definied in Seward.                                                  *
+! defined in Seward.                                                   *
 !----------------------------------------------------------------------*
 Ax = Cordst(1,1)-outxyzRAS(1,1)
 Ay = Cordst(1,2)-outxyzRAS(1,2)
@@ -126,7 +126,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Make some cut-off tests.
 
-  if (.not. NearBy) Go To 501  !If all distances larger than cut-off, jump to new solvent.
+  if (.not. NearBy) cycle !If all distances larger than cut-off, jump to new solvent.
   if (r3 < Cut_ExSq2) then !Inner cut-off. Set flag to true then huge energy is added later. S*S matrix, however!
     InCutOff = .true.
   end if
@@ -190,7 +190,6 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! The end for this solvent molecule.
 
-501 continue
 end do
 
 ! Now construct the matrix elements to the non-electrostatic

@@ -174,39 +174,38 @@ do i=1,iOrb
     NewIq = iQ(j) /= iQ(j-1)
     !This if-clause controls the jumping when new angular basis function appears.
     if (Newiq) In = In+(2*iQ(j-1)-2)*nCnC(j-1)
-    if (IqSuckOut == 1) then !This is s-function
-      Go To 20
-    else if (IqSuckOut == 2) then !This is p-function
-      iSkutt = nCnC(j)
-      Ctemp1 = PBlock(1,1)*Cmo(In,i)+PBlock(1,2)*Cmo(In+iSkutt,i)+PBlock(1,3)*Cmo(In+2*iSkutt,i)
-      Ctemp2 = PBlock(2,1)*Cmo(In,i)+PBlock(2,2)*Cmo(In+iSkutt,i)+PBlock(2,3)*Cmo(In+2*iSkutt,i)
-      Ctemp3 = PBlock(3,1)*Cmo(In,i)+PBlock(3,2)*Cmo(In+iSkutt,i)+PBlock(3,3)*Cmo(In+2*iSkutt,i)
-      Cmo(In,i) = Ctemp1
-      Cmo(In+iSkutt,i) = Ctemp2
-      Cmo(In+2*iSkutt,i) = Ctemp3
-    else if (IqSuckOut == 3) then !This is d-function
-      iSkutt = nCnC(j)
-      Ctemp1 = DBlock(1,1)*Cmo(In,i)+DBlock(1,2)*Cmo(In+iSkutt,i)+DBlock(1,3)*Cmo(In+2*iSkutt,i)+DBlock(1,4)*Cmo(In+3*iSkutt,i)+ &
-               DBlock(1,5)*Cmo(In+4*iSkutt,i)
-      Ctemp2 = DBlock(2,1)*Cmo(In,i)+DBlock(2,2)*Cmo(In+iSkutt,i)+DBlock(2,3)*Cmo(In+2*iSkutt,i)+DBlock(2,4)*Cmo(In+3*iSkutt,i)+ &
-               DBlock(2,5)*Cmo(In+4*iSkutt,i)
-      Ctemp3 = DBlock(3,1)*Cmo(In,i)+DBlock(3,2)*Cmo(In+iSkutt,i)+DBlock(3,3)*Cmo(In+2*iSkutt,i)+DBlock(3,4)*Cmo(In+3*iSkutt,i)+ &
-               DBlock(3,5)*Cmo(In+4*iSkutt,i)
-      Ctemp4 = DBlock(4,1)*Cmo(In,i)+DBlock(4,2)*Cmo(In+iSkutt,i)+DBlock(4,3)*Cmo(In+2*iSkutt,i)+DBlock(4,4)*Cmo(In+3*iSkutt,i)+ &
-               DBlock(4,5)*Cmo(In+4*iSkutt,i)
-      Ctemp5 = DBlock(5,1)*Cmo(In,i)+DBlock(5,2)*Cmo(In+iSkutt,i)+DBlock(5,3)*Cmo(In+2*iSkutt,i)+DBlock(5,4)*Cmo(In+3*iSkutt,i)+ &
-               DBlock(5,5)*Cmo(In+4*iSkutt,i)
-      Cmo(In,i) = Ctemp1
-      Cmo(In+iSkutt,i) = Ctemp2
-      Cmo(In+2*iSkutt,i) = Ctemp3
-      Cmo(In+3*iSkutt,i) = Ctemp4
-      Cmo(In+4*iSkutt,i) = Ctemp5
-    else  !Here we go if non-implemented angular quantum number appears.
-      write(6,*)
-      write(6,*) ' ERROR in OrbRot2. I''m not ready for f-orbitals'
-      call Quit(_RC_GENERAL_ERROR_)
-    end if
-20  continue
+    select case (iqSuckOut)
+      case (1) !This is s-function
+      case (2) !This is p-function
+        iSkutt = nCnC(j)
+        Ctemp1 = PBlock(1,1)*Cmo(In,i)+PBlock(1,2)*Cmo(In+iSkutt,i)+PBlock(1,3)*Cmo(In+2*iSkutt,i)
+        Ctemp2 = PBlock(2,1)*Cmo(In,i)+PBlock(2,2)*Cmo(In+iSkutt,i)+PBlock(2,3)*Cmo(In+2*iSkutt,i)
+        Ctemp3 = PBlock(3,1)*Cmo(In,i)+PBlock(3,2)*Cmo(In+iSkutt,i)+PBlock(3,3)*Cmo(In+2*iSkutt,i)
+        Cmo(In,i) = Ctemp1
+        Cmo(In+iSkutt,i) = Ctemp2
+        Cmo(In+2*iSkutt,i) = Ctemp3
+      case (3) !This is d-function
+        iSkutt = nCnC(j)
+        Ctemp1 = DBlock(1,1)*Cmo(In,i)+DBlock(1,2)*Cmo(In+iSkutt,i)+DBlock(1,3)*Cmo(In+2*iSkutt,i)+DBlock(1,4)*Cmo(In+3*iSkutt,i)+ &
+                 DBlock(1,5)*Cmo(In+4*iSkutt,i)
+        Ctemp2 = DBlock(2,1)*Cmo(In,i)+DBlock(2,2)*Cmo(In+iSkutt,i)+DBlock(2,3)*Cmo(In+2*iSkutt,i)+DBlock(2,4)*Cmo(In+3*iSkutt,i)+ &
+                 DBlock(2,5)*Cmo(In+4*iSkutt,i)
+        Ctemp3 = DBlock(3,1)*Cmo(In,i)+DBlock(3,2)*Cmo(In+iSkutt,i)+DBlock(3,3)*Cmo(In+2*iSkutt,i)+DBlock(3,4)*Cmo(In+3*iSkutt,i)+ &
+                 DBlock(3,5)*Cmo(In+4*iSkutt,i)
+        Ctemp4 = DBlock(4,1)*Cmo(In,i)+DBlock(4,2)*Cmo(In+iSkutt,i)+DBlock(4,3)*Cmo(In+2*iSkutt,i)+DBlock(4,4)*Cmo(In+3*iSkutt,i)+ &
+                 DBlock(4,5)*Cmo(In+4*iSkutt,i)
+        Ctemp5 = DBlock(5,1)*Cmo(In,i)+DBlock(5,2)*Cmo(In+iSkutt,i)+DBlock(5,3)*Cmo(In+2*iSkutt,i)+DBlock(5,4)*Cmo(In+3*iSkutt,i)+ &
+                 DBlock(5,5)*Cmo(In+4*iSkutt,i)
+        Cmo(In,i) = Ctemp1
+        Cmo(In+iSkutt,i) = Ctemp2
+        Cmo(In+2*iSkutt,i) = Ctemp3
+        Cmo(In+3*iSkutt,i) = Ctemp4
+        Cmo(In+4*iSkutt,i) = Ctemp5
+      case default !Here we go if non-implemented angular quantum number appears.
+        write(6,*)
+        write(6,*) ' ERROR in OrbRot2. I''m not ready for f-orbitals'
+        call Quit(_RC_GENERAL_ERROR_)
+    end select
   end do
 end do
 

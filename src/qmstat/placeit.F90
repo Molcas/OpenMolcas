@@ -39,22 +39,23 @@ do i=1,MxPut
   IndexSet(i) = i
 end do
 
-31 continue
-! Order the indices suchwise that smallest distance goes first. The sorting routine is blunt
-! but at this stage of the execution time is not a problem.
-Changed = .false.
-do i=1,nPart-1
-  if (AvstPart(i+1) < AvstPart(i)) then
-    Atemp = AvstPart(i)
-    AvstPart(i) = AvstPart(i+1)
-    AvstPart(i+1) = Atemp
-    iTemp = IndexSet(i)
-    IndexSet(i) = IndexSet(i+1)
-    IndexSet(i+1) = iTemp
-    Changed = .true.
-  end if
+do
+  ! Order the indices suchwise that smallest distance goes first. The sorting routine is blunt
+  ! but at this stage of the execution time is not a problem.
+  Changed = .false.
+  do i=1,nPart-1
+    if (AvstPart(i+1) < AvstPart(i)) then
+      Atemp = AvstPart(i)
+      AvstPart(i) = AvstPart(i+1)
+      AvstPart(i+1) = Atemp
+      iTemp = IndexSet(i)
+      IndexSet(i) = IndexSet(i+1)
+      IndexSet(i+1) = iTemp
+      Changed = .true.
+    end if
+  end do
+  if (.not. Changed) exit
 end do
-if (Changed) goto 31
 
 ! Put coordinates of solvent suchwise that smallest distances goes first.
 do i=1,nPart

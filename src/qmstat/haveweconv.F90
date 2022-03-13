@@ -69,12 +69,10 @@ if (nVarv >= itMax) then !itMax is from input or default.
     write(6,*) 'solv.',j,'iq_atom',imin,'center',kmin+1,'dist',distmin
   end do
   write(6,*)
-  goto 9898
+else
+  if (abs(egtest) > Enelim) JaNej = .false.
+  if (Diffab > PolLim) JaNej = .false.
 end if
-if (abs(egtest) > Enelim) JaNej = .false.
-if (Diffab > PolLim) JaNej = .false.
-
-9898 continue
 
 return
 

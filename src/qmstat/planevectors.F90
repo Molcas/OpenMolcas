@@ -21,21 +21,17 @@ const = 0.0d0
 Shitx = 1.0d0
 Shity = 0.0d0
 Shitz = 0.0d0
-1001 continue
-p(1) = Shitx+1.0d0*const
-p(2) = Shity+0.5d0*const
-p(3) = Shitz-1.0d0*const
-Scal = p(1)*v(1)+p(2)*v(2)+p(3)*v(3)
-u(1) = p(1)-Scal*Rinv**2*v(1)
-u(2) = p(2)-Scal*Rinv**2*v(2)
-u(3) = p(3)-Scal*Rinv**2*v(3)
-if ((abs(u(1)) < 1d-6) .and. (abs(u(2)) < 1d-6) .and. (abs(u(3)) < 1d-6)) then
+do
+  p(1) = Shitx+1.0d0*const
+  p(2) = Shity+0.5d0*const
+  p(3) = Shitz-1.0d0*const
+  Scal = p(1)*v(1)+p(2)*v(2)+p(3)*v(3)
+  u(1) = p(1)-Scal*Rinv**2*v(1)
+  u(2) = p(2)-Scal*Rinv**2*v(2)
+  u(3) = p(3)-Scal*Rinv**2*v(3)
+  if ((abs(u(1)) >= 1d-6) .or. (abs(u(2)) >= 1d-6) .or. (abs(u(3)) >= 1d-6)) exit
   const = const+1.0d0
-  Go To 1001
-else
-  Go To 1002
-end if
-1002 continue
+end do
 dLu = sqrt(u(1)**2+u(2)**2+u(3)**2)
 u(1) = u(1)/dLu
 u(2) = u(2)/dLu

@@ -42,7 +42,7 @@ do iS1=1,nState
   do iS2=1,iS1
     index = (iS1*(iS1-1)/2+iS2-1)*nSize
     call dcopy_(nSize,Work(iBigT+index),iONE,Work(iDin),iONE)
-    if (iS1 /= iS2) goto 202
+    if (iS1 /= iS2) cycle
     kaunt = 0
     do iB1=1,nBas(1)
       do iB2=1,iB1
@@ -55,7 +55,6 @@ do iS1=1,nState
         kaunt = kaunt+1
       end do
     end do
-202 continue
   end do
 end do
 

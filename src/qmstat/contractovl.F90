@@ -71,7 +71,7 @@ do iA1=1,iQ_Atoms !The atoms
         iQcontBSAV = iQcontBSAV+nBonA_Q(iA1)
         iQcontBSAV1 = iQcontBSAV
       end if
-      Go To 12
+      cycle
     end if
     do iB1=1,nBA_Q(iA1) !The basis functions on this specific atom
       do iB2=1,nBA_C(iA2)
@@ -163,7 +163,6 @@ do iA1=1,iQ_Atoms !The atoms
     iQcontBSAV = iQcontBSAV2
     iCcontBSAV2 = iCcontBSAV1
     iCcontBSAV = iCcontBSAV1
-12  continue
   end do
   iQcontBSAV2 = iQcontBSAV1
   iQcontBSAV = iQcontBSAV1

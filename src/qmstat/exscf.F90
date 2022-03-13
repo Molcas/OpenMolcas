@@ -25,7 +25,7 @@ logical Inside, NearBy, InCutOff
 
 !----------------------------------------------------------------------*
 ! Deduce how much the QM-molecule is translated from its position as   *
-! definied in Seward.                                                  *
+! defined in Seward.                                                   *
 !----------------------------------------------------------------------*
 Ax = Cordst(1,1)-outxyz(1,1)
 Ay = Cordst(1,2)-outxyz(1,2)
@@ -111,7 +111,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Now make the cut-off test.
 
-  if (.not. NearBy) Go To 501
+  if (.not. NearBy) cycle
   if (r3 < Cut_ExSq2) then !Inner cut-off.
     InCutOff = .true.
   end if
@@ -177,7 +177,6 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! This solvent molecule ends now!
 
-501 continue
 end do
 
 call GetMem('RotOrb','Free','Real',iV2,nV2size)

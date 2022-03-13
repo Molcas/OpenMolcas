@@ -18,9 +18,8 @@ integer function Len_TrimAO(String)
 character*(*) String
 
 do i=len(String),1,-1
-  if (String(i:i) /= ' ') Go To 20
+  if (String(i:i) /= ' ') exit
 end do
-20 continue
 Len_TrimAO = i
 
 return

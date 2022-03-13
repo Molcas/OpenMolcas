@@ -28,7 +28,7 @@ dimension iFil(MxQCen,10)
 dimension Eint(MxQCen,10), BoMaH(MxAt), BoMaO(MxAt), outxyz(MxQCen,3)
 dimension Eint_Nuc(MxAt), EintSl(MxK)
 dimension CTemp(3,MxCen), DTemp(MxCen), DInvTemp(MxCen)
-logical lAtom
+logical lAtom, Skip
 
 EEdisp = 0.0d0
 !----------------------------------------------------------------------*
@@ -129,6 +129,7 @@ do k=1,iCi
     distMin = min(distMin,rg3)
     distMin = min(distMin,rg4)
     distMin = min(distMin,rg5)
+    Skip = .false.
     if (distMin <= Cut_Elc) then
       CTemp(1,1) = Rabx1
       CTemp(2,1) = Raby1
@@ -179,7 +180,7 @@ do k=1,iCi
         if (lAtom) then
           Eint_Nuc(k) = Eint_Nuc(k)-EintSl_Nuc
         end if
-        go to 3466
+        Skip = .true.
       else
         ! this is done because for Sl_Grad charge is L=0, dipole is L=1 and
         ! quadrupole is L=2. In QmStat they are 1, 2 and 3, respectively.
@@ -194,47 +195,46 @@ do k=1,iCi
         if (lAtom) then
           Eint_Nuc(k) = Eint_Nuc(k)-EintSl_Nuc
         end if
-        go to 3456
       end if
+    else
+      !----------------------------------------------------------------*
+      ! The Eint(k,1) term will below turn into the interaction between*
+      ! charges on water and the MME-charges on the QM-molecule. Plus  *
+      ! the interaction between the charge densities in Water and the  *
+      ! charge densities in QM-Molecule when the Penetration is        *
+      ! evaluated                                                      *
+      !----------------------------------------------------------------*
+      Eint(k,1) = -Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e-Qsta(4)*S5e+Eint(k,1)
+      if (lAtom) then
+        Eint_Nuc(k) = -Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e-Qsta(4)*S5e+Eint_Nuc(k)
+      end if
+
+      ! These three terms will below turn into the interaction
+      ! between water charges and the MME-dipoles on the QM-mol.
+      ! Change sign of charge, change sign of vector and then we
+      ! should also change sign since when a dipole interacts with
+      ! a field we have a minus sign, but this minus sign we have
+      ! omitted in hel; therefore this calculation gives the right
+      ! number eventually.
+      Eint(k,2) = -Qsta(1)*RabX2*Rab23i-Qsta(2)*RabX3*Rab33i-Qsta(3)*RabX4*Rab43i-Qsta(4)*RabX5*Rab53i+Eint(k,2)
+      Eint(k,3) = -Qsta(1)*RabY2*Rab23i-Qsta(2)*RabY3*Rab33i-Qsta(3)*RabY4*Rab43i-Qsta(4)*RabY5*Rab53i+Eint(k,3)
+      Eint(k,4) = -Qsta(1)*RabZ2*Rab23i-Qsta(2)*RabZ3*Rab33i-Qsta(3)*RabZ4*Rab43i-Qsta(4)*RabZ5*Rab53i+Eint(k,4)
     end if
-    !------------------------------------------------------------------*
-    ! The Eint(k,1) term will below turn into the interaction between  *
-    ! charges on water and the MME-charges on the QM-molecule. Plus the*
-    ! interaction between the charge densities in Water and the        *
-    ! charge densities in QM-Molecule when the Penetration is evaluated*
-    !------------------------------------------------------------------*
-    Eint(k,1) = -Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e-Qsta(4)*S5e+Eint(k,1)
-    if (lAtom) then
-      Eint_Nuc(k) = -Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e-Qsta(4)*S5e+Eint_Nuc(k)
+
+    if (.not. Skip) then
+      ! And here it is the MME-quadrupoles that are prepared.
+      ! Change sign of charges, change sign two times of the
+      ! vector (in effect, zero times then) and then in the
+      ! energy expression for the interaction between the field
+      ! vector from a charge and a quarupole there is a plus
+      ! sign, so a minus is the right sign below.
+      Eint(k,5) = Eint(k,5)-Qsta(1)*Ux2**2*Rab23i-Qsta(2)*Ux3**2*Rab33i-Qsta(3)*Ux4**2*Rab43i-Qsta(4)*Ux5**2*Rab53i
+      Eint(k,7) = Eint(k,7)-Qsta(1)*Uy2**2*Rab23i-Qsta(2)*Uy3**2*Rab33i-Qsta(3)*Uy4**2*Rab43i-Qsta(4)*Uy5**2*Rab53i
+      Eint(k,10) = Eint(k,10)-Qsta(1)*Uz2**2*Rab23i-Qsta(2)*Uz3**2*Rab33i-Qsta(3)*Uz4**2*Rab43i-Qsta(4)*Uz5**2*Rab53i
+      Eint(k,6) = Eint(k,6)-Qsta(1)*Ux2*Uy2*Rab23i-Qsta(2)*Ux3*Uy3*Rab33i-Qsta(3)*Ux4*Rab43i*Uy4-Qsta(4)*Ux5*Rab53i*Uy5
+      Eint(k,8) = Eint(k,8)-Qsta(1)*Ux2*Uz2*Rab23i-Qsta(2)*Ux3*Uz3*Rab33i-Qsta(3)*Ux4*Rab43i*Uz4-Qsta(4)*Ux5*Rab53i*Uz5
+      Eint(k,9) = Eint(k,9)-Qsta(1)*Uz2*Uy2*Rab23i-Qsta(2)*Uz3*Uy3*Rab33i-Qsta(3)*Uz4*Rab43i*Uy4-Qsta(4)*Uz5*Rab53i*Uy5
     end if
-
-    ! These three terms will below turn into the interaction
-    ! between water charges and the MME-dipoles on the QM-mol.
-    ! Change sign of charge, change sign of vector and then we
-    ! should also change sign since when a dipole interacts with
-    ! a field we have a minus sign, but this minus sign we have
-    ! omitted in hel; therefore this calculation gives the right
-    ! number eventually.
-    Eint(k,2) = -Qsta(1)*RabX2*Rab23i-Qsta(2)*RabX3*Rab33i-Qsta(3)*RabX4*Rab43i-Qsta(4)*RabX5*Rab53i+Eint(k,2)
-    Eint(k,3) = -Qsta(1)*RabY2*Rab23i-Qsta(2)*RabY3*Rab33i-Qsta(3)*RabY4*Rab43i-Qsta(4)*RabY5*Rab53i+Eint(k,3)
-    Eint(k,4) = -Qsta(1)*RabZ2*Rab23i-Qsta(2)*RabZ3*Rab33i-Qsta(3)*RabZ4*Rab43i-Qsta(4)*RabZ5*Rab53i+Eint(k,4)
-
-3456 continue
-
-    ! And here it is the MME-quadrupoles that are prepared.
-    ! Change sign of charges, change sign two times of the
-    ! vector (in effect, zero times then) and then in the
-    ! energy expression for the interaction between the field
-    ! vector from a charge and a quarupole there is a plus
-    ! sign, so a minus is the right sign below.
-    Eint(k,5) = Eint(k,5)-Qsta(1)*Ux2**2*Rab23i-Qsta(2)*Ux3**2*Rab33i-Qsta(3)*Ux4**2*Rab43i-Qsta(4)*Ux5**2*Rab53i
-    Eint(k,7) = Eint(k,7)-Qsta(1)*Uy2**2*Rab23i-Qsta(2)*Uy3**2*Rab33i-Qsta(3)*Uy4**2*Rab43i-Qsta(4)*Uy5**2*Rab53i
-    Eint(k,10) = Eint(k,10)-Qsta(1)*Uz2**2*Rab23i-Qsta(2)*Uz3**2*Rab33i-Qsta(3)*Uz4**2*Rab43i-Qsta(4)*Uz5**2*Rab53i
-    Eint(k,6) = Eint(k,6)-Qsta(1)*Ux2*Uy2*Rab23i-Qsta(2)*Ux3*Uy3*Rab33i-Qsta(3)*Ux4*Rab43i*Uy4-Qsta(4)*Ux5*Rab53i*Uy5
-    Eint(k,8) = Eint(k,8)-Qsta(1)*Ux2*Uz2*Rab23i-Qsta(2)*Ux3*Uz3*Rab33i-Qsta(3)*Ux4*Rab43i*Uz4-Qsta(4)*Ux5*Rab53i*Uz5
-    Eint(k,9) = Eint(k,9)-Qsta(1)*Uz2*Uy2*Rab23i-Qsta(2)*Uz3*Uy3*Rab33i-Qsta(3)*Uz4*Rab43i*Uy4-Qsta(4)*Uz5*Rab53i*Uy5
-
-3466 continue
 
     !------------------------------------------------------------------*
     ! And now a whole lot of grad(1/r) and higher...                   *

@@ -76,7 +76,7 @@ end if
 ! available, hence there is not a problem that we apparently loop
 ! over MxMltpl, which is a fixed number.
 
-do iMlt=1,MxMltp
+outer: do iMlt=1,MxMltp
   nComp = iMlt*(iMlt+1)/2
   do iComp=1,nComp
     irc = -1
@@ -91,7 +91,7 @@ do iMlt=1,MxMltp
         call Quit(_RC_IO_ERROR_READ_)
       else  !Normal exit here.
         nMlt = iMlt-1
-        Go To 199
+        exit outer
       end if
     end if
     if (nSize /= 0) then
@@ -113,8 +113,7 @@ do iMlt=1,MxMltp
     CordMul(iMlt,i) = Work(iMult(iMlt,1)+nSize+i-1)
   end do
   nMlt = MxMltp
-end do
-199 continue
+end do outer
 
 !----------------------------------------------------------------------*
 ! Collect centers from preceeding MpProp calculation. Compute two      *

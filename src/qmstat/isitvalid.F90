@@ -19,7 +19,7 @@ logical ValidOrNot
 
 ValidOrNot = .true.
 ! Lengths.
-do i=1,4
+outer: do i=1,4
   do j=i+1,5
     dL_test = 0.0d0
     dL_ref = 0.0d0
@@ -29,12 +29,10 @@ do i=1,4
     end do
     if (abs(dL_test-dL_ref) > dTroskel) then
       ValidOrNot = .false.
-      Go To 999
+      exit outer
     end if
   end do
-end do
-
-999 continue
+end do outer
 
 return
 

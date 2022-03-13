@@ -52,38 +52,36 @@ call PolPrep(iDist,iDistIM,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),W
 ! Polarization loop commencing.
 
 NVarv = 0
-7912 continue
-NVarv = NVarv+1
-Energy = 0.0d0
-call PolSolv(iDT,iFI,iFP,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),FFp,iCNum,r2Inv, &
-             DiFac,nPolCent)
-call DensiSt(RomatSt,Work(iSTC),nEqState,nState,nState)
-call Polins(Energy,iCall,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,poli,xyzMyQ,xyzMyI,xyzMyP,iCstart,iQ_Atoms,qTot,ChaNuc,RoMatSt, &
-            xyzQuQ,CT)
+do
+  NVarv = NVarv+1
+  Energy = 0.0d0
+  call PolSolv(iDT,iFI,iFP,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),FFp,iCNum,r2Inv, &
+               DiFac,nPolCent)
+  call DensiSt(RomatSt,Work(iSTC),nEqState,nState,nState)
+  call Polins(Energy,iCall,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,poli,xyzMyQ,xyzMyI,xyzMyP,iCstart,iQ_Atoms,qTot,ChaNuc, &
+              RoMatSt,xyzQuQ,CT)
 
-! Assemble the Hamiltonian matrix.
+  ! Assemble the Hamiltonian matrix.
 
-do i=1,iTriState
-  HmatState(i) = HmatSOld(i)+Vmat(i)+VpolMat(i)+SMat(i)
+  do i=1,iTriState
+    HmatState(i) = HmatSOld(i)+Vmat(i)+VpolMat(i)+SMat(i)
+  end do
+  Energy = 0.5*Energy
+
+  ! Diagonalize the bastard. Eigenvalues are sorted and the relevant eigenvalue is added to total energy.
+
+  call GetMem('Scratch','Allo','Real',iScratch,nState**2)
+  call Diag_Driver('V','A','L',nState,HMatState,Work(iScratch),nState,Dummy,Dummy,iDum,iDum,EEigen,Work(iSTC),nState,1,-1,'J', &
+                   nFound,iErr)
+  if (lCiSelect) call CiSelector(nEqState,nState,iSTC,nCIRef,iCIInd,dCIRef)
+  Energy = Energy+EEigen(nEqState)
+  call GetMem('Scratch','Free','Real',iScratch,nState**2)
+
+  ! Check if polarization loop has converged.
+
+  call HaveWeConv(iCNum,iCStart,iQ_Atoms,nPolCent,iDT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
+  if (Haveri .or. JaNej) exit
 end do
-Energy = 0.5*Energy
-
-! Diagonalize the bastard. Eigenvalues are sorted and the relevant eigenvalue is added to total energy.
-
-call GetMem('Scratch','Allo','Real',iScratch,nState**2)
-call Diag_Driver('V','A','L',nState,HMatState,Work(iScratch),nState,Dummy,Dummy,iDum,iDum,EEigen,Work(iSTC),nState,1,-1,'J', &
-                 nFound,iErr)
-if (lCiSelect) call CiSelector(nEqState,nState,iSTC,nCIRef,iCIInd,dCIRef)
-Energy = Energy+EEigen(nEqState)
-call GetMem('Scratch','Free','Real',iScratch,nState**2)
-
-! Check if polarization loop has converged.
-
-call HaveWeConv(iCNum,iCStart,iQ_Atoms,nPolCent,iDT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
-if (Haveri) goto 8108
-if (.not. JaNej) goto 7912
-
-8108 continue
 
 ! Deallocate.
 

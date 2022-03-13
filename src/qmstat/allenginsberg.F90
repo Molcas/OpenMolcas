@@ -33,13 +33,11 @@ logical lEig, Check1, Check2, lSlater
 
 do iAt=1,MxAt
   if (iExtr_Atm(iAt) == -1) then
-    goto 902
+    exit
   else
     iCenSet(iAt) = iExtr_Atm(iAt)
   end if
 end do
-NExtrAt = iAt
-902 continue
 NExtrAt = iAt-1
 
 ! Bond centres

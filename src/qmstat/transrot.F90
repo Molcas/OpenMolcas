@@ -71,25 +71,26 @@ if (ROT(3,1) < 0.) ROT(3,1) = 0d0
 ROT(3,1) = sqrt(ROT(3,1))
 
 IFLAG = 0
-732 continue
-TAL = ROT(1,1)*ROT(1,2)+ROT(2,1)*ROT(2,2)+ROT(3,1)*ROT(3,2)
-ROT(1,1) = ROT(1,1)-TAL*ROT(1,2)
-ROT(2,1) = ROT(2,1)-TAL*ROT(2,2)
-ROT(3,1) = ROT(3,1)-TAL*ROT(3,2)
-TAL = ROT(1,1)*ROT(1,3)+ROT(2,1)*ROT(2,3)+ROT(3,1)*ROT(3,3)
-ROT(1,1) = ROT(1,1)-TAL*ROT(1,3)
-ROT(2,1) = ROT(2,1)-TAL*ROT(2,3)
-ROT(3,1) = ROT(3,1)-TAL*ROT(3,3)
-A = 1d0/sqrt(ROT(1,1)**2+ROT(2,1)**2+ROT(3,1)**2)
-ROT(1,1) = ROT(1,1)*A
-ROT(2,1) = ROT(2,1)*A
-ROT(3,1) = ROT(3,1)*A
-IFLAG = IFLAG+1
-if (IFLAG > 3) then
-  write(6,*) ' STOP IN TRANSROT'
-  call Quit(_RC_GENERAL_ERROR_)
-end if
-if (A > 10.) GO TO 732
+do
+  TAL = ROT(1,1)*ROT(1,2)+ROT(2,1)*ROT(2,2)+ROT(3,1)*ROT(3,2)
+  ROT(1,1) = ROT(1,1)-TAL*ROT(1,2)
+  ROT(2,1) = ROT(2,1)-TAL*ROT(2,2)
+  ROT(3,1) = ROT(3,1)-TAL*ROT(3,2)
+  TAL = ROT(1,1)*ROT(1,3)+ROT(2,1)*ROT(2,3)+ROT(3,1)*ROT(3,3)
+  ROT(1,1) = ROT(1,1)-TAL*ROT(1,3)
+  ROT(2,1) = ROT(2,1)-TAL*ROT(2,3)
+  ROT(3,1) = ROT(3,1)-TAL*ROT(3,3)
+  A = 1d0/sqrt(ROT(1,1)**2+ROT(2,1)**2+ROT(3,1)**2)
+  ROT(1,1) = ROT(1,1)*A
+  ROT(2,1) = ROT(2,1)*A
+  ROT(3,1) = ROT(3,1)*A
+  IFLAG = IFLAG+1
+  if (IFLAG > 3) then
+    write(6,*) ' STOP IN TRANSROT'
+    call Quit(_RC_GENERAL_ERROR_)
+  end if
+  if (A <= 10.0d0) exit
+end do
 
 return
 
