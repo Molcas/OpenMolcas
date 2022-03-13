@@ -15,21 +15,25 @@
 !----------------------------------------------------------------------*
 subroutine Get_Centers(nAt,xyz)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
-#include "files_qmstat.fh"
 #include "warnings.h"
-dimension xyz(MxAt,MxAt,3)
-character*13 TheLine
-logical Exist
+integer(kind=iwp) :: nAt
+real(kind=wp) :: xyz(MxAt,MxAt,3)
+integer(kind=iwp) :: i, j, jj, k, Lu
+logical(kind=iwp) :: Exists
+character(len=13) :: TheLine
+integer(kind=iwp), external :: IsFreeUnit
 
 ! Open the file
 Lu = 40
 Lu = IsFreeUnit(40)
-call Opnfl('MPPROP',Lu,Exist)
-if (.not. Exist) then
-  write(6,*)
-  write(6,*) ' Can not locate output file from MpProp. '
+call Opnfl('MPPROP',Lu,Exists)
+if (.not. Exists) then
+  write(u6,*)
+  write(u6,*) ' Can not locate output file from MpProp. '
   call Quit(_RC_IO_ERROR_READ_)
 end if
 rewind(Lu)

@@ -10,18 +10,22 @@
 !***********************************************************************
 
 ! PUT NUMBERS ON STARTFILE.
-subroutine Put8(Ract,Etot,Gamma,Gam,Esav)
+subroutine Put8(Ract,Etot,Gmma,Gam,Esav)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Ract, Etot, Gmma, Gam, Esav
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
-character Head*200
+integer(kind=iwp) :: i, iCT, iDisk, j
+character(len=200) :: Head
 
 call DaName(iLuStUt,StFilUt) !Here follows a general output to the startfile
 iDisk = 0
-call WrRdSim(iLuStUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gamma,Gam,Esav)
+call WrRdSim(iLuStUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gmma,Gam,Esav)
 iTcSim(1) = iDisk
 ! In this loop the coordinates are put on file.
 ! The loop is needed due to how Cordst is statically allocated.
@@ -35,7 +39,7 @@ do i=1,3
   call GetMem('CTemp','Free','Real',iCT,nPart*nCent)
 end do
 iDisk = 0
-call WrRdSim(iLuStUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gamma,Gam,Esav)
+call WrRdSim(iLuStUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gmma,Gam,Esav)
 call DaClos(iLuStUt)
 if (iPrint >= 10) then !Print the stored configuration.
   write(Head,*) ' Coordinates put on the startfile solvent configuration.'

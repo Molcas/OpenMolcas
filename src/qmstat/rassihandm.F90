@@ -41,17 +41,23 @@
 
 subroutine RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
 
-implicit real*8(a-h,o-z)
+use Index_Functions, only: nTri3_Elem
+use Constants, only: Zero, Two, Three, OneHalf
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "qm2.fh"
-#include "files_qmstat.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension nBas(MxSym), natyp(MxAt), nOcc(MxBas)
-dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6), iCent(MxBas*MxBas)
-character MMElab*20, ChCo*2
+integer(kind=iwp) :: nBas(MxSym), iQ_Atoms, nOcc(MxBas), natyp(MxAt), nntyp
+integer(kind=iwp) :: i, iCent(MxBas*MxBas), iCi, iDum, iMME(nTri3_Elem(MxMltp)), j, k, kaunt, kaunter, kk, l, nSize, nTyp !IFG
+real(kind=wp) :: D1, D2, D3, dipx, dipx0, dipy, dipy0, dipz, dipz0, dQxx, dQxy, dQxz, dQyy, dQyz, dQzz, dTox, dToy, dToz, Q, qEl, &
+                 quaDxx, quaDxy, quaDxz, quaDyy, quaDyx, quaDyz, quaDzx, quaDzy, quaDzz, quaQxx, quaQxy, quaQxz, quaQyy, quaQyz, &
+                 quaQzz, quaxx, quaxy, quaxz, quayy, quayz, quazz, Tra, Trace1, Trace2, Trace3
+character(len=20) :: MMElab
+character(len=2) :: ChCo
 
 ! A modest entrance.
 
@@ -63,27 +69,27 @@ do i=1,nState
   do j=1,i
     kaunt = kaunt+1
     do k=1,iCi
-      RasCha(kaunt,k) = 0
-      RasDip(kaunt,1,k) = 0
-      RasDip(kaunt,2,k) = 0
-      RasDip(kaunt,3,k) = 0
-      RasQua(kaunt,1,k) = 0
-      RasQua(kaunt,2,k) = 0
-      RasQua(kaunt,3,k) = 0
-      RasQua(kaunt,4,k) = 0
-      RasQua(kaunt,5,k) = 0
-      RasQua(kaunt,6,k) = 0
+      RasCha(kaunt,k) = Zero
+      RasDip(kaunt,1,k) = Zero
+      RasDip(kaunt,2,k) = Zero
+      RasDip(kaunt,3,k) = Zero
+      RasQua(kaunt,1,k) = Zero
+      RasQua(kaunt,2,k) = Zero
+      RasQua(kaunt,3,k) = Zero
+      RasQua(kaunt,4,k) = Zero
+      RasQua(kaunt,5,k) = Zero
+      RasQua(kaunt,6,k) = Zero
     end do
   end do
 end do
 
 ! Construct H_0 with external perturbation if requested. Construct a copy also.
 
-write(6,*)
+write(u6,*)
 if (.not. AddExt) then
-  write(6,*) '     Constructs H_0.'
+  write(u6,*) '     Constructs H_0.'
 else
-  write(6,*) '     Constructs H_0 with external perturbation.'
+  write(u6,*) '     Constructs H_0 with external perturbation.'
 end if
 call Chk_OneHam(nBas)
 call RasH0(nBas(1))
@@ -94,8 +100,8 @@ do i=1,nState
     HMatSOld(kaunter) = HmatState(kaunter)
   end do
 end do
-write(6,*) '     ...Done!'
-write(6,*)
+write(u6,*) '     ...Done!'
+write(u6,*)
 
 ! Here the MME is performed. First the expansion is performed in the
 ! AO-basis. Then depending on whether we use a reduced MO-basis or
@@ -103,8 +109,8 @@ write(6,*)
 
 ! Say what we do.
 
-write(6,*)
-write(6,*) '     Multicenter multipole expanding the charge density expressed in RASSI eigenstates.'
+write(u6,*)
+write(u6,*) '     Multicenter multipole expanding the charge density expressed in RASSI eigenstates.'
 
 ! First obtain MME in AO-basis.
 
@@ -139,10 +145,10 @@ do i=1,nState
     kaunter = kaunter+1
     do k=1,ici
       do l=1,6
-        RasQua(kaunter,l,k) = RasQua(kaunter,l,k)*1.5
+        RasQua(kaunter,l,k) = RasQua(kaunter,l,k)*OneHalf
       end do
       Tra = RasQua(kaunter,1,k)+RasQua(kaunter,3,k)+RasQua(kaunter,6,k)
-      Tra = Tra/3
+      Tra = Tra/Three
       RasQua(kaunter,1,k) = RasQua(kaunter,1,k)-Tra
       RasQua(kaunter,3,k) = RasQua(kaunter,3,k)-Tra
       RasQua(kaunter,6,k) = RasQua(kaunter,6,k)-Tra
@@ -153,72 +159,72 @@ end do
 ! And do some printing if asked for.
 
 if (iPrint >= 10) then
-  write(6,*)
-  write(6,*) '    Distributed multipoles for each state'
+  write(u6,*)
+  write(u6,*) '    Distributed multipoles for each state'
   do i=1,nState
     k = i*(i+1)/2
-    write(6,*) '     State ',i
+    write(u6,*) '     State ',i
     do j=1,iCi
-      write(6,*) '        Center ',j
+      write(u6,*) '        Center ',j
       Q = -RasCha(k,j)
       if (j <= iQ_Atoms) Q = Q+ChaNuc(j)
-      write(6,*) '          ',Q
+      write(u6,*) '          ',Q
       D1 = -RasDip(k,1,j)
       D2 = -RasDip(k,2,j)
       D3 = -RasDip(k,3,j)
-      write(6,*) '          ',D1,D2,D3
+      write(u6,*) '          ',D1,D2,D3
     end do
   end do
 end if
 if (iPrint >= 5) then
-  write(6,*)
-  write(6,*) '    Summed multipoles for each state (not state-overlaps)'
-  write(6,*) '              Charge  Dipole(x)   Dipole(y)   Dipole(z)   '// &
-             'Quadrup(xx) Quadrup(xy) Quadrup(xz) Quadrup(yy) Quadrup(yz) Quadrup(zz)'
+  write(u6,*)
+  write(u6,*) '    Summed multipoles for each state (not state-overlaps)'
+  write(u6,*) '              Charge  Dipole(x)   Dipole(y)   Dipole(z)   '// &
+              'Quadrup(xx) Quadrup(xy) Quadrup(xz) Quadrup(yy) Quadrup(yz) Quadrup(zz)'
 end if
 do i=1,nState !Total charge and dipole.
   k = i*(i+1)/2
-  qEl = 0
-  dipx = 0
-  dipy = 0
-  dipz = 0
-  dipx0 = 0
-  dipy0 = 0
-  dipz0 = 0
-  quaxx = 0
-  quaxy = 0
-  quaxz = 0
-  quayy = 0
-  quayz = 0
-  quazz = 0
-  quaDxx = 0
-  quaDxy = 0
-  quaDxz = 0
-  quaDyx = 0
-  quaDyy = 0
-  quaDyz = 0
-  quaDzx = 0
-  quaDzy = 0
-  quaDzz = 0
-  quaQxx = 0
-  quaQxy = 0
-  quaQxz = 0
-  quaQyy = 0
-  quaQyz = 0
-  quaQzz = 0
-  qtot = 0
-  dTox = 0
-  dToy = 0
-  dToz = 0
-  dQxx = 0
-  dQxy = 0
-  dQxz = 0
-  dQyy = 0
-  dQyz = 0
-  dQzz = 0
-  Trace1 = 0
-  Trace2 = 0
-  Trace3 = 0
+  qEl = Zero
+  dipx = Zero
+  dipy = Zero
+  dipz = Zero
+  dipx0 = Zero
+  dipy0 = Zero
+  dipz0 = Zero
+  quaxx = Zero
+  quaxy = Zero
+  quaxz = Zero
+  quayy = Zero
+  quayz = Zero
+  quazz = Zero
+  quaDxx = Zero
+  quaDxy = Zero
+  quaDxz = Zero
+  quaDyx = Zero
+  quaDyy = Zero
+  quaDyz = Zero
+  quaDzx = Zero
+  quaDzy = Zero
+  quaDzz = Zero
+  quaQxx = Zero
+  quaQxy = Zero
+  quaQxz = Zero
+  quaQyy = Zero
+  quaQyz = Zero
+  quaQzz = Zero
+  qtot = Zero
+  dTox = Zero
+  dToy = Zero
+  dToz = Zero
+  dQxx = Zero
+  dQxy = Zero
+  dQxz = Zero
+  dQyy = Zero
+  dQyz = Zero
+  dQzz = Zero
+  Trace1 = Zero
+  Trace2 = Zero
+  Trace3 = Zero
   do j=1,iCi
     qEl = qEl+RasCha(k,j)
     dipx = dipx+RasDip(k,1,j)
@@ -269,28 +275,29 @@ do i=1,nState !Total charge and dipole.
   Trace1 = dQxx+dQyy+dQzz
   Trace2 = -quaDxx-quaDyy-quaDzz
   Trace3 = -quaQxx-quaQyy-quaQzz
-  Trace1 = Trace1/3
-  Trace2 = 2*Trace2/3
-  Trace3 = Trace3/3
-  dQxx = 1.5*(dQxx-2*quaDxx-quaQxx-Trace1-Trace2-Trace3)-quaxx
-  dQyy = 1.5*(dQyy-2*quaDyy-quaQyy-Trace1-Trace2-Trace3)-quayy
-  dQzz = 1.5*(dQzz-2*quaDzz-quaQzz-Trace1-Trace2-Trace3)-quazz
-  dQxy = 1.5*(dQxy-quaDxy-quaDyx-quaQxy)-quaxy
-  dQxz = 1.5*(dQxz-quaDxz-quaDzx-quaQxz)-quaxz
-  dQyz = 1.5*(dQyz-quaDyz-quaDzy-quaQyz)-quayz
+  Trace1 = Trace1/Three
+  Trace2 = Two*Trace2/Three
+  Trace3 = Trace3/Three
+  dQxx = OneHalf*(dQxx-Two*quaDxx-quaQxx-Trace1-Trace2-Trace3)-quaxx
+  dQyy = OneHalf*(dQyy-Two*quaDyy-quaQyy-Trace1-Trace2-Trace3)-quayy
+  dQzz = OneHalf*(dQzz-Two*quaDzz-quaQzz-Trace1-Trace2-Trace3)-quazz
+  dQxy = OneHalf*(dQxy-quaDxy-quaDyx-quaQxy)-quaxy
+  dQxz = OneHalf*(dQxz-quaDxz-quaDzx-quaQxz)-quaxz
+  dQyz = OneHalf*(dQyz-quaDyz-quaDzy-quaQyz)-quayz
   if (iPrint >= 5) then
-    write(6,9001) '      State ',i,'  ',qtot,dTox,dToy,dToz,dQxx,dQxy,dQxz,dQyy,dQyz,dQzz
+    write(u6,9001) '      State ',i,'  ',qtot,dTox,dToy,dToz,dQxx,dQxy,dQxz,dQyy,dQyz,dQzz
   end if
-  if (abs(qtot) > 0.0001) ChargedQM = .true.
+  if (abs(qtot) > 1.0e-4_wp) ChargedQM = .true.
 end do
-!Jose This format has problems to print anions
-!9001 format(A,i2,A,F5.3,9(F12.8))
-9001 format(A,i2,A,F5.1,9(F12.8))
-write(6,*) '     ...Done!'
+write(u6,*) '     ...Done!'
 
 !----------------------------------------------------------------------*
 ! The end has come.                                                    *
 !----------------------------------------------------------------------*
 return
+
+!Jose This format has problems to print anions
+!9001 format(A,i2,A,F5.3,9(F12.8))
+9001 format(A,i2,A,F5.1,9(F12.8))
 
 end subroutine RassiHandM

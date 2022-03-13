@@ -11,20 +11,24 @@
 
 subroutine PlaceIt(Coord,iQ_Atoms,iCNum)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
-dimension Coord(MxAt*3)
-dimension AvstPart(MxPut), IndexSet(MxPut)
-dimension CordstTemp(MxPut*MxCen,3)
-character Head*200
-logical Changed
+real(kind=wp) :: Coord(MxAt*3)
+integer(kind=iwp) :: iQ_Atoms, iCNum
+real(kind=wp) :: Atemp, AvstPart(MxPut), CordstTemp(MxPut*MxCen,3), S, Sbig !IFG
+integer(kind=iwp) :: i, iextr, ind, IndexSet(MxPut), iTemp, iz, j, k !IFG
+logical(kind=iwp) :: Changed
+character(len=200) :: Head
 
 !For each solvent particle, compute the smallest distance to any QM-atom from the oxygen of water.
 do i=1,nPart
-  Sbig = 1D+20
+  Sbig = 1.0e20_wp
   do j=1,iQ_Atoms
-    S = 0
+    S = Zero
     do k=1,3
       S = S+(Coord((j-1)*3+k)-Cordst(nCent*(i-1)+1,k))**2
     end do

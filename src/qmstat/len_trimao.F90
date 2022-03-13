@@ -13,9 +13,14 @@
 ! A subroutine that emulates the len_trim of later Fortran versions,   *
 ! but that is missing in some Fortran 77 compilers.                    *
 !----------------------------------------------------------------------*
-integer function Len_TrimAO(String)
+function Len_TrimAO(String)
 
-character*(*) String
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: len_TrimAO
+character(len=*) :: String
+integer(kind=iwp) :: i
 
 do i=len(String),1,-1
   if (String(i:i) /= ' ') exit

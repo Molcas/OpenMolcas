@@ -11,11 +11,14 @@
 
 subroutine ExtractR(iLu,i9,Etot,xyzMy,Hmat,iC,iDt,nState,HMatOld,xyzQu,lExtr,iExtr_Eig,iExtr_Atm,ip_ExpVal,ip_ExpCento,ENR,ENP)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iLu, i9, iC, iDt(3), nState, iExtr_Eig, iExtr_Atm(*), ip_ExpVal, ip_ExpCento
+real(kind=wp) :: Etot, xyzMy(3), Hmat(*), HMatOld(*), xyzQu(6), ENR, ENP
+logical(kind=iwp) :: lExtr(*)
 #include "WrkSpc.fh"
-dimension xyzMy(3), Hmat(*), HMatOld(*), xyzQu(6)
-dimension iDt(3), iExtr_Atm(*)
-logical lExtr(*)
+integer(kind=iwp) :: i, ind, j, k, nDim
 
 write(iLu,*) '<<<<<<<Configuration ',i9,'>>>>>>>'
 if (lExtr(1)) then

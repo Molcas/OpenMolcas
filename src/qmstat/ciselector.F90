@@ -11,21 +11,26 @@
 
 subroutine CiSelector(nEqState,nState,iSTC,nCIRef,iCIInd,dCIRef)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "WrkSpc.fh"
-dimension iCIInd(MxState)
-dimension dCIRef(MxState)
+integer(kind=iwp) :: nEqState, nState, iSTC, nCIRef, iCIInd(MxState)
+real(kind=wp) :: dCIRef(MxState)
+integer(kind=iwp) :: indBase, indMAX, indx, iRef, iState
+real(kind=wp) :: dScal, dScalMAX
 
 ! Initial stuff
 
-dScalMAX = 0.0d0
+dScalMAX = Zero
 indMAX = 1
 
 ! Compute relevant scalar products
 
 do iState=1,nState
-  dScal = 0.0d0
+  dScal = Zero
   do iRef=1,nCIRef
     indBase = nState*(iState-1)
     indx = indBase+iCIInd(iRef)-1
@@ -43,7 +48,7 @@ end do
 
 ! If maximum overlap is small, scream!
 
-if (dScalMAX < 0.7071067811d0) then
+if (dScalMAX < sqrt(Half)) then
   write(6,*)
   write(6,*) '   WARNING! Less than 50% of CISElect reference found. Consider to redefine reference!'
 end if

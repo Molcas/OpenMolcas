@@ -10,18 +10,24 @@
 !***********************************************************************
 
 ! p-p (pi), with too small exponent difference.
-real*8 function CoulT0_5(Rho,dSepInv,Expo)
+function CoulT0_5(Rho,dSepInv,Expo)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Two
+use Definitions, only: wp
 
-T1 = 1.0d0
-T2 = 2.0d0*Rho
-T3 = 2.0d0*Rho**2
-T4 = (121.0d0/96.0d0)*Rho**3
-T5 = (25.0d0/48.0d0)*Rho**4
-T6 = (2.0d0/15.0d0)*Rho**5
-T7 = (1.0d0/60.0d0)*Rho**6
-CoulT0_5 = dSepInv**3*(1.0d0-(T1+T2+T3+T4+T5+T6+T7)*Expo)
+implicit none
+real(kind=wp) :: CoulT0_5
+real(kind=wp) :: Rho, dSepInv, Expo
+real(kind=wp) :: T1, T2, T3, T4, T5, T6, T7
+
+T1 = One
+T2 = Two*Rho
+T3 = Two*Rho**2
+T4 = (121.0_wp/96.0_wp)*Rho**3
+T5 = (25.0_wp/48.0_wp)*Rho**4
+T6 = (Two/15.0_wp)*Rho**5
+T7 = (One/60.0_wp)*Rho**6
+CoulT0_5 = dSepInv**3*(One-(T1+T2+T3+T4+T5+T6+T7)*Expo)
 
 return
 

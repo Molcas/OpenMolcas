@@ -11,37 +11,39 @@
 
 subroutine TdmTrans(nBas)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "files_qmstat.fh"
 #include "qminp.fh"
 #include "qm2.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension nBas(MxSym)
-character TDMchar*6
-logical Exist
+integer(kind=iwp) :: nBas(MxSym)
+integer(kind=iwp) :: i, iDisk, iEig2, iNonH, iNonS, j, kaunt, Lu, nSize, nStatePrim
+character(len=6) :: TDMchar
+logical(kind=iwp) :: Exists
 
 ! Sag hej till publiken.
 
-write(6,*)
-write(6,*) '     Transforming the transition density matrices.'
+write(u6,*)
+write(u6,*) '     Transforming the transition density matrices.'
 
 ! Inquire if the ToFile is in WorkDir.
 
-call f_Inquire(RassiM,Exist)
-if (.not. Exist) then
-  write(6,*)
-  write(6,*) 'No Transition density matrix file found.'
-  write(6,*) 'Did you use the TOFIle keyword in RASSI?'
+call f_Inquire(RassiM,Exists)
+if (.not. Exists) then
+  write(u6,*)
+  write(u6,*) 'No Transition density matrix file found.'
+  write(u6,*) 'Did you use the TOFIle keyword in RASSI?'
   call Quit(_RC_IO_ERROR_READ_)
 end if
-call f_Inquire(EigV,Exist)
-if (.not. Exist) then
-  write(6,*)
-  write(6,*) 'No Rassi eigenvectors found.'
-  write(6,*) 'Did you use the TOFIle keyword in RASSI?'
+call f_Inquire(EigV,Exists)
+if (.not. Exists) then
+  write(u6,*)
+  write(u6,*) 'No Rassi eigenvectors found.'
+  write(u6,*) 'Did you use the TOFIle keyword in RASSI?'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 
@@ -100,13 +102,13 @@ if (MoAveRed) then
   write(TDMchar,'(A)') 'TDMSCR'
   call FetchTDM(nRedMO,nState,iBigT,TDMchar)
 else
-  write(6,*) '     ----- Use AO-representation of the transition density matrix.'
+  write(u6,*) '     ----- Use AO-representation of the transition density matrix.'
   nRedMO = 0 !Only a dummy.
 end if
 
 ! Finished!
 
-write(6,*) '     ...Done!'
+write(u6,*) '     ...Done!'
 
 return
 

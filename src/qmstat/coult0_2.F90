@@ -10,17 +10,23 @@
 !***********************************************************************
 
 ! s-p interaction, with too small exponent difference.
-real*8 function CoulT0_2(Rho,dSepInv,Expo)
+function CoulT0_2(Rho,dSepInv,Expo)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Two, Eleven, Twelve
+use Definitions, only: wp
 
-T1 = 1.0d0
-T2 = 2.0d0*Rho
-T3 = 2.0d0*Rho**2
-T4 = (59.0d0/48.0d0)*Rho**3
-T5 = (11.0d0/24.0d0)*Rho**4
-T6 = (1.0d0/12.0d0)*Rho**5
-CoulT0_2 = dSepInv**2*(1.0d0-(T1+T2+T3+T4+T5+T6)*Expo)
+implicit none
+real(kind=wp) :: CoulT0_2
+real(kind=wp) :: Rho, dSepInv, Expo
+real(kind=wp) :: T1, T2, T3, T4, T5, T6
+
+T1 = One
+T2 = Two*Rho
+T3 = Two*Rho**2
+T4 = (59.0_wp/48.0_wp)*Rho**3
+T5 = (Eleven/24.0_wp)*Rho**4
+T6 = (One/Twelve)*Rho**5
+CoulT0_2 = dSepInv**2*(One-(T1+T2+T3+T4+T5+T6)*Expo)
 
 return
 

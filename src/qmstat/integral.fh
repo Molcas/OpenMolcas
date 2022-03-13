@@ -38,6 +38,8 @@
 ! V3                -        Original solvent MOs.                   *
 ! Trans                -        Cartesian to spherical transformation*
 !*********************************************************************
+      Integer nBA_Q,nBA_C,NCBoA_Q,nCBoA_C,iQang,nPrimus,iCharOnBasQ,    &
+     &iCharOnBasC,iQn,mPrimus,iWoGehenC,iWoGehenQ,nBonA_Q,nBonA_C
       Common/IntegralsI/nBA_Q(MxAt),nBA_C(MxAt),nCBoA_Q(MxAt,MxAngqNr)  &
      &,nCBoA_C(MxAt,MxAngqNr),iQang(MxBas)                              &
      &,nPrimus(MxBas),iCharOnBasQ(MxBas),iCharOnBasC(MxBasC)            &
@@ -46,8 +48,9 @@
      &,nBonA_Q(MxAt),nBonA_C(3)
 !     &,iCon(MxAt,MxPrCon),iC_iCon(MxAt,MxPrCon),nBonA_Q(MxAt),nBonA_C(3)
 
+      Real*8 Alfa,Beta,Cont,Dont,CasOri,BasOri,SavOri,V3,Trans
       Common/IntegralsR/Alfa(MxBas,MxCont),Beta(MxBasC,MxCont)          &
      &,Cont(MxBas,MxCont),Dont(MxBasC,MxCont),CasOri(3,MxBasC)          &
      &,BasOri(3,MxBas),SavOri(3,MxBasC),V3(MxBasC,MxOrb_C)              &
-     &,Trans(int(dble(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3         &
-     &       +3*MxAngqNr**4)/12))
+     &,Trans(int(real(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3         &
+     &       +3*MxAngqNr**4)/real(12)))

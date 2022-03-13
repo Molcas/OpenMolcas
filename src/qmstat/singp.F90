@@ -11,21 +11,26 @@
 
 subroutine SingP(nCalls,iQ_Atoms,ipStoreCoo,nPart2)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: nCalls, iQ_Atoms, ipStoreCoo, nPart2
 #include "maxi.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, iCent, Initial1, Initial2, iPart, j, kaunter, nAllQm
 
 if (nCalls == 0) then
   ! If this is first call, issue a warning.
 
-  write(6,*)
-  write(6,*)
-  write(6,*) '---->>>  WARNING  <<<----'
-  write(6,*)
-  write(6,*) 'You have specified that a set of single-point calculations are to be preformed.'
-  write(6,*) 'This means that the input will be given to some extent a new meaning.'
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) '---->>>  WARNING  <<<----'
+  write(u6,*)
+  write(u6,*) 'You have specified that a set of single-point calculations are to be preformed.'
+  write(u6,*) 'This means that the input will be given to some extent a new meaning.'
+  write(u6,*)
 
   ! Put coordinates in a new vector if first call.
 
@@ -46,7 +51,7 @@ if (nCalls == 0) then
   nAllQm = (((iQ_Atoms-1)/nAtom)+1)*nCent
   do i=1,nAllQm
     do j=1,3
-      Cordst(i,j) = 0.0d0
+      Cordst(i,j) = Zero
     end do
   end do
 
@@ -62,17 +67,17 @@ if (nCalls == 0) then
 
   nMicro = 1
   nMacro = 1
-  DelX = 0
-  DelFi = 0
-  DelR = 0
+  DelX = Zero
+  DelFi = Zero
+  DelR = Zero
   QmEq = .true.
   nPart = (nAllQm/nCent)+1
-  write(6,*)
-  write(6,*) 'Resetting for FIT:'
-  write(6,*) 'Number of macrosteps:',nMacro
-  write(6,*) 'Number of microsteps:',nMicro
-  write(6,*) 'No translation, rotation or radie modification.'
-  write(6,*) 'Take the QmEq path.'
+  write(u6,*)
+  write(u6,*) 'Resetting for FIT:'
+  write(u6,*) 'Number of macrosteps:',nMacro
+  write(u6,*) 'Number of microsteps:',nMicro
+  write(u6,*) 'No translation, rotation or radie modification.'
+  write(u6,*) 'Take the QmEq path.'
 
 
 else

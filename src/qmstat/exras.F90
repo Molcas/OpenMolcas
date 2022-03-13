@@ -11,17 +11,24 @@
 
 subroutine ExRas(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itristate,SmatRas,SmatPure,InCutOff,ipAOSum)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "qm2.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension SmatRas(MxStOT), CorTemp(3)
-dimension nCnC_C(MxBasC), SmatPure(MxStOT)
-dimension Inside(MxAt,3)
-logical Inside, NearBy, InCutOff
+integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itristate, ipAOSum
+real(kind=wp) :: Ax, Ay, Az, SmatRas(MxStOT), SmatPure(MxStOT)
+integer(kind=iwp) :: i, iAOMOOvl, iAOMOOvlE, iHalf, iHalfE, iHalfpar, ind, inwm, ipACC, ipACCp, ipACCt, ipACCtp, ipAOAUX, &
+                     ipAOAUXtri, ipAOG, ipAOint, ipAOintpar, ipAux, ipAuxp, iS, iTEMP, iV2, js, k, kaunter, N, nAObaseSize, nDim1, &
+                     nDim2, nDimP, nDimT, nGross, nHalf, nInsideCut, nV2size
+real(kind=wp) :: Addition, CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, HighS, r2, r3, r3temp1, r3temp2
+logical(kind=iwp) :: InCutOff
+logical(kind=iwp) :: Inside(MxAt,3), NearBy !IFG
+real(kind=r8), external :: Ddot_
 
 !----------------------------------------------------------------------*
 ! Deduce how much the QM-molecule is translated from its position as   *
@@ -53,8 +60,8 @@ call GetMem('Accumulate','Allo','Real',ipACCp,nBaseQ**2)
 call GetMem('AccumulateT','Allo','Real',ipACCt,nGross)
 call GetMem('AccumulateTP','Allo','Real',ipACCtp,nGross)
 call GetMem('TEMP','Allo','Real',iTEMP,nRedMO*iOrb(2))
-call dcopy_(nBaseQ**2,[ZERO],iZERO,Work(ipACC),iONE)
-call dcopy_(nBaseQ**2,[ZERO],iZERO,Work(ipACCp),iONE)
+call dcopy_(nBaseQ**2,[Zero],0,Work(ipACC),1)
+call dcopy_(nBaseQ**2,[Zero],0,Work(ipACCp),1)
 !Jose****************************************************************
 if (lExtr(8)) then
   call GetMem('qAOclMOOvl','Allo','Real',iAOMOOvl,nHalf)
@@ -85,8 +92,8 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Initialize
 
-  dist_sw = 1d20
-  r3 = 1d20
+  dist_sw = huge(dist_sw)
+  r3 = huge(r3)
   do i=1,MxAt
     Inside(i,1) = .false.
     Inside(i,2) = .false.
@@ -100,8 +107,8 @@ do N=iCStart-1,nCent*(nPart-1),nCent
     end do
     r2 = CorTemp(1)+CorTemp(2)+CorTemp(3)
     dist_sw = min(dist_sw,r2)
-    DH1 = 0.0d0 !Distances for the inner cut-off. Also include the hydrogens.
-    DH2 = 0.0d0
+    DH1 = Zero !Distances for the inner cut-off. Also include the hydrogens.
+    DH2 = Zero
     do k=1,3
       DH1 = DH1+(Cordst(N+2,k)-Cordst(inwm,k))**2
       DH2 = DH2+(Cordst(N+3,k)-Cordst(inwm,k))**2
@@ -137,14 +144,14 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Transform overlaps from solvent AO to solvent MO.
 
-  call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,ONE,Work(ipAOint),nBaseQ,Work(iV2),nBaseC,ZERO,Work(iHalf),nBaseQ)
+  call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,One,Work(ipAOint),nBaseQ,Work(iV2),nBaseC,Zero,Work(iHalf),nBaseQ)
   !Jose***************************************************************
   if (lExtr(8)) then
-    call dcopy_(nHalf,Work(iHalf),iONE,Work(iAOMOOvl),iONE)
-    call dcopy_(nHalf,[ZERO],iZERO,Work(iAOMOOvlE),iONE)
+    call dcopy_(nHalf,Work(iHalf),1,Work(iAOMOOvl),1)
+    call dcopy_(nHalf,[Zero],0,Work(iAOMOOvlE),1)
     do k=1,iOrb(2)
       ind = nBaseQ*(k-1)
-      call DaxPy_(nBaseQ,c_orbene(k),Work(iAOMOOvl+ind),iONE,Work(iAOMOOvlE+ind),iONE)
+      call DaxPy_(nBaseQ,c_orbene(k),Work(iAOMOOvl+ind),1,Work(iAOMOOvlE+ind),1)
     end do
   end if
   !*******************************************************************
@@ -156,35 +163,35 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   ! huge demand of memory is required, this should not cause problem.
 
   if (MoAveRed) then
-    call Dgemm_('T','N',nRedMO,iOrb(2),nBaseQ,ONE,Work(ipAvRed),nBaseQ,Work(iHalf),nBaseQ,ZERO,Work(iTEMP),nRedMO)
-    call dcopy_(nDim1*nDim2,Work(iTEMP),iONE,Work(iHalf),iONE)
+    call Dgemm_('T','N',nRedMO,iOrb(2),nBaseQ,One,Work(ipAvRed),nBaseQ,Work(iHalf),nBaseQ,Zero,Work(iTEMP),nRedMO)
+    call dcopy_(nDim1*nDim2,Work(iTEMP),1,Work(iHalf),1)
   end if
 
   ! Hook on the orbital energy.
 
-  call dcopy_(nDimP,[ZERO],iZERO,Work(iHalfE),iONE)
+  call dcopy_(nDimP,[Zero],0,Work(iHalfE),1)
   do k=1,iOrb(2)
     ind = nDim1*(k-1)
-    call DaxPy_(nDim1,c_orbene(k),Work(iHalf+ind),iONE,Work(iHalfE+ind),iONE)
+    call DaxPy_(nDim1,c_orbene(k),Work(iHalf+ind),1,Work(iHalfE+ind),1)
   end do
 
   ! Construct auxiliary matrix for the non-electrostatic operator
   ! in AO-basis for QM region. Also construct matrix of pure
   ! overlaps for the higher order terms.
 
-  call Dgemm_('N','T',nDim1,nDim1,iOrb(2),ONE,Work(iHalf),nDim1,Work(iHalfE),nDim1,ZERO,Work(ipAUX),nDim1)
-  call Dgemm_('N','T',nDim1,nDim1,iOrb(2),ONE,Work(iHalf),nDim1,Work(iHalf),nDim1,ZERO,Work(ipAUXp),nDim1)
+  call Dgemm_('N','T',nDim1,nDim1,iOrb(2),One,Work(iHalf),nDim1,Work(iHalfE),nDim1,Zero,Work(ipAUX),nDim1)
+  call Dgemm_('N','T',nDim1,nDim1,iOrb(2),One,Work(iHalf),nDim1,Work(iHalf),nDim1,Zero,Work(ipAUXp),nDim1)
 
   ! Accumulate.
 
-  call DaxPy_(nDim1**2,ONE,Work(ipAUX),iONE,Work(ipACC),iONE)
-  call DaxPy_(nDim1**2,ONE,Work(ipAUXp),iONE,Work(ipACCp),iONE)
+  call DaxPy_(nDim1**2,One,Work(ipAUX),1,Work(ipACC),1)
+  call DaxPy_(nDim1**2,One,Work(ipAUXp),1,Work(ipACCp),1)
 
   !Jose*********************************
   if (lExtr(8)) then
-    call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,Work(iAOMOOvl),nBaseQ,Work(iAOMOOvlE),nBaseQ,ZERO,Work(ipAOAUX),nBaseQ)
+    call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,Work(iAOMOOvl),nBaseQ,Work(iAOMOOvlE),nBaseQ,Zero,Work(ipAOAUX),nBaseQ)
     call SqToTri_Q(Work(ipAOAUX),Work(ipAOAUXtri),nBaseQ)
-    call DaxPy_(nGross,ONE,Work(ipAOAUXtri),iONE,Work(ipAOSum),iONE)
+    call DaxPy_(nGross,One,Work(ipAOAUXtri),1,Work(ipAOSum),1)
   end if
   !*************************************
 
@@ -201,14 +208,14 @@ do iS=1,nState
     HighS = 0
     kaunter = kaunter+1
     ! Collect the relevant part of the transition density matrix.
-    call dCopy_(nDimT,Work(iBigT+nDimT*(kaunter-1)),iONE,Work(ipAOG),iONE)
+    call dCopy_(nDimT,Work(iBigT+nDimT*(kaunter-1)),1,Work(ipAOG),1)
     ! Then transform according to theory.
     call SqToTri_Q(Work(ipACC),Work(ipACCt),nDim1)
-    Addition = Ddot_(nDimT,Work(ipAOG),iONE,Work(ipACCt),iONE)
+    Addition = Ddot_(nDimT,Work(ipAOG),1,Work(ipACCt),1)
     SmatRas(kaunter) = SmatRas(kaunter)+exrep2*Addition
     ! And include pure S*S for subsequent higher order overlap repulsion.
     call SqToTri_Q(Work(ipACCp),Work(ipACCtp),nDim1)
-    HighS = Ddot_(nDimT,Work(ipAOG),iONE,Work(ipACCtp),iONE)
+    HighS = Ddot_(nDimT,Work(ipAOG),1,Work(ipACCtp),1)
     SmatPure(kaunter) = SmatPure(kaunter)+HighS
   end do
 end do

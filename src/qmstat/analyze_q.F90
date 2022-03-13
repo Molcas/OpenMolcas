@@ -11,25 +11,28 @@
 
 subroutine Analyze_Q(iQ_Atoms)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iQ_Atoms
 #include "maxi.fh"
 #include "files_qmstat.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-parameter(iHUltraMax=1000)
-dimension iCo(3)
-dimension gR(MxAt,3,iHUltraMax)
-data Dum/0.0d0/
-dimension iDum(1)
+integer(kind=iwp), parameter :: iHUltraMax = 1000
+integer(kind=iwp) :: i, iCNum, iCo(3), iCStart, iDiskSa, iDiskTemp, iDum(1), iH, iHMax, iHowMSamp, ind, iSamp, j, k, l
+real(kind=wp) :: dist, dist2, dR, Dum, Etot, gR(MxAt,3,iHUltraMax), Ract !IFG
 
+Dum = Zero
 !----------------------------------------------------------------------*
 ! Some numbers and defaults.                                           *
 !----------------------------------------------------------------------*
 iHMax = 0
 iCStart = (((iQ_Atoms-1)/nAtom)+1)*nCent+1
 iCNum = iCStart/nCent
-dR = 0.1d0
+dR = 0.1_wp
 !----------------------------------------------------------------------*
 ! Just say what we are doing.                                          *
 !----------------------------------------------------------------------*
@@ -47,9 +50,9 @@ iDiskSa = iDiskTemp
 !----------------------------------------------------------------------*
 ! Say something about these numbers to the user.                       *
 !----------------------------------------------------------------------*
-write(6,*)
-write(6,*) 'The sampfile ',SaFilIn,' contains ',iHowMSamp,' sampled configurations.'
-write(6,*) 'Total number of particles:',nPart
+write(u6,*)
+write(u6,*) 'The sampfile ',SaFilIn,' contains ',iHowMSamp,' sampled configurations.'
+write(u6,*) 'Total number of particles:',nPart
 !----------------------------------------------------------------------*
 ! BEGIN ANALYZING!                                                     *
 !----------------------------------------------------------------------*
@@ -72,18 +75,18 @@ do iSamp=1,iHowMSamp
   do i=1,iQ_Atoms
     do j=1,nAtom
       do k=1,nPart-iCNum
-        dist2 = 0.0d0
+        dist2 = Zero
         do l=1,3
           ind = iCStart+(j-1)+(k-1)*nCent
           dist2 = dist2+(Work(iCo(l)+i-1)-Work(iCo(l)+ind-1))**2
         end do
         dist = sqrt(dist2)
-        iH = int((dist+dR*0.5d0)/dR)
+        iH = int((dist+dR*Half)/dR)
         if (iH > iHMax) then
           iHMax = iH
           if (iH > iHUltraMax) then
-            write(6,*)
-            write(6,*) 'Too fine sections for g(r). Increase section size or allocate more memory.'
+            write(u6,*)
+            write(u6,*) 'Too fine sections for g(r). Increase section size or allocate more memory.'
             call Quit(_RC_INTERNAL_ERROR_)
           end if
         end if
@@ -101,15 +104,15 @@ end do
 !----------------------------------------------------------------------*
 ! Time to generate a nice output.                                      *
 !----------------------------------------------------------------------*
-write(6,*)
-write(6,*) 'SUMMARY OF RESULTS FOR SAMPFILE ANALYSIS.'
-write(6,*)
+write(u6,*)
+write(u6,*) 'SUMMARY OF RESULTS FOR SAMPFILE ANALYSIS.'
+write(u6,*)
 do i=1,iQ_Atoms
-  write(6,*)
-  write(6,*) 'Quantum atom ',i
-  write(6,'(5X,A,5X,5(A,I2,1X))') 'Separation',('Solvent atom',k,k=1,nAtom)
+  write(u6,*)
+  write(u6,*) 'Quantum atom ',i
+  write(u6,'(5X,A,5X,5(A,I2,1X))') 'Separation',('Solvent atom',k,k=1,nAtom)
   do iH=1,iHMax
-    write(6,'(F15.7,5(F15.7))') dR*iH,(gR(i,j,iH),j=1,nAtom)
+    write(u6,'(F15.7,5(F15.7))') dR*iH,(gR(i,j,iH),j=1,nAtom)
   end do
 end do
 

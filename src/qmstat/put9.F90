@@ -12,13 +12,16 @@
 ! PUT NUMBERS ON SAMPFILE.
 subroutine Put9(Etot,Ract,iDT,iHowMSamp,Gamma,Gam,Esav,iDisk)
 
-implicit real*8(a-h,o-z)
+use  Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
-dimension iDT(3)
-character Head*200
+real(kind=wp) :: Etot, Ract, Gamma, Gam, Esav
+integer(kind=iwp) :: i, iCT, iDiskHead, iDiskOld, iDT(3), iHowMSamp, iDisk, j
+character(len=200) :: Head
 
 iHowMSamp = iHowMSamp+1
 iDiskOld = iDisk

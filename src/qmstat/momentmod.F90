@@ -11,21 +11,27 @@
 
 subroutine MomentMod(ipRe,ipNRe,iCmo,nBRe,nBNRe,LindMOs,iS1,iS2,First,DiffMax)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
 #include "maxi.fh"
-#include "files_qmstat.fh"
 #include "qminp.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension DipRe(3), DipNRe(3)
-logical LindMOs(MxBas), First
+integer(kind=iwp) :: ipRe, ipNRe, iCmo, nBRe, nBNRe, iS1, iS2
+logical(kind=iwp) :: LindMOs(MxBas), First
+real(kind=wp) :: DiffMax
+integer(kind=iwp) :: i, icomp, iopt, ipDx, ipDxM, ipDxRe, ipDxsq, ipDy, ipDyM, ipDyRe, ipDysq, ipDz, ipDzM, ipDzRe, ipDzsq, &
+                     ipTEMP, irc, iSmLbl, j, kaunt1, kaunt2, nSize1, nSize2
+real(kind=wp) :: Diffx, Diffy, Diffz, DipRe(3), DipNRe(3)
+real(kind=r8), external :: Ddot_
 
 if (First .and. (iPrint >= 5)) then
-  write(6,*)
-  write(6,*) '     Modifications of dipoles by renormalization and basis reduction.'
-  write(6,*)
-  write(6,*) '     State pair    |  Difference '
-  write(6,*) '     --------------|---------------------'
+  write(u6,*)
+  write(u6,*) '     Modifications of dipoles by renormalization and basis reduction.'
+  write(u6,*)
+  write(u6,*) '     State pair    |  Difference '
+  write(u6,*) '     --------------|---------------------'
   First = .false.
 end if
 
@@ -50,21 +56,21 @@ iSmLbl = 0
 ! X
 icomp = 1
 call RdOne(irc,iopt,'Mltpl  1',icomp,Work(ipDx),iSmLbl)
-call Square(Work(ipDx),Work(ipDxsq),iONE,nBNRe,nBNRe)
-call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,ONE,Work(iCmo),nBNRe,Work(ipDxsq),nBNRe,ZERO,Work(ipTEMP),nBNRe)
-call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,ONE,Work(ipTEMP),nBNRe,Work(iCmo),nBNRe,ZERO,Work(ipDxM),nBNRe)
+call Square(Work(ipDx),Work(ipDxsq),1,nBNRe,nBNRe)
+call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,One,Work(iCmo),nBNRe,Work(ipDxsq),nBNRe,Zero,Work(ipTEMP),nBNRe)
+call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,One,Work(ipTEMP),nBNRe,Work(iCmo),nBNRe,Zero,Work(ipDxM),nBNRe)
 ! Y
 icomp = 2
 call RdOne(irc,iopt,'Mltpl  1',icomp,Work(ipDy),iSmLbl)
-call Square(Work(ipDy),Work(ipDysq),iONE,nBNRe,nBNRe)
-call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,ONE,Work(iCmo),nBNRe,Work(ipDysq),nBNRe,ZERO,Work(ipTEMP),nBNRe)
-call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,ONE,Work(ipTEMP),nBNRe,Work(iCmo),nBNRe,ZERO,Work(ipDyM),nBNRe)
+call Square(Work(ipDy),Work(ipDysq),1,nBNRe,nBNRe)
+call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,One,Work(iCmo),nBNRe,Work(ipDysq),nBNRe,Zero,Work(ipTEMP),nBNRe)
+call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,One,Work(ipTEMP),nBNRe,Work(iCmo),nBNRe,Zero,Work(ipDyM),nBNRe)
 ! Z
 icomp = 3
 call RdOne(irc,iopt,'Mltpl  1',icomp,Work(ipDz),iSmLbl)
-call Square(Work(ipDz),Work(ipDzsq),iONE,nBNRe,nBNRe)
-call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,ONE,Work(iCmo),nBNRe,Work(ipDzsq),nBNRe,ZERO,Work(ipTEMP),nBNRe)
-call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,ONE,Work(ipTEMP),nBNRe,Work(iCmo),nBNRe,ZERO,Work(ipDzM),nBNRe)
+call Square(Work(ipDz),Work(ipDzsq),1,nBNRe,nBNRe)
+call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,One,Work(iCmo),nBNRe,Work(ipDzsq),nBNRe,Zero,Work(ipTEMP),nBNRe)
+call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,One,Work(ipTEMP),nBNRe,Work(iCmo),nBNRe,Zero,Work(ipDzM),nBNRe)
 ! Triangularize and reduce.
 kaunt1 = 0
 kaunt2 = 0
@@ -82,19 +88,18 @@ do i=1,nBNRe
   end do
 end do
 ! Density
-DipNRe(1) = Ddot_(nBNRe**2,Work(ipDxM),iONE,Work(ipNRe),iONE)
-DipNRe(2) = Ddot_(nBNRe**2,Work(ipDyM),iONE,Work(ipNRe),iONE)
-DipNRe(3) = Ddot_(nBNRe**2,Work(ipDzM),iONE,Work(ipNRe),iONE)
-DipRe(1) = Ddot_(nSize2,Work(ipDxRe),iONE,Work(ipRe),iONE)
-DipRe(2) = Ddot_(nSize2,Work(ipDyRe),iONE,Work(ipRe),iONE)
-DipRe(3) = Ddot_(nSize2,Work(ipDzRe),iONE,Work(ipRe),iONE)
+DipNRe(1) = Ddot_(nBNRe**2,Work(ipDxM),1,Work(ipNRe),1)
+DipNRe(2) = Ddot_(nBNRe**2,Work(ipDyM),1,Work(ipNRe),1)
+DipNRe(3) = Ddot_(nBNRe**2,Work(ipDzM),1,Work(ipNRe),1)
+DipRe(1) = Ddot_(nSize2,Work(ipDxRe),1,Work(ipRe),1)
+DipRe(2) = Ddot_(nSize2,Work(ipDyRe),1,Work(ipRe),1)
+DipRe(3) = Ddot_(nSize2,Work(ipDzRe),1,Work(ipRe),1)
 Diffx = abs(DipRe(1)-DipNRe(1))
 Diffy = abs(DipRe(2)-DipNRe(2))
 Diffz = abs(DipRe(3)-DipNRe(3))
 if (iPrint >= 5) then
-  write(6,99) iS1,iS2,'(',Diffx,',',Diffy,',',Diffz,')'
+  write(u6,99) iS1,iS2,'(',Diffx,',',Diffy,',',Diffz,')'
 end if
-99 format('     ',2I3,'          ',3(A,F10.7),A)
 ! Return number
 DiffMax = Diffy
 if (Diffx >= Diffy) DiffMax = Diffx
@@ -115,5 +120,7 @@ call GetMem('DipZm','Free','Real',ipDzM,nBNRe**2)
 call GetMem('TEMP','Free','Real',ipTEMP,nBNRe**2)
 
 return
+
+99 format('     ',2I3,'          ',3(A,F10.7),A)
 
 end subroutine MomentMod

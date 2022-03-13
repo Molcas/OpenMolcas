@@ -11,20 +11,24 @@
 
 subroutine RasRasTrans(nB,nStatePrim,iEig2,iPrint)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: nB, nStatePrim, iEig2, iPrint
 #include "maxi.fh"
 #include "files_qmstat.fh"
 #include "qm2.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension iTocBig(MxStOT)
-character*30 OutLine
-
+integer(kind=iwp) :: i, iB, iBas, iBigV, iDisk, iInt1, iInt2, iiS, index, indypop, ipAOG, ipMAX, iS, iSnt1, iSnt2, iSnt3, &
+                     iTocBig(MxStOT), j, jB, jBas, jjS, jS, kaunt, kaunter, LuIn, MEMMAX, nSize, nSizeBig, nSizeBigPrim, nTriS, & !IFG
+                     nTriSP
+character(len=30) :: OutLine
 
 !Guten Tag.
 
-write(6,*) '     ----- Transform from non-orthogonal RASSCF states to orthogonal RASSI states.'
+write(u6,*) '     ----- Transform from non-orthogonal RASSCF states to orthogonal RASSI states.'
 
 ! Set zeros and decide if transformation is at all possible.
 
@@ -44,11 +48,11 @@ call GetMem('HOWMUCH','Max','Real',ipMAX,MEMMAX)
 ! form. Then there is no use to proceed at all.
 
 if (MEMMAX <= nSizeBig) then
-  write(6,*)
-  write(6,*) 'The transition density matrix is too big to put in memory!'
-  write(6,*) 'Either,'
-  write(6,*) '       (1) increase MOLCAS_MEM,'
-  write(6,*) '       (2) contract number of states further.'
+  write(u6,*)
+  write(u6,*) 'The transition density matrix is too big to put in memory!'
+  write(u6,*) 'Either,'
+  write(u6,*) '       (1) increase MOLCAS_MEM,'
+  write(u6,*) '       (2) contract number of states further.'
   call Quit(_RC_GENERAL_ERROR_)
 
 ! Here we go if there is enough memory for an in core transformation.
@@ -61,7 +65,7 @@ else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nSta
   call GetMem('Square1','Allo','Real',iSnt1,nStatePrim**2)
   call GetMem('Square2','Allo','Real',iSnt2,nState*nStatePrim)
   call GetMem('Square3','Allo','Real',iSnt3,nState**2)
-  call dcopy_(nSizeBig,[ZERO],iZERO,Work(iBigT),iONE)
+  call dcopy_(nSizeBig,[Zero],0,Work(iBigT),1)
   kaunt = 0
   do i=1,nStatePrim
     do j=1,i
@@ -89,12 +93,12 @@ else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nSta
   kaunt = 0
   do,iBas = 1,nB
   do,jBas = 1,iBas
-  call dcopy_(nTriSP,Work(iBigV+kaunt),nSize,Work(iInt1),iONE)
-  call Square(Work(iInt1),Work(iSnt1),iONE,nStatePrim,nStatePrim)
-  call Dgemm_('T','N',nState,nStatePrim,nStatePrim,ONE,Work(iEig2),nStatePrim,Work(iSnt1),nStatePrim,ZERO,Work(iSnt2),nState)
-  call Dgemm_('N','N',nState,nState,nStatePrim,ONE,Work(iSnt2),nState,Work(iEig2),nStatePrim,ZERO,Work(iSnt3),nState)
+  call dcopy_(nTriSP,Work(iBigV+kaunt),nSize,Work(iInt1),1)
+  call Square(Work(iInt1),Work(iSnt1),1,nStatePrim,nStatePrim)
+  call Dgemm_('T','N',nState,nStatePrim,nStatePrim,One,Work(iEig2),nStatePrim,Work(iSnt1),nStatePrim,Zero,Work(iSnt2),nState)
+  call Dgemm_('N','N',nState,nState,nStatePrim,One,Work(iSnt2),nState,Work(iEig2),nStatePrim,Zero,Work(iSnt3),nState)
   call SqToTri_Q(Work(iSnt3),Work(iInt2),nState)
-  call dcopy_(nTriS,Work(iInt2),iONE,Work(iBigT+kaunt),nSize)
+  call dcopy_(nTriS,Work(iInt2),1,Work(iBigT+kaunt),nSize)
   kaunt = kaunt+1
   end do
   end do
@@ -111,7 +115,7 @@ else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nSta
   else
   call GetMem('ALLES','Allo','Real',iBigT,nSizeBig)
   call GetMem('AOGamma','Allo','Real',ipAOG,nSize)
-  call dcopy_(nSizeBig,[ZERO],iZERO,Work(iBigT),iONE)
+  call dcopy_(nSizeBig,[Zero],0,Work(iBigT),1)
   do iiS=1,nStatePrim
     do jjS=1,nStatePrim
       if (iiS <= jjS) then

@@ -36,8 +36,10 @@
 !                                                                    *
 !--------------------------------------------------------------------*
 
+      Integer iSupM,iV1
       Common/ScfQMinte/iSupM,iV1
 
+      Real*8 HHMat,outxyz,Cha,DipMy,Quad,PotNuc,FockM,DenCorrD,Trace_MP2
       Common/ScfQmreal/HHMat(MxOT),outxyz(MxQCen,3),Cha(MxOT,MxQCen)    &
      &,DipMy(MxOT,3,MxQCen),Quad(MxOt,6,MxQCen),PotNuc,FockM(MxOT)      &
      &,DenCorrD(MxOT),Trace_MP2

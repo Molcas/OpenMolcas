@@ -12,13 +12,16 @@
 ! AO-basis route.
 subroutine StateMMEao(nAObas,nState,nTyp,iBigT,iMME,iCent,Cha,Dip,Qua)
 
-implicit real*8(a-h,o-z)
+use Index_Functions, only: nTri3_Elem
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6), iCent(MxBas**2)
-dimension Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen)
-dimension Qua(MxStOT,6,MxQCen)
+integer(kind=iwp) :: nAObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(MxBas**2)
+real(kind=wp) :: Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen)
+integer(kind=iwp) :: iB1, iB2, ipAOG, ipO, iS1, iS2, iTyp, kaunta, kaunter, nSize
+real(kind=wp) :: PerAake
 
 kaunter = 0
 nSize = nAObas*(nAObas+1)/2
@@ -29,7 +32,7 @@ do iS1=1,nState
   do iS2=1,iS1
     kaunter = kaunter+1
     ! Collect this piece of the TDM in AO-basis.
-    call dCopy_(nSize,Work(iBigT+nSize*(kaunter-1)),iONE,Work(ipAOG),iONE)
+    call dCopy_(nSize,Work(iBigT+nSize*(kaunter-1)),1,Work(ipAOG),1)
     kaunta = 0
     ! Loop over AO-basis pairs and transform them as well as
     ! distribute their multipoles. Observe that the array iCent

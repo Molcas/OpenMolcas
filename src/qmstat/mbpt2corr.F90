@@ -12,25 +12,30 @@
 ! Not properly worked through. Do not use!
 subroutine Mbpt2Corr(nBas,Cmo)
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
-#include "numbers.fh"
 #include "qm1.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "warnings.h"
-real*8, allocatable :: Diff(:)
-dimension Cmo(MxBas**2)
+integer(kind=iwp) :: nBas
+real(kind=wp) :: Cmo(MxBas**2)
+integer(kind=iwp) :: i, iB1, iI, ipSqD, ipSqE, ipTEMP, iRedSq, Ising, iT, j, jjj, kaunt1, kaunt2, kaunter
+real(kind=wp) :: Det
+real(kind=wp), allocatable :: Diff(:)
 
-write(6,*)
-write(6,*) 'MP2 density correction is requested.'
-write(6,*) ' -- perturbative correlation correction to the solute density.'
+write(u6,*)
+write(u6,*) 'MP2 density correction is requested.'
+write(u6,*) ' -- perturbative correlation correction to the solute density.'
 
 ! No-no zone!
 
-write(6,*)
-write(6,*) 'THIS OPTION IS NOT PROPERLY WORKED THROUGH! SHOULD NOT BE USED!'
+write(u6,*)
+write(u6,*) 'THIS OPTION IS NOT PROPERLY WORKED THROUGH! SHOULD NOT BE USED!'
 call Quit(_RC_GENERAL_ERROR_)
 ! Check that the density difference is sound.
 iT = nBas*(nBas+1)/2
@@ -45,15 +50,15 @@ call GetMem('SqDenM','Allo','Real',ipSqE,nBas**2)
 call GetMem('TEMP','Allo','Real',ipTEMP,nBas**2)
 call GetMem('Inv','Allo','Real',iI,nBas**2)
 call GetMem('RedSq','Allo','Real',iRedSq,nBas**2)
-call dcopy_(nBas**2,[ZERO],iZERO,Work(ipSqD),iONE)
-call dcopy_(iOrb(1)**2,[ZERO],iZERO,Work(ipSqE),iONE)
-call dcopy_(nBas*iOrb(1),[ZERO],iZERO,Work(ipTEMP),iONE)
+call dcopy_(nBas**2,[Zero],0,Work(ipSqD),1)
+call dcopy_(iOrb(1)**2,[Zero],0,Work(ipSqE),1)
+call dcopy_(nBas*iOrb(1),[Zero],0,Work(ipTEMP),1)
 ! Do not forget the density matrix convention in Molcas.
-call Dsq(Diff,Work(ipSqD),iONE,nBas,nBas)
+call Dsq(Diff,Work(ipSqD),1,nBas,nBas)
 ! Inverse of orbital file and transformation.
 call Minv(Cmo,Work(iI),Ising,Det,nBas)
-call Dgemm_('N','N',nBas,nBas,nBas,ONE,Work(iI),nBas,Work(ipSqD),nBas,ZERO,Work(ipTEMP),nBas)
-call Dgemm_('N','T',nBas,nBas,nBas,ONE,Work(ipTEMP),nBas,Work(iI),nBas,ZERO,Work(ipSqE),nBas)
+call Dgemm_('N','N',nBas,nBas,nBas,One,Work(iI),nBas,Work(ipSqD),nBas,Zero,Work(ipTEMP),nBas)
+call Dgemm_('N','T',nBas,nBas,nBas,One,Work(ipTEMP),nBas,Work(iI),nBas,Zero,Work(ipSqE),nBas)
 ! Remove all except the suck-out orbitals.
 kaunt1 = 0
 do i=1,nBas
@@ -61,14 +66,14 @@ do i=1,nBas
     if ((i <= iOrb(1)) .and. (j <= iOrb(1))) then
       Work(iRedSq+kaunt1) = Work(ipSqE+kaunt1)
     else
-      Work(iRedSq+kaunt1) = 0.0d0
+      Work(iRedSq+kaunt1) = Zero
     end if
     kaunt1 = kaunt1+1
   end do
 end do
 ! Make a check of the trace. Should be small.
 kaunter = 0
-Trace_MP2 = 0
+Trace_MP2 = Zero
 do iB1=1,nBas
   do jjj=1,nBas
     if (iB1 == jjj) Trace_MP2 = Trace_MP2+Work(iRedSq+kaunter)
@@ -76,7 +81,7 @@ do iB1=1,nBas
   end do
 end do
 if (iPrint >= 10) then
-  write(6,*) 'Trace: ',Trace_MP2
+  write(u6,*) 'Trace: ',Trace_MP2
 end if
 ! Make things a bit more tidy.
 kaunt1 = 0
@@ -96,8 +101,8 @@ call SqToTri_q(Work(ipSqE),DenCorrD,iOrb(1))
 ! used in QMSTAT at the present. If you wish, comment away the
 ! code below 'make things a bit more tidy' and you are in
 ! ready to rumble.
-!call Dgemm_('N','N',nBas,nBas,nBas,ONE,Cmo,nBas,Work(iRedSq),nBas,ZERO,Work(ipTEMP),nBas)
-!call Dgemm_('N','T',nBas,nBas,nBas,ONE,Work(ipTEMP),nBas,Cmo,nBas,ZERO,Work(ipSqE),nBas)
+!call Dgemm_('N','N',nBas,nBas,nBas,One,Cmo,nBas,Work(iRedSq),nBas,Zero,Work(ipTEMP),nBas)
+!call Dgemm_('N','T',nBas,nBas,nBas,One,Work(ipTEMP),nBas,Cmo,nBas,Zero,Work(ipSqE),nBas)
 !k = 0
 !do i=1,nBas
 !  do j=1,nBas

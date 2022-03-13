@@ -11,20 +11,24 @@
 
 subroutine Cooout(Head,Cordst,nPart,nCent)
 
-implicit real*8(a-h,o-z)
-#include "maxi.fh"
-dimension Cordst(MxCen*MxPut,3)
-character Head*200
+use Definitions, only: wp, iwp, u6
 
-write(6,*)
-write(6,*)
-write(6,'(A)') Head
+implicit none
+#include "maxi.fh"
+character(len=200) :: Head
+real(kind=wp) :: Cordst(MxCen*MxPut,3)
+integer(kind=iwp) :: nPart, nCent
+integer(kind=iwp) :: i, ii, j, kaunter
+
+write(u6,*)
+write(u6,*)
+write(u6,'(A)') Head
 kaunter = 0
 do i=1,nPart
-  write(6,*) 'Molecule ',i
+  write(u6,*) 'Molecule ',i
   do j=1,nCent
     kaunter = kaunter+1
-    write(6,*) (Cordst(kaunter,ii),ii=1,3)
+    write(u6,*) (Cordst(kaunter,ii),ii=1,3)
   end do
 end do
 

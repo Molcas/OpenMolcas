@@ -10,19 +10,25 @@
 !***********************************************************************
 
 ! p-p (sigma), with too small exponent difference.
-real*8 function CoulT0_4(Rho,dSepInv,Expo)
+function CoulT0_4(Rho,dSepInv,Expo)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Two, Ten
+use Definitions, only: wp
 
-T1 = 1.0d0
-T2 = 2.0d0*Rho
-T3 = 2.0d0*Rho**2
-T4 = (263.0d0/192.0d0)*Rho**3
-T5 = (71.0d0/96.0d0)*Rho**4
-T6 = (77.0d0/240.0d0)*Rho**5
-T7 = (1.0d0/10.0d0)*Rho**6
-T8 = (1.0d0/60.0d0)*Rho**7
-CoulT0_4 = 2.0d0*dSepInv**3*(1.0d0-(T1+T2+T3+T4+T5+T6+T7+T8)*Expo)
+implicit none
+real(kind=wp) :: CoulT0_4
+real(kind=wp) :: Rho, dSepInv, Expo
+real(kind=wp) :: T1, T2, T3, T4, T5, T6, T7, T8
+
+T1 = One
+T2 = Two*Rho
+T3 = Two*Rho**2
+T4 = (263.0_wp/192.0_wp)*Rho**3
+T5 = (71.0_wp/96.0_wp)*Rho**4
+T6 = (77.0_wp/240.0_wp)*Rho**5
+T7 = (One/Ten)*Rho**6
+T8 = (One/60.0_wp)*Rho**7
+CoulT0_4 = Two*dSepInv**3*(One-(T1+T2+T3+T4+T5+T6+T7+T8)*Expo)
 
 return
 

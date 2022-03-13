@@ -11,14 +11,18 @@
 
 subroutine PolPrep(iDist,iDistIm,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nSize)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iDist, iDistIm, iCNum, nSize
+real(kind=wp) :: xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), &
+                 zzi(nSize,nSize), Gri(nSize,nSize)
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "WrkSpc.fh"
-dimension xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize)
-dimension rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize)
-dimension zzi(nSize,nSize), Gri(nSize,nSize)
+integer(kind=iwp) :: i, i1, ii, ild, imd, Indco1, IndCo2, Indp1, IndP2, IndTr, IndTr1, IndTri, j, j1, jj, jnd, k, l, ncParm
 
 !----------------------------------------------------------------------*
 ! Simply compute some vectors etc. for the ensuing polarization        *
@@ -27,7 +31,7 @@ dimension zzi(nSize,nSize), Gri(nSize,nSize)
 ncParm = ncent*npart-ncent*icNum
 do i=nPol*iCNum+1,nPol*nPart !Loop over solvent polarization sites.
   do j=nPol*iCNum+1,nPol*nPart
-    rr3(i,j) = 0
+    rr3(i,j) = Zero
   end do
 end do
 IndTr1 = 0
@@ -68,7 +72,7 @@ do i=1,nPol
 end do
 do ii=1,nSize
   do jj=1,nSize
-    Gri(ii,jj) = 0
+    Gri(ii,jj) = Zero
   end do
 end do
 do i=1,nPol

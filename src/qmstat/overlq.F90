@@ -40,20 +40,26 @@
 
 subroutine OverLq(Bori,Cori,Alfa,Beta,iQ1,iQ2,nExp1,nExp2,iPSint,Trans)
 
-implicit real*8(a-h,o-z)
-#include "maxi.fh"
-#include "numbers.fh"
-#include "WrkSpc.fh"
-#include "warnings.h"
+use Index_Functions, only: nTri_Elem
+use Constants, only: Zero, One, Half, Pi
+use Definitions, only: wp, iwp
+
+implicit none
 ! MaxAngqNr=4 means f-function is top. There is no limit in the algorithm though, so if higher is needed, change this number.
-parameter(MaxAr=MxAngqNr*(MxAngqNr+1)/2)
-dimension Bori(3), Cori(3), Alfa(MxCont), Beta(MxCont)
-dimension Trans(int(dble(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3+3*MxAngqNr**4)/12))
-dimension PAxyz(3), PBxyz(3), TheCent(3)
-dimension FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1)
-dimension FactorZ(2*MxAngqNr+1)
-dimension nCartxQ(MaxAr), nCartyQ(MaxAr), nCartzQ(MaxAr)
-dimension nCartxC(MaxAr), nCartyC(MaxAr), nCartzC(MaxAr)
+#include "maxi.fh"
+#include "WrkSpc.fh"
+real(kind=wp) :: Bori(3), Cori(3), Alfa(MxCont), Beta(MxCont), &
+                 Trans(int(real(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3+3*MxAngqNr**4)/real(12))) !Why this size? is it correct?
+integer(kind=iwp) :: iQ1, iQ2, nExp1, nExp2, iPSint
+integer(kind=iwp) :: i, icompo, ind, ind1, ind2, iP1, iP2, iPInte, iPpS, iPsphS, iSp1, iSp2, iUpX, iUpY, iUpZ, ix, ixxx, iy, iyyy, &
+                     iz, izzz, j, jndex, Kaunt, kaunter, krakna, loneX, loneY, loneZ, lsumX, lsumY, lsumZ, ltwoX, ltwoY, ltwoZ, &
+                     nBigP, nCartxC(nTri_Elem(MxAngqNr)), nCartxQ(nTri_Elem(MxAngqNr)), nCartyC(nTri_Elem(MxAngqNr)), & !IFG
+                     nCartyQ(nTri_Elem(MxAngqNr)), nCartzC(nTri_Elem(MxAngqNr)), nCartzQ(nTri_Elem(MxAngqNr)), nSizeCart, & !IFG
+                     nSizeSph, nSpecific1, nSpecific2, nSph1, nSph2
+real(kind=wp) :: Divide, Expo, Extra, FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1), FactorZ(2*MxAngqNr+1), PAxyz(3), PBxyz(3), & !IFG
+                 Piconst, Primequals, Separation, SqPiconst, SummaX, SummaY, SummaZ, TheCent(3), TheFirstFac
+integer(kind=iwp), external :: iDubFac
+
 !----------------------------------------------------------------------*
 ! Prepare some numbers for later.                                      *
 !----------------------------------------------------------------------*
@@ -145,15 +151,15 @@ do iP1=1,nExp1
         SummaZ = 0
         ! This is just a matter of putting things together according to the formula
         do ixxx=0,iUpX
-          Extra = iDubFac(2*ixxx-1)*(0.5*Divide)**ixxx
+          Extra = iDubFac(2*ixxx-1)*(Half*Divide)**ixxx
           SummaX = SummaX+FactorX(2*ixxx+1)*Extra
         end do
         do iyyy=0,iUpY
-          Extra = iDubFac(2*iyyy-1)*(0.5*Divide)**iyyy
+          Extra = iDubFac(2*iyyy-1)*(Half*Divide)**iyyy
           SummaY = SummaY+FactorY(2*iyyy+1)*Extra
         end do
         do izzz=0,iUpZ
-          Extra = iDubFac(2*izzz-1)*(0.5*Divide)**izzz
+          Extra = iDubFac(2*izzz-1)*(Half*Divide)**izzz
           SummaZ = SummaZ+FactorZ(2*izzz+1)*Extra
         end do
         Primequals = TheFirstFac*SummaX*SummaY*SummaZ
@@ -186,16 +192,16 @@ do iP1=1,nExp1
     if ((iQ1 >= 3) .or. (iQ2 >= 3)) then !Check if any transformations are necessary.
       if (iQ2 < 3) then !If only the base of the QM-region needs!to be transformed.
         ind = 1+(iQ1-3)*(3*iQ1**3+5*iQ1**2+12*iQ1+40)/12
-        call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,ONE,Trans(ind),nSph1,Work(iPps),nSpecific2,ZERO,Work(iPsphS),nSph1)
+        call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,One,Trans(ind),nSph1,Work(iPps),nSpecific2,Zero,Work(iPsphS),nSph1)
       else if (iQ1 < 3) then !If only solvent base needs to be transformed.
         ind = 1+(iQ2-3)*(3*iQ2**3+5*iQ2**2+12*iQ2+40)/12
-        call Dgemm_('T','T',nSph1,nSph2,nSpecific2,ONE,Work(iPps),nSpecific2,Trans(ind),nSph2,ZERO,Work(iPsphS),nSph1)
+        call Dgemm_('T','T',nSph1,nSph2,nSpecific2,One,Work(iPps),nSpecific2,Trans(ind),nSph2,Zero,Work(iPsphS),nSph1)
       else !Both QM-region and Solvent need to be transformed.
         ind1 = 1+(iQ1-3)*(3*iQ1**3+5*iQ1**2+12*iQ1+40)/12
         ind2 = 1+(iQ2-3)*(3*iQ2**3+5*iQ2**2+12*iQ2+40)/12
         call GetMem('Intmd','Allo','Real',iPInte,nSph1*nSpecific2)
-        call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,ONE,Trans(ind1),nSph1,Work(iPps),nSpecific2,ZERO,Work(iPInte),nSph1)
-        call Dgemm_('N','T',nSph1,nSph2,nSpecific2,ONE,Work(iPInte),nSph1,Trans(ind2),nSph2,ZERO,Work(iPsphS),nSph1)
+        call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,One,Trans(ind1),nSph1,Work(iPps),nSpecific2,Zero,Work(iPInte),nSph1)
+        call Dgemm_('N','T',nSph1,nSph2,nSpecific2,One,Work(iPInte),nSph1,Trans(ind2),nSph2,Zero,Work(iPsphS),nSph1)
         call GetMem('Intmd','Free','Real',iPInte,nSph1*nSpecific2)
       end if
     else  !Here we only transpose to get integrals in right order.

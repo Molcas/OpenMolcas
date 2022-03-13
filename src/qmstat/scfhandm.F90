@@ -37,17 +37,23 @@
 
 subroutine ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
 
-implicit real*8(a-h,o-z)
+use Index_Functions, only: nTri3_Elem
+use Constants, only: Zero, Three, OneHalf
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "qm1.fh"
 #include "WrkSpc.fh"
-#include "tratoc.fh"
-dimension Cmo(MxBas**2), Occu(MxBas), nOcc(MxBas), natyp(MxAt)
-dimension nBas(MxSym), iCent(MxBas*MxBas)
-dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
-character MMElab*20, ChCo*2
+real(kind=wp) :: Cmo(MxBas**2), Occu(MxBas)
+integer(kind=iwp) :: nBas(MxSym), iQ_Atoms, nOcc(MxBas), natyp(MxAt), nntyp
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCent(MxBas**2), iCi, iDum, ii, iMME(nTri3_Elem(MxMltp)), iMtot, indMME, iO1, iO2, ipO, & !IFG
+                     iTyp, iX1, iX2, j, k, kaunta, kaunter, kk, nTyp
+real(kind=wp) :: cProd, dipx, dipx0, dipy, dipy0, dipz, dipz0, dTox, dToy, dToz, qEl, Tra
+character(len=20) :: MMElab
+character(len=2) :: ChCo
 
 !----------------------------------------------------------------------*
 ! Zeros.                                                               *
@@ -55,16 +61,16 @@ character MMElab*20, ChCo*2
 iCi = iQ_Atoms*(iQ_Atoms+1)/2
 do i=1,iOrb(1)*(iOrb(1)+1)/2
   do j=1,iCi
-    Cha(i,j) = 0
-    DipMy(i,1,j) = 0
-    DipMy(i,2,j) = 0
-    DipMy(i,3,j) = 0
-    Quad(i,1,j) = 0
-    Quad(i,2,j) = 0
-    Quad(i,3,j) = 0
-    Quad(i,4,j) = 0
-    Quad(i,5,j) = 0
-    Quad(i,6,j) = 0
+    Cha(i,j) = Zero
+    DipMy(i,1,j) = Zero
+    DipMy(i,2,j) = Zero
+    DipMy(i,3,j) = Zero
+    Quad(i,1,j) = Zero
+    Quad(i,2,j) = Zero
+    Quad(i,3,j) = Zero
+    Quad(i,4,j) = Zero
+    Quad(i,5,j) = Zero
+    Quad(i,6,j) = Zero
   end do
 end do
 
@@ -137,10 +143,10 @@ do i1=1,iOrb(1)
     kaunter = kaunter+1
     do k=1,ici
       do j=1,6
-        Quad(kaunter,j,k) = Quad(kaunter,j,k)*1.5
+        Quad(kaunter,j,k) = Quad(kaunter,j,k)*OneHalf
       end do
       Tra = Quad(kaunter,1,k)+Quad(kaunter,3,k)+Quad(kaunter,6,k)
-      Tra = Tra/3
+      Tra = Tra/Three
       Quad(kaunter,1,k) = Quad(kaunter,1,k)-Tra
       Quad(kaunter,3,k) = Quad(kaunter,3,k)-Tra
       Quad(kaunter,6,k) = Quad(kaunter,6,k)-Tra
@@ -152,19 +158,19 @@ end do
 ! if things have proceeded nicely, (2) to deduce if the QM-molecule is *
 ! charged.                                                             *
 !----------------------------------------------------------------------*
-qEl = 0
-dipx = 0
-dipy = 0
-dipz = 0
-dipx0 = 0
-dipy0 = 0
-dipz0 = 0
-qtot = 0
-dTox = 0
-dToy = 0
-dToz = 0
+qEl = Zero
+dipx = Zero
+dipy = Zero
+dipz = Zero
+dipx0 = Zero
+dipy0 = Zero
+dipz0 = Zero
+qtot = Zero
+dTox = Zero
+dToy = Zero
+dToz = Zero
 call GetMem('TotMME','Allo','Real',iMtot,10*iQ_Atoms*(iQ_Atoms+1)/2)
-call dCopy_(10*iQ_Atoms*(iQ_Atoms+1)/2,[0.0d0],0,Work(iMtot),1)
+call dCopy_(10*iQ_Atoms*(iQ_Atoms+1)/2,[Zero],0,Work(iMtot),1)
 do ii=1,iOrb(1)
   i = ii*(ii+1)/2
   do j=1,iQ_Atoms*(iQ_Atoms+1)/2
@@ -188,17 +194,17 @@ do ii=1,iOrb(1)
   end do
 end do
 if (iPrint >= 10) then
-  write(6,*)
-  write(6,*) '    Distributed multipole in each centre'
-  write(6,*) '    (Compare with output from MpProp.)'
+  write(u6,*)
+  write(u6,*) '    Distributed multipole in each centre'
+  write(u6,*) '    (Compare with output from MpProp.)'
   do j=1,iQ_Atoms*(iQ_Atoms+1)/2
     if (j <= iQ_Atoms) then
       Work(iMtot+10*(j-1)) = Work(iMtot+10*(j-1))-Chanuc(j)
     end if
-    write(6,*) '      Center: ',j
-    write(6,*) '      Charge: ',-Work(iMtot+10*(j-1))
-    write(6,*) '      Dipole: ',(-Work(iMtot+10*(j-1)+kk),kk=1,3)
-    write(6,*)
+    write(u6,*) '      Center: ',j
+    write(u6,*) '      Charge: ',-Work(iMtot+10*(j-1))
+    write(u6,*) '      Dipole: ',(-Work(iMtot+10*(j-1)+kk),kk=1,3)
+    write(u6,*)
   end do
 end if
 call GetMem('TotMME','Free','Real',iMtot,4*iQ_Atoms*(iQ_Atoms+1)/2)
@@ -213,12 +219,12 @@ dTox = dTox-dipx-dipx0
 dToy = dToy-dipy-dipy0
 dToz = dToz-dipz-dipz0
 if (iPrint >= 5) then
-  write(6,*)
-  write(6,*) '    Summed multipoles for unperturbed w.f.'
-  write(6,*) '      Charge: ',qtot
-  write(6,*) '      Dipole: ',dTox,',',dToy,',',dToz
+  write(u6,*)
+  write(u6,*) '    Summed multipoles for unperturbed w.f.'
+  write(u6,*) '      Charge: ',qtot
+  write(u6,*) '      Dipole: ',dTox,',',dToy,',',dToz
 end if
-if (abs(qtot) > 0.0001) ChargedQM = .true.
+if (abs(qtot) > 1.0e-4_wp) ChargedQM = .true.
 
 ! Make a check of the one-electron matrix: is it pure?
 

@@ -12,27 +12,32 @@
 ! Read all MO-transformed integrals and construct zeroth Fock-matrix.
 subroutine ScfH0(nBas)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
-#include "files_qmstat.fh"
 #include "qm1.fh"
-#include "numbers.fh"
 #include "tratoc.fh"
+#include "lenin.fh"
+#include "maxbfn.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension nBasM(MxSym), nOrbM(MxSym), nDelM(MxSym), nFroM(MxSym)
-dimension nBas(MxSym)
-dimension iToc(64)
-parameter(lenin8=6+8)
-parameter(maxbfn=10000)
-character NameM*(lenin8*maxbfn), firstind*10
+integer(kind=iwp) :: nBas(MxSym)
+integer(kind=iwp) :: i, iBuff, iDisk, iDum, iExt, iFine, ij, ik, il, iLu1, iLu2, iopt, ipAOx, ipMOx, iPointF, irc, iSmLbl, iSqAO, &
+                     iSup, iTEMP, iToc(64), j, jk, jl, k, kaunter, kl, l, llmax, Lu_One, nBasM(MxSym), nBTri, nBuf1, nBuf2, &
+                     nDelM(MxSym), nFroM(MxSym), nMAX, nOrbM(MxSym), nSize, nSymM !IFG
+real(kind=wp) :: Ecor
+character(len=LenIn8) :: NameM(maxbfn)
+character(len=10) :: firstind
+integer(kind=iwp) :: ipair_qmstat, IsFreeUnit
 
 ! Wilkommen.
 
-write(6,*)
-write(6,*)
-write(6,*) 'Reading MO-transformed integrals. Zeroth hamiltonian constructed.'
+write(u6,*)
+write(u6,*)
+write(u6,*) 'Reading MO-transformed integrals. Zeroth hamiltonian constructed.'
 
 ! Numbers and files.
 
@@ -46,14 +51,14 @@ call DaName(iLu2,'TRAINT')
 iDisk = 0
 ! This is special utility to read header of TRAONE.
 ! Last argument depends on mxorb in Molcas.fh.
-call Wr_Motra_Info(iLu1,2,iDisk,iToc,64,Ecor,nSymM,nBasM,nOrbM,nFroM,nDelM,MxSym,NameM,lenin8*maxbfn)
+call Wr_Motra_Info(iLu1,2,iDisk,iToc,64,Ecor,nSymM,nBasM,nOrbM,nFroM,nDelM,MxSym,NameM,LenIn8*maxbfn)
 
 ! One checks.
 
 if (nBasM(1) /= nBas(1)) then
-  write(6,*)
-  write(6,*) '  ERROR! Conflict between one-electron file and MO-transformed one-electron file.'
-  write(6,*) '         nBas=',nBas(1),' MO-nBas=',nBasM(1)
+  write(u6,*)
+  write(u6,*) '  ERROR! Conflict between one-electron file and MO-transformed one-electron file.'
+  write(u6,*) '         nBas=',nBas(1),' MO-nBas=',nBasM(1)
   call Quit(_RC_GENERAL_ERROR_)
 end if
 
@@ -61,14 +66,14 @@ end if
 
 iDisk = iToc(2)
 call dDaFile(iLu1,2,Work(iPointF),nSize,iDisk)
-call dcopy_(nSize,Work(iPointF),iONE,HHmat,iONE)
+call dcopy_(nSize,Work(iPointF),1,HHmat,1)
 call GetMem('FockM','Free','Real',iPointF,nSize)
 call DaClos(iLu1)
 
 ! Add external perturbation if requested.
 
 if (AddExt) then
-  write(6,*) '    -- Adding external perturbation.'
+  write(u6,*) '    -- Adding external perturbation.'
   nBTri = nBas(1)*(nBas(1)+1)/2
   Lu_One = 49
   Lu_One = IsFreeUnit(Lu_One)
@@ -83,18 +88,18 @@ if (AddExt) then
     iopt = 0
     iSmLbl = 0
     call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),Work(ipAOx),iSmLbl)
-    call DScal_(nBTri,ScalExt(iExt),Work(ipAOx),iONE)
+    call DScal_(nBTri,ScalExt(iExt),Work(ipAOx),1)
     if (irc /= 0) then
-      write(6,*)
-      write(6,*) 'ERROR when reading ',ExtLabel(iExt),'.'
-      write(6,*) 'Have Seward computed this integral?'
+      write(u6,*)
+      write(u6,*) 'ERROR when reading ',ExtLabel(iExt),'.'
+      write(u6,*) 'Have Seward computed this integral?'
       call Quit(_RC_IO_ERROR_READ_)
     end if
-    call Square(Work(ipAOx),Work(iSqAO),iONE,nBas(1),nBas(1))
-    call Dgemm_('T','N',iOrb(1),nBas(1),nBas(1),ONE,Work(iV1),nBas(1),Work(iSqAO),nBas(1),ZERO,Work(iTEMP),iOrb(1))
-    call Dgemm_('N','N',iOrb(1),iOrb(1),nBas(1),ONE,Work(iTEMP),iOrb(1),Work(iV1),nBas(1),ZERO,Work(iFine),iOrb(1))
+    call Square(Work(ipAOx),Work(iSqAO),1,nBas(1),nBas(1))
+    call Dgemm_('T','N',iOrb(1),nBas(1),nBas(1),One,Work(iV1),nBas(1),Work(iSqAO),nBas(1),Zero,Work(iTEMP),iOrb(1))
+    call Dgemm_('N','N',iOrb(1),iOrb(1),nBas(1),One,Work(iTEMP),iOrb(1),Work(iV1),nBas(1),Zero,Work(iFine),iOrb(1))
     call SqToTri_Q(Work(iFine),Work(ipMOx),iOrb(1))
-    call DaxPy_(nSize,ONE,Work(ipMOx),iONE,HHmat,iONE)
+    call DaxPy_(nSize,One,Work(ipMOx),1,HHmat,1)
   end do
   call GetMem('AOExt','Free','Real',ipAOx,nBTri+4)
   call GetMem('TEMP','Free','Real',iTEMP,nBas(1)*iOrb(1))
@@ -118,9 +123,9 @@ nBuf2 = nBuf1*(nBuf1+1)/2
 
 call GetMem('MAX','Max','Real',iDum,nMAX)
 if (nMAX < (nBuf2+nBuf1**2)) then
-  write(6,*)
-  write(6,*) '  Too many MO-transformed two-electron integrals from Motra. Do you need all?'
-  write(6,*) '  If not, then use the DELEte keyword in Motra to remove the superfluous ones.'
+  write(u6,*)
+  write(u6,*) '  Too many MO-transformed two-electron integrals from Motra. Do you need all?'
+  write(u6,*) '  If not, then use the DELEte keyword in Motra to remove the superfluous ones.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 
@@ -173,8 +178,8 @@ call DaClos(iLu2)
 ! Serious amount of printing!
 
 if (iPrint >= 35) then
-  write(6,*)
-  write(6,*) 'The Super Matrix in all its divine g(l)ory:'
+  write(u6,*)
+  write(u6,*) 'The Super Matrix in all its divine g(l)ory:'
   kaunter = 0
   do i=1,iOrb(1)
     do j=1,i
@@ -183,9 +188,9 @@ if (iPrint >= 35) then
       kaunter = kaunter+1
     end do
   end do
-  write(6,*) 'Super Matrix End.'
+  write(u6,*) 'Super Matrix End.'
 end if
-write(6,*) '...Done!'
+write(u6,*) '...Done!'
 
 ! The end.
 

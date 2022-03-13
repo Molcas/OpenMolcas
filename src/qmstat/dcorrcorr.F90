@@ -12,10 +12,15 @@
 ! MP2 density correction.
 subroutine DCorrCorr(Dens,DenCorr,Trace_Diff,iOrb,iOcc)
 
-implicit real*8(a-h,o-z)
-dimension Dens(*), DenCorr(*)
+use Definitions, only: wp, iwp
 
-Trace_HF = dble(iOcc*2)
+implicit none
+real(kind=wp) :: Dens(*), DenCorr(*), Trace_Diff
+integer(kind=iwp) :: iOrb, iOcc
+integer(kind=iwp) :: i, j, kaunt
+real(kind=wp) :: T, Trace_HF
+
+Trace_HF = real(iOcc*2,kind=wp)
 kaunt = 0
 T = Trace_HF/(Trace_HF-Trace_Diff)
 do i=1,iOrb
@@ -24,7 +29,7 @@ do i=1,iOrb
     Dens(kaunt) = T*(Dens(kaunt)-DenCorr(kaunt))
   end do
 end do
-!Trace = 0.0d0
+!Trace = Zero
 !kaunt = 0
 !do i=1,iOrb
 !  do j=1,i
@@ -33,7 +38,7 @@ end do
 !  end do
 !end do
 !call triprt('KKK',' ',Dens,iorb)
-!write(6,*) 'QQQ:',Trace
+!write(u6,*) 'QQQ:',Trace
 return
 
 end subroutine DCorrCorr

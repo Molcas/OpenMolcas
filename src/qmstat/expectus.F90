@@ -11,13 +11,17 @@
 
 subroutine Expectus(QMMethod,HmatOld,Vmat,VpolMat,Smat,MxDim,iVEC,nDim,lEig,iEig,ip_ExpVal)
 
-implicit real*8(a-h,o-z)
-#include "numbers.fh"
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension HmatOld(MxDim), Vmat(MxDim), VpolMat(MxDim), Smat(MxDim)
-character QMMethod*5
-logical lEig
+character(len=5) :: QMMethod
+integer(kind=iwp) :: MxDim, iVEC, nDIM, iEig, ip_ExpVal
+real(kind=wp) :: HmatOld(MxDim), Vmat(MxDim), VpolMat(MxDim), Smat(MxDim)
+logical(kind=iwp) :: lEig
+integer(kind=iwp) :: iDTmp, iRoot, nDTri, nRoots
+real(kind=r8), external :: Ddot_
 
 ! Take different path for different QM-method.
 
@@ -45,10 +49,10 @@ if (QMMethod(1:5) == 'RASSI') then
 
     ! Expectation values.
 
-    Work(ip_ExpVal+4*(iRoot-1)+0) = Ddot_(nDTri,Work(iDTmp),iOne,HmatOld,iOne)
-    Work(ip_ExpVal+4*(iRoot-1)+1) = Ddot_(nDTri,Work(iDTmp),iOne,Vmat,iOne)
-    Work(ip_ExpVal+4*(iRoot-1)+2) = Ddot_(nDTri,Work(iDTmp),iOne,Vpolmat,iOne)
-    Work(ip_ExpVal+4*(iRoot-1)+3) = Ddot_(nDTri,Work(iDTmp),iOne,Smat,iOne)
+    Work(ip_ExpVal+4*(iRoot-1)+0) = Ddot_(nDTri,Work(iDTmp),1,HmatOld,1)
+    Work(ip_ExpVal+4*(iRoot-1)+1) = Ddot_(nDTri,Work(iDTmp),1,Vmat,1)
+    Work(ip_ExpVal+4*(iRoot-1)+2) = Ddot_(nDTri,Work(iDTmp),1,Vpolmat,1)
+    Work(ip_ExpVal+4*(iRoot-1)+3) = Ddot_(nDTri,Work(iDTmp),1,Smat,1)
   end do
   call GetMem('DenTemp','Free','Real',iDTmp,nDTri)
 
@@ -62,17 +66,17 @@ else if (QMMethod(1:5) == 'SCF  ') then
 
   ! Expectation values.
 
-  Work(ip_ExpVal+0) = Ddot_(nDTri,Work(iDTmp),iOne,HmatOld,iOne)
-  Work(ip_ExpVal+1) = Ddot_(nDTri,Work(iDTmp),iOne,Vmat,iOne)
-  Work(ip_ExpVal+2) = Ddot_(nDTri,Work(iDTmp),iOne,Vpolmat,iOne)
-  Work(ip_ExpVal+3) = Ddot_(nDTri,Work(iDTmp),iOne,Smat,iOne)
+  Work(ip_ExpVal+0) = Ddot_(nDTri,Work(iDTmp),1,HmatOld,1)
+  Work(ip_ExpVal+1) = Ddot_(nDTri,Work(iDTmp),1,Vmat,1)
+  Work(ip_ExpVal+2) = Ddot_(nDTri,Work(iDTmp),1,Vpolmat,1)
+  Work(ip_ExpVal+3) = Ddot_(nDTri,Work(iDTmp),1,Smat,1)
   call GetMem('DenTemp','Free','Real',iDTmp,nDTri)
 
 else
   ! Shit happens.
 
-  write(6,*)
-  write(6,*) ' Now how did this happen, says Expectus!'
+  write(u6,*)
+  write(u6,*) ' Now how did this happen, says Expectus!'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 

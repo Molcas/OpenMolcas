@@ -11,17 +11,23 @@
 
 subroutine ExScf(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itri,Smat,SmatPure,InCutOff,ipAOSum)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "qm1.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension Smat(MxOT), CorTemp(3), nCnC_C(MxBasC)
-dimension SmatPure(MxOT)
-dimension Inside(MxAt,3)
-logical Inside, NearBy, InCutOff
+integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itri, ipAOSum
+real(kind=wp) :: Ax, Ay, Az, Smat(MxOT), SmatPure(MxOT)
+logical(kind=iwp) :: InCutOff
+integer(kind=iwp) :: i, iAOAOTri, iAOMOOvl, iAOMOOvlE, iInte, ind, inwm, iOPure, iOvlMO, iOvlMOE, ipAOAUX, ipAOAUXtri, ipAOint, &
+                     ipAOintpar, ipAUX, ipAUXp, ipAUXtri, iV2, j, k, N, nAObaseSize, nAOqMOcl, nInsideCut, nOrbSize, nStorlek, &
+                     nV2size
+real(kind=wp) :: CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
+logical(kind=iwp) :: Inside(MxAt,3), NearBy
 
 !----------------------------------------------------------------------*
 ! Deduce how much the QM-molecule is translated from its position as   *
@@ -70,8 +76,8 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Initialize.
 
-  dist_sw = 1d20
-  r3 = 1d20
+  dist_sw = huge(dist_sw)
+  r3 = huge(r3)
   do i=1,MxAt
     Inside(i,1) = .false.
     Inside(i,2) = .false.
@@ -85,8 +91,8 @@ do N=iCStart-1,nCent*(nPart-1),nCent
     end do
     r2 = CorTemp(1)+CorTemp(2)+CorTemp(3)
     dist_sw = min(dist_sw,r2)
-    DH1 = 0.0d0 !Distances for the inner cut-off. Also include the hydrogens.
-    DH2 = 0.0d0
+    DH1 = Zero !Distances for the inner cut-off. Also include the hydrogens.
+    DH2 = Zero
     do k=1,3
       DH1 = DH1+(Cordst(N+2,k)-Cordst(inwm,k))**2
       DH2 = DH2+(Cordst(N+3,k)-Cordst(inwm,k))**2
@@ -123,21 +129,21 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Transform to MO-MO overlap.
 
-  call Dgemm_('T','N',iOrb(1),nBaseC,nBaseQ,ONE,Work(iV1),nBaseQ,Work(ipAOint),nBaseQ,ZERO,Work(iInte),iOrb(1))
-  call Dgemm_('N','N',iOrb(1),iOrb(2),nBaseC,ONE,Work(iInte),iOrb(1),Work(iV2),nBaseC,ZERO,Work(iOvlMO),iOrb(1))
-  call dcopy_(nOrbSize,[ZERO],iZERO,Work(iOvlMOE),iONE)
+  call Dgemm_('T','N',iOrb(1),nBaseC,nBaseQ,One,Work(iV1),nBaseQ,Work(ipAOint),nBaseQ,Zero,Work(iInte),iOrb(1))
+  call Dgemm_('N','N',iOrb(1),iOrb(2),nBaseC,One,Work(iInte),iOrb(1),Work(iV2),nBaseC,Zero,Work(iOvlMO),iOrb(1))
+  call dcopy_(nOrbSize,[Zero],0,Work(iOvlMOE),1)
   do i=1,iOrb(2)
     ind = iOrb(1)*(i-1)
-    call DaxPy_(iOrb(1),c_orbene(i),Work(iOvlMO+ind),iONE,Work(iOvlMOE+ind),iONE)
+    call DaxPy_(iOrb(1),c_orbene(i),Work(iOvlMO+ind),1,Work(iOvlMOE+ind),1)
   end do
 
   !**Jose
   if (lExtr(8)) then
-    call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,ONE,Work(ipAOint),nBaseQ,Work(iV2),nBaseC,ZERO,Work(iAOMOOvl),nBaseQ)
-    call dcopy_(nAOqMOcl,[ZERO],iZERO,Work(iAOMOOvlE),iONE)
+    call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,One,Work(ipAOint),nBaseQ,Work(iV2),nBaseC,Zero,Work(iAOMOOvl),nBaseQ)
+    call dcopy_(nAOqMOcl,[Zero],0,Work(iAOMOOvlE),1)
     do i=1,iOrb(2)
       ind = nBaseQ*(i-1)
-      call DaxPy_(nBaseQ,c_orbene(i),Work(iAOMOOvl+ind),iONE,Work(iAOMOOvlE+ind),iONE)
+      call DaxPy_(nBaseQ,c_orbene(i),Work(iAOMOOvl+ind),1,Work(iAOMOOvlE+ind),1)
     end do
   end if
   !*******************
@@ -145,33 +151,32 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   ! If you are interested, print some bla bla bla.
 
   if (iPrint >= 29) then
-    write(6,*)
-    write(6,*) 'OVERLAP BETWEEN QM-SYSTEM AND SOLVENT MOLECULE ',N/nCent
-    write(6,*) 'QM-MO  SOLV-MO  OVERLAP'
-    call dcopy_(iOrb(1)*iOrb(2),Work(iOvlMO),iONE,Work(iOPure),iONE)
+    write(u6,*)
+    write(u6,*) 'OVERLAP BETWEEN QM-SYSTEM AND SOLVENT MOLECULE ',N/nCent
+    write(u6,*) 'QM-MO  SOLV-MO  OVERLAP'
+    call dcopy_(iOrb(1)*iOrb(2),Work(iOvlMO),1,Work(iOPure),1)
     do i=0,iOrb(1)-1
       do j=0,iOrb(2)-1
-        write(6,8888) i+1,j+1,Work(iOPure+i+j*iOrb(1))
+        write(u6,8888) i+1,j+1,Work(iOPure+i+j*iOrb(1))
       end do
     end do
-8888 format(I3,'    ',I3,'       ',F12.10)
   end if
 
   ! Construct the perturbation and accumulate pure overlap for
   ! subsequent construction of higher order term.
 
-  call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),exrep2,Work(iOvlMO),iOrb(1),Work(iOvlMOE),iOrb(1),ZERO,Work(ipAUX),iOrb(1))
+  call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),exrep2,Work(iOvlMO),iOrb(1),Work(iOvlMOE),iOrb(1),Zero,Work(ipAUX),iOrb(1))
   call SqToTri_Q(Work(ipAUX),Work(ipAUXtri),iOrb(1))
-  call DaxPy_(iTri,ONE,Work(ipAUXtri),iONE,Smat,iONE)
-  call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),ONE,Work(iOvlMO),iOrb(1),Work(iOvlMO),iOrb(1),ZERO,Work(ipAUXp),iOrb(1))
+  call DaxPy_(iTri,One,Work(ipAUXtri),1,Smat,1)
+  call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),One,Work(iOvlMO),iOrb(1),Work(iOvlMO),iOrb(1),Zero,Work(ipAUXp),iOrb(1))
   call SqToTri_Q(Work(ipAUXp),Work(ipAUXtri),iOrb(1))
-  call DaxPy_(iTri,ONE,Work(ipAUXtri),iONE,SmatPure,iONE)
+  call DaxPy_(iTri,One,Work(ipAUXtri),1,SmatPure,1)
 
   !Jose*********************************
   if (lExtr(8)) then
-    call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,Work(iAOMOOvl),nBaseQ,Work(iAOMOOvlE),nBaseQ,ZERO,Work(ipAOAUX),nBaseQ)
+    call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,Work(iAOMOOvl),nBaseQ,Work(iAOMOOvlE),nBaseQ,Zero,Work(ipAOAUX),nBaseQ)
     call SqToTri_Q(Work(ipAOAUX),Work(ipAOAUXtri),nBaseQ)
-    call DaxPy_(iAOAOTri,ONE,Work(ipAOAUXtri),iONE,Work(ipAOSum),iONE)
+    call DaxPy_(iAOAOTri,One,Work(ipAOAUXtri),1,Work(ipAOSum),1)
   end if
   !*************************************
 
@@ -199,5 +204,7 @@ end if
 !********************************************************************
 
 return
+
+8888 format(I3,'    ',I3,'       ',F12.10)
 
 end subroutine ExScf

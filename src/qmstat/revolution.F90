@@ -12,9 +12,11 @@
 ! Construct rotation matrix.
 subroutine Revolution(v,Rinv,Rotte)
 
-implicit real*8(a-h,o-z)
-dimension v(3), Rotte(3,3)
-dimension u(3), w(3), t(3)
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: v(3), Rinv, Rotte(3,3)
+real(kind=wp) :: u(3), w(3), t(3)
 
 ! Obtain base-vectors for the plane to which v in the normal vector.
 

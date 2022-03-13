@@ -16,15 +16,20 @@
 ! are stored since N and P will not under normal circumstances be      *
 ! so large.                                                            *
 !----------------------------------------------------------------------*
-integer function NoverP_Q(N,P)
+function NoverP_Q(N,P)
 
-integer N, P, Bino(22)
-data(Bino(i),i=1,21)/1,1,1,1,2,1,1,3,3,1,1,4,6,4,1,1,5,10,10,5,1/
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: NoverP_Q
+integer(kind=iwp) :: N, P
 #include "warnings.h"
+integer(kind=iwp) :: ind
+integer(kind=iwp), parameter :: Bino(21) = [1,1,1,1,2,1,1,3,3,1,1,4,6,4,1,1,5,10,10,5,1]
 
 NoverP_Q = 1
 if (N >= 6) then
-  write(6,*) 'Must extend NoverP_Q!'
+  write(u6,*) 'Must extend NoverP_Q!'
   call Quit(_RC_INTERNAL_ERROR_)
 else
   ind = (N+1)*(N+2)/2-(N-P)

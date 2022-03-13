@@ -33,9 +33,12 @@
 ! outxyzRAS        -        The MME-centers for RASSI.                 *
 !----------------------------------------------------------------------*
 
+      Integer nState,nStateRed,ipRASORB,ipRaSOCC,nWhichFile,iBigT,      &
+     &nRedMO,ipAvred
       Common/RassiQinte/nState,nStateRed,ipRASORB(MxJobs)               &
      &,ipRASOcc(MxJobs),nWhichFile(MxState),iBigT,nRedMO,ipAvRed
 
+      Real*8 HmatState,RasCha,RasDip,RasQua,outxyzRAS,HmatSold
       Common/RassiQreal/HmatState(MxStOT),RasCha(MxStOT,MxQCen)         &
      &,RasDip(MxStOT,3,MxQCen),RasQua(MxStOT,6,MxQCen)                  &
      &,outxyzRAS(MxQCen,3),HmatSOld(MxStOT)

@@ -14,10 +14,16 @@
 !----------------------------------------------------------------------*
 subroutine TransRot(Cordst,i,Rot,xt,yt,zt,Ax,Ay,Az)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Ten
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "warnings.h"
-dimension Rot(3,3), Cordst(MxPut*MxCen,3)
+real(kind=wp) :: Cordst(MxPut*MxCen,3), Rot(3,3), xt, yt, zt, Ax, Ay, Az
+integer(kind=iwp) :: i
+integer(kind=iwp) :: IFLAG
+real(kind=wp) :: A, ANORM, DELR, DELX, DELY, DELZ, TAL, XA, XH, XO, YA, YH, YO, ZA, ZH, ZO
 
 XO = CORDST(I,1)-AX
 YO = CORDST(I,2)-AY
@@ -32,26 +38,26 @@ DELX = (XH+XA)/2.-XO
 DELY = (YH+YA)/2.-YO
 DELZ = (ZH+ZA)/2.-ZO
 DELR = DELX*DELX+DELY*DELY+DELZ*DELZ
-DELR = DELR-1.225449d0
+DELR = DELR-1.225449_wp
 !This is a check of the water geometry.
 !If we enter here, something is wrong.
-if (abs(DELR) > .0001) then
-  write(6,*) 'Molecule',((i-1)/5)+1
-  write(6,*) ' WARNING IN TRANSROT ','delr',delr
-  write(6,*) ' O',XO,YO,ZO
-  write(6,*) ' H',XH,YH,ZH
-  write(6,*) ' A',XA,YA,ZA
+if (abs(DELR) > 1.0e-4_wp) then
+  write(u6,*) 'Molecule',((i-1)/5)+1
+  write(u6,*) ' WARNING IN TRANSROT ','delr',delr
+  write(u6,*) ' O',XO,YO,ZO
+  write(u6,*) ' H',XH,YH,ZH
+  write(u6,*) ' A',XA,YA,ZA
   call Quit(_RC_GENERAL_ERROR_)
 end if
-XT = XO+.3d0/1.107d0*DELX
-YT = YO+.3d0/1.107d0*DELY
-ZT = ZO+.3d0/1.107d0*DELZ
-ROT(1,3) = (XO-XT)/.3d0
-ROT(2,3) = (YO-YT)/.3d0
-ROT(3,3) = (ZO-ZT)/.3d0
-ROT(1,2) = (XH-XA)/2.86d0
-ROT(2,2) = (YH-YA)/2.86d0
-ROT(3,2) = (ZH-ZA)/2.86d0
+XT = XO+0.3_wp/1.107_wp*DELX
+YT = YO+0.3_wp/1.107_wp*DELY
+ZT = ZO+0.3_wp/1.107_wp*DELZ
+ROT(1,3) = (XO-XT)/0.3_wp
+ROT(2,3) = (YO-YT)/0.3_wp
+ROT(3,3) = (ZO-ZT)/0.3_wp
+ROT(1,2) = (XH-XA)/2.86_wp
+ROT(2,2) = (YH-YA)/2.86_wp
+ROT(3,2) = (ZH-ZA)/2.86_wp
 ANORM = 1./sqrt(ROT(1,3)**2+ROT(2,3)**2+ROT(3,3)**2)
 ROT(1,3) = ROT(1,3)*ANORM
 ROT(2,3) = ROT(2,3)*ANORM
@@ -61,13 +67,13 @@ ROT(1,2) = ROT(1,2)*ANORM
 ROT(2,2) = ROT(2,2)*ANORM
 ROT(3,2) = ROT(3,2)*ANORM
 ROT(1,1) = 1.-ROT(1,3)**2-ROT(1,2)**2
-if (ROT(1,1) < 0.) ROT(1,1) = 0d0
+if (ROT(1,1) < 0.) ROT(1,1) = Zero
 ROT(1,1) = sqrt(ROT(1,1))
 ROT(2,1) = 1.-ROT(2,2)**2-ROT(2,3)**2
-if (ROT(2,1) < 0.) ROT(2,1) = 0d0
+if (ROT(2,1) < 0.) ROT(2,1) = Zero
 ROT(2,1) = sqrt(ROT(2,1))
 ROT(3,1) = 1.-ROT(3,3)**2-ROT(3,2)**2
-if (ROT(3,1) < 0.) ROT(3,1) = 0d0
+if (ROT(3,1) < 0.) ROT(3,1) = Zero
 ROT(3,1) = sqrt(ROT(3,1))
 
 IFLAG = 0
@@ -80,16 +86,16 @@ do
   ROT(1,1) = ROT(1,1)-TAL*ROT(1,3)
   ROT(2,1) = ROT(2,1)-TAL*ROT(2,3)
   ROT(3,1) = ROT(3,1)-TAL*ROT(3,3)
-  A = 1d0/sqrt(ROT(1,1)**2+ROT(2,1)**2+ROT(3,1)**2)
+  A = One/sqrt(ROT(1,1)**2+ROT(2,1)**2+ROT(3,1)**2)
   ROT(1,1) = ROT(1,1)*A
   ROT(2,1) = ROT(2,1)*A
   ROT(3,1) = ROT(3,1)*A
   IFLAG = IFLAG+1
   if (IFLAG > 3) then
-    write(6,*) ' STOP IN TRANSROT'
+    write(u6,*) ' STOP IN TRANSROT'
     call Quit(_RC_GENERAL_ERROR_)
   end if
-  if (A <= 10.0d0) exit
+  if (A <= Ten) exit
 end do
 
 return

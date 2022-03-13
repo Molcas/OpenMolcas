@@ -12,15 +12,18 @@
 ! GET NUMBERS FROM SAMPFILE.
 subroutine Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
-
-dimension Coord(MxAt*3)
-dimension info_atom(MxAt)
-character Head*200
+real(kind=wp) :: Ract, Coord(MxAt*3)
+integer(kind=iwp) :: info_atom(MxAt), iQ_Atoms, iDiskSa
+character(len=200) :: Head
+integer(kind=iwp) :: i, iCT, j
+real(kind=wp) :: Esub, Etot, Gamold, GaOld
 
 call WrRdSim(iLuSaIn,2,iDiskSa,iTcSim,64,Etot,Ract,nPart,Gamold,GaOld,Esub)
 iDiskSa = iTcSim(1)

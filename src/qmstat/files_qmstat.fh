@@ -23,4 +23,5 @@
      &,BlockIn,BlockUt,JbName(MxJobs),RassiM,GammaO,EigV,SimEx          &
      &,AddOns(3),FieldNuc
 
+      Integer iTcSim
       Common /Tocs_QMSTAT/ iTcSim(64)

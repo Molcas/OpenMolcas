@@ -31,8 +31,11 @@
 ! xyzQuQ        -        Total traceless quadrupole moment of QM-region.
 ! CT                -        Centre of mass for QM-molecule.
 !----------------------------------------------------------------------*
+      Integer lmax,info_atom
       Common/AllQmTypesI/lmax,info_atom(MxAt)
 
+      Real*8 QIm,CordIm,QImp,Dim,c_orbene,ChaNuc,qTot,xyzMyQ,xyzMyI,    &
+     &xyzMyP,Sqrs,CT,xyzQuQ
       Common/AllQmTypesR/QIm(MxCen*MxPut),CordIm(MxCen*MxPut,3)         &
      &,QImp(MxCen*MxPut),Dim(MxCen*MxPut,3)                             &
      &,c_orbene(MxOrb_C),ChaNuc(MxAt),qTot,xyzMyQ(3),xyzMyI(3),xyzMyP(3)&

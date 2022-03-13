@@ -11,19 +11,24 @@
 
 subroutine BoostRep(AddRep,SmatPure,iVecs,nSize,InCutOff)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: AddRep, SmatPure(*)
+integer(kind=iwp) :: iVecs, nSize
+logical(kind=iwp) :: InCutOff
 #include "maxi.fh"
-#include "numbers.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
-dimension SmatPure(*)
-logical InCutOff
+integer(kind=iwp) :: i, ind1, ind2, iO1, iO2, j, kaunter
+real(kind=wp) :: Scalar
 
 ! Enter.
 
 ! Common section.
 
-Scalar = 0
+Scalar = Zero
 
 ! Take different route for different QM-method.
 
@@ -65,10 +70,9 @@ else if (QmType(1:4) == 'RASS') then
   AddRep = exrep4*abs(Scalar)**2+exrep6*abs(Scalar)**3+exrep10*abs(Scalar)**5
 end if
 
-
 ! Crazy energy added if inner cut-off has been passed. Ensure reject.
 
-if (InCutOff) AddRep = 1D+20
+if (InCutOff) AddRep = huge(AddRep)
 
 return
 

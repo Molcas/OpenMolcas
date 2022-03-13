@@ -11,11 +11,18 @@
 
 subroutine Chk_OneHam(nBas)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
 #include "maxi.fh"
 #include "WrkSpc.fh"
-dimension nBas(MxSym)
-character Label_Read*8, Label_Pure*8
+integer(kind=iwp) :: nBas(MxSym)
+integer(kind=iwp) :: iOneP, iOneR, iopt, irc, iSmLbl, Lu_One, nBT
+real(kind=wp) :: dNorm
+character(len=8) :: Label_Pure, Label_Read
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=r8), external :: dnrm2_
 
 Lu_One = 49
 Lu_One = IsFreeUnit(Lu_One)
@@ -36,21 +43,21 @@ iSmLbl = 0
 call RdOne(irc,iopt,Label_Pure,1,Work(iOneP),iSmLbl)
 call ClsOne(irc,Lu_One)
 
-call DaxPy_(nBT,-1.0d0,Work(iOneR),1,Work(iOneP),1)
+call DaxPy_(nBT,-One,Work(iOneR),1,Work(iOneP),1)
 
 dNorm = dnrm2_(nBT,Work(iOneP),1)
 
-if (dNorm > 1d-8) then
-  write(6,*)
-  write(6,*)
-  write(6,*) ' WARNING!'
-  write(6,*)
-  write(6,*) '   Your one-electron hamiltonian is not purely vacuum. This means that the Hamiltonian'
-  write(6,*) '   in QmStat can be contaminated. Is this intentional? If not, then make sure that the ONEINT'
-  write(6,*) '   file comes directly from a Seward calculation without any calls from'
-  write(6,*) '   FFPT (or similar) in between.'
-  write(6,*)
-  write(6,*)
+if (dNorm > 1.0e-8_wp) then
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' WARNING!'
+  write(u6,*)
+  write(u6,*) '   Your one-electron hamiltonian is not purely vacuum. This means that the Hamiltonian'
+  write(u6,*) '   in QmStat can be contaminated. Is this intentional? If not, then make sure that the ONEINT'
+  write(u6,*) '   file comes directly from a Seward calculation without any calls from'
+  write(u6,*) '   FFPT (or similar) in between.'
+  write(u6,*)
+  write(u6,*)
 end if
 
 call GetMem('Read','Free','Real',iOneR,nBT+4)

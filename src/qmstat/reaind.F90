@@ -11,12 +11,18 @@
 
 subroutine ReaInd(iGP,iDT,iDistIm,iCNum,indma,ncparm,Sum1,s90um)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iGP(3), iDT(3), iDistIm, iCNum, indma, ncparm
+real(kind=wp) :: Sum1, s90um
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "WrkSpc.fh"
-dimension iGP(3), iDT(3)
+integer(kind=iwp) :: i, Inc, Inc2, j, k, l
+real(kind=wp) :: D1x, D1y, D1z, Q1, Q2, x, X1, y,z
 
 Sum1 = 0
 !irekn = 0
@@ -39,14 +45,14 @@ do i=1+(nPol*iCnum),indma
   !if (irekn == 3) then
   !  irekn = 0
   !  TOT = sqrt(xled**2+yled**2+zled**2)
-  !  write(6,*) 'HHH',TOT
+  !  write(u6,*) 'HHH',TOT
   !  xled = 0
   !  yled = 0
   !  zled = 0
   !end if
 end do
-Sum1 = Sum1*0.5
-S90um = 0
+Sum1 = Sum1*Half
+S90um = Zero
 !Energy of charge distribution in the reaction field to the induced dipoles.
 !Once more, see Bottcher eq. (4.69): we are computing the product between charges and the
 !potential connected with the reaction field.

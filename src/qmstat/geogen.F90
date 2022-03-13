@@ -33,12 +33,18 @@
 
 subroutine Geogen(Ract,Rold,iCNum,iQ_Atoms)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Two, Three, Ten, Half
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Ract, Rold
+integer(kind=iwp) :: iCNum, iQ_Atoms
 #include "maxi.fh"
 #include "qmcom.fh"
 #include "qminp.fh"
-dimension Dq(3)
-external Ranf
+integer(kind=iwp) :: i, iAt, ii, iImage, ij, Ind, iQsta, j, k
+real(kind=wp) :: A, A2, B, CB, Cx, Cy, Cz, DiFac, Dq(3), Dx, q, qq, S2, SB, Sqrts2, x, xNy, y, yNy, z, zNy
+real(kind=wp), external :: Ranf
 
 !----------------------------------------------------------------------*
 ! Store old configuration.                                             *
@@ -54,9 +60,9 @@ end do
 !----------------------------------------------------------------------*
 if (Qmeq .or. QmProd) then !Which coordinates to keep fixed.
   iSta = iCNum+1  !This sees to that the QM-molecule is excluded from the moves below.
-  Dq(1) = delX*(ranf(iseed)-0.5)
-  Dq(2) = delX*(ranf(iseed)-0.5)
-  Dq(3) = delX*(ranf(iseed)-0.5)
+  Dq(1) = delX*(ranf(iseed)-Half)
+  Dq(2) = delX*(ranf(iseed)-Half)
+  Dq(3) = delX*(ranf(iseed)-Half)
   do iAt=1,iQ_Atoms
     do ii=1,3
       Cordst(iAt,ii) = Cordst(iAt,ii)+Dq(ii) !Move QM-mol.
@@ -67,11 +73,11 @@ end if
 ! Obtain the random-stuff and make small geometry change.              *
 !----------------------------------------------------------------------*
 Rold = Ract
-Ract = Ract+(ranf(iseed)-0.5)*DelR !Change in cavity radius
+Ract = Ract+(ranf(iseed)-Half)*DelR !Change in cavity radius
 do i=iSta,nPart !Which molecules to give new coordinates.
   ij = (i-1)*nCent
   do j=1,3
-    Dx = DelX*(ranf(iseed)-0.5)
+    Dx = DelX*(ranf(iseed)-Half)
     do k=1,nCent
       ii = ij+k
       Cordst(ii,j) = Cordst(ii,j)+Dx !Make translation
@@ -80,7 +86,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
   Cx = Cordst(ij+1,1) !The oxygen, around which we rotate
   Cy = Cordst(ij+1,2)
   Cz = Cordst(ij+1,3)
-  B = (ranf(iseed)-0.5)*DelFi
+  B = (ranf(iseed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent !Rotate around the oxygen in yz-plane, i.e. around x-axis.
@@ -91,7 +97,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
     Cordst(ij+k,2) = yNy+Cy
     Cordst(ij+k,3) = zNy+Cz
   end do
-  B = (ranf(iseed)-0.5)*DelFi
+  B = (ranf(iseed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent !And now rotate in xz-plane
@@ -102,7 +108,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
     Cordst(ij+k,1) = xNy+Cx
     Cordst(ij+k,3) = zNy+Cz
   end do
-  B = (ranf(iseed)-0.5)*DelFi
+  B = (ranf(iseed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent  !To your surprise, here we rotate in the xy-plane
@@ -117,10 +123,10 @@ end do
 ! Here all other water molecules rotate around one of the three axes,
 ! except the ones we fix, which in a QM-simulation is the quantum particle.
 A = ranf(iseed)
-B = (ranf(iseed)-0.5)*DelFi*0.1
+B = (ranf(iseed)-Half)*DelFi/Ten
 CB = cos(B)
 SB = sin(B)
-if (A <= 0.33333333) then !make it random whether we rotate around x, y or z.
+if (A*Three <= One) then !make it random whether we rotate around x, y or z.
   do i=iSta,nPart
     ij = (i-1)*nCent
     do k=1,nCent
@@ -131,7 +137,7 @@ if (A <= 0.33333333) then !make it random whether we rotate around x, y or z.
       Cordst(ii,3) = Cz*CB-Cy*SB
     end do
   end do
-else if (A <= 0.66666667) then
+else if (A*Three <= Two) then
   do i=iSta,nPart
     ij = (i-1)*nCent
     do k=1,nCent
@@ -167,14 +173,14 @@ if (Qmeq .or. QmProd) then
 end if
 iQsta = nCent-nCha+1
 A2 = Ract**2
-DiFac = -(DiEl-1.0)/(DiEl+1.0)
+DiFac = -(DiEl-One)/(DiEl+One)
 do i=1,3
-  xyzMyp(i) = 0
+  xyzMyp(i) = Zero
 end do
 do i=iImage,nPart
   do j=1,nCent
     Ind = Ind+1
-    S2 = 0
+    S2 = Zero
     do k=1,3
       S2 = S2+Cordst(Ind,k)**2
     end do
@@ -182,9 +188,9 @@ do i=iImage,nPart
     Sqrts2 = sqrt(S2)
     Sqrs(Ind) = Sqrts2
     if (j <= nPol) then
-      QImp(Ind) = 0
+      QImp(Ind) = Zero
       do k=1,3
-        dim(Ind,k) = 0
+        dim(Ind,k) = Zero
       end do
     end if
     if (j >= iQsta) then
@@ -192,8 +198,8 @@ do i=iImage,nPart
       q = DiFac*Sqrts2*qq
       Qim(Ind) = q
     else
-      qq = 0
-      Qim(Ind) = 0
+      qq = Zero
+      Qim(Ind) = Zero
     end if
     do k=1,3
       xyzMyp(k) = xyzMyp(k)-qq*Cordst(Ind,k) !Total dipole of the cavity; used in polink.

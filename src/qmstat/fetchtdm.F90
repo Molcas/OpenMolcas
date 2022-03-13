@@ -11,16 +11,20 @@
 
 subroutine FetchTDM(nB,nS,iBigT,TDMchar)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nB, nS, iBigT
+character(len=6) :: TDMchar
 #include "maxi.fh"
 #include "WrkSpc.fh"
-dimension iTocBig(MxStOT)
-character TDMchar*6
+integer(kind=iwp) :: iDisk, indx, iS1, iS2, iTocBig(MxStOT), kaunter, Lu, nSize !IFG
+integer(kind=iwp), external :: IsFreeUnit
 
 iDisk = 0
 kaunter = 0
 nSize = nB*(nB+1)/2
-index = 0
+indx = 0
 Lu = 72
 Lu = IsFreeUnit(Lu)
 call DaName(Lu,TDMchar)
@@ -29,8 +33,8 @@ do iS1=1,nS
   do iS2=1,iS1
     kaunter = kaunter+1
     iDisk = iTocBig(kaunter)
-    call dDaFile(Lu,2,Work(iBigT+index),nSize,iDisk)
-    index = index+nSize
+    call dDaFile(Lu,2,Work(iBigT+indx),nSize,iDisk)
+    indx = indx+nSize
   end do
 end do
 call DaClos(Lu)

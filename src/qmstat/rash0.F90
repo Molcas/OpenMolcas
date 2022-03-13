@@ -12,14 +12,21 @@
 ! In this routine H_0 in RASSI basis is constructed, possibly with external perturbation added on.
 subroutine RasH0(nB)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: nB
 #include "maxi.fh"
-#include "numbers.fh"
 #include "qminp.fh"
 #include "qm2.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension DiagH0(MxState)
+integer(kind=iwp) :: i, iAUX, iExt, iopt, ipAOG, ipAOx, ipMOG, ipMOx, irc, iS1, iS2, iSmLbl, iSqAO, iSqMO, j, k, kaunter, Lu_One, &
+                     nBTri, nSize
+real(kind=wp) :: DiagH0(MxState), Element !IFG
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=r8), external :: Ddot_
 
 nBTri = nB*(nB+1)/2
 if (.not. AddExt) then
@@ -30,8 +37,8 @@ if (.not. AddExt) then
     end do
     DiagH0(i) = HmatState(kaunter)
   end do
-  write(6,*) '     -----RASSI H_0 eigenvalues:'
-  write(6,99) (DiagH0(k),k=1,nState)
+  write(u6,*) '     -----RASSI H_0 eigenvalues:'
+  write(u6,99) (DiagH0(k),k=1,nState)
 else
 
   ! Collect one-electron perturbations.
@@ -45,11 +52,11 @@ else
     iopt = 0
     iSmLbl = 0
     call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),Work(ipAOx),iSmLbl)
-    call dscal_(nBTri,ScalExt(iExt),Work(ipAOx),iONE)
+    call dscal_(nBTri,ScalExt(iExt),Work(ipAOx),1)
     if (irc /= 0) then
-      write(6,*)
-      write(6,*) 'ERROR when reading ',ExtLabel(iExt),'.'
-      write(6,*) 'Have Seward computed this integral?'
+      write(u6,*)
+      write(u6,*) 'ERROR when reading ',ExtLabel(iExt),'.'
+      write(u6,*) 'Have Seward computed this integral?'
       call Quit(_RC_IO_ERROR_READ_)
     end if
 
@@ -61,8 +68,8 @@ else
       kaunter = 0
       do iS1=1,nState
         do iS2=1,iS1
-          call dcopy_(nBTri,Work(iBigT+nBTri*kaunter),iONE,Work(ipAOG),iONE)
-          Element = Ddot_(nBTri,Work(ipAOG),iONE,Work(ipAOx),iONE)
+          call dcopy_(nBTri,Work(iBigT+nBTri*kaunter),1,Work(ipAOG),1)
+          Element = Ddot_(nBTri,Work(ipAOG),1,Work(ipAOx),1)
           kaunter = kaunter+1
           HmatState(kaunter) = HmatState(kaunter)+Element
         end do
@@ -75,15 +82,15 @@ else
       call GetMem('SquareAO','Allo','Real',iSqAO,nB**2)
       call GetMem('SquareMO','Allo','Real',iSqMO,nRedMO**2)
       call GetMem('MOExt','Allo','Real',ipMOx,nSize)
-      call Square(Work(ipAOx),Work(iSqAO),iONE,nB,nB)
-      call Dgemm_('T','N',nRedMO,nB,nB,ONE,Work(ipAvRed),nB,Work(iSqAO),nB,ZERO,Work(iAUX),nRedMO)
-      call Dgemm_('N','N',nRedMO,nRedMO,nB,ONE,Work(iAUX),nRedMO,Work(ipAvRed),nB,ZERO,Work(iSqMO),nRedMO)
+      call Square(Work(ipAOx),Work(iSqAO),1,nB,nB)
+      call Dgemm_('T','N',nRedMO,nB,nB,One,Work(ipAvRed),nB,Work(iSqAO),nB,Zero,Work(iAUX),nRedMO)
+      call Dgemm_('N','N',nRedMO,nRedMO,nB,One,Work(iAUX),nRedMO,Work(ipAvRed),nB,Zero,Work(iSqMO),nRedMO)
       call SqToTri_Q(Work(iSqMO),Work(ipMOx),nRedMO)
       kaunter = 0
       do iS1=1,nState
         do iS2=1,nState
-          call dcopy_(nSize,Work(iBigT+nSize*kaunter),iONE,Work(ipMOG),iONE)
-          Element = Ddot_(nSize,Work(ipMOG),iONE,Work(ipMOx),iONE)
+          call dcopy_(nSize,Work(iBigT+nSize*kaunter),1,Work(ipMOG),1)
+          Element = Ddot_(nSize,Work(ipMOG),1,Work(ipMOx),1)
           kaunter = kaunter+1
           HmatState(kaunter) = HmatState(kaunter)+Element
         end do
@@ -101,13 +108,13 @@ else
   ! If sufficient print level, print HmatState with perturbation added.
 
   if (iPrint >= 5) then
-    write(6,*)
+    write(u6,*)
     call TriPrt('H_0+External perturbation',' ',HmatState,nState)
   end if
 end if
 
-99 format('            ',9(F12.7,'  '))
-
 return
+
+99 format('            ',9(F12.7,'  '))
 
 end subroutine RasH0

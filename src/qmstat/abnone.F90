@@ -12,13 +12,19 @@
 ! All points. A bunch of special cases, see ABOne and ABBoth for more details.
 subroutine ABNone(iLA,iLB,dMulA,Rinv,Colle)
 
-implicit real*8(a-h,o-z)
-parameter(MxMltp=2)
-dimension dMulA((MxMltp+1)*(MxMltp+2)/2)
-dimension Colle(3)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Zero, Two, Three
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), parameter :: MxMltp = 2 !IFG
+integer(kind=iwp) :: iLA, iLB
+real(kind=wp) :: dMulA(nTri_Elem1(MxMltp)), Rinv, Colle(3)
+integer(kind=iwp) :: i
+real(kind=wp) :: d3, Pi1, Pi2, Sigma
 
 do i=1,3
-  Colle(i) = 0.0d0
+  Colle(i) = Zero
 end do
 
 if (iLA == 0) then
@@ -40,15 +46,15 @@ else if (iLA == 1) then
     Sigma = dMulA(3)
     Pi1 = dMulA(1)
     Pi2 = dMulA(2)
-    Colle(1) = 2.0d0*Sigma*(Rinv**3)
+    Colle(1) = Two*Sigma*(Rinv**3)
     Colle(2) = Pi1*(Rinv**3)
     Colle(3) = Pi2*(Rinv**3)
   else if (iLB == 2) then
-    d3 = sqrt(3.0d0)
+    d3 = sqrt(Three)
     Sigma = dMulA(3)
     Pi1 = dMulA(1)
     Pi2 = dMulA(2)
-    Colle(1) = 3.0d0*Sigma*(Rinv**4)
+    Colle(1) = Three*Sigma*(Rinv**4)
     Colle(2) = d3*Pi1*(Rinv**4)
     Colle(3) = d3*Pi2*(Rinv**4)
   end if
@@ -60,11 +66,11 @@ else if (iLA == 1) then
 !    Sigma = dMulA(3)
 !    Colle(1) = Sigma*Rinv**3
 !  else if (iLB == 1) then
-!    d3 = sqrt(3.0d0)
+!    d3 = sqrt(Three)
 !    Sigma = dMulA(3)
 !    Pi1 = dMulA(2)
 !    Pi2 = dMulA(4)
-!    Colle(1) = 3.0d0*Sigma*(Rinv**4)
+!    Colle(1) = Three*Sigma*(Rinv**4)
 !    Colle(2) = d3*Pi1*(Rinv**4)
 !    Colle(3) = d3*Pi2*(Rinv**4)
 !  else if (iLB == 2) then
@@ -72,12 +78,12 @@ else if (iLA == 1) then
 !    Pi1 = dMulA(2)
 !    Pi2 = dMulA(4)
 !    ! Jose. Remember dMulB(1)=sqrt(3)*xy
-!    !            and dMulB(5)=0.5*sqrt(3)*(x2-y2)
+!    !            and dMulB(5)=Half*sqrt(3)*(x2-y2)
 !    Del1 = dMulA(1)
 !    Del2 = dMulA(5)
-!    Colle(1) = 6.0d0*Sigma*(Rinv**5)
-!    Colle(2) = 4.0d0*Pi1*(Rinv**5)
-!    Colle(3) = 4.0d0*Pi2*(Rinv**5)
+!    Colle(1) = Six*Sigma*(Rinv**5)
+!    Colle(2) = Four*Pi1*(Rinv**5)
+!    Colle(3) = Four*Pi2*(Rinv**5)
 !    Colle(4) = Del1*(Rinv**5)
 !    Colle(5) = Del2*(Rinv**5)
 !  end if

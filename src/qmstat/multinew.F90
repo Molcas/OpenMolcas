@@ -40,24 +40,26 @@
 
 subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri,iCenTriT,nMlt,outxyz,SlExpQ,lSlater)
 
-implicit real*8(a-h,o-z)
+use Index_Functions, only: nTri3_Elem
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension xyz(MxAt,MxAt,3), CordMul(MxMltp,3), outxyz(MxQCen,3)
-dimension nOcc(MxAt), natyp(MxAt), nBasAt(MxBas)
-dimension iCenTri(*), iCenTriT(*)
-dimension iX(6), iY(6), iMult(MxMltp,MxComp)
-dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
-dimension SlExpQ(MxMltp+1,MxQCen)
-!Jose.No Nuclear charges in Salter ,SlPQ(MxQCen)
-character MemLab*20, MMElab*20, ChCo*2, ChCo2*2
-character*9 Integrals(3)
-logical Lika, Changed1, Changed2, lSlater
-data iX/1,1,1,2,2,3/
-data iY/1,2,3,2,3,3/
-data Integrals/'MLTPL  0','MLTPL  1','MLTPL  2'/
-dimension iDum(1)
+integer(kind=iwp) :: nAt, nBas, nOcc(MxAt), natyp(MxAt), nntyp, iMME(nTri3_Elem(MxMltp)), iCenTri(*), iCenTriT(*), nMlt
+real(kind=wp) :: outxyz(MxQCen,3), SlExpQ(MxMltp+1,MxQCen)
+logical(kind=iwp) :: lSlater
+integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, iMult(MxMltp,MxComp), Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, k, & !IFG
+                     kaunt, kaunter, LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nBasAt(MxBas), nComp, nMul, nSize !IFG
+real(kind=wp) :: CordMul(MxMltp,3), Corr, CorrDip1, CorrDip2, CorrOvl, xyz(MxAt,MxAt,3) !IFG
+logical(kind=iwp) :: Changed1, Changed2, Lika
+character(len=20) :: MemLab, MMElab
+character(len=2) :: ChCo, ChCo2
+integer(kind=iwp), parameter :: iX(6) = [1,1,1,2,2,3], iY(6) = [1,2,3,2,3,3]
+character(len=9), parameter :: Integrals(3) = ['MLTPL  0','MLTPL  1','MLTPL  2']
+integer(kind=iwp), external :: IsFreeUnit
+!Jose.No Nuclear charges in Slater ,SlPQ(MxQCen)
 
 !----------------------------------------------------------------------*
 ! Read the multipole integrals in contracted AO-basis.                 *
@@ -67,8 +69,8 @@ Lu_One = 49
 Lu_One = IsFreeUnit(Lu_One)
 call OpnOne(irc,0,'ONEINT',Lu_One)
 if (irc /= 0) then
-  write(6,*)
-  write(6,*) 'ERROR! Could not open one-electron integral file.'
+  write(u6,*)
+  write(u6,*) 'ERROR! Could not open one-electron integral file.'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 
@@ -86,8 +88,8 @@ outer: do iMlt=1,MxMltp
     if (irc == 0) nSize = iDum(1)
     if (irc /= 0) then
       if (iComp /= 1) then
-        write(6,*)
-        write(6,*) 'ERROR! Failed to read number of one-electron integrals.'
+        write(u6,*)
+        write(u6,*) 'ERROR! Failed to read number of one-electron integrals.'
         call Quit(_RC_IO_ERROR_READ_)
       else  !Normal exit here.
         nMlt = iMlt-1
@@ -104,8 +106,8 @@ outer: do iMlt=1,MxMltp
       iSmLbl = 0
       call RdOne(irc,iOpt,integrals(iMlt),iComp,Work(iMult(iMlt,iComp)),iSmLbl) !Collect integrals
     else
-      write(6,*)
-      write(6,*) 'ERROR! Problem reading ',integrals(iMlt)
+      write(u6,*)
+      write(u6,*) 'ERROR! Problem reading ',integrals(iMlt)
       call Quit(_RC_IO_ERROR_READ_)
     end if
   end do
@@ -146,8 +148,8 @@ if (lSlater) then
   call Get_Slater(SlExpQ,LMltSlQ,outxyz,nAt)
 
   if (LMltSlQ+1 /= nMlt) then
-    write(6,*) 'ERROR! Multipole order',LMltSlQ,' in DiffPr file is different from order',nMlt-1, &
-               ' in One-electron file. Check your files.'
+    write(u6,*) 'ERROR! Multipole order',LMltSlQ,' in DiffPr file is different from order',nMlt-1, &
+                ' in One-electron file. Check your files.'
     call Quit(_RC_GENERAL_ERROR_)
   end if
 end if
@@ -231,8 +233,8 @@ end do
 ! quadrupoles.                                                         *
 !----------------------------------------------------------------------*
 if (nMlt > 3) then !This number is connected to for how high order of multipole we have implemented below.
-  write(6,*)
-  write(6,*) 'Too high order of multipole in MME.'
+  write(u6,*)
+  write(u6,*) 'Too high order of multipole in MME.'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 nMul = 0

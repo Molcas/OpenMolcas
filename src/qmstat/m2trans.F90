@@ -12,8 +12,10 @@
 ! Routine to generate the transformation for the second moments.
 subroutine M2Trans(Rotte,TD)
 
-implicit real*8(a-h,o-z)
-dimension Rotte(3,3), TD(6,6)
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: Rotte(3,3), TD(6,6)
 
 ! The transformation of x2.
 

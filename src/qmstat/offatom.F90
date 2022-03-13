@@ -11,12 +11,13 @@
 
 subroutine OffAtom(C1,C2,C3,C4,C5)
 
-implicit real*8(a-z)
-#include "constants.fh"
-#include "real.fh"
-parameter(AuAng=1d10*CONST_BOHR_RADIUS_IN_SI_)
-dimension C1(3), C2(3), C3(3), C4(3), C5(3)
-dimension D(3), E(3), U(3), V(3)
+use Constants, only: Angstrom, deg2rad
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: C1(3), C2(3), C3(3), C4(3), C5(3)
+real(kind=wp) :: D(3), E(3), LD, LE, U(3), V(3)
+real(kind=wp), parameter :: R = 0.2767_wp/Angstrom, Theta = 36.72_wp*deg2rad
 
 D(1) = (C2(1)+C3(1))/2-C1(1)
 D(2) = (C2(2)+C3(2))/2-C1(2)
@@ -40,12 +41,12 @@ E(1) = E(1)/LE
 E(2) = E(2)/LE
 E(3) = E(3)/LE
 
-C4(1) = C1(1)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(1)+(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(1)
-C4(2) = C1(2)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(2)+(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(2)
-C4(3) = C1(3)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(3)+(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(3)
-C5(1) = C1(1)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(1)-(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(1)
-C5(2) = C1(2)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(2)-(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(2)
-C5(3) = C1(3)+(0.2767d0/AuAng)*cos(36.72d0*2d0*Pi/360d0)*D(3)-(0.2767d0/AuAng)*sin(36.72d0*2d0*Pi/360d0)*E(3)
+C4(1) = C1(1)+R*(cos(Theta)*D(1)+sin(Theta)*E(1))
+C4(2) = C1(2)+R*(cos(Theta)*D(2)+sin(Theta)*E(2))
+C4(3) = C1(3)+R*(cos(Theta)*D(3)+sin(Theta)*E(3))
+C5(1) = C1(1)+R*(cos(Theta)*D(1)-sin(Theta)*E(1))
+C5(2) = C1(2)+R*(cos(Theta)*D(2)-sin(Theta)*E(2))
+C5(3) = C1(3)+R*(cos(Theta)*D(3)-sin(Theta)*E(3))
 
 return
 

@@ -12,7 +12,11 @@
 ! Subroutine with purpose to initialize and set defaults for the input section.
 subroutine Qmstat_Init()
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Six, Ten, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: i, j
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
@@ -47,17 +51,17 @@ iLuBlockUt = 4
 iRead = 0
 ! Defaults
 nEqState = 1
-Cut_Ex1 = 10.0d0
-Cut_Ex2 = 0.0d0
-DelX = 0.00d0
-DelFi = 0.0d0
-DelR = 0.00d0
-Temp = 300.0d0
+Cut_Ex1 = Ten
+Cut_Ex2 = Zero
+DelX = Zero
+DelFi = Zero
+DelR = Zero
+Temp = 300.0_wp
 ISEED = 791204
 IPrint = 1
 NMACRO = 1
 NMICRO = 1
-RSTART = 80.0d0
+RSTART = 80.0_wp
 NPART = 0
 nAtom = 3
 NCENT = 5
@@ -71,65 +75,65 @@ nLvlShift = 0
 do i=1,MxAt
   iExtr_Atm(i) = -1
 end do
-QSTA(1) = 0.5836d0
-QSTA(2) = 0.5836d0
-QSTA(3) = -0.5836d0
-QSTA(4) = -0.5836d0
-POL(1) = 5.932d0
-POL(2) = 0.641d0
-POL(3) = 0.641d0
+QSTA(1) = 0.5836_wp
+QSTA(2) = 0.5836_wp
+QSTA(3) = -0.5836_wp
+QSTA(4) = -0.5836_wp
+POL(1) = 5.932_wp
+POL(2) = 0.641_wp
+POL(3) = 0.641_wp
 !Jose.Slater Penetration
-Cut_Elc = 6.0d0
-DifSlExp = 0.001d0
+Cut_Elc = Six
+DifSlExp = 1.0e-3_wp
 
-SlFactC(1,1) = -0.50d0
-SlFactC(1,2) = -0.4164d0
-SlFactC(1,3) = -0.4164d0
-SlFactC(1,4) = -0.5836d0
-SlFactC(1,5) = -0.5836d0
+SlFactC(1,1) = -Half
+SlFactC(1,2) = -0.4164_wp
+SlFactC(1,3) = -0.4164_wp
+SlFactC(1,4) = -0.5836_wp
+SlFactC(1,5) = -0.5836_wp
 do i=1,5
   do j=2,4
-    SlFactC(j,i) = 0.0d0
+    SlFactC(j,i) = Zero
   end do
 end do
-SlExpC(1,1) = 2.5552d0
-SlExpC(1,2) = 2.6085d0
-SlExpC(1,3) = 2.6085d0
-SlExpC(1,4) = 2.5552d0
-SlExpC(1,5) = 2.5552d0
+SlExpC(1,1) = 2.5552_wp
+SlExpC(1,2) = 2.6085_wp
+SlExpC(1,3) = 2.6085_wp
+SlExpC(1,4) = 2.5552_wp
+SlExpC(1,5) = 2.5552_wp
 do i=1,5
-  SlExpC(2,i) = 0.00d0
+  SlExpC(2,i) = Zero
 end do
-SlPC(1) = 0.5d0
-SlPC(2) = 1.0d0
-SlPC(3) = 1.0d0
-SlPC(4) = 0.0d0
+SlPC(1) = Half
+SlPC(2) = One
+SlPC(3) = One
+SlPC(4) = Zero
 SlPC(5) = 0.0d0
 !******************************
-sExRep(1,1) = 2.092338000000000000d0
-sExRe1(1,1) = 158.998000000000000d0
-sExRe2(1,1) = 4.660090000000000d10
-sExRep(2,1) = 2.112447000000000000d0
-sExRe1(2,1) = 8.31922000000000000d0
-sExRe2(2,1) = 97560.62000000000000d0
-sExRep(2,2) = 1.075803000000000000d0
-sExRe1(2,2) = 0.06521000000000000d0
-sExRe2(2,2) = 1121941276d0
-sExRep(3,1) = 2.112447000000000000d0
-sExRe1(3,1) = 8.31922000000000000d0
-sExRe2(3,1) = 97560.62000000000000d0
-sExRep(3,2) = 1.075803000000000000d0
-sExRe1(3,2) = 0.06521000000000000d0
-sExRe2(3,2) = 1121941276d0
-sExRep(3,3) = 1.075803000000000000d0
-sExRe1(3,3) = 0.06521000000000000d0
-sExRe2(3,3) = 1121941276d0
-Disp(1,1) = 11.3380000000000000d0
-Disp(2,1) = 3.38283000000000000d0
-Disp(2,2) = 0.627068000000000000d0
-Disp(3,1) = 3.38283000000000000d0
-Disp(3,2) = 0.627068000000000000d0
-Disp(3,3) = 0.627068000000000000d0
+sExRep(1,1) = 2.092338_wp
+sExRe1(1,1) = 158.998_wp
+sExRe2(1,1) = 4.66009e10_wp
+sExRep(2,1) = 2.112447_wp
+sExRe1(2,1) = 8.31922_wp
+sExRe2(2,1) = 97560.62_wp
+sExRep(2,2) = 1.075803_wp
+sExRe1(2,2) = 0.06521_wp
+sExRe2(2,2) = 1121941276.0_wp
+sExRep(3,1) = 2.112447_wp
+sExRe1(3,1) = 8.31922_wp
+sExRe2(3,1) = 97560.62_wp
+sExRep(3,2) = 1.075803_wp
+sExRe1(3,2) = 0.06521_wp
+sExRe2(3,2) = 1121941276.0_wp
+sExRep(3,3) = 1.075803_wp
+sExRe1(3,3) = 0.06521_wp
+sExRe2(3,3) = 1121941276.0_wp
+Disp(1,1) = 11.338_wp
+Disp(2,1) = 3.38283_wp
+Disp(2,2) = 0.627068_wp
+Disp(3,1) = 3.38283_wp
+Disp(3,2) = 0.627068_wp
+Disp(3,3) = 0.627068_wp
 do I=1,NPOL
   do J=1,I
     DISP(J,I) = DISP(I,J)
@@ -138,32 +142,32 @@ do I=1,NPOL
     SEXRE2(J,I) = SEXRE2(I,J)
   end do
 end do
-CORDST(1,1) = 0.0d0
-CORDST(2,1) = 0.0d0
-CORDST(3,1) = 0.0d0
-CORDST(4,1) = 0.3126d0
-CORDST(5,1) = -0.3126d0
-CORDST(1,2) = 0.0d0
-CORDST(2,2) = 1.43d0
-CORDST(3,2) = -1.43d0
-CORDST(4,2) = 0.0d0
-CORDST(5,2) = 0.0d0
-CORDST(1,3) = 0.3d0
-CORDST(2,3) = -0.807d0
-CORDST(3,3) = -0.807d0
-CORDST(4,3) = -0.1191d0
-CORDST(5,3) = -0.1191d0
-ForceK = 0.001d0
-dLJrep = 0.0d0
-Pres = 1.0d0
-PolLim = 0.0001d0
-EneLim = 0.0000001d0
+CORDST(1,1) = Zero
+CORDST(2,1) = Zero
+CORDST(3,1) = Zero
+CORDST(4,1) = 0.3126_wp
+CORDST(5,1) = -0.3126_wp
+CORDST(1,2) = Zero
+CORDST(2,2) = 1.43_wp
+CORDST(3,2) = -1.43_wp
+CORDST(4,2) = Zero
+CORDST(5,2) = Zero
+CORDST(1,3) = 0.3_wp
+CORDST(2,3) = -0.807_wp
+CORDST(3,3) = -0.807_wp
+CORDST(4,3) = -0.1191_wp
+CORDST(5,3) = -0.1191_wp
+ForceK = 1.0e-3_wp
+dLJrep = Zero
+Pres = One
+PolLim = 1.0e-4_wp
+EneLim = 1.0e-7_wp
 itMax = 30
-Exdtal = 30.0d0
-Exdt1 = 0.060d0
-Surf = 30.0d0
+Exdtal = 30.0_wp
+Exdt1 = 0.06_wp
+Surf = 30.0_wp
 iOrb(2) = 5
-Diel = 80.0d0
+Diel = 80.0_wp
 iExtra = 0
 Smeq = .false.
 Qmeq = .false.

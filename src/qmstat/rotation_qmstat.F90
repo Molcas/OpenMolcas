@@ -12,11 +12,17 @@
 ! Rotate multipole.
 subroutine Rotation_qmstat(iL,dMul,Rotte,Sigge)
 
-implicit real*8(a-h,o-z)
-parameter(MxMltp=2)
-dimension dMul((MxMltp+1)*(MxMltp+2)/2), Rotte(3,3)
-dimension dMTrans(6), TD(6,6)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer, parameter :: MxMltp = 2 !IFG
+integer(kind=iwp) :: iL
+real(kind=wp) :: dMul(nTri_Elem1(MxMltp)), Rotte(3,3), Sigge
 #include "warnings.h"
+real(kind=wp) :: d1, d2, d3, dMTrans(6), Sig, TD(6,6)
+integer(kind=iwp) :: i, j
 
 if (iL == 0) then
   ! Charge, trivial to rotate.
@@ -47,13 +53,13 @@ else if (iL == 2) then
   ! Transform. Sigge is explained above.
 
   do i=1,6
-    dMTrans(i) = 0.0d0
+    dMTrans(i) = Zero
     do j=1,6
       dMTrans(i) = dMTrans(i)+TD(i,j)*dMul(j)
     end do
   end do
   do i=1,6
-    Sig = 1.0d0
+    Sig = One
     if ((i == 3) .or. (i == 5)) Sig = Sigge
     dMul(i) = dMTrans(i)*Sig
   end do
@@ -62,7 +68,7 @@ else if (iL == 2) then
 
   call Spherical(dMul)
 else
-  write(6,*) 'Nope!, Error in sl_grad'
+  write(u6,*) 'Nope!, Error in sl_grad'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 

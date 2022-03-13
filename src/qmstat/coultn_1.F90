@@ -10,17 +10,23 @@
 !***********************************************************************
 
 ! s-s interaction, normal case.
-real*8 function CoulTN_1(RA,RB,C,dSepInv,ExpA,ExpB)
+function CoulTN_1(RA,RB,C,dSepInv,ExpA,ExpB)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Two, Quart
+use Definitions, only: wp
 
-T1 = 0.25d0*(2.0d0+C)
-T2 = 0.25d0*RA
-TA = (1.0d0-C)**2*(T1+T2)*ExpA
-T1 = 0.25d0*(2.0d0-C)
-T2 = 0.25d0*RB
-TB = (1.0d0+C)**2*(T1+T2)*ExpB
-CoulTN_1 = dSepInv*(1.0d0-TA-TB)
+implicit none
+real(kind=wp) :: CoulTN_1
+real(kind=wp) :: RA, RB, C, dSepInv, ExpA, ExpB
+real(kind=wp) :: T1, T2, TA, TB
+
+T1 = Quart*(Two+C)
+T2 = Quart*RA
+TA = (One-C)**2*(T1+T2)*ExpA
+T1 = Quart*(Two-C)
+T2 = Quart*RB
+TB = (One+C)**2*(T1+T2)*ExpB
+CoulTN_1 = dSepInv*(One-TA-TB)
 
 return
 

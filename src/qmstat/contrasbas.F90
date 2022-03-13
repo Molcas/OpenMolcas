@@ -9,20 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!subroutine ContRASBas(nBas,nStatePrim,iNonH,iNonS,Eigis)
 subroutine ContRASBas(nBas,nStatePrim,iNonH,iNonS,iEig2)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, one
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qm2.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension nBas(MxSym) !,Eigis(MxState,MxState)
+integer(kind=iwp) :: nBas(MxSym), nStatePrim, iNonH, iNonS, iEig2
+integer(kind=iwp) :: i, iEig1, ii, ind, iRedHSq, iRedHTr, iS, iSqH, iState, iT, iTEMP, j, jState, k, kaunt, kaunter, nLvlInd, nTri
+real(kind=wp) :: sss, x
 
 ! Hi y'all
 
-write(6,*) '     ----- Constructing CASSI eigenstates.'
+write(u6,*) '     ----- Constructing CASSI eigenstates.'
 
 ! Diagonalize overlap matrix.
 
@@ -31,9 +34,9 @@ kaunter = 0
 do i=1,nStatePrim
   do j=1,nStatePrim
     if (i == j) then
-      Work(iEig1+kaunter) = ONE
+      Work(iEig1+kaunter) = One
     else
-      Work(iEig1+kaunter) = ZERO
+      Work(iEig1+kaunter) = Zero
     end if
     kaunter = kaunter+1
   end do
@@ -48,7 +51,7 @@ end if
 ii = 0
 do i=1,nStatePrim
   ii = ii+i
-  x = 1.0d00/sqrt(max(1.0D-14,Work(iNonS-1+ii)))
+  x = One/sqrt(max(1.0e-14_wp,Work(iNonS-1+ii)))
   do k=1,nStatePrim
     ind = k+nStatePrim*(i-1)-1
     Work(iEig1+ind) = x*Work(iEig1+ind)
@@ -65,14 +68,13 @@ if (ContrStateB) then
     sss = Work(iNonS+kaunt)
     if (sss > ThrsCont) then
       iT = iT+1
-      call dcopy_(nStatePrim,Work(iEig1+nStatePrim*(iS-1)),iONE,Work(iEig2+nStatePrim*(iT-1)),iONE)
+      call dcopy_(nStatePrim,Work(iEig1+nStatePrim*(iS-1)),1,Work(iEig2+nStatePrim*(iT-1)),1)
     end if
   end do
   nStateRed = iT
-  write(6,6199) '  ----- Contraction:',nStatePrim,' ---> ',nStateRed
-6199 format(A,I3,A,I3)
+  write(u6,6199) '  ----- Contraction:',nStatePrim,' ---> ',nStateRed
 else
-  call dcopy_(nStatePrim**2,Work(iEig1),iONE,Work(iEig2),iONE)
+  call dcopy_(nStatePrim**2,Work(iEig1),1,Work(iEig2),1)
   nStateRed = nStatePrim
 end if
 
@@ -83,9 +85,9 @@ call GetMem('TEMP','Allo','Real',iTEMP,nStatePrim**2)
 call GetMem('SqH','Allo','Real',iSqH,nStatePrim**2)
 call GetMem('RedHSq','Allo','Real',iRedHSq,nStateRed**2)
 call GetMem('RedHTr','Allo','Real',iRedHTr,nTri)
-call Square(Work(iNonH),Work(iSqH),iONE,nStatePrim,nStatePrim)
-call Dgemm_('N','N',nStatePrim,nStateRed,nStatePrim,ONE,Work(iSqH),nStatePrim,Work(iEig2),nStatePrim,ZERO,Work(iTEMP),nStatePrim)
-call Dgemm_('T','N',nStateRed,nStateRed,nStatePrim,ONE,Work(iEig2),nStatePrim,Work(iTEMP),nStatePrim,ZERO,Work(iRedHSq),nStateRed)
+call Square(Work(iNonH),Work(iSqH),1,nStatePrim,nStatePrim)
+call Dgemm_('N','N',nStatePrim,nStateRed,nStatePrim,One,Work(iSqH),nStatePrim,Work(iEig2),nStatePrim,Zero,Work(iTEMP),nStatePrim)
+call Dgemm_('T','N',nStateRed,nStateRed,nStatePrim,One,Work(iEig2),nStatePrim,Work(iTEMP),nStatePrim,Zero,Work(iRedHSq),nStateRed)
 call SqToTri_Q(Work(iRedHSq),Work(iRedHTr),nStateRed)
 call Jacob(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
 call JacOrd(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
@@ -99,7 +101,7 @@ nLvlInd = 1
 do iState=1,nStateRed
   do jState=1,iState
     kaunter = kaunter+1
-    HMatState(kaunter) = ZERO
+    HMatState(kaunter) = Zero
   end do
   HMatState(kaunter) = Work(iRedHTr+kaunter-1)
   ! If requested, introduce level-shift of states.
@@ -115,7 +117,7 @@ end do
 
 if (iPrint >= 10) then
   call TriPrt('RASSI Hamiltonian',' ',HMatState,nStateRed)
-  write(6,*)
+  write(u6,*)
   call RecPrt('RASSI eigenvectors',' ',Work(iEig2),nStatePrim,nStateRed)
 end if
 
@@ -136,5 +138,7 @@ nState = nStateRed
 return
 ! Avoid unused argument warnings
 if (.false.) call Unused_integer_array(nBas)
+
+6199 format(A,I3,A,I3)
 
 end subroutine ContRASBas

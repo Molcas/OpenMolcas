@@ -10,9 +10,13 @@
 !***********************************************************************
 
 ! Little bastard.
-integer function iPair_qmstat(a,b)
+function iPair_qmstat(a,b)
 
-implicit integer(a-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iPair_qmstat
+integer(kind=iwp) :: a, b
 
 iPair_qmstat = (max(a,b)*(max(a,b)-1))/2+min(a,b)
 

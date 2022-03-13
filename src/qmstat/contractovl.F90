@@ -42,16 +42,20 @@
 
 subroutine ContractOvl(Sint,SintPar,nBaseQ,nBaseC,N,nCent,iEl,iQ_Atoms,nAtomsCC,iPrint,Inside)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "integral.fh"
 #include "WrkSpc.fh"
-parameter(MxSphAng=2*MxAngqNr-1)
-dimension Sint(MxBas,MxBasC), SintPar(MxBas,MxBasC)
-dimension Bori(3), Cori(3), Alf(MxCont), Bet(MxCont)
-dimension Conkort(MxCont), Donkort(MxCont), ContrI(MxSphAng**2)
-dimension Inside(MxAt,3)
-logical Inside
+real(kind=wp) :: Sint(MxBas,MxBasC), SintPar(MxBas,MxBasC)
+integer(kind=iwp) :: nBaseQ, nBaseC, N, nCent, iEL, iQ_Atoms, nAtomsCC, iPrint
+logical(kind=iwp) :: Inside(MxAt,3)
+integer(kind=iwp) :: i, iA1, iA2, iB1, iB2, iC, iCC, iCcontB, iCcontBSAV, iCcontBSAV1, iCcontBSAV2, iCQ, iindex, iNcB1, iNcB2, &
+                     ipsint, iQ, iQcontB, iQcontBSAV, iQcontBSAV1, iQcontBSAV2, iqqqC, iqqqQ, j, k, kaunter, kreichner, nExp1, &
+                     nExp2, nSize, nSph1, nSph2
+real(kind=wp) :: Alf(MxCont), Bet(MxCont), Bori(3), Conkort(MxCont), ContrI((2*MxAngqNr-1)**2), Cori(3), DaNumber, Donkort(MxCont) !IFG
 
 nSph1 = 0
 nSph2 = 0
@@ -115,7 +119,7 @@ do iA1=1,iQ_Atoms !The atoms
             do i=1,nSph2 !contract
               do j=1,nSph1
                 kaunter = kaunter+1
-                DaNumber = 0
+                DaNumber = Zero
                 do iCC=1,nExp2
                   do iCQ=1,nExp1
                     iindex = (i-1)*nSph1*nExp1+j-1+nSph1*(iCQ-1)+nSph1*nExp1*nSph2*(iCC-1)
@@ -126,16 +130,16 @@ do iA1=1,iQ_Atoms !The atoms
               end do
             end do
             if (iPrint >= 30) then
-              write(6,*) 'Basis',iQcontB,iCcontB
-              write(6,*) 'Coord.',Bori(1),Bori(2),Bori(3)
-              write(6,*) 'Coord.',Cori(1),Cori(2),Cori(3)
-              write(6,*) 'Alfa',(Alf(i),i=1,nPrimus(iQcontB))
-              write(6,*) 'Beta',(Bet(i),i=1,mPrimus(iCcontB))
-              write(6,*) 'ConQ',(Conkort(i),i=1,nPrimus(iQcontB))
-              write(6,*) 'ConC',(Donkort(i),i=1,mPrimus(iCcontB))
-              write(6,*) 'Angular',iqqqQ,iqqqC
-              write(6,*) '#primitive',nExp1,nExp2
-              write(6,*) (ContrI(k),k=1,nSph1*nSph2)
+              write(u6,*) 'Basis',iQcontB,iCcontB
+              write(u6,*) 'Coord.',Bori(1),Bori(2),Bori(3)
+              write(u6,*) 'Coord.',Cori(1),Cori(2),Cori(3)
+              write(u6,*) 'Alfa',(Alf(i),i=1,nPrimus(iQcontB))
+              write(u6,*) 'Beta',(Bet(i),i=1,mPrimus(iCcontB))
+              write(u6,*) 'ConQ',(Conkort(i),i=1,nPrimus(iQcontB))
+              write(u6,*) 'ConC',(Donkort(i),i=1,mPrimus(iCcontB))
+              write(u6,*) 'Angular',iqqqQ,iqqqC
+              write(u6,*) '#primitive',nExp1,nExp2
+              write(u6,*) (ContrI(k),k=1,nSph1*nSph2)
             end if
             kreichner = 0
             do iC=1,nSph2
@@ -171,16 +175,15 @@ do iA1=1,iQ_Atoms !The atoms
   iCcontBSAV2 = 0
 end do
 if (iPrint >= 30) then !Optional print-out.
-  write(6,*)
-  write(6,*) 'OVERLAP BETWEEN QM-SYSTEM AND SOLVENT MOLECULE',N/nCent
-  write(6,*) 'QM-AO  SOLV-AO  OVERLAP'
+  write(u6,*)
+  write(u6,*) 'OVERLAP BETWEEN QM-SYSTEM AND SOLVENT MOLECULE',N/nCent
+  write(u6,*) 'QM-AO  SOLV-AO  OVERLAP'
   do i=1,nBaseQ
     do j=1,nBaseC
-      write(6,8888) i,j,Sint(i,j)
+      write(u6,8888) i,j,Sint(i,j)
     end do
   end do
 end if
-8888 format(I3,'    ',I3,'       ',F12.10)
 
 return
 ! Avoid unused argument warnings
@@ -188,5 +191,7 @@ if (.false.) then
   call Unused_real_array(SintPar)
   call Unused_integer(iEl)
 end if
+
+8888 format(I3,'    ',I3,'       ',F12.10)
 
 end subroutine ContractOvl

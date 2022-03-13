@@ -12,25 +12,29 @@
 ! Routine to give base vectors of the plane with v as normal.
 subroutine PlaneVectors(u,w,v,Rinv)
 
-implicit real*8(a-h,o-z)
-dimension u(3), w(3), v(3), p(3)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: u(3), w(3), v(3), Rinv
+real(kind=wp) :: const, dLu, p(3), Scal, Shitx, Shity, Shitz
 
 ! Construct an arbitrary normalized vector orthogonal to the v-vector.
 
-const = 0.0d0
-Shitx = 1.0d0
-Shity = 0.0d0
-Shitz = 0.0d0
+const = Zero
+Shitx = One
+Shity = Zero
+Shitz = Zero
 do
-  p(1) = Shitx+1.0d0*const
-  p(2) = Shity+0.5d0*const
-  p(3) = Shitz-1.0d0*const
+  p(1) = Shitx+const
+  p(2) = Shity+Half*const
+  p(3) = Shitz-const
   Scal = p(1)*v(1)+p(2)*v(2)+p(3)*v(3)
   u(1) = p(1)-Scal*Rinv**2*v(1)
   u(2) = p(2)-Scal*Rinv**2*v(2)
   u(3) = p(3)-Scal*Rinv**2*v(3)
-  if ((abs(u(1)) >= 1d-6) .or. (abs(u(2)) >= 1d-6) .or. (abs(u(3)) >= 1d-6)) exit
-  const = const+1.0d0
+  if ((abs(u(1)) >= 1.0e-6_wp) .or. (abs(u(2)) >= 1.0e-6_wp) .or. (abs(u(3)) >= 1.0-6_wp)) exit
+  const = const+One
 end do
 dLu = sqrt(u(1)**2+u(2)**2+u(3)**2)
 u(1) = u(1)/dLu

@@ -12,18 +12,21 @@
 subroutine AllenGinsberg(QMMethod,Eint,Poli,dNuc,Cha,Dip,Qua,MxBaux,iVEC,nDim,iExtr_Atm,lEig,iEig,iQ_Atoms,ip_ExpCento,E_Nuc_Part, &
                          lSlater,Eint_Nuc)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension Eint(MxQCen,10), Poli(MxQCen,10)
-dimension Cha(MxBaux,MxQCen), Dip(MxBaux,3,MxQCen)
-dimension Qua(MxBaux,6,MxQCen), dNuc(MxAt)
-dimension iExtr_Atm(MxAt), Eint_Nuc(MxAt)
-dimension iCenSet(MxAt**2)
-character QMMethod*5
-logical lEig, Check1, Check2, lSlater
+character(len=5) :: QMMethod
+integer(kind=iwp) :: MxBaux, iVEC, nDim, iExtr_Atm(MxAt), iEig, iQ_Atoms, ip_ExpCento
+real(kind=wp) :: Eint(MxQCen,10), Poli(MxQCen,10), dNuc(MxAt), Cha(MxBaux,MxQCen), Dip(MxBaux,3,MxQCen), Qua(MxBaux,6,MxQCen), &
+                     E_Nuc_Part, Eint_Nuc(MxAt)
+logical(kind=iwp) :: lEig, lSlater
+integer(kind=iwp) :: i, i1, iAt, iCenSet(MxAt**2), iCx, iVelP, iVpoP, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal !IFG
+real(kind=wp) :: dMp
+logical(kind=iwp) :: Check1, Check2
 
 ! Set up centre index set. The order of centres are decided by
 ! the MpProp-program and are hence collected in the get_center
@@ -65,14 +68,14 @@ end do
 NExpect = NExtrAt*(nExtrAt+1)/2
 NTotal = kaunt
 if (NTotal /= NExpect) then
-  write(6,*)
-  write(6,*) ' Error in atom specification for partial perturbation extraction.'
+  write(u6,*)
+  write(u6,*) ' Error in atom specification for partial perturbation extraction.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 
 ! Compute partial nuclear contribution.
 
-E_Nuc_Part = 0.0d0
+E_Nuc_Part = Zero
 do iAt=1,NExtrAt
   iCx = iCenSet(iAt)
   if (lSlater) then
@@ -87,8 +90,8 @@ end do
 
 call GetMem('VelPart','Allo','Real',iVelP,nDim*(nDim+1)/2)
 call GetMem('VpoPart','Allo','Real',iVpoP,nDim*(nDim+1)/2)
-call dcopy_(nDim*(nDim+1)/2,[ZERO],iZERO,Work(iVelP),iONE)
-call dcopy_(nDim*(nDim+1)/2,[ZERO],iZERO,Work(iVpoP),iONE)
+call dcopy_(nDim*(nDim+1)/2,[Zero],0,Work(iVelP),1)
+call dcopy_(nDim*(nDim+1)/2,[Zero],0,Work(iVpoP),1)
 kk = 0
 do i=1,nDim
   do j=1,i
@@ -117,14 +120,14 @@ do i=1,nDim
       Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,10)*dMp
       Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,10)*dMp
       dMp = Qua(kk,2,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,6)*dMp*2.0d0
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,6)*dMp*2.0d0
+      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,6)*dMp*Two
+      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,6)*dMp*Two
       dMp = Qua(kk,4,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,8)*dMp*2.0d0
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,8)*dMp*2.0d0
+      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,8)*dMp*Two
+      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,8)*dMp*Two
       dMp = Qua(kk,5,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,9)*dMp*2.0d0
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,9)*dMp*2.0d0
+      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,9)*dMp*Two
+      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,9)*dMp*Two
     end do
   end do
 end do

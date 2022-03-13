@@ -14,11 +14,19 @@
 ! structure, each type of interaction is hard-coded.
 subroutine ABBoth(iLA,iLB,dMulA,Tau,dKappa,Rho,RhoA,RhoB,Rinv,lTooSmall,Colle)
 
-implicit real*8(a-h,o-z)
-parameter(MxMltp=2)
-dimension dMulA((MxMltp+1)*(MxMltp+2)/2), Colle(3)
-logical lTooSmall
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Zero, Two
+use Definitions, only: iwp, wp, u6
+
+implicit none
+integer(kind=iwp), parameter :: MxMltp = 2 !IFG
+integer(kind=iwp) :: iLA, iLB
+real(kind=wp) :: dMulA(nTri_Elem1(MxMltp)), Tau, dKappa, Rho, RhoA, RhoB, Rinv, Colle(3)
+logical(kind=iwp) :: lTooSmall
 #include "warnings.h"
+integer(kind=iwp) :: i
+real(kind=wp) :: Ex, ExA, ExB, Pi1, Pi2, Sigma, Width
+real(kind=wp), external :: CoulT0_1, CoulT0_2, CoulT0_4, CoulT0_5, CoulTN_1, CoulTN_2, CoulTN_4, CoulTN_5
 
 ! To calculate the interaction Sigma is the product of both multipoles
 ! in A and in B but since we need potential, field and field gradient
@@ -27,7 +35,7 @@ logical lTooSmall
 ! coordinate system in QmStat.
 
 do i=1,3
-  Colle(i) = 0.0d0
+  Colle(i) = Zero
 end do
 
 if ((iLA == 0) .and. (iLB == 0)) then
@@ -35,11 +43,11 @@ if ((iLA == 0) .and. (iLB == 0)) then
 
   Sigma = dMulA(1)
   if (lTooSmall) then
-    Ex = exp((-2.0d0)*Rho)
+    Ex = exp(-Two*Rho)
     Colle(1) = Sigma*CoulT0_1(Rho,Rinv,Ex)
   else
-    ExA = exp((-2.0d0)*RhoA)
-    ExB = exp((-2.0d0)*RhoB)
+    ExA = exp(-Two*RhoA)
+    ExB = exp(-Two*RhoB)
     Colle(1) = Sigma*CoulTN_1(RhoA,RhoB,dKappa,Rinv,ExA,ExB)
   end if
 
@@ -52,21 +60,21 @@ else if ((iLA == 1) .and. (iLB == 0)) then
 
   Sigma = dMulA(3)
   if (lTooSmall) then
-    Ex = exp((-2.0d0)*Rho)
+    Ex = exp(-Two*Rho)
     Colle(1) = Sigma*CoulT0_2(Rho,Rinv,Ex)
   else
-    ExA = exp((-2.0d0)*RhoA)
-    ExB = exp((-2.0d0)*RhoB)
+    ExA = exp(-Two*RhoA)
+    ExB = exp(-Two*RhoB)
     Colle(1) = Sigma*CoulTN_2(Rho,-Tau,RhoB,RhoA,-dKappa,Rinv,ExB,ExA)
   end if
 else if ((iLA == 0) .and. (iLB == 1)) then
   Sigma = dMulA(1)
   if (lTooSmall) then
-    Ex = exp((-2.0d0)*Rho)
+    Ex = exp(-Two*Rho)
     Colle(1) = Sigma*CoulT0_2(Rho,Rinv,Ex)
   else
-    ExA = exp((-2.0d0)*RhoA)
-    ExB = exp((-2.0d0)*RhoB)
+    ExA = exp(-Two*RhoA)
+    ExB = exp(-Two*RhoB)
     Colle(1) = Sigma*CoulTN_2(Rho,Tau,RhoA,RhoB,dKappa,Rinv,ExA,ExB)
   end if
 
@@ -78,11 +86,11 @@ else if ((iLA == 1) .and. (iLB == 1)) then
 
   Sigma = dMulA(3)
   if (lTooSmall) then
-    Ex = exp((-2.0d0)*Rho)
+    Ex = exp(-Two*Rho)
     Colle(1) = Sigma*CoulT0_4(Rho,Rinv,Ex)
   else
-    ExA = exp((-2.0d0)*RhoA)
-    ExB = exp((-2.0d0)*RhoB)
+    ExA = exp(-Two*RhoA)
+    ExB = exp(-Two*RhoB)
     Colle(1) = Sigma*CoulTN_4(Rho,Tau,RhoA,RhoB,dKappa,Rinv,ExA,ExB)
   end if
 
@@ -91,13 +99,13 @@ else if ((iLA == 1) .and. (iLB == 1)) then
   Pi1 = dMulA(1)
   Pi2 = dMulA(2)
   if (lTooSmall) then
-    Ex = exp((-2.0d0)*Rho)
+    Ex = exp(-Two*Rho)
     Width = CoulT0_5(Rho,Rinv,Ex)
     Colle(2) = Pi1*Width
     Colle(3) = Pi2*Width
   else
-    ExA = exp((-2.0d0)*RhoA)
-    ExB = exp((-2.0d0)*RhoB)
+    ExA = exp(-Two*RhoA)
+    ExB = exp(-Two*RhoB)
     Width = CoulTN_5(Rho,Tau,RhoA,RhoB,dKappa,Rinv,ExA,ExB)
     Colle(2) = Pi1*Width
     Colle(3) = Pi2*Width
@@ -106,8 +114,8 @@ else if ((iLA == 1) .and. (iLB == 1)) then
 else
   ! Higher angular momentum interactions.
 
-  write(6,*) 'Too high angular momentum'
-  write(6,*) 'at least you start to implement.'
+  write(u6,*) 'Too high angular momentum'
+  write(u6,*) 'at least you start to implement.'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 

@@ -11,14 +11,20 @@
 
 subroutine QMPosition(EHam,Cordst,Coord,Forcek,dLJrep,Ract,iQ_Atoms)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
-dimension Cordst(MxCen*MxPut,3), Coord(MxAt*3)
+real(kind=wp) :: EHam, Cordst(MxCen*MxPut,3), Coord(MxAt*3), Forcek, dLJrep, Ract
+integer(kind=iwp) :: iQ_Atoms
+integer(kind=iwp) :: iAt
+real(kind=wp) :: dDepart, Diff, R
 
 ! First the harmonic potential that keeps QM close to centre.
 
 dDepart = (Cordst(1,1)-Coord(1))**2+(Cordst(1,2)-Coord(2))**2+(Cordst(1,3)-Coord(3))**2
-EHam = Forcek*0.5d0*dDepart
+EHam = Forcek*Half*dDepart
 
 ! Second the repulsion with boundary that keeps QM away from boundary.
 

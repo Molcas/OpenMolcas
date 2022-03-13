@@ -11,8 +11,12 @@
 
 subroutine SqToTri_Q(SqMat,TriMat,iDi)
 
-implicit real*8(a-h,o-z)
-dimension SqMat(*), TriMat(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: SqMat(*), TriMat(*)
+integer(kind=iwp) :: iDi
+integer(kind=iwp) :: i, j, kaunter
 
 kaunter = 0
 do i=1,iDi

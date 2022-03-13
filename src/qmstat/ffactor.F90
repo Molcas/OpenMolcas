@@ -21,11 +21,16 @@
 !----------------------------------------------------------------------*
 subroutine fFactor(loneX,ltwoX,lsumX,loneY,ltwoY,lsumY,loneZ,ltwoZ,lsumZ,PAxyz,PBxyz,FactorX,FactorY,FactorZ)
 
-implicit real*8(a-h,o-z)
-parameter(MaxAngqNr=6,MaxAr=MaxAngqNr*(MaxAngqNr+1)/2)
-dimension FactorX(2*MaxAngqNr+1), FactorY(2*MaxAngqNr+1)
-dimension FactorZ(2*MaxAngqNr+1)
-dimension PAxyz(3), PBxyz(3)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), parameter :: MaxAngqNr = 6 !IFG
+integer(kind=iwp) :: loneX, ltwoX, lsumX, loneY, ltwoY, lsumY, loneZ, ltwoZ, lsumZ
+real(kind=wp) :: PAxyz(3), PBxyz(3), FactorX(2*MaxAngqNr+1), FactorY(2*MaxAngqNr+1), FactorZ(2*MaxAngqNr+1)
+integer(kind=iwp) :: i, ia, iLowB, iUpB
+real(kind=wp) :: fff1, fff2, PAraise, PBraise
+integer(kind=iwp), external :: NoverP_Q
 
 do ia=0,lsumX !We use unrolled loops with regard to x,y and z therefore, here we start with the x-factors.
   fff2 = 0
@@ -38,12 +43,12 @@ do ia=0,lsumX !We use unrolled loops with regard to x,y and z therefore, here we
     if (i /= 0) then  !This is needed for some compilers (NAG_64)
       PAraise = PAxyz(1)**i
     else
-      PAraise = 1.0d0
+      PAraise = One
     end if
     if (ia-i /= 0) then
       PBraise = PBxyz(1)**(ia-i)
     else
-      PBraise = 1.0d0
+      PBraise = One
     end if
     fff2 = fff2+fff1*PAraise*PBraise
   end do
@@ -58,12 +63,12 @@ do ia=0,lsumY !y-factors.
     if (i /= 0) then !This is needed for some compilers (NAG_64)
       PAraise = PAxyz(2)**i
     else
-      PAraise = 1.0d0
+      PAraise = One
     end if
     if (ia-i /= 0) then
       PBraise = PBxyz(2)**(ia-i)
     else
-      PBraise = 1.0
+      PBraise = One
     end if
     fff2 = fff2+fff1*PAraise*PBraise
   end do
@@ -78,12 +83,12 @@ do ia=0,lsumZ !z-factorz.
     if (i /= 0) then !This is needed for some compilers (NAG_64)
       PAraise = PAxyz(3)**i
     else
-      PAraise = 1.0d0
+      PAraise = One
     end if
     if (ia-i /= 0) then
       PBraise = PBxyz(3)**(ia-i)
     else
-      PBraise = 1.0d0
+      PBraise = One
     end if
     fff2 = fff2+fff1*PAraise*PBraise
   end do

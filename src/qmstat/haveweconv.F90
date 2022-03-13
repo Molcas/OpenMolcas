@@ -11,13 +11,18 @@
 
 subroutine HaveWeConv(iCNum,iCStart,iQ_Atoms,Indma,iDT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
-dimension iDT(3)
-dimension FFp(npol*npart,3), xyzMyI(3)
-logical JaNej, Haveri
+integer(kind=iwp) :: iCNum, iCStart, iQ_Atoms, Indma, iDT(3), NVarv
+real(kind=wp) :: FFp(npol*npart,3), xyzMyI(3), Egun, Energy
+logical(kind=iwp) :: JaNej, Haveri
+integer(kind=iwp) :: i, imin, j, k, kmin, l
+real(kind=wp) :: Diff, Diffab, dist, distmin, Dtil, Egtest
 
 !----------------------------------------------------------------------*
 ! With the new and the old induced dipoles, check if we have converged.*
@@ -25,10 +30,10 @@ logical JaNej, Haveri
 !----------------------------------------------------------------------*
 JaNej = .true.
 Haveri = .false.
-Diffab = 0
-xyzMyi(1) = 0
-xyzMyi(2) = 0
-xyzMyi(3) = 0
+Diffab = Zero
+xyzMyi(1) = Zero
+xyzMyi(2) = Zero
+xyzMyi(3) = Zero
 do i=1+(nPol*iCnum),IndMa
   k = i-((i-1)/nPol)*nPol
   do l=1,3
@@ -47,13 +52,13 @@ end do
 Egtest = Egun-Energy
 Egun = Energy
 if (nVarv >= itMax) then !itMax is from input or default.
-  write(6,*)
-  write(6,*) '  No convergence for the induced dipoles.'
-  write(6,*) '  Difference remaining after ',nVarv,' iterations: ',Diffab
+  write(u6,*)
+  write(u6,*) '  No convergence for the induced dipoles.'
+  write(u6,*) '  Difference remaining after ',nVarv,' iterations: ',Diffab
   Haveri = .true.
   iPrint = 10
   do j=icstart,npart*ncent,ncent
-    distmin = 1000.0d0
+    distmin = 1.0e4_wp
     kmin = 0
     imin = 0
     do i=1,iq_atoms
@@ -66,9 +71,9 @@ if (nVarv >= itMax) then !itMax is from input or default.
         end if
       end do
     end do
-    write(6,*) 'solv.',j,'iq_atom',imin,'center',kmin+1,'dist',distmin
+    write(u6,*) 'solv.',j,'iq_atom',imin,'center',kmin+1,'dist',distmin
   end do
-  write(6,*)
+  write(u6,*)
 else
   if (abs(egtest) > Enelim) JaNej = .false.
   if (Diffab > PolLim) JaNej = .false.

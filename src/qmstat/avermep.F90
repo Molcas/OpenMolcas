@@ -11,26 +11,27 @@
 
 subroutine AverMEP(Kword,Eint,Poli,ici,SumElcPot,NCountField,PertElcInt,iQ_Atoms,nBas,nOcc,natyp,nntyp)
 
-implicit real*8(a-h,o-z)
+use Index_Functions, only: nTri3_Elem
+use Constants, only: Zero, One, Two, OneHalf
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
-#include "numbers.fh"
 #include "qminp.fh"
 #include "qm1.fh"
-#include "qm2.fh"
 #include "qmcom.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension Eint(MxQCen,10), Poli(MxQCen,10)
-dimension SumElcPot(MxQCen,10)
-dimension PertElcInt(MxBas*(MxBas+1)/2), SumOld(MxQCen,10)
-dimension iCent(MxBas*MxBas)
-dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
-dimension nOcc(*), natyp(*), ForceNuc(MxAt,3)
-character*4 Kword
-character*20 MemLab, MemLab1
-logical Exist
-dimension iiDum(1)
+character(len=4) :: Kword
+real(kind=wp) :: Eint(MxQCen,10), Poli(MxQCen,10), SumElcPot(MxQCen,10), PertElcInt(MxBas*(MxBas+1)/2)
+integer(kind=iwp) :: ici, NCountField, iQ_Atoms, nBas, nOcc(*), natyp(*), nntyp
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCent(MxBas**2), iDum, iH0, iH1, iiDum(1), iLuField, iMME(nTri3_Elem(MxMltp)), indMME, & !IFG
+                     iOpt, irc, iSmLbl, iTriBasQ, iTyp, j, kaunta, Lu_One, nSize, nTyp
+real(kind=wp) :: AvTemp, ForceNuc(MxAt,3), SumOld(MxQCen,10), Tra !IFG
+logical(kind=iwp) :: Exists
+character(len=20) :: MemLab, MemLab1
+integer(kind=iwp), external :: IsFreeUnit
 
 call UpCase(Kword)
 !**************
@@ -60,16 +61,16 @@ select case (Kword(1:4))
       end do
     end do
     if (iPrint >= 9) then
-      write(6,*) 'Total Sum Potential'
+      write(u6,*) 'Total Sum Potential'
       do i=1,iCi
-        write(6,*) (SumElcPot(i,j),j=1,10)
+        write(u6,*) (SumElcPot(i,j),j=1,10)
       end do
     end if
 
   case ('AVER')
     do i=1,iCi
       do j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
-        AvElcPot(i,j) = SumElcPot(i,j)/dble(NCountField)
+        AvElcPot(i,j) = SumElcPot(i,j)/real(NCountField,kind=wp)
       end do
 
       ! The order of Field gradients is changed in order to follow
@@ -89,14 +90,14 @@ select case (Kword(1:4))
     ! than the quadrupole for each pair of bases, we perform
     ! the multiplication here
     !**********************
-    AvElcPot(i,6) = 2.0d0*AvElcPot(i,6)
-    AvElcPot(i,7) = 2.0d0*AvElcPot(i,7)
-    AvElcPot(i,9) = 2.0d0*AvElcPot(i,9)
+    AvElcPot(i,6) = Two*AvElcPot(i,6)
+    AvElcPot(i,7) = Two*AvElcPot(i,7)
+    AvElcPot(i,9) = Two*AvElcPot(i,9)
     !**********************
     if (iPrint >= 9) then
-      write(6,*) 'Total Averg Potential'
+      write(u6,*) 'Total Averg Potential'
       do i=1,iCi
-        write(6,*) (AvElcPot(i,j),j=1,10)
+        write(u6,*) (AvElcPot(i,j),j=1,10)
       end do
     end if
 
@@ -128,17 +129,17 @@ select case (Kword(1:4))
     end do
     iLuField = 63
     iLuField = IsFreeUnit(iLuField)
-    call OpnFl(FieldNuc,iLuField,Exist)
-    write(6,*) 'FieldNuc',FieldNuc
+    call OpnFl(FieldNuc,iLuField,Exists)
+    write(u6,*) 'FieldNuc',FieldNuc
     do i=1,iQ_Atoms
       write(iLuField,*) (ForceNuc(i,j),j=1,3)
     end do
     close(iLuField)
 
     if (iPrint >= 9) then
-      write(6,*) 'Nuclei charge and Forces'
+      write(u6,*) 'Nuclei charge and Forces'
       do i=1,iQ_Atoms
-        write(6,*) ChaNuc(i),(ForceNuc(i,j),j=1,3)
+        write(u6,*) ChaNuc(i),(ForceNuc(i,j),j=1,3)
       end do
     end if
     !********************
@@ -148,7 +149,7 @@ select case (Kword(1:4))
       nTyp = nTyp+i*(i+1)/2
     end do
     do i=1,(nBas*(nBas+1)/2)
-      PertElcInt(i) = 0.0d0
+      PertElcInt(i) = Zero
     end do
 
     ! Put quadrupoles in Buckingham form.
@@ -157,7 +158,7 @@ select case (Kword(1:4))
       do i2=1,i1
         indMME = i2+i1*(i1-1)/2
         do j=5,10
-          Work(iMME(j)+indMME-1) = Work(iMME(j)+indMME-1)*1.5
+          Work(iMME(j)+indMME-1) = Work(iMME(j)+indMME-1)*OneHalf
         end do
         Tra = Work(iMME(5)+indMME-1)+Work(iMME(8)+indMME-1)+Work(iMME(10)+indMME-1)
         Tra = Tra/3
@@ -172,8 +173,8 @@ select case (Kword(1:4))
     Lu_One = IsFreeUnit(Lu_One)
     call OpnOne(irc,0,'ONEINT',Lu_One)
     if (irc /= 0) then
-      write(6,*)
-      write(6,*) 'ERROR! Could not open one-electron integral file.'
+      write(u6,*)
+      write(u6,*) 'ERROR! Could not open one-electron integral file.'
       call Quit(_RC_IO_ERROR_READ_)
     end if
 
@@ -186,13 +187,13 @@ select case (Kword(1:4))
     call iRdOne(irc,iOpt,'OneHam 0',1,iiDum,iSmLbl)
     nSize = iiDum(1)
     if (irc /= 0) then
-      write(6,*)
-      write(6,*) 'ERROR! Failed to read number of one-electron integrals.'
+      write(u6,*)
+      write(u6,*) 'ERROR! Failed to read number of one-electron integrals.'
       call Quit(_RC_IO_ERROR_READ_)
     end if
     if (nSize == 0) then
-      write(6,*)
-      write(6,*) 'ERROR! Problem reading size of unperturbed Hamiltonian in OneInt'
+      write(u6,*)
+      write(u6,*) 'ERROR! Problem reading size of unperturbed Hamiltonian in OneInt'
       call Quit(_RC_IO_ERROR_READ_)
     end if
 
@@ -238,7 +239,7 @@ select case (Kword(1:4))
     end if
 
     iTriBasQ = nBas*(nBas+1)/2
-    call DaxPy_(iTriBasQ,ONE,PertNElcInt,iONE,Work(iH1),iONE)
+    call DaxPy_(iTriBasQ,One,PertNElcInt,1,Work(iH1),1)
 
     if (iPrint >= 9) then
       call TriPrt('H0+Elec+nonEl One-e',' ',Work(iH1),nBas)

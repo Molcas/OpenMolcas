@@ -14,20 +14,20 @@ subroutine Qmstat(ireturn)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-implicit real*8(a-h,o-z)
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ireturn
 #include "maxi.fh"
 #include "qminp.fh"
-#include "WrkSpc.fh"
 #include "warnings.h"
-dimension Coord(MxAt*3)
-dimension nBas(1), nBas_C(1), nCnC_C(MxBasC)
+integer(kind=iwp) :: iBigDeAll, iCi, ip, ipStoreCoo, iQ_Atoms, iSupDeAll, iV1DeAll, nAtomsCC, natyp(MxAt), nBas(1), nBas_C(1), & !IFG
+                     nCalls, nCnC_C(MxBasC), NCountField, nntyp, nOcc(MxBas), nPart2, nRM, nS, nSizeBig !IFG
+real(kind=wp) :: Coord(MxAt*3), Eint(MxQCen,10), PertElcInt(nTri_Elem(MxBas)), Poli(MxQCen,10), SumElcPot(MxQCen,10) !IFG
+character(len=4) :: Labjhr
 !******JoseMEP New variables to perform the MEP calculation
-dimension Eint(MxQCen,10), Poli(MxQCen,10)
-dimension SumElcPot(MxQCen,10)
-dimension PertElcInt(MxBas*(MxBas+1)/2)
-dimension nOcc(MxBas), natyp(MxAt)
-character Labjhr*4
-!***************
+!Eint, Poli, SumElcPot, PertElcInt, nOcc, natyp, Labjhr
 
 ! The journey begins. Set non-zero return code.
 
@@ -37,9 +37,9 @@ ireturn = 99
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
-  write(6,*)
-  write(6,*) ' QMStat does not run in parallel!'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' QMStat does not run in parallel!'
+  write(u6,*)
   call Quit(_RC_NOT_AVAILABLE_)
 end if
 #endif
@@ -92,8 +92,8 @@ else
     ! separately.
 
     if (Smeq .or. Smprod) then
-      write(6,*)
-      write(6,*) 'All classical simulation is currently not available.'
+      write(u6,*)
+      write(u6,*) 'All classical simulation is currently not available.'
       call Quit(_RC_GENERAL_ERROR_)
     else if (Qmeq .or. Qmprod) then  !Qmeq=.true. is default option.
       if (QmType(1:3) == 'SCF') then
@@ -122,19 +122,19 @@ else
 
     if (.not. SingPoint) exit
     if (nCalls < nPart2) then
-      write(6,*)
-      write(6,*)
-      write(6,*)
-      write(6,*) '     *********** << NEW CALCULATION >> ***********'
-      write(6,'(A,I3,A)') 'Single point-calculation nr.',nCalls+1,' follows below.'
-      write(6,*)
-      write(6,*)
+      write(u6,*)
+      write(u6,*)
+      write(u6,*)
+      write(u6,*) '     *********** << NEW CALCULATION >> ***********'
+      write(u6,'(A,I3,A)') 'Single point-calculation nr.',nCalls+1,' follows below.'
+      write(u6,*)
+      write(u6,*)
     else
       call GetMem('Store','Free','Real',ipStoreCoo,nPart2*nCent*3)
-      write(6,*)
-      write(6,*)
-      write(6,*) ' Single-point calculation ended.'
-      write(6,*)
+      write(u6,*)
+      write(u6,*)
+      write(u6,*) ' Single-point calculation ended.'
+      write(u6,*)
       exit
     end if
   end do

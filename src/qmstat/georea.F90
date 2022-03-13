@@ -11,11 +11,15 @@
 
 subroutine GeoRea(nskipp,quantum)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nskipp
+logical(kind=iwp) :: quantum
 #include "maxi.fh"
 #include "qminp.fh"
-logical quantum
-dimension Dum(1)
+integer(kind=iwp) :: iDisk, j
+real(kind=wp) :: Dum(1)
 
 !----------------------------------------------------------------------*
 ! Enter.                                                               *
@@ -25,7 +29,7 @@ dimension Dum(1)
 !----------------------------------------------------------------------*
 iDisk = 0
 !If we are to skip something.
-if ((nSkipp /= 0) .and. (iPrint >= 4)) write(6,*) ' Reading from configuration ',nskipp,'.'
+if ((nSkipp /= 0) .and. (iPrint >= 4)) write(u6,*) ' Reading from configuration ',nskipp,'.'
 do j=1,nSkipp+1
   if ((j /= 1) .and. (iRead /= 9)) then
     call dDaFile(9,2,Dum,1,iDisk) !Etot

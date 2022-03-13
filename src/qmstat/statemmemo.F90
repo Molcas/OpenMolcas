@@ -12,13 +12,17 @@
 ! MO-basis route.
 subroutine StateMMEmo(nAObas,nMObas,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
 
-implicit real*8(a-h,o-z)
+use Index_Functions, only: nTri3_Elem
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6), iCent(MxBas**2)
-dimension Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen)
-dimension Qua(MxStOT,6,MxQCen)
+integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCi, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(MxBas**2), ipAvRed
+real(kind=wp) :: Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen)
+integer(kind=iwp) :: i, iB1, iB2, ipAOG, ipAOG_s, ipMOG, ipMOG_s, ipO, iS1, iS2, iTEMP, iTyp, j, kaunta, kaunter, kk, nSizeA, nSizeM
+real(kind=wp) :: PerAake
 
 kaunter = 0
 nSizeA = nAObas*(nAObas+1)/2
@@ -38,24 +42,24 @@ do iS1=1,nState
 
     ! Collect the proper piece of the TDM in MO-basis.
 
-    call dCopy_(nSizeM,Work(iBigT+nSizeM*(kaunter-1)),iONE,Work(ipMOG),iONE)
+    call dCopy_(nSizeM,Work(iBigT+nSizeM*(kaunter-1)),1,Work(ipMOG),1)
 
     ! Additional transformation step from MO to AO.
 
-    call Square(Work(ipMOG),Work(ipMOG_s),iONE,nMObas,nMObas)
+    call Square(Work(ipMOG),Work(ipMOG_s),1,nMObas,nMObas)
     kk = 0
     do i=1,nMObas
       do j=1,nMObas
-        if (i /= j) Work(ipMOG_s+kk) = 0.5d0*Work(ipMOG_s+kk)
+        if (i /= j) Work(ipMOG_s+kk) = Half*Work(ipMOG_s+kk)
         kk = kk+1
       end do
     end do
-    call Dgemm_('N','N',nAObas,nMObas,nMObas,ONE,Work(ipAvRed),nAObas,Work(ipMOG_s),nMObas,ZERO,Work(iTEMP),nAObas)
-    call Dgemm_('N','T',nAObas,nAObas,nMObas,ONE,Work(iTEMP),nAObas,Work(ipAvRed),nAObas,ZERO,Work(ipAOG_s),nAObas)
+    call Dgemm_('N','N',nAObas,nMObas,nMObas,One,Work(ipAvRed),nAObas,Work(ipMOG_s),nMObas,Zero,Work(iTEMP),nAObas)
+    call Dgemm_('N','T',nAObas,nAObas,nMObas,One,Work(iTEMP),nAObas,Work(ipAvRed),nAObas,Zero,Work(ipAOG_s),nAObas)
     kk = 0
     do i=1,nAObas
       do j=1,nAObas
-        if (i /= j) Work(ipAOG_s+kk) = 2.0d0*Work(ipAOG_s+kk)
+        if (i /= j) Work(ipAOG_s+kk) = Two*Work(ipAOG_s+kk)
         kk = kk+1
       end do
     end do

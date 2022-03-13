@@ -11,18 +11,23 @@
 
 subroutine IsItValid(Coo,CooRef,ValidOrNot)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
-parameter(dTroskel=1d-4)
-dimension Coo(MxCen,3), CooRef(MxCen,3)
-logical ValidOrNot
+real(kind=wp) :: Coo(MxCen,3), CooRef(MxCen,3)
+logical(kind=iwp) :: ValidOrNot
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: dL_ref, dL_test
+real(kind=wp), parameter :: dTroskel = 1.0e-4_wp
 
 ValidOrNot = .true.
 ! Lengths.
 outer: do i=1,4
   do j=i+1,5
-    dL_test = 0.0d0
-    dL_ref = 0.0d0
+    dL_test = Zero
+    dL_ref = Zero
     do k=1,3
       dL_test = dL_test+(Coo(i,k)-Coo(j,k))**2
       dL_ref = dL_ref+(CooRef(i,k)-CooRef(j,k))**2

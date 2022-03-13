@@ -12,12 +12,17 @@
 ! GET NUMBERS FROM STARTFILE.
 subroutine Get8(Ract,Etot)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Ract, Etot
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
-character Head*200
+integer(kind=iwp) :: i, iCT, iDisk, j
+real(kind=wp) :: Esub, Gamold, GaOld
+character(len=200) :: Head
 
 iDisk = 0
 call DaName(iLuStIn,StFilIn)

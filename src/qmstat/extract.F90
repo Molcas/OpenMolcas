@@ -11,11 +11,13 @@
 
 subroutine Extract(iLu,i9,Etot,xyzMy,Hmat,iC,iDt,nMatBas,HMatOld,xyzQuQ,ip_ExpVal,ip_ExpCento,ENR,ENP)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iLu, i9, iC, iDt(3), nMatBas, ip_ExpVal, ip_ExpCento
+real(kind=wp) :: Etot, xyzMY(3), Hmat(*), HmatOld(*), xyzQuQ(6), ENR, ENP
 #include "maxi.fh"
 #include "qminp.fh"
-dimension xyzMy(3), Hmat(*), HMatOld(*), xyzQuQ(6)
-dimension iDt(3)
 
 ! Just pass on the numbers according to QM-method.
 

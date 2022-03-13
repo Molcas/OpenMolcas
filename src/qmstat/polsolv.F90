@@ -11,16 +11,18 @@
 
 subroutine PolSolv(iDT,iFI,iFP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2inv,difac,nSize)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iDT(3), iFI(3), iFP(3), iCNum, nSize
+real(kind=wp) :: xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), &
+                 zzi(nSize,nSize), Gri(nSize,nSize), FFp(nSize,3), r2inv, difac
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "WrkSpc.fh"
-dimension xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize)
-dimension xxi(nSize,nSize), yyi(nSize,nSize), zzi(nSize,nSize)
-dimension rr3(nSize,nSize), Gri(nSize,nSize)
-dimension FFp(nSize,3)
-dimension iDT(3), iFI(3), iFP(3)
+integer(kind=iwp) :: i, idel1, idel2, IndCor, Inddt, j
+real(kind=wp) :: Agr, Skal, Ta, Tal
 
 ! The fields between the solvent molecules are computed as well as
 ! the image charge contribution. Rather basic formulas, but keeping

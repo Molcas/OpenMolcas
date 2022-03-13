@@ -10,18 +10,24 @@
 !***********************************************************************
 
 ! s-p interaction, normal case.
-real*8 function CoulTN_2(R,T,RA,RB,C,dSepInv,ExpA,ExpB)
+function CoulTN_2(R,T,RA,RB,C,dSepInv,ExpA,ExpB)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Two, Three, Five, Ten, Eleven, Half, Quart
+use Definitions, only: wp
 
-T1 = (1.0d0/16.0d0)*(5.0d0+3.0d0*C)*(1.0d0+2.0d0*RA)
-T2 = 0.25d0*RA**2
-TA = (1.0d0-C)**3*(T1+T2)*ExpA
-T1 = (1.0d0/16.0d0)*(11.0d0-10.0d0*C+3.0d0*C**2)*(1.0d0+2.0d0*RB)
-T2 = 0.5d0*(2.0d0-C)*RB**2
-T3 = 0.25d0*RB**3
-TB = (1.0d0+C)**2*(T1+T2+T3)*ExpB
-CoulTN_2 = dSepInv**2*(1.0d0-TA-TB)
+implicit none
+real(kind=wp) :: CoulTN_2
+real(kind=wp) :: R, T, RA, RB, C, dSepInv, ExpA, ExpB
+real(kind=wp) :: T1, T2, T3, TA, TB
+
+T1 = (One/16.0_wp)*(Five+Three*C)*(One+Two*RA)
+T2 = Quart*RA**2
+TA = (One-C)**3*(T1+T2)*ExpA
+T1 = (One/16.0_wp)*(Eleven-Ten*C+Three*C**2)*(One+Two*RB)
+T2 = Half*(Two-C)*RB**2
+T3 = Quart*RB**3
+TB = (One+C)**2*(T1+T2+T3)*ExpB
+CoulTN_2 = dSepInv**2*(One-TA-TB)
 
 return
 ! Avoid unused argument warnings

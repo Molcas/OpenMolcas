@@ -32,14 +32,18 @@
 
 subroutine Hel(Eint,itri,ici,ql,dil,qqxxyy,vmat,iprint)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
-#include "WrkSpc.fh"
-dimension Ql(MxOT,MxQCen), Dil(MxOT,3,MxQCen), QQxxyy(MxOT,6,MxQCen), Eint(MxQCen,10), Vmat(MxOT)
+real(kind=wp) :: Eint(MxQCen,10), Ql(MxOT,MxQCen), Dil(MxOT,3,MxQCen), QQxxyy(MxOT,6,MxQCen), Vmat(MxOT)
+integer(kind=iwp) :: itri, ici, iprint
+integer(kind=iwp) :: i, j, k
 
 ! Zeros
 do i=1,itri
-  Vmat(i) = 0.0d0
+  Vmat(i) = Zero
 end do
 
 ! The electrostatic perturbation: <psi_i|V_el|psi_j>
@@ -52,9 +56,9 @@ do i=1,itri
     Vmat(i) = Vmat(i)+Eint(k,5)*QQxxyy(i,1,k)
     Vmat(i) = Vmat(i)+Eint(k,7)*QQxxyy(i,3,k)
     Vmat(i) = Vmat(i)+Eint(k,10)*QQxxyy(i,6,k)
-    Vmat(i) = Vmat(i)+Eint(k,6)*QQxxyy(i,2,k)*2.0d0
-    Vmat(i) = Vmat(i)+Eint(k,8)*QQxxyy(i,4,k)*2.0d0
-    Vmat(i) = Vmat(i)+Eint(k,9)*QQxxyy(i,5,k)*2.0d0
+    Vmat(i) = Vmat(i)+Eint(k,6)*QQxxyy(i,2,k)*Two
+    Vmat(i) = Vmat(i)+Eint(k,8)*QQxxyy(i,4,k)*Two
+    Vmat(i) = Vmat(i)+Eint(k,9)*QQxxyy(i,5,k)*Two
   end do
 end do
 

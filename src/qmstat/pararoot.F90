@@ -32,21 +32,22 @@
 
 subroutine ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)
 
-implicit real*8(a-h,o-z)
-external Ranf
+use Constants, only: Zero, One, Half, auTokJ, KBoltzmann
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: Ract, BetaBol, Etot
+logical(kind=iwp) :: CalledBefore, SampleThis
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
-#include "WrkSpc.fh"
-#include "constants.fh"
-!parameter(BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_)
-dimension iPermutation(2,MxParT)
-dimension CordstTEMP(MxCen*MxPut,3)
-logical CalledBefore, WeiterBitte, Accept, SampleThis
-save iTemp
+integer(kind=iwp) :: i, iEnsemb, iPa, iPermutation(2,MxParT), iTemp = 0, j, mTemp !IFG
+real(kind=wp) :: B1, B2, BigDelta, CordstTEMP(MxCen*MxPut,3), Dum, Dum1, E1, E2, Expe, Expran, PerType, R1, R2, T1, T2 !IFG
+logical(kind=iwp) :: WeiterBitte, Accept
+real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ
+real(kind=wp), external :: Ranf
 
-BoltzK = 1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
-Dum1 = 0.0d0
+Dum1 = Zero
 
 ! If this is first time to call on this routine.
 
@@ -61,8 +62,8 @@ do
   if (iTemp < nTemp) then
     WeiterBitte = .true.
     iTemp = iTemp+1
-    write(6,*)
-    write(6,*) '    Run a new temperature ensemble...',iTemp
+    write(u6,*)
+    write(u6,*) '    Run a new temperature ensemble...',iTemp
 
     ! A logical variable to make parallel tempering sampling correct.
     if (iTemp == 1) then
@@ -74,8 +75,8 @@ do
   else
     WeiterBitte = .false.
     iTemp = 0
-    write(6,*)
-    write(6,*) '    Evaluate temperature ensemble interchanges.'
+    write(u6,*)
+    write(u6,*) '    Evaluate temperature ensemble interchanges.'
   end if
 
   if (WeiterBitte) then
@@ -90,7 +91,7 @@ do
     call Get8(Ract,Etot)
 
     ! Set temperature.
-    BetaBol = 1.0d0/(ParaTemps(iTemp)*BoltzK)
+    BetaBol = One/(ParaTemps(iTemp)*BoltzK)
     exit
 
   else
@@ -109,7 +110,7 @@ do
     else
 
       PerType = Ranf(iseed)
-      if (PerType < 0.5D+0) then
+      if (PerType < Half) then
 
         if (mod(nTemp,2) == 1) then
           mTemp = nTemp-1
@@ -157,14 +158,14 @@ do
       call Get8(Dum,E2)
       T1 = ParaTemps(iPermutation(1,iEnsemb))
       T2 = ParaTemps(iPermutation(2,iEnsemb))
-      B1 = 1.0d0/(BoltzK*T1)
-      B2 = 1.0d0/(BoltzK*T2)
+      B1 = One/(BoltzK*T1)
+      B2 = One/(BoltzK*T2)
 
       ! Make the Metropolis thing.
       BigDelta = (B2-B1)*(E2-E1)
       Expe = exp(BigDelta)
       Accept = .true.
-      if (Expe < 1.0D+0) then
+      if (Expe < One) then
         Expran = ranf(iseed)
         if (Expe < Expran) Accept = .false.
       end if
@@ -206,11 +207,11 @@ do
       end if
 
       iEnsemb = iEnsemb+2
-      if (Accept) write(6,*) '            accepted!'
-      if (.not. Accept) write(6,*) '            not accepted!'
+      if (Accept) write(u6,*) '            accepted!'
+      if (.not. Accept) write(u6,*) '            not accepted!'
       if (iEnsemb >= nTemp) exit
     end do
-    write(6,*)
+    write(u6,*)
 
     ! Do some stuff before exit. The reason we go back up is that this
     ! way we will collect the right coordinates from first startfile.

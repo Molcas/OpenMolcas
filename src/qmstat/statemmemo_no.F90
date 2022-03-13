@@ -12,14 +12,17 @@
 ! The reduced MO-basis route. OBSOLOTE!! WORKS BUT IS SLOW!!!
 subroutine StateMMEmo_NO(nAObas,nMObas,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
 
-implicit real*8(a-h,o-z)
+use Index_Functions, only: nTri3_Elem
+use Constants, only: Zero
+use Definitions, only: wp, iwp, r8
+
+implicit none
 #include "maxi.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6), iCent(MxBas**2)
-dimension iAcc(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
-dimension Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen)
-dimension Qua(MxStOT,6,MxQCen)
+integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCi, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(MxBas**2), ipAvRed
+real(kind=wp) :: Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen)
+integer(kind=iwp) :: i, iAcc(ntri3_Elem(MxMltp)), iB1, iB2, iCentre, ipMOG, iS1, iS2, kaunta, kaunter, nSizeA, nSizeM !IFG
+real(kind=r8) :: Ddot_
 
 kaunter = 0
 nSizeA = nAObas*(nAObas+1)/2
@@ -33,13 +36,13 @@ do iS1=1,nState
   do iS2=1,iS1
     kaunter = kaunter+1
     ! Collect the proper piece of the TDM in MO-basis.
-    call dCopy_(nSizeM,Work(iBigT+nSizeM*(kaunter-1)),iONE,Work(ipMOG),iONE)
+    call dCopy_(nSizeM,Work(iBigT+nSizeM*(kaunter-1)),1,Work(ipMOG),1)
     ! Loop over centres in molecule. This is now necessary since
     ! MOs are contrary to AOs not localized, hence the simple
     ! construction with iCent used above, can not be used here.
     do iCentre=1,iCi
       do i=1,nTyp
-        call dCopy_(nSizeA,[ZERO],iZERO,Work(iAcc(i)),iONE)
+        call dCopy_(nSizeA,[Zero],0,Work(iAcc(i)),1)
       end do
       kaunta = 0
       ! Loop over AO-basis pairs.
@@ -58,16 +61,16 @@ do iS1=1,nState
       ! get the contribution to the density distributed on a specific centre.
       call MMEtoRMO(nAObas,nMObas,ipAvRed,iAcc)
       ! Ordinary evaluations of expectation values.
-      Cha(kaunter,iCentre) = Ddot_(nSizeM,Work(iAcc(1)),iONE,Work(ipMOG),iONE)
-      Dip(kaunter,1,iCentre) = Ddot_(nSizeM,Work(iAcc(2)),iONE,Work(ipMOG),iONE)
-      Dip(kaunter,2,iCentre) = Ddot_(nSizeM,Work(iAcc(3)),iONE,Work(ipMOG),iONE)
-      Dip(kaunter,3,iCentre) = Ddot_(nSizeM,Work(iAcc(4)),iONE,Work(ipMOG),iONE)
-      Qua(kaunter,1,iCentre) = Ddot_(nSizeM,Work(iAcc(5)),iONE,Work(ipMOG),iONE)
-      Qua(kaunter,2,iCentre) = Ddot_(nSizeM,Work(iAcc(6)),iONE,Work(ipMOG),iONE)
-      Qua(kaunter,3,iCentre) = Ddot_(nSizeM,Work(iAcc(8)),iONE,Work(ipMOG),iONE)
-      Qua(kaunter,4,iCentre) = Ddot_(nSizeM,Work(iAcc(7)),iONE,Work(ipMOG),iONE)
-      Qua(kaunter,5,iCentre) = Ddot_(nSizeM,Work(iAcc(9)),iONE,Work(ipMOG),iONE)
-      Qua(kaunter,6,iCentre) = Ddot_(nSizeM,Work(iAcc(10)),iONE,Work(ipMOG),iONE)
+      Cha(kaunter,iCentre) = Ddot_(nSizeM,Work(iAcc(1)),1,Work(ipMOG),1)
+      Dip(kaunter,1,iCentre) = Ddot_(nSizeM,Work(iAcc(2)),1,Work(ipMOG),1)
+      Dip(kaunter,2,iCentre) = Ddot_(nSizeM,Work(iAcc(3)),1,Work(ipMOG),1)
+      Dip(kaunter,3,iCentre) = Ddot_(nSizeM,Work(iAcc(4)),1,Work(ipMOG),1)
+      Qua(kaunter,1,iCentre) = Ddot_(nSizeM,Work(iAcc(5)),1,Work(ipMOG),1)
+      Qua(kaunter,2,iCentre) = Ddot_(nSizeM,Work(iAcc(6)),1,Work(ipMOG),1)
+      Qua(kaunter,3,iCentre) = Ddot_(nSizeM,Work(iAcc(8)),1,Work(ipMOG),1)
+      Qua(kaunter,4,iCentre) = Ddot_(nSizeM,Work(iAcc(7)),1,Work(ipMOG),1)
+      Qua(kaunter,5,iCentre) = Ddot_(nSizeM,Work(iAcc(9)),1,Work(ipMOG),1)
+      Qua(kaunter,6,iCentre) = Ddot_(nSizeM,Work(iAcc(10)),1,Work(ipMOG),1)
     end do
   end do
 end do

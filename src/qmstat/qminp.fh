@@ -12,6 +12,11 @@
 ! Common variables for qm-part.                                        *
 !----------------------------------------------------------------------*
 !
+      Integer iOrb,iOcc1,nPart,nAtom,nCent,nPol,nCha,iExtra,Inter,      &
+     &iPrint,iRead,iSta,itMax,iNrIn,iNrUt,NrStarti,NrStartu,nDel,       &
+     &NrFiles,NrStates,nEqState,iSeed,nMacro,nMicro,nAdd,iNrExtr,       &
+     &nExtAddOns,nTemp,nStFilT,iCompExt,nLvlShift,iLvlShift,nCIRef,     &
+     &iCIInd,iExtr_Eig,iExtr_Atm,nSlSiteC,lMltSlC,nMlt
       Common/QMinte/iOrb(3),iOcc1,nPart,nAtom,nCent                     &
      &,nPol,nCha,iExtra,Inter,iPrint,iRead,iSta,itMax                   &
      &,iNrIn,iNrUt,NrStarti,NrStartu,nDel,NrFiles                       &
@@ -23,6 +28,12 @@
                                   !determinants. nMlt=order of QM
                                   !Mutipoles+1
 
+      Real*8 rStart,Diel,Qsta,Pol,SexRep,SexRe1,SexRe2,Disp,Cordst,     &
+     &OldGeo,Udisp,Exrep2,Exrep4,Exrep6,Exrep10,CharDi,QuaDi,CharDiQ,   &
+     &QuadiQ,CAFieldG,CBFieldG,DelX,DelFi,DelR,Forcek,dLJrep,Temp,Pres, &
+     &Surf,CFexp,Pollim,Enelim,Exdtal,Exdt1,Cut_Ex1,Cut_Ex2,AlphaD,     &
+     &RasEne,ScalExt,ParaTemps,ThrsRedOcc,ThrsCont,dLvlShift,dCIRef,    &
+     &SlFactC,SlExpC,SlPC,Cut_Elc,DifSlExp,SlExpQ,AvElcPot,PertNElcInt
       Common/QMreal/rStart,Diel,Qsta(MxCha),Pol(MxPol)                  &
      &,SexRep(MxAt,MxAt),SexRe1(MxAt,MxAt),SexRe2(MxAt,MxAt)            &
      &,Disp(MxPol,MxPol),Cordst(MxCen*MxPut,3)                          &

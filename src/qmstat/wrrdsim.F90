@@ -12,11 +12,15 @@
 !----------------------------------------------------------------------*
 ! A routine inspired by the wr_motra_info utility.                     *
 !----------------------------------------------------------------------*
-subroutine WrRdSim(iLu,iOpt,iDisk,iTcSim,nTcSim,Etot,Radie,nPart,Gamma,Gam,Esav)
+subroutine WrRdSim(iLu,iOpt,iDisk,iTcSim,nTcSim,Etot,Radie,nPart,Gmma,Gam,Esav)
 
-implicit real*8(a-h,o-z)
-dimension iTcSim(nTcSim)
-dimension Dum(1), iDum(1)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iLu, iOpt, iDisk, nTcSim, iTcSim(nTcSim), nPart
+real(kind=wp) :: Etot, Radie, Gmma, Gam, Esav
+integer(kind=iwp) :: iDum(1)
+real(kind=wp) :: Dum(1)
 
 call iDaFile(iLu,iOpt,iTcSim,nTcSim,iDisk)
 Dum(1) = Etot
@@ -28,9 +32,9 @@ Radie = Dum(1)
 iDum(1) = nPart
 call iDaFile(iLu,iOpt,iDum,1,iDisk)
 nPart = iDum(1)
-Dum(1) = Gamma
+Dum(1) = Gmma
 call dDaFile(iLu,iOpt,Dum,1,iDisk)
-Gamma = Dum(1)
+Gmma = Dum(1)
 Dum(1) = Gam
 call dDaFile(iLu,iOpt,Dum,1,iDisk)
 Gam = Dum(1)

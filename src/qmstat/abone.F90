@@ -12,27 +12,34 @@
 ! One diffuse, the other not diffuse.
 subroutine ABOne(iLdiff,iLpoi,dMul,Ep,R,Rinv,Colle,lDiffA)
 
-implicit real*8(a-h,o-z)
-parameter(MxMltp=2)
-dimension dMul((MxMltp+1)*(MxMltp+2)/2), Colle(3)
-logical lDiffA
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Zero, One, Two, Three, Four, Nine, OneHalf
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), parameter :: MxMltp = 2 !IFG
+integer(kind=iwp) :: iLdiff, iLpoi
+real(kind=wp) :: dMul(nTri_Elem1(MxMltp)), Ep, R, Rinv, Colle(3)
+logical(kind=iwp) :: lDiffA
 #include "warnings.h"
+integer(kind=iwp) :: i
+real(kind=wp) :: d3, DAMP, er, Ex, Pi1, Pi2, Sigma
 
 ! The omnipresent exponential and distance-exponent product.
 
 er = Ep*R
-Ex = exp((-2.0d0)*er)
-d3 = sqrt(3.0d0)
+Ex = exp(-Two*er)
+d3 = sqrt(Three)
 do i=1,3
-  Colle(i) = 0.0d0
+  Colle(i) = Zero
 end do
 
 if ((iLdiff == 0) .and. (iLpoi == 0)) then
   ! s-s; see ABBoth for comments on sigma and similar below.
 
   Sigma = dMul(1)
-  DAMP = (1.0d0+er)*Ex
-  Colle(1) = Sigma*Rinv*(1.0d0-DAMP)
+  DAMP = (One+er)*Ex
+  Colle(1) = Sigma*Rinv*(One-DAMP)
 
 else if ((iLdiff == 0) .and. (iLpoi == 1)) then
   ! s-p
@@ -41,8 +48,8 @@ else if ((iLdiff == 0) .and. (iLpoi == 1)) then
   if (lDiffA) then
     Sigma = dMul(1)
   end if
-  DAMP = (1.0d0+2.0d0*er+2.0d0*er**2)*Ex
-  Colle(1) = Sigma*Rinv**2*(1.0d0-DAMP)
+  DAMP = (One+Two*er+Two*er**2)*Ex
+  Colle(1) = Sigma*Rinv**2*(One-DAMP)
 
 else if ((iLdiff == 0) .and. (iLpoi == 2)) then
   ! s-d
@@ -51,8 +58,8 @@ else if ((iLdiff == 0) .and. (iLpoi == 2)) then
   if (lDiffA) then
     Sigma = dMul(1)
   end if
-  DAMP = (1.0d0+2.0d0*er+2.0d0*er**2+4.0d0*er**3/3.0d0)*Ex
-  Colle(1) = Sigma*Rinv**3*(1.0d0-DAMP)
+  DAMP = (One+Two*er+Two*er**2+Four*er**3/Three)*Ex
+  Colle(1) = Sigma*Rinv**3*(One-DAMP)
 
 else if ((iLdiff == 1) .and. (iLpoi == 0)) then
   ! p-s
@@ -61,8 +68,8 @@ else if ((iLdiff == 1) .and. (iLpoi == 0)) then
   if (lDiffA) then
     Sigma = dMul(3)
   end if
-  DAMP = (1.0d0+2.0d0*er+2.0d0*er**2+er**3)*Ex
-  Colle(1) = Sigma*Rinv**2*(1.0d0-DAMP)
+  DAMP = (One+Two*er+Two*er**2+er**3)*Ex
+  Colle(1) = Sigma*Rinv**2*(One-DAMP)
 
 else if ((iLdiff == 1) .and. (iLpoi == 1)) then
   ! p-p
@@ -70,11 +77,11 @@ else if ((iLdiff == 1) .and. (iLpoi == 1)) then
   Sigma = dMul(3)
   Pi1 = dMul(1)
   Pi2 = dMul(2)
-  DAMP = (1.0d0+2.0d0*er+2.0d0*er**2+3.0d0*er**3/2.0d0+er**4)*Ex
-  Colle(1) = 2.0d0*Sigma*Rinv**3*(1.0d0-DAMP)
-  DAMP = (1.0d0+2.0d0*er+2.0d0*er**2+er**3)*Ex
-  Colle(2) = Pi1*Rinv**3*(1.0d0-DAMP)
-  Colle(3) = Pi2*Rinv**3*(1.0d0-DAMP)
+  DAMP = (One+Two*er+Two*er**2+OneHalf*er**3+er**4)*Ex
+  Colle(1) = Two*Sigma*Rinv**3*(One-DAMP)
+  DAMP = (One+Two*er+Two*er**2+er**3)*Ex
+  Colle(2) = Pi1*Rinv**3*(One-DAMP)
+  Colle(3) = Pi2*Rinv**3*(One-DAMP)
 
 else if ((iLdiff == 1) .and. (iLpoi == 2)) then
   ! p-d
@@ -86,18 +93,18 @@ else if ((iLdiff == 1) .and. (iLpoi == 2)) then
     Pi1 = dMul(1)
     Pi2 = dMul(2)
   end if
-  DAMP = (1.0d0+2.0d0*er+2.0d0*er**2+4.0d0*er**3/3.0d0+2.0d0*er**4/3.0d0+4.0d0*er**5/9.0d0)*Ex
-  Colle(1) = 3.0d0*Sigma*Rinv**4*(1.0d0-DAMP)
-  DAMP = (1.0d0+2.0d0*er+2.0d0*er**2+4.0d0*er**3/3.0d0+2.0d0*er**4/3.0d0)*Ex
-  Colle(2) = d3*Pi1*Rinv**4*(1.0d0-DAMP)
-  Colle(3) = d3*Pi2*Rinv**4*(1.0d0-DAMP)
+  DAMP = (One+Two*er+Two*er**2+Four*er**3/Three+Two*er**4/Three+Four*er**5/Nine)*Ex
+  Colle(1) = Three*Sigma*Rinv**4*(One-DAMP)
+  DAMP = (One+Two*er+Two*er**2+Four*er**3/Three+Two*er**4/Three)*Ex
+  Colle(2) = d3*Pi1*Rinv**4*(One-DAMP)
+  Colle(3) = d3*Pi2*Rinv**4*(One-DAMP)
   !Colle = Colle1+Colle2+Colle3
 
 else
   ! Higher moments.
 
-  write(6,*)
-  write(6,*) 'Too high momentum!'
+  write(u6,*)
+  write(u6,*) 'Too high momentum!'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 

@@ -11,15 +11,19 @@
 
 subroutine OneOverR(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyz)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Two, Three, Five
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
-#include "qmcom.fh"
 #include "WrkSpc.fh"
-dimension iFil(MxQCen,10)
-dimension Eint(MxQCen,10), BoMaH(MxAt), BoMaO(MxAt), outxyz(MxQCen,3)
+integer(kind=iwp) :: iFil(MxQCen,10), iCNum, iQ_Atoms
+real(kind=wp) :: Ax, Ay, Az, BoMaH(MxAt), BoMaO(MxAt), EEDisp, Eint(MxQCen,10), outxyz(MxQCen,3)
+integer(kind=iwp) :: i, iCi, ijhr, ip, j, jjhr, k
+real(kind=wp) :: Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), Se(5), U(3,5)
 
-EEdisp = 0.0d0
+EEdisp = Zero
 !----------------------------------------------------------------------*
 ! Compute some distances and inverted distances etc. The potential,    *
 ! the field and etc. and when we already have the numbers, we also do  *
@@ -34,49 +38,44 @@ do k=1,iCi
     i = 1+(j-1)*nCent
     ip = 1+(j-1)*nPol
     !Below follow a lot of distances to and fro.
-    Rabx1 = Cordst(i,1)-Gx
-    Raby1 = Cordst(i,2)-Gy
-    Rabz1 = Cordst(i,3)-Gz
-    Rabx2 = Cordst(i+1,1)-Gx
-    Raby2 = Cordst(i+1,2)-Gy
-    Rabz2 = Cordst(i+1,3)-Gz
-    Rabx3 = Cordst(i+2,1)-Gx
-    Raby3 = Cordst(i+2,2)-Gy
-    Rabz3 = Cordst(i+2,3)-Gz
-    Rabx4 = Cordst(i+3,1)-Gx
-    Raby4 = Cordst(i+3,2)-Gy
-    Rabz4 = Cordst(i+3,3)-Gz
-    Rabx5 = Cordst(i+4,1)-Gx
-    Raby5 = Cordst(i+4,2)-Gy
-    Rabz5 = Cordst(i+4,3)-Gz
-    R21 = Rabx1**2+Raby1**2+Rabz1**2
-    R22 = Rabx2**2+Raby2**2+Rabz2**2
-    R23 = Rabx3**2+Raby3**2+Rabz3**2
-    R24 = Rabx4**2+Raby4**2+Rabz4**2
-    R25 = Rabx5**2+Raby5**2+Rabz5**2
-    Rg1 = sqrt(r21)
-    Rg2 = sqrt(r22)
-    Rg3 = sqrt(r23)
-    Rg4 = sqrt(r24)
-    Rg5 = sqrt(r25)
-    S1i = 1/Rg1
-    S2i = 1/Rg2
-    S3i = 1/Rg3
-    S4i = 1/Rg4
-    S5i = 1/Rg5
-    S1e = S1i
-    S2e = S2i
-    S3e = S3i
-    S4e = S4i
-    S5e = S5i
+    Rab(1,1) = Cordst(i,1)-Gx
+    Rab(2,1) = Cordst(i,2)-Gy
+    Rab(3,1) = Cordst(i,3)-Gz
+    Rab(1,2) = Cordst(i+1,1)-Gx
+    Rab(2,2) = Cordst(i+1,2)-Gy
+    Rab(3,2) = Cordst(i+1,3)-Gz
+    Rab(1,3) = Cordst(i+2,1)-Gx
+    Rab(2,3) = Cordst(i+2,2)-Gy
+    Rab(3,3) = Cordst(i+2,3)-Gz
+    Rab(1,4) = Cordst(i+3,1)-Gx
+    Rab(2,4) = Cordst(i+3,2)-Gy
+    Rab(3,4) = Cordst(i+3,3)-Gz
+    Rab(1,5) = Cordst(i+4,1)-Gx
+    Rab(2,5) = Cordst(i+4,2)-Gy
+    Rab(3,5) = Cordst(i+4,3)-Gz
+    R2(1) = Rab(1,1)**2+Rab(2,1)**2+Rab(3,1)**2
+    R2(2) = Rab(1,2)**2+Rab(2,2)**2+Rab(3,2)**2
+    R2(3) = Rab(1,3)**2+Rab(2,3)**2+Rab(3,3)**2
+    R2(4) = Rab(1,4)**2+Rab(2,4)**2+Rab(3,4)**2
+    R2(5) = Rab(1,5)**2+Rab(2,5)**2+Rab(3,5)**2
+    Rg(1) = sqrt(R2(1))
+    Rg(2) = sqrt(R2(2))
+    Rg(3) = sqrt(R2(3))
+    Rg(4) = sqrt(R2(4))
+    Rg(5) = sqrt(R2(5))
+    Se(1) = One/Rg(1)
+    Se(2) = One/Rg(2)
+    Se(3) = One/Rg(3)
+    Se(4) = One/Rg(4)
+    Se(5) = One/Rg(5)
     ! This term will below turn into the interaction between
     ! charges on water and the MME-charges on the QM-molecule.
-    Eint(k,1) = -Qsta(1)*S2e-Qsta(2)*S3e-Qsta(3)*S4e-Qsta(4)*S5e+Eint(k,1)
-    Rab13i = S1e/R21
-    Rab23i = S2e/R22
-    Rab33i = S3e/R23
-    Rab43i = S4e/R24
-    Rab53i = S5e/R25
+    Eint(k,1) = Eint(k,1)-Qsta(1)*Se(2)-Qsta(2)*Se(3)-Qsta(3)*Se(4)-Qsta(4)*Se(5)
+    Rab3i(1) = Se(1)/R2(1)
+    Rab3i(2) = Se(2)/R2(2)
+    Rab3i(3) = Se(3)/R2(3)
+    Rab3i(4) = Se(4)/R2(4)
+    Rab3i(5) = Se(5)/R2(5)
     !------------------------------------------------------------------*
     ! The dispersion interaction between QM-atoms and solvent is       *
     ! computed, with or without damping. The initial if-clause sees to *
@@ -84,26 +83,26 @@ do k=1,iCi
     ! centers are ignored.                                             *
     !------------------------------------------------------------------*
     if (k <= iQ_atoms) then
-      call DispEnergy(EEDisp,BoMah,BoMaO,rg1,rg2,rg3,Rab13i,Rab23i,Rab33i,k)
+      call DispEnergy(EEDisp,BoMah,BoMaO,Rg(1),Rg(2),Rg(3),Rab3i(1),Rab3i(2),Rab3i(3),k)
     end if
     !------------------------------------------------------------------*
     ! Now we wrap up the electrostatics.                               *
     !------------------------------------------------------------------*
-    Ux1 = RabX1*s1i
-    Uy1 = RabY1*s1i
-    Uz1 = RabZ1*s1i
-    Ux2 = RabX2*s2i
-    Uy2 = RabY2*s2i
-    Uz2 = RabZ2*s2i
-    Ux3 = RabX3*s3i
-    Uy3 = RabY3*s3i
-    Uz3 = RabZ3*s3i
-    Ux4 = RabX4*s4i
-    Uy4 = RabY4*s4i
-    Uz4 = RabZ4*s4i
-    Ux5 = RabX5*s5i
-    Uy5 = RabY5*s5i
-    Uz5 = RabZ5*s5i
+    U(1,1) = Rab(1,1)*Se(1)
+    U(2,1) = Rab(2,1)*Se(1)
+    U(3,1) = Rab(3,1)*Se(1)
+    U(1,2) = Rab(1,2)*Se(2)
+    U(2,2) = Rab(2,2)*Se(2)
+    U(3,2) = Rab(3,2)*Se(2)
+    U(1,3) = Rab(1,3)*Se(3)
+    U(2,3) = Rab(2,3)*Se(3)
+    U(3,3) = Rab(3,3)*Se(3)
+    U(1,4) = Rab(1,4)*Se(4)
+    U(2,4) = Rab(2,4)*Se(4)
+    U(3,4) = Rab(3,4)*Se(4)
+    U(1,5) = Rab(1,5)*Se(5)
+    U(2,5) = Rab(2,5)*Se(5)
+    U(3,5) = Rab(3,5)*Se(5)
     ! These three terms will below turn into the interaction
     ! between water charges and the MME-dipoles on the QM-mol.
     ! Change sign of charge, change sign of vector and then we
@@ -111,134 +110,140 @@ do k=1,iCi
     ! a field we have a minus sign, but this minus sign we have
     ! omitted in hel; therefore this calculation gives the right
     ! number eventually.
-    Eint(k,2) = -Qsta(1)*RabX2*Rab23i-Qsta(2)*RabX3*Rab33i-Qsta(3)*RabX4*Rab43i-Qsta(4)*RabX5*Rab53i+Eint(k,2)
-    Eint(k,3) = -Qsta(1)*RabY2*Rab23i-Qsta(2)*RabY3*Rab33i-Qsta(3)*RabY4*Rab43i-Qsta(4)*RabY5*Rab53i+Eint(k,3)
-    Eint(k,4) = -Qsta(1)*RabZ2*Rab23i-Qsta(2)*RabZ3*Rab33i-Qsta(3)*RabZ4*Rab43i-Qsta(4)*RabZ5*Rab53i+Eint(k,4)
+    Eint(k,2) = -Qsta(1)*Rab(1,2)*Rab3i(2)-Qsta(2)*Rab(1,3)*Rab3i(3)-Qsta(3)*Rab(1,4)*Rab3i(4)-Qsta(4)*Rab(1,5)*Rab3i(5)+Eint(k,2)
+    Eint(k,3) = -Qsta(1)*Rab(2,2)*Rab3i(2)-Qsta(2)*Rab(2,3)*Rab3i(3)-Qsta(3)*Rab(2,4)*Rab3i(4)-Qsta(4)*Rab(2,5)*Rab3i(5)+Eint(k,3)
+    Eint(k,4) = -Qsta(1)*Rab(3,2)*Rab3i(2)-Qsta(2)*Rab(3,3)*Rab3i(3)-Qsta(3)*Rab(3,4)*Rab3i(4)-Qsta(4)*Rab(3,5)*Rab3i(5)+Eint(k,4)
     ! And here it is the MME-quadrupoles that are prepared.
     ! Change sign of charges, change sign two times of the
     ! vector (in effect, zero times then) and then in the
     ! energy expression for the interaction between the field
     ! vector from a charge and a quarupole there is a plus
     ! sign, so a minus is the right sign below.
-    Eint(k,5) = Eint(k,5)-Qsta(1)*Ux2**2*Rab23i-Qsta(2)*Ux3**2*Rab33i-Qsta(3)*Ux4**2*Rab43i-Qsta(4)*Ux5**2*Rab53i
-    Eint(k,7) = Eint(k,7)-Qsta(1)*Uy2**2*Rab23i-Qsta(2)*Uy3**2*Rab33i-Qsta(3)*Uy4**2*Rab43i-Qsta(4)*Uy5**2*Rab53i
-    Eint(k,10) = Eint(k,10)-Qsta(1)*Uz2**2*Rab23i-Qsta(2)*Uz3**2*Rab33i-Qsta(3)*Uz4**2*Rab43i-Qsta(4)*Uz5**2*Rab53i
-    Eint(k,6) = Eint(k,6)-Qsta(1)*Ux2*Uy2*Rab23i-Qsta(2)*Ux3*Uy3*Rab33i-Qsta(3)*Ux4*Rab43i*Uy4-Qsta(4)*Ux5*Rab53i*Uy5
-    Eint(k,8) = Eint(k,8)-Qsta(1)*Ux2*Uz2*Rab23i-Qsta(2)*Ux3*Uz3*Rab33i-Qsta(3)*Ux4*Rab43i*Uz4-Qsta(4)*Ux5*Rab53i*Uz5
-    Eint(k,9) = Eint(k,9)-Qsta(1)*Uz2*Uy2*Rab23i-Qsta(2)*Uz3*Uy3*Rab33i-Qsta(3)*Uz4*Rab43i*Uy4-Qsta(4)*Uz5*Rab53i*Uy5
+    Eint(k,5) = Eint(k,5)-Qsta(1)*U(1,2)**2*Rab3i(2)-Qsta(2)*U(1,3)**2*Rab3i(3)-Qsta(3)*U(1,4)**2*Rab3i(4)- &
+                Qsta(4)*U(1,5)**2*Rab3i(5)
+    Eint(k,7) = Eint(k,7)-Qsta(1)*U(2,2)**2*Rab3i(2)-Qsta(2)*U(2,3)**2*Rab3i(3)-Qsta(3)*U(2,4)**2*Rab3i(4)- &
+                Qsta(4)*U(2,5)**2*Rab3i(5)
+    Eint(k,10) = Eint(k,10)-Qsta(1)*U(3,2)**2*Rab3i(2)-Qsta(2)*U(3,3)**2*Rab3i(3)-Qsta(3)*U(3,4)**2*Rab3i(4)- &
+                 Qsta(4)*U(3,5)**2*Rab3i(5)
+    Eint(k,6) = Eint(k,6)-Qsta(1)*U(1,2)*U(2,2)*Rab3i(2)-Qsta(2)*U(1,3)*U(2,3)*Rab3i(3)-Qsta(3)*U(1,4)*Rab3i(4)*U(2,4)- &
+                Qsta(4)*U(1,5)*Rab3i(5)*U(2,5)
+    Eint(k,8) = Eint(k,8)-Qsta(1)*U(1,2)*U(3,2)*Rab3i(2)-Qsta(2)*U(1,3)*U(3,3)*Rab3i(3)-Qsta(3)*U(1,4)*Rab3i(4)*U(3,4)- &
+                Qsta(4)*U(1,5)*Rab3i(5)*U(3,5)
+    Eint(k,9) = Eint(k,9)-Qsta(1)*U(3,2)*U(2,2)*Rab3i(2)-Qsta(2)*U(3,3)*U(2,3)*Rab3i(3)-Qsta(3)*U(3,4)*Rab3i(4)*U(2,4)- &
+                Qsta(4)*U(3,5)*Rab3i(5)*U(2,5)
 
     !------------------------------------------------------------------*
     ! And now a whole lot of grad(1/r) and higher...                   *
     !------------------------------------------------------------------*
     ! Monopoles.
-    Work(iFil(k,1)-1+ip) = Rabx1*Rab13i
-    Work(iFil(k,1)-1+ip+1) = Rabx2*Rab23i
-    Work(iFil(k,1)-1+ip+2) = Rabx3*Rab33i
-    Work(iFil(k,1)-1+nPart*nPol+ip) = Raby1*Rab13i
-    Work(iFil(k,1)-1+nPart*nPol+ip+1) = Raby2*Rab23i
-    Work(iFil(k,1)-1+nPart*nPol+ip+2) = Raby3*Rab33i
-    Work(iFil(k,1)-1+2*nPart*nPol+ip) = Rabz1*Rab13i
-    Work(iFil(k,1)-1+2*nPart*nPol+ip+1) = Rabz2*Rab23i
-    Work(iFil(k,1)-1+2*nPart*nPol+ip+2) = Rabz3*Rab33i
+    Work(iFil(k,1)-1+ip) = Rab(1,1)*Rab3i(1)
+    Work(iFil(k,1)-1+ip+1) = Rab(1,2)*Rab3i(2)
+    Work(iFil(k,1)-1+ip+2) = Rab(1,3)*Rab3i(3)
+    Work(iFil(k,1)-1+nPart*nPol+ip) = Rab(2,1)*Rab3i(1)
+    Work(iFil(k,1)-1+nPart*nPol+ip+1) = Rab(2,2)*Rab3i(2)
+    Work(iFil(k,1)-1+nPart*nPol+ip+2) = Rab(2,3)*Rab3i(3)
+    Work(iFil(k,1)-1+2*nPart*nPol+ip) = Rab(3,1)*Rab3i(1)
+    Work(iFil(k,1)-1+2*nPart*nPol+ip+1) = Rab(3,2)*Rab3i(2)
+    Work(iFil(k,1)-1+2*nPart*nPol+ip+2) = Rab(3,3)*Rab3i(3)
     ! Dipole -- x-component.
-    Work(iFil(k,2)-1+ip) = -(1-3*Ux1**2)*Rab13i
-    Work(iFil(k,2)-1+ip+1) = -(1-3*Ux2**2)*Rab23i
-    Work(iFil(k,2)-1+ip+2) = -(1-3*Ux3**2)*Rab33i
-    Work(iFil(k,2)-1+nPart*nPol+ip) = Uy1*Ux1*Rab13i*3
-    Work(iFil(k,2)-1+nPart*nPol+ip+1) = Uy2*Ux2*Rab23i*3
-    Work(iFil(k,2)-1+nPart*nPol+ip+2) = Uy3*Ux3*Rab33i*3
-    Work(iFil(k,2)-1+2*nPart*nPol+ip) = Uz1*Ux1*Rab13i*3
-    Work(iFil(k,2)-1+2*nPart*nPol+ip+1) = Uz2*Ux2*Rab23i*3
-    Work(iFil(k,2)-1+2*nPart*nPol+ip+2) = Uz3*Ux3*Rab33i*3
+    Work(iFil(k,2)-1+ip) = (Three*U(1,1)**2-One)*Rab3i(1)
+    Work(iFil(k,2)-1+ip+1) = (Three*U(1,2)**2-One)*Rab3i(2)
+    Work(iFil(k,2)-1+ip+2) = (Three*U(1,3)**2-One)*Rab3i(3)
+    Work(iFil(k,2)-1+nPart*nPol+ip) = U(2,1)*U(1,1)*Rab3i(1)*Three
+    Work(iFil(k,2)-1+nPart*nPol+ip+1) = U(2,2)*U(1,2)*Rab3i(2)*Three
+    Work(iFil(k,2)-1+nPart*nPol+ip+2) = U(2,3)*U(1,3)*Rab3i(3)*Three
+    Work(iFil(k,2)-1+2*nPart*nPol+ip) = U(3,1)*U(1,1)*Rab3i(1)*Three
+    Work(iFil(k,2)-1+2*nPart*nPol+ip+1) = U(3,2)*U(1,2)*Rab3i(2)*Three
+    Work(iFil(k,2)-1+2*nPart*nPol+ip+2) = U(3,3)*U(1,3)*Rab3i(3)*Three
     ! Dipole -- y-component.
-    Work(iFil(k,3)-1+ip) = Uy1*Ux1*Rab13i*3
-    Work(iFil(k,3)-1+ip+1) = Uy2*Ux2*Rab23i*3
-    Work(iFil(k,3)-1+ip+2) = Uy3*Ux3*Rab33i*3
-    Work(iFil(k,3)-1+nPart*nPol+ip) = -(1-3*Uy1**2)*Rab13i
-    Work(iFil(k,3)-1+nPart*nPol+ip+1) = -(1-3*Uy2**2)*Rab23i
-    Work(iFil(k,3)-1+nPart*nPol+ip+2) = -(1-3*Uy3**2)*Rab33i
-    Work(iFil(k,3)-1+2*nPart*nPol+ip) = Uz1*Uy1*Rab13i*3
-    Work(iFil(k,3)-1+2*nPart*nPol+ip+1) = Uz2*Uy2*Rab23i*3
-    Work(iFil(k,3)-1+2*nPart*nPol+ip+2) = Uz3*Uy3*Rab33i*3
+    Work(iFil(k,3)-1+ip) = U(2,1)*U(1,1)*Rab3i(1)*Three
+    Work(iFil(k,3)-1+ip+1) = U(2,2)*U(1,2)*Rab3i(2)*Three
+    Work(iFil(k,3)-1+ip+2) = U(2,3)*U(1,3)*Rab3i(3)*Three
+    Work(iFil(k,3)-1+nPart*nPol+ip) = (Three*U(2,1)**2-One)*Rab3i(1)
+    Work(iFil(k,3)-1+nPart*nPol+ip+1) = (Three*U(2,2)**2-One)*Rab3i(2)
+    Work(iFil(k,3)-1+nPart*nPol+ip+2) = (Three*U(2,3)**2-One)*Rab3i(3)
+    Work(iFil(k,3)-1+2*nPart*nPol+ip) = U(3,1)*U(2,1)*Rab3i(1)*Three
+    Work(iFil(k,3)-1+2*nPart*nPol+ip+1) = U(3,2)*U(2,2)*Rab3i(2)*Three
+    Work(iFil(k,3)-1+2*nPart*nPol+ip+2) = U(3,3)*U(2,3)*Rab3i(3)*Three
     ! Dipole -- z-component.
-    Work(iFil(k,4)-1+ip) = Uz1*Ux1*Rab13i*3
-    Work(iFil(k,4)-1+ip+1) = Uz2*Ux2*Rab23i*3
-    Work(iFil(k,4)-1+ip+2) = Uz3*Ux3*Rab33i*3
-    Work(iFil(k,4)-1+nPart*nPol+ip) = Uz1*Uy1*Rab13i*3
-    Work(iFil(k,4)-1+nPart*nPol+ip+1) = Uz2*Uy2*Rab23i*3
-    Work(iFil(k,4)-1+nPart*nPol+ip+2) = Uz3*Uy3*Rab33i*3
-    Work(iFil(k,4)-1+2*nPart*nPol+ip) = -(1-3*Uz1**2)*Rab13i
-    Work(iFil(k,4)-1+2*nPart*nPol+ip+1) = -(1-3*Uz2**2)*Rab23i
-    Work(iFil(k,4)-1+2*nPart*nPol+ip+2) = -(1-3*Uz3**2)*Rab33i
+    Work(iFil(k,4)-1+ip) = U(3,1)*U(1,1)*Rab3i(1)*Three
+    Work(iFil(k,4)-1+ip+1) = U(3,2)*U(1,2)*Rab3i(2)*Three
+    Work(iFil(k,4)-1+ip+2) = U(3,3)*U(1,3)*Rab3i(3)*Three
+    Work(iFil(k,4)-1+nPart*nPol+ip) = U(3,1)*U(2,1)*Rab3i(1)*Three
+    Work(iFil(k,4)-1+nPart*nPol+ip+1) = U(3,2)*U(2,2)*Rab3i(2)*Three
+    Work(iFil(k,4)-1+nPart*nPol+ip+2) = U(3,3)*U(2,3)*Rab3i(3)*Three
+    Work(iFil(k,4)-1+2*nPart*nPol+ip) = (Three*U(3,1)**2-One)*Rab3i(1)
+    Work(iFil(k,4)-1+2*nPart*nPol+ip+1) = (Three*U(3,2)**2-One)*Rab3i(2)
+    Work(iFil(k,4)-1+2*nPart*nPol+ip+2) = (Three*U(3,3)**2-One)*Rab3i(3)
     ! Quadrupole -- xx-component.
-    Work(iFil(k,5)-1+ip) = (5*Ux1*(Ux1*Ux1-.4))*Rab13i*S1e
-    Work(iFil(k,5)-1+ip+1) = (5*Ux2*(Ux2*Ux2-.4))*Rab23i*S2e
-    Work(iFil(k,5)-1+ip+2) = (5*Ux3*(Ux3*Ux3-.4))*Rab33i*S3e
-    Work(iFil(k,5)-1+nPart*nPol+ip) = 5*Uy1*Ux1*Ux1*Rab13i*S1e
-    Work(iFil(k,5)-1+nPart*nPol+ip+1) = 5*Uy2*Ux2*Ux2*Rab23i*S2e
-    Work(iFil(k,5)-1+nPart*nPol+ip+2) = 5*Uy3*Ux3*Ux3*Rab33i*S3e
-    Work(iFil(k,5)-1+2*nPart*nPol+ip) = 5*Uz1*Ux1*Ux1*Rab13i*S1e
-    Work(iFil(k,5)-1+2*nPart*nPol+ip+1) = 5*Uz2*Ux2*Ux2*Rab23i*S2e
-    Work(iFil(k,5)-1+2*nPart*nPol+ip+2) = 5*Uz3*Ux3*Ux3*Rab33i*S3e
+    Work(iFil(k,5)-1+ip) = U(1,1)*(Five*U(1,1)**2-Two)*Rab3i(1)*Se(1)
+    Work(iFil(k,5)-1+ip+1) = U(1,2)*(Five*U(1,2)**2-Two)*Rab3i(2)*Se(2)
+    Work(iFil(k,5)-1+ip+2) = U(1,3)*(Five*U(1,3)**2-Two)*Rab3i(3)*Se(3)
+    Work(iFil(k,5)-1+nPart*nPol+ip) = Five*U(2,1)*U(1,1)**2*Rab3i(1)*Se(1)
+    Work(iFil(k,5)-1+nPart*nPol+ip+1) = Five*U(2,2)*U(1,2)**2*Rab3i(2)*Se(2)
+    Work(iFil(k,5)-1+nPart*nPol+ip+2) = Five*U(2,3)*U(1,3)**2*Rab3i(3)*Se(3)
+    Work(iFil(k,5)-1+2*nPart*nPol+ip) = Five*U(3,1)*U(1,1)**2*Rab3i(1)*Se(1)
+    Work(iFil(k,5)-1+2*nPart*nPol+ip+1) = Five*U(3,2)*U(1,2)**2*Rab3i(2)*Se(2)
+    Work(iFil(k,5)-1+2*nPart*nPol+ip+2) = Five*U(3,3)*U(1,3)**2*Rab3i(3)*Se(3)
     ! Quadrupole -- yy-component.
-    Work(iFil(k,7)-1+ip) = 5*Uy1*Uy1*Ux1*Rab13i*S1e
-    Work(iFil(k,7)-1+ip+1) = 5*Uy2*Uy2*Ux2*Rab23i*S2e
-    Work(iFil(k,7)-1+ip+2) = 5*Uy3*Uy3*Ux3*Rab33i*S3e
-    Work(iFil(k,7)-1+nPart*nPol+ip) = (5*Uy1*(Uy1*Uy1-.4))*Rab13i*S1e
-    Work(iFil(k,7)-1+nPart*nPol+ip+1) = (5*Uy2*(Uy2*Uy2-.4))*Rab23i*S2e
-    Work(iFil(k,7)-1+nPart*nPol+ip+2) = (5*Uy3*(Uy3*Uy3-.4))*Rab33i*S3e
-    Work(iFil(k,7)-1+2*nPart*nPol+ip) = 5*Uz1*Uy1*Uy1*Rab13i*S1e
-    Work(iFil(k,7)-1+2*nPart*nPol+ip+1) = 5*Uz2*Uy2*Uy2*Rab23i*S2e
-    Work(iFil(k,7)-1+2*nPart*nPol+ip+2) = 5*Uz3*Uy3*Uy3*Rab33i*S3e
+    Work(iFil(k,7)-1+ip) = Five*U(2,1)**2*U(1,1)*Rab3i(1)*Se(1)
+    Work(iFil(k,7)-1+ip+1) = Five*U(2,2)**2*U(1,2)*Rab3i(2)*Se(2)
+    Work(iFil(k,7)-1+ip+2) = Five*U(2,3)**2*U(1,3)*Rab3i(3)*Se(3)
+    Work(iFil(k,7)-1+nPart*nPol+ip) = U(2,1)*(Five*U(2,1)**2-Two)*Rab3i(1)*Se(1)
+    Work(iFil(k,7)-1+nPart*nPol+ip+1) = U(2,2)*(Five*U(2,2)**2-Two)*Rab3i(2)*Se(2)
+    Work(iFil(k,7)-1+nPart*nPol+ip+2) = U(2,3)*(Five*U(2,3)**2-Two)*Rab3i(3)*Se(3)
+    Work(iFil(k,7)-1+2*nPart*nPol+ip) = Five*U(3,1)*U(2,1)**2*Rab3i(1)*Se(1)
+    Work(iFil(k,7)-1+2*nPart*nPol+ip+1) = Five*U(3,2)*U(2,2)**2*Rab3i(2)*Se(2)
+    Work(iFil(k,7)-1+2*nPart*nPol+ip+2) = Five*U(3,3)*U(2,3)**2*Rab3i(3)*Se(3)
     ! Quadrupole -- zz-component.
-    Work(iFil(k,10)-1+ip) = 5*Uz1*Uz1*Ux1*Rab13i*S1e
-    Work(iFil(k,10)-1+ip+1) = 5*Uz2*Uz2*Ux2*Rab23i*S2e
-    Work(iFil(k,10)-1+ip+2) = 5*Uz3*Uz3*Ux3*Rab33i*S3e
-    Work(iFil(k,10)-1+nPart*nPol+ip) = 5*Uz1*Uz1*Uy1*Rab13i*S1e
-    Work(iFil(k,10)-1+nPart*nPol+ip+1) = 5*Uz2*Uz2*Uy2*Rab23i*S2e
-    Work(iFil(k,10)-1+nPart*nPol+ip+2) = 5*Uz3*Uz3*Uy3*Rab33i*S3e
-    Work(iFil(k,10)-1+2*nPart*nPol+ip) = (5*Uz1*(Uz1*Uz1-.4))*Rab13i*S1e
-    Work(iFil(k,10)-1+2*nPart*nPol+ip+1) = (5*Uz2*(Uz2*Uz2-.4))*Rab23i*S2e
-    Work(iFil(k,10)-1+2*nPart*nPol+ip+2) = (5*Uz3*(Uz3*Uz3-.4))*Rab33i*S3e
+    Work(iFil(k,10)-1+ip) = Five*U(3,1)**2*U(1,1)*Rab3i(1)*Se(1)
+    Work(iFil(k,10)-1+ip+1) = Five*U(3,2)**2*U(1,2)*Rab3i(2)*Se(2)
+    Work(iFil(k,10)-1+ip+2) = Five*U(3,3)**2*U(1,3)*Rab3i(3)*Se(3)
+    Work(iFil(k,10)-1+nPart*nPol+ip) = Five*U(3,1)**2*U(2,1)*Rab3i(1)*Se(1)
+    Work(iFil(k,10)-1+nPart*nPol+ip+1) = Five*U(3,2)**2*U(2,2)*Rab3i(2)*Se(2)
+    Work(iFil(k,10)-1+nPart*nPol+ip+2) = Five*U(3,3)**2*U(2,3)*Rab3i(3)*Se(3)
+    Work(iFil(k,10)-1+2*nPart*nPol+ip) = U(3,1)*(Five*U(3,1)**2-Two)*Rab3i(1)*Se(1)
+    Work(iFil(k,10)-1+2*nPart*nPol+ip+1) = U(3,2)*(Five*U(3,2)**2-Two)*Rab3i(2)*Se(2)
+    Work(iFil(k,10)-1+2*nPart*nPol+ip+2) = U(3,3)*(Five*U(3,3)**2-Two)*Rab3i(3)*Se(3)
     ! Quadrupole -- xy-component.
-    Work(iFil(k,6)-1+ip) = (5*Uy1*(Ux1*Ux1-.2))*Rab13i*S1e
-    Work(iFil(k,6)-1+ip+1) = (5*Uy2*(Ux2*Ux2-.2))*Rab23i*S2e
-    Work(iFil(k,6)-1+ip+2) = (5*Uy3*(Ux3*Ux3-.2))*Rab33i*S3e
-    Work(iFil(k,6)-1+nPart*nPol+ip) = (5*Ux1*(Uy1*Uy1-.2))*Rab13i*S1e
-    Work(iFil(k,6)-1+nPart*nPol+ip+1) = (5*Ux2*(Uy2*Uy2-.2))*Rab23i*S2e
-    Work(iFil(k,6)-1+nPart*nPol+ip+2) = (5*Ux3*(Uy3*Uy3-.2))*Rab33i*S3e
-    Work(iFil(k,6)-1+2*nPart*nPol+ip) = 5*Uz1*Uy1*Ux1*Rab13i*S1e
-    Work(iFil(k,6)-1+2*nPart*nPol+ip+1) = 5*Uz2*Uy2*Ux2*Rab23i*S2e
-    Work(iFil(k,6)-1+2*nPart*nPol+ip+2) = 5*Uz3*Uy3*Ux3*Rab33i*S3e
+    Work(iFil(k,6)-1+ip) = U(2,1)*(Five*U(1,1)**2-One)*Rab3i(1)*Se(1)
+    Work(iFil(k,6)-1+ip+1) = U(2,2)*(Five*U(1,2)**2-One)*Rab3i(2)*Se(2)
+    Work(iFil(k,6)-1+ip+2) = U(2,3)*(Five*U(1,3)**2-One)*Rab3i(3)*Se(3)
+    Work(iFil(k,6)-1+nPart*nPol+ip) = U(1,1)*(Five*U(2,1)**2-One)*Rab3i(1)*Se(1)
+    Work(iFil(k,6)-1+nPart*nPol+ip+1) = U(1,2)*(Five*U(2,2)**2-One)*Rab3i(2)*Se(2)
+    Work(iFil(k,6)-1+nPart*nPol+ip+2) = U(1,3)*(Five*U(2,3)**2-One)*Rab3i(3)*Se(3)
+    Work(iFil(k,6)-1+2*nPart*nPol+ip) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
+    Work(iFil(k,6)-1+2*nPart*nPol+ip+1) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
+    Work(iFil(k,6)-1+2*nPart*nPol+ip+2) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
     ! Quadrupole -- xz-component.
-    Work(iFil(k,8)-1+ip) = (5*Uz1*(Ux1*Ux1-.2))*Rab13i*S1e
-    Work(iFil(k,8)-1+ip+1) = (5*Uz2*(Ux2*Ux2-.2))*Rab23i*S2e
-    Work(iFil(k,8)-1+ip+2) = (5*Uz3*(Ux3*Ux3-.2))*Rab33i*S3e
-    Work(iFil(k,8)-1+nPart*nPol+ip) = 5*Uz1*Uy1*Ux1*Rab13i*S1e
-    Work(iFil(k,8)-1+nPart*nPol+ip+1) = 5*Uz2*Uy2*Ux2*Rab23i*S2e
-    Work(iFil(k,8)-1+nPart*nPol+ip+2) = 5*Uz3*Uy3*Ux3*Rab33i*S3e
-    Work(iFil(k,8)-1+2*nPart*nPol+ip) = (5*Ux1*(Uz1*Uz1-.2))*Rab13i*S1e
-    Work(iFil(k,8)-1+2*nPart*nPol+ip+1) = (5*Ux2*(Uz2*Uz2-.2))*Rab23i*S2e
-    Work(iFil(k,8)-1+2*nPart*nPol+ip+2) = (5*Ux3*(Uz3*Uz3-.2))*Rab33i*S3e
+    Work(iFil(k,8)-1+ip) = U(3,1)*(Five*U(1,1)**2-One)*Rab3i(1)*Se(1)
+    Work(iFil(k,8)-1+ip+1) = U(3,2)*(Five*U(1,2)**2-One)*Rab3i(2)*Se(2)
+    Work(iFil(k,8)-1+ip+2) = U(3,3)*(Five*U(1,3)**2-One)*Rab3i(3)*Se(3)
+    Work(iFil(k,8)-1+nPart*nPol+ip) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
+    Work(iFil(k,8)-1+nPart*nPol+ip+1) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
+    Work(iFil(k,8)-1+nPart*nPol+ip+2) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
+    Work(iFil(k,8)-1+2*nPart*nPol+ip) = U(1,1)*(Five*U(3,1)**2-One)*Rab3i(1)*Se(1)
+    Work(iFil(k,8)-1+2*nPart*nPol+ip+1) = U(1,2)*(Five*U(3,2)**2-One)*Rab3i(2)*Se(2)
+    Work(iFil(k,8)-1+2*nPart*nPol+ip+2) = U(1,3)*(Five*U(3,3)**2-One)*Rab3i(3)*Se(3)
     ! Quadrupole -- yz-component.
-    Work(iFil(k,9)-1+ip) = 5*Uz1*Uy1*Ux1*Rab13i*S1e
-    Work(iFil(k,9)-1+ip+1) = 5*Uz2*Uy2*Ux2*Rab23i*S2e
-    Work(iFil(k,9)-1+ip+2) = 5*Uz3*Uy3*Ux3*Rab33i*S3e
-    Work(iFil(k,9)-1+nPart*nPol+ip) = (5*Uz1*(Uy1*Uy1-.2))*Rab13i*S1e
-    Work(iFil(k,9)-1+nPart*nPol+ip+1) = (5*Uz2*(Uy2*Uy2-.2))*Rab23i*S2e
-    Work(iFil(k,9)-1+nPart*nPol+ip+2) = (5*Uz3*(Uy3*Uy3-.2))*Rab33i*S3e
-    Work(iFil(k,9)-1+2*nPart*nPol+ip) = (5*Uy1*(Uz1*Uz1-.2))*Rab13i*S1e
-    Work(iFil(k,9)-1+2*nPart*nPol+ip+1) = (5*Uy2*(Uz2*Uz2-.2))*Rab23i*S2e
-    Work(iFil(k,9)-1+2*nPart*nPol+ip+2) = (5*Uy3*(Uz3*Uz3-.2))*Rab33i*S3e
+    Work(iFil(k,9)-1+ip) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
+    Work(iFil(k,9)-1+ip+1) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
+    Work(iFil(k,9)-1+ip+2) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
+    Work(iFil(k,9)-1+nPart*nPol+ip) = U(3,1)*(Five*U(2,1)**2-One)*Rab3i(1)*Se(1)
+    Work(iFil(k,9)-1+nPart*nPol+ip+1) = U(3,2)*(Five*U(2,2)**2-One)*Rab3i(2)*Se(2)
+    Work(iFil(k,9)-1+nPart*nPol+ip+2) = U(3,3)*(Five*U(2,3)**2-One)*Rab3i(3)*Se(3)
+    Work(iFil(k,9)-1+2*nPart*nPol+ip) = U(2,1)*(Five*U(3,1)**2-One)*Rab3i(1)*Se(1)
+    Work(iFil(k,9)-1+2*nPart*nPol+ip+1) = U(2,2)*(Five*U(3,2)**2-One)*Rab3i(2)*Se(2)
+    Work(iFil(k,9)-1+2*nPart*nPol+ip+2) = U(2,3)*(Five*U(3,3)**2-One)*Rab3i(3)*Se(3)
     !------------------------------------------------------------------*
     ! If damping of the field is requested, then do it.                *
     !------------------------------------------------------------------*
     if (FieldDamp) then
       do ijhr=1,10
         do jjhr=0,2
-          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip)*(1-exp(CAFieldG*rg1))**CFexp
-          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1)*(1-exp(CBFieldG*rg2))**CFexp
-          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2)*(1-exp(CBFieldG*rg3))**CFexp
+          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip)*(One-exp(CAFieldG*Rg(1)))**CFexp
+          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1)*(One-exp(CBFieldG*Rg(2)))**CFexp
+          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2)*(One-exp(CBFieldG*Rg(3)))**CFexp
         end do
       end do
     end if

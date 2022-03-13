@@ -44,22 +44,24 @@
 
 subroutine Sl_Grad(nCentA,lMaxA,Coord,Dist,DInv,ExpoA,FactorA,SlPA,lMaxB,ExpoB,dNeigh,EintSl,EintSl_Nuc,lAtom)
 
-implicit real*8(a-h,o-z)
-#include "warnings.h"
-parameter(MxMltp=2,MxK=(MxMltp*(MxMltp**2+6*MxMltp+11)+6)/6)
-dimension Coord(3,nCentA), Dist(nCentA), DInv(nCentA)
-dimension FactorA(4,nCentA), ExpoA(2,nCentA)
-dimension SlPA(nCentA), ExpoB(MxMltp+1)
-dimension EintSl(MxK), Colle(3)
-dimension TMPA((MxMltp+1)*(MxMltp+2)/2)
-dimension Rotte(3,3), v(3), TR(6,6)
-logical lDiffA, lDiffB, lTooSmall, lAtom
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
+use Constants, only: Zero, One, Three, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), parameter :: MxMltp = 2
+integer(kind=iwp) :: nCentA, lMaxA, lMaxB
+real(kind=wp) :: Coord(3,nCentA), Dist(nCentA), DInv(nCentA), ExpoA(2,nCentA), FactorA(4,nCentA), SlPA(nCentA), ExpoB(MxMltp+1), &
+                 dNeigh, EintSl(nTri3_Elem1(MxMltp)), EintSl_Nuc
+logical(kind=iwp) :: lAtom
+integer(kind=iwp) :: iCA, ijhr, iLA, iLB, kaunt, kComp, nS, nT
+real(kind=wp) :: Colle(3), dKappa, EA, EAp, EB, EBp, R, Rho, RhoA, RhoB, Rinv, Rotte(3,3), Sigge, Tau, TMPA(nTri_Elem1(MxMltp)), & !IFG
+                 TR(6,6), v(3)
+logical(kind=iwp) :: lDiffA, lDiffB, lTooSmall
 
 ! Some zeros.
-do ijhr=1,MxK
-  EintSl(ijhr) = 0.0d0
-end do
-EintSl_Nuc = 0.0d0
+EintSl(:) = Zero
+EintSl_Nuc = Zero
 
 ! Loop over all centers in molecule A.
 
@@ -92,7 +94,7 @@ do iCA=1,nCentA
 
   do iLA=0,lMaxA
     EA = ExpoA(iLA+1,iCA)
-    lDiffA = EA > -1.0d0
+    lDiffA = EA > -One
     nS = iLA*(iLA+1)*(iLA+2)/6
     nT = (iLA+1)*(iLA+2)*(iLA+3)/6
     kaunt = 0
@@ -103,7 +105,7 @@ do iCA=1,nCentA
 
     ! Rotate and go over to spherical representation.
 
-    Sigge = -1.0d0
+    Sigge = -One
     call Rotation_qmstat(iLA,TMPA,Rotte,Sigge)
 
     ! Jose. Only one center in B so not loop over centres on B.
@@ -111,14 +113,14 @@ do iCA=1,nCentA
 
     do iLB=0,lMaxB
       EB = ExpoB(iLB+1)
-      lDiffB = EB > -1.0d0
+      lDiffB = EB > -One
 
       ! There is no rotation of Multipoles in B since we do not use them.
 
       ! ELECTRON--ELECTRON.
 
-      EAp = 0.5d0*EA
-      EBp = 0.5d0*EB
+      EAp = Half*EA
+      EBp = Half*EB
       if (lDiffA .and. lDiffB) then
         ! Both diffuse.
 
@@ -157,12 +159,12 @@ do iCA=1,nCentA
         else if (iLB == 2) then
           if (iLA == 0) then
             do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
-              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))
+              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))
             end do
           else ! if iLA not 0 then it is 1
             do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz
-              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))+Colle(2)*sqrt(3.0d0)*TR(3,ijhr)+ &
-                               Colle(3)*sqrt(3.0d0)*TR(5,ijhr)
+              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))+Colle(2)*sqrt(Three)*TR(3,ijhr)+ &
+                               Colle(3)*sqrt(Three)*TR(5,ijhr)
             end do
           end if
         end if
@@ -203,20 +205,20 @@ do iCA=1,nCentA
         else if (iLB == 2) then
           if (iLA == 0) then
             do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
-              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))
+              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))
             end do
           else if (iLA == 1) then
             do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz
-              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))+Colle(2)*sqrt(3.d0)*TR(3,ijhr)+ &
-                               Colle(3)*sqrt(3.0d0)*TR(5,ijhr)
+              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))+Colle(2)*sqrt(Three)*TR(3,ijhr)+ &
+                               Colle(3)*sqrt(Three)*TR(5,ijhr)
             end do
 
           !Jose. This will be for a d-d interaction
           !else if (iLA == 2) then
           !  do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz Del1=sqrt(3)*xy Del2=0.5*sqrt(3)*(x2-y2)
-          !            EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))+ &
-          !                             Colle(2)*sqrt(3.d0)*TR(3,ijhr)+Colle(3)*sqrt(3.0d0)*TR(5,ijhr)+ &
-          !                             Colle(4)*sqrt(3.0d0)*TR(2,ijhr)+Colle(5)*0.5d0*sqrt(3.0d0)*(TR(1,ijhr)-TR(4,ijhr))
+          !            EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))+ &
+          !                             Colle(2)*sqrt(Three)*TR(3,ijhr)+Colle(3)*sqrt(Three)*TR(5,ijhr)+ &
+          !                             Colle(4)*sqrt(Three)*TR(2,ijhr)+Colle(5)*Half*sqrt(Three)*(TR(1,ijhr)-TR(4,ijhr))
           !  end do
           !--------
           end if
@@ -249,11 +251,11 @@ do iCA=1,nCentA
   ! Jose. Potential, Field and Field Gradient of nuclear
   ! charge in A on the B sites
 
-  if (SlPA(iCA) > 1.0d-8) then
+  if (SlPA(iCA) > 1.0e-8_wp) then
     do iLB=0,lMaxB
       EB = ExpoB(iLB+1)
-      lDiffB = EB > -1.0d0
-      EBp = 0.5d0*EB
+      lDiffB = EB > -One
+      EBp = Half*EB
 
       if (lDiffB) then
         call ABOne(iLB,0,SlPA(iCA),EBp,R,Rinv,Colle,.false.)
@@ -268,7 +270,7 @@ do iCA=1,nCentA
         end do
       else if (iLB == 2) then
         do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
-          EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)+TR(4,ijhr)))
+          EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))
         end do
       end if
     end do

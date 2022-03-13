@@ -45,32 +45,26 @@
 !******JoseMEP the last three variables are included to the MEP calculation
 subroutine Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBasCC,nCnC_C,nOcc,natyp,nntyp)
 
-implicit real*8(a-h,o-z)
-!----------------------------------------------------------------------*
-! Variables                                                            *
-!----------------------------------------------------------------------*
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
-#include "files_qmstat.fh"
 #include "qmcom.fh"
 #include "qm1.fh"
-#include "qm2.fh"
 #include "integral.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-#include "tratoc.fh"
 #include "warnings.h"
-parameter(IndMax=nTraBuf) !nTraBuf defined in tratoc.fh
-dimension Coord(MxAt*3), Chge(MxAt), CoordCC(3*3), ChgeCC(3)
-dimension Cmo(MxBas**2), Cmo_S(MxBas**2), Occu(MxBas), Dummy(MxBas)
-dimension nSh(MxAt), nfSh(MxAt,MxAngqNr), nCnC_C(MxBasC)
-dimension nOcc(MxBas), natyp(MxAt), natypC(MxAt), iDumm(MxBas)
-dimension nBas(MxSym), nBasCC(1), iCon(MxAt,MxPrCon)
-dimension iC_icon(MxAt,MxPrCon)
-character Line*120, BlLine*120, Title*100, OrbName*100, WhatGet*10
-character StLine*120
-dimension iDummy(1)
-integer ipACC
+integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(MxSym), nBasCC(1), nCnC_C(MxBasC), nOcc(MxBas), natyp(MxAt), nntyp
+real(kind=wp) :: Coord(MxAt*3)
+integer(kind=iwp) :: i, iAtom, iBas, iC_icon(MxAt,MxPrCon), iCon(MxAt,MxPrCon), icont, iDumm(MxBas), iDummy(1), iErr, iLu, ind, & !IFG
+                     indold, iOe, iold, ipACC, ipC, ipC_C, ipE, ipE_C, iWarn, ix, j, jnd, k, kaunter, kk, Kmax, kold, l, lLine, m, &
+                     na, nACCSizeC, nACCSizeQ, natypC(MxAt), nfSh(MxAt,MxAngqNr), nnaa, nntypC, nSh(MxAt), nShj, nSize, nSym, nSymCC !IFG
+real(kind=wp) :: Chge(MxAt), ChgeCC(3), Cmo(MxBas**2), Cmo_S(MxBas**2), CoordCC(3*3), Dummy(MxBas), Occu(MxBas) !IFG
+character(len=120) :: BlLine, Line, StLine
+character(len=100) :: OrbName, Title
+character(len=10) :: WhatGet
+integer(kind=iwp), external :: IsFreeUnit
 
 !----------------------------------------------------------------------*
 ! Enter                                                                *
@@ -85,32 +79,32 @@ if (ATitle) then
     BlLine(i:i) = ' '
     StLine(i:i) = '*'
   end do
-  write(6,*)
+  write(u6,*)
   do i=1,6
     Line = BlLine
     if ((i == 1) .or. (i == 6)) Line = StLine
     if (i == 3) Line = 'Project:'
     if (i == 4) write(Line,'(A72)') JobLab
     call Center_Text(Line)
-    write(6,*) '*'//Line//'*'
+    write(u6,*) '*'//Line//'*'
   end do
-  write(6,*)
+  write(u6,*)
 end if
-write(6,*) 'Auxiliary data being read and pre-processed.'
+write(u6,*) 'Auxiliary data being read and pre-processed.'
 !----------------------------------------------------------------------*
 ! Collect some data from RUNFILE about the QM-region molecule.         *
 !----------------------------------------------------------------------*
 call Get_iScalar('nSym',nSym)
 if (nSym /= 1) then !A minor restriction, no symmetry allowed, i.e. nSym=1.
-  write(6,*)
-  write(6,*) ' QmStat does not run with symmetry!'
-  write(6,*) ' The perturbation from the solvent breaks all symmetry.'
+  write(u6,*)
+  write(u6,*) ' QmStat does not run with symmetry!'
+  write(u6,*) ' The perturbation from the solvent breaks all symmetry.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 call Get_iScalar('Unique atoms',iQ_Atoms)
 if (iQ_Atoms > MxAt) then
-  write(6,*)
-  write(6,*) 'Maximum number of atoms exceeded. Increase MxAt in maxi.fh in QmStat source directory.'
+  write(u6,*)
+  write(u6,*) 'Maximum number of atoms exceeded. Increase MxAt in maxi.fh in QmStat source directory.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 call Get_dArray('Nuclear charge',Chge,iQ_Atoms)
@@ -118,21 +112,21 @@ call Get_dArray('Unique Coordinates',Coord,3*iQ_Atoms)
 call Get_dArray('Center of Mass',CT,3)
 call Get_iArray('nBas',nBas,nSym)
 if (nBas(1) > MxBas) then
-  write(6,*)
-  write(6,*) 'Maximum number of basis functions exceeded. Increase MxBas in maxi.fh in QmStat source directory.'
+  write(u6,*)
+  write(u6,*) 'Maximum number of basis functions exceeded. Increase MxBas in maxi.fh in QmStat source directory.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 
 !----------------------------------------------------------------------*
 ! Print elementary information about molecule.                         *
 !----------------------------------------------------------------------*
-write(6,*)
-write(6,*) '     ------------------------------'
-write(6,*) '     |       QM-region data       |'
-write(6,*) '     ------------------------------'
-write(6,*)
-write(6,'(A,15X,I5)') '      Number of basis functions:',(nBas(i),i=1,nSym)
-write(6,'(A,3F10.6)') '      Centre of mass =',(CT(kk),kk=1,3)
+write(u6,*)
+write(u6,*) '     ------------------------------'
+write(u6,*) '     |       QM-region data       |'
+write(u6,*) '     ------------------------------'
+write(u6,*)
+write(u6,'(A,15X,I5)') '      Number of basis functions:',(nBas(i),i=1,nSym)
+write(u6,'(A,3F10.6)') '      Centre of mass =',(CT(kk),kk=1,3)
 call PrCoor()
 
 !----------------------------------------------------------------------*
@@ -160,9 +154,9 @@ if (QmType(1:3) == 'SCF') then
   iWarn = 1
   call RdVec(OrbName,iLu,WhatGet,nSym,nBas,nBas,Cmo,Occu,Dummy,iDumm,Title,iWarn,iErr)
   if (iErr /= 0) then
-    write(6,*)
-    write(6,*) 'Error when reading AVEORB'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'Error when reading AVEORB'
+    write(u6,*)
     call Quit(_RC_IO_ERROR_READ_)
   end if
   kaunter = 0
@@ -173,7 +167,7 @@ if (QmType(1:3) == 'SCF') then
       kaunter = kaunter+1
     end do
   end do
-  !write(6,'(A,I4)') '      Number of Orbitals:',iOrb(1)
+  !write(u6,'(A,I4)') '      Number of Orbitals:',iOrb(1)
   call Get_dScalar('PotNuc',PotNuc)
 
 else if (QmType(1:4) == 'RASS') then
@@ -186,8 +180,8 @@ else if (QmType(1:4) == 'RASS') then
   !--------------------------------------------------------------------*
   call TdmTrans(nBas)
 end if
-write(6,*)
-write(6,*)
+write(u6,*)
+write(u6,*)
 !----------------------------------------------------------------------*
 ! Compute various information about system. This we use for computing  *
 ! integrals later. GiveMeInfo collects stuff from seward, sometime with*
@@ -244,7 +238,7 @@ do i=1,nntyp
   end do
 end do
 Kmax = ibas
-call dcopy_(nACCSizeQ,Work(ipACC),iONE,Trans,iONE)
+call dcopy_(nACCSizeQ,Work(ipACC),1,Trans,1)
 ! Now we do not need them, so deallocate
 call GetMem('AccTransa','Free','Real',ipACC,nACCSizeQ)
 call GetMem('Exponents','Free','Real',ipE,nSize*MxAt)
@@ -257,30 +251,30 @@ call GetMem('ContrCoef','Free','Real',ipC,nSize*MxAt)
 call NameRun('WRUNFIL')
 call Get_iScalar('nSym',nSymCC)
 if (nSymCC /= 1) then
-  write(6,*)
-  write(6,*) ' QmStat does not run with symmetry!'
+  write(u6,*)
+  write(u6,*) ' QmStat does not run with symmetry!'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 call Get_iScalar('Unique atoms',nAtomsCC)
 if (nAtomsCC /= 3) then
-  write(6,*)
-  write(6,*) 'Now now... what strange solvent molecule do you try to feed QmStat with?'
+  write(u6,*)
+  write(u6,*) 'Now now... what strange solvent molecule do you try to feed QmStat with?'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 call Get_dArray('Nuclear charge',ChgeCC,nAtomsCC)
 call Get_dArray('Unique Coordinates',CoordCC,3*nAtomsCC)
 call Get_iArray('nBas',nBasCC,nSymCC)
 if (nBasCC(1) > MxBasC) then
-  write(6,*)
-  write(6,*) 'Number of solvent molecule basis functions exceeded. Increase MxBasC in maxi.fh in QmStat source directory.'
+  write(u6,*)
+  write(u6,*) 'Number of solvent molecule basis functions exceeded. Increase MxBasC in maxi.fh in QmStat source directory.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
-write(6,*)
-write(6,*) '     ------------------------------'
-write(6,*) '     |   Solvent molecule data     |'
-write(6,*) '     ------------------------------'
-write(6,*)
-write(6,'(A,15X,I5)') '      Number of basis functions:',(nBasCC(i),i=1,nSymCC)
+write(u6,*)
+write(u6,*) '     ------------------------------'
+write(u6,*) '     |   Solvent molecule data     |'
+write(u6,*) '     ------------------------------'
+write(u6,*)
+write(u6,'(A,15X,I5)') '      Number of basis functions:',(nBasCC(i),i=1,nSymCC)
 call PrCoor()
 
 ! Collect information about the solvent orbitals.
@@ -305,9 +299,9 @@ do j=1,iOrb(2)
     V3(k,j) = Cmo_S(k+(j-1)*nBasCC(1))
   end do
 end do
-!write(6,'(A,I4)') '      Number of Orbitals:',iOrb(2)
-write(6,*)
-write(6,*)
+!write(u6,'(A,I4)') '      Number of Orbitals:',iOrb(2)
+write(u6,*)
+write(u6,*)
 !----------------------------------------------------------------------*
 ! And now basis set information.                                       *
 !----------------------------------------------------------------------*
@@ -359,7 +353,7 @@ do i=1,nntypC !Like the corresponding thing above for the QM-region.
 end do
 Lmax = ibas
 if (nACCSizeC > nACCSizeQ) then
-  call dcopy_(nACCSizeC,Work(ipACC),iONE,Trans,iONE)
+  call dcopy_(nACCSizeC,Work(ipACC),1,Trans,1)
 end if
 ! Now we do not need them, so deallocate.
 call GetMem('AccTransa','Free','Real',ipACC,nACCSizeC)
@@ -370,8 +364,8 @@ call GetMem('ContrCoef','Free','Real',ipC_C,nSize*MxAt)
 ! A small test to see if max-limits are violated.                      *
 !----------------------------------------------------------------------*
 if ((Kmax > MxBB) .or. (Lmax > MxBB)) then
-  write(6,*)
-  write(6,*) 'ERROR! MxBB too small!'
+  write(u6,*)
+  write(u6,*) 'ERROR! MxBB too small!'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 !----------------------------------------------------------------------*

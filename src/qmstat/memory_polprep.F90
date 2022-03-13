@@ -11,10 +11,14 @@
 
 subroutine Memory_PolPrep(Que,ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
 
-implicit real*8(a-h,o-z)
-#include "numbers.fh"
+use Constants, only: Zero
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: Que
+integer(kind=iwp) :: ixx, iyy, izz, irr3, ixxi, iyyi, izzi, iGri, nPol, nPart
 #include "WrkSpc.fh"
-character*(*) Que
+integer(kind=iwp) :: nSize
 
 nSize = nPart*nPol
 call GetMem('xx',Que,'Real',ixx,nSize**2)
@@ -27,14 +31,14 @@ call GetMem('irr3',Que,'Real',irr3,nSize**2)
 call GetMem('iGri',Que,'Real',iGri,nSize**2)
 
 if (Que(1:4) == 'Allo') then
-  call dcopy_(nSize**2,[ZERO],iZERO,Work(ixx),iONE)
-  call dcopy_(nSize**2,[ZERO],iZERO,Work(iyy),iONE)
-  call dcopy_(nSize**2,[ZERO],iZERO,Work(izz),iONE)
-  call dcopy_(nSize**2,[ZERO],iZERO,Work(ixxi),iONE)
-  call dcopy_(nSize**2,[ZERO],iZERO,Work(iyyi),iONE)
-  call dcopy_(nSize**2,[ZERO],iZERO,Work(izzi),iONE)
-  call dcopy_(nSize**2,[ZERO],iZERO,Work(irr3),iONE)
-  call dcopy_(nSize**2,[ZERO],iZERO,Work(iGri),iONE)
+  call dcopy_(nSize**2,[Zero],0,Work(ixx),1)
+  call dcopy_(nSize**2,[Zero],0,Work(iyy),1)
+  call dcopy_(nSize**2,[Zero],0,Work(izz),1)
+  call dcopy_(nSize**2,[Zero],0,Work(ixxi),1)
+  call dcopy_(nSize**2,[Zero],0,Work(iyyi),1)
+  call dcopy_(nSize**2,[Zero],0,Work(izzi),1)
+  call dcopy_(nSize**2,[Zero],0,Work(irr3),1)
+  call dcopy_(nSize**2,[Zero],0,Work(iGri),1)
 end if
 
 return

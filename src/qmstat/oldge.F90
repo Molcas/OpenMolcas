@@ -11,9 +11,14 @@
 
 subroutine Oldge(iAcc,Etot,Eold,Ract,Rold)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iAcc
+real(kind=wp) :: Etot, Eold, Ract, Rold
 #include "maxi.fh"
 #include "qminp.fh"
+integer(kind=iwp) :: i, icCom, j, k
 
 iAcc = iAcc-1
 Etot = Eold

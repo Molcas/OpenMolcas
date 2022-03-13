@@ -10,15 +10,21 @@
 !***********************************************************************
 
 ! s-s interaction, with too small exponent difference.
-real*8 function CoulT0_1(Rho,dSepInv,Expo)
+function CoulT0_1(Rho,dSepInv,Expo)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One, Three, Four, Six, Eight, Eleven
+use Definitions, only: wp
 
-T1 = 1.0d0
-T2 = (11.0d0/8.0d0)*Rho
-T3 = (3.0d0/4.0d0)*Rho**2
-T4 = (1.0d0/6.0d0)*Rho**3
-CoulT0_1 = dSepInv*(1.0d0-(T1+T2+T3+T4)*Expo)
+implicit none
+real(kind=wp) :: CoulT0_1
+real(kind=wp) :: Rho, dSepInv, Expo
+real(kind=wp) :: T1, T2, T3, T4
+
+T1 = One
+T2 = (Eleven/Eight)*Rho
+T3 = (Three/Four)*Rho**2
+T4 = (One/Six)*Rho**3
+CoulT0_1 = dSepInv*(One-(T1+T2+T3+T4)*Expo)
 
 return
 

@@ -12,13 +12,16 @@
 !----------------------------------------------------------------------*
 ! A small function to compute the Nemo exchange repulsion.             *
 !----------------------------------------------------------------------*
-real*8 function ExNemo(i,j,a)
+function ExNemo(i,j,a)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: ExNemo
+integer(kind=iwp) :: i, j
+real(kind=wp) :: a
 #include "maxi.fh"
 #include "qminp.fh"
-real*8 a
-integer i, j
 
 !The function
 ExNemo = exp(-Sexrep(i,j)/a)*Sexre1(i,j)+Sexre2(i,j)*(a**20)

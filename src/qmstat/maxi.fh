@@ -48,6 +48,7 @@
       Integer MxPut,MxQCen,MxOT,MxBB,MxAngqNr
       Integer MxBasC,MxPrCon,MxCont,MxState,MxStOT
       Integer MxJobs,MxParT,MxExtAddOn
+      Integer MxOrb_C
       Parameter(MxCha=4,MxPol=3,MxAt=18,MxCen=5,MxMltp=3)
       Parameter(MxComp=MxMltp*(MxMltp+1)/2,MxBas=350,MxSym=1)
       Parameter(MxOrb=100,MxOT=MxOrb*(MxOrb+1)/2,MxOrb_C=10,MxPut=220)

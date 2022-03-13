@@ -12,11 +12,16 @@
 ! Take higher multipole into spherical representation.
 subroutine Spherical(dMul)
 
-implicit real*8(a-h,o-z)
-parameter(MxMltp=2)
-dimension dMul((MxMltp+1)*(MxMltp+2)/2)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Three, Half
+use Definitions, only: wp, iwp
 
-d3 = sqrt(3.0d0)
+implicit none
+integer(kind=iwp), parameter :: MxMltp = 2 !IFG
+real(kind=wp) :: dMul(nTri_Elem1(MxMltp))
+real(kind=wp) :: x2, xy, xz, y2, yz, z2
+real(kind=wp), parameter :: d3 = sqrt(Three)
+
 x2 = dMul(1)
 y2 = dMul(4)
 z2 = dMul(6)
@@ -25,9 +30,9 @@ xz = dMul(3)
 yz = dMul(5)
 dMul(1) = d3*xy
 dMul(2) = d3*xz
-dMul(3) = z2-0.5d0*(x2+y2)
+dMul(3) = z2-Half*(x2+y2)
 dMul(4) = d3*yz
-dMul(5) = 0.5d0*d3*(x2-y2)
+dMul(5) = Half*d3*(x2-y2)
 
 return
 

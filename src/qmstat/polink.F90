@@ -45,32 +45,37 @@
 subroutine Polink(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP, &
                   RoMat,xyzQuQ,CT)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Two, Three, OneHalf
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qm1.fh"
 #include "WrkSpc.fh"
-dimension Fil(npart*npol,3), Qm(MxQCen), Dm(MxQCen,3), QQm(MxQCen,6), Poli(MxQCen,10), Gunnar(10), Eil(MxPut*MxPol,3), xyzMyC(3), &
-          CofC(3), VpolMat(MxOt), ChaNuc(MxAt), xyzMyQ(3), xyzMyI(3), xyzMyP(3), RoMat(MxOT)
-dimension xyzQuQ(6), qQ(6), qD(6), qK(6), CT(3)
-dimension iFil(MxQCen,10)
+real(kind=wp) :: Energy, VpolMat(MxOt), Fil(npart*npol,3), polfac, Poli(MxQCen,10), qTot, ChaNuc(MxAt), xyzMyQ(3), xyzMyI(3), &
+                 xyzMyP(3), RoMat(MxOT), xyzQuQ(6), CT(3)
+integer(kind=iwp) :: iCall, iAtom2, iCi, iFil(MxQCen,10), iCstart, iTri, iQ_Atoms
+integer(kind=iwp) :: i, iCnum, Iu, j, k, kk, l
+real(kind=wp) :: CofC(3), Dm(MxQCen,3), Eil(MxPut*MxPol,3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), Qm(MxQCen), qQ(6), & !IFG
+                 QQm(MxQCen,6), qs, Trace1, Trace2, xyzMyC(3) !IFG
 
 !----------------------------------------------------------------------*
 ! Begin with some zeros.                                               *
 !----------------------------------------------------------------------*
 iCnum = iCStart/Ncent
 do i=1,iCi
-  Qm(i) = 0.0d0
+  Qm(i) = Zero
   if (i <= iQ_Atoms) Qm(i) = -ChaNuc(i) !Here is nuclear contribution added to atoms.
   do j=1,3
-    Dm(i,j) = 0.0d0
-    QQm(i,j) = 0.0d0
-    QQm(i,j+3) = 0.0d0
+    Dm(i,j) = Zero
+    QQm(i,j) = Zero
+    QQm(i,j+3) = Zero
   end do
 end do
 do i=1,MxPut*MxPol
   do j=1,3
-    Eil(i,j) = 0.0d0
+    Eil(i,j) = Zero
   end do
 end do
 !----------------------------------------------------------------------*
@@ -94,15 +99,15 @@ do i=1,iTri
   end do
 end do
 do kk=1,3
-  xyzMyQ(kk) = 0
-  xyzMyC(kk) = 0
-  CofC(kk) = 0
+  xyzMyQ(kk) = Zero
+  xyzMyC(kk) = Zero
+  CofC(kk) = Zero
 end do
 do kk=1,6
-  xyzQuQ(kk) = 0
-  qQ(kk) = 0
-  qD(kk) = 0
-  qK(kk) = 0
+  xyzQuQ(kk) = Zero
+  qQ(kk) = Zero
+  qD(kk) = Zero
+  qK(kk) = Zero
 end do
 ! Observe one tricky thing about xyzmyq: the electric multipoles
 ! we use above are actually of opposite sign, so how can xyzmyq be
@@ -120,12 +125,12 @@ do i=1,iCi
   qQ(4) = qQ(4)+Qm(i)*(outxyz(i,2)-CT(2))*(outxyz(i,2)-CT(2))
   qQ(5) = qQ(5)+Qm(i)*(outxyz(i,2)-CT(2))*(outxyz(i,3)-CT(3))
   qQ(6) = qQ(6)+Qm(i)*(outxyz(i,3)-CT(3))*(outxyz(i,3)-CT(3))
-  qD(1) = qD(1)+2*Dm(i,1)*(outxyz(i,1)-CT(1))
+  qD(1) = qD(1)+Two*Dm(i,1)*(outxyz(i,1)-CT(1))
   qD(2) = qD(2)+Dm(i,1)*(outxyz(i,2)-CT(2))+Dm(i,2)*(outxyz(i,1)-CT(1))
   qD(3) = qD(3)+Dm(i,1)*(outxyz(i,3)-CT(3))+Dm(i,3)*(outxyz(i,1)-CT(1))
-  qD(4) = qD(4)+2*Dm(i,2)*(outxyz(i,2)-CT(2))
+  qD(4) = qD(4)+Two*Dm(i,2)*(outxyz(i,2)-CT(2))
   qD(5) = qD(5)+Dm(i,2)*(outxyz(i,3)-CT(3))+Dm(i,3)*(outxyz(i,2)-CT(2))
-  qD(6) = qD(6)+2*Dm(i,3)*(outxyz(i,3)-CT(3))
+  qD(6) = qD(6)+Two*Dm(i,3)*(outxyz(i,3)-CT(3))
   qK(1) = qK(1)+QQm(i,1)
   qK(2) = qK(2)+QQm(i,2)
   qK(3) = qK(3)+QQm(i,4)
@@ -135,16 +140,16 @@ do i=1,iCi
 end do
 Trace1 = qQ(1)+qQ(4)+qQ(6)
 Trace2 = qD(1)+qD(4)+qD(6)
-Trace1 = Trace1/3
-Trace2 = Trace2/3
-xyzQuQ(1) = 1.5*(qQ(1)+qD(1)-Trace1-Trace2)+qK(1)
-xyzQuQ(2) = 1.5*(qQ(2)+qD(2))+qK(2)
-xyzQuQ(3) = 1.5*(qQ(3)+qD(3))+qK(3)
-xyzQuQ(4) = 1.5*(qQ(4)+qD(4)-Trace1-Trace2)+qK(4)
-xyzQuQ(5) = 1.5*(qQ(5)+qD(5))+qK(5)
-xyzQuQ(6) = 1.5*(qQ(6)+qD(6)-Trace1-Trace2)+qK(6)
+Trace1 = Trace1/Three
+Trace2 = Trace2/Three
+xyzQuQ(1) = OneHalf*(qQ(1)+qD(1)-Trace1-Trace2)+qK(1)
+xyzQuQ(2) = OneHalf*(qQ(2)+qD(2))+qK(2)
+xyzQuQ(3) = OneHalf*(qQ(3)+qD(3))+qK(3)
+xyzQuQ(4) = OneHalf*(qQ(4)+qD(4)-Trace1-Trace2)+qK(4)
+xyzQuQ(5) = OneHalf*(qQ(5)+qD(5))+qK(5)
+xyzQuQ(6) = OneHalf*(qQ(6)+qD(6)-Trace1-Trace2)+qK(6)
 if (ChargedQM) then !If charged system, then do...
-  qs = 0
+  qs = Zero
   do i=1,iCi
     CofC(1) = CofC(1)+abs(qm(i))*outxyz(i,1) !Center of charge
     CofC(2) = CofC(2)+abs(qm(i))*outxyz(i,2)
@@ -180,9 +185,9 @@ do i=1,iCi
       Eil(j,k) = Eil(j,k)+Work(iFil(i,5)-1+j+(k-1)*nPart*nPol)*QQm(i,1)
       Eil(j,k) = Eil(j,k)+Work(iFil(i,7)-1+j+(k-1)*nPart*nPol)*QQm(i,3)
       Eil(j,k) = Eil(j,k)+Work(iFil(i,10)-1+j+(k-1)*nPart*nPol)*QQm(i,6)
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,6)-1+j+(k-1)*nPart*nPol)*QQm(i,2)*2
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,8)-1+j+(k-1)*nPart*nPol)*QQm(i,4)*2
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,9)-1+j+(k-1)*nPart*nPol)*QQm(i,5)*2
+      Eil(j,k) = Eil(j,k)+Work(iFil(i,6)-1+j+(k-1)*nPart*nPol)*QQm(i,2)*Two
+      Eil(j,k) = Eil(j,k)+Work(iFil(i,8)-1+j+(k-1)*nPart*nPol)*QQm(i,4)*Two
+      Eil(j,k) = Eil(j,k)+Work(iFil(i,9)-1+j+(k-1)*nPart*nPol)*QQm(i,5)*Two
     end do
   end do
 end do
@@ -240,9 +245,9 @@ do i=1,iTri
     Vpolmat(i) = Vpolmat(i)+Poli(j,5)*Quad(i,1,j)
     Vpolmat(i) = Vpolmat(i)+Poli(j,7)*Quad(i,3,j)
     Vpolmat(i) = Vpolmat(i)+Poli(j,10)*Quad(i,6,j)
-    Vpolmat(i) = Vpolmat(i)+Poli(j,6)*Quad(i,2,j)*2
-    Vpolmat(i) = Vpolmat(i)+Poli(j,8)*Quad(i,4,j)*2
-    Vpolmat(i) = Vpolmat(i)+Poli(j,9)*Quad(i,5,j)*2
+    Vpolmat(i) = Vpolmat(i)+Poli(j,6)*Quad(i,2,j)*Two
+    Vpolmat(i) = Vpolmat(i)+Poli(j,8)*Quad(i,4,j)*Two
+    Vpolmat(i) = Vpolmat(i)+Poli(j,9)*Quad(i,5,j)*Two
   end do
 end do
 ! This is how the nuclei interact with the induced field (in equil2 exists a corresponding

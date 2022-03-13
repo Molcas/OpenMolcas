@@ -13,25 +13,28 @@
 ! qminp.fh which in turn are initialized in qmstat_init.
 subroutine Get_Qmstat_Input(iQ_Atoms)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iQ_Atoms
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "warnings.h"
-character*180 Key
-character*20 Kword
-character*180 Get_Ln
-character VecsQue*3
-dimension CoTEMP1(3), CoTEMP2(3), CoTEMP3(3), CoTEMP4(3), CoTEMP5(3)
-dimension SlFacTemp(6)
-external Get_Ln, iClast
-logical YesNo(20), Changed
+integer(kind=iwp) :: i, iChrct, iTemp, j, k, kaunt, kk, Last, LuRd, NExtr_Atm, njhr, nS, nT
+real(kind=wp) :: CoTEMP1(3), CoTEMP2(3), CoTEMP3(3), CoTEMP4(3), CoTEMP5(3), dTemp, SlExpTemp, SlFacTemp(6)
+logical(kind=iwp) :: Changed, YesNo(20)
+character(len=180) :: Key
+character(len=20) :: Kword
+character(len=3) :: VecsQue
+integer(kind=iwp), external :: iClast, IsFreeUnit
+character(len=180), external :: Get_Ln
 
 ! Say what is done and set all YesNo to false; their purpose is to
 ! keep track on compulsory keywords and certain keyword combinations.
 
-!write(6,*)
-!write(6,*)'Input processed...'
+!write(u6,*)
+!write(u6,*)'Input processed...'
 do i=1,20
   YesNo(i) = .false.
 end do
@@ -63,9 +66,9 @@ do
 
       iChrct = len(Kword)
       Last = iCLast(Kword,iChrct)
-      write(6,*)
-      write(6,*) 'ERROR!'
-      write(6,'(1X,A,A)') Kword(1:Last),' is not a valid keyword!'
+      write(u6,*)
+      write(u6,*) 'ERROR!'
+      write(u6,'(1X,A,A)') Kword(1:Last),' is not a valid keyword!'
       call Quit(_RC_INPUT_ERROR_)
 
     case ('TITL')
@@ -85,8 +88,8 @@ do
         select case (KWord(1:4))
           case default
             ! Here we come if something gets wrong
-            write(6,*)
-            write(6,*) ' Unrecognized keyword in the SIMUlation parameter section:',Kword(1:4)
+            write(u6,*)
+            write(u6,*) ' Unrecognized keyword in the SIMUlation parameter section:',Kword(1:4)
             call Quit(_RC_INPUT_ERROR_)
           case ('RADI')
             ! <<<RADIe>>>
@@ -180,8 +183,8 @@ do
           iLuSaUt = 32+iNrUt
         case default
           if (Kword(1:2) == 'SM') then
-            write(6,*)
-            write(6,*) 'No classical simulations are available.'
+            write(u6,*)
+            write(u6,*) 'No classical simulations are available.'
             call Quit(_RC_INPUT_ERROR_)
           end if
       end select
@@ -201,8 +204,8 @@ do
       Key = Get_Ln(LuRd)
       call Get_I1(1,nExtAddOns)
       if (nExtAddOns > MxExtAddOn) then
-        write(6,*)
-        write(6,*) 'Too many external perturbations asked for.'
+        write(u6,*)
+        write(u6,*) 'Too many external perturbations asked for.'
         call Quit(_RC_INPUT_ERROR_)
       end if
       do i=1,nExtAddOns
@@ -220,8 +223,8 @@ do
         select case (Kword(1:4))
           case default
             ! Here we come if something gets wrong
-            write(6,*)
-            write(6,*) ' Unrecognized keyword in the EDITstartfile section:',Kword(1:4)
+            write(u6,*)
+            write(u6,*) ' Unrecognized keyword in the EDITstartfile section:',Kword(1:4)
             call Quit(_RC_INPUT_ERROR_)
           case ('DELE')
             ! <<<DELEte>>>   Delete solvent molecules.
@@ -272,16 +275,16 @@ do
         select case (Kword(1:4))
           case default
             ! Here we come if something gets wrong
-            write(6,*)
-            write(6,*) ' Unrecognized keyword in the CONFiguration section:',Kword(1:4)
+            write(u6,*)
+            write(u6,*) ' Unrecognized keyword in the CONFiguration section:',Kword(1:4)
             call Quit(_RC_INPUT_ERROR_)
           case ('ADD ')
             ! <<<ADD >>>  How many to add at random.
             Key = Get_Ln(LuRd)
             call Get_I1(1,iExtra)
             if (iExtra > MxPut) then
-              write(6,*)
-              write(6,*) 'The present limit of explicit solvent molecules is',MxPut,'.'
+              write(u6,*)
+              write(u6,*) 'The present limit of explicit solvent molecules is',MxPut,'.'
               call Quit(_RC_INPUT_ERROR_)
             end if
           case ('FILE')
@@ -292,8 +295,8 @@ do
             select case (Kword(1:4))
               case default
                 ! CRASH-BOOM-BANG!
-                write(6,*)
-                write(6,*) ' Error in CONFiguration section, FILE subsection.'
+                write(u6,*)
+                write(u6,*) ' Error in CONFiguration section, FILE subsection.'
                 call Quit(_RC_INPUT_ERROR_)
               case ('STAR')
                 ! <<<STARtfile>>>  Read from startfile.
@@ -302,8 +305,8 @@ do
                 call UpCase(Kword)
                 select case (KWord(1:4))
                   case default
-                    write(6,*)
-                    write(6,*) 'Illegal StartFile option.'
+                    write(u6,*)
+                    write(u6,*) 'Illegal StartFile option.'
                     call Quit(_RC_INPUT_ERROR_)
                   case ('SCRA')
                     ! <<<SCRAtch>>> Just put QM as given on RUNFILE.
@@ -365,8 +368,8 @@ do
         select case (Kword(1:4))
           case default
             ! Here we only go if unrecognized keyword is encountered.
-            write(6,*)
-            write(6,*) ' Unrecognized keyword in the QMSUrrounding section:',Kword(1:4)
+            write(u6,*)
+            write(u6,*) ' Unrecognized keyword in the QMSUrrounding section:',Kword(1:4)
             call Quit(_RC_INPUT_ERROR_)
           case ('DPAR')
             ! <<<DPARameters>>>  Dispersion
@@ -383,8 +386,8 @@ do
               call UpCase(Kword)
               select case (Kword(1:4))
                 case default
-                  write(6,*)
-                  write(6,*) ' Error in QMSUrrounding section, ELECtrostatic subsection.'
+                  write(u6,*)
+                  write(u6,*) ' Error in QMSUrrounding section, ELECtrostatic subsection.'
                   call Quit(_RC_INPUT_ERROR_)
                 case ('THRE')
                   ! <<<THREsholds>>>  First is the Cutoff (distance Quantum Site-
@@ -413,8 +416,8 @@ do
               call UpCase(Kword)
               select case (Kword(1:4))
                 case default
-                  write(6,*)
-                  write(6,*) ' Error in QMSUrrounding section, XPARameters subsection.'
+                  write(u6,*)
+                  write(u6,*) ' Error in QMSUrrounding section, XPARameters subsection.'
                   call Quit(_RC_INPUT_ERROR_)
                 case ('S2  ')
                   ! <<<S2  >>>  The S2 parameter
@@ -452,8 +455,8 @@ do
               call UpCase(Kword)
               select case (Kword(1:4))
                 case default
-                  write(6,*)
-                  write(6,*) ' Error in QMSUrrounding section, DAMPing subsection.'
+                  write(u6,*)
+                  write(u6,*) ' Error in QMSUrrounding section, DAMPing subsection.'
                   call Quit(_RC_INPUT_ERROR_)
                 case ('DISP')
                   ! <<<DISPersion>>>  Dispersion damping parameters. This part
@@ -508,8 +511,8 @@ do
         select case (KWord(1:4))
           case default
             ! The bla bla bla if something gets wrong.
-            write(6,*)
-            write(6,*) ' Unrecognized keyword in the SOLVent section:',Kword(1:4)
+            write(u6,*)
+            write(u6,*) ' Unrecognized keyword in the SOLVent section:',Kword(1:4)
             call Quit(_RC_INPUT_ERROR_)
           case ('EXCH')
             ! <<<EXCHange>>>  Exchange repulsion parameters to solvent-solvent.
@@ -595,9 +598,9 @@ do
             Key = Get_Ln(LuRd)
             call Get_I1(1,lMltSlC)
             if (lMltSlC > 1) then
-              write(6,*)
-              write(6,*) 'Too high order of multipole in classical system'
-              write(6,*) '              Higher order is 1'
+              write(u6,*)
+              write(u6,*) 'Too high order of multipole in classical system'
+              write(u6,*) '              Higher order is 1'
               call Quit(_RC_INPUT_ERROR_)
             end if
             do i=1,nSlSiteC
@@ -638,8 +641,8 @@ do
         select case (Kword(1:4))
           case default
             ! HOW COULD IT GET WRONG HERE?
-            write(6,*)
-            write(6,*) ' Unrecognized keyword in the RASSisection section:',Kword(1:4)
+            write(u6,*)
+            write(u6,*) ' Unrecognized keyword in the RASSisection section:',Kword(1:4)
             call Quit(_RC_INPUT_ERROR_)
           case ('JOBF')
             ! <<<JOBFiles>>>  How many jobfiles and how many states in them.
@@ -712,8 +715,8 @@ do
         select case (Kword(1:4))
           case default
             ! ETWAS FALSCH!
-            write(6,*)
-            write(6,*) ' Unrecognized keyword in the SCFSection:',Kword(1:4)
+            write(u6,*)
+            write(u6,*) ' Unrecognized keyword in the SCFSection:',Kword(1:4)
             call Quit(_RC_INPUT_ERROR_)
           case ('ORBI')
             ! <<<ORBItals>>>  Specifiy the reduced orbital space in which the problem is solved.
@@ -721,8 +724,8 @@ do
             call Get_I(1,iOrb(1),1)
             call Get_I1(2,iOcc1)
             if (iOrb(1) > MxOrb) then
-              write(6,*)
-              write(6,*) 'The parameter MxOrb is set too low, or your total number of orbitals too high.'
+              write(u6,*)
+              write(u6,*) 'The parameter MxOrb is set too low, or your total number of orbitals too high.'
               call Quit(_RC_INPUT_ERROR_)
             end if
           case ('MP2D')
@@ -755,8 +758,8 @@ do
         select case (Kword(1:4))
           case default
             ! ETWAS FALSCH!
-            write(6,*)
-            write(6,*) ' Unrecognized keyword in the EXTRact section:',Kword(1:4)
+            write(u6,*)
+            write(u6,*) ' Unrecognized keyword in the EXTRact section:',Kword(1:4)
             call Quit(_RC_INPUT_ERROR_)
           case ('TOTA')
             ! <<<TOTAl energy>>>

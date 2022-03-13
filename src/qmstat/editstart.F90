@@ -11,25 +11,31 @@
 
 subroutine EditStart()
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-parameter(ThrdSpread=1.0d0)
-dimension iC(3), iC2(3)
-dimension Coord(MxCen*MxPut,3), Coo(MxCen,3), CooRef(MxCen,3)
-character Filstart*6, FilSlut*6, Head*200
-logical Exist, ValidOrNot
+integer(kind=iwp) :: iC(3), iC2(3)
+real(kind=wp) :: Coo(MxCen,3), Coord(MxCen*MxPut,3), CooRef(MxCen,3)
+integer(kind=iwp) :: i, iCent, iDisk, iLu, ind, indMax, iPart, j, jnd1, jnd2, jP, k, l, ll, nRemoved
+real(kind=wp) :: dCMx, dCMy, dCMz, dSpread, Esub, Etot, Gamold, GaOld, r, Ract, rMax
+logical(kind=iwp) :: Exists, ValidOrNot
+character(len=200) :: Head
+character(len=6) :: FilSlut, Filstart
+real(kind=wp), parameter :: ThrdSpread = One
 
 ! Inquire if file exists, and if so open it.
 
 write(FilStart,'(A5,i1.1)') 'STFIL',NrStarti
-call f_Inquire(FilStart,Exist)
-if (.not. Exist) then
-  write(6,*)
-  write(6,*) 'The input startfile given in the EDITstartfile section was not found.'
+call f_Inquire(FilStart,Exists)
+if (.not. Exists) then
+  write(u6,*)
+  write(u6,*) 'The input startfile given in the EDITstartfile section was not found.'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 iLu = 73
@@ -55,10 +61,10 @@ if (DelOrAdd(1)) then
   ! Find the solvent molecules farthest away from origo and delete them.
 
   do i=1,nDel
-    rMax = 0.0d0
+    rMax = Zero
     indMax = 0
     do j=1,nPart
-      r = 0.0d0
+      r = Zero
       do k=1,3
         r = r+Work(iC(k)+(j-1)*nCent)**2
       end do
@@ -181,25 +187,25 @@ if (DelOrAdd(3)) then
     end do
     call IsItValid(Coo,CooRef,ValidOrNot)
     if (.not. ValidOrNot) then
-      dCMx = 0.0d0
-      dCMy = 0.0d0
-      dCMz = 0.0d0
+      dCMx = Zero
+      dCMy = Zero
+      dCMz = Zero
       do iCent=1,nCent
         dCMx = dCMx+Work(iC(1)+ind+iCent-1)
         dCMy = dCMy+Work(iC(2)+ind+iCent-1)
         dCMz = dCMz+Work(iC(3)+ind+iCent-1)
       end do
-      dCMx = dCMx*(1.0d0/dble(nCent))
-      dCMy = dCMy*(1.0d0/dble(nCent))
-      dCMz = dCMz*(1.0d0/dble(nCent))
+      dCMx = dCMx/real(nCent,kind=wp)
+      dCMy = dCMy/real(nCent,kind=wp)
+      dCMz = dCMz/real(nCent,kind=wp)
       ! Check if the points are spread out, otherwise just delete.
-      dSpread = 0.0d0
+      dSpread = Zero
       do iCent=1,nCent
         dSpread = dSpread+(Work(iC(1)+ind+iCent-1)-dCMx)**2
         dSpread = dSpread+(Work(iC(2)+ind+iCent-1)-dCMy)**2
         dSpread = dSpread+(Work(iC(3)+ind+iCent-1)-dCMz)**2
       end do
-      dSpread = dSpread*(1.0d0/dble(nCent))
+      dSpread = dSpread/real(nCent,kind=wp)
       if (dSpread < ThrdSpread) then
         nRemoved = nRemoved+1
         do jP=iPart,nPart-1

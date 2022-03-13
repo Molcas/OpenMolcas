@@ -12,33 +12,37 @@
 subroutine PolRas(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTriState,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iSTC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "qm2.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
-dimension Poli(MxQCen,10), VMat(MxStOT), FFp(nPol*nPart,3)
-dimension VpolMat(MxStOT), Smat(MxStOT), RoMatSt(MxStOT)
-dimension EEigen(MxState)
-dimension iDT(3), iFI(3), iFP(3), iFil(MxQCen,10)
-logical JaNej, Haveri
+integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iFil(MxQCen,10), iCStart, iTriState, icnum, NVarv, iSTC, iQ_Atoms, &
+                     ip_ExpVal
+real(kind=wp) :: VMat(MxStOT), Smat(MxStOT), DiFac, Ract, Energy, Poli(MxQCen,10)
+logical(kind=iwp) :: Haveri
+integer(kind=iwp) :: i, iCall, iDum, iErr, iGri, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, nFound, nPolCent, nQMCent
+real(kind=wp) :: Dummy, EEigen(MxState), Egun, FFp(nPol*nPart,3), PolFac, R2inv, Rinv, RoMatSt(MxStOT), VpolMat(MxStOT) !IFG
+logical(kind=iwp) :: JaNej
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
 call GetMem('Coeff','Allo','Real',iSTC,nState**2)
-call dcopy_(nState**2,[ZERO],iZERO,Work(iSTC),iONE)
-call dcopy_(nState,[ONE],iZERO,Work(iSTC),nState+1)
+call dcopy_(nState**2,[Zero],0,Work(iSTC),1)
+call dcopy_(nState,[One],0,Work(iSTC),nState+1)
 
 ! Define some numbers.
 
 nQMCent = (iQ_Atoms*(iQ_Atoms+1))/2
 nPolCent = nPart*nPol
-Rinv = 1.0d0/Ract
+Rinv = One/Ract
 R2inv = Rinv**2
 PolFac = DiFac/Ract**3
-Egun = 0.0d0
+Egun = Zero
 
 ! Compute distances and vectors needed for solving the polarization
 ! equations. Observe the use of a memory allocator before the call
@@ -54,7 +58,7 @@ call PolPrep(iDist,iDistIM,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),W
 NVarv = 0
 do
   NVarv = NVarv+1
-  Energy = 0.0d0
+  Energy = Zero
   call PolSolv(iDT,iFI,iFP,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),FFp,iCNum,r2Inv, &
                DiFac,nPolCent)
   call DensiSt(RomatSt,Work(iSTC),nEqState,nState,nState)
@@ -66,7 +70,7 @@ do
   do i=1,iTriState
     HmatState(i) = HmatSOld(i)+Vmat(i)+VpolMat(i)+SMat(i)
   end do
-  Energy = 0.5*Energy
+  Energy = Half*Energy
 
   ! Diagonalize the bastard. Eigenvalues are sorted and the relevant eigenvalue is added to total energy.
 

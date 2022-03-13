@@ -37,18 +37,20 @@
 
 subroutine HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat,iPrint)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
-#include "WrkSpc.fh"
-dimension Eint(MxQCen,10), Vmat(MxOt)
-dimension Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen)
-dimension Qua(MxStOT,6,MxQCen)
+real(kind=wp) :: Eint(MxQCen,10), Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen), Vmat(MxOt)
+integer(kind=iwp) :: nrstate, ici, iPrint
+integer(kind=iwp) :: i, j, k, kaunt
 
 kaunt = 0
 do i=1,nrState
   do j=1,i
     kaunt = kaunt+1
-    Vmat(kaunt) = 0.0d0
+    Vmat(kaunt) = Zero
   end do
 end do
 
@@ -66,9 +68,9 @@ do i=1,nrState
       Vmat(kaunt) = Vmat(kaunt)+Eint(k,5)*Qua(kaunt,1,k)
       Vmat(kaunt) = Vmat(kaunt)+Eint(k,7)*Qua(kaunt,3,k)
       Vmat(kaunt) = Vmat(kaunt)+Eint(k,10)*Qua(kaunt,6,k)
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,6)*Qua(kaunt,2,k)*2
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,8)*Qua(kaunt,4,k)*2
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,9)*Qua(kaunt,5,k)*2
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,6)*Qua(kaunt,2,k)*Two
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,8)*Qua(kaunt,4,k)*Two
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,9)*Qua(kaunt,5,k)*Two
     end do
   end do
 end do

@@ -47,32 +47,37 @@
 subroutine Polins(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc,RoMatSt, &
                   xyzQuQ,CT)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, Two, Three, OneHalf
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qm2.fh"
 #include "WrkSpc.fh"
-dimension Fil(npart*npol,3), Qm(MxQCen), Dm(MxQCen,3), QQm(MxQCen,6), Poli(MxQCen,10), Gunnar(10), ChaNuc(MxAt), &
-          Eil(MxPut*MxPol,3), xyzMyC(3), CofC(3), xyzmyq(3), xyzmyi(3), xyzmyp(3), VpolMat(MxStOt), RoMatSt(MxStOT)
-dimension xyzQuQ(6), qQ(6), qD(6), qK(6), CT(3)
-dimension iFil(MxQCen,10)
+real(kind=wp) :: Energy, VpolMat(MxStOt), Fil(npart*npol,3), polfac, Poli(MxQCen,10), xyzmyq(3), xyzmyi(3), xyzmyp(3), qtot, &
+                 ChaNuc(MxAt), RoMatSt(MxStOT), xyzQuQ(6), CT(3)
+integer(kind=iwp) :: iCall, iAtom2, iCI, iFil(MxQCen,10), iCstart, iQ_Atoms
+integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, kk, l
+real(kind=wp) :: CofC(3), Dm(MxQCen,3), Eil(MxPut*MxPol,3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), Qm(MxQCen), qs, qQ(6), & !IFG
+                 QQm(MxQCen,6), Trace1, Trace2, xyzMyC(3) !IFG
 
 !----------------------------------------------------------------------*
 ! Begin with some zeros.                                               *
 !----------------------------------------------------------------------*
 iCnum = iCStart/Ncent
 do i=1,iCi
-  Qm(i) = 0
+  Qm(i) = Zero
   if (i <= iQ_Atoms) Qm(i) = -ChaNuc(i)
   do j=1,3
-    Dm(i,j) = 0
-    QQm(i,j) = 0
-    QQm(i,j+3) = 0
+    Dm(i,j) = Zero
+    QQm(i,j) = Zero
+    QQm(i,j+3) = Zero
   end do
 end do
 do i=1,MxPut*MxPol
   do j=1,3
-    Eil(i,j) = 0
+    Eil(i,j) = Zero
   end do
 end do
 !----------------------------------------------------------------------*
@@ -101,15 +106,15 @@ do i=1,nState
   end do
 end do
 do kk=1,3
-  xyzMyQ(kk) = 0
-  xyzMyC(kk) = 0
-  CofC(kk) = 0
+  xyzMyQ(kk) = Zero
+  xyzMyC(kk) = Zero
+  CofC(kk) = Zero
 end do
 do kk=1,6
-  xyzQuQ(kk) = 0
-  qQ(kk) = 0
-  qD(kk) = 0
-  qK(kk) = 0
+  xyzQuQ(kk) = Zero
+  qQ(kk) = Zero
+  qD(kk) = Zero
+  qK(kk) = Zero
 end do
 do i=1,iCi
   do kk=1,3
@@ -121,12 +126,12 @@ do i=1,iCi
   qQ(4) = qQ(4)+Qm(i)*(outxyzRAS(i,2)-CT(2))*(outxyzRAS(i,2)-CT(2))
   qQ(5) = qQ(5)+Qm(i)*(outxyzRAS(i,2)-CT(2))*(outxyzRAS(i,3)-CT(3))
   qQ(6) = qQ(6)+Qm(i)*(outxyzRAS(i,3)-CT(3))*(outxyzRAS(i,3)-CT(3))
-  qD(1) = qD(1)+2*Dm(i,1)*(outxyzRAS(i,1)-CT(1))
+  qD(1) = qD(1)+Two*Dm(i,1)*(outxyzRAS(i,1)-CT(1))
   qD(2) = qD(2)+Dm(i,1)*(outxyzRAS(i,2)-CT(2))+Dm(i,2)*(outxyzRAS(i,1)-CT(1))
   qD(3) = qD(3)+Dm(i,1)*(outxyzRAS(i,3)-CT(3))+Dm(i,3)*(outxyzRAS(i,1)-CT(1))
-  qD(4) = qD(4)+2*Dm(i,2)*(outxyzRAS(i,2)-CT(2))
+  qD(4) = qD(4)+Two*Dm(i,2)*(outxyzRAS(i,2)-CT(2))
   qD(5) = qD(5)+Dm(i,2)*(outxyzRAS(i,3)-CT(3))+Dm(i,3)*(outxyzRAS(i,2)-CT(2))
-  qD(6) = qD(6)+2*Dm(i,3)*(outxyzRAS(i,3)-CT(3))
+  qD(6) = qD(6)+Two*Dm(i,3)*(outxyzRAS(i,3)-CT(3))
   qK(1) = qK(1)+QQm(i,1)
   qK(2) = qK(2)+QQm(i,2)
   qK(3) = qK(3)+QQm(i,4)
@@ -136,16 +141,16 @@ do i=1,iCi
 end do
 Trace1 = qQ(1)+qQ(4)+qQ(6)
 Trace2 = qD(1)+qD(4)+qD(6)
-Trace1 = Trace1/3
-Trace2 = Trace2/3
-xyzQuQ(1) = 1.5*(qQ(1)+qD(1)-Trace1-Trace2)+qK(1)
-xyzQuQ(2) = 1.5*(qQ(2)+qD(2))+qK(2)
-xyzQuQ(3) = 1.5*(qQ(3)+qD(3))+qK(3)
-xyzQuQ(4) = 1.5*(qQ(4)+qD(4)-Trace1-Trace2)+qK(4)
-xyzQuQ(5) = 1.5*(qQ(5)+qD(5))+qK(5)
-xyzQuQ(6) = 1.5*(qQ(6)+qD(6)-Trace1-Trace2)+qK(6)
+Trace1 = Trace1/Three
+Trace2 = Trace2/Three
+xyzQuQ(1) = OneHalf*(qQ(1)+qD(1)-Trace1-Trace2)+qK(1)
+xyzQuQ(2) = OneHalf*(qQ(2)+qD(2))+qK(2)
+xyzQuQ(3) = OneHalf*(qQ(3)+qD(3))+qK(3)
+xyzQuQ(4) = OneHalf*(qQ(4)+qD(4)-Trace1-Trace2)+qK(4)
+xyzQuQ(5) = OneHalf*(qQ(5)+qD(5))+qK(5)
+xyzQuQ(6) = OneHalf*(qQ(6)+qD(6)-Trace1-Trace2)+qK(6)
 if (ChargedQM) then  !If charged system, then do...
-  qs = 0
+  qs = Zero
   do i=1,iCi
     CofC(1) = CofC(1)+abs(qm(i))*outxyzRAS(i,1) !Center of charge
     CofC(2) = CofC(2)+abs(qm(i))*outxyzRAS(i,2)
@@ -182,9 +187,9 @@ do i=1,iCi
       Eil(j,k) = Eil(j,k)+Work(iFil(i,5)-1+j+(k-1)*nPart*nPol)*QQm(i,1)
       Eil(j,k) = Eil(j,k)+Work(iFil(i,7)-1+j+(k-1)*nPart*nPol)*QQm(i,3)
       Eil(j,k) = Eil(j,k)+Work(iFil(i,10)-1+j+(k-1)*nPart*nPol)*QQm(i,6)
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,6)-1+j+(k-1)*nPart*nPol)*QQm(i,2)*2
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,8)-1+j+(k-1)*nPart*nPol)*QQm(i,4)*2
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,9)-1+j+(k-1)*nPart*nPol)*QQm(i,5)*2
+      Eil(j,k) = Eil(j,k)+Work(iFil(i,6)-1+j+(k-1)*nPart*nPol)*QQm(i,2)*Two
+      Eil(j,k) = Eil(j,k)+Work(iFil(i,8)-1+j+(k-1)*nPart*nPol)*QQm(i,4)*Two
+      Eil(j,k) = Eil(j,k)+Work(iFil(i,9)-1+j+(k-1)*nPart*nPol)*QQm(i,5)*Two
     end do
   end do
 end do
@@ -211,7 +216,7 @@ end do
 ! small anyway, so this is not a major restriction.                    *
 !----------------------------------------------------------------------*
 do i=1,10
-  Gunnar(i) = 0
+  Gunnar(i) = Zero
 end do
 Gunnar(2) = PolFac*(xyzMyP(1)+xyzMyQ(1)+xyzMyI(1)+xyzMyC(1))
 Gunnar(3) = PolFac*(xyzMyP(2)+xyzMyQ(2)+xyzMyI(2)+xyzMyC(2))
@@ -232,7 +237,7 @@ do l=1,iCi
   end do
 end do
 do i=1,nState*(nState+1)/2
-  VpolMat(i) = 0
+  VpolMat(i) = Zero
 end do
 kaunt = 0
 ! Attention! The reason we use RasCha etc. and not the computed Qm, Dm etc. from above is
@@ -249,9 +254,9 @@ do iS=1,nState
       Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,5)*RasQua(kaunt,1,j)
       Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,7)*RasQua(kaunt,3,j)
       Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,10)*RasQua(kaunt,6,j)
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,6)*RasQua(kaunt,2,j)*2
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,8)*RasQua(kaunt,4,j)*2
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,9)*RasQua(kaunt,5,j)*2
+      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,6)*RasQua(kaunt,2,j)*Two
+      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,8)*RasQua(kaunt,4,j)*Two
+      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,9)*RasQua(kaunt,5,j)*Two
     end do
   end do
 end do
@@ -259,7 +264,7 @@ end do
 ! term for the interaction with the static field).
 ! This way interaction between a charged molecule and the induced/permanent potential is included.
 do i=1,iQ_Atoms
-  Energy = Energy-2*Poli(i,1)*ChaNuc(i)
+  Energy = Energy-Two*Poli(i,1)*ChaNuc(i)
 end do
 
 return

@@ -13,6 +13,6 @@
 !  but since qmstat has another definitions of vars declared in Molcas.fh
 !  this hack is used her.
 !
-
+      Integer LENIN,LENIN8
       Parameter(LENIN=6)
       Parameter(LENIN8=LENIN+8)

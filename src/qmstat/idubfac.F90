@@ -17,9 +17,14 @@
 ! to skip the if-sentence, we assume that the one who calls this       *
 ! function has seen to that.                                           *
 !----------------------------------------------------------------------*
-integer function iDubFac(N)
+function iDubFac(N)
 
-integer N
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iDubFac
+integer(kind=iwp) :: N
+integer(kind=iwp) :: k
 
 iDubFac = 1
 do k=3,N,2

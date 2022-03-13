@@ -15,21 +15,23 @@
 !----------------------------------------------------------------------*
 subroutine Get_Slater(SlExpQ,LMltSlQ,outxyz,nAt)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
-#include "files_qmstat.fh"
 #include "warnings.h"
-dimension CoordTest(3), SlFactQ(6)
-dimension SlExpQ(MxMltp+1,MxQCen), outxyz(MxQCen,3)
-logical Exist, lCheck
+real(kind=wp) :: SlExpQ(MxMltp+1,MxQCen), outxyz(MxQCen,3)
+integer(kind=iwp) :: iC, ind, jhr, k, kk, l, LMltSlQ, Lu, nAt, nS, nSlCentQ, nT, nTestjhr
+real(kind=wp) :: CoordTest(3), SlFactQ(6)
+logical(kind=iwp) :: Exist, lCheck
+integer(kind=iwp), external :: IsFreeUnit
 
 ! Open the file
-Lu = 40
 Lu = IsFreeUnit(40)
 call Opnfl('DIFFPR',Lu,Exist)
 if (.not. Exist) then
-  write(6,*)
-  write(6,*) ' Can not locate output file DiffPr. '
+  write(u6,*)
+  write(u6,*) ' Can not locate output file DiffPr. '
   call Quit(_RC_IO_ERROR_READ_)
 end if
 rewind(Lu)
@@ -42,8 +44,8 @@ read(Lu,101) LMltSlQ
 ! A first test
 nTestjhr = nAt*(nAt+1)/2
 if (nSlCentQ /= nTestjhr) then
-  write(6,*) 'ERROR! Number of centers in DiffPr file',nSlCentQ,' is different from number of centers obtained from RUNFILE', &
-             nTestjhr,' Check your files.'
+  write(u6,*) 'ERROR! Number of centers in DiffPr file',nSlCentQ,' is different from number of centers obtained from RUNFILE', &
+              nTestjhr,' Check your files.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
 
@@ -53,9 +55,9 @@ do iC=1,nSlCentQ
   read(Lu,103) (CoordTest(k),k=1,3)
   ind = 0
   do jhr=1,nSlCentQ
-    if (abs(CoordTest(1)-outxyz(jhr,1)) < 1.0d-4) then
-      if (abs(CoordTest(2)-outxyz(jhr,2)) < 1.0d-4) then
-        if (abs(CoordTest(3)-outxyz(jhr,3)) < 1.0d-4) then
+    if (abs(CoordTest(1)-outxyz(jhr,1)) < 1.0e-4_wp) then
+      if (abs(CoordTest(2)-outxyz(jhr,2)) < 1.0e-4_wp) then
+        if (abs(CoordTest(3)-outxyz(jhr,3)) < 1.0e-4_wp) then
           lCheck = .true.
           ind = jhr
         end if
@@ -63,7 +65,7 @@ do iC=1,nSlCentQ
     end if
   end do
   if (.not. lCheck) then
-    write(6,*) 'ERROR. Something is very wrong, coordinates of DiffPr and MpProp files do not match. DiffPr center',iC
+    write(u6,*) 'ERROR. Something is very wrong, coordinates of DiffPr and MpProp files do not match. DiffPr center',iC
   end if
   do l=0,LMltSlQ
     nS = l*(l+1)*(l+2)/6
@@ -79,14 +81,14 @@ end do
 
 close(Lu)
 
-101 format(I5)
-103 format(3(F20.14))
-104 format(F20.14)
-105 format(3(F20.14))
-
 return
 #ifdef _WARNING_WORKAROUND_
 if (.false.) call Unused_real_array(SlFactQ)
 #endif
+
+101 format(I5)
+103 format(3(F20.14))
+104 format(F20.14)
+105 format(3(F20.14))
 
 end subroutine Get_Slater

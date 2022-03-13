@@ -10,16 +10,21 @@
 !***********************************************************************
 
 ! Here we construct the density matrix given the orbital coefficients.
-subroutine DENSI_MO(DENS,ORBCO,IS,IA,NBAS,IDIM)
+subroutine DENSI_MO(DENS,ORBCO,IS,IA,NBAS,IDM)
 
-implicit real*8(A-H,O-Z)
-dimension DENS(*), ORBCO(IDIM,*)
+use Constants, only: Zero, Two, Four
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: IS, IA, NBAS, IDM
+real(kind=wp) :: DENS(*), ORBCO(IDM,*)
+integer(kind=iwp) :: I, IJ, J, K
 
 IJ = 0
 do I=1,NBAS
   do J=1,I
     IJ = IJ+1
-    DENS(IJ) = 0.0d0
+    DENS(IJ) = Zero
   end do
 end do
 do I=IS,IS+IA-1
@@ -27,9 +32,9 @@ do I=IS,IS+IA-1
   do J=1,NBAS
     do K=1,J
       IJ = IJ+1
-      DENS(IJ) = DENS(IJ)+4.d0*ORBCO(J,I)*ORBCO(K,I)
+      DENS(IJ) = DENS(IJ)+Four*ORBCO(J,I)*ORBCO(K,I)
     end do
-    DENS(IJ) = DENS(IJ)-ORBCO(J,I)*ORBCO(J,I)*2.d0
+    DENS(IJ) = DENS(IJ)-ORBCO(J,I)*ORBCO(J,I)*Two
   end do
 end do
 

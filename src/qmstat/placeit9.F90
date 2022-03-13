@@ -16,18 +16,23 @@
 !----------------------------------------------------------------------*
 subroutine PlaceIt9(Coord,Cordst,info_atom,iQ_Atoms)
 
-implicit real*8(a-h,o-z)
-#include "maxi.fh"
-dimension Coord(MxAt*3), Cordst(MxCen*MxPut,3)
-dimension info_atom(MxAt)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-CMSewx = 0
-CMSewy = 0
-CMSewz = 0
-CMSamx = 0
-CMSamy = 0
-CMSamz = 0
-Wtot = 0
+implicit none
+#include "maxi.fh"
+real(kind=wp) :: Coord(MxAt*3), Cordst(MxCen*MxPut,3)
+integer(kind=iwp) :: info_atom(MxAt), iQ_Atoms
+integer(kind=iwp) :: i
+real(kind=wp) :: CMSamx, CMSamy, CMSamz, CMSewx, CMSewy, CMSewz, Tx, Ty, Tz, Wtot
+
+CMSewx = Zero
+CMSewy = Zero
+CMSewz = Zero
+CMSamx = Zero
+CMSamy = Zero
+CMSamz = Zero
+Wtot = Zero
 do i=1,iQ_Atoms
   CMSewx = CMSewx+Coord((i-1)*3+1)*info_atom(i)
   CMSewy = CMSewy+Coord((i-1)*3+2)*info_atom(i)
@@ -35,7 +40,7 @@ do i=1,iQ_Atoms
   CMSamx = CMSamx+Cordst(i,1)*info_atom(i)
   CMSamy = CMSamy+Cordst(i,2)*info_atom(i)
   CMSamz = CMSamz+Cordst(i,3)*info_atom(i)
-  Wtot = Wtot+dble(info_atom(i))
+  Wtot = Wtot+real(info_atom(i),kind=wp)
 end do
 CMSewx = CMSewx/Wtot
 CMSewy = CMSewy/Wtot

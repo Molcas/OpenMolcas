@@ -12,35 +12,39 @@
 subroutine PolScf(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTri,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iMOC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "qm1.fh"
-#include "numbers.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-dimension Poli(MxQCen,10), VMat(MxOT), FFp(nPol*nPart,3)
-dimension VpolMat(MxOT), Smat(MxOT), RoMat(MxOT)
-dimension EEigen(MxOrb)
-dimension iDT(3), iFI(3), iFP(3), iFil(MxQCen,10)
-logical JaNej, Haveri
+integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iFil(MxQCen,10), iCStart, iTri, icnum, NVarv, iMOC, iQ_Atoms, ip_ExpVal
+real(kind=wp) :: VMat(MxOT), Smat(MxOT), DiFac, Ract, Energy, Poli(MxQCen,10)
+logical(kind=iwp) :: Haveri
+integer(kind=iwp) :: i, iCall, iDum, iErr, iGri, iOrba, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, j, nFound, nPolCent, &
+                     nQMCent
+real(kind=wp) :: Dummy, EEigen(MxOrb), Egun, FFp(nPol*nPart,3), OneEl, PolFac, R2inv, Rinv, RoMat(MxOT), VpolMat(MxOT) !IFG
+logical(kind=iwp) :: JaNej
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
 iOrba = iOrb(1)
 call GetMem('Coeff','Allo','Real',iMOC,iOrba**2)
-call dcopy_(iOrba**2,[ZERO],iZERO,Work(iMOC),iONE)
-call dcopy_(iOrba,[ONE],iZERO,Work(iMOC),iOrba+1)
+call dcopy_(iOrba**2,[Zero],0,Work(iMOC),1)
+call dcopy_(iOrba,[One],0,Work(iMOC),iOrba+1)
 
 ! Define some numbers.
 
 nQMCent = (iQ_Atoms*(iQ_Atoms+1))/2
 nPolCent = nPart*nPol
-Rinv = 1.0d0/Ract
+Rinv = One/Ract
 R2inv = Rinv**2
 PolFac = DiFac/Ract**3
-Egun = 0.0d0
+Egun = Zero
 
 ! Compute some distances needed for the polarization. See polras for some additional information on this.
 
@@ -52,7 +56,7 @@ call PolPrep(iDist,iDistIM,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),W
 NVarv = 0
 do
   NVarv = NVarv+1
-  Energy = 0.0d0
+  Energy = Zero
   call PolSolv(iDT,iFI,iFP,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),FFp,iCNum,r2Inv, &
                DiFac,nPolCent)
   call Densi_MO(Romat,Work(iMOC),1,iOcc1,iOrb(1),iOrb(1))
@@ -63,7 +67,7 @@ do
   ! Construct the Fock-matrix from two-electron super-matrix and one-electron matrix, with solvent perturbations added.
 
   do i=1,iTri
-    FockM(i) = 0.0d0
+    FockM(i) = Zero
     do j=1,iTri
       FockM(i) = FockM(i)+RoMat(j)*Work(iSupM+iTri*(i-1)+j-1)
     end do
@@ -73,13 +77,13 @@ do
     Energy = Energy+(FockM(i)+OneEl)*RoMat(i)
   end do
   ! Add potential-nuclear energy.
-  Energy = Potnuc+Energy*0.5
+  Energy = Potnuc+Energy*Half
 
   ! If energy is strange, scream!
 
   if (Energy > 0) then
-    write(6,*)
-    write(6,*) '  SCF energy is positive. Serious error somewhere.'
+    write(u6,*)
+    write(u6,*) '  SCF energy is positive. Serious error somewhere.'
     call Quit(_RC_GENERAL_ERROR_)
   end if
 

@@ -11,15 +11,22 @@
 
 subroutine ClasClas(iCNum,iCStart,ncParm,Coord,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Ten, Half
+use Definitions, only: wp, iwp
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "WrkSpc.fh"
-dimension iFP(3), iGP(3), iDT(3), iFI(3)
-dimension Coord(MxAt*3)
-character Memlabel*20, Memlaabe*20, Memlaaab*20, MemLaaaa*20, ChCo*2
-parameter(ExLim=10)
+integer(kind=iwp) :: iCNum, iCStart, ncParm, iFP(3), iGP(3), iDT(3), iFI(3), iDist, iDistIm
+real(kind=wp) :: Coord(MxAt*3), Elene, Edisp, Exrep, E2Die, ExDie
+integer(kind=iwp) :: i, ii, ij, Inc, Inc2, Ind, Ind1, indF, IndMa, indR, indSep, j, jj, Jnd, k, l, nClas, nSize, nSizeIm
+real(kind=wp) :: Adisp, aLim, Dampfunk, Epoll, F, Q, Q1, Q2, r, r3, ri, Sum1, Sum2, Sum3, Sum4, Sum5, X, Y, Z
+character(len=20) :: MemLaaaa, Memlaaab, Memlaabe, Memlabel
+character(len=2) :: ChCo
+real(kind=wp), parameter :: Const = 2.2677_wp, ExLim = Ten ! What is Const?
+real(kind=wp), external :: ExNemo
 
 !----------------------------------------------------------------------*
 ! Compute the distance matrices between the classical centers and the  *
@@ -27,7 +34,7 @@ parameter(ExLim=10)
 !----------------------------------------------------------------------*
 nClas = nPart-iCNum
 Adisp = Disp(1,2)
-nSize = (nClas*(nClas-1)/2)*(nCent**2)   !Get memory
+nSize = (nClas*(nClas-1)/2)*(nCent**2) !Get memory
 call GetMem('DistMat','Allo','Real',iDist,nSize)
 nSizeIm = (nClas*nCent)**2
 call GetMem('DistMatIm','Allo','Real',iDistIm,nSizeIm)
@@ -43,7 +50,7 @@ do ii=iCNum+2,nPart
         do l=1,3
           r = (Cordst(i,l)-Cordst(j,l))**2+r
         end do
-        Work(iDist+Ind-1) = 1/sqrt(r)
+        Work(iDist+Ind-1) = One/sqrt(r)
       end do
     end do
   end do
@@ -56,21 +63,21 @@ do i=iCStart,nCent*nPart
     do k=1,3
       r = (CordIm(i,k)-Cordst(j,k))**2+r
     end do
-    Work(iDistIm+Jnd-1) = 1.0d0/sqrt(r)
+    Work(iDistIm+Jnd-1) = One/sqrt(r)
   end do
 end do
 !----------------------------------------------------------------------*
 ! Compute the pairwise interaction between the solvent. Classical all  *
 ! the  way... early NEMO all the way.                                  *
 !----------------------------------------------------------------------*
-Elene = 0
-Edisp = 0
-Exrep = 0
-aLim = 1.0d0/ExLim
-Sum1 = 0
-Sum2 = 0
-Sum3 = 0
-Sum4 = 0
+Elene = Zero
+Edisp = Zero
+Exrep = Zero
+aLim = One/ExLim
+Sum1 = Zero
+Sum2 = Zero
+Sum3 = Zero
+Sum4 = Zero
 ! The electrostatic part
 
 ! This loop ONLY works for the early Nemo model of water.
@@ -95,30 +102,30 @@ do i=1,nSize,nCent**2
 end do
 Elene = Sum1+Sum2+Sum3+Sum4
 
-Sum1 = 0
-Sum2 = 0
-Sum3 = 0
-Sum4 = 0
-Sum5 = 0
+Sum1 = Zero
+Sum2 = Zero
+Sum3 = Zero
+Sum4 = Zero
+Sum5 = Zero
 ! The dispersion, now with damping.
 do i=1,nSize,nCent**2
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1)*Const))**4
   Sum1 = Sum1+Work(iDist+i-1)**6*DampFunk
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1+1)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1+1)*Const))**4
   Sum2 = Sum2+Work(iDist+i-1+1)**6*DampFunk
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1+2)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1+2)*Const))**4
   Sum3 = Sum3+Work(iDist+i-1+2)**6*DampFunk
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1+11)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1+11)*Const))**4
   Sum4 = Sum4+Work(iDist+i-1+11)**6*DampFunk
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1+7)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1+7)*Const))**4
   Sum5 = Sum5+Work(iDist+i-1+7)**6*DampFunk
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1+5)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1+5)*Const))**4
   Sum2 = Sum2+Work(iDist+i-1+5)**6*DampFunk
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1+10)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1+10)*Const))**4
   Sum3 = Sum3+Work(iDist+i-1+10)**6*DampFunk
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1+6)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1+6)*Const))**4
   Sum4 = Sum4+Work(iDist+i-1+6)**6*DampFunk
-  DampFunk = 1-exp(-1.0d0/(Work(iDist+i-1+12)*2.2677d0))**4
+  DampFunk = One-exp(-One/(Work(iDist+i-1+12)*Const))**4
   Sum5 = Sum5+Work(iDist+i-1+12)**6*DampFunk
 end do
 Edisp = Sum1*Disp(1,1)+(Sum2+Sum3)*Disp(1,2)+(Sum4+Sum5)*Disp(2,2)
@@ -137,8 +144,8 @@ end do
 !----------------------------------------------------------------------*
 ! Compute pair-wise interaction with image charges.                    *
 !----------------------------------------------------------------------*
-Sum1 = 0.0d0
-Sum2 = 0.0d0
+Sum1 = Zero
+Sum2 = Zero
 do i=iCNum+1,nPart
   do j=nCent-nCha+1,nCent !Only count over charged centers.
     Q1 = QIm((i-1)*nCent+j) !The image charge.
@@ -152,7 +159,7 @@ do i=iCNum+1,nPart
       do l=iCNum+1,nPart
         Sum1 = Sum1+Q1*Q2*Work(iDistIm+Inc2+(l-(iCnum+1))*nCent-1)
         Sum1 = Sum1-Adisp*Work(iDistIm+Inc2+(l-(iCnum+1))*nCent-1)**6* &
-               (1-exp(-1/(Work(iDistIm+Inc2+(l-(iCnum+1))*nCent-1)*2.9677d0)**6))
+               (One-exp(-One/(Work(iDistIm+Inc2+(l-(iCnum+1))*nCent-1)*2.9677_wp)**6)) !should this be Const=2.2677 ?
       end do
     end do
   end do
@@ -167,8 +174,8 @@ end do
 ! The half is added since what we actually have
 ! computed is the interaction between charge and a part
 ! of its reaction field (recall:0.5*q*fi_q).
-E2Die = sum1*0.5d0
-EXDie = sum2*0.5d0*ExdTal
+E2Die = sum1*Half
+EXDie = sum2*Half*ExdTal
 !----------------------------------------------------------------------*
 ! Compute the static electric field on the polarizabilities and obtain *
 ! initial guess of induced dipoles.                                    *
@@ -190,10 +197,10 @@ do i=1,3   !Allocate memory
 end do
 do j=1,3
   do i=0,Indma-1 !Set some zeros
-    Work(iFI(j)+i) = 0.0d0
-    Work(iGP(j)+i) = 0.0d0
-    Work(iDT(j)+i) = 0.0d0
-    Work(iFP(j)+i) = 0.0d0
+    Work(iFI(j)+i) = Zero
+    Work(iGP(j)+i) = Zero
+    Work(iDT(j)+i) = Zero
+    Work(iFP(j)+i) = Zero
   end do
 end do
 ! Real centers: The field at the polarizabilities - no reaction field.
@@ -235,7 +242,7 @@ do ii=iCNum+2,nPart
     end do
   end do
 end do
-Epoll = 0
+Epoll = Zero
 ! Compute polarization energy.
 ! This is only for checking, and will
 ! not enter the energy expression.
@@ -247,7 +254,7 @@ do i=1+nPol*iCNum,IndMa
   F = (Work(iFP(1)+i-1)**2+Work(iFP(2)+i-1)**2+Work(iFP(3)+i-1)**2)*Pol(k)
   Epoll = Epoll+F
 end do
-Epoll = -Epoll*0.5d0
+Epoll = -Epoll*Half
 ! Image centers: The field at the polarizabilities - reaction field to the point charges added.
 do i=iCStart,nCent*nPart
   Q = Qim(i)

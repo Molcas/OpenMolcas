@@ -11,19 +11,23 @@
 
 subroutine AOIntegrate(iCStart,nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,ipAOintpar,iV2,N,lmax,Inside)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "integral.fh"
 #include "WrkSpc.fh"
 #include "lenin.fh"
-dimension V2(MxBasC,MxOrb_C)
-dimension nCnC_C(MxBasC)
-dimension Sint(MxBas,MxBasC), SintPar(MxBas,MxBasC), Rot(3,3)
-dimension Inside(MxAt,3)
-character Snack*30, BsLbl*(LENIN8*MxBasC)
-logical PrEne, PrOcc, Inside
-dimension Dummy(1)
+integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, ipAOint, ipAOintpar, iV2, N, lmax
+real(kind=wp) :: Ax, Ay, Az
+logical(kind=iwp) :: Inside(MxAt,3)
+integer(kind=iwp) :: i, iBa, iBaS, iC, iEl, iMO, iOrS, ipPPP, iQ, j, k, kaunt, kauntadetta, m
+real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), Sint(MxBas,MxBasC), SintPar(MxBas,MxBasC), V2(MxBasC,MxOrb_C), x, y, z !IFG
+logical(kind=iwp) :: PrEne, PrOcc
+character(len=LenIn8) :: BsLbl(MxBasC)
+character(len=30) :: Snack
 
 !----------------------------------------------------------------------*
 ! Call Transrot. There we compute the rotation matrix for the classical*
@@ -31,11 +35,11 @@ dimension Dummy(1)
 !----------------------------------------------------------------------*
 call TransRot(Cordst,N+1,Rot,Dx,Dy,Dz,Ax,Ay,Az)
 if (iPrint >= 17) then
-  write(6,*)
-  write(6,*) 'ROTATION MATRIX, Molecule ',N/nCent
-  write(6,*) (Rot(1,k),k=1,3)
-  write(6,*) (Rot(2,k),k=1,3)
-  write(6,*) (Rot(3,k),k=1,3)
+  write(u6,*)
+  write(u6,*) 'ROTATION MATRIX, Molecule ',N/nCent
+  write(u6,*) (Rot(1,k),k=1,3)
+  write(u6,*) (Rot(2,k),k=1,3)
+  write(u6,*) (Rot(3,k),k=1,3)
 end if
 !----------------------------------------------------------------------*
 ! Call OrbRot2. Given the rotation matrix (Rot) and the original MO-   *
@@ -69,14 +73,14 @@ if (iPrint >= 25) then !Optional print-out.
     end do
   end do
   call NameRun('WRUNFIL')
-  call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBaseC)
+  call Get_cArray('Unique Basis Names',BsLbl,LenIn8*nBaseC)
   call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,Work(ipPPP),3)
   call GetMem('PrCMO','Free','Real',ipPPP,nBaseC*iOrb(2))
 end if
 do m=1,lMax !New basis function origo defined.
-  x = 0
-  y = 0
-  z = 0
+  x = Zero
+  y = Zero
+  z = Zero
   do j=1,3
     x = x+Rot(1,j)*SavOri(j,m)
     y = y+Rot(2,j)*SavOri(j,m)
@@ -92,8 +96,8 @@ end do
 !----------------------------------------------------------------------*
 do i=1,nBaseQ
   do j=1,nBaseC
-    Sint(i,j) = 0
-    SintPar(i,j) = 0
+    Sint(i,j) = Zero
+    SintPar(i,j) = Zero
   end do
 end do
 call ContractOvl(Sint,SintPar,nBaseQ,nBaseC,N,nCent,iEl,iQ_Atoms,nAtomsCC,iPrint,Inside)
