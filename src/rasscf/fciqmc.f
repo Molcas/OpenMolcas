@@ -32,7 +32,7 @@
       use linalg_mod, only: abort_
       use stdalloc, only: mma_allocate, mma_deallocate
 
-      use rasscf_data, only: nAcPar, nAcPr2, nroots, iroot, weight
+      use rasscf_data, only: nAcPar, nAcPr2, nroots
       use general_data, only: nSym, nConf
 
       use CI_solver_util, only: wait_and_read
