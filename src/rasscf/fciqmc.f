@@ -263,7 +263,7 @@
 
             call wait_and_read(energy_file, NECIen)
         end if
-        previous_NECIen = NECIen
+        previous_NECIen(:) = NECIen(:)
         call read_neci_RDM(iroot, weight, tGUGA, ifinal,
      &                     DMAT, D1S_MO, PSMAT, PAMAT)
       end subroutine run_neci
