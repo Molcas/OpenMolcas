@@ -285,15 +285,15 @@
 *======================================================================*
 *                                                                      *
       Do 100 iter_ = iterSt+1, iterSt+nIter(nIterP)
-         Write (6,*)
-         Write (6,*)  'iter_:',iter_
-         Write (6,*)
-         Write (6,*) 'iOpt(Initial)=',iOpt
-         Write (6,*) 'QNR1St=',QNR1st
+!        Write (6,*)
+!        Write (6,*)  'iter_:',iter_
+!        Write (6,*)
+!        Write (6,*) 'iOpt(Initial)=',iOpt
+!        Write (6,*) 'QNR1St=',QNR1st
          iter = iter_
          IterX=IterX+1
          WarnCfg=.false.
-         Write (6,*) 'IterX=',IterX
+!        Write (6,*) 'IterX=',IterX
 *
          If(.not.Aufb.and.iter.gt.MaxFlip) AllowFlip=.false.
 
@@ -342,9 +342,9 @@
 *        2017-02-03: add energy criterion to make sure that the DIIS
 *                    gets some decent to work with.
 *
-         Write (6,*) 'DMOMax=',DMOMax
-         Write (6,*) 'EDiff=',EDiff
-         Write (6,*) 'Iter_No_Diis=',Iter_No_Diis
+!        Write (6,*) 'DMOMax=',DMOMax
+!        Write (6,*) 'EDiff=',EDiff
+!        Write (6,*) 'Iter_No_Diis=',Iter_No_Diis
 *        If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
 *    &             .AND. ABS(EDiff).lt.1.0D-1)) Then
          If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis)) Then
@@ -353,12 +353,12 @@
 *           corrupted by iterations with too high energies. Those can
 *           not be used in the scheme.
 *
-            Write (6,*) 'Case(1)'
-            If (iOpt.eq.0) kOptim=2
+!           Write (6,*) 'Case(1)'
+!           If (iOpt.eq.0) kOptim=2
             iOpt=1
             Iter_DIIS = Iter_DIIS + 1
          End If
-         Write (6,*) 'iOpt,kOptim,Iter_DIIS:',iOpt,kOptim,Iter_DIIS
+!        Write (6,*) 'iOpt,kOptim,Iter_DIIS:',iOpt,kOptim,Iter_DIIS
 *
 *        Test if the DIIS scheme will be operating in an orbital
 *        rotation mode or linear combination of density matrices. This
@@ -369,22 +369,24 @@
 *                    when the orbital rotation DIIS is turned on
 *                    we are firmly in the NR region.
 *
+C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
          If (iOpt.ge.2 .OR.
-     &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
-*    &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.1))
+!    &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
+     &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.1))
      &      Then
-            Write (6,*) 'Case(2)'
+!           Write (6,*) 'Case(2)'
             If (RSRFO) Then
                iOpt=3
-               kOptim=2
+!              kOptim=2
             Else
                iOpt=2
             End If
             If (QNR1st) Then
-               kOptim=2
+!              kOptim=2
 *
 *---           compute initial inverse Hessian H (diag)
 *
+C              Write (6,*) 'Call SOIniH'
                Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
 *
             End If
@@ -399,8 +401,8 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Write (6,*) 'kOptim(Final)=',kOptim
-         Write (6,*) 'iOpt(Final)=',iOpt
+C        Write (6,*) 'kOptim(Final)=',kOptim
+C        Write (6,*) 'iOpt(Final)=',iOpt
          If ( iOpt.eq.0 ) Then
 *                                                                      *
 ************************************************************************
@@ -646,6 +648,7 @@
 *
             Call mma_allocate(Grd1,nOV,nD,Label='Grd1')
             Call mma_allocate(Disp,nOV,nD,Label='Disp')
+            Call mma_allocate(Xnp1,nOV,nD,Label='Xnp1')
 *
 *           get last gradient grad(n) from LList
 *
@@ -658,12 +661,20 @@
 *           to compute dX(n)=Xn+1 - Xn
 *
             StepMax=0.3D0
+            dqHdq=Zero
             Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
 *
 *           store dX(n) vector from Disp to LList
 *
             Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
+*
+*           Store X(n+1)
+*
+            Call GetVec(iter,LLx,inode,Xnp1,nOV*nD)
+            Xnp1(:,:)=Xnp1(:,:)+Disp(:,:)
+            Call PutVec(Xnp1,nOV*nD,iter+1,'NOOP',LLx)
+
 #ifdef _DEBUGPRINT_
             Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
             Call RecPrt('Wfctl: dX(n)',' ',Disp,1,nOV*nD)
@@ -678,6 +689,7 @@
             Call RotMOs(Disp,nOV,CMO,nBO,nD,Ovrlp,mBT)
 *
 *           and release memory...
+            Call mma_deallocate(Xnp1)
             Call mma_deallocate(Disp)
             Call mma_deallocate(Grd1)
 *                                                                      *
@@ -694,16 +706,16 @@
 *                                                                      *
 *----    Update DIIS interpolation depth kOptim
 *
-         If (iOpt.ne.3) Then
-            If (idKeep.eq.0) Then
-               kOptim = 1
-            Else If (idKeep.eq.1) Then
-               kOptim = 2
-            Else
+*        If (iOpt.ne.3) Then
+!           If (idKeep.eq.0) Then
+!              kOptim = 1
+!           Else If (idKeep.eq.1) Then
+!              kOptim = 2
+!           Else
                kOptim = kOptim + 1
-            End If
+!           End If
             If (kOptim.gt.MxOptm) kOptim = MxOptm
-         End If
+*        End If
 *                                                                      *
 ************************************************************************
 ************************************************************************

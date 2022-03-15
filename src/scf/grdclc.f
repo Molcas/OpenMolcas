@@ -105,15 +105,17 @@
 *--- Find the beginning of the loop
       If (What.eq.'All') Then
          LpStrt = 1
+         kOptim_=iter
       Else
          LpStrt = kOptim
+         kOptim_= kOptim
       End If
 
 *--- Compute all gradients / last gradient
 *
       iter_d=iter-iter0
-      Do iOpt = LpStrt, kOptim
-         iDT = iter_d - kOptim + iOpt
+      Do iOpt = LpStrt, kOptim_
+         iDT = iter_d - kOptim_ + iOpt
 *
          Call dCopy_(nOV*nD,[Zero],0,GrdOV,1)
 *

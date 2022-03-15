@@ -57,7 +57,7 @@
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       INTEGER iPrint,iRout
 
@@ -67,13 +67,10 @@
       n=m+1
 
 #ifdef _DEBUGPRINT_
-      Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
-      Call NrmClc(    g,m,'Davidson_SCF','g')
-*     CALL RecPrt('HDiag',' ',HDiag,m,1)
-*     CALL RecPrt('g',' ',g,m,1)
-      Do i = 1, m
-         Write (6,'(2G10.1)') g(i),HDiag(i)
-      End Do
+*     Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
+*     Call NrmClc(    g,m,'Davidson_SCF','g')
+      CALL RecPrt('HDiag',' ',HDiag,1,m)
+      CALL RecPrt('g',' ',g,1,m)
 #endif
 
 *---- Initialize some parameters
@@ -221,7 +218,7 @@
         Do j=old_mk,mk-1
 #ifdef _DEBUGPRINT_
            Write (6,*) 'Davidson_SCF: j,Fact=',j,Fact
-           Call NrmClc(Sub(1,j+1),n,'Davidson_SCF','Sub(1,j+1)')
+*          Call NrmClc(Sub(1,j+1),n,'Davidson_SCF','Sub(1,j+1)')
            Call RecPrt('Sub',' ',Sub(1,j+1),1,n)
 #endif
 *
@@ -229,16 +226,17 @@
 *
            Call SOrUpV(Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD',
      &                                                     'BFGS')
+!          Call RecPrt('Ab(0)',' ',Ab(1,j+1),1,n)
            Call DScal_(m,One/Fact,Ab(1,j+1),1)
 *
 *          Add contribution from the gradient
 *
            tmp=Sub(n,j+1)
-           Call DaXpY_(m,One/Sqrt(Fact),g,1,Ab(1,j+1),1)
+           Call DaXpY_(m,tmp/Sqrt(Fact),g,1,Ab(1,j+1),1)
 *
-           Ab(n,j+1) = DDot_(m,g,1,Sub(1,j+1),1)
+           Ab(n,j+1) =  DDot_(m,g,1,Sub(1,j+1),1)
 #ifdef _DEBUGPRINT_
-           Call NrmClc(Ab(1,j+1),n,'Davidson_SCF','Ab(1,j+1)')
+*          Call NrmClc(Ab(1,j+1),n,'Davidson_SCF','Ab(1,j+1)')
            Call RecPrt('Ab',' ',Ab(1,j+1),1,n)
 #endif
 *

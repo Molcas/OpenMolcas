@@ -151,7 +151,7 @@
             W(i)=HDiag(i)*V(i)
          End If
       End Do
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('SORUPV: v        ',' ',V,1,lvec)
       Call RecPrt('SORUPV: HDiag    ',' ',HDiag,1,lvec)

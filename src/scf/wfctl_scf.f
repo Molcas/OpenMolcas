@@ -688,6 +688,7 @@
 *           to compute dX(n)=Xn+1 - Xn
 *
             StepMax=0.3D0
+            dqHdq=Zero
             Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
 *
