@@ -11,8 +11,8 @@
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-      Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax,
-     &                      Step_Trunc)
+      Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,
+     &                      StepMax_Seed,Step_Trunc)
 !***********************************************************************
 !                                                                      *
 !     Object: Automatic restricted-step rational functional            *
@@ -43,7 +43,10 @@
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
-*define _DEBUGPRINT_
+!     StepMax=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
+!     StepMax=Max(StepMax,1.0D-2)
+      StepMax=StepMax_Seed
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 *     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
 *     Call RecPrt('rs-rfo: g',' ',g,1,nInter)
@@ -66,7 +69,7 @@
       Restart=.False.
       Thr=1.0D-3
       NumVal=Min(1,nInter+1)
-!     NumVal=Min(nInter+1,nInter+1)
+*     NumVal=Min(nInter+1,nInter+1)
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Tmp,nInter+1,Label='Tmp')
@@ -96,7 +99,7 @@
 *        which computes Hc, where c is a trial vector, from an initial
 *        Hessian based on a diagonal approximation and a BFGS update.
 *
-!#define _DEBUGCode_
+*#define _DEBUGCode_
 #ifdef _DEBUGCode_
          Call Plain_rs_rfo()
 #else
@@ -249,7 +252,7 @@
       Call mma_allocate( dg,nInter,Label=' dg')  ! g(:,i)-g(:,i-1)
       Call mma_allocate(Hdq,nInter,Label='Hdq')  ! Scratch
       Do i = 3, iter
-         Write (6,*) 'i,iter=',i,iter
+!        Write (6,*) 'i,iter=',i,iter
 
 !        delta step
          ipdq=LstPtr(i  ,LLx)
