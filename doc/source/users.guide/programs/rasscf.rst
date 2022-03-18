@@ -2250,7 +2250,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMSStart`
-   This keyword gives the file that stores the starting rotation matrix for finding the CMS intermediate states (see :kword:`CMSInter`). The file has the same format as :file:`Do_Rotate.txt`. The default is to use the XMS intermediate states (see :kword:`XMSInter`).
+  This keyword gives the file that stores the starting rotation matrix for finding the CMS intermediate states (see :kword:`CMSInter`). The file has the same format as :file:`Do_Rotate.txt`. The default is to use the XMS intermediate states (see :kword:`XMSInter`).
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSS" LEVEL="ADVANCED" APPEAR="CMS starting rotation matrix" KIND="STRING" DEFAULT_VALUE="XMS">
               %%Keyword: CMSS <advanced>
@@ -2260,7 +2260,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMMAx`
-   This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
+  This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMMA" APPEAR="CMS Maximum Cycles" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="100" MIN_VALUE="1">
               %%Keyword: CMMA <advanced>
@@ -2270,7 +2270,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMMIn`
-   This keyword defines the minimum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 5.
+  This keyword defines the minimum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 5.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMMI" APPEAR="CMS Mininum Cycles" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="5" MIN_VALUE="1">
               %%Keyword: CMMI <advanced>
@@ -2280,7 +2280,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMTHreshold`
-   This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge (see :kword:`CMSInter`). The default value is 1.0d-8.
+  This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge (see :kword:`CMSInter`). The default value is 1.0d-8.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-8">
               %%Keyword: CMTH <advanced>
