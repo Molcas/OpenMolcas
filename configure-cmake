@@ -83,7 +83,7 @@ GetOptions ( \%opt,
              "omp!",
              # linear algebra library locations
              "mkl=s",
-             "acml=s",
+             "aocl=s",
              "openblas=s",
              "cublas=s",
              "nvblas=s",
@@ -153,7 +153,7 @@ unless (defined $opt{name}) {
     push(@name, 'omp') if $opt{omp};
     push(@name, 'ga') if defined $opt{ga};
     push(@name, 'mkl') if defined $opt{mkl};
-    push(@name, 'acml') if defined $opt{acml};
+    push(@name, 'aocl') if defined $opt{aocl};
     push(@name, 'openblas') if defined $opt{openblas};
     push(@name, 'bounds') if defined $opt{bounds};
     $opt{name} = join('_', @name);
@@ -188,6 +188,10 @@ if ($opt{compiler} eq 'gnu') {
     $fc = which("sunf90");
     $cc = which("suncc");
     $cxx = which("sunCC");
+} elsif ($opt{compiler} eq 'aocc') {
+    $fc = which("flang");
+    $cc = which("clang");
+    $cxx = which("clang++");
 } else {
     error("unknown compiler ID: $opt{compiler}");
 }
@@ -237,10 +241,10 @@ if ($opt{mkl}) {
     checkdir('mkl');
     $ENV{MKLROOT} = $opt{mkl};
     push @cmake_options, '-DLINALG=MKL';
-} elsif ($opt{acml}) {
-    checkdir('acml');
-    $ENV{ACMLROOT} = $opt{acml};
-    push @cmake_options, '-DLINALG=ACML';
+} elsif ($opt{aocl}) {
+    checkdir('aocl');
+    $ENV{AOCLROOT} = $opt{aocl};
+    push @cmake_options, '-DLINALG=AOCL';
 } elsif ($opt{openblas}) {
     checkdir('openblas');
     $ENV{OPENBLASROOT} = $opt{openblas};
@@ -386,7 +390,7 @@ options:
                                 of the chosen BLAS/LAPACK libraries
 
     --mkl PATH          link to Intel MKL located in PATH
-    --acml PATH         link to ACML located in PATH
+    --aocl PATH         link to AOCL located in PATH
     --openblas PATH     link to OpenBLAS located in PATH
 
   advanced:
