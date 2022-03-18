@@ -28,7 +28,7 @@
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, RDM_to_runfile,
+      public :: wait_and_read, RDM_to_runfile, rdm_from_runfile,
      &      cleanMat, triangular_number, inv_triang_number, write_RDM
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -114,6 +114,21 @@
         call DDafile(JOBIPH, 1, PSMAT, NACPR2, jDisk)
         call DDafile(JOBIPH, 1, PAMAT, NACPR2, jDisk)
       end subroutine RDM_to_runfile
+
+
+      subroutine rdm_from_runfile(dmat, d1s_mo, psmat, pamat, jdisk)
+#include "intent.fh"
+        ! _OUT_ is not a semantic OUT, since DDAFILE is both a read and
+        ! write routine. Redefinition to suppress compiler warning.
+        real(wp), intent(_OUT_) :: dmat(nacpar), d1s_mo(nacpar),
+     &                             psmat(nacpr2), pamat(nacpr2)
+        integer, intent(inout), optional :: jdisk
+
+        call ddafile(jobiph, 2, dmat, nacpar, jdisk)
+        call ddafile(jobiph, 2, d1s_mo, nacpar, jdisk)
+        call ddafile(jobiph, 2, psmat, nacpr2, jdisk)
+        call ddafile(jobiph, 2, pamat, nacpr2, jdisk)
+      end subroutine rdm_from_runfile
 
 
       Subroutine CleanMat(MAT)

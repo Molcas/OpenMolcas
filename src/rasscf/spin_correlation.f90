@@ -1,123 +1,111 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2022, Arta Safari                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2022, Arta Safari                                      *
+!***********************************************************************
 
 module spin_correlation
 
-  use definitions, only: wp
+  use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
-  use general_data, only : nActEl
-  use index_symmetry, only : two_el_idx
+  use CI_solver_util, only: rdm_from_runfile
+  use rasscf_data, only : NRoots, iAdr15, nacpar, nacpr2
+  use index_symmetry, only : one_el_idx_flatten, two_el_idx_flatten
 
   implicit none
-
   private
-  public :: spin_spin_correlation
+  public :: spin_correlation_driver
+  integer, allocatable, public, save :: orb_range_p(:), orb_range_q(:)
+
 
 contains
 
-  pure function spin_spin_correlation(spinfree_2rdm, NActEl, &
-        orb_range_i, orb_range_j) result(spin_correlation)
 
+  subroutine spin_correlation_driver(orb_range_p, orb_range_q, iroot)
     !! spin-spin-correlation function using orbital-resolved 2RDMs.
     !! For details see Dobrautz et al. 2021, 10.1021/acs.jctc.1c00589.
+    integer, intent(in) :: orb_range_p(:), orb_range_q(:), iroot(:)
+    real(wp), allocatable :: spin_correlations(:)
+    real(wp) :: dmat(nacpar), dspn(nacpar), pamat(nacpr2), psmat(nacpr2)
+    integer :: jDisk, i, j
 
-    real(dp), intent(in) :: spinfree_2rdm(:,:,:,:)
-    integer, intent(in) :: NActEl, orb_range_i(:), orb_range_j(:)
+    jDisk = iAdr15(3)
+    call mma_allocate(spin_correlations, size(iroot))
+    spin_correlations(:) = 0.0_wp
 
-    real(dp), allocatable :: spinfree_1rdm(NActEl,NActEl)
-    real(dp) :: spin_correlation
-    integer :: i, j
+    write(u6,'(a)') new_line('a')
+    write(u6,'(a)') "WARNING:"
+    write(u6,'(a)') "These numbers are meaningful *only if* the &
+                 &orbitals were localised and sorted by sites beforehand."
+    write(u6,'(a)') "Consider the &Localisation module and &
+                     &pymolcas help_doc rasscf sscr for guidance."
+    write(u6,'(a)') new_line('a')
 
-    spin_correlation = 0.0_dp
-
-    ! spatial orbital labels p,q,r,s,...
-    spinfree_1rdm = contract_2rdm(spinfree_2rdm, NActEl)
-    associate(ps => orb_range_i, qs => orb_range_j)
-    do j = 1, size(ps)
-      do i = 1, size(qs)
-        if (ps(i) /= qs(j)) then
-          spin_correlation = spin_correlation &
-            - 0.5_dp * (spinfree_2rdm(ps(i),qs(j),qs(j),ps(i)) &
-            + 0.5_dp * spinfree_2rdm(ps(i),ps(i),qs(j),qs(j)))
-        else
-          spin_correlation = spin_correlation &
-            + 0.75_dp * (spinfree_1rdm(ps(i),ps(i)) &
-            - spinfree_2rdm(ps(i),ps(i),ps(i),ps(i))) &
-            - 0.5_dp * (spinfree_2rdm(ps(i),ps(j),ps(j),ps(i)) &
-            + 0.5_dp * spinfree_2rdm(ps(i),ps(i),ps(j),ps(j)))
+    do i = 1, NRoots
+      do j = 1, size(iroot)
+        if (iroot(j) == i) then
+          call rdm_from_runfile(dmat, dspn, psmat, pamat, jDisk)
+          spin_correlations(j) = correlation_func(orb_range_p, orb_range_q, &
+                                                  dmat, psmat, pamat)
+          write(u6,'(a,i2,a,f12.8)') '::    RASSCF root number ', iroot(j), &
+            ' Spin Correlation:  ', spin_correlations(j)
         end if
       end do
     end do
-    end associate
 
-  end function spin_spin_correlation
+    call mma_deallocate(spin_correlations)
+  end subroutine spin_correlation_driver
 
 
-  pure function contract_2rdm(spinfree_2rdm, nActEl) result(spinfree_1rdm)
+  real(wp) function correlation_func(orb_range_p, orb_range_q, &
+                                     dmat, psmat, pamat) result(corr)
+    !! extract spin-spin-correlation function from orbital resolved RDMs.
+    integer, intent(in) :: orb_range_p(:), orb_range_q(:)
+    real(wp), intent(in) :: dmat(nacpar), psmat(nacpr2), pamat(nacpr2)
+    integer :: rp, rq, p, q, pp, pppp, pqqp, ppqq
+    real(wp) :: twordm_pqqp, twordm_ppqq, twordm_pppp, onerdm_pp
 
-    !! Calculate the spinfree-1-RDM by tracing out one particle of the
-    !! 3-index spinfree TwoRDM D(x1, x1', x2, x2). For debug purposes only.
+    corr = 0.0_wp
 
-    real(dp), intent(in) :: spinfree_2rdm(nActEl,nActEl,nActEl,nActEl)
-    integer, intent(in) :: nelec
+    do p = 1, size(orb_range_p)
+      do q = 1, size(orb_range_q)
+        ! dummy variables to save space
+        rp = orb_range_p(p); rq = orb_range_q(q)
+        if (rp /= rq) then
+          pqqp = two_el_idx_flatten(rp, rq, rq, rp)
+          ppqq = two_el_idx_flatten(rp, rp, rq, rq)
+          twordm_pqqp = psmat(pqqp) - pamat(pqqp)
+          twordm_ppqq = 2 * (psmat(ppqq) + pamat(ppqq))
 
-    real(dp), allocatable :: spinfree_1rdm(nActEl,nActEl)
-    integer :: x, p, q
+          ! write(u6,"(a,2i3,a,2i4)") 'p, q', rp, rq, ' pqqp, ppqq', pqqp, ppqq
+          ! write(u6,"(a,2f12.8)") 'psmat(pqqp), pamat(pqqp)', psmat(pqqp), pamat(pqqp)
+          ! write(u6,"(a,2f12.8)") 'psmat(ppqq), pamat(ppqq)', psmat(ppqq), pamat(ppqq)
+          ! write(u6,"(a,f12.8)") 'twordm_pqqp', twordm_pqqp
+          ! write(u6,"(a,f12.8)") 'twordm_ppqq', twordm_ppqq
 
-    spinfree_1rdm(:,:) = 0.0_dp
+          corr = corr - 0.5_wp * (twordm_pqqp + 0.5_wp * twordm_ppqq)
+        else
+          pppp = two_el_idx_flatten(rp, rp, rp, rp)
+          pp = one_el_idx_flatten(rp, rp)
 
-    do x = 1, size(spinfree_2rdm, dim=1)
-      do q = 1, size(spinfree_2rdm, dim=1)
-        do p = 1, size(spinfree_2rdm, dim=1)
-          spinfree_1rdm(p,q) = spinfree_1rdm(p,q) + spinfree_2rdm(p,q,x,x)
-        end do
+          ! write(u6,"(a,i3,a,i4)") 'p ', rp, ' pppp ', pqqp
+          ! write(u6,"(a,2f12.8)") 'psmat(pppp), pamat(pppp)', psmat(pppp), pamat(pppp)
+          ! write(u6,"(a,f12.8)") 'twordm_pppp', twordm_pppp
+          ! write(u6,"(a,f12.8)") 'onerdm_pp', dmat(pp)
+
+          twordm_pppp = 2 * (psmat(pppp) + pamat(pppp))
+          onerdm_pp = dmat(pp)
+          corr = corr + 0.75_wp * (onerdm_pp - twordm_pppp)
+        end if
       end do
     end do
-
-    spinfree_1rdm(:,:) = spinfree_1rdm(:,:) * 1.0_dp / (nelec - 1)
-
-  end function contract_2rdm
-
-
-  pure function decompress_symmetrized_2rdm(psmat, pamat) &
-    result(spinfree_2rdm)
-    ! tested in Python
-
-    !! Convert a pair of PSMAT and PAMAT from linearised Molcas format
-    !! into a full four-index spinfree-TwoRDM. For debug purposes only.
-
-    real(dp), intent(in) :: pamat(:), psmat(:)
-      !! (anti)symmetrised TwoRDM in the Molcas format.
-
-    real(dp), allocatable :: spinfree_2rdm(:,:,:,:)
-
-    mma_allocate(spinfree_2rdm(norbs, norbs, norbs, norbs))
-    spinfree_2rdm(:,:,:,:) = 0.0_dp
-
-    do pqrs = 1, size(psmat)
-      call two_el_idx(pqrs, p, q, r, s)
-      if (r == s) n_rs = 1
-      if (r /= s) n_rs = 2
-      twordm(p,q,r,s) = 2.0_dp/n_rs * (psmat(pqrs) + pamat(pqrs))
-      twordm(r,s,p,q) = twordm(p,q,r,s)
-      twordm(q,p,s,r) = 2.0_dp/n_rs * (psmat(pqrs) + pamat(pqrs))
-      twordm(s,r,q,p) = twordm(q,p,s,r)
-      twordm(q,p,r,s) = 2.0_dp/n_rs * (psmat(pqrs) - pamat(pqrs))
-      twordm(r,s,q,p) = twordm(q,p,r,s)
-      twordm(p,q,s,r) = 2.0_dp/n_rs * (psmat(pqrs) - pamat(pqrs))
-      twordm(s,r,p,q) = twordm(p,q,s,r)
-    end do
-
-  end function decompress_symmetrized_2rdm
+  end function correlation_func
 
 end module spin_correlation
