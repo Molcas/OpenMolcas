@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=134)
+      Parameter (NKeys=135)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -30,7 +30,7 @@
      &     KeyOUTP, KeyPRIN, KeyPROR, KeyPRSP, KeyPRWF,
      &     KeyQUNE, KeyRAS1, KeyRAS2, KeyRAS3, KeyGASS,
      &     KeyRFPE, KeyCIRF, KeyRFRO, KeyRLXR, KeyRASS,
-     &     KeySDAV, KeySPIN, KeySUPS, KeySXDA, KeySYMM,
+     &     KeySDAV, KeySPIN, KeySSCR, KeySUPS, KeySXDA, KeySYMM,
      &     KeyTHRS, KeyTIGH, KeyTITL, KeyTYPE, KeyVB  ,
      &     KeyEXPE, KeySPLI, KeyNUSP, KeyENSP, KeyPESP,
      &     KeyFOSP, KeyMDRL, KeyOFEM, KeyFTHA, KeyDFMD,
@@ -59,7 +59,7 @@
      &     KeyOUTP, KeyPRIN, KeyPROR, KeyPRSP, KeyPRWF,
      &     KeyQUNE, KeyRAS1, KeyRAS2, KeyRAS3, KeyGASS,
      &     KeyRFPE, KeyCIRF, KeyRFRO, KeyRLXR, KeyRASS,
-     &     KeySDAV, KeySPIN, KeySUPS, KeySXDA, KeySYMM,
+     &     KeySDAV, KeySPIN, KeySSCR, KeySUPS, KeySXDA, KeySYMM,
      &     KeyTHRS, KeyTIGH, KeyTITL, KeyTYPE, KeyVB  ,
      &     KeyEXPE, KeySPLI, KeyNUSP, KeyENSP, KeyPESP,
      &     KeyFOSP, KeyMDRL, KeyOFEM, KeyFTHA, KeyDFMD,
@@ -91,7 +91,7 @@
      &                  'OUTP','PRIN','PROR','PRSP','PRWF',
      &                  'QUNE','RAS1','RAS2','RAS3','GASS',
      &                  'RFPE','CIRF','RFRO','RLXR','RASS',
-     &                  'SDAV','SPIN','SUPS','SXDA','SYMM',
+     &                  'SDAV','SPIN','SSCR','SUPS','SXDA','SYMM',
      &                  'THRS','TIGH','TITL','TYPE','VB  ',
      &                  'EXPE','SPLI','NUSP','ENSP','PESP',
      &                  'FOSP','MDRL','OFEM','FTHA','DFMD',

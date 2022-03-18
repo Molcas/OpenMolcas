@@ -31,6 +31,7 @@
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI
+      use spin_correlation, only: orb_range_p, orb_range_q
       use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      &  t_RDMsampling, RDMsampling,
@@ -77,6 +78,7 @@
       logical RF_On
       logical Langevin_On
       logical PCM_On
+      integer same_orbs
       Integer ipTemp1,ipTemp2,ipTemp3
 * (SVC) added for treatment of alter and supsym
       Dimension iMAlter(MaxAlter,2)
@@ -967,49 +969,71 @@ C   No changing about read in orbital information from INPORB yet.
        End If
       End If
 *---  Process SSCR command --------------------------------------------*
-      if (keysscr) then
-        if (DBG) write(6,*) ' Spin-Spin-Correlation command was given.'
-        call SetPos(LUInput,'SSCR',Line,iRc)
-        if(iRc /=_RC_ALL_IS_WELL_) GoTo 9810
-        line=Get_Ln(LUInput)
+      if (KeySSCR) then
+        if (DBG) write(6,*) ' SSCR command was given.'
+        call setpos(luinput,'SSCR',line,irc)
+        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+        line=get_ln(luinput)
         line(80:80)='0'
-        ReadStatus=' Failure reading after Spin-Spin-Correlation keyword.'
-        Read(Line,*,Err=9920,End=9920) NOrbs,iall
-        ReadStatus=' O.K reading after Spin-Spin-Correlation keyword.'
-        if (NOrbs >= MXOrbs) then
-          WRITE(6,*) "Error: number of spatial orbitals exceeds maximum"
-          WRITE(6,*) "NOrbs = ", NOrbs
+        ReadStatus=' Failure reading after KeySSCR keyword.'
+        read(line,*,err=9920,end=9920) norbs, same_orbs
+        ReadStatus=' O.K reading after KeySSCR keyword.'
+
+        call mma_allocate(orb_range_p,norbs)
+        call mma_allocate(orb_range_q,norbs)
+        do i = 1, norbs
+          orb_range_p(i) = i
+          orb_range_q(i) = i
+        end do
+
+        if (norbs >= mxOrb) then
+          write(6,'(a)', advance="no") 'SSCR error:'
+          write(6,*) "number of spatial orbitals exceeds maximum"
+          write(6,'(a,i4)') "norbs = ", norbs
+          write(6,'(a)') new_line('a')
           call abend()
         end if
-        if (iall == 1) then
-          orb_range_i = [(i, i = 1, NOrbs)]
-          orb_range_j = [(i, i = 1, NOrbs)]
+
+        if (same_orbs == 1) then
+          continue
         else
           Line=Get_Ln(LUInput)
-          ReadStatus=' Failure reading after CIROOTS keyword.'
-          read(LUInput,*) (orb_range_i(i), i = 1, NOrbs)
-          read(LUInput,*) (orb_range_j(j), j = 1, NOrbs)
-          if (size(orb_range_i) /= orb_range_j) then
-            write(6,*) "error: numbers of spatial orbitals do not match"
-            write(6,*) "orb_range_i = ", orb_range_i
-            write(6,*) "orb_range_j = ", orb_range_j
+          readstatus=' failure reading after SSCR keyword.'
+          read(Line,*) (orb_range_p(p), p = 1, norbs)
+          Line=Get_Ln(LUInput)
+          read(Line,*) (orb_range_q(q), q = 1, norbs)
+
+          if (size(orb_range_p) /= size(orb_range_q)) then
+            write(6,'(a)', advance="no") 'SSCR error:'
+            write(6,*) "numbers of spatial orbitals do not match"
+            write(6,*) "orb_range_p has length ", size(orb_range_p)
+            write(6,*) "orb_range_q has length ", size(orb_range_q)
+            write(6,'(a)') new_line('a')
             call abend()
           end if
-          do i = 1, NOrbs
-            do j = 1, NOrbs
-              if (orb_range_i(i) == orb_range_i(j)) then
-                write(6,*) "error: orbital range contains duplicates."
-                write(6,*) "orb_range_i = ", orb_range_i
-                call abend()
-              end if
-              if (orb_range_j(i) == orb_range_j(j)) then
-                write(6,*) "error: orbital range contains duplicates."
-                write(6,*) "orb_range_i = ", orb_range_i
-                call abend()
+
+          do p = 1, norbs
+            do q = 1, norbs
+              if (p < q) then
+                if (orb_range_p(p) == orb_range_p(q)) then
+                  write(6,'(a)', advance="no") 'SSCR error:'
+                  write(6,*) 'first range contains duplicates.'
+                  write(6,'(*(i4))') orb_range_p
+                  write(6,'(a)') new_line('a')
+                  call abend()
+                end if
+                if (orb_range_q(p) == orb_range_q(q)) then
+                  write(6,'(a)', advance="no") 'SSCR error:'
+                  write(6,*) 'second range contains duplicates.'
+                  write(6,'(*(i4))') orb_range_q
+                  write(6,'(a)') new_line('a')
+                  call abend()
+                end if
               end if
             end do
           end do
         end if
+      Call ChkIfKey()
       end if
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
