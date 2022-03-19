@@ -29,8 +29,6 @@
 !> which is done just like in hel.f.
 !>
 !> @param[out]    Energy  The energy of the electrostatic interaction
-!> @param[in,out] iCall   An integer that tells if this is the first call in the iteration.
-!>                        Necessary for the copy of the one-particle Hamiltonian
 !> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
 !> @param[in]     iCi     Number of centers in QM-molecule
 !> @param[in]     iFil    Pointer to the static field from the solvent
@@ -42,8 +40,8 @@
 !> @param[in]     iTri    ``iOrb(1)*(iOrb(1)+1)/2``
 !***********************************************************************
 
-subroutine Polink(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP, &
-                  RoMat,xyzQuQ,CT)
+subroutine Polink(Energy,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,RoMat, &
+                  xyzQuQ,CT)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
@@ -54,7 +52,7 @@ implicit none
 #include "qminp.fh"
 #include "qm1.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iCall, iAtom2, iCi, iFil(iCi,10), iCstart, iTri, iQ_Atoms
+integer(kind=iwp) :: iAtom2, iCi, iFil(iCi,10), iCstart, iTri, iQ_Atoms
 real(kind=wp) :: Energy, VpolMat(iTri), Fil(npart*npol,3), polfac, Poli(iCi,10), qTot, ChaNuc(MxAt), xyzMyQ(3), xyzMyI(3), &
                  xyzMyP(3), RoMat(iTri), xyzQuQ(6), CT(3)
 integer(kind=iwp) :: i, iCnum, Iu, j, k, kk, l
@@ -267,7 +265,5 @@ do i=1,iQ_Atoms
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iCall)
 
 end subroutine Polink

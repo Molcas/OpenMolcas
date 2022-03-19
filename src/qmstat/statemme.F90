@@ -11,7 +11,7 @@
 
 ! This is just an interface for the state transformation. Either
 ! we use usual AO-basis route, or we take the reduced MO-basis route.
-subroutine StateMME(MoOrNot,nAObas,nMObas,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
+subroutine StateMME(MoOrNot,nAObas,nMObas,nState,nTyp,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
 
 use Index_Functions, only: nTri3_Elem, nTri_Elem
 use Definitions, only: wp, iwp
@@ -19,13 +19,13 @@ use Definitions, only: wp, iwp
 implicit none
 #include "maxi.fh"
 logical(kind=iwp) :: MoOrNot
-integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCi, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas)), ipAvRed
+integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas)), ipAvRed
 real(kind=wp) :: Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen)
 
 if (.not. MoOrNot) then
   call StateMMEao(nAObas,nState,nTyp,iBigT,iMME,iCent,Cha,Dip,Qua)
 else
-  call StateMMEmo(nAObas,nMObas,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
+  call StateMMEmo(nAObas,nMObas,nState,nTyp,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
 end if
 
 return

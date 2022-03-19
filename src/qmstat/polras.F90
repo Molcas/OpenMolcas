@@ -27,7 +27,7 @@ integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri
                      NVarv, iSTC, ip_ExpVal
 real(kind=wp) :: VMat(iTriState), Smat(iTriState), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
-integer(kind=iwp) :: i, iCall, iDum, iErr, iGri, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, nFound, nPolCent, nQMCent
+integer(kind=iwp) :: i, iDum, iErr, iGri, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
 real(kind=wp), allocatable :: EEigen(:), FFp(:,:), RoMatSt(:), VpolMat(:)
@@ -69,8 +69,8 @@ do
   call PolSolv(iDT,iFI,iFP,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),FFp,iCNum,r2Inv, &
                DiFac,nPolCent)
   call DensiSt(RomatSt,Work(iSTC),nEqState,nState,nState)
-  call Polins(Energy,iCall,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,poli,xyzMyQ,xyzMyI,xyzMyP,iCstart,iQ_Atoms,qTot,ChaNuc, &
-              RoMatSt,xyzQuQ,CT)
+  call Polins(Energy,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,poli,xyzMyQ,xyzMyI,xyzMyP,iCstart,iQ_Atoms,qTot,ChaNuc,RoMatSt, &
+              xyzQuQ,CT)
 
   ! Assemble the Hamiltonian matrix.
 
@@ -104,7 +104,7 @@ call Memory_PolPrep('Free',ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
 
 ! If expectation values are extracted, make a detour.
 
-if (lExtr(6)) call Expectus('RASSI',HmatSOld,Vmat,VpolMat,Smat,MxStOT,iSTC,nState,lExtr(4),iExtr_Eig,ip_ExpVal)
+if (lExtr(6)) call Expectus('RASSI',HmatSOld,Vmat,VpolMat,Smat,iSTC,nState,lExtr(4),iExtr_Eig,ip_ExpVal)
 
 ! Is it dead? It's terminated!
 

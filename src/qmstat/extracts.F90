@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ExtractS(iLu,i9,Etot,xyzMy,Hmat,iC,iDt,nBas,xyzQu,lExtr,iExtr_Atm,ip_ExpVal,ip_ExpCento,ENR,ENP)
+subroutine ExtractS(iLu,i9,Etot,xyzMy,xyzQu,lExtr,ip_ExpVal,ip_ExpCento,ENR,ENP)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9, iC, iDt(3), nBas, iExtr_Atm(*), ip_ExpVal, ip_ExpCento
-real(kind=wp) :: Etot, xyzMy(3), Hmat(*), xyzQu(6), ENR, ENP
+integer(kind=iwp) :: iLu, i9, ip_ExpVal, ip_ExpCento
+real(kind=wp) :: Etot, xyzMy(3), xyzQu(6), ENR, ENP
 logical(kind=iwp) :: lExtr(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: k
@@ -47,13 +47,5 @@ if (lExtr(7)) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Hmat)
-  call Unused_integer(iC)
-  call Unused_integer_array(iDt)
-  call Unused_integer(nBas)
-  call Unused_integer_array(iExtr_Atm)
-end if
 
 end subroutine ExtractS

@@ -129,9 +129,9 @@ end if
 call mma_allocate(SumElcPot,iCi,10,label='SumElcPot')
 
 if (Qmeq .and. (iRead /= 9)) then
-  call NiceOutPut('EIQ',Gam,Gmma,BetaBol)
+  call NiceOutPut('EIQ')
 else if (QmProd .and. (iRead /= 9)) then
-  call NiceOutPut('PIQ',Gam,Gmma,BetaBol)
+  call NiceOutPut('PIQ')
   call DaName(iLuSaUt,SaFilUt)
   iDisk = 0 !Put some dummy on the sampfile so we have space for the real number later.
   iDum(1) = iHowMSampUT
@@ -149,7 +149,7 @@ else if (QmProd .and. (iRead /= 9)) then
 else if (iRead == 9) then
   ! If we read from sampfile: open the
   ! sampfile and read how many configurations and open extract file.
-  call NiceOutPut('SSS',Gam,Gmma,BetaBol)
+  call NiceOutPut('SSS')
   call DaName(iLuSaIn,SaFilIn)
   iDiskSa = 0
   call iDaFile(iLuSaIn,2,iDum,1,iDiskSa)
@@ -275,7 +275,7 @@ outer: do
 
       ! Compute Solvent-solvent interaction.
 
-      call ClasClas(iCNum,iCStart,ncParm,Coord,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
+      call ClasClas(iCNum,iCStart,ncParm,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
       call QMPosition(EHam,Cordst,Coord,Forcek,dLJrep,Ract,iQ_Atoms)
       call Timing(Cpu2,Tim1,Tim2,Tim3)
       timeCLAS = timeCLAS+(Cpu2-Cpu1)
@@ -323,7 +323,7 @@ outer: do
 
       ! Couple the point-charges in the solvent to the QM-region.
 
-      call HelState(Eint,nState,iCi,RasCha,RasDip,RasQua,Vmat,iPrint)
+      call HelState(Eint,nState,iCi,RasCha,RasDip,RasQua,Vmat)
 
       ! Let QM-region and solvent polarize.
       call PolRas(iDist,iDistIM,iDT,iFI,iFP,iFil,iCStart,iTriState,VMat,Smat,DiFac,Ract,iCNum,Energy,nVarv,iSTC,Haveri,iQ_Atoms, &
@@ -416,7 +416,7 @@ outer: do
         if (lExtr(7)) call AllenGinsberg('RASSI',Eint,Poli,ChaNuc,RasCha,RasDip,RasQua,MxStOT,iSTC,nState,iExtr_Atm,lExtr(4), &
                                          iExtr_Eig,iQ_Atoms,ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
 
-        call Extract(iLuExtr,i9,Etot,xyzMyQ,HMatState,iSTC,iDt,nState,HMatSOld,xyzQuQ,ip_ExpVal,ip_ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
+        call Extract(iLuExtr,i9,Etot,xyzMyQ,HMatState,iSTC,nState,xyzQuQ,ip_ExpVal,ip_ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
         !***JoseMEP**********
         ! If MEP option. Add electr. potential, field, etc. for all solvent config.
         if (lExtr(8)) then
@@ -458,7 +458,7 @@ outer: do
             if (Inter /= 0) then
               Inte = (iSnurr/Inter)*Inter
               if (Inte == ((iMacro-1)*nMicro+iMicro)) then
-                call Put9(Etot,Ract,iDT,iHowMSampUT,Gmma,Gam,Esav,iDisk)
+                call Put9(Etot,Ract,iHowMSampUT,Gmma,Gam,Esav,iDisk)
               end if
             end if
           end if

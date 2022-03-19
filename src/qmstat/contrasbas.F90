@@ -9,18 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ContRASBas(nBas,nStatePrim,iNonH,iNonS,iEig2)
+subroutine ContRASBas(nStatePrim,iNonH,iNonS,iEig2)
 
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, one
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: nStatePrim, iNonH, iNonS, iEig2
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qm2.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: nBas(MxSym), nStatePrim, iNonH, iNonS, iEig2
 integer(kind=iwp) :: i, iEig1, ii, ind, iRedHSq, iRedHTr, iS, iSqH, iState, iT, iTEMP, j, jState, k, kaunt, kaunter, nLvlInd, nTri
 real(kind=wp) :: sss, x
 
@@ -137,8 +137,6 @@ nState = nStateRed
 ! No parasan!
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(nBas)
 
 6199 format(A,I3,A,I3)
 

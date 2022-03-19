@@ -127,7 +127,7 @@ do iCA=1,nCentA
         ! Both diffuse.
 
         call TKP(Tau,dKappa,Rho,RhoA,RhoB,EAp,EBp,R,dNeigh,lTooSmall)
-        call ABBoth(iLA,iLB,TMPA,Tau,dKappa,Rho,RhoA,RhoB,Rinv,lTooSmall,Colle)
+        call ABBoth(iLA,iLB,TMPA,dKappa,Rho,RhoA,RhoB,Rinv,lTooSmall,Colle)
         if (iLB == 0) then
           EintSl(1) = EintSl(1)+Colle(1)
         else ! if iLB not 0 then it is 1

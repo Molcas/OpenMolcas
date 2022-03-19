@@ -196,8 +196,8 @@ write(u6,*)
 call mma_allocate(Icon,MxAt,MxPrCon,label='Icon')
 call mma_allocate(nSh,MxAt,label='nSh')
 call mma_allocate(nfSh,MxAt,MxAngqNr,label='nfSh')
-call GiveMeInfo(nBas(1),nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,ipE,ipC,nSh,nfSh,nSize,iPrint,MxAt,MxPrCon,MxBas, &
-                MxAngqNr,ipACC,nACCSizeQ)
+call GiveMeInfo(nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,ipE,ipC,nSh,nfSh,nSize,iPrint,MxAt,MxPrCon,MxBas,MxAngqNr, &
+                ipACC,nACCSizeQ)
 iBas = 0
 iAtom = 0
 kold = 1
@@ -225,7 +225,7 @@ do i=1,nntyp
         icont = Icon(i,ind)
         iCharOnBasQ(ibas) = int(Chge(iAtom))
         do ix=1,2*k-1  !Here we construct an array of
-          if (k /= kold) then !indeces which is used to put right
+          if (k /= kold) then !indices which is used to put right
             if (i /= iold) then !AO-overlap in right matrix pos.
               Indold = Indold+nfSh(iold,kold)*(2*kold-2)
               iold = i
@@ -319,8 +319,8 @@ write(u6,*)
 !----------------------------------------------------------------------*
 call mma_allocate(natypC,MxAt,label='natypC')
 call mma_allocate(iC_Icon,MxAt,MxPrCon,label='iC_Icon')
-call GiveMeInfo(nBasCC(1),nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nSh,nfSh,nSize,iPrint,MxAt, &
-                MxPrCon,MxBas,MxAngqNr,ipACC,nACCSizeC)
+call GiveMeInfo(nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nSh,nfSh,nSize,iPrint,MxAt,MxPrCon,MxBas, &
+                MxAngqNr,ipACC,nACCSizeC)
 iBas = 0
 iAtom = 0
 kold = 1

@@ -27,17 +27,16 @@
 !> @param[in]  dil    MME-dipoles
 !> @param[in]  qqxxyy MME-quadrupoles.
 !> @param[out] vmat   The electrostatic part of the solute-solvent interaction matrix
-!> @param[in]  iprint Print parameter
 !***********************************************************************
 
-subroutine Hel(Eint,itri,ici,ql,dil,qqxxyy,vmat,iprint)
+subroutine Hel(Eint,itri,ici,ql,dil,qqxxyy,vmat)
 
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-integer(kind=iwp) :: itri, ici, iprint
+integer(kind=iwp) :: itri, ici
 real(kind=wp) :: Eint(ici,10), Ql(MxOT,MxQCen), Dil(MxOT,3,MxQCen), QQxxyy(MxOT,6,MxQCen), Vmat(itri)
 integer(kind=iwp) :: i, j, k
 
@@ -63,7 +62,5 @@ do i=1,itri
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iprint)
 
 end subroutine Hel

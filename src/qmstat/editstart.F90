@@ -267,7 +267,7 @@ if (DelOrAdd(4)) then
       CooRef(iCent,2) = Cordst(iCent,2)
       CooRef(iCent,3) = Cordst(iCent,3)
     end do
-    call MoldenDump(iC,CooRef,nPart,nAtom,nCent)
+    call MoldenDump(iC,CooRef,nPart,nCent)
   end if
 end if
 

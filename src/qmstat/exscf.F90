@@ -26,8 +26,7 @@ integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC
 real(kind=wp) :: Ax, Ay, Az, Smat(itri), SmatPure(itri)
 logical(kind=iwp) :: InCutOff
 integer(kind=iwp) :: i, iAOAOTri, iAOMOOvl, iAOMOOvlE, iInte, ind, inwm, iOPure, iOvlMO, iOvlMOE, ipAOAUX, ipAOAUXtri, ipAOint, &
-                     ipAOintpar, ipAUX, ipAUXp, ipAUXtri, iV2, j, k, N, nAObaseSize, nAOqMOcl, nInsideCut, nOrbSize, nStorlek, &
-                     nV2size
+                     ipAUX, ipAUXp, ipAUXtri, iV2, j, k, N, nAObaseSize, nAOqMOcl, nInsideCut, nOrbSize, nStorlek, nV2size
 real(kind=wp) :: CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: NearBy
 logical(kind=iwp), allocatable :: Inside(:,:)
@@ -50,7 +49,6 @@ nAObaseSize = nBaseQ*nBaseC
 nStorlek = iOrb(1)*nBaseC
 call GetMem('RotOrb','Allo','Real',iV2,nV2size)
 call GetMem('Sint','Allo','Real',ipAOint,nAObaseSize)
-call GetMem('Sintpar','Allo','Real',ipAOintpar,nAObaseSize)
 call GetMem('OvlMO','Allo','Real',iOvlMO,nOrbSize)
 call GetMem('Intermed','Allo','Real',iInte,nStorlek)
 call GetMem('OvlMOpure','Allo','Real',iOPure,nOrbSize)
@@ -129,7 +127,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Make the AO-AO overlap integration.
 
-  call AOIntegrate(iCStart,nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,ipAOintpar,iV2,N,lmax,Inside)
+  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
 
   ! Transform to MO-MO overlap.
 
@@ -192,7 +190,6 @@ call mma_deallocate(Inside)
 
 call GetMem('RotOrb','Free','Real',iV2,nV2size)
 call GetMem('Sint','Free','Real',ipAOint,nAObaseSize)
-call GetMem('Sintpar','Free','Real',ipAOintpar,nAObaseSize)
 call GetMem('OvlMO','Free','Real',iOvlMO,nOrbSize)
 call GetMem('Intermed','Free','Real',iInte,nStorlek)
 call GetMem('OvlMOpure','Free','Real',iOPure,nOrbSize)

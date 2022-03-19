@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ExtractR(iLu,i9,Etot,xyzMy,Hmat,iC,iDt,nState,HMatOld,xyzQu,lExtr,iExtr_Eig,iExtr_Atm,ip_ExpVal,ip_ExpCento,ENR,ENP)
+subroutine ExtractR(iLu,i9,Etot,xyzMy,Hmat,iC,nState,xyzQu,lExtr,iExtr_Eig,ip_ExpVal,ip_ExpCento,ENR,ENP)
 
 use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9, iC, iDt(3), nState, iExtr_Eig, iExtr_Atm(*), ip_ExpVal, ip_ExpCento
-real(kind=wp) :: Etot, xyzMy(3), Hmat(*), HMatOld(*), xyzQu(6), ENR, ENP
+integer(kind=iwp) :: iLu, i9, iC, nState, iExtr_Eig, ip_ExpVal, ip_ExpCento
+real(kind=wp) :: Etot, xyzMy(3), Hmat(*), xyzQu(6), ENR, ENP
 logical(kind=iwp) :: lExtr(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ind, j, k, nDim
@@ -69,11 +69,5 @@ if (lExtr(7)) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(iDt)
-  call Unused_real_array(HMatOld)
-  call Unused_integer_array(iExtr_Atm)
-end if
 
 end subroutine ExtractR

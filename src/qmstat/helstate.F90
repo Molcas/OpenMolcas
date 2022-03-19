@@ -32,10 +32,9 @@
 !> @param[in]  Dip     Dipoles
 !> @param[in]  Qua     Quadrupoles
 !> @param[out] Vmat    The electrostatic part of the solute-solvent interaction matrix
-!> @param[in]  iPrint  Print-level
 !***********************************************************************
 
-subroutine HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat,iPrint)
+subroutine HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat)
 
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, Two
@@ -43,7 +42,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-integer(kind=iwp) :: nrstate, ici, iPrint
+integer(kind=iwp) :: nrstate, ici
 real(kind=wp) :: Eint(ici,10), Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen), Vmat(nTri_Elem(nrstate))
 integer(kind=iwp) :: i, j, k, kaunt
 
@@ -77,7 +76,5 @@ do i=1,nrState
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iPrint)
 
 end subroutine HelState

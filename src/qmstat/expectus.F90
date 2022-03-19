@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Expectus(QMMethod,HmatOld,Vmat,VpolMat,Smat,MxDim,iVEC,nDim,lEig,iEig,ip_ExpVal)
+subroutine Expectus(QMMethod,HmatOld,Vmat,VpolMat,Smat,iVEC,nDim,lEig,iEig,ip_ExpVal)
 
 use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6, r8
@@ -18,7 +18,7 @@ implicit none
 #include "WrkSpc.fh"
 #include "warnings.h"
 character(len=5) :: QMMethod
-integer(kind=iwp) :: MxDim, iVEC, nDIM, iEig, ip_ExpVal
+integer(kind=iwp) :: iVEC, nDIM, iEig, ip_ExpVal
 real(kind=wp) :: HmatOld(nTri_Elem(nDim)), Vmat(nTri_Elem(nDim)), VpolMat(nTri_Elem(nDim)), Smat(nTri_Elem(nDim))
 logical(kind=iwp) :: lEig
 integer(kind=iwp) :: iDTmp, iRoot, nDTri, nRoots
@@ -84,7 +84,5 @@ end if
 ! What's you major malfunction, numb nuts!
 
 return
-
-call Unused_integer(MxDim)
 
 end subroutine Expectus

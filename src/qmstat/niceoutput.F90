@@ -9,14 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine NiceOutPut(EelP,Gam,Gmma,BetaBol)
+subroutine NiceOutPut(EelP)
 
 use Constants, only: Angstrom, deg2rad
-use Definitions, only: wp, iwp, u6
+use Definitions, only: iwp, u6
 
 implicit none
 character(len=3) :: EelP
-real(kind=wp) :: Gam, Gmma, BetaBol
 #include "maxi.fh"
 #include "qminp.fh"
 #include "warnings.h"
@@ -139,12 +138,6 @@ end if
 ! Tschuss
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(Gam)
-  call Unused_real(Gmma)
-  call Unused_real(BetaBol)
-end if
 
 11 format('               ',A)
 12 format('    ',A)

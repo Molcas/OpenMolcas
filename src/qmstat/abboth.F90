@@ -12,7 +12,7 @@
 ! Routine for the case where both centres are diffuse. Since these
 ! formulas are pretty nasty and apparently with little general
 ! structure, each type of interaction is hard-coded.
-subroutine ABBoth(iLA,iLB,dMulA,Tau,dKappa,Rho,RhoA,RhoB,Rinv,lTooSmall,Colle)
+subroutine ABBoth(iLA,iLB,dMulA,dKappa,Rho,RhoA,RhoB,Rinv,lTooSmall,Colle)
 
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, Two
@@ -23,7 +23,7 @@ use Definitions, only: iwp, wp, u6
 
 implicit none
 integer(kind=iwp) :: iLA, iLB
-real(kind=wp) :: dMulA(nTri_Elem1(_MxM_)), Tau, dKappa, Rho, RhoA, RhoB, Rinv, Colle(3)
+real(kind=wp) :: dMulA(nTri_Elem1(_MxM_)), dKappa, Rho, RhoA, RhoB, Rinv, Colle(3)
 logical(kind=iwp) :: lTooSmall
 #include "warnings.h"
 integer(kind=iwp) :: i
@@ -58,7 +58,7 @@ else if ((iLA == 1) .and. (iLB == 0)) then
   ! through a sigma-interaction with the s-distribution. Observe
   ! that in the case that iLA > iLB, then the formulas by Roothan
   ! has to be reversed, i.e. RhoA and RhoB change place and
-  ! Tau and Kappa changes sign.
+  ! Kappa changes sign.
 
   Sigma = dMulA(3)
   if (lTooSmall) then
@@ -67,7 +67,7 @@ else if ((iLA == 1) .and. (iLB == 0)) then
   else
     ExA = exp(-Two*RhoA)
     ExB = exp(-Two*RhoB)
-    Colle(1) = Sigma*CoulTN_2(Rho,-Tau,RhoB,RhoA,-dKappa,Rinv,ExB,ExA)
+    Colle(1) = Sigma*CoulTN_2(RhoB,RhoA,-dKappa,Rinv,ExB,ExA)
   end if
 else if ((iLA == 0) .and. (iLB == 1)) then
   Sigma = dMulA(1)
@@ -77,7 +77,7 @@ else if ((iLA == 0) .and. (iLB == 1)) then
   else
     ExA = exp(-Two*RhoA)
     ExB = exp(-Two*RhoB)
-    Colle(1) = Sigma*CoulTN_2(Rho,Tau,RhoA,RhoB,dKappa,Rinv,ExA,ExB)
+    Colle(1) = Sigma*CoulTN_2(RhoA,RhoB,dKappa,Rinv,ExA,ExB)
   end if
 
 else if ((iLA == 1) .and. (iLB == 1)) then
@@ -93,7 +93,7 @@ else if ((iLA == 1) .and. (iLB == 1)) then
   else
     ExA = exp(-Two*RhoA)
     ExB = exp(-Two*RhoB)
-    Colle(1) = Sigma*CoulTN_4(Rho,Tau,RhoA,RhoB,dKappa,Rinv,ExA,ExB)
+    Colle(1) = Sigma*CoulTN_4(RhoA,RhoB,dKappa,Rinv,ExA,ExB)
   end if
 
   ! The two pi-components.
@@ -108,7 +108,7 @@ else if ((iLA == 1) .and. (iLB == 1)) then
   else
     ExA = exp(-Two*RhoA)
     ExB = exp(-Two*RhoB)
-    Width = CoulTN_5(Rho,Tau,RhoA,RhoB,dKappa,Rinv,ExA,ExB)
+    Width = CoulTN_5(RhoA,RhoB,dKappa,Rinv,ExA,ExB)
     Colle(2) = Pi1*Width
     Colle(3) = Pi2*Width
   end if

@@ -130,7 +130,7 @@ end do
 
 ! Transform to State-basis. The logical flag MoAveRed decides which path to go in this subroutine.
 
-call StateMME(MoAveRed,nBas(1),nRedMO,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,RasCha,RasDip,RasQua)
+call StateMME(MoAveRed,nBas(1),nRedMO,nState,nTyp,iBigT,iMME,iCent,ipAvRed,RasCha,RasDip,RasQua)
 
 ! Deallocate the MME in AO-basis.
 
@@ -148,7 +148,7 @@ kaunter = 0
 do i=1,nState
   do j=1,i
     kaunter = kaunter+1
-    do k=1,ici
+    do k=1,iCi
       do l=1,6
         RasQua(kaunter,l,k) = RasQua(kaunter,l,k)*OneHalf
       end do

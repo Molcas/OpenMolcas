@@ -104,7 +104,7 @@ do iextr=iQ_Atoms+1,iCnum*nCent
 end do
 
 if (iPrint >= 10) then !Optional printing.
-  write(Head,*) 'Coordinates of the system after substitution and reordening of solvent molecules.'
+  write(Head,*) 'Coordinates of the system after substitution and reordering of solvent molecules.'
   call Cooout(Head,Cordst,nPart,nCent)
 end if
 

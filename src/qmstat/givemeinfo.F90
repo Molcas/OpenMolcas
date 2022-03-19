@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GiveMeInfo(nBB,nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,MxAtQ,MxPrCon,MxBasQ, &
+subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,MxAtQ,MxPrCon,MxBasQ, &
                       MxAngqNr,ipAcc,nACCSize)
 
 use Basis_Info, only: dbsc, nCnttp, Shells
@@ -20,9 +20,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBB, nntyp, MxAtQ, natyp(MxAtQ), MxPrCon, iCon(MxAtQ,MxPrCon), MxBasQ, nPrim(MxBasQ), nBA(MxAtQ), &
-                     MxAngqNr, nCBoA(MxAtQ,MxAngqNr), nBona(MxAtQ), ipExpo, ipCont, nSh(MxAtQ), nfSh(MxAtQ,MxAngqNr), nSize, &
-                     iPrint, ipAcc, nACCSize
+integer(kind=iwp) :: nntyp, MxAtQ, natyp(MxAtQ), MxPrCon, iCon(MxAtQ,MxPrCon), MxBasQ, nPrim(MxBasQ), nBA(MxAtQ), MxAngqNr, &
+                     nCBoA(MxAtQ,MxAngqNr), nBona(MxAtQ), ipExpo, ipCont, nSh(MxAtQ), nfSh(MxAtQ,MxAngqNr), nSize, iPrint, ipAcc, &
+                     nACCSize
 real(kind=wp) :: BasCoo(3,MxBasQ)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAng, iAngSav, iBas, iCnt, iCnttp, iCount, iHowMuch, ii, ind, ind1, ind2, ind3, ioio, iPrim, iTemp, j, jj, &
@@ -243,7 +243,5 @@ call mma_deallocate(TEMP2)
 call ClsSew()
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nBB)
 
 end subroutine GiveMeInfo

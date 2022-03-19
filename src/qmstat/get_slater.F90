@@ -27,6 +27,8 @@ real(kind=wp) :: CoordTest(3), SlFactQ(6)
 logical(kind=iwp) :: Exists, lCheck
 integer(kind=iwp), external :: IsFreeUnit
 
+#include "macros.fh"
+
 ! Open the file
 Lu = IsFreeUnit(40)
 call Opnfl('DIFFPR',Lu,Exists)
@@ -74,6 +76,7 @@ do iC=1,nSlCentQ
     read(Lu,104) SlExpQ(l+1,ind)
     read(Lu,105) (SlFactQ(kk),kk=nS+1,nT)
     !read(Lu,105) (SlFactQ(kk,ind),kk=nS+1,nT)
+    unused_var(SlFactQ)
   end do
   !Jose. No read nuclear charge
   !read(Lu,104) PointP(ind)
@@ -83,9 +86,6 @@ end do
 close(Lu)
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_real_array(SlFactQ)
-#endif
 
 101 format(I5)
 103 format(3(F20.14))

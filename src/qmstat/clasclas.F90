@@ -9,18 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ClasClas(iCNum,iCStart,ncParm,Coord,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
+subroutine ClasClas(iCNum,iCStart,ncParm,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
 
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp) :: iCNum, iCStart, ncParm, iFP(3), iGP(3), iDT(3), iFI(3), iDist, iDistIm
+real(kind=wp) :: Elene, Edisp, Exrep, E2Die, ExDie
 #include "maxi.fh"
 #include "qminp.fh"
 #include "qmcom.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iCNum, iCStart, ncParm, iFP(3), iGP(3), iDT(3), iFI(3), iDist, iDistIm
-real(kind=wp) :: Coord(MxAt*3), Elene, Edisp, Exrep, E2Die, ExDie
 integer(kind=iwp) :: i, ii, ij, Inc, Inc2, Ind, Ind1, indF, IndMa, indR, indSep, j, jj, Jnd, k, l, nClas, nSize, nSizeIm
 real(kind=wp) :: Adisp, aLim, Dampfunk, Epoll, F, Q, Q1, Q2, r, r3, ri, Sum1, Sum2, Sum3, Sum4, Sum5, X, Y, Z
 character(len=20) :: MemLaaaa, Memlaaab, Memlaabe, Memlabel
@@ -285,7 +285,5 @@ do i=1+nPol*iCnum,IndMa
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Coord)
 
 end subroutine ClasClas

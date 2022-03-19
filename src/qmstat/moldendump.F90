@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MoldenDump(iC,CooRef,nP,nA,nC)
+subroutine MoldenDump(iC,CooRef,nP,nC)
 
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "maxi.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iC(3), nP, nA, nC
+integer(kind=iwp) :: iC(3), nP, nC
 real(kind=wp) :: CooRef(MxCen,3)
 integer(kind=iwp) :: ind, iP, jC
 real(kind=wp) :: Coo(3,nC)
@@ -60,8 +60,6 @@ write(u6,*)
 write(u6,*) '------------------------------------------------------------------------------------'
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nA)
 
 92 format(A,3(F10.6))
 

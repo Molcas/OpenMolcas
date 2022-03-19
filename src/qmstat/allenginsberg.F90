@@ -138,7 +138,7 @@ call mma_deallocate(iCenSet)
 
 ! Collect expectation value for the partial perturbation.
 
-call Expectus(QMMethod,Work(iVelP),Work(iVelP),Work(iVpoP),Work(iVpoP),MxBaux,iVEC,nDim,lEig,iEig,ip_ExpCento)
+call Expectus(QMMethod,Work(iVelP),Work(iVelP),Work(iVpoP),Work(iVpoP),iVEC,nDim,lEig,iEig,ip_ExpCento)
 
 ! Deallocate.
 

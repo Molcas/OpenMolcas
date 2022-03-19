@@ -29,18 +29,15 @@
 !> digit in right place.
 !>
 !> @param[out] Sint     The contracted basis function overlaps
-!> @param[out] SintPar  The contracted basis function overlaps with extra atom--atom weights *if* this has been requested by user,
-!>                      otherwise unchanged
 !> @param[in]  nBaseQ   Number of AO-basis functions in QM-region
 !> @param[in]  nBaseC   Like \p nBaseQ but for solvent
 !> @param[in]  N        Which solvent molecule this is
 !> @param[in]  nCent    How many centers the solvent molecule has
-!> @param[in]  iEl      Number of elements in QM-region
 !> @param[in]  nAtomsCC How many solvent atoms
 !> @param[in]  iPrint   Print level
 !***********************************************************************
 
-subroutine ContractOvl(Sint,SintPar,nBaseQ,nBaseC,N,nCent,iEl,iQ_Atoms,nAtomsCC,iPrint,Inside)
+subroutine ContractOvl(Sint,nBaseQ,nBaseC,N,nCent,iQ_Atoms,nAtomsCC,iPrint,Inside)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -50,8 +47,8 @@ implicit none
 #include "maxi.fh"
 #include "integral.fh"
 #include "WrkSpc.fh"
-real(kind=wp) :: Sint(MxBas,MxBasC), SintPar(0,0)
-integer(kind=iwp) :: nBaseQ, nBaseC, N, nCent, iEL, iQ_Atoms, nAtomsCC, iPrint
+real(kind=wp) :: Sint(MxBas,MxBasC)
+integer(kind=iwp) :: nBaseQ, nBaseC, N, nCent, iQ_Atoms, nAtomsCC, iPrint
 logical(kind=iwp) :: Inside(MxAt,3)
 integer(kind=iwp) :: i, iA1, iA2, iB1, iB2, iC, iCC, iCcontB, iCcontBSAV, iCcontBSAV1, iCcontBSAV2, iCQ, iindex, iNcB1, iNcB2, &
                      ipsint, iQ, iQcontB, iQcontBSAV, iQcontBSAV1, iQcontBSAV2, iqqqC, iqqqQ, j, k, kaunter, kreichner, nExp1, &
@@ -199,11 +196,6 @@ if (iPrint >= 30) then !Optional print-out.
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(SintPar)
-  call Unused_integer(iEl)
-end if
 
 8888 format(I3,'    ',I3,'       ',F12.10)
 

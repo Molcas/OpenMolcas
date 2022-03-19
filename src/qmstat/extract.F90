@@ -9,22 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Extract(iLu,i9,Etot,xyzMy,Hmat,iC,iDt,nMatBas,HMatOld,xyzQuQ,ip_ExpVal,ip_ExpCento,ENR,ENP)
+subroutine Extract(iLu,i9,Etot,xyzMy,Hmat,iC,nMatBas,xyzQuQ,ip_ExpVal,ip_ExpCento,ENR,ENP)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9, iC, iDt(3), nMatBas, ip_ExpVal, ip_ExpCento
-real(kind=wp) :: Etot, xyzMY(3), Hmat(*), HmatOld(*), xyzQuQ(6), ENR, ENP
+integer(kind=iwp) :: iLu, i9, iC, nMatBas, ip_ExpVal, ip_ExpCento
+real(kind=wp) :: Etot, xyzMY(3), Hmat(*), xyzQuQ(6), ENR, ENP
 #include "maxi.fh"
 #include "qminp.fh"
 
 ! Just pass on the numbers according to QM-method.
 
 if (QmType(1:4) == 'RASS') then
-  call ExtractR(iLu,i9,Etot,xyzMy,Hmat,iC,iDt,nMatBas,HMatOld,xyzQuQ,lExtr,iExtr_Eig,iExtr_Atm,ip_ExpVal,ip_ExpCento,ENR,ENP)
+  call ExtractR(iLu,i9,Etot,xyzMy,Hmat,iC,nMatBas,xyzQuQ,lExtr,iExtr_Eig,ip_ExpVal,ip_ExpCento,ENR,ENP)
 else if (QmType(1:3) == 'SCF') then
-  call ExtractS(iLu,i9,Etot,xyzMy,Hmat,iC,iDt,nMatBas,xyzQuQ,lExtr,iExtr_Atm,ip_ExpVal,ip_ExpCento,ENR,ENP)
+  call ExtractS(iLu,i9,Etot,xyzMy,xyzQuQ,lExtr,ip_ExpVal,ip_ExpCento,ENR,ENP)
 end if
 
 return

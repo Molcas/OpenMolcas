@@ -28,8 +28,7 @@ integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri
                      iMOC, ip_ExpVal
 real(kind=wp) :: VMat(iTri), Smat(iTri), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
-integer(kind=iwp) :: i, iCall, iDum, iErr, iGri, iOrba, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, j, nFound, nPolCent, &
-                     nQMCent
+integer(kind=iwp) :: i, iDum, iErr, iGri, iOrba, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, j, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, OneEl, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
 real(kind=wp), allocatable :: EEigen(:), FFp(:,:), RoMat(:), VpolMat(:)
@@ -69,8 +68,8 @@ do
                DiFac,nPolCent)
   call Densi_MO(Romat,Work(iMOC),1,iOcc1,iOrba,iOrba)
   if (Mp2DensCorr) call DCorrCorr(Romat,DenCorrD,Trace_MP2,iOrba,iOcc1)
-  call Polink(Energy,iCall,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,Poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP, &
-              Romat,xyzQuQ,CT)
+  call Polink(Energy,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,Poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,Romat, &
+              xyzQuQ,CT)
 
   ! Construct the Fock-matrix from two-electron super-matrix and one-electron matrix, with solvent perturbations added.
 
@@ -116,7 +115,7 @@ call Memory_PolPrep('Free',ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
 
 ! If expectation values are extracted, make a detour.
 
-if (lExtr(6)) call Expectus('SCF  ',HHmat,Vmat,VpolMat,Smat,MxOT,iMOC,iOrba,.false.,iOcc1,ip_ExpVal)
+if (lExtr(6)) call Expectus('SCF  ',HHmat,Vmat,VpolMat,Smat,iMOC,iOrba,.false.,iOcc1,ip_ExpVal)
 call mma_deallocate(VpolMat)
 
 ! The end is near, hold me!

@@ -30,7 +30,7 @@ integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDis
                      iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, iMOC, indma, Inte, iOrba, ip_ExpCento, &
                      ip_ExpVal, ipAOSum, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTri, iTriBasQ, &
                      iTriMaxBasQ, j, jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, NVarv
-real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, Dele, DiFac, Dum(1), E2Die, E_Nuc_Part, &
+real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, Dele, DiFac, Dum, E2Die, E_Nuc_Part, &
                  E_Nuc_Rubbet, Edisp, EEDisp, EHam, Elene, EnCLAS, energy, Eold, Esav, Etot, ExDie, Expe, Expran, Exrep, Gam, &
                  Gmma, PertElcInt(1), Pr, Ract, Rold, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, timeEL, timeEX, &
                  timeMC
@@ -129,9 +129,9 @@ end if
 call mma_allocate(SumElcPot,iCi,10,label='SumElcPot')
 
 if (Qmeq .and. (iRead /= 9)) then
-  call NiceOutPut('EIQ',Gam,Gmma,BetaBol)
+  call NiceOutPut('EIQ')
 else if (QmProd .and. (iRead /= 9)) then
-  call NiceOutPut('PIQ',Gam,Gmma,BetaBol)
+  call NiceOutPut('PIQ')
   call DaName(iLuSaUt,SaFilUt)
   iDisk = 0 !Put some dummy on the sampfile so we have space for the real number later.
   iDum(1) = iHowMSampUT
@@ -149,7 +149,7 @@ else if (QmProd .and. (iRead /= 9)) then
 else if (iRead == 9) then
   ! If we read from sampfile: open the
   ! sampfile and read how many configurations and open extract file.
-  call NiceOutPut('SSS',Gam,Gmma,BetaBol)
+  call NiceOutPut('SSS')
   call DaName(iLuSaIn,SaFilIn)
   iDiskSa = 0
   call iDaFile(iLuSaIn,2,iDum,1,iDiskSa)
@@ -205,7 +205,7 @@ outer: do
   Loop = .false.
   i9 = i9+1
   if ((iRead <= 8) .and. (iRead >= 6)) then
-    call Get8(Ract,Dum(1))
+    call Get8(Ract,Dum)
   else if (iRead == 9) then
     call Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
   else
@@ -223,7 +223,7 @@ outer: do
 
   Etot = 1.0e10_wp
   !--------------------------------------------------------------------*
-  ! Compute som numbers to simplify the handling of indeces.           *
+  ! Compute some numbers to simplify the handling of indices.          *
   !--------------------------------------------------------------------*
   ncpart = Ncent*nPart
   ncParm = ncPart-(nCent*icNum)
@@ -277,7 +277,7 @@ outer: do
 
       ! Compute Solvent-solvent interaction.
 
-      call ClasClas(iCNum,iCStart,ncParm,Coord,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
+      call ClasClas(iCNum,iCStart,ncParm,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
       call QMPosition(EHam,Cordst,Coord,Forcek,dLJrep,Ract,iQ_Atoms)
       call Timing(Cpu2,Tim1,Tim2,Tim3)
       timeCLAS = timeCLAS+(Cpu2-Cpu1)
@@ -325,7 +325,7 @@ outer: do
 
       ! Couple the pair-part of the electrostatics with QM-region.
 
-      call Hel(Eint,iTri,iCi,Cha,DipMy,Quad,Vmat,iprint)
+      call Hel(Eint,iTri,iCi,Cha,DipMy,Quad,Vmat)
 
       ! Polarize system.
       call PolScf(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTri,VMat,Smat,DiFac,Ract,icnum,energy,NVarv,iMOC,Haveri,iQ_Atoms, &
@@ -418,7 +418,7 @@ outer: do
         if (lExtr(7)) call AllenGinsberg('SCF  ',Eint,Poli,ChaNuc,Cha,DipMy,Quad,MxOT,iMOC,iOrb(1),iExtr_Atm,.false.,iOcc1, &
                                          iQ_Atoms,ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
 
-        call Extract(iLuExtr,i9,Etot,xyzMyQ,FockM,iMOC,iDt,iOrb(1),Dum,xyzQuQ,ip_ExpVal,ip_ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
+        call Extract(iLuExtr,i9,Etot,xyzMyQ,FockM,iMOC,iOrb(1),xyzQuQ,ip_ExpVal,ip_ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
         !***JoseMEP**********
         ! If MEP option. Add electr. potential, field, etc. for all solvent config.
         if (lExtr(8)) then
@@ -461,7 +461,7 @@ outer: do
             if (Inter /= 0) then
               Inte = (iSnurr/Inter)*Inter
               if (Inte == ((iMacro-1)*nMicro+iMicro)) then
-                call Put9(Etot,Ract,iDT,iHowMSampUT,Gmma,Gam,Esav,iDisk)
+                call Put9(Etot,Ract,iHowMSampUT,Gmma,Gam,Esav,iDisk)
               end if
             end if
           end if

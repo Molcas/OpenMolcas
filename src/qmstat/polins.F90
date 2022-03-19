@@ -28,8 +28,6 @@
 !> ::helstate.
 !>
 !> @param[out]    Energy  The energy of the electrostatic interaction
-!> @param[in,out] iCall   An integer that tells if this is the first call in the iteration.
-!>                        Necessary for the copy of the one-particle Hamiltonian
 !> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
 !> @param[in]     iCi     Number of centers in QM-molecule
 !> @param[in]     iFil    Pointer to the static field from the solvent
@@ -44,8 +42,8 @@
 !> @param[in]     iCstart Number to keep track of solvent molecules
 !***********************************************************************
 
-subroutine Polins(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc,RoMatSt, &
-                  xyzQuQ,CT)
+subroutine Polins(Energy,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc,RoMatSt,xyzQuQ, &
+                  CT)
 
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -57,7 +55,7 @@ implicit none
 #include "qminp.fh"
 #include "qm2.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iCall, iAtom2, iCI, iFil(iCi,10), iCstart, iQ_Atoms
+integer(kind=iwp) :: iAtom2, iCI, iFil(iCi,10), iCstart, iQ_Atoms
 real(kind=wp) :: Energy, VpolMat(nTri_Elem(nState)), Fil(npart*npol,3), polfac, Poli(iCi,10), xyzmyq(3), xyzmyi(3), xyzmyp(3), &
                  qtot, ChaNuc(MxAt), RoMatSt(nTri_Elem(nState)), xyzQuQ(6), CT(3)
 integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, kk, l
@@ -278,7 +276,5 @@ do i=1,iQ_Atoms
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iCall)
 
 end subroutine Polins

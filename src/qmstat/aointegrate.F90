@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AOIntegrate(iCStart,nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,ipAOintpar,iV2,N,lmax,Inside)
+subroutine AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -21,11 +21,11 @@ implicit none
 #include "integral.fh"
 #include "WrkSpc.fh"
 #include "lenin.fh"
-integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, ipAOint, ipAOintpar, iV2, N, lmax
+integer(kind=iwp) :: nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, ipAOint, iV2, N, lmax
 real(kind=wp) :: Ax, Ay, Az
 logical(kind=iwp) :: Inside(MxAt,3)
-integer(kind=iwp) :: i, iBa, iBaS, iC, iEl, iMO, iOrS, ipPPP, iQ, j, k, kaunt, kauntadetta, m
-real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), SintPar(0,0), x, y, z
+integer(kind=iwp) :: i, iBa, iBaS, iC, iMO, iOrS, ipPPP, iQ, j, k, kaunt, kauntadetta, m
+real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), x, y, z
 logical(kind=iwp) :: PrEne, PrOcc
 character(len=LenIn8) :: BsLbl(MxBasC)
 character(len=30) :: Snack
@@ -104,9 +104,9 @@ do i=1,nBaseQ
     Sint(i,j) = Zero
   end do
 end do
-call ContractOvl(Sint,SintPar,nBaseQ,nBaseC,N,nCent,iEl,iQ_Atoms,nAtomsCC,iPrint,Inside)
+call ContractOvl(Sint,nBaseQ,nBaseC,N,nCent,iQ_Atoms,nAtomsCC,iPrint,Inside)
 ! To be able to use the fast matrix multiplication routine DGEMM_,
-! we have to put the Sint (and Sintpar) matrices in vector form.
+! we have to put the Sint matrix in vector form.
 ! In the future we might 'cut out the middle-man' and already
 ! above put the overlap matrix in vector shape.
 kaunt = 0
@@ -119,10 +119,5 @@ end do
 call mma_deallocate(Sint)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iCStart)
-  call Unused_integer(ipAOintpar)
-end if
 
 end subroutine AOIntegrate

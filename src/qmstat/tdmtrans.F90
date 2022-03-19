@@ -88,7 +88,7 @@ call DaClos(Lu)
 
 ! Construct CASSI state basis.
 
-call ContRASBas(nBas,nStatePrim,iNonH,iNonS,iEig2)
+call ContRASBas(nStatePrim,iNonH,iNonS,iEig2)
 call GetMem('NonOrtH','Free','Real',iNonH,nSize)
 call GetMem('NonOrtS','Free','Real',iNonS,nSize)
 

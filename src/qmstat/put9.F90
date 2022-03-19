@@ -10,7 +10,7 @@
 !***********************************************************************
 
 ! PUT NUMBERS ON SAMPFILE.
-subroutine Put9(Etot,Ract,iDT,iHowMSamp,Gamma,Gam,Esav,iDisk)
+subroutine Put9(Etot,Ract,iHowMSamp,Gmma,Gam,Esav,iDisk)
 
 use  Definitions, only: wp, iwp
 
@@ -19,13 +19,13 @@ implicit none
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
-real(kind=wp) :: Etot, Ract, Gamma, Gam, Esav
-integer(kind=iwp) :: i, iCT, iDiskHead, iDiskOld, iDT(3), iHowMSamp, iDisk, j
+real(kind=wp) :: Etot, Ract, Gmma, Gam, Esav
+integer(kind=iwp) :: i, iCT, iDiskHead, iDiskOld, iHowMSamp, iDisk, j
 character(len=200) :: Head
 
 iHowMSamp = iHowMSamp+1
 iDiskOld = iDisk
-call WrRdSim(iLuSaUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gamma,Gam,Esav) !A header
+call WrRdSim(iLuSaUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gmma,Gam,Esav) !A header
 iTcSim(1) = iDisk
 do i=1,3
   call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
@@ -43,7 +43,7 @@ end do
 !iTcSim(5) = iDisk
 iDiskHead = iDiskOld
 ! Put header again, but now with a meaningful iTcSim vector that contains the table of contents which simplifies reading
-call WrRdSim(iLuSaUt,1,iDiskHead,iTcSim,64,Etot,Ract,nPart,Gamma,Gam,Esav)
+call WrRdSim(iLuSaUt,1,iDiskHead,iTcSim,64,Etot,Ract,nPart,Gmma,Gam,Esav)
 
 if (iPrint >= 15) then
   write(Head,*) ' Coordinates put on sampfile.'
@@ -51,7 +51,5 @@ if (iPrint >= 15) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(iDT)
 
 end subroutine PUT9

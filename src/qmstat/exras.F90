@@ -25,8 +25,8 @@ implicit none
 integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itristate, ipAOSum
 real(kind=wp) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate)
 integer(kind=iwp) :: i, iAOMOOvl, iAOMOOvlE, iHalf, iHalfE, iHalfpar, ind, inwm, ipACC, ipACCp, ipACCt, ipACCtp, ipAOAUX, &
-                     ipAOAUXtri, ipAOG, ipAOint, ipAOintpar, ipAux, ipAuxp, iS, iTEMP, iV2, js, k, kaunter, N, nAObaseSize, nDim1, &
-                     nDim2, nDimP, nDimT, nGross, nHalf, nInsideCut, nV2size
+                     ipAOAUXtri, ipAOG, ipAOint, ipAux, ipAuxp, iS, iTEMP, iV2, js, k, kaunter, N, nAObaseSize, nDim1, nDim2, &
+                     nDimP, nDimT, nGross, nHalf, nInsideCut, nV2size
 real(kind=wp) :: Addition, CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, HighS, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: InCutOff
 logical(kind=iwp) :: NearBy
@@ -49,7 +49,6 @@ nV2size = iOrb(2)*nBaseC
 nAObaseSize = nBaseQ*nBaseC
 call GetMem('RotOrb','Allo','Real',iV2,nV2size)
 call GetMem('Sint','Allo','Real',ipAOint,nAObaseSize)
-call GetMem('Sintpar','Allo','Real',ipAOintpar,nAObaseSize)
 nHalf = nBaseQ*iOrb(2)
 nGross = nTri_Elem(nBaseQ)
 call GetMem('HalfTrans','Allo','Real',iHalfpar,nHalf)
@@ -144,7 +143,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   nInsideCut = nInsideCut+1
 
   ! Start integrating.
-  call AOIntegrate(iCStart,nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,ipAOintpar,iV2,N,lmax,Inside)
+  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
 
   ! Transform overlaps from solvent AO to solvent MO.
 
@@ -230,7 +229,6 @@ call mma_deallocate(Inside)
 
 call GetMem('RotOrb','Free','Real',iV2,nV2size)
 call GetMem('Sint','Free','Real',ipAOint,nAObaseSize)
-call GetMem('Sintpar','Free','Real',ipAOintpar,nAObaseSize)
 call GetMem('HalfTrans','Free','Real',iHalfpar,nHalf)
 call GetMem('HalfPure','Free','Real',iHalf,nHalf)
 call GetMem('HalfOrbE','Free','Real',iHalfE,nHalf)

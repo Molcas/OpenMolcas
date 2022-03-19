@@ -10,7 +10,7 @@
 !***********************************************************************
 
 ! MO-basis route.
-subroutine StateMMEmo(nAObas,nMObas,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
+subroutine StateMMEmo(nAObas,nMObas,nState,nTyp,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
 
 use Index_Functions, only: nTri3_Elem, nTri_Elem
 use Constants, only: Zero, One, Two, Half
@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "maxi.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCi, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas)), ipAvRed
+integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas)), ipAvRed
 real(kind=wp) :: Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen)
 integer(kind=iwp) :: i, iB1, iB2, ipAOG, ipAOG_s, ipMOG, ipMOG_s, ipO, iS1, iS2, iTEMP, iTyp, j, kaunta, kaunter, kk, nSizeA, nSizeM
 real(kind=wp) :: PerAake
@@ -100,7 +100,5 @@ call GetMem('TransitionA','Free','Real',ipAOG,nSizeA)
 call GetMem('OnTheWay','Free','Real',ipO,nTyp)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iCi)
 
 end subroutine StateMMEmo
