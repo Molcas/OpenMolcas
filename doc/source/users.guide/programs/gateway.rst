@@ -970,7 +970,7 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Use the RI-J basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJ" APPEAR="RI-J option" KIND="SINGLE" EXCLUSIVE="RIJK,RIC,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJ" APPEAR="RI-J option" KIND="SINGLE" EXCLUSIVE="RIJK,RIC,RICD,LOW,MEDI,HIGH,NOCD,XRIC" LEVEL="BASIC">
               %%Keyword: RIJ <basic>
               <HELP>
               Use the RI-J auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -982,7 +982,7 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Use the RI-JK auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJK" APPEAR="RI-JK option" KIND="SINGLE" EXCLUSIVE="RIJ,RIC,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJK" APPEAR="RI-JK option" KIND="SINGLE" EXCLUSIVE="RIJ,RIC,RICD,LOW,MEDI,HIGH,NOCD,XRIC" LEVEL="BASIC">
               %%Keyword: RIJK <basic>
               <HELP>
               Use the RI-JK auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -994,7 +994,7 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Use the RI-C auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIC" APPEAR="RI-C option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIC" APPEAR="RI-C option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RICD,LOW,MEDI,HIGH,NOCD,XRIC" LEVEL="BASIC">
               %%Keyword: RIC <basic>
               <HELP>
               Use the RI-C auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -1006,11 +1006,20 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Use the aCD or acCD approach :cite:`Aquilante:07b` to treat the two-electron integrals.
   This procedure will use an on-the-fly generated auxiliary basis set.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RICD" APPEAR="RI-aCD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RICD" APPEAR="RI-aCD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,LOW,MEDI,HIGH,NOCD,XRIC" LEVEL="BASIC">
               %%Keyword: RICD <basic>
               <HELP>
               Use the aCD or acCD approach to treat the two-electron integrals.
               This procedure will use an on-the-fly generated auxiliary basis set.
+              </HELP>
+              </KEYWORD>
+:kword:`XRICd`
+  Use an externally generated RICD basis set available in the file $Project.RICDLib.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRIC" APPEAR="x-RICD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+              %%Keyword: xRICD <basic>
+              <HELP>
+              Use an externally generated RICD basis set available in the file $Project.RICDLib.
               </HELP>
               </KEYWORD>
 
@@ -1018,7 +1027,7 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Disable Cholesky decomposition.
   Useful in the case :kword:`RICD` has been made the default with :variable:`MOLCAS_NEW_DEFAULTS`.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NOCD" APPEAR="No CD" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NOCD" APPEAR="No CD" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH,XRIC" LEVEL="BASIC">
               %%Keyword: NOCD <basic>
               <HELP>
               Disable Cholesky decomposition.
