@@ -12,19 +12,19 @@
 ! AO-basis route.
 subroutine StateMMEao(nAObas,nState,nTyp,iBigT,iMME,iCent,Cha,Dip,Qua)
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: nTri3_Elem, nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: nAObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(MxBas**2)
+integer(kind=iwp) :: nAObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas))
 real(kind=wp) :: Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen)
 integer(kind=iwp) :: iB1, iB2, ipAOG, ipO, iS1, iS2, iTyp, kaunta, kaunter, nSize
 real(kind=wp) :: PerAake
 
 kaunter = 0
-nSize = nAObas*(nAObas+1)/2
+nSize = nTri_Elem(nAObas)
 call GetMem('Transition','Allo','Real',ipAOG,nSize)
 call GetMem('OnTheWay','Allo','Real',ipO,nTyp)
 ! Loop over state pairs.

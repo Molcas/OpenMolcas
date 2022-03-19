@@ -25,9 +25,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), parameter :: MaxAngqNr = 6 !IFG
+#include "maxi.fh"
 integer(kind=iwp) :: loneX, ltwoX, lsumX, loneY, ltwoY, lsumY, loneZ, ltwoZ, lsumZ
-real(kind=wp) :: PAxyz(3), PBxyz(3), FactorX(2*MaxAngqNr+1), FactorY(2*MaxAngqNr+1), FactorZ(2*MaxAngqNr+1)
+real(kind=wp) :: PAxyz(3), PBxyz(3), FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1), FactorZ(2*MxAngqNr+1)
 integer(kind=iwp) :: i, ia, iLowB, iUpB
 real(kind=wp) :: fff1, fff2, PAraise, PBraise
 integer(kind=iwp), external :: NoverP_Q

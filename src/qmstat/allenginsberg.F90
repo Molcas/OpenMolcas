@@ -12,6 +12,8 @@
 subroutine AllenGinsberg(QMMethod,Eint,Poli,dNuc,Cha,Dip,Qua,MxBaux,iVEC,nDim,iExtr_Atm,lEig,iEig,iQ_Atoms,ip_ExpCento,E_Nuc_Part, &
                          lSlater,Eint_Nuc)
 
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
@@ -21,12 +23,13 @@ implicit none
 #include "warnings.h"
 character(len=5) :: QMMethod
 integer(kind=iwp) :: MxBaux, iVEC, nDim, iExtr_Atm(MxAt), iEig, iQ_Atoms, ip_ExpCento
-real(kind=wp) :: Eint(MxQCen,10), Poli(MxQCen,10), dNuc(MxAt), Cha(MxBaux,MxQCen), Dip(MxBaux,3,MxQCen), Qua(MxBaux,6,MxQCen), &
-                     E_Nuc_Part, Eint_Nuc(MxAt)
+real(kind=wp) :: Eint(nTri_Elem(iQ_Atoms),10), Poli(nTri_Elem(iQ_Atoms),10), dNuc(MxAt), Cha(MxBaux,MxQCen), Dip(MxBaux,3,MxQCen), &
+                 Qua(MxBaux,6,MxQCen), E_Nuc_Part, Eint_Nuc(iQ_Atoms)
 logical(kind=iwp) :: lEig, lSlater
-integer(kind=iwp) :: i, i1, iAt, iCenSet(MxAt**2), iCx, iVelP, iVpoP, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal !IFG
+integer(kind=iwp) :: i, i1, iAt, iCx, iVelP, iVpoP, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal
 real(kind=wp) :: dMp
 logical(kind=iwp) :: Check1, Check2
+integer(kind=iwp), allocatable :: iCenSet(:)
 
 ! Set up centre index set. The order of centres are decided by
 ! the MpProp-program and are hence collected in the get_center
@@ -35,13 +38,12 @@ logical(kind=iwp) :: Check1, Check2
 ! Atom centres
 
 do iAt=1,MxAt
-  if (iExtr_Atm(iAt) == -1) then
-    exit
-  else
-    iCenSet(iAt) = iExtr_Atm(iAt)
-  end if
+  if (iExtr_Atm(iAt) == -1) exit
 end do
 NExtrAt = iAt-1
+
+call mma_allocate(iCenSet,NExtrAt+nTri_Elem(iQ_Atoms-1),label='iCenSet')
+iCenSet(1:NExtrAt) = iExtr_Atm(1:NExtrAt)
 
 ! Bond centres
 
@@ -88,10 +90,10 @@ end do
 ! Set up matrix elements for the partial perturbations.
 ! Compare with hel, helstate, polink and polins.
 
-call GetMem('VelPart','Allo','Real',iVelP,nDim*(nDim+1)/2)
-call GetMem('VpoPart','Allo','Real',iVpoP,nDim*(nDim+1)/2)
-call dcopy_(nDim*(nDim+1)/2,[Zero],0,Work(iVelP),1)
-call dcopy_(nDim*(nDim+1)/2,[Zero],0,Work(iVpoP),1)
+call GetMem('VelPart','Allo','Real',iVelP,nTri_Elem(nDim))
+call GetMem('VpoPart','Allo','Real',iVpoP,nTri_Elem(nDim))
+call dcopy_(nTri_Elem(nDim),[Zero],0,Work(iVelP),1)
+call dcopy_(nTri_Elem(nDim),[Zero],0,Work(iVpoP),1)
 kk = 0
 do i=1,nDim
   do j=1,i
@@ -132,14 +134,16 @@ do i=1,nDim
   end do
 end do
 
+call mma_deallocate(iCenSet)
+
 ! Collect expectation value for the partial perturbation.
 
 call Expectus(QMMethod,Work(iVelP),Work(iVelP),Work(iVpoP),Work(iVpoP),MxBaux,iVEC,nDim,lEig,iEig,ip_ExpCento)
 
 ! Deallocate.
 
-call GetMem('VelPart','Free','Real',iVelP,nDim*(nDim+1)/2)
-call GetMem('VpoPart','Free','Real',iVpoP,nDim*(nDim+1)/2)
+call GetMem('VelPart','Free','Real',iVelP,nTri_Elem(nDim))
+call GetMem('VpoPart','Free','Real',iVpoP,nTri_Elem(nDim))
 
 ! Howl
 

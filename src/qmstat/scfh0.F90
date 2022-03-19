@@ -12,6 +12,7 @@
 ! Read all MO-transformed integrals and construct zeroth Fock-matrix.
 subroutine ScfH0(nBas)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -27,7 +28,7 @@ implicit none
 integer(kind=iwp) :: nBas(MxSym)
 integer(kind=iwp) :: i, iBuff, iDisk, iDum, iExt, iFine, ij, ik, il, iLu1, iLu2, iopt, ipAOx, ipMOx, iPointF, irc, iSmLbl, iSqAO, &
                      iSup, iTEMP, iToc(64), j, jk, jl, k, kaunter, kl, l, llmax, Lu_One, nBasM(MxSym), nBTri, nBuf1, nBuf2, &
-                     nDelM(MxSym), nFroM(MxSym), nMAX, nOrbM(MxSym), nSize, nSymM !IFG
+                     nDelM(MxSym), nFroM(MxSym), nMAX, nOrbM(MxSym), nSize, nSymM
 real(kind=wp) :: Ecor
 character(len=LenIn8) :: NameM(maxbfn)
 character(len=10) :: firstind
@@ -41,7 +42,7 @@ write(u6,*) 'Reading MO-transformed integrals. Zeroth hamiltonian constructed.'
 
 ! Numbers and files.
 
-nSize = iOrb(1)*(iOrb(1)+1)/2
+nSize = nTri_Elem(iOrb(1))
 call GetMem('FockM','Allo','Real',iPointF,nSize)
 call GetMem('SUPER','Allo','Real',iSupM,nSize**2)
 iLu1 = 56
@@ -74,7 +75,7 @@ call DaClos(iLu1)
 
 if (AddExt) then
   write(u6,*) '    -- Adding external perturbation.'
-  nBTri = nBas(1)*(nBas(1)+1)/2
+  nBTri = nTri_Elem(nBas(1))
   Lu_One = 49
   Lu_One = IsFreeUnit(Lu_One)
   call OpnOne(irc,0,'ONEINT',Lu_One)
@@ -116,8 +117,8 @@ call iDaFile(iLu2,2,iTraToc,nTraToc,iDisk)
 iDisk = iTraToc(1)
 iSup = 0
 ! Ooohhhh, lets get crude! Read ALL (yes, you read right) integrals and then order them.
-nBuf1 = nOrbM(1)*(nOrbM(1)+1)/2
-nBuf2 = nBuf1*(nBuf1+1)/2
+nBuf1 = nTri_Elem(nOrbM(1))
+nBuf2 = nTri_Elem(nBuf1)
 
 ! Let's check if this construct is possible. If not advise user what to do.
 

@@ -53,10 +53,10 @@ real(kind=wp) :: Bori(3), Cori(3), Alfa(MxCont), Beta(MxCont), &
 integer(kind=iwp) :: iQ1, iQ2, nExp1, nExp2, iPSint
 integer(kind=iwp) :: i, icompo, ind, ind1, ind2, iP1, iP2, iPInte, iPpS, iPsphS, iSp1, iSp2, iUpX, iUpY, iUpZ, ix, ixxx, iy, iyyy, &
                      iz, izzz, j, jndex, Kaunt, kaunter, krakna, loneX, loneY, loneZ, lsumX, lsumY, lsumZ, ltwoX, ltwoY, ltwoZ, &
-                     nBigP, nCartxC(nTri_Elem(MxAngqNr)), nCartxQ(nTri_Elem(MxAngqNr)), nCartyC(nTri_Elem(MxAngqNr)), & !IFG
-                     nCartyQ(nTri_Elem(MxAngqNr)), nCartzC(nTri_Elem(MxAngqNr)), nCartzQ(nTri_Elem(MxAngqNr)), nSizeCart, & !IFG
+                     nBigP, nCartxC(nTri_Elem(MxAngqNr)), nCartxQ(nTri_Elem(MxAngqNr)), nCartyC(nTri_Elem(MxAngqNr)), &
+                     nCartyQ(nTri_Elem(MxAngqNr)), nCartzC(nTri_Elem(MxAngqNr)), nCartzQ(nTri_Elem(MxAngqNr)), nSizeCart, &
                      nSizeSph, nSpecific1, nSpecific2, nSph1, nSph2
-real(kind=wp) :: Divide, Expo, Extra, FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1), FactorZ(2*MxAngqNr+1), PAxyz(3), PBxyz(3), & !IFG
+real(kind=wp) :: Divide, Expo, Extra, FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1), FactorZ(2*MxAngqNr+1), PAxyz(3), PBxyz(3), &
                  Piconst, Primequals, Separation, SqPiconst, SummaX, SummaY, SummaZ, TheCent(3), TheFirstFac
 integer(kind=iwp), external :: iDubFac
 
@@ -65,8 +65,8 @@ integer(kind=iwp), external :: iDubFac
 !----------------------------------------------------------------------*
 ind = 0
 ! Remember that each base consist of many functions - this is how many.
-nSpecific1 = iQ1*(iQ1+1)/2
-nSpecific2 = iQ2*(iQ2+1)/2
+nSpecific1 = nTri_Elem(iQ1)
+nSpecific2 = nTri_Elem(iQ2)
 icompo = nSpecific1
 ! Then follows the NEW loops that compute how the cartesian components are ordered in various basis functions.
 do ix=0,iQ1-1
@@ -111,7 +111,7 @@ do iP1=1,nExp1
     TheCent(1) = (Alfa(iP1)*Bori(1)+Beta(iP2)*Cori(1))
     TheCent(2) = (Alfa(iP1)*Bori(2)+Beta(iP2)*Cori(2))
     TheCent(3) = (Alfa(iP1)*Bori(3)+Beta(iP2)*Cori(3))
-    Divide = 1/(Alfa(iP1)+Beta(iP2)) !gamma in article
+    Divide = One/(Alfa(iP1)+Beta(iP2)) !gamma in article
     TheCent(1) = TheCent(1)*Divide !The new center, P
     TheCent(2) = TheCent(2)*Divide
     TheCent(3) = TheCent(3)*Divide

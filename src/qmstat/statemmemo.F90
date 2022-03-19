@@ -12,21 +12,21 @@
 ! MO-basis route.
 subroutine StateMMEmo(nAObas,nMObas,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: nTri3_Elem, nTri_Elem
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCi, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(MxBas**2), ipAvRed
+integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCi, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas)), ipAvRed
 real(kind=wp) :: Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen)
 integer(kind=iwp) :: i, iB1, iB2, ipAOG, ipAOG_s, ipMOG, ipMOG_s, ipO, iS1, iS2, iTEMP, iTyp, j, kaunta, kaunter, kk, nSizeA, nSizeM
 real(kind=wp) :: PerAake
 
 kaunter = 0
-nSizeA = nAObas*(nAObas+1)/2
-nSizeM = nMObas*(nMObas+1)/2
+nSizeA = nTri_Elem(nAObas)
+nSizeM = nTri_Elem(nMObas)
 call GetMem('Transition','Allo','Real',ipMOG,nSizeM)
 call GetMem('SqMO','Allo','Real',ipMOG_s,nMObas**2)
 call GetMem('TEMP','Allo','Real',iTEMP,nAObas*nMObas)

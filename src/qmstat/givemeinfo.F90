@@ -15,6 +15,7 @@ subroutine GiveMeInfo(nBB,nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,ipExpo,i
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Real_Spherical, only: ipSph, RSph
+use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -62,7 +63,7 @@ nntyp = nCnttp
 !  write(u6,*)
 !  write(u6,*) 'ERROR in GiveMeInfo. No atoms?'
 !end if
-ii = nCnttp
+ii = nntyp
 
 kaunta = 0
 kaunt = 0
@@ -208,10 +209,10 @@ end do
 ! some numbers gymnastics are required.
 
 MaxAng = MaxAng-1
-nSize = (2*MaxAng+1)*(MaxAng+1)*(MaxAng+2)/2
+nSize = (2*MaxAng+1)*nTri_Elem1(MaxAng)
 nACCSize = 0
 do i=2,MaxAng
-  nACCSize = nACCSize+(2*i+1)*(i+1)*(i+2)/2
+  nACCSize = nACCSize+(2*i+1)*nTri_Elem1(i)
 end do
 nSumma = 0
 call mma_allocate(TEMP1,nSize,Label='TEMP1')
@@ -219,7 +220,7 @@ call mma_allocate(TEMP2,nSize,Label='TEMP2')
 call GetMem('AccTransa','Allo','Real',ipAcc,nACCSize)
 
 do i=2,MaxAng
-  ind1 = (i+1)*(i+2)/2
+  ind1 = nTri_Elem1(i)
   ind2 = 2*i+1
   iHowMuch = ind1*ind2
   call DCopy_(iHowMuch,RSph(ipSph(i)),1,TEMP1,1)
@@ -228,7 +229,7 @@ do i=2,MaxAng
     call dcopy_(ind2,TEMP1(jj),ind1,TEMP2(ind3),1)
     ind3 = ind3+ind2
   end do
-  !call recprt('FFF',' ',TEMP1,(i+1)*(i+2)/2,2*i+1)
+  !call recprt('FFF',' ',TEMP1,nTri_Elem1(i),2*i+1)
   !call recprt('GGG',' ',TEMP2,ind2,ind1)
   call dcopy_(iHowMuch,TEMP2,1,Work(ipAcc+nSumma),1)
   nSumma = nSumma+iHowMuch

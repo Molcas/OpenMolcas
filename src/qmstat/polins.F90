@@ -47,6 +47,8 @@
 subroutine Polins(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc,RoMatSt, &
                   xyzQuQ,CT)
 
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
@@ -55,16 +57,20 @@ implicit none
 #include "qminp.fh"
 #include "qm2.fh"
 #include "WrkSpc.fh"
-real(kind=wp) :: Energy, VpolMat(MxStOt), Fil(npart*npol,3), polfac, Poli(MxQCen,10), xyzmyq(3), xyzmyi(3), xyzmyp(3), qtot, &
-                 ChaNuc(MxAt), RoMatSt(MxStOT), xyzQuQ(6), CT(3)
-integer(kind=iwp) :: iCall, iAtom2, iCI, iFil(MxQCen,10), iCstart, iQ_Atoms
+integer(kind=iwp) :: iCall, iAtom2, iCI, iFil(iCi,10), iCstart, iQ_Atoms
+real(kind=wp) :: Energy, VpolMat(nTri_Elem(nState)), Fil(npart*npol,3), polfac, Poli(iCi,10), xyzmyq(3), xyzmyi(3), xyzmyp(3), &
+                 qtot, ChaNuc(MxAt), RoMatSt(nTri_Elem(nState)), xyzQuQ(6), CT(3)
 integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, kk, l
-real(kind=wp) :: CofC(3), Dm(MxQCen,3), Eil(MxPut*MxPol,3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), Qm(MxQCen), qs, qQ(6), & !IFG
-                 QQm(MxQCen,6), Trace1, Trace2, xyzMyC(3) !IFG
+real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qs, qQ(6), Trace1, Trace2, xyzMyC(3)
+real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
 
 !----------------------------------------------------------------------*
 ! Begin with some zeros.                                               *
 !----------------------------------------------------------------------*
+call mma_allocate(Qm,iCi,label='Qm')
+call mma_allocate(Dm,iCi,3,label='Dm')
+call mma_allocate(QQm,iCi,6,label='QQm')
+call mma_allocate(Eil,iAtom2,3,label='Eil')
 iCnum = iCStart/Ncent
 do i=1,iCi
   Qm(i) = Zero
@@ -75,7 +81,7 @@ do i=1,iCi
     QQm(i,j+3) = Zero
   end do
 end do
-do i=1,MxPut*MxPol
+do i=1,iAtom2
   do j=1,3
     Eil(i,j) = Zero
   end do
@@ -208,6 +214,10 @@ do i=1+(nPol*iCNum),iAtom2
     Energy = Energy+Fil(i,j)*Eil(i,j)*Pol(iu)
   end do
 end do
+call mma_deallocate(Qm)
+call mma_deallocate(Dm)
+call mma_deallocate(QQm)
+call mma_deallocate(Eil)
 !----------------------------------------------------------------------*
 ! Now we wish to make the induced field from the solvent interact with *
 ! the QM-region. The static field has already interacted in helstate.  *
@@ -236,7 +246,7 @@ do l=1,iCi
     end do
   end do
 end do
-do i=1,nState*(nState+1)/2
+do i=1,nTri_Elem(nState)
   VpolMat(i) = Zero
 end do
 kaunt = 0

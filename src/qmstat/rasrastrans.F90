@@ -11,6 +11,8 @@
 
 subroutine RasRasTrans(nB,nStatePrim,iEig2,iPrint)
 
+use Index_Functions, only: iTri, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
 
@@ -21,10 +23,10 @@ integer(kind=iwp) :: nB, nStatePrim, iEig2, iPrint
 #include "qm2.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-integer(kind=iwp) :: i, iB, iBas, iBigV, iDisk, iInt1, iInt2, iiS, index, indypop, ipAOG, ipMAX, iS, iSnt1, iSnt2, iSnt3, &
-                     iTocBig(MxStOT), j, jB, jBas, jjS, jS, kaunt, kaunter, LuIn, MEMMAX, nSize, nSizeBig, nSizeBigPrim, nTriS, & !IFG
-                     nTriSP
+integer(kind=iwp) :: i, iB, iBas, iBigV, iDisk, iInt1, iInt2, iiS, indx, indypop, ipAOG, ipMAX, iS, iSnt1, iSnt2, iSnt3, &
+                     j, jB, jBas, jjS, jS, kaunt, kaunter, LuIn, MEMMAX, nSize, nSizeBig, nSizeBigPrim, nTriS, nTriSP
 character(len=30) :: OutLine
+integer(kind=iwp), allocatable :: iTocBig(:)
 
 !Guten Tag.
 
@@ -36,10 +38,11 @@ LuIn = 66
 kaunt = 0
 iDisk = 0
 call DaName(LuIn,RassiM)
-nTriSP = nStatePrim*(nStatePrim+1)/2
+nTriSP = nTri_Elem(nStatePrim)
+call mma_allocate(iTocBig,nTriSP,label='iTocBig')
 call iDaFile(LuIn,2,iTocBig,nTriSP,iDisk)
-nSize = nB*(nB+1)/2
-nTriS = nState*(nState+1)/2
+nSize = nTri_Elem(nB)
+nTriS = nTri_Elem(nState)
 nSizeBig = nSize*nTriS
 nSizeBigPrim = nSize*nTriSP
 call GetMem('HOWMUCH','Max','Real',ipMAX,MEMMAX)
@@ -118,11 +121,7 @@ else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nSta
   call dcopy_(nSizeBig,[Zero],0,Work(iBigT),1)
   do iiS=1,nStatePrim
     do jjS=1,nStatePrim
-      if (iiS <= jjS) then
-        indypop = jjS*(jjS+1)/2-jjS+iiS
-      else
-        indypop = iiS*(iiS+1)/2-iiS+jjS
-      end if
+      indypop = iTri(iiS,jjS)
       iDisk = iTocBig(indypop)
       call dDaFile(LuIn,2,Work(ipAOG),nSize,iDisk)
       kaunter = 0
@@ -130,10 +129,10 @@ else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nSta
         do jB=1,iB
           do iS=1,nState
             do jS=1,iS
-              index = (iS*(iS-1)/2+jS-1)*nSize
-              index = index+kaunter
-              Work(iBigT+index) = Work(iBigT+index)+Work(iEig2+iiS-1+(iS-1)*nStatePrim)*Work(iEig2+jjS-1+(jS-1)*nStatePrim)* &
-                                  Work(ipAOG+kaunter)
+              indx = (iTri(iS,jS)-1)*nSize
+              indx = indx+kaunter
+              Work(iBigT+indx) = Work(iBigT+indx)+Work(iEig2+iiS-1+(iS-1)*nStatePrim)*Work(iEig2+jjS-1+(jS-1)*nStatePrim)* &
+                                 Work(ipAOG+kaunter)
             end do
           end do
           kaunter = kaunter+1
@@ -146,6 +145,7 @@ end if
 
 ! Deallocations and finish up.
 
+call mma_deallocate(iTocBig)
 call GetMem('RedEigV1','Free','Real',iEig2,nStatePrim**2)
 call DaClos(LuIn)
 

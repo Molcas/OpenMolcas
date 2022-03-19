@@ -11,6 +11,8 @@
 
 subroutine MoReduce(nBas,MOsToKeep,ipAvRedMO)
 
+use Index_Functions, only: iTri, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
 
@@ -23,13 +25,15 @@ implicit none
 integer(kind=iwp) :: nBas(MxSym), MOsToKeep, ipAvRedMO
 integer(kind=iwp) :: i, iAUX, iB, iB1, iB2, icomp, iDav, iDavS, iDin, iDiskUt, iDsq, iM1, iM2, ind, ind1, ind2, ind3, indx, &
                      iNewOcc, iOcc, iopt, iOtD, iOtDt, ipInv, ipTEMP, ipTmoD, ipTreD, ipTreT, irc, iS, iS1, iS2, Ising, iSmLbl, &
-                     iSs, iSsq, iSst, iSt, iStrans, iStri, iSx, iTocBig(MxStOT), iTrans, iTransB, iVecs, iVecs2, j, kaunt, & !IFG
-                     kaunter, Lu_One, Lu_Scratch, nMtK, nSize
+                     iSs, iSsq, iSst, iSt, iStrans, iStri, iSx, iTrans, iTransB, iVecs, iVecs2, j, kaunt, kaunter, Lu_One, &
+                     Lu_Scratch, nMtK, nSize
 real(kind=wp) :: ChargeNonReduced, ChargeReduced, Det, DiffMax, DiffMegaMax, Dum, Dummy(1), Fac, Sqroot, ThrOcc, TraceFull, &
                  TraceRed, weight
-logical(kind=iwp) :: First = .true., LindMOs(MxBas) !IFG
-character(len=LenIn8) :: BsLbl(MxBas) !IFG
+logical(kind=iwp) :: First = .true.
 character(len=50) :: Header
+integer(kind=iwp), allocatable :: iTocBig(:)
+logical(kind=iwp), allocatable :: LindMOs(:)
+character(len=LenIn8), allocatable :: BsLbl(:)
 real(kind=wp), parameter :: ReduceWarning = Half
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=r8), external :: Ddot_
@@ -40,14 +44,14 @@ write(u6,*) '     ----- Transform to average natural MO-reduced basis.'
 
 ! First we accumulate the different density matrices.
 
-nSize = nBas(1)*(nBas(1)+1)/2
+nSize = nTri_Elem(nBas(1))
 weight = One/real(nState,kind=wp)
 call GetMem('DenM','Allo','Real',iDin,nSize)
 call GetMem('DenA','Allo','Real',iDav,nSize)
 call dcopy_(nSize,[Zero],0,Work(iDav),1)
 do iS1=1,nState
   do iS2=1,iS1
-    indx = (iS1*(iS1-1)/2+iS2-1)*nSize
+    indx = (iTri(iS1,iS2)-1)*nSize
     call dcopy_(nSize,Work(iBigT+indx),1,Work(iDin),1)
     if (iS1 /= iS2) cycle
     kaunt = 0
@@ -69,6 +73,7 @@ end do
 ! it is necessary to orthogonalize before we diagonalize
 ! accumulated density.
 
+call mma_allocate(LindMOs,nBas(1),label='LindMOs')
 call GetMem('Vecs','Allo','Real',iVecs,nBas(1)**2)
 call GetMem('Vecs2','Allo','Real',iVecs2,nBas(1)**2)
 call GetMem('AuxS','Allo','Real',iAUX,nBas(1)**2)
@@ -103,9 +108,9 @@ call Jacob(Work(iS),Work(iVecs),nBas(1),nBas(1))
 call dcopy_(nSize,[Zero],0,Work(iSx),1)
 call dcopy_(nSize,[Zero],0,Work(iSt),1)
 do i=1,nBas(1)
-  Sqroot = sqrt(Work(iS+i*(i+1)/2-1))
-  Work(iSx+i*(i+1)/2-1) = One/Sqroot
-  Work(iSt+i*(i+1)/2-1) = Sqroot
+  Sqroot = sqrt(Work(iS+nTri_Elem(i)-1))
+  Work(iSx+nTri_Elem(i)-1) = One/Sqroot
+  Work(iSt+nTri_Elem(i)-1) = Sqroot
 end do
 call Square(Work(iSx),Work(iSs),1,nBas(1),nBas(1))
 call Square(Work(iSt),Work(iSst),1,nBas(1),nBas(1))
@@ -149,8 +154,11 @@ TraceFull = 0
 do i=1,nBas(1)
   TraceFull = TraceFull+Work(iOcc+i-1)
 end do
-if (iPrint >= 10) then
+if (iPrint >= 5) then
+  call mma_allocate(BsLbl,nBas(1),label='BsLbl')
   call Get_cArray('Unique Basis Names',BsLbl,LenIn8*nBas(1))
+end if
+if (iPrint >= 10) then
   write(Header,'(A)') 'All average transition density orbitals'
   ThrOcc = -One
   call Primo(Header,.true.,.false.,ThrOcc,Dum,1,nBas(1),nBas(1),BsLbl,Dummy,Work(iOcc),Work(iAUX),-1)
@@ -211,12 +219,12 @@ if ((TraceFull-TraceRed) >= ReduceWarning) then
   write(u6,*) 'You should consider lowering the threshold!'
 end if
 if (iPrint >= 5) then
-  call Get_cArray('Unique Basis Names',BsLbl,LenIn8*nBas(1))
   write(Header,'(A)') 'Reduced average orbitals'
   ThrOcc = -One
   call Primo(Header,.true.,.false.,ThrOcc,Dum,1,nBas(1),[MOsToKeep],BsLbl,Dummy,Work(iNewOcc),Work(ipAvRedMO),-1)
   write(u6,*)
   write(u6,*) '  Trace = ',TraceRed,MOsToKeep
+  call mma_deallocate(BsLbl)
 end if
 
 ! Time to reduce all individual density matrices in the big TDM to
@@ -232,8 +240,8 @@ call MInv(Work(iAUX),Work(ipInv),Ising,Det,nBas(1))
 ! transition density matrix is stored in a scratch file.
 
 DiffMegaMax = Zero
-nSize = nBas(1)*(nBas(1)+1)/2
-nMtK = MOsToKeep*(MOsToKeep+1)/2
+nSize = nTri_Elem(nBas(1))
+nMtK = nTri_Elem(MOsToKeep)
 call GetMem('Temporary','Allo','Real',ipTEMP,nBas(1)**2)
 call GetMem('MOtrDen','Allo','Real',ipTmoD,nBas(1)**2)
 call GetMem('MOreDen','Allo','Real',ipTreD,MOsToKeep**2)
@@ -254,11 +262,12 @@ icomp = 1
 call RdOne(irc,iopt,'Mltpl  0',icomp,Work(iS),iSmLbl)
 call ClsOne(irc,iopt)
 iDiskUt = 0
+call mma_allocate(iTocBig,MxStOT,label='iTocBig')
 call iDaFile(Lu_Scratch,1,iTocBig,MxStOT,iDiskUt)
 do iS1=1,nState
   do iS2=1,iS1
     ! Collect this particular density matrix.
-    indx = (iS1*(iS1-1)/2+iS2-1)*nSize
+    indx = (iTri(iS1,iS2)-1)*nSize
     call dcopy_(nSize,Work(iBigT+indx),1,Work(iDin),1)
     ! Square it and correct the non-diagonal (recall convention)
     call Dsq(Work(iDin),Work(iDsq),1,nBas(1),nBas(1))
@@ -316,7 +325,7 @@ do iS1=1,nState
       if (DiffMax > DiffMegaMax) DiffMegaMax = DiffMax
     end if
     ! Add previous disk address to T-o-C.
-    ind = iS1*(iS1+1)/2-iS1+iS2
+    ind = iTri(iS1,iS2)
     iTocBig(ind) = iDiskUt
     ! 'Because I will take a giant dump on you!'
     call dDaFile(Lu_Scratch,1,Work(ipTreT),nMtk,iDiskUt)
@@ -326,6 +335,8 @@ end do
 iDiskUt = 0
 call iDaFile(Lu_Scratch,1,iTocBig,MxStOT,iDiskUt)
 ! Deallocations and closing.
+call mma_deallocate(iTocBig)
+call mma_deallocate(LindMOs)
 call GetMem('NewOccs','Free','Real',iNewOcc,MOsToKeep)
 call GetMem('InverseC','Free','Real',ipInv,nBas(1)**2)
 call GetMem('Temporary','Free','Real',ipTEMP,nBas(1)**2)

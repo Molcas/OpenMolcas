@@ -38,24 +38,26 @@
 !> So the \p EintSl have to be changed outside the subroutine
 !> to be adapted to the QmStat order
 !> \f$ xx=1 \f$, \f$ xy=2 \f$, \f$ yy=3 \f$, \f$ xz=4 \f$, \f$ yz=5 \f$ and \f$ zz=6 \f$
-!> The subroutine has the parameter \c MxMltp that should be
+!> The subroutine has the parameter \c _MxM_ that should be
 !> changed if higher multipoles are included.
 !***********************************************************************
 
 subroutine Sl_Grad(nCentA,lMaxA,Coord,Dist,DInv,ExpoA,FactorA,SlPA,lMaxB,ExpoB,dNeigh,EintSl,EintSl_Nuc,lAtom)
 
-use Index_Functions, only: nTri_Elem1, nTri3_Elem1
+use Index_Functions, only: nTri_Elem1, nTri3_Elem, nTri3_Elem1
 use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
 
+! Maximum multipole implemented
+#define _MxM_ 2
+
 implicit none
-integer(kind=iwp), parameter :: MxMltp = 2
 integer(kind=iwp) :: nCentA, lMaxA, lMaxB
-real(kind=wp) :: Coord(3,nCentA), Dist(nCentA), DInv(nCentA), ExpoA(2,nCentA), FactorA(4,nCentA), SlPA(nCentA), ExpoB(MxMltp+1), &
-                 dNeigh, EintSl(nTri3_Elem1(MxMltp)), EintSl_Nuc
+real(kind=wp) :: Coord(3,nCentA), Dist(nCentA), DInv(nCentA), ExpoA(2,nCentA), FactorA(4,nCentA), SlPA(nCentA), ExpoB(_MxM_+1), &
+                 dNeigh, EintSl(nTri3_Elem1(_MxM_)), EintSl_Nuc
 logical(kind=iwp) :: lAtom
 integer(kind=iwp) :: iCA, ijhr, iLA, iLB, kaunt, kComp, nS, nT
-real(kind=wp) :: Colle(3), dKappa, EA, EAp, EB, EBp, R, Rho, RhoA, RhoB, Rinv, Rotte(3,3), Sigge, Tau, TMPA(nTri_Elem1(MxMltp)), & !IFG
+real(kind=wp) :: Colle(3), dKappa, EA, EAp, EB, EBp, R, Rho, RhoA, RhoB, Rinv, Rotte(3,3), Sigge, Tau, TMPA(nTri_Elem1(_MxM_)), &
                  TR(6,6), v(3)
 logical(kind=iwp) :: lDiffA, lDiffB, lTooSmall
 
@@ -95,8 +97,8 @@ do iCA=1,nCentA
   do iLA=0,lMaxA
     EA = ExpoA(iLA+1,iCA)
     lDiffA = EA > -One
-    nS = iLA*(iLA+1)*(iLA+2)/6
-    nT = (iLA+1)*(iLA+2)*(iLA+3)/6
+    nS = nTri3_Elem(iLA)
+    nT = nTri3_Elem((iLA+1))
     kaunt = 0
     do kComp=nS+1,nT
       kaunt = kaunt+1

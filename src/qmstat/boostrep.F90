@@ -11,6 +11,7 @@
 
 subroutine BoostRep(AddRep,SmatPure,iVecs,nSize,InCutOff)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -46,7 +47,7 @@ if (QmType(1:3) == 'SCF') then
   do iO1=1,nSize
     do iO2=1,nSize
       do i=1,iOcc1
-        kaunter = i*(i+1)/2
+        kaunter = nTri_Elem(i)
         ind1 = nSize*(iO1-1)+i-1
         ind2 = nSize*(iO2-1)+i-1
         Scalar = Scalar+(Work(iVecs+ind1)*Work(iVecs+ind2)*SmatPure(kaunter))
@@ -57,11 +58,7 @@ if (QmType(1:3) == 'SCF') then
 else if (QmType(1:4) == 'RASS') then
   do i=1,nSize
     do j=1,nSize
-      if (i >= j) then
-        kaunter = i*(i+1)/2-i+j
-      else
-        kaunter = j*(j+1)/2-j+i
-      end if
+      kaunter = iTri(i,j)
       ind1 = nSize*(nEqState-1)+i-1
       ind2 = nSize*(nEqState-1)+j-1
       Scalar = Scalar+Work(iVecs+ind1)*Work(iVecs+ind2)*SmatPure(kaunter)

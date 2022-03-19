@@ -12,6 +12,8 @@
 subroutine PolRas(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTriState,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iSTC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
@@ -21,13 +23,14 @@ implicit none
 #include "qmcom.fh"
 #include "qm2.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iFil(MxQCen,10), iCStart, iTriState, icnum, NVarv, iSTC, iQ_Atoms, &
-                     ip_ExpVal
-real(kind=wp) :: VMat(MxStOT), Smat(MxStOT), DiFac, Ract, Energy, Poli(MxQCen,10)
+integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCStart, iTriState, icnum, &
+                     NVarv, iSTC, ip_ExpVal
+real(kind=wp) :: VMat(iTriState), Smat(iTriState), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
 integer(kind=iwp) :: i, iCall, iDum, iErr, iGri, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, nFound, nPolCent, nQMCent
-real(kind=wp) :: Dummy, EEigen(MxState), Egun, FFp(nPol*nPart,3), PolFac, R2inv, Rinv, RoMatSt(MxStOT), VpolMat(MxStOT) !IFG
+real(kind=wp) :: Dummy, Egun, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
+real(kind=wp), allocatable :: EEigen(:), FFp(:,:), RoMatSt(:), VpolMat(:)
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
@@ -37,7 +40,7 @@ call dcopy_(nState,[One],0,Work(iSTC),nState+1)
 
 ! Define some numbers.
 
-nQMCent = (iQ_Atoms*(iQ_Atoms+1))/2
+nQMCent = nTri_Elem(iQ_Atoms)
 nPolCent = nPart*nPol
 Rinv = One/Ract
 R2inv = Rinv**2
@@ -55,6 +58,10 @@ call PolPrep(iDist,iDistIM,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),W
 
 ! Polarization loop commencing.
 
+call mma_allocate(FFp,nPolCent,3,label='FFp')
+call mma_allocate(RoMatSt,nTri_Elem(nState),label='RoMatSt')
+call mma_allocate(VpolMat,nTri_Elem(nState),label='VpolMat')
+call mma_allocate(EEigen,nState,label='EEigen')
 NVarv = 0
 do
   NVarv = NVarv+1
@@ -89,6 +96,10 @@ end do
 
 ! Deallocate.
 
+call mma_deallocate(FFp)
+call mma_deallocate(RoMatSt)
+call mma_deallocate(VpolMat)
+call mma_deallocate(EEigen)
 call Memory_PolPrep('Free',ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
 
 ! If expectation values are extracted, make a detour.

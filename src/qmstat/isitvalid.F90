@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-real(kind=wp) :: Coo(MxCen,3), CooRef(MxCen,3)
+real(kind=wp) :: Coo(3,MxCen), CooRef(MxCen,3)
 logical(kind=iwp) :: ValidOrNot
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: dL_ref, dL_test
@@ -29,7 +29,7 @@ outer: do i=1,4
     dL_test = Zero
     dL_ref = Zero
     do k=1,3
-      dL_test = dL_test+(Coo(i,k)-Coo(j,k))**2
+      dL_test = dL_test+(Coo(k,i)-Coo(k,j))**2
       dL_ref = dL_ref+(CooRef(i,k)-CooRef(j,k))**2
     end do
     if (abs(dL_test-dL_ref) > dTroskel) then

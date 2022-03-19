@@ -15,29 +15,23 @@ subroutine DensiSt(Dens,StVec,iS,nSt,iDm)
 ! Dens  - The density
 ! StVec - The coefficients for how the new states are expressed with the old.
 
-use Constants, only: Zero, Two
+use Index_Functions, only: nTri_Elem
+use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iS, nSt, iDm
-real(kind=wp) :: Dens(*), StVec(iDm,*)
-integer(kind=iwp) :: i, ii, j, jj, kaunt
+real(kind=wp) :: Dens(nTri_Elem(nSt)), StVec(iDm,*)
+integer(kind=iwp) :: i, j, kaunt
 
 kaunt = 0
 do i=1,nSt
   do j=1,i
     kaunt = kaunt+1
-    Dens(kaunt) = Zero
-  end do
-end do
-kaunt = 0
-do ii=1,nSt
-  do jj=1,ii
-    kaunt = kaunt+1
-    if (ii == jj) then
-      Dens(kaunt) = StVec(ii,iS)*StVec(jj,iS)
+    if (i == j) then
+      Dens(kaunt) = StVec(i,iS)*StVec(j,iS)
     else
-      Dens(kaunt) = Two*StVec(ii,iS)*StVec(jj,iS)
+      Dens(kaunt) = Two*StVec(i,iS)*StVec(j,iS)
     end if
   end do
 end do

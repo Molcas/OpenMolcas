@@ -12,6 +12,8 @@
 subroutine PolScf(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTri,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iMOC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -22,13 +24,15 @@ implicit none
 #include "qm1.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iFil(MxQCen,10), iCStart, iTri, icnum, NVarv, iMOC, iQ_Atoms, ip_ExpVal
-real(kind=wp) :: VMat(MxOT), Smat(MxOT), DiFac, Ract, Energy, Poli(MxQCen,10)
+integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCStart, iTri, icnum, NVarv, &
+                     iMOC, ip_ExpVal
+real(kind=wp) :: VMat(iTri), Smat(iTri), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
 integer(kind=iwp) :: i, iCall, iDum, iErr, iGri, iOrba, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, j, nFound, nPolCent, &
                      nQMCent
-real(kind=wp) :: Dummy, EEigen(MxOrb), Egun, FFp(nPol*nPart,3), OneEl, PolFac, R2inv, Rinv, RoMat(MxOT), VpolMat(MxOT) !IFG
+real(kind=wp) :: Dummy, Egun, OneEl, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
+real(kind=wp), allocatable :: EEigen(:), FFp(:,:), RoMat(:), VpolMat(:)
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
@@ -39,7 +43,7 @@ call dcopy_(iOrba,[One],0,Work(iMOC),iOrba+1)
 
 ! Define some numbers.
 
-nQMCent = (iQ_Atoms*(iQ_Atoms+1))/2
+nQMCent = nTri_Elem(iQ_Atoms)
 nPolCent = nPart*nPol
 Rinv = One/Ract
 R2inv = Rinv**2
@@ -53,14 +57,18 @@ call PolPrep(iDist,iDistIM,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),W
 
 ! Polarization loop commencing.
 
+call mma_allocate(FFp,nPolCent,3,label='FFp')
+call mma_allocate(RoMat,max(nTri_Elem(iOrba),iTri),label='RoMat')
+call mma_allocate(VpolMat,max(nTri_Elem(iOrba),iTri),label='VpolMat')
+call mma_allocate(EEigen,iOrba,label='EEigen')
 NVarv = 0
 do
   NVarv = NVarv+1
   Energy = Zero
   call PolSolv(iDT,iFI,iFP,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),FFp,iCNum,r2Inv, &
                DiFac,nPolCent)
-  call Densi_MO(Romat,Work(iMOC),1,iOcc1,iOrb(1),iOrb(1))
-  if (Mp2DensCorr) call DCorrCorr(Romat,DenCorrD,Trace_MP2,iOrb(1),iOcc1)
+  call Densi_MO(Romat,Work(iMOC),1,iOcc1,iOrba,iOrba)
+  if (Mp2DensCorr) call DCorrCorr(Romat,DenCorrD,Trace_MP2,iOrba,iOcc1)
   call Polink(Energy,iCall,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,Poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP, &
               Romat,xyzQuQ,CT)
 
@@ -99,14 +107,17 @@ do
   if (Haveri .or. JaNej) exit
 end do
 
-
 ! Deallocate.
 
+call mma_deallocate(FFp)
+call mma_deallocate(RoMat)
+call mma_deallocate(EEigen)
 call Memory_PolPrep('Free',ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
 
 ! If expectation values are extracted, make a detour.
 
 if (lExtr(6)) call Expectus('SCF  ',HHmat,Vmat,VpolMat,Smat,MxOT,iMOC,iOrba,.false.,iOcc1,ip_ExpVal)
+call mma_deallocate(VpolMat)
 
 ! The end is near, hold me!
 

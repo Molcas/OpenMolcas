@@ -9,9 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AverMEP(Kword,Eint,Poli,ici,SumElcPot,NCountField,PertElcInt,iQ_Atoms,nBas,nOcc,natyp,nntyp)
+subroutine AverMEP(Kword,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iQ_Atoms,nBas,nOcc,natyp,nntyp)
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
 
@@ -24,13 +25,15 @@ implicit none
 #include "WrkSpc.fh"
 #include "warnings.h"
 character(len=4) :: Kword
-real(kind=wp) :: Eint(MxQCen,10), Poli(MxQCen,10), SumElcPot(MxQCen,10), PertElcInt(MxBas*(MxBas+1)/2)
-integer(kind=iwp) :: ici, NCountField, iQ_Atoms, nBas, nOcc(*), natyp(*), nntyp
-integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCent(MxBas**2), iDum, iH0, iH1, iiDum(1), iLuField, iMME(nTri3_Elem(MxMltp)), indMME, & !IFG
-                     iOpt, irc, iSmLbl, iTriBasQ, iTyp, j, kaunta, Lu_One, nSize, nTyp
-real(kind=wp) :: AvTemp, ForceNuc(MxAt,3), SumOld(MxQCen,10), Tra !IFG
+integer(kind=iwp) :: iCi, NCountField, iQ_Atoms, nBas, nOcc(*), natyp(*), nntyp
+real(kind=wp) :: Eint(iCi,10), Poli(iCi,10), SumElcPot(iCi,10), PertElcInt(nTri_Elem(nBas))
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iDum, iH0, iH1, iiDum(1), iLuField, iMME(nTri3_Elem(MxMltp)), indMME, iOpt, irc, iSmLbl, &
+                     iTyp, j, kaunta, Lu_One, nSize, nTyp
+real(kind=wp) :: AvTemp, Tra
 logical(kind=iwp) :: Exists
 character(len=20) :: MemLab, MemLab1
+integer(kind=iwp), allocatable :: iCent(:)
+real(kind=wp), allocatable :: ForceNuc(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 
 call UpCase(Kword)
@@ -55,9 +58,8 @@ select case (Kword(1:4))
 
   case default !('ADD ')
     do i=1,iCi
-      do j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
-        SumOld(i,j) = SumElcPot(i,j)
-        SumElcPot(i,j) = SumOld(i,j)+Eint(i,j)+Poli(i,j)
+      do j=1,10 !Charges(1),Dipoles(3),Quadrupoles(6)
+        SumElcPot(i,j) = SumElcPot(i,j)+Eint(i,j)+Poli(i,j)
       end do
     end do
     if (iPrint >= 9) then
@@ -106,6 +108,7 @@ select case (Kword(1:4))
     ! The index iCent(i) will give us to which center belongs each pair of bases.
 
     call GetMem('Dummy','Allo','Inte',iDum,nBas**2)
+    call mma_allocate(iCent,nTri_Elem(nBas),label='iCent')
     call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyz,SlExpQ,.false.)
     call GetMem('Dummy','Free','Inte',iDum,nBas**2)
 
@@ -122,9 +125,10 @@ select case (Kword(1:4))
     ! together the distributed electronic charge and the point nuclear
     !  charge under different forces.
     !*********************
+    call mma_allocate(ForceNuc,3,iQ_Atoms,label='ForceNuc')
     do i=1,iQ_Atoms
       do j=1,3
-        ForceNuc(i,j) = ChaNuc(i)*AvElcPot(i,j+1)
+        ForceNuc(j,i) = ChaNuc(i)*AvElcPot(i,j+1)
       end do
     end do
     iLuField = 63
@@ -132,23 +136,24 @@ select case (Kword(1:4))
     call OpnFl(FieldNuc,iLuField,Exists)
     write(u6,*) 'FieldNuc',FieldNuc
     do i=1,iQ_Atoms
-      write(iLuField,*) (ForceNuc(i,j),j=1,3)
+      write(iLuField,*) ForceNuc(:,i)
     end do
     close(iLuField)
 
     if (iPrint >= 9) then
       write(u6,*) 'Nuclei charge and Forces'
       do i=1,iQ_Atoms
-        write(u6,*) ChaNuc(i),(ForceNuc(i,j),j=1,3)
+        write(u6,*) ChaNuc(i),ForceNuc(:,i)
       end do
     end if
+    call mma_deallocate(ForceNuc)
     !********************
 
     nTyp = 0
     do i=1,nMlt
-      nTyp = nTyp+i*(i+1)/2
+      nTyp = nTyp+nTri_Elem(i)
     end do
-    do i=1,(nBas*(nBas+1)/2)
+    do i=1,nTri_Elem(nBas)
       PertElcInt(i) = Zero
     end do
 
@@ -156,7 +161,7 @@ select case (Kword(1:4))
 
     do i1=1,nBas
       do i2=1,i1
-        indMME = i2+i1*(i1-1)/2
+        indMME = iTri(i1,i2)
         do j=5,10
           Work(iMME(j)+indMME-1) = Work(iMME(j)+indMME-1)*OneHalf
         end do
@@ -219,13 +224,14 @@ select case (Kword(1:4))
     do iB1=1,nBas
       do iB2=1,iB1
         kaunta = kaunta+1
-        indMME = iB2+iB1*(iB1-1)/2
+        indMME = iTri(iB1,iB2)
         do iTyp=1,nTyp
           PertElcInt(indMME) = PertElcInt(indMME)+AvElcPot(iCent(kaunta),iTyp)*Work(iMME(iTyp)+indMME-1)
         end do
         Work(iH1+kaunta-1) = Work(iH0+kaunta-1)+PertElcInt(indMME)
       end do
     end do
+    call mma_deallocate(iCent)
 
     if (iPrint >= 9) then
       call TriPrt('H0+Elec One-e',' ',Work(iH1),nBas)
@@ -238,8 +244,7 @@ select case (Kword(1:4))
       call TriPrt('PertNElcInt-e',' ',PertNElcInt,nBas)
     end if
 
-    iTriBasQ = nBas*(nBas+1)/2
-    call DaxPy_(iTriBasQ,One,PertNElcInt,1,Work(iH1),1)
+    call DaxPy_(nTri_Elem(nBas),One,PertNElcInt,1,Work(iH1),1)
 
     if (iPrint >= 9) then
       call TriPrt('H0+Elec+nonEl One-e',' ',Work(iH1),nBas)

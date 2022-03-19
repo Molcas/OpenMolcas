@@ -11,6 +11,7 @@
 
 subroutine ContRASBas(nBas,nStatePrim,iNonH,iNonS,iEig2)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, one
 use Definitions, only: wp, iwp, u6
 
@@ -64,7 +65,7 @@ call GetMem('RedEigV1','Allo','Real',iEig2,nStatePrim**2)
 iT = 0
 if (ContrStateB) then
   do iS=1,nStatePrim
-    kaunt = iS*(iS+1)/2-1
+    kaunt = nTri_Elem(iS)
     sss = Work(iNonS+kaunt)
     if (sss > ThrsCont) then
       iT = iT+1
@@ -80,7 +81,7 @@ end if
 
 ! Transform H and diagonalize in the original basis.
 
-nTri = nStateRed*(nStateRed+1)/2
+nTri = nTri_Elem(nStateRed)
 call GetMem('TEMP','Allo','Real',iTEMP,nStatePrim**2)
 call GetMem('SqH','Allo','Real',iSqH,nStatePrim**2)
 call GetMem('RedHSq','Allo','Real',iRedHSq,nStateRed**2)

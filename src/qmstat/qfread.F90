@@ -45,6 +45,7 @@
 !******JoseMEP the last three variables are included to the MEP calculation
 subroutine Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBasCC,nCnC_C,nOcc,natyp,nntyp)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -57,13 +58,15 @@ implicit none
 #include "warnings.h"
 integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(MxSym), nBasCC(1), nCnC_C(MxBasC), nOcc(MxBas), natyp(MxAt), nntyp
 real(kind=wp) :: Coord(MxAt*3)
-integer(kind=iwp) :: i, iAtom, iBas, iC_icon(MxAt,MxPrCon), iCon(MxAt,MxPrCon), icont, iDumm(MxBas), iDummy(1), iErr, iLu, ind, & !IFG
-                     indold, iOe, iold, ipACC, ipC, ipC_C, ipE, ipE_C, iWarn, ix, j, jnd, k, kaunter, kk, Kmax, kold, l, lLine, m, &
-                     na, nACCSizeC, nACCSizeQ, natypC(MxAt), nfSh(MxAt,MxAngqNr), nnaa, nntypC, nSh(MxAt), nShj, nSize, nSym, nSymCC !IFG
-real(kind=wp) :: Chge(MxAt), ChgeCC(3), Cmo(MxBas**2), Cmo_S(MxBas**2), CoordCC(3*3), Dummy(MxBas), Occu(MxBas) !IFG
+integer(kind=iwp) :: i, iAtom, iBas, icont, iDummy(1), iErr, iLu, ind, indold, iOe, iold, ipACC, ipC, ipC_C, ipE, ipE_C, iWarn, &
+                     ix, j, jnd, k, kaunter, kk, Kmax, kold, l, lLine, m, na, nACCSizeC, nACCSizeQ, nnaa, nntypC, nSize, nSym, &
+                     nSymCC
+real(kind=wp) :: ChgeCC(3), CoordCC(3*3), Dummy(1)
 character(len=120) :: BlLine, Line, StLine
 character(len=100) :: OrbName, Title
 character(len=10) :: WhatGet
+integer(kind=iwp), allocatable :: iC_Icon(:,:), Icon(:,:), natypC(:), nfSh(:,:), nSh(:)
+real(kind=wp), allocatable :: Chge(:), Cmo(:), Cmo_S(:), Occu(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !----------------------------------------------------------------------*
@@ -107,6 +110,7 @@ if (iQ_Atoms > MxAt) then
   write(u6,*) 'Maximum number of atoms exceeded. Increase MxAt in maxi.fh in QmStat source directory.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
+call mma_allocate(Chge,iQ_Atoms,label='Chge')
 call Get_dArray('Nuclear charge',Chge,iQ_Atoms)
 call Get_dArray('Unique Coordinates',Coord,3*iQ_Atoms)
 call Get_dArray('Center of Mass',CT,3)
@@ -152,7 +156,9 @@ if (QmType(1:3) == 'SCF') then
   write(OrbName,'(A)') 'AVEORB'
   write(WhatGet,'(A)') 'CO'
   iWarn = 1
-  call RdVec(OrbName,iLu,WhatGet,nSym,nBas,nBas,Cmo,Occu,Dummy,iDumm,Title,iWarn,iErr)
+  call mma_allocate(Cmo,MxBas**2,label='Cmo')
+  call mma_allocate(Occu,MxBas,label='Occu')
+  call RdVec(OrbName,iLu,WhatGet,nSym,nBas,nBas,Cmo,Occu,Dummy,iDummy,Title,iWarn,iErr)
   if (iErr /= 0) then
     write(u6,*)
     write(u6,*) 'Error when reading AVEORB'
@@ -187,7 +193,10 @@ write(u6,*)
 ! integrals later. GiveMeInfo collects stuff from seward, sometime with*
 ! some recomputations.                                                 *
 !----------------------------------------------------------------------*
-call GiveMeInfo(nBas(1),nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,ipE,ipC,nsh,nfsh,nSize,iPrint,MxAt,MxPrCon,MxBas, &
+call mma_allocate(Icon,MxAt,MxPrCon,label='Icon')
+call mma_allocate(nSh,MxAt,label='nSh')
+call mma_allocate(nfSh,MxAt,MxAngqNr,label='nfSh')
+call GiveMeInfo(nBas(1),nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,ipE,ipC,nSh,nfSh,nSize,iPrint,MxAt,MxPrCon,MxBas, &
                 MxAngqNr,ipACC,nACCSizeQ)
 iBas = 0
 iAtom = 0
@@ -205,9 +214,8 @@ do i=1,nntyp
     iAtom = iAtom+1
     ChaNuc(iAtom) = Chge(iAtom)
     info_atom(iAtom) = int(Chge(iAtom))
-    nShj = nSh(i)
-    do k=1,nShj
-      nnaa = nfsh(i,k)
+    do k=1,nSh(i)
+      nnaa = nfSh(i,k)
       do l=1,nnaa
         ibas = ibas+1
         indold = indold+1
@@ -219,10 +227,10 @@ do i=1,nntyp
         do ix=1,2*k-1  !Here we construct an array of
           if (k /= kold) then !indeces which is used to put right
             if (i /= iold) then !AO-overlap in right matrix pos.
-              Indold = Indold+nfsh(iold,kold)*(2*kold-2)
+              Indold = Indold+nfSh(iold,kold)*(2*kold-2)
               iold = i
             else
-              Indold = Indold+nfsh(i,kold)*(2*kold-2)
+              Indold = Indold+nfSh(i,kold)*(2*kold-2)
             end if
             kold = k
           end if
@@ -240,6 +248,8 @@ end do
 Kmax = ibas
 call dcopy_(nACCSizeQ,Work(ipACC),1,Trans,1)
 ! Now we do not need them, so deallocate
+call mma_deallocate(Chge)
+call mma_deallocate(Icon)
 call GetMem('AccTransa','Free','Real',ipACC,nACCSizeQ)
 call GetMem('Exponents','Free','Real',ipE,nSize*MxAt)
 call GetMem('ContrCoef','Free','Real',ipC,nSize*MxAt)
@@ -285,6 +295,7 @@ write(OrbName,'(A)') 'SOLORB'
 write(WhatGet,'(A)') 'CE'
 iWarn = 1
 call GetMem('OrbitalEnergy','Allo','Real',iOe,sum(nBasCC))
+call mma_allocate(Cmo_S,MxBas**2,label='Cmo_S')
 call RdVec(OrbName,iLu,WhatGet,nSymCC,nBasCC,nBasCC,Cmo_S,Dummy,Work(iOe),iDummy,Title,iWarn,iErr)
 do i=1,iOrb(2)
   c_orbene(i) = Work(iOe+i-1)
@@ -299,13 +310,16 @@ do j=1,iOrb(2)
     V3(k,j) = Cmo_S(k+(j-1)*nBasCC(1))
   end do
 end do
+call mma_deallocate(Cmo_S)
 !write(u6,'(A,I4)') '      Number of Orbitals:',iOrb(2)
 write(u6,*)
 write(u6,*)
 !----------------------------------------------------------------------*
 ! And now basis set information.                                       *
 !----------------------------------------------------------------------*
-call GiveMeInfo(nBasCC(1),nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nsh,nfsh,nSize,iPrint,MxAt, &
+call mma_allocate(natypC,MxAt,label='natypC')
+call mma_allocate(iC_Icon,MxAt,MxPrCon,label='iC_Icon')
+call GiveMeInfo(nBasCC(1),nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nSh,nfSh,nSize,iPrint,MxAt, &
                 MxPrCon,MxBas,MxAngqNr,ipACC,nACCSizeC)
 iBas = 0
 iAtom = 0
@@ -317,10 +331,9 @@ do i=1,nntypC !Like the corresponding thing above for the QM-region.
   do j=1,na
     ind = 0
     jnd = 0
-    nShj = nSh(i)
     iAtom = iAtom+1
-    do k=1,nShj
-      nnaa = nfsh(i,k)
+    do k=1,nSh(i)
+      nnaa = nfSh(i,k)
       do l=1,nnaa
         ibas = ibas+1
         indold = indold+1
@@ -333,10 +346,10 @@ do i=1,nntypC !Like the corresponding thing above for the QM-region.
         do ix=1,2*k-1
           if (k /= kold) then
             if (i /= iold) then
-              Indold = Indold+nfsh(iold,kold)*(2*kold-2)
+              Indold = Indold+nfSh(iold,kold)*(2*kold-2)
               iold = i
             else
-              Indold = Indold+nfsh(i,kold)*(2*kold-2)
+              Indold = Indold+nfSh(i,kold)*(2*kold-2)
             end if
             kold = k
           end if
@@ -356,6 +369,10 @@ if (nACCSizeC > nACCSizeQ) then
   call dcopy_(nACCSizeC,Work(ipACC),1,Trans,1)
 end if
 ! Now we do not need them, so deallocate.
+call mma_deallocate(natypC)
+call mma_deallocate(nSh)
+call mma_deallocate(nfSh)
+call mma_deallocate(iC_Icon)
 call GetMem('AccTransa','Free','Real',ipACC,nACCSizeC)
 call GetMem('Exponents','Free','Real',ipE_C,nSize*MxAt)
 call GetMem('ContrCoef','Free','Real',ipC_C,nSize*MxAt)
@@ -375,6 +392,8 @@ end if
 call NameRun('RUNFILE')
 if (QmType(1:3) == 'SCF') then
   call ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
+  call mma_deallocate(Cmo)
+  call mma_deallocate(Occu)
 else if (QmType(1:4) == 'RASS') then
   call RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
 end if

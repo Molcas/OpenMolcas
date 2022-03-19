@@ -14,11 +14,10 @@ subroutine Spherical(dMul)
 
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Three, Half
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
-integer(kind=iwp), parameter :: MxMltp = 2 !IFG
-real(kind=wp) :: dMul(nTri_Elem1(MxMltp))
+real(kind=wp) :: dMul(nTri_Elem1(2))
 real(kind=wp) :: x2, xy, xz, y2, yz, z2
 real(kind=wp), parameter :: d3 = sqrt(Three)
 

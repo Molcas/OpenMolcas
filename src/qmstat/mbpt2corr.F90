@@ -12,6 +12,7 @@
 ! Not properly worked through. Do not use!
 subroutine Mbpt2Corr(nBas,Cmo)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -38,7 +39,7 @@ write(u6,*)
 write(u6,*) 'THIS OPTION IS NOT PROPERLY WORKED THROUGH! SHOULD NOT BE USED!'
 call Quit(_RC_GENERAL_ERROR_)
 ! Check that the density difference is sound.
-iT = nBas*(nBas+1)/2
+iT = nTri_Elem(nBas)
 call mma_allocate(Diff,iT,Label='Diff')
 call Get_D1ao(Diff,iT)
 if (iPrint >= 10) then

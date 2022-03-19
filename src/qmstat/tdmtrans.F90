@@ -11,6 +11,7 @@
 
 subroutine TdmTrans(nBas)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp, u6
 
 implicit none
@@ -62,7 +63,7 @@ iDisk = 0
 
 ! Read RASSCF overlap and H-matrix.
 
-nSize = nStatePrim*(nStatePrim+1)/2
+nSize = nTri_Elem(nStatePrim)
 call GetMem('NonOrtH','Allo','Real',iNonH,nSize)
 call GetMem('NonOrtS','Allo','Real',iNonS,nSize)
 kaunt = 0

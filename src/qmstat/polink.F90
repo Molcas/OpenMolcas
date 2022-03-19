@@ -45,6 +45,7 @@
 subroutine Polink(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP, &
                   RoMat,xyzQuQ,CT)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
@@ -53,16 +54,20 @@ implicit none
 #include "qminp.fh"
 #include "qm1.fh"
 #include "WrkSpc.fh"
-real(kind=wp) :: Energy, VpolMat(MxOt), Fil(npart*npol,3), polfac, Poli(MxQCen,10), qTot, ChaNuc(MxAt), xyzMyQ(3), xyzMyI(3), &
-                 xyzMyP(3), RoMat(MxOT), xyzQuQ(6), CT(3)
-integer(kind=iwp) :: iCall, iAtom2, iCi, iFil(MxQCen,10), iCstart, iTri, iQ_Atoms
+integer(kind=iwp) :: iCall, iAtom2, iCi, iFil(iCi,10), iCstart, iTri, iQ_Atoms
+real(kind=wp) :: Energy, VpolMat(iTri), Fil(npart*npol,3), polfac, Poli(iCi,10), qTot, ChaNuc(MxAt), xyzMyQ(3), xyzMyI(3), &
+                 xyzMyP(3), RoMat(iTri), xyzQuQ(6), CT(3)
 integer(kind=iwp) :: i, iCnum, Iu, j, k, kk, l
-real(kind=wp) :: CofC(3), Dm(MxQCen,3), Eil(MxPut*MxPol,3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), Qm(MxQCen), qQ(6), & !IFG
-                 QQm(MxQCen,6), qs, Trace1, Trace2, xyzMyC(3) !IFG
+real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qQ(6), qs, Trace1, Trace2, xyzMyC(3)
+real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
 
 !----------------------------------------------------------------------*
 ! Begin with some zeros.                                               *
 !----------------------------------------------------------------------*
+call mma_allocate(Qm,iCi,label='Qm')
+call mma_allocate(Dm,iCi,3,label='Dm')
+call mma_allocate(QQm,iCi,6,label='QQm')
+call mma_allocate(Eil,iAtom2,3,label='Eil')
 iCnum = iCStart/Ncent
 do i=1,iCi
   Qm(i) = Zero
@@ -73,7 +78,7 @@ do i=1,iCi
     QQm(i,j+3) = Zero
   end do
 end do
-do i=1,MxPut*MxPol
+do i=1,iAtom2
   do j=1,3
     Eil(i,j) = Zero
   end do
@@ -151,10 +156,10 @@ xyzQuQ(6) = OneHalf*(qQ(6)+qD(6)-Trace1-Trace2)+qK(6)
 if (ChargedQM) then !If charged system, then do...
   qs = Zero
   do i=1,iCi
-    CofC(1) = CofC(1)+abs(qm(i))*outxyz(i,1) !Center of charge
-    CofC(2) = CofC(2)+abs(qm(i))*outxyz(i,2)
-    CofC(3) = CofC(3)+abs(qm(i))*outxyz(i,3)
-    qs = qs+abs(qm(i))
+    CofC(1) = CofC(1)+abs(Qm(i))*outxyz(i,1) !Center of charge
+    CofC(2) = CofC(2)+abs(Qm(i))*outxyz(i,2)
+    CofC(3) = CofC(3)+abs(Qm(i))*outxyz(i,3)
+    qs = qs+abs(Qm(i))
   end do
   CofC(1) = CofC(1)/qs
   CofC(2) = CofC(2)/qs
@@ -206,6 +211,10 @@ do i=1+(nPol*iCNum),iAtom2
     Energy = Energy+Fil(i,j)*Eil(i,j)*Pol(iu)
   end do
 end do
+call mma_deallocate(Qm)
+call mma_deallocate(Dm)
+call mma_deallocate(QQm)
+call mma_deallocate(Eil)
 !----------------------------------------------------------------------*
 ! Now we wish to make the induced field from the solvent interact with *
 ! the QM-region. The static field has already interacted in helstate.  *

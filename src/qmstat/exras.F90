@@ -11,6 +11,8 @@
 
 subroutine ExRas(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itristate,SmatRas,SmatPure,InCutOff,ipAOSum)
 
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
@@ -21,13 +23,14 @@ implicit none
 #include "qm2.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itristate, ipAOSum
-real(kind=wp) :: Ax, Ay, Az, SmatRas(MxStOT), SmatPure(MxStOT)
+real(kind=wp) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate)
 integer(kind=iwp) :: i, iAOMOOvl, iAOMOOvlE, iHalf, iHalfE, iHalfpar, ind, inwm, ipACC, ipACCp, ipACCt, ipACCtp, ipAOAUX, &
                      ipAOAUXtri, ipAOG, ipAOint, ipAOintpar, ipAux, ipAuxp, iS, iTEMP, iV2, js, k, kaunter, N, nAObaseSize, nDim1, &
                      nDim2, nDimP, nDimT, nGross, nHalf, nInsideCut, nV2size
 real(kind=wp) :: Addition, CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, HighS, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: InCutOff
-logical(kind=iwp) :: Inside(MxAt,3), NearBy !IFG
+logical(kind=iwp) :: NearBy
+logical(kind=iwp), allocatable :: Inside(:,:)
 real(kind=r8), external :: Ddot_
 
 !----------------------------------------------------------------------*
@@ -48,7 +51,7 @@ call GetMem('RotOrb','Allo','Real',iV2,nV2size)
 call GetMem('Sint','Allo','Real',ipAOint,nAObaseSize)
 call GetMem('Sintpar','Allo','Real',ipAOintpar,nAObaseSize)
 nHalf = nBaseQ*iOrb(2)
-nGross = nBaseQ*(nBaseQ+1)/2
+nGross = nTri_Elem(nBaseQ)
 call GetMem('HalfTrans','Allo','Real',iHalfpar,nHalf)
 call GetMem('HalfPure','Allo','Real',iHalf,nHalf)
 call GetMem('HalfOrbE','Allo','Real',iHalfE,nHalf)
@@ -84,10 +87,11 @@ else
   nDim2 = iOrb(2)
 end if
 nDimP = nDim1*nDim2
-nDimT = nDim1*(nDim1+1)/2
+nDimT = nTri_Elem(nDim1)
 
 ! Start loop over all solvent molecules.
 
+call mma_allocate(Inside,MxAt,3,label='Inside')
 do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Initialize
@@ -221,6 +225,8 @@ do iS=1,nState
 end do
 
 ! Deallocations.
+
+call mma_deallocate(Inside)
 
 call GetMem('RotOrb','Free','Real',iV2,nV2size)
 call GetMem('Sint','Free','Real',ipAOint,nAObaseSize)

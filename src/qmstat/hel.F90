@@ -37,8 +37,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-real(kind=wp) :: Eint(MxQCen,10), Ql(MxOT,MxQCen), Dil(MxOT,3,MxQCen), QQxxyy(MxOT,6,MxQCen), Vmat(MxOT)
 integer(kind=iwp) :: itri, ici, iprint
+real(kind=wp) :: Eint(ici,10), Ql(MxOT,MxQCen), Dil(MxOT,3,MxQCen), QQxxyy(MxOT,6,MxQCen), Vmat(itri)
 integer(kind=iwp) :: i, j, k
 
 ! Zeros

@@ -37,13 +37,14 @@
 
 subroutine HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat,iPrint)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-real(kind=wp) :: Eint(MxQCen,10), Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen), Vmat(MxOt)
 integer(kind=iwp) :: nrstate, ici, iPrint
+real(kind=wp) :: Eint(ici,10), Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen), Vmat(nTri_Elem(nrstate))
 integer(kind=iwp) :: i, j, k, kaunt
 
 kaunt = 0

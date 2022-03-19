@@ -13,6 +13,7 @@
 ! qminp.fh which in turn are initialized in qmstat_init.
 subroutine Get_Qmstat_Input(iQ_Atoms)
 
+use Index_Functions, only: nTri3_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -605,8 +606,8 @@ do
             end if
             do i=1,nSlSiteC
               do j=0,lMltSlC
-                nS = j*(j+1)*(j+2)/6
-                nT = (j+1)*(j+2)*(j+3)/6
+                nS = nTri3_Elem(j)
+                nT = nTri3_Elem(j+1)
                 Key = Get_Ln(LuRd)
                 call Get_F1(1,SlExpTemp)
                 SlExpC(j+1,i) = SlExpTemp

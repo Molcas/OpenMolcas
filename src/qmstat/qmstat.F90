@@ -15,6 +15,7 @@ subroutine Qmstat(ireturn)
 use Para_Info, only: Is_Real_Par
 #endif
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -22,10 +23,11 @@ integer(kind=iwp) :: ireturn
 #include "maxi.fh"
 #include "qminp.fh"
 #include "warnings.h"
-integer(kind=iwp) :: iBigDeAll, iCi, ip, ipStoreCoo, iQ_Atoms, iSupDeAll, iV1DeAll, nAtomsCC, natyp(MxAt), nBas(1), nBas_C(1), & !IFG
-                     nCalls, nCnC_C(MxBasC), NCountField, nntyp, nOcc(MxBas), nPart2, nRM, nS, nSizeBig !IFG
-real(kind=wp) :: Coord(MxAt*3), Eint(MxQCen,10), PertElcInt(nTri_Elem(MxBas)), Poli(MxQCen,10), SumElcPot(MxQCen,10) !IFG
+integer(kind=iwp) :: iBigDeAll, iCi, ip, ipStoreCoo, iQ_Atoms, iSupDeAll, iV1DeAll, nAtomsCC, nBas(1), nBas_C(1), nCalls, &
+                     NCountField, nntyp, nPart2, nRM, nS, nSizeBig
 character(len=4) :: Labjhr
+integer(kind=iwp), allocatable :: natyp(:), nCnC_C(:), nOcc(:)
+real(kind=wp), allocatable :: Coord(:), Eint(:,:), PertElcInt(:), Poli(:,:), SumElcPot(:,:)
 !******JoseMEP New variables to perform the MEP calculation
 !Eint, Poli, SumElcPot, PertElcInt, nOcc, natyp, Labjhr
 
@@ -70,6 +72,15 @@ else
 
   ! Read in orbitals, basis functions, integrals and bla bla bla. This
   ! is the centre for communicating with the rest of Molcas.
+
+  call mma_allocate(Coord,3*MxAt,label='Coord')
+  call mma_allocate(nCnC_C,MxBasC,label='nCnC_C')
+  call mma_allocate(nOcc,MxBas,label='nOcc')
+  call mma_allocate(natyp,MxAt,label='natyp')
+  call mma_allocate(Eint,MxQCen,10,label='Eint')
+  call mma_allocate(Poli,MxQCen,10,label='Poli')
+  call mma_allocate(SumElcPot,MxQCen,10,label='SumElcPot')
+  call mma_allocate(PertElcInt,nTri_Elem(MxBas),label='PertElcInt')
 
   !******JoseMEP*** Qfread is called with more variables to the MEP calculation
   call Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,nOcc,natyp,nntyp)
@@ -139,6 +150,15 @@ else
     end if
   end do
 
+  call mma_deallocate(Coord)
+  call mma_deallocate(nCnC_C)
+  call mma_deallocate(nOcc)
+  call mma_deallocate(natyp)
+  call mma_deallocate(Eint)
+  call mma_deallocate(Poli)
+  call mma_deallocate(SumElcPot)
+  call mma_deallocate(PertElcInt)
+
   ! Deallocations of stuff from qfread to simulations. These are unique for the QM-method.
 
   if (QmType(1:4) == 'RASS') then
@@ -147,7 +167,7 @@ else
       call GetMem('UncleMoe','Free','Real',ip,nBas(1)*nRM)
     end if
   else if (QmType(1:3) == 'SCF') then
-    nS = iOrb(1)*(iOrb(1)+1)/2
+    nS = nTri_Elem(iOrb(1))
     call GetMem('SUPER','Free','Real',iSupDeAll,nS**2)
     call GetMem('OrbCoeffQ','Free','Real',iV1DeAll,iOrb(1)*nBas(1))
   end if

@@ -12,6 +12,7 @@
 subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iBigForDeAll,nSizeBig,ip_UNCLE_MOE,nB)
 
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Ten, Half, Pi, Angstrom, atmToau, auTokJ, deg2rad, KBoltzmann
 use Definitions, only: wp, iwp, u6
 
@@ -25,21 +26,21 @@ implicit none
 #include "warnings.h"
 integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), nCnC_C(MxBasC), iBigForDeAll, nSizeBig, ip_UNCLE_MOE, nB
 real(kind=wp) :: Coord(MxAt*3)
-integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDist, iDistIm, iDT(3), iDum(1), iFi(3), &
-                     iFil(MxQCen,10), iFP(3), iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, indma, Inte, & !IFG
-                     ip_ExpCento, ip_ExpVal, ipAOSum, iProdMax, iSnurr, iSTC, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, &
-                     iTriBasQ, iTriMaxBasQ, iTriState, j, jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, &
-                     nSize, nSizeIm, nVarv
-real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, BoMaH(MxAt), BoMaO(MxAt), Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, dele, DiFac, Dum, & !IFG
-                 E2Die, E_Nuc_Part, E_Nuc_Rubbet, Edisp, EEDisp, EHam, Eint(MxQCen,10), Eint_Nuc(MxAt), Elene, EnCLAS, Energy, & !IFG
-                 Eold, Esav, Etot, Exrep, Expe, Expran, ExDie, Gam, Gmma, PertElcInt(nTri_Elem(MxBas)), Poli(MxQCen,10), Pr, Ract, & !IFG
-                 Rold, RRRnVarv, s90um, Sum1, Smat(MxStOT), SmatPure(MxStOT), SumElcPot(MxQCen,10), t1s, t2s, t3s, t4s, Tim1, & !IFG
-                 Tim2, Tim3, timeCLAS, timeEL, timeEX, timeMC, Vmat(MxStOT) !IFG
+integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDist, iDistIm, iDT(3), iDum(1), iFi(3), iFP(3), &
+                     iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, indma, Inte, ip_ExpCento, ip_ExpVal, &
+                     ipAOSum, iProdMax, iSnurr, iSTC, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, iTriMaxBasQ, &
+                     iTriState, j, jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, nVarv
+real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, dele, DiFac, Dum, E2Die, E_Nuc_Part, &
+                 E_Nuc_Rubbet, Edisp, EEDisp, EHam, Elene, EnCLAS, Energy, Eold, Esav, Etot, Exrep, Expe, Expran, ExDie, Gam, &
+                 Gmma, PertElcInt(1), Pr, Ract, Rold, RRRnVarv, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, &
+                 timeEL, timeEX, timeMC
 logical(kind=iwp) :: CalledBefore, DidWeAccept, Exists, Haveri, InCutOff, Loop, SampleThis, Skip
 character(len=200) :: Head
 character(len=20) :: MemLaaaa, Memlaaab, Memlaabe, Memlabel, MemQFal
 character(len=4) :: Labjhr
 character(len=2) :: ChCo, ChCo2
+integer(kind=iwp), allocatable :: iFil(:,:)
+real(kind=wp), allocatable :: BoMaH(:), BoMaO(:), Eint(:,:), Eint_Nuc(:), Poli(:,:), Smat(:), SmatPure(:), SumElcPot(:,:), Vmat(:)
 real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ, &
                             ExLim = Ten !Over how long distance the exchange rep. is computed, the solv-solv.
 integer(kind=iwp), external :: IsFreeUnit
@@ -86,8 +87,9 @@ iHowMSampIN = 0
 iHowMSampUT = 0
 nBaseC = nBas_C(1)
 nBaseQ = nBas(1)
-iTriBasQ = nBaseQ*(nBaseQ+1)/2
-iTriState = nState*(nState+1)/2
+iTriBasQ = nTri_Elem(nBaseQ)
+iTriState = nTri_Elem(nState)
+iCi = nTri_Elem(iQ_Atoms)
 timeCLAS = Zero
 timeEX = Zero
 timeEL = Zero
@@ -100,6 +102,8 @@ if ((Dispdamp .or. FieldDamp) .and. (iPrint >= 8)) then
   write(u6,*) '-----Various damping data.'
   write(u6,*)
 end if
+call mma_allocate(BoMaH,iQ_Atoms,label='BoMaH')
+call mma_allocate(BoMaO,iQ_Atoms,label='BoMaO')
 if (Dispdamp) then
 
   ! Construct the Born-Mayer parameters, a la Brdarski-Karlstrom
@@ -121,6 +125,8 @@ end if
 
 ! Check what type of simulation to run, and generate some output of
 ! utmost beauty.
+
+call mma_allocate(SumElcPot,iCi,10,label='SumElcPot')
 
 if (Qmeq .and. (iRead /= 9)) then
   call NiceOutPut('EIQ',Gam,Gmma,BetaBol)
@@ -161,7 +167,7 @@ else if (iRead == 9) then
   !*****JoseMEP
   ! If we perform MEP calculation, first we make some zeros and allocate some memory.
   if (lExtr(8)) then
-    do ijhr=1,MxQCen
+    do ijhr=1,iCi
       do jjhr=1,10
         SumElcPot(ijhr,jjhr) = Zero
         AvElcPot(ijhr,jjhr) = Zero
@@ -169,7 +175,7 @@ else if (iRead == 9) then
     end do
     NCountField = 0
 
-    iTriMaxBasQ = MxBas*(MxBas+1)/2
+    iTriMaxBasQ = nTri_Elem(MxBas)
     call dcopy_(iTriMaxBasQ,[Zero],0,PertNElcInt,1)
     call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iTriBasQ)
     call dcopy_(iTriBasQ,[Zero],0,Work(ipAOSum),1)
@@ -183,6 +189,13 @@ end if
 !----------------------------------------------------------------------*
 ! If we have input file, then read from it.                            *
 !----------------------------------------------------------------------*
+call mma_allocate(iFil,iCi,10,label='iFil')
+call mma_allocate(Eint,iCi,10,label='Eint')
+call mma_allocate(Eint_Nuc,iQ_Atoms,label='Eint_Nuc')
+call mma_allocate(Poli,iCi,10,label='Poli')
+call mma_allocate(Smat,iTriState,label='Smat')
+call mma_allocate(Vmat,iTriState,label='Vmat')
+call mma_allocate(SmatPure,iTriState,label='SmatPure')
 iCStart = (((iQ_Atoms-1)/nAtom)+1)*nCent+1
 iCNum = (iCStart-1)/nCent
 i9 = 0 !i9 is active if iRead == 9 and we are collecting configurations from the sampfile.
@@ -214,7 +227,6 @@ outer: do
   ncParm = ncPart-(nCent*icNum)
   nClas = nPart-iCNum
   indma = npart*npol
-  iCi = (iQ_Atoms*(iQ_Atoms+1))/2
 
   ! Put QM-molecule in its place.
 
@@ -290,7 +302,7 @@ outer: do
           end do
           Eint(i,j) = Zero
         end do
-        if (i <= MxAt) Eint_Nuc(i) = Zero
+        if (i <= iQ_Atoms) Eint_Nuc(i) = Zero
       end do
 
       ! Compute the exchange operator.
@@ -353,7 +365,7 @@ outer: do
       ! Printing and various if requested.                             *
       !----------------------------------------------------------------*
       if (iPrint >= 10) then
-        if (Haveri) Etot = 999999
+        if (Haveri) Etot = 999999.0_wp
         write(u6,*)
         write(u6,*) '   ----Microstep',iMicro
         write(u6,*) '         Number of iterations:',nVarv
@@ -561,6 +573,16 @@ outer: do
   call Add_Info('Pol.Iterations',[RRRnVarv],1,8)
   if (.not. Loop) exit outer
 end do outer
+call mma_deallocate(BoMaH)
+call mma_deallocate(BoMaO)
+call mma_deallocate(iFil)
+call mma_deallocate(Eint)
+call mma_deallocate(Eint_Nuc)
+call mma_deallocate(Poli)
+call mma_deallocate(Smat)
+call mma_deallocate(Vmat)
+call mma_deallocate(SmatPure)
+call mma_deallocate(SumElcPot)
 !----------------------------------------------------------------------*
 ! Close some external files.                                           *
 !----------------------------------------------------------------------*
@@ -579,7 +601,7 @@ if (MoAveRed) then
 else
   nB = nBaseQ
 end if
-nSizeBig = nState*(nState+1)*nB*(nB+1)/4
+nSizeBig = nTri_Elem(nState)*nTri_Elem(nB)
 
 write(u6,*)
 write(u6,*)

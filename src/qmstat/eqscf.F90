@@ -12,6 +12,7 @@
 subroutine EqScf(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iSupDeAll,iV1DeAll)
 
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Ten, Half, Pi, Angstrom, atmToau, auTokJ, deg2rad, KBoltzmann
 use Definitions, only: wp, iwp, u6
 
@@ -25,32 +26,29 @@ implicit none
 #include "warnings.h"
 integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), nCnC_C(MxBasC), iSupDeAll, iV1DeAll
 real(kind=wp) :: Coord(MxAt*3)
-
-integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDist, iDistIm, iDT(3), iDum(1), iFi(3), &
-                     iFil(MxQCen,10), iFP(3), iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, iMOC, indma, Inte, & !IFG
-                     iOrba, ip_ExpCento, ip_ExpVal, ipAOSum, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, &
-                     iTri, iTriBasQ, iTriMaxBasQ, j, jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, &
-                     nSizeIm, NVarv
-real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, BoMaH(MxAt), BoMaO(MxAt), Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, Dele, DiFac, & !IFG
-                 Dum(1), E2Die, E_Nuc_Part, E_Nuc_Rubbet, Edisp, EEDisp, Eint(MxQCen,10), EHam, Eint_Nuc(MxAt), Elene, EnCLAS, & !IFG
-                 energy, Eold, Esav, Etot, ExDie, Expe, Expran, Exrep, Gam, Gmma, PertElcInt(nTri_Elem(MxBas)), Poli(MxQCen,10), & !IFG
-                 Pr, Ract, Rold, s90um, Smat(MxOT), SmatPure(MxOT), Sum1, SumElcPot(MxQCen,10), t1s, t2s, t3s, t4s, Tim1, Tim2, & !IFG
-                 Tim3, timeCLAS, timeEL, timeEX, timeMC, Vmat(MxOT) !IFG
+integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDist, iDistIm, iDT(3), iDum(1), iFi(3), iFP(3), &
+                     iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, iMOC, indma, Inte, iOrba, ip_ExpCento, &
+                     ip_ExpVal, ipAOSum, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTri, iTriBasQ, &
+                     iTriMaxBasQ, j, jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, NVarv
+real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, Dele, DiFac, Dum(1), E2Die, E_Nuc_Part, &
+                 E_Nuc_Rubbet, Edisp, EEDisp, EHam, Elene, EnCLAS, energy, Eold, Esav, Etot, ExDie, Expe, Expran, Exrep, Gam, &
+                 Gmma, PertElcInt(1), Pr, Ract, Rold, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, timeEL, timeEX, &
+                 timeMC
 logical(kind=iwp) :: CalledBefore, DidWeAccept, Exists, Haveri, InCutOff, Loop, SampleThis, Skip
 character(len=20) :: MemLaaaa, Memlaaab, Memlaabe, Memlabel, MemQFal
 character(len=200) :: Head
 character(len=4) :: Labjhr
 character(len=2) :: ChCo, ChCo2
+integer(kind=iwp), allocatable :: iFil(:,:)
+real(kind=wp), allocatable :: BoMaH(:), BoMaO(:), Eint(:,:), Eint_Nuc(:), Poli(:,:), Smat(:), SmatPure(:), SumElcPot(:,:), Vmat(:)
 real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ, &
                             ExLim = Ten !Over how long distance the exchange rep. is computed, the solv-solv.
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Ranf
 !****Jose** Interaction with Slater type to consider Penetration
-!           Eint_Nuc(MxAt)
+!           Eint_Nuc
 !****JoseMEP**New variables for the MEP calculation
-!              SumElcPot(MxQCen,10)
-!              PertElcInt(MxBas*(MxBas+1)/2)
-!              Labjhr
+!             SumElcPot, PertElcInt, Labjhr
 
 !----------------------------------------------------------------------*
 ! Enter.                                                               *
@@ -90,8 +88,9 @@ iHowMSampIN = 0
 iHowMSampUT = 0
 nBaseC = nBas_C(1)
 nBaseQ = nBas(1)
-iTri = (iOrb(1)*(iOrb(1)+1))/2
-iTriBasQ = nBaseQ*(nBaseQ+1)/2
+iTri = nTri_Elem(iOrb(1))
+iTriBasQ = nTri_Elem(nBaseQ)
+iCi = nTri_Elem(iQ_Atoms)
 timeCLAS = Zero
 timeEX = Zero
 timeEL = Zero
@@ -104,6 +103,8 @@ if ((Dispdamp .or. FieldDamp) .and. (iPrint >= 8)) then
   write(u6,*) '-----Various damping data.'
   write(u6,*)
 end if
+call mma_allocate(BoMaH,iQ_Atoms,label='BoMaH')
+call mma_allocate(BoMaO,iQ_Atoms,label='BoMaO')
 if (Dispdamp) then
 
   ! Construct the Born-Mayer parameters, a la Brdarski-Karlstrom
@@ -124,6 +125,9 @@ end if
 ! Check what to run - equilibration or production - and say something  *
 ! beautiful to the user.                                               *
 !----------------------------------------------------------------------*
+
+call mma_allocate(SumElcPot,iCi,10,label='SumElcPot')
+
 if (Qmeq .and. (iRead /= 9)) then
   call NiceOutPut('EIQ',Gam,Gmma,BetaBol)
 else if (QmProd .and. (iRead /= 9)) then
@@ -163,7 +167,7 @@ else if (iRead == 9) then
   !*****JoseMEP
   ! If we perform MEP calculation, first we make some zeros and allocate some memory.
   if (lExtr(8)) then
-    do ijhr=1,MxQCen
+    do ijhr=1,iCi
       do jjhr=1,10
         SumElcPot(ijhr,jjhr) = Zero
         AvElcPot(ijhr,jjhr) = Zero
@@ -171,7 +175,7 @@ else if (iRead == 9) then
     end do
     NCountField = 0
 
-    iTriMaxBasQ = MxBas*(MxBas+1)/2
+    iTriMaxBasQ = nTri_Elem(MxBas)
     call dcopy_(iTriMaxBasQ,[Zero],0,PertNElcInt,1)
     !write(u6,*)'ipAOSum',ipAOSum
     call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iTriBasQ)
@@ -187,6 +191,13 @@ end if
 !----------------------------------------------------------------------*
 ! If we have input file, then read from it.                            *
 !----------------------------------------------------------------------*
+call mma_allocate(iFil,iCi,10,label='iFil')
+call mma_allocate(Eint,iCi,10,label='Eint')
+call mma_allocate(Eint_Nuc,iQ_Atoms,label='Eint_Nuc')
+call mma_allocate(Poli,iCi,10,label='Poli')
+call mma_allocate(Smat,iTri,label='Smat')
+call mma_allocate(Vmat,iTri,label='Vmat')
+call mma_allocate(SmatPure,iTri,label='SmatPure')
 iCStart = (((iQ_Atoms-1)/nAtom)+1)*nCent+1
 iCNum = (iCStart-1)/nCent
 i9 = 0
@@ -218,7 +229,6 @@ outer: do
   ncParm = ncPart-(nCent*icNum)
   nClas = nPart-iCNum
   indma = npart*npol
-  iCi = (iQ_Atoms*(iQ_Atoms+1))/2
   !--------------------------------------------------------------------*
   ! Substitute classical waters for quantum molecule.                  *
   !--------------------------------------------------------------------*
@@ -294,7 +304,7 @@ outer: do
           end do
           Eint(i,j) = Zero
         end do
-        if (i <= MxAt) Eint_Nuc(i) = Zero
+        if (i <= iQ_Atoms) Eint_Nuc(i) = Zero
       end do
 
       ! Compute the exchange operator.
@@ -566,6 +576,16 @@ outer: do
   call Add_Info('QM-region dipole',xyzMyQ,3,5)
   if (.not. Loop) exit outer
 end do outer
+call mma_deallocate(BoMaH)
+call mma_deallocate(BoMaO)
+call mma_deallocate(iFil)
+call mma_deallocate(Eint)
+call mma_deallocate(Eint_Nuc)
+call mma_deallocate(Poli)
+call mma_deallocate(Smat)
+call mma_deallocate(Vmat)
+call mma_deallocate(SmatPure)
+call mma_deallocate(SumElcPot)
 !----------------------------------------------------------------------*
 ! Close some external files.                                           *
 !----------------------------------------------------------------------*

@@ -41,7 +41,8 @@
 
 subroutine RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: nTri3_Elem, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp, u6
 
@@ -52,19 +53,20 @@ implicit none
 #include "qm2.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: nBas(MxSym), iQ_Atoms, nOcc(MxBas), natyp(MxAt), nntyp
-integer(kind=iwp) :: i, iCent(MxBas*MxBas), iCi, iDum, iMME(nTri3_Elem(MxMltp)), j, k, kaunt, kaunter, kk, l, nSize, nTyp !IFG
+integer(kind=iwp) :: i, iCi, iDum, iMME(nTri3_Elem(MxMltp)), j, k, kaunt, kaunter, kk, l, nSize, nTyp
 real(kind=wp) :: D1, D2, D3, dipx, dipx0, dipy, dipy0, dipz, dipz0, dQxx, dQxy, dQxz, dQyy, dQyz, dQzz, dTox, dToy, dToz, Q, qEl, &
                  quaDxx, quaDxy, quaDxz, quaDyy, quaDyx, quaDyz, quaDzx, quaDzy, quaDzz, quaQxx, quaQxy, quaQxz, quaQyy, quaQyz, &
                  quaQzz, quaxx, quaxy, quaxz, quayy, quayz, quazz, Tra, Trace1, Trace2, Trace3
 character(len=20) :: MMElab
 character(len=2) :: ChCo
+integer(kind=iwp), allocatable :: iCent(:)
 
 ! A modest entrance.
 
 ! Zeros.
 
 kaunt = 0
-iCi = iQ_Atoms*(iQ_Atoms+1)/2
+iCi = nTri_Elem(iQ_Atoms)
 do i=1,nState
   do j=1,i
     kaunt = kaunt+1
@@ -114,6 +116,7 @@ write(u6,*) '     Multicenter multipole expanding the charge density expressed i
 
 ! First obtain MME in AO-basis.
 
+call mma_allocate(iCent,nTri_Elem(nBas(1)),label='iCent')
 call GetMem('Dummy','Allo','Inte',iDum,nBas(1)**2)
 call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyzRAS,SlExpQ,lSlater)
 call GetMem('Dummy','Free','Inte',iDum,nBas(1)**2)
@@ -122,7 +125,7 @@ call GetMem('Dummy','Free','Inte',iDum,nBas(1)**2)
 
 nTyp = 0
 do i=1,nMlt
-  nTyp = nTyp+i*(i+1)/2
+  nTyp = nTyp+nTri_Elem(i)
 end do
 
 ! Transform to State-basis. The logical flag MoAveRed decides which path to go in this subroutine.
@@ -130,6 +133,8 @@ end do
 call StateMME(MoAveRed,nBas(1),nRedMO,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,RasCha,RasDip,RasQua)
 
 ! Deallocate the MME in AO-basis.
+
+call mma_deallocate(iCent)
 
 do i=1,nTyp
   write(ChCo,'(I2.2)') i
@@ -162,7 +167,7 @@ if (iPrint >= 10) then
   write(u6,*)
   write(u6,*) '    Distributed multipoles for each state'
   do i=1,nState
-    k = i*(i+1)/2
+    k = nTri_Elem(i)
     write(u6,*) '     State ',i
     do j=1,iCi
       write(u6,*) '        Center ',j
@@ -183,7 +188,7 @@ if (iPrint >= 5) then
               'Quadrup(xx) Quadrup(xy) Quadrup(xz) Quadrup(yy) Quadrup(yz) Quadrup(zz)'
 end if
 do i=1,nState !Total charge and dipole.
-  k = i*(i+1)/2
+  k = nTri_Elem(i)
   qEl = Zero
   dipx = Zero
   dipy = Zero

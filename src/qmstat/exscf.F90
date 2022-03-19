@@ -11,6 +11,8 @@
 
 subroutine ExScf(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itri,Smat,SmatPure,InCutOff,ipAOSum)
 
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -21,13 +23,14 @@ implicit none
 #include "qm1.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itri, ipAOSum
-real(kind=wp) :: Ax, Ay, Az, Smat(MxOT), SmatPure(MxOT)
+real(kind=wp) :: Ax, Ay, Az, Smat(itri), SmatPure(itri)
 logical(kind=iwp) :: InCutOff
 integer(kind=iwp) :: i, iAOAOTri, iAOMOOvl, iAOMOOvlE, iInte, ind, inwm, iOPure, iOvlMO, iOvlMOE, ipAOAUX, ipAOAUXtri, ipAOint, &
                      ipAOintpar, ipAUX, ipAUXp, ipAUXtri, iV2, j, k, N, nAObaseSize, nAOqMOcl, nInsideCut, nOrbSize, nStorlek, &
                      nV2size
 real(kind=wp) :: CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
-logical(kind=iwp) :: Inside(MxAt,3), NearBy
+logical(kind=iwp) :: NearBy
+logical(kind=iwp), allocatable :: Inside(:,:)
 
 !----------------------------------------------------------------------*
 ! Deduce how much the QM-molecule is translated from its position as   *
@@ -58,7 +61,7 @@ call GetMem('AUXtri','Allo','Real',ipAUXtri,iTri)
 !Jose****************************************************************
 if (lExtr(8)) then
   nAOqMOcl = nBaseQ*iOrb(2)
-  iAOAOTri = nBaseQ*(nBaseQ+1)/2
+  iAOAOTri = nTri_Elem(nBaseQ)
   call GetMem('qAOclMOOvl','Allo','Real',iAOMOOvl,nAOqMOcl)
   call GetMem('qAOclMOOvlE','Allo','Real',iAOMOOvlE,nAOqMOcl)
   call GetMem('AuxAOp','Allo','Real',ipAOAUX,nBaseQ**2)
@@ -72,6 +75,7 @@ do i=1,iTri
   SmatPure(i) = 0
 end do
 nInsideCut = 0
+call mma_allocate(Inside,MxAt,3,label='Inside')
 do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Initialize.
@@ -183,6 +187,8 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   ! This solvent molecule ends now!
 
 end do
+
+call mma_deallocate(Inside)
 
 call GetMem('RotOrb','Free','Real',iV2,nV2size)
 call GetMem('Sint','Free','Real',ipAOint,nAObaseSize)

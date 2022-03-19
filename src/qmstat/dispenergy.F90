@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "maxi.fh"
 #include "qminp.fh"
-real(kind=wp) :: EEDisp, BoMaH(MxAt), BoMaO(MxAt), dAtO1, dAtH1, dAtH2, Rab13i, Rab23i, Rab33i
+real(kind=wp) :: EEDisp, BoMaH, BoMaO, dAtO1, dAtH1, dAtH2, Rab13i, Rab23i, Rab33i
 integer(kind=iwp) :: indQAt
 integer(kind=iwp) :: k, kFac
 real(kind=wp) :: DampBarn(3), EfromH1, EfromH2, EfromO1
@@ -35,23 +35,23 @@ if (DispDamp) then
   kFac = 1
   do k=1,6
     kFac = kFac*k
-    DampBarn(1) = DampBarn(1)+(BoMaH(indQAt)*dAtH1)**k/real(kFac,kind=wp)
+    DampBarn(1) = DampBarn(1)+(BoMaH*dAtH1)**k/real(kFac,kind=wp)
   end do
-  DampBarn(1) = One-DampBarn(1)*exp(-BoMaH(indQAt)*dAtH1)
+  DampBarn(1) = One-DampBarn(1)*exp(-BoMaH*dAtH1)
 
   kFac = 1
   do k=1,6
     kFac = kFac*k
-    DampBarn(2) = DampBarn(2)+(BoMaH(indQAt)*dAtH2)**k/real(kFac,kind=wp)
+    DampBarn(2) = DampBarn(2)+(BoMaH*dAtH2)**k/real(kFac,kind=wp)
   end do
-  DampBarn(2) = One-DampBarn(2)*exp(-BoMaH(indQAt)*dAtH2)
+  DampBarn(2) = One-DampBarn(2)*exp(-BoMaH*dAtH2)
 
   kFac = 1
   do k=1,6
     kFac = kFac*k
-    DampBarn(3) = DampBarn(3)+(BoMaO(indQAt)*dAtO1)**k/real(kFac,kind=wp)
+    DampBarn(3) = DampBarn(3)+(BoMaO*dAtO1)**k/real(kFac,kind=wp)
   end do
-  DampBarn(3) = One-DampBarn(3)*exp(-BoMaO(indQAt)*dAtO1)
+  DampBarn(3) = One-DampBarn(3)*exp(-BoMaO*dAtO1)
 
 end if
 

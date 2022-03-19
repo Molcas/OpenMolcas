@@ -16,10 +16,12 @@ use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, Two, Three
 use Definitions, only: wp, iwp
 
+! Maximum multipole implemented
+#define _MxM_ 2
+
 implicit none
-integer(kind=iwp), parameter :: MxMltp = 2 !IFG
 integer(kind=iwp) :: iLA, iLB
-real(kind=wp) :: dMulA(nTri_Elem1(MxMltp)), Rinv, Colle(3)
+real(kind=wp) :: dMulA(nTri_Elem1(_MxM_)), Rinv, Colle(3)
 integer(kind=iwp) :: i
 real(kind=wp) :: d3, Pi1, Pi2, Sigma
 

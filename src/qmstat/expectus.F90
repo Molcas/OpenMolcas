@@ -11,6 +11,7 @@
 
 subroutine Expectus(QMMethod,HmatOld,Vmat,VpolMat,Smat,MxDim,iVEC,nDim,lEig,iEig,ip_ExpVal)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
@@ -18,7 +19,7 @@ implicit none
 #include "warnings.h"
 character(len=5) :: QMMethod
 integer(kind=iwp) :: MxDim, iVEC, nDIM, iEig, ip_ExpVal
-real(kind=wp) :: HmatOld(MxDim), Vmat(MxDim), VpolMat(MxDim), Smat(MxDim)
+real(kind=wp) :: HmatOld(nTri_Elem(nDim)), Vmat(nTri_Elem(nDim)), VpolMat(nTri_Elem(nDim)), Smat(nTri_Elem(nDim))
 logical(kind=iwp) :: lEig
 integer(kind=iwp) :: iDTmp, iRoot, nDTri, nRoots
 real(kind=r8), external :: Ddot_
@@ -38,7 +39,7 @@ if (QMMethod(1:5) == 'RASSI') then
   ! Loop over roots and compute expectation values according to
   ! well-known formulas.
 
-  nDTri = nDim*(nDim+1)/2
+  nDTri = nTri_Elem(nDim)
   call GetMem('DenTemp','Allo','Real',iDTmp,nDTri)
   call GetMem('ExpVals','Allo','Real',ip_ExpVal,4*nRoots)
   do iRoot=1,nRoots
@@ -59,7 +60,7 @@ if (QMMethod(1:5) == 'RASSI') then
 else if (QMMethod(1:5) == 'SCF  ') then
   ! If it's SCF we are running.
 
-  nDTri = nDim*(nDim+1)/2
+  nDTri = nTri_Elem(nDim)
   call GetMem('DenTemp','Allo','Real',iDTmp,nDTri)
   call GetMem('ExpVals','Allo','Real',ip_ExpVal,4)
   call Densi_MO(Work(iDTmp),Work(iVEC),1,iEig,nDim,nDim)
@@ -83,5 +84,7 @@ end if
 ! What's you major malfunction, numb nuts!
 
 return
+
+call Unused_integer(MxDim)
 
 end subroutine Expectus

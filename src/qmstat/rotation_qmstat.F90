@@ -16,10 +16,12 @@ use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+! Maximum multipole implemented
+#define _MxM_ 2
+
 implicit none
-integer, parameter :: MxMltp = 2 !IFG
 integer(kind=iwp) :: iL
-real(kind=wp) :: dMul(nTri_Elem1(MxMltp)), Rotte(3,3), Sigge
+real(kind=wp) :: dMul(nTri_Elem1(_MxM_)), Rotte(3,3), Sigge
 #include "warnings.h"
 real(kind=wp) :: d1, d2, d3, dMTrans(6), Sig, TD(6,6)
 integer(kind=iwp) :: i, j

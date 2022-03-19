@@ -32,7 +32,7 @@
 !> @param[in]  nntyp    Number of atom-types
 !> @param[out] iMME     Pointer to the multicenter multipole expanded densities of unique pairs of contracted basis functions
 !> @param[out] iCenTri  Set of indices that tells to which center the \f$ i \f$ -th unique pair of basis functions in a lower
-!>                      triangulary stored matrix belongs
+!>                      triangularly stored matrix belongs
 !> @param[out] iCenTriT Just like \p iCenTri, but in square shape
 !> @param[out] nMlt     Highest multipole in MME
 !> @param[out] outxyz   Expansion centers in molecule
@@ -40,22 +40,26 @@
 
 subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri,iCenTriT,nMlt,outxyz,SlExpQ,lSlater)
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: nTri3_Elem, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-integer(kind=iwp) :: nAt, nBas, nOcc(MxAt), natyp(MxAt), nntyp, iMME(nTri3_Elem(MxMltp)), iCenTri(*), iCenTriT(*), nMlt
+integer(kind=iwp) :: nAt, nBas, nOcc(MxAt), natyp(MxAt), nntyp, iMME(nTri3_Elem(MxMltp)), iCenTri(nTri_Elem(nBas)), &
+                     iCenTriT(nBas,nBas), nMlt
 real(kind=wp) :: outxyz(MxQCen,3), SlExpQ(MxMltp+1,MxQCen)
 logical(kind=iwp) :: lSlater
-integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, iMult(MxMltp,MxComp), Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, k, & !IFG
-                     kaunt, kaunter, LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nBasAt(MxBas), nComp, nMul, nSize !IFG
-real(kind=wp) :: CordMul(MxMltp,3), Corr, CorrDip1, CorrDip2, CorrOvl, xyz(MxAt,MxAt,3) !IFG
+integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, iMult(MxMltp,MxComp), Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, k, &
+                     kaunt, kaunter, LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
+real(kind=wp) :: CordMul(MxMltp,3), Corr, CorrDip1, CorrDip2, CorrOvl
 logical(kind=iwp) :: Changed1, Changed2, Lika
 character(len=20) :: MemLab, MMElab
 character(len=2) :: ChCo, ChCo2
+integer(kind=iwp), allocatable :: nBasAt(:)
+real(kind=wp), allocatable :: xyz(:,:,:)
 integer(kind=iwp), parameter :: iX(6) = [1,1,1,2,2,3], iY(6) = [1,2,3,2,3,3]
 character(len=9), parameter :: Integrals(3) = ['MLTPL  0','MLTPL  1','MLTPL  2']
 integer(kind=iwp), external :: IsFreeUnit
@@ -79,7 +83,7 @@ end if
 ! over MxMltpl, which is a fixed number.
 
 outer: do iMlt=1,MxMltp
-  nComp = iMlt*(iMlt+1)/2
+  nComp = nTri_Elem(iMlt)
   do iComp=1,nComp
     irc = -1
     iOpt = 1
@@ -123,21 +127,22 @@ end do outer
 ! function is centered. The other (iCenTri) gives to which center the  *
 ! ith unique basis function product belong.                            *
 !----------------------------------------------------------------------*
+call mma_allocate(xyz,3,nAt,nAt,label='xyz')
 call Get_Centers(nAt,xyz)
 kaunt = 0
 do i=1,nAt
   kaunt = kaunt+1
-  outxyz(kaunt,1) = xyz(i,i,1)
-  outxyz(kaunt,2) = xyz(i,i,2)
-  outxyz(kaunt,3) = xyz(i,i,3)
+  outxyz(kaunt,1) = xyz(1,i,i)
+  outxyz(kaunt,2) = xyz(2,i,i)
+  outxyz(kaunt,3) = xyz(3,i,i)
 end do
 kaunt = nAt
 do i=1,nAt
   do j=1,i-1
     kaunt = kaunt+1
-    outxyz(kaunt,1) = xyz(i,j,1)
-    outxyz(kaunt,2) = xyz(i,j,2)
-    outxyz(kaunt,3) = xyz(i,j,3)
+    outxyz(kaunt,1) = xyz(1,i,j)
+    outxyz(kaunt,2) = xyz(2,i,j)
+    outxyz(kaunt,3) = xyz(3,i,j)
   end do
 end do
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
@@ -153,6 +158,8 @@ if (lSlater) then
     call Quit(_RC_GENERAL_ERROR_)
   end if
 end if
+
+call mma_allocate(nBasAt,nBas,label='nBasAt')
 
 kaunter = 0
 iAt = 0
@@ -208,11 +215,11 @@ do iB1=1,nBas !Count over unique pairs of bas.func.
   end do
 end do
 Ind = 0
-do i=0,nBas-1 !Let's be square.
-  do j=0,i
+do i=1,nBas !Let's be square.
+  do j=1,i
     Ind = Ind+1
-    iCenTriT(1+i+j*nBas) = iCenTri(ind)
-    iCenTriT(1+j+i*nBas) = iCenTri(ind)
+    iCenTriT(i,j) = iCenTri(ind)
+    iCenTriT(j,i) = iCenTri(ind)
   end do
 end do
 
@@ -239,7 +246,7 @@ if (nMlt > 3) then !This number is connected to for how high order of multipole 
 end if
 nMul = 0
 do i=1,nMlt
-  nMul = nMul+i*(i+1)/2
+  nMul = nMul+nTri_Elem(i)
 end do
 do iMlt=1,nMul
   write(ChCo,'(I2.2)') iMlt
@@ -260,7 +267,7 @@ do iB1=1,nBas
     ! The dipole. Translation gives rise to charge.
 
     do i=1,3
-      Corr = (CordMul(2,i)-xyz(nBasAt(iB1),nBasAt(iB2),i))*Work(iMult(1,1)+kaunt)
+      Corr = (CordMul(2,i)-xyz(i,nBasAt(iB1),nBasAt(iB2)))*Work(iMult(1,1)+kaunt)
       Work(iMME(i+1)+kaunt) = Work(iMult(2,i)+kaunt)+Corr
     end do
 
@@ -269,12 +276,12 @@ do iB1=1,nBas
     ! by Seward.
 
     do i=1,6
-      CorrDip1 = (CordMul(3,iX(i))-xyz(nBasAt(iB1),nBasAt(iB2),iX(i)))*(Work(iMult(2,iY(i))+kaunt)+ &
+      CorrDip1 = (CordMul(3,iX(i))-xyz(iX(i),nBasAt(iB1),nBasAt(iB2)))*(Work(iMult(2,iY(i))+kaunt)+ &
                  (CordMul(2,iY(i))-CordMul(3,iY(i)))*Work(iMult(1,1)+kaunt))
-      CorrDip2 = (CordMul(3,iY(i))-xyz(nBasAt(iB1),nBasAt(iB2),iY(i)))*(Work(iMult(2,iX(i))+kaunt)+ &
+      CorrDip2 = (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))*(Work(iMult(2,iX(i))+kaunt)+ &
                  (CordMul(2,iX(i))-CordMul(3,iX(i)))*Work(iMult(1,1)+kaunt))
-      CorrOvl = (CordMul(3,iX(i))-xyz(nBasAt(iB1),nBasAt(iB2),iX(i)))* &
-                (CordMul(3,iY(i))-xyz(nBasAt(iB1),nBasAt(iB2),iY(i)))*Work(iMult(1,1)+kaunt)
+      CorrOvl = (CordMul(3,iX(i))-xyz(iX(i),nBasAt(iB1),nBasAt(iB2)))* &
+                (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))*Work(iMult(1,1)+kaunt)
       Work(iMME(i+4)+kaunt) = Work(iMult(3,i)+kaunt)+CorrDip1+CorrDip2+CorrOvl
     end do
     kaunt = kaunt+1
@@ -283,8 +290,11 @@ end do
 
 ! Deallocations.
 
+call mma_deallocate(nBasAt)
+call mma_deallocate(xyz)
+
 do iMlt=1,nMlt
-  nComp = iMlt*(iMlt+1)/2
+  nComp = nTri_Elem(iMlt)
   do iComp=1,nComp
     write(ChCo,'(I2.2)') iMlt
     write(ChCo2,'(I2.2)') iComp

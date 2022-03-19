@@ -11,6 +11,7 @@
 
 subroutine AOIntegrate(iCStart,nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,ipAOintpar,iV2,N,lmax,Inside)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -24,10 +25,11 @@ integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC
 real(kind=wp) :: Ax, Ay, Az
 logical(kind=iwp) :: Inside(MxAt,3)
 integer(kind=iwp) :: i, iBa, iBaS, iC, iEl, iMO, iOrS, ipPPP, iQ, j, k, kaunt, kauntadetta, m
-real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), Sint(MxBas,MxBasC), SintPar(MxBas,MxBasC), V2(MxBasC,MxOrb_C), x, y, z !IFG
+real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), SintPar(0,0), x, y, z
 logical(kind=iwp) :: PrEne, PrOcc
 character(len=LenIn8) :: BsLbl(MxBasC)
 character(len=30) :: Snack
+real(kind=wp), allocatable :: Sint(:,:), V2(:,:)
 
 !----------------------------------------------------------------------*
 ! Call Transrot. There we compute the rotation matrix for the classical*
@@ -47,6 +49,7 @@ end if
 ! input the original MO-coefficients (stored in V3), and on output the *
 ! rotated.                                                             *
 !----------------------------------------------------------------------*
+call mma_allocate(V2,MxBasC,MxOrb_C,label='V2')
 do iOrS=1,iOrb(2) !Collect original MO-coeff.
   do iBaS=1,nBaseC
     V2(iBaS,iOrS) = V3(iBaS,iOrS)
@@ -77,6 +80,7 @@ if (iPrint >= 25) then !Optional print-out.
   call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,Work(ipPPP),3)
   call GetMem('PrCMO','Free','Real',ipPPP,nBaseC*iOrb(2))
 end if
+call mma_deallocate(V2)
 do m=1,lMax !New basis function origo defined.
   x = Zero
   y = Zero
@@ -94,10 +98,10 @@ end do
 ! Compute overlap between the contracted basis functions on the water  *
 ! molecule presently studied and the QM-molecule.                      *
 !----------------------------------------------------------------------*
+call mma_allocate(Sint,MxBas,MxBasC,label='Sint')
 do i=1,nBaseQ
   do j=1,nBaseC
     Sint(i,j) = Zero
-    SintPar(i,j) = Zero
   end do
 end do
 call ContractOvl(Sint,SintPar,nBaseQ,nBaseC,N,nCent,iEl,iQ_Atoms,nAtomsCC,iPrint,Inside)
@@ -112,6 +116,7 @@ do iC=1,nBaseC
     kaunt = kaunt+1
   end do
 end do
+call mma_deallocate(Sint)
 
 return
 ! Avoid unused argument warnings

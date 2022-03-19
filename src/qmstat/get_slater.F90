@@ -15,6 +15,7 @@
 !----------------------------------------------------------------------*
 subroutine Get_Slater(SlExpQ,LMltSlQ,outxyz,nAt)
 
+use Index_Functions, only: nTri3_Elem, nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -23,13 +24,13 @@ implicit none
 real(kind=wp) :: SlExpQ(MxMltp+1,MxQCen), outxyz(MxQCen,3)
 integer(kind=iwp) :: iC, ind, jhr, k, kk, l, LMltSlQ, Lu, nAt, nS, nSlCentQ, nT, nTestjhr
 real(kind=wp) :: CoordTest(3), SlFactQ(6)
-logical(kind=iwp) :: Exist, lCheck
+logical(kind=iwp) :: Exists, lCheck
 integer(kind=iwp), external :: IsFreeUnit
 
 ! Open the file
 Lu = IsFreeUnit(40)
-call Opnfl('DIFFPR',Lu,Exist)
-if (.not. Exist) then
+call Opnfl('DIFFPR',Lu,Exists)
+if (.not. Exists) then
   write(u6,*)
   write(u6,*) ' Can not locate output file DiffPr. '
   call Quit(_RC_IO_ERROR_READ_)
@@ -42,7 +43,7 @@ read(Lu,101) nSlCentQ
 read(Lu,101) LMltSlQ
 
 ! A first test
-nTestjhr = nAt*(nAt+1)/2
+nTestjhr = nTri_Elem(nAt)
 if (nSlCentQ /= nTestjhr) then
   write(u6,*) 'ERROR! Number of centers in DiffPr file',nSlCentQ,' is different from number of centers obtained from RUNFILE', &
               nTestjhr,' Check your files.'
@@ -68,8 +69,8 @@ do iC=1,nSlCentQ
     write(u6,*) 'ERROR. Something is very wrong, coordinates of DiffPr and MpProp files do not match. DiffPr center',iC
   end if
   do l=0,LMltSlQ
-    nS = l*(l+1)*(l+2)/6
-    nT = (l+1)*(l+2)*(l+3)/6
+    nS = nTri3_Elem(l)
+    nT = nTri3_Elem(l+1)
     read(Lu,104) SlExpQ(l+1,ind)
     read(Lu,105) (SlFactQ(kk),kk=nS+1,nT)
     !read(Lu,105) (SlFactQ(kk,ind),kk=nS+1,nT)

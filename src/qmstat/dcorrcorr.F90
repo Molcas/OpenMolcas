@@ -12,11 +12,12 @@
 ! MP2 density correction.
 subroutine DCorrCorr(Dens,DenCorr,Trace_Diff,iOrb,iOcc)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Dens(*), DenCorr(*), Trace_Diff
 integer(kind=iwp) :: iOrb, iOcc
+real(kind=wp) :: Dens(nTri_Elem(iOrb)), DenCorr(nTri_Elem(iOrb)), Trace_Diff
 integer(kind=iwp) :: i, j, kaunt
 real(kind=wp) :: T, Trace_HF
 

@@ -11,6 +11,7 @@
 
 subroutine OneOverR(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyz)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One, Two, Three, Five
 use Definitions, only: wp, iwp
 
@@ -18,9 +19,9 @@ implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iFil(MxQCen,10), iCNum, iQ_Atoms
-real(kind=wp) :: Ax, Ay, Az, BoMaH(MxAt), BoMaO(MxAt), EEDisp, Eint(MxQCen,10), outxyz(MxQCen,3)
-integer(kind=iwp) :: i, iCi, ijhr, ip, j, jjhr, k
+integer(kind=iwp) :: iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCNum
+real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), outxyz(MxQCen,3)
+integer(kind=iwp) :: i, ijhr, ip, j, jjhr, k
 real(kind=wp) :: Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), Se(5), U(3,5)
 
 EEdisp = Zero
@@ -29,8 +30,7 @@ EEdisp = Zero
 ! the field and etc. and when we already have the numbers, we also do  *
 ! the dispersion interaction.                                          *
 !----------------------------------------------------------------------*
-iCi = (iQ_Atoms*(iQ_Atoms+1))/2
-do k=1,iCi
+do k=1,nTri_Elem(iQ_Atoms)
   Gx = outxyz(k,1)+Ax
   Gy = outxyz(k,2)+Ay
   Gz = outxyz(k,3)+Az
@@ -83,7 +83,7 @@ do k=1,iCi
     ! centers are ignored.                                             *
     !------------------------------------------------------------------*
     if (k <= iQ_atoms) then
-      call DispEnergy(EEDisp,BoMah,BoMaO,Rg(1),Rg(2),Rg(3),Rab3i(1),Rab3i(2),Rab3i(3),k)
+      call DispEnergy(EEDisp,BoMah(k),BoMaO(k),Rg(1),Rg(2),Rg(3),Rab3i(1),Rab3i(2),Rab3i(3),k)
     end if
     !------------------------------------------------------------------*
     ! Now we wrap up the electrostatics.                               *

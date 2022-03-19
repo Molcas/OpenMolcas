@@ -18,7 +18,7 @@ subroutine OneOverR_Sl(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outx
 !     electrostatic operator of the Hamiltonian. 2011-05-30            *
 !----------------------------------------------------------------------*
 
-use Index_Functions, only: nTri3_Elem1
+use Index_Functions, only: nTri3_Elem1, nTri_Elem
 use Constants, only: Zero, One, Two, Three, Five
 use Definitions, only: wp, iwp
 
@@ -26,10 +26,11 @@ implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iFil(MxQCen,10), iCNum, iQ_Atoms
-real(kind=wp) :: Ax, Ay, Az, BoMaH(MxAt), BoMaO(MxAt), EEDisp, Eint(MxQCen,10), outxyz(MxQCen,3), Eint_Nuc(MxAt)
-integer(kind=iwp) :: i, iCi, ijhr, ip, j, jhr, jjhr, k, nMltTemp
-real(kind=wp) :: distMin, EintSl(nTri3_Elem1(MxMltp)), EintSl_Nuc, EintSlTemp, Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), & !IFG
+integer(kind=iwp) :: iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCNum
+real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), outxyz(MxQCen,3), &
+                 Eint_Nuc(iQ_Atoms)
+integer(kind=iwp) :: i, ijhr, ip, j, jhr, jjhr, k, nMltTemp
+real(kind=wp) :: distMin, EintSl(nTri3_Elem1(MxMltp)), EintSl_Nuc, EintSlTemp, Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), &
                  Se(5), U(3,5)
 logical(kind=iwp) :: lAtom, Skip
 
@@ -39,10 +40,8 @@ EEdisp = Zero
 ! the field and etc. and when we already have the numbers, we also do  *
 ! the dispersion interaction.                                          *
 !----------------------------------------------------------------------*
-iCi = (iQ_Atoms*(iQ_Atoms+1))/2
-do k=1,iCi
-  lAtom = .false.
-  if (k <= iQ_atoms) lAtom = .true.
+do k=1,nTri_Elem(iQ_Atoms)
+  lAtom = (k <= iQ_atoms)
   Gx = outxyz(k,1)+Ax
   Gy = outxyz(k,2)+Ay
   Gz = outxyz(k,3)+Az
@@ -91,7 +90,7 @@ do k=1,iCi
     ! that only atom-centers are included, while bonds and virtual     *
     ! centers are ignored.                                             *
     !------------------------------------------------------------------*
-    if (lAtom) call DispEnergy(EEDisp,BoMah,BoMaO,Rg(1),Rg(2),Rg(3),Rab3i(1),Rab3i(2),Rab3i(3),k)
+    if (lAtom) call DispEnergy(EEDisp,BoMaH(k),BoMaO(k),Rg(1),Rg(2),Rg(3),Rab3i(1),Rab3i(2),Rab3i(3),k)
     U(1,1) = Rab(1,1)*Se(1)
     U(2,1) = Rab(2,1)*Se(1)
     U(3,1) = Rab(3,1)*Se(1)

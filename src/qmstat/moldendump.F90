@@ -19,8 +19,8 @@ implicit none
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iC(3), nP, nA, nC
 real(kind=wp) :: CooRef(MxCen,3)
-integer(kind=iwp) :: ind, iP, jC, kk
-real(kind=wp) :: Coo(MxCen,3) !IFG
+integer(kind=iwp) :: ind, iP, jC
+real(kind=wp) :: Coo(3,nC)
 logical(kind=iwp) :: ValidOrNot
 
 ! Clarifying words.
@@ -36,24 +36,24 @@ write(u6,*) '-------------------------------------------------------------------
 
 ! Print total number of particles.
 
-write(u6,*) '  Substitue this line with number of atoms.'
+write(u6,*) '  Substitute this line with number of atoms.'
 write(u6,*)
 do iP=1,nP
   ind = nC*(iP-1)
   do jC=1,nC
-    Coo(jC,1) = Work(iC(1)+ind+jC-1)
-    Coo(jC,2) = Work(iC(2)+ind+jC-1)
-    Coo(jC,3) = Work(iC(3)+ind+jC-1)
+    Coo(1,jC) = Work(iC(1)+ind+jC-1)
+    Coo(2,jC) = Work(iC(2)+ind+jC-1)
+    Coo(3,jC) = Work(iC(3)+ind+jC-1)
   end do
   call IsItValid(Coo,CooRef,ValidOrNot)
   if (.not. ValidOrNot) then
     do jC=1,nC
-      write(u6,92) 'C  ',(Angstrom*Coo(jC,kk),kk=1,3)
+      write(u6,92) 'C  ',Angstrom*Coo(:,jC)
     end do
   else
-    write(u6,92) 'O  ',(Angstrom*Coo(1,kk),kk=1,3)
-    write(u6,92) 'H  ',(Angstrom*Coo(2,kk),kk=1,3)
-    write(u6,92) 'H  ',(Angstrom*Coo(3,kk),kk=1,3)
+    write(u6,92) 'O  ',Angstrom*Coo(:,1)
+    write(u6,92) 'H  ',Angstrom*Coo(:,2)
+    write(u6,92) 'H  ',Angstrom*Coo(:,3)
   end if
 end do
 write(u6,*)

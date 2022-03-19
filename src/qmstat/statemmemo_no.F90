@@ -12,7 +12,7 @@
 ! The reduced MO-basis route. OBSOLOTE!! WORKS BUT IS SLOW!!!
 subroutine StateMMEmo_NO(nAObas,nMObas,nState,nTyp,iCi,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: nTri3_Elem, nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp, r8
 
@@ -21,12 +21,12 @@ implicit none
 #include "WrkSpc.fh"
 integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCi, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(MxBas**2), ipAvRed
 real(kind=wp) :: Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen)
-integer(kind=iwp) :: i, iAcc(ntri3_Elem(MxMltp)), iB1, iB2, iCentre, ipMOG, iS1, iS2, kaunta, kaunter, nSizeA, nSizeM !IFG
+integer(kind=iwp) :: i, iAcc(nTri3_Elem(MxMltp)), iB1, iB2, iCentre, ipMOG, iS1, iS2, kaunta, kaunter, nSizeA, nSizeM
 real(kind=r8) :: Ddot_
 
 kaunter = 0
-nSizeA = nAObas*(nAObas+1)/2
-nSizeM = nMObas*(nMObas+1)/2
+nSizeA = nTri_Elem(nAObas)
+nSizeM = nTri_Elem(nMObas)
 call GetMem('Transition','Allo','Real',ipMOG,nSizeM)
 do i=1,nTyp
   call GetMem('Accumulate','Allo','Real',iAcc(i),nSizeA)

@@ -37,7 +37,8 @@
 
 subroutine ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, OneHalf
 use Definitions, only: wp, iwp, u6
 
@@ -49,17 +50,18 @@ implicit none
 #include "WrkSpc.fh"
 real(kind=wp) :: Cmo(MxBas**2), Occu(MxBas)
 integer(kind=iwp) :: nBas(MxSym), iQ_Atoms, nOcc(MxBas), natyp(MxAt), nntyp
-integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCent(MxBas**2), iCi, iDum, ii, iMME(nTri3_Elem(MxMltp)), iMtot, indMME, iO1, iO2, ipO, & !IFG
-                     iTyp, iX1, iX2, j, k, kaunta, kaunter, kk, nTyp
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCi, iDum, ii, iMME(nTri3_Elem(MxMltp)), iMtot, indMME, iO1, iO2, ipO, iTyp, j, k, &
+                     kaunta, kaunter, kk, nTyp
 real(kind=wp) :: cProd, dipx, dipx0, dipy, dipy0, dipz, dipz0, dTox, dToy, dToz, qEl, Tra
 character(len=20) :: MMElab
 character(len=2) :: ChCo
+integer(kind=iwp), allocatable :: iCent(:,:)
 
 !----------------------------------------------------------------------*
 ! Zeros.                                                               *
 !----------------------------------------------------------------------*
-iCi = iQ_Atoms*(iQ_Atoms+1)/2
-do i=1,iOrb(1)*(iOrb(1)+1)/2
+iCi = nTri_Elem(iQ_Atoms)
+do i=1,nTri_Elem(iOrb(1))
   do j=1,iCi
     Cha(i,j) = Zero
     DipMy(i,1,j) = Zero
@@ -78,6 +80,7 @@ end do
 
 ! First get the expansion in AO-format.
 
+call mma_allocate(iCent,nBas(1),nBas(1),label='iCent')
 call GetMem('Dummy','Allo','Inte',iDum,nBas(1)**2)
 call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iWork(iDum),iCent,nMlt,outxyz,SlExpQ,lSlater)
 call GetMem('Dummy','Free','Inte',iDum,nBas(1)**2)
@@ -93,46 +96,44 @@ end if
 
 nTyp = 0
 do i=1,nMlt
-  nTyp = nTyp+i*(i+1)/2
+  nTyp = nTyp+nTri_Elem(i)
 end do
 call GetMem('OnTheWay','Allo','Real',ipO,nTyp)
 kaunter = 0
 do iO1=1,iOrb(1)
   do iO2=1,iO1
     kaunter = kaunter+1
-    kaunta = 0
     do iB1=1,nBas(1)
       do iB2=1,nBas(1)
-        kaunta = kaunta+1
-        iX1 = max(iB1,iB2)
-        iX2 = min(iB1,iB2)
-        indMME = iX2+iX1*(iX1-1)/2
+        kaunta = iCent(iB2,iB1)
+        indMME = iTri(iB1,iB2)
         cProd = Cmo(iB1+(iO1-1)*nBas(1))*Cmo(iB2+(iO2-1)*nBas(1))
         do iTyp=1,nTyp
           Work(ipO+iTyp-1) = cProd*Work(iMME(iTyp)+indMME-1)
         end do
-        Cha(kaunter,iCent(kaunta)) = Cha(kaunter,iCent(kaunta))+Work(ipO)
-        DipMy(kaunter,1,iCent(kaunta)) = DipMy(kaunter,1,iCent(kaunta))+Work(ipO+1)
-        DipMy(kaunter,2,iCent(kaunta)) = DipMy(kaunter,2,iCent(kaunta))+Work(ipO+2)
-        DipMy(kaunter,3,iCent(kaunta)) = DipMy(kaunter,3,iCent(kaunta))+Work(ipO+3)
-        Quad(kaunter,1,iCent(kaunta)) = Quad(kaunter,1,iCent(kaunta))+Work(ipO+4)
-        Quad(kaunter,2,iCent(kaunta)) = Quad(kaunter,2,iCent(kaunta))+Work(ipO+5)
-        Quad(kaunter,3,iCent(kaunta)) = Quad(kaunter,3,iCent(kaunta))+Work(ipO+7) !Why seven? See @details
-        Quad(kaunter,4,iCent(kaunta)) = Quad(kaunter,4,iCent(kaunta))+Work(ipO+6)
-        Quad(kaunter,5,iCent(kaunta)) = Quad(kaunter,5,iCent(kaunta))+Work(ipO+8)
-        Quad(kaunter,6,iCent(kaunta)) = Quad(kaunter,6,iCent(kaunta))+Work(ipO+9)
+        Cha(kaunter,kaunta) = Cha(kaunter,kaunta)+Work(ipO)
+        DipMy(kaunter,1,kaunta) = DipMy(kaunter,1,kaunta)+Work(ipO+1)
+        DipMy(kaunter,2,kaunta) = DipMy(kaunter,2,kaunta)+Work(ipO+2)
+        DipMy(kaunter,3,kaunta) = DipMy(kaunter,3,kaunta)+Work(ipO+3)
+        Quad(kaunter,1,kaunta) = Quad(kaunter,1,kaunta)+Work(ipO+4)
+        Quad(kaunter,2,kaunta) = Quad(kaunter,2,kaunta)+Work(ipO+5)
+        Quad(kaunter,3,kaunta) = Quad(kaunter,3,kaunta)+Work(ipO+7) !Why seven? See @details
+        Quad(kaunter,4,kaunta) = Quad(kaunter,4,kaunta)+Work(ipO+6)
+        Quad(kaunter,5,kaunta) = Quad(kaunter,5,kaunta)+Work(ipO+8)
+        Quad(kaunter,6,kaunta) = Quad(kaunter,6,kaunta)+Work(ipO+9)
       end do
     end do
   end do
 end do
 call GetMem('OnTheWay','Free','Real',ipO,nTyp)
+call mma_deallocate(iCent)
 
 ! Deallocate the AO-multipoles.
 
 do i=1,nTyp
   write(ChCo,'(I2.2)') i
   write(MMElab,*) 'MME'//ChCo
-  call GetMem(MMElab,'Free','Real',iMME(i),nBas(1)*(nBas(1)+1)/2)
+  call GetMem(MMElab,'Free','Real',iMME(i),nTri_Elem(nBas(1)))
 end do
 
 ! Put quadrupoles in Buckingham form.
@@ -141,7 +142,7 @@ kaunter = 0
 do i1=1,iOrb(1)
   do i2=1,i1
     kaunter = kaunter+1
-    do k=1,ici
+    do k=1,iCi
       do j=1,6
         Quad(kaunter,j,k) = Quad(kaunter,j,k)*OneHalf
       end do
@@ -169,11 +170,11 @@ qtot = Zero
 dTox = Zero
 dToy = Zero
 dToz = Zero
-call GetMem('TotMME','Allo','Real',iMtot,10*iQ_Atoms*(iQ_Atoms+1)/2)
-call dCopy_(10*iQ_Atoms*(iQ_Atoms+1)/2,[Zero],0,Work(iMtot),1)
+call GetMem('TotMME','Allo','Real',iMtot,10*nTri_Elem(iQ_Atoms))
+call dCopy_(10*nTri_Elem(iQ_Atoms),[Zero],0,Work(iMtot),1)
 do ii=1,iOrb(1)
-  i = ii*(ii+1)/2
-  do j=1,iQ_Atoms*(iQ_Atoms+1)/2
+  i = ntri_Elem(ii)
+  do j=1,nTri_Elem(iQ_Atoms)
     qEl = qEl+Cha(i,j)*Occu(ii)
     Work(iMtot+10*(j-1)) = Work(iMtot+10*(j-1))+Cha(i,j)*Occu(ii)
     dipx = dipx+DipMy(i,1,j)*Occu(ii)
@@ -197,7 +198,7 @@ if (iPrint >= 10) then
   write(u6,*)
   write(u6,*) '    Distributed multipole in each centre'
   write(u6,*) '    (Compare with output from MpProp.)'
-  do j=1,iQ_Atoms*(iQ_Atoms+1)/2
+  do j=1,nTri_Elem(iQ_Atoms)
     if (j <= iQ_Atoms) then
       Work(iMtot+10*(j-1)) = Work(iMtot+10*(j-1))-Chanuc(j)
     end if
@@ -207,7 +208,7 @@ if (iPrint >= 10) then
     write(u6,*)
   end do
 end if
-call GetMem('TotMME','Free','Real',iMtot,4*iQ_Atoms*(iQ_Atoms+1)/2)
+call GetMem('TotMME','Free','Real',iMtot,10*nTri_Elem(iQ_Atoms))
 do i=1,iQ_Atoms
   qtot = qtot+ChaNuc(i)
   dTox = dTox+ChaNuc(i)*outxyz(i,1)

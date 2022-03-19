@@ -11,6 +11,7 @@
 
 subroutine PlaceIt(Coord,iQ_Atoms,iCNum)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -19,10 +20,14 @@ implicit none
 #include "qminp.fh"
 real(kind=wp) :: Coord(MxAt*3)
 integer(kind=iwp) :: iQ_Atoms, iCNum
-real(kind=wp) :: Atemp, AvstPart(MxPut), CordstTemp(MxPut*MxCen,3), S, Sbig !IFG
-integer(kind=iwp) :: i, iextr, ind, IndexSet(MxPut), iTemp, iz, j, k !IFG
+integer(kind=iwp) :: i, iextr, ind, iTemp, iz, j, k
+real(kind=wp) :: Atemp, S, Sbig
 logical(kind=iwp) :: Changed
 character(len=200) :: Head
+integer(kind=iwp), allocatable :: IndexSet(:)
+real(kind=wp), allocatable :: AvstPart(:), CordstTemp(:,:)
+
+call mma_allocate(AvstPart,nPart,label='AvstPart')
 
 !For each solvent particle, compute the smallest distance to any QM-atom from the oxygen of water.
 do i=1,nPart
@@ -39,7 +44,8 @@ do i=1,nPart
   end do
 end do
 
-do i=1,MxPut
+call mma_allocate(IndexSet,nPart,label='IndexSet')
+do i=1,nPart
   IndexSet(i) = i
 end do
 
@@ -61,7 +67,10 @@ do
   if (.not. Changed) exit
 end do
 
+call mma_deallocate(AvstPart)
+
 ! Put coordinates of solvent suchwise that smallest distances goes first.
+call mma_allocate(CordstTemp,nPart*nCent,3,label='CordstTemp')
 do i=1,nPart
   do j=1,nCent
     CordstTemp((i-1)*nCent+j,1) = Cordst((i-1)*nCent+j,1)
@@ -77,6 +86,8 @@ do i=1,nPart
     Cordst((i-1)*nCent+j,3) = CordstTemp((ind-1)*nCent+j,3)
   end do
 end do
+call mma_deallocate(IndexSet)
+call mma_deallocate(CordstTemp)
 
 ! Substitute the first coordinate slots with QM-molecule, or since we have
 ! ordered above, this is equivalent with removing closest solvents and there put QM-mol.

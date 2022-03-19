@@ -11,7 +11,8 @@
 
 subroutine Analyze_Q(iQ_Atoms)
 
-use Constants, only: Zero, Half
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -21,9 +22,10 @@ integer(kind=iwp) :: iQ_Atoms
 #include "qminp.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-integer(kind=iwp), parameter :: iHUltraMax = 1000
 integer(kind=iwp) :: i, iCNum, iCo(3), iCStart, iDiskSa, iDiskTemp, iDum(1), iH, iHMax, iHowMSamp, ind, iSamp, j, k, l
-real(kind=wp) :: dist, dist2, dR, Dum, Etot, gR(MxAt,3,iHUltraMax), Ract !IFG
+real(kind=wp) :: dist, dist2, dR, Dum, Etot, Ract
+real(kind=wp), allocatable :: gR(:,:,:)
+integer(kind=iwp), parameter :: iHUltraMax = 1000
 
 Dum = Zero
 !----------------------------------------------------------------------*
@@ -56,12 +58,14 @@ write(u6,*) 'Total number of particles:',nPart
 !----------------------------------------------------------------------*
 ! BEGIN ANALYZING!                                                     *
 !----------------------------------------------------------------------*
+call mma_allocate(gR,iQ_Atoms,nAtom,iHUltraMax,label='gR')
+gR(:,:,:) = Zero
 do iSamp=1,iHowMSamp
-!----------------------------------------------------------------------*
-! Begin by getting the coordinates for this configuration. They are    *
-! stored in Work(iCo(i)) where i=1 means x-coordinate, i=2 y-coordinate*
-! and i=3 z-coordinate.                                                *
-!----------------------------------------------------------------------*
+  !--------------------------------------------------------------------*
+  ! Begin by getting the coordinates for this configuration. They are  *
+  ! stored in Work(iCo(i)) where i=1 means x-coordinate, i=2           *
+  ! y-coordinate and i=3 z-coordinate.                                 *
+  !--------------------------------------------------------------------*
   call WrRdSim(iLuSaIn,2,iDiskSa,iTcSim,64,Etot,Ract,nPart,Dum,Dum,Dum)
   iDiskSa = iTcSim(1)
   do i=1,3
@@ -90,7 +94,7 @@ do iSamp=1,iHowMSamp
             call Quit(_RC_INTERNAL_ERROR_)
           end if
         end if
-        gR(i,j,iH) = gR(i,j,iH)+1/dist2
+        gR(i,j,iH) = gR(i,j,iH)+One/dist2
       end do
     end do
   end do
@@ -112,9 +116,11 @@ do i=1,iQ_Atoms
   write(u6,*) 'Quantum atom ',i
   write(u6,'(5X,A,5X,5(A,I2,1X))') 'Separation',('Solvent atom',k,k=1,nAtom)
   do iH=1,iHMax
-    write(u6,'(F15.7,5(F15.7))') dR*iH,(gR(i,j,iH),j=1,nAtom)
+    write(u6,'(F15.7,5(F15.7))') dR*iH,gR(i,:,iH)
   end do
 end do
+
+call mma_deallocate(gR)
 
 call DaClos(iLuSaIn)
 

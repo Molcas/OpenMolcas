@@ -11,6 +11,7 @@
 
 subroutine Chk_OneHam(nBas)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -28,7 +29,7 @@ Lu_One = 49
 Lu_One = IsFreeUnit(Lu_One)
 Label_Read = 'OneHam  '
 Label_Pure = 'OneHam 0'
-nBT = nBas(1)*(nBas(1)+1)/2
+nBT = nTri_Elem(nBas(1))
 call OpnOne(irc,0,'ONEINT',Lu_One)
 call GetMem('Read','Allo','Real',iOneR,nBT+4)
 call GetMem('Pure','Allo','Real',iOneP,nBT+4)

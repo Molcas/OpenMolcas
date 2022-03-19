@@ -18,6 +18,7 @@
 !----------------------------------------------------------------------*
 function NoverP_Q(N,P)
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp, u6
 
 implicit none
@@ -32,7 +33,7 @@ if (N >= 6) then
   write(u6,*) 'Must extend NoverP_Q!'
   call Quit(_RC_INTERNAL_ERROR_)
 else
-  ind = (N+1)*(N+2)/2-(N-P)
+  ind = nTri_Elem1(N)-(N-P)
   NoverP_Q = Bino(ind)
 end if
 

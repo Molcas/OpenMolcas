@@ -12,6 +12,8 @@
 ! In this routine H_0 in RASSI basis is constructed, possibly with external perturbation added on.
 subroutine RasH0(nB)
 
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -22,14 +24,16 @@ integer(kind=iwp) :: nB
 #include "qm2.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
-integer(kind=iwp) :: i, iAUX, iExt, iopt, ipAOG, ipAOx, ipMOG, ipMOx, irc, iS1, iS2, iSmLbl, iSqAO, iSqMO, j, k, kaunter, Lu_One, &
+integer(kind=iwp) :: i, iAUX, iExt, iopt, ipAOG, ipAOx, ipMOG, ipMOx, irc, iS1, iS2, iSmLbl, iSqAO, iSqMO, j, kaunter, Lu_One, &
                      nBTri, nSize
-real(kind=wp) :: DiagH0(MxState), Element !IFG
+real(kind=wp) :: Element
+real(kind=wp), allocatable :: DiagH0(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=r8), external :: Ddot_
 
-nBTri = nB*(nB+1)/2
+nBTri = nTri_Elem(nB)
 if (.not. AddExt) then
+  call mma_allocate(DiagH0,nState,label='DiagH0')
   kaunter = 0
   do i=1,nState
     do j=1,i
@@ -38,7 +42,8 @@ if (.not. AddExt) then
     DiagH0(i) = HmatState(kaunter)
   end do
   write(u6,*) '     -----RASSI H_0 eigenvalues:'
-  write(u6,99) (DiagH0(k),k=1,nState)
+  write(u6,99) DiagH0(:)
+  call mma_deallocate(DiagH0)
 else
 
   ! Collect one-electron perturbations.
@@ -76,7 +81,7 @@ else
       end do
       call GetMem('Transition','Free','Real',ipAOG,nBTri)
     else
-      nSize = nRedMO*(nRedMO+1)/2
+      nSize = nTri_Elem(nRedMO)
       call GetMem('Transition','Allo','Real',ipMOG,nSize)
       call GetMem('AUX','Allo','Real',iAUX,nRedMO*nB)
       call GetMem('SquareAO','Allo','Real',iSqAO,nB**2)

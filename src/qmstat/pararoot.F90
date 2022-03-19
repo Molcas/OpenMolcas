@@ -32,6 +32,7 @@
 
 subroutine ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTokJ, KBoltzmann
 use Definitions, only: wp, iwp, u6
 
@@ -41,9 +42,10 @@ logical(kind=iwp) :: CalledBefore, SampleThis
 #include "maxi.fh"
 #include "qminp.fh"
 #include "files_qmstat.fh"
-integer(kind=iwp) :: i, iEnsemb, iPa, iPermutation(2,MxParT), iTemp = 0, j, mTemp !IFG
-real(kind=wp) :: B1, B2, BigDelta, CordstTEMP(MxCen*MxPut,3), Dum, Dum1, E1, E2, Expe, Expran, PerType, R1, R2, T1, T2 !IFG
+integer(kind=iwp) :: i, iEnsemb, iPa, iPermutation(2,MxParT), iTemp = 0, j, mTemp
+real(kind=wp) :: B1, B2, BigDelta, Dum, Dum1, E1, E2, Expe, Expran, PerType, R1, R2, T1, T2
 logical(kind=iwp) :: WeiterBitte, Accept
+real(kind=wp), allocatable :: CordstTEMP(:,:)
 real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ
 real(kind=wp), external :: Ranf
 
@@ -57,6 +59,8 @@ if (.not. CalledBefore) then
 end if
 
 ! See what to do.
+
+call mma_allocate(CordstTEMP,nCent*nPart,3,label='CordstTEMP')
 
 do
   if (iTemp < nTemp) then
@@ -220,6 +224,8 @@ do
 
   end if
 end do
+
+call mma_deallocate(CordstTEMP)
 
 return
 

@@ -12,6 +12,7 @@
 subroutine BornMayerBK(iQ_Atoms,BoMaH,BoMaO)
 ! With the Brdarski-Karlstrom scheme, construct the Born-Mayer parameters.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -19,9 +20,10 @@ implicit none
 #include "maxi.fh"
 #include "qminp.fh"
 integer(kind=iwp) :: iQ_Atoms
-real(kind=wp) :: BoMaH(MxAt), BoMaO(MxAt)
+real(kind=wp) :: BoMaH(iQ_Atoms), BoMaO(iQ_Atoms)
 integer(kind=iwp) :: i, j
-real(kind=wp) :: rBdi(MxCen), rBdiQ(MxAt), rdi2 !IFG
+real(kind=wp) :: rBdi(2), rdi2
+real(kind=wp), allocatable :: rBdiQ(:)
 real(kind=wp), parameter :: cjhr = 0.1734_wp ! What is this number?
 
 ! The solvent part.
@@ -36,6 +38,7 @@ end do
 
 ! The solute part.
 
+call mma_allocate(rBdiQ,iQ_Atoms,label='rBdiQ')
 do i=1,iQ_Atoms
   rdi2 = Zero
   do j=1,3
@@ -54,6 +57,7 @@ do i=1,iQ_Atoms
     write(6,'(A,i2,A,2(f12.4))') '    Atom ',i,' (H/O):',BoMaH(i),BoMaO(i)
   end if
 end do
+call mma_deallocate(rBdiQ)
 
 return
 

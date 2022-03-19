@@ -11,6 +11,7 @@
 
 subroutine ExtractR(iLu,i9,Etot,xyzMy,Hmat,iC,iDt,nState,HMatOld,xyzQu,lExtr,iExtr_Eig,iExtr_Atm,ip_ExpVal,ip_ExpCento,ENR,ENP)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -36,7 +37,7 @@ end if
 if (lExtr(4)) then
   write(iLu,*) 'Eigenvalues of RASSI-matrix'
   do i=1,iExtr_Eig
-    ind = i*(i+1)/2
+    ind = nTri_Elem(i)
     write(iLu,'(F15.8)') Hmat(ind)
   end do
 end if

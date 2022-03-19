@@ -11,6 +11,7 @@
 
 subroutine MomentMod(ipRe,ipNRe,iCmo,nBRe,nBNRe,LindMOs,iS1,iS2,First,DiffMax)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -19,7 +20,7 @@ implicit none
 #include "qminp.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ipRe, ipNRe, iCmo, nBRe, nBNRe, iS1, iS2
-logical(kind=iwp) :: LindMOs(MxBas), First
+logical(kind=iwp) :: LindMOs(nBNRe), First
 real(kind=wp) :: DiffMax
 integer(kind=iwp) :: i, icomp, iopt, ipDx, ipDxM, ipDxRe, ipDxsq, ipDy, ipDyM, ipDyRe, ipDysq, ipDz, ipDzM, ipDzRe, ipDzsq, &
                      ipTEMP, irc, iSmLbl, j, kaunt1, kaunt2, nSize1, nSize2
@@ -35,8 +36,8 @@ if (First .and. (iPrint >= 5)) then
   First = .false.
 end if
 
-nSize1 = nBNRe*(nBNRe+1)/2
-nSize2 = nBRe*(nBRe+1)/2
+nSize1 = nTri_Elem(nBNRe)
+nSize2 = nTri_Elem(nBRe)
 call GetMem('DipX','Allo','Real',ipDx,nSize1+4)
 call GetMem('DipY','Allo','Real',ipDy,nSize1+4)
 call GetMem('DipZ','Allo','Real',ipDz,nSize1+4)
