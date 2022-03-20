@@ -11,6 +11,11 @@
 
 subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iBigForDeAll,nSizeBig,ip_UNCLE_MOE,nB)
 
+use qmstat_global, only: AvElcPot, CAFieldG, CBFieldG, CFexp, ChaNuc, Cordst, DelFi, DelR, DelX, Diel, DispDamp, dLJrep, &
+                         FieldDamp, Forcek, HmatState, iBigT, iExtr_Atm, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, info_atom, Inter, &
+                         ipAvRed, iPrint, iRead, iSeed, lExtr, lSlater, MoAveRed, nAtom, nCent, nMacro, nMicro, nPart, nPol, &
+                         nRedMO, nState, nTemp, outxyzRAS, PertNElcInt, Pres, Qmeq, QmProd, ParallelT, RasCha, RasDip, RasQua, &
+                         rStart, SaFilIn, SaFilUt, SimEx, SURF, Temp, xyzMyI, xyzMyQ, xyzQuQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Ten, Half, Pi, Angstrom, atmToau, auTokJ, deg2rad, KBoltzmann
@@ -18,10 +23,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
-#include "qmcom.fh"
-#include "qm2.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), nCnC_C(MxBasC), iBigForDeAll, nSizeBig, ip_UNCLE_MOE, nB
@@ -54,7 +55,7 @@ real(kind=wp), external :: Ranf
 
 ! Numbers, initializations, conversions.
 
-Ract = Rstart         !Initial radie
+Ract = rStart         !Initial radie
 delX = delX/Angstrom  !angstrom-->bohr
 delFi = delFi*deg2rad !degree-->radian
 delR = delR/Angstrom  !angstrom-->bohr
@@ -97,14 +98,14 @@ timeMC = Zero
 
 ! If some damping has been requested, prepare it here and print.
 
-if ((Dispdamp .or. FieldDamp) .and. (iPrint >= 8)) then
+if ((DispDamp .or. FieldDamp) .and. (iPrint >= 8)) then
   write(u6,*)
   write(u6,*) '-----Various damping data.'
   write(u6,*)
 end if
 call mma_allocate(BoMaH,iQ_Atoms,label='BoMaH')
 call mma_allocate(BoMaO,iQ_Atoms,label='BoMaO')
-if (Dispdamp) then
+if (DispDamp) then
 
   ! Construct the Born-Mayer parameters, a la Brdarski-Karlstrom
 
@@ -113,7 +114,7 @@ end if
 
 ! Damping of field.
 
-if (Fielddamp) then
+if (FieldDamp) then
   if (iPrint >= 8) then
     write(u6,*) '  Damping the field between Qm-region and solvent.'
     write(u6,*) '  E_damp=E_0*(1-exp(alpha*distance))^N'
@@ -208,7 +209,7 @@ outer: do
     call Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
   else
     if (iExtra > 0) then
-      call NyPart(iExtra,nPart,Cordst,Rstart,nCent,iSeed)
+      call NyPart(iExtra,nPart,Cordst,rStart,nCent,iSeed)
     end if
     if (iPrint >= 10) then
       write(Head,*) 'Coordinates of the initial distribution.'
@@ -223,10 +224,10 @@ outer: do
 
   ! Some numbers.
 
-  ncpart = Ncent*nPart
+  ncpart = nCent*nPart
   ncParm = ncPart-(nCent*icNum)
   nClas = nPart-iCNum
-  indma = npart*npol
+  indma = nPart*nPol
 
   ! Put QM-molecule in its place.
 
@@ -434,7 +435,7 @@ outer: do
           iAcc = iAcc+1
         else
           Expe = exp(-Dele)
-          Expran = ranf(iseed)
+          Expran = ranf(iSeed)
           if (iPrint >= 10) then
             write(u6,*) '         Positive energy change!'
             write(u6,*) '         Boltzmann weight:',Expe

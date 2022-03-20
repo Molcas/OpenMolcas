@@ -45,15 +45,14 @@
 !******JoseMEP the last three variables are included to the MEP calculation
 subroutine Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBasCC,nCnC_C,nOcc,natyp,nntyp)
 
+use qmstat_global, only: Alfa, ATitle, BasOri, Beta, c_orbene, ChaNuc, Cont, CT, Dont, iCharOnBasC, iCharOnBasQ, info_atom, &
+                         iOrb, iPrint, iQang, iQn, iV1, iWoGehenC, iWoGehenQ, Joblab, lmax, mPrimus, nBA_C, nBA_Q, nBonA_C, &
+                         nBonA_Q, nCBoA_C, nCBoA_Q, nPrimus, PotNuc, QmType, SavOri, Trans, V3
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
-#include "qm1.fh"
-#include "integral.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(MxSym), nBasCC(1), nCnC_C(MxBasC), nOcc(MxBas), natyp(MxAt), nntyp
@@ -74,7 +73,7 @@ integer(kind=iwp), external :: IsFreeUnit
 !----------------------------------------------------------------------*
 
 !----------------------------------------------------------------------*
-! Print the joblabel. It is obtained in get_input.f                    *
+! Print the joblabel. It is obtained in get_input                      *
 !----------------------------------------------------------------------*
 if (ATitle) then
   lLine = len(Line)

@@ -11,6 +11,7 @@
 
 subroutine AverMEP(Kword,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iQ_Atoms,nBas,nOcc,natyp,nntyp)
 
+use qmstat_global, only: AvElcPot, ChaNuc, FieldNuc, iPrint, nMlt, outxyz, PertNElcInt, SlExpQ
 use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
@@ -18,10 +19,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qm1.fh"
-#include "qmcom.fh"
-#include "files_qmstat.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 character(len=4) :: Kword
@@ -238,7 +235,7 @@ select case (Kword(1:4))
     end if
 
     ! The non-Electrostatic perturbation is added. The PertNElcInt array comes
-    ! through the include file qminp.fh.
+    ! through the module qmstat_global
 
     if (iPrint >= 10) then
       call TriPrt('PertNElcInt-e',' ',PertNElcInt,nBas)

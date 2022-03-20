@@ -11,13 +11,13 @@
 
 subroutine MomentMod(ipRe,ipNRe,iCmo,nBRe,nBNRe,LindMOs,iS1,iS2,First,DiffMax)
 
+use qmstat_global, only: iPrint
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ipRe, ipNRe, iCmo, nBRe, nBNRe, iS1, iS2
 logical(kind=iwp) :: LindMOs(nBNRe), First

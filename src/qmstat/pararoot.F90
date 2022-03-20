@@ -32,6 +32,7 @@
 
 subroutine ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)
 
+use qmstat_global, only: Cordst, iLuStIn, iLuStUt, iSeed, nCent, nPart, nStFilT, nTemp, ParaTemps, StFilIn, StFilUt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTokJ, KBoltzmann
 use Definitions, only: wp, iwp, u6
@@ -40,8 +41,6 @@ implicit none
 real(kind=wp) :: Ract, BetaBol, Etot
 logical(kind=iwp) :: CalledBefore, SampleThis
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
 integer(kind=iwp) :: i, iEnsemb, iPa, iPermutation(2,MxParT), iTemp = 0, j, mTemp
 real(kind=wp) :: B1, B2, BigDelta, Dum, Dum1, E1, E2, Expe, Expran, PerType, R1, R2, T1, T2
 logical(kind=iwp) :: WeiterBitte, Accept
@@ -113,7 +112,7 @@ do
       iPermutation(2,2) = 1
     else
 
-      PerType = Ranf(iseed)
+      PerType = Ranf(iSeed)
       if (PerType < Half) then
 
         if (mod(nTemp,2) == 1) then
@@ -170,7 +169,7 @@ do
       Expe = exp(BigDelta)
       Accept = .true.
       if (Expe < One) then
-        Expran = ranf(iseed)
+        Expran = ranf(iSeed)
         if (Expe < Expran) Accept = .false.
       end if
 

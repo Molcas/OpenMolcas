@@ -18,13 +18,14 @@ subroutine OneOverR_Sl(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outx
 !     electrostatic operator of the Hamiltonian. 2011-05-30            *
 !----------------------------------------------------------------------*
 
+use qmstat_global, only: CAFieldG, CBFieldG, CFexp, Cordst, Cut_Elc, DifSlExp, FieldDamp, lMltSlC, lQuad, nCent, nMlt, nPart, &
+                         nPol, nSlSiteC, Qsta, SlExpC, SlExpQ, SlFactC, SlPC
 use Index_Functions, only: nTri3_Elem1, nTri_Elem
 use Constants, only: Zero, One, Two, Three, Five
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCNum
 real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), outxyz(MxQCen,3), &
@@ -120,7 +121,7 @@ do k=1,nTri_Elem(iQ_Atoms)
         ! quadrupole is L=2. In QmStat they are 1, 2 and 3, respectively.
         nMltTemp = nMlt-1
 
-        call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,nMltTemp,SlExpQ(1,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
+        call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,nMltTemp,SlExpQ(0,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
 
         !--------------------------------------------------------------*
         ! Change in the order of field gradients because subroutine    *
@@ -145,7 +146,7 @@ do k=1,nTri_Elem(iQ_Atoms)
         nMltTemp = nMlt-1
 
         ijhr = min(nMltTemp,1)
-        call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,ijhr,SlExpQ(1,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
+        call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,ijhr,SlExpQ(0,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
 
         do jhr=1,4
           Eint(k,jhr) = Eint(k,jhr)-EintSl(jhr) ! Check below why it is a subtraction and not a sum

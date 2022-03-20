@@ -12,14 +12,13 @@
 ! Read all MO-transformed integrals and construct zeroth Fock-matrix.
 subroutine ScfH0(nBas)
 
+use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, iSupM, iV1, nExtAddOns, ScalExt
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qm1.fh"
 #include "tratoc.fh"
 #include "lenin.fh"
 #include "maxbfn.fh"

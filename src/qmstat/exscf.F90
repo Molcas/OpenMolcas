@@ -11,6 +11,7 @@
 
 subroutine ExScf(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itri,Smat,SmatPure,InCutOff,ipAOSum)
 
+use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iOrb, iPrint, iV1, lExtr, lmax, nCent, nPart, outxyz
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -18,9 +19,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
-#include "qm1.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itri, ipAOSum
 real(kind=wp) :: Ax, Ay, Az, Smat(itri), SmatPure(itri)

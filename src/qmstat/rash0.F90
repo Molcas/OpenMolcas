@@ -12,6 +12,8 @@
 ! In this routine H_0 in RASSI basis is constructed, possibly with external perturbation added on.
 subroutine RasH0(nB)
 
+use qmstat_global, only: AddExt, ExtLabel, HmatState, iBigT, iCompExt, ipAvRed, iPrint, MoAveRed, nExtAddOns, nRedMo, nState, &
+                         ScalExt
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -20,8 +22,6 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 integer(kind=iwp) :: nB
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qm2.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, iAUX, iExt, iopt, ipAOG, ipAOx, ipMOG, ipMOx, irc, iS1, iS2, iSmLbl, iSqAO, iSqMO, j, kaunter, Lu_One, &

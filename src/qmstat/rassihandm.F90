@@ -41,6 +41,8 @@
 
 subroutine RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
 
+use qmstat_global, only: AddExt, ChaNuc, ChargedQM, CT, HmatSOld, HmatState, iBigT, ipAvRed, iPrint, lSlater, MoAveRed, nMlt, &
+                         nRedMO, nState, outxyzRAS, qTot, RasCha, RasDip, RasQua, SlExpQ
 use Index_Functions, only: nTri3_Elem, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
@@ -48,9 +50,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
-#include "qm2.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: nBas(MxSym), iQ_Atoms, nOcc(MxBas), natyp(MxAt), nntyp
 integer(kind=iwp) :: i, iCi, iDum, iMME(nTri3_Elem(MxMltp)), j, k, kaunt, kaunter, kk, l, nSize, nTyp

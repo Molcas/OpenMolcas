@@ -12,6 +12,8 @@
 subroutine PolScf(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTri,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iMOC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
+use qmstat_global, only: ChaNuc, CT, DenCorrD, FockM, HHmat, iOcc1, iOrb, iSupM, lExtr, Mp2DensCorr, nPart, nPol, PotNuc, qTot, &
+                         Trace_MP2, xyzMyI, xyzMyP, xyzMyQ, xyzQuQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -19,9 +21,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
-#include "qm1.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCStart, iTri, icnum, NVarv, &

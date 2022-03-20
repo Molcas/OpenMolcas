@@ -11,14 +11,13 @@
 
 subroutine AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
 
+use qmstat_global, only: CasOri, Cordst, iOrb, iPrint, iQn, nCent, SavOri, V3
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "integral.fh"
 #include "WrkSpc.fh"
 #include "lenin.fh"
 integer(kind=iwp) :: nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, ipAOint, iV2, N, lmax
@@ -66,7 +65,7 @@ end do
 if (iPrint >= 25) then !Optional print-out.
   PrOcc = .false.
   PrEne = .false.
-  write(snack,'(A,I3)') 'Rotated orbitals for water ',N/ncent
+  write(snack,'(A,I3)') 'Rotated orbitals for water ',N/nCent
   call GetMem('PrCMO','Allo','Real',ipPPP,nBaseC*iOrb(2))
   kauntadetta = 0
   do i=1,iOrb(2)

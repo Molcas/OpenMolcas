@@ -15,7 +15,7 @@
 !> @brief
 !>   Add the field from the QM-region onto the solvent.
 !>   Include the field from the polarizabilities in the solvent onto the QM-region.
-!>   (The effect of the static field is taken care of in helstate.f)
+!>   (The effect of the static field is taken care of in helstate)
 !> @author A. Ohrn
 !>
 !> @details
@@ -45,6 +45,7 @@
 subroutine Polins(Energy,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc,RoMatSt,xyzQuQ, &
                   CT)
 
+use qmstat_global, only: ChargedQM, Cordst, nCent, nPart, nPol, nState, outxyzRAS, Pol, RasCha, RasDip, RasQua
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
@@ -52,11 +53,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qm2.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iAtom2, iCI, iFil(iCi,10), iCstart, iQ_Atoms
-real(kind=wp) :: Energy, VpolMat(nTri_Elem(nState)), Fil(npart*npol,3), polfac, Poli(iCi,10), xyzmyq(3), xyzmyi(3), xyzmyp(3), &
+real(kind=wp) :: Energy, VpolMat(nTri_Elem(nState)), Fil(nPart*nPol,3), polfac, Poli(iCi,10), xyzmyq(3), xyzmyi(3), xyzmyp(3), &
                  qtot, ChaNuc(MxAt), RoMatSt(nTri_Elem(nState)), xyzQuQ(6), CT(3)
 integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, kk, l
 real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qs, qQ(6), Trace1, Trace2, xyzMyC(3)
@@ -69,7 +68,7 @@ call mma_allocate(Qm,iCi,label='Qm')
 call mma_allocate(Dm,iCi,3,label='Dm')
 call mma_allocate(QQm,iCi,6,label='QQm')
 call mma_allocate(Eil,iAtom2,3,label='Eil')
-iCnum = iCStart/Ncent
+iCnum = iCStart/nCent
 do i=1,iCi
   Qm(i) = Zero
   if (i <= iQ_Atoms) Qm(i) = -ChaNuc(i)

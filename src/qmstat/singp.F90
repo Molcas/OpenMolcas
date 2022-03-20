@@ -11,13 +11,13 @@
 
 subroutine SingP(nCalls,iQ_Atoms,ipStoreCoo,nPart2)
 
+use qmstat_global, only: Cordst, DelFi, DelR, DelX, nAtom, nCent, nMacro, nMicro, nPart, Qmeq
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: nCalls, iQ_Atoms, ipStoreCoo, nPart2
 #include "maxi.fh"
-#include "qminp.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iCent, Initial1, Initial2, iPart, j, kaunter, nAllQm
 

@@ -39,13 +39,14 @@
 
 subroutine ContractOvl(Sint,nBaseQ,nBaseC,N,nCent,iQ_Atoms,nAtomsCC,iPrint,Inside)
 
+use qmstat_global, only: Alfa, BasOri, Beta, CasOri, Cont, Dont, iQang, iQn, iWoGehenC, iWoGehenQ, mPrimus, nBA_C, nBA_Q, nBonA_C, &
+                         nBonA_Q, nCBoA_C, nCBoA_Q, nPrimus, Trans
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "integral.fh"
 #include "WrkSpc.fh"
 real(kind=wp) :: Sint(MxBas,MxBasC)
 integer(kind=iwp) :: nBaseQ, nBaseC, N, nCent, iQ_Atoms, nAtomsCC, iPrint

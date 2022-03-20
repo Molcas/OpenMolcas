@@ -33,6 +33,8 @@
 
 subroutine Geogen(Ract,Rold,iCNum,iQ_Atoms)
 
+use qmstat_global, only: CordIm, Cordst, DelFi, DelR, delX, Diel, DipIm, iSeed, iSta, nCent, nCha, nPart, nPol, OldGeo, Sqrs, Qim, &
+                         Qimp, Qmeq, QmProd, Qsta, xyzMyp
 use Constants, only: Zero, One, Two, Three, Ten, Half
 use Definitions, only: wp, iwp
 
@@ -40,8 +42,6 @@ implicit none
 real(kind=wp) :: Ract, Rold
 integer(kind=iwp) :: iCNum, iQ_Atoms
 #include "maxi.fh"
-#include "qmcom.fh"
-#include "qminp.fh"
 integer(kind=iwp) :: i, iAt, ii, iImage, ij, Ind, iQsta, j, k
 real(kind=wp) :: A, A2, B, CB, Cx, Cy, Cz, DiFac, Dq(3), Dx, q, qq, S2, SB, Sqrts2, x, xNy, y, yNy, z, zNy
 real(kind=wp), external :: Ranf
@@ -60,9 +60,9 @@ end do
 !----------------------------------------------------------------------*
 if (Qmeq .or. QmProd) then !Which coordinates to keep fixed.
   iSta = iCNum+1  !This sees to that the QM-molecule is excluded from the moves below.
-  Dq(1) = delX*(ranf(iseed)-Half)
-  Dq(2) = delX*(ranf(iseed)-Half)
-  Dq(3) = delX*(ranf(iseed)-Half)
+  Dq(1) = delX*(ranf(iSeed)-Half)
+  Dq(2) = delX*(ranf(iSeed)-Half)
+  Dq(3) = delX*(ranf(iSeed)-Half)
   do iAt=1,iQ_Atoms
     do ii=1,3
       Cordst(iAt,ii) = Cordst(iAt,ii)+Dq(ii) !Move QM-mol.
@@ -73,11 +73,11 @@ end if
 ! Obtain the random-stuff and make small geometry change.              *
 !----------------------------------------------------------------------*
 Rold = Ract
-Ract = Ract+(ranf(iseed)-Half)*DelR !Change in cavity radius
+Ract = Ract+(ranf(iSeed)-Half)*DelR !Change in cavity radius
 do i=iSta,nPart !Which molecules to give new coordinates.
   ij = (i-1)*nCent
   do j=1,3
-    Dx = DelX*(ranf(iseed)-Half)
+    Dx = DelX*(ranf(iSeed)-Half)
     do k=1,nCent
       ii = ij+k
       Cordst(ii,j) = Cordst(ii,j)+Dx !Make translation
@@ -86,7 +86,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
   Cx = Cordst(ij+1,1) !The oxygen, around which we rotate
   Cy = Cordst(ij+1,2)
   Cz = Cordst(ij+1,3)
-  B = (ranf(iseed)-Half)*DelFi
+  B = (ranf(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent !Rotate around the oxygen in yz-plane, i.e. around x-axis.
@@ -97,7 +97,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
     Cordst(ij+k,2) = yNy+Cy
     Cordst(ij+k,3) = zNy+Cz
   end do
-  B = (ranf(iseed)-Half)*DelFi
+  B = (ranf(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent !And now rotate in xz-plane
@@ -108,7 +108,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
     Cordst(ij+k,1) = xNy+Cx
     Cordst(ij+k,3) = zNy+Cz
   end do
-  B = (ranf(iseed)-Half)*DelFi
+  B = (ranf(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent  !To your surprise, here we rotate in the xy-plane
@@ -122,8 +122,8 @@ do i=iSta,nPart !Which molecules to give new coordinates.
 end do
 ! Here all other water molecules rotate around one of the three axes,
 ! except the ones we fix, which in a QM-simulation is the quantum particle.
-A = ranf(iseed)
-B = (ranf(iseed)-Half)*DelFi/Ten
+A = ranf(iSeed)
+B = (ranf(iSeed)-Half)*DelFi/Ten
 CB = cos(B)
 SB = sin(B)
 if (A*Three <= One) then !make it random whether we rotate around x, y or z.
@@ -173,7 +173,7 @@ if (Qmeq .or. QmProd) then
 end if
 iQsta = nCent-nCha+1
 A2 = Ract**2
-DiFac = -(DiEl-One)/(DiEl+One)
+DiFac = -(Diel-One)/(Diel+One)
 do i=1,3
   xyzMyp(i) = Zero
 end do
@@ -190,7 +190,7 @@ do i=iImage,nPart
     if (j <= nPol) then
       QImp(Ind) = Zero
       do k=1,3
-        dim(Ind,k) = Zero
+        DipIm(Ind,k) = Zero
       end do
     end if
     if (j >= iQsta) then

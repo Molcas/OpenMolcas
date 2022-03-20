@@ -41,7 +41,7 @@
 !> @param[in] Cmo  The MO-coefficients
 !> @param[in] iQ   The angular type of the \f$ i \f$ -th basis (observe, not the \f$ i \f$ -th basis function, see givemeinfo)
 !> @param[in] iOrb Number of orbitals
-!> @param[in] lMax Number of bases (not basis functions), see qfread.f
+!> @param[in] lMax Number of bases (not basis functions), see ::qfread
 !> @param[in] nCnC Number of contracted basis functions of same type as the \f$ i \f$ -th basis.
 !>                 For example 7s4p will have vector ``7,7,7,7,7,7,7,4,4,4,4``.
 !***********************************************************************

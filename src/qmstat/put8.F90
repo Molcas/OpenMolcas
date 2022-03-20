@@ -12,13 +12,12 @@
 ! PUT NUMBERS ON STARTFILE.
 subroutine Put8(Ract,Etot,Gmma,Gam,Esav)
 
+use qmstat_global, only: Cordst, iLuStut, iPrint, iTcSim, nCent, nPart, StFilUt
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Ract, Etot, Gmma, Gam, Esav
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iCT, iDisk, j
 character(len=200) :: Head

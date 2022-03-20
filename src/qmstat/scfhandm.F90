@@ -37,6 +37,7 @@
 
 subroutine ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
 
+use qmstat_global, only: Cha, ChaNuc, ChargedQM, DipMy, iOrb, iPrint, lSlater, Mp2DensCorr, nMlt, outxyz, qTot, Quad, SlExpQ
 use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, OneHalf
@@ -44,9 +45,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
-#include "qm1.fh"
 #include "WrkSpc.fh"
 real(kind=wp) :: Cmo(MxBas**2), Occu(MxBas)
 integer(kind=iwp) :: nBas(MxSym), iQ_Atoms, nOcc(MxBas), natyp(MxAt), nntyp
@@ -200,7 +198,7 @@ if (iPrint >= 10) then
   write(u6,*) '    (Compare with output from MpProp.)'
   do j=1,nTri_Elem(iQ_Atoms)
     if (j <= iQ_Atoms) then
-      Work(iMtot+10*(j-1)) = Work(iMtot+10*(j-1))-Chanuc(j)
+      Work(iMtot+10*(j-1)) = Work(iMtot+10*(j-1))-ChaNuc(j)
     end if
     write(u6,*) '      Center: ',j
     write(u6,*) '      Charge: ',-Work(iMtot+10*(j-1))

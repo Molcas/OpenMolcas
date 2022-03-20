@@ -11,13 +11,13 @@
 
 subroutine PlaceIt(Coord,iQ_Atoms,iCNum)
 
+use qmstat_global, only: Cordst, iPrint, nCent, nPart
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
 real(kind=wp) :: Coord(MxAt*3)
 integer(kind=iwp) :: iQ_Atoms, iCNum
 integer(kind=iwp) :: i, iextr, ind, iTemp, iz, j, k

@@ -12,13 +12,12 @@
 ! GET NUMBERS FROM STARTFILE.
 subroutine Get8(Ract,Etot)
 
+use qmstat_global, only: Cordst, iLuStIn, iPrint, iTcSim, nCent, nPart, StFilIn
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Ract, Etot
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iCT, iDisk, j
 real(kind=wp) :: Esub, Gamold, GaOld

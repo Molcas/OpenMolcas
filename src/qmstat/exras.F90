@@ -11,6 +11,8 @@
 
 subroutine ExRas(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itristate,SmatRas,SmatPure,InCutOff,ipAOSum)
 
+use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iBigT, iOrb, ipAvRed, lExtr, lmax, MoAveRed, nCent, nPart, &
+                         nRedMO, nState, outxyzRAS
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -18,9 +20,6 @@ use Definitions, only: wp, iwp, r8
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
-#include "qm2.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itristate, ipAOSum
 real(kind=wp) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate)

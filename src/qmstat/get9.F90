@@ -12,15 +12,14 @@
 ! GET NUMBERS FROM SAMPFILE.
 subroutine Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
 
+use qmstat_global, only: Cordst, delFi, delR, delX, iLuSaIn, iPrint, iTcSim, nCent, nMacro, nMicro, nPart
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
 #include "WrkSpc.fh"
 real(kind=wp) :: Ract, Coord(MxAt*3)
-integer(kind=iwp) :: info_atom(MxAt), iQ_Atoms, iDiskSa
+integer(kind=iwp) :: iQ_Atoms, info_atom(iQ_Atoms), iDiskSa
 character(len=200) :: Head
 integer(kind=iwp) :: i, iCT, j
 real(kind=wp) :: Esub, Etot, Gamold, GaOld

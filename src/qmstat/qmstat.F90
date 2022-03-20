@@ -11,6 +11,7 @@
 
 subroutine Qmstat(ireturn)
 
+use qmstat_global, only: Anal, EdSt, iOrb, lExtr, MoAveRed, nCent, Qmeq, QmProd, QmType, SingPoint
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
@@ -21,7 +22,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: ireturn
 #include "maxi.fh"
-#include "qminp.fh"
 #include "warnings.h"
 integer(kind=iwp) :: iBigDeAll, iCi, ip, ipStoreCoo, iQ_Atoms, iSupDeAll, iV1DeAll, nAtomsCC, nBas(1), nBas_C(1), nCalls, &
                      NCountField, nntyp, nPart2, nRM, nS, nSizeBig
@@ -97,16 +97,10 @@ else
     if (SingPoint) call SingP(nCalls,iQ_Atoms,ipStoreCoo,nPart2)
 
     ! Decide which type of calculation we are to run. At this stage only
-    ! QM equilibration and QM production is available. Should probably
-    ! be so in the future, hence all-classical should be removed
-    ! at some stage. Also, ordinary sampfile analysis is performed
-    ! separately.
+    ! QM equilibration and QM production is available.
+    ! Also, ordinary sampfile analysis is performed separately.
 
-    if (Smeq .or. Smprod) then
-      write(u6,*)
-      write(u6,*) 'All classical simulation is currently not available.'
-      call Quit(_RC_GENERAL_ERROR_)
-    else if (Qmeq .or. Qmprod) then  !Qmeq=.true. is default option.
+    if (Qmeq .or. Qmprod) then  !Qmeq=.true. is default option.
       if (QmType(1:3) == 'SCF') then
         call EqScf(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iSupDeAll,iV1DeAll)
       else if (QmType(1:4) == 'RASS') then

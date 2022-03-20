@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "maxi.fh"
 real(kind=wp) :: Coord(MxAt*3), Cordst(MxCen*MxPut,3)
-integer(kind=iwp) :: info_atom(MxAt), iQ_Atoms
+integer(kind=iwp) :: iQ_Atoms, info_atom(iQ_Atoms)
 integer(kind=iwp) :: i
 real(kind=wp) :: CMSamx, CMSamy, CMSamz, CMSewx, CMSewy, CMSewz, Tx, Ty, Tz, Wtot
 

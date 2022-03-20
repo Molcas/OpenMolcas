@@ -11,13 +11,12 @@
 
 subroutine EditStart()
 
+use qmstat_global, only: cDumpForm, Cordst, DelOrAdd, iPrint, iSeed, iTcSim, nAdd, nCent, nDel, nPart, NrStarti, NrStartu, rStart
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: iC(3), iC2(3)
@@ -152,14 +151,14 @@ if (DelOrAdd(2)) then
   write(FilSlut,'(A5,i1.1)') 'STFIL',NrStartu
   call DaName(iLu,FilSlut)
   iDisk = 0
-  call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,RStart,nPart,Gamold,Gaold,Esub)
+  call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,rStart,nPart,Gamold,Gaold,Esub)
   iTcSim(1) = iDisk
   do l=1,3
     call dDaFile(iLu,1,Work(iC2(l)),nPart*nCent,iDisk)
     iTcSim(1+l) = iDisk
   end do
   iDisk = 0
-  call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,RStart,nPart,Gamold,Gaold,Esub)
+  call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,rStart,nPart,Gamold,Gaold,Esub)
   call DaClos(iLu)
   if (iPrint >= 10) then
     write(Head,*) 'Final coordinates'

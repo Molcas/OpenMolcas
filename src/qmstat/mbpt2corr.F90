@@ -12,6 +12,7 @@
 ! Not properly worked through. Do not use!
 subroutine Mbpt2Corr(nBas,Cmo)
 
+use qmstat_global, only: DenCorrD, iOrb, iPrint, Trace_MP2
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -19,8 +20,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "maxi.fh"
-#include "qm1.fh"
-#include "qminp.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: nBas

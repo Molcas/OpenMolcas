@@ -50,7 +50,7 @@ implicit none
 #include "warnings.h"
 integer(kind=iwp) :: nAt, nBas, nOcc(MxAt), natyp(MxAt), nntyp, iMME(nTri3_Elem(MxMltp)), iCenTri(nTri_Elem(nBas)), &
                      iCenTriT(nBas,nBas), nMlt
-real(kind=wp) :: outxyz(MxQCen,3), SlExpQ(MxMltp+1,MxQCen)
+real(kind=wp) :: outxyz(MxQCen,3), SlExpQ(0:MxMltp,MxQCen)
 logical(kind=iwp) :: lSlater
 integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, iMult(MxMltp,MxComp), Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, k, &
                      kaunt, kaunter, LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize

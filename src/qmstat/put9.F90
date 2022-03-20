@@ -12,12 +12,11 @@
 ! PUT NUMBERS ON SAMPFILE.
 subroutine Put9(Etot,Ract,iHowMSamp,Gmma,Gam,Esav,iDisk)
 
-use  Definitions, only: wp, iwp
+use qmstat_global, only: Cordst, iLuSaUt, iPrint, iTcSim, nCent, nPart
+use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
 #include "WrkSpc.fh"
 real(kind=wp) :: Etot, Ract, Gmma, Gam, Esav
 integer(kind=iwp) :: i, iCT, iDiskHead, iDiskOld, iHowMSamp, iDisk, j

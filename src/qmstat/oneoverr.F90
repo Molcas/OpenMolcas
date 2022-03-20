@@ -11,13 +11,13 @@
 
 subroutine OneOverR(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyz)
 
+use qmstat_global, only: CAFieldG, CBFieldG, CFexp, Cordst, FieldDamp, nCent, nPart, nPol, Qsta
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One, Two, Three, Five
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCNum
 real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), outxyz(MxQCen,3)

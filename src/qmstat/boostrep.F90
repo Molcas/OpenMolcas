@@ -11,6 +11,7 @@
 
 subroutine BoostRep(AddRep,SmatPure,iVecs,nSize,InCutOff)
 
+use qmstat_global, only: exrep10, exrep4, exrep6, iOcc1, nEqState, QmType
 use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -20,7 +21,6 @@ real(kind=wp) :: AddRep, SmatPure(*)
 integer(kind=iwp) :: iVecs, nSize
 logical(kind=iwp) :: InCutOff
 #include "maxi.fh"
-#include "qminp.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ind1, ind2, iO1, iO2, j, kaunter
 real(kind=wp) :: Scalar

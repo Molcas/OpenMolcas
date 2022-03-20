@@ -11,6 +11,7 @@
 
 subroutine Analyze_Q(iQ_Atoms)
 
+use qmstat_global, only: iLuSaIn, iTcSim, nAtom, nCent, nPart, SaFilIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -18,8 +19,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: iQ_Atoms
 #include "maxi.fh"
-#include "files_qmstat.fh"
-#include "qminp.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, iCNum, iCo(3), iCStart, iDiskSa, iDiskTemp, iDum(1), iH, iHMax, iHowMSamp, ind, iSamp, j, k, l

@@ -11,6 +11,7 @@
 
 subroutine MoReduce(nBas,MOsToKeep,ipAvRedMO)
 
+use qmstat_global, only: iBigT, iPrint, nState, ThrsRedOcc
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -18,8 +19,6 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qm2.fh"
 #include "WrkSpc.fh"
 #include "lenin.fh"
 integer(kind=iwp) :: nBas(MxSym), MOsToKeep, ipAvRedMO

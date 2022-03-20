@@ -14,6 +14,7 @@
 !----------------------------------------------------------------------*
 function ExNemo(i,j,a)
 
+use qmstat_global, only: Sexre1, Sexre2, Sexrep
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,7 +22,6 @@ real(kind=wp) :: ExNemo
 integer(kind=iwp) :: i, j
 real(kind=wp) :: a
 #include "maxi.fh"
-#include "qminp.fh"
 
 !The function
 ExNemo = exp(-Sexrep(i,j)/a)*Sexre1(i,j)+Sexre2(i,j)*(a**20)

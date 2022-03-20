@@ -12,42 +12,35 @@
 ! Subroutine with purpose to initialize and set defaults for the input section.
 subroutine Qmstat_Init()
 
+use qmstat_global, only: Anal, ATitle, ChargedQM, Cordst, Cut_Elc, Cut_Ex1, Cut_Ex2, DelFi, DelOrAdd, DelR, DelX, Diel, DifSlExp, &
+                         Disp, DispDamp, dLJRep, EdSt, EigV, EneLim, Exdt1, Exdtal, FieldDamp, FieldNuc, Forcek, iExtr_Atm, &
+                         iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iNrIn, iNrUt, iOrb, iPrint, iRead, iSeed, itMax, lCiSelect, &
+                         lExtr, lMltSlC, lQuad, lSlater, MoAveRed, Mp2DensCorr, nAtom, nCent, nCha, nEqState, nLvlShift, nMacro, &
+                         nMicro, nPart, nPol, nSlSiteC, ParallelT, Pol, PolLim, Pres, Qmeq, QmProd, Qsta, RassiM, rStart, SaFilIn, &
+                         SaFilUt, Sexre1, Sexre2, Sexrep, SimEx, SlExpC, SlFactC, SlPC, StFilIn, StFilUt, Surf, Temp
 use Constants, only: Zero, One, Six, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: i, j
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
 
 !IO_stuff
 StFilIn = 'STFIL0'
-SAFilIn = 'SAFIL0'
+SaFilIn = 'SAFIL0'
 StFilUt = 'STFIL0'
-SAFilUt = 'SAFIL0'
-BlockIn = 'BLOCIN'
-BlockUt = 'BLOCUT'
+SaFilUt = 'SAFIL0'
 SimEx = 'EXTRA0'
 !Jose: File for the optimization procedure
 FieldNuc = 'AVENUC'
-do i=1,MxJobs
-  write(JbName(i),'(A,i3.3)') 'JOB',i
-end do
 RassiM = 'RASSIM'
-GammaO = 'GAMORB'
 EigV = 'EIGV'
-AddOns(1) = 'ADDON1'
-AddOns(2) = 'ADDON2'
-AddOns(3) = 'ADDON3'
 iNrIn = -1
 iNrUt = 0
 iLuStIn = 8+iNrIn
 iLuStUt = 16+iNrUt
 iLuSaIn = 24+iNrIn
 iLuSaUt = 32+iNrUt
-iLuBlockIn = 3
-iLuBlockUt = 4
 iRead = 0
 ! Defaults
 nEqState = 1
@@ -58,7 +51,7 @@ DelFi = Zero
 DelR = Zero
 Temp = 300.0_wp
 ISEED = 791204
-IPrint = 1
+iPrint = 1
 NMACRO = 1
 NMICRO = 1
 RSTART = 80.0_wp
@@ -169,11 +162,9 @@ Surf = 30.0_wp
 iOrb(2) = 5
 Diel = 80.0_wp
 iExtra = 0
-Smeq = .false.
 Qmeq = .false.
-Fielddamp = .false.
-Dispdamp = .false.
-Smprod = .false.
+FieldDamp = .false.
+DispDamp = .false.
 QmProd = .false.
 ChargedQM = .false.
 ATitle = .false.
@@ -187,7 +178,6 @@ EdSt = .false.
 do i=1,12
   DelOrAdd(i) = .false.
   lExtr(i) = .false.
-  lAnal(i) = .false.
 end do
 lSlater = .true.
 lQuad = .false.

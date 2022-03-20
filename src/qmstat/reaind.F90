@@ -11,6 +11,7 @@
 
 subroutine ReaInd(iGP,iDT,iDistIm,iCNum,indma,ncparm,Sum1,s90um)
 
+use qmstat_global, only: CordIm, Cordst, DipIm, nCent, nCha, nPart, nPol, Qimp, Qsta
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
@@ -18,8 +19,6 @@ implicit none
 integer(kind=iwp) :: iGP(3), iDT(3), iDistIm, iCNum, indma, ncparm
 real(kind=wp) :: Sum1, s90um
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, Inc, Inc2, j, k, l
 real(kind=wp) :: D1x, D1y, D1z, Q1, Q2, x, X1, y,z
@@ -59,9 +58,9 @@ S90um = Zero
 do i=iCnum+1,nPart
   do j=1,nPol
     Q1 = Qimp((i-1)*nPol+j)
-    D1x = dim((i-1)*nPol+j,1)
-    D1y = dim((i-1)*nPol+j,2)
-    D1z = dim((i-1)*nPol+j,3)
+    D1x = DipIm((i-1)*nPol+j,1)
+    D1y = DipIm((i-1)*nPol+j,2)
+    D1z = DipIm((i-1)*nPol+j,3)
     x = CordIm((i-1)*nCent+j,1)
     y = CordIm((i-1)*nCent+j,2)
     z = CordIm((i-1)*nCent+j,3)

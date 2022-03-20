@@ -10,17 +10,25 @@
 !***********************************************************************
 
 ! Process input to QMSTAT. All input variables are stored in
-! qminp.fh which in turn are initialized in qmstat_init.
+! qmstat_global which in turn are initialized in qmstat_init.
 subroutine Get_Qmstat_Input(iQ_Atoms)
 
+use qmstat_global, only: AddExt, Anal, ATitle, CAFieldG, CBFieldG, cDumpForm, CFExp, CharDi, CharDiQ, ContrStateB, Cordst, &
+                         Cut_Elc, Cut_Ex1, Cut_Ex2, dCIRef, DelFi, DelOrAdd, DelR, DelX, Diel, DifSlExp, Disp, DispDamp, dLJRep, &
+                         dLvlShift, EdSt, Enelim, ExtLabel, Exdt1, Exdtal, Exrep10, Exrep2, Exrep4, Exrep6, FieldDamp, Forcek, &
+                         iCIInd, iCompExt, iExtr_Atm, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iLvlShift, iNrExtr, &
+                         iNrIn, iNrUt, Inter, iOcc1, iOrb, iPrint, iRead, iSeed, itMax, Joblab, lCiSelect, lExtr, lMltSlC, lQuad, &
+                         lSlater, MoAveRed, Mp2DensCorr, nAdd, nAtom, nCent, nCha, nCIRef, nDel, nEqState, nExtAddOns, nLvlShift, &
+                         nMacro, nMicro, nPart, nPol, NrFiles, NrStarti, NrStartu, NrStates, nSlSiteC, nStFilT, nTemp, ParallelT, &
+                         ParaTemps, Pol, Pollim, Pres, Qmeq, QmProd, QmType, Qsta, QuaDi, QuaDiQ, rStart, SaFilIn, SaFilUt, &
+                         ScalExt, Sexre1, Sexre2, Sexrep, SimEx, SingPoint, SlExpC, SlFactC, SlPC, StFilIn, StFilUt, Surf, Temp, &
+                         ThrsCont, ThrsRedOcc, Udisp
 use Index_Functions, only: nTri3_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iQ_Atoms
 #include "maxi.fh"
-#include "qminp.fh"
-#include "files_qmstat.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, iChrct, iTemp, j, k, kaunt, kk, Last, LuRd, NExtr_Atm, njhr, nS, nT
 real(kind=wp) :: CoTEMP1(3), CoTEMP2(3), CoTEMP3(3), CoTEMP4(3), CoTEMP5(3), dTemp, SlExpTemp, SlFacTemp(6)
@@ -95,7 +103,7 @@ do
           case ('RADI')
             ! <<<RADIe>>>
             Key = Get_Ln(LuRd)
-            call Get_F1(1,Rstart)
+            call Get_F1(1,rStart)
           case ('PERM')
             ! <<<PERMitivity>>>
             Key = Get_Ln(LuRd)
@@ -163,8 +171,8 @@ do
       ! <<<STEPs>>>   Specify how many macro- and microsteps.
 
       Key = Get_Ln(LuRd)
-      call Get_I1(1,NMacro)
-      call Get_I1(2,NMicro)
+      call Get_I1(1,nMacro)
+      call Get_I1(2,nMicro)
 
     case ('RUN ')
       ! <<<RUN >>>   What type of simulation are we to run?
@@ -463,7 +471,7 @@ do
                   ! <<<DISPersion>>>  Dispersion damping parameters. This part
                   !                   should have a AUTO keyword which collects
                   !                   default parameters from the MpProp file.
-                  Dispdamp = .true.
+                  DispDamp = .true.
                   Key = Get_Ln(LuRd)
                   ! Damping numbers for solvent
                   call Get_F(1,CharDi(1),1)
@@ -485,7 +493,7 @@ do
                   end do
                 case ('FIEL')
                   ! <<<FIELd>>> Parameters for damping electric field.
-                  Fielddamp = .true.
+                  FieldDamp = .true.
                   Key = Get_Ln(LuRd)
                   call Get_F1(1,CAFieldG)
                   call Get_F1(2,CBFieldG)

@@ -11,13 +11,13 @@
 
 subroutine Extract(iLu,i9,Etot,xyzMy,Hmat,iC,nMatBas,xyzQuQ,ip_ExpVal,ip_ExpCento,ENR,ENP)
 
+use qmstat_global, only: iExtr_Eig, lExtr, QmType
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iLu, i9, iC, nMatBas, ip_ExpVal, ip_ExpCento
 real(kind=wp) :: Etot, xyzMY(3), Hmat(*), xyzQuQ(6), ENR, ENP
 #include "maxi.fh"
-#include "qminp.fh"
 
 ! Just pass on the numbers according to QM-method.
 

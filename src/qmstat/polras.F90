@@ -12,6 +12,8 @@
 subroutine PolRas(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTriState,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iSTC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
+use qmstat_global, only: ChaNuc, CT, dCIRef, HmatSOld, HmatState, iCIInd, iExtr_Eig, lCiSelect, lExtr, nCIRef, nEqState, nPart, &
+                         nPol, nState, qTot, xyzMyI, xyzMyP, xyzMyQ, xyzQuQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -19,9 +21,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
-#include "qm2.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCStart, iTriState, icnum, &
                      NVarv, iSTC, ip_ExpVal

@@ -15,7 +15,7 @@
 !> @brief
 !>   Add the field from the QM-region onto the solvent. Include the field from the
 !>   polarizabilities in the solvent onto the QM-region.
-!>   (The effect of the static field is taken care of in hel.f)
+!>   (The effect of the static field is taken care of in hel)
 !> @author A. Ohrn
 !>
 !> @details
@@ -26,7 +26,7 @@
 !> solvent. We also include the reaction field from the QM-region.
 !> Then, with the new field from the QM-region included, we compute
 !> the field from the polarizabiolities in the solvent onto the QM-region,
-!> which is done just like in hel.f.
+!> which is done just like in ::hel.
 !>
 !> @param[out]    Energy  The energy of the electrostatic interaction
 !> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
@@ -43,17 +43,16 @@
 subroutine Polink(Energy,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,RoMat, &
                   xyzQuQ,CT)
 
+use qmstat_global, only: Cha, ChargedQM, Cordst, DipMy, nCent, nPart, nPol, outxyz, Pol, Quad
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qm1.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iAtom2, iCi, iFil(iCi,10), iCstart, iTri, iQ_Atoms
-real(kind=wp) :: Energy, VpolMat(iTri), Fil(npart*npol,3), polfac, Poli(iCi,10), qTot, ChaNuc(MxAt), xyzMyQ(3), xyzMyI(3), &
+real(kind=wp) :: Energy, VpolMat(iTri), Fil(nPart*nPol,3), polfac, Poli(iCi,10), qTot, ChaNuc(MxAt), xyzMyQ(3), xyzMyI(3), &
                  xyzMyP(3), RoMat(iTri), xyzQuQ(6), CT(3)
 integer(kind=iwp) :: i, iCnum, Iu, j, k, kk, l
 real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qQ(6), qs, Trace1, Trace2, xyzMyC(3)
@@ -66,7 +65,7 @@ call mma_allocate(Qm,iCi,label='Qm')
 call mma_allocate(Dm,iCi,3,label='Dm')
 call mma_allocate(QQm,iCi,6,label='QQm')
 call mma_allocate(Eil,iAtom2,3,label='Eil')
-iCnum = iCStart/Ncent
+iCnum = iCStart/nCent
 do i=1,iCi
   Qm(i) = Zero
   if (i <= iQ_Atoms) Qm(i) = -ChaNuc(i) !Here is nuclear contribution added to atoms.

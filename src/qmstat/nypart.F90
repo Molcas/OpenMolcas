@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine NYPART(iExtra,nPart,COORD,Rstart,nCent,iSeed)
+subroutine NYPART(iExtra,nPart,COORD,rStart,nCent,iSeed)
 
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
@@ -18,7 +18,7 @@ implicit none
 #include "maxi.fh"
 #include "warnings.h"
 integer(kind=iwp) :: iExtra, nPart, nCent, iSeed
-real(kind=wp) :: COORD(MxCen*MxPut,3), Rstart
+real(kind=wp) :: COORD(MxCen*MxPut,3), rStart
 integer(kind=iwp) :: I, IA, IIN, iMAXVAR, IND, IVARV
 real(kind=wp) :: DR, DX, DY, DZ, R2, RLIM, RLIM2, rlm, X, Y, Z
 real(kind=wp), external :: Ranf
@@ -27,7 +27,7 @@ real(kind=wp), external :: Ranf
 iMAXVAR = 100*iExtra**2
 IIN = 1
 IVARV = 0
-RLIM = RSTART-8.5_wp
+RLIM = rStart-8.5_wp
 rlm = rlim*Two
 RLIM2 = RLIM**Two
 ! Check if not all molecules been put out in reasonable time

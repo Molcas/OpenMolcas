@@ -22,7 +22,7 @@
 !>
 !> @details
 !> Rather easy to follow. This subroutine is a slightly modified
-!> copy of hel.f. The interesting quantities are collected in
+!> copy of ::hel. The interesting quantities are collected in
 !> \p Vmat and are later to be added to the 'RASSI-matrix'.
 !>
 !> @param[in]  Eint    Field from static part of solvent on the Qm-molecule centers

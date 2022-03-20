@@ -11,6 +11,7 @@
 
 subroutine PolSolv(iDT,iFI,iFP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2inv,difac,nSize)
 
+use qmstat_global, only: Cordst, DipIm, nCent, nPart, nPol, Sqrs, Qimp
 use Definitions, only: wp, iwp
 
 implicit none
@@ -18,8 +19,6 @@ integer(kind=iwp) :: iDT(3), iFI(3), iFP(3), iCNum, nSize
 real(kind=wp) :: xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), &
                  zzi(nSize,nSize), Gri(nSize,nSize), FFp(nSize,3), r2inv, difac
 #include "maxi.fh"
-#include "qminp.fh"
-#include "qmcom.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, idel1, idel2, IndCor, Inddt, j
 real(kind=wp) :: Agr, Skal, Ta, Tal
@@ -29,7 +28,7 @@ real(kind=wp) :: Agr, Skal, Ta, Tal
 ! track on indices may be difficult.
 
 do j=1,nPol
-  IndCor = j+(iCnum-1)*Ncent
+  IndCor = j+(iCnum-1)*nCent
   Inddt = j+(iCnum-1)*nPol
   do i=iCnum+1,nPart
     IndCor = IndCor+nCent
@@ -40,9 +39,9 @@ do j=1,nPol
     Tal = -Difac*Ta
     Qimp(Inddt) = tal*agr
     ! Image dipoles: Reflect dipole vector in radial vector. This is vector geometry at its best.
-    dim(IndDt,1) = (Tal*Cordst(IndCor,1)*2+DiFac*Work(iDt(1)+IndDt-1))*Agr**3
-    dim(IndDt,2) = (Tal*Cordst(IndCor,2)*2+DiFac*Work(iDt(2)+IndDt-1))*Agr**3
-    dim(IndDt,3) = (Tal*Cordst(IndCor,3)*2+DiFac*Work(iDt(3)+IndDt-1))*Agr**3
+    DipIm(IndDt,1) = (Tal*Cordst(IndCor,1)*2+DiFac*Work(iDt(1)+IndDt-1))*Agr**3
+    DipIm(IndDt,2) = (Tal*Cordst(IndCor,2)*2+DiFac*Work(iDt(2)+IndDt-1))*Agr**3
+    DipIm(IndDt,3) = (Tal*Cordst(IndCor,3)*2+DiFac*Work(iDt(3)+IndDt-1))*Agr**3
   end do
 end do
 do j=1,3
@@ -67,11 +66,11 @@ do i=1+(nPol*iCNum),nPart*nPol !The real part.
 end do
 do i=1+(nPol*iCnum),nPart*nPol !The image part.
   do j=1+(nPol*iCnum),nPart*nPol
-    Skal = (xxi(i,j)*dim(i,1)+yyi(i,j)*dim(i,2)+zzi(i,j)*dim(i,3))
+    Skal = (xxi(i,j)*DipIm(i,1)+yyi(i,j)*DipIm(i,2)+zzi(i,j)*DipIm(i,3))
     Skal = Skal*3
-    Work(iFi(1)+j-1) = Work(iFi(1)+j-1)-(dim(i,1)-Skal*xxi(i,j))*Gri(i,j)**3-Qimp(i)*xxi(i,j)*Gri(i,j)**2
-    Work(iFi(2)+j-1) = Work(iFi(2)+j-1)-(dim(i,2)-Skal*yyi(i,j))*Gri(i,j)**3-Qimp(i)*yyi(i,j)*Gri(i,j)**2
-    Work(iFi(3)+j-1) = Work(iFi(3)+j-1)-(dim(i,3)-Skal*zzi(i,j))*Gri(i,j)**3-Qimp(i)*zzi(i,j)*Gri(i,j)**2
+    Work(iFi(1)+j-1) = Work(iFi(1)+j-1)-(DipIm(i,1)-Skal*xxi(i,j))*Gri(i,j)**3-Qimp(i)*xxi(i,j)*Gri(i,j)**2
+    Work(iFi(2)+j-1) = Work(iFi(2)+j-1)-(DipIm(i,2)-Skal*yyi(i,j))*Gri(i,j)**3-Qimp(i)*yyi(i,j)*Gri(i,j)**2
+    Work(iFi(3)+j-1) = Work(iFi(3)+j-1)-(DipIm(i,3)-Skal*zzi(i,j))*Gri(i,j)**3-Qimp(i)*zzi(i,j)*Gri(i,j)**2
   end do
 end do
 

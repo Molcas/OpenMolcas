@@ -11,6 +11,7 @@
 
 subroutine RasRasTrans(nB,nStatePrim,iEig2,iPrint)
 
+use qmstat_global, only: iBigT, nState, RassiM
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -19,8 +20,6 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: nB, nStatePrim, iEig2, iPrint
 #include "maxi.fh"
-#include "files_qmstat.fh"
-#include "qm2.fh"
 #include "WrkSpc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, iB, iBas, iBigV, iDisk, iInt1, iInt2, iiS, indx, indypop, ipAOG, ipMAX, iS, iSnt1, iSnt2, iSnt3, &

@@ -11,12 +11,12 @@
 
 subroutine DispEnergy(EEDisp,BoMaH,BoMaO,dAtO1,dAtH1,dAtH2,Rab13i,Rab23i,Rab33i,indQAt)
 
+use qmstat_global, only: DispDamp, uDisp
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 #include "maxi.fh"
-#include "qminp.fh"
 real(kind=wp) :: EEDisp, BoMaH, BoMaO, dAtO1, dAtH1, dAtH2, Rab13i, Rab23i, Rab33i
 integer(kind=iwp) :: indQAt
 integer(kind=iwp) :: k, kFac

@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "maxi.fh"
 #include "warnings.h"
-real(kind=wp) :: SlExpQ(MxMltp+1,MxQCen), outxyz(MxQCen,3)
+real(kind=wp) :: SlExpQ(0:MxMltp,MxQCen), outxyz(MxQCen,3)
 integer(kind=iwp) :: iC, ind, jhr, k, kk, l, LMltSlQ, Lu, nAt, nS, nSlCentQ, nT, nTestjhr
 real(kind=wp) :: CoordTest(3), SlFactQ(6)
 logical(kind=iwp) :: Exists, lCheck
@@ -73,7 +73,7 @@ do iC=1,nSlCentQ
   do l=0,LMltSlQ
     nS = nTri3_Elem(l)
     nT = nTri3_Elem(l+1)
-    read(Lu,104) SlExpQ(l+1,ind)
+    read(Lu,104) SlExpQ(l,ind)
     read(Lu,105) (SlFactQ(kk),kk=nS+1,nT)
     !read(Lu,105) (SlFactQ(kk,ind),kk=nS+1,nT)
     unused_var(SlFactQ)
