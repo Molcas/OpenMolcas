@@ -31,7 +31,7 @@
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI
-      use spin_correlation, only: orb_range_p, orb_range_q
+      use spin_correlation, only: orb_range_p, orb_range_q, p, q
       use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      &  t_RDMsampling, RDMsampling,

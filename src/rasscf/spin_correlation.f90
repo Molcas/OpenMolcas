@@ -23,6 +23,7 @@ module spin_correlation
   private
   public :: spin_correlation_driver
   integer, allocatable, public, save :: orb_range_p(:), orb_range_q(:)
+  integer, public :: p, q
 
 
 contains
