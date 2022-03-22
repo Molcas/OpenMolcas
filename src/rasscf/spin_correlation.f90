@@ -40,14 +40,6 @@ contains
     call mma_allocate(spin_correlations, size(iroot))
     spin_correlations(:) = 0.0_wp
 
-    write(u6,'(a)') new_line('a')
-    write(u6,'(a)') "WARNING:"
-    write(u6,'(a)') "These numbers are meaningful *only if* the &
-                 &orbitals were localised and sorted by sites beforehand."
-    write(u6,'(a)') "Consider the &Localisation module and &
-                     &pymolcas help_doc rasscf sscr for guidance."
-    write(u6,'(a)') new_line('a')
-
     do i = 1, NRoots
       do j = 1, size(iroot)
         if (iroot(j) == i) then
@@ -84,21 +76,10 @@ contains
           twordm_pqqp = psmat(pqqp) - pamat(pqqp)
           twordm_ppqq = 2 * (psmat(ppqq) + pamat(ppqq))
 
-          ! write(u6,"(a,2i3,a,2i4)") 'p, q', rp, rq, ' pqqp, ppqq', pqqp, ppqq
-          ! write(u6,"(a,2f12.8)") 'psmat(pqqp), pamat(pqqp)', psmat(pqqp), pamat(pqqp)
-          ! write(u6,"(a,2f12.8)") 'psmat(ppqq), pamat(ppqq)', psmat(ppqq), pamat(ppqq)
-          ! write(u6,"(a,f12.8)") 'twordm_pqqp', twordm_pqqp
-          ! write(u6,"(a,f12.8)") 'twordm_ppqq', twordm_ppqq
-
           corr = corr - 0.5_wp * (twordm_pqqp + 0.5_wp * twordm_ppqq)
         else
           pppp = two_el_idx_flatten(rp, rp, rp, rp)
           pp = one_el_idx_flatten(rp, rp)
-
-          ! write(u6,"(a,i3,a,i4)") 'p ', rp, ' pppp ', pqqp
-          ! write(u6,"(a,2f12.8)") 'psmat(pppp), pamat(pppp)', psmat(pppp), pamat(pppp)
-          ! write(u6,"(a,f12.8)") 'twordm_pppp', twordm_pppp
-          ! write(u6,"(a,f12.8)") 'onerdm_pp', dmat(pp)
 
           twordm_pppp = 2 * (psmat(pppp) + pamat(pppp))
           onerdm_pp = dmat(pp)
