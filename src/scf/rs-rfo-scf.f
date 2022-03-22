@@ -46,7 +46,7 @@
       Lu=6
       StepMax0=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
       Write (6,*) 'StepMax0=',StepMax0
-      StepMax0=Max(StepMax0,5.0D-2)
+      StepMax0=Max(StepMax0,1.0D-1)
       Write (6,*) 'StepMax0=',StepMax0
       StepMax=Min(StepMax0,3.0D-1)
       Write (6,*) 'StepMax=',StepMax

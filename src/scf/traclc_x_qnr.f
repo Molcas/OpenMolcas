@@ -19,12 +19,9 @@
       Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: Xn
 
-      If (kOptim.eq.1) Return
-
 !     Extrapolation case.
 !
 !     displacements: del = -H^(-1)g, where g=dE/dX_m
-
 
       If (QNR1st) Then
 

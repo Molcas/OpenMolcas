@@ -395,8 +395,10 @@ C              Write (6,*) 'Call SOIniH'
 #else
          If (RSRFO) Then
             iOpt=3
+            If (iter==1) iOpt=0
          Else
             iOpt=2
+            If (iter==1) iOpt=0
          End If
          If (QNR1st) Then
 *
