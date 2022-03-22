@@ -112,6 +112,8 @@
      &                       temp_DMAT, temp_DSPN, temp_PSMAT,
      &                       temp_PAMAT, jDisk
      &                    )
+#ifdef _WARNING_WORKAROUND_
+! build:garble does not recognise decompressed_dmat/dspn
 #ifdef _HDF5_
                           ! In final iteration load decompressed 1PDMs
                           ! into HDF5 file.
@@ -127,6 +129,7 @@
      &                                      decompressed_DSPN,
      &                                      [nac, nac, 1],
      &                                      [0, 0, iroot(j) - 1])
+#endif
 #endif
 
                       end if
@@ -577,7 +580,7 @@
         integer :: dim, pq, p, q
 
         ! maximum decompressed index of dmat
-        dim = ceiling(-0.5d0 + sqrt(2.0d0 * size(dmat)))
+        dim = ceiling(-0.5_wp + sqrt(2.0_wp * size(dmat)))
         allocate(decompressed_dmat(dim, dim))
         decompressed_dmat(:,:) = 0.0_wp
         do pq = 1, size(dmat)
