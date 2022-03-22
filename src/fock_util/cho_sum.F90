@@ -36,7 +36,7 @@ type(DSBA_Type), intent(inout) :: FLT(*), FSQ(*)
 integer(kind=iwp) :: IB, IJB, ISYM, JB, NB, nDen
 
 !*************************************************
-nDen=nD*(nD+1)/2
+nDen = nD*(nD+1)/2
 
 ! Accumulate the contributions and Square the final matrix
 ! FLT is in lower triangular storage

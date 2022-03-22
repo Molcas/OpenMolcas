@@ -73,7 +73,7 @@
       Real*8  Grad(nGrad)
       Logical Do_MO,Do_TwoEl,Do_Grad
       Character*4 DFTFOCK
-      Character*16  KSDFT
+      Character*80  KSDFT
 #include "dcscf.fh"
       Real*8 :: D_DS(nBT,nD), F_DFT(nBT,nD)
 *

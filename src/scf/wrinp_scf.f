@@ -36,6 +36,7 @@
 ************************************************************************
 *
       Use Functionals, only: Print_Info
+      Use KSDFT_Info, only: CoefR, CoefX
 *
       Implicit Real*8 (a-h,o-z)
 *
@@ -47,7 +48,6 @@
 #include "infso.fh"
 #include "rctfld.fh"
 #include "ldfscf.fh"
-#include "ksdft.fh"
 *
 *---- Define local variables
       Character*60 Fmt, FmtR, FmtI

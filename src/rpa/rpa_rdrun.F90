@@ -107,7 +107,7 @@ call Get_dScalar('PotNuc',NuclearRepulsionEnergy(1))
 
 ! Get DFT functional
 if (Reference(2:3) == 'KS') then
-  call Get_cArray('DFT functional',DFTFunctional,16)
+  call Get_cArray('DFT functional',DFTFunctional,80)
 else
   DFTFunctional = 'Hartree-Fock'
 end if

@@ -24,6 +24,7 @@
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
      &                            DoLocK, DoCholesky, Estimate, Nscreen,
      &                            Update
+      Use KSDFT_Info, Only: CoefR, CoefX
       Implicit Real*8 (A-H,O-Z)
       External Get_SuperName
       Character*100 ProgName, Get_SuperName
@@ -37,7 +38,6 @@
 #include "lucia_ini.fh"
 #include "orthonormalize_mcpdft.fh"
 #include "WrkSpc.fh"
-#include "ksdft.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter

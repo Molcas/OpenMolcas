@@ -34,7 +34,9 @@
 *                                                                      *
 ************************************************************************
       use OccSets
+      use KSDFT_Info, only: CoefR, CoefX
       use OFembed
+      use Functionals, only: Custom_File, Custom_Func
       use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r
@@ -54,7 +56,6 @@
 #include "ldfscf.fh"
 #include "file.fh"
 #include "iprlv.fh"
-#include "ksdft.fh"
 #include "hfc_logical.fh"
 *
 *---- Define local variables
@@ -100,7 +101,7 @@
       timings=.false.
       UHFSet=.false.
       Nscreen = 10    ! default screening interval (# of red sets)
-      dmpk = 1.0d0   ! default damping of the screening threshold
+      dmpk = 0.1d0   ! default damping of the screening threshold
       Estimate=.false.
       Update=.true.
 #if defined (_MOLCAS_MPP_)
@@ -118,9 +119,6 @@
       klockan=1
       Do_Addc=.false.
       iTer2run=2
-* KSDFT exch. and corr. scaling factors
-      CoefX = 1.0D0
-      CoefR = 1.0D0
 * Delta_Tw correlation energy calculation
       Do_Tw=.false.
 * Read Cholesky info from runfile and save in infscf.fh
@@ -1025,7 +1023,20 @@ c      End If
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
       Line = adjustl(Line)
-      KSDFT=Line(1:16)
+      KSDFT=Line(1:80)
+      nFunc = 0
+      Read(Line,*,iostat=istatus) nFunc
+      If ((istatus == 0) .and. (nFunc > 0)) Then
+        KSDFT = Custom_Func
+        LuCF = IsFreeUnit(10)
+        Call molcas_open(LuCF,Custom_File)
+        Write(LuCF,*) Trim(KSDFT),nFunc
+        Do i=1,nFunc
+          Line=Get_Ln(LuSpool)
+          Write(LuCF,*) Trim(Line)
+        End Do
+        Close(LuCF)
+      End If
       GoTo 1000
 *
 *>>>>>>>>>>>>> DFCF <<<< Factors to scale exch. and corr. <<
@@ -1102,7 +1113,7 @@ c      End If
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
       Line = adjustl(Line)
-      ADDC_KSDFT=Line(1:16)
+      ADDC_KSDFT=Line(1:80)
       GoTo 1000
 *
 *>>>>>>>>>>>>> SAVE << Spin-Averaged wavelets (CONStraint) <

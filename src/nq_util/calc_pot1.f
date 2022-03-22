@@ -21,7 +21,6 @@
       use nq_Grid, only: vRho, vSigma
       use nq_pdft
       use nq_Info
-#include "ksdft.fh"
 #include "stdalloc.fh"
 ******Input
       INTEGER mAO,mGrid,nMOs,nP2_ontop

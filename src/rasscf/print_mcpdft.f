@@ -24,7 +24,6 @@
       use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
-#include "ksdft.fh"
 
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)

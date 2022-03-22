@@ -40,7 +40,7 @@ integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, ipTmp1, iSpin, jBas, n
 logical(kind=iwp) :: lPrint
 real(kind=wp) :: CoefX, CoefR
 character(len=8) :: RlxLbl, Method
-character(len=16) :: KSDFT
+character(len=80) :: KSDFT
 real(kind=wp), allocatable :: D1AV(:), Tmp(:)
 real(kind=wp), external :: Get_ExFac
 
@@ -64,7 +64,7 @@ nCMo = S%n2Tot
 mCMo = S%n2Tot
 if (Method == 'KS-DFT  ' .or. Method == 'CASDFT  ') then
   call Get_iScalar('Multiplicity',iSpin)
-  call Get_cArray('DFT functional',KSDFT,16)
+  call Get_cArray('DFT functional',KSDFT,80)
   call Get_dScalar('DFT exch coeff',CoefX)
   call Get_dScalar('DFT corr coeff',CoefR)
   ExFac = Get_ExFac(KSDFT)

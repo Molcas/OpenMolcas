@@ -30,7 +30,6 @@
 #include "debug.fh"
 #include "Molcas.fh"
 #include "itmax.fh"
-#include "ksdft.fh"
 #include "stdalloc.fh"
       Parameter (Mxdc=MxAtom)
 #include "disp.fh"

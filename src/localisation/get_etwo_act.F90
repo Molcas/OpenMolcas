@@ -24,7 +24,7 @@ real(kind=wp), intent(out) :: Etwo
 #include "chotime.fh"
 integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2), NSCREEN
 real(kind=wp) :: ChFracMem, dFmat, dmpk, FactXI
-!character(len=16) :: KSDFT
+!character(len=80) :: KSDFT
 real(kind=wp), allocatable :: Dm1(:), Dm2(:)
 real(kind=r8), external :: ddot_ !, Get_ExFac
 type (DSBA_Type) :: FLT(2), KLT(2), POrb(2), PLT(2)
@@ -41,7 +41,7 @@ nBB = 0
 do i=1,nSym
   nBB = nBB+nBas(i)**2
 end do
-!call Get_cArray('DFT functional',KSDFT,16)
+!call Get_cArray('DFT functional',KSDFT,80)
 !ExFac = Get_ExFac(KSDFT)
 !FactXI = ExFac
 FactXI = One  ! always HF energy
