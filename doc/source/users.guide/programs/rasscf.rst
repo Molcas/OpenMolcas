@@ -825,6 +825,7 @@ A list of these keywords is given below:
               Notice that the numbering is consecutive.
               </HELP>
               </KEYWORD>
+  .. xmldoc:: </GROUP>
 
 :kword:`SYMMetry`
   Specify the selected symmetry type (the irrep) of the wave
