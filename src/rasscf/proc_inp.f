@@ -42,7 +42,7 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
 #endif
-
+      use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
       Implicit Real*8 (A-H,O-Z)
@@ -58,7 +58,6 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
-#include "ksdft.fh"
 #include "casvb.fh"
 #include "pamint.fh"
 * Lucia-stuff:
@@ -765,7 +764,7 @@ C   No changing about read in orbital information from INPORB yet.
        If (Line(1:4).eq.'ROKS') DFTFOCK='ROKS'
        If (Line(1:6).eq.'CASDFT') DFTFOCK='DIFF'
        Read(LUInput,*,End=9910,Err=9920) Line
-       KSDFT=Line(1:16)
+       KSDFT=Line(1:80)
        Call UpCase(KSDFT)
        l_casdft = KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:'
        If (.NOT.l_casdft) GoTo 9920

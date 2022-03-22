@@ -14,14 +14,14 @@
 subroutine CI_SELECT(L0,L1,L2,L3,KBUF,NTPB,NBINS,LW1)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use guga_global, only: IADD11, ICH, IFIRST, ILIM, IOUT, LN, Lu_10, MXVERT, NBUF, NMAT, NSM
+use guga_global, only: IADD10, IADD11, ICH, IFIRST, ILIM, IOUT, LN, Lu_10, MXVERT, NBUF, NMAT, NSM
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp), intent(in) :: L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), L3(4*MXVERT), KBUF, NTPB, NBINS, LW1
-#include "cop.fh"
 integer(kind=iwp) :: ID, IDIAG, IFIN, II, IID, IND1, IND2, IREC, IST, IT1, IT2, ITIM, ITT, JJ, JJD, JTYP, KBUF2, M1, M2, M2MIN, &
                      M3, M4, NA, NB, NC, ND, NSA, NSABC, NSAV1, NSAV2, NSAVE, NSB, NSC, NSCD, NSD
 integer(kind=iwp), allocatable :: ICAD(:), IBUFL(:)

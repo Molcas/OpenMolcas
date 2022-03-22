@@ -19,6 +19,8 @@
 * Jie J. Bao, on Jan. 04, 2021, created this file.               *
 * ****************************************************************
 
+      Use KSDFT_Info, Only: ifav, ifiv
+
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
@@ -39,7 +41,6 @@
 #include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
-#include "ksdft.fh"
 #include "mspdft.fh"
 !      Logical TraOnly
 

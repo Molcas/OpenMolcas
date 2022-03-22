@@ -23,7 +23,7 @@
       CHARACTER(2) HEADER(72)
       CHARACTER(2) QNSTEP
       CHARACTER(3) QNUPDT
-      Character(16) KSDFT, KSDFT_TEMP
+      Character(80) KSDFT, KSDFT_TEMP
       Character(4) DFTFOCK
       COMMON/INTAUX/  IODUMMY,IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,       &
      &                ITER,MAXIT,NROOTS,IROOT,NAC,                      &

@@ -104,8 +104,8 @@
 #include "debug.fh"
       Real*8  Grad(nGrad)
       Logical Do_MO,Do_TwoEl,Do_Grad
-      Character*4 DFTFOCK
-      Character*16  KSDFT
+      Character(LEN=4) DFTFOCK
+      Character(LEN=80)  KSDFT
       Real*8 :: F_DFT(nBT,nD), D_DS(nBT,nD)
 
       Debug=.False.

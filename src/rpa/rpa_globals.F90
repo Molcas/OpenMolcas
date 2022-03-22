@@ -22,7 +22,7 @@ real(kind=wp) :: NuclearRepulsionEnergy(1)
 logical(kind=iwp) :: dRPA, SOSEX, doCD, doDF, doLDF, LumOrb
 character(len=3) :: Reference
 character(len=8) :: RPAModel
-character(len=16) :: DFTFunctional
+character(len=80) :: DFTFunctional
 real(kind=wp), allocatable :: CMO(:,:), EMO(:,:), OccEn(:,:), VirEn(:,:)
 integer(kind=iwp), parameter :: mTitle = 10
 character(len=80) :: Title(mTitle)

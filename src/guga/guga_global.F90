@@ -18,18 +18,18 @@ private
 
 integer(kind=iwp), parameter :: MXVERT = 1000
 
-integer(kind=iwp) :: IA(MXVERT), IADD11, IAF(MXVERT), IB(MXVERT), IBF(MXVERT), ICH(55), ICOUP(55), ICOUP1(55), IFIRST, IJ(55), &
-                     IJF(55), ILIM, IOUT, IPO(0:MXVERT), IPRINT, IRC(4), ISPIN, IV0, IVF0, IWAY(55), IX(4*MXVERT), IY(4*MXVERT,3), &
-                     J1(55), J2(55), JM(55), JM1(55), JRC(4), K0(4*MXVERT), K0F(0:MXVERT), K1(4*MXVERT), K1F(0:MXVERT), &
-                     K2(4*MXVERT), K2F(0:MXVERT), K3(4*MXVERT), K3F(0:MXVERT), LN, LNP, Lu_10, Lu_11, N, NBUF, NIORB, NMAT, &
-                     NSM(55), NSYM
+integer(kind=iwp) :: IA(MXVERT), IADD10, IADD11, IAF(MXVERT), IB(MXVERT), IBF(MXVERT), ICH(55), ICOUP(55), ICOUP1(55), IFIRST, &
+                     IJ(55), IJF(55), ILIM, IOUT, IPO(0:MXVERT), IPRINT, IRC(4), ISPIN, IV0, IVF0, IWAY(55), IX(4*MXVERT), &
+                     IY(4*MXVERT,3), J1(55), J2(55), JM(55), JM1(55), JRC(4), K0(4*MXVERT), K0F(0:MXVERT), K1(4*MXVERT), &
+                     K1F(0:MXVERT), K2(4*MXVERT), K2F(0:MXVERT), K3(4*MXVERT), K3F(0:MXVERT), LN, LNP, Lu_10, Lu_11, N, NBUF, &
+                     NIORB, NMAT, NSM(55), NSYM
 real(kind=wp) :: COUP(55), COUP1(55), S
 integer(kind=iwp), allocatable :: ICASE(:), JNDX(:)
 real(kind=wp), allocatable :: BL1(:), BL2(:), BS1(:), BS2(:), BS3(:), BS4(:)
 
-public :: BL1, BL2, BS1, BS2, BS3, BS4, COUP, COUP1, free_all, IA, IADD11, IAF, IB, IBF, ICASE, ICH, ICOUP, ICOUP1, IFIRST, IJ, &
-          IJF, ILIM, IOUT, IPO, IPRINT, IRC, ISPIN, IV0, IVF0, IWAY, IX, IY, J1, J2, JM, JM1, JNDX, JRC, K0, K0F, K1, K1F, K2, &
-          K2F, K3, K3F, LN, LNP, Lu_10, Lu_11, MXVERT, N, NBUF, NIORB, NMAT, NSM, NSYM, S
+public :: BL1, BL2, BS1, BS2, BS3, BS4, COUP, COUP1, free_all, IA, IADD10, IADD11, IAF, IB, IBF, ICASE, ICH, ICOUP, ICOUP1, &
+          IFIRST, IJ, IJF, ILIM, IOUT, IPO, IPRINT, IRC, ISPIN, IV0, IVF0, IWAY, IX, IY, J1, J2, JM, JM1, JNDX, JRC, K0, K0F, K1, &
+          K1F, K2, K2F, K3, K3F, LN, LNP, Lu_10, Lu_11, MXVERT, N, NBUF, NIORB, NMAT, NSM, NSYM, S
 
 contains
 

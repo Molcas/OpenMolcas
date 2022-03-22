@@ -30,7 +30,9 @@
 #endif
       use Real_Spherical
       use Symmetry_Info, only: nIrrep, iOper
-      use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
+      use KSDFT_Info, only: do_pdftpot, FA_time, FI_time, Funcaa,
+     &                      Funcbb, Funccc, KSDFA, LuMC, LuMT,
+     &                      PUVX_time, sp_time
       use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
       use nq_MO, only: D1MO, P2MO
       use nq_Structure, only: Close_Info_Ang
@@ -43,7 +45,6 @@
 #include "setup.fh"
 #include "status.fh"
 #include "debug.fh"
-#include "ksdft.fh"
 #include "stdalloc.fh"
       Integer Maps2p(nShell,0:nSym-1),
      &        list_s(nSym*nShell), list_exp(nSym*nShell),

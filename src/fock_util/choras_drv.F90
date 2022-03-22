@@ -49,7 +49,7 @@ call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
 
 call Allocate_DT(DSQ(1),nBas,nBas,nSym,Ref=W_DSQ)
 
-nD=1
+nD = 1
 
 if (DECO) then ! use decomposed density
   ! ==============  Alternative A: Use decomposed density matrix =====

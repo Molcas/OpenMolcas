@@ -34,10 +34,8 @@ do ISYM=1,NSYM
   IOFF = 1+NBAS(ISYM)*NBAS(ISYM)
   call SQUARE(PAO(IAO),TEMP(1),1,NBAS(ISYM),NBAS(ISYM))
   call DGEMM_('T','N',NORB(ISYM),NBAS(ISYM),NBAS(ISYM),One,CMO(ICMO),NBAS(ISYM),TEMP,NBAS(ISYM),Zero,TEMP(IOFF),max(1,NORB(ISYM)))
-  If (NORB(ISYM)*NBAS(ISYM) > 0) call DGEMM_Tri('N','N',NORB(ISYM),NORB(ISYM),NBAS(ISYM),    &
-                                                One,TEMP(IOFF),NORB(ISYM),                   &
-                                                    CMO(ICMO),NBAS(ISYM),                    &
-                                                Zero,PMO(IMO),NORB(ISYM))
+  If (NORB(ISYM)*NBAS(ISYM) > 0) call DGEMM_Tri('N','N',NORB(ISYM),NORB(ISYM),NBAS(ISYM),One,TEMP(IOFF),NORB(ISYM),CMO(ICMO), &
+                                                NBAS(ISYM),Zero,PMO(IMO),NORB(ISYM))
   ICMO = ICMO+NBAS(ISYM)*(NORB(ISYM)+NDEL(ISYM))
   IAO = IAO+NBAS(ISYM)*(NBAS(ISYM)+1)/2
   IMO = IMO+NORB(ISYM)*(NORB(ISYM)+1)/2

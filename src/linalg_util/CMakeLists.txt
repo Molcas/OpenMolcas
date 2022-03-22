@@ -32,7 +32,6 @@ set (sources
      nidiag.F90
      nidiag_new.F90
      not_dgeev.F90
-     scatter.F90
      schur_skew.F90
      vecphase.F90
      xeigen.F90

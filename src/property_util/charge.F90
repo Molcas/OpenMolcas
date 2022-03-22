@@ -14,10 +14,10 @@
 
 subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 
+use SpinAV, only: Do_SpinAV, DSc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
-use SpinAV
 
 implicit none
 #include "Molcas.fh"

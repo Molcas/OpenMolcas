@@ -28,6 +28,7 @@
 ************************************************************************
       Use Fock_util_global, only: DoLocK
       Use Functionals, only: Init_Funcs, Print_Info
+      Use KSDFT_Info, only: CoefR, CoefX
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -38,12 +39,11 @@
 #include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "splitcas.fh"
-#include "ksdft.fh"
 #include "mspdft.fh"
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
-      Character*16 KSDFT2
+      Character*80 KSDFT2
       Logical DoCholesky
       Logical lOPTO
 

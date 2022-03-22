@@ -52,7 +52,7 @@
       PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
       Real*8, Allocatable :: TmpVec(:), Diag(:), TVec(:), TAV(:),
      &                       TRes(:)
-      Real*8 :: Dum=0.0D0
+      Real*8 :: Dum(1)=0.0D0
 
 *
 #include "stdalloc.fh"
@@ -274,8 +274,8 @@
 #endif
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
           call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          [Dum],-1,info)
-          nTmp=INT(Dum)
+     &                          Dum,-1,info)
+          nTmp=INT(Dum(1))
           Call mma_allocate(TmpVec,nTmp,Label='TmpVec')
           call dsyev_('V','L',mk,EVec,maxk,EVal,
      &                          TmpVec,nTmp,info)
