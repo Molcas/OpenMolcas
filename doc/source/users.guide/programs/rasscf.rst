@@ -783,17 +783,18 @@ A list of these keywords is given below:
 :kword:`SSCR`
   Follows the title for the calculation in a single line
 
+  .. xmldoc:: <GROUP MODULE="RASSCF" NAME="Spin-Spin-Correlation" KIND="BOX">
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SSCR" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: TITLe <basic>
+              %%Keyword: SSCR <basic>
               <HELP>
               Calculate the pairwise orbital resolved spin-spin correlation
               function between two sites for each RASSCF root following
               10.1021/acs.jctc.1c00589 eqns. (49/50). It is very important that
               the orbitals used have been localised before (e.g. Pipek-Mezey)
               and sorted by atomic sites. The latter step requires manual
-              reordering and is not performed by &Localisation. This keyword
-              takes two mandatory arguments seperated by a space and two
-              optional lines specifying a custom range:
+              reordering and is not performed by the Localisation module. This
+              keyword takes two mandatory arguments seperated by a space and
+              two optional lines specifying a custom range:
 
                 norbs iall
                 [range 1]
@@ -819,7 +820,7 @@ A list of these keywords is given below:
 
                 SSCR = 3 0
                 1 2 3
-                4 5 6
+                7 8 9
 
               Notice that the numbering is consecutive.
               </HELP>
