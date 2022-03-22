@@ -333,6 +333,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+#ifdef _OLD_CODE_
 *        Test if this is a DIIS extrapolation iteration, alternatively
 *        the the iteration is a DIIS interpolation iteration. The former
 *        is activated if the DMOMax is lower than the threshold
@@ -391,6 +392,20 @@ C              Write (6,*) 'Call SOIniH'
 *
             End If
          End If
+#else
+         If (RSRFO) Then
+            iOpt=3
+         Else
+            iOpt=2
+         End If
+         If (QNR1st) Then
+*
+*---        compute initial inverse Hessian H (diag)
+*
+            Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
+*
+         End If
+#endif
 *                                                                      *
 ************************************************************************
 ************************************************************************

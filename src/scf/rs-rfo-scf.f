@@ -35,17 +35,21 @@
       Integer nInter
       Real*8 HDiag(nInter), g(nInter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
-      Real*8 dqdq, dqHdq, StepMax
+      Real*8 dqdq, dqHdq
 *     Local variables
       Real*8, Allocatable:: Tmp(:), Val(:), Vec(:,:)
       Logical Iterate, Restart
+      Real*8, Save :: StepMax=1.0D0
 *
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
-!     StepMax=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
-!     StepMax=Max(StepMax,1.0D-2)
-      StepMax=StepMax_Seed
+      StepMax0=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
+      Write (6,*) 'StepMax0=',StepMax0
+      StepMax0=Max(StepMax0,5.0D-2)
+      Write (6,*) 'StepMax0=',StepMax0
+      StepMax=Min(StepMax0,3.0D-1)
+      Write (6,*) 'StepMax=',StepMax
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 *     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)

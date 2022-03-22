@@ -24,6 +24,7 @@
       Integer nD,jpgrd,inode
       Real*8, Dimension(:,:), Allocatable:: Scr
       Integer, External :: LstPtr
+      If (iter.eq.1) Return
       nD=iUHF+1
       Call mma_allocate(Scr,nOV,nD,Label='Scr')
       jpgrd=LstPtr(iter,LLGrad)
@@ -38,4 +39,4 @@
       Call PutVec(Scr,nOV*nD,iter-1,'NOOP',LLdGrd)
       Call mma_deallocate(Scr)
       Return
-      End
+      End Subroutine dGrd
