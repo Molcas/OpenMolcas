@@ -428,7 +428,7 @@ C     Integer iDskPt,len
       End If
 *
       iroot=nLList(iLList,1)
-      Do While (iroot.ne.0) Then
+      Do While (iroot.ne.0)
         iFlag=nLList(iroot,5)
 
         If (iFlag.eq.1) Then
