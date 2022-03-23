@@ -12,21 +12,22 @@
 subroutine EditStart()
 
 use qmstat_global, only: cDumpForm, Cordst, DelOrAdd, iPrint, iSeed, iTcSim, nAdd, nCent, nDel, nPart, NrStarti, NrStartu, rStart
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
 #include "WrkSpc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: iC(3), iC2(3)
-real(kind=wp) :: Coo(MxCen,3), Coord(MxCen*MxPut,3), CooRef(MxCen,3)
+real(kind=wp) :: Coo(3,nCent), CooRef(3,nCent)
 integer(kind=iwp) :: i, iCent, iDisk, iLu, ind, indMax, iPart, j, jnd1, jnd2, jP, k, l, ll, nRemoved
 real(kind=wp) :: dCMx, dCMy, dCMz, dSpread, Esub, Etot, Gamold, GaOld, r, Ract, rMax
 logical(kind=iwp) :: Exists, ValidOrNot
 character(len=200) :: Head
 character(len=6) :: FilSlut, Filstart
+real(kind=wp), allocatable :: Coord(:,:)
 real(kind=wp), parameter :: ThrdSpread = One
+#include "warnings.h"
 
 ! Inquire if file exists, and if so open it.
 
@@ -52,6 +53,8 @@ end do
 call DaClos(iLu)
 
 ! Now take different paths depending of what user have requested in the input.
+
+call mma_allocate(Coord,3,nPart*nCent,label='Coord')
 
 ! If deleting solvent molecules.
 
@@ -101,9 +104,9 @@ if (DelOrAdd(1)) then
 
   if (iPrint >= 10) then
     do i=1,(nPart-nDel)*nCent
-      Coord(i,1) = Work(iC(1)+i-1)
-      Coord(i,2) = Work(iC(2)+i-1)
-      Coord(i,3) = Work(iC(3)+i-1)
+      Coord(1,i) = Work(iC(1)+i-1)
+      Coord(2,i) = Work(iC(2)+i-1)
+      Coord(3,i) = Work(iC(3)+i-1)
     end do
     write(Head,*) 'Final coordinates'
     call Cooout(Head,Coord,nPart-nDel,nCent)
@@ -114,9 +117,9 @@ end if
 
 if (DelOrAdd(2)) then
   do i=1,nPart*nCent
-    Coord(i,1) = Work(iC(1)+i-1)
-    Coord(i,2) = Work(iC(2)+i-1)
-    Coord(i,3) = Work(iC(3)+i-1)
+    Coord(1,i) = Work(iC(1)+i-1)
+    Coord(2,i) = Work(iC(2)+i-1)
+    Coord(3,i) = Work(iC(3)+i-1)
   end do
   if (nAdd /= 0) then
     ! Just an ugly trick for using nypart. It requires that the first
@@ -124,7 +127,7 @@ if (DelOrAdd(2)) then
     ! them there.
     do i=1,nCent
       do j=1,3
-        Coord(i,j) = Cordst(i,j)
+        Coord(j,i) = Cordst(j,i)
       end do
     end do
     ! Introduce the new particles. nPart is redefined.
@@ -132,7 +135,7 @@ if (DelOrAdd(2)) then
     ! The ugly trick is reversed, and the first slot is retained.
     do i=1,nCent
       do j=1,3
-        Coord(i,j) = Work(iC(j)+i-1)
+        Coord(j,i) = Work(iC(j)+i-1)
       end do
     end do
   end if
@@ -143,9 +146,9 @@ if (DelOrAdd(2)) then
     call GetMem('NewCoo','Allo','Real',iC2(k),nPart*nCent)
   end do
   do i=1,nPart*nCent
-    Work(iC2(1)+i-1) = Coord(i,1)
-    Work(iC2(2)+i-1) = Coord(i,2)
-    Work(iC2(3)+i-1) = Coord(i,3)
+    Work(iC2(1)+i-1) = Coord(1,i)
+    Work(iC2(2)+i-1) = Coord(2,i)
+    Work(iC2(3)+i-1) = Coord(3,i)
   end do
   iLu = 74
   write(FilSlut,'(A5,i1.1)') 'STFIL',NrStartu
@@ -177,12 +180,12 @@ if (DelOrAdd(3)) then
   do iPart=1,nPart
     ind = nCent*(iPart-1)
     do iCent=1,nCent
-      Coo(iCent,1) = Work(iC(1)+ind+iCent-1)
-      Coo(iCent,2) = Work(iC(2)+ind+iCent-1)
-      Coo(iCent,3) = Work(iC(3)+ind+iCent-1)
-      CooRef(iCent,1) = Cordst(iCent,1)
-      CooRef(iCent,2) = Cordst(iCent,2)
-      CooRef(iCent,3) = Cordst(iCent,3)
+      Coo(1,iCent) = Work(iC(1)+ind+iCent-1)
+      Coo(2,iCent) = Work(iC(2)+ind+iCent-1)
+      Coo(3,iCent) = Work(iC(3)+ind+iCent-1)
+      CooRef(1,iCent) = Cordst(1,iCent)
+      CooRef(2,iCent) = Cordst(2,iCent)
+      CooRef(3,iCent) = Cordst(3,iCent)
     end do
     call IsItValid(Coo,CooRef,ValidOrNot)
     if (.not. ValidOrNot) then
@@ -218,9 +221,9 @@ if (DelOrAdd(3)) then
         end do
       else
         do iCent=1,nCent
-          Work(iC(1)+ind+iCent-1) = dCMx+CooRef(iCent,1)
-          Work(iC(2)+ind+iCent-1) = dCMy+CooRef(iCent,2)
-          Work(iC(3)+ind+iCent-1) = dCMz+CooRef(iCent,3)
+          Work(iC(1)+ind+iCent-1) = dCMx+CooRef(1,iCent)
+          Work(iC(2)+ind+iCent-1) = dCMy+CooRef(2,iCent)
+          Work(iC(3)+ind+iCent-1) = dCMz+CooRef(3,iCent)
         end do
       end if
     end if
@@ -247,14 +250,16 @@ if (DelOrAdd(3)) then
 
   if (iPrint >= 10) then
     do i=1,nPart*nCent
-      Coord(i,1) = Work(iC(1)+i-1)
-      Coord(i,2) = Work(iC(2)+i-1)
-      Coord(i,3) = Work(iC(3)+i-1)
+      Coord(1,i) = Work(iC(1)+i-1)
+      Coord(2,i) = Work(iC(2)+i-1)
+      Coord(3,i) = Work(iC(3)+i-1)
     end do
     write(Head,*) 'Final coordinates'
     call Cooout(Head,Coord,nPart,nCent)
   end if
 end if
+
+call mma_deallocate(Coord)
 
 ! If the user want to, print the coordinates in some format suitable
 ! for graphical representation.
@@ -262,9 +267,9 @@ end if
 if (DelOrAdd(4)) then
   if (cDumpForm(1:4) == 'MOLD') then
     do iCent=1,nCent
-      CooRef(iCent,1) = Cordst(iCent,1)
-      CooRef(iCent,2) = Cordst(iCent,2)
-      CooRef(iCent,3) = Cordst(iCent,3)
+      CooRef(1,iCent) = Cordst(1,iCent)
+      CooRef(2,iCent) = Cordst(2,iCent)
+      CooRef(3,iCent) = Cordst(3,iCent)
     end do
     call MoldenDump(iC,CooRef,nPart,nCent)
   end if

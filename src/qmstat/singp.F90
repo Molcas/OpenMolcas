@@ -17,7 +17,6 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: nCalls, iQ_Atoms, ipStoreCoo, nPart2
-#include "maxi.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iCent, Initial1, Initial2, iPart, j, kaunter, nAllQm
 
@@ -40,9 +39,9 @@ if (nCalls == 0) then
   do iPart=1,nPart2
     do iCent=1,nCent
       kaunter = kaunter+1
-      Work(ipStoreCoo+3*(kaunter-1)) = Cordst(kaunter,1)
-      Work(ipStoreCoo+3*(kaunter-1)+1) = Cordst(kaunter,2)
-      Work(ipStoreCoo+3*(kaunter-1)+2) = Cordst(kaunter,3)
+      Work(ipStoreCoo+3*(kaunter-1)) = Cordst(1,kaunter)
+      Work(ipStoreCoo+3*(kaunter-1)+1) = Cordst(2,kaunter)
+      Work(ipStoreCoo+3*(kaunter-1)+2) = Cordst(3,kaunter)
     end do
   end do
 
@@ -51,16 +50,16 @@ if (nCalls == 0) then
   nAllQm = (((iQ_Atoms-1)/nAtom)+1)*nCent
   do i=1,nAllQm
     do j=1,3
-      Cordst(i,j) = Zero
+      Cordst(j,i) = Zero
     end do
   end do
 
   ! Put the coordinates of first iteration.
 
   do iCent=1,nCent
-    Cordst(nAllQm+iCent,1) = Work(ipStoreCoo+3*(iCent-1))
-    Cordst(nAllQm+iCent,2) = Work(ipStoreCoo+3*(iCent-1)+1)
-    Cordst(nAllQm+iCent,3) = Work(ipStoreCoo+3*(iCent-1)+2)
+    Cordst(1,nAllQm+iCent) = Work(ipStoreCoo+3*(iCent-1))
+    Cordst(2,nAllQm+iCent) = Work(ipStoreCoo+3*(iCent-1)+1)
+    Cordst(3,nAllQm+iCent) = Work(ipStoreCoo+3*(iCent-1)+2)
   end do
 
   ! Set new value on some variables.
@@ -86,9 +85,9 @@ else
   Initial1 = (((iQ_Atoms-1)/nAtom)+1)*nCent
   Initial2 = 3*nCent*nCalls-1
   do iCent=1,nCent
-    Cordst(Initial1+iCent,1) = Work(ipStoreCoo+Initial2+(iCent-1)*3+1)
-    Cordst(Initial1+iCent,2) = Work(ipStoreCoo+Initial2+(iCent-1)*3+2)
-    Cordst(Initial1+iCent,3) = Work(ipStoreCoo+Initial2+(iCent-1)*3+3)
+    Cordst(1,Initial1+iCent) = Work(ipStoreCoo+Initial2+(iCent-1)*3+1)
+    Cordst(2,Initial1+iCent) = Work(ipStoreCoo+Initial2+(iCent-1)*3+2)
+    Cordst(3,Initial1+iCent) = Work(ipStoreCoo+Initial2+(iCent-1)*3+3)
   end do
 end if
 

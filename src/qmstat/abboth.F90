@@ -25,10 +25,10 @@ implicit none
 integer(kind=iwp) :: iLA, iLB
 real(kind=wp) :: dMulA(nTri_Elem1(_MxM_)), dKappa, Rho, RhoA, RhoB, Rinv, Colle(3)
 logical(kind=iwp) :: lTooSmall
-#include "warnings.h"
 integer(kind=iwp) :: i
 real(kind=wp) :: Ex, ExA, ExB, Pi1, Pi2, Sigma, Width
 real(kind=wp), external :: CoulT0_1, CoulT0_2, CoulT0_4, CoulT0_5, CoulTN_1, CoulTN_2, CoulTN_4, CoulTN_5
+#include "warnings.h"
 
 ! To calculate the interaction Sigma is the product of both multipoles
 ! in A and in B but since we need potential, field and field gradient

@@ -11,11 +11,22 @@
 
 module qmstat_global
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 private
+
+!----------------------------------------------------------------------*
+! Define some bounds for qmstat.
+!----------------------------------------------------------------------*
+! MxAngqNr      -        Maximal angular quantum number for basis
+!                        functions in QM-region. 1 is s, 2 is p etc.
+! MxMltp        -        Highest order multipole in MME
+! MxPrCon       -        Maximal sum of the contracted number of bases.
+!                        12s8p5d would need at least 12+8+5=25.
+! MxPut         -        Maximal number of molecules to put in system
+! MxSymQ        -        Maximal number of symmetries
+!----------------------------------------------------------------------*
 
 !----------------------------------------------------------------------*
 ! Common variables shared by all QmTypes.
@@ -88,9 +99,6 @@ private
 ! iQang         -       Like iQn, but for QM-region.
 ! nPrimus       -       Actually a rewriting of Icon.
 ! mPrimus       -       Like nPrim but for solvent.
-! iCharOnBasQ   -       Charge on atom on which the ith contracted
-!                       AO-basis is centered in QM-system.
-! iCharOnBasC   -       Like iCharOnBasQ, but for solvent.
 ! iWoGehenQ     -       The (ith,jth) element tells which index the
 !                       ith QM-region base (not basis-function) of
 !                       the jth m_l-quantum number is to take.
@@ -110,51 +118,114 @@ private
 ! Trans         -       Cartesian to spherical transformation.
 !----------------------------------------------------------------------*
 
-#include "maxi.fh"
-integer(kind=iwp), parameter :: MxBasTri = MxBas*(MxBas+1)/2
+integer(kind=iwp), parameter :: MxAngqNr = 7, MxMltp = 3, MxPut = 220, MxPrCon = 140, MxSymQ = 1
 
-integer(kind=iwp) :: iBigT, iCharOnBasC(MxBasC), iCharOnBasQ(MxBas), iCIInd(MxState), iCompExt(MxExtAddOn), iExtr_Atm(MxAt), &
-                     iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iLvlShift(MxState), info_atom(MxAt), iNrExtr, iNrIn, &
-                     iNrUt, Inter, iOcc1, iOrb(3), ipAvRed, iPrint, iQang(MxBas), iQn(MxBasC), iRead, iSeed, iSta, iSupM, &
-                     iTcSim(64), itMax, iV1, iWoGehenC(MxBB,2*MxAngqNr-1), iWoGehenQ(MxBB,2*MxAngqNr-1), lmax, lMltSlC, &
-                     mPrimus(MxBasC), nAdd, nAtom, nBA_C(MxAt), nBA_Q(MxAt), nBonA_C(3), nBonA_Q(MxAt), nCBoA_C(MxAt,MxAngqNr), &
-                     nCBoA_Q(MxAt,MxAngqNr), nCent, nCha, nCIRef, nDel, nEqState, nExtAddOns, nLvlShift, nMacro, nMicro, nMlt, &
-                     nPart, nPol, nPrimus(MxBas), nRedMO, NrFiles, NrStarti, NrStartu, NrStates(MxState), nSlSiteC, nState, &
-                     nStateRed, nStFilT(MxParT), nTemp
-real(kind=wp) :: Alfa(MxBas,MxCont), AvElcPot(MxQCen,10), BasOri(3,MxBas), Beta(MxBasC,MxCont), c_orbene(MxOrb_C), CAFieldG, &
-                 CasOri(3,MxBasC), CBFieldG, CFexp, Cha(MxOT,MxQCen), ChaNuc(MxAt), CharDi(MxCen), CharDiQ(MxAt), &
-                 Cont(MxBas,MxCont), CordIm(MxCen*MxPut,3), Cordst(MxCen*MxPut,3), CT(3), Cut_Elc, Cut_Ex1, Cut_Ex2, &
-                 dCIRef(MxState), DelFi, DelR, DelX, DenCorrD(MxOT), Diel, DifSlExp, DipIm(MxCen*MxPut,3), DipMy(MxOT,3,MxQCen), &
-                 Disp(MxPol,MxPol), dLJrep, dLvlShift(MxState), Dont(MxBasC,MxCont), Enelim, Exdt1, Exdtal, Exrep10 = Zero, &
-                 Exrep2 = Zero, Exrep4 = Zero, Exrep6 = Zero, FockM(MxOT), Forcek, HHMat(MxOT), HmatSOld(MxStOT), &
-                 HmatState(MxStOT) = Zero, OldGeo(MxCen*MxPut,3), outxyz(MxQCen,3), outxyzRAS(MxQCen,3), ParaTemps(MxParT), &
-                 PertNElcInt(MxBasTri), Pol(MxPol), Pollim, PotNuc, Pres, QIm(MxCen*MxPut), QImp(MxCen*MxPut), Qsta(MxCha), qTot, &
-                 Quad(MxOt,6,MxQCen), QuaDi(3,MxCen), QuaDiQ(3,MxAt), RasCha(MxStOT,MxQCen), RasDip(MxStOT,3,MxQCen), &
-                 RasQua(MxStOT,6,MxQCen), rStart, SavOri(3,MxBasC), ScalExt(MxExtAddOn), SexRe1(MxAt,MxAt), SexRe2(MxAt,MxAt), &
-                 SexRep(MxAt,MxAt), SlExpC(2,MxCen), SlExpQ(0:MxMltp,MxQCen), SlFactC(4,MxCen), SlPC(MxCen), Sqrs(MxPut*MxCen), &
-                 Surf, Temp, ThrsCont, ThrsRedOcc, Trace_MP2, &
-                 Trans(int(real(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3+3*MxAngqNr**4)/real(12))), Udisp(MxAt,MxCen), &
-                 V3(MxBasC,MxOrb_C), xyzMyI(3), xyzMyP(3), xyzMyQ(3), xyzQuQ(6)
+integer(kind=iwp) :: iBigT, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iNrIn, iNrUt, Inter, iOcc1, iOrb(3), ipAvRed, &
+                     iPrint, iRead, iSeed, iSta, iSupM, iTcSim(64), itMax, iV1, lmax, lMltSlC, nAdd, nAtom, nCent, nCha, nCIRef, &
+                     nDel, nEqState, nExtAddOns, nLvlShift, nMacro, nMicro, nMlt, nPart, nPol, nRedMO, NrFiles, NrStarti, &
+                     NrStartu, nSlSiteC, nState, nTemp
+real(kind=wp) :: CAFieldG, CBFieldG, CFexp, CharDi(2), CT(3), Cut_Elc, Cut_Ex1, Cut_Ex2, DelFi, DelR, DelX, Diel, DifSlExp, &
+                     dLJrep, Enelim, Exdt1, Exdtal, Exrep10, Exrep2, Exrep4, Exrep6, Forcek, Pollim, PotNuc, Pres, qTot, &
+                     QuaDi(3,2), rStart, Surf, Temp, ThrsCont, ThrsRedOcc, Trace_MP2, xyzMyI(3), xyzMyP(3), xyzMyQ(3), xyzQuQ(6)
 logical(kind=iwp) :: AddExt, Anal, ATitle, ChargedQM, ContrStateB, DelOrAdd(12), DispDamp, EdSt, FieldDamp, lCiSelect, lExtr(12), &
                      lQuad, lSlater, MoAveRed, Mp2DensCorr, ParallelT, Qmeq, QmProd, SingPoint
 character(len=100) :: JobLab
 character(len=10) :: cDumpForm
-character(len=8) :: ExtLabel(MxExtAddOn)
 character(len=6) :: StFilIn, SaFilIn, StFilUt, SaFilUt, FieldNuc, SimEx, RassiM, EigV, QmType
+integer(kind=iwp), allocatable :: iCIInd(:), iCompExt(:), iExtr_Atm(:), iLvlShift(:), info_atom(:), iQang(:), iQn(:), &
+                                  iWoGehenC(:,:), iWoGehenQ(:,:), mPrimus(:), nPrimus(:), nBA_C(:), nBA_Q(:), nBonA_C(:), &
+                                  nBonA_Q(:), nCBoA_C(:,:), nCBoA_Q(:,:), nCnC_C(:), NrStates(:), nStFilT(:)
+real(kind=wp), allocatable :: Alfa(:,:), AvElcPot(:,:), BasOri(:,:), Beta(:,:), c_orbene(:), CasOri(:,:), Cha(:,:), ChaNuc(:), &
+                              CharDiQ(:), Cont(:,:), CordIm(:,:), Cordst(:,:), dCIRef(:), DenCorrD(:), DipIm(:,:), DipMy(:,:,:), &
+                              Disp(:,:), dLvlShift(:), Dont(:,:), FockM(:), HHmat(:), HmatSOld(:), HmatState(:), OldGeo(:,:), &
+                              outxyz(:,:), outxyzRAS(:,:), Paratemps(:), PertNElcInt(:), Pol(:), QIm(:), QImp(:), Qsta(:), &
+                              Quad(:,:,:), QuaDiQ(:,:), RasCha(:,:), RasDip(:,:,:), RasQua(:,:,:), SavOri(:,:), ScalExt(:), &
+                              Sexre1(:,:), Sexre2(:,:), Sexrep(:,:), SlExpC(:,:), SlExpQ(:,:), SlFactC(:,:), SlPC(:), Sqrs(:), &
+                              Trans(:), Udisp(:,:), V3(:,:)
+character(len=8), allocatable :: ExtLabel(:)
 
-public :: iTcSim, iLuStIn, iLuStUt, iLuSaIn, iLuSaUt, StFilIn, SaFilIn, StFilUt, SaFilUt, FieldNuc, SimEx, RassiM, EigV, lmax, &
-          info_atom, QIm, CordIm, QImp, DipIm, c_orbene, ChaNuc, qTot, xyzMyQ, xyzMyI, xyzMyP, Sqrs, CT, xyzQuQ, iSupM, iV1, &
-          HHMat, outxyz, Cha, DipMy, Quad, PotNuc, FockM, DenCorrD, Trace_MP2, nState, nStateRed, iBigT, nRedMO, ipAvRed, &
-          HmatState, RasCha, RasDip, RasQua, outxyzRAS, HmatSOld, nBA_Q, nBA_C, nCBoA_Q, nCBoA_C, iQang, nPrimus, iCharOnBasQ, &
-          iCharonBasC, iQn, mPrimus, iWoGehenC, iWoGehenQ, nBonA_Q, nBonA_C, Alfa, Beta, Cont, Dont, CasOri, BasOri, SavOri, V3, &
-          Trans, MoAveRed, ContrStateB, lCiSelect, lExtr, lSlater, lQuad, Anal, AddExt, SingPoint, ParallelT, Mp2DensCorr, EdSt, &
-          ChargedQM, DelOrAdd, ATitle, Qmeq, FieldDamp, DispDamp, QmProd, JobLab, QmType, ExtLabel, cDumpForm, AvElcPot, &
-          PertNElcInt, SlFactC, SlExpC, SlPC, Cut_Elc, DifSlExp, SlExpQ, ThrsCont, dLvlShift, dCIRef, ScalExt, ParaTemps, &
-          ThrsRedOcc, CFexp, Pollim, Enelim, Exdtal, Exdt1, Cut_Ex1, Cut_Ex2, CAFieldG, CBFieldG, DelX, DelFi, DelR, Forcek, &
-          dLJrep, Temp, Pres, Surf, CharDi, CharDiQ, QuaDi, QuaDiQ, Udisp, Exrep2, Exrep4, Exrep6, Exrep10, Disp, Cordst, OldGeo, &
-          SexRep, SexRe1, SexRe2, rStart, Diel, Qsta, Pol, nSlSiteC, lMltSlC, nMlt, iExtr_Eig, iExtr_Atm, nLvlShift, iLvlShift, &
-          nCIRef, iCIInd, nExtAddOns, nTemp, nStFilT, iCompExt, NrStates, nEqState, iSeed, nMacro, nMicro, nAdd, iNrExtr, iNrIn, &
-          iNrUt, NrStarti, NrStartu, nDel, NrFiles, nPol, nCha, iExtra, Inter, iPrint, iRead, iSta, itMax, iOrb, iOcc1, nPart, &
-          nAtom, nCent
+public :: AddExt, Alfa, Anal, ATitle, AvElcPot, BasOri, Beta, c_orbene, CAFieldG, CasOri, CBFieldG, cDumpForm, CFexp, Cha, ChaNuc, &
+          CharDi, CharDiQ, ChargedQM, Cont, ContrStateB, CordIm, Cordst, CT, Cut_Elc, Cut_Ex1, Cut_Ex2, dCIRef, DelFi, DelOrAdd, &
+          DelR, DelX, DenCorrD, Diel, DifSlExp, DipIm, DipMy, Disp, DispDamp, dLJrep, dLvlShift, Dont, EdSt, EigV, Enelim, Exdt1, &
+          Exdtal, Exrep10, Exrep2, Exrep4, Exrep6, ExtLabel, FieldDamp, FieldNuc, FockM, Forcek, HHMat, HmatSOld, HmatState, &
+          iBigT, iCIInd, iCompExt, iExtr_Atm, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iLvlShift, info_atom, iNrIn, &
+          iNrUt, Inter, iOcc1, iOrb, ipAvRed, iPrint, iQang, iQn, iRead, iSeed, iSta, iSupM, iTcSim, itMax, iV1, iWoGehenC, &
+          iWoGehenQ, JobLab, lCiSelect, lExtr, lmax, lMltSlC, lQuad, lSlater, MoAveRed, Mp2DensCorr, mPrimus, MxAngqNr, MxMltp, &
+          MxPrCon, MxPut, MxSymQ, nAdd, nAtom, nBA_C, nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, nCBoA_Q, nCent, nCha, nCIRef, nCnC_C, &
+          nDel, nEqState, nExtAddOns, nLvlShift, nMacro, nMicro, nMlt, nPart, nPol, nPrimus, nRedMO, NrFiles, NrStarti, NrStartu, &
+          NrStates, nSlSiteC, nState, nStFilT, nTemp, OldGeo, outxyz, outxyzRAS, ParallelT, ParaTemps, PertNElcInt, Pol, Pollim, &
+          PotNuc, Pres, QIm, QImp, Qmeq, QmProd, Qmstat_end, QmType, Qsta, qTot, Quad, QuaDi, QuaDiQ, RasCha, RasDip, RasQua, &
+          RassiM, rStart, SaFilIn, SaFilUt, SavOri, ScalExt, SexRe1, SexRe2, SexRep, SimEx, SingPoint, SlExpC, SlExpQ, SlFactC, &
+          SlPC, Sqrs, StFilIn, StFilUt, Surf, Temp, ThrsCont, ThrsRedOcc, Trace_MP2, Trans, Udisp, V3, xyzMyI, xyzMyP, xyzMyQ, &
+          xyzQuQ
+
+contains
+
+subroutine Qmstat_end()
+
+use stdalloc, only: mma_deallocate
+
+if (lCiSelect) then
+  call mma_deallocate(iCIInd)
+  call mma_deallocate(dCIRef)
+end if
+
+if (nLvlShift > 0) then
+  call mma_deallocate(iLvlShift)
+  call mma_deallocate(dLvlShift)
+end if
+
+if (AddExt) then
+  call mma_deallocate(ScalExt)
+  call mma_deallocate(ExtLabel)
+  call mma_deallocate(iCompExt)
+end if
+
+if (ParallelT) then
+  call mma_deallocate(nStFilT)
+end if
+
+if (DispDamp) then
+  call mma_deallocate(CharDiQ)
+  call mma_deallocate(QuaDiQ)
+end if
+
+if (allocated(Alfa)) call mma_deallocate(Alfa)
+if (allocated(AvElcPot)) call mma_deallocate(AvElcPot)
+if (allocated(Beta)) call mma_deallocate(Beta)
+if (allocated(c_orbene)) call mma_deallocate(c_orbene)
+if (allocated(Cha)) call mma_deallocate(Cha)
+if (allocated(Cont)) call mma_deallocate(Cont)
+if (allocated(CordIm)) call mma_deallocate(CordIm)
+if (allocated(DenCorrD)) call mma_deallocate(DenCorrD)
+if (allocated(DipMy)) call mma_deallocate(DipMy)
+if (allocated(Dont)) call mma_deallocate(Dont)
+if (allocated(HHmat)) call mma_deallocate(HHmat)
+if (allocated(HmatSOld)) call mma_deallocate(HmatSOld)
+if (allocated(HmatState)) call mma_deallocate(HmatState)
+if (allocated(NrStates)) call mma_deallocate(NrStates)
+if (allocated(outxyz)) call mma_deallocate(outxyz)
+if (allocated(outxyzRAS)) call mma_deallocate(outxyzRAS)
+if (allocated(Quad)) call mma_deallocate(Quad)
+if (allocated(RasCha)) call mma_deallocate(RasCha)
+if (allocated(RasDip)) call mma_deallocate(RasDip)
+if (allocated(RasQua)) call mma_deallocate(RasQua)
+if (allocated(SlExpQ)) call mma_deallocate(SlExpQ)
+if (allocated(Udisp)) call mma_deallocate(Udisp)
+if (allocated(V3)) call mma_deallocate(V3)
+
+call mma_deallocate(Cordst)
+call mma_deallocate(Disp)
+call mma_deallocate(iExtr_Atm)
+call mma_deallocate(Pol)
+call mma_deallocate(Qsta)
+call mma_deallocate(Sexre1)
+call mma_deallocate(Sexre2)
+call mma_deallocate(Sexrep)
+call mma_deallocate(SlExpC)
+call mma_deallocate(SlFactC)
+call mma_deallocate(SlPC)
+
+end subroutine Qmstat_end
 
 end module qmstat_global

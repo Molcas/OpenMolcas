@@ -52,11 +52,10 @@ use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iAtom2, iCI, iFil(iCi,10), iCstart, iQ_Atoms
 real(kind=wp) :: Energy, VpolMat(nTri_Elem(nState)), Fil(nPart*nPol,3), polfac, Poli(iCi,10), xyzmyq(3), xyzmyi(3), xyzmyp(3), &
-                 qtot, ChaNuc(MxAt), RoMatSt(nTri_Elem(nState)), xyzQuQ(6), CT(3)
+                 qtot, ChaNuc(iQ_Atoms), RoMatSt(nTri_Elem(nState)), xyzQuQ(6), CT(3)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, kk, l
 real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qs, qQ(6), Trace1, Trace2, xyzMyC(3)
 real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
@@ -121,20 +120,20 @@ do kk=1,6
 end do
 do i=1,iCi
   do kk=1,3
-    xyzMyQ(kk) = xyzMyQ(kk)+Dm(i,kk)+Qm(i)*outxyzRAS(i,kk)
+    xyzMyQ(kk) = xyzMyQ(kk)+Dm(i,kk)+Qm(i)*outxyzRAS(kk,i)
   end do
-  qQ(1) = qQ(1)+Qm(i)*(outxyzRAS(i,1)-CT(1))*(outxyzRAS(i,1)-CT(1))
-  qQ(2) = qQ(2)+Qm(i)*(outxyzRAS(i,1)-CT(1))*(outxyzRAS(i,2)-CT(2))
-  qQ(3) = qQ(3)+Qm(i)*(outxyzRAS(i,1)-CT(1))*(outxyzRAS(i,3)-CT(3))
-  qQ(4) = qQ(4)+Qm(i)*(outxyzRAS(i,2)-CT(2))*(outxyzRAS(i,2)-CT(2))
-  qQ(5) = qQ(5)+Qm(i)*(outxyzRAS(i,2)-CT(2))*(outxyzRAS(i,3)-CT(3))
-  qQ(6) = qQ(6)+Qm(i)*(outxyzRAS(i,3)-CT(3))*(outxyzRAS(i,3)-CT(3))
-  qD(1) = qD(1)+Two*Dm(i,1)*(outxyzRAS(i,1)-CT(1))
-  qD(2) = qD(2)+Dm(i,1)*(outxyzRAS(i,2)-CT(2))+Dm(i,2)*(outxyzRAS(i,1)-CT(1))
-  qD(3) = qD(3)+Dm(i,1)*(outxyzRAS(i,3)-CT(3))+Dm(i,3)*(outxyzRAS(i,1)-CT(1))
-  qD(4) = qD(4)+Two*Dm(i,2)*(outxyzRAS(i,2)-CT(2))
-  qD(5) = qD(5)+Dm(i,2)*(outxyzRAS(i,3)-CT(3))+Dm(i,3)*(outxyzRAS(i,2)-CT(2))
-  qD(6) = qD(6)+Two*Dm(i,3)*(outxyzRAS(i,3)-CT(3))
+  qQ(1) = qQ(1)+Qm(i)*(outxyzRAS(1,i)-CT(1))*(outxyzRAS(1,i)-CT(1))
+  qQ(2) = qQ(2)+Qm(i)*(outxyzRAS(1,i)-CT(1))*(outxyzRAS(2,i)-CT(2))
+  qQ(3) = qQ(3)+Qm(i)*(outxyzRAS(1,i)-CT(1))*(outxyzRAS(3,i)-CT(3))
+  qQ(4) = qQ(4)+Qm(i)*(outxyzRAS(2,i)-CT(2))*(outxyzRAS(2,i)-CT(2))
+  qQ(5) = qQ(5)+Qm(i)*(outxyzRAS(2,i)-CT(2))*(outxyzRAS(3,i)-CT(3))
+  qQ(6) = qQ(6)+Qm(i)*(outxyzRAS(3,i)-CT(3))*(outxyzRAS(3,i)-CT(3))
+  qD(1) = qD(1)+Two*Dm(i,1)*(outxyzRAS(1,i)-CT(1))
+  qD(2) = qD(2)+Dm(i,1)*(outxyzRAS(2,i)-CT(2))+Dm(i,2)*(outxyzRAS(1,i)-CT(1))
+  qD(3) = qD(3)+Dm(i,1)*(outxyzRAS(3,i)-CT(3))+Dm(i,3)*(outxyzRAS(1,i)-CT(1))
+  qD(4) = qD(4)+Two*Dm(i,2)*(outxyzRAS(2,i)-CT(2))
+  qD(5) = qD(5)+Dm(i,2)*(outxyzRAS(3,i)-CT(3))+Dm(i,3)*(outxyzRAS(2,i)-CT(2))
+  qD(6) = qD(6)+Two*Dm(i,3)*(outxyzRAS(3,i)-CT(3))
   qK(1) = qK(1)+QQm(i,1)
   qK(2) = qK(2)+QQm(i,2)
   qK(3) = qK(3)+QQm(i,4)
@@ -155,17 +154,17 @@ xyzQuQ(6) = OneHalf*(qQ(6)+qD(6)-Trace1-Trace2)+qK(6)
 if (ChargedQM) then  !If charged system, then do...
   qs = Zero
   do i=1,iCi
-    CofC(1) = CofC(1)+abs(qm(i))*outxyzRAS(i,1) !Center of charge
-    CofC(2) = CofC(2)+abs(qm(i))*outxyzRAS(i,2)
-    CofC(3) = CofC(3)+abs(qm(i))*outxyzRAS(i,3)
+    CofC(1) = CofC(1)+abs(qm(i))*outxyzRAS(1,i) !Center of charge
+    CofC(2) = CofC(2)+abs(qm(i))*outxyzRAS(2,i)
+    CofC(3) = CofC(3)+abs(qm(i))*outxyzRAS(3,i)
     qs = qs+abs(qm(i))
   end do
   CofC(1) = CofC(1)/qs
   CofC(2) = CofC(2)/qs
   CofC(3) = CofC(3)/qs
   Gx = CofC(1)-outxyzRAS(1,1)+Cordst(1,1) !Where C-of-C is globally
-  Gy = CofC(2)-outxyzRAS(1,2)+Cordst(1,2)
-  Gz = CofC(3)-outxyzRAS(1,3)+Cordst(1,3)
+  Gy = CofC(2)-outxyzRAS(2,1)+Cordst(2,1)
+  Gz = CofC(3)-outxyzRAS(3,1)+Cordst(3,1)
   xyzMyC(1) = xyzMyC(1)+qtot*Gx !Dipole
   xyzMyC(2) = xyzMyC(2)+qtot*Gy
   xyzMyC(3) = xyzMyC(3)+qtot*Gz
@@ -230,7 +229,7 @@ Gunnar(3) = PolFac*(xyzMyP(2)+xyzMyQ(2)+xyzMyI(2)+xyzMyC(2))
 Gunnar(4) = PolFac*(xyzMyP(3)+xyzMyQ(3)+xyzMyI(3)+xyzMyC(3))
 do l=1,iCi
   ! The potential from the dipole (the 1/r*r*r is in Work(iFil...).
-  Gunnar(1) = Gunnar(2)*outxyzRAS(l,1)+Gunnar(3)*outxyzRAS(l,2)+Gunnar(4)*outxyzRAS(l,3)
+  Gunnar(1) = Gunnar(2)*outxyzRAS(1,l)+Gunnar(3)*outxyzRAS(2,l)+Gunnar(4)*outxyzRAS(3,l)
   do i=1,10
     Poli(l,i) = Gunnar(i)
     do j=1+(nPol*iCnum),iAtom2

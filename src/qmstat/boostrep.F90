@@ -20,7 +20,6 @@ implicit none
 real(kind=wp) :: AddRep, SmatPure(*)
 integer(kind=iwp) :: iVecs, nSize
 logical(kind=iwp) :: InCutOff
-#include "maxi.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ind1, ind2, iO1, iO2, j, kaunter
 real(kind=wp) :: Scalar

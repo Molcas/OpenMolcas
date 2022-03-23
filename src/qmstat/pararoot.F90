@@ -40,10 +40,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp) :: Ract, BetaBol, Etot
 logical(kind=iwp) :: CalledBefore, SampleThis
-#include "maxi.fh"
-integer(kind=iwp) :: i, iEnsemb, iPa, iPermutation(2,MxParT), iTemp = 0, j, mTemp
+integer(kind=iwp) :: i, iEnsemb, iPa, iTemp = 0, j, mTemp
 real(kind=wp) :: B1, B2, BigDelta, Dum, Dum1, E1, E2, Expe, Expran, PerType, R1, R2, T1, T2
 logical(kind=iwp) :: WeiterBitte, Accept
+integer(kind=iwp), allocatable :: iPermutation(:,:)
 real(kind=wp), allocatable :: CordstTEMP(:,:)
 real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ
 real(kind=wp), external :: Ranf
@@ -59,7 +59,8 @@ end if
 
 ! See what to do.
 
-call mma_allocate(CordstTEMP,nCent*nPart,3,label='CordstTEMP')
+call mma_allocate(CordstTEMP,3,nCent*nPart,label='CordstTEMP')
+call mma_allocate(iPermutation,2,nTemp,label='iPermutation')
 
 do
   if (iTemp < nTemp) then
@@ -100,7 +101,7 @@ do
   else
     ! If we are to attempt interchanges.
 
-    do iPa=1,MxParT
+    do iPa=1,nTemp
       iPermutation(1,iPa) = iPa
       iPermutation(2,iPa) = iPa
     end do
@@ -130,7 +131,7 @@ do
       else
 
         mTemp = 2*((nTemp-1)/2)
-        ! Contruct permutation for even iMac
+        ! Construct permutation for even iMac
         do iPa=2,mTemp,2
           iPermutation(2,iPa) = iPermutation(1,iPa+1)
           iPermutation(2,iPa+1) = iPermutation(1,iPa)
@@ -180,9 +181,9 @@ do
         write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
         write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
         call Get8(R2,E2)
-        do i=1,3
-          do j=1,nCent*nPart
-            CordstTEMP(j,i) = Cordst(j,i)
+        do j=1,nCent*nPart
+          do i=1,3
+            CordstTEMP(i,j) = Cordst(i,j)
           end do
         end do
         ! C2=C1
@@ -197,9 +198,9 @@ do
         write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
         call Put8(R1,E1,Dum1,Dum1,Dum1)
         ! C1=Ct
-        do i=1,3
-          do j=1,nCent*nPart
-            Cordst(j,i) = CordstTEMP(j,i)
+        do j=1,nCent*nPart
+          do i=1,3
+            Cordst(i,j) = CordstTEMP(i,j)
           end do
         end do
         iLuStIn = 8+nStFilT(iPermutation(1,iEnsemb))
@@ -225,6 +226,7 @@ do
 end do
 
 call mma_deallocate(CordstTEMP)
+call mma_deallocate(iPermutation)
 
 return
 

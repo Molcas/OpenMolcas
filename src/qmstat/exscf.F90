@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ExScf(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itri,Smat,SmatPure,InCutOff,ipAOSum)
+subroutine ExScf(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itri,Smat,SmatPure,InCutOff,ipAOSum)
 
 use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iOrb, iPrint, iV1, lExtr, lmax, nCent, nPart, outxyz
 use Index_Functions, only: nTri_Elem
@@ -18,11 +18,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itri, ipAOSum
+integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itri, ipAOSum
 real(kind=wp) :: Ax, Ay, Az, Smat(itri), SmatPure(itri)
 logical(kind=iwp) :: InCutOff
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAOAOTri, iAOMOOvl, iAOMOOvlE, iInte, ind, inwm, iOPure, iOvlMO, iOvlMOE, ipAOAUX, ipAOAUXtri, ipAOint, &
                      ipAUX, ipAUXp, ipAUXtri, iV2, j, k, N, nAObaseSize, nAOqMOcl, nInsideCut, nOrbSize, nStorlek, nV2size
 real(kind=wp) :: CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
@@ -34,8 +33,8 @@ logical(kind=iwp), allocatable :: Inside(:,:)
 ! defined in Seward.                                                   *
 !----------------------------------------------------------------------*
 Ax = Cordst(1,1)-outxyz(1,1)
-Ay = Cordst(1,2)-outxyz(1,2)
-Az = Cordst(1,3)-outxyz(1,3)
+Ay = Cordst(2,1)-outxyz(2,1)
+Az = Cordst(3,1)-outxyz(3,1)
 !----------------------------------------------------------------------*
 ! Rotate solvent orbitals and make AO integration.                     *
 !----------------------------------------------------------------------*
@@ -71,31 +70,27 @@ do i=1,iTri
   SmatPure(i) = 0
 end do
 nInsideCut = 0
-call mma_allocate(Inside,MxAt,3,label='Inside')
+call mma_allocate(Inside,iQ_Atoms,nAtomsCC,label='Inside')
 do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Initialize.
 
   dist_sw = huge(dist_sw)
   r3 = huge(r3)
-  do i=1,MxAt
-    Inside(i,1) = .false.
-    Inside(i,2) = .false.
-    Inside(i,3) = .false.
-  end do
+  Inside(:,:) = .false.
   NearBy = .false.
   ! Loop over atoms.
   do inwm=1,iQ_Atoms
     do k=1,3
-      CorTemp(k) = (Cordst(N+1,k)-Cordst(inwm,k))**2
+      CorTemp(k) = (Cordst(k,N+1)-Cordst(k,inwm))**2
     end do
     r2 = CorTemp(1)+CorTemp(2)+CorTemp(3)
     dist_sw = min(dist_sw,r2)
     DH1 = Zero !Distances for the inner cut-off. Also include the hydrogens.
     DH2 = Zero
     do k=1,3
-      DH1 = DH1+(Cordst(N+2,k)-Cordst(inwm,k))**2
-      DH2 = DH2+(Cordst(N+3,k)-Cordst(inwm,k))**2
+      DH1 = DH1+(Cordst(k,N+2)-Cordst(k,inwm))**2
+      DH2 = DH2+(Cordst(k,N+3)-Cordst(k,inwm))**2
     end do
     r3temp1 = min(DH1,DH2)
     r3temp2 = min(r3temp1,r2)
@@ -125,7 +120,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Make the AO-AO overlap integration.
 
-  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
+  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
 
   ! Transform to MO-MO overlap.
 

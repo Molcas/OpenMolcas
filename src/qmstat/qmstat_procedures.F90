@@ -8,11 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!  VV: this should not exist, and Molcas.fh must be used instead
-!  but since qmstat has another definitions of vars declared in Molcas.fh
-!  this hack is used her.
-!
-      Integer LENIN,LENIN8
-      Parameter(LENIN=6)
-      Parameter(LENIN8=LENIN+8)
+
+! This module contains procedures that need an interface
+module qmstat_procedures
+
+implicit none
+private
+
+public :: GiveMeInfo
+
+contains
+
+#define _IN_MODULE_
+#include "givemeinfo.F90"
+
+end module

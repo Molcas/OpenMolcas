@@ -16,21 +16,21 @@ subroutine Get_Qmstat_Input(iQ_Atoms)
 use qmstat_global, only: AddExt, Anal, ATitle, CAFieldG, CBFieldG, cDumpForm, CFExp, CharDi, CharDiQ, ContrStateB, Cordst, &
                          Cut_Elc, Cut_Ex1, Cut_Ex2, dCIRef, DelFi, DelOrAdd, DelR, DelX, Diel, DifSlExp, Disp, DispDamp, dLJRep, &
                          dLvlShift, EdSt, Enelim, ExtLabel, Exdt1, Exdtal, Exrep10, Exrep2, Exrep4, Exrep6, FieldDamp, Forcek, &
-                         iCIInd, iCompExt, iExtr_Atm, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iLvlShift, iNrExtr, &
-                         iNrIn, iNrUt, Inter, iOcc1, iOrb, iPrint, iRead, iSeed, itMax, Joblab, lCiSelect, lExtr, lMltSlC, lQuad, &
-                         lSlater, MoAveRed, Mp2DensCorr, nAdd, nAtom, nCent, nCha, nCIRef, nDel, nEqState, nExtAddOns, nLvlShift, &
-                         nMacro, nMicro, nPart, nPol, NrFiles, NrStarti, NrStartu, NrStates, nSlSiteC, nStFilT, nTemp, ParallelT, &
-                         ParaTemps, Pol, Pollim, Pres, Qmeq, QmProd, QmType, Qsta, QuaDi, QuaDiQ, rStart, SaFilIn, SaFilUt, &
-                         ScalExt, Sexre1, Sexre2, Sexrep, SimEx, SingPoint, SlExpC, SlFactC, SlPC, StFilIn, StFilUt, Surf, Temp, &
-                         ThrsCont, ThrsRedOcc, Udisp
+                         iCIInd, iCompExt, iExtr_Atm, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iLvlShift, iNrIn, &
+                         iNrUt, Inter, iOcc1, iOrb, iPrint, iRead, iSeed, itMax, Joblab, lCiSelect, lExtr, lMltSlC, lQuad, &
+                         lSlater, MoAveRed, Mp2DensCorr, MxPut, nAdd, nAtom, nCent, nCha, nCIRef, nDel, nEqState, nExtAddOns, &
+                         nLvlShift, nMacro, nMicro, nPart, nPol, NrFiles, NrStarti, NrStartu, NrStates, nSlSiteC, nStFilT, nTemp, &
+                         ParallelT, ParaTemps, Pol, Pollim, Pres, Qmeq, QmProd, QmType, Qsta, QuaDi, QuaDiQ, rStart, SaFilIn, &
+                         SaFilUt, ScalExt, Sexre1, Sexre2, Sexrep, SimEx, SingPoint, SlExpC, SlFactC, SlPC, StFilIn, StFilUt, &
+                         Surf, Temp, ThrsCont, ThrsRedOcc, Udisp
 use Index_Functions, only: nTri3_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iQ_Atoms
-#include "maxi.fh"
 #include "warnings.h"
-integer(kind=iwp) :: i, iChrct, iTemp, j, k, kaunt, kk, Last, LuRd, NExtr_Atm, njhr, nS, nT
+integer(kind=iwp) :: i, iChrct, iNrExtr, iTemp, j, k, kaunt, kk, Last, LuRd, NExtr_Atm, njhr, nS, nT
 real(kind=wp) :: CoTEMP1(3), CoTEMP2(3), CoTEMP3(3), CoTEMP4(3), CoTEMP5(3), dTemp, SlExpTemp, SlFacTemp(6)
 logical(kind=iwp) :: Changed, YesNo(20)
 character(len=180) :: Key
@@ -38,6 +38,7 @@ character(len=20) :: Kword
 character(len=3) :: VecsQue
 integer(kind=iwp), external :: iClast, IsFreeUnit
 character(len=180), external :: Get_Ln
+real(kind=wp), allocatable :: Tmp(:), Tmp2(:,:)
 
 ! Say what is done and set all YesNo to false; their purpose is to
 ! keep track on compulsory keywords and certain keyword combinations.
@@ -149,6 +150,8 @@ do
             ParallelT = .true.
             Key = Get_Ln(LuRd)
             call Get_I1(1,nTemp)
+            call mma_allocate(nStFilT,nTemp,label='nStFilT')
+            call mma_allocate(Paratemps,nTemp,label='Paratemps')
             Key = Get_Ln(LuRd)
             call Get_I(1,nStFilT,nTemp)
             Key = Get_Ln(LuRd)
@@ -212,11 +215,9 @@ do
       AddExt = .true.
       Key = Get_Ln(LuRd)
       call Get_I1(1,nExtAddOns)
-      if (nExtAddOns > MxExtAddOn) then
-        write(u6,*)
-        write(u6,*) 'Too many external perturbations asked for.'
-        call Quit(_RC_INPUT_ERROR_)
-      end if
+      call mma_allocate(ScalExt,nExtAddOns,label='ScalExt')
+      call mma_allocate(ExtLabel,nExtAddOns,label='ExtLabel')
+      call mma_allocate(iCompExt,nExtAddOns,label='iCompExt')
       do i=1,nExtAddOns
         read(LuRd,*) ScalExt(i),ExtLabel(i),iCompExt(i)
       end do
@@ -384,8 +385,8 @@ do
             ! <<<DPARameters>>>  Dispersion
             do i=1,iQ_Atoms
               Key = Get_Ln(LuRd)
-              call Get_F(1,Udisp(i,1),1)
-              call Get_F(2,Udisp(i,2),1)
+              call Get_F(1,Udisp(1,i),1)
+              call Get_F(2,Udisp(2,i),1)
             end do
           case ('ELEC')
             ! <<<ELECtrostatic>>> Electrostatic Slater Numbers
@@ -484,6 +485,8 @@ do
                   call Get_F(3,QuaDi(2,2),1)
                   call Get_F(4,QuaDi(3,2),1)
                   ! Damping numbers for solute
+                  call mma_allocate(CharDiQ,iQ_Atoms,label='CharDiQ')
+                  call mma_allocate(QuaDiQ,3,iQ_Atoms,label='QuaDiQ')
                   do i=1,iQ_Atoms
                     Key = Get_Ln(LuRd)
                     call Get_F(1,CharDiQ(i),1)
@@ -556,23 +559,23 @@ do
               do j=1,nAtom
                 kaunt = kaunt+1
                 Key = Get_Ln(LuRd)
-                call Get_F(1,Cordst(kaunt,1),1)
-                call Get_F(2,Cordst(kaunt,2),1)
-                call Get_F(3,Cordst(kaunt,3),1)
+                call Get_F(1,Cordst(1,kaunt),1)
+                call Get_F(2,Cordst(2,kaunt),1)
+                call Get_F(3,Cordst(3,kaunt),1)
               end do
               do kk=1,3
-                CoTEMP1(kk) = Cordst(kaunt-2,kk)
-                CoTEMP2(kk) = Cordst(kaunt-1,kk)
-                CoTEMP3(kk) = Cordst(kaunt-0,kk)
+                CoTEMP1(kk) = Cordst(kk,kaunt-2)
+                CoTEMP2(kk) = Cordst(kk,kaunt-1)
+                CoTEMP3(kk) = Cordst(kk,kaunt-0)
               end do
               call OffAtom(CoTEMP1,CoTEMP2,CoTEMP3,CoTEMP4,CoTEMP5)
               kaunt = kaunt+1
               do kk=1,3
-                Cordst(kaunt,kk) = CoTEMP4(kk)
+                Cordst(kk,kaunt) = CoTEMP4(kk)
               end do
               kaunt = kaunt+1
               do kk=1,3
-                Cordst(kaunt,kk) = CoTEMP5(kk)
+                Cordst(kk,kaunt) = CoTEMP5(kk)
               end do
             end do
           case ('CAVR')
@@ -593,6 +596,51 @@ do
             call Get_I1(3,nCha)
             call Get_I1(4,nPol)
             call Get_I1(5,nSlSiteC)
+            ! Reallocate Qsta
+            call mma_allocate(Tmp,max(size(Qsta),nCha),label='Tmp')
+            Tmp(1:size(Qsta)) = Qsta
+            call mma_deallocate(Qsta)
+            call move_alloc(Tmp,Qsta)
+            ! Reallocate Pol
+            call mma_allocate(Tmp,max(size(Pol),nPol),label='Tmp')
+            Tmp(1:size(Pol)) = Pol
+            call mma_deallocate(Pol)
+            call move_alloc(Tmp,Pol)
+            ! Reallocate Disp
+            call mma_allocate(Tmp2,max(size(Disp,1),nPol),max(size(Disp,2),nPol),label='Tmp')
+            Tmp2(1:size(Disp,1),1:size(Disp,2)) = Disp
+            call mma_deallocate(Disp)
+            call move_alloc(Tmp2,Disp)
+            ! Reallocate SlExpC
+            call mma_allocate(Tmp2,4,max(size(SlExpC,2),nSlSiteC),label='Tmp')
+            Tmp2(:,1:size(SlExpC,2)) = SlExpC
+            call mma_deallocate(SlExpC)
+            call move_alloc(Tmp2,SlExpC)
+            ! Reallocate SlFactC
+            call mma_allocate(Tmp2,4,max(size(SlFactC,2),nSlSiteC),label='Tmp')
+            Tmp2(:,1:size(SlFactC,2)) = SlFactC
+            call mma_deallocate(SlFactC)
+            call move_alloc(Tmp2,SlFactC)
+            ! Reallocate SlPC
+            call mma_allocate(Tmp,max(size(SlPC),nSlSiteC),label='Tmp')
+            Tmp(1:size(SlPC)) = SlPC
+            call mma_deallocate(SlPC)
+            call move_alloc(Tmp,SlPC)
+            ! Reallocate Sexrep
+            call mma_allocate(Tmp2,max(size(Sexrep,1),nAtom),max(size(Sexrep,2),nAtom),label='Tmp')
+            Tmp2(1:size(Sexrep,1),1:size(Sexrep,2)) = Sexrep
+            call mma_deallocate(Sexrep)
+            call move_alloc(Tmp2,Sexrep)
+            ! Reallocate Sexre1
+            call mma_allocate(Tmp2,max(size(Sexre1,1),nAtom),max(size(Sexre1,2),nAtom),label='Tmp')
+            Tmp2(1:size(Sexre1,1),1:size(Sexre1,2)) = Sexre1
+            call mma_deallocate(Sexre1)
+            call move_alloc(Tmp2,Sexre1)
+            ! Reallocate Sexre2
+            call mma_allocate(Tmp2,max(size(Sexre2,1),nAtom),max(size(Sexre2,2),nAtom),label='Tmp')
+            Tmp2(1:size(Sexre2,1),1:size(Sexre2,2)) = Sexre2
+            call mma_deallocate(Sexre2)
+            call move_alloc(Tmp2,Sexre2)
           case ('CHAR')
             ! <<<CHARge>>>  Magnitude of the charges.
             Key = Get_Ln(LuRd)
@@ -609,7 +657,7 @@ do
             if (lMltSlC > 1) then
               write(u6,*)
               write(u6,*) 'Too high order of multipole in classical system'
-              write(u6,*) '              Higher order is 1'
+              write(u6,*) '              Highest order is 1'
               call Quit(_RC_INPUT_ERROR_)
             end if
             do i=1,nSlSiteC
@@ -657,6 +705,7 @@ do
             ! <<<JOBFiles>>>  How many jobfiles and how many states in them.
             Key = Get_Ln(LuRd)
             call Get_I1(1,NrFiles)
+            call mma_allocate(NrStates,NrFiles,label='NrStates')
             Key = Get_Ln(LuRd)
             call Get_I(1,NrStates,NrFiles)
           case ('EQST')
@@ -677,6 +726,8 @@ do
             ! <<<LEVElshift>>> Introduce levelshift of RASSI states.
             Key = Get_Ln(LuRd)
             call Get_I1(1,nLvlShift)
+            call mma_allocate(iLvlShift,nLvlShift,label='iLvlShift')
+            call mma_allocate(dLvlShift,nLvlShift,label='dLvlShift')
             Key = Get_Ln(LuRd)
             call Get_I(1,iLvlShift,nLvlShift)
             Key = Get_Ln(LuRd)
@@ -700,6 +751,8 @@ do
           case ('CISE')
             ! <<<CISElect>>> Use overlap criterion in choosing state.
             lCiSelect = .true.
+            call mma_allocate(iCIInd,nCIRef,label='iCIInd')
+            call mma_allocate(dCIRef,nCIRef,label='dCIRef')
             Key = Get_Ln(LuRd)
             call Get_I1(1,nCIRef)
             Key = Get_Ln(LuRd)
@@ -732,11 +785,6 @@ do
             Key = Get_Ln(LuRd)
             call Get_I(1,iOrb(1),1)
             call Get_I1(2,iOcc1)
-            if (iOrb(1) > MxOrb) then
-              write(u6,*)
-              write(u6,*) 'The parameter MxOrb is set too low, or your total number of orbitals too high.'
-              call Quit(_RC_INPUT_ERROR_)
-            end if
           case ('MP2D')
             ! <<<MP2Denscorr>>>
             Mp2DensCorr = .true.
@@ -795,6 +843,8 @@ do
             lExtr(7) = .true.
             Key = Get_Ln(LuRd)
             call Get_I1(1,NExtr_Atm)
+            call mma_deallocate(iExtr_Atm)
+            call mma_allocate(iExtr_Atm,NExtr_Atm,label='iExtr_Atm')
             Key = Get_Ln(LuRd)
             call Get_I(1,iExtr_Atm,NExtr_Atm)
           case ('MESP')

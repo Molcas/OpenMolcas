@@ -15,21 +15,20 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-real(kind=wp) :: EHam, Cordst(MxCen*MxPut,3), Coord(MxAt*3), Forcek, dLJrep, Ract
 integer(kind=iwp) :: iQ_Atoms
+real(kind=wp) :: EHam, Cordst(3,iQ_Atoms), Coord(3), Forcek, dLJrep, Ract
 integer(kind=iwp) :: iAt
 real(kind=wp) :: dDepart, Diff, R
 
 ! First the harmonic potential that keeps QM close to centre.
 
-dDepart = (Cordst(1,1)-Coord(1))**2+(Cordst(1,2)-Coord(2))**2+(Cordst(1,3)-Coord(3))**2
+dDepart = (Cordst(1,1)-Coord(1))**2+(Cordst(2,1)-Coord(2))**2+(Cordst(3,1)-Coord(3))**2
 EHam = Forcek*Half*dDepart
 
 ! Second the repulsion with boundary that keeps QM away from boundary.
 
 do iAt=1,iQ_Atoms
-  R = Cordst(iAt,1)**2+Cordst(iAt,2)**2+Cordst(iAt,3)**2
+  R = Cordst(1,iAt)**2+Cordst(2,iAt)**2+Cordst(3,iAt)**2
   R = sqrt(R)
   Diff = Ract-R
   EHam = EHam+(dLJRep/Diff)**12

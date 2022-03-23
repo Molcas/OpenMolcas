@@ -16,11 +16,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iCNum, iCStart, iQ_Atoms, Indma, iDT(3), NVarv
 real(kind=wp) :: FFp(nPol*nPart,3), xyzMyI(3), Egun, Energy
 logical(kind=iwp) :: JaNej, Haveri
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, imin, j, k, kmin, l
 real(kind=wp) :: Diff, Diffab, dist, distmin, Dtil, Egtest
 
@@ -63,7 +62,7 @@ if (nVarv >= itMax) then !itMax is from input or default.
     imin = 0
     do i=1,iq_atoms
       do k=0,nCent-1
-        dist = sqrt((Cordst(i,1)-Cordst(j+k,1))**2+(Cordst(i,2)-Cordst(j+k,2))**2+(Cordst(i,3)-Cordst(j+k,3))**2)
+        dist = sqrt((Cordst(1,i)-Cordst(1,j+k))**2+(Cordst(2,i)-Cordst(2,j+k))**2+(Cordst(3,i)-Cordst(3,j+k))**2)
         if (dist < distmin) then
           distmin = dist
           imin = i

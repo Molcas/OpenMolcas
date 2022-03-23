@@ -41,17 +41,16 @@
 
 subroutine RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
 
-use qmstat_global, only: AddExt, ChaNuc, ChargedQM, CT, HmatSOld, HmatState, iBigT, ipAvRed, iPrint, lSlater, MoAveRed, nMlt, &
-                         nRedMO, nState, outxyzRAS, qTot, RasCha, RasDip, RasQua, SlExpQ
+use qmstat_global, only: AddExt, ChaNuc, ChargedQM, CT, HmatSOld, HmatState, iBigT, ipAvRed, iPrint, lSlater, MoAveRed, MxMltp, &
+                         MxSymQ, nMlt, nRedMO, nState, outxyzRAS, qTot, RasCha, RasDip, RasQua
 use Index_Functions, only: nTri3_Elem, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: nBas(MxSym), iQ_Atoms, nOcc(MxBas), natyp(MxAt), nntyp
 integer(kind=iwp) :: i, iCi, iDum, iMME(nTri3_Elem(MxMltp)), j, k, kaunt, kaunter, kk, l, nSize, nTyp
 real(kind=wp) :: D1, D2, D3, dipx, dipx0, dipy, dipy0, dipz, dipz0, dQxx, dQxy, dQxz, dQyy, dQyz, dQzz, dTox, dToy, dToz, Q, qEl, &
                  quaDxx, quaDxy, quaDxz, quaDyy, quaDyx, quaDyz, quaDzx, quaDzy, quaDzz, quaQxx, quaQxy, quaQxz, quaQyy, quaQyz, &
@@ -62,10 +61,14 @@ integer(kind=iwp), allocatable :: iCent(:)
 
 ! A modest entrance.
 
+iCi = nTri_Elem(iQ_Atoms)
+call mma_allocate(RasCha,nTri_Elem(nState),iCi,label='RasCha')
+call mma_allocate(RasDip,nTri_Elem(nState),3,iCi,label='RasDip')
+call mma_allocate(RasQua,nTri_Elem(nState),6,iCi,label='RasQua')
+
 ! Zeros.
 
 kaunt = 0
-iCi = nTri_Elem(iQ_Atoms)
 do i=1,nState
   do j=1,i
     kaunt = kaunt+1
@@ -116,8 +119,9 @@ write(u6,*) '     Multicenter multipole expanding the charge density expressed i
 ! First obtain MME in AO-basis.
 
 call mma_allocate(iCent,nTri_Elem(nBas(1)),label='iCent')
+call mma_allocate(outxyzRAS,3,nTri_Elem(iQ_Atoms),label='outxyzRAS')
 call GetMem('Dummy','Allo','Inte',iDum,nBas(1)**2)
-call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyzRAS,SlExpQ,lSlater)
+call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyzRAS,lSlater)
 call GetMem('Dummy','Free','Inte',iDum,nBas(1)**2)
 
 ! Set nTyp, which is number of unique multipole components.
@@ -234,42 +238,42 @@ do i=1,nState !Total charge and dipole.
     dipx = dipx+RasDip(k,1,j)
     dipy = dipy+RasDip(k,2,j)
     dipz = dipz+RasDip(k,3,j)
-    dipx0 = dipx0+RasCha(k,j)*outxyzRAS(j,1)
-    dipy0 = dipy0+RasCha(k,j)*outxyzRAS(j,2)
-    dipz0 = dipz0+RasCha(k,j)*outxyzRAS(j,3)
+    dipx0 = dipx0+RasCha(k,j)*outxyzRAS(1,j)
+    dipy0 = dipy0+RasCha(k,j)*outxyzRAS(2,j)
+    dipz0 = dipz0+RasCha(k,j)*outxyzRAS(3,j)
     quaxx = quaxx+RasQua(k,1,j)
     quaxy = quaxy+RasQua(k,2,j)
     quaxz = quaxz+RasQua(k,4,j)
     quayy = quayy+RasQua(k,3,j)
     quayz = quayz+RasQua(k,5,j)
     quazz = quazz+RasQua(k,6,j)
-    quaDxx = quaDxx+RasDip(k,1,j)*(outxyzRAS(j,1)-CT(1))
-    quaDxy = quaDxy+RasDip(k,1,j)*(outxyzRAS(j,2)-CT(2))
-    quaDxz = quaDxz+RasDip(k,1,j)*(outxyzRAS(j,3)-CT(3))
-    quaDyx = quaDyx+RasDip(k,2,j)*(outxyzRAS(j,1)-CT(1))
-    quaDyy = quaDyy+RasDip(k,2,j)*(outxyzRAS(j,2)-CT(2))
-    quaDyz = quaDyz+RasDip(k,2,j)*(outxyzRAS(j,3)-CT(3))
-    quaDzx = quaDzx+RasDip(k,3,j)*(outxyzRAS(j,1)-CT(1))
-    quaDzy = quaDzy+RasDip(k,3,j)*(outxyzRAS(j,2)-CT(2))
-    quaDzz = quaDzz+RasDip(k,3,j)*(outxyzRAS(j,3)-CT(3))
-    quaQxx = quaQxx+RasCha(k,j)*(outxyzRAS(j,1)-CT(1))*(outxyzRAS(j,1)-CT(1))
-    quaQxy = quaQxy+RasCha(k,j)*(outxyzRAS(j,1)-CT(1))*(outxyzRAS(j,2)-CT(2))
-    quaQxz = quaQxz+RasCha(k,j)*(outxyzRAS(j,1)-CT(1))*(outxyzRAS(j,3)-CT(3))
-    quaQyy = quaQyy+RasCha(k,j)*(outxyzRAS(j,2)-CT(2))*(outxyzRAS(j,2)-CT(2))
-    quaQyz = quaQyz+RasCha(k,j)*(outxyzRAS(j,2)-CT(2))*(outxyzRAS(j,3)-CT(3))
-    quaQzz = quaQzz+RasCha(k,j)*(outxyzRAS(j,3)-CT(3))*(outxyzRAS(j,3)-CT(3))
+    quaDxx = quaDxx+RasDip(k,1,j)*(outxyzRAS(1,j)-CT(1))
+    quaDxy = quaDxy+RasDip(k,1,j)*(outxyzRAS(2,j)-CT(2))
+    quaDxz = quaDxz+RasDip(k,1,j)*(outxyzRAS(3,j)-CT(3))
+    quaDyx = quaDyx+RasDip(k,2,j)*(outxyzRAS(1,j)-CT(1))
+    quaDyy = quaDyy+RasDip(k,2,j)*(outxyzRAS(2,j)-CT(2))
+    quaDyz = quaDyz+RasDip(k,2,j)*(outxyzRAS(3,j)-CT(3))
+    quaDzx = quaDzx+RasDip(k,3,j)*(outxyzRAS(1,j)-CT(1))
+    quaDzy = quaDzy+RasDip(k,3,j)*(outxyzRAS(2,j)-CT(2))
+    quaDzz = quaDzz+RasDip(k,3,j)*(outxyzRAS(3,j)-CT(3))
+    quaQxx = quaQxx+RasCha(k,j)*(outxyzRAS(1,j)-CT(1))*(outxyzRAS(1,j)-CT(1))
+    quaQxy = quaQxy+RasCha(k,j)*(outxyzRAS(1,j)-CT(1))*(outxyzRAS(2,j)-CT(2))
+    quaQxz = quaQxz+RasCha(k,j)*(outxyzRAS(1,j)-CT(1))*(outxyzRAS(3,j)-CT(3))
+    quaQyy = quaQyy+RasCha(k,j)*(outxyzRAS(2,j)-CT(2))*(outxyzRAS(2,j)-CT(2))
+    quaQyz = quaQyz+RasCha(k,j)*(outxyzRAS(2,j)-CT(2))*(outxyzRAS(3,j)-CT(3))
+    quaQzz = quaQzz+RasCha(k,j)*(outxyzRAS(3,j)-CT(3))*(outxyzRAS(3,j)-CT(3))
   end do
   do kk=1,iQ_Atoms
     qtot = qtot+ChaNuc(kk)
-    dTox = dTox+ChaNuc(kk)*outxyzRAS(kk,1)
-    dToy = dToy+ChaNuc(kk)*outxyzRAS(kk,2)
-    dToz = dToz+ChaNuc(kk)*outxyzRAS(kk,3)
-    dQxx = dQxx+ChaNuc(kk)*(outxyzRAS(kk,1)-CT(1))*(outxyzRAS(kk,1)-CT(1))
-    dQxy = dQxy+ChaNuc(kk)*(outxyzRAS(kk,1)-CT(1))*(outxyzRAS(kk,2)-CT(2))
-    dQxz = dQxz+ChaNuc(kk)*(outxyzRAS(kk,1)-CT(1))*(outxyzRAS(kk,3)-CT(3))
-    dQyy = dQyy+ChaNuc(kk)*(outxyzRAS(kk,2)-CT(2))*(outxyzRAS(kk,2)-CT(2))
-    dQyz = dQyz+ChaNuc(kk)*(outxyzRAS(kk,2)-CT(2))*(outxyzRAS(kk,3)-CT(3))
-    dQzz = dQzz+ChaNuc(kk)*(outxyzRAS(kk,3)-CT(3))*(outxyzRAS(kk,3)-CT(3))
+    dTox = dTox+ChaNuc(kk)*outxyzRAS(1,kk)
+    dToy = dToy+ChaNuc(kk)*outxyzRAS(2,kk)
+    dToz = dToz+ChaNuc(kk)*outxyzRAS(3,kk)
+    dQxx = dQxx+ChaNuc(kk)*(outxyzRAS(1,kk)-CT(1))*(outxyzRAS(1,kk)-CT(1))
+    dQxy = dQxy+ChaNuc(kk)*(outxyzRAS(1,kk)-CT(1))*(outxyzRAS(2,kk)-CT(2))
+    dQxz = dQxz+ChaNuc(kk)*(outxyzRAS(1,kk)-CT(1))*(outxyzRAS(3,kk)-CT(3))
+    dQyy = dQyy+ChaNuc(kk)*(outxyzRAS(2,kk)-CT(2))*(outxyzRAS(2,kk)-CT(2))
+    dQyz = dQyz+ChaNuc(kk)*(outxyzRAS(2,kk)-CT(2))*(outxyzRAS(3,kk)-CT(3))
+    dQzz = dQzz+ChaNuc(kk)*(outxyzRAS(3,kk)-CT(3))*(outxyzRAS(3,kk)-CT(3))
   end do
   ! Observe! qTot is not just a check. It is used later as a sign to see if QM-region is charged.
   qtot = qtot-qEl

@@ -11,16 +11,17 @@
 
 subroutine ContRASBas(nStatePrim,iNonH,iNonS,iEig2)
 
-use qmstat_global, only: ContrStateB, dLvlShift, HmatState, iLvlShift, iPrint, nLvlShift, nState, nStateRed, ThrsCont
+use qmstat_global, only: ContrStateB, dLvlShift, HmatSOld, HmatState, iLvlShift, iPrint, nLvlShift, nState, ThrsCont
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, one
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nStatePrim, iNonH, iNonS, iEig2
-#include "maxi.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iEig1, ii, ind, iRedHSq, iRedHTr, iS, iSqH, iState, iT, iTEMP, j, jState, k, kaunt, kaunter, nLvlInd, nTri
+integer(kind=iwp) :: i, iEig1, ii, ind, iRedHSq, iRedHTr, iS, iSqH, iState, iT, iTEMP, j, jState, k, kaunt, kaunter, nLvlInd, &
+                     nStateRed, nTri
 real(kind=wp) :: sss, x
 
 ! Hi y'all
@@ -96,6 +97,9 @@ call JacOrd(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
 ! eigenenergies, hence time to construct the first H_0 and store the
 ! eigenvectors for subsequent transformations.
 
+call mma_allocate(HMatState,nTri_Elem(nStateRed),label='HMatState')
+call mma_allocate(HMatSOld,nTri_Elem(nStateRed),label='HMatSOld')
+
 kaunter = 0
 nLvlInd = 1
 do iState=1,nStateRed
@@ -105,7 +109,7 @@ do iState=1,nStateRed
   end do
   HMatState(kaunter) = Work(iRedHTr+kaunter-1)
   ! If requested, introduce level-shift of states.
-  if (nLvlShift /= 0) then
+  if (nLvlShift > 0) then
     if (iState == iLvlShift(nLvlInd)) then
       HMatState(kaunter) = HMatState(kaunter)+dLvlShift(nLvlInd)
       nLvlInd = nLvlInd+1

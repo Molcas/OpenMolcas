@@ -20,9 +20,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-real(kind=wp) :: Coord(MxAt*3), Cordst(MxCen*MxPut,3)
 integer(kind=iwp) :: iQ_Atoms, info_atom(iQ_Atoms)
+real(kind=wp) :: Coord(3,iQ_Atoms), Cordst(3,iQ_Atoms)
 integer(kind=iwp) :: i
 real(kind=wp) :: CMSamx, CMSamy, CMSamz, CMSewx, CMSewy, CMSewz, Tx, Ty, Tz, Wtot
 
@@ -34,12 +33,12 @@ CMSamy = Zero
 CMSamz = Zero
 Wtot = Zero
 do i=1,iQ_Atoms
-  CMSewx = CMSewx+Coord((i-1)*3+1)*info_atom(i)
-  CMSewy = CMSewy+Coord((i-1)*3+2)*info_atom(i)
-  CMSewz = CMSewz+Coord((i-1)*3+3)*info_atom(i)
-  CMSamx = CMSamx+Cordst(i,1)*info_atom(i)
-  CMSamy = CMSamy+Cordst(i,2)*info_atom(i)
-  CMSamz = CMSamz+Cordst(i,3)*info_atom(i)
+  CMSewx = CMSewx+Coord(1,i)*info_atom(i)
+  CMSewy = CMSewy+Coord(2,i)*info_atom(i)
+  CMSewz = CMSewz+Coord(3,i)*info_atom(i)
+  CMSamx = CMSamx+Cordst(1,i)*info_atom(i)
+  CMSamy = CMSamy+Cordst(2,i)*info_atom(i)
+  CMSamz = CMSamz+Cordst(3,i)*info_atom(i)
   Wtot = Wtot+real(info_atom(i),kind=wp)
 end do
 CMSewx = CMSewx/Wtot
@@ -52,9 +51,9 @@ Tx = CMSewx-CMSamx
 Ty = CMSewy-CMSamy
 Tz = CMSewz-CMSamz
 do i=1,iQ_Atoms
-  Cordst(i,1) = Coord((i-1)*3+1)-Tx
-  Cordst(i,2) = Coord((i-1)*3+2)-Ty
-  Cordst(i,3) = Coord((i-1)*3+3)-Tz
+  Cordst(1,i) = Coord(1,i)-Tx
+  Cordst(2,i) = Coord(2,i)-Ty
+  Cordst(3,i) = Coord(3,i)-Tz
 end do
 
 return

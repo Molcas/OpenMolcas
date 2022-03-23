@@ -14,26 +14,26 @@
 !----------------------------------------------------------------------*
 subroutine TransRot(Cordst,i,Rot,xt,yt,zt,Ax,Ay,Az)
 
+use qmstat_global, only: nCent
 use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "warnings.h"
-real(kind=wp) :: Cordst(MxPut*MxCen,3), Rot(3,3), xt, yt, zt, Ax, Ay, Az
+real(kind=wp) :: Cordst(3,3), Rot(3,3), xt, yt, zt, Ax, Ay, Az
 integer(kind=iwp) :: i
 integer(kind=iwp) :: IFLAG
 real(kind=wp) :: A, ANORM, DELR, DELX, DELY, DELZ, TAL, XA, XH, XO, YA, YH, YO, ZA, ZH, ZO
+#include "warnings.h"
 
-XO = CORDST(I,1)-AX
-YO = CORDST(I,2)-AY
-ZO = CORDST(I,3)-AZ
-XH = CORDST(I+1,1)-AX
-YH = CORDST(I+1,2)-AY
-ZH = CORDST(I+1,3)-AZ
-XA = CORDST(I+2,1)-AX
-YA = CORDST(I+2,2)-AY
-ZA = CORDST(I+2,3)-AZ
+XO = CORDST(1,1)-AX
+YO = CORDST(2,1)-AY
+ZO = CORDST(3,1)-AZ
+XH = CORDST(1,2)-AX
+YH = CORDST(2,2)-AY
+ZH = CORDST(3,2)-AZ
+XA = CORDST(1,3)-AX
+YA = CORDST(2,3)-AY
+ZA = CORDST(3,3)-AZ
 DELX = (XH+XA)/2.-XO
 DELY = (YH+YA)/2.-YO
 DELZ = (ZH+ZA)/2.-ZO
@@ -42,7 +42,7 @@ DELR = DELR-1.225449_wp
 !This is a check of the water geometry.
 !If we enter here, something is wrong.
 if (abs(DELR) > 1.0e-4_wp) then
-  write(u6,*) 'Molecule',((i-1)/5)+1
+  write(u6,*) 'Molecule',((i-1)/nCent)+1
   write(u6,*) ' WARNING IN TRANSROT ','delr',delr
   write(u6,*) ' O',XO,YO,ZO
   write(u6,*) ' H',XH,YH,ZH

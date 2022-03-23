@@ -17,11 +17,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ipRe, ipNRe, iCmo, nBRe, nBNRe, iS1, iS2
 logical(kind=iwp) :: LindMOs(nBNRe), First
 real(kind=wp) :: DiffMax
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, icomp, iopt, ipDx, ipDxM, ipDxRe, ipDxsq, ipDy, ipDyM, ipDyRe, ipDysq, ipDz, ipDzM, ipDzRe, ipDzsq, &
                      ipTEMP, irc, iSmLbl, j, kaunt1, kaunt2, nSize1, nSize2
 real(kind=wp) :: Diffx, Diffy, Diffz, DipRe(3), DipNRe(3)

@@ -19,14 +19,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: nBas
-real(kind=wp) :: Cmo(MxBas**2)
+real(kind=wp) :: Cmo(nBas,nBas)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iB1, iI, ipSqD, ipSqE, ipTEMP, iRedSq, Ising, iT, j, jjj, kaunt1, kaunt2, kaunter
 real(kind=wp) :: Det
 real(kind=wp), allocatable :: Diff(:)
+#include "warnings.h"
 
 write(u6,*)
 write(u6,*) 'MP2 density correction is requested.'
@@ -95,6 +94,7 @@ do i=1,iOrb(1)
     kaunt2 = kaunt2+1
   end do
 end do
+call mma_allocate(DenCorrD,nTri_Elem(iOrb(1)),label='DenCorrD')
 call SqToTri_q(Work(ipSqE),DenCorrD,iOrb(1))
 
 ! Transform back if we want to keep things in AO-basis. Not

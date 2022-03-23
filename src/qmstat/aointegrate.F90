@@ -9,32 +9,31 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
+subroutine AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
 
-use qmstat_global, only: CasOri, Cordst, iOrb, iPrint, iQn, nCent, SavOri, V3
+use qmstat_global, only: CasOri, Cordst, iOrb, iPrint, iQn, nCent, nCnC_C, SavOri, V3
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-#include "lenin.fh"
-integer(kind=iwp) :: nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, ipAOint, iV2, N, lmax
+integer(kind=iwp) :: nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, ipAOint, iV2, N, lmax
 real(kind=wp) :: Ax, Ay, Az
-logical(kind=iwp) :: Inside(MxAt,3)
+logical(kind=iwp) :: Inside(iQ_Atoms,nAtomsCC)
+#include "Molcas.fh"
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iBa, iBaS, iC, iMO, iOrS, ipPPP, iQ, j, k, kaunt, kauntadetta, m
 real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), x, y, z
 logical(kind=iwp) :: PrEne, PrOcc
-character(len=LenIn8) :: BsLbl(MxBasC)
 character(len=30) :: Snack
 real(kind=wp), allocatable :: Sint(:,:), V2(:,:)
+character(len=LenIn8), allocatable :: BsLbl(:)
 
 !----------------------------------------------------------------------*
 ! Call Transrot. There we compute the rotation matrix for the classical*
 ! water under consideration. Used later.                               *
 !----------------------------------------------------------------------*
-call TransRot(Cordst,N+1,Rot,Dx,Dy,Dz,Ax,Ay,Az)
+call TransRot(Cordst(:,N+1:N+3),N+1,Rot,Dx,Dy,Dz,Ax,Ay,Az)
 if (iPrint >= 17) then
   write(u6,*)
   write(u6,*) 'ROTATION MATRIX, Molecule ',N/nCent
@@ -48,13 +47,13 @@ end if
 ! input the original MO-coefficients (stored in V3), and on output the *
 ! rotated.                                                             *
 !----------------------------------------------------------------------*
-call mma_allocate(V2,MxBasC,MxOrb_C,label='V2')
+call mma_allocate(V2,nBaseC,iOrb(2),label='V2')
 do iOrS=1,iOrb(2) !Collect original MO-coeff.
   do iBaS=1,nBaseC
     V2(iBaS,iOrS) = V3(iBaS,iOrS)
   end do
 end do
-call OrbRot2(Rot,V2,iQn,iOrb(2),lMax,nCnC_C)
+call OrbRot2(Rot,V2,iQn,iOrb(2),nBaseC,lMax,nCnC_C)
 kaunt = 0
 do iMO=1,iOrb(2) !Store the rotated in vector for later convenience.
   do iBa=1,nBaseC
@@ -66,6 +65,7 @@ if (iPrint >= 25) then !Optional print-out.
   PrOcc = .false.
   PrEne = .false.
   write(snack,'(A,I3)') 'Rotated orbitals for water ',N/nCent
+  call mma_allocate(BsLbl,nBaseC,label='BsLbl')
   call GetMem('PrCMO','Allo','Real',ipPPP,nBaseC*iOrb(2))
   kauntadetta = 0
   do i=1,iOrb(2)
@@ -77,6 +77,7 @@ if (iPrint >= 25) then !Optional print-out.
   call NameRun('WRUNFIL')
   call Get_cArray('Unique Basis Names',BsLbl,LenIn8*nBaseC)
   call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,Work(ipPPP),3)
+  call mma_deallocate(BsLbl)
   call GetMem('PrCMO','Free','Real',ipPPP,nBaseC*iOrb(2))
 end if
 call mma_deallocate(V2)
@@ -97,7 +98,7 @@ end do
 ! Compute overlap between the contracted basis functions on the water  *
 ! molecule presently studied and the QM-molecule.                      *
 !----------------------------------------------------------------------*
-call mma_allocate(Sint,MxBas,MxBasC,label='Sint')
+call mma_allocate(Sint,nBaseQ,nBaseC,label='Sint')
 do i=1,nBaseQ
   do j=1,nBaseC
     Sint(i,j) = Zero

@@ -9,28 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iBigForDeAll,nSizeBig,ip_UNCLE_MOE,nB)
+subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,iBigForDeAll,nSizeBig,ip_UNCLE_MOE,nB)
 
-use qmstat_global, only: AvElcPot, CAFieldG, CBFieldG, CFexp, ChaNuc, Cordst, DelFi, DelR, DelX, Diel, DispDamp, dLJrep, &
-                         FieldDamp, Forcek, HmatState, iBigT, iExtr_Atm, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, info_atom, Inter, &
-                         ipAvRed, iPrint, iRead, iSeed, lExtr, lSlater, MoAveRed, nAtom, nCent, nMacro, nMicro, nPart, nPol, &
-                         nRedMO, nState, nTemp, outxyzRAS, PertNElcInt, Pres, Qmeq, QmProd, ParallelT, RasCha, RasDip, RasQua, &
-                         rStart, SaFilIn, SaFilUt, SimEx, SURF, Temp, xyzMyI, xyzMyQ, xyzQuQ
+use qmstat_global, only: AvElcPot, CAFieldG, CBFieldG, CFexp, ChaNuc, CordIm, Cordst, DelFi, DelR, DelX, Diel, DispDamp, dLJrep, &
+                         FieldDamp, Forcek, HmatState, iBigT, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, info_atom, Inter, ipAvRed, &
+                         iPrint, iRead, iSeed, lExtr, lSlater, MoAveRed, nAtom, nCent, nMacro, nMicro, nPart, nPol, nRedMO, &
+                         nState, nTemp, outxyzRAS, PertNElcInt, Pres, Qmeq, QmProd, ParallelT, RasCha, RasDip, RasQua, rStart, &
+                         SaFilIn, SaFilUt, SimEx, SURF, Temp, xyzMyI, xyzMyQ, xyzQuQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Ten, Half, Pi, Angstrom, atmToau, auTokJ, deg2rad, KBoltzmann
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), iBigForDeAll, nSizeBig, ip_UNCLE_MOE, nB
+real(kind=wp) :: Coord(3,iQ_Atoms)
 #include "WrkSpc.fh"
-#include "warnings.h"
-integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), nCnC_C(MxBasC), iBigForDeAll, nSizeBig, ip_UNCLE_MOE, nB
-real(kind=wp) :: Coord(MxAt*3)
 integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDist, iDistIm, iDT(3), iDum(1), iFi(3), iFP(3), &
                      iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, indma, Inte, ip_ExpCento, ip_ExpVal, &
-                     ipAOSum, iProdMax, iSnurr, iSTC, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, iTriMaxBasQ, &
-                     iTriState, j, jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, nVarv
+                     ipAOSum, iProdMax, iSnurr, iSTC, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, iTriState, j, &
+                     jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, nVarv
 real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, dele, DiFac, Dum, E2Die, E_Nuc_Part, &
                  E_Nuc_Rubbet, Edisp, EEDisp, EHam, Elene, EnCLAS, Energy, Eold, Esav, Etot, Exrep, Expe, Expran, ExDie, Gam, &
                  Gmma, PertElcInt(1), Pr, Ract, Rold, RRRnVarv, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, &
@@ -46,6 +44,7 @@ real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ, &
                             ExLim = Ten !Over how long distance the exchange rep. is computed, the solv-solv.
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Ranf
+#include "warnings.h"
 !****Jose** Interaction with Slater type to consider Penetration
 !           Eint_Nuc
 !****JoseMEP**New variables for the MEP calculation
@@ -168,6 +167,7 @@ else if (iRead == 9) then
   !*****JoseMEP
   ! If we perform MEP calculation, first we make some zeros and allocate some memory.
   if (lExtr(8)) then
+    call mma_allocate(AvElcPot,iCi,10,label='AvElcPot')
     do ijhr=1,iCi
       do jjhr=1,10
         SumElcPot(ijhr,jjhr) = Zero
@@ -176,8 +176,7 @@ else if (iRead == 9) then
     end do
     NCountField = 0
 
-    iTriMaxBasQ = nTri_Elem(MxBas)
-    call dcopy_(iTriMaxBasQ,[Zero],0,PertNElcInt,1)
+    PertNElcInt(:) = Zero
     call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iTriBasQ)
     call dcopy_(iTriBasQ,[Zero],0,Work(ipAOSum),1)
   end if
@@ -197,6 +196,7 @@ call mma_allocate(Poli,iCi,10,label='Poli')
 call mma_allocate(Smat,iTriState,label='Smat')
 call mma_allocate(Vmat,iTriState,label='Vmat')
 call mma_allocate(SmatPure,iTriState,label='SmatPure')
+if (.not. allocated(CordIm)) call mma_allocate(CordIm,3,nPart*nCent,label='CordIm')
 iCStart = (((iQ_Atoms-1)/nAtom)+1)*nCent+1
 iCNum = (iCStart-1)/nCent
 i9 = 0 !i9 is active if iRead == 9 and we are collecting configurations from the sampfile.
@@ -277,7 +277,7 @@ outer: do
       ! Compute Solvent-solvent interaction.
 
       call ClasClas(iCNum,iCStart,ncParm,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
-      call QMPosition(EHam,Cordst,Coord,Forcek,dLJrep,Ract,iQ_Atoms)
+      call QMPosition(EHam,Cordst,Coord(:,1),Forcek,dLJrep,Ract,iQ_Atoms)
       call Timing(Cpu2,Tim1,Tim2,Tim3)
       timeCLAS = timeCLAS+(Cpu2-Cpu1)
       !----------------------------------------------------------------*
@@ -308,7 +308,7 @@ outer: do
 
       ! Compute the exchange operator.
 
-      call ExRas(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,iTriState,Smat,SmatPure,InCutOff,ipAOSum)
+      call ExRas(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,iTriState,Smat,SmatPure,InCutOff,ipAOSum)
       call Timing(Cpu3,Tim1,Tim2,Tim3)
       timeEX = timeEX+(Cpu3-Cpu2)
 
@@ -414,8 +414,8 @@ outer: do
             end do
           end if
         end if
-        if (lExtr(7)) call AllenGinsberg('RASSI',Eint,Poli,ChaNuc,RasCha,RasDip,RasQua,MxStOT,iSTC,nState,iExtr_Atm,lExtr(4), &
-                                         iExtr_Eig,iQ_Atoms,ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
+        if (lExtr(7)) call AllenGinsberg('RASSI',Eint,Poli,ChaNuc,RasCha,RasDip,RasQua,iSTC,nState,lExtr(4),iExtr_Eig,iQ_Atoms, &
+                                         ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
 
         call Extract(iLuExtr,i9,Etot,xyzMyQ,HMatState,iSTC,nState,xyzQuQ,ip_ExpVal,ip_ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
         !***JoseMEP**********

@@ -12,26 +12,25 @@
 ! Read all MO-transformed integrals and construct zeroth Fock-matrix.
 subroutine ScfH0(nBas)
 
-use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, iSupM, iV1, nExtAddOns, ScalExt
+use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, iSupM, iV1, MxSymQ, nExtAddOns, ScalExt
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: nBas(MxSymQ)
+#include "Molcas.fh"
 #include "tratoc.fh"
-#include "lenin.fh"
-#include "maxbfn.fh"
 #include "WrkSpc.fh"
-#include "warnings.h"
-integer(kind=iwp) :: nBas(MxSym)
 integer(kind=iwp) :: i, iBuff, iDisk, iDum, iExt, iFine, ij, ik, il, iLu1, iLu2, iopt, ipAOx, ipMOx, iPointF, irc, iSmLbl, iSqAO, &
-                     iSup, iTEMP, iToc(64), j, jk, jl, k, kaunter, kl, l, llmax, Lu_One, nBasM(MxSym), nBTri, nBuf1, nBuf2, &
-                     nDelM(MxSym), nFroM(MxSym), nMAX, nOrbM(MxSym), nSize, nSymM
+                     iSup, iTEMP, iToc(64), j, jk, jl, k, kaunter, kl, l, llmax, Lu_One, nBasM(MxSymQ), nBTri, nBuf1, nBuf2, &
+                     nDelM(MxSymQ), nFroM(MxSymQ), nMAX, nOrbM(MxSymQ), nSize, nSymM
 real(kind=wp) :: Ecor
 character(len=LenIn8) :: NameM(maxbfn)
 character(len=10) :: firstind
 integer(kind=iwp) :: ipair_qmstat, IsFreeUnit
+#include "warnings.h"
 
 ! Wilkommen.
 
@@ -50,8 +49,7 @@ call DaName(iLu1,'TRAONE')
 call DaName(iLu2,'TRAINT')
 iDisk = 0
 ! This is special utility to read header of TRAONE.
-! Last argument depends on mxorb in Molcas.fh.
-call Wr_Motra_Info(iLu1,2,iDisk,iToc,64,Ecor,nSymM,nBasM,nOrbM,nFroM,nDelM,MxSym,NameM,LenIn8*maxbfn)
+call Wr_Motra_Info(iLu1,2,iDisk,iToc,64,Ecor,nSymM,nBasM,nOrbM,nFroM,nDelM,MxSymQ,NameM,LenIn8*maxbfn)
 
 ! One checks.
 
@@ -66,6 +64,7 @@ end if
 
 iDisk = iToc(2)
 call dDaFile(iLu1,2,Work(iPointF),nSize,iDisk)
+call mma_allocate(HHmat,nSize,label='HHmat')
 call dcopy_(nSize,Work(iPointF),1,HHmat,1)
 call GetMem('FockM','Free','Real',iPointF,nSize)
 call DaClos(iLu1)

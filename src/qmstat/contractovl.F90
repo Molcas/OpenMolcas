@@ -39,28 +39,27 @@
 
 subroutine ContractOvl(Sint,nBaseQ,nBaseC,N,nCent,iQ_Atoms,nAtomsCC,iPrint,Inside)
 
-use qmstat_global, only: Alfa, BasOri, Beta, CasOri, Cont, Dont, iQang, iQn, iWoGehenC, iWoGehenQ, mPrimus, nBA_C, nBA_Q, nBonA_C, &
-                         nBonA_Q, nCBoA_C, nCBoA_Q, nPrimus, Trans
+use qmstat_global, only: Alfa, BasOri, Beta, CasOri, Cont, Dont, iQang, iQn, iWoGehenC, iWoGehenQ, mPrimus, MxAngqNr, nBA_C, &
+                         nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, nCBoA_Q, nPrimus
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-real(kind=wp) :: Sint(MxBas,MxBasC)
 integer(kind=iwp) :: nBaseQ, nBaseC, N, nCent, iQ_Atoms, nAtomsCC, iPrint
-logical(kind=iwp) :: Inside(MxAt,3)
+real(kind=wp) :: Sint(nBaseQ,nBaseC)
+logical(kind=iwp) :: Inside(iQ_Atoms,nAtomsCC)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iA1, iA2, iB1, iB2, iC, iCC, iCcontB, iCcontBSAV, iCcontBSAV1, iCcontBSAV2, iCQ, iindex, iNcB1, iNcB2, &
                      ipsint, iQ, iQcontB, iQcontBSAV, iQcontBSAV1, iQcontBSAV2, iqqqC, iqqqQ, j, k, kaunter, kreichner, nExp1, &
                      nExp2, nSize, nSph1, nSph2
 real(kind=wp) :: Bori(3), Cori(3), DaNumber
 real(kind=wp), allocatable :: Alf(:), Bet(:), Conkort(:), ContrI(:), Donkort(:)
 
-call mma_allocate(Alf,MxCont,label='Alf')
-call mma_allocate(Bet,MxCont,label='Bet')
-call mma_allocate(Conkort,MxCont,label='Conkort')
-call mma_allocate(Donkort,MxCont,label='Donkort')
+call mma_allocate(Alf,size(Alfa,2),label='Alf')
+call mma_allocate(Bet,size(Beta,2),label='Bet')
+call mma_allocate(Conkort,size(Cont,2),label='Conkort')
+call mma_allocate(Donkort,size(Dont,2),label='Donkort')
 call mma_allocate(ContrI,(2*MxAngqNr-1)**2,label='ContrI')
 
 nSph1 = 0
@@ -116,11 +115,11 @@ do iA1=1,iQ_Atoms !The atoms
             ! compute ALL primitive p-p integrals, in the first call, then
             ! they are merely contracted. This is an economical procedure
             ! for both general and ordinary contracted basis sets since all
-            ! primitve overlaps are needed at some point in the contracted
+            ! primitive overlaps are needed at some point in the contracted
             ! overlaps, the difference between general and ordinary is that
-            ! in the former primitve overlaps are needed at all instances,
-            ! while in the latter primitve overlaps are needed only once.
-            if ((iNcB1 == 1) .and. (iNcB2 == 1)) call OverLq(Bori,Cori,Alf,Bet,iqqqQ,iqqqC,nExp1,nExp2,iPSint,Trans)
+            ! in the former primitive overlaps are needed at all instances,
+            ! while in the latter primitive overlaps are needed only once.
+            if ((iNcB1 == 1) .and. (iNcB2 == 1)) call OverLq(Bori,Cori,Alf,Bet,iqqqQ,iqqqC,nExp1,nExp2,iPSint)
             kaunter = 0
             do i=1,nSph2 !contract
               do j=1,nSph1

@@ -17,7 +17,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: iAcc
 real(kind=wp) :: Etot, Eold, Ract, Rold
-#include "maxi.fh"
 integer(kind=iwp) :: i, icCom, j, k
 
 iAcc = iAcc-1
@@ -28,7 +27,7 @@ do i=1,nPart
   do j=1,nCent
     icCom = icCom+1
     do k=1,3
-      Cordst(icCom,k) = OldGeo(icCom,k)
+      Cordst(k,icCom) = OldGeo(k,icCom)
     end do
   end do
 end do

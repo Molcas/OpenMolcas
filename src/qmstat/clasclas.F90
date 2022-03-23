@@ -18,7 +18,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: iCNum, iCStart, ncParm, iFP(3), iGP(3), iDT(3), iFI(3), iDist, iDistIm
 real(kind=wp) :: Elene, Edisp, Exrep, E2Die, ExDie
-#include "maxi.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ii, ij, Inc, Inc2, Ind, Ind1, indF, IndMa, indR, indSep, j, jj, Jnd, k, l, nClas, nSize, nSizeIm
 real(kind=wp) :: Adisp, aLim, Dampfunk, Epoll, F, Q, Q1, Q2, r, r3, ri, Sum1, Sum2, Sum3, Sum4, Sum5, X, Y, Z
@@ -47,7 +46,7 @@ do ii=iCNum+2,nPart
         j = (jj-1)*nCent+k
         r = 0
         do l=1,3
-          r = (Cordst(i,l)-Cordst(j,l))**2+r
+          r = (Cordst(l,i)-Cordst(l,j))**2+r
         end do
         Work(iDist+Ind-1) = One/sqrt(r)
       end do
@@ -60,7 +59,7 @@ do i=iCStart,nCent*nPart
     Jnd = Jnd+1
     r = 0
     do k=1,3
-      r = (CordIm(i,k)-Cordst(j,k))**2+r
+      r = (CordIm(k,i)-Cordst(k,j))**2+r
     end do
     Work(iDistIm+Jnd-1) = One/sqrt(r)
   end do
@@ -211,9 +210,9 @@ do ii=iCNum+2,nPart
       do l=1,nCent
         j = (jj-1)*nCent+l
         Ind = Ind+1
-        X = Cordst(i,1)-Cordst(j,1)
-        Y = Cordst(i,2)-Cordst(j,2)
-        Z = Cordst(i,3)-Cordst(j,3)
+        X = Cordst(1,i)-Cordst(1,j)
+        Y = Cordst(2,i)-Cordst(2,j)
+        Z = Cordst(3,i)-Cordst(3,j)
         ri = Work(iDist+Ind-1)**3
         if ((ij > nCent-nCha) .and. (l <= nPol)) then
           ! Given that ij is
@@ -262,9 +261,9 @@ do i=iCStart,nCent*nPart
     indR = k+iCNum*nCent
     indF = k+iCNum*nPol
     do j=nPol*(iCNum+1),IndMa,nPol
-      x = CordIm(i,1)-Cordst(indR,1)
-      y = CordIm(i,2)-Cordst(indR,2)
-      z = CordIm(i,3)-Cordst(indR,3)
+      x = CordIm(1,i)-Cordst(1,indR)
+      y = CordIm(2,i)-Cordst(2,indR)
+      z = CordIm(3,i)-Cordst(3,indR)
       r3 = Work(iDistIm-1+indSep)**3
       Work(iFP(1)+indF-1) = Work(iFP(1)+indF-1)+x*Q*r3
       Work(iFP(2)+indF-1) = Work(iFP(2)+indF-1)+y*Q*r3

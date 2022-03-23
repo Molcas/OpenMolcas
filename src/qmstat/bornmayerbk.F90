@@ -18,7 +18,6 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
 integer(kind=iwp) :: iQ_Atoms
 real(kind=wp) :: BoMaH(iQ_Atoms), BoMaO(iQ_Atoms)
 integer(kind=iwp) :: i, j

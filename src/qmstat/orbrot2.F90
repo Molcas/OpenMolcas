@@ -41,27 +41,27 @@
 !> @param[in] Cmo  The MO-coefficients
 !> @param[in] iQ   The angular type of the \f$ i \f$ -th basis (observe, not the \f$ i \f$ -th basis function, see givemeinfo)
 !> @param[in] iOrb Number of orbitals
+!> @param[in] nBas Number of basis functions
 !> @param[in] lMax Number of bases (not basis functions), see ::qfread
 !> @param[in] nCnC Number of contracted basis functions of same type as the \f$ i \f$ -th basis.
 !>                 For example 7s4p will have vector ``7,7,7,7,7,7,7,4,4,4,4``.
 !***********************************************************************
 
-subroutine OrbRot2(Rot,Cmo,iQ,iOrb,lMax,nCnC)
+subroutine OrbRot2(Rot,Cmo,iQ,iOrb,nBas,lMax,nCnC)
 
 use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "warnings.h"
-real(kind=wp) :: Rot(3,3), Cmo(MxBasC,MxOrb_C)
-integer(kind=iwp) :: iQ(MxBasC), iOrb, lMax, nCnC(MxBasC)
+integer(kind=iwp) :: lMax, iQ(lMax), iOrb, nBas, nCnC(lMax)
+real(kind=wp) :: Rot(3,3), Cmo(nBas,iOrb)
 integer(kind=iwp) :: i, iIn, IqSuckOut, ISkutt, j
 real(kind=wp) :: Ctemp1, Ctemp2, Ctemp3, Ctemp4, Ctemp5, DBlock(5,5), Dxmin(6), Dxy(6), Dxz(6), Dyz(6), Dzz(6), PBlock(3,3), r1, &
                  r2, r3, r4, Resx(3), Resy(3), Resz(3)
 logical(kind=iwp) :: NewIq
 real(kind=wp), parameter :: dUnit(6) = [-One,Zero,Zero,-One,Zero,-One], Px(3) = [One,Zero,Zero], Py(3) = [Zero,One,Zero], &
                             Pz(3) = [Zero,Zero,One]
+#include "warnings.h"
 
 ! Dgemv multiply the matrix Rot on the vector Px. For details about
 ! various parameters see the source code for the routine; it is very
@@ -192,7 +192,7 @@ do i=1,iOrb
         Cmo(iIn+4*iSkutt,i) = Ctemp5
       case default !Here we go if non-implemented angular quantum number appears.
         write(u6,*)
-        write(u6,*) ' ERROR in OrbRot2. I''m not ready for f-orbitals'
+        write(u6,*) ' ERROR in OrbRot2. Not ready for f-orbitals'
         call Quit(_RC_GENERAL_ERROR_)
     end select
   end do

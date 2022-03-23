@@ -23,9 +23,9 @@ implicit none
 integer(kind=iwp) :: iLdiff, iLpoi
 real(kind=wp) :: dMul(nTri_Elem1(_MxM_)), Ep, R, Rinv, Colle(3)
 logical(kind=iwp) :: lDiffA
-#include "warnings.h"
 integer(kind=iwp) :: i
 real(kind=wp) :: d3, DAMP, er, Ex, Pi1, Pi2, Sigma
+#include "warnings.h"
 
 ! The omnipresent exponential and distance-exponent product.
 

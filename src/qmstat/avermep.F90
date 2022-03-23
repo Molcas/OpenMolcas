@@ -11,19 +11,17 @@
 
 subroutine AverMEP(Kword,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iQ_Atoms,nBas,nOcc,natyp,nntyp)
 
-use qmstat_global, only: AvElcPot, ChaNuc, FieldNuc, iPrint, nMlt, outxyz, PertNElcInt, SlExpQ
+use qmstat_global, only: AvElcPot, ChaNuc, FieldNuc, iPrint, MxMltp, nMlt, outxyz, PertNElcInt
 use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-#include "warnings.h"
 character(len=4) :: Kword
-integer(kind=iwp) :: iCi, NCountField, iQ_Atoms, nBas, nOcc(*), natyp(*), nntyp
+integer(kind=iwp) :: iCi, NCountField, iQ_Atoms, nBas, nntyp, nOcc(nntyp), natyp(nntyp)
 real(kind=wp) :: Eint(iCi,10), Poli(iCi,10), SumElcPot(iCi,10), PertElcInt(nTri_Elem(nBas))
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, i1, i2, iB1, iB2, iDum, iH0, iH1, iiDum(1), iLuField, iMME(nTri3_Elem(MxMltp)), indMME, iOpt, irc, iSmLbl, &
                      iTyp, j, kaunta, Lu_One, nSize, nTyp
 real(kind=wp) :: AvTemp, Tra
@@ -32,6 +30,7 @@ character(len=20) :: MemLab, MemLab1
 integer(kind=iwp), allocatable :: iCent(:)
 real(kind=wp), allocatable :: ForceNuc(:,:)
 integer(kind=iwp), external :: IsFreeUnit
+#include "warnings.h"
 
 call UpCase(Kword)
 !**************
@@ -104,9 +103,10 @@ select case (Kword(1:4))
     ! First we read the multipoles expansion for each pair of bases.
     ! The index iCent(i) will give us to which center belongs each pair of bases.
 
-    call GetMem('Dummy','Allo','Inte',iDum,nBas**2)
+    call mma_allocate(outxyz,3,nTri_Elem(iQ_Atoms),label='outxyz')
     call mma_allocate(iCent,nTri_Elem(nBas),label='iCent')
-    call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyz,SlExpQ,.false.)
+    call GetMem('Dummy','Allo','Inte',iDum,nBas**2)
+    call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyz,.false.)
     call GetMem('Dummy','Free','Inte',iDum,nBas**2)
 
     !*********************

@@ -41,9 +41,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
 integer(kind=iwp) :: nrstate, ici
-real(kind=wp) :: Eint(ici,10), Cha(MxStOT,MxQCen), Dip(MxStOT,3,MxQCen), Qua(MxStOT,6,MxQCen), Vmat(nTri_Elem(nrstate))
+real(kind=wp) :: Eint(ici,10), Cha(nTri_Elem(nrstate),ici), Dip(nTri_Elem(nrstate),3,ici), Qua(nTri_Elem(nrstate),6,ici), &
+                 Vmat(nTri_Elem(nrstate))
 integer(kind=iwp) :: i, j, k, kaunt
 
 kaunt = 0

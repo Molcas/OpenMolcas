@@ -11,14 +11,14 @@
 
 subroutine Chk_OneHam(nBas)
 
+use qmstat_global, only: MxSymQ
 use Index_Functions, only: nTri_Elem
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: nBas(MxSymQ)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: nBas(MxSym)
 integer(kind=iwp) :: iOneP, iOneR, iopt, irc, iSmLbl, Lu_One, nBT
 real(kind=wp) :: dNorm
 character(len=8) :: Label_Pure, Label_Read

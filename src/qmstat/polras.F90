@@ -20,12 +20,11 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCStart, iTriState, icnum, &
                      NVarv, iSTC, ip_ExpVal
 real(kind=wp) :: VMat(iTriState), Smat(iTriState), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iDum, iErr, iGri, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej

@@ -11,17 +11,16 @@
 
 subroutine MoReduce(nBas,MOsToKeep,ipAvRedMO)
 
-use qmstat_global, only: iBigT, iPrint, nState, ThrsRedOcc
+use qmstat_global, only: iBigT, iPrint, MxSymQ, nState, ThrsRedOcc
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: nBas(MxSymQ), MOsToKeep, ipAvRedMO
+#include "Molcas.fh"
 #include "WrkSpc.fh"
-#include "lenin.fh"
-integer(kind=iwp) :: nBas(MxSym), MOsToKeep, ipAvRedMO
 integer(kind=iwp) :: i, iAUX, iB, iB1, iB2, icomp, iDav, iDavS, iDin, iDiskUt, iDsq, iM1, iM2, ind, ind1, ind2, ind3, indx, &
                      iNewOcc, iOcc, iopt, iOtD, iOtDt, ipInv, ipTEMP, ipTmoD, ipTreD, ipTreT, irc, iS, iS1, iS2, Ising, iSmLbl, &
                      iSs, iSsq, iSst, iSt, iStrans, iStri, iSx, iTrans, iTransB, iVecs, iVecs2, j, kaunt, kaunter, Lu_One, &
@@ -261,8 +260,8 @@ icomp = 1
 call RdOne(irc,iopt,'Mltpl  0',icomp,Work(iS),iSmLbl)
 call ClsOne(irc,iopt)
 iDiskUt = 0
-call mma_allocate(iTocBig,MxStOT,label='iTocBig')
-call iDaFile(Lu_Scratch,1,iTocBig,MxStOT,iDiskUt)
+call mma_allocate(iTocBig,nTri_Elem(nState),label='iTocBig')
+call iDaFile(Lu_Scratch,1,iTocBig,nTri_Elem(nState),iDiskUt)
 do iS1=1,nState
   do iS2=1,iS1
     ! Collect this particular density matrix.
@@ -332,7 +331,7 @@ do iS1=1,nState
 end do
 ! The real table-of-content
 iDiskUt = 0
-call iDaFile(Lu_Scratch,1,iTocBig,MxStOT,iDiskUt)
+call iDaFile(Lu_Scratch,1,iTocBig,nTri_Elem(nState),iDiskUt)
 ! Deallocations and closing.
 call mma_deallocate(iTocBig)
 call mma_deallocate(LindMOs)

@@ -18,12 +18,11 @@ use Definitions, only: iwp, u6
 
 implicit none
 character(len=3) :: EelP
-#include "maxi.fh"
-#include "warnings.h"
 integer(kind=iwp) :: iM1, iM2, iM3
 logical(kind=iwp) :: Cl, Eq, It, Pr, Qu
 character(len=40) :: Word1, Word2, Word3
 integer(kind=iwp), external :: Len_TrimAO
+#include "warnings.h"
 
 ! Enter.
 
@@ -120,9 +119,7 @@ if (It) then
     else
       write(u6,12) '   N/A                 N/A'
     end if
-    if (nLvlShift /= 0) then
-      write(u6,12) '  Level shift applied'
-    end if
+    if (nLvlShift > 0) write(u6,12) '  Level shift applied'
   end if
 end if
 write(u6,*)

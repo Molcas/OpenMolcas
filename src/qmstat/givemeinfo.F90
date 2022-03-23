@@ -9,8 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,MxAtQ,MxPrCon,MxBasQ, &
-                      MxAngqNr,ipAcc,nACCSize)
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifdef _IN_MODULE_
+
+subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,nAtoms,MxPrCon,MxAngqNr, &
+                      ipAcc,nACCSize,nBas)
 
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
@@ -20,16 +23,18 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nntyp, MxAtQ, natyp(MxAtQ), MxPrCon, iCon(MxAtQ,MxPrCon), MxBasQ, nPrim(MxBasQ), nBA(MxAtQ), MxAngqNr, &
-                     nCBoA(MxAtQ,MxAngqNr), nBona(MxAtQ), ipExpo, ipCont, nSh(MxAtQ), nfSh(MxAtQ,MxAngqNr), nSize, iPrint, ipAcc, &
-                     nACCSize
-real(kind=wp) :: BasCoo(3,MxBasQ)
+integer(kind=iwp) :: nntyp, nAtoms, natyp(nAtoms), MxPrCon, iCon(nAtoms,MxPrCon), nBA(nAtoms), MxAngqNr, &
+                     nCBoA(nAtoms,MxAngqNr), nBona(nAtoms), ipExpo, ipCont, nSh(nAtoms), nfSh(nAtoms,MxAngqNr), nSize, iPrint, &
+                     ipAcc, nACCSize, nBas
+integer(kind=iwp), allocatable :: nPrim(:)
+real(kind=wp), allocatable :: BasCoo(:,:)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAng, iAngSav, iBas, iCnt, iCnttp, iCount, iHowMuch, ii, ind, ind1, ind2, ind3, ioio, iPrim, iTemp, j, jj, &
                      jSum, k, kaunt, kaunta, kaunter, kaunterPrev, kauntSav, kk, kkk, krekna, krekna2, l, ll, M, MaxAng, na, ndc, &
                      nDiff, nnaa, nshj, nSumma, nVarv
 real(kind=wp), allocatable :: TEMP1(:), TEMP2(:)
 logical(kind=iwp) :: DoRys
+#include "warnings.h"
 
 !----------------------------------------------------------------------*
 ! Initialize in order to read properly from the info file.             *
@@ -91,6 +96,8 @@ do i=1,ii
     nBonA(kaunta) = kaunter-kaunterPrev  !Number of bases on each atom used below.
   end do
 end do
+nBas = kaunter
+call mma_allocate(BasCoo,3,nBas,label='BasCoo')
 
 !----------------------------------------------------------------------*
 ! And now coordinates of each basis.                                   *
@@ -126,6 +133,11 @@ do i=1,ii
     kaunt = kaunt+1
     do ll=1,Shells(kaunt)%nBasis
       kaunter = kaunter+1
+      if (kaunter > MxPrCon) then
+        write(u6,*)
+        write(u6,*) 'Maximum number of contracted functions exceeded. Increase MxPrCon in qmstat_global.'
+        call Quit(_RC_GENERAL_ERROR_)
+      end if
       Icon(i,kaunter) = Shells(kaunt)%nExp
     end do
   end do
@@ -141,10 +153,10 @@ do kk=1,ii !Just to get size of vector
     nSize = nSize+Shells(kaunt)%nBasis*Shells(kaunt)%nExp
   end do
 end do
-call GetMem('Exponents','Allo','Real',ipExpo,nSize*MxAtQ)
-call GetMem('ContrCoef','Allo','Real',ipCont,nSize*MxAtQ)
-call FZero(Work(ipExpo),nSize*MxAtQ)
-call FZero(Work(ipCont),nSize*MxAtQ)
+call GetMem('Exponents','Allo','Real',ipExpo,nSize*nntyp)
+call GetMem('ContrCoef','Allo','Real',ipCont,nSize*nntyp)
+call FZero(Work(ipExpo),nSize*nntyp)
+call FZero(Work(ipCont),nSize*nntyp)
 
 do iCnttp=1,nCnttp  !Here we set NaTyp.
   jSum = 0
@@ -157,8 +169,7 @@ do iCnttp=1,nCnttp  !Here we set NaTyp.
     iTemp = iTemp+dc(ndc)%nStab
   end do
   NaTyp(iCnttp) = iTemp
-  do iAng=0,nVarv-1  !And in this loop we get hold of the
-    !contraction coefficients and the exponents.
+  do iAng=0,nVarv-1  !And in this loop we get hold of the contraction coefficients and the exponents.
     iCount = iAng+iAngSav
     iPrim = Shells(iCount)%nExp
     iBas = Shells(iCount)%nBasis
@@ -168,8 +179,8 @@ do iCnttp=1,nCnttp  !Here we set NaTyp.
 #   endif
     nfSh(iCnttp,iAng+1) = iBas
     do i=1,iBas
-      call dCopy_(iPrim,Shells(iCount)%Exp,1,Work(ipExpo+jSum*MxAtQ+M),MxAtQ)
-      call dCopy_(iPrim,Shells(iCount)%pCff(1,i),1,Work(ipCont+jSum*MxAtQ+M),MxAtQ)
+      call dCopy_(iPrim,Shells(iCount)%Exp,1,Work(ipExpo+jSum*nntyp+M),nntyp)
+      call dCopy_(iPrim,Shells(iCount)%pCff(1,i),1,Work(ipCont+jSum*nntyp+M),nntyp)
       jSum = jSum+iPrim
     end do
   end do
@@ -177,14 +188,15 @@ do iCnttp=1,nCnttp  !Here we set NaTyp.
 end do
 if (iPrint >= 30) then
   write(u6,*) 'Exp.'
-  write(u6,'(10G13.4)') (Work(ipExpo+k),k=0,nSize*MxAtQ-1)
+  write(u6,'(10G13.4)') (Work(ipExpo+k),k=0,nSize*nntyp-1)
   write(u6,*) 'Contr.'
-  write(u6,'(10G13.4)') (Work(ipCont+k),k=0,nSize*MxAtQ-1)
+  write(u6,'(10G13.4)') (Work(ipCont+k),k=0,nSize*nntyp-1)
 end if
 
 !----------------------------------------------------------------------*
-! Contruct the nPrim vector.                                           *
+! Construct the nPrim vector.                                          *
 !----------------------------------------------------------------------*
+call mma_allocate(nPrim,nbas,label='nPrim')
 iBas = 0
 do i=1,nntyp
   na = natyp(i)
@@ -245,3 +257,5 @@ call ClsSew()
 return
 
 end subroutine GiveMeInfo
+
+#endif

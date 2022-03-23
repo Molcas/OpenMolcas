@@ -13,17 +13,18 @@
 subroutine Qmstat_Init()
 
 use qmstat_global, only: Anal, ATitle, ChargedQM, Cordst, Cut_Elc, Cut_Ex1, Cut_Ex2, DelFi, DelOrAdd, DelR, DelX, Diel, DifSlExp, &
-                         Disp, DispDamp, dLJRep, EdSt, EigV, EneLim, Exdt1, Exdtal, FieldDamp, FieldNuc, Forcek, iExtr_Atm, &
-                         iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iNrIn, iNrUt, iOrb, iPrint, iRead, iSeed, itMax, lCiSelect, &
-                         lExtr, lMltSlC, lQuad, lSlater, MoAveRed, Mp2DensCorr, nAtom, nCent, nCha, nEqState, nLvlShift, nMacro, &
-                         nMicro, nPart, nPol, nSlSiteC, ParallelT, Pol, PolLim, Pres, Qmeq, QmProd, Qsta, RassiM, rStart, SaFilIn, &
-                         SaFilUt, Sexre1, Sexre2, Sexrep, SimEx, SlExpC, SlFactC, SlPC, StFilIn, StFilUt, Surf, Temp
+                         Disp, DispDamp, dLJRep, EdSt, EigV, EneLim, Exdt1, Exdtal, Exrep10, Exrep2, Exrep4, Exrep6, FieldDamp, &
+                         FieldNuc, Forcek, iExtr_Atm, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iNrIn, iNrUt, iOrb, iPrint, &
+                         iRead, iSeed, itMax, lCiSelect, lExtr, lMltSlC, lQuad, lSlater, MoAveRed, Mp2DensCorr, MxPut, nAtom, &
+                         nCent, nCha, nEqState, nLvlShift, nMacro, nMicro, nPart, nPol, nSlSiteC, ParallelT, Pol, PolLim, Pres, &
+                         Qmeq, QmProd, Qsta, RassiM, rStart, SaFilIn, SaFilUt, Sexre1, Sexre2, Sexrep, SimEx, SlExpC, SlFactC, &
+                         SlPC, StFilIn, StFilUt, Surf, Temp
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Six, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: i, j
-#include "maxi.fh"
 
 !IO_stuff
 StFilIn = 'STFIL0'
@@ -65,13 +66,13 @@ nSlSiteC = 5
 lMltSlC = 0
 !****
 nLvlShift = 0
-do i=1,MxAt
-  iExtr_Atm(i) = -1
-end do
+call mma_allocate(iExtr_Atm,0,label='iExtr_Atm')
+call mma_allocate(Qsta,NCHA,label='Qsta')
 QSTA(1) = 0.5836_wp
 QSTA(2) = 0.5836_wp
 QSTA(3) = -0.5836_wp
 QSTA(4) = -0.5836_wp
+call mma_allocate(Pol,NPOL,label='Pol')
 POL(1) = 5.932_wp
 POL(2) = 0.641_wp
 POL(3) = 0.641_wp
@@ -79,6 +80,7 @@ POL(3) = 0.641_wp
 Cut_Elc = Six
 DifSlExp = 1.0e-3_wp
 
+call mma_allocate(SlFactC,4,nSlSiteC,label='SlFactC')
 SlFactC(1,1) = -Half
 SlFactC(1,2) = -0.4164_wp
 SlFactC(1,3) = -0.4164_wp
@@ -89,6 +91,7 @@ do i=1,5
     SlFactC(j,i) = Zero
   end do
 end do
+call mma_allocate(SlExpC,2,nSlSiteC,label='SlExpC')
 SlExpC(1,1) = 2.5552_wp
 SlExpC(1,2) = 2.6085_wp
 SlExpC(1,3) = 2.6085_wp
@@ -97,12 +100,20 @@ SlExpC(1,5) = 2.5552_wp
 do i=1,5
   SlExpC(2,i) = Zero
 end do
+call mma_allocate(SlPC,nSlSiteC,label='SlPC')
 SlPC(1) = Half
 SlPC(2) = One
 SlPC(3) = One
 SlPC(4) = Zero
-SlPC(5) = 0.0d0
+SlPC(5) = Zero
 !******************************
+Exrep2 = Zero
+Exrep4 = Zero
+Exrep6 = Zero
+Exrep10 = Zero
+call mma_allocate(sExRep,nAtom,nAtom,label='sExRep')
+call mma_allocate(sExRe1,nAtom,nAtom,label='sExRe1')
+call mma_allocate(sExRe2,nAtom,nAtom,label='sExRe2')
 sExRep(1,1) = 2.092338_wp
 sExRe1(1,1) = 158.998_wp
 sExRe2(1,1) = 4.66009e10_wp
@@ -121,6 +132,14 @@ sExRe2(3,2) = 1121941276.0_wp
 sExRep(3,3) = 1.075803_wp
 sExRe1(3,3) = 0.06521_wp
 sExRe2(3,3) = 1121941276.0_wp
+do I=1,NATOM
+  do J=1,I
+    SEXREP(J,I) = SEXREP(I,J)
+    SEXRE1(J,I) = SEXRE1(I,J)
+    SEXRE2(J,I) = SEXRE2(I,J)
+  end do
+end do
+call mma_allocate(Disp,NPOL,NPOL,label='Disp')
 Disp(1,1) = 11.338_wp
 Disp(2,1) = 3.38283_wp
 Disp(2,2) = 0.627068_wp
@@ -130,26 +149,24 @@ Disp(3,3) = 0.627068_wp
 do I=1,NPOL
   do J=1,I
     DISP(J,I) = DISP(I,J)
-    SEXREP(J,I) = SEXREP(I,J)
-    SEXRE1(J,I) = SEXRE1(I,J)
-    SEXRE2(J,I) = SEXRE2(I,J)
   end do
 end do
+call mma_allocate(Cordst,3,MxPut*nCent,label='Cordst')
 CORDST(1,1) = Zero
-CORDST(2,1) = Zero
-CORDST(3,1) = Zero
-CORDST(4,1) = 0.3126_wp
-CORDST(5,1) = -0.3126_wp
 CORDST(1,2) = Zero
+CORDST(1,3) = Zero
+CORDST(1,4) = 0.3126_wp
+CORDST(1,5) = -0.3126_wp
+CORDST(2,1) = Zero
 CORDST(2,2) = 1.43_wp
-CORDST(3,2) = -1.43_wp
-CORDST(4,2) = Zero
-CORDST(5,2) = Zero
-CORDST(1,3) = 0.3_wp
-CORDST(2,3) = -0.807_wp
+CORDST(2,3) = -1.43_wp
+CORDST(2,4) = Zero
+CORDST(2,5) = Zero
+CORDST(3,1) = 0.3_wp
+CORDST(3,2) = -0.807_wp
 CORDST(3,3) = -0.807_wp
-CORDST(4,3) = -0.1191_wp
-CORDST(5,3) = -0.1191_wp
+CORDST(3,4) = -0.1191_wp
+CORDST(3,5) = -0.1191_wp
 ForceK = 1.0e-3_wp
 dLJrep = Zero
 Pres = One

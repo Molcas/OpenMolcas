@@ -18,13 +18,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iQ_Atoms
-#include "maxi.fh"
 #include "WrkSpc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: i, iCNum, iCo(3), iCStart, iDiskSa, iDiskTemp, iDum(1), iH, iHMax, iHowMSamp, ind, iSamp, j, k, l
 real(kind=wp) :: dist, dist2, dR, Dum, Etot, Ract
 real(kind=wp), allocatable :: gR(:,:,:)
 integer(kind=iwp), parameter :: iHUltraMax = 1000
+#include "warnings.h"
 
 Dum = Zero
 !----------------------------------------------------------------------*

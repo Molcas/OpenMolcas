@@ -17,9 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-real(kind=wp) :: Coord(MxAt*3)
 integer(kind=iwp) :: iQ_Atoms, iCNum
+real(kind=wp) :: Coord(3,iQ_Atoms)
 integer(kind=iwp) :: i, iextr, ind, iTemp, iz, j, k
 real(kind=wp) :: Atemp, S, Sbig
 logical(kind=iwp) :: Changed
@@ -35,7 +34,7 @@ do i=1,nPart
   do j=1,iQ_Atoms
     S = Zero
     do k=1,3
-      S = S+(Coord((j-1)*3+k)-Cordst(nCent*(i-1)+1,k))**2
+      S = S+(Coord(k,j)-Cordst(k,nCent*(i-1)+1))**2
     end do
     if (S <= Sbig) then
       Sbig = S
@@ -70,20 +69,20 @@ end do
 call mma_deallocate(AvstPart)
 
 ! Put coordinates of solvent suchwise that smallest distances goes first.
-call mma_allocate(CordstTemp,nPart*nCent,3,label='CordstTemp')
+call mma_allocate(CordstTemp,3,nPart*nCent,label='CordstTemp')
 do i=1,nPart
   do j=1,nCent
-    CordstTemp((i-1)*nCent+j,1) = Cordst((i-1)*nCent+j,1)
-    CordstTemp((i-1)*nCent+j,2) = Cordst((i-1)*nCent+j,2)
-    CordstTemp((i-1)*nCent+j,3) = Cordst((i-1)*nCent+j,3)
+    CordstTemp(1,(i-1)*nCent+j) = Cordst(1,(i-1)*nCent+j)
+    CordstTemp(2,(i-1)*nCent+j) = Cordst(2,(i-1)*nCent+j)
+    CordstTemp(3,(i-1)*nCent+j) = Cordst(3,(i-1)*nCent+j)
   end do
 end do
 do i=1,nPart
   ind = IndexSet(i)
   do j=1,nCent
-    Cordst((i-1)*nCent+j,1) = CordstTemp((ind-1)*nCent+j,1)
-    Cordst((i-1)*nCent+j,2) = CordstTemp((ind-1)*nCent+j,2)
-    Cordst((i-1)*nCent+j,3) = CordstTemp((ind-1)*nCent+j,3)
+    Cordst(1,(i-1)*nCent+j) = CordstTemp(1,(ind-1)*nCent+j)
+    Cordst(2,(i-1)*nCent+j) = CordstTemp(2,(ind-1)*nCent+j)
+    Cordst(3,(i-1)*nCent+j) = CordstTemp(3,(ind-1)*nCent+j)
   end do
 end do
 call mma_deallocate(IndexSet)
@@ -92,15 +91,15 @@ call mma_deallocate(CordstTemp)
 ! Substitute the first coordinate slots with QM-molecule, or since we have
 ! ordered above, this is equivalent with removing closest solvents and there put QM-mol.
 do iz=1,iQ_Atoms
-  Cordst(iz,1) = Coord((iz-1)*3+1)
-  Cordst(iz,2) = Coord((iz-1)*3+2)
-  Cordst(iz,3) = Coord((iz-1)*3+3)
+  Cordst(1,iz) = Coord(1,iz)
+  Cordst(2,iz) = Coord(2,iz)
+  Cordst(3,iz) = Coord(3,iz)
 end do
 ! Just dummy-coordinates added to empty slots.
 do iextr=iQ_Atoms+1,iCnum*nCent
-  Cordst(iextr,1) = Coord(1)
-  Cordst(iextr,2) = Coord(2)
-  Cordst(iextr,3) = Coord(3)
+  Cordst(1,iextr) = Coord(1,1)
+  Cordst(2,iextr) = Coord(2,1)
+  Cordst(3,iextr) = Coord(3,1)
 end do
 
 if (iPrint >= 10) then !Optional printing.

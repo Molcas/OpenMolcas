@@ -14,11 +14,10 @@ subroutine Cooout(Head,Cordst,nPart,nCent)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
 character(len=200) :: Head
-real(kind=wp) :: Cordst(MxCen*MxPut,3)
 integer(kind=iwp) :: nPart, nCent
-integer(kind=iwp) :: i, ii, j, kaunter
+real(kind=wp) :: Cordst(3,nPart*nCent)
+integer(kind=iwp) :: i, j, kaunter
 
 write(u6,*)
 write(u6,*)
@@ -28,7 +27,7 @@ do i=1,nPart
   write(u6,*) 'Molecule ',i
   do j=1,nCent
     kaunter = kaunter+1
-    write(u6,*) (Cordst(kaunter,ii),ii=1,3)
+    write(u6,*) Cordst(:,kaunter)
   end do
 end do
 

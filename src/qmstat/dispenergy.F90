@@ -16,7 +16,6 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
 real(kind=wp) :: EEDisp, BoMaH, BoMaO, dAtO1, dAtH1, dAtH2, Rab13i, Rab23i, Rab33i
 integer(kind=iwp) :: indQAt
 integer(kind=iwp) :: k, kFac
@@ -57,9 +56,9 @@ end if
 
 ! Now evaluate the Dispersion energy.
 
-EfromO1 = Rab13i**2*DampBarn(3)*uDisp(indQAt,1)
-EfromH1 = Rab23i**2*DampBarn(1)*uDisp(indQAt,2)
-EfromH2 = Rab33i**2*DampBarn(2)*uDisp(indQAt,2)
+EfromO1 = Rab13i**2*DampBarn(3)*uDisp(1,indQAt)
+EfromH1 = Rab23i**2*DampBarn(1)*uDisp(2,indQAt)
+EfromH2 = Rab33i**2*DampBarn(2)*uDisp(2,indQAt)
 
 EEDisp = EEdisp+EfromO1+EfromH1+EfromH2
 

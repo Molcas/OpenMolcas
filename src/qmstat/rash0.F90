@@ -21,15 +21,14 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: nB
-#include "maxi.fh"
 #include "WrkSpc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: i, iAUX, iExt, iopt, ipAOG, ipAOx, ipMOG, ipMOx, irc, iS1, iS2, iSmLbl, iSqAO, iSqMO, j, kaunter, Lu_One, &
                      nBTri, nSize
 real(kind=wp) :: Element
 real(kind=wp), allocatable :: DiagH0(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=r8), external :: Ddot_
+#include "warnings.h"
 
 nBTri = nTri_Elem(nB)
 if (.not. AddExt) then
@@ -93,7 +92,8 @@ else
       call SqToTri_Q(Work(iSqMO),Work(ipMOx),nRedMO)
       kaunter = 0
       do iS1=1,nState
-        do iS2=1,nState
+        ! This was 1,nState before... I think that was a bug, because HMatState is triangular
+        do iS2=1,iS1
           call dcopy_(nSize,Work(iBigT+nSize*kaunter),1,Work(ipMOG),1)
           Element = Ddot_(nSize,Work(ipMOG),1,Work(ipMOx),1)
           kaunter = kaunter+1

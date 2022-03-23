@@ -18,18 +18,17 @@ subroutine OneOverR_Sl(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outx
 !     electrostatic operator of the Hamiltonian. 2011-05-30            *
 !----------------------------------------------------------------------*
 
-use qmstat_global, only: CAFieldG, CBFieldG, CFexp, Cordst, Cut_Elc, DifSlExp, FieldDamp, lMltSlC, lQuad, nCent, nMlt, nPart, &
-                         nPol, nSlSiteC, Qsta, SlExpC, SlExpQ, SlFactC, SlPC
+use qmstat_global, only: CAFieldG, CBFieldG, CFexp, Cordst, Cut_Elc, DifSlExp, FieldDamp, lMltSlC, lQuad, MxMltp, nCent, nMlt, &
+                         nPart, nPol, nSlSiteC, Qsta, SlExpC, SlExpQ, SlFactC, SlPC
 use Index_Functions, only: nTri3_Elem1, nTri_Elem
 use Constants, only: Zero, One, Two, Three, Five
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCNum
-real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), outxyz(MxQCen,3), &
-                 Eint_Nuc(iQ_Atoms)
+real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), &
+                 outxyz(3,nTri_Elem(iQ_Atoms)), Eint_Nuc(iQ_Atoms)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, ijhr, ip, j, jhr, jjhr, k, nMltTemp
 real(kind=wp) :: distMin, EintSl(nTri3_Elem1(MxMltp)), EintSl_Nuc, EintSlTemp, Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), &
                  Se(5), U(3,5)
@@ -43,28 +42,28 @@ EEdisp = Zero
 !----------------------------------------------------------------------*
 do k=1,nTri_Elem(iQ_Atoms)
   lAtom = (k <= iQ_atoms)
-  Gx = outxyz(k,1)+Ax
-  Gy = outxyz(k,2)+Ay
-  Gz = outxyz(k,3)+Az
+  Gx = outxyz(1,k)+Ax
+  Gy = outxyz(2,k)+Ay
+  Gz = outxyz(3,k)+Az
   do j=iCnum+1,nPart
     i = 1+(j-1)*nCent
     ip = 1+(j-1)*nPol
     !Below follows a lot of distances to and fro.
-    Rab(1,1) = Cordst(i,1)-Gx
-    Rab(2,1) = Cordst(i,2)-Gy
-    Rab(3,1) = Cordst(i,3)-Gz
-    Rab(1,2) = Cordst(i+1,1)-Gx
-    Rab(2,2) = Cordst(i+1,2)-Gy
-    Rab(3,2) = Cordst(i+1,3)-Gz
-    Rab(1,3) = Cordst(i+2,1)-Gx
-    Rab(2,3) = Cordst(i+2,2)-Gy
-    Rab(3,3) = Cordst(i+2,3)-Gz
-    Rab(1,4) = Cordst(i+3,1)-Gx
-    Rab(2,4) = Cordst(i+3,2)-Gy
-    Rab(3,4) = Cordst(i+3,3)-Gz
-    Rab(1,5) = Cordst(i+4,1)-Gx
-    Rab(2,5) = Cordst(i+4,2)-Gy
-    Rab(3,5) = Cordst(i+4,3)-Gz
+    Rab(1,1) = Cordst(1,i)-Gx
+    Rab(2,1) = Cordst(2,i)-Gy
+    Rab(3,1) = Cordst(3,i)-Gz
+    Rab(1,2) = Cordst(1,i+1)-Gx
+    Rab(2,2) = Cordst(2,i+1)-Gy
+    Rab(3,2) = Cordst(3,i+1)-Gz
+    Rab(1,3) = Cordst(1,i+2)-Gx
+    Rab(2,3) = Cordst(2,i+2)-Gy
+    Rab(3,3) = Cordst(3,i+2)-Gz
+    Rab(1,4) = Cordst(1,i+3)-Gx
+    Rab(2,4) = Cordst(2,i+3)-Gy
+    Rab(3,4) = Cordst(3,i+3)-Gz
+    Rab(1,5) = Cordst(1,i+4)-Gx
+    Rab(2,5) = Cordst(2,i+4)-Gy
+    Rab(3,5) = Cordst(3,i+4)-Gz
     R2(1) = Rab(1,1)**2+Rab(2,1)**2+Rab(3,1)**2
     R2(2) = Rab(1,2)**2+Rab(2,2)**2+Rab(3,2)**2
     R2(3) = Rab(1,3)**2+Rab(2,3)**2+Rab(3,3)**2
@@ -121,7 +120,7 @@ do k=1,nTri_Elem(iQ_Atoms)
         ! quadrupole is L=2. In QmStat they are 1, 2 and 3, respectively.
         nMltTemp = nMlt-1
 
-        call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,nMltTemp,SlExpQ(0,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
+        call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,nMltTemp,SlExpQ(:,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
 
         !--------------------------------------------------------------*
         ! Change in the order of field gradients because subroutine    *
@@ -146,7 +145,7 @@ do k=1,nTri_Elem(iQ_Atoms)
         nMltTemp = nMlt-1
 
         ijhr = min(nMltTemp,1)
-        call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,ijhr,SlExpQ(0,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
+        call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,ijhr,SlExpQ(:,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
 
         do jhr=1,4
           Eint(k,jhr) = Eint(k,jhr)-EintSl(jhr) ! Check below why it is a subtraction and not a sum

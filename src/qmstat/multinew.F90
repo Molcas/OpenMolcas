@@ -38,22 +38,21 @@
 !> @param[out] outxyz   Expansion centers in molecule
 !***********************************************************************
 
-subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri,iCenTriT,nMlt,outxyz,SlExpQ,lSlater)
+subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri,iCenTriT,nMlt,outxyz,lSlater)
 
+use qmstat_global, only: MxMltp
 use Index_Functions, only: nTri3_Elem, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-#include "warnings.h"
-integer(kind=iwp) :: nAt, nBas, nOcc(MxAt), natyp(MxAt), nntyp, iMME(nTri3_Elem(MxMltp)), iCenTri(nTri_Elem(nBas)), &
+integer(kind=iwp) :: nAt, nBas, nntyp, nOcc(nntyp), natyp(nntyp), iMME(nTri3_Elem(MxMltp)), iCenTri(nTri_Elem(nBas)), &
                      iCenTriT(nBas,nBas), nMlt
-real(kind=wp) :: outxyz(MxQCen,3), SlExpQ(0:MxMltp,MxQCen)
+real(kind=wp) :: outxyz(3,nTri_Elem(nAt))
 logical(kind=iwp) :: lSlater
-integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, iMult(MxMltp,MxComp), Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, k, &
-                     kaunt, kaunter, LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, iMult(MxMltp,nTri_Elem(MxMltp)), Ind, Indie, IndiePrev, iOpt, irc, &
+                     iSmLbl, j, k, kaunt, kaunter, LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
 real(kind=wp) :: CordMul(MxMltp,3), Corr, CorrDip1, CorrDip2, CorrOvl
 logical(kind=iwp) :: Changed1, Changed2, Lika
 character(len=20) :: MemLab, MMElab
@@ -63,7 +62,8 @@ real(kind=wp), allocatable :: xyz(:,:,:)
 integer(kind=iwp), parameter :: iX(6) = [1,1,1,2,2,3], iY(6) = [1,2,3,2,3,3]
 character(len=9), parameter :: Integrals(3) = ['MLTPL  0','MLTPL  1','MLTPL  2']
 integer(kind=iwp), external :: IsFreeUnit
-!Jose.No Nuclear charges in Slater ,SlPQ(MxQCen)
+#include "warnings.h"
+!Jose.No Nuclear charges in Slater
 
 !----------------------------------------------------------------------*
 ! Read the multipole integrals in contracted AO-basis.                 *
@@ -132,17 +132,17 @@ call Get_Centers(nAt,xyz)
 kaunt = 0
 do i=1,nAt
   kaunt = kaunt+1
-  outxyz(kaunt,1) = xyz(1,i,i)
-  outxyz(kaunt,2) = xyz(2,i,i)
-  outxyz(kaunt,3) = xyz(3,i,i)
+  outxyz(1,kaunt) = xyz(1,i,i)
+  outxyz(2,kaunt) = xyz(2,i,i)
+  outxyz(3,kaunt) = xyz(3,i,i)
 end do
 kaunt = nAt
 do i=1,nAt
   do j=1,i-1
     kaunt = kaunt+1
-    outxyz(kaunt,1) = xyz(1,i,j)
-    outxyz(kaunt,2) = xyz(2,i,j)
-    outxyz(kaunt,3) = xyz(3,i,j)
+    outxyz(1,kaunt) = xyz(1,i,j)
+    outxyz(2,kaunt) = xyz(2,i,j)
+    outxyz(3,kaunt) = xyz(3,i,j)
   end do
 end do
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
@@ -150,7 +150,7 @@ end do
 ! Prefactors, Exponents, PointNuclearCharges.                          *
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
 if (lSlater) then
-  call Get_Slater(SlExpQ,LMltSlQ,outxyz,nAt)
+  call Get_Slater(LMltSlQ,outxyz,nAt)
 
   if (LMltSlQ+1 /= nMlt) then
     write(u6,*) 'ERROR! Multipole order',LMltSlQ,' in DiffPr file is different from order',nMlt-1, &

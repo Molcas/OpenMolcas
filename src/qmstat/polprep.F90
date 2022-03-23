@@ -19,7 +19,6 @@ implicit none
 integer(kind=iwp) :: iDist, iDistIm, iCNum, nSize
 real(kind=wp) :: xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), &
                  zzi(nSize,nSize), Gri(nSize,nSize)
-#include "maxi.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, i1, ii, ild, imd, Indco1, IndCo2, Indp1, IndP2, IndTr, IndTr1, IndTri, j, j1, jj, jnd, k, l, ncParm
 
@@ -52,9 +51,9 @@ do i=1,nPol
         Indp2 = Indp2+nPol
         Indco2 = Indco2+nCent
         IndTri = IndTr+(l-(iCnum+1))*nCent**2+k
-        xx(Indp1,Indp2) = (Cordst(indco1,1)-Cordst(indco2,1))*Work(iDist+indtri-1)
-        yy(Indp1,Indp2) = (Cordst(indco1,2)-Cordst(indco2,2))*Work(iDist+indtri-1)
-        zz(Indp1,Indp2) = (Cordst(indco1,3)-Cordst(indco2,3))*Work(iDist+indtri-1)
+        xx(Indp1,Indp2) = (Cordst(1,indco1)-Cordst(1,indco2))*Work(iDist+indtri-1)
+        yy(Indp1,Indp2) = (Cordst(2,indco1)-Cordst(2,indco2))*Work(iDist+indtri-1)
+        zz(Indp1,Indp2) = (Cordst(3,indco1)-Cordst(3,indco2))*Work(iDist+indtri-1)
         rr3(IndP1,IndP2) = Work(iDist+Indtri-1)**3
         ! Why should xx(indp2,indp1)=xx(indp1,indp2), you wonder, should
         ! they not be of different sign? The answer is, it does not
@@ -87,9 +86,9 @@ do i=1,nPol
         ild = (j1-1)*nPol+j
         jnd = jnd+nCent
         Gri(imd,ild) = Work(iDistIm+jnd-1)
-        xxi(imd,ild) = (Cordim(k,1)-Cordst(l,1))*Work(iDistIm+jnd-1)
-        yyi(imd,ild) = (Cordim(k,2)-Cordst(l,2))*Work(iDistIm+jnd-1)
-        zzi(imd,ild) = (Cordim(k,3)-Cordst(l,3))*Work(iDistIm+jnd-1)
+        xxi(imd,ild) = (Cordim(1,k)-Cordst(1,l))*Work(iDistIm+jnd-1)
+        yyi(imd,ild) = (Cordim(2,k)-Cordst(2,l))*Work(iDistIm+jnd-1)
+        zzi(imd,ild) = (Cordim(3,k)-Cordst(3,l))*Work(iDistIm+jnd-1)
       end do
     end do
   end do

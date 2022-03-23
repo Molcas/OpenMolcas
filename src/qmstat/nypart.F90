@@ -15,13 +15,12 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "warnings.h"
 integer(kind=iwp) :: iExtra, nPart, nCent, iSeed
-real(kind=wp) :: COORD(MxCen*MxPut,3), rStart
+real(kind=wp) :: COORD(3,(nPart+iExtra)*nCent), rStart
 integer(kind=iwp) :: I, IA, IIN, iMAXVAR, IND, IVARV
 real(kind=wp) :: DR, DX, DY, DZ, R2, RLIM, RLIM2, rlm, X, Y, Z
 real(kind=wp), external :: Ranf
+#include "warnings.h"
 
 ! Preparing some numbers
 iMAXVAR = 100*iExtra**2
@@ -45,20 +44,20 @@ outer: do
   if (DR > RLIM2) cycle outer
   IND = IIN+NPART
   X = DX+COORD(1,1)
-  Y = DY+COORD(1,2)
-  Z = DZ+COORD(1,3)
+  Y = DY+COORD(2,1)
+  Z = DZ+COORD(3,1)
   ! Check so that two water molecules do not come too close...
   do I=1,IND*NCENT,NCENT
-    R2 = (COORD(I,1)-X)**2+(COORD(I,2)-Y)**2+(COORD(I,3)-Z)**2
+    R2 = (COORD(1,I)-X)**2+(COORD(2,I)-Y)**2+(COORD(3,I)-Z)**2
     if (R2 < 60.0_wp) cycle outer
   end do
   ! ...and if they do not then shove its coordinates in variable
   IIN = IIN+1
   IA = (IIN+NPART-1)*NCENT
   do I=1,NCENT
-    COORD(IA+I,1) = COORD(I,1)+DX
-    COORD(IA+I,2) = COORD(I,2)+DY
-    COORD(IA+I,3) = COORD(I,3)+DZ
+    COORD(1,IA+I) = COORD(1,I)+DX
+    COORD(2,IA+I) = COORD(2,I)+DY
+    COORD(3,IA+I) = COORD(3,I)+DZ
   end do
   ! Check if all water molecules have been put where they should
   if (IIN >= IEXTRA) exit outer

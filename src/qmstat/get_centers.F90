@@ -18,14 +18,13 @@ subroutine Get_Centers(nAt,xyz)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "warnings.h"
 integer(kind=iwp) :: nAt
 real(kind=wp) :: xyz(3,nAt,nAt)
 integer(kind=iwp) :: i, j, jj, Lu
 logical(kind=iwp) :: Exists
 character(len=13) :: TheLine
 integer(kind=iwp), external :: IsFreeUnit
+#include "warnings.h"
 
 ! Open the file
 Lu = 40

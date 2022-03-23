@@ -11,11 +11,12 @@
 
 subroutine SqToTri_Q(SqMat,TriMat,iDi)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: SqMat(*), TriMat(*)
 integer(kind=iwp) :: iDi
+real(kind=wp) :: SqMat(iDi**2), TriMat(nTri_Elem(iDi))
 integer(kind=iwp) :: i, j, kaunter
 
 kaunter = 0

@@ -16,13 +16,12 @@ use qmstat_global, only: Cordst, delFi, delR, delX, iLuSaIn, iPrint, iTcSim, nCe
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-real(kind=wp) :: Ract, Coord(MxAt*3)
 integer(kind=iwp) :: iQ_Atoms, info_atom(iQ_Atoms), iDiskSa
-character(len=200) :: Head
+real(kind=wp) :: Ract, Coord(3,iQ_Atoms)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iCT, j
 real(kind=wp) :: Esub, Etot, Gamold, GaOld
+character(len=200) :: Head
 
 call WrRdSim(iLuSaIn,2,iDiskSa,iTcSim,64,Etot,Ract,nPart,Gamold,GaOld,Esub)
 iDiskSa = iTcSim(1)
@@ -30,7 +29,7 @@ do i=1,3
   call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
   call dDaFile(iLuSaIn,2,Work(iCT),nPart*nCent,iDiskSa)
   do j=1,nCent*nPart
-    Cordst(j,i) = Work(iCT+j-1)
+    Cordst(i,j) = Work(iCT+j-1)
   end do
   call GetMem('CTemp','Free','Real',iCT,nPart*nCent)
   iDiskSa = iTcSim(i+1)

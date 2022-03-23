@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iLu, i9, iC, nState, iExtr_Eig, ip_ExpVal, ip_ExpCento
-real(kind=wp) :: Etot, xyzMy(3), Hmat(*), xyzQu(6), ENR, ENP
+real(kind=wp) :: Etot, xyzMy(3), Hmat(nTri_Elem(iExtr_Eig)), xyzQu(6), ENR, ENP
 logical(kind=iwp) :: lExtr(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ind, j, k, nDim

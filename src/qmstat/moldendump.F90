@@ -15,10 +15,9 @@ use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iC(3), nP, nC
-real(kind=wp) :: CooRef(MxCen,3)
+real(kind=wp) :: CooRef(3,5)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: ind, iP, jC
 real(kind=wp) :: Coo(3,nC)
 logical(kind=iwp) :: ValidOrNot

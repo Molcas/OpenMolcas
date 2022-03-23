@@ -11,18 +11,17 @@
 
 subroutine TdmTrans(nBas)
 
-use qmstat_global, only: iBigT, ipAvRed, iPrint, MoAveRed, nRedMO, NrFiles, NrStates, nState, RassiM, EigV
+use qmstat_global, only: iBigT, ipAvRed, iPrint, MoAveRed, MxSymQ, nRedMO, NrFiles, NrStates, nState, RassiM, EigV
 use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp, u6
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: nBas(MxSymQ)
 #include "WrkSpc.fh"
-#include "warnings.h"
-integer(kind=iwp) :: nBas(MxSym)
 integer(kind=iwp) :: i, iDisk, iEig2, iNonH, iNonS, j, kaunt, Lu, nSize, nStatePrim
 character(len=6) :: TDMchar
 logical(kind=iwp) :: Exists
+#include "warnings.h"
 
 ! Sag hej till publiken.
 

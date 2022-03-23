@@ -11,14 +11,14 @@
 
 subroutine MMEtoRMO(nAObas,nMObas,ipAvRed,iMME)
 
+use qmstat_global, only: MxMltp
 use Index_functions, only: nTri3_Elem
 use Constants, only: Zero, One
 use Definitions, only: iwp
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: nAObas, nMObas, ipAvred, iMME(nTri3_Elem(MxMltp))
+#include "WrkSpc.fh"
 integer(kind=iwp) :: iMlt, iMmeMO, iSq, iTEMP, nUniqueM
 
 ! First all multipoles are transformed to MO-basis...

@@ -35,9 +35,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
 integer(kind=iwp) :: itri, ici
-real(kind=wp) :: Eint(ici,10), Ql(MxOT,MxQCen), Dil(MxOT,3,MxQCen), QQxxyy(MxOT,6,MxQCen), Vmat(itri)
+real(kind=wp) :: Eint(ici,10), Ql(itri,ici), Dil(itri,3,ici), QQxxyy(itri,6,ici), Vmat(itri)
 integer(kind=iwp) :: i, j, k
 
 ! Zeros

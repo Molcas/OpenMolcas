@@ -41,7 +41,6 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: Ract, Rold
 integer(kind=iwp) :: iCNum, iQ_Atoms
-#include "maxi.fh"
 integer(kind=iwp) :: i, iAt, ii, iImage, ij, Ind, iQsta, j, k
 real(kind=wp) :: A, A2, B, CB, Cx, Cy, Cz, DiFac, Dq(3), Dx, q, qq, S2, SB, Sqrts2, x, xNy, y, yNy, z, zNy
 real(kind=wp), external :: Ranf
@@ -51,7 +50,7 @@ real(kind=wp), external :: Ranf
 !----------------------------------------------------------------------*
 do i=1,nPart*nCent
   do j=1,3
-    OldGeo(i,j) = Cordst(i,j)
+    OldGeo(j,i) = Cordst(j,i)
   end do
 end do
 !----------------------------------------------------------------------*
@@ -65,7 +64,7 @@ if (Qmeq .or. QmProd) then !Which coordinates to keep fixed.
   Dq(3) = delX*(ranf(iSeed)-Half)
   do iAt=1,iQ_Atoms
     do ii=1,3
-      Cordst(iAt,ii) = Cordst(iAt,ii)+Dq(ii) !Move QM-mol.
+      Cordst(ii,iAt) = Cordst(ii,iAt)+Dq(ii) !Move QM-mol.
     end do
   end do
 end if
@@ -80,44 +79,44 @@ do i=iSta,nPart !Which molecules to give new coordinates.
     Dx = DelX*(ranf(iSeed)-Half)
     do k=1,nCent
       ii = ij+k
-      Cordst(ii,j) = Cordst(ii,j)+Dx !Make translation
+      Cordst(j,ii) = Cordst(j,ii)+Dx !Make translation
     end do
   end do
-  Cx = Cordst(ij+1,1) !The oxygen, around which we rotate
-  Cy = Cordst(ij+1,2)
-  Cz = Cordst(ij+1,3)
+  Cx = Cordst(1,ij+1) !The oxygen, around which we rotate
+  Cy = Cordst(2,ij+1)
+  Cz = Cordst(3,ij+1)
   B = (ranf(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent !Rotate around the oxygen in yz-plane, i.e. around x-axis.
-    y = Cordst(ij+k,2)-Cy
-    z = Cordst(ij+k,3)-Cz
+    y = Cordst(2,ij+k)-Cy
+    z = Cordst(3,ij+k)-Cz
     yNy = y*CB+z*SB !This is a rotation matrix
     zNy = z*CB-y*SB
-    Cordst(ij+k,2) = yNy+Cy
-    Cordst(ij+k,3) = zNy+Cz
+    Cordst(2,ij+k) = yNy+Cy
+    Cordst(3,ij+k) = zNy+Cz
   end do
   B = (ranf(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent !And now rotate in xz-plane
-    x = Cordst(ij+k,1)-Cx
-    z = Cordst(ij+k,3)-Cz
+    x = Cordst(1,ij+k)-Cx
+    z = Cordst(3,ij+k)-Cz
     xNy = x*CB+z*SB
     zNy = z*CB-x*SB
-    Cordst(ij+k,1) = xNy+Cx
-    Cordst(ij+k,3) = zNy+Cz
+    Cordst(1,ij+k) = xNy+Cx
+    Cordst(3,ij+k) = zNy+Cz
   end do
   B = (ranf(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent  !To your surprise, here we rotate in the xy-plane
-    x = Cordst(ij+k,1)-Cx
-    y = Cordst(ij+k,2)-Cy
+    x = Cordst(1,ij+k)-Cx
+    y = Cordst(2,ij+k)-Cy
     xNy = x*CB+y*SB
     yNy = y*CB-x*SB
-    Cordst(ij+k,1) = xNy+Cx
-    Cordst(ij+k,2) = yNy+Cy
+    Cordst(1,ij+k) = xNy+Cx
+    Cordst(2,ij+k) = yNy+Cy
   end do
 end do
 ! Here all other water molecules rotate around one of the three axes,
@@ -131,10 +130,10 @@ if (A*Three <= One) then !make it random whether we rotate around x, y or z.
     ij = (i-1)*nCent
     do k=1,nCent
       ii = ij+k
-      Cy = Cordst(ii,2)
-      Cz = Cordst(ii,3)
-      Cordst(ii,2) = Cy*CB+Cz*SB
-      Cordst(ii,3) = Cz*CB-Cy*SB
+      Cy = Cordst(2,ii)
+      Cz = Cordst(3,ii)
+      Cordst(2,ii) = Cy*CB+Cz*SB
+      Cordst(3,ii) = Cz*CB-Cy*SB
     end do
   end do
 else if (A*Three <= Two) then
@@ -142,10 +141,10 @@ else if (A*Three <= Two) then
     ij = (i-1)*nCent
     do k=1,nCent
       ii = ij+k
-      Cx = Cordst(ii,1)
-      Cz = Cordst(ii,3)
-      Cordst(ii,1) = Cx*CB+Cz*SB
-      Cordst(ii,3) = CB*Cz-SB*Cx
+      Cx = Cordst(1,ii)
+      Cz = Cordst(3,ii)
+      Cordst(1,ii) = Cx*CB+Cz*SB
+      Cordst(3,ii) = CB*Cz-SB*Cx
     end do
   end do
 else
@@ -153,10 +152,10 @@ else
     ij = (i-1)*nCent
     do k=1,nCent
       ii = ij+k
-      Cx = Cordst(ii,1)
-      Cy = Cordst(ii,2)
-      Cordst(ii,1) = Cx*CB+Cy*SB
-      Cordst(ii,2) = CB*Cy-SB*Cx
+      Cx = Cordst(1,ii)
+      Cy = Cordst(2,ii)
+      Cordst(1,ii) = Cx*CB+Cy*SB
+      Cordst(2,ii) = CB*Cy-SB*Cx
     end do
   end do
 end if
@@ -182,7 +181,7 @@ do i=iImage,nPart
     Ind = Ind+1
     S2 = Zero
     do k=1,3
-      S2 = S2+Cordst(Ind,k)**2
+      S2 = S2+Cordst(k,Ind)**2
     end do
     S2 = A2/S2
     Sqrts2 = sqrt(S2)
@@ -190,7 +189,7 @@ do i=iImage,nPart
     if (j <= nPol) then
       QImp(Ind) = Zero
       do k=1,3
-        DipIm(Ind,k) = Zero
+        DipIm(k,Ind) = Zero
       end do
     end if
     if (j >= iQsta) then
@@ -202,8 +201,8 @@ do i=iImage,nPart
       Qim(Ind) = Zero
     end if
     do k=1,3
-      xyzMyp(k) = xyzMyp(k)-qq*Cordst(Ind,k) !Total dipole of the cavity; used in polink.
-      CordIm(Ind,k) = Cordst(Ind,k)*S2
+      xyzMyp(k) = xyzMyp(k)-qq*Cordst(k,Ind) !Total dipole of the cavity; used in polink.
+      CordIm(k,Ind) = Cordst(k,Ind)*S2
     end do
   end do
 end do

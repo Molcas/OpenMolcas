@@ -11,23 +11,26 @@
 
 subroutine Qmstat(ireturn)
 
-use qmstat_global, only: Anal, EdSt, iOrb, lExtr, MoAveRed, nCent, Qmeq, QmProd, QmType, SingPoint
+use qmstat_global, only: Anal, BasOri, CasOri, ChaNuc, Cordst, DipIm, EdSt, info_atom, iOrb, iQang, iQn, iWoGehenC, iWoGehenQ, &
+                         lExtr, MoAveRed, mPrimus, MxPut, nBA_C, nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, nCBoA_Q, nCent, nCnC_C, nPol, &
+                         nPrimus, OldGeo, PertNElcInt, QIm, QImp, Qmeq, QmProd, Qmstat_end, QmType, SavOri, SingPoint, Sqrs, &
+                         Trans, Udisp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ireturn
-#include "maxi.fh"
-#include "warnings.h"
 integer(kind=iwp) :: iBigDeAll, iCi, ip, ipStoreCoo, iQ_Atoms, iSupDeAll, iV1DeAll, nAtomsCC, nBas(1), nBas_C(1), nCalls, &
                      NCountField, nntyp, nPart2, nRM, nS, nSizeBig
 character(len=4) :: Labjhr
-integer(kind=iwp), allocatable :: natyp(:), nCnC_C(:), nOcc(:)
-real(kind=wp), allocatable :: Coord(:), Eint(:,:), PertElcInt(:), Poli(:,:), SumElcPot(:,:)
+integer(kind=iwp), allocatable :: natyp(:), nOcc(:)
+real(kind=wp), allocatable :: Coord(:,:), Eint(:,:), PertElcInt(:), Poli(:,:), SumElcPot(:,:)
+#include "warnings.h"
 !******JoseMEP New variables to perform the MEP calculation
 !Eint, Poli, SumElcPot, PertElcInt, nOcc, natyp, Labjhr
 
@@ -56,6 +59,10 @@ call Qmstat_init()
 ! the QM-region, therefore that initial call to the RUNFILE.
 
 call Get_iScalar('Unique atoms',iQ_Atoms)
+call mma_allocate(info_atom,iQ_Atoms,label='info_atom')
+call mma_allocate(ChaNuc,iQ_Atoms,label='ChaNuc')
+call mma_allocate(Udisp,2,iQ_Atoms,label='Udisp')
+uDisp(:,:) = Zero
 call Get_Qmstat_Input(iQ_Atoms)
 
 ! If only the startfile is to be edited or the sampfile analyzed, go here, then terminate.
@@ -73,25 +80,32 @@ else
   ! Read in orbitals, basis functions, integrals and bla bla bla. This
   ! is the centre for communicating with the rest of Molcas.
 
-  call mma_allocate(Coord,3*MxAt,label='Coord')
-  call mma_allocate(nCnC_C,MxBasC,label='nCnC_C')
-  call mma_allocate(nOcc,MxBas,label='nOcc')
-  call mma_allocate(natyp,MxAt,label='natyp')
-  call mma_allocate(Eint,MxQCen,10,label='Eint')
-  call mma_allocate(Poli,MxQCen,10,label='Poli')
-  call mma_allocate(SumElcPot,MxQCen,10,label='SumElcPot')
-  call mma_allocate(PertElcInt,nTri_Elem(MxBas),label='PertElcInt')
+  call mma_allocate(Coord,3,iQ_Atoms,label='Coord')
+  call mma_allocate(nOcc,iQ_Atoms,label='nOcc')
+  call mma_allocate(natyp,iQ_Atoms,label='natyp')
 
   !******JoseMEP*** Qfread is called with more variables to the MEP calculation
-  call Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,nOcc,natyp,nntyp)
+  call Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nOcc,natyp,nntyp)
   !*******
+
+  call mma_allocate(PertElcInt,nTri_Elem(nBas(1)),label='PertElcInt')
+  call mma_allocate(Eint,nTri_Elem(iQ_Atoms),10,label='Eint')
+  call mma_allocate(Poli,nTri_Elem(iQ_Atoms),10,label='Poli')
+  call mma_allocate(SumElcPot,nTri_Elem(iQ_Atoms),10,label='SumElcPot')
+  call mma_allocate(OldGeo,3,size(Cordst,2),label='OldGeo')
+  call mma_allocate(DipIm,3,MxPut*max(nCent,nPol),label='DipIm')
+  call mma_allocate(QIm,MxPut*nCent,label='QIm')
+  call mma_allocate(QImp,MxPut*max(nCent,nPol),label='QImp')
+  call mma_allocate(Sqrs,MxPut*nCent,label='Sqrs')
+  call mma_allocate(PertNElcInt,nTri_Elem(nBas(1)),label='PertNElcInt')
+  call mma_allocate(CasOri,3,size(SavOri,2),label='CasOri')
 
   ! The turning point for the single-point calculation.
 
   nCalls = 0
   do
 
-    ! If user request a set of single point calcualtions, then go in to
+    ! If user request a set of single point calculations, then go in to
     ! a separate routine and do a 'reintrepretation' of the input.
 
     if (SingPoint) call SingP(nCalls,iQ_Atoms,ipStoreCoo,nPart2)
@@ -102,9 +116,9 @@ else
 
     if (Qmeq .or. Qmprod) then  !Qmeq=.true. is default option.
       if (QmType(1:3) == 'SCF') then
-        call EqScf(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iSupDeAll,iV1DeAll)
+        call EqScf(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,iSupDeAll,iV1DeAll)
       else if (QmType(1:4) == 'RASS') then
-        call EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iBigDeAll,nSizeBig,ip,nRM)
+        call EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,iBigDeAll,nSizeBig,ip,nRM)
       end if
     end if
 
@@ -119,7 +133,7 @@ else
 
     if (lExtr(8)) then
       Labjhr = 'Pert'
-      call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iQ_Atoms,nBas(1),nOcc(1),natyp(1),nntyp)
+      call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iQ_Atoms,nBas(1),nOcc,natyp,nntyp)
     end if
     !********
 
@@ -145,13 +159,35 @@ else
   end do
 
   call mma_deallocate(Coord)
-  call mma_deallocate(nCnC_C)
   call mma_deallocate(nOcc)
   call mma_deallocate(natyp)
   call mma_deallocate(Eint)
   call mma_deallocate(Poli)
   call mma_deallocate(SumElcPot)
   call mma_deallocate(PertElcInt)
+  call mma_deallocate(OldGeo)
+  call mma_deallocate(DipIm)
+  call mma_deallocate(QIm)
+  call mma_deallocate(QImp)
+  call mma_deallocate(Sqrs)
+  call mma_deallocate(PertNElcInt)
+  call mma_deallocate(CasOri)
+  call mma_deallocate(nBA_C)
+  call mma_deallocate(nBA_Q)
+  call mma_deallocate(nBonA_C)
+  call mma_deallocate(nBonA_Q)
+  call mma_deallocate(nCBoA_C)
+  call mma_deallocate(nCBoA_Q)
+  call mma_deallocate(nCnC_C)
+  call mma_deallocate(iWoGehenC)
+  call mma_deallocate(iWoGehenQ)
+  call mma_deallocate(iQn)
+  call mma_deallocate(iQang)
+  call mma_deallocate(BasOri)
+  call mma_deallocate(SavOri)
+  call mma_deallocate(mPrimus)
+  call mma_deallocate(nPrimus)
+  call mma_deallocate(Trans)
 
   ! Deallocations of stuff from qfread to simulations. These are unique for the QM-method.
 
@@ -168,7 +204,13 @@ else
 
 end if
 
+call mma_deallocate(info_atom)
+call mma_deallocate(ChaNuc)
+call mma_deallocate(Udisp)
+
 ! Exit
+
+call Qmstat_end()
 
 ireturn = 0
 

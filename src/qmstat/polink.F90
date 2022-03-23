@@ -49,11 +49,10 @@ use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iAtom2, iCi, iFil(iCi,10), iCstart, iTri, iQ_Atoms
-real(kind=wp) :: Energy, VpolMat(iTri), Fil(nPart*nPol,3), polfac, Poli(iCi,10), qTot, ChaNuc(MxAt), xyzMyQ(3), xyzMyI(3), &
+real(kind=wp) :: Energy, VpolMat(iTri), Fil(nPart*nPol,3), polfac, Poli(iCi,10), qTot, ChaNuc(iQ_Atoms), xyzMyQ(3), xyzMyI(3), &
                  xyzMyP(3), RoMat(iTri), xyzQuQ(6), CT(3)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iCnum, Iu, j, k, kk, l
 real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qQ(6), qs, Trace1, Trace2, xyzMyC(3)
 real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
@@ -118,21 +117,21 @@ end do
 ! have opposite sign, which in turn has no physical meaning.
 ! We also compute the quadupole moment -- a messy formula.
 do i=1,iCi
-  xyzMyQ(1) = xyzMyQ(1)+Dm(i,1)+Qm(i)*outxyz(i,1)
-  xyzMyQ(2) = xyzMyQ(2)+Dm(i,2)+Qm(i)*outxyz(i,2)
-  xyzMyQ(3) = xyzMyQ(3)+Dm(i,3)+Qm(i)*outxyz(i,3)
-  qQ(1) = qQ(1)+Qm(i)*(outxyz(i,1)-CT(1))*(outxyz(i,1)-CT(1))
-  qQ(2) = qQ(2)+Qm(i)*(outxyz(i,1)-CT(1))*(outxyz(i,2)-CT(2))
-  qQ(3) = qQ(3)+Qm(i)*(outxyz(i,1)-CT(1))*(outxyz(i,3)-CT(3))
-  qQ(4) = qQ(4)+Qm(i)*(outxyz(i,2)-CT(2))*(outxyz(i,2)-CT(2))
-  qQ(5) = qQ(5)+Qm(i)*(outxyz(i,2)-CT(2))*(outxyz(i,3)-CT(3))
-  qQ(6) = qQ(6)+Qm(i)*(outxyz(i,3)-CT(3))*(outxyz(i,3)-CT(3))
-  qD(1) = qD(1)+Two*Dm(i,1)*(outxyz(i,1)-CT(1))
-  qD(2) = qD(2)+Dm(i,1)*(outxyz(i,2)-CT(2))+Dm(i,2)*(outxyz(i,1)-CT(1))
-  qD(3) = qD(3)+Dm(i,1)*(outxyz(i,3)-CT(3))+Dm(i,3)*(outxyz(i,1)-CT(1))
-  qD(4) = qD(4)+Two*Dm(i,2)*(outxyz(i,2)-CT(2))
-  qD(5) = qD(5)+Dm(i,2)*(outxyz(i,3)-CT(3))+Dm(i,3)*(outxyz(i,2)-CT(2))
-  qD(6) = qD(6)+Two*Dm(i,3)*(outxyz(i,3)-CT(3))
+  do kk=1,3
+    xyzMyQ(kk) = xyzMyQ(kk)+Dm(i,kk)+Qm(i)*outxyz(kk,i)
+  end do
+  qQ(1) = qQ(1)+Qm(i)*(outxyz(1,i)-CT(1))*(outxyz(1,i)-CT(1))
+  qQ(2) = qQ(2)+Qm(i)*(outxyz(1,i)-CT(1))*(outxyz(2,i)-CT(2))
+  qQ(3) = qQ(3)+Qm(i)*(outxyz(1,i)-CT(1))*(outxyz(3,i)-CT(3))
+  qQ(4) = qQ(4)+Qm(i)*(outxyz(2,i)-CT(2))*(outxyz(2,i)-CT(2))
+  qQ(5) = qQ(5)+Qm(i)*(outxyz(2,i)-CT(2))*(outxyz(3,i)-CT(3))
+  qQ(6) = qQ(6)+Qm(i)*(outxyz(3,i)-CT(3))*(outxyz(3,i)-CT(3))
+  qD(1) = qD(1)+Two*Dm(i,1)*(outxyz(1,i)-CT(1))
+  qD(2) = qD(2)+Dm(i,1)*(outxyz(2,i)-CT(2))+Dm(i,2)*(outxyz(1,i)-CT(1))
+  qD(3) = qD(3)+Dm(i,1)*(outxyz(3,i)-CT(3))+Dm(i,3)*(outxyz(1,i)-CT(1))
+  qD(4) = qD(4)+Two*Dm(i,2)*(outxyz(2,i)-CT(2))
+  qD(5) = qD(5)+Dm(i,2)*(outxyz(3,i)-CT(3))+Dm(i,3)*(outxyz(2,i)-CT(2))
+  qD(6) = qD(6)+Two*Dm(i,3)*(outxyz(3,i)-CT(3))
   qK(1) = qK(1)+QQm(i,1)
   qK(2) = qK(2)+QQm(i,2)
   qK(3) = qK(3)+QQm(i,4)
@@ -153,17 +152,17 @@ xyzQuQ(6) = OneHalf*(qQ(6)+qD(6)-Trace1-Trace2)+qK(6)
 if (ChargedQM) then !If charged system, then do...
   qs = Zero
   do i=1,iCi
-    CofC(1) = CofC(1)+abs(Qm(i))*outxyz(i,1) !Center of charge
-    CofC(2) = CofC(2)+abs(Qm(i))*outxyz(i,2)
-    CofC(3) = CofC(3)+abs(Qm(i))*outxyz(i,3)
+    CofC(1) = CofC(1)+abs(Qm(i))*outxyz(1,i) !Center of charge
+    CofC(2) = CofC(2)+abs(Qm(i))*outxyz(2,i)
+    CofC(3) = CofC(3)+abs(Qm(i))*outxyz(3,i)
     qs = qs+abs(Qm(i))
   end do
   CofC(1) = CofC(1)/qs
   CofC(2) = CofC(2)/qs
   CofC(3) = CofC(3)/qs
   Gx = CofC(1)-outxyz(1,1)+Cordst(1,1) !Where C-of-C is globally
-  Gy = CofC(2)-outxyz(1,2)+Cordst(1,2)
-  Gz = CofC(3)-outxyz(1,3)+Cordst(1,3)
+  Gy = CofC(2)-outxyz(2,1)+Cordst(2,1)
+  Gz = CofC(3)-outxyz(3,1)+Cordst(3,1)
   xyzMyC(1) = xyzMyC(1)+qtot*Gx !Dipole
   xyzMyC(2) = xyzMyC(2)+qtot*Gy
   xyzMyC(3) = xyzMyC(3)+qtot*Gz
@@ -227,7 +226,7 @@ Gunnar(3) = PolFac*(xyzMyP(2)+xyzMyQ(2)+xyzMyI(2)+xyzMyC(2))
 Gunnar(4) = PolFac*(xyzMyP(3)+xyzMyQ(3)+xyzMyI(3)+xyzMyC(3))
 do l=1,iCi
   ! Potential from the apparent surface charge, see Boettcher (4.22).
-  Gunnar(1) = Gunnar(2)*outxyz(l,1)+Gunnar(3)*outxyz(l,2)+Gunnar(4)*outxyz(l,3)
+  Gunnar(1) = Gunnar(2)*outxyz(1,l)+Gunnar(3)*outxyz(2,l)+Gunnar(4)*outxyz(3,l)
   do i=1,10
     Poli(l,i) = Gunnar(i)
     do j=1+(nPol*iCnum),iAtom2

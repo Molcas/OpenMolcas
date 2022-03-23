@@ -11,6 +11,7 @@
 
 subroutine FetchTDM(nB,nS,iBigT,TDMchar)
 
+use qmstat_global, only: nState
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
@@ -18,7 +19,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: nB, nS, iBigT
 character(len=6) :: TDMchar
-#include "maxi.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iDisk, indx, iS1, iS2, kaunter, Lu, nSize
 integer(kind=iwp), allocatable :: iTocBig(:)
@@ -31,8 +31,8 @@ indx = 0
 Lu = 72
 Lu = IsFreeUnit(Lu)
 call DaName(Lu,TDMchar)
-call mma_allocate(iTocBig,MxStOT,label='iTocBig')
-call iDaFile(Lu,2,iTocBig,MxStOT,iDisk)
+call mma_allocate(iTocBig,nTri_Elem(nState),label='iTocBig')
+call iDaFile(Lu,2,iTocBig,nTri_Elem(nState),iDisk)
 do iS1=1,nS
   do iS2=1,iS1
     kaunter = kaunter+1

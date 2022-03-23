@@ -13,7 +13,7 @@
 !  OverLq
 !
 !> @brief
-!>   Compute overlap between primitve bases, which for bases of other type than s,
+!>   Compute overlap between primitive bases, which for bases of other type than s,
 !>   will mean that several overlaps between basis-functions are computed. One
 !>   function is on the solvent, the other in the QM-region. Observe that we do not
 !>   care about overlaps within the QM-region or among the solvent molecules.
@@ -35,22 +35,20 @@
 !> @param[in]  nExp1  How many primitives there are in this contracted function
 !> @param[in]  nExp2  Like \p nExp1, but for (surprise) the solvent
 !> @param[out] iPSint Pointer to the matrix of overlaps
-!> @param[in]  Trans  Transition matrix between Cartesian and spherical basis functions
 !***********************************************************************
 
-subroutine OverLq(Bori,Cori,Alfa,Beta,iQ1,iQ2,nExp1,nExp2,iPSint,Trans)
+subroutine OverLq(Bori,Cori,Alfa,Beta,iQ1,iQ2,nExp1,nExp2,iPSint)
 
+use qmstat_global, only: MxAngqNr, Trans
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One, Half, Pi
 use Definitions, only: wp, iwp
 
 implicit none
 ! MaxAngqNr=4 means f-function is top. There is no limit in the algorithm though, so if higher is needed, change this number.
-#include "maxi.fh"
-#include "WrkSpc.fh"
-real(kind=wp) :: Bori(3), Cori(3), Alfa(MxCont), Beta(MxCont), &
-                 Trans(int(real(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3+3*MxAngqNr**4)/real(12))) !Why this size? is it correct?
 integer(kind=iwp) :: iQ1, iQ2, nExp1, nExp2, iPSint
+real(kind=wp) :: Bori(3), Cori(3), Alfa(nExp1), Beta(nExp2)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, icompo, ind, ind1, ind2, iP1, iP2, iPInte, iPpS, iPsphS, iSp1, iSp2, iUpX, iUpY, iUpZ, ix, ixxx, iy, iyyy, &
                      iz, izzz, j, jndex, Kaunt, kaunter, krakna, loneX, loneY, loneZ, lsumX, lsumY, lsumZ, ltwoX, ltwoY, ltwoZ, &
                      nBigP, nCartxC(nTri_Elem(MxAngqNr)), nCartxQ(nTri_Elem(MxAngqNr)), nCartyC(nTri_Elem(MxAngqNr)), &

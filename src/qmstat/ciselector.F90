@@ -15,10 +15,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: nEqState, nState, iSTC, nCIRef, iCIInd(nCIRef)
+real(kind=wp) :: dCIRef(nCIRef)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: nEqState, nState, iSTC, nCIRef, iCIInd(MxState)
-real(kind=wp) :: dCIRef(MxState)
 integer(kind=iwp) :: indBase, indMAX, indx, iRef, iState
 real(kind=wp) :: dScal, dScalMAX
 

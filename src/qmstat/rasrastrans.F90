@@ -19,13 +19,12 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: nB, nStatePrim, iEig2, iPrint
-#include "maxi.fh"
 #include "WrkSpc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: i, iB, iBas, iBigV, iDisk, iInt1, iInt2, iiS, indx, indypop, ipAOG, ipMAX, iS, iSnt1, iSnt2, iSnt3, &
                      j, jB, jBas, jjS, jS, kaunt, kaunter, LuIn, MEMMAX, nSize, nSizeBig, nSizeBigPrim, nTriS, nTriSP
 character(len=30) :: OutLine
 integer(kind=iwp), allocatable :: iTocBig(:)
+#include "warnings.h"
 
 !Guten Tag.
 

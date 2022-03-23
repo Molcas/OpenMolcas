@@ -16,10 +16,10 @@ use qmstat_global, only: Cordst, iLuSaUt, iPrint, iTcSim, nCent, nPart
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 real(kind=wp) :: Etot, Ract, Gmma, Gam, Esav
-integer(kind=iwp) :: i, iCT, iDiskHead, iDiskOld, iHowMSamp, iDisk, j
+integer(kind=iwp) :: iHowMSamp, iDisk
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iCT, iDiskHead, iDiskOld, j
 character(len=200) :: Head
 
 iHowMSamp = iHowMSamp+1
@@ -29,7 +29,7 @@ iTcSim(1) = iDisk
 do i=1,3
   call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
   do j=1,nCent*nPart
-    Work(iCT+j-1) = Cordst(j,i)
+    Work(iCT+j-1) = Cordst(i,j)
   end do
   call dDaFile(iLuSaUt,1,Work(iCT),nPart*nCent,iDisk)
   !The solvent coordinates.

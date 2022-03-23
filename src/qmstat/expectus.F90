@@ -15,14 +15,14 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "WrkSpc.fh"
-#include "warnings.h"
 character(len=5) :: QMMethod
 integer(kind=iwp) :: iVEC, nDIM, iEig, ip_ExpVal
 real(kind=wp) :: HmatOld(nTri_Elem(nDim)), Vmat(nTri_Elem(nDim)), VpolMat(nTri_Elem(nDim)), Smat(nTri_Elem(nDim))
 logical(kind=iwp) :: lEig
+#include "WrkSpc.fh"
 integer(kind=iwp) :: iDTmp, iRoot, nDTri, nRoots
 real(kind=r8), external :: Ddot_
+#include "warnings.h"
 
 ! Take different path for different QM-method.
 

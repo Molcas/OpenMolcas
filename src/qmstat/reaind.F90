@@ -18,7 +18,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: iGP(3), iDT(3), iDistIm, iCNum, indma, ncparm
 real(kind=wp) :: Sum1, s90um
-#include "maxi.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, Inc, Inc2, j, k, l
 real(kind=wp) :: D1x, D1y, D1z, Q1, Q2, x, X1, y,z
@@ -58,20 +57,20 @@ S90um = Zero
 do i=iCnum+1,nPart
   do j=1,nPol
     Q1 = Qimp((i-1)*nPol+j)
-    D1x = DipIm((i-1)*nPol+j,1)
-    D1y = DipIm((i-1)*nPol+j,2)
-    D1z = DipIm((i-1)*nPol+j,3)
-    x = CordIm((i-1)*nCent+j,1)
-    y = CordIm((i-1)*nCent+j,2)
-    z = CordIm((i-1)*nCent+j,3)
+    D1x = DipIm(1,(i-1)*nPol+j)
+    D1y = DipIm(2,(i-1)*nPol+j)
+    D1z = DipIm(3,(i-1)*nPol+j)
+    x = CordIm(1,(i-1)*nCent+j)
+    y = CordIm(2,(i-1)*nCent+j)
+    z = CordIm(3,(i-1)*nCent+j)
     Inc = ncparm*nCent*(i-(iCnum+1))+(j-1)*ncparm
     do l=nCent-nCha+1,nCent
       Inc2 = Inc+l
       Q2 = Qsta(l-nCent+nCha)
       do k=iCnum+1,nPart
-        X1 = (X-Cordst(l+(k-1)*nCent,1))*D1x
-        X1 = (Y-Cordst(l+(k-1)*nCent,2))*D1y+X1
-        X1 = (Z-Cordst(l+(k-1)*nCent,3))*D1z+X1
+        X1 = (X-Cordst(1,l+(k-1)*nCent))*D1x
+        X1 = (Y-Cordst(2,l+(k-1)*nCent))*D1y+X1
+        X1 = (Z-Cordst(3,l+(k-1)*nCent))*D1z+X1
         !Change sign on Q2 since we are in the backwards land, while Q1 and X1 already are backward.
         S90um = S90um-(Q1+X1*Work(iDistIm-1+inc2+(k-(iCnum+1))*nCent)**2)*Q2*Work(iDistIm-1+inc2+(k-(iCnum+1))*nCent)
       end do

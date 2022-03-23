@@ -9,27 +9,27 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AllenGinsberg(QMMethod,Eint,Poli,dNuc,Cha,Dip,Qua,MxBaux,iVEC,nDim,iExtr_Atm,lEig,iEig,iQ_Atoms,ip_ExpCento,E_Nuc_Part, &
-                         lSlater,Eint_Nuc)
+subroutine AllenGinsberg(QMMethod,Eint,Poli,dNuc,Cha,Dip,Qua,iVEC,nDim,lEig,iEig,iQ_Atoms,ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
 
+use qmstat_global, only: iExtr_Atm
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-#include "warnings.h"
 character(len=5) :: QMMethod
-integer(kind=iwp) :: MxBaux, iVEC, nDim, iExtr_Atm(MxAt), iEig, iQ_Atoms, ip_ExpCento
-real(kind=wp) :: Eint(nTri_Elem(iQ_Atoms),10), Poli(nTri_Elem(iQ_Atoms),10), dNuc(MxAt), Cha(MxBaux,MxQCen), Dip(MxBaux,3,MxQCen), &
-                 Qua(MxBaux,6,MxQCen), E_Nuc_Part, Eint_Nuc(iQ_Atoms)
+integer(kind=iwp) :: iVEC, nDim, iEig, iQ_Atoms, ip_ExpCento
+real(kind=wp) :: Eint(nTri_Elem(iQ_Atoms),10), Poli(nTri_Elem(iQ_Atoms),10), dNuc(iQ_Atoms), &
+                 Cha(nTri_Elem(nDim),nTri_Elem(iQ_Atoms)), Dip(nTri_Elem(nDim),3,nTri_Elem(iQ_Atoms)), &
+                 Qua(nTri_Elem(nDim),6,nTri_Elem(iQ_Atoms)), E_Nuc_Part, Eint_Nuc(iQ_Atoms)
 logical(kind=iwp) :: lEig, lSlater
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, i1, iAt, iCx, iVelP, iVpoP, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal
 real(kind=wp) :: dMp
 logical(kind=iwp) :: Check1, Check2
 integer(kind=iwp), allocatable :: iCenSet(:)
+#include "warnings.h"
 
 ! Set up centre index set. The order of centres are decided by
 ! the MpProp-program and are hence collected in the get_center
@@ -37,10 +37,7 @@ integer(kind=iwp), allocatable :: iCenSet(:)
 
 ! Atom centres
 
-do iAt=1,MxAt
-  if (iExtr_Atm(iAt) == -1) exit
-end do
-NExtrAt = iAt-1
+NExtrAt = size(iExtr_Atm)
 
 call mma_allocate(iCenSet,NExtrAt+nTri_Elem(iQ_Atoms-1),label='iCenSet')
 iCenSet(1:NExtrAt) = iExtr_Atm(1:NExtrAt)

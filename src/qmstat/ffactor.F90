@@ -21,11 +21,11 @@
 !----------------------------------------------------------------------*
 subroutine fFactor(loneX,ltwoX,lsumX,loneY,ltwoY,lsumY,loneZ,ltwoZ,lsumZ,PAxyz,PBxyz,FactorX,FactorY,FactorZ)
 
+use qmstat_global, only: MxAngqNr
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
 integer(kind=iwp) :: loneX, ltwoX, lsumX, loneY, ltwoY, lsumY, loneZ, ltwoZ, lsumZ
 real(kind=wp) :: PAxyz(3), PBxyz(3), FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1), FactorZ(2*MxAngqNr+1)
 integer(kind=iwp) :: i, ia, iLowB, iUpB

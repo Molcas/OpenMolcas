@@ -24,9 +24,9 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: NoverP_Q
 integer(kind=iwp) :: N, P
-#include "warnings.h"
 integer(kind=iwp) :: ind
 integer(kind=iwp), parameter :: Bino(21) = [1,1,1,1,2,1,1,3,3,1,1,4,6,4,1,1,5,10,10,5,1]
+#include "warnings.h"
 
 NoverP_Q = 1
 if (N >= 6) then

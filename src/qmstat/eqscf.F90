@@ -9,10 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine EqScf(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,nCnC_C,iSupDeAll,iV1DeAll)
+subroutine EqScf(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,iSupDeAll,iV1DeAll)
 
-use qmstat_global, only: AvElcPot, CAFieldG, CBFieldG, CFexp, Cha, ChaNuc, Cordst, delFi, delR, delX, Diel, DipMy, DispDamp, &
-                         dLJrep, FieldDamp, FockM, Forcek, iExtr_Atm, iExtra, info_atom, Inter, iLuSaIn, iLuSaUt, iOcc1, iOrb, &
+use qmstat_global, only: AvElcPot, CAFieldG, CBFieldG, CFexp, Cha, ChaNuc, CordIm, Cordst, delFi, delR, delX, Diel, DipMy, &
+                         DispDamp, dLJrep, FieldDamp, FockM, Forcek, iExtra, info_atom, Inter, iLuSaIn, iLuSaUt, iOcc1, iOrb, &
                          iPrint, iRead, iSeed, iSupM, iV1, lExtr, lSlater, nAtom, nCent, nMacro, nMicro, nPart, nPol, nTemp, &
                          outxyz, ParallelT, PertNElcInt, Pres, Qmeq, QmProd, Quad, rStart, SaFilIn, SaFilUt, SimEx, SURF, Temp, &
                          xyzMyI, xyzMyQ, xyzQuQ
@@ -22,15 +22,13 @@ use Constants, only: Zero, One, Three, Four, Ten, Half, Pi, Angstrom, atmToau, a
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), iSupDeAll, iV1DeAll
+real(kind=wp) :: Coord(3,iQ_Atoms)
 #include "WrkSpc.fh"
-#include "warnings.h"
-integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), nCnC_C(MxBasC), iSupDeAll, iV1DeAll
-real(kind=wp) :: Coord(MxAt*3)
 integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDist, iDistIm, iDT(3), iDum(1), iFi(3), iFP(3), &
                      iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, iMOC, indma, Inte, iOrba, ip_ExpCento, &
-                     ip_ExpVal, ipAOSum, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTri, iTriBasQ, &
-                     iTriMaxBasQ, j, jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, NVarv
+                     ip_ExpVal, ipAOSum, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTri, iTriBasQ, j, &
+                     jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, NVarv
 real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, Dele, DiFac, Dum, E2Die, E_Nuc_Part, &
                  E_Nuc_Rubbet, Edisp, EEDisp, EHam, Elene, EnCLAS, energy, Eold, Esav, Etot, ExDie, Expe, Expran, Exrep, Gam, &
                  Gmma, PertElcInt(1), Pr, Ract, Rold, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, timeEL, timeEX, &
@@ -46,6 +44,7 @@ real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ, &
                             ExLim = Ten !Over how long distance the exchange rep. is computed, the solv-solv.
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Ranf
+#include "warnings.h"
 !****Jose** Interaction with Slater type to consider Penetration
 !           Eint_Nuc
 !****JoseMEP**New variables for the MEP calculation
@@ -168,6 +167,7 @@ else if (iRead == 9) then
   !*****JoseMEP
   ! If we perform MEP calculation, first we make some zeros and allocate some memory.
   if (lExtr(8)) then
+    call mma_allocate(AvElcPot,iCi,10,label='AvElcPot')
     do ijhr=1,iCi
       do jjhr=1,10
         SumElcPot(ijhr,jjhr) = Zero
@@ -176,8 +176,7 @@ else if (iRead == 9) then
     end do
     NCountField = 0
 
-    iTriMaxBasQ = nTri_Elem(MxBas)
-    call dcopy_(iTriMaxBasQ,[Zero],0,PertNElcInt,1)
+    PertNElcInt(:) = Zero
     !write(u6,*)'ipAOSum',ipAOSum
     call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iTriBasQ)
     call dcopy_(iTriBasQ,[Zero],0,Work(ipAOSum),1)
@@ -199,6 +198,8 @@ call mma_allocate(Poli,iCi,10,label='Poli')
 call mma_allocate(Smat,iTri,label='Smat')
 call mma_allocate(Vmat,iTri,label='Vmat')
 call mma_allocate(SmatPure,iTri,label='SmatPure')
+call mma_allocate(FockM,iTri,label='FockM')
+if (.not. allocated(CordIm)) call mma_allocate(CordIm,3,nPart*nCent,label='CordIm')
 iCStart = (((iQ_Atoms-1)/nAtom)+1)*nCent+1
 iCNum = (iCStart-1)/nCent
 i9 = 0
@@ -279,7 +280,7 @@ outer: do
       ! Compute Solvent-solvent interaction.
 
       call ClasClas(iCNum,iCStart,ncParm,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
-      call QMPosition(EHam,Cordst,Coord,Forcek,dLJrep,Ract,iQ_Atoms)
+      call QMPosition(EHam,Cordst,Coord(:,1),Forcek,dLJrep,Ract,iQ_Atoms)
       call Timing(Cpu2,Tim1,Tim2,Tim3)
       timeCLAS = timeCLAS+(Cpu2-Cpu1)
       !----------------------------------------------------------------*
@@ -310,7 +311,7 @@ outer: do
 
       ! Compute the exchange operator.
 
-      call ExScf(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,iTri,Smat,SmatPure,InCutOff,ipAOSum)
+      call ExScf(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,iTri,Smat,SmatPure,InCutOff,ipAOSum)
       call Timing(Cpu3,Tim1,Tim2,Tim3)
       timeEX = timeEX+(Cpu3-Cpu2)
 
@@ -416,8 +417,8 @@ outer: do
             end do
           end if
         end if
-        if (lExtr(7)) call AllenGinsberg('SCF  ',Eint,Poli,ChaNuc,Cha,DipMy,Quad,MxOT,iMOC,iOrb(1),iExtr_Atm,.false.,iOcc1, &
-                                         iQ_Atoms,ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
+        if (lExtr(7)) call AllenGinsberg('SCF  ',Eint,Poli,ChaNuc,Cha,DipMy,Quad,iMOC,iOrb(1),.false.,iOcc1,iQ_Atoms,ip_ExpCento, &
+                                         E_Nuc_Part,lSlater,Eint_Nuc)
 
         call Extract(iLuExtr,i9,Etot,xyzMyQ,FockM,iMOC,iOrb(1),xyzQuQ,ip_ExpVal,ip_ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
         !***JoseMEP**********
@@ -586,6 +587,7 @@ call mma_deallocate(Poli)
 call mma_deallocate(Smat)
 call mma_deallocate(Vmat)
 call mma_deallocate(SmatPure)
+call mma_deallocate(FockM)
 call mma_deallocate(SumElcPot)
 !----------------------------------------------------------------------*
 ! Close some external files.                                           *

@@ -17,7 +17,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Ract, Etot
-#include "maxi.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iCT, iDisk, j
 real(kind=wp) :: Esub, Gamold, GaOld
@@ -36,7 +35,7 @@ do i=1,3
   call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
   call dDaFile(iLuStIn,2,Work(iCT),nPart*nCent,iDisk)
   do j=1,nCent*nPart
-    Cordst(j,i) = Work(iCT+j-1)
+    Cordst(i,j) = Work(iCT+j-1)
   end do
   call GetMem('CTemp','Free','Real',iCT,nPart*nCent)
   iDisk = iTcSim(i+1)

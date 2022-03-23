@@ -17,10 +17,9 @@ use Constants, only: Zero, One, Two, Three, Five
 use Definitions, only: wp, iwp
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCNum
-real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), outxyz(MxQCen,3)
+real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), outxyz(3,nTri_Elem(iQ_Atoms))
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, ijhr, ip, j, jjhr, k
 real(kind=wp) :: Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), Se(5), U(3,5)
 
@@ -31,28 +30,28 @@ EEdisp = Zero
 ! the dispersion interaction.                                          *
 !----------------------------------------------------------------------*
 do k=1,nTri_Elem(iQ_Atoms)
-  Gx = outxyz(k,1)+Ax
-  Gy = outxyz(k,2)+Ay
-  Gz = outxyz(k,3)+Az
+  Gx = outxyz(1,k)+Ax
+  Gy = outxyz(2,k)+Ay
+  Gz = outxyz(3,k)+Az
   do j=iCnum+1,nPart
     i = 1+(j-1)*nCent
     ip = 1+(j-1)*nPol
     !Below follow a lot of distances to and fro.
-    Rab(1,1) = Cordst(i,1)-Gx
-    Rab(2,1) = Cordst(i,2)-Gy
-    Rab(3,1) = Cordst(i,3)-Gz
-    Rab(1,2) = Cordst(i+1,1)-Gx
-    Rab(2,2) = Cordst(i+1,2)-Gy
-    Rab(3,2) = Cordst(i+1,3)-Gz
-    Rab(1,3) = Cordst(i+2,1)-Gx
-    Rab(2,3) = Cordst(i+2,2)-Gy
-    Rab(3,3) = Cordst(i+2,3)-Gz
-    Rab(1,4) = Cordst(i+3,1)-Gx
-    Rab(2,4) = Cordst(i+3,2)-Gy
-    Rab(3,4) = Cordst(i+3,3)-Gz
-    Rab(1,5) = Cordst(i+4,1)-Gx
-    Rab(2,5) = Cordst(i+4,2)-Gy
-    Rab(3,5) = Cordst(i+4,3)-Gz
+    Rab(1,1) = Cordst(1,i)-Gx
+    Rab(2,1) = Cordst(2,i)-Gy
+    Rab(3,1) = Cordst(3,i)-Gz
+    Rab(1,2) = Cordst(1,i+1)-Gx
+    Rab(2,2) = Cordst(2,i+1)-Gy
+    Rab(3,2) = Cordst(3,i+1)-Gz
+    Rab(1,3) = Cordst(1,i+2)-Gx
+    Rab(2,3) = Cordst(2,i+2)-Gy
+    Rab(3,3) = Cordst(3,i+2)-Gz
+    Rab(1,4) = Cordst(1,i+3)-Gx
+    Rab(2,4) = Cordst(2,i+3)-Gy
+    Rab(3,4) = Cordst(3,i+3)-Gz
+    Rab(1,5) = Cordst(1,i+4)-Gx
+    Rab(2,5) = Cordst(2,i+4)-Gy
+    Rab(3,5) = Cordst(3,i+4)-Gz
     R2(1) = Rab(1,1)**2+Rab(2,1)**2+Rab(3,1)**2
     R2(2) = Rab(1,2)**2+Rab(2,2)**2+Rab(3,2)**2
     R2(3) = Rab(1,3)**2+Rab(2,3)**2+Rab(3,3)**2

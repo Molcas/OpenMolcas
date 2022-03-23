@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ExRas(iCStart,nBaseQ,nBaseC,nCnC_C,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itristate,SmatRas,SmatPure,InCutOff,ipAOSum)
+subroutine ExRas(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itristate,SmatRas,SmatPure,InCutOff,ipAOSum)
 
 use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iBigT, iOrb, ipAvRed, lExtr, lmax, MoAveRed, nCent, nPart, &
                          nRedMO, nState, outxyzRAS
@@ -19,10 +19,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-#include "maxi.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, nCnC_C(MxBasC), iQ_Atoms, nAtomsCC, itristate, ipAOSum
+integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itristate, ipAOSum
 real(kind=wp) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate)
+#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAOMOOvl, iAOMOOvlE, iHalf, iHalfE, iHalfpar, ind, inwm, ipACC, ipACCp, ipACCt, ipACCtp, ipAOAUX, &
                      ipAOAUXtri, ipAOG, ipAOint, ipAux, ipAuxp, iS, iTEMP, iV2, js, k, kaunter, N, nAObaseSize, nDim1, nDim2, &
                      nDimP, nDimT, nGross, nHalf, nInsideCut, nV2size
@@ -37,8 +36,8 @@ real(kind=r8), external :: Ddot_
 ! defined in Seward.                                                   *
 !----------------------------------------------------------------------*
 Ax = Cordst(1,1)-outxyzRAS(1,1)
-Ay = Cordst(1,2)-outxyzRAS(1,2)
-Az = Cordst(1,3)-outxyzRAS(1,3)
+Ay = Cordst(2,1)-outxyzRAS(2,1)
+Az = Cordst(3,1)-outxyzRAS(3,1)
 
 ! Make some initializations.
 
@@ -89,31 +88,27 @@ nDimT = nTri_Elem(nDim1)
 
 ! Start loop over all solvent molecules.
 
-call mma_allocate(Inside,MxAt,3,label='Inside')
+call mma_allocate(Inside,iQ_Atoms,nAtomsCC,label='Inside')
 do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Initialize
 
   dist_sw = huge(dist_sw)
   r3 = huge(r3)
-  do i=1,MxAt
-    Inside(i,1) = .false.
-    Inside(i,2) = .false.
-    Inside(i,3) = .false.
-  end do
+  Inside(:,:) = .false.
   NearBy = .false.
   ! Loop over atoms.
   do inwm=1,iQ_Atoms
     do k=1,3
-      CorTemp(k) = (Cordst(N+1,k)-Cordst(inwm,k))**2
+      CorTemp(k) = (Cordst(k,N+1)-Cordst(k,inwm))**2
     end do
     r2 = CorTemp(1)+CorTemp(2)+CorTemp(3)
     dist_sw = min(dist_sw,r2)
     DH1 = Zero !Distances for the inner cut-off. Also include the hydrogens.
     DH2 = Zero
     do k=1,3
-      DH1 = DH1+(Cordst(N+2,k)-Cordst(inwm,k))**2
-      DH2 = DH2+(Cordst(N+3,k)-Cordst(inwm,k))**2
+      DH1 = DH1+(Cordst(k,N+2)-Cordst(k,inwm))**2
+      DH2 = DH2+(Cordst(k,N+3)-Cordst(k,inwm))**2
     end do
     r3temp1 = min(DH1,DH2)
     r3temp2 = min(r3temp1,r2)
@@ -142,7 +137,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   nInsideCut = nInsideCut+1
 
   ! Start integrating.
-  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,nCnC_C,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
+  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
 
   ! Transform overlaps from solvent AO to solvent MO.
 

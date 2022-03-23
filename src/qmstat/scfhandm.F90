@@ -37,17 +37,16 @@
 
 subroutine ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
 
-use qmstat_global, only: Cha, ChaNuc, ChargedQM, DipMy, iOrb, iPrint, lSlater, Mp2DensCorr, nMlt, outxyz, qTot, Quad, SlExpQ
+use qmstat_global, only: Cha, ChaNuc, ChargedQM, DipMy, iOrb, iPrint, lSlater, Mp2DensCorr, MxMltp, MxSymQ, nMlt, outxyz, qTot, Quad
 use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "maxi.fh"
+integer(kind=iwp) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
+real(kind=wp) :: Cmo(nBas(1),nBas(1)), Occu(nBas(1))
 #include "WrkSpc.fh"
-real(kind=wp) :: Cmo(MxBas**2), Occu(MxBas)
-integer(kind=iwp) :: nBas(MxSym), iQ_Atoms, nOcc(MxBas), natyp(MxAt), nntyp
 integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCi, iDum, ii, iMME(nTri3_Elem(MxMltp)), iMtot, indMME, iO1, iO2, ipO, iTyp, j, k, &
                      kaunta, kaunter, kk, nTyp
 real(kind=wp) :: cProd, dipx, dipx0, dipy, dipy0, dipz, dipz0, dTox, dToy, dToz, qEl, Tra
@@ -55,10 +54,14 @@ character(len=20) :: MMElab
 character(len=2) :: ChCo
 integer(kind=iwp), allocatable :: iCent(:,:)
 
+iCi = nTri_Elem(iQ_Atoms)
+call mma_allocate(Cha,nTri_Elem(iOrb(1)),iCi,label='Cha')
+call mma_allocate(DipMy,nTri_Elem(iOrb(1)),3,iCi,label='DipMy')
+call mma_allocate(Quad,nTri_Elem(iOrb(1)),6,iCi,label='Quad')
+
 !----------------------------------------------------------------------*
 ! Zeros.                                                               *
 !----------------------------------------------------------------------*
-iCi = nTri_Elem(iQ_Atoms)
 do i=1,nTri_Elem(iOrb(1))
   do j=1,iCi
     Cha(i,j) = Zero
@@ -78,17 +81,16 @@ end do
 
 ! First get the expansion in AO-format.
 
+call mma_allocate(outxyz,3,nTri_Elem(iQ_Atoms),label='outxyz')
 call mma_allocate(iCent,nBas(1),nBas(1),label='iCent')
 call GetMem('Dummy','Allo','Inte',iDum,nBas(1)**2)
-call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iWork(iDum),iCent,nMlt,outxyz,SlExpQ,lSlater)
+call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iWork(iDum),iCent,nMlt,outxyz,lSlater)
 call GetMem('Dummy','Free','Inte',iDum,nBas(1)**2)
 
 ! If MP2 density correction is requested, go here. This option is
 ! not working nicely, alas, hence do not use!
 
-if (Mp2DensCorr) then
-  call Mbpt2Corr(nBas(1),Cmo)
-end if
+if (Mp2DensCorr) call Mbpt2Corr(nBas(1),Cmo)
 
 ! Then transform this to MO-format since that is the basis we use here!
 
@@ -105,7 +107,7 @@ do iO1=1,iOrb(1)
       do iB2=1,nBas(1)
         kaunta = iCent(iB2,iB1)
         indMME = iTri(iB1,iB2)
-        cProd = Cmo(iB1+(iO1-1)*nBas(1))*Cmo(iB2+(iO2-1)*nBas(1))
+        cProd = Cmo(iB1,iO1)*Cmo(iB2,iO2)
         do iTyp=1,nTyp
           Work(ipO+iTyp-1) = cProd*Work(iMME(iTyp)+indMME-1)
         end do
@@ -181,9 +183,9 @@ do ii=1,iOrb(1)
     Work(iMtot+10*(j-1)+1) = Work(iMtot+10*(j-1)+1)+DipMy(i,1,j)*Occu(ii)
     Work(iMtot+10*(j-1)+2) = Work(iMtot+10*(j-1)+2)+DipMy(i,2,j)*Occu(ii)
     Work(iMtot+10*(j-1)+3) = Work(iMtot+10*(j-1)+3)+DipMy(i,3,j)*Occu(ii)
-    dipx0 = dipx0+Cha(i,j)*outxyz(j,1)*Occu(ii)
-    dipy0 = dipy0+Cha(i,j)*outxyz(j,2)*Occu(ii)
-    dipz0 = dipz0+Cha(i,j)*outxyz(j,3)*Occu(ii)
+    dipx0 = dipx0+Cha(i,j)*outxyz(1,j)*Occu(ii)
+    dipy0 = dipy0+Cha(i,j)*outxyz(2,j)*Occu(ii)
+    dipz0 = dipz0+Cha(i,j)*outxyz(3,j)*Occu(ii)
     Work(iMtot+10*(j-1)+4) = Work(iMtot+10*(j-1)+4)+Quad(i,1,j)*Occu(ii)
     Work(iMtot+10*(j-1)+5) = Work(iMtot+10*(j-1)+5)+Quad(i,2,j)*Occu(ii)
     Work(iMtot+10*(j-1)+6) = Work(iMtot+10*(j-1)+6)+Quad(i,3,j)*Occu(ii)
@@ -197,9 +199,7 @@ if (iPrint >= 10) then
   write(u6,*) '    Distributed multipole in each centre'
   write(u6,*) '    (Compare with output from MpProp.)'
   do j=1,nTri_Elem(iQ_Atoms)
-    if (j <= iQ_Atoms) then
-      Work(iMtot+10*(j-1)) = Work(iMtot+10*(j-1))-ChaNuc(j)
-    end if
+    if (j <= iQ_Atoms) Work(iMtot+10*(j-1)) = Work(iMtot+10*(j-1))-ChaNuc(j)
     write(u6,*) '      Center: ',j
     write(u6,*) '      Charge: ',-Work(iMtot+10*(j-1))
     write(u6,*) '      Dipole: ',(-Work(iMtot+10*(j-1)+kk),kk=1,3)
@@ -209,9 +209,9 @@ end if
 call GetMem('TotMME','Free','Real',iMtot,10*nTri_Elem(iQ_Atoms))
 do i=1,iQ_Atoms
   qtot = qtot+ChaNuc(i)
-  dTox = dTox+ChaNuc(i)*outxyz(i,1)
-  dToy = dToy+ChaNuc(i)*outxyz(i,2)
-  dToz = dToz+ChaNuc(i)*outxyz(i,3)
+  dTox = dTox+ChaNuc(i)*outxyz(1,i)
+  dToy = dToy+ChaNuc(i)*outxyz(2,i)
+  dToz = dToz+ChaNuc(i)*outxyz(3,i)
 end do
 qtot = qtot-qEl
 dTox = dTox-dipx-dipx0
