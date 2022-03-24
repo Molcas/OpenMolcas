@@ -60,7 +60,7 @@
 *
       call DCopy_(nH*nD,[1.0D+99],0,HDiag,1)
 *
-*define _DEBUGPRINT_
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
       Do iD = 1, nD

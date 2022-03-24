@@ -404,6 +404,7 @@ C              Write (6,*) 'Call SOIniH'
 *
 *---        compute initial inverse Hessian H (diag)
 *
+            Write (6,*) 'Call SOIniH'
             Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
 *
          End If
@@ -1036,6 +1037,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *---------------
          If(iOpt.eq.2) Then
             iOpt = 1        ! True if step is QNR
+            Write (6,*) 'Reset QNR1st'
             QNR1st=.TRUE.
          End If
          iterso=0
