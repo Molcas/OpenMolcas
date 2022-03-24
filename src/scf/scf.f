@@ -36,11 +36,11 @@
       Use SCF_Arrays
       Use Interfaces_SCF, Only: OccDef
       use OFembed, only: Do_OFemb
+      use InfSO
       Implicit Real*8 (a-h,o-z)
 *
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "stdalloc.fh"
 #include "twoswi.fh"
 #include "file.fh"
@@ -155,12 +155,9 @@
 
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "llists.fh"
 *
 *
-*     MemRsv set tentatively to the size of six density matrices
-c     MemRsv=6*nBT
       LLlist=0
       LLGrad=0
       Call IniLst(LLGrad,20)
@@ -209,8 +206,8 @@ c     MemRsv=6*nBT
       End
 *----------------------------------------------------------------------*
       Subroutine RclLLs(iDskPt)
+      use InfSO, only: MemRsv
       Implicit Real*8 (a-h,o-z)
-#include "infso.fh"
 #include "file.fh"
 #include "llists.fh"
       Integer iDskPt(5)
@@ -297,12 +294,12 @@ c     MemRsv=6*nBT
       End
 *----------------------------------------------------------------------*
       Subroutine Reduce_Thresholds(EThr_,SIntTh)
+      use InfSO, only: DltNTh
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 *
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "save.fh"
 *
       Write (6,*)
@@ -334,11 +331,11 @@ c     MemRsv=6*nBT
       Return
       End
       Subroutine Reset_Thresholds
+      use InfSO, only: DltNTh
       Implicit Real*8 (a-h,o-z)
 *
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "save.fh"
 *
       Write (6,*)

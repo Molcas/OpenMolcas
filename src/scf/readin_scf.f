@@ -39,11 +39,11 @@
 *                                                                      *
 ************************************************************************
 *
+      use InfSO
       Implicit Real*8 (a-h,o-z)
 *
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 *
       Real*8 SIntTh
       Logical PkMode

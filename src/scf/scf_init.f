@@ -16,12 +16,12 @@
 *     purpose: set up parameters that has to be predefined in SCF      *
 *                                                                      *
 ************************************************************************
+      Use InfSO
       Implicit Real*8 (a-h,o-z)
 *
 #include "mxdm.fh"
 #include "file.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "llists.fh"
 #include "twoswi.fh"
 #include "hfc_logical.fh"
