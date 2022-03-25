@@ -17,15 +17,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iC(3), iC2(3)
 real(kind=wp) :: Coo(3,nCent), CooRef(3,nCent)
 integer(kind=iwp) :: i, iCent, iDisk, iLu, ind, indMax, iPart, j, jnd1, jnd2, jP, k, l, ll, nRemoved
 real(kind=wp) :: dCMx, dCMy, dCMz, dSpread, Esub, Etot, Gamold, GaOld, r, Ract, rMax
 logical(kind=iwp) :: Exists, ValidOrNot
 character(len=200) :: Head
 character(len=6) :: FilSlut, Filstart
-real(kind=wp), allocatable :: Coord(:,:)
+real(kind=wp), allocatable :: C(:,:), C2(:,:), Coord(:,:)
 real(kind=wp), parameter :: ThrdSpread = One
 #include "warnings.h"
 
@@ -46,9 +44,9 @@ call DaName(iLu,Filstart)
 iDisk = 0
 call WrRdSim(iLu,2,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold,GaOld,Esub)
 iDisk = iTcSim(1)
+call mma_allocate(C,nPart*nCent,3,label='Coordinates')
 do l=1,3
-  call GetMem('Coordinates','Allo','Real',iC(l),nPart*nCent)
-  call dDaFile(iLu,2,Work(iC(l)),nPart*nCent,iDisk)
+  call dDaFile(iLu,2,C(:,l),nPart*nCent,iDisk)
 end do
 call DaClos(iLu)
 
@@ -68,7 +66,7 @@ if (DelOrAdd(1)) then
     do j=1,nPart
       r = Zero
       do k=1,3
-        r = r+Work(iC(k)+(j-1)*nCent)**2
+        r = r+C((j-1)*nCent+1,k)**2
       end do
       if (r > rMax) then
         rMax = r
@@ -76,10 +74,8 @@ if (DelOrAdd(1)) then
       end if
     end do
     do j=indMax,nPart-i
-      do l=1,3
-        do ll=1,nCent
-          Work(iC(l)+(j-1)*nCent+ll-1) = Work(iC(l)+j*nCent+ll-1)
-        end do
+      do ll=1,nCent
+        C((j-1)*nCent+ll,:) = C(j*nCent+ll,:)
       end do
     end do
   end do
@@ -93,7 +89,7 @@ if (DelOrAdd(1)) then
   call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart-nDel,Gamold,Gaold,Esub)
   iTcSim(1) = iDisk
   do l=1,3
-    call dDaFile(iLu,1,Work(iC(l)),(nPart-nDel)*nCent,iDisk)
+    call dDaFile(iLu,1,C(:,l),(nPart-nDel)*nCent,iDisk)
     iTcSim(1+l) = iDisk
   end do
   iDisk = 0
@@ -104,9 +100,7 @@ if (DelOrAdd(1)) then
 
   if (iPrint >= 10) then
     do i=1,(nPart-nDel)*nCent
-      Coord(1,i) = Work(iC(1)+i-1)
-      Coord(2,i) = Work(iC(2)+i-1)
-      Coord(3,i) = Work(iC(3)+i-1)
+      Coord(:,i) = C(i,:)
     end do
     write(Head,*) 'Final coordinates'
     call Cooout(Head,Coord,nPart-nDel,nCent)
@@ -117,9 +111,7 @@ end if
 
 if (DelOrAdd(2)) then
   do i=1,nPart*nCent
-    Coord(1,i) = Work(iC(1)+i-1)
-    Coord(2,i) = Work(iC(2)+i-1)
-    Coord(3,i) = Work(iC(3)+i-1)
+    Coord(:,i) = C(i,:)
   end do
   if (nAdd /= 0) then
     ! Just an ugly trick for using nypart. It requires that the first
@@ -133,22 +125,16 @@ if (DelOrAdd(2)) then
     ! Introduce the new particles. nPart is redefined.
     call NyPart(nAdd,nPart,Coord,rStart,nCent,iSeed)
     ! The ugly trick is reversed, and the first slot is retained.
-    do i=1,nCent
-      do j=1,3
-        Coord(j,i) = Work(iC(j)+i-1)
-      end do
+    do j=1,3
+      Coord(j,1:nCent) = C(1:nCent,j)
     end do
   end if
 
   ! Then dump new coordinates on designated startfile.
 
-  do k=1,3
-    call GetMem('NewCoo','Allo','Real',iC2(k),nPart*nCent)
-  end do
-  do i=1,nPart*nCent
-    Work(iC2(1)+i-1) = Coord(1,i)
-    Work(iC2(2)+i-1) = Coord(2,i)
-    Work(iC2(3)+i-1) = Coord(3,i)
+  call mma_allocate(C2,nPart*nCent,3,label='NewCoo')
+  do i=1,3
+    C2(:,i) = Coord(i,:)
   end do
   iLu = 74
   write(FilSlut,'(A5,i1.1)') 'STFIL',NrStartu
@@ -157,7 +143,7 @@ if (DelOrAdd(2)) then
   call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,rStart,nPart,Gamold,Gaold,Esub)
   iTcSim(1) = iDisk
   do l=1,3
-    call dDaFile(iLu,1,Work(iC2(l)),nPart*nCent,iDisk)
+    call dDaFile(iLu,1,C2(:,l),nPart*nCent,iDisk)
     iTcSim(1+l) = iDisk
   end do
   iDisk = 0
@@ -167,9 +153,7 @@ if (DelOrAdd(2)) then
     write(Head,*) 'Final coordinates'
     call Cooout(Head,Coord,nPart,nCent)
   end if
-  do k=1,3
-    call GetMem('NewCoo','Free','Real',iC2(k),nPart*nCent)
-  end do
+  call mma_deallocate(C2)
 end if
 
 ! If requested, substitute all particles that are not of valid water
@@ -180,12 +164,8 @@ if (DelOrAdd(3)) then
   do iPart=1,nPart
     ind = nCent*(iPart-1)
     do iCent=1,nCent
-      Coo(1,iCent) = Work(iC(1)+ind+iCent-1)
-      Coo(2,iCent) = Work(iC(2)+ind+iCent-1)
-      Coo(3,iCent) = Work(iC(3)+ind+iCent-1)
-      CooRef(1,iCent) = Cordst(1,iCent)
-      CooRef(2,iCent) = Cordst(2,iCent)
-      CooRef(3,iCent) = Cordst(3,iCent)
+      Coo(:,iCent) = C(ind+iCent,:)
+      CooRef(:,iCent) = Cordst(:,iCent)
     end do
     call IsItValid(Coo,CooRef,ValidOrNot)
     if (.not. ValidOrNot) then
@@ -193,9 +173,9 @@ if (DelOrAdd(3)) then
       dCMy = Zero
       dCMz = Zero
       do iCent=1,nCent
-        dCMx = dCMx+Work(iC(1)+ind+iCent-1)
-        dCMy = dCMy+Work(iC(2)+ind+iCent-1)
-        dCMz = dCMz+Work(iC(3)+ind+iCent-1)
+        dCMx = dCMx+C(ind+iCent,1)
+        dCMy = dCMy+C(ind+iCent,2)
+        dCMz = dCMz+C(ind+iCent,3)
       end do
       dCMx = dCMx/real(nCent,kind=wp)
       dCMy = dCMy/real(nCent,kind=wp)
@@ -203,9 +183,9 @@ if (DelOrAdd(3)) then
       ! Check if the points are spread out, otherwise just delete.
       dSpread = Zero
       do iCent=1,nCent
-        dSpread = dSpread+(Work(iC(1)+ind+iCent-1)-dCMx)**2
-        dSpread = dSpread+(Work(iC(2)+ind+iCent-1)-dCMy)**2
-        dSpread = dSpread+(Work(iC(3)+ind+iCent-1)-dCMz)**2
+        dSpread = dSpread+(C(ind+iCent,1)-dCMx)**2
+        dSpread = dSpread+(C(ind+iCent,2)-dCMy)**2
+        dSpread = dSpread+(C(ind+iCent,3)-dCMz)**2
       end do
       dSpread = dSpread/real(nCent,kind=wp)
       if (dSpread < ThrdSpread) then
@@ -214,16 +194,14 @@ if (DelOrAdd(3)) then
           jnd1 = (jP-1)*nCent
           jnd2 = (jP)*nCent
           do iCent=1,nCent
-            Work(iC(1)+jnd1+iCent-1) = Work(iC(1)+jnd2+iCent-1)
-            Work(iC(2)+jnd1+iCent-1) = Work(iC(2)+jnd2+iCent-1)
-            Work(iC(3)+jnd1+iCent-1) = Work(iC(3)+jnd2+iCent-1)
+            C(jnd1+iCent,:) = C(jnd2+iCent,:)
           end do
         end do
       else
         do iCent=1,nCent
-          Work(iC(1)+ind+iCent-1) = dCMx+CooRef(1,iCent)
-          Work(iC(2)+ind+iCent-1) = dCMy+CooRef(2,iCent)
-          Work(iC(3)+ind+iCent-1) = dCMz+CooRef(3,iCent)
+          C(ind+iCent,1) = dCMx+CooRef(1,iCent)
+          C(ind+iCent,2) = dCMy+CooRef(2,iCent)
+          C(ind+iCent,3) = dCMz+CooRef(3,iCent)
         end do
       end if
     end if
@@ -239,7 +217,7 @@ if (DelOrAdd(3)) then
   call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold,Gaold,Esub)
   iTcSim(1) = iDisk
   do l=1,3
-    call dDaFile(iLu,1,Work(iC(l)),nPart*nCent,iDisk)
+    call dDaFile(iLu,1,C(:,l),nPart*nCent,iDisk)
     iTcSim(1+l) = iDisk
   end do
   iDisk = 0
@@ -250,9 +228,7 @@ if (DelOrAdd(3)) then
 
   if (iPrint >= 10) then
     do i=1,nPart*nCent
-      Coord(1,i) = Work(iC(1)+i-1)
-      Coord(2,i) = Work(iC(2)+i-1)
-      Coord(3,i) = Work(iC(3)+i-1)
+      Coord(:,i) = C(i,:)
     end do
     write(Head,*) 'Final coordinates'
     call Cooout(Head,Coord,nPart,nCent)
@@ -267,19 +243,15 @@ call mma_deallocate(Coord)
 if (DelOrAdd(4)) then
   if (cDumpForm(1:4) == 'MOLD') then
     do iCent=1,nCent
-      CooRef(1,iCent) = Cordst(1,iCent)
-      CooRef(2,iCent) = Cordst(2,iCent)
-      CooRef(3,iCent) = Cordst(3,iCent)
+      CooRef(:,iCent) = Cordst(:,iCent)
     end do
-    call MoldenDump(iC,CooRef,nPart,nCent)
+    call MoldenDump(C,CooRef,nPart,nCent)
   end if
 end if
 
 ! Deallocate.
 
-do l=1,3
-  call GetMem('Coordinates','Free','Real',iC(l),nPart*nCent)
-end do
+call mma_deallocate(C)
 
 ! This routine ends now!
 

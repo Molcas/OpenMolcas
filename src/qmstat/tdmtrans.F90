@@ -13,14 +13,15 @@ subroutine TdmTrans(nBas)
 
 use qmstat_global, only: iBigT, ipAvRed, iPrint, MoAveRed, MxSymQ, nRedMO, NrFiles, NrStates, nState, RassiM, EigV
 use Index_Functions, only: nTri_Elem
-use Definitions, only: iwp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nBas(MxSymQ)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iDisk, iEig2, iNonH, iNonS, j, kaunt, Lu, nSize, nStatePrim
+integer(kind=iwp) :: i, iDisk, iEig2, j, kaunt, Lu, nStatePrim
 character(len=6) :: TDMchar
 logical(kind=iwp) :: Exists
+real(kind=wp), allocatable :: NonH(:), NonS(:)
 #include "warnings.h"
 
 ! Sag hej till publiken.
@@ -60,34 +61,33 @@ iDisk = 0
 
 ! Read RASSCF overlap and H-matrix.
 
-nSize = nTri_Elem(nStatePrim)
-call GetMem('NonOrtH','Allo','Real',iNonH,nSize)
-call GetMem('NonOrtS','Allo','Real',iNonS,nSize)
+call mma_allocate(NonH,nTri_Elem(nStatePrim),label='NonOrtH')
+call mma_allocate(NonS,nTri_Elem(nStatePrim),label='NonOrtS')
 kaunt = 0
 do i=1,nStatePrim
   do j=1,i
-    call dDaFile(Lu,2,Work(iNonH+kaunt),1,iDisk)
     kaunt = kaunt+1
+    call dDaFile(Lu,2,NonH(kaunt),1,iDisk)
   end do
 end do
 kaunt = 0
 do i=1,nStatePrim
   do j=1,i
-    call dDaFile(Lu,2,Work(iNonS+kaunt),1,iDisk)
     kaunt = kaunt+1
+    call dDaFile(Lu,2,NonS(kaunt),1,iDisk)
   end do
 end do
 if (iPrint >= 10) then
-  call TriPrt('RASSCF Hamiltonian',' ',Work(iNonH),nStatePrim)
-  call TriPrt('RASSCF Overlaps',' ',Work(iNonS),nStatePrim)
+  call TriPrt('RASSCF Hamiltonian',' ',NonH,nStatePrim)
+  call TriPrt('RASSCF Overlaps',' ',NonS,nStatePrim)
 end if
 call DaClos(Lu)
 
 ! Construct CASSI state basis.
 
-call ContRASBas(nStatePrim,iNonH,iNonS,iEig2)
-call GetMem('NonOrtH','Free','Real',iNonH,nSize)
-call GetMem('NonOrtS','Free','Real',iNonS,nSize)
+call ContRASBas(nStatePrim,NonH,NonS,iEig2)
+call mma_deallocate(NonH)
+call mma_deallocate(NonS)
 
 ! Now transform from 'primitive' RASSCF to 'contracted' RASSI states.
 

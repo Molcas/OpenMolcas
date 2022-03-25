@@ -12,8 +12,8 @@
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifdef _IN_MODULE_
 
-subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,nAtoms,MxPrCon,MxAngqNr, &
-                      ipAcc,nACCSize,nBas)
+subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,nAtoms,MxAngqNr,ipAcc, &
+                      nACCSize,nBas)
 
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
@@ -23,15 +23,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nntyp, nAtoms, natyp(nAtoms), MxPrCon, iCon(nAtoms,MxPrCon), nBA(nAtoms), MxAngqNr, &
-                     nCBoA(nAtoms,MxAngqNr), nBona(nAtoms), ipExpo, ipCont, nSh(nAtoms), nfSh(nAtoms,MxAngqNr), nSize, iPrint, &
-                     ipAcc, nACCSize, nBas
-integer(kind=iwp), allocatable :: nPrim(:)
+integer(kind=iwp) :: nntyp, nAtoms, natyp(nAtoms), nBA(nAtoms), MxAngqNr, nCBoA(nAtoms,MxAngqNr), nBona(nAtoms), ipExpo, ipCont, &
+                     nSh(nAtoms), nfSh(nAtoms,MxAngqNr), nSize, iPrint, ipAcc, nACCSize, nBas
+integer(kind=iwp), allocatable :: iCon(:,:), nPrim(:)
 real(kind=wp), allocatable :: BasCoo(:,:)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAng, iAngSav, iBas, iCnt, iCnttp, iCount, iHowMuch, ii, ind, ind1, ind2, ind3, ioio, iPrim, iTemp, j, jj, &
-                     jSum, k, kaunt, kaunta, kaunter, kaunterPrev, kauntSav, kk, kkk, krekna, krekna2, l, ll, M, MaxAng, na, ndc, &
-                     nDiff, nnaa, nshj, nSumma, nVarv
+                     jSum, k, kaunt, kaunta, kaunter, kaunterPrev, kauntSav, kk, kkk, krekna, krekna2, l, ll, M, MaxAng, MxPrCon, &
+                     na, ndc, nDiff, nnaa, nshj, nSumma, nVarv
 real(kind=wp), allocatable :: TEMP1(:), TEMP2(:)
 logical(kind=iwp) :: DoRys
 #include "warnings.h"
@@ -126,6 +125,18 @@ end do
 ! collect all exponents and contraction coefficients. These are stored *
 ! dynamically and then we return the pointers only.                    *
 !----------------------------------------------------------------------*
+MxPrCon = 0
+kaunt = 0
+do i=1,ii
+  kaunter = 0
+  do k=1,dbsc(i)%nShells
+    kaunt = kaunt+1
+    kaunter = kaunter+Shells(kaunt)%nBasis
+  end do
+  MxPrCon = max(MxPrCon,kaunter)
+end do
+
+call mma_allocate(Icon,nAtoms,MxPrCon,label='Icon')
 kaunt = 0
 do i=1,ii
   kaunter = 0
@@ -133,11 +144,6 @@ do i=1,ii
     kaunt = kaunt+1
     do ll=1,Shells(kaunt)%nBasis
       kaunter = kaunter+1
-      if (kaunter > MxPrCon) then
-        write(u6,*)
-        write(u6,*) 'Maximum number of contracted functions exceeded. Increase MxPrCon in qmstat_global.'
-        call Quit(_RC_GENERAL_ERROR_)
-      end if
       Icon(i,kaunter) = Shells(kaunt)%nExp
     end do
   end do

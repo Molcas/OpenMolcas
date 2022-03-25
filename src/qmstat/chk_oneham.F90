@@ -13,15 +13,16 @@ subroutine Chk_OneHam(nBas)
 
 use qmstat_global, only: MxSymQ
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: nBas(MxSymQ)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iOneP, iOneR, iopt, irc, iSmLbl, Lu_One, nBT
+integer(kind=iwp) :: iopt, irc, iSmLbl, Lu_One, nBT
 real(kind=wp) :: dNorm
 character(len=8) :: Label_Pure, Label_Read
+real(kind=wp), allocatable :: OneP(:), OneR(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=r8), external :: dnrm2_
 
@@ -31,22 +32,22 @@ Label_Read = 'OneHam  '
 Label_Pure = 'OneHam 0'
 nBT = nTri_Elem(nBas(1))
 call OpnOne(irc,0,'ONEINT',Lu_One)
-call GetMem('Read','Allo','Real',iOneR,nBT+4)
-call GetMem('Pure','Allo','Real',iOneP,nBT+4)
+call mma_allocate(OneR,nBT,label='Read')
+call mma_allocate(OneP,nBT,label='Pure')
 
 irc = -1
-iopt = 0
+iopt = 6
 iSmLbl = 0
-call RdOne(irc,iopt,Label_Read,1,Work(iOneR),iSmLbl)
+call RdOne(irc,iopt,Label_Read,1,OneR,iSmLbl)
 irc = -1
-iopt = 0
+iopt = 6
 iSmLbl = 0
-call RdOne(irc,iopt,Label_Pure,1,Work(iOneP),iSmLbl)
+call RdOne(irc,iopt,Label_Pure,1,OneP,iSmLbl)
 call ClsOne(irc,Lu_One)
 
-call DaxPy_(nBT,-One,Work(iOneR),1,Work(iOneP),1)
+call DaxPy_(nBT,-One,OneR,1,OneP,1)
 
-dNorm = dnrm2_(nBT,Work(iOneP),1)
+dNorm = dnrm2_(nBT,OneP,1)
 
 if (dNorm > 1.0e-8_wp) then
   write(u6,*)
@@ -61,8 +62,8 @@ if (dNorm > 1.0e-8_wp) then
   write(u6,*)
 end if
 
-call GetMem('Read','Free','Real',iOneR,nBT+4)
-call GetMem('Pure','Free','Real',iOneP,nBT+4)
+call mma_deallocate(OneP)
+call mma_deallocate(OneR)
 
 return
 

@@ -31,16 +31,16 @@
 !> @param[out]    Energy  The energy of the electrostatic interaction
 !> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
 !> @param[in]     iCi     Number of centers in QM-molecule
-!> @param[in]     iFil    Pointer to the static field from the solvent
+!> @param[in]     Fil     The static field from the solvent
 !> @param[out]    VpolMat The matrix due to polarization
-!> @param[in,out] fil     The field from the induced dipoles in the solvent
+!> @param[in,out] FFp     The field from the induced dipoles in the solvent
 !> @param[in]     polfac  A factor for the computation of the image
 !> @param[out]    poli    The solvent polarized field on QM-region
 !> @param[in]     iCstart Number to keep track of solvent molecules
 !> @param[in]     iTri    ``iOrb(1)*(iOrb(1)+1)/2``
 !***********************************************************************
 
-subroutine Polink(Energy,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,RoMat, &
+subroutine Polink(Energy,iAtom2,iCi,Fil,VpolMat,FFp,polfac,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,RoMat, &
                   xyzQuQ,CT)
 
 use qmstat_global, only: Cha, ChargedQM, Cordst, DipMy, nCent, nPart, nPol, outxyz, Pol, Quad
@@ -49,10 +49,9 @@ use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAtom2, iCi, iFil(iCi,10), iCstart, iTri, iQ_Atoms
-real(kind=wp) :: Energy, VpolMat(iTri), Fil(nPart*nPol,3), polfac, Poli(iCi,10), qTot, ChaNuc(iQ_Atoms), xyzMyQ(3), xyzMyI(3), &
-                 xyzMyP(3), RoMat(iTri), xyzQuQ(6), CT(3)
-#include "WrkSpc.fh"
+integer(kind=iwp) :: iAtom2, iCi, iCstart, iTri, iQ_Atoms
+real(kind=wp) :: Energy, Fil(nPart*nPol,3,iCi,10), VpolMat(iTri), FFp(nPart*nPol,3), polfac, Poli(iCi,10), qTot, ChaNuc(iQ_Atoms), &
+                 xyzMyQ(3), xyzMyI(3), xyzMyP(3), RoMat(iTri), xyzQuQ(6), CT(3)
 integer(kind=iwp) :: i, iCnum, Iu, j, k, kk, l
 real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qQ(6), qs, Trace1, Trace2, xyzMyC(3)
 real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
@@ -179,16 +178,16 @@ end do
 do i=1,iCi
   do j=1+(nPol*iCnum),iAtom2
     do k=1,3
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,1)-1+j+(k-1)*nPart*nPol)*Qm(i)
-      do l=1,3
-        Eil(j,k) = Eil(j,k)+Work(iFil(i,l+1)-1+j+(k-1)*nPart*nPol)*Dm(i,l)
-      end do
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,5)-1+j+(k-1)*nPart*nPol)*QQm(i,1)
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,7)-1+j+(k-1)*nPart*nPol)*QQm(i,3)
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,10)-1+j+(k-1)*nPart*nPol)*QQm(i,6)
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,6)-1+j+(k-1)*nPart*nPol)*QQm(i,2)*Two
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,8)-1+j+(k-1)*nPart*nPol)*QQm(i,4)*Two
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,9)-1+j+(k-1)*nPart*nPol)*QQm(i,5)*Two
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,1)*Qm(i)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,2)*Dm(i,1)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,3)*Dm(i,2)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,4)*Dm(i,3)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,5)*QQm(i,1)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,7)*QQm(i,3)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,10)*QQm(i,6)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,6)*QQm(i,2)*Two
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,8)*QQm(i,4)*Two
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,9)*QQm(i,5)*Two
     end do
   end do
 end do
@@ -202,9 +201,9 @@ do i=1+(nPol*iCNum),iAtom2
   ! Here we add the QM-molecule image to the solvent polarizabilities.
   ! Good old classical dielectric cavity model!
   do j=1,3
-    Fil(i,j) = Fil(i,j)+PolFac*xyzMyQ(j)+Eil(i,j)
+    FFp(i,j) = FFp(i,j)+PolFac*xyzMyQ(j)+Eil(i,j)
     ! How much the induced dipoles in solvent interacts with the field from the QM-region.
-    Energy = Energy+Fil(i,j)*Eil(i,j)*Pol(iu)
+    Energy = Energy+FFp(i,j)*Eil(i,j)*Pol(iu)
   end do
 end do
 call mma_deallocate(Qm)
@@ -233,7 +232,7 @@ do l=1,iCi
       Iu = j-((j-1)/nPol)*nPol
       ! Compute the generalized field from induced dipoles in solvent on the QM-region cites.
       do k=1,3
-        Poli(l,i) = Poli(l,i)-Fil(j,k)*Pol(iu)*Work(iFil(l,i)-1+j+(k-1)*nPart*nPol)
+        Poli(l,i) = Poli(l,i)-FFp(j,k)*Pol(iu)*Fil(j,k,l,i)
       end do
     end do
   end do

@@ -50,14 +50,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iCi, iDum, iMME(nTri3_Elem(MxMltp)), j, k, kaunt, kaunter, kk, l, nSize, nTyp
+integer(kind=iwp) :: i, iCi, iMME(nTri3_Elem(MxMltp)), j, k, kaunt, kaunter, kk, l, nSize, nTyp
 real(kind=wp) :: D1, D2, D3, dipx, dipx0, dipy, dipy0, dipz, dipz0, dQxx, dQxy, dQxz, dQyy, dQyz, dQzz, dTox, dToy, dToz, Q, qEl, &
                  quaDxx, quaDxy, quaDxz, quaDyy, quaDyx, quaDyz, quaDzx, quaDzy, quaDzz, quaQxx, quaQxy, quaQxz, quaQyy, quaQyz, &
                  quaQzz, quaxx, quaxy, quaxz, quayy, quayz, quazz, Tra, Trace1, Trace2, Trace3
 character(len=20) :: MMElab
 character(len=2) :: ChCo
-integer(kind=iwp), allocatable :: iCent(:)
+integer(kind=iwp), allocatable :: Dum(:,:), iCent(:)
 
 ! A modest entrance.
 
@@ -120,9 +119,9 @@ write(u6,*) '     Multicenter multipole expanding the charge density expressed i
 
 call mma_allocate(iCent,nTri_Elem(nBas(1)),label='iCent')
 call mma_allocate(outxyzRAS,3,nTri_Elem(iQ_Atoms),label='outxyzRAS')
-call GetMem('Dummy','Allo','Inte',iDum,nBas(1)**2)
-call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyzRAS,lSlater)
-call GetMem('Dummy','Free','Inte',iDum,nBas(1)**2)
+call mma_allocate(Dum,nBas(1),nBas(1),label='Dummy')
+call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iCent,Dum,nMlt,outxyzRAS,lSlater)
+call mma_deallocate(Dum)
 
 ! Set nTyp, which is number of unique multipole components.
 

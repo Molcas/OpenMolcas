@@ -13,13 +13,14 @@
 subroutine Put8(Ract,Etot,Gmma,Gam,Esav)
 
 use qmstat_global, only: Cordst, iLuStut, iPrint, iTcSim, nCent, nPart, StFilUt
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Ract, Etot, Gmma, Gam, Esav
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iCT, iDisk, j
+integer(kind=iwp) :: i, iDisk
 character(len=200) :: Head
+real(kind=wp), allocatable :: CT(:)
 
 call DaName(iLuStUt,StFilUt) !Here follows a general output to the startfile
 iDisk = 0
@@ -27,15 +28,13 @@ call WrRdSim(iLuStUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gmma,Gam,Esav)
 iTcSim(1) = iDisk
 ! In this loop the coordinates are put on file.
 ! The loop is needed due to how Cordst is statically allocated.
+call mma_allocate(CT,nPart*nCent,label='CTemp')
 do i=1,3
-  call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
-  do j=1,nPart*nCent
-    Work(iCT+j-1) = Cordst(i,j)
-  end do
-  call dDaFile(iLuStUt,1,Work(iCT),nPart*nCent,iDisk)
+  CT(:) = Cordst(i,1:nPart*nCent)
+  call dDaFile(iLuStUt,1,CT,nPart*nCent,iDisk)
   iTcSim(1+i) = iDisk
-  call GetMem('CTemp','Free','Real',iCT,nPart*nCent)
 end do
+call mma_deallocate(CT)
 iDisk = 0
 call WrRdSim(iLuStUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gmma,Gam,Esav)
 call DaClos(iLuStUt)

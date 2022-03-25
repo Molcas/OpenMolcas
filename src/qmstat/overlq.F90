@@ -41,6 +41,7 @@ subroutine OverLq(Bori,Cori,Alfa,Beta,iQ1,iQ2,nExp1,nExp2,iPSint)
 
 use qmstat_global, only: MxAngqNr, Trans
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, Pi
 use Definitions, only: wp, iwp
 
@@ -49,13 +50,14 @@ implicit none
 integer(kind=iwp) :: iQ1, iQ2, nExp1, nExp2, iPSint
 real(kind=wp) :: Bori(3), Cori(3), Alfa(nExp1), Beta(nExp2)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, icompo, ind, ind1, ind2, iP1, iP2, iPInte, iPpS, iPsphS, iSp1, iSp2, iUpX, iUpY, iUpZ, ix, ixxx, iy, iyyy, &
-                     iz, izzz, j, jndex, Kaunt, kaunter, krakna, loneX, loneY, loneZ, lsumX, lsumY, lsumZ, ltwoX, ltwoY, ltwoZ, &
-                     nBigP, nCartxC(nTri_Elem(MxAngqNr)), nCartxQ(nTri_Elem(MxAngqNr)), nCartyC(nTri_Elem(MxAngqNr)), &
+integer(kind=iwp) :: i, icompo, ind, ind1, ind2, iP1, iP2, iSp1, iSp2, iUpX, iUpY, iUpZ, ix, ixxx, iy, iyyy, iz, izzz, j, jndex, &
+                     Kaunt, kaunter, krakna, loneX, loneY, loneZ, lsumX, lsumY, lsumZ, ltwoX, ltwoY, ltwoZ, nBigP, &
+                     nCartxC(nTri_Elem(MxAngqNr)), nCartxQ(nTri_Elem(MxAngqNr)), nCartyC(nTri_Elem(MxAngqNr)), &
                      nCartyQ(nTri_Elem(MxAngqNr)), nCartzC(nTri_Elem(MxAngqNr)), nCartzQ(nTri_Elem(MxAngqNr)), nSizeCart, &
                      nSizeSph, nSpecific1, nSpecific2, nSph1, nSph2
 real(kind=wp) :: Divide, Expo, Extra, FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1), FactorZ(2*MxAngqNr+1), PAxyz(3), PBxyz(3), &
                  Piconst, Primequals, Separation, SqPiconst, SummaX, SummaY, SummaZ, TheCent(3), TheFirstFac
+real(kind=wp), allocatable :: PInte(:,:), Pps(:), PsphS(:)
 integer(kind=iwp), external :: iDubFac
 
 !----------------------------------------------------------------------*
@@ -92,8 +94,8 @@ nSph2 = 2*iQ2-1
 nSizeCart = nSpecific1*nSpecific2
 nSizeSph = nSph1*nSph2
 nBigP = nExp1*nExp2*nSph1*nSph2
-call GetMem('PrimCar','Allo','Real',iPpS,nSizeCart)
-call GetMem('PrimSph','Allo','Real',iPsphS,nSizeSph)
+call mma_allocate(PpS,nSizeCart,label='PrimCar')
+call mma_allocate(PsphS,nSizeSph,label='PrimSph')
 call GetMem('AllPrims','Allo','Real',iPSint,nBigP)
 do i=1,nBigP
   Work(iPSint+i-1) = 0
@@ -161,7 +163,7 @@ do iP1=1,nExp1
           SummaZ = SummaZ+FactorZ(2*izzz+1)*Extra
         end do
         Primequals = TheFirstFac*SummaX*SummaY*SummaZ
-        Work(iPpS+kaunter-1) = Primequals
+        PpS(kaunter) = Primequals
       end do
     end do
     !------------------------------------------------------------------*
@@ -190,24 +192,24 @@ do iP1=1,nExp1
     if ((iQ1 >= 3) .or. (iQ2 >= 3)) then !Check if any transformations are necessary.
       if (iQ2 < 3) then !If only the base of the QM-region needs!to be transformed.
         ind = 1+(iQ1-3)*(3*iQ1**3+5*iQ1**2+12*iQ1+40)/12
-        call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,One,Trans(ind),nSph1,Work(iPps),nSpecific2,Zero,Work(iPsphS),nSph1)
+        call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,One,Trans(ind),nSph1,PpS,nSpecific2,Zero,PsphS,nSph1)
       else if (iQ1 < 3) then !If only solvent base needs to be transformed.
         ind = 1+(iQ2-3)*(3*iQ2**3+5*iQ2**2+12*iQ2+40)/12
-        call Dgemm_('T','T',nSph1,nSph2,nSpecific2,One,Work(iPps),nSpecific2,Trans(ind),nSph2,Zero,Work(iPsphS),nSph1)
+        call Dgemm_('T','T',nSph1,nSph2,nSpecific2,One,PpS,nSpecific2,Trans(ind),nSph2,Zero,PsphS,nSph1)
       else !Both QM-region and Solvent need to be transformed.
         ind1 = 1+(iQ1-3)*(3*iQ1**3+5*iQ1**2+12*iQ1+40)/12
         ind2 = 1+(iQ2-3)*(3*iQ2**3+5*iQ2**2+12*iQ2+40)/12
-        call GetMem('Intmd','Allo','Real',iPInte,nSph1*nSpecific2)
-        call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,One,Trans(ind1),nSph1,Work(iPps),nSpecific2,Zero,Work(iPInte),nSph1)
-        call Dgemm_('N','T',nSph1,nSph2,nSpecific2,One,Work(iPInte),nSph1,Trans(ind2),nSph2,Zero,Work(iPsphS),nSph1)
-        call GetMem('Intmd','Free','Real',iPInte,nSph1*nSpecific2)
+        call mma_allocate(PInte,nSph1,nSpecific2,label='Intmd')
+        call Dgemm_('N','T',nSph1,nSpecific2,nSpecific1,One,Trans(ind1),nSph1,PpS,nSpecific2,Zero,PInte,nSph1)
+        call Dgemm_('N','T',nSph1,nSph2,nSpecific2,One,PInte,nSph1,Trans(ind2),nSph2,Zero,PsphS,nSph1)
+        call mma_deallocate(PInte)
       end if
     else  !Here we only transpose to get integrals in right order.
       krakna = 0
       do i=0,nSph1-1
         do j=0,nSph2-1
-          Work(iPsphS+krakna) = Work(iPps+i+j*nSph1)
           krakna = krakna+1
+          PsphS(krakna) = PpS(1+i+j*nSph1)
         end do
       end do
     end if
@@ -221,8 +223,8 @@ do iP1=1,nExp1
     do j=0,nSph2-1
       do i=0,nSph1-1
         jndex = i+j*nExp1*nSph1+(iP1-1)*nSph1+(iP2-1)*nExp1*nSph1*nSph2
-        Work(iPSint+jndex) = Work(iPsphS+krakna)
         krakna = krakna+1
+        Work(iPSint+jndex) = PsphS(krakna)
       end do
     end do
   end do
@@ -230,8 +232,8 @@ end do
 !----------------------------------------------------------------------*
 ! Deallocate and ta'ta!                                                *
 !----------------------------------------------------------------------*
-call GetMem('PrimCar','Free','Real',iPpS,nSizeCart)
-call GetMem('PrimSph','Free','Real',iPsphS,nSizeSph)
+call mma_deallocate(PpS)
+call mma_deallocate(PsphS)
 
 return
 

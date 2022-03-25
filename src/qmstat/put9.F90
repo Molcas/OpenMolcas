@@ -13,31 +13,30 @@
 subroutine Put9(Etot,Ract,iHowMSamp,Gmma,Gam,Esav,iDisk)
 
 use qmstat_global, only: Cordst, iLuSaUt, iPrint, iTcSim, nCent, nPart
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Etot, Ract, Gmma, Gam, Esav
 integer(kind=iwp) :: iHowMSamp, iDisk
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iCT, iDiskHead, iDiskOld, j
+integer(kind=iwp) :: i, iDiskHead, iDiskOld
 character(len=200) :: Head
+real(kind=wp), allocatable :: CT(:)
 
 iHowMSamp = iHowMSamp+1
 iDiskOld = iDisk
 call WrRdSim(iLuSaUt,1,iDisk,iTcSim,64,Etot,Ract,nPart,Gmma,Gam,Esav) !A header
 iTcSim(1) = iDisk
+call mma_allocate(CT,nPart*nCent)
 do i=1,3
-  call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
-  do j=1,nCent*nPart
-    Work(iCT+j-1) = Cordst(i,j)
-  end do
-  call dDaFile(iLuSaUt,1,Work(iCT),nPart*nCent,iDisk)
+  CT(:) = Cordst(i,1:nCent*nPart)
+  call dDaFile(iLuSaUt,1,CT,nPart*nCent,iDisk)
   !The solvent coordinates.
-  call GetMem('CTemp','Free','Real',iCT,nPart*nCent)
   iTcSim(i+1) = iDisk
 end do
+call mma_deallocate(CT)
 !do i=1,3
-!  call dDaFile(iLuSaUt,1,-Work(iDT(i)),nPart*nPol,iDisk)
+!  call dDaFile(iLuSaUt,1,-DT(:,i),nPart*nPol,iDisk)
 !end do
 !iTcSim(5) = iDisk
 iDiskHead = iDiskOld

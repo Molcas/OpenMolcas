@@ -14,6 +14,7 @@ subroutine StateMMEmo(nAObas,nMObas,nState,nTyp,iBigT,iMME,iCent,ipAvRed,Cha,Dip
 
 use qmstat_global, only: MxMltp
 use Index_Functions, only: nTri3_Elem, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
@@ -21,18 +22,19 @@ implicit none
 integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas)), ipAvRed
 real(kind=wp) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iB1, iB2, ipAOG, ipAOG_s, ipMOG, ipMOG_s, ipO, iS1, iS2, iTEMP, iTyp, j, kaunta, kaunter, kk, nSizeA, nSizeM
+integer(kind=iwp) :: i, iB1, iB2, iS1, iS2, iTyp, j, kaunta, kaunter, nSizeA, nSizeM
 real(kind=wp) :: PerAake
+real(kind=wp), allocatable :: AOG(:), AOG_S(:,:), MOG(:), MOG_s(:,:), O(:), TEMP(:,:)
 
 kaunter = 0
 nSizeA = nTri_Elem(nAObas)
 nSizeM = nTri_Elem(nMObas)
-call GetMem('Transition','Allo','Real',ipMOG,nSizeM)
-call GetMem('SqMO','Allo','Real',ipMOG_s,nMObas**2)
-call GetMem('TEMP','Allo','Real',iTEMP,nAObas*nMObas)
-call GetMem('SqAO','Allo','Real',ipAOG_s,nAObas**2)
-call GetMem('TransitionA','Allo','Real',ipAOG,nSizeA)
-call GetMem('OnTheWay','Allo','Real',ipO,nTyp)
+call mma_allocate(MOG,nSizeM,label='Transition')
+call mma_allocate(MOG_s,nMObas,nMObas,label='SqMO')
+call mma_allocate(TEMP,nAObas,nMObas,label='TEMP')
+call mma_allocate(AOG_s,nAObas,nAObas,label='SqAO')
+call mma_allocate(AOG,nSizeA,label='TransitionA')
+call mma_allocate(O,nTyp,label='OnTheWay')
 
 ! Loop over state pairs.
 
@@ -42,62 +44,60 @@ do iS1=1,nState
 
     ! Collect the proper piece of the TDM in MO-basis.
 
-    call dCopy_(nSizeM,Work(iBigT+nSizeM*(kaunter-1)),1,Work(ipMOG),1)
+    call dCopy_(nSizeM,Work(iBigT+nSizeM*(kaunter-1)),1,MOG,1)
 
     ! Additional transformation step from MO to AO.
 
-    call Square(Work(ipMOG),Work(ipMOG_s),1,nMObas,nMObas)
-    kk = 0
+    call Square(MOG,MOG_s,1,nMObas,nMObas)
     do i=1,nMObas
       do j=1,nMObas
-        if (i /= j) Work(ipMOG_s+kk) = Half*Work(ipMOG_s+kk)
-        kk = kk+1
+        if (i == j) cycle
+        MOG_s(j,i) = Half*MOG_s(j,i)
       end do
     end do
-    call Dgemm_('N','N',nAObas,nMObas,nMObas,One,Work(ipAvRed),nAObas,Work(ipMOG_s),nMObas,Zero,Work(iTEMP),nAObas)
-    call Dgemm_('N','T',nAObas,nAObas,nMObas,One,Work(iTEMP),nAObas,Work(ipAvRed),nAObas,Zero,Work(ipAOG_s),nAObas)
-    kk = 0
+    call Dgemm_('N','N',nAObas,nMObas,nMObas,One,Work(ipAvRed),nAObas,MOG_s,nMObas,Zero,TEMP,nAObas)
+    call Dgemm_('N','T',nAObas,nAObas,nMObas,One,TEMP,nAObas,Work(ipAvRed),nAObas,Zero,AOG_s,nAObas)
     do i=1,nAObas
       do j=1,nAObas
-        if (i /= j) Work(ipAOG_s+kk) = Two*Work(ipAOG_s+kk)
-        kk = kk+1
+        if (i == j) cycle
+        AOG_s(j,i) = Two*AOG_s(j,i)
       end do
     end do
-    call SqToTri_Q(Work(ipAOG_s),Work(ipAOG),nAObas)
+    call SqToTri_Q(AOG_s,AOG,nAObas)
 
     ! Loop over AO-basis pairs.
 
     kaunta = 0
     do iB1=1,nAObas
       do iB2=1,iB1
-        PerAake = Work(ipAOG+kaunta)
-        do iTyp=1,nTyp
-          Work(ipO+iTyp-1) = Work(iMME(iTyp)+kaunta)*PerAake
-        end do
         kaunta = kaunta+1
-        Cha(kaunter,iCent(kaunta)) = Cha(kaunter,iCent(kaunta))+Work(ipO)
-        Dip(kaunter,1,iCent(kaunta)) = Dip(kaunter,1,iCent(kaunta))+Work(ipO+1)
-        Dip(kaunter,2,iCent(kaunta)) = Dip(kaunter,2,iCent(kaunta))+Work(ipO+2)
-        Dip(kaunter,3,iCent(kaunta)) = Dip(kaunter,3,iCent(kaunta))+Work(ipO+3)
-        Qua(kaunter,1,iCent(kaunta)) = Qua(kaunter,1,iCent(kaunta))+Work(ipO+4)
-        Qua(kaunter,2,iCent(kaunta)) = Qua(kaunter,2,iCent(kaunta))+Work(ipO+5)
-        ! The reason why 7 and 6 are interchanged is that
+        PerAake = AOG(kaunta)
+        do iTyp=1,nTyp
+          O(iTyp) = Work(iMME(iTyp)-1+kaunta)*PerAake
+        end do
+        Cha(kaunter,iCent(kaunta)) = Cha(kaunter,iCent(kaunta))+O(1)
+        Dip(kaunter,1,iCent(kaunta)) = Dip(kaunter,1,iCent(kaunta))+O(2)
+        Dip(kaunter,2,iCent(kaunta)) = Dip(kaunter,2,iCent(kaunta))+O(3)
+        Dip(kaunter,3,iCent(kaunta)) = Dip(kaunter,3,iCent(kaunta))+O(4)
+        Qua(kaunter,1,iCent(kaunta)) = Qua(kaunter,1,iCent(kaunta))+O(5)
+        Qua(kaunter,2,iCent(kaunta)) = Qua(kaunter,2,iCent(kaunta))+O(6)
+        ! The reason why 8 and 7 are interchanged is that
         ! QMSTAT uses the ordering xx,xy,yy,xz,yz,zz while
         ! Seward uses the ordering xx,xy,xz,yy,yz,zz.
-        Qua(kaunter,3,iCent(kaunta)) = Qua(kaunter,3,iCent(kaunta))+Work(ipO+7)
-        Qua(kaunter,4,iCent(kaunta)) = Qua(kaunter,4,iCent(kaunta))+Work(ipO+6)
-        Qua(kaunter,5,iCent(kaunta)) = Qua(kaunter,5,iCent(kaunta))+Work(ipO+8)
-        Qua(kaunter,6,iCent(kaunta)) = Qua(kaunter,6,iCent(kaunta))+Work(ipO+9)
+        Qua(kaunter,3,iCent(kaunta)) = Qua(kaunter,3,iCent(kaunta))+O(8)
+        Qua(kaunter,4,iCent(kaunta)) = Qua(kaunter,4,iCent(kaunta))+O(7)
+        Qua(kaunter,5,iCent(kaunta)) = Qua(kaunter,5,iCent(kaunta))+O(9)
+        Qua(kaunter,6,iCent(kaunta)) = Qua(kaunter,6,iCent(kaunta))+O(10)
       end do
     end do
   end do
 end do
-call GetMem('Transition','Free','Real',ipMOG,nSizeM)
-call GetMem('SqMO','Free','Real',ipMOG_s,nMObas**2)
-call GetMem('TEMP','Free','Real',iTEMP,nAObas*nMObas)
-call GetMem('SqAO','Free','Real',ipAOG_s,nAObas**2)
-call GetMem('TransitionA','Free','Real',ipAOG,nSizeA)
-call GetMem('OnTheWay','Free','Real',ipO,nTyp)
+call mma_deallocate(MOG)
+call mma_deallocate(MOG_s)
+call mma_deallocate(TEMP)
+call mma_deallocate(AOG_s)
+call mma_deallocate(AOG)
+call mma_deallocate(O)
 
 return
 

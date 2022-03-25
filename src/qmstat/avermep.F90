@@ -22,13 +22,12 @@ character(len=4) :: Kword
 integer(kind=iwp) :: iCi, NCountField, iQ_Atoms, nBas, nntyp, nOcc(nntyp), natyp(nntyp)
 real(kind=wp) :: Eint(iCi,10), Poli(iCi,10), SumElcPot(iCi,10), PertElcInt(nTri_Elem(nBas))
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2, iB1, iB2, iDum, iH0, iH1, iiDum(1), iLuField, iMME(nTri3_Elem(MxMltp)), indMME, iOpt, irc, iSmLbl, &
-                     iTyp, j, kaunta, Lu_One, nSize, nTyp
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iiDum(1), iLuField, iMME(nTri3_Elem(MxMltp)), indMME, iOpt, irc, iSmLbl, iTyp, j, &
+                     kaunta, Lu_One, nSize, nTyp
 real(kind=wp) :: AvTemp, Tra
 logical(kind=iwp) :: Exists
-character(len=20) :: MemLab, MemLab1
-integer(kind=iwp), allocatable :: iCent(:)
-real(kind=wp), allocatable :: ForceNuc(:,:)
+integer(kind=iwp), allocatable :: Dum(:,:), iCent(:)
+real(kind=wp), allocatable :: ForceNuc(:,:), H0(:), H1(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
@@ -105,9 +104,9 @@ select case (Kword(1:4))
 
     call mma_allocate(outxyz,3,nTri_Elem(iQ_Atoms),label='outxyz')
     call mma_allocate(iCent,nTri_Elem(nBas),label='iCent')
-    call GetMem('Dummy','Allo','Inte',iDum,nBas**2)
-    call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,iMME,iCent,iWork(iDum),nMlt,outxyz,.false.)
-    call GetMem('Dummy','Free','Inte',iDum,nBas**2)
+    call mma_allocate(Dum,nBas,nBas,label='Dummy')
+    call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,iMME,iCent,Dum,nMlt,outxyz,.false.)
+    call mma_deallocate(Dum)
 
     !*********************
     ! Calculate the forces for the nuclei these forces will compensate partially
@@ -200,22 +199,20 @@ select case (Kword(1:4))
     end if
 
     ! Memory allocation for the unperturbed Hamiltonian
-    write(MemLab,*) 'MAver'
-    call GetMem(MemLab,'Allo','Real',iH0,nSize+4)
+    call mma_allocate(H0,nSize,label='MAver')
     irc = -1
-    iOpt = 0
+    iOpt = 6
     iSmLbl = 0
 
     ! Read the unperturbed Hamiltonian
-    call RdOne(irc,iOpt,'OneHam 0',1,Work(iH0),iSmLbl) !Collect non perturbed integrals
-    write(MemLab1,*) 'MAver1'
-    call GetMem(MemLab1,'Allo','Real',iH1,nSize+4)
+    call RdOne(irc,iOpt,'OneHam 0',1,H0,iSmLbl) !Collect non perturbed integrals
+    call mma_allocate(H1,nSize,label='MAver1')
     if (iPrint >= 9) then
-      call TriPrt('Non Perturb One-e',' ',Work(iH0),nBas)
+      call TriPrt('Non Perturb One-e',' ',H0,nBas)
     end if
 
     ! We perform the multiplication for each pair of bases in a triangular form.
-    ! The perturbation is added to the unperturbed Hamiltonian 'iH0'.
+    ! The perturbation is added to the unperturbed Hamiltonian 'H0'.
 
     kaunta = 0
     do iB1=1,nBas
@@ -225,13 +222,13 @@ select case (Kword(1:4))
         do iTyp=1,nTyp
           PertElcInt(indMME) = PertElcInt(indMME)+AvElcPot(iCent(kaunta),iTyp)*Work(iMME(iTyp)+indMME-1)
         end do
-        Work(iH1+kaunta-1) = Work(iH0+kaunta-1)+PertElcInt(indMME)
+        H1(kaunta) = H0(kaunta)+PertElcInt(indMME)
       end do
     end do
     call mma_deallocate(iCent)
 
     if (iPrint >= 9) then
-      call TriPrt('H0+Elec One-e',' ',Work(iH1),nBas)
+      call TriPrt('H0+Elec One-e',' ',H1,nBas)
     end if
 
     ! The non-Electrostatic perturbation is added. The PertNElcInt array comes
@@ -241,29 +238,29 @@ select case (Kword(1:4))
       call TriPrt('PertNElcInt-e',' ',PertNElcInt,nBas)
     end if
 
-    call DaxPy_(nTri_Elem(nBas),One,PertNElcInt,1,Work(iH1),1)
+    call DaxPy_(nTri_Elem(nBas),One,PertNElcInt,1,H1,1)
 
     if (iPrint >= 9) then
-      call TriPrt('H0+Elec+nonEl One-e',' ',Work(iH1),nBas)
+      call TriPrt('H0+Elec+nonEl One-e',' ',H1,nBas)
     end if
 
     ! The perturbed Hamiltonian 'H1' is writen in OneInt.
     irc = -1
     iOpt = 0
     iSmLbl = 1
-    call WrOne(irc,iOpt,'OneHam  ',1,Work(iH1),iSmLbl) !Write perturbed integrals
+    call WrOne(irc,iOpt,'OneHam  ',1,H1,iSmLbl) !Write perturbed integrals
     if (iPrint >= 9) then
-      call TriPrt('Perturb One-e',' ',Work(iH1),nBas)
+      call TriPrt('Perturb One-e',' ',H1,nBas)
     end if
 
     if (iPrint >= 10) then
-      call TriPrt('Non Perturb One-e AGAIN',' ',Work(iH0),nBas)
+      call TriPrt('Non Perturb One-e AGAIN',' ',H0,nBas)
     end if
 
     call ClsOne(irc,Lu_One)
 
-    call GetMem(MemLab,'Free','Real',iH0,nSize+4)
-    call GetMem(MemLab1,'Free','Real',iH1,nSize+4)
+    call mma_deallocate(H0)
+    call mma_deallocate(H1)
 
 end select
 

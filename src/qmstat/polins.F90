@@ -30,9 +30,9 @@
 !> @param[out]    Energy  The energy of the electrostatic interaction
 !> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
 !> @param[in]     iCi     Number of centers in QM-molecule
-!> @param[in]     iFil    Pointer to the static field from the solvent
+!> @param[in]     Fil     The static field from the solvent
 !> @param[out]    VpolMat The polarization matrix
-!> @param[in,out] fil     The field from the induced dipoles in the solvent
+!> @param[in,out] FFp     The field from the induced dipoles in the solvent
 !> @param[in]     polfac  A factor for the computation of the image
 !> @param[out]    poli    The solvent polarized field on QM
 !> @param[in]     xyzmyq  Total dipole of QM-region
@@ -42,8 +42,7 @@
 !> @param[in]     iCstart Number to keep track of solvent molecules
 !***********************************************************************
 
-subroutine Polins(Energy,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc,RoMatSt,xyzQuQ, &
-                  CT)
+subroutine Polins(Energy,iAtom2,iCi,Fil,VpolMat,FFp,polfac,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc,RoMatSt,xyzQuQ,CT)
 
 use qmstat_global, only: ChargedQM, Cordst, nCent, nPart, nPol, nState, outxyzRAS, Pol, RasCha, RasDip, RasQua
 use Index_Functions, only: nTri_Elem
@@ -52,10 +51,9 @@ use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAtom2, iCI, iFil(iCi,10), iCstart, iQ_Atoms
-real(kind=wp) :: Energy, VpolMat(nTri_Elem(nState)), Fil(nPart*nPol,3), polfac, Poli(iCi,10), xyzmyq(3), xyzmyi(3), xyzmyp(3), &
-                 qtot, ChaNuc(iQ_Atoms), RoMatSt(nTri_Elem(nState)), xyzQuQ(6), CT(3)
-#include "WrkSpc.fh"
+integer(kind=iwp) :: iAtom2, iCI, iCstart, iQ_Atoms
+real(kind=wp) :: Fil(nPart*nPol,3,iCi,10), Energy, VpolMat(nTri_Elem(nState)), FFp(nPart*nPol,3), polfac, Poli(iCi,10), xyzmyq(3), &
+                 xyzmyi(3), xyzmyp(3), qtot, ChaNuc(iQ_Atoms), RoMatSt(nTri_Elem(nState)), xyzQuQ(6), CT(3)
 integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, kk, l
 real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qs, qQ(6), Trace1, Trace2, xyzMyC(3)
 real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
@@ -182,16 +180,16 @@ end do
 do i=1,iCi
   do j=1+(nPol*iCnum),iAtom2
     do k=1,3
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,1)-1+j+(k-1)*nPart*nPol)*Qm(i)
-      do l=1,3
-        Eil(j,k) = Eil(j,k)+Work(iFil(i,l+1)-1+j+(k-1)*nPart*nPol)*Dm(i,l)
-      end do
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,5)-1+j+(k-1)*nPart*nPol)*QQm(i,1)
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,7)-1+j+(k-1)*nPart*nPol)*QQm(i,3)
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,10)-1+j+(k-1)*nPart*nPol)*QQm(i,6)
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,6)-1+j+(k-1)*nPart*nPol)*QQm(i,2)*Two
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,8)-1+j+(k-1)*nPart*nPol)*QQm(i,4)*Two
-      Eil(j,k) = Eil(j,k)+Work(iFil(i,9)-1+j+(k-1)*nPart*nPol)*QQm(i,5)*Two
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,1)*Qm(i)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,2)*Dm(i,1)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,3)*Dm(i,2)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,4)*Dm(i,3)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,5)*QQm(i,1)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,7)*QQm(i,3)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,10)*QQm(i,6)
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,6)*QQm(i,2)*Two
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,8)*QQm(i,4)*Two
+      Eil(j,k) = Eil(j,k)+Fil(j,k,i,9)*QQm(i,5)*Two
     end do
   end do
 end do
@@ -204,10 +202,10 @@ do i=1+(nPol*iCNum),iAtom2
   Iu = i-((i-1)/nPol)*nPol
   ! Here we add the QM-molecule image to the solvent polarizabilities.
   ! Good old classical dielectric cavity model!
-  ! Fil now contains the field on each solvent polarizability from all different sources.
+  ! FFp now contains the field on each solvent polarizability from all different sources.
   do j=1,3
-    Fil(i,j) = Fil(i,j)+PolFac*xyzMyQ(j)+Eil(i,j)
-    Energy = Energy+Fil(i,j)*Eil(i,j)*Pol(iu)
+    FFp(i,j) = FFp(i,j)+PolFac*xyzMyQ(j)+Eil(i,j)
+    Energy = Energy+FFp(i,j)*Eil(i,j)*Pol(iu)
   end do
 end do
 call mma_deallocate(Qm)
@@ -228,7 +226,7 @@ Gunnar(2) = PolFac*(xyzMyP(1)+xyzMyQ(1)+xyzMyI(1)+xyzMyC(1))
 Gunnar(3) = PolFac*(xyzMyP(2)+xyzMyQ(2)+xyzMyI(2)+xyzMyC(2))
 Gunnar(4) = PolFac*(xyzMyP(3)+xyzMyQ(3)+xyzMyI(3)+xyzMyC(3))
 do l=1,iCi
-  ! The potential from the dipole (the 1/r*r*r is in Work(iFil...).
+  ! The potential from the dipole (the 1/r*r*r is in Fil(...).
   Gunnar(1) = Gunnar(2)*outxyzRAS(1,l)+Gunnar(3)*outxyzRAS(2,l)+Gunnar(4)*outxyzRAS(3,l)
   do i=1,10
     Poli(l,i) = Gunnar(i)
@@ -236,8 +234,8 @@ do l=1,iCi
       Iu = j-((j-1)/nPol)*nPol
       do k=1,3
         !Poli is the polarized field of the solvent. Remember that
-        !Fil() is the total field on the polarizabilities.
-        Poli(l,i) = Poli(l,i)-Fil(j,k)*Pol(iu)*Work(iFil(l,i)-1+j+(k-1)*nPart*nPol)
+        !FFp() is the total field on the polarizabilities.
+        Poli(l,i) = Poli(l,i)-FFp(j,k)*Pol(iu)*Fil(j,k,l,i)
       end do
     end do
   end do

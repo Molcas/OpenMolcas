@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ExRas(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itristate,SmatRas,SmatPure,InCutOff,ipAOSum)
+subroutine ExRas(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itristate,SmatRas,SmatPure,InCutOff,AOSum)
 
 use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iBigT, iOrb, ipAvRed, lExtr, lmax, MoAveRed, nCent, nPart, &
                          nRedMO, nState, outxyzRAS
@@ -19,15 +19,15 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itristate, ipAOSum
-real(kind=wp) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate)
+integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itristate
+real(kind=wp) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate), AOSum(*)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAOMOOvl, iAOMOOvlE, iHalf, iHalfE, iHalfpar, ind, inwm, ipACC, ipACCp, ipACCt, ipACCtp, ipAOAUX, &
-                     ipAOAUXtri, ipAOG, ipAOint, ipAux, ipAuxp, iS, iTEMP, iV2, js, k, kaunter, N, nAObaseSize, nDim1, nDim2, &
-                     nDimP, nDimT, nGross, nHalf, nInsideCut, nV2size
+integer(kind=iwp) :: i, ind, inwm, iS, js, k, kaunter, N, nDim1, nDimT, nGross, nHalf, nInsideCut
 real(kind=wp) :: Addition, CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, HighS, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: InCutOff
 logical(kind=iwp) :: NearBy
+real(kind=wp), allocatable :: ACC(:,:), ACCp(:,:), ACCt(:), ACCtp(:), AOAUX(:,:), AOAUXtri(:), AOint(:,:), AOG(:), AOMOOvl(:,:), &
+                              AOMOOvlE(:,:), HalfE(:,:), HalfP(:), TEMP(:,:), V2(:,:)
 logical(kind=iwp), allocatable :: Inside(:,:)
 real(kind=r8), external :: Ddot_
 
@@ -43,31 +43,17 @@ Az = Cordst(3,1)-outxyzRAS(3,1)
 
 Cut_ExSq1 = Cut_Ex1**2
 Cut_ExSq2 = Cut_Ex2**2
-nV2size = iOrb(2)*nBaseC
-nAObaseSize = nBaseQ*nBaseC
-call GetMem('RotOrb','Allo','Real',iV2,nV2size)
-call GetMem('Sint','Allo','Real',ipAOint,nAObaseSize)
+call mma_allocate(V2,nBaseC,iOrb(2),label='RotOrb')
+call mma_allocate(AOint,nBaseQ,nBaseC,label='Sint')
 nHalf = nBaseQ*iOrb(2)
 nGross = nTri_Elem(nBaseQ)
-call GetMem('HalfTrans','Allo','Real',iHalfpar,nHalf)
-call GetMem('HalfPure','Allo','Real',iHalf,nHalf)
-call GetMem('HalfOrbE','Allo','Real',iHalfE,nHalf)
-call GetMem('Auxiliary','Allo','Real',ipAux,nBaseQ**2)
-call GetMem('AuxiliaryP','Allo','Real',ipAuxp,nBaseQ**2)
-call GetMem('GammaAO','Allo','Real',ipAOG,nGross)
-call GetMem('Accumulate','Allo','Real',ipACC,nBaseQ**2)
-call GetMem('Accumulate','Allo','Real',ipACCp,nBaseQ**2)
-call GetMem('AccumulateT','Allo','Real',ipACCt,nGross)
-call GetMem('AccumulateTP','Allo','Real',ipACCtp,nGross)
-call GetMem('TEMP','Allo','Real',iTEMP,nRedMO*iOrb(2))
-call dcopy_(nBaseQ**2,[Zero],0,Work(ipACC),1)
-call dcopy_(nBaseQ**2,[Zero],0,Work(ipACCp),1)
+call mma_allocate(HalfP,nBaseQ*iOrb(2),label='HalfPure')
 !Jose****************************************************************
 if (lExtr(8)) then
-  call GetMem('qAOclMOOvl','Allo','Real',iAOMOOvl,nHalf)
-  call GetMem('qAOclMOOvlE','Allo','Real',iAOMOOvlE,nHalf)
-  call GetMem('AuxAOp','Allo','Real',ipAOAUX,nBaseQ**2)
-  call GetMem('AuxAOpTri','Allo','Real',ipAOAUXtri,nGross)
+  call mma_allocate(AOMOOvl,nBaseQ,iOrb(2),label='qAOclMOOvl')
+  call mma_allocate(AOMOOvlE,nBaseQ,iOrb(2),label='qAOclMOOvlE')
+  call mma_allocate(AOAUX,nBaseQ,nBaseQ,label='AuxAOp')
+  call mma_allocate(AOAUXtri,nGross,label='AuxAOpTri')
 end if
 !********************************************************************
 InCutOff = .false.
@@ -78,13 +64,19 @@ end do
 nInsideCut = 0
 if (MoAveRed) then
   nDim1 = nRedMO
-  nDim2 = iOrb(2)
+  call mma_allocate(TEMP,nDim1,iOrb(2),label='TEMP')
 else
   nDim1 = nBaseQ
-  nDim2 = iOrb(2)
 end if
-nDimP = nDim1*nDim2
 nDimT = nTri_Elem(nDim1)
+call mma_allocate(HalfE,nDim1,iOrb(2),label='HalfOrbE')
+call mma_allocate(AOG,nDimT,label='GammaAO')
+call mma_allocate(ACC,nDim1,nDim1,label='Accumulate')
+call mma_allocate(ACCp,nDim1,nDim1,label='AccumulateP')
+call mma_allocate(ACCt,nDimT,label='AccumulateT')
+call mma_allocate(ACCtp,nDimT,label='AccumulateTP')
+ACC(:,:) = Zero
+ACCp(:,:) = Zero
 
 ! Start loop over all solvent molecules.
 
@@ -137,18 +129,16 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   nInsideCut = nInsideCut+1
 
   ! Start integrating.
-  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
+  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,AOint,V2,N,lmax,Inside)
 
   ! Transform overlaps from solvent AO to solvent MO.
 
-  call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,One,Work(ipAOint),nBaseQ,Work(iV2),nBaseC,Zero,Work(iHalf),nBaseQ)
+  call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,One,AOint,nBaseQ,V2,nBaseC,Zero,HalfP,nBaseQ)
   !Jose***************************************************************
   if (lExtr(8)) then
-    call dcopy_(nHalf,Work(iHalf),1,Work(iAOMOOvl),1)
-    call dcopy_(nHalf,[Zero],0,Work(iAOMOOvlE),1)
+    call dcopy_(nHalf,HalfP,1,AOMOOvl,1)
     do k=1,iOrb(2)
-      ind = nBaseQ*(k-1)
-      call DaxPy_(nBaseQ,c_orbene(k),Work(iAOMOOvl+ind),1,Work(iAOMOOvlE+ind),1)
+      AOMOOvlE(:,k) = c_orbene(k)*AOMOOvl(:,k)
     end do
   end if
   !*******************************************************************
@@ -160,35 +150,30 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   ! huge demand of memory is required, this should not cause problem.
 
   if (MoAveRed) then
-    call Dgemm_('T','N',nRedMO,iOrb(2),nBaseQ,One,Work(ipAvRed),nBaseQ,Work(iHalf),nBaseQ,Zero,Work(iTEMP),nRedMO)
-    call dcopy_(nDim1*nDim2,Work(iTEMP),1,Work(iHalf),1)
+    call Dgemm_('T','N',nRedMO,iOrb(2),nBaseQ,One,Work(ipAvRed),nBaseQ,HalfP,nBaseQ,Zero,TEMP,nRedMO)
+    call dcopy_(nDim1*iOrb(2),TEMP,1,HalfP,1)
   end if
 
   ! Hook on the orbital energy.
 
-  call dcopy_(nDimP,[Zero],0,Work(iHalfE),1)
   do k=1,iOrb(2)
     ind = nDim1*(k-1)
-    call DaxPy_(nDim1,c_orbene(k),Work(iHalf+ind),1,Work(iHalfE+ind),1)
+    HalfE(:,k) = c_orbene(k)*HalfP(ind+1:ind+nDim1)
   end do
 
   ! Construct auxiliary matrix for the non-electrostatic operator
   ! in AO-basis for QM region. Also construct matrix of pure
   ! overlaps for the higher order terms.
+  ! And accumulate.
 
-  call Dgemm_('N','T',nDim1,nDim1,iOrb(2),One,Work(iHalf),nDim1,Work(iHalfE),nDim1,Zero,Work(ipAUX),nDim1)
-  call Dgemm_('N','T',nDim1,nDim1,iOrb(2),One,Work(iHalf),nDim1,Work(iHalf),nDim1,Zero,Work(ipAUXp),nDim1)
-
-  ! Accumulate.
-
-  call DaxPy_(nDim1**2,One,Work(ipAUX),1,Work(ipACC),1)
-  call DaxPy_(nDim1**2,One,Work(ipAUXp),1,Work(ipACCp),1)
+  call Dgemm_('N','T',nDim1,nDim1,iOrb(2),One,HalfP,nDim1,HalfE,nDim1,One,ACC,nDim1)
+  call Dgemm_('N','T',nDim1,nDim1,iOrb(2),One,HalfP,nDim1,HalfP,nDim1,One,ACCp,nDim1)
 
   !Jose*********************************
   if (lExtr(8)) then
-    call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,Work(iAOMOOvl),nBaseQ,Work(iAOMOOvlE),nBaseQ,Zero,Work(ipAOAUX),nBaseQ)
-    call SqToTri_Q(Work(ipAOAUX),Work(ipAOAUXtri),nBaseQ)
-    call DaxPy_(nGross,One,Work(ipAOAUXtri),1,Work(ipAOSum),1)
+    call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,AOMOOvl,nBaseQ,AOMOOvlE,nBaseQ,Zero,AOAUX,nBaseQ)
+    call SqToTri_Q(AOAUX,AOAUXtri,nBaseQ)
+    call DaxPy_(nGross,One,AOAUXtri,1,AOSum,1)
   end if
   !*************************************
 
@@ -205,14 +190,14 @@ do iS=1,nState
     HighS = 0
     kaunter = kaunter+1
     ! Collect the relevant part of the transition density matrix.
-    call dCopy_(nDimT,Work(iBigT+nDimT*(kaunter-1)),1,Work(ipAOG),1)
+    call dCopy_(nDimT,Work(iBigT+nDimT*(kaunter-1)),1,AOG,1)
     ! Then transform according to theory.
-    call SqToTri_Q(Work(ipACC),Work(ipACCt),nDim1)
-    Addition = Ddot_(nDimT,Work(ipAOG),1,Work(ipACCt),1)
+    call SqToTri_Q(ACC,ACCt,nDim1)
+    Addition = Ddot_(nDimT,AOG,1,ACCt,1)
     SmatRas(kaunter) = SmatRas(kaunter)+exrep2*Addition
     ! And include pure S*S for subsequent higher order overlap repulsion.
-    call SqToTri_Q(Work(ipACCp),Work(ipACCtp),nDim1)
-    HighS = Ddot_(nDimT,Work(ipAOG),1,Work(ipACCtp),1)
+    call SqToTri_Q(ACCp,ACCtp,nDim1)
+    HighS = Ddot_(nDimT,AOG,1,ACCtp,1)
     SmatPure(kaunter) = SmatPure(kaunter)+HighS
   end do
 end do
@@ -221,25 +206,22 @@ end do
 
 call mma_deallocate(Inside)
 
-call GetMem('RotOrb','Free','Real',iV2,nV2size)
-call GetMem('Sint','Free','Real',ipAOint,nAObaseSize)
-call GetMem('HalfTrans','Free','Real',iHalfpar,nHalf)
-call GetMem('HalfPure','Free','Real',iHalf,nHalf)
-call GetMem('HalfOrbE','Free','Real',iHalfE,nHalf)
-call GetMem('Auxiliary','Free','Real',ipAux,nBaseQ**2)
-call GetMem('AuxiliaryP','Free','Real',ipAuxp,nBaseQ**2)
-call GetMem('GammaAO','Free','Real',ipAOG,nGross)
-call GetMem('Accumulate','Free','Real',ipACC,nBaseQ**2)
-call GetMem('Accumulate','Free','Real',ipACCp,nBaseQ**2)
-call GetMem('AccumulateT','Free','Real',ipACCt,nGross)
-call GetMem('AccumulateTP','Free','Real',ipACCtp,nGross)
-call GetMem('TEMP','Free','Real',iTEMP,nRedMO*iOrb(2))
+call mma_deallocate(V2)
+call mma_deallocate(AOint)
+call mma_deallocate(HalfP)
+call mma_deallocate(HalfE)
+call mma_deallocate(AOG)
+call mma_deallocate(ACC)
+call mma_deallocate(ACCp)
+call mma_deallocate(ACCt)
+call mma_deallocate(ACCtp)
+if (MoAveRed) call mma_deallocate(TEMP)
 !Jose****************************************************************
 if (lExtr(8)) then
-  call GetMem('qAOclMOOvl','Free','Real',iAOMOOvl,nHalf)
-  call GetMem('qAOclMOOvlE','Free','Real',iAOMOOvlE,nHalf)
-  call GetMem('AuxAOp','Free','Real',ipAOAUX,nBaseQ**2)
-  call GetMem('AuxAOpTri','Free','Real',ipAOAUXtri,nGross)
+  call mma_deallocate(AOMOOvl)
+  call mma_deallocate(AOMOOvlE)
+  call mma_deallocate(AOAUX)
+  call mma_deallocate(AOAUXtri)
 end if
 !********************************************************************
 

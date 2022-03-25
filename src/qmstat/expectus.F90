@@ -12,6 +12,7 @@
 subroutine Expectus(QMMethod,HmatOld,Vmat,VpolMat,Smat,iVEC,nDim,lEig,iEig,ip_ExpVal)
 
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
@@ -20,7 +21,8 @@ integer(kind=iwp) :: iVEC, nDIM, iEig, ip_ExpVal
 real(kind=wp) :: HmatOld(nTri_Elem(nDim)), Vmat(nTri_Elem(nDim)), VpolMat(nTri_Elem(nDim)), Smat(nTri_Elem(nDim))
 logical(kind=iwp) :: lEig
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iDTmp, iRoot, nDTri, nRoots
+integer(kind=iwp) :: iRoot, nDTri, nRoots
+real(kind=wp), allocatable :: DTmp(:)
 real(kind=r8), external :: Ddot_
 #include "warnings.h"
 
@@ -40,38 +42,38 @@ if (QMMethod(1:5) == 'RASSI') then
   ! well-known formulas.
 
   nDTri = nTri_Elem(nDim)
-  call GetMem('DenTemp','Allo','Real',iDTmp,nDTri)
+  call mma_allocate(DTmp,nDTri,label='DenTemp')
   call GetMem('ExpVals','Allo','Real',ip_ExpVal,4*nRoots)
   do iRoot=1,nRoots
 
     ! Generate density matrix for relevant root.
 
-    call DensiSt(Work(iDTmp),Work(iVEC),iRoot,nDim,nDim)
+    call DensiSt(DTmp,Work(iVEC),iRoot,nDim,nDim)
 
     ! Expectation values.
 
-    Work(ip_ExpVal+4*(iRoot-1)+0) = Ddot_(nDTri,Work(iDTmp),1,HmatOld,1)
-    Work(ip_ExpVal+4*(iRoot-1)+1) = Ddot_(nDTri,Work(iDTmp),1,Vmat,1)
-    Work(ip_ExpVal+4*(iRoot-1)+2) = Ddot_(nDTri,Work(iDTmp),1,Vpolmat,1)
-    Work(ip_ExpVal+4*(iRoot-1)+3) = Ddot_(nDTri,Work(iDTmp),1,Smat,1)
+    Work(ip_ExpVal+4*(iRoot-1)+0) = Ddot_(nDTri,DTmp,1,HmatOld,1)
+    Work(ip_ExpVal+4*(iRoot-1)+1) = Ddot_(nDTri,DTmp,1,Vmat,1)
+    Work(ip_ExpVal+4*(iRoot-1)+2) = Ddot_(nDTri,DTmp,1,Vpolmat,1)
+    Work(ip_ExpVal+4*(iRoot-1)+3) = Ddot_(nDTri,DTmp,1,Smat,1)
   end do
-  call GetMem('DenTemp','Free','Real',iDTmp,nDTri)
+  call mma_deallocate(DTmp)
 
 else if (QMMethod(1:5) == 'SCF  ') then
   ! If it's SCF we are running.
 
   nDTri = nTri_Elem(nDim)
-  call GetMem('DenTemp','Allo','Real',iDTmp,nDTri)
+  call mma_allocate(DTmp,nDTri,label='DenTemp')
   call GetMem('ExpVals','Allo','Real',ip_ExpVal,4)
-  call Densi_MO(Work(iDTmp),Work(iVEC),1,iEig,nDim,nDim)
+  call Densi_MO(DTmp,Work(iVEC),1,iEig,nDim,nDim)
 
   ! Expectation values.
 
-  Work(ip_ExpVal+0) = Ddot_(nDTri,Work(iDTmp),1,HmatOld,1)
-  Work(ip_ExpVal+1) = Ddot_(nDTri,Work(iDTmp),1,Vmat,1)
-  Work(ip_ExpVal+2) = Ddot_(nDTri,Work(iDTmp),1,Vpolmat,1)
-  Work(ip_ExpVal+3) = Ddot_(nDTri,Work(iDTmp),1,Smat,1)
-  call GetMem('DenTemp','Free','Real',iDTmp,nDTri)
+  Work(ip_ExpVal+0) = Ddot_(nDTri,DTmp,1,HmatOld,1)
+  Work(ip_ExpVal+1) = Ddot_(nDTri,DTmp,1,Vmat,1)
+  Work(ip_ExpVal+2) = Ddot_(nDTri,DTmp,1,Vpolmat,1)
+  Work(ip_ExpVal+3) = Ddot_(nDTri,DTmp,1,Smat,1)
+  call mma_deallocate(DTmp)
 
 else
   ! Shit happens.

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ExScf(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itri,Smat,SmatPure,InCutOff,ipAOSum)
+subroutine ExScf(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itri,Smat,SmatPure,InCutOff,AOSum)
 
 use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iOrb, iPrint, iV1, lExtr, lmax, nCent, nPart, outxyz
 use Index_Functions, only: nTri_Elem
@@ -18,14 +18,15 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itri, ipAOSum
-real(kind=wp) :: Ax, Ay, Az, Smat(itri), SmatPure(itri)
+integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itri
+real(kind=wp) :: Ax, Ay, Az, Smat(itri), SmatPure(itri), AOSum(*)
 logical(kind=iwp) :: InCutOff
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAOAOTri, iAOMOOvl, iAOMOOvlE, iInte, ind, inwm, iOPure, iOvlMO, iOvlMOE, ipAOAUX, ipAOAUXtri, ipAOint, &
-                     ipAUX, ipAUXp, ipAUXtri, iV2, j, k, N, nAObaseSize, nAOqMOcl, nInsideCut, nOrbSize, nStorlek, nV2size
+integer(kind=iwp) :: i, iAOAOTri, inwm, j, k, N, nInsideCut
 real(kind=wp) :: CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: NearBy
+real(kind=wp), allocatable :: AOAUX(:,:), AOAUXtri(:), AOint(:,:), AOMOOvl(:,:), AOMOOvlE(:,:), AUX(:,:), AUXp(:,:), AUXtri(:), &
+                              Inte(:,:), OvlMO(:,:), OvlMOE(:,:), V2(:,:)
 logical(kind=iwp), allocatable :: Inside(:,:)
 
 !----------------------------------------------------------------------*
@@ -40,29 +41,22 @@ Az = Cordst(3,1)-outxyz(3,1)
 !----------------------------------------------------------------------*
 Cut_ExSq1 = Cut_Ex1**2
 Cut_ExSq2 = Cut_Ex2**2
-nOrbSize = iOrb(1)*iOrb(2)
-nV2size = iOrb(2)*nBaseC
-nAObaseSize = nBaseQ*nBaseC
-nStorlek = iOrb(1)*nBaseC
-call GetMem('RotOrb','Allo','Real',iV2,nV2size)
-call GetMem('Sint','Allo','Real',ipAOint,nAObaseSize)
-call GetMem('OvlMO','Allo','Real',iOvlMO,nOrbSize)
-call GetMem('Intermed','Allo','Real',iInte,nStorlek)
-call GetMem('OvlMOpure','Allo','Real',iOPure,nOrbSize)
-call GetMem('OvlMOene','Allo','Real',iOvlMOE,nOrbSize)
-call GetMem('AUX','Allo','Real',ipAUX,iOrb(1)**2)
-call GetMem('AUXp','Allo','Real',ipAUXp,iOrb(1)**2)
-call GetMem('AUXtri','Allo','Real',ipAUXtri,iTri)
+call mma_allocate(V2,nBaseC,iOrb(2),label='RotOrb')
+call mma_allocate(AOint,nBaseQ,nBaseC,label='Sint')
+call mma_allocate(OvlMO,iOrb(1),iOrb(2),label='OvlMO')
+call mma_allocate(Inte,iOrb(1),nBaseC,label='Intermed')
+call mma_allocate(OvlMOE,iOrb(1),iOrb(2),label='OvlMOene')
+call mma_allocate(AUX,iOrb(1),iOrb(1),label='AUX')
+call mma_allocate(AUXp,iOrb(1),iOrb(1),label='AUXp')
+call mma_allocate(AUXtri,iTri,label='AUXtri')
 !Jose****************************************************************
 if (lExtr(8)) then
-  nAOqMOcl = nBaseQ*iOrb(2)
   iAOAOTri = nTri_Elem(nBaseQ)
-  call GetMem('qAOclMOOvl','Allo','Real',iAOMOOvl,nAOqMOcl)
-  call GetMem('qAOclMOOvlE','Allo','Real',iAOMOOvlE,nAOqMOcl)
-  call GetMem('AuxAOp','Allo','Real',ipAOAUX,nBaseQ**2)
-  call GetMem('AuxAOpTri','Allo','Real',ipAOAUXtri,iAOAOTri)
+  call mma_allocate(AOMOOvl,nBaseQ,iOrb(2),label='qAOclMOOvl')
+  call mma_allocate(AOMOOvlE,nBaseQ,iOrb(2),label='qAOclMOOvlE')
+  call mma_allocate(AOAUX,nBaseQ,nBaseQ,label='AuxAOp')
+  call mma_allocate(AOAUXtri,iAOAOTri,label='AuxAOpTri')
 end if
-!call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iAOAOTri)
 !********************************************************************
 InCutOff = .false.
 do i=1,iTri
@@ -120,25 +114,21 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Make the AO-AO overlap integration.
 
-  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
+  call AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,AOint,V2,N,lmax,Inside)
 
   ! Transform to MO-MO overlap.
 
-  call Dgemm_('T','N',iOrb(1),nBaseC,nBaseQ,One,Work(iV1),nBaseQ,Work(ipAOint),nBaseQ,Zero,Work(iInte),iOrb(1))
-  call Dgemm_('N','N',iOrb(1),iOrb(2),nBaseC,One,Work(iInte),iOrb(1),Work(iV2),nBaseC,Zero,Work(iOvlMO),iOrb(1))
-  call dcopy_(nOrbSize,[Zero],0,Work(iOvlMOE),1)
+  call Dgemm_('T','N',iOrb(1),nBaseC,nBaseQ,One,Work(iV1),nBaseQ,AOint,nBaseQ,Zero,Inte,iOrb(1))
+  call Dgemm_('N','N',iOrb(1),iOrb(2),nBaseC,One,Inte,iOrb(1),V2,nBaseC,Zero,OvlMO,iOrb(1))
   do i=1,iOrb(2)
-    ind = iOrb(1)*(i-1)
-    call DaxPy_(iOrb(1),c_orbene(i),Work(iOvlMO+ind),1,Work(iOvlMOE+ind),1)
+    OvlMOE(:,i) = c_orbene(i)*OvlMO(:,i)
   end do
 
   !**Jose
   if (lExtr(8)) then
-    call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,One,Work(ipAOint),nBaseQ,Work(iV2),nBaseC,Zero,Work(iAOMOOvl),nBaseQ)
-    call dcopy_(nAOqMOcl,[Zero],0,Work(iAOMOOvlE),1)
+    call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,One,AOint,nBaseQ,V2,nBaseC,Zero,AOMOOvl,nBaseQ)
     do i=1,iOrb(2)
-      ind = nBaseQ*(i-1)
-      call DaxPy_(nBaseQ,c_orbene(i),Work(iAOMOOvl+ind),1,Work(iAOMOOvlE+ind),1)
+      AOMOOvlE(:,i) = c_orbene(i)*AOMOOvl(:,i)
     end do
   end if
   !*******************
@@ -149,10 +139,9 @@ do N=iCStart-1,nCent*(nPart-1),nCent
     write(u6,*)
     write(u6,*) 'OVERLAP BETWEEN QM-SYSTEM AND SOLVENT MOLECULE ',N/nCent
     write(u6,*) 'QM-MO  SOLV-MO  OVERLAP'
-    call dcopy_(iOrb(1)*iOrb(2),Work(iOvlMO),1,Work(iOPure),1)
-    do i=0,iOrb(1)-1
-      do j=0,iOrb(2)-1
-        write(u6,8888) i+1,j+1,Work(iOPure+i+j*iOrb(1))
+    do i=1,iOrb(1)
+      do j=1,iOrb(2)
+        write(u6,8888) i,j,OvlMO(i,j)
       end do
     end do
   end if
@@ -160,18 +149,18 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   ! Construct the perturbation and accumulate pure overlap for
   ! subsequent construction of higher order term.
 
-  call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),exrep2,Work(iOvlMO),iOrb(1),Work(iOvlMOE),iOrb(1),Zero,Work(ipAUX),iOrb(1))
-  call SqToTri_Q(Work(ipAUX),Work(ipAUXtri),iOrb(1))
-  call DaxPy_(iTri,One,Work(ipAUXtri),1,Smat,1)
-  call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),One,Work(iOvlMO),iOrb(1),Work(iOvlMO),iOrb(1),Zero,Work(ipAUXp),iOrb(1))
-  call SqToTri_Q(Work(ipAUXp),Work(ipAUXtri),iOrb(1))
-  call DaxPy_(iTri,One,Work(ipAUXtri),1,SmatPure,1)
+  call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),exrep2,OvlMO,iOrb(1),OvlMOE,iOrb(1),Zero,AUX,iOrb(1))
+  call SqToTri_Q(AUX,AUXtri,iOrb(1))
+  call DaxPy_(iTri,One,AUXtri,1,Smat,1)
+  call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),One,OvlMO,iOrb(1),OvlMO,iOrb(1),Zero,AUXp,iOrb(1))
+  call SqToTri_Q(AUXp,AUXtri,iOrb(1))
+  call DaxPy_(iTri,One,AUXtri,1,SmatPure,1)
 
   !Jose*********************************
   if (lExtr(8)) then
-    call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,Work(iAOMOOvl),nBaseQ,Work(iAOMOOvlE),nBaseQ,Zero,Work(ipAOAUX),nBaseQ)
-    call SqToTri_Q(Work(ipAOAUX),Work(ipAOAUXtri),nBaseQ)
-    call DaxPy_(iAOAOTri,One,Work(ipAOAUXtri),1,Work(ipAOSum),1)
+    call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,AOMOOvl,nBaseQ,AOMOOvlE,nBaseQ,Zero,AOAUX,nBaseQ)
+    call SqToTri_Q(AOAUX,AOAUXtri,nBaseQ)
+    call DaxPy_(iAOAOTri,One,AOAUXtri,1,AOSum,1)
   end if
   !*************************************
 
@@ -181,21 +170,20 @@ end do
 
 call mma_deallocate(Inside)
 
-call GetMem('RotOrb','Free','Real',iV2,nV2size)
-call GetMem('Sint','Free','Real',ipAOint,nAObaseSize)
-call GetMem('OvlMO','Free','Real',iOvlMO,nOrbSize)
-call GetMem('Intermed','Free','Real',iInte,nStorlek)
-call GetMem('OvlMOpure','Free','Real',iOPure,nOrbSize)
-call GetMem('OvlMOene','Free','Real',iOvlMOE,nOrbSize)
-call GetMem('AUX','Free','Real',ipAUX,iOrb(1)**2)
-call GetMem('AUXp','Free','Real',ipAUXp,iOrb(1)**2)
-call GetMem('AUXtri','Free','Real',ipAUXtri,iTri)
+call mma_deallocate(V2)
+call mma_deallocate(AOint)
+call mma_deallocate(OvlMO)
+call mma_deallocate(Inte)
+call mma_deallocate(OvlMOE)
+call mma_deallocate(AUX)
+call mma_deallocate(AUXp)
+call mma_deallocate(AUXtri)
 !Jose****************************************************************
 if (lExtr(8)) then
-  call GetMem('qAOclMOOvl','Free','Real',iAOMOOvl,nAOqMOcl)
-  call GetMem('qAOclMOOvlE','Free','Real',iAOMOOvlE,nAOqMOcl)
-  call GetMem('AuxAOp','Free','Real',ipAOAUX,nBaseQ**2)
-  call GetMem('AuxAOpTri','Free','Real',ipAOAUXtri,iAOAOTri)
+  call mma_deallocate(AOMOOvl)
+  call mma_deallocate(AOMOOvlE)
+  call mma_deallocate(AOAUX)
+  call mma_deallocate(AOAUXtri)
 end if
 !********************************************************************
 

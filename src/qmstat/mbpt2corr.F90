@@ -21,10 +21,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nBas
 real(kind=wp) :: Cmo(nBas,nBas)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iB1, iI, ipSqD, ipSqE, ipTEMP, iRedSq, Ising, iT, j, jjj, kaunt1, kaunt2, kaunter
+integer(kind=iwp) :: i, iB1, Ising, iT, j, jjj, kaunt1
 real(kind=wp) :: Det
-real(kind=wp), allocatable :: Diff(:)
+real(kind=wp), allocatable :: Diff(:), Inv(:,:), RedSq(:,:), SqD(:,:), SqE(:), TEMP(:,:)
 #include "warnings.h"
 
 write(u6,*)
@@ -40,43 +39,34 @@ call Quit(_RC_GENERAL_ERROR_)
 iT = nTri_Elem(nBas)
 call mma_allocate(Diff,iT,Label='Diff')
 call Get_D1ao(Diff,iT)
-if (iPrint >= 10) then
-  call TriPrt('Non-reduced difference density matrix',' ',Diff,nBas)
-end if
+if (iPrint >= 10) call TriPrt('Non-reduced difference density matrix',' ',Diff,nBas)
 ! Transform density difference to orbital basis.
-call GetMem('SqDenA','Allo','Real',ipSqD,nBas**2)
-call GetMem('SqDenM','Allo','Real',ipSqE,nBas**2)
-call GetMem('TEMP','Allo','Real',ipTEMP,nBas**2)
-call GetMem('Inv','Allo','Real',iI,nBas**2)
-call GetMem('RedSq','Allo','Real',iRedSq,nBas**2)
-call dcopy_(nBas**2,[Zero],0,Work(ipSqD),1)
-call dcopy_(iOrb(1)**2,[Zero],0,Work(ipSqE),1)
-call dcopy_(nBas*iOrb(1),[Zero],0,Work(ipTEMP),1)
+call mma_allocate(SqD,nBas,nBas,label='SqDenA')
+call mma_allocate(SqE,nBas**2,label='SqDenM')
+call mma_allocate(TEMP,nBas,nBas,label='TEMP')
+call mma_allocate(Inv,nBas,nBas,label='Inv')
+call mma_allocate(RedSq,nBas,nBas,label='RedSq')
 ! Do not forget the density matrix convention in Molcas.
-call Dsq(Diff,Work(ipSqD),1,nBas,nBas)
+call Dsq(Diff,SqD,1,nBas,nBas)
 ! Inverse of orbital file and transformation.
-call Minv(Cmo,Work(iI),Ising,Det,nBas)
-call Dgemm_('N','N',nBas,nBas,nBas,One,Work(iI),nBas,Work(ipSqD),nBas,Zero,Work(ipTEMP),nBas)
-call Dgemm_('N','T',nBas,nBas,nBas,One,Work(ipTEMP),nBas,Work(iI),nBas,Zero,Work(ipSqE),nBas)
+call Minv(Cmo,Inv,Ising,Det,nBas)
+call Dgemm_('N','N',nBas,nBas,nBas,One,Inv,nBas,SqD,nBas,Zero,TEMP,nBas)
+call Dgemm_('N','T',nBas,nBas,nBas,One,TEMP,nBas,Inv,nBas,Zero,SqE,nBas)
 ! Remove all except the suck-out orbitals.
-kaunt1 = 0
 do i=1,nBas
   do j=1,nBas
     if ((i <= iOrb(1)) .and. (j <= iOrb(1))) then
-      Work(iRedSq+kaunt1) = Work(ipSqE+kaunt1)
+      RedSq(j,i) = SqE(j+(i-1)*nBas)
     else
-      Work(iRedSq+kaunt1) = Zero
+      RedSq(j,i) = Zero
     end if
-    kaunt1 = kaunt1+1
   end do
 end do
 ! Make a check of the trace. Should be small.
-kaunter = 0
 Trace_MP2 = Zero
 do iB1=1,nBas
   do jjj=1,nBas
-    if (iB1 == jjj) Trace_MP2 = Trace_MP2+Work(iRedSq+kaunter)
-    kaunter = kaunter+1
+    if (iB1 == jjj) Trace_MP2 = Trace_MP2+RedSq(jjj,iB1)
   end do
 end do
 if (iPrint >= 10) then
@@ -84,43 +74,39 @@ if (iPrint >= 10) then
 end if
 ! Make things a bit more tidy.
 kaunt1 = 0
-kaunt2 = 0
 do i=1,iOrb(1)
   do j=1,nBas
     if (j <= iOrb(1)) then
-      Work(ipSqE+kaunt1) = Work(iRedSq+kaunt2)
       kaunt1 = kaunt1+1
+      SqE(kaunt1) = RedSq(j,i)
     end if
-    kaunt2 = kaunt2+1
   end do
 end do
 call mma_allocate(DenCorrD,nTri_Elem(iOrb(1)),label='DenCorrD')
-call SqToTri_q(Work(ipSqE),DenCorrD,iOrb(1))
+call SqToTri_q(SqE,DenCorrD,iOrb(1))
 
 ! Transform back if we want to keep things in AO-basis. Not
 ! used in QMSTAT at the present. If you wish, comment away the
 ! code below 'make things a bit more tidy' and you are in
 ! ready to rumble.
-!call Dgemm_('N','N',nBas,nBas,nBas,One,Cmo,nBas,Work(iRedSq),nBas,Zero,Work(ipTEMP),nBas)
-!call Dgemm_('N','T',nBas,nBas,nBas,One,Work(ipTEMP),nBas,Cmo,nBas,Zero,Work(ipSqE),nBas)
-!k = 0
+!call Dgemm_('N','N',nBas,nBas,nBas,One,Cmo,nBas,RedSq,nBas,Zero,TEMP,nBas)
+!call Dgemm_('N','T',nBas,nBas,nBas,One,TEMP,nBas,Cmo,nBas,Zero,SqE,nBas)
 !do i=1,nBas
 !  do j=1,nBas
-!    if (i /= j) Work(ipSqE+k) = Work(ipSqE+k)*2
-!      k = k+1
+!    if (i /= j) SqE(j+(i-1)*nBas) = SqE(j+(i-1)*nBas)*Two
 !  end do
 !end do
-!call SqToTri_q(Work(ipSqE),Work(ipTrDiffD),nBas)
+!call SqToTri_q(SqE,TrDiffD,nBas)
 !if (iPrint >= 10) then
-!  call TriPrt('Reduced difference density matrix',' ',Work(ipTrDiffD),nBas)
+!  call TriPrt('Reduced difference density matrix',' ',TrDiffD,nBas)
 !end if
 
 call mma_deallocate(Diff)
-call GetMem('SqDenA','Free','Real',ipSqD,nBas**2)
-call GetMem('SqDenM','Free','Real',ipSqE,nBas**2)
-call GetMem('TEMP','Free','Real',ipTEMP,nBas**2)
-call GetMem('Inv','Free','Real',iI,nBas**2)
-call GetMem('RedSq','Free','Real',iRedSq,nBas**2)
+call mma_deallocate(SqD)
+call mma_deallocate(SqE)
+call mma_deallocate(TEMP)
+call mma_deallocate(Inv)
+call mma_deallocate(RedSq)
 
 return
 

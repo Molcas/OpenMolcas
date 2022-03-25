@@ -13,14 +13,15 @@
 subroutine Get8(Ract,Etot)
 
 use qmstat_global, only: Cordst, iLuStIn, iPrint, iTcSim, nCent, nPart, StFilIn
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Ract, Etot
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iCT, iDisk, j
+integer(kind=iwp) :: i, iDisk
 real(kind=wp) :: Esub, Gamold, GaOld
 character(len=200) :: Head
+real(kind=wp), allocatable :: CT(:)
 
 iDisk = 0
 call DaName(iLuStIn,StFilIn)
@@ -31,15 +32,13 @@ iDisk = iTcSim(1)
 ! makes this loop necessary. Maybe we should consider going to
 ! dynamic allocation.
 
+call mma_allocate(CT,nPart*nCent,label='CTemp')
 do i=1,3
-  call GetMem('CTemp','Allo','Real',iCT,nPart*nCent)
-  call dDaFile(iLuStIn,2,Work(iCT),nPart*nCent,iDisk)
-  do j=1,nCent*nPart
-    Cordst(i,j) = Work(iCT+j-1)
-  end do
-  call GetMem('CTemp','Free','Real',iCT,nPart*nCent)
+  call dDaFile(iLuStIn,2,CT,nPart*nCent,iDisk)
+  Cordst(i,:) = CT
   iDisk = iTcSim(i+1)
 end do
+call mma_deallocate(CT)
 call DaClos(iLuStIn)
 
 ! If requested, print initial coordinates.

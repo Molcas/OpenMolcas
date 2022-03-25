@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine OneOverR(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyz)
+subroutine OneOverR(Fil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyz)
 
 use qmstat_global, only: CAFieldG, CBFieldG, CFexp, Cordst, FieldDamp, nCent, nPart, nPol, Qsta
 use Index_Functions, only: nTri_Elem
@@ -17,10 +17,10 @@ use Constants, only: Zero, One, Two, Three, Five
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCNum
-real(kind=wp) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, Eint(nTri_Elem(iQ_Atoms),10), outxyz(3,nTri_Elem(iQ_Atoms))
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ijhr, ip, j, jjhr, k
+integer(kind=iwp) :: iQ_Atoms, iCNum
+real(kind=wp) :: Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, &
+                 Eint(nTri_Elem(iQ_Atoms),10), outxyz(3,nTri_Elem(iQ_Atoms))
+integer(kind=iwp) :: i, ip, j, k
 real(kind=wp) :: Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), Se(5), U(3,5)
 
 EEdisp = Zero
@@ -135,116 +135,112 @@ do k=1,nTri_Elem(iQ_Atoms)
     ! And now a whole lot of grad(1/r) and higher...                   *
     !------------------------------------------------------------------*
     ! Monopoles.
-    Work(iFil(k,1)-1+ip) = Rab(1,1)*Rab3i(1)
-    Work(iFil(k,1)-1+ip+1) = Rab(1,2)*Rab3i(2)
-    Work(iFil(k,1)-1+ip+2) = Rab(1,3)*Rab3i(3)
-    Work(iFil(k,1)-1+nPart*nPol+ip) = Rab(2,1)*Rab3i(1)
-    Work(iFil(k,1)-1+nPart*nPol+ip+1) = Rab(2,2)*Rab3i(2)
-    Work(iFil(k,1)-1+nPart*nPol+ip+2) = Rab(2,3)*Rab3i(3)
-    Work(iFil(k,1)-1+2*nPart*nPol+ip) = Rab(3,1)*Rab3i(1)
-    Work(iFil(k,1)-1+2*nPart*nPol+ip+1) = Rab(3,2)*Rab3i(2)
-    Work(iFil(k,1)-1+2*nPart*nPol+ip+2) = Rab(3,3)*Rab3i(3)
+    Fil(ip+0,1,k,1) = Rab(1,1)*Rab3i(1)
+    Fil(ip+1,1,k,1) = Rab(1,2)*Rab3i(2)
+    Fil(ip+2,1,k,1) = Rab(1,3)*Rab3i(3)
+    Fil(ip+0,2,k,1) = Rab(2,1)*Rab3i(1)
+    Fil(ip+1,2,k,1) = Rab(2,2)*Rab3i(2)
+    Fil(ip+2,2,k,1) = Rab(2,3)*Rab3i(3)
+    Fil(ip+0,3,k,1) = Rab(3,1)*Rab3i(1)
+    Fil(ip+1,3,k,1) = Rab(3,2)*Rab3i(2)
+    Fil(ip+2,3,k,1) = Rab(3,3)*Rab3i(3)
     ! Dipole -- x-component.
-    Work(iFil(k,2)-1+ip) = (Three*U(1,1)**2-One)*Rab3i(1)
-    Work(iFil(k,2)-1+ip+1) = (Three*U(1,2)**2-One)*Rab3i(2)
-    Work(iFil(k,2)-1+ip+2) = (Three*U(1,3)**2-One)*Rab3i(3)
-    Work(iFil(k,2)-1+nPart*nPol+ip) = U(2,1)*U(1,1)*Rab3i(1)*Three
-    Work(iFil(k,2)-1+nPart*nPol+ip+1) = U(2,2)*U(1,2)*Rab3i(2)*Three
-    Work(iFil(k,2)-1+nPart*nPol+ip+2) = U(2,3)*U(1,3)*Rab3i(3)*Three
-    Work(iFil(k,2)-1+2*nPart*nPol+ip) = U(3,1)*U(1,1)*Rab3i(1)*Three
-    Work(iFil(k,2)-1+2*nPart*nPol+ip+1) = U(3,2)*U(1,2)*Rab3i(2)*Three
-    Work(iFil(k,2)-1+2*nPart*nPol+ip+2) = U(3,3)*U(1,3)*Rab3i(3)*Three
+    Fil(ip+0,1,k,2) = (Three*U(1,1)**2-One)*Rab3i(1)
+    Fil(ip+1,1,k,2) = (Three*U(1,2)**2-One)*Rab3i(2)
+    Fil(ip+2,1,k,2) = (Three*U(1,3)**2-One)*Rab3i(3)
+    Fil(ip+0,2,k,2) = U(2,1)*U(1,1)*Rab3i(1)*Three
+    Fil(ip+1,2,k,2) = U(2,2)*U(1,2)*Rab3i(2)*Three
+    Fil(ip+2,2,k,2) = U(2,3)*U(1,3)*Rab3i(3)*Three
+    Fil(ip+0,3,k,2) = U(3,1)*U(1,1)*Rab3i(1)*Three
+    Fil(ip+1,3,k,2) = U(3,2)*U(1,2)*Rab3i(2)*Three
+    Fil(ip+2,3,k,2) = U(3,3)*U(1,3)*Rab3i(3)*Three
     ! Dipole -- y-component.
-    Work(iFil(k,3)-1+ip) = U(2,1)*U(1,1)*Rab3i(1)*Three
-    Work(iFil(k,3)-1+ip+1) = U(2,2)*U(1,2)*Rab3i(2)*Three
-    Work(iFil(k,3)-1+ip+2) = U(2,3)*U(1,3)*Rab3i(3)*Three
-    Work(iFil(k,3)-1+nPart*nPol+ip) = (Three*U(2,1)**2-One)*Rab3i(1)
-    Work(iFil(k,3)-1+nPart*nPol+ip+1) = (Three*U(2,2)**2-One)*Rab3i(2)
-    Work(iFil(k,3)-1+nPart*nPol+ip+2) = (Three*U(2,3)**2-One)*Rab3i(3)
-    Work(iFil(k,3)-1+2*nPart*nPol+ip) = U(3,1)*U(2,1)*Rab3i(1)*Three
-    Work(iFil(k,3)-1+2*nPart*nPol+ip+1) = U(3,2)*U(2,2)*Rab3i(2)*Three
-    Work(iFil(k,3)-1+2*nPart*nPol+ip+2) = U(3,3)*U(2,3)*Rab3i(3)*Three
+    Fil(ip+0,1,k,3) = U(2,1)*U(1,1)*Rab3i(1)*Three
+    Fil(ip+1,1,k,3) = U(2,2)*U(1,2)*Rab3i(2)*Three
+    Fil(ip+2,1,k,3) = U(2,3)*U(1,3)*Rab3i(3)*Three
+    Fil(ip+0,2,k,3) = (Three*U(2,1)**2-One)*Rab3i(1)
+    Fil(ip+1,2,k,3) = (Three*U(2,2)**2-One)*Rab3i(2)
+    Fil(ip+2,2,k,3) = (Three*U(2,3)**2-One)*Rab3i(3)
+    Fil(ip+0,3,k,3) = U(3,1)*U(2,1)*Rab3i(1)*Three
+    Fil(ip+1,3,k,3) = U(3,2)*U(2,2)*Rab3i(2)*Three
+    Fil(ip+2,3,k,3) = U(3,3)*U(2,3)*Rab3i(3)*Three
     ! Dipole -- z-component.
-    Work(iFil(k,4)-1+ip) = U(3,1)*U(1,1)*Rab3i(1)*Three
-    Work(iFil(k,4)-1+ip+1) = U(3,2)*U(1,2)*Rab3i(2)*Three
-    Work(iFil(k,4)-1+ip+2) = U(3,3)*U(1,3)*Rab3i(3)*Three
-    Work(iFil(k,4)-1+nPart*nPol+ip) = U(3,1)*U(2,1)*Rab3i(1)*Three
-    Work(iFil(k,4)-1+nPart*nPol+ip+1) = U(3,2)*U(2,2)*Rab3i(2)*Three
-    Work(iFil(k,4)-1+nPart*nPol+ip+2) = U(3,3)*U(2,3)*Rab3i(3)*Three
-    Work(iFil(k,4)-1+2*nPart*nPol+ip) = (Three*U(3,1)**2-One)*Rab3i(1)
-    Work(iFil(k,4)-1+2*nPart*nPol+ip+1) = (Three*U(3,2)**2-One)*Rab3i(2)
-    Work(iFil(k,4)-1+2*nPart*nPol+ip+2) = (Three*U(3,3)**2-One)*Rab3i(3)
+    Fil(ip+0,1,k,4) = U(3,1)*U(1,1)*Rab3i(1)*Three
+    Fil(ip+1,1,k,4) = U(3,2)*U(1,2)*Rab3i(2)*Three
+    Fil(ip+2,1,k,4) = U(3,3)*U(1,3)*Rab3i(3)*Three
+    Fil(ip+0,2,k,4) = U(3,1)*U(2,1)*Rab3i(1)*Three
+    Fil(ip+1,2,k,4) = U(3,2)*U(2,2)*Rab3i(2)*Three
+    Fil(ip+2,2,k,4) = U(3,3)*U(2,3)*Rab3i(3)*Three
+    Fil(ip+0,3,k,4) = (Three*U(3,1)**2-One)*Rab3i(1)
+    Fil(ip+1,3,k,4) = (Three*U(3,2)**2-One)*Rab3i(2)
+    Fil(ip+2,3,k,4) = (Three*U(3,3)**2-One)*Rab3i(3)
     ! Quadrupole -- xx-component.
-    Work(iFil(k,5)-1+ip) = U(1,1)*(Five*U(1,1)**2-Two)*Rab3i(1)*Se(1)
-    Work(iFil(k,5)-1+ip+1) = U(1,2)*(Five*U(1,2)**2-Two)*Rab3i(2)*Se(2)
-    Work(iFil(k,5)-1+ip+2) = U(1,3)*(Five*U(1,3)**2-Two)*Rab3i(3)*Se(3)
-    Work(iFil(k,5)-1+nPart*nPol+ip) = Five*U(2,1)*U(1,1)**2*Rab3i(1)*Se(1)
-    Work(iFil(k,5)-1+nPart*nPol+ip+1) = Five*U(2,2)*U(1,2)**2*Rab3i(2)*Se(2)
-    Work(iFil(k,5)-1+nPart*nPol+ip+2) = Five*U(2,3)*U(1,3)**2*Rab3i(3)*Se(3)
-    Work(iFil(k,5)-1+2*nPart*nPol+ip) = Five*U(3,1)*U(1,1)**2*Rab3i(1)*Se(1)
-    Work(iFil(k,5)-1+2*nPart*nPol+ip+1) = Five*U(3,2)*U(1,2)**2*Rab3i(2)*Se(2)
-    Work(iFil(k,5)-1+2*nPart*nPol+ip+2) = Five*U(3,3)*U(1,3)**2*Rab3i(3)*Se(3)
+    Fil(ip+0,1,k,5) = U(1,1)*(Five*U(1,1)**2-Two)*Rab3i(1)*Se(1)
+    Fil(ip+1,1,k,5) = U(1,2)*(Five*U(1,2)**2-Two)*Rab3i(2)*Se(2)
+    Fil(ip+2,1,k,5) = U(1,3)*(Five*U(1,3)**2-Two)*Rab3i(3)*Se(3)
+    Fil(ip+0,2,k,5) = Five*U(2,1)*U(1,1)**2*Rab3i(1)*Se(1)
+    Fil(ip+1,2,k,5) = Five*U(2,2)*U(1,2)**2*Rab3i(2)*Se(2)
+    Fil(ip+2,2,k,5) = Five*U(2,3)*U(1,3)**2*Rab3i(3)*Se(3)
+    Fil(ip+0,3,k,5) = Five*U(3,1)*U(1,1)**2*Rab3i(1)*Se(1)
+    Fil(ip+1,3,k,5) = Five*U(3,2)*U(1,2)**2*Rab3i(2)*Se(2)
+    Fil(ip+2,3,k,5) = Five*U(3,3)*U(1,3)**2*Rab3i(3)*Se(3)
     ! Quadrupole -- yy-component.
-    Work(iFil(k,7)-1+ip) = Five*U(2,1)**2*U(1,1)*Rab3i(1)*Se(1)
-    Work(iFil(k,7)-1+ip+1) = Five*U(2,2)**2*U(1,2)*Rab3i(2)*Se(2)
-    Work(iFil(k,7)-1+ip+2) = Five*U(2,3)**2*U(1,3)*Rab3i(3)*Se(3)
-    Work(iFil(k,7)-1+nPart*nPol+ip) = U(2,1)*(Five*U(2,1)**2-Two)*Rab3i(1)*Se(1)
-    Work(iFil(k,7)-1+nPart*nPol+ip+1) = U(2,2)*(Five*U(2,2)**2-Two)*Rab3i(2)*Se(2)
-    Work(iFil(k,7)-1+nPart*nPol+ip+2) = U(2,3)*(Five*U(2,3)**2-Two)*Rab3i(3)*Se(3)
-    Work(iFil(k,7)-1+2*nPart*nPol+ip) = Five*U(3,1)*U(2,1)**2*Rab3i(1)*Se(1)
-    Work(iFil(k,7)-1+2*nPart*nPol+ip+1) = Five*U(3,2)*U(2,2)**2*Rab3i(2)*Se(2)
-    Work(iFil(k,7)-1+2*nPart*nPol+ip+2) = Five*U(3,3)*U(2,3)**2*Rab3i(3)*Se(3)
+    Fil(ip+0,1,k,7) = Five*U(2,1)**2*U(1,1)*Rab3i(1)*Se(1)
+    Fil(ip+1,1,k,7) = Five*U(2,2)**2*U(1,2)*Rab3i(2)*Se(2)
+    Fil(ip+2,1,k,7) = Five*U(2,3)**2*U(1,3)*Rab3i(3)*Se(3)
+    Fil(ip+0,2,k,7) = U(2,1)*(Five*U(2,1)**2-Two)*Rab3i(1)*Se(1)
+    Fil(ip+1,2,k,7) = U(2,2)*(Five*U(2,2)**2-Two)*Rab3i(2)*Se(2)
+    Fil(ip+2,2,k,7) = U(2,3)*(Five*U(2,3)**2-Two)*Rab3i(3)*Se(3)
+    Fil(ip+0,3,k,7) = Five*U(3,1)*U(2,1)**2*Rab3i(1)*Se(1)
+    Fil(ip+1,3,k,7) = Five*U(3,2)*U(2,2)**2*Rab3i(2)*Se(2)
+    Fil(ip+2,3,k,7) = Five*U(3,3)*U(2,3)**2*Rab3i(3)*Se(3)
     ! Quadrupole -- zz-component.
-    Work(iFil(k,10)-1+ip) = Five*U(3,1)**2*U(1,1)*Rab3i(1)*Se(1)
-    Work(iFil(k,10)-1+ip+1) = Five*U(3,2)**2*U(1,2)*Rab3i(2)*Se(2)
-    Work(iFil(k,10)-1+ip+2) = Five*U(3,3)**2*U(1,3)*Rab3i(3)*Se(3)
-    Work(iFil(k,10)-1+nPart*nPol+ip) = Five*U(3,1)**2*U(2,1)*Rab3i(1)*Se(1)
-    Work(iFil(k,10)-1+nPart*nPol+ip+1) = Five*U(3,2)**2*U(2,2)*Rab3i(2)*Se(2)
-    Work(iFil(k,10)-1+nPart*nPol+ip+2) = Five*U(3,3)**2*U(2,3)*Rab3i(3)*Se(3)
-    Work(iFil(k,10)-1+2*nPart*nPol+ip) = U(3,1)*(Five*U(3,1)**2-Two)*Rab3i(1)*Se(1)
-    Work(iFil(k,10)-1+2*nPart*nPol+ip+1) = U(3,2)*(Five*U(3,2)**2-Two)*Rab3i(2)*Se(2)
-    Work(iFil(k,10)-1+2*nPart*nPol+ip+2) = U(3,3)*(Five*U(3,3)**2-Two)*Rab3i(3)*Se(3)
+    Fil(ip+0,1,k,10) = Five*U(3,1)**2*U(1,1)*Rab3i(1)*Se(1)
+    Fil(ip+1,1,k,10) = Five*U(3,2)**2*U(1,2)*Rab3i(2)*Se(2)
+    Fil(ip+2,1,k,10) = Five*U(3,3)**2*U(1,3)*Rab3i(3)*Se(3)
+    Fil(ip+0,2,k,10) = Five*U(3,1)**2*U(2,1)*Rab3i(1)*Se(1)
+    Fil(ip+1,2,k,10) = Five*U(3,2)**2*U(2,2)*Rab3i(2)*Se(2)
+    Fil(ip+2,2,k,10) = Five*U(3,3)**2*U(2,3)*Rab3i(3)*Se(3)
+    Fil(ip+0,3,k,10) = U(3,1)*(Five*U(3,1)**2-Two)*Rab3i(1)*Se(1)
+    Fil(ip+1,3,k,10) = U(3,2)*(Five*U(3,2)**2-Two)*Rab3i(2)*Se(2)
+    Fil(ip+2,3,k,10) = U(3,3)*(Five*U(3,3)**2-Two)*Rab3i(3)*Se(3)
     ! Quadrupole -- xy-component.
-    Work(iFil(k,6)-1+ip) = U(2,1)*(Five*U(1,1)**2-One)*Rab3i(1)*Se(1)
-    Work(iFil(k,6)-1+ip+1) = U(2,2)*(Five*U(1,2)**2-One)*Rab3i(2)*Se(2)
-    Work(iFil(k,6)-1+ip+2) = U(2,3)*(Five*U(1,3)**2-One)*Rab3i(3)*Se(3)
-    Work(iFil(k,6)-1+nPart*nPol+ip) = U(1,1)*(Five*U(2,1)**2-One)*Rab3i(1)*Se(1)
-    Work(iFil(k,6)-1+nPart*nPol+ip+1) = U(1,2)*(Five*U(2,2)**2-One)*Rab3i(2)*Se(2)
-    Work(iFil(k,6)-1+nPart*nPol+ip+2) = U(1,3)*(Five*U(2,3)**2-One)*Rab3i(3)*Se(3)
-    Work(iFil(k,6)-1+2*nPart*nPol+ip) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
-    Work(iFil(k,6)-1+2*nPart*nPol+ip+1) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
-    Work(iFil(k,6)-1+2*nPart*nPol+ip+2) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
+    Fil(ip+0,1,k,6) = U(2,1)*(Five*U(1,1)**2-One)*Rab3i(1)*Se(1)
+    Fil(ip+1,1,k,6) = U(2,2)*(Five*U(1,2)**2-One)*Rab3i(2)*Se(2)
+    Fil(ip+2,1,k,6) = U(2,3)*(Five*U(1,3)**2-One)*Rab3i(3)*Se(3)
+    Fil(ip+0,2,k,6) = U(1,1)*(Five*U(2,1)**2-One)*Rab3i(1)*Se(1)
+    Fil(ip+1,2,k,6) = U(1,2)*(Five*U(2,2)**2-One)*Rab3i(2)*Se(2)
+    Fil(ip+2,2,k,6) = U(1,3)*(Five*U(2,3)**2-One)*Rab3i(3)*Se(3)
+    Fil(ip+0,3,k,6) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
+    Fil(ip+1,3,k,6) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
+    Fil(ip+2,3,k,6) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
     ! Quadrupole -- xz-component.
-    Work(iFil(k,8)-1+ip) = U(3,1)*(Five*U(1,1)**2-One)*Rab3i(1)*Se(1)
-    Work(iFil(k,8)-1+ip+1) = U(3,2)*(Five*U(1,2)**2-One)*Rab3i(2)*Se(2)
-    Work(iFil(k,8)-1+ip+2) = U(3,3)*(Five*U(1,3)**2-One)*Rab3i(3)*Se(3)
-    Work(iFil(k,8)-1+nPart*nPol+ip) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
-    Work(iFil(k,8)-1+nPart*nPol+ip+1) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
-    Work(iFil(k,8)-1+nPart*nPol+ip+2) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
-    Work(iFil(k,8)-1+2*nPart*nPol+ip) = U(1,1)*(Five*U(3,1)**2-One)*Rab3i(1)*Se(1)
-    Work(iFil(k,8)-1+2*nPart*nPol+ip+1) = U(1,2)*(Five*U(3,2)**2-One)*Rab3i(2)*Se(2)
-    Work(iFil(k,8)-1+2*nPart*nPol+ip+2) = U(1,3)*(Five*U(3,3)**2-One)*Rab3i(3)*Se(3)
+    Fil(ip+0,1,k,8) = U(3,1)*(Five*U(1,1)**2-One)*Rab3i(1)*Se(1)
+    Fil(ip+1,1,k,8) = U(3,2)*(Five*U(1,2)**2-One)*Rab3i(2)*Se(2)
+    Fil(ip+2,1,k,8) = U(3,3)*(Five*U(1,3)**2-One)*Rab3i(3)*Se(3)
+    Fil(ip+0,2,k,8) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
+    Fil(ip+1,2,k,8) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
+    Fil(ip+2,2,k,8) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
+    Fil(ip+0,3,k,8) = U(1,1)*(Five*U(3,1)**2-One)*Rab3i(1)*Se(1)
+    Fil(ip+1,3,k,8) = U(1,2)*(Five*U(3,2)**2-One)*Rab3i(2)*Se(2)
+    Fil(ip+2,3,k,8) = U(1,3)*(Five*U(3,3)**2-One)*Rab3i(3)*Se(3)
     ! Quadrupole -- yz-component.
-    Work(iFil(k,9)-1+ip) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
-    Work(iFil(k,9)-1+ip+1) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
-    Work(iFil(k,9)-1+ip+2) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
-    Work(iFil(k,9)-1+nPart*nPol+ip) = U(3,1)*(Five*U(2,1)**2-One)*Rab3i(1)*Se(1)
-    Work(iFil(k,9)-1+nPart*nPol+ip+1) = U(3,2)*(Five*U(2,2)**2-One)*Rab3i(2)*Se(2)
-    Work(iFil(k,9)-1+nPart*nPol+ip+2) = U(3,3)*(Five*U(2,3)**2-One)*Rab3i(3)*Se(3)
-    Work(iFil(k,9)-1+2*nPart*nPol+ip) = U(2,1)*(Five*U(3,1)**2-One)*Rab3i(1)*Se(1)
-    Work(iFil(k,9)-1+2*nPart*nPol+ip+1) = U(2,2)*(Five*U(3,2)**2-One)*Rab3i(2)*Se(2)
-    Work(iFil(k,9)-1+2*nPart*nPol+ip+2) = U(2,3)*(Five*U(3,3)**2-One)*Rab3i(3)*Se(3)
+    Fil(ip+0,1,k,9) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
+    Fil(ip+1,1,k,9) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
+    Fil(ip+2,1,k,9) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
+    Fil(ip+0,2,k,9) = U(3,1)*(Five*U(2,1)**2-One)*Rab3i(1)*Se(1)
+    Fil(ip+1,2,k,9) = U(3,2)*(Five*U(2,2)**2-One)*Rab3i(2)*Se(2)
+    Fil(ip+2,2,k,9) = U(3,3)*(Five*U(2,3)**2-One)*Rab3i(3)*Se(3)
+    Fil(ip+0,3,k,9) = U(2,1)*(Five*U(3,1)**2-One)*Rab3i(1)*Se(1)
+    Fil(ip+1,3,k,9) = U(2,2)*(Five*U(3,2)**2-One)*Rab3i(2)*Se(2)
+    Fil(ip+2,3,k,9) = U(2,3)*(Five*U(3,3)**2-One)*Rab3i(3)*Se(3)
     !------------------------------------------------------------------*
     ! If damping of the field is requested, then do it.                *
     !------------------------------------------------------------------*
     if (FieldDamp) then
-      do ijhr=1,10
-        do jjhr=0,2
-          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip)*(One-exp(CAFieldG*Rg(1)))**CFexp
-          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+1)*(One-exp(CBFieldG*Rg(2)))**CFexp
-          Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2) = Work(iFil(k,ijhr)-1+jjhr*nPart*nPol+ip+2)*(One-exp(CBFieldG*Rg(3)))**CFexp
-        end do
-      end do
+      Fil(ip+0,:,k,:) = Fil(ip+0,:,k,:)*(One-exp(CAFieldG*Rg(1)))**CFexp
+      Fil(ip+1,:,k,:) = Fil(ip+1,:,k,:)*(One-exp(CBFieldG*Rg(2)))**CFexp
+      Fil(ip+2,:,k,:) = Fil(ip+2,:,k,:)*(One-exp(CBFieldG*Rg(3)))**CFexp
     end if
   end do
 end do

@@ -27,8 +27,8 @@ real(kind=wp) :: Coord(3,iQ_Atoms)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDist, iDistIm, iDT(3), iDum(1), iFi(3), iFP(3), &
                      iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, indma, Inte, ip_ExpCento, ip_ExpVal, &
-                     ipAOSum, iProdMax, iSnurr, iSTC, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, iTriState, j, &
-                     jjhr, jMacro, k, nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, nVarv
+                     iProdMax, iSnurr, iSTC, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, iTriState, j, jjhr, jMacro, &
+                     nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, nVarv
 real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, dele, DiFac, Dum, E2Die, E_Nuc_Part, &
                  E_Nuc_Rubbet, Edisp, EEDisp, EHam, Elene, EnCLAS, Energy, Eold, Esav, Etot, Exrep, Expe, Expran, ExDie, Gam, &
                  Gmma, PertElcInt(1), Pr, Ract, Rold, RRRnVarv, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, &
@@ -38,8 +38,8 @@ character(len=200) :: Head
 character(len=20) :: MemLaaaa, Memlaaab, Memlaabe, Memlabel, MemQFal
 character(len=4) :: Labjhr
 character(len=2) :: ChCo, ChCo2
-integer(kind=iwp), allocatable :: iFil(:,:)
-real(kind=wp), allocatable :: BoMaH(:), BoMaO(:), Eint(:,:), Eint_Nuc(:), Poli(:,:), Smat(:), SmatPure(:), SumElcPot(:,:), Vmat(:)
+real(kind=wp), allocatable :: AOSum(:), BoMaH(:), BoMaO(:), Eint(:,:), Eint_Nuc(:), Fil(:,:,:,:), Poli(:,:), Smat(:), SmatPure(:), &
+                              SumElcPot(:,:), Vmat(:)
 real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ, &
                             ExLim = Ten !Over how long distance the exchange rep. is computed, the solv-solv.
 integer(kind=iwp), external :: IsFreeUnit
@@ -177,8 +177,8 @@ else if (iRead == 9) then
     NCountField = 0
 
     PertNElcInt(:) = Zero
-    call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iTriBasQ)
-    call dcopy_(iTriBasQ,[Zero],0,Work(ipAOSum),1)
+    call mma_allocate(AOSum,iTriBasQ,label='SumOvlAOQ')
+    AOSum(:) = Zero
   end if
   !*********
 else
@@ -186,10 +186,11 @@ else
   write(u6,*) 'An invalid number of iRead detected.'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
+if (.not. allocated(AOSum)) call mma_allocate(AOSum,0,label='SumOvlAOQ')
 !----------------------------------------------------------------------*
 ! If we have input file, then read from it.                            *
 !----------------------------------------------------------------------*
-call mma_allocate(iFil,iCi,10,label='iFil')
+call mma_allocate(Fil,nPol*nPart,3,iCi,10,label='Fil')
 call mma_allocate(Eint,iCi,10,label='Eint')
 call mma_allocate(Eint_Nuc,iQ_Atoms,label='Eint_Nuc')
 call mma_allocate(Poli,iCi,10,label='Poli')
@@ -291,24 +292,15 @@ outer: do
       do i=1,iCi !Allocate memory for the field on the QM-mol. iCi: number of quantum molecule sites.
         do j=1,10
           write(MemQFal,'(A,i2.2,i2.2)') 'Falt',i,j
-          call GetMem(MemQFal,'Allo','Real',iFil(i,j),nSize)
         end do
       end do
-      do i=1,iCi
-        do j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
-          do k=1,nPart*nPol !Classical polarisation sites including quantum molecule.
-            Work(iFil(i,j)-1+k) = Zero
-            Work(iFil(i,j)-1+k+nPart*nPol) = Zero
-            Work(iFil(i,j)-1+k+2*nPart*nPol) = Zero
-          end do
-          Eint(i,j) = Zero
-        end do
-        if (i <= iQ_Atoms) Eint_Nuc(i) = Zero
-      end do
+      Fil(:,:,:,:) = Zero
+      Eint(:,:) = Zero
+      Eint_Nuc(:) = Zero
 
       ! Compute the exchange operator.
 
-      call ExRas(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,iTriState,Smat,SmatPure,InCutOff,ipAOSum)
+      call ExRas(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,iTriState,Smat,SmatPure,InCutOff,AOSum)
       call Timing(Cpu3,Tim1,Tim2,Tim3)
       timeEX = timeEX+(Cpu3-Cpu2)
 
@@ -317,9 +309,9 @@ outer: do
       ! Compute various gradients of 1/r.
 
       if (lSlater) then
-        call OneOverR_Sl(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyzRAS,Eint_Nuc)
+        call OneOverR_Sl(Fil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyzRAS,Eint_Nuc)
       else
-        call OneOverR(iFil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyzRAS)
+        call OneOverR(Fil,Ax,Ay,Az,BoMaH,BoMaO,EEDisp,iCNum,Eint,iQ_Atoms,outxyzRAS)
       end if
 
       ! Couple the point-charges in the solvent to the QM-region.
@@ -327,7 +319,7 @@ outer: do
       call HelState(Eint,nState,iCi,RasCha,RasDip,RasQua,Vmat)
 
       ! Let QM-region and solvent polarize.
-      call PolRas(iDist,iDistIM,iDT,iFI,iFP,iFil,iCStart,iTriState,VMat,Smat,DiFac,Ract,iCNum,Energy,nVarv,iSTC,Haveri,iQ_Atoms, &
+      call PolRas(iDist,iDistIM,iDT,iFI,iFP,Fil,iCStart,iTriState,VMat,Smat,DiFac,Ract,iCNum,Energy,nVarv,iSTC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
       ! Energy from QM-nuclei interacting with solvent field.
@@ -489,7 +481,6 @@ outer: do
           write(ChCo,'(I2.2)') i
           write(ChCo2,'(I2.2)') j
           write(MemQFal,*) 'Falt'//ChCo//ChCo2
-          call GetMem(MemQFal,'Free','Real',iFil(i,j),nSize)
         end do
       end do
       call GetMem('Coeff','Free','Real',iSTC,nState**2)
@@ -524,8 +515,8 @@ outer: do
           call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,1,1,[1],[1],1)
 
           AverFact = One/real(NCountField,kind=wp)
-          call DaxPy_(iTriBasQ,AverFact,Work(ipAOSum),1,PertNElcInt,1)
-          call GetMem('SumOvlAOQ','Free','Real',ipAOSum,iTriBasQ)
+          call DaxPy_(iTriBasQ,AverFact,AOSum,1,PertNElcInt,1)
+          call mma_deallocate(AOSum)
         end if
         !********
 
@@ -576,7 +567,7 @@ outer: do
 end do outer
 call mma_deallocate(BoMaH)
 call mma_deallocate(BoMaO)
-call mma_deallocate(iFil)
+call mma_deallocate(Fil)
 call mma_deallocate(Eint)
 call mma_deallocate(Eint_Nuc)
 call mma_deallocate(Poli)
@@ -584,6 +575,7 @@ call mma_deallocate(Smat)
 call mma_deallocate(Vmat)
 call mma_deallocate(SmatPure)
 call mma_deallocate(SumElcPot)
+if (allocated(AOSum)) call mma_deallocate(AOSum)
 !----------------------------------------------------------------------*
 ! Close some external files.                                           *
 !----------------------------------------------------------------------*

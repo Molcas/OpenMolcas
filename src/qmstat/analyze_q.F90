@@ -18,10 +18,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iQ_Atoms
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iCNum, iCo(3), iCStart, iDiskSa, iDiskTemp, iDum(1), iH, iHMax, iHowMSamp, ind, iSamp, j, k, l
+integer(kind=iwp) :: i, iCNum, iCStart, iDiskSa, iDiskTemp, iDum(1), iH, iHMax, iHowMSamp, ind, iSamp, j, k, l
 real(kind=wp) :: dist, dist2, dR, Dum, Etot, Ract
-real(kind=wp), allocatable :: gR(:,:,:)
+real(kind=wp), allocatable :: Co(:,:), gR(:,:,:)
 integer(kind=iwp), parameter :: iHUltraMax = 1000
 #include "warnings.h"
 
@@ -61,14 +60,14 @@ gR(:,:,:) = Zero
 do iSamp=1,iHowMSamp
   !--------------------------------------------------------------------*
   ! Begin by getting the coordinates for this configuration. They are  *
-  ! stored in Work(iCo(i)) where i=1 means x-coordinate, i=2           *
-  ! y-coordinate and i=3 z-coordinate.                                 *
+  ! stored in Co(:,i) where i=1 means x-coordinate, i=2 y-coordinate   *
+  ! and i=3 z-coordinate.                                              *
   !--------------------------------------------------------------------*
   call WrRdSim(iLuSaIn,2,iDiskSa,iTcSim,64,Etot,Ract,nPart,Dum,Dum,Dum)
   iDiskSa = iTcSim(1)
+  call mma_allocate(Co,nPart*nCent,3,label='Coordinates')
   do i=1,3
-    call GetMem('Coordinates','Allo','Real',iCo(i),nPart*nCent)
-    call dDafile(iLuSaIn,2,Work(iCo(i)),nPart*nCent,iDiskSa)
+    call dDafile(iLuSaIn,2,Co(:,i),nPart*nCent,iDiskSa)
   end do
   !--------------------------------------------------------------------*
   ! Once we have coordinates, lets compute some distances and start    *
@@ -80,7 +79,7 @@ do iSamp=1,iHowMSamp
         dist2 = Zero
         do l=1,3
           ind = iCStart+(j-1)+(k-1)*nCent
-          dist2 = dist2+(Work(iCo(l)+i-1)-Work(iCo(l)+ind-1))**2
+          dist2 = dist2+(Co(i,l)-Co(ind,l))**2
         end do
         dist = sqrt(dist2)
         iH = int((dist+dR*Half)/dR)
@@ -99,9 +98,7 @@ do iSamp=1,iHowMSamp
   !--------------------------------------------------------------------*
   ! End loop over sampled configurations.                              *
   !--------------------------------------------------------------------*
-  do i=1,3
-    call GetMem('Coordinates','Free','Real',iCo(i),nPart*nCent)
-  end do
+  call mma_deallocate(Co)
 end do
 !----------------------------------------------------------------------*
 ! Time to generate a nice output.                                      *

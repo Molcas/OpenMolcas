@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,ipAOint,iV2,N,lmax,Inside)
+subroutine AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,AOint,oV2,N,lmax,Inside)
 
 use qmstat_global, only: CasOri, Cordst, iOrb, iPrint, iQn, nCent, nCnC_C, SavOri, V3
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -17,16 +17,15 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, ipAOint, iV2, N, lmax
-real(kind=wp) :: Ax, Ay, Az
+integer(kind=iwp) :: nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, N, lmax
+real(kind=wp) :: Ax, Ay, Az, AOint(nBaseQ,nBaseC), oV2(nBaseC,iOrb(2))
 logical(kind=iwp) :: Inside(iQ_Atoms,nAtomsCC)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iBa, iBaS, iC, iMO, iOrS, ipPPP, iQ, j, k, kaunt, kauntadetta, m
+integer(kind=iwp) :: iBaS, iOrS, j, k, m
 real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), x, y, z
 logical(kind=iwp) :: PrEne, PrOcc
 character(len=30) :: Snack
-real(kind=wp), allocatable :: Sint(:,:), V2(:,:)
+real(kind=wp), allocatable :: V2(:,:)
 character(len=LenIn8), allocatable :: BsLbl(:)
 
 !----------------------------------------------------------------------*
@@ -54,31 +53,17 @@ do iOrS=1,iOrb(2) !Collect original MO-coeff.
   end do
 end do
 call OrbRot2(Rot,V2,iQn,iOrb(2),nBaseC,lMax,nCnC_C)
-kaunt = 0
-do iMO=1,iOrb(2) !Store the rotated in vector for later convenience.
-  do iBa=1,nBaseC
-    Work(iV2+kaunt) = V2(iBa,iMO)
-    kaunt = kaunt+1
-  end do
-end do
+! Store the rotated in vector for later convenience.
+oV2(:,:) = V2
 if (iPrint >= 25) then !Optional print-out.
   PrOcc = .false.
   PrEne = .false.
   write(snack,'(A,I3)') 'Rotated orbitals for water ',N/nCent
   call mma_allocate(BsLbl,nBaseC,label='BsLbl')
-  call GetMem('PrCMO','Allo','Real',ipPPP,nBaseC*iOrb(2))
-  kauntadetta = 0
-  do i=1,iOrb(2)
-    do j=1,nBaseC
-      Work(ipPPP+kauntadetta) = V2(j,i)
-      kauntadetta = kauntadetta+1
-    end do
-  end do
   call NameRun('WRUNFIL')
   call Get_cArray('Unique Basis Names',BsLbl,LenIn8*nBaseC)
-  call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,Work(ipPPP),3)
+  call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,V2,3)
   call mma_deallocate(BsLbl)
-  call GetMem('PrCMO','Free','Real',ipPPP,nBaseC*iOrb(2))
 end if
 call mma_deallocate(V2)
 do m=1,lMax !New basis function origo defined.
@@ -98,25 +83,8 @@ end do
 ! Compute overlap between the contracted basis functions on the water  *
 ! molecule presently studied and the QM-molecule.                      *
 !----------------------------------------------------------------------*
-call mma_allocate(Sint,nBaseQ,nBaseC,label='Sint')
-do i=1,nBaseQ
-  do j=1,nBaseC
-    Sint(i,j) = Zero
-  end do
-end do
-call ContractOvl(Sint,nBaseQ,nBaseC,N,nCent,iQ_Atoms,nAtomsCC,iPrint,Inside)
-! To be able to use the fast matrix multiplication routine DGEMM_,
-! we have to put the Sint matrix in vector form.
-! In the future we might 'cut out the middle-man' and already
-! above put the overlap matrix in vector shape.
-kaunt = 0
-do iC=1,nBaseC
-  do iQ=1,nBaseQ
-    Work(ipAOint+kaunt) = Sint(iQ,iC)
-    kaunt = kaunt+1
-  end do
-end do
-call mma_deallocate(Sint)
+AOInt(:,:) = Zero
+call ContractOvl(AOint,nBaseQ,nBaseC,N,nCent,iQ_Atoms,nAtomsCC,iPrint,Inside)
 
 return
 

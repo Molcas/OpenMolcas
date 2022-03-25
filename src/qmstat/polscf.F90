@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PolScf(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTri,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iMOC,Haveri,iQ_Atoms, &
+subroutine PolScf(iDist,iDistIm,iDT,iFI,iFP,Fil,iCStart,iTri,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iMOC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
 use qmstat_global, only: ChaNuc, CT, DenCorrD, FockM, HHmat, iOcc1, iOrb, iSupM, lExtr, Mp2DensCorr, nPart, nPol, PotNuc, qTot, &
@@ -20,15 +20,15 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCStart, iTri, icnum, NVarv, &
-                     iMOC, ip_ExpVal
-real(kind=wp) :: VMat(iTri), Smat(iTri), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
+integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iCStart, iTri, icnum, NVarv, iMOC, ip_ExpVal
+real(kind=wp) :: Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), VMat(iTri), Smat(iTri), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iDum, iErr, iGri, iOrba, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, j, nFound, nPolCent, nQMCent
+integer(kind=iwp) :: i, iDum, iErr, iOrba, j, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, OneEl, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
-real(kind=wp), allocatable :: EEigen(:), FFp(:,:), RoMat(:), VpolMat(:)
+real(kind=wp), allocatable :: EEigen(:), FFp(:,:), Gri(:,:), RoMat(:), rr3(:,:), Scratch(:,:), VpolMat(:), xx(:,:), xxi(:,:), &
+                              yy(:,:), yyi(:,:), zz(:,:), zzi(:,:)
 #include "warnings.h"
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
@@ -49,8 +49,23 @@ Egun = Zero
 
 ! Compute some distances needed for the polarization. See polras for some additional information on this.
 
-call Memory_PolPrep('Allo',ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
-call PolPrep(iDist,iDistIM,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),iCNum,nPolCent)
+call mma_allocate(xx,nPolCent,nPolCent,label='xx')
+call mma_allocate(yy,nPolCent,nPolCent,label='yy')
+call mma_allocate(zz,nPolCent,nPolCent,label='zz')
+call mma_allocate(xxi,nPolCent,nPolCent,label='ixx')
+call mma_allocate(yyi,nPolCent,nPolCent,label='iyy')
+call mma_allocate(zzi,nPolCent,nPolCent,label='izz')
+call mma_allocate(rr3,nPolCent,nPolCent,label='irr3')
+call mma_allocate(Gri,nPolCent,nPolCent,label='iGri')
+xx(:,:) = Zero
+yy(:,:) = Zero
+zz(:,:) = Zero
+xxi(:,:) = Zero
+yyi(:,:) = Zero
+zzi(:,:) = Zero
+rr3(:,:) = Zero
+Gri(:,:) = Zero
+call PolPrep(iDist,iDistIM,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nPolCent)
 
 ! Polarization loop commencing.
 
@@ -62,11 +77,10 @@ NVarv = 0
 do
   NVarv = NVarv+1
   Energy = Zero
-  call PolSolv(iDT,iFI,iFP,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),FFp,iCNum,r2Inv, &
-               DiFac,nPolCent)
+  call PolSolv(iDT,iFI,iFP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2Inv,DiFac,nPolCent)
   call Densi_MO(Romat,Work(iMOC),1,iOcc1,iOrba,iOrba)
   if (Mp2DensCorr) call DCorrCorr(Romat,DenCorrD,Trace_MP2,iOrba,iOcc1)
-  call Polink(Energy,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,Poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,Romat, &
+  call Polink(Energy,nPolCent,nQMCent,Fil,VpolMat,FFp,PolFac,Poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,Romat, &
               xyzQuQ,CT)
 
   ! Construct the Fock-matrix from two-electron super-matrix and one-electron matrix, with solvent perturbations added.
@@ -94,9 +108,9 @@ do
 
   ! Diagonalize the Fock-matrix. Eigenvalues are sorted.
 
-  call GetMem('Scratch','Allo','Real',iScratch,iOrba**2)
-  call Diag_Driver('V','A','L',iOrba,FockM,Work(iScratch),iOrba,Dummy,Dummy,iDum,iDum,EEigen,Work(iMOC),iOrba,1,-1,'J',nFound,iErr)
-  call GetMem('Scratch','Free','Real',iScratch,iOrba**2)
+  call mma_allocate(Scratch,iOrba,iOrba,label='Scratch')
+  call Diag_Driver('V','A','L',iOrba,FockM,Scratch,iOrba,Dummy,Dummy,iDum,iDum,EEigen,Work(iMOC),iOrba,1,-1,'J',nFound,iErr)
+  call mma_deallocate(Scratch)
 
   ! Check if polarization loop has converged.
 
@@ -109,7 +123,14 @@ end do
 call mma_deallocate(FFp)
 call mma_deallocate(RoMat)
 call mma_deallocate(EEigen)
-call Memory_PolPrep('Free',ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
+call mma_deallocate(xx)
+call mma_deallocate(yy)
+call mma_deallocate(zz)
+call mma_deallocate(xxi)
+call mma_deallocate(yyi)
+call mma_deallocate(zzi)
+call mma_deallocate(rr3)
+call mma_deallocate(Gri)
 
 ! If expectation values are extracted, make a detour.
 

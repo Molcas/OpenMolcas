@@ -22,10 +22,9 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 integer(kind=iwp) :: nB
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAUX, iExt, iopt, ipAOG, ipAOx, ipMOG, ipMOx, irc, iS1, iS2, iSmLbl, iSqAO, iSqMO, j, kaunter, Lu_One, &
-                     nBTri, nSize
+integer(kind=iwp) :: i, iExt, iopt, irc, iS1, iS2, iSmLbl, j, kaunter, Lu_One, nBTri, nSize
 real(kind=wp) :: Element
-real(kind=wp), allocatable :: DiagH0(:)
+real(kind=wp), allocatable :: AOG(:), AOx(:), AUX(:,:), DiagH0(:), MOG(:), MOx(:), SqAO(:,:), SqMO(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=r8), external :: Ddot_
 #include "warnings.h"
@@ -50,13 +49,13 @@ else
   Lu_One = 49
   Lu_One = IsFreeUnit(Lu_One)
   call OpnOne(irc,0,'ONEINT',Lu_One)
-  call GetMem('AOExt','Allo','Real',ipAOx,nBTri+4)
+  call mma_allocate(AOx,nBTri,label='AOExt')
   do iExt=1,nExtAddOns
     irc = -1
-    iopt = 0
+    iopt = 6
     iSmLbl = 0
-    call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),Work(ipAOx),iSmLbl)
-    call dscal_(nBTri,ScalExt(iExt),Work(ipAOx),1)
+    call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),AOx,iSmLbl)
+    call dscal_(nBTri,ScalExt(iExt),AOx,1)
     if (irc /= 0) then
       write(u6,*)
       write(u6,*) 'ERROR when reading ',ExtLabel(iExt),'.'
@@ -68,46 +67,46 @@ else
     ! the one-electron integrals to RASSI-basis.
 
     if (.not. MoAveRed) then
-      call GetMem('Transition','Allo','Real',ipAOG,nBTri)
+      call mma_allocate(AOG,nBTri,label='Transition')
       kaunter = 0
       do iS1=1,nState
         do iS2=1,iS1
-          call dcopy_(nBTri,Work(iBigT+nBTri*kaunter),1,Work(ipAOG),1)
-          Element = Ddot_(nBTri,Work(ipAOG),1,Work(ipAOx),1)
+          call dcopy_(nBTri,Work(iBigT+nBTri*kaunter),1,AOG,1)
+          Element = Ddot_(nBTri,AOG,1,AOx,1)
           kaunter = kaunter+1
           HmatState(kaunter) = HmatState(kaunter)+Element
         end do
       end do
-      call GetMem('Transition','Free','Real',ipAOG,nBTri)
+      call mma_deallocate(AOG)
     else
       nSize = nTri_Elem(nRedMO)
-      call GetMem('Transition','Allo','Real',ipMOG,nSize)
-      call GetMem('AUX','Allo','Real',iAUX,nRedMO*nB)
-      call GetMem('SquareAO','Allo','Real',iSqAO,nB**2)
-      call GetMem('SquareMO','Allo','Real',iSqMO,nRedMO**2)
-      call GetMem('MOExt','Allo','Real',ipMOx,nSize)
-      call Square(Work(ipAOx),Work(iSqAO),1,nB,nB)
-      call Dgemm_('T','N',nRedMO,nB,nB,One,Work(ipAvRed),nB,Work(iSqAO),nB,Zero,Work(iAUX),nRedMO)
-      call Dgemm_('N','N',nRedMO,nRedMO,nB,One,Work(iAUX),nRedMO,Work(ipAvRed),nB,Zero,Work(iSqMO),nRedMO)
-      call SqToTri_Q(Work(iSqMO),Work(ipMOx),nRedMO)
+      call mma_allocate(MOG,nSize,label='Transition')
+      call mma_allocate(AUX,nRedMO,nB,label='AUX')
+      call mma_allocate(SqAO,nB,nB,label='SquareAO')
+      call mma_allocate(SqMO,nRedMO,nRedMO,label='SquareMO')
+      call mma_allocate(MOx,nSize,label='MOExt')
+      call Square(AOx,SqAO,1,nB,nB)
+      call Dgemm_('T','N',nRedMO,nB,nB,One,Work(ipAvRed),nB,SqAO,nB,Zero,AUX,nRedMO)
+      call Dgemm_('N','N',nRedMO,nRedMO,nB,One,AUX,nRedMO,Work(ipAvRed),nB,Zero,SqMO,nRedMO)
+      call SqToTri_Q(SqMO,MOx,nRedMO)
       kaunter = 0
       do iS1=1,nState
         ! This was 1,nState before... I think that was a bug, because HMatState is triangular
         do iS2=1,iS1
-          call dcopy_(nSize,Work(iBigT+nSize*kaunter),1,Work(ipMOG),1)
-          Element = Ddot_(nSize,Work(ipMOG),1,Work(ipMOx),1)
+          call dcopy_(nSize,Work(iBigT+nSize*kaunter),1,MOG,1)
+          Element = Ddot_(nSize,MOG,1,MOx,1)
           kaunter = kaunter+1
           HmatState(kaunter) = HmatState(kaunter)+Element
         end do
       end do
-      call GetMem('Transition','Free','Real',ipMOG,nSize)
-      call GetMem('AUX','Free','Real',iAUX,nRedMO*nB)
-      call GetMem('SquareAO','Free','Real',iSqAO,nB**2)
-      call GetMem('SquareMO','Free','Real',iSqMO,nRedMO**2)
-      call GetMem('MOExt','Free','Real',ipMOx,nSize)
+      call mma_deallocate(MOG)
+      call mma_deallocate(AUX)
+      call mma_deallocate(SqAO)
+      call mma_deallocate(SqMO)
+      call mma_deallocate(MOx)
     end if
   end do
-  call GetMem('AOExt','Free','Real',ipAOx,nBTri+4)
+  call mma_deallocate(AOx)
   call ClsOne(irc,Lu_One)
 
   ! If sufficient print level, print HmatState with perturbation added.

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PolRas(iDist,iDistIm,iDT,iFI,iFP,iFil,iCStart,iTriState,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iSTC,Haveri,iQ_Atoms, &
+subroutine PolRas(iDist,iDistIm,iDT,iFI,iFP,Fil,iCStart,iTriState,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iSTC,Haveri,iQ_Atoms, &
                   ip_ExpVal,Poli)
 
 use qmstat_global, only: ChaNuc, CT, dCIRef, HmatSOld, HmatState, iCIInd, iExtr_Eig, lCiSelect, lExtr, nCIRef, nEqState, nPart, &
@@ -20,15 +20,16 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iFil(nTri_Elem(iQ_Atoms),10), iCStart, iTriState, icnum, &
-                     NVarv, iSTC, ip_ExpVal
-real(kind=wp) :: VMat(iTriState), Smat(iTriState), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
+integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iCStart, iTriState, icnum, NVarv, iSTC, ip_ExpVal
+real(kind=wp) :: Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), VMat(iTriState), Smat(iTriState), DiFac, Ract, Energy, &
+                 Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iDum, iErr, iGri, irr3, iScratch, ixx, ixxi, iyy, iyyi, izz, izzi, nFound, nPolCent, nQMCent
+integer(kind=iwp) :: i, iDum, iErr, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
-real(kind=wp), allocatable :: EEigen(:), FFp(:,:), RoMatSt(:), VpolMat(:)
+real(kind=wp), allocatable :: EEigen(:), FFp(:,:), Gri(:,:), RoMatSt(:), rr3(:,:), Scratch(:,:), VpolMat(:), xx(:,:), xxi(:,:), &
+                              yy(:,:), yyi(:,:), zz(:,:), zzi(:,:)
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
@@ -51,8 +52,23 @@ Egun = Zero
 ! rewrite the entire polprep routine (written originally with
 ! static allocations). A future project is to rewrite polprep.
 
-call Memory_PolPrep('Allo',ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
-call PolPrep(iDist,iDistIM,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),iCNum,nPolCent)
+call mma_allocate(xx,nPolCent,nPolCent,label='xx')
+call mma_allocate(yy,nPolCent,nPolCent,label='yy')
+call mma_allocate(zz,nPolCent,nPolCent,label='zz')
+call mma_allocate(xxi,nPolCent,nPolCent,label='ixx')
+call mma_allocate(yyi,nPolCent,nPolCent,label='iyy')
+call mma_allocate(zzi,nPolCent,nPolCent,label='izz')
+call mma_allocate(rr3,nPolCent,nPolCent,label='irr3')
+call mma_allocate(Gri,nPolCent,nPolCent,label='iGri')
+xx(:,:) = Zero
+yy(:,:) = Zero
+zz(:,:) = Zero
+xxi(:,:) = Zero
+yyi(:,:) = Zero
+zzi(:,:) = Zero
+rr3(:,:) = Zero
+Gri(:,:) = Zero
+call PolPrep(iDist,iDistIM,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nPolCent)
 
 ! Polarization loop commencing.
 
@@ -64,10 +80,9 @@ NVarv = 0
 do
   NVarv = NVarv+1
   Energy = Zero
-  call PolSolv(iDT,iFI,iFP,Work(ixx),Work(iyy),Work(izz),Work(irr3),Work(ixxi),Work(iyyi),Work(izzi),Work(iGri),FFp,iCNum,r2Inv, &
-               DiFac,nPolCent)
+  call PolSolv(iDT,iFI,iFP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2Inv,DiFac,nPolCent)
   call DensiSt(RomatSt,Work(iSTC),nEqState,nState,nState)
-  call Polins(Energy,nPolCent,nQMCent,iFil,VpolMat,FFp,PolFac,poli,xyzMyQ,xyzMyI,xyzMyP,iCstart,iQ_Atoms,qTot,ChaNuc,RoMatSt, &
+  call Polins(Energy,nPolCent,nQMCent,Fil,VpolMat,FFp,PolFac,poli,xyzMyQ,xyzMyI,xyzMyP,iCstart,iQ_Atoms,qTot,ChaNuc,RoMatSt, &
               xyzQuQ,CT)
 
   ! Assemble the Hamiltonian matrix.
@@ -79,12 +94,11 @@ do
 
   ! Diagonalize the bastard. Eigenvalues are sorted and the relevant eigenvalue is added to total energy.
 
-  call GetMem('Scratch','Allo','Real',iScratch,nState**2)
-  call Diag_Driver('V','A','L',nState,HMatState,Work(iScratch),nState,Dummy,Dummy,iDum,iDum,EEigen,Work(iSTC),nState,1,-1,'J', &
-                   nFound,iErr)
+  call mma_allocate(Scratch,nState,nState,label='Scratch')
+  call Diag_Driver('V','A','L',nState,HMatState,Scratch,nState,Dummy,Dummy,iDum,iDum,EEigen,Work(iSTC),nState,1,-1,'J',nFound,iErr)
   if (lCiSelect) call CiSelector(nEqState,nState,iSTC,nCIRef,iCIInd,dCIRef)
   Energy = Energy+EEigen(nEqState)
-  call GetMem('Scratch','Free','Real',iScratch,nState**2)
+  call mma_deallocate(Scratch)
 
   ! Check if polarization loop has converged.
 
@@ -98,7 +112,14 @@ call mma_deallocate(FFp)
 call mma_deallocate(RoMatSt)
 call mma_deallocate(VpolMat)
 call mma_deallocate(EEigen)
-call Memory_PolPrep('Free',ixx,iyy,izz,irr3,ixxi,iyyi,izzi,iGri,nPol,nPart)
+call mma_deallocate(xx)
+call mma_deallocate(yy)
+call mma_deallocate(zz)
+call mma_deallocate(xxi)
+call mma_deallocate(yyi)
+call mma_deallocate(zzi)
+call mma_deallocate(rr3)
+call mma_deallocate(Gri)
 
 ! If expectation values are extracted, make a detour.
 

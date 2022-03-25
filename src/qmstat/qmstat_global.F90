@@ -22,8 +22,6 @@ private
 ! MxAngqNr      -        Maximal angular quantum number for basis
 !                        functions in QM-region. 1 is s, 2 is p etc.
 ! MxMltp        -        Highest order multipole in MME
-! MxPrCon       -        Maximal sum of the contracted number of bases.
-!                        12s8p5d would need at least 12+8+5=25.
 ! MxPut         -        Maximal number of molecules to put in system
 ! MxSymQ        -        Maximal number of symmetries
 !----------------------------------------------------------------------*
@@ -118,7 +116,7 @@ private
 ! Trans         -       Cartesian to spherical transformation.
 !----------------------------------------------------------------------*
 
-integer(kind=iwp), parameter :: MxAngqNr = 7, MxMltp = 3, MxPut = 220, MxPrCon = 140, MxSymQ = 1
+integer(kind=iwp), parameter :: MxAngqNr = 7, MxMltp = 3, MxPut = 220, MxSymQ = 1
 
 integer(kind=iwp) :: iBigT, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iNrIn, iNrUt, Inter, iOcc1, iOrb(3), ipAvRed, &
                      iPrint, iRead, iSeed, iSta, iSupM, iTcSim(64), itMax, iV1, lmax, lMltSlC, nAdd, nAtom, nCent, nCha, nCIRef, &
@@ -151,8 +149,8 @@ public :: AddExt, Alfa, Anal, ATitle, AvElcPot, BasOri, Beta, c_orbene, CAFieldG
           iBigT, iCIInd, iCompExt, iExtr_Atm, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, iLuStIn, iLuStUt, iLvlShift, info_atom, iNrIn, &
           iNrUt, Inter, iOcc1, iOrb, ipAvRed, iPrint, iQang, iQn, iRead, iSeed, iSta, iSupM, iTcSim, itMax, iV1, iWoGehenC, &
           iWoGehenQ, JobLab, lCiSelect, lExtr, lmax, lMltSlC, lQuad, lSlater, MoAveRed, Mp2DensCorr, mPrimus, MxAngqNr, MxMltp, &
-          MxPrCon, MxPut, MxSymQ, nAdd, nAtom, nBA_C, nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, nCBoA_Q, nCent, nCha, nCIRef, nCnC_C, &
-          nDel, nEqState, nExtAddOns, nLvlShift, nMacro, nMicro, nMlt, nPart, nPol, nPrimus, nRedMO, NrFiles, NrStarti, NrStartu, &
+          MxPut, MxSymQ, nAdd, nAtom, nBA_C, nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, nCBoA_Q, nCent, nCha, nCIRef, nCnC_C, nDel, &
+          nEqState, nExtAddOns, nLvlShift, nMacro, nMicro, nMlt, nPart, nPol, nPrimus, nRedMO, NrFiles, NrStarti, NrStartu, &
           NrStates, nSlSiteC, nState, nStFilT, nTemp, OldGeo, outxyz, outxyzRAS, ParallelT, ParaTemps, PertNElcInt, Pol, Pollim, &
           PotNuc, Pres, QIm, QImp, Qmeq, QmProd, Qmstat_end, QmType, Qsta, qTot, Quad, QuaDi, QuaDiQ, RasCha, RasDip, RasQua, &
           RassiM, rStart, SaFilIn, SaFilUt, SavOri, ScalExt, SexRe1, SexRe2, SexRep, SimEx, SingPoint, SlExpC, SlExpQ, SlFactC, &

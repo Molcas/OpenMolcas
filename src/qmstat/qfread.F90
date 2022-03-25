@@ -45,8 +45,8 @@
 subroutine Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBasCC,nOcc,natyp,nntyp)
 
 use qmstat_global, only: Alfa, ATitle, BasOri, Beta, c_orbene, ChaNuc, Cont, CT, Dont, info_atom, iOrb, iPrint, iQang, iQn, iV1, &
-                         iWoGehenC, iWoGehenQ, Joblab, lmax, mPrimus, MxAngqNr, MxPrCon, MxSymQ, nBA_C, nBA_Q, nBonA_C, nBonA_Q, &
-                         nCBoA_C, nCBoA_Q, nCnC_C, nPrimus, PotNuc, QmType, SavOri, Trans, V3
+                         iWoGehenC, iWoGehenQ, Joblab, lmax, mPrimus, MxAngqNr, MxSymQ, nBA_C, nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, &
+                         nCBoA_Q, nCnC_C, nPrimus, PotNuc, QmType, SavOri, Trans, V3
 use qmstat_procedures, only: GiveMeInfo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -55,15 +55,14 @@ implicit none
 integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(MxSymQ), nBasCC(1), nOcc(iQ_Atoms), natyp(iQ_Atoms), nntyp
 real(kind=wp) :: Coord(3,iQ_Atoms)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAtom, iBas, icont, iDummy(1), iErr, iLu, ind, indold, iOe, iold, ipACC, ipC, ipC_C, ipE, ipE_C, iWarn, &
-                     ix, j, jnd, k, kaunter, kk, kold, l, lLine, m, na, nACCSizeC, nACCSizeQ, nnaa, nntypC, nSize, nSym, nSymCC, &
-                     ntBas
+integer(kind=iwp) :: i, iAtom, iBas, icont, iDummy(1), iErr, iLu, ind, indold, iold, ipACC, ipC, ipC_C, ipE, ipE_C, iWarn, ix, j, &
+                     jnd, k, kaunter, kk, kold, l, lLine, m, na, nACCSizeC, nACCSizeQ, nnaa, nntypC, nSize, nSym, nSymCC, ntBas
 real(kind=wp) :: ChgeCC(3), CoordCC(3*3), Dummy(1)
 character(len=120) :: BlLine, Line, StLine
 character(len=100) :: OrbName, Title
 character(len=10) :: WhatGet
 integer(kind=iwp), allocatable :: iC_Icon(:,:), Icon(:,:), natypC(:), nfSh(:,:), nSh(:)
-real(kind=wp), allocatable :: Chge(:), Cmo(:,:), Cmo_S(:), Occu(:), Tmp(:,:)
+real(kind=wp), allocatable :: Chge(:), Cmo(:,:), Cmo_S(:), Occu(:), Oe(:), Tmp(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
@@ -183,12 +182,11 @@ write(u6,*)
 !----------------------------------------------------------------------*
 call mma_allocate(nSh,iQ_Atoms,label='nSh')
 call mma_allocate(nfSh,iQ_Atoms,MxAngqNr,label='nfSh')
-call mma_allocate(Icon,iQ_Atoms,MxPrCon,label='Icon')
 call mma_allocate(nBA_Q,iQ_Atoms,label='nBA_Q')
 call mma_allocate(nBonA_Q,iQ_Atoms,label='nBonA_Q')
 call mma_allocate(nCBoA_Q,iQ_Atoms,MxAngqNr,label='nCBoA_Q')
-call GiveMeInfo(nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,ipE,ipC,nSh,nfSh,nSize,iPrint,iQ_Atoms,MxPrCon,MxAngqNr, &
-                ipACC,nACCSizeQ,ntBas)
+call GiveMeInfo(nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,ipE,ipC,nSh,nfSh,nSize,iPrint,iQ_Atoms,MxAngqNr,ipACC, &
+                nACCSizeQ,ntBas)
 iBas = 0
 iAtom = 0
 kold = 1
@@ -295,14 +293,14 @@ iLu = IsFreeUnit(iLu)
 write(OrbName,'(A)') 'SOLORB'
 write(WhatGet,'(A)') 'CE'
 iWarn = 1
-call GetMem('OrbitalEnergy','Allo','Real',iOe,sum(nBasCC))
+call mma_allocate(Oe,sum(nBasCC),label='OrbitalEnergy')
 call mma_allocate(Cmo_S,nBasCC(1)**2,label='Cmo_S')
-call RdVec(OrbName,iLu,WhatGet,nSymCC,nBasCC,nBasCC,Cmo_S,Dummy,Work(iOe),iDummy,Title,iWarn,iErr)
+call RdVec(OrbName,iLu,WhatGet,nSymCC,nBasCC,nBasCC,Cmo_S,Dummy,Oe,iDummy,Title,iWarn,iErr)
 call mma_allocate(c_orbene,iOrb(2),label='c_orbene')
 do i=1,iOrb(2)
-  c_orbene(i) = Work(iOe+i-1)
+  c_orbene(i) = Oe(i)
 end do
-call GetMem('OrbitalEnergy','Free','Real',iOe,sum(nBasCC))
+call mma_deallocate(Oe)
 
 ! We should not need two solvent orbital vectors, so this should
 ! be removed when the orbital rotation routine is fixed.
@@ -327,12 +325,11 @@ if (nAtomsCC /= iQ_Atoms) then
   call mma_allocate(nfSh,nAtomsCC,MxAngqNr,label='nfSh')
 end if
 call mma_allocate(natypC,nAtomsCC,label='natypC')
-call mma_allocate(iC_Icon,nAtomsCC,MxPrCon,label='iC_Icon')
 call mma_allocate(nBA_C,nAtomsCC,label='nBA_C')
 call mma_allocate(nBonA_C,nAtomsCC,label='nBonA_C')
 call mma_allocate(nCBoA_C,nAtomsCC,MxAngqNr,label='nCBoA_C')
-call GiveMeInfo(nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nSh,nfSh,nSize,iPrint,nAtomsCC,MxPrCon, &
-                MxAngqNr,ipACC,nACCSizeC,ntBas)
+call GiveMeInfo(nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nSh,nfSh,nSize,iPrint,nAtomsCC,MxAngqNr, &
+                ipACC,nACCSizeC,ntBas)
 iBas = 0
 iAtom = 0
 kold = 1

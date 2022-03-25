@@ -9,15 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MoldenDump(iC,CooRef,nP,nC)
+subroutine MoldenDump(C,CooRef,nP,nC)
 
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iC(3), nP, nC
-real(kind=wp) :: CooRef(3,5)
-#include "WrkSpc.fh"
+integer(kind=iwp) :: nP, nC
+real(kind=wp) :: C(nP*nC,3), CooRef(3,5)
 integer(kind=iwp) :: ind, iP, jC
 real(kind=wp) :: Coo(3,nC)
 logical(kind=iwp) :: ValidOrNot
@@ -40,9 +39,7 @@ write(u6,*)
 do iP=1,nP
   ind = nC*(iP-1)
   do jC=1,nC
-    Coo(1,jC) = Work(iC(1)+ind+jC-1)
-    Coo(2,jC) = Work(iC(2)+ind+jC-1)
-    Coo(3,jC) = Work(iC(3)+ind+jC-1)
+    Coo(:,jC) = C(ind+jC,:)
   end do
   call IsItValid(Coo,CooRef,ValidOrNot)
   if (.not. ValidOrNot) then

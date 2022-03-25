@@ -9,20 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ContRASBas(nStatePrim,iNonH,iNonS,iEig2)
+subroutine ContRASBas(nStatePrim,NonH,NonS,iEig2)
 
 use qmstat_global, only: ContrStateB, dLvlShift, HmatSOld, HmatState, iLvlShift, iPrint, nLvlShift, nState, ThrsCont
 use Index_Functions, only: nTri_Elem
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, one
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nStatePrim, iNonH, iNonS, iEig2
+integer(kind=iwp) :: nStatePrim, iEig2
+real(kind=wp) :: NonH(nTri_Elem(nStatePrim)), NonS(nTri_Elem(nStatePrim))
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iEig1, ii, ind, iRedHSq, iRedHTr, iS, iSqH, iState, iT, iTEMP, j, jState, k, kaunt, kaunter, nLvlInd, &
-                     nStateRed, nTri
+integer(kind=iwp) :: i, ii, iS, iState, iT, j, jState, kaunt, kaunter, nLvlInd, nStateRed, nTri
 real(kind=wp) :: sss, x
+real(kind=wp), allocatable :: Eig1(:,:), RedHSq(:,:), RedHTr(:), SqH(:,:), TEMP(:,:)
 
 ! Hi y'all
 
@@ -30,21 +31,19 @@ write(u6,*) '     ----- Constructing CASSI eigenstates.'
 
 ! Diagonalize overlap matrix.
 
-call GetMem('EigV1','Allo','Real',iEig1,nStatePrim**2)
-kaunter = 0
+call mma_allocate(Eig1,nStatePrim,nStatePrim,label='EigV1')
 do i=1,nStatePrim
   do j=1,nStatePrim
     if (i == j) then
-      Work(iEig1+kaunter) = One
+      Eig1(j,i) = One
     else
-      Work(iEig1+kaunter) = Zero
+      Eig1(j,i) = Zero
     end if
-    kaunter = kaunter+1
   end do
 end do
-call Jacob(Work(iNonS),Work(iEig1),nStatePrim,nStatePrim)
+call Jacob(NonS,Eig1,nStatePrim,nStatePrim)
 if (iPrint >= 15) then
-  call TriPrt('Diagonal RASSCF overlap matrix',' ',Work(iNonS),nStatePrim)
+  call TriPrt('Diagonal RASSCF overlap matrix',' ',NonS,nStatePrim)
 end if
 
 ! Construct TS^(-1/2) for canonical orthogonalization.
@@ -52,11 +51,8 @@ end if
 ii = 0
 do i=1,nStatePrim
   ii = ii+i
-  x = One/sqrt(max(1.0e-14_wp,Work(iNonS-1+ii)))
-  do k=1,nStatePrim
-    ind = k+nStatePrim*(i-1)-1
-    Work(iEig1+ind) = x*Work(iEig1+ind)
-  end do
+  x = One/sqrt(max(1.0e-14_wp,NonS(ii)))
+  Eig1(:,i) = x*Eig1(:,i)
 end do
 
 ! Make reductions if requested.
@@ -65,33 +61,33 @@ call GetMem('RedEigV1','Allo','Real',iEig2,nStatePrim**2)
 iT = 0
 if (ContrStateB) then
   do iS=1,nStatePrim
-    kaunt = nTri_Elem(iS)
-    sss = Work(iNonS+kaunt)
+    kaunt = nTri_Elem(iS)+1
+    sss = NonS(kaunt)
     if (sss > ThrsCont) then
       iT = iT+1
-      call dcopy_(nStatePrim,Work(iEig1+nStatePrim*(iS-1)),1,Work(iEig2+nStatePrim*(iT-1)),1)
+      call dcopy_(nStatePrim,Eig1(:,iS),1,Work(iEig2+nStatePrim*(iT-1)),1)
     end if
   end do
   nStateRed = iT
   write(u6,6199) '  ----- Contraction:',nStatePrim,' ---> ',nStateRed
 else
-  call dcopy_(nStatePrim**2,Work(iEig1),1,Work(iEig2),1)
+  call dcopy_(nStatePrim**2,Eig1,1,Work(iEig2),1)
   nStateRed = nStatePrim
 end if
 
 ! Transform H and diagonalize in the original basis.
 
 nTri = nTri_Elem(nStateRed)
-call GetMem('TEMP','Allo','Real',iTEMP,nStatePrim**2)
-call GetMem('SqH','Allo','Real',iSqH,nStatePrim**2)
-call GetMem('RedHSq','Allo','Real',iRedHSq,nStateRed**2)
-call GetMem('RedHTr','Allo','Real',iRedHTr,nTri)
-call Square(Work(iNonH),Work(iSqH),1,nStatePrim,nStatePrim)
-call Dgemm_('N','N',nStatePrim,nStateRed,nStatePrim,One,Work(iSqH),nStatePrim,Work(iEig2),nStatePrim,Zero,Work(iTEMP),nStatePrim)
-call Dgemm_('T','N',nStateRed,nStateRed,nStatePrim,One,Work(iEig2),nStatePrim,Work(iTEMP),nStatePrim,Zero,Work(iRedHSq),nStateRed)
-call SqToTri_Q(Work(iRedHSq),Work(iRedHTr),nStateRed)
-call Jacob(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
-call JacOrd(Work(iRedHTr),Work(iEig2),nStateRed,nStatePrim)
+call mma_allocate(TEMP,nStatePrim,nStatePrim,label='TEMP')
+call mma_allocate(SqH,nStatePrim,nStatePrim,label='SqH')
+call mma_allocate(RedHSq,nStateRed,nStateRed,label='RedHSq')
+call mma_allocate(RedHTr,nTri,label='RedHTr')
+call Square(NonH,SqH,1,nStatePrim,nStatePrim)
+call Dgemm_('N','N',nStatePrim,nStateRed,nStatePrim,One,SqH,nStatePrim,Work(iEig2),nStatePrim,Zero,TEMP,nStatePrim)
+call Dgemm_('T','N',nStateRed,nStateRed,nStatePrim,One,Work(iEig2),nStatePrim,TEMP,nStatePrim,Zero,RedHSq,nStateRed)
+call SqToTri_Q(RedHSq,RedHTr,nStateRed)
+call Jacob(RedHTr,Work(iEig2),nStateRed,nStatePrim)
+call JacOrd(RedHTr,Work(iEig2),nStateRed,nStatePrim)
 
 ! At this stage we have eigenvectors to the CASSI states and their
 ! eigenenergies, hence time to construct the first H_0 and store the
@@ -107,7 +103,7 @@ do iState=1,nStateRed
     kaunter = kaunter+1
     HMatState(kaunter) = Zero
   end do
-  HMatState(kaunter) = Work(iRedHTr+kaunter-1)
+  HMatState(kaunter) = RedHTr(kaunter)
   ! If requested, introduce level-shift of states.
   if (nLvlShift > 0) then
     if (iState == iLvlShift(nLvlInd)) then
@@ -127,11 +123,11 @@ end if
 
 ! Deallocate.
 
-call GetMem('EigV1','Free','Real',iEig1,nStatePrim**2)
-call GetMem('TEMP','Free','Real',iTEMP,nStatePrim**2)
-call GetMem('SqH','Free','Real',iSqH,nStatePrim**2)
-call GetMem('RedHSq','Free','Real',iRedHSq,nStateRed**2)
-call GetMem('RedHTr','Free','Real',iRedHTr,nTri)
+call mma_deallocate(Eig1)
+call mma_deallocate(TEMP)
+call mma_deallocate(SqH)
+call mma_deallocate(RedHSq)
+call mma_deallocate(RedHTr)
 
 ! OBSERVE! CAUTION! ATTENTION! The variable nState is defined.
 

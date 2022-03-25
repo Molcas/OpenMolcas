@@ -24,11 +24,11 @@ real(kind=wp) :: Eint(nTri_Elem(iQ_Atoms),10), Poli(nTri_Elem(iQ_Atoms),10), dNu
                  Cha(nTri_Elem(nDim),nTri_Elem(iQ_Atoms)), Dip(nTri_Elem(nDim),3,nTri_Elem(iQ_Atoms)), &
                  Qua(nTri_Elem(nDim),6,nTri_Elem(iQ_Atoms)), E_Nuc_Part, Eint_Nuc(iQ_Atoms)
 logical(kind=iwp) :: lEig, lSlater
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, iAt, iCx, iVelP, iVpoP, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal
+integer(kind=iwp) :: i, i1, iAt, iCx, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal
 real(kind=wp) :: dMp
 logical(kind=iwp) :: Check1, Check2
 integer(kind=iwp), allocatable :: iCenSet(:)
+real(kind=wp), allocatable :: VelP(:), VpoP(:)
 #include "warnings.h"
 
 ! Set up centre index set. The order of centres are decided by
@@ -87,10 +87,10 @@ end do
 ! Set up matrix elements for the partial perturbations.
 ! Compare with hel, helstate, polink and polins.
 
-call GetMem('VelPart','Allo','Real',iVelP,nTri_Elem(nDim))
-call GetMem('VpoPart','Allo','Real',iVpoP,nTri_Elem(nDim))
-call dcopy_(nTri_Elem(nDim),[Zero],0,Work(iVelP),1)
-call dcopy_(nTri_Elem(nDim),[Zero],0,Work(iVpoP),1)
+call mma_allocate(VelP,nTri_Elem(nDim),label='VelPart')
+call mma_allocate(VpoP,nTri_Elem(nDim),label='VpoPart')
+VelP(:) = Zero
+VpoP(:) = Zero
 kk = 0
 do i=1,nDim
   do j=1,i
@@ -98,35 +98,35 @@ do i=1,nDim
     do k=1,NTotal
       iCx = iCenSet(k)
       dMp = Cha(kk,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,1)*dMp
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,1)*dMp
+      VelP(kk) = VelP(kk)+Eint(iCx,1)*dMp
+      VpoP(kk) = VpoP(kk)+Poli(iCx,1)*dMp
       dMp = Dip(kk,1,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,2)*dMp
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,2)*dMp
+      VelP(kk) = VelP(kk)+Eint(iCx,2)*dMp
+      VpoP(kk) = VpoP(kk)+Poli(iCx,2)*dMp
       dMp = Dip(kk,2,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,3)*dMp
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,3)*dMp
+      VelP(kk) = VelP(kk)+Eint(iCx,3)*dMp
+      VpoP(kk) = VpoP(kk)+Poli(iCx,3)*dMp
       dMp = Dip(kk,3,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,4)*dMp
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,4)*dMp
+      VelP(kk) = VelP(kk)+Eint(iCx,4)*dMp
+      VpoP(kk) = VpoP(kk)+Poli(iCx,4)*dMp
       dMp = Qua(kk,1,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,5)*dMp
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,5)*dMp
+      VelP(kk) = VelP(kk)+Eint(iCx,5)*dMp
+      VpoP(kk) = VpoP(kk)+Poli(iCx,5)*dMp
       dMp = Qua(kk,3,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,7)*dMp
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,7)*dMp
+      VelP(kk) = VelP(kk)+Eint(iCx,7)*dMp
+      VpoP(kk) = VpoP(kk)+Poli(iCx,7)*dMp
       dMp = Qua(kk,6,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,10)*dMp
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,10)*dMp
+      VelP(kk) = VelP(kk)+Eint(iCx,10)*dMp
+      VpoP(kk) = VpoP(kk)+Poli(iCx,10)*dMp
       dMp = Qua(kk,2,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,6)*dMp*Two
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,6)*dMp*Two
+      VelP(kk) = VelP(kk)+Eint(iCx,6)*dMp*Two
+      VpoP(kk) = VpoP(kk)+Poli(iCx,6)*dMp*Two
       dMp = Qua(kk,4,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,8)*dMp*Two
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,8)*dMp*Two
+      VelP(kk) = VelP(kk)+Eint(iCx,8)*dMp*Two
+      VpoP(kk) = VpoP(kk)+Poli(iCx,8)*dMp*Two
       dMp = Qua(kk,5,iCx)
-      Work(iVelP+kk-1) = Work(iVelP+kk-1)+Eint(iCx,9)*dMp*Two
-      Work(iVpoP+kk-1) = Work(iVpoP+kk-1)+Poli(iCx,9)*dMp*Two
+      VelP(kk) = VelP(kk)+Eint(iCx,9)*dMp*Two
+      VpoP(kk) = VpoP(kk)+Poli(iCx,9)*dMp*Two
     end do
   end do
 end do
@@ -135,12 +135,12 @@ call mma_deallocate(iCenSet)
 
 ! Collect expectation value for the partial perturbation.
 
-call Expectus(QMMethod,Work(iVelP),Work(iVelP),Work(iVpoP),Work(iVpoP),iVEC,nDim,lEig,iEig,ip_ExpCento)
+call Expectus(QMMethod,VelP,VelP,VpoP,VpoP,iVEC,nDim,lEig,iEig,ip_ExpCento)
 
 ! Deallocate.
 
-call GetMem('VelPart','Free','Real',iVelP,nTri_Elem(nDim))
-call GetMem('VpoPart','Free','Real',iVpoP,nTri_Elem(nDim))
+call mma_deallocate(VelP)
+call mma_deallocate(VpoP)
 
 ! Howl
 

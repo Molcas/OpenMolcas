@@ -14,8 +14,8 @@ subroutine ScfH0(nBas)
 
 use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, iSupM, iV1, MxSymQ, nExtAddOns, ScalExt
 use Index_Functions, only: nTri_Elem
-use stdalloc, only: mma_allocate
-use Constants, only: Zero, One
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -23,13 +23,14 @@ integer(kind=iwp) :: nBas(MxSymQ)
 #include "Molcas.fh"
 #include "tratoc.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iBuff, iDisk, iDum, iExt, iFine, ij, ik, il, iLu1, iLu2, iopt, ipAOx, ipMOx, iPointF, irc, iSmLbl, iSqAO, &
-                     iSup, iTEMP, iToc(64), j, jk, jl, k, kaunter, kl, l, llmax, Lu_One, nBasM(MxSymQ), nBTri, nBuf1, nBuf2, &
-                     nDelM(MxSymQ), nFroM(MxSymQ), nMAX, nOrbM(MxSymQ), nSize, nSymM
+integer(kind=iwp) :: i, iDisk, iExt, ij, ik, il, iLu1, iLu2, iopt, irc, iSmLbl, iSup, iToc(64), j, jk, jl, k, kaunter, kl, l, &
+                     llmax, Lu_One, nBasM(MxSymQ), nBTri, nBuf1, nBuf2, nDelM(MxSymQ), nFroM(MxSymQ), nMAX, nOrbM(MxSymQ), nSize, &
+                     nSymM
 real(kind=wp) :: Ecor
 character(len=LenIn8) :: NameM(maxbfn)
 character(len=10) :: firstind
-integer(kind=iwp) :: ipair_qmstat, IsFreeUnit
+real(kind=wp), allocatable :: AOx(:), Buff(:), Fine(:,:), MOx(:), SqAO(:,:), TEMP(:,:)
+integer(kind=iwp), external :: ipair_qmstat, IsFreeUnit
 #include "warnings.h"
 
 ! Wilkommen.
@@ -41,7 +42,6 @@ write(u6,*) 'Reading MO-transformed integrals. Zeroth hamiltonian constructed.'
 ! Numbers and files.
 
 nSize = nTri_Elem(iOrb(1))
-call GetMem('FockM','Allo','Real',iPointF,nSize)
 call GetMem('SUPER','Allo','Real',iSupM,nSize**2)
 iLu1 = 56
 iLu2 = 58
@@ -63,10 +63,8 @@ end if
 ! Read one-electron matrix elements.
 
 iDisk = iToc(2)
-call dDaFile(iLu1,2,Work(iPointF),nSize,iDisk)
 call mma_allocate(HHmat,nSize,label='HHmat')
-call dcopy_(nSize,Work(iPointF),1,HHmat,1)
-call GetMem('FockM','Free','Real',iPointF,nSize)
+call dDaFile(iLu1,2,HHmat,nSize,iDisk)
 call DaClos(iLu1)
 
 ! Add external perturbation if requested.
@@ -77,34 +75,34 @@ if (AddExt) then
   Lu_One = 49
   Lu_One = IsFreeUnit(Lu_One)
   call OpnOne(irc,0,'ONEINT',Lu_One)
-  call GetMem('AOExt','Allo','Real',ipAOx,nBTri+4)
-  call GetMem('TEMP','Allo','Real',iTEMP,nBas(1)*iOrb(1))
-  call GetMem('Final','Allo','Real',iFine,iOrb(1)**2)
-  call GetMem('Squared','Allo','Real',iSqAO,nBas(1)**2)
-  call GetMem('MOExt','Allo','Real',ipMOx,nSize)
+  call mma_allocate(AOx,nBTri,label='AOExt')
+  call mma_allocate(TEMP,iOrb(1),nBas(1),label='TEMP')
+  call mma_allocate(Fine,iOrb(1),iOrb(1),label='Final')
+  call mma_allocate(SqAO,nBas(1),nBas(1),label='Squared')
+  call mma_allocate(MOx,nSize,label='MOExt')
   do iExt=1,nExtAddOns
     irc = -1
-    iopt = 0
+    iopt = 6
     iSmLbl = 0
-    call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),Work(ipAOx),iSmLbl)
-    call DScal_(nBTri,ScalExt(iExt),Work(ipAOx),1)
+    call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),AOx,iSmLbl)
+    call DScal_(nBTri,ScalExt(iExt),AOx,1)
     if (irc /= 0) then
       write(u6,*)
       write(u6,*) 'ERROR when reading ',ExtLabel(iExt),'.'
       write(u6,*) 'Have Seward computed this integral?'
       call Quit(_RC_IO_ERROR_READ_)
     end if
-    call Square(Work(ipAOx),Work(iSqAO),1,nBas(1),nBas(1))
-    call Dgemm_('T','N',iOrb(1),nBas(1),nBas(1),One,Work(iV1),nBas(1),Work(iSqAO),nBas(1),Zero,Work(iTEMP),iOrb(1))
-    call Dgemm_('N','N',iOrb(1),iOrb(1),nBas(1),One,Work(iTEMP),iOrb(1),Work(iV1),nBas(1),Zero,Work(iFine),iOrb(1))
-    call SqToTri_Q(Work(iFine),Work(ipMOx),iOrb(1))
-    call DaxPy_(nSize,One,Work(ipMOx),1,HHmat,1)
+    call Square(AOx,SqAO,1,nBas(1),nBas(1))
+    call Dgemm_('T','N',iOrb(1),nBas(1),nBas(1),One,Work(iV1),nBas(1),SqAO,nBas(1),Zero,TEMP,iOrb(1))
+    call Dgemm_('N','N',iOrb(1),iOrb(1),nBas(1),One,TEMP,iOrb(1),Work(iV1),nBas(1),Zero,Fine,iOrb(1))
+    call SqToTri_Q(Fine,MOx,iOrb(1))
+    call DaxPy_(nSize,One,MOx,1,HHmat,1)
   end do
-  call GetMem('AOExt','Free','Real',ipAOx,nBTri+4)
-  call GetMem('TEMP','Free','Real',iTEMP,nBas(1)*iOrb(1))
-  call GetMem('Final','Free','Real',iFine,iOrb(1)**2)
-  call GetMem('Squared','Free','Real',iSqAO,nBas(1)**2)
-  call GetMem('MOExt','Free','Real',ipMOx,nSize)
+  call mma_deallocate(AOx)
+  call mma_deallocate(TEMP)
+  call mma_deallocate(Fine)
+  call mma_deallocate(SqAO)
+  call mma_deallocate(MOx)
   call ClsOne(irc,Lu_One)
 end if
 
@@ -120,7 +118,7 @@ nBuf2 = nTri_Elem(nBuf1)
 
 ! Let's check if this construct is possible. If not advise user what to do.
 
-call GetMem('MAX','Max','Real',iDum,nMAX)
+call mma_maxDBLE(nMAX)
 if (nMAX < (nBuf2+nBuf1**2)) then
   write(u6,*)
   write(u6,*) '  Too many MO-transformed two-electron integrals from Motra. Do you need all?'
@@ -130,15 +128,15 @@ end if
 
 ! Proceed!
 
-call GetMem('Buffer','Allo','Real',iBuff,nBuf2)
-call GetMem('Temporary','Allo','Real',iTEMP,nBuf1**2)
-call dDaFile(iLu2,2,Work(iBuff),nBuf2,iDisk)
+call mma_allocate(Buff,nBuf2,label='Buffer')
+call mma_allocate(TEMP,nBuf1,nBuf1,label='Temporary')
+call dDaFile(iLu2,2,Buff,nBuf2,iDisk)
 do i=1,nBuf1
   do j=i,nBuf1
     iSup = iSup+1
     if ((i <= nSize) .and. (j <= nSize)) then
-      Work(iTEMP+(i-1)*nBuf1+j-1) = Work(iBuff+iSup-1)
-      Work(iTEMP+(j-1)*nBuf1+i-1) = Work(iBuff+iSup-1)
+      TEMP(j,i) = Buff(iSup)
+      TEMP(i,j) = Buff(iSup)
     end if
   end do
 end do
@@ -157,21 +155,18 @@ do i=1,iOrb(1)
         jk = ipair_qmstat(j,k)
         jl = ipair_qmstat(j,l)
         kl = ipair_qmstat(k,l)
-        Work(iSupM+nSize*(ij-1)+kl-1) = Work(iTEMP+(ij-1)*nBuf1+kl-1)-(Work(iTEMP+(ik-1)*nBuf1+jl-1)+ &
-                                        Work(iTEMP+(il-1)*nBuf1+jk-1))/4
+        Work(iSupM+nSize*(ij-1)+kl-1) = TEMP(kl,ij)-(TEMP(jl,ik)+TEMP(jk,il))*Quart
         Work(iSupM+nSize*(kl-1)+ij-1) = Work(iSupM+nSize*(ij-1)+kl-1)
-        Work(iSupM+nSize*(ik-1)+jl-1) = Work(iTEMP+(ik-1)*nBuf1+jl-1)-(Work(iTEMP+(ij-1)*nBuf1+kl-1)+ &
-                                        Work(iTEMP+(il-1)*nBuf1+jk-1))/4
+        Work(iSupM+nSize*(ik-1)+jl-1) = TEMP(jl,ik)-(TEMP(kl,ij)+TEMP(jk,il))*Quart
         Work(iSupM+nSize*(jl-1)+ik-1) = Work(iSupM+nSize*(ik-1)+jl-1)
-        Work(iSupM+nSize*(il-1)+jk-1) = Work(iTEMP+(il-1)*nBuf1+jk-1)-(Work(iTEMP+(ik-1)*nBuf1+jl-1)+ &
-                                        Work(iTEMP+(ij-1)*nBuf1+kl-1))/4
+        Work(iSupM+nSize*(il-1)+jk-1) = TEMP(jk,il)-(TEMP(jl,ik)+TEMP(kl,ij))*Quart
         Work(iSupM+nSize*(jk-1)+il-1) = Work(iSupM+nSize*(il-1)+jk-1)
       end do
     end do
   end do
 end do
-call GetMem('Buffer','Free','Real',iBuff,nBuf2)
-call GetMem('Temporary','Free','Real',iTEMP,nBuf1**2)
+call mma_deallocate(Buff)
+call mma_deallocate(TEMP)
 call DaClos(iLu2)
 
 ! Serious amount of printing!
