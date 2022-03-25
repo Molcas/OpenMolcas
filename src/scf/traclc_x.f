@@ -10,11 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2017,2022, Roland Lindh                                *
 !***********************************************************************
-      Subroutine TraClc_x(FrstDs)
+      Subroutine TraClc_x(FrstDs,iOpt)
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer kOptim
+      Integer iOpt
       Logical FrstDs
 
 !     Extrapolation case.
@@ -26,11 +26,11 @@
 
       If (FrstDs) Then
 !        On first iteration compute all gradients and put them on file.
-         Call GrdClc('All',.False.)
+         Call GrdClc('All',iOpt)
          FrstDs=.FALSE.
       Else
 !        Compute just the last one.
-         Call GrdClc('Lst',.False.)
+         Call GrdClc('Lst',iOpt)
       End If
 
       Return

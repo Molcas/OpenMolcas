@@ -513,7 +513,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x(FrstDs)
+            Call TraClc_x(FrstDs,iOpt)
 *
             Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
 *
@@ -565,7 +565,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(QNR1st)
+            Call TraClc_x_qNR(QNR1st,iOpt)
 *
             Call dGrd()
 *
@@ -664,7 +664,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(QNR1st)
+            Call TraClc_x_qNR(QNR1st,iOpt)
 *
             Call dGrd()
 *

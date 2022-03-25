@@ -13,11 +13,11 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GrdClc(What,QNR)
+      SubRoutine GrdClc(What,iOpt)
       use SCF_Arrays
       Implicit Real*8 (a-h,o-z)
       Character What*3
-      Logical   QNR
+      Integer   iOpt
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
@@ -26,15 +26,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     QNR     : Quasi-Newton in effect
+*     iOpt    : SCF optimization scheme
 *
-      If (QNR) Then
+      Select case(iOpt)
+
+      Case (2,3)
          Call GrdClc_(What,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &                CMO   ,nBB,Ovrlp,CMO)
-      Else
+      Case (1)
          Call GrdClc_(What,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &                Lowdin,nBB,Ovrlp,CMO)
-      End If
+      Case Default
+         Write (6,*) 'Illegal iOpt Value:',iOpt
+         Call abend()
+      End Select
 *
       Return
       End

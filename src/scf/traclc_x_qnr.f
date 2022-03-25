@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2017,2022, Roland Lindh                                *
 !***********************************************************************
-      Subroutine TraClc_x_qNR(QNR1st)
+      Subroutine TraClc_x_qNR(QNR1st,iOpt)
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
+      Integer iOpt
       Logical QNR1st
 
 !     Extrapolation case.
@@ -23,7 +24,7 @@
       If (QNR1st) Then
 
 !        compute actual gradient
-         Call GrdClc('All',.True.)
+         Call GrdClc('All',iOpt)
 
          QNR1st=.FALSE.
       Else
@@ -31,7 +32,7 @@
 !        Note that the required displacements are actually computed
 !        in linser!
 
-         Call GrdClc('Lst',.True.)
+         Call GrdClc('Lst',iOpt)
 
       End If
 
