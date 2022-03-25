@@ -503,7 +503,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x(kOptim,FrstDs)
+            Call TraClc_x(FrstDs)
 *
             Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
 *

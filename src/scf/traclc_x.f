@@ -10,14 +10,12 @@
 !                                                                      *
 ! Copyright (C) 2017,2022, Roland Lindh                                *
 !***********************************************************************
-      Subroutine TraClc_x(kOptim,FrstDs)
+      Subroutine TraClc_x(FrstDs)
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
       Integer kOptim
       Logical FrstDs
-
-      If (kOptim.eq.1) Return
 
 !     Extrapolation case.
 !
