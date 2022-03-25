@@ -129,7 +129,7 @@
 #include "ldfscf.fh"
 #include "warnings.h"
       Real*8, Dimension(:),   Allocatable:: D1Sao
-      Real*8, Dimension(:,:), Allocatable:: Grd1, Disp, Xnp1
+      Real*8, Dimension(:,:), Allocatable:: Grd1, Disp, Xnp1, Xn
 
 *---  Tolerance for negative two-electron energy
       Real*8 E2VTolerance
@@ -412,6 +412,18 @@
             End If
             If (QNR1st) Then
                kOptim=2
+!------        1st QNR step, reset kOptim to 1
+
+               kOptim = 1
+               CInter(1,1) = One
+               CInter(1,nD) = One
+
+!              init 1st orb rot parameter X1 (set it to zero)
+               Call mma_allocate(Xn,nOV,nD,Label='Xn')
+               Xn(:,:)=Zero
+!              and store it on appropriate LList
+               Call PutVec(Xn,nOV*nD,iter,'NOOP',LLx)
+               Call mma_deallocate(Xn)
 *
 *---           compute initial inverse Hessian H (diag)
 *
@@ -553,7 +565,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(kOptim,QNR1st,CInter,nCI,nD,nOV,iter,LLx)
+            Call TraClc_x_qNR(QNR1st)
 *
             Call dGrd()
 *
@@ -652,7 +664,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(kOptim,QNR1st,CInter,nCI,nD,nOV,iter,LLx)
+            Call TraClc_x_qNR(QNR1st)
 *
             Call dGrd()
 *

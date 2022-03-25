@@ -73,7 +73,7 @@
 #include "ldfscf.fh"
 #include "warnings.h"
       Real*8, Dimension(:),   Allocatable:: D1Sao
-      Real*8, Dimension(:,:), Allocatable:: Grd1, Disp, Xnp1
+      Real*8, Dimension(:,:), Allocatable:: Grd1, Disp, Xnp1, Xn
 
 *---  Tolerance for negative two-electron energy
       Real*8 E2VTolerance
@@ -167,7 +167,7 @@
       iterSt=iter0
       iterso=0        ! number of second order steps.
       kOptim=1
-      Iter_no_Diis=1
+!     Iter_no_Diis=1
 *                                                                      *
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
@@ -185,7 +185,7 @@
 *
       If (.NOT. DIIS) Then
          DiisTh=Zero
-         Iter_no_Diis=1000000
+!        Iter_no_Diis=1000000
       End If
 *
 *     If no damping to preceed the DIIS make threshold being fullfiled
@@ -193,7 +193,7 @@
 *
       If (.NOT. Damping) Then
          DiisTh=DiisTh*1.0D99
-         Iter_no_Diis=0  ! This dosn'r work!!!!
+!        Iter_no_Diis=0  ! This dosn'r work!!!!
       End If
 *
 *---  turn temporarily off DIIS & QNR/DIIS, if Aufbau is active...
@@ -255,7 +255,7 @@
       iAufOK=0
       IterX=0
       If(Scrmbl) IterX=-2
-      Iter_DIIS=0
+!     Iter_DIIS=0
       EDiff=0.0D0
       DMOMax=0.0D0
       FMOMax=0.0D0
@@ -401,6 +401,18 @@ C              Write (6,*) 'Call SOIniH'
             If (iter==1) iOpt=0
          End If
          If (QNR1st) Then
+!------     1st QNR step, reset kOptim to 1
+
+            kOptim = 1
+            CInter(1,1) = One
+            CInter(1,nD) = One
+
+!           init 1st orb rot parameter X1 (set it to zero)
+            Call mma_allocate(Xn,nOV,nD,Label='Xn')
+            Xn(:,:)=Zero
+!           and store it on appropriate LList
+            Call PutVec(Xn,nOV*nD,iter,'NOOP',LLx)
+            Call mma_deallocate(Xn)
 *
 *---        compute initial inverse Hessian H (diag)
 *
@@ -543,7 +555,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(kOptim,QNR1st,CInter,nCI,nD,nOV,iter,LLx)
+            Call TraClc_x_qNR(QNR1st)
 *
             Call dGrd()
 *
@@ -642,7 +654,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(kOptim,QNR1st,CInter,nCI,nD,nOV,iter,LLx)
+            Call TraClc_x_qNR(QNR1st)
 *
             Call dGrd()
 *

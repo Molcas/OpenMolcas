@@ -10,33 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2017,2022, Roland Lindh                                *
 !***********************************************************************
-      Subroutine TraClc_x_qNR(kOptim,QNR1st,CInter,nCI,nD,nOV,iter,LLx)
+      Subroutine TraClc_x_qNR(QNR1st)
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer kOptim,nCI,nD,nOV,iter,LLx
       Logical QNR1st
-      Real*8 CInter(nCI,nD)
-      Real*8, Dimension(:,:), Allocatable:: Xn
 
 !     Extrapolation case.
 !
 !     displacements: del = -H^(-1)g, where g=dE/dX_m
 
       If (QNR1st) Then
-
-!------  1st QNR step, reset kOptim to 1
-
-         kOptim = 1
-         CInter(1,1) = One
-         CInter(1,nD) = One
-
-!        init 1st orb rot parameter X1 (set it to zero)
-         Call mma_allocate(Xn,nOV,nD,Label='Xn')
-         Call FZero(Xn,nOV*nD)
-!        and store it on appropriate LList
-         Call PutVec(Xn,nOV*nD,iter,'NOOP',LLx)
-         Call mma_deallocate(Xn)
 
 !        compute actual gradient
          Call GrdClc('All',.True.)
