@@ -565,7 +565,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(QNR1st,iOpt)
+            Call TraClc_x(QNR1st,iOpt)
 *
             Call dGrd()
 *
@@ -664,7 +664,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(QNR1st,iOpt)
+            Call TraClc_x(QNR1st,iOpt)
 *
             Call dGrd()
 *

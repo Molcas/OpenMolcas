@@ -555,7 +555,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(QNR1st,iOpt)
+            Call TraClc_x(QNR1st,iOpt)
 *
             Call dGrd()
 *
@@ -654,7 +654,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x_qNR(QNR1st,iOpt)
+            Call TraClc_x(QNR1st,iOpt)
 *
             Call dGrd()
 *
