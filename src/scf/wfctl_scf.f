@@ -110,6 +110,7 @@
 #endif
       Use Interfaces_SCF, Only: TraClc_i
       use LnkLst, only: SCF_V
+      use InfSO
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
@@ -121,7 +122,6 @@
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "llists.fh"
