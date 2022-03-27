@@ -13,10 +13,10 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GrdClc(What,iOpt)
+      SubRoutine GrdClc(FstItr,iOpt)
       use SCF_Arrays
       Implicit Real*8 (a-h,o-z)
-      Character What*3
+      Logical FstItr
       Integer   iOpt
 #include "real.fh"
 #include "mxdm.fh"
@@ -31,10 +31,10 @@
       Select case(iOpt)
 
       Case (2,3)
-         Call GrdClc_(What,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
+         Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &                CMO   ,nBB,Ovrlp,CMO)
       Case (1)
-         Call GrdClc_(What,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
+         Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &                Lowdin,nBB,Ovrlp,CMO)
       Case Default
          Write (6,*) 'Illegal iOpt Value:',iOpt
@@ -43,7 +43,7 @@
 *
       Return
       End
-      SubRoutine GrdClc_(What,Dens,TwoHam,Vxc,mBT,mDens,nD,OneHam,
+      SubRoutine GrdClc_(FstItr,Dens,TwoHam,Vxc,mBT,mDens,nD,OneHam,
      &                   OCMO,mBB,Ovrlp,CMO)
 ************************************************************************
 *                                                                      *
@@ -51,8 +51,8 @@
 *                                                                      *
 *                                                                      *
 *     input:                                                           *
-*       What    : variable telling what gradients compute: 'All' -     *
-*                 all gradients, 'Lst' - last gradient                 *
+*       FstItr  : variable telling what gradients compute: .true. -    *
+*                 all gradients, .False. - last gradient               *
 *                                                                      *
 *     called from: Wfctl_scf                                           *
 *                                                                      *
@@ -84,7 +84,7 @@
       Real*8 Dens(mBT,nD,mDens), TwoHam(mBT,nD,mDens), CMO(mBB,nD),
      &       OneHam(mBT), OCMO(mBB,nD), Ovrlp(mBT), Vxc(mBT,nD,mDens)
       Real*8, Dimension(:,:), Allocatable:: GrdOO,GrdOV,AuxD,AuxT,AuxV
-      Character What*3
+      Logical FstItr
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -92,12 +92,6 @@
 *
 *define _DEBUGPRINT_
 *
-      If (What.ne.'All' .and. What.ne.'Lst') Then
-         Write (6,*) 'GrdClc: What.ne."All" .and. What.ne."Lst"'
-         Write (6,'(A,A)') 'What=',What
-         Call Abend()
-      End If
-
 *--- Allocate memory for gradients and gradient contributions
       Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
       Call mma_allocate(GrdOV,nOO,nD,Label='GrdOV')
@@ -108,7 +102,7 @@
       Call mma_allocate(AuxV,nBT,nD,Label='AuxV')
 
 *--- Find the beginning of the loop
-      If (What.eq.'All') Then
+      If (FstItr) Then
          LpStrt = 1
          kOptim_=iter
       Else

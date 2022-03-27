@@ -24,14 +24,8 @@
 
 !---  only DIIS, compute gradients
 
-      If (FrstDs) Then
-!        On first iteration compute all gradients and put them on file.
-         Call GrdClc('All',iOpt)
-         FrstDs=.FALSE.
-      Else
-!        Compute just the last one.
-         Call GrdClc('Lst',iOpt)
-      End If
+      Call GrdClc(FrstDs,iOpt)
+      FrstDs=.FALSE.
 
       Return
       End
