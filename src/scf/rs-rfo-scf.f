@@ -45,11 +45,13 @@
       Step_Trunc=' '
       Lu=6
       StepMax0=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
-      Write (6,*) 'StepMax0=',StepMax0
+*     Write (6,*) 'StepMax0=',StepMax0
       StepMax0=Max(StepMax0,1.0D-1)
-      Write (6,*) 'StepMax0=',StepMax0
+*     Write (6,*) 'StepMax0=',StepMax0
       StepMax=Min(StepMax0,3.0D-1)
-      Write (6,*) 'StepMax=',StepMax
+*     Write (6,*) 'StepMax=',StepMax
+      Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
+      Call RecPrt('rs-rfo: g',' ',g,1,nInter)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 *     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
@@ -73,7 +75,7 @@
       Restart=.False.
       Thr=1.0D-3
       NumVal=Min(1,nInter+1)
-*     NumVal=Min(nInter+1,nInter+1)
+      NumVal=Min(nInter+1,nInter+1)
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Tmp,nInter+1,Label='Tmp')
@@ -103,7 +105,7 @@
 *        which computes Hc, where c is a trial vector, from an initial
 *        Hessian based on a diagonal approximation and a BFGS update.
 *
-*#define _DEBUGCode_
+#define _DEBUGCode_
 #ifdef _DEBUGCode_
          Call Plain_rs_rfo()
 #else
@@ -113,8 +115,8 @@
      &       'Davidson procedure did not converge','')
          End If
 #endif
-*        Write (6,*) 'Val(:)=',Val(:)
-*        Write (6,*) 'Vec(:,1)=',Vec(:,1)
+         Write (6,*) 'Val(:)=',Val(:)
+         Write (6,*) 'Vec(:,1)=',Vec(:,1)
          call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
          Call DScal_(nInter,One/Sqrt(A_RFO),Vec(:,1),1)
 *                                                                      *
@@ -141,7 +143,7 @@
 *        Pick v^k_{1,i}
 *
          Fact=Vec(nInter+1,1)
-*        Write (Lu,*) 'v^k_{1,i}=',Fact
+         Write (Lu,*) 'v^k_{1,i}=',Fact
 *
 *        Normalize according to Eq. (5)
 *
@@ -246,6 +248,7 @@
       Do i = 1, nInter
          H(i,i)=HDiag(i)
       End Do
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('H',' ',H,nInter,nInter)
 #endif

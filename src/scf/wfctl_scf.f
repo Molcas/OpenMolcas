@@ -411,7 +411,6 @@
                iOpt=2
             End If
             If (QNR1st) Then
-               kOptim=2
 !------        1st QNR step, reset kOptim to 1
 
                kOptim = 1
@@ -513,7 +512,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x(FrstDs,iOpt)
+            Call GrdClc(FrstDs,iOpt)
 *
             Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
 *
@@ -565,7 +564,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x(QNR1st,iOpt)
+            Call GrdClc(QNR1st,iOpt)
 *
             Call dGrd()
 *
@@ -664,7 +663,7 @@
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x(QNR1st,iOpt)
+            Call GrdClc(QNR1st,iOpt)
 *
             Call dGrd()
 *

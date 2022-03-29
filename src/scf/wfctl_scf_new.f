@@ -81,6 +81,7 @@
 
 *---  Define local variables
       Logical QNR1st,FstItr
+      Logical :: ResetH=.False.
       Character Meth*(*), Meth_*10
       Character*72 Note
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
@@ -378,7 +379,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 !           Write (6,*) 'Case(2)'
             If (RSRFO) Then
                iOpt=3
-!              kOptim=2
+               kOptim=2
             Else
                iOpt=2
             End If
@@ -400,10 +401,17 @@ C              Write (6,*) 'Call SOIniH'
             iOpt=2
             If (iter==1) iOpt=0
          End If
+         If (.NOT.QNR1st .and. Abs(EDiff)<1.0D-2 .and. ResetH
+     &       .AND. iterso>=2) Then
+            Write (6,*) 'Reset'
+            QNR1st=.True.
+            ReSetH=.False.
+         End If
          If (QNR1st) Then
 !------     1st QNR step, reset kOptim to 1
 
             kOptim = 1
+            iterso=0
             CInter(1,1) = One
             CInter(1,nD) = One
 
@@ -416,7 +424,7 @@ C              Write (6,*) 'Call SOIniH'
 *
 *---        compute initial inverse Hessian H (diag)
 *
-            Write (6,*) 'Call SOIniH'
+*           Write (6,*) 'Call SOIniH'
             Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
 *
          End If
@@ -503,7 +511,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x(FrstDs,iOpt)
+            Call GrdClc(FrstDs,iOpt)
 *
             Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
 *
@@ -555,7 +563,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x(QNR1st,iOpt)
+            Call GrdClc(QNR1st,iOpt)
 *
             Call dGrd()
 *
@@ -654,7 +662,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
-            Call TraClc_x(QNR1st,iOpt)
+            Call GrdClc(QNR1st,iOpt)
 *
             Call dGrd()
 *
@@ -1083,7 +1091,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *---- Here if we didn't converge or if this was a forced one iteration
 *     calculation.
 *
-      iter=iter-1
+!     iter=iter-1
       If(nIter(nIterP).gt.1) Then
          If (jPrint.ge.1) Then
             Write(6,*)

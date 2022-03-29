@@ -113,5 +113,6 @@
           End Do ! iSym
       End Do ! iD
 *
+      Call RecPrt('HDiag',' ',HDiag(:,:),nH,nD)
       Return
       End

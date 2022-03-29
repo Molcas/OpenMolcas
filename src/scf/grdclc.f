@@ -105,6 +105,7 @@
       If (FstItr) Then
          LpStrt = 1
          kOptim_=iter
+         FstItr=.False.
       Else
          LpStrt = kOptim
          kOptim_= kOptim
