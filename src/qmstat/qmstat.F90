@@ -11,10 +11,10 @@
 
 subroutine Qmstat(ireturn)
 
-use qmstat_global, only: Anal, BasOri, CasOri, ChaNuc, Cordst, DipIm, EdSt, info_atom, iOrb, iQang, iQn, iWoGehenC, iWoGehenQ, &
-                         lExtr, MoAveRed, mPrimus, MxPut, nBA_C, nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, nCBoA_Q, nCent, nCnC_C, nPol, &
-                         nPrimus, OldGeo, PertNElcInt, QIm, QImp, Qmeq, QmProd, Qmstat_end, QmType, SavOri, SingPoint, Sqrs, &
-                         Trans, Udisp
+use qmstat_global, only: Anal, AvRed, BasOri, BigT, CasOri, ChaNuc, Cordst, DipIm, EdSt, info_atom, iQang, iQn, iWoGehenC, &
+                         iWoGehenQ, lExtr, MoAveRed, mPrimus, MxPut, nBA_C, nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, nCBoA_Q, nCent, &
+                         nCnC_C, nPart, nPol, nPrimus, OldGeo, PertNElcInt, QIm, QImp, Qmeq, QmProd, Qmstat_end, QmType, SavOri, &
+                         SingPoint, Sqrs, SupM, Trans, Udisp, V1
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
@@ -25,11 +25,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ireturn
-integer(kind=iwp) :: iBigDeAll, iCi, ip, ipStoreCoo, iQ_Atoms, iSupDeAll, iV1DeAll, nAtomsCC, nBas(1), nBas_C(1), nCalls, &
-                     NCountField, nntyp, nPart2, nRM, nS, nSizeBig
+integer(kind=iwp) :: iCi, iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), nCalls, NCountField, nntyp
 character(len=4) :: Labjhr
 integer(kind=iwp), allocatable :: natyp(:), nOcc(:)
-real(kind=wp), allocatable :: Coord(:,:), Eint(:,:), PertElcInt(:), Poli(:,:), SumElcPot(:,:)
+real(kind=wp), allocatable :: Coord(:,:), Eint(:,:), PertElcInt(:), Poli(:,:), StoreCoo(:,:,:), SumElcPot(:,:)
 #include "warnings.h"
 !******JoseMEP New variables to perform the MEP calculation
 !Eint, Poli, SumElcPot, PertElcInt, nOcc, natyp, Labjhr
@@ -108,7 +107,10 @@ else
     ! If user request a set of single point calculations, then go in to
     ! a separate routine and do a 'reintrepretation' of the input.
 
-    if (SingPoint) call SingP(nCalls,iQ_Atoms,ipStoreCoo,nPart2)
+    if (SingPoint) then
+      if (nCalls == 0) call mma_allocate(StoreCoo,3,nCent,nPart,label='Store')
+      call SingP(nCalls,iQ_Atoms,StoreCoo)
+    end if
 
     ! Decide which type of calculation we are to run. At this stage only
     ! QM equilibration and QM production is available.
@@ -116,9 +118,9 @@ else
 
     if (Qmeq .or. Qmprod) then  !Qmeq=.true. is default option.
       if (QmType(1:3) == 'SCF') then
-        call EqScf(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,iSupDeAll,iV1DeAll)
+        call EqScf(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C)
       else if (QmType(1:4) == 'RASS') then
-        call EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,iBigDeAll,nSizeBig,ip,nRM)
+        call EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C)
       end if
     end if
 
@@ -140,7 +142,7 @@ else
     ! If we are doing single point calculations, then jump back up.
 
     if (.not. SingPoint) exit
-    if (nCalls < nPart2) then
+    if (nCalls < size(StoreCoo,3)) then
       write(u6,*)
       write(u6,*)
       write(u6,*)
@@ -149,7 +151,7 @@ else
       write(u6,*)
       write(u6,*)
     else
-      call GetMem('Store','Free','Real',ipStoreCoo,nPart2*nCent*3)
+      call mma_deallocate(StoreCoo)
       write(u6,*)
       write(u6,*)
       write(u6,*) ' Single-point calculation ended.'
@@ -192,14 +194,11 @@ else
   ! Deallocations of stuff from qfread to simulations. These are unique for the QM-method.
 
   if (QmType(1:4) == 'RASS') then
-    call GetMem('ALLES','Free','Real',iBigDeAll,nSizeBig)
-    if (MoAveRed) then
-      call GetMem('UncleMoe','Free','Real',ip,nBas(1)*nRM)
-    end if
+    call mma_deallocate(BigT)
+    if (MoAveRed) call mma_deallocate(AvRed)
   else if (QmType(1:3) == 'SCF') then
-    nS = nTri_Elem(iOrb(1))
-    call GetMem('SUPER','Free','Real',iSupDeAll,nS**2)
-    call GetMem('OrbCoeffQ','Free','Real',iV1DeAll,iOrb(1)*nBas(1))
+    call mma_deallocate(SupM)
+    call mma_deallocate(V1)
   end if
 
 end if

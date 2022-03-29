@@ -12,8 +12,7 @@
 ! In this routine H_0 in RASSI basis is constructed, possibly with external perturbation added on.
 subroutine RasH0(nB)
 
-use qmstat_global, only: AddExt, ExtLabel, HmatState, iBigT, iCompExt, ipAvRed, iPrint, MoAveRed, nExtAddOns, nRedMo, nState, &
-                         ScalExt
+use qmstat_global, only: AddExt, AvRed, BigT, ExtLabel, HmatState, iCompExt, iPrint, MoAveRed, nExtAddOns, nRedMo, nState, ScalExt
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -21,7 +20,6 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: nB
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iExt, iopt, irc, iS1, iS2, iSmLbl, j, kaunter, Lu_One, nBTri, nSize
 real(kind=wp) :: Element
 real(kind=wp), allocatable :: AOG(:), AOx(:), AUX(:,:), DiagH0(:), MOG(:), MOx(:), SqAO(:,:), SqMO(:,:)
@@ -71,9 +69,9 @@ else
       kaunter = 0
       do iS1=1,nState
         do iS2=1,iS1
-          call dcopy_(nBTri,Work(iBigT+nBTri*kaunter),1,AOG,1)
-          Element = Ddot_(nBTri,AOG,1,AOx,1)
           kaunter = kaunter+1
+          call dcopy_(nBTri,BigT(:,kaunter),1,AOG,1)
+          Element = Ddot_(nBTri,AOG,1,AOx,1)
           HmatState(kaunter) = HmatState(kaunter)+Element
         end do
       end do
@@ -86,16 +84,16 @@ else
       call mma_allocate(SqMO,nRedMO,nRedMO,label='SquareMO')
       call mma_allocate(MOx,nSize,label='MOExt')
       call Square(AOx,SqAO,1,nB,nB)
-      call Dgemm_('T','N',nRedMO,nB,nB,One,Work(ipAvRed),nB,SqAO,nB,Zero,AUX,nRedMO)
-      call Dgemm_('N','N',nRedMO,nRedMO,nB,One,AUX,nRedMO,Work(ipAvRed),nB,Zero,SqMO,nRedMO)
+      call Dgemm_('T','N',nRedMO,nB,nB,One,AvRed,nB,SqAO,nB,Zero,AUX,nRedMO)
+      call Dgemm_('N','N',nRedMO,nRedMO,nB,One,AUX,nRedMO,AvRed,nB,Zero,SqMO,nRedMO)
       call SqToTri_Q(SqMO,MOx,nRedMO)
       kaunter = 0
       do iS1=1,nState
         ! This was 1,nState before... I think that was a bug, because HMatState is triangular
         do iS2=1,iS1
-          call dcopy_(nSize,Work(iBigT+nSize*kaunter),1,MOG,1)
-          Element = Ddot_(nSize,MOG,1,MOx,1)
           kaunter = kaunter+1
+          call dcopy_(nSize,BigT(:,kaunter),1,MOG,1)
+          Element = Ddot_(nSize,MOG,1,MOx,1)
           HmatState(kaunter) = HmatState(kaunter)+Element
         end do
       end do

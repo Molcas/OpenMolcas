@@ -9,21 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PolScf(iDist,iDistIm,iDT,iFI,iFP,Fil,iCStart,iTri,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iMOC,Haveri,iQ_Atoms, &
-                  ip_ExpVal,Poli)
+subroutine PolScf(Dist,DistIm,DT,FI,FP,Fil,iCStart,iTri,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,MOC,Haveri,iQ_Atoms,ExpVal,Poli)
 
-use qmstat_global, only: ChaNuc, CT, DenCorrD, FockM, HHmat, iOcc1, iOrb, iSupM, lExtr, Mp2DensCorr, nPart, nPol, PotNuc, qTot, &
-                         Trace_MP2, xyzMyI, xyzMyP, xyzMyQ, xyzQuQ
+use qmstat_global, only: ChaNuc, CT, DenCorrD, FockM, HHmat, iOcc1, iOrb, lExtr, Mp2DensCorr, nCent, nPart, nPol, PotNuc, qTot, &
+                         SupM, Trace_MP2, xyzMyI, xyzMyP, xyzMyQ, xyzQuQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iCStart, iTri, icnum, NVarv, iMOC, ip_ExpVal
-real(kind=wp) :: Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), VMat(iTri), Smat(iTri), DiFac, Ract, Energy, Poli(nTri_Elem(iQ_Atoms),10)
+integer(kind=iwp) :: iQ_Atoms, iCStart, iTri, icnum, NVarv
+real(kind=wp) :: Dist(nCent,nCent,nTri_Elem(nPart-icnum-1)), DistIm(nCent,nPart-icnum,nCent,nPart-icnum), DT(3,nPol*nPart), &
+                 FI(3,nPol*nPart), FP(3,nPol*nPart), Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), VMat(iTri), Smat(iTri), DiFac, &
+                 Ract, Energy, MOC(iOrb(1),iOrb(1)), ExpVal(4,1), Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iDum, iErr, iOrba, j, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, OneEl, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
@@ -34,9 +34,8 @@ real(kind=wp), allocatable :: EEigen(:), FFp(:,:), Gri(:,:), RoMat(:), rr3(:,:),
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
 iOrba = iOrb(1)
-call GetMem('Coeff','Allo','Real',iMOC,iOrba**2)
-call dcopy_(iOrba**2,[Zero],0,Work(iMOC),1)
-call dcopy_(iOrba,[One],0,Work(iMOC),iOrba+1)
+MOC(:,:) = Zero
+call dcopy_(iOrba,[One],0,MOC,iOrba+1)
 
 ! Define some numbers.
 
@@ -65,7 +64,7 @@ yyi(:,:) = Zero
 zzi(:,:) = Zero
 rr3(:,:) = Zero
 Gri(:,:) = Zero
-call PolPrep(iDist,iDistIM,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nPolCent)
+call PolPrep(Dist,DistIm,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nPolCent)
 
 ! Polarization loop commencing.
 
@@ -77,8 +76,8 @@ NVarv = 0
 do
   NVarv = NVarv+1
   Energy = Zero
-  call PolSolv(iDT,iFI,iFP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2Inv,DiFac,nPolCent)
-  call Densi_MO(Romat,Work(iMOC),1,iOcc1,iOrba,iOrba)
+  call PolSolv(DT,FI,FP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2Inv,DiFac,nPolCent)
+  call Densi_MO(Romat,MOC,1,iOcc1,iOrba,iOrba)
   if (Mp2DensCorr) call DCorrCorr(Romat,DenCorrD,Trace_MP2,iOrba,iOcc1)
   call Polink(Energy,nPolCent,nQMCent,Fil,VpolMat,FFp,PolFac,Poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,Romat, &
               xyzQuQ,CT)
@@ -88,7 +87,7 @@ do
   do i=1,iTri
     FockM(i) = Zero
     do j=1,iTri
-      FockM(i) = FockM(i)+RoMat(j)*Work(iSupM+iTri*(i-1)+j-1)
+      FockM(i) = FockM(i)+RoMat(j)*SupM(j,i)
     end do
     OneEl = HHmat(i)+Vmat(i)+VpolMat(i)+Smat(i)
     FockM(i) = FockM(i)+OneEl
@@ -109,12 +108,12 @@ do
   ! Diagonalize the Fock-matrix. Eigenvalues are sorted.
 
   call mma_allocate(Scratch,iOrba,iOrba,label='Scratch')
-  call Diag_Driver('V','A','L',iOrba,FockM,Scratch,iOrba,Dummy,Dummy,iDum,iDum,EEigen,Work(iMOC),iOrba,1,-1,'J',nFound,iErr)
+  call Diag_Driver('V','A','L',iOrba,FockM,Scratch,iOrba,Dummy,Dummy,iDum,iDum,EEigen,MOC,iOrba,1,-1,'J',nFound,iErr)
   call mma_deallocate(Scratch)
 
   ! Check if polarization loop has converged.
 
-  call HaveWeConv(iCNum,iCStart,iQ_Atoms,nPolCent,iDT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
+  call HaveWeConv(iCNum,iCStart,iQ_Atoms,nPolCent,DT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
   if (Haveri .or. JaNej) exit
 end do
 
@@ -134,7 +133,7 @@ call mma_deallocate(Gri)
 
 ! If expectation values are extracted, make a detour.
 
-if (lExtr(6)) call Expectus('SCF  ',HHmat,Vmat,VpolMat,Smat,iMOC,iOrba,.false.,iOcc1,ip_ExpVal)
+if (lExtr(6)) call Expectus('SCF  ',HHmat,Vmat,VpolMat,Smat,MOC,iOrba,.false.,iOcc1,ExpVal)
 call mma_deallocate(VpolMat)
 
 ! The end is near, hold me!

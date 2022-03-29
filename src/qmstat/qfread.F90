@@ -44,9 +44,9 @@
 !******JoseMEP the last three variables are included to the MEP calculation
 subroutine Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBasCC,nOcc,natyp,nntyp)
 
-use qmstat_global, only: Alfa, ATitle, BasOri, Beta, c_orbene, ChaNuc, Cont, CT, Dont, info_atom, iOrb, iPrint, iQang, iQn, iV1, &
+use qmstat_global, only: Alfa, ATitle, BasOri, Beta, c_orbene, ChaNuc, Cont, CT, Dont, info_atom, iOrb, iPrint, iQang, iQn, &
                          iWoGehenC, iWoGehenQ, Joblab, lmax, mPrimus, MxAngqNr, MxSymQ, nBA_C, nBA_Q, nBonA_C, nBonA_Q, nCBoA_C, &
-                         nCBoA_Q, nCnC_C, nPrimus, PotNuc, QmType, SavOri, Trans, V3
+                         nCBoA_Q, nCnC_C, nPrimus, PotNuc, QmType, SavOri, Trans, V1, V3
 use qmstat_procedures, only: GiveMeInfo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -54,15 +54,14 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(MxSymQ), nBasCC(1), nOcc(iQ_Atoms), natyp(iQ_Atoms), nntyp
 real(kind=wp) :: Coord(3,iQ_Atoms)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAtom, iBas, icont, iDummy(1), iErr, iLu, ind, indold, iold, ipACC, ipC, ipC_C, ipE, ipE_C, iWarn, ix, j, &
-                     jnd, k, kaunter, kk, kold, l, lLine, m, na, nACCSizeC, nACCSizeQ, nnaa, nntypC, nSize, nSym, nSymCC, ntBas
+integer(kind=iwp) :: i, iAtom, iBas, icont, iDummy(1), iErr, iLu, ind, indold, iold, iWarn, ix, j, jnd, k, kk, kold, l, lLine, m, &
+                     na, nnaa, nntypC, nSize, nSym, nSymCC, ntBas
 real(kind=wp) :: ChgeCC(3), CoordCC(3*3), Dummy(1)
 character(len=120) :: BlLine, Line, StLine
 character(len=100) :: OrbName, Title
 character(len=10) :: WhatGet
 integer(kind=iwp), allocatable :: iC_Icon(:,:), Icon(:,:), natypC(:), nfSh(:,:), nSh(:)
-real(kind=wp), allocatable :: Chge(:), Cmo(:,:), Cmo_S(:), Occu(:), Oe(:), Tmp(:,:)
+real(kind=wp), allocatable :: C(:,:), Chge(:), Cmo(:,:), Cmo_S(:), E(:,:), Occu(:), Oe(:), Tmp(:,:), TransC(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
@@ -152,14 +151,8 @@ if (QmType(1:3) == 'SCF') then
     write(u6,*)
     call Quit(_RC_IO_ERROR_READ_)
   end if
-  kaunter = 0
-  call GetMem('OrbCoeffQ','Allo','Real',iV1,iOrb(1)*nBas(1))
-  do j=1,iOrb(1)
-    do k=1,nBas(1)
-      Work(iV1+kaunter) = Cmo(k,j)
-      kaunter = kaunter+1
-    end do
-  end do
+  call mma_allocate(V1,nBas(1),iOrb(1),label='OrbCoeffQ')
+  V1(:,:) = Cmo(:,1:iOrb(1))
   !write(u6,'(A,I4)') '      Number of Orbitals:',iOrb(1)
   call Get_dScalar('PotNuc',PotNuc)
 
@@ -185,8 +178,7 @@ call mma_allocate(nfSh,iQ_Atoms,MxAngqNr,label='nfSh')
 call mma_allocate(nBA_Q,iQ_Atoms,label='nBA_Q')
 call mma_allocate(nBonA_Q,iQ_Atoms,label='nBonA_Q')
 call mma_allocate(nCBoA_Q,iQ_Atoms,MxAngqNr,label='nCBoA_Q')
-call GiveMeInfo(nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,ipE,ipC,nSh,nfSh,nSize,iPrint,iQ_Atoms,MxAngqNr,ipACC, &
-                nACCSizeQ,ntBas)
+call GiveMeInfo(nntyp,natyp,BasOri,Icon,nPrimus,nBA_Q,nCBoA_Q,nBonA_Q,E,C,nSh,nfSh,nSize,iPrint,iQ_Atoms,MxAngqNr,Trans,ntBas)
 iBas = 0
 iAtom = 0
 kold = 1
@@ -242,21 +234,18 @@ do i=1,nntyp
         end if
         do m=1,icont
           jnd = jnd+1
-          alfa(ibas,m) = Work(ipE+i-1+nntyp*(jnd-1))
-          cont(ibas,m) = Work(ipC+i-1+nntyp*(jnd-1))
+          alfa(ibas,m) = E(i,jnd)
+          cont(ibas,m) = C(i,jnd)
         end do
       end do
     end do
   end do
 end do
-call mma_allocate(Trans,nACCSizeQ,label='Trans')
-call dcopy_(nACCSizeQ,Work(ipACC),1,Trans,1)
 ! Now we do not need them, so deallocate
 call mma_deallocate(Chge)
 call mma_deallocate(Icon)
-call GetMem('AccTransa','Free','Real',ipACC,nACCSizeQ)
-call GetMem('Exponents','Free','Real',ipE,nSize*nntyp)
-call GetMem('ContrCoef','Free','Real',ipC,nSize*nntyp)
+call mma_deallocate(E)
+call mma_deallocate(C)
 
 !----------------------------------------------------------------------*
 ! Obtain and print information about solvent. This requires a renaming *
@@ -328,8 +317,7 @@ call mma_allocate(natypC,nAtomsCC,label='natypC')
 call mma_allocate(nBA_C,nAtomsCC,label='nBA_C')
 call mma_allocate(nBonA_C,nAtomsCC,label='nBonA_C')
 call mma_allocate(nCBoA_C,nAtomsCC,MxAngqNr,label='nCBoA_C')
-call GiveMeInfo(nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,ipE_C,ipC_C,nSh,nfSh,nSize,iPrint,nAtomsCC,MxAngqNr, &
-                ipACC,nACCSizeC,ntBas)
+call GiveMeInfo(nntypC,natypC,SavOri,iC_Icon,mPrimus,nBA_C,nCBoA_C,nBonA_C,E,C,nSh,nfSh,nSize,iPrint,nAtomsCC,MxAngqNr,TransC,ntBas)
 iBas = 0
 iAtom = 0
 kold = 1
@@ -382,26 +370,26 @@ do i=1,nntypC !Like the corresponding thing above for the QM-region.
         end if
         do m=1,icont
           jnd = jnd+1
-          beta(ibas,m) = Work(ipE_C+i-1+nntypc*(jnd-1))
-          dont(ibas,m) = Work(ipC_C+i-1+nntypc*(jnd-1))
+          beta(ibas,m) = E(i,jnd)
+          dont(ibas,m) = C(i,jnd)
         end do
       end do
     end do
   end do
 end do
-if (nACCSizeC > nACCSizeQ) then
+if (size(TransC) > size(Trans)) then
   call mma_deallocate(Trans)
-  call mma_allocate(Trans,nACCSizeC,label='Trans')
-  call dcopy_(nACCSizeC,Work(ipACC),1,Trans,1)
+  call move_alloc(TransC,Trans)
+else
+  call mma_deallocate(TransC)
 end if
 ! Now we do not need them, so deallocate.
 call mma_deallocate(natypC)
 call mma_deallocate(nSh)
 call mma_deallocate(nfSh)
 call mma_deallocate(iC_Icon)
-call GetMem('AccTransa','Free','Real',ipACC,nACCSizeC)
-call GetMem('Exponents','Free','Real',ipE_C,nSize*nntypc)
-call GetMem('ContrCoef','Free','Real',ipC_C,nSize*nntypc)
+call mma_deallocate(E)
+call mma_deallocate(C)
 
 !----------------------------------------------------------------------*
 ! The multipoles and the Hamiltonian matrix are radically different    *

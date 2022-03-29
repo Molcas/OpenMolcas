@@ -11,21 +11,23 @@
 
 ! This is just an interface for the state transformation. Either
 ! we use usual AO-basis route, or we take the reduced MO-basis route.
-subroutine StateMME(MoOrNot,nAObas,nMObas,nState,nTyp,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
+subroutine StateMME(MoOrNot,nAObas,nMObas,nState,nTyp,MME,iCent,Cha,Dip,Qua)
 
 use qmstat_global, only: MxMltp
 use Index_Functions, only: nTri3_Elem, nTri_Elem
+use Data_Structures, only: Alloc1DArray_Type
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: MoOrNot
-integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas)), ipAvRed
+integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCent(nTri_Elem(nAObas))
+type(Alloc1DArray_Type) :: MME(nTri3_Elem(MxMltp))
 real(kind=wp) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
 
 if (.not. MoOrNot) then
-  call StateMMEao(nAObas,nState,nTyp,iBigT,iMME,iCent,Cha,Dip,Qua)
+  call StateMMEao(nAObas,nState,nTyp,MME,iCent,Cha,Dip,Qua)
 else
-  call StateMMEmo(nAObas,nMObas,nState,nTyp,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
+  call StateMMEmo(nAObas,nMObas,nState,nTyp,MME,iCent,Cha,Dip,Qua)
 end if
 
 return

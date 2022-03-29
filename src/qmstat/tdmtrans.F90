@@ -11,17 +11,17 @@
 
 subroutine TdmTrans(nBas)
 
-use qmstat_global, only: iBigT, ipAvRed, iPrint, MoAveRed, MxSymQ, nRedMO, NrFiles, NrStates, nState, RassiM, EigV
+use qmstat_global, only: iPrint, MoAveRed, MxSymQ, nRedMO, NrFiles, NrStates, nState, RassiM, EigV
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nBas(MxSymQ)
-integer(kind=iwp) :: i, iDisk, iEig2, j, kaunt, Lu, nStatePrim
+integer(kind=iwp) :: i, iDisk, j, kaunt, Lu, nStatePrim
 character(len=6) :: TDMchar
 logical(kind=iwp) :: Exists
-real(kind=wp), allocatable :: NonH(:), NonS(:)
+real(kind=wp), allocatable :: Eig2(:,:), NonH(:), NonS(:)
 #include "warnings.h"
 
 ! Sag hej till publiken.
@@ -85,20 +85,22 @@ call DaClos(Lu)
 
 ! Construct CASSI state basis.
 
-call ContRASBas(nStatePrim,NonH,NonS,iEig2)
+call mma_allocate(Eig2,nStatePrim,nStatePrim,label='RedEigV1')
+call ContRASBas(nStatePrim,NonH,NonS,Eig2)
 call mma_deallocate(NonH)
 call mma_deallocate(NonS)
 
 ! Now transform from 'primitive' RASSCF to 'contracted' RASSI states.
 
-call RasRasTrans(nBas(1),nStatePrim,iEig2,iPrint)
+call RasRasTrans(nBas(1),nStatePrim,Eig2,iPrint)
+call mma_deallocate(Eig2)
 
 ! If requested, obtain reduced MO-basis, otherwise just go as usual.
 
 if (MoAveRed) then
-  call MoReduce(nBas,nRedMO,ipAvRed)
+  call MoReduce(nBas,nRedMO)
   write(TDMchar,'(A)') 'TDMSCR'
-  call FetchTDM(nRedMO,nState,iBigT,TDMchar)
+  call FetchTDM(nRedMO,nState,TDMchar)
 else
   write(u6,*) '     ----- Use AO-representation of the transition density matrix.'
   nRedMO = 0 !Only a dummy.

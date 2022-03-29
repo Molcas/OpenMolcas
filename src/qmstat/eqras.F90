@@ -9,37 +9,34 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C,iBigForDeAll,nSizeBig,ip_UNCLE_MOE,nB)
+subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C)
 
 use qmstat_global, only: AvElcPot, CAFieldG, CBFieldG, CFexp, ChaNuc, CordIm, Cordst, DelFi, DelR, DelX, Diel, DispDamp, dLJrep, &
-                         FieldDamp, Forcek, HmatState, iBigT, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, info_atom, Inter, ipAvRed, &
-                         iPrint, iRead, iSeed, lExtr, lSlater, MoAveRed, nAtom, nCent, nMacro, nMicro, nPart, nPol, nRedMO, &
-                         nState, nTemp, outxyzRAS, PertNElcInt, Pres, Qmeq, QmProd, ParallelT, RasCha, RasDip, RasQua, rStart, &
-                         SaFilIn, SaFilUt, SimEx, SURF, Temp, xyzMyI, xyzMyQ, xyzQuQ
+                         FieldDamp, Forcek, HmatState, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, info_atom, Inter, iPrint, iRead, &
+                         iSeed, lExtr, lSlater, nAtom, nCent, nMacro, nMicro, nPart, nPol, nState, nTemp, outxyzRAS, PertNElcInt, &
+                         Pres, Qmeq, QmProd, ParallelT, RasCha, RasDip, RasQua, rStart, SaFilIn, SaFilUt, SimEx, SURF, Temp, &
+                         xyzMyI, xyzMyQ, xyzQuQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Ten, Half, Pi, Angstrom, atmToau, auTokJ, deg2rad, KBoltzmann
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), iBigForDeAll, nSizeBig, ip_UNCLE_MOE, nB
+integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1)
 real(kind=wp) :: Coord(3,iQ_Atoms)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDist, iDistIm, iDT(3), iDum(1), iFi(3), iFP(3), &
-                     iGP(3), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, iMacro, iMicro, indma, Inte, ip_ExpCento, ip_ExpVal, &
-                     iProdMax, iSnurr, iSTC, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, iTriState, j, jjhr, jMacro, &
-                     nBaseC, nBaseQ, nClas, NCountField, ncParm, ncpart, nSize, nSizeIm, nVarv
+integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDum(1), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, &
+                     iMacro, iMicro, IndMa, Inte, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, &
+                     iTriState, jjhr, jMacro, nBaseC, nBaseQ, nClas, NCountField, nVarv
 real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, dele, DiFac, Dum, E2Die, E_Nuc_Part, &
                  E_Nuc_Rubbet, Edisp, EEDisp, EHam, Elene, EnCLAS, Energy, Eold, Esav, Etot, Exrep, Expe, Expran, ExDie, Gam, &
                  Gmma, PertElcInt(1), Pr, Ract, Rold, RRRnVarv, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, &
                  timeEL, timeEX, timeMC
 logical(kind=iwp) :: CalledBefore, DidWeAccept, Exists, Haveri, InCutOff, Loop, SampleThis, Skip
 character(len=200) :: Head
-character(len=20) :: MemLaaaa, Memlaaab, Memlaabe, Memlabel, MemQFal
 character(len=4) :: Labjhr
-character(len=2) :: ChCo, ChCo2
-real(kind=wp), allocatable :: AOSum(:), BoMaH(:), BoMaO(:), Eint(:,:), Eint_Nuc(:), Fil(:,:,:,:), Poli(:,:), Smat(:), SmatPure(:), &
-                              SumElcPot(:,:), Vmat(:)
+real(kind=wp), allocatable :: AOSum(:), BoMaH(:), BoMaO(:), Dist(:,:,:), DistIm(:,:,:,:), DT(:,:), Eint(:,:), Eint_Nuc(:), &
+                              ExpCento(:,:), ExpVal(:,:), FI(:,:), Fil(:,:,:,:), FP(:,:), GP(:,:), Poli(:,:), Smat(:), &
+                              SmatPure(:), STC(:,:), SumElcPot(:,:), Vmat(:)
 real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ, &
                             ExLim = Ten !Over how long distance the exchange rep. is computed, the solv-solv.
 integer(kind=iwp), external :: IsFreeUnit
@@ -60,7 +57,6 @@ delFi = delFi*deg2rad !degree-->radian
 delR = delR/Angstrom  !angstrom-->bohr
 CalledBefore = .false.
 SampleThis = .true.
-iBigForDeAll = iBigT
 if (ParallelT) nMacro = nTemp*nMacro
 
 ! If we have vacuum, then no volume-pressure work is done, nor do we
@@ -197,6 +193,9 @@ call mma_allocate(Poli,iCi,10,label='Poli')
 call mma_allocate(Smat,iTriState,label='Smat')
 call mma_allocate(Vmat,iTriState,label='Vmat')
 call mma_allocate(SmatPure,iTriState,label='SmatPure')
+call mma_allocate(STC,nState,nState,label='Coeff')
+call mma_allocate(ExpVal,4,nState,label='ExpVals')
+call mma_allocate(ExpCento,4,nState,label='ExpCento')
 if (.not. allocated(CordIm)) call mma_allocate(CordIm,3,nPart*nCent,label='CordIm')
 iCStart = (((iQ_Atoms-1)/nAtom)+1)*nCent+1
 iCNum = (iCStart-1)/nCent
@@ -225,10 +224,8 @@ outer: do
 
   ! Some numbers.
 
-  ncpart = nCent*nPart
-  ncParm = ncPart-(nCent*icNum)
   nClas = nPart-iCNum
-  indma = nPart*nPol
+  IndMa = nPart*nPol
 
   ! Put QM-molecule in its place.
 
@@ -277,7 +274,13 @@ outer: do
 
       ! Compute Solvent-solvent interaction.
 
-      call ClasClas(iCNum,iCStart,ncParm,iFP,iGP,iDT,iFI,iDist,iDistIm,Elene,Edisp,Exrep,E2Die,ExDie)
+      call mma_allocate(FP,3,nPol*nPart,label='FP')
+      call mma_allocate(GP,3,nPol*nPart,label='GP')
+      call mma_allocate(DT,3,nPol*nPart,label='DT')
+      call mma_allocate(FI,3,nPol*nPart,label='FI')
+      call mma_allocate(Dist,nCent,nCent,nTri_Elem(nClas-1),label='Dist')
+      call mma_allocate(DistIm,nCent,nClas,nCent,nClas,label='DistIm')
+      call ClasClas(iCNum,nClas,FP,GP,DT,FI,Dist,DistIm,Elene,Edisp,Exrep,E2Die,ExDie)
       call QMPosition(EHam,Cordst,Coord(:,1),Forcek,dLJrep,Ract,iQ_Atoms)
       call Timing(Cpu2,Tim1,Tim2,Tim3)
       timeCLAS = timeCLAS+(Cpu2-Cpu1)
@@ -287,12 +290,6 @@ outer: do
       do i=1,3
         xyzMyQ(i) = Zero !Dipoles for the QM-part, see polink.
         xyzMyI(i) = Zero
-      end do
-      nSize = 3*nPol*nPart
-      do i=1,iCi !Allocate memory for the field on the QM-mol. iCi: number of quantum molecule sites.
-        do j=1,10
-          write(MemQFal,'(A,i2.2,i2.2)') 'Falt',i,j
-        end do
       end do
       Fil(:,:,:,:) = Zero
       Eint(:,:) = Zero
@@ -319,8 +316,8 @@ outer: do
       call HelState(Eint,nState,iCi,RasCha,RasDip,RasQua,Vmat)
 
       ! Let QM-region and solvent polarize.
-      call PolRas(iDist,iDistIM,iDT,iFI,iFP,Fil,iCStart,iTriState,VMat,Smat,DiFac,Ract,iCNum,Energy,nVarv,iSTC,Haveri,iQ_Atoms, &
-                  ip_ExpVal,Poli)
+      call PolRas(Dist,DistIM,DT,FI,FP,Fil,iCStart,iTriState,VMat,Smat,DiFac,Ract,iCNum,Energy,nVarv,STC,Haveri,iQ_Atoms,ExpVal, &
+                  Poli)
 
       ! Energy from QM-nuclei interacting with solvent field.
 
@@ -336,7 +333,7 @@ outer: do
 
       ! Some additional boost of short-range repulsion.
 
-      call BoostRep(AddRep,SmatPure,iSTC,nState,InCutOff)
+      call BoostRep(AddRep,SmatPure,STC,nState,InCutOff)
 
       ! Sum-up what we will call QM-region energy.
 
@@ -345,7 +342,7 @@ outer: do
       !----------------------------------------------------------------*
       ! Final induction and reaction field energies.                   *
       !----------------------------------------------------------------*
-      call ReaInd(iGP,iDT,iDistIm,iCNum,IndMa,NcParm,Sum1,s90um)
+      call ReaInd(GP,DT,DistIm,iCNum,IndMa,nClas,Sum1,s90um)
       call Timing(Cpu4,Tim1,Tim2,Tim3)
       timeEL = timeEL+(Cpu4-Cpu3)
       !----------------------------------------------------------------*
@@ -406,10 +403,10 @@ outer: do
             end do
           end if
         end if
-        if (lExtr(7)) call AllenGinsberg('RASSI',Eint,Poli,ChaNuc,RasCha,RasDip,RasQua,iSTC,nState,lExtr(4),iExtr_Eig,iQ_Atoms, &
-                                         ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
+        if (lExtr(7)) call AllenGinsberg('RASSI',Eint,Poli,ChaNuc,RasCha,RasDip,RasQua,STC,nState,lExtr(4),iExtr_Eig,iQ_Atoms, &
+                                         ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
 
-        call Extract(iLuExtr,i9,Etot,xyzMyQ,HMatState,iSTC,nState,xyzQuQ,ip_ExpVal,ip_ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
+        call Extract(iLuExtr,i9,Etot,xyzMyQ,HMatState,STC,nState,xyzQuQ,ExpVal,ExpCento,E_Nuc_Rubbet,E_Nuc_Part)
         !***JoseMEP**********
         ! If MEP option. Add electr. potential, field, etc. for all solvent config.
         if (lExtr(8)) then
@@ -460,30 +457,12 @@ outer: do
 
       ! Free memory.
 
-      nSize = (nClas*(nClas-1)/2)*(nCent**2)
-      nSizeIm = (nClas*nCent)**2
-      call GetMem('DistMat','Free','Real',iDist,nSize)
-      call GetMem('DistMatIm','Free','Real',iDistIm,nSizeIm)
-      do i=1,3
-        write(ChCo,'(I1.1)') i
-        write(MemLabel,*) 'FP'//ChCo
-        write(MemLaabe,*) 'GP'//ChCo
-        write(MemLaaab,*) 'DT'//ChCo
-        write(MemLaaaa,*) 'FI'//ChCo
-        call GetMem(MemLabel,'Free','Real',iFP(i),IndMa)
-        call GetMem(MemLaabe,'Free','Real',iGP(i),IndMa)
-        call GetMem(MemLaaab,'Free','Real',iDT(i),IndMa)
-        call GetMem(MemLaaaa,'Free','Real',iFI(i),IndMa)
-      end do
-      nSize = 3*nPol*nPart
-      do i=1,iCi
-        do j=1,10
-          write(ChCo,'(I2.2)') i
-          write(ChCo2,'(I2.2)') j
-          write(MemQFal,*) 'Falt'//ChCo//ChCo2
-        end do
-      end do
-      call GetMem('Coeff','Free','Real',iSTC,nState**2)
+      call mma_deallocate(Dist)
+      call mma_deallocate(DistIm)
+      call mma_deallocate(FP)
+      call mma_deallocate(GP)
+      call mma_deallocate(DT)
+      call mma_deallocate(FI)
       call Timing(Cpu5,Tim1,Tim2,Tim3)
       timeMC = timeMC+(Cpu5-Cpu4)
 
@@ -574,6 +553,9 @@ call mma_deallocate(Poli)
 call mma_deallocate(Smat)
 call mma_deallocate(Vmat)
 call mma_deallocate(SmatPure)
+call mma_deallocate(STC)
+call mma_deallocate(ExpVal)
+call mma_deallocate(ExpCento)
 call mma_deallocate(SumElcPot)
 if (allocated(AOSum)) call mma_deallocate(AOSum)
 !----------------------------------------------------------------------*
@@ -588,13 +570,6 @@ end if
 !----------------------------------------------------------------------*
 ! The End... be happy!                                                 *
 !----------------------------------------------------------------------*
-if (MoAveRed) then
-  nB = nRedMO
-  ip_UNCLE_MOE = ipAvRed
-else
-  nB = nBaseQ
-end if
-nSizeBig = nTri_Elem(nState)*nTri_Elem(nB)
 
 write(u6,*)
 write(u6,*)

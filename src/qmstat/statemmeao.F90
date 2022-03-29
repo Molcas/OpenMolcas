@@ -10,17 +10,18 @@
 !***********************************************************************
 
 ! AO-basis route.
-subroutine StateMMEao(nAObas,nState,nTyp,iBigT,iMME,iCent,Cha,Dip,Qua)
+subroutine StateMMEao(nAObas,nState,nTyp,MME,iCent,Cha,Dip,Qua)
 
-use qmstat_global, only: MxMltp
+use qmstat_global, only: BigT, MxMltp
 use Index_Functions, only: nTri3_Elem, nTri_Elem
+use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas))
+integer(kind=iwp) :: nAObas, nState, nTyp, iCent(nTri_Elem(nAObas))
+type(Alloc1DArray_Type) :: MME(nTri3_Elem(MxMltp))
 real(kind=wp) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iB1, iB2, iS1, iS2, iTyp, kaunta, kaunter, nSize
 real(kind=wp) :: PerAake
 real(kind=wp), allocatable :: AOG(:), O(:)
@@ -34,7 +35,7 @@ do iS1=1,nState
   do iS2=1,iS1
     kaunter = kaunter+1
     ! Collect this piece of the TDM in AO-basis.
-    call dCopy_(nSize,Work(iBigT+nSize*(kaunter-1)),1,AOG,1)
+    call dCopy_(nSize,BigT(:,kaunter),1,AOG,1)
     kaunta = 0
     ! Loop over AO-basis pairs and transform them as well as
     ! distribute their multipoles. Observe that the array iCent
@@ -44,7 +45,7 @@ do iS1=1,nState
         kaunta = kaunta+1
         PerAake = AOG(kaunta)
         do iTyp=1,nTyp
-          O(iTyp) = Work(iMME(iTyp)-1+kaunta)*PerAake
+          O(iTyp) = MME(iTyp)%A(kaunta)*PerAake
         end do
         Cha(kaunter,iCent(kaunta)) = Cha(kaunter,iCent(kaunta))+O(1)
         Dip(kaunter,1,iCent(kaunta)) = Dip(kaunter,1,iCent(kaunta))+O(2)

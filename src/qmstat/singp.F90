@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SingP(nCalls,iQ_Atoms,ipStoreCoo,nPart2)
+subroutine SingP(nCalls,iQ_Atoms,StoreCoo)
 
 use qmstat_global, only: Cordst, DelFi, DelR, DelX, nAtom, nCent, nMacro, nMicro, nPart, Qmeq
 use Constants, only: Zero
-use Definitions, only: iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCalls, iQ_Atoms, ipStoreCoo, nPart2
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iCent, Initial1, Initial2, iPart, j, kaunter, nAllQm
+integer(kind=iwp) :: nCalls, iQ_Atoms
+real(kind=wp) :: StoreCoo(3,nCent,nPart)
+integer(kind=iwp) :: i, iCent, Initial1, iPart, j, kaunter, nAllQm
 
 if (nCalls == 0) then
   ! If this is first call, issue a warning.
@@ -27,21 +27,17 @@ if (nCalls == 0) then
   write(u6,*)
   write(u6,*) '---->>>  WARNING  <<<----'
   write(u6,*)
-  write(u6,*) 'You have specified that a set of single-point calculations are to be preformed.'
+  write(u6,*) 'You have specified that a set of single-point calculations are to be performed.'
   write(u6,*) 'This means that the input will be given to some extent a new meaning.'
   write(u6,*)
 
   ! Put coordinates in a new vector if first call.
 
   kaunter = 0
-  nPart2 = nPart
-  call GetMem('Store','Allo','Real',ipStoreCoo,nPart2*nCent*3)
-  do iPart=1,nPart2
+  do iPart=1,nPart
     do iCent=1,nCent
       kaunter = kaunter+1
-      Work(ipStoreCoo+3*(kaunter-1)) = Cordst(1,kaunter)
-      Work(ipStoreCoo+3*(kaunter-1)+1) = Cordst(2,kaunter)
-      Work(ipStoreCoo+3*(kaunter-1)+2) = Cordst(3,kaunter)
+      StoreCoo(:,iCent,iPart) = Cordst(:,kaunter)
     end do
   end do
 
@@ -57,9 +53,7 @@ if (nCalls == 0) then
   ! Put the coordinates of first iteration.
 
   do iCent=1,nCent
-    Cordst(1,nAllQm+iCent) = Work(ipStoreCoo+3*(iCent-1))
-    Cordst(2,nAllQm+iCent) = Work(ipStoreCoo+3*(iCent-1)+1)
-    Cordst(3,nAllQm+iCent) = Work(ipStoreCoo+3*(iCent-1)+2)
+    Cordst(:,nAllQm+iCent) = StoreCoo(:,iCent,1)
   end do
 
   ! Set new value on some variables.
@@ -83,11 +77,8 @@ else
   ! If not first call, then collect relevant coordinates.
 
   Initial1 = (((iQ_Atoms-1)/nAtom)+1)*nCent
-  Initial2 = 3*nCent*nCalls-1
   do iCent=1,nCent
-    Cordst(1,Initial1+iCent) = Work(ipStoreCoo+Initial2+(iCent-1)*3+1)
-    Cordst(2,Initial1+iCent) = Work(ipStoreCoo+Initial2+(iCent-1)*3+2)
-    Cordst(3,Initial1+iCent) = Work(ipStoreCoo+Initial2+(iCent-1)*3+3)
+    Cordst(:,Initial1+iCent) = StoreCoo(:,iCent,nCalls+1)
   end do
 end if
 

@@ -9,20 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MoReduce(nBas,MOsToKeep,ipAvRedMO)
+subroutine MoReduce(nBas,MOsToKeep)
 
-use qmstat_global, only: iBigT, iPrint, MxSymQ, nState, ThrsRedOcc
+use qmstat_global, only: AvRed, BigT, iPrint, MxSymQ, nState, ThrsRedOcc
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: nBas(MxSymQ), MOsToKeep, ipAvRedMO
+integer(kind=iwp) :: nBas(MxSymQ), MOsToKeep
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iB, iB1, iB2, icomp, iDiskUt, iM1, iM2, ind, ind1, ind2, ind3, indx, iopt, irc, iS1, iS2, Ising, iSmLbl, &
-                     kaunt, Lu_One, Lu_Scratch, nMtK, nSize
+integer(kind=iwp) :: i, iB, iB1, iB2, icomp, iDiskUt, iM1, iM2, ind, ind1, ind2, indx, iopt, irc, iS1, iS2, Ising, iSmLbl, kaunt, &
+                     Lu_One, Lu_Scratch, nMtK, nSize
 real(kind=wp) :: ChargeNonReduced, ChargeReduced, Det, DiffMax, DiffMegaMax, Dum, Dummy(1), Fac, Sqroot, ThrOcc, TraceFull, &
                  TraceRed, weight
 logical(kind=iwp) :: First = .true.
@@ -50,8 +49,8 @@ call mma_allocate(Dav,nSize,label='DenA')
 Dav(:) = Zero
 do iS1=1,nState
   do iS2=1,iS1
-    indx = (iTri(iS1,iS2)-1)*nSize
-    call dcopy_(nSize,Work(iBigT+indx),1,Din,1)
+    indx = iTri(iS1,iS2)
+    call dcopy_(nSize,BigT(:,indx),1,Din,1)
     if (iS1 /= iS2) cycle
     kaunt = 0
     do iB1=1,nBas(1)
@@ -169,19 +168,15 @@ do iB=1,nBas(1)
     LindMOs(iB) = .false.
   end if
 end do
-nSize = nBas(1)*MOsToKeep
-call GetMem('UncleMoe','Allo','Real',ipAvRedMO,nSize)
+call mma_allocate(AvRed,nBas(1),MOsToKeep,label='UncleMoe')
 call mma_allocate(NewOcc,MOsToKeep,label='NewOccs')
-ind2 = 0
-ind3 = 0
+ind1 = 0
 ! Loop to suck-out the nice MOs.
 do iB=1,nBas(1)
   if (LindMOs(iB)) then
-    ind1 = nBas(1)*(iB-1)
-    call dcopy_(nBas(1),AUX(:,iB),1,Work(ipAvRedMO+ind2),1)
-    ind3 = ind3+1
-    NewOcc(ind3) = Occ(iB)
-    ind2 = ind2+nBas(1)
+    ind1 = ind1+1
+    AvRed(:,ind1) = AUX(:,iB)
+    NewOcc(ind1) = Occ(iB)
   end if
 end do
 TraceRed = 0
@@ -198,7 +193,7 @@ end if
 if (iPrint >= 5) then
   write(Header,'(A)') 'Reduced average orbitals'
   ThrOcc = -One
-  call Primo(Header,.true.,.false.,ThrOcc,Dum,1,nBas(1),[MOsToKeep],BsLbl,Dummy,NewOcc,Work(ipAvRedMO),-1)
+  call Primo(Header,.true.,.false.,ThrOcc,Dum,1,nBas(1),[MOsToKeep],BsLbl,Dummy,NewOcc,AvRed,-1)
   write(u6,*)
   write(u6,*) '  Trace = ',TraceRed,MOsToKeep
   call mma_deallocate(BsLbl)
@@ -244,8 +239,8 @@ call iDaFile(Lu_Scratch,1,iTocBig,nTri_Elem(nState),iDiskUt)
 do iS1=1,nState
   do iS2=1,iS1
     ! Collect this particular density matrix.
-    indx = (iTri(iS1,iS2)-1)*nSize
-    call dcopy_(nSize,Work(iBigT+indx),1,Din,1)
+    indx = iTri(iS1,iS2)
+    call dcopy_(nSize,BigT(:,indx),1,Din,1)
     ! Square it and correct the non-diagonal (recall convention)
     call Dsq(Din,DsqM,1,nBas(1),nBas(1))
     ! Contravariant transformation of density matrix.

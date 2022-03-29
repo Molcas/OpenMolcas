@@ -13,6 +13,7 @@ subroutine AverMEP(Kword,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iQ_Atoms
 
 use qmstat_global, only: AvElcPot, ChaNuc, FieldNuc, iPrint, MxMltp, nMlt, outxyz, PertNElcInt
 use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
+use Data_Structures, only: Alloc1DArray_Type, Allocate_DT, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -21,13 +22,12 @@ implicit none
 character(len=4) :: Kword
 integer(kind=iwp) :: iCi, NCountField, iQ_Atoms, nBas, nntyp, nOcc(nntyp), natyp(nntyp)
 real(kind=wp) :: Eint(iCi,10), Poli(iCi,10), SumElcPot(iCi,10), PertElcInt(nTri_Elem(nBas))
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2, iB1, iB2, iiDum(1), iLuField, iMME(nTri3_Elem(MxMltp)), indMME, iOpt, irc, iSmLbl, iTyp, j, &
-                     kaunta, Lu_One, nSize, nTyp
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iiDum(1), iLuField, indMME, iOpt, irc, iSmLbl, iTyp, j, kaunta, Lu_One, nSize, nTyp
 real(kind=wp) :: AvTemp, Tra
 logical(kind=iwp) :: Exists
 integer(kind=iwp), allocatable :: Dum(:,:), iCent(:)
 real(kind=wp), allocatable :: ForceNuc(:,:), H0(:), H1(:)
+type(Alloc1DArray_Type), allocatable :: MME(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
@@ -105,7 +105,8 @@ select case (Kword(1:4))
     call mma_allocate(outxyz,3,nTri_Elem(iQ_Atoms),label='outxyz')
     call mma_allocate(iCent,nTri_Elem(nBas),label='iCent')
     call mma_allocate(Dum,nBas,nBas,label='Dummy')
-    call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,iMME,iCent,Dum,nMlt,outxyz,.false.)
+    call Allocate_DT(MME,[1,nTri3_Elem(MxMltp)],label='MME')
+    call MultiNew(iQ_Atoms,nBas,nOcc,natyp,nntyp,MME,iCent,Dum,nMlt,outxyz,.false.)
     call mma_deallocate(Dum)
 
     !*********************
@@ -159,13 +160,13 @@ select case (Kword(1:4))
       do i2=1,i1
         indMME = iTri(i1,i2)
         do j=5,10
-          Work(iMME(j)+indMME-1) = Work(iMME(j)+indMME-1)*OneHalf
+          MME(j)%A(indMME) = MME(j)%A(indMME)*OneHalf
         end do
-        Tra = Work(iMME(5)+indMME-1)+Work(iMME(8)+indMME-1)+Work(iMME(10)+indMME-1)
+        Tra = MME(5)%A(indMME)+MME(8)%A(indMME)+MME(10)%A(indMME)
         Tra = Tra/3
-        Work(iMME(5)+indMME-1) = Work(iMME(5)+indMME-1)-Tra
-        Work(iMME(8)+indMME-1) = Work(iMME(8)+indMME-1)-Tra
-        Work(iMME(10)+indMME-1) = Work(iMME(10)+indMME-1)-Tra
+        MME(5)%A(indMME) = MME(5)%A(indMME)-Tra
+        MME(8)%A(indMME) = MME(8)%A(indMME)-Tra
+        MME(10)%A(indMME) = MME(10)%A(indMME)-Tra
       end do
     end do
 
@@ -220,12 +221,13 @@ select case (Kword(1:4))
         kaunta = kaunta+1
         indMME = iTri(iB1,iB2)
         do iTyp=1,nTyp
-          PertElcInt(indMME) = PertElcInt(indMME)+AvElcPot(iCent(kaunta),iTyp)*Work(iMME(iTyp)+indMME-1)
+          PertElcInt(indMME) = PertElcInt(indMME)+AvElcPot(iCent(kaunta),iTyp)*MME(iTyp)%A(indMME)
         end do
         H1(kaunta) = H0(kaunta)+PertElcInt(indMME)
       end do
     end do
     call mma_deallocate(iCent)
+    call Deallocate_DT(MME)
 
     if (iPrint >= 9) then
       call TriPrt('H0+Elec One-e',' ',H1,nBas)

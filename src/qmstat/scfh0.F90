@@ -12,7 +12,7 @@
 ! Read all MO-transformed integrals and construct zeroth Fock-matrix.
 subroutine ScfH0(nBas)
 
-use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, iSupM, iV1, MxSymQ, nExtAddOns, ScalExt
+use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, MxSymQ, nExtAddOns, ScalExt, SupM, V1
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
@@ -22,7 +22,6 @@ implicit none
 integer(kind=iwp) :: nBas(MxSymQ)
 #include "Molcas.fh"
 #include "tratoc.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iDisk, iExt, ij, ik, il, iLu1, iLu2, iopt, irc, iSmLbl, iSup, iToc(64), j, jk, jl, k, kaunter, kl, l, &
                      llmax, Lu_One, nBasM(MxSymQ), nBTri, nBuf1, nBuf2, nDelM(MxSymQ), nFroM(MxSymQ), nMAX, nOrbM(MxSymQ), nSize, &
                      nSymM
@@ -42,7 +41,7 @@ write(u6,*) 'Reading MO-transformed integrals. Zeroth hamiltonian constructed.'
 ! Numbers and files.
 
 nSize = nTri_Elem(iOrb(1))
-call GetMem('SUPER','Allo','Real',iSupM,nSize**2)
+call mma_allocate(SupM,nSize,nSize,label='SUPER')
 iLu1 = 56
 iLu2 = 58
 call DaName(iLu1,'TRAONE')
@@ -93,8 +92,8 @@ if (AddExt) then
       call Quit(_RC_IO_ERROR_READ_)
     end if
     call Square(AOx,SqAO,1,nBas(1),nBas(1))
-    call Dgemm_('T','N',iOrb(1),nBas(1),nBas(1),One,Work(iV1),nBas(1),SqAO,nBas(1),Zero,TEMP,iOrb(1))
-    call Dgemm_('N','N',iOrb(1),iOrb(1),nBas(1),One,TEMP,iOrb(1),Work(iV1),nBas(1),Zero,Fine,iOrb(1))
+    call Dgemm_('T','N',iOrb(1),nBas(1),nBas(1),One,V1,nBas(1),SqAO,nBas(1),Zero,TEMP,iOrb(1))
+    call Dgemm_('N','N',iOrb(1),iOrb(1),nBas(1),One,TEMP,iOrb(1),V1,nBas(1),Zero,Fine,iOrb(1))
     call SqToTri_Q(Fine,MOx,iOrb(1))
     call DaxPy_(nSize,One,MOx,1,HHmat,1)
   end do
@@ -155,12 +154,12 @@ do i=1,iOrb(1)
         jk = ipair_qmstat(j,k)
         jl = ipair_qmstat(j,l)
         kl = ipair_qmstat(k,l)
-        Work(iSupM+nSize*(ij-1)+kl-1) = TEMP(kl,ij)-(TEMP(jl,ik)+TEMP(jk,il))*Quart
-        Work(iSupM+nSize*(kl-1)+ij-1) = Work(iSupM+nSize*(ij-1)+kl-1)
-        Work(iSupM+nSize*(ik-1)+jl-1) = TEMP(jl,ik)-(TEMP(kl,ij)+TEMP(jk,il))*Quart
-        Work(iSupM+nSize*(jl-1)+ik-1) = Work(iSupM+nSize*(ik-1)+jl-1)
-        Work(iSupM+nSize*(il-1)+jk-1) = TEMP(jk,il)-(TEMP(jl,ik)+TEMP(kl,ij))*Quart
-        Work(iSupM+nSize*(jk-1)+il-1) = Work(iSupM+nSize*(il-1)+jk-1)
+        SupM(kl,ij) = TEMP(kl,ij)-(TEMP(jl,ik)+TEMP(jk,il))*Quart
+        SupM(ij,kl) = SupM(kl,ij)
+        SupM(jl,ik) = TEMP(jl,ik)-(TEMP(kl,ij)+TEMP(jk,il))*Quart
+        SupM(ik,jl) = SupM(jl,ik)
+        SupM(jk,il) = TEMP(jk,il)-(TEMP(jl,ik)+TEMP(kl,ij))*Quart
+        SupM(il,jk) = SupM(jk,il)
       end do
     end do
   end do
@@ -178,8 +177,8 @@ if (iPrint >= 35) then
   do i=1,iOrb(1)
     do j=1,i
       write(firstind,'(I3,A,I3)') i,',',j
-      call TriPrt(firstind,' ',Work(iSupM+nSize*kaunter),iOrb(1))
       kaunter = kaunter+1
+      call TriPrt(firstind,' ',SupM(:,kaunter),iOrb(1))
     end do
   end do
   write(u6,*) 'Super Matrix End.'

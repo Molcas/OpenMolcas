@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AllenGinsberg(QMMethod,Eint,Poli,dNuc,Cha,Dip,Qua,iVEC,nDim,lEig,iEig,iQ_Atoms,ip_ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
+subroutine AllenGinsberg(QMMethod,Eint,Poli,dNuc,Cha,Dip,Qua,VEC,nDim,lEig,iEig,iQ_Atoms,ExpCento,E_Nuc_Part,lSlater,Eint_Nuc)
 
 use qmstat_global, only: iExtr_Atm
 use Index_Functions, only: nTri_Elem
@@ -19,10 +19,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=5) :: QMMethod
-integer(kind=iwp) :: iVEC, nDim, iEig, iQ_Atoms, ip_ExpCento
+integer(kind=iwp) :: nDim, iEig, iQ_Atoms
 real(kind=wp) :: Eint(nTri_Elem(iQ_Atoms),10), Poli(nTri_Elem(iQ_Atoms),10), dNuc(iQ_Atoms), &
                  Cha(nTri_Elem(nDim),nTri_Elem(iQ_Atoms)), Dip(nTri_Elem(nDim),3,nTri_Elem(iQ_Atoms)), &
-                 Qua(nTri_Elem(nDim),6,nTri_Elem(iQ_Atoms)), E_Nuc_Part, Eint_Nuc(iQ_Atoms)
+                 Qua(nTri_Elem(nDim),6,nTri_Elem(iQ_Atoms)), VEC(nDim,nDim), ExpCento(4,*), E_Nuc_Part, Eint_Nuc(iQ_Atoms)
 logical(kind=iwp) :: lEig, lSlater
 integer(kind=iwp) :: i, i1, iAt, iCx, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal
 real(kind=wp) :: dMp
@@ -135,7 +135,7 @@ call mma_deallocate(iCenSet)
 
 ! Collect expectation value for the partial perturbation.
 
-call Expectus(QMMethod,VelP,VelP,VpoP,VpoP,iVEC,nDim,lEig,iEig,ip_ExpCento)
+call Expectus(QMMethod,VelP,VelP,VpoP,VpoP,VEC,nDim,lEig,iEig,ExpCento)
 
 ! Deallocate.
 

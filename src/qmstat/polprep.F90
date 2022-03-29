@@ -9,17 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PolPrep(iDist,iDistIm,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nSize)
+subroutine PolPrep(Dist,DistIm,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nSize)
 
 use qmstat_global, only: CordIm, Cordst, nCent, nPart, nPol
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iDist, iDistIm, iCNum, nSize
-real(kind=wp) :: xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), &
-                 zzi(nSize,nSize), Gri(nSize,nSize)
-#include "WrkSpc.fh"
+integer(kind=iwp) :: iCNum, nSize
+real(kind=wp) :: Dist(nCent,nCent,nTri_Elem(nPart-iCNum-1)), DistIm(nCent,nPart-iCNum,nCent,nPart-iCNum), xx(nSize,nSize), &
+                 yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), zzi(nSize,nSize), &
+                 Gri(nSize,nSize)
 integer(kind=iwp) :: i, i1, ii, ild, imd, Indco1, IndCo2, Indp1, IndP2, IndTr, IndTr1, IndTri, j, j1, jj, jnd, k, l, ncParm
 
 !----------------------------------------------------------------------*
@@ -42,7 +43,7 @@ do i=1,nPol
   do j=iCnum+2,nPart
     IndP1 = IndP1+nPol
     IndCo1 = IndCo1+nCent
-    IndTr = ((j-(iCnum+2))*(j-(iCNum+1)))/2*nCent**2+(i-1)*nCent
+    IndTr = nTri_Elem(j-(iCnum+2))
     do k=1,nPol
       IndP2 = k+(iCnum-1)*nPol
       IndCo2 = k+(iCNum-1)*nCent
@@ -50,11 +51,11 @@ do i=1,nPol
         IndTr1 = Indtr1+1
         Indp2 = Indp2+nPol
         Indco2 = Indco2+nCent
-        IndTri = IndTr+(l-(iCnum+1))*nCent**2+k
-        xx(Indp1,Indp2) = (Cordst(1,indco1)-Cordst(1,indco2))*Work(iDist+indtri-1)
-        yy(Indp1,Indp2) = (Cordst(2,indco1)-Cordst(2,indco2))*Work(iDist+indtri-1)
-        zz(Indp1,Indp2) = (Cordst(3,indco1)-Cordst(3,indco2))*Work(iDist+indtri-1)
-        rr3(IndP1,IndP2) = Work(iDist+Indtri-1)**3
+        IndTri = IndTr+l-iCnum
+        xx(Indp1,Indp2) = (Cordst(1,indco1)-Cordst(1,indco2))*Dist(k,i,IndTri)
+        yy(Indp1,Indp2) = (Cordst(2,indco1)-Cordst(2,indco2))*Dist(k,i,IndTri)
+        zz(Indp1,Indp2) = (Cordst(3,indco1)-Cordst(3,indco2))*Dist(k,i,IndTri)
+        rr3(IndP1,IndP2) = Dist(k,i,IndTri)**3
         ! Why should xx(indp2,indp1)=xx(indp1,indp2), you wonder, should
         ! they not be of different sign? The answer is, it does not
         ! matter. Recall that the formula for the field from an ideal
@@ -85,10 +86,10 @@ do i=1,nPol
         l = l+nCent
         ild = (j1-1)*nPol+j
         jnd = jnd+nCent
-        Gri(imd,ild) = Work(iDistIm+jnd-1)
-        xxi(imd,ild) = (Cordim(1,k)-Cordst(1,l))*Work(iDistIm+jnd-1)
-        yyi(imd,ild) = (Cordim(2,k)-Cordst(2,l))*Work(iDistIm+jnd-1)
-        zzi(imd,ild) = (Cordim(3,k)-Cordst(3,l))*Work(iDistIm+jnd-1)
+        Gri(imd,ild) = DistIm(j,j1-iCnum,i,i1-iCnum)
+        xxi(imd,ild) = (Cordim(1,k)-Cordst(1,l))*DistIm(j,j1-iCnum,i,i1-iCnum)
+        yyi(imd,ild) = (Cordim(2,k)-Cordst(2,l))*DistIm(j,j1-iCnum,i,i1-iCnum)
+        zzi(imd,ild) = (Cordim(3,k)-Cordst(3,l))*DistIm(j,j1-iCnum,i,i1-iCnum)
       end do
     end do
   end do

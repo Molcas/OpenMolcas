@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine BoostRep(AddRep,SmatPure,iVecs,nSize,InCutOff)
+subroutine BoostRep(AddRep,SmatPure,Vecs,nSize,InCutOff)
 
 use qmstat_global, only: exrep10, exrep4, exrep6, iOcc1, nEqState, QmType
 use Index_Functions, only: iTri, nTri_Elem
@@ -17,11 +17,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: AddRep, SmatPure(*)
-integer(kind=iwp) :: iVecs, nSize
+integer(kind=iwp) :: nSize
+real(kind=wp) :: AddRep, SmatPure(*), Vecs(nSize,nSize)
 logical(kind=iwp) :: InCutOff
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ind1, ind2, iO1, iO2, j, kaunter
+integer(kind=iwp) :: i, iO1, iO2, j, kaunter
 real(kind=wp) :: Scalar
 
 ! Enter.
@@ -47,9 +46,7 @@ if (QmType(1:3) == 'SCF') then
     do iO2=1,nSize
       do i=1,iOcc1
         kaunter = nTri_Elem(i)
-        ind1 = nSize*(iO1-1)+i-1
-        ind2 = nSize*(iO2-1)+i-1
-        Scalar = Scalar+(Work(iVecs+ind1)*Work(iVecs+ind2)*SmatPure(kaunter))
+        Scalar = Scalar+(Vecs(i,iO1)*Vecs(i,iO2)*SmatPure(kaunter))
       end do
     end do
   end do
@@ -58,9 +55,7 @@ else if (QmType(1:4) == 'RASS') then
   do i=1,nSize
     do j=1,nSize
       kaunter = iTri(i,j)
-      ind1 = nSize*(nEqState-1)+i-1
-      ind2 = nSize*(nEqState-1)+j-1
-      Scalar = Scalar+Work(iVecs+ind1)*Work(iVecs+ind2)*SmatPure(kaunter)
+      Scalar = Scalar+Vecs(i,nEqState)*Vecs(j,nEqState)*SmatPure(kaunter)
     end do
   end do
   AddRep = exrep4*abs(Scalar)**2+exrep6*abs(Scalar)**3+exrep10*abs(Scalar)**5

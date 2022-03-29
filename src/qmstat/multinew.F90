@@ -30,7 +30,7 @@
 !> @param[in]  nOcc     Number of basis functions of the \f$ i \f$ -th atom-type
 !> @param[in]  natyp    Number of atoms of the \f$ i \f$ -th atom-type
 !> @param[in]  nntyp    Number of atom-types
-!> @param[out] iMME     Pointer to the multicenter multipole expanded densities of unique pairs of contracted basis functions
+!> @param[out] MME      The multicenter multipole expanded densities of unique pairs of contracted basis functions
 !> @param[out] iCenTri  Set of indices that tells to which center the \f$ i \f$ -th unique pair of basis functions in a lower
 !>                      triangularly stored matrix belongs
 !> @param[out] iCenTriT Just like \p iCenTri, but in square shape
@@ -38,27 +38,28 @@
 !> @param[out] outxyz   Expansion centers in molecule
 !***********************************************************************
 
-subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri,iCenTriT,nMlt,outxyz,lSlater)
+subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,MME,iCenTri,iCenTriT,nMlt,outxyz,lSlater)
 
 use qmstat_global, only: MxMltp
 use Index_Functions, only: nTri3_Elem, nTri_Elem
+use Data_Structures, only: Alloc1DArray_Type, Allocate_DT, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAt, nBas, nntyp, nOcc(nntyp), natyp(nntyp), iMME(nTri3_Elem(MxMltp)), iCenTri(nTri_Elem(nBas)), &
-                     iCenTriT(nBas,nBas), nMlt
+integer(kind=iwp) :: nAt, nBas, nntyp, nOcc(nntyp), natyp(nntyp), iCenTri(nTri_Elem(nBas)), iCenTriT(nBas,nBas), nMlt
+type(Alloc1DArray_Type) :: MME(nTri3_Elem(MxMltp))
 real(kind=wp) :: outxyz(3,nTri_Elem(nAt))
 logical(kind=iwp) :: lSlater
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, iMult(MxMltp,nTri_Elem(MxMltp)), Ind, Indie, IndiePrev, iOpt, irc, &
-                     iSmLbl, j, k, kaunt, kaunter, LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
+integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, k, kaunt, kaunter, &
+                     LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
 real(kind=wp) :: CordMul(MxMltp,3), Corr, CorrDip1, CorrDip2, CorrOvl
 logical(kind=iwp) :: Changed1, Changed2, Lika
-character(len=20) :: MemLab, MMElab
+character(len=20) :: MemLab
 character(len=2) :: ChCo, ChCo2
 integer(kind=iwp), allocatable :: nBasAt(:)
 real(kind=wp), allocatable :: xyz(:,:,:)
+type(Alloc1DArray_Type), allocatable :: Mult(:,:)
 integer(kind=iwp), parameter :: iX(6) = [1,1,1,2,2,3], iY(6) = [1,2,3,2,3,3]
 character(len=9), parameter :: Integrals(3) = ['MLTPL  0','MLTPL  1','MLTPL  2']
 integer(kind=iwp), external :: IsFreeUnit
@@ -77,6 +78,8 @@ if (irc /= 0) then
   write(u6,*) 'ERROR! Could not open one-electron integral file.'
   call Quit(_RC_IO_ERROR_READ_)
 end if
+
+call Allocate_DT(Mult,[1,MxMltp],[1,nTri_Elem(MxMltp)],label='Mult')
 
 ! This loop will terminate when no more multipole integrals are
 ! available, hence there is not a problem that we apparently loop
@@ -104,11 +107,11 @@ outer: do iMlt=1,MxMltp
       write(ChCo,'(I2.2)') iMlt
       write(ChCo2,'(I2.2)') iComp
       write(MemLab,*) 'MEM'//ChCo//ChCo2
-      call GetMem(MemLab,'Allo','Real',iMult(iMlt,iComp),nSize+4)
+      call mma_allocate(Mult(iMlt,iComp)%A,nSize+4,label=MemLab)
       irc = -1
       iOpt = 0
       iSmLbl = 0
-      call RdOne(irc,iOpt,integrals(iMlt),iComp,Work(iMult(iMlt,iComp)),iSmLbl) !Collect integrals
+      call RdOne(irc,iOpt,integrals(iMlt),iComp,Mult(iMlt,iComp)%A,iSmLbl) !Collect integrals
     else
       write(u6,*)
       write(u6,*) 'ERROR! Problem reading ',integrals(iMlt)
@@ -116,7 +119,7 @@ outer: do iMlt=1,MxMltp
     end if
   end do
   do i=1,3
-    CordMul(iMlt,i) = Work(iMult(iMlt,1)+nSize+i-1)
+    CordMul(iMlt,i) = Mult(iMlt,1)%A(nSize+i)
   end do
   nMlt = MxMltp
 end do outer
@@ -250,8 +253,7 @@ do i=1,nMlt
 end do
 do iMlt=1,nMul
   write(ChCo,'(I2.2)') iMlt
-  write(MMElab,*) 'MME'//ChCo
-  call GetMem(MMElab,'Allo','Real',iMME(iMlt),nSize)
+  call mma_allocate(MME(iMlt)%A,nSize,label='MME'//ChCo)
 end do
 
 ! The MME.
@@ -259,16 +261,17 @@ end do
 kaunt = 0
 do iB1=1,nBas
   do iB2=1,iB1
+    kaunt = kaunt+1
 
     ! The charge. No translation.
 
-    Work(iMME(1)+kaunt) = Work(iMult(1,1)+kaunt)
+    MME(1)%A(kaunt) = Mult(1,1)%A(kaunt)
 
     ! The dipole. Translation gives rise to charge.
 
     do i=1,3
-      Corr = (CordMul(2,i)-xyz(i,nBasAt(iB1),nBasAt(iB2)))*Work(iMult(1,1)+kaunt)
-      Work(iMME(i+1)+kaunt) = Work(iMult(2,i)+kaunt)+Corr
+      Corr = (CordMul(2,i)-xyz(i,nBasAt(iB1),nBasAt(iB2)))*Mult(1,1)%A(kaunt)
+      MME(i+1)%A(kaunt) = Mult(2,i)%A(kaunt)+Corr
     end do
 
     ! The quadrupole. Translation gives rise to dipoles and charges.
@@ -276,15 +279,14 @@ do iB1=1,nBas
     ! by Seward.
 
     do i=1,6
-      CorrDip1 = (CordMul(3,iX(i))-xyz(iX(i),nBasAt(iB1),nBasAt(iB2)))*(Work(iMult(2,iY(i))+kaunt)+ &
-                 (CordMul(2,iY(i))-CordMul(3,iY(i)))*Work(iMult(1,1)+kaunt))
-      CorrDip2 = (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))*(Work(iMult(2,iX(i))+kaunt)+ &
-                 (CordMul(2,iX(i))-CordMul(3,iX(i)))*Work(iMult(1,1)+kaunt))
+      CorrDip1 = (CordMul(3,iX(i))-xyz(iX(i),nBasAt(iB1),nBasAt(iB2)))*(Mult(2,iY(i))%A(kaunt)+ &
+                 (CordMul(2,iY(i))-CordMul(3,iY(i)))*Mult(1,1)%A(kaunt))
+      CorrDip2 = (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))*(Mult(2,iX(i))%A(kaunt)+ &
+                 (CordMul(2,iX(i))-CordMul(3,iX(i)))*Mult(1,1)%A(kaunt))
       CorrOvl = (CordMul(3,iX(i))-xyz(iX(i),nBasAt(iB1),nBasAt(iB2)))* &
-                (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))*Work(iMult(1,1)+kaunt)
-      Work(iMME(i+4)+kaunt) = Work(iMult(3,i)+kaunt)+CorrDip1+CorrDip2+CorrOvl
+                (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))*Mult(1,1)%A(kaunt)
+      MME(i+4)%A(kaunt) = Mult(3,i)%A(kaunt)+CorrDip1+CorrDip2+CorrOvl
     end do
-    kaunt = kaunt+1
   end do
 end do
 
@@ -292,16 +294,8 @@ end do
 
 call mma_deallocate(nBasAt)
 call mma_deallocate(xyz)
+call Deallocate_DT(Mult)
 
-do iMlt=1,nMlt
-  nComp = nTri_Elem(iMlt)
-  do iComp=1,nComp
-    write(ChCo,'(I2.2)') iMlt
-    write(ChCo2,'(I2.2)') iComp
-    write(MemLab,*) 'MEM'//ChCo//ChCo2
-    call GetMem(MemLab,'Free','Real',iMult(iMlt,iComp),nSize+4)
-  end do
-end do
 call ClsOne(irc,Lu_One)
 
 return

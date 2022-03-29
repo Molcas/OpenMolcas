@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ExtractR(iLu,i9,Etot,xyzMy,Hmat,iC,nState,xyzQu,lExtr,iExtr_Eig,ip_ExpVal,ip_ExpCento,ENR,ENP)
+subroutine ExtractR(iLu,i9,Etot,xyzMy,Hmat,C,nState,xyzQu,lExtr,iExtr_Eig,ExpVal,ExpCento,ENR,ENP)
 
 use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9, iC, nState, iExtr_Eig, ip_ExpVal, ip_ExpCento
-real(kind=wp) :: Etot, xyzMy(3), Hmat(nTri_Elem(iExtr_Eig)), xyzQu(6), ENR, ENP
+integer(kind=iwp) :: iLu, i9, nState, iExtr_Eig
+real(kind=wp) :: Etot, xyzMy(3), Hmat(nTri_Elem(iExtr_Eig)), C(nState,nState), xyzQu(6), ExpVal(4,nState), ExpCento(4,nState), &
+                 ENR, ENP
 logical(kind=iwp) :: lExtr(*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, ind, j, k, nDim
 
 write(iLu,*) '<<<<<<<Configuration ',i9,'>>>>>>>'
@@ -43,29 +43,33 @@ if (lExtr(4)) then
 end if
 if (lExtr(5)) then
   write(iLu,*) 'Corresponding eigenvectors'
-  do j=0,iExtr_Eig-1
-    write(iLu,'(5(F15.8))') (Work(iC+j*nState+k),k=0,nState-1)
+  do j=1,iExtr_Eig
+    write(iLu,'(5(F15.8))') C(:,j)
   end do
 end if
 if (lExtr(6)) then
   write(iLu,*) 'Expectation values (H_0,V_el,V_pol,V_pp)'
   write(iLu,*) '  Nuc cont:',ENR
-  if (lExtr(4)) nDim = iExtr_Eig
-  if (.not. lExtr(4)) nDim = nState
+  if (lExtr(4)) then
+    nDim = iExtr_Eig
+  else
+    nDim = nState
+  end if
   do i=1,nDim
-    write(iLu,'(4(F15.8))') (Work(ip_ExpVal+4*(i-1)+k),k=0,3)
+    write(iLu,'(4(F15.8))') ExpVal(:,i)
   end do
-  call GetMem('ExpVals','Free','Real',ip_ExpVal,4*nDim)
 end if
 if (lExtr(7)) then
   write(iLu,*) 'Expectation values partial V_el, V_pol'
   write(iLu,*) '  Nuc cont:',ENP
-  if (lExtr(4)) nDim = iExtr_Eig
-  if (.not. lExtr(4)) nDim = nState
+  if (lExtr(4)) then
+    nDim = iExtr_Eig
+  else
+    nDim = nState
+  end if
   do j=1,nDim
-    write(iLu,'(2(F15.8))') (Work(ip_ExpCento+4*(j-1)+k),k=1,2)
+    write(iLu,'(2(F15.8))') ExpCento(:,i)
   end do
-  call GetMem('ExpVals','Free','Real',ip_ExpCento,4*nDim)
 end if
 
 return

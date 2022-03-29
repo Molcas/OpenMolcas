@@ -9,16 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CiSelector(nEqState,nState,iSTC,nCIRef,iCIInd,dCIRef)
+subroutine CiSelector(nEqState,nState,STC,nCIRef,iCIInd,dCIRef)
 
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nEqState, nState, iSTC, nCIRef, iCIInd(nCIRef)
-real(kind=wp) :: dCIRef(nCIRef)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: indBase, indMAX, indx, iRef, iState
+integer(kind=iwp) :: nEqState, nState, nCIRef, iCIInd(nCIRef)
+real(kind=wp) :: STC(nState,nState), dCIRef(nCIRef)
+integer(kind=iwp) :: indMAX, iRef, iState
 real(kind=wp) :: dScal, dScalMAX
 
 ! Initial stuff
@@ -31,9 +30,7 @@ indMAX = 1
 do iState=1,nState
   dScal = Zero
   do iRef=1,nCIRef
-    indBase = nState*(iState-1)
-    indx = indBase+iCIInd(iRef)-1
-    dScal = dScal+Work(iSTC+indx)*dCIRef(iRef)
+    dScal = dScal+STC(iCIInd(iRef),iState)*dCIRef(iRef)
   end do
   dScal = abs(dScal)
 

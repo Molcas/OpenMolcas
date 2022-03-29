@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ContRASBas(nStatePrim,NonH,NonS,iEig2)
+subroutine ContRASBas(nStatePrim,NonH,NonS,Eig2)
 
 use qmstat_global, only: ContrStateB, dLvlShift, HmatSOld, HmatState, iLvlShift, iPrint, nLvlShift, nState, ThrsCont
 use Index_Functions, only: nTri_Elem
@@ -18,9 +18,8 @@ use Constants, only: Zero, one
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nStatePrim, iEig2
-real(kind=wp) :: NonH(nTri_Elem(nStatePrim)), NonS(nTri_Elem(nStatePrim))
-#include "WrkSpc.fh"
+integer(kind=iwp) :: nStatePrim
+real(kind=wp) :: NonH(nTri_Elem(nStatePrim)), NonS(nTri_Elem(nStatePrim)), Eig2(nStatePrim,nStatePrim)
 integer(kind=iwp) :: i, ii, iS, iState, iT, j, jState, kaunt, kaunter, nLvlInd, nStateRed, nTri
 real(kind=wp) :: sss, x
 real(kind=wp), allocatable :: Eig1(:,:), RedHSq(:,:), RedHTr(:), SqH(:,:), TEMP(:,:)
@@ -57,7 +56,6 @@ end do
 
 ! Make reductions if requested.
 
-call GetMem('RedEigV1','Allo','Real',iEig2,nStatePrim**2)
 iT = 0
 if (ContrStateB) then
   do iS=1,nStatePrim
@@ -65,13 +63,13 @@ if (ContrStateB) then
     sss = NonS(kaunt)
     if (sss > ThrsCont) then
       iT = iT+1
-      call dcopy_(nStatePrim,Eig1(:,iS),1,Work(iEig2+nStatePrim*(iT-1)),1)
+      Eig2(:,iT) = Eig1(:,iS)
     end if
   end do
   nStateRed = iT
   write(u6,6199) '  ----- Contraction:',nStatePrim,' ---> ',nStateRed
 else
-  call dcopy_(nStatePrim**2,Eig1,1,Work(iEig2),1)
+  Eig2(:,:) = Eig1(:,:)
   nStateRed = nStatePrim
 end if
 
@@ -83,11 +81,11 @@ call mma_allocate(SqH,nStatePrim,nStatePrim,label='SqH')
 call mma_allocate(RedHSq,nStateRed,nStateRed,label='RedHSq')
 call mma_allocate(RedHTr,nTri,label='RedHTr')
 call Square(NonH,SqH,1,nStatePrim,nStatePrim)
-call Dgemm_('N','N',nStatePrim,nStateRed,nStatePrim,One,SqH,nStatePrim,Work(iEig2),nStatePrim,Zero,TEMP,nStatePrim)
-call Dgemm_('T','N',nStateRed,nStateRed,nStatePrim,One,Work(iEig2),nStatePrim,TEMP,nStatePrim,Zero,RedHSq,nStateRed)
+call Dgemm_('N','N',nStatePrim,nStateRed,nStatePrim,One,SqH,nStatePrim,Eig2,nStatePrim,Zero,TEMP,nStatePrim)
+call Dgemm_('T','N',nStateRed,nStateRed,nStatePrim,One,Eig2,nStatePrim,TEMP,nStatePrim,Zero,RedHSq,nStateRed)
 call SqToTri_Q(RedHSq,RedHTr,nStateRed)
-call Jacob(RedHTr,Work(iEig2),nStateRed,nStatePrim)
-call JacOrd(RedHTr,Work(iEig2),nStateRed,nStatePrim)
+call Jacob(RedHTr,Eig2,nStateRed,nStatePrim)
+call JacOrd(RedHTr,Eig2,nStateRed,nStatePrim)
 
 ! At this stage we have eigenvectors to the CASSI states and their
 ! eigenenergies, hence time to construct the first H_0 and store the
@@ -118,7 +116,7 @@ end do
 if (iPrint >= 10) then
   call TriPrt('RASSI Hamiltonian',' ',HMatState,nStateRed)
   write(u6,*)
-  call RecPrt('RASSI eigenvectors',' ',Work(iEig2),nStatePrim,nStateRed)
+  call RecPrt('RASSI eigenvectors',' ',Eig2,nStatePrim,nStateRed)
 end if
 
 ! Deallocate.

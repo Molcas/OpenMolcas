@@ -66,7 +66,6 @@ set (sources
      m2trans.F90
      mandatoryinp.F90
      mbpt2corr.F90
-     mmetormo.F90
      moldendump.F90
      momentmod.F90
      moreduce.F90

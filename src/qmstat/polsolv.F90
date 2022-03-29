@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PolSolv(iDT,iFI,iFP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2inv,difac,nSize)
+subroutine PolSolv(DT,FI,FP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2inv,difac,nSize)
 
 use qmstat_global, only: Cordst, DipIm, nCent, nPart, nPol, Sqrs, Qimp
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iDT(3), iFI(3), iFP(3), iCNum, nSize
-real(kind=wp) :: xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), &
-                 zzi(nSize,nSize), Gri(nSize,nSize), FFp(nSize,3), r2inv, difac
-#include "WrkSpc.fh"
+integer(kind=iwp) :: iCNum, nSize
+real(kind=wp) :: DT(3,nPol*nPart), FI(3,nPol*nPart), FP(3,nPol*nPart), xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), &
+                 rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), zzi(nSize,nSize), Gri(nSize,nSize), FFp(nSize,3), r2inv, &
+                 difac
 integer(kind=iwp) :: i, idel1, idel2, IndCor, Inddt, j
 real(kind=wp) :: Agr, Skal, Ta, Tal
 
@@ -33,21 +33,17 @@ do j=1,nPol
     IndCor = IndCor+nCent
     Inddt = Inddt+nPol
     Agr = Sqrs(IndCor) !Sqrs come from geogen.
-    Skal = Work(iDT(1)+Inddt-1)*Cordst(1,IndCor)+Work(iDT(2)+Inddt-1)*Cordst(2,IndCor)+Work(iDT(3)+Inddt-1)*Cordst(3,IndCor)
+    Skal = DT(1,Inddt)*Cordst(1,IndCor)+DT(2,Inddt)*Cordst(2,IndCor)+DT(3,Inddt)*Cordst(3,IndCor)
     Ta = Skal*Agr**2*R2inv
     Tal = -Difac*Ta
     Qimp(Inddt) = tal*agr
     ! Image dipoles: Reflect dipole vector in radial vector. This is vector geometry at its best.
-    DipIm(1,IndDt) = (Tal*Cordst(1,IndCor)*2+DiFac*Work(iDt(1)+IndDt-1))*Agr**3
-    DipIm(2,IndDt) = (Tal*Cordst(2,IndCor)*2+DiFac*Work(iDt(2)+IndDt-1))*Agr**3
-    DipIm(3,IndDt) = (Tal*Cordst(3,IndCor)*2+DiFac*Work(iDt(3)+IndDt-1))*Agr**3
+    DipIm(1,IndDt) = (Tal*Cordst(1,IndCor)*2+DiFac*DT(1,IndDt))*Agr**3
+    DipIm(2,IndDt) = (Tal*Cordst(2,IndCor)*2+DiFac*DT(2,IndDt))*Agr**3
+    DipIm(3,IndDt) = (Tal*Cordst(3,IndCor)*2+DiFac*DT(3,IndDt))*Agr**3
   end do
 end do
-do j=1,3
-  do i=1+(nPol*iCnum),nSize
-    Work(iFi(j)+i-1) = 0
-  end do
-end do
+FI(:,nPol*iCnum+1:nSize) = 0
 
 ! Here the actual fields are computed, both from the explicit solvent and from its image.
 
@@ -56,29 +52,27 @@ do i=1+(nPol*iCNum),nPart*nPol !The real part.
     idel1 = (i-1)/nPol
     idel2 = (j-1)/nPol
     if (idel1 == idel2) cycle
-    Skal = xx(i,j)*Work(iDt(1)+i-1)+yy(i,j)*Work(iDt(2)+i-1)+zz(i,j)*Work(iDt(3)+i-1)
+    Skal = xx(i,j)*DT(1,i)+yy(i,j)*DT(2,i)+zz(i,j)*DT(3,i)
     Skal = Skal*3
-    Work(iFi(1)+j-1) = Work(iFi(1)+j-1)-(Work(iDt(1)+i-1)-Skal*xx(i,j))*rr3(i,j)
-    Work(iFi(2)+j-1) = Work(iFi(2)+j-1)-(Work(iDt(2)+i-1)-Skal*yy(i,j))*rr3(i,j)
-    Work(iFi(3)+j-1) = Work(iFi(3)+j-1)-(Work(iDt(3)+i-1)-Skal*zz(i,j))*rr3(i,j)
+    FI(1,j) = Fi(1,j)-(DT(1,i)-Skal*xx(i,j))*rr3(i,j)
+    FI(2,j) = Fi(2,j)-(DT(2,i)-Skal*yy(i,j))*rr3(i,j)
+    FI(3,j) = Fi(3,j)-(DT(3,i)-Skal*zz(i,j))*rr3(i,j)
   end do
 end do
 do i=1+(nPol*iCnum),nPart*nPol !The image part.
   do j=1+(nPol*iCnum),nPart*nPol
     Skal = (xxi(i,j)*DipIm(1,i)+yyi(i,j)*DipIm(2,i)+zzi(i,j)*DipIm(3,i))
     Skal = Skal*3
-    Work(iFi(1)+j-1) = Work(iFi(1)+j-1)-(DipIm(1,i)-Skal*xxi(i,j))*Gri(i,j)**3-Qimp(i)*xxi(i,j)*Gri(i,j)**2
-    Work(iFi(2)+j-1) = Work(iFi(2)+j-1)-(DipIm(2,i)-Skal*yyi(i,j))*Gri(i,j)**3-Qimp(i)*yyi(i,j)*Gri(i,j)**2
-    Work(iFi(3)+j-1) = Work(iFi(3)+j-1)-(DipIm(3,i)-Skal*zzi(i,j))*Gri(i,j)**3-Qimp(i)*zzi(i,j)*Gri(i,j)**2
+    Fi(1,j) = Fi(1,j)-(DipIm(1,i)-Skal*xxi(i,j))*Gri(i,j)**3-Qimp(i)*xxi(i,j)*Gri(i,j)**2
+    Fi(2,j) = Fi(2,j)-(DipIm(2,i)-Skal*yyi(i,j))*Gri(i,j)**3-Qimp(i)*yyi(i,j)*Gri(i,j)**2
+    Fi(3,j) = Fi(3,j)-(DipIm(3,i)-Skal*zzi(i,j))*Gri(i,j)**3-Qimp(i)*zzi(i,j)*Gri(i,j)**2
   end do
 end do
 
 ! Add up the things, and add also the part from the permanent charges.
 
 do i=1+(nPol*iCnum),nSize
-  FFp(i,1) = Work(iFi(1)+i-1)+Work(iFp(1)+i-1)
-  FFp(i,2) = Work(iFi(2)+i-1)+Work(iFp(2)+i-1)
-  FFp(i,3) = Work(iFi(3)+i-1)+Work(iFp(3)+i-1)
+  FFp(i,:) = Fi(:,i)+FP(:,i)
 end do
 
 ! The circle is now complete. I left you when I was about to learn and I meet you as the master.

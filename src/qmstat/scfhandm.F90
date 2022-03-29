@@ -39,6 +39,7 @@ subroutine ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
 
 use qmstat_global, only: Cha, ChaNuc, ChargedQM, DipMy, iOrb, iPrint, lSlater, Mp2DensCorr, MxMltp, MxSymQ, nMlt, outxyz, qTot, Quad
 use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
+use Data_Structures, only: Alloc1DArray_Type, Allocate_DT, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -46,13 +47,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
 real(kind=wp) :: Cmo(nBas(1),nBas(1)), Occu(nBas(1))
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCi, ii, iMME(nTri3_Elem(MxMltp)), indMME, iO1, iO2, iTyp, j, k, kaunta, kaunter, nTyp
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCi, ii, indMME, iO1, iO2, iTyp, j, k, kaunta, kaunter, nTyp
 real(kind=wp) :: cProd, dipx, dipx0, dipy, dipy0, dipz, dipz0, dTox, dToy, dToz, qEl, Tra
-character(len=20) :: MMElab
-character(len=2) :: ChCo
 integer(kind=iwp), allocatable :: Dum(:), iCent(:,:)
 real(kind=wp), allocatable :: Mtot(:,:), O(:)
+type(Alloc1DArray_Type), allocatable :: MME(:)
 
 iCi = nTri_Elem(iQ_Atoms)
 call mma_allocate(Cha,nTri_Elem(iOrb(1)),iCi,label='Cha')
@@ -84,7 +83,8 @@ end do
 call mma_allocate(outxyz,3,nTri_Elem(iQ_Atoms),label='outxyz')
 call mma_allocate(iCent,nBas(1),nBas(1),label='iCent')
 call mma_allocate(Dum,nTri_Elem(nBas(1)),label='Dummy')
-call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,Dum,iCent,nMlt,outxyz,lSlater)
+call Allocate_DT(MME,[1,nTri3_Elem(MxMltp)],label='MME')
+call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,MME,Dum,iCent,nMlt,outxyz,lSlater)
 call mma_deallocate(Dum)
 
 ! If MP2 density correction is requested, go here. This option is
@@ -109,7 +109,7 @@ do iO1=1,iOrb(1)
         indMME = iTri(iB1,iB2)
         cProd = Cmo(iB1,iO1)*Cmo(iB2,iO2)
         do iTyp=1,nTyp
-          O(iTyp) = cProd*Work(iMME(iTyp)+indMME-1)
+          O(iTyp) = cProd*MME(iTyp)%A(indMME)
         end do
         Cha(kaunter,kaunta) = Cha(kaunter,kaunta)+O(1)
         DipMy(kaunter,1,kaunta) = DipMy(kaunter,1,kaunta)+O(2)
@@ -130,11 +130,7 @@ call mma_deallocate(iCent)
 
 ! Deallocate the AO-multipoles.
 
-do i=1,nTyp
-  write(ChCo,'(I2.2)') i
-  write(MMElab,*) 'MME'//ChCo
-  call GetMem(MMElab,'Free','Real',iMME(i),nTri_Elem(nBas(1)))
-end do
+call Deallocate_DT(MME)
 
 ! Put quadrupoles in Buckingham form.
 

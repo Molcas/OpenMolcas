@@ -9,17 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine HaveWeConv(iCNum,iCStart,iQ_Atoms,Indma,iDT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
+subroutine HaveWeConv(iCNum,iCStart,iQ_Atoms,Indma,DT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
 
 use qmstat_global, only: Cordst, Enelim, iPrint, itMax, nCent, nPart, nPol, Pol, PolLim
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCNum, iCStart, iQ_Atoms, Indma, iDT(3), NVarv
-real(kind=wp) :: FFp(nPol*nPart,3), xyzMyI(3), Egun, Energy
+integer(kind=iwp) :: iCNum, iCStart, iQ_Atoms, Indma, NVarv
+real(kind=wp) :: DT(3,nPol*nPart), FFp(nPol*nPart,3), xyzMyI(3), Egun, Energy
 logical(kind=iwp) :: JaNej, Haveri
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, imin, j, k, kmin, l
 real(kind=wp) :: Diff, Diffab, dist, distmin, Dtil, Egtest
 
@@ -37,7 +36,7 @@ do i=1+(nPol*iCnum),IndMa
   k = i-((i-1)/nPol)*nPol
   do l=1,3
     Dtil = FFp(i,l)*Pol(k)
-    Diff = abs(Work(iDT(l)+i-1)-Dtil)
+    Diff = abs(DT(l,i)-Dtil)
     if (Diff > Diffab) Diffab = Diff
     xyzMyi(l) = xyzMyi(l)+Dtil
     ! This is the quantity that has
@@ -45,7 +44,7 @@ do i=1+(nPol*iCnum),IndMa
     ! includes the effect of the polarization of the
     ! QM-molecule. It enters the iteration above, unless
     ! we have converged.
-    Work(iDT(l)+i-1) = Dtil
+    DT(l,i) = Dtil
   end do
 end do
 Egtest = Egun-Energy

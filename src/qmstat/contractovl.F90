@@ -49,12 +49,11 @@ implicit none
 integer(kind=iwp) :: nBaseQ, nBaseC, N, nCent, iQ_Atoms, nAtomsCC, iPrint
 real(kind=wp) :: Sint(nBaseQ,nBaseC)
 logical(kind=iwp) :: Inside(iQ_Atoms,nAtomsCC)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iA1, iA2, iB1, iB2, iC, iCC, iCcontB, iCcontBSAV, iCcontBSAV1, iCcontBSAV2, iCQ, iindex, iNcB1, iNcB2, &
-                     ipsint, iQ, iQcontB, iQcontBSAV, iQcontBSAV1, iQcontBSAV2, iqqqC, iqqqQ, j, k, kaunter, kreichner, nExp1, &
-                     nExp2, nSize, nSph1, nSph2
+integer(kind=iwp) :: i, iA1, iA2, iB1, iB2, iC, iCC, iCcontB, iCcontBSAV, iCcontBSAV1, iCcontBSAV2, iCQ, iNcB1, iNcB2, iQ, &
+                     iQcontB, iQcontBSAV, iQcontBSAV1, iQcontBSAV2, iqqqC, iqqqQ, j, k, kaunter, kreichner, nExp1, nExp2, nSph1, &
+                     nSph2
 real(kind=wp) :: Bori(3), Cori(3), DaNumber
-real(kind=wp), allocatable :: Alf(:), Bet(:), Conkort(:), ContrI(:), Donkort(:)
+real(kind=wp), allocatable :: Alf(:), Bet(:), Conkort(:), ContrI(:), Donkort(:), PSint(:,:,:,:)
 
 call mma_allocate(Alf,size(Alfa,2),label='Alf')
 call mma_allocate(Bet,size(Beta,2),label='Bet')
@@ -119,7 +118,10 @@ do iA1=1,iQ_Atoms !The atoms
             ! overlaps, the difference between general and ordinary is that
             ! in the former primitive overlaps are needed at all instances,
             ! while in the latter primitive overlaps are needed only once.
-            if ((iNcB1 == 1) .and. (iNcB2 == 1)) call OverLq(Bori,Cori,Alf,Bet,iqqqQ,iqqqC,nExp1,nExp2,iPSint)
+            if ((iNcB1 == 1) .and. (iNcB2 == 1)) then
+              call mma_allocate(PSint,nSph1,nExp1,nSph2,nExp2,label='AllPrims')
+              call OverLq(Bori,Cori,Alf,Bet,iqqqQ,iqqqC,nExp1,nExp2,PSint)
+            end if
             kaunter = 0
             do i=1,nSph2 !contract
               do j=1,nSph1
@@ -127,8 +129,7 @@ do iA1=1,iQ_Atoms !The atoms
                 DaNumber = Zero
                 do iCC=1,nExp2
                   do iCQ=1,nExp1
-                    iindex = (i-1)*nSph1*nExp1+j-1+nSph1*(iCQ-1)+nSph1*nExp1*nSph2*(iCC-1)
-                    DaNumber = DaNumber+Conkort(iCQ)*Donkort(iCC)*Work(iPSint+iindex)
+                    DaNumber = DaNumber+Conkort(iCQ)*Donkort(iCC)*PSint(j,iCQ,i,iCC)
                   end do
                 end do
                 ContrI(kaunter) = DaNumber
@@ -156,9 +157,7 @@ do iA1=1,iQ_Atoms !The atoms
           end do
         end do
         iCcontBSAV = iCcontB
-        ! This vector is allocated in OverLq.
-        nSize = nExp1*nExp2*nSph1*nSph2
-        call GetMem('AllPrims','Free','Real',iPSint,nSize)
+        call mma_deallocate(PSint)
       end do
       ! OH NO!, these things have to do with
       ! getting the right number in right

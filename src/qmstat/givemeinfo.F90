@@ -12,25 +12,24 @@
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifdef _IN_MODULE_
 
-subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,nAtoms,MxAngqNr,ipAcc, &
-                      nACCSize,nBas)
+subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,Expo,Cont,nSh,nfSh,nSize,iPrint,nAtoms,MxAngqNr,Acc,nBas)
 
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Real_Spherical, only: ipSph, RSph
 use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nntyp, nAtoms, natyp(nAtoms), nBA(nAtoms), MxAngqNr, nCBoA(nAtoms,MxAngqNr), nBona(nAtoms), ipExpo, ipCont, &
-                     nSh(nAtoms), nfSh(nAtoms,MxAngqNr), nSize, iPrint, ipAcc, nACCSize, nBas
+integer(kind=iwp) :: nntyp, nAtoms, natyp(nAtoms), nBA(nAtoms), MxAngqNr, nCBoA(nAtoms,MxAngqNr), nBona(nAtoms), nSh(nAtoms), &
+                     nfSh(nAtoms,MxAngqNr), nSize, iPrint, nBas
 integer(kind=iwp), allocatable :: iCon(:,:), nPrim(:)
-real(kind=wp), allocatable :: BasCoo(:,:)
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: Expo(:,:), Cont(:,:), BasCoo(:,:), Acc(:)
 integer(kind=iwp) :: i, iAng, iAngSav, iBas, iCnt, iCnttp, iCount, iHowMuch, ii, ind, ind1, ind2, ind3, ioio, iPrim, iTemp, j, jj, &
-                     jSum, k, kaunt, kaunta, kaunter, kaunterPrev, kauntSav, kk, kkk, krekna, krekna2, l, ll, M, MaxAng, MxPrCon, &
-                     na, ndc, nDiff, nnaa, nshj, nSumma, nVarv
+                     jSum, k, kaunt, kaunta, kaunter, kaunterPrev, kauntSav, kk, kkk, krekna, krekna2, l, ll, MaxAng, MxPrCon, na, &
+                     nACCSize, ndc, nDiff, nnaa, nshj, nSumma, nVarv
 real(kind=wp), allocatable :: TEMP1(:), TEMP2(:)
 logical(kind=iwp) :: DoRys
 #include "warnings.h"
@@ -159,17 +158,16 @@ do kk=1,ii !Just to get size of vector
     nSize = nSize+Shells(kaunt)%nBasis*Shells(kaunt)%nExp
   end do
 end do
-call GetMem('Exponents','Allo','Real',ipExpo,nSize*nntyp)
-call GetMem('ContrCoef','Allo','Real',ipCont,nSize*nntyp)
-call FZero(Work(ipExpo),nSize*nntyp)
-call FZero(Work(ipCont),nSize*nntyp)
+call mma_allocate(Expo,nntyp,nSize,label='Exponents')
+call mma_allocate(Cont,nntyp,nSize,label='ContrCoef')
+Expo(:,:) = Zero
+Cont(:,:) = Zero
 
 do iCnttp=1,nCnttp  !Here we set NaTyp.
-  jSum = 0
+  jSum = 1
   iTemp = 0
   nVarv = dbsc(iCnttp)%nShells
   nSh(iCnttp) = nVarv
-  M = iCnttp-1
   do iCnt=1,dbsc(iCnttp)%nCntr
     ndc = ndc+1
     iTemp = iTemp+dc(ndc)%nStab
@@ -185,8 +183,8 @@ do iCnttp=1,nCnttp  !Here we set NaTyp.
 #   endif
     nfSh(iCnttp,iAng+1) = iBas
     do i=1,iBas
-      call dCopy_(iPrim,Shells(iCount)%Exp,1,Work(ipExpo+jSum*nntyp+M),nntyp)
-      call dCopy_(iPrim,Shells(iCount)%pCff(1,i),1,Work(ipCont+jSum*nntyp+M),nntyp)
+      call dCopy_(iPrim,Shells(iCount)%Exp,1,Expo(iCnttp,jSum),nntyp)
+      call dCopy_(iPrim,Shells(iCount)%pCff(1,i),1,Cont(iCnttp,jSum),nntyp)
       jSum = jSum+iPrim
     end do
   end do
@@ -194,9 +192,9 @@ do iCnttp=1,nCnttp  !Here we set NaTyp.
 end do
 if (iPrint >= 30) then
   write(u6,*) 'Exp.'
-  write(u6,'(10G13.4)') (Work(ipExpo+k),k=0,nSize*nntyp-1)
+  write(u6,'(10G13.4)') Expo(:,:)
   write(u6,*) 'Contr.'
-  write(u6,'(10G13.4)') (Work(ipCont+k),k=0,nSize*nntyp-1)
+  write(u6,'(10G13.4)') Cont(:,:)
 end if
 
 !----------------------------------------------------------------------*
@@ -232,11 +230,11 @@ nACCSize = 0
 do i=2,MaxAng
   nACCSize = nACCSize+(2*i+1)*nTri_Elem1(i)
 end do
-nSumma = 0
 call mma_allocate(TEMP1,nSize,Label='TEMP1')
 call mma_allocate(TEMP2,nSize,Label='TEMP2')
-call GetMem('AccTransa','Allo','Real',ipAcc,nACCSize)
+call mma_allocate(Acc,nACCSize,label='AccTransa')
 
+nSumma = 1
 do i=2,MaxAng
   ind1 = nTri_Elem1(i)
   ind2 = 2*i+1
@@ -249,7 +247,7 @@ do i=2,MaxAng
   end do
   !call recprt('FFF',' ',TEMP1,nTri_Elem1(i),2*i+1)
   !call recprt('GGG',' ',TEMP2,ind2,ind1)
-  call dcopy_(iHowMuch,TEMP2,1,Work(ipAcc+nSumma),1)
+  call dcopy_(iHowMuch,TEMP2,1,Acc(nSumma),1)
   nSumma = nSumma+iHowMuch
 end do
 

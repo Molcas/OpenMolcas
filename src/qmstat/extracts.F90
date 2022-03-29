@@ -9,15 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ExtractS(iLu,i9,Etot,xyzMy,xyzQu,lExtr,ip_ExpVal,ip_ExpCento,ENR,ENP)
+subroutine ExtractS(iLu,i9,Etot,xyzMy,xyzQu,lExtr,ExpVal,ExpCento,ENR,ENP)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9, ip_ExpVal, ip_ExpCento
-real(kind=wp) :: Etot, xyzMy(3), xyzQu(6), ENR, ENP
+integer(kind=iwp) :: iLu, i9
+real(kind=wp) :: Etot, xyzMy(3), xyzQu(6), ExpVal(4,1), ExpCento(4,1), ENR, ENP
 logical(kind=iwp) :: lExtr(*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: k
 
 write(iLu,*) '<<<<<<<Configuration ',i9,'>>>>>>>'
@@ -36,14 +35,12 @@ end if
 if (lExtr(6)) then
   write(iLu,*) 'Expectation values (T+H_nuc,V_el,V_pol,V_pp)'
   write(iLu,*) '  Nuc cont:',ENR
-  write(iLu,'(4(F15.8))') (Work(ip_ExpVal+k),k=0,3)
-  call GetMem('ExpVals','Free','Real',ip_ExpVal,4)
+  write(iLu,'(4(F15.8))') ExpVal(:,1)
 end if
 if (lExtr(7)) then
   write(iLu,*) 'Expectation values partial V_el, V_pol'
   write(iLu,*) '  Nuc cont:',ENP
-  write(iLu,'(2(F15.8))') (Work(ip_ExpCento+k),k=1,2)
-  call GetMem('ExpVals','Free','Real',ip_ExpCento,4)
+  write(iLu,'(2(F15.8))') ExpCento(:,1)
 end if
 
 return

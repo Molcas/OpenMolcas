@@ -11,7 +11,7 @@
 
 subroutine ExRas(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itristate,SmatRas,SmatPure,InCutOff,AOSum)
 
-use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iBigT, iOrb, ipAvRed, lExtr, lmax, MoAveRed, nCent, nPart, &
+use qmstat_global, only: AvRed, BigT, c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iOrb, lExtr, lmax, MoAveRed, nCent, nPart, &
                          nRedMO, nState, outxyzRAS
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -21,7 +21,6 @@ use Definitions, only: wp, iwp, r8
 implicit none
 integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itristate
 real(kind=wp) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate), AOSum(*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, ind, inwm, iS, js, k, kaunter, N, nDim1, nDimT, nGross, nHalf, nInsideCut
 real(kind=wp) :: Addition, CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, HighS, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: InCutOff
@@ -150,7 +149,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   ! huge demand of memory is required, this should not cause problem.
 
   if (MoAveRed) then
-    call Dgemm_('T','N',nRedMO,iOrb(2),nBaseQ,One,Work(ipAvRed),nBaseQ,HalfP,nBaseQ,Zero,TEMP,nRedMO)
+    call Dgemm_('T','N',nRedMO,iOrb(2),nBaseQ,One,AvRed,nBaseQ,HalfP,nBaseQ,Zero,TEMP,nRedMO)
     call dcopy_(nDim1*iOrb(2),TEMP,1,HalfP,1)
   end if
 
@@ -190,7 +189,7 @@ do iS=1,nState
     HighS = 0
     kaunter = kaunter+1
     ! Collect the relevant part of the transition density matrix.
-    call dCopy_(nDimT,Work(iBigT+nDimT*(kaunter-1)),1,AOG,1)
+    call dCopy_(nDimT,BigT(:,kaunter),1,AOG,1)
     ! Then transform according to theory.
     call SqToTri_Q(ACC,ACCt,nDim1)
     Addition = Ddot_(nDimT,AOG,1,ACCt,1)

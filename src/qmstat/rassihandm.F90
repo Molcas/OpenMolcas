@@ -41,22 +41,22 @@
 
 subroutine RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
 
-use qmstat_global, only: AddExt, ChaNuc, ChargedQM, CT, HmatSOld, HmatState, iBigT, ipAvRed, iPrint, lSlater, MoAveRed, MxMltp, &
-                         MxSymQ, nMlt, nRedMO, nState, outxyzRAS, qTot, RasCha, RasDip, RasQua
+use qmstat_global, only: AddExt, ChaNuc, ChargedQM, CT, HmatSOld, HmatState, iPrint, lSlater, MoAveRed, MxMltp, MxSymQ, nMlt, &
+                         nRedMO, nState, outxyzRAS, qTot, RasCha, RasDip, RasQua
 use Index_Functions, only: nTri3_Elem, nTri_Elem
+use Data_Structures, only: Alloc1DArray_Type, Allocate_DT, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
-integer(kind=iwp) :: i, iCi, iMME(nTri3_Elem(MxMltp)), j, k, kaunt, kaunter, kk, l, nSize, nTyp
+integer(kind=iwp) :: i, iCi, j, k, kaunt, kaunter, kk, l, nTyp
 real(kind=wp) :: D1, D2, D3, dipx, dipx0, dipy, dipy0, dipz, dipz0, dQxx, dQxy, dQxz, dQyy, dQyz, dQzz, dTox, dToy, dToz, Q, qEl, &
                  quaDxx, quaDxy, quaDxz, quaDyy, quaDyx, quaDyz, quaDzx, quaDzy, quaDzz, quaQxx, quaQxy, quaQxz, quaQyy, quaQyz, &
                  quaQzz, quaxx, quaxy, quaxz, quayy, quayz, quazz, Tra, Trace1, Trace2, Trace3
-character(len=20) :: MMElab
-character(len=2) :: ChCo
 integer(kind=iwp), allocatable :: Dum(:,:), iCent(:)
+type(Alloc1DArray_Type), allocatable :: MME(:)
 
 ! A modest entrance.
 
@@ -120,7 +120,8 @@ write(u6,*) '     Multicenter multipole expanding the charge density expressed i
 call mma_allocate(iCent,nTri_Elem(nBas(1)),label='iCent')
 call mma_allocate(outxyzRAS,3,nTri_Elem(iQ_Atoms),label='outxyzRAS')
 call mma_allocate(Dum,nBas(1),nBas(1),label='Dummy')
-call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,iMME,iCent,Dum,nMlt,outxyzRAS,lSlater)
+call Allocate_DT(MME,[1,nTri3_Elem(MxMltp)],label='MME')
+call MultiNew(iQ_Atoms,nBas(1),nOcc,natyp,nntyp,MME,iCent,Dum,nMlt,outxyzRAS,lSlater)
 call mma_deallocate(Dum)
 
 ! Set nTyp, which is number of unique multipole components.
@@ -132,17 +133,13 @@ end do
 
 ! Transform to State-basis. The logical flag MoAveRed decides which path to go in this subroutine.
 
-call StateMME(MoAveRed,nBas(1),nRedMO,nState,nTyp,iBigT,iMME,iCent,ipAvRed,RasCha,RasDip,RasQua)
+call StateMME(MoAveRed,nBas(1),nRedMO,nState,nTyp,MME,iCent,RasCha,RasDip,RasQua)
 
 ! Deallocate the MME in AO-basis.
 
 call mma_deallocate(iCent)
 
-do i=1,nTyp
-  write(ChCo,'(I2.2)') i
-  write(MMElab,*) 'MME'//ChCo
-  call GetMem(MMElab,'Free','Real',iMME(i),nSize)
-end do
+call Deallocate_DT(MME)
 
 ! Buckinghamification of the quadrupoles.
 

@@ -9,22 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PolRas(iDist,iDistIm,iDT,iFI,iFP,Fil,iCStart,iTriState,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,iSTC,Haveri,iQ_Atoms, &
-                  ip_ExpVal,Poli)
+subroutine PolRas(Dist,DistIm,DT,FI,FP,Fil,iCStart,iTriState,VMat,Smat,DiFac,Ract,icnum,Energy,NVarv,STC,Haveri,iQ_Atoms,ExpVal, &
+                  Poli)
 
-use qmstat_global, only: ChaNuc, CT, dCIRef, HmatSOld, HmatState, iCIInd, iExtr_Eig, lCiSelect, lExtr, nCIRef, nEqState, nPart, &
-                         nPol, nState, qTot, xyzMyI, xyzMyP, xyzMyQ, xyzQuQ
+use qmstat_global, only: ChaNuc, CT, dCIRef, HmatSOld, HmatState, iCIInd, iExtr_Eig, lCiSelect, lExtr, nCent, nCIRef, nEqState, &
+                         nPart, nPol, nState, qTot, xyzMyI, xyzMyP, xyzMyQ, xyzQuQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iDist, iDistIm, iDT(3), iFI(3), iFP(3), iQ_Atoms, iCStart, iTriState, icnum, NVarv, iSTC, ip_ExpVal
-real(kind=wp) :: Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), VMat(iTriState), Smat(iTriState), DiFac, Ract, Energy, &
-                 Poli(nTri_Elem(iQ_Atoms),10)
+integer(kind=iwp) :: iQ_Atoms, iCStart, iTriState, icnum, NVarv
+real(kind=wp) :: Dist(nCent,nCent,nTri_Elem(nPart-icnum-1)), DistIm(nCent,nPart-icnum,nCent,nPart-icnum), DT(3,nPol*nPart), &
+                 FI(3,nPol*nPart), FP(3,nPol*nPart), Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), VMat(iTriState), Smat(iTriState), &
+                 DiFac, Ract, Energy, STC(nState,nState), ExpVal(4,nState), Poli(nTri_Elem(iQ_Atoms),10)
 logical(kind=iwp) :: Haveri
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iDum, iErr, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
@@ -33,9 +33,8 @@ real(kind=wp), allocatable :: EEigen(:), FFp(:,:), Gri(:,:), RoMatSt(:), rr3(:,:
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
-call GetMem('Coeff','Allo','Real',iSTC,nState**2)
-call dcopy_(nState**2,[Zero],0,Work(iSTC),1)
-call dcopy_(nState,[One],0,Work(iSTC),nState+1)
+STC(:,:) = Zero
+call dcopy_(nState,[One],0,STC,nState+1)
 
 ! Define some numbers.
 
@@ -68,7 +67,7 @@ yyi(:,:) = Zero
 zzi(:,:) = Zero
 rr3(:,:) = Zero
 Gri(:,:) = Zero
-call PolPrep(iDist,iDistIM,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nPolCent)
+call PolPrep(Dist,DistIm,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,iCNum,nPolCent)
 
 ! Polarization loop commencing.
 
@@ -80,8 +79,8 @@ NVarv = 0
 do
   NVarv = NVarv+1
   Energy = Zero
-  call PolSolv(iDT,iFI,iFP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2Inv,DiFac,nPolCent)
-  call DensiSt(RomatSt,Work(iSTC),nEqState,nState,nState)
+  call PolSolv(DT,FI,FP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2Inv,DiFac,nPolCent)
+  call DensiSt(RomatSt,STC,nEqState,nState,nState)
   call Polins(Energy,nPolCent,nQMCent,Fil,VpolMat,FFp,PolFac,poli,xyzMyQ,xyzMyI,xyzMyP,iCstart,iQ_Atoms,qTot,ChaNuc,RoMatSt, &
               xyzQuQ,CT)
 
@@ -95,14 +94,14 @@ do
   ! Diagonalize the bastard. Eigenvalues are sorted and the relevant eigenvalue is added to total energy.
 
   call mma_allocate(Scratch,nState,nState,label='Scratch')
-  call Diag_Driver('V','A','L',nState,HMatState,Scratch,nState,Dummy,Dummy,iDum,iDum,EEigen,Work(iSTC),nState,1,-1,'J',nFound,iErr)
-  if (lCiSelect) call CiSelector(nEqState,nState,iSTC,nCIRef,iCIInd,dCIRef)
+  call Diag_Driver('V','A','L',nState,HMatState,Scratch,nState,Dummy,Dummy,iDum,iDum,EEigen,STC,nState,1,-1,'J',nFound,iErr)
+  if (lCiSelect) call CiSelector(nEqState,nState,STC,nCIRef,iCIInd,dCIRef)
   Energy = Energy+EEigen(nEqState)
   call mma_deallocate(Scratch)
 
   ! Check if polarization loop has converged.
 
-  call HaveWeConv(iCNum,iCStart,iQ_Atoms,nPolCent,iDT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
+  call HaveWeConv(iCNum,iCStart,iQ_Atoms,nPolCent,DT,FFp,xyzMyI,Egun,Energy,NVarv,JaNej,Haveri)
   if (Haveri .or. JaNej) exit
 end do
 
@@ -123,7 +122,7 @@ call mma_deallocate(Gri)
 
 ! If expectation values are extracted, make a detour.
 
-if (lExtr(6)) call Expectus('RASSI',HmatSOld,Vmat,VpolMat,Smat,iSTC,nState,lExtr(4),iExtr_Eig,ip_ExpVal)
+if (lExtr(6)) call Expectus('RASSI',HmatSOld,Vmat,VpolMat,Smat,STC,nState,lExtr(4),iExtr_Eig,ExpVal)
 
 ! Is it dead? It's terminated!
 

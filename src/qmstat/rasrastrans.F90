@@ -9,17 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RasRasTrans(nB,nStatePrim,iEig2,iPrint)
+subroutine RasRasTrans(nB,nStatePrim,Eig2,iPrint)
 
-use qmstat_global, only: iBigT, nState, RassiM
+use qmstat_global, only: BigT, nState, RassiM
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nB, nStatePrim, iEig2, iPrint
-#include "WrkSpc.fh"
+integer(kind=iwp) :: nB, nStatePrim, iPrint
+real(kind=wp) :: Eig2(nStatePrim,nStatePrim)
 integer(kind=iwp) :: i, iB, iBas, iDisk, iiS, indx, indypop, iS, j, jB, jBas, jjS, jS, kaunt, kaunter, LuIn, MEMMAX, nSize, &
                      nSizeBig, nSizeBigPrim, nTriS, nTriSP
 character(len=30) :: OutLine
@@ -60,14 +60,14 @@ if (MEMMAX <= nSizeBig) then
 else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nStatePrim+nState**2)) then
   ! Here we go if there is enough memory for an in core transformation.
 
-  call GetMem('ALLES','Allo','Real',iBigT,nSizeBig)
+  call mma_allocate(BigT,nSize,nTriS,label='ALLES')
   call mma_allocate(BigV,nSize,nTriSP,label='ALLESin')
   call mma_allocate(Int1,nTriSP,label='Int1')
   call mma_allocate(Int2,nTriS,label='Int2')
   call mma_allocate(Snt1,nStatePrim,nStatePrim,label='Square1')
   call mma_allocate(Snt2,nState,nStatePrim,label='Square2')
   call mma_allocate(Snt3,nState,nState,label='Square3')
-  call dcopy_(nSizeBig,[Zero],0,Work(iBigT),1)
+  BigT(:,:) = Zero
   kaunt = 0
   do i=1,nStatePrim
     do j=1,i
@@ -98,10 +98,10 @@ else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nSta
       kaunt = kaunt+1
       Int1(:) = BigV(kaunt,:)
       call Square(Int1,Snt1,1,nStatePrim,nStatePrim)
-      call Dgemm_('T','N',nState,nStatePrim,nStatePrim,One,Work(iEig2),nStatePrim,Snt1,nStatePrim,Zero,Snt2,nState)
-      call Dgemm_('N','N',nState,nState,nStatePrim,One,Snt2,nState,Work(iEig2),nStatePrim,Zero,Snt3,nState)
+      call Dgemm_('T','N',nState,nStatePrim,nStatePrim,One,Eig2,nStatePrim,Snt1,nStatePrim,Zero,Snt2,nState)
+      call Dgemm_('N','N',nState,nState,nStatePrim,One,Snt2,nState,Eig2,nStatePrim,Zero,Snt3,nState)
       call SqToTri_Q(Snt3,Int2,nState)
-      call dcopy_(nTriS,Int2,1,Work(iBigT+kaunt-1),nSize)
+      BigT(kaunt,:) = Int2
     end do
   end do
   call mma_deallocate(BigV)
@@ -115,9 +115,9 @@ else
   ! Here we go if both TDM's can not be put in memory. Might be a bit
   ! slow due to its nested nature with repeated IO.
 
-  call GetMem('ALLES','Allo','Real',iBigT,nSizeBig)
+  call mma_allocate(BigT,nSize,nTriS,label='ALLES')
   call mma_allocate(AOG,nSize,label='AOGamma')
-  call dcopy_(nSizeBig,[Zero],0,Work(iBigT),1)
+  BigT(:,:) = Zero
   do iiS=1,nStatePrim
     do jjS=1,nStatePrim
       indypop = iTri(iiS,jjS)
@@ -129,10 +129,8 @@ else
           kaunter = kaunter+1
           do iS=1,nState
             do jS=1,iS
-                indx = (iTri(iS,jS)-1)*nSize
-                indx = indx+kaunter
-                Work(iBigT+indx-1) = Work(iBigT+indx-1)+Work(iEig2+iiS-1+(iS-1)*nStatePrim)*Work(iEig2+jjS-1+(jS-1)*nStatePrim)* &
-                                     AOG(kaunter)
+                indx = iTri(iS,jS)
+                BigT(kaunter,indx) = BigT(kaunter,indx)+Eig2(iiS,iS)*Eig2(jjS,jS)*AOG(kaunter)
             end do
           end do
         end do
@@ -145,7 +143,6 @@ end if
 ! Deallocations and finish up.
 
 call mma_deallocate(iTocBig)
-call GetMem('RedEigV1','Free','Real',iEig2,nStatePrim**2)
 call DaClos(LuIn)
 
 return

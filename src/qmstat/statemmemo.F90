@@ -10,18 +10,19 @@
 !***********************************************************************
 
 ! MO-basis route.
-subroutine StateMMEmo(nAObas,nMObas,nState,nTyp,iBigT,iMME,iCent,ipAvRed,Cha,Dip,Qua)
+subroutine StateMMEmo(nAObas,nMObas,nState,nTyp,MME,iCent,Cha,Dip,Qua)
 
-use qmstat_global, only: MxMltp
+use qmstat_global, only: AvRed, BigT, MxMltp
 use Index_Functions, only: nTri3_Elem, nTri_Elem
+use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iBigT, iMME(nTri3_Elem(MxMltp)), iCent(nTri_Elem(nAObas)), ipAvRed
+integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCent(nTri_Elem(nAObas))
+type(Alloc1DArray_Type) :: MME(nTri3_Elem(MxMltp))
 real(kind=wp) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iB1, iB2, iS1, iS2, iTyp, j, kaunta, kaunter, nSizeA, nSizeM
 real(kind=wp) :: PerAake
 real(kind=wp), allocatable :: AOG(:), AOG_S(:,:), MOG(:), MOG_s(:,:), O(:), TEMP(:,:)
@@ -44,7 +45,7 @@ do iS1=1,nState
 
     ! Collect the proper piece of the TDM in MO-basis.
 
-    call dCopy_(nSizeM,Work(iBigT+nSizeM*(kaunter-1)),1,MOG,1)
+    call dCopy_(nSizeM,BigT(:,kaunter),1,MOG,1)
 
     ! Additional transformation step from MO to AO.
 
@@ -55,8 +56,8 @@ do iS1=1,nState
         MOG_s(j,i) = Half*MOG_s(j,i)
       end do
     end do
-    call Dgemm_('N','N',nAObas,nMObas,nMObas,One,Work(ipAvRed),nAObas,MOG_s,nMObas,Zero,TEMP,nAObas)
-    call Dgemm_('N','T',nAObas,nAObas,nMObas,One,TEMP,nAObas,Work(ipAvRed),nAObas,Zero,AOG_s,nAObas)
+    call Dgemm_('N','N',nAObas,nMObas,nMObas,One,AvRed,nAObas,MOG_s,nMObas,Zero,TEMP,nAObas)
+    call Dgemm_('N','T',nAObas,nAObas,nMObas,One,TEMP,nAObas,AvRed,nAObas,Zero,AOG_s,nAObas)
     do i=1,nAObas
       do j=1,nAObas
         if (i == j) cycle
@@ -73,7 +74,7 @@ do iS1=1,nState
         kaunta = kaunta+1
         PerAake = AOG(kaunta)
         do iTyp=1,nTyp
-          O(iTyp) = Work(iMME(iTyp)-1+kaunta)*PerAake
+          O(iTyp) = MME(iTyp)%A(kaunta)*PerAake
         end do
         Cha(kaunter,iCent(kaunta)) = Cha(kaunter,iCent(kaunta))+O(1)
         Dip(kaunter,1,iCent(kaunta)) = Dip(kaunter,1,iCent(kaunta))+O(2)

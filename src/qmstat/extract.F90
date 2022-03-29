@@ -9,21 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Extract(iLu,i9,Etot,xyzMy,Hmat,iC,nMatBas,xyzQuQ,ip_ExpVal,ip_ExpCento,ENR,ENP)
+subroutine Extract(iLu,i9,Etot,xyzMy,Hmat,C,nMatBas,xyzQuQ,ExpVal,ExpCento,ENR,ENP)
 
 use qmstat_global, only: iExtr_Eig, lExtr, QmType
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9, iC, nMatBas, ip_ExpVal, ip_ExpCento
-real(kind=wp) :: Etot, xyzMY(3), Hmat(*), xyzQuQ(6), ENR, ENP
+integer(kind=iwp) :: iLu, i9, nMatBas
+real(kind=wp) :: Etot, xyzMY(3), Hmat(*), C(nMatBas,nMatBas), xyzQuQ(6), ExpVal(4,*), ExpCento(4,*), ENR, ENP
 
 ! Just pass on the numbers according to QM-method.
 
 if (QmType(1:4) == 'RASS') then
-  call ExtractR(iLu,i9,Etot,xyzMy,Hmat,iC,nMatBas,xyzQuQ,lExtr,iExtr_Eig,ip_ExpVal,ip_ExpCento,ENR,ENP)
+  call ExtractR(iLu,i9,Etot,xyzMy,Hmat,C,nMatBas,xyzQuQ,lExtr,iExtr_Eig,ExpVal,ExpCento,ENR,ENP)
 else if (QmType(1:3) == 'SCF') then
-  call ExtractS(iLu,i9,Etot,xyzMy,xyzQuQ,lExtr,ip_ExpVal,ip_ExpCento,ENR,ENP)
+  call ExtractS(iLu,i9,Etot,xyzMy,xyzQuQ,lExtr,ExpVal,ExpCento,ENR,ENP)
 end if
 
 return

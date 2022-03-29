@@ -11,7 +11,7 @@
 
 subroutine ExScf(iCStart,nBaseQ,nBaseC,iQ_Atoms,nAtomsCC,Ax,Ay,Az,itri,Smat,SmatPure,InCutOff,AOSum)
 
-use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iOrb, iPrint, iV1, lExtr, lmax, nCent, nPart, outxyz
+use qmstat_global, only: c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2, iOrb, iPrint, lExtr, lmax, nCent, nPart, outxyz, V1
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -21,7 +21,6 @@ implicit none
 integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itri
 real(kind=wp) :: Ax, Ay, Az, Smat(itri), SmatPure(itri), AOSum(*)
 logical(kind=iwp) :: InCutOff
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAOAOTri, inwm, j, k, N, nInsideCut
 real(kind=wp) :: CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: NearBy
@@ -118,7 +117,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Transform to MO-MO overlap.
 
-  call Dgemm_('T','N',iOrb(1),nBaseC,nBaseQ,One,Work(iV1),nBaseQ,AOint,nBaseQ,Zero,Inte,iOrb(1))
+  call Dgemm_('T','N',iOrb(1),nBaseC,nBaseQ,One,V1,nBaseQ,AOint,nBaseQ,Zero,Inte,iOrb(1))
   call Dgemm_('N','N',iOrb(1),iOrb(2),nBaseC,One,Inte,iOrb(1),V2,nBaseC,Zero,OvlMO,iOrb(1))
   do i=1,iOrb(2)
     OvlMOE(:,i) = c_orbene(i)*OvlMO(:,i)
