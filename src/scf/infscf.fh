@@ -114,6 +114,7 @@
 * nBB     - Sum(nBas(i)**2,i = 1, nSym)                                *
 * nOO     - Sum(nOrb(i)**2,i = 1, nSym)                                *
 * nOV     - Sum((nOcc(i)-nFro(i))*(nOrb(i)-nOcc(i)),i = 1, nSym)       *
+* mOV     - as nOV but without the blanks.                             *
 * nBO     - Sum(nBas(i) * nOrb(i),i = 1, nSym)                         *
 * nnB     - Sum(nBas(i),i = 1, nSym)                                   *
 * nnO     - Sum(nOrb(i),i = 1, nSym)                                   *
@@ -171,7 +172,7 @@
      &        nIter(0:1),nIterP,iter,iter0,jPrint,iPsLst,InVec,
      &        kIvo,iCoCo,iUHF,iROHF,jVOut,iPrOrb,iPrint,MinDMx,iDMin,
      &        MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,MaxBOO,MaxBOF,
-     &        MaxOrO,nBB,nBO,nOO,nOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
+     &        MaxOrO,nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
      &        nOFT,nDisc,nCore,iPrForm,MaxFlip,iterprlv,
      &        UHF_Size,nSkip(MxSym),iAu_ab,LstVec(nStOpt),
      &        iDummy_run, iTer2run
@@ -185,7 +186,7 @@
      &        iUHF,iROHF,jVOut,iPrOrb,iPrint,iterprlv,MinDMx,iDMin,
      &        MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,
      &        MaxBOO,MaxBOF,MaxOrO,
-     &        nBB,nBO,nOO,nOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
+     &        nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
      &        nOFT,nDisc,nCore,UHF_Size,nSkip,iAu_ab,iPrForm,
      &        MaxFlip,
      &        iDummy_run, iTer2run

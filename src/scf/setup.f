@@ -57,7 +57,6 @@
       MaxOrF = 0
       MaxOrO = 0
       MaxBxO = 0
-cvv      MaxOcc = 0
       MaxFro = 0
       MaxBOF = 0
       MaxBOO = 0
@@ -114,11 +113,11 @@ cvv      MaxOcc = 0
          MaxOrF = Max(MaxOrF,nOrb(iSym) - nFro(iSym))
          MaxOrO = Max(MaxOrO,nOrb(iSym) - minnOcc(iSym))
          MaxBxO = Max(MaxBxO,nBas(iSym)*nOrb(iSym))
-cvv         MaxOcc = Max(MaxOcc,nOcc(iSym,1))
          MaxFro = Max(MaxFro,nFro(iSym))
          MaxBOF = Max(MaxBOF,nBas(iSym)*(nOrb(iSym)-nFro(iSym)))
          MaxBOO = Max(MaxBOO,nBas(iSym)*(nOrb(iSym)-minnOcc(iSym)))
       End Do
+      mOV=nOV*nD ! Temporary setup.
 *
       If (nnB.gt.2*MxBas .and. .not.DSCF ) Then
          Write (6,*) 'SetUp: nnB.gt.2*MxBas .and. .not.DSCF'

@@ -19,7 +19,7 @@
      &                      iTerm,Meth,FstItr,SIntTh,
      &                      OneHam,TwoHam,Dens,Ovrlp,Fock,
      &                      TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,HDiag,
-     &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB,mOV
+     &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB,kOV
      &                        )
 ************************************************************************
 *                                                                      *
@@ -513,7 +513,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             Call GrdClc(FrstDs,iOpt)
 *
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,kOV,Ind)
 *
 *----       Compute optimal density, dft potentials, and TwoHam
 *
@@ -582,7 +582,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             iterso=iterso+1
 *
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,kOV,Ind)
 *
 *----       Compute extrapolated g(n) and X(n)
 *
