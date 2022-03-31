@@ -49,15 +49,15 @@
       Case ('NEW')
          Call WfCtl_SCF_New     (iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
      &                           Dens,Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,
-     &                           CInter,EOrb,OccNo,HDiag,Vxc,TrM,nBT,
-     &                           nDens,nD,nTr,nBB,nCI,nnB,nOV
+     &                           CInter,EOrb,OccNo,Vxc,TrM,nBT,
+     &                           nDens,nD,nTr,nBB,nCI,nnB
      &                          )
 
       Case Default
          Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
      &                           Dens,Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,
-     &                           CInter,EOrb,OccNo,HDiag,Vxc,TrM,nBT,
-     &                           nDens,nD,nTr,nBB,nCI,nnB,nOV
+     &                           CInter,EOrb,OccNo,Vxc,TrM,nBT,
+     &                           nDens,nD,nTr,nBB,nCI,nnB
      &                          )
       End Select
 *                                                                      *
@@ -75,8 +75,8 @@
       SubRoutine WfCtl_SCF_Internal(
      &                      iTerm,Meth,FstItr,SIntTh,
      &                      OneHam,TwoHam,Dens,Ovrlp,Fock,
-     &                      TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,HDiag,
-     &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB,kOV
+     &                      TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,
+     &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB
      &                             )
 ************************************************************************
 *                                                                      *
@@ -111,6 +111,7 @@
       Use Interfaces_SCF, Only: TraClc_i
       use LnkLst, only: SCF_V
       use InfSO
+      use SCF_Arrays, only: HDiag
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
@@ -118,7 +119,7 @@
      &       Ovrlp(mBT), Fock(mBT,nD), TrDD(nTr*nTr,nD),
      &       TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD), CMO(mBB,nD),
      &       CInter(nCI,nD), Vxc(mBT,nD,mDens), TrM(mBB,nD),
-     &       EOrb(mmB,nD), OccNo(mmB,nD), HDiag(nOV,nD)
+     &       EOrb(mmB,nD), OccNo(mmB,nD)
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
@@ -514,7 +515,7 @@
 *
             Call GrdClc(FrstDs,iOpt)
 *
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,kOV,Ind)
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,nOV,Ind)
 *
 *----       Compute optimal density, dft potentials, and TwoHam
 *
@@ -583,7 +584,7 @@
 *
             iterso=iterso+1
 *
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,kOV,Ind)
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,nOV,Ind)
 *
 *----       Compute extrapolated g(n) and X(n)
 *
