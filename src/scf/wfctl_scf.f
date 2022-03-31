@@ -599,7 +599,7 @@
 *-------    compute new displacement vector delta
 *           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
 *
-            Call SOrUpV(Grd1,HDiag,nOV*nD,Disp,'DISP','BFGS')
+            Call SOrUpV(Grd1,HDiag,mOV,Disp,'DISP','BFGS')
 !
 !           from this, compute new orb rot parameter X(n+1)
 !
@@ -701,7 +701,7 @@
 *
             StepMax=0.3D0
             dqHdq=Zero
-            Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
+            Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
 *
 *           store dX(n) vector from Disp to LList

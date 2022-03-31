@@ -19,6 +19,7 @@
      &                                    Darwin, MssVlc
       Real*8, Dimension(:,:,:), Allocatable:: TwoHam, Vxc, Dens
       Real*8, Dimension(:,:), Allocatable:: CMO, TrM, Fock, Lowdin,
-     &                                      OccNo, EOrb, HDiag
+     &                                      OccNo, EOrb
       Real*8, Dimension(:,:), Allocatable:: TrDh, TrDP, TrDD, CInter
+      Real*8, Allocatable:: HDiag(:)
       End Module SCF_Arrays

@@ -84,11 +84,11 @@
 *
       Call mma_deallocate(HDiag)
       If (Aufb) Then
-         lthH = nBB
+         lthH = nBB*nD
       Else
-         lthH = nOV
+         lthH = mOV
       End If
-      Call mma_allocate(HDiag,lthH,nD,Label='HDiag')
+      Call mma_allocate(HDiag,lthH,Label='HDiag')
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -141,11 +141,11 @@ C: happens when we can read and store in memory 5 densities
 *        lthH = lthH + (nB-mB)*mB
 *     End Do
       If (Aufb) Then
-         lthH = nBB
+         lthH = nBB*nD
       Else
-         lthH = nOV
+         lthH = mOV
       End If
-      Call mma_allocate(HDiag,lthH,nD,Label='HDiag')
+      Call mma_allocate(HDiag,lthH,Label='HDiag')
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

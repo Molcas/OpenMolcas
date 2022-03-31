@@ -12,7 +12,7 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 ************************************************************************
-      SubRoutine SetUp
+      SubRoutine SetUp()
 ************************************************************************
 *                                                                      *
 *     purpose: Set up needed parameters                                *
@@ -117,7 +117,7 @@
          MaxBOF = Max(MaxBOF,nBas(iSym)*(nOrb(iSym)-nFro(iSym)))
          MaxBOO = Max(MaxBOO,nBas(iSym)*(nOrb(iSym)-minnOcc(iSym)))
       End Do
-      mOV=nOV*nD ! Temporary setup.
+      mOV=nOV*(iUHF+1) ! Temporary setup.
 *
       If (nnB.gt.2*MxBas .and. .not.DSCF ) Then
          Write (6,*) 'SetUp: nnB.gt.2*MxBas .and. .not.DSCF'

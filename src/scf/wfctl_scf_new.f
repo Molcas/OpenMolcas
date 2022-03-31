@@ -598,7 +598,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *-------    compute new displacement vector delta
 *           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
 *
-            Call SOrUpV(Grd1,HDiag,nOV*nD,Disp,'DISP','BFGS')
+            Call SOrUpV(Grd1,HDiag,mOV,Disp,'DISP','BFGS')
 !
 !           from this, compute new orb rot parameter X(n+1)
 !
