@@ -16,6 +16,7 @@
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
+      use CMS, only: CMSNotConverged
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -53,7 +54,7 @@ C     Allocating Memory
       write(6,*)
       write(6,*) '    CMS INTERMEDIATE STATES OPTIMIZATION'
       write(6,'(4X,A12,2X,ES8.2E2)')
-     &'THRESHOLD',Threshold
+     &'THRESHOLD',CMSThreshold
       write(6,'(4X,A12,2X,I8)')
      &'MAX CYCLES',ICMSIterMax
       write(6,'(4X,A12,2X,I8)')
@@ -70,6 +71,7 @@ C     Allocating Memory
 
       CALL LoadGtuvx(TUVX,Gtuvx)
 
+      CMSNotConverged=.false.
       CALL GetGDMat(GDMat)
       IF(lRoots.lt.NAC) THEN
 *       write(6,*)"Optimization Approach 1"
@@ -87,6 +89,10 @@ C     Deallocating Memory
       CALL mma_deallocate(RotMat)
       CALL mma_deallocate(Gtuvx)
       CALL mma_deallocate(DDg)
+      IF(CMSNotConverged) THEN 
+       Call WarningMessage(2,'CMS Intermediate States Not Converged')
+       Call Abort()
+      END IF
       RETURN
       End Subroutine
 
@@ -95,6 +101,7 @@ C     Deallocating Memory
 ***********************************************************************
       Subroutine NStateOpt(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use CMS, only: CMSNotConverged
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -153,7 +160,9 @@ C     Deallocating Memory
        ELSE
         if(ICMSIter.ge.ICMSIterMax) then
          Converged=.true.
+         CMSNotConverged=.true.
          write(6,'(4X,A)')'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+         write(6,'(4X,A)')'TEMPORARY ROTATION MATRIX SAVED'
         end if
        END IF
        VeeSumOld=VeeSumNew
@@ -518,6 +527,7 @@ C     & IState,' is ',Vee(IState)
 ***********************************************************************
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use CMS, only: CMSNotConverged
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -591,7 +601,9 @@ C     & IState,' is ',Vee(IState)
        ELSE
         if(ICMSIter.ge.ICMSIterMax) then
          Converged=.true.
+         CMSNotConverged=.true.
          write(6,'(4X,A)')'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+         write(6,'(4X,A)')'TEMPORARY ROTATION MATRIX SAVED'
         end if
        END IF
 *         Converged=.true.
