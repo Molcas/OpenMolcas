@@ -74,7 +74,7 @@
 #include "ldfscf.fh"
 #include "warnings.h"
       Real*8, Dimension(:),   Allocatable:: D1Sao
-      Real*8, Dimension(:,:), Allocatable:: Grd1, Disp, Xnp1, Xn
+      Real*8, Dimension(:), Allocatable:: Grd1, Disp, Xnp1, Xn
 
 *---  Tolerance for negative two-electron energy
       Real*8 E2VTolerance
@@ -417,10 +417,10 @@ C              Write (6,*) 'Call SOIniH'
             CInter(1,nD) = One
 
 !           init 1st orb rot parameter X1 (set it to zero)
-            Call mma_allocate(Xn,nOV,nD,Label='Xn')
-            Xn(:,:)=Zero
+            Call mma_allocate(Xn,mOV,Label='Xn')
+            Xn(:)=Zero
 !           and store it on appropriate LList
-            Call PutVec(Xn,nOV*nD,iter,'NOOP',LLx)
+            Call PutVec(Xn,mOV,iter,'NOOP',LLx)
             Call mma_deallocate(Xn)
 *
 *---        compute initial inverse Hessian H (diag)
@@ -587,13 +587,13 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
 *----       Compute extrapolated g(n) and X(n)
 *
-            Call mma_allocate(Grd1,nOV,nD,Label='Grd1')
-            Call mma_allocate(Xnp1,nOV,nD,Label='Xnp1')
+            Call mma_allocate(Grd1,mOV,Label='Grd1')
+            Call mma_allocate(Xnp1,mOV,Label='Xnp1')
 *
             Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,nOV,Ind,MxOptm,
      &                      kOptim)
 
-            Call mma_allocate(Disp,nOV,nD,Label='Disp')
+            Call mma_allocate(Disp,mOV,Label='Disp')
 *
 *-------    compute new displacement vector delta
 *           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
@@ -604,8 +604,8 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 !
 !           X(n+1) = X(n) -H(-1)grd'(X(n))
 !
-            Call Daxpy_(nOV*nD,-One,Disp,1,Xnp1,1)
-            Call PutVec(Xnp1,nOV*nD,iter+1,'NOOP',LLx)
+            Call Daxpy_(mOV,-One,Disp,1,Xnp1,1)
+            Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
 *
 *           get address of actual X(n) in corresponding LList
 *
@@ -613,15 +613,15 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
-            Call DZAXPY(nOV*nD,-One,SCF_V(jpXn)%A,1,Xnp1,1,Disp,1)
+            Call DZAXPY(mOV,-One,SCF_V(jpXn)%A,1,Xnp1,1,Disp,1)
 *
 *           store dX(n) vector from Disp to LList
 *
-            Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
+            Call PutVec(Disp,mOV,iter,'NOOP',LLDelt)
 *
 *           compute Norm of dX(n)
 *
-            DltNrm=DBLE(nD)*DNRM2_(nOV*nD,Disp,1)
+            DltNrm=DBLE(nD)*DNRM2_(mOV,Disp,1)
 
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
@@ -685,15 +685,15 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *           Allocate memory for the current gradient and
 *           displacement vector.
 *
-            Call mma_allocate(Grd1,nOV,nD,Label='Grd1')
-            Call mma_allocate(Disp,nOV,nD,Label='Disp')
-            Call mma_allocate(Xnp1,nOV,nD,Label='Xnp1')
+            Call mma_allocate(Grd1,mOV,Label='Grd1')
+            Call mma_allocate(Disp,mOV,Label='Disp')
+            Call mma_allocate(Xnp1,mOV,Label='Xnp1')
 *
 *           get last gradient grad(n) from LList
 *
-            Call GetVec(iter,LLGrad,inode,Grd1,nOV*nD)
+            Call GetVec(iter,LLGrad,inode,Grd1,mOV)
 #ifdef _DEBUGPRINT_
-            Call RecPrt('Wfctl: g(n)',' ',Grd1,1,nOV*nD)
+            Call RecPrt('Wfctl: g(n)',' ',Grd1,1,mOV)
 #endif
 *
 *           Call restricted-step rational function optimization procedure
@@ -701,22 +701,22 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
             StepMax=0.3D0
             dqHdq=Zero
-            Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
+            Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
 *
 *           store dX(n) vector from Disp to LList
 *
-            Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
+            Call PutVec(Disp,mOV,iter,'NOOP',LLDelt)
 *
 *           Store X(n+1)
 *
-            Call GetVec(iter,LLx,inode,Xnp1,nOV*nD)
-            Xnp1(:,:)=Xnp1(:,:)+Disp(:,:)
-            Call PutVec(Xnp1,nOV*nD,iter+1,'NOOP',LLx)
+            Call GetVec(iter,LLx,inode,Xnp1,mOV)
+            Xnp1(:)=Xnp1(:)+Disp(:)
+            Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
 
 #ifdef _DEBUGPRINT_
             Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
-            Call RecPrt('Wfctl: dX(n)',' ',Disp,1,nOV*nD)
+            Call RecPrt('Wfctl: dX(n)',' ',Disp,1,mOV)
 #endif
 *
 *           compute Norm of delta(n)
