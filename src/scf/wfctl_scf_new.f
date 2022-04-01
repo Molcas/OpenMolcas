@@ -588,8 +588,8 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
             Call mma_allocate(Grd1,mOV,Label='Grd1')
             Call mma_allocate(Xnp1,mOV,Label='Xnp1')
 *
-            Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,nOV,Ind,MxOptm,
-     &                      kOptim)
+            Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
+     &                      kOptim,kOV)
 
             Call mma_allocate(Disp,mOV,Label='Disp')
 *

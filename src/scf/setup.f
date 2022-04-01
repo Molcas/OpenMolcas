@@ -117,7 +117,9 @@
          MaxBOF = Max(MaxBOF,nBas(iSym)*(nOrb(iSym)-nFro(iSym)))
          MaxBOO = Max(MaxBOO,nBas(iSym)*(nOrb(iSym)-minnOcc(iSym)))
       End Do
-      mOV=nOV*(iUHF+1) ! Temporary setup.
+      kOV(1) = nOV       ! Temporary setup.
+      kOV(2) = nOV*iUHF  ! Temporary setup.
+      mOV=kOV(1)+kOV(2)  ! Temporary setup.
 *
       If (nnB.gt.2*MxBas .and. .not.DSCF ) Then
          Write (6,*) 'SetUp: nnB.gt.2*MxBas .and. .not.DSCF'

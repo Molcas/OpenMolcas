@@ -115,6 +115,7 @@
 * nOO     - Sum(nOrb(i)**2,i = 1, nSym)                                *
 * nOV     - Sum((nOcc(i)-nFro(i))*(nOrb(i)-nOcc(i)),i = 1, nSym)       *
 * mOV     - as nOV but without the blanks.                             *
+* kOV     - as nOV but for each spin   mOV=kOV(1)+kOV(2)               *
 * nBO     - Sum(nBas(i) * nOrb(i),i = 1, nSym)                         *
 * nnB     - Sum(nBas(i),i = 1, nSym)                                   *
 * nnO     - Sum(nOrb(i),i = 1, nSym)                                   *
@@ -168,7 +169,7 @@
      &        isAufbauInput,nAtoms,nDens,nDsk,nMem,kOptim,
      &        iDKeep,lPaper,
      &        MapDns(MxKeep),MapGrd(MxOptm),
-     &        iDisk(MxDDsk,2),kDisk(MxOptm),
+     &        iDisk(MxDDsk,2),kDisk(MxOptm),kOV(2),
      &        nIter(0:1),nIterP,iter,iter0,jPrint,iPsLst,InVec,
      &        kIvo,iCoCo,iUHF,iROHF,jVOut,iPrOrb,iPrint,MinDMx,iDMin,
      &        MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,MaxBOO,MaxBOF,
@@ -186,7 +187,7 @@
      &        iUHF,iROHF,jVOut,iPrOrb,iPrint,iterprlv,MinDMx,iDMin,
      &        MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,
      &        MaxBOO,MaxBOF,MaxOrO,
-     &        nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
+     &        nBB,nBO,nOO,nOV,mOV,kOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
      &        nOFT,nDisc,nCore,UHF_Size,nSkip,iAu_ab,iPrForm,
      &        MaxFlip,
      &        iDummy_run, iTer2run

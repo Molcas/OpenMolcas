@@ -14,7 +14,7 @@
 *               1995, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,HDiag,kOV,Ind)
+      SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,HDiag,lOV,Ind)
 ************************************************************************
 *                                                                      *
 *     purpose: Accelerate convergence using DIIS method                *
@@ -54,7 +54,7 @@
 #include "file.fh"
 #include "llists.fh"
 *
-      Real*8 CInter(nCI,nD), HDiag(kOV,nD)
+      Real*8 CInter(nCI,nD), HDiag(lOV,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
       Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch
 *
