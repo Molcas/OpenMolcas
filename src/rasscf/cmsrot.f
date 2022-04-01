@@ -89,9 +89,9 @@ C     Deallocating Memory
       CALL mma_deallocate(RotMat)
       CALL mma_deallocate(Gtuvx)
       CALL mma_deallocate(DDg)
-      IF(CMSNotConverged) THEN 
+      IF(CMSNotConverged) THEN
        Call WarningMessage(2,'CMS Intermediate States Not Converged')
-       Call Abort()
+       Call Quit(_RC_NOT_CONVERGED_)
       END IF
       RETURN
       End Subroutine
