@@ -49,8 +49,8 @@ C     Allocating Memory
       ELSE
        CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,
      &              len_trim(CMSStartMat),16,'N')
-       write(6,'(5X,A12,2X,A,2X,A)')
-     &'START MATRX',trim(CMSStartMat),VecName
+       write(6,'(5X,A12,2X,A)')
+     &'START MATRX',trim(CMSStartMat)
       END IF
       write(6,'(4X,A12,2X,ES8.2E2)')
      &'THRESHOLD ',CMSThreshold
