@@ -135,18 +135,18 @@
 *
          End If
 *
-         Call vOO2OV(GrdOO,nOO,GrdOV,nOV,nD)
+         Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,nOV,kOV)
 *
 *------- Write Gradient to linked list
 *
-         Call PutVec(GrdOV,nD*nOV,iDT+iter0,'OVWR',LLGrad)
+         Call PutVec(GrdOV,mOV,iDT+iter0,'OVWR',LLGrad)
 *
 #ifdef _DEBUGPRINT_
          Write (6,*) 'GrdClc: Put Gradient iteration:',iDT+iter0
          Write (6,*) 'iOpt=',iOpt
          Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
-         Call NrmClc(GrdOV,nOV*nD,'GrdClc','GrdOV')
-         Call RecPrt('GrdClc: g(i)',' ',GrdOV,1,nOV*nD)
+         Call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
+         Call RecPrt('GrdClc: g(i)',' ',GrdOV,1,mOV)
 #endif
       End Do
 *
