@@ -38,21 +38,20 @@ C     Allocating Memory
       CALL mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
       CALL mma_allocate(DDG,lRoots,lRoots,lRoots,lRoots)
 
+*     printing header
       write(6,*)
       write(6,*)
-      write(6,*) 'CMS INTERMEDIATE STATE OPTIMIZATION STARTS WITH'
+      write(6,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
       IF(trim(CMSStartMat).eq.'XMS') THEN
-       write(6,*) 'XMS INTERMEDIATE STATES'
+       write(6,'(4X,A12,2X,A)')
+     &'START MAT','XMS INTEGERMEDIATE STATES'
        CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
       ELSE
        CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,
      &              len_trim(CMSStartMat),16,'N')
-       write(6,*) 'A USER-PROVIDED FILE: ',trim(CMSStartMat)
-       write(6,*) 'ROTATION MATRIX NOTE: ',VecName
+       write(6,'(4X,A12,2X,A,2X,A)')
+     &'START MAT',trim(CMSStartMat),VecName
       END IF
-*     printing header
-      write(6,*)
-      write(6,*) '    CMS INTERMEDIATE STATES OPTIMIZATION'
       write(6,'(4X,A12,2X,ES8.2E2)')
      &'THRESHOLD',CMSThreshold
       write(6,'(4X,A12,2X,I8)')
