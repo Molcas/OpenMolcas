@@ -289,6 +289,7 @@
          nOV    = nOV  + (maxnOcc-nFro(iSym))*
      &                   (nOrb(iSym)-minnOcc)
       End Do
+      mOV=nOV*nD
 *                                                                      *
 ************************************************************************
 *                                                                      *
