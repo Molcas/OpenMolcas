@@ -845,6 +845,22 @@ C   No changing about read in orbital information from INPORB yet.
        Call SetPos(LUInput,'CMSI',Line,iRc)
        Call ChkIfKey()
       End If
+*---  Process CMSS command --------------------------------------------*
+      CMSStartMat='XMS'
+      If (KeyCMSS.and.(iCMSP.eq.1)) Then
+       If (DBG) Then
+         Write(6,*)' Reading CMS inital rotation matrix'
+       End If
+       Call SetPos(LUInput,'CMSS',Line,iRc)
+       Line=Get_Ln(LUInput)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       Call ChkIfKey()
+       If (DBG) Then
+         Write(6,*) ' Reading CMS starting rotation matrix from'
+         Write(6,*) trim(Line)
+       End If
+       IF(.not.(trim(Line).eq.'XMS'))  call fileorb(Line,CMSStartMat)
+      End If
 *---  Process CMMA command --------------------------------------------*
       If (KeyCMMA) Then
        If (DBG) Write(6,*) ' CMS Max Cylces keyword was given.'
