@@ -515,7 +515,7 @@
 *
             Call GrdClc(FrstDs,iOpt)
 *
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,nOV,Ind)
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
 *
 *----       Compute optimal density, dft potentials, and TwoHam
 *
@@ -584,7 +584,7 @@
 *
             iterso=iterso+1
 *
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,nOV,Ind)
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
 *
 *----       Compute extrapolated g(n) and X(n)
 *

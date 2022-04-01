@@ -14,7 +14,7 @@
 *               1995, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,HDiag,lOV,Ind)
+      SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 ************************************************************************
 *                                                                      *
 *     purpose: Accelerate convergence using DIIS method                *
@@ -45,6 +45,7 @@
 *                                                                      *
 ************************************************************************
       use InfSO
+      use SCF_arrays, only: HDiag
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
@@ -54,7 +55,7 @@
 #include "file.fh"
 #include "llists.fh"
 *
-      Real*8 CInter(nCI,nD), HDiag(lOV,nD)
+      Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
       Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch
 *
@@ -119,8 +120,8 @@
 *
 *     Allocate memory for error vectors (gradient or delta)
 *
-      Call mma_allocate(Err1,nOV*nD,Label='Err1')
-      Call mma_allocate(Err2,nOV*nD,Label='Err2')
+      Call mma_allocate(Err1,mOV,Label='Err1')
+      Call mma_allocate(Err2,mOV,Label='Err2')
       nBij=kOptim+1
       Call mma_allocate(Bij,nBij,nBij)
       Call FZero(Bij,nBij**2)
@@ -128,21 +129,21 @@
 *---- Compute norms, <e_i|e_j>
 *
       Do i=1,kOptim
-         Call ErrV(nOV*nD,Ind(i),QNRstp,Err1,HDiag)
+         Call ErrV(mOV,Ind(i),QNRstp,Err1,HDiag)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-         Call NrmClc(Err1,nOV*nD,'Diis  ','Err1  ')
+         Call NrmClc(Err1,mOV,'Diis  ','Err1  ')
 #endif
          Do j=1,i-1
 
-            Call ErrV(nOV*nD,Ind(j),QNRstp,Err2,HDiag)
+            Call ErrV(mOV,Ind(j),QNRstp,Err2,HDiag)
 #ifdef _DEBUGPRINT_
-            Call NrmClc(Err2,nOV*nD,'Diis  ','Err2  ')
+            Call NrmClc(Err2,mOV,'Diis  ','Err2  ')
 #endif
-            Bij(i,j) = DBLE(nD)*DDot_(nOV*nD,Err1,1,Err2,1)
+            Bij(i,j) = DBLE(nD)*DDot_(mOV,Err1,1,Err2,1)
             Bij(j,i) = Bij(i,j)
          End Do
-         Bij(i,i) = DBLE(nD)*DDot_(nOV*nD,Err1,1,Err1,1)
+         Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
       End Do
 *
 *---- Deallocate memory for error vectors & gradient
