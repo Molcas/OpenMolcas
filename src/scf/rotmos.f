@@ -11,7 +11,7 @@
 * Copyright (C) 1994, Martin Schuetz                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine RotMOs(Delta,nDelta,CMO,nCMO,nD,Ovrlp,mBT,kVO)
+      SubRoutine RotMOs(Delta,nDelta,CMO,nCMO,nD,Ovrlp,mBT)
 ************************************************************************
 *                                                                      *
 *     purpose: rotates MOs according to last displacement vector       *
@@ -51,7 +51,7 @@
 #include "file.fh"
 #include "llists.fh"
 *
-      Integer nDelta,nCMO, kVO(2)
+      Integer nDelta,nCMO
       Real*8 CMO(nCMO,nD),Delta(nDelta),Ovrlp(mBT)
       Real*8 Cpu1,Tim1,Tim2,Tim3
 *
@@ -74,9 +74,9 @@
       iEnd = 0
       Do iD = 1, nD
          iSt = iEnd + 1
-         iEnd = iEnd + kVO(iD)
+         iEnd = iEnd + kOV(iD)
 *        compute rotation matrix via expkap
-         Call ExpKap(Delta(iSt:iEnd),RoM,nOcc(1,iD))
+         Call ExpKap(Delta(iSt:iEnd),kOV(id),RoM,nOcc(1,iD))
          iSyBlpt=1
          iCMOpt=1
 *

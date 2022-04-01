@@ -623,7 +623,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT,kOV)
+            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT)
 *
 *           and release memory...
             Call mma_deallocate(Xnp1)
@@ -723,7 +723,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT,kOV)
+            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT)
 *
 *           and release memory...
             Call mma_deallocate(Xnp1)

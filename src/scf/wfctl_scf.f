@@ -626,7 +626,7 @@
 
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT,kOV)
+            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT)
 *
 *           and release memory...
             Call mma_deallocate(Xnp1)
@@ -718,7 +718,7 @@
 *
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT,kOV)
+            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT)
 *
 *           and release memory...
             Call mma_deallocate(Disp)

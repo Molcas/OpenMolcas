@@ -26,7 +26,7 @@
 !> @param[in]  mynOcc Number of occupied orbitals (including frozen) in each symmetry
 !***********************************************************************
 
-      SubRoutine ExpKap(kapOV,U,mynOcc)
+      SubRoutine ExpKap(kapOV,nKapOV,U,mynOcc)
 *
       Implicit None
 #include "real.fh"
@@ -34,7 +34,8 @@
 #include "infscf.fh"
 *
 *     declaration subroutine parameters
-      Real*8 kapOV(nOV),U(nOFS)
+      Integer nKapOV
+      Real*8 kapOV(nkapOV),U(nOFS)
       Integer mynOcc(8)
 *
       Integer iKap,iSym,iU,j,jU,mOcc,mOrb,mVir
