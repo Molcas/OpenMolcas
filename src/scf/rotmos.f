@@ -11,7 +11,7 @@
 * Copyright (C) 1994, Martin Schuetz                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine RotMOs(Delta,nDelta,CMO,nCMO,nD,Ovrlp,mBT)
+      SubRoutine RotMOs(Delta,nDelta,CMO,nCMO,nD,Ovrlp,mBT,kVO)
 ************************************************************************
 *                                                                      *
 *     purpose: rotates MOs according to last displacement vector       *
@@ -51,8 +51,8 @@
 #include "file.fh"
 #include "llists.fh"
 *
-      Integer nDelta,nCMO
-      Real*8 CMO(nCMO,nD),Delta(nDelta,nD),Ovrlp(mBT)
+      Integer nDelta,nCMO, kVO(2)
+      Real*8 CMO(nCMO,nD),Delta(nDelta),Ovrlp(mBT)
       Real*8 Cpu1,Tim1,Tim2,Tim3
 *
 *---- Define local variables
@@ -71,9 +71,12 @@
       End Do
       Call mma_allocate(Scratch,nSize,Label='Scratch')
 *
+      iEnd = 0
       Do iD = 1, nD
+         iSt = iEnd + 1
+         iEnd = iEnd + kVO(iD)
 *        compute rotation matrix via expkap
-         Call ExpKap(Delta(1,iD),RoM,nOcc(1,iD))
+         Call ExpKap(Delta(iSt:iEnd),RoM,nOcc(1,iD))
          iSyBlpt=1
          iCMOpt=1
 *
@@ -123,9 +126,9 @@
 *
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Delta,nDelta*nD,'RotMos','Delta')
+      Call NrmClc(Delta,nDelta,'RotMos','Delta')
       Call NrmClc(CMO,nCMO*nD,'RotMos','CMO')
-      Call RecPrt('RotMOs: Delta',' ',Delta,nDelta,nD)
+      Call RecPrt('RotMOs: Delta',' ',Delta,1,nDelta)
       Call RecPrt('RotMOs: CMO',' ',CMO,nCMO,nD)
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
