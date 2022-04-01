@@ -45,7 +45,7 @@
 *
 *     declaration subroutine parameters
       Integer nEOrb,nH, nD
-      Real*8 EOrb(nEOrb,nD),HDiag(nH,nD)
+      Real*8 EOrb(nEOrb,nD),HDiag(nH)
 *
 *     declaration local variables
       Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
@@ -58,7 +58,7 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
-      call DCopy_(nH*nD,[1.0D+99],0,HDiag,1)
+      HDiag(:)=1.0D+99
 *
 #define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -73,7 +73,7 @@
       Do iD = 1, nD
 *
          ioffs=1
-         iHoffs=1
+         iHoffs=1+(iD-1)*nOV ! Temporary
          Do iSym=1,nSym
 *
 *            loop over all occ orbitals in sym block
@@ -92,7 +92,7 @@
                 Do ia=ioffs+nOccmF,ioffs+nOrbmF-1
 *
                    If (OrbType(ia,iD).eq.OrbType(ii,iD))
-     &             HDiag(iHoffs,iD)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
+     &             HDiag(iHoffs)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
      &                             /DBLE(nD)
 *
                    iHoffs=iHoffs+1
@@ -104,7 +104,7 @@
 #ifdef _DEBUGPRINT_
              Write (6,*) 'nOccmF,nOrbmF=',nOccmF,nOrbmF
              If ((nOrbmF-nOccmF)*nOccmF.gt.0)
-     &          Call RecPrt('HDiag',' ',HDiag(iHoffs_,iD),
+     &          Call RecPrt('HDiag',' ',HDiag(iHoffs_),
      &                      nOrbmF-nOccmF,nOccmF)
 #endif
 *
@@ -113,6 +113,6 @@
           End Do ! iSym
       End Do ! iD
 *
-      Call RecPrt('HDiag',' ',HDiag(:,:),nH,nD)
+      Call RecPrt('HDiag',' ',HDiag(:),1,nH)
       Return
       End

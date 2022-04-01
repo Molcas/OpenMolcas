@@ -389,8 +389,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *
 *---           compute initial inverse Hessian H (diag)
 *
-C              Write (6,*) 'Call SOIniH'
-               Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
+               Call SOIniH(EOrb,nnO,HDiag,mOV,nD)
 *
             End If
          End If
@@ -425,8 +424,7 @@ C              Write (6,*) 'Call SOIniH'
 *
 *---        compute initial inverse Hessian H (diag)
 *
-*           Write (6,*) 'Call SOIniH'
-            Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
+            Call SOIniH(EOrb,nnO,HDiag,mOV,nD)
 *
          End If
 #endif

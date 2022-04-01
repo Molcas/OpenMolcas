@@ -427,7 +427,7 @@
 *
 *---           compute initial inverse Hessian H (diag)
 *
-               Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
+               Call SOIniH(EOrb,nnO,HDiag,mOV,nD)
 *
             End If
          End If
