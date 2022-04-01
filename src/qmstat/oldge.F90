@@ -15,8 +15,9 @@ use qmstat_global, only: Cordst, nCent, nPart, OldGeo
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAcc
-real(kind=wp) :: Etot, Eold, Ract, Rold
+integer(kind=iwp), intent(inout) :: iAcc
+real(kind=wp), intent(out) :: Etot, Ract
+real(kind=wp), intent(in) :: Eold, Rold
 integer(kind=iwp) :: i, icCom, j, k
 
 iAcc = iAcc-1

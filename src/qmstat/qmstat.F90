@@ -24,7 +24,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: iCi, iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), nCalls, NCountField, nntyp
 character(len=4) :: Labjhr
 integer(kind=iwp), allocatable :: natyp(:), nOcc(:)

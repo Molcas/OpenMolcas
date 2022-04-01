@@ -21,8 +21,9 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LMltSlQ, nAt
-real(kind=wp) :: outxyz(3,nTri_Elem(nAt))
+integer(kind=iwp), intent(out) :: LMltSlQ
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(in) :: outxyz(3,nTri_Elem(nAt))
 integer(kind=iwp) :: iC, ind, jhr, k, kk, l, Lu, nS, nSlCentQ, nT, nTestjhr
 real(kind=wp) :: CoordTest(3), SlFactQ(6)
 logical(kind=iwp) :: Exists, lCheck
@@ -41,7 +42,7 @@ if (.not. Exists) then
 end if
 rewind(Lu)
 
-! Read Number of centers and angular momentums.
+! Read Number of centers and angular momenta.
 
 read(Lu,101) nSlCentQ
 read(Lu,101) LMltSlQ

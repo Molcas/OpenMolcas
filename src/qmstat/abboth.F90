@@ -22,10 +22,10 @@ use Definitions, only: iwp, wp, u6
 #define _MxM_ 2
 
 implicit none
-integer(kind=iwp) :: iLA, iLB
-real(kind=wp) :: dMulA(nTri_Elem1(_MxM_)), dKappa, Rho, RhoA, RhoB, Rinv, Colle(3)
-logical(kind=iwp) :: lTooSmall
-integer(kind=iwp) :: i
+integer(kind=iwp), intent(in) :: iLA, iLB
+real(kind=wp), intent(in) :: dMulA(nTri_Elem1(_MxM_)), dKappa, Rho, RhoA, RhoB, Rinv
+logical(kind=iwp), intent(in) :: lTooSmall
+real(kind=wp), intent(out) :: Colle(3)
 real(kind=wp) :: Ex, ExA, ExB, Pi1, Pi2, Sigma, Width
 real(kind=wp), external :: CoulT0_1, CoulT0_2, CoulT0_4, CoulT0_5, CoulTN_1, CoulTN_2, CoulTN_4, CoulTN_5
 #include "warnings.h"
@@ -36,9 +36,7 @@ real(kind=wp), external :: CoulT0_1, CoulT0_2, CoulT0_4, CoulT0_5, CoulTN_1, Cou
 ! have to take into account to move the result for the original
 ! coordinate system in QmStat.
 
-do i=1,3
-  Colle(i) = Zero
-end do
+Colle(:) = Zero
 
 if ((iLA == 0) .and. (iLB == 0)) then
   ! s-s interaction. There is only sigma-components, hence simple.

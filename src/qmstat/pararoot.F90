@@ -23,9 +23,9 @@
 !> mainly handles the various configurations for the different
 !> temperature ensembles; also, manages the ensemble switch.
 !>
-!> @param[in]     Ract
-!> @param[in]     BetaBol
-!> @param[in]     Etot
+!> @param[out]    Ract
+!> @param[out]    BetaBol
+!> @param[out]    Etot
 !> @param[in,out] CalledBefore
 !> @param[out]    SampleThis
 !***********************************************************************
@@ -37,9 +37,17 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTokJ, KBoltzmann
 use Definitions, only: wp, iwp, u6
 
+!IFG
+!Ract out
+!BetaBol out
+!Etot out
+!CalledBefore inout
+!SampleThis out
+
 implicit none
-real(kind=wp) :: Ract, BetaBol, Etot
-logical(kind=iwp) :: CalledBefore, SampleThis
+real(kind=wp), intent(out) :: Ract, BetaBol, Etot
+logical(kind=iwp), intent(inout) :: CalledBefore
+logical(kind=iwp), intent(out) :: SampleThis
 integer(kind=iwp) :: i, iEnsemb, iPa, iTemp = 0, j, mTemp
 real(kind=wp) :: B1, B2, BigDelta, Dum, Dum1, E1, E2, Expe, Expran, PerType, R1, R2, T1, T2
 logical(kind=iwp) :: WeiterBitte, Accept

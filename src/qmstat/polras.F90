@@ -20,11 +20,14 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, iCStart, iTriState, icnum, NVarv
-real(kind=wp) :: Dist(nCent,nCent,nTri_Elem(nPart-icnum-1)), DistIm(nCent,nPart-icnum,nCent,nPart-icnum), DT(3,nPol*nPart), &
-                 FI(3,nPol*nPart), FP(3,nPol*nPart), Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), VMat(iTriState), Smat(iTriState), &
-                 DiFac, Ract, Energy, STC(nState,nState), ExpVal(4,nState), Poli(nTri_Elem(iQ_Atoms),10)
-logical(kind=iwp) :: Haveri
+integer(kind=iwp), intent(in) :: iQ_Atoms, iCStart, iTriState, icnum
+real(kind=wp), intent(in) :: Dist(nCent,nCent,nTri_Elem(nPart-icnum-1)), DistIm(nCent,nPart-icnum,nCent,nPart-icnum), &
+                             FP(3,nPol*nPart), Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), VMat(iTriState), Smat(iTriState), DiFac, &
+                             Ract
+real(kind=wp), intent(inout) :: DT(3,nPol*nPart), Energy
+real(kind=wp), intent(out) :: FI(3,nPol*nPart), STC(nState,nState), ExpVal(4,nState), Poli(nTri_Elem(iQ_Atoms),10)
+integer(kind=iwp), intent(out) :: NVarv
+logical(kind=iwp), intent(out) :: Haveri
 integer(kind=iwp) :: i, iDum, iErr, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej

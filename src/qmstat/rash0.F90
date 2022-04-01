@@ -19,7 +19,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: nB
+integer(kind=iwp), intent(in) :: nB
 integer(kind=iwp) :: i, iExt, iopt, irc, iS1, iS2, iSmLbl, j, kaunter, Lu_One, nBTri, nSize
 real(kind=wp) :: Element
 real(kind=wp), allocatable :: AOG(:), AOx(:), AUX(:,:), DiagH0(:), MOG(:), MOx(:), SqAO(:,:), SqMO(:,:)

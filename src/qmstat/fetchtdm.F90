@@ -17,8 +17,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nB, nS
-character(len=6) :: TDMchar
+integer(kind=iwp), intent(in) :: nB, nS
+character(len=*), intent(in) :: TDMchar
 integer(kind=iwp) :: iDisk, iS1, iS2, kaunter, Lu, nSize
 integer(kind=iwp), allocatable :: iTocBig(:)
 integer(kind=iwp), external :: IsFreeUnit

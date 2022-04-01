@@ -16,8 +16,10 @@ use qmstat_global, only: Cordst, iLuStut, iPrint, iTcSim, nCent, nPart, StFilUt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Ract, Etot, Gmma, Gam, Esav
+real(kind=wp), intent(_IN_) :: Ract, Etot, Gmma, Gam, Esav
 integer(kind=iwp) :: i, iDisk
 character(len=200) :: Head
 real(kind=wp), allocatable :: CT(:)

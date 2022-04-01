@@ -45,10 +45,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nBaseQ, nBaseC, N, nCent, iQ_Atoms, nAtomsCC, iPrint
-real(kind=wp) :: Sint(nBaseQ,nBaseC)
-logical(kind=iwp) :: Inside(iQ_Atoms,nAtomsCC)
+integer(kind=iwp), intent(in) :: nBaseQ, nBaseC, N, nCent, iQ_Atoms, nAtomsCC, iPrint
+real(kind=wp), intent(_OUT_) :: Sint(nBaseQ,nBaseC)
+logical(kind=iwp), intent(in) :: Inside(iQ_Atoms,nAtomsCC)
 integer(kind=iwp) :: i, iA1, iA2, iB1, iB2, iC, iCC, iCcontB, iCcontBSAV, iCcontBSAV1, iCcontBSAV2, iCQ, iNcB1, iNcB2, iQ, &
                      iQcontB, iQcontBSAV, iQcontBSAV1, iQcontBSAV2, iqqqC, iqqqQ, j, k, kaunter, kreichner, nExp1, nExp2, nSph1, &
                      nSph2

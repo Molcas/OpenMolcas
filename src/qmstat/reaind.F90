@@ -16,12 +16,13 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCNum, indma, nClas
-real(kind=wp) :: GP(3,nPol*nPart), DistIm(nCent,nClas,nCent,nClas), DT(3,nPol*nPart), Sum1, s90um
+integer(kind=iwp), intent(in) :: iCNum, indma, nClas
+real(kind=wp), intent(in) :: GP(3,nPol*nPart), DistIm(nCent,nClas,nCent,nClas), DT(3,nPol*nPart)
+real(kind=wp), intent(out) :: Sum1, s90um
 integer(kind=iwp) :: i, j, k, l
 real(kind=wp) :: D, D1x, D1y, D1z, Q1, Q2, x, X1, y,z
 
-Sum1 = 0
+Sum1 = Zero
 !irekn = 0
 !xled = 0
 !yled = 0

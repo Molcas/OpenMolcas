@@ -35,14 +35,13 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: itri, ici
-real(kind=wp) :: Eint(ici,10), Ql(itri,ici), Dil(itri,3,ici), QQxxyy(itri,6,ici), Vmat(itri)
+integer(kind=iwp), intent(in) :: itri, ici
+real(kind=wp), intent(in) :: Eint(ici,10), Ql(itri,ici), Dil(itri,3,ici), QQxxyy(itri,6,ici)
+real(kind=wp), intent(out) :: Vmat(itri)
 integer(kind=iwp) :: i, j, k
 
 ! Zeros
-do i=1,itri
-  Vmat(i) = Zero
-end do
+Vmat(:) = Zero
 
 ! The electrostatic perturbation: <psi_i|V_el|psi_j>
 do i=1,itri

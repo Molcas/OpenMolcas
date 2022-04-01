@@ -26,8 +26,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: loneX, ltwoX, lsumX, loneY, ltwoY, lsumY, loneZ, ltwoZ, lsumZ
-real(kind=wp) :: PAxyz(3), PBxyz(3), FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1), FactorZ(2*MxAngqNr+1)
+integer(kind=iwp), intent(in) :: loneX, ltwoX, lsumX, loneY, ltwoY, lsumY, loneZ, ltwoZ, lsumZ
+real(kind=wp), intent(in) :: PAxyz(3), PBxyz(3)
+real(kind=wp), intent(out) :: FactorX(2*MxAngqNr+1), FactorY(2*MxAngqNr+1), FactorZ(2*MxAngqNr+1)
 integer(kind=iwp) :: i, ia, iLowB, iUpB
 real(kind=wp) :: fff1, fff2, PAraise, PBraise
 integer(kind=iwp), external :: NoverP_Q

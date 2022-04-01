@@ -23,7 +23,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iDubFac
-integer(kind=iwp) :: N
+integer(kind=iwp), intent(in) :: N
 integer(kind=iwp) :: k
 
 iDubFac = 1

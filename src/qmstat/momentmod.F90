@@ -18,9 +18,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: nBRe, nBNRe, iS1, iS2
-logical(kind=iwp) :: LindMOs(nBNRe), First
-real(kind=wp) :: Re(nTri_Elem(nBRe)), NRe(nBNRe,nBNRe), Cmo(nBNRe,nBNRe), DiffMax
+integer(kind=iwp), intent(in) :: nBRe, nBNRe, iS1, iS2
+real(kind=wp), intent(in) :: Re(nTri_Elem(nBRe)), NRe(nBNRe,nBNRe), Cmo(nBNRe,nBNRe)
+logical(kind=iwp), intent(in) :: LindMOs(nBNRe)
+logical(kind=iwp), intent(inout) :: First
+real(kind=wp), intent(out) :: DiffMax
 integer(kind=iwp) :: i, icomp, iopt, irc, iSmLbl, j, kaunt1, nSize1, nSize2
 real(kind=wp) :: Diffx, Diffy, Diffz, DipRe(3), DipNRe(3)
 real(kind=wp), allocatable :: D(:), Dsq(:,:), DxM(:,:), DxRe(:), DyM(:,:), DyRe(:), DzM(:,:), DzRe(:), TEMP(:,:)
@@ -89,9 +91,7 @@ DipRe(3) = Ddot_(nSize2,DzRe,1,Re,1)
 Diffx = abs(DipRe(1)-DipNRe(1))
 Diffy = abs(DipRe(2)-DipNRe(2))
 Diffz = abs(DipRe(3)-DipNRe(3))
-if (iPrint >= 5) then
-  write(u6,99) iS1,iS2,'(',Diffx,',',Diffy,',',Diffz,')'
-end if
+if (iPrint >= 5) write(u6,99) iS1,iS2,'(',Diffx,',',Diffy,',',Diffz,')'
 ! Return number
 DiffMax = Diffy
 if (Diffx >= Diffy) DiffMax = Diffx

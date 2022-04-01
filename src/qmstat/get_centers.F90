@@ -18,8 +18,8 @@ subroutine Get_Centers(nAt,xyz)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: xyz(3,nAt,nAt)
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(out) :: xyz(3,nAt,nAt)
 integer(kind=iwp) :: i, j, jj, Lu
 logical(kind=iwp) :: Exists
 character(len=13) :: TheLine

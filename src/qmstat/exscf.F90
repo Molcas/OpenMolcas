@@ -18,9 +18,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itri
-real(kind=wp) :: Ax, Ay, Az, Smat(itri), SmatPure(itri), AOSum(*)
-logical(kind=iwp) :: InCutOff
+integer(kind=iwp), intent(in) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itri
+real(kind=wp), intent(out) :: Ax, Ay, Az, Smat(itri), SmatPure(itri)
+logical(kind=iwp), intent(out) :: InCutOff
+real(kind=wp), intent(inout) :: AOSum(*)
 integer(kind=iwp) :: i, iAOAOTri, inwm, j, k, N, nInsideCut
 real(kind=wp) :: CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: NearBy
@@ -58,10 +59,8 @@ if (lExtr(8)) then
 end if
 !********************************************************************
 InCutOff = .false.
-do i=1,iTri
-  Smat(i) = 0
-  SmatPure(i) = 0
-end do
+Smat(:) = Zero
+SmatPure(:) = Zero
 nInsideCut = 0
 call mma_allocate(Inside,iQ_Atoms,nAtomsCC,label='Inside')
 do N=iCStart-1,nCent*(nPart-1),nCent
@@ -106,9 +105,8 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   ! Now make the cut-off test.
 
   if (.not. NearBy) cycle
-  if (r3 < Cut_ExSq2) then !Inner cut-off.
-    InCutOff = .true.
-  end if
+  ! Inner cut-off.
+  if (r3 < Cut_ExSq2) InCutOff = .true.
   nInsideCut = nInsideCut+1
 
   ! Make the AO-AO overlap integration.

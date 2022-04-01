@@ -20,8 +20,9 @@ use Definitions, only: wp, iwp, u6
 #define _MxM_ 2
 
 implicit none
-integer(kind=iwp) :: iL
-real(kind=wp) :: dMul(nTri_Elem1(_MxM_)), Rotte(3,3), Sigge
+integer(kind=iwp), intent(in) :: iL
+real(kind=wp), intent(inout) :: dMul(nTri_Elem1(_MxM_))
+real(kind=wp), intent(in) :: Rotte(3,3), Sigge
 real(kind=wp) :: d1, d2, d3, dMTrans(6), Sig, TD(6,6)
 integer(kind=iwp) :: i, j
 #include "warnings.h"
@@ -29,7 +30,6 @@ integer(kind=iwp) :: i, j
 if (iL == 0) then
   ! Charge, trivial to rotate.
 
-  dMul(1) = dMul(1)
 else if (iL == 1) then
   ! Dipole, transforms as a vector. Sigge controls that if the
   ! multipole is located not in origin, but at the other end,

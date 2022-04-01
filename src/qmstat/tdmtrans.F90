@@ -17,7 +17,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBas(MxSymQ)
+integer(kind=iwp), intent(in) :: nBas(MxSymQ)
 integer(kind=iwp) :: i, iDisk, j, kaunt, Lu, nStatePrim
 character(len=6) :: TDMchar
 logical(kind=iwp) :: Exists

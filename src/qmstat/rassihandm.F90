@@ -50,7 +50,7 @@ use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
+integer(kind=iwp), intent(in) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
 integer(kind=iwp) :: i, iCi, j, k, kaunt, kaunter, kk, l, nTyp
 real(kind=wp) :: D1, D2, D3, dipx, dipx0, dipy, dipy0, dipz, dipz0, dQxx, dQxy, dQxz, dQyy, dQyz, dQzz, dTox, dToy, dToz, Q, qEl, &
                  quaDxx, quaDxy, quaDxz, quaDyy, quaDyx, quaDyz, quaDzx, quaDzy, quaDzz, quaQxx, quaQxy, quaQxz, quaQyy, quaQyz, &

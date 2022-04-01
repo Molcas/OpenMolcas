@@ -17,9 +17,10 @@ use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCNum, nClas
-real(kind=wp) :: FP(3,nPol*nPart), GP(3,nPol*nPart), DT(3,nPol*nPart), FI(3,nPol*nPart), Dist(nCent,nCent,nTri_Elem(nClas-1)), &
-                 DistIm(nCent,nClas,nCent,nClas), Elene, Edisp, Exrep, E2Die, ExDie
+integer(kind=iwp), intent(in) :: iCNum, nClas
+real(kind=wp), intent(out) :: FP(3,nPol*nPart), GP(3,nPol*nPart), DT(3,nPol*nPart), FI(3,nPol*nPart), &
+                              Dist(nCent,nCent,nTri_Elem(nClas-1)), DistIm(nCent,nClas,nCent,nClas), Elene, Edisp, Exrep, E2Die, &
+                              ExDie
 integer(kind=iwp) :: i, ii, ij, Ind, Ind1, indF, IndMa, indR, j, jj, k, l, nSize
 real(kind=wp) :: Adisp, aLim, Dampfunk, Epoll, F, Q, Q1, Q2, r, r3, ri, Sum1, Sum2, Sum3, Sum4, X, Y, Z
 real(kind=wp), parameter :: Const = 2.2677_wp, ExLim = Ten ! What is Const?
@@ -65,18 +66,15 @@ end do
 ! Compute the pairwise interaction between the solvent. Classical all  *
 ! the  way... early NEMO all the way.                                  *
 !----------------------------------------------------------------------*
-Elene = Zero
-Edisp = Zero
-Exrep = Zero
 aLim = One/ExLim
-Sum1 = Zero
-Sum2 = Zero
-Sum3 = Zero
-Sum4 = Zero
 ! The electrostatic part
 
 ! This loop ONLY works for the early Nemo model of water.
 ! If the solvent model is changed this loop must be rewritten.
+Sum1 = Zero
+Sum2 = Zero
+Sum3 = Zero
+Sum4 = Zero
 do i=1,nSize
   Sum1 = Sum1+Dist(2,2,i)*Qsta(1)*Qsta(1) !H-H
   Sum2 = Sum2+Dist(3,2,i)*Qsta(1)*Qsta(2) !H-H
@@ -124,6 +122,7 @@ do i=1,nSize
 end do
 Edisp = Sum1*Disp(1,1)+Sum2*Disp(1,2)+Sum3*Disp(2,2)
 !The exchange repulsion
+Exrep = Zero
 do i=1,nSize
   if (Dist(1,1,i) > aLim) Exrep = Exrep+ExNemo(1,1,Dist(1,1,i))
   if (Dist(2,1,i) > aLim) Exrep = Exrep+ExNemo(1,2,Dist(2,1,i))
@@ -255,7 +254,7 @@ end do
 ! We obtain an initial guess of the induced dipoles on the solvent.
 do i=1+nPol*iCnum,IndMa
   k = i-((i-1)/nPol)*nPol
-  Dt(:,i) = FP(:,i)*Pol(k)
+  DT(:,i) = FP(:,i)*Pol(k)
 end do
 
 return

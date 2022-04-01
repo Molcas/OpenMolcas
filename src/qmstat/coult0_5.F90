@@ -17,7 +17,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: CoulT0_5
-real(kind=wp) :: Rho, dSepInv, Expo
+real(kind=wp), intent(in) :: Rho, dSepInv, Expo
 real(kind=wp) :: T1, T2, T3, T4, T5, T6, T7
 
 T1 = One

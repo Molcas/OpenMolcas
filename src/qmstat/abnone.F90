@@ -20,14 +20,12 @@ use Definitions, only: wp, iwp
 #define _MxM_ 2
 
 implicit none
-integer(kind=iwp) :: iLA, iLB
-real(kind=wp) :: dMulA(nTri_Elem1(_MxM_)), Rinv, Colle(3)
-integer(kind=iwp) :: i
+integer(kind=iwp), intent(in) :: iLA, iLB
+real(kind=wp), intent(in) :: dMulA(nTri_Elem1(_MxM_)), Rinv
+real(kind=wp), intent(out) :: Colle(3)
 real(kind=wp) :: d3, Pi1, Pi2, Sigma
 
-do i=1,3
-  Colle(i) = Zero
-end do
+Colle(:) = Zero
 
 if (iLA == 0) then
   if (iLB == 0) then

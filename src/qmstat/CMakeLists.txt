@@ -60,9 +60,7 @@ set (sources
      hel.F90
      helstate.F90
      idubfac.F90
-     ipair_qmstat.F90
      isitvalid.F90
-     len_trimao.F90
      m2trans.F90
      mandatoryinp.F90
      mbpt2corr.F90

@@ -15,12 +15,13 @@
 subroutine TransRot(Cordst,i,Rot,xt,yt,zt,Ax,Ay,Az)
 
 use qmstat_global, only: nCent
-use Constants, only: Zero, One, Ten
+use Constants, only: Zero, One, Two, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Cordst(3,3), Rot(3,3), xt, yt, zt, Ax, Ay, Az
-integer(kind=iwp) :: i
+real(kind=wp), intent(in) :: Cordst(3,3), Ax, Ay, Az
+integer(kind=iwp), intent(in) :: i
+real(kind=wp), intent(out) :: Rot(3,3), xt, yt, zt
 integer(kind=iwp) :: IFLAG
 real(kind=wp) :: A, ANORM, DELR, DELX, DELY, DELZ, TAL, XA, XH, XO, YA, YH, YO, ZA, ZH, ZO
 #include "warnings.h"
@@ -34,9 +35,9 @@ ZH = CORDST(3,2)-AZ
 XA = CORDST(1,3)-AX
 YA = CORDST(2,3)-AY
 ZA = CORDST(3,3)-AZ
-DELX = (XH+XA)/2.-XO
-DELY = (YH+YA)/2.-YO
-DELZ = (ZH+ZA)/2.-ZO
+DELX = (XH+XA)/Two-XO
+DELY = (YH+YA)/Two-YO
+DELZ = (ZH+ZA)/Two-ZO
 DELR = DELX*DELX+DELY*DELY+DELZ*DELZ
 DELR = DELR-1.225449_wp
 !This is a check of the water geometry.
@@ -58,22 +59,22 @@ ROT(3,3) = (ZO-ZT)/0.3_wp
 ROT(1,2) = (XH-XA)/2.86_wp
 ROT(2,2) = (YH-YA)/2.86_wp
 ROT(3,2) = (ZH-ZA)/2.86_wp
-ANORM = 1./sqrt(ROT(1,3)**2+ROT(2,3)**2+ROT(3,3)**2)
+ANORM = One/sqrt(ROT(1,3)**2+ROT(2,3)**2+ROT(3,3)**2)
 ROT(1,3) = ROT(1,3)*ANORM
 ROT(2,3) = ROT(2,3)*ANORM
 ROT(3,3) = ROT(3,3)*ANORM
-ANORM = 1./sqrt(ROT(1,2)**2+ROT(2,2)**2+ROT(3,2)**2)
+ANORM = One/sqrt(ROT(1,2)**2+ROT(2,2)**2+ROT(3,2)**2)
 ROT(1,2) = ROT(1,2)*ANORM
 ROT(2,2) = ROT(2,2)*ANORM
 ROT(3,2) = ROT(3,2)*ANORM
-ROT(1,1) = 1.-ROT(1,3)**2-ROT(1,2)**2
-if (ROT(1,1) < 0.) ROT(1,1) = Zero
+ROT(1,1) = One-ROT(1,3)**2-ROT(1,2)**2
+if (ROT(1,1) < Zero) ROT(1,1) = Zero
 ROT(1,1) = sqrt(ROT(1,1))
-ROT(2,1) = 1.-ROT(2,2)**2-ROT(2,3)**2
-if (ROT(2,1) < 0.) ROT(2,1) = Zero
+ROT(2,1) = One-ROT(2,2)**2-ROT(2,3)**2
+if (ROT(2,1) < Zero) ROT(2,1) = Zero
 ROT(2,1) = sqrt(ROT(2,1))
-ROT(3,1) = 1.-ROT(3,3)**2-ROT(3,2)**2
-if (ROT(3,1) < 0.) ROT(3,1) = Zero
+ROT(3,1) = One-ROT(3,3)**2-ROT(3,2)**2
+if (ROT(3,1) < Zero) ROT(3,1) = Zero
 ROT(3,1) = sqrt(ROT(3,1))
 
 IFLAG = 0

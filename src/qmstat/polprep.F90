@@ -17,11 +17,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCNum, nSize
-real(kind=wp) :: Dist(nCent,nCent,nTri_Elem(nPart-iCNum-1)), DistIm(nCent,nPart-iCNum,nCent,nPart-iCNum), xx(nSize,nSize), &
-                 yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), zzi(nSize,nSize), &
-                 Gri(nSize,nSize)
-integer(kind=iwp) :: i, i1, ii, ild, imd, Indco1, IndCo2, Indp1, IndP2, IndTr, IndTr1, IndTri, j, j1, jj, jnd, k, l, ncParm
+integer(kind=iwp), intent(in) :: iCNum, nSize
+real(kind=wp), intent(in) :: Dist(nCent,nCent,nTri_Elem(nPart-iCNum-1)), DistIm(nCent,nPart-iCNum,nCent,nPart-iCNum)
+real(kind=wp), intent(out) :: xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), rr3(nSize,nSize), xxi(nSize,nSize), &
+                              yyi(nSize,nSize), zzi(nSize,nSize), Gri(nSize,nSize)
+integer(kind=iwp) :: i, i1, ild, imd, Indco1, IndCo2, Indp1, IndP2, IndTr, IndTr1, IndTri, j, j1, jnd, k, l, ncParm
 
 !----------------------------------------------------------------------*
 ! Simply compute some vectors etc. for the ensuing polarization        *
@@ -69,11 +69,7 @@ do i=1,nPol
     end do
   end do
 end do
-do ii=1,nSize
-  do jj=1,nSize
-    Gri(ii,jj) = Zero
-  end do
-end do
+Gri(:,:) = Zero
 do i=1,nPol
   k = i+(iCnum-1)*nCent
   do i1=iCnum+1,nPart

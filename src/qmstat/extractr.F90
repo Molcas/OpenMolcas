@@ -15,11 +15,11 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9, nState, iExtr_Eig
-real(kind=wp) :: Etot, xyzMy(3), Hmat(nTri_Elem(iExtr_Eig)), C(nState,nState), xyzQu(6), ExpVal(4,nState), ExpCento(4,nState), &
-                 ENR, ENP
-logical(kind=iwp) :: lExtr(*)
-integer(kind=iwp) :: i, ind, j, k, nDim
+integer(kind=iwp), intent(in) :: iLu, i9, nState, iExtr_Eig
+real(kind=wp), intent(in) :: Etot, xyzMy(3), Hmat(nTri_Elem(iExtr_Eig)), C(nState,nState), xyzQu(6), ExpVal(4,nState), &
+                             ExpCento(4,nState), ENR, ENP
+logical(kind=iwp), intent(in) :: lExtr(*)
+integer(kind=iwp) :: i, ind, j, nDim
 
 write(iLu,*) '<<<<<<<Configuration ',i9,'>>>>>>>'
 if (lExtr(1)) then
@@ -28,11 +28,11 @@ if (lExtr(1)) then
 end if
 if (lExtr(2)) then
   write(iLu,*) 'QM-Dipole'
-  write(iLu,'(3(F12.5))') (xyzMy(k),k=1,3)
+  write(iLu,'(3(F12.5))') xyzMy(:)
 end if
 if (lExtr(3)) then
   write(iLu,*) 'QM-Quadrupole'
-  write(iLu,'(6(F12.5))') (xyzQu(k),k=1,6)
+  write(iLu,'(6(F12.5))') xyzQu(:)
 end if
 if (lExtr(4)) then
   write(iLu,*) 'Eigenvalues of RASSI-matrix'

@@ -52,8 +52,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(MxSymQ), nBasCC(1), nOcc(iQ_Atoms), natyp(iQ_Atoms), nntyp
-real(kind=wp) :: Coord(3,iQ_Atoms)
+integer(kind=iwp), intent(in) :: iQ_Atoms
+integer(kind=iwp), intent(out) :: nAtomsCC, nBas(MxSymQ), nBasCC(1), nOcc(iQ_Atoms), natyp(iQ_Atoms), nntyp
+real(kind=wp), intent(out) :: Coord(3,iQ_Atoms)
 integer(kind=iwp) :: i, iAtom, iBas, icont, iDummy(1), iErr, iLu, ind, indold, iold, iWarn, ix, j, jnd, k, kk, kold, l, lLine, m, &
                      na, nnaa, nntypC, nSize, nSym, nSymCC, ntBas
 real(kind=wp) :: ChgeCC(3), CoordCC(3*3), Dummy(1)
@@ -184,9 +185,7 @@ iAtom = 0
 kold = 1
 iold = 1
 indold = 0
-do i=1,nntyp
-  nOcc(i) = 0
-end do
+nOcc(1:nntyp) = 0
 call mma_allocate(alfa,ntBas,0,label='alfa')
 call mma_allocate(cont,ntBas,0,label='cont')
 call mma_allocate(iWoGehenQ,ntBas,2*MxAngqNr-1,label='iWoGehenQ')

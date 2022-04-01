@@ -41,18 +41,12 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nrstate, ici
-real(kind=wp) :: Eint(ici,10), Cha(nTri_Elem(nrstate),ici), Dip(nTri_Elem(nrstate),3,ici), Qua(nTri_Elem(nrstate),6,ici), &
-                 Vmat(nTri_Elem(nrstate))
+integer(kind=iwp), intent(in) :: nrstate, ici
+real(kind=wp), intent(in) :: Eint(ici,10), Cha(nTri_Elem(nrstate),ici), Dip(nTri_Elem(nrstate),3,ici), Qua(nTri_Elem(nrstate),6,ici)
+real(kind=wp), intent(out) :: Vmat(nTri_Elem(nrstate))
 integer(kind=iwp) :: i, j, k, kaunt
 
-kaunt = 0
-do i=1,nrState
-  do j=1,i
-    kaunt = kaunt+1
-    Vmat(kaunt) = Zero
-  end do
-end do
+Vmat(:) = Zero
 
 ! The interaction between the distributed multipoles
 ! and the generalized field from the solvent.

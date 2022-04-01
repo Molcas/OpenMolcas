@@ -19,9 +19,11 @@ use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=4) :: Kword
-integer(kind=iwp) :: iCi, NCountField, iQ_Atoms, nBas, nntyp, nOcc(nntyp), natyp(nntyp)
-real(kind=wp) :: Eint(iCi,10), Poli(iCi,10), SumElcPot(iCi,10), PertElcInt(nTri_Elem(nBas))
+character(len=4), intent(inout) :: Kword
+integer(kind=iwp), intent(in) :: iCi, NCountField, iQ_Atoms, nBas, nntyp, nOcc(nntyp), natyp(nntyp)
+real(kind=wp), intent(in) :: Eint(iCi,10), Poli(iCi,10)
+real(kind=wp), intent(inout) :: SumElcPot(iCi,10)
+real(kind=wp), intent(out) :: PertElcInt(nTri_Elem(nBas))
 integer(kind=iwp) :: i, i1, i2, iB1, iB2, iiDum(1), iLuField, indMME, iOpt, irc, iSmLbl, iTyp, j, kaunta, Lu_One, nSize, nTyp
 real(kind=wp) :: AvTemp, Tra
 logical(kind=iwp) :: Exists
@@ -150,9 +152,7 @@ select case (Kword(1:4))
     do i=1,nMlt
       nTyp = nTyp+nTri_Elem(i)
     end do
-    do i=1,nTri_Elem(nBas)
-      PertElcInt(i) = Zero
-    end do
+    PertElcInt(:) = Zero
 
     ! Put quadrupoles in Buckingham form.
 

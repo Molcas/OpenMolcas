@@ -16,8 +16,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCalls, iQ_Atoms
-real(kind=wp) :: StoreCoo(3,nCent,nPart)
+integer(kind=iwp), intent(inout) :: nCalls
+integer(kind=iwp), intent(in) :: iQ_Atoms
+real(kind=wp), intent(inout) :: StoreCoo(3,nCent,nPart)
 integer(kind=iwp) :: i, iCent, Initial1, iPart, j, kaunter, nAllQm
 
 if (nCalls == 0) then

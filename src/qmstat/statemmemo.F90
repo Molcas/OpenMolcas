@@ -20,9 +20,9 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCent(nTri_Elem(nAObas))
-type(Alloc1DArray_Type) :: MME(nTri3_Elem(MxMltp))
-real(kind=wp) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
+integer(kind=iwp), intent(in) :: nAObas, nMObas, nState, nTyp, iCent(nTri_Elem(nAObas))
+type(Alloc1DArray_Type), intent(in) :: MME(nTri3_Elem(MxMltp))
+real(kind=wp), intent(inout) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
 integer(kind=iwp) :: i, iB1, iB2, iS1, iS2, iTyp, j, kaunta, kaunter, nSizeA, nSizeM
 real(kind=wp) :: PerAake
 real(kind=wp), allocatable :: AOG(:), AOG_S(:,:), MOG(:), MOG_s(:,:), O(:), TEMP(:,:)

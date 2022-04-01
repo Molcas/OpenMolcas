@@ -14,10 +14,9 @@ subroutine ExtractS(iLu,i9,Etot,xyzMy,xyzQu,lExtr,ExpVal,ExpCento,ENR,ENP)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9
-real(kind=wp) :: Etot, xyzMy(3), xyzQu(6), ExpVal(4,1), ExpCento(4,1), ENR, ENP
-logical(kind=iwp) :: lExtr(*)
-integer(kind=iwp) :: k
+integer(kind=iwp), intent(in) :: iLu, i9
+real(kind=wp), intent(in) :: Etot, xyzMy(3), xyzQu(6), ExpVal(4,1), ExpCento(4,1), ENR, ENP
+logical(kind=iwp), intent(in) :: lExtr(*)
 
 write(iLu,*) '<<<<<<<Configuration ',i9,'>>>>>>>'
 if (lExtr(1)) then
@@ -26,11 +25,11 @@ if (lExtr(1)) then
 end if
 if (lExtr(2)) then
   write(iLu,*) 'QM-Dipole'
-  write(iLu,'(3(F12.5))') (xyzMy(k),k=1,3)
+  write(iLu,'(3(F12.5))') xyzMy(:)
 end if
 if (lExtr(3)) then
   write(iLu,*) 'QM-Quadrupole'
-  write(iLu,'(6(F12.5))') (xyzQu(k),k=1,6)
+  write(iLu,'(6(F12.5))') xyzQu(:)
 end if
 if (lExtr(6)) then
   write(iLu,*) 'Expectation values (T+H_nuc,V_el,V_pol,V_pp)'

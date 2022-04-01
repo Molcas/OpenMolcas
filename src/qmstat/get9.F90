@@ -17,8 +17,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, info_atom(iQ_Atoms), iDiskSa
-real(kind=wp) :: Ract, Coord(3,iQ_Atoms)
+real(kind=wp), intent(out) :: Ract
+integer(kind=iwp), intent(in) :: iQ_Atoms, info_atom(iQ_Atoms)
+real(kind=wp), intent(in) :: Coord(3,iQ_Atoms)
+integer(kind=iwp), intent(inout) :: iDiskSa
 integer(kind=iwp) :: i
 real(kind=wp) :: Esub, Etot, Gamold, GaOld
 character(len=200) :: Head

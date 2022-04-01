@@ -19,10 +19,10 @@ use Data_Structures, only: Alloc1DArray_Type
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: MoOrNot
-integer(kind=iwp) :: nAObas, nMObas, nState, nTyp, iCent(nTri_Elem(nAObas))
-type(Alloc1DArray_Type) :: MME(nTri3_Elem(MxMltp))
-real(kind=wp) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
+logical(kind=iwp), intent(in) :: MoOrNot
+integer(kind=iwp), intent(in) :: nAObas, nMObas, nState, nTyp, iCent(nTri_Elem(nAObas))
+type(Alloc1DArray_Type), intent(in) :: MME(nTri3_Elem(MxMltp))
+real(kind=wp), intent(inout) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
 
 if (.not. MoOrNot) then
   call StateMMEao(nAObas,nState,nTyp,MME,iCent,Cha,Dip,Qua)

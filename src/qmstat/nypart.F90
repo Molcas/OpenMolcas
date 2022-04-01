@@ -15,8 +15,10 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iExtra, nPart, nCent, iSeed
-real(kind=wp) :: COORD(3,(nPart+iExtra)*nCent), rStart
+integer(kind=iwp), intent(in) :: iExtra, nCent
+integer(kind=iwp), intent(inout) :: nPart, iSeed
+real(kind=wp), intent(inout) :: COORD(3,(nPart+iExtra)*nCent)
+real(kind=wp), intent(in) :: rStart
 integer(kind=iwp) :: I, IA, IIN, iMAXVAR, IND, IVARV
 real(kind=wp) :: DR, DX, DY, DZ, R2, RLIM, RLIM2, rlm, X, Y, Z
 real(kind=wp), external :: Ranf

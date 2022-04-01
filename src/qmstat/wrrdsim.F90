@@ -17,8 +17,9 @@ subroutine WrRdSim(iLu,iOpt,iDisk,iTcSim,nTcSim,Etot,Radie,nPart,Gmma,Gam,Esav)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, iOpt, iDisk, nTcSim, iTcSim(nTcSim), nPart
-real(kind=wp) :: Etot, Radie, Gmma, Gam, Esav
+integer(kind=iwp), intent(in) :: iLu, iOpt, nTcSim
+integer(kind=iwp), intent(inout) :: iDisk, iTcSim(nTcSim), nPart
+real(kind=wp), intent(inout) :: Etot, Radie, Gmma, Gam, Esav
 integer(kind=iwp) :: iDum(1)
 real(kind=wp) :: Dum(1)
 

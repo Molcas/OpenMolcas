@@ -20,8 +20,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iS, nSt, iDm
-real(kind=wp) :: Dens(nTri_Elem(nSt)), StVec(iDm,*)
+integer(kind=iwp), intent(in) :: iS, nSt, iDm
+real(kind=wp), intent(out) :: Dens(nTri_Elem(nSt))
+real(kind=wp), intent(in) :: StVec(iDm,*)
 integer(kind=iwp) :: i, j, kaunt
 
 kaunt = 0

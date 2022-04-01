@@ -17,7 +17,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Ract, Etot
+real(kind=wp), intent(out) :: Ract, Etot
 integer(kind=iwp) :: i, iDisk
 real(kind=wp) :: Esub, Gamold, GaOld
 character(len=200) :: Head

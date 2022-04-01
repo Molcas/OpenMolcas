@@ -17,7 +17,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms
+integer(kind=iwp), intent(in) :: iQ_Atoms
 integer(kind=iwp) :: i, iCNum, iCStart, iDiskSa, iDiskTemp, iDum(1), iH, iHMax, iHowMSamp, ind, iSamp, j, k, l
 real(kind=wp) :: dist, dist2, dR, Dum, Etot, Ract
 real(kind=wp), allocatable :: Co(:,:), gR(:,:,:)

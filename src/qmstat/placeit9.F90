@@ -20,8 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, info_atom(iQ_Atoms)
-real(kind=wp) :: Coord(3,iQ_Atoms), Cordst(3,iQ_Atoms)
+integer(kind=iwp), intent(in) :: iQ_Atoms, info_atom(iQ_Atoms)
+real(kind=wp), intent(in) :: Coord(3,iQ_Atoms)
+real(kind=wp), intent(out) :: Cordst(3,iQ_Atoms)
 integer(kind=iwp) :: i
 real(kind=wp) :: CMSamx, CMSamy, CMSamz, CMSewx, CMSewy, CMSewz, Tx, Ty, Tz, Wtot
 

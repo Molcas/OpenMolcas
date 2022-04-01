@@ -16,8 +16,9 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Tau, dKappa, Rho, RhoA, RhoB, EA, EB, R, dNeigh
-logical(kind=iwp) :: lTooSmall
+real(kind=wp), intent(out) :: Tau, dKappa, Rho, RhoA, RhoB
+real(kind=wp), intent(in) :: EA, EB, R, dNeigh
+logical(kind=iwp), intent(out) :: lTooSmall
 
 Tau = (EA-EB)/(EA+EB)
 Rho = Half*(EA+EB)*R

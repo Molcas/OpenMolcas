@@ -17,13 +17,17 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-character(len=5) :: QMMethod
-integer(kind=iwp) :: nDim, iEig, iQ_Atoms
-real(kind=wp) :: Eint(nTri_Elem(iQ_Atoms),10), Poli(nTri_Elem(iQ_Atoms),10), dNuc(iQ_Atoms), &
-                 Cha(nTri_Elem(nDim),nTri_Elem(iQ_Atoms)), Dip(nTri_Elem(nDim),3,nTri_Elem(iQ_Atoms)), &
-                 Qua(nTri_Elem(nDim),6,nTri_Elem(iQ_Atoms)), VEC(nDim,nDim), ExpCento(4,*), E_Nuc_Part, Eint_Nuc(iQ_Atoms)
-logical(kind=iwp) :: lEig, lSlater
+character(len=5), intent(in) :: QMMethod
+integer(kind=iwp), intent(in) :: nDim, iEig, iQ_Atoms
+real(kind=wp), intent(in) :: Eint(nTri_Elem(iQ_Atoms),10), Poli(nTri_Elem(iQ_Atoms),10), dNuc(iQ_Atoms), &
+                             Cha(nTri_Elem(nDim),nTri_Elem(iQ_Atoms)), Dip(nTri_Elem(nDim),3,nTri_Elem(iQ_Atoms)), &
+                             Qua(nTri_Elem(nDim),6,nTri_Elem(iQ_Atoms)), VEC(nDim,nDim), Eint_Nuc(iQ_Atoms)
+logical(kind=iwp), intent(in) :: lEig, lSlater
+real(kind=wp), intent(_OUT_) :: ExpCento(4,*)
+real(kind=wp), intent(out) :: E_Nuc_Part
 integer(kind=iwp) :: i, i1, iAt, iCx, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal
 real(kind=wp) :: dMp
 logical(kind=iwp) :: Check1, Check2

@@ -15,7 +15,8 @@ subroutine Revolution(v,Rinv,Rotte)
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: v(3), Rinv, Rotte(3,3)
+real(kind=wp), intent(in) :: v(3), Rinv
+real(kind=wp), intent(out) :: Rotte(3,3)
 real(kind=wp) :: u(3), w(3), t(3)
 
 ! Obtain base-vectors for the plane to which v in the normal vector.
@@ -24,21 +25,13 @@ call PlaneVectors(u,w,v,Rinv)
 
 ! Normalize v.
 
-t(1) = Rinv*v(1)
-t(2) = Rinv*v(2)
-t(3) = Rinv*v(3)
+t(:) = Rinv*v(:)
 
 ! Assemble rotation matrix
 
-Rotte(1,1) = u(1)
-Rotte(1,2) = u(2)
-Rotte(1,3) = u(3)
-Rotte(2,1) = w(1)
-Rotte(2,2) = w(2)
-Rotte(2,3) = w(3)
-Rotte(3,1) = t(1)
-Rotte(3,2) = t(2)
-Rotte(3,3) = t(3)
+Rotte(1,:) = u(:)
+Rotte(2,:) = w(:)
+Rotte(3,:) = t(:)
 
 return
 

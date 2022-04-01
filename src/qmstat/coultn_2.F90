@@ -17,7 +17,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: CoulTN_2
-real(kind=wp) :: RA, RB, C, dSepInv, ExpA, ExpB
+real(kind=wp), intent(in) :: RA, RB, C, dSepInv, ExpA, ExpB
 real(kind=wp) :: T1, T2, T3, TA, TB
 
 T1 = (One/16.0_wp)*(Five+Three*C)*(One+Two*RA)

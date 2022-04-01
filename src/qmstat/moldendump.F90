@@ -11,15 +11,16 @@
 
 subroutine MoldenDump(C,CooRef,nP,nC)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nP, nC
-real(kind=wp) :: C(nP*nC,3), CooRef(3,5)
+integer(kind=iwp), intent(in) :: nP, nC
+real(kind=wp), intent(in) :: C(nP*nC,3), CooRef(3,5)
 integer(kind=iwp) :: ind, iP, jC
-real(kind=wp) :: Coo(3,nC)
 logical(kind=iwp) :: ValidOrNot
+real(kind=wp), allocatable :: Coo(:,:)
 
 ! Clarifying words.
 
@@ -34,6 +35,7 @@ write(u6,*) '-------------------------------------------------------------------
 
 ! Print total number of particles.
 
+call mma_allocate(Coo,3,nC,label='Coo')
 write(u6,*) '  Substitute this line with number of atoms.'
 write(u6,*)
 do iP=1,nP
@@ -54,6 +56,7 @@ do iP=1,nP
 end do
 write(u6,*)
 write(u6,*) '------------------------------------------------------------------------------------'
+call mma_deallocate(Coo)
 
 return
 

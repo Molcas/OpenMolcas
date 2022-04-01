@@ -19,8 +19,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: ExNemo
-integer(kind=iwp) :: i, j
-real(kind=wp) :: a
+integer(kind=iwp), intent(in) :: i, j
+real(kind=wp), intent(in) :: a
 
 !The function
 ExNemo = exp(-Sexrep(i,j)/a)*Sexre1(i,j)+Sexre2(i,j)*(a**20)

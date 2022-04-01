@@ -16,8 +16,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: EEDisp, BoMaH, BoMaO, dAtO1, dAtH1, dAtH2, Rab13i, Rab23i, Rab33i
-integer(kind=iwp) :: indQAt
+real(kind=wp), intent(inout) :: EEDisp
+real(kind=wp), intent(in) :: BoMaH, BoMaO, dAtO1, dAtH1, dAtH2, Rab13i, Rab23i, Rab33i
+integer(kind=iwp), intent(in) :: indQAt
 integer(kind=iwp) :: k, kFac
 real(kind=wp) :: DampBarn(3), EfromH1, EfromH2, EfromO1
 

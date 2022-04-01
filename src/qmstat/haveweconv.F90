@@ -16,9 +16,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCNum, iCStart, iQ_Atoms, Indma, NVarv
-real(kind=wp) :: DT(3,nPol*nPart), FFp(nPol*nPart,3), xyzMyI(3), Egun, Energy
-logical(kind=iwp) :: JaNej, Haveri
+integer(kind=iwp), intent(in) :: iCNum, iCStart, iQ_Atoms, Indma, NVarv
+real(kind=wp), intent(inout) :: DT(3,nPol*nPart), Egun
+real(kind=wp), intent(in) :: FFp(nPol*nPart,3), Energy
+real(kind=wp), intent(out) :: xyzMyI(3)
+logical(kind=iwp), intent(out) :: JaNej, Haveri
 integer(kind=iwp) :: i, imin, j, k, kmin, l
 real(kind=wp) :: Diff, Diffab, dist, distmin, Dtil, Egtest
 
@@ -29,9 +31,7 @@ real(kind=wp) :: Diff, Diffab, dist, distmin, Dtil, Egtest
 JaNej = .true.
 Haveri = .false.
 Diffab = Zero
-xyzMyi(1) = Zero
-xyzMyi(2) = Zero
-xyzMyi(3) = Zero
+xyzMyi(:) = Zero
 do i=1+(nPol*iCnum),IndMa
   k = i-((i-1)/nPol)*nPol
   do l=1,3

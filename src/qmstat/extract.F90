@@ -12,11 +12,13 @@
 subroutine Extract(iLu,i9,Etot,xyzMy,Hmat,C,nMatBas,xyzQuQ,ExpVal,ExpCento,ENR,ENP)
 
 use qmstat_global, only: iExtr_Eig, lExtr, QmType
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iLu, i9, nMatBas
-real(kind=wp) :: Etot, xyzMY(3), Hmat(*), C(nMatBas,nMatBas), xyzQuQ(6), ExpVal(4,*), ExpCento(4,*), ENR, ENP
+integer(kind=iwp), intent(in) :: iLu, i9, nMatBas
+real(kind=wp), intent(in) :: Etot, xyzMY(3), Hmat(nTri_Elem(iExtr_Eig)), C(nMatBas,nMatBas), xyzQuQ(6), ExpVal(4,*), &
+                             ExpCento(4,*), ENR, ENP
 
 ! Just pass on the numbers according to QM-method.
 

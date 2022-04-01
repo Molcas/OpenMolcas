@@ -47,8 +47,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 ! MaxAngqNr=4 means f-function is top. There is no limit in the algorithm though, so if higher is needed, change this number.
-integer(kind=iwp) :: iQ1, iQ2, nExp1, nExp2
-real(kind=wp) :: Bori(3), Cori(3), Alfa(nExp1), Beta(nExp2), PSint(2*iQ1-1,nExp1,2*iQ2-1,nExp2)
+integer(kind=iwp), intent(in) :: iQ1, iQ2, nExp1, nExp2
+real(kind=wp), intent(in) :: Bori(3), Cori(3), Alfa(nExp1), Beta(nExp2)
+real(kind=wp), intent(out) :: PSint(2*iQ1-1,nExp1,2*iQ2-1,nExp2)
 integer(kind=iwp) :: i, icompo, ind, ind1, ind2, iP1, iP2, iSp1, iSp2, iUpX, iUpY, iUpZ, ix, ixxx, iy, iyyy, iz, izzz, j, Kaunt, &
                      kaunter, krakna, loneX, loneY, loneZ, lsumX, lsumY, lsumZ, ltwoX, ltwoY, ltwoZ, nCartxC(nTri_Elem(MxAngqNr)), &
                      nCartxQ(nTri_Elem(MxAngqNr)), nCartyC(nTri_Elem(MxAngqNr)), nCartyQ(nTri_Elem(MxAngqNr)), &

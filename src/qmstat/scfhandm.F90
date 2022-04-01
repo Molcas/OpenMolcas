@@ -45,8 +45,8 @@ use Constants, only: Zero, Three, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
-real(kind=wp) :: Cmo(nBas(1),nBas(1)), Occu(nBas(1))
+integer(kind=iwp), intent(in) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
+real(kind=wp), intent(in) :: Cmo(nBas(1),nBas(1)), Occu(nBas(1))
 integer(kind=iwp) :: i, i1, i2, iB1, iB2, iCi, ii, indMME, iO1, iO2, iTyp, j, k, kaunta, kaunter, nTyp
 real(kind=wp) :: cProd, dipx, dipx0, dipy, dipy0, dipz, dipz0, dTox, dToy, dToz, qEl, Tra
 integer(kind=iwp), allocatable :: Dum(:), iCent(:,:)

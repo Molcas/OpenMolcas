@@ -19,11 +19,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itristate
-real(kind=wp) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate), AOSum(*)
-integer(kind=iwp) :: i, ind, inwm, iS, js, k, kaunter, N, nDim1, nDimT, nGross, nHalf, nInsideCut
+integer(kind=iwp), intent(in) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itristate
+real(kind=wp), intent(out) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate)
+logical(kind=iwp), intent(out) :: InCutOff
+real(kind=wp), intent(inout) :: AOSum(nTri_Elem(nBaseQ))
+integer(kind=iwp) :: ind, inwm, iS, js, k, kaunter, N, nDim1, nDimT, nGross, nHalf, nInsideCut
 real(kind=wp) :: Addition, CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, HighS, r2, r3, r3temp1, r3temp2
-logical(kind=iwp) :: InCutOff
 logical(kind=iwp) :: NearBy
 real(kind=wp), allocatable :: ACC(:,:), ACCp(:,:), ACCt(:), ACCtp(:), AOAUX(:,:), AOAUXtri(:), AOint(:,:), AOG(:), AOMOOvl(:,:), &
                               AOMOOvlE(:,:), HalfE(:,:), HalfP(:), TEMP(:,:), V2(:,:)
@@ -56,10 +57,8 @@ if (lExtr(8)) then
 end if
 !********************************************************************
 InCutOff = .false.
-do i=1,iTriState
-  SmatRas(i) = 0
-  SmatPure(i) = 0
-end do
+SmatRas(:) = Zero
+SmatPure(:) = Zero
 nInsideCut = 0
 if (MoAveRed) then
   nDim1 = nRedMO
@@ -122,9 +121,8 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   ! Make some cut-off tests.
 
   if (.not. NearBy) cycle !If all distances larger than cut-off, jump to new solvent.
-  if (r3 < Cut_ExSq2) then !Inner cut-off. Set flag to true then huge energy is added later. S*S matrix, however!
-    InCutOff = .true.
-  end if
+  ! Inner cut-off. Set flag to true then huge energy is added later. S*S matrix, however!
+  if (r3 < Cut_ExSq2) InCutOff = .true.
   nInsideCut = nInsideCut+1
 
   ! Start integrating.

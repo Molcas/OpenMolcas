@@ -15,7 +15,8 @@ use Constants, only: Angstrom, deg2rad
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: C1(3), C2(3), C3(3), C4(3), C5(3)
+real(kind=wp), intent(in) :: C1(3), C2(3), C3(3)
+real(kind=wp), intent(out) :: C4(3), C5(3)
 real(kind=wp) :: D(3), E(3), LD, LE, U(3), V(3)
 real(kind=wp), parameter :: R = 0.2767_wp/Angstrom, Theta = 36.72_wp*deg2rad
 

@@ -22,8 +22,8 @@ use Constants, only: Zero, One, Three, Four, Ten, Half, Pi, Angstrom, atmToau, a
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1)
-real(kind=wp) :: Coord(3,iQ_Atoms)
+integer(kind=iwp), intent(in) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1)
+real(kind=wp), intent(in) :: Coord(3,iQ_Atoms)
 integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDum(1), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, &
                      iMacro, iMicro, IndMa, Inte, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTri, &
                      iTriBasQ, jjhr, jMacro, nBaseC, nBaseQ, nClas, NCountField, NVarv

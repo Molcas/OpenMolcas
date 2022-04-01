@@ -14,9 +14,9 @@ subroutine Cooout(Head,Cordst,nPart,nCent)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=200) :: Head
-integer(kind=iwp) :: nPart, nCent
-real(kind=wp) :: Cordst(3,nPart*nCent)
+character(len=200), intent(in) :: Head
+integer(kind=iwp), intent(in) :: nPart, nCent
+real(kind=wp), intent(in) :: Cordst(3,nPart*nCent)
 integer(kind=iwp) :: i, j, kaunter
 
 write(u6,*)

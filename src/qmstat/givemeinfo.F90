@@ -12,7 +12,7 @@
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifdef _IN_MODULE_
 
-subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBona,Expo,Cont,nSh,nfSh,nSize,iPrint,nAtoms,MxAngqNr,Acc,nBas)
+subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBonA,Expo,Cont,nSh,nfSh,nSize,iPrint,nAtoms,MxAngqNr,Acc,nBas)
 
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
@@ -23,10 +23,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nntyp, nAtoms, natyp(nAtoms), nBA(nAtoms), MxAngqNr, nCBoA(nAtoms,MxAngqNr), nBona(nAtoms), nSh(nAtoms), &
-                     nfSh(nAtoms,MxAngqNr), nSize, iPrint, nBas
-integer(kind=iwp), allocatable :: iCon(:,:), nPrim(:)
-real(kind=wp), allocatable :: Expo(:,:), Cont(:,:), BasCoo(:,:), Acc(:)
+integer(kind=iwp), intent(in) :: iPrint, nAtoms, MxAngqNr
+integer(kind=iwp), intent(out) :: nntyp, natyp(nAtoms), nBA(nAtoms), nCBoA(nAtoms,MxAngqNr), nBonA(nAtoms), nSh(nAtoms), &
+                                  nfSh(nAtoms,MxAngqNr), nSize, nBas
+integer(kind=iwp), allocatable, intent(out) :: iCon(:,:), nPrim(:)
+real(kind=wp), allocatable , intent(out):: Expo(:,:), Cont(:,:), BasCoo(:,:), Acc(:)
 integer(kind=iwp) :: i, iAng, iAngSav, iBas, iCnt, iCnttp, iCount, iHowMuch, ii, ind, ind1, ind2, ind3, ioio, iPrim, iTemp, j, jj, &
                      jSum, k, kaunt, kaunta, kaunter, kaunterPrev, kauntSav, kk, kkk, krekna, krekna2, l, ll, MaxAng, MxPrCon, na, &
                      nACCSize, ndc, nDiff, nnaa, nshj, nSumma, nVarv

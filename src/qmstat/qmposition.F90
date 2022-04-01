@@ -15,8 +15,9 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms
-real(kind=wp) :: EHam, Cordst(3,iQ_Atoms), Coord(3), Forcek, dLJrep, Ract
+real(kind=wp), intent(out) :: EHam
+integer(kind=iwp), intent(in) :: iQ_Atoms
+real(kind=wp), intent(in) :: Cordst(3,iQ_Atoms), Coord(3), Forcek, dLJrep, Ract
 integer(kind=iwp) :: iAt
 real(kind=wp) :: dDepart, Diff, R
 

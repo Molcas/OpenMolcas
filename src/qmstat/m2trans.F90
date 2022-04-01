@@ -15,7 +15,8 @@ subroutine M2Trans(Rotte,TD)
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: Rotte(3,3), TD(6,6)
+real(kind=wp), intent(in) :: Rotte(3,3)
+real(kind=wp), intent(out) :: TD(6,6)
 
 ! The transformation of x2.
 

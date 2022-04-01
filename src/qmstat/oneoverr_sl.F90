@@ -25,9 +25,10 @@ use Constants, only: Zero, One, Two, Three, Five
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, iCNum
-real(kind=wp) :: Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), EEDisp, &
-                 Eint(nTri_Elem(iQ_Atoms),10), outxyz(3,nTri_Elem(iQ_Atoms)), Eint_Nuc(iQ_Atoms)
+integer(kind=iwp), intent(in) :: iQ_Atoms, iCNum
+real(kind=wp), intent(out) :: Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), EEDisp
+real(kind=wp), intent(in) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), outxyz(3,nTri_Elem(iQ_Atoms))
+real(kind=wp), intent(inout) :: Eint(nTri_Elem(iQ_Atoms),10), Eint_Nuc(iQ_Atoms)
 integer(kind=iwp) :: i, ijhr, ip, j, jhr, k, nMltTemp
 real(kind=wp) :: distMin, EintSl(nTri3_Elem1(MxMltp)), EintSl_Nuc, EintSlTemp, Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), &
                  Se(5), U(3,5)

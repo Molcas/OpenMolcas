@@ -52,10 +52,11 @@ use Definitions, only: wp, iwp
 #define _MxM_ 2
 
 implicit none
-integer(kind=iwp) :: nCentA, lMaxA, lMaxB
-real(kind=wp) :: Coord(3,nCentA), Dist(nCentA), DInv(nCentA), ExpoA(2,nCentA), FactorA(4,nCentA), SlPA(nCentA), ExpoB(_MxM_+1), &
-                 dNeigh, EintSl(nTri3_Elem1(_MxM_)), EintSl_Nuc
-logical(kind=iwp) :: lAtom
+integer(kind=iwp), intent(in) :: nCentA, lMaxA, lMaxB
+real(kind=wp), intent(in) :: Coord(3,nCentA), Dist(nCentA), DInv(nCentA), ExpoA(2,nCentA), FactorA(4,nCentA), SlPA(nCentA), &
+                             ExpoB(_MxM_+1), dNeigh
+real(kind=wp), intent(out) :: EintSl(nTri3_Elem1(_MxM_)), EintSl_Nuc
+logical(kind=iwp), intent(in) :: lAtom
 integer(kind=iwp) :: iCA, ijhr, iLA, iLB, kaunt, kComp, nS, nT
 real(kind=wp) :: Colle(3), dKappa, EA, EAp, EB, EBp, R, Rho, RhoA, RhoB, Rinv, Rotte(3,3), Sigge, Tau, TMPA(nTri_Elem1(_MxM_)), &
                  TR(6,6), v(3)

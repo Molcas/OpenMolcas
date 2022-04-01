@@ -39,8 +39,9 @@ use Constants, only: Zero, One, Two, Three, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Ract, Rold
-integer(kind=iwp) :: iCNum, iQ_Atoms
+real(kind=wp), intent(inout) :: Ract
+real(kind=wp), intent(out) :: Rold
+integer(kind=iwp), intent(in) :: iCNum, iQ_Atoms
 integer(kind=iwp) :: i, iAt, ii, iImage, ij, Ind, iQsta, j, k
 real(kind=wp) :: A, A2, B, CB, Cx, Cy, Cz, DiFac, Dq(3), Dx, q, qq, S2, SB, Sqrts2, x, xNy, y, yNy, z, zNy
 real(kind=wp), external :: Ranf

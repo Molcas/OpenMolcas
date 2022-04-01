@@ -18,8 +18,10 @@ use Constants, only: Zero, one
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nStatePrim
-real(kind=wp) :: NonH(nTri_Elem(nStatePrim)), NonS(nTri_Elem(nStatePrim)), Eig2(nStatePrim,nStatePrim)
+integer(kind=iwp), intent(in) :: nStatePrim
+real(kind=wp), intent(in) :: NonH(nTri_Elem(nStatePrim))
+real(kind=wp), intent(inout) :: NonS(nTri_Elem(nStatePrim))
+real(kind=wp), intent(out) :: Eig2(nStatePrim,nStatePrim)
 integer(kind=iwp) :: i, ii, iS, iState, iT, j, jState, kaunt, kaunter, nLvlInd, nStateRed, nTri
 real(kind=wp) :: sss, x
 real(kind=wp), allocatable :: Eig1(:,:), RedHSq(:,:), RedHTr(:), SqH(:,:), TEMP(:,:)

@@ -15,15 +15,16 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iDi
-real(kind=wp) :: SqMat(iDi**2), TriMat(nTri_Elem(iDi))
+integer(kind=iwp), intent(in) :: iDi
+real(kind=wp), intent(in) :: SqMat(iDi,iDi)
+real(kind=wp), intent(out) :: TriMat(nTri_Elem(iDi))
 integer(kind=iwp) :: i, j, kaunter
 
 kaunter = 0
 do i=1,iDi
   do j=1,i
     kaunter = kaunter+1
-    TriMat(kaunter) = SqMat(i+(j-1)*iDi)
+    TriMat(kaunter) = SqMat(i,j)
   end do
 end do
 

@@ -12,13 +12,14 @@
 subroutine PolSolv(DT,FI,FP,xx,yy,zz,rr3,xxi,yyi,zzi,Gri,FFp,iCNum,r2inv,difac,nSize)
 
 use qmstat_global, only: Cordst, DipIm, nCent, nPart, nPol, Sqrs, Qimp
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCNum, nSize
-real(kind=wp) :: DT(3,nPol*nPart), FI(3,nPol*nPart), FP(3,nPol*nPart), xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), &
-                 rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), zzi(nSize,nSize), Gri(nSize,nSize), FFp(nSize,3), r2inv, &
-                 difac
+integer(kind=iwp), intent(in) :: iCNum, nSize
+real(kind=wp), intent(in) :: DT(3,nPol*nPart), FP(3,nPol*nPart), xx(nSize,nSize), yy(nSize,nSize), zz(nSize,nSize), &
+                             rr3(nSize,nSize), xxi(nSize,nSize), yyi(nSize,nSize), zzi(nSize,nSize), Gri(nSize,nSize), r2inv, difac
+real(kind=wp), intent(out) :: FI(3,nPol*nPart), FFp(nSize,3)
 integer(kind=iwp) :: i, idel1, idel2, IndCor, Inddt, j
 real(kind=wp) :: Agr, Skal, Ta, Tal
 
@@ -43,7 +44,7 @@ do j=1,nPol
     DipIm(3,IndDt) = (Tal*Cordst(3,IndCor)*2+DiFac*DT(3,IndDt))*Agr**3
   end do
 end do
-FI(:,nPol*iCnum+1:nSize) = 0
+FI(:,nPol*iCnum+1:nSize) = Zero
 
 ! Here the actual fields are computed, both from the explicit solvent and from its image.
 
@@ -54,18 +55,18 @@ do i=1+(nPol*iCNum),nPart*nPol !The real part.
     if (idel1 == idel2) cycle
     Skal = xx(i,j)*DT(1,i)+yy(i,j)*DT(2,i)+zz(i,j)*DT(3,i)
     Skal = Skal*3
-    FI(1,j) = Fi(1,j)-(DT(1,i)-Skal*xx(i,j))*rr3(i,j)
-    FI(2,j) = Fi(2,j)-(DT(2,i)-Skal*yy(i,j))*rr3(i,j)
-    FI(3,j) = Fi(3,j)-(DT(3,i)-Skal*zz(i,j))*rr3(i,j)
+    FI(1,j) = FI(1,j)-(DT(1,i)-Skal*xx(i,j))*rr3(i,j)
+    FI(2,j) = FI(2,j)-(DT(2,i)-Skal*yy(i,j))*rr3(i,j)
+    FI(3,j) = FI(3,j)-(DT(3,i)-Skal*zz(i,j))*rr3(i,j)
   end do
 end do
 do i=1+(nPol*iCnum),nPart*nPol !The image part.
   do j=1+(nPol*iCnum),nPart*nPol
     Skal = (xxi(i,j)*DipIm(1,i)+yyi(i,j)*DipIm(2,i)+zzi(i,j)*DipIm(3,i))
     Skal = Skal*3
-    Fi(1,j) = Fi(1,j)-(DipIm(1,i)-Skal*xxi(i,j))*Gri(i,j)**3-Qimp(i)*xxi(i,j)*Gri(i,j)**2
-    Fi(2,j) = Fi(2,j)-(DipIm(2,i)-Skal*yyi(i,j))*Gri(i,j)**3-Qimp(i)*yyi(i,j)*Gri(i,j)**2
-    Fi(3,j) = Fi(3,j)-(DipIm(3,i)-Skal*zzi(i,j))*Gri(i,j)**3-Qimp(i)*zzi(i,j)*Gri(i,j)**2
+    FI(1,j) = FI(1,j)-(DipIm(1,i)-Skal*xxi(i,j))*Gri(i,j)**3-Qimp(i)*xxi(i,j)*Gri(i,j)**2
+    FI(2,j) = FI(2,j)-(DipIm(2,i)-Skal*yyi(i,j))*Gri(i,j)**3-Qimp(i)*yyi(i,j)*Gri(i,j)**2
+    FI(3,j) = FI(3,j)-(DipIm(3,i)-Skal*zzi(i,j))*Gri(i,j)**3-Qimp(i)*zzi(i,j)*Gri(i,j)**2
   end do
 end do
 

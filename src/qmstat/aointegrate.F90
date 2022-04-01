@@ -17,9 +17,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, N, lmax
-real(kind=wp) :: Ax, Ay, Az, AOint(nBaseQ,nBaseC), oV2(nBaseC,iOrb(2))
-logical(kind=iwp) :: Inside(iQ_Atoms,nAtomsCC)
+integer(kind=iwp), intent(in) :: nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, N, lmax
+real(kind=wp), intent(in) :: Ax, Ay, Az
+real(kind=wp), intent(out) :: AOint(nBaseQ,nBaseC), oV2(nBaseC,iOrb(2))
+logical(kind=iwp), intent(in) :: Inside(iQ_Atoms,nAtomsCC)
 #include "Molcas.fh"
 integer(kind=iwp) :: iBaS, iOrS, j, k, m
 real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), x, y, z

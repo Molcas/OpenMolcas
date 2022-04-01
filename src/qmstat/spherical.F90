@@ -17,7 +17,7 @@ use Constants, only: Three, Half
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: dMul(nTri_Elem1(2))
+real(kind=wp), intent(inout) :: dMul(nTri_Elem1(2))
 real(kind=wp) :: x2, xy, xz, y2, yz, z2
 real(kind=wp), parameter :: d3 = sqrt(Three)
 

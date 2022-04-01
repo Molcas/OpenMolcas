@@ -17,9 +17,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nSize
-real(kind=wp) :: AddRep, SmatPure(*), Vecs(nSize,nSize)
-logical(kind=iwp) :: InCutOff
+real(kind=wp), intent(out) :: AddRep
+integer(kind=iwp), intent(in) :: nSize
+real(kind=wp), intent(in) :: SmatPure(*), Vecs(nSize,nSize)
+logical(kind=iwp), intent(in) :: InCutOff
 integer(kind=iwp) :: i, iO1, iO2, j, kaunter
 real(kind=wp) :: Scalar
 

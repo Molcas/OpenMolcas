@@ -18,8 +18,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms
-real(kind=wp) :: BoMaH(iQ_Atoms), BoMaO(iQ_Atoms)
+integer(kind=iwp), intent(in) :: iQ_Atoms
+real(kind=wp), intent(out) :: BoMaH(iQ_Atoms), BoMaO(iQ_Atoms)
 integer(kind=iwp) :: i, j
 real(kind=wp) :: rBdi(2), rdi2
 real(kind=wp), allocatable :: rBdiQ(:)

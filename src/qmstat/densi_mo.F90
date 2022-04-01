@@ -12,21 +12,17 @@
 ! Here we construct the density matrix given the orbital coefficients.
 subroutine DENSI_MO(DENS,ORBCO,IS,IA,NBAS,IDM)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IS, IA, NBAS, IDM
-real(kind=wp) :: DENS(*), ORBCO(IDM,*)
+integer(kind=iwp), intent(in) :: IS, IA, NBAS, IDM
+real(kind=wp), intent(out) :: DENS(nTri_Elem(NBAS))
+real(kind=wp), intent(in) :: ORBCO(IDM,*)
 integer(kind=iwp) :: I, IJ, J, K
 
-IJ = 0
-do I=1,NBAS
-  do J=1,I
-    IJ = IJ+1
-    DENS(IJ) = Zero
-  end do
-end do
+DENS(:) = Zero
 do I=IS,IS+IA-1
   IJ = 0
   do J=1,NBAS

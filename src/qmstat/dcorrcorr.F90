@@ -16,27 +16,18 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iOrb, iOcc
-real(kind=wp) :: Dens(nTri_Elem(iOrb)), DenCorr(nTri_Elem(iOrb)), Trace_Diff
-integer(kind=iwp) :: i, j, kaunt
+integer(kind=iwp), intent(in) :: iOrb, iOcc
+real(kind=wp), intent(inout) :: Dens(nTri_Elem(iOrb))
+real(kind=wp), intent(in) :: DenCorr(nTri_Elem(iOrb)), Trace_Diff
 real(kind=wp) :: T, Trace_HF
 
 Trace_HF = real(iOcc*2,kind=wp)
-kaunt = 0
 T = Trace_HF/(Trace_HF-Trace_Diff)
-do i=1,iOrb
-  do j=1,i
-    kaunt = kaunt+1
-    Dens(kaunt) = T*(Dens(kaunt)-DenCorr(kaunt))
-  end do
-end do
+Dens(:) = T*(Dens(:)-DenCorr(:))
 !Trace = Zero
 !kaunt = 0
 !do i=1,iOrb
-!  do j=1,i
-!    kaunt = kaunt+1
-!    if (i == j) Trace = Trace+Dens(kaunt)
-!  end do
+!  Trace = Trace+Dens(nTri_Elem(i))
 !end do
 !call triprt('KKK',' ',Dens,iorb)
 !write(u6,*) 'QQQ:',Trace

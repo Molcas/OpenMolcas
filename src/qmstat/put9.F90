@@ -16,9 +16,11 @@ use qmstat_global, only: Cordst, iLuSaUt, iPrint, iTcSim, nCent, nPart
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Etot, Ract, Gmma, Gam, Esav
-integer(kind=iwp) :: iHowMSamp, iDisk
+real(kind=wp), intent(_IN_) :: Etot, Ract, Gmma, Gam, Esav
+integer(kind=iwp), intent(inout) :: iHowMSamp, iDisk
 integer(kind=iwp) :: i, iDiskHead, iDiskOld
 character(len=200) :: Head
 real(kind=wp), allocatable :: CT(:)
@@ -31,7 +33,7 @@ call mma_allocate(CT,nPart*nCent)
 do i=1,3
   CT(:) = Cordst(i,1:nCent*nPart)
   call dDaFile(iLuSaUt,1,CT,nPart*nCent,iDisk)
-  !The solvent coordinates.
+  ! The solvent coordinates.
   iTcSim(i+1) = iDisk
 end do
 call mma_deallocate(CT)

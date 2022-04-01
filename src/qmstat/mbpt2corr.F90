@@ -19,8 +19,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBas
-real(kind=wp) :: Cmo(nBas,nBas)
+integer(kind=iwp), intent(in) :: nBas
+real(kind=wp), intent(in) :: Cmo(nBas,nBas)
 integer(kind=iwp) :: i, iB1, Ising, iT, j, jjj, kaunt1
 real(kind=wp) :: Det
 real(kind=wp), allocatable :: Diff(:), Inv(:,:), RedSq(:,:), SqD(:,:), SqE(:), TEMP(:,:)

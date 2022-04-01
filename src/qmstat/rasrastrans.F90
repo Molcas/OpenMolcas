@@ -18,8 +18,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nB, nStatePrim, iPrint
-real(kind=wp) :: Eig2(nStatePrim,nStatePrim)
+integer(kind=iwp), intent(in) :: nB, nStatePrim, iPrint
+real(kind=wp), intent(in) :: Eig2(nStatePrim,nStatePrim)
 integer(kind=iwp) :: i, iB, iBas, iDisk, iiS, indx, indypop, iS, j, jB, jBas, jjS, jS, kaunt, kaunter, LuIn, MEMMAX, nSize, &
                      nSizeBig, nSizeBigPrim, nTriS, nTriSP
 character(len=30) :: OutLine

@@ -15,8 +15,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Coo(3,5), CooRef(3,5)
-logical(kind=iwp) :: ValidOrNot
+real(kind=wp), intent(in) :: Coo(3,5), CooRef(3,5)
+logical(kind=iwp), intent(out) :: ValidOrNot
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: dL_ref, dL_test
 real(kind=wp), parameter :: dTroskel = 1.0e-4_wp

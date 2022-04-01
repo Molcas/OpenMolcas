@@ -27,7 +27,7 @@
 !> in other word that from the charges, is already coupled in
 !> ::helstate.
 !>
-!> @param[out]    Energy  The energy of the electrostatic interaction
+!> @param[in,out] Energy  The energy of the electrostatic interaction
 !> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
 !> @param[in]     iCi     Number of centers in QM-molecule
 !> @param[in]     Fil     The static field from the solvent
@@ -51,10 +51,12 @@ use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAtom2, iCI, iCstart, iQ_Atoms
-real(kind=wp) :: Fil(nPart*nPol,3,iCi,10), Energy, VpolMat(nTri_Elem(nState)), FFp(nPart*nPol,3), polfac, Poli(iCi,10), xyzmyq(3), &
-                 xyzmyi(3), xyzmyp(3), qtot, ChaNuc(iQ_Atoms), RoMatSt(nTri_Elem(nState)), xyzQuQ(6), CT(3)
-integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, kk, l
+integer(kind=iwp), intent(in) :: iAtom2, iCI, iCstart, iQ_Atoms
+real(kind=wp), intent(inout) :: Energy, FFp(nPart*nPol,3)
+real(kind=wp), intent(in) :: Fil(nPart*nPol,3,iCi,10), polfac, xyzmyi(3), xyzmyp(3), qtot, ChaNuc(iQ_Atoms), &
+                             RoMatSt(nTri_Elem(nState)), CT(3)
+real(kind=wp), intent(out) :: VpolMat(nTri_Elem(nState)), Poli(iCi,10), xyzmyq(3), xyzQuQ(6)
+integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, l
 real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qs, qQ(6), Trace1, Trace2, xyzMyC(3)
 real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
 
@@ -105,21 +107,15 @@ do i=1,nState
     end do
   end do
 end do
-do kk=1,3
-  xyzMyQ(kk) = Zero
-  xyzMyC(kk) = Zero
-  CofC(kk) = Zero
-end do
-do kk=1,6
-  xyzQuQ(kk) = Zero
-  qQ(kk) = Zero
-  qD(kk) = Zero
-  qK(kk) = Zero
-end do
+xyzMyQ(:) = Zero
+xyzMyC(:) = Zero
+xyzQuQ(:) = Zero
+CofC(:) = Zero
+qQ(:) = Zero
+qD(:) = Zero
+qK(:) = Zero
 do i=1,iCi
-  do kk=1,3
-    xyzMyQ(kk) = xyzMyQ(kk)+Dm(i,kk)+Qm(i)*outxyzRAS(kk,i)
-  end do
+  xyzMyQ(:) = xyzMyQ(:)+Dm(i,:)+Qm(i)*outxyzRAS(:,i)
   qQ(1) = qQ(1)+Qm(i)*(outxyzRAS(1,i)-CT(1))*(outxyzRAS(1,i)-CT(1))
   qQ(2) = qQ(2)+Qm(i)*(outxyzRAS(1,i)-CT(1))*(outxyzRAS(2,i)-CT(2))
   qQ(3) = qQ(3)+Qm(i)*(outxyzRAS(1,i)-CT(1))*(outxyzRAS(3,i)-CT(3))
@@ -240,9 +236,7 @@ do l=1,iCi
     end do
   end do
 end do
-do i=1,nTri_Elem(nState)
-  VpolMat(i) = Zero
-end do
+VpolMat(:) = Zero
 kaunt = 0
 ! Attention! The reason we use RasCha etc. and not the computed Qm, Dm etc. from above is
 ! that the density we want to describe is the density of the basis-functions. Compare with

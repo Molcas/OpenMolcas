@@ -15,8 +15,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nEqState, nState, nCIRef, iCIInd(nCIRef)
-real(kind=wp) :: STC(nState,nState), dCIRef(nCIRef)
+integer(kind=iwp), intent(out) :: nEqState
+integer(kind=iwp), intent(in) :: nState, nCIRef, iCIInd(nCIRef)
+real(kind=wp), intent(in) :: STC(nState,nState), dCIRef(nCIRef)
 integer(kind=iwp) :: indMAX, iRef, iState
 real(kind=wp) :: dScal, dScalMAX
 

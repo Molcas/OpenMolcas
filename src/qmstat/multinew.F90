@@ -47,10 +47,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAt, nBas, nntyp, nOcc(nntyp), natyp(nntyp), iCenTri(nTri_Elem(nBas)), iCenTriT(nBas,nBas), nMlt
-type(Alloc1DArray_Type) :: MME(nTri3_Elem(MxMltp))
-real(kind=wp) :: outxyz(3,nTri_Elem(nAt))
-logical(kind=iwp) :: lSlater
+integer(kind=iwp), intent(in) :: nAt, nBas, nntyp, nOcc(nntyp), natyp(nntyp)
+type(Alloc1DArray_Type), intent(out) :: MME(nTri3_Elem(MxMltp))
+integer(kind=iwp), intent(out) :: iCenTri(nTri_Elem(nBas)), iCenTriT(nBas,nBas), nMlt
+real(kind=wp), intent(out) :: outxyz(3,nTri_Elem(nAt))
+logical(kind=iwp), intent(in) :: lSlater
 integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, k, kaunt, kaunter, &
                      LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
 real(kind=wp) :: CordMul(MxMltp,3), Corr, CorrDip1, CorrDip2, CorrOvl
@@ -132,12 +133,10 @@ end do outer
 !----------------------------------------------------------------------*
 call mma_allocate(xyz,3,nAt,nAt,label='xyz')
 call Get_Centers(nAt,xyz)
-kaunt = 0
 do i=1,nAt
-  kaunt = kaunt+1
-  outxyz(1,kaunt) = xyz(1,i,i)
-  outxyz(2,kaunt) = xyz(2,i,i)
-  outxyz(3,kaunt) = xyz(3,i,i)
+  outxyz(1,i) = xyz(1,i,i)
+  outxyz(2,i) = xyz(2,i,i)
+  outxyz(3,i) = xyz(3,i,i)
 end do
 kaunt = nAt
 do i=1,nAt

@@ -17,18 +17,16 @@ use Constants, only: Angstrom, deg2rad
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=3) :: EelP
-integer(kind=iwp) :: iM1, iM2, iM3
+character(len=3), intent(in) :: EelP
 logical(kind=iwp) :: Cl, Eq, It, Pr, Qu
 character(len=40) :: Word1, Word2, Word3
-integer(kind=iwp), external :: Len_TrimAO
 #include "warnings.h"
 
 ! Enter.
 
 ! Make sure that the string is of correct length.
 
-if (Len_TrimAO(EelP) /= 3) then
+if (len_trim(EelP) /= 3) then
   write(u6,*) 'Illegal call to NiceOutPut'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
@@ -75,10 +73,7 @@ else if (Pr) then
 else
   write(Word3,*) ' '
 end if
-iM1 = Len_TrimAO(Word1)
-iM2 = Len_TrimAO(Word2)
-iM3 = Len_TrimAO(Word3)
-write(u6,*) Word1(1:iM1)//Word2(1:iM2)//Word3(1:iM3)
+write(u6,*) trim(Word1)//trim(Word2)//trim(Word3)
 
 ! Now dump a lot of information.
 

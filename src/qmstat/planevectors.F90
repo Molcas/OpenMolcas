@@ -16,7 +16,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: u(3), w(3), v(3), Rinv
+real(kind=wp), intent(out) :: u(3), w(3)
+real(kind=wp), intent(in) :: v(3), Rinv
 real(kind=wp) :: const, dLu, p(3), Scal, Shitx, Shity, Shitz
 
 ! Construct an arbitrary normalized vector orthogonal to the v-vector.
@@ -37,9 +38,7 @@ do
   const = const+One
 end do
 dLu = sqrt(u(1)**2+u(2)**2+u(3)**2)
-u(1) = u(1)/dLu
-u(2) = u(2)/dLu
-u(3) = u(3)/dLu
+u(:) = u(:)/dLu
 
 ! Construct the final pi-vector, which is orthogonal to the v-vector
 ! and the recently constructed pi-vector.

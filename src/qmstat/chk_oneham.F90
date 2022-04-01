@@ -18,7 +18,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: nBas(MxSymQ)
+integer(kind=iwp), intent(in) :: nBas(MxSymQ)
 integer(kind=iwp) :: iopt, irc, iSmLbl, Lu_One, nBT
 real(kind=wp) :: dNorm
 character(len=8) :: Label_Pure, Label_Read

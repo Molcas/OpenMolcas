@@ -28,7 +28,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms
+integer(kind=iwp), intent(in) :: iQ_Atoms
 #include "warnings.h"
 integer(kind=iwp) :: i, iChrct, iNrExtr, iTemp, j, k, kaunt, kk, Last, LuRd, NExtr_Atm, njhr, nS, nT
 real(kind=wp) :: CoTEMP1(3), CoTEMP2(3), CoTEMP3(3), CoTEMP4(3), CoTEMP5(3), dTemp, SlExpTemp, SlFacTemp(6)

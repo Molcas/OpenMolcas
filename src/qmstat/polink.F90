@@ -28,7 +28,7 @@
 !> the field from the polarizabiolities in the solvent onto the QM-region,
 !> which is done just like in ::hel.
 !>
-!> @param[out]    Energy  The energy of the electrostatic interaction
+!> @param[in,out] Energy  The energy of the electrostatic interaction
 !> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
 !> @param[in]     iCi     Number of centers in QM-molecule
 !> @param[in]     Fil     The static field from the solvent
@@ -49,10 +49,11 @@ use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAtom2, iCi, iCstart, iTri, iQ_Atoms
-real(kind=wp) :: Energy, Fil(nPart*nPol,3,iCi,10), VpolMat(iTri), FFp(nPart*nPol,3), polfac, Poli(iCi,10), qTot, ChaNuc(iQ_Atoms), &
-                 xyzMyQ(3), xyzMyI(3), xyzMyP(3), RoMat(iTri), xyzQuQ(6), CT(3)
-integer(kind=iwp) :: i, iCnum, Iu, j, k, kk, l
+integer(kind=iwp), intent(in) :: iAtom2, iCi, iCstart, iTri, iQ_Atoms
+real(kind=wp), intent(inout) :: Energy, FFp(nPart*nPol,3)
+real(kind=wp), intent(out) :: VpolMat(iTri), Poli(iCi,10), xyzMyQ(3), xyzQuQ(6)
+real(kind=wp), intent(in) :: Fil(nPart*nPol,3,iCi,10), polfac, qTot, ChaNuc(iQ_Atoms), xyzMyI(3), xyzMyP(3), RoMat(iTri), CT(3)
+integer(kind=iwp) :: i, iCnum, Iu, j, k, l
 real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qQ(6), qs, Trace1, Trace2, xyzMyC(3)
 real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
 
@@ -98,17 +99,13 @@ do i=1,iTri
     QQm(j,5) = QQm(j,5)+Quad(i,5,j)*Romat(i)
   end do
 end do
-do kk=1,3
-  xyzMyQ(kk) = Zero
-  xyzMyC(kk) = Zero
-  CofC(kk) = Zero
-end do
-do kk=1,6
-  xyzQuQ(kk) = Zero
-  qQ(kk) = Zero
-  qD(kk) = Zero
-  qK(kk) = Zero
-end do
+xyzMyQ(:) = Zero
+xyzMyC(:) = Zero
+xyzQuQ(:) = Zero
+CofC(:) = Zero
+qQ(:) = Zero
+qD(:) = Zero
+qK(:) = Zero
 ! Observe one tricky thing about xyzmyq: the electric multipoles
 ! we use above are actually of opposite sign, so how can xyzmyq be
 ! the dipole in the qm-region unless we change sign (which we do
@@ -116,9 +113,7 @@ end do
 ! have opposite sign, which in turn has no physical meaning.
 ! We also compute the quadupole moment -- a messy formula.
 do i=1,iCi
-  do kk=1,3
-    xyzMyQ(kk) = xyzMyQ(kk)+Dm(i,kk)+Qm(i)*outxyz(kk,i)
-  end do
+  xyzMyQ(:) = xyzMyQ(:)+Dm(i,:)+Qm(i)*outxyz(:,i)
   qQ(1) = qQ(1)+Qm(i)*(outxyz(1,i)-CT(1))*(outxyz(1,i)-CT(1))
   qQ(2) = qQ(2)+Qm(i)*(outxyz(1,i)-CT(1))*(outxyz(2,i)-CT(2))
   qQ(3) = qQ(3)+Qm(i)*(outxyz(1,i)-CT(1))*(outxyz(3,i)-CT(3))
@@ -237,9 +232,7 @@ do l=1,iCi
     end do
   end do
 end do
-do i=1,iTri
-  VpolMat(i) = 0
-end do
+VpolMat(:) = Zero
 do i=1,iTri
   do j=1,iCi
     Vpolmat(i) = Vpolmat(i)+Poli(j,1)*Cha(i,j)

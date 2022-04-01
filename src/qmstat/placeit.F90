@@ -17,8 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iQ_Atoms, iCNum
-real(kind=wp) :: Coord(3,iQ_Atoms)
+integer(kind=iwp), intent(in) :: iQ_Atoms, iCNum
+real(kind=wp), intent(in) :: Coord(3,iQ_Atoms)
 integer(kind=iwp) :: i, iextr, ind, iTemp, iz, j, k
 real(kind=wp) :: Atemp, S, Sbig
 logical(kind=iwp) :: Changed

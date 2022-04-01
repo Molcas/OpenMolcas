@@ -20,21 +20,19 @@ use Definitions, only: wp, iwp, u6
 #define _MxM_ 2
 
 implicit none
-integer(kind=iwp) :: iLdiff, iLpoi
-real(kind=wp) :: dMul(nTri_Elem1(_MxM_)), Ep, R, Rinv, Colle(3)
-logical(kind=iwp) :: lDiffA
-integer(kind=iwp) :: i
-real(kind=wp) :: d3, DAMP, er, Ex, Pi1, Pi2, Sigma
+integer(kind=iwp), intent(in) :: iLdiff, iLpoi
+real(kind=wp), intent(in) :: dMul(nTri_Elem1(_MxM_)), Ep, R, Rinv
+real(kind=wp), intent(out) :: Colle(3)
+logical(kind=iwp), intent(in) :: lDiffA
+real(kind=wp) :: DAMP, er, Ex, Pi1, Pi2, Sigma
+real(kind=wp), parameter :: d3 = sqrt(Three)
 #include "warnings.h"
 
 ! The omnipresent exponential and distance-exponent product.
 
 er = Ep*R
 Ex = exp(-Two*er)
-d3 = sqrt(Three)
-do i=1,3
-  Colle(i) = Zero
-end do
+Colle(:) = Zero
 
 if ((iLdiff == 0) .and. (iLpoi == 0)) then
   ! s-s; see ABBoth for comments on sigma and similar below.

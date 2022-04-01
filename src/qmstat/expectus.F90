@@ -15,12 +15,15 @@ use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-character(len=5) :: QMMethod
-integer(kind=iwp) :: nDIM, iEig
-real(kind=wp) :: HmatOld(nTri_Elem(nDim)), Vmat(nTri_Elem(nDim)), VpolMat(nTri_Elem(nDim)), Smat(nTri_Elem(nDim)), VEC(nDim,nDim), &
-                 ExpVal(4,*)
-logical(kind=iwp) :: lEig
+character(len=5), intent(in) :: QMMethod
+integer(kind=iwp), intent(in) :: nDIM, iEig
+real(kind=wp), intent(in) :: HmatOld(nTri_Elem(nDim)), Vmat(nTri_Elem(nDim)), VpolMat(nTri_Elem(nDim)), Smat(nTri_Elem(nDim)), &
+                             VEC(nDim,nDim)
+logical(kind=iwp), intent(in) :: lEig
+real(kind=wp), intent(_OUT_) :: ExpVal(4,*)
 integer(kind=iwp) :: iRoot, nDTri, nRoots
 real(kind=wp), allocatable :: DTmp(:)
 real(kind=r8), external :: Ddot_

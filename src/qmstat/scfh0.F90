@@ -13,13 +13,13 @@
 subroutine ScfH0(nBas)
 
 use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, MxSymQ, nExtAddOns, ScalExt, SupM, V1
-use Index_Functions, only: nTri_Elem
+use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBas(MxSymQ)
+integer(kind=iwp), intent(in) :: nBas(MxSymQ)
 #include "Molcas.fh"
 #include "tratoc.fh"
 integer(kind=iwp) :: i, iDisk, iExt, ij, ik, il, iLu1, iLu2, iopt, irc, iSmLbl, iSup, iToc(64), j, jk, jl, k, kaunter, kl, l, &
@@ -29,7 +29,7 @@ real(kind=wp) :: Ecor
 character(len=LenIn8) :: NameM(maxbfn)
 character(len=10) :: firstind
 real(kind=wp), allocatable :: AOx(:), Buff(:), Fine(:,:), MOx(:), SqAO(:,:), TEMP(:,:)
-integer(kind=iwp), external :: ipair_qmstat, IsFreeUnit
+integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
 ! Wilkommen.
@@ -148,12 +148,12 @@ do i=1,iOrb(1)
       llmax = k
       if (i == k) llmax = j
       do l=1,llmax
-        ij = ipair_qmstat(i,j)
-        ik = ipair_qmstat(i,k)
-        il = ipair_qmstat(i,l)
-        jk = ipair_qmstat(j,k)
-        jl = ipair_qmstat(j,l)
-        kl = ipair_qmstat(k,l)
+        ij = iTri(i,j)
+        ik = iTri(i,k)
+        il = iTri(i,l)
+        jk = iTri(j,k)
+        jl = iTri(j,l)
+        kl = iTri(k,l)
         SupM(kl,ij) = TEMP(kl,ij)-(TEMP(jl,ik)+TEMP(jk,il))*Quart
         SupM(ij,kl) = SupM(kl,ij)
         SupM(jl,ik) = TEMP(jl,ik)-(TEMP(kl,ij)+TEMP(jk,il))*Quart

@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: Coo(3,nCent), CooRef(3,nCent)
-integer(kind=iwp) :: i, iCent, iDisk, iLu, ind, indMax, iPart, j, jnd1, jnd2, jP, k, l, ll, nRemoved
+integer(kind=iwp) :: i, iCent, iDisk, iLu, ind, indMax, iPart, j, jnd1, jnd2, jP, k, l, ll, nRemoved, nTmp
 real(kind=wp) :: dCMx, dCMy, dCMz, dSpread, Esub, Etot, Gamold, GaOld, r, Ract, rMax
 logical(kind=iwp) :: Exists, ValidOrNot
 character(len=200) :: Head
@@ -82,18 +82,19 @@ if (DelOrAdd(1)) then
 
   ! Print the new set of coordinates to a startfile.
 
+  nTmp = nPart-nDel
   iLu = 74
   write(FilSlut,'(A5,i1.1)') 'STFIL',NrStartu
   call DaName(iLu,FilSlut)
   iDisk = 0
-  call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart-nDel,Gamold,Gaold,Esub)
+  call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nTmp,Gamold,Gaold,Esub)
   iTcSim(1) = iDisk
   do l=1,3
     call dDaFile(iLu,1,C(:,l),(nPart-nDel)*nCent,iDisk)
     iTcSim(1+l) = iDisk
   end do
   iDisk = 0
-  call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nPart-nDel,Gamold,Gaold,Esub)
+  call WrRdSim(iLu,1,iDisk,iTcSim,64,Etot,Ract,nTmp,Gamold,Gaold,Esub)
   call DaClos(iLu)
 
   ! If user wants, print print print.
