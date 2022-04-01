@@ -43,13 +43,13 @@ C     Allocating Memory
       write(6,*)
       write(6,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
       IF(trim(CMSStartMat).eq.'XMS') THEN
-       write(6,'(5X,A12,2X,A)')
+       write(6,'(5X,A12,1X,A)')
      &'START MATRX','XMS INTERMEDIATE STATES'
        CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
       ELSE
        CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,
      &              len_trim(CMSStartMat),16,'N')
-       write(6,'(5X,A12,2X,A)')
+       write(6,'(5X,A12,1X,A)')
      &'START MATRX',trim(CMSStartMat)
       END IF
       write(6,'(4X,A12,2X,ES8.2E2)')
