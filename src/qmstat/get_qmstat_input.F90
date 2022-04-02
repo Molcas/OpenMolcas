@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms
 #include "warnings.h"
-integer(kind=iwp) :: i, iChrct, iNrExtr, iTemp, j, k, kaunt, kk, Last, LuRd, NExtr_Atm, njhr, nS, nT
+integer(kind=iwp) :: i, iChrct, iNrExtr, iTemp, j, kaunt, Last, LuRd, NExtr_Atm, njhr, nS, nT
 real(kind=wp) :: CoTEMP1(3), CoTEMP2(3), CoTEMP3(3), CoTEMP4(3), CoTEMP5(3), dTemp, SlExpTemp, SlFacTemp(6)
 logical(kind=iwp) :: Changed, YesNo(20)
 character(len=180) :: Key
@@ -45,14 +45,11 @@ real(kind=wp), allocatable :: Tmp(:), Tmp2(:,:)
 
 !write(u6,*)
 !write(u6,*)'Input processed...'
-do i=1,20
-  YesNo(i) = .false.
-end do
+YesNo(:) = .false.
 
 ! Use some nice routines to collect input.
 
-LuRd = 79
-LuRd = IsFreeUnit(LuRd)
+LuRd = IsFreeUnit(79)
 call SpoolInp(LuRd)
 rewind(LuRd)
 call RdNlst(LuRd,'QMSTAT')
@@ -563,20 +560,14 @@ do
                 call Get_F(2,Cordst(2,kaunt),1)
                 call Get_F(3,Cordst(3,kaunt),1)
               end do
-              do kk=1,3
-                CoTEMP1(kk) = Cordst(kk,kaunt-2)
-                CoTEMP2(kk) = Cordst(kk,kaunt-1)
-                CoTEMP3(kk) = Cordst(kk,kaunt-0)
-              end do
+              CoTEMP1(:) = Cordst(:,kaunt-2)
+              CoTEMP2(:) = Cordst(:,kaunt-1)
+              CoTEMP3(:) = Cordst(:,kaunt-0)
               call OffAtom(CoTEMP1,CoTEMP2,CoTEMP3,CoTEMP4,CoTEMP5)
               kaunt = kaunt+1
-              do kk=1,3
-                Cordst(kk,kaunt) = CoTEMP4(kk)
-              end do
+              Cordst(:,kaunt) = CoTEMP4(:)
               kaunt = kaunt+1
-              do kk=1,3
-                Cordst(kk,kaunt) = CoTEMP5(kk)
-              end do
+              Cordst(:,kaunt) = CoTEMP5(:)
             end do
           case ('CAVR')
             ! <<<CAVRepulsion>>>  Repulsion parameters between solvent and cavity boundary.
@@ -670,11 +661,7 @@ do
                 njhr = nT-nS
                 Key = Get_Ln(LuRd)
                 call Get_F(1,SlFacTemp,njhr)
-                njhr = 1
-                do k=nS+1,nT
-                  SlFactC(k,i) = SlFacTemp(njhr)
-                  njhr = njhr+1
-                end do
+                SlFactC(nS+1:nT,i) = SlFacTemp(1:nT-nS)
               end do
               Key = Get_Ln(LuRd)
               call Get_F(1,SlPC(i),1)

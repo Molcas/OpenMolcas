@@ -31,14 +31,12 @@ do
   p(2) = Shity+Half*const
   p(3) = Shitz-const
   Scal = p(1)*v(1)+p(2)*v(2)+p(3)*v(3)
-  u(1) = p(1)-Scal*Rinv**2*v(1)
-  u(2) = p(2)-Scal*Rinv**2*v(2)
-  u(3) = p(3)-Scal*Rinv**2*v(3)
+  u(:) = p-Scal*Rinv**2*v
   if ((abs(u(1)) >= 1.0e-6_wp) .or. (abs(u(2)) >= 1.0e-6_wp) .or. (abs(u(3)) >= 1.0-6_wp)) exit
   const = const+One
 end do
 dLu = sqrt(u(1)**2+u(2)**2+u(3)**2)
-u(:) = u(:)/dLu
+u(:) = u/dLu
 
 ! Construct the final pi-vector, which is orthogonal to the v-vector
 ! and the recently constructed pi-vector.

@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(in) :: nB
-integer(kind=iwp) :: i, iExt, iopt, irc, iS1, iS2, iSmLbl, j, kaunter, Lu_One, nBTri, nSize
+integer(kind=iwp) :: i, iExt, iopt, irc, iS1, iS2, iSmLbl, kaunter, Lu_One, nBTri, nSize
 real(kind=wp) :: Element
 real(kind=wp), allocatable :: AOG(:), AOx(:), AUX(:,:), DiagH0(:), MOG(:), MOx(:), SqAO(:,:), SqMO(:,:)
 integer(kind=iwp), external :: IsFreeUnit
@@ -30,12 +30,8 @@ real(kind=r8), external :: Ddot_
 nBTri = nTri_Elem(nB)
 if (.not. AddExt) then
   call mma_allocate(DiagH0,nState,label='DiagH0')
-  kaunter = 0
   do i=1,nState
-    do j=1,i
-      kaunter = kaunter+1
-    end do
-    DiagH0(i) = HmatState(kaunter)
+    DiagH0(i) = HmatState(nTri_Elem(i))
   end do
   write(u6,*) '     -----RASSI H_0 eigenvalues:'
   write(u6,99) DiagH0(:)
@@ -44,8 +40,7 @@ else
 
   ! Collect one-electron perturbations.
 
-  Lu_One = 49
-  Lu_One = IsFreeUnit(Lu_One)
+  Lu_One = IsFreeUnit(49)
   call OpnOne(irc,0,'ONEINT',Lu_One)
   call mma_allocate(AOx,nBTri,label='AOExt')
   do iExt=1,nExtAddOns
@@ -53,7 +48,7 @@ else
     iopt = 6
     iSmLbl = 0
     call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),AOx,iSmLbl)
-    call dscal_(nBTri,ScalExt(iExt),AOx,1)
+    AOx(:) = AOx*ScalExt(iExt)
     if (irc /= 0) then
       write(u6,*)
       write(u6,*) 'ERROR when reading ',ExtLabel(iExt),'.'
@@ -70,7 +65,7 @@ else
       do iS1=1,nState
         do iS2=1,iS1
           kaunter = kaunter+1
-          call dcopy_(nBTri,BigT(:,kaunter),1,AOG,1)
+          AOG(:) = BigT(:,kaunter)
           Element = Ddot_(nBTri,AOG,1,AOx,1)
           HmatState(kaunter) = HmatState(kaunter)+Element
         end do
@@ -92,7 +87,7 @@ else
         ! This was 1,nState before... I think that was a bug, because HMatState is triangular
         do iS2=1,iS1
           kaunter = kaunter+1
-          call dcopy_(nSize,BigT(:,kaunter),1,MOG,1)
+          MOG(:) = BigT(1:nSize,kaunter)
           Element = Ddot_(nSize,MOG,1,MOx,1)
           HmatState(kaunter) = HmatState(kaunter)+Element
         end do

@@ -104,25 +104,17 @@ Kaunt = 0
 do iP1=1,nExp1
   do iP2=1,nExp2
     Kaunt = Kaunt+1
-    TheCent(1) = (Alfa(iP1)*Bori(1)+Beta(iP2)*Cori(1))
-    TheCent(2) = (Alfa(iP1)*Bori(2)+Beta(iP2)*Cori(2))
-    TheCent(3) = (Alfa(iP1)*Bori(3)+Beta(iP2)*Cori(3))
+    TheCent(:) = (Alfa(iP1)*Bori(:)+Beta(iP2)*Cori(:))
     Divide = One/(Alfa(iP1)+Beta(iP2)) !gamma in article
-    TheCent(1) = TheCent(1)*Divide !The new center, P
-    TheCent(2) = TheCent(2)*Divide
-    TheCent(3) = TheCent(3)*Divide
+    TheCent(:) = TheCent(:)*Divide !The new center, P
     Piconst = Pi*Divide
     SqPiconst = sqrt(Piconst)
     Piconst = Piconst*SqPiconst !That constant to the power of 3/2
     Expo = Alfa(iP1)*Beta(iP2)*Separation*Divide
     TheFirstFac = Piconst*exp(-Expo) !This is the exponential factor
     ! Now we should get those difficult f-functions.
-    PAxyz(1) = TheCent(1)-Bori(1)
-    PAxyz(2) = TheCent(2)-Bori(2)
-    PAxyz(3) = TheCent(3)-Bori(3)
-    PBxyz(1) = TheCent(1)-Cori(1)
-    PBxyz(2) = TheCent(2)-Cori(2)
-    PBxyz(3) = TheCent(3)-Cori(3)
+    PAxyz(:) = TheCent-Bori
+    PBxyz(:) = TheCent-Cori
     kaunter = 0
     do iSp1=1,nSpecific1
       do iSp2=1,nSpecific2
@@ -142,9 +134,9 @@ do iP1=1,nExp1
         iUpX = lsumX/2 !Yes, it should be like this, even when lsumX is odd.
         iUpY = lsumY/2
         iUpZ = lsumZ/2
-        SummaX = 0
-        SummaY = 0
-        SummaZ = 0
+        SummaX = Zero
+        SummaY = Zero
+        SummaZ = Zero
         ! This is just a matter of putting things together according to the formula
         do ixxx=0,iUpX
           Extra = iDubFac(2*ixxx-1)*(Half*Divide)**ixxx
@@ -202,10 +194,10 @@ do iP1=1,nExp1
       end if
     else  !Here we only transpose to get integrals in right order.
       krakna = 0
-      do i=0,nSph1-1
-        do j=0,nSph2-1
+      do i=1,nSph1
+        do j=1,nSph2
           krakna = krakna+1
-          PsphS(krakna) = PpS(1+i+j*nSph1)
+          PsphS(krakna) = PpS(i+(j-1)*nSph1)
         end do
       end do
     end if

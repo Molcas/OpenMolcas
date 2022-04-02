@@ -27,14 +27,12 @@ integer(kind=iwp) :: i, j, kaunt
 
 kaunt = 0
 do i=1,nSt
-  do j=1,i
+  do j=1,i-1
     kaunt = kaunt+1
-    if (i == j) then
-      Dens(kaunt) = StVec(i,iS)*StVec(j,iS)
-    else
-      Dens(kaunt) = Two*StVec(i,iS)*StVec(j,iS)
-    end if
+    Dens(kaunt) = Two*StVec(i,iS)*StVec(j,iS)
   end do
+  kaunt = kaunt+1
+  Dens(kaunt) = StVec(i,iS)*StVec(i,iS)
 end do
 
 return

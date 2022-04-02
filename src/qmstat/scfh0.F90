@@ -71,8 +71,7 @@ call DaClos(iLu1)
 if (AddExt) then
   write(u6,*) '    -- Adding external perturbation.'
   nBTri = nTri_Elem(nBas(1))
-  Lu_One = 49
-  Lu_One = IsFreeUnit(Lu_One)
+  Lu_One = IsFreeUnit(49)
   call OpnOne(irc,0,'ONEINT',Lu_One)
   call mma_allocate(AOx,nBTri,label='AOExt')
   call mma_allocate(TEMP,iOrb(1),nBas(1),label='TEMP')
@@ -84,7 +83,7 @@ if (AddExt) then
     iopt = 6
     iSmLbl = 0
     call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),AOx,iSmLbl)
-    call DScal_(nBTri,ScalExt(iExt),AOx,1)
+    AOx(:) = AOx*ScalExt(iExt)
     if (irc /= 0) then
       write(u6,*)
       write(u6,*) 'ERROR when reading ',ExtLabel(iExt),'.'
@@ -95,7 +94,7 @@ if (AddExt) then
     call Dgemm_('T','N',iOrb(1),nBas(1),nBas(1),One,V1,nBas(1),SqAO,nBas(1),Zero,TEMP,iOrb(1))
     call Dgemm_('N','N',iOrb(1),iOrb(1),nBas(1),One,TEMP,iOrb(1),V1,nBas(1),Zero,Fine,iOrb(1))
     call SqToTri_Q(Fine,MOx,iOrb(1))
-    call DaxPy_(nSize,One,MOx,1,HHmat,1)
+    HHmat(:) = HHmat+MOx
   end do
   call mma_deallocate(AOx)
   call mma_deallocate(TEMP)

@@ -72,7 +72,6 @@ set (sources
      noverp_q.F90
      nypart.F90
      offatom.F90
-     oldge.F90
      oneoverr.F90
      oneoverr_sl.F90
      orbrot2.F90

@@ -56,11 +56,9 @@ outer: do
   ! ...and if they do not then shove its coordinates in variable
   IIN = IIN+1
   IA = (IIN+NPART-1)*NCENT
-  do I=1,NCENT
-    COORD(1,IA+I) = COORD(1,I)+DX
-    COORD(2,IA+I) = COORD(2,I)+DY
-    COORD(3,IA+I) = COORD(3,I)+DZ
-  end do
+  COORD(1,IA+1:NCENT) = COORD(1,1:NCENT)+DX
+  COORD(2,IA+1:NCENT) = COORD(2,1:NCENT)+DY
+  COORD(3,IA+1:NCENT) = COORD(3,1:NCENT)+DZ
   ! Check if all water molecules have been put where they should
   if (IIN >= IEXTRA) exit outer
 end do outer

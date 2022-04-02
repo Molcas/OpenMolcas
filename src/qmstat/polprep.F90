@@ -28,11 +28,8 @@ integer(kind=iwp) :: i, i1, ild, imd, Indco1, IndCo2, Indp1, IndP2, IndTr, IndTr
 ! calculation.                                                         *
 !----------------------------------------------------------------------*
 ncParm = nCent*nPart-nCent*icNum
-do i=nPol*iCNum+1,nPol*nPart !Loop over solvent polarization sites.
-  do j=nPol*iCNum+1,nPol*nPart
-    rr3(i,j) = Zero
-  end do
-end do
+! Loop over solvent polarization sites.
+rr3(nPol*iCNum+1:,nPol*iCNum+1:) = Zero
 IndTr1 = 0
 ! If (iCNum+1) == nPart this loop will not be run, but that is
 ! okey since then we only have one solvent and thus it can not

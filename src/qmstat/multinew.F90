@@ -52,8 +52,8 @@ type(Alloc1DArray_Type), intent(out) :: MME(nTri3_Elem(MxMltp))
 integer(kind=iwp), intent(out) :: iCenTri(nTri_Elem(nBas)), iCenTriT(nBas,nBas), nMlt
 real(kind=wp), intent(out) :: outxyz(3,nTri_Elem(nAt))
 logical(kind=iwp), intent(in) :: lSlater
-integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, k, kaunt, kaunter, &
-                     LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
+integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, kaunt, kaunter, LMltSlq, &
+                     Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
 real(kind=wp) :: CordMul(MxMltp,3), Corr, CorrDip1, CorrDip2, CorrOvl
 logical(kind=iwp) :: Changed1, Changed2, Lika
 character(len=20) :: MemLab
@@ -71,8 +71,7 @@ integer(kind=iwp), external :: IsFreeUnit
 ! Read the multipole integrals in contracted AO-basis.                 *
 !----------------------------------------------------------------------*
 irc = -1
-Lu_One = 49
-Lu_One = IsFreeUnit(Lu_One)
+Lu_One = IsFreeUnit(49)
 call OpnOne(irc,0,'ONEINT',Lu_One)
 if (irc /= 0) then
   write(u6,*)
@@ -119,9 +118,7 @@ outer: do iMlt=1,MxMltp
       call Quit(_RC_IO_ERROR_READ_)
     end if
   end do
-  do i=1,3
-    CordMul(iMlt,i) = Mult(iMlt,1)%A(nSize+i)
-  end do
+  CordMul(iMlt,:) = Mult(iMlt,1)%A(nSize+1:3)
   nMlt = MxMltp
 end do outer
 
@@ -134,17 +131,13 @@ end do outer
 call mma_allocate(xyz,3,nAt,nAt,label='xyz')
 call Get_Centers(nAt,xyz)
 do i=1,nAt
-  outxyz(1,i) = xyz(1,i,i)
-  outxyz(2,i) = xyz(2,i,i)
-  outxyz(3,i) = xyz(3,i,i)
+  outxyz(:,i) = xyz(:,i,i)
 end do
 kaunt = nAt
 do i=1,nAt
   do j=1,i-1
     kaunt = kaunt+1
-    outxyz(1,kaunt) = xyz(1,i,j)
-    outxyz(2,kaunt) = xyz(2,i,j)
-    outxyz(3,kaunt) = xyz(3,i,j)
+    outxyz(:,kaunt) = xyz(:,i,j)
   end do
 end do
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
@@ -169,10 +162,8 @@ do i=1,nntyp
   nBasA = nOcc(i)/natyp(i)
   do j=1,natyp(i)
     iAt = iAt+1
-    do k=1,nBasA
-      kaunter = kaunter+1
-      nBasAt(kaunter) = iAt
-    end do
+    nBasAt(kaunter+1:kaunter+nBasA) = iAt
+    kaunter = kaunter+nBasA
   end do
 end do
 
@@ -278,10 +269,10 @@ do iB1=1,nBas
     ! by Seward.
 
     do i=1,6
-      CorrDip1 = (CordMul(3,iX(i))-xyz(iX(i),nBasAt(iB1),nBasAt(iB2)))*(Mult(2,iY(i))%A(kaunt)+ &
-                 (CordMul(2,iY(i))-CordMul(3,iY(i)))*Mult(1,1)%A(kaunt))
-      CorrDip2 = (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))*(Mult(2,iX(i))%A(kaunt)+ &
-                 (CordMul(2,iX(i))-CordMul(3,iX(i)))*Mult(1,1)%A(kaunt))
+      CorrDip1 = (CordMul(3,iX(i))-xyz(iX(i),nBasAt(iB1),nBasAt(iB2)))* &
+                 (Mult(2,iY(i))%A(kaunt)+(CordMul(2,iY(i))-CordMul(3,iY(i)))*Mult(1,1)%A(kaunt))
+      CorrDip2 = (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))* &
+                 (Mult(2,iX(i))%A(kaunt)+(CordMul(2,iX(i))-CordMul(3,iX(i)))*Mult(1,1)%A(kaunt))
       CorrOvl = (CordMul(3,iX(i))-xyz(iX(i),nBasAt(iB1),nBasAt(iB2)))* &
                 (CordMul(3,iY(i))-xyz(iY(i),nBasAt(iB1),nBasAt(iB2)))*Mult(1,1)%A(kaunt)
       MME(i+4)%A(kaunt) = Mult(3,i)%A(kaunt)+CorrDip1+CorrDip2+CorrOvl

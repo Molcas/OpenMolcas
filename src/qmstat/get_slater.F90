@@ -24,9 +24,9 @@ implicit none
 integer(kind=iwp), intent(out) :: LMltSlQ
 integer(kind=iwp), intent(in) :: nAt
 real(kind=wp), intent(in) :: outxyz(3,nTri_Elem(nAt))
-integer(kind=iwp) :: iC, ind, jhr, k, kk, l, Lu, nS, nSlCentQ, nT, nTestjhr
+integer(kind=iwp) :: iC, ind, jhr, l, Lu, nS, nSlCentQ, nT, nTestjhr
 real(kind=wp) :: CoordTest(3), SlFactQ(6)
-logical(kind=iwp) :: Exists, lCheck
+logical(kind=iwp) :: Exists
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
@@ -58,28 +58,24 @@ end if
 ! Read Exponentials for the Centers
 call mma_allocate(SlExpQ,[0,LMltSlq],[1,nSlCentQ],label='SlExpQ')
 do iC=1,nSlCentQ
-  lCheck = .false.
-  read(Lu,103) (CoordTest(k),k=1,3)
+  read(Lu,103) CoordTest(:)
   ind = 0
   do jhr=1,nSlCentQ
     if (abs(CoordTest(1)-outxyz(1,jhr)) < 1.0e-4_wp) then
       if (abs(CoordTest(2)-outxyz(2,jhr)) < 1.0e-4_wp) then
         if (abs(CoordTest(3)-outxyz(3,jhr)) < 1.0e-4_wp) then
-          lCheck = .true.
           ind = jhr
         end if
       end if
     end if
   end do
-  if (.not. lCheck) then
-    write(u6,*) 'ERROR. Something is very wrong, coordinates of DiffPr and MpProp files do not match. DiffPr center',iC
-  end if
+  if (ind == 0) write(u6,*) 'ERROR. Something is very wrong, coordinates of DiffPr and MpProp files do not match. DiffPr center',iC
   do l=0,LMltSlQ
     nS = nTri3_Elem(l)
     nT = nTri3_Elem(l+1)
     read(Lu,104) SlExpQ(l,ind)
-    read(Lu,105) (SlFactQ(kk),kk=nS+1,nT)
-    !read(Lu,105) (SlFactQ(kk,ind),kk=nS+1,nT)
+    read(Lu,105) SlFactQ(nS+1:nT)
+    !read(Lu,105) SlFactQ(nS+1:nT,ind)
     unused_var(SlFactQ)
   end do
   !Jose. No read nuclear charge

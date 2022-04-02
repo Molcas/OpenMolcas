@@ -23,8 +23,8 @@ integer(kind=iwp), intent(out) :: MOsToKeep
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iB, iB1, iB2, icomp, iDiskUt, iM1, iM2, ind, ind1, ind2, indx, iopt, irc, iS1, iS2, Ising, iSmLbl, kaunt, &
                      Lu_One, Lu_Scratch, nMtK, nSize
-real(kind=wp) :: ChargeNonReduced, ChargeReduced, Det, DiffMax, DiffMegaMax, Dum, Dummy(1), Fac, Sqroot, ThrOcc, TraceFull, &
-                 TraceRed, weight
+real(kind=wp) :: ChargeNonReduced, ChargeReduced, Det, DiffMax, DiffMegaMax, Dum, Dummy(1), Sqroot, ThrOcc, TraceFull, TraceRed, &
+                 weight
 logical(kind=iwp) :: First = .true.
 character(len=50) :: Header
 integer(kind=iwp), allocatable :: iTocBig(:)
@@ -51,19 +51,16 @@ Dav(:) = Zero
 do iS1=1,nState
   do iS2=1,iS1
     indx = iTri(iS1,iS2)
-    call dcopy_(nSize,BigT(:,indx),1,Din,1)
+    Din(:) = BigT(:,indx)
     if (iS1 /= iS2) cycle
     kaunt = 0
     do iB1=1,nBas(1)
-      do iB2=1,iB1
-        if (iB1 == iB2) then
-          Fac = weight
-        else
-          Fac = Half*weight
-        end if
+      do iB2=1,iB1-1
         kaunt = kaunt+1
-        Dav(kaunt) = Dav(kaunt)+Din(kaunt)*Fac
+        Dav(kaunt) = Dav(kaunt)+Din(kaunt)*Half*weight
       end do
+      kaunt = kaunt+1
+      Dav(kaunt) = Dav(kaunt)+Din(kaunt)*weight
     end do
   end do
 end do
@@ -128,7 +125,7 @@ call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),One,Trans,nBas(1),Vecs,nBas(1),Zero,
 do i=1,nBas(1)
   Occ(i) = OtDt(nTri_Elem(i))
 end do
-TraceFull = 0
+TraceFull = Zero
 do i=1,nBas(1)
   TraceFull = TraceFull+Occ(i)
 end do
@@ -180,7 +177,7 @@ do iB=1,nBas(1)
     NewOcc(ind1) = Occ(iB)
   end if
 end do
-TraceRed = 0
+TraceRed = Zero
 do i=1,MOsToKeep
   TraceRed = TraceRed+NewOcc(i)
 end do
@@ -225,8 +222,7 @@ call mma_allocate(S,nSize,label='OvlS')
 call mma_allocate(Ssq,nBas(1)**2,label='Ssquare')
 call mma_allocate(Strans,nBas(1),nBas(1),label='Strans')
 call mma_allocate(Stri,nMtK,label='Stri')
-Lu_Scratch = 57
-Lu_Scratch = IsFreeUnit(Lu_Scratch)
+Lu_Scratch = IsFreeUnit(57)
 call DaName(Lu_Scratch,'TDMSCR')
 irc = -1
 iopt = 6
@@ -241,7 +237,7 @@ do iS1=1,nState
   do iS2=1,iS1
     ! Collect this particular density matrix.
     indx = iTri(iS1,iS2)
-    call dcopy_(nSize,BigT(:,indx),1,Din,1)
+    Din(:) = BigT(:,indx)
     ! Square it and correct the non-diagonal (recall convention)
     call Dsq(Din,DsqM,1,nBas(1),nBas(1))
     ! Contravariant transformation of density matrix.
@@ -278,12 +274,9 @@ do iS1=1,nState
     ChargeReduced = Ddot_(nMtK,TreT,1,Stri,1)
     ! Renormalize to get right charge ('overlap'); to safeguard
     ! against zero overlaps, make check.
-    if ((abs(ChargeNonReduced) <= 1.0e-7_wp) .or. (abs(ChargeReduced) <= 1.0e-7_wp)) then
-      Fac = One
-    else
-      Fac = ChargeNonReduced/ChargeReduced
+    if ((abs(ChargeNonReduced) > 1.0e-7_wp) .and. (abs(ChargeReduced) > 1.0e-7_wp)) then
+      TreT(:) = TreT*ChargeNonReduced/ChargeReduced
     end if
-    TreT(:) = TreT*Fac
     ! If sufficient printlevel, show moment modifications.
     if (iPrint >= 10) then
       call MomentMod(TreT,TmoD,AUX,MOsToKeep,nBas(1),LindMOs,iS1,iS2,First,DiffMax)
@@ -324,9 +317,7 @@ write(u6,*)
 write(u6,90) 'AO-basis ---> MO-basis reduction complete.'
 write(u6,91) 'From ',nBas(1),' functions to ',MosToKeep,'.'
 write(u6,90) 'Reduced basis renormalized to have same overlap as non-reduced.'
-if (iPrint >= 10) then
-  write(u6,92) 'Largest dipole difference is ',DiffMegaMax
-end if
+if (iPrint >= 10) write(u6,92) 'Largest dipole difference is ',DiffMegaMax
 
 return
 

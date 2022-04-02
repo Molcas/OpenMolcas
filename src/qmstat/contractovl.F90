@@ -52,8 +52,7 @@ integer(kind=iwp), intent(in) :: nBaseQ, nBaseC, N, nCent, iQ_Atoms, nAtomsCC, i
 real(kind=wp), intent(_OUT_) :: Sint(nBaseQ,nBaseC)
 logical(kind=iwp), intent(in) :: Inside(iQ_Atoms,nAtomsCC)
 integer(kind=iwp) :: i, iA1, iA2, iB1, iB2, iC, iCC, iCcontB, iCcontBSAV, iCcontBSAV1, iCcontBSAV2, iCQ, iNcB1, iNcB2, iQ, &
-                     iQcontB, iQcontBSAV, iQcontBSAV1, iQcontBSAV2, iqqqC, iqqqQ, j, k, kaunter, kreichner, nExp1, nExp2, nSph1, &
-                     nSph2
+                     iQcontB, iQcontBSAV, iQcontBSAV1, iQcontBSAV2, iqqqC, iqqqQ, j, kaunter, kreichner, nExp1, nExp2, nSph1, nSph2
 real(kind=wp) :: Bori(3), Cori(3), DaNumber
 real(kind=wp), allocatable :: Alf(:), Bet(:), Conkort(:), ContrI(:), Donkort(:), PSint(:,:,:,:)
 
@@ -89,28 +88,22 @@ do iA1=1,iQ_Atoms !The atoms
         do iNcB1=1,nCBoA_Q(iA1,iB1) !The basis of angular type.
           iQcontB = iQcontB+1
           iCcontB = iCcontBSAV
-          Bori(1) = BasOri(1,iQcontB) !Suck-out proper coord for QM.
-          Bori(2) = BasOri(2,iQcontB)
-          Bori(3) = BasOri(3,iQcontB)
+          Bori(:) = BasOri(:,iQcontB) !Suck-out proper coord for QM.
           iqqqQ = iQang(iQcontB) !Various integers, see qfread to understand their meaning.
           nExp1 = nPrimus(iQcontB)
           nSph1 = 2*iqqqQ-1
-          do i=1,nPrimus(iQcontB) !Suck-out the proper exponents for QM-region
-            Alf(i) = alfa(iQcontB,i)
-            Conkort(i) = cont(iQcontB,i)
-          end do
+          ! Suck-out the proper exponents for QM-region
+          Alf(1:nPrimus(iQcontB)) = alfa(iQcontB,1:nPrimus(iQcontB))
+          Conkort(1:nPrimus(iQcontB)) = cont(iQcontB,1:nPrimus(iQcontB))
           do iNcB2=1,nCBoA_C(iA2,iB2)
             iCcontB = iCcontB+1
-            Cori(1) = CasOri(1,iCcontB) !Coord. of the atoms of this solvent mol.
-            Cori(2) = CasOri(2,iCcontB)
-            Cori(3) = CasOri(3,iCcontB)
+            Cori(:) = CasOri(:,iCcontB) !Coord. of the atoms of this solvent mol.
             iqqqC = iQn(iCcontB)
             nExp2 = mPrimus(iCcontB)
             nSph2 = 2*iqqqC-1
-            do j=1,mPrimus(iCcontB) !Exponents and stuff.
-              Bet(j) = beta(iCcontB,j)
-              Donkort(j) = dont(iCcontB,j)
-            end do
+            ! Exponents and stuff.
+            Bet(1:mPrimus(iCcontB)) = beta(iCcontB,1:mPrimus(iCcontB))
+            Donkort(1:mPrimus(iCcontB)) = dont(iCcontB,1:mPrimus(iCcontB))
             ! Now call on the routine that computes a block of primitive
             ! integrals. So if we are integrating the np-mp overlap we
             ! compute ALL primitive p-p integrals, in the first call, then
@@ -147,7 +140,7 @@ do iA1=1,iQ_Atoms !The atoms
               write(u6,*) 'ConC',(Donkort(i),i=1,mPrimus(iCcontB))
               write(u6,*) 'Angular',iqqqQ,iqqqC
               write(u6,*) '#primitive',nExp1,nExp2
-              write(u6,*) (ContrI(k),k=1,nSph1*nSph2)
+              write(u6,*) ContrI(1:nSph1*nSph2)
             end if
             kreichner = 0
             do iC=1,nSph2

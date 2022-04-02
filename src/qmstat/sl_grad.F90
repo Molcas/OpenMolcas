@@ -57,7 +57,7 @@ real(kind=wp), intent(in) :: Coord(3,nCentA), Dist(nCentA), DInv(nCentA), ExpoA(
                              ExpoB(_MxM_+1), dNeigh
 real(kind=wp), intent(out) :: EintSl(nTri3_Elem1(_MxM_)), EintSl_Nuc
 logical(kind=iwp), intent(in) :: lAtom
-integer(kind=iwp) :: iCA, ijhr, iLA, iLB, kaunt, kComp, nS, nT
+integer(kind=iwp) :: iCA, iLA, iLB, kaunt, kComp, nS, nT
 real(kind=wp) :: Colle(3), dKappa, EA, EAp, EB, EBp, R, Rho, RhoA, RhoB, Rinv, Rotte(3,3), Sigge, Tau, TMPA(nTri_Elem1(_MxM_)), &
                  TR(6,6), v(3)
 logical(kind=iwp) :: lDiffA, lDiffB, lTooSmall
@@ -69,9 +69,7 @@ EintSl_Nuc = Zero
 ! Loop over all centers in molecule A.
 
 do iCA=1,nCentA
-  v(1) = Coord(1,iCA)
-  v(2) = Coord(2,iCA)
-  v(3) = Coord(3,iCA)
+  v(:) = Coord(:,iCA)
   R = Dist(iCA)
   Rinv = DInv(iCA)
 
@@ -133,13 +131,9 @@ do iCA=1,nCentA
           EintSl(1) = EintSl(1)+Colle(1)
         else ! if iLB not 0 then it is 1
           if (iLA == 0) then
-            do ijhr=1,3
-              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
-            end do
+            EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)
           else ! if iLA is not 0 is 1
-            do ijhr=1,3
-              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)+Colle(3)*Rotte(2,ijhr)
-            end do
+            EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)+Colle(2)*Rotte(1,:)+Colle(3)*Rotte(2,:)
           end if
         end if
 
@@ -151,24 +145,18 @@ do iCA=1,nCentA
           EintSl(1) = EintSl(1)+Colle(1)
         else if (iLB == 1) then
           if (iLA == 0) then
-            do ijhr=1,3
-              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
-            end do
+            EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)
           else ! if iLA not 0 then it is 1
-            do ijhr=1,3
-              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)+Colle(3)*Rotte(2,ijhr)
-            end do
+            EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)+Colle(2)*Rotte(1,:)+Colle(3)*Rotte(2,:)
           end if
         else if (iLB == 2) then
           if (iLA == 0) then
-            do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
-              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))
-            end do
+            ! Remember Qsigma=z2-0.5(x2+y2)
+            EintSl(5:10) = EintSl(5:10)+Colle(1)*(TR(6,:)-Half*(TR(1,:)+TR(4,:)))
           else ! if iLA not 0 then it is 1
-            do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz
-              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))+Colle(2)*sqrt(Three)*TR(3,ijhr)+ &
-                               Colle(3)*sqrt(Three)*TR(5,ijhr)
-            end do
+            ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz
+            EintSl(5:10) = EintSl(5:10)+Colle(1)*(TR(6,:)-Half*(TR(1,:)+TR(4,:)))+ &
+                           Colle(2)*sqrt(Three)*TR(3,:)+Colle(3)*sqrt(Three)*TR(5,:)
           end if
         end if
 
@@ -179,13 +167,9 @@ do iCA=1,nCentA
           EintSl(1) = EintSl(1)+Colle(1)
         else ! if iLB not 0 then it is 1
           if (iLA == 0) then
-            do ijhr=1,3
-              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
-            end do
+            EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)
           else ! is the same for iLA 1 and 2 because both have sigma pi1 and pi2 components regarding to B
-            do ijhr=1,3
-              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)+Colle(3)*Rotte(2,ijhr)
-            end do
+            EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)+Colle(2)*Rotte(1,:)+Colle(3)*Rotte(2,:)
           end if
         end if
       else if ((.not. lDiffA) .and. (.not. lDiffB)) then
@@ -197,31 +181,24 @@ do iCA=1,nCentA
           EintSl(1) = EintSl(1)+Colle(1)
         else if (iLB == 1) then
           if (iLA == 0) then
-            do ijhr=1,3
-              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
-            end do
+            EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)
           else ! is the same for iLA 1 or 2
-            do ijhr=1,3
-              EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)+Colle(2)*Rotte(1,ijhr)+Colle(3)*Rotte(2,ijhr)
-            end do
+            EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)+Colle(2)*Rotte(1,:)+Colle(3)*Rotte(2,:)
           end if
         else if (iLB == 2) then
           if (iLA == 0) then
-            do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
-              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))
-            end do
+            ! Remember Qsigma=z2-0.5(x2+y2)
+            EintSl(5:10) = EintSl(5:10)+Colle(1)*(TR(6,:)-Half*(TR(1,:)+TR(4,:)))
           else if (iLA == 1) then
-            do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz
-              EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))+Colle(2)*sqrt(Three)*TR(3,ijhr)+ &
-                               Colle(3)*sqrt(Three)*TR(5,ijhr)
-            end do
-
+            ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz
+            EintSl(5:10) = EintSl(5:10)+Colle(1)*(TR(6,:)-Half*(TR(1,:)+TR(4,:)))+ &
+                           Colle(2)*sqrt(Three)*TR(3,:)+Colle(3)*sqrt(Three)*TR(5,:)
           !Jose. This will be for a d-d interaction
           !else if (iLA == 2) then
-          !  do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz Del1=sqrt(3)*xy Del2=0.5*sqrt(3)*(x2-y2)
-          !            EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))+ &
-          !                             Colle(2)*sqrt(Three)*TR(3,ijhr)+Colle(3)*sqrt(Three)*TR(5,ijhr)+ &
-          !                             Colle(4)*sqrt(Three)*TR(2,ijhr)+Colle(5)*Half*sqrt(Three)*(TR(1,ijhr)-TR(4,ijhr))
+          !  ! Remember Qsigma=z2-0.5(x2+y2) QPi1=sqrt(3)*xz QPi2=sqrt(3)*yz Del1=sqrt(3)*xy Del2=0.5*sqrt(3)*(x2-y2)
+          !  EintSl(5:10) = EintSl(5:10)+Colle(1)*(TR(6,:)-Half*(TR(1,:)+TR(4,:)))+ &
+          !                 Colle(2)*sqrt(Three)*TR(3,:)+Colle(3)*sqrt(Three)*TR(5,:)+ &
+          !                 Colle(4)*sqrt(Three)*TR(2,:)+Colle(5)*Half*sqrt(Three)*(TR(1,:)-TR(4,:))
           !  end do
           !--------
           end if
@@ -268,13 +245,10 @@ do iCA=1,nCentA
       if (iLB == 0) then
         EintSl(1) = EintSl(1)+Colle(1)
       else if (iLB == 1) then
-        do ijhr=1,3
-          EintSl(ijhr+1) = EintSl(ijhr+1)+Colle(1)*Rotte(3,ijhr)
-        end do
+        EintSl(2:4) = EintSl(2:4)+Colle(1)*Rotte(3,:)
       else if (iLB == 2) then
-        do ijhr=1,6 ! Remember Qsigma=z2-0.5(x2+y2)
-          EintSl(ijhr+4) = EintSl(ijhr+4)+Colle(1)*(TR(6,ijhr)-Half*(TR(1,ijhr)+TR(4,ijhr)))
-        end do
+        ! Remember Qsigma=z2-0.5(x2+y2)
+        EintSl(5:10) = EintSl(5:10)+Colle(1)*(TR(6,:)-Half*(TR(1,:)+TR(4,:)))
       end if
     end do
 

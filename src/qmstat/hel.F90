@@ -38,24 +38,18 @@ implicit none
 integer(kind=iwp), intent(in) :: itri, ici
 real(kind=wp), intent(in) :: Eint(ici,10), Ql(itri,ici), Dil(itri,3,ici), QQxxyy(itri,6,ici)
 real(kind=wp), intent(out) :: Vmat(itri)
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp) :: i, j
 
 ! Zeros
 Vmat(:) = Zero
 
 ! The electrostatic perturbation: <psi_i|V_el|psi_j>
 do i=1,itri
-  do k=1,ici
-    Vmat(i) = Vmat(i)+Eint(k,1)*Ql(i,k)
-    do j=1,3
-      Vmat(i) = Vmat(i)+Eint(k,j+1)*Dil(i,j,k)
-    end do
-    Vmat(i) = Vmat(i)+Eint(k,5)*QQxxyy(i,1,k)
-    Vmat(i) = Vmat(i)+Eint(k,7)*QQxxyy(i,3,k)
-    Vmat(i) = Vmat(i)+Eint(k,10)*QQxxyy(i,6,k)
-    Vmat(i) = Vmat(i)+Eint(k,6)*QQxxyy(i,2,k)*Two
-    Vmat(i) = Vmat(i)+Eint(k,8)*QQxxyy(i,4,k)*Two
-    Vmat(i) = Vmat(i)+Eint(k,9)*QQxxyy(i,5,k)*Two
+  do j=1,ici
+    Vmat(i) = Vmat(i)+Eint(j,1)*Ql(i,j)+ &
+              Eint(j,2)*Dil(i,1,j)+Eint(j,3)*Dil(i,2,j)+Eint(j,4)*Dil(i,3,j)+ &
+              Eint(j,5)*QQxxyy(i,1,j)+Eint(j,7)*QQxxyy(i,3,j)+Eint(j,10)*QQxxyy(i,6,j)+ &
+              Eint(j,6)*QQxxyy(i,2,j)*Two+Eint(j,8)*QQxxyy(i,4,j)*Two+Eint(j,9)*QQxxyy(i,5,j)*Two
   end do
 end do
 

@@ -86,20 +86,14 @@ SlFactC(1,2) = -0.4164_wp
 SlFactC(1,3) = -0.4164_wp
 SlFactC(1,4) = -0.5836_wp
 SlFactC(1,5) = -0.5836_wp
-do i=1,5
-  do j=2,4
-    SlFactC(j,i) = Zero
-  end do
-end do
+SlFactC(2:4,:) = Zero
 call mma_allocate(SlExpC,2,nSlSiteC,label='SlExpC')
 SlExpC(1,1) = 2.5552_wp
 SlExpC(1,2) = 2.6085_wp
 SlExpC(1,3) = 2.6085_wp
 SlExpC(1,4) = 2.5552_wp
 SlExpC(1,5) = 2.5552_wp
-do i=1,5
-  SlExpC(2,i) = Zero
-end do
+SlExpC(2,:) = Zero
 call mma_allocate(SlPC,nSlSiteC,label='SlPC')
 SlPC(1) = Half
 SlPC(2) = One
@@ -191,11 +185,8 @@ Mp2DensCorr = .false.
 MoAveRed = .false.
 lCiSelect = .false.
 EdSt = .false.
-!JoseMEP***** The dimension was increased from 8 to 12
-do i=1,12
-  DelOrAdd(i) = .false.
-  lExtr(i) = .false.
-end do
+DelOrAdd(:) = .false.
+lExtr(:) = .false.
 lSlater = .true.
 lQuad = .false.
 

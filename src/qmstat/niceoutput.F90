@@ -33,16 +33,11 @@ end if
 
 ! Check what type of output that is requested.
 
-Eq = .false.
-Pr = .false.
-It = .false.
-Cl = .false.
-Qu = .false.
-if (index(EelP,'E') /= 0) Eq = .true.
-if (index(EelP,'P') /= 0) Pr = .true.
-if (index(EelP,'I') /= 0) It = .true.
-if (index(EelP,'C') /= 0) Cl = .true.
-if (index(EelP,'Q') /= 0) Qu = .true.
+Eq = index(EelP,'E') /= 0
+Pr = index(EelP,'P') /= 0
+It = index(EelP,'I') /= 0
+Cl = index(EelP,'C') /= 0
+Qu = index(EelP,'Q') /= 0
 
 ! Start printing!
 

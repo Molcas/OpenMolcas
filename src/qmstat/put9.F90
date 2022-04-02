@@ -37,9 +37,7 @@ do i=1,3
   iTcSim(i+1) = iDisk
 end do
 call mma_deallocate(CT)
-!do i=1,3
-!  call dDaFile(iLuSaUt,1,-DT(:,i),nPart*nPol,iDisk)
-!end do
+!call dDaFile(iLuSaUt,1,-DT,3*nPart*nPol,iDisk)
 !iTcSim(5) = iDisk
 iDiskHead = iDiskOld
 ! Put header again, but now with a meaningful iTcSim vector that contains the table of contents which simplifies reading

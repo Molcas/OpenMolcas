@@ -22,7 +22,7 @@ integer(kind=iwp), intent(in) :: nStatePrim
 real(kind=wp), intent(in) :: NonH(nTri_Elem(nStatePrim))
 real(kind=wp), intent(inout) :: NonS(nTri_Elem(nStatePrim))
 real(kind=wp), intent(out) :: Eig2(nStatePrim,nStatePrim)
-integer(kind=iwp) :: i, ii, iS, iState, iT, j, jState, kaunt, kaunter, nLvlInd, nStateRed, nTri
+integer(kind=iwp) :: i, ii, iS, iState, iT, kaunt, kaunter, nLvlInd, nStateRed, nTri
 real(kind=wp) :: sss, x
 real(kind=wp), allocatable :: Eig1(:,:), RedHSq(:,:), RedHTr(:), SqH(:,:), TEMP(:,:)
 
@@ -33,19 +33,12 @@ write(u6,*) '     ----- Constructing CASSI eigenstates.'
 ! Diagonalize overlap matrix.
 
 call mma_allocate(Eig1,nStatePrim,nStatePrim,label='EigV1')
+Eig1(:,:) = Zero
 do i=1,nStatePrim
-  do j=1,nStatePrim
-    if (i == j) then
-      Eig1(j,i) = One
-    else
-      Eig1(j,i) = Zero
-    end if
-  end do
+  Eig1(i,i) = One
 end do
 call Jacob(NonS,Eig1,nStatePrim,nStatePrim)
-if (iPrint >= 15) then
-  call TriPrt('Diagonal RASSCF overlap matrix',' ',NonS,nStatePrim)
-end if
+if (iPrint >= 15) call TriPrt('Diagonal RASSCF overlap matrix',' ',NonS,nStatePrim)
 
 ! Construct TS^(-1/2) for canonical orthogonalization.
 
@@ -71,7 +64,7 @@ if (ContrStateB) then
   nStateRed = iT
   write(u6,6199) '  ----- Contraction:',nStatePrim,' ---> ',nStateRed
 else
-  Eig2(:,:) = Eig1(:,:)
+  Eig2(:,:) = Eig1
   nStateRed = nStatePrim
 end if
 
@@ -98,11 +91,9 @@ call mma_allocate(HMatSOld,nTri_Elem(nStateRed),label='HMatSOld')
 
 kaunter = 0
 nLvlInd = 1
+HMatState(:) = Zero
 do iState=1,nStateRed
-  do jState=1,iState
-    kaunter = kaunter+1
-    HMatState(kaunter) = Zero
-  end do
+  kaunter = nTri_Elem(iState)
   HMatState(kaunter) = RedHTr(kaunter)
   ! If requested, introduce level-shift of states.
   if (nLvlShift > 0) then

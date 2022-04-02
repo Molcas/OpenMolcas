@@ -28,7 +28,7 @@ real(kind=wp), intent(inout) :: DT(3,nPol*nPart), Energy
 real(kind=wp), intent(out) :: FI(3,nPol*nPart), STC(nState,nState), ExpVal(4,nState), Poli(nTri_Elem(iQ_Atoms),10)
 integer(kind=iwp), intent(out) :: NVarv
 logical(kind=iwp), intent(out) :: Haveri
-integer(kind=iwp) :: i, iDum, iErr, nFound, nPolCent, nQMCent
+integer(kind=iwp) :: iDum, iErr, nFound, nPolCent, nQMCent
 real(kind=wp) :: Dummy, Egun, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
 real(kind=wp), allocatable :: EEigen(:), FFp(:,:), Gri(:,:), RoMatSt(:), rr3(:,:), Scratch(:,:), VpolMat(:), xx(:,:), xxi(:,:), &
@@ -89,9 +89,7 @@ do
 
   ! Assemble the Hamiltonian matrix.
 
-  do i=1,iTriState
-    HmatState(i) = HmatSOld(i)+Vmat(i)+VpolMat(i)+SMat(i)
-  end do
+  HmatState(:) = HmatSOld+Vmat+VpolMat+SMat
   Energy = Half*Energy
 
   ! Diagonalize the bastard. Eigenvalues are sorted and the relevant eigenvalue is added to total energy.

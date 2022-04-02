@@ -27,7 +27,7 @@ integer(kind=iwp), intent(in) :: iPrint, nAtoms, MxAngqNr
 integer(kind=iwp), intent(out) :: nntyp, natyp(nAtoms), nBA(nAtoms), nCBoA(nAtoms,MxAngqNr), nBonA(nAtoms), nSh(nAtoms), &
                                   nfSh(nAtoms,MxAngqNr), nSize, nBas
 integer(kind=iwp), allocatable, intent(out) :: iCon(:,:), nPrim(:)
-real(kind=wp), allocatable , intent(out):: Expo(:,:), Cont(:,:), BasCoo(:,:), Acc(:)
+real(kind=wp), allocatable, intent(out) :: Expo(:,:), Cont(:,:), BasCoo(:,:), Acc(:)
 integer(kind=iwp) :: i, iAng, iAngSav, iBas, iCnt, iCnttp, iCount, iHowMuch, ii, ind, ind1, ind2, ind3, ioio, iPrim, iTemp, j, jj, &
                      jSum, k, kaunt, kaunta, kaunter, kaunterPrev, kauntSav, kk, kkk, krekna, krekna2, l, ll, MaxAng, MxPrCon, na, &
                      nACCSize, ndc, nDiff, nnaa, nshj, nSumma, nVarv
@@ -87,9 +87,7 @@ do i=1,ii
       kaunt = kaunt+1
       krekna2 = krekna2+1
       nCBoA(krekna,krekna2) = Shells(kaunt)%nBasis
-      do jj=1,Shells(kaunt)%nBasis
-        kaunter = kaunter+1
-      end do
+      kaunter = kaunter+Shells(kaunt)%nBasis
     end do
     kaunta = kaunta+1
     nBonA(kaunta) = kaunter-kaunterPrev  !Number of bases on each atom used below.
@@ -108,9 +106,7 @@ do i=1,ii
     kaunt = kaunt+1
     do kk=1,nBonA(kaunt)
       kaunter = kaunter+1
-      do k=1,3
-        BasCoo(k,kaunter) = dbsc(i)%Coor(k,j)
-      end do
+      BasCoo(:,kaunter) = dbsc(i)%Coor(:,j)
     end do
   end do
 end do
@@ -165,7 +161,7 @@ Expo(:,:) = Zero
 Cont(:,:) = Zero
 
 do iCnttp=1,nCnttp  !Here we set NaTyp.
-  jSum = 1
+  jSum = 0
   iTemp = 0
   nVarv = dbsc(iCnttp)%nShells
   nSh(iCnttp) = nVarv
@@ -184,8 +180,8 @@ do iCnttp=1,nCnttp  !Here we set NaTyp.
 #   endif
     nfSh(iCnttp,iAng+1) = iBas
     do i=1,iBas
-      call dCopy_(iPrim,Shells(iCount)%Exp,1,Expo(iCnttp,jSum),nntyp)
-      call dCopy_(iPrim,Shells(iCount)%pCff(1,i),1,Cont(iCnttp,jSum),nntyp)
+      Expo(iCnttp,jSum+1:jSum+iPrim) = Shells(iCount)%Exp(1:iPrim)
+      Cont(iCnttp,jSum+1:jSum+iPrim) = Shells(iCount)%pCff(1:iPrim,i)
       jSum = jSum+iPrim
     end do
   end do
@@ -235,12 +231,12 @@ call mma_allocate(TEMP1,nSize,Label='TEMP1')
 call mma_allocate(TEMP2,nSize,Label='TEMP2')
 call mma_allocate(Acc,nACCSize,label='AccTransa')
 
-nSumma = 1
+nSumma = 0
 do i=2,MaxAng
   ind1 = nTri_Elem1(i)
   ind2 = 2*i+1
   iHowMuch = ind1*ind2
-  call DCopy_(iHowMuch,RSph(ipSph(i)),1,TEMP1,1)
+  TEMP1(1:iHowMuch) = RSph(ipSph(i):ipSph(i)+iHowMuch-1)
   ind3 = 1
   do jj=1,ind1
     call dcopy_(ind2,TEMP1(jj),ind1,TEMP2(ind3),1)
@@ -248,7 +244,7 @@ do i=2,MaxAng
   end do
   !call recprt('FFF',' ',TEMP1,nTri_Elem1(i),2*i+1)
   !call recprt('GGG',' ',TEMP2,ind2,ind1)
-  call dcopy_(iHowMuch,TEMP2,1,Acc(nSumma),1)
+  Acc(nSumma+1:nSumma+iHowMuch) = Temp2(1:iHowMuch)
   nSumma = nSumma+iHowMuch
 end do
 

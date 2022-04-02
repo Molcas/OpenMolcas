@@ -22,8 +22,8 @@ integer(kind=iwp), intent(in) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, it
 real(kind=wp), intent(out) :: Ax, Ay, Az, Smat(itri), SmatPure(itri)
 logical(kind=iwp), intent(out) :: InCutOff
 real(kind=wp), intent(inout) :: AOSum(*)
-integer(kind=iwp) :: i, iAOAOTri, inwm, j, k, N, nInsideCut
-real(kind=wp) :: CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
+integer(kind=iwp) :: i, iAOAOTri, inwm, j, N, nInsideCut
+real(kind=wp) :: Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: NearBy
 real(kind=wp), allocatable :: AOAUX(:,:), AOAUXtri(:), AOint(:,:), AOMOOvl(:,:), AOMOOvlE(:,:), AUX(:,:), AUXp(:,:), AUXtri(:), &
                               Inte(:,:), OvlMO(:,:), OvlMOE(:,:), V2(:,:)
@@ -73,17 +73,11 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   NearBy = .false.
   ! Loop over atoms.
   do inwm=1,iQ_Atoms
-    do k=1,3
-      CorTemp(k) = (Cordst(k,N+1)-Cordst(k,inwm))**2
-    end do
-    r2 = CorTemp(1)+CorTemp(2)+CorTemp(3)
+    r2 = (Cordst(1,N+1)-Cordst(1,inwm))**2+(Cordst(2,N+1)-Cordst(2,inwm))**2+(Cordst(3,N+1)-Cordst(3,inwm))**2
     dist_sw = min(dist_sw,r2)
-    DH1 = Zero !Distances for the inner cut-off. Also include the hydrogens.
-    DH2 = Zero
-    do k=1,3
-      DH1 = DH1+(Cordst(k,N+2)-Cordst(k,inwm))**2
-      DH2 = DH2+(Cordst(k,N+3)-Cordst(k,inwm))**2
-    end do
+    ! Distances for the inner cut-off. Also include the hydrogens.
+    DH1 = (Cordst(1,N+2)-Cordst(1,inwm))**2+(Cordst(2,N+2)-Cordst(2,inwm))**2+(Cordst(3,N+2)-Cordst(3,inwm))**2
+    DH2 = (Cordst(1,N+3)-Cordst(1,inwm))**2+(Cordst(2,N+3)-Cordst(2,inwm))**2+(Cordst(3,N+3)-Cordst(3,inwm))**2
     r3temp1 = min(DH1,DH2)
     r3temp2 = min(r3temp1,r2)
     r3 = min(r3,r3temp2)
@@ -148,16 +142,16 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),exrep2,OvlMO,iOrb(1),OvlMOE,iOrb(1),Zero,AUX,iOrb(1))
   call SqToTri_Q(AUX,AUXtri,iOrb(1))
-  call DaxPy_(iTri,One,AUXtri,1,Smat,1)
+  Smat(:) = Smat+AUXtri
   call Dgemm_('N','T',iOrb(1),iOrb(1),iOrb(2),One,OvlMO,iOrb(1),OvlMO,iOrb(1),Zero,AUXp,iOrb(1))
   call SqToTri_Q(AUXp,AUXtri,iOrb(1))
-  call DaxPy_(iTri,One,AUXtri,1,SmatPure,1)
+  SmatPure(:) = SmatPure+AUXtri
 
   !Jose*********************************
   if (lExtr(8)) then
     call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,AOMOOvl,nBaseQ,AOMOOvlE,nBaseQ,Zero,AOAUX,nBaseQ)
     call SqToTri_Q(AOAUX,AOAUXtri,nBaseQ)
-    call DaxPy_(iAOAOTri,One,AOAUXtri,1,AOSum,1)
+    AOSum(1:iAOAOTri) = AOSum(1:iAOAOTri)+AOAUXtri
   end if
   !*************************************
 

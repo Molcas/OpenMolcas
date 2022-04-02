@@ -13,13 +13,12 @@ subroutine PlaceIt(Coord,iQ_Atoms,iCNum)
 
 use qmstat_global, only: Cordst, iPrint, nCent, nPart
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms, iCNum
 real(kind=wp), intent(in) :: Coord(3,iQ_Atoms)
-integer(kind=iwp) :: i, iextr, ind, iTemp, iz, j, k
+integer(kind=iwp) :: i, ind, iTemp, j, k
 real(kind=wp) :: Atemp, S, Sbig
 logical(kind=iwp) :: Changed
 character(len=200) :: Head
@@ -30,12 +29,10 @@ call mma_allocate(AvstPart,nPart,label='AvstPart')
 
 !For each solvent particle, compute the smallest distance to any QM-atom from the oxygen of water.
 do i=1,nPart
+  k = (i-1)*nCent+1
   Sbig = 1.0e20_wp
   do j=1,iQ_Atoms
-    S = Zero
-    do k=1,3
-      S = S+(Coord(k,j)-Cordst(k,nCent*(i-1)+1))**2
-    end do
+    S = (Coord(1,j)-Cordst(1,k))**2+(Coord(2,j)-Cordst(2,k))**2+(Coord(3,j)-Cordst(3,k))**2
     if (S <= Sbig) then
       Sbig = S
       AvstPart(i) = S
@@ -70,37 +67,22 @@ call mma_deallocate(AvstPart)
 
 ! Put coordinates of solvent suchwise that smallest distances goes first.
 call mma_allocate(CordstTemp,3,nPart*nCent,label='CordstTemp')
+CordstTemp(:,:) = Cordst(:,1:nPart*nCent)
 do i=1,nPart
-  do j=1,nCent
-    CordstTemp(1,(i-1)*nCent+j) = Cordst(1,(i-1)*nCent+j)
-    CordstTemp(2,(i-1)*nCent+j) = Cordst(2,(i-1)*nCent+j)
-    CordstTemp(3,(i-1)*nCent+j) = Cordst(3,(i-1)*nCent+j)
-  end do
-end do
-do i=1,nPart
-  ind = IndexSet(i)
-  do j=1,nCent
-    Cordst(1,(i-1)*nCent+j) = CordstTemp(1,(ind-1)*nCent+j)
-    Cordst(2,(i-1)*nCent+j) = CordstTemp(2,(ind-1)*nCent+j)
-    Cordst(3,(i-1)*nCent+j) = CordstTemp(3,(ind-1)*nCent+j)
-  end do
+  k = (i-1)*nCent
+  ind = (IndexSet(i)-1)*nCent
+  Cordst(:,k+1:k+nCent) = CordstTemp(:,ind+1:ind+nCent)
 end do
 call mma_deallocate(IndexSet)
 call mma_deallocate(CordstTemp)
 
 ! Substitute the first coordinate slots with QM-molecule, or since we have
 ! ordered above, this is equivalent with removing closest solvents and there put QM-mol.
-do iz=1,iQ_Atoms
-  Cordst(1,iz) = Coord(1,iz)
-  Cordst(2,iz) = Coord(2,iz)
-  Cordst(3,iz) = Coord(3,iz)
-end do
+Cordst(:,1:iQ_Atoms) = Coord
 ! Just dummy-coordinates added to empty slots.
-do iextr=iQ_Atoms+1,iCnum*nCent
-  Cordst(1,iextr) = Coord(1,1)
-  Cordst(2,iextr) = Coord(2,1)
-  Cordst(3,iextr) = Coord(3,1)
-end do
+Cordst(1,iQ_Atoms+1:iCnum*nCent) = Coord(1,1)
+Cordst(2,iQ_Atoms+1:iCnum*nCent) = Coord(2,1)
+Cordst(3,iQ_Atoms+1:iCnum*nCent) = Coord(3,1)
 
 if (iPrint >= 10) then !Optional printing.
   write(Head,*) 'Coordinates of the system after substitution and reordering of solvent molecules.'

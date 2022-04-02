@@ -25,6 +25,10 @@ real(kind=wp), intent(inout) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),
 integer(kind=iwp) :: iB1, iB2, iS1, iS2, iTyp, kaunta, kaunter, nSize
 real(kind=wp) :: PerAake
 real(kind=wp), allocatable :: AOG(:), O(:)
+! The reason why 8 and 7 are interchanged is that
+! QMSTAT uses the ordering xx,xy,yy,xz,yz,zz while
+! Seward uses the ordering xx,xy,xz,yy,yz,zz.
+integer(kind=iwp), parameter :: xTyp(10) = [1,2,3,4,5,6,8,7,9,10]
 
 kaunter = 0
 nSize = nTri_Elem(nAObas)
@@ -35,7 +39,7 @@ do iS1=1,nState
   do iS2=1,iS1
     kaunter = kaunter+1
     ! Collect this piece of the TDM in AO-basis.
-    call dCopy_(nSize,BigT(:,kaunter),1,AOG,1)
+    AOG(:) = BigT(:,kaunter)
     kaunta = 0
     ! Loop over AO-basis pairs and transform them as well as
     ! distribute their multipoles. Observe that the array iCent
@@ -45,21 +49,11 @@ do iS1=1,nState
         kaunta = kaunta+1
         PerAake = AOG(kaunta)
         do iTyp=1,nTyp
-          O(iTyp) = MME(iTyp)%A(kaunta)*PerAake
+          O(iTyp) = MME(xTyp(iTyp))%A(kaunta)*PerAake
         end do
         Cha(kaunter,iCent(kaunta)) = Cha(kaunter,iCent(kaunta))+O(1)
-        Dip(kaunter,1,iCent(kaunta)) = Dip(kaunter,1,iCent(kaunta))+O(2)
-        Dip(kaunter,2,iCent(kaunta)) = Dip(kaunter,2,iCent(kaunta))+O(3)
-        Dip(kaunter,3,iCent(kaunta)) = Dip(kaunter,3,iCent(kaunta))+O(4)
-        Qua(kaunter,1,iCent(kaunta)) = Qua(kaunter,1,iCent(kaunta))+O(5)
-        Qua(kaunter,2,iCent(kaunta)) = Qua(kaunter,2,iCent(kaunta))+O(6)
-        ! The reason why 8 and 7 are interchanged is that
-        ! QMSTAT uses the ordering xx,xy,yy,xz,yz,zz while
-        ! Seward uses the ordering xx,xy,xz,yy,yz,zz.
-        Qua(kaunter,3,iCent(kaunta)) = Qua(kaunter,3,iCent(kaunta))+O(8)
-        Qua(kaunter,4,iCent(kaunta)) = Qua(kaunter,4,iCent(kaunta))+O(7)
-        Qua(kaunter,5,iCent(kaunta)) = Qua(kaunter,5,iCent(kaunta))+O(9)
-        Qua(kaunter,6,iCent(kaunta)) = Qua(kaunter,6,iCent(kaunta))+O(10)
+        Dip(kaunter,:,iCent(kaunta)) = Dip(kaunter,:,iCent(kaunta))+O(2:4)
+        Qua(kaunter,:,iCent(kaunta)) = Qua(kaunter,:,iCent(kaunta))+O(5:10)
       end do
     end do
   end do

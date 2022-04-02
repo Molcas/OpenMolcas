@@ -51,7 +51,8 @@ if (QmType(1:3) == 'SCF') then
       end do
     end do
   end do
-  AddRep = exrep4*abs(Scalar)**2+exrep6*abs(Scalar)**3+exrep10*abs(Scalar)**5
+  Scalar = abs(Scalar)
+  AddRep = exrep4*Scalar**2+exrep6*Scalar**3+exrep10*Scalar**5
 else if (QmType(1:4) == 'RASS') then
   do i=1,nSize
     do j=1,nSize
@@ -59,7 +60,8 @@ else if (QmType(1:4) == 'RASS') then
       Scalar = Scalar+Vecs(i,nEqState)*Vecs(j,nEqState)*SmatPure(kaunter)
     end do
   end do
-  AddRep = exrep4*abs(Scalar)**2+exrep6*abs(Scalar)**3+exrep10*abs(Scalar)**5
+  Scalar = abs(Scalar)
+  AddRep = exrep4*Scalar**2+exrep6*Scalar**3+exrep10*Scalar**5
 end if
 
 ! Crazy energy added if inner cut-off has been passed. Ensure reject.

@@ -51,11 +51,9 @@ CMSamz = CMSamz/Wtot
 Tx = CMSewx-CMSamx
 Ty = CMSewy-CMSamy
 Tz = CMSewz-CMSamz
-do i=1,iQ_Atoms
-  Cordst(1,i) = Coord(1,i)-Tx
-  Cordst(2,i) = Coord(2,i)-Ty
-  Cordst(3,i) = Coord(3,i)-Tz
-end do
+Cordst(1,:) = Coord(1,:)-Tx
+Cordst(2,:) = Coord(2,:)-Ty
+Cordst(3,:) = Coord(3,:)-Tz
 
 return
 

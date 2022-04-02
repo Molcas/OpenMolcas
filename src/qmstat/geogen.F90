@@ -42,31 +42,23 @@ implicit none
 real(kind=wp), intent(inout) :: Ract
 real(kind=wp), intent(out) :: Rold
 integer(kind=iwp), intent(in) :: iCNum, iQ_Atoms
-integer(kind=iwp) :: i, iAt, ii, iImage, ij, Ind, iQsta, j, k
-real(kind=wp) :: A, A2, B, CB, Cx, Cy, Cz, DiFac, Dq(3), Dx, q, qq, S2, SB, Sqrts2, x, xNy, y, yNy, z, zNy
+integer(kind=iwp) :: i, ii, iImage, ij, Ind, iQsta, j, k
+real(kind=wp) :: A, A2, B, CB, Cx, Cy, Cz, DiFac, Dx, q, qq, S2, SB, Sqrts2, x, xNy, y, yNy, z, zNy
 real(kind=wp), external :: Ranf
 
 !----------------------------------------------------------------------*
 ! Store old configuration.                                             *
 !----------------------------------------------------------------------*
-do i=1,nPart*nCent
-  do j=1,3
-    OldGeo(j,i) = Cordst(j,i)
-  end do
-end do
+OldGeo(:,:) = Cordst
 !----------------------------------------------------------------------*
 ! Query which type of simulation this is, and if quantum then change   *
 ! the quantum molecule.                                                *
 !----------------------------------------------------------------------*
 if (Qmeq .or. QmProd) then !Which coordinates to keep fixed.
   iSta = iCNum+1  !This sees to that the QM-molecule is excluded from the moves below.
-  Dq(1) = delX*(ranf(iSeed)-Half)
-  Dq(2) = delX*(ranf(iSeed)-Half)
-  Dq(3) = delX*(ranf(iSeed)-Half)
-  do iAt=1,iQ_Atoms
-    do ii=1,3
-      Cordst(ii,iAt) = Cordst(ii,iAt)+Dq(ii) !Move QM-mol.
-    end do
+  do j=1,3
+    Dx = delX*(ranf(iSeed)-Half)
+    Cordst(j,1:iQ_Atoms) = Cordst(j,1:iQ_Atoms)+Dx !Move QM-mol.
   end do
 end if
 !----------------------------------------------------------------------*
@@ -78,10 +70,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
   ij = (i-1)*nCent
   do j=1,3
     Dx = DelX*(ranf(iSeed)-Half)
-    do k=1,nCent
-      ii = ij+k
-      Cordst(j,ii) = Cordst(j,ii)+Dx !Make translation
-    end do
+    Cordst(j,ij+1:ij+nCent) = Cordst(j,ij+1:ij+nCent)+Dx !Make translation
   end do
   Cx = Cordst(1,ij+1) !The oxygen, around which we rotate
   Cy = Cordst(2,ij+1)
@@ -174,9 +163,7 @@ end if
 iQsta = nCent-nCha+1
 A2 = Ract**2
 DiFac = -(Diel-One)/(Diel+One)
-do i=1,3
-  xyzMyp(i) = Zero
-end do
+xyzMyp(:) = Zero
 do i=iImage,nPart
   do j=1,nCent
     Ind = Ind+1
@@ -189,9 +176,7 @@ do i=iImage,nPart
     Sqrs(Ind) = Sqrts2
     if (j <= nPol) then
       QImp(Ind) = Zero
-      do k=1,3
-        DipIm(k,Ind) = Zero
-      end do
+      DipIm(:,Ind) = Zero
     end if
     if (j >= iQsta) then
       qq = Qsta(j-nCent+nCha)
@@ -201,10 +186,8 @@ do i=iImage,nPart
       qq = Zero
       Qim(Ind) = Zero
     end if
-    do k=1,3
-      xyzMyp(k) = xyzMyp(k)-qq*Cordst(k,Ind) !Total dipole of the cavity; used in polink.
-      CordIm(k,Ind) = Cordst(k,Ind)*S2
-    end do
+    xyzMyp(:) = xyzMyp-qq*Cordst(:,Ind) !Total dipole of the cavity; used in polink.
+    CordIm(:,Ind) = Cordst(:,Ind)*S2
   end do
 end do
 

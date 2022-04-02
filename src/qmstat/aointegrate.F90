@@ -22,11 +22,10 @@ real(kind=wp), intent(in) :: Ax, Ay, Az
 real(kind=wp), intent(out) :: AOint(nBaseQ,nBaseC), oV2(nBaseC,iOrb(2))
 logical(kind=iwp), intent(in) :: Inside(iQ_Atoms,nAtomsCC)
 #include "Molcas.fh"
-integer(kind=iwp) :: iBaS, iOrS, j, k, m
+integer(kind=iwp) :: j, m
 real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), x, y, z
 logical(kind=iwp) :: PrEne, PrOcc
 character(len=30) :: Snack
-real(kind=wp), allocatable :: V2(:,:)
 character(len=LenIn8), allocatable :: BsLbl(:)
 
 !----------------------------------------------------------------------*
@@ -37,9 +36,7 @@ call TransRot(Cordst(:,N+1:N+3),N+1,Rot,Dx,Dy,Dz,Ax,Ay,Az)
 if (iPrint >= 17) then
   write(u6,*)
   write(u6,*) 'ROTATION MATRIX, Molecule ',N/nCent
-  write(u6,*) (Rot(1,k),k=1,3)
-  write(u6,*) (Rot(2,k),k=1,3)
-  write(u6,*) (Rot(3,k),k=1,3)
+  write(u6,*) Rot(1,:)
 end if
 !----------------------------------------------------------------------*
 ! Call OrbRot2. Given the rotation matrix (Rot) and the original MO-   *
@@ -47,15 +44,9 @@ end if
 ! input the original MO-coefficients (stored in V3), and on output the *
 ! rotated.                                                             *
 !----------------------------------------------------------------------*
-call mma_allocate(V2,nBaseC,iOrb(2),label='V2')
-do iOrS=1,iOrb(2) !Collect original MO-coeff.
-  do iBaS=1,nBaseC
-    V2(iBaS,iOrS) = V3(iBaS,iOrS)
-  end do
-end do
-call OrbRot2(Rot,V2,iQn,iOrb(2),nBaseC,lMax,nCnC_C)
-! Store the rotated in vector for later convenience.
-oV2(:,:) = V2
+! Collect original MO-coeff.
+oV2(:,:) = V3
+call OrbRot2(Rot,oV2,iQn,iOrb(2),nBaseC,lMax,nCnC_C)
 if (iPrint >= 25) then !Optional print-out.
   PrOcc = .false.
   PrEne = .false.
@@ -63,10 +54,10 @@ if (iPrint >= 25) then !Optional print-out.
   call mma_allocate(BsLbl,nBaseC,label='BsLbl')
   call NameRun('WRUNFIL')
   call Get_cArray('Unique Basis Names',BsLbl,LenIn8*nBaseC)
-  call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,V2,3)
+  Dummy(1) = Zero
+  call Primo(Snack,PrOcc,PrEne,Zero,Zero,1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,oV2,3)
   call mma_deallocate(BsLbl)
 end if
-call mma_deallocate(V2)
 do m=1,lMax !New basis function origo defined.
   x = Zero
   y = Zero

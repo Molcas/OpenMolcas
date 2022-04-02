@@ -15,7 +15,7 @@ use qmstat_global, only: AvElcPot, ChaNuc, FieldNuc, iPrint, MxMltp, nMlt, outxy
 use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
 use Data_Structures, only: Alloc1DArray_Type, Allocate_DT, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, OneHalf
+use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -25,10 +25,10 @@ real(kind=wp), intent(in) :: Eint(iCi,10), Poli(iCi,10)
 real(kind=wp), intent(inout) :: SumElcPot(iCi,10)
 real(kind=wp), intent(out) :: PertElcInt(nTri_Elem(nBas))
 integer(kind=iwp) :: i, i1, i2, iB1, iB2, iiDum(1), iLuField, indMME, iOpt, irc, iSmLbl, iTyp, j, kaunta, Lu_One, nSize, nTyp
-real(kind=wp) :: AvTemp, Tra
+real(kind=wp) :: Tra
 logical(kind=iwp) :: Exists
 integer(kind=iwp), allocatable :: Dum(:,:), iCent(:)
-real(kind=wp), allocatable :: ForceNuc(:,:), H0(:), H1(:)
+real(kind=wp), allocatable :: AvTemp(:), ForceNuc(:,:), H0(:), H1(:)
 type(Alloc1DArray_Type), allocatable :: MME(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
@@ -62,23 +62,23 @@ select case (Kword(1:4))
     if (iPrint >= 9) then
       write(u6,*) 'Total Sum Potential'
       do i=1,iCi
-        write(u6,*) (SumElcPot(i,j),j=1,10)
+        write(u6,*) SumElcPot(i,:)
       end do
     end if
 
   case ('AVER')
-    do i=1,iCi
-      do j=1,10 !Charges (1),Dipoles(3),Quadrupoles(6)
-        AvElcPot(i,j) = SumElcPot(i,j)/real(NCountField,kind=wp)
-      end do
+    AvElcPot(:,:) = SumElcPot/real(NCountField,kind=wp)
 
-      ! The order of Field gradients is changed in order to follow
-      ! the same order than Molcas
+    ! Charges (1),Dipoles(3),Quadrupoles(6)
 
-      AvTemp = AvElcPot(i,8)         ! This change is due to the different order of quadrupoles in QmStat and Molcas.
-      AvElcPot(i,8) = AvElcPot(i,7)  ! QmStat:xx,xy,yy,xz,yz,zz Molcas:xx,xy,xz,yy,yz,zz
-      AvElcPot(i,7) = AvTemp
-    end do
+    ! The order of Field gradients is changed in order to follow the same order than Molcas
+    ! This change is due to the different order of quadrupoles in QmStat and Molcas.
+    ! QmStat:xx,xy,yy,xz,yz,zz Molcas:xx,xy,xz,yy,yz,zz
+    call mma_allocate(AvTemp,iCi,label='AvTemp')
+    AvTemp(:) = AvElcPot(:,8)
+    AvElcPot(:,8) = AvElcPot(:,7)
+    AvElcPot(:,8) = AvTemp
+    call mma_deallocate(AvTemp)
 
     !*******************************
     ! This multiplication comes because the off-diagonal
@@ -89,14 +89,14 @@ select case (Kword(1:4))
     ! than the quadrupole for each pair of bases, we perform
     ! the multiplication here
     !**********************
-    AvElcPot(i,6) = Two*AvElcPot(i,6)
-    AvElcPot(i,7) = Two*AvElcPot(i,7)
-    AvElcPot(i,9) = Two*AvElcPot(i,9)
+    AvElcPot(:,6) = Two*AvElcPot(:,6)
+    AvElcPot(:,7) = Two*AvElcPot(:,7)
+    AvElcPot(:,9) = Two*AvElcPot(:,9)
     !**********************
     if (iPrint >= 9) then
       write(u6,*) 'Total Averg Potential'
       do i=1,iCi
-        write(u6,*) (AvElcPot(i,j),j=1,10)
+        write(u6,*) AvElcPot(i,:)
       end do
     end if
 
@@ -126,12 +126,9 @@ select case (Kword(1:4))
     !*********************
     call mma_allocate(ForceNuc,3,iQ_Atoms,label='ForceNuc')
     do i=1,iQ_Atoms
-      do j=1,3
-        ForceNuc(j,i) = ChaNuc(i)*AvElcPot(i,j+1)
-      end do
+      ForceNuc(:,i) = ChaNuc(i)*AvElcPot(i,2:4)
     end do
-    iLuField = 63
-    iLuField = IsFreeUnit(iLuField)
+    iLuField = IsFreeUnit(63)
     call OpnFl(FieldNuc,iLuField,Exists)
     write(u6,*) 'FieldNuc',FieldNuc
     do i=1,iQ_Atoms
@@ -162,8 +159,7 @@ select case (Kword(1:4))
         do j=5,10
           MME(j)%A(indMME) = MME(j)%A(indMME)*OneHalf
         end do
-        Tra = MME(5)%A(indMME)+MME(8)%A(indMME)+MME(10)%A(indMME)
-        Tra = Tra/3
+        Tra = (MME(5)%A(indMME)+MME(8)%A(indMME)+MME(10)%A(indMME))/Three
         MME(5)%A(indMME) = MME(5)%A(indMME)-Tra
         MME(8)%A(indMME) = MME(8)%A(indMME)-Tra
         MME(10)%A(indMME) = MME(10)%A(indMME)-Tra
@@ -171,8 +167,7 @@ select case (Kword(1:4))
     end do
 
     irc = -1
-    Lu_One = 49
-    Lu_One = IsFreeUnit(Lu_One)
+    Lu_One = IsFreeUnit(49)
     call OpnOne(irc,0,'ONEINT',Lu_One)
     if (irc /= 0) then
       write(u6,*)
@@ -208,9 +203,7 @@ select case (Kword(1:4))
     ! Read the unperturbed Hamiltonian
     call RdOne(irc,iOpt,'OneHam 0',1,H0,iSmLbl) !Collect non perturbed integrals
     call mma_allocate(H1,nSize,label='MAver1')
-    if (iPrint >= 9) then
-      call TriPrt('Non Perturb One-e',' ',H0,nBas)
-    end if
+    if (iPrint >= 9) call TriPrt('Non Perturb One-e',' ',H0,nBas)
 
     ! We perform the multiplication for each pair of bases in a triangular form.
     ! The perturbation is added to the unperturbed Hamiltonian 'H0'.
@@ -229,35 +222,25 @@ select case (Kword(1:4))
     call mma_deallocate(iCent)
     call Deallocate_DT(MME)
 
-    if (iPrint >= 9) then
-      call TriPrt('H0+Elec One-e',' ',H1,nBas)
-    end if
+    if (iPrint >= 9) call TriPrt('H0+Elec One-e',' ',H1,nBas)
 
     ! The non-Electrostatic perturbation is added. The PertNElcInt array comes
     ! through the module qmstat_global
 
-    if (iPrint >= 10) then
-      call TriPrt('PertNElcInt-e',' ',PertNElcInt,nBas)
-    end if
+    if (iPrint >= 10) call TriPrt('PertNElcInt-e',' ',PertNElcInt,nBas)
 
-    call DaxPy_(nTri_Elem(nBas),One,PertNElcInt,1,H1,1)
+    H1(:) = H1+PertNElcInt
 
-    if (iPrint >= 9) then
-      call TriPrt('H0+Elec+nonEl One-e',' ',H1,nBas)
-    end if
+    if (iPrint >= 9) call TriPrt('H0+Elec+nonEl One-e',' ',H1,nBas)
 
     ! The perturbed Hamiltonian 'H1' is writen in OneInt.
     irc = -1
     iOpt = 0
     iSmLbl = 1
     call WrOne(irc,iOpt,'OneHam  ',1,H1,iSmLbl) !Write perturbed integrals
-    if (iPrint >= 9) then
-      call TriPrt('Perturb One-e',' ',H1,nBas)
-    end if
+    if (iPrint >= 9) call TriPrt('Perturb One-e',' ',H1,nBas)
 
-    if (iPrint >= 10) then
-      call TriPrt('Non Perturb One-e AGAIN',' ',H0,nBas)
-    end if
+    if (iPrint >= 10) call TriPrt('Non Perturb One-e AGAIN',' ',H0,nBas)
 
     call ClsOne(irc,Lu_One)
 

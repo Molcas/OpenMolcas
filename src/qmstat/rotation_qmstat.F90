@@ -39,11 +39,7 @@ else if (iL == 1) then
   d1 = dMul(1)
   d2 = dMul(2)
   d3 = dMul(3)
-  dMul(1) = Rotte(1,1)*d1+Rotte(1,2)*d2+Rotte(1,3)*d3
-  dMul(2) = Rotte(2,1)*d1+Rotte(2,2)*d2+Rotte(2,3)*d3
-  dMul(3) = Rotte(3,1)*d1+Rotte(3,2)*d2+Rotte(3,3)*d3
-  dMul(1) = dMul(1)
-  dMul(2) = dMul(2)
+  dMul(:) = Rotte(:,1)*d1+Rotte(:,2)*d2+Rotte(:,3)*d3
   dMul(3) = Sigge*dMul(3)
 else if (iL == 2) then
   ! Quadrupole, transforms as a quadratic form. Also, transform to spherical representation.
@@ -54,8 +50,8 @@ else if (iL == 2) then
 
   ! Transform. Sigge is explained above.
 
+  dMTrans(:) = Zero
   do i=1,6
-    dMTrans(i) = Zero
     do j=1,6
       dMTrans(i) = dMTrans(i)+TD(i,j)*dMul(j)
     end do

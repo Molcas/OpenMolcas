@@ -61,20 +61,9 @@ call mma_allocate(Quad,nTri_Elem(iOrb(1)),6,iCi,label='Quad')
 !----------------------------------------------------------------------*
 ! Zeros.                                                               *
 !----------------------------------------------------------------------*
-do i=1,nTri_Elem(iOrb(1))
-  do j=1,iCi
-    Cha(i,j) = Zero
-    DipMy(i,1,j) = Zero
-    DipMy(i,2,j) = Zero
-    DipMy(i,3,j) = Zero
-    Quad(i,1,j) = Zero
-    Quad(i,2,j) = Zero
-    Quad(i,3,j) = Zero
-    Quad(i,4,j) = Zero
-    Quad(i,5,j) = Zero
-    Quad(i,6,j) = Zero
-  end do
-end do
+Cha(:,:) = Zero
+DipMy(:,:,:) = Zero
+Quad(:,:,:) = Zero
 
 ! MulticenterMultipoleExpansion
 
@@ -134,16 +123,13 @@ call Deallocate_DT(MME)
 
 ! Put quadrupoles in Buckingham form.
 
+Quad(:,:,:) = Quad*OneHalf
 kaunter = 0
 do i1=1,iOrb(1)
   do i2=1,i1
     kaunter = kaunter+1
     do k=1,iCi
-      do j=1,6
-        Quad(kaunter,j,k) = Quad(kaunter,j,k)*OneHalf
-      end do
-      Tra = Quad(kaunter,1,k)+Quad(kaunter,3,k)+Quad(kaunter,6,k)
-      Tra = Tra/Three
+      Tra = (Quad(kaunter,1,k)+Quad(kaunter,3,k)+Quad(kaunter,6,k))/Three
       Quad(kaunter,1,k) = Quad(kaunter,1,k)-Tra
       Quad(kaunter,3,k) = Quad(kaunter,3,k)-Tra
       Quad(kaunter,6,k) = Quad(kaunter,6,k)-Tra
@@ -176,18 +162,11 @@ do ii=1,iOrb(1)
     dipx = dipx+DipMy(i,1,j)*Occu(ii)
     dipy = dipy+DipMy(i,2,j)*Occu(ii)
     dipz = dipz+DipMy(i,3,j)*Occu(ii)
-    Mtot(2,j) = Mtot(2,j)+DipMy(i,1,j)*Occu(ii)
-    Mtot(3,j) = Mtot(3,j)+DipMy(i,2,j)*Occu(ii)
-    Mtot(4,j) = Mtot(4,j)+DipMy(i,3,j)*Occu(ii)
+    Mtot(2:4,j) = Mtot(2:4,j)+DipMy(i,1:3,j)*Occu(ii)
     dipx0 = dipx0+Cha(i,j)*outxyz(1,j)*Occu(ii)
     dipy0 = dipy0+Cha(i,j)*outxyz(2,j)*Occu(ii)
     dipz0 = dipz0+Cha(i,j)*outxyz(3,j)*Occu(ii)
-    Mtot(5,j) = Mtot(5,j)+Quad(i,1,j)*Occu(ii)
-    Mtot(6,j) = Mtot(6,j)+Quad(i,2,j)*Occu(ii)
-    Mtot(7,j) = Mtot(7,j)+Quad(i,3,j)*Occu(ii)
-    Mtot(8,j) = Mtot(8,j)+Quad(i,4,j)*Occu(ii)
-    Mtot(9,j) = Mtot(9,j)+Quad(i,5,j)*Occu(ii)
-    Mtot(10,j) = Mtot(10,j)+Quad(i,6,j)*Occu(ii)
+    Mtot(5:10,j) = Mtot(5:10,j)+Quad(i,1:6,j)*Occu(ii)
   end do
 end do
 if (iPrint >= 10) then

@@ -40,10 +40,7 @@ do ii=iCNum+2,nPart
       i = (ii-1)*nCent+ij
       do k=1,nCent
         j = (jj-1)*nCent+k
-        r = 0
-        do l=1,3
-          r = (Cordst(l,i)-Cordst(l,j))**2+r
-        end do
+        r = (Cordst(1,i)-Cordst(1,j))**2+(Cordst(2,i)-Cordst(2,j))**2+(Cordst(3,i)-Cordst(3,j))**2
         Dist(k,ij,Ind) = One/sqrt(r)
       end do
     end do
@@ -51,12 +48,11 @@ do ii=iCNum+2,nPart
 end do
 do ii=iCNum+1,nPart
   do i=1,nCent
+    k = i+(ii-1)*nCent
     do jj=iCNum+1,nPart
       do j=1,nCent
-        r = 0
-        do k=1,3
-          r = (CordIm(k,i+(ii-1)*nCent)-Cordst(k,j+(jj-1)*nCent))**2+r
-        end do
+        l = j+(jj-1)*nCent
+        r = (CordIm(1,k)-Cordst(1,l))**2+(CordIm(2,k)-Cordst(2,l))**2+(CordIm(3,k)-Cordst(3,l))**2
         DistIm(j,jj-iCNum,i,ii-iCNum) = One/sqrt(r)
       end do
     end do
@@ -102,23 +98,23 @@ Sum4 = Zero
 ! The dispersion, now with damping.
 do i=1,nSize
   DampFunk = One-exp(-One/(Dist(1,1,i)*Const))**4
-               Sum1 = Sum1+Dist(1,1,i)**6*DampFunk
+  Sum1 = Sum1+Dist(1,1,i)**6*DampFunk
   DampFunk = One-exp(-One/(Dist(2,1,i)*Const))**4
-               Sum2 = Sum2+Dist(2,1,i)**6*DampFunk
+  Sum2 = Sum2+Dist(2,1,i)**6*DampFunk
   DampFunk = One-exp(-One/(Dist(3,1,i)*Const))**4
-               Sum2 = Sum2+Dist(3,1,i)**6*DampFunk
+  Sum2 = Sum2+Dist(3,1,i)**6*DampFunk
   DampFunk = One-exp(-One/(Dist(1,2,i)*Const))**4
-               Sum2 = Sum2+Dist(1,2,i)**6*DampFunk
+  Sum2 = Sum2+Dist(1,2,i)**6*DampFunk
   DampFunk = One-exp(-One/(Dist(2,2,i)*Const))**4
-               Sum3 = Sum3+Dist(2,2,i)**6*DampFunk
+  Sum3 = Sum3+Dist(2,2,i)**6*DampFunk
   DampFunk = One-exp(-One/(Dist(3,2,i)*Const))**4
-               Sum3 = Sum3+Dist(3,2,i)**6*DampFunk
+  Sum3 = Sum3+Dist(3,2,i)**6*DampFunk
   DampFunk = One-exp(-One/(Dist(1,3,i)*Const))**4
-               Sum2 = Sum2+Dist(1,3,i)**6*DampFunk
+  Sum2 = Sum2+Dist(1,3,i)**6*DampFunk
   DampFunk = One-exp(-One/(Dist(2,3,i)*Const))**4
-               Sum3 = Sum3+Dist(2,3,i)**6*DampFunk
+  Sum3 = Sum3+Dist(2,3,i)**6*DampFunk
   DampFunk = One-exp(-One/(Dist(3,3,i)*Const))**4
-               Sum3 = Sum3+Dist(3,3,i)**6*DampFunk
+  Sum3 = Sum3+Dist(3,3,i)**6*DampFunk
 end do
 Edisp = Sum1*Disp(1,1)+Sum2*Disp(1,2)+Sum3*Disp(2,2)
 !The exchange repulsion

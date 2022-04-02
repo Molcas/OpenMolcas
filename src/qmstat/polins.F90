@@ -47,7 +47,7 @@ subroutine Polins(Energy,iAtom2,iCi,Fil,VpolMat,FFp,polfac,poli,xyzmyq,xyzmyi,xy
 use qmstat_global, only: ChargedQM, Cordst, nCent, nPart, nPol, nState, outxyzRAS, Pol, RasCha, RasDip, RasQua
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Two, Three, OneHalf
+use Constants, only: Zero, Two, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
@@ -57,7 +57,7 @@ real(kind=wp), intent(in) :: Fil(nPart*nPol,3,iCi,10), polfac, xyzmyi(3), xyzmyp
                              RoMatSt(nTri_Elem(nState)), CT(3)
 real(kind=wp), intent(out) :: VpolMat(nTri_Elem(nState)), Poli(iCi,10), xyzmyq(3), xyzQuQ(6)
 integer(kind=iwp) :: i, iCnum, iS, Iu, j, jS, k, kaunt, l
-real(kind=wp) :: CofC(3), Gunnar(10), Gx, Gy, Gz, qD(6), qK(6), qs, qQ(6), Trace1, Trace2, xyzMyC(3)
+real(kind=wp) :: CofC(3), Gunnar(10), G(3), qD(6), qK(6), qs, qQ(6), Trace1, Trace2, xyzMyC(3)
 real(kind=wp), allocatable :: Dm(:,:), Eil(:,:), Qm(:), QQm(:,:)
 
 !----------------------------------------------------------------------*
@@ -68,20 +68,11 @@ call mma_allocate(Dm,iCi,3,label='Dm')
 call mma_allocate(QQm,iCi,6,label='QQm')
 call mma_allocate(Eil,iAtom2,3,label='Eil')
 iCnum = iCStart/nCent
-do i=1,iCi
-  Qm(i) = Zero
-  if (i <= iQ_Atoms) Qm(i) = -ChaNuc(i)
-  do j=1,3
-    Dm(i,j) = Zero
-    QQm(i,j) = Zero
-    QQm(i,j+3) = Zero
-  end do
-end do
-do i=1,iAtom2
-  do j=1,3
-    Eil(i,j) = Zero
-  end do
-end do
+Qm(1:iQ_Atoms) = -ChaNuc
+Qm(iQ_Atoms+1:) = Zero
+Dm(:,:) = Zero
+QQm(:,:) = Zero
+Eil(:,:) = Zero
 !----------------------------------------------------------------------*
 ! Below we compute how the MME of the QM-molecule changes with the new *
 ! density matrix Romat. In this step we connect a state density with   *
@@ -93,18 +84,16 @@ kaunt = 0
 do i=1,nState
   do j=1,i
     kaunt = kaunt+1
-    do k=1,iCi
-      Qm(k) = Qm(k)+RasCha(kaunt,k)*RomatSt(kaunt)
-      Dm(k,1) = Dm(k,1)+RasDip(kaunt,1,k)*RomatSt(kaunt)
-      Dm(k,2) = Dm(k,2)+RasDip(kaunt,2,k)*RomatSt(kaunt)
-      Dm(k,3) = Dm(k,3)+RasDip(kaunt,3,k)*RomatSt(kaunt)
-      QQm(k,1) = QQm(k,1)+RasQua(kaunt,1,k)*RomatSt(kaunt)
-      QQm(k,3) = QQm(k,3)+RasQua(kaunt,3,k)*RomatSt(kaunt)
-      QQm(k,6) = QQm(k,6)+RasQua(kaunt,6,k)*RomatSt(kaunt)
-      QQm(k,2) = QQm(k,2)+RasQua(kaunt,2,k)*RomatSt(kaunt)
-      QQm(k,4) = QQm(k,4)+RasQua(kaunt,4,k)*RomatSt(kaunt)
-      QQm(k,5) = QQm(k,5)+RasQua(kaunt,5,k)*RomatSt(kaunt)
-    end do
+    Qm(:) = Qm(:)+RasCha(kaunt,:)*RomatSt(kaunt)
+    Dm(:,1) = Dm(:,1)+RasDip(kaunt,1,:)*RomatSt(kaunt)
+    Dm(:,2) = Dm(:,2)+RasDip(kaunt,2,:)*RomatSt(kaunt)
+    Dm(:,3) = Dm(:,3)+RasDip(kaunt,3,:)*RomatSt(kaunt)
+    QQm(:,1) = QQm(:,1)+RasQua(kaunt,1,:)*RomatSt(kaunt)
+    QQm(:,3) = QQm(:,3)+RasQua(kaunt,3,:)*RomatSt(kaunt)
+    QQm(:,6) = QQm(:,6)+RasQua(kaunt,6,:)*RomatSt(kaunt)
+    QQm(:,2) = QQm(:,2)+RasQua(kaunt,2,:)*RomatSt(kaunt)
+    QQm(:,4) = QQm(:,4)+RasQua(kaunt,4,:)*RomatSt(kaunt)
+    QQm(:,5) = QQm(:,5)+RasQua(kaunt,5,:)*RomatSt(kaunt)
   end do
 end do
 xyzMyQ(:) = Zero
@@ -137,31 +126,21 @@ do i=1,iCi
 end do
 Trace1 = qQ(1)+qQ(4)+qQ(6)
 Trace2 = qD(1)+qD(4)+qD(6)
-Trace1 = Trace1/Three
-Trace2 = Trace2/Three
-xyzQuQ(1) = OneHalf*(qQ(1)+qD(1)-Trace1-Trace2)+qK(1)
-xyzQuQ(2) = OneHalf*(qQ(2)+qD(2))+qK(2)
-xyzQuQ(3) = OneHalf*(qQ(3)+qD(3))+qK(3)
-xyzQuQ(4) = OneHalf*(qQ(4)+qD(4)-Trace1-Trace2)+qK(4)
-xyzQuQ(5) = OneHalf*(qQ(5)+qD(5))+qK(5)
-xyzQuQ(6) = OneHalf*(qQ(6)+qD(6)-Trace1-Trace2)+qK(6)
+Trace1 = Trace1
+Trace2 = Trace2
+xyzQuQ(:) = OneHalf*(qQ+qD)+qK
+xyzQuQ(1) = xyzQuQ(1)-Half*(Trace1+Trace2)
+xyzQuQ(4) = xyzQuQ(4)-Half*(Trace1+Trace2)
+xyzQuQ(6) = xyzQuQ(6)-Half*(Trace1+Trace2)
 if (ChargedQM) then  !If charged system, then do...
   qs = Zero
   do i=1,iCi
-    CofC(1) = CofC(1)+abs(qm(i))*outxyzRAS(1,i) !Center of charge
-    CofC(2) = CofC(2)+abs(qm(i))*outxyzRAS(2,i)
-    CofC(3) = CofC(3)+abs(qm(i))*outxyzRAS(3,i)
+    CofC(:) = CofC+abs(qm(i))*outxyzRAS(:,i) !Center of charge
     qs = qs+abs(qm(i))
   end do
-  CofC(1) = CofC(1)/qs
-  CofC(2) = CofC(2)/qs
-  CofC(3) = CofC(3)/qs
-  Gx = CofC(1)-outxyzRAS(1,1)+Cordst(1,1) !Where C-of-C is globally
-  Gy = CofC(2)-outxyzRAS(2,1)+Cordst(2,1)
-  Gz = CofC(3)-outxyzRAS(3,1)+Cordst(3,1)
-  xyzMyC(1) = xyzMyC(1)+qtot*Gx !Dipole
-  xyzMyC(2) = xyzMyC(2)+qtot*Gy
-  xyzMyC(3) = xyzMyC(3)+qtot*Gz
+  CofC(:) = CofC/qs
+  G(:) = CofC-outxyzRAS(:,1)+Cordst(:,1) !Where C-of-C is globally
+  xyzMyC(:) = xyzMyC+qtot*G !Dipole
 end if
 ! The energy of the induced dipole in its reaction field. It is ok since polfac*(xyzMyQ+xyzMyi) is
 ! the field from the induced dipole according to the image approximation. And the sought energy
@@ -175,18 +154,10 @@ end do
 !----------------------------------------------------------------------*
 do i=1,iCi
   do j=1+(nPol*iCnum),iAtom2
-    do k=1,3
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,1)*Qm(i)
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,2)*Dm(i,1)
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,3)*Dm(i,2)
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,4)*Dm(i,3)
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,5)*QQm(i,1)
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,7)*QQm(i,3)
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,10)*QQm(i,6)
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,6)*QQm(i,2)*Two
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,8)*QQm(i,4)*Two
-      Eil(j,k) = Eil(j,k)+Fil(j,k,i,9)*QQm(i,5)*Two
-    end do
+    Eil(j,:) = Eil(j,:)+Fil(j,:,i,1)*Qm(i)+ &
+               Fil(j,:,i,2)*Dm(i,1)+Fil(j,:,i,3)*Dm(i,2)+Fil(j,:,i,4)*Dm(i,3)+ &
+               Fil(j,:,i,5)*QQm(i,1)+Fil(j,:,i,7)*QQm(i,3)+Fil(j,:,i,10)*QQm(i,6)+ &
+               Fil(j,:,i,6)*QQm(i,2)*Two+Fil(j,:,i,8)*QQm(i,4)*Two+Fil(j,:,i,9)*QQm(i,5)*Two
   end do
 end do
 ! THIS IS LEBENSGEFAHRLICH (original comment says it all!)
@@ -215,12 +186,8 @@ call mma_deallocate(Eil)
 ! also included, excluding the quadrupoles and higher; they are        *
 ! small anyway, so this is not a major restriction.                    *
 !----------------------------------------------------------------------*
-do i=1,10
-  Gunnar(i) = Zero
-end do
-Gunnar(2) = PolFac*(xyzMyP(1)+xyzMyQ(1)+xyzMyI(1)+xyzMyC(1))
-Gunnar(3) = PolFac*(xyzMyP(2)+xyzMyQ(2)+xyzMyI(2)+xyzMyC(2))
-Gunnar(4) = PolFac*(xyzMyP(3)+xyzMyQ(3)+xyzMyI(3)+xyzMyC(3))
+Gunnar(:) = Zero
+Gunnar(2:4) = PolFac*(xyzMyP+xyzMyQ+xyzMyI+xyzMyC)
 do l=1,iCi
   ! The potential from the dipole (the 1/r*r*r is in Fil(...).
   Gunnar(1) = Gunnar(2)*outxyzRAS(1,l)+Gunnar(3)*outxyzRAS(2,l)+Gunnar(4)*outxyzRAS(3,l)
@@ -245,16 +212,10 @@ do iS=1,nState
   do jS=1,iS
     kaunt = kaunt+1
     do j=1,iCi
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,1)*RasCha(kaunt,j)
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,2)*RasDip(kaunt,1,j)
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,3)*RasDip(kaunt,2,j)
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,4)*RasDip(kaunt,3,j)
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,5)*RasQua(kaunt,1,j)
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,7)*RasQua(kaunt,3,j)
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,10)*RasQua(kaunt,6,j)
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,6)*RasQua(kaunt,2,j)*Two
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,8)*RasQua(kaunt,4,j)*Two
-      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,9)*RasQua(kaunt,5,j)*Two
+      Vpolmat(kaunt) = Vpolmat(kaunt)+Poli(j,1)*RasCha(kaunt,j)+ &
+                       Poli(j,2)*RasDip(kaunt,1,j)+Poli(j,3)*RasDip(kaunt,2,j)+Poli(j,4)*RasDip(kaunt,3,j)+ &
+                       Poli(j,5)*RasQua(kaunt,1,j)+Poli(j,7)*RasQua(kaunt,3,j)+Poli(j,10)*RasQua(kaunt,6,j)+ &
+                       Poli(j,6)*RasQua(kaunt,2,j)*Two+Poli(j,8)*RasQua(kaunt,4,j)*Two+Poli(j,9)*RasQua(kaunt,5,j)*Two
     end do
   end do
 end do

@@ -25,13 +25,13 @@ call PlaneVectors(u,w,v,Rinv)
 
 ! Normalize v.
 
-t(:) = Rinv*v(:)
+t(:) = Rinv*v
 
 ! Assemble rotation matrix
 
-Rotte(1,:) = u(:)
-Rotte(2,:) = w(:)
-Rotte(3,:) = t(:)
+Rotte(1,:) = u
+Rotte(2,:) = w
+Rotte(3,:) = t
 
 return
 

@@ -29,7 +29,6 @@ logical(kind=iwp), intent(in) :: lEig, lSlater
 real(kind=wp), intent(_OUT_) :: ExpCento(4,*)
 real(kind=wp), intent(out) :: E_Nuc_Part
 integer(kind=iwp) :: i, i1, iAt, iCx, j, jAt, k, kaunt, kaunter, kk, NExpect, NExtrAt, NTotal
-real(kind=wp) :: dMp
 logical(kind=iwp) :: Check1, Check2
 integer(kind=iwp), allocatable :: iCenSet(:)
 real(kind=wp), allocatable :: VelP(:), VpoP(:)
@@ -101,36 +100,14 @@ do i=1,nDim
     kk = kk+1
     do k=1,NTotal
       iCx = iCenSet(k)
-      dMp = Cha(kk,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,1)*dMp
-      VpoP(kk) = VpoP(kk)+Poli(iCx,1)*dMp
-      dMp = Dip(kk,1,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,2)*dMp
-      VpoP(kk) = VpoP(kk)+Poli(iCx,2)*dMp
-      dMp = Dip(kk,2,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,3)*dMp
-      VpoP(kk) = VpoP(kk)+Poli(iCx,3)*dMp
-      dMp = Dip(kk,3,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,4)*dMp
-      VpoP(kk) = VpoP(kk)+Poli(iCx,4)*dMp
-      dMp = Qua(kk,1,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,5)*dMp
-      VpoP(kk) = VpoP(kk)+Poli(iCx,5)*dMp
-      dMp = Qua(kk,3,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,7)*dMp
-      VpoP(kk) = VpoP(kk)+Poli(iCx,7)*dMp
-      dMp = Qua(kk,6,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,10)*dMp
-      VpoP(kk) = VpoP(kk)+Poli(iCx,10)*dMp
-      dMp = Qua(kk,2,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,6)*dMp*Two
-      VpoP(kk) = VpoP(kk)+Poli(iCx,6)*dMp*Two
-      dMp = Qua(kk,4,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,8)*dMp*Two
-      VpoP(kk) = VpoP(kk)+Poli(iCx,8)*dMp*Two
-      dMp = Qua(kk,5,iCx)
-      VelP(kk) = VelP(kk)+Eint(iCx,9)*dMp*Two
-      VpoP(kk) = VpoP(kk)+Poli(iCx,9)*dMp*Two
+      VelP(kk) = VelP(kk)+Eint(iCx,1)*Cha(kk,iCx)+ &
+                 Eint(iCx,2)*Dip(kk,1,iCx)+Eint(iCx,3)*Dip(kk,2,iCx)+Eint(iCx,4)*Dip(kk,3,iCx)+ &
+                 Eint(iCx,5)*Qua(kk,1,iCx)+Eint(iCx,7)*Qua(kk,3,iCx)+Eint(iCx,10)*Qua(kk,6,iCx)+ &
+                 Eint(iCx,6)*Qua(kk,2,iCx)*Two+Eint(iCx,8)*Qua(kk,4,iCx)*Two+Eint(iCx,9)*Qua(kk,5,iCx)*Two
+      VpoP(kk) = VpoP(kk)+Poli(iCx,1)*Cha(kk,iCx)+ &
+                 Poli(iCx,2)*Dip(kk,1,iCx)+Poli(iCx,3)*Dip(kk,2,iCx)+Poli(iCx,4)*Dip(kk,3,iCx)+ &
+                 Poli(iCx,5)*Qua(kk,1,iCx)+Poli(iCx,7)*Qua(kk,3,iCx)+Poli(iCx,10)*Qua(kk,6,iCx)+ &
+                 Poli(iCx,6)*Qua(kk,2,iCx)*Two+Poli(iCx,8)*Qua(kk,4,iCx)*Two+Poli(iCx,9)*Qua(kk,5,iCx)*Two
     end do
   end do
 end do

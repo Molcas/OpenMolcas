@@ -23,8 +23,8 @@ integer(kind=iwp), intent(in) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, it
 real(kind=wp), intent(out) :: Ax, Ay, Az, SmatRas(itristate), SmatPure(itristate)
 logical(kind=iwp), intent(out) :: InCutOff
 real(kind=wp), intent(inout) :: AOSum(nTri_Elem(nBaseQ))
-integer(kind=iwp) :: ind, inwm, iS, js, k, kaunter, N, nDim1, nDimT, nGross, nHalf, nInsideCut
-real(kind=wp) :: Addition, CorTemp(3), Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, HighS, r2, r3, r3temp1, r3temp2
+integer(kind=iwp) :: i, ind, inwm, iS, js, kaunter, N, nDim1, nDimT, nGross, nHalf, nInsideCut
+real(kind=wp) :: Addition, Cut_ExSq1, Cut_ExSq2, DH1, DH2, dist_sw, HighS, r2, r3, r3temp1, r3temp2
 logical(kind=iwp) :: NearBy
 real(kind=wp), allocatable :: ACC(:,:), ACCp(:,:), ACCt(:), ACCtp(:), AOAUX(:,:), AOAUXtri(:), AOint(:,:), AOG(:), AOMOOvl(:,:), &
                               AOMOOvlE(:,:), HalfE(:,:), HalfP(:), TEMP(:,:), V2(:,:)
@@ -89,17 +89,11 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   NearBy = .false.
   ! Loop over atoms.
   do inwm=1,iQ_Atoms
-    do k=1,3
-      CorTemp(k) = (Cordst(k,N+1)-Cordst(k,inwm))**2
-    end do
-    r2 = CorTemp(1)+CorTemp(2)+CorTemp(3)
+    r2 = (Cordst(1,N+1)-Cordst(1,inwm))**2+(Cordst(2,N+1)-Cordst(2,inwm))**2+(Cordst(3,N+1)-Cordst(3,inwm))**2
     dist_sw = min(dist_sw,r2)
-    DH1 = Zero !Distances for the inner cut-off. Also include the hydrogens.
-    DH2 = Zero
-    do k=1,3
-      DH1 = DH1+(Cordst(k,N+2)-Cordst(k,inwm))**2
-      DH2 = DH2+(Cordst(k,N+3)-Cordst(k,inwm))**2
-    end do
+    ! Distances for the inner cut-off. Also include the hydrogens.
+    DH1 = (Cordst(1,N+2)-Cordst(1,inwm))**2+(Cordst(2,N+2)-Cordst(2,inwm))**2+(Cordst(3,N+2)-Cordst(3,inwm))**2
+    DH2 = (Cordst(1,N+3)-Cordst(1,inwm))**2+(Cordst(2,N+3)-Cordst(2,inwm))**2+(Cordst(3,N+3)-Cordst(3,inwm))**2
     r3temp1 = min(DH1,DH2)
     r3temp2 = min(r3temp1,r2)
     r3 = min(r3,r3temp2)
@@ -134,8 +128,8 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   !Jose***************************************************************
   if (lExtr(8)) then
     call dcopy_(nHalf,HalfP,1,AOMOOvl,1)
-    do k=1,iOrb(2)
-      AOMOOvlE(:,k) = c_orbene(k)*AOMOOvl(:,k)
+    do i=1,iOrb(2)
+      AOMOOvlE(:,i) = c_orbene(i)*AOMOOvl(:,i)
     end do
   end if
   !*******************************************************************
@@ -153,9 +147,9 @@ do N=iCStart-1,nCent*(nPart-1),nCent
 
   ! Hook on the orbital energy.
 
-  do k=1,iOrb(2)
-    ind = nDim1*(k-1)
-    HalfE(:,k) = c_orbene(k)*HalfP(ind+1:ind+nDim1)
+  do i=1,iOrb(2)
+    ind = nDim1*(i-1)
+    HalfE(:,i) = c_orbene(i)*HalfP(ind+1:ind+nDim1)
   end do
 
   ! Construct auxiliary matrix for the non-electrostatic operator
@@ -170,7 +164,7 @@ do N=iCStart-1,nCent*(nPart-1),nCent
   if (lExtr(8)) then
     call Dgemm_('N','T',nBaseQ,nBaseQ,iOrb(2),exrep2,AOMOOvl,nBaseQ,AOMOOvlE,nBaseQ,Zero,AOAUX,nBaseQ)
     call SqToTri_Q(AOAUX,AOAUXtri,nBaseQ)
-    call DaxPy_(nGross,One,AOAUXtri,1,AOSum,1)
+    AOSum(:) = AOSum+AOAUXTri
   end if
   !*************************************
 
@@ -187,7 +181,7 @@ do iS=1,nState
     HighS = 0
     kaunter = kaunter+1
     ! Collect the relevant part of the transition density matrix.
-    call dCopy_(nDimT,BigT(:,kaunter),1,AOG,1)
+    AOG(:) = BigT(1:nDimT,kaunter)
     ! Then transform according to theory.
     call SqToTri_Q(ACC,ACCt,nDim1)
     Addition = Ddot_(nDimT,AOG,1,ACCt,1)

@@ -51,7 +51,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ), iQ_Atoms, nntyp, nOcc(nntyp), natyp(nntyp)
-integer(kind=iwp) :: i, iCi, j, k, kaunt, kaunter, kk, l, nTyp
+integer(kind=iwp) :: i, iCi, j, k, kaunter, kk, nTyp
 real(kind=wp) :: D1, D2, D3, dipx, dipx0, dipy, dipy0, dipz, dipz0, dQxx, dQxy, dQxz, dQyy, dQyz, dQzz, dTox, dToy, dToz, Q, qEl, &
                  quaDxx, quaDxy, quaDxz, quaDyy, quaDyx, quaDyz, quaDzx, quaDzy, quaDzz, quaQxx, quaQxy, quaQxz, quaQyy, quaQyz, &
                  quaQzz, quaxx, quaxy, quaxz, quayy, quayz, quazz, Tra, Trace1, Trace2, Trace3
@@ -67,24 +67,9 @@ call mma_allocate(RasQua,nTri_Elem(nState),6,iCi,label='RasQua')
 
 ! Zeros.
 
-kaunt = 0
-do i=1,nState
-  do j=1,i
-    kaunt = kaunt+1
-    do k=1,iCi
-      RasCha(kaunt,k) = Zero
-      RasDip(kaunt,1,k) = Zero
-      RasDip(kaunt,2,k) = Zero
-      RasDip(kaunt,3,k) = Zero
-      RasQua(kaunt,1,k) = Zero
-      RasQua(kaunt,2,k) = Zero
-      RasQua(kaunt,3,k) = Zero
-      RasQua(kaunt,4,k) = Zero
-      RasQua(kaunt,5,k) = Zero
-      RasQua(kaunt,6,k) = Zero
-    end do
-  end do
-end do
+RasCha(:,:) = Zero
+RasDip(:,:,:) = Zero
+RasQua(:,:,:) = Zero
 
 ! Construct H_0 with external perturbation if requested. Construct a copy also.
 
@@ -96,13 +81,7 @@ else
 end if
 call Chk_OneHam(nBas)
 call RasH0(nBas(1))
-kaunter = 0
-do i=1,nState
-  do j=1,i
-    kaunter = kaunter+1
-    HMatSOld(kaunter) = HmatState(kaunter)
-  end do
-end do
+HMatSOld(:) = HmatState
 write(u6,*) '     ...Done!'
 write(u6,*)
 
@@ -143,16 +122,13 @@ call Deallocate_DT(MME)
 
 ! Buckinghamification of the quadrupoles.
 
+RasQua(:,:,:) = RasQua*OneHalf
 kaunter = 0
 do i=1,nState
   do j=1,i
     kaunter = kaunter+1
     do k=1,iCi
-      do l=1,6
-        RasQua(kaunter,l,k) = RasQua(kaunter,l,k)*OneHalf
-      end do
-      Tra = RasQua(kaunter,1,k)+RasQua(kaunter,3,k)+RasQua(kaunter,6,k)
-      Tra = Tra/Three
+      Tra = (RasQua(kaunter,1,k)+RasQua(kaunter,3,k)+RasQua(kaunter,6,k))/Three
       RasQua(kaunter,1,k) = RasQua(kaunter,1,k)-Tra
       RasQua(kaunter,3,k) = RasQua(kaunter,3,k)-Tra
       RasQua(kaunter,6,k) = RasQua(kaunter,6,k)-Tra

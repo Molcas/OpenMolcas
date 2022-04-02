@@ -14,7 +14,6 @@ subroutine Chk_OneHam(nBas)
 use qmstat_global, only: MxSymQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
@@ -26,8 +25,7 @@ real(kind=wp), allocatable :: OneP(:), OneR(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=r8), external :: dnrm2_
 
-Lu_One = 49
-Lu_One = IsFreeUnit(Lu_One)
+Lu_One = IsFreeUnit(49)
 Label_Read = 'OneHam  '
 Label_Pure = 'OneHam 0'
 nBT = nTri_Elem(nBas(1))
@@ -40,12 +38,10 @@ iopt = 6
 iSmLbl = 0
 call RdOne(irc,iopt,Label_Read,1,OneR,iSmLbl)
 irc = -1
-iopt = 6
-iSmLbl = 0
 call RdOne(irc,iopt,Label_Pure,1,OneP,iSmLbl)
 call ClsOne(irc,Lu_One)
 
-call DaxPy_(nBT,-One,OneR,1,OneP,1)
+OneP(:) = OneP-OneR
 
 dNorm = dnrm2_(nBT,OneP,1)
 

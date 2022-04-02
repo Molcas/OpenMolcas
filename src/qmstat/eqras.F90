@@ -13,9 +13,9 @@ subroutine EqRas(iQ_Atoms,nAtomsCC,Coord,nBas,nBas_C)
 
 use qmstat_global, only: AvElcPot, CAFieldG, CBFieldG, CFexp, ChaNuc, CordIm, Cordst, DelFi, DelR, DelX, Diel, DispDamp, dLJrep, &
                          FieldDamp, Forcek, HmatState, iExtr_Eig, iExtra, iLuSaIn, iLuSaUt, info_atom, Inter, iPrint, iRead, &
-                         iSeed, lExtr, lSlater, nAtom, nCent, nMacro, nMicro, nPart, nPol, nState, nTemp, outxyzRAS, PertNElcInt, &
-                         Pres, Qmeq, QmProd, ParallelT, RasCha, RasDip, RasQua, rStart, SaFilIn, SaFilUt, SimEx, SURF, Temp, &
-                         xyzMyI, xyzMyQ, xyzQuQ
+                         iSeed, lExtr, lSlater, nAtom, nCent, nMacro, nMicro, nPart, nPol, nState, nTemp, OldGeo, outxyzRAS, &
+                         PertNElcInt, Pres, Qmeq, QmProd, ParallelT, RasCha, RasDip, RasQua, rStart, SaFilIn, SaFilUt, SimEx, &
+                         SURF, Temp, xyzMyI, xyzMyQ, xyzQuQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Ten, Half, Pi, Angstrom, atmToau, auTokJ, deg2rad, KBoltzmann
@@ -24,13 +24,13 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1)
 real(kind=wp), intent(in) :: Coord(3,iQ_Atoms)
-integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDum(1), iHowMSampIN, iHowMSampUT, ijhr, iLuExtr, &
-                     iMacro, iMicro, IndMa, Inte, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, &
-                     iTriState, jjhr, jMacro, nBaseC, nBaseQ, nClas, NCountField, nVarv
-real(kind=wp) :: AddRep, AverFact, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, dele, DiFac, Dum, E2Die, E_Nuc_Part, &
-                 E_Nuc_Rubbet, Edisp, EEDisp, EHam, Elene, EnCLAS, Energy, Eold, Esav, Etot, Exrep, Expe, Expran, ExDie, Gam, &
-                 Gmma, PertElcInt(1), Pr, Ract, Rold, RRRnVarv, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, &
-                 timeEL, timeEX, timeMC
+integer(kind=iwp) :: i, i9, iAcc, iAt, iCi, iCNum, iCStart, iDisk, iDiskSa, iDum(1), iHowMSampIN, iHowMSampUT, iLuExtr, iMacro, &
+                     iMicro, IndMa, Inte, iProdMax, iSnurr, it1h, it1m, it2h, it2m, it3h, it3m, it4h, it4m, iTriBasQ, iTriState, &
+                     jMacro, nBaseC, nBaseQ, nClas, NCountField, nVarv
+real(kind=wp) :: AddRep, Ax, Ay, Az, BetaBol, Cpu1, Cpu2, Cpu3, Cpu4, Cpu5, dele, DiFac, Dum, E2Die, E_Nuc_Part, E_Nuc_Rubbet, &
+                 Edisp, EEDisp, EHam, Elene, EnCLAS, Energy, Eold, Esav, Etot, Exrep, Expe, Expran, ExDie, Gam, Gmma, &
+                 PertElcInt(1), Pr, Ract, Rold, RRRnVarv, s90um, Sum1, t1s, t2s, t3s, t4s, Tim1, Tim2, Tim3, timeCLAS, timeEL, &
+                 timeEX, timeMC
 logical(kind=iwp) :: CalledBefore, DidWeAccept, Exists, Haveri, InCutOff, Loop, SampleThis, Skip
 character(len=200) :: Head
 character(len=4) :: Labjhr
@@ -100,27 +100,21 @@ if ((DispDamp .or. FieldDamp) .and. (iPrint >= 8)) then
 end if
 call mma_allocate(BoMaH,iQ_Atoms,label='BoMaH')
 call mma_allocate(BoMaO,iQ_Atoms,label='BoMaO')
-if (DispDamp) then
 
-  ! Construct the Born-Mayer parameters, a la Brdarski-Karlstrom
-
-  call BornMayerBK(iQ_Atoms,BoMaH,BoMaO)
-end if
+! Construct the Born-Mayer parameters, a la Brdarski-Karlstrom
+if (DispDamp) call BornMayerBK(iQ_Atoms,BoMaH,BoMaO)
 
 ! Damping of field.
 
-if (FieldDamp) then
-  if (iPrint >= 8) then
-    write(u6,*) '  Damping the field between Qm-region and solvent.'
-    write(u6,*) '  E_damp=E_0*(1-exp(alpha*distance))^N'
-    write(u6,*) '  alpha(QM-oxygen)   =',CAFieldG
-    write(u6,*) '  alpha(QM-hydrogen) =',CBFieldG
-    write(u6,*) '  N                  =',CFexp
-  end if
+if (FieldDamp .and. (iPrint >= 8)) then
+  write(u6,*) '  Damping the field between Qm-region and solvent.'
+  write(u6,*) '  E_damp=E_0*(1-exp(alpha*distance))^N'
+  write(u6,*) '  alpha(QM-oxygen)   =',CAFieldG
+  write(u6,*) '  alpha(QM-hydrogen) =',CBFieldG
+  write(u6,*) '  N                  =',CFexp
 end if
 
-! Check what type of simulation to run, and generate some output of
-! utmost beauty.
+! Check what type of simulation to run, and generate some output of utmost beauty.
 
 call mma_allocate(SumElcPot,iCi,10,label='SumElcPot')
 
@@ -150,8 +144,7 @@ else if (iRead == 9) then
   iDiskSa = 0
   call iDaFile(iLuSaIn,2,iDum,1,iDiskSa)
   iHowMSampIN = iDum(1)
-  iLuExtr = 54
-  iLuExtr = IsFreeUnit(iLuExtr)
+  iLuExtr = IsFreeUnit(54)
   call OpnFl(SimEx,iLuExtr,Exists)
   write(iLuExtr,*) 'Extract-File'
   write(iLuExtr,*)
@@ -164,12 +157,8 @@ else if (iRead == 9) then
   ! If we perform MEP calculation, first we make some zeros and allocate some memory.
   if (lExtr(8)) then
     call mma_allocate(AvElcPot,iCi,10,label='AvElcPot')
-    do ijhr=1,iCi
-      do jjhr=1,10
-        SumElcPot(ijhr,jjhr) = Zero
-        AvElcPot(ijhr,jjhr) = Zero
-      end do
-    end do
+    SumElcPot(:,:) = Zero
+    AvElcPot(:,:) = Zero
     NCountField = 0
 
     PertNElcInt(:) = Zero
@@ -208,9 +197,7 @@ outer: do
   else if (iRead == 9) then
     call Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
   else
-    if (iExtra > 0) then
-      call NyPart(iExtra,nPart,Cordst,rStart,nCent,iSeed)
-    end if
+    if (iExtra > 0) call NyPart(iExtra,nPart,Cordst,rStart,nCent,iSeed)
     if (iPrint >= 10) then
       write(Head,*) 'Coordinates of the initial distribution.'
       call Cooout(Head,Cordst,nPart,nCent)
@@ -287,10 +274,8 @@ outer: do
       !----------------------------------------------------------------*
       ! Work a bit with the quantum part.                              *
       !----------------------------------------------------------------*
-      do i=1,3
-        xyzMyQ(i) = Zero !Dipoles for the QM-part, see polink.
-        xyzMyI(i) = Zero
-      end do
+      xyzMyQ(:) = Zero !Dipoles for the QM-part, see polink.
+      xyzMyI(:) = Zero
       Fil(:,:,:,:) = Zero
       Eint(:,:) = Zero
       Eint_Nuc(:) = Zero
@@ -430,13 +415,14 @@ outer: do
             write(u6,*) '         Boltzmann weight:',Expe
             write(u6,*) '         Random number:',ExpRan
           end if
-          iAcc = iAcc+1
-          if (Expe < ExpRan) then
-            call Oldge(iAcc,Etot,Eold,Ract,Rold)
+          if (Expe >= ExpRan) then
+            iAcc = iAcc+1
+          else
+            Etot = Eold
+            Ract = Rold
+            Cordst(:,:) = OldGeo
             DidWeAccept = .false.
-            if (iPrint >= 10) then
-              write(u6,*) '         Not accepted!'
-            end if
+            if (iPrint >= 10) write(u6,*) '         Not accepted!'
           end if
         end if
         if (DidWeAccept) Esav = Esav+Etot
@@ -447,9 +433,7 @@ outer: do
           if (SampleThis) then
             if (Inter /= 0) then
               Inte = (iSnurr/Inter)*Inter
-              if (Inte == ((iMacro-1)*nMicro+iMicro)) then
-                call Put9(Etot,Ract,iHowMSampUT,Gmma,Gam,Esav,iDisk)
-              end if
+              if (Inte == ((iMacro-1)*nMicro+iMicro)) call Put9(Etot,Ract,iHowMSampUT,Gmma,Gam,Esav,iDisk)
             end if
           end if
         end if
@@ -493,8 +477,7 @@ outer: do
           Labjhr = 'Aver'
           call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,1,1,[1],[1],1)
 
-          AverFact = One/real(NCountField,kind=wp)
-          call DaxPy_(iTriBasQ,AverFact,AOSum,1,PertNElcInt,1)
+          PertNElcInt(:) = PertNElcInt+AOSum/real(NCountField,kind=wp)
           call mma_deallocate(AOSum)
         end if
         !********

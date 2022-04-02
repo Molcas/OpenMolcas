@@ -55,10 +55,10 @@ implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms
 integer(kind=iwp), intent(out) :: nAtomsCC, nBas(MxSymQ), nBasCC(1), nOcc(iQ_Atoms), natyp(iQ_Atoms), nntyp
 real(kind=wp), intent(out) :: Coord(3,iQ_Atoms)
-integer(kind=iwp) :: i, iAtom, iBas, icont, iDummy(1), iErr, iLu, ind, indold, iold, iWarn, ix, j, jnd, k, kk, kold, l, lLine, m, &
-                     na, nnaa, nntypC, nSize, nSym, nSymCC, ntBas
+integer(kind=iwp) :: i, iAtom, iBas, icont, iDummy(1), iErr, iLu, ind, indold, iold, iWarn, ix, j, jnd, k, kk, kold, l, lLine, na, &
+                     nnaa, nntypC, nSize, nSym, nSymCC, ntBas
 real(kind=wp) :: ChgeCC(3), CoordCC(3*3), Dummy(1)
-character(len=120) :: BlLine, Line, StLine
+character(len=120) :: Line, StLine
 character(len=100) :: OrbName, Title
 character(len=10) :: WhatGet
 integer(kind=iwp), allocatable :: iC_Icon(:,:), Icon(:,:), natypC(:), nfSh(:,:), nSh(:)
@@ -76,12 +76,11 @@ integer(kind=iwp), external :: IsFreeUnit
 if (ATitle) then
   lLine = len(Line)
   do i=1,lLine
-    BlLine(i:i) = ' '
     StLine(i:i) = '*'
   end do
   write(u6,*)
   do i=1,6
-    Line = BlLine
+    Line = ''
     if ((i == 1) .or. (i == 6)) Line = StLine
     if (i == 3) Line = 'Project:'
     if (i == 4) write(Line,'(A72)') JobLab
@@ -231,11 +230,9 @@ do i=1,nntyp
           call mma_deallocate(cont)
           call move_alloc(Tmp,cont)
         end if
-        do m=1,icont
-          jnd = jnd+1
-          alfa(ibas,m) = E(i,jnd)
-          cont(ibas,m) = C(i,jnd)
-        end do
+        alfa(ibas,1:icont) = E(i,jnd+1:jnd+icont)
+        cont(ibas,1:icont) = C(i,jnd+1:jnd+icont)
+        jnd = jnd+icont
       end do
     end do
   end do
@@ -276,8 +273,7 @@ call PrCoor()
 
 ! Collect information about the solvent orbitals.
 
-iLu = 16
-iLu = IsFreeUnit(iLu)
+iLu = IsFreeUnit(16)
 write(OrbName,'(A)') 'SOLORB'
 write(WhatGet,'(A)') 'CE'
 iWarn = 1
@@ -285,9 +281,7 @@ call mma_allocate(Oe,sum(nBasCC),label='OrbitalEnergy')
 call mma_allocate(Cmo_S,nBasCC(1)**2,label='Cmo_S')
 call RdVec(OrbName,iLu,WhatGet,nSymCC,nBasCC,nBasCC,Cmo_S,Dummy,Oe,iDummy,Title,iWarn,iErr)
 call mma_allocate(c_orbene,iOrb(2),label='c_orbene')
-do i=1,iOrb(2)
-  c_orbene(i) = Oe(i)
-end do
+c_orbene(1:iOrb(2)) = Oe(1:iOrb(2))
 call mma_deallocate(Oe)
 
 ! We should not need two solvent orbital vectors, so this should
@@ -367,11 +361,9 @@ do i=1,nntypC !Like the corresponding thing above for the QM-region.
           call mma_deallocate(dont)
           call move_alloc(Tmp,dont)
         end if
-        do m=1,icont
-          jnd = jnd+1
-          beta(ibas,m) = E(i,jnd)
-          dont(ibas,m) = C(i,jnd)
-        end do
+        beta(ibas,1:icont) = E(i,jnd+1:jnd+icont)
+        dont(ibas,1:icont) = C(i,jnd+1:jnd+icont)
+        jnd = jnd+icont
       end do
     end do
   end do

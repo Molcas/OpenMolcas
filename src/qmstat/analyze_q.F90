@@ -66,9 +66,7 @@ do iSamp=1,iHowMSamp
   call WrRdSim(iLuSaIn,2,iDiskSa,iTcSim,64,Etot,Ract,nPart,Dum,Dum,Dum)
   iDiskSa = iTcSim(1)
   call mma_allocate(Co,nPart*nCent,3,label='Coordinates')
-  do i=1,3
-    call dDafile(iLuSaIn,2,Co(:,i),nPart*nCent,iDiskSa)
-  end do
+  call dDafile(iLuSaIn,2,Co,3*nPart*nCent,iDiskSa)
   !--------------------------------------------------------------------*
   ! Once we have coordinates, lets compute some distances and start    *
   ! building various distribution functions.                           *

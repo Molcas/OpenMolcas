@@ -39,9 +39,7 @@ do j=1,nPol
     Tal = -Difac*Ta
     Qimp(Inddt) = tal*agr
     ! Image dipoles: Reflect dipole vector in radial vector. This is vector geometry at its best.
-    DipIm(1,IndDt) = (Tal*Cordst(1,IndCor)*2+DiFac*DT(1,IndDt))*Agr**3
-    DipIm(2,IndDt) = (Tal*Cordst(2,IndCor)*2+DiFac*DT(2,IndDt))*Agr**3
-    DipIm(3,IndDt) = (Tal*Cordst(3,IndCor)*2+DiFac*DT(3,IndDt))*Agr**3
+    DipIm(:,IndDt) = (Tal*Cordst(:,IndCor)*2+DiFac*DT(:,IndDt))*Agr**3
   end do
 end do
 FI(:,nPol*iCnum+1:nSize) = Zero

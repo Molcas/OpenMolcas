@@ -29,9 +29,8 @@ integer(kind=iwp), intent(in) :: iQ_Atoms, iCNum
 real(kind=wp), intent(out) :: Fil(nPol*nPart,3,nTri_Elem(iQ_Atoms),10), EEDisp
 real(kind=wp), intent(in) :: Ax, Ay, Az, BoMaH(iQ_Atoms), BoMaO(iQ_Atoms), outxyz(3,nTri_Elem(iQ_Atoms))
 real(kind=wp), intent(inout) :: Eint(nTri_Elem(iQ_Atoms),10), Eint_Nuc(iQ_Atoms)
-integer(kind=iwp) :: i, ijhr, ip, j, jhr, k, nMltTemp
-real(kind=wp) :: distMin, EintSl(nTri3_Elem1(MxMltp)), EintSl_Nuc, EintSlTemp, Gx, Gy, Gz, R2(5), Rab3i(5), Rab(3,5), Rg(5), &
-                 Se(5), U(3,5)
+integer(kind=iwp) :: i, ijhr, ip, j, k, nMltTemp
+real(kind=wp) :: distMin, EintSl(nTri3_Elem1(MxMltp)), EintSl_Nuc, EintSlTemp, G(3), R2(5), Rab3i(5), Rab(3,5), Rg(5), Se(5), U(3,5)
 logical(kind=iwp) :: lAtom, Skip
 
 EEdisp = Zero
@@ -42,48 +41,22 @@ EEdisp = Zero
 !----------------------------------------------------------------------*
 do k=1,nTri_Elem(iQ_Atoms)
   lAtom = (k <= iQ_atoms)
-  Gx = outxyz(1,k)+Ax
-  Gy = outxyz(2,k)+Ay
-  Gz = outxyz(3,k)+Az
+  G(1) = outxyz(1,k)+Ax
+  G(2) = outxyz(2,k)+Ay
+  G(3) = outxyz(3,k)+Az
   do j=iCnum+1,nPart
-    i = 1+(j-1)*nCent
-    ip = 1+(j-1)*nPol
+    i = (j-1)*nCent
+    ip = (j-1)*nPol
     !Below follows a lot of distances to and fro.
-    Rab(1,1) = Cordst(1,i)-Gx
-    Rab(2,1) = Cordst(2,i)-Gy
-    Rab(3,1) = Cordst(3,i)-Gz
-    Rab(1,2) = Cordst(1,i+1)-Gx
-    Rab(2,2) = Cordst(2,i+1)-Gy
-    Rab(3,2) = Cordst(3,i+1)-Gz
-    Rab(1,3) = Cordst(1,i+2)-Gx
-    Rab(2,3) = Cordst(2,i+2)-Gy
-    Rab(3,3) = Cordst(3,i+2)-Gz
-    Rab(1,4) = Cordst(1,i+3)-Gx
-    Rab(2,4) = Cordst(2,i+3)-Gy
-    Rab(3,4) = Cordst(3,i+3)-Gz
-    Rab(1,5) = Cordst(1,i+4)-Gx
-    Rab(2,5) = Cordst(2,i+4)-Gy
-    Rab(3,5) = Cordst(3,i+4)-Gz
-    R2(1) = Rab(1,1)**2+Rab(2,1)**2+Rab(3,1)**2
-    R2(2) = Rab(1,2)**2+Rab(2,2)**2+Rab(3,2)**2
-    R2(3) = Rab(1,3)**2+Rab(2,3)**2+Rab(3,3)**2
-    R2(4) = Rab(1,4)**2+Rab(2,4)**2+Rab(3,4)**2
-    R2(5) = Rab(1,5)**2+Rab(2,5)**2+Rab(3,5)**2
-    Rg(1) = sqrt(R2(1))
-    Rg(2) = sqrt(R2(2))
-    Rg(3) = sqrt(R2(3))
-    Rg(4) = sqrt(R2(4))
-    Rg(5) = sqrt(R2(5))
-    Se(1) = One/Rg(1)
-    Se(2) = One/Rg(2)
-    Se(3) = One/Rg(3)
-    Se(4) = One/Rg(4)
-    Se(5) = One/Rg(5)
-    Rab3i(1) = Se(1)/R2(1)
-    Rab3i(2) = Se(2)/R2(2)
-    Rab3i(3) = Se(3)/R2(3)
-    Rab3i(4) = Se(4)/R2(4)
-    Rab3i(5) = Se(5)/R2(5)
+    Rab(:,1) = Cordst(:,i+1)-G
+    Rab(:,2) = Cordst(:,i+2)-G
+    Rab(:,3) = Cordst(:,i+3)-G
+    Rab(:,4) = Cordst(:,i+4)-G
+    Rab(:,5) = Cordst(:,i+5)-G
+    R2(:) = Rab(1,:)**2+Rab(2,:)**2+Rab(3,:)**2
+    Rg(:) = sqrt(R2)
+    Se(:) = One/Rg
+    Rab3i(:) = Se/R2
     !------------------------------------------------------------------*
     ! The dispersion interaction between QM-atoms and solvent is       *
     ! computed, with or without damping. The initial if-clause sees to *
@@ -91,21 +64,9 @@ do k=1,nTri_Elem(iQ_Atoms)
     ! centers are ignored.                                             *
     !------------------------------------------------------------------*
     if (lAtom) call DispEnergy(EEDisp,BoMaH(k),BoMaO(k),Rg(1),Rg(2),Rg(3),Rab3i(1),Rab3i(2),Rab3i(3),k)
-    U(1,1) = Rab(1,1)*Se(1)
-    U(2,1) = Rab(2,1)*Se(1)
-    U(3,1) = Rab(3,1)*Se(1)
-    U(1,2) = Rab(1,2)*Se(2)
-    U(2,2) = Rab(2,2)*Se(2)
-    U(3,2) = Rab(3,2)*Se(2)
-    U(1,3) = Rab(1,3)*Se(3)
-    U(2,3) = Rab(2,3)*Se(3)
-    U(3,3) = Rab(3,3)*Se(3)
-    U(1,4) = Rab(1,4)*Se(4)
-    U(2,4) = Rab(2,4)*Se(4)
-    U(3,4) = Rab(3,4)*Se(4)
-    U(1,5) = Rab(1,5)*Se(5)
-    U(2,5) = Rab(2,5)*Se(5)
-    U(3,5) = Rab(3,5)*Se(5)
+    U(1,:) = Rab(1,:)*Se
+    U(2,:) = Rab(2,:)*Se
+    U(3,:) = Rab(3,:)*Se
     !------------------------------------------------------------------*
     ! Now we wrap up the electrostatics.                               *
     !------------------------------------------------------------------*
@@ -132,12 +93,8 @@ do k=1,nTri_Elem(iQ_Atoms)
         EintSl(7) = EintSl(8)
         EintSl(8) = EintSlTemp
 
-        do jhr=1,10
-          Eint(k,jhr) = Eint(k,jhr)-EintSl(jhr) !Check below why it is a subtraction and not a sum
-        end do
-        if (lAtom) then
-          Eint_Nuc(k) = Eint_Nuc(k)-EintSl_Nuc
-        end if
+        Eint(k,:) = Eint(k,:)-EintSl(:) !Check below why it is a subtraction and not a sum
+        if (lAtom) Eint_Nuc(k) = Eint_Nuc(k)-EintSl_Nuc
         Skip = .true.
       else
         ! this is done because for Sl_Grad charge is L=0, dipole is L=1 and
@@ -147,12 +104,8 @@ do k=1,nTri_Elem(iQ_Atoms)
         ijhr = min(nMltTemp,1)
         call Sl_Grad(nSlSiteC,lMltSlC,Rab,Rg,Se,SlExpC,SlFactC,SlPC,ijhr,SlExpQ(:,k),DifSlExp,EintSl,EintSl_Nuc,lAtom)
 
-        do jhr=1,4
-          Eint(k,jhr) = Eint(k,jhr)-EintSl(jhr) ! Check below why it is a subtraction and not a sum
-        end do
-        if (lAtom) then
-          Eint_Nuc(k) = Eint_Nuc(k)-EintSl_Nuc
-        end if
+        Eint(k,1:4) = Eint(k,1:4)-EintSl(1:4) ! Check below why it is a subtraction and not a sum
+        if (lAtom) Eint_Nuc(k) = Eint_Nuc(k)-EintSl_Nuc
       end if
     else
       !----------------------------------------------------------------*
@@ -163,9 +116,7 @@ do k=1,nTri_Elem(iQ_Atoms)
       ! evaluated                                                      *
       !----------------------------------------------------------------*
       Eint(k,1) = -Qsta(1)*Se(2)-Qsta(2)*Se(3)-Qsta(3)*Se(4)-Qsta(4)*Se(5)+Eint(k,1)
-      if (lAtom) then
-        Eint_Nuc(k) = -Qsta(1)*Se(2)-Qsta(2)*Se(3)-Qsta(3)*Se(4)-Qsta(4)*Se(5)+Eint_Nuc(k)
-      end if
+      if (lAtom) Eint_Nuc(k) = -Qsta(1)*Se(2)-Qsta(2)*Se(3)-Qsta(3)*Se(4)-Qsta(4)*Se(5)+Eint_Nuc(k)
 
       ! These three terms will below turn into the interaction
       ! between water charges and the MME-dipoles on the QM-mol.
@@ -186,9 +137,9 @@ do k=1,nTri_Elem(iQ_Atoms)
       ! energy expression for the interaction between the field
       ! vector from a charge and a quarupole there is a plus
       ! sign, so a minus is the right sign below.
-      Eint(k,5) = Eint(k,5)-Qsta(1)*U(1,2)**2*Rab3i(2)-Qsta(2)*U(1,3)**2*Rab3i(3)-Qsta(3)*U(1,4)**2*Rab3i(4)-&
+      Eint(k,5) = Eint(k,5)-Qsta(1)*U(1,2)**2*Rab3i(2)-Qsta(2)*U(1,3)**2*Rab3i(3)-Qsta(3)*U(1,4)**2*Rab3i(4)- &
                   Qsta(4)*U(1,5)**2*Rab3i(5)
-      Eint(k,7) = Eint(k,7)-Qsta(1)*U(2,2)**2*Rab3i(2)-Qsta(2)*U(2,3)**2*Rab3i(3)-Qsta(3)*U(2,4)**2*Rab3i(4)-&
+      Eint(k,7) = Eint(k,7)-Qsta(1)*U(2,2)**2*Rab3i(2)-Qsta(2)*U(2,3)**2*Rab3i(3)-Qsta(3)*U(2,4)**2*Rab3i(4)- &
                   Qsta(4)*U(2,5)**2*Rab3i(5)
       Eint(k,10) = Eint(k,10)-Qsta(1)*U(3,2)**2*Rab3i(2)-Qsta(2)*U(3,3)**2*Rab3i(3)-Qsta(3)*U(3,4)**2*Rab3i(4)- &
                    Qsta(4)*U(3,5)**2*Rab3i(5)
@@ -204,112 +155,52 @@ do k=1,nTri_Elem(iQ_Atoms)
     ! And now a whole lot of grad(1/r) and higher...                   *
     !------------------------------------------------------------------*
     ! Monopoles.
-    Fil(ip+0,1,k,1) = Rab(1,1)*Rab3i(1)
-    Fil(ip+1,1,k,1) = Rab(1,2)*Rab3i(2)
-    Fil(ip+2,1,k,1) = Rab(1,3)*Rab3i(3)
-    Fil(ip+0,2,k,1) = Rab(2,1)*Rab3i(1)
-    Fil(ip+1,2,k,1) = Rab(2,2)*Rab3i(2)
-    Fil(ip+2,2,k,1) = Rab(2,3)*Rab3i(3)
-    Fil(ip+0,3,k,1) = Rab(3,1)*Rab3i(1)
-    Fil(ip+1,3,k,1) = Rab(3,2)*Rab3i(2)
-    Fil(ip+2,3,k,1) = Rab(3,3)*Rab3i(3)
+    Fil(ip+1:ip+3,1,k,1) = Rab(1,1:3)*Rab3i(1:3)
+    Fil(ip+1:ip+3,2,k,1) = Rab(2,1:3)*Rab3i(1:3)
+    Fil(ip+1:ip+3,3,k,1) = Rab(3,1:3)*Rab3i(1:3)
     ! Dipole -- x-component.
-    Fil(ip+0,1,k,2) = (Three*U(1,1)**2-One)*Rab3i(1)
-    Fil(ip+1,1,k,2) = (Three*U(1,2)**2-One)*Rab3i(2)
-    Fil(ip+2,1,k,2) = (Three*U(1,3)**2-One)*Rab3i(3)
-    Fil(ip+0,2,k,2) = U(2,1)*U(1,1)*Rab3i(1)*Three
-    Fil(ip+1,2,k,2) = U(2,2)*U(1,2)*Rab3i(2)*Three
-    Fil(ip+2,2,k,2) = U(2,3)*U(1,3)*Rab3i(3)*Three
-    Fil(ip+0,3,k,2) = U(3,1)*U(1,1)*Rab3i(1)*Three
-    Fil(ip+1,3,k,2) = U(3,2)*U(1,2)*Rab3i(2)*Three
-    Fil(ip+2,3,k,2) = U(3,3)*U(1,3)*Rab3i(3)*Three
+    Fil(ip+1:ip+3,1,k,2) = (Three*U(1,1:3)**2-One)*Rab3i(1:3)
+    Fil(ip+1:ip+3,2,k,2) = Three*U(2,1:3)*U(1,1:3)*Rab3i(1:3)
+    Fil(ip+1:ip+3,3,k,2) = Three*U(3,1:3)*U(1,1:3)*Rab3i(1:3)
     ! Dipole -- y-component.
-    Fil(ip+0,1,k,3) = U(2,1)*U(1,1)*Rab3i(1)*Three
-    Fil(ip+1,1,k,3) = U(2,2)*U(1,2)*Rab3i(2)*Three
-    Fil(ip+2,1,k,3) = U(2,3)*U(1,3)*Rab3i(3)*Three
-    Fil(ip+0,2,k,3) = (Three*U(2,1)**2-One)*Rab3i(1)
-    Fil(ip+1,2,k,3) = (Three*U(2,2)**2-One)*Rab3i(2)
-    Fil(ip+2,2,k,3) = (Three*U(2,3)**2-One)*Rab3i(3)
-    Fil(ip+0,3,k,3) = U(3,1)*U(2,1)*Rab3i(1)*Three
-    Fil(ip+1,3,k,3) = U(3,2)*U(2,2)*Rab3i(2)*Three
-    Fil(ip+2,3,k,3) = U(3,3)*U(2,3)*Rab3i(3)*Three
+    Fil(ip+1:ip+3,1,k,3) = Three*U(2,1:3)*U(1,1:3)*Rab3i(1:3)
+    Fil(ip+1:ip+3,2,k,3) = (Three*U(2,1:3)**2-One)*Rab3i(1:3)
+    Fil(ip+1:ip+3,3,k,3) = Three*U(3,1:3)*U(2,1:3)*Rab3i(1:3)
     ! Dipole -- z-component.
-    Fil(ip+0,1,k,4) = U(3,1)*U(1,1)*Rab3i(1)*Three
-    Fil(ip+1,1,k,4) = U(3,2)*U(1,2)*Rab3i(2)*Three
-    Fil(ip+2,1,k,4) = U(3,3)*U(1,3)*Rab3i(3)*Three
-    Fil(ip+0,2,k,4) = U(3,1)*U(2,1)*Rab3i(1)*Three
-    Fil(ip+1,2,k,4) = U(3,2)*U(2,2)*Rab3i(2)*Three
-    Fil(ip+2,2,k,4) = U(3,3)*U(2,3)*Rab3i(3)*Three
-    Fil(ip+0,3,k,4) = (Three*U(3,1)**2-One)*Rab3i(1)
-    Fil(ip+1,3,k,4) = (Three*U(3,2)**2-One)*Rab3i(2)
-    Fil(ip+2,3,k,4) = (Three*U(3,3)**2-One)*Rab3i(3)
+    Fil(ip+1:ip+3,1,k,4) = Three*U(3,1:3)*U(1,1:3)*Rab3i(1:3)
+    Fil(ip+1:ip+3,2,k,4) = Three*U(3,1:3)*U(2,1:3)*Rab3i(1:3)
+    Fil(ip+1:ip+3,3,k,4) = (Three*U(3,1:3)**2-One)*Rab3i(1:3)
     ! Quadrupole -- xx-component.
-    Fil(ip+0,1,k,5) = U(1,1)*(Five*U(1,1)**2-Two)*Rab3i(1)*Se(1)
-    Fil(ip+1,1,k,5) = U(1,2)*(Five*U(1,2)**2-Two)*Rab3i(2)*Se(2)
-    Fil(ip+2,1,k,5) = U(1,3)*(Five*U(1,3)**2-Two)*Rab3i(3)*Se(3)
-    Fil(ip+0,2,k,5) = Five*U(2,1)*U(1,1)**2*Rab3i(1)*Se(1)
-    Fil(ip+1,2,k,5) = Five*U(2,2)*U(1,2)**2*Rab3i(2)*Se(2)
-    Fil(ip+2,2,k,5) = Five*U(2,3)*U(1,3)**2*Rab3i(3)*Se(3)
-    Fil(ip+0,3,k,5) = Five*U(3,1)*U(1,1)**2*Rab3i(1)*Se(1)
-    Fil(ip+1,3,k,5) = Five*U(3,2)*U(1,2)**2*Rab3i(2)*Se(2)
-    Fil(ip+2,3,k,5) = Five*U(3,3)*U(1,3)**2*Rab3i(3)*Se(3)
+    Fil(ip+1:ip+3,1,k,5) = U(1,1:3)*(Five*U(1,1:3)**2-Two)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,2,k,5) = Five*U(2,1:3)*U(1,1:3)**2*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,3,k,5) = Five*U(3,1:3)*U(1,1:3)**2*Rab3i(1:3)*Se(1:3)
     ! Quadrupole -- yy-component.
-    Fil(ip+0,1,k,7) = Five*U(2,1)**2*U(1,1)*Rab3i(1)*Se(1)
-    Fil(ip+1,1,k,7) = Five*U(2,2)**2*U(1,2)*Rab3i(2)*Se(2)
-    Fil(ip+2,1,k,7) = Five*U(2,3)**2*U(1,3)*Rab3i(3)*Se(3)
-    Fil(ip+0,2,k,7) = U(2,1)*(Five*U(2,1)**2-Two)*Rab3i(1)*Se(1)
-    Fil(ip+1,2,k,7) = U(2,2)*(Five*U(2,2)**2-Two)*Rab3i(2)*Se(2)
-    Fil(ip+2,2,k,7) = U(2,3)*(Five*U(2,3)**2-Two)*Rab3i(3)*Se(3)
-    Fil(ip+0,3,k,7) = Five*U(3,1)*U(2,1)**2*Rab3i(1)*Se(1)
-    Fil(ip+1,3,k,7) = Five*U(3,2)*U(2,2)**2*Rab3i(2)*Se(2)
-    Fil(ip+2,3,k,7) = Five*U(3,3)*U(2,3)**2*Rab3i(3)*Se(3)
+    Fil(ip+1:ip+3,1,k,7) = Five*U(2,1:3)**2*U(1,1:3)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,2,k,7) = U(2,1:3)*(Five*U(2,1:3)**2-Two)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,3,k,7) = Five*U(3,1:3)*U(2,1:3)**2*Rab3i(1:3)*Se(1:3)
     ! Quadrupole -- zz-component.
-    Fil(ip+0,1,k,10) = Five*U(3,1)**2*U(1,1)*Rab3i(1)*Se(1)
-    Fil(ip+1,1,k,10) = Five*U(3,2)**2*U(1,2)*Rab3i(2)*Se(2)
-    Fil(ip+2,1,k,10) = Five*U(3,3)**2*U(1,3)*Rab3i(3)*Se(3)
-    Fil(ip+0,2,k,10) = Five*U(3,1)**2*U(2,1)*Rab3i(1)*Se(1)
-    Fil(ip+1,2,k,10) = Five*U(3,2)**2*U(2,2)*Rab3i(2)*Se(2)
-    Fil(ip+2,2,k,10) = Five*U(3,3)**2*U(2,3)*Rab3i(3)*Se(3)
-    Fil(ip+0,3,k,10) = U(3,1)*(Five*U(3,1)**2-Two)*Rab3i(1)*Se(1)
-    Fil(ip+1,3,k,10) = U(3,2)*(Five*U(3,2)**2-Two)*Rab3i(2)*Se(2)
-    Fil(ip+2,3,k,10) = U(3,3)*(Five*U(3,3)**2-Two)*Rab3i(3)*Se(3)
+    Fil(ip+1:ip+3,1,k,10) = Five*U(3,1:3)**2*U(1,1:3)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,2,k,10) = Five*U(3,1:3)**2*U(2,1:3)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,3,k,10) = U(3,1:3)*(Five*U(3,1:3)**2-Two)*Rab3i(1:3)*Se(1:3)
     ! Quadrupole -- xy-component.
-    Fil(ip+0,1,k,6) = U(2,1)*(Five*U(1,1)**2-One)*Rab3i(1)*Se(1)
-    Fil(ip+1,1,k,6) = U(2,2)*(Five*U(1,2)**2-One)*Rab3i(2)*Se(2)
-    Fil(ip+2,1,k,6) = U(2,3)*(Five*U(1,3)**2-One)*Rab3i(3)*Se(3)
-    Fil(ip+0,2,k,6) = U(1,1)*(Five*U(2,1)**2-One)*Rab3i(1)*Se(1)
-    Fil(ip+1,2,k,6) = U(1,2)*(Five*U(2,2)**2-One)*Rab3i(2)*Se(2)
-    Fil(ip+2,2,k,6) = U(1,3)*(Five*U(2,3)**2-One)*Rab3i(3)*Se(3)
-    Fil(ip+0,3,k,6) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
-    Fil(ip+1,3,k,6) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
-    Fil(ip+2,3,k,6) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
+    Fil(ip+1:ip+3,1,k,6) = U(2,1:3)*(Five*U(1,1:3)**2-One)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,2,k,6) = U(1,1:3)*(Five*U(2,1:3)**2-One)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,3,k,6) = Five*U(3,1:3)*U(2,1:3)*U(1,1:3)*Rab3i(1:3)*Se(1:3)
     ! Quadrupole -- xz-component.
-    Fil(ip+0,1,k,8) = U(3,1)*(Five*U(1,1)**2-One)*Rab3i(1)*Se(1)
-    Fil(ip+1,1,k,8) = U(3,2)*(Five*U(1,2)**2-One)*Rab3i(2)*Se(2)
-    Fil(ip+2,1,k,8) = U(3,3)*(Five*U(1,3)**2-One)*Rab3i(3)*Se(3)
-    Fil(ip+0,2,k,8) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
-    Fil(ip+1,2,k,8) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
-    Fil(ip+2,2,k,8) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
-    Fil(ip+0,3,k,8) = U(1,1)*(Five*U(3,1)**2-One)*Rab3i(1)*Se(1)
-    Fil(ip+1,3,k,8) = U(1,2)*(Five*U(3,2)**2-One)*Rab3i(2)*Se(2)
-    Fil(ip+2,3,k,8) = U(1,3)*(Five*U(3,3)**2-One)*Rab3i(3)*Se(3)
+    Fil(ip+1:ip+3,1,k,8) = U(3,1:3)*(Five*U(1,1:3)**2-One)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,2,k,8) = Five*U(3,1:3)*U(2,1:3)*U(1,1:3)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,3,k,8) = U(1,1:3)*(Five*U(3,1:3)**2-One)*Rab3i(1:3)*Se(1:3)
     ! Quadrupole -- yz-component.
-    Fil(ip+0,1,k,9) = Five*U(3,1)*U(2,1)*U(1,1)*Rab3i(1)*Se(1)
-    Fil(ip+1,1,k,9) = Five*U(3,2)*U(2,2)*U(1,2)*Rab3i(2)*Se(2)
-    Fil(ip+2,1,k,9) = Five*U(3,3)*U(2,3)*U(1,3)*Rab3i(3)*Se(3)
-    Fil(ip+0,2,k,9) = U(3,1)*(Five*U(2,1)**2-One)*Rab3i(1)*Se(1)
-    Fil(ip+1,2,k,9) = U(3,2)*(Five*U(2,2)**2-One)*Rab3i(2)*Se(2)
-    Fil(ip+2,2,k,9) = U(3,3)*(Five*U(2,3)**2-One)*Rab3i(3)*Se(3)
-    Fil(ip+0,3,k,9) = U(2,1)*(Five*U(3,1)**2-One)*Rab3i(1)*Se(1)
-    Fil(ip+1,3,k,9) = U(2,2)*(Five*U(3,2)**2-One)*Rab3i(2)*Se(2)
-    Fil(ip+2,3,k,9) = U(2,3)*(Five*U(3,3)**2-One)*Rab3i(3)*Se(3)
+    Fil(ip+1:ip+3,1,k,9) = Five*U(3,1:3)*U(2,1:3)*U(1,1:3)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,2,k,9) = U(3,1:3)*(Five*U(2,1:3)**2-One)*Rab3i(1:3)*Se(1:3)
+    Fil(ip+1:ip+3,3,k,9) = U(2,1:3)*(Five*U(3,1:3)**2-One)*Rab3i(1:3)*Se(1:3)
     !------------------------------------------------------------------*
     ! If damping of the field is requested, then do it.                *
     !------------------------------------------------------------------*
     if (FieldDamp) then
-      Fil(ip+0,:,k,:) = Fil(ip+0,:,k,:)*(One-exp(CAFieldG*Rg(1)))**CFexp
-      Fil(ip+1,:,k,:) = Fil(ip+1,:,k,:)*(One-exp(CBFieldG*Rg(2)))**CFexp
-      Fil(ip+2,:,k,:) = Fil(ip+2,:,k,:)*(One-exp(CBFieldG*Rg(3)))**CFexp
+      Fil(ip+1,:,k,:) = Fil(ip+1,:,k,:)*(One-exp(CAFieldG*Rg(1)))**CFexp
+      Fil(ip+2,:,k,:) = Fil(ip+2,:,k,:)*(One-exp(CBFieldG*Rg(2)))**CFexp
+      Fil(ip+3,:,k,:) = Fil(ip+3,:,k,:)*(One-exp(CBFieldG*Rg(3)))**CFexp
     end if
   end do
 end do

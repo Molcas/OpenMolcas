@@ -55,16 +55,10 @@ do i=1,nrState
   do j=1,i
     kaunt = kaunt+1
     do k=1,ici
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,1)*Cha(kaunt,k)
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,2)*Dip(kaunt,1,k)
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,3)*Dip(kaunt,2,k)
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,4)*Dip(kaunt,3,k)
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,5)*Qua(kaunt,1,k)
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,7)*Qua(kaunt,3,k)
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,10)*Qua(kaunt,6,k)
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,6)*Qua(kaunt,2,k)*Two
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,8)*Qua(kaunt,4,k)*Two
-      Vmat(kaunt) = Vmat(kaunt)+Eint(k,9)*Qua(kaunt,5,k)*Two
+      Vmat(kaunt) = Vmat(kaunt)+Eint(k,1)*Cha(kaunt,k)+ &
+                    Eint(k,2)*Dip(kaunt,1,k)+Eint(k,3)*Dip(kaunt,2,k)+Eint(k,4)*Dip(kaunt,3,k)+ &
+                    Eint(k,5)*Qua(kaunt,1,k)+Eint(k,7)*Qua(kaunt,3,k)+Eint(k,10)*Qua(kaunt,6,k)+ &
+                    Eint(k,6)*Qua(kaunt,2,k)*Two+Eint(k,8)*Qua(kaunt,4,k)*Two+Eint(k,9)*Qua(kaunt,5,k)*Two
     end do
   end do
 end do

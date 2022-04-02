@@ -48,14 +48,14 @@ end do
 
 ! Put together.
 
-do i=1,iQ_Atoms
-  BoMaH(i) = One/(cjhr*(RBdiQ(i)+rbdi(1)))
-  BoMaO(i) = One/(cjhr*(RBdiQ(i)+rbdi(2)))
-  if (iPrint >= 8) then
-    write(6,*) '   Born-Mayer parameters.'
+BoMaH(:) = One/(cjhr*(RBdiQ(:)+rbdi(1)))
+BoMaO(:) = One/(cjhr*(RBdiQ(:)+rbdi(2)))
+if (iPrint >= 8) then
+  write(6,*) '   Born-Mayer parameters.'
+  do i=1,iQ_Atoms
     write(6,'(A,i2,A,2(f12.4))') '    Atom ',i,' (H/O):',BoMaH(i),BoMaO(i)
-  end if
-end do
+  end do
+end if
 call mma_deallocate(rBdiQ)
 
 return

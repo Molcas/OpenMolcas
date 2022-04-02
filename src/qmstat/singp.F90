@@ -19,7 +19,7 @@ implicit none
 integer(kind=iwp), intent(inout) :: nCalls
 integer(kind=iwp), intent(in) :: iQ_Atoms
 real(kind=wp), intent(inout) :: StoreCoo(3,nCent,nPart)
-integer(kind=iwp) :: i, iCent, Initial1, iPart, j, kaunter, nAllQm
+integer(kind=iwp) :: iCent, Initial1, iPart, kaunter, nAllQm
 
 if (nCalls == 0) then
   ! If this is first call, issue a warning.
@@ -45,17 +45,11 @@ if (nCalls == 0) then
   ! Put dummies that will be substituted for the qm-region.
 
   nAllQm = (((iQ_Atoms-1)/nAtom)+1)*nCent
-  do i=1,nAllQm
-    do j=1,3
-      Cordst(j,i) = Zero
-    end do
-  end do
+  Cordst(:,1:nAllQm) = Zero
 
   ! Put the coordinates of first iteration.
 
-  do iCent=1,nCent
-    Cordst(:,nAllQm+iCent) = StoreCoo(:,iCent,1)
-  end do
+  Cordst(:,nAllQm+1:nAllQm+nCent) = StoreCoo(:,:,1)
 
   ! Set new value on some variables.
 
@@ -73,14 +67,11 @@ if (nCalls == 0) then
   write(u6,*) 'No translation, rotation or radie modification.'
   write(u6,*) 'Take the QmEq path.'
 
-
 else
   ! If not first call, then collect relevant coordinates.
 
   Initial1 = (((iQ_Atoms-1)/nAtom)+1)*nCent
-  do iCent=1,nCent
-    Cordst(:,Initial1+iCent) = StoreCoo(:,iCent,nCalls+1)
-  end do
+  Cordst(:,Initial1+1:Initial1+nCent) = StoreCoo(:,:,nCalls+1)
 end if
 
 ! Update nCalls.

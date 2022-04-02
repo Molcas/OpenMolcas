@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: Coo(3,nCent), CooRef(3,nCent)
-integer(kind=iwp) :: i, iCent, iDisk, iLu, ind, indMax, iPart, j, jnd1, jnd2, jP, k, l, ll, nRemoved, nTmp
+integer(kind=iwp) :: i, iCent, iDisk, iLu, ind, indMax, iPart, j, jnd1, jnd2, jP, k, l, nRemoved, nTmp
 real(kind=wp) :: dCMx, dCMy, dCMz, dSpread, Esub, Etot, Gamold, GaOld, r, Ract, rMax
 logical(kind=iwp) :: Exists, ValidOrNot
 character(len=200) :: Head
@@ -45,9 +45,7 @@ iDisk = 0
 call WrRdSim(iLu,2,iDisk,iTcSim,64,Etot,Ract,nPart,Gamold,GaOld,Esub)
 iDisk = iTcSim(1)
 call mma_allocate(C,nPart*nCent,3,label='Coordinates')
-do l=1,3
-  call dDaFile(iLu,2,C(:,l),nPart*nCent,iDisk)
-end do
+call dDaFile(iLu,2,C,3*nPart*nCent,iDisk)
 call DaClos(iLu)
 
 ! Now take different paths depending of what user have requested in the input.
@@ -64,19 +62,15 @@ if (DelOrAdd(1)) then
     rMax = Zero
     indMax = 0
     do j=1,nPart
-      r = Zero
-      do k=1,3
-        r = r+C((j-1)*nCent+1,k)**2
-      end do
+      r = C((j-1)*nCent+1,1)**2+C((j-1)*nCent+1,2)**2+C((j-1)*nCent+1,3)**2
       if (r > rMax) then
         rMax = r
         indMax = j
       end if
     end do
     do j=indMax,nPart-i
-      do ll=1,nCent
-        C((j-1)*nCent+ll,:) = C(j*nCent+ll,:)
-      end do
+      k = (j-1)*nCent
+      C(k+1:k+nCent,:) = C(k+nCent+1:k+2*nCent,:)
     end do
   end do
 
@@ -118,11 +112,7 @@ if (DelOrAdd(2)) then
     ! Just an ugly trick for using nypart. It requires that the first
     ! slot contains the solvent coordinates, so we, temporarily, put
     ! them there.
-    do i=1,nCent
-      do j=1,3
-        Coord(j,i) = Cordst(j,i)
-      end do
-    end do
+    Coord(:,1:nCent) = Cordst(:,1:nCent)
     ! Introduce the new particles. nPart is redefined.
     call NyPart(nAdd,nPart,Coord,rStart,nCent,iSeed)
     ! The ugly trick is reversed, and the first slot is retained.
@@ -184,9 +174,7 @@ if (DelOrAdd(3)) then
       ! Check if the points are spread out, otherwise just delete.
       dSpread = Zero
       do iCent=1,nCent
-        dSpread = dSpread+(C(ind+iCent,1)-dCMx)**2
-        dSpread = dSpread+(C(ind+iCent,2)-dCMy)**2
-        dSpread = dSpread+(C(ind+iCent,3)-dCMz)**2
+        dSpread = dSpread+(C(ind+iCent,1)-dCMx)**2+(C(ind+iCent,2)-dCMy)**2+(C(ind+iCent,3)-dCMz)**2
       end do
       dSpread = dSpread/real(nCent,kind=wp)
       if (dSpread < ThrdSpread) then
@@ -228,8 +216,8 @@ if (DelOrAdd(3)) then
   ! If user wants, print print print.
 
   if (iPrint >= 10) then
-    do i=1,nPart*nCent
-      Coord(:,i) = C(i,:)
+    do i=1,3
+      Coord(i,:) = C(:,i)
     end do
     write(Head,*) 'Final coordinates'
     call Cooout(Head,Coord,nPart,nCent)
@@ -243,9 +231,7 @@ call mma_deallocate(Coord)
 
 if (DelOrAdd(4)) then
   if (cDumpForm(1:4) == 'MOLD') then
-    do iCent=1,nCent
-      CooRef(:,iCent) = Cordst(:,iCent)
-    end do
+    CooRef(:,1:nCent) = Cordst(:,1:nCent)
     call MoldenDump(C,CooRef,nPart,nCent)
   end if
 end if

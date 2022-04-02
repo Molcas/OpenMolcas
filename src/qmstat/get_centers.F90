@@ -27,7 +27,6 @@ integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
 ! Open the file
-Lu = 40
 Lu = IsFreeUnit(40)
 call Opnfl('MPPROP',Lu,Exists)
 if (.not. Exists) then
@@ -67,9 +66,7 @@ end do
 ! Square xyz for later convenience
 do i=2,nAt
   do j=1,i-1
-    xyz(1,j,i) = xyz(1,i,j)
-    xyz(2,j,i) = xyz(2,i,j)
-    xyz(3,j,i) = xyz(3,i,j)
+    xyz(:,j,i) = xyz(:,i,j)
   end do
 end do
 

@@ -93,8 +93,8 @@ else if (MEMMAX >= (nSizeBig+nSizeBigPrim+nTriSP+nTriS+nStatePrim**2+nState*nSta
   ! Proceed with transformation.
 
   kaunt = 0
-  do iBas = 1,nB
-    do jBas = 1,iBas
+  do iBas=1,nB
+    do jBas=1,iBas
       kaunt = kaunt+1
       Int1(:) = BigV(kaunt,:)
       call Square(Int1,Snt1,1,nStatePrim,nStatePrim)
@@ -129,8 +129,8 @@ else
           kaunter = kaunter+1
           do iS=1,nState
             do jS=1,iS
-                indx = iTri(iS,jS)
-                BigT(kaunter,indx) = BigT(kaunter,indx)+Eig2(iiS,iS)*Eig2(jjS,jS)*AOG(kaunter)
+              indx = iTri(iS,jS)
+              BigT(kaunter,indx) = BigT(kaunter,indx)+Eig2(iiS,iS)*Eig2(jjS,jS)*AOG(kaunter)
             end do
           end do
         end do

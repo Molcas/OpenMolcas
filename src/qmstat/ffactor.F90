@@ -36,7 +36,7 @@ integer(kind=iwp), external :: NoverP_Q
 do ia=0,lsumX !We use unrolled loops with regard to x,y and z therefore, here we start with the x-factors.
   fff2 = 0
   ! These lower and upper bounds have to do
-  !w ith the allowed numbers in the binomial coefficients.
+  ! with the allowed numbers in the binomial coefficients.
   iLowB = max(0,ia-ltwoX)
   iUpB = min(ia,loneX)
   do i=iLowB,iUpB

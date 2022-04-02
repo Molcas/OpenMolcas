@@ -20,13 +20,13 @@ integer(kind=iwp), intent(in) :: iCNum, indma, nClas
 real(kind=wp), intent(in) :: GP(3,nPol*nPart), DistIm(nCent,nClas,nCent,nClas), DT(3,nPol*nPart)
 real(kind=wp), intent(out) :: Sum1, s90um
 integer(kind=iwp) :: i, j, k, l
-real(kind=wp) :: D, D1x, D1y, D1z, Q1, Q2, x, X1, y,z
+real(kind=wp) :: D, D1(3), Q1, Q2, x, X1, y, z
 
 Sum1 = Zero
 !irekn = 0
-!xled = 0
-!yled = 0
-!zled = 0
+!xled = Zero
+!yled = Zero
+!zled = Zero
 do i=1+(nPol*iCnum),indma
   ! The energy of the induced dipoles (DT) in the field from the real charges. Yes, this
   ! is the polarization energy in a system without permanent dipoles, see good old
@@ -44,9 +44,9 @@ do i=1+(nPol*iCnum),indma
   !  irekn = 0
   !  TOT = sqrt(xled**2+yled**2+zled**2)
   !  write(u6,*) 'HHH',TOT
-  !  xled = 0
-  !  yled = 0
-  !  zled = 0
+  !  xled = Zero
+  !  yled = Zero
+  !  zled = Zero
   !end if
 end do
 Sum1 = Sum1*Half
@@ -57,19 +57,15 @@ S90um = Zero
 do i=iCnum+1,nPart
   do j=1,nPol
     Q1 = Qimp((i-1)*nPol+j)
-    D1x = DipIm(1,(i-1)*nPol+j)
-    D1y = DipIm(2,(i-1)*nPol+j)
-    D1z = DipIm(3,(i-1)*nPol+j)
+    D1(:) = DipIm(:,(i-1)*nPol+j)
     x = CordIm(1,(i-1)*nCent+j)
     y = CordIm(2,(i-1)*nCent+j)
     z = CordIm(3,(i-1)*nCent+j)
     do l=nCent-nCha+1,nCent
       Q2 = Qsta(l-nCent+nCha)
       do k=iCnum+1,nPart
-        X1 = (X-Cordst(1,l+(k-1)*nCent))*D1x
-        X1 = (Y-Cordst(2,l+(k-1)*nCent))*D1y+X1
-        X1 = (Z-Cordst(3,l+(k-1)*nCent))*D1z+X1
-        !Change sign on Q2 since we are in the backwards land, while Q1 and X1 already are backward.
+        X1 = (X-Cordst(1,l+(k-1)*nCent))*D1(1)+(Y-Cordst(2,l+(k-1)*nCent))*D1(2)+(Z-Cordst(3,l+(k-1)*nCent))*D1(3)
+        ! Change sign on Q2 since we are in the backwards land, while Q1 and X1 already are backward.
         D = DistIm(l,k-iCnum,j,i-iCnum)
         S90um = S90um-(Q1+X1*D**2)*Q2*D
       end do

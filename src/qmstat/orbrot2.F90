@@ -76,40 +76,34 @@ call dGeMV_('N',3,3,One,Rot,3,Pz,1,Zero,Resz,1)
 
 ! Construct the p-block. Easy since they are linear polynomials in the cartesian R-matrix.
 
-PBlock(1,1) = Resx(1)
-PBlock(2,1) = Resx(2)
-PBlock(3,1) = Resx(3)
-PBlock(1,2) = Resy(1)
-PBlock(2,2) = Resy(2)
-PBlock(3,2) = Resy(3)
-PBlock(1,3) = Resz(1)
-PBlock(2,3) = Resz(2)
-PBlock(3,3) = Resz(3)
+PBlock(:,1) = Resx
+PBlock(:,2) = Resy
+PBlock(:,3) = Resz
 
 ! Generation of quadratic polynomial of R-matrix elements for d_xy.
 
-call dcopy_(6,[Zero],0,Dxy,1)
+Dxy(:) = Zero
 call Dspr2('L',3,One,Resx,1,Resy,1,Dxy)
 
 ! Generation of quadratic polynomial of R-matrix elements for d_xz.
 
-call dcopy_(6,[Zero],0,Dxz,1)
+Dxz(:) = Zero
 call Dspr2('L',3,One,Resx,1,Resz,1,Dxz)
 
 ! Generation of quadratic polynomial of R-matrix elements for d_yz.
 
-call dcopy_(6,[Zero],0,Dyz,1)
+Dyz(:) = Zero
 call Dspr2('L',3,One,Resy,1,Resz,1,Dyz)
 
 ! Generation of quadratic polynomial of R-matrix elements for d_xx-yy.
 
-call dcopy_(6,[Zero],0,Dxmin,1)
+Dxmin(:) = Zero
 call Dspr('L',3,One,Resx,1,Dxmin)
 call Dspr('L',3,-One,Resy,1,Dxmin)
 
 ! Generation of quadratic polynomial of R-matrix elements for d_3zz-1.
 
-call dcopy_(6,dUnit,1,Dzz,1)
+Dzz(:) = dUnit
 call Dspr('L',3,Three,Resz,1,Dzz)
 
 ! Construct the d-block. This requires knowledge of how Molcas

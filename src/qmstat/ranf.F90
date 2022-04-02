@@ -18,7 +18,7 @@ implicit none
 real(kind=wp) :: ranf
 integer(kind=iwp), intent(inout) :: idum
 integer(kind=iwp), parameter :: IA1 = 40014, IA2 = 40692, IM1 = 2147483563, IM2 = 2147483399, IMM1 = IM1-1, IQ1 = 53668, &
-                                IQ2 = 52774, IR1 = 12211, IR2 = 3791, NTAB = 32, NDIV = 1 +int(real(IMM1,kind=wp)/NTAB)
+                                IQ2 = 52774, IR1 = 12211, IR2 = 3791, NTAB = 32, NDIV = 1+int(real(IMM1,kind=wp)/NTAB)
 integer(kind=iwp) :: idum2 = 123456789, iv(NTAB) = 0, iy = 0, j, k
 real(kind=wp), parameter :: AM = One/real(IM1,kind=wp), EPS = 1.2e-7_wp, RNMX = One-EPS
 

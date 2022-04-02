@@ -37,18 +37,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTokJ, KBoltzmann
 use Definitions, only: wp, iwp, u6
 
-!IFG
-!Ract out
-!BetaBol out
-!Etot out
-!CalledBefore inout
-!SampleThis out
-
 implicit none
 real(kind=wp), intent(out) :: Ract, BetaBol, Etot
 logical(kind=iwp), intent(inout) :: CalledBefore
 logical(kind=iwp), intent(out) :: SampleThis
-integer(kind=iwp) :: i, iEnsemb, iPa, iTemp = 0, j, mTemp
+integer(kind=iwp) :: iEnsemb, iPa, iTemp = 0, mTemp
 real(kind=wp) :: B1, B2, BigDelta, Dum, Dum1, E1, E2, Expe, Expran, PerType, R1, R2, T1, T2
 logical(kind=iwp) :: WeiterBitte, Accept
 integer(kind=iwp), allocatable :: iPermutation(:,:)
@@ -110,8 +103,7 @@ do
     ! If we are to attempt interchanges.
 
     do iPa=1,nTemp
-      iPermutation(1,iPa) = iPa
-      iPermutation(2,iPa) = iPa
+      iPermutation(:,iPa) = iPa
     end do
 
     ! Construct permutations, treat nTemp == 2 as special case, the others
@@ -189,11 +181,7 @@ do
         write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
         write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
         call Get8(R2,E2)
-        do j=1,nCent*nPart
-          do i=1,3
-            CordstTEMP(i,j) = Cordst(i,j)
-          end do
-        end do
+        CordstTEMP(:,:) = Cordst
         ! C2=C1
         iLuStIn = 8+nStFilT(iPermutation(1,iEnsemb))
         iLuStUt = 16+nStFilT(iPermutation(1,iEnsemb))
@@ -206,11 +194,7 @@ do
         write(StFilUt(6:6),'(i1.1)') nStFilT(iPermutation(2,iEnsemb))
         call Put8(R1,E1,Dum1,Dum1,Dum1)
         ! C1=Ct
-        do j=1,nCent*nPart
-          do i=1,3
-            Cordst(i,j) = CordstTEMP(i,j)
-          end do
-        end do
+        Cordst(:,:) = CordstTEMP
         iLuStIn = 8+nStFilT(iPermutation(1,iEnsemb))
         iLuStUt = 16+nStFilT(iPermutation(1,iEnsemb))
         write(StFilIn(6:6),'(i1.1)') nStFilT(iPermutation(1,iEnsemb))

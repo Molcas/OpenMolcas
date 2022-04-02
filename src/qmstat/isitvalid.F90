@@ -11,13 +11,12 @@
 
 subroutine IsItValid(Coo,CooRef,ValidOrNot)
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: Coo(3,5), CooRef(3,5)
 logical(kind=iwp), intent(out) :: ValidOrNot
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp) :: i, j
 real(kind=wp) :: dL_ref, dL_test
 real(kind=wp), parameter :: dTroskel = 1.0e-4_wp
 
@@ -25,12 +24,8 @@ ValidOrNot = .true.
 ! Lengths.
 outer: do i=1,4
   do j=i+1,5
-    dL_test = Zero
-    dL_ref = Zero
-    do k=1,3
-      dL_test = dL_test+(Coo(k,i)-Coo(k,j))**2
-      dL_ref = dL_ref+(CooRef(k,i)-CooRef(k,j))**2
-    end do
+    dL_test = (Coo(1,i)-Coo(1,j))**2+(Coo(2,i)-Coo(2,j))**2+(Coo(3,i)-Coo(3,j))**2
+    dL_ref = (CooRef(1,i)-CooRef(1,j))**2+(CooRef(2,i)-CooRef(2,j))**2+(CooRef(3,i)-CooRef(3,j))**2
     if (abs(dL_test-dL_ref) > dTroskel) then
       ValidOrNot = .false.
       exit outer

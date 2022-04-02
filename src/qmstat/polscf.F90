@@ -86,8 +86,8 @@ do
 
   ! Construct the Fock-matrix from two-electron super-matrix and one-electron matrix, with solvent perturbations added.
 
+  FockM(:) = Zero
   do i=1,iTri
-    FockM(i) = Zero
     do j=1,iTri
       FockM(i) = FockM(i)+RoMat(j)*SupM(j,i)
     end do

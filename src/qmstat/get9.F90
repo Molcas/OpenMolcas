@@ -14,6 +14,7 @@ subroutine Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
 
 use qmstat_global, only: Cordst, delFi, delR, delX, iLuSaIn, iPrint, iTcSim, nCent, nMacro, nMicro, nPart
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -49,9 +50,9 @@ call mma_deallocate(CT)
 ! the sampfile.
 
 call PlaceIt9(Coord,Cordst,info_atom,iQ_Atoms)
-delX = 0
-delFi = 0
-delR = 0
+delX = Zero
+delFi = Zero
+delR = Zero
 nMacro = 1
 nMicro = 1
 

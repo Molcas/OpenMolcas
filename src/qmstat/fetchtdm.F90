@@ -26,8 +26,7 @@ integer(kind=iwp), external :: IsFreeUnit
 iDisk = 0
 kaunter = 0
 nSize = nTri_Elem(nB)
-Lu = 72
-Lu = IsFreeUnit(Lu)
+Lu = IsFreeUnit(72)
 call DaName(Lu,TDMchar)
 call mma_allocate(iTocBig,nTri_Elem(nState),label='iTocBig')
 call iDaFile(Lu,2,iTocBig,nTri_Elem(nState),iDisk)

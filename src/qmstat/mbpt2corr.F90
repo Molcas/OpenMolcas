@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nBas
 real(kind=wp), intent(in) :: Cmo(nBas,nBas)
-integer(kind=iwp) :: i, iB1, Ising, iT, j, jjj, kaunt1
+integer(kind=iwp) :: i, iB1, Ising, iT, j, kaunt1
 real(kind=wp) :: Det
 real(kind=wp), allocatable :: Diff(:), Inv(:,:), RedSq(:,:), SqD(:,:), SqE(:), TEMP(:,:)
 #include "warnings.h"
@@ -65,9 +65,7 @@ end do
 ! Make a check of the trace. Should be small.
 Trace_MP2 = Zero
 do iB1=1,nBas
-  do jjj=1,nBas
-    if (iB1 == jjj) Trace_MP2 = Trace_MP2+RedSq(jjj,iB1)
-  end do
+  Trace_MP2 = Trace_MP2+RedSq(iB1,iB1)
 end do
 if (iPrint >= 10) then
   write(u6,*) 'Trace: ',Trace_MP2
@@ -75,11 +73,9 @@ end if
 ! Make things a bit more tidy.
 kaunt1 = 0
 do i=1,iOrb(1)
-  do j=1,nBas
-    if (j <= iOrb(1)) then
-      kaunt1 = kaunt1+1
-      SqE(kaunt1) = RedSq(j,i)
-    end if
+  do j=1,iOrb(1)
+    kaunt1 = kaunt1+1
+    SqE(kaunt1) = RedSq(j,i)
   end do
 end do
 call mma_allocate(DenCorrD,nTri_Elem(iOrb(1)),label='DenCorrD')
@@ -97,9 +93,7 @@ call SqToTri_q(SqE,DenCorrD,iOrb(1))
 !  end do
 !end do
 !call SqToTri_q(SqE,TrDiffD,nBas)
-!if (iPrint >= 10) then
-!  call TriPrt('Reduced difference density matrix',' ',TrDiffD,nBas)
-!end if
+!if (iPrint >= 10) call TriPrt('Reduced difference density matrix',' ',TrDiffD,nBas)
 
 call mma_deallocate(Diff)
 call mma_deallocate(SqD)

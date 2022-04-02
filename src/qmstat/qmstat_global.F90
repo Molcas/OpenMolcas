@@ -160,68 +160,68 @@ contains
 
 subroutine Qmstat_end()
 
-use stdalloc, only: mma_deallocate
+  use stdalloc, only: mma_deallocate
 
-if (lCiSelect) then
-  call mma_deallocate(iCIInd)
-  call mma_deallocate(dCIRef)
-end if
+  if (lCiSelect) then
+    call mma_deallocate(iCIInd)
+    call mma_deallocate(dCIRef)
+  end if
 
-if (nLvlShift > 0) then
-  call mma_deallocate(iLvlShift)
-  call mma_deallocate(dLvlShift)
-end if
+  if (nLvlShift > 0) then
+    call mma_deallocate(iLvlShift)
+    call mma_deallocate(dLvlShift)
+  end if
 
-if (AddExt) then
-  call mma_deallocate(ScalExt)
-  call mma_deallocate(ExtLabel)
-  call mma_deallocate(iCompExt)
-end if
+  if (AddExt) then
+    call mma_deallocate(ScalExt)
+    call mma_deallocate(ExtLabel)
+    call mma_deallocate(iCompExt)
+  end if
 
-if (ParallelT) then
-  call mma_deallocate(nStFilT)
-end if
+  if (ParallelT) then
+    call mma_deallocate(nStFilT)
+  end if
 
-if (DispDamp) then
-  call mma_deallocate(CharDiQ)
-  call mma_deallocate(QuaDiQ)
-end if
+  if (DispDamp) then
+    call mma_deallocate(CharDiQ)
+    call mma_deallocate(QuaDiQ)
+  end if
 
-if (allocated(Alfa)) call mma_deallocate(Alfa)
-if (allocated(AvElcPot)) call mma_deallocate(AvElcPot)
-if (allocated(Beta)) call mma_deallocate(Beta)
-if (allocated(c_orbene)) call mma_deallocate(c_orbene)
-if (allocated(Cha)) call mma_deallocate(Cha)
-if (allocated(Cont)) call mma_deallocate(Cont)
-if (allocated(CordIm)) call mma_deallocate(CordIm)
-if (allocated(DenCorrD)) call mma_deallocate(DenCorrD)
-if (allocated(DipMy)) call mma_deallocate(DipMy)
-if (allocated(Dont)) call mma_deallocate(Dont)
-if (allocated(HHmat)) call mma_deallocate(HHmat)
-if (allocated(HmatSOld)) call mma_deallocate(HmatSOld)
-if (allocated(HmatState)) call mma_deallocate(HmatState)
-if (allocated(NrStates)) call mma_deallocate(NrStates)
-if (allocated(outxyz)) call mma_deallocate(outxyz)
-if (allocated(outxyzRAS)) call mma_deallocate(outxyzRAS)
-if (allocated(Quad)) call mma_deallocate(Quad)
-if (allocated(RasCha)) call mma_deallocate(RasCha)
-if (allocated(RasDip)) call mma_deallocate(RasDip)
-if (allocated(RasQua)) call mma_deallocate(RasQua)
-if (allocated(SlExpQ)) call mma_deallocate(SlExpQ)
-if (allocated(Udisp)) call mma_deallocate(Udisp)
-if (allocated(V3)) call mma_deallocate(V3)
+  if (allocated(Alfa)) call mma_deallocate(Alfa)
+  if (allocated(AvElcPot)) call mma_deallocate(AvElcPot)
+  if (allocated(Beta)) call mma_deallocate(Beta)
+  if (allocated(c_orbene)) call mma_deallocate(c_orbene)
+  if (allocated(Cha)) call mma_deallocate(Cha)
+  if (allocated(Cont)) call mma_deallocate(Cont)
+  if (allocated(CordIm)) call mma_deallocate(CordIm)
+  if (allocated(DenCorrD)) call mma_deallocate(DenCorrD)
+  if (allocated(DipMy)) call mma_deallocate(DipMy)
+  if (allocated(Dont)) call mma_deallocate(Dont)
+  if (allocated(HHmat)) call mma_deallocate(HHmat)
+  if (allocated(HmatSOld)) call mma_deallocate(HmatSOld)
+  if (allocated(HmatState)) call mma_deallocate(HmatState)
+  if (allocated(NrStates)) call mma_deallocate(NrStates)
+  if (allocated(outxyz)) call mma_deallocate(outxyz)
+  if (allocated(outxyzRAS)) call mma_deallocate(outxyzRAS)
+  if (allocated(Quad)) call mma_deallocate(Quad)
+  if (allocated(RasCha)) call mma_deallocate(RasCha)
+  if (allocated(RasDip)) call mma_deallocate(RasDip)
+  if (allocated(RasQua)) call mma_deallocate(RasQua)
+  if (allocated(SlExpQ)) call mma_deallocate(SlExpQ)
+  if (allocated(Udisp)) call mma_deallocate(Udisp)
+  if (allocated(V3)) call mma_deallocate(V3)
 
-call mma_deallocate(Cordst)
-call mma_deallocate(Disp)
-call mma_deallocate(iExtr_Atm)
-call mma_deallocate(Pol)
-call mma_deallocate(Qsta)
-call mma_deallocate(Sexre1)
-call mma_deallocate(Sexre2)
-call mma_deallocate(Sexrep)
-call mma_deallocate(SlExpC)
-call mma_deallocate(SlFactC)
-call mma_deallocate(SlPC)
+  call mma_deallocate(Cordst)
+  call mma_deallocate(Disp)
+  call mma_deallocate(iExtr_Atm)
+  call mma_deallocate(Pol)
+  call mma_deallocate(Qsta)
+  call mma_deallocate(Sexre1)
+  call mma_deallocate(Sexre2)
+  call mma_deallocate(Sexrep)
+  call mma_deallocate(SlExpC)
+  call mma_deallocate(SlFactC)
+  call mma_deallocate(SlPC)
 
 end subroutine Qmstat_end
 
