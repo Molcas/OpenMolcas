@@ -2252,7 +2252,7 @@ A list of these keywords is given below:
 :kword:`CMSStart`
    This keyword gives the file that stores the starting rotation matrix for finding the CMS intermediate states (see :kword:`CMSInter`). The file has the same format as :file:`Do_Rotate.txt`. The default is to use the XMS intermediate states (see :kword:`XMSInter`).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FILE" LEVEL="ADVANCED" APPEAR="CMS starting rotation matrix" KIND="STRING" DEFAULT_VALUE="XMS">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSS" LEVEL="ADVANCED" APPEAR="CMS starting rotation matrix" KIND="STRING" DEFAULT_VALUE="XMS">
               %%Keyword: CMSS <advanced>
               <HELP>
               This keyword specifies file that provides the starting rotation matrix for CMS intermediate states. 
@@ -2282,7 +2282,7 @@ A list of these keywords is given below:
 :kword:`CMTHreshold`
    This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge (see :kword:`CMSInter`). The default value is 1.0d-8.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-6">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-8">
               %%Keyword: CMTH <advanced>
               <HELP>
               This keyword specifies the threshold for the change of sum over states of the classical Coulomb energy for CMS intermediate states to converge.
