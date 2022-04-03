@@ -1588,11 +1588,20 @@ else ()
   set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
   set (Libxc_HASH 9bf3b642) # Release 5.2.2
 
+  if (";Debug;Release;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};")
+    set (LIBXC_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+  elseif (";Garble;" MATCHES ";${CMAKE_BUILD_TYPE};")
+    set (LIBXC_BUILD_TYPE "Debug")
+  else ()
+    set (LIBXC_BUILD_TYPE "Release")
+  endif ()
+
   # Note shared libraries won't work here because of installation issues.
   # TODO: Solving this will require creating a wrapper main project that includes
   #       both Libxc and OpenMolcas as ExternalProject. This could also simplify
   #       the handling of other codes like GlobalArrays or QCMaquis.
   list (APPEND LibxcCMakeArgs
+        -D CMAKE_BUILD_TYPE=${LIBXC_BUILD_TYPE}
         -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
         -D BUILD_SHARED_LIBS=NO
         -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}

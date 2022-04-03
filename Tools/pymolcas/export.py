@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2017,2018,2022 Ignacio Fdez. Galván               *
+# Copyright (C) 2015,2017,2018,2022, Ignacio Fdez. Galván              *
 #***********************************************************************
 
 '''
