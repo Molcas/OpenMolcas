@@ -59,14 +59,9 @@ if (iPrint >= 25) then !Optional print-out.
   call mma_deallocate(BsLbl)
 end if
 do m=1,lMax !New basis function origo defined.
-  x = Zero
-  y = Zero
-  z = Zero
-  do j=1,3
-    x = x+Rot(1,j)*SavOri(j,m)
-    y = y+Rot(2,j)*SavOri(j,m)
-    z = z+Rot(3,j)*SavOri(j,m)
-  end do
+  x = Rot(1,1)*SavOri(1,m)+Rot(1,2)*SavOri(2,m)+Rot(1,3)*SavOri(3,m)
+  y = Rot(2,1)*SavOri(1,m)+Rot(2,2)*SavOri(2,m)+Rot(2,3)*SavOri(3,m)
+  z = Rot(3,1)*SavOri(1,m)+Rot(3,2)*SavOri(2,m)+Rot(3,3)*SavOri(3,m)
   CasOri(1,m) = x+Dx
   CasOri(2,m) = y+Dy
   CasOri(3,m) = z+Dz

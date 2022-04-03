@@ -47,7 +47,7 @@ logical(kind=iwp) :: WeiterBitte, Accept
 integer(kind=iwp), allocatable :: iPermutation(:,:)
 real(kind=wp), allocatable :: CordstTEMP(:,:)
 real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ
-real(kind=wp), external :: Ranf
+real(kind=wp), external :: Random_Molcas
 
 Dum1 = Zero
 
@@ -113,7 +113,7 @@ do
       iPermutation(2,2) = 1
     else
 
-      PerType = Ranf(iSeed)
+      PerType = Random_Molcas(iSeed)
       if (PerType < Half) then
 
         if (mod(nTemp,2) == 1) then
@@ -170,7 +170,7 @@ do
       Expe = exp(BigDelta)
       Accept = .true.
       if (Expe < One) then
-        Expran = ranf(iSeed)
+        Expran = Random_Molcas(iSeed)
         if (Expe < Expran) Accept = .false.
       end if
 

@@ -94,7 +94,6 @@ set (sources
      qmstat_global.F90
      qmstat_init.F90
      qmstat_procedures.F90
-     ranf.F90
      rash0.F90
      rasrastrans.F90
      rassihandm.F90

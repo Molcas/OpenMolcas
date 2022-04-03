@@ -21,7 +21,7 @@ real(kind=wp), intent(inout) :: COORD(3,(nPart+iExtra)*nCent)
 real(kind=wp), intent(in) :: rStart
 integer(kind=iwp) :: I, IA, IIN, iMAXVAR, IND, IVARV
 real(kind=wp) :: DR, DX, DY, DZ, R2, RLIM, RLIM2, rlm, X, Y, Z
-real(kind=wp), external :: Ranf
+real(kind=wp), external :: Random_Molcas
 #include "warnings.h"
 
 ! Preparing some numbers
@@ -38,9 +38,9 @@ outer: do
     call Quit(_RC_GENERAL_ERROR_)
   end if
   ! Here is the random change relative the first user defined water
-  DX = ranf(iseed)*RLM-rlim
-  DY = ranf(iseed)*RLM-rlim
-  DZ = ranf(iseed)*RLM-rlim
+  DX = Random_Molcas(iseed)*RLM-rlim
+  DY = Random_Molcas(iseed)*RLM-rlim
+  DZ = Random_Molcas(iseed)*RLM-rlim
   DR = DX*DX+DY*DY+DZ*DZ
   IVARV = IVARV+1
   if (DR > RLIM2) cycle outer

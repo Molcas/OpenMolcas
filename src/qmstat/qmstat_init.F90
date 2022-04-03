@@ -51,7 +51,7 @@ DelX = Zero
 DelFi = Zero
 DelR = Zero
 Temp = 300.0_wp
-ISEED = 791204
+call GetSeed(ISEED)
 iPrint = 1
 NMACRO = 1
 NMICRO = 1

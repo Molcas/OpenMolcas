@@ -44,7 +44,7 @@ real(kind=wp), intent(out) :: Rold
 integer(kind=iwp), intent(in) :: iCNum, iQ_Atoms
 integer(kind=iwp) :: i, ii, iImage, ij, Ind, iQsta, j, k
 real(kind=wp) :: A, A2, B, CB, Cx, Cy, Cz, DiFac, Dx, q, qq, S2, SB, Sqrts2, x, xNy, y, yNy, z, zNy
-real(kind=wp), external :: Ranf
+real(kind=wp), external :: Random_Molcas
 
 !----------------------------------------------------------------------*
 ! Store old configuration.                                             *
@@ -57,7 +57,7 @@ OldGeo(:,:) = Cordst
 if (Qmeq .or. QmProd) then !Which coordinates to keep fixed.
   iSta = iCNum+1  !This sees to that the QM-molecule is excluded from the moves below.
   do j=1,3
-    Dx = delX*(ranf(iSeed)-Half)
+    Dx = delX*(Random_Molcas(iSeed)-Half)
     Cordst(j,1:iQ_Atoms) = Cordst(j,1:iQ_Atoms)+Dx !Move QM-mol.
   end do
 end if
@@ -65,17 +65,17 @@ end if
 ! Obtain the random-stuff and make small geometry change.              *
 !----------------------------------------------------------------------*
 Rold = Ract
-Ract = Ract+(ranf(iSeed)-Half)*DelR !Change in cavity radius
+Ract = Ract+(Random_Molcas(iSeed)-Half)*DelR !Change in cavity radius
 do i=iSta,nPart !Which molecules to give new coordinates.
   ij = (i-1)*nCent
   do j=1,3
-    Dx = DelX*(ranf(iSeed)-Half)
+    Dx = DelX*(Random_Molcas(iSeed)-Half)
     Cordst(j,ij+1:ij+nCent) = Cordst(j,ij+1:ij+nCent)+Dx !Make translation
   end do
   Cx = Cordst(1,ij+1) !The oxygen, around which we rotate
   Cy = Cordst(2,ij+1)
   Cz = Cordst(3,ij+1)
-  B = (ranf(iSeed)-Half)*DelFi
+  B = (Random_Molcas(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent !Rotate around the oxygen in yz-plane, i.e. around x-axis.
@@ -86,7 +86,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
     Cordst(2,ij+k) = yNy+Cy
     Cordst(3,ij+k) = zNy+Cz
   end do
-  B = (ranf(iSeed)-Half)*DelFi
+  B = (Random_Molcas(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent !And now rotate in xz-plane
@@ -97,7 +97,7 @@ do i=iSta,nPart !Which molecules to give new coordinates.
     Cordst(1,ij+k) = xNy+Cx
     Cordst(3,ij+k) = zNy+Cz
   end do
-  B = (ranf(iSeed)-Half)*DelFi
+  B = (Random_Molcas(iSeed)-Half)*DelFi
   CB = cos(B)
   SB = sin(B)
   do k=2,nCent  !To your surprise, here we rotate in the xy-plane
@@ -111,8 +111,8 @@ do i=iSta,nPart !Which molecules to give new coordinates.
 end do
 ! Here all other water molecules rotate around one of the three axes,
 ! except the ones we fix, which in a QM-simulation is the quantum particle.
-A = ranf(iSeed)
-B = (ranf(iSeed)-Half)*DelFi/Ten
+A = Random_Molcas(iSeed)
+B = (Random_Molcas(iSeed)-Half)*DelFi/Ten
 CB = cos(B)
 SB = sin(B)
 if (A*Three <= One) then !make it random whether we rotate around x, y or z.
