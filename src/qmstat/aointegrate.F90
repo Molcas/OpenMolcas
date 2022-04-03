@@ -22,7 +22,7 @@ real(kind=wp), intent(in) :: Ax, Ay, Az
 real(kind=wp), intent(out) :: AOint(nBaseQ,nBaseC), oV2(nBaseC,iOrb(2))
 logical(kind=iwp), intent(in) :: Inside(iQ_Atoms,nAtomsCC)
 #include "Molcas.fh"
-integer(kind=iwp) :: j, m
+integer(kind=iwp) :: m
 real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), x, y, z
 logical(kind=iwp) :: PrEne, PrOcc
 character(len=30) :: Snack
