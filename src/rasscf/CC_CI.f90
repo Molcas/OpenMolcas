@@ -32,7 +32,10 @@ module CC_CI_mod
     use generic_CI, only: CI_solver_t
     use index_symmetry, only: one_el_idx, two_el_idx_flatten
     use CI_solver_util, only: wait_and_read, RDM_to_runfile, &
-        CleanMat, triangular_number, inv_triang_number, write_RDM
+        CleanMat, inv_triang_number, write_RDM
+#ifdef _ADDITIONAL_RUNTIME_CHECK_
+    use CI_solver_util, only: triangular_number
+#endif
 
     implicit none
     save
