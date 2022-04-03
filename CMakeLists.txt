@@ -629,7 +629,7 @@ list (APPEND SUPPORTED_Fortran_COMPILERS "Intel")
 set (FFLAGS_Intel_BASIC "")
 set (FFLAGS_Intel_PREPROCESS "-fpp")
 set (FFLAGS_Intel_OPENMP "-qopenmp")
-set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
+set (FFLAGS_Intel_ILP64 "-i8 -heap-arrays")
 # build targets
 set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
