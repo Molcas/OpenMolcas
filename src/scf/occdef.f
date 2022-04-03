@@ -289,7 +289,9 @@
          nOV    = nOV  + (maxnOcc-nFro(iSym))*
      &                   (nOrb(iSym)-minnOcc)
       End Do
-      mOV=nOV*nD
+      kOV(1)=nOV        ! Temporary
+      kOV(2)=(nD-1)*nOV ! Temporary
+      mOV=kOV(1)+kOV(2) ! Temporary
 *                                                                      *
 ************************************************************************
 *                                                                      *
