@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2017,2018, Ignacio Fdez. Galván                   *
+# Copyright (C) 2015,2017,2018,2022 Ignacio Fdez. Galván               *
 #***********************************************************************
 
 '''
@@ -28,7 +28,7 @@ except:
   from future.builtins import (bytes, str)
 from io import open
 
-import sys, zlib, base64, os, stat
+import sys, zlib, base64, os, stat, subprocess
 sys.dont_write_bytecode = True
 
 files = ['tee', 'molcas_aux', 'emil_grammar', 'simpleeval', 'abstract_flow', 'emil_parse', 'python_parse', 'check_test', 'validate', 'molcas_wrapper', 'pymolcas']
@@ -65,6 +65,19 @@ def minify(string):
   string = pm.dedent(string)
   return string
 
+def find_interpreter():
+  exe = sys.executable
+  if exe is None:
+    return None
+  # If python3 or python2 point to the current executable, use those instead
+  p3 = subprocess.check_output(['/usr/bin/env','python3','-c','import sys; print(sys.executable)']).decode().strip()
+  if os.path.realpath(p3) == os.path.realpath(exe):
+    return '/usr/bin/env python3'
+  p2 = subprocess.check_output(['/usr/bin/env','python2','-c','import sys; print(sys.executable)']).decode().strip()
+  if os.path.realpath(p2) == os.path.realpath(exe):
+    return '/usr/bin/env python2'
+  return exe
+
 if (compress_and_b64):
   code = 'import zlib,base64;exec(zlib.decompress(base64.b64decode(bytes(m[1],\\\'ascii\\\'))),module.__dict__);del zlib,base64'
 else:
@@ -79,7 +92,7 @@ mods_name = 'M' if obfuscate else 'modules'
 failed = False
 
 with open(exe_name, 'w', encoding='utf-8') as f:
-  interpreter = sys.executable
+  interpreter = find_interpreter()
   if (interpreter is None):
     interpreter = '/usr/bin/env python'
   f.write('''#!{0}
