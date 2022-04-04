@@ -38,7 +38,7 @@
       Use KSDFT_Info, Only: CoefR, CoefX
       use OFembed, only: Do_OFemb
 #ifdef _FDE_
-      use Embedding_Global, only: embPot
+      use Embedding_Global, only: Eemb, embPot
 #endif
       use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)

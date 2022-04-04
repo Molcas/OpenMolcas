@@ -19,6 +19,7 @@ subroutine embPotMem( &
 use Definitions, only: iwp
 
 implicit none
+#define _USE_WP_
 #include "mem_interface.fh"
 unused_var(la)
 unused_var(lb)
