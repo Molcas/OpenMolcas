@@ -20,22 +20,21 @@
 #include "stdalloc.fh"
 #include "file.fh"
 #include "llists.fh"
-      Integer nD,jpgrd,inode
-      Real*8, Dimension(:,:), Allocatable:: Scr
+      Integer jpgrd,inode
+      Real*8, Dimension(:), Allocatable:: Scr
       Integer, External :: LstPtr
       If (iter.eq.1) Return
-      nD=iUHF+1
-      Call mma_allocate(Scr,nOV,nD,Label='Scr')
+      Call mma_allocate(Scr,mOV,Label='Scr')
       jpgrd=LstPtr(iter,LLGrad)
       Call GetNod(iter-1,LLGrad,inode)
       If (inode.eq.0) Then
          Write (6,*) 'inode.eq.0'
          Call Abend()
       End If
-      Call iVPtr(Scr,nOV*nD,inode)
-      Call DaXpY_(nOV*nD,-One,SCF_V(jpgrd)%A,1,Scr,1)
-      Call DScal_(nOV*nD,-One,Scr,1)
-      Call PutVec(Scr,nOV*nD,iter-1,'NOOP',LLdGrd)
+      Call iVPtr(Scr,mOV,inode)
+      Call DaXpY_(mOV,-One,SCF_V(jpgrd)%A,1,Scr,1)
+      Call DScal_(mOV,-One,Scr,1)
+      Call PutVec(Scr,mOV,iter-1,'NOOP',LLdGrd)
       Call mma_deallocate(Scr)
       Return
       End Subroutine dGrd

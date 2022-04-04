@@ -83,7 +83,8 @@
 *
       Real*8 Dens(mBT,nD,mDens), TwoHam(mBT,nD,mDens), CMO(mBB,nD),
      &       OneHam(mBT), OCMO(mBB,nD), Ovrlp(mBT), Vxc(mBT,nD,mDens)
-      Real*8, Dimension(:,:), Allocatable:: GrdOO,GrdOV,AuxD,AuxT,AuxV
+      Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
+      Real*8, Allocatable:: GrdOV(:)
       Logical FstItr
 *
 *----------------------------------------------------------------------*
@@ -94,7 +95,7 @@
 *
 *--- Allocate memory for gradients and gradient contributions
       Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
-      Call mma_allocate(GrdOV,nOO,nD,Label='GrdOV')
+      Call mma_allocate(GrdOV,mOV,Label='GrdOV')
 
 *--- Allocate memory for auxiliary matrices
       Call mma_allocate(AuxD,nBT,nD,Label='AuxD')
@@ -117,7 +118,7 @@
       Do iOpt = LpStrt, kOptim_
          iDT = iter_d - kOptim_ + iOpt
 *
-         Call dCopy_(nOV*nD,[Zero],0,GrdOV,1)
+         GrdOV(:)=Zero
 *
          jDT=MapDns(iDT)
          If (jDT.lt.0) Then
