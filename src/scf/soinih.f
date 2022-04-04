@@ -70,10 +70,15 @@
       Write (6,'(A,8I3)') 'nFro',(nFro(iSym),iSym=1,nSym)
       Write (6,'(A,8I3)') 'nOrb',(nOrb(iSym),iSym=1,nSym)
 #endif
+      iHoffs=1
       Do iD = 1, nD
 *
          ioffs=1
-         iHoffs=1+(iD-1)*nOV ! Temporary
+         If (iD==1) Then   ! Temporary
+            iHoffs=1
+         Else
+            iHoffs=1+kOV(1)
+         End If
          Do iSym=1,nSym
 *
 *            loop over all occ orbitals in sym block
