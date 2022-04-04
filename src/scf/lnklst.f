@@ -215,13 +215,12 @@ C     Integer iDskPt,len
 #include "real.fh"
 #include "SysDef.fh"
 *
-        inode=nLList(iLList,1)
+      inode=nLList(iLList,1)
 
- 100  If ((nLList(inode,4).ne.iterat).and.(nLList(inode,0).ne.0)) Then
+      Do While ((nLList(inode,4).ne.iterat).and.(nLList(inode,0).ne.0))
         inode=nLList(inode,0)
+      End Do
 
-        GoTo 100
-      End If
       If (nLList(inode,4).eq.iterat) Then
 *       we've found matching entry, so check if consistent
         If (nLList(inode,3).eq.lvec) Then
@@ -265,10 +264,9 @@ C     Integer iDskPt,len
 *     set inode to iroot
       inode=nLList(iLList,1)
 
- 100  If ((nLList(inode,4).ne.iterat).and.(nLList(inode,0).ne.0)) Then
+      Do While ((nLList(inode,4).ne.iterat).and.(nLList(inode,0).ne.0))
         inode=nLList(inode,0)
-        GoTo 100
-      End If
+      End Do
       If (nLList(inode,4).eq.iterat) Then
 *       we've found matching entry
       Else
@@ -430,16 +428,14 @@ C     Integer iDskPt,len
       End If
 *
       iroot=nLList(iLList,1)
- 100  Continue
-      If (iroot.ne.0) Then
+      Do While (iroot.ne.0)
         iFlag=nLList(iroot,5)
 
         If (iFlag.eq.1) Then
           Call mma_deallocate(SCF_V(iroot)%A)
         End If
         iroot=nLList(iroot,0)
-        GoTo 100
-      End If
+      End Do
 *
       End
 *----------------------------------------------------------------------*
@@ -466,17 +462,16 @@ C     Integer iDskPt,len
         Call iDaFile(LUnit,1,nLList(iLList,0),NodSiz,iDskPt)
         Return
       End If
- 10   Continue
-      If (nLList(iroot,5).eq.1) Then
-        iPtr1=iroot
-        iPtr2=iPtr1
+
+      Do While (nLList(iroot,5).eq.1)
+         iPtr1=iroot
+         iPtr2=iPtr1
 * go either to last element or list or to last element in core
 * and flush vector
- 100    If ((nLList(iPtr1,0).ne.0).and.(nLList(iPtr1,5).eq.1)) Then
+         Do While ((nLList(iPtr1,0).ne.0).and.(nLList(iPtr1,5).eq.1))
           iPtr2=iPtr1
           iPtr1=nLList(iPtr1,0)
-          GoTo 100
-        End If
+        End Do
         If (nLList(iPtr1,5).eq.1) Then
 * nothing written on disk yet
           iDskPt=0
@@ -493,18 +488,16 @@ C     Integer iDskPt,len
 
         Call dDaFile(LUnit,1,SCF_V(iPtr2)%A,len,iDskPt)
         Call mma_deallocate(SCF_V(iPtr2)%A)
-        Go To 10
-      End If
+      End Do
       lDskPt=iDskPt
 *     now all vectors are flushed... so dump linked list...
       Call iDaFile(LUnit,1,nLList(iLList,0),NodSiz,iDskPt)
 *
- 200  If (iroot.ne.0) Then
+      Do While (iroot.ne.0)
         iPtr1=iroot
         iroot=nLList(iroot,0)
         Call iDaFile(LUnit,1,nLList(iPtr1,0),NodSiz,iDskPt)
-        GoTo 200
-      End If
+      End Do
 *
       End
 *----------------------------------------------------------------------*
@@ -543,7 +536,7 @@ C     Integer iDskPt,len
 
       iroot=iPtr1
       iPtr2=iroot
- 100  If (nLList(iPtr2,0).ne.0) Then
+      Do While (nLList(iPtr2,0).ne.0)
         lislen=lislen+1
          lLList=lLList+1
          iPtr1=lLList
@@ -551,8 +544,7 @@ C     Integer iDskPt,len
 
         Call iDaFile(LUnit,2,nLList(iPtr1,0),NodSiz,lDskPt)
         iPtr2=iPtr1
-        Go To 100
-      End If
+      End Do
       If (nLList(iLList,2).ne.lislen) Then
         Write(6,*) 'RclLst:LList length mismatch:',
      &              nLList(iLList,2),lislen
@@ -564,8 +556,8 @@ C     Integer iDskPt,len
       Call mma_maxDBLE(MaxMem)
       lvec=nLList(iroot,3)
       iPtr2=iroot
- 200  If ((incore.gt.0).AND.(MaxMem-NoAllo.ge.lvec).AND.(iPtr2.gt.0))
-     &  Then
+      Do While ((incore.gt.0).AND.(MaxMem-NoAllo.ge.lvec).AND.
+     &          (iPtr2.gt.0))
         lDskPt=nLList(iPtr2,1)
         Call mma_Allocate(SCF_V(iPtr2)%A,lvec,Label='LVec')
         Call dDaFile(LUnit,2,SCF_V(iPtr2)%A,lvec,lDskPt)
@@ -576,8 +568,7 @@ C     Integer iDskPt,len
         incore=incore-1
 
         Call mma_maxDBLE(MaxMem)
-        Go To 200
-      End If
+      End Do
       If (iPtr2.gt.0) nLList(iLList,3)=nLList(iLList,3)-incore
 *
       End

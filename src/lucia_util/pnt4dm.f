@@ -15,12 +15,12 @@
 *
 * Pointer for 4 dimensionl array with total symmetry IDXSM
 * Pointer is given as 3 dimensional array corresponding
-* to the first 3 indeces
+* to the first 3 indices
 * Symmetry of last index is give by ISM4
 *
-* IS12 (0,1,-1)   : Permutational symmetry between indeces 1 and 2
-* IS34 (0,1,-1)   : Permutational symmetry between indeces 3 and 3
-* IS1234 (0,1,-1) : permutational symmetry between indeces 12 and 34
+* IS12 (0,1,-1)   : Permutational symmetry between indices 1 and 2
+* IS34 (0,1,-1)   : Permutational symmetry between indices 3 and 3
+* IS1234 (0,1,-1) : permutational symmetry between indices 12 and 34
 *
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)

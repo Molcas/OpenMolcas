@@ -367,6 +367,7 @@ C state rotation
       iCMSP=0
       ICMSIterMax=100
       ICMSIterMin=5
-      CMSThreshold=1.0d-6
+      CMSThreshold=1.0d-8
+      CMSStartMat='XMS'
       RETURN
       END

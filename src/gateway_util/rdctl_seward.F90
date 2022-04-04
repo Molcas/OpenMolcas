@@ -98,6 +98,7 @@ character(len=12), allocatable :: xb_label(:)
 logical(kind=iwp) :: geoInput, oldZmat, zConstraints
 #endif
 #ifdef _GROMACS_
+integer(kind=iwp) :: iCastMM, iLA, LuXYZ, nCastMM, nLA
 integer(kind=iwp), allocatable :: CastMM(:), DefLA(:,:)
 real(kind=wp), allocatable :: FactLA(:)
 #endif
@@ -2827,7 +2828,7 @@ do
             call mma_allocate(CastMM,nCastMM)
           case ('CAST')
             KWord = Get_Ln(LuRd)
-            call Get_I(1,nCastMM,1)
+            call Get_I1(1,nCastMM)
             if (nCastMM <= 0) then
               Message = 'nCastMM is zero or negative'
               call WarningMessage(2,Message)
@@ -2900,7 +2901,7 @@ do
 #       ifdef _GROMACS_
         GWInput = .true.
         KWord = Get_Ln(LuRd)
-        call Get_I(1,nLA,1)
+        call Get_I1(1,nLA)
         if (nLA <= 0) then
           Message = 'LA definition: nLA is zero or negative'
           call WarningMessage(2,Message)

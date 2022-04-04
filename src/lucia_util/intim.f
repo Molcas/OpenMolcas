@@ -37,7 +37,7 @@
       CALL INTPNT(iWORK(KPINT1),iWORK(KLSM1),
      &            iWORK(KPINT2),iWORK(KLSM2))
 *
-*. Pointer for orbital indeces for symmetry blocked matrices
+*. Pointer for orbital indices for symmetry blocked matrices
       CALL ORBINH1(iWORK(KINH1),iWORK(KINH1_NOCCSYM),NTOOBS,NTOOB,NSMOB)
 *
 *. Change one-electron integrals to inactive fock matrix

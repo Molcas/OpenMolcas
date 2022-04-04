@@ -13,10 +13,6 @@
 !
 ! Isotope numbers and masses
 !
-! Taken from NIST: "Atomic Weights and Isotopic Compositions with
-! Relative Atomic Masses" (https://www.nist.gov/pml/data/comp.cfm)
-! Last updated: March 2017 (Version 4.1, July 2015)
-!
 ! Each item in the the array ElementList contains data for an element:
 !  - %Symbol: symbol
 !  - %Natural: number of natural ocurring isotopes
@@ -30,11 +26,6 @@
 !
 ! The "default" isotope for each element is simply the first item in
 ! the %Isotopes member.
-!
-! Manual changes from NIST data:
-!  - Definitive symbols for all elements
-!  - Most stable isotope (from Wikipedia) selected for Z > 94
-!  - 3H and 14C included as natural
 
 module Isotopes
 

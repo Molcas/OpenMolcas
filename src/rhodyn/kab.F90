@@ -106,7 +106,7 @@ else
   do i=1,Nmode
     write(u6,*) (G_SF(i,j),j=1,nconftot)
   end do
-  ! contruct the G_SO matrix
+  ! construct the G_SO matrix
   do i=1,NState
     do j=1,NState
       do k=1,Nmode
@@ -314,7 +314,7 @@ end do
 
 close(lu) ! close file max_Kab_basis.dat
 
-! contruct the matrix (k_bar)_ij=0.5*sum_k[(kab_basis)_ik+(kab_basis)_jk]
+! construct the matrix (k_bar)_ij=0.5*sum_k[(kab_basis)_ik+(kab_basis)_jk]
 
 do i=1,d
   do j=1,d

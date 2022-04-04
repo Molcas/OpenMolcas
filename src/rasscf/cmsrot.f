@@ -16,6 +16,7 @@
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
+      use CMS, only: CMSNotConverged
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -37,26 +38,46 @@ C     Allocating Memory
       CALL mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
       CALL mma_allocate(DDG,lRoots,lRoots,lRoots,lRoots)
 
-      CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
+*     printing header
+      write(6,*)
+      write(6,*)
+      write(6,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
+      IF(trim(CMSStartMat).eq.'XMS') THEN
+       write(6,'(5X,A12,1X,A)')
+     &'START MATRX','XMS INTERMEDIATE STATES'
+       CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
+      ELSE
+       CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,
+     &              len_trim(CMSStartMat),16,'N')
+       write(6,'(5X,A12,1X,A)')
+     &'START MATRX',trim(CMSStartMat)
+      END IF
+      write(6,'(4X,A12,2X,ES8.2E2)')
+     &'THRESHOLD ',CMSThreshold
+      write(6,'(4X,A12,2X,I8)')
+     &'MAX CYCLES',ICMSIterMax
+      write(6,'(4X,A12,2X,I8)')
+     &'MIN CYCLES',ICMSIterMin
+      write(6,*)('=',i=1,71)
+      IF(lRoots.gt.2) THEN
+      write(6,'(4X,A8,2X,2(A16,11X))')
+     &'Cycle','Q_a-a','Difference'
+      ELSE
+      write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
+     &'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
+      END IF
+      write(6,*)('-',i=1,71)
 
       CALL LoadGtuvx(TUVX,Gtuvx)
 
+      CMSNotConverged=.false.
       CALL GetGDMat(GDMat)
       IF(lRoots.lt.NAC) THEN
-C       write(6,*)"Optimization Approach 1"
-      DO I=1,lRoots
-       Do J=1,lRoots
-       if (I.eq.J) then
-        RotMat(I,I)=1.0d0
-       else
-        RotMat(I,J)=0.0d0
-       end if
-       End Do
-      END DO
+*       write(6,*)"Optimization Approach 1"
        CALL GetDDgMat(DDg,GDMat,Gtuvx)
        CALL NStateOpt(RotMat,DDg)
       ELSE
-C       write(6,*)"Optimization Approach 2"
+*       write(6,*)"Optimization Approach 2"
        CALL NStateOpt2(RotMat,GDMat,Gtuvx)
       END IF
       VecName='CMS-PDFT'
@@ -67,6 +88,10 @@ C     Deallocating Memory
       CALL mma_deallocate(RotMat)
       CALL mma_deallocate(Gtuvx)
       CALL mma_deallocate(DDg)
+      IF(CMSNotConverged) THEN
+       Call WarningMessage(2,'CMS Intermediate States Not Converged')
+       Call Quit(_RC_NOT_CONVERGED_)
+      END IF
       RETURN
       End Subroutine
 
@@ -75,6 +100,7 @@ C     Deallocating Memory
 ***********************************************************************
       Subroutine NStateOpt(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use CMS, only: CMSNotConverged
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -110,24 +136,6 @@ C     Deallocating Memory
       Converged=.false.
       CALL Copy2DMat(FRot,RotMat,lRoots,lRoots)
       VeeSumOld=CalcNSumVee(RotMat,DDg)
-      write(6,*)
-      write(6,*)
-      write(6,*) '    CMS INTERMEDIATE STATES OPTIMIZATION'
-      write(6,'(4X,A12,2X,ES8.2E2)')
-     &'THRESHOLD',Threshold
-      write(6,'(4X,A12,2X,I8)')
-     &'MAX CYCLES',ICMSIterMax
-      write(6,'(4X,A12,2X,I8)')
-     &'MIN CYCLES',ICMSIterMin
-      write(6,*)('=',i=1,71)
-      IF(lRoots.gt.2) THEN
-      write(6,'(4X,A8,2X,2(A16,11X))')
-     &'Cycle','Q_a-a','Difference'
-      ELSE
-      write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
-     &'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
-      END IF
-      write(6,*)('-',i=1,71)
       ICMSIter=0
       DO WHILE(.not.Converged)
        Do IPair=1,NPairs
@@ -151,7 +159,9 @@ C     Deallocating Memory
        ELSE
         if(ICMSIter.ge.ICMSIterMax) then
          Converged=.true.
+         CMSNotConverged=.true.
          write(6,'(4X,A)')'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+         write(6,'(4X,A)')'TEMPORARY ROTATION MATRIX SAVED'
         end if
        END IF
        VeeSumOld=VeeSumNew
@@ -516,6 +526,7 @@ C     & IState,' is ',Vee(IState)
 ***********************************************************************
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use CMS, only: CMSNotConverged
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -558,24 +569,6 @@ C     & IState,' is ',Vee(IState)
       CALL RotGDMat(FRot,GDMat)
       CALL CalcVee2(Vee,GDMat,Gtuvx)
       VeeSumOld=SumArray(Vee,lRoots)
-      write(6,*)
-      write(6,*)
-      write(6,*) '    CMS INTERMEDIATE STATES OPTIMIZATION'
-      write(6,'(4X,A12,2X,ES8.2E2)')
-     &'THRESHOLD',Threshold
-      write(6,'(4X,A12,2X,I8)')
-     &'MAX CYCLES',ICMSIterMax
-      write(6,'(4X,A12,2X,I8)')
-     &'MIN CYCLES',ICMSIterMin
-      write(6,*)('=',i=1,71)
-      IF(lRoots.gt.2) THEN
-      write(6,'(4X,A8,2X,2(A16,11X))')
-     &'Cycle','Q_a-a','Difference'
-      ELSE
-      write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
-     &'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
-      END IF
-      write(6,*)('-',i=1,71)
       ICMSIter=0
 *        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
 *     &  ICMSIter,VeeSumOld,0.0d0
@@ -607,7 +600,9 @@ C     & IState,' is ',Vee(IState)
        ELSE
         if(ICMSIter.ge.ICMSIterMax) then
          Converged=.true.
+         CMSNotConverged=.true.
          write(6,'(4X,A)')'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+         write(6,'(4X,A)')'TEMPORARY ROTATION MATRIX SAVED'
         end if
        END IF
 *         Converged=.true.

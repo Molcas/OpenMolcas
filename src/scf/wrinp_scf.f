@@ -37,6 +37,7 @@
 *
       Use Functionals, only: Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
+      Use InfSO
 *
       Implicit Real*8 (a-h,o-z)
 *
@@ -45,7 +46,6 @@
 
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "rctfld.fh"
 #include "ldfscf.fh"
 *

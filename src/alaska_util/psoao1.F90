@@ -168,7 +168,7 @@ do
     end if
     cycle
   end if
-  ! Subtract one additional word for getmem's internal error check (?)
+  ! Subtract one additional word (?)
   Mem0 = Mem0-Mem1-1
 
   ! *** Work2 and Work4 ***
@@ -230,7 +230,7 @@ do
     end if
     cycle
   end if
-  ! Subtract one additional word for getmem's internal error check (?)
+  ! Subtract one additional word (?)
   Mem0 = Mem0-Mem2-1
 
   ! *** Work3 and Work5 ***
@@ -301,7 +301,7 @@ do
     exit
   end if
 end do
-! Subtract one additional word for getmem's internal error check (?)
+! Subtract one additional word (?)
 Mem0 = Mem0-Mem3-1
 MinXtr = min(MinXtr,Mem0)
 
