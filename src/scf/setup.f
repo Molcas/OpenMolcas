@@ -122,6 +122,7 @@
          MaxBOO = Max(MaxBOO,nBas(iSym)*(nOrb(iSym)-minnOcc(iSym)))
       End Do
       mOV=kOV(1)+kOV(2)
+      Write (6,*) 'Setup kOV:',kOV(:)
 *
       If (nnB.gt.2*MxBas .and. .not.DSCF ) Then
          Write (6,*) 'SetUp: nnB.gt.2*MxBas .and. .not.DSCF'

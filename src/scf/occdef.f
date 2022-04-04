@@ -278,6 +278,8 @@
 *     Recompute sizes since the nOcc array might have changed.
 *
       nOV = 0
+      mOV    = 0
+      kOV(:) = 0
       Do iSym = 1, nSym
          If (nD.eq.1) Then
              maxnOcc=nOcc(iSym,1)

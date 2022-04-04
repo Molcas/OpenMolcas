@@ -60,9 +60,11 @@
 *
       HDiag(:)=1.0D+99
 *
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
+      Write (6,*) 'nH=',nH
+      Write (6,*) 'kOV(:)=',kOV(:)
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
          Write (6,'(A,8I3)') 'nOcc',(nOcc(iSym,iD),iSym=1,nSym)
@@ -74,11 +76,6 @@
       Do iD = 1, nD
 *
          ioffs=1
-         If (iD==1) Then   ! Temporary
-            iHoffs=1
-         Else
-            iHoffs=1+kOV(1)
-         End If
          Do iSym=1,nSym
 *
 *            loop over all occ orbitals in sym block
@@ -118,6 +115,6 @@
           End Do ! iSym
       End Do ! iD
 *
-      Call RecPrt('HDiag',' ',HDiag(:),1,nH)
+*     Call RecPrt('HDiag',' ',HDiag(:),1,nH)
       Return
       End
