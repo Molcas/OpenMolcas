@@ -12,6 +12,7 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine reord2_cvb(cfrom,cto,imode)
+      use csfbas, only: conf, kcftp
       implicit real*8(a-h,o-z)
 c Front-end routine for molcas reord2, transforms
 c from SGA CSFs to split-graph-GUGA CSFs.
@@ -20,17 +21,14 @@ c from SGA CSFs to split-graph-GUGA CSFs.
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "csfbas.fh"
 
 c NAC      rasscf.fh
 c NACTEL   general.fh
 c STSYM    general.fh
 c IPR      rasscf.fh
-c KICONF   csfbas.fh
-c KCFTP    csfbas.fh
       call getmem('kcnf','allo','inte',ivkcnf,nactel)
       call reord2(nac,nactel,stsym,imode,
-     >  iwork(kiconf(1)),iwork(kcftp),
+     >  conf,iwork(kcftp),
      >  cfrom,cto,iWork(ivkcnf))
       call getmem('kcnf','free','inte',ivkcnf,nactel)
       return

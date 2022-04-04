@@ -206,7 +206,7 @@ function mmslave_copyx_wrapper(gms,natoms,x)
 
 end function mmslave_copyx_wrapper
 
-end
+end subroutine Fetch_QMMM
 
 #elif !defined (EMPTY_FILES)
 

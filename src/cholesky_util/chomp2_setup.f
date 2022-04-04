@@ -395,7 +395,7 @@ C
 *
 *     I am not sure if NumOcc is used somewhere else so I will
 *     define it as before even if Im using NumInBat for setting up
-*     indeces in this routine. //Jonas
+*     indices in this routine. //Jonas
       Do iBatch = 1,nBatch
          If(.false.) Then
             NumBatOrb(iBatch) = Num

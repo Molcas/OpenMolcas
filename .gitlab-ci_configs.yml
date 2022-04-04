@@ -154,18 +154,18 @@
       set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args") # more portable Libxc build
       # -w=obs : disable fixed source form, statement function
       # -w=x77 : disable real*8
-      set (EXTRA_FFLAGS "-w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")
+      set (EXTRA_FFLAGS "-quiet -w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
       rm -rf ${install_path}
     pre_make_script: |
       mkdir -p ${install_path}
       $${make} 2>&1 | tee nag.log
-      # Remove CMake and NAG version lines
-      sed -E '/^Scanning dependencies of target [^ ]*/d ; /^\[ *[0-9]+*%\].*/d ; /^\[?NAG Fortran Compiler.*/d' nag.log > nag2.log ; mv nag2.log nag.log
+      # Remove CMake lines
+      sed -E '/^Scanning dependencies of target [^ ]*/d ; /^\[ *[0-9]+*%\].*/d' nag.log > nag2.log ; mv nag2.log nag.log
       # Wrap lines that start with a space
       sed -E ':a ; $!N ; s/\n\s+/ / ; ta ; P ; D' nag.log > nag2.log ; mv nag2.log nag.log
       # Filter only NAG message lines
-      sed -n -E '/^(Info|Warning|Questionable|Note|Extension|Obsolescent|Deleted feature used|Error):.*/p' nag.log > nag2.log ; mv nag2.log nag.log
+      sed -n -E '/^(Info|Warning|Questionable|Note|Extension(\(NAG\))?|Obsolescent|Deleted feature used|Error):.*/p' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove ignored warnings
       sed -E '/(was not compiled with the -i8 option)/d' nag.log > nag2.log ; mv nag2.log nag.log
       # More reasonable paths

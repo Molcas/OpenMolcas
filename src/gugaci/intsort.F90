@@ -514,7 +514,7 @@ end do
 
 return
 
-end
+end subroutine int_ext_2_1
 
 !===================== ext_2_1 end =====================================
 

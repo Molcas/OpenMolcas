@@ -154,7 +154,7 @@ do i=1,Nstate
 end do
 close(lu)
 
-! contruct the matrix (k_bar)_ij=0.5*sum_k[(kab_basis)_ik+(kab_basis)_jk]
+! construct the matrix (k_bar)_ij=0.5*sum_k[(kab_basis)_ik+(kab_basis)_jk]
 do i=1,Nstate
   do j=1,Nstate
     do k=1,Nstate

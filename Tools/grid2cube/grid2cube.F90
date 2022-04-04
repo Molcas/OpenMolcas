@@ -158,6 +158,9 @@ INTEGER :: Test
 CHARACTER :: TestChar
 REAL(KIND=REAL64) :: TestFloat
 
+#include "macros.fh"
+unused_var(Test)
+
 ! Try to read as ASCII, the first line should be 0
 OPEN(U,FILE=FileName,STATUS='OLD',ACTION='READ',IOSTAT=Error,FORM='FORMATTED')
 IF (Error /= 0) RETURN
@@ -350,6 +353,9 @@ CHARACTER(LEN=STRLEN) :: Line, Word
 INTEGER :: i
 ! Hard-coded value for Luscus format
 REAL(KIND=REAL64), PARAMETER :: Angstrom=0.52917721067D0
+
+#include "macros.fh"
+unused_var(Word)
 
 READ(FileIn,*) Natom
 READ(FileIn,*)

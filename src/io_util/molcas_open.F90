@@ -17,7 +17,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Lu
-character(len=*) :: FileName
+character(len=*), intent(in) :: FileName
 integer(kind=iwp) :: f_recl, f_iostat
 character(len=10) :: f_access, f_form, f_status
 logical(kind=iwp) :: is_recl, is_error
