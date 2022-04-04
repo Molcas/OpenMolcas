@@ -286,12 +286,12 @@
              maxnOcc=max(nOcc(iSym,1),nOcc(iSym,2))
              minnOcc=min(nOcc(iSym,1),nOcc(iSym,2))
          End If
+         kOV(:) = kOV(:) + (nOcc(iSym,:)-nFro(iSym))*
+     &                     (nOrb(iSym)-nOcc(iSym,:))
          nOV    = nOV  + (maxnOcc-nFro(iSym))*
      &                   (nOrb(iSym)-minnOcc)
       End Do
-      kOV(1)=nOV        ! Temporary
-      kOV(2)=(nD-1)*nOV ! Temporary
-      mOV=kOV(1)+kOV(2) ! Temporary
+      mOV=kOV(1)+kOV(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

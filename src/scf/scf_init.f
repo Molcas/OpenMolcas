@@ -62,7 +62,7 @@
       nAtoms = 0
       Call ICopy(MxSym,[0],0,nBas,1)
       Call ICopy(MxSym,[0],0,nOrb,1)
-      Call ICopy(MxSym*2,[0],0,nOcc,1)
+      nOcc(:,:)=0
       If(iUHF.eq.0) Then
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
       Else
