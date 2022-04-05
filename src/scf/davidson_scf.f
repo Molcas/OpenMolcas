@@ -234,7 +234,7 @@
            tmp=Sub(n,j+1)
            Call DaXpY_(m,tmp/Sqrt(Fact),g,1,Ab(1,j+1),1)
 *
-           Ab(n,j+1) =  DDot_(m,g,1,Sub(1,j+1),1)
+           Ab(n,j+1) =  DDot_(m,g,1,Sub(1,j+1),1)/Sqrt(Fact)
 #ifdef _DEBUGPRINT_
 *          Call NrmClc(Ab(1,j+1),n,'Davidson_SCF','Ab(1,j+1)')
            Call RecPrt('Ab',' ',Ab(1,j+1),1,n)

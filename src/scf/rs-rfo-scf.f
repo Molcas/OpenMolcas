@@ -73,7 +73,7 @@
       Restart=.False.
       Thr=1.0D-3
       NumVal=Min(1,nInter+1)
-      NumVal=Min(nInter+1,nInter+1)
+*     NumVal=Min(nInter+1,nInter+1)
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Tmp,nInter+1,Label='Tmp')
@@ -113,8 +113,8 @@
      &       'Davidson procedure did not converge','')
          End If
 #endif
-!        Write (6,*) 'Val(:)=',Val(:)
-!        Write (6,*) 'Vec(:,1)=',Vec(:,1)
+*        Write (6,*) 'Val(:)=',Val(:)
+*        Write (6,*) 'Vec(:,1)=',Vec(:,1)
          call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
          Call DScal_(nInter,One/Sqrt(A_RFO),Vec(:,1),1)
 *                                                                      *
@@ -247,6 +247,7 @@
          H(i,i)=HDiag(i)
       End Do
 *#define _DEBUGPRINT_
+#undef _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('H',' ',H,nInter,nInter)
 #endif
