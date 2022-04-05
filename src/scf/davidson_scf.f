@@ -49,7 +49,7 @@
       INTEGER i,j,ii,jj
       LOGICAL Last,Augmented,Reduced
       external ddot_
-      PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
+      PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-12, Thr3=1.0D-16)
       Real*8, Allocatable :: TmpVec(:), Diag(:), TVec(:), TAV(:),
      &                       TRes(:)
       Real*8 :: Dum(1)=0.0D0
@@ -57,7 +57,7 @@
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       INTEGER iPrint,iRout
 

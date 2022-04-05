@@ -50,10 +50,10 @@
 *     Write (6,*) 'StepMax0=',StepMax0
       StepMax=Min(StepMax0,3.0D-1)
 *     Write (6,*) 'StepMax=',StepMax
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-*     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
-*     Call RecPrt('rs-rfo: g',' ',g,1,nInter)
+      Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
+      Call RecPrt('rs-rfo: g',' ',g,1,nInter)
       Write (Lu,*)
       Write (Lu,*) '***************************************************'
       Write (Lu,*) '********* S T A R T  O F  R S - R F O *************'
@@ -73,6 +73,7 @@
       Restart=.False.
       Thr=1.0D-3
       NumVal=Min(1,nInter+1)
+*     NumVal=Min(3,nInter+1)
 *     NumVal=Min(nInter+1,nInter+1)
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
@@ -113,8 +114,8 @@
      &       'Davidson procedure did not converge','')
          End If
 #endif
-*        Write (6,*) 'Val(:)=',Val(:)
-*        Write (6,*) 'Vec(:,1)=',Vec(:,1)
+         Write (6,*) 'Val(:)=',Val(:)
+         Write (6,*) 'Vec(:,1)=',Vec(:,1)
          call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
          Call DScal_(nInter,One/Sqrt(A_RFO),Vec(:,1),1)
 *                                                                      *
