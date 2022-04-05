@@ -50,7 +50,7 @@
 *     Write (6,*) 'StepMax0=',StepMax0
       StepMax=Min(StepMax0,3.0D-1)
 *     Write (6,*) 'StepMax=',StepMax
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
       Call RecPrt('rs-rfo: g',' ',g,1,nInter)
@@ -114,8 +114,8 @@
      &       'Davidson procedure did not converge','')
          End If
 #endif
-         Write (6,*) 'Val(:)=',Val(:)
-         Write (6,*) 'Vec(:,1)=',Vec(:,1)
+*        Write (6,*) 'Val(:)=',Val(:)
+*        Write (6,*) 'Vec(:,1)=',Vec(:,1)
          call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
          Call DScal_(nInter,One/Sqrt(A_RFO),Vec(:,1),1)
 *                                                                      *
@@ -259,7 +259,7 @@
       Call mma_allocate( dg,nInter,Label=' dg')  ! g(:,i)-g(:,i-1)
       Call mma_allocate(Hdq,nInter,Label='Hdq')  ! Scratch
       Do i = 3, iter
-!        Write (6,*) 'i,iter=',i,iter
+         Write (6,*) 'i,iter=',i,iter
 
 !        delta step
          ipdq=LstPtr(i  ,LLx)

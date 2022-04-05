@@ -57,7 +57,7 @@
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       INTEGER iPrint,iRout
 
@@ -65,6 +65,67 @@
       iPrint=nPrint(iRout)
 #endif
       n=m+1
+*#define _DEBUGCode_
+#ifdef _DEBUGCode_
+           Block
+             Real*8, Allocatable :: Vec(:), HM(:,:), HAug(:,:)
+             Real*8, Allocatable :: EVal(:), EVec(:)
+             Integer ij
+
+             Call mma_allocate(Vec,m,Label='Vec')
+             Call mma_allocate(HM,m,m,Label='HM')
+             HM(:,:)=0.0d0
+             Call mma_allocate(HAug,n,n,Label='HAug')
+             HAug(:,:)=0.0d0
+
+             Do i = 1, m
+                Vec(:)=0.0D0
+                Vec(i)=1.0D0
+                Call SOrUpV(Vec(:),HDiag,m,HM(:,i),'GRAD','BFGS')
+             End Do
+             Call RecPrt('HM',' ',HM,m,m)
+
+             Do i = 1, m
+                HAug(n,i)=g(i)
+                HAug(i,n)=g(i)
+                Do j = 1, m
+                   HAug(i,j)=HM(i,j)
+                End Do
+             End Do
+
+             Call mma_allocate(EVal,n*(n+1)/2,Label='EVal')
+             Call mma_allocate(EVec,n*n,Label='EVec')
+*
+             Do i = 1, n
+                Do j = 1, i
+                   ij=i*(i-1)/2 + j
+                   EVal(ij)=HAug(i,j)
+                End Do
+             End Do
+*
+*---- Set up a unit matrix
+*
+             call dcopy_(n*n,[Zero],0,EVec,1)
+             call dcopy_(n,[One],0,EVec,n+1)
+*
+*----        Compute eigenvalues and eigenvectors
+*
+             Call NIDiag_new(EVal,EVec,n,n)
+             Call Jacord(EVal,EVec,n,n)
+
+             Do i = 1, n
+                ij=i*(i+1)/2
+                Write (6,*) 'Eval(ij)=',EVal(ij)
+             End Do
+
+             Call mma_deallocate(EVal)
+             Call mma_deallocate(EVec)
+             Call mma_deallocate(HAug)
+             Call mma_deallocate(HM)
+             Call mma_deallocate(Vec)
+
+           End Block
+#endif
 
 #ifdef _DEBUGPRINT_
 *     Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
@@ -224,8 +285,7 @@
 *
 *          Pick up the contribution for the updated Hessian (BFGS update)
 *
-           Call SOrUpV(Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD',
-     &                                                     'BFGS')
+           Call SOrUpV(Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD','BFGS')
 !          Call RecPrt('Ab(0)',' ',Ab(1,j+1),1,n)
            Call DScal_(m,One/Fact,Ab(1,j+1),1)
 *

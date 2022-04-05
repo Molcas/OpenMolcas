@@ -90,7 +90,8 @@
       Logical Inverse_H
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-      Thr=1.0D-9
+!     Thr=1.0D-9
+      Thr=1.0D-16
 *
 *     Dummy initializations
 *
@@ -208,7 +209,7 @@
       leny=LLLen(LLy)
       Call PutVec(SOScr,lvec,iter-1,'NOOP',LLy)
       If (leny.eq.LLLen(LLy)) Then
-*        already there, so we don't have to recalculate later
+!        already there, so we don't have to recalculate later
          updy=.False.
       Else
 *        new listhead generated in ipy, we have to update
