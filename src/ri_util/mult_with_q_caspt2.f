@@ -123,7 +123,7 @@ C     end if
         Read (LuCMOPT2,END=100) Work(ip_A_t+i-1)
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'Q-vectors'
       Do i = 1, l_Q
          Write(6,*) Work(ip_Q+i-1)
