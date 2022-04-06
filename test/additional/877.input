@@ -35,8 +35,7 @@
 
 &RASSCF
   Spin     = 1
-  Charge   = 0
-  inactive = 7
+  Inactive = 7
   Ras2     = 2
   nActive  = 2
   CIRoot   = 2 2 1
