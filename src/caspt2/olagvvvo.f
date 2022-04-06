@@ -264,7 +264,8 @@ C       write(6,*) "3"
         !  The number of shells should be able to be referred globally.
         nDiff=1
         DoRys=.True.
-        Call IniSew(Info,DoRys,nDiff)
+        ! Call IniSew(Info,DoRys,nDiff)
+        Call IniSew(DoRys,nDiff)
         Call Nr_Shells(nSkal)
         Call Setup_iSD()
 C       write(6,*) "4"
