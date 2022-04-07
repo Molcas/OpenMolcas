@@ -13,11 +13,11 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=135)
+      Parameter (NKeys=136)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
-      Logical KeyFlags(0:NKeys+1)
+      Logical KeyFlags(0:NKeys)
       Logical KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,
