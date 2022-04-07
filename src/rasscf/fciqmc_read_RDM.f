@@ -69,9 +69,11 @@
           real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
           integer :: i, j, jDisk
           real(wp), allocatable :: temp_DMAT(:), temp_DSPN(:),
-     &                             temp_PSMAT(:), temp_PAMAT(:),
-     &                             decompressed_DMAT(:,:),
+     &                             temp_PSMAT(:), temp_PAMAT(:)
+#ifdef _HDF5_
+          real(wp), allocatable :: decompressed_DMAT(:,:),
      &                             decompressed_DSPN(:,:)
+#endif
 
           ! position in memory to write density matrices to JOBIPH
           jDisk = iAdr15(3)
@@ -598,7 +600,6 @@
 
       ! Add your deallocations here. Called when exiting rasscf.
       subroutine cleanup()
-        continue
       end subroutine
 
 
