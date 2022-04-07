@@ -1010,8 +1010,9 @@ C   No changing about read in orbital information from INPORB yet.
           call abend()
         end if
 
+#ifdef _WARNING_WORKAROUND_
+! NAGFOR does not like importing the variables from the module
         if (same_orbs == 1) then
-          continue
         else
           Line=Get_Ln(LUInput)
           readstatus=' failure reading after SSCR keyword.'
@@ -1049,6 +1050,7 @@ C   No changing about read in orbital information from INPORB yet.
             end do
           end do
         end if
+#endif
       Call ChkIfKey()
       end if
 *---  Process CIRO command --------------------------------------------*
