@@ -11,17 +11,12 @@
 
 subroutine LUCIA2MOLCAS_FREE()
 
-use Definitions, only: iwp
+use csfbas, only: CONF, CTS
+use stdalloc, only: mma_deallocate
 
 implicit none
-integer(kind=iwp) :: LCONF, LDET
-#include "csfbas.fh"
 
-! fake values
-LCONF = 1
-LDET = 1
-
-call GetMem('KICONF','Free','Integer',KICONF(1),LCONF)
-call GetMem('KICTS','Free','Integer',KICTS(1),LDET)
+call mma_deallocate(CONF)
+call mma_deallocate(CTS)
 
 end subroutine LUCIA2MOLCAS_FREE

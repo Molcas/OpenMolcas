@@ -50,6 +50,7 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
+      use csfbas, only: CONF, KCFTP
       use stdalloc, only : mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use OFembed, only: Do_OFemb, FMaux
@@ -72,7 +73,6 @@
 #include "casvb.fh"
 #include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "pamint.fh"
 #include "qnctl_mcpdft.fh"
@@ -603,7 +603,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
            Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,1,
-     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                CONF,iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)

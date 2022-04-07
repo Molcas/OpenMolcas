@@ -25,6 +25,7 @@
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
 #endif
+      use csfbas, only: CONF, KCFTP
       use Fock_util_global, only: DoCholesky
       use write_orbital_files, only: OrbFiles
       use fcidump, only: DumpOnly
@@ -62,7 +63,6 @@
 #include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
-#include "csfbas.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
 #include "rasscf_lucia.fh"
@@ -846,6 +846,22 @@ C   No changing about read in orbital information from INPORB yet.
        ICMSP=1
        Call SetPos(LUInput,'CMSI',Line,iRc)
        Call ChkIfKey()
+      End If
+*---  Process CMSS command --------------------------------------------*
+      CMSStartMat='XMS'
+      If (KeyCMSS.and.(iCMSP.eq.1)) Then
+       If (DBG) Then
+         Write(6,*)' Reading CMS inital rotation matrix'
+       End If
+       Call SetPos(LUInput,'CMSS',Line,iRc)
+       Line=Get_Ln(LUInput)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       Call ChkIfKey()
+       If (DBG) Then
+         Write(6,*) ' Reading CMS starting rotation matrix from'
+         Write(6,*) trim(Line)
+       End If
+       IF(.not.(trim(Line).eq.'XMS'))  call fileorb(Line,CMSStartMat)
       End If
 *---  Process CMMA command --------------------------------------------*
       If (KeyCMMA) Then
@@ -3397,7 +3413,7 @@ C Test read failed. JOBOLD cannot be used.
       IF (ICICH.EQ.1) THEN
         CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
         CALL UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
-     *             IWORK(KICONF(1)),IWORK(KCFTP),IWORK(LUG2SG),
+     *             CONF,IWORK(KCFTP),IWORK(LUG2SG),
      *             ICI,JCJ,CCI,MXROOT)
         CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
       END IF

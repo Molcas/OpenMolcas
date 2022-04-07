@@ -48,7 +48,7 @@
       Real*8, Allocatable:: CVector(:)
 *
 *************************
-*     Define some indeces
+*     Define some indices
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 *************************
 

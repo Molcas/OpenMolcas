@@ -10,8 +10,8 @@
 #                                                                      *
 # Copyright (C) 2018, Alessio Valentini                                *
 #               2018, Luis Manuel Frutos                               *
-#               2021, Jonathan Richard Church                          *
-#               2021, Igor Schapiro                                    *
+#               2021,2022, Jonathan Richard Church                     *
+#               2021,2022, Igor Schapiro                               *
 #***********************************************************************
 
 import numpy as np
@@ -163,7 +163,21 @@ def normal_mode(dictio,label,method):
                     x=rand1
                     v=rand2
                     Etot=Etot+Ei
-        ##Will add wigner sampling with thermal distribution
+        ##Thermal Wigner sampling
+        if (method==4):
+            sample=0
+            while (sample==0):
+                alpha=np.tanh(hbar*freqSI/(2.0*kb*T))
+                rand1=random.uniform(0, 1)*np.sqrt(hbar/(freqSI*alpha))
+                rand2=random.uniform(0, 1)*np.sqrt(hbar*freqSI*(1.0/alpha))
+                rand3=random.uniform(0, 1)
+                Ei=0.5*(np.power(freqSI*rand1,2)+np.power(rand2,2))
+                probability=alpha/(np.pi)*np.exp(-2.0*alpha*(np.power(freqSI*rand1,2)+np.power(rand2,2))/(hbar*freqSI))
+                if (probability/(np.pi/alpha) > rand3):
+                    sample=sample+1
+                    x=rand1
+                    v=rand2
+                    Etot=Etot+Ei
         ##Generate displacements and velocities based on sampling method
         coord_samp=coord_samp+x*NCMatx[j, :]/np.sqrt(mmatrix)
         coord_samp_save[i, :]=x*NCMatx[j, :]/np.sqrt(mmatrix)
@@ -390,7 +404,8 @@ python3 $MOLCAS/Tools/dynamixtools/dynamixtools.py -t 273 -c 100 -m 1 -i ${Proje
 Keyword to specify the sampling method:
 1 Initial conditions based on the molecular vibrational frequencies and energies sampled from a Boltzmann distribution (Default).
 2 Thermal normal mode sampling where the cumulitative distribution function for a classical boltzmann distribution at temperature T is used to approximate the energy of each mode.
-3 Wigner distribution for the ground vibrational state, n=0.'''))
+3 Wigner distribution for the ground vibrational state, n=0.
+4 Thermal Wigner distribution for temperature T based on the analytical solution for a canonical ensemble of harmonic oscillators.'''))
     args = parser.parse_args()
     return args
 
@@ -657,7 +672,7 @@ def main():
             # I do not like this termination here, but I still have to figure out how
             # to properly do mutually exclusive argparse keywords.
             # I will keep this exit code here in the meanwhile...
-            sys.exit('-i input freq file is a required keyword')
+            sys.exit('-i input freq file is a required keyword, --help for help')
         if args.seed:
             seedI = args.seed
             print('seed set to: {}'.format(seedI))
@@ -710,9 +725,9 @@ def main():
                 complete_label = '{}{:04}'.format(label,counter)
             if (method==1):
                     generate_one_boltz(inputs,complete_label)
-            elif (method==2 or method==3):
+            elif (method==2 or method==3 or method==4):
                     normal_mode(inputs,complete_label,method)
-        print('\nThis routine generates geometries in angstrom and velocities in bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics)\n')
+        print('\nThis routine generates geometries in angstrom and velocities in bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics\n')
 
 if __name__ == "__main__":
     main()

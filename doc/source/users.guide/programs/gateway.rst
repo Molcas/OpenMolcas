@@ -627,7 +627,7 @@ By default, symmetry is not used in the calculation.
     orbitals in R-matrix calculations.
     The label is truncated to four characters. Observe that this
     label must be unique to each center. The coordinate unit can
-    be specified as an option. The default unit is Bohr.
+    be specified as an option. The default unit is bohr.
     There should at least be one card of this type in a basis set
     definition.
 
@@ -1013,10 +1013,11 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
               This procedure will use an on-the-fly generated auxiliary basis set.
               </HELP>
               </KEYWORD>
-:kword:`XRICd`
-  Use an externally generated RICD basis set available in the file $Project.RICDLib.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRIC" APPEAR="x-RICD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+:kword:`XRICd`
+  Use an externally generated RICD basis set available in the file :file:`$Project.RICDLib`.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRIC" APPEAR="x-RICD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
               %%Keyword: xRICD <basic>
               <HELP>
               Use an externally generated RICD basis set available in the file $Project.RICDLib.
@@ -1034,8 +1035,6 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
               Useful in the case RICD has been made the default with MOLCAS_NEW_DEFAULTS.
               </HELP>
               </KEYWORD>
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRICD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 :kword:`CDTHreshold`
   Threshold for on-the-fly generation of aCD or acCD auxiliary basis sets for RI calculations
@@ -1269,7 +1268,7 @@ Optional keywords for the Kirkwood Model
   It indicates the beginning of the specification of the
   reaction field parameters. The subsequent line will contain
   the dielectric constant of the medium, the radius of the
-  cavity in Bohrs (the cavity is always centered around the
+  cavity in bohrs (the cavity is always centered around the
   origin), and the angular quantum number of the highest multipole
   moment used in the expansion of the change distribution of
   the molecule (only charge is specified as 0, charge and dipole
@@ -1288,7 +1287,7 @@ Optional keywords for the Kirkwood Model
               This indicated the beginning of the specification of the
               reaction field parameters. The subsequent line will contain
               the dielectric constant of the medium, the radius of the
-              cavity in Bohrs (the cavity is always centered around the
+              cavity in bohrs (the cavity is always centered around the
               origin), and the angular quantum number of the highest multipole
               moment used in the expansion of the change distribution of
               the molecule (only charge is specified as 0, charge and dipole
@@ -1708,7 +1707,7 @@ Keywords associated to one-electron integrals
   be 0 or 1 (where 0 is default), specifying whether an element number (e.g. 8 for oxygen) should be
   read for each multipole. In that case the default radius for that element is used to determine which
   Langevin grid points should be annihilated. A negative element number signifies that a particular
-  radius should be used for that multipole, in thousands of a Bohr (-1400 meaning 1.4 Bohr).
+  radius should be used for that multipole, in thousandths of a bohr (-1400 meaning 1.4 bohr).
   Then follows nXF lines, one for each center. On each line is first nFrag+nRead (which may equal 0)
   integers, specifying the fragments that the multipole should not contribute to (the first fragment is
   taken as the fragment that the polarisability belongs to) and the element number. Then follows
@@ -1744,7 +1743,7 @@ Keywords associated to one-electron integrals
               be 0 or 1 (where 0 is default), specifying whether an element number (e.g. 8 for oxygen) should be
               read for each multipole. In that case the default radius for that element is used to determine which
               Langevin grid points should be annihilated. A negative element number signifies that a particular
-              radius should be used for that multipole, in thousands of a Bohr (-1400 meaning 1.4 Bohr).
+              radius should be used for that multipole, in thousandths of a bohr (-1400 meaning 1.4 bohr).
               Then follows nXF lines, one for each center. On each line is first nFrag+nRead (which may equal 0)
               integers, specifying the fragments that the multipole should not contribute to (the first fragment is
               taken as the fragment that the polarisability belongs to) and the element number. Then follows

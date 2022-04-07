@@ -19,7 +19,10 @@ module linalg_mod
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero, One
-use definitions, only: wp, iwp, r8
+use definitions, only: wp, iwp
+#ifdef _ADDITIONAL_RUNTIME_CHECK_
+use definitions, only: r8
+#endif
 use sorting, only: sort, argsort
 use sorting_funcs, only: leq_i, leq_r, geq_r
 
@@ -133,7 +136,10 @@ subroutine mult_2D(A,B,C,transpA,transpB)
   real(kind=wp), intent(out) :: C(:,:)
   logical(kind=iwp), intent(in), optional :: transpA, transpB
   logical(kind=iwp) :: transpA_, transpB_
-  integer(kind=iwp) :: M, N, K_1, K_2, K
+  integer(kind=iwp) :: M, N, K_1, K
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  integer(kind=iwp) :: K_2
+# endif
   debug_function_name('mult_2D')
 
   if (present(transpA)) then
@@ -152,7 +158,9 @@ subroutine mult_2D(A,B,C,transpA,transpB)
   N = size(B,merge(2,1,.not. transpB_))
   ASSERT(N == size(C,2))
   K_1 = size(A,merge(2,1,.not. transpA_))
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
   K_2 = size(B,merge(1,2,.not. transpB_))
+# endif
   ASSERT(K_1 == K_2)
   K = K_1
 

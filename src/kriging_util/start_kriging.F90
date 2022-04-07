@@ -70,7 +70,7 @@ if (mblAI) sbmev = y(maxloc(y,dim=1))
 
 call mma_Allocate(x0,nInter,label='nx')
 
-! rl and dl are temporary matrices for the contruction of Psi which is inside of
+! rl and dl are temporary matrices for the construction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
 ! more inoformation is given in subsequen files.
 ! Mat is the final matrix after the distance (between source data rl and dl) has
