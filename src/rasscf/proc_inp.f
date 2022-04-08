@@ -1010,8 +1010,8 @@ C   No changing about read in orbital information from INPORB yet.
           call abend()
         end if
 
-#ifdef _WARNING_WORKAROUND_
 ! NAGFOR does not like importing the variables from the module
+#ifdef _WARNING_WORKAROUND_
         if (same_orbs == 1) then
         else
           Line=Get_Ln(LUInput)
@@ -1050,8 +1050,8 @@ C   No changing about read in orbital information from INPORB yet.
             end do
           end do
         end if
-#endif
       Call ChkIfKey()
+#endif
       end if
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
