@@ -164,7 +164,7 @@ c      END IF
       IF(IPRCIX.GE.3)
      &WRITE(6,*) ' ICISTR,LSCR1 ',ICISTR,LSCR1
 *.SCRATCH space for integrals
-* A 4 index integral block with four indeces belonging OS class
+* A 4 index integral block with four indices belonging OS class
       INTSCR = MAX(MXTSOB ** 4, NTOOB**2)
       IF(IPRCIX.GE.3)
      &WRITE(6,*) ' Integral scratch space ',INTSCR

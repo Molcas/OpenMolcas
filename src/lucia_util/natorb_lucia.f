@@ -53,7 +53,7 @@
 *
         DO IOB = IOBOFF,IOBOFF + LOB-1
            DO JOB = IOBOFF,IOBOFF + LOB-1
-*. Corresponding type indeces
+*. Corresponding type indices
              IOBP = ISTOB(IOB)
              JOBP = ISTOB(JOB)
              RHO1SM(IMTOFF-1+(JOB-IOBOFF)*LOB+IOB-IOBOFF+1)

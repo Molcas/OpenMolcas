@@ -47,6 +47,7 @@ subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,mh5_close_file
 #endif
+use csfbas, only: CONF, KCFTP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -69,7 +70,6 @@ real(kind=wp), allocatable :: Tmp1(:)
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "csfbas.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
 
@@ -129,7 +129,7 @@ if (Start_Vectors) then
         call mma_allocate(vkcnf,nactel,label='kcnf')
         do i=1,lRoots
           call mh5_fetch_dset(mh5id,'CI_VECTORS',Tmp1,[nconf,1],[0,i-1])
-          call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Tmp1,C,vkcnf)
+          call Reord2(NAC,NACTEL,STSYM,1,CONF,iWork(KCFTP),Tmp1,C,vkcnf)
           call Save_CI_vec(i,nConf,C,LuDavid)
         end do
         call mma_deallocate(Tmp1)
@@ -168,7 +168,7 @@ if (Start_Vectors) then
       call mma_allocate(vkcnf,nactel,label='kcnf')
       do i=1,lRoots
         call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
-        call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Tmp1,C,vkcnf)
+        call Reord2(NAC,NACTEL,STSYM,1,CONF,iWork(KCFTP),Tmp1,C,vkcnf)
         call Save_CI_vec(i,nConf,C,LuDavid)
         if (IPRLEV >= INSANE) then
           write(String,'(A,I2)') 'Start vector of root',i

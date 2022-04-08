@@ -64,7 +64,7 @@ c
 c3    get R
 c
        lun=1
-       daddr(lun)=T3IntPoss(num)
+       daddr(lun)=T3IntPos(num)
 c
        call daname (lun,t3nam)
 c

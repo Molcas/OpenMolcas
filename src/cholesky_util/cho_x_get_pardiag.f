@@ -14,7 +14,7 @@
       SUBROUTINE CHO_X_GET_PARDIAG(jSym,iSO_ab)
 
 ************************************************************************
-*      Returns an array of the "a" and "b" indeces that give rise to the
+*      Returns an array of the "a" and "b" indices that give rise to the
 *      parent diagonal from which a given J-index has been originated
 *      by the (molecular) Cholesky decomposition procedure
 *

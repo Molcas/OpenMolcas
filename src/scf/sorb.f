@@ -61,12 +61,12 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_close_file
 #endif
+      use InfSO
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "file.fh"
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Fock(mBT,nD),
      &       Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)

@@ -13,7 +13,7 @@
 **********************************************************************
 C
 C      a,b,g,d:  AO-index
-C      p,q,r,s:  MO-indeces belonging to (probably frozen excluded ?)
+C      p,q,r,s:  MO-indices belonging to (probably frozen excluded ?)
 C
 **********************************************************************
       use ChoArr, only: nDimRS

@@ -12,8 +12,8 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine csf2det_cvb(vec,detvec,isym_loc,iWay)
+      use csfbas, only: cts, kdtoc
       implicit real*8 (a-h,o-z)
-#include "csfbas.fh"
 #include "ciinfo.fh"
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -28,7 +28,7 @@
 
         jCopy = 0
         call csdtvc(vec,detvec,iway,work(kdtoc),
-     >              iwork(kicts(1)),isym_loc,jcopy)
+     >              cts,isym_loc,jcopy)
       elseif(iWay.eq.2)then
         if ( nac.eq.0 ) then
           vec(1)=detvec(1)
@@ -37,7 +37,7 @@
 
         jCopy = 0
         call csdtvc(vec,detvec,iway,work(kdtoc),
-     >              iwork(kicts(1)),isym_loc,jcopy)
+     >              cts,isym_loc,jcopy)
       endif
       return
       end

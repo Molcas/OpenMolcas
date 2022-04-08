@@ -1552,7 +1552,7 @@ if (lAMFI .and. (.not. Prprt) .and. (.not. Primitive_Pass)) then
     end if
   end do
 
-  call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,Charge2)
+  call Drv_AMFI(Label,OperI,nComp,iAtmNr2,Charge2)
 
   call mma_deallocate(iAtmNr2)
   call mma_deallocate(Charge2)

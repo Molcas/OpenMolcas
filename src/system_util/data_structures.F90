@@ -133,11 +133,11 @@ end type Alloc2DArray_Type
 ! Allocate/deallocate data types
 interface Allocate_DT
   module procedure :: Allocate_DSBA, Allocate_SBA, Allocate_twxy, Allocate_NDSBA, Allocate_G2, Allocate_L_Full, Allocate_Lab, &
-                      Alloc_Alloc1DArray, Alloc_Alloc2DArray
+                      Alloc_Alloc1DArray, Alloc2D_Alloc1DArray, Alloc_Alloc2DArray
 end interface Allocate_DT
 interface Deallocate_DT
   module procedure :: Deallocate_DSBA, Deallocate_SBA, Deallocate_twxy, Deallocate_NDSBA, Deallocate_G2, Deallocate_L_Full, &
-                      Deallocate_Lab, Free_Alloc1DArray, Free_Alloc2DArray
+                      Deallocate_Lab, Free_Alloc1DArray, Free2D_Alloc1DArray, Free_Alloc2DArray
 end interface Deallocate_DT
 
 ! Private extensions to mma interfaces
@@ -146,10 +146,10 @@ interface cptr2loff
 end interface
 interface mma_allocate
   module procedure :: lfp_mma_allo_3D, lfp_mma_allo_3D_lim, v1_mma_allo_3D, v1_mma_allo_3D_lim, a1da_mma_allo_1D, &
-                      a1da_mma_allo_1D_lim, a2da_mma_allo_1D, a2da_mma_allo_1D_lim
+                      a1da_mma_allo_1D_lim, a1da_mma_allo_2D, a1da_mma_allo_2D_lim, a2da_mma_allo_1D, a2da_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure :: lfp_mma_free_3D, v1_mma_free_3D, a1da_mma_free_1D, a2da_mma_free_1D
+  module procedure :: lfp_mma_free_3D, v1_mma_free_3D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
 end interface
 
 contains
@@ -1121,6 +1121,34 @@ subroutine Alloc_Alloc1DArray(Array,N,Label)
 
 end subroutine Alloc_Alloc1DArray
 
+subroutine Alloc2D_Alloc1DArray(Array,N1,N2,Label)
+  type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:,:)
+  integer(kind=iwp), intent(in) :: N1(2), N2(2)
+  character(len=*), intent(in) :: Label
+# ifdef _GARBLE_
+  interface
+    subroutine c_null_alloc(A)
+      import :: wp
+      real(kind=wp), allocatable :: A(:)
+    end subroutine c_null_alloc
+  end interface
+  integer(kind=iwp) :: i, j
+# endif
+  call mma_allocate(Array,N1,N2,label=Label)
+# ifdef _GARBLE_
+  ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
+  do j=N2(1),N2(2)
+    do i=N1(1),N1(2)
+      call c_null_alloc(Array(i,j)%A)
+    end do
+  end do
+# endif
+
+# include "macros.fh"
+  unused_proc(mma_allocate(Array,0,0))
+
+end subroutine Alloc2D_Alloc1DArray
+
 subroutine Alloc_Alloc2DArray(Array,N,Label)
   type(Alloc2DArray_Type), allocatable, intent(inout) :: Array(:)
   integer(kind=iwp), intent(in) :: N(2)
@@ -1157,6 +1185,17 @@ subroutine Free_Alloc1DArray(Array)
   call mma_deallocate(Array)
 end subroutine Free_Alloc1DArray
 
+subroutine Free2D_Alloc1DArray(Array)
+  type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:,:)
+  integer(kind=iwp) :: i, j
+  do j=lbound(Array,2),ubound(Array,2)
+    do i=lbound(Array,1),ubound(Array,1)
+      if (allocated(Array(i,j)%A)) call mma_deallocate(Array(i,j)%A)
+    end do
+  end do
+  call mma_deallocate(Array)
+end subroutine Free2D_Alloc1DArray
+
 subroutine Free_Alloc2DArray(Array)
   type(Alloc2DArray_Type), allocatable, intent(inout) :: Array(:)
   integer(kind=iwp) :: i
@@ -1168,6 +1207,7 @@ end subroutine Free_Alloc2DArray
 
 ! Define lfp_cptr2loff, lfp_mma_allo_3D, lfp_mma_allo_3D_lim, lfp_mma_free_3D
 !        a1da_cptr2loff, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_free_1D
+!                        a1da_mma_allo_2D, a1da_mma_allo_2D_lim, a1da_mma_free_2D
 !        a2da_cptr2loff, a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a2da_mma_free_1D
 #define _TYPE_ type(L_Full_Pointers)
 #  define _FUNC_NAME_ lfp_cptr2loff
@@ -1202,6 +1242,9 @@ end subroutine Free_Alloc2DArray
 #  define _SUBR_NAME_ a1da_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'a1da_mma'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  define _DIMENSIONS_ 2
 #  include "mma_allo_template.fh"
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_

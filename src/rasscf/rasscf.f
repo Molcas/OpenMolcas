@@ -68,6 +68,7 @@
 #endif
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset
+      use csfbas, only: CONF, KCFTP
 #endif
       use OFembed, only: Do_OFemb, FMaux
 
@@ -90,7 +91,6 @@
 #include "casvb.fh"
 #include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "pamint.fh"
 #include "qnctl.fh"
@@ -1792,7 +1792,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *           Read and reorder the left CI vector
             Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
             Call Reord2(NAC,NACTEL,STSYM,1,
-     &                  iWork(KICONF(1)),iWork(KCFTP),
+     &                  CONF,iWork(KCFTP),
      &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
             C_Pointer=iVecL
             kDisk=IADR15(4)
@@ -1800,7 +1800,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *              Read and reorder the right CI vector
                Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
                Call Reord2(NAC,NACTEL,STSYM,1,
-     &                     iWork(KICONF(1)),iWork(KCFTP),
+     &                     CONF,iWork(KCFTP),
      &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
 *              Compute TDM and store in h5 file
                Call Lucia_Util('Densi',iVecR,iDummy,Dummy)

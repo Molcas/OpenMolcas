@@ -10,7 +10,7 @@
 ************************************************************************
        subroutine GetIntPoss
 c
-c        this routine read T3IntPoss array from the first record
+c        this routine read T3IntPos array from the first record
 c        of t3nam file
 c
         implicit none
@@ -21,7 +21,7 @@ c
        lun=1
        call daname (lun,t3nam)
        daddr(lun)=0
-       call idafile (lun,2,T3IntPoss,maxorb,daddr(lun))
+       call idafile (lun,2,T3IntPos,maxorb,daddr(lun))
        call daclos (lun)
 c
        return

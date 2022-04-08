@@ -37,12 +37,12 @@
       use SCF_Arrays
       use Orb_Type
       use LnkLst
+      use InfSO
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
-#include "infso.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

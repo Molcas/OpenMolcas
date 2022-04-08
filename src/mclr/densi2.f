@@ -146,7 +146,7 @@ CFUE  IPRDEN=0
       END IF
 
 *.SCRATCH space for block of two-electron density matrix
-* A 4 index block with four indeces belonging OS class
+* A 4 index block with four indices belonging OS class
 
       INTSCR = MXTSOB ** 4
 

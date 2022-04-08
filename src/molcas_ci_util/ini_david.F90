@@ -148,14 +148,6 @@ else
   save_mode = mixed_mode_2
   if (mxMemStk < (nkeep+1)) save_mode = mixed_mode_1
 end if
-!FUE call GetMem(' ','nFld',' ',nMemStk,nMemStk)
-!FUE nMemStk = nMemStk-30
-!FUE if (MxMemStk > nMemStk) then
-!FUE   MxMemStk = nMemStk
-!FUE   MxDiskStk = 1+2*mxKeep*nRoots+2*nRoots-mxMemStk
-!FUE   save_mode = mixed_mode_2
-!FUE   If (mxMemStk < (mxKeep*nRoots+1)) save_mode = mixed_mode_1
-!FUE end if
 nMemStk = 0
 nDiskStk = 0
 
