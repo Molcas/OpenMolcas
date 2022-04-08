@@ -801,53 +801,6 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-:kword:`SSCR`
-  Follows the title for the calculation in a single line
-
-  .. xmldoc:: <GROUP MODULE="RASSCF" NAME="Spin-Spin-Correlation" KIND="BOX">
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SSCR" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: SSCR <basic>
-              <HELP>
-              Calculate the pairwise orbital resolved spin-spin correlation
-              function between two sites for each RASSCF root following
-              10.1021/acs.jctc.1c00589 eqns. (49/50). It is very important that
-              the orbitals used have been localised before (e.g. Pipek-Mezey)
-              and sorted by atomic sites. The latter step requires manual
-              reordering and is not performed by the Localisation module. This
-              keyword takes two mandatory arguments seperated by a space and
-              two optional lines specifying a custom range:
-
-                norbs iall
-                [range 1]
-                [range 2]
-
-              where "norbs" specifies the length of the ranges and "iall" the
-              interpretation by the program.
-              No default values are implemented.
-
-              For convenient computation of local spin expectation values,
-              follow the number of orbitals by "1". All other values of "iall"
-              require manual specification of the two orbital ranges in the
-              lines underneath.
-
-              Consider a triangle A B C, each with three unpaired electrons,
-              corresponding to a CAS(9,9). If the local spin up to orbital 6
-              should be computed, use:
-
-                SSCR = 6 1
-
-              To retrieve the spin-spin-correlation function between site A and
-              C, one can write
-
-                SSCR = 3 0
-                1 2 3
-                7 8 9
-
-              Notice that the numbering is consecutive.
-              </HELP>
-              </KEYWORD>
-  .. xmldoc:: </GROUP>
-
 :kword:`SYMMetry`
   Specify the selected symmetry type (the irrep) of the wave
   function as a number between 1 and 8 (see SYMMETRY keyword in GATEWAY section). Default is 1, which always
