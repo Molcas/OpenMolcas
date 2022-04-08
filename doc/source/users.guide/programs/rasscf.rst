@@ -270,7 +270,6 @@ for the orbital optimization.
 
 The method is compatible with density fitting techniques available within |openmolcas|.
 The method is also compatible with subsequent MC-PDFT method to recover correlation outside the active space.
-
 .. _UG\:sec\:StochCAS_dependencies:
 
 Dependencies
@@ -317,6 +316,15 @@ This can be achieved by a simple script, such as the following: ::
   cp   OneRDM.1    $WorkDir/$Project.OneRDM
   grep 'REDUCED D' fciqmc.out | sed "s/^.*: //" > NEWCYCLE
   mv NEWCYCLE $WorkDir/.
+between the roots is consistent between Molcas and NECI
+SA-CASSCF on a system admitting this
+1 dectet. Using the FCIDUMP provided by Molcas ()
+input is ignored )
+numbered consecutively
+the RDMs might look like this: ::
+
+
+  # rename .4 .6 *.4; rename .3 .5 *.3 ; rename .2 .4 *.2; rename .1 .3 *.1
 
 .. class:: filelist
 
@@ -453,29 +461,21 @@ Optional important keywords are:
                   3
                   4 5 1
 
-              leads to an order of [4 2 3 5 1 6].
+A minimal input example follows where the use of the Stochastic-CASSCF joinlty with RICD and MC-PDFT is shown: ::
               </HELP>
               </KEYWORD>
 
-.. _UG\:sec\:StochCAS_InputExample:
-
-Input Example
-.............
-
-A minimal input example follows where the use of the Stochastic-CASSCF joinlty with RICD and MC-PDFT is shown: ::
-
-  &GATEWAY
-   RICD
    COORD
      coor.xyz
    BASIS
      ANO-RCC-VTZP
    GROUP
      full
+.............
 
-  &SEWARD
+A minimal input example for using state-averaged Stochastic-CASSCF jointly with RICD MC-PDFT is shown below: ::
 
-  &RASSCF
+     2  2  1   * follows standard &RASSCF syntax
    NECI
     ExNe
    NACTEL
@@ -486,13 +486,13 @@ A minimal input example follows where the use of the Stochastic-CASSCF joinlty w
      0 0 0 0 7 6 6 5
    SYMMETRY
      1
+  &SEWARD
 
-  >>foreach DFT in (T:PBE, T:BLYP, T:LSDA)
-
+  &RASSCF
      >>COPY $CurrDir/converged.RasOrb INPORB
-     &RASSCF
+   CIROOT = 2  2  1   * follows standard &RASSCF syntax
         LumOrb
-        CIONLY
+   NACTEL = 26 0 0
         KSDFT
           ROKS; $DFT
         NECI
@@ -505,6 +505,15 @@ A minimal input example follows where the use of the Stochastic-CASSCF joinlty w
           0 0 0 0 7 6 6 5
         SYMMETRY
           1
+     &RASSCF
+        FileOrb = $CurrDir/converged.RasOrb
+        CIONLY
+        KSDFT = ROKS; $DFT
+        NECI = ExNe
+        NACTEL = 26 0 0
+        INACTIVE = 20 17 17 14 0 0 0 0
+        RAS2 = 0 0 0 0 7 6 6 5
+        SYMMETRY = 1
   >>enddo
 
 .. _UG\:sec\:gasscf:
@@ -2293,7 +2302,7 @@ A list of these keywords is given below:
               %%Keyword: CMSI <basic>
               <HELP>
               This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation into CMS intermediate states.
-              </HELP>
+              This keyword specifies file that provides the starting rotation matrix for CMS intermediate states.
               </KEYWORD>
 
 :kword:`CMSStart`
@@ -2302,7 +2311,7 @@ A list of these keywords is given below:
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSS" LEVEL="ADVANCED" APPEAR="CMS starting rotation matrix" KIND="STRING" DEFAULT_VALUE="XMS">
               %%Keyword: CMSS <advanced>
               <HELP>
-              This keyword specifies file that provides the starting rotation matrix for CMS intermediate states. 
+              This keyword specifies file that provides the starting rotation matrix for CMS intermediate states.
               </HELP>
               </KEYWORD>
 
