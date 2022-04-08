@@ -188,10 +188,6 @@ if ($opt{compiler} eq 'gnu') {
     $fc = which("sunf90");
     $cc = which("suncc");
     $cxx = which("sunCC");
-} elsif ($opt{compiler} eq 'aocc') {
-    $fc = which("flang");
-    $cc = which("clang");
-    $cxx = which("clang++");
 } else {
     error("unknown compiler ID: $opt{compiler}");
 }
