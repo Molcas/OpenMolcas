@@ -16,7 +16,9 @@
 module rhodyn_utils
 ! module contains some auxiliary routines
 
+#ifdef _ADDITIONAL_RUNTIME_CHECK_
 use linalg_mod, only: abort_
+#endif
 use Definitions, only: wp, iwp
 
 implicit none
@@ -66,7 +68,10 @@ subroutine mult_2D(a,b,c,transpA,transpB)
   real(kind=wp), intent(in) :: a(:,:), b(:,:)
   real(kind=wp), intent(out) :: c(:,:)
   logical(kind=iwp), intent(in), optional :: transpA, transpB
-  integer(kind=iwp) :: k, k1, k2, m, n
+  integer(kind=iwp) :: k, k1, m, n
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  integer(kind=iwp) :: k2
+# endif
   logical(kind=iwp) :: transpA_, transpB_
 
   if (present(transpA)) then
@@ -84,7 +89,9 @@ subroutine mult_2D(a,b,c,transpA,transpB)
   n = size(b,merge(1,2,transpB_))
   ASSERT(n == size(c,2))
   k1 = size(a,merge(1,2,transpA_))
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
   k2 = size(b,merge(2,1,transpB_))
+# endif
   ASSERT(k1 == k2)
   k = k1
   call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),m,n,k,One,a,size(a,1),b,size(b,1),Zero,c,size(c,1))
@@ -98,7 +105,10 @@ subroutine multZ_2D(a,b,c,transpA,transpB)
   complex(kind=wp), intent(in) :: a(:,:), b(:,:)
   complex(kind=wp), intent(out) :: c(:,:)
   logical(kind=iwp), intent(in), optional :: transpA, transpB
-  integer(kind=iwp) :: k, k1, k2, m, n
+  integer(kind=iwp) :: k, k1, m, n
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  integer(kind=iwp) :: k2
+# endif
   logical(kind=iwp) :: transpA_, transpB_
 
   if (present(transpA)) then
@@ -116,7 +126,9 @@ subroutine multZ_2D(a,b,c,transpA,transpB)
   n = size(b,merge(1,2,transpB_))
   ASSERT(n == size(c,2))
   k1 = size(a,merge(1,2,transpA_))
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
   k2 = size(b,merge(2,1,transpB_))
+# endif
   ASSERT(k1 == k2)
   k = k1
   call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),m,n,k,cOne,a,size(a,1),b,size(b,1),cZero,c,size(c,1))

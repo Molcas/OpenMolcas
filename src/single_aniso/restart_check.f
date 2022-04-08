@@ -20,11 +20,11 @@ c
       Integer ::  nDir, nDirZee, nMult, i
       Logical ::  Ifrestart
       Logical ::  GRAD
-      Real    ::  rdummy
+      Real(kind=wp) ::  rdummy
       Character(Len=280) :: line, tmp
       Character(Len=180) :: input_file_name
       Integer :: ncut,nk,mg
-      Real    :: encut_rate
+      Real(kind=wp) :: encut_rate
       Logical :: KeyHEXP,KeyHINT,KeyTMAG,
      &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT
 c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD,KeyDATA
