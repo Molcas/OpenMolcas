@@ -263,13 +263,16 @@ Stochastic-CASSCF method
 
 The Stochastic-CASSCF :cite:`limanni2016` has been developed since 2015 by Li Manni and Alavi,
 initially into a locally modified version of |molcas| and now available in |openmolcas|.
-The method retains the simplicity of CASSCF, while circuventing the the exponential scaling of CAS wave functions.
+The method retains the simplicity of CASSCF, while circumventing the exponential scaling of CAS wave functions.
 This is obtained by replacing the Davidson diagonalization technique, in its direct-CI implementation (default in |molcas|),
 with the full-CI quantum Monte-Carlo (FCIQMC) algorithm :cite:`Alavi2009`, whilst the Super-CI method is used
 for the orbital optimization.
 
-The method is compatible with density fitting techniques available within |openmolcas|.
-The method is also compatible with subsequent MC-PDFT method to recover correlation outside the active space.
+The method is compatible with density fitting techniques available within
+|openmolcas|, subsequent MC-PDFT calculations to recover correlation
+outside the active space and state-averaging across multiple multiplicities.
+
+
 
 .. _UG\:sec\:StochCAS_dependencies:
 
@@ -302,7 +305,7 @@ The Input and the FCIDUMP files are the only files necessary to :program:`NECI` 
 For questions about the FCIQMC dynamics we invite to contact its developers.
 
 As accurate density matrices are necessary for a successful Stochastic-CASSCF calculation,
-users are invited to use the :file:`dneci.x` binary (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
+users are invited to use the :file:`dneci.x` and :file:`mneci.x` binaries (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
 The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in the NECI generated :file:`FCIMCStats` file.
 In the :file:`fciqmc.out` there are important pieces of information, such as the list of Slater determinants dominating the FCI wave function and the RDM energy. The latter is passed to |molcas| as shown in the script below.
 When a stationary condition is reached and density matrices sampled these are passed to the :file:`RASSCF` program to continue.
@@ -317,6 +320,38 @@ This can be achieved by a simple script, such as the following: ::
   cp   OneRDM.1    $WorkDir/$Project.OneRDM
   grep 'REDUCED D' fciqmc.out | sed "s/^.*: //" > NEWCYCLE
   mv NEWCYCLE $WorkDir/.
+
+When performing state-averaging, the user has to ensure that the ordering of
+all roots is consistent between Molcas and NECI. For instance, consider a
+SA-CASSCF on a system admitting 2 doublets, 4 quartets, 3 sextets, 2 octets and
+1 dectet. Using the FCIDUMP provided by Molcas (multiplicity in the Molcas
+input is disabled for these calculations, but should nevertheless be provided),
+one can complete the NECI dynamics; afterwards Molcas will now prompt for 12
+consecutively numbered density matrices and energies, i.e.: ::
+
+ When finished do:
+    cp TwoRDM_* /$YOUR_WORKDIR/mn3o4.25136
+    echo $your_RDM_Energy > /$YOUR_WORKDIR/NEWCYCLE
+
+A shell script which also takes care of renaming the RDMs might look
+like this: ::
+
+  export CALCBASE="location of your calculation"
+  export YOUR_WORKDIR="location of your scratch"
+
+  cd $CALCBASE/neci-doublet/  # contains roots 1 and 2
+  grep '*REDUCED' $YOUR_INPUT.out | awk '{ print $9 }' >> $CALCBASE/NEWCYCLE
+
+  cd $CALCBASE/neci-quartet/  # contains roots 3 to 6
+  grep '*REDUCED' mn3o4.out | awk '{ print $9 }' >> $CALCBASE/NEWCYCLE
+  # reverse order required, otherwise redundant rename
+  rename .4 .6 *.4; rename .3 .5 *.3 ; rename .2 .4 *.2; rename .1 .3 *.1
+
+  [for the other roots same procedure]
+
+  cd $CALCBASE
+  cp neci-doublet/run$1/TwoRDM_* neci-quartet/run$1/TwoRDM_* [other roots] $YOUR_WORKDIR
+  cp NEWCYCLE $YOUR_WORKDIR
 
 .. class:: filelist
 
@@ -462,49 +497,35 @@ Optional important keywords are:
 Input Example
 .............
 
-A minimal input example follows where the use of the Stochastic-CASSCF joinlty with RICD and MC-PDFT is shown: ::
+A minimal input example for using state-averaged Stochastic-CASSCF jointly with RICD MC-PDFT is shown below: ::
 
   &GATEWAY
    RICD
-   COORD
-     coor.xyz
-   BASIS
-     ANO-RCC-VTZP
-   GROUP
-     full
+   COORD = coor.xyz
+   BASIS = ANO-RCC-VTZP
+   GROUP = full
 
   &SEWARD
 
   &RASSCF
-   NECI
-    ExNe
-   NACTEL
-     26 0 0
-   INACTIVE
-     20 17 17 14 0 0 0 0
-   RAS2
-     0 0 0 0 7 6 6 5
-   SYMMETRY
-     1
+   CIROOT = 2  2  1   * follows standard &RASSCF syntax
+   NECI = ExNe
+   NACTEL = 26 0 0
+   INACTIVE = 20 17 17 14 0 0 0 0
+   RAS2 = 0 0 0 0 7 6 6 5
+   SYMMETRY = 1
 
   >>foreach DFT in (T:PBE, T:BLYP, T:LSDA)
 
-     >>COPY $CurrDir/converged.RasOrb INPORB
      &RASSCF
-        LumOrb
+        FileOrb = $CurrDir/converged.RasOrb
         CIONLY
-        KSDFT
-          ROKS; $DFT
-        NECI
-          ExNe
-        NACTEL
-          26 0 0
-        INACTIVE
-          20 17 17 14 0 0 0 0
-        RAS2
-          0 0 0 0 7 6 6 5
-        SYMMETRY
-          1
+        KSDFT = ROKS; $DFT
+        NECI = ExNe
+        NACTEL = 26 0 0
+        INACTIVE = 20 17 17 14 0 0 0 0
+        RAS2 = 0 0 0 0 7 6 6 5
+        SYMMETRY = 1
   >>enddo
 
 .. _UG\:sec\:gasscf:
@@ -779,6 +800,53 @@ A list of these keywords is given below:
               Follows the title in a single line
               </HELP>
               </KEYWORD>
+
+:kword:`SSCR`
+  Follows the title for the calculation in a single line
+
+  .. xmldoc:: <GROUP MODULE="RASSCF" NAME="Spin-Spin-Correlation" KIND="BOX">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SSCR" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: SSCR <basic>
+              <HELP>
+              Calculate the pairwise orbital resolved spin-spin correlation
+              function between two sites for each RASSCF root following
+              10.1021/acs.jctc.1c00589 eqns. (49/50). It is very important that
+              the orbitals used have been localised before (e.g. Pipek-Mezey)
+              and sorted by atomic sites. The latter step requires manual
+              reordering and is not performed by the Localisation module. This
+              keyword takes two mandatory arguments seperated by a space and
+              two optional lines specifying a custom range:
+
+                norbs iall
+                [range 1]
+                [range 2]
+
+              where "norbs" specifies the length of the ranges and "iall" the
+              interpretation by the program.
+              No default values are implemented.
+
+              For convenient computation of local spin expectation values,
+              follow the number of orbitals by "1". All other values of "iall"
+              require manual specification of the two orbital ranges in the
+              lines underneath.
+
+              Consider a triangle A B C, each with three unpaired electrons,
+              corresponding to a CAS(9,9). If the local spin up to orbital 6
+              should be computed, use:
+
+                SSCR = 6 1
+
+              To retrieve the spin-spin-correlation function between site A and
+              C, one can write
+
+                SSCR = 3 0
+                1 2 3
+                7 8 9
+
+              Notice that the numbering is consecutive.
+              </HELP>
+              </KEYWORD>
+  .. xmldoc:: </GROUP>
 
 :kword:`SYMMetry`
   Specify the selected symmetry type (the irrep) of the wave
@@ -2249,8 +2317,18 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`CMSStart`
+  This keyword gives the file that stores the starting rotation matrix for finding the CMS intermediate states (see :kword:`CMSInter`). The file has the same format as :file:`Do_Rotate.txt`. The default is to use the XMS intermediate states (see :kword:`XMSInter`).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSS" LEVEL="ADVANCED" APPEAR="CMS starting rotation matrix" KIND="STRING" DEFAULT_VALUE="XMS">
+              %%Keyword: CMSS <advanced>
+              <HELP>
+              This keyword specifies file that provides the starting rotation matrix for CMS intermediate states.
+              </HELP>
+              </KEYWORD>
+
 :kword:`CMMAx`
-   This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
+  This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMMA" APPEAR="CMS Maximum Cycles" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="100" MIN_VALUE="1">
               %%Keyword: CMMA <advanced>
@@ -2260,7 +2338,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMMIn`
-   This keyword defines the minimum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 5.
+  This keyword defines the minimum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 5.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMMI" APPEAR="CMS Mininum Cycles" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="5" MIN_VALUE="1">
               %%Keyword: CMMI <advanced>
@@ -2270,9 +2348,9 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMTHreshold`
-   This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge (see :kword:`CMSInter`). The default value is 1.0d-6.
+  This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge (see :kword:`CMSInter`). The default value is 1.0d-8.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-6">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-8">
               %%Keyword: CMTH <advanced>
               <HELP>
               This keyword specifies the threshold for the change of sum over states of the classical Coulomb energy for CMS intermediate states to converge.
