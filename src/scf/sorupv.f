@@ -218,6 +218,7 @@
 *
 *     (4): now loop over 1..n-2 iterations.
 *
+*     Write (*,*) 'iter,iterso=',iter,iterso
       Do it=iter-iterso+1,iter-2
 *
 *        fetch delta(i), dGrd(i) and y(i) from corresponding LLists

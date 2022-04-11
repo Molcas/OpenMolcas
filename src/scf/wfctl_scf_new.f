@@ -82,7 +82,7 @@
 
 *---  Define local variables
       Logical QNR1st,FstItr
-      Logical :: ResetH=.False.
+*     Logical :: ResetH=.False.
       Character Meth*(*), Meth_*10
       Character*72 Note
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
@@ -257,7 +257,7 @@
       iAufOK=0
       IterX=0
       If(Scrmbl) IterX=-2
-!     Iter_DIIS=0
+      Iter_DIIS=0
       EDiff=0.0D0
       DMOMax=0.0D0
       FMOMax=0.0D0
@@ -394,20 +394,24 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
             End If
          End If
 #else
-         If (RSRFO) Then
+         If (Aufb) Then
+            iOpt=0
+*           If (Iter>1) iOpt=1
+            Iter_DIIS = Iter_DIIS + 1
+         Else If (RSRFO) Then
             iOpt=3
             If (iter==1) iOpt=0
          Else
             iOpt=2
             If (iter==1) iOpt=0
          End If
-         If (.NOT.QNR1st .and. Abs(EDiff)<1.0D-2 .and. ResetH
-     &       .AND. iterso>=2) Then
-            Write (6,*) 'Reset'
-            QNR1st=.True.
-            ReSetH=.False.
-         End If
-         If (QNR1st) Then
+*        If (.NOT.QNR1st .and. Abs(EDiff)<1.0D-2 .and. ResetH
+*    &       .AND. iterso>=2) Then
+*           Write (6,*) 'Reset'
+*           QNR1st=.True.
+*           ReSetH=.False.
+*        End If
+         If (QNR1st.and. iOpt>=2 ) Then
 !------     1st QNR step, reset kOptim to 1
 
             kOptim = 1
@@ -438,9 +442,12 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 ************************************************************************
 ************************************************************************
 *                                                                      *
-C        Write (6,*) 'kOptim(Final)=',kOptim
-C        Write (6,*) 'iOpt(Final)=',iOpt
-         If ( iOpt.eq.0 ) Then
+*        Write (6,*) 'kOptim(Final)=',kOptim
+*        Write (6,*) 'iOpt(Final)=',iOpt
+         Select Case(iOpt)
+
+         Case(0)
+
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -493,7 +500,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Else If ( iOpt.eq.1 ) Then
+         Case(1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -535,109 +542,12 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Else If ( iOpt.eq.2 ) Then
-*                                                                      *
-************************************************************************
-************************************************************************
+         Case(2,3)
 *                                                                      *
 *           Extrapolation DIIS & QNR
 *
-*           In this section we operate directly on the anti-symmetric X
-*           matrix.
+*           or
 *
-*           Initially the energy is determined through a line seach,
-*           followed by the Fock matrix etc. In this respect, this
-*           approach is doing in this iteration what was already done
-*           by the two other approaches in the end of the previous
-*           iteration.
-*
-*           Note also, that since we work directly with the X matrix we
-*           also rotate the orbitals with this matrix (note the call to
-*           RotMOs right before the call to SCF_Energy in the line
-*           search routine, linser). Thus, the orbitals here are not
-*           canonical and would require at the termination of the
-*           optimization that these are computed.
-*
-*           Initiate if the first QNR step
-*
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-*
-            Call GrdClc(QNR1st,iOpt)
-*
-            Call dGrd()
-*
-*---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
-*           AO basis
-*
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,
-     &                  nIter(nIterP),nD)
-*
-*---        and transform the Fock matrix into the new MO space,
-*
-            Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrlp,nD)
-*
-*---        update QNR iteration counter
-*
-            iterso=iterso+1
-*
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
-*
-*----       Compute extrapolated g(n) and X(n)
-*
-            Call mma_allocate(Grd1,mOV,Label='Grd1')
-            Call mma_allocate(Xnp1,mOV,Label='Xnp1')
-*
-            Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
-     &                      kOptim,kOV)
-
-            Call mma_allocate(Disp,mOV,Label='Disp')
-*
-*-------    compute new displacement vector delta
-*           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
-*
-            Call SOrUpV(Grd1,HDiag,mOV,Disp,'DISP','BFGS')
-!
-!           from this, compute new orb rot parameter X(n+1)
-!
-!           X(n+1) = X(n) -H(-1)grd'(X(n))
-!
-            Call Daxpy_(mOV,-One,Disp,1,Xnp1,1)
-            Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
-*
-*           get address of actual X(n) in corresponding LList
-*
-            jpXn=LstPtr(iter,LLx)
-*
-*           and compute actual displacement dX(n)=X(n+1)-X(n)
-*
-            Call DZAXPY(mOV,-One,SCF_V(jpXn)%A,1,Xnp1,1,Disp,1)
-*
-*           store dX(n) vector from Disp to LList
-*
-            Call PutVec(Disp,mOV,iter,'NOOP',LLDelt)
-*
-*           compute Norm of dX(n)
-*
-            DltNrm=DBLE(nD)*DNRM2_(mOV,Disp,1)
-
-*           Generate the CMOs, rotate MOs accordingly to new point
-*
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT)
-*
-*           and release memory...
-            Call mma_deallocate(Xnp1)
-            Call mma_deallocate(Disp)
-            Call mma_deallocate(Grd1)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         Else If ( iOpt.eq.3 ) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
 *           Quasi-2nd order scheme (rational function optimization)
 *           with  restricted.step.
 *
@@ -679,47 +589,87 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *---        update QNR iteration counter
 *
             iterso=iterso+1
-*
+
 *           Allocate memory for the current gradient and
 *           displacement vector.
 *
             Call mma_allocate(Grd1,mOV,Label='Grd1')
             Call mma_allocate(Disp,mOV,Label='Disp')
             Call mma_allocate(Xnp1,mOV,Label='Xnp1')
+         Select Case(iOpt)
+         Case(2)
+*                                                                      *
+************************************************************************
+************************************************************************
 *
-*           get last gradient grad(n) from LList
+*----       Compute extrapolated g_x(n) and X_x(n)
+*
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
+            Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
+     &                      kOptim,kOV)
+*
+*-------    compute new displacement vector delta
+*           dX(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
+*
+            Call SOrUpV(Grd1,HDiag,mOV,Disp,'DISP','BFGS')
+            Disp(:)=-Disp(:)
+!
+!           from this, compute new orb rot parameter X(n+1)
+!
+!           X(n+1) = X(n) - H(-1)g_x(n)
+!           X(n+1) = X(n) + Disp(n)
+!
+            Xnp1(:)=Xnp1(:)+Disp(:)
+*
+*           get address of actual X(n) in corresponding LList
+*
+            jpXn=LstPtr(iter,LLx)
+*
+*           and compute actual displacement dX(n)=X(n+1)-X(n)
+*
+            Disp(:)=Xnp1(:)-SCF_V(jpXn)%A(:)
+            dqdq = DNRM2_(mOV,Disp,1)
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+         Case(3)
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+*           Get g(n)
 *
             Call GetVec(iter,LLGrad,inode,Grd1,mOV)
-#ifdef _DEBUGPRINT_
-            Call RecPrt('Wfctl: g(n)',' ',Grd1,1,mOV)
-#endif
 *
-*           Call restricted-step rational function optimization procedure
-*           to compute dX(n)=Xn+1 - Xn
+*           Use rs-rfo to compute dX(n)
 *
-            StepMax=0.3D0
+            StepMax=0.30D0
             dqHdq=Zero
             Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
+
+*           Pick up X(n) and compute X(n+1)=X(n)+dX(n)
+
+            Call GetVec(iter,LLx,inode,Xnp1,mOV)
+
+            Xnp1(:)=Xnp1(:)+Disp(:)
+
+         End Select
+
+*
+*           Store X(n+1)
+*
+            Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
 *
 *           store dX(n) vector from Disp to LList
 *
             Call PutVec(Disp,mOV,iter,'NOOP',LLDelt)
 *
-*           Store X(n+1)
-*
-            Call GetVec(iter,LLx,inode,Xnp1,mOV)
-            Xnp1(:)=Xnp1(:)+Disp(:)
-            Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
-
-#ifdef _DEBUGPRINT_
-            Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
-            Call RecPrt('Wfctl: dX(n)',' ',Disp,1,mOV)
-#endif
-*
-*           compute Norm of delta(n)
+*           compute Norm of dX(n)
 *
             DltNrm=DBLE(nD)*dqdq
+
 *
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
@@ -733,10 +683,10 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Else
+         Case Default
             Write (6,*) 'WfCtl_SCF: Illegal option'
             Call Abend()
-         End If
+         End Select
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -753,6 +703,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 !           End If
             If (kOptim.gt.MxOptm) kOptim = MxOptm
 *        End If
+*        Write (*,*) 'MxOptm=',MxOptm
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -856,6 +807,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *======================================================================*
 *                                                                      *
          If (Aufb.and..Not.Teee) Then
+*           Write (*,*) 'Aufb(1)'
 *
             If(iter.ne.1 .and. Abs(EDiff).lt.0.002D0 .and.
      &         .Not.AufBau_Done) Then
@@ -865,6 +817,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
             End If
 *
          Else If (Aufb.and.Teee) Then
+*           Write (*,*) 'Aufb(2)'
 *
 * If one iteration has been performed with the end temperature and we
 * have a stable aufbau Slater determinant, terminate.
@@ -918,6 +871,9 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 !
 !        EmConv is true.
 !
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (iter.ne.1             .AND.
      &       (Abs(EDiff).le.EThr)  .AND.
      &       (Abs(FMOMax).le.FThr) .AND.
@@ -926,6 +882,10 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
      &       ((DltNrm.le.DltNTh).AND.iOpt.ge.2))
      &       .OR.EmConv
      &      ) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+*           Write (*,*) 'Case 1'
 *
             If(Aufb) Then
                WarnPocc=.true.
@@ -966,6 +926,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *           Here if Aufbau stage is finished and the calculation will
 *           continue normally.
 *
+*           Write (*,*) 'Case 2'
             Aufb=.FALSE.
             If (jPrint.ge.2) Then
                Write(6,*)
@@ -1018,11 +979,14 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *
 *---------- Now when nOcc is known compute standard sizes of arrays.
 *
-            Call Setup
-*
+            Call Setup()
+*                                                                      *
+************************************************************************
+*                                                                      *
          End If
-*
-*----------------------------------------------------------------------*
+*                                                                      *
+************************************************************************
+*                                                                      *
          Call Scf_Mcontrol(iter)
 *----------------------------------------------------------------------*
 *
@@ -1075,6 +1039,7 @@ C        Write (6,*) 'iOpt(Final)=',iOpt
 *                                                                      *
 *     End of iteration loop
 *
+*     Write (*,*) 'Loop'
  100  Continue ! iter_
 *                                                                      *
 *======================================================================*
