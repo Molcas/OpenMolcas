@@ -600,7 +600,7 @@
 4 sssssssss
 >>EOF
 >> COPY C2H2O3.xyz .
->> COPY 187.xyz .
+>> COPY 187.ScfOrb .
 
  &Gateway
  Coord=C2H2O3.xyz
