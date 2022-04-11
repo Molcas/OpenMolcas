@@ -609,15 +609,15 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
      &                      kOptim,kOV)
 *
 *-------    compute new displacement vector delta
-*           dX(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
+*           dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 *
             Call SOrUpV(Grd1,HDiag,mOV,Disp,'DISP','BFGS')
             Disp(:)=-Disp(:)
 !
 !           from this, compute new orb rot parameter X(n+1)
 !
-!           X(n+1) = X(n) - H(-1)g_x(n)
-!           X(n+1) = X(n) + Disp(n)
+!           X(n+1) = X_x(n) - H(-1)g_x(n)
+!           X(n+1) = X_x(n) + dX_x(n)
 !
             Xnp1(:)=Xnp1(:)+Disp(:)
 *
@@ -669,7 +669,6 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *           compute Norm of dX(n)
 *
             DltNrm=DBLE(nD)*dqdq
-
 *
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
