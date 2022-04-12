@@ -9,18 +9,21 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2016, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015,2016,2022, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
+import sphinx
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
 from sphinx.util.nodes import set_source_info
+from sphinx.builders.latex.nodes import captioned_literal_block
 
-class float_container(nodes.General, nodes.Element): pass
-class table_container(nodes.General, nodes.Element): pass
-class figure_container(nodes.General, nodes.Element): pass
-class code_container(nodes.General, nodes.Element): pass
+class container(nodes.General, nodes.Element): pass
+class float_container(container): pass
+class table_container(container): pass
+class figure_container(container): pass
+class code_container(container): pass
 
 # Create the float directive
 #
@@ -73,19 +76,48 @@ def visit_float_latex(self, node):
     ids += self.hypertarget(node['ids'][0], anchor=False)
   if (isinstance(node, table_container)):
     floattype = 'table'
-  elif (isinstance(node, figure_container)):
-    floattype = 'figure'
-  elif (isinstance(node, code_container)):
-    floattype = 'code'
+    self.body.append('\\sphinxcapstartof{%s}\n' % floattype)
+    self.context.append(ids + '\n')
   else:
-    floattype = 'float'
-  self.body.append('\\begin{%s}\n' % floattype)
-  if any(isinstance(child, nodes.caption) for child in node):
-    self.body.append('\\capstart\n')
-  self.context.append(ids + '\\end{%s}\n' % floattype)
+    if (isinstance(node, figure_container)):
+      floattype = 'figure'
+    elif (isinstance(node, code_container)):
+      floattype = 'code'
+    else:
+      floattype = 'float'
+    self.body.append('\\begin{%s}\n' % floattype)
+    if any(isinstance(child, nodes.caption) for child in node):
+      self.body.append('\\capstart\n')
+    self.context.append(ids + '\\end{%s}\n' % floattype)
 
 def depart_float_latex(self, node):
   self.body.append(self.context.pop())
+
+# Patch caption formatting in containers
+#
+visit_caption_orig = sphinx.writers.latex.LaTeXTranslator.visit_caption
+depart_caption_orig = sphinx.writers.latex.LaTeXTranslator.depart_caption
+def visit_caption_patched(self, node: nodes.Element) -> None:
+    if isinstance(node.parent, container):
+      if node.parent[0] is node:
+        self.body.append('\\sphinxthecaptionisattop\n')
+      self.in_caption += 1
+      if isinstance(node.parent, table_container):
+        self.body.append('\\sphinxcaption{')
+      else:
+        self.body.append('\\caption{')
+    else:
+      visit_caption_orig(self, node)
+def depart_caption_patched(self, node: nodes.Element) -> None:
+  if isinstance(node.parent, container):
+    self.body.append('}')
+    if node.parent[0] is node:
+      self.body.append('\n\\sphinxaftertopcaption')
+    self.in_caption -= 1
+  else:
+    depart_caption_orig(self, node)
+sphinx.writers.latex.LaTeXTranslator.visit_caption = visit_caption_patched
+sphinx.writers.latex.LaTeXTranslator.depart_caption = depart_caption_patched
 
 # Setup
 #
