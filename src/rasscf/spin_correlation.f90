@@ -12,7 +12,6 @@
 !***********************************************************************
 
 module spin_correlation
-
   use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   use CI_solver_util, only: rdm_from_runfile
@@ -23,7 +22,7 @@ module spin_correlation
   private
   public :: spin_correlation_driver
   integer, allocatable, public, save :: orb_range_p(:), orb_range_q(:)
-  integer, public :: p, q
+  integer, public :: same_orbs
 
 
 contains
@@ -41,6 +40,7 @@ contains
     call mma_allocate(spin_correlations, size(iroot))
     spin_correlations(:) = 0.0_wp
 
+    write(u6,'(a)') new_line('a')
     do i = 1, NRoots
       do j = 1, size(iroot)
         if (iroot(j) == i) then
@@ -52,6 +52,9 @@ contains
         end if
       end do
     end do
+
+    ! for testing purposes
+    call Add_Info('spin correlation', spin_correlations(1), 1, 8)
 
     call mma_deallocate(spin_correlations)
   end subroutine spin_correlation_driver

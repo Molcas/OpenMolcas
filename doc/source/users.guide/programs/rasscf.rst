@@ -263,13 +263,15 @@ Stochastic-CASSCF method
 
 The Stochastic-CASSCF :cite:`limanni2016` has been developed since 2015 by Li Manni and Alavi,
 initially into a locally modified version of |molcas| and now available in |openmolcas|.
-The method retains the simplicity of CASSCF, while circuventing the the exponential scaling of CAS wave functions.
+The method retains the simplicity of CASSCF, while circumventing the exponential scaling of CAS wave functions.
 This is obtained by replacing the Davidson diagonalization technique, in its direct-CI implementation (default in |molcas|),
 with the full-CI quantum Monte-Carlo (FCIQMC) algorithm :cite:`Alavi2009`, whilst the Super-CI method is used
 for the orbital optimization.
 
-The method is compatible with density fitting techniques available within |openmolcas|.
-The method is also compatible with subsequent MC-PDFT method to recover correlation outside the active space.
+The method is compatible with density fitting techniques available within
+|openmolcas|, subsequent MC-PDFT calculations to recover correlation
+outside the active space and state-averaging across multiple multiplicities.
+
 .. _UG\:sec\:StochCAS_dependencies:
 
 Dependencies
@@ -301,7 +303,7 @@ The Input and the FCIDUMP files are the only files necessary to :program:`NECI` 
 For questions about the FCIQMC dynamics we invite to contact its developers.
 
 As accurate density matrices are necessary for a successful Stochastic-CASSCF calculation,
-users are invited to use the :file:`dneci.x` binary (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
+users are invited to use the :file:`dneci.x` and :file:`mneci.x` binaries (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
 The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in the NECI generated :file:`FCIMCStats` file.
 In the :file:`fciqmc.out` there are important pieces of information, such as the list of Slater determinants dominating the FCI wave function and the RDM energy. The latter is passed to |molcas| as shown in the script below.
 When a stationary condition is reached and density matrices sampled these are passed to the :file:`RASSCF` program to continue.
@@ -325,6 +327,38 @@ the RDMs might look like this: ::
 
 
   # rename .4 .6 *.4; rename .3 .5 *.3 ; rename .2 .4 *.2; rename .1 .3 *.1
+
+When performing state-averaging, the user has to ensure that the ordering of
+all roots is consistent between Molcas and NECI. For instance, consider a
+SA-CASSCF on a system admitting 2 doublets, 4 quartets, 3 sextets, 2 octets and
+1 dectet. Using the FCIDUMP provided by Molcas (multiplicity in the Molcas
+input is disabled for these calculations, but should nevertheless be provided),
+one can complete the NECI dynamics; afterwards Molcas will now prompt for 12
+consecutively numbered density matrices and energies, i.e.: ::
+
+ When finished do:
+    cp TwoRDM_* /$YOUR_WORKDIR/mn3o4.25136
+    echo $your_RDM_Energy > /$YOUR_WORKDIR/NEWCYCLE
+
+A shell script which also takes care of renaming the RDMs might look
+like this: ::
+
+  export CALCBASE="location of your calculation"
+  export YOUR_WORKDIR="location of your scratch"
+
+  cd $CALCBASE/neci-doublet/  # contains roots 1 and 2
+  grep '*REDUCED' $YOUR_INPUT.out | awk '{ print $9 }' >> $CALCBASE/NEWCYCLE
+
+  cd $CALCBASE/neci-quartet/  # contains roots 3 to 6
+  grep '*REDUCED' mn3o4.out | awk '{ print $9 }' >> $CALCBASE/NEWCYCLE
+  # reverse order required, otherwise redundant rename
+  rename .4 .6 *.4; rename .3 .5 *.3 ; rename .2 .4 *.2; rename .1 .3 *.1
+
+  [for the other roots same procedure]
+
+  cd $CALCBASE
+  cp neci-doublet/run$1/TwoRDM_* neci-quartet/run$1/TwoRDM_* [other roots] $YOUR_WORKDIR
+  cp NEWCYCLE $YOUR_WORKDIR
 
 .. class:: filelist
 
@@ -461,50 +495,32 @@ Optional important keywords are:
                   3
                   4 5 1
 
-A minimal input example follows where the use of the Stochastic-CASSCF joinlty with RICD and MC-PDFT is shown: ::
               </HELP>
               </KEYWORD>
 
-   COORD
-     coor.xyz
-   BASIS
-     ANO-RCC-VTZP
-   GROUP
-     full
+.. _UG\:sec\:StochCAS_InputExample:
+
+Input Example
 .............
 
 A minimal input example for using state-averaged Stochastic-CASSCF jointly with RICD MC-PDFT is shown below: ::
 
-     2  2  1   * follows standard &RASSCF syntax
-   NECI
-    ExNe
-   NACTEL
-     26 0 0
-   INACTIVE
-     20 17 17 14 0 0 0 0
-   RAS2
-     0 0 0 0 7 6 6 5
-   SYMMETRY
-     1
-  &SEWARD
+  &GATEWAY
+   RICD
+   COORD = coor.xyz
+   BASIS = ANO-RCC-VTZP
+   GROUP = full
 
   &RASSCF
-     >>COPY $CurrDir/converged.RasOrb INPORB
    CIROOT = 2  2  1   * follows standard &RASSCF syntax
-        LumOrb
+   NECI = ExNe
    NACTEL = 26 0 0
-        KSDFT
-          ROKS; $DFT
-        NECI
-          ExNe
-        NACTEL
-          26 0 0
-        INACTIVE
-          20 17 17 14 0 0 0 0
-        RAS2
-          0 0 0 0 7 6 6 5
-        SYMMETRY
-          1
+   INACTIVE = 20 17 17 14 0 0 0 0
+   RAS2 = 0 0 0 0 7 6 6 5
+   SYMMETRY = 1
+
+  >>foreach DFT in (T:PBE, T:BLYP, T:LSDA)
+
      &RASSCF
         FileOrb = $CurrDir/converged.RasOrb
         CIONLY
@@ -789,53 +805,6 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-:kword:`SSCR`
-  Follows the title for the calculation in a single line
-
-  .. xmldoc:: <GROUP MODULE="RASSCF" NAME="Spin-Spin-Correlation" KIND="BOX">
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SSCR" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: SSCR <basic>
-              <HELP>
-              Calculate the pairwise orbital resolved spin-spin correlation
-              function between two sites for each RASSCF root following
-              10.1021/acs.jctc.1c00589 eqns. (49/50). It is very important that
-              the orbitals used have been localised before (e.g. Pipek-Mezey)
-              and sorted by atomic sites. The latter step requires manual
-              reordering and is not performed by the Localisation module. This
-              keyword takes two mandatory arguments seperated by a space and
-              two optional lines specifying a custom range:
-
-                norbs iall
-                [range 1]
-                [range 2]
-
-              where "norbs" specifies the length of the ranges and "iall" the
-              interpretation by the program.
-              No default values are implemented.
-
-              For convenient computation of local spin expectation values,
-              follow the number of orbitals by "1". All other values of "iall"
-              require manual specification of the two orbital ranges in the
-              lines underneath.
-
-              Consider a triangle A B C, each with three unpaired electrons,
-              corresponding to a CAS(9,9). If the local spin up to orbital 6
-              should be computed, use:
-
-                SSCR = 6 1
-
-              To retrieve the spin-spin-correlation function between site A and
-              C, one can write
-
-                SSCR = 3 0
-                1 2 3
-                7 8 9
-
-              Notice that the numbering is consecutive.
-              </HELP>
-              </KEYWORD>
-  .. xmldoc:: </GROUP>
-
 :kword:`SYMMetry`
   Specify the selected symmetry type (the irrep) of the wave
   function as a number between 1 and 8 (see SYMMETRY keyword in GATEWAY section). Default is 1, which always
@@ -971,6 +940,47 @@ A list of these keywords is given below:
               lines are read. A state average calculation will be
               performed over the NROOTS lowest states with equal
               weights.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SSCR`
+  Computes the orbital resolved spin-spin correlation function between at most
+  two different ranges of orbitals following . For physically meaningful
+  results prior localisation (Pipek-Mezey recommended) and sorting by atomic
+  sites is required. The latter step is not performed by the Localisation
+  module and requires manual relabelling within the LocOrb file. 
+
+  Consider a triangle with sites A B C, each with three unpaired electrons,
+  corresponding to a CAS(9,9). Below, a few practical examples given: are If
+  the local spin up to orbital 6 should be computed: ::
+ 
+    * Spin correlation from orbital 1 to 6
+    SSCR = 6 1
+    * or 
+    SSCR = 6 0
+    1 2 3 4 5 6
+    1 2 3 4 5 6
+    * Spin correlation between sites A (1-3) and C (7-9)
+    SSCR = 3 0
+    1 2 3
+    7 8 9
+
+  Notice that the numbering is consecutive and each entry in an orbital range
+  has to be unique.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SSCR" LEVEL="BASIC" APPEAR="spin-spin-correlation" KIND="CUSTOM" SIZE="2">
+              %%Keyword: SSCR <basic>
+              <HELP>
+              Calculate the pairwise orbital resolved spin-spin correlation
+              function, for instance between two magnetically coupled centers,
+              after localisation and site-ordering of the corresponding
+              orbitals. Please consult the manual for further guidance.
+              The keyword uses a modified syntax already known from CIROots. At
+              least two inputs are required, the first specifies the length of
+              the orbital vectors, whereas the second determines whether the
+              vectors are of the same (1) or different (any other number)
+              length. In case the latter is not equal to one, both orbital
+              vectors can be specified in the following two lines.  
               </HELP>
               </KEYWORD>
 
@@ -2303,6 +2313,7 @@ A list of these keywords is given below:
               <HELP>
               This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation into CMS intermediate states.
               This keyword specifies file that provides the starting rotation matrix for CMS intermediate states.
+              </HELP>
               </KEYWORD>
 
 :kword:`CMSStart`

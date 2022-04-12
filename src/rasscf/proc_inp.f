@@ -32,7 +32,7 @@
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI
-      use spin_correlation, only: orb_range_p, orb_range_q, p, q
+      use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      &  t_RDMsampling, RDMsampling,
@@ -78,7 +78,6 @@
       logical RF_On
       logical Langevin_On
       logical PCM_On
-      integer same_orbs
       Integer ipTemp1,ipTemp2,ipTemp3
 * (SVC) added for treatment of alter and supsym
       Dimension iMAlter(MaxAlter,2)
@@ -995,13 +994,6 @@ C   No changing about read in orbital information from INPORB yet.
         read(line,*,err=9920,end=9920) norbs, same_orbs
         ReadStatus=' O.K reading after KeySSCR keyword.'
 
-        call mma_allocate(orb_range_p,norbs)
-        call mma_allocate(orb_range_q,norbs)
-        do i = 1, norbs
-          orb_range_p(i) = i
-          orb_range_q(i) = i
-        end do
-
         if (norbs >= mxOrb) then
           write(6,'(a)', advance="no") 'SSCR error:'
           write(6,*) "number of spatial orbitals exceeds maximum"
@@ -1010,15 +1002,20 @@ C   No changing about read in orbital information from INPORB yet.
           call abend()
         end if
 
-! NAGFOR does not like importing the variables from the module
-#ifdef _WARNING_WORKAROUND_
+        call mma_allocate(orb_range_p,norbs)
+        call mma_allocate(orb_range_q,norbs)
+
         if (same_orbs == 1) then
+            do i = 1, norbs
+              orb_range_p(i) = i
+              orb_range_q(i) = i
+            end do
         else
           Line=Get_Ln(LUInput)
           readstatus=' failure reading after SSCR keyword.'
-          read(Line,*) (orb_range_p(p), p = 1, norbs)
+          read(Line,*) (orb_range_p(i), i = 1, norbs)
           Line=Get_Ln(LUInput)
-          read(Line,*) (orb_range_q(q), q = 1, norbs)
+          read(Line,*) (orb_range_q(j), j = 1, norbs)
 
           if (size(orb_range_p) /= size(orb_range_q)) then
             write(6,'(a)', advance="no") 'SSCR error:'
@@ -1029,17 +1026,17 @@ C   No changing about read in orbital information from INPORB yet.
             call abend()
           end if
 
-          do p = 1, norbs
-            do q = 1, norbs
-              if (p < q) then
-                if (orb_range_p(p) == orb_range_p(q)) then
+          do i = 1, norbs
+            do j = 1, norbs
+              if (i < j) then
+                if (orb_range_p(i) == orb_range_p(j)) then
                   write(6,'(a)', advance="no") 'SSCR error:'
                   write(6,*) 'first range contains duplicates.'
                   write(6,'(*(i4))') orb_range_p
                   write(6,'(a)') new_line('a')
                   call abend()
                 end if
-                if (orb_range_q(p) == orb_range_q(q)) then
+                if (orb_range_q(i) == orb_range_q(j)) then
                   write(6,'(a)', advance="no") 'SSCR error:'
                   write(6,*) 'second range contains duplicates.'
                   write(6,'(*(i4))') orb_range_q
@@ -1050,8 +1047,7 @@ C   No changing about read in orbital information from INPORB yet.
             end do
           end do
         end if
-      Call ChkIfKey()
-#endif
+      call ChkIfKey()
       end if
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
