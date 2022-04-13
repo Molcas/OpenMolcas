@@ -44,16 +44,25 @@
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
-      StepMax0=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
-*     Write (6,*) 'StepMax0=',StepMax0
-      StepMax0=Max(StepMax0,1.D-2)
-*     Write (6,*) 'StepMax0=',StepMax0
-      StepMax=Max(StepMax0,1.0D-3)
+*     Write (6,*) 'StepMax_Seed=',StepMax_Seed
+*     Write (6,*) 'Sqrt(gg)=',Sqrt(DDot_(nInter,g,1,g,1))
+*     gMax=Zero
+*     Do i = 1, Size(g)
+*     gMax=Max(g(i),gMax)
+*     End Do
+*     Write (6,*) Sqrt(DDot_(nInter,g,1,g,1))/nInter,gMax
+      StepMax=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
 *     Write (6,*) 'StepMax=',StepMax
+      StepMax=Min(StepMax,2.D-1)
+      StepMax=Max(StepMax,9.D-3)
+      StepMax=Max(StepMax,8.D-3)
+*     StepMax=Max(StepMax,9.D-4)
+*     Write (6,*) 'StepMax=',StepMax
+
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
-      Call RecPrt('rs-rfo: g',' ',g,1,nInter)
+*     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
+*     Call RecPrt('rs-rfo: g',' ',g,1,nInter)
       Write (Lu,*)
       Write (Lu,*) '***************************************************'
       Write (Lu,*) '********* S T A R T  O F  R S - R F O *************'
@@ -67,13 +76,12 @@
 #endif
 *
       A_RFO=One   ! Initial seed of alpha
-      IterMx=25
+      IterMx=50
       Iter=0
       Iterate=.False.
       Restart=.False.
       Thr=1.0D-3
-      NumVal=Min(1,nInter+1)
-*     NumVal=Min(3,nInter+1)
+      NumVal=Min(3,nInter+1)
 *     NumVal=Min(nInter+1,nInter+1)
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
@@ -83,10 +91,6 @@
       Tmp(:)=Zero
  998  Continue
          Iter=Iter+1
-#ifdef _DEBUGPRINT_
-         Write (Lu,*) 'Iter=',Iter
-         Write (Lu,*) 'A_RFO=',A_RFO
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -116,6 +120,27 @@
 #endif
 *        Write (6,*) 'Val(:)=',Val(:)
 *        Write (6,*) 'Vec(:,1)=',Vec(:,1)
+
+*        Select a root with a negative value close to the current point
+
+         iRoot=1
+         dqdq=1.0D10
+         Do i = 1, NumVal
+            If (Val(i)<Zero) Then
+               Tmp(:)=Vec(:,i)/Sqrt(A_RFO)
+               ZZ=DDot_(nInter+1,Tmp(:),1,Tmp(:),1)
+               Tmp(:)=Tmp(:)/Sqrt(ZZ)
+               Tmp(:nInter)=Tmp(:nInter)/Tmp(nInter+1)
+               Test=DDot_(nInter,Tmp,1,Tmp,1)
+*              Write (6,*) 'Test=',Test
+               If (Test<dqdq) Then
+                  iRoot = i
+                  dqdq = Test
+               End If
+            End If
+         End Do
+*        Write (6,*) 'iRoot,dqdq=',iRoot,dqdq
+         If (iRoot/=1) Vec(:,1)=Vec(:,iRoot)
          call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
          Call DScal_(nInter,One/Sqrt(A_RFO),Vec(:,1),1)
 *                                                                      *
@@ -169,6 +194,8 @@
             A_RFO_short=Zero
             dqdq_short=dqdq_long+One
          End If
+*        Write (6,*) 'dqdq_long=',dqdq_long
+*        Write (6,*) 'dqdq_short=',dqdq_short
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -195,6 +222,10 @@
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)
+*           Write (6,*) 'A_RFO_Short=',A_RFO_Short
+*           Write (6,*) 'A_RFO_Long=',A_RFO_Long
+*           Write (6,*) 'dqdq_long=',dqdq_long
+*           Write (6,*) 'dqdq_short=',dqdq_short
             If (A_RFO.eq.-One) Then
                A_RFO=One
                Step_Trunc=' '
@@ -223,6 +254,7 @@
       Write (Lu,*) '***************************************************'
       Write (Lu,*)
 #endif
+*     Write (Lu,'(2E11.3)') Sqrt(dqdq),StepMax
 *
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)

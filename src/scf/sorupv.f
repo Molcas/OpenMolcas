@@ -163,7 +163,7 @@
       End If
 #endif
 
-*define _DIAGONAL_ONLY_
+*#define _DIAGONAL_ONLY_
 #ifdef _DIAGONAL_ONLY_
       If (.True.) Then
          Write (6,*) ' SorUpV: Only diagonal approximation'

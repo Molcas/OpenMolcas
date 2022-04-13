@@ -644,7 +644,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *
 *           Use rs-rfo to compute dX(n)
 *
-            StepMax=0.30D0
+            StepMax=0.450D0
             dqHdq=Zero
             Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
@@ -658,12 +658,9 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
          End Select
 
 *
-*           Store X(n+1)
+*           Store X(n+1) and dX(n)
 *
             Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
-*
-*           store dX(n) vector from Disp to LList
-*
             Call PutVec(Disp,mOV,iter,'NOOP',LLDelt)
 *
 *           compute Norm of dX(n)
