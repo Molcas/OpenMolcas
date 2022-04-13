@@ -68,13 +68,16 @@ C
 C
       CALL GETMEM('FIFA   ','ALLO','REAL',ipFIFA   ,nBasSq)
       CALL GETMEM('FIMO   ','ALLO','REAL',ipFIMO   ,nBasSq)
+      Call DCopy_(nBasSq ,[0.0D+00],0,Work(ipFIFA) ,1)
+      Call DCopy_(nBasSq ,[0.0D+00],0,Work(ipFIMO) ,1)
 C
       !! FIFASA is constructed with state-averaged density always
       !! FIFA   can be state-specific or dynamically weighted
       !! FIMO   is uniquely determined, but the basis can be
       !!        either natural or quasi-canonical
       If (IFXMS) Then
-        CALL GETMEM('FIFASA ','ALLO','REAL',ipFIFASA ,nBasSq)
+        CALL GETMEM('FIFASA ','ALLO','REAL',ipFIFASA  ,nBasSq)
+        Call DCopy_(nBasSq ,[0.0D+00],0,Work(ipFIFASA),1)
         norbi=norb(1)
       End If
 C
@@ -660,6 +663,8 @@ C
         !! so just do AO -> MO transformation
         CALL GETMEM('WRK1   ','ALLO','REAL',ipWRK1   ,nBasSq)
         CALL GETMEM('WRK2   ','ALLO','REAL',ipWRK2   ,nBasSq)
+        Call DCopy_(nBasSq ,[0.0D+0],0,Work(ipWRK1)  ,1)
+        Call DCopy_(nBasSq ,[0.0D+0],0,Work(ipWRK2)  ,1)
 C
 C           write (*,*) "ipfifa,ipfimo"
 C           do i = 1, 10
