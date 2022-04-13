@@ -225,10 +225,10 @@ contains
 !>
 !>  @author Oskar Weser
 !>
-!>  @paramin[out] DMAT Average 1 body density matrix
-!>  @paramin[out] DSPN Average spin 1-dens matrix
-!>  @paramin[out] PSMAT Average symm. 2-dens matrix
-!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+!>  @param[out] DMAT Average 1 body density matrix
+!>  @param[out] D1S_MO Average spin 1-dens matrix
+!>  @param[out] PSMAT Average symm. 2-dens matrix
+!>  @param[out] PAMAT Average antisymm. 2-dens matrix
     subroutine read_CC_RDM(DMAT, D1S_MO, PSMAT, PAMAT)
         real(wp), intent(out) :: DMAT(nAcpar), D1S_MO(nAcPar), &
                                  PSMAT(nAcpr2), PAMAT(nAcpr2)

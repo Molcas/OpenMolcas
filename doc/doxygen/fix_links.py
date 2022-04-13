@@ -17,10 +17,10 @@ import fileinput
 import re
 
 doxygen_re = re.compile(r"^[*Cc!]>")
-link_re = re.compile(r"::(\w*)")
+link_re = re.compile(r" ::(\w*)")
 
 # Replace [::FuncName] with [\ref funcname "FuncName"]
-reflink = lambda pat: r'\ref {} "{}"'.format(pat.group(1).lower(), pat.group(1))
+reflink = lambda pat: r' \ref {} "{}"'.format(pat.group(1).lower(), pat.group(1))
 
 for line in fileinput.input():
   if (doxygen_re.search(line)):

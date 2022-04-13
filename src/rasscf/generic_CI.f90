@@ -36,19 +36,19 @@ module generic_CI
 !>
 !>  @author Oskar Weser
 !>
-!>  @paramin[in] actual_iter The actual iteration number starting at 0.
+!>  @param[in] actual_iter The actual iteration number starting at 0.
 !>      This means 0 is 1A, 1 is 1B, 2 is 2 and so on.
-!>  @paramin[in] iroot specified roots for SA-CASSCF, e.g. 1,3,9,...
-!>  @paramin[in] weight weights specified for roots for SA-CASSCF
-!>  @paramin[in] CMO MO coefficients
-!>  @paramin[in] DIAF DIAGONAL of Fock matrix useful for NECI
-!>  @paramin[in] D1I_MO Inactive 1-dens matrix
-!>  @paramin[in] TUVX Active 2-el integrals
-!>  @paramin[inout] F_In Fock matrix from inactive density
-!>  @paramin[inout] D1S_MO Average spin 1-dens matrix
-!>  @paramin[out] DMAT Average 1 body density matrix
-!>  @paramin[out] PSMAT Average symm. 2-dens matrix
-!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+!>  @param[in] iroot specified roots for SA-CASSCF, e.g. 1,3,9,...
+!>  @param[in] weight weights specified for roots for SA-CASSCF
+!>  @param[in] CMO MO coefficients
+!>  @param[in] DIAF DIAGONAL of Fock matrix useful for NECI
+!>  @param[in] D1I_MO Inactive 1-dens matrix
+!>  @param[in] TUVX Active 2-el integrals
+!>  @param[in,out] F_In Fock matrix from inactive density
+!>  @param[in,out] D1S_MO Average spin 1-dens matrix
+!>  @param[out] DMAT Average 1 body density matrix
+!>  @param[out] PSMAT Average symm. 2-dens matrix
+!>  @param[out] PAMAT Average antisymm. 2-dens matrix
 
         subroutine CI_run_t(this, actual_iter, ifinal, iroot, weight, &
                             CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN, &

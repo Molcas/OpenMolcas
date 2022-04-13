@@ -20,8 +20,8 @@
 *> Place Cartesian gradient (in a.u.) into array \p Grad_Full(3,*).
 *> Includes MM atoms otherwise invisible to gateway/slapaf.
 *>
-*> @param[out] Grad_Full  Array of gradient
-*> @param[in]  nAtoms_All Number of atoms
+*> @param[out] Grad_Full   Array of gradient
+*> @param[in]  nAtoms_Full Number of atoms
 ************************************************************************
       Subroutine Get_Grad_Full(Grad_Full,nAtoms_Full)
       Implicit None

@@ -32,13 +32,14 @@
 !> Seward is mandatory for both SCF and RASSI. For SCF also,
 !> Motra, Averd; for RASSI also, RASSCF and RASSI.
 !>
+!> @param[in]  iQ_Atoms
 !> @param[out] nAtomsCC Atoms in solvent
 !> @param[out] Coord    Unique coordinates of the atoms in the molecule in the QM-region
 !> @param[out] nBas     Number of basis functions in QM-region
 !> @param[out] nBasCC   Like nBas but for a solvent molecule
-!> @param[out] nntyp    Number of basis-function types.
 !> @param[out] nOcc     The total number of basis functions that belong to a certain basis-function type.
 !> @param[out] natyp    Number of atoms of the i:th basis-function type
+!> @param[out] nntyp    Number of basis-function types.
 !***********************************************************************
 
 !******JoseMEP the last three variables are included to the MEP calculation

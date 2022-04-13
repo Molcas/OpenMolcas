@@ -87,13 +87,10 @@ contains
 !>  @author Oskar Weser
 !>
 !>  @details
-!>  The orbitals table gets filled with the orbital energies from DIAF.
-!>  If it is the first iteration (iter == 1) then the one electron
-!>  energies are read from the InpOrb.
+!>  The orbitals table gets filled with the orbital energies from orbital_energies.
 !>
-!>  @param[in,out] orbitals Core
-!>  @param[in] DIAF
-!>  @param[in] iter
+!>  @param[in,out] table
+!>  @param[in] orbital_energies
   subroutine fill_orbitals(table, orbital_energies)
     use general_data, only : nBas, nSym, nAsh, nFro, nIsh
     implicit none
@@ -156,10 +153,8 @@ contains
 !>  The index is given by i and j.
 !>
 !>  @param[in,out] fock_table
-!>  @param[in] CMO The occupation number vector in MO-space.
-!>  @param[in] F_In
+!>  @param[in] Fock
 !>    \f[\sum_{\sigma\rho} {In}^D_{\sigma\rho} (g_{\mu\nu\sigma\rho})  \f]
-!>  @param[in] D1I_MO The inactive one-body density matrix in MO-space
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
   subroutine fill_fock(fock_table, Fock, cutoff)

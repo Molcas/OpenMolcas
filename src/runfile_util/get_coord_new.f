@@ -13,14 +13,14 @@
 *  Get_Coord_New
 *
 *> @brief
-*>   Get the updated/new symmetry unique Cartesian coordinates of the basis set centers
+*>   Get the updated/new symmetry-unique Cartesian coordinates of the basis set centers
 *> @author R. Lindh
 *>
 *> @details
-*> The utility will read the updated/new symmetry unique Cartesian coordinates of the basis set centers from the runfile.
+*> The utility will read the updated/new symmetry-unique Cartesian coordinates of the basis set centers from the runfile.
 *>
-*> @param[out] ipCoord Pointer to \c Work of the array of the symmetry unique Cartesian coordinates of the basis set centers
-*> @param[in]  nAtoms  Number of symmetry unique Cartesian coordinates of the basis set centers
+*> @param[out] CN     Array of the symmetry-unique Cartesian coordinates of the basis set centers
+*> @param[in]  nAtoms Number of symmetry-unique basis set centers
 ************************************************************************
       Subroutine Get_Coord_New(CN,nAtoms)
       Implicit Real*8 (a-h,o-z)
