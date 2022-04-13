@@ -263,13 +263,16 @@ Stochastic-CASSCF method
 
 The Stochastic-CASSCF :cite:`limanni2016` has been developed since 2015 by Li Manni and Alavi,
 initially into a locally modified version of |molcas| and now available in |openmolcas|.
-The method retains the simplicity of CASSCF, while circuventing the the exponential scaling of CAS wave functions.
+The method retains the simplicity of CASSCF, while circumventing the exponential scaling of CAS wave functions.
 This is obtained by replacing the Davidson diagonalization technique, in its direct-CI implementation (default in |molcas|),
 with the full-CI quantum Monte-Carlo (FCIQMC) algorithm :cite:`Alavi2009`, whilst the Super-CI method is used
 for the orbital optimization.
 
-The method is compatible with density fitting techniques available within |openmolcas|.
-The method is also compatible with subsequent MC-PDFT method to recover correlation outside the active space.
+The method is compatible with density fitting techniques available within
+|openmolcas|, subsequent MC-PDFT calculations to recover correlation
+outside the active space and state-averaging across multiple multiplicities.
+
+
 
 .. _UG\:sec\:StochCAS_dependencies:
 
@@ -302,7 +305,7 @@ The Input and the FCIDUMP files are the only files necessary to :program:`NECI` 
 For questions about the FCIQMC dynamics we invite to contact its developers.
 
 As accurate density matrices are necessary for a successful Stochastic-CASSCF calculation,
-users are invited to use the :file:`dneci.x` binary (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
+users are invited to use the :file:`dneci.x` and :file:`mneci.x` binaries (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
 The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in the NECI generated :file:`FCIMCStats` file.
 In the :file:`fciqmc.out` there are important pieces of information, such as the list of Slater determinants dominating the FCI wave function and the RDM energy. The latter is passed to |molcas| as shown in the script below.
 When a stationary condition is reached and density matrices sampled these are passed to the :file:`RASSCF` program to continue.
@@ -317,6 +320,38 @@ This can be achieved by a simple script, such as the following: ::
   cp   OneRDM.1    $WorkDir/$Project.OneRDM
   grep 'REDUCED D' fciqmc.out | sed "s/^.*: //" > NEWCYCLE
   mv NEWCYCLE $WorkDir/.
+
+When performing state-averaging, the user has to ensure that the ordering of
+all roots is consistent between Molcas and NECI. For instance, consider a
+SA-CASSCF on a system admitting 2 doublets, 4 quartets, 3 sextets, 2 octets and
+1 dectet. Using the FCIDUMP provided by Molcas (multiplicity in the Molcas
+input is disabled for these calculations, but should nevertheless be provided),
+one can complete the NECI dynamics; afterwards Molcas will now prompt for 12
+consecutively numbered density matrices and energies, i.e.: ::
+
+ When finished do:
+    cp TwoRDM_* /$YOUR_WORKDIR/mn3o4.25136
+    echo $your_RDM_Energy > /$YOUR_WORKDIR/NEWCYCLE
+
+A shell script which also takes care of renaming the RDMs might look
+like this: ::
+
+  export CALCBASE="location of your calculation"
+  export YOUR_WORKDIR="location of your scratch"
+
+  cd $CALCBASE/neci-doublet/  # contains roots 1 and 2
+  grep '*REDUCED' $YOUR_INPUT.out | awk '{ print $9 }' >> $CALCBASE/NEWCYCLE
+
+  cd $CALCBASE/neci-quartet/  # contains roots 3 to 6
+  grep '*REDUCED' mn3o4.out | awk '{ print $9 }' >> $CALCBASE/NEWCYCLE
+  # reverse order required, otherwise redundant rename
+  rename .4 .6 *.4; rename .3 .5 *.3 ; rename .2 .4 *.2; rename .1 .3 *.1
+
+  [for the other roots same procedure]
+
+  cd $CALCBASE
+  cp neci-doublet/run$1/TwoRDM_* neci-quartet/run$1/TwoRDM_* [other roots] $YOUR_WORKDIR
+  cp NEWCYCLE $YOUR_WORKDIR
 
 .. class:: filelist
 
@@ -462,49 +497,35 @@ Optional important keywords are:
 Input Example
 .............
 
-A minimal input example follows where the use of the Stochastic-CASSCF joinlty with RICD and MC-PDFT is shown: ::
+A minimal input example for using state-averaged Stochastic-CASSCF jointly with RICD MC-PDFT is shown below: ::
 
   &GATEWAY
    RICD
-   COORD
-     coor.xyz
-   BASIS
-     ANO-RCC-VTZP
-   GROUP
-     full
+   COORD = coor.xyz
+   BASIS = ANO-RCC-VTZP
+   GROUP = full
 
   &SEWARD
 
   &RASSCF
-   NECI
-    ExNe
-   NACTEL
-     26 0 0
-   INACTIVE
-     20 17 17 14 0 0 0 0
-   RAS2
-     0 0 0 0 7 6 6 5
-   SYMMETRY
-     1
+   CIROOT = 2  2  1   * follows standard &RASSCF syntax
+   NECI = ExNe
+   NACTEL = 26 0 0
+   INACTIVE = 20 17 17 14 0 0 0 0
+   RAS2 = 0 0 0 0 7 6 6 5
+   SYMMETRY = 1
 
   >>foreach DFT in (T:PBE, T:BLYP, T:LSDA)
 
-     >>COPY $CurrDir/converged.RasOrb INPORB
      &RASSCF
-        LumOrb
+        FileOrb = $CurrDir/converged.RasOrb
         CIONLY
-        KSDFT
-          ROKS; $DFT
-        NECI
-          ExNe
-        NACTEL
-          26 0 0
-        INACTIVE
-          20 17 17 14 0 0 0 0
-        RAS2
-          0 0 0 0 7 6 6 5
-        SYMMETRY
-          1
+        KSDFT = ROKS; $DFT
+        NECI = ExNe
+        NACTEL = 26 0 0
+        INACTIVE = 20 17 17 14 0 0 0 0
+        RAS2 = 0 0 0 0 7 6 6 5
+        SYMMETRY = 1
   >>enddo
 
 .. _UG\:sec\:gasscf:
@@ -2047,7 +2068,7 @@ A list of these keywords is given below:
   sets with occupation numbers 0 (zero). The main use of these orbitals
   is to act as input to property calculations and for graphical
   presentations.
-  This keyword is on by default for up to ten roots.
+  This keyword is on by default for all roots.
 
   An example input follows in which five files are requested containing
   natural orbitals for roots one to five of a RASSCF calculation.
@@ -2255,7 +2276,7 @@ A list of these keywords is given below:
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSS" LEVEL="ADVANCED" APPEAR="CMS starting rotation matrix" KIND="STRING" DEFAULT_VALUE="XMS">
               %%Keyword: CMSS <advanced>
               <HELP>
-              This keyword specifies file that provides the starting rotation matrix for CMS intermediate states. 
+              This keyword specifies file that provides the starting rotation matrix for CMS intermediate states.
               </HELP>
               </KEYWORD>
 
