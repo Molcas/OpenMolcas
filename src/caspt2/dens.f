@@ -1445,7 +1445,7 @@ C             DSUM(iMO+jOrb-1+nOrbI*(iOrb-1)) = Val
           End Do
           !! First, DPT2 -> DPT2AO
           CALL DGEMM_('N','N',nBasI,nOrbI,nOrbI,
-     *                 1.0D+00,CMO(iCMO),nBasI,DPT2(iMO),nBasI,
+     *                 1.0D+00,CMO(iCMO),nBasI,DPT2(iMO),nOrbI,
      *                 0.0D+00,Work(ipWRK),nBasI)
           CALL DGEMM_('N','T',nBasI,nBasI,nOrbI,
      *                 1.0D+00,Work(ipWRK),nBasI,CMO(iCMO),nBasI,
