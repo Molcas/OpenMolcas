@@ -14,7 +14,7 @@
      &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE,
      &    job1,job2,ist,jst)
 
-      !> module dependencies
+      ! module dependencies
 #ifdef _DMRG_
       use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg

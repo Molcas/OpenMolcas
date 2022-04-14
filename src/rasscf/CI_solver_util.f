@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Giovanni Li Manni                                *
 *               2020, Oskar Weser                                      *
-*               2021-2022, Arta Safari                                 *
+*               2021,2022, Arta Safari                                 *
 ************************************************************************
 
 #include "macros.fh"
@@ -86,10 +86,11 @@
 !>
 !>  @author Giovanni Li Manni, Oskar Weser
 !>
-!>  @paramin[out] DMAT Average 1 body density matrix
-!>  @paramin[out] DSPN Average spin 1-dens matrix
-!>  @paramin[out] PSMAT Average symm. 2-dens matrix
-!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+!>  @param[out] DMAT Average 1 body density matrix
+!>  @param[out] D1S_MO Average spin 1-dens matrix
+!>  @param[out] PSMAT Average symm. 2-dens matrix
+!>  @param[out] PAMAT Average antisymm. 2-dens matrix
+!>  @param[in,out] jDisk
       subroutine RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT, jDisk)
 #include "intent.fh"
 !       _IN_ is not a semantic IN, since DDAFILE is both a read and

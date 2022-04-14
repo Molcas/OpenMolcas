@@ -26,9 +26,10 @@
 !> 4. Every molecule except the fixed ones are rotated slightly around one of the global \f$ x \f$-, \f$ y \f$- or \f$ z \f$-axes;
 !>    the purpose of this is to emulate a rotation of the central molecule and therefore make the system more dynamic.
 !>
-!> @param[in,out] Ract  The dielectric radius on input and the slightly perturbed radius on output
-!> @param[out]    Rold  Stores the input dielectric radius
-!> @param[in]     iCNum How many solvent places that are taken up by the QM-molecule
+!> @param[in,out] Ract     The dielectric radius on input and the slightly perturbed radius on output
+!> @param[out]    Rold     Stores the input dielectric radius
+!> @param[in]     iCNum    How many solvent places that are taken up by the QM-molecule
+!> @param[in]     iQ_Atoms
 !***********************************************************************
 
 subroutine Geogen(Ract,Rold,iCNum,iQ_Atoms)

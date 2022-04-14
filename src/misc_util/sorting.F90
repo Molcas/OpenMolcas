@@ -286,9 +286,9 @@ end subroutine
 !> Either A or B is allowed to overlap with the second half
 !> of the output array C.
 !>
-!> @param[inout] A Sorted 1D-array to be merged.
-!> @param[inout] B Sorted 1D-array to be merged.
-!> @param[inout] C Merged and sorted 1D-array.
+!> @param[in,out] A Sorted 1D-array to be merged.
+!> @param[in,out] B Sorted 1D-array to be merged.
+!> @param[in,out] C Merged and sorted 1D-array.
 !> @param[in] compare A logical pure function of two integer arguments.
 subroutine merge_(A,B,C,compare)
   ! The target attribute is there to prevent the compiler from

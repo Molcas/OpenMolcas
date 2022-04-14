@@ -35,6 +35,7 @@
 *> @param[out]    P      Average symm. 2-dens matrix
 *> @param[out]    PA     Average antisymm. 2-dens matrix
 *> @param[out]    FI     Fock matrix from inactive density
+*> @param         FA
 *> @param[in,out] D1I    Inactive 1-dens matrix
 *> @param[in,out] D1A    Active 1-dens matrix
 *> @param[in]     TUVX   Active 2-el integrals

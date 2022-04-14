@@ -18,7 +18,7 @@
 !> @details
 !> Computes the exponential of an antisymmetric real matrix \f$ X \f$ through its Schur decomposition.
 !> The exponential of \f$ X \f$ is an orthogonal matrix.
-!> The Schur form of \f$ X \f$ is antisymmetric real, block-diagonal, with \f$ 2\times 2\$ or \f$ 1\times 1\f$ diagonal blocks.
+!> The Schur form of \f$ X \f$ is antisymmetric real, block-diagonal, with \f$ 2\times 2\f$ or \f$ 1\times 1\f$ diagonal blocks.
 !> If \f$ X = Z T Z^T \f$, then \f$ \exp(X) = Z \exp(T) Z^T \f$, and \f$ exp(T) \f$ is trivial to compute since each block can
 !> be treated separately: \f$ (0, \lambda) \to (\cos(\lambda), \pm\sin(\lambda) \f$.
 !>

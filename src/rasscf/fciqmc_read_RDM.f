@@ -11,7 +11,7 @@
 * Copyright (C) 2016,2017, Giovanni Li Manni                           *
 *               2019-2021, Oskar Weser                                 *
 *               2021, Werner Dobrautz                                  *
-*               2021-2022, Arta Safari                                 *
+*               2021,2022, Arta Safari                                 *
 ************************************************************************
 
       module fciqmc_read_RDM
@@ -50,10 +50,14 @@
 !>  The spin density is set to zero, because spin projection
 !>  is not properly defined in the GUGA framework.
 
-!>  @paramin[out] DMAT Average spin-free 1 body density matrix
-!>  @paramin[out] DSPN spin-dependent 1-RDM (set to zero)
-!>  @paramin[out] PSMAT Average spin-free 2 body density matrix
-!>  @paramin[out] PAMAT 'fake' Average antisymm. 2-dens matrix
+!>  @param[in]  iroot
+!>  @param[in]  weight
+!>  @param[in]  tGUGA
+!>  @param[in]  ifinal
+!>  @param[out] DMAT Average spin-free 1 body density matrix
+!>  @param[out] DSPN spin-dependent 1-RDM (set to zero)
+!>  @param[out] PSMAT Average spin-free 2 body density matrix
+!>  @param[out] PAMAT 'fake' Average antisymm. 2-dens matrix
 
 
       subroutine read_neci_RDM(
@@ -254,10 +258,11 @@
 !>  also evaluate and store completely spin-free matrices. In that
 !>  case only a reordering following Molcas convention is necessary.
 !>
-!>  @paramin[out] DMAT Average 1 body density matrix
-!>  @paramin[out] DSPN Average spin 1-dens matrix
-!>  @paramin[out] PSMAT Average symm. 2-dens matrix
-!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+!>  @param[in]  iroot
+!>  @param[out] DMAT Average 1 body density matrix
+!>  @param[out] DSPN Average spin 1-dens matrix
+!>  @param[out] PSMAT Average symm. 2-dens matrix
+!>  @param[out] PAMAT Average antisymm. 2-dens matrix
 !>
       subroutine read_single_neci_RDM(iroot, DMAT, DSPN, PSMAT, PAMAT)
           use Para_Info, only: MyRank
