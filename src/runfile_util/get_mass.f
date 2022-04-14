@@ -19,8 +19,8 @@
 *> @details
 *> Place atomic masses (in a.u.) into array \p Mass_All(*).
 *>
-*> @param[out] Mass_All   Array of masses
-*> @param[in]  nAtoms_All Number of atoms
+*> @param[out] Mass   Array of masses
+*> @param[in]  nAtoms Number of atoms
 ************************************************************************
       Subroutine Get_Mass(Mass,nAtoms)
       Implicit None

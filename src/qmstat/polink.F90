@@ -38,6 +38,15 @@
 !> @param[out]    poli    The solvent polarized field on QM-region
 !> @param[in]     iCstart Number to keep track of solvent molecules
 !> @param[in]     iTri    ``iOrb(1)*(iOrb(1)+1)/2``
+!> @param[in]     iQ_Atoms
+!> @param[in]     qTot
+!> @param[in]     ChaNuc
+!> @param[out]    xyzMyQ
+!> @param[in]     xyzMyI
+!> @param[in]     xyzMyP
+!> @param[in]     RoMat
+!> @param[out]    xyzQuQ
+!> @param[in]     CT
 !***********************************************************************
 
 subroutine Polink(Energy,iAtom2,iCi,Fil,VpolMat,FFp,polfac,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP,RoMat, &

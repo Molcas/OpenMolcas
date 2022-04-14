@@ -15,7 +15,7 @@
 import sphinx
 
 # Patch to work around Sphinx bug #9529
-if sphinx.version_info >= (3, 5, 0, '', 0):
+if (3, 5, 0, '', 0) <= sphinx.version_info < (4, 5, 0, '', 0):
   from sphinx.writers.latex import CR
   from docutils import nodes
   from docutils.nodes import Element

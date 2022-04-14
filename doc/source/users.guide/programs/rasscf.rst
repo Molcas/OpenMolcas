@@ -292,7 +292,7 @@ Two files are produced by the :program:`RASSCF` module at each MCSCF macro-itera
 .. class:: filelist
 
 :file:`FCIINP`
-  The :file:`$Project.FciInp` (or :file:`FCIINP`) file contains input keywords for the NECI code.
+  The :file:`$Project.FciInp` (or :file:`FCIINP`) file contains input keywords for the :progam:`NECI` code.
   These keywords need to be adjusted depending on the chemical system under investigation for an optimal FCIQMC dynamics.
 
 :file:`FCIDMP`
@@ -304,7 +304,7 @@ For questions about the FCIQMC dynamics we invite to contact its developers.
 
 As accurate density matrices are necessary for a successful Stochastic-CASSCF calculation,
 users are invited to use the :file:`dneci.x` and :file:`mneci.x` binaries (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
-The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in the NECI generated :file:`FCIMCStats` file.
+The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in the :program:`NECI` generated :file:`FCIMCStats` file.
 In the :file:`fciqmc.out` there are important pieces of information, such as the list of Slater determinants dominating the FCI wave function and the RDM energy. The latter is passed to |molcas| as shown in the script below.
 When a stationary condition is reached and density matrices sampled these are passed to the :file:`RASSCF` program to continue.
 This can be achieved by a simple script, such as the following: ::
@@ -329,16 +329,16 @@ the RDMs might look like this: ::
   # rename .4 .6 *.4; rename .3 .5 *.3 ; rename .2 .4 *.2; rename .1 .3 *.1
 
 When performing state-averaging, the user has to ensure that the ordering of
-all roots is consistent between Molcas and NECI. For instance, consider a
+all roots is consistent between |openmolcas| and :program:`NECI`. For instance, consider a
 SA-CASSCF on a system admitting 2 doublets, 4 quartets, 3 sextets, 2 octets and
-1 dectet. Using the FCIDUMP provided by Molcas (multiplicity in the Molcas
+1 dectet. Using the :file:`FCIDUMP` provided by |openmolcas| (multiplicity in the |openmolcas|
 input is disabled for these calculations, but should nevertheless be provided),
-one can complete the NECI dynamics; afterwards Molcas will now prompt for 12
+one can complete the :program:`NECI` dynamics; afterwards |openmolcas| will now prompt for 12
 consecutively numbered density matrices and energies, i.e.: ::
 
- When finished do:
-    cp TwoRDM_* /$YOUR_WORKDIR/mn3o4.25136
-    echo $your_RDM_Energy > /$YOUR_WORKDIR/NEWCYCLE
+  When finished do:
+     cp TwoRDM_* /$YOUR_WORKDIR/mn3o4.25136
+     echo $your_RDM_Energy > /$YOUR_WORKDIR/NEWCYCLE
 
 A shell script which also takes care of renaming the RDMs might look
 like this: ::
@@ -363,7 +363,7 @@ like this: ::
 .. class:: filelist
 
 :file:`$Project.TwoRDM_XXXX`
-  These files are ASCII NECI generated output files.
+  These files are ASCII :program:`NECI` generated output files.
   They contain spin-resolved two-body density matrix elements (and one-RDM) and are necessary
   to |molcas| to continue with the Stochastic-CASSSCF calculation.
 
@@ -380,7 +380,7 @@ Two input keywords are strictly required in the :program:`RASSCF` module for act
 :kword:`NECI`
   This keyword is needed to enable the Stochastic-CASSCF method.
 
-  Additional keywords like ``totalwalkers`` have the same meaning as in NECI
+  Additional keywords like ``totalwalkers`` have the same meaning as in :program:`NECI`
   and are just passed on.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NECI" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="DMRG">

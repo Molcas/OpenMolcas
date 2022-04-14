@@ -33,8 +33,10 @@
 !> @param[in]  nBaseC   Like \p nBaseQ but for solvent
 !> @param[in]  N        Which solvent molecule this is
 !> @param[in]  nCent    How many centers the solvent molecule has
+!> @param[in]  iQ_Atoms
 !> @param[in]  nAtomsCC How many solvent atoms
 !> @param[in]  iPrint   Print level
+!> @param[in]  Inside
 !***********************************************************************
 
 subroutine ContractOvl(Sint,nBaseQ,nBaseC,N,nCent,iQ_Atoms,nAtomsCC,iPrint,Inside)
