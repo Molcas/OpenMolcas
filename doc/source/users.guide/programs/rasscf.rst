@@ -302,11 +302,16 @@ Two files are produced by the :program:`RASSCF` module at each MCSCF macro-itera
 The Input and the FCIDUMP files are the only files necessary to :program:`NECI` to run a FCIQMC simulation from scratch.
 For questions about the FCIQMC dynamics we invite to contact its developers.
 
-As accurate density matrices are necessary for a successful Stochastic-CASSCF calculation,
-users are invited to use the :file:`dneci.x` and :file:`mneci.x` binaries (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
-The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in the :program:`NECI` generated :file:`FCIMCStats` file.
-In the :file:`fciqmc.out` there are important pieces of information, such as the list of Slater determinants dominating the FCI wave function and the RDM energy. The latter is passed to |molcas| as shown in the script below.
-When a stationary condition is reached and density matrices sampled these are passed to the :file:`RASSCF` program to continue.
+As accurate density matrices are necessary for a successful Stochastic-CASSCF
+calculation, users are required to use the :file:`dneci.x` and :file:`mneci.x`
+binaries (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
+The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in
+the :program:`NECI` generated :file:`FCIMCStats` file. In the
+:file:`fciqmc.out` there are important pieces of information, such as the list
+of Slater determinants dominating the FCI wave function and the RDM energy. The
+latter is passed to |molcas| as shown in the script below. When a stationary
+condition is reached and density matrices sampled these are passed to the
+:file:`RASSCF` program to continue.
 This can be achieved by a simple script, such as the following: ::
 
   cp TwoRDM_aaaa.1 $WorkDir/$Project.TwoRDM_aaaa
@@ -318,26 +323,17 @@ This can be achieved by a simple script, such as the following: ::
   cp   OneRDM.1    $WorkDir/$Project.OneRDM
   grep 'REDUCED D' fciqmc.out | sed "s/^.*: //" > NEWCYCLE
   mv NEWCYCLE $WorkDir/.
-between the roots is consistent between Molcas and NECI
-SA-CASSCF on a system admitting this
-1 dectet. Using the FCIDUMP provided by Molcas ()
-input is ignored )
-numbered consecutively
-the RDMs might look like this: ::
-
-
-  # rename .4 .6 *.4; rename .3 .5 *.3 ; rename .2 .4 *.2; rename .1 .3 *.1
 
 When performing state-averaging, the user has to ensure that the ordering of
 all roots is consistent between |openmolcas| and :program:`NECI`. For instance, consider a
 SA-CASSCF on a system admitting 2 doublets, 4 quartets, 3 sextets, 2 octets and
 1 dectet. Using the :file:`FCIDUMP` provided by |openmolcas| (multiplicity in the |openmolcas|
 input is disabled for these calculations, but should nevertheless be provided),
-one can complete the :program:`NECI` dynamics; afterwards |openmolcas| will now prompt for 12
+one can complete the :program:`NECI` dynamics, afterwards |openmolcas| will prompt for 12
 consecutively numbered density matrices and energies, i.e.: ::
 
   When finished do:
-     cp TwoRDM_* /$YOUR_WORKDIR/mn3o4.25136
+     cp TwoRDM_* /$YOUR_WORKDIR/
      echo $your_RDM_Energy > /$YOUR_WORKDIR/NEWCYCLE
 
 A shell script which also takes care of renaming the RDMs might look
@@ -945,14 +941,13 @@ A list of these keywords is given below:
 
 :kword:`SSCR`
   Computes the orbital resolved spin-spin correlation function between at most
-  two different ranges of orbitals following . For physically meaningful
-  results prior localisation (Pipek-Mezey recommended) and sorting by atomic
-  sites is required. The latter step is not performed by the Localisation
-  module and requires manual relabelling within the LocOrb file. 
+  two different ranges of orbitals. For physically meaningful results prior
+  localisation (Pipek-Mezey recommended) and sorting by atomic sites is
+  required. The latter step is not performed by the Localisation module and
+  requires manual relabelling within the LocOrb file. 
 
   Consider a triangle with sites A B C, each with three unpaired electrons,
-  corresponding to a CAS(9,9). Below, a few practical examples given: are If
-  the local spin up to orbital 6 should be computed: ::
+  corresponding to a CAS(9,9). Below, a few practical examples are given: ::
  
     * Spin correlation from orbital 1 to 6
     SSCR = 6 1
@@ -961,7 +956,11 @@ A list of these keywords is given below:
     1 2 3 4 5 6
     1 2 3 4 5 6
     * Spin correlation between sites A (1-3) and C (7-9)
-    SSCR = 3 0
+    SSCR = 3
+    1 2 3
+    7 8 9
+    * or
+    SSCR = 3 0 
     1 2 3
     7 8 9
 
@@ -975,13 +974,13 @@ A list of these keywords is given below:
               Calculate the pairwise orbital resolved spin-spin correlation
               function, for instance between two magnetically coupled centers,
               after localisation and site-ordering of the corresponding
-              orbitals. Please consult the manual for further guidance.
-              The keyword uses a modified syntax already known from CIROots. At
-              least two inputs are required, the first specifies the length of
-              the orbital vectors, whereas the second determines whether the
-              vectors are of the same (1) or different (any other number)
-              length. In case the latter is not equal to one, both orbital
-              vectors can be specified in the following two lines.  
+              orbitals. Please consult the manual for further guidance. The
+              keyword uses a modified syntax already known from CIROots. At
+              least one input is required, specifying the length of the orbital
+              vectors, whereas an optional second input determines whether the
+              vectors are the same (1) or different (any other number or no
+              argument). In the latter case, both orbital vectors can be
+              specified in the following two lines.  
               </HELP>
               </KEYWORD>
 

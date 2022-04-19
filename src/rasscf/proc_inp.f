@@ -1005,12 +1005,7 @@ C   No changing about read in orbital information from INPORB yet.
         call mma_allocate(orb_range_p,norbs)
         call mma_allocate(orb_range_q,norbs)
 
-        if (same_orbs == 1) then
-            do i = 1, norbs
-              orb_range_p(i) = i
-              orb_range_q(i) = i
-            end do
-        else
+        if (same_orbs /= 1) then
           Line=Get_Ln(LUInput)
           readstatus=' failure reading after SSCR keyword.'
           read(Line,*) (orb_range_p(i), i = 1, norbs)
@@ -1046,6 +1041,11 @@ C   No changing about read in orbital information from INPORB yet.
               end if
             end do
           end do
+        else
+            do i = 1, norbs
+              orb_range_p(i) = i
+              orb_range_q(i) = i
+            end do
         end if
       call ChkIfKey()
       end if
