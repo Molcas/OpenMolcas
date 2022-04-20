@@ -1,3 +1,11 @@
+*-------------------------------------------------------------------------------
+* Molecule: N2
+* Basis: STO-3G
+* Symmetry: C1
+* Features tested: Spin-Spin Correlation Function (SSCR)
+*-------------------------------------------------------------------------------
+>> COPY StartOrbFile .
+
 &GATEWAY
     coord 
     2
