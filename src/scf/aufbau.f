@@ -58,23 +58,16 @@
 *     These uccupation number vectors are used to determine if we have
 *     convergence.
 *
-      Integer nOccAuf(MxSym,2,2),kOccAuf
-      Save    nOccAuf,kOccAuf
-      Data    kOccAuf/-1/
+      Integer, Save :: kOccAuf=-1
+      Integer, Save :: nOccAuf(MxSym,2,2)
 *
       Call mma_allocate(Map,nEOr,nD,Label='Map')
       Call mma_allocate(Irp,nEOr,nD,Label='Irp')
 *----------------------------------------------------------------------*
 * Initialize convergence detection                                     *
 *----------------------------------------------------------------------*
-      If(kOccAuf.eq.-1) Then
-         Do i=1,MxSym
-            nOccAuf(i,1,1)=-1
-            nOccAuf(i,2,1)=-1
-c for RHF we will not use nOccAuf_ab
-            nOccAuf(i,1,2)=-1
-            nOccAuf(i,2,2)=-1
-         End Do
+      If (kOccAuf.eq.-1) Then
+         nOccAuf(:,:,:)=-1
          kOccAuf=1
       End If
 *
@@ -117,6 +110,7 @@ c for RHF we will not use nOccAuf_ab
          Do iD = 1, nD
             eferm=FermiPop(EOr(1,iD),Occup(1,iD),nOrbAS,RTemp,
      &                     nAuf(iD)*mD,UHF_occ)
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
             Write (6,'(A,G20.10)')'         E(Fermi)=',eferm
 #endif
