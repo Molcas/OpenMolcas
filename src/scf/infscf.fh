@@ -145,14 +145,14 @@
       COMMON /dCSCF/ E_nondyn
 
 
-      Real*8 Float_Strt,Energy,E1,E2,EKin,PotNuc,EneV,E1V,E2V,EKinV,
+      Real*8 Float_Strt,E1,E2,EKin,PotNuc,EneV,E1V,E2V,EKinV,
      &       EThr,DThr,FThr,DelThr,DiisTh,QudThr,ThrEne,ThrOcc,DNorm,
      &       TNorm,DMOMax,FMOMax,EDiff,Thize,RTemp,TemFac,
      &       TStop,ExFac,Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
      &       Elst(MxIter,2),
      &       RotFac,RotLev,RotMax,s2uhf,HLgap,ScrFac,FlipThr,
      &       Float_End
-      Common /FLOAT_SCF/ Float_Strt,Energy,E1,E2,EKin,PotNuc,
+      Common /FLOAT_SCF/ Float_Strt,E1,E2,EKin,PotNuc,
      &       EneV,E1V,E2V,EKinV,EThr,DThr,FThr,DelThr,DiisTh,QudThr,
      &       ThrEne,ThrOcc,DNorm,TNorm,DMOMax,FMOMax,EDiff,Thize,
      &       RTemp,TemFac,TStop,ExFac,Tot_Charge,Tot_Nuc_Charge,

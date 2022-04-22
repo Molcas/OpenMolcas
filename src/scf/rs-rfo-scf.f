@@ -53,10 +53,10 @@
 *     Write (6,*) Sqrt(DDot_(nInter,g,1,g,1))/nInter,gMax
       StepMax=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
 *     Write (6,*) 'StepMax=',StepMax
-      StepMax=Min(StepMax,2.D-1)
+*     StepMax=Min(StepMax,2.D-1)
+      StepMax=Min(StepMax,StepMax_Seed)
       StepMax=Max(StepMax,9.D-3)
       StepMax=Max(StepMax,8.D-3)
-*     StepMax=Max(StepMax,9.D-4)
 *     Write (6,*) 'StepMax=',StepMax
 
 *#define _DEBUGPRINT_

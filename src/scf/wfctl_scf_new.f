@@ -83,6 +83,7 @@
 *---  Define local variables
       Logical QNR1st,FstItr
 *     Logical :: ResetH=.False.
+      Logical :: ResetH=.True.
       Character Meth*(*), Meth_*10
       Character*72 Note
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
@@ -94,6 +95,7 @@
 #endif
       Dimension Dummy(1),iDummy(7,8)
       External DNRM2_
+      Real*8 :: StepMax=0.450D0
 
       Write (6,*)
       Write (6,*) "===================================================="
@@ -205,6 +207,7 @@
       If(Aufb) Then
          DiisTh=Zero
          Diis=.False.
+         ReSetH=.False.
       End If
 *
 *---  Print header to iterations
@@ -400,17 +403,27 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
             Iter_DIIS = Iter_DIIS + 1
          Else If (RSRFO) Then
             iOpt=3
-            If (iter==1) iOpt=0
+*           If (iter==1) iOpt=0
          Else
             iOpt=2
             If (iter==1) iOpt=0
          End If
-*        If (.NOT.QNR1st .and. Abs(EDiff)<1.0D-2 .and. ResetH
-*    &       .AND. iterso>=2) Then
-*           Write (6,*) 'Reset'
-*           QNR1st=.True.
-*           ReSetH=.False.
-*        End If
+         If (.NOT.QNR1st .and. Abs(EDiff)<1.0D-2 .and. ResetH
+     &       .AND. iterso>=2) Then
+            Write (6,*) 'Reset'
+            QNR1st=.True.
+            ReSetH=.False.
+*
+*---        Generate canonical orbitals
+*
+            Call TraFck(Fock,nBT,CMO,nBO,.TRUE.,FMOMax,EOrb,nnO,
+     &                   Ovrlp,nD)
+*
+*           Transform density matrix to MO basis
+*
+            Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+*
+         End If
          If (QNR1st.and. iOpt>=2 ) Then
 !------     1st QNR step, reset kOptim to 1
 
@@ -455,6 +468,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *           Interpolation DIIS
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
+            Energy(iter)=EneV
 *
 *           Compute traces: TrDh, TrDP and TrDD.
 *
@@ -516,6 +530,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *           Fock matrix.
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
+            Energy(iter)=EneV
 *
             Call GrdClc(FrstDs,iOpt)
 *
@@ -570,6 +585,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *           Initiate if the first QNR step
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
+            Energy(iter)=EneV
 *
             Call GrdClc(QNR1st,iOpt)
 *
@@ -644,7 +660,11 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *
 *           Use rs-rfo to compute dX(n)
 *
-            StepMax=0.450D0
+            If (iter>1 .and. EneV-Energy(iter-1)<Zero) Then
+               StepMax=Min(StepMax*Two,1.0D1)
+            Else
+               StepMax=0.45D0
+            End If
             dqHdq=Zero
             Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
@@ -870,6 +890,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *                                                                      *
 ************************************************************************
 *                                                                      *
+         If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EDiff
          If (iter.ne.1             .AND.
      &       (Abs(EDiff).le.EThr)  .AND.
      &       (Abs(FMOMax).le.FThr) .AND.
