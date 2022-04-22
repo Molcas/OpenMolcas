@@ -112,10 +112,9 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       Real*8 GD(nGD)
       INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
       INTEGER tlw6,tlw7,ldtmp,lsdtmp
-      INTEGER p,q,ipq,iqp,lRoots2,NAC2,IOffNIJ1,IOffNIJ2
+      INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2
       REAL*8 Dummy(1)
 
-      lRoots2=lRoots**2
       NAC2=NAC**2
       tlw6=lw6
       tlw7=lw7
