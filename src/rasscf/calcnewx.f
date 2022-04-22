@@ -110,7 +110,7 @@ C       END IF
       DO WHILE ((Qold-Qnew).gt.CMSThreshold)
        ITERscale=ITERscale+1
 *       write(6,*) 'rescaling',ITERscale
-       IF(ITERscale.eq.ICMSMaxIter) THEN
+       IF(ITERscale.eq.ICMSIterMax) THEN
         CALL FZero(X,nSPair)
         write(6,*) 'Scaling does not save Qaa from decreasing'
         Saved=.false.
@@ -128,7 +128,7 @@ C       END IF
        CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
        CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
 
-       IF(ITERscale.eq.MaxIter) THEN
+       IF(ITERscale.eq.iCMSIterMax) THEN
         Exit
        END IF
       END DO
