@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=136)
+      Parameter (NKeys=137)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
