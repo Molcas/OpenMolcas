@@ -50,7 +50,7 @@
       INTEGER nDDg,lRoots,nSPair
       Real*8 DDg(nDDg),Hess(nSPair**2)
       Real*8 Vklmn,Vlknm,Vklnm,Vlkmn
-      INTEGER K,L,M,N,iKL,iMN,iLoc1,iLoc2,iLoc3,iLoc4,iLoc5
+      INTEGER K,L,M,N,iKL,iMN,iLoc1,iLoc2,iLoc3,iLoc4,iLoc5,
      &        lRoots2,lRoots3,lRoots23
 
       lRoots2=lRoots**2
