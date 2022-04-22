@@ -70,7 +70,7 @@
 
       CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
       CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
-      CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair,nSPair2)
+      CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
       CALL GetDiagScr(nScr,Hess,EigVal,nSPair)
       CALL mma_allocate(ScrDiag,nScr     )
 
@@ -122,7 +122,7 @@
         If(.not.CMSNotConverged) write(6,'(4X,A)')'CONVERGENCE REACHED'
        ELSE
         CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
-        CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair,nSPair2)
+        CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
        END IF
       END DO
 
