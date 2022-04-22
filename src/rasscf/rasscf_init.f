@@ -25,6 +25,7 @@
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
      &                            DoCholesky, DoLocK, Estimate, Nscreen,
      &                            Update
+      use CMS, only: iCMSOpt
       Implicit Real*8 (A-H,O-Z)
       External Get_SuperName
       Character*100 ProgName, Get_SuperName
@@ -369,5 +370,6 @@ C state rotation
       ICMSIterMin=5
       CMSThreshold=1.0d-8
       CMSStartMat='XMS'
+      iCMSOpt=1
       RETURN
       END

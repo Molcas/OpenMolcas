@@ -17,5 +17,8 @@
 
 Module CMS
 logical CMSNotConverged
+Real*8  CMSThres
+Real*8,DIMENSION(:),Allocatable:: RGD
+INTEGER iCMSOpt
 End Module CMS
 

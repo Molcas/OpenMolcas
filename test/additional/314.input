@@ -1,8 +1,8 @@
 * Molecule: LiF
 * Basis: STO-3G
 * Symmetry: C2V
-* Features tested: XMS-PDFT calculation
-* Responsible person: Jie J. Bao, 2020
+* Features tested: CMS-PDFT gradient calculation
+* Responsible person: Jie J. Bao, 2022
 * Comments:
 *-------------------------------------------------------------------------------
 &GATEWAY
@@ -25,6 +25,7 @@ F 0.0 0.0  1.0
  Inactive=2
  Ras2=5; CIRoot=2 2 1;RLXR=2
  CMSI
+ CMSO=2
  &MCPDFT; KSDFT=ft:LSDA; GRAD;MSPD
  &SLAPAF
 

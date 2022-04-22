@@ -2259,6 +2259,16 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`CMSOpt`
+  This keyword defines the optimization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The value is 1 for Newtion's method, where the Hessian and the gradient of the sum-over-states of the active-active classical Coulomb energies are computed; The value is 2 for the Jacobian method, in which each pair of states are rotated and a trigonometric function is used to fit such rotation to find the maximum. The default value is 1, namely Newton's method.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="1" >
+              %%Keyword: CMSO <advanced>
+              <HELP>
+              This keyword specifies the optimization algorithm to find the CMS intermediate states.
+              </HELP>
+              </KEYWORD>
+
 :kword:`CMMAx`
   This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
 

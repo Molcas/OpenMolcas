@@ -45,6 +45,7 @@
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
+      use CMS, only: iCMSOpt
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -860,6 +861,21 @@ C   No changing about read in orbital information from INPORB yet.
          Write(6,*) trim(Line)
        End If
        IF(.not.(trim(Line).eq.'XMS'))  call fileorb(Line,CMSStartMat)
+      End If
+*---  Process CMSO command --------------------------------------------*
+      If (KeyCMSO.and.(iCMSP.eq.1)) Then
+       If (DBG) Then
+         Write(6,*) 'Inputting CMS optimization option'
+       End If
+       Call SetPos(LUInput,'CMSO',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following CMSO keyword.'
+       Read(LUInput,*,End=9910,Err=9920) ICMSOpt
+       ReadStatus=' O.K. reading data following CMSO keyword.'
+       If (DBG) Then
+        Write(6,*) ' CMS Optimization Option',iCMSOpt
+       End If
+       Call ChkIfKey()
       End If
 *---  Process CMMA command --------------------------------------------*
       If (KeyCMMA) Then
