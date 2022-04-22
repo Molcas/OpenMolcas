@@ -410,7 +410,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
          End If
          If (.NOT.QNR1st .and. Abs(EDiff)<1.0D-2 .and. ResetH
      &       .AND. iterso>=2) Then
-            Write (6,*) 'Reset'
+*           Write (6,*) 'Reset'
             QNR1st=.True.
             ReSetH=.False.
 *
@@ -442,6 +442,9 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *---        compute initial inverse Hessian H (diag)
 *
             Call SOIniH(EOrb,nnO,HDiag,mOV,nD)
+            AccCon(8:8)='H'
+         Else
+            AccCon(8:8)=' '
 *
          End If
 #endif
