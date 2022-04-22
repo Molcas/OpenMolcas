@@ -24,7 +24,7 @@ module CC_CI_mod
     use linalg_mod, only: verify_, abort_
 
     use rasscf_data, only: iter, lRoots, EMY, &
-         S, KSDFT, Ener, nAc, nAcPar, nAcPr2
+         S, KSDFT, Ener, nAc, nAcPar, nAcPr2, nroots
     use general_data, only: iSpin, nSym, nConf, &
          ntot, ntot1, ntot2, nAsh, nActEl
     use gas_data, only: ngssh, iDoGas
@@ -63,17 +63,17 @@ module CC_CI_mod
 
 contains
 
-    subroutine CC_CI_ctl(this, actual_iter, CMO, DIAF, D1I_AO, D1A_AO, &
-                         TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
+    subroutine CC_CI_ctl(this, actual_iter, ifinal, iroot, weight, CMO, DIAF, D1I_AO, &
+                         D1A_AO, TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
         use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
         use fcidump, only : make_fcidumps, transform
         class(CC_CI_solver_t), intent(in) :: this
-        integer, intent(in) :: actual_iter
-        real(wp), intent(in) :: &
+        integer, intent(in) :: actual_iter, iroot(nroots), ifinal
+        real(wp), intent(in) :: weight(nroots), &
             CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
         real(wp), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
         real(wp), intent(out) :: DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
-        real(wp) :: energy
+        real(wp) :: energy(nroots)
         integer :: jRoot
         integer, allocatable :: permutation(:)
         real(wp) :: orbital_E(nTot), folded_Fock(nAcPar)
@@ -85,25 +85,30 @@ contains
 
         unused_var(this)
 
+        if (size(iroot) >= 2) then
+            call abort_('SA-CC-CASSCF yet to be implemented.')
+            write(6,*) 'ifinal, weight have to be printed to compile NAGFOR.', &
+                ifinal, weight
+        end if
 
-! SOME DIRTY SETUPS
+        ! SOME DIRTY SETUPS
         S = 0.5_wp * dble(iSpin - 1)
 
         call check_options(lRoots, lRf, KSDFT, iDoGAS)
 
-! Produce a working FCIDUMP file
+        ! Produce a working FCIDUMP file
         if (ReOrFlag /= 0) then
             allocate(permutation(sum(nAsh(:nSym))))
             if (ReOrFlag >= 2) permutation(:) = get_P_inp(ReOrInp)
             if (ReOrFlag == -1) permutation(:) = get_P_GAS(nGSSH)
         end if
 
-! This call is not side effect free, sets EMY and modifies F_IN
+        ! This call is not side effect free, sets EMY and modifies F_IN
         call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, F_IN, orbital_E, folded_Fock)
 
-! Fortran Standard 2008 12.5.2.12:
-! Allocatable actual arguments that are passed to
-! non-allocatable, optional dummy arguments are **not** present.
+        ! Fortran Standard 2008 12.5.2.12:
+        ! Allocatable actual arguments that are passed to
+        ! non-allocatable, optional dummy arguments are **not** present.
         call make_fcidumps(ascii_fcidmp, h5_fcidmp, &
                          orbital_E, folded_Fock, TUVX, EMY, permutation)
 
@@ -116,7 +121,7 @@ contains
                        fake_run=actual_iter == 1, energy=energy, &
                        D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
         do jRoot = 1, lRoots
-            ENER(jRoot, ITER) = energy
+            ENER(jRoot, ITER) = energy(jRoot)
         end do
 
         if (nAsh(1) /= nac) call dblock(dmat)
@@ -128,9 +133,10 @@ contains
                          fake_run, energy, D1S_MO, DMAT, PSMAT, PAMAT)
         character(len=*), intent(in) :: ascii_fcidmp, h5_fcidmp
         logical, intent(in) :: fake_run
-        real(wp), intent(out) :: energy, D1S_MO(nAcPar), DMAT(nAcpar), &
+        real(wp), intent(out) :: energy(nroots), D1S_MO(nAcPar), DMAT(nAcpar),&
             PSMAT(nAcpr2), PAMAT(nAcpr2)
-        real(wp), save :: previous_energy = 0.0_wp
+        ! real(wp), save :: previous_energy = 0.0_wp
+        real(wp) :: previous_energy(nroots)
 
         character(len=*), parameter :: &
             input_name = 'CC_CI.inp', energy_file = 'NEWCYCLE'
@@ -219,10 +225,10 @@ contains
 !>
 !>  @author Oskar Weser
 !>
-!>  @paramin[out] DMAT Average 1 body density matrix
-!>  @paramin[out] DSPN Average spin 1-dens matrix
-!>  @paramin[out] PSMAT Average symm. 2-dens matrix
-!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+!>  @param[out] DMAT Average 1 body density matrix
+!>  @param[out] D1S_MO Average spin 1-dens matrix
+!>  @param[out] PSMAT Average symm. 2-dens matrix
+!>  @param[out] PAMAT Average antisymm. 2-dens matrix
     subroutine read_CC_RDM(DMAT, D1S_MO, PSMAT, PAMAT)
         real(wp), intent(out) :: DMAT(nAcpar), D1S_MO(nAcPar), &
                                  PSMAT(nAcpr2), PAMAT(nAcpr2)

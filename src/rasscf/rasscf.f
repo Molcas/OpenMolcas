@@ -59,6 +59,8 @@
       use write_orbital_files, only : OrbFiles, putOrbFile
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
+      use spin_correlation, only: spin_correlation_driver,
+     &    orb_range_p, orb_range_q
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
@@ -807,6 +809,9 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 
         if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1071,6 +1076,9 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
         if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1526,7 +1534,6 @@ cGLM some additional printout for MC-PDFT
         END IF
       end if
 
-
 *
 * Convergence check:
 * check is done on largest BLB matrix
@@ -1597,6 +1604,7 @@ cGLM some additional printout for MC-PDFT
         ITERM=16
         GOTO 1000
       ENDIF
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1685,6 +1693,9 @@ c Clean-close as much as you can the CASDFT stuff...
 
       if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1735,6 +1746,7 @@ c Clean-close as much as you can the CASDFT stuff...
       Zenith_2 = Zenith_2 - Zenith_1
       Zenith_3 = Zenith_3 + Zenith_2
       Call Timing(Swatch,Swatch,Ebel_2,Swatch)
+
 *
 * Calculation of natural orbitals. These orbitals are stored on
 * JOBIPH in IADR15(12), followed by the occupation numbers.
@@ -1815,6 +1827,13 @@ c Clean-close as much as you can the CASDFT stuff...
      &                         'TDM keyword ignored.')
 #endif
       End If
+
+      if (KeySSCR) then
+        call spin_correlation_driver(orb_range_p, orb_range_q, iroot)
+        call mma_deallocate(orb_range_p)
+        call mma_deallocate(orb_range_q)
+      end if
+
 *
 *****************************************************************
 * Export all information relevant to geometry optimizations.

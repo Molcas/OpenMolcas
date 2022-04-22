@@ -18,7 +18,6 @@ module rasscf_data
 
 implicit none
 
-! Order of inclusion matters!
 #include "rasdim.fh"
 #include "rasscf.fh"
 

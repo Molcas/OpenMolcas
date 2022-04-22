@@ -27,19 +27,24 @@
 !> in other word that from the charges, is already coupled in
 !> ::helstate.
 !>
-!> @param[in,out] Energy  The energy of the electrostatic interaction
-!> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
-!> @param[in]     iCi     Number of centers in QM-molecule
-!> @param[in]     Fil     The static field from the solvent
-!> @param[out]    VpolMat The polarization matrix
-!> @param[in,out] FFp     The field from the induced dipoles in the solvent
-!> @param[in]     polfac  A factor for the computation of the image
-!> @param[out]    poli    The solvent polarized field on QM
-!> @param[in]     xyzmyq  Total dipole of QM-region
-!> @param[in]     xyzmyi  Total induced dipole of solvent
-!> @param[in]     xyzmyp  Total permanent dipole of solvent
-!> @param[in]     qtot    Total charge of QM-region
-!> @param[in]     iCstart Number to keep track of solvent molecules
+!> @param[in,out] Energy   The energy of the electrostatic interaction
+!> @param[in]     iAtom2   Number of particles in the solvent, times number of polarizabilities per solvent molecule
+!> @param[in]     iCi      Number of centers in QM-molecule
+!> @param[in]     Fil      The static field from the solvent
+!> @param[out]    VpolMat  The polarization matrix
+!> @param[in,out] FFp      The field from the induced dipoles in the solvent
+!> @param[in]     polfac   A factor for the computation of the image
+!> @param[out]    poli     The solvent polarized field on QM
+!> @param[out]    xyzmyq   Total dipole of QM-region
+!> @param[in]     xyzmyi   Total induced dipole of solvent
+!> @param[in]     xyzmyp   Total permanent dipole of solvent
+!> @param[in]     iCstart  Number to keep track of solvent molecules
+!> @param[in]     iQ_Atoms
+!> @param[in]     qtot     Total charge of QM-region
+!> @param[in]     ChaNuc
+!> @param[in]     RoMatSt
+!> @param[out]    xyzQuQ
+!> @param[in]     CT
 !***********************************************************************
 
 subroutine Polins(Energy,iAtom2,iCi,Fil,VpolMat,FFp,polfac,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc,RoMatSt,xyzQuQ,CT)

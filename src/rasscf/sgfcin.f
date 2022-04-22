@@ -30,7 +30,7 @@
 *>
 *>  @param[in] CMO The MO-coefficients
 *>  @param[out] F The inactive Fock matrix in the basis of the active MO
-*>  @param[inout] FI The inactive Fock matrix in AO-space
+*>  @param[in,out] FI The inactive Fock matrix in AO-space
 *>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu})\f]
 *>    In output FI contains also the core energy added to
 *>    the diagonal elements.
