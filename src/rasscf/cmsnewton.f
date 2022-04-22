@@ -33,7 +33,7 @@
      &                                 XScr,GScr,ScrDiag,
      &                                 RCopy,GDCopy,DgCopy
 
-      INTEGER iStep,OptOption,nDDg,lRoots2,NAC2,
+      INTEGER iStep,nDDg,lRoots2,NAC2,
      &        nSPair,nSPair2,nScr,QuaterIterMax
       Real*8 Qnew,Qold
       Logical CMSScaled,Saved

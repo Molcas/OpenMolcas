@@ -869,10 +869,17 @@ C   No changing about read in orbital information from INPORB yet.
          Write(6,*) 'Inputting CMS optimization option'
        End If
        Call SetPos(LUInput,'CMSO',Line,iRc)
+       Line=Get_Ln(LUInput)
+       CALL Upcase(Line)
+       If(Line(1:4).eq.'NEWT') Then
+        iCMSOpt=1
+       Else If(Line(1:4).eq.'JACO') Then
+        iCMSOpt=2
+       Else
+        ReadStatus='Wrong value assigned to keyword CMSO'
+        GoTo 9920
+       End If
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       ReadStatus=' Failure reading data following CMSO keyword.'
-       Read(LUInput,*,End=9910,Err=9920) ICMSOpt
-       ReadStatus=' O.K. reading data following CMSO keyword.'
        If (DBG) Then
         Write(6,*) ' CMS Optimization Option',iCMSOpt
        End If
