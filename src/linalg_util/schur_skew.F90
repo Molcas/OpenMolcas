@@ -18,12 +18,12 @@
 !> @details
 !> Computes the real Schur decomposition of an antisymmetric real matrix \f$ A \f$.
 !> The real Schur decomposition satisfies \f$ A = Z E Z^T \f$ with \f$ Z \f$ a real orthogonal matrix
-!> and \f$ E \f$ an antisymmetric real, block-diagonal matrix, with \f$ 2\times 2 \$ or \f$ 1\times 1 \f$
+!> and \f$ E \f$ an antisymmetric real, block-diagonal matrix, with \f$ 2\times 2 \f$ or \f$ 1\times 1 \f$
 !> diagonal blocks.
 !>
 !> Only the lower triangle of \f$ A \f$ is referenced. On output, \p A contains the \f$ Z \f$ matrix,
 !> and \p E contains the essential elements of \f$ E \f$, which are pairs of opposite sign
-!> for the \f$ 2\times 2 \$, or zero for the \f$ 1\times 1 \f$ blocks.
+!> for the \f$ 2\times 2 \f$, or zero for the \f$ 1\times 1 \f$ blocks.
 !>
 !> @param[in]     N    Size of the square matrix
 !> @param[in,out] A    Antisymmetric real matrix, it is replaced by its real Schur vectors

@@ -13,17 +13,17 @@
 *  Get_AnalHess
 *
 *> @brief
-*>   Read the the symmetry blocked nuclear Hessian from the runfile and return a
+*>   Read the the symmetry-blocked nuclear Hessian from the runfile and return a
 *>   pointer to the array's location in \c Work and the length of the array
 *> @author R. Lindh
 *>
 *> @details
-*> The utility will read the symmetry blocked nuclear Hessian from the runfile and
+*> The utility will read the symmetry-blocked nuclear Hessian from the runfile and
 *> return a pointer and the length of the array.
 *>
-*> @param[out] ipAnalHess pointer to array with the symmetry blocked nuclear Hessian
-*>                        in Cartesian coordinates
-*> @param[out] nAnalHess  size of the array of the symmetry blocked nuclear Hessian
+*> @param[out] Hess  Array with the symmetry-blocked nuclear Hessian
+*>                   in Cartesian coordinates
+*> @param[out] nHess Size of the array of the symmetry-blocked nuclear Hessian
 ************************************************************************
       Subroutine Get_AnalHess(Hess,nHess)
       Implicit Real*8 (A-H,O-Z)

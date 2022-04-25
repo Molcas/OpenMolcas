@@ -36,6 +36,7 @@
 !> @param[out] iCenTriT Just like \p iCenTri, but in square shape
 !> @param[out] nMlt     Highest multipole in MME
 !> @param[out] outxyz   Expansion centers in molecule
+!> @param[in]  lSlater
 !***********************************************************************
 
 subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,MME,iCenTri,iCenTriT,nMlt,outxyz,lSlater)

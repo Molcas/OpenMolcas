@@ -27,12 +27,13 @@
 !> read in parts of the unperturbed Hamiltonian and construct the
 !> super-matrix.
 !>
-!> @param[in] Cmo   Orbital coeff.
-!> @param[in] nBas  Number of contracted basis functions
-!> @param[in] nOcc  Number of contracted basis functions of a certain atom-type
-!> @param[in] natyp Number of atoms of a certain atom-type (for water, hydrogen is 2)
-!> @param[in] nntyp Number of atom-types in molecule
-!> @param[in] Occu  Orbital occupation numbers
+!> @param[in] Cmo      Orbital coeff.
+!> @param[in] nBas     Number of contracted basis functions
+!> @param[in] iQ_Atoms
+!> @param[in] nOcc     Number of contracted basis functions of a certain atom-type
+!> @param[in] natyp    Number of atoms of a certain atom-type (for water, hydrogen is 2)
+!> @param[in] nntyp    Number of atom-types in molecule
+!> @param[in] Occu     Orbital occupation numbers
 !***********************************************************************
 
 subroutine ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)

@@ -19,7 +19,8 @@
 !> @details
 !> Translate system (C)file descriptor into internal Molcas's one
 !>
-!> @param[in,out] cunit System (C)file descriptor
+!> @param[in]  cunit System (C)file descriptor
+!> @param[out] LuP
 !***********************************************************************
 
 subroutine FSCB2UNIT(cunit,LuP)

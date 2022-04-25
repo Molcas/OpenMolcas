@@ -13,11 +13,11 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=135)
+      Parameter (NKeys=137)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
-      Logical KeyFlags(0:NKeys+1)
+      Logical KeyFlags(0:NKeys)
       Logical KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,
@@ -30,7 +30,7 @@
      &     KeyOUTP, KeyPRIN, KeyPROR, KeyPRSP, KeyPRWF,
      &     KeyQUNE, KeyRAS1, KeyRAS2, KeyRAS3, KeyGASS,
      &     KeyRFPE, KeyCIRF, KeyRFRO, KeyRLXR, KeyRASS,
-     &     KeySDAV, KeySPIN, KeySUPS, KeySXDA, KeySYMM,
+     &     KeySDAV, KeySPIN, KeySSCR, KeySUPS, KeySXDA, KeySYMM,
      &     KeyTHRS, KeyTIGH, KeyTITL, KeyTYPE, KeyVB  ,
      &     KeyEXPE, KeySPLI, KeyNUSP, KeyENSP, KeyPESP,
      &     KeyFOSP, KeyMDRL, KeyOFEM, KeyFTHA, KeyDFMD,
@@ -46,7 +46,7 @@
      &     KeySEMI, KeyMEMO, KeyIVO , KeyCRPR, KeyRDML,
      &     KeyORTH, KeyCCCI, KeyROST, KeyXMSI, KeyCMSI,
      &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyCMSS,
-     &     KeyZZZZ
+     &     KeyCMSO, KeyZZZZ
 
       Common /InputFlags/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -60,7 +60,7 @@
      &     KeyOUTP, KeyPRIN, KeyPROR, KeyPRSP, KeyPRWF,
      &     KeyQUNE, KeyRAS1, KeyRAS2, KeyRAS3, KeyGASS,
      &     KeyRFPE, KeyCIRF, KeyRFRO, KeyRLXR, KeyRASS,
-     &     KeySDAV, KeySPIN, KeySUPS, KeySXDA, KeySYMM,
+     &     KeySDAV, KeySPIN, KeySSCR, KeySUPS, KeySXDA, KeySYMM,
      &     KeyTHRS, KeyTIGH, KeyTITL, KeyTYPE, KeyVB  ,
      &     KeyEXPE, KeySPLI, KeyNUSP, KeyENSP, KeyPESP,
      &     KeyFOSP, KeyMDRL, KeyOFEM, KeyFTHA, KeyDFMD,
@@ -76,7 +76,7 @@
      &     KeySEMI, KeyMEMO, KeyIVO , KeyCRPR, KeyRDML,
      &     KeyORTH, KeyCCCI, KeyROST, KeyXMSI, KeyCMSI,
      &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyCMSS,
-     &     KeyZZZZ
+     &     KeyCMSO, KeyZZZZ
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -93,7 +93,7 @@
      &                  'OUTP','PRIN','PROR','PRSP','PRWF',
      &                  'QUNE','RAS1','RAS2','RAS3','GASS',
      &                  'RFPE','CIRF','RFRO','RLXR','RASS',
-     &                  'SDAV','SPIN','SUPS','SXDA','SYMM',
+     &                  'SDAV','SPIN','SSCR','SUPS','SXDA','SYMM',
      &                  'THRS','TIGH','TITL','TYPE','VB  ',
      &                  'EXPE','SPLI','NUSP','ENSP','PESP',
      &                  'FOSP','MDRL','OFEM','FTHA','DFMD',
@@ -108,7 +108,8 @@
      &                  'DFCF','NKEE','REOR','TRIA','POPS',
      &                  'SEMI','MEMO','IVO ','CRPR','RDML',
      &                  'ORTH','CCCI','ROST','XMSI','CMSI',
-     &                  'CMMA','CMMI','CMTH','GUGA','CMSS'])
+     &                  'CMMA','CMMI','CMTH','GUGA','CMSS',
+     &                  'CMSO'])
 *------------------------------------------------------
 * Input data sets:
       Integer iCI_I,IROOT_I,NFRO_I,NISH_I,NRS1_I,NRS2_I,NRS3_I,NDEL_I,
