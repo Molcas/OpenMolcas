@@ -25,6 +25,7 @@
      &                            DoLocK, DoCholesky, Estimate, Nscreen,
      &                            Update
       Use KSDFT_Info, Only: CoefR, CoefX
+      use hybridpdft, only: Ratio_WF, Do_Hybrid
       Implicit Real*8 (A-H,O-Z)
       External Get_SuperName
       Character*100 ProgName, Get_SuperName
@@ -350,6 +351,12 @@ C The rest is at the present time just to allow testing
 CSVC: lucia timers
       tsigma = 0.0d0
       tdensi = 0.0d0
+
+*
+C Hybrid-PDFT
+      Ratio_WF=0.0d0
+      Do_Hybrid=.false.
+
 *
       RETURN
       END

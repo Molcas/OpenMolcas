@@ -161,7 +161,7 @@ The :kword:`KSDFT` is the only required keyword.
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="MSPD" APPEAR="MS-PDFT" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
               <HELP>
-              Enable MS-PDFT. Requires H0_Rotate.txt file in the scratch directory.
+              Enables MS-PDFT. Requires H0_Rotate.txt file in the scratch directory.
               </HELP>
               </KEYWORD>
 
@@ -173,6 +173,16 @@ The :kword:`KSDFT` is the only required keyword.
               %%Keyword: WJOB <basic>
               <HELP>
               Enable one to write the energies and eigenstates of MC-PDFT or MS-PDFT into the JOBIPH file.
+              </HELP>
+              </KEYWORD>
+
+:kword:`HPDFt`
+  This keyword allows one to run hybrid PDFT calculation for MC-PDFT and MS-PDFT. In hybrid MC-PDFT calculations, the total energy consists of the wave function energy and the MC-PDFT energy. In hybrid MS-PDFT calculations, the intermediate state energies are computed in this way. The ratio of the wave function energy in the formula is given after this keyword.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="HPDFt" APPEAR="hybrid PDFT" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: MSPDFT <basic>
+              <HELP>
+              Enables hybrid PDFT calculations.
               </HELP>
               </KEYWORD>
 

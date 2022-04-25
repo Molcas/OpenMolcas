@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=109)
+      Parameter (NKeys=110)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -40,7 +40,7 @@
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
      &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF, KeyZZZZ, KeyWJOB
+     &     KeyGSOR, KeyDFCF, KeyWJOB, KeyHPDF, KeyZZZZ
 
       Common /InputFlags_M/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -64,7 +64,7 @@
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
      &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF, KeyZZZZ, KeyWJOB
+     &     KeyGSOR, KeyDFCF, KeyWJOB, KeyHPDF, KeyZZZZ
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -91,7 +91,7 @@
      &                  'BLOK','SOCC','RGIN','PRSD','FCID',
      &                  'NOCA','SAVE','EXPA','H5OR','H5CI',
      &                  'HEXS','HEUR','MSPD','GRAD','NOGR',
-     &                  'GSOR','DFCF','ZZZZ','WJOB'])
+     &                  'GSOR','DFCF','WJOB','HPDF','ZZZZ'])
 *------------------------------------------------------
 * Input data sets:
       Integer iCI_I,IROOT_I,NFRO_I,NISH_I,NRS1_I,NRS2_I,NRS3_I,NDEL_I,
