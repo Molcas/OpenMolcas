@@ -85,6 +85,33 @@
              End Do
              Call RecPrt('HM',' ',HM,m,m)
 
+             Call mma_allocate(EVal,m*(m+1)/2,Label='EVal')
+             Call mma_allocate(EVec,m*m,Label='EVec')
+             Do i = 1, m
+                Do j = 1, i
+                   ij=i*(i-1)/2 + j
+                   EVal(ij)=HM(i,j)
+                End Do
+             End Do
+*
+*---- Set up a unit matrix
+*
+             call dcopy_(m*m,[Zero],0,EVec,1)
+             call dcopy_(m,[One],0,EVec,m+1)
+*
+*----        Compute eigenvalues and eigenvectors
+*
+             Call NIDiag_new(EVal,EVec,m,m)
+             Call Jacord(EVal,EVec,m,m)
+
+             Do i = 1, m
+                ij=i*(i+1)/2
+                Write (6,*) 'Eval0(ij)=',EVal(ij)
+             End Do
+
+             Call mma_deallocate(EVal)
+             Call mma_deallocate(EVec)
+
              Do i = 1, m
                 HAug(n,i)=g(i)
                 HAug(i,n)=g(i)
