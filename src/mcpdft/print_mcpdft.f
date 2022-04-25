@@ -84,7 +84,8 @@
       write(6,'(6X,80A)')
       IF(Do_Hybrid) Then
        write(6,'(6X,A)') 'Information for hybrid PDFT:'
-       write(6,'(6X,A,43X,F18.8)') 'Wave function ratio',Ratio_WF
+       write(6,'(6X,A,34X,F18.8)')
+     & 'Wave function ratio (Lambda)',Ratio_WF
        write(6,'(6X,A,42X,F18.8)')
      & 'Wave function energy',Ratio_WF*Ref_Ener(jRoot)
        write(6,'(6X,A,51X,F18.8)')

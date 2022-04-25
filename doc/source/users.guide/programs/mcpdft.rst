@@ -176,10 +176,10 @@ The :kword:`KSDFT` is the only required keyword.
               </HELP>
               </KEYWORD>
 
-:kword:`HPDFt`
+:kword:`LAMBda`
   This keyword allows one to run hybrid PDFT calculation for MC-PDFT and MS-PDFT. In hybrid MC-PDFT calculations, the total energy consists of the wave function energy and the MC-PDFT energy. In hybrid MS-PDFT calculations, the intermediate state energies are computed in this way. The ratio of the wave function energy in the formula is given after this keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="HPDFt" APPEAR="hybrid PDFT" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="LAMB" APPEAR="Lambda in hybrid PDFT" KIND="REAL" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
               <HELP>
               Enables hybrid PDFT calculations.

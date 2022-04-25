@@ -40,7 +40,7 @@
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
      &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF, KeyWJOB, KeyHPDF, KeyZZZZ
+     &     KeyGSOR, KeyDFCF, KeyWJOB, KeyLAMB, KeyZZZZ
 
       Common /InputFlags_M/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -64,7 +64,7 @@
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
      &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF, KeyWJOB, KeyHPDF, KeyZZZZ
+     &     KeyGSOR, KeyDFCF, KeyWJOB, KeyLAMB, KeyZZZZ
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -91,7 +91,7 @@
      &                  'BLOK','SOCC','RGIN','PRSD','FCID',
      &                  'NOCA','SAVE','EXPA','H5OR','H5CI',
      &                  'HEXS','HEUR','MSPD','GRAD','NOGR',
-     &                  'GSOR','DFCF','WJOB','HPDF','ZZZZ'])
+     &                  'GSOR','DFCF','WJOB','LAMB','ZZZZ'])
 *------------------------------------------------------
 * Input data sets:
       Integer iCI_I,IROOT_I,NFRO_I,NISH_I,NRS1_I,NRS2_I,NRS3_I,NDEL_I,

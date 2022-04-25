@@ -363,16 +363,17 @@ C   No changing about read in orbital information from INPORB yet.
        Call SetPos_m(LUInput,'WJOB',Line,iRc)
        Call ChkIfKey_m()
       End If
-*---  Process HPDF command --------------------------------------------*
-      If (KeyHPDF) Then
+*---  Process LAMB command --------------------------------------------*
+      If (KeyLAMB) Then
        If (DBG) Write(6,*) 'Check if hybrid PDFT case'
-       Call SetPos_m(LUInput,'HPDF',Line,iRc)
+       Call SetPos_m(LUInput,'LAMB',Line,iRc)
        ReadStatus=' Failure reading data following HPDF keyword.'
        Read(LUInput,*,End=9910,Err=9920) Ratio_WF
        ReadStatus=' O.K. reading data following HPDF keyword.'
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       write(6,*) 'doing hybrid pdft'
-       Do_Hybrid=.true.
+       If(Ratio_WF.gt.0.0d0) Then
+        Do_Hybrid=.true.
+       End If
        If (DBG) Write(6,*) 'Wave Funtion Ratio in hybrid PDFT',Ratio_WF
        If (dogradmspd.or.dogradpdft) Then
         Call WarningMessage(2,'GRAD currently not compatible with HPDF')
