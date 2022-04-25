@@ -7,7 +7,7 @@
 >> COPY StartOrbFile .
 
 &GATEWAY
-    coord 
+    coord
     2
     Angstrom
     N   0.000000    0.000000    0.000000
@@ -25,7 +25,7 @@
     nactel = 6 0 0
     inactive = 4
     ras2 = 6
-    sscr = 3; 1 2 3; 4 5 6 
+    sscr = 3; 1 2 3; 4 5 6
 
 &RASSCF
     fileorb = StartOrbFile

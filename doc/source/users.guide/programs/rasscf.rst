@@ -945,19 +945,19 @@ A list of these keywords is given below:
   two different ranges of orbitals. For physically meaningful results prior
   localisation (Pipek--Mezey recommended) and sorting by atomic sites is
   required. The latter step is not performed by the :program:`Localisation` module and
-  requires manual relabelling within the :file:`LocOrb` file. 
+  requires manual relabelling within the :file:`LocOrb` file.
 
   At least one integer is required, specifying the length of the orbital
   vectors, whereas an optional second integer determines whether the vectors are
   the same (``1``) or different (any other number or no argument). In the latter
-  case, both orbital vectors must be specified in the following two lines.  
+  case, both orbital vectors must be specified in the following two lines.
 
   Consider a triangle with sites A B C, each with three unpaired electrons,
   corresponding to a CAS(9,9). Below, a few practical examples are given: ::
- 
+
     * Spin correlation from orbital 1 to 6
     SSCR = 6 1
-    * or 
+    * or
     SSCR = 6
     1 2 3 4 5 6
     1 2 3 4 5 6
@@ -986,7 +986,7 @@ A list of these keywords is given below:
               vectors, whereas an optional second input determines whether the
               vectors are the same (1) or different (any other number or no
               argument). In the latter case, both orbital vectors must be
-              specified in the following two lines.  
+              specified in the following two lines.
               </HELP>
               </KEYWORD>
 
@@ -2332,7 +2332,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMSOpt`
-  This keyword defines the optimization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The value is ``NEWTon`` for Newton's method, where the Hessian and the gradient of the sum-over-states of the active--active classical Coulomb energies are computed; or ``JACObian`` for the Jacobian method, in which each pair of states are rotated and a trigonometric function is used to fit such rotation to find the maximum. The default value is ``Newton``. 
+  This keyword defines the optimization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The value is ``NEWTon`` for Newton's method, where the Hessian and the gradient of the sum-over-states of the active--active classical Coulomb energies are computed; or ``JACObian`` for the Jacobian method, in which each pair of states are rotated and a trigonometric function is used to fit such rotation to find the maximum. The default value is ``Newton``.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="CHOICE" LIST="Newton,Jacobian" DEFAULT_VALUE="Newton" >
               %%Keyword: CMSO <advanced>
