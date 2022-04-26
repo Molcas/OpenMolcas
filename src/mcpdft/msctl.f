@@ -30,6 +30,7 @@
 *
       Use Fock_util_global, only: ALGO, DoCholesky
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
+      Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
       Implicit Real*8 (A-H,O-Z)
       Dimension CMO(*) ,F(*) , FI(*), FA(*), Ref_Ener(*)
 *
@@ -837,6 +838,10 @@ c         call xflush(6)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
+         IF(Do_Hybrid) THEN
+          E_NoHyb=CASDFT_E
+          CASDFT_E=Ratio_WF*Ref_Ener(jRoot)+(1-Ratio_WF)*E_NoHyb
+         END IF
 !         Write(6,*)
 !         '**************************************************'
 !         write(6,*) 'ENERGY REPORT FOR STATE',jroot
@@ -850,7 +855,7 @@ c         call xflush(6)
 
 
          IF(Do_Rotate) Then
-            Energies(jroot)=CASDFT_Funct
+            Energies(jroot)=CASDFT_E
 *JB         replacing ref_ener with MC-PDFT energy for MS-PDFT use
             Ref_Ener(jroot)=CASDFT_E
          ELSE

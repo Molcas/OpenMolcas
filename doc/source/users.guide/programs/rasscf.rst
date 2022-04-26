@@ -2327,7 +2327,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMSOpt`
-  This keyword defines the optimization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The value is NEWTon for Newton's method, where the Hessian and the gradient of the sum-over-states of the active-active classical Coulomb energies are computed; The value is JACObian for the Jacobian method, in which each pair of states are rotated and a trigonometric function is used to fit such rotation to find the maximum. The default value is Newton. 
+  This keyword defines the optimization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The value is NEWTon for Newton's method, where the Hessian and the gradient of the sum-over-states of the active-active classical Coulomb energies are computed; The value is JACObian for the Jacobian method, in which each pair of states is rotated and a trigonometric function is used to fit such rotation to find the maximum. The default value is Newton. 
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="STRING" DEFAULT_VALUE="Newton" >
               %%Keyword: CMSO <advanced>
