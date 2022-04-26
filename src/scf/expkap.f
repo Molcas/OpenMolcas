@@ -22,6 +22,7 @@
 !> block of each symmetry.
 !>
 !> @param[in]  kapOV  Parameters of the antisymmetric matrix
+!> @param[in]  nkapOV number of elements in kapOV
 !> @param[out] U      Unitary matrix to transform old CMOs
 !> @param[in]  mynOcc Number of occupied orbitals (including frozen) in each symmetry
 !***********************************************************************
