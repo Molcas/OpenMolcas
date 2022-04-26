@@ -882,6 +882,7 @@
 *
 *        EmConv is true.
 *
+         If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EDif
          If (iter.ne.1             .AND.
      &       (Abs(EDiff).le.EThr)  .AND.
      &       (Abs(FMOMax).le.FThr) .AND.
