@@ -500,6 +500,9 @@ C
         If (IfChol) Then
           Call GetMem('A_PT2 ','FREE','REAL',ipA_PT2,NumChoTot**2)
         End If
+        !! Add DPTC to DSUM for the correct unrelaxed density
+        !! Also, symmetrize DSUM
+        Call AddDPTC(Work(ipDPTC),Work(LDSUM))
 C
 c
 c
@@ -866,7 +869,7 @@ C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
             write(6,*) "density-fitting or Cholesky decomposition)"
             write(6,*) "Mainly because the coding issue"
             write(6,*) "Please use DF or CD"
-            write(6,*) "I may fix in the future"
+            write(6,*) "I may not fix in the future"
             call abend()
             Call PrgmTranslate('CMOPT2',RealName,lRealName)
 C           Open (Unit=LuCMOPT2,
@@ -1305,6 +1308,50 @@ C
 C
 C-----------------------------------------------------------------------
 C
+      SUBROUTINE AddDPTC(DPTC,DSUM)
+C
+      IMPLICIT REAL*8 (A-H,O-Z)
+#include "rasdim.fh"
+#include "caspt2.fh"
+C
+      DIMENSION DPTC(*),DSUM(*)
+C
+C
+      iMO1 = 1
+      iMO2 = 1
+      DO iSym = 1, nSym
+        nOrbI1 = nOrb(iSym)
+        nOrbI2 = nBas(iSym)!-nDel(iSym)
+        If (nOrbI2.gt.0) Then
+          !! Add active orbital density
+          !! Probably incorrect if symmetry
+          Do iOrb0 = 1, nOrb(iSym)
+            iOrb1 = nFro(iSym) + iOrb0
+            Do jOrb0 = 1, nOrb(iSym)
+              jOrb1 = nFro(iSym) + jOrb0
+              DSUM(iMO1+iOrb0-1+nOrbI1*(jOrb0-1))
+     *          = DSUM(iMO1+iOrb0-1+nOrbI1*(jOrb0-1))
+     *          + DPTC(iMO2+iOrb1-1+nOrbI2*(jOrb1-1))
+            End Do
+          End Do
+          !! Symmetrize DSUM
+          Do iOrb = 1, nOrb(iSym)
+            Do jOrb = 1, iOrb-1
+              Val =(DSUM(iMO1+iOrb-1+nOrbI1*(jOrb-1))
+     *             +DSUM(iMO1+jOrb-1+nOrbI1*(iOrb-1)))*0.5D+00
+              DSUM(iMO1+iOrb-1+nOrbI1*(jOrb-1)) = Val
+              DSUM(iMO1+jOrb-1+nOrbI1*(iOrb-1)) = Val
+            End Do
+          End Do
+        END IF
+        iMO1 = iMO1 + nOrbI1*nOrbI1
+        iMO2 = iMO2 + nOrbI2*nOrbI2
+      End Do
+C
+      End Subroutine AddDPTC
+C
+C-----------------------------------------------------------------------
+C
       Subroutine TRAFRO(MODE)
 C
       Implicit Real*8 (A-H,O-Z)
@@ -1391,19 +1438,8 @@ C
       !! DPT2 transformation
       !! Just transform DPT2 (in MO, block-squared) to DPT2AO (in AO,
       !! block-squared). Also, for DPT2C which couples with the inactive
-C     !! density matrix.
-C     write (6,*) "DPT2_Trf"
-C     write(6,*) "dpt2"
-C     do isym = 1, nsym
-C       nbasi = nbas(isym)
-C       write(6,*) "for symmetry :", isym,nbasi
-C       call sqprt(dpt2,nbasi)
-C     end do
+      !! density matrix.
       CALL GETMEM('WRK   ','ALLO','REAL',ipWRK,nBSQT)
-C     write(6,*) "vec"
-C     call sqprt(cmo,12)
-C     write(6,*) "DPT2MO"
-C     call sqprt(dpt2,norb(1))
 C
       !! MO -> AO back transformation
       iCMO =1
@@ -1411,7 +1447,6 @@ C
       iMO = 1
       DO iSym = 1, nSym
         iCMO = iCMO  + nBas(iSym)*nFro(iSym)
-C       iOFF = iWTMP + nBas(iSym)*nBas(iSym)
         If (nORB(ISYM).GT.0) Then
           nBasI = nBas(iSym)
           nOrbI = nOrb(iSym)
@@ -1422,12 +1457,10 @@ C       iOFF = iWTMP + nBas(iSym)*nBas(iSym)
             Do jOrb0 = 1, nAsh(iSym)
               jOrb = nIsh(iSym)+jOrb0
               jOrb2= nFro(iSym)+nIsh(iSym)+jOrb0
-C             if (iorb0.eq.jorb0) then
               DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
      *          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + DEPSA(iOrb0,jOrb0)
               DSUM(iMO+iOrb-1+nOrbI*(jOrb-1))
-     *          = DSUM(iMO+iOrb2-1+nOrbI*(jOrb2-1)) + DEPSA(iOrb0,jOrb0)
-C             end if
+     *          = DSUM(iMO+iOrb-1+nOrbI*(jOrb-1)) + DEPSA(iOrb0,jOrb0)
             End Do
           End Do
           !! Symmetrize DPT2 (for shift)
@@ -1437,10 +1470,6 @@ C             end if
      *             +DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)))*0.5D+00
               DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) = Val
               DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) = Val
-C             Val =(DSUM(iMO+iOrb-1+nOrbI*(jOrb-1))
-C    *             +DSUM(iMO+jOrb-1+nOrbI*(iOrb-1)))*0.5D+00
-C             DSUM(iMO+iOrb-1+nOrbI*(jOrb-1)) = Val
-C             DSUM(iMO+jOrb-1+nOrbI*(iOrb-1)) = Val
             End Do
           End Do
           !! First, DPT2 -> DPT2AO
@@ -1450,27 +1479,11 @@ C             DSUM(iMO+jOrb-1+nOrbI*(iOrb-1)) = Val
           CALL DGEMM_('N','T',nBasI,nBasI,nOrbI,
      *                 1.0D+00,Work(ipWRK),nBasI,CMO(iCMO),nBasI,
      *                 0.0D+00,DPT2AO(iAO),nBasI)
-          !! Second, DPT2C -> DPT2CAO
-C         CALL DGEMM_('N','N',nBasI,nOrbI,nOrbI,
-C    *                 1.0D+00,CMO(iCMO),nBasI,DPT2C(iMO),nBasI,
-C    *                 0.0D+00,Work(ipWRK),nBasI)
-C         CALL DGEMM_('N','T',nBasI,nBasI,nOrbI,
-C    *                 1.0D+00,Work(ipWRK),nBasI,CMO(iCMO),nBasI,
-C    *                 0.0D+00,DPT2CAO(iAO),nBasI)
         END IF
         iCMO = iCMO + nBas(iSym)*(nOrb(iSym)+nDel(iSym))
         iAO  = iAO  + nBasI*nBasI
         iMO  = iMO  + nBasI*nBasI
       End Do
-C     write(6,*) "DPT2MO after DEPSA"
-C     call sqprt(dpt2,norb(1))
-C
-C     write(6,*) "dpt2ao"
-C     do isym = 1, nsym
-C       nbasi = nbas(isym)
-C       write(6,*) "for symmetry :", isym,nbasi
-C       call sqprt(dpt2ao,nbasi)
-C     end do
 C
       CALL GETMEM('WRK   ','FREE','REAL',ipWRK,nBSQT)
 C
