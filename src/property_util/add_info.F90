@@ -122,9 +122,7 @@ call open_molcas_info()
 !----------------------------------------------------------------------*
 ! Append new information                                               *
 !----------------------------------------------------------------------*
-Write (*,*) iTol
 write(Tol,'(i8)') merge(8,iTol,iTol == 0)
-Write (*,*) Tol
 nlabel = len(label)
 Line = label
 n0 = nlabel
@@ -132,7 +130,6 @@ do i=1,nlabel
   if (label(i:i) == ' ') Line(i:i) = '_'
 end do
 call upcase(Line)
-Write (*,*) Line
 !------------------ Some code for Geo-Environment //Jonas 2011
 !----------------------------------------------------------------------*
 ! Check if we are in the GEO-Environment and append if energy          *
