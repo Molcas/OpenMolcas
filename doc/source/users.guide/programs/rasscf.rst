@@ -307,9 +307,9 @@ calculation, users are required to use the :file:`dneci.x` and :file:`mneci.x`
 binaries (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
 The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in
 the :program:`NECI` generated :file:`FCIMCStats` file. In the
-:file:`fciqmc.out` there are important pieces of information, such as the list
+:file:`fciqmc.out` file there are important pieces of information, such as the list
 of Slater determinants dominating the FCI wave function and the RDM energy. The
-latter is passed to |molcas| as shown in the script below. When a stationary
+latter is passed to |openmolcas| as shown in the script below. When a stationary
 condition is reached and density matrices sampled these are passed to the
 :file:`RASSCF` program to continue.
 This can be achieved by a simple script, such as the following: ::
@@ -490,7 +490,6 @@ Optional important keywords are:
                 REOR
                   3
                   4 5 1
-
               </HELP>
               </KEYWORD>
 
@@ -506,6 +505,8 @@ A minimal input example for using state-averaged Stochastic-CASSCF jointly with 
    COORD = coor.xyz
    BASIS = ANO-RCC-VTZP
    GROUP = full
+
+  &SEWARD
 
   &RASSCF
    CIROOT = 2  2  1   * follows standard &RASSCF syntax
@@ -940,19 +941,24 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`SSCR`
-  Computes the orbital resolved spin-spin correlation function between at most
+  Computes the orbital resolved spin--spin correlation function between at most
   two different ranges of orbitals. For physically meaningful results prior
-  localisation (Pipek-Mezey recommended) and sorting by atomic sites is
-  required. The latter step is not performed by the Localisation module and
-  requires manual relabelling within the LocOrb file. 
+  localisation (Pipek--Mezey recommended) and sorting by atomic sites is
+  required. The latter step is not performed by the :program:`Localisation` module and
+  requires manual relabelling within the :file:`LocOrb` file.
+
+  At least one integer is required, specifying the length of the orbital
+  vectors, whereas an optional second integer determines whether the vectors are
+  the same (``1``) or different (any other number or no argument). In the latter
+  case, both orbital vectors must be specified in the following two lines.
 
   Consider a triangle with sites A B C, each with three unpaired electrons,
   corresponding to a CAS(9,9). Below, a few practical examples are given: ::
- 
+
     * Spin correlation from orbital 1 to 6
     SSCR = 6 1
-    * or 
-    SSCR = 6 0
+    * or
+    SSCR = 6
     1 2 3 4 5 6
     1 2 3 4 5 6
     * Spin correlation between sites A (1-3) and C (7-9)
@@ -960,7 +966,7 @@ A list of these keywords is given below:
     1 2 3
     7 8 9
     * or
-    SSCR = 3 0 
+    SSCR = 3
     1 2 3
     7 8 9
 
@@ -979,8 +985,8 @@ A list of these keywords is given below:
               least one input is required, specifying the length of the orbital
               vectors, whereas an optional second input determines whether the
               vectors are the same (1) or different (any other number or no
-              argument). In the latter case, both orbital vectors can be
-              specified in the following two lines.  
+              argument). In the latter case, both orbital vectors must be
+              specified in the following two lines.
               </HELP>
               </KEYWORD>
 
@@ -2312,7 +2318,6 @@ A list of these keywords is given below:
               %%Keyword: CMSI <basic>
               <HELP>
               This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation into CMS intermediate states.
-              This keyword specifies file that provides the starting rotation matrix for CMS intermediate states.
               </HELP>
               </KEYWORD>
 
@@ -2327,9 +2332,9 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMSOpt`
-  This keyword defines the optimization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The value is NEWTon for Newton's method, where the Hessian and the gradient of the sum-over-states of the active-active classical Coulomb energies are computed; The value is JACObian for the Jacobian method, in which each pair of states is rotated and a trigonometric function is used to fit such rotation to find the maximum. The default value is Newton. 
+  This keyword defines the optimization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The value is ``NEWTon`` for Newton's method, where the Hessian and the gradient of the sum-over-states of the active--active classical Coulomb energies are computed; or ``JACObian`` for the Jacobian method, in which each pair of states is rotated and a trigonometric function is used to fit such rotation to find the maximum. The default value is ``Newton``.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="STRING" DEFAULT_VALUE="Newton" >
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="CHOICE" LIST="Newton,Jacobian" DEFAULT_VALUE="Newton" >
               %%Keyword: CMSO <advanced>
               <HELP>
               This keyword specifies the optimization algorithm to find the CMS intermediate states.
