@@ -194,6 +194,7 @@ C
       !! quantities needed for gradient are computed
       nStpGrd = 1
       IFGRDT0 = IFGRDT
+      ! Why do we need to do this here?
       If (IFGRDT.AND.IfChol) CALL CNSTFIFAFIMO(0)
       IF (IFGRDT.AND.IFMSCOUP) Then
         nStpGrd = 2
@@ -202,6 +203,7 @@ C
         CALL MMA_ALLOCATE(ESav,Nstate)
         If (IFXMS.and.IFDW) Then
           CALL MMA_ALLOCATE(H0Sav,Nstate,Nstate)
+          ! at this stage, H0 is just a zero matrix
           Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
         End IF
       End If

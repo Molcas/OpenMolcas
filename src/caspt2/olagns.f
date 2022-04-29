@@ -1179,6 +1179,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
+! MO->AO or AO->MO transformation of 1-RDM
       Subroutine OLagTrf(mode,iSym,CMO,DPT2,DPT2AO,WRK)
 C
       Implicit Real*8 (A-H,O-Z)

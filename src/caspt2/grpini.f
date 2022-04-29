@@ -83,6 +83,7 @@
         Jstate=J+JSTATE_OFF
 
 * Copy the 1-RDM of Jstate from LDMIX into LDREF
+        ! this might be obsolete if we remove sadref
         IF (IFSADREF) Then
           !! This DREF is used only for constructing the Fock in H0.
           !! DREF used in other places will be constructed in elsewhere

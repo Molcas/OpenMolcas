@@ -520,7 +520,7 @@ C
 C#include "nadc.fh"
 C#include "nac.fh"
 C
-      Dimension UEFF(nState,nState),VECROT(nStLag)
+      Dimension UEFF(nState,nState),VECROT(nState)
 C
 C     H_{IJ} = <I|H^2|J>
 C     we diagonalize tH_{IJ} = tilde-H_{IJ} = (H_{IJ}+H_{JI})/2
@@ -556,6 +556,7 @@ C
         End Do
         jStLag    = jState
       Else
+        write(6,*) 'jState in gradprep: ',jstate
         VECROT(jState) = 1.0D+00
         jStLag    = jState
       End If

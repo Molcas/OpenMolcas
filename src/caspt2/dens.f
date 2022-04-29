@@ -38,7 +38,7 @@ C
 #include "chocaspt2.fh"
       DIMENSION DMAT(*),UEFF(nState,nState)
       Character*4096 RealName
-      Dimension VECROT(nStLag)
+      Dimension VECROT(nState)
 
 
       IF (IFGRDT) THEN
