@@ -177,7 +177,7 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`LAMBda`
-  This keyword allows one to run hybrid PDFT calculation for MC-PDFT and MS-PDFT. In hybrid MC-PDFT calculations, the total energy consists of the wave function energy and the MC-PDFT energy. In hybrid MS-PDFT calculations, the intermediate state energies are computed in this way. The ratio of the wave function energy in the formula is given after this keyword.
+  This keyword is used to run a hybrid MC-PDFT or hybrid MS-PDFT calculation. In hybrid MC-PDFT calculations, the total energy is a weighted sum of the MC-PDFT energy and the wave function energy. In hybrid MS-PDFT calculations, the intermediate state energies (the diagonal elements of the model-space Hamiltonian) are weighted sums of the MC-PDFT energy and the wave function energy. The weight of the wave function energy is given by Lambda, and the weight of the PDFT energy is one minus Lambda; for example, to run MC-PDFT with tPBE0, the value for Lambda should be 0.25.  The default is Lambda=0.0.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="LAMBDA" APPEAR="Lambda in hybrid PDFT" KIND="REAL" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
