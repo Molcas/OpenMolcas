@@ -1604,7 +1604,6 @@ cGLM some additional printout for MC-PDFT
         ITERM=16
         GOTO 1000
       ENDIF
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1746,7 +1745,6 @@ c Clean-close as much as you can the CASDFT stuff...
       Zenith_2 = Zenith_2 - Zenith_1
       Zenith_3 = Zenith_3 + Zenith_2
       Call Timing(Swatch,Swatch,Ebel_2,Swatch)
-
 *
 * Calculation of natural orbitals. These orbitals are stored on
 * JOBIPH in IADR15(12), followed by the occupation numbers.

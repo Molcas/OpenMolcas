@@ -30,7 +30,6 @@ C     ldf_integral_prescreening_info.fh
 C     ldf_qdiag.fh
 C     ldf_oneel.fh
 C     ldf_charge_constraint_info.fh
-C     ldf_atomiclabels.fh
 C
       Implicit None
 #include "localdf.fh"

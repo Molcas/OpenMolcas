@@ -210,7 +210,6 @@ subroutine dgees_( jobvs, sort, select, n_, a, lda_, sdim_, wr, wi, &
   integer            n_, lda_, sdim_, ldvs_, lwork_, info_
   real*8             a( lda_, * ), wr( * ), wi( * ), vs( ldvs_, *), work( * )
   logical            select, bwork( * )
-  external           sdim
 #ifdef MOLCAS_TO_LAPACK_INT
   LAPACKINT          n, lda, sdim, ldvs, lwork, info
   n=n_

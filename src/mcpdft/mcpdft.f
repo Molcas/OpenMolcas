@@ -113,8 +113,8 @@
       External Get_ProgName
 !      External Get_SuperName
       Character*100 ProgName, Get_ProgName!, Get_SuperName
-      External RasScf_Init
-      External Scan_Inp
+      External RasScf_Init_m
+      External Scan_Inp_m
 !      External Proc_Inp
 !      real*8 Elec_Ener
       integer iRef_E,IAD19

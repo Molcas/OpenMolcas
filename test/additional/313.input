@@ -49,7 +49,7 @@ CIRoot= 2 2 1
 Inactive=2 0 0 0
 Ras2=4 1 0 1
 Nactel=8 0 0
-CMSO=JACO
+CMSO=Jacobian
 CMSI
 
 &MCPDFT
