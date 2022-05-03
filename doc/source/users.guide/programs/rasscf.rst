@@ -2348,18 +2348,6 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-  * **COMPact:** The format of the orbital output is changed from a
-    tabular form to a list giving the orbital indices and MO-coefficients.
-    Coefficients smaller than 0.1 will be omitted.
-  * **FULL:** The tabular form will be chosen.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORBAPPEAR" LEVEL="BASIC" APPEAR="Orbital appearance" KIND="CHOICE" LIST="----,Compact,Full">
-              %%Keyword: ORBAppear <basic>
-              <HELP>
-              Select appearance of orbital list in the output file.
-              </HELP>
-              </KEYWORD>
-
 :kword:`CMMAx`
   This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
 
