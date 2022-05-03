@@ -2334,8 +2334,12 @@ A list of these keywords is given below:
 :kword:`CMSOpt`
   This keyword defines the maximization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The allowed values are:
 
-*  **Newton:** Newton's method. The Hessian and the gradient of the sum-over-states of the active--active classical Coulomb energies are computed. This is the default for calculations with more than three states.
-*  **Jacobi:** Jacobi's method. States are rotated in pairwise succession, and a trigonometric function is used to fit such rotation to find the maximum. This is the default for calculations with two states.
+*  **Newton:** Newton's method. The Hessian and the gradient of the sum-over-states 
+   of the active--active classical Coulomb energies are computed. This is the 
+   default for calculations with more than three states.
+*  **Jacobi:** Jacobi's method. States are rotated in pairwise succession, 
+   and a trigonometric function is used to fit such rotation to find the 
+   maximum. This is the default for calculations with two states.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="CHOICE" LIST="Newton,Jacobi" DEFAULT_VALUE="Newton" >
               %%Keyword: CMSO <advanced>
