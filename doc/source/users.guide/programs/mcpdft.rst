@@ -152,7 +152,7 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`MSPDFT`
-  This keyword allows one to run Multi-State Pair-Density Functional Theory (MS-PDFT). This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed.  With the :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the rotated states (presumably obtained from a previous :program:`RASSCF` module in which the keyword :kword:`ROST`, :kword:`XMSI` or :kword:`CMSI` is used), and diagonalizes the Hamiltonian matrix in the intermediate basis (called the effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below.  More details regarding the theory, the input, and the output can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+  This keyword allows one to run Multi-State Pair-Density Functional Theory (MS-PDFT). This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed. With the :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the rotated states (presumably obtained from a previous :program:`RASSCF` module in which the keyword :kword:`ROST`, :kword:`XMSI` or :kword:`CMSI` is used), and diagonalizes the Hamiltonian matrix in the intermediate basis (called the effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below. More details regarding the theory, the input, and the output can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
   XMS-PDFT and CMS-PDFT are two MS-PDFT options in the code.
 
@@ -161,7 +161,7 @@ The :kword:`KSDFT` is the only required keyword.
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="MSPD" APPEAR="MS-PDFT" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
               <HELP>
-              Enable MS-PDFT. Requires H0_Rotate.txt file in the scratch directory.
+              Enables MS-PDFT. Requires H0_Rotate.txt file in the scratch directory.
               </HELP>
               </KEYWORD>
 
@@ -173,6 +173,16 @@ The :kword:`KSDFT` is the only required keyword.
               %%Keyword: WJOB <basic>
               <HELP>
               Enable one to write the energies and eigenstates of MC-PDFT or MS-PDFT into the JOBIPH file.
+              </HELP>
+              </KEYWORD>
+
+:kword:`LAMBda`
+  This keyword is used to run a hybrid MC-PDFT or hybrid MS-PDFT calculation. In hybrid MC-PDFT calculations, the total energy is a weighted sum of the MC-PDFT energy and the wave function energy. In hybrid MS-PDFT calculations, the intermediate state energies (the diagonal elements of the model-space Hamiltonian) are weighted sums of the MC-PDFT energy and the wave function energy. The weight of the wave function energy is given by Lambda, and the weight of the PDFT energy is one minus Lambda; for example, to run MC-PDFT with tPBE0, the value for Lambda should be 0.25.  The default is Lambda=0.0.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="LAMBDA" APPEAR="Lambda in hybrid PDFT" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: MSPDFT <basic>
+              <HELP>
+              Enables hybrid PDFT calculations.
               </HELP>
               </KEYWORD>
 

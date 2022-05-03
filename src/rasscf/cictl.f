@@ -63,7 +63,7 @@
       use mh5, only: mh5_put_dset
 #endif
       use csfbas, only: CONF, KCFTP
-      use CMS, only: iCMSOpt
+      use CMS, only: iCMSOpt,CMSGiveOpt
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -554,6 +554,10 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
         IF(ICMSP.eq.1) THEN
          If(trim(CMSStartMat).eq.'XMS') Then
           CALL XMSRot(CMO,FI,FA)
+         End If
+         If(.not.CMSGiveOpt) Then
+          if(lRoots.eq.2) iCMSOpt=2
+          if(lRoots.ge.3) iCMSOpt=1
          End If
          If(iCMSOpt.eq.1) Then
           CALL CMSOpt(TUVX)

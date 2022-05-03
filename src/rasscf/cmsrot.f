@@ -43,30 +43,13 @@ C     Allocating Memory
       write(6,*)
       write(6,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
       IF(trim(CMSStartMat).eq.'XMS') THEN
-       write(6,'(5X,A12,1X,A)')
-     &'START MATRX','XMS INTERMEDIATE STATES'
        CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
       ELSE
        CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,
      &              len_trim(CMSStartMat),16,'N')
-       write(6,'(5X,A12,1X,A)')
-     &'START MATRX',trim(CMSStartMat)
       END IF
-      write(6,'(4X,A12,2X,ES8.2E2)')
-     &'THRESHOLD ',CMSThreshold
-      write(6,'(4X,A12,2X,I8)')
-     &'MAX CYCLES',ICMSIterMax
-      write(6,'(4X,A12,2X,I8)')
-     &'MIN CYCLES',ICMSIterMin
-      write(6,*)('=',i=1,71)
-      IF(lRoots.gt.2) THEN
-      write(6,'(4X,A8,2X,2(A16,11X))')
-     &'Cycle','Q_a-a','Difference'
-      ELSE
-      write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
-     &'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
-      END IF
-      write(6,*)('-',i=1,71)
+      CALL CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
+
 
       CALL LoadGtuvx(TUVX,Gtuvx)
 

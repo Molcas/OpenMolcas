@@ -46,7 +46,7 @@
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
-      use CMS, only: iCMSOpt
+      use CMS, only: iCMSOpt,CMSGiveOpt
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -879,6 +879,7 @@ C   No changing about read in orbital information from INPORB yet.
         ReadStatus='Wrong value assigned to keyword CMSO'
         GoTo 9920
        End If
+       CMSGiveOpt=.true.
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        If (DBG) Then
         Write(6,*) ' CMS Optimization Option',iCMSOpt

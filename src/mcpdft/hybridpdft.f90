@@ -12,14 +12,12 @@
 !***********************************************************************
 ! ****************************************************************
 ! history:                                                       *
-! Jie J. Bao, on Apr. 01, 2022, created this file.               *
+! Jie J. Bao, on Apr. 24, 2022, created this file.               *
 ! ****************************************************************
 
-Module CMS
-logical CMSNotConverged
-Logical CMSGiveOpt
-Real*8  CMSThres
-Real*8,DIMENSION(:),Allocatable:: RGD
-INTEGER iCMSOpt
-End Module CMS
+Module hybridpdft
+logical Do_Hybrid
+Real*8  Ratio_WF
+Real*8  E_nohyb ! PDFT energy if it is not hybrid
+End Module hybridpdft
 

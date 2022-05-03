@@ -562,7 +562,11 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iTol = 5
+if (OpLab(1:3) == 'EF2') then
+  iTol = 4
+else
+  iTol = 5
+end if
 iTol_E0 = 8
 iTol_E1 = Cho_X_GetTol(iTol_E0)
 iTol = int(real(iTol*iTol_E1,kind=wp)/real(iTol_E0,kind=wp))

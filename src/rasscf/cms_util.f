@@ -122,7 +122,7 @@
      &'OPT ALGO  ','NEWTON'
       ELSE IF(iCMSOpt.eq.2) THEN
       write(6,'(4X,A12,8X,A8)')
-     &'OPT ALGO  ','JACOBIAN'
+     &'OPT ALGO  ','JACOBI'
       END IF
       write(6,'(4X,A12,8X,ES8.2E2)')
      &'THRESHOLD ',CMSThreshold
