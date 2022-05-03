@@ -2334,17 +2334,29 @@ A list of these keywords is given below:
 :kword:`CMSOpt`
   This keyword defines the maximization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The allowed values are:
 
-*  **Newton:** Newton's method. The Hessian and the gradient of the sum-over-states 
-   of the active--active classical Coulomb energies are computed. This is the 
-   default for calculations with more than three states.
-*  **Jacobi:** Jacobi's method. States are rotated in pairwise succession, 
-   and a trigonometric function is used to fit such rotation to find the 
-   maximum. This is the default for calculations with two states.
+  * **Newton:** Newton's method. The Hessian and the gradient of the sum-over-states 
+    of the active--active classical Coulomb energies are computed. This is the 
+    default for calculations with more than two states.
+  * **Jacobi:** Jacobi's method. States are rotated in pairwise succession, 
+    and a trigonometric function is used to fit such rotation to find the 
+    maximum. This is the default for calculations with two states.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="CHOICE" LIST="Newton,Jacobi" DEFAULT_VALUE="Newton" >
               %%Keyword: CMSO <advanced>
               <HELP>
               This keyword specifies the maximization algorithm to find the CMS intermediate states.
+              </HELP>
+              </KEYWORD>
+
+  * **COMPact:** The format of the orbital output is changed from a
+    tabular form to a list giving the orbital indices and MO-coefficients.
+    Coefficients smaller than 0.1 will be omitted.
+  * **FULL:** The tabular form will be chosen.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORBAPPEAR" LEVEL="BASIC" APPEAR="Orbital appearance" KIND="CHOICE" LIST="----,Compact,Full">
+              %%Keyword: ORBAppear <basic>
+              <HELP>
+              Select appearance of orbital list in the output file.
               </HELP>
               </KEYWORD>
 
