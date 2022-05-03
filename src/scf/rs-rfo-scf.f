@@ -40,24 +40,28 @@
       Real*8, Allocatable:: Tmp(:), Val(:), Vec(:,:)
       Logical Iterate, Restart
       Real*8, Save :: StepMax=1.0D0
+      Real*8, Parameter :: Thr=1.0D-4
 *
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
-*     Write (6,*) 'StepMax_Seed=',StepMax_Seed
-*     Write (6,*) 'Sqrt(gg)=',Sqrt(DDot_(nInter,g,1,g,1))
-*     gMax=Zero
-*     Do i = 1, Size(g)
-*     gMax=Max(g(i),gMax)
-*     End Do
-*     Write (6,*) Sqrt(DDot_(nInter,g,1,g,1))/nInter,gMax
-      StepMax=StepMax_Seed*Sqrt(DDot_(nInter,g,1,g,1))
-*     Write (6,*) 'StepMax=',StepMax
-*     StepMax=Min(StepMax,2.D-1)
-      StepMax=Min(StepMax,StepMax_Seed)
-      StepMax=Max(StepMax,9.D-3)
-      StepMax=Max(StepMax,8.D-3)
-*     Write (6,*) 'StepMax=',StepMax
+      Write (6,*) 'StepMax_Seed=',StepMax_Seed
+      Write (6,*) 'Sqrt(gg)=',Sqrt(DDot_(nInter,g,1,g,1))
+
+!     Make sure that the step restriction is not too loose.
+      gg=Sqrt(DDot_(nInter,g,1,g,1))
+
+      gg=Min(1.0D0,gg)
+
+!     Mae sure that the step restriction is not too tight.
+      gg=Max(gg,2.0D-1)
+
+      StepMax=StepMax_Seed*gg
+      Write (6,*) 'StepMax=',StepMax
+
+*     Make sure that step restriction is not too tight.
+      If (StepMax<1.0D-1) StepMax=1.0D-1
+      Write (6,*) 'StepMax=',StepMax
 
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -80,7 +84,6 @@
       Iter=0
       Iterate=.False.
       Restart=.False.
-      Thr=1.0D-3
       NumVal=Min(3,nInter+1)
 *     NumVal=Min(nInter+1,nInter+1)
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
@@ -254,7 +257,7 @@
       Write (Lu,*) '***************************************************'
       Write (Lu,*)
 #endif
-*     Write (Lu,'(2E11.3)') Sqrt(dqdq),StepMax
+      Write (Lu,'(2E11.3)') Sqrt(dqdq),StepMax
 *
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)

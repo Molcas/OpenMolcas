@@ -333,70 +333,22 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+         Call SCF_Energy(FstItr,E1V,E2V,EneV)
+         Energy(iter)=EneV
+         If(iter.eq.1) Then
+            EDiff  = Zero
+         Else
+            EDiff = EneV-EnVold
+         End If
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *        Optimization section
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-#ifdef _OLD_CODE_
-*        Test if this is a DIIS extrapolation iteration, alternatively
-*        the the iteration is a DIIS interpolation iteration. The former
-*        is activated if the DMOMax is lower than the threshold
-*        after a specific number of iteration, or if the condition
-*        has already been achived.
-*
-*        2017-02-03: add energy criterion to make sure that the DIIS
-*                    gets some decent to work with.
-*
-!        Write (6,*) 'DMOMax=',DMOMax
-!        Write (6,*) 'EDiff=',EDiff
-!        Write (6,*) 'Iter_No_Diis=',Iter_No_Diis
-*        If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
-*    &             .AND. ABS(EDiff).lt.1.0D-1)) Then
-         If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis)) Then
-*
-*           Reset kOptim such that the extraploation scheme is not
-*           corrupted by iterations with too high energies. Those can
-*           not be used in the scheme.
-*
-!           Write (6,*) 'Case(1)'
-!           If (iOpt.eq.0) kOptim=2
-            iOpt=1
-            Iter_DIIS = Iter_DIIS + 1
-         End If
-!        Write (6,*) 'iOpt,kOptim,Iter_DIIS:',iOpt,kOptim,Iter_DIIS
-*
-*        Test if the DIIS scheme will be operating in an orbital
-*        rotation mode or linear combination of density matrices. This
-*        option is avaliable only in the extrapolation mode of DIIS.
-*
-*        2017-02-03: Make sure that the density based DIIS is in
-*                    action for at least 2 iterations such that
-*                    when the orbital rotation DIIS is turned on
-*                    we are firmly in the NR region.
-*
-C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
-         If (iOpt.ge.2 .OR.
-!    &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
-     &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.1))
-     &      Then
-!           Write (6,*) 'Case(2)'
-            If (RSRFO) Then
-               iOpt=3
-               kOptim=2
-            Else
-               iOpt=2
-            End If
-            If (QNR1st) Then
-!              kOptim=2
-*
-*---           compute initial inverse Hessian H (diag)
-*
-               Call SOIniH(EOrb,nnO,HDiag,mOV,nD)
-*
-            End If
-         End If
-#else
          If (Aufb) Then
             iOpt=0
 *           If (Iter>1) iOpt=1
@@ -408,22 +360,32 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
             iOpt=2
             If (iter==1) iOpt=0
          End If
-         If (.NOT.QNR1st .and. Abs(EDiff)<1.0D-2 .and. ResetH
-     &       .AND. iterso>=2) Then
-*           Write (6,*) 'Reset'
-            QNR1st=.True.
-            ReSetH=.False.
+
+         If (
+     &        ResetH .AND.
+     &        .NOT.QNR1st .AND.
+     &        Abs(EDiff)<1.0D-2 .AND.
+*    &        Abs(EDiff)<1.0D-1 .AND.
+     &        EDiff<0.0D0 .AND.
+     &        iterso>=2) Then
+
+              ! Set flagg to stop updating the d-Hessian.
+
+              If (Abs(EDiff)<1.0D0) ReSetH=.False.
+
+              QNR1st=.True.
 *
-*---        Generate canonical orbitals
+*---          Generate canonical orbitals
 *
-            Call TraFck(Fock,nBT,CMO,nBO,.TRUE.,FMOMax,EOrb,nnO,
-     &                   Ovrlp,nD)
+              Call TraFck(Fock,nBT,CMO,nBO,.TRUE.,FMOMax,EOrb,nnO,
+     &                    Ovrlp,nD)
 *
-*           Transform density matrix to MO basis
+*             Transform density matrix to MO basis
 *
-            Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+              Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
 *
          End If
+
          If (QNR1st.and. iOpt>=2 ) Then
 !------     1st QNR step, reset kOptim to 1
 
@@ -447,19 +409,10 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
             AccCon(8:8)=' '
 *
          End If
-#endif
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*        Move over to DIIS optimization. Here we compute the optimal
-*        coefficients CInter.
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*        Write (6,*) 'kOptim(Final)=',kOptim
-*        Write (6,*) 'iOpt(Final)=',iOpt
          Select Case(iOpt)
 
          Case(0)
@@ -469,9 +422,6 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 ************************************************************************
 *                                                                      *
 *           Interpolation DIIS
-*
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-            Energy(iter)=EneV
 *
 *           Compute traces: TrDh, TrDP and TrDD.
 *
@@ -532,9 +482,6 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *           canonical CMOs are generated by the diagonalization of the
 *           Fock matrix.
 *
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-            Energy(iter)=EneV
-*
             Call GrdClc(FrstDs,iOpt)
 *
             Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
@@ -586,9 +533,6 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *           optimization that these are computed.
 *
 *           Initiate if the first QNR step
-*
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-            Energy(iter)=EneV
 *
             Call GrdClc(QNR1st,iOpt)
 *
@@ -663,11 +607,27 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *
 *           Use rs-rfo to compute dX(n)
 *
-            If (iter>1 .and. EneV-Energy(iter-1)<Zero) Then
-               StepMax=Min(StepMax*Two,1.0D1)
-            Else
-               StepMax=0.45D0
+*
+            If (iter>1     .AND.
+     &          EDiff<Zero .AND.
+     &          Abs(EDiff)<1.0D-1
+     &         ) Then
+               Write (6,*) 'Increase step restriction parameter.'
+
+*              Increase steplength if there was an energy decrease.
+
+               StepMax=Min(StepMax*Two,0.45D0)
+
+             Else If (iter>1 .AND.
+     &                EDiff>Zero ) Then
+
+*              If last step represented an energy increase reset the
+*              threshold parameter for the step restriction
+               Write (6,*) 'Decrease step restriction parameter.'
+
+               StepMax=Max(StepMax*0.75D0,0.8D-3)
             End If
+
             dqHdq=Zero
             Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
@@ -712,17 +672,8 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *                                                                      *
 *----    Update DIIS interpolation depth kOptim
 *
-*        If (iOpt.ne.3) Then
-!           If (idKeep.eq.0) Then
-!              kOptim = 1
-!           Else If (idKeep.eq.1) Then
-!              kOptim = 2
-!           Else
-               kOptim = kOptim + 1
-!           End If
-            If (kOptim.gt.MxOptm) kOptim = MxOptm
-*        End If
-*        Write (*,*) 'MxOptm=',MxOptm
+         kOptim = kOptim + 1
+         If (kOptim.gt.MxOptm) kOptim = MxOptm
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -782,14 +733,12 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *        Update some parameters to be used in subsequent iterations
 *
          If(iter.eq.1) Then
-            EDiff  = Zero
             DMOold = DMOmax
             FMOold = FMOmax
             nEconv = 0
             nDconv = 0
             nFconv = 0
          Else
-            EDiff = EneV-EnVold
             If(Abs(Ediff).le.10.0d0*Ethr) Then
                nEconv=nEconv+1
             Else
@@ -893,7 +842,7 @@ C        Write (6,*) 'Iter_DIIS:',Iter_DIIS
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EDiff
+         If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EThr
          If (iter.ne.1             .AND.
      &       (Abs(EDiff).le.EThr)  .AND.
      &       (Abs(FMOMax).le.FThr) .AND.
