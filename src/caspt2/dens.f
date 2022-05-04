@@ -63,6 +63,7 @@ C  (NORB(ISYM)*(NORB(ISYM)+1))/2.
           NDMAT=NDMAT+(NO*(NO+1))/2
           nDPTAO = nDPTAO + nAO**2
         END DO
+        ! shouldn't be necessary, is already done outside
         CALL DCOPY_(NDMAT,[0.0D0],0,DMAT,1)
 C First, put in the reference density matrix.
         IDMOFF=0
@@ -467,8 +468,8 @@ C
      *                  Work(ipDIA),Work(ipDI),Work(ipFIFA),
      *                  Work(ipFIMO),Work(ipDBra),
      *                  Work(ipA_PT2),NumChoTot)
-C       write(6,*) "olag after vvvo"
-C       call sqprt(work(ipolag),nbast)
+        !   write(6,*) "olag after vvvo"
+        !   call sqprt(work(ipolag),nbast)
 C       call abend
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           CPUT =CPTF10-CPTF0
@@ -529,11 +530,11 @@ C
           !! Compute DPT2 density for frozen-inactive
 C         write(6,*) "dpt before frozen"
 C         call sqprt(work(ipdpt),nbast)
-      if (.not.ifchol) then
-          !! Construct FIFA and FIMO
-          Call OLagFro3(Work(ipFIFA),Work(ipFIMO),Work(ipWRK1),
-     *                  Work(ipWRK2))
-      end if
+          if (.not.ifchol) then
+            !! Construct FIFA and FIMO
+            Call OLagFro3(Work(ipFIFA),Work(ipFIMO),Work(ipWRK1),
+     *                    Work(ipWRK2))
+          end if
           !! Add explicit FIMO and FIFA contributions. Implicit
           !! contributions are all symmetric in frozen + inactive
           !! orbitals, so they do not contribute to frozen density
@@ -610,7 +611,7 @@ C         call sqprt(work(ipfimo),12)
 C
           CALL GETMEM('DIA   ','FREE','REAL',ipDIA ,nBsqT)
           CALL GETMEM('DI    ','FREE','REAL',ipDI  ,nBsqT)
-        Else
+        Else ! there are no frozen orbitals
           iSQ = 0
           iTR = 0
           Do iSym = 1, nSym
@@ -756,7 +757,11 @@ C
             Call CLagX_TrfCI(Work(ipCLag+nConf*(iState-1)))
           End Do
         End If
-        Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,Work(ipCLagFull),1)
+        ! accumulate configuration Lagrangian only for MS,XMS,XDW,RMS,
+        ! but not for SS-CASPT2
+        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+          Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,Work(ipCLagFull),1)
+        end if
 C       Call CLagFinal(Work(ipCLag),Work(ipSLag))
 C
         !! Transformations of DPT2 in quasi-canonical to natural orbital
@@ -934,7 +939,9 @@ C       Do iSym = 1, nSym
 C       write(6,*) "olag before"
 C       call sqprt(work(ipolag),nbast)
       if (.false.) then
-      Call OLagFinal(Work(ipOLag),Work(ipTrf))
+
+        Call OLagFinal(Work(ipOLag),Work(ipTrf))
+
       else
 C
         CALL GETMEM('WLAGL  ','ALLO','REAL',ipWLagL  ,nWLag)
@@ -1003,7 +1010,13 @@ C       call sqprt(work(ipolag),12)
      &              Work(ipWRK1),nBas(1),'T',
      &              Work(ipOLag),nBas(1),
      &              nBas(1),nBas(1))
-        Call DaXpY_(nOLag,1.0D+00,Work(ipOLag),1,Work(ipOLagFull),1)
+        ! accumulate orbital Lagrangian only for MS,XMS,XDW,RMS,
+        ! but not for SS-CASPT2
+        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+          Call DaXpY_(nOLag,1.0D+00,Work(ipOLag),1,Work(ipOLagFull),1)
+        end if
+        ! call RecPrt('OLag    ','',work(ipOLag)    ,nBasT,nBasT)
+        ! call RecPrt('OLagFull','',work(ipOLagFull),nBasT,nBasT)
       end if
 C
         CALL GETMEM('TRFMAT','FREE','REAL',ipTRF   ,nBsqT)
@@ -1076,8 +1089,8 @@ C The approximate density matrix evaluation:
         CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
         CALL TRDNS2O(IVEC,IVEC,WORK(LDPT),1.0D+00)
         CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
-*       WRITE(6,*)' DPT after TRDNS2O.'
-*       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
+        ! WRITE(6,*)' DPT after TRDNS2O.'
+        ! WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
       END IF
 C
       CALL GETMEM('DPT','FREE','REAL',LDPT,NDPT)
@@ -1266,8 +1279,8 @@ C
 C
       DIMENSION DPT2(*),DEPSA(nAshT,nAshT)
 C
-C     write(6,*) "DPT2MO"
-C     call sqprt(dpt2,nbas(1)-ndel(1))
+    !   write(6,*) "DPT2MO before active-active contribution"
+    !   call sqprt(dpt2,nbas(1)-ndel(1))
 C
       iMO1 = 1
       iMO2 = 1
@@ -1301,8 +1314,8 @@ C
         iMO1 = iMO1 + nOrbI1*nOrbI1
         iMO2 = iMO2 + nOrbI2*nOrbI2
       End Do
-C     write(6,*) "DPT2MO after DEPSA"
-C     call sqprt(dpt2,nbas(1)-ndel(1))
+    !   write(6,*) "DPT2MO after DEPSA"
+    !   call sqprt(dpt2,nbas(1)-ndel(1))
 C
       End Subroutine AddDEPSA
 C
