@@ -263,18 +263,3 @@
 ! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Coor)
       End
-      Subroutine Truncate_Grid(R,nR,nR_Eff,Radius_Max)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 R(2,nR)
-!
-      nTmp=nR_Eff
-      Do i = 1, nTmp
-         If (R(1,i).gt.Radius_Max) Then
-             nR_Eff=i-1
-             Go To 99
-         End If
-      End Do
- 99   Continue
-!
-      Return
-      End
