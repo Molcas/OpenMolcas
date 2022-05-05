@@ -1,41 +1,41 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Dec. 22, 2021, created this file.               *
-* ****************************************************************
-       Subroutine Calc_Pot1(Pot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                      nP2_ontop,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Dec. 22, 2021, created this file.               *
+! ****************************************************************
+       Subroutine Calc_Pot1(Pot1,TabMO,mAO,mGrid,nMOs,P2_ontop,         &
+     &                      nP2_ontop,                                  &
      &                      MOs)
       use nq_Grid, only: GradRho,Weights
       use nq_Grid, only: vRho, vSigma
       use nq_pdft
       use nq_Info
 #include "stdalloc.fh"
-******Input
+!*****Input
       INTEGER mAO,mGrid,nMOs,nP2_ontop
       Real*8,DIMENSION(mAO,mGrid,nMOs)::TabMO
       Real*8,DIMENSION(mGrid*nOrbt)::MOs
       Real*8,DIMENSION(nP2_ontop,mGrid)::P2_ontop
-******Output
+!*****Output
       Real*8,DIMENSION(nPot1)::Pot1
-******Internal
+!*****Internal
       Real*8,DIMENSION(:),Allocatable::PreMO
-      Real*8 dF_dRhoax,dF_dRhoay,dF_dRhoaz,
-     &       dF_dRhobx,dF_dRhoby,dF_dRhobz,
+      Real*8 dF_dRhoax,dF_dRhoay,dF_dRhoaz,                             &
+     &       dF_dRhobx,dF_dRhoby,dF_dRhobz,                             &
      &       dRdx,dRdy,dRdz,Diff1,dEdRhop2
-C     PreMO is MO multiplied with things needed for potential
-C     calculation
+!     PreMO is MO multiplied with things needed for potential
+!     calculation
       INTEGER iGrid,iOff1,iMO,iOrb
 
 
@@ -43,14 +43,14 @@ C     calculation
       CALL dcopy_(mGrid*nOrbt,MOs,1,PreMO,1)
 
 
-C      black terms in the notes
+!      black terms in the notes
       DO iGrid=1,mGrid
        IF(Pass1(iGrid)) THEN
         dF_dRhoapb(iGrid)=vRho(1,iGrid)+vRho(2,iGrid)
         dF_dRhoamb(iGrid)=vRho(1,iGrid)-vRho(2,iGrid)
         dRdRho(iGrid)=RatioA(iGrid)*(-2.0d0/RhoAB(iGrid))
         dZdRho(iGrid)=dZdR(iGrid)*dRdRho(iGrid)
-        dEdRho(iGrid)=dF_dRhoapb(iGrid)+dF_dRhoamb(iGrid)*
+        dEdRho(iGrid)=dF_dRhoapb(iGrid)+dF_dRhoamb(iGrid)*              &
      &                (ZetaA(iGrid)+RhoAB(iGrid)*dZdRho(iGrid))
          dRdPi(iGrid)=4.0d0/RhoAB(iGrid)**2
        ELSE
@@ -61,21 +61,21 @@ C      black terms in the notes
        END IF
       END DO
 
-C     red terms in the notes
+!     red terms in the notes
       IF(lGGA) THEN
        DO iGrid=1,mGrid
         If(Pass1(iGrid)) Then
-         dF_dRhoax=2.0D0*vSigma(1,iGrid)*GradRho(1,iGrid)+
+         dF_dRhoax=2.0D0*vSigma(1,iGrid)*GradRho(1,iGrid)+              &
      &                  vSigma(2,iGrid)*GradRho(4,iGrid)
-         dF_dRhobx=2.0D0*vSigma(3,iGrid)*GradRho(4,iGrid)+
+         dF_dRhobx=2.0D0*vSigma(3,iGrid)*GradRho(4,iGrid)+              &
      &                  vSigma(2,iGrid)*GradRho(1,iGrid)
-         dF_dRhoay=2.0D0*vSigma(1,iGrid)*GradRho(2,iGrid)+
+         dF_dRhoay=2.0D0*vSigma(1,iGrid)*GradRho(2,iGrid)+              &
      &                  vSigma(2,iGrid)*GradRho(5,iGrid)
-         dF_dRhoby=2.0D0*vSigma(3,iGrid)*GradRho(5,iGrid)+
+         dF_dRhoby=2.0D0*vSigma(3,iGrid)*GradRho(5,iGrid)+              &
      &                  vSigma(2,iGrid)*GradRho(2,iGrid)
-         dF_dRhoaz=2.0D0*vSigma(1,iGrid)*GradRho(3,iGrid)+
+         dF_dRhoaz=2.0D0*vSigma(1,iGrid)*GradRho(3,iGrid)+              &
      &                  vSigma(2,iGrid)*GradRho(6,iGrid)
-         dF_dRhobz=2.0D0*vSigma(3,iGrid)*GradRho(6,iGrid)+
+         dF_dRhobz=2.0D0*vSigma(3,iGrid)*GradRho(6,iGrid)+              &
      &                  vSigma(2,iGrid)*GradRho(3,iGrid)
          dF_dRhoxapb(iGrid)=dF_dRhoax+dF_dRhobx
          dF_dRhoxamb(iGrid)=dF_dRhoax-dF_dRhobx
@@ -88,18 +88,18 @@ C     red terms in the notes
          dRhody(iGrid)=GradRho(2,iGrid)+GradRho(5,iGrid)
          dRhodz(iGrid)=GradRho(3,iGrid)+GradRho(6,iGrid)
 
-         GradRhodFdRho(iGrid)=
-     &   (dF_dRhoxamb(iGrid)*dRhodx(iGrid)+
-     &    dF_dRhoyamb(iGrid)*dRhody(iGrid)+
+         GradRhodFdRho(iGrid)=                                          &
+     &   (dF_dRhoxamb(iGrid)*dRhodx(iGrid)+                             &
+     &    dF_dRhoyamb(iGrid)*dRhody(iGrid)+                             &
      &    dF_dRhozamb(iGrid)*dRhodz(iGrid))
-         dEdRho(iGrid)=dEdRho(iGrid)+dZdRho(iGrid)*
+         dEdRho(iGrid)=dEdRho(iGrid)+dZdRho(iGrid)*                     &
      &   GradRhodFdRho(iGrid)
 
-         dEdRhox(iGrid)=dF_dRhoxapb(iGrid)+
+         dEdRhox(iGrid)=dF_dRhoxapb(iGrid)+                             &
      &                  ZetaA(iGrid)*dF_dRhoxamb(iGrid)
-         dEdRhoy(iGrid)=dF_dRhoyapb(iGrid)+
+         dEdRhoy(iGrid)=dF_dRhoyapb(iGrid)+                             &
      &                  ZetaA(iGrid)*dF_dRhoyamb(iGrid)
-         dEdRhoz(iGrid)=dF_dRhozapb(iGrid)+
+         dEdRhoz(iGrid)=dF_dRhozapb(iGrid)+                             &
      &                  ZetaA(iGrid)*dF_dRhozamb(iGrid)
 
         Else
@@ -115,22 +115,22 @@ C     red terms in the notes
          dEdRhoz(iGrid)=0.0d0
         End If
        END DO
-C      green and blue terms in the notes
+!      green and blue terms in the notes
        If(lft) Then
         DO iGrid=1,mGrid
          if(Pass1(iGrid)) then
-          dRdX=dRdRho(iGrid)*dRhodX(iGrid)+
+          dRdX=dRdRho(iGrid)*dRhodX(iGrid)+                             &
      &         dRdPi(iGrid) *P2_ontop(2,iGrid)
-          dRdY=dRdRho(iGrid)*dRhodY(iGrid)+
+          dRdY=dRdRho(iGrid)*dRhodY(iGrid)+                             &
      &         dRdPi(iGrid) *P2_ontop(3,iGrid)
-          dRdZ=dRdRho(iGrid)*dRhodZ(iGrid)+
+          dRdZ=dRdRho(iGrid)*dRhodZ(iGrid)+                             &
      &         dRdPi(iGrid) *P2_ontop(4,iGrid)
-          GradRdFdRho(iGrid)=dRdX*dF_dRhoxamb(iGrid)+
-     &                       dRdY*dF_dRhoyamb(iGrid)+
+          GradRdFdRho(iGrid)=dRdX*dF_dRhoxamb(iGrid)+                   &
+     &                       dRdY*dF_dRhoyamb(iGrid)+                   &
      &                       dRdZ*dF_dRhozamb(iGrid)
-          GradPidFdRho(iGrid)=
-     &    P2_ontop(2,iGrid)*dF_dRhoxamb(iGrid)+
-     &    P2_ontop(3,iGrid)*dF_dRhoyamb(iGrid)+
+          GradPidFdRho(iGrid)=                                          &
+     &    P2_ontop(2,iGrid)*dF_dRhoxamb(iGrid)+                         &
+     &    P2_ontop(3,iGrid)*dF_dRhoyamb(iGrid)+                         &
      &    P2_ontop(4,iGrid)*dF_dRhozamb(iGrid)
           d2RdRho2(iGrid)=6.0d0*RatioA(iGrid)/RhoAB(iGrid)**2
           d2RdRhodPi(iGrid)=-2.0d0*dRdPi(iGrid)/RhoAB(iGrid)
@@ -138,20 +138,20 @@ C      green and blue terms in the notes
            d2ZdR2(iGrid)=2.0d0*dZdR(iGrid)**3
           else if(Pass3(iGrid)) then
            Diff1=RatioA(iGrid)-ThrsNT
-           d2ZdR2(iGrid)=
+           d2ZdR2(iGrid)=                                               &
      &    (2.0d1*fta*Diff1**2+1.2d1*ftb*Diff1+6.0d0*ftc)*Diff1
           else
            d2ZdR2(iGrid)=0.0d0
           end if
-          dEdRho(iGrid)=dEdRho(iGrid)+
-     &    (dZdR(iGrid)+RhoAB(iGrid)*d2ZdR2(iGrid)*dRdRho(iGrid))*
-     &    GradRdFdRho(iGrid)+
-     &    RhoAB(iGrid)*dZdR(iGrid)*d2RdRho2(iGrid)*
-     &    GradRhodFdRho(iGrid)+
+          dEdRho(iGrid)=dEdRho(iGrid)+                                  &
+     &    (dZdR(iGrid)+RhoAB(iGrid)*d2ZdR2(iGrid)*dRdRho(iGrid))*       &
+     &    GradRdFdRho(iGrid)+                                           &
+     &    RhoAB(iGrid)*dZdR(iGrid)*d2RdRho2(iGrid)*                     &
+     &    GradRhodFdRho(iGrid)+                                         &
      &    RhoAB(iGrid)*dZdR(iGrid)*d2RdRhodPi(iGrid)*GradPidFdRho(iGrid)
           dEdRhop2=RhoAB(iGrid)*dZdRho(iGrid)
-C         end of dEdRho term
-C         now dEdRhoprime terms
+!         end of dEdRho term
+!         now dEdRhoprime terms
           dEdRhox(iGrid)=dEdRhox(iGrid)+dEdRhop2*dF_dRhoxamb(iGrid)
           dEdRhoy(iGrid)=dEdRhoy(iGrid)+dEdRhop2*dF_dRhoyamb(iGrid)
           dEdRhoz(iGrid)=dEdRhoz(iGrid)+dEdRhop2*dF_dRhozamb(iGrid)
@@ -178,9 +178,9 @@ C         now dEdRhoprime terms
          IOff1=(iOrb+OffOrb(iIrrep)-1)*mGrid
          iMO=iOrb+OffBasFro(iIrrep)
          do iGrid=1,mGrid
-          PreMO(IOff1+iGrid)=PreMO(IOff1+iGrid)+
-     &     TabMO(2,iGrid,iMO)*dEdRhox(iGrid)+
-     &     TabMO(3,iGrid,iMO)*dEdRhoy(iGrid)+
+          PreMO(IOff1+iGrid)=PreMO(IOff1+iGrid)+                        &
+     &     TabMO(2,iGrid,iMO)*dEdRhox(iGrid)+                           &
+     &     TabMO(3,iGrid,iMO)*dEdRhoy(iGrid)+                           &
      &     TabMO(4,iGrid,iMO)*dEdRhoz(iGrid)
          end do
         End Do
@@ -194,8 +194,8 @@ C         now dEdRhoprime terms
       DO iIrrep=0,mIrrep-1
        IOff1=OffOrb(iIrrep)*mGrid+1
        IOff2=OffOrb2(iIrrep)+1
-       CALL DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,1.0d0,
-     & PreMO(IOff1),mGrid,MOs(IOff1),mGrid,
+       CALL DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,1.0d0,       &
+     & PreMO(IOff1),mGrid,MOs(IOff1),mGrid,                             &
      & 1.0d0,Pot1(iOff2),mOrb(iIrrep))
       END DO
 

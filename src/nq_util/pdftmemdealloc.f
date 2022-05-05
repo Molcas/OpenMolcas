@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Dec. 22, 2021, created this file.               *
-* ****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Dec. 22, 2021, created this file.               *
+! ****************************************************************
       Subroutine PDFTMemDeAlloc()
 
       use nq_pdft
@@ -32,7 +32,7 @@
       CALL mma_deallocate(Pass1         )
       CALL mma_deallocate(Pass2         )
 
-*     for ft-functional
+!     for ft-functional
       CALL mma_deallocate(Pass3         )
 
       IF(do_pdftPot) THEN
@@ -59,7 +59,7 @@
        CALL mma_deallocate(d2RdRho2     )
        CALL mma_deallocate(d2RdRhodPi   )
        CALL mma_deallocate(MOas         )
-*      for ft-functional
+!      for ft-functional
        CALL mma_deallocate(dRdPi        )
        CALL mma_deallocate(GradRdFdRho  )
        CALL mma_deallocate(GradPidFdRho )

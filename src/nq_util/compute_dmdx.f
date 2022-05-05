@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Compute_dMdx(ZA,RA,nAtoms,T,iAtom,iCar,dTdRai,dMdx)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -15,22 +15,22 @@
 #ifdef _DEBUGPRINT_
       Real*8 M(3,3)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
       Z_Tot=DDot_(nAtoms,[One],0,ZA,1)
       delta=1.0D-4
       temp = RA(iCar,iAtom)
-*
+!
       RA(iCar,iAtom) = Temp + Delta
       Call Compute_M(ZA,nAtoms,RA,Z_Tot,T,M)
-*
+!
       RA(iCar,iAtom) = Temp - Delta
       Call Compute_M(ZA,nAtoms,RA,Z_Tot,T,dMdx)
-*
+!
       RA(iCar,iAtom) = Temp
-*
+!
       Do i = 1, 3
          Do j = 1, 3
             dMdx(i,j) = (M(i,j)-dMdx(i,j))/(2.0D0*Delta)
@@ -47,7 +47,7 @@
          Else
             tmp=(   -dTdRAi)*ZB
          End If
-*
+!
          RTx=RA(1,jAtom)-T(1)
          RTy=RA(2,jAtom)-T(2)
          RTz=RA(3,jAtom)-T(3)
@@ -76,9 +76,9 @@
             dMdx(3,2) = dMdx(3,2) -     tmp*RTy
          End If
       End Do
-*
-*     Remove noise
-*
+!
+!     Remove noise
+!
       Do i = 1, 3
          Do j = 1, 3
             If (Abs(dMdx(i,j)).lt.1.0D-14) dMdx(i,j)=Zero
@@ -87,8 +87,8 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('dMdx',' ',dMdx,3,3)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

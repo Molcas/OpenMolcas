@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2022, Roland Lindh                                     *
-************************************************************************
-      Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2022, Roland Lindh                                     *
+!***********************************************************************
+      Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,   &
      &                  jList_s)
       use iSD_data
       use Center_Info
@@ -24,9 +24,9 @@
       Integer :: list_s(2,nList_s), list_bas(2,nlist_s)
       Integer   iOff_MO(0:7)
       Integer :: jList_s
-*
-*---- Compute some offsets
-*
+!
+!---- Compute some offsets
+!
       itmp1=1
       Do iIrrep = 0, nIrrep-1
          iOff_MO(iIrrep)=itmp1
@@ -66,15 +66,15 @@
             xa= DBLE(iChTbl(iIrrep,nOp))
             iSO = iSO0 + i2 - 1
             iSO1=iMO+iSO-1+iAdd
-            Call DaXpY_(mAO*mGrid,Fact*xa,
-     &                  TabAO(:,:,iBfn),1,
+            Call DaXpY_(mAO*mGrid,Fact*xa,                              &
+     &                  TabAO(:,:,iBfn),1,                              &
      &                  TabSO(:,iSO1),1)
          End Do
       End Do
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('mk_SOs: TabSO',' ',TabSO,mAO*mGrid,nMOs)
 #endif
-*
+!
       Return
       End Subroutine mk_SOs

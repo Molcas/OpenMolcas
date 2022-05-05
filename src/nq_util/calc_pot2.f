@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Dec. 08, 2021, created this file.               *
-* ****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Dec. 08, 2021, created this file.               *
+! ****************************************************************
       Subroutine Calc_Pot2(Pot2,mGrid,Pi,nPi)
       use nq_Grid, only: Weights
       use nq_pdft
       use nq_Info
 #include "stdalloc.fh"
-******Input
+!*****Input
       INTEGER mGrid,nPi
       Real*8,DIMENSION(nPi,mGrid)::Pi
-******Output
+!*****Output
       Real*8,DIMENSION(nPot2)::Pot2
-******Internal
+!*****Internal
       INTEGER iGrid,nGOrb
       Real*8 ThrsPi,ggaterm,ftggaterm,predEdPip
 
@@ -44,8 +44,8 @@
          if(lGGA) then
           ggaterm=GradRhodFdRho(iGrid)
           if(lft) then
-           ftggaterm=(d2ZdR2(iGrid)*dRdPi(iGrid)*GradRdFdRho(iGrid)+
-     &           d2RdRhodPi(iGrid)*dZdR(iGrid)*GradRhodFdRho(iGrid))*
+           ftggaterm=(d2ZdR2(iGrid)*dRdPi(iGrid)*GradRdFdRho(iGrid)+    &
+     &           d2RdRhodPi(iGrid)*dZdR(iGrid)*GradRhodFdRho(iGrid))*   &
      &           RhoAB(iGrid)
           predEdPip=RhoAB(iGrid)*dZdR(iGrid)*dRdPi(iGrid)*Weights(iGrid)
            dEdPix(iGrid)=predEdPip*dF_dRhoxamb(iGrid)
@@ -58,7 +58,7 @@
           ggaterm=0.0d0
           ftggaterm=0.0d0
          end if
-          dEdPi(iGrid)=Weights(iGrid)*(dZdR(iGrid)*dRdPi(iGrid)*
+          dEdPi(iGrid)=Weights(iGrid)*(dZdR(iGrid)*dRdPi(iGrid)*        &
      &   (RhoAB(iGrid)*dF_dRhoamb(iGrid)+ggaterm)+ftggaterm)
         Else
          dEdPi(iGrid)=0.0d0
@@ -86,19 +86,19 @@
 
       IF(lft.and.lGGA) THEN
        DO iGrid=1,mGrid
-        CALL DAXpY_(nOrbt,dEdPix(iGrid),MOax(iGrid),mGrid,
+        CALL DAXpY_(nOrbt,dEdPix(iGrid),MOax(iGrid),mGrid,              &
      &                              GdEdPiMO(iGrid),mGrid)
-        CALL DAXpY_(nOrbt,dEdPiy(iGrid),MOay(iGrid),mGrid,
+        CALL DAXpY_(nOrbt,dEdPiy(iGrid),MOay(iGrid),mGrid,              &
      &                              GdEdPiMO(iGrid),mGrid)
-        CALL DAXpY_(nOrbt,dEdPiz(iGrid),MOaz(iGrid),mGrid,
+        CALL DAXpY_(nOrbt,dEdPiz(iGrid),MOaz(iGrid),mGrid,              &
      &                              GdEdPiMO(iGrid),mGrid)
        END DO
        CALL DAXpY_(nGOrb,1.0d0,GdEdPiMO,1,dEdPiMO,1)
       END IF
 
-*     dEdPiMO is practically (Phi_p*dEdPi+Phi_p'*dEdPi')
-*     The subroutine below calculates
-*     (Phi_p*dEdPi+Phi_p'*dEdPi')*Phi_u*Phi_v*Phi_x
+!     dEdPiMO is practically (Phi_p*dEdPi+Phi_p'*dEdPi')
+!     The subroutine below calculates
+!     (Phi_p*dEdPi+Phi_p'*dEdPi')*Phi_u*Phi_v*Phi_x
       CALL Calc_Pot2_Inner(Pot2,mGrid,dEdPiMO,MOas,MOas,MOas,.false.)
 
       IF(lft.and.lGGA) THEN

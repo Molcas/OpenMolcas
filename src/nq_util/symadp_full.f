@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991,2021, Roland Lindh                                *
-************************************************************************
-      Subroutine SymAdp_Full(SOIntegrals,nSOInt,list_s,nlist_s,Fact,ndc,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991,2021, Roland Lindh                                *
+!***********************************************************************
+      Subroutine SymAdp_Full(SOIntegrals,nSOInt,list_s,nlist_s,Fact,ndc,&
      &                       nD)
-************************************************************************
-*                                                                      *
-* Object: to transform the one-electon matrix elements from AO basis   *
-*         to SO basis.                                                 *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             January 1991                                             *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to transform the one-electon matrix elements from AO basis   *
+!         to SO basis.                                                 *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             January 1991                                             *
+!***********************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info,     only: iAOtSO
@@ -35,14 +35,14 @@
       Integer nOp(2)
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
       Integer, Allocatable:: BasList(:,:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement functions
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nBfn=SIZE(iBfn_Index,2)
       Call mma_Allocate(BasList,2,nBfn,Label='BasList')
       loper=1
@@ -89,19 +89,19 @@
                xb = DBLE(iChTbl(j1,nOp(2)))
 
                xaxb=xa*xb
-               If (iShell==jShell .and. nOp(1)/=nOp(2)
+               If (iShell==jShell .and. nOp(1)/=nOp(2)                  &
      &             .and. iSO==jSO) xaxb=xaxb*Two
 
                Indij = iPnt + iTri(iSO,jSO)
 
-               SOIntegrals(Indij,:) = SOIntegrals(Indij,:)
-     &                       + Fact(mdci,mdcj)*xaxb
+               SOIntegrals(Indij,:) = SOIntegrals(Indij,:)              &
+     &                       + Fact(mdci,mdcj)*xaxb                     &
      &                       * AOIntegrals(iBfn,jBfn,:)
 
             End Do ! jBfn
          End Do    ! iBfn
       End Do       ! j1
       Call mma_deAllocate(BasList)
-*
+!
       Return
       End

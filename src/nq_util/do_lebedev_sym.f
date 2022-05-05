@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       Subroutine Do_Lebedev_Sym(L_Eff,mPt,ipR)
       Implicit None
 #include "WrkSpc.fh"
@@ -19,9 +19,9 @@
       Integer :: mPt_, i, j
       Real*8, Parameter :: Thr = 1.0D-16
       Real*8, Allocatable:: R(:,:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
          Subroutine Do_Lebedev(L_Eff,nPoints,R)
          Implicit None
@@ -29,9 +29,9 @@
          Real*8, Allocatable:: R(:,:)
          End Subroutine Do_Lebedev
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call Do_Lebedev(L_Eff,mPt_,R)
       mPt=0
       outer: Do i=1,mPt_

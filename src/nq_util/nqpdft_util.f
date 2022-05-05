@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Dec. 08, 2021, created this file.               *
-* ****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Dec. 08, 2021, created this file.               *
+! ****************************************************************
       Subroutine CalcOrbOff()
       use nq_Info
 
@@ -57,7 +57,7 @@
       Subroutine CalcPUVXOff()
       use nq_Info
 
-      INTEGER IOff1,iIrrep,jIrrep,kIrrep,lIrrep,iOrb,jAct,kAct,lAct,
+      INTEGER IOff1,iIrrep,jIrrep,kIrrep,lIrrep,iOrb,jAct,kAct,lAct,    &
      &        ijIrrep,klIrrep,nklAct
 
       IOff1=0
@@ -112,24 +112,24 @@
       END DO
       nPot2=IOff1
 
-C      write(6,*)'OffPUVX new method',nPot2,MaxUVX
-C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
+!      write(6,*)'OffPUVX new method',nPot2,MaxUVX
+!      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       RETURN
       End Subroutine
 
       Subroutine TransActMO(MOs,TabMO,mAO,mGrid,nMOs)
       use nq_Info
-******Purpose:
-******Trasnferring active orbitals to the MOs array.
-******It records the MO values on each grid point.
-******The first and the second elements are the MO values
-******of the first and the second active MO at grid point 1.
-******Input
+!*****Purpose:
+!*****Trasnferring active orbitals to the MOs array.
+!*****It records the MO values on each grid point.
+!*****The first and the second elements are the MO values
+!*****of the first and the second active MO at grid point 1.
+!*****Input
       INTEGER mAO,mGrid,nMOs
       Real*8,DIMENSION(mAO,mGrid,nMOs)::TabMO
-******Output
+!*****Output
       Real*8,DIMENSION(mGrid*NASHT)::MOs
-******Auxiliary
+!*****Auxiliary
       INTEGER nGridPi,iIrrep,IOff1,iOff2,iOff3
 
 
@@ -139,7 +139,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
        Do iIrrep=0,mIrrep-1
         IOff2=IOff_Ash(iIrrep)+1
         IOff3=IOff_BasAct(iIrrep)+1
-        CALL DCopy_(nAsh(iIrrep),TabMO(1,iGrid,IOff3),nGridPi,
+        CALL DCopy_(nAsh(iIrrep),TabMO(1,iGrid,IOff3),nGridPi,          &
      &                             MOs(IOff1+IOff2)  ,1)
        End Do
       END DO
@@ -149,16 +149,16 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
       Subroutine TransActMO2(MOs,MOas,mGrid)
       use nq_Info
-******Purpose:
-******obtaining an active MO array with a structure of MOs in
-******TransActMO from an MO array with a structure of that in
-******TransferMO
-******Input
+!*****Purpose:
+!*****obtaining an active MO array with a structure of MOs in
+!*****TransActMO from an MO array with a structure of that in
+!*****TransferMO
+!*****Input
       INTEGER mGrid
       Real*8,DIMENSION(mGrid*nOrbt)::MOas
-******Output
+!*****Output
       Real*8,DIMENSION(mGrid*NASHT)::MOs
-******Auxiliary
+!*****Auxiliary
       INTEGER iIrrep,IOff1,iOff2,iOff3
 
       DO iGrid=1,mGrid
@@ -166,7 +166,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
        Do iIrrep=0,mIrrep-1
         IOff2=IOff3+iOff_Ash(iIrrep)+1
         IOff1=(OffOrb(iIrrep)+nIsh(iIrrep))*mGrid+iGrid
-        CALL DCopy_(nAsh(iIrrep),MOas(iOff1),mGrid,
+        CALL DCopy_(nAsh(iIrrep),MOas(iOff1),mGrid,                     &
      &                           MOs(IOff2) ,1    )
        End Do
       END DO
@@ -178,20 +178,20 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       Subroutine TransferMO(MOas,TabMO,mAO,mGrid,nMOs,iAO)
       use nq_Info
 
-******Purpose:
-******Transferring MO information to MOas to be used in dgemm.
-******It records the MO values on each grid point, too.
-******But the difference from TransActMO is that the first and
-******the second elements are the values of the first MO at grid
-******point 1 and grid point 2.
+!*****Purpose:
+!*****Transferring MO information to MOas to be used in dgemm.
+!*****It records the MO values on each grid point, too.
+!*****But the difference from TransActMO is that the first and
+!*****the second elements are the values of the first MO at grid
+!*****point 1 and grid point 2.
 
-******Input
+!*****Input
       INTEGER mAO,mGrid,nMOs,iAO
       Real*8,DIMENSION(mAO,mGrid,nMOs)::TabMO
-******Output
+!*****Output
       Real*8,DIMENSION(mGrid*nOrbt)::MOas
 
-******Auxiliary
+!*****Auxiliary
       INTEGER iIrrep,IOff1,iOff2,iOff3,nCP
       IOff3=0
       DO iIrrep=0,mIrrep-1
@@ -208,12 +208,12 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       Subroutine PackPot1(Packed,Full,nPack,Factor)
       use nq_Info
 
-******Input
+!*****Input
       Real*8 Factor
       Real*8,DIMENSION(NPot1)::Full
-******Output
+!*****Output
       Real*8,DIMENSION(nPack)::Packed
-******Auxiliary
+!*****Auxiliary
       INTEGER iIrrep,p,q,iOff1,IOff2,nOrbs
       DO iIrrep=0,mIrrep-1
        nOrbs=mOrb(iIrrep)
@@ -221,7 +221,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
        IOff2=OffOrb2(iIrrep)
        Do P=1,nOrbs
         do Q=1,P
-      Packed(IOff1+(P-1)*P/2+Q)=
+      Packed(IOff1+(P-1)*P/2+Q)=                                        &
      &Full(IOff2+(P-1)*nOrbs+Q)+Full(IOff2+(Q-1)*nOrbs+P)
         end do
        End Do
@@ -233,12 +233,12 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       Subroutine UnzipD1(D1Unzip,D1MO,nD1MO)
       use nq_Info
 
-******Input
+!*****Input
       INTEGER nD1MO
       Real*8,DIMENSION(nD1MO)::D1MO
-******Output
+!*****Output
       Real*8,DIMENSION(NASHT**2)::D1Unzip
-******Intermediate
+!*****Intermediate
       INTEGER iv,ix,iLoc1,iLoc2,iLoc3
 
       CALL FZero(D1Unzip,NASHT**2)
@@ -264,22 +264,22 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       Subroutine UnzipP2(P2Unzip,P2MO,nP2Act)
       use nq_Info
 
-******Input
+!*****Input
       INTEGER nP2Act
       Real*8,DIMENSION(nP2Act)::P2MO
-******Output
+!*****Output
       Real*8,DIMENSION(NASHT4)::P2Unzip
-******AUXILIARY
-      INTEGER NASHT2,NASHT3,IOFF1,IOff2,IOff3,
-     &I,J,K,L,IAct,JAct,kAct,LAct,iIrrep,jIrrep,kIrrep,lIrrep,
+!*****AUXILIARY
+      INTEGER NASHT2,NASHT3,IOFF1,IOff2,IOff3,                          &
+     &I,J,K,L,IAct,JAct,kAct,LAct,iIrrep,jIrrep,kIrrep,lIrrep,          &
      &IJ,KL,IJKL
       Real*8 Fact
 
-************************************************************************
-*                                                                      *
+!***********************************************************************
+!                                                                      *
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************
 
       IF(NASHT4.eq.0) RETURN
 
@@ -320,28 +320,28 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       RETURN
       End Subroutine
 
-***********************************************************************
+!**********************************************************************
 
 
-***********************************************************************
-      Subroutine CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
-     &                        nPMO3p,MOs,MOx,MOy,MOz,TabMO,P2Unzip,
+!**********************************************************************
+      Subroutine CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,   &
+     &                        nPMO3p,MOs,MOx,MOy,MOz,TabMO,P2Unzip,     &
      &                        mAO,mGrid,nMOs,do_grad)
       use nq_pdft, only: lft, lGGA
       use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
 
-******Input
+!*****Input
       INTEGER mAO,mGrid,nMOs,nPMO3p
       REAL*8,DIMENSION(mAO,mGrid,nMOs)::TabMO
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Logical do_grad
-******Output
+!*****Output
       REAL*8,DIMENSION(mGrid*NASHT)::P2MOCube,MOs,MOx,MOy,MOz
       REAL*8,DIMENSION(nPMO3p)::P2MOCubex,P2MOCubey,P2MOCubez
 
-******Auxiliary
+!*****Auxiliary
       INTEGER iOff1,IOff2,IOff3,IIrrep,nGridPi,NASHT2,NASHT3,icount
       Real*8,DIMENSION(NASHT**3)::P2MO1
       Real*8,DIMENSION(NASHT**2)::P2MOSquare
@@ -355,7 +355,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
        Do iIrrep=0,mIrrep-1
         IOff2=IOff_Ash(iIrrep)+1
         IOff3=IOff_BasAct(iIrrep)+1
-        CALL DCopy_(nAsh(iIrrep),TabMO(1,iGrid,IOff3),nGridPi,
+        CALL DCopy_(nAsh(iIrrep),TabMO(1,iGrid,IOff3),nGridPi,          &
      &                             MOs(IOff1+IOff2)  ,1)
         do icount=1,nAsh(iIrrep)
         end do
@@ -369,11 +369,11 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
         Do iIrrep=0,mIrrep-1
          IOff2=IOff_Ash(iIrrep)+1
          IOff3=IOff_BasAct(iIrrep)+1
-         CALL DCopy_(nAsh(iIrrep),TabMO(2,iGrid,IOff3),nGridPi,
+         CALL DCopy_(nAsh(iIrrep),TabMO(2,iGrid,IOff3),nGridPi,         &
      &                              MOx(IOff1+IOff2)  ,1)
-         CALL DCopy_(nAsh(iIrrep),TabMO(3,iGrid,IOff3),nGridPi,
+         CALL DCopy_(nAsh(iIrrep),TabMO(3,iGrid,IOff3),nGridPi,         &
      &                              MOy(IOff1+IOff2)  ,1)
-         CALL DCopy_(nAsh(iIrrep),TabMO(4,iGrid,IOff3),nGridPi,
+         CALL DCopy_(nAsh(iIrrep),TabMO(4,iGrid,IOff3),nGridPi,         &
      &                              MOz(IOff1+IOff2)  ,1)
         End Do
        END DO
@@ -384,65 +384,65 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       DO iGrid=1,mGrid
        IOff1=(iGrid-1)*NASHT+1
 
-C       write(6,*) 'MOs array'
-C       CALL RecPrt(' ','(10(F9.5,1X))',MOs(IOff1),1,NASHT)
-C
-C       write(6,*) '2RDM array'
-C       CALL RecPrt(' ','(10(F9.5,1X))',P2Unzip,NASHT3,NASHT)
+!       write(6,*) 'MOs array'
+!       CALL RecPrt(' ','(10(F9.5,1X))',MOs(IOff1),1,NASHT)
+!
+!       write(6,*) '2RDM array'
+!       CALL RecPrt(' ','(10(F9.5,1X))',P2Unzip,NASHT3,NASHT)
 
-       CALL DGEMM_('T','N',NASHT3,1,NASHT,1.0d0,
-     & P2UnZip,NASHT,MOs(IOff1),NASHT,
+       CALL DGEMM_('T','N',NASHT3,1,NASHT,1.0d0,                        &
+     & P2UnZip,NASHT,MOs(IOff1),NASHT,                                  &
      & 0.0d0,P2MO1,NASHT3)
 
-C       write(6,*) 'P2MO1 array'
-C       CALL RecPrt(' ','(10(F9.5,1X))',P2MO1,NASHT2,NASHT)
+!       write(6,*) 'P2MO1 array'
+!       CALL RecPrt(' ','(10(F9.5,1X))',P2MO1,NASHT2,NASHT)
 
-       CALL DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,
-     & P2MO1,NASHT,MOs(IOff1),NASHT,
+       CALL DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,                        &
+     & P2MO1,NASHT,MOs(IOff1),NASHT,                                    &
      & 0.0d0,P2MOSquare,NASHT2)
 
-C       write(6,*) 'P2MOSquare array'
-C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOSquare,NASHT,NASHT)
+!       write(6,*) 'P2MOSquare array'
+!       CALL RecPrt(' ','(10(F9.5,1X))',P2MOSquare,NASHT,NASHT)
 
-       CALL DGEMM_('T','N',NASHT,1,NASHT,1.0d0,
-     & P2MOSquare,NASHT,MOs(IOff1),NASHT,
+       CALL DGEMM_('T','N',NASHT,1,NASHT,1.0d0,                         &
+     & P2MOSquare,NASHT,MOs(IOff1),NASHT,                               &
      & 0.0d0,P2MOCube(iOff1),NASHT)
 
        IF(lftGGA.and.Do_Grad) THEN
-        CALL DGEMM_('T','N',NASHT,1,NASHT,1.0d0,
-     &  P2MOSquare,NASHT,MOx(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT,1,NASHT,1.0d0,                        &
+     &  P2MOSquare,NASHT,MOx(IOff1),NASHT,                              &
      &  0.0d0,P2MOCubex(iOff1),NASHT)
-        CALL DGEMM_('T','N',NASHT,1,NASHT,1.0d0,
-     &  P2MOSquare,NASHT,MOy(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT,1,NASHT,1.0d0,                        &
+     &  P2MOSquare,NASHT,MOy(IOff1),NASHT,                              &
      &  0.0d0,P2MOCubey(iOff1),NASHT)
-        CALL DGEMM_('T','N',NASHT,1,NASHT,1.0d0,
-     &  P2MOSquare,NASHT,MOz(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT,1,NASHT,1.0d0,                        &
+     &  P2MOSquare,NASHT,MOz(IOff1),NASHT,                              &
      &  0.0d0,P2MOCubez(iOff1),NASHT)
 
-        CALL DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,
-     &  P2MO1,NASHT,MOx(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,                       &
+     &  P2MO1,NASHT,MOx(IOff1),NASHT,                                   &
      &  0.0d0,P2MOSquare,NASHT2)
-        CALL DGEMM_('T','N',NASHT,1,NASHT,2.0d0,
-     &  P2MOSquare,NASHT,MOs(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT,1,NASHT,2.0d0,                        &
+     &  P2MOSquare,NASHT,MOs(IOff1),NASHT,                              &
      &  1.0d0,P2MOCubex(iOff1),NASHT)
 
-        CALL DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,
-     &  P2MO1,NASHT,MOy(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,                       &
+     &  P2MO1,NASHT,MOy(IOff1),NASHT,                                   &
      &  0.0d0,P2MOSquare,NASHT2)
-        CALL DGEMM_('T','N',NASHT,1,NASHT,2.0d0,
-     &  P2MOSquare,NASHT,MOs(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT,1,NASHT,2.0d0,                        &
+     &  P2MOSquare,NASHT,MOs(IOff1),NASHT,                              &
      &  1.0d0,P2MOCubey(iOff1),NASHT)
 
-        CALL DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,
-     &  P2MO1,NASHT,MOz(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,                       &
+     &  P2MO1,NASHT,MOz(IOff1),NASHT,                                   &
      &  0.0d0,P2MOSquare,NASHT2)
-        CALL DGEMM_('T','N',NASHT,1,NASHT,2.0d0,
-     &  P2MOSquare,NASHT,MOs(IOff1),NASHT,
+        CALL DGEMM_('T','N',NASHT,1,NASHT,2.0d0,                        &
+     &  P2MOSquare,NASHT,MOs(IOff1),NASHT,                              &
      &  1.0d0,P2MOCubez(iOff1),NASHT)
        END IF
 
-C       write(6,*) 'P2MOCube array'
-C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
+!       write(6,*) 'P2MOCube array'
+!       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
       END DO
 
 
@@ -478,7 +478,7 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
             iOff = (iGrid-1)*mAO + jAO
 
             iAO=jAO+1
-            CALL DCopy_(nMOs,TabSO(iAO,iGrid,1),nAOGrid,
+            CALL DCopy_(nMOs,TabSO(iAO,iGrid,1),nAOGrid,                &
      &                       TabSO2(:,iOff),1)
          End Do
       End Do
