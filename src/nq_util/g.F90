@@ -8,29 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Function G(Arg)
-      Implicit Real*8 (a-h,o-z)
+
+function G(Arg)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 G
-      g=-1000.0D0
-!
-      Arg_=DBLE(Int(Arg))
-      If (Abs(Arg-Arg_).lt.Half/Two) Then
-!        Integer argument
-         G=One
-         rG=One
-      Else
-!        fractional argument
-         G=Sqrt(Pi)
-         rG=Half
-      End If
-!
- 99   Continue
-         If (Abs(rG-Arg).lt.Half/Two) goto 666
-         G=rG*G
-         rG=rG+One
-      Go To 99
-666   continue
-      return
-!
-      End
+real*8 G
+
+g = -1000.0d0
+
+Arg_ = dble(int(Arg))
+if (abs(Arg-Arg_) < Half/Two) then
+  ! Integer argument
+  G = One
+  rG = One
+else
+  ! Fractional argument
+  G = sqrt(Pi)
+  rG = Half
+end if
+
+99 continue
+if (abs(rG-Arg) < Half/Two) goto 666
+G = rG*G
+rG = rG+One
+Go To 99
+666 continue
+
+return
+
+end function G

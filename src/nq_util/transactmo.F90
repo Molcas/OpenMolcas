@@ -10,35 +10,38 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
+
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 08, 2021, created this file.               *
 ! ****************************************************************
-      Subroutine TransActMO(MOs,TabMO,mAO,mGrid,nMOs)
-      use nq_Info
-!*****Purpose:
-!*****Trasnferring active orbitals to the MOs array.
-!*****It records the MO values on each grid point.
-!*****The first and the second elements are the MO values
-!*****of the first and the second active MO at grid point 1.
-!*****Input
-      INTEGER mAO,mGrid,nMOs
-      Real*8,DIMENSION(mAO,mGrid,nMOs)::TabMO
-!*****Output
-      Real*8,DIMENSION(mGrid*NASHT)::MOs
-!*****Auxiliary
-      INTEGER nGridPi,iIrrep,IOff1,iOff2,iOff3
+subroutine TransActMO(MOs,TabMO,mAO,mGrid,nMOs)
+! Purpose:
+! Trasnferring active orbitals to the MOs array.
+! It records the MO values on each grid point.
+! The first and the second elements are the MO values
+! of the first and the second active MO at grid point 1.
 
+use nq_Info
 
-      nGridPi=mAO*mGrid
-      DO iGrid=1,mGrid
-       IOff1=(iGrid-1)*NASHT
-       Do iIrrep=0,mIrrep-1
-        IOff2=IOff_Ash(iIrrep)+1
-        IOff3=IOff_BasAct(iIrrep)+1
-        CALL DCopy_(nAsh(iIrrep),TabMO(1,iGrid,IOff3),nGridPi,          &
-     &                             MOs(IOff1+IOff2)  ,1)
-       End Do
-      END DO
-      RETURN
-      End Subroutine
+! Input
+integer mAO, mGrid, nMOs
+real*8, dimension(mAO,mGrid,nMOs) :: TabMO
+! Output
+real*8, dimension(mGrid*NASHT) :: MOs
+! Auxiliary
+integer nGridPi, iIrrep, IOff1, iOff2, iOff3
+
+nGridPi = mAO*mGrid
+do iGrid=1,mGrid
+  IOff1 = (iGrid-1)*NASHT
+  do iIrrep=0,mIrrep-1
+    IOff2 = IOff_Ash(iIrrep)+1
+    IOff3 = IOff_BasAct(iIrrep)+1
+    call DCopy_(nAsh(iIrrep),TabMO(1,iGrid,IOff3),nGridPi,MOs(IOff1+IOff2),1)
+  end do
+end do
+
+return
+
+end subroutine TransActMO

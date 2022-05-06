@@ -8,43 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Compute_M(ZA,nAtoms,RA,Z_Tot,T,M)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Compute_M(ZA,nAtoms,RA,Z_Tot,T,M)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 ZA(nAtoms), RA(3,nAtoms), T(3), M(3,3)
+real*8 ZA(nAtoms), RA(3,nAtoms), T(3), M(3,3)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Form the nuclear charge moment tensor
-!
-      Call FZero(M,9)
-      Do iAtom = 1, nAtoms
-         RTx=RA(1,iAtom)-T(1)
-         RTy=RA(2,iAtom)-T(2)
-         RTz=RA(3,iAtom)-T(3)
-         M(1,1) = M(1,1) + ZA(iAtom) * (RTy**2+RTz**2)
-         M(2,2) = M(2,2) + ZA(iAtom) * (RTx**2+RTz**2)
-         M(3,3) = M(3,3) + ZA(iAtom) * (RTx**2+RTy**2)
-!
-         M(1,2) = M(1,2) + ZA(iAtom) * (    -RTx*RTy)
-         M(1,3) = M(1,3) + ZA(iAtom) * (    -RTx*RTz)
-         M(2,1) = M(2,1) + ZA(iAtom) * (    -RTy*RTx)
+! Form the nuclear charge moment tensor
 
-         M(2,3) = M(2,3) + ZA(iAtom) * (    -RTy*RTz)
-         M(3,1) = M(3,1) + ZA(iAtom) * (    -RTz*RTx)
-         M(3,2) = M(3,2) + ZA(iAtom) * (    -RTz*RTy)
-      End Do
-!
-!     Remove noise
-!
-      Do i = 1, 3
-         Do j = 1, 3
-            If (abs(M(i,j)).lt.1.0D-14) M(i,j)=Zero
-         End Do
-      End Do
-!     Call RecPrt('Compute_M: M',' ',M,3,3)
-!
-      Return
+call FZero(M,9)
+do iAtom=1,nAtoms
+  RTx = RA(1,iAtom)-T(1)
+  RTy = RA(2,iAtom)-T(2)
+  RTz = RA(3,iAtom)-T(3)
+  M(1,1) = M(1,1)+ZA(iAtom)*(RTy**2+RTz**2)
+  M(2,2) = M(2,2)+ZA(iAtom)*(RTx**2+RTz**2)
+  M(3,3) = M(3,3)+ZA(iAtom)*(RTx**2+RTy**2)
+
+  M(1,2) = M(1,2)+ZA(iAtom)*(-RTx*RTy)
+  M(1,3) = M(1,3)+ZA(iAtom)*(-RTx*RTz)
+  M(2,1) = M(2,1)+ZA(iAtom)*(-RTy*RTx)
+
+  M(2,3) = M(2,3)+ZA(iAtom)*(-RTy*RTz)
+  M(3,1) = M(3,1)+ZA(iAtom)*(-RTz*RTx)
+  M(3,2) = M(3,2)+ZA(iAtom)*(-RTz*RTy)
+end do
+
+! Remove noise
+
+do i=1,3
+  do j=1,3
+    if (abs(M(i,j)) < 1.0D-14) M(i,j) = Zero
+  end do
+end do
+!call RecPrt('Compute_M: M',' ',M,3,3)
+
+return
+
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real(Z_Tot)
-      End
+if (.false.) call Unused_real(Z_Tot)
+
+end subroutine Compute_M

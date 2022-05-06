@@ -10,11 +10,14 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module libxc
-Real*8, Allocatable:: func(:)
-Real*8, Allocatable:: dfunc_drho(:,:)
-Real*8, Allocatable:: dfunc_dsigma(:,:)
-Real*8, Allocatable:: dfunc_dtau(:,:)
-Real*8, Allocatable:: dfunc_dlapl(:,:)
-Logical :: Only_exc=.False.
-End Module libxc
+
+module libxc
+
+real*8, allocatable :: func(:)
+real*8, allocatable :: dfunc_drho(:,:)
+real*8, allocatable :: dfunc_dsigma(:,:)
+real*8, allocatable :: dfunc_dtau(:,:)
+real*8, allocatable :: dfunc_dlapl(:,:)
+logical :: Only_exc = .false.
+
+end module libxc

@@ -8,9 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module nq_MO
-  Integer:: nMOs=0
-  Real*8, Allocatable:: CMO(:)
-  Real*8, Allocatable:: D1MO(:), P2MO(:)
-  Real*8, Allocatable:: P2_ontop(:,:)
-End Module nq_MO
+
+module nq_MO
+
+integer :: nMOs = 0
+real*8, allocatable :: CMO(:)
+real*8, allocatable :: D1MO(:), P2MO(:)
+real*8, allocatable :: P2_ontop(:,:)
+
+end module nq_MO

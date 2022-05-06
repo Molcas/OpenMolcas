@@ -10,46 +10,49 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
+
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 08, 2021, created this file.               *
 ! ****************************************************************
-      Subroutine CalcOrbOff()
-      use nq_Info
+subroutine CalcOrbOff()
 
-      INTEGER jOffA_,jOffB_,nTri,iIrrep
+use nq_Info
 
-      NASHT=0
-      jOffA_ = 0
-      jOffB_ = 0
-      nPot1=0
-      nTri=0
-      nOrbt=0
-      DO iIrrep=0,mIrrep-1
-       mOrb(iIrrep)=mBas(iIrrep)-nFro(iIrrep)
-       nPot1=nPot1+mOrb(iIrrep)**2
-       nOrbt=nOrbt+mOrb(iIrrep)
-       NASHT=NASHT+NASH(iIrrep)
-       iOff_Ash(iIrrep)=jOffA_
-       iOff_Bas(iIrrep)=jOffB_
-       OffBasFro(iIrrep)=jOffB_+nFro(iIrrep)
-       iOff_BasAct(iIrrep)=jOffB_ + nIsh(iIrrep) + nFro(iIrrep)
-       OffOrbTri(iIrrep)=nTri
-       nTri=nTri+mOrb(iIrrep)*(mOrb(iIrrep)+1)/2
-       jOffA_=jOffA_+nAsh(iIrrep)
-       jOffB_=jOffB_+mBas(iIrrep)
-      END DO
+integer jOffA_, jOffB_, nTri, iIrrep
 
-      OffOrb(0)=0
-      OffBas(0)=1
-      OffBas2(0)=1
-      OffOrb2(0)=0
-      DO IIrrep=1,mIrrep-1
-       OffBas(iIrrep) =OffBas(iIrrep-1) +mBas(iIrrep-1)
-       OffOrb(iIrrep) =OffOrb(iIrrep-1) +mOrb(iIrrep-1)
-       OffBas2(iIrrep)=OffBas2(iIrrep-1)+mBas(iIrrep-1)**2
-       OffOrb2(iIrrep)=OffOrb2(iIrrep-1)+mOrb(iIrrep-1)**2
-      END DO
+NASHT = 0
+jOffA_ = 0
+jOffB_ = 0
+nPot1 = 0
+nTri = 0
+nOrbt = 0
+do iIrrep=0,mIrrep-1
+  mOrb(iIrrep) = mBas(iIrrep)-nFro(iIrrep)
+  nPot1 = nPot1+mOrb(iIrrep)**2
+  nOrbt = nOrbt+mOrb(iIrrep)
+  NASHT = NASHT+NASH(iIrrep)
+  iOff_Ash(iIrrep) = jOffA_
+  iOff_Bas(iIrrep) = jOffB_
+  OffBasFro(iIrrep) = jOffB_+nFro(iIrrep)
+  iOff_BasAct(iIrrep) = jOffB_+nIsh(iIrrep)+nFro(iIrrep)
+  OffOrbTri(iIrrep) = nTri
+  nTri = nTri+mOrb(iIrrep)*(mOrb(iIrrep)+1)/2
+  jOffA_ = jOffA_+nAsh(iIrrep)
+  jOffB_ = jOffB_+mBas(iIrrep)
+end do
 
-      RETURN
-      End Subroutine
+OffOrb(0) = 0
+OffBas(0) = 1
+OffBas2(0) = 1
+OffOrb2(0) = 0
+do IIrrep=1,mIrrep-1
+  OffBas(iIrrep) = OffBas(iIrrep-1)+mBas(iIrrep-1)
+  OffOrb(iIrrep) = OffOrb(iIrrep-1)+mOrb(iIrrep-1)
+  OffBas2(iIrrep) = OffBas2(iIrrep-1)+mBas(iIrrep-1)**2
+  OffOrb2(iIrrep) = OffOrb2(iIrrep-1)+mOrb(iIrrep-1)**2
+end do
+
+return
+
+end subroutine CalcOrbOff

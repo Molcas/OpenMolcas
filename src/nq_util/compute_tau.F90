@@ -10,64 +10,64 @@
 !                                                                      *
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
-      Real*8 Function Compute_Tau(Weights,mGrid,iSpin)
+
+real*8 function Compute_Tau(Weights,mGrid,iSpin)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
 !***********************************************************************
-      use nq_Grid, only: Tau
-      Implicit Real*8 (A-H,O-Z)
+
+use nq_Grid, only: Tau
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-      Real*8 Weights(mGrid)
+real*8 Weights(mGrid)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Compute_Tau = Zero
+if (iSpin == 1) then
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! iSpin == 1
+
+  do iGrid=1,mGrid
+
+    TauA = Two*Tau(1,iGrid)
+
+    ! Accumulate contributions to the integrated Tau
+
+    Compute_Tau = Compute_Tau+TauA*Weights(iGrid)
+
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! iSpin /= 1
+
+  do iGrid=1,mGrid
+
+    TauA = (Tau(1,iGrid)+Tau(2,iGrid))
+
+    ! Accumulate contributions to the integrated density
+
+    Compute_Tau = Compute_Tau+TauA*Weights(iGrid)
+
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-      Compute_Tau=Zero
-!
-!     iSpin=1
-!
-      If (iSpin.eq.1) Then
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Do iGrid = 1, mGrid
-!
-         TauA=Two*Tau(1,iGrid)
-!
-!------- Accumulate contributions to the integrated Tau
-!
-         Compute_Tau = Compute_Tau + TauA*Weights(iGrid)
-!
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     iSpin=/=1
-!
-      Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Do iGrid = 1, mGrid
-!
-         TauA=(Tau(1,iGrid)+Tau(2,iGrid))
-!
-!------- Accumulate contributions to the integrated density
-!
-         Compute_Tau = Compute_Tau + TauA*Weights(iGrid)
-!
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
-      Return
-      End
+
+return
+
+end function Compute_Tau

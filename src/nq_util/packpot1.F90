@@ -10,31 +10,35 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
+
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 08, 2021, created this file.               *
 ! ****************************************************************
-      Subroutine PackPot1(Packed,Full,nPack,Factor)
-      use nq_Info
+subroutine PackPot1(Packed,Full,nPack,Factor)
 
-!*****Input
-      Real*8 Factor
-      Real*8,DIMENSION(NPot1)::Full
-!*****Output
-      Real*8,DIMENSION(nPack)::Packed
-!*****Auxiliary
-      INTEGER iIrrep,p,q,iOff1,IOff2,nOrbs
-      DO iIrrep=0,mIrrep-1
-       nOrbs=mOrb(iIrrep)
-       IOff1=OffOrbTri(iIrrep)
-       IOff2=OffOrb2(iIrrep)
-       Do P=1,nOrbs
-        do Q=1,P
-      Packed(IOff1+(P-1)*P/2+Q)=                                        &
-     &Full(IOff2+(P-1)*nOrbs+Q)+Full(IOff2+(Q-1)*nOrbs+P)
-        end do
-       End Do
-      END DO
-      CALL DScal_(nPack,Factor,Packed,1)
-      RETURN
-      End Subroutine
+use nq_Info
+
+! Input
+real*8 Factor
+real*8, dimension(NPot1) :: Full
+! Output
+real*8, dimension(nPack) :: Packed
+! Auxiliary
+integer iIrrep, p, q, iOff1, IOff2, nOrbs
+
+do iIrrep=0,mIrrep-1
+  nOrbs = mOrb(iIrrep)
+  IOff1 = OffOrbTri(iIrrep)
+  IOff2 = OffOrb2(iIrrep)
+  do P=1,nOrbs
+    do Q=1,P
+      Packed(IOff1+(P-1)*P/2+Q) = Full(IOff2+(P-1)*nOrbs+Q)+Full(IOff2+(Q-1)*nOrbs+P)
+    end do
+  end do
+end do
+call DScal_(nPack,Factor,Packed,1)
+
+return
+
+end subroutine PackPot1

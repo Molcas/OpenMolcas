@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) Giovanni Li Manni                                      *
 !***********************************************************************
-      Real*8 Function Comp_d(Weights,mGrid,Rho,nRho,iSpin,iSwitch)
+
+real*8 function Comp_d(Weights,mGrid,Rho,nRho,iSpin,iSwitch)
 !***********************************************************************
 !                                                                      *
 ! Object: integrate densities (alpha, beta, total, gradients....)      *
@@ -21,43 +22,46 @@
 !                                                                      *
 ! Author: G. Li Manni... taking Sir R. Lindh as model                  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-      Real*8 Weights(mGrid), Rho(nRho,mGrid)
-!
-      Comp_d=Zero
+real*8 Weights(mGrid), Rho(nRho,mGrid)
+
+Comp_d = Zero
+if (iSpin == 1) then
+  !*********************************************************************
+  ! iSpin == 1
+  !*********************************************************************
+  do iGrid=1,mGrid
+    d_alpha = half*Rho(1,iGrid)
+    if (iSwitch == 1) then
+      DTot = d_alpha
+    else if (iSwitch == 2) then
+      DTot = d_alpha
+    else !if (iSwitch == 0) then
+      DTot = Two*d_alpha
+    end if
+    Comp_d = Comp_d+DTot*Weights(iGrid)
+  end do
+else
+  !*********************************************************************
+  ! iSpin /= 1
+  !*********************************************************************
+  do iGrid=1,mGrid
+    d_alpha = Rho(1,iGrid)
+    d_beta = Rho(2,iGrid)
+    if (iSwitch == 1) then
+      DTot = d_alpha
+    else if (iSwitch == 2) then
+      DTot = d_beta
+    else !if (iSwitch == 0) then
+      DTot = d_alpha+d_beta
+    end if
+    Comp_d = Comp_d+DTot*Weights(iGrid)
+  end do
+end if
 !***********************************************************************
-!     iSpin=1
-!***********************************************************************
-      If (iSpin.eq.1) Then
-         Do iGrid = 1, mGrid
-           d_alpha=half*Rho(1,iGrid)
-           if(iSwitch.eq.1) then
-             DTot=d_alpha
-           else if(iSwitch.eq.2) then
-             DTot=d_alpha
-           else !if(iSwitch.eq.0) then
-             DTot=Two*d_alpha
-           end if
-           Comp_d = Comp_d + DTot*Weights(iGrid)
-         End Do
-!***********************************************************************
-!     iSpin=/=1
-!***********************************************************************
-      Else
-        Do iGrid = 1, mGrid
-          d_alpha=Rho(1,iGrid)
-          d_beta =Rho(2,iGrid)
-          if(iSwitch.eq.1) then
-            DTot=d_alpha
-          else if(iSwitch.eq.2) then
-            DTot=d_beta
-          else !if(iSwitch.eq.0) then
-            DTot=d_alpha+d_beta
-          end if
-          Comp_d = Comp_d + DTot*Weights(iGrid)
-        End Do
-      End If
-!***********************************************************************
-      Return
-      End
+
+return
+
+end function Comp_d

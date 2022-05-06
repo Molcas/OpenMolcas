@@ -10,40 +10,39 @@
 !                                                                      *
 ! Copyright (C) 1991,2021,2022, Roland Lindh                           *
 !***********************************************************************
-      SubRoutine AOAdd_Full(PrpInt,nPrp,nD)
+
+subroutine AOAdd_Full(PrpInt,nPrp,nD)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             January 1991                                             *
 !***********************************************************************
-      use nq_Grid, only: iBfn_Index
-      use nq_Grid, only: AOInt => Dens_AO
-      Implicit Real*8 (A-H,O-Z)
+
+use nq_Grid, only: iBfn_Index
+use nq_Grid, only: AOInt => Dens_AO
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-      Real*8 PrpInt(nPrp,nD)
+real*8 PrpInt(nPrp,nD)
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Statement function
-!
-      iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-!                                                                      *
-!***********************************************************************
 
-!
-      nBfn=Size(iBfn_index,2)
-      Do iBfn = 1, nBfn
-         Indi = iBfn_Index(1,iBfn)
+nBfn = size(iBfn_index,2)
+do iBfn=1,nBfn
+  Indi = iBfn_Index(1,iBfn)
 
-         Do jBfn = 1, iBfn
-            Indj = iBfn_Index(1,jBfn)
-!
-!           Add one matrix element
-!
-            PrpInt(iTri(Indi,Indj),:)=PrpInt(iTri(Indi,Indj),:)         &
-     &                             + AOInt(iBfn,jBfn,:)
-         End Do
-      End Do
-!
-      Return
-      End
+  do jBfn=1,iBfn
+    Indj = iBfn_Index(1,jBfn)
+
+    ! Add one matrix element
+
+    PrpInt(iTri(Indi,Indj),:) = PrpInt(iTri(Indi,Indj),:)+AOInt(iBfn,jBfn,:)
+  end do
+end do
+
+return
+
+end subroutine AOAdd_Full

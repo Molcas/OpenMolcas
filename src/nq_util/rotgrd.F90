@@ -10,11 +10,12 @@
 !                                                                      *
 ! Copyright (C) 2003, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine RotGrd(RA,ZA,O,dOdx,d2Odx2,nAtoms,Do_Grad,Do_Hess)
+
+subroutine RotGrd(RA,ZA,O,dOdx,d2Odx2,nAtoms,Do_Grad,Do_Hess)
 !***********************************************************************
 !                                                                      *
-!     Object: Compute the principle axis system and to optionally      *
-!             evaluate the gradient of the principle axis system.      *
+!     Object: Compute the principal axes system and to optionally      *
+!             evaluate the gradient of the principal axes system.      *
 !                                                                      *
 !             See: B. G. Johnson et al., CPL, 220, 377 (1994).         *
 !                                                                      *
@@ -23,126 +24,112 @@
 !             Created on board M/S Polarlys on voyage from Tromso to   *
 !             Trondheim, Sept. 2003.                                   *
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 RA(3,nAtoms), ZA(nAtoms),                                  &
-     &       O(3,3), dOdx(3,3,nAtoms,3), d2Odx2(3,3,nAtoms,3,nAtoms,3), &
-     &               dMdx(3,3), dMdy(3,3),                              &
-     &       EVal(3), T(3),                                             &
-     &       Px(3,3), Py(3,3)
-      Logical Do_Grad, Rot_Corr, Do_Hess
+real*8 RA(3,nAtoms), ZA(nAtoms), O(3,3), dOdx(3,3,nAtoms,3), d2Odx2(3,3,nAtoms,3,nAtoms,3), dMdx(3,3), dMdy(3,3), EVal(3), T(3), &
+       Px(3,3), Py(3,3)
+logical Do_Grad, Rot_Corr, Do_Hess
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('RotGrd: RA',' ',RA,3,nAtoms)
-      Call RecPrt('RotGrd: ZA',' ',ZA,1,nAtoms)
+call RecPrt('RotGrd: RA',' ',RA,3,nAtoms)
+call RecPrt('RotGrd: ZA',' ',ZA,1,nAtoms)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute the total charge
-!
-      Z_Tot=DDot_(nAtoms,[One],0,ZA,1)
-!
-!---- Form the center of nuclear charge
-!
-      Call Compute_T(Z_Tot,T,ZA,RA,nAtoms)
-!
-!---- Form O
-!
-      Call Compute_O(ZA,RA,nAtoms,Z_Tot,T,O,EVal)
+! Compute the total charge
+
+Z_Tot = DDot_(nAtoms,[One],0,ZA,1)
+
+! Form the center of nuclear charge
+
+call Compute_T(Z_Tot,T,ZA,RA,nAtoms)
+
+! Form O
+
+call Compute_O(ZA,RA,nAtoms,Z_Tot,T,O,EVal)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (.Not.Do_Grad) Return
+if (.not. Do_Grad) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Turn off rotational correction to the gradient if the eigen
-!     vectors are close to degeneracy!
-!
-      Rot_Corr=.True.
-      If (Abs(Eval(1)-Eval(2))/(EVal(1)+EVal(2)).lt.0.001D0) Then
-         Write (6,*) 'Rotational correction to the DFT gradient is '    &
-     &             //'turned off due to close-to-degeneracy problems!'
-         Rot_Corr=.False.
-      End If
-      If (Abs(Eval(1)-Eval(3))/(EVal(1)+EVal(3)).lt.0.001D0) Then
-         Write (6,*) 'Rotational correction to the DFT gradient is '    &
-     &             //'turned off due to close-to-degeneracy problems!'
-         Rot_Corr=.False.
-      End If
-      If (Abs(Eval(2)-Eval(3))/(EVal(2)+EVal(3)).lt.0.001D0) Then
-         Write (6,*) 'Rotational correction to the DFT gradient is '    &
-     &             //'turned off due to close-to-degeneracy problems!'
-         Rot_Corr=.False.
-      End If
+! Turn off rotational correction to the gradient if the eigenvectors
+! are close to degeneracy!
+
+Rot_Corr = .true.
+if (abs(Eval(1)-Eval(2))/(EVal(1)+EVal(2)) < 0.001d0) then
+  write(6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
+  Rot_Corr = .false.
+end if
+if (abs(Eval(1)-Eval(3))/(EVal(1)+EVal(3)) < 0.001d0) then
+  write(6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
+  Rot_Corr = .false.
+end if
+if (abs(Eval(2)-Eval(3))/(EVal(2)+EVal(3)) < 0.001d0) then
+  write(6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
+  Rot_Corr = .false.
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute the gradient
-!
-      Do iAtom = 1, nAtoms
-         dTdRAi=ZA(iAtom)/Z_Tot
-         Do iCar = 1, 3
-!
-!---------- Form dO/dx
-!
-            Call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,           &
-     &                        iAtom,iCar,dTdRAi,dMdx,                   &
-     &                        dOdx(1,1,iAtom,iCar),Px)
-!
-         End Do
-      End Do
+! Compute the gradient
+
+do iAtom=1,nAtoms
+  dTdRAi = ZA(iAtom)/Z_Tot
+  do iCar=1,3
+
+    ! Form dO/dx
+
+    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(1,1,iAtom,iCar),Px)
+
+  end do
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (.Not.Do_Hess) Return
+if (.not. Do_Hess) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Compute the Hessian
-!
-      Do iAtom = 1, nAtoms
-         dTdRAi=ZA(iAtom)/Z_Tot
-         Do iCar = 1, 3
-            Call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,           &
-     &                        iAtom,iCar,dTdRAi,dMdx,                   &
-     &                        dOdx(1,1,iAtom,iCar),Px)
-!
-            Do jAtom = 1, iAtom
-               dTdRAj=ZA(jAtom)/Z_Tot
-               jCar_Max = 3
-               If (iAtom.eq.jAtom) jCar_Max = iCar
-               Do jCar = 1, jCar_Max
-                  Call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,     &
-     &                              jAtom,jCar,dTdRAj,dMdy,             &
-     &                              dOdx(1,1,jAtom,jCar),Py)
-!
-!---------------- Form d2O/dx2
-!
-                  Call Compute_d2Odx2(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,   &
-     &                                iAtom,iCar,dTdRAi,dMdx,           &
-     &                                dOdx(1,1,iAtom,iCar),Px,          &
-     &                                jAtom,jCar,dTdRAj,dMdy,           &
-     &                                dOdx(1,1,jAtom,jCar),Py,          &
-     &                                d2Odx2(1,1,iAtom,iCar,jAtom,jCar))
-!
-                  If (iAtom.ne.jAtom .or.                               &
-     &                (iAtom.eq.jAtom.and.iCar.ne.jCar)) Then
-                      call dcopy_(9,d2Odx2(1,1,iAtom,iCar,jAtom,jCar),1,&
-     &                             d2Odx2(1,1,jAtom,jCar,iAtom,iCar),1)
-                  End If
-!
-               End Do  ! jCar
-            End Do     ! iCar
-!
-         End Do        ! jAtom
-      End Do           ! iAtom
+! Compute the Hessian
+
+do iAtom=1,nAtoms
+  dTdRAi = ZA(iAtom)/Z_Tot
+  do iCar=1,3
+    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(1,1,iAtom,iCar),Px)
+
+    do jAtom=1,iAtom
+      dTdRAj = ZA(jAtom)/Z_Tot
+      jCar_Max = 3
+      if (iAtom == jAtom) jCar_Max = iCar
+      do jCar=1,jCar_Max
+        call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,jAtom,jCar,dTdRAj,dMdy,dOdx(1,1,jAtom,jCar),Py)
+
+        ! Form d2O/dx2
+
+        call Compute_d2Odx2(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(1,1,iAtom,iCar),Px,jAtom,jCar,dTdRAj,dMdy, &
+                            dOdx(1,1,jAtom,jCar),Py,d2Odx2(1,1,iAtom,iCar,jAtom,jCar))
+
+        if ((iAtom /= jAtom) .or. ((iAtom == jAtom) .and. (iCar /= jCar))) then
+          call dcopy_(9,d2Odx2(1,1,iAtom,iCar,jAtom,jCar),1,d2Odx2(1,1,jAtom,jCar,iAtom,iCar),1)
+        end if
+
+      end do ! jCar
+    end do   ! iCar
+
+  end do     ! jAtom
+end do       ! iAtom
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+
+return
+
+end subroutine RotGrd

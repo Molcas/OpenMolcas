@@ -8,46 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Print_NQ_Info(iSpin)
-      use nq_Info
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Print_NQ_Info(iSpin)
+
+use nq_Info
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Logical Reduce_Prt
-      External Reduce_Prt
+logical Reduce_Prt
+external Reduce_Prt
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iPL=iPrintLevel(-1)
-      If (Reduce_Prt().and.iPL.lt.3) iPL=0
+iPL = iPrintLevel(-1)
+if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (iPL.ge.3) Then
-         Call GAIGOP_SCAL(nTotGP,'+')
-         Write (6,*)
-         Write (6,'(6X,A,T52,F17.10)')                                  &
-     &            'Integrated DFT Energy   ',Energy_integrated
-         Write (6,'(6X,A,T56,G17.10)')                                  &
-     &            'Integrated number of electrons',Dens_I
-         If (Grad_I.ne.Zero)                                            &
-     &   Write (6,'(6X,A,T56,G17.10)')                                  &
-     &            'Integrated |grad|             ',Grad_I
-         If (Tau_I .ne.Zero)                                            &
-     &   Write (6,'(6X,A,T56,G17.10)')                                  &
-     &            'Integrated tau                ',Tau_I
-         Write (6,'(6X,A,T54,I13)')                                     &
-     &            'Total number of prunned grid points  ',nTotGP
-         Write (6,*)
-      End If
+if (iPL >= 3) then
+  call GAIGOP_SCAL(nTotGP,'+')
+  write(6,*)
+  write(6,'(6X,A,T52,F17.10)') 'Integrated DFT Energy   ',Energy_integrated
+  write(6,'(6X,A,T56,G17.10)') 'Integrated number of electrons',Dens_I
+  if (Grad_I /= Zero) write(6,'(6X,A,T56,G17.10)') 'Integrated |grad|             ',Grad_I
+  if (Tau_I /= Zero) write(6,'(6X,A,T56,G17.10)') 'Integrated tau                ',Tau_I
+  write(6,'(6X,A,T54,I13)') 'Total number of prunned grid points  ',nTotGP
+  write(6,*)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call Add_Info('DFT_Energy',[Energy_integrated],1,6)
-      Call Add_Info('NQ_Density',[Dens_I],1,8)
+call Add_Info('DFT_Energy',[Energy_integrated],1,6)
+call Add_Info('NQ_Density',[Dens_I],1,8)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iSpin)
-      End
+if (.false.) call Unused_integer(iSpin)
+
+end subroutine Print_NQ_Info

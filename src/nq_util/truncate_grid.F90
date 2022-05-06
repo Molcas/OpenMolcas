@@ -8,18 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Truncate_Grid(R,nR,nR_Eff,Radius_Max)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 R(2,nR)
-!
-      nTmp=nR_Eff
-      Do i = 1, nTmp
-         If (R(1,i).gt.Radius_Max) Then
-             nR_Eff=i-1
-             Go To 99
-         End If
-      End Do
- 99   Continue
-!
-      Return
-      End
+
+subroutine Truncate_Grid(R,nR,nR_Eff,Radius_Max)
+
+implicit real*8(a-h,o-z)
+real*8 R(2,nR)
+
+nTmp = nR_Eff
+do i=1,nTmp
+  if (R(1,i) > Radius_Max) then
+    nR_Eff = i-1
+    Go To 99
+  end if
+end do
+99 continue
+
+return
+
+end subroutine Truncate_Grid

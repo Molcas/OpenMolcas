@@ -8,48 +8,51 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module nq_Grid
-Real*8, Allocatable:: Pax(:,:)
-Real*8, Allocatable:: Coor(:,:)
-Real*8, Allocatable:: R2_trial(:)
-Real*8, Allocatable:: Fact(:,:)
-Real*8, Allocatable:: Mem(:)
-Integer, Allocatable:: Angular(:)
-Integer, Allocatable:: nR_Eff(:)
 
-Integer, Allocatable:: List_G(:,:)
-Integer, Allocatable:: iTab(:,:)
-Integer, Allocatable:: IndGrd(:)
-Real*8, Allocatable:: Temp(:)
-Real*8, Allocatable:: P2Unzip(:), D1Unzip(:)
-Real*8, Allocatable:: dW_dR(:,:)
+module nq_Grid
 
-Real*8, Allocatable:: Weights(:)
-Real*8, Allocatable:: Grid(:,:)
-!     nGridMax: size of the array Grid
-Integer :: nGridMax=128
-Real*8, Allocatable:: Rho(:,:)
-Real*8, Allocatable:: vRho(:,:)
-Integer :: nRho=0
-Real*8, Allocatable:: GradRho(:,:)
-Integer :: nGradRho=0
-Real*8, Allocatable:: Sigma(:,:)
-Real*8, Allocatable:: vSigma(:,:)
-Integer :: nSigma=0
-Real*8, Allocatable:: Lapl(:,:)
-Real*8, Allocatable:: vLapl(:,:)
-Integer :: nLapl=0
-Real*8, Allocatable:: Tau(:,:)
-Real*8, Allocatable:: vTau(:,:)
-Integer :: nTau=0
-Logical :: l_CASDFT=.FALSE.
-Real*8, Allocatable:: F_xc(:), F_xca(:), F_xcb(:)
-Real*8, Allocatable, Target:: TabAO(:,:,:)
-Real*8, Allocatable, Target:: TabAO_Short(:,:,:)
-Real*8, Pointer:: TabAO_pack(:) => Null()
-Real*8, Allocatable:: Grid_AO(:,:,:,:)
-Real*8, Allocatable:: Dens_AO(:,:,:)
-Real*8, Allocatable:: dRho_dR(:,:,:)
-Integer, Allocatable:: iBfn_Index(:,:)
-Integer :: kAO=0
-End Module nq_Grid
+real*8, allocatable :: Pax(:,:)
+real*8, allocatable :: Coor(:,:)
+real*8, allocatable :: R2_trial(:)
+real*8, allocatable :: Fact(:,:)
+real*8, allocatable :: Mem(:)
+integer, allocatable :: Angular(:)
+integer, allocatable :: nR_Eff(:)
+
+integer, allocatable :: List_G(:,:)
+integer, allocatable :: iTab(:,:)
+integer, allocatable :: IndGrd(:)
+real*8, allocatable :: Temp(:)
+real*8, allocatable :: P2Unzip(:), D1Unzip(:)
+real*8, allocatable :: dW_dR(:,:)
+
+real*8, allocatable :: Weights(:)
+real*8, allocatable :: Grid(:,:)
+! nGridMax: size of the array Grid
+integer :: nGridMax = 128
+real*8, allocatable :: Rho(:,:)
+real*8, allocatable :: vRho(:,:)
+integer :: nRho = 0
+real*8, allocatable :: GradRho(:,:)
+integer :: nGradRho = 0
+real*8, allocatable :: Sigma(:,:)
+real*8, allocatable :: vSigma(:,:)
+integer :: nSigma = 0
+real*8, allocatable :: Lapl(:,:)
+real*8, allocatable :: vLapl(:,:)
+integer :: nLapl = 0
+real*8, allocatable :: Tau(:,:)
+real*8, allocatable :: vTau(:,:)
+integer :: nTau = 0
+logical :: l_CASDFT = .false.
+real*8, allocatable :: F_xc(:), F_xca(:), F_xcb(:)
+real*8, allocatable, target :: TabAO(:,:,:)
+real*8, allocatable, target :: TabAO_Short(:,:,:)
+real*8, pointer :: TabAO_pack(:) => null()
+real*8, allocatable :: Grid_AO(:,:,:,:)
+real*8, allocatable :: Dens_AO(:,:,:)
+real*8, allocatable :: dRho_dR(:,:,:)
+integer, allocatable :: iBfn_Index(:,:)
+integer :: kAO = 0
+
+end module nq_Grid

@@ -10,49 +10,48 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine mk_MOs(SOValue,mAO,nCoor,MOValue,nMOs,CMOs,nCMO)
-      use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (a-h,o-z)
+
+subroutine mk_MOs(SOValue,mAO,nCoor,MOValue,nMOs,CMOs,nCMO)
+
+use Basis_Info, only: nBas
+use Symmetry_Info, only: nIrrep
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 SOValue(mAO*nCoor,nMOs),                                   &
-     &       MOValue(mAO*nCoor,nMOs), CMOs(nCMO)
+real*8 SOValue(mAO*nCoor,nMOs), MOValue(mAO*nCoor,nMOs), CMOs(nCMO)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Character*80 Label
+character*80 Label
 #endif
-!
+
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'mk_MOs: MO-Coefficients'
-      iOff=1
-      Do iIrrep = 0, nIrrep-1
-         If (nBas(iIrrep).gt.0) Then
-            Write (6,*) ' Symmetry Block',iIrrep
-            Call RecPrt(' ',' ',CMOs(iOff),nBas(iIrrep),nBas(iIrrep))
-         End If
-         iOff=iOff+nBas(iIrrep)**2
-      End Do
+write(6,*) 'mk_MOs: MO-Coefficients'
+iOff = 1
+do iIrrep=0,nIrrep-1
+  if (nBas(iIrrep) > 0) then
+    write(6,*) ' Symmetry Block',iIrrep
+    call RecPrt(' ',' ',CMOs(iOff),nBas(iIrrep),nBas(iIrrep))
+  end if
+  iOff = iOff+nBas(iIrrep)**2
+end do
 #endif
-!
-!---- Compute some offsets
-!
-      iSO=1
-      iCMO=1
-      Do iIrrep = 0, nIrrep-1
-         If (nBas(iIrrep)==0) Cycle
-         Call DGeMM_('N','N',                                           &
-     &               mAO*nCoor,nBas(iIrrep),nBas(iIrrep),               &
-     &               One,SOValue(:,iSO:),mAO*nCoor,                     &
-     &                   CMOs(iCMO:),nBas(iIrrep),                      &
-     &               Zero,MOValue(:,iSO:),mAO*nCoor)
-         iSO =iSO +nBas(iIrrep)
-         iCMO=iCMO+nBas(iIrrep)*nBas(iIrrep)
-      End Do
-!
+
+! Compute some offsets
+
+iSO = 1
+iCMO = 1
+do iIrrep=0,nIrrep-1
+  if (nBas(iIrrep) == 0) cycle
+  call DGeMM_('N','N',mAO*nCoor,nBas(iIrrep),nBas(iIrrep),One,SOValue(:,iSO:),mAO*nCoor,CMOs(iCMO:),nBas(iIrrep),Zero, &
+              MOValue(:,iSO:),mAO*nCoor)
+  iSO = iSO+nBas(iIrrep)
+  iCMO = iCMO+nBas(iIrrep)*nBas(iIrrep)
+end do
+
 #ifdef _DEBUGPRINT_
-      Write (Label,'(A)')'mk_MOs: MOValue(mAO*nCoor,nMOs)'
-      Call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
+write(Label,'(A)') 'mk_MOs: MOValue(mAO*nCoor,nMOs)'
+call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine mk_MOs

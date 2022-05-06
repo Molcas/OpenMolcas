@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module nq_pdft
+
+module nq_pdft
 
 ! ThrsRho: threshold of total density
 ! ThrsOMR: threshold of (1 - R)
@@ -17,28 +18,29 @@ Module nq_pdft
 ! ThrsNT : threshold for not doing any translation in ft functionals
 !          a.k.a R1 in the ft paper
 
-Real*8 :: ThrsRho  =  1.00d-15
-Real*8 :: ThrsOMR  =  1.00d-15
-Real*8 :: ThrsFT   =  0.90d0
-Real*8 :: ThrsNT   =  1.15d0
-Real*8 :: fta      = -4.756065601d2
-Real*8 :: ftb      = -3.794733192d2
-Real*8 :: ftc      = -8.538149682d1
+real*8 :: ThrsRho = 1.00d-15
+real*8 :: ThrsOMR = 1.00d-15
+real*8 :: ThrsFT = 0.90d0
+real*8 :: ThrsNT = 1.15d0
+real*8 :: fta = -4.756065601d2
+real*8 :: ftb = -3.794733192d2
+real*8 :: ftc = -8.538149682d1
 
-Logical :: lGGA=.False., lft=.False.
-Logical,DIMENSION(:),Allocatable::Pass1,Pass2,Pass3
-Real*8 ,DIMENSION(:),Allocatable::RhoAB,OnePZ,OneMZ,RatioA,ZetaA
-Real*8 ,DIMENSION(:),Allocatable::dZdR,dRdRho,dZdRho,dRdPi
-Real*8 ,DIMENSION(:),Allocatable::dRhoadZ,dRhoaxdZ,dRhoaydZ,dRhoazdZ
-Real*8 ,DIMENSION(:),Allocatable::dRhodX,dRhodY,dRhodZ
-Real*8 ,DIMENSION(:),Allocatable::dF_dRhoapb,dF_dRhoamb
-Real*8 ,DIMENSION(:),Allocatable::dF_dRhoxapb,dF_dRhoxamb
-Real*8 ,DIMENSION(:),Allocatable::dF_dRhoyapb,dF_dRhoyamb
-Real*8 ,DIMENSION(:),Allocatable::dF_dRhozapb,dF_dRhozamb
-Real*8 ,DIMENSION(:),Allocatable::GradRhodFdRho,GradRdFdRho,GradPidFdRho
-Real*8 ,DIMENSION(:),Allocatable::dEdRho,dEdRhox,dEdRhoy,dEdRhoz
-Real*8 ,DIMENSION(:),Allocatable::dEdPi,dEdPix,dEdPiy,dEdPiz
-Real*8 ,DIMENSION(:),Allocatable::dEdPiMO,GdEdPiMO
-Real*8 ,DIMENSION(:),Allocatable::d2RdRho2,d2RdRhodPi,d2ZdR2
-Real*8 ,DIMENSION(:),Allocatable::MOas,MOax,MOay,MOaz
-End Module nq_pdft
+logical :: lGGA = .false., lft = .false.
+logical, dimension(:), allocatable :: Pass1, Pass2, Pass3
+real*8, dimension(:), allocatable :: RhoAB, OnePZ, OneMZ, RatioA, ZetaA
+real*8, dimension(:), allocatable :: dZdR, dRdRho, dZdRho, dRdPi
+real*8, dimension(:), allocatable :: dRhoadZ, dRhoaxdZ, dRhoaydZ, dRhoazdZ
+real*8, dimension(:), allocatable :: dRhodX, dRhodY, dRhodZ
+real*8, dimension(:), allocatable :: dF_dRhoapb, dF_dRhoamb
+real*8, dimension(:), allocatable :: dF_dRhoxapb, dF_dRhoxamb
+real*8, dimension(:), allocatable :: dF_dRhoyapb, dF_dRhoyamb
+real*8, dimension(:), allocatable :: dF_dRhozapb, dF_dRhozamb
+real*8, dimension(:), allocatable :: GradRhodFdRho, GradRdFdRho, GradPidFdRho
+real*8, dimension(:), allocatable :: dEdRho, dEdRhox, dEdRhoy, dEdRhoz
+real*8, dimension(:), allocatable :: dEdPi, dEdPix, dEdPiy, dEdPiz
+real*8, dimension(:), allocatable :: dEdPiMO, GdEdPiMO
+real*8, dimension(:), allocatable :: d2RdRho2, d2RdRhodPi, d2ZdR2
+real*8, dimension(:), allocatable :: MOas, MOax, MOay, MOaz
+
+end module nq_pdft

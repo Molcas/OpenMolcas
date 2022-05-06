@@ -8,26 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function nBas_Eff(NrExp,NrBas,Exp,Cff,nExp_Eff)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Exp(NrExp), Cff(NrExp,NrBas)
-!
-      nBas_Eff=NrBas
-!
-      Do iBas = 1, NrBas
-!
-         Do iExp = 1, nExp_Eff
-!
-            If (Cff(iExp,iBas).ne.0.0D0) Then
-               nBas_Eff = NrBas-iBas+1
-               Return
-            End If
-!
-         End Do
-!
-      End Do
-!
-      Return
+
+integer function nBas_Eff(NrExp,NrBas,Exp,Cff,nExp_Eff)
+
+implicit real*8(a-h,o-z)
+real*8 exp(NrExp), Cff(NrExp,NrBas)
+
+nBas_Eff = NrBas
+
+do iBas=1,NrBas
+
+  do iExp=1,nExp_Eff
+
+    if (Cff(iExp,iBas) /= 0.0d0) then
+      nBas_Eff = NrBas-iBas+1
+      return
+    end if
+
+  end do
+
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Exp)
-      End
+if (.false.) call Unused_real_array(Exp)
+
+end function nBas_Eff

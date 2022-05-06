@@ -10,48 +10,52 @@
 !                                                                      *
 ! Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Subroutine Do_Lebedev_Sym(L_Eff,mPt,ipR)
-      Implicit None
+
+subroutine Do_Lebedev_Sym(L_Eff,mPt,ipR)
+
+implicit none
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Integer, Intent(In) :: L_Eff
-      Integer, Intent(Out) :: mPt, ipR
-      Integer :: mPt_, i, j
-      Real*8, Parameter :: Thr = 1.0D-16
-      Real*8, Allocatable:: R(:,:)
+integer, intent(In) :: L_Eff
+integer, intent(Out) :: mPt, ipR
+integer :: mPt_, i, j
+real*8, parameter :: Thr = 1.0D-16
+real*8, allocatable :: R(:,:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-         Subroutine Do_Lebedev(L_Eff,nPoints,R)
-         Implicit None
-         Integer L_Eff, nPoints
-         Real*8, Allocatable:: R(:,:)
-         End Subroutine Do_Lebedev
-      End Interface
+interface
+  subroutine Do_Lebedev(L_Eff,nPoints,R)
+    implicit none
+    integer L_Eff, nPoints
+    real*8, allocatable :: R(:,:)
+  end subroutine Do_Lebedev
+end interface
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call Do_Lebedev(L_Eff,mPt_,R)
-      mPt=0
-      outer: Do i=1,mPt_
-        Do j=1,i-1
-          If (All(Abs(R(1:3,j)+R(1:3,i)).lt.Thr)) Then
-            R(4,i)=0.0D0
-            Cycle outer
-          End If
-        End Do
-        mPt=mPt+1
-      End Do outer
+call Do_Lebedev(L_Eff,mPt_,R)
+mPt = 0
+outer: do i=1,mPt_
+  do j=1,i-1
+    if (all(abs(R(1:3,j)+R(1:3,i)) < Thr)) then
+      R(4,i) = 0.0d0
+      cycle outer
+    end if
+  end do
+  mPt = mPt+1
+end do outer
 
-      Call GetMem('AngRW','Allo','Real',ipR,4*mPt)
+call GetMem('AngRW','Allo','Real',ipR,4*mPt)
 
-      j=1
-      Do i=1,mPt_
-        If (R(4,i).ne.0.0D0) Then
-          Call DCopy_(4,R(:,i),1,Work(ipR+(j-1)*4),1)
-          j=j+1
-        End if
-      End Do
-      Call mma_deallocate(R)
-      End Subroutine Do_Lebedev_Sym
+j = 1
+do i=1,mPt_
+  if (R(4,i) /= 0.0d0) then
+    call DCopy_(4,R(:,i),1,Work(ipR+(j-1)*4),1)
+    j = j+1
+  end if
+end do
+call mma_deallocate(R)
+
+end subroutine Do_Lebedev_Sym

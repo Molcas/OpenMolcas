@@ -8,24 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Compute_T(Z_Tot,T,ZA,RA,nAtoms)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Compute_T(Z_Tot,T,ZA,RA,nAtoms)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 T(3), ZA(nAtoms), RA(3,nAtoms)
+real*8 T(3), ZA(nAtoms), RA(3,nAtoms)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Form the center of nuclear charge
-!
-      Do iCar = 1, 3
-         Tmp = Zero
-         Do iAtom = 1, nAtoms
-            Tmp = Tmp + ZA(iAtom)*RA(iCar,iAtom)
-         End Do
-         T(iCar) = Tmp/Z_Tot
-      End Do
+! Form the center of nuclear charge
+
+do iCar=1,3
+  Tmp = Zero
+  do iAtom=1,nAtoms
+    Tmp = Tmp+ZA(iAtom)*RA(iCar,iAtom)
+  end do
+  T(iCar) = Tmp/Z_Tot
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Compute_T

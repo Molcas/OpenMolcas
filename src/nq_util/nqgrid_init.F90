@@ -8,39 +8,44 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine NQGrid_Init()
-      use Grid_On_Disk
-      use nq_Info, only: Other_Type
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine NQGrid_Init()
+
+use Grid_On_Disk
+use nq_Info, only: Other_Type
+
+implicit real*8(A-H,O-Z)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Make the grid file dirty
-!
-!---- Open the file.
-      Lu_Grid=77
-      Call DaName_MF_WA(Lu_Grid,'NQGRID')
-!
-!---- Write the status flag and disk addresses fo the sets.
-!
-      iDisk_Set(Final)=-1
-      iDisk_Set(Intermediate)=-1
-      G_S(Final)=Regenerate
-      G_S(Intermediate)=Regenerate
-      Old_Functional_Type=Other_Type
-!
-      iDisk_Grid=0
-      Call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
-!
-      iDisk_Set(Final)=iDisk_Grid
-      iDisk_Set(Intermediate)=iDisk_Grid
-!
-      iDisk_Grid=0
-      Call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
-!
-      Call DaClos(Lu_Grid)
+! Make the grid file dirty
+
+! Open the file.
+Lu_Grid = 77
+call DaName_MF_WA(Lu_Grid,'NQGRID')
+
+! Write the status flag and disk addresses fo the sets.
+
+iDisk_Set(final) = -1
+iDisk_Set(Intermediate) = -1
+G_S(final) = Regenerate
+G_S(Intermediate) = Regenerate
+Old_Functional_Type = Other_Type
+
+iDisk_Grid = 0
+call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
+
+iDisk_Set(final) = iDisk_Grid
+iDisk_Set(Intermediate) = iDisk_Grid
+
+iDisk_Grid = 0
+call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
+
+call DaClos(Lu_Grid)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+
+return
+
+end subroutine NQGrid_Init

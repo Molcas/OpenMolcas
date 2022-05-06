@@ -10,61 +10,65 @@
 !                                                                      *
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
-      Real*8 Function Compute_Grad(Weights,mGrid,iSpin)
+
+real*8 function Compute_Grad(Weights,mGrid,iSpin)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
 !***********************************************************************
-      use nq_Grid, only: Sigma
-      Implicit Real*8 (A-H,O-Z)
+
+use nq_Grid, only: Sigma
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-      Real*8 Weights(mGrid)
+real*8 Weights(mGrid)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-      Compute_Grad=Zero
-!
-!     iSpin=1
-!
-      If (iSpin.eq.1) Then
+Compute_Grad = Zero
+
+
+if (iSpin == 1) then
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! iSpin == 1
+
+  do iGrid=1,mGrid
+
+    Gamma = sqrt(Sigma(1,iGrid))
+
+    ! Accumulate contributions to the integrated Tau
+
+    Compute_Grad = Compute_Grad+Two*Gamma*Weights(iGrid)
+
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! iSpin /= 1
+
+  do iGrid=1,mGrid
+
+    Gamma = sqrt(Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid))
+
+    ! Accumulate contributions to the integrated density
+
+    Compute_Grad = Compute_Grad+Gamma*Weights(iGrid)
+
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Do iGrid = 1, mGrid
-!
-         Gamma=Sqrt(Sigma(1,iGrid))
-!
-!------- Accumulate contributions to the integrated Tau
-!
-         Compute_Grad = Compute_Grad + Two*Gamma*Weights(iGrid)
-!
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     iSpin=/=1
-!
-      Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Do iGrid = 1, mGrid
-!
-         Gamma=Sqrt(Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid))
-!
-!------- Accumulate contributions to the integrated density
-!
-         Compute_Grad = Compute_Grad + Gamma*Weights(iGrid)
-!
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
-      Return
-      End
+
+return
+
+end function Compute_Grad

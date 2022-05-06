@@ -10,69 +10,73 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
+
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 08, 2021, created this file.               *
 ! ****************************************************************
-      Subroutine CalcPUVXOff()
-      use nq_Info
 
-      INTEGER IOff1,iIrrep,jIrrep,kIrrep,lIrrep,iOrb,jAct,kAct,lAct,    &
-     &        ijIrrep,klIrrep,nklAct
+subroutine CalcPUVXOff()
 
-      IOff1=0
-      DO kIrrep=0,mIrrep-1
-       kAct=nAsh(kIrrep)
-       Do lIrrep=0,kIrrep
-        lAct=nAsh(lIrrep)
-        nklAct=kAct*lAct
-        If(kIrrep.eq.lIrrep) nklAct=kAct*(kAct+1)/2
-        OffVX(lIrrep,kIrrep)=IOff1
-        nVX(lIrrep,kIrrep)=nklAct
-        IOff1=IOff1+nklAct
-       End Do
-      END DO
-      nVXt=iOff1
+use nq_Info
 
-      IOff1=0
-      DO jIrrep=0,mIrrep-1
-       jAct=nAsh(jIrrep)
-       Do kIrrep=0,mIrrep-1
-        kAct=nAsh(kIrrep)
-        do lIrrep=0,kIrrep
-         lAct=nAsh(lIrrep)
-         nklAct=kAct*lAct
-         If(kIrrep.eq.lIrrep) nklAct=kAct*(kAct+1)/2
-          OffUVX(lIrrep,kIrrep,jIrrep)=IOff1
-          nUVX(lIrrep,kIrrep,jIrrep)=jAct*nklAct
-          IOff1=iOff1+jAct*nklAct
-        end do
-       End Do
-      END DO
-      nUVXt=IOff1
+integer IOff1, iIrrep, jIrrep, kIrrep, lIrrep, iOrb, jAct, kAct, lAct, ijIrrep, klIrrep, nklAct
 
-      IOff1=0
-      DO iIrrep=0,mIrrep-1
-       OffPUVX(iIrrep)=IOff1
-       iOrb=mOrb(iIrrep)
-       Do jIrrep=0,mIrrep-1
-        jAct=nAsh(jIrrep)
-        ijIrrep=1+IEOR(iIrrep,jIrrep)
-        Do kIrrep=0,mIrrep-1
-         kAct=nAsh(kIrrep)
-         do lIrrep=0,kIrrep
-          lAct=nAsh(lIrrep)
-          klIrrep=1+IEOR(kIrrep,lIrrep)
-          IF(ijIrrep.eq.klIrrep) THEN
-           iOff1=iOff1+iOrb*nUVX(lIrrep,kIrrep,jIrrep)
-          END IF
-         end do
-        End Do
-       End Do
-      END DO
-      nPot2=IOff1
+IOff1 = 0
+do kIrrep=0,mIrrep-1
+  kAct = nAsh(kIrrep)
+  do lIrrep=0,kIrrep
+    lAct = nAsh(lIrrep)
+    nklAct = kAct*lAct
+    if (kIrrep == lIrrep) nklAct = kAct*(kAct+1)/2
+    OffVX(lIrrep,kIrrep) = IOff1
+    nVX(lIrrep,kIrrep) = nklAct
+    IOff1 = IOff1+nklAct
+  end do
+end do
+nVXt = iOff1
 
-!      write(6,*)'OffPUVX new method',nPot2,MaxUVX
-!      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
-      RETURN
-      End Subroutine
+IOff1 = 0
+do jIrrep=0,mIrrep-1
+  jAct = nAsh(jIrrep)
+  do kIrrep=0,mIrrep-1
+    kAct = nAsh(kIrrep)
+    do lIrrep=0,kIrrep
+      lAct = nAsh(lIrrep)
+      nklAct = kAct*lAct
+      if (kIrrep == lIrrep) nklAct = kAct*(kAct+1)/2
+      OffUVX(lIrrep,kIrrep,jIrrep) = IOff1
+      nUVX(lIrrep,kIrrep,jIrrep) = jAct*nklAct
+      IOff1 = iOff1+jAct*nklAct
+    end do
+  end do
+end do
+nUVXt = IOff1
+
+IOff1 = 0
+do iIrrep=0,mIrrep-1
+  OffPUVX(iIrrep) = IOff1
+  iOrb = mOrb(iIrrep)
+  do jIrrep=0,mIrrep-1
+    jAct = nAsh(jIrrep)
+    ijIrrep = 1+ieor(iIrrep,jIrrep)
+    do kIrrep=0,mIrrep-1
+      kAct = nAsh(kIrrep)
+      do lIrrep=0,kIrrep
+        lAct = nAsh(lIrrep)
+        klIrrep = 1+ieor(kIrrep,lIrrep)
+        if (ijIrrep == klIrrep) then
+          iOff1 = iOff1+iOrb*nUVX(lIrrep,kIrrep,jIrrep)
+        end if
+      end do
+    end do
+  end do
+end do
+nPot2 = IOff1
+
+!write(6,*) 'OffPUVX new method',nPot2,MaxUVX
+!write(6,'(8(I5,2X))') (OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
+
+return
+
+end subroutine CalcPUVXOff

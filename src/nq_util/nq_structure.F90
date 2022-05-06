@@ -10,71 +10,78 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module NQ_Structure
-Implicit None
-Private
-Public :: NQ_data, Close_NQ_Data, Info_Ang, Close_Info_Ang, LMax_NQ
+
+module NQ_Structure
+
+implicit none
+private
+public :: NQ_data, Close_NQ_Data, Info_Ang, Close_Info_Ang, LMax_NQ
 
 #include "stdalloc.fh"
 
-!define declare_ip_dodx     ip_dOdx(iNQ,i)   =ipNQ+(iNQ-1)*l_NQ+15+(iTabMx+1)+(i-1)*9
+!define declare_ip_dodx     ip_dOdx(iNQ,i) = ipNQ+(iNQ-1)*l_NQ+15+(iTabMx+1)+(i-1)*9
 
-Type NQ_data_raw
-  Sequence
-  Real*8, Allocatable:: Coor(:)
-  Real*8 :: A_High=-1.0D99
-  Real*8 :: A_Low = 1.0D99
-  Real*8 :: R_RS  =0.0D0
-  Real*8 :: R_max =0.0D0
-  Integer :: l_max=-1
-  Real*8, Allocatable :: R_Quad(:,:)
-  Integer, Allocatable :: Angular(:)
-  Integer :: Atom_Nr=-1
-  Real*8, Allocatable :: dOdx(:,:,:)
-End Type NQ_data_raw
+type NQ_data_raw
+  sequence
+  real*8, allocatable :: Coor(:)
+  real*8 :: A_High = -1.0d99
+  real*8 :: A_Low = 1.0d99
+  real*8 :: R_RS = 0.0d0
+  real*8 :: R_max = 0.0d0
+  integer :: l_max = -1
+  real*8, allocatable :: R_Quad(:,:)
+  integer, allocatable :: Angular(:)
+  integer :: Atom_Nr = -1
+  real*8, allocatable :: dOdx(:,:,:)
+end type NQ_data_raw
 
-Type (NQ_data_raw), Allocatable:: NQ_data(:)
+type(NQ_data_raw), allocatable :: NQ_data(:)
 
-Type Info_A
-  Sequence
-  Integer :: L_eff=0
-  Integer :: nPoints=0
-  Real*8, Allocatable:: R(:,:)
-End Type Info_A
+type Info_A
+  sequence
+  integer :: L_eff = 0
+  integer :: nPoints = 0
+  real*8, allocatable :: R(:,:)
+end type Info_A
 
-Integer, Parameter:: LMax_NQ=62
-Type (Info_A) Info_Ang(LMax_NQ)
+integer, parameter :: LMax_NQ = 62
+type(Info_A) Info_Ang(LMax_NQ)
 
-Contains
+contains
 
-Subroutine Close_Info_Ang()
+subroutine Close_Info_Ang()
 
-Integer iAngular
-Do iAngular = 1, SIZE(Info_Ang)
-   Info_Ang(iAngular)%L_eff=0
-   Info_Ang(iAngular)%nPoints=0
-   If (Allocated(Info_Ang(iAngular)%R)) Call mma_deallocate(Info_Ang(iAngular)%R)
-End Do
-End Subroutine Close_Info_Ang
+  integer iAngular
 
-Subroutine Close_NQ_Data()
-Integer iNQ, nNQ
-! Cleanup and close
-  nNQ = SIZE(NQ_data)
-  Do iNQ = 1, nNQ
-     Call mma_deallocate(NQ_data(iNQ)%Coor)
-     NQ_data(iNQ)%A_High=-1.0D99
-     NQ_data(iNQ)%A_Low = 1.0D99
-     NQ_data(iNQ)%R_RS  =0.0D0
-     NQ_data(iNQ)%R_max =0.0D0
-     NQ_data(iNQ)%l_Max =-1
-     If (Allocated(NQ_data(iNQ)%R_Quad))Call mma_deallocate(NQ_data(iNQ)%R_Quad)
-     If (Allocated(NQ_data(iNQ)%Angular))Call mma_deallocate(NQ_data(iNQ)%Angular)
-     NQ_Data(iNQ)%Atom_Nr=-1
-     If (Allocated(NQ_data(iNQ)%dOdx))Call mma_deallocate(NQ_data(iNQ)%dOdx)
-   End Do
-   Deallocate(NQ_Data)
-End Subroutine Close_NQ_Data
+  do iAngular=1,size(Info_Ang)
+    Info_Ang(iAngular)%L_eff = 0
+    Info_Ang(iAngular)%nPoints = 0
+    if (allocated(Info_Ang(iAngular)%R)) call mma_deallocate(Info_Ang(iAngular)%R)
+  end do
 
-End Module NQ_Structure
+end subroutine Close_Info_Ang
+
+subroutine Close_NQ_Data()
+
+  integer iNQ, nNQ
+
+  ! Cleanup and close
+  nNQ = size(NQ_data)
+  do iNQ=1,nNQ
+    call mma_deallocate(NQ_data(iNQ)%Coor)
+    NQ_data(iNQ)%A_High = -1.0d99
+    NQ_data(iNQ)%A_Low = 1.0d99
+    NQ_data(iNQ)%R_RS = 0.0d0
+    NQ_data(iNQ)%R_max = 0.0d0
+    NQ_data(iNQ)%l_Max = -1
+    if (allocated(NQ_data(iNQ)%R_Quad)) call mma_deallocate(NQ_data(iNQ)%R_Quad)
+    if (allocated(NQ_data(iNQ)%Angular)) call mma_deallocate(NQ_data(iNQ)%Angular)
+    NQ_Data(iNQ)%Atom_Nr = -1
+    if (allocated(NQ_data(iNQ)%dOdx)) call mma_deallocate(NQ_data(iNQ)%dOdx)
+  end do
+  deallocate(NQ_Data)
+
+end subroutine Close_NQ_Data
+
+end module NQ_Structure
 

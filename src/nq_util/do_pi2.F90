@@ -8,9 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,nMOs,                &
-     &   P2_ontop,nP2_ontop,RhoI,RhoA,mRho,Do_Grad,                     &
-     &   P2MOCube,MOs,MOx,MOy,MOz)
+
+subroutine Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,mRho,Do_Grad,P2MOCube,MOs,MOx,MOy,MOz)
 !***********************************************************************
 !                                                                      *
 ! Object: Calculation P2 ontop density and its derivatives             *
@@ -28,47 +27,48 @@
 !   mGrid    = number of grid points                                   *
 !                                                                      *
 !***********************************************************************
-      use nq_Info
-      Implicit Real*8 (A-H,O-Z)
+
+use nq_Info
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 !#include "stdalloc.fh"
-      Real*8 D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),                         &
-     &       P2_ontop(nP2_ontop,mGrid)
-      Real*8 RhoI(mRho,mGrid)
-      Real*8 RhoA(mRho,mGrid)
-      Logical Do_Grad
+real*8 D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop(nP2_ontop,mGrid)
+real*8 RhoI(mRho,mGrid)
+real*8 RhoA(mRho,mGrid)
+logical Do_Grad
+integer IOff1, IOff2
+real*8, dimension(mGrid*NASHT) :: P2MOCube, MOs, MOx, MOy, MOz
+real*8 ddot_
+external DDot_
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-      INTEGER IOff1,IOff2
-      REAL*8,DIMENSION(mGrid*NASHT)::P2MOCube,MOs,MOx,MOy,MOz
-      Real*8 ddot_
-      External DDot_
-!***********************************************************************
-!                                                                      *
-      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 !                                                                      *
 !***********************************************************************
-      If (nP2_ontop.eq.4) Then
-         If (mAO.ne.4.or.mRho.ne.4) Then
-           Call WarningMessage(2,' Somthings wrong in dim. in p2cs')
-           Call Abend()
-       End If
-      Else If (nP2_ontop.eq.6) Then
-         If (mAO.ne.10.or.mRho.ne.6) Then
-           Call WarningMessage(2,' Somthings wrong in dim. in p2cs')
-           Call Abend()
-      End If
-      End If
-!
-      Call FZero(P2_ontop,mGrid*nP2_ontop)
-      jOffA_ = 0
-      jOffB_ = 0
-      Do iIrrep = 0, mIrrep-1
-         iOff_Ash(iIrrep)=jOffA_
-         iOff_Bas(iIrrep)=jOffB_
-         iOff_BasAct(iIrrep)=jOffB_ + nIsh(iIrrep) + nFro(iIrrep)
-         jOffA_=jOffA_+nAsh(iIrrep)
-         jOffB_=jOffB_+mBas(iIrrep)
-      End Do
+!                                                                      *
+if (nP2_ontop == 4) then
+  if ((mAO /= 4) .or. (mRho /= 4)) then
+    call WarningMessage(2,' Something is wrong in dim. in p2cs')
+    call Abend()
+  end if
+else if (nP2_ontop == 6) then
+  if ((mAO /= 10) .or. (mRho /= 6)) then
+    call WarningMessage(2,' Something is wrong in dim. in p2cs')
+    call Abend()
+  end if
+end if
+
+call FZero(P2_ontop,mGrid*nP2_ontop)
+jOffA_ = 0
+jOffB_ = 0
+do iIrrep=0,mIrrep-1
+  iOff_Ash(iIrrep) = jOffA_
+  iOff_Bas(iIrrep) = jOffB_
+  iOff_BasAct(iIrrep) = jOffB_+nIsh(iIrrep)+nFro(iIrrep)
+  jOffA_ = jOffA_+nAsh(iIrrep)
+  jOffB_ = jOffB_+mBas(iIrrep)
+end do
 !***********************************************************************
 !                                                                      *
 !   P(1,...) - P_2                                                     *
@@ -80,168 +80,137 @@
 !***********************************************************************
 
 !***********************************************************************
-!          Inactive part:                                              *
+! Inactive part:                                                       *
 !***********************************************************************
-      NumIsh = 0
-      NumAsh = 0
-      Do iIrrep=0, mIrrep-1
-         NumIsh = NumIsh + nISh(iIrrep)
-         NumAsh = NumAsh + nAsh(iIrrep)
-      End Do
-!
-      Do iGrid = 1, mGrid
-      Do iIrrep=0, mIrrep-1
-!      Write(6,*) " Symm:",iIrrep
-       Do i_=1,nISh(iIrrep) + nFro(iIrrep)
-        i = iOff_Bas(iIrrep) + i_
-!
-!         Write(6,*)  " do_p2: Inact-Inact:", iIrrep,i,
-!     &               TabMO(1,iGrid,i)
-!
-          RhoI(1,iGrid) = RhoI(1,iGrid) +                               &
-     &                    TabMO(1,iGrid,i)*TabMO(1,iGrid,i)
-!      write(6,'(A15,2I3,2G15.8)')'iGrid,i,MO,RhoI',
-!     &   iGrid,i,TabMO(1,iGrid,i), RhoI(1,iGrid)
-!        if (Functional_type.eq.GGA_type.or.Do_Grad) then
-        if (Functional_type.eq.GGA_type) then
-          RhoI(2,iGrid) = RhoI(2,iGrid) +                               &
-     &                    TabMO(1,iGrid,i)*TabMO(2,iGrid,i)
-          RhoI(3,iGrid) = RhoI(3,iGrid) +                               &
-     &                    TabMO(1,iGrid,i)*TabMO(3,iGrid,i)
-          RhoI(4,iGrid) = RhoI(4,iGrid) +                               &
-     &                    TabMO(1,iGrid,i)*TabMO(4,iGrid,i)
-        end if
-!
-       End Do         ! i_
-      End Do         ! iIrrep
-      End Do         ! iGrid
-!
-      If (NumIsh.ne.0) Then
-      Do iGrid = 1, mGrid
-         P2_ontop(1,iGrid) = RhoI(1,iGrid)*RhoI(1,iGrid)
-!         Write(6,'(A15,I3,1G28.20)')'iGrid,P2(1)=',
-!     *          iGrid,P2_ontop(1,iGrid)
-!
-!        if (Functional_type.eq.GGA_type.or.Do_Grad) then
-        if (Functional_type.eq.GGA_type) then
-            P2_ontop(2,iGrid) = 4.0d0*RhoI(1,iGrid)*RhoI(2,iGrid)
-!            Write(6,'(A,1f28.20)') 'P2(2)   =',P2_ontop(2,iGrid)
-            P2_ontop(3,iGrid) = 4.0d0*RhoI(1,iGrid)*RhoI(3,iGrid)
-!            Write(6,'(A,1f28.20)') 'P2(3)   =',P2_ontop(3,iGrid)
-            P2_ontop(4,iGrid) = 4.0d0*RhoI(1,iGrid)*RhoI(4,iGrid)
-!            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
-         end if
-        if (Functional_type.eq.LDA_type.and.Do_Grad) then
-!Here I must
-!1. transform the 2-body density matrix to AO
+NumIsh = 0
+NumAsh = 0
+do iIrrep=0,mIrrep-1
+  NumIsh = NumIsh+nISh(iIrrep)
+  NumAsh = NumAsh+nAsh(iIrrep)
+end do
 
-!2. Loop over effective gradients
-!3. Calculate P2_ontop_d(eff_Grad,iGrid)
+do iGrid=1,mGrid
+  do iIrrep=0,mIrrep-1
+    !write(6,*) ' Symm:',iIrrep
+    do i_=1,nISh(iIrrep)+nFro(iIrrep)
+      i = iOff_Bas(iIrrep)+i_
 
+      !write(6,*) ' do_p2: Inact-Inact:',iIrrep,i,TabMO(1,iGrid,i)
 
-        end if
-      End Do
-      End If
+      RhoI(1,iGrid) = RhoI(1,iGrid)+TabMO(1,iGrid,i)*TabMO(1,iGrid,i)
+      !write(6,'(A15,2I3,2G15.8)') 'iGrid,i,MO,RhoI',iGrid,i,TabMO(1,iGrid,i),RhoI(1,iGrid)
+      !if ((Functional_type == GGA_type) .or. Do_Grad) then
+      if (Functional_type == GGA_type) then
+        RhoI(2,iGrid) = RhoI(2,iGrid)+TabMO(1,iGrid,i)*TabMO(2,iGrid,i)
+        RhoI(3,iGrid) = RhoI(3,iGrid)+TabMO(1,iGrid,i)*TabMO(3,iGrid,i)
+        RhoI(4,iGrid) = RhoI(4,iGrid)+TabMO(1,iGrid,i)*TabMO(4,iGrid,i)
+      end if
 
+    end do ! i_
+  end do   ! iIrrep
+end do     ! iGrid
+
+if (NumIsh /= 0) then
+  do iGrid=1,mGrid
+    P2_ontop(1,iGrid) = RhoI(1,iGrid)*RhoI(1,iGrid)
+    !write(6,'(A15,I3,1G28.20)') 'iGrid,P2(1)=',iGrid,P2_ontop(1,iGrid)
+
+    !if ((Functional_type == GGA_type) .or. Do_Grad) then
+    if (Functional_type == GGA_type) then
+      P2_ontop(2,iGrid) = 4.0d0*RhoI(1,iGrid)*RhoI(2,iGrid)
+      !write(6,'(A,1f28.20)') 'P2(2)   =',P2_ontop(2,iGrid)
+      P2_ontop(3,iGrid) = 4.0d0*RhoI(1,iGrid)*RhoI(3,iGrid)
+      !write(6,'(A,1f28.20)') 'P2(3)   =',P2_ontop(3,iGrid)
+      P2_ontop(4,iGrid) = 4.0d0*RhoI(1,iGrid)*RhoI(4,iGrid)
+      !write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
+    end if
+    !if ((Functional_type == LDA_type) .and. Do_Grad) then
+    !  !Here I must
+    !  !1. transform the 2-body density matrix to AO
+    !
+    !  !2. Loop over effective gradients
+    !  !3. Calculate P2_ontop_d(eff_Grad,iGrid)
+    !
+    !end if
+  end do
+end if
 
 !***********************************************************************
-!          Active-Inactive part:                                       *
+! Active-Inactive part:                                                *
 !***********************************************************************
-      If (NumIsh.ne.0.and.NumAsh.ne.0) Then
-       Do kIrrep = 0, mIrrep-1
-         Do k_ = 1, nASh(kIrrep)
-            k= k_ + iOff_BasAct(kIrrep)
-            Do lIrrep = 0, mIrrep-1
-               Do l_ = 1, nAsh(lIrrep)
-                  l= l_ + iOff_BasAct(lIrrep)
-                  kl=iTri(k_ + iOff_Ash(kIrrep) ,                       &
-     &                    l_ + iOff_Ash(lIrrep) )
-                  Do iGrid = 1, mGrid
-                     RhoA(1,iGrid) = RhoA(1,iGrid) +                    &
-     &                   D1mo(kl)*TabMO(1,iGrid,k)*TabMO(1,iGrid,l)
-!       Write(6,'(A35,3I3,3G15.8)') 'iGrid,k,l,D1mo(kl),Tab(k),Tab(l)=',
-!     &    iGrid,k,l,D1mo(kl),TabMO(1,iGrid,k),TabMO(1,iGrid,l)
-!                     if (Functional_type.eq.GGA_type.or.Do_Grad) Then
-                     if (Functional_type.eq.GGA_type) Then
-                     RhoA(2,iGrid) = RhoA(2,iGrid) +                    &
-     &                   D1mo(kl)*TabMO(1,iGrid,k)*TabMO(2,iGrid,l)
-                     RhoA(3,iGrid) = RhoA(3,iGrid) +                    &
-     &                   D1mo(kl)*TabMO(1,iGrid,k)*TabMO(3,iGrid,l)
-!        write(6,*) 'RhoA(4,iGrid) bf =', RhoA(4,iGrid)
-                     RhoA(4,iGrid) = RhoA(4,iGrid) +                    &
-     &                   D1mo(kl)*TabMO(1,iGrid,k)*TabMO(4,iGrid,l)
-!       Write(6,*) 'D1mo(kl),Tab(1,k),Tab(1,l)=',
-!     &    D1mo(kl)*TabMO(1,iGrid,k)*TabMO(4,iGrid,l)
-                     end if
-                  End Do     ! iGrid
-               End Do      ! l_
-            End Do       ! lIrrep
-         End Do        ! k_
-       End Do        ! kIrrep
-!
-       Do iGrid = 1, mGrid
-               P2_ontop(1,iGrid) = P2_ontop(1,iGrid) +                  &
-     &                           RhoI(1,iGrid)*RhoA(1,iGrid)
-        if (Functional_type.eq.GGA_type) Then
-               P2_ontop(2,iGrid) = P2_ontop(2,iGrid) +                  &
-     &                     2.0d0*RhoI(2,iGrid)*RhoA(1,iGrid) +          &
-     &                     2.0d0*RhoI(1,iGrid)*RhoA(2,iGrid)
-!            Write(6,'(A,1f28.20)') 'P2(2)   =',P2_ontop(2,iGrid)
-               P2_ontop(3,iGrid) = P2_ontop(3,iGrid) +                  &
-     &                     2.0d0*RhoI(3,iGrid)*RhoA(1,iGrid) +          &
-     &                     2.0d0*RhoI(1,iGrid)*RhoA(3,iGrid)
-!            Write(6,'(A,1f28.20)') 'P2(3)   =',P2_ontop(3,iGrid)
-               P2_ontop(4,iGrid) = P2_ontop(4,iGrid) +                  &
-     &                     2.0d0*RhoI(4,iGrid)*RhoA(1,iGrid) +          &
-     &                     2.0d0*RhoI(1,iGrid)*RhoA(4,iGrid)
-!            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
-        end if
-       End Do ! loop over grid points
-      End If ! if Inactive
+if ((NumIsh /= 0) .and. (NumAsh /= 0)) then
+  do kIrrep=0,mIrrep-1
+    do k_=1,nASh(kIrrep)
+      k = k_+iOff_BasAct(kIrrep)
+      do lIrrep=0,mIrrep-1
+        do l_=1,nAsh(lIrrep)
+          l = l_+iOff_BasAct(lIrrep)
+          kl = iTri(k_+iOff_Ash(kIrrep),l_+iOff_Ash(lIrrep))
+          do iGrid=1,mGrid
+            RhoA(1,iGrid) = RhoA(1,iGrid)+D1mo(kl)*TabMO(1,iGrid,k)*TabMO(1,iGrid,l)
+            !write(6,'(A35,3I3,3G15.8)') 'iGrid,k,l,D1mo(kl),Tab(k),Tab(l)=',iGrid,k,l,D1mo(kl),TabMO(1,iGrid,k),TabMO(1,iGrid,l)
+            !if ((Functional_type == GGA_type) .or. Do_Grad) then
+            if (Functional_type == GGA_type) then
+              RhoA(2,iGrid) = RhoA(2,iGrid)+D1mo(kl)*TabMO(1,iGrid,k)*TabMO(2,iGrid,l)
+              RhoA(3,iGrid) = RhoA(3,iGrid)+D1mo(kl)*TabMO(1,iGrid,k)*TabMO(3,iGrid,l)
+              !write(6,*) 'RhoA(4,iGrid) bf =',RhoA(4,iGrid)
+              RhoA(4,iGrid) = RhoA(4,iGrid)+D1mo(kl)*TabMO(1,iGrid,k)*TabMO(4,iGrid,l)
+              !write(6,*) 'D1mo(kl),Tab(1,k),Tab(1,l)=',D1mo(kl)*TabMO(1,iGrid,k)*TabMO(4,iGrid,l)
+            end if
+          end do ! iGrid
+        end do   ! l_
+      end do     ! lIrrep
+    end do       ! k_
+  end do         ! kIrrep
+
+  do iGrid=1,mGrid
+    P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+RhoI(1,iGrid)*RhoA(1,iGrid)
+    if (Functional_type == GGA_type) then
+      P2_ontop(2,iGrid) = P2_ontop(2,iGrid)+2.0d0*RhoI(2,iGrid)*RhoA(1,iGrid)+2.0d0*RhoI(1,iGrid)*RhoA(2,iGrid)
+      !write(6,'(A,1f28.20)') 'P2(2)   =',P2_ontop(2,iGrid)
+      P2_ontop(3,iGrid) = P2_ontop(3,iGrid)+2.0d0*RhoI(3,iGrid)*RhoA(1,iGrid)+2.0d0*RhoI(1,iGrid)*RhoA(3,iGrid)
+      !write(6,'(A,1f28.20)') 'P2(3)   =',P2_ontop(3,iGrid)
+      P2_ontop(4,iGrid) = P2_ontop(4,iGrid)+2.0d0*RhoI(4,iGrid)*RhoA(1,iGrid)+2.0d0*RhoI(1,iGrid)*RhoA(4,iGrid)
+      !write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
+    end if
+  end do ! loop over grid points
+end if   ! if Inactive
 !***********************************************************************
-!
-!          Active-Active part:
-!
+! Active-Active part:                                                  *
 !***********************************************************************
 
+if (NumAsh == 0) return
 
-      IF (NumAsh.eq.0) RETURN
-
-!      write(6,*) 'P2MOCube in do_pi2'
-!      CALL RecPrt(' ',' ',P2MOCube,NASHT,mGrid)
+!call RecPrt('P2MOCube in do_pi2',' ',P2MOCube,NASHT,mGrid)
 !
-!      write(6,*) 'MOs array in do_pi2'
-!      CALL RecPrt(' ',' ',MOs,NASHT,mGrid)
+!call RecPrt('MOs array in do_pi2',' ',MOs,NASHT,mGrid)
 
-      DO iGrid=1,mGrid
-       IOff1=(iGrid-1)*NASHT
-       Do kIrrep=0,mIrrep-1
-        IOff2=IOff1+iOff_Ash(kIrrep)+1
-        P2_ontop(1,iGrid)=P2_ontop(1,iGrid)+                            &
-     &  ddot_(nAsh(kIrrep),MOs(IOff2),1,P2MOCube(IOff2),1)
-       End Do
-      END DO
+do iGrid=1,mGrid
+  IOff1 = (iGrid-1)*NASHT
+  do kIrrep=0,mIrrep-1
+    IOff2 = IOff1+iOff_Ash(kIrrep)+1
+    P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+ddot_(nAsh(kIrrep),MOs(IOff2),1,P2MOCube(IOff2),1)
+  end do
+end do
 
-      IF(Functional_type.eq.GGA_type) THEN
-       DO iGrid=1,mGrid
-        IOff1=(iGrid-1)*NASHT
-        Do kIrrep=0,mIrrep-1
-         IOff2=IOff1+iOff_Ash(kIrrep)+1
-         P2_ontop(2,iGrid)=P2_ontop(2,iGrid)+                           &
-     &4.0d0*ddot_(nAsh(kIrrep),MOx(IOff2),1,P2MOCube(IOff2),1)
-         P2_ontop(3,iGrid)=P2_ontop(3,iGrid)+                           &
-     &4.0d0*ddot_(nAsh(kIrrep),MOy(IOff2),1,P2MOCube(IOff2),1)
-         P2_ontop(4,iGrid)=P2_ontop(4,iGrid)+                           &
-     &4.0d0*ddot_(nAsh(kIrrep),MOz(IOff2),1,P2MOCube(IOff2),1)
-        End Do
-       END DO
-      END IF
+if (Functional_type == GGA_type) then
+  do iGrid=1,mGrid
+    IOff1 = (iGrid-1)*NASHT
+    do kIrrep=0,mIrrep-1
+      IOff2 = IOff1+iOff_Ash(kIrrep)+1
+      P2_ontop(2,iGrid) = P2_ontop(2,iGrid)+4.0d0*ddot_(nAsh(kIrrep),MOx(IOff2),1,P2MOCube(IOff2),1)
+      P2_ontop(3,iGrid) = P2_ontop(3,iGrid)+4.0d0*ddot_(nAsh(kIrrep),MOy(IOff2),1,P2MOCube(IOff2),1)
+      P2_ontop(4,iGrid) = P2_ontop(4,iGrid)+4.0d0*ddot_(nAsh(kIrrep),MOz(IOff2),1,P2MOCube(IOff2),1)
+    end do
+  end do
+end if
 
-!      write(6,*) 'On-top density new code'
-!C      write(6,'(10(F9.6,1X))')(P2_Ontop(1,iGrid),iGrid=1,mGrid)
-!      write(6,*)(P2_Ontop(1,iGrid),iGrid=1,mGrid)
-      RETURN
-      END
+!write(6,*) 'On-top density new code'
+!write(6,'(10(F9.6,1X))') (P2_Ontop(1,iGrid),iGrid=1,mGrid)
+!write(6,*) (P2_Ontop(1,iGrid),iGrid=1,mGrid)
 
+return
+! Avoid unused argument warnings
+if (.false.) call Unused_logical(Do_Grad)
 
-
+end subroutine Do_PI2

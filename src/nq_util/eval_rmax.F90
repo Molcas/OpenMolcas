@@ -8,48 +8,52 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Function Eval_RMax(alpha,m,R_L)
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-      Real*8 Eval_RMax
-!     Write (6,*) 'alpha,m,R_L=',
-!    &            alpha,m,R_L
-!
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---- Compute r_k_H as a function of m and R_L
-!
-!     Eq(19) R. Lindh, P.-A. Malmqvist, L. Gagliardi,
-!     TCA, 106:178-187 (2001)
 
-      If (MOD(m+3,2).eq.0) Then
-         Gamma=One
-         Do i = 2, (m+3)/2, 1
-            Gamma = Gamma * DBLE(i-1)
-         End Do
-      Else
-         Gamma=Sqrt(Pi)
-         Do i = 5, m+3, 2
-            Gamma = Gamma * DBLE(i-1)/Two
-         End Do
-      End If
-!
-!     x = Alpha * (r_k_H)**2
-!
-      x = 10.0D0 ! Start value
- 123  Continue
-      x_new = LOG((Gamma/R_L)*x**(Half*(DBLE(m)+One)))
-!     Write (6,*) 'x,x_new=',x,x_new
-      If (ABS(x-x_new).gt.1.0D-8) Then
-         x=x_new
-         Go To 123
-      End If
-!
-      Eval_RMax=Sqrt(x/alpha)
-!     Write (*,*) 'Eval_RMax=',Eval_RMax
+function Eval_RMax(alpha,m,R_L)
+
+implicit real*8(a-h,o-z)
+#include "real.fh"
+real*8 Eval_RMax
+
+!write(6,*) 'alpha,m,R_L=',alpha,m,R_L
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+! Compute r_k_H as a function of m and R_L
+!
+! Eq(19) R. Lindh, P.-A. Malmqvist, L. Gagliardi,
+! TCA, 106:178-187 (2001)
+
+if (mod(m+3,2) == 0) then
+  Gamma = One
+  do i=2,(m+3)/2,1
+    Gamma = Gamma*dble(i-1)
+  end do
+else
+  Gamma = sqrt(Pi)
+  do i=5,m+3,2
+    Gamma = Gamma*dble(i-1)/Two
+  end do
+end if
+
+!x = Alpha*(r_k_H)**2
+
+x = 10.0d0 ! Start value
+123 continue
+x_new = log((Gamma/R_L)*x**(Half*(dble(m)+One)))
+!write(6,*) 'x,x_new=',x,x_new
+if (abs(x-x_new) > 1.0D-8) then
+  x = x_new
+  Go To 123
+end if
+
+Eval_RMax = sqrt(x/alpha)
+!write(6,*) 'Eval_RMax=',Eval_RMax
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+
+return
+
+end function Eval_RMax

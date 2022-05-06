@@ -10,36 +10,37 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
+
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 22, 2021, created this file.               *
 ! ****************************************************************
-      Subroutine PDFTFock_Inner(Fock,Kern,MO1,MO2,mGrid)
-      use nq_Info
-!*****Input
-      INTEGER mGrid
-      Real*8,DIMENSION(mGrid*nOrbt)::MO1,MO2
-      Real*8,DIMENSION(mGrid)::Kern
-!*****Output
-      Real*8,DIMENSION(nPot1)::Fock
-!*****Intermediate
-      Real*8,DIMENSION(mGrid*nOrbt)::KernMO
-      INTEGER iGrid,iIrrep,iOff1,iOff2
+subroutine PDFTFock_Inner(Fock,Kern,MO1,MO2,mGrid)
 
-      CALL dcopy_(mGrid*nOrbt,MO1,1,KernMO,1)
+use nq_Info
 
-      DO iGrid=1,mGrid
-       CALL DScal_(nOrbt,Kern(iGrid),KernMO(iGrid),mGrid)
-      END DO
+! Input
+integer mGrid
+real*8, dimension(mGrid*nOrbt) :: MO1, MO2
+real*8, dimension(mGrid) :: Kern
+! Output
+real*8, dimension(nPot1) :: Fock
+! Intermediate
+real*8, dimension(mGrid*nOrbt) :: KernMO
+integer iGrid, iIrrep, iOff1, iOff2
 
-      DO iIrrep=0,mIrrep-1
-       IOff1=OffOrb(iIrrep)*mGrid+1
-       IOff2=OffOrb2(iIrrep)+1
-       CALL DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,1.0d0,       &
-     & KernMO(IOff1),mGrid,MO2(IOff1),mGrid,                            &
-     & 1.0d0,Fock(iOff2),mOrb(iIrrep))
-      END DO
+call dcopy_(mGrid*nOrbt,MO1,1,KernMO,1)
 
+do iGrid=1,mGrid
+  call DScal_(nOrbt,Kern(iGrid),KernMO(iGrid),mGrid)
+end do
 
-      RETURN
-      End Subroutine
+do iIrrep=0,mIrrep-1
+  IOff1 = OffOrb(iIrrep)*mGrid+1
+  IOff2 = OffOrb2(iIrrep)+1
+  call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,1.0d0,KernMO(IOff1),mGrid,MO2(IOff1),mGrid,1.0d0,Fock(iOff2),mOrb(iIrrep))
+end do
+
+return
+
+end subroutine PDFTFock_Inner

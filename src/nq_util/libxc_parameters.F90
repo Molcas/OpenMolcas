@@ -11,117 +11,128 @@
 ! Copyright (C) 2000,2022, Roland Lindh                                *
 !               2022, Susi Lehtola                                     *
 !***********************************************************************
-Module libxc_parameters
+
+module libxc_parameters
+
 use xc_f03_lib_m
 use Definitions, only: LibxcInt
-Implicit None
-Private
 
-Public :: nFuncs_max, nFuncs, Coeffs, func_id, xc_func, xc_info, Initiate_Libxc_functionals, Remove_Libxc_functionals, &
+implicit none
+private
+
+public :: nFuncs_max, nFuncs, Coeffs, func_id, xc_func, xc_info, Initiate_Libxc_functionals, Remove_Libxc_functionals, &
           libxc_functionals
 
-Integer, parameter :: nFuncs_max=4
-Integer :: i
-Integer :: nFuncs=0
-Real*8 :: Coeffs(nFuncs_Max)=[(0.0D0,i=1,nFuncs_Max)]
-Integer(kind=LibxcInt) :: func_id(nFuncs_Max)=[(0_LibxcInt,i=1,nFuncs_Max)]
+integer, parameter :: nFuncs_max = 4
+integer :: i
+integer :: nFuncs = 0
+real*8 :: Coeffs(nFuncs_Max) = [(0.0d0,i=1,nFuncs_Max)]
+integer(kind=LibxcInt) :: func_id(nFuncs_Max) = [(0_LibxcInt,i=1,nFuncs_Max)]
+type(xc_f03_func_t) :: xc_func(nFuncs_Max) ! xc functional
+type(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
 
-TYPE(xc_f03_func_t)      :: xc_func(nFuncs_Max) ! xc functional
-TYPE(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
-
-!
+!                                                                      *
 !***********************************************************************
-!
-Contains
-!
+!                                                                      *
+contains
+!                                                                      *
 !***********************************************************************
-!
-Subroutine Initiate_Libxc_functionals(nD)
-use nq_Grid, only: l_casdft
-use KSDFT_Info, only: CoefR, CoefX
-Implicit None
-Integer nD, iFunc
-Real*8 :: Coeff
+!                                                                      *
+subroutine Initiate_Libxc_functionals(nD)
 
-! if it is a mixed functional and we do MC-PDFT split it up in the components for
-! further analysis.
-If (nFuncs==1 .and. l_casdft) Then
-   call xc_f03_func_init(xc_func(1), func_id(1), int(nD, kind=LibxcInt))
-   nFuncs = Max(1,INT(xc_f03_num_aux_funcs(xc_func(1))))
+  use nq_Grid, only: l_casdft
+  use KSDFT_Info, only: CoefR, CoefX
 
-   If (nFuncs/=1) Then
-      call xc_f03_aux_func_ids(xc_func(1), func_id)
-      call xc_f03_aux_func_weights(xc_func(1), Coeffs)
-   End If
-   call xc_f03_func_end(xc_func(1))
+  implicit none
+  integer nD, iFunc
+  real*8 :: Coeff
 
-End If
-Do iFunc = 1, nFuncs
-   ! Initialize libxc functional: nD = 2 means spin-polarized
-   call xc_f03_func_init(xc_func(iFunc), func_id(iFunc), int(nD, kind=LibxcInt))
-   ! Get the functional's information
-   xc_info(iFunc) = xc_f03_func_get_info(xc_func(iFunc))
+  ! if it is a mixed functional and we do MC-PDFT split it up in the components for
+  ! further analysis.
+  if ((nFuncs == 1) .and. l_casdft) then
+    call xc_f03_func_init(xc_func(1),func_id(1),int(nD,kind=LibxcInt))
+    nFuncs = max(1,int(xc_f03_num_aux_funcs(xc_func(1))))
 
-! Reset coefficients according to input
+    if (nFuncs /= 1) then
+      call xc_f03_aux_func_ids(xc_func(1),func_id)
+      call xc_f03_aux_func_weights(xc_func(1),Coeffs)
+    end if
+    call xc_f03_func_end(xc_func(1))
 
-   Coeff = Coeffs(iFunc)
-   Select case(xc_f03_func_info_get_kind(xc_info(iFunc)))
-     case (XC_EXCHANGE)
-        Coeff = Coeff * CoefX
-     case (XC_CORRELATION)
-        Coeff = Coeff * CoefR
-   End Select
-   Coeffs(iFunc) = Coeff
+  end if
+  do iFunc=1,nFuncs
+    ! Initialize libxc functional: nD = 2 means spin-polarized
+    call xc_f03_func_init(xc_func(iFunc),func_id(iFunc),int(nD,kind=LibxcInt))
+    ! Get the functional's information
+    xc_info(iFunc) = xc_f03_func_get_info(xc_func(iFunc))
 
-End Do
+    ! Reset coefficients according to input
 
-End Subroutine Initiate_Libxc_functionals
-!
+    Coeff = Coeffs(iFunc)
+    select case (xc_f03_func_info_get_kind(xc_info(iFunc)))
+      case (XC_EXCHANGE)
+        Coeff = Coeff*CoefX
+      case (XC_CORRELATION)
+        Coeff = Coeff*CoefR
+    end select
+    Coeffs(iFunc) = Coeff
+
+  end do
+
+end subroutine Initiate_Libxc_functionals
+!                                                                      *
 !***********************************************************************
-!
-Subroutine Remove_Libxc_functionals()
-Implicit None
-Integer iFunc
-Do iFunc = 1, nFuncs
-   call xc_f03_func_end(xc_func(iFunc))
-End Do
-Coeffs(:)=0.0D0
-func_id(:)=0
-End Subroutine Remove_Libxc_functionals
-!
-!***********************************************************************
-!
-Subroutine libxc_functionals(mGrid,nD)
-use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
-use nq_Grid, only: vRho, vSigma, vTau, vLapl
-Implicit None
-Integer mGrid,nD, iFunc
-Real*8 Coeff
-Real*8, Parameter :: Zero=0.0D0
-!
-!***********************************************************************
-!
-vRho(:,1:mGrid)=Zero
-If (Allocated(vSigma)) vSigma(:,1:mGrid)=Zero
-If (Allocated(vTau)) vTau(:,1:mGrid)=Zero
-If (Allocated(vLapl)) vLapl(:,1:mGrid)=Zero
-F_xc(1:mGrid)=Zero
-If (l_casdft) Then
-   F_xca(1:mGrid)=Zero
-   F_xcb(1:mGrid)=Zero
-End If
-!
-!***********************************************************************
-!
+!                                                                      *
+subroutine Remove_Libxc_functionals()
 
-Do iFunc = 1, nFuncs
-   Coeff = Coeffs(iFunc)
-   call libxc_interface(xc_func(iFunc),xc_info(iFunc),mGrid,nD,F_xc,Coeff)
-End Do
+  implicit none
+  integer iFunc
 
-Return
-End Subroutine libxc_functionals
-!
+  do iFunc=1,nFuncs
+    call xc_f03_func_end(xc_func(iFunc))
+  end do
+  Coeffs(:) = 0.0d0
+  func_id(:) = 0
+
+end subroutine Remove_Libxc_functionals
+!                                                                      *
 !***********************************************************************
-!
-End Module libxc_parameters
+!                                                                      *
+subroutine libxc_functionals(mGrid,nD)
+
+  use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
+  use nq_Grid, only: vRho, vSigma, vTau, vLapl
+
+  implicit none
+  integer mGrid, nD, iFunc
+  real*8 Coeff
+  real*8, parameter :: Zero = 0.0d0
+
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  vRho(:,1:mGrid) = Zero
+  if (allocated(vSigma)) vSigma(:,1:mGrid) = Zero
+  if (allocated(vTau)) vTau(:,1:mGrid) = Zero
+  if (allocated(vLapl)) vLapl(:,1:mGrid) = Zero
+  F_xc(1:mGrid) = Zero
+  if (l_casdft) then
+    F_xca(1:mGrid) = Zero
+    F_xcb(1:mGrid) = Zero
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+
+  do iFunc=1,nFuncs
+    Coeff = Coeffs(iFunc)
+    call libxc_interface(xc_func(iFunc),xc_info(iFunc),mGrid,nD,F_xc,Coeff)
+  end do
+
+  return
+
+end subroutine libxc_functionals
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+end module libxc_parameters

@@ -8,22 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Phi_point(iPhi,nPhi,Cos_Phi,Sin_Phi,w_Phi)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Phi_point(iPhi,nPhi,Cos_Phi,Sin_Phi,w_Phi)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-!
-      q = Pi*(Two*DBLE(iPhi)-1.0d0)/DBLE(nPhi)
-      If (Abs(Cos(q)).gt.1.0D-14) Then
-         Cos_Phi=Cos(q)
-      Else
-         Cos_Phi=Zero
-      End If
-      If (Abs(Sin(q)).gt.1.0D-14) Then
-         Sin_Phi=Sin(q)
-      Else
-         Sin_Phi=Zero
-      End If
-      w_Phi=Two*Pi/DBLE(nPhi)
-!
-      Return
-      End
+
+q = Pi*(Two*dble(iPhi)-1.0d0)/dble(nPhi)
+if (abs(cos(q)) > 1.0D-14) then
+  Cos_Phi = cos(q)
+else
+  Cos_Phi = Zero
+end if
+if (abs(sin(q)) > 1.0D-14) then
+  Sin_Phi = sin(q)
+else
+  Sin_Phi = Zero
+end if
+w_Phi = Two*Pi/dble(nPhi)
+
+return
+
+end subroutine Phi_point

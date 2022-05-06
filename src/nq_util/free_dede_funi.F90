@@ -8,13 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Free_DeDe_Funi()
-      use k2_arrays
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Free_DeDe_Funi()
+
+use k2_arrays
+
+implicit real*8(A-H,O-Z)
 #include "stdalloc.fh"
-!
-      Call mma_deallocate(ipOffD)
-      Call mma_deallocate(DeDe)
-!
-      Return
-      End
+
+call mma_deallocate(ipOffD)
+call mma_deallocate(DeDe)
+
+return
+
+end subroutine Free_DeDe_Funi

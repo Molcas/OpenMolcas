@@ -10,33 +10,35 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
+
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 08, 2021, created this file.               *
 ! ****************************************************************
-      Subroutine TransActMO2(MOs,MOas,mGrid)
-      use nq_Info
-!*****Purpose:
-!*****obtaining an active MO array with a structure of MOs in
-!*****TransActMO from an MO array with a structure of that in
-!*****TransferMO
-!*****Input
-      INTEGER mGrid
-      Real*8,DIMENSION(mGrid*nOrbt)::MOas
-!*****Output
-      Real*8,DIMENSION(mGrid*NASHT)::MOs
-!*****Auxiliary
-      INTEGER iIrrep,IOff1,iOff2,iOff3
+subroutine TransActMO2(MOs,MOas,mGrid)
+! Purpose:
+! obtaining an active MO array with a structure of MOs in TransActMO
+! from an MO array with a structure of that in TransferMO
 
-      DO iGrid=1,mGrid
-       IOff3=(iGrid-1)*nAsht
-       Do iIrrep=0,mIrrep-1
-        IOff2=IOff3+iOff_Ash(iIrrep)+1
-        IOff1=(OffOrb(iIrrep)+nIsh(iIrrep))*mGrid+iGrid
-        CALL DCopy_(nAsh(iIrrep),MOas(iOff1),mGrid,                     &
-     &                           MOs(IOff2) ,1    )
-       End Do
-      END DO
+use nq_Info
 
-      RETURN
-      End Subroutine
+! Input
+integer mGrid
+real*8, dimension(mGrid*nOrbt) :: MOas
+! Output
+real*8, dimension(mGrid*NASHT) :: MOs
+! Auxiliary
+integer iIrrep, IOff1, iOff2, iOff3
+
+do iGrid=1,mGrid
+  IOff3 = (iGrid-1)*nAsht
+  do iIrrep=0,mIrrep-1
+    IOff2 = IOff3+iOff_Ash(iIrrep)+1
+    IOff1 = (OffOrb(iIrrep)+nIsh(iIrrep))*mGrid+iGrid
+    call DCopy_(nAsh(iIrrep),MOas(iOff1),mGrid,MOs(IOff2),1)
+  end do
+end do
+
+return
+
+end subroutine TransActMO2

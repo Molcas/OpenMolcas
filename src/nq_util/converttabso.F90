@@ -10,43 +10,44 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
+
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 08, 2021, created this file.               *
 ! ****************************************************************
-      Subroutine ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
-      use nq_pdft, only: lft, lGGA
+subroutine ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
-      INTEGER mAO,mGrid,nMOs,iGrid,nAOGrid
-      Real*8 :: TabSO(mAO,mGrid,nMOs)
-      Real*8 :: TabSO2(nMOs,mAO*mGrid)
+use nq_pdft, only: lft, lGGA
 
-      INTEGER :: iSt, iEnd, iAO, jAO, iOff
+integer mAO, mGrid, nMOs, iGrid, nAOGrid
+real*8 :: TabSO(mAO,mGrid,nMOs)
+real*8 :: TabSO2(nMOs,mAO*mGrid)
+integer :: iSt, iEnd, iAO, jAO, iOff
 
-      nAOGrid=mAO*mGrid   ! TabSO : mAO*mGrid x nMOs
-                          ! TabSO2: nMOs x mAO*nGrid
+nAOGrid = mAO*mGrid
+! TabSO : mAO*mGrid x nMOs
+! TabSO2: nMOs x mAO*nGrid
 
-      ! loop over first and optionally second derivatives of the SOs
-      ! this defines the length of nAO to 3 or 9.
-      iSt = 1
-      If (lft.and.lGGA) Then
-         iEnd = 9
-      Else
-         iEnd = 3
-      End If
+! loop over first and optionally second derivatives of the SOs
+! this defines the length of nAO to 3 or 9.
+iSt = 1
+if (lft .and. lGGA) then
+  iEnd = 9
+else
+  iEnd = 3
+end if
 
-      Do iGrid=1,mGrid
+do iGrid=1,mGrid
 
+  do jAO=iSt,iEnd
 
-         Do jAO=iSt, iEnd
+    iOff = (iGrid-1)*mAO+jAO
 
-            iOff = (iGrid-1)*mAO + jAO
+    iAO = jAO+1
+    call DCopy_(nMOs,TabSO(iAO,iGrid,1),nAOGrid,TabSO2(:,iOff),1)
+  end do
+end do
 
-            iAO=jAO+1
-            CALL DCopy_(nMOs,TabSO(iAO,iGrid,1),nAOGrid,                &
-     &                       TabSO2(:,iOff),1)
-         End Do
-      End Do
+return
 
-      RETURN
-      End Subroutine ConvertTabSO
+end subroutine ConvertTabSO

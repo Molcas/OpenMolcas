@@ -11,7 +11,8 @@
 ! Copyright (C) 2000,2022, Roland Lindh                                *
 !               Ajitha Devarajan                                       *
 !***********************************************************************
-      Subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc)
+
+subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute contributions to                                  *
@@ -26,37 +27,40 @@
 !             of Lund, SWEDEN. November 2000                           *
 !             D.Ajitha:Modifying for the new Kernel outputs            *
 !***********************************************************************
-      use iSD_data
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+
+use iSD_data
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "stdalloc.fh"
-      Real*8 Fact(ndc**2), FckInt(nFckInt,nD)
-      Integer list_s(2,nlist_s)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---- Evaluate the desired AO integrand here from the AOs, accumulate
-!     contributions to the SO integrals on the fly.
-!
+real*8 Fact(ndc**2), FckInt(nFckInt,nD)
+integer list_s(2,nlist_s)
 
-      Call Do_NInt_d()
-      Call Do_NIntX()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Distribute result on to the full integral matrix.
-!
-      If (nIrrep.eq.1) Then
-         Call AOAdd_Full(FckInt,nFckInt,nD)
-      Else
-         Call SymAdp_Full(FckInt,nFckInt,list_s,nlist_s,Fact,ndc,nD)
-      End If
+! Evaluate the desired AO integrand here from the AOs, accumulate
+! contributions to the SO integrals on the fly.
+
+call Do_NInt_d()
+call Do_NIntX()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      End
+! Distribute result on to the full integral matrix.
+
+if (nIrrep == 1) then
+  call AOAdd_Full(FckInt,nFckInt,nD)
+else
+  call SymAdp_Full(FckInt,nFckInt,list_s,nlist_s,Fact,ndc,nD)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+
+end subroutine DFT_Int

@@ -8,12 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine NQ_Init()
-      use Grid_On_Disk
-!
-!---- Inititalize to no specified grid set.
-!
-      iGrid_Set=Not_Specified
-!
-      Return
-      End
+
+subroutine NQ_Init()
+
+use Grid_On_Disk
+
+! Initialize to no specified grid set.
+
+iGrid_Set = Not_Specified
+
+return
+
+end subroutine NQ_Init

@@ -8,19 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Do_Index(Index,NrBas,NrBas_Eff,iCmp)
-      Implicit Real*8 (a-h,o-z)
-      Integer Index(NrBas_Eff*iCmp)
-!
-      iAdd=NrBas-NrBas_Eff
-      Do iB_Eff = 1, NrBas_Eff
-         iB = iB_Eff + iAdd
-         Do iC = 1, iCmp
-            iCB = (iC-1)*NrBas + iB
-            iCB_Eff = (iC-1)*NrBas_Eff + iB_Eff
-            Index(iCB_Eff)=iCB
-         End Do
-      End Do
-!
-      Return
-      End
+
+subroutine Do_Index(Index,NrBas,NrBas_Eff,iCmp)
+
+implicit real*8(a-h,o-z)
+integer index(NrBas_Eff*iCmp)
+
+iAdd = NrBas-NrBas_Eff
+do iB_Eff=1,NrBas_Eff
+  iB = iB_Eff+iAdd
+  do iC=1,iCmp
+    iCB = (iC-1)*NrBas+iB
+    iCB_Eff = (iC-1)*NrBas_Eff+iB_Eff
+    index(iCB_Eff) = iCB
+  end do
+end do
+
+return
+
+end subroutine Do_Index
