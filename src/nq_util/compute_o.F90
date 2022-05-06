@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_O(ZA,RA,nAtoms,Z_Tot,T,O,Lambda)
+subroutine Compute_O(ZA,RA,nAtoms,T,O,Lambda)
 implicit real*8(a-h,o-z)
 #include "real.fh"
 real*8 ZA(nAtoms), RA(3,nAtoms), T(3), O(3,3), Lambda(3)
@@ -21,7 +21,7 @@ real*8 EVal(6), M(3,3)
 !                                                                      *
 ! Form the nuclear charge moment tensor
 
-call Compute_M(ZA,nAtoms,RA,Z_Tot,T,M)
+call Compute_M(ZA,nAtoms,RA,T,M)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

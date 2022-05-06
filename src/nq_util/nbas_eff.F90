@@ -9,10 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nBas_Eff(NrExp,NrBas,Exp,Cff,nExp_Eff)
+integer function nBas_Eff(NrExp,NrBas,Cff,nExp_Eff)
 
 implicit real*8(a-h,o-z)
-real*8 exp(NrExp), Cff(NrExp,NrBas)
+real*8 Cff(NrExp,NrBas)
 
 nBas_Eff = NrBas
 
@@ -30,7 +30,5 @@ do iBas=1,NrBas
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Exp)
 
 end function nBas_Eff

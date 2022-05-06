@@ -18,10 +18,9 @@ nTmp = nR_Eff
 do i=1,nTmp
   if (R(1,i) > Radius_Max) then
     nR_Eff = i-1
-    Go To 99
+    exit
   end if
 end do
-99 continue
 
 return
 

@@ -26,18 +26,19 @@ xl = Half*(x2-x1)
 !write(6,*) 'm=',m
 do i=1,m
   z = cos(Pi*(dble(i)-0.25d0)/(dble(n)+Half))
-1 continue
-  p1 = One
-  p2 = Zero
-  do j=1,n
-    p3 = p2
-    p2 = p1
-    p1 = ((Two*dble(j)-One)*z*p2-(dble(j)-One)*p3)/dble(j)
+  do
+    p1 = One
+    p2 = Zero
+    do j=1,n
+      p3 = p2
+      p2 = p1
+      p1 = ((Two*dble(j)-One)*z*p2-(dble(j)-One)*p3)/dble(j)
+    end do
+    pp = dble(n)*(z*p1-p2)/(z*z-One)
+    z1 = z
+    z = z1-p1/pp
+    if (abs(z-z1) <= EPS) exit
   end do
-  pp = dble(n)*(z*p1-p2)/(z*z-One)
-  z1 = z
-  z = z1-p1/pp
-  if (abs(z-z1) > EPS) Go To 1
   xw(1,i) = xm-xl*z
   xw(1,n+1-i) = xm+xl*z
   xw(2,i) = Two*xl/((One-z*z)*pp*pp)

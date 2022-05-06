@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GenVoronoi(Coor,nR_Eff,nNQ,Alpha,rm,iNQ)
+subroutine GenVoronoi(nR_Eff,nNQ,Alpha,rm,iNQ)
 !***********************************************************************
 !                                                                      *
 !     This version of GenVoronoi computes the radial quadrature points *
@@ -25,7 +25,6 @@ implicit real*8(a-h,o-z)
 #include "itmax.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-real*8 Coor(3)
 integer nR_Eff(nNQ)
 real*8 Alpha(2), rm(2)
 logical Process
@@ -84,7 +83,7 @@ else if (Quadrature == 'LOG3') then
   mR = nR-1
   call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
   NQ_Data(iNQ)%R_Quad(:,:) = Zero
-  call GenRadQuad_MK(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),rm(1),Alpha(1),iNQ)
+  call GenRadQuad_MK(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),rm(1),Alpha(1))
   call Truncate_Grid(NQ_Data(iNQ)%r_Quad,mR,nR_Eff(iNQ),Radius_Max)
   mR = nR_Eff(iNQ)
   NQ_Data(iNQ)%R_max = NQ_Data(iNQ)%R_Quad(1,mR)
@@ -205,13 +204,13 @@ else if (Quadrature == 'LMG') then
 
   nR = 1 ! Dummy size on the first call.
   Process = .false.
-  call GenRadQuad_PAM(iNQ,nR_Eff(iNQ),rm,Alpha(1),Process,Dum,nR)
+  call GenRadQuad_PAM(nR_Eff(iNQ),rm,Alpha(1),Process,Dum,nR)
 
   nR = nR_Eff(iNQ)
   call mma_allocate(NQ_Data(iNQ)%R_Quad,2,nR,Label='R_Quad')
   NQ_Data(iNQ)%R_Quad(:,:) = Zero
   Process = .true.
-  call GenRadQuad_PAM(iNQ,nR_Eff(iNQ),rm,Alpha(1),Process,NQ_Data(iNQ)%R_Quad,nR)
+  call GenRadQuad_PAM(nR_Eff(iNQ),rm,Alpha(1),Process,NQ_Data(iNQ)%R_Quad,nR)
   NQ_Data(iNQ)%R_max = NQ_Data(iNQ)%R_Quad(1,nR)
   !                                                                    *
   !*********************************************************************
@@ -246,7 +245,5 @@ write(6,*)
 !                                                                      *
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Coor)
 
 end subroutine GenVoronoi

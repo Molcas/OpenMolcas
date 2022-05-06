@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,mRho,Do_Grad,P2MOCube,MOs,MOx,MOy,MOz)
+subroutine Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,mRho,P2MOCube,MOs,MOx,MOy,MOz)
 !***********************************************************************
 !                                                                      *
 ! Object: Calculation P2 ontop density and its derivatives             *
@@ -36,7 +36,6 @@ implicit real*8(A-H,O-Z)
 real*8 D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop(nP2_ontop,mGrid)
 real*8 RhoI(mRho,mGrid)
 real*8 RhoA(mRho,mGrid)
-logical Do_Grad
 integer IOff1, IOff2
 real*8, dimension(mGrid*NASHT) :: P2MOCube, MOs, MOx, MOy, MOz
 real*8 ddot_
@@ -210,7 +209,5 @@ end if
 !write(6,*) (P2_Ontop(1,iGrid),iGrid=1,mGrid)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(Do_Grad)
 
 end subroutine Do_PI2

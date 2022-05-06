@@ -41,7 +41,7 @@ implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-integer list_s(2,nlist_s), list_bas(2,nlist_s), mAO, nAOs, mGrid, nP2_ontop, nGrad_Eff, nd1mo, mRho, nCMO
+integer list_s(2,nlist_s), list_bas(2,nlist_s), mAO, mGrid, nP2_ontop, nGrad_Eff, nd1mo, mRho, nCMO
 real*8 D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop(nP2_ontop,mGrid), P2_ontop_d(np2_ontop,nGrad_Eff,mGrid), CMO(nCMO)
 logical ft
 real*8, allocatable, dimension(:,:,:,:) :: dTabMO
@@ -373,7 +373,5 @@ end if
 call mma_deAllocate(dTabMO)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nAOs)
 
 end subroutine Do_Pi2Grad

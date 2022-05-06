@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_M(ZA,nAtoms,RA,Z_Tot,T,M)
+subroutine Compute_M(ZA,nAtoms,RA,T,M)
 
 implicit real*8(a-h,o-z)
 #include "real.fh"
@@ -48,8 +48,5 @@ end do
 !call RecPrt('Compute_M: M',' ',M,3,3)
 
 return
-
-! Avoid unused argument warnings
-if (.false.) call Unused_real(Z_Tot)
 
 end subroutine Compute_M

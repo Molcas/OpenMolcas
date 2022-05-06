@@ -28,12 +28,11 @@ else
   rG = Half
 end if
 
-99 continue
-if (abs(rG-Arg) < Half/Two) goto 666
-G = rG*G
-rG = rG+One
-Go To 99
-666 continue
+do
+  if (abs(rG-Arg) < Half/Two) exit
+  G = rG*G
+  rG = rG+One
+end do
 
 return
 

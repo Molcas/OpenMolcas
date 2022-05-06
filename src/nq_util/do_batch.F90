@@ -355,7 +355,7 @@ if (l_casdft) then
   call Fzero(P2_ontop,nP2_ontop*mGrid)
 
   if (.not. Do_Grad) then !regular MO-based run
-    call Do_PI2(D1MO,size(D1MO),TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,mRho,Do_Grad,P2MOCube,MOs,MOx,MOy,MOz)
+    call Do_PI2(D1MO,size(D1MO),TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,mRho,P2MOCube,MOs,MOx,MOy,MOz)
   else !AO-based run for gradients
     !nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
     P2_ontop_d(:,:,:) = 0

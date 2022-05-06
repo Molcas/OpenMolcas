@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Print_NQ_Info(iSpin)
+subroutine Print_NQ_Info()
 
 use nq_Info
 
@@ -46,7 +46,5 @@ call Add_Info('NQ_Density',[Dens_I],1,8)
 !                                                                      *
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iSpin)
 
 end subroutine Print_NQ_Info

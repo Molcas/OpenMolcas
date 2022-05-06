@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GenRadQuad_MK(R,nR,nR_Eff,m,Alpha,iNQ)
+subroutine GenRadQuad_MK(R,nR,nR_Eff,m,Alpha)
 
 implicit real*8(a-h,o-z)
 #include "real.fh"
@@ -31,7 +31,5 @@ end do
 nR_Eff = nR-1
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iNQ)
 
 end subroutine GenRadQuad_MK

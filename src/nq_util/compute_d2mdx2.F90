@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_d2Mdx2(ZA,nAtoms,iAtom,iCar,dTdRAi,jAtom,jCar,dTdRaj,d2Mdx2)
+subroutine Compute_d2Mdx2(ZA,nAtoms,iAtom,iCar,dTdRAi,jAtom,jCar,d2Mdx2)
 
 implicit real*8(a-h,o-z)
 #include "real.fh"
@@ -74,7 +74,5 @@ end do
 !                                                                      *
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(dTdRaj)
 
 end subroutine Compute_d2Mdx2

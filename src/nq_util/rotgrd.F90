@@ -52,7 +52,7 @@ call Compute_T(Z_Tot,T,ZA,RA,nAtoms)
 
 ! Form O
 
-call Compute_O(ZA,RA,nAtoms,Z_Tot,T,O,EVal)
+call Compute_O(ZA,RA,nAtoms,T,O,EVal)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -114,8 +114,8 @@ do iAtom=1,nAtoms
 
         ! Form d2O/dx2
 
-        call Compute_d2Odx2(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(1,1,iAtom,iCar),Px,jAtom,jCar,dTdRAj,dMdy, &
-                            dOdx(1,1,jAtom,jCar),Py,d2Odx2(1,1,iAtom,iCar,jAtom,jCar))
+        call Compute_d2Odx2(ZA,nAtoms,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py, &
+                            d2Odx2(1,1,iAtom,iCar,jAtom,jCar))
 
         if ((iAtom /= jAtom) .or. ((iAtom == jAtom) .and. (iCar /= jCar))) then
           call dcopy_(9,d2Odx2(1,1,iAtom,iCar,jAtom,jCar),1,d2Odx2(1,1,jAtom,jCar,iAtom,iCar),1)

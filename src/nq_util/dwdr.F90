@@ -43,7 +43,7 @@ O33 = Pax(3,3)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-do iGrid=1,nGrid
+do_grid: do iGrid=1,nGrid
   call FZero(dW_dR(1,iGrid),nGrad_Eff)
   !                                                                    *
   !*********************************************************************
@@ -108,8 +108,8 @@ do iGrid=1,nGrid
           s_MU_BC = Half*(One-p3)
 
           P_B = P_B*s_MU_BC
-          if (P_B <= 1.0D-20) Go To 99
-          tMU_BC = -27d0*(One-p2**2)*(One-p1**2)*(One-rMU_BC**2)/(16d0*max(s_MU_BC,1.0D-99))
+          if (P_B <= 1.0D-20) exit
+          tMU_BC = -27d0*(One-p2**2)*(One-p1**2)*(One-rMU_BC**2)/(16.0d0*max(s_MU_BC,1.0D-99))
         else
           xdiff0 = rMU_BC-1.0d0
           xdiff1 = (-1.5d0-0.5d0*xdiff0)*xdiff0**2
@@ -118,8 +118,8 @@ do iGrid=1,nGrid
           s_MU_BC = Half*p3
 
           P_B = P_B*s_MU_BC
-          if (P_B <= 1.0D-20) Go To 99
-          tMU_BC = 27d0*(2.0d0+xdiff2)*xdiff2*(2.0d0+xdiff1)*xdiff1*(2.0d0+xdiff0)*xdiff0/(16d0*max(s_MU_BC,1.0D-99))
+          if (P_B <= 1.0D-20) exit
+          tMU_BC = 27d0*(2.0d0+xdiff2)*xdiff2*(2.0d0+xdiff1)*xdiff1*(2.0d0+xdiff0)*xdiff0/(16.0d0*max(s_MU_BC,1.0D-99))
         end if
 
         ! Differentiate mu_BC with respect to the center, D.
@@ -214,8 +214,6 @@ do iGrid=1,nGrid
       end if
     end do     ! iC
 
-99  continue
-
     ! Multiply derivatives with P_B as in Eq. B8
 
     do iD=1,nlist_p
@@ -225,7 +223,7 @@ do iGrid=1,nGrid
     end do
 
     if (iB == iA) P_A = P_B
-    if (P_A <= 1.0D-20) Go To 98
+    if (P_A <= 1.0D-20) cycle do_grid
 
     ! Denominator Eq. B2
     Z = Z+P_B
@@ -275,8 +273,7 @@ do iGrid=1,nGrid
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-98 continue
-end do ! iGrid
+end do do_grid ! iGrid
 !                                                                      *
 !***********************************************************************
 !                                                                      *

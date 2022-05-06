@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GenRadQuad_PAM(iNQ,nR_Eff,mr,Alpha,Process,QuadR,nQuadR)
+subroutine GenRadQuad_PAM(nR_Eff,mr,Alpha,Process,QuadR,nQuadR)
 
 use nq_Info
 
@@ -51,12 +51,11 @@ do k=0,l_Max,l_Max-1
 
   C1 = Four*sqrt(Two)*Pi
   C2 = Pi**2/Two
-99 continue
-  h_ = C2/(-log(Ten**(-Dr)*h/C1))
-  if (abs(h_-h) > 1.0D-4) then
+  do
+    h_ = C2/(-log(Ten**(-Dr)*h/C1))
+    if (abs(h_-h) <= 1.0D-4) exit
     h = h_
-    Go To 99
-  end if
+  end do
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -64,14 +63,13 @@ do k=0,l_Max,l_Max-1
   ! angular momentum available.
 
   Dr = -log10(Relative_Max_Error)
-98 continue
-  h_ = C2/(-log(Ten**(-Dr)*(h/C1)*(h/Pi)**(dble(k)/Two)*(G((dble(k)+Three)/Two)/G(Three/Two))))
+  do
+    h_ = C2/(-log(Ten**(-Dr)*(h/C1)*(h/Pi)**(dble(k)/Two)*(G((dble(k)+Three)/Two)/G(Three/Two))))
 
-  if (Debug) write(6,*) 'h h_ ',h,h_
-  if (abs(h_-h) > 1.0D-5) then
+    if (Debug) write(6,*) 'h h_ ',h,h_
+    if (abs(h_-h) <= 1.0D-5) exit
     h = h_
-    Go To 98
-  end if
+  end do
 
   if (k == 0) h0 = h
 end do
@@ -144,7 +142,5 @@ end do
 nR_Eff = iR
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iNQ)
 
 end subroutine GenRadQuad_PAM

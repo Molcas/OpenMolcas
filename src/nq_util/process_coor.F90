@@ -46,7 +46,7 @@ iRef = nAtoms
 !                                                                      *
 ! Add symmetry degenerate atoms to the list
 
-do iSym=1,nSym-1
+outer: do iSym=1,nSym-1
   !write(6,*) 'iOper(iSym)=',iOper(iSym)
   call dcopy_(3,R,1,Q,1)
   if (iand(iOper(iSym),1) /= 0) Q(1) = -Q(1)
@@ -54,12 +54,11 @@ do iSym=1,nSym-1
   if (iand(iOper(iSym),4) /= 0) Q(3) = -Q(3)
   !call RecPrt('Q',' ',Q,3,1)
   do iAtom=iRef,nAtoms
-    if ((Q(1) == Coor(1,iAtom)) .and. (Q(2) == Coor(2,iAtom)) .and. (Q(3) == Coor(3,iAtom))) Go To 100
+    if ((Q(1) == Coor(1,iAtom)) .and. (Q(2) == Coor(2,iAtom)) .and. (Q(3) == Coor(3,iAtom))) cycle outer
   end do
   nAtoms = nAtoms+1
   call dcopy_(3,Q,1,Coor(1,nAtoms),1)
-100 continue
-end do
+end do outer
 !                                                                      *
 !***********************************************************************
 !                                                                      *

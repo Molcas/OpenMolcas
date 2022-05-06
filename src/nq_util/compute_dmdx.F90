@@ -22,15 +22,14 @@ real*8 M(3,3)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-Z_Tot = DDot_(nAtoms,[One],0,ZA,1)
 delta = 1.0D-4
 temp = RA(iCar,iAtom)
 
 RA(iCar,iAtom) = Temp+Delta
-call Compute_M(ZA,nAtoms,RA,Z_Tot,T,M)
+call Compute_M(ZA,nAtoms,RA,T,M)
 
 RA(iCar,iAtom) = Temp-Delta
-call Compute_M(ZA,nAtoms,RA,Z_Tot,T,dMdx)
+call Compute_M(ZA,nAtoms,RA,T,dMdx)
 
 RA(iCar,iAtom) = Temp
 

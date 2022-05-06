@@ -32,35 +32,36 @@ do k=2,ndeg
     roots(ir,k) = (dble(k+1-ir)*roots(ir,k-1)+dble(ir)*roots(ir-1,k-1))/dble(k+1)
   end do
   ! Start modified Newton-Raphson iterations. Parallell treatment of roots:
-10 continue
-  dmax = 0.0d0
-  do ir=1,k
-    ! Compute value and derivative of polynomial:
-    x = roots(ir,k)
-    fpold = 0.0d0
-    fold = 1.0d0
-    fp = 1.0d0
-    f = x
-    do n=2,k
-      c = recurs(n-1)
-      fpnew = x*fp+f-c*fpold
-      fnew = x*f-c*fold
-      fpold = fp
-      fold = f
-      fp = fpnew
-      f = fnew
+  do
+    dmax = 0.0d0
+    do ir=1,k
+      ! Compute value and derivative of polynomial:
+      x = roots(ir,k)
+      fpold = 0.0d0
+      fold = 1.0d0
+      fp = 1.0d0
+      f = x
+      do n=2,k
+        c = recurs(n-1)
+        fpnew = x*fp+f-c*fpold
+        fnew = x*f-c*fold
+        fpold = fp
+        fold = f
+        fp = fpnew
+        f = fnew
+      end do
+      ! Compute the extra denominator term:
+      xterm = 0.0d0
+      do jr=1,k
+        if (jr /= ir) xterm = xterm+1.0d0/(x-roots(jr,k))
+      end do
+      ! Update:
+      delta = -f/(fp-f*xterm)
+      roots(ir,k) = roots(ir,k)+delta
+      dmax = max(dmax,abs(delta))
     end do
-    ! Compute the extra denominator term:
-    xterm = 0.0d0
-    do jr=1,k
-      if (jr /= ir) xterm = xterm+1.0d0/(x-roots(jr,k))
-    end do
-    ! Update:
-    delta = -f/(fp-f*xterm)
-    roots(ir,k) = roots(ir,k)+delta
-    dmax = max(dmax,abs(delta))
+    if (dmax <= 1.0d-12) exit
   end do
-  if (dmax > 1.0d-12) goto 10
 end do
 
 ! Compute weights:

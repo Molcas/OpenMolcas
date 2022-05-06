@@ -165,7 +165,7 @@ do iShell=1,nShell
   iCnttp = iSD(13,iShell)
   iCnt = iSD(14,iShell)
   C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
-  do iIrrep=0,nIrrep-1
+  outer: do iIrrep=0,nIrrep-1
     call OA(iOper(iIrrep),C,XYZ)
     do iNQ=1,nNQ
 
@@ -184,15 +184,14 @@ do iShell=1,nShell
         NQ_Data(iNQ)%A_low = min(NQ_Data(iNQ)%A_low,A_low)
 
         Maps2p(iShell,iIrrep) = iNQ
-        Go To 100
+        cycle outer
       end if
     end do ! iNQ
     call WarningMessage(2,'Did not find a center associated with the shell!')
     call Abend()
-100 continue
-  end do   ! iIrrep
+  end do outer  ! iIrrep
 
-end do     ! iShell
+end do          ! iShell
 
 !***********************************************************************
 !                                                                      *
@@ -240,19 +239,18 @@ do iNQ=1,nNQ
 
           iReset = 1
           iNQ_MBC = iNQ
-          Go To 1771
+          exit
         end if
       end if
     end do
   end if
-1771 continue
 
   ! Max angular momentum for the atom -> rm(1)
   ! Max Relative Error -> rm(2)
   rm(1) = dble(NQ_Data(iNQ)%l_Max)
   rm(2) = Threshold
 
-  call GenVoronoi(XYZ,nR_Eff,nNQ,Alpha,rm,iNQ)
+  call GenVoronoi(nR_Eff,nNQ,Alpha,rm,iNQ)
 
   if (iReset == 1) then
     nR = nR_tmp

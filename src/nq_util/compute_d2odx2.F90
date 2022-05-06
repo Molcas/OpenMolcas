@@ -9,11 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_d2Odx2(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx,Px,jAtom,jCar,dTdRAj,dMdy,dOdy,Py,d2Odx2)
+subroutine Compute_d2Odx2(ZA,nAtoms,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py,d2Odx2)
 
 implicit real*8(a-h,o-z)
 #include "real.fh"
-real*8 ZA(nAtoms), RA(3,nAtoms), T(3), O(3,3), EVal(3), dOdx(3,3), dMdx(3,3), Px(3,3), dOdy(3,3), dMdy(3,3), Py(3,3), d2Odx2(3,3)
+real*8 ZA(nAtoms), O(3,3), EVal(3), dMdx(3,3), Px(3,3), dMdy(3,3), Py(3,3), d2Odx2(3,3)
 logical Rot_Corr
 ! Local Arrays
 real*8 d2Mdx2(3,3), Pxy(3,3), RHS(3,3), Scr1(3,3), Scr2(3,3), Scr3(3,3)
@@ -31,7 +31,7 @@ end if
 !
 !     Compute d2M/dxdy
 !
-call Compute_d2Mdx2(ZA,nAtoms,iAtom,iCar,dTdRAi,jAtom,jCar,dTdRaj,d2Mdx2)
+call Compute_d2Mdx2(ZA,nAtoms,iAtom,iCar,dTdRAi,jAtom,jCar,d2Mdx2)
 
 !                                                                      *
 !***********************************************************************
@@ -142,12 +142,5 @@ call DGEMM_('N','N',3,3,3,1.0d0,O,3,Pxy,3,0.0d0,d2Odx2,3)
 !                                                                      *
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(RA)
-  call Unused_real_array(T)
-  call Unused_real_array(dOdx)
-  call Unused_real_array(dOdy)
-end if
 
 end subroutine Compute_d2Odx2

@@ -30,260 +30,269 @@ mask_111010 = 58
 
 ! KeyWord directed input
 
-999 continue
-Key = Get_Ln(LuRd)
-!write(6,*) ' Processing:',Key
-KWord = Key
-call UpCase(KWord)
-if (KWord(1:4) == 'RTHR') Go To 100
-if (KWord(1:4) == 'GRID') Go To 101
-if (KWord(1:4) == 'LMAX') Go To 102
-if (KWord(1:4) == 'RQUA') Go To 103
-if (KWord(1:4) == 'NR  ') Go To 104
-if (KWord(1:4) == 'NGRI') Go To 105
-if (KWord(1:4) == 'LOBA') Go To 106
-if (KWord(1:4) == 'GGL ') Go To 107
-if (KWord(1:4) == 'WHOL') Go To 108
-if (KWord(1:4) == 'GLOB') Go To 109
-if (KWord(1:4) == 'DIAT') Go To 110
-if (KWord(1:4) == 'NOPR') Go To 111
-if (KWord(1:4) == 'CROW') Go To 112
-if (KWord(1:4) == 'LEBE') Go To 113
-if (KWord(1:4) == 'FIXE') Go To 114
-if (KWord(1:4) == 'MOVI') Go To 115
-if (KWord(1:4) == 'NORO') Go To 116
-if (KWord(1:4) == 'RHOT') Go To 117
-if (KWord(1:4) == 'NOSC') Go To 119
-if (KWord(1:4) == 'T_Y ') Go To 120
-if (KWord(1:4) == 'NQDI') Go To 121
-if (KWord(1:4) == 'FADE') Go To 122
-if (KWord(1:4) == 'MOSS') Go To 123
+do
+  Key = Get_Ln(LuRd)
+  !write(6,*) ' Processing:',Key
+  KWord = Key
+  call UpCase(KWord)
+  select case (KWord(1:4))
 
-if (KWord(1:4) == 'END ') Go To 997
-iChrct = len(KWord)
-Last = iCLast(KWord,iChrct)
-write(6,*)
-call WarningMessage(2,'Error in FUNI_input')
-write(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-write(6,*) ' Error in keyword.'
-call Quit_OnUserError()
-!                                                                      *
-!***** RTHR ************************************************************
-!                                                                      *
-! Read the radial threshold
+    case ('RTHR')
+      !                                                                *
+      !***** RTHR ******************************************************
+      !                                                                *
+      ! Read the radial threshold
 
-100 KWord = Get_Ln(LuRd)
-call Get_F1(1,Threshold)
-Threshold = abs(Threshold)
-Go To 999
-!                                                                      *
-!***** GRID ************************************************************
-!                                                                      *
-! Read quadrature quality
+      KWord = Get_Ln(LuRd)
+      call Get_F1(1,Threshold)
+      Threshold = abs(Threshold)
 
-101 KWord = Get_Ln(LuRd)
-call UpCase(KWord)
-if (index(KWord,'COARSE') /= 0) then
-  ! a la Gaussian
-  nR = 35
-  L_Quad = 17
-  Crowding = 0.90d0
-  Fade = 3.0d0
-  Quadrature = 'MHL'
-else if (index(KWord,'ULTRAFINE') /= 0) then
-  ! a la Gaussian
-  nR = 99
-  L_Quad = 41
-  Crowding = 1.0d10
-  Fade = 10.0d0
-  Quadrature = 'MHL'
-else if (index(KWord,'FINE') /= 0) then
-  ! a la Gaussian
-  nR = 75
-  L_Quad = 29
-  Crowding = 3.0d0
-  Fade = 6.0d0
-  Quadrature = 'MHL'
-else if (index(KWord,'SG1GRID') /= 0) then
-  ! a la Gaussian
-  nR = 50
-  L_Quad = 23
-  Crowding = 1.0d0
-  Fade = 5.0d0
-  Quadrature = 'MHL'
-else
-  call WarningMessage(2,'Funi_Input: Illegal grid')
-  write(6,*) 'Type=',KWord
-  call Abend()
-end if
-Go To 999
-!                                                                      *
-!***** LMAX ************************************************************
-!                                                                      *
-! Read angular grid size
+    case ('GRID')
+      !                                                                *
+      !***** GRID ******************************************************
+      !                                                                *
+      ! Read quadrature quality
 
-102 KWord = Get_Ln(LuRd)
-call Get_I1(1,L_Quad)
-Go To 999
-!                                                                      *
-!***** RQUA ************************************************************
-!                                                                      *
-! Read radial quadrature scheme
+      KWord = Get_Ln(LuRd)
+      call UpCase(KWord)
+      if (index(KWord,'COARSE') /= 0) then
+        ! a la Gaussian
+        nR = 35
+        L_Quad = 17
+        Crowding = 0.90d0
+        Fade = 3.0d0
+        Quadrature = 'MHL'
+      else if (index(KWord,'ULTRAFINE') /= 0) then
+        ! a la Gaussian
+        nR = 99
+        L_Quad = 41
+        Crowding = 1.0d10
+        Fade = 10.0d0
+        Quadrature = 'MHL'
+      else if (index(KWord,'FINE') /= 0) then
+        ! a la Gaussian
+        nR = 75
+        L_Quad = 29
+        Crowding = 3.0d0
+        Fade = 6.0d0
+        Quadrature = 'MHL'
+      else if (index(KWord,'SG1GRID') /= 0) then
+        ! a la Gaussian
+        nR = 50
+        L_Quad = 23
+        Crowding = 1.0d0
+        Fade = 5.0d0
+        Quadrature = 'MHL'
+      else
+        call WarningMessage(2,'Funi_Input: Illegal grid')
+        write(6,*) 'Type=',KWord
+        call Abend()
+      end if
 
-103 KWord = Get_Ln(LuRd)
-Quadrature = KWord(1:10)
-call Upcase(Quadrature)
-Go To 999
-!                                                                      *
-!***** NR   ************************************************************
-!                                                                      *
-! Read number of radial grid points
+    case ('LMAX')
+      !                                                                *
+      !***** LMAX ******************************************************
+      !                                                                *
+      ! Read angular grid size
 
-104 KWord = Get_Ln(LuRd)
-call Get_I1(1,nR)
-Go To 999
-!                                                                      *
-!***** NGRI ************************************************************
-!                                                                      *
-! Read max number of grid points to process at one instance
+      KWord = Get_Ln(LuRd)
+      call Get_I1(1,L_Quad)
 
-105 KWord = Get_Ln(LuRd)
-call Get_I1(1,nGridMax)
-Go To 999
-!                                                                      *
-!***** LOBA ************************************************************
-!                                                                      *
-! Activate use of Lobatto angular quadrature
+    case ('RQUA')
+      !                                                                *
+      !***** RQUA ******************************************************
+      !                                                                *
+      ! Read radial quadrature scheme
 
-106 iOpt_Angular = ior(iand(iOpt_Angular,mask_111010),1)
-Go To 999
-!                                                                      *
-!***** NGRI ************************************************************
-!                                                                      *
-! Activate use of Gauss and Gauss-Legendre angular quadrature
+      KWord = Get_Ln(LuRd)
+      Quadrature = KWord(1:10)
+      call Upcase(Quadrature)
 
-107 iOpt_Angular = iand(iOpt_Angular,mask_111010)
-Go To 999
-!                                                                      *
-!***** WHOL ************************************************************
-!                                                                      *
-! Activate use of routines which scan the whole atomic grid for
-! each sub block.
+    case ('NR  ')
+      !                                                                *
+      !***** NR   ******************************************************
+      !                                                                *
+      ! Read number of radial grid points
 
-108 iOpt_Angular = ior(iand(iOpt_Angular,mask_111101),2)
-Go To 999
-!                                                                      *
-!***** GLOB ************************************************************
-!                                                                      *
-! Activate use of global partitioning technique.
+      KWord = Get_Ln(LuRd)
+      call Get_I1(1,nR)
 
-109 write(6,*) 'The Global option is redundant!'
-Go To 999
-!                                                                      *
-!***** DIAT ************************************************************
-!                                                                      *
-! Activate use of diatomic partitioning technique.
+    case ('NGRI')
+      !                                                                *
+      !***** NGRI ******************************************************
+      !                                                                *
+      ! Read max number of grid points to process at one instance
 
-110 write(6,*) 'The Diatomic option is redundant!'
-Go To 999
-!                                                                      *
-!***** NOPR ************************************************************
-!                                                                      *
-! Turn off the the angular prunning
+      KWord = Get_Ln(LuRd)
+      call Get_I1(1,nGridMax)
 
-111 Angular_Prunning = Off
-Go To 999
-!                                                                      *
-!***** CROW ************************************************************
-!                                                                      *
-! Read the crowding factor
+    case ('LOBA')
+      !                                                                *
+      !***** LOBA ******************************************************
+      !                                                                *
+      ! Activate use of Lobatto angular quadrature
 
-112 KWord = Get_Ln(LuRd)
-call Get_F1(1,Crowding)
-Go To 999
-!                                                                      *
-!***** LEBE ************************************************************
-!                                                                      *
-! Turn off the Lebedev angular grid
+      iOpt_Angular = ior(iand(iOpt_Angular,mask_111010),1)
 
-113 iOpt_Angular = ior(iand(iOpt_Angular,mask_111011),4)
-Go To 999
-!                                                                      *
-!***** FIXE ************************************************************
-!                                                                      *
-! Turn on grid type = fixed
+    case ('GGL ')
+      !                                                                *
+      !***** GGL  ******************************************************
+      !                                                                *
+      ! Activate use of Gauss and Gauss-Legendre angular quadrature
 
-114 Grid_Type = Fixed_Grid
-Go To 999
-!                                                                      *
-!***** MOVE ************************************************************
-!                                                                      *
-! Turn on grid type = moving
+      iOpt_Angular = iand(iOpt_Angular,mask_111010)
 
-115 Grid_Type = Moving_Grid
-Go To 999
-!                                                                      *
-!***** NORO ************************************************************
-!                                                                      *
-! Turn of rotational invariant energy
+    case ('WHOL')
+      !                                                                *
+      !***** WHOL ******************************************************
+      !                                                                *
+      ! Activate use of routines which scan the whole atomic grid for
+      ! each sub block.
 
-116 Rotational_Invariance = Off
-Go To 999
-!                                                                      *
-!***** RHOT ************************************************************
-!                                                                      *
-! Threshold for density when grid points are ignored.
-!
-! Obsolete command!
+      iOpt_Angular = ior(iand(iOpt_Angular,mask_111101),2)
 
-117 KWord = Get_Ln(LuRd)
-call Get_F1(1,Dummy)
-Go To 999
-!                                                                      *
-!***** NOSC ************************************************************
-!                                                                      *
-! Turn of the screening and the prunning.
+    case ('GLOB')
+      !                                                                *
+      !***** GLOB ******************************************************
+      !                                                                *
+      ! Activate use of global partitioning technique.
 
-119 T_y = 0.0d0
-Crowding = 1.0d10
-Angular_Prunning = Off
-Go To 999
-!                                                                      *
-!***** T_Y  ************************************************************
-!                                                                      *
-! Screening threshold for integral computation.
+      write(6,*) 'The Global option is redundant!'
 
-120 KWord = Get_Ln(LuRd)
-call Get_F1(1,T_Y)
-Go To 999
-!                                                                      *
-!***** NQDI ************************************************************
-!                                                                      *
-! Recompute the AO values
+    case ('DIAT')
+      !                                                                *
+      !***** DIAT ******************************************************
+      !                                                                *
+      ! Activate use of diatomic partitioning technique.
 
-121 NQ_Direct = On
-Go To 999
-!                                                                      *
-!***** T_Y  ************************************************************
-!                                                                      *
-! Fading factor for angular pruning.
+      write(6,*) 'The Diatomic option is redundant!'
 
-122 KWord = Get_Ln(LuRd)
-call Get_F1(1,Fade)
-Go To 999
-!                                                                      *
-!***** MOSS ************************************************************
-!                                                                      *
-! Assign Mossbauer center
+    case ('NOPR')
+      !                                                                *
+      !***** NOPR ******************************************************
+      !                                                                *
+      ! Turn off the the angular prunning
 
-123 KWord = Get_Ln(LuRd)
-MBC = KWord(1:8)
-call UpCase(MBC)
-Go To 999
+      Angular_Prunning = Off
+
+    case ('CROW')
+      !                                                                *
+      !***** CROW ******************************************************
+      !                                                                *
+      ! Read the crowding factor
+
+      KWord = Get_Ln(LuRd)
+      call Get_F1(1,Crowding)
+
+    case ('LEBE')
+      !                                                                *
+      !***** LEBE ******************************************************
+      !                                                                *
+      ! Turn off the Lebedev angular grid
+
+      iOpt_Angular = ior(iand(iOpt_Angular,mask_111011),4)
+
+    case ('FIXE')
+      !                                                                *
+      !***** FIXE ******************************************************
+      !                                                                *
+      ! Turn on grid type = fixed
+
+      Grid_Type = Fixed_Grid
+
+    case ('MOVI')
+      !                                                                *
+      !***** MOVE ******************************************************
+      !                                                                *
+      ! Turn on grid type = moving
+
+      Grid_Type = Moving_Grid
+
+    case ('NORO')
+      !                                                                *
+      !***** NORO ******************************************************
+      !                                                                *
+      ! Turn of rotational invariant energy
+
+      Rotational_Invariance = Off
+
+    case ('RHOT')
+      !                                                                *
+      !***** RHOT ******************************************************
+      !                                                                *
+      ! Threshold for density when grid points are ignored.
+      !
+      ! Obsolete command!
+
+      KWord = Get_Ln(LuRd)
+      call Get_F1(1,Dummy)
+
+    case ('NOSC')
+      !                                                                *
+      !***** NOSC ******************************************************
+      !                                                                *
+      ! Turn of the screening and the prunning.
+
+      T_y = 0.0d0
+      Crowding = 1.0d10
+      Angular_Prunning = Off
+
+    case ('T_Y ')
+      !                                                                *
+      !***** T_Y  ******************************************************
+      !                                                                *
+      ! Screening threshold for integral computation.
+
+      KWord = Get_Ln(LuRd)
+      call Get_F1(1,T_Y)
+
+    case ('NQDI')
+      !                                                                *
+      !***** NQDI ******************************************************
+      !                                                                *
+      ! Recompute the AO values
+
+      NQ_Direct = On
+
+    case ('FADE')
+      !                                                                *
+      !***** T_Y  ******************************************************
+      !                                                                *
+      ! Fading factor for angular pruning.
+
+      KWord = Get_Ln(LuRd)
+      call Get_F1(1,Fade)
+
+    case ('MOSS')
+      !                                                                *
+      !***** MOSS ******************************************************
+      !                                                                *
+      ! Assign Mossbauer center
+
+      KWord = Get_Ln(LuRd)
+      MBC = KWord(1:8)
+      call UpCase(MBC)
+
+    case ('END ')
+      !                                                                *
+      !***** END  ******************************************************
+      !                                                                *
+      exit
+
+    case default
+      iChrct = len(KWord)
+      Last = iCLast(KWord,iChrct)
+      write(6,*)
+      call WarningMessage(2,'Error in FUNI_input')
+      write(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+      write(6,*) ' Error in keyword.'
+      call Quit_OnUserError()
+
+  end select
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-997 continue
 
 if (Check(iOpt_Angular,3)) then
   if ((L_Quad /= 5) .and. (L_Quad /= 7) .and. (L_Quad /= 11) .and. (L_Quad /= 17) .and. (L_Quad /= 23) .and. (L_Quad /= 29) .and. &

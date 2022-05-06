@@ -40,13 +40,12 @@ end if
 !x = Alpha*(r_k_H)**2
 
 x = 10.0d0 ! Start value
-123 continue
-x_new = log((Gamma/R_L)*x**(Half*(dble(m)+One)))
-!write(6,*) 'x,x_new=',x,x_new
-if (abs(x-x_new) > 1.0D-8) then
+do
+  x_new = log((Gamma/R_L)*x**(Half*(dble(m)+One)))
+  !write(6,*) 'x,x_new=',x,x_new
+  if (abs(x-x_new) <= 1.0D-8) exit
   x = x_new
-  Go To 123
-end if
+end do
 
 Eval_RMax = sqrt(x/alpha)
 !write(6,*) 'Eval_RMax=',Eval_RMax
