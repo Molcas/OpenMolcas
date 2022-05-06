@@ -42,10 +42,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Real*8 Ovlp(nOvlp),TrMat(nTrMat)

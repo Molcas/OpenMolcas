@@ -48,11 +48,11 @@
 *                                                                      *
 ************************************************************************
       use SpinAV, only: Do_SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
+#include "mxdm.fh"
 *
       Real*8 CInter(nCI,nD),TrDh(nTr,nTr,nD),TrDP(nTr,nTr,nD),
      &                      TrDD(nTr,nTr,nD)

@@ -40,11 +40,11 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
+#include "Molcas.fh"
 *
 *     declaration subroutine parameters
       Real*8 EOr(nEOr,nD), Occup(nOccup,nD)

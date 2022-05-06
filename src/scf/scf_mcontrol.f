@@ -12,10 +12,8 @@
       SUBROUTINE Scf_Mcontrol(id_call)
 
       Use Para_Info, Only: MyRank
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
-*
 #include "choscf.fh"
 #include "chotime.fh"
 *

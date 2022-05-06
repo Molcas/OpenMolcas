@@ -62,12 +62,11 @@
       use LnkLst, only: SCF_V
 *     only tentatively this Module
       use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "file.fh"
 #include "llists.fh"
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
 *     declaration subroutine parameters

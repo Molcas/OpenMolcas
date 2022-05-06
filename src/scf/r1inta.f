@@ -35,9 +35,8 @@
       use Embedding_Global, only: embInt, embPot, embPotInBasis,
      &                            embPotPath
 #endif
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 *

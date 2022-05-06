@@ -35,9 +35,8 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT),
      &       EOr(mmB,nD)
 *

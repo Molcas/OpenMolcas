@@ -40,11 +40,11 @@
 * University of Lund, Sweden, 1992                                     *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
+#include "mxdm.fh"
       Real*8 Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT),
      &       CInter(nCI,nD), Vxc(nDT,nD,NumDT)
       Integer Ind(MxOptm)

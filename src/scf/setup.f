@@ -30,9 +30,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
+#include "Molcas.fh"
       Integer maxnOcc(MxSym),minnOcc(MxSym)
 *
 *----------------------------------------------------------------------*

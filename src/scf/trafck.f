@@ -48,10 +48,9 @@
 *                                                                      *
 ************************************************************************
       use SpinAV, only: Do_SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Integer nFock,nCMO,nEOrb

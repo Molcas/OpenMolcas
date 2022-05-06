@@ -38,6 +38,7 @@
 #endif
       use OFembed, only: Do_OFemb
       use OFembed, only: Rep_EN
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 * Declaration of procedure parameters
@@ -47,8 +48,6 @@
      &       EDFT(nEDFT)
 #include "real.fh"
 
-#include "mxdm.fh"
-#include "infscf.fh"
 *----------------------------------------------------------------------*
 * Start                                                                *
 *----------------------------------------------------------------------*

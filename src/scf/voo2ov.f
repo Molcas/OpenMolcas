@@ -63,6 +63,7 @@
 #ifndef POINTER_REMAP
       Use, Intrinsic :: ISO_C_BINDING
 #endif
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
@@ -74,9 +75,6 @@
       Integer iSym,ii,ia,ioffs,ivoffs
 *
 #include "real.fh"
-
-#include "mxdm.fh"
-#include "infscf.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

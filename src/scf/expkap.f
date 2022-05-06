@@ -28,11 +28,10 @@
 !***********************************************************************
 
       SubRoutine ExpKap(kapOV,nKapOV,U,mynOcc)
+      use InfSCF
 *
       Implicit None
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 *
 *     declaration subroutine parameters
       Integer nKapOV

@@ -41,14 +41,13 @@
       use Embedding_Global, only: Eemb, embPot
 #endif
       use SpinAV, only: Do_SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
       Integer iSpn, iMult
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "ldfscf.fh"
 #include "file.fh"
 #include "rctfld.fh"

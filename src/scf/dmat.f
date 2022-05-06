@@ -48,14 +48,13 @@
 *                                                                      *
 ************************************************************************
       Use Interfaces_SCF, Only: dOne_SCF, MinDns
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       Real*8 Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT), Vxc(nDT,nD,NumDT),
      &       CMO(nCMO,nD),OccNo(lthO,nD), Ovrlp(nDT), XCf(nXCf,nD)
       Logical alpha_density
       Real*8, Dimension(:), Allocatable:: Aux
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *----------------------------------------------------------------------*
 * Local variables                                                      *

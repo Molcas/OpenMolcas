@@ -15,12 +15,11 @@
 ************************************************************************
       SubRoutine GrdClc(FstItr,iOpt)
       use SCF_Arrays
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       Logical FstItr
       Integer   iOpt
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 *
       nD = iUHF + 1
 *                                                                      *
@@ -73,10 +72,9 @@
 ************************************************************************
       Use Interfaces_SCF, Only: vOO2OV
       Use InfSO
+      Use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "llists.fh"

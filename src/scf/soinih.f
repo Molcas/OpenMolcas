@@ -38,10 +38,9 @@
 *                                                                      *
 ************************************************************************
       use Orb_Type
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 *
 *     declaration subroutine parameters
       Integer nEOrb,nH, nD

@@ -38,14 +38,13 @@
       Use Functionals, only: Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
       Use InfSO
+      use InfSCF
 *
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 SIntTh
 *
 
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "rctfld.fh"
 #include "ldfscf.fh"
 *

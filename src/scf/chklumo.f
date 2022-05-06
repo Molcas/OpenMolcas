@@ -25,9 +25,8 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
+      use InfSCF
       Implicit Real*8 (A-H,O-Z)
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *

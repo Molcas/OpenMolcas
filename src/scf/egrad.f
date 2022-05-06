@@ -53,10 +53,9 @@
 *                                                                      *
 ************************************************************************
       Use Orb_Type
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Real*8 O(nOTSD),T(nOTSD,nD),S(nOTSD),D(nOTSD,nD),C(nC,nD),

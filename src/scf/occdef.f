@@ -15,10 +15,9 @@
 #endif
       use OccSets
       use Orb_Type
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
       Real*8 Occ(mmB,nD)
       Real*8, Target::  CMO(mBB,nD)

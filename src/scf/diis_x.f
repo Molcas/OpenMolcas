@@ -45,15 +45,15 @@
 *                                                                      *
 ************************************************************************
       use InfSO
+      use InfSCF
       use SCF_arrays, only: HDiag
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "llists.fh"
+#include "mxdm.fh"
 *
       Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij

@@ -45,14 +45,13 @@
 * - traces are recomputed for all iterations between iterLw & iter     *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       Real*8, Target:: Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT),
      &       Vxc(nDT,nD,NumDT)
       Real*8 OneHam(nDT), TrDh(nTr,nTr,nD),TrDP(nTr,nTr,nD),
      &       TrDD(nTr,nTr,nD)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *---- Define local variables
       Real*8, Dimension(:,:), Allocatable, Target:: Aux1, Aux2, Aux3

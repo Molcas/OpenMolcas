@@ -33,11 +33,10 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "file.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT),
      &       Dens(mBT,nD)
 *

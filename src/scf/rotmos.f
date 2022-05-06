@@ -43,10 +43,9 @@
 *     history: VVUHF                                                   *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "llists.fh"

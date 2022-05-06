@@ -44,11 +44,10 @@
 *                                                                      *
 ************************************************************************
       use OFembed, only: Do_OFemb
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       External EFP_On
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "file.fh"

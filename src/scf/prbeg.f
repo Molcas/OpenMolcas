@@ -31,11 +31,10 @@
 *                                                                      *
 ************************************************************************
 *
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 
-#include "mxdm.fh"
-#include "infscf.fh"
       Character*(*) Meth
       Character*10 Label
       Character *4 cUHF

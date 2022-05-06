@@ -38,11 +38,11 @@
       use Orb_Type
       use LnkLst
       use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
+#include "mxdm.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -100,7 +100,13 @@ C: We need at least 2 Dens in core at the same time for computing
 C: the DIIS error vectors
       If (nDens.lt.2) Then
          Write (6,*) 'MemAlo: nDens.lt.2'
+         Write (6,*) 'lthTot=',lthTot
+         Write (6,*) 'nOV=',nOV
+         Write (6,*) 'MxMem=',MxMem
          Write (6,*) 'nDens=',nDens
+         Write (6,*) 'lthRst=',lthRst
+         Write (6,*) 'nD=',nD
+         Write (6,*) 'nBT=',nBT
          Call Abend()
       End If
 C: Francesco Aquilante

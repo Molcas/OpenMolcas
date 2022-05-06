@@ -45,6 +45,7 @@
 *                                                                      *
 ************************************************************************
       use SpinAV, only: Do_SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       External EFP_ON
 *
@@ -53,8 +54,6 @@
       Character*80 Note
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "file.fh"
 #include "stdalloc.fh"
 #include "rctfld.fh"

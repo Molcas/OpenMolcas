@@ -37,10 +37,9 @@
       Use Interfaces_SCF, Only: OccDef
       use OFembed, only: Do_OFemb
       use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "twoswi.fh"
 #include "file.fh"
@@ -151,10 +150,9 @@
       SubRoutine IniLLs
 *     initialize the diverse linked lists
       use LnkLst
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "llists.fh"
 *
 *
@@ -278,10 +276,9 @@
       End
 *----------------------------------------------------------------------*
       Subroutine Free_TLists
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 
-#include "mxdm.fh"
-#include "infscf.fh"
 *
       Write (6,*) 'Free_TLists:',DSCF
       If (DSCF) Then
@@ -295,11 +292,10 @@
 *----------------------------------------------------------------------*
       Subroutine Reduce_Thresholds(EThr_,SIntTh)
       use InfSO, only: DltNTh
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 *
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "save.fh"
 *
       Write (6,*)
@@ -332,10 +328,9 @@
       End
       Subroutine Reset_Thresholds
       use InfSO, only: DltNTh
+      Use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "save.fh"
 *
       Write (6,*)

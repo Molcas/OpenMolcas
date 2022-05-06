@@ -45,13 +45,12 @@
       use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 *
       use SpinAV, only: Do_SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "ldfscf.fh"
 #include "file.fh"
@@ -76,6 +75,7 @@
 #include "choauf.fh"
 
 #include "addcorr.fh"
+#include "mxdm.fh"
 
 *
 *     copy input from standard input to a local scratch file

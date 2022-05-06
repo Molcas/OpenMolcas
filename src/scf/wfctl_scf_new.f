@@ -56,6 +56,7 @@
       use LnkLst, only: SCF_V
       use InfSO
       use SCF_Arrays, only: HDiag
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
@@ -65,14 +66,13 @@
      &       CInter(nCI,nD), Vxc(mBT,nD,mDens), TrM(mBB,nD),
      &       EOrb(mmB,nD), OccNo(mmB,nD)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "llists.fh"
 #include "twoswi.fh"
 #include "ldfscf.fh"
 #include "warnings.h"
+#include "mxdm.fh"
       Real*8, Dimension(:),   Allocatable:: D1Sao
       Real*8, Dimension(:), Allocatable:: Grd1, Disp, Xnp1, Xn
 
@@ -603,6 +603,8 @@
 *                                                                      *
 *           Get g(n)
 *
+            Call DIIS_GEK_Optimizer()
+
             Call GetVec(iter,LLGrad,inode,Grd1,mOV)
 *
 *           Use rs-rfo to compute dX(n)
