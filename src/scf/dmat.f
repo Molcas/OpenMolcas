@@ -96,11 +96,11 @@
 *
             iOnDsk=-MapDns(iter_d-nMem)
             Call RWDTG(iOnDsk,Dens(1,1,iFrom),  nBT*nD,'W',
-     &                 'DENS  ',iDisk,MxDDsk)
+     &                 'DENS  ',iDisk,SIZE(iDisk,1))
             Call RWDTG(iOnDsk,TwoHam(1,1,iFrom),nBT*nD,'W',
-     &                 'TWOHAM',iDisk,MxDDsk)
+     &                 'TWOHAM',iDisk,SIZE(iDisk,1))
             Call RWDTG(iOnDsk,Vxc   (1,1,iFrom),nBT*nD,'W',
-     &                 'dVxcdR',iDisk,MxDDsk)
+     &                 'dVxcdR',iDisk,SIZE(iDisk,1))
          End If
 *
       End If

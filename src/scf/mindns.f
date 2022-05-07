@@ -84,7 +84,7 @@
 *
          iR = MapDns(iRow)
          If (iR.lt.0) Then
-            Call RWDTG(-iR,DRow,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
+            Call RWDTG(-iR,DRow,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
             pDR => DRow
          Else
             pDR => Dens(1:mBT,1:nD,iR)
@@ -104,7 +104,8 @@
 *
             iC = MapDns(iCol)
             If (iC.lt.0) Then
-               Call RWDTG(-iC,DCol,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
+               Call RWDTG(-iC,DCol,nBT*nD,'R','DENS  ',iDisk,
+     &                    SIZE(iDisk,1))
                pDC => DCol
             Else
                pDC => Dens(1:mBT,1:nD,iC)
@@ -145,7 +146,7 @@
 *
          iM = MapDns(iMat)
          If (iM.lt.0) Then
-            Call RWDTG(-iM,DRow,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
+            Call RWDTG(-iM,DRow,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
             pDR => DRow
          Else
             pDR => Dens(1:mBT,1:nD,iM)

@@ -79,9 +79,12 @@
 *
       iMap=MapDns(iter_d)
       If (iMap.lt.0) Then
-         Call RWDTG(-iMap,DnsTmp,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
-         Call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,MxDDsk)
-         Call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,MxDDsk)
+         Call RWDTG(-iMap,DnsTmp,nBT*nD,'R','DENS  ',iDisk,
+     &              SIZE(iDisk,1))
+         Call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,
+     &              SIZE(iDisk,1))
+         Call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,
+     &              SIZE(iDisk,1))
       Else
          Call DCopy_(nBT*nD,Dens  (1,1,iMap),1,DnsTmp,1)
          Call DCopy_(nBT*nD,TwoHam(1,1,iMap),1,TwoTmp,1)
@@ -107,9 +110,12 @@
 *
          iMap=MapDns(MatNo)
          If (iMap.lt.0) Then
-            Call RWDTG(-iMap,DnsTmp,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
-            Call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,MxDDsk)
-            Call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,MxDDsk)
+            Call RWDTG(-iMap,DnsTmp,nBT*nD,'R','DENS  ',iDisk,
+     &                 SIZE(iDisk,1))
+            Call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,
+     &                 SIZE(iDisk,1))
+            Call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,
+     &                 SIZE(iDisk,1))
          Else
             Call DCopy_(nBT*nD,Dens  (1,1,iMap),1,DnsTmp,1)
             Call DCopy_(nBT*nD,TwoHam(1,1,iMap),1,TwoTmp,1)

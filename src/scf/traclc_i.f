@@ -99,7 +99,8 @@
 *
 *           Pick up the density matrix and external potential
 *
-            Call RWDTG(-iPosL,Aux1,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
+            Call RWDTG(-iPosL,Aux1,nBT*nD,'R','DENS  ',iDisk,
+     &                 SIZE(iDisk,1))
             pDens => Aux1
          Else
             PDens => Dens(1:nBT,1:nD,iPosL)
@@ -166,9 +167,12 @@
                   Call mma_allocate(Aux2,nBT,nD,Label='Aux2')
                   Call mma_allocate(Aux3,nBT,nD,Label='Aux3')
                End If
-               Call RWDTG(-iPos,Aux1,nBT*nD,'R','TWOHAM',iDisk,MxDDsk)
-               Call RWDTG(-iPos,Aux2,nBT*nD,'R','dVxcdR',iDisk,MxDDsk)
-               Call RWDTG(-iPos,Aux3,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
+               Call RWDTG(-iPos,Aux1,nBT*nD,'R','TWOHAM',iDisk,
+     &                    SIZE(iDisk,1))
+               Call RWDTG(-iPos,Aux2,nBT*nD,'R','dVxcdR',iDisk,
+     &                    SIZE(iDisk,1))
+               Call RWDTG(-iPos,Aux3,nBT*nD,'R','DENS  ',iDisk,
+     &                    SIZE(iDisk,1))
                pTwoHam => Aux1
                pVxc    => Aux2
                pDens   => Aux3

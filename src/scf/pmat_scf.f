@@ -344,7 +344,8 @@
 
             iM = MapDns(iMat)
             If (iM.lt.0) Then
-               Call RWDTG(-iM,Aux,nDT*nD,'R','TWOHAM',iDisk,MxDDsk)
+               Call RWDTG(-iM,Aux,nDT*nD,'R','TWOHAM',iDisk,
+     &                    SIZE(iDisk,1))
                pTwoHam => Aux
             Else
                pTwoHam => TwoHam(1:nDT,1:nD,iM)

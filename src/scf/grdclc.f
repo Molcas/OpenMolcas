@@ -120,9 +120,9 @@
 *
          jDT=MapDns(iDT)
          If (jDT.lt.0) Then
-            Call RWDTG(-jDT,AuxD,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
-            Call RWDTG(-jDT,AuxT,nBT*nD,'R','TWOHAM',iDisk,MxDDsk)
-            Call RWDTG(-jDT,AuxV,nBT*nD,'R','dVxcdR',iDisk,MxDDsk)
+           Call RWDTG(-jDT,AuxD,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
+           Call RWDTG(-jDT,AuxT,nBT*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
+           Call RWDTG(-jDT,AuxV,nBT*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
 *
             Call EGrad(OneHam,AuxT,AuxV,Ovrlp,AuxD,nBT,OCMO,nBO,
      &                 GrdOO,nOO,nD,CMO)

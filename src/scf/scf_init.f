@@ -147,9 +147,9 @@ C     FThr   =  0.5d-6
       AccCon = '         '
       nDisc  =  2000
       nCore = 512
-      Call ICopy(MxOptm,[-1],0,kDisk,1)
-      Call ICopy(MxDDsk,[-1],0,iDisk,1)
-      Call ICopy(MxKeep,[0],0,MapDns,1)
+      kDisk(:)=-1
+      iDisk(:,1)=-1
+      MapDns(:)=0
       FrstDs = .True.
       FrstDa = .True.
       PreSch = .False.
