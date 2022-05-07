@@ -105,6 +105,9 @@
       If (nIter(nIterP).eq.0) iter0=-1
       Call Final()
       If (DSCF) Call Free_TLists()
+      Call mma_deallocate(Type)
+      Call mma_deallocate(Atom)
+      Call mma_deallocate(Name)
 *
       Call CWTime(TCPU2,TWall2)
       Call SavTim(4,TCPU2-TCPU1,TWall2-TWall1)

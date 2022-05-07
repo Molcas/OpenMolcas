@@ -174,10 +174,10 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
         UHF_Size,nSkip(MxSym),iAu_ab,LstVec(nStOpt),                    &
         iDummy_run, iTer2run
 
-      Character(LEN=LENIN8)  Name(MxBS)
+      Character(LEN=LENIN8), Allocatable::  Name(:)
+      Character(LEN=LENIN ), Allocatable::  Atom(:)
+      Character(LEN=8     ), Allocatable::  Type(:)
       Character(LEN=9     )  AccCon
-      Character(LEN=LENIN )  Atom(MxBS)
-      Character(LEN=8     )  Type(MxBS)
       Character(LEN=4     )  Neg2_Action
       Character(LEN=80    )  KSDFT
       Character(LEN=512   )  SCF_FileOrb

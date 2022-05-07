@@ -34,6 +34,7 @@
       use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
+#include "stdalloc.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -51,6 +52,7 @@
       Do iSym = 1, nSym
          nBas_tot=nBas_tot+nBas(iSym)
       End Do
+      Call mma_allocate(Name,nBas_tot,Label='Name')
       Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas_tot)
 *---- read number of atoms
       Call Get_iScalar('Unique atoms',nAtoms)
@@ -63,6 +65,8 @@
       Do iSym = 1, nSym
          lthBas = lthBas + nBas(iSym)
       End Do
+      Call mma_allocate(Atom,lthBas,Label='Atom')
+      Call mma_allocate(Type,lthBas,Label='Type')
 *
 *---- Define atom and type
       Do i = 1, lthBas
