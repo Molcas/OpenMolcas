@@ -20,19 +20,24 @@ Subroutine DIIS_GEK_Optimizer()
 !             University of Uppsala, SWEDEN                            *
 !             May '22                                                  *
 !***********************************************************************
-use InfSO , only: iterso
+use InfSO , only: iterso, Energy
 use InfSCF, only: iter, mOV
 use LnkLst, only: SCF_V, Init_LLs, LLx, LLGrad
 use SCF_Arrays, only: HDiag
 Implicit None
+#include "real.fh"
 #include "stdalloc.fh"
 
-Integer i, j, k, l, ipq, ipg, nDIIS
+Integer i, j, k, l, ipq, ipg, nDIIS, iFirst
 Integer, External:: LstPtr
 Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
+Real*8, Allocatable:: dq_diis(:)
 Real*8, Allocatable:: H_Diis(:,:)
 Real*8 :: gg
+Character(Len=1) Step_Trunc
+Character(Len=6) UpMeth
+Real*8 :: dqHdq, StepMax, Thr_RS
 
 
 !Write (6,*) 'Enter DIIS-GEK Optimizer'
@@ -46,7 +51,8 @@ Call mma_allocate(g,mOV,iterso,Label='g')
 
 !Pick up coordinaytes and gradients in full space
 nDIIS = 0
-Do i = iter-iterso+1, iter
+iFirst=iter-iterso+1
+Do i = iFirst, iter
 !  Write (6,*) 'i,iter=',i,iter
    nDIIS = nDIIS + 1
 
@@ -136,7 +142,39 @@ Do i = 1, nDiis
       H_diis(i,j)=gg
    End Do
 End Do
-!Call RecPrt('H_diis',' ',H_diis,iterso,iterso)
+Call RecPrt('H_diis',' ',H_diis,iterso,iterso)
+
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+
+Call mma_allocate(dq_diis,nDiis,Label='dq_Diis')
+
+! We need to set the bias
+
+Call DScal_(nDiis*nDiis,-One,g_diis,1)
+Call Setup_Kriging(nDiis,nDiis,q_diis,g_diis,Energy(iFirst),H_diis)
+Call DScal_(nDiis*nDiis,-One,g_diis,1)
+
+! Compute the surrogate Hessian
+
+Call Hessian_Kriging_Layer(q(:,nDiis),H_diis,nDiis)
+Call RecPrt('H_diis',' ',H_diis,iterso,iterso)
+
+!First implementation with a simple RS-RFO step
+
+dqHdq=Zero
+StepMax=0.3D0
+Thr_RS=1.0D-7
+UpMeth=''
+Step_Trunc=''
+Call RS_RFO(H_diis,g,nDiis,dq_diis,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
+
+Call Finish_Kriging()
+Call mma_deallocate(dq_diis)
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
 
 Call mma_deallocate(h_diis)
 
