@@ -42,11 +42,14 @@
       Real*8, Save :: StepMax=1.0D0
       Real*8, Parameter :: Thr=1.0D-4
 *
+*#define _DEBUGPRINT_
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
+#ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax_Seed=',StepMax_Seed
       Write (6,*) 'Sqrt(gg)=',Sqrt(DDot_(nInter,g,1,g,1))
+#endif
 
 !     Make sure that the step restriction is not too loose.
       gg=Sqrt(DDot_(nInter,g,1,g,1))
@@ -57,13 +60,13 @@
       gg=Max(gg,2.0D-1)
 
       StepMax=StepMax_Seed*gg
+#ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax=',StepMax
+#endif
 
 *     Make sure that step restriction is not too tight.
       If (StepMax<1.0D-1) StepMax=1.0D-1
-      Write (6,*) 'StepMax=',StepMax
 
-*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 *     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
 *     Call RecPrt('rs-rfo: g',' ',g,1,nInter)
@@ -257,8 +260,6 @@
       Write (Lu,*) '***************************************************'
       Write (Lu,*)
 #endif
-      Write (Lu,'(2E11.3)') Sqrt(dqdq),StepMax
-*
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)
 *

@@ -614,7 +614,7 @@
      &          EDiff<Zero .AND.
      &          Abs(EDiff)<1.0D-1
      &         ) Then
-               Write (6,*) 'Increase step restriction parameter.'
+!              Write (6,*) 'Increase step restriction parameter.'
 
 *              Increase steplength if there was an energy decrease.
 
@@ -625,7 +625,7 @@
 
 *              If last step represented an energy increase reset the
 *              threshold parameter for the step restriction
-               Write (6,*) 'Decrease step restriction parameter.'
+!              Write (6,*) 'Decrease step restriction parameter.'
 
                StepMax=Max(StepMax*0.75D0,0.8D-3)
             End If

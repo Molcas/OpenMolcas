@@ -20,11 +20,45 @@ Subroutine DIIS_GEK_Optimizer()
 !             University of Uppsala, SWEDEN                            *
 !             May '22                                                  *
 !***********************************************************************
-use InfSCF, only: iter
-!use LnkLst, only: SCF_V
+use InfSO , only: iterso
+use InfSCF, only: iter, mOV
+use LnkLst, only: SCF_V, Init_LLs, LLx, LLGrad
 Implicit None
-Integer i
+#include "stdalloc.fh"
 
-Do i = 1, iter
+Integer i, j, ipq, ipg
+Integer, External:: LstPtr
+Real*8, Allocatable:: q(:,:), g(:,:)
+
+
+Write (6,*) 'Enter DIIS-GEK Optimizer'
+If (.NOT.Init_LLs) Then
+   Write (6,*) 'Link list not initiated'
+   Call Abend()
+End If
+
+Call mma_allocate(q,mOV,iterso,Label='q')
+Call mma_allocate(g,mOV,iterso,Label='g')
+
+j = 0
+Do i = iter-iterso+1, iter
+   Write (6,*) 'i,iter=',i,iter
+   j = j + 1
+
+!  Coordinates
+   ipq=LstPtr(i  ,LLx)
+   q(:,j)=SCF_V(ipq)%A(:)
+
+!  Gradients
+   ipg=LstPtr(i  ,LLGrad)
+   g(:,j)=SCF_V(ipg)%A(:)
+
 End Do
+Call RecPrt('q',' ',q,mOV,iterso)
+Call RecPrt('g',' ',g,mOV,iterso)
+
+Call mma_deallocate(q)
+Call mma_deallocate(g)
+
+Write (6,*) 'Exit DIIS-GEK Optimizer'
 End Subroutine DIIS_GEK_Optimizer
