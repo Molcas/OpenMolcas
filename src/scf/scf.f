@@ -152,7 +152,7 @@
 ************************************************************************
       SubRoutine IniLLs()
 *     initialize the diverse linked lists
-      use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
+      use LnkLst, only: LLlist,LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
       use InfSCF
       Implicit Real*8 (a-h,o-z)
 
