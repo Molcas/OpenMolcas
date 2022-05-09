@@ -146,11 +146,6 @@ C
         Call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         LuCMOPT2 = 61
-C       Open (Unit=LuCMOPT2,
-C    *        File=RealName(1:lRealName),
-C    *        Status='OLD',
-C    *        Form='UNFORMATTED')
-C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
         Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                        'DIRECT','UNFORMATTED',
      &                        iost,.FALSE.,
@@ -201,13 +196,6 @@ C
 C
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGamma = 60
-C       Open (Unit=LuGamma,
-C    *        File=RealName(1:lRealName),
-C    *        Status='OLD',
-C    *        Form='UNFORMATTED',
-C    *        Access='DIRECT',
-C    *        Recl=nOcc(1)*nOcc(1)*8)
-C       call molcas_Open(LuGamma,RealName(1:lRealName))
         Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
      &                        'DIRECT','UNFORMATTED',
      &                        iost,.TRUE.,
@@ -347,7 +335,6 @@ C       call molcas_Open(LuGamma,RealName(1:lRealName))
         !! are back-transformed on-the-fly.
         LoadVec = .True.
       End If
-C     End If
       Count=TskLw
       Call CWTime(TCpu1,TWall1)
   13  Continue

@@ -587,15 +587,8 @@ C       B_PT2(:,:,:)=Zero
         !! Now, read
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGAMMA = 60
-C       call molcas_Open(LuGAMMA,RealName(1:lRealName))
-C       Open (Unit=LuGAMMA,
-C    *        File=RealName(1:lRealName),
-C    *        Status='OLD',
-C    *        Form='UNFORMATTED',
-C    *        Access='DIRECT',
-C    *        Recl=nBasT*nBasT*8)
         Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
+     &                       'DIRECT','UNFORMATTED',
      &                        iost,.TRUE.,
      &                        nBasT*nBasT*8,'OLD',is_error)
         Do iRec = 1, nBasA
