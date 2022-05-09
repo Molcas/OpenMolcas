@@ -581,6 +581,15 @@ C
       Else
         IFSSDM = .true.
       End If
+
+      ! for the time being only allow analytic gradients either with
+      ! nstate = nroots or with sadref
+      if (ifgrdt.and.(nState.ne.nRoots).and.(.not.ifsadref)) then
+        call warningMessage(2,'Analytic gradients available only if'//
+     &                        ' all CASSCF roots are included in'//
+     &                        ' the CASPT2 calculation.')
+        call quit_onUserError
+      end if
 *---  Exit
       Return
       End

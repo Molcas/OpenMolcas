@@ -679,13 +679,13 @@ C    *              0.0D+00,Work(ipRDMEIG),nAshT)
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian
         If (IFDW) Then
-        ipTrfL = ipTrf+nIshT*nBasT+nIshT
-        Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     *              1.0D+00,Work(ipTrfL),nBasT,Work(ipRDMEIG),nAshT,
-     *              0.0D+00,Work(ipWRK1),nAshT)
-        Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *              1.0D+00,Work(ipWRK1),nAshT,Work(ipTrfL),nBasT,
-     *              0.0D+00,Work(ipWRK2),nAshT)
+          ipTrfL = ipTrf+nIshT*nBasT+nIshT
+          Call DGemm_('N','N',nAshT,nAshT,nAshT,
+     *                1.0D+00,Work(ipTrfL),nBasT,Work(ipRDMEIG),nAshT,
+     *                0.0D+00,Work(ipWRK1),nAshT)
+          Call DGemm_('N','T',nAshT,nAshT,nAshT,
+     *                1.0D+00,Work(ipWRK1),nAshT,Work(ipTrfL),nBasT,
+     *                0.0D+00,Work(ipWRK2),nAshT)
         End If
         Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG))
 C
