@@ -56,11 +56,6 @@ C
         !! No need to save CMOPT2. Just save A_PT2 and B_PT2.
         !! First, save A_PT2 in LuCMOPT2
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
-C       Open (Unit=LuCMOPT2,
-C    *        File=RealName(1:lRealName),
-C    *        Status='REPLACE',
-C    *        Form='UNFORMATTED')
-C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
         If (IFMSCOUP.and.jState.ne.1) Then
           Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                          'DIRECT','UNFORMATTED',
@@ -75,35 +70,38 @@ C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
           REWIND LuCMOPT2
         Else
           Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                          'DIRECT','UNFORMATTED',
+     &                         'DIRECT','UNFORMATTED',
      &                          iost,.FALSE.,
      &                          1,'REPLACE',is_error)
         End If
 C       write(6,*) "write...",numcho,lucmopt2
-        Do i = 1, NumCho*NumCho
-C       write(6,*) "i = ", i
-          Write (LuCMOPT2) A_PT2(i)
-        End Do
+
+        ! For SS-CASPT2 I should write A_PT2 on disk only
+        ! for the correct iRlxRoot
+        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+          Do i = 1, NumCho*NumCho
+            write (LuCMOPT2) A_PT2(i)
+          End Do
+        end if
         Close (LuCMOPT2)
+
         !! Prepare for saving B_PT2. B_PT2 is saved in VVVOX2
         Call PrgmTranslate('GAMMA',RealName,lRealName)
-C       Open (Unit=LuGamma,
-C    *        File=RealName(1:lRealName),
-C    *        Status='REPLACE',
-C    *        Form='UNFORMATTED',
-C    *        Access='DIRECT',
-C    *        Recl=nBas(iSym)*nBas(iSym)*8)
-C       call molcas_Open(LuGamma,RealName(1:lRealName))
+
+        ! open LuGamma here, as we will write on it in vvvo_drv
         If (IFMSCOUP.and.jState.ne.1) Then
-        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
-     &                        iost,.TRUE.,
-     &                        nBas(iSym)**2*8,'OLD',is_error)
+          Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                         'DIRECT','UNFORMATTED',
+     &                          iost,.TRUE.,
+     &                          nBas(iSym)**2*8,'OLD',is_error)
         Else
-        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
-     &                        iost,.TRUE.,
-     &                        nBas(iSym)**2*8,'REPLACE',is_error)
+          ! open only for the correct root
+          if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+            Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                           'DIRECT','UNFORMATTED',
+     &                            iost,.TRUE.,
+     &                            nBas(iSym)**2*8,'REPLACE',is_error)
+          end if
         End If
       End If
       !! 2) Compute ERI (mu rho | nu sigma)
@@ -160,16 +158,15 @@ C     write(6,*) "lugamma mod = ", lugamma
 C     write(6,*) "aa"
 C     Call dDaFile(LuGamma,1,Work(LCMOPT2),nBasT*nBasT,iDisk)
       If (DoCholesky) Then
-        Close (LuGamma)
+        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+          Close (LuGamma)
+        end if
       Else
+        !! This is only for conventional calculations!!
+        write(6,*) 'WARNING!! THIS MIGHT BE WRONG!'
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
-C       Open (Unit=LuCMOPT2,
-C    *        File=RealName(1:lRealName),
-C    *        Status='REPLACE',
-C    *        Form='UNFORMATTED')
-C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
         Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
+     &                       'DIRECT','UNFORMATTED',
      &                        iost,.FALSE.,
      &                        1,'REPLACE',is_error)
         !! First, CMOPT2 has to be saved. The MO coefficient matrix in
@@ -233,23 +230,16 @@ C       call sqprt(Work(LCMOPT2),nbast)
 C
 C       write(6,*) "going to open LuGamma"
         Call PrgmTranslate('GAMMA',RealName,lRealName)
-C       Open (Unit=LuGamma,
-C    *        File=RealName(1:lRealName),
-C    *        Status='REPLACE',
-C    *        Form='UNFORMATTED',
-C    *        Access='DIRECT',
-C    *        Recl=nOcc*nOcc*8)
-C       call molcas_Open(LuGamma,RealName(1:lRealName))
         if (ifmscoup.and.jstate.ne.1) then
-        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
-     &                        iost,.TRUE.,
-     &                        nOcc*nOcc*8,'OLD',is_error)
+          Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                         'DIRECT','UNFORMATTED',
+     &                          iost,.TRUE.,
+     &                          nOcc*nOcc*8,'OLD',is_error)
         else
-        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
-     &                        iost,.TRUE.,
-     &                        nOcc*nOcc*8,'REPLACE',is_error)
+          Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                         'DIRECT','UNFORMATTED',
+     &                          iost,.TRUE.,
+     &                          nOcc*nOcc*8,'REPLACE',is_error)
         end if
         if (is_error) then
          write (6,*) "Something is wrong in opening LuGamma in olagvvvo"
@@ -313,11 +303,11 @@ C       end if
                   End Do
                 End Do
                 iRec = iBas+nBasT*(jBas-1)
-      if (ifmscoup.and.jstate.ne.1) then
-        read (lugamma,rec=irec) (work(ipwrk2+i-1),i=1,nocc*nocc)
-        call daxpy_(nocc*nocc,1.0d+00,work(ipwrk2),1,
+        if (ifmscoup.and.jstate.ne.1) then
+          read (lugamma,rec=irec) (work(ipwrk2+i-1),i=1,nocc*nocc)
+          call daxpy_(nocc*nocc,1.0d+00,work(ipwrk2),1,
      *                                t_hbf(1,1,ibas0,jbas0),1)
-      end if
+        end if
                 Write (LuGamma,Rec=iRec)
      *            (T_hbf(i,1,iBas0,jBas0),i=1,nOcc*nOcc)
               End Do
@@ -1226,7 +1216,10 @@ C
               End Do
             End Do
 C           Write (LuGamma,Rec=iVec) (Work(ipWRK+i-1),i=1,lscr)
-            Write (LuGamma,Rec=iVec) (Work(ipHTVec+i-1),i=1,nBasI**2)
+
+            if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+              Write (LuGamma,Rec=iVec) (Work(ipHTVec+i-1),i=1,nBasI**2)
+            end if
 C
 C           ----- Fock-like transformations -----
 C

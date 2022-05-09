@@ -37,7 +37,6 @@ C
 C
 #include "chocaspt2.fh"
       DIMENSION DMAT(*),UEFF(nState,nState)
-      Character*4096 RealName
       Dimension VECROT(nState)
 
 
@@ -422,6 +421,7 @@ C    *                     NVLOC_CHOBATCH(1))
             ipSI = ipAI + nAsh(iSym)*nIsh(iSym)*NVLOC_CHOBATCH(1)
             ipAA = ipSI + nSsh(iSym)*nIsh(iSym)*NVLOC_CHOBATCH(1)
             ipSA = ipAA + nAsh(iSym)*nAsh(iSym)*NVLOC_CHOBATCH(1)
+            ! A_PT2 gets populated in here
             CALL OLagNS_RI(iSym,Work(ipWRK1),Work(ipWRK2),
      *                     Work(ipDPTC),Work(ipDPTCanti),
      *                     Work(ipAI),Work(ipSI),
@@ -767,14 +767,19 @@ C
         !! Transformations of DPT2 in quasi-canonical to natural orbital
         !! basis and store the transformed density so that the MCLR
         !! module can use them.
-        Call DPT2_TrfStore(1.0D+00,Work(ipDPT),Work(ipDPT2),
-     *                     Work(ipTrf),Work(ipWRK1))
-        Call DPT2_TrfStore(2.0D+00,Work(ipDPTC),Work(ipDPT2C),
-     *                     Work(ipTrf),Work(ipWRK1))
-        If (isCSF) Then
-          Call DPT2_TrfStore(1.0D+00,Work(ipDPTCanti),Work(ipDPT2Canti),
+        ! accumulate only if MS,XMS,XDW or RMS calculation
+        ! call RecPrt('DPT2 before', '', work(ipDPT2), nBast, nBast)
+        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+          Call DPT2_TrfStore(1.0D+00,Work(ipDPT),Work(ipDPT2),
      *                       Work(ipTrf),Work(ipWRK1))
-        End If
+          Call DPT2_TrfStore(2.0D+00,Work(ipDPTC),Work(ipDPT2C),
+     *                       Work(ipTrf),Work(ipWRK1))
+          If (isCSF) Then
+            Call DPT2_TrfStore(1.0D+00,Work(ipDPTCanti),
+     *      Work(ipDPT2Canti),Work(ipTrf),Work(ipWRK1))
+          End If
+        end if
+        ! call RecPrt('DPT2 after', '', work(ipDPT2), nBast, nBast)
 C       !! Save MO densities for post MCLR
 C       Call DGemm_('N','N',nBasT,nBasT,nBasT,
 C    *              1.0D+00,Work(ipTrf),nBasT,Work(LDPT),nBasT,
@@ -810,30 +815,33 @@ C
         !! square -> triangle so that the MCLR module can use the AO
         !! densities. Do this for DPT2AO and DPT2CAO (defined in
         !! caspt2_grad.f and caspt2_grad.h).
-        iBasTr = 1
-        iBasSq = 1
-        Do iSym = 1, nSym
-          nBasI = nBas(iSym)
-          liBasTr = iBasTr
-          liBasSq = iBasSq
-          Do iBasI = 1, nBasI
-            Do jBasI = 1, iBasI
-              liBasSq = iBasSq + iBasI-1 + nBasI*(jBasI-1)
-              If (iBasI.eq.jBasI) Then
-                Work(ipDPT2AO +liBasTr-1) = Work(ipDPTAO +liBasSq-1)
-                Work(ipDPT2CAO+liBasTr-1) = Work(ipDPTCAO+liBasSq-1)
-              Else
-                Work(ipDPT2AO +liBasTr-1)
+        ! accumulate only if MS,XMS,XDW or RMS calculation
+        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+          iBasTr = 1
+          iBasSq = 1
+          Do iSym = 1, nSym
+            nBasI = nBas(iSym)
+            liBasTr = iBasTr
+            liBasSq = iBasSq
+            Do iBasI = 1, nBasI
+              Do jBasI = 1, iBasI
+                liBasSq = iBasSq + iBasI-1 + nBasI*(jBasI-1)
+                If (iBasI.eq.jBasI) Then
+                  Work(ipDPT2AO +liBasTr-1) = Work(ipDPTAO +liBasSq-1)
+                  Work(ipDPT2CAO+liBasTr-1) = Work(ipDPTCAO+liBasSq-1)
+                Else
+                  Work(ipDPT2AO +liBasTr-1)
      *            = Work(ipDPTAO +liBasSq-1)*2.0D+00
-                Work(ipDPT2CAO+liBasTr-1)
+                  Work(ipDPT2CAO+liBasTr-1)
      *            = Work(ipDPTCAO+liBasSq-1)*2.0D+00
-              End If
-              liBasTr = liBasTr + 1
+                End If
+                liBasTr = liBasTr + 1
+              End Do
             End Do
+            iBasTr = iBasTr + nBasI*(nBasI+1)/2
+            iBasSq = iBasSq + nBasI*nBasI
           End Do
-          iBasTr = iBasTr + nBasI*(nBasI+1)/2
-          iBasSq = iBasSq + nBasI*nBasI
-        End Do
+        end if
 C
         !! If SS density matrix is used, we need an additional term for
         !! electron-repulsion integral. Here prepares such densities.
@@ -841,7 +849,8 @@ C
         !! difference between the SS and SA density matrix. because the
         !! SA density-contribution will be added and should be
         !! subtracted
-        If (IFSSDM) Then
+        ! This should be done only for iRlxRoot
+        If (IFSSDM .and. jState.eq.iRlxRoot) Then
           If (.not.INVAR) Then
             write(6,*) "SS density matrix with BSHIFT is not yet"
             Call abend()
@@ -862,6 +871,7 @@ C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
      *                  Work(ipTrf))
           !! Subtract the inactive part
           Call DaXpY_(nBasT**2,-1.0D+00,Work(ipWRK2),1,Work(ipWRK1),1)
+          !! Here we should use ipDPTAO2??
           !! Save
           If (IfChol) Then
             Call CnstAB_SSDM(Work(ipDPTAO),Work(ipWRK1))
@@ -876,21 +886,16 @@ C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
             write(6,*) "Please use DF or CD"
             write(6,*) "I may not fix in the future"
             call abend()
-            Call PrgmTranslate('CMOPT2',RealName,lRealName)
-C           Open (Unit=LuCMOPT2,
-C    *            File=RealName(1:lRealName),
-C    *            Position='APPEND',
-C    *            Status='OLD',
-C    *            Form='UNFORMATTED')
-            call molcas_Open(LuCMOPT2,RealName(1:lRealName))
-            Do iBasI = 1, nBasT
-              Do jBasI = 1, iBasI
-                Write (LuCMOPT2) Work(ipDPTAO+iBasI-1+nBasT*(jBasI-1)),
-     *                           Work(ipWRK1 +iBasI-1+nBasT*(jBasI-1))
-              End Do
-            End Do
-C
-            Close (LuCMOPT2)
+            ! Call PrgmTranslate('CMOPT2',RealName,lRealName)
+!             call molcas_Open(LuCMOPT2,RealName(1:lRealName))
+!             Do iBasI = 1, nBasT
+!               Do jBasI = 1, iBasI
+!                 Write (LuCMOPT2) Work(ipDPTAO+iBasI-1+nBasT*(jBasI-1)),
+!      *                           Work(ipWRK1 +iBasI-1+nBasT*(jBasI-1))
+!               End Do
+!             End Do
+! C
+!             Close (LuCMOPT2)
           End If
         End If
 C       write(6,*) "pt2ao"
@@ -984,7 +989,11 @@ C
           iBasTr = iBasTr + nBasI*(nBasI+1)/2
           iBasSq = iBasSq + nBasI*nBasI
         End Do
-        Call DaXpY_(nBasSq,1.0D+00,Work(ipWLagL),1,Work(ipWLag),1)
+        ! accumulate W Lagrangian only for MS,XMS,XDW,RMS,
+        ! but not for SS-CASPT2
+        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+            Call DaXpY_(nBasSq,1.0D+00,Work(ipWLagL),1,Work(ipWLag),1)
+        end if
         CALL GETMEM('WLAGL  ','FREE','REAL',ipWLagL  ,nWLag)
 C
 C
@@ -1962,11 +1971,6 @@ C
       Call GetMem('A_PT2 ','ALLO','REAL',ipA_PT2,NumChoTot**2)
       !! Read A_PT2
       Call PrgmTranslate('CMOPT2',RealName,lRealName)
-C     Open (Unit=LuCMOPT2,
-C    *      File=RealName(1:lRealName),
-C    *      Status='OLD',
-C    *      Form='UNFORMATTED')
-C     call molcas_Open(LuCMOPT2,RealName(1:lRealName))
       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                      'DIRECT','UNFORMATTED',
      &                      iost,.FALSE.,
@@ -2143,13 +2147,6 @@ C
 C     Call GetMem('B_PT2 ','ALLO','REAL',ipB_PT2,nBasT**2*NumChoTot)
       !! Read B_PT2
       Call PrgmTranslate('GAMMA',RealName,lRealName)
-C     Open (Unit=LuGamma,
-C    *      File=RealName(1:lRealName),
-C    *      Status='OLD',
-C    *      Form='UNFORMATTED',
-C    *      Access='DIRECT',
-C    *      Recl=nBas(iSym)*nBas(iSym)*8)
-C     call molcas_Open(LuGamma,RealName(1:lRealName))
       Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
      &                      'DIRECT','UNFORMATTED',
      &                      iost,.TRUE.,
