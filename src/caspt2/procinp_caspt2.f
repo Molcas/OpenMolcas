@@ -566,6 +566,21 @@ C
       IFSADREF = Input%SADREF
       IFDORTHO = Input%DORTHO
       IFINVAR  = Input%INVAR
+
+      !! Whether the Fock matrix (eigenvalues) is constructed with
+      !! the state-averaged density matrix or not.
+      !! The name of the variable is like state-specific DM,
+      !! but not necessarily state-specific. It is a matter of the
+      !! structure of WORK(LDWGT) array or matrix.
+      !! WORK(LDWGT) is a matrix form for SS- and MS-CASPT2 with
+      !! state-specific DM, XDW-CASPT2, and RMS-CASPT2, while it is an
+      !! array for SS- and MS-CASPT2 with state-averaged DM (with SADREF
+      !! option) and XMS-CASPT2.
+      If (IFSADREF.or.nRoots.eq.1.or.(IFXMS.and..not.IFDW)) Then
+        IFSSDM = .false.
+      Else
+        IFSSDM = .true.
+      End If
 *---  Exit
       Return
       End

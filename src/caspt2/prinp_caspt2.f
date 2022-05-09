@@ -107,9 +107,9 @@
      &                           LSYM
       WRITE(6,Fmt2//'A,T40,I11)')'Number of CSFs',
      &                           NCONF
-      WRITE(6,Fmt2//'A,T45,I6)')'Number of root(s) available',
+      WRITE(6,Fmt2//'A,T45,I6)')'Number of CASSCF root(s) available',
      &                           NROOTS
-      WRITE(6,Fmt2//'A,T45,I6)')'Root passed to geometry opt.',
+      WRITE(6,Fmt2//'A,T45,I6)')'CASPT2 state passed to geometry opt.',
      &                           iRlxRoot
       IF(IFMIX) THEN
         WRITE(6,Fmt2//'A,T45,10I3)')'A file JOBMIX will be created'
