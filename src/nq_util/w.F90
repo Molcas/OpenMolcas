@@ -12,16 +12,15 @@
 subroutine W(R,ilist_p,Weights,list_p,nlist_p,nGrid,nRemoved)
 
 use NQ_Structure, only: NQ_Data
-use nq_Info
+use Constants, only: Zero, One, Three, Half, OneHalf
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "itmax.fh"
-#include "debug.fh"
-real*8 R(3,nGrid), Weights(nGrid)
-integer list_p(nlist_p)
-! Statement function
-p(x) = (x*0.5d0)*(3.0d0-x**2)
+implicit none
+integer(kind=iwp) :: ilist_p, nlist_p, list_p(nlist_p), nGrid, nRemoved
+real(kind=wp) :: R(3,nGrid), Weights(nGrid)
+integer(kind=iwp) :: iGrid, iNQ, jGrid, klist_p, kNQ, llist_p, lNQ
+real(kind=wp) :: Fact, p1, p2, p3, P_i, P_k, r_k, R_kl, r_l, rMU_kl, s, Sum_P_k, xdiff
+real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 
 !                                                                      *
 !***********************************************************************
@@ -32,17 +31,17 @@ P_i = Zero ! dummy initialize
 ! points belong.
 
 iNQ = list_p(ilist_p)
-!write(6,*) 'ilist_p=',ilist_p
-!write(6,*) 'nlist_p=',nlist_p
-!write(6,*) 'nGrid=',nGrid
-!write(6,*) 'iNQ=',iNQ
+!write(u6,*) 'ilist_p=',ilist_p
+!write(u6,*) 'nlist_p=',nlist_p
+!write(u6,*) 'nGrid=',nGrid
+!write(u6,*) 'iNQ=',iNQ
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 jGrid = 0
 nRemoved = 0
 do iGrid=1,nGrid
-  !write(6,*) 'iGrid=',iGrid
+  !write(u6,*) 'iGrid=',iGrid
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -62,16 +61,16 @@ do iGrid=1,nGrid
         R_kl = sqrt((NQ_Data(kNQ)%Coor(1)-NQ_Data(lNQ)%Coor(1))**2+(NQ_Data(kNQ)%Coor(2)-NQ_Data(lNQ)%Coor(2))**2+ &
                     (NQ_Data(kNQ)%Coor(3)-NQ_Data(lNQ)%Coor(3))**2)
         rMU_kl = (r_k-r_l)/R_kl
-        if (rMU_kl <= 0.5d0) then
-          p1 = p(rMU_kl)
-          p2 = p(p1)
-          p3 = p(p2)
+        if (rMU_kl <= Half) then
+          p1 = (rMU_kl*Half)*(Three-rMU_kl**2)
+          p2 = (p1*Half)*(Three-p1**2)
+          p3 = (p2*Half)*(Three-p2**2)
           s = Half*(One-p3)
         else
-          xdiff = rMU_kl-1.0d0
-          xdiff = (-1.5d0-0.5d0*xdiff)*xdiff**2
-          xdiff = (-1.5d0-0.5d0*xdiff)*xdiff**2
-          p3 = (1.5d0+0.5d0*xdiff)*xdiff**2
+          xdiff = rMU_kl-One
+          xdiff = (-OneHalf-Half*xdiff)*xdiff**2
+          xdiff = (-OneHalf-Half*xdiff)*xdiff**2
+          p3 = (OneHalf+Half*xdiff)*xdiff**2
           s = Half*p3
         end if
         P_k = P_k*s
@@ -83,7 +82,7 @@ do iGrid=1,nGrid
   end do
   Fact = Weights(iGrid)
   Weights(iGrid) = Fact*P_i/Sum_P_k
-  if (Weights(iGrid) >= 1.0D-14) then
+  if (Weights(iGrid) >= Thrs) then
     jGrid = jGrid+1
     if (jGrid /= iGrid) then
       Weights(jGrid) = Weights(iGrid)
@@ -94,12 +93,12 @@ do iGrid=1,nGrid
   else
     nRemoved = nRemoved+1
   end if
-  !write(6,*) 'Fact,P_A,Z,Weights=',Fact,P_i,Sum_P_k,Weights(jGrid)
+  !write(u6,*) 'Fact,P_A,Z,Weights=',Fact,P_i,Sum_P_k,Weights(jGrid)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
 end do
-!write(6,*) 'nRemoved=',nRemoved
+!write(u6,*) 'nRemoved=',nRemoved
 !                                                                      *
 !***********************************************************************
 !                                                                      *

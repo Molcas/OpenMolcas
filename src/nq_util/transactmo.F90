@@ -22,15 +22,15 @@ subroutine TransActMO(MOs,TabMO,mAO,mGrid,nMOs)
 ! The first and the second elements are the MO values
 ! of the first and the second active MO at grid point 1.
 
-use nq_Info
+use nq_Info, only: IOff_Ash, IOff_BasAct, mIrrep, nAsh, NASHT
+use Definitions, only: wp, iwp
 
-! Input
-integer mAO, mGrid, nMOs
-real*8, dimension(mAO,mGrid,nMOs) :: TabMO
-! Output
-real*8, dimension(mGrid*NASHT) :: MOs
-! Auxiliary
-integer nGridPi, iIrrep, IOff1, iOff2, iOff3
+implicit none
+integer(kind=iwp) :: mAO, mGrid, nMOs
+real(kind=wp) :: MOs(mGrid*NASHT), TabMO(mAO,mGrid,nMOs)
+! Input: mAO mGrid nMOs TabMO
+! Output: MOs
+integer(kind=iwp) :: iGrid, iIrrep, IOff1, iOff2, iOff3, nGridPi
 
 nGridPi = mAO*mGrid
 do iGrid=1,mGrid

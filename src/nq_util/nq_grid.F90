@@ -11,48 +11,24 @@
 
 module nq_Grid
 
-real*8, allocatable :: Pax(:,:)
-real*8, allocatable :: Coor(:,:)
-real*8, allocatable :: R2_trial(:)
-real*8, allocatable :: Fact(:,:)
-real*8, allocatable :: Mem(:)
-integer, allocatable :: Angular(:)
-integer, allocatable :: nR_Eff(:)
+use Definitions, only: wp, iwp
 
-integer, allocatable :: List_G(:,:)
-integer, allocatable :: iTab(:,:)
-integer, allocatable :: IndGrd(:)
-real*8, allocatable :: Temp(:)
-real*8, allocatable :: P2Unzip(:), D1Unzip(:)
-real*8, allocatable :: dW_dR(:,:)
+implicit none
+private
 
-real*8, allocatable :: Weights(:)
-real*8, allocatable :: Grid(:,:)
 ! nGridMax: size of the array Grid
-integer :: nGridMax = 128
-real*8, allocatable :: Rho(:,:)
-real*8, allocatable :: vRho(:,:)
-integer :: nRho = 0
-real*8, allocatable :: GradRho(:,:)
-integer :: nGradRho = 0
-real*8, allocatable :: Sigma(:,:)
-real*8, allocatable :: vSigma(:,:)
-integer :: nSigma = 0
-real*8, allocatable :: Lapl(:,:)
-real*8, allocatable :: vLapl(:,:)
-integer :: nLapl = 0
-real*8, allocatable :: Tau(:,:)
-real*8, allocatable :: vTau(:,:)
-integer :: nTau = 0
-logical :: l_CASDFT = .false.
-real*8, allocatable :: F_xc(:), F_xca(:), F_xcb(:)
-real*8, allocatable, target :: TabAO(:,:,:)
-real*8, allocatable, target :: TabAO_Short(:,:,:)
-real*8, pointer :: TabAO_pack(:) => null()
-real*8, allocatable :: Grid_AO(:,:,:,:)
-real*8, allocatable :: Dens_AO(:,:,:)
-real*8, allocatable :: dRho_dR(:,:,:)
-integer, allocatable :: iBfn_Index(:,:)
-integer :: kAO = 0
+integer(kind=iwp) :: kAO = 0, nGradRho = 0, nGridMax = 128, nLapl = 0, nRho = 0, nSigma = 0, nTau = 0
+logical(kind=iwp) :: l_CASDFT = .false.
+integer(kind=iwp), allocatable :: Angular(:), iBfn_Index(:,:), IndGrd(:), iTab(:,:), List_G(:,:), nR_Eff(:)
+real(kind=wp), allocatable :: Coor(:,:), D1Unzip(:), Dens_AO(:,:,:), dRho_dR(:,:,:), dW_dR(:,:), F_xc(:), F_xca(:), F_xcb(:), &
+                              Fact(:,:), GradRho(:,:), Grid(:,:), Grid_AO(:,:,:,:), Lapl(:,:), Mem(:), P2Unzip(:), Pax(:,:), &
+                              R2_trial(:), Rho(:,:), Sigma(:,:), Tau(:,:), Temp(:), vLapl(:,:), vRho(:,:), vSigma(:,:), vTau(:,:), &
+                              Weights(:)
+real(kind=wp), allocatable, target :: TabAO(:,:,:), TabAO_Short(:,:,:)
+real(kind=wp), pointer :: TabAO_pack(:) => null()
+
+public :: Angular, Coor, D1Unzip, Dens_AO, dRho_dR, dW_dR, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, Grid_AO, iBfn_Index, IndGrd, &
+          iTab, kAO, l_CASDFT, Lapl, List_G, Mem, nGradRho, nGridMax, nLapl, nR_Eff, nRho, nSigma, nTau, P2Unzip, Pax, R2_trial, &
+          Rho, Sigma, TabAO, TabAO_pack, TabAO_Short, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
 
 end module nq_Grid

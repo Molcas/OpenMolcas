@@ -11,36 +11,33 @@
 
 module nq_pdft
 
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
 ! ThrsRho: threshold of total density
 ! ThrsOMR: threshold of (1 - R)
 ! ThrsFT : threshold for doing full translation in ft functionals
-!          a.k.a R0 in the ft paper
+!          a.k.a. R0 in the ft paper
 ! ThrsNT : threshold for not doing any translation in ft functionals
-!          a.k.a R1 in the ft paper
+!          a.k.a. R1 in the ft paper
 
-real*8 :: ThrsRho = 1.00d-15
-real*8 :: ThrsOMR = 1.00d-15
-real*8 :: ThrsFT = 0.90d0
-real*8 :: ThrsNT = 1.15d0
-real*8 :: fta = -4.756065601d2
-real*8 :: ftb = -3.794733192d2
-real*8 :: ftc = -8.538149682d1
+real(kind=wp), parameter :: fta = -475.6065601_wp, ftb = -379.4733192_wp, ftc = -85.3814968_wp, ThrsFT = 0.9_wp, ThrsNT = 1.15_wp, &
+                            ThrsOMR = 1.0e-15_wp, ThrsRho = 1.0e-15_wp
+logical(kind=iwp) :: lft = .false., lGGA = .false.
+real(kind=wp), allocatable :: d2RdRho2(:), d2RdRhodPi(:), d2ZdR2(:), dEdPi(:), dEdPiMO(:), dEdPix(:), dEdPiy(:), dEdPiz(:), &
+                              dEdRho(:), dEdRhox(:), dEdRhoy(:), dEdRhoz(:), dF_dRhoamb(:), dF_dRhoapb(:), dF_dRhoxamb(:), &
+                              dF_dRhoxapb(:), dF_dRhoyamb(:), dF_dRhoyapb(:), dF_dRhozamb(:), dF_dRhozapb(:), dRdPi(:), dRdRho(:), &
+                              dRhoadZ(:), dRhoaxdZ(:), dRhoaydZ(:), dRhoazdZ(:), dRhodX(:), dRhodY(:), dRhodZ(:), dZdR(:), &
+                              dZdRho(:), GdEdPiMO(:), GradPidFdRho(:), GradRdFdRho(:), GradRhodFdRho(:), MOas(:), MOax(:), &
+                              MOay(:), MOaz(:), OneMZ(:), OnePZ(:), RatioA(:), RhoAB(:), ZetaA(:)
+logical(kind=iwp), allocatable :: Pass1(:), Pass2(:), Pass3(:)
 
-logical :: lGGA = .false., lft = .false.
-logical, dimension(:), allocatable :: Pass1, Pass2, Pass3
-real*8, dimension(:), allocatable :: RhoAB, OnePZ, OneMZ, RatioA, ZetaA
-real*8, dimension(:), allocatable :: dZdR, dRdRho, dZdRho, dRdPi
-real*8, dimension(:), allocatable :: dRhoadZ, dRhoaxdZ, dRhoaydZ, dRhoazdZ
-real*8, dimension(:), allocatable :: dRhodX, dRhodY, dRhodZ
-real*8, dimension(:), allocatable :: dF_dRhoapb, dF_dRhoamb
-real*8, dimension(:), allocatable :: dF_dRhoxapb, dF_dRhoxamb
-real*8, dimension(:), allocatable :: dF_dRhoyapb, dF_dRhoyamb
-real*8, dimension(:), allocatable :: dF_dRhozapb, dF_dRhozamb
-real*8, dimension(:), allocatable :: GradRhodFdRho, GradRdFdRho, GradPidFdRho
-real*8, dimension(:), allocatable :: dEdRho, dEdRhox, dEdRhoy, dEdRhoz
-real*8, dimension(:), allocatable :: dEdPi, dEdPix, dEdPiy, dEdPiz
-real*8, dimension(:), allocatable :: dEdPiMO, GdEdPiMO
-real*8, dimension(:), allocatable :: d2RdRho2, d2RdRhodPi, d2ZdR2
-real*8, dimension(:), allocatable :: MOas, MOax, MOay, MOaz
+public :: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, dF_dRhoamb, &
+          dF_dRhoapb, dF_dRhoxamb, dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, dRdRho, dRhoadZ, &
+          dRhoaxdZ, dRhoaydZ, dRhoazdZ, dRhodX, dRhodY, dRhodZ, dZdR, dZdRho, fta, ftb, ftc, GdEdPiMO, GradPidFdRho, GradRdFdRho, &
+          GradRhodFdRho, lft, lGGA, MOas, MOax, MOay, MOaz, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, &
+          ThrsOMR, ThrsRho, ZetaA
 
 end module nq_pdft

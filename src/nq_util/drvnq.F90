@@ -22,39 +22,39 @@ subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGr
 !             December 2001                                            *
 !***********************************************************************
 
-use iSD_data
 use Symmetry_Info, only: nIrrep
-use KSDFT_Info, only: KSDFA
-use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
-use nq_Grid, only: vRho, vSigma, vTau, vLapl
-use nq_Grid, only: Grid, Weights
-use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
-use nq_Grid, only: l_CASDFT, kAO
-use nq_Grid, only: F_xc, F_xca, F_xcb
-use nq_Grid, only: List_G, IndGrd, iTab, Temp, Angular, Mem
-use nq_Grid, only: Coor, R2_trial, Pax, Fact, nR_Eff
+use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGrd, iTab, kAO, l_CASDFT, Lapl, List_G, Mem, &
+                   nGradRho, nGridMax, nLapl, nR_Eff, nRho, nSigma, nTau, Pax, R2_trial, Rho, Sigma, Tau, Temp, vLapl, vRho, &
+                   vSigma, vTau, Weights
 use nq_pdft, only: lGGA
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
-use Grid_On_Disk
-use libxc
-use nq_Info
+use nq_Info, only: Functional_type, GGA_type, LDA_type, LMax_NQ, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
+                   number_of_subblocks, Other_type
+use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate ,Lu_Grid, &
+                        LuGridFile, Regenerate, Use_Old
+use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-implicit real*8(A-H,O-Z)
-external Kernel
-#include "real.fh"
-#include "stdalloc.fh"
-#include "itmax.fh"
-#include "setup.fh"
-#include "nsd.fh"
-#include "debug.fh"
+implicit none
+external :: Kernel
+integer(kind=iwp) :: nFckDim, nFckInt, nD, nGrad
+real(kind=wp) :: FckInt(nFckInt,nFckDim), Funct, Density(nFckInt,nD), Grad(nGrad)
+logical(kind=iwp) :: Do_Grad, Do_MO, Do_TwoEl
+character(len=4) :: DFTFOCK
 #include "status.fh"
-real*8 FckInt(nFckInt,nFckDim), Density(nFckInt,nD), Grad(nGrad)
-logical Do_Grad, Do_MO, Do_TwoEl, PMode
-character*4 DFTFOCK
-integer nBas(8), nDel(8)
-integer, allocatable :: Maps2p(:,:), List_s(:,:), List_Exp(:), List_Bas(:,:), List_P(:)
-real*8, allocatable :: R_Min(:)
+integer(kind=iwp) :: i, iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, jIrrep, kAsh, kIrrep, kl_Orb_pairs, lAsh, mAO, mdRho_dr, &
+                     mGrad, nBas(8), nCMO, nD1MO, nDel(8), nNQ, nP2, nP2_ontop, NQNAC, NQNACPAR, NQNACPR2, nShell, nTmpPUVX
+real(kind=wp) :: PThr
+logical(kind=iwp) :: PMode
+integer(kind=iwp), allocatable :: List_Bas(:,:), List_Exp(:), List_P(:), List_s(:,:), Maps2p(:,:)
+real(kind=wp), allocatable :: R_Min(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -107,8 +107,10 @@ LuGridFile = 31
 LuGridFile = IsFreeUnit(LuGridFile)
 call Molcas_Open(LuGridFile,'GRIDFILE')
 
-if (Debug) write(6,*) 'l_casdft value at drvnq:',l_casdft
-if (Debug .and. l_casdft) write(6,*) 'MCPDFT with functional:',KSDFA
+#ifdef _DEBUGPRINT_
+write(u6,*) 'l_casdft value at drvnq:',l_casdft
+if (l_casdft) write(u6,*) 'MCPDFT with functional:',KSDFA
+#endif
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -374,8 +376,10 @@ if (.not. Do_Grad) call FZero(FckInt,nFckInt*nFckDim)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Debug) write(6,*) 'l_casdft value at drvnq:',l_casdft
-if (Debug .and. l_casdft) write(6,*) 'MCPDFT with functional:',KSDFA
+#ifdef _DEBUGPRINT_
+write(u6,*) 'l_casdft value at drvnq:',l_casdft
+if (l_casdft) write(u6,*) 'MCPDFT with functional:',KSDFA
+#endif
 
 if (l_casdft) then
   call mma_allocate(P2_ontop,nP2_ontop,nGridMax,Label='P2_ontop')
@@ -435,10 +439,12 @@ call mma_deallocate(Rho)
 call mma_deallocate(Weights)
 call mma_deallocate(Grid)
 
-if (Debug) write(6,*) 'l_casdft value at drvnq:',l_casdft
-if (Debug .and. l_casdft) write(6,*) 'MCPDFT with functional:',KSDFA
+#ifdef _DEBUGPRINT_
+write(u6,*) 'l_casdft value at drvnq:',l_casdft
+if (l_casdft) write(u6,*) 'MCPDFT with functional:',KSDFA
+#endif
 if (allocated(P2_ontop)) call mma_deallocate(P2_ontop)
-!
+
 call mma_deallocate(nR_Eff)
 call mma_deallocate(Coor)
 
@@ -453,7 +459,7 @@ NQ_Status = Inactive
 !                                                                      *
 ! Write the status flag and TOC.
 
-if ((iGrid_Set == Intermediate) .and. (Grid_Status == Regenerate)) iDisk_Set(final) = iDisk_Grid
+if ((iGrid_Set == Intermediate) .and. (Grid_Status == Regenerate)) iDisk_Set(Final_Grid) = iDisk_Grid
 if (Do_Grad) then
   G_S(iGrid_Set) = Regenerate
 else

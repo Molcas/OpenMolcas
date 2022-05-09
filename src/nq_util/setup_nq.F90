@@ -24,34 +24,36 @@ subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,Pck_Old,PMode_old,R_Mi
 !             August 1999                                              *
 !***********************************************************************
 
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
+use iSD_data, only: iSD, nskal_iSD
+use Basis_Info, only: dbsc, MolWgh, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
-use nq_Grid, only: nGridMax, Coor, Pax, Fact, nR_Eff
-use nq_Grid, only: Angular, Mem
+use nq_Grid, only: Angular, Coor, Fact, Mem, nGridMax, nR_Eff, Pax
 use nq_structure, only: NQ_Data
-use Grid_On_Disk
-use nq_Info
+use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, iAngMax, L_Quad, LDA_type, MBC, &
+                   meta_GGA_type1, meta_GGA_type2, mRad, nAngularGrids, nAOMax, nAtoms, NbrMxBas, ndc, nMaxExp, nMem, nR, ntotgp, &
+                   number_of_subblocks, nx, ny, nz, Off, On, Rotational_Invariance, T_Y, Threshold, x_max, x_min, y_max, y_min, &
+                   z_max, z_min
+use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
+                        Not_Specified, Old_Functional_Type, Regenerate, Use_Old
+use Index_Functions, only: nTri_Elem1
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Quart
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "itmax.fh"
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: nShell, nSym, Maps2p(nShell,0:nSym-1), nNQ, nR_Min
+logical(kind=iwp) :: Do_Grad, On_Top, PMode_old
+real(kind=wp) :: Pck_Old, R_Min(0:nR_Min)
 #include "status.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "print.fh"
-real*8 XYZ(3), C(3)
-logical EQ, Do_Grad, On_Top, PMode_Old
-real*8 Alpha(2), rm(2), R_Min(0:nR_Min)
-integer Maps2p(nShell,0:nSym-1)
-integer iDCRR(0:7)
-dimension Dummy(1)
-real*8, allocatable :: TempC(:,:), ZA(:), Crd(:,:), dOdx(:,:,:,:)
-! Statement Function
-nElem(i) = (i+1)*(i+2)/2
+integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iIrrep, iNQ, iNQ_, iNQ_MBC, iPrim, &
+                     iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, mdcj, mExp, &
+                     nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nR_tmp, nRad, nRadial, NrExp, nSO, nTerm, nxyz
+real(kind=wp) :: A_high, A_low, Alpha(2), Box_Size, C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, &
+                 ValExp, XYZ(3)
+logical(kind=iwp) :: EQ
+real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), TempC(:,:), ZA(:)
+real(kind=wp), external :: Bragg_Slater, Eval_RMin
 
 !                                                                      *
 !***********************************************************************
@@ -61,7 +63,7 @@ call ICopy(nShell*nSym,[-99999999],0,Maps2p,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!write(6,*) '********** Setup_NQ ***********'
+!write(u6,*) '********** Setup_NQ ***********'
 ntotgp = 0
 !                                                                      *
 !***********************************************************************
@@ -85,9 +87,9 @@ NQ_Status = Active
 call mma_allocate(TempC,3,nShell*nSym,Label='TempC')
 nAtoms = 0
 if (nShell > nskal_iSD) then
-  write(6,*) 'nShell > nSkal_iSD'
-  write(6,*) 'nShell=',nShell
-  write(6,*) 'nSkal_iSD=',nSkal_iSD
+  write(u6,*) 'nShell > nSkal_iSD'
+  write(u6,*) 'nShell=',nShell
+  write(u6,*) 'nSkal_iSD=',nSkal_iSD
   call AbEnd()
 end if
 do iShell=1,nShell
@@ -233,9 +235,9 @@ do iNQ=1,nNQ
         mdci = iSD(10,iS)
         if (dc(mdci)%LblCnt == MBC) then
           nR_tmp = nR
-          nR = int(dble(nR)*2.0d0)
+          nR = int(real(nR,kind=wp)*Two)
           Threshold_tmp = Threshold
-          Threshold = Threshold*1.0D-6
+          Threshold = Threshold*1.0e-6_wp
 
           iReset = 1
           iNQ_MBC = iNQ
@@ -247,7 +249,7 @@ do iNQ=1,nNQ
 
   ! Max angular momentum for the atom -> rm(1)
   ! Max Relative Error -> rm(2)
-  rm(1) = dble(NQ_Data(iNQ)%l_Max)
+  rm(1) = real(NQ_Data(iNQ)%l_Max,kind=wp)
   rm(2) = Threshold
 
   call GenVoronoi(nR_Eff,nNQ,Alpha,rm,iNQ)
@@ -275,7 +277,7 @@ call mma_Allocate(Crd,3,nNQ)
 ! Collect coordinates and charges of the nuclei
 
 do iNQ=1,nNQ
-  ZA(iNQ) = dble(NQ_Data(iNQ)%Atom_Nr)
+  ZA(iNQ) = real(NQ_Data(iNQ)%Atom_Nr,kind=wp)
   call dcopy_(3,NQ_data(iNQ)%Coor,1,Crd(:,iNQ),1)
 end do
 
@@ -323,7 +325,7 @@ do iNQ=1,nNQ
 
   ! Prune the angular grid
 
-  if (Angular_Prunning == On) then
+  if (Angular_Pruning == On) then
 
     ! Find the R_min values of each angular shell
 
@@ -336,11 +338,11 @@ do iNQ=1,nNQ
         iShll = iSD(0,iShell)
         iAng_ = iSD(1,iShell)
         NrExp = iSD(5,iShell)
-        !write(6,*) 'iAng_,iAng=',iAng_,iAng
+        !write(u6,*) 'iAng_,iAng=',iAng_,iAng
         if ((iAng_ == iAng) .and. (NrExp >= 1)) then
           do iSym=0,nSym-1
             iNQ_ = Maps2p(iShell,iSym)
-            !write(6,*) 'iNQ_,iNQ=',iNQ_,iNQ
+            !write(u6,*) 'iNQ_,iNQ=',iNQ_,iNQ
             if (iNQ_ == iNQ) then
               ValExp = Shells(iShll)%exp(NrExp)
               iSet = 1
@@ -362,7 +364,7 @@ do iNQ=1,nNQ
 
     if (iNQ == iNQ_MBC) then
       Crowding_tmp = Crowding
-      Crowding = One+(Crowding-One)*0.25d0
+      Crowding = One+(Crowding-One)*Quart
       iReset = 1
     end if
 
@@ -380,24 +382,24 @@ end do
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,'(A)') ' =================================='
-write(6,'(A)') ' =        Grid information        ='
-write(6,'(A)') ' =================================='
-write(6,'(A)') ' Legend             '
-write(6,'(A)') ' ----------------------------------'
-write(6,'(A)') ' ANr: element number'
-write(6,'(A)') ' nR : number of radial grid points'
-write(6,'(A)') ' iNQ: grid index'
-write(6,'(A)') ' ----------------------------------'
-write(6,*)
-write(6,'(A)') ' iNQ ANr  nR'
+write(u6,*)
+write(u6,'(A)') ' =================================='
+write(u6,'(A)') ' =        Grid information        ='
+write(u6,'(A)') ' =================================='
+write(u6,'(A)') ' Legend             '
+write(u6,'(A)') ' ----------------------------------'
+write(u6,'(A)') ' ANr: element number'
+write(u6,'(A)') ' nR : number of radial grid points'
+write(u6,'(A)') ' iNQ: grid index'
+write(u6,'(A)') ' ----------------------------------'
+write(u6,*)
+write(u6,'(A)') ' iNQ ANr  nR'
 do iNQ=1,nNQ
   iANr = NQ_Data(iNQ)%Atom_Nr
   kR = nR_Eff(iNQ)
-  write(6,'(3I4)') iNQ,iANr,kR
+  write(u6,'(3I4)') iNQ,iANr,kR
 end do
-write(6,*)
+write(u6,*)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -406,14 +408,14 @@ write(6,*)
 
 !Box_Size = Four      ! Angstrom
 Box_Size = Two        ! Angstrom
-!Box_Size = 1.0d0/Two ! Angstrom
+!Box_Size = Half ! Angstrom
 Block_size = Box_Size
-x_min = 1.0d99
-y_min = 1.0d99
-z_min = 1.0d99
-x_max = -1.0d99
-y_max = -1.0d99
-z_max = -1.0d99
+x_min = huge(x_min)
+y_min = huge(y_min)
+z_min = huge(z_min)
+x_max = -huge(x_max)
+y_max = -huge(y_max)
+z_max = -huge(z_max)
 do iAt=1,nAtoms
   x_min = min(x_min,Coor(1,iAt))
   y_min = min(y_min,Coor(2,iAt))
@@ -443,9 +445,9 @@ nz = 2*((nz+1)/2)
 
 ! Adjust extremal values to fit exactly with the box size.
 
-dx = (dble(nx)*Box_Size-(x_max-x_min))/Two
-dy = (dble(ny)*Box_Size-(y_max-y_min))/Two
-dz = (dble(nz)*Box_Size-(z_max-z_min))/Two
+dx = (real(nx,kind=wp)*Box_Size-(x_max-x_min))/Two
+dy = (real(ny,kind=wp)*Box_Size-(y_max-y_min))/Two
+dz = (real(nz,kind=wp)*Box_Size-(z_max-z_min))/Two
 
 x_min = x_min-dx
 y_min = y_min-dy
@@ -460,14 +462,14 @@ nx = nx+2
 ny = ny+2
 nz = nz+2
 #ifdef _DEBUGPRINT_
-write(6,*) 'x_min=',x_min,dx
-write(6,*) 'y_min=',y_min,dy
-write(6,*) 'z_min=',z_min,dz
-write(6,*) 'x_max=',x_max
-write(6,*) 'y_max=',y_max
-write(6,*) 'z_max=',z_max
-write(6,*) 'nx,ny,nz=',nx,ny,nz
-write(6,*) 'Total number of blocks=',nx*ny*nz
+write(u6,*) 'x_min=',x_min,dx
+write(u6,*) 'y_min=',y_min,dy
+write(u6,*) 'z_min=',z_min,dz
+write(u6,*) 'x_max=',x_max
+write(u6,*) 'y_max=',y_max
+write(u6,*) 'z_max=',z_max
+write(u6,*) 'nx,ny,nz=',nx,ny,nz
+write(u6,*) 'Total number of blocks=',nx*ny*nz
 #endif
 number_of_subblocks = nx*ny*nz
 !                                                                      *
@@ -550,7 +552,7 @@ do ish=1,nShell
   nDrv = mRad-1
   nForm = 0
   do iDrv=0,nDrv
-    nForm = nForm+nElem(iDrv)
+    nForm = nForm+nTri_Elem1(iDrv)
   end do
   nTerm = 2**nDrv
   nAngular = 5*nForm*nTerm
@@ -577,7 +579,7 @@ call mma_allocate(Mem,nMem,Label='Mem')
 Lu_Grid = 88
 call DaName_MF_WA(Lu_Grid,'NQGRID')
 
-if (iGrid_Set == Not_Specified) iGrid_Set = final
+if (iGrid_Set == Not_Specified) iGrid_Set = Final_Grid
 
 ! Read the status flag.
 iDisk_Grid = 0
@@ -585,7 +587,7 @@ call iDaFile(Lu_Grid,2,G_S,5,iDisk_Grid)
 
 Grid_Status = G_S(iGrid_Set)
 if (Old_Functional_Type /= Functional_Type) then
-  G_S(final) = Regenerate
+  G_S(Final_Grid) = Regenerate
   G_S(Intermediate) = Regenerate
   Grid_Status = Regenerate
 end if
@@ -600,13 +602,13 @@ call mma_Allocate(GridInfo,2,number_of_subblocks,Label='GridInfo')
 ! 1) disk address and 2) number of batches.
 
 if (Grid_Status == Regenerate) then
-  !write(6,*) 'Grid_Status == Regenerate'
+  !write(u6,*) 'Grid_Status == Regenerate'
   Grid_Status = Regenerate
   GridInfo(:,:) = 0
   call iDaFile(Lu_Grid,1,GridInfo,2*number_of_subblocks,iDisk_Grid)
   Old_Functional_Type = Functional_Type
 else if (Grid_Status == Use_Old) then
-  !write(6,*) 'Grid_Status == Use_Old'
+  !write(u6,*) 'Grid_Status == Use_Old'
   call iDaFile(Lu_Grid,2,GridInfo,2*number_of_subblocks,iDisk_Grid)
 else
   call WarningMessage(2,'Illegal Grid Status!')
@@ -634,13 +636,13 @@ do mdci=1,ndc
 
     iuv = dc(mdci)%nStab*dc(mdcj)%nStab
     if (MolWgh == 1) then
-      Fct = dble(nIrrep)/dble(LmbdR)
+      Fct = real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
     else if (MolWgh == 0) then
-      Fct = dble(iuv)/dble(nIrrep*LmbdR)
+      Fct = real(iuv,kind=wp)/real(nIrrep*LmbdR,kind=wp)
     else
-      Fct = sqrt(dble(iuv))/dble(LmbdR)
+      Fct = sqrt(real(iuv,kind=wp))/real(LmbdR,kind=wp)
     end if
-    Fct = Fct*dble(nDCRR)/dble(nDegi*nDegj)
+    Fct = Fct*real(nDCRR,kind=wp)/real(nDegi*nDegj,kind=wp)
 
     ! Save: Fact
 

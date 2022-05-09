@@ -11,16 +11,18 @@
 
 subroutine DeDe_Funi(Dens,nDens,nr_of_Densities)
 
-use k2_arrays
+use k2_arrays, only: DeDe, ipD00, ipDeDe, ipDijs, ipOffD, MaxDE, nDeDe_DFT
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "setup.fh"
-real*8 Dens(nDens,nr_of_Densities)
-logical Special_NoSym, DFT_Storage
+implicit none
+integer(kind=iwp) :: nDens, nr_of_Densities
+real(kind=wp) :: Dens(nDens,nr_of_Densities)
+integer(kind=iwp) :: mDeDe, mIndij, nField, nIndij
+logical(kind=iwp) :: DFT_Storage, Special_NoSym
 
 nIndij = S%nShlls*(S%nShlls+1)/2
 nField = 2+nr_of_Densities

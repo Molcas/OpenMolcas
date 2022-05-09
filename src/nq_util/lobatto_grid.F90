@@ -12,23 +12,26 @@
 subroutine Lobatto_Grid(L_Max)
 !***********************************************************************
 !                                                                      *
-!     Computes datas useful for the angular quadrature.                *
+!     Computes data useful for the angular quadrature.                 *
 !                                                                      *
 !***********************************************************************
 
 use nq_Structure, only: Info_Ang
-use nq_Info
+use nq_Info, only: nAngularGrids
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: L_Max
+integer(kind=iwp) :: L_Eff
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Do_Lobatto(L_Eff,nPoints,R)
-    implicit none
-    integer L_Eff, nPoints
-    real*8, allocatable :: R(:,:)
+    use Definitions, only: wp
+    import :: iwp
+    integer(kind=iwp) :: L_Eff, nPoints
+    real(kind=wp), allocatable :: R(:,:)
   end subroutine Do_Lobatto
 end interface
 

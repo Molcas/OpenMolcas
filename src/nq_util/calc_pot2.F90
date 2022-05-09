@@ -18,20 +18,20 @@
 subroutine Calc_Pot2(Pot2,mGrid,Pi,nPi)
 
 use nq_Grid, only: Weights
-use nq_pdft
-use nq_Info
+use nq_pdft, only: d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dF_dRhoamb, dF_dRhoxamb, dF_dRhoyamb, dF_dRhozamb, &
+                   dRdPi, dZdR, GdEdPiMO, GradRdFdRho, GradRhodFdRho, lft, lGGA, MOas, MOax, MOay, MOaz, Pass1, Pass2, Pass3, RhoAB
+use nq_Info, only: nOrbt, nPot2
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-#include "stdalloc.fh"
-! Input
-integer mGrid, nPi
-real*8, dimension(nPi,mGrid) :: Pi
-! Output
-real*8, dimension(nPot2) :: Pot2
-! Internal
-integer iGrid, nGOrb
-real*8 ThrsPi, ggaterm, ftggaterm, predEdPip
-
-ThrsPi = 1.0d-30
+implicit none
+integer(kind=iwp) :: mGrid, nPi
+real(kind=wp) :: Pot2(nPot2), Pi(nPi,mGrid)
+! Input: mGrid, nPi, Pi
+! Output: Pot2
+integer(kind=iwp) :: iGrid, nGOrb
+real(kind=wp) :: ftggaterm, ggaterm, predEdPip
+real(kind=wp), parameter :: ThrsPi = 1.0e-30_wp
 
 if (lGGA .and. lft) then
   call FZero(dEdPix,mGrid)
@@ -53,27 +53,27 @@ do iGrid=1,mGrid
           dEdPiy(iGrid) = predEdPip*dF_dRhoyamb(iGrid)
           dEdPiz(iGrid) = predEdPip*dF_dRhozamb(iGrid)
         else
-          ftggaterm = 0.0d0
+          ftggaterm = Zero
         end if
       else
-        ggaterm = 0.0d0
-        ftggaterm = 0.0d0
+        ggaterm = Zero
+        ftggaterm = Zero
       end if
       dEdPi(iGrid) = Weights(iGrid)*(dZdR(iGrid)*dRdPi(iGrid)*(RhoAB(iGrid)*dF_dRhoamb(iGrid)+ggaterm)+ftggaterm)
     else
-      dEdPi(iGrid) = 0.0d0
+      dEdPi(iGrid) = Zero
     end if
   else
-    dEdPi(iGrid) = 0.0d0
+    dEdPi(iGrid) = Zero
   end if
 end do
 nGOrb = mGrid*nOrbt
 
-call DSCal_(mGrid,0.5d0,dEdPi,1)
+call DSCal_(mGrid,Half,dEdPi,1)
 if (lGGA .and. lft) then
-  call DSCal_(mGrid,0.5d0,dEdPix,1)
-  call DSCal_(mGrid,0.5d0,dEdPiy,1)
-  call DSCal_(mGrid,0.5d0,dEdPiz,1)
+  call DSCal_(mGrid,Half,dEdPix,1)
+  call DSCal_(mGrid,Half,dEdPiy,1)
+  call DSCal_(mGrid,Half,dEdPiz,1)
 end if
 
 call DCopy_(nGOrb,MOas,1,dEdPiMO,1)
@@ -88,7 +88,7 @@ if (lft .and. lGGA) then
     call DAXpY_(nOrbt,dEdPiy(iGrid),MOay(iGrid),mGrid,GdEdPiMO(iGrid),mGrid)
     call DAXpY_(nOrbt,dEdPiz(iGrid),MOaz(iGrid),mGrid,GdEdPiMO(iGrid),mGrid)
   end do
-  call DAXpY_(nGOrb,1.0d0,GdEdPiMO,1,dEdPiMO,1)
+  call DAXpY_(nGOrb,One,GdEdPiMO,1,dEdPiMO,1)
 end if
 
 ! dEdPiMO is practically (Phi_p*dEdPi+Phi_p'*dEdPi')

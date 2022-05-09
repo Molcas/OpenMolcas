@@ -11,9 +11,14 @@
 
 module nq_MO
 
+use Definitions, only: wp
+
+implicit none
+private
+
 integer :: nMOs = 0
-real*8, allocatable :: CMO(:)
-real*8, allocatable :: D1MO(:), P2MO(:)
-real*8, allocatable :: P2_ontop(:,:)
+real(kind=wp), allocatable :: CMO(:), D1MO(:), P2_ontop(:,:), P2MO(:)
+
+public :: CMO, D1MO, nMOs, P2_ontop, P2MO
 
 end module nq_MO

@@ -13,11 +13,14 @@
 
 module libxc
 
-real*8, allocatable :: func(:)
-real*8, allocatable :: dfunc_drho(:,:)
-real*8, allocatable :: dfunc_dsigma(:,:)
-real*8, allocatable :: dfunc_dtau(:,:)
-real*8, allocatable :: dfunc_dlapl(:,:)
-logical :: Only_exc = .false.
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+real(kind=wp), allocatable :: dfunc_dlapl(:,:), dfunc_drho(:,:), dfunc_dsigma(:,:), dfunc_dtau(:,:), func(:)
+logical(kind=iwp) :: Only_exc = .false.
+
+public :: dfunc_dlapl, dfunc_drho, dfunc_dsigma, dfunc_dtau, func, Only_exc
 
 end module libxc

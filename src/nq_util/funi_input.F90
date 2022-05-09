@@ -10,15 +10,20 @@
 !***********************************************************************
 
 subroutine Funi_Input(LuRd)
+
 use nq_Grid, only: nGridMax
-use nq_Info
-implicit real*8(a-h,o-z)
-#include "real.fh"
-character*180 Get_Ln, Key, KWord
-external Get_Ln
-logical Check
-! Statement function
-Check(i,j) = iand(i,2**(j-1)) /= 0
+use nq_Info, only: Angular_Pruning, Crowding, Fade, Fixed_Grid, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, NQ_Direct, nR, &
+                   Off, On, Quadrature, Rotational_Invariance, T_Y, Threshold
+use Constants, only: Zero, One, Three, Five, Six, Ten
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: LuRd
+integer(kind=iwp) :: iChrct, Last, mask_111010, mask_111011, mask_111101, mask_111110
+real(kind=wp) :: Dummy
+character(len=180) :: Key, KWord
+integer(kind=iwp), external :: iCLast
+character(len=180), external :: Get_Ln
 
 !                                                                      *
 !***********************************************************************
@@ -32,7 +37,7 @@ mask_111010 = 58
 
 do
   Key = Get_Ln(LuRd)
-  !write(6,*) ' Processing:',Key
+  !write(u6,*) ' Processing:',Key
   KWord = Key
   call UpCase(KWord)
   select case (KWord(1:4))
@@ -59,33 +64,33 @@ do
         ! a la Gaussian
         nR = 35
         L_Quad = 17
-        Crowding = 0.90d0
-        Fade = 3.0d0
+        Crowding = 0.9_wp
+        Fade = Three
         Quadrature = 'MHL'
       else if (index(KWord,'ULTRAFINE') /= 0) then
         ! a la Gaussian
         nR = 99
         L_Quad = 41
-        Crowding = 1.0d10
-        Fade = 10.0d0
+        Crowding = 1.0e10_wp
+        Fade = Ten
         Quadrature = 'MHL'
       else if (index(KWord,'FINE') /= 0) then
         ! a la Gaussian
         nR = 75
         L_Quad = 29
-        Crowding = 3.0d0
-        Fade = 6.0d0
+        Crowding = Three
+        Fade = Six
         Quadrature = 'MHL'
       else if (index(KWord,'SG1GRID') /= 0) then
         ! a la Gaussian
         nR = 50
         L_Quad = 23
-        Crowding = 1.0d0
-        Fade = 5.0d0
+        Crowding = One
+        Fade = Five
         Quadrature = 'MHL'
       else
         call WarningMessage(2,'Funi_Input: Illegal grid')
-        write(6,*) 'Type=',KWord
+        write(u6,*) 'Type=',KWord
         call Abend()
       end if
 
@@ -157,7 +162,7 @@ do
       !                                                                *
       ! Activate use of global partitioning technique.
 
-      write(6,*) 'The Global option is redundant!'
+      write(u6,*) 'The Global option is redundant!'
 
     case ('DIAT')
       !                                                                *
@@ -165,15 +170,15 @@ do
       !                                                                *
       ! Activate use of diatomic partitioning technique.
 
-      write(6,*) 'The Diatomic option is redundant!'
+      write(u6,*) 'The Diatomic option is redundant!'
 
     case ('NOPR')
       !                                                                *
       !***** NOPR ******************************************************
       !                                                                *
-      ! Turn off the the angular prunning
+      ! Turn off the the angular pruning
 
-      Angular_Prunning = Off
+      Angular_Pruning = Off
 
     case ('CROW')
       !                                                                *
@@ -231,11 +236,11 @@ do
       !                                                                *
       !***** NOSC ******************************************************
       !                                                                *
-      ! Turn of the screening and the prunning.
+      ! Turn off the screening and the pruning.
 
-      T_y = 0.0d0
-      Crowding = 1.0d10
-      Angular_Prunning = Off
+      T_y = Zero
+      Crowding = 1.0e10_wp
+      Angular_Pruning = Off
 
     case ('T_Y ')
       !                                                                *
@@ -282,10 +287,10 @@ do
     case default
       iChrct = len(KWord)
       Last = iCLast(KWord,iChrct)
-      write(6,*)
+      write(u6,*)
       call WarningMessage(2,'Error in FUNI_input')
-      write(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      write(6,*) ' Error in keyword.'
+      write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+      write(u6,*) ' Error in keyword.'
       call Quit_OnUserError()
 
   end select
@@ -294,12 +299,12 @@ end do
 !***********************************************************************
 !                                                                      *
 
-if (Check(iOpt_Angular,3)) then
+if (btest(iOpt_Angular,2)) then
   if ((L_Quad /= 5) .and. (L_Quad /= 7) .and. (L_Quad /= 11) .and. (L_Quad /= 17) .and. (L_Quad /= 23) .and. (L_Quad /= 29) .and. &
       (L_Quad /= 35) .and. (L_Quad /= 41) .and. (L_Quad /= 47) .and. (L_Quad /= 53) .and. (L_Quad /= 59)) then
-    write(6,*) 'L_Quad does not comply with Lebedev grid.'
+    write(u6,*) 'L_Quad does not comply with Lebedev grid.'
     iOpt_Angular = iand(iOpt_Angular,mask_111011)
-    write(6,*) 'Lobatto grid activated!'
+    write(u6,*) 'Lobatto grid activated!'
     iOpt_Angular = ior(iand(iOpt_Angular,mask_111110),1)
   end if
 end if

@@ -11,14 +11,18 @@
 
 function G(Arg)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 G
+use Constants, only: One, Half, Quart, Pi
+use Definitions, only: wp
 
-g = -1000.0d0
+implicit none
+real(kind=wp) :: G
+real(kind=wp) :: Arg
+real(kind=wp) :: Arg_, rG
 
-Arg_ = dble(int(Arg))
-if (abs(Arg-Arg_) < Half/Two) then
+g = -1.0e3_wp
+
+Arg_ = real(int(Arg),kind=wp)
+if (abs(Arg-Arg_) < Quart) then
   ! Integer argument
   G = One
   rG = One
@@ -29,7 +33,7 @@ else
 end if
 
 do
-  if (abs(rG-Arg) < Half/Two) exit
+  if (abs(rG-Arg) < Quart) exit
   G = rG*G
   rG = rG+One
 end do

@@ -11,30 +11,31 @@
 
 subroutine gauleg(x1,x2,xw,n)
 
+use Constants, only: Zero, One, Two, Half, Quart, Pi
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-integer n
-real*8 x1, x2, xw(2,n)
-real*8 EPS
-parameter(EPS=3.d-14)
-integer i, j, m
-real*8 p1, p2, p3, pp, xl, xm, z, z1
+integer(kind=iwp) :: n
+real(kind=wp) :: x1, x2, xw(2,n)
+integer(kind=iwp) :: i, j, m
+real(kind=wp) :: p1, p2, p3, pp, xl, xm, z, z1
+real(kind=wp), parameter :: EPS = 3.e-14_wp
 
 m = (n+1)/2
 xm = Half*(x2+x1)
 xl = Half*(x2-x1)
-!write(6,*) 'm=',m
+!write(u6,*) 'm=',m
 do i=1,m
-  z = cos(Pi*(dble(i)-0.25d0)/(dble(n)+Half))
+  z = cos(Pi*(real(i,kind=wp)-Quart)/(real(n,kind=wp)+Half))
   do
     p1 = One
     p2 = Zero
     do j=1,n
       p3 = p2
       p2 = p1
-      p1 = ((Two*dble(j)-One)*z*p2-(dble(j)-One)*p3)/dble(j)
+      p1 = ((Two*real(j,kind=wp)-One)*z*p2-(real(j,kind=wp)-One)*p3)/real(j,kind=wp)
     end do
-    pp = dble(n)*(z*p1-p2)/(z*z-One)
+    pp = real(n,kind=wp)*(z*p1-p2)/(z*z-One)
     z1 = z
     z = z1-p1/pp
     if (abs(z-z1) <= EPS) exit

@@ -221,7 +221,7 @@ end do
 ! Start the MME. To get a MME-dipole, we want <psi_i|x-x_o|psi_j> but  *
 ! we have <psi_i|x-x_M|psi_j> where x_o is the chosen MME-center, while*
 ! x_M is the center that Molcas uses. We transform in this manner:     *
-! <psi_i|x-x_o|psi_j>=<psi_i|x-x_M|psi_j>+(x_M-x_o)*<psi_i|psi_j>.     *
+! <psi_i|x-x_o|psi_j> = <psi_i|x-x_M|psi_j>+(x_M-x_o)*<psi_i|psi_j>.   *
 ! The quadrupole contains a further complication: not only must we     *
 ! include more terms, but the dipole correction may not be the MME-    *
 ! dipole due to that Molcas may not have used the same center for      *

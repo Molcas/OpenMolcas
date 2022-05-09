@@ -12,17 +12,20 @@
 subroutine Do_Lobatto(L_Eff,nPoints,R)
 !***********************************************************************
 !                                                                      *
-!     Computes datas useful for the angular quadrature.                *
+!     Computes data useful for the angular quadrature.                 *
 !                                                                      *
 !***********************************************************************
 
 use nq_Grid, only: Pax
-use nq_Info
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Labatto(:), R(:,:)
+implicit none
+integer(kind=iwp) :: L_Eff, nPoints
+real(kind=wp), allocatable :: Labatto(:), R(:,:)
+integer(kind=iwp) :: iOff, iOffT, iPhi, iTheta, mTheta, nLabatto, nPhi, nTheta
+real(kind=wp) :: Cos_Phi, Cos_Theta, Sin_Phi, Sin_Theta, w_Phi, w_Theta, x, y, z
 
 !                                                                      *
 !***********************************************************************

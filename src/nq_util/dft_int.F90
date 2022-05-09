@@ -28,18 +28,12 @@ subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc)
 !             D.Ajitha:Modifying for the new Kernel outputs            *
 !***********************************************************************
 
-use iSD_data
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-#include "debug.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "stdalloc.fh"
-real*8 Fact(ndc**2), FckInt(nFckInt,nD)
-integer list_s(2,nlist_s)
+implicit none
+integer(kind=iwp) :: nlist_s, list_s(2,nlist_s), nFckInt, nD, ndc
+real(kind=wp) :: FckInt(nFckInt,nD), Fact(ndc**2)
 
 !                                                                      *
 !***********************************************************************

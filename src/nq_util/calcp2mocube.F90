@@ -18,23 +18,20 @@
 subroutine CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,do_grad)
 
 use nq_pdft, only: lft, lGGA
-use nq_Info
+use nq_Info, only: IOff_Ash, IOff_BasAct, mIrrep, nAsh, NASHT, NASHT4
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
-! Input
-integer mAO, mGrid, nMOs, nPMO3p
-real*8, dimension(mAO,mGrid,nMOs) :: TabMO
-real*8, dimension(NASHT4) :: P2Unzip
-logical do_grad
-! Output
-real*8, dimension(mGrid*NASHT) :: P2MOCube, MOs, MOx, MOy, MOz
-real*8, dimension(nPMO3p) :: P2MOCubex, P2MOCubey, P2MOCubez
-! Auxiliary
-integer iOff1, IOff2, IOff3, IIrrep, nGridPi, NASHT2, NASHT3, icount
-real*8, dimension(NASHT**3) :: P2MO1
-real*8, dimension(NASHT**2) :: P2MOSquare
-logical lftGGA
+implicit none
+integer(kind=iwp) :: nPMO3p, mAO, mGrid, nMOs
+real(kind=wp) :: P2MOCube(mGrid*NASHT), P2MOCubex(nPMO3p), P2MOCubey(nPMO3p), P2MOCubez(nPMO3p), MOs(mGrid*NASHT), &
+                 MOx(mGrid*NASHT), MOy(mGrid*NASHT), MOz(mGrid*NASHT), TabMO(mAO,mGrid,nMOs), P2Unzip(NASHT4)
+logical(kind=iwp) :: do_grad
+! Input: mAO mGrid nMOs nPMO3p TabMO P2Unzip do_grad
+! Output: P2MOCube MOs MOx MOy MOz P2MOCubex P2MOCubey P2MOCubez
+integer(kind=iwp) :: icount, IIrrep, iGrid, iOff1, IOff2, IOff3, NASHT2, NASHT3, nGridPi
+real(kind=wp) :: P2MO1(NASHT**3), P2MOSquare(NASHT**2) !IFG
+logical(kind=iwp) :: lftGGA
 
 lftGGA = .false.
 if (lft .and. lGGA) lftGGA = .true.
@@ -72,29 +69,29 @@ do iGrid=1,mGrid
 
   !call RecPrt('2RDM array','(10(F9.5,1X))',P2Unzip,NASHT3,NASHT)
 
-  call DGEMM_('T','N',NASHT3,1,NASHT,1.0d0,P2UnZip,NASHT,MOs(IOff1),NASHT,0.0d0,P2MO1,NASHT3)
+  call DGEMM_('T','N',NASHT3,1,NASHT,One,P2UnZip,NASHT,MOs(IOff1),NASHT,Zero,P2MO1,NASHT3)
 
   !call RecPrt('P2MO1 array','(10(F9.5,1X))',P2MO1,NASHT2,NASHT)
 
-  call DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,P2MO1,NASHT,MOs(IOff1),NASHT,0.0d0,P2MOSquare,NASHT2)
+  call DGEMM_('T','N',NASHT2,1,NASHT,One,P2MO1,NASHT,MOs(IOff1),NASHT,Zero,P2MOSquare,NASHT2)
 
   !call RecPrt('P2MOSquare array','(10(F9.5,1X))',P2MOSquare,NASHT,NASHT)
 
-  call DGEMM_('T','N',NASHT,1,NASHT,1.0d0,P2MOSquare,NASHT,MOs(IOff1),NASHT,0.0d0,P2MOCube(iOff1),NASHT)
+  call DGEMM_('T','N',NASHT,1,NASHT,One,P2MOSquare,NASHT,MOs(IOff1),NASHT,Zero,P2MOCube(iOff1),NASHT)
 
   if (lftGGA .and. Do_Grad) then
-    call DGEMM_('T','N',NASHT,1,NASHT,1.0d0,P2MOSquare,NASHT,MOx(IOff1),NASHT,0.0d0,P2MOCubex(iOff1),NASHT)
-    call DGEMM_('T','N',NASHT,1,NASHT,1.0d0,P2MOSquare,NASHT,MOy(IOff1),NASHT,0.0d0,P2MOCubey(iOff1),NASHT)
-    call DGEMM_('T','N',NASHT,1,NASHT,1.0d0,P2MOSquare,NASHT,MOz(IOff1),NASHT,0.0d0,P2MOCubez(iOff1),NASHT)
+    call DGEMM_('T','N',NASHT,1,NASHT,One,P2MOSquare,NASHT,MOx(IOff1),NASHT,Zero,P2MOCubex(iOff1),NASHT)
+    call DGEMM_('T','N',NASHT,1,NASHT,One,P2MOSquare,NASHT,MOy(IOff1),NASHT,Zero,P2MOCubey(iOff1),NASHT)
+    call DGEMM_('T','N',NASHT,1,NASHT,One,P2MOSquare,NASHT,MOz(IOff1),NASHT,Zero,P2MOCubez(iOff1),NASHT)
 
-    call DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,P2MO1,NASHT,MOx(IOff1),NASHT,0.0d0,P2MOSquare,NASHT2)
-    call DGEMM_('T','N',NASHT,1,NASHT,2.0d0,P2MOSquare,NASHT,MOs(IOff1),NASHT,1.0d0,P2MOCubex(iOff1),NASHT)
+    call DGEMM_('T','N',NASHT2,1,NASHT,One,P2MO1,NASHT,MOx(IOff1),NASHT,Zero,P2MOSquare,NASHT2)
+    call DGEMM_('T','N',NASHT,1,NASHT,Two,P2MOSquare,NASHT,MOs(IOff1),NASHT,One,P2MOCubex(iOff1),NASHT)
 
-    call DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,P2MO1,NASHT,MOy(IOff1),NASHT,0.0d0,P2MOSquare,NASHT2)
-    call DGEMM_('T','N',NASHT,1,NASHT,2.0d0,P2MOSquare,NASHT,MOs(IOff1),NASHT,1.0d0,P2MOCubey(iOff1),NASHT)
+    call DGEMM_('T','N',NASHT2,1,NASHT,One,P2MO1,NASHT,MOy(IOff1),NASHT,Zero,P2MOSquare,NASHT2)
+    call DGEMM_('T','N',NASHT,1,NASHT,Two,P2MOSquare,NASHT,MOs(IOff1),NASHT,One,P2MOCubey(iOff1),NASHT)
 
-    call DGEMM_('T','N',NASHT2,1,NASHT,1.0d0,P2MO1,NASHT,MOz(IOff1),NASHT,0.0d0,P2MOSquare,NASHT2)
-    call DGEMM_('T','N',NASHT,1,NASHT,2.0d0,P2MOSquare,NASHT,MOs(IOff1),NASHT,1.0d0,P2MOCubez(iOff1),NASHT)
+    call DGEMM_('T','N',NASHT2,1,NASHT,One,P2MO1,NASHT,MOz(IOff1),NASHT,Zero,P2MOSquare,NASHT2)
+    call DGEMM_('T','N',NASHT,1,NASHT,Two,P2MOSquare,NASHT,MOs(IOff1),NASHT,One,P2MOCubez(iOff1),NASHT)
   end if
 
   !call RecPrt('P2MOCube','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)

@@ -23,17 +23,15 @@ subroutine AlloK2_Funi(nr_of_Densities)
 !             University of Lund, Sweden. Jun '95                      *
 !***********************************************************************
 
-use iSD_data
-use k2_arrays
-use IOBUF
+use iSD_data, only: iSD
+use k2_arrays, only: MaxDe, nDeDe_DFT
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
-#include "ndarray.fh"
-#include "real.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "status.fh"
+implicit none
+integer(kind=iwp) :: nr_of_Densities
+integer(kind=iwp) :: iAO, iBas, iCmp, iDeSiz, iS, iShell, iSmLbl, jAO, jBas, jCmp, jS, jShell, nSkal, nSO
+integer(kind=iwp), external :: MemSO1
 
 call Nr_Shells(nSkal)
 

@@ -17,17 +17,17 @@
 ! ****************************************************************
 subroutine PDFTFock_Inner(Fock,Kern,MO1,MO2,mGrid)
 
-use nq_Info
+use nq_Info, only: mIrrep, mOrb, nOrbt, nPot1, OffOrb, OffOrb2
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-! Input
-integer mGrid
-real*8, dimension(mGrid*nOrbt) :: MO1, MO2
-real*8, dimension(mGrid) :: Kern
-! Output
-real*8, dimension(nPot1) :: Fock
-! Intermediate
-real*8, dimension(mGrid*nOrbt) :: KernMO
-integer iGrid, iIrrep, iOff1, iOff2
+implicit none
+integer(kind=iwp) :: mGrid
+real(kind=wp) :: Fock(nPot1), Kern(mGrid), MO1(mGrid*nOrbt), MO2(mGrid*nOrbt)
+! Input: mGrid MO1 MO2 Kern
+! Output: Fock
+integer(kind=iwp) :: iGrid, iIrrep, iOff1, iOff2
+real(kind=wp) :: KernMO(mGrid*nOrbt) !IFG
 
 call dcopy_(mGrid*nOrbt,MO1,1,KernMO,1)
 
@@ -38,7 +38,7 @@ end do
 do iIrrep=0,mIrrep-1
   IOff1 = OffOrb(iIrrep)*mGrid+1
   IOff2 = OffOrb2(iIrrep)+1
-  call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,1.0d0,KernMO(IOff1),mGrid,MO2(IOff1),mGrid,1.0d0,Fock(iOff2),mOrb(iIrrep))
+  call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,One,KernMO(IOff1),mGrid,MO2(IOff1),mGrid,One,Fock(iOff2),mOrb(iIrrep))
 end do
 
 return

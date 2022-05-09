@@ -11,17 +11,22 @@
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
 
-real*8 function Compute_Tau(Weights,mGrid,iSpin)
+function Compute_Tau(Weights,mGrid,iSpin)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
 !***********************************************************************
 
 use nq_Grid, only: Tau
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 Weights(mGrid)
+implicit none
+real(kind=wp) :: Compute_Tau
+integer(kind=iwp) :: mGrid, iSpin
+real(kind=wp) :: Weights(mGrid)
+integer(kind=iwp) :: iGrid
+real(kind=wp) :: TauA
 
 !                                                                      *
 !***********************************************************************

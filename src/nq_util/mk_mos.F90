@@ -15,20 +15,27 @@ subroutine mk_MOs(SOValue,mAO,nCoor,MOValue,nMOs,CMOs,nCMO)
 
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 SOValue(mAO*nCoor,nMOs), MOValue(mAO*nCoor,nMOs), CMOs(nCMO)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-character*80 Label
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: mAO, nCoor, nMOs, nCMO
+real(kind=wp) :: SOValue(mAO*nCoor,nMOs), MOValue(mAO*nCoor,nMOs), CMOs(nCMO)
+integer(kind=iwp) :: iCMO, iIrrep, iSO
+#ifdef _DEBUGPRINT_
+character(len=80) :: Label
 #endif
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'mk_MOs: MO-Coefficients'
+write(u6,*) 'mk_MOs: MO-Coefficients'
 iOff = 1
 do iIrrep=0,nIrrep-1
   if (nBas(iIrrep) > 0) then
-    write(6,*) ' Symmetry Block',iIrrep
+    write(u6,*) ' Symmetry Block',iIrrep
     call RecPrt(' ',' ',CMOs(iOff),nBas(iIrrep),nBas(iIrrep))
   end if
   iOff = iOff+nBas(iIrrep)**2

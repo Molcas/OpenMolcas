@@ -18,9 +18,11 @@
 
 subroutine CalcPUVXOff()
 
-use nq_Info
+use nq_Info, only: mIrrep, mOrb, nAsh, nPot2, nUVX, nUVXt, nVX, nVXt, OffPUVX, OffUVX, OffVX
+use Definitions, only: iwp
 
-integer IOff1, iIrrep, jIrrep, kIrrep, lIrrep, iOrb, jAct, kAct, lAct, ijIrrep, klIrrep, nklAct
+implicit none
+integer(kind=iwp) :: iIrrep, ijIrrep, IOff1, iOrb, jAct, jIrrep, kAct, kIrrep, klIrrep, lAct, lIrrep, nklAct
 
 IOff1 = 0
 do kIrrep=0,mIrrep-1
@@ -74,8 +76,8 @@ do iIrrep=0,mIrrep-1
 end do
 nPot2 = IOff1
 
-!write(6,*) 'OffPUVX new method',nPot2,MaxUVX
-!write(6,'(8(I5,2X))') (OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
+!write(u6,*) 'OffPUVX new method',nPot2,MaxUVX
+!write(u6,'(8(I5,2X))') (OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 return
 

@@ -11,8 +11,12 @@
 
 subroutine ResortD(D_Old,D_New,iBas,iCmp,jBas,jCmp)
 
-implicit real*8(a-h,o-z)
-real*8 D_Old(iBas,jBas,iCmp,jCmp), D_New(iBas,iCmp,jBas,jCmp)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iBas, iCmp, jBas, jCmp
+real(kind=wp) :: D_Old(iBas,jBas,iCmp,jCmp), D_New(iBas,iCmp,jBas,jCmp)
+integer(kind=iwp) :: iB, iC, jB, jC
 
 do jC=1,jCmp
   do jB=1,jBas

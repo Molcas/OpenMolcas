@@ -11,10 +11,11 @@
 
 subroutine NQGrid_Init()
 
-use Grid_On_Disk
+use Grid_On_Disk, only: Final_Grid, G_S, iDisk_Grid, iDisk_Set, Intermediate, Lu_Grid, Old_Functional_Type, Regenerate
 use nq_Info, only: Other_Type
 
-implicit real*8(A-H,O-Z)
+implicit none
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -26,16 +27,16 @@ call DaName_MF_WA(Lu_Grid,'NQGRID')
 
 ! Write the status flag and disk addresses fo the sets.
 
-iDisk_Set(final) = -1
+iDisk_Set(Final_Grid) = -1
 iDisk_Set(Intermediate) = -1
-G_S(final) = Regenerate
+G_S(Final_Grid) = Regenerate
 G_S(Intermediate) = Regenerate
 Old_Functional_Type = Other_Type
 
 iDisk_Grid = 0
 call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
 
-iDisk_Set(final) = iDisk_Grid
+iDisk_Set(Final_Grid) = iDisk_Grid
 iDisk_Set(Intermediate) = iDisk_Grid
 
 iDisk_Grid = 0

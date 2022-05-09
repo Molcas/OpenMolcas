@@ -9,37 +9,43 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Lobatto(ndeg,Trw)
+subroutine Lobatto(ndeg,trw)
 
-implicit real*8(a-h,o-z)
-parameter(mxdeg=100)
-dimension roots(mxdeg,mxdeg), wghts(mxdeg,mxdeg)
-dimension recurs(mxdeg), trw(3*(ndeg+2)*(ndeg+3)/2)
+use Constants, only: Zero, One, Two, Three
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ndeg
+real(kind=wp) :: trw(3*(ndeg+2)*(ndeg+3)/2)
+integer(kind=iwp), parameter :: mxdeg = 100
+integer(kind=iwp) :: i, ii, ir, jj, jr, k, n
+real(kind=wp) :: c, delta, dmax, f, fnew, fold, fp, fpnew, fpold, recurs(mxdeg), rk, roots(mxdeg,mxdeg), wghts(mxdeg,mxdeg), x, & !IFG
+                 xterm
 
 ! Start: Accurately known are p0=1 and p1=x
-roots(1,1) = 0.0d0
+roots(1,1) = Zero
 ! Recursion coefficients:
 do k=1,ndeg
-  rk = dble(k)*1.0d0
-  recurs(k) = (rk*(rk+2.0d0))/((2.0d0*rk+1.0d0)*(2.0d0*rk+3.0d0))
+  rk = real(k,kind=wp)
+  recurs(k) = (rk*(rk+Two))/((Two*rk+One)*(Two*rk+Three))
 end do
 
 do k=2,ndeg
   ! Construct a start approximation to the roots:
-  roots(1,k) = (dble(k)*(roots(1,k-1)+1.0d0))/dble(k+1)-1.0d0
-  roots(k,k) = (dble(k)*(roots(k-1,k-1)-1.0d0))/dble(k+1)+1.0d0
+  roots(1,k) = (real(k,kind=wp)*(roots(1,k-1)+One))/real(k+1,kind=wp)-One
+  roots(k,k) = (real(k,kind=wp)*(roots(k-1,k-1)-One))/real(k+1,kind=wp)+One
   do ir=2,k-1
-    roots(ir,k) = (dble(k+1-ir)*roots(ir,k-1)+dble(ir)*roots(ir-1,k-1))/dble(k+1)
+    roots(ir,k) = (real(k+1-ir,kind=wp)*roots(ir,k-1)+real(ir,kind=wp)*roots(ir-1,k-1))/real(k+1,kind=wp)
   end do
   ! Start modified Newton-Raphson iterations. Parallell treatment of roots:
   do
-    dmax = 0.0d0
+    dmax = Zero
     do ir=1,k
       ! Compute value and derivative of polynomial:
       x = roots(ir,k)
-      fpold = 0.0d0
-      fold = 1.0d0
-      fp = 1.0d0
+      fpold = Zero
+      fold = One
+      fp = One
       f = x
       do n=2,k
         c = recurs(n-1)
@@ -51,16 +57,16 @@ do k=2,ndeg
         f = fnew
       end do
       ! Compute the extra denominator term:
-      xterm = 0.0d0
+      xterm = Zero
       do jr=1,k
-        if (jr /= ir) xterm = xterm+1.0d0/(x-roots(jr,k))
+        if (jr /= ir) xterm = xterm+One/(x-roots(jr,k))
       end do
       ! Update:
       delta = -f/(fp-f*xterm)
       roots(ir,k) = roots(ir,k)+delta
       dmax = max(dmax,abs(delta))
     end do
-    if (dmax <= 1.0d-12) exit
+    if (dmax <= 1.0e-12_wp) exit
   end do
 end do
 
@@ -68,22 +74,22 @@ end do
 do k=1,ndeg
   do ir=1,k
     x = roots(ir,k)
-    fold = 1.0d0
+    fold = One
     f = x
     do n=1,k
-      fnew = x*f*(2.0d0*dble(n)+1.0d0)/(dble(n)+1.0d0)-fold*dble(n)/(dble(n)+1.0d0)
+      fnew = x*f*(Two*real(n,kind=wp)+One)/(real(n,kind=wp)+One)-fold*real(n,kind=wp)/(real(n,kind=wp)+One)
       fold = f
       f = fnew
     end do
-    wghts(ir,k) = 2.0d0/(f*f*dble(k+1)*dble(k+2))
+    wghts(ir,k) = Two/(f*f*real(k+1,kind=wp)*real(k+2,kind=wp))
   end do
 end do
 
 do n=3,ndeg+2
-  trw(3*n*(n-1)/2+1) = -1.0d0               ! (n-1,1,1)   n=nDeg+2
-  trw(3*n*(n-1)/2+2) = 2.0d0/dble(n*(n-1))  ! (n-1,1,2)
-  trw(3*n*(n+1)/2-2) = 1.0d0                ! (n-1,n-1,1)
-  trw(3*n*(n+1)/2-1) = 2.0d0/dble(n*(n-1))  ! (n-1,n-1,2)
+  trw(3*n*(n-1)/2+1) = -One                       ! (n-1,1,1)   n=nDeg+2
+  trw(3*n*(n-1)/2+2) = Two/real(n*(n-1),kind=wp)  ! (n-1,1,2)
+  trw(3*n*(n+1)/2-2) = One                        ! (n-1,n-1,1)
+  trw(3*n*(n+1)/2-1) = Two/real(n*(n-1),kind=wp)  ! (n-1,n-1,2)
 end do
 
 ! (1,1,1)
@@ -97,7 +103,7 @@ end do
 ! (2,2,3)
 
 do i=1,9
-  trw(i) = 0.0d0
+  trw(i) = Zero
 end do
 
 do k=1,ndeg
@@ -110,11 +116,11 @@ do k=1,ndeg
   end do
 end do
 
-!write(6,*) 'Lobatto'
+!write(u6,*) 'Lobatto'
 !do i=1,ndeg+2
-!  write(6,*) 'i=',i
+!  write(u6,*) 'i=',i
 !  do j=1,i
-!    write(6,*) trw(3*i*(i-1)/2+3*(j-1)+1),trw(3*i*(i-1)/2+3*(j-1)+2),trw(3*i*(i-1)/2+3*(j-1)+3)
+!    write(u6,*) trw(3*i*(i-1)/2+3*(j-1)+1),trw(3*i*(i-1)/2+3*(j-1)+2),trw(3*i*(i-1)/2+3*(j-1)+3)
 !  end do
 !end do
 

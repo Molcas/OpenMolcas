@@ -23,35 +23,37 @@ subroutine DrvNQ_Inner(Kernel,Func,Maps2p,nSym,list_s,list_exp,list_bas,nShell,l
 !             August 1999                                              *
 !***********************************************************************
 
-#ifdef _DEBUGPRINT_
-use Basis_Info, only: nBas
-#endif
-use Real_Spherical
 use Symmetry_Info, only: nIrrep, iOper
-use KSDFT_Info, only: do_pdftpot, FA_time, FI_time, Funcaa, Funcbb, Funccc, KSDFA, LuMC, LuMT, PUVX_time, sp_time
+use KSDFT_Info, only: do_pdftpot, FA_time, FI_time, Funcaa, Funcbb, Funccc, PUVX_time, sp_time
 use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
 use nq_MO, only: D1MO, P2MO
 use nq_Structure, only: Close_Info_Ang
-use Grid_On_Disk
-use nq_Info
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Grad_I, iOpt_Angular, NASHT, NASHT4, nPot1, &
+                   nPot2, number_of_subblocks, nx, ny, nz, Tau_I
+use Grid_On_Disk, only: Grid_Status, GridInfo, Regenerate
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half, Quart
+use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Basis_Info, only: nBas
+use KSDFT_Info, only: KSDFA, LuMC, LuMT
+use Definitions, only: u6
+#endif
 
-implicit real*8(A-H,O-Z)
-external Kernel, Rsv_Tsk
-#include "real.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "status.fh"
-#include "debug.fh"
-#include "stdalloc.fh"
-integer Maps2p(nShell,0:nSym-1), list_s(nSym*nShell), list_exp(nSym*nShell), list_p(nNQ), list_bas(2,nSym*nShell)
-real*8 FckInt(nFckInt,nFckDim), Density(nFckInt,nD), Grad(nGrad)
-logical Check, Do_Grad, Rsv_Tsk
-logical Do_Mo, Exist, l_tgga
-real*8, dimension(:), allocatable :: PDFTPot1, PDFTFocI, PDFTFocA
-real*8, allocatable :: OE_OT(:), EG_OT(:)
-real*8, allocatable :: FI_V(:), FA_V(:)
-! Statement functions
-Check(i,j) = iand(i,2**(j-1)) /= 0
+implicit none
+external Kernel
+integer(kind=iwp) :: nShell, nSym, Maps2p(nShell,0:nSym-1), list_s(nSym*nShell), list_exp(nSym*nShell), list_bas(2,nSym*nShell), &
+                     nNQ, list_p(nNQ), nFckDim, nFckInt, nD, mGrid, nP2_ontop, nTmpPUVX, nGrad, mAO, mdRho_dR
+real(kind=wp) :: Func, FckInt(nFckInt,nFckDim), Density(nFckInt,nD), Grad(nGrad)
+logical(kind=iwp) :: Do_Mo, Do_Grad
+integer(kind=iwp) :: id, iIrrep, iSB, ix, iy, iyz, iz, jx, jxyz, jy, jyz, jz
+logical(kind=iwp) :: l_tgga
+real(kind=wp), allocatable :: EG_OT(:), FA_V(:), FI_V(:), OE_OT(:), PDFTFocA(:), PDFTFocI(:), PDFTPot1(:)
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: Exists
+#endif
+logical(kind=iwp), external :: Rsv_Tsk
 
 !***********************************************************************
 ! Initializations for MC-PDFT                                          *
@@ -62,27 +64,27 @@ Check(i,j) = iand(i,2**(j-1)) /= 0
 !***********************************************************************
 if (l_casdft) then
 
-  PUVX_Time = 0d0
-  FA_Time = 0d0
-  sp_time = 0d0
-  FI_time = 0d0
+  PUVX_Time = Zero
+  FA_Time = Zero
+  sp_time = Zero
+  FI_time = Zero
 
-  if (Debug) then
-    LuMC = 37
-    call OpnFl('MCPDFT',LuMC,Exist)
-    !call append_file(LuMC)
-    write(LuMC,'(A)') ' Here densities are MCPDFT modified ones.'
-    write(LuMC,*) ' Used by translated functional: ',KSDFA(1:8)
-    write(LuMC,'(A)') '     X    ,     Y    ,     Z    ,       d_a*W     ,       d_b*W     ,       dTot*W    ,'// &
-                      '       Weights   ,          dTot   ,       P2        ,   ratio'
-    LuMT = 37
-    call OpnFl('MCTRUD',LuMT,Exist)
-    !call append_file(LuMT)
-    write(LuMT,'(A)') ' Here densities are original ones.'
-    write(LuMT,*) ' Used by translated functional: ',KSDFA(1:8)
-    write(LuMT,'(A)') '     X    ,     Y    ,     Z    ,       d_a*W     ,       d_b*W     ,       dTot*W    ,'// &
-                      '       Weights   ,       dTot '
-  end if
+# ifdef _DEBUGPRINT_
+  LuMC = 37
+  call OpnFl('MCPDFT',LuMC,Exists)
+  !call append_file(LuMC)
+  write(LuMC,'(A)') ' Here densities are MCPDFT modified ones.'
+  write(LuMC,*) ' Used by translated functional: ',KSDFA(1:8)
+  write(LuMC,'(A)') '     X    ,     Y    ,     Z    ,       d_a*W     ,       d_b*W     ,       dTot*W    ,       Weights   ,'// &
+                    '          dTot   ,       P2        ,   ratio'
+  LuMT = 37
+  call OpnFl('MCTRUD',LuMT,Exists)
+  !call append_file(LuMT)
+  write(LuMT,'(A)') ' Here densities are original ones.'
+  write(LuMT,*) ' Used by translated functional: ',KSDFA(1:8)
+  write(LuMT,'(A)') '     X    ,     Y    ,     Z    ,       d_a*W     ,       d_b*W     ,       dTot*W    ,       Weights   ,'// &
+                    '          dTot '
+# endif
 
   call CalcOrbOff()
   NASHT4 = NASHT**4
@@ -156,7 +158,7 @@ outer: do
   ! Eliminate redundant subblocks in case of symmetry.
   ! This is only done for the Lebedev grids!
 
-  if ((nIrrep /= 1) .and. Check(iOpt_Angular,3)) then
+  if ((nIrrep /= 1) .and. btest(iOpt_Angular,2)) then
 
     ! Resolve triplet index
 
@@ -182,10 +184,9 @@ outer: do
     end do
 
   end if
-  Debug = .false.
-  !if (iSB == 58) Debug = .true.
-  !Debug = .true.
-  if (Debug) write(6,*) 'DrvNQ_: iSB=',iSB
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'DrvNQ_: iSB=',iSB
+# endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -207,23 +208,23 @@ call Free_Tsk(id)
 !                                                                      *
 ! Scale result with respect to the degeneracy of the grid points
 
-if ((nIrrep /= 1) .and. Check(iOpt_Angular,3)) then
+if ((nIrrep /= 1) .and. btest(iOpt_Angular,2)) then
 
-  Func = dble(nIrrep)*Func
-  Funcaa = dble(nIrrep)*Funcaa
-  Funcbb = dble(nIrrep)*Funcbb
-  Funccc = dble(nIrrep)*Funccc
-  Dens_I = dble(nIrrep)*Dens_I
-  Dens_a1 = dble(nIrrep)*Dens_a1
-  Dens_b1 = dble(nIrrep)*Dens_b1
-  Dens_a2 = dble(nIrrep)*Dens_a2
-  Dens_b2 = dble(nIrrep)*Dens_b2
-  Dens_t1 = dble(nIrrep)*Dens_t1
-  Dens_t2 = dble(nIrrep)*Dens_t2
-  Grad_I = dble(nIrrep)*Grad_I
-  Tau_I = dble(nIrrep)*Tau_I
+  Func = real(nIrrep,kind=wp)*Func
+  Funcaa = real(nIrrep,kind=wp)*Funcaa
+  Funcbb = real(nIrrep,kind=wp)*Funcbb
+  Funccc = real(nIrrep,kind=wp)*Funccc
+  Dens_I = real(nIrrep,kind=wp)*Dens_I
+  Dens_a1 = real(nIrrep,kind=wp)*Dens_a1
+  Dens_b1 = real(nIrrep,kind=wp)*Dens_b1
+  Dens_a2 = real(nIrrep,kind=wp)*Dens_a2
+  Dens_b2 = real(nIrrep,kind=wp)*Dens_b2
+  Dens_t1 = real(nIrrep,kind=wp)*Dens_t1
+  Dens_t2 = real(nIrrep,kind=wp)*Dens_t2
+  Grad_I = real(nIrrep,kind=wp)*Grad_I
+  Tau_I = real(nIrrep,kind=wp)*Tau_I
 
-  call DScal_(nFckInt*nFckDim,dble(nIrrep),FckInt,1)
+  call DScal_(nFckInt*nFckDim,real(nIrrep,kind=wp),FckInt,1)
 
 end if
 
@@ -240,11 +241,9 @@ call Close_Info_Ang()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-Debug = .true.
-if (Debug .and. (.not. Do_Grad)) then
-  write(6,*) 'Func=',Func
+if (.not. Do_Grad) then
+  write(u6,*) 'Func=',Func
   iOff = 1
   do iIrrep=0,nIrrep-1
     nB = nBas(iIrrep)
@@ -315,10 +314,10 @@ end if
 if (l_casdft .and. do_pdftPot) then
 
   if (l_tgga) then
-    call PackPot1(OE_OT,PDFTPot1,nFckInt,dble(nIrrep)*0.5d0)
-    call DScal_(nPot2,dble(nIrrep),EG_OT,1)
-    call PackPot1(FI_V,PDFTFocI,nFckInt,dble(nIrrep)*0.25d0)
-    call PackPot1(FA_V,PDFTFocA,nFckInt,dble(nIrrep)*0.5d0)
+    call PackPot1(OE_OT,PDFTPot1,nFckInt,real(nIrrep,kind=wp)*Half)
+    call DScal_(nPot2,real(nIrrep,kind=wp),EG_OT,1)
+    call PackPot1(FI_V,PDFTFocI,nFckInt,real(nIrrep,kind=wp)*Quart)
+    call PackPot1(FA_V,PDFTFocA,nFckInt,real(nIrrep,kind=wp)*Half)
   end if
   call Put_dArray('ONTOPO',OE_OT,nFckInt)
   call Put_dArray('ONTOPT',EG_OT,nTmpPUVX)
@@ -334,23 +333,25 @@ call mma_deallocate(PDFTPot1)
 call mma_deallocate(PDFTFocI)
 call mma_deallocate(PDFTFocA)
 
-if (debug .and. l_casdft) then
-  write(6,*) 'Dens_I in drvnq_ :',Dens_I
-  write(6,*) 'Dens_a1 in drvnq_ :',Dens_a1
-  write(6,*) 'Dens_b1 in drvnq_ :',Dens_b1
-  write(6,*) 'Dens_a2 in drvnq_ :',Dens_a2
-  write(6,*) 'Dens_b2 in drvnq_ :',Dens_b2
-  write(6,*) 'Dens_t1 in drvnq_ :',Dens_t1
-  write(6,*) 'Dens_t2 in drvnq_ :',Dens_t2
-  write(6,*) 'Func in drvnq_ :',Func
-  write(6,*) 'Funcaa in drvnq_ :',Funcaa
-  write(6,*) 'Funcbb in drvnq_ :',Funcbb
-  write(6,*) 'Funccc in drvnq_ :',Funccc
+#ifdef _DEBUGPRINT_
+if (l_casdft) then
+  write(u6,*) 'Dens_I in drvnq_ :',Dens_I
+  write(u6,*) 'Dens_a1 in drvnq_ :',Dens_a1
+  write(u6,*) 'Dens_b1 in drvnq_ :',Dens_b1
+  write(u6,*) 'Dens_a2 in drvnq_ :',Dens_a2
+  write(u6,*) 'Dens_b2 in drvnq_ :',Dens_b2
+  write(u6,*) 'Dens_t1 in drvnq_ :',Dens_t1
+  write(u6,*) 'Dens_t2 in drvnq_ :',Dens_t2
+  write(u6,*) 'Func in drvnq_ :',Func
+  write(u6,*) 'Funcaa in drvnq_ :',Funcaa
+  write(u6,*) 'Funcbb in drvnq_ :',Funcbb
+  write(u6,*) 'Funccc in drvnq_ :',Funccc
 
   ! Close these files...
   close(LuMC)
   close(LuMT)
 end if
+#endif
 
 return
 

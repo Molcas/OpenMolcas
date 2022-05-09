@@ -17,24 +17,25 @@
 ! ****************************************************************
 subroutine Calc_Pot1(Pot1,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,MOs)
 
-use nq_Grid, only: GradRho, Weights
-use nq_Grid, only: vRho, vSigma
-use nq_pdft
-use nq_Info
+use nq_Grid, only: GradRho, vRho, vSigma, Weights
+use nq_pdft, only: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, dF_dRhoapb, dF_dRhoamb, dF_dRhoxamb, &
+                   dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, dRdRho, dRhodx, dRhody, dRhodz, dZdR, &
+                   dZdRho, fta, ftb, ftc, lft, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lGGA, Pass1, Pass2, Pass3, RatioA, RhoAB, &
+                   ThrsNT, ZetaA
+use nq_Info, only: mIrrep, mOrb, nOrbt, nPot1, OffBasFro, OffOrb, OffOrb2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Four, Six, Twelve, Half
+use Definitions, only: wp, iwp
 
-#include "stdalloc.fh"
-! Input
-integer mAO, mGrid, nMOs, nP2_ontop
-real*8, dimension(mAO,mGrid,nMOs) :: TabMO
-real*8, dimension(mGrid*nOrbt) :: MOs
-real*8, dimension(nP2_ontop,mGrid) :: P2_ontop
-! Output
-real*8, dimension(nPot1) :: Pot1
-! Internal
+implicit none
+integer(kind=iwp) :: mAO, mGrid, nMOs, nP2_ontop
+real(kind=wp) :: Pot1(nPot1), TabMO(mAO,mGrid,nMOs), MOs(mGrid*nOrbt), P2_ontop(nP2_ontop,mGrid)
+! Input: mAO mGrid nMOs nP2_ontop TabMO MOs P2_ontop
+! Output: Pot1
+integer(kind=iwp) :: iGrid, iIrrep, iMO, iOff1, IOff2, iOrb
+real(kind=wp) :: dEdRhop2, dF_dRhoax, dF_dRhoay, dF_dRhoaz, dF_dRhobx, dF_dRhoby, dF_dRhobz, Diff1, dRdx, dRdy, dRdz
 ! PreMO is MO multiplied with things needed for potential calculation
-real*8, dimension(:), allocatable :: PreMO
-real*8 dF_dRhoax, dF_dRhoay, dF_dRhoaz, dF_dRhobx, dF_dRhoby, dF_dRhobz, dRdx, dRdy, dRdz, Diff1, dEdRhop2
-integer iGrid, iOff1, iMO, iOrb
+real(kind=wp), allocatable :: PreMO(:)
 
 call mma_allocate(PreMO,mGrid*nOrbt)
 call dcopy_(mGrid*nOrbt,MOs,1,PreMO,1)
@@ -44,15 +45,15 @@ do iGrid=1,mGrid
   if (Pass1(iGrid)) then
     dF_dRhoapb(iGrid) = vRho(1,iGrid)+vRho(2,iGrid)
     dF_dRhoamb(iGrid) = vRho(1,iGrid)-vRho(2,iGrid)
-    dRdRho(iGrid) = RatioA(iGrid)*(-2.0d0/RhoAB(iGrid))
+    dRdRho(iGrid) = RatioA(iGrid)*(-Two/RhoAB(iGrid))
     dZdRho(iGrid) = dZdR(iGrid)*dRdRho(iGrid)
     dEdRho(iGrid) = dF_dRhoapb(iGrid)+dF_dRhoamb(iGrid)*(ZetaA(iGrid)+RhoAB(iGrid)*dZdRho(iGrid))
-    dRdPi(iGrid) = 4.0d0/RhoAB(iGrid)**2
+    dRdPi(iGrid) = Four/RhoAB(iGrid)**2
   else
-    dRdPi(iGrid) = 0.0d0
-    dF_dRhoapb(iGrid) = 0.0d0
-    dF_dRhoamb(iGrid) = 0.0d0
-    dEdRho(iGrid) = 0.0d0
+    dRdPi(iGrid) = Zero
+    dF_dRhoapb(iGrid) = Zero
+    dF_dRhoamb(iGrid) = Zero
+    dEdRho(iGrid) = Zero
   end if
 end do
 
@@ -60,12 +61,12 @@ end do
 if (lGGA) then
   do iGrid=1,mGrid
     if (Pass1(iGrid)) then
-      dF_dRhoax = 2.0d0*vSigma(1,iGrid)*GradRho(1,iGrid)+vSigma(2,iGrid)*GradRho(4,iGrid)
-      dF_dRhobx = 2.0d0*vSigma(3,iGrid)*GradRho(4,iGrid)+vSigma(2,iGrid)*GradRho(1,iGrid)
-      dF_dRhoay = 2.0d0*vSigma(1,iGrid)*GradRho(2,iGrid)+vSigma(2,iGrid)*GradRho(5,iGrid)
-      dF_dRhoby = 2.0d0*vSigma(3,iGrid)*GradRho(5,iGrid)+vSigma(2,iGrid)*GradRho(2,iGrid)
-      dF_dRhoaz = 2.0d0*vSigma(1,iGrid)*GradRho(3,iGrid)+vSigma(2,iGrid)*GradRho(6,iGrid)
-      dF_dRhobz = 2.0d0*vSigma(3,iGrid)*GradRho(6,iGrid)+vSigma(2,iGrid)*GradRho(3,iGrid)
+      dF_dRhoax = Two*vSigma(1,iGrid)*GradRho(1,iGrid)+vSigma(2,iGrid)*GradRho(4,iGrid)
+      dF_dRhobx = Two*vSigma(3,iGrid)*GradRho(4,iGrid)+vSigma(2,iGrid)*GradRho(1,iGrid)
+      dF_dRhoay = Two*vSigma(1,iGrid)*GradRho(2,iGrid)+vSigma(2,iGrid)*GradRho(5,iGrid)
+      dF_dRhoby = Two*vSigma(3,iGrid)*GradRho(5,iGrid)+vSigma(2,iGrid)*GradRho(2,iGrid)
+      dF_dRhoaz = Two*vSigma(1,iGrid)*GradRho(3,iGrid)+vSigma(2,iGrid)*GradRho(6,iGrid)
+      dF_dRhobz = Two*vSigma(3,iGrid)*GradRho(6,iGrid)+vSigma(2,iGrid)*GradRho(3,iGrid)
       dF_dRhoxapb(iGrid) = dF_dRhoax+dF_dRhobx
       dF_dRhoxamb(iGrid) = dF_dRhoax-dF_dRhobx
       dF_dRhoyapb(iGrid) = dF_dRhoay+dF_dRhoby
@@ -85,16 +86,16 @@ if (lGGA) then
       dEdRhoz(iGrid) = dF_dRhozapb(iGrid)+ZetaA(iGrid)*dF_dRhozamb(iGrid)
 
     else
-      dF_dRhoxapb(iGrid) = 0.0d0
-      dF_dRhoxamb(iGrid) = 0.0d0
-      dF_dRhoyapb(iGrid) = 0.0d0
-      dF_dRhoyamb(iGrid) = 0.0d0
-      dF_dRhozapb(iGrid) = 0.0d0
-      dF_dRhozamb(iGrid) = 0.0d0
-      GradRhodFdRho(iGrid) = 0.0d0
-      dEdRhox(iGrid) = 0.0d0
-      dEdRhoy(iGrid) = 0.0d0
-      dEdRhoz(iGrid) = 0.0d0
+      dF_dRhoxapb(iGrid) = Zero
+      dF_dRhoxamb(iGrid) = Zero
+      dF_dRhoyapb(iGrid) = Zero
+      dF_dRhoyamb(iGrid) = Zero
+      dF_dRhozapb(iGrid) = Zero
+      dF_dRhozamb(iGrid) = Zero
+      GradRhodFdRho(iGrid) = Zero
+      dEdRhox(iGrid) = Zero
+      dEdRhoy(iGrid) = Zero
+      dEdRhoz(iGrid) = Zero
     end if
   end do
   ! green and blue terms in the notes
@@ -107,15 +108,15 @@ if (lGGA) then
         GradRdFdRho(iGrid) = dRdX*dF_dRhoxamb(iGrid)+dRdY*dF_dRhoyamb(iGrid)+dRdZ*dF_dRhozamb(iGrid)
         GradPidFdRho(iGrid) = P2_ontop(2,iGrid)*dF_dRhoxamb(iGrid)+P2_ontop(3,iGrid)*dF_dRhoyamb(iGrid)+ &
                               P2_ontop(4,iGrid)*dF_dRhozamb(iGrid)
-        d2RdRho2(iGrid) = 6.0d0*RatioA(iGrid)/RhoAB(iGrid)**2
-        d2RdRhodPi(iGrid) = -2.0d0*dRdPi(iGrid)/RhoAB(iGrid)
+        d2RdRho2(iGrid) = Six*RatioA(iGrid)/RhoAB(iGrid)**2
+        d2RdRhodPi(iGrid) = -Two*dRdPi(iGrid)/RhoAB(iGrid)
         if (Pass2(iGrid)) then
-          d2ZdR2(iGrid) = 2.0d0*dZdR(iGrid)**3
+          d2ZdR2(iGrid) = Two*dZdR(iGrid)**3
         else if (Pass3(iGrid)) then
           Diff1 = RatioA(iGrid)-ThrsNT
-          d2ZdR2(iGrid) = (2.0d1*fta*Diff1**2+1.2d1*ftb*Diff1+6.0d0*ftc)*Diff1
+          d2ZdR2(iGrid) = (20.0_wp*fta*Diff1**2+Twelve*ftb*Diff1+Six*ftc)*Diff1
         else
-          d2ZdR2(iGrid) = 0.0d0
+          d2ZdR2(iGrid) = Zero
         end if
         dEdRho(iGrid) = dEdRho(iGrid)+(dZdR(iGrid)+RhoAB(iGrid)*d2ZdR2(iGrid)*dRdRho(iGrid))*GradRdFdRho(iGrid)+ &
                         RhoAB(iGrid)*dZdR(iGrid)*d2RdRho2(iGrid)*GradRhodFdRho(iGrid)+ &
@@ -127,17 +128,17 @@ if (lGGA) then
         dEdRhoy(iGrid) = dEdRhoy(iGrid)+dEdRhop2*dF_dRhoyamb(iGrid)
         dEdRhoz(iGrid) = dEdRhoz(iGrid)+dEdRhop2*dF_dRhozamb(iGrid)
       else
-        GradRdFdRho(iGrid) = 0.0d0
-        GradPidFdRho(iGrid) = 0.0d0
-        d2RdRho2(iGrid) = 0.0d0
-        d2RdRhodPi(iGrid) = 0.0d0
-        d2ZdR2(iGrid) = 0.0d0
+        GradRdFdRho(iGrid) = Zero
+        GradPidFdRho(iGrid) = Zero
+        d2RdRho2(iGrid) = Zero
+        d2RdRhodPi(iGrid) = Zero
+        d2ZdR2(iGrid) = Zero
       end if
     end do
   end if
 end if
 
-call DScal_(mGrid,0.5d0,dEdRho,1)
+call DScal_(mGrid,Half,dEdRho,1)
 
 do iGrid=1,mGrid
   call DScal_(nOrbt,dEdRho(iGrid),PreMO(iGrid),mGrid)
@@ -163,7 +164,7 @@ end do
 do iIrrep=0,mIrrep-1
   IOff1 = OffOrb(iIrrep)*mGrid+1
   IOff2 = OffOrb2(iIrrep)+1
-  call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,1.0d0,PreMO(IOff1),mGrid,MOs(IOff1),mGrid,1.0d0,Pot1(iOff2),mOrb(iIrrep))
+  call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,One,PreMO(IOff1),mGrid,MOs(IOff1),mGrid,One,Pot1(iOff2),mOrb(iIrrep))
 end do
 
 call mma_deallocate(PreMO)

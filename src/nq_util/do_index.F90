@@ -9,10 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Do_Index(Index,NrBas,NrBas_Eff,iCmp)
+subroutine Do_Index(Idx,NrBas,NrBas_Eff,iCmp)
 
-implicit real*8(a-h,o-z)
-integer index(NrBas_Eff*iCmp)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NrBas_Eff, iCmp, Idx(NrBas_Eff*iCmp), NrBas
+integer(kind=iwp) :: iAdd, iB, iB_Eff, iC, iCB, iCB_Eff
 
 iAdd = NrBas-NrBas_Eff
 do iB_Eff=1,NrBas_Eff
@@ -20,7 +23,7 @@ do iB_Eff=1,NrBas_Eff
   do iC=1,iCmp
     iCB = (iC-1)*NrBas+iB
     iCB_Eff = (iC-1)*NrBas_Eff+iB_Eff
-    index(iCB_Eff) = iCB
+    Idx(iCB_Eff) = iCB
   end do
 end do
 

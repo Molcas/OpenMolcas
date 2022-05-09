@@ -23,26 +23,22 @@ subroutine Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,
 !             August 1999                                              *
 !***********************************************************************
 
-use NQ_structure, only: NQ_Data, Info_Ang
-use Grid_On_Disk
-use nq_Info
+use NQ_structure, only: Info_Ang, NQ_Data
+use nq_Info, only: Angular_Pruning, iOpt_Angular, ntotgp, On
+use Grid_On_Disk, only: iBatchInfo, iDisk_Grid, Lu_Grid, nBatch, nBatch_Max
+use Constants, only: One, Half
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-implicit real*8(A-H,O-Z)
-#include "itmax.fh"
-#include "real.fh"
-#include "setup.fh"
-#include "nsd.fh"
-#include "debug.fh"
-integer list_p(nlist_p)
-real*8 Grid(3,mGrid), Weights(mGrid), xyz0(3,2)
-logical Process, InBox, Check
-integer iAngular_Grid(nR_Eff)
-! Statement functions
-Check(i,j) = iand(i,2**(j-1)) /= 0
-x_a(i,iSet) = Info_Ang(iSet)%R(1,i)
-y_a(i,iSet) = Info_Ang(iSet)%R(2,i)
-z_a(i,iSet) = Info_Ang(iSet)%R(3,i)
-w_a(i,iSet) = Info_Ang(iSet)%R(4,i)
+implicit none
+integer(kind=iwp) :: iNQ, nlist_p, list_p(nlist_p), mGrid, number_of_grid_points, ilist_p, nR_Eff, iAngular_Grid(nR_Eff)
+real(kind=wp) :: x_NQ, y_NQ, z_NQ, x_min_, x_max_, y_min_, y_max_, z_min_, z_max_, Grid(3,mGrid), Weights(mGrid), R_box_min, &
+                 R_box_max, xyz0(3,2)
+logical(kind=iwp) :: InBox, Process
+integer(kind=iwp) :: iEnd_R, iPoint, iR, iR_End, iR_Start, iSet, iStart_R, iStrt, kSet, mGrid_, nGrid, nRemoved
+real(kind=wp) :: Fact, R_Value, Radius, w_g, weight, x, xpt, y, ypt, z, zpt
 
 !                                                                      *
 !***********************************************************************
@@ -55,27 +51,25 @@ iStrt = number_of_grid_points+1
 ! Start loop over the atomic grid
 
 #ifdef _DEBUGPRINT_
-if (Debug) then
-  write(6,*) ' x_NQ=',x_NQ
-  write(6,*) ' y_NQ=',y_NQ
-  write(6,*) ' z_NQ=',z_NQ
-  write(6,*) ' Process=',Process
-  write(6,*) ' number_of_grid_points=',number_of_grid_points
-  write(6,*) 'x:',x_min_,x_max_
-  write(6,*) 'y:',y_min_,y_max_
-  write(6,*) 'z:',z_min_,z_max_
-  write(6,*)
-end if
+write(u6,*) ' x_NQ=',x_NQ
+write(u6,*) ' y_NQ=',y_NQ
+write(u6,*) ' z_NQ=',z_NQ
+write(u6,*) ' Process=',Process
+write(u6,*) ' number_of_grid_points=',number_of_grid_points
+write(u6,*) 'x:',x_min_,x_max_
+write(u6,*) 'y:',y_min_,y_max_
+write(u6,*) 'z:',z_min_,z_max_
+write(u6,*)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 iStart_R = nR_Eff
 iEnd_R = 1
-!write(6,*)
-!write(6,*) 'Start range:',iEnd_R,iStart_R
-if (.not. Check(iOpt_Angular,2)) then
-  !write(6,*) 'Find R subrange!'
+!write(u6,*)
+!write(u6,*) 'Start range:',iEnd_R,iStart_R
+if (.not. btest(iOpt_Angular,1)) then
+  !write(u6,*) 'Find R subrange!'
 
   ! Compute valid subrange for R
 
@@ -94,7 +88,7 @@ if (.not. Check(iOpt_Angular,2)) then
   end do
 
 else
-  !write(6,*) 'Do whole R range!'
+  !write(u6,*) 'Do whole R range!'
 
   ! Scan the whole range
 
@@ -108,7 +102,7 @@ end if
 iStart_R = iR_Start
 iEnd_R = iR_End
 iSet = -1
-!write(6,*) 'Actual range:',iEnd_R,iStart_R
+!write(u6,*) 'Actual range:',iEnd_R,iStart_R
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -147,8 +141,8 @@ do
 
   if ((NQ_Data(iNQ)%R_Quad(1,iR_End) <= R_box_Max) .and. (NQ_Data(iNQ)%R_Quad(1,iR_Start) >= R_box_Min)) then
 
-    !write(6,*) 'Selected range:',iR_End,iR_Start
-    !write(6,*) 'l_max=',Info_Ang(iSet)%L_Eff
+    !write(u6,*) 'Selected range:',iR_End,iR_Start
+    !write(u6,*) 'l_max=',Info_Ang(iSet)%L_Eff
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -156,15 +150,14 @@ do
 
     do iPoint=1,Info_Ang(iSet)%nPoints
 #     ifdef _DEBUGPRINT_
-      if (Debug) then
-        write(6,*) 'X,Y,Z*',x_a(iPoint,iSet),y_a(iPoint,iSet),z_a(iPoint,iSet)
-      end if
+      write(u6,*) 'X,Y,Z*',Info_Ang(iSet)%R(1,iPoint),Info_Ang(iSet)%R(2,iPoint),Info_Ang(iSet)%R(3,iPoint)
 #     endif
 
-      if ((.not. InBox) .and. (.not. Check(iOpt_Angular,2))) then
-        !write(6,*) 'Select angular points!'
-        if ((x_a(iPoint,iset) < xyz0(1,1)) .or. (x_a(iPoint,iset) > xyz0(1,2)) .or. (y_a(iPoint,iset) < xyz0(2,1)) .or. &
-            (y_a(iPoint,iset) > xyz0(2,2)) .or. (z_a(iPoint,iset) < xyz0(3,1)) .or. (z_a(iPoint,iset) > xyz0(3,2))) cycle
+      if ((.not. InBox) .and. (.not. btest(iOpt_Angular,1))) then
+        !write(u6,*) 'Select angular points!'
+        if ((Info_Ang(iSet)%R(1,iPoint) < xyz0(1,1)) .or. (Info_Ang(iSet)%R(1,iPoint) > xyz0(1,2)) .or. &
+            (Info_Ang(iSet)%R(2,iPoint) < xyz0(2,1)) .or. (Info_Ang(iSet)%R(2,iPoint) > xyz0(2,2)) .or. &
+            (Info_Ang(iSet)%R(3,iPoint) < xyz0(3,1)) .or. (Info_Ang(iSet)%R(3,iPoint) > xyz0(3,2))) cycle
       end if
       !                                                                *
       !*****************************************************************
@@ -174,19 +167,17 @@ do
       do iR=iR_End,iR_Start
         Radius = NQ_Data(iNQ)%R_Quad(1,iR)
         ! In the atomic referential
-        xpt = Radius*x_a(iPoint,iSet)
-        ypt = Radius*y_a(iPoint,iSet)
-        zpt = Radius*z_a(iPoint,iSet)
+        xpt = Radius*Info_Ang(iSet)%R(1,iPoint)
+        ypt = Radius*Info_Ang(iSet)%R(2,iPoint)
+        zpt = Radius*Info_Ang(iSet)%R(3,iPoint)
         ! In the system referential
         x = xpt+x_NQ
         y = ypt+y_NQ
         z = zpt+z_NQ
 #       ifdef _DEBUGPRINT_
-        if (Debug) then
-          write(6,*) 'Radius=',Radius
-          write(6,*) ' x,y,z:',x,y,z
-          write(6,*) x_NQ,y_NQ,z_NQ
-        end if
+        write(u6,*) 'Radius=',Radius
+        write(u6,*) ' x,y,z:',x,y,z
+        write(u6,*) x_NQ,y_NQ,z_NQ
 #       endif
 
         ! Check if the point is inside the box.
@@ -204,20 +195,18 @@ do
           if (y == y_max_) Fact = Fact*Half
           if (z == z_max_) Fact = Fact*Half
 #         ifdef _DEBUGPRINT_
-          if (Debug) then
-            write(6,*) x_a(iPoint,iSet),y_a(iPoint,iSet),z_a(iPoint,iSet)
-            write(6,*) 'x:',xyz0(1,1),xyz0(1,2)
-            write(6,*) 'y:',xyz0(2,1),xyz0(2,2)
-            write(6,*) 'z:',xyz0(3,1),xyz0(3,2)
-            write(6,*) ' Inside:',x,y,z
-          end if
+          write(u6,*) Info_Ang(iSet)%R(1,iPoint),Info_Ang(iSet)%R(2,iPoint),Info_Ang(iSet)%R(3,iPoint)
+          write(u6,*) 'x:',xyz0(1,1),xyz0(1,2)
+          write(u6,*) 'y:',xyz0(2,1),xyz0(2,2)
+          write(u6,*) 'z:',xyz0(3,1),xyz0(3,2)
+          write(u6,*) ' Inside:',x,y,z
 #         endif
 
           ! Radial weight
           weight = NQ_Data(iNQ)%R_Quad(2,iR)
           ! Combine the radial and angular weight
-          w_g = weight*w_a(iPoint,iSet)
-          if (w_g*Fact >= 1.0D-15) then
+          w_g = weight*Info_Ang(iSet)%R(4,iPoint)
+          if (w_g*Fact >= 1.0e-15_wp) then
             number_of_grid_points = number_of_grid_points+1
             Grid(1,number_of_grid_points) = x
             Grid(2,number_of_grid_points) = y
@@ -261,7 +250,7 @@ do
           call dDaFile(Lu_Grid,1,Weights,number_of_grid_points,iDisk_Grid)
 
           ntotgp = ntotgp+number_of_grid_points
-          !write(6,*) 'ntotgp=',ntotgp
+          !write(u6,*) 'ntotgp=',ntotgp
           number_of_grid_points = 0
           iStrt = number_of_grid_points+1
         end if
@@ -273,15 +262,15 @@ do
   !*********************************************************************
   !                                                                    *
   iR_Start = iR_End-1
-  if ((Angular_Prunning /= On) .or. (iR_End == iEnd_R)) exit
+  if ((Angular_Pruning /= On) .or. (iR_End == iEnd_R)) exit
 end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Generate weights
 !
-!write(6,*) 'number_of_grid_points=',number_of_grid_points
-!write(6,*) 'iStrt=',iStrt
+!write(u6,*) 'number_of_grid_points=',number_of_grid_points
+!write(u6,*) 'iStrt=',iStrt
 if (number_of_grid_points-iStrt+1 > 0) then
   mGrid_ = number_of_grid_points-iStrt+1
   call W(Grid(1,iStrt),ilist_p,Weights(iStrt),list_p,nList_p,mGrid_,nRemoved)
@@ -307,7 +296,7 @@ if (Process .and. (number_of_grid_points > 0)) then
   call dDaFile(Lu_Grid,1,Weights,number_of_grid_points,iDisk_Grid)
 
   ntotgp = ntotgp+number_of_grid_points
-  !write(6,*) 'ntotgp=',ntotgp
+  !write(u6,*) 'ntotgp=',ntotgp
   number_of_grid_points = 0
 end if
 !                                                                      *

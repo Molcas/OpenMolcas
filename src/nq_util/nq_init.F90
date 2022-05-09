@@ -11,7 +11,9 @@
 
 subroutine NQ_Init()
 
-use Grid_On_Disk
+use Grid_On_Disk, only: iGrid_Set, Not_Specified
+
+implicit none
 
 ! Initialize to no specified grid set.
 

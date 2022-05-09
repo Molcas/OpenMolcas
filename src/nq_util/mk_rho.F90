@@ -11,39 +11,38 @@
 ! Copyright (C) 2000,2021, Roland Lindh                                *
 !***********************************************************************
 
-subroutine Mk_Rho(list_s,nlist_s,Fact,mdc,list_bas,Index,nIndex,Do_Grad)
+subroutine Mk_Rho(list_s,nlist_s,Fact,mdc,list_bas,Indx,nIndex,Do_Grad)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN.  2000                                   *
 !***********************************************************************
 
-use iSD_data
+use iSD_data, only: iSD
 use k2_arrays, only: DeDe, ipDijS
-use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO, TabAO_Short
-use nq_grid, only: GradRho, Tau, Lapl, kAO
-use nq_Grid, only: dRho_dR, iBfn_Index
-use nq_Grid, only: List_G
-use nq_Info
+use nq_Grid, only: Dens_AO, dRho_dR, GradRho, Grid_AO, iBfn_Index, kAO, Lapl, List_G, Rho, TabAO, TabAO_Short, Tau
+use nq_Info, only: Functional_type, GGA_Type, LDA_Type, meta_GGA_Type1, meta_GGA_Type2
 #ifdef _DEBUGPRINT_
-use nq_grid, only: nRho
+use nq_Grid, only: nRho
 #endif
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-#include "debug.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "stdalloc.fh"
-integer index(nIndex)
-real*8 Fact(mdc**2)
-integer ipD(2)
-integer list_s(2,nlist_s), list_bas(2,nlist_s)
-integer, parameter :: Index_d2(3,3) = reshape([5,6,7,6,8,9,7,9,10],[3,3])
-integer, parameter :: Index_d3(3,3) = reshape([11,14,16,12,17,19,13,18,20],[3,3])
-logical Do_Grad
-integer, allocatable :: Ind_Grd(:,:)
-! Statement function
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+use Index_Functions, only: iTri
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Four, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nlist_s, list_s(2,nlist_s), mdc, list_bas(2,nlist_s), nIndex, Indx(nIndex)
+real(kind=wp) :: Fact(mdc**2)
+logical(kind=iwp) :: Do_Grad
+integer(kind=iwp) :: i1, i2, i_R, iAO, iBas, iBas_Eff, iBfn, iCar, iCB, iCmp, iD, idjx, idjx2, idjy, idjy2, idjz, idjz2, iDx, &
+                     idx2, iDy, idy2, iDz, idz2, iER, iGrid, ij, ij_D, ijS, iL, ilist_s, Ind_xyz, index_i, index_j, ip_D_a, &
+                     ip_D_b, ip_Tmp, ipD(2), ipDDij, ipDij, ipDSij, iShell, iSkal, iT, ix, iy, iz, j, j1, j2, j_R, jBas, jBas_Eff, &
+                     jBfn, jCB, jCmp, jlist_s, jShell, jSkal, kDCRE, kDCRR, lDCRER, mAO, mdci, mdcj, mDCRij, mDij, mGrid, nAO, &
+                     nBfn, nD, nFunc_i, nFunc_j
+real(kind=wp) :: DAij, Factor
+integer(kind=iwp), parameter :: Index_d2(3,3) = reshape([5,6,7,6,8,9,7,9,10],[3,3]), &
+                                Index_d3(3,3) = reshape([11,14,16,12,17,19,13,18,20],[3,3])
+integer(kind=iwp), allocatable :: Ind_Grd(:,:)
+integer(kind=iwp), external :: NrOpr
 
 !                                                                      *
 !***********************************************************************
@@ -56,9 +55,9 @@ mGrid = size(TabAO,2)
 
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*) 'mAO=',mAO
-write(6,*) 'mGrid=',mGrid
-write(6,*) 'nlist_s=',nlist_s
+write(u6,*) 'mAO=',mAO
+write(u6,*) 'mGrid=',mGrid
+write(u6,*) 'nlist_s=',nlist_s
 call RecPrt('Rho: TabAO',' ',TabAO,mAO*mGrid,nAO)
 #endif
 !                                                                      *
@@ -78,10 +77,10 @@ end if
 
 nBfn = size(iBfn_Index,2)
 if (nBfn /= nAO) then
-  write(6,*) 'mk_Rho: internal error!'
+  write(u6,*) 'mk_Rho: internal error!'
   call Abend()
 end if
-Factor = dble(2/nD)
+Factor = real(2/nD,kind=wp)
 do iBfn=1,nBfn
   ilist_s = iBfn_Index(2,iBfn)
   i1 = iBfn_Index(3,iBfn)
@@ -97,7 +96,7 @@ do iBfn=1,nBfn
   nFunc_i = iBas*iCmp
 
   i_R = (i1-1)*iBas_Eff+i2
-  iCB = index(index_i-1+i_R)
+  iCB = Indx(index_i-1+i_R)
 
   if (Do_Grad) Ind_Grd(:,iBfn) = List_g(:,ilist_s)
 
@@ -116,7 +115,7 @@ do iBfn=1,nBfn
     nFunc_j = jBas*jCmp
 
     j_R = (j1-1)*jBas_Eff+j2
-    jCB = index(index_j-1+j_R)
+    jCB = Indx(index_j-1+j_R)
 
     ijS = iTri(iShell,jShell)
     ip_Tmp = ipDijs
@@ -148,12 +147,12 @@ end do
 !                                                                      *
 !#define _ANALYSIS_
 #ifdef _ANALYSIS_
-Thr = 1.0D-15
-write(6,*)
-write(6,*) ' Sparsity analysis of D(i,j)'
-write(6,*) ' Threshold: ',Thr
-write(6,*) ' Grid size: ',mGrid
-write(6,*) ' Dimension: ',n,' x ',n
+Thr = 1.0e-15_wp
+write(u6,*)
+write(u6,*) ' Sparsity analysis of D(i,j)'
+write(u6,*) ' Threshold: ',Thr
+write(u6,*) ' Grid size: ',mGrid
+write(u6,*) ' Dimension: ',n,' x ',n
 n = size(Dens_AO,1)
 n2 = n**2
 do iD=1,nD
@@ -163,7 +162,7 @@ do iD=1,nD
       if (abs(Dens_AO(i,j,iD)) < Thr) m = m+1
     end do
   end do
-  write(6,*) 'Total Sparsity in %',1.0d2*dble(m)/dble(n2)
+  write(u6,*) 'Total Sparsity in %',100.0_wp*real(m,kind=wp)/real(n2,kind=wp)
   k = 0
   do i=1,n
     m = 0
@@ -172,7 +171,7 @@ do iD=1,nD
     end do
     if (m == n) k = k+1
   end do
-  write(6,*) 'Column Sparsity in %',1.0d2*dble(k)/dble(n)
+  write(u6,*) 'Column Sparsity in %',100.0_wp*real(k,kind=wp)/real(n,kind=wp)
   k = 0
   do j=1,n
     m = 0
@@ -181,7 +180,7 @@ do iD=1,nD
     end do
     if (m == n) k = k+1
   end do
-  write(6,*) 'Row Sparsity in %',1.0d2*dble(k)/dble(n)
+  write(u6,*) 'Row Sparsity in %',100.0_wp*real(k,kind=wp)/real(n,kind=wp)
 end do
 #endif
 !                                                                      *
@@ -522,8 +521,8 @@ end select
 !***********************************************************************
 !                                                                      *
 #ifdef _ANALYSIS_
-write(6,*)
-write(6,*) 'Rho Sparsity analysis'
+write(u6,*)
+write(u6,*) 'Rho Sparsity analysis'
 n = 0
 do iGrid=1,mGrid
   tmp = Zero
@@ -532,7 +531,7 @@ do iGrid=1,mGrid
   end do
   if (tmp < Thr) n = n+1
 end do
-write(6,*) 'Rho Sparsity in %: ',1.0d2*dble(n)/dble(mGrid)
+write(u6,*) 'Rho Sparsity in %: ',100.0_wp*real(n,kind=wp)/real(mGrid,kind=wp)
 #endif
 !                                                                      *
 !***********************************************************************

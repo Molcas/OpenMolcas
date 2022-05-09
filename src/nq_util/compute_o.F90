@@ -10,11 +10,14 @@
 !***********************************************************************
 
 subroutine Compute_O(ZA,RA,nAtoms,T,O,Lambda)
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 ZA(nAtoms), RA(3,nAtoms), T(3), O(3,3), Lambda(3)
-! Local arrays
-real*8 EVal(6), M(3,3)
+
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms
+real(kind=wp) :: ZA(nAtoms), RA(3,nAtoms), T(3), O(3,3), Lambda(3)
+real(kind=wp) :: EVal(6), M(3,3)
 
 !                                                                      *
 !***********************************************************************

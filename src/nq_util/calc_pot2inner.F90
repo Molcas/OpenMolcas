@@ -17,20 +17,21 @@
 ! ****************************************************************
 subroutine Calc_Pot2_Inner(Pot2,mGrid,MOP,MOU,MOV,MOX,lSum)
 
-use nq_Info
+use nq_Info, only: mIrrep, mOrb, nAsh, nIsh, nOrbt, nPot2, nUVX, nUVXt, nVX, nVXt, OffOrb, OffPUVX, OffUVX, OffVX
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-#include "stdalloc.fh"
-! Input
-integer mGrid
-logical lSum
+implicit none
+integer(kind=iwp) :: mGrid
+real(kind=wp) :: Pot2(nPot2), MOP(mGrid*nOrbt), MOU(mGrid*nOrbt), MOV(mGrid*nOrbt), MOX(mGrid*nOrbt)
+logical(kind=iwp) :: lsum
 ! Note: when lSum is .true., calculate P(U'VX+UV'X+UVX'), otherwise calculate PUVX
-real*8, dimension(mGrid*nOrbt) :: MOP, MOU, MOV, MOX
-! Output
-real*8, dimension(nPot2) :: Pot2
-! Intermediate
-real*8, dimension(:), allocatable :: MOUVX, MOVX1, MOVX2
-integer iGrid, iOff0, iOff1, iOff2, iOff3, iStack, nnUVX, iVX, pIrrep, uIrrep, vIrrep, xIrrep, xMax, puIrrep, u, v, x, vorb, xorb, &
-        ioffu, nporb
+! Input: mGrid lSum MOP MOU MOV MOX
+! Output: Pot2
+integer(kind=iwp) :: iGrid, iOff0, iOff1, iOff2, iOff3, ioffu, iStack, iVX, nnUVX, nporb, pIrrep, puIrrep, u, uIrrep, v, vIrrep, &
+                     vorb, x, xIrrep, xMax, xorb
+real(kind=wp), allocatable :: MOUVX(:), MOVX1(:), MOVX2(:)
 
 call mma_allocate(MOVX1,nVXt*mGrid)
 if (lSum) call mma_allocate(MOVX2,nVXt*mGrid)
@@ -141,7 +142,7 @@ do pIrrep=0,mIrrep-1
       nnUVX = nUVX(xIrrep,vIrrep,uIrrep)
       if ((xIrrep > vIrrep) .or. (nnUVX == 0)) cycle
       IOff3 = OffUVX(xIrrep,vIrrep,uIrrep)*mGrid+1
-      call DGEMM_('T','N',npOrb,nnUVX,mGrid,1.0d0,MOP(iOff1),mGrid,MOUVX(IOff3),mGrid,1.0d0,Pot2(iOff2),npOrb)
+      call DGEMM_('T','N',npOrb,nnUVX,mGrid,One,MOP(iOff1),mGrid,MOUVX(IOff3),mGrid,One,Pot2(iOff2),npOrb)
       IOff2 = IOff2+nnUVX*npOrb
     end do
   end do

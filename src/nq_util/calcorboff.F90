@@ -17,9 +17,12 @@
 ! ****************************************************************
 subroutine CalcOrbOff()
 
-use nq_Info
+use nq_Info, only: iOff_Ash, iOff_Bas, iOff_BasAct, mBas, mIrrep, mOrb, NASH, NASHT, nFro, nIsh, nOrbt, nPot1, OffBas, OffBas2, &
+                   OffBasFro, OffOrb, OffOrb2, OffOrbTri
+use Definitions, only: iwp
 
-integer jOffA_, jOffB_, nTri, iIrrep
+implicit none
+integer(kind=iwp) :: iIrrep, jOffA_, jOffB_, nTri
 
 NASHT = 0
 jOffA_ = 0

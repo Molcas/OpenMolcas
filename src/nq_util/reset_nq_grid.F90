@@ -11,12 +11,11 @@
 
 subroutine Reset_NQ_Grid()
 
-use Grid_On_Disk
-use nq_Info
+use Grid_On_Disk, only: Final_Grid, iGrid_Set
+use nq_Info, only: Crowding, L_Quad, L_Quad_Save, nR, nR_Save, Quadrature, ThrC, Threshold, Threshold_Save
+use Definitions, only: u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "itmax.fh"
+implicit none
 
 !                                                                      *
 !***********************************************************************
@@ -32,17 +31,17 @@ end if
 
 Crowding = ThrC
 
-write(6,*)
-write(6,'(6X,A)') 'Reset the NQ grid!'
-write(6,*)
+write(u6,*)
+write(u6,'(6X,A)') 'Reset the NQ grid!'
+write(u6,*)
 call Funi_Print()
-write(6,*)
+write(u6,*)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Change the Grid set index
 
-iGrid_Set = final
+iGrid_Set = Final_Grid
 !                                                                      *
 !***********************************************************************
 !                                                                      *

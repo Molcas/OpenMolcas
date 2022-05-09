@@ -11,12 +11,15 @@
 
 subroutine Compute_d2Odx2(ZA,nAtoms,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py,d2Odx2)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 ZA(nAtoms), O(3,3), EVal(3), dMdx(3,3), Px(3,3), dMdy(3,3), Py(3,3), d2Odx2(3,3)
-logical Rot_Corr
-! Local Arrays
-real*8 d2Mdx2(3,3), Pxy(3,3), RHS(3,3), Scr1(3,3), Scr2(3,3), Scr3(3,3)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, iAtom, iCar, jAtom, jCar
+real(kind=wp) :: ZA(nAtoms), O(3,3), EVal(3), dTdRAi, dMdx(3,3), Px(3,3), dMdy(3,3), Py(3,3), d2Odx2(3,3)
+logical(kind=iwp) :: Rot_Corr
+real(kind=wp) :: Alpha1, Alpha2, Beta1, Beta2, c12, c13, c23, d2Mdx2(3,3), Gamma1, Gamma2, Pxy(3,3), RHS(3,3), Scr1(3,3), &
+                 Scr2(3,3), Scr3(3,3)
 
 !                                                                      *
 !***********************************************************************
@@ -65,8 +68,8 @@ call FZero(RHS,9)
 
 ! - O^T M^(xy) O
 
-call DGEMM_('T','N',3,3,3,1.0d0,O,3,d2Mdx2,3,0.0d0,Scr1,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr1,3,O,3,0.0d0,Scr2,3)
+call DGEMM_('T','N',3,3,3,One,O,3,d2Mdx2,3,Zero,Scr1,3)
+call DGEMM_('N','N',3,3,3,One,Scr1,3,O,3,Zero,Scr2,3)
 call DaXpY_(9,-One,Scr2,1,RHS,1)
 
 call FZero(Scr3,9)
@@ -76,42 +79,42 @@ Scr3(3,3) = Eval(3)
 
 ! + P^x Lambda P^y
 
-call DGEMM_('N','N',3,3,3,1.0d0,Px,3,Scr3,3,0.0d0,Scr1,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr1,3,Py,3,0.0d0,Scr2,3)
+call DGEMM_('N','N',3,3,3,One,Px,3,Scr3,3,Zero,Scr1,3)
+call DGEMM_('N','N',3,3,3,One,Scr1,3,Py,3,Zero,Scr2,3)
 call DaXpY_(9,One,Scr2,1,RHS,1)
 
 ! + P^y Lambda P^x
 
-call DGEMM_('N','N',3,3,3,1.0d0,Py,3,Scr3,3,0.0d0,Scr1,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr1,3,Px,3,0.0d0,Scr2,3)
+call DGEMM_('N','N',3,3,3,One,Py,3,Scr3,3,Zero,Scr1,3)
+call DGEMM_('N','N',3,3,3,One,Scr1,3,Px,3,Zero,Scr2,3)
 call DaXpY_(9,One,Scr2,1,RHS,1)
 
 ! + P^x O^T M^y O
 
-call DGEMM_('N','T',3,3,3,1.0d0,Px,3,O,3,0.0d0,Scr1,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr1,3,dMdy,3,0.0d0,Scr2,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr2,3,O,3,0.0d0,Scr1,3)
+call DGEMM_('N','T',3,3,3,One,Px,3,O,3,Zero,Scr1,3)
+call DGEMM_('N','N',3,3,3,One,Scr1,3,dMdy,3,Zero,Scr2,3)
+call DGEMM_('N','N',3,3,3,One,Scr2,3,O,3,Zero,Scr1,3)
 call DaXpY_(9,One,Scr1,1,RHS,1)
 
 ! + P^y O^T M^x O
 
-call DGEMM_('N','T',3,3,3,1.0d0,Py,3,O,3,0.0d0,Scr1,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr1,3,dMdx,3,0.0d0,Scr2,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr2,3,O,3,0.0d0,Scr1,3)
+call DGEMM_('N','T',3,3,3,One,Py,3,O,3,Zero,Scr1,3)
+call DGEMM_('N','N',3,3,3,One,Scr1,3,dMdx,3,Zero,Scr2,3)
+call DGEMM_('N','N',3,3,3,One,Scr2,3,O,3,Zero,Scr1,3)
 call DaXpY_(9,One,Scr1,1,RHS,1)
 
 ! - O^T M^x O P^y
 
-call DGEMM_('T','N',3,3,3,1.0d0,O,3,dMdx,3,0.0d0,Scr1,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr1,3,O,3,0.0d0,Scr2,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr2,3,Py,3,0.0d0,Scr1,3)
+call DGEMM_('T','N',3,3,3,One,O,3,dMdx,3,Zero,Scr1,3)
+call DGEMM_('N','N',3,3,3,One,Scr1,3,O,3,Zero,Scr2,3)
+call DGEMM_('N','N',3,3,3,One,Scr2,3,Py,3,Zero,Scr1,3)
 call DaXpY_(9,-One,Scr1,1,RHS,1)
 
 ! - O^T M^y O P^x
 
-call DGEMM_('T','N',3,3,3,1.0d0,O,3,dMdy,3,0.0d0,Scr1,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr1,3,O,3,0.0d0,Scr2,3)
-call DGEMM_('N','N',3,3,3,1.0d0,Scr2,3,Px,3,0.0d0,Scr1,3)
+call DGEMM_('T','N',3,3,3,One,O,3,dMdy,3,Zero,Scr1,3)
+call DGEMM_('N','N',3,3,3,One,Scr1,3,O,3,Zero,Scr2,3)
+call DGEMM_('N','N',3,3,3,One,Scr2,3,Px,3,Zero,Scr1,3)
 call DaXpY_(9,-One,Scr1,1,RHS,1)
 #ifdef _DEBUGPRINT_
 call RecPrt('RHS',' ',RHS,3,3)
@@ -136,7 +139,7 @@ Pxy(2,3) = c23-Pxy(3,2)
 !                                                                      *
 ! Finally for O^(xy) from O P^(xyz)
 
-call DGEMM_('N','N',3,3,3,1.0d0,O,3,Pxy,3,0.0d0,d2Odx2,3)
+call DGEMM_('N','N',3,3,3,One,O,3,Pxy,3,Zero,d2Odx2,3)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

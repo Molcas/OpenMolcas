@@ -17,10 +17,14 @@
 ! ****************************************************************
 subroutine PDFTMemDeAlloc()
 
-use nq_pdft
+use nq_pdft, only: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, &
+                   dF_dRhoamb, dF_dRhoapb, dF_dRhoxamb, dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, &
+                   dRdRho, dRhodX, dRhodY, dRhodZ, dZdR, dZdRho, GdEdPiMO, GradPidFdRho, GradRdFdRho, GradRhodFdRho, MOas, MOax, &
+                   MOay, MOaz, OneMz, OnePz, Pass1, Pass2, Pass3, RatioA, RhoAB, ZetaA
 use KSDFT_Info, only: do_pdftpot
+use stdalloc, only: mma_deallocate
 
-#include "stdalloc.fh"
+implicit none
 
 call mma_deallocate(RatioA)
 call mma_deallocate(OnePz)

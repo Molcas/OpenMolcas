@@ -11,17 +11,21 @@
 
 subroutine dWdR(R,ilist_p,Weights,list_p,nlist_p,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
 
-use nq_Grid, only: Pax
 use NQ_Structure, only: NQ_data
-use nq_Info
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "itmax.fh"
-#include "debug.fh"
-real*8 R(3,nGrid), Weights(nGrid), dW_dR(nGrad_Eff,nGrid), dW_Temp(3,nlist_p), dPB(3,nlist_p,nlist_p), sxyz(3), dOdxs(3), Osxyz(3)
-integer list_p(nlist_p), iTab(4,nGrad_Eff)
-! Statement function
-p(x) = (x*0.5d0)*(3.0d0-x**2)
+use nq_Grid, only: Pax
+use Constants, only: Zero, One, Two, Three, Half, OneHalf
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ilist_p, nlist_p, list_p(nlist_p), nGrad_Eff, iTab(4,nGrad_Eff), nGrid
+real(kind=wp) :: R(3,nGrid), Weights(nGrid), dW_dR(nGrad_Eff,nGrid), dW_Temp(3,nlist_p), dPB(3,nlist_p,nlist_p)
+integer(kind=iwp) :: iA, iB, iC, iCar, iD, iGrad, iGrid, iiB, iNQ, jNQ, kNQ, lNQ
+real(kind=wp) :: dmu_BC_dAx, dmu_BC_dAy, dmu_BC_dAz, dmu_BC_dBx, dmu_BC_dBy, dmu_BC_dBz, dmu_BC_dCx, dmu_BC_dCy, dmu_BC_dCz, &
+                 dOdx_11, dOdx_12, dOdx_13, dOdx_21, dOdx_22, dOdx_23, dOdx_31, dOdx_32, dOdx_33, dOdxs(3), dZ_dBx, dZ_dBy, &
+                 dZ_dBz, Fact, Fact0, O11, O12, O13, O21, O22, O23, O31, O32, O33, Osxyz(3), p1, p2, p3, P_A, P_B, r_B, R_BC, &
+                 R_BCx, R_BCy, R_BCz, r_Bx, r_By, r_Bz, r_C, r_Cx, r_Cy, r_Cz, rMU_BC, s_MU_BC, sxyz(3), temp, tMU_BC, xdiff0, &
+                 xdiff1, xdiff2, Z
+real(kind=wp), parameter :: Thrs = 1.0e-20_wp
 
 !                                                                      *
 !***********************************************************************
@@ -98,28 +102,28 @@ do_grid: do iGrid=1,nGrid
         ! Eq. B6
 
         rMU_BC = (r_B-r_C)/R_BC
-        if (rMU_BC <= 0.5d0) then
-          p1 = p(rMU_BC)
-          p2 = p(p1)
-          p3 = p(p2)
+        if (rMU_BC <= Half) then
+          p1 = (rMU_BC*Half)*(Three-rMU_BC**2)
+          p2 = (p1*Half)*(Three-p1**2)
+          p3 = (p2*Half)*(Three-p2**2)
 
           ! Eq. B4
 
           s_MU_BC = Half*(One-p3)
 
           P_B = P_B*s_MU_BC
-          if (P_B <= 1.0D-20) exit
-          tMU_BC = -27d0*(One-p2**2)*(One-p1**2)*(One-rMU_BC**2)/(16.0d0*max(s_MU_BC,1.0D-99))
+          if (P_B <= Thrs) exit
+          tMU_BC = -27.0_wp*(One-p2**2)*(One-p1**2)*(One-rMU_BC**2)/(16.0_wp*max(s_MU_BC,1.0e-99_wp))
         else
-          xdiff0 = rMU_BC-1.0d0
-          xdiff1 = (-1.5d0-0.5d0*xdiff0)*xdiff0**2
-          xdiff2 = (-1.5d0-0.5d0*xdiff1)*xdiff1**2
-          p3 = (1.5d0+0.5d0*xdiff2)*xdiff2**2
+          xdiff0 = rMU_BC-One
+          xdiff1 = (-OneHalf-Half*xdiff0)*xdiff0**2
+          xdiff2 = (-OneHalf-Half*xdiff1)*xdiff1**2
+          p3 = (OneHalf+Half*xdiff2)*xdiff2**2
           s_MU_BC = Half*p3
 
           P_B = P_B*s_MU_BC
-          if (P_B <= 1.0D-20) exit
-          tMU_BC = 27d0*(2.0d0+xdiff2)*xdiff2*(2.0d0+xdiff1)*xdiff1*(2.0d0+xdiff0)*xdiff0/(16.0d0*max(s_MU_BC,1.0D-99))
+          if (P_B <= Thrs) exit
+          tMU_BC = 27.0_wp*(Two+xdiff2)*xdiff2*(Two+xdiff1)*xdiff1*(Two+xdiff0)*xdiff0/(16.0_wp*max(s_MU_BC,1.0e-99_wp))
         end if
 
         ! Differentiate mu_BC with respect to the center, D.
@@ -223,7 +227,7 @@ do_grid: do iGrid=1,nGrid
     end do
 
     if (iB == iA) P_A = P_B
-    if (P_A <= 1.0D-20) cycle do_grid
+    if (P_A <= Thrs) cycle do_grid
 
     ! Denominator Eq. B2
     Z = Z+P_B

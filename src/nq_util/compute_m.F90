@@ -11,9 +11,15 @@
 
 subroutine Compute_M(ZA,nAtoms,RA,T,M)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 ZA(nAtoms), RA(3,nAtoms), T(3), M(3,3)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms
+real(kind=wp) :: ZA(nAtoms), RA(3,nAtoms), T(3), M(3,3)
+integer(kind=iwp) :: i, iAtom, j
+real(kind=wp) :: RTx, RTy, RTz
+real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 
 !                                                                      *
 !***********************************************************************
@@ -42,7 +48,7 @@ end do
 
 do i=1,3
   do j=1,3
-    if (abs(M(i,j)) < 1.0D-14) M(i,j) = Zero
+    if (abs(M(i,j)) < Thrs) M(i,j) = Zero
   end do
 end do
 !call RecPrt('Compute_M: M',' ',M,3,3)

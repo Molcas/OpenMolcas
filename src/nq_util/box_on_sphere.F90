@@ -11,11 +11,14 @@
 
 subroutine Box_On_Sphere(x_Min_,x_Max_,y_Min_,y_Max_,z_Min_,z_Max_,xMin_,xMax_,yMin_,yMax_,zMin_,zMax_)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 xyz(3,2), xyz0(3,2), Roots(3,3)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-delta = 1.0D-15
+implicit none
+real(kind=wp) :: x_Min_, x_Max_, y_Min_, y_Max_, z_Min_, z_Max_, xMin_, xMax_, yMin_, yMax_, zMin_, zMax_
+integer(kind=iwp) :: i, ix, iy, iz, j, ny_Roots, nz_Roots
+real(kind=wp) :: r, Roots(3,3), x, x_r, xMax, xMin, xyz(3,2), xyz0(3,2), y, z
+real(kind=wp), parameter :: Delta = 1.0e-15_wp
 
 xyz(1,1) = x_min_
 xyz(1,2) = x_max_
@@ -23,11 +26,11 @@ xyz(2,1) = y_min_
 xyz(2,2) = y_max_
 xyz(3,1) = z_min_
 xyz(3,2) = z_max_
-!write(6,*)
-!write(6,*) 'Box limits'
-!write(6,*) 'x:',xyz(1,1),xyz(1,2)
-!write(6,*) 'y:',xyz(2,1),xyz(2,2)
-!write(6,*) 'z:',xyz(3,1),xyz(3,2)
+!write(u6,*)
+!write(u6,*) 'Box limits'
+!write(u6,*) 'x:',xyz(1,1),xyz(1,2)
+!write(u6,*) 'y:',xyz(2,1),xyz(2,2)
+!write(u6,*) 'z:',xyz(3,1),xyz(3,2)
 
 ! Set extremal values
 
@@ -46,7 +49,7 @@ do ix=1,3
 
   xMax = xyz(ix,2)
   xMin = xyz(ix,1)
-  !write(6,*)
+  !write(u6,*)
   Roots(1,iy) = xyz(iy,1)
   Roots(2,iy) = xyz(iy,2)
   if (xyz(iy,1)*xyz(iy,2) < Zero) then
@@ -66,16 +69,16 @@ do ix=1,3
   !call RecPrt('Roots','(3G25.12)',Roots,3,3)
 
   do i=1,ny_Roots
-    !write(6,*) 'i=',i,ny_Roots
-    !write(6,*)
+    !write(u6,*) 'i=',i,ny_Roots
+    !write(u6,*)
     y = Roots(i,iy)
     do j=1,nz_Roots
-      !write(6,*) 'j=',j,nz_Roots
+      !write(u6,*) 'j=',j,nz_Roots
       z = Roots(j,iz)
 
       x = xMin
       r = sqrt(x**2+y**2+z**2)
-      !write(6,*) x/r
+      !write(u6,*) x/r
       if (r == Zero) then
         x_r = Zero
       else
@@ -86,7 +89,7 @@ do ix=1,3
 
       x = xMax
       r = sqrt(x**2+y**2+z**2)
-      !write(6,*) x/r
+      !write(u6,*) x/r
       if (r == Zero) then
         x_r = Zero
       else
@@ -99,12 +102,12 @@ do ix=1,3
   end do
 end do
 
-!write(6,*) 'xMin=',xyz0(1,1)
-!write(6,*) 'xMax=',xyz0(1,2)
-!write(6,*) 'yMin=',xyz0(2,1)
-!write(6,*) 'yMax=',xyz0(2,2)
-!write(6,*) 'zMin=',xyz0(3,1)
-!write(6,*) 'zMax=',xyz0(3,2)
+!write(u6,*) 'xMin=',xyz0(1,1)
+!write(u6,*) 'xMax=',xyz0(1,2)
+!write(u6,*) 'yMin=',xyz0(2,1)
+!write(u6,*) 'yMax=',xyz0(2,2)
+!write(u6,*) 'zMin=',xyz0(3,1)
+!write(u6,*) 'zMax=',xyz0(3,2)
 xMin_ = xyz0(1,1)-Delta
 xMax_ = xyz0(1,2)+Delta
 yMin_ = xyz0(2,1)-Delta

@@ -23,15 +23,15 @@ subroutine TransferMO(MOas,TabMO,mAO,mGrid,nMOs,iAO)
 ! the second elements are the values of the first MO at grid
 ! point 1 and grid point 2.
 
-use nq_Info
+use nq_Info, only: mIrrep, mOrb, nOrbt, OffBasFro
+use Definitions, only: wp, iwp
 
-! Input
-integer mAO, mGrid, nMOs, iAO
-real*8, dimension(mAO,mGrid,nMOs) :: TabMO
-! Output
-real*8, dimension(mGrid*nOrbt) :: MOas
-! Auxiliary
-integer iIrrep, IOff1, iOff2, iOff3, nCP
+implicit none
+integer(kind=iwp) :: mAO, mGrid, nMOs, iAO
+real(kind=wp) :: MOas(mGrid*nOrbt), TabMO(mAO,mGrid,nMOs)
+! Input: mAO mGrid nMOs iAO TabMO
+! Output: MOas
+integer(kind=iwp) :: iIrrep, IOff1, iOff2, iOff3, nCP
 
 IOff3 = 0
 do iIrrep=0,mIrrep-1

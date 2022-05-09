@@ -17,18 +17,19 @@
 ! ****************************************************************
 subroutine UnzipP2(P2Unzip,P2MO,nP2Act)
 
-use nq_Info
+use nq_Info, only: iOff_Ash, mIrrep, NASH, NASHT, NASHT4
+use Index_Functions, only: iTri
+use Constants, only: One, Half
+use Definitions, only: wp, iwp
 
-! Input
-integer nP2Act
-real*8, dimension(nP2Act) :: P2MO
-! Output
-real*8, dimension(NASHT4) :: P2Unzip
-! AUXILIARY
-integer NASHT2, NASHT3, IOFF1, IOff2, IOff3, I, J, K, L, IAct, JAct, kAct, LAct, iIrrep, jIrrep, kIrrep, lIrrep, IJ, KL, IJKL
-real*8 Fact
-! Statement function
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+implicit none
+integer(kind=iwp) :: nP2Act
+real(kind=wp) :: P2Unzip(NASHT4), P2MO(nP2Act)
+! Input: nP2Act P2MO
+! Output: P2Unzip
+integer(kind=iwp) :: I, IAct, iIrrep, IJ, IJKL, IOFF1, IOff2, IOff3, J, JAct, jIrrep, K, kAct, kIrrep, KL, L, LAct, lIrrep, &
+                     NASHT2, NASHT3
+real(kind=wp) :: Fact
 
 if (NASHT4 == 0) return
 
@@ -53,9 +54,9 @@ do IIrrep=0,mIrrep-1
                 LAct = IOff_Ash(LIrrep)+L
                 KL = iTri(KAct,LAct)
                 IJKL = iTri(ij,kl)
-                Fact = 0.5d0
-                if ((ij >= kl) .and. (kAct == lAct)) Fact = 1.0d0
-                if ((kl >= ij) .and. (iAct == jAct)) Fact = 1.0d0
+                Fact = Half
+                if ((ij >= kl) .and. (kAct == lAct)) Fact = One
+                if ((kl >= ij) .and. (iAct == jAct)) Fact = One
                 P2Unzip(IOff3+LAct) = P2MO(ijkl)*Fact
               end do
             end do

@@ -13,12 +13,15 @@
 
 subroutine Do_NInt_d()
 
-use nq_Grid, only: GradRho, Weights
-use nq_Grid, only: vRho, vSigma, vTau, vLapl
-use nq_Grid, only: Grid_AO, TabAO, iBfn_Index
-use nq_Info
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use nq_Grid, only: GradRho, Grid_AO, iBfn_Index, TabAO, vLapl, vRho, vSigma, vTau, Weights
+use nq_Info, only: Functional_type, GGA_type, LDA_type, meta_GGA_type1, meta_GGA_type2
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iCB, iGrid, mGrid, nBfn, nD
+real(kind=wp) :: gx, gxa, gxb, gy, gya, gyb, gz, gza, gzb, Temp0, Temp0a, Temp0b, Temp1, Temp1a, Temp1b, Temp2, Temp2a, Temp2b, &
+                 Temp3, Temp3a, Temp3b, Temp4, Temp45, Temp45a, Temp45b, Temp4a, Temp4b, Temp5, Temp5a, Temp5b, Tmp, Tmp1, Tmp2
 
 !                                                                      *
 !***********************************************************************
@@ -93,7 +96,7 @@ select case (Functional_type)
         !***************************************************************
         !                                                              *
       case default
-        write(6,*) 'Invalid nD value:',nD
+        write(u6,*) 'Invalid nD value:',nD
         call Abend()
     end select  ! nD
     !                                                                  *
@@ -142,10 +145,10 @@ select case (Functional_type)
           gy = GradRho(2,iGrid)*Weights(iGrid)
           gz = GradRho(3,iGrid)*Weights(iGrid)
 
-          Temp0 = 0.5d0*vRho(1,iGrid)*Weights(iGrid)
-          Temp1 = gx*2.0d0*vSigma(1,iGrid)
-          Temp2 = gy*2.0d0*vSigma(1,iGrid)
-          Temp3 = gz*2.0d0*vSigma(1,iGrid)
+          Temp0 = Half*vRho(1,iGrid)*Weights(iGrid)
+          Temp1 = gx*Two*vSigma(1,iGrid)
+          Temp2 = gy*Two*vSigma(1,iGrid)
+          Temp3 = gz*Two*vSigma(1,iGrid)
 
           do iCB=1,nBfn
 
@@ -171,14 +174,14 @@ select case (Functional_type)
           gyb = Gradrho(5,iGrid)*Weights(iGrid)
           gzb = Gradrho(6,iGrid)*Weights(iGrid)
 
-          Temp0a = 0.5d0*vRho(1,iGrid)*Weights(iGrid)
-          Temp0b = 0.5d0*vRho(2,iGrid)*Weights(iGrid)
-          Temp1a = 2.0d0*vSigma(1,iGrid)*gxa+vSigma(2,iGrid)*gxb
-          Temp1b = 2.0d0*vSigma(3,iGrid)*gxb+vSigma(2,iGrid)*gxa
-          Temp2a = 2.0d0*vSigma(1,iGrid)*gya+vSigma(2,iGrid)*gyb
-          Temp2b = 2.0d0*vSigma(3,iGrid)*gyb+vSigma(2,iGrid)*gya
-          Temp3a = 2.0d0*vSigma(1,iGrid)*gza+vSigma(2,iGrid)*gzb
-          Temp3b = 2.0d0*vSigma(3,iGrid)*gzb+vSigma(2,iGrid)*gza
+          Temp0a = Half*vRho(1,iGrid)*Weights(iGrid)
+          Temp0b = Half*vRho(2,iGrid)*Weights(iGrid)
+          Temp1a = Two*vSigma(1,iGrid)*gxa+vSigma(2,iGrid)*gxb
+          Temp1b = Two*vSigma(3,iGrid)*gxb+vSigma(2,iGrid)*gxa
+          Temp2a = Two*vSigma(1,iGrid)*gya+vSigma(2,iGrid)*gyb
+          Temp2b = Two*vSigma(3,iGrid)*gyb+vSigma(2,iGrid)*gya
+          Temp3a = Two*vSigma(1,iGrid)*gza+vSigma(2,iGrid)*gzb
+          Temp3b = Two*vSigma(3,iGrid)*gzb+vSigma(2,iGrid)*gza
 
           do iCB=1,nBfn
 
@@ -193,7 +196,7 @@ select case (Functional_type)
         !***************************************************************
         !                                                              *
       case default
-        write(6,*) 'Invalid nD value:',nD
+        write(u6,*) 'Invalid nD value:',nD
         call Abend()
     end select  ! nD
     !                                                                  *
@@ -248,12 +251,12 @@ select case (Functional_type)
           gy = GradRho(2,iGrid)*Weights(iGrid)
           gz = GradRho(3,iGrid)*Weights(iGrid)
 
-          Temp0 = 0.5d0*vRho(1,iGrid)*Weights(iGrid)
-          Temp1 = gx*2.0d0*vSigma(1,iGrid)
-          Temp2 = gy*2.0d0*vSigma(1,iGrid)
-          Temp3 = gz*2.0d0*vSigma(1,iGrid)
+          Temp0 = Half*vRho(1,iGrid)*Weights(iGrid)
+          Temp1 = gx*Two*vSigma(1,iGrid)
+          Temp2 = gy*Two*vSigma(1,iGrid)
+          Temp3 = gz*Two*vSigma(1,iGrid)
 
-          Temp4 = 0.5d0*vTau(1,iGrid)*Weights(iGrid)
+          Temp4 = Half*vTau(1,iGrid)*Weights(iGrid)
 
           do iCB=1,nBfn
 
@@ -282,16 +285,16 @@ select case (Functional_type)
           gyb = Gradrho(5,iGrid)*Weights(iGrid)
           gzb = Gradrho(6,iGrid)*Weights(iGrid)
 
-          Temp0a = 0.5d0*vRho(1,iGrid)*Weights(iGrid)
-          Temp0b = 0.5d0*vRho(2,iGrid)*Weights(iGrid)
-          Temp1a = 2.0d0*vSigma(1,iGrid)*gxa+vSigma(2,iGrid)*gxb
-          Temp1b = 2.0d0*vSigma(3,iGrid)*gxb+vSigma(2,iGrid)*gxa
-          Temp2a = 2.0d0*vSigma(1,iGrid)*gya+vSigma(2,iGrid)*gyb
-          Temp2b = 2.0d0*vSigma(3,iGrid)*gyb+vSigma(2,iGrid)*gya
-          Temp3a = 2.0d0*vSigma(1,iGrid)*gza+vSigma(2,iGrid)*gzb
-          Temp3b = 2.0d0*vSigma(3,iGrid)*gzb+vSigma(2,iGrid)*gza
-          Temp4a = 0.5d0*vTau(1,iGrid)*Weights(iGrid)
-          Temp4b = 0.5d0*vTau(2,iGrid)*Weights(iGrid)
+          Temp0a = Half*vRho(1,iGrid)*Weights(iGrid)
+          Temp0b = Half*vRho(2,iGrid)*Weights(iGrid)
+          Temp1a = Two*vSigma(1,iGrid)*gxa+vSigma(2,iGrid)*gxb
+          Temp1b = Two*vSigma(3,iGrid)*gxb+vSigma(2,iGrid)*gxa
+          Temp2a = Two*vSigma(1,iGrid)*gya+vSigma(2,iGrid)*gyb
+          Temp2b = Two*vSigma(3,iGrid)*gyb+vSigma(2,iGrid)*gya
+          Temp3a = Two*vSigma(1,iGrid)*gza+vSigma(2,iGrid)*gzb
+          Temp3b = Two*vSigma(3,iGrid)*gzb+vSigma(2,iGrid)*gza
+          Temp4a = Half*vTau(1,iGrid)*Weights(iGrid)
+          Temp4b = Half*vTau(2,iGrid)*Weights(iGrid)
 
           do iCB=1,nBfn
 
@@ -314,7 +317,7 @@ select case (Functional_type)
         !***************************************************************
         !                                                              *
       case default
-        write(6,*) 'Invalid nD value:',nD
+        write(u6,*) 'Invalid nD value:',nD
         call Abend()
     end select  ! nD
     !                                                                  *
@@ -374,12 +377,12 @@ select case (Functional_type)
           gy = GradRho(2,iGrid)*Weights(iGrid)
           gz = GradRho(3,iGrid)*Weights(iGrid)
 
-          Temp0 = 0.5d0*vRho(1,iGrid)*Weights(iGrid)
-          Temp1 = gx*2.0d0*vSigma(1,iGrid)
-          Temp2 = gy*2.0d0*vSigma(1,iGrid)
-          Temp3 = gz*2.0d0*vSigma(1,iGrid)
+          Temp0 = Half*vRho(1,iGrid)*Weights(iGrid)
+          Temp1 = gx*Two*vSigma(1,iGrid)
+          Temp2 = gy*Two*vSigma(1,iGrid)
+          Temp3 = gz*Two*vSigma(1,iGrid)
 
-          Temp4 = 0.5d0*vTau(1,iGrid)*Weights(iGrid)
+          Temp4 = Half*vTau(1,iGrid)*Weights(iGrid)
           Temp5 = vLapl(1,iGrid)*Weights(iGrid)
           Temp45 = Temp4+Two*Temp5
 
@@ -410,16 +413,16 @@ select case (Functional_type)
           gyb = Gradrho(5,iGrid)*Weights(iGrid)
           gzb = Gradrho(6,iGrid)*Weights(iGrid)
 
-          Temp0a = 0.5d0*vRho(1,iGrid)*Weights(iGrid)
-          Temp0b = 0.5d0*vRho(2,iGrid)*Weights(iGrid)
-          Temp1a = 2.0d0*vSigma(1,iGrid)*gxa+vSigma(2,iGrid)*gxb
-          Temp1b = 2.0d0*vSigma(3,iGrid)*gxb+vSigma(2,iGrid)*gxa
-          Temp2a = 2.0d0*vSigma(1,iGrid)*gya+vSigma(2,iGrid)*gyb
-          Temp2b = 2.0d0*vSigma(3,iGrid)*gyb+vSigma(2,iGrid)*gya
-          Temp3a = 2.0d0*vSigma(1,iGrid)*gza+vSigma(2,iGrid)*gzb
-          Temp3b = 2.0d0*vSigma(3,iGrid)*gzb+vSigma(2,iGrid)*gza
-          Temp4a = 0.5d0*vTau(1,iGrid)*Weights(iGrid)
-          Temp4b = 0.5d0*vTau(2,iGrid)*Weights(iGrid)
+          Temp0a = Half*vRho(1,iGrid)*Weights(iGrid)
+          Temp0b = Half*vRho(2,iGrid)*Weights(iGrid)
+          Temp1a = Two*vSigma(1,iGrid)*gxa+vSigma(2,iGrid)*gxb
+          Temp1b = Two*vSigma(3,iGrid)*gxb+vSigma(2,iGrid)*gxa
+          Temp2a = Two*vSigma(1,iGrid)*gya+vSigma(2,iGrid)*gyb
+          Temp2b = Two*vSigma(3,iGrid)*gyb+vSigma(2,iGrid)*gya
+          Temp3a = Two*vSigma(1,iGrid)*gza+vSigma(2,iGrid)*gzb
+          Temp3b = Two*vSigma(3,iGrid)*gzb+vSigma(2,iGrid)*gza
+          Temp4a = Half*vTau(1,iGrid)*Weights(iGrid)
+          Temp4b = Half*vTau(2,iGrid)*Weights(iGrid)
           Temp5a = vLapl(1,iGrid)*Weights(iGrid)
           Temp5b = vLapl(2,iGrid)*Weights(iGrid)
           Temp45a = Temp4a+Two*Temp5a
@@ -445,7 +448,7 @@ select case (Functional_type)
         !***************************************************************
         !                                                              *
       case default
-        write(6,*) 'Invalid nD value:',nD
+        write(u6,*) 'Invalid nD value:',nD
         call Abend()
     end select  ! nD
     !                                                                  *
@@ -457,7 +460,7 @@ select case (Functional_type)
     !*******************************************************************
     !*******************************************************************
     !                                                                  *
-    write(6,*) 'DFT_Int: Illegal functional type!'
+    write(u6,*) 'DFT_Int: Illegal functional type!'
     call Abend()
     !                                                                  *
     !*******************************************************************

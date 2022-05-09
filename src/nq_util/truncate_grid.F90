@@ -11,8 +11,12 @@
 
 subroutine Truncate_Grid(R,nR,nR_Eff,Radius_Max)
 
-implicit real*8(a-h,o-z)
-real*8 R(2,nR)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nR, nR_Eff
+real(kind=wp) :: R(2,nR), Radius_Max
+integer(kind=iwp) :: i, nTmp
 
 nTmp = nR_Eff
 do i=1,nTmp

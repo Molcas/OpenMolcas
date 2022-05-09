@@ -11,9 +11,14 @@
 
 subroutine Compute_T(Z_Tot,T,ZA,RA,nAtoms)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 T(3), ZA(nAtoms), RA(3,nAtoms)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms
+real(kind=wp) :: Z_Tot, T(3), ZA(nAtoms), RA(3,nAtoms)
+integer(kind=iwp) :: iAtom, iCar
+real(kind=wp) :: Tmp
 
 !                                                                      *
 !***********************************************************************

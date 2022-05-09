@@ -11,7 +11,7 @@
 ! Copyright (C) Giovanni Li Manni                                      *
 !***********************************************************************
 
-real*8 function Comp_d(Weights,mGrid,Rho,nRho,iSpin,iSwitch)
+function Comp_d(Weights,mGrid,Rho,nRho,iSpin,iSwitch)
 !***********************************************************************
 !                                                                      *
 ! Object: integrate densities (alpha, beta, total, gradients....)      *
@@ -23,9 +23,15 @@ real*8 function Comp_d(Weights,mGrid,Rho,nRho,iSpin,iSwitch)
 ! Author: G. Li Manni... taking Sir R. Lindh as model                  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 Weights(mGrid), Rho(nRho,mGrid)
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Comp_d
+integer(kind=iwp) :: mGrid, nRho, iSpin, iSwitch
+real(kind=wp) :: Weights(mGrid), Rho(nRho,mGrid)
+integer(kind=iwp) :: iGrid
+real(kind=wp) :: d_alpha, d_beta, DTot
 
 Comp_d = Zero
 if (iSpin == 1) then
@@ -33,7 +39,7 @@ if (iSpin == 1) then
   ! iSpin == 1
   !*********************************************************************
   do iGrid=1,mGrid
-    d_alpha = half*Rho(1,iGrid)
+    d_alpha = Half*Rho(1,iGrid)
     if (iSwitch == 1) then
       DTot = d_alpha
     else if (iSwitch == 2) then

@@ -11,10 +11,10 @@
 
 subroutine Free_DeDe_Funi()
 
-use k2_arrays
+use k2_arrays, only: DeDe, ipOffD
+use stdalloc, only: mma_deallocate
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
+implicit none
 
 call mma_deallocate(ipOffD)
 call mma_deallocate(DeDe)

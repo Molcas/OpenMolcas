@@ -17,15 +17,15 @@
 ! ****************************************************************
 subroutine PackPot1(Packed,Full,nPack,Factor)
 
-use nq_Info
+use nq_Info, only: mIrrep, mOrb, OffOrb2, OffOrbTri, nPot1
+use Definitions, only: wp, iwp
 
-! Input
-real*8 Factor
-real*8, dimension(NPot1) :: Full
-! Output
-real*8, dimension(nPack) :: Packed
-! Auxiliary
-integer iIrrep, p, q, iOff1, IOff2, nOrbs
+implicit none
+integer(kind=iwp) :: nPack
+real(kind=wp) :: Packed(nPack), Full(nPot1), Factor
+! Input: Factor Full
+! Output: Packed
+integer(kind=iwp) :: iIrrep, iOff1, IOff2, nOrbs, p, q
 
 do iIrrep=0,mIrrep-1
   nOrbs = mOrb(iIrrep)

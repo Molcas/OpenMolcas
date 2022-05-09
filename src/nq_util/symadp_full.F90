@@ -22,23 +22,24 @@ subroutine SymAdp_Full(SOIntegrals,nSOInt,list_s,nlist_s,Fact,ndc,nD)
 !             January 1991                                             *
 !***********************************************************************
 
-use iSD_data
-use Symmetry_Info, only: nIrrep, iChTbl
-use SOAO_Info, only: iAOtSO
-use nq_Grid, only: iBfn_Index
-use nq_Grid, only: AOIntegrals => Dens_AO
+use iSD_data, only: iSD
 use Basis_Info, only: nBas
+use Symmetry_Info, only: iChTbl, nIrrep
+use SOAO_Info, only: iAOtSO
+use nq_Grid, only: Dens_AO, iBfn_Index
+use Index_Functions, only: iTri
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 SOIntegrals(nSOInt,nD), Fact(ndc,ndc)
-integer list_s(2,nlist_s)
-integer nOp(2)
-integer, parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
-integer, allocatable :: BasList(:,:)
-! Statement function
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
+implicit none
+integer(kind=iwp) :: nSOInt, nlist_s, list_s(2,nlist_s), ndc, nD
+real(kind=wp) :: SOIntegrals(nSOInt,nD), Fact(ndc,ndc)
+integer(kind=iwp) :: iAO, iBfn, iBfn_, iCmp, ilist_s, indAO1, Indij, iPnt, iShell, iSkal, iSO, iSO1, j1, jBfn, jBfn_, jlist_s, &
+                     jShell, jSkal, jSO, kDCRE, kDCRR, loper, mBfn, mdci, mdcj, nBfn, nOp(2)
+real(kind=wp) :: xa, xaxb, xb
+integer(kind=iwp), allocatable :: BasList(:,:)
+integer(kind=iwp), external :: iPntSO, NrOpr
 
 !                                                                      *
 !***********************************************************************
@@ -74,7 +75,7 @@ do j1=0,nIrrep-1
     mdci = iSD(10,iSkal)
     iShell = iSD(11,iSkal)
     nOp(1) = NrOpr(kDCRE)
-    xa = dble(iChTbl(j1,nOp(1)))
+    xa = real(iChTbl(j1,nOp(1)),kind=wp)
 
     do jBfn_=1,iBfn_
       jBfn = BasList(1,jBfn_)
@@ -86,14 +87,14 @@ do j1=0,nIrrep-1
       mdcj = iSD(10,jSkal)
       jShell = iSD(11,jSkal)
       nOp(2) = NrOpr(kDCRR)
-      xb = dble(iChTbl(j1,nOp(2)))
+      xb = real(iChTbl(j1,nOp(2)),kind=wp)
 
       xaxb = xa*xb
       if ((iShell == jShell) .and. (nOp(1) /= nOp(2)) .and. (iSO == jSO)) xaxb = xaxb*Two
 
       Indij = iPnt+iTri(iSO,jSO)
 
-      SOIntegrals(Indij,:) = SOIntegrals(Indij,:)+Fact(mdci,mdcj)*xaxb*AOIntegrals(iBfn,jBfn,:)
+      SOIntegrals(Indij,:) = SOIntegrals(Indij,:)+Fact(mdci,mdcj)*xaxb*Dens_AO(iBfn,jBfn,:)
 
     end do ! jBfn
   end do   ! iBfn

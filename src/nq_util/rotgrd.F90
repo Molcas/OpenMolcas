@@ -25,11 +25,18 @@ subroutine RotGrd(RA,ZA,O,dOdx,d2Odx2,nAtoms,Do_Grad,Do_Hess)
 !             Trondheim, Sept. 2003.                                   *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 RA(3,nAtoms), ZA(nAtoms), O(3,3), dOdx(3,3,nAtoms,3), d2Odx2(3,3,nAtoms,3,nAtoms,3), dMdx(3,3), dMdy(3,3), EVal(3), T(3), &
-       Px(3,3), Py(3,3)
-logical Do_Grad, Rot_Corr, Do_Hess
+use Constants, only: One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: nAtoms
+real(kind=wp) :: RA(3,nAtoms), ZA(nAtoms), O(3,3), dOdx(3,3,nAtoms,3), d2Odx2(3,3,nAtoms,3,nAtoms,3)
+logical(kind=iwp) :: Do_Grad, Do_Hess
+integer(kind=iwp) :: iAtom, iCar, jAtom, jCar, jCar_Max
+real(kind=wp) :: dMdx(3,3), dMdy(3,3), dTdRAi, dTdRAj, EVal(3), Px(3,3), Py(3,3), T(3), Z_Tot
+logical(kind=iwp) :: Rot_Corr
+real(kind=wp), parameter :: Thrs = 1.0e-3_wp
+real(kind=r8), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -64,16 +71,16 @@ if (.not. Do_Grad) return
 ! are close to degeneracy!
 
 Rot_Corr = .true.
-if (abs(Eval(1)-Eval(2))/(EVal(1)+EVal(2)) < 0.001d0) then
-  write(6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
+if (abs(Eval(1)-Eval(2))/(EVal(1)+EVal(2)) < Thrs) then
+  write(u6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
   Rot_Corr = .false.
 end if
-if (abs(Eval(1)-Eval(3))/(EVal(1)+EVal(3)) < 0.001d0) then
-  write(6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
+if (abs(Eval(1)-Eval(3))/(EVal(1)+EVal(3)) < Thrs) then
+  write(u6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
   Rot_Corr = .false.
 end if
-if (abs(Eval(2)-Eval(3))/(EVal(2)+EVal(3)) < 0.001d0) then
-  write(6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
+if (abs(Eval(2)-Eval(3))/(EVal(2)+EVal(3)) < Thrs) then
+  write(u6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
   Rot_Corr = .false.
 end if
 !                                                                      *

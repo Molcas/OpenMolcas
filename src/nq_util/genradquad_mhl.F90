@@ -11,22 +11,29 @@
 
 subroutine GenRadQuad_MHL(R,nR,nR_Eff,Alpha)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "debug.fh"
-real*8 R(2,nR-1), Alpha
+use Constants, only: One, Two
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: nR, nR_Eff
+real(kind=wp) :: R(2,nR-1), Alpha
+integer(kind=iwp) :: iR
+real(kind=wp) :: x
 
 ! Last point at infinity is eliminated
 
-if (Debug) then
-  write(6,*) 'EM Algorithm (Murray, Handy, Laming)'
-  write(6,*) 'Alpha=',Alpha
-  write(6,*) 'nR=',nR
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'EM Algorithm (Murray, Handy, Laming)'
+write(u6,*) 'Alpha=',Alpha
+write(u6,*) 'nR=',nR
+#endif
 do iR=1,nR-1
-  x = dble(iR)/dble(nR)
+  x = real(iR,kind=wp)/real(nR,kind=wp)
   R(1,iR) = Alpha*(x/(One-x))**2
-  R(2,iR) = R(1,iR)**2*Two*Alpha*x/(One-x)**3/dble(nR)
+  R(2,iR) = R(1,iR)**2*Two*Alpha*x/(One-x)**3/real(nR,kind=wp)
 end do
 nR_Eff = nR-1
 

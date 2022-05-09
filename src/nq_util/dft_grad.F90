@@ -21,42 +21,40 @@ subroutine DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,Weights,
 !             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 !***********************************************************************
 
-use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
-use nq_Grid, only: Pax
-use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
+use nq_Grid, only: dW_dR, F_xc, GradRho, IndGrd, iTab, Pax, Temp, vLapl, vRho, vSigma, vTau
 use nq_Structure, only: NQ_data
-use nq_Info
+use nq_Info, only: Functional_type, GGA_Type, Grid_Type, LDA_Type, meta_GGA_type1, meta_GGA_type2, Moving_Grid, Off
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp, r8
+!define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "debug.fh"
-#include "Molcas.fh"
-#include "itmax.fh"
-#include "stdalloc.fh"
-parameter(Mxdc=MxAtom)
-#include "disp.fh"
-real*8 Grad(nGrad), Grid(3,mGrid), dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3), R_Grid(3), Weights(mGrid), OVT(3)
-real*8, allocatable :: Aux(:,:)
+implicit none
+integer(kind=iwp) :: nGrad, nD, mGrid, ndRho_dR, nGrad_Eff, iNQ
+real(kind=wp) :: Grad(nGrad), Grid(3,mGrid), dRho_dR(ndRho_dR,mGrid,nGrad_Eff), Weights(mGrid)
+integer(kind=iwp) :: i, i_Eff, iCar, iGrad, ixyz, j, jGrad, jNQ
+real(kind=wp) :: dF_dr, Fact, gxa, gxb, gya, gyb, gza, gzb, OV(3,3), OVT(3), R_Grid(3), tmp, V(3,3)
+real(kind=wp), allocatable :: Aux(:,:)
+real(kind=r8), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 R_Grid(:) = NQ_Data(iNQ)%Coor(:)
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-Debug = .true.
-if (Debug) then
-  call RecPrt('R_Grid',' ',R_Grid,1,3)
-  call RecPrt('Grid',' ',Grid,3,mGrid)
-  call RecPrt('Weights',' ',Weights,1,mGrid)
-  call RecPrt('dW_dR',' ',dW_dR,nGrad_Eff,mGrid)
-  call RecPrt('dRho_dR(1)',' ',dRho_dR,ndRho_dR,mGrid)
-  call RecPrt('dF_dRho',' ',dF_dRho,ndF_dRho,mGrid)
-  do iEff=1,nGrad_Eff
-    write(6,*) 'iTab=',iTab(1,iEff),iTab(2,iEff),iTab(3,iEff),iTab(3,iEff)
-    write(6,*) 'IndGrd=',IndGrd(iEff)
-  end do
-end if
+call RecPrt('R_Grid',' ',R_Grid,1,3)
+call RecPrt('Grid',' ',Grid,3,mGrid)
+call RecPrt('Weights',' ',Weights,1,mGrid)
+call RecPrt('dW_dR',' ',dW_dR,nGrad_Eff,mGrid)
+call RecPrt('dRho_dR(1)',' ',dRho_dR,ndRho_dR,mGrid)
+call RecPrt('dF_dRho',' ',dF_dRho,ndF_dRho,mGrid)
+do iEff=1,nGrad_Eff
+  write(u6,*) 'iTab=',iTab(1,iEff),iTab(2,iEff),iTab(3,iEff),iTab(3,iEff)
+  write(u6,*) 'IndGrd=',IndGrd(iEff)
+end do
 #endif
 !                                                                      *
 !***********************************************************************
@@ -131,9 +129,9 @@ select case (Functional_type)
     if (nD == 1) then
       do j=1,mGrid
         Aux(1,j) = vRho(1,j)
-        Aux(2,j) = 2.0d0*vSigma(1,j)*Gradrho(1,j)
-        Aux(3,j) = 2.0d0*vSigma(1,j)*Gradrho(2,j)
-        Aux(4,j) = 2.0d0*vSigma(1,j)*Gradrho(3,j)
+        Aux(2,j) = Two*vSigma(1,j)*Gradrho(1,j)
+        Aux(3,j) = Two*vSigma(1,j)*Gradrho(2,j)
+        Aux(4,j) = Two*vSigma(1,j)*Gradrho(3,j)
       end do
     else
       do j=1,mGrid
@@ -146,12 +144,12 @@ select case (Functional_type)
 
         Aux(1,j) = vRho(1,j)
         Aux(2,j) = vRho(2,j)
-        Aux(3,j) = (2.0d0*vSigma(1,j)*gxa+vSigma(2,j)*gxb)
-        Aux(4,j) = (2.0d0*vSigma(1,j)*gya+vSigma(2,j)*gyb)
-        Aux(5,j) = (2.0d0*vSigma(1,j)*gza+vSigma(2,j)*gzb)
-        Aux(6,j) = (2.0d0*vSigma(3,j)*gxb+vSigma(2,j)*gxa)
-        Aux(7,j) = (2.0d0*vSigma(3,j)*gyb+vSigma(2,j)*gya)
-        Aux(8,j) = (2.0d0*vSigma(3,j)*gzb+vSigma(2,j)*gza)
+        Aux(3,j) = Two*vSigma(1,j)*gxa+vSigma(2,j)*gxb
+        Aux(4,j) = Two*vSigma(1,j)*gya+vSigma(2,j)*gyb
+        Aux(5,j) = Two*vSigma(1,j)*gza+vSigma(2,j)*gzb
+        Aux(6,j) = Two*vSigma(3,j)*gxb+vSigma(2,j)*gxa
+        Aux(7,j) = Two*vSigma(3,j)*gyb+vSigma(2,j)*gya
+        Aux(8,j) = Two*vSigma(3,j)*gzb+vSigma(2,j)*gza
       end do
     end if
     !                                                                  *
@@ -165,10 +163,10 @@ select case (Functional_type)
     if (nD == 1) then
       do j=1,mGrid
         Aux(1,j) = vRho(1,j)
-        Aux(2,j) = 2.0d0*vSigma(1,j)*Gradrho(1,j)
-        Aux(3,j) = 2.0d0*vSigma(1,j)*Gradrho(2,j)
-        Aux(4,j) = 2.0d0*vSigma(1,j)*Gradrho(3,j)
-        Aux(5,j) = 0.25d0*vTau(1,j)
+        Aux(2,j) = Two*vSigma(1,j)*Gradrho(1,j)
+        Aux(3,j) = Two*vSigma(1,j)*Gradrho(2,j)
+        Aux(4,j) = Two*vSigma(1,j)*Gradrho(3,j)
+        Aux(5,j) = Quart*vTau(1,j)
       end do
     else
       do j=1,mGrid
@@ -181,14 +179,14 @@ select case (Functional_type)
 
         Aux(1,j) = vRho(1,j)
         Aux(2,j) = vRho(2,j)
-        Aux(3,j) = (2.0d0*vSigma(1,j)*gxa+vSigma(2,j)*gxb)
-        Aux(4,j) = (2.0d0*vSigma(1,j)*gya+vSigma(2,j)*gyb)
-        Aux(5,j) = (2.0d0*vSigma(1,j)*gza+vSigma(2,j)*gzb)
-        Aux(6,j) = (2.0d0*vSigma(3,j)*gxb+vSigma(2,j)*gxa)
-        Aux(7,j) = (2.0d0*vSigma(3,j)*gyb+vSigma(2,j)*gya)
-        Aux(8,j) = (2.0d0*vSigma(3,j)*gzb+vSigma(2,j)*gza)
-        Aux(9,j) = 0.5d0*vTau(1,j)
-        Aux(10,j) = 0.5d0*vTau(2,j)
+        Aux(3,j) = Two*vSigma(1,j)*gxa+vSigma(2,j)*gxb
+        Aux(4,j) = Two*vSigma(1,j)*gya+vSigma(2,j)*gyb
+        Aux(5,j) = Two*vSigma(1,j)*gza+vSigma(2,j)*gzb
+        Aux(6,j) = Two*vSigma(3,j)*gxb+vSigma(2,j)*gxa
+        Aux(7,j) = Two*vSigma(3,j)*gyb+vSigma(2,j)*gya
+        Aux(8,j) = Two*vSigma(3,j)*gzb+vSigma(2,j)*gza
+        Aux(9,j) = Half*vTau(1,j)
+        Aux(10,j) = Half*vTau(2,j)
       end do
     end if
     !                                                                  *
@@ -202,10 +200,10 @@ select case (Functional_type)
     if (nD == 1) then
       do j=1,mGrid
         Aux(1,j) = vRho(1,j)
-        Aux(2,j) = 2.0d0*vSigma(1,j)*Gradrho(1,j)
-        Aux(3,j) = 2.0d0*vSigma(1,j)*Gradrho(2,j)
-        Aux(4,j) = 2.0d0*vSigma(1,j)*Gradrho(3,j)
-        Aux(5,j) = 0.25d0*vTau(1,j)
+        Aux(2,j) = Two*vSigma(1,j)*Gradrho(1,j)
+        Aux(3,j) = Two*vSigma(1,j)*Gradrho(2,j)
+        Aux(4,j) = Two*vSigma(1,j)*Gradrho(3,j)
+        Aux(5,j) = Quart*vTau(1,j)
         Aux(6,j) = vLapl(1,j)
       end do
     else
@@ -219,14 +217,14 @@ select case (Functional_type)
 
         Aux(1,j) = vRho(1,j)
         Aux(2,j) = vRho(2,j)
-        Aux(3,j) = (2.0d0*vSigma(1,j)*gxa+vSigma(2,j)*gxb)
-        Aux(4,j) = (2.0d0*vSigma(1,j)*gya+vSigma(2,j)*gyb)
-        Aux(5,j) = (2.0d0*vSigma(1,j)*gza+vSigma(2,j)*gzb)
-        Aux(6,j) = (2.0d0*vSigma(3,j)*gxb+vSigma(2,j)*gxa)
-        Aux(7,j) = (2.0d0*vSigma(3,j)*gyb+vSigma(2,j)*gya)
-        Aux(8,j) = (2.0d0*vSigma(3,j)*gzb+vSigma(2,j)*gza)
-        Aux(9,j) = 0.5d0*vTau(1,j)
-        Aux(10,j) = 0.5d0*vTau(2,j)
+        Aux(3,j) = Two*vSigma(1,j)*gxa+vSigma(2,j)*gxb
+        Aux(4,j) = Two*vSigma(1,j)*gya+vSigma(2,j)*gyb
+        Aux(5,j) = Two*vSigma(1,j)*gza+vSigma(2,j)*gzb
+        Aux(6,j) = Two*vSigma(3,j)*gxb+vSigma(2,j)*gxa
+        Aux(7,j) = Two*vSigma(3,j)*gyb+vSigma(2,j)*gya
+        Aux(8,j) = Two*vSigma(3,j)*gzb+vSigma(2,j)*gza
+        Aux(9,j) = Half*vTau(1,j)
+        Aux(10,j) = Half*vTau(2,j)
         Aux(11,j) = vLapl(1,j)
         Aux(12,j) = vLapl(2,j)
       end do
@@ -273,10 +271,8 @@ end do
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-if (Debug) then
-  call RecPrt('w * f^x before translational contributions',' ',Temp,1,nGrad_Eff)
-  call RecPrt('OV',' ',OV,3,3)
-end if
+call RecPrt('w * f^x before translational contributions',' ',Temp,1,nGrad_Eff)
+call RecPrt('OV',' ',OV,3,3)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -296,7 +292,7 @@ if (Grid_Type == Moving_Grid) then
       if ((iTab(1,jGrad) == ixyz) .and. (iTab(2,jGrad) == Off) .and. (IndGrd(jGrad) > 0)) iGrad = jGrad
     end do
 #   ifdef _DEBUGPRINT_
-    if (Debug) write(6,*) 'iGrad=',iGrad
+    write(u6,*) 'iGrad=',iGrad
 #   endif
     if (iGrad /= 0) then
 
@@ -309,7 +305,7 @@ if (Grid_Type == Moving_Grid) then
           Temp(iGrad) = Temp(iGrad)-Temp(jGrad)
 
 #         ifdef _DEBUGPRINT_
-          if (Debug) write(6,*) 'jGrad,Temp(jGrad)=',jGrad,Temp(jGrad)
+          write(u6,*) 'jGrad,Temp(jGrad)=',jGrad,Temp(jGrad)
 #         endif
         end if
       end do
@@ -317,7 +313,7 @@ if (Grid_Type == Moving_Grid) then
     end if
   end do
 # ifdef _DEBUGPRINT_
-  if (Debug) call RecPrt('w * f^x',' ',Temp,1,nGrad_Eff)
+  call RecPrt('w * f^x',' ',Temp,1,nGrad_Eff)
 # endif
   !                                                                    *
   !*********************************************************************
@@ -329,7 +325,7 @@ if (Grid_Type == Moving_Grid) then
 
   call DGEMM_('N','N',nGrad_Eff,1,mGrid,One,dW_dR,nGrad_Eff,F_xc,mGrid,One,Temp,nGrad_Eff)
 # ifdef _DEBUGPRINT_
-  if (Debug) call RecPrt('w * f^x + w^x * f',' ',Temp,1,nGrad_Eff)
+  call RecPrt('w * f^x + w^x * f',' ',Temp,1,nGrad_Eff)
 # endif
   !                                                                    *
   !*********************************************************************
@@ -338,10 +334,10 @@ if (Grid_Type == Moving_Grid) then
   !
   ! First transform back to the cartesian coordinates system.
 
-  Fact = dble(2-(nD/2))
-  call DGEMM_('N','N',3,3,3,Fact,OV,3,Pax,3,0.0d0,V,3)
+  Fact = real(2-(nD/2),kind=wp)
+  call DGEMM_('N','N',3,3,3,Fact,OV,3,Pax,3,Zero,V,3)
 # ifdef _DEBUGPRINT_
-  if (Debug) call RecPrt('V',' ',V,3,3)
+  call RecPrt('V',' ',V,3,3)
 # endif
 
   do i_Eff=1,nGrad_Eff
@@ -352,19 +348,17 @@ if (Grid_Type == Moving_Grid) then
 
     Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Half
 #   ifdef _DEBUGPRINT_
-    if (Debug) then
-      write(6,*)
-      write(6,*) 'iCar,jNQ=',iCar,jNQ
-      call RecPrt('dOdx',' ',NQ_Data(jNQ)%dOdx(:,:,iCar),3,3)
-      write(6,*) 'Tmp=',Tmp
-    end if
+    write(u6,*)
+    write(u6,*) 'iCar,jNQ=',iCar,jNQ
+    call RecPrt('dOdx',' ',NQ_Data(jNQ)%dOdx(:,:,iCar),3,3)
+    write(u6,*) 'Tmp=',Tmp
 #   endif
     Temp(i_Eff) = Temp(i_Eff)-Tmp
   end do
 
 end if !moving grid
 #ifdef _DEBUGPRINT_
-if (Debug) call RecPrt('Gradient contribution from this block',' ',Temp,1,nGrad_Eff)
+call RecPrt('Gradient contribution from this block',' ',Temp,1,nGrad_Eff)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -374,13 +368,12 @@ if (Debug) call RecPrt('Gradient contribution from this block',' ',Temp,1,nGrad_
 do i_Eff=1,nGrad_Eff
   i = IndGrd(i_Eff)
   if (i >= 1) then
-    Fact = dble(iTab(4,i_Eff))
+    Fact = real(iTab(4,i_Eff),kind=wp)
     Grad(i) = Grad(i)+Fact*Temp(i_Eff)
   end if
 end do
 #ifdef _DEBUGPRINT_
-if (Debug) call RecPrt('Gradient accumulated so far',' ',Grad,1,nGrad)
-Debug = .false.
+call RecPrt('Gradient accumulated so far',' ',Grad,1,nGrad)
 #endif
 !                                                                      *
 !***********************************************************************

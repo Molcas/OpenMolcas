@@ -1322,13 +1322,13 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
-:kword:`NOPRunning`
-  It turns off the the angular prunning. Default is to prune.
+:kword:`NOPRuning`
+  It turns off the the angular pruning. Default is to prune.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NOPR" APPEAR="No Prunning of Grid" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: Noprunning (NQ) <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NOPR" APPEAR="No Pruning of Grid" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Nopruning (NQ) <advanced>
               <HELP>
-              It turns off the the angular prunning. Default is to prune.
+              It turns off the the angular pruning. Default is to prune.
               </HELP>
               </KEYWORD>
 

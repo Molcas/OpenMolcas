@@ -13,19 +13,22 @@
 
 subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,jList_s)
 
-use iSD_data
-use Center_Info
-use Symmetry_Info, only: nIrrep, iChTbl
+use iSD_data, only: iSD
+use Center_Info, only: dc
+use Symmetry_Info, only: iChTbl, nIrrep
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: MolWgh, nBas
 use nq_Grid, only: iBfn_Index, TabAO
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 TabSO(mAO*mGrid,nMOs)
-integer :: list_s(2,nList_s), list_bas(2,nlist_s)
-integer iOff_MO(0:7)
-integer :: jList_s
+implicit none
+integer(kind=iwp) :: mAO, mGrid, nMOs, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), jList_s
+real(kind=wp) :: TabSO(mAO*mGrid,nMOs)
+integer(kind=iwp) :: i1, i2, iAdd, iAO, iBfn, iIrrep, ilist_s, iMO, iOff_MO(0:7), iSh, iSO, iSO0, iSO1, itmp1, kDCRE, mBas, &
+                     mBas_Eff, mdci, nBfn, nDeg, nOp
+real(kind=wp) :: Fact, xa
+integer(kind=iwp), external :: NrOpr
 
 ! Compute some offsets
 
@@ -51,11 +54,11 @@ do iBfn=1,nBfn
   nOp = NrOpr(kDCRE)
 
   if (MolWgh == 0) then
-    Fact = One/dble(nDeg)
+    Fact = One/real(nDeg,kind=wp)
   else if (MolWgh == 1) then
     Fact = One
   else
-    Fact = One/sqrt(dble(nDeg))
+    Fact = One/sqrt(real(nDeg,kind=wp))
   end if
 
   iAdd = mBas-mBas_Eff
@@ -65,7 +68,7 @@ do iBfn=1,nBfn
 
     iMO = iOff_MO(iIrrep)
 
-    xa = dble(iChTbl(iIrrep,nOp))
+    xa = real(iChTbl(iIrrep,nOp),kind=wp)
     iSO = iSO0+i2-1
     iSO1 = iMO+iSO-1+iAdd
     call DaXpY_(mAO*mGrid,Fact*xa,TabAO(:,:,iBfn),1,TabSO(:,iSO1),1)

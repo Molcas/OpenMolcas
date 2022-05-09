@@ -12,22 +12,25 @@
 subroutine GGL_Grid(L_Max)
 !***********************************************************************
 !                                                                      *
-!     Computes datas useful for the angular quadrature.                *
+!     Computes data useful for the angular quadrature.                 *
 !                                                                      *
 !***********************************************************************
 
 use nq_Structure, only: Info_Ang
-use nq_Info
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use nq_Info, only: nAngularGrids
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: L_Max
+integer(kind=iwp) :: L_Eff
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Do_GGL(L_Eff,nPoints,R)
-    implicit none
-    integer L_Eff, nPoints
-    real*8, allocatable :: R(:,:)
+    use Definitions, only: wp, iwp
+    integer(kind=iwp) :: L_Eff, nPoints
+    real(kind=wp), allocatable :: R(:,:)
   end subroutine Do_GGL
 end interface
 
@@ -36,9 +39,9 @@ end interface
 !                                                                      *
 ! Generate angular grid from Gauss and Gauss-Legendre quadrature
 !
-!-- Theta (polar angle): 0 =< theta =< pi
+!-- Theta (polar angle): 0 <= theta <= pi
 !   Gauss-Legendre Quadrature (L_Quad+1)/2 points
-!-- Phi (azimuthal angle): 0=< phi =< 2*pi
+!-- Phi (azimuthal angle): 0 <= phi <= 2*pi
 !   Gauss-Quadrature (L_Quad+1) points
 
 do L_Eff=1,L_Max

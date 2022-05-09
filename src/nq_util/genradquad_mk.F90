@@ -11,22 +11,29 @@
 
 subroutine GenRadQuad_MK(R,nR,nR_Eff,m,Alpha)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "debug.fh"
-real*8 R(2,nR-1), Alpha, m
+use Constants, only: One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: nR, nR_Eff
+real(kind=wp) :: R(2,nR-1), m, Alpha
+integer(kind=iwp) :: iR
+real(kind=wp) :: x
 
 ! Last point at infinity is eliminated
 
-if (Debug) then
-  write(6,*) 'Log3 Algorithm (Mura-Knowles)'
-  write(6,*) 'Alpha,m=',Alpha,m
-  write(6,*) 'nR=',nR
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Log3 Algorithm (Mura-Knowles)'
+write(u6,*) 'Alpha,m=',Alpha,m
+write(u6,*) 'nR=',nR
+#endif
 do iR=1,nR-1
-  x = dble(iR)/dble(nR)
+  x = real(iR,kind=wp)/real(nR,kind=wp)
   R(1,iR) = -Alpha*log(One-x**m)
-  R(2,iR) = R(1,iR)**2*Alpha*m*x**(m-One)/(One-x**m)/dble(nR)
+  R(2,iR) = R(1,iR)**2*Alpha*m*x**(m-One)/(One-x**m)/real(nR,kind=wp)
 end do
 nR_Eff = nR-1
 

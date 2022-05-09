@@ -12,58 +12,51 @@
 !               2021, Jie Bao                                          *
 !***********************************************************************
 
-subroutine Do_Batch(Kernel,Func,mGrid,list_s,nlist_s,List_Exp,List_Bas,Index,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_Mo, &
+subroutine Do_Batch(Kernel,Func,mGrid,list_s,nlist_s,List_Exp,List_Bas,Idx,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_Mo, &
                     TabMO,TabSO,nMOs,Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,iNQ,EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
 !***********************************************************************
 
-use iSD_data
+use iSD_data, only: iSD
 use SOAO_Info, only: iAOtSO
-use Real_Spherical
-use Basis_Info
-use Center_Info
-use Phase_Info
-use KSDFT_Info
-use nq_Grid, only: Grid, Weights, Rho, nRho
-use nq_Grid, only: GradRho, Sigma
-use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
-use nq_Grid, only: F_xc, F_xca, F_xcb, kAO, Grid_AO
-use nq_Grid, only: Fact, Angular, Mem
-use nq_Grid, only: D1UnZip, P2UnZip
-use nq_Grid, only: Dens_AO, iBfn_Index
-use nq_pdft
+use Real_Spherical, only: ipSph, RSph
+use Basis_Info, only: dbsc, Shells
+use Phase_Info, only: iPhase
+use KSDFT_Info, only: do_pdftPot, Funcaa, Funcbb, Funccc
+use nq_Grid, only: Angular, D1UnZip, Dens_AO, dRho_dR, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, Grid_AO, iBfn_Index, kAO, &
+                   l_CASDFT, Mem, nRho, P2UnZip, Rho, Sigma, TabAO, TabAO_Pack, Weights
+use nq_pdft, only: lft, lGGA, MOas, MOax, MOay, MOaz
 use nq_MO, only: CMO, D1MO, P2_ontop
-use Grid_On_Disk
-use nq_Info
+use Grid_On_Disk, only: Grid_Status, iDisk_Grid, Lu_Grid, Old_Functional_Type, Regenerate, Use_Old
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Functional_Type, GGA_Type, Grad_I, LDA_Type, &
+                   meta_GGA_type1, meta_GGA_type2, mRad, NASHT, ndc, nOrbt, nPot1, NQ_Direct, Off, On, Packing, T_Y, Tau_I
+use Index_Functions, only: nTri_Elem1
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6, r8, RtoB
 
-implicit real*8(A-H,O-Z)
-external Kernel
-#include "SysDef.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "debug.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "pamint.fh"
-integer list_s(2,nlist_s), List_Exp(nlist_s), index(nIndex), List_Bas(2,nlist_s)
-real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim), TabMO(mAO,mGrid,nMOs), TabSO(mAO,mGrid,nMOs), PDFTPot1(nPot1), &
-       PDFTFocI(nPot1), PDFTFocA(nPot1)
-logical Do_Grad, Do_Mo
-logical l_tanhr
-real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
-real*8, dimension(:), allocatable :: P2MOCube, P2MOCubex, P2MOCubey, P2MOCubez, MOs, MOx, MOy, MOz
+implicit none
+external :: Kernel
+integer(kind=iwp) :: mGrid, nlist_s, list_s(2,nlist_s), List_Exp(nlist_s), List_Bas(2,nlist_s), nIndex, Idx(nIndex), nFckDim, &
+                     nFckInt, mAO, nD, nP2_ontop, nMOs, nGrad, ndRho_dR, nGrad_Eff, iNQ, nTmpPUVX
+real(kind=wp) :: Func, FckInt(nFckInt,nFckDim), TabMO(mAO,mGrid,nMOs), TabSO(mAO,mGrid,nMOs), Grad(nGrad), EG_OT(nTmpPUVX), &
+                 PDFTPot1(nPot1), PDFTFocI(nPot1), PDFTFocA(nPot1)
+logical(kind=iwp) :: Do_Mo, Do_Grad
+integer(kind=iwp) :: i1, i2, iAdd, iAng, iAO, iBas, iBas_Eff, iBfn, iBfn_e, iBfn_s, iCmp, iCnt, iCnttp, iDrv, iGrid, iList_s, &
+                     IndAO1, Indi, ipRadial, iPrim, iPrim_Eff, ipx, ipxyz, ipy, ipz, iR, ish, iShll, iSkal, iSkip, iSO1, jBfn, &
+                     jlist_s, kBfn, mData, mdci, mRho, mTabAO, nBfn, nByte, nCMO, nData, nDrv, nForm, nPMO3p, nTerm, nxyz, &
+                     TabAO_Size(2)
+real(kind=wp) :: A(3), P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid), px, py, pz, RA(3), SMax, Thr !IFG
+logical(kind=iwp) :: l_tanhr
+integer(kind=iwp), allocatable :: Tmp_Index(:,:)
+real(kind=wp), allocatable :: MOs(:), MOx(:), MOy(:), MOz(:), P2MOCube(:), P2MOCubex(:), P2MOCubey(:), P2MOCubez(:), RhoA(:,:), &
+                              RhoI(:,:), TabAO_Tmp(:)
 ! MOs,MOx,MOy and MOz are for active MOs.
 ! MOas is for all MOs.
-integer nPMO3p
-real*8 EG_OT(nTmpPUVX)
-real*8, allocatable :: RhoI(:,:), RhoA(:,:)
-real*8, allocatable :: TabAO_Tmp(:)
-integer :: TabAO_Size(2)
-integer, allocatable :: Tmp_Index(:,:)
-! Statement function
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+real(kind=wp), external :: Comp_d, Compute_Rho, Compute_Grad, Compute_Tau
+real(kind=r8), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -157,8 +150,8 @@ else
 ! define _ANALYSIS_
 # ifdef _ANALYSIS_
   Thr = T_Y
-  write(6,*)
-  write(6,*) ' Sparsity analysis of AO blocks'
+  write(u6,*)
+  write(u6,*) ' Sparsity analysis of AO blocks'
   mlist_s = 0
 # endif
   !iOff = 1
@@ -206,7 +199,7 @@ else
     nDrv = mRad-1
     nForm = 0
     do iDrv=0,nDrv
-      nForm = nForm+nElem(iDrv)
+      nForm = nForm+nTri_Elem1(iDrv)
     end do
     nTerm = 2**nDrv
     nxyz = mGrid*3*(iAng+mRad)
@@ -218,25 +211,25 @@ else
     ipx = iPhase(1,iR)
     ipy = iPhase(2,iR)
     ipz = iPhase(3,iR)
-    px = dble(iPhase(1,iR))
-    py = dble(iPhase(2,iR))
-    pz = dble(iPhase(3,iR))
+    px = real(iPhase(1,iR),kind=wp)
+    py = real(iPhase(2,iR),kind=wp)
+    pz = real(iPhase(3,iR),kind=wp)
     RA(1) = px*A(1)
     RA(2) = py*A(2)
     RA(3) = pz*A(3)
 
     ! Evaluate AOs at RA
 
-    call AOEval(iAng,mGrid,Grid,Mem(ipxyz),RA,Shells(iShll)%Transf,RSph(ipSph(iAng)),nElem(iAng),iCmp,Angular,nTerm,nForm,T_Y, &
-                mRad,iPrim,iPrim_Eff,Shells(iShll)%Exp,Mem(ipRadial),iBas_Eff,Shells(iShll)%pCff(1,iBas-iBas_Eff+1), &
+    call AOEval(iAng,mGrid,Grid,Mem(ipxyz),RA,Shells(iShll)%Transf,RSph(ipSph(iAng)),nTri_Elem1(iAng),iCmp,Angular,nTerm,nForm, &
+                T_Y,mRad,iPrim,iPrim_Eff,Shells(iShll)%Exp,Mem(ipRadial),iBas_Eff,Shells(iShll)%pCff(1,iBas-iBas_Eff+1), &
                 TabAO(:,:,iBfn_s:),mAO,px,py,pz,ipx,ipy,ipz)
 #   ifdef _ANALYSIS_
     ix = iDAMax_(mAO*mGrid*iBas_Eff*iCmp,TabAO_Pack(iOff),1)
     TMax = abs(TabAO_Pack(iOff-1+ix))
     if (TMax < Thr) then
       mlist_s = mlist_s+1
-      write(6,*) ' ilist_s: ',ilist_s
-      write(6,*) ' TMax:    ',TMax
+      write(u6,*) ' ilist_s: ',ilist_s
+      write(u6,*) ' TMax:    ',TMax
     end if
 #   endif
 
@@ -290,8 +283,8 @@ else
   TabAO_Size(1) = nBfn
 
 # ifdef _ANALYSIS_
-  write(6,*) ' % AO blocks that can be eliminated: ',1.0d2*dble(mlist_s)/dble(nlist_s)
-  write(6,*)
+  write(u6,*) ' % AO blocks that can be eliminated: ',100.0_wp*real(mlist_s,kind=wp)/real(nlist_s,kind=wp)
+  write(u6,*)
 # endif
   !                                                                    *
   !*********************************************************************
@@ -329,7 +322,7 @@ end if
 ! In case of gradient calculations compute Cartesian derivatives
 ! of Rho, Grad Rho, Tau, and the Laplacian.
 
-call Mk_Rho(list_s,nlist_s,Fact,ndc,list_bas,Index,nIndex,Do_Grad)
+call Mk_Rho(list_s,nlist_s,Fact,ndc,list_bas,Idx,nIndex,Do_Grad)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -518,8 +511,8 @@ if ((NQ_Direct == Off) .and. ((Grid_Status == Regenerate) .and. (.not. Do_Grad))
     mData = (nByte+RtoB-1)/RtoB
     if (mData > nData) then
       call WarningMessage(2,'mData > nData')
-      write(6,*) 'nData=',nData
-      write(6,*) 'nData=',nData
+      write(u6,*) 'nData=',nData
+      write(u6,*) 'nData=',nData
       call Abend()
     end if
     TabAO_Size(2) = nByte
@@ -569,7 +562,7 @@ subroutine Spectre(SMax)
       SMax = max(SMax,abs(Weights(iGrid)*TabAO(iAO,iGrid,jBfn)))
     end do
   end do
-  !if (SMax < Thr) Write(6,*) SMax,TMax
+  !if (SMax < Thr) Write(u6,*) SMax,TMax
 
 end subroutine Spectre
 

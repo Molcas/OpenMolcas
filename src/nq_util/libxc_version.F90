@@ -14,8 +14,8 @@
 
 subroutine libxc_version()
 
-use xc_f03_lib_m
-use Definitions, only: LibxcInt, iwp
+use xc_f03_lib_m, only: xc_f03_reference, xc_f03_reference_doi, xc_f03_version
+use Definitions, only: iwp, LibxcInt, u6
 
 implicit none
 integer(kind=LibxcInt) :: vmajor, vminor, vmicro
@@ -28,9 +28,9 @@ call xc_f03_version(vmajor,vminor,vmicro)
 call xc_f03_reference(libxc_reference)
 call xc_f03_reference_doi(libxc_reference_doi)
 ! Print out the version
-write(6,'(6X,"Using Libxc version: ",I0,".",I0,".",I0)') vmajor,vminor,vmicro
+write(u6,'(6X,"Using Libxc version: ",I0,".",I0,".",I0)') vmajor,vminor,vmicro
 ! Print out the Libxc literature reference
-write(6,'(6X,"Please cite the following reference:")')
-write(6,'(6X,A," doi:",A)') trim(libxc_reference),trim(libxc_reference_doi)
+write(u6,'(6X,"Please cite the following reference:")')
+write(u6,'(6X,A," doi:",A)') trim(libxc_reference),trim(libxc_reference_doi)
 
 end subroutine libxc_version

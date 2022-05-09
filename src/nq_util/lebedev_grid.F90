@@ -12,31 +12,33 @@
 subroutine Lebedev_Grid(L_Max)
 !***********************************************************************
 !                                                                      *
-!     Computes datas useful for the angular quadrature.                *
+!     Computes data useful for the angular quadrature.                 *
 !                                                                      *
 !***********************************************************************
 
 use nq_Structure, only: Info_Ang
-use nq_Info
+use nq_Info, only: nAngularGrids
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-parameter(nSet=11)
-integer Lebedev_order(nSet)
-data Lebedev_order/5,7,11,17,23,29,35,41,47,53,59/
+implicit none
+integer(kind=iwp) :: L_Max
+integer(kind=iwp) :: iSet, L_Eff
+integer(kind=iwp), parameter :: Lebedev_order(11) = [5,7,11,17,23,29,35,41,47,53,59]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Do_GGL(L_Eff,nPoints,R)
-    implicit none
-    integer L_Eff, nPoints
-    real*8, allocatable :: R(:,:)
+    use Definitions, only: wp
+    import :: iwp
+    integer(kind=iwp) :: L_Eff, nPoints
+    real(kind=wp), allocatable :: R(:,:)
   end subroutine Do_GGL
   subroutine Do_Lebedev(L_Eff,nPoints,R)
-    implicit none
-    integer L_Eff, nPoints
-    real*8, allocatable :: R(:,:)
+    use Definitions, only: wp
+    import :: iwp
+    integer(kind=iwp) :: L_Eff, nPoints
+    real(kind=wp), allocatable :: R(:,:)
   end subroutine Do_Lebedev
 end interface
 
@@ -54,7 +56,7 @@ call Do_GGL(3,Info_Ang(nAngularGrids)%nPoints,Info_Ang(nAngularGrids)%R)
 !                                                                      *
 ! Generate angular grid a la Lebedev
 
-do iSet=1,nSet
+do iSet=1,size(Lebedev_order)
   if (Lebedev_order(iSet) <= L_Max) then
     nAngularGrids = nAngularGrids+1
     L_Eff = Lebedev_order(iSet)

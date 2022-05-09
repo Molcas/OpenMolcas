@@ -13,45 +13,44 @@
 
 module NQ_Structure
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
 private
-public :: NQ_data, Close_NQ_Data, Info_Ang, Close_Info_Ang, LMax_NQ
 
-#include "stdalloc.fh"
+type Info_Ang_type
+  integer(kind=iwp) :: L_eff = 0
+  integer(kind=iwp) :: nPoints = 0
+  real(kind=wp), allocatable :: R(:,:)
+end type Info_Ang_type
 
-!define declare_ip_dodx     ip_dOdx(iNQ,i) = ipNQ+(iNQ-1)*l_NQ+15+(iTabMx+1)+(i-1)*9
+type NQ_data_type
+  real(kind=wp), allocatable :: Coor(:)
+  real(kind=wp) :: A_High = -huge(Zero)
+  real(kind=wp) :: A_Low = huge(Zero)
+  real(kind=wp) :: R_RS = Zero
+  real(kind=wp) :: R_max = Zero
+  integer(kind=iwp) :: l_max = -1
+  real(kind=wp), allocatable :: R_Quad(:,:)
+  integer(kind=iwp), allocatable :: Angular(:)
+  integer(kind=iwp) :: Atom_Nr = -1
+  real(kind=wp), allocatable :: dOdx(:,:,:)
+end type NQ_data_type
 
-type NQ_data_raw
-  sequence
-  real*8, allocatable :: Coor(:)
-  real*8 :: A_High = -1.0d99
-  real*8 :: A_Low = 1.0d99
-  real*8 :: R_RS = 0.0d0
-  real*8 :: R_max = 0.0d0
-  integer :: l_max = -1
-  real*8, allocatable :: R_Quad(:,:)
-  integer, allocatable :: Angular(:)
-  integer :: Atom_Nr = -1
-  real*8, allocatable :: dOdx(:,:,:)
-end type NQ_data_raw
+integer(kind=iwp), parameter :: LMax_NQ = 62
+type(Info_Ang_type) Info_Ang(LMax_NQ)
+type(NQ_data_type), allocatable :: NQ_data(:)
 
-type(NQ_data_raw), allocatable :: NQ_data(:)
-
-type Info_A
-  sequence
-  integer :: L_eff = 0
-  integer :: nPoints = 0
-  real*8, allocatable :: R(:,:)
-end type Info_A
-
-integer, parameter :: LMax_NQ = 62
-type(Info_A) Info_Ang(LMax_NQ)
+public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, LMax_NQ, NQ_data
 
 contains
 
 subroutine Close_Info_Ang()
 
-  integer iAngular
+  use stdalloc, only: mma_deallocate
+
+  integer(kind=iwp) iAngular
 
   do iAngular=1,size(Info_Ang)
     Info_Ang(iAngular)%L_eff = 0
@@ -63,25 +62,25 @@ end subroutine Close_Info_Ang
 
 subroutine Close_NQ_Data()
 
-  integer iNQ, nNQ
+  use stdalloc, only: mma_deallocate
+
+  integer(kind=iwp) iNQ
 
   ! Cleanup and close
-  nNQ = size(NQ_data)
-  do iNQ=1,nNQ
+  do iNQ=1,size(NQ_data)
     call mma_deallocate(NQ_data(iNQ)%Coor)
-    NQ_data(iNQ)%A_High = -1.0d99
-    NQ_data(iNQ)%A_Low = 1.0d99
-    NQ_data(iNQ)%R_RS = 0.0d0
-    NQ_data(iNQ)%R_max = 0.0d0
+    NQ_data(iNQ)%A_High = -huge(Zero)
+    NQ_data(iNQ)%A_Low = huge(Zero)
+    NQ_data(iNQ)%R_RS = Zero
+    NQ_data(iNQ)%R_max = Zero
     NQ_data(iNQ)%l_Max = -1
     if (allocated(NQ_data(iNQ)%R_Quad)) call mma_deallocate(NQ_data(iNQ)%R_Quad)
     if (allocated(NQ_data(iNQ)%Angular)) call mma_deallocate(NQ_data(iNQ)%Angular)
     NQ_Data(iNQ)%Atom_Nr = -1
     if (allocated(NQ_data(iNQ)%dOdx)) call mma_deallocate(NQ_data(iNQ)%dOdx)
   end do
-  deallocate(NQ_Data)
+  deallocate(NQ_Data) !IFG
 
 end subroutine Close_NQ_Data
 
 end module NQ_Structure
-

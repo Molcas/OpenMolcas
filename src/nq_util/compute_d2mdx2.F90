@@ -11,9 +11,14 @@
 
 subroutine Compute_d2Mdx2(ZA,nAtoms,iAtom,iCar,dTdRAi,jAtom,jCar,d2Mdx2)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 ZA(nAtoms), d2Mdx2(3,3)
+use Constants, only: One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, iAtom, iCar, jAtom, jCar
+real(kind=wp) :: ZA(nAtoms), dTdRAi, d2Mdx2(3,3)
+integer(kind=iwp) :: kAtom
+real(kind=wp) :: tmpi, tmpj, ZB
 
 !                                                                      *
 !***********************************************************************

@@ -11,11 +11,13 @@
 
 subroutine Process_Coor(R,Coor,nAtoms,nSym,iOper)
 
-implicit real*8(a-h,o-z)
-real*8 R(3), Coor(3,*)
-integer iOper(0:nSym-1)
-! Local array
-real*8 Q(3)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, nSym, iOper(0:nSym-1)
+real(kind=wp) :: R(3), Coor(3,*)
+integer(kind=iwp) :: iAtom, iRef, iSym
+real(kind=wp) :: Q(3)
 
 !                                                                      *
 !***********************************************************************
@@ -39,15 +41,15 @@ nAtoms = nAtoms+1
 call dcopy_(3,R,1,Coor(1,nAtoms),1)
 iRef = nAtoms
 !call RecPrt('Coor(updated)',' ',Coor,3,nAtoms)
-!write(6,*) 'nSym=',nSym
-!write(6,*) 'iOper=',iOper
+!write(u6,*) 'nSym=',nSym
+!write(u6,*) 'iOper=',iOper
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Add symmetry degenerate atoms to the list
 
 outer: do iSym=1,nSym-1
-  !write(6,*) 'iOper(iSym)=',iOper(iSym)
+  !write(u6,*) 'iOper(iSym)=',iOper(iSym)
   call dcopy_(3,R,1,Q,1)
   if (iand(iOper(iSym),1) /= 0) Q(1) = -Q(1)
   if (iand(iOper(iSym),2) /= 0) Q(2) = -Q(2)

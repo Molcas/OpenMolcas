@@ -11,16 +11,22 @@
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
 
-real*8 function Compute_Grad(Weights,mGrid,iSpin)
+function Compute_Grad(Weights,mGrid,iSpin)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
 !***********************************************************************
 
 use nq_Grid, only: Sigma
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 Weights(mGrid)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Compute_Grad
+integer(kind=iwp) :: mGrid, iSpin
+real(kind=wp) :: Weights(mGrid)
+integer(kind=iwp) :: iGrid
+real(kind=wp) :: Gmma
 
 !                                                                      *
 !***********************************************************************
@@ -36,11 +42,11 @@ if (iSpin == 1) then
 
   do iGrid=1,mGrid
 
-    Gamma = sqrt(Sigma(1,iGrid))
+    Gmma = sqrt(Sigma(1,iGrid))
 
     ! Accumulate contributions to the integrated Tau
 
-    Compute_Grad = Compute_Grad+Two*Gamma*Weights(iGrid)
+    Compute_Grad = Compute_Grad+Two*Gmma*Weights(iGrid)
 
   end do
   !                                                                    *
@@ -54,11 +60,11 @@ else
 
   do iGrid=1,mGrid
 
-    Gamma = sqrt(Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid))
+    Gmma = sqrt(Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid))
 
     ! Accumulate contributions to the integrated density
 
-    Compute_Grad = Compute_Grad+Gamma*Weights(iGrid)
+    Compute_Grad = Compute_Grad+Gmma*Weights(iGrid)
 
   end do
   !                                                                    *

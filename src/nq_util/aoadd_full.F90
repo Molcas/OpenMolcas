@@ -19,12 +19,14 @@ subroutine AOAdd_Full(PrpInt,nPrp,nD)
 !***********************************************************************
 
 use nq_Grid, only: iBfn_Index
-use nq_Grid, only: AOInt => Dens_AO
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 PrpInt(nPrp,nD)
-! Statement function
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+use nq_Grid, only: Dens_AO
+use Index_Functions, only: iTri
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nPrp, nD
+real(kind=wp) :: PrpInt(nPrp,nD)
+integer(kind=iwp) :: iBfn, Indi, Indj, jBfn, nBfn
 
 !                                                                      *
 !***********************************************************************
@@ -39,7 +41,7 @@ do iBfn=1,nBfn
 
     ! Add one matrix element
 
-    PrpInt(iTri(Indi,Indj),:) = PrpInt(iTri(Indi,Indj),:)+AOInt(iBfn,jBfn,:)
+    PrpInt(iTri(Indi,Indj),:) = PrpInt(iTri(Indi,Indj),:)+Dens_AO(iBfn,jBfn,:)
   end do
 end do
 

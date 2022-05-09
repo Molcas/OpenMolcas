@@ -11,39 +11,51 @@
 
 subroutine GenRadQuad_PAM(nR_Eff,mr,Alpha,Process,QuadR,nQuadR)
 
-use nq_Info
+use nq_Info, only: R_Max
+use Constants, only: Zero, One, Two, Three, Four, Ten, Pi
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "real.fh"
-#include "debug.fh"
-real*8 Alpha(2), QuadR(2,nQuadR)
-real*8 mr(2), ln_rn
-logical Process
+implicit none
+integer(kind=iwp) :: nR_Eff, nQuadR
+real(kind=wp) :: mr(2), Alpha(2), QuadR(2,nQuadR)
+logical(kind=iwp) :: Process
+integer(kind=iwp) :: i, iR, k, l_Max, n_High
+real(kind=wp) :: a, Alpha_Max, Alpha_Min, C1, C2, Correction, D_m, Dr, Gmma, ggg, h, h_, ln_rn, r1, R_D_0, Relative_Max_Error, rk, &
+                 rn
+real(kind=wp), external :: G
 
 ! Last point at infinity is eliminated
 
-if (Debug) write(6,*) 'New Algorithm (Malmqvist)'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'New Algorithm (Malmqvist)'
+#endif
 
 ! Reading of the data
 Alpha_Min = Alpha(1)
 Alpha_Max = Alpha(2)
 l_Max = 2*int(mr(1))
-if (Debug) write(6,*) 'l_Max=',l_Max
+#ifdef _DEBUGPRINT_
+write(u6,*) 'l_Max=',l_Max
+#endif
 Relative_Max_Error = mr(2)
-if (Debug) write(6,*) 'Relative_Max_Error=',Relative_Max_Error
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Relative_Max_Error=',Relative_Max_Error
+#endif
 
 ! Compute an approximative R_D_0
 
 Dr = Zero
 h = Zero
 do k=0,l_Max,l_Max-1
-  R_D_0 = Relative_Max_Error/(10.0d0**k)
+  R_D_0 = Relative_Max_Error/(Ten**k)
   Dr = -log10(R_D_0)
 
   ! Starting value of h
 
-  h = One/(0.47d0*Dr+0.93d0)
+  h = One/(0.47_wp*Dr+0.93_wp)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -53,7 +65,7 @@ do k=0,l_Max,l_Max-1
   C2 = Pi**2/Two
   do
     h_ = C2/(-log(Ten**(-Dr)*h/C1))
-    if (abs(h_-h) <= 1.0D-4) exit
+    if (abs(h_-h) <= 1.0e-4_wp) exit
     h = h_
   end do
   !                                                                    *
@@ -64,14 +76,18 @@ do k=0,l_Max,l_Max-1
 
   Dr = -log10(Relative_Max_Error)
   do
-    h_ = C2/(-log(Ten**(-Dr)*(h/C1)*(h/Pi)**(dble(k)/Two)*(G((dble(k)+Three)/Two)/G(Three/Two))))
+    h_ = C2/(-log(Ten**(-Dr)*(h/C1)*(h/Pi)**(real(k,kind=wp)/Two)*(G((real(k,kind=wp)+Three)/Two)/G(Three/Two))))
 
-    if (Debug) write(6,*) 'h h_ ',h,h_
-    if (abs(h_-h) <= 1.0D-5) exit
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'h h_ ',h,h_
+#   endif
+    if (abs(h_-h) <= 1.0e-5_wp) exit
     h = h_
   end do
 
+# ifdef _DEBUGPRINT_
   if (k == 0) h0 = h
+# endif
 end do
 !                                                                      *
 !***********************************************************************
@@ -79,44 +95,45 @@ end do
 ! Compute table of R_Max as a function of l
 
 do i=l_Max,0,-2
-  D_m = -4.0d0
-  if (l_Max == 4) D_m = -2.3d0
-  if (l_Max == 2) D_m = -1.0d0
-  if (l_Max == 0) D_m = 1.9d0
-  if (l_Max == -2) D_m = 9.1d0
+  D_m = -Four
+  if (l_Max == 4) D_m = -2.3_wp
+  if (l_Max == 2) D_m = -One
+  if (l_Max == 0) D_m = 1.9_wp
+  if (l_Max == -2) D_m = 9.1_wp
 
-  ggg = (Two/(dble(i)+Three))*(D_m-log(One/Ten**(-Dr)))
+  ggg = (Two/(real(i,kind=wp)+Three))*(D_m-log(One/Ten**(-Dr)))
   R_Max(i) = sqrt(exp(ggg)/Alpha_Max)
-  if (Debug) then
-    write(6,*) 'i        =',i
-    write(6,*) 'l_Max    =',l_Max
-    write(6,*) 'ggg      =',ggg
-    write(6,*) 'R_Max(i) =',R_Max(i)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'i        =',i
+  write(u6,*) 'l_Max    =',l_Max
+  write(u6,*) 'ggg      =',ggg
+  write(u6,*) 'R_Max(i) =',R_Max(i)
+# endif
 end do
-if (Debug) write(6,*) 'h0,h=',h0,h
+#ifdef _DEBUGPRINT_
+write(u6,*) 'h0,h=',h0,h
+#endif
 
 ! For hybrid grid use R_Max for l=0 and h for l=l_max
 ! r1=R_Max(l_Max)
 r1 = R_Max(0)
-ln_rn = 1.7d0-log(Alpha_Min)/Two
+ln_rn = 1.7_wp-log(Alpha_Min)/Two
 rn = exp(ln_rn)
-gamma = r1/(exp(h)-One)
-n_High = int(log(rn/gamma+One)/h+One)
-if (Debug) then
-  write(6,*)
-  write(6,*) 'r1,Alpha_Min    =',r1,Alpha_Min
-  write(6,*) 'rn,Alpha_Max    =',rn,Alpha_MAx
-  write(6,*) 'h,Dr,n_High     =',h,Dr,n_High
-end if
+Gmma = r1/(exp(h)-One)
+n_High = int(log(rn/Gmma+One)/h+One)
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) 'r1,Alpha_Min    =',r1,Alpha_Min
+write(u6,*) 'rn,Alpha_Max    =',rn,Alpha_MAx
+write(u6,*) 'h,Dr,n_High     =',h,Dr,n_High
+#endif
 
 ! Store the radius and the associated weights
 
-if (Debug) write(6,*) 'n_High',n_High
 iR = 0
 do k=0,n_High
-  a = dble(k)*h
-  rk = Gamma*(exp(a)-One)
+  a = real(k,kind=wp)*h
+  rk = Gmma*(exp(a)-One)
   ! Note that the point at r=0 is eliminated
   if (rk /= Zero) then
     iR = iR+1
@@ -126,12 +143,12 @@ do k=0,n_High
 
       ! Gregorious correction for points close to the nuclei
 
-      if (k == 0) Correction = 46.d0/120.d0
-      if (k == 1) Correction = 137.d0/120.d0
-      if (k == 2) Correction = 118.d0/120.d0
-      if (k == 3) Correction = 119.d0/120.d0
+      if (k == 0) Correction = 46.0_wp/120.0_wp
+      if (k == 1) Correction = 137.0_wp/120.0_wp
+      if (k == 2) Correction = 118.0_wp/120.0_wp
+      if (k == 3) Correction = 119.0_wp/120.0_wp
 
-      QuadR(2,ir) = h*(rk+gamma)*Correction
+      QuadR(2,ir) = h*(rk+Gmma)*Correction
       QuadR(2,ir) = QuadR(1,ir)**2*QuadR(2,ir)
     end if
   end if

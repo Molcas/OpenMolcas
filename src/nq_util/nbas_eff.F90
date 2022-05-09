@@ -9,10 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nBas_Eff(NrExp,NrBas,Cff,nExp_Eff)
+function nBas_Eff(NrExp,NrBas,Cff,nExp_Eff)
 
-implicit real*8(a-h,o-z)
-real*8 Cff(NrExp,NrBas)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nBas_Eff
+integer(kind=iwp) :: NrExp, NrBas, nExp_Eff
+real(kind=wp) :: Cff(NrExp,NrBas)
+integer(kind=iwp) :: iBas, iExp
 
 nBas_Eff = NrBas
 
@@ -20,7 +26,7 @@ do iBas=1,NrBas
 
   do iExp=1,nExp_Eff
 
-    if (Cff(iExp,iBas) /= 0.0d0) then
+    if (Cff(iExp,iBas) /= Zero) then
       nBas_Eff = NrBas-iBas+1
       return
     end if

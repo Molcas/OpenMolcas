@@ -18,11 +18,12 @@
 subroutine ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
 use nq_pdft, only: lft, lGGA
+use Definitions, only: wp, iwp
 
-integer mAO, mGrid, nMOs, iGrid, nAOGrid
-real*8 :: TabSO(mAO,mGrid,nMOs)
-real*8 :: TabSO2(nMOs,mAO*mGrid)
-integer :: iSt, iEnd, iAO, jAO, iOff
+implicit none
+integer(kind=iwp) :: mAO, mGrid, nMOs
+real(kind=wp) :: TabSO2(nMOs,mAO*mGrid), TabSO(mAO,mGrid,nMOs)
+integer(kind=iwp) :: iAO, iEnd, iGrid, iOff, iSt, jAO, nAOGrid
 
 nAOGrid = mAO*mGrid
 ! TabSO : mAO*mGrid x nMOs

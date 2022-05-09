@@ -14,23 +14,23 @@
 
 subroutine libxc_interface(xc_func,xc_info,mGrid,nD,F_xc,Coeff)
 
-use xc_f03_lib_m
-use nq_Grid, only: Rho, Sigma, Tau, Lapl
-use nq_Grid, only: vRho, vSigma, vTau, vLapl
-use nq_Grid, only: l_casdft
-use nq_Grid, only: F_xca, F_xcb
-use libxc
-use Definitions, only: wp, iwp, LibxcReal, LibxcSize
+use xc_f03_lib_m, only: XC_EXCHANGE, xc_f03_func_info_get_family, xc_f03_func_info_get_kind, xc_f03_func_info_t, xc_f03_func_t, &
+                        xc_f03_gga_exc, xc_f03_gga_exc_vxc, xc_f03_lda_exc, xc_f03_lda_exc_vxc, xc_f03_mgga_exc, &
+                        xc_f03_mgga_exc_vxc, XC_FAMILY_GGA, XC_FAMILY_HYB_GGA, XC_FAMILY_HYB_MGGA, XC_FAMILY_LDA, XC_FAMILY_MGGA
+use nq_Grid, only: F_xca, F_xcb, l_casdft, Lapl, Rho, Sigma, Tau, vLapl, vRho, vSigma, vTau
+use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dSigma, dfunc_dTau, func, Only_exc
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6, LibxcReal, LibxcSize
 
 implicit none
-integer(kind=iwp) :: mGrid, nD, iGrid
-real(kind=wp) :: F_xc(mGrid)
-real(kind=wp) :: Coeff
 type(xc_f03_func_t) :: xc_func      ! xc functional
 type(xc_f03_func_info_t) :: xc_info ! xc functional info
+integer(kind=iwp) :: mGrid, nD
+real(kind=wp) :: F_xc(mGrid), Coeff
+integer(kind=iwp) :: iGrid
 
 if ((LibxcSize /= iwp) .or. (LibxcReal /= wp)) then
-  write(6,*) 'Libxc type mismatch!'
+  write(u6,*) 'Libxc type mismatch!'
   call abend()
 end if
 !                                                                      *
@@ -45,8 +45,8 @@ select case (xc_f03_func_info_get_family(xc_info))
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    func(1:mGrid) = 0.0d0 ! Initialize memory
-    dfunc_drho(:,1:mGrid) = 0.0d0
+    func(1:mGrid) = Zero ! Initialize memory
+    dfunc_drho(:,1:mGrid) = Zero
 
     if (Only_exc) then
       call xc_f03_lda_exc(xc_func,mGrid,Rho(1,1),func(1))
@@ -86,15 +86,15 @@ select case (xc_f03_func_info_get_family(xc_info))
         select case (xc_f03_func_info_get_kind(xc_info))
           case (XC_EXCHANGE)
             dFunc_dRho(:,1:mGrid) = Rho(:,1:mGrid)
-            Rho(2,1:mGrid) = 0.0d0
-            func(1:mGrid) = 0.0d0
+            Rho(2,1:mGrid) = Zero
+            func(1:mGrid) = Zero
             call xc_f03_lda_exc(xc_func,mGrid,Rho(1,1),func(1))
             do iGrid=1,mGrid
               F_xca(iGrid) = F_xca(iGrid)+Coeff*func(iGrid)*Rho(1,iGrid)
             end do
-            Rho(1,1:mGrid) = 0.0d0
+            Rho(1,1:mGrid) = Zero
             Rho(2,1:mGrid) = dFunc_dRho(2,1:mGrid)
-            func(:) = 0.0d0
+            func(:) = Zero
             call xc_f03_lda_exc(xc_func,mGrid,Rho(1,1),func(1))
             do iGrid=1,mGrid
               F_xcb(iGrid) = F_xcb(iGrid)+Coeff*func(iGrid)*Rho(2,iGrid)
@@ -110,9 +110,9 @@ select case (xc_f03_func_info_get_family(xc_info))
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    func(1:mGrid) = 0.0d0 ! Initialize memory
-    dfunc_drho(:,1:mGrid) = 0.0d0
-    dfunc_dSigma(:,1:mGrid) = 0.0d0
+    func(1:mGrid) = Zero ! Initialize memory
+    dfunc_drho(:,1:mGrid) = Zero
+    dfunc_dSigma(:,1:mGrid) = Zero
 
     if (Only_exc) then
       call xc_f03_gga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1))
@@ -156,15 +156,15 @@ select case (xc_f03_func_info_get_family(xc_info))
         select case (xc_f03_func_info_get_kind(xc_info))
           case (XC_EXCHANGE)
             dFunc_dRho(:,1:mGrid) = Rho(:,1:mGrid)
-            Rho(2,1:mGrid) = 0.0d0
-            func(1:mGrid) = 0.0d0
+            Rho(2,1:mGrid) = Zero
+            func(1:mGrid) = Zero
             call xc_f03_gga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1))
             do iGrid=1,mGrid
               F_xca(iGrid) = F_xca(iGrid)+Coeff*func(iGrid)*Rho(1,iGrid)
             end do
-            Rho(1,1:mGrid) = 0.0d0
+            Rho(1,1:mGrid) = Zero
             Rho(2,1:mGrid) = dFunc_dRho(2,:)
-            func(1:mGrid) = 0.0d0
+            func(1:mGrid) = Zero
             call xc_f03_gga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1))
             do iGrid=1,mGrid
               F_xcb(iGrid) = F_xcb(iGrid)+Coeff*func(iGrid)*Rho(2,iGrid)
@@ -180,11 +180,11 @@ select case (xc_f03_func_info_get_family(xc_info))
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    func(1:mGrid) = 0.0d0 ! Initialize memory
-    dfunc_drho(:,1:mGrid) = 0.0d0
-    dfunc_dSigma(:,1:mGrid) = 0.0d0
-    if (allocated(Tau)) dfunc_dTau(:,1:mGrid) = 0.0d0
-    if (allocated(Lapl)) dfunc_dLapl(:,1:mGrid) = 0.0d0
+    func(1:mGrid) = Zero ! Initialize memory
+    dfunc_drho(:,1:mGrid) = Zero
+    dfunc_dSigma(:,1:mGrid) = Zero
+    if (allocated(Tau)) dfunc_dTau(:,1:mGrid) = Zero
+    if (allocated(Lapl)) dfunc_dLapl(:,1:mGrid) = Zero
 
     if (Only_exc) then
       call xc_f03_mgga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),Lapl(1,1),Tau(1,1),func(1))
@@ -248,20 +248,20 @@ select case (xc_f03_func_info_get_family(xc_info))
       end if
 
       if (l_casdft) then
-        write(6,*) 'Uncharted territory!'
+        write(u6,*) 'Uncharted territory!'
         call Abend()
         select case (xc_f03_func_info_get_kind(xc_info))
           case (XC_EXCHANGE)
             dFunc_dRho(:,1:mGrid) = Rho(:,1:mGrid)
-            Rho(2,1:mGrid) = 0.0d0
-            func(1:mGrid) = 0.0d0
+            Rho(2,1:mGrid) = Zero
+            func(1:mGrid) = Zero
             call xc_f03_mgga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),Lapl(1,1),Tau(1,1),func(1))
             do iGrid=1,mGrid
               F_xca(iGrid) = F_xca(iGrid)+Coeff*func(iGrid)*Rho(1,iGrid)
             end do
-            Rho(1,1:mGrid) = 0.0d0
+            Rho(1,1:mGrid) = Zero
             Rho(2,1:mGrid) = dFunc_dRho(2,:)
-            func(1:mGrid) = 0.0d0
+            func(1:mGrid) = Zero
             call xc_f03_mgga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),Lapl(1,1),Tau(1,1),func(1))
             do iGrid=1,mGrid
               F_xcb(iGrid) = F_xcb(iGrid)+Coeff*func(iGrid)*Rho(2,iGrid)
@@ -274,7 +274,7 @@ select case (xc_f03_func_info_get_family(xc_info))
     !*******************************************************************
     !                                                                  *
   case default
-    write(6,*) 'Libxc family not properly identified.'
+    write(u6,*) 'Libxc family not properly identified.'
     call Abend()
     !                                                                  *
     !*******************************************************************

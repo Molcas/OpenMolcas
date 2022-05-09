@@ -13,22 +13,26 @@
 
 subroutine Do_Lebedev_Sym(L_Eff,mPt,ipR)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp), intent(in) :: L_Eff
+integer(kind=iwp), intent(out) :: mPt, ipR
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-integer, intent(In) :: L_Eff
-integer, intent(Out) :: mPt, ipR
-integer :: mPt_, i, j
-real*8, parameter :: Thr = 1.0D-16
-real*8, allocatable :: R(:,:)
+integer(kind=iwp) :: i, j, mPt_
+real(kind=wp), allocatable :: R(:,:)
+real(kind=wp), parameter :: Thr = 1.0e-16_wp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine Do_Lebedev(L_Eff,nPoints,R)
+    import :: wp, iwp
     implicit none
-    integer L_Eff, nPoints
-    real*8, allocatable :: R(:,:)
+    integer(kind=iwp) :: L_Eff, nPoints
+    real(kind=wp), allocatable :: R(:,:)
   end subroutine Do_Lebedev
 end interface
 
@@ -40,7 +44,7 @@ mPt = 0
 outer: do i=1,mPt_
   do j=1,i-1
     if (all(abs(R(1:3,j)+R(1:3,i)) < Thr)) then
-      R(4,i) = 0.0d0
+      R(4,i) = Zero
       cycle outer
     end if
   end do
@@ -51,7 +55,7 @@ call GetMem('AngRW','Allo','Real',ipR,4*mPt)
 
 j = 1
 do i=1,mPt_
-  if (R(4,i) /= 0.0d0) then
+  if (R(4,i) /= Zero) then
     call DCopy_(4,R(:,i),1,Work(ipR+(j-1)*4),1)
     j = j+1
   end if

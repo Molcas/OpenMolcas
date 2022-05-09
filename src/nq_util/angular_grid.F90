@@ -16,22 +16,23 @@ subroutine Angular_Grid()
 !                                                                      *
 !***********************************************************************
 
+use nq_Info, only: iOpt_Angular, L_Quad, nAngularGrids
+!define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 use nq_Structure, only: Info_Ang
-use nq_Info
+use Definitions, only: iwp, u6
+#endif
 
-implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "real.fh"
-#include "debug.fh"
-logical Check
-! Statement function
-Check(i,j) = iand(i,2**(j-1)) /= 0
+implicit none
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iSet, l, nGP
+#endif
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 nAngularGrids = 0
-if (Check(iOpt_Angular,3)) then
+if (btest(iOpt_Angular,2)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -41,7 +42,7 @@ if (Check(iOpt_Angular,3)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (Check(iOpt_Angular,1)) then
+else if (btest(iOpt_Angular,0)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -65,14 +66,14 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Debug) then
-  do iSet=1,nAngularGrids
-    nGP = Info_Ang(iSet)%nPoints
-    l = Info_Ang(iSet)%L_eff
-    write(6,*) 'l=',l
-    call RecPrt('Angular grid',' ',Info_Ang(iSet)%R,4,nGP)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+do iSet=1,nAngularGrids
+  nGP = Info_Ang(iSet)%nPoints
+  l = Info_Ang(iSet)%L_eff
+  write(u6,*) 'l=',l
+  call RecPrt('Angular grid',' ',Info_Ang(iSet)%R,4,nGP)
+end do
+#endif
 
 return
 

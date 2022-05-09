@@ -11,18 +11,24 @@
 
 subroutine Compute_dMdx(ZA,RA,nAtoms,T,iAtom,iCar,dTdRai,dMdx)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 ZA(nAtoms), RA(3,nAtoms), T(3), dMdx(3,3)
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms, iAtom, iCar
+real(kind=wp) :: ZA(nAtoms), RA(3,nAtoms), T(3), dTdRai, dMdx(3,3)
+integer(kind=iwp) :: i, j, jAtom
+real(kind=wp) :: RTx, RTy, RTz, tmp, ZB
 #ifdef _DEBUGPRINT_
-real*8 M(3,3)
+real(kind=wp) :: M(3,3)
 #endif
+real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-delta = 1.0D-4
+delta = 1.0e-4_wp
 temp = RA(iCar,iAtom)
 
 RA(iCar,iAtom) = Temp+Delta
@@ -35,7 +41,7 @@ RA(iCar,iAtom) = Temp
 
 do i=1,3
   do j=1,3
-    dMdx(i,j) = (M(i,j)-dMdx(i,j))/(2.0d0*Delta)
+    dMdx(i,j) = (M(i,j)-dMdx(i,j))/(Two*Delta)
   end do
 end do
 call RecPrt('dMdx(Numerical)',' ',dMdx,3,3)
@@ -83,7 +89,7 @@ end do
 
 do i=1,3
   do j=1,3
-    if (abs(dMdx(i,j)) < 1.0D-14) dMdx(i,j) = Zero
+    if (abs(dMdx(i,j)) < Thrs) dMdx(i,j) = Zero
   end do
 end do
 #ifdef _DEBUGPRINT_

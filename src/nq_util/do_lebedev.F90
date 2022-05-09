@@ -12,22 +12,22 @@
 subroutine Do_Lebedev(L_Eff,mPt,R)
 !***********************************************************************
 !                                                                      *
-!     Computes datas useful for the angular quadrature.                *
+!     Computes data useful for the angular quadrature.                 *
 !                                                                      *
 !***********************************************************************
 
 use nq_Grid, only: Pax
-use nq_Info
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Four, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-parameter(nSet=11)
-integer Lebedev_order(nSet), Lebedev_npoints(nSet)
-data Lebedev_order/5,7,11,17,23,29,35,41,47,53,59/
-data Lebedev_npoints/14,26,50,110,194,302,434,590,770,974,1202/
-real*8, allocatable :: TempR(:,:), TempW(:)
-real*8, allocatable :: R(:,:)
+implicit none
+integer(kind=iwp) :: L_Eff, mPt
+real(kind=wp), allocatable :: R(:,:)
+integer(kind=iwp) :: i, iSet, nPt
+integer(kind=iwp), parameter :: nSet = 11, Lebedev_order(nSet) = [5,7,11,17,23,29,35,41,47,53,59], &
+                                Lebedev_npoints(nSet) = [14,26,50,110,194,302,434,590,770,974,1202]
+real(kind=wp), allocatable :: TempR(:,:), TempW(:)
 
 !                                                                      *
 !***********************************************************************
@@ -44,13 +44,13 @@ do iSet=1,nSet
     call Lebedev(TempR,TempW,nPt,mPt,L_Eff)
     if (nPt /= mPt) then
       call WarningMessage(2,'Lebedev_Grid: nPt /= mPt')
-      write(6,*) 'nPt=',nPt
-      write(6,*) 'mPt=',mPt
+      write(u6,*) 'nPt=',nPt
+      write(u6,*) 'mPt=',mPt
       call Abend()
     end if
     call DScal_(nPt,Four*Pi,TempW,1)
 
-    call DGEMM_('N','N',3,nPt,3,1.0d0,Pax,3,TempR,3,0.0d0,R,4)
+    call DGEMM_('N','N',3,nPt,3,One,Pax,3,TempR,3,Zero,R,4)
     call dcopy_(nPt,TempW,1,R(4,1),4)
 
     call mma_deallocate(TempW)
@@ -60,9 +60,9 @@ do iSet=1,nSet
 
   end if
 end do
-write(6,'(A,I3)') 'Failed to find a Lebedev grid of order',L_EFF
-write(6,'(A)') 'Available orders are:'
-write(6,'(11(1X,I3))') (Lebedev_order(i),i=1,nSet)
+write(u6,'(A,I3)') 'Failed to find a Lebedev grid of order',L_EFF
+write(u6,'(A)') 'Available orders are:'
+write(u6,'(11(1X,I3))') (Lebedev_order(i),i=1,nSet)
 call Abend()
 !                                                                      *
 !***********************************************************************

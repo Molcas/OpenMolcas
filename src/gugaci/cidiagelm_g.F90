@@ -441,7 +441,7 @@ do ip=1,mh
   !wl5 = (vlop0-vlop1)*vo(lr0,lr)-Two*vlop0*vmd(lr0,lr)
   !wl8 = vlop0*(vo(lr0,lr0)+(vlop0-1)*Half*vmd(lr0,lr0))
   ! two-index,one-loop 520
-  ! 520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
+  ! 520 = <a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
   !write(nf2,*) 'ityae',ityae
 
   !link arc_d
@@ -1198,7 +1198,7 @@ if (imae == 0) then
   imae = 8
 end if
 iwe = 0
-! 520=<a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
+! 520 = <a,j,k,a>:13,14(ss=3),38(tt=2),50(dd=1)
 !link arc_d
 select case (ityae)
   case default ! (1)

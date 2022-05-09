@@ -11,11 +11,17 @@
 
 function Eval_RMax(alpha,m,R_L)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Eval_RMax
+use Constants, only: One, Ten, Half, Pi
+use Definitions, only: wp, iwp
 
-!write(6,*) 'alpha,m,R_L=',alpha,m,R_L
+implicit none
+real(kind=wp) :: Eval_RMax
+real(kind=wp) :: alpha, R_L
+integer(kind=iwp) :: m
+real(kind=wp) :: Gmma, x, x_new
+integer(kind=iwp) :: i
+
+!write(u6,*) 'alpha,m,R_L=',alpha,m,R_L
 
 !                                                                      *
 !***********************************************************************
@@ -26,29 +32,29 @@ real*8 Eval_RMax
 ! TCA, 106:178-187 (2001)
 
 if (mod(m+3,2) == 0) then
-  Gamma = One
+  Gmma = One
   do i=2,(m+3)/2,1
-    Gamma = Gamma*dble(i-1)
+    Gmma = Gmma*real(i-1,kind=wp)
   end do
 else
-  Gamma = sqrt(Pi)
+  Gmma = sqrt(Pi)
   do i=5,m+3,2
-    Gamma = Gamma*dble(i-1)/Two
+    Gmma = Gmma*real(i-1,kind=wp)*Half
   end do
 end if
 
 !x = Alpha*(r_k_H)**2
 
-x = 10.0d0 ! Start value
+x = Ten ! Start value
 do
-  x_new = log((Gamma/R_L)*x**(Half*(dble(m)+One)))
-  !write(6,*) 'x,x_new=',x,x_new
-  if (abs(x-x_new) <= 1.0D-8) exit
+  x_new = log((Gmma/R_L)*x**(Half*(real(m,kind=wp)+One)))
+  !write(u6,*) 'x,x_new=',x,x_new
+  if (abs(x-x_new) <= 1.0e-8_wp) exit
   x = x_new
 end do
 
 Eval_RMax = sqrt(x/alpha)
-!write(6,*) 'Eval_RMax=',Eval_RMax
+!write(u6,*) 'Eval_RMax=',Eval_RMax
 !                                                                      *
 !***********************************************************************
 !                                                                      *

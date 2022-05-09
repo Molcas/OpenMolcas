@@ -9,15 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Modify_NQ_grid
+subroutine Modify_NQ_grid()
 
-use Grid_On_Disk
-use nq_Info
+use Grid_On_Disk, only: iGrid_Set, Intermediate
+use nq_Info, only: Crowding, L_Quad, L_Quad_Save, nR, nR_Save, Quadrature, ThrC, Threshold, Threshold_save
+use Constants, only: One, Two
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "itmax.fh"
-parameter(L_Quad_Low=23,Threshold_High=1.0D-7,nR_Low=50)
+implicit none
+integer(kind=iwp), parameter :: L_Quad_Low = 23, nR_Low = 50
+real(kind=wp), parameter :: Threshold_High = 1.0e-7_wp
 
 !                                                                      *
 !***********************************************************************
@@ -37,9 +38,9 @@ else
 end if
 Crowding = max(ThrC-Two,One)
 
-write(6,*)
-write(6,*) 'Modify the NQ grid!'
-write(6,*)
+write(u6,*)
+write(u6,*) 'Modify the NQ grid!'
+write(u6,*)
 call Funi_Print()
 !                                                                      *
 !***********************************************************************

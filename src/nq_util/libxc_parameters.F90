@@ -14,22 +14,24 @@
 
 module libxc_parameters
 
-use xc_f03_lib_m
-use Definitions, only: LibxcInt
+use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_aux_func_ids, xc_f03_aux_func_weights, xc_f03_func_end, &
+                        xc_f03_func_get_info, xc_f03_func_info_get_kind, xc_f03_func_info_t, xc_f03_func_init, xc_f03_func_t, &
+                        xc_f03_num_aux_funcs
+use Constants, only: Zero
+use Definitions, only: wp, iwp, LibxcInt
 
 implicit none
 private
 
-public :: nFuncs_max, nFuncs, Coeffs, func_id, xc_func, xc_info, Initiate_Libxc_functionals, Remove_Libxc_functionals, &
-          libxc_functionals
-
-integer, parameter :: nFuncs_max = 4
-integer :: i
-integer :: nFuncs = 0
-real*8 :: Coeffs(nFuncs_Max) = [(0.0d0,i=1,nFuncs_Max)]
-integer(kind=LibxcInt) :: func_id(nFuncs_Max) = [(0_LibxcInt,i=1,nFuncs_Max)]
-type(xc_f03_func_t) :: xc_func(nFuncs_Max) ! xc functional
+integer(kind=iwp), parameter :: nFuncs_max = 4
+integer(kind=iwp) :: nFuncs = 0
+integer(kind=LibxcInt) :: func_id(nFuncs_Max) = 0_LibxcInt
+real(kind=wp) :: Coeffs(nFuncs_Max) = Zero
+type(xc_f03_func_t) :: xc_func(nFuncs_Max)      ! xc functional
 type(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
+
+public :: Coeffs, func_id, Initiate_Libxc_functionals, libxc_functionals, nFuncs, nFuncs_max, Remove_Libxc_functionals, xc_func, &
+          xc_info
 
 !                                                                      *
 !***********************************************************************
@@ -43,9 +45,9 @@ subroutine Initiate_Libxc_functionals(nD)
   use nq_Grid, only: l_casdft
   use KSDFT_Info, only: CoefR, CoefX
 
-  implicit none
-  integer nD, iFunc
-  real*8 :: Coeff
+  integer(kind=iwp) :: nD
+  integer(kind=iwp) :: iFunc
+  real(kind=wp) :: Coeff
 
   ! if it is a mixed functional and we do MC-PDFT split it up in the components for
   ! further analysis.
@@ -85,13 +87,12 @@ end subroutine Initiate_Libxc_functionals
 !                                                                      *
 subroutine Remove_Libxc_functionals()
 
-  implicit none
-  integer iFunc
+  integer(kind=iwp) :: iFunc
 
   do iFunc=1,nFuncs
     call xc_f03_func_end(xc_func(iFunc))
   end do
-  Coeffs(:) = 0.0d0
+  Coeffs(:) = Zero
   func_id(:) = 0
 
 end subroutine Remove_Libxc_functionals
@@ -103,10 +104,9 @@ subroutine libxc_functionals(mGrid,nD)
   use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
   use nq_Grid, only: vRho, vSigma, vTau, vLapl
 
-  implicit none
-  integer mGrid, nD, iFunc
-  real*8 Coeff
-  real*8, parameter :: Zero = 0.0d0
+  integer(kind=iwp) :: mGrid, nD
+  integer(kind=iwp) :: iFunc
+  real(kind=wp) :: Coeff
 
   !                                                                    *
   !*********************************************************************

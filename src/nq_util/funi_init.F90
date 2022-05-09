@@ -11,33 +11,34 @@
 
 subroutine Funi_Init()
 
-use nq_Info
+use nq_Info, only: Angular_Pruning, Crowding, Fade, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, NQ_Direct, nR, ntotgp, Off, &
+                   On, Packing, Quadrature, Rotational_Invariance, T_Y, Threshold, R_Max
+use Constants, only: Zero, Three, Six
+use Definitions, only: wp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "itmax.fh"
+implicit none
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Initialize the defaults values of the parameters.
+! Initialize the default values of the parameters.
 
 ! Default Grid
 Quadrature = 'MHL '
 nR = 75
 L_Quad = 29
-Crowding = 3.0d0
-Fade = 6.0d0
+Crowding = Three
+Fade = Six
 MBC = ' '
 
 ntotgp = 0
 
 ! Various default thresholds for the integral evaluation.
 
-T_Y = 1.0D-11
-Threshold = 1.0D-25
+T_Y = 1.0e-11_wp
+Threshold = 1.0e-25_wp
 
-Angular_Prunning = On
+Angular_Pruning = On
 Grid_Type = Moving_Grid
 Rotational_Invariance = On
 NQ_Direct = Off
@@ -52,9 +53,7 @@ iOpt_Angular = 4
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-do i=0,LMax_NQ
-  R_Max(i) = Zero
-end do
+R_Max(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *

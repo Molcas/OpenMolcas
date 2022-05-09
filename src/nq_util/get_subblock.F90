@@ -26,40 +26,47 @@ subroutine Get_Subblock(Kernel,Func,ixyz,Maps2p,list_s,list_exp,list_bas,nShell,
 !             August 1999                                              *
 !***********************************************************************
 
-use iSD_data
-use Basis_Info
-use Center_Info
-use nq_Grid, only: Grid, Weights, TabAO, TabAO_Pack, dRho_dR, TabAO_Short, kAO, R2_trial
-use nq_Grid, only: List_G, IndGrd, iTab, dW_dR, nR_Eff
+use iSD_data, only: iSD
+use Basis_Info, only: Shells
+use Center_Info, only: dc
+use nq_Grid, only: dRho_dR, dW_dR, Grid, IndGrd, iTab, kAO, List_G, nR_Eff, R2_trial, TabAO, TabAO_Pack, TabAO_Short, Weights
 use NQ_Structure, only: NQ_Data
-use Grid_On_Disk
 use nq_MO, only: nMOs
-use nq_Info
+use nq_Info, only: Block_Size, Grid_Type, Moving_Grid, nPot1, nTotGP, nx, ny, nz, Off, On, Threshold, x_min, y_min, z_min
+use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, jDisk_Grid, Lu_Grid, LuGridFile, nBatch, nBatch_Max, Use_Old
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+!#define _ANALYSIS_
+#if defined(_DEBUGPRINT_) || defined(_ANALYSIS_)
+use Definitions, only: u6
+#endif
 
-implicit real*8(A-H,O-Z)
-external Kernel
-#include "itmax.fh"
+implicit none
+external :: Kernel
+integer(kind=iwp) :: ixyz, nShell, nSym, Maps2p(nShell,0:nSym-1), list_s(2,*), list_exp(nSym*nShell), list_bas(2,nSym*nShell), &
+                     nNQ, list_p(nNQ), nFckDim, nFckInt, nD, mGrid, nP2_ontop, nGrad, mAO, mdRho_dR, nTmpPUVX
+real(kind=wp) :: Func, FckInt(nFckInt,nFckDim), Grad(nGrad), EG_OT(nTmpPUVX), PDFTPot1(nPot1), PDFTFocI(nPot1), PDFTFocA(nPot1)
+logical(kind=iwp) :: Do_Mo, Do_Grad
 #include "Molcas.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "debug.fh"
-integer Maps2p(nShell,0:nSym-1), list_s(2,*), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)
-real*8 FckInt(nFckInt,nFckDim), Grad(nGrad), Roots(3,3), xyz0(3,2), PDFTPot1(npot1), PDFTFocI(nPot1), PDFTFocA(nPot1)
-logical InBox(MxAtom), Do_Grad, More_to_come
-logical Do_Mo
-real*8 EG_OT(nTmpPUVX)
-integer, allocatable :: index(:)
-real*8, allocatable :: dW_Temp(:,:), dPB(:,:,:)
-real*8, allocatable :: TabMO(:), TabSO(:)
+integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, ilist_s, iNQ, iPseudo, iShell, iShll, iSkal, iSym, &
+                     ix, iy, iyz, iz, jlist_s, jNQ, jShell, jSym, klist_p, kNQ, l, mdci, nAOs, nAOs_Eff, nBfn, nDegi, nExpTmp, &
+                     nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, nTotGP_Save, &
+                     number_of_grid_points, nx_Roots, ny_Roots, nz_Roots
+real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, RMax_NQ, Roots(3,3), t1, t2, t3, ValExp, X, x_box_max, x_box_min, x_max_, x_min_, &
+                 x_NQ, Xref, xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
+logical(kind=iwp) :: InBox(MxAtom), More_to_come !IFG
+integer(kind=iwp), allocatable :: Indx(:)
+real(kind=wp), allocatable :: dPB(:,:,:), dW_Temp(:,:), TabMO(:), TabSO(:)
+integer(kind=iwp), external :: nBas_Eff, NrOpr
+real(kind=wp), external :: Eval_RMax
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*) 'Enter Get_Subblock'
+write(u6,*) 'Enter Get_Subblock'
 #endif
 
 ! Resolve triplet index
@@ -71,27 +78,27 @@ iy = iyz-(iz-1)*ny
 
 ! Get the extreme coordinates of the box.
 
-x_min_ = x_min+dble(ix-2)*Block_Size
+x_min_ = x_min+real(ix-2,kind=wp)*Block_Size
 x_max_ = x_min_+Block_Size
-y_min_ = y_min+dble(iy-2)*Block_Size
+y_min_ = y_min+real(iy-2,kind=wp)*Block_Size
 y_max_ = y_min_+Block_Size
-z_min_ = z_min+dble(iz-2)*Block_Size
+z_min_ = z_min+real(iz-2,kind=wp)*Block_Size
 z_max_ = z_min_+Block_Size
-if (ix == 1) x_min_ = -1.0d99
-if (ix == nx) x_max_ = 1.0d99
-if (iy == 1) y_min_ = -1.0d99
-if (iy == ny) y_max_ = 1.0d99
-if (iz == 1) z_min_ = -1.0d99
-if (iz == nz) z_max_ = 1.0d99
+if (ix == 1) x_min_ = -1.0e99_wp
+if (ix == nx) x_max_ = 1.0e99_wp
+if (iy == 1) y_min_ = -1.0e99_wp
+if (iy == ny) y_max_ = 1.0e99_wp
+if (iz == 1) z_min_ = -1.0e99_wp
+if (iz == nz) z_max_ = 1.0e99_wp
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Block_Size=',Block_Size
-write(6,*) 'ix,iy,iz=',ix,iy,iz
-write(6,*) 'x_min_,x_max_',x_min_,x_max_
-write(6,*) 'y_min_,y_max_',y_min_,y_max_
-write(6,*) 'z_min_,z_max_',z_min_,z_max_
-write(6,*) 'nNQ=',nNQ
+write(u6,*)
+write(u6,*) 'Block_Size=',Block_Size
+write(u6,*) 'ix,iy,iz=',ix,iy,iz
+write(u6,*) 'x_min_,x_max_',x_min_,x_max_
+write(u6,*) 'y_min_,y_max_',y_min_,y_max_
+write(u6,*) 'z_min_,z_max_',z_min_,z_max_
+write(u6,*) 'nNQ=',nNQ
 #endif
 !                                                                      *
 !***********************************************************************
@@ -140,7 +147,7 @@ end do
 nlist_p = ilist_p
 if (nlist_p == 0) return
 #ifdef _DEBUGPRINT_
-write(6,*) 'Get_Subblock: List_p:',List_p
+write(u6,*) 'Get_Subblock: List_p:',List_p
 #endif
 !                                                                      *
 !***********************************************************************
@@ -151,10 +158,9 @@ write(6,*) 'Get_Subblock: List_p:',List_p
 !***********************************************************************
 !                                                                      *
 ilist_s = 0
-!#define _ANALYSIS_
 do iShell=1,nShell
 # ifdef _DEBUGPRINT_
-  write(6,*) 'iShell,nShell=',iShell,nShell
+  write(u6,*) 'iShell,nShell=',iShell,nShell
 # endif
   NrExp = iSD(5,iShell)
   iAng = iSD(1,iShell)
@@ -166,15 +172,15 @@ do iShell=1,nShell
   do jSym=0,nDegi-1
     iSym = dc(mdci)%iCoSet(jSym,0)
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iSym,nDegi-1=',iSym,nDegi-1
+    write(u6,*) 'iSym,nDegi-1=',iSym,nDegi-1
 #   endif
 
     iNQ = Maps2p(iShell,NrOpr(iSym))
     RMax_NQ = NQ_Data(iNQ)%R_Max
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iNQ=',iNQ
-    write(6,*) 'RMax_NQ=',RMax_NQ
-    write(6,*) 'InBox(iNQ)=',InBox(iNQ)
+    write(u6,*) 'iNQ=',iNQ
+    write(u6,*) 'RMax_NQ=',RMax_NQ
+    write(u6,*) 'InBox(iNQ)=',InBox(iNQ)
 #   endif
 
     ! 1) the center of this shell is inside the box
@@ -186,12 +192,12 @@ do iShell=1,nShell
       list_exp(ilist_s) = NrExp
       list_bas(1,ilist_s) = NrBas
 #     ifdef _ANALYSIS_
-      write(6,*) ' Shell is in box, ilist_s: ',ilist_s
+      write(u6,*) ' Shell is in box, ilist_s: ',ilist_s
 #     endif
     else
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Passed here!'
-      write(6,*) 'Threshold:',Threshold
+      write(u6,*) 'Passed here!'
+      write(u6,*) 'Threshold:',Threshold
 #     endif
 
       ! 2) the Gaussian has a grid point which extends inside the
@@ -206,14 +212,13 @@ do iShell=1,nShell
         ! number of actives exponents for this shell, else
         ! there is no other active exponent (they are ordered)
         RMax = min(Eval_RMax(ValExp,iAng,Threshold),RMax_NQ)
-!       define _DEBUGPRINT_
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'iShell,iNQ=',iShell,iNQ
-        write(6,*) 'ValExp,iExp=',ValExp,iExp
-        write(6,*) 'RMax_NQ=',RMax_NQ
-        write(6,*) 'RMax_Exp=',Eval_RMax(ValExp,iAng,Threshold)
-        write(6,*) 'RMax=',RMax
-        write(6,*) 'R2_Trial(iNQ),RMax**2=',R2_Trial(iNQ),RMax**2
+        write(u6,*) 'iShell,iNQ=',iShell,iNQ
+        write(u6,*) 'ValExp,iExp=',ValExp,iExp
+        write(u6,*) 'RMax_NQ=',RMax_NQ
+        write(u6,*) 'RMax_Exp=',Eval_RMax(ValExp,iAng,Threshold)
+        write(u6,*) 'RMax=',RMax
+        write(u6,*) 'R2_Trial(iNQ),RMax**2=',R2_Trial(iNQ),RMax**2
 #       endif
         if (R2_Trial(iNQ) > RMax**2) exit
         nExpTmp = nExpTmp+1
@@ -229,9 +234,9 @@ do iShell=1,nShell
 
         list_bas(1,ilist_s) = nBas_Eff(NrExp,NrBas,Shells(iShll)%pCff,list_exp(ilist_s))
 #       ifdef _ANALYSIS_
-        write(6,*) ' Shell is included, ilist_s: ',ilist_s
-        write(6,*) ' nExpTmp=',nExpTmp
-        write(6,*) 'R2_Trial(iNQ),RMax**2=',R2_Trial(iNQ),RMax**2
+        write(u6,*) ' Shell is included, ilist_s: ',ilist_s
+        write(u6,*) ' nExpTmp=',nExpTmp
+        write(u6,*) 'R2_Trial(iNQ),RMax**2=',R2_Trial(iNQ),RMax**2
 #       endif
       end if
     end if
@@ -239,7 +244,7 @@ do iShell=1,nShell
 end do   ! iShell
 nlist_s = ilist_s
 #ifdef _DEBUGPRINT_
-write(6,*) 'nList_s,nList_p=',nList_s,nList_p
+write(u6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
 if (nList_s*nList_p == 0) return
 !                                                                      *
@@ -257,7 +262,7 @@ do ilist_s=1,nlist_s
   nIndex = nIndex+NrBas_Eff*iCmp
 end do
 
-call mma_allocate(Index,nIndex,Label='Index')
+call mma_allocate(Indx,nIndex,Label='Indx')
 
 iIndex = 1
 nAOs = 0
@@ -270,18 +275,18 @@ do ilist_s=1,nlist_s
   nAOs = nAOs+NrBas*iCmp
   nAOs_Eff = nAOs_Eff+NrBas_Eff*iCmp
   list_bas(2,ilist_s) = iIndex
-  call Do_Index(index(iIndex),NrBas,NrBas_Eff,iCmp)
+  call Do_Index(Indx(iIndex),NrBas,NrBas_Eff,iCmp)
   iIndex = iIndex+NrBas_Eff*iCmp
 end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'Contribution to the subblock :'
-write(6,*) 'NQ :',(list_p(ilist_p),ilist_p=1,nlist_p)
-write(6,*) 'Sh :',(list_s(1,ilist_s),ilist_s=1,nlist_s)
-write(6,*) '   :',(list_s(2,ilist_s),ilist_s=1,nlist_s)
-write(6,*) 'Exp:',(list_exp(ilist_s),ilist_s=1,nlist_s)
+write(u6,*) 'Contribution to the subblock :'
+write(u6,*) 'NQ :',(list_p(ilist_p),ilist_p=1,nlist_p)
+write(u6,*) 'Sh :',(list_s(1,ilist_s),ilist_s=1,nlist_s)
+write(u6,*) '   :',(list_s(2,ilist_s),ilist_s=1,nlist_s)
+write(u6,*) 'Exp:',(list_exp(ilist_s),ilist_s=1,nlist_s)
 #endif
 
 nBfn = 0
@@ -399,8 +404,8 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
     do ilist_p=1,nlist_p
       iNQ = list_p(ilist_p)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'ilist_p=',ilist_p
-      write(6,*) 'Get_SubBlock: iNQ=',iNQ
+      write(u6,*) 'ilist_p=',ilist_p
+      write(u6,*) 'Get_SubBlock: iNQ=',iNQ
 #     endif
 
       ! Select which gradient contributions that should be computed.
@@ -416,14 +421,14 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
           end do
         end if
 #       ifdef _DEBUGPRINT_
-        write(6,*)
-        write(6,'(A,24I3)') '       i =',(i,i=1,nGrad_Eff)
-        write(6,'(A,24I3)') 'iTab(1,i)=',(iTab(1,i),i=1,nGrad_Eff)
-        write(6,'(A,24I3)') 'iTab(2,i)=',(iTab(2,i),i=1,nGrad_Eff)
-        write(6,'(A,24I3)') 'iTab(3,i)=',(iTab(3,i),i=1,nGrad_Eff)
-        write(6,'(A,24I3)') 'iTab(4,i)=',(iTab(4,i),i=1,nGrad_Eff)
-        write(6,*) 'IndGrd=',IndGrd
-        write(6,*)
+        write(u6,*)
+        write(u6,'(A,24I3)') '       i =',(i,i=1,nGrad_Eff)
+        write(u6,'(A,24I3)') 'iTab(1,i)=',(iTab(1,i),i=1,nGrad_Eff)
+        write(u6,'(A,24I3)') 'iTab(2,i)=',(iTab(2,i),i=1,nGrad_Eff)
+        write(u6,'(A,24I3)') 'iTab(3,i)=',(iTab(3,i),i=1,nGrad_Eff)
+        write(u6,'(A,24I3)') 'iTab(4,i)=',(iTab(4,i),i=1,nGrad_Eff)
+        write(u6,*) 'IndGrd=',IndGrd
+        write(u6,*)
 #       endif
 
       end if
@@ -498,13 +503,13 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
         end do
       end do
 
-      if (abs(R_Box_Min) < 1.0D-12) R_Box_Min = Zero
-      R_Box_Max = R_Box_Max+1.0D-15
+      if (abs(R_Box_Min) < 1.0e-12_wp) R_Box_Min = Zero
+      R_Box_Max = R_Box_Max+1.0e-15_wp
       !                                                                *
       !*****************************************************************
       !                                                                *
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Get_Subblock ----> Subblock'
+      write(u6,*) 'Get_Subblock ----> Subblock'
 #     endif
 
       ! Note that in gradient calculations we process the grid points for
@@ -517,7 +522,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       nTotGP = nTotGP_Save
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Subblock ----> Get_Subblock'
+      write(u6,*) 'Subblock ----> Get_Subblock'
 #     endif
     end do
     GridInfo(1,ixyz) = iDisk_Grid
@@ -544,9 +549,9 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
 
       iNQ = iBatchInfo(3,iBatch)
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'iNQ=',iNQ
-      write(6,*)
+      write(u6,*)
+      write(u6,*) 'iNQ=',iNQ
+      write(u6,*)
 #     endif
       ilist_p = -1
       do klist_p=1,nlist_p
@@ -592,7 +597,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
         call mma_allocate(dRho_dR,1,1,1,Label='dRho_dR')
       end if
 
-      call Do_Batch(Kernel,Func,nogp,list_s,nlist_s,List_Exp,List_Bas,Index,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_Mo, &
+      call Do_Batch(Kernel,Func,nogp,list_s,nlist_s,List_Exp,List_Bas,Indx,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_Mo, &
                     TabMO,TabSO,nMOs,Do_Grad,Grad,nGrad,mdRho_dR,nGrad_Eff,iNQ,EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 
       if (allocated(dRho_dR)) call mma_deallocate(dRho_dR)
@@ -613,7 +618,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_deAllocate(Index)
+call mma_deAllocate(Indx)
 if (allocated(TabMO)) call mma_deallocate(TabMO)
 if (allocated(TabSO)) call mma_deallocate(TabSO)
 if (Do_Grad .and. (Grid_Type == Moving_Grid)) then

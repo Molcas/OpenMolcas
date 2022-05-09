@@ -20,15 +20,15 @@ subroutine TransActMO2(MOs,MOas,mGrid)
 ! obtaining an active MO array with a structure of MOs in TransActMO
 ! from an MO array with a structure of that in TransferMO
 
-use nq_Info
+use nq_Info, only: iOff_Ash, mIrrep, nAsh, NASHT, nIsh, nOrbt, OffOrb
+use Definitions, only: wp, iwp
 
-! Input
-integer mGrid
-real*8, dimension(mGrid*nOrbt) :: MOas
-! Output
-real*8, dimension(mGrid*NASHT) :: MOs
-! Auxiliary
-integer iIrrep, IOff1, iOff2, iOff3
+implicit none
+integer(kind=iwp) :: mGrid
+real(kind=wp) :: MOs(mGrid*NASHT), MOas(mGrid*nOrbt)
+! Input: mGrid MOas
+! Output: MOs
+integer(kind=iwp) :: iGrid, iIrrep, IOff1, iOff2, iOff3
 
 do iGrid=1,mGrid
   IOff3 = (iGrid-1)*nAsht
