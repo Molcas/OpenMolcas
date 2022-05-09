@@ -273,8 +273,8 @@ C end of input
         Input%AllMult = .True.
       Else
         Read(Line,*,Err=9920,End=9920) nStates
-        If (nStates.le.0) Then
-          Write(6,*)' number of MULT states must be > 0, quitting!'
+        If (nStates.le.1) Then
+          Write(6,*)' number of MULT states must be > 1, quitting!'
           Call Quit_OnUserError
         End If
       End If
@@ -305,8 +305,8 @@ C end of input
         Input%AllXMult = .True.
       Else
         Read(Line,*,Err=9920,End=9920) nStates
-        If (nStates.le.0) Then
-          Write(6,*)' number of XMUL states must be > 0, quitting!'
+        If (nStates.le.1) Then
+          Write(6,*)' number of XMUL states must be > 1, quitting!'
           Call Quit_OnUserError
         End If
       End If
