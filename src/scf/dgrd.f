@@ -12,13 +12,12 @@
 *     Compute the difference with the previous gradient
 *
       Subroutine dGrd()
-      use LnkLst, only: SCF_V
+      use LnkLst, only: SCF_V, LLGrad, LLdGrd
       use InfSCF
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
       Integer jpgrd,inode
       Real*8, Dimension(:), Allocatable:: Scr
       Integer, External :: LstPtr

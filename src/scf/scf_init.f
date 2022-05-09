@@ -21,7 +21,6 @@
       Implicit Real*8 (a-h,o-z)
 *
 #include "file.fh"
-#include "llists.fh"
 #include "twoswi.fh"
 #include "hfc_logical.fh"
 #include "mxdm.fh"

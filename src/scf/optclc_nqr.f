@@ -10,8 +10,8 @@
 ************************************************************************
       Subroutine OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
      &                      kOptim,kOV)
+      use LnkLst, only: LLGrad,LLx
       Implicit None
-#include "llists.fh"
 #include "file.fh"
 #include "stdalloc.fh"
       Integer nCI,nD,mOV,MxOptm,kOptim,kOV(2)

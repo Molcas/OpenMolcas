@@ -73,11 +73,11 @@
       Use Interfaces_SCF, Only: vOO2OV
       Use InfSO
       Use InfSCF
+      use LnkLst, only: LLGrad
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
 *
       Real*8 Dens(mBT,nD,mDens), TwoHam(mBT,nD,mDens), CMO(mBB,nD),
      &       OneHam(mBT), OCMO(mBB,nD), Ovrlp(mBT), Vxc(mBT,nD,mDens)

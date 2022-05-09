@@ -267,9 +267,9 @@
 
       Subroutine Plain_rs_rfo()
       use LnkLst, only: SCF_V
+      use LnkLst, only: LLGrad,LLx
       use InfSO, only: iterSO
       use InfSCF
-#include "llists.fh"
       Real*8, Allocatable :: H(:,:) , H_Aug(:,:)
       Real*8, Allocatable :: dq(:), dg(:), Hdq(:)
       Real*8, Allocatable :: EVec(:,:), EVal(:)

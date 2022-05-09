@@ -54,6 +54,7 @@
 #endif
       Use Interfaces_SCF, Only: TraClc_i
       use LnkLst, only: SCF_V
+      use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO
       use SCF_Arrays, only: HDiag
       use InfSCF
@@ -68,7 +69,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
 #include "twoswi.fh"
 #include "ldfscf.fh"
 #include "warnings.h"

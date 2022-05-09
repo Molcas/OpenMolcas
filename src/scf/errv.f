@@ -22,6 +22,7 @@
 *                                                                      *
 ************************************************************************
       use InfSCF
+      use LnkLst, only: LLGrad
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 HDiag(lVec), ErrVec(lVec)
@@ -31,7 +32,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
 *
 *     local vars
       Integer inode

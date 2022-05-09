@@ -80,8 +80,6 @@
 *     M. Schuetz                                                       *
 *     University of Lund, Sweden, 1994/96                              *
 ************************************************************************
-
-
       SubRoutine IniLst(iLList,incore)
       use LnkLst
       Implicit Real*8 (a-h,o-z)

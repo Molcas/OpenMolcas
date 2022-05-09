@@ -24,7 +24,7 @@
 *              lvec       -> lengths of vectors delta, grad, HDiag & V *
 *              Mode       -> update mode, see below                    *
 *     The routine expects, that grad(n) and delta(n-1) are already     *
-*     stored on the appropriate linked lists LLGrad & LLDelt.          *
+*     stored on the appropriate linked lists LLdGrd & LLDelt.          *
 *     output:  W          -> H(n)V with H(n) SOrUp (inverse) Hessian   *
 *                            after n-1 updates                         *
 *                            mem has to be allocated from caller side  *
@@ -60,12 +60,12 @@
 *                                                                      *
 ************************************************************************
       use LnkLst, only: SCF_V
+      use LnkLst, only: LLdGrd,LLDelt,LLy
 *     only tentatively this Module
       use InfSO
       use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "file.fh"
-#include "llists.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 *

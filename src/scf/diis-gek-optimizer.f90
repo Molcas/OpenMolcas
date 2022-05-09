@@ -20,6 +20,11 @@ Subroutine DIIS_GEK_Optimizer()
 !             University of Uppsala, SWEDEN                            *
 !             May '22                                                  *
 !***********************************************************************
-use InfSCF
+use InfSCF, only: iter
+!use LnkLst, only: SCF_V
 Implicit None
+Integer i
+
+Do i = 1, iter
+End Do
 End Subroutine DIIS_GEK_Optimizer

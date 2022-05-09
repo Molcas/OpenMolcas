@@ -17,7 +17,6 @@
 *     purpose: rotates MOs according to last displacement vector       *
 *              delta after QNR step and DIIS extrapolation.            *
 *              only called during second order update (QNR) opt.       *
-*              delta is taken as the last entry on LLDelt              *
 *                                                                      *
 *     input:                                                           *
 *       Delta   : displacement vectors used to construct unitary       *
@@ -48,7 +47,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
 *
       Integer nDelta,nCMO
       Real*8 CMO(nCMO,nD),Delta(nDelta),Ovrlp(mBT)
