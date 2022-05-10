@@ -1037,7 +1037,8 @@ C
       End Do
       Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
 C
-      nOrbI = nOrb(1)
+      nOrbI = nBas(1) - nDel(1) !! nOrb(1)
+      nBasI = nBas(1)
 C     Call SQUARE(Work(LFIFA),Work(ipFIFA),1,nOrbI,nOrbI)
       !! ipFIFASA is in natural orbital basis
       Call DCopy_(nBsqT,[0.0D+0],0,Work(ipTrf),1)
@@ -1045,21 +1046,19 @@ C     Call SQUARE(Work(LFIFA),Work(ipFIFA),1,nOrbI,nOrbI)
 C
       !! FIFA: natural -> quasi-canonical
 C     write (*,*) "fifasa"
-C     call sqprt(work(ipfifasa),norbt)
+C     call sqprt(work(ipfifasa),norbi)
       If (IFDW) Then
-      Call DGemm_('T','N',nOrbT,nOrbT,nOrbT,
-     *            1.0D+00,Work(ipTrf),nOrbT,Work(ipFIFASA),nOrbT,
-     *            0.0D+00,Work(ipWRK1),nOrbT)
-      Call DGemm_('N','N',nOrbT,nOrbT,nOrbT,
-     *            1.0D+00,Work(ipWRK1),nOrbT,Work(ipTrf),nOrbT,
-     *            0.0D+00,Work(ipFIFASA),nOrbT)
+      Call DGemm_('T','N',nOrbI,nOrbI,nOrbI,
+     *            1.0D+00,Work(ipTrf),nBasI,Work(ipFIFASA),nOrbI,
+     *            0.0D+00,Work(ipWRK1),nOrbI)
+      Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,
+     *            1.0D+00,Work(ipWRK1),nOrbI,Work(ipTrf),nBasI,
+     *            0.0D+00,Work(ipFIFASA),nOrbI)
       End If
       Call DCopy_(nBasSq,Work(ipFIFASA),1,Work(ipFIFA),1)
-C     write (*,*) "fifa in quasi-canonical"
-C     call sqprt(work(ipfifasa),norbt)
 C     Call SQUARE(Work(LFIFA),Work(ipFIFA),1,nOrbI,nOrbI)
 C     write (*,*) "fifa in quasi-canonical correct"
-C     call sqprt(work(ipfifa),norbt)
+C     call sqprt(work(ipfifa),norbi)
 C
       !! Orbital derivatives of FIFA
       !! Both explicit and implicit orbital derivatives are computed
