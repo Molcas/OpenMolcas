@@ -850,7 +850,7 @@ C
         !! SA density-contribution will be added and should be
         !! subtracted
         ! This should be done only for iRlxRoot
-        If (IFSSDM .and. jState.eq.iRlxRoot) Then
+        If (IFSSDM.and.(jState.eq.iRlxRoot.or.nStLag.gt.1)) Then
           If (.not.INVAR) Then
             write(6,*) "SS density matrix with BSHIFT is not yet"
             Call abend()
