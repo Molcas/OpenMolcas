@@ -30,6 +30,8 @@ C
       End If
 C
       !! Allocate lagrangian terms
+      ! CLag and SLag should allocate for nRoots and not nState,
+      ! but for the time being we only support the case nState=nRoots
       nBasTr = 0
       nBasSq = 0
       nOLag = 0
@@ -235,8 +237,12 @@ C
         write(6,*) "XMS_Grad: CPU/WALL TIME=", cput,wallt
       End If
 C
+      ! call RecPrt('CLagFull before','',work(ipCLagFull),nConf,nState)
+      ! call RecPrt('SLag before', '', work(ipSLag), nState, nState)
       !! Now, compute the state Lagrangian and do some projections
       Call CLagFinal(Work(ipCLagFull),Work(ipSLag))
+      ! call RecPrt('CLagFull after','',work(ipCLagFull),nConf,nState)
+      ! call RecPrt('SLag after', '', work(ipSLag), nState, nState)
 C
       !! Add MS-CASPT2 contributions
       If (IFMSCOUP) Then
@@ -419,10 +425,15 @@ C
 C
       !! Prepare for MCLR
 C     If (Method.eq.'CASPT2  ') Then
-         iGo = 0
-         Call Put_iScalar('SA ready',iGo)
-         mstate1 = '****************'
-         Call Put_cArray('MCLR Root',mstate1,16)
+      iGo = 0
+      Call Put_iScalar('SA ready',iGo)
+      mstate1 = '****************'
+      Call Put_cArray('MCLR Root',mstate1,16)
+
+      ! overwrites whatever was set in CASSCF with the relax
+      ! root that was chosen in CASPT2
+      Call Put_iScalar('Relax CASSCF root',irlxroot)
+      Call Put_iScalar('Relax Original root',irlxroot)
 C     End If
 C       write(6,*) "5"
 C     write(6,*) "LuGamma is ", LuGamma
@@ -471,6 +482,7 @@ C
 #include "output.fh"
 #include "caspt2_grad.fh"
 C
+      ! This should also be moved to input processing
       !! CASPT2 is invariant with respect to rotations in active?
       INVAR=.TRUE.
       If (BSHIFT.NE.0.0d+00) INVAR=.FALSE.
