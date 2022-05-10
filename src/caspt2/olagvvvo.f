@@ -650,7 +650,8 @@ C
       ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
       IF (KEEPI+KEEPJ+KEEPK+KEEPL.NE.0) Return
 C     write(6,*) "d"
-      IF (nAuxI+nAuxJ+nAuxK+nAuxL.EQ.0) Return ! frozen orbitals
+      !! This will not work when the number of the inactive orbital is 0
+C     IF (nAuxI+nAuxJ+nAuxK+nAuxL.EQ.0) Return ! frozen orbitals
 C     write(6,*) "e"
 C     write(6,*) "nbasij = ", nbasij, 6*13
 C     write(6,*) "keep=",keepi,keepj,keepk,keepl
