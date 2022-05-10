@@ -243,7 +243,7 @@ C
 C       call test3_dens(work(ipclag))
 C       write(6,*) "original depsa"
 C       call sqprt(work(ipdepsa),nasht)
-        write(6,*) "original depsa (sym)"
+C       write(6,*) "original depsa (sym)"
           do i = 1, nasht
           do j = 1, i-1
             val =(work(ipdepsa+i-1+nasht*(j-1))
@@ -252,15 +252,15 @@ C       call sqprt(work(ipdepsa),nasht)
             work(ipdepsa+j-1+nasht*(i-1)) = val
           end do
           end do
-        call sqprt(work(ipdepsa),nasht)
+C       call sqprt(work(ipdepsa),nasht)
 C
         If (NRAS1T+NRAS3T.NE.0) Then
           !! The density of the independent pairs (off-diagonal blocks)
           !! should be determined by solving Z-vector, so these blocks
           !! should be removed...?
-          write(6,*) "removing DEPSA of off-diagonal blocks"
-          write(6,*) "before"
-          call sqprt(work(ipdepsa),nasht)
+C         write(6,*) "removing DEPSA of off-diagonal blocks"
+C         write(6,*) "before"
+C         call sqprt(work(ipdepsa),nasht)
             Do II = 1, nRAS1T
               Do JJ = nRAS1T+1, nAshT
                 Work(ipDEPSA+II-1+nAshT*(JJ-1)) = 0.0D+00
@@ -273,9 +273,13 @@ C
                 Work(ipDEPSA+JJ-1+nAshT*(II-1)) = 0.0D+00
               End Do
             End Do
-          write(6,*) "after"
-          call sqprt(work(ipdepsa),nasht)
+C         write(6,*) "after"
+C         call sqprt(work(ipdepsa),nasht)
+          write(6,*) "depsa (sym) after removing off-diagonal blocks"
+        Else
+          write(6,*) "depsa (sym)"
         End If
+        call sqprt(work(ipdepsa),nasht)
 C
         !! Configuration Lagrangian for MS-CASPT2
         !! This is the partial derivative of the transition reduced
