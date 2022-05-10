@@ -1940,8 +1940,8 @@ C
             Val1 = DG2(iI,iJ,iK,iL)
             Val2 = DG2(iL,iK,iJ,iI)
             Val  = (Val1+Val2)*0.5D+00
-            DG2(iI,iJ,iK,iL) = Val
-            DG2(iL,iK,iJ,iI) = Val
+          ! DG2(iI,iJ,iK,iL) = Val
+          ! DG2(iL,iK,iJ,iI) = Val
 C           if (ii.ne.il.and.ij.ne.ik) then
 C           DG2(iI,iJ,iK,iL) = 2.0d+00*val
 C           DG2(iL,iK,iJ,iI) = 0.0d+00
@@ -1949,8 +1949,8 @@ C           end if
             Val1 = DF2(iI,iJ,iK,iL)
             Val2 = DF2(iL,iK,iJ,iI)
             Val  = (Val1+Val2)*0.5D+00
-            DF2(iI,iJ,iK,iL) = Val
-            DF2(iL,iK,iJ,iI) = Val
+          ! DF2(iI,iJ,iK,iL) = Val
+          ! DF2(iL,iK,iJ,iI) = Val
 C           if (ii.ne.il.and.ij.ne.ik) then
 C           DF2(iI,iJ,iK,iL) = 2.0d+00*val
 C           DF2(iL,iK,iJ,iI) = 0.0d+00
