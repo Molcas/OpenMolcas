@@ -178,6 +178,9 @@ C Special pair index idx2ij allows true RAS cases to be handled:
 * buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
 * bufd: diagonal matrix elements to compute the F matrix
       nbuf1=max(1,min(nlev2,(memmax_safe-3*mxci)/mxci))
+      !! if gradient, nbuf1 must be consistent here and in derfg3.f
+      if (ifgrdt)
+     *  nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
       nbuf2= 1
       nbuft= 1
       nbufd= 1
