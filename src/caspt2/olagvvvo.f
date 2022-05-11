@@ -1023,7 +1023,7 @@ C
           !! (strange) reduced form -> squared AO (mu nu|iVec)
           !! is it possible to avoid this transformation?
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          Call R2FIP(Work(ip_CHSPC),Work(ipWRK(iSym)),ipWRK(iSym),NUMV,
+          Call R2FIP(Work(ip_CHSPC),Work(ipWRK(1)),ipWRK,NUMV,
      *               l_NDIMRS,NNBSTR,IWORK(ip_INFVEC),iWork(ip_nDimRS),
      *               nBasT,MAXVEC,N2,nSym,iSym,iSkip,irc,JREDC)
 C
@@ -1214,7 +1214,9 @@ C
 C
       End Subroutine VVVOX2
 C
-      subroutine getritrfinfo(nnbstr_,maxvec_,n2_)
+C-----------------------------------------------------------------------
+C
+      subroutine getritrfinfo(nnbstr,maxvec_,n2_)
       implicit real*8(a-h,o-z)
 #include "cholesky.fh"
       dimension nnbstr_(8,3)
@@ -1230,7 +1232,7 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-      Dimension CHSPC(nBasT**2,*),WRK(*)
+      Dimension CHSPC(nBasT**2,*),WRK(*),ipWRK(*)
       Dimension NNBSTR(8,3),INFVEC(MAXVEC,N2,*),nDimRS(nSym,*),iSkip(8)
 C
 C     Transform the reduced form to the full form in place
