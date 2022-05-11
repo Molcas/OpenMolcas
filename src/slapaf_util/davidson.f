@@ -49,12 +49,8 @@
 *
 #include "stdalloc.fh"
 #include "real.fh"
-#if _DEBUGPRINT_
-      INTEGER iPrint,iRout
-#include "print.fh"
-#endif
+*#define _DEBUGPRINT_
 
-*define _DEBUGPRINT_
 * Diagonal preconditioned residue (Davidson)
 #define DAV_DPR 1
 * Inverse-iteration generalized Davidson (Olsen et al.)
@@ -63,8 +59,6 @@
 #define DAV_GJD 3
 
 #ifdef _DEBUGPRINT_
-      iRout=216
-      iPrint=nPrint(iRout)
       CALL TriPrt('Initial matrix','',A,n)
 #endif
 
@@ -108,10 +102,8 @@
         CALL mma_deallocate(Val)
         CALL mma_deallocate(Vec2)
 #ifdef _DEBUGPRINT_
-        IF (iPrint .GE. 99) THEN
-          CALL RecPrt('Eigenvalues',' ',Eig,1,n)
-          WRITE(6,*)
-        END IF
+        CALL RecPrt('Eigenvalues',' ',Eig,1,n)
+        WRITE(6,*)
         WRITE(6,'(A)') 'Complete system solved'
 #endif
         RETURN
@@ -205,8 +197,7 @@
           WRITE(6,'(A)') '---------------'
           WRITE(6,'(A,1X,I5)') 'Iteration',iter
         END IF
-        IF (iPrint .GE. 99)
-     &    CALL RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
+        CALL RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
 #endif
 
 *----   Compute the matrix product
@@ -269,12 +260,9 @@
 #endif
         END IF
 #ifdef _DEBUGPRINT_
-        IF (iPrint .GE. 99) THEN
-          CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
-          CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,
-     &      maxk,mk,mk)
-          WRITE(6,*)
-        END IF
+        CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
+        CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,maxk,mk,mk)
+        WRITE(6,*)
 #endif
 
 *----   Check for convergence

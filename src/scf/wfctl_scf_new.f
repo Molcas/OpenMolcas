@@ -603,7 +603,6 @@
 *                                                                      *
 *           Get g(n)
 *
-            Call DIIS_GEK_Optimizer()
 
             Call GetVec(iter,LLGrad,inode,Grd1,mOV)
 *
@@ -630,9 +629,19 @@
                StepMax=Max(StepMax*0.75D0,0.8D-3)
             End If
 
+            Block
+            Real*8, Allocatable:: Crap(:,:)
+            Call mma_allocate(Crap,mOV,2)
+            Call DIIS_GEK_Optimizer(Disp,mOV)
+            Crap(:,1)=Disp(:)
+
             dqHdq=Zero
             Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9))
+            Crap(:,2)=Disp(:)
+            Call RecPrt('Crap',' ',Crap,mOV,2)
+            Call mma_deallocate(Crap)
+            End Block
 
 *           Pick up X(n) and compute X(n+1)=X(n)+dX(n)
 
