@@ -432,25 +432,6 @@ C     Real*8 CMO_DUMMY(1)
 
       Common /CHORAS / REORD,DECO,ALGO
 *
-        interface
-          SUBROUTINE VVVOX2(nAux,KEEP,iSym0,iSymI,iSymJ,iSymK,iSymL,
-     *                      vLag,CMO,WRK,
-     *                      DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                      FIFA,FIMO)
-          USE CHOVEC_IO
-          IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-          Real*8 vLag(nBasT,*),CMO(nBasT,*),
-     *           WRK(nBasT,nBasT)
-          Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
-          Dimension FIFA(*),FIMO(*)
-          Integer nAux(8),KEEP(8)
-C         Integer iSkip(8)
-C         integer nnbstr(8,3)
-          end subroutine
-        end interface
-
 * nAux is the number of occupied orbitals
       GenInt=.false.
       DoCholesky=.false.
@@ -991,12 +972,8 @@ C
 C
           !! 1) Half back-transformation of Bra and Ket density
           !! Read the 3c-2e pseudo-density (in MO), and half transform
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           CALL VVVOTRA_RI(CMO,WORK(IP_CHSPC),WORK(IP_HTSPC),
      *                    JNUM,IBATCH_TOT,IBATCH_TOT)
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          CPUT1 =CPUT1 + CPTF10-CPTF0
-          WALLT1=WALLT1+ TIOTF10-TIOTF0
 C
           !! 2) read AO Cholesky vectors,
           !!    then, (strange) reduced form -> squared AO (mu nu|iVec)
@@ -1022,7 +999,6 @@ C
 C
           !! (strange) reduced form -> squared AO (mu nu|iVec)
           !! is it possible to avoid this transformation?
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           Call R2FIP(Work(ip_CHSPC),Work(ipWRK(1)),ipWRK,NUMV,
      *               l_NDIMRS,NNBSTR,IWORK(ip_INFVEC),iWork(ip_nDimRS),
      *               nBasT,MAXVEC,N2,nSym,iSym,iSkip,irc,JREDC)
@@ -1037,12 +1013,8 @@ C
      *                    DPT2CAO,FPT2CAO)
             End Do
           End If
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          CPUT2 =CPUT2 + CPTF10-CPTF0
-          WALLT2=WALLT2+ TIOTF10-TIOTF0
 C
           !! 3) Contract with Cholesky vectors
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           Call DGemm_('N','T',nOrbI,nBasI,nBasI*JNUM,
      *                2.0D+00,Work(ip_HTSPC),nOrbI,
      *                        Work(ip_CHSPC),nBasI,
@@ -1055,13 +1027,9 @@ C
      *                1.0D+00,CMO(1,1),nBasI,
      *                        Work(ip_HTSPC),nOrbI,
      *                0.0D+00,Work(ip_CHSPC),nBasI)
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          CPUT3 =CPUT3 + CPTF10-CPTF0
-          WALLT3=WALLT3+ TIOTF10-TIOTF0
 C
           !! 5) Save the 3c-2e pseudo-density in the disk
           !! it may be replaced with ddafile
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           Do iVec = 1, NUMV
             If (IFMSCOUP.and.jState.ne.1) Then
               Read (LuGamma,Rec=iVec+JV1-1)
