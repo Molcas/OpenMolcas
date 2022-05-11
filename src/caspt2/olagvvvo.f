@@ -938,7 +938,7 @@ C     write(6,*) "nchspc = ", nchspc
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('HTVEC','ALLO','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(iSym),nBasT*nBasT)
+      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(1),nBasT*nBasT)
 C
       IBATCH_TOT=NBTCHES(iSym)
 
@@ -1084,7 +1084,7 @@ C
       CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('HTVEC','FREE','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(iSym),nBasT*nBasT)
+      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(1),nBasT*nBasT)
 C
       !! Have to (?) symmetrize Fock-transformed matrices
       If (nFroT.eq.0) Then
@@ -1216,7 +1216,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      subroutine getritrfinfo(nnbstr,maxvec_,n2_)
+      subroutine getritrfinfo(nnbstr_,maxvec_,n2_)
       implicit real*8(a-h,o-z)
 #include "cholesky.fh"
       dimension nnbstr_(8,3)
