@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
 Subroutine DIIS_GEK_Optimizer(Disp,mOV)
 !***********************************************************************
 !                                                                      *
@@ -30,7 +31,7 @@ Implicit None
 Integer, Intent(In):: mOV
 Real*8,  Intent(Out):: Disp(mOV)
 
-Integer i, j, k, l, ipq, ipg, nDIIS, iFirst
+Integer i, j, k, l, ipq, ipg, nDIIS, mDIIS, iFirst
 Integer, External:: LstPtr
 Real*8, External::DDot_
 Real*8, Allocatable:: q(:,:), g(:,:)
@@ -43,7 +44,9 @@ Character(Len=6) UpMeth
 Real*8 :: dqHdq, StepMax, Thr_RS
 
 
-!Write (6,*) 'Enter DIIS-GEK Optimizer'
+#ifdef _DEBUGPRINT_
+Write (6,*) 'Enter DIIS-GEK Optimizer'
+#endif
 If (.NOT.Init_LLs) Then
    Write (6,*) 'Link list not initiated'
    Call Abend()
@@ -68,14 +71,12 @@ Do i = iFirst, iter
    g(:,nDIIS)=SCF_V(ipg)%A(:)
 
 End Do
-!Call RecPrt('q',' ',q,mOV,iterso)
-!Call RecPrt('g',' ',g,mOV,iterso)
+#ifdef _DEBUGPRINT_
+Call RecPrt('q',' ',q,mOV,iterso)
+Call RecPrt('g',' ',g,mOV,iterso)
+#endif
 
 
-Call mma_allocate(q_diis,iterso,iterso,Label='q_diis')
-q_diis(:,:)=0.0D0
-Call mma_allocate(g_diis,iterso,iterso,Label='g_diis')
-g_diis(:,:)=0.0D0
 Call mma_allocate(e_diis,mOV,   iterso,Label='e_diis')
 e_diis(:,:)=0.0D0
 
@@ -101,10 +102,11 @@ End Do
 !Write (6,*)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Gram-Schmidt ortho-normalization
+! Gram-Schmidt ortho-normalization, eliminate linear dependence
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+j = 1
 Do i = 2, nDIIS
-   Do k = 1, i-1
+   Do k = 1, j
       gg = 0.0D0
       Do l = 1, mOV
          gg = gg + e_diis(l,i)*e_diis(l,k)
@@ -116,34 +118,45 @@ Do i = 2, nDIIS
       gg = gg + e_diis(l,i)**2
    End Do
 !  Write (6,*) 'i,gg=',i,gg
-   e_diis(:,i) = e_diis(:,i)/Sqrt(gg)
+   If (gg>1.0D-10) Then
+      j = j + 1
+      e_diis(:,j) = e_diis(:,i)/Sqrt(gg)
+   End If
 End Do
-!Call RecPrt('e_diis',' ',e_diis,mOV,iterso)
-!Do i = 1, nDIIS
-!   Do j = 1, i
-!      Write (6,*) i,j,DDot_(mOV,e_diis(:,i),1,e_diis(:,j),1)
-!   End Do
-!End Do
+mDIIS=j
+#ifdef _DEBUGPRINT_
+Write (6,*) 'Check the ortonormality'
+Do i = 1, mDIIS
+   Do j = 1, i
+      Write (6,*) i,j,DDot_(mOV,e_diis(:,i),1,e_diis(:,j),1)
+   End Do
+   Write (6,*)
+End Do
+Call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
+#endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Computed the projected coordinates
+! Computed the projected displacement coordinates. Note that the displacements are relative to the last coordinate, nDIIS.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Call mma_allocate(q_diis,mDIIS,nDIIS,Label='q_diis')
+q_diis(:,:)=0.0D0
 Do i = 1, nDIIS
-   Do k = 1, nDIIS
+   Do k = 1, mDIIS
       gg = 0.0D0
       Do l = 1, mOV
-         gg = gg + (q(l,i)-q(l,1))*e_diis(l,k)
+         gg = gg + (q(l,i)-q(l,nDIIS))*e_diis(l,k)
       End Do
       q_diis(k,i)=gg
    End Do
 End Do
-Call RecPrt('q_diis',' ',q_diis,iterso,iterso)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Computed the projected gradients
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Call mma_allocate(g_diis,mDIIS,nDIIS,Label='g_diis')
+g_diis(:,:)=0.0D0
 Do i = 1, nDIIS
-   Do k = 1, i
+   Do k = 1, mDIIS
       gg = 0.0D0
       Do l = 1, mOV
          gg = gg + g(l,i)*e_diis(l,k)
@@ -151,16 +164,19 @@ Do i = 1, nDIIS
       g_diis(k,i)=gg
    End Do
 End Do
-Call RecPrt('g_diis',' ',g_diis,iterso,iterso)
 
+#ifdef _DEBUGPRINT_
+Call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
+Call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
+#endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Project the approximate Hessian to the subspace
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Call mma_allocate(H_diis,nDIIS,nDIIS,Label='H_diis')
+Call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
 
-Do i = 1, nDiis
-   Do j = 1, nDiis
+Do i = 1, mDiis
+   Do j = 1, mDiis
       gg = 0.0D0
       Do l = 1, mOV
          gg = gg + e_diis(l,i)*HDiag(l)*e_diis(l,j)
@@ -168,7 +184,9 @@ Do i = 1, nDiis
       H_diis(i,j)=gg
    End Do
 End Do
-Call RecPrt('H_diis',' ',H_diis,iterso,iterso)
+#ifdef _DEBUGPRINT_
+Call RecPrt('H_diis((HDiag)',' ',H_diis,mDIIS,mDIIS)
+#endif
 
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -176,29 +194,33 @@ Call RecPrt('H_diis',' ',H_diis,iterso,iterso)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 
-Call mma_allocate(dq_diis,nDiis,Label='dq_Diis')
+Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 
 ! We need to set the bias
 
-Call Setup_Kriging(nDiis,nDiis,q_diis,g_diis,Energy(iFirst),H_diis)
+Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),H_diis)
 
 ! Compute the surrogate Hessian
 
-Call Hessian_Kriging_Layer(q(:,nDiis),H_diis,nDiis)
-Call RecPrt('H_diis',' ',H_diis,iterso,iterso)
+Call Hessian_Kriging_Layer(q(:,nDiis),H_diis,mDiis)
+#ifdef _DEBUGPRINT_
+Call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
+#endif
 
 !First implementation with a simple RS-RFO step
 
-!#define _NEWCODE_
+#define _NEWCODE_
 #ifdef _NEWCODE_
 dqHdq=Zero
 StepMax=0.3D0
 Thr_RS=1.0D-7
 UpMeth=''
 Step_Trunc=''
-Call RS_RFO(H_diis,g_Diis(:,nDiis),nDiis,dq_diis,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
+Call RS_RFO(H_diis,g_Diis(:,nDiis),mDiis,dq_diis,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
 dq_diis(:)=-dq_diis(:)
-Call RecPrt('dq_diis',' ',dq_diis,nDIIS,1)
+#ifdef _DEBUGPRINT_
+Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
+#endif
 
 Disp(:)=Zero
 Do i = 1, nDIIS
@@ -219,7 +241,9 @@ Call mma_deallocate(Hessian)
 End Block
 #endif
 
+#ifdef _DEBUGPRINT_
 Call RecPrt('Disp',' ',Disp,mOV,1)
+#endif
 
 Call Finish_Kriging()
 Call mma_deallocate(dq_diis)
@@ -238,5 +262,7 @@ Call mma_deallocate(e_diis)
 Call mma_deallocate(g)
 Call mma_deallocate(q)
 
-!Write (6,*) 'Exit DIIS-GEK Optimizer'
+#ifdef _DEBUGPRINT_
+Write (6,*) 'Exit DIIS-GEK Optimizer'
+#endif
 End Subroutine DIIS_GEK_Optimizer
