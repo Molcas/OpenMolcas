@@ -48,11 +48,11 @@ integer(kind=iwp) :: i1, i2, iAdd, iAng, iAO, iBas, iBas_Eff, iBfn, iBfn_e, iBfn
                      IndAO1, Indi, ipRadial, iPrim, iPrim_Eff, ipx, ipxyz, ipy, ipz, iR, ish, iShll, iSkal, iSkip, iSO1, jBfn, &
                      jlist_s, kBfn, mData, mdci, mRho, mTabAO, nBfn, nByte, nCMO, nData, nDrv, nForm, nPMO3p, nTerm, nxyz, &
                      TabAO_Size(2)
-real(kind=wp) :: A(3), P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid), px, py, pz, RA(3), SMax, Thr !IFG
+real(kind=wp) :: A(3), px, py, pz, RA(3), SMax, Thr
 logical(kind=iwp) :: l_tanhr
 integer(kind=iwp), allocatable :: Tmp_Index(:,:)
-real(kind=wp), allocatable :: MOs(:), MOx(:), MOy(:), MOz(:), P2MOCube(:), P2MOCubex(:), P2MOCubey(:), P2MOCubez(:), RhoA(:,:), &
-                              RhoI(:,:), TabAO_Tmp(:)
+real(kind=wp), allocatable :: MOs(:), MOx(:), MOy(:), MOz(:), P2_ontop_d(:,:,:), P2MOCube(:), P2MOCubex(:), P2MOCubey(:), &
+                              P2MOCubez(:), RhoA(:,:), RhoI(:,:), TabAO_Tmp(:)
 ! MOs,MOx,MOy and MOz are for active MOs.
 ! MOas is for all MOs.
 real(kind=wp), external :: Comp_d, Compute_Rho, Compute_Grad, Compute_Tau
@@ -343,6 +343,7 @@ if (l_casdft) then
   call mma_allocate(MOx,mGrid*NASHT)
   call mma_allocate(MOy,mGrid*NASHT)
   call mma_allocate(MOz,mGrid*NASHT)
+  call mma_allocate(P2_ontop_d,nP2_ontop,nGrad_Eff,mGrid)
 
   call CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,Do_Grad)
   call Fzero(P2_ontop,nP2_ontop*mGrid)
@@ -350,8 +351,7 @@ if (l_casdft) then
   if (.not. Do_Grad) then !regular MO-based run
     call Do_PI2(D1MO,size(D1MO),TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,mRho,P2MOCube,MOs,MOx,MOy,MOz)
   else !AO-based run for gradients
-    !nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
-    P2_ontop_d(:,:,:) = 0
+    P2_ontop_d(:,:,:) = Zero
     call Do_Pi2grad(mAO,mGrid,P2_ontop,nP2_ontop,nGrad_Eff,list_s,nlist_s,list_bas,D1MO,size(D1MO),TabMO,P2_ontop_d,RhoI,RhoA, &
                     mRho,nMOs,CMO,nCMO,TabSO,lft,P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,MOx,MOy,MOz)
   end if
@@ -366,6 +366,7 @@ if (l_casdft) then
   call mma_deallocate(MOx)
   call mma_deallocate(MOy)
   call mma_deallocate(MOz)
+  call mma_deallocate(P2_ontop_d)
 
   ! Integrate out the number of electrons
   Dens_t2 = Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,0)

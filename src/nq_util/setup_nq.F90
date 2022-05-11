@@ -29,7 +29,7 @@ use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
 use nq_Grid, only: Angular, Coor, Fact, Mem, nGridMax, nR_Eff, Pax
-use nq_structure, only: NQ_Data
+use nq_structure, only: NQ_Data, Open_NQ_Data
 use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, iAngMax, L_Quad, LDA_type, MBC, &
                    meta_GGA_type1, meta_GGA_type2, mRad, nAngularGrids, nAOMax, nAtoms, NbrMxBas, ndc, nMaxExp, nMem, nR, ntotgp, &
                    number_of_subblocks, nx, ny, nz, Off, On, Rotational_Invariance, T_Y, Threshold, x_max, x_min, y_max, y_min, &
@@ -107,11 +107,7 @@ call mma_deallocate(TempC)
 ! Get the symmetry unique coordinates
 
 nNQ = nAtoms
-allocate(NQ_data(1:nNQ))
-do iNQ=1,nNQ
-  call mma_allocate(NQ_data(iNQ)%Coor,3,Label='NQ_data(iNQ)%Coor')
-  call dcopy_(3,Coor(1:3,iNQ),1,NQ_data(iNQ)%Coor,1)
-end do
+call Open_NQ_Data(Coor)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -583,7 +579,9 @@ if (iGrid_Set == Not_Specified) iGrid_Set = Final_Grid
 
 ! Read the status flag.
 iDisk_Grid = 0
-call iDaFile(Lu_Grid,2,G_S,5,iDisk_Grid)
+call iDaFile(Lu_Grid,2,G_S,2,iDisk_Grid)
+call iDaFile(Lu_Grid,2,iDisk_Set,2,iDisk_Grid)
+call iDaFile(Lu_Grid,2,Old_Functional_Type,1,iDisk_Grid)
 
 Grid_Status = G_S(iGrid_Set)
 if (Old_Functional_Type /= Functional_Type) then

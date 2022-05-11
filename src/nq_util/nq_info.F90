@@ -55,24 +55,353 @@ public :: Angular_Pruning, Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens
           Fade, Fixed_Grid, Functional_Type, GGA_Type, Grad_I, Grid_Type, iAngMax, IOff_Ash, IOff_Bas, IOff_BasAct, iOpt_Angular, &
           ip_ioffsh, ip_nR_Eff, ip_OrbDip, ip_R, ipMem, L_Quad, L_Quad_save, LDA_Type, LMax_NQ, maxUVX, mBas, MBC, meta_GGA_Type1, &
           meta_GGA_Type2, mIrrep, mOrb, Moving_Grid, mRad, mTmp, nAngularGrids, nAOMax, nAsh, NASHT, NASHT4, nAtoms, nbrmxbas, &
-          ndc, nFro, nISh, nMaxExp, nMem, nOrbt, NPOt1, nPot2, NQ_Direct, nR, nR_Save, nTotGP, number_of_subblocks, nUVX, nUVXt, &
-          nVX, nVXt, nx, ny, nz, Off, OffBas, OffBas2, OffBasFro, OffOrb, OffOrb2, OffOrbTri, OffPUVX, OffUVX, OffVX, On, &
-          Other_Type, Packing, Quadrature, R_Max, Rotational_Invariance, T_Y, Tau_I, ThrC, Threshold, Threshold_save, x_max, &
-          x_min, y_max, y_min, z_max, z_min
+          ndc, nFro, nISh, nMaxExp, nMem, nOrbt, NPOt1, nPot2, NQ_Direct, NQ_Info_Dmp, NQ_Info_Get, nR, nR_Save, nTotGP, &
+          number_of_subblocks, nUVX, nUVXt, nVX, nVXt, nx, ny, nz, Off, OffBas, OffBas2, OffBasFro, OffOrb, OffOrb2, OffOrbTri, &
+          OffPUVX, OffUVX, OffVX, On, Other_Type, Packing, Quadrature, R_Max, Rotational_Invariance, T_Y, Tau_I, ThrC, Threshold, &
+          Threshold_save, x_max, x_min, y_max, y_min, z_max, z_min
 
-!IFG
-integer, public :: iQStrt, iQEnd
-common/Quad_i/iQStrt,NASHT,NASHT4,NPot1,nOrbt,nPot2,maxUVX,ndc,nAngularGrids,L_Quad_save,nR_Save,Angular_Pruning,nx,ny,nz, &
-              number_of_subblocks,ip_nR_Eff,ip_R,ipMem,nMem,L_Quad,nR,nAtoms,nMaxExp,nTotGP,nbrmxbas,iAngMax,ip_ioffsh, &
-              iOpt_Angular,mIrrep,nISh,nAsh,mBas,Functional_type,mOrb,Grid_Type,Rotational_Invariance,mTmp,mRad,nAOMax,NQ_Direct, &
-              Packing,OffPUVX,iQEnd,ip_OrbDip,ioff_ash,ioff_bas,ioff_basact,OffBas,OffOrb,OffOrb2,OffOrbTri,OffBas2,OffBasFro, &
-              OffUVX,nUVX,nUVXt,OffVX,nVX,nVXt
-common/Quad_ii/nFro
-real*8, public :: rQStrt, rQEnd
-common/Quad_r/rQStrt,Threshold_save,Crowding,Threshold,R_Max,Energy_integrated,Dens_I,Grad_I,Tau_I,Dens_a1,Dens_b1,Dens_a2, &
-              Dens_b2,Dens_t1,Dens_t2,Block_Size,x_min,x_max,y_min,y_max,z_min,z_max,Fade,ThrC,T_Y,rQEnd
-integer, public :: cQStrt, cQEnd
-character Pad_*6
-common/Quad_c/cQStrt,Quadrature,MBC,Pad_,cQEnd
+contains
+
+subroutine NQ_Info_Dmp()
+
+  use fortran_strings, only: char_array
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp) :: i, lcDmp
+  integer(kind=iwp), allocatable :: iDmp(:)
+  real(kind=wp), allocatable :: rDmp(:)
+  character, allocatable :: cDmp(:)
+  integer(kind=iwp), parameter :: liDmp = 37+5*8, lrDmp = 23+(LMax_NQ+1)
+
+  ! Real Stuff
+
+  call mma_allocate(rDmp,lrDmp,Label='rDmp')
+  i = 1
+  rDmp(i) = Threshold_save
+  i = i+1
+  rDmp(i) = Crowding
+  i = i+1
+  rDmp(i) = Threshold
+  i = i+1
+  rDmp(i:i+LMax_NQ) = R_Max
+  i = i+LMax_NQ+1
+  rDmp(i) = Energy_integrated
+  i = i+1
+  rDmp(i) = Dens_I
+  i = i+1
+  rDmp(i) = Grad_I
+  i = i+1
+  rDmp(i) = Tau_I
+  i = i+1
+  rDmp(i) = Dens_a1
+  i = i+1
+  rDmp(i) = Dens_b1
+  i = i+1
+  rDmp(i) = Dens_a2
+  i = i+1
+  rDmp(i) = Dens_b2
+  i = i+1
+  rDmp(i) = Dens_t1
+  i = i+1
+  rDmp(i) = Dens_t2
+  i = i+1
+  rDmp(i) = Block_Size
+  i = i+1
+  rDmp(i) = x_min
+  i = i+1
+  rDmp(i) = x_max
+  i = i+1
+  rDmp(i) = y_min
+  i = i+1
+  rDmp(i) = y_max
+  i = i+1
+  rDmp(i) = z_min
+  i = i+1
+  rDmp(i) = z_max
+  i = i+1
+  rDmp(i) = Fade
+  i = i+1
+  rDmp(i) = ThrC
+  i = i+1
+  rDmp(i) = T_Y
+  i = i+1
+  call Put_dArray('Quad_r',rDmp,lrDmp)
+  call mma_deallocate(rDmp)
+
+  ! Integer Stuff
+
+  call mma_allocate(iDmp,liDmp,Label='iDmp')
+  i = 1
+  iDmp(i) = NASHT
+  i = i+1
+  iDmp(i) = NASHT4
+  i = i+1
+  iDmp(i) = NPot1
+  i = i+1
+  iDmp(i) = nOrbt
+  i = i+1
+  iDmp(i) = nPot2
+  i = i+1
+  iDmp(i) = maxUVX
+  i = i+1
+  iDmp(i) = ndc
+  i = i+1
+  iDmp(i) = nAngularGrids
+  i = i+1
+  iDmp(i) = L_Quad_save
+  i = i+1
+  iDmp(i) = nR_Save
+  i = i+1
+  iDmp(i) = Angular_Pruning
+  i = i+1
+  iDmp(i) = nx
+  i = i+1
+  iDmp(i) = ny
+  i = i+1
+  iDmp(i) = nz
+  i = i+1
+  iDmp(i) = number_of_subblocks
+  i = i+1
+  iDmp(i) = ip_nR_Eff
+  i = i+1
+  iDmp(i) = ip_R
+  i = i+1
+  iDmp(i) = ipMem
+  i = i+1
+  iDmp(i) = nMem
+  i = i+1
+  iDmp(i) = L_Quad
+  i = i+1
+  iDmp(i) = nR
+  i = i+1
+  iDmp(i) = nAtoms
+  i = i+1
+  iDmp(i) = nMaxExp
+  i = i+1
+  iDmp(i) = nTotGP
+  i = i+1
+  iDmp(i) = nbrmxbas
+  i = i+1
+  iDmp(i) = iAngMax
+  i = i+1
+  iDmp(i) = ip_ioffsh
+  i = i+1
+  iDmp(i) = iOpt_Angular
+  i = i+1
+  iDmp(i) = mIrrep
+  i = i+1
+  iDmp(i:i+7) = nISh
+  i = i+8
+  iDmp(i:i+7) = nAsh
+  i = i+8
+  iDmp(i:i+7) = mBas
+  i = i+8
+  iDmp(i) = Functional_type
+  i = i+1
+  iDmp(i:i+7) = mOrb
+  i = i+8
+  iDmp(i) = Grid_Type
+  i = i+1
+  iDmp(i) = Rotational_Invariance
+  i = i+1
+  iDmp(i) = mTmp
+  i = i+1
+  iDmp(i) = mRad
+  i = i+1
+  iDmp(i) = nAOMax
+  i = i+1
+  iDmp(i) = NQ_Direct
+  i = i+1
+  iDmp(i) = Packing
+  i = i+1
+  iDmp(i:i+7) = OffPUVX
+  i = i+8
+  call Put_iArray('Quad_i',iDmp,liDmp)
+  call mma_deallocate(iDmp)
+
+  ! Character Stuff
+
+  lcDmp = len(Quadrature)+len(MBC)
+  call mma_allocate(cDmp,lcDmp,Label='cDmp')
+  i = 0
+  cDmp(i+1:i+len(Quadrature)) = char_array(Quadrature)
+  i = i+len(Quadrature)
+  cDmp(i+1:i+len(MBC)) = char_array(MBC)
+  i = i+len(MBC)
+  call Put_cArray('Quad_c',cDmp,lcDmp)
+  call mma_deallocate(cDmp)
+
+end subroutine
+
+subroutine NQ_Info_Get()
+
+  use fortran_strings, only: str
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp) :: i, lcDmp
+  integer(kind=iwp), allocatable :: iDmp(:)
+  real(kind=wp), allocatable :: rDmp(:)
+  character, allocatable :: cDmp(:)
+  integer(kind=iwp), parameter :: liDmp = 37+5*8, lrDmp = 23+(LMax_NQ+1)
+
+  ! Real Stuff
+
+  call mma_allocate(rDmp,lrDmp,Label='rDmp')
+  call Get_dArray('Quad_r',rDmp,lrDmp)
+  i = 1
+  Threshold_save = rDmp(i)
+  i = i+1
+  Crowding = rDmp(i)
+  i = i+1
+  Threshold = rDmp(i)
+  i = i+1
+  R_Max = rDmp(i:i+LMax_NQ)
+  i = i+LMax_NQ+1
+  Energy_integrated = rDmp(i)
+  i = i+1
+  Dens_I = rDmp(i)
+  i = i+1
+  Grad_I = rDmp(i)
+  i = i+1
+  Tau_I = rDmp(i)
+  i = i+1
+  Dens_a1 = rDmp(i)
+  i = i+1
+  Dens_b1 = rDmp(i)
+  i = i+1
+  Dens_a2 = rDmp(i)
+  i = i+1
+  Dens_b2 = rDmp(i)
+  i = i+1
+  Dens_t1 = rDmp(i)
+  i = i+1
+  Dens_t2 = rDmp(i)
+  i = i+1
+  Block_Size = rDmp(i)
+  i = i+1
+  x_min = rDmp(i)
+  i = i+1
+  x_max = rDmp(i)
+  i = i+1
+  y_min = rDmp(i)
+  i = i+1
+  y_max = rDmp(i)
+  i = i+1
+  z_min = rDmp(i)
+  i = i+1
+  z_max = rDmp(i)
+  i = i+1
+  Fade = rDmp(i)
+  i = i+1
+  ThrC = rDmp(i)
+  i = i+1
+  T_Y = rDmp(i)
+  i = i+1
+  call mma_deallocate(rDmp)
+
+  ! Integer Stuff
+
+  call mma_allocate(iDmp,liDmp,Label='iDmp')
+  call Get_iArray('Quad_i',iDmp,liDmp)
+  i = 1
+  NASHT = iDmp(i)
+  i = i+1
+  NASHT4 = iDmp(i)
+  i = i+1
+  NPot1 = iDmp(i)
+  i = i+1
+  nOrbt = iDmp(i)
+  i = i+1
+  nPot2 = iDmp(i)
+  i = i+1
+  maxUVX = iDmp(i)
+  i = i+1
+  ndc = iDmp(i)
+  i = i+1
+  nAngularGrids = iDmp(i)
+  i = i+1
+  L_Quad_save = iDmp(i)
+  i = i+1
+  nR_Save = iDmp(i)
+  i = i+1
+  Angular_Pruning = iDmp(i)
+  i = i+1
+  nx = iDmp(i)
+  i = i+1
+  ny = iDmp(i)
+  i = i+1
+  nz = iDmp(i)
+  i = i+1
+  number_of_subblocks = iDmp(i)
+  i = i+1
+  ip_nR_Eff = iDmp(i)
+  i = i+1
+  ip_R = iDmp(i)
+  i = i+1
+  ipMem = iDmp(i)
+  i = i+1
+  nMem = iDmp(i)
+  i = i+1
+  L_Quad = iDmp(i)
+  i = i+1
+  nR = iDmp(i)
+  i = i+1
+  nAtoms = iDmp(i)
+  i = i+1
+  nMaxExp = iDmp(i)
+  i = i+1
+  nTotGP = iDmp(i)
+  i = i+1
+  nbrmxbas = iDmp(i)
+  i = i+1
+  iAngMax = iDmp(i)
+  i = i+1
+  ip_ioffsh = iDmp(i)
+  i = i+1
+  iOpt_Angular = iDmp(i)
+  i = i+1
+  mIrrep = iDmp(i)
+  i = i+1
+  nISh = iDmp(i:i+7)
+  i = i+8
+  nAsh = iDmp(i:i+7)
+  i = i+8
+  mBas = iDmp(i:i+7)
+  i = i+8
+  Functional_type = iDmp(i)
+  i = i+1
+  mOrb = iDmp(i:i+7)
+  i = i+8
+  Grid_Type = iDmp(i)
+  i = i+1
+  Rotational_Invariance = iDmp(i)
+  i = i+1
+  mTmp = iDmp(i)
+  i = i+1
+  mRad = iDmp(i)
+  i = i+1
+  nAOMax = iDmp(i)
+  i = i+1
+  NQ_Direct = iDmp(i)
+  i = i+1
+  Packing = iDmp(i)
+  i = i+1
+  OffPUVX = iDmp(i:i+7)
+  i = i+8
+  call mma_deallocate(iDmp)
+
+  ! Character Stuff
+
+  lcDmp = len(Quadrature)+len(MBC)
+  call mma_allocate(cDmp,lcDmp,Label='cDmp')
+  call Get_cArray('Quad_c',cDmp,lcDmp)
+  i = 0
+  Quadrature = str(cDmp(i+1:i+len(Quadrature)))
+  i = i+len(Quadrature)
+  MBC = str(cDmp(i+1:i+len(MBC)))
+  i = i+len(MBC)
+  call mma_deallocate(cDmp)
+
+end subroutine NQ_Info_Get
 
 end module nq_Info

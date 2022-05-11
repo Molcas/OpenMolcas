@@ -19,6 +19,7 @@ subroutine CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,MOx,MO
 
 use nq_pdft, only: lft, lGGA
 use nq_Info, only: IOff_Ash, IOff_BasAct, mIrrep, nAsh, NASHT, NASHT4
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
@@ -30,8 +31,8 @@ logical(kind=iwp) :: do_grad
 ! Input: mAO mGrid nMOs nPMO3p TabMO P2Unzip do_grad
 ! Output: P2MOCube MOs MOx MOy MOz P2MOCubex P2MOCubey P2MOCubez
 integer(kind=iwp) :: icount, IIrrep, iGrid, iOff1, IOff2, IOff3, NASHT2, NASHT3, nGridPi
-real(kind=wp) :: P2MO1(NASHT**3), P2MOSquare(NASHT**2) !IFG
 logical(kind=iwp) :: lftGGA
+real(kind=wp), allocatable :: P2MO1(:), P2MOSquare(:)
 
 lftGGA = .false.
 if (lft .and. lGGA) lftGGA = .true.
@@ -62,6 +63,8 @@ end if
 
 NASHT2 = NASHT**2
 NASHT3 = NASHT2*NASHT
+call mma_allocate(P2MO1,NASHT3,label='P2MO1')
+call mma_allocate(P2MOSquare,NASHT2,label='P2MOSquare')
 do iGrid=1,mGrid
   IOff1 = (iGrid-1)*NASHT+1
 
@@ -96,6 +99,8 @@ do iGrid=1,mGrid
 
   !call RecPrt('P2MOCube','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
 end do
+call mma_deallocate(P2MO1)
+call mma_deallocate(P2MOSquare)
 
 return
 

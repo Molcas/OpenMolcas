@@ -31,8 +31,8 @@ use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
 use nq_Info, only: Functional_type, GGA_type, LDA_type, LMax_NQ, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
                    number_of_subblocks, Other_type
-use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate ,Lu_Grid, &
-                        LuGridFile, Regenerate, Use_Old
+use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
+                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -467,7 +467,9 @@ else
 end if
 
 iDisk_Grid = 0
-call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
+call iDaFile(Lu_Grid,1,G_S,2,iDisk_Grid)
+call iDaFile(Lu_Grid,1,iDisk_Set,2,iDisk_Grid)
+call iDaFile(Lu_Grid,1,Old_Functional_Type,1,iDisk_Grid)
 iDisk_Grid = iDisk_Set(iGrid_Set)
 call iDaFile(Lu_Grid,1,GridInfo,2*number_of_subblocks,iDisk_Grid)
 

@@ -11,6 +11,7 @@
 
 subroutine Lobatto(ndeg,trw)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp
 
@@ -19,9 +20,11 @@ integer(kind=iwp) :: ndeg
 real(kind=wp) :: trw(3*(ndeg+2)*(ndeg+3)/2)
 integer(kind=iwp), parameter :: mxdeg = 100
 integer(kind=iwp) :: i, ii, ir, jj, jr, k, n
-real(kind=wp) :: c, delta, dmax, f, fnew, fold, fp, fpnew, fpold, recurs(mxdeg), rk, roots(mxdeg,mxdeg), wghts(mxdeg,mxdeg), x, & !IFG
-                 xterm
+real(kind=wp) :: c, delta, dmax, f, fnew, fold, fp, fpnew, fpold, rk, x, xterm
+real(kind=wp), allocatable :: recurs(:), roots(:,:), wghts(:,:)
 
+call mma_allocate(roots,ndeg,ndeg,label='roots')
+call mma_allocate(recurs,ndeg,label='recurs')
 ! Start: Accurately known are p0=1 and p1=x
 roots(1,1) = Zero
 ! Recursion coefficients:
@@ -70,6 +73,9 @@ do k=2,ndeg
   end do
 end do
 
+call mma_deallocate(recurs)
+call mma_allocate(wghts,ndeg,ndeg,label='wghts')
+
 ! Compute weights:
 do k=1,ndeg
   do ir=1,k
@@ -115,6 +121,9 @@ do k=1,ndeg
     trw(jj) = wghts(ir,k)
   end do
 end do
+
+call mma_deallocate(roots)
+call mma_deallocate(wghts)
 
 !write(u6,*) 'Lobatto'
 !do i=1,ndeg+2

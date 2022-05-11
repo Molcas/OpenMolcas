@@ -20,6 +20,7 @@ subroutine TranslateDens(Pi,dRho_dr,dPi,l_tanhr,nRho,mGrid,nPi,ndRho_dr,nEGrad,D
 use nq_Grid, only: GradRho, nGradRho, Rho
 use nq_pdft, only: dZdR, fta, ftb, ftc, lft, lGGA, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, ThrsOMR, &
                    ThrsRho, ZetaA
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Five, Six, Eight, Twelve, Half
 use Definitions, only: wp, iwp
 
@@ -30,11 +31,11 @@ logical(kind=iwp) :: l_tanhr, DoGrad
 ! Input: nRho mGrid nPi ndRho_dr nEGrad Pi dPi DoGrad l_tanhr
 ! Input & Output: dRho_dr
 integer(kind=iwp) :: iEGrad, iGrid, iOff1, ngragri, nGRho
-real(kind=wp) :: Diff1, dRatio(mGrid*nEGrad), dRhodx(mGrid), dRhody(mGrid), dRhodz(mGrid), dZeta(mGrid*nEGrad), ftx23(mGrid), & !IFG
-                 fty23(mGrid), ftz23(mGrid), GraddZdR, GradRatio, GradRatioX, GradRatioY, GradRatioZ, GradRhoAB(mGrid*nEGrad), & !IFG
-                 GradRhoX(mGrid*nEGrad), GradRhoY(mGrid*nEGrad), GradRhoZ(mGrid*nEGrad), GradZetaX, GradZetaY, GradZetaZ, & !IFG
-                 RatioX(mGrid), RatioY(mGrid), RatioZ(mGrid), Rd2RdRho2, Rd2RdRhodPi, Rd2ZdR2, Rd2ZdRdZ, RdRdPi, RdRdRho, RRatio, & !IFG
-                 tanhrx(mGrid), tanhry(mGrid), tanhrz(mGrid), TempR, XAdd, YAdd, ZAdd, ZetaX, ZetaY, ZetaZ !IFG
+real(kind=wp) :: Diff1, GraddZdR, GradRatio, GradRatioX, GradRatioY, GradRatioZ, GradZetaX, GradZetaY, GradZetaZ, Rd2RdRho2, &
+                 Rd2RdRhodPi, Rd2ZdR2, Rd2ZdRdZ, RdRdPi, RdRdRho, RRatio, TempR, XAdd, YAdd, ZAdd, ZetaX, ZetaY, ZetaZ
+real(kind=wp), allocatable :: dRatio(:), dRhodx(:), dRhody(:), dRhodz(:), dZeta(:), ftx23(:), fty23(:), ftz23(:), GradRhoAB(:), &
+                              GradRhoX(:), GradRhoY(:), GradRhoZ(:), RatioX(:), RatioY(:), RatioZ(:), tanhrx(:), tanhry(:), &
+                              tanhrz(:)
 ! PassX
 ! Pass1. Total density is greater than thresRho
 ! Pass2. Do translation
@@ -55,6 +56,9 @@ call DAXPY_(mGrid,One,Rho(2,1),nRho,RhoAB,1)
 ! calculating x, y, z components of density gradient
 !***********************************************************************
 if (lGGA) then
+  call mma_allocate(dRhodx,mGrid,label='dRhodx')
+  call mma_allocate(dRhody,mGrid,label='dRhody')
+  call mma_allocate(dRhodz,mGrid,label='dRhodz')
   call DCopy_(mGrid,GradRho(1,1),nGRho,dRhodx,1)
   call DAXPY_(mGrid,One,GradRho(4,1),nGRho,dRhodx,1)
   call DCopy_(mGrid,GradRho(2,1),nGRho,dRhody,1)
@@ -143,6 +147,12 @@ if (lGGA) then
   end do
 
   if (lft) then
+    call mma_allocate(RatioX,mGrid,label='RatioX')
+    call mma_allocate(RatioY,mGrid,label='RatioY')
+    call mma_allocate(RatioZ,mGrid,label='RatioZ')
+    call mma_allocate(ftx23,mGrid,label='ftx23')
+    call mma_allocate(fty23,mGrid,label='fty23')
+    call mma_allocate(ftz23,mGrid,label='ftz23')
     do iGrid=1,mGrid
       if (Pass1(iGrid)) then
         RatioX(iGrid) = (Four*Pi(2,iGrid)/RhoAB(iGrid)-Two*RatioA(iGrid)*dRhodX(iGrid))/RhoAB(iGrid)
@@ -163,6 +173,9 @@ if (lGGA) then
     call DaXpY_(mGrid,-One,ftx23,1,GradRho(4,1),6)
     call DaXpY_(mGrid,-One,fty23,1,GradRho(5,1),6)
     call DaXpY_(mGrid,-One,ftz23,1,GradRho(6,1),6)
+    call mma_deallocate(ftx23)
+    call mma_deallocate(fty23)
+    call mma_deallocate(ftz23)
   end if
 end if
 
@@ -170,6 +183,9 @@ end if
 ! Additional terms in the tanh translation
 !********************************************************************
 if (l_tanhr) then
+  call mma_allocate(tanhrx,mGrid,label='tanhrx')
+  call mma_allocate(tanhry,mGrid,label='tanhry')
+  call mma_allocate(tanhrz,mGrid,label='tanhrz')
   call FZero(tanhrx,mGrid)
   call FZero(tanhry,mGrid)
   call FZero(tanhrz,mGrid)
@@ -188,124 +204,152 @@ if (l_tanhr) then
   call DAXPY_(mGrid,-One,TanhrY,1,GradRho(5,1),nRho)
   call DAXPY_(mGrid,One,TanhrZ,1,GradRho(3,1),nRho)
   call DAXPY_(mGrid,-One,TanhrZ,1,GradRho(6,1),nRho)
+  call mma_deallocate(tanhrx)
+  call mma_deallocate(tanhry)
+  call mma_deallocate(tanhrz)
 end if
 
 !***********************************************************************
 ! calculating terms needed in gradient calculation
 !***********************************************************************
 ! if not doing gradient, code ends here
-if (.not. DoGrad) return
-!***********************************************************************
-! calculating density gradient wrt geometrical changes
-!***********************************************************************
-ngragri = mGrid*nEGrad
-call DCopy_(ngragri,dRho_dr(1,1,1),ndRho_dr,GradRhoAB,1)
-call DAXPY_(ngragri,One,dRho_dr(2,1,1),ndRho_dr,GradRhoAB,1)
 
-if (lGGA) then
-  call DCopy_(ngragri,dRho_dr(3,1,1),ndRho_dr,GradRhoX,1)
-  call DAXPY_(ngragri,One,dRho_dr(6,1,1),ndRho_dr,GradRhoX,1)
-  call DCopy_(ngragri,dRho_dr(4,1,1),ndRho_dr,GradRhoY,1)
-  call DAXPY_(ngragri,One,dRho_dr(7,1,1),ndRho_dr,GradRhoY,1)
-  call DCopy_(ngragri,dRho_dr(5,1,1),ndRho_dr,GradRhoZ,1)
-  call DAXPY_(ngragri,One,dRho_dr(8,1,1),ndRho_dr,GradRhoZ,1)
-end if
+if (DoGrad) then
+  !*********************************************************************
+  ! calculating density gradient wrt geometrical changes
+  !*********************************************************************
+  ngragri = mGrid*nEGrad
+  call mma_allocate(GradRhoAB,mGrid*nEGrad,label='GradRhoAB')
+  call DCopy_(ngragri,dRho_dr(1,1,1),ndRho_dr,GradRhoAB,1)
+  call DAXPY_(ngragri,One,dRho_dr(2,1,1),ndRho_dr,GradRhoAB,1)
 
-!***********************************************************************
-! dRatio and dZeta at each grid point
-!***********************************************************************
-! Calculate dRatio
-call Fzero(dRatio,nGraGri)
-do iGrid=1,mGrid
-  if (Pass1(iGrid)) then
-    do iEGrad=1,nEGrad
-      IOff1 = (iEGrad-1)*mGrid
-      dRatio(IOff1+iGrid) = Four*dPi(1,iEGrad,iGrid)/(RhoAB(iGrid)**2)-Eight*Pi(1,iGrid)*GradRhoAB(IOff1+iGrid)/(RhoAB(iGrid)**3)
-    end do
+  if (lGGA) then
+    call mma_allocate(GradRhoX,mGrid*nEGrad,label='GradRhoX')
+    call mma_allocate(GradRhoY,mGrid*nEGrad,label='GradRhoY')
+    call mma_allocate(GradRhoZ,mGrid*nEGrad,label='GradRhoZ')
+    call DCopy_(ngragri,dRho_dr(3,1,1),ndRho_dr,GradRhoX,1)
+    call DAXPY_(ngragri,One,dRho_dr(6,1,1),ndRho_dr,GradRhoX,1)
+    call DCopy_(ngragri,dRho_dr(4,1,1),ndRho_dr,GradRhoY,1)
+    call DAXPY_(ngragri,One,dRho_dr(7,1,1),ndRho_dr,GradRhoY,1)
+    call DCopy_(ngragri,dRho_dr(5,1,1),ndRho_dr,GradRhoZ,1)
+    call DAXPY_(ngragri,One,dRho_dr(8,1,1),ndRho_dr,GradRhoZ,1)
   end if
-end do
-! Calculate dZeta
-call Fzero(dZeta,nGraGri)
-do iGrid=1,mGrid
-  call DAxpy_(nEGrad,dZdR(iGrid),dRatio(iGrid),mGrid,dZeta(iGrid),mGrid)
-end do
 
-do iEGrad=1,nEGrad
-  IOff1 = (iEGrad-1)*mGrid
+  !***********************************************************************
+  ! dRatio and dZeta at each grid point
+  !***********************************************************************
+  call mma_allocate(dRatio,mGrid*nEGrad,label='dRatio')
+  call mma_allocate(dZeta,mGrid*nEGrad,label='dZeta')
+  ! Calculate dRatio
+  call Fzero(dRatio,nGraGri)
   do iGrid=1,mGrid
     if (Pass1(iGrid)) then
-      dRho_dr(1,iGrid,iEGrad) = OnePZ(iGrid)*GradRhoAB(IOff1+iGrid)+Half*dZeta(IOFf1+iGrid)*RhoAB(iGrid)
-      dRho_dr(2,iGrid,iEGrad) = OneMZ(iGrid)*GradRhoAB(IOff1+iGrid)-Half*dZeta(IOFf1+iGrid)*RhoAB(iGrid)
+      do iEGrad=1,nEGrad
+        IOff1 = (iEGrad-1)*mGrid
+        dRatio(IOff1+iGrid) = Four*dPi(1,iEGrad,iGrid)/(RhoAB(iGrid)**2)-Eight*Pi(1,iGrid)*GradRhoAB(IOff1+iGrid)/(RhoAB(iGrid)**3)
+      end do
     end if
   end do
-end do
+  ! Calculate dZeta
+  call Fzero(dZeta,nGraGri)
+  do iGrid=1,mGrid
+    call DAxpy_(nEGrad,dZdR(iGrid),dRatio(iGrid),mGrid,dZeta(iGrid),mGrid)
+  end do
 
-if (lGGA) then
   do iEGrad=1,nEGrad
     IOff1 = (iEGrad-1)*mGrid
     do iGrid=1,mGrid
       if (Pass1(iGrid)) then
-        dRho_dr(3,iGrid,iEGrad) = OnePZ(iGrid)*GradRhoX(IOff1+iGrid)+Half*dZeta(IOFf1+iGrid)*dRhodx(iGrid)
-        dRho_dr(6,iGrid,iEGrad) = OneMZ(iGrid)*GradRhoX(IOff1+iGrid)-Half*dZeta(IOFf1+iGrid)*dRhodx(iGrid)
-        dRho_dr(4,iGrid,iEGrad) = OnePZ(iGrid)*GradRhoY(IOff1+iGrid)+Half*dZeta(IOFf1+iGrid)*dRhody(iGrid)
-        dRho_dr(7,iGrid,iEGrad) = OneMZ(iGrid)*GradRhoY(IOff1+iGrid)-Half*dZeta(IOFf1+iGrid)*dRhody(iGrid)
-        dRho_dr(5,iGrid,iEGrad) = OnePZ(iGrid)*GradRhoZ(IOff1+iGrid)+Half*dZeta(IOFf1+iGrid)*dRhodz(iGrid)
-        dRho_dr(8,iGrid,iEGrad) = OneMZ(iGrid)*GradRhoZ(IOff1+iGrid)-Half*dZeta(IOFf1+iGrid)*dRhodz(iGrid)
+        dRho_dr(1,iGrid,iEGrad) = OnePZ(iGrid)*GradRhoAB(IOff1+iGrid)+Half*dZeta(IOFf1+iGrid)*RhoAB(iGrid)
+        dRho_dr(2,iGrid,iEGrad) = OneMZ(iGrid)*GradRhoAB(IOff1+iGrid)-Half*dZeta(IOFf1+iGrid)*RhoAB(iGrid)
       end if
     end do
   end do
-  if (lft) then
-    do iGrid=1,mGrid
-      if (.not. Pass1(iGrid)) cycle
-      if (.not. (Pass2(iGrid) .or. Pass3(iGrid))) cycle
-      ZetaX = dZdR(iGrid)*RatioX(iGrid)
-      ZetaY = dZdR(iGrid)*RatioY(iGrid)
-      ZetaZ = dZdR(iGrid)*RatioZ(iGrid)
-      RdRdRho = -Two*RatioA(iGrid)/RhoAB(iGrid)
-      RdRdPi = Four/RhoAB(iGrid)**2
-      Rd2RdRho2 = -Three*RdRdRho/RhoAB(iGrid)
-      Rd2RdRhodPi = -Two*RdRdPi/RhoAB(iGrid)
-      Rd2ZdRdZ = Zero
-      Rd2ZdR2 = Zero
-      if (Pass2(iGrid)) Rd2ZdRdZ = Half/ZetaA(iGrid)**2
-      if (Pass3(iGrid)) then
-        Diff1 = RatioA(iGrid)-ThrsNT
-        Rd2ZdR2 = (20.0_wp*fta*Diff1**2+Twelve*ftb*Diff1+Six*ftc)*Diff1
-      end if
-      do iEGrad=1,nEGrad
-        IOff1 = (iEGrad-1)*mGrid
-        GradRatio = dRatio(iOff1+iGrid)
-        GradRatioX = (Rd2RdRho2*dRhodX(iGrid)+Rd2RdRhodPi*Pi(2,iGrid))*GradRhoAB(iOff1+iGrid)+ &
-                     Rd2RdRhodPi*dRhodX(iGrid)*dPi(1,iEGrad,iGrid)+RdRdRho*GradRhoX(iOff1+iGrid)+RdRdPi*dPi(2,iEGrad,iGrid)
 
-        GradRatioY = (Rd2RdRho2*dRhodY(iGrid)+Rd2RdRhodPi*Pi(3,iGrid))*GradRhoAB(iOff1+iGrid)+ &
-                     Rd2RdRhodPi*dRhodY(iGrid)*dPi(1,iEGrad,iGrid)+RdRdRho*GradRhoY(iOff1+iGrid)+RdRdPi*dPi(3,iEGrad,iGrid)
-
-        GradRatioZ = (Rd2RdRho2*dRhodZ(iGrid)+Rd2RdRhodPi*Pi(4,iGrid))*GradRhoAB(iOff1+iGrid)+ &
-                     Rd2RdRhodPi*dRhodZ(iGrid)*dPi(1,iEGrad,iGrid)+RdRdRho*GradRhoZ(iOff1+iGrid)+RdRdPi*dPi(4,iEGrad,iGrid)
-        GraddZdR = Zero
-        if (Pass2(iGrid)) then
-          GraddZdR = Rd2ZdRdZ*dZeta(iOff1+iGrid)
-        else if (Pass3(iGrid)) then
-          GraddZdR = Rd2ZdR2*GradRatio
+  if (lGGA) then
+    do iEGrad=1,nEGrad
+      IOff1 = (iEGrad-1)*mGrid
+      do iGrid=1,mGrid
+        if (Pass1(iGrid)) then
+          dRho_dr(3,iGrid,iEGrad) = OnePZ(iGrid)*GradRhoX(IOff1+iGrid)+Half*dZeta(IOFf1+iGrid)*dRhodx(iGrid)
+          dRho_dr(6,iGrid,iEGrad) = OneMZ(iGrid)*GradRhoX(IOff1+iGrid)-Half*dZeta(IOFf1+iGrid)*dRhodx(iGrid)
+          dRho_dr(4,iGrid,iEGrad) = OnePZ(iGrid)*GradRhoY(IOff1+iGrid)+Half*dZeta(IOFf1+iGrid)*dRhody(iGrid)
+          dRho_dr(7,iGrid,iEGrad) = OneMZ(iGrid)*GradRhoY(IOff1+iGrid)-Half*dZeta(IOFf1+iGrid)*dRhody(iGrid)
+          dRho_dr(5,iGrid,iEGrad) = OnePZ(iGrid)*GradRhoZ(IOff1+iGrid)+Half*dZeta(IOFf1+iGrid)*dRhodz(iGrid)
+          dRho_dr(8,iGrid,iEGrad) = OneMZ(iGrid)*GradRhoZ(IOff1+iGrid)-Half*dZeta(IOFf1+iGrid)*dRhodz(iGrid)
         end if
-
-        GradZetax = GraddZdR*RatioX(iGrid)+dZdR(iGrid)*GradRatioX
-        GradZetaY = GraddZdR*RatioY(iGrid)+dZdR(iGrid)*GradRatioY
-        GradZetaZ = GraddZdR*RatioZ(iGrid)+dZdR(iGrid)*GradRatioZ
-
-        XAdd = Half*(RhoAB(iGrid)*GradZetaX+ZetaX*GradRhoAB(iOff1+iGrid))
-        YAdd = Half*(RhoAB(iGrid)*GradZetaY+ZetaY*GradRhoAB(iOff1+iGrid))
-        ZAdd = Half*(RhoAB(iGrid)*GradZetaZ+ZetaZ*GradRhoAB(iOff1+iGrid))
-
-        dRho_dr(3,iGrid,iEGrad) = dRho_dr(3,iGrid,iEGrad)+XAdd
-        dRho_dr(6,iGrid,iEGrad) = dRho_dr(6,iGrid,iEGrad)-XAdd
-        dRho_dr(4,iGrid,iEGrad) = dRho_dr(4,iGrid,iEGrad)+YAdd
-        dRho_dr(7,iGrid,iEGrad) = dRho_dr(7,iGrid,iEGrad)-YAdd
-        dRho_dr(5,iGrid,iEGrad) = dRho_dr(5,iGrid,iEGrad)+ZAdd
-        dRho_dr(8,iGrid,iEGrad) = dRho_dr(8,iGrid,iEGrad)-ZAdd
       end do
     end do
+    if (lft) then
+      do iGrid=1,mGrid
+        if (.not. Pass1(iGrid)) cycle
+        if (.not. (Pass2(iGrid) .or. Pass3(iGrid))) cycle
+        ZetaX = dZdR(iGrid)*RatioX(iGrid)
+        ZetaY = dZdR(iGrid)*RatioY(iGrid)
+        ZetaZ = dZdR(iGrid)*RatioZ(iGrid)
+        RdRdRho = -Two*RatioA(iGrid)/RhoAB(iGrid)
+        RdRdPi = Four/RhoAB(iGrid)**2
+        Rd2RdRho2 = -Three*RdRdRho/RhoAB(iGrid)
+        Rd2RdRhodPi = -Two*RdRdPi/RhoAB(iGrid)
+        Rd2ZdRdZ = Zero
+        Rd2ZdR2 = Zero
+        if (Pass2(iGrid)) Rd2ZdRdZ = Half/ZetaA(iGrid)**2
+        if (Pass3(iGrid)) then
+          Diff1 = RatioA(iGrid)-ThrsNT
+          Rd2ZdR2 = (20.0_wp*fta*Diff1**2+Twelve*ftb*Diff1+Six*ftc)*Diff1
+        end if
+        do iEGrad=1,nEGrad
+          IOff1 = (iEGrad-1)*mGrid
+          GradRatio = dRatio(iOff1+iGrid)
+          GradRatioX = (Rd2RdRho2*dRhodX(iGrid)+Rd2RdRhodPi*Pi(2,iGrid))*GradRhoAB(iOff1+iGrid)+ &
+                       Rd2RdRhodPi*dRhodX(iGrid)*dPi(1,iEGrad,iGrid)+RdRdRho*GradRhoX(iOff1+iGrid)+RdRdPi*dPi(2,iEGrad,iGrid)
+
+          GradRatioY = (Rd2RdRho2*dRhodY(iGrid)+Rd2RdRhodPi*Pi(3,iGrid))*GradRhoAB(iOff1+iGrid)+ &
+                       Rd2RdRhodPi*dRhodY(iGrid)*dPi(1,iEGrad,iGrid)+RdRdRho*GradRhoY(iOff1+iGrid)+RdRdPi*dPi(3,iEGrad,iGrid)
+
+          GradRatioZ = (Rd2RdRho2*dRhodZ(iGrid)+Rd2RdRhodPi*Pi(4,iGrid))*GradRhoAB(iOff1+iGrid)+ &
+                       Rd2RdRhodPi*dRhodZ(iGrid)*dPi(1,iEGrad,iGrid)+RdRdRho*GradRhoZ(iOff1+iGrid)+RdRdPi*dPi(4,iEGrad,iGrid)
+          GraddZdR = Zero
+          if (Pass2(iGrid)) then
+            GraddZdR = Rd2ZdRdZ*dZeta(iOff1+iGrid)
+          else if (Pass3(iGrid)) then
+            GraddZdR = Rd2ZdR2*GradRatio
+          end if
+
+          GradZetax = GraddZdR*RatioX(iGrid)+dZdR(iGrid)*GradRatioX
+          GradZetaY = GraddZdR*RatioY(iGrid)+dZdR(iGrid)*GradRatioY
+          GradZetaZ = GraddZdR*RatioZ(iGrid)+dZdR(iGrid)*GradRatioZ
+
+          XAdd = Half*(RhoAB(iGrid)*GradZetaX+ZetaX*GradRhoAB(iOff1+iGrid))
+          YAdd = Half*(RhoAB(iGrid)*GradZetaY+ZetaY*GradRhoAB(iOff1+iGrid))
+          ZAdd = Half*(RhoAB(iGrid)*GradZetaZ+ZetaZ*GradRhoAB(iOff1+iGrid))
+
+          dRho_dr(3,iGrid,iEGrad) = dRho_dr(3,iGrid,iEGrad)+XAdd
+          dRho_dr(6,iGrid,iEGrad) = dRho_dr(6,iGrid,iEGrad)-XAdd
+          dRho_dr(4,iGrid,iEGrad) = dRho_dr(4,iGrid,iEGrad)+YAdd
+          dRho_dr(7,iGrid,iEGrad) = dRho_dr(7,iGrid,iEGrad)-YAdd
+          dRho_dr(5,iGrid,iEGrad) = dRho_dr(5,iGrid,iEGrad)+ZAdd
+          dRho_dr(8,iGrid,iEGrad) = dRho_dr(8,iGrid,iEGrad)-ZAdd
+        end do
+      end do
+    end if
+    call mma_deallocate(GradRhoX)
+    call mma_deallocate(GradRhoY)
+    call mma_deallocate(GradRhoZ)
+  end if
+  call mma_deallocate(GradRhoAB)
+  call mma_deallocate(dRatio)
+  call mma_deallocate(dZeta)
+end if
+
+if (lGGA) then
+  call mma_deallocate(dRhodx)
+  call mma_deallocate(dRhody)
+  call mma_deallocate(dRhodz)
+  if (lft) then
+    call mma_deallocate(RatioX)
+    call mma_deallocate(RatioY)
+    call mma_deallocate(RatioZ)
   end if
 end if
 

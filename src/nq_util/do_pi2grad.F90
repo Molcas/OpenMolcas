@@ -42,16 +42,14 @@ use Definitions, only: wp, iwp, r8
 implicit none
 integer(kind=iwp) :: mAO, mGrid, nP2_ontop, nGrad_Eff, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), nd1mo, mRho, nMOs, nCMO, &
                      nPMO3p
-real(kind=wp) :: P2_ontop(nP2_ontop,mGrid), D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop_d(np2_ontop,nGrad_Eff,mGrid), CMO(nCMO), &
-                 TabSO(mAO,mGrid,nMOs), P2MOCube(mGrid*NASHT), P2MOCubex(nPMO3p), P2MOCubey(nPMO3p), P2MOCubez(nPMO3p), &
-                 MOs(mGrid*NASHT), MOx(mGrid*NASHT), MOy(mGrid*NASHT), MOz(mGrid*NASHT)
+real(kind=wp) :: P2_ontop(nP2_ontop,mGrid), D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop_d(np2_ontop,nGrad_Eff,mGrid), &
+                 RhoA(mRho,mGrid), RhoI(mRho,mGrid), CMO(nCMO), TabSO(mAO,mGrid,nMOs), P2MOCube(mGrid*NASHT), P2MOCubex(nPMO3p), &
+                 P2MOCubey(nPMO3p), P2MOCubez(nPMO3p), MOs(mGrid*NASHT), MOx(mGrid*NASHT), MOy(mGrid*NASHT), MOz(mGrid*NASHT)
 logical(kind=iwp) :: ft
 integer(kind=iwp) :: g_eff, i, i_, iCoord, iCoord1, iCoord2, iCoord3, iCoordOff, iCoordOff1, iCoordOff2, iCoordOff3, iGrid, &
                      iGridOff, iIrrep, ilist_s, iOff0, IOff1, iOff2, iOff3, iOffF, jOffA_, jOffB_, k, k_, kIrrep, kl, l, l_, &
                      lIrrepx, nBasf, nOccO, nPi, NumAsh, NumIsh
-real(kind=wp) :: dMOs(mGrid*NASHT), dMOx(nPMO3p), dMOy(nPMO3p), dMOz(nPMO3p), dRhoA(mRho,mGrid,nGrad_Eff), & !IFG
-                 dRhoI(mRho,mGrid,nGrad_Eff), dTabMO2(nMOs), RhoA(mRho,mGrid), RhoI(mRho,mGrid) !IFG
-real(kind=wp), allocatable :: dTabMO(:,:,:,:), TabSO2(:)
+real(kind=wp), allocatable :: dMOs(:), dMOx(:), dMOy(:), dMOz(:), dRhoA(:,:,:), dRhoI(:,:,:), dTabMO(:,:,:,:), dTabMO2(:), TabSO2(:)
 real(kind=r8), external :: DDot_
 
 !                                                                      *
@@ -71,8 +69,10 @@ end if
 
 call FZero(P2_ontop,mGrid*nP2_ontop)
 call FZero(P2_ontop_d,nP2_ontop*nGrad_Eff*mGrid)
-dRhoI(1:mRho,1:mGrid,1:nGrad_Eff) = Zero
-dRhoA(1:mRho,1:mGrid,1:nGrad_Eff) = Zero
+call mma_allocate(dRhoI,mRho,mGrid,nGrad_Eff,Label='dRhoI')
+call mma_allocate(dRhoA,mRho,mGrid,nGrad_Eff,Label='dRhoA')
+dRhoI(:,:,:) = Zero
+dRhoA(:,:,:) = Zero
 jOffA_ = 0
 jOffB_ = 0
 do iIrrep=0,mIrrep-1
@@ -87,10 +87,11 @@ end do
 !   P(2,...), P(3,...), P(4,...) - grad P_2                            *
 !***********************************************************************
 
-call mma_Allocate(dTabMO,nP2_ontop,nMOs,nGrad_eff,mgrid,Label='dTabMO')
+call mma_allocate(dTabMO,nP2_ontop,nMOs,nGrad_eff,mgrid,Label='dTabMO')
 dTabMO(:,:,:,:) = Zero
 
-call mma_Allocate(TabSO2,nMOs*mAO*mGrid,Label='TabSO2')
+call mma_allocate(TabSO2,nMOs*mAO*mGrid,Label='TabSO2')
+call mma_allocate(dTabMO2,nMOs,Label='dTabMO2')
 
 do ilist_s=1,nlist_s
 
@@ -160,7 +161,8 @@ do ilist_s=1,nlist_s
     end do   ! iCoord
   end do     ! iGrid
 end do       ! iList_s
-call mma_deAllocate(TabSO2)
+call mma_deallocate(TabSO2)
+call mma_deallocate(dTabMO2)
 !***********************************************************************
 ! Inactive part:                                                       *
 !***********************************************************************
@@ -273,7 +275,7 @@ if ((NumIsh /= 0) .and. (NumAsh /= 0)) then
       end do         ! lIrrepx
     end do           ! k_
   end do             ! kIrrep
-!
+
   do iGrid=1,mGrid
     P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+RhoI(1,iGrid)*RhoA(1,iGrid)
     if ((Functional_type == GGA_type) .and. ft) then
@@ -303,11 +305,19 @@ if ((NumIsh /= 0) .and. (NumAsh /= 0)) then
   end do ! loop over grid points
 end if   ! if Inactive
 
+call mma_deallocate(dRhoI)
+call mma_deallocate(dRhoA)
+
 !***********************************************************************
 ! Active-Active part:                                                  *
 !***********************************************************************
 if (NumAsh /= 0) then
   nPi = nP2_ontop
+
+  call mma_allocate(dMOs,mGrid*NASHT,Label='dMOs')
+  call mma_allocate(dMOx,nPMO3p,Label='dMOx')
+  call mma_allocate(dMOy,nPMO3p,Label='dMOy')
+  call mma_allocate(dMOz,nPMO3p,Label='dMOz')
 
   do g_eff=1,nGrad_eff
     do iGrid=1,mGrid
@@ -364,8 +374,13 @@ if (NumAsh /= 0) then
     end do
   end if
 
+  call mma_deallocate(dMOs)
+  call mma_deallocate(dMOx)
+  call mma_deallocate(dMOy)
+  call mma_deallocate(dMOz)
+
 end if
-call mma_deAllocate(dTabMO)
+call mma_deallocate(dTabMO)
 
 return
 

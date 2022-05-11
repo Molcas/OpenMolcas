@@ -43,7 +43,7 @@ use Sizes_of_Seward, only: Size_Dmp
 use DKH_Info, only: DKH_Info_Dmp
 use Gateway_Info, only: Gateway_Info_Dmp
 use RICD_Info, only: RICD_Info_Dmp
-use nq_Info, only: cQEnd, cQStrt, iQEnd, iQStrt, rQEnd, rQStrt
+use nq_Info, only: NQ_Info_Dmp
 use Gateway_Info, only: Gateway_Info_Dmp
 use Definitions, only: wp, iwp
 
@@ -52,15 +52,15 @@ implicit none
 integer(kind=iwp) :: Length
 integer(kind=iwp), external :: ip_of_iWork, ip_of_Work
 
-call DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
+call DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
+subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 
-  integer(kind=iwp), target, intent(inout) :: cRFStrt, iRFStrt, lRFStrt, cQStrt, iQStrt
-  real(kind=wp), target, intent(inout) :: rRFStrt, rQStrt
+  integer(kind=iwp), target, intent(inout) :: cRFStrt, iRFStrt, lRFStrt
+  real(kind=wp), target, intent(inout) :: rRFStrt
   integer(kind=iwp), pointer :: p_cQ(:), p_cRF(:), p_iQ(:), p_iRF(:), p_lRF(:)
   real(kind=wp), pointer :: p_rQ(:), p_rRF(:)
 
@@ -97,24 +97,11 @@ subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
   call Put_iArray('RFcInfo',p_cRF,Length)
 
   nullify(p_lRF,p_rRF,p_iRF,p_cRF)
+  nullify(p_rQ,p_iQ,p_cQ)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ! Numerical integration information and parameters
-
-  Length = ip_of_Work(rQEnd)-ip_of_Work(rQStrt)+1
-  call c_f_pointer(c_loc(rQStrt),p_rQ,[Length])
-  call Put_dArray('Quad_r',p_rQ,Length)
-
-  Length = ip_of_iWork(iQEnd)-ip_of_iWork(iQStrt)+1
-  call c_f_pointer(c_loc(iQStrt),p_iQ,[Length])
-  call Put_iArray('Quad_i',p_iQ,Length)
-
-  Length = ip_of_iWork(cQEnd)-ip_of_iWork(cQStrt)+1
-  call c_f_pointer(c_loc(cQStrt),p_cQ,[Length])
-  call Put_iArray('Quad_c',p_cQ,Length)
-
-  nullify(p_rQ,p_iQ,p_cQ)
+  call NQ_Info_Dmp()
   !                                                                    *
   !*********************************************************************
   !                                                                    *

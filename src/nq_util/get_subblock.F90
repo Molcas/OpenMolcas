@@ -33,7 +33,7 @@ use nq_Grid, only: dRho_dR, dW_dR, Grid, IndGrd, iTab, kAO, List_G, nR_Eff, R2_t
 use NQ_Structure, only: NQ_Data
 use nq_MO, only: nMOs
 use nq_Info, only: Block_Size, Grid_Type, Moving_Grid, nPot1, nTotGP, nx, ny, nz, Off, On, Threshold, x_min, y_min, z_min
-use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, jDisk_Grid, Lu_Grid, LuGridFile, nBatch, nBatch_Max, Use_Old
+use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, jDisk_Grid, Lu_Grid, LuGridFile, nBatch, Use_Old
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -49,16 +49,16 @@ integer(kind=iwp) :: ixyz, nShell, nSym, Maps2p(nShell,0:nSym-1), list_s(2,*), l
                      nNQ, list_p(nNQ), nFckDim, nFckInt, nD, mGrid, nP2_ontop, nGrad, mAO, mdRho_dR, nTmpPUVX
 real(kind=wp) :: Func, FckInt(nFckInt,nFckDim), Grad(nGrad), EG_OT(nTmpPUVX), PDFTPot1(nPot1), PDFTFocI(nPot1), PDFTFocA(nPot1)
 logical(kind=iwp) :: Do_Mo, Do_Grad
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, ilist_s, iNQ, iPseudo, iShell, iShll, iSkal, iSym, &
                      ix, iy, iyz, iz, jlist_s, jNQ, jShell, jSym, klist_p, kNQ, l, mdci, nAOs, nAOs_Eff, nBfn, nDegi, nExpTmp, &
                      nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, nTotGP_Save, &
                      number_of_grid_points, nx_Roots, ny_Roots, nz_Roots
 real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, RMax_NQ, Roots(3,3), t1, t2, t3, ValExp, X, x_box_max, x_box_min, x_max_, x_min_, &
                  x_NQ, Xref, xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
-logical(kind=iwp) :: InBox(MxAtom), More_to_come !IFG
+logical(kind=iwp) :: More_to_come
 integer(kind=iwp), allocatable :: Indx(:)
 real(kind=wp), allocatable :: dPB(:,:,:), dW_Temp(:,:), TabMO(:), TabSO(:)
+logical(kind=iwp), allocatable :: InBox(:)
 integer(kind=iwp), external :: nBas_Eff, NrOpr
 real(kind=wp), external :: Eval_RMax
 
@@ -109,6 +109,7 @@ write(u6,*) 'nNQ=',nNQ
 !***********************************************************************
 !                                                                      *
 ilist_p = 0
+call mma_allocate(InBox,nNQ,Label='InBox')
 do iNQ=1,nNQ
   InBox(iNQ) = .false.
   ! Get the coordinates of the partitionning
@@ -118,9 +119,9 @@ do iNQ=1,nNQ
 
   ! 1) center is in the box
 
-  if ((x_NQ >= x_min_) .and. (x_NQ <= x_max_) .and. (y_NQ >= y_min_) .and. (y_NQ <= y_max_) .and. (z_NQ >= z_min_) .and. &
-      (z_NQ <= z_max_)) InBox(iNQ) = .true.
-  if (InBox(iNQ)) then
+  if ((x_NQ >= x_min_) .and. (x_NQ <= x_max_) .and. (y_NQ >= y_min_) .and. (y_NQ <= y_max_) .and. &
+      (z_NQ >= z_min_) .and. (z_NQ <= z_max_)) then
+    InBox(iNQ) = .true.
     ilist_p = ilist_p+1
     list_p(ilist_p) = iNQ
   else
@@ -389,7 +390,7 @@ if (Do_Grad) then
 end if
 if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
   if (Grid_Status /= Use_Old) then
-    call ICopy(3*nBatch_Max,[0],0,iBatchInfo,1)
+    iBatchInfo(:,:) = 0
     !                                                                  *
     !*******************************************************************
     !*******************************************************************
@@ -588,8 +589,8 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
         end if
       end if
 
-      call mma_Allocate(TabAO,mAO,nogp,nBfn,Label='TabAO')
-      if (Do_Grad) call mma_Allocate(TabAO_Short,kAO,nogp,nBfn,Label='TabAO_Short')
+      call mma_allocate(TabAO,mAO,nogp,nBfn,Label='TabAO')
+      if (Do_Grad) call mma_allocate(TabAO_Short,kAO,nogp,nBfn,Label='TabAO_Short')
       TabAO_Pack(1:mAO*nogp*nBfn) => TabAO(:,:,:)
       if (Do_Grad) then
         call mma_allocate(dRho_dR,mdRho_dR,nogp,nGrad_eff,Label='dRho_dR')
@@ -618,13 +619,14 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_deAllocate(Indx)
+call mma_deallocate(InBox)
+call mma_deallocate(Indx)
 if (allocated(TabMO)) call mma_deallocate(TabMO)
 if (allocated(TabSO)) call mma_deallocate(TabSO)
 if (Do_Grad .and. (Grid_Type == Moving_Grid)) then
-  call mma_deAllocate(dPB)
-  call mma_deAllocate(dW_Temp)
-  call mma_deAllocate(dW_dR)
+  call mma_deallocate(dPB)
+  call mma_deallocate(dW_Temp)
+  call mma_deallocate(dW_dR)
 end if
 !                                                                      *
 !***********************************************************************

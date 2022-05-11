@@ -13,7 +13,7 @@
 
 subroutine Do_Lebedev_Sym(L_Eff,mPt,ipR)
 
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
