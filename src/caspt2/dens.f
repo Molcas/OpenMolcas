@@ -2096,8 +2096,8 @@ C
             CALL CHO_VECRD(WORK(IP_CHSPC),NCHSPC,KV1,KV2,iSym,
      &                              NUMV,JREDC,MUSED)
            Call R2FIP(Work(ip_CHSPC),Work(ipWRK(iSym)),ipWRK(iSym),NUMV,
-     *                l_NDIMRS,NNBSTR,IWORK(ip_INFVEC),iWork(ip_nDimRS),
-     *                nBasT,MAXVEC,N2,nSym,iSym,iSkip,irc,JREDC)
+     *                l_NDIMRS,IWORK(ip_INFVEC),iWork(ip_nDimRS),
+     *                nBasT,nSym,iSym,iSkip,irc,JREDC)
 C
             !! Exchange part of A_PT2
             NUMVJ = NUMV

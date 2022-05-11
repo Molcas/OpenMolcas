@@ -839,11 +839,11 @@ C
       Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8),ipWRK(8)
 C
       Integer iSkip(8)
-      integer nnbstr(8,3)
+C     integer nnbstr(8,3)
 C
 C     INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 C
-      call getritrfinfo(nnbstr,maxvec,n2)
+C     call getritrfinfo(nnbstr,maxvec,n2)
 C
       iSym = iSym0
       Do jSym = 1, nSym
@@ -1000,8 +1000,8 @@ C
           !! (strange) reduced form -> squared AO (mu nu|iVec)
           !! is it possible to avoid this transformation?
           Call R2FIP(Work(ip_CHSPC),Work(ipWRK(1)),ipWRK,NUMV,
-     *               l_NDIMRS,NNBSTR,IWORK(ip_INFVEC),iWork(ip_nDimRS),
-     *               nBasT,MAXVEC,N2,nSym,iSym,iSkip,irc,JREDC)
+     *               l_NDIMRS,IWORK(ip_INFVEC),iWork(ip_nDimRS),
+     *               nBasT,nSym,iSym,iSkip,irc,JREDC)
 C
 C           ----- Fock-like transformations (if needed) -----
 C
@@ -1195,13 +1195,15 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine R2FIP(CHSPC,WRK,ipWRK,NUMV,l_NDIMRS,NNBSTR,INFVEC,
-     *                 nDimRS,nBasT,MAXVEC,N2,nSym,iSym,iSkip,irc,JREDC)
+      Subroutine R2FIP(CHSPC,WRK,ipWRK,NUMV,l_NDIMRS,INFVEC,
+     *                 nDimRS,nBasT,nSym0,iSym,iSkip,irc,JREDC)
 C
       Implicit Real*8 (A-H,O-Z)
 C
+#include "cholesky.fh"
+C
       Dimension CHSPC(nBasT**2,*),WRK(*),ipWRK(*)
-      Dimension NNBSTR(8,3),INFVEC(MAXVEC,N2,*),nDimRS(nSym,*),iSkip(8)
+      Dimension INFVEC(MAXVEC,INFVEC_N2,*),nDimRS(nSym0,*),iSkip(8)
 C
 C     Transform the reduced form to the full form in place
 C
