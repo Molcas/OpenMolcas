@@ -919,7 +919,7 @@ C     write(6,*) "nchspc = ", nchspc
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('HTVEC','ALLO','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(1),nBasT*nBasT)
+      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(iSym),nBasT*nBasT)
 C
       IBATCH_TOT=NBTCHES(iSym)
 
@@ -999,7 +999,7 @@ C
 C
           !! (strange) reduced form -> squared AO (mu nu|iVec)
           !! is it possible to avoid this transformation?
-          Call R2FIP(Work(ip_CHSPC),Work(ipWRK(1)),ipWRK,NUMV,
+          Call R2FIP(Work(ip_CHSPC),Work(ipWRK(iSym)),ipWRK(iSym),NUMV,
      *               l_NDIMRS,IWORK(ip_INFVEC),iWork(ip_nDimRS),
      *               nBasT,nSym,iSym,iSkip,irc,JREDC)
 C
@@ -1052,7 +1052,7 @@ C
       CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('HTVEC','FREE','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(1),nBasT*nBasT)
+      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(iSym),nBasT*nBasT)
 C
       !! Have to (?) symmetrize Fock-transformed matrices
       If (nFroT.eq.0) Then
