@@ -119,8 +119,17 @@ C    *               "gradient calculation.")')
 C       write (6,'(x,"Otherwise, something is wrong...")')
 C       call abend()
 C     end if
-      Do i = 1, l_A_t
-        Read (LuCMOPT2,END=100) Work(ip_A_t+i-1)
+      Read (LuCMOPT2,END=100) Work(ip_A_t:ip_A_t+l_A_t-1)
+*
+      !! Symmetrized A_PT2
+      Do i = 1, NumCV
+         Do j = 1, i
+           aaa = Work(ip_A_t+i-1+NumCV*(j-1))
+     *         + Work(ip_A_t+j-1+NumCV*(i-1))
+           aaa = aaa*0.5d+00
+           Work(ip_A_t+i-1+NumCV*(j-1)) = aaa
+           Work(ip_A_t+j-1+NumCV*(i-1)) = aaa
+         End Do
       End Do
 *
 #ifdef _DEBUGPRINT_
@@ -151,9 +160,7 @@ C     end if
 *     Put transformed A-vectors back on disk
 *
       Rewind (LuCMOPT2)
-      Do i = 1, l_A
-        Write (LuCMOPT2) Work(ip_A+i-1)
-      End Do
+      Write (LuCMOPT2) Work(ip_A:ip_A+l_A-1)
 *
       Close (LuCMOPT2)
 C     write (*,*) "l_A_t = ", l_A_t
@@ -204,7 +211,7 @@ C    *      Recl=nBas2*8)
 *
             Do lVec = 1, NumCV
               Read (Unit=LuGAMMA,Rec=lVec)
-     *       (Work(ip_B_t+i-1+nBas2*(lVec-1)),i=1,nBas2)
+     *       Work(ip_B_t+nBas2*(lVec-1):ip_B_t+nBas2-1+nBas2*(lVec-1))
             End Do
 *
             Fac = 0.0D0
@@ -217,8 +224,18 @@ C    *      Recl=nBas2*8)
          End Do
 *
          Do lVec = 1, NumAux
+          !! Symmetrized B_PT2
+           Do i = 1, nBas(1)
+              Do j = 1, i-1
+                aaa = Work(ip_B+i-1+nBas(1)*(j-1)+nBas2*(lVec-1))
+     *              + Work(ip_B+j-1+nBas(1)*(i-1)+nBas2*(lVec-1))
+                aaa = aaa*0.5d+00
+                Work(ip_B+i-1+nBas(1)*(j-1)+nBas2*(lVec-1)) = aaa
+                Work(ip_B+j-1+nBas(1)*(i-1)+nBas2*(lVec-1)) = aaa
+              End Do
+           End Do
            Write (Unit=LuGAMMA,Rec=lVec)
-     *       (Work(ip_B+i-1+nBas2*(lVec-1)),i=1,nBas2)
+     *       Work(ip_B+nBas2*(lVec-1):ip_B+nBas2-1+nBas2*(lVec-1))
          End Do
       End Do
 *

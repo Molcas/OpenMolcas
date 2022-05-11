@@ -57,6 +57,7 @@
        MXHTARR=MAX(MXHTARR,NPB)
       END DO
       MXCHARR=NBAST**2
+      IF (IFGRDT) MXHTARR = MXCHARR
 * MXFTARR,MXHTARR: Largest single full-transformed, half-transformed vector.
 * MXCHARR: Largest possible Cholesky vector.
 

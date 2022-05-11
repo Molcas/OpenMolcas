@@ -145,10 +145,11 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
+#include "output.fh"
 C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
-      LOGICAL DEBUG
+      LOGICAL DEBUG2
       LOGICAL DEB
 C
       Dimension HEFF1(nState,nState),WRK1(nState,nState),
@@ -187,17 +188,17 @@ C
               Factor = Factor + exp(-zeta*(Ealpha - Egamma)**2)
             End Do
             !! derivative of alpha-beta
-            DERAB = -ZETA*EXP(-ZETA*(Ealpha-Ebeta)**2)/Factor
-            Scal = 2.0D+00*DERAB*(Ealpha-Ebeta)*OMGDER
+            DERAB = EXP(-ZETA*(Ealpha-Ebeta)**2)/Factor
+            Scal = -2.0D+00*ZETA*DERAB*(Ealpha-Ebeta)*OMGDER
             Work(ipSLag+jloc-1) = Work(ipSLag+jloc-1) + Scal
             Work(ipSLag+iloc-1) = Work(ipSLag+iloc-1) - Scal
             !! derivative of alpha-gamma
             Do klStat = 1, nState
               kloc = klStat+nState*(klStat-1)
               Egamma = HEFF1(klStat,klStat)
-              DERAC = ZETA*EXP(-ZETA*(Ealpha-Ebeta)**2)/(Factor*Factor)
-     *                    *EXP(-ZETA*(Ealpha-Egamma)**2)
-              Scal = 2.0D+00*DERAC*(Ealpha-Egamma)*OMGDER
+              DERAC =  EXP(-ZETA*(Ealpha-Ebeta)**2)/(Factor*Factor)
+     *                *EXP(-ZETA*(Ealpha-Egamma)**2)
+              Scal = 2.0D+00*ZETA*DERAC*(Ealpha-Egamma)*OMGDER
               Work(ipSLag+jloc-1) = Work(ipSLag+jloc-1) + Scal
               Work(ipSLag+kloc-1) = Work(ipSLag+kloc-1) - Scal
             End Do
@@ -229,12 +230,14 @@ C
           Call DCopy_(nState**2,[0.0D+00],0,U0,1)
           Call DCopy_(nState,[1.0D+00],0,U0,nState+1)
         End If
-        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+        IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         CALL XMS_Grad(Work(ipCLagFull),H0,U0,UEFF,WRK2)
-        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-        CPUT =CPTF10-CPTF0
-        WALLT=TIOTF10-TIOTF0
-        write(6,*) "XMS_Grad: CPU/WALL TIME=", cput,wallt
+        IF (IPRGLB.GE.USUAL) THEN
+          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          CPUT =CPTF10-CPTF0
+          WALLT=TIOTF10-TIOTF0
+          write(6,'(a,2f10.2)')" XMS_Grad: CPU/WALL TIME=", cput,wallt
+        End If
       End If
 C
       ! call RecPrt('CLagFull before','',work(ipCLagFull),nConf,nState)
@@ -276,18 +279,6 @@ C
         End Do
       End If
 C
-      !! Add XDW-CASPT2 contributions: derivative of <alpha|H|beta> etc
-C     If (IFDW) Then
-C       !! OMGDER is computed in XMS basis, so back-transform to CASSCF
-C       call sqprt(work(ipomgder),nstate)
-C       Call DGEMM_('N','N',nState,nState,nState,
-C    *              1.0D+00,U0,nState,Work(ipOMGDER),nState,
-C    *              0.0D+00,UEFF,nState)
-C       Call DGEMM_('N','T',nState,nState,nState,
-C    *              1.0D+00,UEFF,nState,U0,nState,
-C    *              0.0D+00,Work(ipOMGDER),nState)
-C     End If
-C
       !! Subtract the original rhs_sa.f or rhs_nac.f contribution
       !! For MS-type CASPT2, CASSCF part has to be determined by UEFF
       If (IFMSCOUP.and.iRoot1.eq.iRoot2) Then
@@ -319,68 +310,68 @@ C
         Call GetMem('CI1','FREE','REAL',LCI1,nConf*nState)
       End If
 C
-      DEBUG = .FALSE.
+      DEBUG2 = .FALSE.
       DEB = .false.
       Call Molcas_Open(LuPT2,'PT2_Lag')
 C     Write (LuPT2,*) BSHIFT
       !! configuration Lagrangian (read in RHS_PT2)
-      If (DEBUG) write(6,*) "CLag"
+      If (DEBUG2) write(6,*) "CLag"
       ! If (DEB) call RecPrt('CLag', '', work(ipCLag), nConf, nState)
       If (DEB) call RecPrt('CLagFull','',work(ipCLagFull),nConf,nState)
       Do i = 1, nCLag
 C       if (abs(work(ipclagfull+i-1)).le.1.0d-10) work(ipclagfull+i-1)=0.0d+00
         Write (LuPT2,*) Work(ipCLagFull+i-1)
-        If (DEBUG) write(6,'(I6,F20.10)') i,Work(ipCLagFull+i-1)
+        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipCLagFull+i-1)
       End Do
       !! orbital Lagrangian (read in RHS_PT2)
-      If (DEBUG) write(6,*) "OLag"
+      If (DEBUG2) write(6,*) "OLag"
       ! If (DEB) call RecPrt('OLag', '', work(ipOLag), nBasT, nBasT)
       If (DEB) call RecPrt('OLagFull','',work(ipOLagFull),nBasT,nBasT)
       Do i = 1, nOLag
 C       if (abs(work(ipolagfull+i-1)).le.1.0d-10) work(ipolagfull+i-1)=0.0d+00
         Write (LuPT2,*) Work(ipOLagFull+i-1)
-        If (DEBUG) write(6,'(I6,F20.10)') i,Work(ipOLagFull+i-1)
+        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipOLagFull+i-1)
       End Do
       !! state Lagrangian (read in RHS_PT2)
-      If (DEBUG) write(6,*) "SLag"
+      If (DEBUG2) write(6,*) "SLag"
       If (DEB) call RecPrt('SLag', '', work(ipSLag), nState, nState)
       Do i = 1, nSLag
         Write (LuPT2,*) Work(ipSLag+i-1)
-        If (DEBUG) write(6,'(I6,F20.10)') i,Work(ipSLag+i-1)
+        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipSLag+i-1)
       End Do
 C
 C
 C
       !! renormalization contributions (read in OUT_PT2)
-      If (DEBUG) write(6,*) "WLag"
+      If (DEBUG2) write(6,*) "WLag"
       If (DEB) call TriPrt('WLag', '', work(ipWLag), nBast)
       Do i = 1, nbast*(nbast+1)/2 !! nWLag
         Write (LuPT2,*) Work(ipWlag+i-1)
-        If (DEBUG) write(6,'(I6,F20.10)') i,Work(ipWlag+i-1)
+        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipWlag+i-1)
       End Do
 C     write(6,*) "dpt2"
       !! D^PT2 in MO (read in OUT_PT2)
-      If (DEBUG) write(6,*) "DPT2"
+      If (DEBUG2) write(6,*) "DPT2"
       If (DEB) call RecPrt('DPT2', '', work(ipDPT2), nBast, nBast)
       Do i = 1, nBasSq
 C       write(6,*) i,work(ipdpt2+i-1)
         Write (LuPT2,*) Work(ipDPT2+i-1)
-        If (DEBUG) write(6,'(I6,F20.10)') i,Work(ipDPT2+i-1)
+        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipDPT2+i-1)
       End Do
 C     write(6,*) "dpt2c"
       !! D^PT2(C) in MO (read in OUT_PT2)
-      If (DEBUG) write(6,*) "DPT2C"
+      If (DEBUG2) write(6,*) "DPT2C"
       If (DEB) call RecPrt('DPT2C', '', work(ipDPT2C), nBast, nBast)
       Do i = 1, nBasSq
 C       write(6,*) i,work(ipdpt2c+i-1)
         Write (LuPT2,*) Work(ipDPT2C+i-1)
-        If (DEBUG) write(6,'(I6,F20.10)') i,Work(ipDPT2C+i-1)
+        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipDPT2C+i-1)
       End Do
       If (isNAC) Then
         Do i = 1, nBasSq
 C         write(6,*) i,work(ipdpt2c+i-1)
           Write (LuPT2,*) Work(ipDPT2Canti+i-1)
-          If (DEBUG) write(6,'(I6,F20.10)') i,Work(ipDPT2Canti+i-1)
+          If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipDPT2Canti+i-1)
         End Do
       End If
 C
@@ -566,7 +557,7 @@ C
         End Do
         jStLag    = jState
       Else
-        write(6,*) 'jState in gradprep: ',jstate
+C       write(6,*) 'jState in gradprep: ',jstate
         VECROT(jState) = 1.0D+00
         jStLag    = jState
       End If

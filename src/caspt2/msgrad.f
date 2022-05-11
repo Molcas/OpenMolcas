@@ -927,7 +927,7 @@ C
       End If
       Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,CLag,1)
 C
-      !! Compute the Lagrange multiplier
+      !! Compute the Lagrange multiplier for XMS
       !! The diagonal element is always zero.
       !! The code has an additional scaling with 0.5,
       !! because some contributions are doubled.
@@ -1577,13 +1577,15 @@ C
      &                                Work(LKET),nKet,
      &                                IBSTA,IBEND)
 C
-            CALL GETMEM('WRKCHO','ALLO','REAL',LWRKCHO,NV)
-            Call DCopy_(NV,[0.0D+00],0,Work(LWRKCHO),1)
+C           CALL GETMEM('WRKCHO','ALLO','REAL',LWRKCHO,NV)
+C           Call DCopy_(NV,[0.0D+00],0,Work(LWRKCHO),1)
+            If (IBGRP.EQ.1) SCAL = 0.0D+00
+            If (IBGRP.NE.1) SCAL = 1.0D+00
             Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,
      *                  0.5D+00,Work(LKET),NASH(JSYM)**2,
      *                          Work(LKET),NASH(JSYM)**2,
-     *                  0.0D+00,INT2,NASH(JSYM)**2)
-            CALL GETMEM('WRKCHO','FREE','REAL',LWRKCHO,NV)
+     *                  SCAL   ,INT2,NASH(JSYM)**2)
+C           CALL GETMEM('WRKCHO','FREE','REAL',LWRKCHO,NV)
           End Do
           CALL GETMEM('KETBUF','FREE','REAL',LKET,NCHOBUF)
           CALL GETMEM('BGRP','FREE','INTE',LBGRP,2*MXBGRP)

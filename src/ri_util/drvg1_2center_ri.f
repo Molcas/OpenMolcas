@@ -283,9 +283,7 @@ C    *        Form='UNFORMATTED')
      &                        'DIRECT','UNFORMATTED',
      &                        iost,.FALSE.,
      &                        1,'OLD',is_error)
-        Do i = 1, nBasASQ
-          Read (LuCMOPT2) A_PT2(i,1)
-        End Do
+        Read (LuCMOPT2) A_PT2(1:nBasASQ,1)
         Close (LuCMOPT2)
       End If
 *                                                                      *

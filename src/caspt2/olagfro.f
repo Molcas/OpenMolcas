@@ -571,7 +571,7 @@ C
           END IF
 C
           ipVecL = ip_CHSPC
-          Do iVec = JV1, JV2
+          Do iVec = 1, NUMV
             !! (strange) reduced form -> squared AO vector (mu nu|iVec)
             jVref = 1 !! only for iSwap=1
 C           lscr  = nBasI*(nBasI+1)/2
@@ -582,15 +582,13 @@ C           lscr  = nBasI*(nBasI+1)/2
               lscr  = iWork(ip_nDimRS+iSym-1+nSym*(JREDL-1)) !! JRED?
             End If
             JVEC1 = 1
-            JNUM  = 1
-            NUMV  = 1
             iSwap = 2
 C           Call Cho_ReOrdr(irc,Work(ip_CHSPC+lscr*(iVec-1)),lscr,jVref,
 C    *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
 C    *                      iSkip)
             Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,jVref,
-     *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
+     *                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,
      *                      iSkip)
             ipVecL = ipVecL + lscr
 C
@@ -599,6 +597,7 @@ C
             Call FDGTRF_RI(Work(ipWRK(iSym)),DPT2AO ,FPT2AO )
             Call FDGTRF_RI(Work(ipWRK(iSym)),DPT2CAO,FPT2CAO)
           End Do
+          JV1=JV1+JNUM
         End Do
       End Do
 C

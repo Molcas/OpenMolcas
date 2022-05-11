@@ -581,7 +581,7 @@
 *-----CASPT2
 *
       If (Method.eq.'CASPT2  ') Then
-        !! Just read A_{JK} type matrix constructed in CASPT2
+        !! Just read B_{mu nu,J} type matrix constructed in CASPT2
         Call MMA_Allocate(B_PT2,nBasT,nBasT,nBasA,Label='B_PT2')
 C       B_PT2(:,:,:)=Zero
         !! Now, read
@@ -592,7 +592,7 @@ C       B_PT2(:,:,:)=Zero
      &                        iost,.TRUE.,
      &                        nBasT*nBasT*8,'OLD',is_error)
         Do iRec = 1, nBasA
-          Read (Unit=LuGAMMA,Rec=iRec) (B_PT2(i,1,iRec),i=1,nBasT*nBasT)
+          Read (Unit=LuGAMMA,Rec=iRec) B_PT2(1:nBasT**2,1,iRec)
         End Do
         Close (LuGAMMA)
       End If

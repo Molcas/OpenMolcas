@@ -299,8 +299,6 @@ c
 *      Calculates the effective Fock matrix
        Call Make_Conn(Work(ipF),Work(ipK2),
      &                Work(ipP_CI),work(ipD_CI))   !ipD_CI not changed
-    ! the commented daxpy_ is from Yoshio, the other one form master
-    !    Call DaxPy_(ndens2,One,Work(ipD_K),1,Work(ipF),1)
        Call DaxPy_(ndens2,One,D_K,1,Work(ipF),1)
 *      call dcopy_(ndens2,Work(ipD_K),1,Work(ipF),1)
        If (PT2) Then

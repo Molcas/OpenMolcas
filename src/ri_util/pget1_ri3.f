@@ -930,9 +930,7 @@
                            temp=temp+Thpkl(iThpkl)
 *
                            If (Gamma_On) Then !! For CASPT2
-                             !! Not sure why scaled with 1/2
-                             !! It may be done in Mult_with_Q_CASPT2
-                             temp = temp + B_PT2(kSOk,lSOl,jSOj)*0.5d+00
+                             temp = temp + B_PT2(kSOk,lSOl,jSOj)
                            End If
 *
                            PMax=Max(PMax,Abs(temp))

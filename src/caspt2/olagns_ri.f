@@ -67,9 +67,7 @@ C     For 2c-2e ERI derivatives,
 C     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
 C     then saved.
 C
-C     Subroutine OLagNS_RI(iSym0,WRK1,WRK2,DPT2C,BRAD,A_PT2,nChoVec)
-      Subroutine OLagNS_RI(iSym0,WRK1,WRK2,DPT2C,DPT2Canti,
-     *                     BraAI,BraSI,BraAA,BraSA,A_PT2,nChoVec)
+      Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2,nChoVec)
 C
       Use CHOVEC_IO
 C
@@ -93,15 +91,7 @@ C
       DATA NUMERR / 0 /
 #endif
 C
-      Dimension WRK1(*),WRK2(*),DPT2C(*),DPT2Canti(*),
-     *          A_PT2(nChoVec,nChoVec)
-      Dimension BraAI(nAsh(iSym0),nIsh(iSym0),nChoVec),
-     *          BraSI(nSsh(iSym0),nIsh(iSym0),nChoVec),
-     *          BraAA(nAsh(iSym0),nAsh(iSym0),nChoVec),
-     *          BraSA(nSsh(iSym0),nAsh(iSym0),nChoVec)
-C     Real*8, Target :: BraD(*)
-C     Real*8, Pointer :: BraAI(:,:,:),BraSI(:,:,:),
-C    *                   BraAA(:,:,:),BraSA(:,:,:)
+      Dimension DPT2C(*),DPT2Canti(*),A_PT2(nChoVec,nChoVec)
 C
       Call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
       Call ICopy(NSYM,NASH,1,nSh(1,Active  ),1)
@@ -114,38 +104,7 @@ C
 C
       iVec = iVecX
       iSym = iSym0
-      !! Set pointers
-      !! active-inactive
-C     n = nAsh(iSym)*nIsh(iSym)*nChoVec
-C     i = 1
-C     j = n + i-1
-C     BraAI(1:nAsh(iSym),1:nIsh(iSym),1:nChoVec) => BraD(i:j)
-C     !! secondary-inactive
-C     n = nSsh(iSym)*nIsh(iSym)*nChoVec
-C     i = j+1
-C     j = n + i-1
-C     BraSI(1:nSsh(iSym),1:nIsh(iSym),1:nChoVec) => BraD(i:j)
-C     !! active-active
-C     n = nAsh(iSym)*nAsh(iSym)*nChoVec
-C     i = j+1
-C     j = n + i-1
-C     BraAA(1:nAsh(iSym),1:nAsh(iSym),1:nChoVec) => BraD(i:j)
-C     !! secondary-active
-C     n = nSsh(iSym)*nAsh(iSym)*nChoVec
-C     i = j+1
-C     j = n + i-1
-C     BraSA(1:nSsh(iSym),1:nAsh(iSym),1:nChoVec) => BraD(i:j)
-*
       SCLNEL = 1.0D+00/DBLE(MAX(1,NACTEL))
-*                                                                      *
-*     Allocate and clear TUVX, two-electron integrals for active
-*     orbital indices only: Simple storage, same as for GAMMA2.
-*     TUVX is kept allocated until end of subroutine.
-      NG1=NASHT**2
-      NG2=NG1**2
-      NTUVX=NG2
-      CALL GETMEM('TUVX','ALLO','REAL',LTUVX,NTUVX)
-      CALL DCOPY_(NTUVX,[0.0D0],0,WORK(LTUVX),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -179,12 +138,12 @@ C     BraSA(1:nSsh(iSym),1:nAsh(iSym),1:nChoVec) => BraD(i:j)
       CALL GetMem('IDXB','ALLO','INTE',LIDXB,NADDBUF)
       CALL GETMEM('BRABUF','ALLO','REAL',LBRA,NCHOBUF)
       CALL GETMEM('KETBUF','ALLO','REAL',LKET,NCHOBUF)
-      CALL GETMEM('WRK','ALLO','REAL',ipWRK,nOrb(jSym)*nChoVec)
-      CALL GETMEM('WRK2','ALLO','REAL',ipWRK2,
-     *            max(norb(jsym)*nchovec,nAsh(jSym)**2))
+      CALL GETMEM('BRAD','ALLO','REAL',LBRAD,NCHOBUF)
+      CALL GETMEM('KETD','ALLO','REAL',LKETD,NCHOBUF)
 C
 C     Loop over groups of batches of Cholesky vectors
 C
+      IOFFCV = 1
       DO IBGRP=1,NBGRP
 C
       IBSTA=IWORK(LBGRP  +2*(IBGRP-1))
@@ -207,53 +166,7 @@ C
       Call Get_Cholesky_Vectors(Active,Active,JSYM,
      &                          Work(LKET),nKet,
      &                          IBSTA,IBEND)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Assemble constributions to TUVX integrals
-*     Reuse the ket vectors as L(TU) bra vectors
-*
-      LBRASM=LKET
-      DO ISYI=1,NSYM
-        NI=NASH(ISYI)
-        iOffi=NAES(iSYI)
-        IF(NI.EQ.0) Cycle
-        ISYP=MUL(ISYI,JSYM)
-        NP=NASH(ISYP)
-        iOffp=NAES(iSYP)
-        IF(NP.EQ.0) Cycle
-        NPI=NP*NI
-        NBRASM=NPI*NV
-        LKETSM=LKET
-
-        DO ISYK=1,NSYM
-          NK=NASH(ISYK)
-          iOffK=NAES(iSYK)
-          IF(NK.EQ.0) Cycle
-          ISYQ=MUL(ISYK,JSYM)
-          NQ=NASH(ISYQ)
-          iOffQ=NAES(iSYQ)
-          IF(NQ.EQ.0) Cycle
-          NQK=NQ*NK
-          NKETSM=NQK*NV
-*
-          IF (NPI*NQK.GT.mxPIQK) THEN
-            WRITE(6,*) 'NPIQK larger than mxPIQK in TUVX, bug?'
-            Call AbEnd()
-          END IF
-*         CALL GETMEM('PIQK','ALLO','REAL',LPIQK,NPI*NQK)
-          CALL DGEMM_('N','T',NPI,NQK,NV,1.0D0,WORK(LBRASM),NPI,
-     &         WORK(LKETSM),NQK,0.0D0,WORK(LPIQK),NPI)
-*
-          Call ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,
-     &                 WORK(LTUVX),nTUVX,Work(LPIQK),NPI*NQK,
-     &                 NUMERR)
-*         CALL GETMEM('PIQK','FREE','REAL',LPIQK,NPI*NQK)
-*
-          LKETSM=LKETSM+NKETSM
-        END DO
-        LBRASM=LBRASM+NBRASM
-      END DO
+      Call DCopy_(nKet,[0.0D+00],0,Work(LKETD),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -262,6 +175,7 @@ C
       Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
      &                          Work(LBRA),nBra,
      &                          IBSTA,IBEND)
+      Call DCopy_(nBra,[0.0D+00],0,Work(LBRAD),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -269,7 +183,8 @@ C
 *      Loop over the bras and kets, form <A|0>
 *
       Call OLagNS_RI2(Inactive,Active,Active,Active,
-     &                'A ',Work(LBRA),Work(LKET))
+     &                'A ',Work(LBRA),Work(LKET),
+     &                Work(LBRAD),Work(LKETD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -278,16 +193,20 @@ C
 *
       nKet = nBra
       Call OLagNS_RI2(Inactive,Active,Inactive,Active,
-     &                'B ',Work(LBRA),Work(LBRA))
+     &                'B ',Work(LBRA),Work(LBRA),
+     &                Work(LBRAD),Work(LBRAD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read bra (Cholesky vectors) in the form L(AJ), form <D1|0>
 * We still have L(VX) vectors in core, at WORK(LKETS).
 *
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,Work(LBRAD),nBra,
+     &                      IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
      &                          Work(LBRA),nBra,
      &                          IBSTA,IBEND)
+      Call DCopy_(nBra,[0.0D+00],0,Work(LBRAD),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -295,7 +214,8 @@ C
 * Loop over the bra and ket vectors.
 *
       Call OLagNS_RI2(Inactive,Virtual,Active,Active,
-     &                'D1',Work(LBRA),Work(LKET))
+     &                'D1',Work(LBRA),Work(LKET),
+     &                Work(LBRAD),Work(LKETD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -304,15 +224,19 @@ C
 *
       nKet = nBra
       Call OLagNS_RI2(Inactive,Virtual,Inactive,Virtual,
-     &                'H ',Work(LBRA),Work(LBRA))
+     &                'H ',Work(LBRA),Work(LBRA),
+     &                Work(LBRAD),Work(LBRAD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read Bra (Cholesky vectors)= L(AU)
 *
+      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,Work(LBRAD),nBra,
+     &                      IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Active,Virtual,JSYM,
      &                          Work(LBRA),nBra,
      &                          IBSTA,IBEND)
+      Call DCopy_(nBra,[0.0D+00],0,Work(LBRAD),1)
 C                                                                      *
 ************************************************************************
 *                                                                      *
@@ -320,7 +244,8 @@ C                                                                      *
 * AUVX: Loop over the bras and kets
 *
       Call OLagNS_RI2(Active,Virtual,Active,Active,
-     &                'C ',Work(LBRA),Work(LKET))
+     &                'C ',Work(LBRA),Work(LKET),
+     &                Work(LBRAD),Work(LKETD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -329,15 +254,20 @@ C                                                                      *
 *
       nKet = nBra
       Call OLagNS_RI2(Active,Virtual,Active,Virtual,
-     &                'F ',Work(LBRA),Work(LBRA))
+     &                'F ',Work(LBRA),Work(LBRA),
+     &                Work(LBRAD),Work(LBRAD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets (Cholesky vectors) in the form L(VL), all symmetries:
 *
+      Call Cholesky_Vectors(1,Active,Active,JSYM,Work(LKETD),nKet,
+     &                      IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
      &                          Work(LKET),nKet,
      &                          IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,Work(LKETD),nKet,
+     &                      IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -345,15 +275,20 @@ C                                                                      *
 * Loop over bras and kets, form <D2|0>.
 *
       Call OLagNS_RI2(Active,Virtual,Inactive,Active,
-     &                'D2',Work(LBRA),Work(LKET))
+     &                'D2',Work(LBRA),Work(LKET),
+     &                Work(LBRAD),Work(LKETD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets (Cholesky vectors) in the form L(CL), all symmetries:
 *
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,Work(LKETD),nKet,
+     &                      IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
      &                          Work(LKET),nKet,
      &                          IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,Work(LKETD),nKet,
+     &                      IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -361,15 +296,19 @@ C                                                                      *
 * Loop over bras and kets, form  <G|0>
 *
       Call OLagNS_RI2(Active,Virtual,Inactive,Virtual,
-     &                'G ',Work(LBRA),Work(LKET))
+     &                'G ',Work(LBRA),Work(LKET),
+     &                Work(LBRAD),Work(LKETD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read bra vectors AJ
 *
+      Call Cholesky_Vectors(1,Active,Virtual,JSYM,Work(LBRAD),nBra,
+     &                      IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
      &                          Work(LBRA),nBra,
      &                          IBSTA,IBEND)
+      Call DCopy_(nBra,Work(LKETD),1,Work(LBRAD),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -378,6 +317,8 @@ C                                                                      *
       Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
      &                          Work(LKET),nKet,
      &                          IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,Work(LKETD),nKet,
+     &                      IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -385,25 +326,96 @@ C                                                                      *
 * AJVL: Loop over bras and kets. Form <E|0>
 *
       Call OLagNS_RI2(Inactive,Virtual,Inactive,Active,
-     &                'E ',Work(LBRA),Work(LKET))
+     &                'E ',Work(LBRA),Work(LKET),
+     &                Work(LBRAD),Work(LKETD))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * End of loop over batches, IB
-      END DO
+      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,Work(LBRAD),nBra,
+     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,Work(LKETD),nKet,
+     &                      IBSTA,IBEND)
+      !! Construct A_PT2
+      NVI = NV
+      JOFFCV = 1
+      DO JBGRP=1,NBGRP
+C
+        JBSTA=IWORK(LBGRP  +2*(JBGRP-1))
+        JBEND=IWORK(LBGRP+1+2*(JBGRP-1))
+C
+        NVJ=0
+        DO JB=JBSTA,JBEND
+          NVJ=NVJ+NVLOC_CHOBATCH(JB)
+        END DO
+C
+        !! BraAI
+        If (nIsh(iSym0)*nAsh(iSym0).ne.0) Then
+        Call Cholesky_Vectors(2,Inactive,Active,JSYM,Work(LBRA),nBra,
+     &                        IBSTA,IBEND)
+        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
+     &                            Work(LKET),nKet,
+     &                            JBSTA,JBEND)
+        Call DGEMM_('T','N',NVI,NVJ,nIsh(iSym0)*nAsh(iSym0),
+     &              1.0D+00,Work(LBRA),nIsh(iSym0)*nAsh(iSym0),
+     &                      Work(LKET),nIsh(iSym0)*nAsh(iSym0),
+     &              1.0D+00,A_PT2(IOFFCV,JOFFCV),nChoVec)
+        End If
+C
+        !! BraSI
+        If (nIsh(iSym0)*nSsh(iSym0).ne.0) Then
+        Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,Work(LBRA),nBra,
+     &                        IBSTA,IBEND)
+        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
+     &                            Work(LKET),nKet,
+     &                            JBSTA,JBEND)
+        Call DGEMM_('T','N',NVI,NVJ,nIsh(iSym0)*nSsh(iSym0),
+     &              1.0D+00,Work(LBRA),nIsh(iSym0)*nSsh(iSym0),
+     &                      Work(LKET),nIsh(iSym0)*nSsh(iSym0),
+     &              1.0D+00,A_PT2(IOFFCV,JOFFCV),nChoVec)
+        End If
+C
+        !! BraSA
+        If (nAsh(iSym0)*nSsh(iSym0).ne.0) Then
+        Call Cholesky_Vectors(2,Active,Virtual,JSYM,Work(LBRA),nBra,
+     &                        IBSTA,IBEND)
+        Call Get_Cholesky_Vectors(Active,Virtual,JSYM,
+     &                            Work(LKET),nKet,
+     &                            JBSTA,JBEND)
+        Call DGEMM_('T','N',NVI,NVJ,nAsh(iSym0)*nSsh(iSym0),
+     &              1.0D+00,Work(LBRA),nAsh(iSym0)*nSsh(iSym0),
+     &                      Work(LKET),nAsh(iSym0)*nSsh(iSym0),
+     &              1.0D+00,A_PT2(IOFFCV,JOFFCV),nChoVec)
+        End If
+C
+        !! BraAA
+        If (nAsh(iSym0)*nAsh(iSym0).ne.0) Then
+        Call Cholesky_Vectors(2,Active,Active,JSYM,Work(LBRA),nBra,
+     &                        IBSTA,IBEND)
+        Call Get_Cholesky_Vectors(Active,Active,JSYM,
+     &                            Work(LKET),nKet,
+     &                            JBSTA,JBEND)
+        Call DGEMM_('T','N',NVI,NVJ,nAsh(iSym0)*nAsh(iSym0),
+     &              1.0D+00,Work(LBRA),nAsh(iSym0)*nAsh(iSym0),
+     &                      Work(LKET),nAsh(iSym0)*nAsh(iSym0),
+     &              1.0D+00,A_PT2(IOFFCV,JOFFCV),nChoVec)
+        End If
+        JOFFCV = JOFFCV + NVJ
+      END DO !! end of JBGRP loop
+      IOFFCV = IOFFCV + NVI
+      END DO !! end of IBGRP loop
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *SVC  Call GetMem('ADDRHS','Free','Real',ipAdd,nAdd)
       CALL GETMEM('BRABUF','FREE','REAL',LBRA,NCHOBUF)
       CALL GETMEM('KETBUF','FREE','REAL',LKET,NCHOBUF)
+      CALL GETMEM('BRAD','FREE','REAL',LBRAD,NCHOBUF)
+      CALL GETMEM('KETD','FREE','REAL',LKETD,NCHOBUF)
       CALL GetMem('PIQK','FREE','REAL',LPIQK,MXPIQK)
       CALL GetMem('BUFF','FREE','REAL',LBUFF,NADDBUF)
       CALL GetMem('IDXB','FREE','INTE',LIDXB,NADDBUF)
       CALL GETMEM('BGRP','FREE','INTE',LBGRP,2*MXBGRP)
-      CALL GETMEM('WRK','FREE','REAL',ipWRK,nOrb(jSym)*nChoVec)
-      CALL GETMEM('WRK2','FREE','REAL',ipWRK2,
-     *            max(norb(jsym)*nchovec,nAsh(jSym)**2))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -421,26 +433,11 @@ C      full parallel capabilities
 C-SVC: at this point, the RHS elements are on disk, both in LUSOLV and
 C      as DRAs with the name RHS_XX_XX_XX with XX a number representing
 C      the case, symmetry, and rhs vector respectively.
-
-* The RHS elements of Cases A, C, D1  need a correction:
-C     CALL MODRHS(IVEC,WORK(LFIMO))
-
-
-* Synchronized add tuvx partial arrays from all nodes into each node.
-C     CALL CHO_GADGOP(WORK(LTUVX),NTUVX,'+')
-* Put TUVX on disk for possible later use:
-C     CALL PT2_PUT(NTUVX,'TUVX',WORK(LTUVX))
-      CALL GETMEM('TUVX','FREE','REAL',LTUVX,NTUVX)
 C
-      !! Symmetrize A_PT2...?
-      Do iChoVec = 1, nChoVec
-        Do jChoVec = 1, iChoVec-1
-          Tmp = (A_PT2(iChoVec,jChoVec)+A_PT2(jChoVec,iChoVec))*0.5D+00
-          A_PT2(iChoVec,jChoVec) = Tmp
-          A_PT2(jChoVec,iChoVec) = Tmp
-        End Do
-      End Do
 C
+      Call DScal_(nChoVec**2,2.0D+00,A_PT2,1)
+C
+      If (NBGRP.ne.0) SCLNEL = SCLNEL/DBLE(NBGRP)
       Call DScal_(nBasSq,SCLNEL,DPT2C,1)
       If (isCSF) Call DScal_(nBasSq,SCLNEL,DPT2Canti,1)
 C
@@ -451,7 +448,8 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket)
+      Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket,
+     &                      Cho_BraD,Cho_KetD)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -460,6 +458,7 @@ C
 #include "WrkSpc.fh"
 C     DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
       DIMENSION Cho_Bra(*), Cho_Ket(*)
+      DIMENSION Cho_BraD(*), Cho_KetD(*)
       Character Case*2
 C
       IF (iPrGlb.GE.DEBUG) THEN
@@ -467,7 +466,7 @@ C
       END IF
 C
       LBRASM=1
-      CALL CWTime(TotCPU0,TotWall0)
+      IF (IPRGLB.GE.USUAL) CALL CWTime(TotCPU0,TotWall0)
       DO ISYI=1,NSYM
         NI=NSH(ISYI,ITI)
         IF(NI.EQ.0) CYCLE
@@ -519,41 +518,41 @@ C
 *
           !! NBUFF(=nAddBuf) is removed
           If (Case.eq.'A ') Then
-             CALL OLagNS_RI_A(NP,NI,NQ,NK,
-     &                        Cho_Bra(LBRASM),
-     &                        Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_A(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'B ') Then
-             CALL OLagNS_RI_B(NP,NI,NQ,NK,
-     &                        Cho_Bra(LBRASM),
-     &                        Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_B(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'D1') Then
-             CALL OLagNS_RI_D1(NP,NI,NQ,NK,
-     &                         Cho_Bra(LBRASM),
-     &                         Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_D1(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'H ') Then
-             CALL OLagNS_RI_H(NP,NI,NQ,NK,NPIQK,
-     &                        Cho_Bra(LBRASM),
-     &                        Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_H(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'C ') Then
-             CALL OLagNS_RI_C(NP,NI,NQ,NK,
-     &                        Cho_Bra(LBRASM),
-     &                        Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_C(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'F ') Then
-             CALL OLagNS_RI_F(NP,NI,NQ,NK,
-     &                        Cho_Bra(LBRASM),
-     &                        Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_F(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'D2') Then
-             CALL OLagNS_RI_D2(NP,NI,NQ,NK,
-     &                         Cho_Bra(LBRASM),
-     &                         Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_D2(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'G ') Then
-             CALL OLagNS_RI_G(NP,NI,NQ,NK,NPIQK,
-     &                        Cho_Bra(LBRASM),
-     &                        Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_G(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'E ') Then
-             CALL OLagNS_RI_E(NP,NI,NQ,NK,
-     &                        Cho_Bra(LBRASM),
-     &                        Cho_Ket(LKETSM),NV)
+             CALL OLagNS_RI_E(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+     &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
+     &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else
              Call Abend()
           End If
@@ -562,9 +561,11 @@ C
         END DO
         LBRASM=LBRASM+NBRASM
       END DO
-      CALL CWTime(TotCPU1,TotWall1)
-      write(6,'("CPU/Wall Time (Case ",A2,"):",2f10.2)')
-     *  Case,totcpu1-totcpu0,totwall1-totwall0
+      IF (IPRGLB.GE.USUAL) THEN
+        CALL CWTime(TotCPU1,TotWall1)
+        write(6,'(" CPU/Wall Time (Case ",A2,"):",2f10.2)')
+     *    Case,totcpu1-totcpu0,totwall1-totwall0
+      END IF
 C
       Return
 C
@@ -572,14 +573,16 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_A(NT,NJ,NV,NX,
-     &                       Cho_Bra,Cho_Ket,NCHO)
+      SUBROUTINE OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,NTJVX,
+     &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
+      DIMENSION TJVX(NT,NJ,NV,NX)
+      DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO),
+     *          Cho_BraD(NT,NJ,NCHO), Cho_KetD(NV,NX,NCHO)
 C
       ISYJ = ISYI
       ISYX = ISYK
@@ -612,6 +615,8 @@ C
         End If
       End If
 C
+      Call DCopy_(NTJVX,[0.0D+00],0,TJVX,1)
+C
       nOrbT = nFro(iSyT)+nIsh(iSyT)+nAsh(iSyT)+nSsh(iSyT)
       DO IT=1,NT
         ITABS=IT+NAES(ISYT)
@@ -620,8 +625,6 @@ C
           IJABS=IJ+NIES(ISYJ)
           iJtot = iJ + nFro(iSyJ)
 C
-          Call DCopy_(NV*NX,[0.0D+00],0,WRK1,1)
-          Call DCopy_(nAsh(iSym)*nAsh(iSym),[0.0D+00],0,WRK2,1)
           DO IV=1,NV
             IVABS=IV+NAES(ISYV)
             IF (ISYV.EQ.ISYX) THEN !! not sure
@@ -644,41 +647,18 @@ C
               IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
               IW2=IJ
               IW=IW1+NAS*(IW2-1)
-C
-              ValA = Work(ipT+IW-1)*2.0D+00
-              WRK1(iX+NX*(iV-1)) = ValA
-              WRK2(iXabs+nAsh(iSym)*(iVabs-1)) = ValA
-C             Do iChoVec = 1, nCho
-C               BraAA(iVabs,iXabs,iChoVec)
-C    *            = BraAA(iVabs,iXabs,iChoVec)
-C    *            + ValA*Cho_Bra(iT,iJ,iChoVec)
-C               BraAI(iTabs,iJabs,iChoVec)
-C    *            = BraAI(iTabs,iJabs,iChoVec)
-C    *            + ValA*Cho_Ket(iV,iX,iChoVec)
-C               Do jChoVec = 1, nCho
-C                 A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *             + ValA*Cho_Bra(iT,iJ,iChoVec)
-C    *                   *Cho_Ket(iV,iX,jChoVec)
-C    *             + ValA*Cho_Bra(iT,iJ,jChoVec)
-C    *                   *Cho_Ket(iV,iX,iChoVec)
-C               End Do
-C             End Do
+              TJVX(IT,IJ,IV,IX) = Work(ipT+IW-1)
             END DO
           END DO
-          Call DGEMM_('N','N',nAsh(iSym)*nAsh(iSym),nCho,1,
-     *                1.0D+00,WRK2,nAsh(iSym)*nAsh(iSym),
-     *                        Cho_Bra(iT,iJ,1),NT*NJ,
-     *                1.0D+00,BraAA(1,1,1),nAsh(iSym)*nAsh(iSym))
-          Call DGEMV_('T',NV*NX,nCho,
-     *                1.0D+00,Cho_Ket,NV*NX,WRK1,1,
-     *                0.0D+00,WRK2,1)
-          Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                BraAI(iTabs,iJabs,1),nAsh(iSym)*nIsh(iSym))
-          Call DGEMM_('T','N',nCho,nCho,1,
-     *                2.0D+00,Cho_Bra(iT,iJ,1),NT*NJ,WRK2,1,
-     *                1.0D+00,A_PT2,nCho)
         END DO
       END DO
+C
+      Call DGEMM_('T','N',NV*NX,NCHO,NT*NJ,
+     *            1.0D+00,TJVX(1,1,1,1),NT*NJ,Cho_Bra(1,1,1),NT*NJ,
+     *            1.0D+00,Cho_KetD(1,1,1),NV*NX)
+      Call DGEMM_('N','N',NT*NJ,NCHO,NV*NX,
+     *            1.0D+00,TJVX(1,1,1,1),NT*NJ,Cho_Ket(1,1,1),NV*NX,
+     *            1.0D+00,Cho_BraD(1,1,1),NT*NJ)
 C
       CALL RHS_FREE(nAS,nIS,ipT)
       If (isCSF) CALL RHS_FREE(nAS,nIS,ipTanti)
@@ -689,14 +669,16 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_B(NT,NJ,NV,NL,
-     &                       Cho_Bra,Cho_Ket,NCHO)
+      SUBROUTINE OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,
+     &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
+      DIMENSION TJVL(NT,NJ,NV,NL)
+      DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO),
+     *          Cho_BraD(NT,NJ,NCHO), Cho_KetD(NV,NL,NCHO)
 C
       ISYJ = ISYI
       ISYL = ISYK
@@ -727,6 +709,8 @@ C
       ENDIF
       If (Max(NWBP,NWBM).le.0) RETURN
 C
+      Call DCopy_(NTJVL,[0.0D+00],0,TJVL,1)
+C
       IF(NWBP.GT.0.AND.NINDEP(ISYM,2).GT.0) THEN
         !! Read the T-amplitude
         ICASE=2
@@ -750,9 +734,6 @@ C
             SCL1=0.5D0
             IW1=KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
             IF(ITABS.EQ.IVABS) SCL1=0.25D0
-C
-            Call DCopy_(NJ*NL,[0.0D+00],0,WRK1,1)
-            Call DCopy_(nIsh(iSym)*nIsh(iSym),[0.0D+00],0,WRK2,1)
             DO IJ=1,NJ
               IJABS=IJ+NIES(ISYJ)
               DO IL=1,NL
@@ -765,50 +746,9 @@ C
                  IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
                 END IF
                 IW=IW1+NASP*(IW2-1)
-C
-                ValBP = SCL*Work(ipTP+IW-1)*2.0d+00
-                WRK1(iL+NL*(iJabs-1)) = ValBP
-                WRK2(iLabs+nIsh(iSym)*(iJ-1)) = ValBP
-C               Do iChoVec = 1, nCho
-C                 BraAI(iVabs,iLabs,iChoVec)
-C    *              = BraAI(iVabs,iLabs,iChoVec)
-C    *              + ValBP*Cho_Bra(iT,iJ,iChoVec)
-C                 BraAI(iTabs,iJabs,iChoVec)
-C    *              = BraAI(iTabs,iJabs,iChoVec)
-C    *              + ValBP*Cho_Ket(iV,iL,iChoVec)
-C                 Do jChoVec = 1, nCho
-C                   A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *               + ValBP*Cho_Bra(iT,iJ,iChoVec)
-C    *                      *Cho_Ket(iV,iL,jChoVec)
-C    *               + ValBP*Cho_Bra(iT,iJ,jChoVec)
-C    *                      *Cho_Ket(iV,iL,iChoVec)
-C                 End Do
-C               End Do
+                TJVL(IT,IJ,IV,IL) = SCL*Work(ipTP+IW-1)
               END DO
             END DO
-            Call DCopy_(NL*NCHO,Cho_Ket(iV,1,1),NV,Work(ipWRK),1)
-            Call DGEMM_('T','N',nIsh(iSym),NCHO,NL,
-     *                  1.0D+00,WRK1,NL,Work(ipWRK),NL,
-     *                  0.0D+00,Work(ipWRK2),nIsh(iSym))
-            Do iChoVec = 1, nCho
-              Call DaXpY_(nIsh(iSym),1.0D+00,
-     *                    Work(ipWRK2+nIsh(iSym)*(iChoVec-1)),1,
-     *                    BraAI(iTabs,1,iChoVec),nAsh(iSym))
-            End Do
-            !
-            Call DCopy_(NJ*NCHO,Cho_Bra(iT,1,1),NT,Work(ipWRK),1)
-            !! Check for NL.ne.nIsh etc
-            Call DGEMM_('T','N',nCho,nCho,NL,
-     *                  2.0D+00,Work(ipWRK2),NL,Work(ipWRK),NJ,
-     *                  1.0D+00,A_PT2,nCho)
-            Call DGEMM_('N','N',nIsh(iSym),NCHO,NJ,
-     *                  1.0D+00,WRK2,NL,Work(ipWRK),NJ,
-     *                  0.0D+00,Work(ipWRK2),nIsh(iSym))
-            Do iChoVec = 1, nCho
-              Call DaXpY_(nIsh(iSym),1.0D+00,
-     *                    Work(ipWRK2+nIsh(iSym)*(iChoVec-1)),1,
-     *                    BraAI(iVabs,1,iChoVec),nAsh(iSym))
-            End Do
           END DO
         END DO
 C
@@ -836,9 +776,6 @@ C
           DO IV=1,IVMAX
             IVABS=IV+NAES(ISYV)
             IW1=KTGTU(ITABS,IVABS)-NTGTUES(ISYM)
-C
-            Call DCopy_(NJ*NL,[0.0D+00],0,WRK1,1)
-            Call DCopy_(nIsh(iSym)*nIsh(iSym),[0.0D+00],0,WRK2,1)
             DO IJ=1,NJ
               IJABS=IJ+NIES(ISYJ)
               DO IL=1,NL
@@ -853,55 +790,22 @@ C
                   CYCLE
                 END IF
                 IW=IW1+NASM*(IW2-1)
-C
-                ValBM = SCL*Work(ipTM+IW-1)*2.0D+00
-                WRK1(iL+NL*(iJabs-1)) = ValBM
-                WRK2(iLabs+nIsh(iSym)*(iJ-1)) = ValBM
-C               Do iChoVec = 1, nCho
-C                 BraAI(iVabs,iLabs,iChoVec)
-C    *              = BraAI(iVabs,iLabs,iChoVec)
-C    *              + ValBM*Cho_Bra(iT,iJ,iChoVec)
-C                 BraAI(iTabs,iJabs,iChoVec)
-C    *              = BraAI(iTabs,iJabs,iChoVec)
-C    *              + ValBM*Cho_Ket(iV,iL,iChoVec)
-C                 Do jChoVec = 1, nCho
-C                   A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *               + ValBM*Cho_Bra(iT,iJ,iChoVec)
-C    *                      *Cho_Ket(iV,iL,jChoVec)
-C    *               + ValBM*Cho_Bra(iT,iJ,jChoVec)
-C    *                      *Cho_Ket(iV,iL,iChoVec)
-C                 End Do
-C               End Do
+                TJVL(IT,IJ,IV,IL) = TJVL(IT,IJ,IV,IL)
+     *            + SCL*Work(ipTM+IW-1)
               END DO
             END DO
-            Call DCopy_(NL*NCHO,Cho_Ket(iV,1,1),NV,Work(ipWRK),1)
-            Call DGEMM_('T','N',nIsh(iSym),NCHO,NL,
-     *                  1.0D+00,WRK1,NL,Work(ipWRK),NL,
-     *                  0.0D+00,Work(ipWRK2),nIsh(iSym))
-            Do iChoVec = 1, nCho
-              Call DaXpY_(nIsh(iSym),1.0D+00,
-     *                    Work(ipWRK2+nIsh(iSym)*(iChoVec-1)),1,
-     *                    BraAI(iTabs,1,iChoVec),nAsh(iSym))
-            End Do
-            !
-            Call DCopy_(NJ*NCHO,Cho_Bra(iT,1,1),NT,Work(ipWRK),1)
-            !! Check for NL.ne.nIsh etc
-            Call DGEMM_('T','N',nCho,nCho,NL,
-     *                  2.0D+00,Work(ipWRK2),NL,Work(ipWRK),NJ,
-     *                  1.0D+00,A_PT2,nCho)
-            Call DGEMM_('N','N',nIsh(iSym),NCHO,NJ,
-     *                  1.0D+00,WRK2,NL,Work(ipWRK),NJ,
-     *                  0.0D+00,Work(ipWRK2),nIsh(iSym))
-            Do iChoVec = 1, nCho
-              Call DaXpY_(nIsh(iSym),1.0D+00,
-     *                    Work(ipWRK2+nIsh(iSym)*(iChoVec-1)),1,
-     *                    BraAI(iVabs,1,iChoVec),nAsh(iSym))
-            End Do
           END DO
         END DO
 C
         CALL RHS_FREE(nASM,nISM,ipTM)
       END IF
+C
+      Call DGEMM_('T','N',NV*NL,NCHO,NT*NJ,
+     *            1.0D+00,TJVL(1,1,1,1),NT*NJ,Cho_Bra(1,1,1),NT*NJ,
+     *            1.0D+00,Cho_KetD(1,1,1),NV*NL)
+      Call DGEMM_('N','N',NT*NJ,NCHO,NV*NL,
+     *            1.0D+00,TJVL(1,1,1,1),NT*NJ,Cho_Ket(1,1,1),NV*NL,
+     *            1.0D+00,Cho_BraD(1,1,1),NT*NJ)
 C
       RETURN
 C
@@ -909,14 +813,16 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_C(NA,NU,NV,NX,
-     &                       Cho_Bra,Cho_Ket,NCHO)
+      SUBROUTINE OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,NAUVX,
+     &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
+      DIMENSION AUVX(NA,NU,NV,NX)
+      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO),
+     *          Cho_BraD(NA,NU,NCHO), Cho_KetD(NV,NX,NCHO)
 C
       ISYU = ISYI
       ISYX = ISYK
@@ -949,21 +855,16 @@ C
         End If
       End If
 C
+      Call DCopy_(NAUVX,[0.0D+00],0,AUVX,1)
+C
       nOrbA = nFro(iSyA)+nIsh(iSyA)+nAsh(iSyA)+nSsh(iSyA)
       DO IA=1,NA
-        IAABS=IA+NSES(ISYA)
         iAtot = iA + nFro(iSyA) + nIsh(iSyA) + nAsh(iSyA)
         DO IU=1,NU
           IUABS=IU+NAES(ISYU)
           iUtot = iU + nFro(iSyU) + nIsh(iSyU)
-C
-          Call DCopy_(NV*NX,[0.0D+00],0,WRK1,1)
-          Call DCopy_(nAsh(iSym)*nAsh(iSym),[0.0D+00],0,WRK2,1)
-          Call DCopy_(NU*NX,[0.0D+00],0,Work(ipWRK),1)
-          Call DCopy_(nAsh(iSym)*nAsh(iSym),[0.0D+00],0,Work(ipWRK2),1)
           DO IV=1,NV
             IVABS=IV+NAES(ISYV)
-            iVtot = iV + nFro(iSyV) + nIsh(iSyV)
             ValCF = 0.0D+00
             IF (ISYV.EQ.ISYX) THEN !! not sure
               !! ONEADD contributions
@@ -983,77 +884,24 @@ C
             END IF
             DO IX=1,NX
               IXABS=IX+NAES(ISYX)
-              iXtot = iX + nFro(iSyX) + nIsh(iSyX)
               IW1=KTUV(IUABS,IVABS,IXABS)-NTUVES(ISYM)
               IW2=IA
               IW=IW1+NAS*(IW2-1)
 C
-              ValC = Work(ipT+IW-1)*2.0D+00
-              WRK1(iV+NV*(iX-1)) = ValC
-              WRK2(iVabs+nAsh(iSym)*(iXabs-1)) = ValC
-              Work(ipWRK +iU-1+NU*(iXabs-1))
-     *          = Work(ipWRK +iU-1+NU*(iXabs-1)) - ValCF
-              Work(ipWRK2+iU-1+NU*(iX-1))
-     *          = Work(ipWRK2+iU-1+NU*(iX-1)) - ValCF
-C             Do iChoVec = 1, nCho
-C               BraAA(iVabs,iXabs,iChoVec)
-C    *            = BraAA(iVabs,iXabs,iChoVec)
-C    *            + ValC*Cho_Bra(iA,iU,iChoVec)
-C               BraSA(iAabs,iUabs,iChoVec)
-C    *            = BraSA(iAabs,iUabs,iChoVec)
-C    *            + ValC*Cho_Ket(iV,iX,iChoVec)
-C               BraAA(iUabs,iXabs,iChoVec)
-C    *            = BraAA(iUabs,iXabs,iChoVec)
-C    *            - ValCF*Cho_Bra(iA,iX,iChoVec)
-C               BraSA(iAabs,iXabs,iChoVec)
-C    *            = BraSA(iAabs,iXabs,iChoVec)
-C    *            - ValCF*Cho_Ket(iU,iX,iChoVec)
-C               Do jChoVec = 1, nCho
-C                 A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *             + ValC*Cho_Bra(iA,iU,iChoVec)
-C    *                   *Cho_Ket(iV,iX,jChoVec)
-C    *             + ValC*Cho_Bra(iA,iU,jChoVec)
-C    *                   *Cho_Ket(iV,iX,iChoVec)
-C    *             - ValCF*Cho_Bra(iA,iX,iChoVec)
-C    *                    *Cho_Ket(iU,iX,jChoVec)
-C    *             - ValCF*Cho_Bra(iA,iX,jChoVec)
-C    *                    *Cho_Ket(iU,iX,iChoVec)
-C               End Do
-C             End Do
+              ValC = Work(ipT+IW-1)
+              AUVX(IA,IU,IV,IX) = AUVX(IA,IU,IV,IX) + ValC
+              AUVX(IA,IX,IU,IX) = AUVX(IA,IX,IU,IX) - ValCF*0.5D+00
             END DO
           END DO
-          Call DGEMM_('N','N',nAsh(iSym)*nAsh(iSym),nCho,1,
-     *                1.0D+00,WRK2,nAsh(iSym)*nAsh(iSym),
-     *                        Cho_Bra(iA,iU,1),NA*NU,
-     *                1.0D+00,BraAA(1,1,1),nAsh(iSym)*nAsh(iSym))
-          Call DGEMV_('T',NV*NX,nCho,
-     *                1.0D+00,Cho_Ket,NV*NX,WRK1,1,
-     *                0.0D+00,WRK2,1)
-          Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                BraSA(iAabs,iUabs,1),nSsh(iSym)*nAsh(iSym))
-          Call DGEMM_('T','N',nCho,nCho,1,
-     *                2.0D+00,Cho_Bra(iA,iU,1),NA*NU,WRK2,1,
-     *                1.0D+00,A_PT2,nCho)
-C
-          Call DGEMM_('T','N',1,NX*nCho,NU,
-     *                1.0D+00,Work(ipWRK),nAsh(iSym),
-     *                        Cho_Ket(1,1,1),NU,
-     *                1.0D+00,BraSA(iAabs,1,1),nSsh(iSym))
-          Call DCopy_(NX*NCHO,[0.0D+00],0,Work(ipWRK),1)
-          Do iX = 1, NX
-            Call DaXpY_(NCHO,Work(ipWRK2+iU-1+NU*(iX-1)),
-     *                  Cho_Bra(iA,iX,1),NA*NX,
-     *                  Work(ipWRK+NCHO*(iX-1)),1)
-            IXABS=IX+NAES(ISYX)
-            Call DaXpY_(NCHO,1.0D+00,Work(ipWRK+NCHO*(iX-1)),1,
-     *                  BraAA(iUabs,iXabs,1),nAsh(iSym)**2)
-            Call DGEMM_('T','N',nCho,nCho,1,
-     *                  2.0D+00,Cho_Ket(iU,iX,1),NU*NX,
-     *                          Work(ipWRK+NCHO*(iX-1)),1,
-     *                  1.0D+00,A_PT2,nCho)
-          End Do
         END DO
       END DO
+C
+      Call DGEMM_('T','N',NV*NX,NCHO,NA*NU,
+     *            1.0D+00,AUVX(1,1,1,1),NA*NU,Cho_Bra(1,1,1),NA*NU,
+     *            1.0D+00,Cho_KetD(1,1,1),NV*NX)
+      Call DGEMM_('N','N',NA*NU,NCHO,NV*NX,
+     *            1.0D+00,AUVX(1,1,1,1),NA*NU,Cho_Ket(1,1,1),NV*NX,
+     *            1.0D+00,Cho_BraD(1,1,1),NA*NU)
 C
       CALL RHS_FREE(nAS,nIS,ipT)
       If (isCSF) CALL RHS_FREE(nAS,nIS,ipTanti)
@@ -1064,14 +912,16 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_D1(NA,NJ,NV,NX,
-     &                        Cho_Bra,Cho_Ket,NCHO)
+      SUBROUTINE OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,NAJVX,
+     &                        Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
+      DIMENSION AJVX(NV,NX,*)
+      DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NX,NCHO),
+     *          Cho_BraD(NA,NJ,NCHO), Cho_KetD(NV,NX,NCHO)
 *      Logical Incore
       DIMENSION IOFFD(8,8)
 C
@@ -1121,19 +971,21 @@ C
 C
       DO IASTA=1,NA,NBXSZA
         IAEND=MIN(IASTA-1+NBXSZA,NA)
+        NASZ=IAEND-IASTA+1
         DO IJSTA=1,NJ,NBXSZJ
           IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
+          NJSZ=IJEND-IJSTA+1
+C
+      IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
+      Call DCopy_(NAJVX,[0.0D+00],0,AJVX,1)
 C
       nOrbA = nFro(iSyA)+nIsh(iSyA)+nAsh(iSyA)+nSsh(iSyA)
+      IAJ=0
       DO IJ=IJSTA,IJEND
-        IJABS=IJ+NIES(ISYJ)
         iJtot = iJ + nFro(iSyJ)
         DO IA=IASTA,IAEND
-          IAABS=IA+NSES(ISYA)
           iAtot = iA + nFro(iSyA) + nIsh(iSyA) + nAsh(iSyA)
-C
-          Call DCopy_(NV*NX,[0.0D+00],0,WRK1,1)
-          Call DCopy_(nAsh(iSym)*nAsh(iSym),[0.0D+00],0,WRK2,1)
+          IAJ = IAJ + 1
           DO IX=1,NX
             IXABS=IX+NAES(ISYX)
             iXtot = iX + nFro(iSyX) + nIsh(iSyX)
@@ -1144,49 +996,28 @@ C
               IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
               IW=IW1+NAS*(IW2-1)
 C
-              ValD = Work(ipT+IW-1)*2.0D+00
+              ValD = Work(ipT+IW-1)
               If (iVtot.eq.iXtot) Then
                 DPT2C(iAtot+nOrbA*(iJtot-1))
-     *            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD
+     *            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD*2.0d+00
                 If (isCSF) Then
                   ValDanti = Work(ipTanti+IW-1)*2.0D+00
                   DPT2Canti(iAtot+nOrbA*(iJtot-1))
      *              = DPT2Canti(iAtot+nOrbA*(iJtot-1)) + ValDanti
                 End If
               End If
-              WRK1(iV+NV*(iX-1)) = ValD
-              WRK2(iVabs+nAsh(iSym)*(iXabs-1)) = ValD
-C             Do iChoVec = 1, nCho
-C               BraAA(iVabs,iXabs,iChoVec)
-C    *            = BraAA(iVabs,iXabs,iChoVec)
-C    *            + ValD*Cho_Bra(iA,iJ,iChoVec)
-C               BraSI(iAabs,iJabs,iChoVec)
-C    *            = BraSI(iAabs,iJabs,iChoVec)
-C    *            + ValD*Cho_Ket(iV,iX,iChoVec)
-C               Do jChoVec = 1, nCho
-C                 A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *             + ValD*Cho_Bra(iA,iJ,iChoVec)
-C    *                   *Cho_Ket(iV,iX,jChoVec)
-C    *             + ValD*Cho_Bra(iA,iJ,jChoVec)
-C    *                   *Cho_Ket(iV,iX,iChoVec)
-C               End Do
-C             End Do
+              AJVX(IV,IX,IAJ) = Work(ipT+IW-1)
             END DO
           END DO
-          Call DGEMM_('N','N',nAsh(iSym)*nAsh(iSym),nCho,1,
-     *                1.0D+00,WRK2,nAsh(iSym)*nAsh(iSym),
-     *                        Cho_Bra(iA,iJ,1),NA*NJ,
-     *                1.0D+00,BraAA(1,1,1),nAsh(iSym)*nAsh(iSym))
-          Call DGEMV_('T',NV*NX,nCho,
-     *                1.0D+00,Cho_Ket,NV*NX,WRK1,1,
-     *                0.0D+00,WRK2,1)
-          Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                BraSI(iAabs,iJabs,1),nSsh(iSym)*nIsh(iSym))
-          Call DGEMM_('T','N',nCho,nCho,1,
-     *                2.0D+00,Cho_Bra(iA,iJ,1),NA*NJ,WRK2,1,
-     *                1.0D+00,A_PT2,nCho)
         END DO
       END DO
+C
+      Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NX,
+     *            1.0D+00,AJVX(1,1,1),NV*NX,Cho_Ket(1,1,1),NV*NX,
+     *            1.0D+00,Cho_BraD(IAJSTA,1,1),NA*NJ)
+      Call DGEMM_('N','N',NV*NX,NCHO,NASZ*NJSZ,
+     *            1.0D+00,AJVX(1,1,1),NV*NX,Cho_Bra(IAJSTA,1,1),NA*NJ,
+     *            1.0D+00,Cho_KetD(1,1,1),NV*NX)
 C
         ENDDO
       ENDDO
@@ -1200,14 +1031,16 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_D2(NA,NU,NV,NL,
-     &                        Cho_Bra,Cho_Ket,NCHO)
+      SUBROUTINE OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,NAUVL,
+     &                        Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
+      DIMENSION AUVL(NA,NU,NV,NL)
+      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO),
+     *          Cho_BraD(NA,NU,NCHO), Cho_KetD(NV,NL,NCHO)
 *      Logical Incore
       DIMENSION IOFFD(8,8)
 C
@@ -1247,61 +1080,30 @@ C
           CALL RHS_READ_C(ipT,iCase,iSym,iVecC2)
         End If
       End If
-
-      nOrbA = nFro(iSyA)+nIsh(iSyA)+nAsh(iSyA)+nSsh(iSyA)
+C
+      Call DCopy_(NAUVL,[0.0D+00],0,AUVL,1)
+C
       DO IA=1,NA
-        IAABS=IA+NSES(ISYA)
-        iAtot = iA + nFro(iSyA) + nIsh(iSyA) + nAsh(iSyA)
         DO IU=1,NU
           IUABS=IU+NAES(ISYU)
-          iUtot = iU + nFro(iSyU) + nIsh(iSyU)
-C
-          Call DCopy_(NV*NL,[0.0D+00],0,WRK1,1)
-          Call DCopy_(nAsh(iSym)*nIsh(iSym),[0.0D+00],0,WRK2,1)
           DO IV=1,NV
             IVABS=IV+NAES(ISYV)
-            iVtot = iV + nFro(iSyV) + nIsh(iSyV)
             DO IL=1,NL
-              ILABS=IL+NIES(ISYL)
-              iLtot = iL + nFro(iSyL)
               IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
               IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
               IW=IW1+NAS*(IW2-1)
-C
-              ValD = Work(ipT+IW-1)*2.0D+00
-              WRK1(iV+NV*(iL-1)) = ValD
-              WRK2(iVabs+nAsh(iSym)*(iLabs-1)) = ValD
-C             Do iChoVec = 1, nCho
-C               BraAI(iVabs,iLabs,iChoVec)
-C    *            = BraAI(iVabs,iLabs,iChoVec)
-C    *            + ValD*Cho_Bra(iA,iU,iChoVec)
-C               BraSA(iAabs,iUabs,iChoVec)
-C    *            = BraSA(iAabs,iUabs,iChoVec)
-C    *            + ValD*Cho_Ket(iV,iL,iChoVec)
-C               Do jChoVec = 1, nCho
-C                 A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *             + ValD*Cho_Bra(iA,iU,iChoVec)
-C    *                   *Cho_Ket(iV,iL,jChoVec)
-C    *             + ValD*Cho_Bra(iA,iU,jChoVec)
-C    *                   *Cho_Ket(iV,iL,iChoVec)
-C               End Do
-C             End Do
+              AUVL(IA,IU,IV,IL) = Work(ipT+IW-1)
             END DO
           END DO
-          Call DGEMM_('N','N',nAsh(iSym)*nIsh(iSym),nCho,1,
-     *                1.0D+00,WRK2,nAsh(iSym)*nIsh(iSym),
-     *                        Cho_Bra(iA,iU,1),NA*NU,
-     *                1.0D+00,BraAI(1,1,1),nAsh(iSym)*nIsh(iSym))
-          Call DGEMV_('T',NV*NL,nCho,
-     *                1.0D+00,Cho_Ket,NV*NL,WRK1,1,
-     *                0.0D+00,WRK2,1)
-          Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                BraSA(iAabs,iUabs,1),nSsh(iSym)*nAsh(iSym))
-          Call DGEMM_('T','N',nCho,nCho,1,
-     *                2.0D+00,Cho_Bra(iA,iU,1),NA*NU,WRK2,1,
-     *                1.0D+00,A_PT2,nCho)
         END DO
       END DO
+C
+      Call DGEMM_('T','N',NV*NL,NCHO,NA*NU,
+     *            1.0D+00,AUVL,NA*NU,Cho_Bra,NA*NU,
+     *            1.0D+00,Cho_KetD,NV*NL)
+      Call DGEMM_('N','N',NA*NU,NCHO,NV*NL,
+     *            1.0D+00,AUVL,NA*NU,Cho_Ket,NV*NL,
+     *            1.0D+00,Cho_BraD,NA*NU)
 C
       CALL RHS_FREE(nAS,nIS,ipT)
 C
@@ -1311,14 +1113,16 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_E(NA,NJ,NV,NL,
-     &                       Cho_Bra,Cho_Ket,NCHO)
+      SUBROUTINE OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,
+     &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
+      DIMENSION AJVL(NV,NL,*)
+      DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NL,NCHO),
+     *          Cho_BraD(NA,NJ,NCHO), Cho_KetD(NV,NL,NCHO)
 *      Logical Incore
       DIMENSION IOFF1(8),IOFF2(8)
 C
@@ -1377,13 +1181,16 @@ C
             IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
             NJSZ=IJEND-IJSTA+1
 C
+        IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
+        Call DCopy_(NAJVL,[0.0D+00],0,AJVL,1)
+C
+        IAJ=0
         DO IJ=IJSTA,IJEND
           IJABS=IJ+NIES(ISYJ)
           DO IA=IASTA,IAEND
             IAABS=IA+NSES(ISYA)
+            IAJ=IAJ+1
 C
-            Call DCopy_(NV*NL,[0.0D+00],0,WRK1,1)
-            Call DCopy_(nAsh(iSym)*nIsh(iSym),[0.0D+00],0,WRK2,1)
             DO IV=1,NV
               IVABS=IV+NAES(ISYV)
               DO IL=1,NL
@@ -1399,40 +1206,18 @@ C
                 IW2=IA+NA*(JGEL-1)+IOFF1(ISYA)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValEP = SCL*Work(ipTP+IW-1)*2.0d+00
-                WRK1(iV+NV*(iL-1)) = ValEP
-                WRK2(iVabs+nAsh(iSym)*(iLabs-1)) = ValEP
-C               Do iChoVec = 1, nCho
-C                 BraAI(iVabs,iLabs,iChoVec)
-C    *              = BraAI(iVabs,iLabs,iChoVec)
-C    *              + ValEP*Cho_Bra(iA,iJ,iChoVec)
-C                 BraSI(iAabs,iJabs,iChoVec)
-C    *              = BraSI(iAabs,iJabs,iChoVec)
-C    *              + ValEP*Cho_Ket(iV,iL,iChoVec)
-C                 Do jChoVec = 1, nCho
-C                   A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *               + ValEP*Cho_Bra(iA,iJ,iChoVec)
-C    *                      *Cho_Ket(iV,iL,jChoVec)
-C    *               + ValEP*Cho_Bra(iA,iJ,jChoVec)
-C    *                      *Cho_Ket(iV,iL,iChoVec)
-C                 End Do
-C               End Do
+                AJVL(IV,IL,IAJ) = SCL*Work(ipTP+IW-1)
               END DO
             END DO
-            Call DGEMM_('N','N',nAsh(iSym)*nIsh(iSym),nCho,1,
-     *                  1.0D+00,WRK2,nAsh(iSym)*nIsh(iSym),
-     *                          Cho_Bra(iA,iJ,1),NA*NJ,
-     *                  1.0D+00,BraAI(1,1,1),nAsh(iSym)*nIsh(iSym))
-            Call DGEMV_('T',NV*NL,nCho,
-     *                  1.0D+00,Cho_Ket,NV*NL,WRK1,1,
-     *                  0.0D+00,WRK2,1)
-            Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                  BraSI(iAabs,iJabs,1),nSsh(iSym)*nIsh(iSym))
-            Call DGEMM_('T','N',nCho,nCho,1,
-     *                  2.0D+00,Cho_Bra(iA,iJ,1),NA*NJ,WRK2,1,
-     *                  1.0D+00,A_PT2,nCho)
           END DO
         END DO
+C
+        Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NL,
+     *              1.0D+00,AJVL(1,1,1),NV*NL,Cho_Ket(1,1,1),NV*NL,
+     *              1.0D+00,Cho_BraD(IAJSTA,1,1),NA*NJ)
+        Call DGEMM_('N','N',NV*NL,NCHO,NASZ*NJSZ,
+     *              1.0D+00,AJVL(1,1,1),NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,
+     *              1.0D+00,Cho_KetD(1,1,1),NV*NL)
 C
           ENDDO
         ENDDO
@@ -1466,13 +1251,16 @@ C
             IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
             NJSZ=IJEND-IJSTA+1
 C
+        IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
+        Call DCopy_(NAJVL,[0.0D+00],0,AJVL,1)
+C
+        IAJ=0
         DO IJ=IJSTA,IJEND
           IJABS=IJ+NIES(ISYJ)
           DO IA=IASTA,IAEND
             IAABS=IA+NSES(ISYA)
+            IAJ=IAJ+1
 C
-            Call DCopy_(NV*NL,[0.0D+00],0,WRK1,1)
-            Call DCopy_(nAsh(iSym)*nIsh(iSym),[0.0D+00],0,WRK2,1)
             DO IV=1,NV
               IVABS=IV+NAES(ISYV)
               DO IL=1,NL
@@ -1489,41 +1277,19 @@ C
                   IW2=IA+NA*(JGTL-1)+IOFF2(ISYA)
                   IW=IW1+NAS*(IW2-1)
 C
-                 ValEM = SCL*Work(ipTM+IW-1)*2.0d+00
-                 WRK1(iV+NV*(iL-1)) = ValEM
-                 WRK2(iVabs+nAsh(iSym)*(iLabs-1)) = ValEM
-C                Do iChoVec = 1, nCho
-C                  BraAI(iVabs,iLabs,iChoVec)
-C    *               = BraAI(iVabs,iLabs,iChoVec)
-C    *               + ValEM*Cho_Bra(iA,iJ,iChoVec)
-C                  BraSI(iAabs,iJabs,iChoVec)
-C    *               = BraSI(iAabs,iJabs,iChoVec)
-C    *               + ValEM*Cho_Ket(iV,iL,iChoVec)
-C                  Do jChoVec = 1, nCho
-C                    A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *                + ValEM*Cho_Bra(iA,iJ,iChoVec)
-C    *                       *Cho_Ket(iV,iL,jChoVec)
-C    *                + ValEM*Cho_Bra(iA,iJ,jChoVec)
-C    *                       *Cho_Ket(iV,iL,iChoVec)
-C                  End Do
-C                End Do
+                  AJVL(IV,IL,IAJ) = SCL*Work(ipTM+IW-1)
                 END IF
               END DO
             END DO
-            Call DGEMM_('N','N',nAsh(iSym)*nIsh(iSym),nCho,1,
-     *                  1.0D+00,WRK2,nAsh(iSym)*nIsh(iSym),
-     *                          Cho_Bra(iA,iJ,1),NA*NJ,
-     *                  1.0D+00,BraAI(1,1,1),nAsh(iSym)*nIsh(iSym))
-            Call DGEMV_('T',NV*NL,nCho,
-     *                  1.0D+00,Cho_Ket,NV*NL,WRK1,1,
-     *                  0.0D+00,WRK2,1)
-            Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                  BraSI(iAabs,iJabs,1),nSsh(iSym)*nIsh(iSym))
-            Call DGEMM_('T','N',nCho,nCho,1,
-     *                  2.0D+00,Cho_Bra(iA,iJ,1),NA*NJ,WRK2,1,
-     *                  1.0D+00,A_PT2,nCho)
           END DO
         END DO
+C
+        Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NL,
+     *              1.0D+00,AJVL(1,1,1),NV*NL,Cho_Ket(1,1,1),NV*NL,
+     *              1.0D+00,Cho_BraD(IAJSTA,1,1),NA*NJ)
+        Call DGEMM_('N','N',NV*NL,NCHO,NASZ*NJSZ,
+     *              1.0D+00,AJVL(1,1,1),NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,
+     *              1.0D+00,Cho_KetD(1,1,1),NV*NL)
 C
           ENDDO
         ENDDO
@@ -1537,14 +1303,16 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_F(NA,NU,NC,NX,
-     &                       Cho_Bra,Cho_Ket,NCHO)
+      SUBROUTINE OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,
+     &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
+      DIMENSION AUCX(NA,NU,NC,NX)
+      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO),
+     *          Cho_BraD(NA,NU,NCHO), Cho_KetD(NC,NX,NCHO)
 C
       ISYU = ISYI
       ISYX = ISYK
@@ -1574,6 +1342,8 @@ C
       ENDIF
       If (NWFP+NWFM.le.0) RETURN
 C
+      Call DCopy_(NAUCX,[0.0D+00],0,AUCX,1)
+C
 C     ---- FP
 C
       IF (NWFP.GT.0.AND.NINDEP(ISYM,8).GT.0) THEN
@@ -1599,9 +1369,6 @@ C
             SCL1=0.5D0
             IF(IUABS.EQ.IXABS) SCL1=0.25D0
             IW1=KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
-C
-            Call DCopy_(NA*NC,[0.0D+00],0,WRK1,1)
-            Call DCopy_(nSsh(iSym)*nSsh(iSym),[0.0D+00],0,WRK2,1)
             DO IA=1,NA
               IAABS=IA+NSES(ISYA)
               DO IC=1,NC
@@ -1614,47 +1381,9 @@ C
                   IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
                 END IF
                 IW=IW1+NASP*(IW2-1)
-C
-                ValFP = SCL*Work(ipTP+IW-1)*2.0d+00
-                WRK1(iC+NC*(iA-1)) = ValFP
-                WRK2(iCabs+nSsh(iSym)*(iA-1)) = ValFP
-C               Do iChoVec = 1, nCho
-C                 BraSA(iCabs,iXabs,iChoVec)
-C    *              = BraSA(iCabs,iXabs,iChoVec)
-C    *              + ValFP*Cho_Bra(iA,iU,iChoVec)
-C                 BraSA(iAabs,iUabs,iChoVec)
-C    *              = BraSA(iAabs,iUabs,iChoVec)
-C    *              + ValFP*Cho_Ket(iC,iX,iChoVec)
-C                 Do jChoVec = 1, nCho
-C                   A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *               + ValFP*Cho_Bra(iA,iU,iChoVec)
-C    *                      *Cho_Ket(iC,iX,jChoVec)
-C    *               + ValFP*Cho_Bra(iA,iU,jChoVec)
-C    *                      *Cho_Ket(iC,iX,iChoVec)
-C                 End Do
-C               End Do
+                AUCX(IA,IU,IC,IX) = SCL*Work(ipTP+IW-1)
               END DO
             END DO
-            Call DGEMM_('N','N',nSsh(iSym),nCho,NA,
-     *                  1.0D+00,WRK2,nSsh(iSym),
-     *                          Cho_Ket(1,iX,1),NC*NX,
-     *                  1.0D+00,BraSA(1,iUabs,1),nSsh(iSym)*nAsh(iSym))
-            Call DGEMM_('N','N',nSsh(iSym),nCho,NA,
-     *                  1.0D+00,WRK2,nSsh(iSym),Cho_Bra(1,iU,1),NA*NU,
-     *                  0.0D+00,Work(ipWRK),nSsh(iSym))
-            Do iChoVec = 1, nCho
-              Call DaXpY_(nSsh(iSym),1.0D+00,
-     *                    Work(ipWRK+nSsh(iSym)*(iChoVec-1)),1,
-     *                    BraSA(1,iXabs,iChoVec),1)
-            End Do
-C
-            Call DGEMM_('N','N',NC,nCho,NA,
-     *                  1.0D+00,WRK1,NC,Cho_Bra(1,iU,1),NA*NU,
-     *                  0.0D+00,Work(ipWRK),NC)
-            Call DGEMM_('T','N',nCho,nCho,NC,
-     *                  2.0D+00,Work(ipWRK),NC,
-     *                          Cho_Ket(1,iX,1),NC*NX,
-     *                  1.0D+00,A_PT2,nCho)
           END DO
         END DO
 C
@@ -1684,10 +1413,6 @@ C
           DO IX=1,IXMAX
             IXABS=IX+NAES(ISYX)
             IW1=KTGTU(IUABS,IXABS)-NTGTUES(ISYM)
-C
-            Call DCopy_(NA*NC,[0.0D+00],0,WRK1,1)
-            Call DCopy_(nSsh(iSym)*nSsh(iSym),[0.0D+00],0,WRK2,1)
-            Call DCopy_(nSsh(iSym)*nSsh(iSym),[0.0D+00],0,Work(ipWRK),1)
             DO IA=1,NA
               IAABS=IA+NSES(ISYA)
               DO IC=1,NC
@@ -1702,54 +1427,22 @@ C
                   CYCLE
                 END IF
                 IW=IW1+NASM*(IW2-1)
-C
-                ValFM = SCL*Work(ipTM+IW-1)*2.0D+00
-                WRK1(iC+NC*(iA-1)) = ValFM
-                WRK2(iCabs+nSsh(iSym)*(iA-1)) = ValFM
-                Work(ipWRK+iC-1+NC*(iAabs-1)) = ValFM
-C               Do iChoVec = 1, nCho
-C                 BraSA(iCabs,iXabs,iChoVec)
-C    *              = BraSA(iCabs,iXabs,iChoVec)
-C    *              + ValFM*Cho_Bra(iA,iU,iChoVec)
-C                 BraSA(iAabs,iUabs,iChoVec)
-C    *              = BraSA(iAabs,iUabs,iChoVec)
-C    *              + ValFM*Cho_Ket(iC,iX,iChoVec)
-C                 Do jChoVec = 1, nCho
-C                   A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *               + ValFM*Cho_Bra(iA,iU,iChoVec)
-C    *                      *Cho_Ket(iC,iX,jChoVec)
-C    *               + ValFM*Cho_Bra(iA,iU,jChoVec)
-C    *                      *Cho_Ket(iC,iX,iChoVec)
-C                 End Do
-C               End Do
+                AUCX(IA,IU,IC,IX) = AUCX(IA,IU,IC,IX)
+     *            + SCL*Work(ipTM+IW-1)
               END DO
             END DO
-C
-            Call DGEMM_('T','N',nSsh(iSym),nCho,NC,
-     *                  1.0D+00,Work(ipWRK),NC,
-     *                          Cho_Ket(1,iX,1),NC*NX,
-     *                  1.0D+00,BraSA(1,iUabs,1),nSsh(iSym)*nAsh(iSym))
-            Call DGEMM_('N','N',nSsh(iSym),nCho,NA,
-     *                  1.0D+00,WRK2,nSsh(iSym),Cho_Bra(1,iU,1),NA*NU,
-     *                  0.0D+00,Work(ipWRK),nSsh(iSym))
-            Do iChoVec = 1, nCho
-              Call DaXpY_(nSsh(iSym),1.0D+00,
-     *                    Work(ipWRK+nSsh(iSym)*(iChoVec-1)),1,
-     *                    BraSA(1,iXabs,iChoVec),1)
-            End Do
-C
-            Call DGEMM_('N','N',NC,nCho,NA,
-     *                  1.0D+00,WRK1,NC,Cho_Bra(1,iU,1),NA*NU,
-     *                  0.0D+00,Work(ipWRK),NC)
-            Call DGEMM_('T','N',nCho,nCho,NC,
-     *                  2.0D+00,Work(ipWRK),NC,
-     *                          Cho_Ket(1,iX,1),NC*NX,
-     *                  1.0D+00,A_PT2,nCho)
           END DO
         END DO
 C
         CALL RHS_FREE(nASM,nISM,ipTM)
       END IF
+C
+      Call DGEMM_('T','N',NC*NX,NCHO,NA*NU,
+     *            1.0D+00,AUCX,NA*NU,Cho_Bra,NA*NU,
+     *            1.0D+00,Cho_KetD,NC*NX)
+      Call DGEMM_('N','N',NA*NU,NCHO,NC*NX,
+     *            1.0D+00,AUCX,NA*NU,Cho_Ket,NC*NX,
+     *            1.0D+00,Cho_BraD,NA*NU)
 C
       RETURN
 C
@@ -1757,17 +1450,19 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE OLagNS_RI_G(NA,NU,NC,NL,NAUCL,
-     &                       Cho_Bra,Cho_Ket,NCHO)
+      SUBROUTINE OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,
+     &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
+      DIMENSION AUCL(NA,NU,*)
 C     DIMENSION Buff(nBuff)
 C     DIMENSION idxBuf(nBuff)
 C     DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
-      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NL,NCHO)
+      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NL,NCHO),
+     *          Cho_BraD(NA,NU,NCHO), Cho_KetD(NC,NL,NCHO)
 *      Logical Incore
       DIMENSION IOFF1(8),IOFF2(8)
 C
@@ -1798,8 +1493,8 @@ C   Allocate W with parts WP,WM
       NWGM=NAS*NISM
       NWG=NWGP+NWGM
 C
-      LDGP=NAS
-      LDGM=NAS
+C     LDGP=NAS
+C     LDGM=NAS
 C
 C     ---- GP
 C
@@ -1827,18 +1522,22 @@ C
 C
         DO ICSTA=1,NC,NBXSZC
           ICEND=MIN(ICSTA-1+NBXSZC,NC)
-C         NCSZ=ICEND-ICSTA+1
+          NCSZ=ICEND-ICSTA+1
           DO ILSTA=1,NL,NBXSZL
             ILEND=MIN(ILSTA-1+NBXSZL,NL)
-C           NLSZ=ILEND-ILSTA+1
+            NLSZ=ILEND-ILSTA+1
 C
+            ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
+            Call DCopy_(NAUCL,[0.0D+00],0,AUCL,1)
+C
+        ICL=0
+        IBUF=0
         DO IL=ILSTA,ILEND
           ILABS=IL+NIES(ISYL)
           DO IC=ICSTA,ICEND
             ICABS=IC+NSES(ISYC)
+            ICL=ICL+1
 C
-            Call DCopy_(NA*NU,[0.0D+00],0,WRK1,1)
-            Call DCopy_(nSsh(iSym)*nAsh(iSym),[0.0D+00],0,WRK2,1)
             DO IA=1,NA
               IAABS=IA+NSES(ISYA)
               SCL=SQRT(0.5D0)
@@ -1854,40 +1553,21 @@ C
                 IW2=IL+NL*(IAGEC-1)+IOFF1(ISYL)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValGP = SCL*Work(ipTP+IW-1)*2.0d+00
-                WRK1(iA+NA*(iU-1)) = ValGP
-                WRK2(iAabs+nSsh(iSym)*(iUabs-1)) = ValGP
-C               Do iChoVec = 1, nCho
-C                 BraSA(iAabs,iUabs,iChoVec)
-C    *              = BraSA(iAabs,iUabs,iChoVec)
-C    *              + ValGP*Cho_Ket(iC,iL,iChoVec)
-C                 BraSI(iCabs,iLabs,iChoVec)
-C    *              = BraSI(iCabs,iLabs,iChoVec)
-C    *              + ValGP*Cho_Bra(iA,iU,iChoVec)
-C                 Do jChoVec = 1, nCho
-C                   A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *               + ValGP*Cho_Bra(iA,iU,iChoVec)
-C    *                      *Cho_Ket(iC,iL,jChoVec)
-C    *               + ValGP*Cho_Bra(iA,iU,jChoVec)
-C    *                      *Cho_Ket(iC,iL,iChoVec)
-C                 End Do
-C               End Do
+                ValGP = SCL*Work(ipTP+IW-1)
+                AUCL(IA,IU,ICL) = ValGP
               END DO
             END DO
-            Call DGEMM_('N','N',nSsh(iSym)*nAsh(iSym),nCho,1,
-     *                  1.0D+00,WRK2,nSsh(iSym)*nAsh(iSym),
-     *                          Cho_Ket(iC,iL,1),nSsh(iSym)*nIsh(iSym),
-     *                  1.0D+00,BraSA(1,1,1),nSsh(iSym)*nAsh(iSym))
-            Call DGEMV_('T',NA*NU,nCho,
-     *                  1.0D+00,Cho_Bra,NA*NU,WRK1,1,
-     *                  0.0D+00,WRK2,1)
-            Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                  BraSI(iCabs,iLabs,1),nSsh(iSym)*nIsh(iSym))
-            Call DGEMM_('T','N',nCho,nCho,1,
-     *                  2.0D+00,Cho_Ket(iC,iL,1),NC*NL,WRK2,1,
-     *                  1.0D+00,A_PT2,nCho)
           END DO
         END DO
+C
+        Call DGEMM_('N','N',NA*NU,NCHO,ICL,
+     *              1.0D+00,AUCL,NA*NU,
+     *                      Cho_Ket(ICLSTA,1,1),NC*NL,
+     *              1.0D+00,Cho_BraD(1,1,1),NA*NU)
+        Call DGEMM_('T','N',ICL,NCHO,NA*NU,
+     *              1.0D+00,AUCL,NA*NU,
+     *                      Cho_Bra(1,1,1),NA*NU,
+     *              1.0D+00,Cho_KetD(ICLSTA,1,1),NC*NL)
 C
           ENDDO
         ENDDO
@@ -1927,6 +1607,9 @@ C
             ILEND=MIN(ILSTA-1+NBXSZL,NL)
             NLSZ=ILEND-ILSTA+1
 C
+            ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
+            Call DCopy_(NAUCL,[0.0D+00],0,AUCL,1)
+C
         ICL=0
         IBUF=0
         DO IL=ILSTA,ILEND
@@ -1935,8 +1618,6 @@ C
             ICABS=IC+NSES(ISYC)
             ICL=ICL+1
 C
-            Call DCopy_(NA*NU,[0.0D+00],0,WRK1,1)
-            Call DCopy_(nSsh(iSym)*nAsh(iSym),[0.0D+00],0,WRK2,1)
             DO IA=1,NA
               IAABS=IA+NSES(ISYA)
               IF(IAABS.GT.ICABS) THEN
@@ -1954,41 +1635,22 @@ C
                 IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValGM = SCL*Work(ipTM+IW-1)*2.0d+00
-                WRK1(iA+NA*(iU-1)) = ValGM
-                WRK2(iAabs+nSsh(iSym)*(iUabs-1)) = ValGM
-C               Do iChoVec = 1, nCho
-C                 BraSA(iAabs,iUabs,iChoVec)
-C    *              = BraSA(iAabs,iUabs,iChoVec)
-C    *              + ValGM*Cho_Ket(iC,iL,iChoVec)
-C                 BraSI(iCabs,iLabs,iChoVec)
-C    *              = BraSI(iCabs,iLabs,iChoVec)
-C    *              + ValGM*Cho_Bra(iA,iU,iChoVec)
-C                 Do jChoVec = 1, nCho
-C                  A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *               + ValGM*Cho_Bra(iA,iU,iChoVec)
-C    *                      *Cho_Ket(iC,iL,jChoVec)
-C    *               + ValGM*Cho_Bra(iA,iU,jChoVec)
-C    *                      *Cho_Ket(iC,iL,iChoVec)
-C                 End Do
-C               End Do
+                ValGM = SCL*Work(ipTM+IW-1)
+                AUCL(IA,IU,ICL) = ValGM
               END DO
             END DO
-            Call DGEMM_('N','N',nSsh(iSym)*nAsh(iSym),nCho,1,
-     *                  1.0D+00,WRK2,nSsh(iSym)*nAsh(iSym),
-     *                          Cho_Ket(iC,iL,1),nSsh(iSym)*nIsh(iSym),
-     *                  1.0D+00,BraSA(1,1,1),nSsh(iSym)*nAsh(iSym))
-            Call DGEMV_('T',NA*NU,nCho,
-     *                  1.0D+00,Cho_Bra,NA*NU,WRK1,1,
-     *                  0.0D+00,WRK2,1)
-            Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                  BraSI(iCabs,iLabs,1),nSsh(iSym)*nIsh(iSym))
-            Call DGEMM_('T','N',nCho,nCho,1,
-     *                  2.0D+00,Cho_Ket(iC,iL,1),NC*NL,WRK2,1,
-     *                  1.0D+00,A_PT2,nCho)
           END DO
         END DO
-
+C
+        Call DGEMM_('N','N',NA*NU,NCHO,ICL,
+     *              1.0D+00,AUCL,NA*NU,
+     *                      Cho_Ket(ICLSTA,1,1),NC*NL,
+     *              1.0D+00,Cho_BraD(1,1,1),NA*NU)
+        Call DGEMM_('T','N',ICL,NCHO,NA*NU,
+     *              1.0D+00,AUCL,NA*NU,
+     *                      Cho_Bra(1,1,1),NA*NU,
+     *              1.0D+00,Cho_KetD(ICLSTA,1,1),NC*NL)
+C
           ENDDO
         ENDDO
 
@@ -2002,15 +1664,16 @@ C
 C-----------------------------------------------------------------------
 C
       !! ADDRHSH
-      Subroutine OLagNS_RI_H(NA,NJ,NC,NL,NAJCL,
-     &                   Cho_Bra,Cho_Ket,NCHO)
+      Subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,
+     &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-C     DIMENSION AJCL(NC*NL,*)
-      DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NC,NL,NCHO)
+      DIMENSION AJCL(NC*NL,*)
+      DIMENSION Cho_Bra(NA,NJ,NCHO), Cho_Ket(NC,NL,NCHO),
+     *          Cho_BraD(NA,NJ,NCHO), Cho_KetD(NC,NL,NCHO)
 C
       ISYJ = ISYI
       ISYL = ISYK
@@ -2027,6 +1690,7 @@ C
       NWHP=NASP*NISP
       IF(NWHP.EQ.0) Return
       if (nwhp.eq.0) write (6,*) cho_bra(1,1,1) !! avoid unused tenta
+      if (nwhp.eq.0) write (6,*) cho_ketd(1,1,1) !! avoid unused tenta
       NASM=NAGTB(ISYM)
       NISM=NIGTJ(ISYM)
 C     NWHM=NASM*NISM
@@ -2063,22 +1727,34 @@ C
 C
       DO IASTA=1,NA,NBXSZA
         IAEND=MIN(IASTA-1+NBXSZA,NA)
+        NASZ=IAEND-IASTA+1
         DO IJSTA=1,NJ,NBXSZJ
           IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
+          NJSZ=IJEND-IJSTA+1
+C
+           IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
+           Call DCopy_(NAJCL,[0.0D+00],0,AJCL,1)
+C
           DO ICSTA=1,NC,NBXSZC
             ICEND=MIN(ICSTA-1+NBXSZC,NC)
+            NCSZ=ICEND-ICSTA+1
             DO ILSTA=1,NL,NBXSZL
               ILEND=MIN(ILSTA-1+NBXSZL,NL)
+              NLSZ=ILEND-ILSTA+1
 C
+              ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
+C
+      IAJ=0
+      IBUF=0
       DO IJ=IJSTA,IJEND
         IJABS=IJ+NIES(ISYJ)
         ILMAX=NL
         IF(ISYJ.EQ.ISYL) ILMAX=IJ
         DO IA=IASTA,IAEND
           IAABS=IA+NSES(ISYA)
+          IAJ=IAJ+1
 C
-          Call DCopy_(NC*NL,[0.0D+00],0,WRK1,1)
-          Call DCopy_(nSsh(iSym)*nIsh(iSym),[0.0D+00],0,WRK2,1)
+          ICL=0
           DO IL=ILSTA,MIN(ILEND,ILMAX)
             ILABS=IL+NIES(ISYL)
             SCL1=1.0D0
@@ -2086,6 +1762,7 @@ C
             IF(IJABS.EQ.ILABS) SCL1=SQRT(0.5D0)
             DO IC=ICSTA,ICEND
               ICABS=IC+NSES(ISYC)
+              ICL=ICL+1
 C
               SCL=SCL1
               IF(IAABS.GE.ICABS) THEN
@@ -2096,39 +1773,22 @@ C
               END IF
               IW=IAGEC+NAGEB(ISYM)*(IJGEL-1)
 C
-              ValHP = SCL*Work(ipTP+IW-1)*2.0d+00
-              WRK1(iC+NC*(iL-1)) = ValHP
-              WRK2(iCabs+nSsh(iSym)*(iLabs-1)) = ValHP
-C             Do iChoVec = 1, nCho
-C               BraSI(iAabs,iJabs,iChoVec) = BraSI(iAabs,iJabs,iChoVec)
-C    *            + ValHP*Cho_Ket(iC,iL,iChoVec)
-C               BraSI(iCabs,iLabs,iChoVec) = BraSI(iCabs,iLabs,iChoVec)
-C    *            + ValHP*Cho_Ket(iA,iJ,iChoVec)
-C               Do jChoVec = 1, nCho
-C                 A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *             + ValHP*Cho_Ket(iA,iJ,iChoVec)*Cho_Bra(iC,iL,jChoVec)
-C    *             + ValHP*Cho_Ket(iA,iJ,jChoVec)*Cho_Bra(iC,iL,iChoVec)
-C               End Do
-C             End Do
+              ValHP = SCL*Work(ipTP+IW-1)
+              AJCL(ICLSTA+ICL-1,IAJ) = ValHP
             END DO
           END DO
-          Call DGEMM_('N','N',nSsh(iSym)*nIsh(iSym),nCho,1,
-     *                1.0D+00,WRK2,nSsh(iSym)*nIsh(iSym),
-     *                        Cho_Ket(iA,iJ,1),nSsh(iSym)*nIsh(iSym),
-     *                1.0D+00,BraSI(1,1,1),nSsh(iSym)*nIsh(iSym))
-          Call DGEMV_('T',NC*NL,nCho,
-     *                1.0D+00,Cho_Ket,NC*NL,WRK1,1,
-     *                0.0D+00,WRK2,1)
-          Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                BraSI(iAabs,iJabs,1),nSsh(iSym)*nIsh(iSym))
-          Call DGEMM_('T','N',nCho,nCho,1,
-     *                2.0D+00,Cho_Ket(iA,iJ,1),NA*NJ,WRK2,1,
-     *                1.0D+00,A_PT2,nCho)
         END DO
       END DO
 C
             ENDDO
           ENDDO
+          Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NC*NL,
+     *                1.0D+00,AJCL(1,1),NC*NL,Cho_Ket(1,1,1),NC*NL,
+     *                1.0D+00,Cho_BraD(IAJSTA,1,1),NA*NJ)
+          Call DGEMM_('N','N',NC*NL,NCHO,NASZ*NJSZ,
+     *                1.0D+00,AJCL(1,1),NC*NL,Cho_Ket(IAJSTA,1,1),NC*NL,
+     *                1.0D+00,Cho_BraD(1,1,1),NA*NJ)
+C
         ENDDO
       ENDDO
 C
@@ -2162,27 +1822,40 @@ C
 C
       DO IASTA=1,NA,NBXSZA
         IAEND=MIN(IASTA-1+NBXSZA,NA)
+        NASZ=IAEND-IASTA+1
         DO IJSTA=1,NJ,NBXSZJ
           IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
+          NJSZ=IJEND-IJSTA+1
+C
+          IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
+          Call DCopy_(NAJCL,[0.0D+00],0,AJCL,1)
+C
           DO ICSTA=1,NC,NBXSZC
             ICEND=MIN(ICSTA-1+NBXSZC,NC)
+            NCSZ=ICEND-ICSTA+1
             DO ILSTA=1,NL,NBXSZL
               ILEND=MIN(ILSTA-1+NBXSZL,NL)
+              NLSZ=ILEND-ILSTA+1
 C
+              ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
+C
+      IAJ=0
+      IBUF=0
       DO IJ=IJSTA,IJEND
         IJABS=IJ+NIES(ISYJ)
         ILMAX=NL
         IF(ISYJ.EQ.ISYL) ILMAX=IJ-1
         DO IA=IASTA,IAEND
           IAABS=IA+NSES(ISYA)
+          IAJ=IAJ+1
 C
-          Call DCopy_(NC*NL,[0.0D+00],0,WRK1,1)
-          Call DCopy_(nSsh(iSym)*nIsh(iSym),[0.0D+00],0,WRK2,1)
+          ICL=0
           DO IL=ILSTA,MIN(ILMAX,ILEND)
             ILABS=IL+NIES(ISYL)
             IJGTL=KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
             DO IC=ICSTA,ICEND
               ICABS=IC+NSES(ISYC)
+              ICL=ICL+1
 C
               IF (IAABS.GT.ICABS) THEN
                 IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
@@ -2195,39 +1868,21 @@ C
               ENDIF
               IW=IAGTC+NAGTB(ISYM)*(IJGTL-1)
 C
-              ValHM = SCL*Work(ipTM+IW-1)*2.0d+00
-              WRK1(iC+NC*(iL-1)) = ValHM
-              WRK2(iCabs+nSsh(iSym)*(iLabs-1)) = ValHM
-C             Do iChoVec = 1, nCho
-C               BraSI(iAabs,iJabs,iChoVec) = BraSI(iAabs,iJabs,iChoVec)
-C    *            + ValHM*Cho_Ket(iC,iL,iChoVec)
-C               BraSI(iCabs,iLabs,iChoVec) = BraSI(iCabs,iLabs,iChoVec)
-C    *            + ValHM*Cho_Ket(iA,iJ,iChoVec)
-C               Do jChoVec = 1, nCho
-C                 A_PT2(iChoVec,jChoVec) = A_PT2(iChoVec,jChoVec)
-C    *             + ValHM*Cho_Ket(iA,iJ,iChoVec)*Cho_Bra(iC,iL,jChoVec)
-C    *             + ValHM*Cho_Ket(iA,iJ,jChoVec)*Cho_Bra(iC,iL,iChoVec)
-C               End Do
-C             End Do
+              ValHM = SCL*Work(ipTM+IW-1)
+              AJCL(ICLSTA+ICL-1,IAJ) = ValHM
             END DO
           END DO
-          Call DGEMM_('N','N',nSsh(iSym)*nIsh(iSym),nCho,1,
-     *                1.0D+00,WRK2,nSsh(iSym)*nIsh(iSym),
-     *                        Cho_Ket(iA,iJ,1),nSsh(iSym)*nIsh(iSym),
-     *                1.0D+00,BraSI(1,1,1),nSsh(iSym)*nIsh(iSym))
-          Call DGEMV_('T',NC*NL,nCho,
-     *                1.0D+00,Cho_Ket,NC*NL,WRK1,1,
-     *                0.0D+00,WRK2,1)
-          Call DaXpY_(nCho,1.0D+00,WRK2,1,
-     *                BraSI(iAabs,iJabs,1),nSsh(iSym)*nIsh(iSym))
-          Call DGEMM_('T','N',nCho,nCho,1,
-     *                2.0D+00,Cho_Ket(iA,iJ,1),NA*NJ,WRK2,1,
-     *                1.0D+00,A_PT2,nCho)
         END DO
       END DO
 C
             ENDDO
           ENDDO
+          Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NC*NL,
+     *                1.0D+00,AJCL(1,1),NC*NL,Cho_Ket(1,1,1),NC*NL,
+     *                1.0D+00,Cho_BraD(IAJSTA,1,1),NA*NJ)
+          Call DGEMM_('N','N',NC*NL,NCHO,NASZ*NJSZ,
+     *                1.0D+00,AJCL(1,1),NC*NL,Cho_Ket(IAJSTA,1,1),NC*NL,
+     *                1.0D+00,Cho_BraD(1,1,1),NA*NJ)
         ENDDO
       ENDDO
 C
@@ -2238,3 +1893,43 @@ C
       End Subroutine OLagNS_RI_H
 C
       End Subroutine OLagNS_RI
+C
+C-----------------------------------------------------------------------
+C
+      Subroutine Cholesky_Vectors(MODE,ITK,ITQ,JSYM,Array,nArray,
+     *                            IBSTA,IBEND)
+      USE CHOVEC_IO
+      IMPLICIT REAL*8 (A-H,O-Z)
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "WrkSpc.fh"
+      Real*8  Array(*)
+
+      ! ugly hack to convert separate k/q orbital types into a specific
+      ! case
+      ICASE=ITK*ITQ
+      IF (ICASE.EQ.3) THEN
+        ICASE=4
+      ELSE
+        ICASE=ICASE/2
+      END IF
+
+      LKETSM=1
+      LUCDER = 63 ! tentative
+      DO ISYK=1,NSYM
+        NQK=NPQ_CHOTYPE(ICASE,ISYK,JSYM)
+        IF(NQK.EQ.0) CYCLE
+        DO IB=IBSTA,IBEND
+          NV=NVLOC_CHOBATCH(IB)
+          NKETSM=NQK*NV
+          IDISK=IDLOC_CHOGROUP(ICASE,ISYK,JSYM,IB)
+          !! MODE = 1: write
+          !! MODE = 2: read
+          CALL DDAFILE(LUCDER,MODE,Array(LKETSM),NKETSM,IDISK)
+          LKETSM=LKETSM+NKETSM
+        END DO
+      END DO
+      nArray=LKETSM-1
+*
+      Return
+      End

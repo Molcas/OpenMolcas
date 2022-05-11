@@ -10,20 +10,20 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      Subroutine CLagX(IFF,CLag,trf,DEPSA,VECROT)
+      Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-C#include "output.fh"
+#include "output.fh"
 C#include "eqsolv.fh"
 #include "WrkSpc.fh"
 C#include "sigma.fh"
 #include "pt2_guga.fh"
 C
       DIMENSION CLag(nConf,nState)
-      dimension trf(nbast,nbast),DEPSA(nAshT,nAshT),VECROT(*)
+      dimension DEPSA(nAshT,nAshT),VECROT(*)
 C
       !! reduced density matrix and fock-weighted RDM
       CALL GETMEM('G1'   ,'ALLO','REAL',LG1 ,NG1)
@@ -49,8 +49,8 @@ C
       CALL PT2_GET(NG3,' DELTA3',WORK(LF3))
 C     write(6,*) "G1"
 C     call sqprt(work(lg1),5)
-C       write(6,*) "f1"
-C       call sqprt(work(lf1),5)
+C     write(6,*) "f1"
+C     call sqprt(work(lf1),5)
 C
       !! Initialize them
       Call DCopy_(nG1,[0.0D+00],0,Work(LDG1),1)
@@ -62,162 +62,37 @@ C
       !! DEASUM is the derivative cont. of EASUM
       DEASUM = 0.0D+00
 C
-      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+      IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       Call CLagD(Work(LG1),Work(LG2),Work(LG3),
      *           Work(LDG1),Work(LDG2),Work(LDG3),
      *           Work(LDF1),Work(LDF2),Work(LDF3),DEASUM,
      *           DEPSA,VECROT)
-      CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-      CPUT =CPTF10-CPTF0
-      WALLT=TIOTF10-TIOTF0
-      write(6,*) "CLagD : CPU/WALL TIME=", cput,wallt
-C     deasum = deasum*0.5d+00
-      write(6,*) "Deasum = ", deasum
-C     write(6,*) "depsa after CLagD"
-C     call sqprt(depsa,nasht)
-C     call docpy_25,0.0d+00,0,depsa,1)
-C     scal=-1.0d+00
-C     work(ldg1+ 3-1) = work(ldg1+ 3-1) + 0.0000612d+00*scal
-C     work(ldg1+ 4-1) = work(ldg1+ 4-1) + 0.0005517d+00*scal
-C     work(ldg1+11-1) = work(ldg1+11-1) + 0.0000612d+00*scal
-C     work(ldg1+14-1) = work(ldg1+14-1) + 0.0052315d+00*scal
-C     work(ldg1+16-1) = work(ldg1+16-1) + 0.0005517d+00*scal
-C     work(ldg1+18-1) = work(ldg1+18-1) + 0.0052315d+00*scal
+      IF (IPRGLB.GE.USUAL) THEN
+        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+        CPUT =CPTF10-CPTF0
+        WALLT=TIOTF10-TIOTF0
+        write(6,'(a,2f10.2)')" CLagD   : CPU/WALL TIME=", cput,wallt
+        write(6,*) "Deasum = ", deasum
+      END IF
 C
       !! Some symmetrizations are likely required
       Call CLagSym(nAshT,Work(LDG1),Work(LDG2),Work(LDF1),Work(LDF2),0)
 C
       !! Do for the derivative of EASUM
       !! EASUM=EASUM+EPSA(IT)*DREF(IT,IT)
-C     write(6,*) "RDMSA"
-C     call sqprt(rdmsa,5)
       Do iT = 1, nAsh(1)
         Work(LDG1+iT-1+nAsh(1)*(iT-1))
      *    = Work(LDG1+iT-1+nAsh(1)*(iT-1)) + DEASUM*EPSA(iT)
-C       RDMEIG(iT,iT) = RDMEIG(iT,iT) + DEASUM*EPSA(iT)
-C       DEPSA(iT) = DEPSA(iT) + DEASUM*Work(LG1+iT-1+nAsh(1)*(iT-1))
         If (ISCF.EQ.0) Then
           Do iU = 1, nAsh(1)
             DEPSA(iT,iU) = DEPSA(iT,iU)
      *        + DEASUM*Work(LG1+iT-1+nAsh(1)*(iU-1))
-C    *        + DEASUM*RDMSA(iT,iU)
           End Do
         Else
           !! ?
         End If
       End Do
-C     write(6,*) "G1"
-C     call sqprt(work(lg1),nasht)
-C     write(6,*) "depsa before"
-C     call sqprt(depsa,nasht)
 C
-C     write(6,*) "g1"
-C     call sqprt(work(lg1),5)
-C     write(6,*) "g2"
-C     call sqprt(work(lg2),25)
-C     write(6,*) "dg1"
-C     call sqprt(work(ldg1),5)
-C     write(6,*) "df1"
-C     call sqprt(work(ldf1),5)
-C     Call DCopy_(nConf*nState,[0.0D+00],0,CLag,1)
-      !! Is this needed? To be verified...
-C     Call DGemm_('N','N',nAshT,nAshT,nAshT,
-C    *            1.0D+00,Trf(6,6),nBasT,Work(LDG1),nAshT,
-C    *            0.0D+00,Work(LDG2),nAshT)
-C     Call DGemm_('N','T',nAshT,nAshT,nAshT,
-C    *            1.0D+00,Work(LDG2),nAshT,Trf(6,6),nBasT,
-C    *            0.0D+00,Work(LDG1),nAshT)
-
-C     call docpy_25,0.0d+00,0,depsa,1)
-      !! Check: should be MSTATE(JSTATE)?
-C     write(6,*) "CLag for jState = ", jState
-      !!  Call DCopy_(nG1,[0.0D+00],0,Work(LDG1),1)
-      !!  Call DCopy_(nG2,[0.0D+00],0,Work(LDG2),1)
-      !!  Call DCopy_(nG3,[0.0D+00],0,Work(LDG3),1)
-      !!  Call DCopy_(nG1,[0.0D+00],0,Work(LDF1),1)
-      !!  Call DCopy_(nG2,[0.0D+00],0,Work(LDF2),1)
-      !!  Call DCopy_(nG3,[0.0D+00],0,Work(LDF3),1)
-C     !!  call cnst_SA_CLag(.true.,Work(LG1),Work(LG2),
-      !!                    Work(LDG1),Work(LDG2),eee)
-      if (.false.) then
-        if (.false.) then
-        delta = 1.0d-05
-        CALL GETMEM('WRK1','ALLO','REAL',ipWRK1,nBasT*nBasT)
-        CALL GETMEM('WRK2','ALLO','REAL',ipWRK2,nBasT*nBasT)
-        CALL GETMEM('LCMO','ALLO','REAL',LCMO,nBasT*nBasT)
-        CALL GETMEM('LFMO','ALLO','REAL',ipFIMO,NFIMO)
-        Call DCopy_(nBasT*nBasT,[0.0D+00],0,Work(ipWRK1),1)
-        do imo = nfro(1)+1, nfro(1)+norbt
-          do iao = 1, nbast
-            do ivib = 1, 2
-              If (iVib.eq.1) Then
-                Work(LCMOPT2+iAO-1+nBast*(iMO-1))
-     *            = Work(LCMOPT2+iAO-1+nBast*(iMO-1)) + Delta
-              Else If (iVib.eq.2) Then
-                Work(LCMOPT2+iAO-1+nBasT*(iMO-1))
-     *            = Work(LCMOPT2+iAO-1+nBasT*(iMO-1)) - Delta
-              End If
-              Call DCopy_(nBasT*nBasT,Work(LCMOPT2),1,Work(LCMO),1)
-C
-C             CALL STINI
-              Call TraCtl(0)
-              call cnst_SA_CLag(.true.,Work(LG1),Work(LG2),
-     *                          Work(LDG1),Work(LDG2),eee)
-C
-              If (iVib.eq.1) Then
-                EForward = eee
-                Work(LCMOPT2+iAO-1+nBasT*(iMO-1))
-     *            = Work(LCMOPT2+iAO-1+nBasT*(iMO-1)) - Delta
-              Else If (iVib.eq.2) Then
-                EBackward = eee
-                Work(LCMOPT2+iAO-1+nBasT*(iMO-1))
-     *            = Work(LCMOPT2+iAO-1+nBasT*(iMO-1)) + Delta
-              End If
-              Call DCopy_(nBasT*nBasT,Work(LCMOPT2),1,Work(LCMO),1)
-            End Do
-            Work(ipWRK1+iAO-1+nBasT*(iMO-1))
-     *        = (EForward-EBackward)/(2.0D+00*Delta)
-          end do
-        end do
-C
-        Call DGEMM_('T','N',nFro(1)+nOrbT,nFro(1)+nOrbT,nBasT,
-     *              1.0D+00,Work(LCMOPT2),nBasT,Work(ipWRK1),nBasT,
-     *              0.0D+00,Work(ipWRK2),nFro(1)+nOrbT)
-        write(6,*) "Orbital Lagrangian"
-        Call SqPrt(Work(ipWRK2),nFro(1)+nOrbT)
-          Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *                1.0D+00,Trf,nBasT,Work(ipWRK2),nBasT,
-     *                0.0D+00,Work(ipWRK1),nBasT)
-          Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipWRK1),nBasT,Trf,nBasT,
-     *                0.0D+00,Work(ipWRK2),nBasT)
-        write(6,*) "Orbital Lagrangian in canonical"
-        Call SqPrt(Work(ipWRK2),nFro(1)+nOrbT)
-        Call DGeSub(Work(ipWRK2),nBas(1),'N',
-     &              Work(ipWRK2),nBas(1),'T',
-     &              Work(ipWRK1),nBas(1),
-     &              nBas(1),nBas(1))
-        write(6,*) "Orbital Lagrangian in canonical after asym"
-        Call SqPrt(Work(ipWRK1),nFro(1)+nOrbT)
-        CALL GETMEM('WRK1','FREE','REAL',ipWRK1,nBasT*nBasT)
-        CALL GETMEM('WRK2','FREE','REAL',ipWRK2,nBasT*nBasT)
-        CALL GETMEM('LCMO','FREE','REAL',LCMO,nBasT*nBasT)
-        CALL GETMEM('LFMO','FREE','REAL',ipFIMO,NFIMO)
-        call abend
-        else
-          Call DCopy_(nG1,[0.0D+00],0,Work(LDG1),1)
-          Call DCopy_(nG2,[0.0D+00],0,Work(LDG2),1)
-          Call DCopy_(nG3,[0.0D+00],0,Work(LDG3),1)
-          Call DCopy_(nG1,[0.0D+00],0,Work(LDF1),1)
-          Call DCopy_(nG2,[0.0D+00],0,Work(LDF2),1)
-          Call DCopy_(nG3,[0.0D+00],0,Work(LDF3),1)
-        call cnst_SA_CLag(.true.,Work(LG1),Work(LG2),
-     *                    Work(LDG1),Work(LDG2),eee)
-C      call sqprt(work(ldg1),nasht)
-C      call sqprt(work(ldg2),nasht**2)
-        end if
-      end if
-      !!  write(6,*) "after cnst"
       Call CnstCLag(IFF,CLag(1,jState),
      *              Work(LDG1),Work(LDG2),Work(LDG3),
      *              Work(LDF1),Work(LDF2),Work(LDF3),
@@ -1335,17 +1210,19 @@ C         Call LoadCI_XMS('C',1,Work(LCI),JSTATE,U0)
 C
 C     CALL MKFG3mod(IFF,WORK(LCI),WORK(LG1),WORK(LF1),WORK(LG2),
 C    &              WORK(LF2),WORK(LG3),WORK(LF3),i1WORK(LidxG3))
-      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+      IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       If (ISCF.EQ.0) Then
         CALL DERFG3(WORK(LCI),CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
      &              i1WORK(LidxG3),DEPSA,G1,G2)
       Else
         CALL DERSPE(DF1,DF2,DF3,i1WORK(LidxG3),DEPSA,G1,G2,G3)
       End If
-      CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-      CPUT =CPTF10-CPTF0
-      WALLT=TIOTF10-TIOTF0
-      write(6,*) "DERFG3: CPU/WALL TIME=", cput,wallt
+      IF (IPRGLB.GE.USUAL) THEN
+        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+        CPUT =CPTF10-CPTF0
+        WALLT=TIOTF10-TIOTF0
+        write(6,'(a,2f10.2)')" DERFG3  : CPU/WALL TIME=", cput,wallt
+      END IF
 C
 C     write(6,*) "clag after DERFG3"
 C     do i = 1, min(50,nconf)
@@ -1495,8 +1372,8 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+#include "output.fh"
 
-Cinclude "output.fh"
 Cinclude "pt2_guga.fh"
 Cinclude "SysDef.fh"
       Call GetMem('LCI1','ALLO','REAL',LCI1,nConf)
@@ -1522,8 +1399,10 @@ C
      *         - DDOT_(nConf,Work(LCI2),1,CLag(1,ilStat),1)
           Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
           SLag(ijst) = SLag(ijst) + Scal
-            write(6,'("SLag for State ",i1,"-",i1," = ",f20.10)')
+          IF (IPRGLB.GE.USUAL) THEN
+            write(6,'(x,"SLag for State ",i1,"-",i1," = ",f20.10)')
      *         ilstat,jlstat,slag(ijst)
+          END IF
         end do
       end do
 C
