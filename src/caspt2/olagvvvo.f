@@ -1040,8 +1040,10 @@ C
               Write (LuGamma,Rec=iVec+JV1-1)
      *          Work(ipHTVec:ipHTVec+nBasI**2-1)
             Else
+             if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
               Write (LuGamma,Rec=iVec+JV1-1)
      *        Work(ip_CHSPC+nBasI**2*(iVec-1):ip_CHSPC+nBasI**2*iVec-1)
+             end if
             End If
           End Do
 C
