@@ -33,7 +33,9 @@ Real*8,  Intent(Out):: Disp(mOV)
 
 Integer i, j, k, l, ipq, ipg, nDIIS, mDIIS, iFirst
 Integer, External:: LstPtr
+#ifdef _DEBUGPRINT_
 Real*8, External::DDot_
+#endif
 Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
 Real*8, Allocatable:: dq_diis(:)

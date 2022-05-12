@@ -96,6 +96,7 @@
       Dimension Dummy(1),iDummy(7,8)
       External DNRM2_
       Real*8 :: StepMax=0.450D0
+      Real*8, Allocatable:: Crap(:,:)
 
       Write (6,*)
       Write (6,*) "===================================================="
@@ -629,8 +630,6 @@
                StepMax=Max(StepMax*0.75D0,0.8D-3)
             End If
 
-            Block
-               Real*8, Allocatable:: Crap(:,:)
                Call mma_allocate(Crap,mOV,2)
                Call DIIS_GEK_Optimizer(Disp,mOV)
                AccCon(1:6)='IS-GEK'
@@ -643,7 +642,6 @@
 !              Call RecPrt('Crap',' ',Crap,mOV,2)
 !              Disp(:)=Crap(:,1)
                Call mma_deallocate(Crap)
-            End Block
 
 *           Pick up X(n) and compute X(n+1)=X(n)+dX(n)
 
