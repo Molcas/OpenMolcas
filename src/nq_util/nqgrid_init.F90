@@ -39,7 +39,7 @@ iDisk_Grid = 0
 call iDaFile(Lu_Grid,1,G_S,2,iDisk_Grid)
 iDisk = iDisk_Grid
 call iDaFile(Lu_Grid,1,iDisk_Set,2,iDisk_Grid)
-call iDaFile(Lu_Grid,1,Old_Functional_Type,1,iDisk_Grid)
+call iDaFile(Lu_Grid,1,[Old_Functional_Type],1,iDisk_Grid)
 
 iDisk_Set(Final_Grid) = iDisk_Grid
 iDisk_Set(Intermediate) = iDisk_Grid

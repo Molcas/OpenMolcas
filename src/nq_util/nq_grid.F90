@@ -20,8 +20,8 @@ private
 integer(kind=iwp) :: kAO = 0, nGradRho = 0, nGridMax = 128, nLapl = 0, nRho = 0, nSigma = 0, nTau = 0
 logical(kind=iwp) :: l_CASDFT = .false.
 integer(kind=iwp), allocatable :: Angular(:), iBfn_Index(:,:), IndGrd(:), iTab(:,:), List_G(:,:), nR_Eff(:)
-real(kind=wp), allocatable :: Coor(:,:), D1Unzip(:), Dens_AO(:,:,:), dRho_dR(:,:,:), dW_dR(:,:), F_xc(:), F_xca(:), F_xcb(:), &
-                              Fact(:,:), GradRho(:,:), Grid(:,:), Grid_AO(:,:,:,:), Lapl(:,:), Mem(:), P2Unzip(:), Pax(:,:), &
+real(kind=wp), allocatable :: Coor(:,:), D1Unzip(:,:), Dens_AO(:,:,:), dRho_dR(:,:,:), dW_dR(:,:), F_xc(:), F_xca(:), F_xcb(:), &
+                              Fact(:,:), GradRho(:,:), Grid(:,:), Grid_AO(:,:,:,:), Lapl(:,:), Mem(:), P2Unzip(:,:,:,:), Pax(:,:), &
                               R2_trial(:), Rho(:,:), Sigma(:,:), Tau(:,:), Temp(:), vLapl(:,:), vRho(:,:), vSigma(:,:), vTau(:,:), &
                               Weights(:)
 real(kind=wp), allocatable, target :: TabAO(:,:,:), TabAO_Short(:,:,:)

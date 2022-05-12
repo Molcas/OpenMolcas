@@ -18,22 +18,20 @@
 subroutine PDFTFock(FI,FA,D1,mGrid,ActMO)
 
 use nq_pdft, only: dEdPiMO, GdEdPiMO, lft, lGGA, MOas
-use nq_Info, only: mIrrep, NASHT, nIsh, nOrbt, nPot1, OffOrb
+use nq_Info, only: mIrrep, NASHT, nIsh, nPot1, OffOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: mGrid
-real(kind=wp) :: FI(nPot1), FA(nPot1), D1(NASHT**2), ActMO(mGrid*NASHT)
+real(kind=wp) :: FI(nPot1), FA(nPot1), D1(NASHT,NASHT), ActMO(NASHT,mGrid)
 ! Input: mGrid ActMO D1
 ! Output: FI FA
-integer(kind=iwp) :: iGrid, iIrrep, ik, iOff1, k, nGOrb
+integer(kind=iwp) :: iGrid, iIrrep, ik, k
 real(kind=wp) :: TempD1
-real(kind=wp), allocatable :: dEdPiAct(:), Fact2(:), SumDX(:)
+real(kind=wp), allocatable :: dEdPiAct(:,:), Fact2(:), SumDX(:,:)
 real(kind=r8), external :: DDot_
-
-nGOrb = mGrid*nOrbt
 
 ! calculate FI. FI=2*dEdPi*pq*sum_k{kk*Fact1}
 ! TempD1: sum_k{kk}
@@ -44,8 +42,7 @@ do iGrid=1,mGrid
   do iIrrep=0,mIrrep-1
     do ik=1,nIsh(iIrrep)
       k = ik+OffOrb(iIrrep)
-      IOff1 = (k-1)*mGrid+iGrid
-      TempD1 = TempD1+MOas(IOff1)**2
+      TempD1 = TempD1+MOas(iGrid,k)**2
     end do
   end do
   Fact2(iGrid) = Two*TempD1
@@ -56,9 +53,9 @@ if (lft .and. lGGA) then
   ! in which FI_pq=0.5(FI_pq+FI_qp)
   ! However, we do not want the factor of 0.5 for p'qrs part
   ! So we add another copy of GdEdPiMO to pick up the factor of 0.5
-  call DAXpY_(nGOrb,One,GdEdPiMO,1,dEdPiMO,1)
+  dEdPiMO(:,:) = dEdPiMO+GdEdPiMO
   ! Also the pqr's part is needed with the help of the following! array
-  call mma_allocate(dEdPiAct,mGrid*NASHT,label='dEdPiAct')
+  call mma_allocate(dEdPiAct,NASHT,mGrid,label='dEdPiAct')
   call TransActMO2(dEdPiAct,GdEdPiMO,mGrid)
 end if
 call PDFTFock_Inner(FI,Fact2,dEdPiMO,MOas,mGrid)
@@ -69,8 +66,7 @@ if (lft .and. lGGA) then
     do iIrrep=0,mIrrep-1
       do ik=1,nIsh(iIrrep)
         k = ik+OffOrb(iIrrep)
-        IOff1 = (k-1)*mGrid+iGrid
-        TempD1 = TempD1+MOas(IOff1)*GdEdPiMO(iOff1)
+        TempD1 = TempD1+MOas(iGrid,k)*GdEdPiMO(iGrid,k)
       end do
     end do
     Fact2(iGrid) = Four*TempD1
@@ -79,18 +75,16 @@ if (lft .and. lGGA) then
 end if
 ! calculate FA. FA=pq*sum_vx{vx*Dvx*Fact1}
 ! First calculate sum_x{Dvx*x}
-call mma_allocate(SumDX,mGrid*NASHT,label='SumDX')
+call mma_allocate(SumDX,NASHT,mGrid,label='SumDX')
 do iGrid=1,mGrid
-  IOff1 = (iGrid-1)*NASHT+1
-  call DGEMM_('T','N',NASHT,1,NASHT,One,D1,NASHT,ActMO(IOff1),NASHT,Zero,SumDX(iOff1),NASHT)
-  Fact2(iGrid) = ddot_(NASHT,ActMO(iOff1),1,SumDX(iOff1),1)
+  call DGEMM_('T','N',NASHT,1,NASHT,One,D1,NASHT,ActMO(:,iGrid),NASHT,Zero,SumDX(:,iGrid),NASHT)
+  Fact2(iGrid) = ddot_(NASHT,ActMO(:,iGrid),1,SumDX(:,iGrid),1)
 end do
 call PDFTFock_Inner(FA,Fact2,dEdPiMO,MOas,mGrid)
 if (lft .and. lGGA) then
   do iGrid=1,mGrid
-    IOff1 = (iGrid-1)*NASHT+1
-    call DGEMM_('T','N',NASHT,1,NASHT,One,D1,NASHT,ActMO(IOff1),NASHT,Zero,SumDX(iOff1),NASHT)
-    Fact2(iGrid) = Two*ddot_(NASHT,dEdPiAct(iOff1),1,SumDX(iOff1),1)
+    call DGEMM_('T','N',NASHT,1,NASHT,One,D1,NASHT,ActMO(:,iGrid),NASHT,Zero,SumDX(:,iGrid),NASHT)
+    Fact2(iGrid) = Two*ddot_(NASHT,dEdPiAct(:,iGrid),1,SumDX(:,iGrid),1)
   end do
   call mma_deallocate(dEdPiAct)
   call PDFTFock_Inner(FA,Fact2,MOas,MOas,mGrid)

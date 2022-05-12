@@ -11,7 +11,7 @@
 
 subroutine Compute_O(ZA,RA,nAtoms,T,O,Lambda)
 
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,8 +31,7 @@ call Compute_M(ZA,nAtoms,RA,T,M)
 ! Diagonalize the nuclear charge momentum tensor to get
 ! the principal axis system.
 
-call FZero(O,9)
-call dcopy_(3,[One],0,O,4)
+O = reshape([One,Zero,Zero,Zero,One,Zero,Zero,Zero,One],[3,3])
 EVal(1) = M(1,1)
 EVal(2) = M(2,1)
 EVal(3) = M(2,2)

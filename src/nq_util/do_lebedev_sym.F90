@@ -56,7 +56,7 @@ call GetMem('AngRW','Allo','Real',ipR,4*mPt)
 j = 1
 do i=1,mPt_
   if (R(4,i) /= Zero) then
-    call DCopy_(4,R(:,i),1,Work(ipR+(j-1)*4),1)
+    Work(ipR+(j-1)*4:ipR+j*4-1) = R(:,i)
     j = j+1
   end if
 end do

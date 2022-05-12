@@ -41,11 +41,11 @@ integer(kind=iwp), parameter :: LMax_NQ = 62, &
                                 On = 1, Off = 0
 integer(kind=iwp) :: Angular_Pruning, Functional_Type, Grid_Type, iAngMax, IOff_Ash(0:7), IOff_Bas(0:7), IOff_BasAct(0:7), &
                      iOpt_Angular, ip_ioffsh, ip_nR_Eff, ip_OrbDip(3), ip_R, ipMem, L_Quad, L_Quad_save, maxUVX, mBas(0:7), &
-                     mIrrep, mOrb(0:7), mRad, mTmp, nAngularGrids, nAOMax, nAsh(0:7), NASHT, NASHT4, nAtoms, nbrmxbas, ndc, &
-                     nFro(0:7), nISh(0:7), nMaxExp, nMem, nOrbt, NPOt1, nPot2, NQ_Direct, nR, nR_Save, nTotGP, &
-                     number_of_subblocks, nUVX(0:7,0:7,0:7), nUVXt, nVX(0:7,0:7), nVXt, nx, ny, nz, OffBas(0:7), OffBas2(0:7), &
-                     OffBasFro(0:7), OffOrb(0:7), OffOrb2(0:7), OffOrbTri(0:7), OffPUVX(0:7), OffUVX(0:7,0:7,0:7), OffVX(0:7,0:7), &
-                     Packing, Rotational_Invariance
+                     mIrrep, mOrb(0:7), mRad, mTmp, nAngularGrids, nAOMax, nAsh(0:7), NASHT, nAtoms, nbrmxbas, ndc, nFro(0:7), &
+                     nISh(0:7), nMaxExp, nMem, nOrbt, NPOt1, nPot2, NQ_Direct, nR, nR_Save, nTotGP, number_of_subblocks, &
+                     nUVX(0:7,0:7,0:7), nUVXt, nVX(0:7,0:7), nVXt, nx, ny, nz, OffBas(0:7), OffBas2(0:7), OffBasFro(0:7), &
+                     OffOrb(0:7), OffOrb2(0:7), OffOrbTri(0:7), OffPUVX(0:7), OffUVX(0:7,0:7,0:7), OffVX(0:7,0:7), Packing, &
+                     Rotational_Invariance
 real(kind=wp) :: Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, Fade, &
                  Grad_I, R_Max(0:LMax_NQ), T_Y, Tau_I, ThrC, Threshold, Threshold_save, x_max, x_min, y_max, y_min, z_max, z_min
 character(len=10) :: Quadrature
@@ -54,11 +54,11 @@ character(len=8) :: MBC
 public :: Angular_Pruning, Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, &
           Fade, Fixed_Grid, Functional_Type, GGA_Type, Grad_I, Grid_Type, iAngMax, IOff_Ash, IOff_Bas, IOff_BasAct, iOpt_Angular, &
           ip_ioffsh, ip_nR_Eff, ip_OrbDip, ip_R, ipMem, L_Quad, L_Quad_save, LDA_Type, LMax_NQ, maxUVX, mBas, MBC, meta_GGA_Type1, &
-          meta_GGA_Type2, mIrrep, mOrb, Moving_Grid, mRad, mTmp, nAngularGrids, nAOMax, nAsh, NASHT, NASHT4, nAtoms, nbrmxbas, &
-          ndc, nFro, nISh, nMaxExp, nMem, nOrbt, NPOt1, nPot2, NQ_Direct, NQ_Info_Dmp, NQ_Info_Get, nR, nR_Save, nTotGP, &
-          number_of_subblocks, nUVX, nUVXt, nVX, nVXt, nx, ny, nz, Off, OffBas, OffBas2, OffBasFro, OffOrb, OffOrb2, OffOrbTri, &
-          OffPUVX, OffUVX, OffVX, On, Other_Type, Packing, Quadrature, R_Max, Rotational_Invariance, T_Y, Tau_I, ThrC, Threshold, &
-          Threshold_save, x_max, x_min, y_max, y_min, z_max, z_min
+          meta_GGA_Type2, mIrrep, mOrb, Moving_Grid, mRad, mTmp, nAngularGrids, nAOMax, nAsh, NASHT, nAtoms, nbrmxbas, ndc, nFro, &
+          nISh, nMaxExp, nMem, nOrbt, NPOt1, nPot2, NQ_Direct, NQ_Info_Dmp, NQ_Info_Get, nR, nR_Save, nTotGP, number_of_subblocks, &
+          nUVX, nUVXt, nVX, nVXt, nx, ny, nz, Off, OffBas, OffBas2, OffBasFro, OffOrb, OffOrb2, OffOrbTri, OffPUVX, OffUVX, OffVX, &
+          On, Other_Type, Packing, Quadrature, R_Max, Rotational_Invariance, T_Y, Tau_I, ThrC, Threshold, Threshold_save, x_max, &
+          x_min, y_max, y_min, z_max, z_min
 
 contains
 
@@ -71,7 +71,7 @@ subroutine NQ_Info_Dmp()
   integer(kind=iwp), allocatable :: iDmp(:)
   real(kind=wp), allocatable :: rDmp(:)
   character, allocatable :: cDmp(:)
-  integer(kind=iwp), parameter :: liDmp = 37+5*8, lrDmp = 23+(LMax_NQ+1)
+  integer(kind=iwp), parameter :: liDmp = 36+5*8, lrDmp = 23+(LMax_NQ+1)
 
   ! Real Stuff
 
@@ -133,8 +133,6 @@ subroutine NQ_Info_Dmp()
   call mma_allocate(iDmp,liDmp,Label='iDmp')
   i = 1
   iDmp(i) = NASHT
-  i = i+1
-  iDmp(i) = NASHT4
   i = i+1
   iDmp(i) = NPot1
   i = i+1
@@ -242,7 +240,7 @@ subroutine NQ_Info_Get()
   integer(kind=iwp), allocatable :: iDmp(:)
   real(kind=wp), allocatable :: rDmp(:)
   character, allocatable :: cDmp(:)
-  integer(kind=iwp), parameter :: liDmp = 37+5*8, lrDmp = 23+(LMax_NQ+1)
+  integer(kind=iwp), parameter :: liDmp = 36+5*8, lrDmp = 23+(LMax_NQ+1)
 
   ! Real Stuff
 
@@ -305,8 +303,6 @@ subroutine NQ_Info_Get()
   call Get_iArray('Quad_i',iDmp,liDmp)
   i = 1
   NASHT = iDmp(i)
-  i = i+1
-  NASHT4 = iDmp(i)
   i = i+1
   NPot1 = iDmp(i)
   i = i+1

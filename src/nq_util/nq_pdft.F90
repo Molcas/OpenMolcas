@@ -26,12 +26,12 @@ private
 real(kind=wp), parameter :: fta = -475.6065601_wp, ftb = -379.4733192_wp, ftc = -85.3814968_wp, ThrsFT = 0.9_wp, ThrsNT = 1.15_wp, &
                             ThrsOMR = 1.0e-15_wp, ThrsRho = 1.0e-15_wp
 logical(kind=iwp) :: lft = .false., lGGA = .false.
-real(kind=wp), allocatable :: d2RdRho2(:), d2RdRhodPi(:), d2ZdR2(:), dEdPi(:), dEdPiMO(:), dEdPix(:), dEdPiy(:), dEdPiz(:), &
+real(kind=wp), allocatable :: d2RdRho2(:), d2RdRhodPi(:), d2ZdR2(:), dEdPi(:), dEdPiMO(:,:), dEdPix(:), dEdPiy(:), dEdPiz(:), &
                               dEdRho(:), dEdRhox(:), dEdRhoy(:), dEdRhoz(:), dF_dRhoamb(:), dF_dRhoapb(:), dF_dRhoxamb(:), &
                               dF_dRhoxapb(:), dF_dRhoyamb(:), dF_dRhoyapb(:), dF_dRhozamb(:), dF_dRhozapb(:), dRdPi(:), dRdRho(:), &
                               dRhoadZ(:), dRhoaxdZ(:), dRhoaydZ(:), dRhoazdZ(:), dRhodX(:), dRhodY(:), dRhodZ(:), dZdR(:), &
-                              dZdRho(:), GdEdPiMO(:), GradPidFdRho(:), GradRdFdRho(:), GradRhodFdRho(:), MOas(:), MOax(:), &
-                              MOay(:), MOaz(:), OneMZ(:), OnePZ(:), RatioA(:), RhoAB(:), ZetaA(:)
+                              dZdRho(:), GdEdPiMO(:,:), GradPidFdRho(:), GradRdFdRho(:), GradRhodFdRho(:), MOas(:,:), MOax(:,:), &
+                              MOay(:,:), MOaz(:,:), OneMZ(:), OnePZ(:), RatioA(:), RhoAB(:), ZetaA(:)
 logical(kind=iwp), allocatable :: Pass1(:), Pass2(:), Pass3(:)
 
 public :: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, dF_dRhoamb, &

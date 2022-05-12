@@ -27,18 +27,16 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: mAO, mGrid, nMOs
-real(kind=wp) :: MOs(mGrid*NASHT), TabMO(mAO,mGrid,nMOs)
+real(kind=wp) :: MOs(NASHT,mGrid), TabMO(mAO,mGrid,nMOs)
 ! Input: mAO mGrid nMOs TabMO
 ! Output: MOs
-integer(kind=iwp) :: iGrid, iIrrep, IOff1, iOff2, iOff3, nGridPi
+integer(kind=iwp) :: iGrid, iIrrep, IOff1, IOff2
 
-nGridPi = mAO*mGrid
 do iGrid=1,mGrid
-  IOff1 = (iGrid-1)*NASHT
   do iIrrep=0,mIrrep-1
-    IOff2 = IOff_Ash(iIrrep)+1
-    IOff3 = IOff_BasAct(iIrrep)+1
-    call DCopy_(nAsh(iIrrep),TabMO(1,iGrid,IOff3),nGridPi,MOs(IOff1+IOff2),1)
+    IOff1 = IOff_Ash(iIrrep)
+    IOff2 = IOff_BasAct(iIrrep)
+    MOs(IOff1+1:IOff1+nAsh(iIrrep),iGrid) = TabMO(1,iGrid,IOff2+1:IOff2+nAsh(iIrrep))
   end do
 end do
 

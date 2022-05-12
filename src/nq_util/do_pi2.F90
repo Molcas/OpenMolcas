@@ -16,8 +16,6 @@ subroutine Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,m
 !                                                                      *
 ! Called from: Do_batch                                                *
 !                                                                      *
-! Calling    : FZero                                                   *
-!                                                                      *
 !    INPUT:                                                            *
 !   D1mo     = one-body density matrix in MO basis                     *
 !   nd1mo    = size of D1mo                                            *
@@ -30,14 +28,14 @@ subroutine Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,m
 
 use nq_Info, only: Functional_type, GGA_type, iOff_Ash, iOff_Bas, iOff_BasAct, mBas, mIrrep, nAsh, NASHT, nFro, nIsh
 use Index_Functions, only: iTri
-use Constants, only: Two, Four
+use Constants, only: Zero, Two, Four
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: nd1mo, mAO, mGrid, nMOs, nP2_ontop, mRho
 real(kind=wp) :: D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop(nP2_ontop,mGrid), RhoI(mRho,mGrid), RhoA(mRho,mGrid), &
-                 P2MOCube(mGrid*NASHT), MOs(mGrid*NASHT), MOx(mGrid*NASHT), MOy(mGrid*NASHT), MOz(mGrid*NASHT)
-integer(kind=iwp) :: i, i_, iGrid, iIrrep, IOff1, IOff2, jOffA_, jOffB_, k, k_, kIrrep, kl, l, l_, lIrrep, NumAsh, NumIsh
+                 P2MOCube(NASHT,mGrid), MOs(NASHT,mGrid), MOx(NASHT,mGrid), MOy(NASHT,mGrid), MOz(NASHT,mGrid)
+integer(kind=iwp) :: i, i_, iGrid, iIrrep, IOff, jOffA_, jOffB_, k, k_, kIrrep, kl, l, l_, lIrrep, NumAsh, NumIsh
 real(kind=r8), external  :: DDot_
 
 !                                                                      *
@@ -55,7 +53,7 @@ else if (nP2_ontop == 6) then
   end if
 end if
 
-call FZero(P2_ontop,mGrid*nP2_ontop)
+P2_ontop(:,:) = Zero
 jOffA_ = 0
 jOffB_ = 0
 do iIrrep=0,mIrrep-1
@@ -178,25 +176,23 @@ end if   ! if Inactive
 if (NumAsh == 0) return
 
 !call RecPrt('P2MOCube in do_pi2',' ',P2MOCube,NASHT,mGrid)
-!
+
 !call RecPrt('MOs array in do_pi2',' ',MOs,NASHT,mGrid)
 
 do iGrid=1,mGrid
-  IOff1 = (iGrid-1)*NASHT
   do kIrrep=0,mIrrep-1
-    IOff2 = IOff1+iOff_Ash(kIrrep)+1
-    P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+ddot_(nAsh(kIrrep),MOs(IOff2),1,P2MOCube(IOff2),1)
+    IOff = iOff_Ash(kIrrep)+1
+    P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+ddot_(nAsh(kIrrep),MOs(IOff:,iGrid),1,P2MOCube(IOff:,iGrid),1)
   end do
 end do
 
 if (Functional_type == GGA_type) then
   do iGrid=1,mGrid
-    IOff1 = (iGrid-1)*NASHT
     do kIrrep=0,mIrrep-1
-      IOff2 = IOff1+iOff_Ash(kIrrep)+1
-      P2_ontop(2,iGrid) = P2_ontop(2,iGrid)+Four*ddot_(nAsh(kIrrep),MOx(IOff2),1,P2MOCube(IOff2),1)
-      P2_ontop(3,iGrid) = P2_ontop(3,iGrid)+Four*ddot_(nAsh(kIrrep),MOy(IOff2),1,P2MOCube(IOff2),1)
-      P2_ontop(4,iGrid) = P2_ontop(4,iGrid)+Four*ddot_(nAsh(kIrrep),MOz(IOff2),1,P2MOCube(IOff2),1)
+      IOff = iOff_Ash(kIrrep)+1
+      P2_ontop(2,iGrid) = P2_ontop(2,iGrid)+Four*ddot_(nAsh(kIrrep),MOx(IOff:,iGrid),1,P2MOCube(IOff:,iGrid),1)
+      P2_ontop(3,iGrid) = P2_ontop(3,iGrid)+Four*ddot_(nAsh(kIrrep),MOy(IOff:,iGrid),1,P2MOCube(IOff:,iGrid),1)
+      P2_ontop(4,iGrid) = P2_ontop(4,iGrid)+Four*ddot_(nAsh(kIrrep),MOz(IOff:,iGrid),1,P2MOCube(IOff:,iGrid),1)
     end do
   end do
 end if

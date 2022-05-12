@@ -24,24 +24,23 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: mGrid
-real(kind=wp) :: Pot2(nPot2), MOP(mGrid*nOrbt), MOU(mGrid*nOrbt), MOV(mGrid*nOrbt), MOX(mGrid*nOrbt)
+real(kind=wp) :: Pot2(nPot2), MOP(mGrid,nOrbt), MOU(mGrid,nOrbt), MOV(mGrid,nOrbt), MOX(mGrid,nOrbt)
 logical(kind=iwp) :: lsum
 ! Note: when lSum is .true., calculate P(U'VX+UV'X+UVX'), otherwise calculate PUVX
 ! Input: mGrid lSum MOP MOU MOV MOX
 ! Output: Pot2
-integer(kind=iwp) :: iGrid, iOff0, iOff1, iOff2, iOff3, ioffu, iStack, iVX, nnUVX, nporb, pIrrep, puIrrep, u, uIrrep, v, vIrrep, &
-                     vorb, x, xIrrep, xMax, xorb
-real(kind=wp), allocatable :: MOUVX(:), MOVX1(:), MOVX2(:)
+integer(kind=iwp) :: iOff0, iOff1, iOff2, iOff3, ioffu, iStack, iVX, nnUVX, nporb, pIrrep, puIrrep, u, uIrrep, v, vIrrep, vorb, x, &
+                     xIrrep, xMax, xorb
+real(kind=wp), allocatable :: MOUVX(:,:), MOVX1(:,:), MOVX2(:,:)
 
-call mma_allocate(MOVX1,nVXt*mGrid)
-if (lSum) call mma_allocate(MOVX2,nVXt*mGrid)
-call mma_allocate(MOUVX,nUVXt*mGrid)
+call mma_allocate(MOVX1,mGrid,nVXt)
+if (lSum) call mma_allocate(MOVX2,mGrid,nVXt)
+call mma_allocate(MOUVX,mGrid,nUVXt)
 
 do vIrrep=0,mIrrep-1
   do xIrrep=0,vIrrep
     do v=1,nAsh(vIrrep)
       vorb = v+OffOrb(vIrrep)+nIsh(vIrrep)
-      IOff1 = (vorb-1)*mGrid
       if (xIrrep == vIrrep) then
         xMax = v
         iStack = v*(v-1)/2
@@ -51,11 +50,7 @@ do vIrrep=0,mIrrep-1
       end if
       do x=1,xMax
         xorb = x+OffOrb(xIrrep)+nIsh(xIrrep)
-        IOff2 = (xorb-1)*mGrid
-        IOff3 = (OffVX(xIrrep,vIrrep)+iStack+x-1)*mGrid
-        do iGrid=1,mGrid
-          MOVX1(iGrid+IOff3) = MOV(iGrid+IOff1)*MOX(iGrid+IOff2)
-        end do
+        MOVX1(:,OffVX(xIrrep,vIrrep)+iStack+x) = MOV(:,vorb)*MOX(:,xorb)
       end do
     end do
   end do
@@ -66,7 +61,6 @@ if (lSum) then
     do xIrrep=0,vIrrep
       do v=1,nAsh(vIrrep)
         vorb = v+OffOrb(vIrrep)+nIsh(vIrrep)
-        IOff1 = (vorb-1)*mGrid
         if (xIrrep == vIrrep) then
           xMax = v
           iStack = v*(v-1)/2
@@ -76,12 +70,9 @@ if (lSum) then
         end if
         do x=1,xMax
           xorb = x+OffOrb(xIrrep)+nIsh(xIrrep)
-          IOff2 = (xorb-1)*mGrid
           IOff3 = (OffVX(xIrrep,vIrrep)+iStack+x-1)*mGrid
-          do iGrid=1,mGrid
-            MOVX1(iGrid+IOff3) = MOVX1(iGrid+IOff3)+MOX(iGrid+IOff1)*MOV(iGrid+IOff2)
-            MOVX2(iGrid+IOff3) = MOU(iGrid+IOff1)*MOV(iGrid+IOff2)
-          end do
+          MOVX1(:,OffVX(xIrrep,vIrrep)+iStack+x) = MOVX1(:,OffVX(xIrrep,vIrrep)+iStack+x)+MOX(:,vorb)*MOV(:,xorb)
+          MOVX2(:,OffVX(xIrrep,vIrrep)+iStack+x) = MOU(:,vorb)*MOV(:,xorb)
         end do
       end do
     end do
@@ -93,14 +84,9 @@ do uIrrep=0,mIrrep-1
   do vIrrep=0,mIrrep-1
     do xIrrep=0,vIrrep
       do iVX=1,nVX(xIrrep,vIrrep)
-        IOff1 = (Offvx(xIrrep,vIrrep)+iVX-1)*mGrid
         IOff0 = OffUVX(xIrrep,vIrrep,uIrrep)+(iVX-1)*nAsh(uIrrep)
         do u=1,nAsh(uIrrep)
-          IOff2 = (iOffU+u-1)*mGrid
-          IOff3 = (IOff0+u-1)*mGrid
-          do iGrid=1,mGrid
-            MOUVX(iGrid+IOff3) = MOU(iGrid+IOff2)*MOVX1(iGrid+IOff1)
-          end do
+          MOUVX(:,IOff0+u) = MOU(:,iOffU+u)*MOVX1(:,Offvx(xIrrep,vIrrep)+iVX)
         end do
       end do
     end do
@@ -113,14 +99,9 @@ if (lSum) then
     do vIrrep=0,mIrrep-1
       do xIrrep=0,vIrrep
         do iVX=1,nVX(xIrrep,vIrrep)
-          IOff1 = (Offvx(xIrrep,vIrrep)+iVX-1)*mGrid
           IOff0 = OffUVX(xIrrep,vIrrep,uIrrep)+(iVX-1)*nAsh(uIrrep)
           do u=1,nAsh(uIrrep)
-            IOff2 = (iOffU+u-1)*mGrid
-            IOff3 = (IOff0+u-1)*mGrid
-            do iGrid=1,mGrid
-              MOUVX(iGrid+IOff3) = MOUVX(iGrid+IOff3)+MOX(iGrid+IOff2)*MOVX2(iGrid+IOff1)
-            end do
+            MOUVX(:,IOff0+u) = MOUVX(:,IOff0+u)+MOX(:,iOffU+u)*MOVX2(:,Offvx(xIrrep,vIrrep)+iVX)
           end do
         end do
       end do
@@ -133,7 +114,7 @@ do pIrrep=0,mIrrep-1
   nporb = mOrb(pIrrep)
   if (nporb == 0) cycle
   if (nAsh(pIrrep) == 0) cycle
-  IOff1 = OffOrb(pIrrep)*mGrid+1
+  IOff1 = OffOrb(pIrrep)+1
   IOff2 = OffPUVX(pIrrep)+1
   do uIrrep=0,mIrrep-1
     puIrrep = ieor(pIrrep,uIrrep)
@@ -141,8 +122,8 @@ do pIrrep=0,mIrrep-1
       xIrrep = ieor(puIrrep,vIrrep)
       nnUVX = nUVX(xIrrep,vIrrep,uIrrep)
       if ((xIrrep > vIrrep) .or. (nnUVX == 0)) cycle
-      IOff3 = OffUVX(xIrrep,vIrrep,uIrrep)*mGrid+1
-      call DGEMM_('T','N',npOrb,nnUVX,mGrid,One,MOP(iOff1),mGrid,MOUVX(IOff3),mGrid,One,Pot2(iOff2),npOrb)
+      IOff3 = OffUVX(xIrrep,vIrrep,uIrrep)+1
+      call DGEMM_('T','N',npOrb,nnUVX,mGrid,One,MOP(:,iOff1:),mGrid,MOUVX(:,IOff3:),mGrid,One,Pot2(iOff2:),npOrb)
       IOff2 = IOff2+nnUVX*npOrb
     end do
   end do

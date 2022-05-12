@@ -61,8 +61,8 @@ subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 
   integer(kind=iwp), target, intent(inout) :: cRFStrt, iRFStrt, lRFStrt
   real(kind=wp), target, intent(inout) :: rRFStrt
-  integer(kind=iwp), pointer :: p_cQ(:), p_cRF(:), p_iQ(:), p_iRF(:), p_lRF(:)
-  real(kind=wp), pointer :: p_rQ(:), p_rRF(:)
+  integer(kind=iwp), pointer :: p_cRF(:), p_iRF(:), p_lRF(:)
+  real(kind=wp), pointer :: p_rRF(:)
 
   !                                                                    *
   !*********************************************************************
@@ -97,7 +97,6 @@ subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
   call Put_iArray('RFcInfo',p_cRF,Length)
 
   nullify(p_lRF,p_rRF,p_iRF,p_cRF)
-  nullify(p_rQ,p_iQ,p_cQ)
   !                                                                    *
   !*********************************************************************
   !                                                                    *

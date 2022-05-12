@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: mAO, mGrid, nMOs, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), jList_s
-real(kind=wp) :: TabSO(mAO*mGrid,nMOs)
+real(kind=wp) :: TabSO(mAO,mGrid,nMOs)
 integer(kind=iwp) :: i1, i2, iAdd, iAO, iBfn, iIrrep, ilist_s, iMO, iOff_MO(0:7), iSh, iSO, iSO0, iSO1, itmp1, kDCRE, mBas, &
                      mBas_Eff, mdci, nBfn, nDeg, nOp
 real(kind=wp) :: Fact, xa
@@ -71,7 +71,7 @@ do iBfn=1,nBfn
     xa = real(iChTbl(iIrrep,nOp),kind=wp)
     iSO = iSO0+i2-1
     iSO1 = iMO+iSO-1+iAdd
-    call DaXpY_(mAO*mGrid,Fact*xa,TabAO(:,:,iBfn),1,TabSO(:,iSO1),1)
+    TabSO(:,:,iSO1) = TabSO(:,:,iSO1)+Fact*xa*TabAO(:,:,iBfn)
   end do
 end do
 

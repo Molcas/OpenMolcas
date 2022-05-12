@@ -25,7 +25,7 @@ real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 !***********************************************************************
 !                                                                      *
 if (.not. Rot_Corr) then
-  call FZero(dOdx,9)
+  dOdx(:,:) = Zero
   return
 end if
 
@@ -81,7 +81,7 @@ else
   end if
 end if
 
-call FZero(Px,9)
+Px(:,:) = Zero
 Px(1,2) = Gmma
 Px(2,1) = -Gmma
 Px(1,3) = -Beta

@@ -25,7 +25,7 @@ real(kind=wp) :: Alpha1, Alpha2, Beta1, Beta2, c12, c13, c23, d2Mdx2(3,3), Gamma
 !***********************************************************************
 !                                                                      *
 if (.not. Rot_Corr) then
-  call FZero(d2Odx2,9)
+  d2Odx2(:,:) = Zero
   return
 end if
 !                                                                      *
@@ -64,15 +64,13 @@ c23 = Beta1*Gamma2+Beta2*Gamma1   ! Pxy(2,3)+Pxy(3,2)
 ! Assemble the right hand side of eq. 26 except for Lambda^(xy).
 ! This will generate all off-diagonal elements of the RHS!
 
-call FZero(RHS,9)
-
 ! - O^T M^(xy) O
 
 call DGEMM_('T','N',3,3,3,One,O,3,d2Mdx2,3,Zero,Scr1,3)
 call DGEMM_('N','N',3,3,3,One,Scr1,3,O,3,Zero,Scr2,3)
-call DaXpY_(9,-One,Scr2,1,RHS,1)
+RHS(:,:) = -Scr2
 
-call FZero(Scr3,9)
+Scr3(:,:) = Zero
 Scr3(1,1) = Eval(1)
 Scr3(2,2) = Eval(2)
 Scr3(3,3) = Eval(3)
@@ -81,41 +79,41 @@ Scr3(3,3) = Eval(3)
 
 call DGEMM_('N','N',3,3,3,One,Px,3,Scr3,3,Zero,Scr1,3)
 call DGEMM_('N','N',3,3,3,One,Scr1,3,Py,3,Zero,Scr2,3)
-call DaXpY_(9,One,Scr2,1,RHS,1)
+RHS(:,:) = RHS+Scr2
 
 ! + P^y Lambda P^x
 
 call DGEMM_('N','N',3,3,3,One,Py,3,Scr3,3,Zero,Scr1,3)
 call DGEMM_('N','N',3,3,3,One,Scr1,3,Px,3,Zero,Scr2,3)
-call DaXpY_(9,One,Scr2,1,RHS,1)
+RHS(:,:) = RHS+Scr2
 
 ! + P^x O^T M^y O
 
 call DGEMM_('N','T',3,3,3,One,Px,3,O,3,Zero,Scr1,3)
 call DGEMM_('N','N',3,3,3,One,Scr1,3,dMdy,3,Zero,Scr2,3)
 call DGEMM_('N','N',3,3,3,One,Scr2,3,O,3,Zero,Scr1,3)
-call DaXpY_(9,One,Scr1,1,RHS,1)
+RHS(:,:) = RHS+Scr1
 
 ! + P^y O^T M^x O
 
 call DGEMM_('N','T',3,3,3,One,Py,3,O,3,Zero,Scr1,3)
 call DGEMM_('N','N',3,3,3,One,Scr1,3,dMdx,3,Zero,Scr2,3)
 call DGEMM_('N','N',3,3,3,One,Scr2,3,O,3,Zero,Scr1,3)
-call DaXpY_(9,One,Scr1,1,RHS,1)
+RHS(:,:) = RHS+Scr1
 
 ! - O^T M^x O P^y
 
 call DGEMM_('T','N',3,3,3,One,O,3,dMdx,3,Zero,Scr1,3)
 call DGEMM_('N','N',3,3,3,One,Scr1,3,O,3,Zero,Scr2,3)
 call DGEMM_('N','N',3,3,3,One,Scr2,3,Py,3,Zero,Scr1,3)
-call DaXpY_(9,-One,Scr1,1,RHS,1)
+RHS(:,:) = RHS-Scr1
 
 ! - O^T M^y O P^x
 
 call DGEMM_('T','N',3,3,3,One,O,3,dMdy,3,Zero,Scr1,3)
 call DGEMM_('N','N',3,3,3,One,Scr1,3,O,3,Zero,Scr2,3)
 call DGEMM_('N','N',3,3,3,One,Scr2,3,Px,3,Zero,Scr1,3)
-call DaXpY_(9,-One,Scr1,1,RHS,1)
+RHS(:,:) = RHS-Scr1
 #ifdef _DEBUGPRINT_
 call RecPrt('RHS',' ',RHS,3,3)
 #endif

@@ -46,9 +46,10 @@ integer(kind=iwp) :: nShell, nSym, Maps2p(nShell,0:nSym-1), nNQ, nR_Min
 logical(kind=iwp) :: Do_Grad, On_Top, PMode_old
 real(kind=wp) :: Pck_Old, R_Min(0:nR_Min)
 #include "status.fh"
-integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iIrrep, iNQ, iNQ_, iNQ_MBC, iPrim, &
-                     iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, mdcj, mExp, &
-                     nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nR_tmp, nRad, nRadial, NrExp, nSO, nTerm, nxyz
+integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, &
+                     iNQ_MBC, iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, &
+                     mdcj, mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nR_tmp, nRad, nRadial, NrExp, nSO, &
+                     nTerm, nxyz
 real(kind=wp) :: A_high, A_low, Alpha(2), Box_Size, C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, &
                  ValExp, XYZ(3)
 logical(kind=iwp) :: EQ
@@ -58,7 +59,7 @@ real(kind=wp), external :: Bragg_Slater, Eval_RMin
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call ICopy(nShell*nSym,[-99999999],0,Maps2p,1)
+Maps2p(:,:) = -99999999
 !define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
@@ -99,7 +100,7 @@ do iShell=1,nShell
   call Process_Coor(XYZ,TempC,nAtoms,nSym,iOper)
 end do
 call mma_allocate(Coor,3,nAtoms,Label='Coor')
-call dcopy_(3*nAtoms,TempC,1,Coor,1)
+Coor(:,:) = TempC(:,1:nAtoms)
 call mma_deallocate(TempC)
 !                                                                      *
 !***********************************************************************
@@ -218,7 +219,7 @@ do iNQ=1,nNQ
   Alpha(2) = NQ_Data(iNQ)%A_high
 
   ! Get the coordinates of the atom
-  call dcopy_(3,NQ_Data(iNQ)%Coor,1,XYZ,1)
+  XYZ(:) = NQ_Data(iNQ)%Coor
 
   ! For a special center we can increase the accuracy.
 
@@ -274,7 +275,7 @@ call mma_Allocate(Crd,3,nNQ)
 
 do iNQ=1,nNQ
   ZA(iNQ) = real(NQ_Data(iNQ)%Atom_Nr,kind=wp)
-  call dcopy_(3,NQ_data(iNQ)%Coor,1,Crd(:,iNQ),1)
+  Crd(:,iNQ) = NQ_data(iNQ)%Coor
 end do
 
 call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Grad,.false.)
@@ -285,7 +286,7 @@ if (Do_Grad) then
   do iNQ=1,nNQ
     call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
     do iCar=1,3
-      call dcopy_(9,dOdx(:,:,iNQ,iCar),1,NQ_Data(iNQ)%dOdx(:,:,iCar),1)
+      NQ_Data(iNQ)%dOdx(:,:,iCar) = dOdx(:,:,iNQ,iCar)
     end do
   end do
 end if
@@ -297,8 +298,7 @@ call mma_deallocate(ZA)
 !***********************************************************************
 !                                                                      *
 if (Rotational_Invariance == Off) then
-  call FZero(Pax,9)
-  call dcopy_(3,[One],0,Pax,4)
+  Pax(:,:) = reshape([One,Zero,Zero,Zero,One,Zero,Zero,Zero,One],[3,3])
   do iNQ=1,nNQ
     if (.not. allocated(NQ_Data(iNQ)%dOdx)) call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
     NQ_Data(iNQ)%dOdx(:,:,:) = Zero
@@ -581,7 +581,8 @@ if (iGrid_Set == Not_Specified) iGrid_Set = Final_Grid
 iDisk_Grid = 0
 call iDaFile(Lu_Grid,2,G_S,2,iDisk_Grid)
 call iDaFile(Lu_Grid,2,iDisk_Set,2,iDisk_Grid)
-call iDaFile(Lu_Grid,2,Old_Functional_Type,1,iDisk_Grid)
+call iDaFile(Lu_Grid,2,iDum,1,iDisk_Grid)
+Old_Functional_Type = iDum(1)
 
 Grid_Status = G_S(iGrid_Set)
 if (Old_Functional_Type /= Functional_Type) then

@@ -28,8 +28,8 @@ use KSDFT_Info, only: do_pdftpot, FA_time, FI_time, Funcaa, Funcbb, Funccc, PUVX
 use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
 use nq_MO, only: D1MO, P2MO
 use nq_Structure, only: Close_Info_Ang
-use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Grad_I, iOpt_Angular, NASHT, NASHT4, nPot1, &
-                   nPot2, number_of_subblocks, nx, ny, nz, Tau_I
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Grad_I, iOpt_Angular, NASHT, nPot1, nPot2, &
+                   number_of_subblocks, nx, ny, nz, Tau_I
 use Grid_On_Disk, only: Grid_Status, GridInfo, Regenerate
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, Quart
@@ -87,9 +87,8 @@ if (l_casdft) then
 # endif
 
   call CalcOrbOff()
-  NASHT4 = NASHT**4
-  call mma_allocate(P2Unzip,NASHT4)
-  call mma_allocate(D1Unzip,NASHT**2)
+  call mma_allocate(P2Unzip,NASHT,NASHT,NASHT,NASHT)
+  call mma_allocate(D1Unzip,NASHT,NASHT)
   call UnzipD1(D1Unzip,D1MO,size(D1MO))
   call UnzipP2(P2Unzip,P2MO,size(P2MO))
 end if
@@ -113,9 +112,9 @@ if (l_casdft .and. do_pdftPot) then
   EG_OT(:) = Zero
   FI_V(:) = Zero
   FA_V(:) = Zero
-  call FZero(PDFTPot1,nPot1)
-  call FZero(PDFTFocI,nPot1)
-  call FZero(PDFTFocA,nPot1)
+  PDFTPot1(:) = Zero
+  PDFTFocI(:) = Zero
+  PDFTFocA(:) = Zero
   call CalcPUVXOff()
 else
   nPot1 = 1

@@ -51,8 +51,8 @@ integer(kind=iwp) :: i1, i2, iAdd, iAng, iAO, iBas, iBas_Eff, iBfn, iBfn_e, iBfn
 real(kind=wp) :: A(3), px, py, pz, RA(3), SMax, Thr
 logical(kind=iwp) :: l_tanhr
 integer(kind=iwp), allocatable :: Tmp_Index(:,:)
-real(kind=wp), allocatable :: MOs(:), MOx(:), MOy(:), MOz(:), P2_ontop_d(:,:,:), P2MOCube(:), P2MOCubex(:), P2MOCubey(:), &
-                              P2MOCubez(:), RhoA(:,:), RhoI(:,:), TabAO_Tmp(:)
+real(kind=wp), allocatable :: MOs(:,:), MOx(:,:), MOy(:,:), MOz(:,:), P2_ontop_d(:,:,:), P2MOCube(:,:), P2MOCubex(:,:), &
+                              P2MOCubey(:,:), P2MOCubez(:,:), RhoA(:,:), RhoI(:,:), TabAO_Tmp(:)
 ! MOs,MOx,MOy and MOz are for active MOs.
 ! MOas is for all MOs.
 real(kind=wp), external :: Comp_d, Compute_Rho, Compute_Grad, Compute_Tau
@@ -332,21 +332,21 @@ if (l_casdft) then
   Dens_a1 = Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,1)
   Dens_b1 = Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,2)
 
-  nPMO3p = 1
-  if (lft .and. lGGA) nPMO3p = mGrid*NASHT
+  nPMO3p = 0
+  if (lft .and. lGGA) nPMO3p = mGrid
 
-  call mma_allocate(P2MOCube,mGrid*NASHT)
-  call mma_allocate(P2MOCubex,nPMO3p)
-  call mma_allocate(P2MOCubey,nPMO3p)
-  call mma_allocate(P2MOCubez,nPMO3p)
-  call mma_allocate(MOs,mGrid*NASHT)
-  call mma_allocate(MOx,mGrid*NASHT)
-  call mma_allocate(MOy,mGrid*NASHT)
-  call mma_allocate(MOz,mGrid*NASHT)
+  call mma_allocate(P2MOCube,NASHT,mGrid)
+  call mma_allocate(P2MOCubex,NASHT,nPMO3p)
+  call mma_allocate(P2MOCubey,NASHT,nPMO3p)
+  call mma_allocate(P2MOCubez,NASHT,nPMO3p)
+  call mma_allocate(MOs,NASHT,mGrid)
+  call mma_allocate(MOx,NASHT,mGrid)
+  call mma_allocate(MOy,NASHT,mGrid)
+  call mma_allocate(MOz,NASHT,mGrid)
   call mma_allocate(P2_ontop_d,nP2_ontop,nGrad_Eff,mGrid)
 
   call CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,Do_Grad)
-  call Fzero(P2_ontop,nP2_ontop*mGrid)
+  P2_ontop(:,:) = Zero
 
   if (.not. Do_Grad) then !regular MO-based run
     call Do_PI2(D1MO,size(D1MO),TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,mRho,P2MOCube,MOs,MOx,MOy,MOz)
@@ -356,7 +356,7 @@ if (l_casdft) then
                     mRho,nMOs,CMO,nCMO,TabSO,lft,P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,MOx,MOy,MOz)
   end if
 
-  call TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,l_tanhr,nRho,mGrid,nP2_OnTop,ndRho_dR,nGrad_Eff,Do_Grad)
+  call TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,l_tanhr,mGrid,nP2_OnTop,ndRho_dR,nGrad_Eff,Do_Grad)
 
   call mma_deallocate(P2MOCube)
   call mma_deallocate(P2MOCubex)
@@ -460,7 +460,7 @@ else
     !*******************************************************************
     !                                                                  *
     if (do_pdftPot) then
-      call mma_allocate(MOs,mGrid*NASHT)
+      call mma_allocate(MOs,NASHT,mGrid)
       call TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
       if (lft .and. lGGA) then
         call TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)

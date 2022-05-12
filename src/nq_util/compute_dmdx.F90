@@ -47,7 +47,7 @@ end do
 call RecPrt('dMdx(Numerical)',' ',dMdx,3,3)
 #endif
 
-call FZero(dMdx,3*3)
+dMdx(:,:) = Zero
 do jAtom=1,nAtoms
   ZB = ZA(jAtom)
   if (iAtom == jAtom) then

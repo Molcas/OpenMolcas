@@ -372,7 +372,7 @@ if (Do_Grad) then
   call mma_allocate(Temp,mGrad,Label='Temp')
 end if
 
-if (.not. Do_Grad) call FZero(FckInt,nFckInt*nFckDim)
+if (.not. Do_Grad) FckInt(:,:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -469,7 +469,7 @@ end if
 iDisk_Grid = 0
 call iDaFile(Lu_Grid,1,G_S,2,iDisk_Grid)
 call iDaFile(Lu_Grid,1,iDisk_Set,2,iDisk_Grid)
-call iDaFile(Lu_Grid,1,Old_Functional_Type,1,iDisk_Grid)
+call iDaFile(Lu_Grid,1,[Old_Functional_Type],1,iDisk_Grid)
 iDisk_Grid = iDisk_Set(iGrid_Set)
 call iDaFile(Lu_Grid,1,GridInfo,2*number_of_subblocks,iDisk_Grid)
 

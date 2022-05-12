@@ -17,38 +17,31 @@
 ! ****************************************************************
 subroutine UnzipP2(P2Unzip,P2MO,nP2Act)
 
-use nq_Info, only: iOff_Ash, mIrrep, NASH, NASHT, NASHT4
+use nq_Info, only: iOff_Ash, mIrrep, NASH, NASHT
 use Index_Functions, only: iTri
 use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nP2Act
-real(kind=wp) :: P2Unzip(NASHT4), P2MO(nP2Act)
+real(kind=wp) :: P2Unzip(NASHT,NASHT,NASHT,NASHT), P2MO(nP2Act)
 ! Input: nP2Act P2MO
 ! Output: P2Unzip
-integer(kind=iwp) :: I, IAct, iIrrep, IJ, IJKL, IOFF1, IOff2, IOff3, J, JAct, jIrrep, K, kAct, kIrrep, KL, L, LAct, lIrrep, &
-                     NASHT2, NASHT3
+integer(kind=iwp) :: I, IAct, iIrrep, IJ, IJKL, J, JAct, jIrrep, K, kAct, kIrrep, KL, L, LAct, lIrrep
 real(kind=wp) :: Fact
 
-if (NASHT4 == 0) return
-
-NASHT2 = NASHT**2
-NASHT3 = NASHT2*NASHT
+if (NASHT == 0) return
 
 do IIrrep=0,mIrrep-1
   do I=1,NASH(iIrrep)
     IAct = iOff_Ash(iIrrep)+I
-    IOff1 = (IAct-1)*NASHT3
     do jIrrep=0,mIrrep-1
       do J=1,NASH(JIrrep)
         JAct = iOff_Ash(JIrrep)+J
-        IOff2 = IOff1+(JAct-1)*NASHT2
         IJ = iTri(IAct,JAct)
         do kIrrep=0,mIrrep-1
           do K=1,NASH(KIrrep)
             KAct = IOff_Ash(KIrrep)+K
-            IOff3 = IOff2+(KAct-1)*NASHT
             do lIrrep=0,mIrrep-1
               do L=1,NASH(lIrrep)
                 LAct = IOff_Ash(LIrrep)+L
@@ -57,7 +50,7 @@ do IIrrep=0,mIrrep-1
                 Fact = Half
                 if ((ij >= kl) .and. (kAct == lAct)) Fact = One
                 if ((kl >= ij) .and. (iAct == jAct)) Fact = One
-                P2Unzip(IOff3+LAct) = P2MO(ijkl)*Fact
+                P2Unzip(LAct,KAct,JAct,IAct) = P2MO(ijkl)*Fact
               end do
             end do
           end do

@@ -38,7 +38,7 @@ end do
 ! Add this atom to the list
 
 nAtoms = nAtoms+1
-call dcopy_(3,R,1,Coor(1,nAtoms),1)
+Coor(:,nAtoms) = R
 iRef = nAtoms
 !call RecPrt('Coor(updated)',' ',Coor,3,nAtoms)
 !write(u6,*) 'nSym=',nSym
@@ -50,7 +50,7 @@ iRef = nAtoms
 
 outer: do iSym=1,nSym-1
   !write(u6,*) 'iOper(iSym)=',iOper(iSym)
-  call dcopy_(3,R,1,Q,1)
+  Q(:) = R
   if (iand(iOper(iSym),1) /= 0) Q(1) = -Q(1)
   if (iand(iOper(iSym),2) /= 0) Q(2) = -Q(2)
   if (iand(iOper(iSym),4) /= 0) Q(3) = -Q(3)
@@ -59,7 +59,7 @@ outer: do iSym=1,nSym-1
     if ((Q(1) == Coor(1,iAtom)) .and. (Q(2) == Coor(2,iAtom)) .and. (Q(3) == Coor(3,iAtom))) cycle outer
   end do
   nAtoms = nAtoms+1
-  call dcopy_(3,Q,1,Coor(1,nAtoms),1)
+  Coor(:,nAtoms) = Q
 end do outer
 !                                                                      *
 !***********************************************************************

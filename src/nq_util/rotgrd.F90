@@ -124,9 +124,7 @@ do iAtom=1,nAtoms
         call Compute_d2Odx2(ZA,nAtoms,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py, &
                             d2Odx2(1,1,iAtom,iCar,jAtom,jCar))
 
-        if ((iAtom /= jAtom) .or. ((iAtom == jAtom) .and. (iCar /= jCar))) then
-          call dcopy_(9,d2Odx2(1,1,iAtom,iCar,jAtom,jCar),1,d2Odx2(1,1,jAtom,jCar,iAtom,iCar),1)
-        end if
+        if ((iAtom /= jAtom) .or. (iCar /= jCar)) d2Odx2(:,:,jAtom,jCar,iAtom,iCar) = d2Odx2(:,:,iAtom,iCar,jAtom,jCar)
 
       end do ! jCar
     end do   ! iCar

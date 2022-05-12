@@ -17,8 +17,6 @@ subroutine Do_Pi2Grad(mAO,mGrid,P2_ontop,nP2_ontop,nGrad_Eff,list_s,nlist_s,list
 !                                                                      *
 ! Called from: Do_batch                                                *
 !                                                                      *
-! Calling    : FZero                                                   *
-!                                                                      *
 !    INPUT:                                                            *
 !   D1mo     = one-body density matrix in MO basis                     *
 !   nd1mo    = size of D1mo                                            *
@@ -43,13 +41,14 @@ implicit none
 integer(kind=iwp) :: mAO, mGrid, nP2_ontop, nGrad_Eff, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), nd1mo, mRho, nMOs, nCMO, &
                      nPMO3p
 real(kind=wp) :: P2_ontop(nP2_ontop,mGrid), D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop_d(np2_ontop,nGrad_Eff,mGrid), &
-                 RhoA(mRho,mGrid), RhoI(mRho,mGrid), CMO(nCMO), TabSO(mAO,mGrid,nMOs), P2MOCube(mGrid*NASHT), P2MOCubex(nPMO3p), &
-                 P2MOCubey(nPMO3p), P2MOCubez(nPMO3p), MOs(mGrid*NASHT), MOx(mGrid*NASHT), MOy(mGrid*NASHT), MOz(mGrid*NASHT)
+                 RhoA(mRho,mGrid), RhoI(mRho,mGrid), CMO(nCMO), TabSO(mAO,mGrid,nMOs), P2MOCube(NASHT,mGrid), &
+                 P2MOCubex(NASHT,nPMO3p), P2MOCubey(NASHT,nPMO3p), P2MOCubez(NASHT,nPMO3p), MOs(NASHT,mGrid), MOx(NASHT,mGrid), &
+                 MOy(NASHT,mGrid), MOz(NASHT,mGrid)
 logical(kind=iwp) :: ft
-integer(kind=iwp) :: g_eff, i, i_, iCoord, iCoord1, iCoord2, iCoord3, iCoordOff, iCoordOff1, iCoordOff2, iCoordOff3, iGrid, &
-                     iGridOff, iIrrep, ilist_s, iOff0, IOff1, iOff2, iOff3, iOffF, jOffA_, jOffB_, k, k_, kIrrep, kl, l, l_, &
-                     lIrrepx, nBasf, nOccO, nPi, NumAsh, NumIsh
-real(kind=wp), allocatable :: dMOs(:), dMOx(:), dMOy(:), dMOz(:), dRhoA(:,:,:), dRhoI(:,:,:), dTabMO(:,:,:,:), dTabMO2(:), TabSO2(:)
+integer(kind=iwp) :: g_eff, i, i_, iCoord, iCoord1, iCoord2, iCoord3, iGrid, iIrrep, ilist_s, IOff1, iOff2, iOffF, jOffA_, jOffB_, &
+                     k, k_, kIrrep, kl, l, l_, lIrrepx, nBasf, nOccO, NumAsh, NumIsh
+real(kind=wp), allocatable :: dMOs(:,:), dMOx(:,:), dMOy(:,:), dMOz(:,:), dRhoA(:,:,:), dRhoI(:,:,:), dTabMO(:,:,:,:), dTabMO2(:), &
+                              TabSO2(:,:,:)
 real(kind=r8), external :: DDot_
 
 !                                                                      *
@@ -67,8 +66,8 @@ else if (nP2_ontop == 6) then
   end if
 end if
 
-call FZero(P2_ontop,mGrid*nP2_ontop)
-call FZero(P2_ontop_d,nP2_ontop*nGrad_Eff*mGrid)
+P2_ontop(:,:) = Zero
+P2_ontop_d(:,:,:) = Zero
 call mma_allocate(dRhoI,mRho,mGrid,nGrad_Eff,Label='dRhoI')
 call mma_allocate(dRhoA,mRho,mGrid,nGrad_Eff,Label='dRhoA')
 dRhoI(:,:,:) = Zero
@@ -90,24 +89,25 @@ end do
 call mma_allocate(dTabMO,nP2_ontop,nMOs,nGrad_eff,mgrid,Label='dTabMO')
 dTabMO(:,:,:,:) = Zero
 
-call mma_allocate(TabSO2,nMOs*mAO*mGrid,Label='TabSO2')
+call mma_allocate(TabSO2,nMOs,mAO,mGrid,Label='TabSO2')
 call mma_allocate(dTabMO2,nMOs,Label='dTabMO2')
 
 do ilist_s=1,nlist_s
 
-  call FZero(TabSO,mAO*mGrid*nMOs)
+  TabSO(:,:,:) = Zero
 
   call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,iList_s)
 
   call ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
   do iGrid=1,mGrid
-    IGridOff = (iGrid-1)*mAO*nMOs
 
     do iCoord=1,3
-      ICoordOff = IGridOff+(iCoord-1)*nMOs
       g_eff = list_g(iCoord,ilist_s)
 
+      iCoord1 = 0
+      iCoord2 = 0
+      iCoord3 = 0
       if (lft .and. lGGA) then
         select case (iCoord)
           case (1)
@@ -123,13 +123,6 @@ do ilist_s=1,nlist_s
             iCoord2 = 8
             iCoord3 = 9
         end select
-        ICoordOff1 = IGridOff+(iCoord1-1)*nMOs
-        ICoordOff2 = IGridOff+(iCoord2-1)*nMOs
-        ICoordOff3 = IGridOff+(iCoord3-1)*nMOs
-      else
-        ICoordOff1 = 0
-        ICoordOff2 = 0
-        ICoordOff3 = 0
       end if
 
       do iIrrep=0,mIrrep-1
@@ -139,23 +132,22 @@ do ilist_s=1,nlist_s
 
         iOffF = OffBas(iIrrep)+nFro(iIrrep)
 
-        iOff0 = iCoordOff+OffBas(iIrrep)
-        call DGEMM_('T','N',nOccO,1,nBasF,One,CMO(OffBas2(iIrrep)),nBasF,TabSO2(iOff0),nBasF,Zero,dTabMO2,nOccO)
-        call DAXPY_(nOccO,One,dTabMO2,1,dTabMO(1,iOffF,g_eff,iGrid),nP2_ontop)
+        call DGEMM_('T','N',nOccO,1,nBasF,One,CMO(OffBas2(iIrrep):),nBasF,TabSO2(OffBas(iIrrep):,iCoord,iGrid),nBasF,Zero,dTabMO2, &
+                    nOccO)
+        dTabMO(1,iOffF:iOffF+nOccO-1,g_eff,iGrid) = dTabMO(1,iOffF:iOffF+nOccO-1,g_eff,iGrid)+dTabMO2(1:nOccO)
 
         if (lft .and. lGGA) then
-          iOff1 = iCoordOff1+OffBas(iIrrep)
-          iOff2 = iCoordOff2+OffBas(iIrrep)
-          iOff3 = iCoordOff3+OffBas(iIrrep)
+          call DGEMM_('T','N',nOccO,1,nBasF,One,CMO(OffBas2(iIrrep):),nBasF,TabSO2(OffBas(iIrrep):,iCoord1,iGrid),nBasF,Zero, &
+                      dTabMO2,nOccO)
+          dTabMO(2,iOffF:iOffF+nOccO-1,g_eff,iGrid) = dTabMO(2,iOffF:iOffF+nOccO-1,g_eff,iGrid)+dTabMO2(1:nOccO)
 
-          call DGEMM_('T','N',nOccO,1,nBasF,One,CMO(OffBas2(iIrrep)),nBasF,TabSO2(iOff1),nBasF,Zero,dTabMO2,nOccO)
-          call DAXPY_(nOccO,One,dTabMO2,1,dTabMO(2,iOffF,g_eff,iGrid),nP2_ontop)
+          call DGEMM_('T','N',nOccO,1,nBasF,One,CMO(OffBas2(iIrrep):),nBasF,TabSO2(OffBas(iIrrep):,iCoord2,iGrid),nBasF,Zero, &
+                      dTabMO2,nOccO)
+          dTabMO(3,iOffF:iOffF+nOccO-1,g_eff,iGrid) = dTabMO(3,iOffF:iOffF+nOccO-1,g_eff,iGrid)+dTabMO2(1:nOccO)
 
-          call DGEMM_('T','N',nOccO,1,nBasF,One,CMO(OffBas2(iIrrep)),nBasF,TabSO2(iOff2),nBasF,Zero,dTabMO2,nOccO)
-          call DAXPY_(nOccO,One,dTabMO2,1,dTabMO(3,iOffF,g_eff,iGrid),nP2_ontop)
-
-          call DGEMM_('T','N',nOccO,1,nBasF,One,CMO(OffBas2(iIrrep)),nBasF,TabSO2(iOff3),nBasF,Zero,dTabMO2,nOccO)
-          call DAXPY_(nOccO,One,dTabMO2,1,dTabMO(4,iOffF,g_eff,iGrid),nP2_ontop)
+          call DGEMM_('T','N',nOccO,1,nBasF,One,CMO(OffBas2(iIrrep):),nBasF,TabSO2(OffBas(iIrrep):,iCoord3,iGrid),nBasF,Zero, &
+                      dTabMO2,nOccO)
+          dTabMO(4,iOffF:iOffF+nOccO-1,g_eff,iGrid) = dTabMO(4,iOffF:iOffF+nOccO-1,g_eff,iGrid)+dTabMO2(1:nOccO)
         end if
       end do ! iIrrep
     end do   ! iCoord
@@ -312,72 +304,74 @@ call mma_deallocate(dRhoA)
 ! Active-Active part:                                                  *
 !***********************************************************************
 if (NumAsh /= 0) then
-  nPi = nP2_ontop
 
-  call mma_allocate(dMOs,mGrid*NASHT,Label='dMOs')
-  call mma_allocate(dMOx,nPMO3p,Label='dMOx')
-  call mma_allocate(dMOy,nPMO3p,Label='dMOy')
-  call mma_allocate(dMOz,nPMO3p,Label='dMOz')
+  call mma_allocate(dMOs,NASHT,mGrid,Label='dMOs')
+  if (lft .and. lGGA) then
+    call mma_allocate(dMOx,NASHT,mGrid,Label='dMOx')
+    call mma_allocate(dMOy,NASHT,mGrid,Label='dMOy')
+    call mma_allocate(dMOz,NASHT,mGrid,Label='dMOz')
+  end if
 
   do g_eff=1,nGrad_eff
     do iGrid=1,mGrid
-      IOff1 = (iGrid-1)*NASHT
       do iIrrep=0,mIrrep-1
-        IOff2 = IOff_Ash(iIrrep)+1
-        IOff3 = IOff_BasAct(iIrrep)+1
-        call DCopy_(nAsh(iIrrep),dTabMO(1,iOff3,g_eff,iGrid),nPi,dMOs(IOff1+IOff2),1)
+        IOff1 = IOff_Ash(iIrrep)
+        IOff2 = IOff_BasAct(iIrrep)
+        dMOs(IOff1+1:IOff1+nAsh(iIrrep),iGrid) = dTabMO(1,IOff2+1:IOff2+nAsh(iIrrep),g_eff,iGrid)
         if (lft .and. lGGA) then
-          call DCopy_(nAsh(iIrrep),dTabMO(2,iOff3,g_eff,iGrid),nPi,dMOx(IOff1+IOff2),1)
-          call DCopy_(nAsh(iIrrep),dTabMO(3,iOff3,g_eff,iGrid),nPi,dMOy(IOff1+IOff2),1)
-          call DCopy_(nAsh(iIrrep),dTabMO(4,iOff3,g_eff,iGrid),nPi,dMOz(IOff1+IOff2),1)
+          dMOx(IOff1+1:IOff1+nAsh(iIrrep),iGrid) = dTabMO(2,IOff2+1:IOff2+nAsh(iIrrep),g_eff,iGrid)
+          dMOy(IOff1+1:IOff1+nAsh(iIrrep),iGrid) = dTabMO(3,IOff2+1:IOff2+nAsh(iIrrep),g_eff,iGrid)
+          dMOz(IOff1+1:IOff1+nAsh(iIrrep),iGrid) = dTabMO(4,IOff2+1:IOff2+nAsh(iIrrep),g_eff,iGrid)
         end if
       end do
     end do
 
     do iGrid=1,mGrid
-      IOff1 = (iGrid-1)*NASHT
       do IIrrep=0,mIrrep-1
-        IOff2 = IOff1+iOff_Ash(IIrrep)+1
-        P2_ontop_d(1,g_eff,iGrid) = P2_ontop_d(1,g_eff,iGrid)+Four*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCube(IOff2),1)
+        IOff1 = iOff_Ash(IIrrep)+1
+        P2_ontop_d(1,g_eff,iGrid) = P2_ontop_d(1,g_eff,iGrid)+Four*ddot_(nAsh(IIrrep),dMOs(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)
         if (lft .and. lGGA) then
-          P2_ontop_d(2,g_eff,iGrid) = P2_ontop_d(2,g_eff,iGrid)+Four*ddot_(nAsh(IIrrep),dMOx(IOff2),1,P2MOCube(IOff2),1)+ &
-                                      Four*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCubex(IOff2),1)
-          P2_ontop_d(3,g_eff,iGrid) = P2_ontop_d(3,g_eff,iGrid)+Four*ddot_(nAsh(IIrrep),dMOy(IOff2),1,P2MOCube(IOff2),1)+ &
-                                      Four*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCubey(IOff2),1)
-          P2_ontop_d(4,g_eff,iGrid) = P2_ontop_d(4,g_eff,iGrid)+Four*ddot_(nAsh(IIrrep),dMOz(IOff2),1,P2MOCube(IOff2),1)+ &
-                                      Four*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCubez(IOff2),1)
+          P2_ontop_d(2,g_eff,iGrid) = P2_ontop_d(2,g_eff,iGrid)+ &
+                                      Four*ddot_(nAsh(IIrrep),dMOx(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)+ &
+                                      Four*ddot_(nAsh(IIrrep),dMOs(IOff1:,iGrid),1,P2MOCubex(IOff1:,iGrid),1)
+          P2_ontop_d(3,g_eff,iGrid) = P2_ontop_d(3,g_eff,iGrid)+ &
+                                      Four*ddot_(nAsh(IIrrep),dMOy(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)+ &
+                                      Four*ddot_(nAsh(IIrrep),dMOs(IOff1:,iGrid),1,P2MOCubey(IOff1:,iGrid),1)
+          P2_ontop_d(4,g_eff,iGrid) = P2_ontop_d(4,g_eff,iGrid)+ &
+                                      Four*ddot_(nAsh(IIrrep),dMOz(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)+ &
+                                      Four*ddot_(nAsh(IIrrep),dMOs(IOff1:,iGrid),1,P2MOCubez(IOff1:,iGrid),1)
         end if
       end do
     end do
   end do
 
   do iGrid=1,mGrid
-    IOff1 = (iGrid-1)*NASHT
     do IIrrep=0,mIrrep-1
-      IOff2 = IOff1+iOff_Ash(IIrrep)+1
-      P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+ddot_(nAsh(IIrrep),MOs(IOff2),1,P2MOCube(IOff2),1)
+      IOff1 = iOff_Ash(IIrrep)+1
+      P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+ddot_(nAsh(IIrrep),MOs(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)
     end do
   end do
 
   if (lGGA .and. lft) then
     do iGrid=1,mGrid
-      IOff1 = (iGrid-1)*NASHT
       do IIrrep=0,mIrrep-1
-        IOff2 = IOff1+iOff_Ash(IIrrep)+1
-        P2_ontop(2,iGrid) = P2_ontop(2,iGrid)+Four*ddot_(nAsh(IIrrep),MOx(IOff2),1,P2MOCube(IOff2),1)
-        P2_ontop(3,iGrid) = P2_ontop(3,iGrid)+Four*ddot_(nAsh(IIrrep),MOy(IOff2),1,P2MOCube(IOff2),1)
-        P2_ontop(4,iGrid) = P2_ontop(4,iGrid)+Four*ddot_(nAsh(IIrrep),MOz(IOff2),1,P2MOCube(IOff2),1)
+        IOff1 = iOff_Ash(IIrrep)+1
+        P2_ontop(2,iGrid) = P2_ontop(2,iGrid)+Four*ddot_(nAsh(IIrrep),MOx(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)
+        P2_ontop(3,iGrid) = P2_ontop(3,iGrid)+Four*ddot_(nAsh(IIrrep),MOy(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)
+        P2_ontop(4,iGrid) = P2_ontop(4,iGrid)+Four*ddot_(nAsh(IIrrep),MOz(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)
         !write(u6,*) 'MOz used for dPiz'
-        !write(u6,*) iGrid,iOff2-iOff1
-        !call RecPrt(' ',' ',MOz(iOff2),1,nAsh(iIrrep))
+        !write(u6,*) iGrid,iOff1
+        !call RecPrt(' ',' ',MOz(iOff1:,iGrid),1,nAsh(iIrrep))
       end do
     end do
   end if
 
   call mma_deallocate(dMOs)
-  call mma_deallocate(dMOx)
-  call mma_deallocate(dMOy)
-  call mma_deallocate(dMOz)
+  if (lft .and. lGGA) then
+    call mma_deallocate(dMOx)
+    call mma_deallocate(dMOy)
+    call mma_deallocate(dMOz)
+  end if
 
 end if
 call mma_deallocate(dTabMO)

@@ -63,7 +63,7 @@ if (do_pdftPot) then
   call mma_allocate(d2ZdR2,mGrid)
   call mma_allocate(d2RdRho2,mGrid)
   call mma_allocate(d2RdRhodPi,mGrid)
-  call mma_allocate(MOas,mGrid*nOrbt)
+  call mma_allocate(MOas,mGrid,nOrbt)
 
   ! for ft-functional
   call mma_allocate(dRdPi,mGrid)
@@ -72,11 +72,11 @@ if (do_pdftPot) then
   call mma_allocate(dEdPix,mGrid)
   call mma_allocate(dEdPiy,mGrid)
   call mma_allocate(dEdPiz,mGrid)
-  call mma_allocate(dEdPiMO,mGrid*nOrbt)
-  call mma_allocate(GdEdPiMO,mGrid*nOrbt)
-  call mma_allocate(MOax,mGrid*nOrbt)
-  call mma_allocate(MOay,mGrid*nOrbt)
-  call mma_allocate(MOaz,mGrid*nOrbt)
+  call mma_allocate(dEdPiMO,mGrid,nOrbt)
+  call mma_allocate(GdEdPiMO,mGrid,nOrbt)
+  call mma_allocate(MOax,mGrid,nOrbt)
+  call mma_allocate(MOay,mGrid,nOrbt)
+  call mma_allocate(MOaz,mGrid,nOrbt)
 end if
 
 end subroutine PDFTMemAlloc

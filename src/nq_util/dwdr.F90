@@ -48,7 +48,7 @@ O33 = Pax(3,3)
 !***********************************************************************
 !                                                                      *
 do_grid: do iGrid=1,nGrid
-  call FZero(dW_dR(1,iGrid),nGrad_Eff)
+  dW_dR(:,iGrid) = Zero
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -62,7 +62,7 @@ do_grid: do iGrid=1,nGrid
   sxyz(3) = O31*Osxyz(1)+O32*Osxyz(2)+O33*Osxyz(3)
 
   Z = Zero
-  call FZero(dPB,3*nlist_p**2)
+  dPB(:,:,:) = Zero
 
   ! Compute all P_B and corresponding derivatives.
 

@@ -33,11 +33,10 @@ do iIrrep=0,mIrrep-1
   IOff2 = OffOrb2(iIrrep)
   do P=1,nOrbs
     do Q=1,P
-      Packed(IOff1+(P-1)*P/2+Q) = Full(IOff2+(P-1)*nOrbs+Q)+Full(IOff2+(Q-1)*nOrbs+P)
+      Packed(IOff1+(P-1)*P/2+Q) = Factor*(Full(IOff2+(P-1)*nOrbs+Q)+Full(IOff2+(Q-1)*nOrbs+P))
     end do
   end do
 end do
-call DScal_(nPack,Factor,Packed,1)
 
 return
 

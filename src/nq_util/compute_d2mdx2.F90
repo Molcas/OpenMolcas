@@ -11,7 +11,7 @@
 
 subroutine Compute_d2Mdx2(ZA,nAtoms,iAtom,iCar,dTdRAi,jAtom,jCar,d2Mdx2)
 
-use Constants, only: One, Two
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
@@ -23,7 +23,7 @@ real(kind=wp) :: tmpi, tmpj, ZB
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call FZero(d2Mdx2,9)
+d2Mdx2(:,:) = Zero
 do kAtom=1,nAtoms
   ZB = ZA(kAtom)
   if (kAtom == iAtom) then

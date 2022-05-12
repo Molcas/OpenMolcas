@@ -22,16 +22,14 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: mAO, mGrid, nMOs
-real(kind=wp) :: TabSO2(nMOs,mAO*mGrid), TabSO(mAO,mGrid,nMOs)
-integer(kind=iwp) :: iAO, iEnd, iGrid, iOff, iSt, jAO, nAOGrid
+real(kind=wp) :: TabSO2(nMOs,mAO,mGrid), TabSO(mAO,mGrid,nMOs)
+integer(kind=iwp) :: iEnd, iGrid, jAO
 
-nAOGrid = mAO*mGrid
 ! TabSO : mAO*mGrid x nMOs
 ! TabSO2: nMOs x mAO*nGrid
 
 ! loop over first and optionally second derivatives of the SOs
 ! this defines the length of nAO to 3 or 9.
-iSt = 1
 if (lft .and. lGGA) then
   iEnd = 9
 else
@@ -39,13 +37,8 @@ else
 end if
 
 do iGrid=1,mGrid
-
-  do jAO=iSt,iEnd
-
-    iOff = (iGrid-1)*mAO+jAO
-
-    iAO = jAO+1
-    call DCopy_(nMOs,TabSO(iAO,iGrid,1),nAOGrid,TabSO2(:,iOff),1)
+  do jAO=1,iEnd
+    TabSO2(:,jAO,iGrid) = TabSO(jAO+1,iGrid,:)
   end do
 end do
 

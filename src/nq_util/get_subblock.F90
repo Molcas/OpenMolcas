@@ -315,7 +315,7 @@ call mma_allocate(TabSO,nTabSO,Label='TabSO')
 
 nGrad_Eff = 0
 if (Do_Grad) then
-  call ICopy(3*nShell*nSym,[0],0,List_G,1)
+  List_G(:,:) = 0
   do ilist_s=1,nlist_s
     iShell = list_s(1,ilist_s)
     iSym = list_s(2,ilist_s)
@@ -414,7 +414,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       ! do not compute any contribution.
 
       if (Do_Grad) then
-        call ICopy(nGrad_Eff,[On],0,iTab(2,1),4)
+        iTab(2,1:nGrad_Eff) = On
         if (Grid_Type == Moving_Grid) then
           do iGrad=1,nGrad_Eff
             jNQ = iTab(3,iGrad)
@@ -576,7 +576,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       ! Here if it is a gradient evaluation or we have a buffer to process.
 
       if (Do_Grad) then
-        call ICopy(nGrad_Eff,[On],0,iTab(2,1),4)
+        iTab(2,1:nGrad_Eff) = On
         if (Grid_Type == Moving_Grid) then
           do iGrad=1,nGrad_Eff
             jNQ = iTab(3,iGrad)

@@ -51,7 +51,7 @@ do iSet=1,nSet
     call DScal_(nPt,Four*Pi,TempW,1)
 
     call DGEMM_('N','N',3,nPt,3,One,Pax,3,TempR,3,Zero,R,4)
-    call dcopy_(nPt,TempW,1,R(4,1),4)
+    R(4,:) = TempW
 
     call mma_deallocate(TempW)
     call mma_deallocate(TempR)

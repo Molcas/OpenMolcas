@@ -25,17 +25,16 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: mGrid
-real(kind=wp) :: MOs(mGrid*NASHT), MOas(mGrid*nOrbt)
+real(kind=wp) :: MOs(NASHT,mGrid), MOas(mGrid,nOrbt)
 ! Input: mGrid MOas
 ! Output: MOs
-integer(kind=iwp) :: iGrid, iIrrep, IOff1, iOff2, iOff3
+integer(kind=iwp) :: iGrid, iIrrep, IOff1, IOff2
 
 do iGrid=1,mGrid
-  IOff3 = (iGrid-1)*nAsht
   do iIrrep=0,mIrrep-1
-    IOff2 = IOff3+iOff_Ash(iIrrep)+1
-    IOff1 = (OffOrb(iIrrep)+nIsh(iIrrep))*mGrid+iGrid
-    call DCopy_(nAsh(iIrrep),MOas(iOff1),mGrid,MOs(IOff2),1)
+    IOff2 = iOff_Ash(iIrrep)
+    IOff1 = OffOrb(iIrrep)+nIsh(iIrrep)
+    MOs(IOff2+1:IOff2+nAsh(iIrrep),iGrid) = MOas(iGrid,IOff1+1:IOff1+nAsh(iIrrep))
   end do
 end do
 

@@ -18,29 +18,26 @@
 subroutine UnzipD1(D1Unzip,D1MO,nD1MO)
 
 use nq_Info, only: NASHT
-use Constants, only: Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nD1MO
-real(kind=wp) :: D1Unzip(NASHT**2), D1MO(nD1MO)
+real(kind=wp) :: D1Unzip(NASHT,NASHT), D1MO(nD1MO)
 ! Input: nD1MO D1MO
 ! Output: D1Unzip
-integer(kind=iwp) :: iLoc1, iLoc2, iLoc3, iv, ix
+integer(kind=iwp) :: iLoc, iv, ix
 
-call FZero(D1Unzip,NASHT**2)
+D1Unzip(:,:) = Zero
 do iv=1,NASHT
   do ix=1,iv-1
-    iLoc1 = (iv-1)*NASHT+ix
-    iLoc2 = (ix-1)*NASHT+iv
-    iLoc3 = (iv-1)*iv/2+ix
-    D1Unzip(iLoc1) = Half*D1MO(iLoc3)
-    D1Unzip(iLoc2) = D1Unzip(iLoc1)
+    iLoc = (iv-1)*iv/2+ix
+    D1Unzip(ix,iv) = Half*D1MO(iLoc)
+    D1Unzip(iv,ix) = D1Unzip(ix,iv)
   end do
   ix = iv
-  iLoc1 = (iv-1)*NASHT+ix
-  iLoc3 = (iv+1)*iv/2
-  D1Unzip(iLoc1) = Half*D1MO(iLoc3)
+  iLoc = (iv+1)*iv/2
+  D1Unzip(ix,iv) = Half*D1MO(iLoc)
 end do
 
 return

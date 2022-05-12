@@ -26,7 +26,7 @@ real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 !                                                                      *
 ! Form the nuclear charge moment tensor
 
-call FZero(M,9)
+M(:,:) = Zero
 do iAtom=1,nAtoms
   RTx = RA(1,iAtom)-T(1)
   RTy = RA(2,iAtom)-T(2)

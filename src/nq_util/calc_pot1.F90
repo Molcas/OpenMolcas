@@ -29,16 +29,16 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: mAO, mGrid, nMOs, nP2_ontop
-real(kind=wp) :: Pot1(nPot1), TabMO(mAO,mGrid,nMOs), MOs(mGrid*nOrbt), P2_ontop(nP2_ontop,mGrid)
+real(kind=wp) :: Pot1(nPot1), TabMO(mAO,mGrid,nMOs), MOs(mGrid,nOrbt), P2_ontop(nP2_ontop,mGrid)
 ! Input: mAO mGrid nMOs nP2_ontop TabMO MOs P2_ontop
 ! Output: Pot1
 integer(kind=iwp) :: iGrid, iIrrep, iMO, iOff1, IOff2, iOrb
 real(kind=wp) :: dEdRhop2, dF_dRhoax, dF_dRhoay, dF_dRhoaz, dF_dRhobx, dF_dRhoby, dF_dRhobz, Diff1, dRdx, dRdy, dRdz
 ! PreMO is MO multiplied with things needed for potential calculation
-real(kind=wp), allocatable :: PreMO(:)
+real(kind=wp), allocatable :: PreMO(:,:)
 
-call mma_allocate(PreMO,mGrid*nOrbt)
-call dcopy_(mGrid*nOrbt,MOs,1,PreMO,1)
+call mma_allocate(PreMO,mGrid,nOrbt)
+PreMO(:,:) = MOs
 
 ! black terms in the notes
 do iGrid=1,mGrid
@@ -141,16 +141,16 @@ end if
 call DScal_(mGrid,Half,dEdRho,1)
 
 do iGrid=1,mGrid
-  call DScal_(nOrbt,dEdRho(iGrid),PreMO(iGrid),mGrid)
+  PreMO(iGrid,:) = PreMO(iGrid,:)*dEdRho(iGrid)
 end do
 
 if (lGGA) then
   do iIrrep=0,mIrrep-1
     do iOrb=1,mOrb(iIrrep)
-      IOff1 = (iOrb+OffOrb(iIrrep)-1)*mGrid
+      IOff1 = iOrb+OffOrb(iIrrep)
       iMO = iOrb+OffBasFro(iIrrep)
       do iGrid=1,mGrid
-        PreMO(IOff1+iGrid) = PreMO(IOff1+iGrid)+TabMO(2,iGrid,iMO)*dEdRhox(iGrid)+TabMO(3,iGrid,iMO)*dEdRhoy(iGrid)+ &
+        PreMO(iGrid,IOff1) = PreMO(iGrid,IOff1)+TabMO(2,iGrid,iMO)*dEdRhox(iGrid)+TabMO(3,iGrid,iMO)*dEdRhoy(iGrid)+ &
                              TabMO(4,iGrid,iMO)*dEdRhoz(iGrid)
       end do
     end do
@@ -158,13 +158,13 @@ if (lGGA) then
 end if
 
 do iGrid=1,mGrid
-  call DScal_(nOrbt,Weights(iGrid),PreMO(iGrid),mGrid)
+  PreMO(iGrid,:) = PreMO(iGrid,:)*Weights(iGrid)
 end do
 
 do iIrrep=0,mIrrep-1
-  IOff1 = OffOrb(iIrrep)*mGrid+1
+  IOff1 = OffOrb(iIrrep)+1
   IOff2 = OffOrb2(iIrrep)+1
-  call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,One,PreMO(IOff1),mGrid,MOs(IOff1),mGrid,One,Pot1(iOff2),mOrb(iIrrep))
+  call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,One,PreMO(:,IOff1:),mGrid,MOs(:,IOff1:),mGrid,One,Pot1(iOff2:),mOrb(iIrrep))
 end do
 
 call mma_deallocate(PreMO)

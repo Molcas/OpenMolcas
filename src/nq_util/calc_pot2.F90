@@ -20,8 +20,8 @@ subroutine Calc_Pot2(Pot2,mGrid,Pi,nPi)
 use nq_Grid, only: Weights
 use nq_pdft, only: d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dF_dRhoamb, dF_dRhoxamb, dF_dRhoyamb, dF_dRhozamb, &
                    dRdPi, dZdR, GdEdPiMO, GradRdFdRho, GradRhodFdRho, lft, lGGA, MOas, MOax, MOay, MOaz, Pass1, Pass2, Pass3, RhoAB
-use nq_Info, only: nOrbt, nPot2
-use Constants, only: Zero, One, Half
+use nq_Info, only: nPot2
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,15 +29,15 @@ integer(kind=iwp) :: mGrid, nPi
 real(kind=wp) :: Pot2(nPot2), Pi(nPi,mGrid)
 ! Input: mGrid, nPi, Pi
 ! Output: Pot2
-integer(kind=iwp) :: iGrid, nGOrb
+integer(kind=iwp) :: iGrid
 real(kind=wp) :: ftggaterm, ggaterm, predEdPip
 real(kind=wp), parameter :: ThrsPi = 1.0e-30_wp
 
 if (lGGA .and. lft) then
-  call FZero(dEdPix,mGrid)
-  call FZero(dEdPiy,mGrid)
-  call FZero(dEdPiz,mGrid)
-  call FZero(GdEdPiMO,mGrid*nOrbt)
+  dEdPix(:) = Zero
+  dEdPiy(:) = Zero
+  dEdPiz(:) = Zero
+  GdEdPiMO(:,:) = Zero
 end if
 
 do iGrid=1,mGrid
@@ -67,7 +67,6 @@ do iGrid=1,mGrid
     dEdPi(iGrid) = Zero
   end if
 end do
-nGOrb = mGrid*nOrbt
 
 call DSCal_(mGrid,Half,dEdPi,1)
 if (lGGA .and. lft) then
@@ -76,19 +75,15 @@ if (lGGA .and. lft) then
   call DSCal_(mGrid,Half,dEdPiz,1)
 end if
 
-call DCopy_(nGOrb,MOas,1,dEdPiMO,1)
-
 do iGrid=1,mGrid
-  call DScal_(nOrbt,dEdPi(iGrid),dEdPiMO(iGrid),mGrid)
+  dEdPiMO(iGrid,:) = MOas(iGrid,:)*dEdPi(iGrid)
 end do
 
 if (lft .and. lGGA) then
   do iGrid=1,mGrid
-    call DAXpY_(nOrbt,dEdPix(iGrid),MOax(iGrid),mGrid,GdEdPiMO(iGrid),mGrid)
-    call DAXpY_(nOrbt,dEdPiy(iGrid),MOay(iGrid),mGrid,GdEdPiMO(iGrid),mGrid)
-    call DAXpY_(nOrbt,dEdPiz(iGrid),MOaz(iGrid),mGrid,GdEdPiMO(iGrid),mGrid)
+    GdEdPiMO(iGrid,:) = GdEdPiMO(iGrid,:)+dEdPix(iGrid)*MOax(iGrid,:)+dEdPiy(iGrid)*MOay(iGrid,:)+dEdPiz(iGrid)*MOaz(iGrid,:)
   end do
-  call DAXpY_(nGOrb,One,GdEdPiMO,1,dEdPiMO,1)
+  dEdPiMO(:,:) = dEdPiMO+GdEdPiMO
 end if
 
 ! dEdPiMO is practically (Phi_p*dEdPi+Phi_p'*dEdPi')
