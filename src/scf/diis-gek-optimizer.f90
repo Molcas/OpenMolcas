@@ -43,7 +43,11 @@ Real*8, Allocatable:: H_Diis(:,:)
 Real*8 :: gg
 Character(Len=1) Step_Trunc
 Character(Len=6) UpMeth
-Real*8 :: dqHdq, StepMax, Thr_RS
+Real*8 :: dqHdq
+Real*8 :: StepMax=0.3D0
+Real*8 :: Thr_RS=1.0D-7
+Integer, Parameter:: Max_Iter=50
+Integer :: Iteration=0
 
 
 #ifdef _DEBUGPRINT_
@@ -140,7 +144,7 @@ Call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Computed the projected displacement coordinates. Note that the displacements are relative to the last coordinate, nDIIS.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Call mma_allocate(q_diis,mDIIS,nDIIS,Label='q_diis')
+Call mma_allocate(q_diis,mDIIS,nDIIS+Max_Iter,Label='q_diis')
 q_diis(:,:)=0.0D0
 Do i = 1, nDIIS
    Do k = 1, mDIIS
@@ -155,7 +159,7 @@ End Do
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Computed the projected gradients
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Call mma_allocate(g_diis,mDIIS,nDIIS,Label='g_diis')
+Call mma_allocate(g_diis,mDIIS,nDIIS+Max_Iter,Label='g_diis')
 g_diis(:,:)=0.0D0
 Do i = 1, nDIIS
    Do k = 1, mDIIS
@@ -202,46 +206,31 @@ Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 
 Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),H_diis)
 
+
+!First implementation with a simple RS-RFO step
+Iteration=nDiis
 ! Compute the surrogate Hessian
 
-Call Hessian_Kriging_Layer(q(:,nDiis),H_diis,mDiis)
+Call Hessian_Kriging_Layer(q(:,Iteration),H_diis,mDiis)
 #ifdef _DEBUGPRINT_
 Call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
 #endif
 
-!First implementation with a simple RS-RFO step
 
-#define _NEWCODE_
-#ifdef _NEWCODE_
 dqHdq=Zero
-StepMax=0.3D0
-Thr_RS=1.0D-7
 UpMeth=''
 Step_Trunc=''
-Call RS_RFO(H_diis,g_Diis(:,nDiis),mDiis,dq_diis,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
+Call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
 dq_diis(:)=-dq_diis(:)
 #ifdef _DEBUGPRINT_
 Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
 #endif
+q_diis(:,Iteration+1) = q_diis(:,Iteration) + dq_diis(:)
 
 Disp(:)=Zero
 Do i = 1, nDIIS
    Disp(:) = Disp(:) + dq_diis(i)*e_diis(:,i)
 End Do
-#else
-! This code gives right values on the first iterations
-Block
-Real*8, Allocatable:: Hessian(:,:)
-Call mma_allocate(Hessian,mOV,mOV)
-Hessian(:,:)=Zero
-Do i = 1, mOV
-  Hessian(i,i)=HDiag(i)
-End Do
-Call RS_RFO(Hessian,g(:,nDiis),mOV,Disp,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
-Disp(:)=-Disp(:)
-Call mma_deallocate(Hessian)
-End Block
-#endif
 
 #ifdef _DEBUGPRINT_
 Call RecPrt('Disp',' ',Disp,mOV,1)

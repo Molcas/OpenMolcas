@@ -640,7 +640,7 @@
      &                         dqHdq,StepMax,AccCon(9:9))
                Crap(:,2)=Disp(:)
 !              Call RecPrt('Crap',' ',Crap,mOV,2)
-!              Disp(:)=Crap(:,1)
+               Disp(:)=Crap(:,1)
                Call mma_deallocate(Crap)
 
 *           Pick up X(n) and compute X(n+1)=X(n)+dX(n)
