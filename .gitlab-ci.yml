@@ -57,7 +57,7 @@ include:
   # Configurations defined in an external file
   - "/.configs.yml"
   # Jobs for building the documentation
-  - "/doc/.gitlab-ci.yml"
+  #  - "/doc/.gitlab-ci.yml"
 
 # Define templates for "sub-jobs"
 # - install-key: install the SSH key to access private repositories
