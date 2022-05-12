@@ -11,7 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine DIIS_GEK_Optimizer(Disp,mOV)
+Subroutine DIIS_GEK_Optimizer(dq,mOV)
 !***********************************************************************
 !                                                                      *
 !     Object: Direct-inversion-in-the-iterative-subspace gradient-     *
@@ -29,7 +29,7 @@ Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
 Integer, Intent(In):: mOV
-Real*8,  Intent(Out):: Disp(mOV)
+Real*8,  Intent(Out):: dq(mOV)
 
 Integer i, j, k, l, ipq, ipg, nDIIS, mDIIS, iFirst
 Integer, External:: LstPtr
@@ -41,11 +41,12 @@ Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
 Real*8, Allocatable:: dq_diis(:)
 Real*8, Allocatable:: H_Diis(:,:)
 Real*8 :: gg
-Character(Len=1) Step_Trunc
+Character(Len=1) Step_Trunc, Step_Trunc_
 Character(Len=6) UpMeth
-Real*8 :: dqHdq
+Real*8 :: dqHdq, Disp, Fact
 Real*8 :: StepMax=0.3D0
 Real*8 :: Thr_RS=1.0D-7
+Real*8 :: Beta_Disp=0.3D0
 Integer, Parameter:: Max_Iter=50
 Integer :: Iteration=0
 
@@ -209,31 +210,48 @@ Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),H_diis)
 
 !First implementation with a simple RS-RFO step
 Iteration=nDiis
-! Compute the surrogate Hessian
-
-Call Hessian_Kriging_Layer(q(:,Iteration),H_diis,mDiis)
-#ifdef _DEBUGPRINT_
-Call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
-#endif
-
-
-dqHdq=Zero
 UpMeth=''
 Step_Trunc=''
-Call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
-dq_diis(:)=-dq_diis(:)
-#ifdef _DEBUGPRINT_
-Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
-#endif
-q_diis(:,Iteration+1) = q_diis(:,Iteration) + dq_diis(:)
+Fact=One
+! Loop to enforce restricted variance
+Do
 
-Disp(:)=Zero
+   ! Compute the surrogate Hessian
+   Call Hessian_Kriging_Layer(q(:,Iteration),H_diis,mDiis)
+#ifdef _DEBUGPRINT_
+   Call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
+#endif
+
+   Step_Trunc_=Step_Trunc
+   dqHdq=Zero
+   Call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
+   dq_diis(:)=-dq_diis(:)
+   If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.'
+#ifdef _DEBUGPRINT_
+   Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
+#endif
+
+   q_diis(:,Iteration+1) = q_diis(:,Iteration) + dq_diis(:)
+   Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Disp,mDIIS)
+#ifdef _DEBUGPRINT_
+   Write (6,*) 'Disp=',Disp
+#endif
+
+   Fact   =Half*Fact
+   StepMax=Half*StepMax
+   If (One-Disp/Beta_Disp>1.0D-3) Exit
+   If ( (Fact<1.0D-5) .OR. (Disp<Beta_Disp) ) Exit
+   Step_Trunc='*'
+
+End Do
+
+dq(:)=Zero
 Do i = 1, nDIIS
-   Disp(:) = Disp(:) + dq_diis(i)*e_diis(:,i)
+   dq(:) = dq(:) + dq_diis(i)*e_diis(:,i)
 End Do
 
 #ifdef _DEBUGPRINT_
-Call RecPrt('Disp',' ',Disp,mOV,1)
+Call RecPrt('dq',' ',dq,mOV,1)
 #endif
 
 Call Finish_Kriging()
