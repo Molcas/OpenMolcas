@@ -93,9 +93,12 @@ Call RecPrt('g',' ',g,mOV,iterso)
 #endif
 
 
-Call mma_allocate(e_diis,mOV,   iterso,Label='e_diis')
-e_diis(:,:)=0.0D0
 
+#define _REDUCED_SPACE_
+#ifdef _REDUCED_SPACE_
+
+Call mma_allocate(e_diis,mOV,   nDIIS,Label='e_diis')
+e_diis(:,:)=0.0D0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Find the coordinate, gradients and unit vectors of the reduced space
 ! Here we do this with the Gram-Schmidt procedure
@@ -140,6 +143,18 @@ Do i = 2, nDIIS
    End If
 End Do
 mDIIS=j
+
+#else
+
+Call mma_allocate(e_diis,mOV,   mOV,Label='e_diis')
+e_diis(:,:)=0.0D0
+mDIIS=mOV
+Do i = 1, mDIIS
+   e_diis(i,i)=1.0D0
+End Do
+
+#endif
+
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Check the ortonormality'
 Do i = 1, mDIIS
