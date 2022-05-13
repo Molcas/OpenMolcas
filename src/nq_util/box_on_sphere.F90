@@ -15,7 +15,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: x_Min_, x_Max_, y_Min_, y_Max_, z_Min_, z_Max_, xMin_, xMax_, yMin_, yMax_, zMin_, zMax_
+real(kind=wp), intent(in) :: x_Min_, x_Max_, y_Min_, y_Max_, z_Min_, z_Max_
+real(kind=wp), intent(out) :: xMin_, xMax_, yMin_, yMax_, zMin_, zMax_
 integer(kind=iwp) :: i, ix, iy, iz, j, ny_Roots, nz_Roots
 real(kind=wp) :: r, Roots(3,3), x, x_r, xMax, xMin, xyz(3,2), xyz0(3,2), y, z
 real(kind=wp), parameter :: Delta = 1.0e-15_wp

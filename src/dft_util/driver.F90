@@ -46,7 +46,7 @@ type(xc_f03_func_info_t) :: info_
 abstract interface
   subroutine DFT_FUNCTIONAL(mGrid,nD)
     import :: iwp
-    integer(kind=iwp) :: mGrid, nD
+    integer(kind=iwp), intent(in) :: mGrid, nD
   end subroutine
 end interface
 procedure(DFT_FUNCTIONAL) :: Overlap, NucAtt, ndsd_ts

@@ -14,16 +14,15 @@ subroutine ResortD(D_Old,D_New,iBas,iCmp,jBas,jCmp)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iBas, iCmp, jBas, jCmp
-real(kind=wp) :: D_Old(iBas,jBas,iCmp,jCmp), D_New(iBas,iCmp,jBas,jCmp)
-integer(kind=iwp) :: iB, iC, jB, jC
+integer(kind=iwp), intent(in) :: iBas, iCmp, jBas, jCmp
+real(kind=wp), intent(in) :: D_Old(iBas,jBas,iCmp,jCmp)
+real(kind=wp), intent(out) :: D_New(iBas,iCmp,jBas,jCmp)
+integer(kind=iwp) :: iC, jB, jC
 
 do jC=1,jCmp
   do jB=1,jBas
     do iC=1,iCmp
-      do iB=1,iBas
-        D_New(iB,iC,jB,jC) = D_Old(iB,jB,iC,jC)
-      end do
+      D_New(:,iC,jB,jC) = D_Old(:,jB,iC,jC)
     end do
   end do
 end do

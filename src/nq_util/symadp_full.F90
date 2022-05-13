@@ -33,8 +33,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nSOInt, nlist_s, list_s(2,nlist_s), ndc, nD
-real(kind=wp) :: SOIntegrals(nSOInt,nD), Fact(ndc,ndc)
+integer(kind=iwp), intent(in) :: nSOInt, nlist_s, list_s(2,nlist_s), ndc, nD
+real(kind=wp), intent(inout) :: SOIntegrals(nSOInt,nD)
+real(kind=wp), intent(in) :: Fact(ndc,ndc)
 integer(kind=iwp) :: iAO, iBfn, iBfn_, iCmp, ilist_s, indAO1, Indij, iPnt, iShell, iSkal, iSO, iSO1, j1, jBfn, jBfn_, jlist_s, &
                      jShell, jSkal, jSO, kDCRE, kDCRR, loper, mBfn, mdci, mdcj, nBfn, nOp(2)
 real(kind=wp) :: xa, xaxb, xb

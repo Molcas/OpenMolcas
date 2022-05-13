@@ -16,8 +16,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nBas_Eff
-integer(kind=iwp) :: NrExp, NrBas, nExp_Eff
-real(kind=wp) :: Cff(NrExp,NrBas)
+integer(kind=iwp), intent(in) :: NrExp, NrBas, nExp_Eff
+real(kind=wp), intent(in) :: Cff(NrExp,NrBas)
 integer(kind=iwp) :: iBas, iExp
 
 nBas_Eff = NrBas

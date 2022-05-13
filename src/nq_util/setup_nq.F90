@@ -42,9 +42,11 @@ use Constants, only: Zero, One, Two, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nShell, nSym, Maps2p(nShell,0:nSym-1), nNQ, nR_Min
-logical(kind=iwp) :: Do_Grad, On_Top, PMode_old
-real(kind=wp) :: Pck_Old, R_Min(0:nR_Min)
+integer(kind=iwp), intent(in) :: nShell, nSym, nR_Min
+integer(kind=iwp), intent(out) :: Maps2p(nShell,0:nSym-1), nNQ
+logical(kind=iwp), intent(in) :: Do_Grad, On_Top
+real(kind=wp), intent(out) :: Pck_Old, R_Min(0:nR_Min)
+logical(kind=iwp), intent(out) :: PMode_old
 #include "status.fh"
 integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, &
                      iNQ_MBC, iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, &
@@ -280,7 +282,7 @@ end do
 
 call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Grad,.false.)
 
-! Distribute derivative of the principle axis system
+! Distribute derivative of the principal axis system
 
 if (Do_Grad) then
   do iNQ=1,nNQ

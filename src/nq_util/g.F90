@@ -16,7 +16,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: G
-real(kind=wp) :: Arg
+real(kind=wp), intent(in) :: Arg
 real(kind=wp) :: Arg_, rG
 
 g = -1.0e3_wp

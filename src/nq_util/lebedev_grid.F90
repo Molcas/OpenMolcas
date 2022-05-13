@@ -21,24 +21,26 @@ use nq_Info, only: nAngularGrids
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: L_Max
+integer(kind=iwp), intent(in) :: L_Max
 integer(kind=iwp) :: iSet, L_Eff
 integer(kind=iwp), parameter :: Lebedev_order(11) = [5,7,11,17,23,29,35,41,47,53,59]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine Do_GGL(L_Eff,nPoints,R)
+  subroutine Do_GGL(L_Eff,mPt,R)
     use Definitions, only: wp
     import :: iwp
-    integer(kind=iwp) :: L_Eff, nPoints
-    real(kind=wp), allocatable :: R(:,:)
+    integer(kind=iwp), intent(in) :: L_Eff
+    integer(kind=iwp), intent(out) :: mPt
+    real(kind=wp), allocatable, intent(out) :: R(:,:)
   end subroutine Do_GGL
-  subroutine Do_Lebedev(L_Eff,nPoints,R)
+  subroutine Do_Lebedev(L_Eff,mPt,R)
     use Definitions, only: wp
     import :: iwp
-    integer(kind=iwp) :: L_Eff, nPoints
-    real(kind=wp), allocatable :: R(:,:)
+    integer(kind=iwp), intent(in) :: L_Eff
+    integer(kind=iwp), intent(out) :: mPt
+    real(kind=wp), allocatable, intent(out) :: R(:,:)
   end subroutine Do_Lebedev
 end interface
 

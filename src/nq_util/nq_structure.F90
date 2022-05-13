@@ -61,7 +61,7 @@ contains
 
 subroutine Open_NQ_Data(Coor)
 
-  real(kind=wp) :: Coor(:,:)
+  real(kind=wp), intent(in) :: Coor(:,:)
   integer(kind=iwp) :: iNQ, nNQ
 
   nNQ = size(Coor,2)

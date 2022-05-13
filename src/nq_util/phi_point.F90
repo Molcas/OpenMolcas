@@ -15,8 +15,8 @@ use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iPhi, nPhi
-real(kind=wp) :: Cos_Phi, Sin_Phi, w_Phi
+integer(kind=iwp), intent(in) :: iPhi, nPhi
+real(kind=wp), intent(out) :: Cos_Phi, Sin_Phi, w_Phi
 real(kind=wp) :: q
 real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 

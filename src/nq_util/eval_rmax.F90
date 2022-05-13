@@ -16,8 +16,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Eval_RMax
-real(kind=wp) :: alpha, R_L
-integer(kind=iwp) :: m
+real(kind=wp), intent(in) :: alpha, R_L
+integer(kind=iwp), intent(in) :: m
 real(kind=wp) :: Gmma, x, x_new
 integer(kind=iwp) :: i
 

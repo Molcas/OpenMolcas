@@ -33,8 +33,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nGrad, nD, mGrid, ndRho_dR, nGrad_Eff, iNQ
-real(kind=wp) :: Grad(nGrad), Grid(3,mGrid), dRho_dR(ndRho_dR,mGrid,nGrad_Eff), Weights(mGrid)
+integer(kind=iwp), intent(in) :: nGrad, nD, mGrid, ndRho_dR, nGrad_Eff, iNQ
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(in) :: Grid(3,mGrid), dRho_dR(ndRho_dR,mGrid,nGrad_Eff), Weights(mGrid)
 integer(kind=iwp) :: i, i_Eff, iCar, iGrad, ixyz, j, jGrad, jNQ
 real(kind=wp) :: dF_dr, Fact, gxa, gxb, gya, gyb, gza, gzb, OV(3,3), OVT(3), R_Grid(3), tmp, V(3,3)
 real(kind=wp), allocatable :: Aux(:,:)
@@ -107,7 +108,7 @@ select case (Functional_type)
     !*******************************************************************
     !                                                                  *
 
-    call mma_Allocate(Aux,1*nD,mGrid,Label='Aux')
+    call mma_Allocate(Aux,nD,mGrid,Label='Aux')
     if (nD == 1) then
       do j=1,mGrid
         Aux(1,j) = vRho(1,j)
@@ -250,7 +251,7 @@ do i_Eff=1,nGrad_Eff
   tmp = Zero
   OVT(:) = Zero
   do j=1,mGrid
-    dF_dr = Weights(j)*dot_product(Aux(:,j),dRho_dR(:,j,i_Eff))
+    dF_dr = Weights(j)*DDot_(ndRho_dR,Aux(:,j),1,dRho_dR(:,j,i_Eff),1)
     tmp = tmp+dF_dr
 
     ! Accumulate stuff for rotational invariance

@@ -19,8 +19,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDens, nr_of_Densities
-real(kind=wp) :: Dens(nDens,nr_of_Densities)
+integer(kind=iwp), intent(in) :: nDens, nr_of_Densities
+real(kind=wp), intent(in) :: Dens(nDens,nr_of_Densities)
 integer(kind=iwp) :: mDeDe, mIndij, nField, nIndij
 logical(kind=iwp) :: DFT_Storage, Special_NoSym
 

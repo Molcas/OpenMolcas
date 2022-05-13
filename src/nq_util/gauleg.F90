@@ -15,8 +15,9 @@ use Constants, only: Zero, One, Two, Half, Quart, Pi
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: x1, x2, xw(2,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: x1, x2
+real(kind=wp), intent(out) :: xw(2,n)
 integer(kind=iwp) :: i, j, m
 real(kind=wp) :: p1, p2, p3, pp, xl, xm, z, z1
 real(kind=wp), parameter :: EPS = 3.e-14_wp

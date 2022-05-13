@@ -16,10 +16,11 @@ use Constants, only: Zero, One, Three, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilist_p, nlist_p, list_p(nlist_p), nGrid, nRemoved
-real(kind=wp) :: R(3,nGrid), Weights(nGrid)
+integer(kind=iwp), intent(in) :: ilist_p, nlist_p, list_p(nlist_p), nGrid
+real(kind=wp), intent(inout) :: R(3,nGrid), Weights(nGrid)
+integer(kind=iwp), intent(out) :: nRemoved
 integer(kind=iwp) :: iGrid, iNQ, jGrid, klist_p, kNQ, llist_p, lNQ
-real(kind=wp) :: Fact, p1, p2, p3, P_i, P_k, r_k, R_kl, r_l, rMU_kl, s, Sum_P_k, xdiff
+real(kind=wp) :: p1, p2, p3, P_i, P_k, r_k, R_kl, r_l, rMU_kl, s, Sum_P_k, xdiff
 real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 
 !                                                                      *
@@ -80,8 +81,7 @@ do iGrid=1,nGrid
     if (kNQ == iNQ) P_i = P_k
     Sum_P_k = Sum_P_k+P_k
   end do
-  Fact = Weights(iGrid)
-  Weights(iGrid) = Fact*P_i/Sum_P_k
+  Weights(iGrid) = Weights(iGrid)*P_i/Sum_P_k
   if (Weights(iGrid) >= Thrs) then
     jGrid = jGrid+1
     if (jGrid /= iGrid) then
@@ -93,7 +93,7 @@ do iGrid=1,nGrid
   else
     nRemoved = nRemoved+1
   end if
-  !write(u6,*) 'Fact,P_A,Z,Weights=',Fact,P_i,Sum_P_k,Weights(jGrid)
+  !write(u6,*) 'P_A,Z,Weights=',P_i,Sum_P_k,Weights(jGrid)
   !                                                                    *
   !*********************************************************************
   !                                                                    *

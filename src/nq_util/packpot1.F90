@@ -21,10 +21,9 @@ use nq_Info, only: mIrrep, mOrb, OffOrb2, OffOrbTri, nPot1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nPack
-real(kind=wp) :: Packed(nPack), Full(nPot1), Factor
-! Input: Factor Full
-! Output: Packed
+integer(kind=iwp), intent(in) :: nPack
+real(kind=wp), intent(out) :: Packed(nPack)
+real(kind=wp), intent(in) :: Full(nPot1), Factor
 integer(kind=iwp) :: iIrrep, iOff1, IOff2, nOrbs, p, q
 
 do iIrrep=0,mIrrep-1

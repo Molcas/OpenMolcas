@@ -19,8 +19,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nR, iAngular_Grid(nR), L_Quad, lAng, nAngularGrids
-real(kind=wp) :: Radius(2,nR), Crowding, Fade, R_BS, R_Min(0:lAng)
+integer(kind=iwp), intent(in) :: nR, L_Quad, lAng, nAngularGrids
+real(kind=wp), intent(in) :: Radius(2,nR), Crowding, Fade, R_BS, R_Min(0:lAng)
+integer(kind=iwp), intent(out) :: iAngular_Grid(nR)
 integer(kind=iwp) :: iAng, iR, jAng, jSet, kSet
 real(kind=wp) :: R_Test, R_Test2, R_Value
 

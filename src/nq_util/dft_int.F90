@@ -32,8 +32,9 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nlist_s, list_s(2,nlist_s), nFckInt, nD, ndc
-real(kind=wp) :: FckInt(nFckInt,nD), Fact(ndc**2)
+integer(kind=iwp), intent(in) :: nlist_s, list_s(2,nlist_s), nFckInt, nD, ndc
+real(kind=wp), intent(inout) :: FckInt(nFckInt,nD)
+real(kind=wp), intent(in) :: Fact(ndc**2)
 
 !                                                                      *
 !***********************************************************************

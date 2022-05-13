@@ -23,10 +23,9 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nP2Act
-real(kind=wp) :: P2Unzip(NASHT,NASHT,NASHT,NASHT), P2MO(nP2Act)
-! Input: nP2Act P2MO
-! Output: P2Unzip
+real(kind=wp), intent(out) :: P2Unzip(NASHT,NASHT,NASHT,NASHT)
+integer(kind=iwp), intent(in) :: nP2Act
+real(kind=wp), intent(in) :: P2MO(nP2Act)
 integer(kind=iwp) :: I, IAct, iIrrep, IJ, IJKL, J, JAct, jIrrep, K, kAct, kIrrep, KL, L, LAct, lIrrep
 real(kind=wp) :: Fact
 

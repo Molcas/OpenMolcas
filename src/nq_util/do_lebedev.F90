@@ -22,8 +22,9 @@ use Constants, only: Zero, One, Four, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: L_Eff, mPt
-real(kind=wp), allocatable :: R(:,:)
+integer(kind=iwp), intent(in) :: L_Eff
+integer(kind=iwp), intent(out) :: mPt
+real(kind=wp), allocatable, intent(out) :: R(:,:)
 integer(kind=iwp) :: i, iSet, nPt
 integer(kind=iwp), parameter :: nSet = 11, Lebedev_order(nSet) = [5,7,11,17,23,29,35,41,47,53,59], &
                                 Lebedev_npoints(nSet) = [14,26,50,110,194,302,434,590,770,974,1202]

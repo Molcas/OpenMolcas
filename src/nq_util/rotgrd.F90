@@ -29,9 +29,11 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: nAtoms
-real(kind=wp) :: RA(3,nAtoms), ZA(nAtoms), O(3,3), dOdx(3,3,nAtoms,3), d2Odx2(3,3,nAtoms,3,nAtoms,3)
-logical(kind=iwp) :: Do_Grad, Do_Hess
+integer(kind=iwp), intent(in) :: nAtoms
+real(kind=wp), intent(in) :: RA(3,nAtoms), ZA(nAtoms)
+real(kind=wp), intent(out) :: O(3,3), dOdx(3,3,nAtoms,3)
+real(kind=wp), intent(inout) :: d2Odx2(3,3,nAtoms,3,nAtoms,3)
+logical(kind=iwp), intent(in) :: Do_Grad, Do_Hess
 integer(kind=iwp) :: iAtom, iCar, jAtom, jCar, jCar_Max
 real(kind=wp) :: dMdx(3,3), dMdy(3,3), dTdRAi, dTdRAj, EVal(3), Px(3,3), Py(3,3), T(3), Z_Tot
 logical(kind=iwp) :: Rot_Corr
@@ -94,7 +96,7 @@ do iAtom=1,nAtoms
 
     ! Form dO/dx
 
-    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(1,1,iAtom,iCar),Px)
+    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(:,:,iAtom,iCar),Px)
 
   end do
 end do
@@ -110,19 +112,19 @@ if (.not. Do_Hess) return
 do iAtom=1,nAtoms
   dTdRAi = ZA(iAtom)/Z_Tot
   do iCar=1,3
-    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(1,1,iAtom,iCar),Px)
+    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(:,:,iAtom,iCar),Px)
 
     do jAtom=1,iAtom
       dTdRAj = ZA(jAtom)/Z_Tot
       jCar_Max = 3
       if (iAtom == jAtom) jCar_Max = iCar
       do jCar=1,jCar_Max
-        call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,jAtom,jCar,dTdRAj,dMdy,dOdx(1,1,jAtom,jCar),Py)
+        call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,jAtom,jCar,dTdRAj,dMdy,dOdx(:,:,jAtom,jCar),Py)
 
         ! Form d2O/dx2
 
         call Compute_d2Odx2(ZA,nAtoms,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py, &
-                            d2Odx2(1,1,iAtom,iCar,jAtom,jCar))
+                            d2Odx2(:,:,iAtom,iCar,jAtom,jCar))
 
         if ((iAtom /= jAtom) .or. (iCar /= jCar)) d2Odx2(:,:,jAtom,jCar,iAtom,iCar) = d2Odx2(:,:,iAtom,iCar,jAtom,jCar)
 

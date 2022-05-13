@@ -23,10 +23,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mGrid
-real(kind=wp) :: Fock(nPot1), Kern(mGrid), MO1(mGrid,nOrbt), MO2(mGrid,nOrbt)
-! Input: mGrid MO1 MO2 Kern
-! Output: Fock
+real(kind=wp), intent(inout) :: Fock(nPot1)
+integer(kind=iwp), intent(in) :: mGrid
+real(kind=wp), intent(in) :: Kern(mGrid), MO1(mGrid,nOrbt), MO2(mGrid,nOrbt)
 integer(kind=iwp) :: iGrid, iIrrep, iOff1, iOff2
 real(kind=wp), allocatable :: KernMO(:,:)
 

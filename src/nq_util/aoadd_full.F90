@@ -24,8 +24,8 @@ use Index_Functions, only: iTri
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nPrp, nD
-real(kind=wp) :: PrpInt(nPrp,nD)
+integer(kind=iwp), intent(in) :: nPrp, nD
+real(kind=wp), intent(inout) :: PrpInt(nPrp,nD)
 integer(kind=iwp) :: iBfn, Indi, Indj, jBfn, nBfn
 
 !                                                                      *

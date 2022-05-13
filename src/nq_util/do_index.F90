@@ -9,21 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Do_Index(Idx,NrBas,NrBas_Eff,iCmp)
+subroutine Do_Index(Indx,NrBas,NrBas_Eff,iCmp)
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NrBas_Eff, iCmp, Idx(NrBas_Eff*iCmp), NrBas
-integer(kind=iwp) :: iAdd, iB, iB_Eff, iC, iCB, iCB_Eff
+integer(kind=iwp), intent(in) :: NrBas_Eff, iCmp, NrBas
+integer(kind=iwp), intent(out) :: Indx(NrBas_Eff,iCmp)
+integer(kind=iwp) :: iAdd, iB, iB_Eff, iC
 
 iAdd = NrBas-NrBas_Eff
 do iB_Eff=1,NrBas_Eff
   iB = iB_Eff+iAdd
   do iC=1,iCmp
-    iCB = (iC-1)*NrBas+iB
-    iCB_Eff = (iC-1)*NrBas_Eff+iB_Eff
-    Idx(iCB_Eff) = iCB
+    Indx(iB_Eff,iC) = (iC-1)*NrBas+iB
   end do
 end do
 

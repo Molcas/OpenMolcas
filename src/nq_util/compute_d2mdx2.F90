@@ -15,8 +15,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, iAtom, iCar, jAtom, jCar
-real(kind=wp) :: ZA(nAtoms), dTdRAi, d2Mdx2(3,3)
+integer(kind=iwp), intent(in) :: nAtoms, iAtom, iCar, jAtom, jCar
+real(kind=wp), intent(in) :: ZA(nAtoms), dTdRAi
+real(kind=wp), intent(out) :: d2Mdx2(3,3)
 integer(kind=iwp) :: kAtom
 real(kind=wp) :: tmpi, tmpj, ZB
 
@@ -29,50 +30,52 @@ do kAtom=1,nAtoms
   if (kAtom == iAtom) then
     tmpi = One-dTdRAi
   else
-    tmpi = -dtdRAi
+    tmpi = -dTdRAi
   end if
   if (kAtom == jAtom) then
     tmpj = One-dTdRAi
   else
-    tmpj = -dtdRAi
+    tmpj = -dTdRAi
   end if
 
-  if ((iCar == 1) .and. (jCar == 1)) then
-    d2Mdx2(2,2) = d2Mdx2(2,2)+Two*ZB*tmpi*tmpj
-    d2Mdx2(3,3) = d2Mdx2(3,3)+Two*ZB*tmpi*tmpj
-  end if
-  if ((iCar == 1) .and. (jCar == 2)) then
-    d2Mdx2(1,2) = d2Mdx2(1,2)-ZB*tmpi*tmpj
-    d2Mdx2(2,1) = d2Mdx2(2,1)-ZB*tmpj*tmpi
-  end if
-  if ((iCar == 1) .and. (jCar == 3)) then
-    d2Mdx2(1,3) = d2Mdx2(1,3)-ZB*tmpi*tmpj
-    d2Mdx2(3,1) = d2Mdx2(3,1)-ZB*tmpj*tmpi
-  end if
-  if ((iCar == 2) .and. (jCar == 1)) then
-    d2Mdx2(1,2) = d2Mdx2(1,2)-ZB*tmpj*tmpi
-    d2Mdx2(2,1) = d2Mdx2(2,1)-ZB*tmpi*tmpj
-  end if
-  if ((iCar == 2) .and. (jCar == 2)) then
-    d2Mdx2(1,1) = d2Mdx2(1,1)+Two*ZB*tmpi*tmpj
-    d2Mdx2(3,3) = d2Mdx2(3,3)+Two*ZB*tmpi*tmpj
-  end if
-  if ((iCar == 2) .and. (jCar == 3)) then
-    d2Mdx2(2,3) = d2Mdx2(2,3)-ZB*tmpi*tmpj
-    d2Mdx2(3,2) = d2Mdx2(3,2)-ZB*tmpj*tmpi
-  end if
-  if ((iCar == 3) .and. (iCar == 1)) then
-    d2Mdx2(1,3) = d2Mdx2(1,3)-ZB*tmpj*tmpi
-    d2Mdx2(3,1) = d2Mdx2(3,1)-ZB*tmpi*tmpj
-  end if
-  if ((iCar == 3) .and. (jCar == 2)) then
-    d2Mdx2(2,3) = d2Mdx2(2,3)-ZB*tmpj*tmpi
-    d2Mdx2(3,2) = d2Mdx2(3,2)-ZB*tmpi*tmpj
-  end if
-  if ((iCar == 3) .and. (jCar == 3)) then
-    d2Mdx2(1,1) = d2Mdx2(1,1)+Two*ZB*tmpi*tmpj
-    d2Mdx2(2,2) = d2Mdx2(2,2)+Two*ZB*tmpi*tmpj
-  end if
+  select case (iCar)
+    case (1)
+      select case (jCar)
+        case (1)
+          d2Mdx2(2,2) = d2Mdx2(2,2)+Two*ZB*tmpi*tmpj
+          d2Mdx2(3,3) = d2Mdx2(3,3)+Two*ZB*tmpi*tmpj
+        case (2)
+          d2Mdx2(1,2) = d2Mdx2(1,2)-ZB*tmpi*tmpj
+          d2Mdx2(2,1) = d2Mdx2(2,1)-ZB*tmpj*tmpi
+        case (3)
+          d2Mdx2(1,3) = d2Mdx2(1,3)-ZB*tmpi*tmpj
+          d2Mdx2(3,1) = d2Mdx2(3,1)-ZB*tmpj*tmpi
+      end select
+    case (2)
+      select case (jCar)
+        case (1)
+          d2Mdx2(1,2) = d2Mdx2(1,2)-ZB*tmpj*tmpi
+          d2Mdx2(2,1) = d2Mdx2(2,1)-ZB*tmpi*tmpj
+        case (2)
+          d2Mdx2(1,1) = d2Mdx2(1,1)+Two*ZB*tmpi*tmpj
+          d2Mdx2(3,3) = d2Mdx2(3,3)+Two*ZB*tmpi*tmpj
+        case (3)
+          d2Mdx2(2,3) = d2Mdx2(2,3)-ZB*tmpi*tmpj
+          d2Mdx2(3,2) = d2Mdx2(3,2)-ZB*tmpj*tmpi
+      end select
+    case (3)
+      select case (jCar)
+        case (1)
+          d2Mdx2(1,3) = d2Mdx2(1,3)-ZB*tmpj*tmpi
+          d2Mdx2(3,1) = d2Mdx2(3,1)-ZB*tmpi*tmpj
+        case (2)
+          d2Mdx2(2,3) = d2Mdx2(2,3)-ZB*tmpj*tmpi
+          d2Mdx2(3,2) = d2Mdx2(3,2)-ZB*tmpi*tmpj
+        case (3)
+          d2Mdx2(1,1) = d2Mdx2(1,1)+Two*ZB*tmpi*tmpj
+          d2Mdx2(2,2) = d2Mdx2(2,2)+Two*ZB*tmpi*tmpj
+      end select
+  end select
 end do
 !                                                                      *
 !***********************************************************************

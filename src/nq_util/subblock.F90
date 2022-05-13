@@ -33,10 +33,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: iNQ, nlist_p, list_p(nlist_p), mGrid, number_of_grid_points, ilist_p, nR_Eff, iAngular_Grid(nR_Eff)
-real(kind=wp) :: x_NQ, y_NQ, z_NQ, x_min_, x_max_, y_min_, y_max_, z_min_, z_max_, Grid(3,mGrid), Weights(mGrid), R_box_min, &
-                 R_box_max, xyz0(3,2)
-logical(kind=iwp) :: InBox, Process
+integer(kind=iwp), intent(in) :: iNQ, nlist_p, list_p(nlist_p), mGrid, ilist_p, nR_Eff, iAngular_Grid(nR_Eff)
+real(kind=wp), intent(in) :: x_NQ, y_NQ, z_NQ, x_min_, x_max_, y_min_, y_max_, z_min_, z_max_, R_box_min, R_box_max, xyz0(3,2)
+logical(kind=iwp), intent(in) :: InBox, Process
+real(kind=wp), intent(inout) :: Grid(3,mGrid), Weights(mGrid)
+integer(kind=iwp), intent(inout) :: number_of_grid_points
 integer(kind=iwp) :: iEnd_R, iPoint, iR, iR_End, iR_Start, iSet, iStart_R, iStrt, kSet, mGrid_, nGrid, nRemoved
 real(kind=wp) :: Fact, R_Value, Radius, w_g, weight, x, xpt, y, ypt, z, zpt
 

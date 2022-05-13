@@ -191,7 +191,7 @@ contains
 
 subroutine Sym_Dist()
 
-  integer iBfn, jBfn, ijBfn
+  integer(kind=iwp) :: iBfn, ijBfn, jBfn
 
   ijBfn = 0
   do iBfn=1,nBfn
@@ -210,7 +210,7 @@ end subroutine Sym_Dist
 
 subroutine Symmetrize()
 
-  integer iBfn, jBfn
+  integer(kind=iwp) :: iBfn, jBfn
 
   do iBfn=1,nBfn
     do jBfn=1,iBfn

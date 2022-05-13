@@ -38,13 +38,14 @@ use Constants, only: Zero, One, Two, Four, Eight
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: mAO, mGrid, nP2_ontop, nGrad_Eff, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), nd1mo, mRho, nMOs, nCMO, &
-                     nPMO3p
-real(kind=wp) :: P2_ontop(nP2_ontop,mGrid), D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop_d(np2_ontop,nGrad_Eff,mGrid), &
-                 RhoA(mRho,mGrid), RhoI(mRho,mGrid), CMO(nCMO), TabSO(mAO,mGrid,nMOs), P2MOCube(NASHT,mGrid), &
-                 P2MOCubex(NASHT,nPMO3p), P2MOCubey(NASHT,nPMO3p), P2MOCubez(NASHT,nPMO3p), MOs(NASHT,mGrid), MOx(NASHT,mGrid), &
-                 MOy(NASHT,mGrid), MOz(NASHT,mGrid)
-logical(kind=iwp) :: ft
+integer(kind=iwp), intent(in) :: mAO, mGrid, nP2_ontop, nGrad_Eff, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), nd1mo, mRho, &
+                                 nMOs, nCMO, nPMO3p
+real(kind=wp), intent(out) :: P2_ontop(nP2_ontop,mGrid), P2_ontop_d(np2_ontop,nGrad_Eff,mGrid), TabSO(mAO,mGrid,nMOs)
+real(kind=wp), intent(in) :: D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), CMO(nCMO), P2MOCube(NASHT,mGrid), P2MOCubex(NASHT,nPMO3p), &
+                             P2MOCubey(NASHT,nPMO3p), P2MOCubez(NASHT,nPMO3p), MOs(NASHT,mGrid), MOx(NASHT,mGrid), &
+                             MOy(NASHT,mGrid), MOz(NASHT,mGrid)
+real(kind=wp), intent(inout) :: RhoA(mRho,mGrid), RhoI(mRho,mGrid)
+logical(kind=iwp), intent(in) :: ft
 integer(kind=iwp) :: g_eff, i, i_, iCoord, iCoord1, iCoord2, iCoord3, iGrid, iIrrep, ilist_s, IOff1, iOff2, iOffF, jOffA_, jOffB_, &
                      k, k_, kIrrep, kl, l, l_, lIrrepx, nBasf, nOccO, NumAsh, NumIsh
 real(kind=wp), allocatable :: dMOs(:,:), dMOx(:,:), dMOy(:,:), dMOz(:,:), dRhoA(:,:,:), dRhoI(:,:,:), dTabMO(:,:,:,:), dTabMO2(:), &
@@ -86,7 +87,7 @@ end do
 !   P(2,...), P(3,...), P(4,...) - grad P_2                            *
 !***********************************************************************
 
-call mma_allocate(dTabMO,nP2_ontop,nMOs,nGrad_eff,mgrid,Label='dTabMO')
+call mma_allocate(dTabMO,nP2_ontop,nMOs,nGrad_eff,mGrid,Label='dTabMO')
 dTabMO(:,:,:,:) = Zero
 
 call mma_allocate(TabSO2,nMOs,mAO,mGrid,Label='TabSO2')

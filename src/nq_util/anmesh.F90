@@ -21,9 +21,12 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nscheme(8)
-real(kind=wp) :: pa(*), rPt(3,*), wPt(*)
+integer(kind=iwp), intent(in) :: nscheme(8)
+real(kind=wp), intent(in) :: pa(*)
+real(kind=wp), intent(_OUT_) :: rPt(3,*), wPt(*)
 integer(kind=iwp) :: i, ii, ip, ix, iy, iz, j, j1, jj, n1
 real(kind=wp) :: c, pp, qq, rr, ss, tt, uu, vv
 
@@ -143,7 +146,7 @@ do jj=1,n1
           rPt(j1,i) = pp*real(ix,kind=wp)
           j1 = mod(j+1-ii,3)+1
           rPt(j1,i) = qq*real(iy,kind=wp)
-          rPt(j,i) = zero
+          rPt(j,i) = Zero
         end do
       end do
     end do

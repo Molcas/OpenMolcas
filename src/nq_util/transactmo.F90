@@ -26,10 +26,9 @@ use nq_Info, only: IOff_Ash, IOff_BasAct, mIrrep, nAsh, NASHT
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mAO, mGrid, nMOs
-real(kind=wp) :: MOs(NASHT,mGrid), TabMO(mAO,mGrid,nMOs)
-! Input: mAO mGrid nMOs TabMO
-! Output: MOs
+integer(kind=iwp), intent(in) :: mAO, mGrid, nMOs
+real(kind=wp), intent(out) :: MOs(NASHT,mGrid)
+real(kind=wp), intent(in) :: TabMO(mAO,mGrid,nMOs)
 integer(kind=iwp) :: iGrid, iIrrep, IOff1, IOff2
 
 do iGrid=1,mGrid

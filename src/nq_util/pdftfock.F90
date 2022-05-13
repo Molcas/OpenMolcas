@@ -24,10 +24,9 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: mGrid
-real(kind=wp) :: FI(nPot1), FA(nPot1), D1(NASHT,NASHT), ActMO(NASHT,mGrid)
-! Input: mGrid ActMO D1
-! Output: FI FA
+real(kind=wp), intent(inout) :: FI(nPot1), FA(nPot1)
+integer(kind=iwp), intent(in) :: mGrid
+real(kind=wp), intent(in) :: D1(NASHT,NASHT), ActMO(NASHT,mGrid)
 integer(kind=iwp) :: iGrid, iIrrep, ik, k
 real(kind=wp) :: TempD1
 real(kind=wp), allocatable :: dEdPiAct(:,:), Fact2(:), SumDX(:,:)

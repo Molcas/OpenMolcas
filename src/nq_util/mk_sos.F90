@@ -23,8 +23,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mAO, mGrid, nMOs, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), jList_s
-real(kind=wp) :: TabSO(mAO,mGrid,nMOs)
+integer(kind=iwp), intent(in) :: mAO, mGrid, nMOs, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), jList_s
+real(kind=wp), intent(inout) :: TabSO(mAO,mGrid,nMOs)
 integer(kind=iwp) :: i1, i2, iAdd, iAO, iBfn, iIrrep, ilist_s, iMO, iOff_MO(0:7), iSh, iSO, iSO0, iSO1, itmp1, kDCRE, mBas, &
                      mBas_Eff, mdci, nBfn, nDeg, nOp
 real(kind=wp) :: Fact, xa

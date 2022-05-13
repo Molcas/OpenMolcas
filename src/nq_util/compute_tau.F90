@@ -23,8 +23,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Compute_Tau
-integer(kind=iwp) :: mGrid, iSpin
-real(kind=wp) :: Weights(mGrid)
+integer(kind=iwp), intent(in) :: mGrid, iSpin
+real(kind=wp), intent(in) :: Weights(mGrid)
 integer(kind=iwp) :: iGrid
 real(kind=wp) :: TauA
 

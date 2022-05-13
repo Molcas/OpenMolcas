@@ -25,10 +25,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mGrid, nPi
-real(kind=wp) :: Pot2(nPot2), Pi(nPi,mGrid)
-! Input: mGrid, nPi, Pi
-! Output: Pot2
+real(kind=wp), intent(inout) :: Pot2(nPot2)
+integer(kind=iwp), intent(in) :: mGrid, nPi
+real(kind=wp), intent(in) :: Pi(nPi,mGrid)
 integer(kind=iwp) :: iGrid
 real(kind=wp) :: ftggaterm, ggaterm, predEdPip
 real(kind=wp), parameter :: ThrsPi = 1.0e-30_wp
@@ -68,11 +67,11 @@ do iGrid=1,mGrid
   end if
 end do
 
-call DSCal_(mGrid,Half,dEdPi,1)
+dEdPi(:) = Half*dEdPi
 if (lGGA .and. lft) then
-  call DSCal_(mGrid,Half,dEdPix,1)
-  call DSCal_(mGrid,Half,dEdPiy,1)
-  call DSCal_(mGrid,Half,dEdPiz,1)
+  dEdPix(:) = Half*dEdPix
+  dEdPiy(:) = Half*dEdPiy
+  dEdPiz(:) = Half*dEdPiz
 end if
 
 do iGrid=1,mGrid

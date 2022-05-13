@@ -29,7 +29,7 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nr_of_Densities
+integer(kind=iwp), intent(in) :: nr_of_Densities
 integer(kind=iwp) :: iAO, iBas, iCmp, iDeSiz, iS, iShell, iSmLbl, jAO, jBas, jCmp, jS, jShell, nSkal, nSO
 integer(kind=iwp), external :: MemSO1
 
@@ -66,9 +66,7 @@ do iS=1,nSkal
     MaxDe = max(MaxDe,iDeSiz)
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-    if (nSO > 0) then
-      nDeDe_DFT = nDeDe_DFT+nr_of_Densities*iDeSiz*nIrrep
-    end if
+    if (nSO > 0) nDeDe_DFT = nDeDe_DFT+nr_of_Densities*iDeSiz*nIrrep
 
   end do
 end do

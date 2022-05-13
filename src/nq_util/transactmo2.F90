@@ -24,10 +24,9 @@ use nq_Info, only: iOff_Ash, mIrrep, nAsh, NASHT, nIsh, nOrbt, OffOrb
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mGrid
-real(kind=wp) :: MOs(NASHT,mGrid), MOas(mGrid,nOrbt)
-! Input: mGrid MOas
-! Output: MOs
+integer(kind=iwp), intent(in) :: mGrid
+real(kind=wp), intent(out) :: MOs(NASHT,mGrid)
+real(kind=wp), intent(in) :: MOas(mGrid,nOrbt)
 integer(kind=iwp) :: iGrid, iIrrep, IOff1, IOff2
 
 do iGrid=1,mGrid

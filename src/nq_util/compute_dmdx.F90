@@ -9,18 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_dMdx(ZA,RA,nAtoms,T,iAtom,iCar,dTdRai,dMdx)
+subroutine Compute_dMdx(ZA,RA,nAtoms,T,iAtom,iCar,dTdRAi,dMdx)
 
+#ifdef _DEBUGPRINT_
+use stdalloc, only: mma_allocate, mma_deallocate
+#endif
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, iAtom, iCar
-real(kind=wp) :: ZA(nAtoms), RA(3,nAtoms), T(3), dTdRai, dMdx(3,3)
+integer(kind=iwp), intent(in) :: nAtoms, iAtom, iCar
+real(kind=wp), intent(in) :: ZA(nAtoms), RA(3,nAtoms), T(3), dTdRAi
+real(kind=wp), intent(out) :: dMdx(3,3)
 integer(kind=iwp) :: i, j, jAtom
 real(kind=wp) :: RTx, RTy, RTz, tmp, ZB
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: M(3,3)
+real(kind=wp), allocatable :: dRA(:,:)
 #endif
 real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 
@@ -29,21 +34,18 @@ real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 !                                                                      *
 #ifdef _DEBUGPRINT_
 delta = 1.0e-4_wp
-temp = RA(iCar,iAtom)
+call mma_allocate(dRA,3,nAtoms,label='dRA')
+dRA(:,:) = RA
 
-RA(iCar,iAtom) = Temp+Delta
-call Compute_M(ZA,nAtoms,RA,T,M)
+dRA(iCar,iAtom) = RA(iCar,iAtom)+Delta
+call Compute_M(ZA,nAtoms,dRA,T,M)
 
-RA(iCar,iAtom) = Temp-Delta
-call Compute_M(ZA,nAtoms,RA,T,dMdx)
+dRA(iCar,iAtom) = RA(iCar,iAtom)-Delta
+call Compute_M(ZA,nAtoms,dRA,T,dMdx)
 
-RA(iCar,iAtom) = Temp
+dRA(iCar,iAtom) = RA(iCar,iAtom)
 
-do i=1,3
-  do j=1,3
-    dMdx(i,j) = (M(i,j)-dMdx(i,j))/(Two*Delta)
-  end do
-end do
+dMdx(:,:) = (M-dMdx)/(Two*Delta)
 call RecPrt('dMdx(Numerical)',' ',dMdx,3,3)
 #endif
 
@@ -59,30 +61,29 @@ do jAtom=1,nAtoms
   RTx = RA(1,jAtom)-T(1)
   RTy = RA(2,jAtom)-T(2)
   RTz = RA(3,jAtom)-T(3)
-  if (iCar == 1) then
-    dMdx(2,2) = dMdx(2,2)+Two*tmp*RTx
-    dMdx(3,3) = dMdx(3,3)+Two*tmp*RTx
-    dMdx(1,2) = dMdx(1,2)-tmp*RTy
-    dMdx(2,1) = dMdx(2,1)-RTy*tmp
-    dMdx(1,3) = dMdx(1,3)-tmp*RTz
-    dMdx(3,1) = dMdx(3,1)-RTz*tmp
-  end if
-  if (iCar == 2) then
-    dMdx(1,1) = dMdx(1,1)+Two*tmp*RTy
-    dMdx(3,3) = dMdx(3,3)+Two*tmp*RTy
-    dMdx(1,2) = dMdx(1,2)-RTx*tmp
-    dMdx(2,1) = dMdx(2,1)-tmp*RTx
-    dMdx(2,3) = dMdx(2,3)-tmp*RTz
-    dMdx(3,2) = dMdx(3,2)-RTz*tmp
-  end if
-  if (iCar == 3) then
-    dMdx(1,1) = dMdx(1,1)+Two*tmp*RTz
-    dMdx(2,2) = dMdx(2,2)+Two*tmp*RTz
-    dMdx(1,3) = dMdx(1,3)-RTx*tmp
-    dMdx(3,1) = dMdx(3,1)-tmp*RTx
-    dMdx(2,3) = dMdx(2,3)-RTy*tmp
-    dMdx(3,2) = dMdx(3,2)-tmp*RTy
-  end if
+  select case (iCar)
+    case (1)
+      dMdx(2,2) = dMdx(2,2)+Two*tmp*RTx
+      dMdx(3,3) = dMdx(3,3)+Two*tmp*RTx
+      dMdx(1,2) = dMdx(1,2)-tmp*RTy
+      dMdx(2,1) = dMdx(2,1)-RTy*tmp
+      dMdx(1,3) = dMdx(1,3)-tmp*RTz
+      dMdx(3,1) = dMdx(3,1)-RTz*tmp
+    case (2)
+      dMdx(1,1) = dMdx(1,1)+Two*tmp*RTy
+      dMdx(3,3) = dMdx(3,3)+Two*tmp*RTy
+      dMdx(1,2) = dMdx(1,2)-RTx*tmp
+      dMdx(2,1) = dMdx(2,1)-tmp*RTx
+      dMdx(2,3) = dMdx(2,3)-tmp*RTz
+      dMdx(3,2) = dMdx(3,2)-RTz*tmp
+    case (3)
+      dMdx(1,1) = dMdx(1,1)+Two*tmp*RTz
+      dMdx(2,2) = dMdx(2,2)+Two*tmp*RTz
+      dMdx(1,3) = dMdx(1,3)-RTx*tmp
+      dMdx(3,1) = dMdx(3,1)-tmp*RTx
+      dMdx(2,3) = dMdx(2,3)-RTy*tmp
+      dMdx(3,2) = dMdx(3,2)-tmp*RTy
+  end select
 end do
 
 ! Remove noise

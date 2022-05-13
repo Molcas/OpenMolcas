@@ -30,14 +30,14 @@ use Constants, only: Zero, One, Two, Four, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nlist_s, list_s(2,nlist_s), mdc, list_bas(2,nlist_s), nIndex, Indx(nIndex)
-real(kind=wp) :: Fact(mdc**2)
-logical(kind=iwp) :: Do_Grad
+integer(kind=iwp), intent(in) :: nlist_s, list_s(2,nlist_s), mdc, list_bas(2,nlist_s), nIndex, Indx(nIndex)
+real(kind=wp), intent(in) :: Fact(mdc,mdc)
+logical(kind=iwp), intent(in) :: Do_Grad
 integer(kind=iwp) :: i1, i2, i_R, iAO, iBas, iBas_Eff, iBfn, iCar, iCB, iCmp, iD, idjx, idjx2, idjy, idjy2, idjz, idjz2, iDx, &
-                     idx2, iDy, idy2, iDz, idz2, iER, iGrid, ij, ij_D, ijS, iL, ilist_s, Ind_xyz, index_i, index_j, ip_D_a, &
-                     ip_D_b, ip_Tmp, ipD(2), ipDDij, ipDij, ipDSij, iShell, iSkal, iT, ix, iy, iz, j, j1, j2, j_R, jBas, jBas_Eff, &
-                     jBfn, jCB, jCmp, jlist_s, jShell, jSkal, kDCRE, kDCRR, lDCRER, mAO, mdci, mdcj, mDCRij, mDij, mGrid, nAO, &
-                     nBfn, nD, nFunc_i, nFunc_j
+                     idx2, iDy, idy2, iDz, idz2, iER, iGrid, ij_D, ijS, iL, ilist_s, Ind_xyz, index_i, index_j, ip_D_a, ip_D_b, &
+                     ip_Tmp, ipD(2), ipDDij, ipDij, ipDSij, iShell, iSkal, iT, ix, iy, iz, j, j1, j2, j_R, jBas, jBas_Eff, jBfn, &
+                     jCB, jCmp, jlist_s, jShell, jSkal, kDCRE, kDCRR, lDCRER, mAO, mdci, mdcj, mDCRij, mDij, mGrid, nAO, nBfn, nD, &
+                     nFunc_i, nFunc_j
 real(kind=wp) :: DAij, Factor
 integer(kind=iwp), parameter :: Index_d2(3,3) = reshape([5,6,7,6,8,9,7,9,10],[3,3]), &
                                 Index_d3(3,3) = reshape([11,14,16,12,17,19,13,18,20],[3,3])
@@ -120,7 +120,6 @@ do iBfn=1,nBfn
     ijS = iTri(iShell,jShell)
     ip_Tmp = ipDijs
     call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-    ij = (mdcj-1)*mdc+mdci
 
     iER = ieor(kDCRE,kDCRR)
     lDCRER = NrOpr(iER)
@@ -134,7 +133,7 @@ do iBfn=1,nBfn
 
     ij_D = (jCB-1)*nFunc_i+iCB-1
     do iD=1,nD
-      DAij = DeDe(ipD(iD)+ij_D)*Fact(ij)*Factor
+      DAij = DeDe(ipD(iD)+ij_D)*Fact(mdci,mdcj)*Factor
       Dens_AO(iBfn,jBfn,iD) = DAij
       Dens_AO(jBfn,iBfn,iD) = DAij
     end do

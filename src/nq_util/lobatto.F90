@@ -16,10 +16,9 @@ use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ndeg
-real(kind=wp) :: trw(3*(ndeg+2)*(ndeg+3)/2)
-integer(kind=iwp), parameter :: mxdeg = 100
-integer(kind=iwp) :: i, ii, ir, jj, jr, k, n
+integer(kind=iwp), intent(in) :: ndeg
+real(kind=wp), intent(out) :: trw(3*(ndeg+2)*(ndeg+3)/2)
+integer(kind=iwp) :: ii, ir, jj, jr, k, n
 real(kind=wp) :: c, delta, dmax, f, fnew, fold, fp, fpnew, fpold, rk, x, xterm
 real(kind=wp), allocatable :: recurs(:), roots(:,:), wghts(:,:)
 
@@ -108,9 +107,7 @@ end do
 ! (2,2,2)
 ! (2,2,3)
 
-do i=1,9
-  trw(i) = Zero
-end do
+trw(1:9) = Zero
 
 do k=1,ndeg
   n = k+1

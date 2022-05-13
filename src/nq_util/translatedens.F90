@@ -25,11 +25,10 @@ use Constants, only: Zero, One, Two, Three, Four, Five, Six, Eight, Twelve, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mGrid, nPi, ndRho_dr, nEGrad
-real(kind=wp) :: Pi(nPi,mGrid), dRho_dr(ndRho_dr,mGrid,nEGrad), dPi(nPi,nEGrad,mGrid)
-logical(kind=iwp) :: l_tanhr, DoGrad
-! Input: mGrid nPi ndRho_dr nEGrad Pi dPi DoGrad l_tanhr
-! Input & Output: dRho_dr
+integer(kind=iwp), intent(in) :: mGrid, nPi, ndRho_dr, nEGrad
+real(kind=wp), intent(in) :: Pi(nPi,mGrid), dPi(nPi,nEGrad,mGrid)
+real(kind=wp), intent(inout) :: dRho_dr(ndRho_dr,mGrid,nEGrad)
+logical(kind=iwp), intent(in) :: l_tanhr, DoGrad
 integer(kind=iwp) :: iEGrad, iGrid
 real(kind=wp) :: Diff1, GraddZdR, GradRatio, GradRatioX, GradRatioY, GradRatioZ, GradZetaX, GradZetaY, GradZetaZ, Rd2RdRho2, &
                  Rd2RdRhodPi, Rd2ZdR2, Rd2ZdRdZ, RdRdPi, RdRdRho, RRatio, TempR, XAdd, YAdd, ZAdd, ZetaX, ZetaY, ZetaZ

@@ -18,8 +18,10 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nR, nR_Eff
-real(kind=wp) :: R(2,nR-1), Alpha
+integer(kind=iwp), intent(in) :: nR
+real(kind=wp), intent(out) :: R(2,nR-1)
+integer(kind=iwp), intent(out) :: nR_Eff
+real(kind=wp), intent(in) :: Alpha
 integer(kind=iwp) :: iR
 real(kind=wp) :: x
 

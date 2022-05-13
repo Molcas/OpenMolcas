@@ -22,10 +22,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nD1MO
-real(kind=wp) :: D1Unzip(NASHT,NASHT), D1MO(nD1MO)
-! Input: nD1MO D1MO
-! Output: D1Unzip
+real(kind=wp), intent(out) :: D1Unzip(NASHT,NASHT)
+integer(kind=iwp), intent(in) :: nD1MO
+real(kind=wp), intent(in) :: D1MO(nD1MO)
 integer(kind=iwp) :: iLoc, iv, ix
 
 D1Unzip(:,:) = Zero

@@ -43,10 +43,12 @@ use Definitions, only: u6
 
 implicit none
 external :: Kernel
-integer(kind=iwp) :: nFckDim, nFckInt, nD, nGrad
-real(kind=wp) :: FckInt(nFckInt,nFckDim), Funct, Density(nFckInt,nD), Grad(nGrad)
-logical(kind=iwp) :: Do_Grad, Do_MO, Do_TwoEl
-character(len=4) :: DFTFOCK
+integer(kind=iwp), intent(in) :: nFckDim, nFckInt, nD, nGrad
+real(kind=wp), intent(inout) :: FckInt(nFckInt,nFckDim), Funct, Grad(nGrad)
+real(kind=wp), intent(in) :: Density(nFckInt,nD)
+logical(kind=iwp), intent(in) :: Do_Grad, Do_TwoEl
+logical(kind=iwp), intent(inout) :: Do_MO
+character(len=4), intent(in) :: DFTFOCK
 #include "status.fh"
 integer(kind=iwp) :: i, iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, jIrrep, kAsh, kIrrep, kl_Orb_pairs, lAsh, mAO, mdRho_dr, &
                      mGrad, nBas(8), nCMO, nD1MO, nDel(8), nNQ, nP2, nP2_ontop, NQNAC, NQNACPAR, NQNACPR2, nShell, nTmpPUVX

@@ -14,8 +14,9 @@ subroutine Truncate_Grid(R,nR,nR_Eff,Radius_Max)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nR, nR_Eff
-real(kind=wp) :: R(2,nR), Radius_Max
+integer(kind=iwp), intent(in) :: nR
+real(kind=wp), intent(in) :: R(2,nR), Radius_Max
+integer(kind=iwp), intent(inout) :: nR_Eff
 integer(kind=iwp) :: i, nTmp
 
 nTmp = nR_Eff

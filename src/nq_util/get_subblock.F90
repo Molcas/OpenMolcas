@@ -45,10 +45,12 @@ use Definitions, only: u6
 
 implicit none
 external :: Kernel
-integer(kind=iwp) :: ixyz, nShell, nSym, Maps2p(nShell,0:nSym-1), list_s(2,*), list_exp(nSym*nShell), list_bas(2,nSym*nShell), &
-                     nNQ, list_p(nNQ), nFckDim, nFckInt, nD, mGrid, nP2_ontop, nGrad, mAO, mdRho_dR, nTmpPUVX
-real(kind=wp) :: Func, FckInt(nFckInt,nFckDim), Grad(nGrad), EG_OT(nTmpPUVX), PDFTPot1(nPot1), PDFTFocI(nPot1), PDFTFocA(nPot1)
-logical(kind=iwp) :: Do_Mo, Do_Grad
+integer(kind=iwp), intent(in) :: ixyz, nShell, nSym, Maps2p(nShell,0:nSym-1), nNQ, nFckDim, nFckInt, nD, mGrid, nP2_ontop, nGrad, &
+                                 mAO, mdRho_dR, nTmpPUVX
+real(kind=wp), intent(inout) :: Func, FckInt(nFckInt,nFckDim), Grad(nGrad), EG_OT(nTmpPUVX), PDFTPot1(nPot1), PDFTFocI(nPot1), &
+                                PDFTFocA(nPot1)
+integer(kind=iwp), intent(out) :: list_s(2,*), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)
+logical(kind=iwp), intent(in) :: Do_Mo, Do_Grad
 integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, ilist_s, iNQ, iPseudo, iShell, iShll, iSkal, iSym, &
                      ix, iy, iyz, iz, jlist_s, jNQ, jShell, jSym, klist_p, kNQ, l, mdci, nAOs, nAOs_Eff, nBfn, nDegi, nExpTmp, &
                      nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, nTotGP_Save, &

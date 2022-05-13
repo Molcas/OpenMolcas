@@ -21,8 +21,9 @@ use nq_pdft, only: lft, lGGA
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mAO, mGrid, nMOs
-real(kind=wp) :: TabSO2(nMOs,mAO,mGrid), TabSO(mAO,mGrid,nMOs)
+integer(kind=iwp), intent(in) :: mAO, mGrid, nMOs
+real(kind=wp), intent(out) :: TabSO2(nMOs,mAO,mGrid)
+real(kind=wp), intent(in) :: TabSO(mAO,mGrid,nMOs)
 integer(kind=iwp) :: iEnd, iGrid, jAO
 
 ! TabSO : mAO*mGrid x nMOs

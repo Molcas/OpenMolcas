@@ -22,10 +22,12 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: L_Eff, nPoints
-real(kind=wp), allocatable :: Labatto(:), R(:,:)
+integer(kind=iwp), intent(in) :: L_Eff
+integer(kind=iwp), intent(out) :: nPoints
+real(kind=wp), allocatable, intent(out) :: R(:,:)
 integer(kind=iwp) :: iOff, iOffT, iPhi, iTheta, mTheta, nLabatto, nPhi, nTheta
 real(kind=wp) :: Cos_Phi, Cos_Theta, Sin_Phi, Sin_Theta, w_Phi, w_Theta, x, y, z
+real(kind=wp), allocatable :: Labatto(:)
 
 !                                                                      *
 !***********************************************************************

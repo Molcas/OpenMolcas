@@ -45,7 +45,7 @@ subroutine Initiate_Libxc_functionals(nD)
   use nq_Grid, only: l_casdft
   use KSDFT_Info, only: CoefR, CoefX
 
-  integer(kind=iwp) :: nD
+  integer(kind=iwp), intent(in) :: nD
   integer(kind=iwp) :: iFunc
   real(kind=wp) :: Coeff
 
@@ -104,7 +104,7 @@ subroutine libxc_functionals(mGrid,nD)
   use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
   use nq_Grid, only: vRho, vSigma, vTau, vLapl
 
-  integer(kind=iwp) :: mGrid, nD
+  integer(kind=iwp), intent(in) :: mGrid, nD
   integer(kind=iwp) :: iFunc
   real(kind=wp) :: Coeff
 

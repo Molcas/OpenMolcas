@@ -19,8 +19,10 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nR_Eff, nQuadR
-real(kind=wp) :: mr(2), Alpha(2), QuadR(2,nQuadR)
+integer(kind=iwp), intent(out) :: nR_Eff
+real(kind=wp), intent(in) :: mr(2), Alpha(2)
+integer(kind=iwp), intent(in) :: nQuadR
+real(kind=wp), intent(out) :: QuadR(2,nQuadR)
 logical(kind=iwp) :: Process
 integer(kind=iwp) :: i, iR, k, l_Max, n_High
 real(kind=wp) :: a, Alpha_Max, Alpha_Min, C1, C2, Correction, D_m, Dr, Gmma, ggg, h, h_, ln_rn, r1, R_D_0, Relative_Max_Error, rk, &

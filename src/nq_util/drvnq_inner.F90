@@ -42,11 +42,13 @@ use Definitions, only: u6
 #endif
 
 implicit none
-external Kernel
-integer(kind=iwp) :: nShell, nSym, Maps2p(nShell,0:nSym-1), list_s(nSym*nShell), list_exp(nSym*nShell), list_bas(2,nSym*nShell), &
-                     nNQ, list_p(nNQ), nFckDim, nFckInt, nD, mGrid, nP2_ontop, nTmpPUVX, nGrad, mAO, mdRho_dR
-real(kind=wp) :: Func, FckInt(nFckInt,nFckDim), Density(nFckInt,nD), Grad(nGrad)
-logical(kind=iwp) :: Do_Mo, Do_Grad
+external :: Kernel
+integer(kind=iwp), intent(in) :: nShell, nSym, Maps2p(nShell,0:nSym-1), nNQ, nFckDim, nFckInt, nD, mGrid, nP2_ontop, nTmpPUVX, &
+                                 nGrad, mAO, mdRho_dR
+integer(kind=iwp), intent(out) :: list_s(nSym*nShell), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)
+real(kind=wp), intent(inout) :: Func, FckInt(nFckInt,nFckDim), Grad(nGrad)
+real(kind=wp), intent(in) :: Density(nFckInt,nD)
+logical(kind=iwp), intent(in) :: Do_Mo, Do_Grad
 integer(kind=iwp) :: id, iIrrep, iSB, ix, iy, iyz, iz, jx, jxyz, jy, jyz, jz
 logical(kind=iwp) :: l_tgga
 real(kind=wp), allocatable :: EG_OT(:), FA_V(:), FI_V(:), OE_OT(:), PDFTFocA(:), PDFTFocI(:), PDFTPot1(:)
@@ -184,7 +186,7 @@ outer: do
 
   end if
 # ifdef _DEBUGPRINT_
-  write(u6,*) 'DrvNQ_: iSB=',iSB
+  write(u6,*) 'DrvNQ_Inner: iSB=',iSB
 # endif
   !                                                                    *
   !*********************************************************************
@@ -223,7 +225,7 @@ if ((nIrrep /= 1) .and. btest(iOpt_Angular,2)) then
   Grad_I = real(nIrrep,kind=wp)*Grad_I
   Tau_I = real(nIrrep,kind=wp)*Tau_I
 
-  call DScal_(nFckInt*nFckDim,real(nIrrep,kind=wp),FckInt,1)
+  FckInt(:,:) = real(nIrrep,kind=wp)*FckInt(:,:)
 
 end if
 
@@ -334,17 +336,17 @@ call mma_deallocate(PDFTFocA)
 
 #ifdef _DEBUGPRINT_
 if (l_casdft) then
-  write(u6,*) 'Dens_I in drvnq_ :',Dens_I
-  write(u6,*) 'Dens_a1 in drvnq_ :',Dens_a1
-  write(u6,*) 'Dens_b1 in drvnq_ :',Dens_b1
-  write(u6,*) 'Dens_a2 in drvnq_ :',Dens_a2
-  write(u6,*) 'Dens_b2 in drvnq_ :',Dens_b2
-  write(u6,*) 'Dens_t1 in drvnq_ :',Dens_t1
-  write(u6,*) 'Dens_t2 in drvnq_ :',Dens_t2
-  write(u6,*) 'Func in drvnq_ :',Func
-  write(u6,*) 'Funcaa in drvnq_ :',Funcaa
-  write(u6,*) 'Funcbb in drvnq_ :',Funcbb
-  write(u6,*) 'Funccc in drvnq_ :',Funccc
+  write(u6,*) 'Dens_I in DrvNQ_Inner :',Dens_I
+  write(u6,*) 'Dens_a1 in DrvNQ_Inner :',Dens_a1
+  write(u6,*) 'Dens_b1 in DrvNQ_Inner :',Dens_b1
+  write(u6,*) 'Dens_a2 in DrvNQ_Inner :',Dens_a2
+  write(u6,*) 'Dens_b2 in DrvNQ_Inner :',Dens_b2
+  write(u6,*) 'Dens_t1 in DrvNQ_Inner :',Dens_t1
+  write(u6,*) 'Dens_t2 in DrvNQ_Inner :',Dens_t2
+  write(u6,*) 'Func in DrvNQ_Inner :',Func
+  write(u6,*) 'Funcaa in DrvNQ_Inner :',Funcaa
+  write(u6,*) 'Funcbb in DrvNQ_Inner :',Funcbb
+  write(u6,*) 'Funccc in DrvNQ_Inner :',Funccc
 
   ! Close these files...
   close(LuMC)

@@ -23,10 +23,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, LibxcReal, LibxcSize
 
 implicit none
-type(xc_f03_func_t) :: xc_func      ! xc functional
-type(xc_f03_func_info_t) :: xc_info ! xc functional info
-integer(kind=iwp) :: mGrid, nD
-real(kind=wp) :: F_xc(mGrid), Coeff
+type(xc_f03_func_t), intent(in) :: xc_func      ! xc functional
+type(xc_f03_func_info_t), intent(in) :: xc_info ! xc functional info
+integer(kind=iwp), intent(in) :: mGrid, nD
+real(kind=wp), intent(inout) :: F_xc(mGrid)
+real(kind=wp), intent(in) :: Coeff
 integer(kind=iwp) :: iGrid
 
 if ((LibxcSize /= iwp) .or. (LibxcReal /= wp)) then

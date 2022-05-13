@@ -12,7 +12,7 @@
 !               2021, Jie Bao                                          *
 !***********************************************************************
 
-subroutine Do_Batch(Kernel,Func,mGrid,list_s,nlist_s,List_Exp,List_Bas,Idx,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_Mo, &
+subroutine Do_Batch(Kernel,Func,mGrid,list_s,nlist_s,List_Exp,List_Bas,Indx,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_MO, &
                     TabMO,TabSO,nMOs,Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,iNQ,EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -39,11 +39,12 @@ use Definitions, only: wp, iwp, u6, r8, RtoB
 
 implicit none
 external :: Kernel
-integer(kind=iwp) :: mGrid, nlist_s, list_s(2,nlist_s), List_Exp(nlist_s), List_Bas(2,nlist_s), nIndex, Idx(nIndex), nFckDim, &
-                     nFckInt, mAO, nD, nP2_ontop, nMOs, nGrad, ndRho_dR, nGrad_Eff, iNQ, nTmpPUVX
-real(kind=wp) :: Func, FckInt(nFckInt,nFckDim), TabMO(mAO,mGrid,nMOs), TabSO(mAO,mGrid,nMOs), Grad(nGrad), EG_OT(nTmpPUVX), &
-                 PDFTPot1(nPot1), PDFTFocI(nPot1), PDFTFocA(nPot1)
-logical(kind=iwp) :: Do_Mo, Do_Grad
+integer(kind=iwp), intent(in) :: mGrid, nlist_s, list_s(2,nlist_s), List_Exp(nlist_s), List_Bas(2,nlist_s), nIndex, Indx(nIndex), &
+                                 nFckDim, nFckInt, mAO, nD, nP2_ontop, nMOs, nGrad, ndRho_dR, nGrad_Eff, iNQ, nTmpPUVX
+real(kind=wp), intent(inout) :: Func, FckInt(nFckInt,nFckDim), TabMO(mAO,mGrid,nMOs), Grad(nGrad), EG_OT(nTmpPUVX), &
+                                PDFTPot1(nPot1), PDFTFocI(nPot1), PDFTFocA(nPot1)
+real(kind=wp), intent(out) :: TabSO(mAO,mGrid,nMOs)
+logical(kind=iwp), intent(in) :: Do_MO, Do_Grad
 integer(kind=iwp) :: i1, i2, iAdd, iAng, iAO, iBas, iBas_Eff, iBfn, iBfn_e, iBfn_s, iCmp, iCnt, iCnttp, iDrv, iGrid, iList_s, &
                      IndAO1, Indi, ipRadial, iPrim, iPrim_Eff, ipx, ipxyz, ipy, ipz, iR, ish, iShll, iSkal, iSkip, iSO1, jBfn, &
                      jlist_s, kBfn, mData, mdci, mRho, mTabAO, nBfn, nByte, nCMO, nData, nDrv, nForm, nPMO3p, nTerm, nxyz, &
@@ -311,7 +312,6 @@ if (Do_MO) then
   call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,jlist_s)
 
   ! Second, transform SOs to MOs
-  TabMO(:,:,:) = Zero
   call mk_MOs(TabSO,mAO,mGrid,TabMO,nMOs,CMO,nCMO)
 end if
 !                                                                      *
@@ -322,7 +322,7 @@ end if
 ! In case of gradient calculations compute Cartesian derivatives
 ! of Rho, Grad Rho, Tau, and the Laplacian.
 
-call Mk_Rho(list_s,nlist_s,Fact,ndc,list_bas,Idx,nIndex,Do_Grad)
+call Mk_Rho(list_s,nlist_s,Fact,ndc,list_bas,Indx,nIndex,Do_Grad)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -554,8 +554,8 @@ end subroutine Terminate
 
 subroutine Spectre(SMax)
 
-  integer iGrid, iAO
-  real*8 SMax
+  real(kind=wp), intent(out) :: SMax
+  integer(kind=iwp) :: iGrid, iAO
 
   SMax = Zero
   do iGrid=1,mGrid

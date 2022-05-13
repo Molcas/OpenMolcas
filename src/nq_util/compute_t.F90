@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms
-real(kind=wp) :: Z_Tot, T(3), ZA(nAtoms), RA(3,nAtoms)
+integer(kind=iwp), intent(in) :: nAtoms
+real(kind=wp), intent(in) :: Z_Tot, ZA(nAtoms), RA(3,nAtoms)
+real(kind=wp), intent(out) :: T(3)
 integer(kind=iwp) :: iAtom, iCar
 real(kind=wp) :: Tmp
 

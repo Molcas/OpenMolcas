@@ -28,11 +28,12 @@ real(kind=wp), parameter :: Thr = 1.0e-16_wp
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine Do_Lebedev(L_Eff,nPoints,R)
+  subroutine Do_Lebedev(L_Eff,mPt,R)
     import :: wp, iwp
     implicit none
-    integer(kind=iwp) :: L_Eff, nPoints
-    real(kind=wp), allocatable :: R(:,:)
+    integer(kind=iwp), intent(in) :: L_Eff
+    integer(kind=iwp), intent(out) :: mPt
+    real(kind=wp), allocatable, intent(out) :: R(:,:)
   end subroutine Do_Lebedev
 end interface
 

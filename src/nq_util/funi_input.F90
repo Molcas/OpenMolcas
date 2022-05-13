@@ -18,7 +18,7 @@ use Constants, only: Zero, One, Three, Five, Six, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LuRd
+integer(kind=iwp), intent(in) :: LuRd
 integer(kind=iwp) :: iChrct, Last, mask_111010, mask_111011, mask_111101, mask_111110
 real(kind=wp) :: Dummy
 character(len=180) :: Key, KWord

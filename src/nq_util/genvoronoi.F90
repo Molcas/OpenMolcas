@@ -25,8 +25,8 @@ use Constants, only: Zero, One, Three, Five, Seven, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nNQ, nR_Eff(nNQ), iNQ
-real(kind=wp) :: Alpha(2), rm(2)
+integer(kind=iwp), intent(in) :: nNQ, nR_Eff(nNQ), iNQ
+real(kind=wp), intent(inout) :: Alpha(2), rm(2)
 integer(kind=iwp) :: iANr, l_Max, mR
 real(kind=wp) :: Dum(2,1), Radius_Max, RBS
 logical(kind=iwp) :: Process

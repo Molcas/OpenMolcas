@@ -16,8 +16,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Eval_RMin
-real(kind=wp) :: Alpha, R_H
-integer(kind=iwp) :: m
+real(kind=wp), intent(in) :: Alpha, R_H
+integer(kind=iwp), intent(in) :: m
 real(kind=wp) :: D_m, ln_x, R_Min
 
 !write(u6,*) 'Alpha,m,R_H=',Alpha,m,R_H

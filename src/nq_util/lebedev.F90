@@ -30,8 +30,9 @@ subroutine Lebedev(rPt,wPt,nPt,nDeg,lMax)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nPt, nDeg, lMax
-real(kind=wp) :: rPt(3,nDeg), wPt(nDeg)
+integer(kind=iwp), intent(out) :: nPt
+integer(kind=iwp), intent(in) :: nDeg, lMax
+real(kind=wp), intent(out) :: rPt(3,nDeg), wPt(nDeg)
 integer(kind=iwp), parameter :: nscheme5(8) = [5,1,1,0,0,0,0,14], &
                                 nscheme7(8) = [7,1,1,1,0,0,0,26], &
                                 nscheme11(8) = [11,1,1,1,1,0,0,50], &

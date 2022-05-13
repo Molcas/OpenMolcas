@@ -14,8 +14,10 @@ subroutine Process_Coor(R,Coor,nAtoms,nSym,iOper)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, nSym, iOper(0:nSym-1)
-real(kind=wp) :: R(3), Coor(3,*)
+real(kind=wp), intent(in) :: R(3)
+real(kind=wp), intent(inout) :: Coor(3,*)
+integer(kind=iwp), intent(inout) :: nAtoms
+integer(kind=iwp), intent(in) :: nSym, iOper(0:nSym-1)
 integer(kind=iwp) :: iAtom, iRef, iSym
 real(kind=wp) :: Q(3)
 

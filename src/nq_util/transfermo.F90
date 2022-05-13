@@ -27,10 +27,9 @@ use nq_Info, only: mIrrep, mOrb, nOrbt, OffBasFro
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mAO, mGrid, nMOs, iAO
-real(kind=wp) :: MOas(mGrid,nOrbt), TabMO(mAO,mGrid,nMOs)
-! Input: mAO mGrid nMOs iAO TabMO
-! Output: MOas
+integer(kind=iwp), intent(in) :: mAO, mGrid, nMOs, iAO
+real(kind=wp), intent(out) :: MOas(mGrid,nOrbt)
+real(kind=wp), intent(in) :: TabMO(mAO,mGrid,nMOs)
 integer(kind=iwp) :: iIrrep, IOff1, iOff2
 
 IOff2 = 0

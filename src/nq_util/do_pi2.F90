@@ -32,9 +32,11 @@ use Constants, only: Zero, Two, Four
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nd1mo, mAO, mGrid, nMOs, nP2_ontop, mRho
-real(kind=wp) :: D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2_ontop(nP2_ontop,mGrid), RhoI(mRho,mGrid), RhoA(mRho,mGrid), &
-                 P2MOCube(NASHT,mGrid), MOs(NASHT,mGrid), MOx(NASHT,mGrid), MOy(NASHT,mGrid), MOz(NASHT,mGrid)
+integer(kind=iwp), intent(in) :: nd1mo, mAO, mGrid, nMOs, nP2_ontop, mRho
+real(kind=wp), intent(in) :: D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2MOCube(NASHT,mGrid), MOs(NASHT,mGrid), MOx(NASHT,mGrid), &
+                             MOy(NASHT,mGrid), MOz(NASHT,mGrid)
+real(kind=wp), intent(out) :: P2_ontop(nP2_ontop,mGrid)
+real(kind=wp), intent(inout) :: RhoI(mRho,mGrid), RhoA(mRho,mGrid)
 integer(kind=iwp) :: i, i_, iGrid, iIrrep, IOff, jOffA_, jOffB_, k, k_, kIrrep, kl, l, l_, lIrrep, NumAsh, NumIsh
 real(kind=r8), external  :: DDot_
 

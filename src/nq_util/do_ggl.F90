@@ -22,8 +22,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: L_Eff, mPt
-real(kind=wp), allocatable :: R(:,:)
+integer(kind=iwp), intent(in) :: L_Eff
+integer(kind=iwp), intent(out) :: mPt
+real(kind=wp), allocatable, intent(out) :: R(:,:)
 integer(kind=iwp) :: iOff, iPhi, iTheta, nPhi, nTheta
 real(kind=wp) :: Cos_Phi, Cos_Theta, Sin_Phi, Sin_Theta, w_Phi, w_Theta, x, y, z
 real(kind=wp), allocatable :: Th(:,:)
@@ -42,7 +43,7 @@ nTheta = (L_Eff+1)/2
 nPhi = L_Eff+1
 
 mPt = nTheta*nPhi
-call mma_Allocate(R,4,mPt,Label='R')
+call mma_allocate(R,4,mPt,Label='R')
 
 call mma_allocate(Th,2,nTheta,Label='Th')
 

@@ -14,9 +14,9 @@ subroutine Compute_O(ZA,RA,nAtoms,T,O,Lambda)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
-implicit none
-integer(kind=iwp) :: nAtoms
-real(kind=wp) :: ZA(nAtoms), RA(3,nAtoms), T(3), O(3,3), Lambda(3)
+integer(kind=iwp), intent(in) :: nAtoms
+real(kind=wp), intent(in) :: ZA(nAtoms), RA(3,nAtoms), T(3)
+real(kind=wp), intent(out) :: O(3,3), Lambda(3)
 real(kind=wp) :: EVal(6), M(3,3)
 
 !                                                                      *

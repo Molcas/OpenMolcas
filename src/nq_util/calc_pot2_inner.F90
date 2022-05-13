@@ -23,12 +23,11 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mGrid
-real(kind=wp) :: Pot2(nPot2), MOP(mGrid,nOrbt), MOU(mGrid,nOrbt), MOV(mGrid,nOrbt), MOX(mGrid,nOrbt)
-logical(kind=iwp) :: lsum
+real(kind=wp), intent(inout) :: Pot2(nPot2)
+integer(kind=iwp), intent(in) :: mGrid
+real(kind=wp), intent(in) :: MOP(mGrid,nOrbt), MOU(mGrid,nOrbt), MOV(mGrid,nOrbt), MOX(mGrid,nOrbt)
+logical(kind=iwp) :: lSum
 ! Note: when lSum is .true., calculate P(U'VX+UV'X+UVX'), otherwise calculate PUVX
-! Input: mGrid lSum MOP MOU MOV MOX
-! Output: Pot2
 integer(kind=iwp) :: iOff0, iOff1, iOff2, iOff3, ioffu, iStack, iVX, nnUVX, nporb, pIrrep, puIrrep, u, uIrrep, v, vIrrep, vorb, x, &
                      xIrrep, xMax, xorb
 real(kind=wp), allocatable :: MOUVX(:,:), MOVX1(:,:), MOVX2(:,:)

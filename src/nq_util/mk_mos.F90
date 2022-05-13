@@ -23,8 +23,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: mAO, nCoor, nMOs, nCMO
-real(kind=wp) :: SOValue(mAO*nCoor,nMOs), MOValue(mAO*nCoor,nMOs), CMOs(nCMO)
+integer(kind=iwp), intent(in) :: mAO, nCoor, nMOs, nCMO
+real(kind=wp), intent(in) :: SOValue(mAO*nCoor,nMOs), CMOs(nCMO)
+real(kind=wp), intent(out) :: MOValue(mAO*nCoor,nMOs)
 integer(kind=iwp) :: iCMO, iIrrep, iSO
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label

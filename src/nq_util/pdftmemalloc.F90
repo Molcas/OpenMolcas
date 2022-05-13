@@ -26,7 +26,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mGrid, nOrbt
+integer(kind=iwp), intent(in) :: mGrid, nOrbt
 
 call mma_allocate(RatioA,mGrid)
 call mma_allocate(OnePz,mGrid)

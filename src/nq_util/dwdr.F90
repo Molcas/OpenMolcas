@@ -17,8 +17,9 @@ use Constants, only: Zero, One, Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ilist_p, nlist_p, list_p(nlist_p), nGrad_Eff, iTab(4,nGrad_Eff), nGrid
-real(kind=wp) :: R(3,nGrid), Weights(nGrid), dW_dR(nGrad_Eff,nGrid), dW_Temp(3,nlist_p), dPB(3,nlist_p,nlist_p)
+integer(kind=iwp), intent(in) :: ilist_p, nlist_p, list_p(nlist_p), nGrad_Eff, iTab(4,nGrad_Eff), nGrid
+real(kind=wp), intent(in) :: R(3,nGrid), Weights(nGrid)
+real(kind=wp), intent(out) :: dW_dR(nGrad_Eff,nGrid), dW_Temp(3,nlist_p), dPB(3,nlist_p,nlist_p)
 integer(kind=iwp) :: iA, iB, iC, iCar, iD, iGrad, iGrid, iiB, iNQ, jNQ, kNQ, lNQ
 real(kind=wp) :: dmu_BC_dAx, dmu_BC_dAy, dmu_BC_dAz, dmu_BC_dBx, dmu_BC_dBy, dmu_BC_dBz, dmu_BC_dCx, dmu_BC_dCy, dmu_BC_dCz, &
                  dOdx_11, dOdx_12, dOdx_13, dOdx_21, dOdx_22, dOdx_23, dOdx_31, dOdx_32, dOdx_33, dOdxs(3), dZ_dBx, dZ_dBy, &

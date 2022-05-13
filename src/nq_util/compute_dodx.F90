@@ -15,9 +15,10 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, iAtom, iCar
-real(kind=wp) :: ZA(nAtoms), RA(3,nAtoms), T(3), O(3,3), EVal(3), dTdRAi, dMdx(3,3), dOdx(3,3), Px(3,3)
-logical(kind=iwp) :: Rot_Corr
+integer(kind=iwp), intent(in) :: nAtoms, iAtom, iCar
+real(kind=wp), intent(in) :: ZA(nAtoms), RA(3,nAtoms), T(3), O(3,3), EVal(3), dTdRAi
+logical(kind=iwp), intent(in) :: Rot_Corr
+real(kind=wp), intent(out) :: dMdx(3,3), dOdx(3,3), Px(3,3)
 real(kind=wp) :: Alpha, Beta, Gmma, OtMx(3,3), OtMxO(3,3)
 real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 

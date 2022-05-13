@@ -24,13 +24,11 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nPMO3p, mAO, mGrid, nMOs
-real(kind=wp) :: P2MOCube(NASHT,mGrid), P2MOCubex(NASHT,nPMO3p), P2MOCubey(NASHT,nPMO3p), P2MOCubez(NASHT,nPMO3p), &
-                 MOs(NASHT,mGrid), MOx(NASHT,mGrid), MOy(NASHT,mGrid), MOz(NASHT,mGrid), TabMO(mAO,mGrid,nMOs), &
-                 P2Unzip(NASHT,NASHT,NASHT,NASHT)
-logical(kind=iwp) :: do_grad
-! Input: mAO mGrid nMOs nPMO3p TabMO P2Unzip do_grad
-! Output: P2MOCube MOs MOx MOy MOz P2MOCubex P2MOCubey P2MOCubez
+integer(kind=iwp), intent(in) :: nPMO3p, mAO, mGrid, nMOs
+real(kind=wp), intent(out) :: P2MOCube(NASHT,mGrid), P2MOCubex(NASHT,nPMO3p), P2MOCubey(NASHT,nPMO3p), P2MOCubez(NASHT,nPMO3p), &
+                              MOs(NASHT,mGrid), MOx(NASHT,mGrid), MOy(NASHT,mGrid), MOz(NASHT,mGrid)
+real(kind=wp), intent(in) :: TabMO(mAO,mGrid,nMOs), P2Unzip(NASHT,NASHT,NASHT,NASHT)
+logical(kind=iwp), intent(in) :: do_grad
 integer(kind=iwp) :: IIrrep, iGrid, IOff1, IOff2, NASHT2, NASHT3
 logical(kind=iwp) :: lftGGA
 real(kind=wp), allocatable :: P2MO1(:), P2MOSquare(:)

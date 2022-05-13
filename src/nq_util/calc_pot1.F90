@@ -28,10 +28,9 @@ use Constants, only: Zero, One, Two, Four, Six, Twelve, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mAO, mGrid, nMOs, nP2_ontop
-real(kind=wp) :: Pot1(nPot1), TabMO(mAO,mGrid,nMOs), MOs(mGrid,nOrbt), P2_ontop(nP2_ontop,mGrid)
-! Input: mAO mGrid nMOs nP2_ontop TabMO MOs P2_ontop
-! Output: Pot1
+real(kind=wp), intent(inout) :: Pot1(nPot1)
+integer(kind=iwp), intent(in) :: mAO, mGrid, nMOs, nP2_ontop
+real(kind=wp), intent(in) :: TabMO(mAO,mGrid,nMOs), MOs(mGrid,nOrbt), P2_ontop(nP2_ontop,mGrid)
 integer(kind=iwp) :: iGrid, iIrrep, iMO, iOff1, IOff2, iOrb
 real(kind=wp) :: dEdRhop2, dF_dRhoax, dF_dRhoay, dF_dRhoaz, dF_dRhobx, dF_dRhoby, dF_dRhobz, Diff1, dRdx, dRdy, dRdz
 ! PreMO is MO multiplied with things needed for potential calculation
@@ -138,7 +137,7 @@ if (lGGA) then
   end if
 end if
 
-call DScal_(mGrid,Half,dEdRho,1)
+dEdRho(:) = Half*dEdRho
 
 do iGrid=1,mGrid
   PreMO(iGrid,:) = PreMO(iGrid,:)*dEdRho(iGrid)

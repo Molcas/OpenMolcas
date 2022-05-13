@@ -28,8 +28,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Comp_d
-integer(kind=iwp) :: mGrid, nRho, iSpin, iSwitch
-real(kind=wp) :: Weights(mGrid), Rho(nRho,mGrid)
+integer(kind=iwp), intent(in) :: mGrid, nRho, iSpin, iSwitch
+real(kind=wp), intent(in) :: Weights(mGrid), Rho(nRho,mGrid)
 integer(kind=iwp) :: iGrid
 real(kind=wp) :: d_alpha, d_beta, DTot
 
