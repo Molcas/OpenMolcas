@@ -13,12 +13,14 @@
 
 #define _XOPEN_SOURCE 500
 #include <ftw.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include "molcastype.h"
 
 /* C_SIZE_T (or in general unsigned ints) is not supported by FORTRAN */
@@ -94,4 +96,34 @@ static int unlink_cb(const char* fpath, const struct stat* sb, int typeflag, str
 void remove_wrapper(const char* path, INT* err)
 {
   *err = (INT) nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+}
+
+/* https://stackoverflow.com/questions/2180079/how-can-i-copy-a-file-on-unix-using-c */
+void copy(const char *source, const char *dest, INT *err)
+{
+    int childExitStatus;
+    pid_t pid;
+    if (!source || !dest) {
+        exit(1);
+    }
+
+    pid = fork();
+
+    if (pid == 0) {
+        execl("/bin/cp", "/bin/cp", source, dest, (char *)0);
+    }
+    else if (pid < 0) {
+        exit(1);
+    }
+    else {
+        /* parent - wait for child - this has all error handling, you
+         * could just call wait() as long as you are only expecting to
+         * have one child process at a time.
+         */
+        pid_t ws = waitpid( pid, &childExitStatus, WNOHANG);
+        if (ws == -1) {
+            exit(1);
+        }
+        if (err) *err = WEXITSTATUS(childExitStatus);
+    }
 }

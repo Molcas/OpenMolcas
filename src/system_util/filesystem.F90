@@ -72,6 +72,12 @@ interface
     integer(kind=MOLCAS_C_INT), intent(out) :: err
   end subroutine remove_c
 
+  subroutine copy_c(src,dst,err) bind(C,name='copy')
+    import :: c_char, MOLCAS_C_INT
+    character(len=1,kind=c_char), intent(in) :: src(*),dst(*)
+    integer(kind=MOLCAS_C_INT), intent(out), optional :: err
+  end subroutine copy_c
+
   function access_c(path) bind(C,name='access_wrapper')
     import :: c_char, MOLCAS_C_INT
     integer(kind=MOLCAS_C_INT)  :: access_c
@@ -193,30 +199,12 @@ function inquire_(path)
   inquire_ = access_c(trim(path)//c_null_char) == 0
 end function
 
-
 !> @brief
 !> Copy file from src to dst
 subroutine copy_(src, dst, err)
   character(len=*), intent(in) :: src, dst
   integer, intent(out), optional :: err
-  character(len=:), allocatable :: cmd
-  if (.not. inquire_(src)) then
-    if (present(err)) then
-      err = 1
-    else
-      call abort_(src // ' does not exist.')
-    end if
-  end if
-
-#ifdef WARNING_WORKAROUND_
-  allocate(cmd(0))
-#endif
-  cmd = "cp "//"'"//trim(src)//"' '"//trim(dst)//"'"
-  if (present(err)) then
-    call execute_command_line(cmd, exitstat=err, wait=.true.)
-  else
-    call execute_command_line(cmd, wait=.true.)
-  end if
+  call copy_c(trim(src)//c_null_char, trim(dst)//c_null_char, err)
 end subroutine
 
 end module filesystem

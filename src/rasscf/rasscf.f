@@ -58,7 +58,6 @@
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use write_orbital_files, only : OrbFiles, putOrbFile,
      &  write_orb_per_iter
-      use fortran_strings, only: str
       use filesystem, only: copy_, real_path
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
@@ -1539,6 +1538,8 @@ cGLM some additional printout for MC-PDFT
       end if
 
       if (write_orb_per_iter) then
+      block
+      use fortran_strings, only: str
         call copy_(real_path('RASORB'),
      &             real_path('ITERORB.'//str(actual_iter)))
 #ifdef _HDF5_
@@ -1546,6 +1547,7 @@ cGLM some additional printout for MC-PDFT
      &             real_path('RASWFN.'//str(actual_iter)))
 
 #endif
+      end block
       end if
 
 *
