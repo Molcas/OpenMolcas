@@ -1541,6 +1541,11 @@ cGLM some additional printout for MC-PDFT
       if (write_orb_per_iter) then
         call copy_(real_path('RASORB'),
      &             real_path('ITERORB.'//str(actual_iter)))
+#ifdef _HDF5_
+        call copy_(real_path('RASWFN'),
+     &             real_path('RASWFN.'//str(actual_iter)))
+
+#endif
       end if
 
 *

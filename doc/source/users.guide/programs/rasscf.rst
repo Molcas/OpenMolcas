@@ -1740,6 +1740,22 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`PERI`
+  Write the orbital file per iteration.
+  The obtained files are named `${Project}.IterOrb.${iter_number}`
+  and if HDF5 is available `${Project}.rasscf.${iter_number}.h5`.
+  Note that up until the last iteration all states in a state-averaged calculation
+  are in the same orbital basis.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PERI" APPEAR="Write per iteration" KIND="SINGLE" EXCLUSIVE="" LEVEL="BASIC">
+              %%Keyword: PERI <basic>
+              <HELP>
+              Write the orbital file per iteration.
+              The obtained files are named `${Project}.IterOrb.${iter_number}`
+              and if HDF5 is available `${Project}.rasscf.${iter_number}.h5`.
+              </HELP>
+              </KEYWORD>
+
 :kword:`LEVShft`
   Define a level shift value for the super-CI Hamiltonian. Typical values are in the range
   0.0--1.5. Increase this value if a calculation diverges. The default value 0.5,
@@ -2334,11 +2350,11 @@ A list of these keywords is given below:
 :kword:`CMSOpt`
   This keyword defines the maximization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The allowed values are:
 
-  * **Newton:** Newton's method. The Hessian and the gradient of the sum-over-states 
-    of the active--active classical Coulomb energies are computed. This is the 
+  * **Newton:** Newton's method. The Hessian and the gradient of the sum-over-states
+    of the active--active classical Coulomb energies are computed. This is the
     default for calculations with more than two states.
-  * **Jacobi:** Jacobi's method. States are rotated in pairwise succession, 
-    and a trigonometric function is used to fit such rotation to find the 
+  * **Jacobi:** Jacobi's method. States are rotated in pairwise succession,
+    and a trigonometric function is used to fit such rotation to find the
     maximum. This is the default for calculations with two states.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="CHOICE" LIST="Newton,Jacobi" DEFAULT_VALUE="Newton" >
