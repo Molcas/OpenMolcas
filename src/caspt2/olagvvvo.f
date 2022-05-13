@@ -813,7 +813,7 @@ C
 C-----------------------------------------------------------------------
 C
       !! mabe taken from tracho3.f
-      SUBROUTINE VVVOX2(nAux,KEEP,iSym0,iSymI,iSymJ,iSymK,iSymL,
+      SUBROUTINE VVVOX2(nAux,KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,
      *                  vLag,CMO,WRK,
      *                  DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                  FIFA,FIMO)
@@ -845,7 +845,6 @@ C     INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 C
 C     call getritrfinfo(nnbstr,maxvec,n2)
 C
-      iSym = iSym0
       Do jSym = 1, nSym
         iSkip(jSym) = 1
       End Do
@@ -973,7 +972,7 @@ C
           !! 1) Half back-transformation of Bra and Ket density
           !! Read the 3c-2e pseudo-density (in MO), and half transform
           CALL VVVOTRA_RI(CMO,WORK(IP_CHSPC),WORK(IP_HTSPC),
-     *                    JNUM,IBATCH_TOT,IBATCH_TOT)
+     *                    JNUM,IBATCH_TOT,IBATCH_TOT,nOrbI)
 C
           !! 2) read AO Cholesky vectors,
           !!    then, (strange) reduced form -> squared AO (mu nu|iVec)
@@ -1102,7 +1101,7 @@ C
 C
       End Subroutine FDGTRF
 C
-      Subroutine VVVOTRA_RI(CMO,CHSPC,HTSPC,NVEC,IBSTA,IBEND)
+      Subroutine VVVOTRA_RI(CMO,CHSPC,HTSPC,NVEC,IBSTA,IBEND,nOrbI)
 C
       Implicit Real*8(A-H,O-Z)
 C
@@ -1110,7 +1109,7 @@ C
       Parameter (Inactive=1, Active=2, Virtual=3)
 C
       !! CHSPC is used as a temporary array
-      Dimension CMO(nBasI,nOrbI),CHSPC(1),HTSPC(nOrbI,nBasT,1)
+      Dimension CMO(nBasI,nOrbI),CHSPC(*),HTSPC(nOrbI,nBasT,*)
 C
       !! BraAI
       Call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC,nBra,
