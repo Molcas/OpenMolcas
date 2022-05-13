@@ -47,9 +47,10 @@ Character(Len=1) Step_Trunc_
 Character(Len=6) UpMeth_
 Real*8 :: dqHdq, Variance, Fact
 Real*8 :: StepMax=0.D0
-Real*8 :: StepMax_Seed=0.3D0
+Real*8 :: StepMax_Seed=0.1D0
 Real*8 :: Thr_RS=1.0D-7
-Real*8 :: Beta_Disp=0.3D0
+!Real*8 :: Beta_Disp=0.3D0
+Real*8 :: Beta_Disp=5.0D-4      ! Maybe it should be set to the last energy difference?
 Real*8 :: FAbs, RMS, RMSMx, dEner
 Real*8 :: ThrGrd=1.0D-6
 Integer, Parameter:: Max_Iter=50
@@ -255,6 +256,7 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 #ifdef _DEBUGPRINT_
       Call RecPrt('q_diis(:,Iteration)',' ',q_diis(:,Iteration),mDIIS,1)
       Call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
+      Write (6,*) 'Step_Trunc:',Step_Trunc
 #endif
 
       Step_Trunc_=Step_Trunc
@@ -270,12 +272,13 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
       Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
       Call RecPrt('q_diis(:,Iteration+1)',' ',q_diis(:,Iteration+1),mDIIS,1)
 #endif
-      If (Step_Trunc.eq.'N') Step_Trunc=' '
-      If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.'
+      If (Step_Trunc.eq.'N') Step_Trunc=' '   ! set to blank if not touched
+      If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.' ! Mark that we have had a step reduction previously
 
       Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
 #ifdef _DEBUGPRINT_
       Write (6,*)
+      Write (6,*) 'Step_Trunc:',Step_Trunc
       Write (6,*) 'Beta_Disp=',Beta_Disp
       Write (6,*) 'Variance=',Variance
 #endif
@@ -288,6 +291,7 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 
    End Do  ! Restricted variance
 #ifdef _DEBUGPRINT_
+   Write (6,*) 'Step_Trunc:',Step_Trunc
    Write (6,*) '-----> Exit RVO step'
    Write (6,*)
 #endif
@@ -326,7 +330,9 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    Converged = Converged .AND. RMS<Four*ThrGrd
    Converged = Converged .AND. RMSMx<ThrGrd*Six
    Converged = Converged .AND. Step_Trunc==' '
-   If (Step_Trunc.eq.'.') Step_Trunc=' '
+   If (Step_Trunc=='.') Step_Trunc=' '
+!  Write (6,*) 'Step_Trunc:',Step_Trunc
+   If (Step_Trunc=='*') Converged=.True.
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
