@@ -11,7 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine DIIS_GEK_Optimizer(dq,mOV)
+Subroutine DIIS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !***********************************************************************
 !                                                                      *
 !     Object: Direct-inversion-in-the-iterative-subspace gradient-     *
@@ -25,30 +25,38 @@ use InfSO , only: iterso, Energy
 use InfSCF, only: iter
 use LnkLst, only: SCF_V, Init_LLs, LLx, LLGrad
 use SCF_Arrays, only: HDiag
+!use kriging_mod, only: blAI, mblAI, blaAI, blavAI
 Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
 Integer, Intent(In):: mOV
 Real*8,  Intent(Out):: dq(mOV)
+Real*8,  Intent(Out):: dqdq
+Character(Len=1), Intent(InOut):: Step_Trunc
+Character(Len=6), Intent(InOut):: UpMeth
 
 Integer i, j, k, l, ipq, ipg, nDIIS, mDIIS, iFirst
 Integer, External:: LstPtr
-#ifdef _DEBUGPRINT_
 Real*8, External::DDot_
-#endif
 Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
 Real*8, Allocatable:: dq_diis(:)
 Real*8, Allocatable:: H_Diis(:,:)
 Real*8 :: gg
-Character(Len=1) Step_Trunc, Step_Trunc_
-Character(Len=6) UpMeth
-Real*8 :: dqHdq, Disp, Fact
-Real*8 :: StepMax=0.3D0
+Character(Len=1) Step_Trunc_
+Character(Len=6) UpMeth_
+Real*8 :: dqHdq, Variance, Fact
+Real*8 :: StepMax=0.D0
+Real*8 :: StepMax_Seed=0.3D0
 Real*8 :: Thr_RS=1.0D-7
 Real*8 :: Beta_Disp=0.3D0
+Real*8 :: FAbs, RMS, RMSMx, dEner
+Real*8 :: ThrGrd=1.0D-6
 Integer, Parameter:: Max_Iter=50
 Integer :: Iteration=0
+Integer :: Iteration_Micro=0
+Integer :: Iteration_Total=0
+Logical :: Converged=.FALSE.
 
 
 #ifdef _DEBUGPRINT_
@@ -207,51 +215,136 @@ Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 
 Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),H_diis)
 
+UpMeth='RVO'
 
-!First implementation with a simple RS-RFO step
-Iteration=nDiis
-UpMeth=''
-Step_Trunc=''
-Fact=One
-! Loop to enforce restricted variance
-Do
+Step_Trunc=' '
+Converged=.FALSE.
+
+Iteration      =nDiis-1
+Iteration_Micro=0
+Iteration_Total=iter-1
+Do While (.NOT.Converged) ! Micro iterate on the surrogate model
+   Iteration_Micro = Iteration_Micro + 1
+   Iteration_Total = Iteration_Total + 1
+   Iteration       = Iteration       + 1
+   If (Iteration_Micro==Max_Iter) Then
+      Write (6,*)
+      Write (6,*)  'DIIS-GEK-Optimizer: Iteration_Micro==Max_Iter'
+      Write (6,*)  'Abend!'
+      Write (6,*)
+      Call Abend()
+   End If
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifdef _DEBUGPRINT_
+   Write (6,*)
+   Write (6,*) '================================'
+   Write (6,*) 'Micro Iteration=',Iteration_Micro
+   Write (6,*) '================================'
+   Write (6,*)
+   Write (6,*) '-----> Start RVO step'
+#endif
+
+   Fact=One
+   StepMax=StepMax_Seed
+   ! Loop to enforce restricted variance. Note, if the step restriction kicks no problem since we will still microiterate.
+   Do
 
    ! Compute the surrogate Hessian
-   Call Hessian_Kriging_Layer(q(:,Iteration),H_diis,mDiis)
+      Call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
 #ifdef _DEBUGPRINT_
-   Call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
+      Call RecPrt('q_diis(:,Iteration)',' ',q_diis(:,Iteration),mDIIS,1)
+      Call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
 #endif
 
-   Step_Trunc_=Step_Trunc
-   dqHdq=Zero
-   Call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth,dqHdq,StepMax,Step_Trunc,Thr_RS)
-   dq_diis(:)=-dq_diis(:)
-   If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.'
+      Step_Trunc_=Step_Trunc
+      Step_Trunc ='N'   ! set to not defined
+      dqHdq=Zero
+      Call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth_,dqHdq,StepMax,Step_Trunc,Thr_RS)
+      dq_diis(:)=-dq_diis(:)
+      q_diis(:,Iteration+1) = q_diis(:,Iteration) + dq_diis(:)
+
 #ifdef _DEBUGPRINT_
-   Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
+      Write (6,*)
+      Write (6,*) 'Subiteration: Step_Trunc, StepMax:',Step_Trunc,StepMax
+      Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
+      Call RecPrt('q_diis(:,Iteration+1)',' ',q_diis(:,Iteration+1),mDIIS,1)
+#endif
+      If (Step_Trunc.eq.'N') Step_Trunc=' '
+      If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.'
+
+      Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*) 'Beta_Disp=',Beta_Disp
+      Write (6,*) 'Variance=',Variance
 #endif
 
-   q_diis(:,Iteration+1) = q_diis(:,Iteration) + dq_diis(:)
-   Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Disp,mDIIS)
+      Fact   =Half*Fact
+      StepMax=Half*StepMax
+      If (One-Variance/Beta_Disp>1.0D-3) Exit
+      If ( (Fact<1.0D-5) .OR. (Variance<Beta_Disp) ) Exit
+      Step_Trunc='*'
+
+   End Do  ! Restricted variance
 #ifdef _DEBUGPRINT_
-   Write (6,*) 'Disp=',Disp
+   Write (6,*) '-----> Exit RVO step'
+   Write (6,*)
 #endif
 
-   Fact   =Half*Fact
-   StepMax=Half*StepMax
-   If (One-Disp/Beta_Disp>1.0D-3) Exit
-   If ( (Fact<1.0D-5) .OR. (Disp<Beta_Disp) ) Exit
-   Step_Trunc='*'
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-End Do
+   ! Compute the energy and the gradient of the surrogate model
+   Call Energy_Kriging_Layer(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
+   dEner = Energy(Iteration_Total+1) - Energy(Iteration_Total)
+   Call Gradient_Kriging_Layer(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
 
+#ifdef _DEBUGPRINT_
+   Write (6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
+   Call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),mDIIS,1)
+#endif
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+!  Check on convergence criteria.
+!
+   FAbs=Sqrt(DDot_(mDIIS,g_diis(:,Iteration+1),1,g_diis(:,Iteration+1),1)/DBLE(mDIIS))
+   RMS =SQRT(DDot_(mDIIS,dq_diis(:),1,dq_diis(:),1)/DBLE(mDIIS))
+   RMSMx=Zero
+   Do i = 1, mDIIS
+      RMSMx=Max(RMSMx,Abs(dq_diis(i)))
+   End Do
+#ifdef _DEBUGPRINT_
+   Write (6,*)
+   Write (6,*) 'FAbs=',FAbs
+   Write (6,*) 'RMS=',RMS
+   Write (6,*) 'RMSMx=',RMSMx
+   Write (6,*)
+#endif
+   Converged = FAbs<ThrGrd
+   Converged = Converged .AND. RMS<Four*ThrGrd
+   Converged = Converged .AND. RMSMx<ThrGrd*Six
+   Converged = Converged .AND. Step_Trunc==' '
+   If (Step_Trunc.eq.'.') Step_Trunc=' '
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+End Do  ! While not converged
+Write (UpMeth(5:6),'(I2)') Iteration_Micro
+
+
+! Compute the displacement in the reduced space relative to the last structure of the full space
+dq_diis(:)=q_diis(:,Iteration+1)-q_diis(:,nDIIS)
+! Compute the displacement in the full space.
 dq(:)=Zero
-Do i = 1, nDIIS
+Do i = 1, SIZE(e_diis,2)
    dq(:) = dq(:) + dq_diis(i)*e_diis(:,i)
 End Do
+dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
 
 #ifdef _DEBUGPRINT_
-Call RecPrt('dq',' ',dq,mOV,1)
+Call RecPrt('dq',' ',dq,SIZE(dq),1)
 #endif
 
 Call Finish_Kriging()
