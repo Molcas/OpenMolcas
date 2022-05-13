@@ -15,7 +15,7 @@
 
 module test_filesystem_mod
     use fruit
-    use filesystem, only: basename, inquire_, mkdir_, remove_, chdir_, getcwd_
+    use filesystem, only: basename, inquire_, mkdir_, remove_, chdir_, getcwd_, copy_
     implicit none
     private
     public :: test_filesystem
@@ -42,16 +42,21 @@ contains
             call assert_true(basename(cwd) == test_dir)
 
             block
-                integer :: file_id
-                character(*), parameter :: test_file = 'asdf'
+                integer :: file_id, err
+                character(*), parameter :: test_file = 'asdf', new_file = 'hallo Wrzlbrmft'
                 call assert_false(inquire_(test_file))
                 open(newunit=file_id, file=test_file)
                     write(file_id, '(A)') 'Hello World'
                 close(file_id)
                 call assert_true(inquire_(test_file))
+                call copy_(test_file, new_file)
+                call assert_true(inquire_(new_file))
                 call remove_(test_file, err)
                 call assert_true(err == 0)
                 call assert_false(inquire_(test_file))
+
+                call copy_(test_file, new_file, err)
+                call assert_true(err /= 0)
             end block
         call chdir_(root)
 
@@ -72,7 +77,6 @@ program test_filesystem_prog
     call random_seed(size=seed_size)
     call random_seed(put=[(i, i = 1, seed_size)])
     call init_fruit()
-    call init_linalg()
     call inimem()
 
     call run_test_case(test_filesystem, "test_filesystem")

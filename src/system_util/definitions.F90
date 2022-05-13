@@ -14,7 +14,7 @@
 
 module Definitions
 
-use, intrinsic :: iso_fortran_env, only: int8, int32, int64, real64, error_unit, input_unit, output_unit
+use, intrinsic :: iso_fortran_env, only: int8, int32, real32, int64, real64, error_unit, input_unit, output_unit
 use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
 #   ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
@@ -29,6 +29,7 @@ public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: i1, i4, i8, r4, r8
 public :: ItoB, RtoB, RtoI, CtoR
 public :: u0, u5, u6
+public :: int8, int32, int64, real32, real64
 
 ! This is the working precision and should be preferably used
 ! (we assume logical kinds are the same as integer kinds).

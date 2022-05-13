@@ -20,7 +20,7 @@
       use definitions, only: MPIInt
       use Para_Info, only: Is_Real_Par
 #endif
-      use definitions, only: wp
+      use definitions, only: wp, int64
       use Para_Info, only: MyRank
 #ifdef _NECI_
       use filesystem, only: chdir_
@@ -53,9 +53,8 @@
 
       interface
         subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
-          use, intrinsic :: iso_fortran_env, only: int64
-          use rasscf_data, only: nroots
-          use definitions, only: wp
+          import :: int64, wp, nroots
+          implicit none
           character(len=*), intent(in) :: fcidmp, input_name
           integer(int64), intent(in) :: MemSize
           real(wp), intent (out) :: NECIen(nroots)

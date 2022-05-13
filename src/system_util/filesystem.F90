@@ -17,12 +17,14 @@ module filesystem
 
 use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr, c_null_char
 use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str
+use linalg_mod, only: abort_
 use Definitions, only: iwp, MOLCAS_C_INT
 
 implicit none
 private
 
-public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, remove_, real_path, basename, inquire_
+public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, &
+  remove_, real_path, basename, inquire_, copy_
 
 interface
   subroutine getcwd_c(path,n,err) bind(C,name='getcwd_wrapper')
@@ -190,5 +192,31 @@ function inquire_(path)
   logical(kind=iwp) :: inquire_
   inquire_ = access_c(trim(path)//c_null_char) == 0
 end function
+
+
+!> @brief
+!> Copy file from src to dst
+subroutine copy_(src, dst, err)
+  character(len=*), intent(in) :: src, dst
+  integer, intent(out), optional :: err
+  character(len=:), allocatable :: cmd
+  if (.not. inquire_(src)) then
+    if (present(err)) then
+      err = 1
+    else
+      call abort_(src // ' does not exist.')
+    end if
+  end if
+
+#ifdef WARNING_WORKAROUND_
+  allocate(cmd(0))
+#endif
+  cmd = "cp "//"'"//trim(src)//"' '"//trim(dst)//"'"
+  if (present(err)) then
+    call execute_command_line(cmd, exitstat=err, wait=.true.)
+  else
+    call execute_command_line(cmd, wait=.true.)
+  end if
+end subroutine
 
 end module filesystem
