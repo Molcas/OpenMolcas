@@ -51,6 +51,7 @@ contains
                 call assert_true(inquire_(test_file))
                 call copy_(test_file, new_file)
                 call assert_true(inquire_(new_file))
+                call remove_(new_file)
                 call remove_(test_file, err)
                 call assert_true(err == 0)
                 call assert_false(inquire_(test_file))

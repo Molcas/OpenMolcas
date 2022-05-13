@@ -98,32 +98,31 @@ void remove_wrapper(const char* path, INT* err)
   *err = (INT) nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
 }
 
-/* https://stackoverflow.com/questions/2180079/how-can-i-copy-a-file-on-unix-using-c */
-void copy(const char *source, const char *dest, INT *err)
+void copy(const char *src, const char *dst, INT *err)
 {
-    int childExitStatus;
-    pid_t pid;
-    if (!source || !dest) {
-        exit(1);
-    }
+    char buf[BUFSIZ];
+    size_t size;
 
-    pid = fork();
+    FILE* source = fopen(src, "rb");
 
-    if (pid == 0) {
-        execl("/bin/cp", "/bin/cp", source, dest, (char *)0);
-    }
-    else if (pid < 0) {
-        exit(1);
-    }
-    else {
-        /* parent - wait for child - this has all error handling, you
-         * could just call wait() as long as you are only expecting to
-         * have one child process at a time.
-         */
-        pid_t ws = waitpid( pid, &childExitStatus, WNOHANG);
-        if (ws == -1) {
+    if (! source) {
+        if (err) {
+            *err = 1;
+            return;
+        } else {
+            printf("File %s does not exist.\n", src);
             exit(1);
         }
-        if (err) *err = WEXITSTATUS(childExitStatus);
     }
+
+    FILE* dest = fopen(dst, "wb");
+
+    // feof(FILE* stream) returns non-zero if the end of file indicator for stream is set
+
+    while ((size = fread(buf, 1, BUFSIZ, source))) {
+        fwrite(buf, 1, size, dest);
+    }
+
+    fclose(source);
+    fclose(dest);
 }
