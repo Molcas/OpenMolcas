@@ -56,9 +56,10 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
-      use write_orbital_files, only : OrbFiles, putOrbFile
+      use write_orbital_files, only : OrbFiles, putOrbFile,
+     &  write_orb_per_iter
       use fortran_strings, only: str
-      use filesystem, only: copy_
+      use filesystem, only: copy_, real_path
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
       use spin_correlation, only: spin_correlation_driver,
@@ -1332,9 +1333,6 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
       call mh5_put_dset(wfn_energy, ENER(1,Iter))
 #endif
 
-      block
-        call copy_('RASORB', 'ITERORB'//str(actual_iter))
-      end block
 *
 * Print output of energies and convergence parameters
 *
@@ -1538,6 +1536,11 @@ cGLM some additional printout for MC-PDFT
      &               ' keyword.'
           Write(LF,'(6X,120A1)') ('*',i=1,120)
         END IF
+      end if
+
+      if (write_orb_per_iter) then
+        call copy_(real_path('RASORB'),
+     &             real_path('ITERORB.'//str(actual_iter)))
       end if
 
 *

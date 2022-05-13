@@ -27,7 +27,7 @@
 #endif
       use csfbas, only: CONF, KCFTP
       use Fock_util_global, only: DoCholesky
-      use write_orbital_files, only: OrbFiles
+      use write_orbital_files, only: OrbFiles, write_orb_per_iter
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
@@ -2046,6 +2046,9 @@ C orbitals accordingly
           call WarningMessage(2, 'Invalid ORTH keyword')
           goto 9930
         end if
+      end if
+      if (KeyPERI) then
+        write_orb_per_iter = .true.
       end if
 *---  Process NECI commands -------------------------------------------*
       if (KeyNECI) then
