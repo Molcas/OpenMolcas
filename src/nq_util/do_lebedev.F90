@@ -9,6 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifdef _IN_MODULE_
+
 subroutine Do_Lebedev(L_Eff,mPt,R)
 !***********************************************************************
 !                                                                      *
@@ -70,3 +73,5 @@ call Abend()
 !                                                                      *
 
 end subroutine Do_Lebedev
+
+#endif

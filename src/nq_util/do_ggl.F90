@@ -9,6 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifdef _IN_MODULE_
+
 subroutine Do_GGL(L_Eff,mPt,R)
 !***********************************************************************
 !                                                                      *
@@ -79,3 +82,5 @@ call mma_deallocate(Th)
 return
 
 end subroutine Do_GGL
+
+#endif

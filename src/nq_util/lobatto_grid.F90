@@ -16,6 +16,7 @@ subroutine Lobatto_Grid(L_Max)
 !                                                                      *
 !***********************************************************************
 
+use do_grid, only: Do_Lobatto
 use nq_Structure, only: Info_Ang
 use nq_Info, only: nAngularGrids
 use Definitions, only: iwp
@@ -23,18 +24,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: L_Max
 integer(kind=iwp) :: L_Eff
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Do_Lobatto(L_Eff,nPoints,R)
-    use Definitions, only: wp
-    import :: iwp
-    integer(kind=iwp), intent(in) :: L_Eff
-    integer(kind=iwp), intent(out) :: nPoints
-    real(kind=wp), allocatable, intent(out) :: R(:,:)
-  end subroutine Do_Lobatto
-end interface
 
 !                                                                      *
 !***********************************************************************

@@ -10,16 +10,19 @@
 !***********************************************************************
 
 ! This module contains procedures that need an interface
-module qmstat_procedures
+module Do_Grid
 
 implicit none
 private
 
-public :: GiveMeInfo
+public :: Do_GGL, Do_Lebedev, Do_Lebedev_Sym, Do_Lobatto
 
 contains
 
 #define _IN_MODULE_
-#include "givemeinfo.F90"
+#include "do_ggl.F90"
+#include "do_lebedev.F90"
+#include "do_lebedev_sym.F90"
+#include "do_lobatto.F90"
 
-end module qmstat_procedures
+end module Do_Grid
