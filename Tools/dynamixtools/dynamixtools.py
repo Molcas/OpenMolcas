@@ -414,7 +414,7 @@ Keyword to specify the sampling method:
 1 Initial conditions based on the molecular vibrational frequencies and energies sampled from a Boltzmann distribution (Default).
 2 Thermal normal mode sampling where the cumulitative distribution function for a classical boltzmann distribution at temperature T is used to approximate the energy of each mode.
 3 Wigner distribution for the ground vibrational state, n=0.
-4 Thermal Wigner distribution for temperature T'''))
+4 Thermal Wigner distribution for temperature T based on the analytical solution for a canonical ensemble of harmonic oscillators.'''))
     args = parser.parse_args()
     return args
 
@@ -671,7 +671,7 @@ def main():
             # I do not like this termination here, but I still have to figure out how
             # to properly do mutually exclusive argparse keywords.
             # I will keep this exit code here in the meanwhile...
-            sys.exit('-i input freq file is a required keyword')
+            sys.exit('-i input freq file is a required keyword, --help for help')
         if args.seed:
             seedI = args.seed
             print('seed set to: {}'.format(seedI))
