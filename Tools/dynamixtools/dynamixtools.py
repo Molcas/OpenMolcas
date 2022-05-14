@@ -726,7 +726,7 @@ def main():
                     generate_one_boltz(inputs,complete_label)
             elif (method==2 or method==3 or method==4):
                     normal_mode(inputs,complete_label,method)
-        print('\nThis routine generates geometries in angstrom and velocities in bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics)\n')
+        print('\nThis routine generates geometries in angstrom and velocities in bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics\n')
 
 if __name__ == "__main__":
     main()
