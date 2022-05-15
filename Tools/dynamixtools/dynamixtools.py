@@ -10,8 +10,8 @@
 #                                                                      *
 # Copyright (C) 2018, Alessio Valentini                                *
 #               2018, Luis Manuel Frutos                               *
-#               2021-22, Jonathan Richard Church                       *
-#               2021-22, Igor Schapiro                                 *
+#               2021,2022, Jonathan Richard Church                     *
+#               2021,2022, Igor Schapiro                               *
 #***********************************************************************
 
 import numpy as np
