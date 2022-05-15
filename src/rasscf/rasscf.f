@@ -61,6 +61,7 @@
       use filesystem, only: copy_, real_path
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
+      use fortran_strings, only: str
       use spin_correlation, only: spin_correlation_driver,
      &    orb_range_p, orb_range_q
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
@@ -1538,8 +1539,6 @@ cGLM some additional printout for MC-PDFT
       end if
 
       if (write_orb_per_iter) then
-      block
-      use fortran_strings, only: str
         call copy_(real_path('RASORB'),
      &             real_path('ITERORB.'//str(actual_iter)))
 #ifdef _HDF5_
@@ -1547,7 +1546,6 @@ cGLM some additional printout for MC-PDFT
      &             real_path('RASWFN.'//str(actual_iter)))
 
 #endif
-      end block
       end if
 
 *
