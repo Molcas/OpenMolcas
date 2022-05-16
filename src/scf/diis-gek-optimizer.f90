@@ -58,6 +58,9 @@ Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
 Logical :: Converged=.FALSE.
+Integer :: nExplicit
+Real*8, Allocatable :: Probe(:)
+Real*8 :: Test
 
 
 #ifdef _DEBUGPRINT_
@@ -94,7 +97,7 @@ Call RecPrt('g',' ',g,mOV,iterso)
 
 
 
-#define _REDUCED_SPACE_
+!#define _REDUCED_SPACE_
 #ifdef _REDUCED_SPACE_
 
 Call mma_allocate(e_diis,mOV,   nDIIS,Label='e_diis')
@@ -146,12 +149,109 @@ mDIIS=j
 
 #else
 
+!#define _FULL_SPACE_
+#ifdef _FULL_SPACE_
+
 Call mma_allocate(e_diis,mOV,   mOV,Label='e_diis')
 e_diis(:,:)=0.0D0
 mDIIS=mOV
 Do i = 1, mDIIS
    e_diis(i,i)=1.0D0
 End Do
+
+#else
+
+Call mma_allocate(Probe,mOV,Label='Probe')
+
+Probe(:) = Zero
+!Do j = 1, nDIIS
+Do j = nDIIS, nDIIS
+!Do j = Max(1,nDIIS-3), nDIIS
+!  If (nDIIS==1) Then
+      Do i = 1, mOV
+!        Probe(i)=Probe(i)+g(i,j)**2
+         Probe(i)=Probe(i)+(g(i,j)/HDiag(i))**2
+      End Do
+!  Else
+!     Do i = 1, mOV
+!        Probe(i)=Probe(i)+(g(i,j)-g(i,j-1))**2
+!     End Do
+!  End If
+End Do
+Do i = 1, mOV
+   Probe(i)=Sqrt(Probe(i))/DBLE(nDIIS)
+End Do
+!Call RecPrt('Probe',' ',Probe(:),mOV,1)
+
+!nExplicit=mOV    ! Full GEK
+nExplicit=Min(mOV,10) ! Partial GEK
+!nExplicit=0 ! DIIS-GEK
+Call mma_allocate(e_diis,mOV,   nDIIS+nExplicit,Label='e_diis')
+e_diis(:,:)=Zero
+
+!Call RecPrt('g',' ',g(:,nDIIS),1, mOV)
+! Pick up the explicitly uncontracted components
+mDIIS = 0
+Do i = 1, nExplicit
+   j = 0
+   Test = Zero
+   Do k = 1, mOV
+      If (Probe(k)>Test) Then
+         Test=Probe(k)
+         j=k
+       Else If (Probe(k)<Zero) Then
+         Write (6,*) 'Probe(k)<Zero'
+         Call Abend()
+       End If
+   End Do
+   If (j==0) Then
+      Write(6,*) 'j==0'
+      Call Abend()
+   Else
+!     Write (6,*) 'j=',j, g(j,nDIIS)
+      mDIIS = mDIIS + 1
+      e_diis(j,mDIIS)=One
+      Probe(j)=Zero
+   End If
+End Do
+
+Call mma_deallocate(Probe)
+
+Do i = 1, nDIIS      ! Pick up the modified gradient vectors.
+   gg = 0.0D0
+   Do l = 1, mOV
+      gg = gg + g(l,i)**2
+   End Do
+   If (gg<1.0D-10) Then
+      e_diis(:,i+nExplicit) = Zero
+   Else
+      e_diis(:,i+nExplicit) = g(:,i)/Sqrt(gg)
+   End If
+!  Write (6,*) i,i,DDot_(mOV,e_diis(:,i),1,e_diis(:,i),1)
+End Do
+
+j = 1
+Do i = 2, nDIIS + nExplicit
+   Do k = 1, j
+      gg = 0.0D0
+      Do l = 1, mOV
+         gg = gg + e_diis(l,i)*e_diis(l,k)
+      End Do
+      e_diis(:,i) = e_diis(:,i) - gg * e_diis(:,k)
+   End Do
+   gg = 0.0D0  ! renormalize  ! renormalize
+   Do l = 1, mOV
+      gg = gg + e_diis(l,i)**2
+   End Do
+!  Write (6,*) 'i,gg=',i,gg
+   If (gg>1.0D-10) Then
+      j = j + 1
+      e_diis(:,j) = e_diis(:,i)/Sqrt(gg)
+   End If
+End Do
+mDIIS=j
+
+#endif
 
 #endif
 
@@ -230,6 +330,7 @@ Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 ! We need to set the bias
 
 Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),H_diis)
+!Write (6,*) blAI, mblAI, blaAI, blavAI
 
 UpMeth='RVO'
 
@@ -359,7 +460,7 @@ Write (UpMeth(5:6),'(I2)') Iteration_Micro
 dq_diis(:)=q_diis(:,Iteration+1)-q_diis(:,nDIIS)
 ! Compute the displacement in the full space.
 dq(:)=Zero
-Do i = 1, SIZE(e_diis,2)
+Do i = 1, mDIIS
    dq(:) = dq(:) + dq_diis(i)*e_diis(:,i)
 End Do
 dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
