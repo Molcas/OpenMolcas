@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: L_Eff
 integer(kind=iwp), intent(out) :: mPt
 real(kind=wp), allocatable, intent(out) :: R(:,:)
-integer(kind=iwp) :: i, iSet, nPt
+integer(kind=iwp) :: iSet, nPt
 integer(kind=iwp), parameter :: nSet = 11, Lebedev_order(nSet) = [5,7,11,17,23,29,35,41,47,53,59], &
                                 Lebedev_npoints(nSet) = [14,26,50,110,194,302,434,590,770,974,1202]
 real(kind=wp), allocatable :: TempR(:,:), TempW(:)
@@ -52,10 +52,9 @@ do iSet=1,nSet
       write(u6,*) 'mPt=',mPt
       call Abend()
     end if
-    call DScal_(nPt,Four*Pi,TempW,1)
 
     call DGEMM_('N','N',3,nPt,3,One,Pax,3,TempR,3,Zero,R,4)
-    R(4,:) = TempW
+    R(4,:) = Four*Pi*TempW
 
     call mma_deallocate(TempW)
     call mma_deallocate(TempR)
@@ -66,7 +65,7 @@ do iSet=1,nSet
 end do
 write(u6,'(A,I3)') 'Failed to find a Lebedev grid of order',L_EFF
 write(u6,'(A)') 'Available orders are:'
-write(u6,'(11(1X,I3))') (Lebedev_order(i),i=1,nSet)
+write(u6,'(11(1X,I3))') Lebedev_order(:)
 call Abend()
 !                                                                      *
 !***********************************************************************

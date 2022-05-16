@@ -18,8 +18,7 @@ subroutine AOAdd_Full(PrpInt,nPrp,nD)
 !             January 1991                                             *
 !***********************************************************************
 
-use nq_Grid, only: iBfn_Index
-use nq_Grid, only: Dens_AO
+use nq_Grid, only: Dens_AO, iBfn_Index
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp
 

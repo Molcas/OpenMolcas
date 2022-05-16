@@ -168,15 +168,15 @@ outer: do
     iz = 1+(iyz-1)/ny
     iy = iyz-(iz-1)*ny
 
-    ! Do symmetry by procastination.
+    ! Do symmetry by procrastination.
 
     do iIrrep=1,nIrrep-1
       jx = ix
-      if (iand(iOper(iIrrep),1) /= 0) jx = nx-jx+1
+      if (btest(iOper(iIrrep),0)) jx = nx-jx+1
       jy = iy
-      if (iand(iOper(iIrrep),2) /= 0) jy = ny-jy+1
+      if (btest(iOper(iIrrep),1)) jy = ny-jy+1
       jz = iz
-      if (iand(iOper(iIrrep),4) /= 0) jz = nz-jz+1
+      if (btest(iOper(iIrrep),2)) jz = nz-jz+1
 
       jyz = (jz-1)*ny+jy
       jxyz = (jyz-1)*nx+jx
@@ -316,7 +316,7 @@ if (l_casdft .and. do_pdftPot) then
 
   if (l_tgga) then
     call PackPot1(OE_OT,PDFTPot1,nFckInt,real(nIrrep,kind=wp)*Half)
-    call DScal_(nPot2,real(nIrrep,kind=wp),EG_OT,1)
+    EG_OT(1:nPot2) = real(nIrrep,kind=wp)*EG_OT(1:nPot2)
     call PackPot1(FI_V,PDFTFocI,nFckInt,real(nIrrep,kind=wp)*Quart)
     call PackPot1(FA_V,PDFTFocA,nFckInt,real(nIrrep,kind=wp)*Half)
   end if

@@ -25,8 +25,7 @@ subroutine RotGrd(RA,ZA,O,dOdx,d2Odx2,nAtoms,Do_Grad,Do_Hess)
 !             Trondheim, Sept. 2003.                                   *
 !***********************************************************************
 
-use Constants, only: One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms
@@ -38,7 +37,6 @@ integer(kind=iwp) :: iAtom, iCar, jAtom, jCar, jCar_Max
 real(kind=wp) :: dMdx(3,3), dMdy(3,3), dTdRAi, dTdRAj, EVal(3), Px(3,3), Py(3,3), T(3), Z_Tot
 logical(kind=iwp) :: Rot_Corr
 real(kind=wp), parameter :: Thrs = 1.0e-3_wp
-real(kind=r8), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -53,7 +51,7 @@ call RecPrt('RotGrd: ZA',' ',ZA,1,nAtoms)
 !                                                                      *
 ! Compute the total charge
 
-Z_Tot = DDot_(nAtoms,[One],0,ZA,1)
+Z_Tot = sum(ZA)
 
 ! Form the center of nuclear charge
 

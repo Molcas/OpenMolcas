@@ -81,7 +81,7 @@ end if
 
 !call Get_iOption(iOpt)
 call Get_iScalar('System BitSwitch',iOpt)
-iOpt = ior(iOpt,2**6)
+iOpt = ibset(iOpt,6)
 !call Put_iOption(iOpt)
 call Put_iScalar('System BitSwitch',iOpt)
 !                                                                      *

@@ -11,7 +11,7 @@
 ! Copyright (C) 2001, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK)
+subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK,IsFT)
 !***********************************************************************
 !                                                                      *
 !     Predriver for numerical integration utility.                     *
@@ -24,9 +24,8 @@ subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGr
 
 use Symmetry_Info, only: nIrrep
 use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGrd, iTab, kAO, l_CASDFT, Lapl, List_G, Mem, &
-                   nGradRho, nGridMax, nLapl, nR_Eff, nRho, nSigma, nTau, Pax, R2_trial, Rho, Sigma, Tau, Temp, vLapl, vRho, &
-                   vSigma, vTau, Weights
-use nq_pdft, only: lGGA
+                   nGridMax, nR_Eff, nRho, Pax, R2_trial, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
+use nq_pdft, only: lft, lGGA
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
 use nq_Info, only: Functional_type, GGA_type, LDA_type, LMax_NQ, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
@@ -46,12 +45,13 @@ external :: Kernel
 integer(kind=iwp), intent(in) :: nFckDim, nFckInt, nD, nGrad
 real(kind=wp), intent(inout) :: FckInt(nFckInt,nFckDim), Funct, Grad(nGrad)
 real(kind=wp), intent(in) :: Density(nFckInt,nD)
-logical(kind=iwp), intent(in) :: Do_Grad, Do_TwoEl
+logical(kind=iwp), intent(in) :: Do_Grad, Do_TwoEl, IsFT
 logical(kind=iwp), intent(inout) :: Do_MO
 character(len=4), intent(in) :: DFTFOCK
 #include "status.fh"
 integer(kind=iwp) :: i, iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, jIrrep, kAsh, kIrrep, kl_Orb_pairs, lAsh, mAO, mdRho_dr, &
-                     mGrad, nBas(8), nCMO, nD1MO, nDel(8), nNQ, nP2, nP2_ontop, NQNAC, NQNACPAR, NQNACPR2, nShell, nTmpPUVX
+                     mGrad, nBas(8), nCMO, nD1MO, nDel(8), nGradRho, nLapl, nNQ, nP2, nP2_ontop, nSigma, nTau, NQNAC, NQNACPAR, &
+                     NQNACPR2, nShell, nTmpPUVX
 real(kind=wp) :: PThr
 logical(kind=iwp) :: PMode
 integer(kind=iwp), allocatable :: List_Bas(:,:), List_Exp(:), List_P(:), List_s(:,:), Maps2p(:,:)
@@ -61,9 +61,8 @@ integer(kind=iwp), external :: IsFreeUnit
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Do_TwoEl) then
-  Do_MO = .true.
-end if
+lft = IsFT
+if (Do_TwoEl) Do_MO = .true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -182,6 +181,8 @@ select case (Functional_type)
     nRho = nD
     nSigma = nD*(nD+1)/2
     nGradRho = nD*3
+    nLapl = 0
+    nTau = 0
     mdRho_dR = 0
     if (Do_Grad) mdRho_dR = 4*nD
 
@@ -244,8 +245,8 @@ select case (Functional_type)
     nRho = nD
     nSigma = nD*(nD+1)/2
     nGradRho = nD*3
-    nTau = nD
     nLapl = nD
+    nTau = nD
     mdRho_dR = 0
     if (Do_Grad) mdRho_dR = 6*nD
 

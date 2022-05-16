@@ -14,7 +14,7 @@ subroutine Funi_Init()
 use nq_Info, only: Angular_Pruning, Crowding, Fade, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, NQ_Direct, nR, ntotgp, Off, &
                    On, Packing, Quadrature, Rotational_Invariance, T_Y, Threshold, R_Max
 use Constants, only: Zero, Three, Six
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
 
@@ -46,10 +46,10 @@ NQ_Direct = Off
 !Packing = On
 Packing = Off
 
-! Bit 1: set Lobatto, not set Gauss and Gauss-Legendre
-! Bit 2: set scan the whole atomic grid, not set use subset
-! Bit 3: set Lebedev, override bit 1
-iOpt_Angular = 4
+! Bit 0: set Lobatto, not set Gauss and Gauss-Legendre
+! Bit 1: set scan the whole atomic grid, not set use subset
+! Bit 2: set Lebedev, override bit 0
+iOpt_Angular = ibset(0_iwp,2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

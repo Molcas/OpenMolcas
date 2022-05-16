@@ -30,8 +30,7 @@ real(kind=wp) :: Coeffs(nFuncs_Max) = Zero
 type(xc_f03_func_t) :: xc_func(nFuncs_Max)      ! xc functional
 type(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
 
-public :: Coeffs, func_id, Initiate_Libxc_functionals, libxc_functionals, nFuncs, nFuncs_max, Remove_Libxc_functionals, xc_func, &
-          xc_info
+public :: Coeffs, func_id, Initiate_Libxc_Functionals, libxc_functionals, nFuncs, nFuncs_max, Remove_Libxc_Functionals
 
 !                                                                      *
 !***********************************************************************
@@ -101,8 +100,7 @@ end subroutine Remove_Libxc_functionals
 !                                                                      *
 subroutine libxc_functionals(mGrid,nD)
 
-  use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
-  use nq_Grid, only: vRho, vSigma, vTau, vLapl
+  use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft, vLapl, vRho, vSigma, vTau
 
   integer(kind=iwp), intent(in) :: mGrid, nD
   integer(kind=iwp) :: iFunc

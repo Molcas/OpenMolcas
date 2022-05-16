@@ -29,15 +29,14 @@ logical(kind=iwp) :: lft = .false., lGGA = .false.
 real(kind=wp), allocatable :: d2RdRho2(:), d2RdRhodPi(:), d2ZdR2(:), dEdPi(:), dEdPiMO(:,:), dEdPix(:), dEdPiy(:), dEdPiz(:), &
                               dEdRho(:), dEdRhox(:), dEdRhoy(:), dEdRhoz(:), dF_dRhoamb(:), dF_dRhoapb(:), dF_dRhoxamb(:), &
                               dF_dRhoxapb(:), dF_dRhoyamb(:), dF_dRhoyapb(:), dF_dRhozamb(:), dF_dRhozapb(:), dRdPi(:), dRdRho(:), &
-                              dRhoadZ(:), dRhoaxdZ(:), dRhoaydZ(:), dRhoazdZ(:), dRhodX(:), dRhodY(:), dRhodZ(:), dZdR(:), &
-                              dZdRho(:), GdEdPiMO(:,:), GradPidFdRho(:), GradRdFdRho(:), GradRhodFdRho(:), MOas(:,:), MOax(:,:), &
-                              MOay(:,:), MOaz(:,:), OneMZ(:), OnePZ(:), RatioA(:), RhoAB(:), ZetaA(:)
+                              dRhodX(:), dRhodY(:), dRhodZ(:), dZdR(:), dZdRho(:), GdEdPiMO(:,:), GradPidFdRho(:), GradRdFdRho(:), &
+                              GradRhodFdRho(:), MOas(:,:), MOax(:,:), MOay(:,:), MOaz(:,:), OneMZ(:), OnePZ(:), RatioA(:), &
+                              RhoAB(:), ZetaA(:)
 logical(kind=iwp), allocatable :: Pass1(:), Pass2(:), Pass3(:)
 
 public :: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, dF_dRhoamb, &
-          dF_dRhoapb, dF_dRhoxamb, dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, dRdRho, dRhoadZ, &
-          dRhoaxdZ, dRhoaydZ, dRhoazdZ, dRhodX, dRhodY, dRhodZ, dZdR, dZdRho, fta, ftb, ftc, GdEdPiMO, GradPidFdRho, GradRdFdRho, &
-          GradRhodFdRho, lft, lGGA, MOas, MOax, MOay, MOaz, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, &
-          ThrsOMR, ThrsRho, ZetaA
+          dF_dRhoapb, dF_dRhoxamb, dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, dRdRho, dRhodX, dRhodY, &
+          dRhodZ, dZdR, dZdRho, fta, ftb, ftc, GdEdPiMO, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lft, lGGA, MOas, MOax, MOay, &
+          MOaz, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, ThrsOMR, ThrsRho, ZetaA
 
 end module nq_pdft

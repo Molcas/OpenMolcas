@@ -33,7 +33,7 @@ use nq_Grid, only: dRho_dR, dW_dR, Grid, IndGrd, iTab, kAO, List_G, nR_Eff, R2_t
 use NQ_Structure, only: NQ_Data
 use nq_MO, only: nMOs
 use nq_Info, only: Block_Size, Grid_Type, Moving_Grid, nPot1, nTotGP, nx, ny, nz, Off, On, Threshold, x_min, y_min, z_min
-use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, jDisk_Grid, Lu_Grid, LuGridFile, nBatch, Use_Old
+use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, Lu_Grid, LuGridFile, nBatch, Use_Old
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -52,8 +52,8 @@ real(kind=wp), intent(inout) :: Func, FckInt(nFckInt,nFckDim), Grad(nGrad), EG_O
 integer(kind=iwp), intent(out) :: list_s(2,*), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)
 logical(kind=iwp), intent(in) :: Do_Mo, Do_Grad
 integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, ilist_s, iNQ, iPseudo, iShell, iShll, iSkal, iSym, &
-                     ix, iy, iyz, iz, jlist_s, jNQ, jShell, jSym, klist_p, kNQ, l, mdci, nAOs, nAOs_Eff, nBfn, nDegi, nExpTmp, &
-                     nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, nTotGP_Save, &
+                     ix, iy, iyz, iz, jDisk_Grid, jlist_s, jNQ, jShell, jSym, klist_p, kNQ, mdci, nAOs, nAOs_Eff, nBfn, nDegi, &
+                     nExpTmp, nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, nTotGP_Save, &
                      number_of_grid_points, nx_Roots, ny_Roots, nz_Roots
 real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, RMax_NQ, Roots(3,3), t1, t2, t3, ValExp, X, x_box_max, x_box_min, x_max_, x_min_, &
                  x_NQ, Xref, xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
@@ -611,7 +611,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       nTotGP = nTotGP+nogp
       ! update the "LuGridFile":
       do i=1,nogp
-        write(LuGridFile,'(3ES24.14,1x,ES24.14)') (Grid(l,i),l=1,3),Weights(i)
+        write(LuGridFile,'(3ES24.14,1x,ES24.14)') Grid(:,i),Weights(i)
       end do
       nogp = 0
       if (.not. More_To_Come) exit

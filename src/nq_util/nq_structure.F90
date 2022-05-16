@@ -13,6 +13,7 @@
 
 module NQ_Structure
 
+use NQ_Info, only: LMax_NQ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -39,11 +40,10 @@ type NQ_data_t
   real(kind=wp), allocatable :: dOdx(:,:,:)
 end type NQ_data_t
 
-integer(kind=iwp), parameter :: LMax_NQ = 62
 type(Info_Ang_t) Info_Ang(LMax_NQ)
 type(NQ_data_t), allocatable :: NQ_data(:)
 
-public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, LMax_NQ, NQ_data, Open_NQ_Data
+public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, NQ_data, Open_NQ_Data
 
 ! Private extensions to mma interfaces
 

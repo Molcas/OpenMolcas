@@ -20,7 +20,7 @@ subroutine Calc_Pot1(Pot1,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,MOs)
 use nq_Grid, only: GradRho, vRho, vSigma, Weights
 use nq_pdft, only: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, dF_dRhoapb, dF_dRhoamb, dF_dRhoxamb, &
                    dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, dRdRho, dRhodx, dRhody, dRhodz, dZdR, &
-                   dZdRho, fta, ftb, ftc, lft, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lGGA, Pass1, Pass2, Pass3, RatioA, RhoAB, &
+                   dZdRho, fta, ftb, ftc, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lft, lGGA, Pass1, Pass2, Pass3, RatioA, RhoAB, &
                    ThrsNT, ZetaA
 use nq_Info, only: mIrrep, mOrb, nOrbt, nPot1, OffBasFro, OffOrb, OffOrb2
 use stdalloc, only: mma_allocate, mma_deallocate

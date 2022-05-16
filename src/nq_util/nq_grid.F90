@@ -17,7 +17,7 @@ implicit none
 private
 
 ! nGridMax: size of the array Grid
-integer(kind=iwp) :: kAO = 0, nGradRho = 0, nGridMax = 128, nLapl = 0, nRho = 0, nSigma = 0, nTau = 0
+integer(kind=iwp) :: kAO = 0, nGridMax = 128, nRho = 0
 logical(kind=iwp) :: l_CASDFT = .false.
 integer(kind=iwp), allocatable :: Angular(:), iBfn_Index(:,:), IndGrd(:), iTab(:,:), List_G(:,:), nR_Eff(:)
 real(kind=wp), allocatable :: Coor(:,:), D1Unzip(:,:), Dens_AO(:,:,:), dRho_dR(:,:,:), dW_dR(:,:), F_xc(:), F_xca(:), F_xcb(:), &
@@ -28,7 +28,7 @@ real(kind=wp), allocatable, target :: TabAO(:,:,:), TabAO_Short(:,:,:)
 real(kind=wp), pointer :: TabAO_pack(:) => null()
 
 public :: Angular, Coor, D1Unzip, Dens_AO, dRho_dR, dW_dR, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, Grid_AO, iBfn_Index, IndGrd, &
-          iTab, kAO, l_CASDFT, Lapl, List_G, Mem, nGradRho, nGridMax, nLapl, nR_Eff, nRho, nSigma, nTau, P2Unzip, Pax, R2_trial, &
-          Rho, Sigma, TabAO, TabAO_pack, TabAO_Short, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
+          iTab, kAO, l_CASDFT, Lapl, List_G, Mem, nGridMax, nR_Eff, nRho, P2Unzip, Pax, R2_trial, Rho, Sigma, TabAO, TabAO_pack, &
+          TabAO_Short, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
 
 end module nq_Grid

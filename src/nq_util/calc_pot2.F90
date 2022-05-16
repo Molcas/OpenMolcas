@@ -46,7 +46,7 @@ do iGrid=1,mGrid
         ggaterm = GradRhodFdRho(iGrid)
         if (lft) then
           ftggaterm = (d2ZdR2(iGrid)*dRdPi(iGrid)*GradRdFdRho(iGrid)+ &
-                      d2RdRhodPi(iGrid)*dZdR(iGrid)*GradRhodFdRho(iGrid))*RhoAB(iGrid)
+                       d2RdRhodPi(iGrid)*dZdR(iGrid)*GradRhodFdRho(iGrid))*RhoAB(iGrid)
           predEdPip = RhoAB(iGrid)*dZdR(iGrid)*dRdPi(iGrid)*Weights(iGrid)
           dEdPix(iGrid) = predEdPip*dF_dRhoxamb(iGrid)
           dEdPiy(iGrid) = predEdPip*dF_dRhoyamb(iGrid)

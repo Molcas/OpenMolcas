@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd
-integer(kind=iwp) :: iChrct, Last, mask_111010, mask_111011, mask_111101, mask_111110
+integer(kind=iwp) :: iChrct, Last
 real(kind=wp) :: Dummy
 character(len=180) :: Key, KWord
 integer(kind=iwp), external :: iCLast
@@ -28,11 +28,6 @@ character(len=180), external :: Get_Ln
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-mask_111110 = 62
-mask_111101 = 61
-mask_111011 = 59
-mask_111010 = 58
-
 ! KeyWord directed input
 
 do
@@ -137,7 +132,7 @@ do
       !                                                                *
       ! Activate use of Lobatto angular quadrature
 
-      iOpt_Angular = ior(iand(iOpt_Angular,mask_111010),1)
+      iOpt_Angular = ibset(ibclr(iOpt_Angular,2),0)
 
     case ('GGL ')
       !                                                                *
@@ -145,7 +140,7 @@ do
       !                                                                *
       ! Activate use of Gauss and Gauss-Legendre angular quadrature
 
-      iOpt_Angular = iand(iOpt_Angular,mask_111010)
+      iOpt_Angular = ibclr(ibclr(iOpt_Angular,2),0)
 
     case ('WHOL')
       !                                                                *
@@ -154,7 +149,7 @@ do
       ! Activate use of routines which scan the whole atomic grid for
       ! each sub block.
 
-      iOpt_Angular = ior(iand(iOpt_Angular,mask_111101),2)
+      iOpt_Angular = ibset(iOpt_Angular,1)
 
     case ('GLOB')
       !                                                                *
@@ -195,7 +190,7 @@ do
       !                                                                *
       ! Turn off the Lebedev angular grid
 
-      iOpt_Angular = ior(iand(iOpt_Angular,mask_111011),4)
+      iOpt_Angular = ibset(iOpt_Angular,2)
 
     case ('FIXE')
       !                                                                *
@@ -303,9 +298,9 @@ if (btest(iOpt_Angular,2)) then
   if ((L_Quad /= 5) .and. (L_Quad /= 7) .and. (L_Quad /= 11) .and. (L_Quad /= 17) .and. (L_Quad /= 23) .and. (L_Quad /= 29) .and. &
       (L_Quad /= 35) .and. (L_Quad /= 41) .and. (L_Quad /= 47) .and. (L_Quad /= 53) .and. (L_Quad /= 59)) then
     write(u6,*) 'L_Quad does not comply with Lebedev grid.'
-    iOpt_Angular = iand(iOpt_Angular,mask_111011)
+    iOpt_Angular = ibclr(iOpt_Angular,2)
     write(u6,*) 'Lobatto grid activated!'
-    iOpt_Angular = ior(iand(iOpt_Angular,mask_111110),1)
+    iOpt_Angular = ibset(iOpt_Angular,0)
   end if
 end if
 

@@ -30,10 +30,9 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
 use nq_Grid, only: Angular, Coor, Fact, Mem, nGridMax, nR_Eff, Pax
 use nq_structure, only: NQ_Data, Open_NQ_Data
-use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, iAngMax, L_Quad, LDA_type, MBC, &
-                   meta_GGA_type1, meta_GGA_type2, mRad, nAngularGrids, nAOMax, nAtoms, NbrMxBas, ndc, nMaxExp, nMem, nR, ntotgp, &
-                   number_of_subblocks, nx, ny, nz, Off, On, Rotational_Invariance, T_Y, Threshold, x_max, x_min, y_max, y_min, &
-                   z_max, z_min
+use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, L_Quad, LDA_type, MBC, meta_GGA_type1, &
+                   meta_GGA_type2, mRad, nAngularGrids, nAtoms, ndc, nR, ntotgp, number_of_subblocks, nx, ny, nz, Off, On, &
+                   Rotational_Invariance, T_Y, Threshold, x_min, y_min, z_min
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         Not_Specified, Old_Functional_Type, Regenerate, Use_Old
 use Index_Functions, only: nTri_Elem1
@@ -50,10 +49,10 @@ logical(kind=iwp), intent(out) :: PMode_old
 #include "status.fh"
 integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, &
                      iNQ_MBC, iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, &
-                     mdcj, mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nR_tmp, nRad, nRadial, NrExp, nSO, &
-                     nTerm, nxyz
+                     mdcj, mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, &
+                     nSO, nTerm, nxyz
 real(kind=wp) :: A_high, A_low, Alpha(2), Box_Size, C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, &
-                 ValExp, XYZ(3)
+                 ValExp, x_max, XYZ(3), y_max, z_max
 logical(kind=iwp) :: EQ
 real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), TempC(:,:), ZA(:)
 real(kind=wp), external :: Bragg_Slater, Eval_RMin
@@ -121,24 +120,12 @@ call Open_NQ_Data(Coor)
 !***********************************************************************
 !                                                                      *
 ! Loop over each unique center, and find the highest and lowest
-! Gaussians exponents associated with this center. The later
+! Gaussians exponents associated with this center. The latter
 ! information will be used to design the radial grid associated
 ! with this center.
 
-iAngMax = 0
-NbrMxBas = 0
-do iShell=1,nShell
-  iAng = iSD(1,iShell)
-  nCntrc = iSD(3,iShell) !Get the # of contracted functions for iShell
-  mExp = iSD(5,iShell) ! Get the number of exponents of ishell
-  NbrMxBas = max(NbrMxbas,nCntrc)
-  iAngMax = max(iAngMax,iAng)
-end do
-
 ! Loop over the shells
 
-nMaxExp = 0
-nAOMax = 0
 do iShell=1,nShell
 
   ! Get the Atom number
@@ -146,11 +133,8 @@ do iShell=1,nShell
 
   iShll = iSD(0,iShell)  ! Get the angular momentum of ishell
   iAng = iSD(1,iShell)   ! Get the angular momentum of ishell
-  iCmp = iSD(2,iShell)   ! Get the # of angular components
   nCntrc = iSD(3,iShell) ! Get the # of contracted functions for iShell
   mExp = iSD(5,iShell)   ! Get the number of exponents of ishell
-  nMaxExp = max(nMaxExp,mExp)
-  nAOMax = max(nAOMax,iCmp*nCntrc)
 
   !*********************************************************************
   !                                                                    *
