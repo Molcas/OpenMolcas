@@ -57,6 +57,7 @@ Integer, Parameter:: Max_Iter=50
 Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
+Integer :: nWindow=10
 Logical :: Converged=.FALSE.
 Integer :: nExplicit
 Real*8, Allocatable :: Probe(:)
@@ -75,8 +76,9 @@ Call mma_allocate(q,mOV,iterso,Label='q')
 Call mma_allocate(g,mOV,iterso,Label='g')
 
 !Pick up coordinates and gradients in full space
+iFirst=iter-Min(iterso,nWindow)+1
+iFirst=iter-iterso+1    ! Disable the window
 nDIIS = 0
-iFirst=iter-iterso+1
 Do i = iFirst, iter
 !  Write (6,*) 'i,iter=',i,iter
    nDIIS = nDIIS + 1
