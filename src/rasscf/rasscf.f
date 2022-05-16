@@ -51,7 +51,6 @@
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
-      use qcmaquis_interface
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -61,6 +60,7 @@
       use filesystem, only: copy_, real_path
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
+      use para_info, only: king
       use fortran_strings, only: str
       use spin_correlation, only: spin_correlation_driver,
      &    orb_range_p, orb_range_q
@@ -1538,7 +1538,7 @@ cGLM some additional printout for MC-PDFT
         END IF
       end if
 
-      if (write_orb_per_iter) then
+      if (write_orb_per_iter .and. king()) then
         call copy_(real_path('RASORB'),
      &             real_path('ITERORB.'//str(actual_iter)))
 #ifdef _HDF5_
@@ -2075,9 +2075,9 @@ c      End If
           if (NACTEL.gt.3) then ! Ignore 4-RDM if we have <4 electrons
           do i=1,NROOTS
               Write (6,'(a)') 'Writing 4-RDM QCMaquis template'//
-     &   ' for state '//trim(str(i))
+     &   ' for state '//str(i)
               call qcmaquis_interface_prepare_hirdm_template(
-     &        filename="meas-4rdm."//trim(str(i-1))//".in",
+     &        filename="meas-4rdm."//str(i-1)//".in",
      &        state=i-1,
      &        tpl=TEMPLATE_4RDM)
               call qcmaquis_mpssi_transform(
@@ -2093,10 +2093,9 @@ c      End If
           do i=1,NROOTS
             do j=i+1,NROOTS
               Write (6,'(a)') 'Writing 3-TDM QCMaquis template'//
-     &   ' for states '//trim(str(i))//" and "//trim(str(j))
+     &   ' for states '//str(i)//" and "//str(j)
               call qcmaquis_interface_prepare_hirdm_template(
-     &        filename="meas-3tdm."//trim(str(i-1))//"."//
-     &         trim(str(j-1))//".in",
+     &        filename="meas-3tdm."//str(i-1)//"."//str(j-1)//".in",
      &        state=i-1,
      &        state_j=j-1,
      &        tpl=TEMPLATE_TRANSITION_3RDM)

@@ -201,9 +201,14 @@ end function
 
 !> @brief
 !> Copy file from src to dst
+!>
+!> @details
+!> This function is not guaranteed to be thread-safe.
+!> As long as `dst` is different for two processes calling at the same
+!> time, it is safe to use in process-based parallelisation.
 subroutine copy_(src, dst, err)
   character(len=*), intent(in) :: src, dst
-  integer, intent(out), optional :: err
+  integer(kind=iwp), intent(out), optional :: err
   call copy_c(trim(src)//c_null_char, trim(dst)//c_null_char, err)
 end subroutine
 

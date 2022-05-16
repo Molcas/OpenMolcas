@@ -20,7 +20,8 @@
       use definitions, only: MPIInt
       use Para_Info, only: Is_Real_Par
 #endif
-      use definitions, only: wp, int64
+      use, intrinsic :: iso_fortran_env, only: int64
+      use definitions, only: wp
       use Para_Info, only: MyRank
 #ifdef _NECI_
       use filesystem, only: chdir_

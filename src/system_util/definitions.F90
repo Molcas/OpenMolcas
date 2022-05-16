@@ -29,7 +29,6 @@ public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: i1, i4, i8, r4, r8
 public :: ItoB, RtoB, RtoI, CtoR
 public :: u0, u5, u6
-public :: int8, int32, int64, real32, real64
 
 ! This is the working precision and should be preferably used
 ! (we assume logical kinds are the same as integer kinds).
