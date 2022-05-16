@@ -185,6 +185,7 @@ End Do
 
 !nExplicit=mOV    ! Full GEK
 nExplicit=Min(mOV,10) ! Partial GEK
+nExplicit=Min(mOV,20) ! Partial GEK
 !nExplicit=0 ! DIIS-GEK
 Call mma_allocate(e_diis,mOV,   nDIIS+nExplicit,Label='e_diis')
 e_diis(:,:)=Zero
