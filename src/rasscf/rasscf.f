@@ -50,7 +50,10 @@
 
 #ifdef _DMRG_
 !     module dependencies
-      use qcmaquis_interface_cfg
+      use qcmaquis_interface, only: qcmaquis_interface_delete_chkp,
+     &  qcmaquis_interface_prepare_hirdm_template,
+     &  qcmaquis_interface_deinit, qcmaquis_param,
+     &  TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
