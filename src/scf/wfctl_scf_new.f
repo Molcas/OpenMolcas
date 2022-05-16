@@ -379,11 +379,6 @@
 *
               Call TraFck(Fock,nBT,CMO,nBO,.TRUE.,FMOMax,EOrb,nnO,
      &                    Ovrlp,nD)
-*
-*             Transform density matrix to MO basis
-*
-              Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
-*
          End If
 
          If (QNR1st.and. iOpt>=2 ) Then
