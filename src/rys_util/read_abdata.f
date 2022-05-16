@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine read_abdata
       implicit none
 #include "SysDef.fh"
@@ -15,13 +15,13 @@
       character(len=*), parameter :: ABDATA_NAME = 'ABDATA'
       integer, parameter :: lu_abdata = 22
       logical :: found_abdata
-*
+!
       character(len=8) :: key
       integer :: i, itab, ipos, k, nerr
-*
+!
       call f_Inquire(ABDATA_NAME,found_abdata)
       if (.not.found_abdata) then
-        call warningmessage(2,
+        call warningmessage(2,                                          &
      &              ' the abdata file does not exist.')
         call abend()
       end if
@@ -53,7 +53,7 @@
         read(lu_abdata,*)
         read(lu_abdata,*)(btab(k,ipos),k=0,maxdeg)
       end do
-*
+!
       close (lu_abdata)
       return
 #ifdef _WARNING_WORKAROUND_

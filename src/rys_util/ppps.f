@@ -1,57 +1,57 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Roland Lindh                                     *
-************************************************************************
-      Subroutine ppps(EFInt,Zeta,ZInv,nZeta,P,lP,rKappAB,A,B,
-     &                       Eta,EInv, nEta,Q,lQ,rKappCD,C,D,
-     &                CoorAC,TMax,
-     &                iPntr,nPntr,x0,nMax,CW6,CW5,CW4,CW3,CW2,CW1,CW0,
-     &                                    CR6,CR5,CR4,CR3,CR2,CR1,CR0,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Roland Lindh                                     *
+!***********************************************************************
+      Subroutine ppps(EFInt,Zeta,ZInv,nZeta,P,lP,rKappAB,A,B,           &
+     &                       Eta,EInv, nEta,Q,lQ,rKappCD,C,D,           &
+     &                CoorAC,TMax,                                      &
+     &                iPntr,nPntr,x0,nMax,CW6,CW5,CW4,CW3,CW2,CW1,CW0,  &
+     &                                    CR6,CR5,CR4,CR3,CR2,CR1,CR0,  &
      &                ddx,HerW,HerR2,IsChi,ChiI2)
-************************************************************************
-*                                                                      *
-* Object: to compute the primitive integrals of type (pp|ps).          *
-*                                                                      *
-*  Author:    Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, SWEDEN. 1994                                    *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to compute the primitive integrals of type (pp|ps).          *
+!                                                                      *
+!  Author:    Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, SWEDEN. 1994                                    *
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Real*8 EFInt(nZeta,nEta,27), Zeta(nZeta), Eta(nEta),
-     &       CoorAC(3,2), ZInv(nZeta), EInv(nEta),
-     &       P(lP,3), Q(lQ,3), A(3), B(3), C(3), D(3),
-     &       rKappAB(nZeta), rKappCD(nEta),
-     &       x0(nMax),
-     &       CW6(nMax,2), CW5(nMax,2), CW4(nMax,2), CW3(nMax,2),
-     &       CW2(nMax,2), CW1(nMax,2), CW0(nMax,2),
-     &       CR6(nMax,2), CR5(nMax,2), CR4(nMax,2), CR3(nMax,2),
-     &       CR2(nMax,2), CR1(nMax,2), CR0(nMax,2),
+      Real*8 EFInt(nZeta,nEta,27), Zeta(nZeta), Eta(nEta),              &
+     &       CoorAC(3,2), ZInv(nZeta), EInv(nEta),                      &
+     &       P(lP,3), Q(lQ,3), A(3), B(3), C(3), D(3),                  &
+     &       rKappAB(nZeta), rKappCD(nEta),                             &
+     &       x0(nMax),                                                  &
+     &       CW6(nMax,2), CW5(nMax,2), CW4(nMax,2), CW3(nMax,2),        &
+     &       CW2(nMax,2), CW1(nMax,2), CW0(nMax,2),                     &
+     &       CR6(nMax,2), CR5(nMax,2), CR4(nMax,2), CR3(nMax,2),        &
+     &       CR2(nMax,2), CR1(nMax,2), CR0(nMax,2),                     &
      &       HerW(2), HerR2(2)
       Integer iPntr(nPntr)
       Logical EQ
-*
-*
+!
+!
       xdInv=One/ddx
       dddx = ddx/10d0 + ddx
-*
+!
       If (     EQ(A,B).and..Not.EQ(C,D)) Go To 200
       If (.Not.EQ(A,B).and.     EQ(C,D)) Go To 300
       If (     EQ(A,B).and.     EQ(C,D)) Go To 400
-*
-*-----ABCD case
-*
+!
+!-----ABCD case
+!
       Do 10 iEta = 1, nEta
          Do 20 iZeta = 1, nZeta
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*DBLE(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*DBLE(IsChi))
             rho = Zeta(iZeta)*(Eta(iEta)*ZEInv)
             PQx = P(iZeta,1)-Q(iEta,1)
             PQy = P(iZeta,2)-Q(iEta,2)
@@ -60,13 +60,13 @@
             If (T.lt.TMax) Then
                n = iPntr(Int((T+dddx)*xdInv))
                z = T - x0(n)
-               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+
+               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+  &
      &            CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+
+               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+  &
      &            CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+
+               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+  &
      &            CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+
+               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+  &
      &            CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
             Else
                ai = 1.0D0/T
@@ -159,9 +159,9 @@
  20      Continue
  10   Continue
       Go To 99
-*
-*-----AACD case
-*
+!
+!-----AACD case
+!
  200  Continue
       Do 12 iEta = 1, nEta
          Do 22 iZeta = 1, nZeta
@@ -169,20 +169,20 @@
          PQy = CoorAC(2,1)-Q(iEta,2)
          PQz = CoorAC(3,1)-Q(iEta,3)
          PQ2 = (PQx**2 + PQy**2 + PQz**2)
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*DBLE(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*DBLE(IsChi))
             rho = Zeta(iZeta)*(Eta(iEta)*ZEInv)
             T = rho * PQ2
             If (T.lt.TMax) Then
                n = iPntr(Int((T+dddx)*xdInv))
                z = T - x0(n)
-               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+
+               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+  &
      &            CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+
+               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+  &
      &            CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+
+               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+  &
      &            CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+
+               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+  &
      &            CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
             Else
                ai = 1.0D0/T
@@ -266,15 +266,15 @@
  22      Continue
  12   Continue
       Go To 99
-*
-*-----ABCC case
-*
+!
+!-----ABCC case
+!
  300  Continue
 
       Do 13 iEta = 1, nEta
          Do 23 iZeta = 1, nZeta
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*DBLE(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*DBLE(IsChi))
             rho = Zeta(iZeta)*(Eta(iEta)*ZEInv)
             PQx = P(iZeta,1)-CoorAC(1,2)
             PQy = P(iZeta,2)-CoorAC(2,2)
@@ -283,13 +283,13 @@
             If (T.lt.TMax) Then
                n = iPntr(Int((T+dddx)*xdInv))
                z = T - x0(n)
-               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+
+               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+  &
      &            CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+
+               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+  &
      &            CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+
+               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+  &
      &            CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+
+               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+  &
      &            CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
             Else
                ai = 1.0D0/T
@@ -382,9 +382,9 @@
  23      Continue
  13   Continue
       Go To 99
-*
-*-----AACC case
-*
+!
+!-----AACC case
+!
  400  Continue
       PQx = CoorAC(1,1)-CoorAC(1,2)
       PQy = CoorAC(2,1)-CoorAC(2,2)
@@ -392,20 +392,20 @@
       PQ2 = (PQx**2 + PQy**2 + PQz**2)
       Do 14 iEta = 1, nEta
          Do 24 iZeta = 1, nZeta
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*DBLE(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*DBLE(IsChi))
             rho = Zeta(iZeta)*(Eta(iEta)*ZEInv)
             T = rho * PQ2
             If (T.lt.TMax) Then
                n = iPntr(Int((T+dddx)*xdInv))
                z = T - x0(n)
-               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+
+               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+  &
      &            CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+
+               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+  &
      &            CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+
+               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+  &
      &            CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+
+               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+  &
      &            CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
             Else
                ai = 1.0D0/T
@@ -488,10 +488,10 @@
             EFInt(iZeta,iEta,18)=         z211   +      z212
  24      Continue
  14   Continue
-*
+!
  99   Continue
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(EInv)
       End

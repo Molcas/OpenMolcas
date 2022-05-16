@@ -1,50 +1,50 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990,1991,1994, Roland Lindh                           *
-*               1990, IBM                                              *
-************************************************************************
-      SubRoutine vCff2D(iDum1 ,iDum2 ,nRys,
-     &                  Zeta,ZInv,Eta,EInv,nT,
-     &                  Coori,CoorAC,P,Q,
-     &                  la,lb,lc,ld,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,1991,1994, Roland Lindh                           *
+!               1990, IBM                                              *
+!***********************************************************************
+      SubRoutine vCff2D(iDum1 ,iDum2 ,nRys,                             &
+     &                  Zeta,ZInv,Eta,EInv,nT,                          &
+     &                  Coori,CoorAC,P,Q,                               &
+     &                  la,lb,lc,ld,                                    &
      &                  U2,PAQP,QCPQ,B10,B00,lac,B01)
-************************************************************************
-*                                                                      *
-* Object: to compute the coefficients in the three terms recurrence    *
-*         relation of the 2D-integrals.                                *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-*                                                                      *
-*             Modified loop structure for RISC 1991                    *
-*             Modified for decreased memory access January '94.        *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to compute the coefficients in the three terms recurrence    *
+!         relation of the 2D-integrals.                                *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!                                                                      *
+!             Modified loop structure for RISC 1991                    *
+!             Modified for decreased memory access January '94.        *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 Zeta(nT), ZInv(nT), Eta(nT), EInv(nT),
-     &       Coori(3,4), CoorAC(3,2),
-     &       P(nT,3), Q(nT,3), U2(nRys,nT),
-     &       PAQP(nRys,nT,3), QCPQ(nRys,nT,3),
-     &       B10(nRys,nT),
-     &       B00(nRys,nT),
+      Real*8 Zeta(nT), ZInv(nT), Eta(nT), EInv(nT),                     &
+     &       Coori(3,4), CoorAC(3,2),                                   &
+     &       P(nT,3), Q(nT,3), U2(nRys,nT),                             &
+     &       PAQP(nRys,nT,3), QCPQ(nRys,nT,3),                          &
+     &       B10(nRys,nT),                                              &
+     &       B00(nRys,nT),                                              &
      &       B01(nRys,nT)
       Real*8 tmp
-*define _DEBUGPRINT_
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-*     Local arrays
+!     Local arrays
       Character*30 Label
 #endif
       Logical AeqB, CeqD, EQ
-*
+!
 #ifdef _DEBUGPRINT_
       Logical PrintB10, PrintB00, PrintB01
       Call RecPrt(' In vCff2D: Coori',' ',Coori,3,4)
@@ -61,7 +61,7 @@
       PrintB01=.False.
       PrintB00=.False.
 #endif
-*
+!
       nabMax = la+lb
       ncdMax = lc+ld
       h12 = Half
@@ -131,16 +131,16 @@
       PrintB00=.True.
 #endif
          End If
-*
+!
       If (nabMax.ne.0 .and. ncdMax.ne.0) Then
          If (.Not.AeqB .and. .Not.CeqD) Then
           Do iCar = 1,3
              Do iT = 1, nT
                 Do iRys = 1, nRys
                   tmp=U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar))
-                  PAQP(iRys,iT,iCar) =
+                  PAQP(iRys,iT,iCar) =                                  &
      &                  P(iT,iCar) - CoorAC(iCar,1) + Eta(iT)*tmp
-                  QCPQ(iRys,iT,iCar) =
+                  QCPQ(iRys,iT,iCar) =                                  &
      &                  Q(iT,iCar) - CoorAC(iCar,2) - Zeta(iT)*tmp
                EndDo
             EndDo
@@ -151,7 +151,7 @@
                 Do iRys = 1, nRys
                   tmp=U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar))
                   PAQP(iRys,iT,iCar) = Eta(iT)*tmp
-                  QCPQ(iRys,iT,iCar) =
+                  QCPQ(iRys,iT,iCar) =                                  &
      &                Q(iT,iCar) - CoorAC(iCar,2) - Zeta(iT)*tmp
                EndDo
             EndDo
@@ -161,7 +161,7 @@
              Do iT = 1, nT
                 Do iRys = 1, nRys
                   tmp= U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar))
-                  PAQP(iRys,iT,iCar) =
+                  PAQP(iRys,iT,iCar) =                                  &
      &                   P(iT,iCar) - CoorAC(iCar,1) + Eta(iT)*tmp
                   QCPQ(iRys,iT,iCar) = - Zeta(iT)*tmp
                EndDo
@@ -183,8 +183,8 @@
           Do iCar=1,3
              Do iT = 1, nT
                 Do iRys = 1, nRys
-                  PAQP(iRys,iT,iCar) =
-     &                P(iT,iCar) - CoorAC(iCar,1) + Eta(iT)
+                  PAQP(iRys,iT,iCar) =                                  &
+     &                P(iT,iCar) - CoorAC(iCar,1) + Eta(iT)             &
      &                * (U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar)))
                EndDo
             EndDo
@@ -193,7 +193,7 @@
           Do iCar=1,3
              Do iT = 1, nT
                 Do iRys = 1, nRys
-                  PAQP(iRys,iT,iCar) = Eta(iT)
+                  PAQP(iRys,iT,iCar) = Eta(iT)                          &
      &                * (U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar)))
                EndDo
             EndDo
@@ -204,8 +204,8 @@
           Do iCar=1,3
              Do iT = 1, nT
                 Do iRys = 1, nRys
-                  QCPQ(iRys,iT,iCar) =
-     &                Q(iT,iCar) - CoorAC(iCar,2) - Zeta(iT)
+                  QCPQ(iRys,iT,iCar) =                                  &
+     &                Q(iT,iCar) - CoorAC(iCar,2) - Zeta(iT)            &
      &                * (U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar)))
                EndDo
             EndDo
@@ -214,7 +214,7 @@
           Do iCar=1,3
              Do iT = 1, nT
                 Do iRys = 1, nRys
-                  QCPQ(iRys,iT,iCar) = - Zeta(iT)
+                  QCPQ(iRys,iT,iCar) = - Zeta(iT)                       &
      &                * (U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar)))
                EndDo
             EndDo
@@ -224,19 +224,19 @@
 #ifdef _DEBUGPRINT_
       If (la+lb.gt.0) Then
          Write (Label,'(A)') ' PAQP(x)'
-*        Call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)
+!        Call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)
          Write (Label,'(A)') ' PAQP(y)'
-*        Call RecPrt(Label,' ',PAQP(1,1,2),nRys,nT)
+!        Call RecPrt(Label,' ',PAQP(1,1,2),nRys,nT)
          Write (Label,'(A)') ' PAQP(z)'
-*        Call RecPrt(Label,' ',PAQP(1,1,3),nRys,nT)
+!        Call RecPrt(Label,' ',PAQP(1,1,3),nRys,nT)
       End If
       If (lc+ld.gt.0) Then
          Write (Label,'(A)') ' QCPQ(x)'
-*        Call RecPrt(Label,' ',QCPQ(1,1,1),nRys,nT)
+!        Call RecPrt(Label,' ',QCPQ(1,1,1),nRys,nT)
          Write (Label,'(A)') ' QCPQ(y)'
-*        Call RecPrt(Label,' ',QCPQ(1,1,2),nRys,nT)
+!        Call RecPrt(Label,' ',QCPQ(1,1,2),nRys,nT)
          Write (Label,'(A)') ' QCPQ(z)'
-*        Call RecPrt(Label,' ',QCPQ(1,1,3),nRys,nT)
+!        Call RecPrt(Label,' ',QCPQ(1,1,3),nRys,nT)
       End If
       If (PrintB10) Then
          Write (Label,'(A)') ' B10'
@@ -252,7 +252,7 @@
       End If
 #endif
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iDum1)
          Call Unused_integer(iDum2)

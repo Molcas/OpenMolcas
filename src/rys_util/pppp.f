@@ -1,59 +1,59 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Roland Lindh                                     *
-************************************************************************
-      Subroutine pppp(EFInt,Zeta,ZInv,nZeta,P,lP,rKappAB,A,B,
-     &                       Eta,EInv, nEta,Q,lQ,rKappCD,C,D,
-     &                CoorAC,TMax,
-     &                iPntr,nPntr,x0,nMax,CW6,CW5,CW4,CW3,CW2,CW1,CW0,
-     &                                    CR6,CR5,CR4,CR3,CR2,CR1,CR0,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Roland Lindh                                     *
+!***********************************************************************
+      Subroutine pppp(EFInt,Zeta,ZInv,nZeta,P,lP,rKappAB,A,B,           &
+     &                       Eta,EInv, nEta,Q,lQ,rKappCD,C,D,           &
+     &                CoorAC,TMax,                                      &
+     &                iPntr,nPntr,x0,nMax,CW6,CW5,CW4,CW3,CW2,CW1,CW0,  &
+     &                                    CR6,CR5,CR4,CR3,CR2,CR1,CR0,  &
      &                ddx,HerW,HerR2,IsChi,ChiI2)
-************************************************************************
-*                                                                      *
-* Object: to compute the primitive integrals of type (pp|pp).          *
-*                                                                      *
-*  Author:    Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, SWEDEN. 1994                                    *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to compute the primitive integrals of type (pp|pp).          *
+!                                                                      *
+!  Author:    Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, SWEDEN. 1994                                    *
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Real*8 EFInt(nZeta,nEta,81), Zeta(nZeta), Eta(nEta),
-     &       CoorAC(3,2), ZInv(nZeta), EInv(nEta),
-     &       P(lP,3), Q(lQ,3), A(3), B(3), C(3), D(3),
-     &       rKappAB(nZeta), rKappCD(nEta),
-     &       x0(nMax),
-     &       CW6(nMax,3), CW5(nMax,3), CW4(nMax,3), CW3(nMax,3),
-     &       CW2(nMax,3), CW1(nMax,3), CW0(nMax,3),
-     &       CR6(nMax,3), CR5(nMax,3), CR4(nMax,3), CR3(nMax,3),
-     &       CR2(nMax,3), CR1(nMax,3), CR0(nMax,3),
+      Real*8 EFInt(nZeta,nEta,81), Zeta(nZeta), Eta(nEta),              &
+     &       CoorAC(3,2), ZInv(nZeta), EInv(nEta),                      &
+     &       P(lP,3), Q(lQ,3), A(3), B(3), C(3), D(3),                  &
+     &       rKappAB(nZeta), rKappCD(nEta),                             &
+     &       x0(nMax),                                                  &
+     &       CW6(nMax,3), CW5(nMax,3), CW4(nMax,3), CW3(nMax,3),        &
+     &       CW2(nMax,3), CW1(nMax,3), CW0(nMax,3),                     &
+     &       CR6(nMax,3), CR5(nMax,3), CR4(nMax,3), CR3(nMax,3),        &
+     &       CR2(nMax,3), CR1(nMax,3), CR0(nMax,3),                     &
      &       HerW(3), HerR2(3)
       Integer iPntr(nPntr)
       Logical ABeqCD, EQ
-*
-*
+!
+!
       xdInv=One/ddx
       dddx = ddx/10d0 + ddx
-*
+!
       ABeqCD = EQ(A,B) .and. EQ(A,C) .and. EQ(A,D)
       If (            ABeqCD           ) Go To 100
       If (     EQ(A,B).and..Not.EQ(C,D)) Go To 200
       If (.Not.EQ(A,B).and.     EQ(C,D)) Go To 300
       If (     EQ(A,B).and.     EQ(C,D)) Go To 400
-*
-*-----ABCD case
-*
+!
+!-----ABCD case
+!
       Do 10 iEta = 1, nEta
          Do 20 iZeta = 1, nZeta
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
             rho = Zeta(iZeta)*(Eta(iEta)*ZEInv)
             PQx = P(iZeta,1)-Q(iEta,1)
             PQy = P(iZeta,2)-Q(iEta,2)
@@ -62,17 +62,17 @@
             If (T.lt.TMax) Then
                n = iPntr(Int((T+dddx)*xdInv))
                z = T - x0(n)
-               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+
+               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+  &
      &            CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+
+               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+  &
      &            CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-               w3=(((((CW6(n,3)*z+CW5(n,3))*z+CW4(n,3))*z+CW3(n,3))*z+
+               w3=(((((CW6(n,3)*z+CW5(n,3))*z+CW4(n,3))*z+CW3(n,3))*z+  &
      &            CW2(n,3))*z+CW1(n,3))*z+Cw0(n,3)
-               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+
+               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+  &
      &            CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+
+               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+  &
      &            CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
-               r3=(((((CR6(n,3)*z+CR5(n,3))*z+CR4(n,3))*z+CR3(n,3))*z+
+               r3=(((((CR6(n,3)*z+CR5(n,3))*z+CR4(n,3))*z+CR3(n,3))*z+  &
      &            CR2(n,3))*z+CR1(n,3))*z+CR0(n,3)
             Else
                ai = 1.0D0/T
@@ -193,192 +193,192 @@
             z221= PAQPz1*z121 + B101*z021 + Two*B001*z111
             z222= PAQPz2*z122 + B102*z022 + Two*B002*z112
             z223= PAQPz3*z123 + B103*z023 + Two*B003*z113
-            EFInt(iZeta,iEta, 1)=
+            EFInt(iZeta,iEta, 1)=                                       &
      &    (x111        *   w1)+(x112        *   w2)+(x113        *   w3)
-            EFInt(iZeta,iEta, 2)=
+            EFInt(iZeta,iEta, 2)=                                       &
      &    (x011 * y101)*   w1 +(x012 * y102)*   w2 +(x013 * y103)*   w3
-            EFInt(iZeta,iEta, 3)=
+            EFInt(iZeta,iEta, 3)=                                       &
      &     x011        * z101 + x012        * z102 + x013        * z103
-            EFInt(iZeta,iEta, 4)=
+            EFInt(iZeta,iEta, 4)=                                       &
      &    (x211        *   w1)+(x212        *   w2)+(x213        *   w3)
-            EFInt(iZeta,iEta, 5)=
+            EFInt(iZeta,iEta, 5)=                                       &
      &    (x111 *   w1)* y101 +(x112 *   w2)* y102 +(x113 *   w3)* y103
-            EFInt(iZeta,iEta, 6)=
+            EFInt(iZeta,iEta, 6)=                                       &
      &     x111        * z101 + x112        * z102 + x113        * z103
-            EFInt(iZeta,iEta, 7)=
+            EFInt(iZeta,iEta, 7)=                                       &
      &     x011 * y201 *   w1 + x012 * y202 *   w2 + x013 * y203 *   w3
-            EFInt(iZeta,iEta, 8)=
+            EFInt(iZeta,iEta, 8)=                                       &
      &    (x011 * y101)* z101 +(x012 * y102)* z102 +(x013 * y103)* z103
-            EFInt(iZeta,iEta, 9)=
+            EFInt(iZeta,iEta, 9)=                                       &
      &     x011        * z201 + x012        * z202 + x013        * z203
-            EFInt(iZeta,iEta,10)=
+            EFInt(iZeta,iEta,10)=                                       &
      &    (x101 * y011)*   w1 +(x102 * y012)*   w2 +(x103 * y013)*   w3
-            EFInt(iZeta,iEta,11)=
+            EFInt(iZeta,iEta,11)=                                       &
      &            y111 *   w1 +        y112 *   w2 +        y113 *   w3
-            EFInt(iZeta,iEta,12)=
+            EFInt(iZeta,iEta,12)=                                       &
      &           (y011 * z101)+       (y012 * z102)+       (y013 * z103)
-            EFInt(iZeta,iEta,13)=
+            EFInt(iZeta,iEta,13)=                                       &
      &    (x201 * y011)*   w1 +(x202 * y012)*   w2 +(x203 * y013)*   w3
-            EFInt(iZeta,iEta,14)=
+            EFInt(iZeta,iEta,14)=                                       &
      &    (x101 * y111)*   w1 +(x102 * y112)*   w2 +(x103 * y113)*   w3
-            EFInt(iZeta,iEta,15)=
+            EFInt(iZeta,iEta,15)=                                       &
      &    (x101 * y011)* z101 +(x102 * y012)* z102 +(x103 * y013)* z103
-            EFInt(iZeta,iEta,16)=
+            EFInt(iZeta,iEta,16)=                                       &
      &           (y211 *   w1)+       (y212 *   w2)+       (y213 *   w3)
-            EFInt(iZeta,iEta,17)=
+            EFInt(iZeta,iEta,17)=                                       &
      &            y111 * z101 +        y112 * z102 +        y113 * z103
-            EFInt(iZeta,iEta,18)=
+            EFInt(iZeta,iEta,18)=                                       &
      &            y011 * z201 +        y012 * z202 +        y013 * z203
-            EFInt(iZeta,iEta,19)=
+            EFInt(iZeta,iEta,19)=                                       &
      &     x101        * z011 + x102        * z012 + x103        * z013
-            EFInt(iZeta,iEta,20)=
+            EFInt(iZeta,iEta,20)=                                       &
      &           (y101 * z011)+       (y102 * z012)+       (y103 * z013)
-            EFInt(iZeta,iEta,21)=
+            EFInt(iZeta,iEta,21)=                                       &
      &                   z111 +               z112 +               z113
-            EFInt(iZeta,iEta,22)=
+            EFInt(iZeta,iEta,22)=                                       &
      &     x201        * z011 + x202        * z012 + x203        * z013
-            EFInt(iZeta,iEta,23)=
+            EFInt(iZeta,iEta,23)=                                       &
      &     x101 *(y101 * z011)+ x102 *(y102 * z012)+ x103 *(y103 * z013)
-            EFInt(iZeta,iEta,24)=
+            EFInt(iZeta,iEta,24)=                                       &
      &     x101        * z111 + x102        * z112 + x103        * z113
-            EFInt(iZeta,iEta,25)=
+            EFInt(iZeta,iEta,25)=                                       &
      &            y201 * z011 +        y202 * z012 +        y203 * z013
-            EFInt(iZeta,iEta,26)=
+            EFInt(iZeta,iEta,26)=                                       &
      &            y101 * z111 +        y102 * z112 +        y103 * z113
-            EFInt(iZeta,iEta,27)=
+            EFInt(iZeta,iEta,27)=                                       &
      &                   z211 +               z212 +               z213
-            EFInt(iZeta,iEta,28)=
+            EFInt(iZeta,iEta,28)=                                       &
      &    (x121        *   w1)+(x122        *   w2)+(x123        *   w3)
-            EFInt(iZeta,iEta,29)=
+            EFInt(iZeta,iEta,29)=                                       &
      &    (x021 * y101)*   w1 +(x022 * y102)*   w2 +(x023 * y103)*   w3
-            EFInt(iZeta,iEta,30)=
+            EFInt(iZeta,iEta,30)=                                       &
      &     x021        * z101 + x022        * z102 + x023        * z103
-            EFInt(iZeta,iEta,31)=
+            EFInt(iZeta,iEta,31)=                                       &
      &     x221        *   w1 + x222        *   w2 + x223        *   w3
-            EFInt(iZeta,iEta,32)=
+            EFInt(iZeta,iEta,32)=                                       &
      &    (x121 *   w1)* y101 +(x122 *   w2)* y102 +(x123 *   w3)* y103
-            EFInt(iZeta,iEta,33)=
+            EFInt(iZeta,iEta,33)=                                       &
      &     x121        * z101 + x122        * z102 + x123        * z103
-            EFInt(iZeta,iEta,34)=
+            EFInt(iZeta,iEta,34)=                                       &
      &     x021 * y201 *   w1 + x022 * y202 *   w2 + x023 * y203 *   w3
-            EFInt(iZeta,iEta,35)=
+            EFInt(iZeta,iEta,35)=                                       &
      &    (x021 * y101)* z101 +(x022 * y102)* z102 +(x023 * y103)* z103
-            EFInt(iZeta,iEta,36)=
+            EFInt(iZeta,iEta,36)=                                       &
      &     x021        * z201 + x022        * z202 + x023        * z203
-            EFInt(iZeta,iEta,37)=
+            EFInt(iZeta,iEta,37)=                                       &
      &    (x111 *   w1)* y011 +(x112 *   w2)* y012 +(x113 *   w3)* y013
-            EFInt(iZeta,iEta,38)=
+            EFInt(iZeta,iEta,38)=                                       &
      &    (x011 * y111)*   w1 +(x012 * y112)*   w2 +(x013 * y113)*   w3
-            EFInt(iZeta,iEta,39)=
+            EFInt(iZeta,iEta,39)=                                       &
      &    (x011 * y011)* z101 +(x012 * y012)* z102 +(x013 * y013)* z103
-            EFInt(iZeta,iEta,40)=
+            EFInt(iZeta,iEta,40)=                                       &
      &    (x211 *   w1)* y011 +(x212 *   w2)* y012 +(x213 *   w3)* y013
-            EFInt(iZeta,iEta,41)=
+            EFInt(iZeta,iEta,41)=                                       &
      &     x111 * y111 *   w1 + x112 * y112 *   w2 + x113 * y113 *   w3
-            EFInt(iZeta,iEta,42)=
+            EFInt(iZeta,iEta,42)=                                       &
      &     x111 *(y011 * z101)+ x112 *(y012 * z102)+ x113 *(y013 * z103)
-            EFInt(iZeta,iEta,43)=
+            EFInt(iZeta,iEta,43)=                                       &
      &     x011 *(y211 *   w1)+ x012 *(y212 *   w2)+ x013 *(y213 *   w3)
-            EFInt(iZeta,iEta,44)=
+            EFInt(iZeta,iEta,44)=                                       &
      &    (x011 * y111)* z101 +(x012 * y112)* z102 +(x013 * y113)* z103
-            EFInt(iZeta,iEta,45)=
+            EFInt(iZeta,iEta,45)=                                       &
      &    (x011 * y011)* z201 +(x012 * y012)* z202 +(x013 * y013)* z203
-            EFInt(iZeta,iEta,46)=
+            EFInt(iZeta,iEta,46)=                                       &
      &     x111        * z011 + x112        * z012 + x113        * z013
-            EFInt(iZeta,iEta,47)=
+            EFInt(iZeta,iEta,47)=                                       &
      &    (x011 * y101)* z011 +(x012 * y102)* z012 +(x013 * y103)* z013
-            EFInt(iZeta,iEta,48)=
+            EFInt(iZeta,iEta,48)=                                       &
      &     x011        * z111 + x012        * z112 + x013        * z113
-            EFInt(iZeta,iEta,49)=
+            EFInt(iZeta,iEta,49)=                                       &
      &     x211        * z011 + x212        * z012 + x213        * z013
-            EFInt(iZeta,iEta,50)=
+            EFInt(iZeta,iEta,50)=                                       &
      &     x111 *(y101 * z011)+ x112 *(y102 * z012)+ x113 *(y103 * z013)
-            EFInt(iZeta,iEta,51)=
+            EFInt(iZeta,iEta,51)=                                       &
      &     x111        * z111 + x112        * z112 + x113        * z113
-            EFInt(iZeta,iEta,52)=
+            EFInt(iZeta,iEta,52)=                                       &
      &    (x011 * y201)* z011 +(x012 * y202)* z012 +(x013 * y203)* z013
-            EFInt(iZeta,iEta,53)=
+            EFInt(iZeta,iEta,53)=                                       &
      &    (x011 * y101)* z111 +(x012 * y102)* z112 +(x013 * y103)* z113
-            EFInt(iZeta,iEta,54)=
+            EFInt(iZeta,iEta,54)=                                       &
      &     x011        * z211 + x012        * z212 + x013        * z213
-            EFInt(iZeta,iEta,55)=
+            EFInt(iZeta,iEta,55)=                                       &
      &     x101 * y021 *   w1 + x102 * y022 *   w2 + x103 * y023 *   w3
-            EFInt(iZeta,iEta,56)=
+            EFInt(iZeta,iEta,56)=                                       &
      &           (y121 *   w1)+       (y122 *   w2)+       (y123 *   w3)
-            EFInt(iZeta,iEta,57)=
+            EFInt(iZeta,iEta,57)=                                       &
      &           (y021 * z101)+       (y022 * z102)+       (y023 * z103)
-            EFInt(iZeta,iEta,58)=
+            EFInt(iZeta,iEta,58)=                                       &
      &     x201 * y021 *   w1 + x202 * y022 *   w2 + x203 * y023 *   w3
-            EFInt(iZeta,iEta,59)=
+            EFInt(iZeta,iEta,59)=                                       &
      &     x101 *(y121 *   w1)+ x102 *(y122 *   w2)+ x103 *(y123 *   w3)
-            EFInt(iZeta,iEta,60)=
+            EFInt(iZeta,iEta,60)=                                       &
      &     x101 *(y021 * z101)+ x102 *(y022 * z102)+ x103 *(y023 * z103)
-            EFInt(iZeta,iEta,61)=
+            EFInt(iZeta,iEta,61)=                                       &
      &            y221 *   w1 +        y222 *   w2 +        y223 *   w3
-            EFInt(iZeta,iEta,62)=
+            EFInt(iZeta,iEta,62)=                                       &
      &            y121 * z101 +        y122 * z102 +        y123 * z103
-            EFInt(iZeta,iEta,63)=
+            EFInt(iZeta,iEta,63)=                                       &
      &            y021 * z201 +        y022 * z202 +        y023 * z203
-            EFInt(iZeta,iEta,64)=
+            EFInt(iZeta,iEta,64)=                                       &
      &    (x101 * y011)* z011 +(x102 * y012)* z012 +(x103 * y013)* z013
-            EFInt(iZeta,iEta,65)=
+            EFInt(iZeta,iEta,65)=                                       &
      &            y111 * z011 +        y112 * z012 +        y113 * z013
-            EFInt(iZeta,iEta,66)=
+            EFInt(iZeta,iEta,66)=                                       &
      &            y011 * z111 +        y012 * z112 +        y013 * z113
-            EFInt(iZeta,iEta,67)=
+            EFInt(iZeta,iEta,67)=                                       &
      &    (x201 * y011)* z011 +(x202 * y012)* z012 +(x203 * y013)* z013
-            EFInt(iZeta,iEta,68)=
+            EFInt(iZeta,iEta,68)=                                       &
      &    (x101 * y111)* z011 +(x102 * y112)* z012 +(x103 * y113)* z013
-            EFInt(iZeta,iEta,69)=
+            EFInt(iZeta,iEta,69)=                                       &
      &    (x101 * y011)* z111 +(x102 * y012)* z112 +(x103 * y013)* z113
-            EFInt(iZeta,iEta,70)=
+            EFInt(iZeta,iEta,70)=                                       &
      &            y211 * z011 +        y212 * z012 +        y213 * z013
-            EFInt(iZeta,iEta,71)=
+            EFInt(iZeta,iEta,71)=                                       &
      &            y111 * z111 +        y112 * z112 +        y113 * z113
-            EFInt(iZeta,iEta,72)=
+            EFInt(iZeta,iEta,72)=                                       &
      &            y011 * z211 +        y012 * z212 +        y013 * z213
-            EFInt(iZeta,iEta,73)=
+            EFInt(iZeta,iEta,73)=                                       &
      &     x101        * z021 + x102        * z022 + x103        * z023
-            EFInt(iZeta,iEta,74)=
+            EFInt(iZeta,iEta,74)=                                       &
      &           (y101 * z021)+       (y102 * z022)+       (y103 * z023)
-            EFInt(iZeta,iEta,75)=
+            EFInt(iZeta,iEta,75)=                                       &
      &                   z121 +               z122 +               z123
-            EFInt(iZeta,iEta,76)=
+            EFInt(iZeta,iEta,76)=                                       &
      &     x201        * z021 + x202        * z022 + x203        * z023
-            EFInt(iZeta,iEta,77)=
+            EFInt(iZeta,iEta,77)=                                       &
      &     x101 *(y101 * z021)+ x102 *(y102 * z022)+ x103 *(y103 * z023)
-            EFInt(iZeta,iEta,78)=
+            EFInt(iZeta,iEta,78)=                                       &
      &     x101        * z121 + x102        * z122 + x103        * z123
-            EFInt(iZeta,iEta,79)=
+            EFInt(iZeta,iEta,79)=                                       &
      &            y201 * z021 +        y202 * z022 +        y203 * z023
-            EFInt(iZeta,iEta,80)=
+            EFInt(iZeta,iEta,80)=                                       &
      &            y101 * z121 +        y102 * z122 +        y103 * z123
-            EFInt(iZeta,iEta,81)=
+            EFInt(iZeta,iEta,81)=                                       &
      &                   z221 +               z222 +               z223
  20      Continue
  10   Continue
       Go To 99
-*
-*-----AAAA case
-*
+!
+!-----AAAA case
+!
  100  Continue
       z =  - x0(1)
-      ww1=(((((CW6(1,1)*z+CW5(1,1))*z+CW4(1,1))*z+CW3(1,1))*z+
+      ww1=(((((CW6(1,1)*z+CW5(1,1))*z+CW4(1,1))*z+CW3(1,1))*z+          &
      &   CW2(1,1))*z+CW1(1,1))*z+Cw0(1,1)
-      ww2=(((((CW6(1,2)*z+CW5(1,2))*z+CW4(1,2))*z+CW3(1,2))*z+
+      ww2=(((((CW6(1,2)*z+CW5(1,2))*z+CW4(1,2))*z+CW3(1,2))*z+          &
      &   CW2(1,2))*z+CW1(1,2))*z+Cw0(1,2)
-      ww3=(((((CW6(1,3)*z+CW5(1,3))*z+CW4(1,3))*z+CW3(1,3))*z+
+      ww3=(((((CW6(1,3)*z+CW5(1,3))*z+CW4(1,3))*z+CW3(1,3))*z+          &
      &   CW2(1,3))*z+CW1(1,3))*z+Cw0(1,3)
-      r1=(((((CR6(1,1)*z+CR5(1,1))*z+CR4(1,1))*z+CR3(1,1))*z+
+      r1=(((((CR6(1,1)*z+CR5(1,1))*z+CR4(1,1))*z+CR3(1,1))*z+           &
      &   CR2(1,1))*z+CR1(1,1))*z+CR0(1,1)
-      r2=(((((CR6(1,2)*z+CR5(1,2))*z+CR4(1,2))*z+CR3(1,2))*z+
+      r2=(((((CR6(1,2)*z+CR5(1,2))*z+CR4(1,2))*z+CR3(1,2))*z+           &
      &   CR2(1,2))*z+CR1(1,2))*z+CR0(1,2)
-      r3=(((((CR6(1,3)*z+CR5(1,3))*z+CR4(1,3))*z+CR3(1,3))*z+
+      r3=(((((CR6(1,3)*z+CR5(1,3))*z+CR4(1,3))*z+CR3(1,3))*z+           &
      &   CR2(1,3))*z+CR1(1,3))*z+CR0(1,3)
       Do 11 iEta = 1, nEta
          Do 21 iZeta = 1, nZeta
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
             PreFct = rKappCD(iEta) * rKappAB(iZeta) * Sqrt(ZEInv)
             w1 = PreFct*ww1
             w2 = PreFct*ww2
@@ -434,17 +434,17 @@
             z221= B101*z021 + Two*B001*z111
             z222= B102*z022 + Two*B002*z112
             z223= B103*z023 + Two*B003*z113
-            EFInt(iZeta,iEta, 1)=
+            EFInt(iZeta,iEta, 1)=                                       &
      &     x221        *   w1 + x222        *   w2 + x223        *   w3
             EFInt(iZeta,iEta, 2)= Zero
             EFInt(iZeta,iEta, 3)= Zero
-            EFInt(iZeta,iEta, 4)=
+            EFInt(iZeta,iEta, 4)=                                       &
      &     x021 * y201 *   w1 + x022 * y202 *   w2 + x023 * y203 *   w3
             EFInt(iZeta,iEta, 5)= Zero
-            EFInt(iZeta,iEta, 6)=
+            EFInt(iZeta,iEta, 6)=                                       &
      &     x021        * z201 + x022        * z202 + x023        * z203
             EFInt(iZeta,iEta, 7)= Zero
-            EFInt(iZeta,iEta, 8)=
+            EFInt(iZeta,iEta, 8)=                                       &
      &     x111 * y111 *   w1 + x112 * y112 *   w2 + x113 * y113 *   w3
             EFInt(iZeta,iEta, 9)= Zero
             EFInt(iZeta,iEta,10)= Zero
@@ -452,42 +452,42 @@
             EFInt(iZeta,iEta,12)= Zero
             EFInt(iZeta,iEta,13)= Zero
             EFInt(iZeta,iEta,14)= Zero
-            EFInt(iZeta,iEta,15)=
+            EFInt(iZeta,iEta,15)=                                       &
      &     x111        * z111 + x112        * z112 + x113        * z113
             EFInt(iZeta,iEta,16)= Zero
             EFInt(iZeta,iEta,17)= Zero
             EFInt(iZeta,iEta,18)= Zero
-            EFInt(iZeta,iEta,19)=
+            EFInt(iZeta,iEta,19)=                                       &
      &     x201 * y021 *   w1 + x202 * y022 *   w2 + x203 * y023 *   w3
             EFInt(iZeta,iEta,20)= Zero
             EFInt(iZeta,iEta,21)= Zero
-            EFInt(iZeta,iEta,22)=
+            EFInt(iZeta,iEta,22)=                                       &
      &            y221 *   w1 +        y222 *   w2 +        y223 *   w3
             EFInt(iZeta,iEta,23)= Zero
-            EFInt(iZeta,iEta,24)=
+            EFInt(iZeta,iEta,24)=                                       &
      &            y021 * z201 +        y022 * z202 +        y023 * z203
             EFInt(iZeta,iEta,25)= Zero
             EFInt(iZeta,iEta,26)= Zero
             EFInt(iZeta,iEta,27)= Zero
             EFInt(iZeta,iEta,28)= Zero
-            EFInt(iZeta,iEta,29)=
+            EFInt(iZeta,iEta,29)=                                       &
      &            y111 * z111 +        y112 * z112 +        y113 * z113
             EFInt(iZeta,iEta,30)= Zero
-            EFInt(iZeta,iEta,31)=
+            EFInt(iZeta,iEta,31)=                                       &
      &     x201        * z021 + x202        * z022 + x203        * z023
             EFInt(iZeta,iEta,32)= Zero
             EFInt(iZeta,iEta,33)= Zero
-            EFInt(iZeta,iEta,34)=
+            EFInt(iZeta,iEta,34)=                                       &
      &            y201 * z021 +        y202 * z022 +        y203 * z023
             EFInt(iZeta,iEta,35)= Zero
-            EFInt(iZeta,iEta,36)=
+            EFInt(iZeta,iEta,36)=                                       &
      &                   z221 +               z222 +               z223
  21      Continue
  11   Continue
       Go To 99
-*
-*-----AACD case
-*
+!
+!-----AACD case
+!
  200  Continue
       Do 12 iEta = 1, nEta
          Do 22 iZeta = 1, nZeta
@@ -495,24 +495,24 @@
          PQy = CoorAC(2,1)-Q(iEta,2)
          PQz = CoorAC(3,1)-Q(iEta,3)
          PQ2 = PQx**2 + PQy**2 + PQz**2
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
             rho = Zeta(iZeta)*(Eta(iEta)*ZEInv)
             T = rho * PQ2
             If (T.lt.TMax) Then
                n = iPntr(Int((T+dddx)*xdInv))
                z = T - x0(n)
-               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+
+               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+  &
      &            CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+
+               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+  &
      &            CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-               w3=(((((CW6(n,3)*z+CW5(n,3))*z+CW4(n,3))*z+CW3(n,3))*z+
+               w3=(((((CW6(n,3)*z+CW5(n,3))*z+CW4(n,3))*z+CW3(n,3))*z+  &
      &            CW2(n,3))*z+CW1(n,3))*z+Cw0(n,3)
-               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+
+               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+  &
      &            CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+
+               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+  &
      &            CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
-               r3=(((((CR6(n,3)*z+CR5(n,3))*z+CR4(n,3))*z+CR3(n,3))*z+
+               r3=(((((CR6(n,3)*z+CR5(n,3))*z+CR4(n,3))*z+CR3(n,3))*z+  &
      &            CR2(n,3))*z+CR1(n,3))*z+CR0(n,3)
             Else
                ai = 1.0D0/T
@@ -633,125 +633,125 @@
             z221= PAQPz1*z121 + B101*z021 + Two*B001*z111
             z222= PAQPz2*z122 + B102*z022 + Two*B002*z112
             z223= PAQPz3*z123 + B103*z023 + Two*B003*z113
-            EFInt(iZeta,iEta, 1)=
+            EFInt(iZeta,iEta, 1)=                                       &
      &    (x211        *   w1)+(x212        *   w2)+(x213        *   w3)
-            EFInt(iZeta,iEta, 2)=
+            EFInt(iZeta,iEta, 2)=                                       &
      &    (x111 *   w1)* y101 +(x112 *   w2)* y102 +(x113 *   w3)* y103
-            EFInt(iZeta,iEta, 3)=
+            EFInt(iZeta,iEta, 3)=                                       &
      &     x111        * z101 + x112        * z102 + x113        * z103
-            EFInt(iZeta,iEta, 4)=
+            EFInt(iZeta,iEta, 4)=                                       &
      &     x011 * y201 *   w1 + x012 * y202 *   w2 + x013 * y203 *   w3
-            EFInt(iZeta,iEta, 5)=
+            EFInt(iZeta,iEta, 5)=                                       &
      &    (x011 * y101)* z101 +(x012 * y102)* z102 +(x013 * y103)* z103
-            EFInt(iZeta,iEta, 6)=
+            EFInt(iZeta,iEta, 6)=                                       &
      &     x011        * z201 + x012        * z202 + x013        * z203
-            EFInt(iZeta,iEta, 7)=
+            EFInt(iZeta,iEta, 7)=                                       &
      &    (x201 * y011)*   w1 +(x202 * y012)*   w2 +(x203 * y013)*   w3
-            EFInt(iZeta,iEta, 8)=
+            EFInt(iZeta,iEta, 8)=                                       &
      &    (x101 * y111)*   w1 +(x102 * y112)*   w2 +(x103 * y113)*   w3
-            EFInt(iZeta,iEta, 9)=
+            EFInt(iZeta,iEta, 9)=                                       &
      &    (x101 * y011)* z101 +(x102 * y012)* z102 +(x103 * y013)* z103
-            EFInt(iZeta,iEta,10)=
+            EFInt(iZeta,iEta,10)=                                       &
      &           (y211 *   w1)+       (y212 *   w2)+       (y213 *   w3)
-            EFInt(iZeta,iEta,11)=
+            EFInt(iZeta,iEta,11)=                                       &
      &            y111 * z101 +        y112 * z102 +        y113 * z103
-            EFInt(iZeta,iEta,12)=
+            EFInt(iZeta,iEta,12)=                                       &
      &            y011 * z201 +        y012 * z202 +        y013 * z203
-            EFInt(iZeta,iEta,13)=
+            EFInt(iZeta,iEta,13)=                                       &
      &     x201        * z011 + x202        * z012 + x203        * z013
-            EFInt(iZeta,iEta,14)=
+            EFInt(iZeta,iEta,14)=                                       &
      &     x101 *(y101 * z011)+ x102 *(y102 * z012)+ x103 *(y103 * z013)
-            EFInt(iZeta,iEta,15)=
+            EFInt(iZeta,iEta,15)=                                       &
      &     x101        * z111 + x102        * z112 + x103        * z113
-            EFInt(iZeta,iEta,16)=
+            EFInt(iZeta,iEta,16)=                                       &
      &            y201 * z011 +        y202 * z012 +        y203 * z013
-            EFInt(iZeta,iEta,17)=
+            EFInt(iZeta,iEta,17)=                                       &
      &            y101 * z111 +        y102 * z112 +        y103 * z113
-            EFInt(iZeta,iEta,18)=
+            EFInt(iZeta,iEta,18)=                                       &
      &                   z211 +               z212 +               z213
-            EFInt(iZeta,iEta,19)=
+            EFInt(iZeta,iEta,19)=                                       &
      &     x221        *   w1 + x222        *   w2 + x223        *   w3
-            EFInt(iZeta,iEta,20)=
+            EFInt(iZeta,iEta,20)=                                       &
      &    (x121 *   w1)* y101 +(x122 *   w2)* y102 +(x123 *   w3)* y103
-            EFInt(iZeta,iEta,21)=
+            EFInt(iZeta,iEta,21)=                                       &
      &     x121        * z101 + x122        * z102 + x123        * z103
-            EFInt(iZeta,iEta,22)=
+            EFInt(iZeta,iEta,22)=                                       &
      &     x021 * y201 *   w1 + x022 * y202 *   w2 + x023 * y203 *   w3
-            EFInt(iZeta,iEta,23)=
+            EFInt(iZeta,iEta,23)=                                       &
      &    (x021 * y101)* z101 +(x022 * y102)* z102 +(x023 * y103)* z103
-            EFInt(iZeta,iEta,24)=
+            EFInt(iZeta,iEta,24)=                                       &
      &     x021        * z201 + x022        * z202 + x023        * z203
-            EFInt(iZeta,iEta,25)=
+            EFInt(iZeta,iEta,25)=                                       &
      &    (x211 *   w1)* y011 +(x212 *   w2)* y012 +(x213 *   w3)* y013
-            EFInt(iZeta,iEta,26)=
+            EFInt(iZeta,iEta,26)=                                       &
      &     x111 * y111 *   w1 + x112 * y112 *   w2 + x113 * y113 *   w3
-            EFInt(iZeta,iEta,27)=
+            EFInt(iZeta,iEta,27)=                                       &
      &     x111 *(y011 * z101)+ x112 *(y012 * z102)+ x113 *(y013 * z103)
-            EFInt(iZeta,iEta,28)=
+            EFInt(iZeta,iEta,28)=                                       &
      &     x011 *(y211 *   w1)+ x012 *(y212 *   w2)+ x013 *(y213 *   w3)
-            EFInt(iZeta,iEta,29)=
+            EFInt(iZeta,iEta,29)=                                       &
      &    (x011 * y111)* z101 +(x012 * y112)* z102 +(x013 * y113)* z103
-            EFInt(iZeta,iEta,30)=
+            EFInt(iZeta,iEta,30)=                                       &
      &    (x011 * y011)* z201 +(x012 * y012)* z202 +(x013 * y013)* z203
-            EFInt(iZeta,iEta,31)=
+            EFInt(iZeta,iEta,31)=                                       &
      &     x211        * z011 + x212        * z012 + x213        * z013
-            EFInt(iZeta,iEta,32)=
+            EFInt(iZeta,iEta,32)=                                       &
      &     x111 *(y101 * z011)+ x112 *(y102 * z012)+ x113 *(y103 * z013)
-            EFInt(iZeta,iEta,33)=
+            EFInt(iZeta,iEta,33)=                                       &
      &     x111        * z111 + x112        * z112 + x113        * z113
-            EFInt(iZeta,iEta,34)=
+            EFInt(iZeta,iEta,34)=                                       &
      &    (x011 * y201)* z011 +(x012 * y202)* z012 +(x013 * y203)* z013
-            EFInt(iZeta,iEta,35)=
+            EFInt(iZeta,iEta,35)=                                       &
      &    (x011 * y101)* z111 +(x012 * y102)* z112 +(x013 * y103)* z113
-            EFInt(iZeta,iEta,36)=
+            EFInt(iZeta,iEta,36)=                                       &
      &     x011        * z211 + x012        * z212 + x013        * z213
-            EFInt(iZeta,iEta,37)=
+            EFInt(iZeta,iEta,37)=                                       &
      &     x201 * y021 *   w1 + x202 * y022 *   w2 + x203 * y023 *   w3
-            EFInt(iZeta,iEta,38)=
+            EFInt(iZeta,iEta,38)=                                       &
      &     x101 *(y121 *   w1)+ x102 *(y122 *   w2)+ x103 *(y123 *   w3)
-            EFInt(iZeta,iEta,39)=
+            EFInt(iZeta,iEta,39)=                                       &
      &     x101 *(y021 * z101)+ x102 *(y022 * z102)+ x103 *(y023 * z103)
-            EFInt(iZeta,iEta,40)=
+            EFInt(iZeta,iEta,40)=                                       &
      &            y221 *   w1 +        y222 *   w2 +        y223 *   w3
-            EFInt(iZeta,iEta,41)=
+            EFInt(iZeta,iEta,41)=                                       &
      &            y121 * z101 +        y122 * z102 +        y123 * z103
-            EFInt(iZeta,iEta,42)=
+            EFInt(iZeta,iEta,42)=                                       &
      &            y021 * z201 +        y022 * z202 +        y023 * z203
-            EFInt(iZeta,iEta,43)=
+            EFInt(iZeta,iEta,43)=                                       &
      &    (x201 * y011)* z011 +(x202 * y012)* z012 +(x203 * y013)* z013
-            EFInt(iZeta,iEta,44)=
+            EFInt(iZeta,iEta,44)=                                       &
      &    (x101 * y111)* z011 +(x102 * y112)* z012 +(x103 * y113)* z013
-            EFInt(iZeta,iEta,45)=
+            EFInt(iZeta,iEta,45)=                                       &
      &    (x101 * y011)* z111 +(x102 * y012)* z112 +(x103 * y013)* z113
-            EFInt(iZeta,iEta,46)=
+            EFInt(iZeta,iEta,46)=                                       &
      &            y211 * z011 +        y212 * z012 +        y213 * z013
-            EFInt(iZeta,iEta,47)=
+            EFInt(iZeta,iEta,47)=                                       &
      &            y111 * z111 +        y112 * z112 +        y113 * z113
-            EFInt(iZeta,iEta,48)=
+            EFInt(iZeta,iEta,48)=                                       &
      &            y011 * z211 +        y012 * z212 +        y013 * z213
-            EFInt(iZeta,iEta,49)=
+            EFInt(iZeta,iEta,49)=                                       &
      &     x201        * z021 + x202        * z022 + x203        * z023
-            EFInt(iZeta,iEta,50)=
+            EFInt(iZeta,iEta,50)=                                       &
      &     x101 *(y101 * z021)+ x102 *(y102 * z022)+ x103 *(y103 * z023)
-            EFInt(iZeta,iEta,51)=
+            EFInt(iZeta,iEta,51)=                                       &
      &     x101        * z121 + x102        * z122 + x103        * z123
-            EFInt(iZeta,iEta,52)=
+            EFInt(iZeta,iEta,52)=                                       &
      &            y201 * z021 +        y202 * z022 +        y203 * z023
-            EFInt(iZeta,iEta,53)=
+            EFInt(iZeta,iEta,53)=                                       &
      &            y101 * z121 +        y102 * z122 +        y103 * z123
-            EFInt(iZeta,iEta,54)=
+            EFInt(iZeta,iEta,54)=                                       &
      &                   z221 +               z222 +               z223
  22      Continue
  12   Continue
       Go To 99
-*
-*-----ABCC case
-*
+!
+!-----ABCC case
+!
  300  Continue
       Do 13 iEta = 1, nEta
          Do 23 iZeta = 1, nZeta
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
             rho = Zeta(iZeta)*(Eta(iEta)*ZEInv)
             PQx = P(iZeta,1)-CoorAC(1,2)
             PQy = P(iZeta,2)-CoorAC(2,2)
@@ -760,17 +760,17 @@
             If (T.lt.TMax) Then
                n = iPntr(Int((T+dddx)*xdInv))
                z = T - x0(n)
-               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+
+               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+  &
      &            CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+
+               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+  &
      &            CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-               w3=(((((CW6(n,3)*z+CW5(n,3))*z+CW4(n,3))*z+CW3(n,3))*z+
+               w3=(((((CW6(n,3)*z+CW5(n,3))*z+CW4(n,3))*z+CW3(n,3))*z+  &
      &            CW2(n,3))*z+CW1(n,3))*z+Cw0(n,3)
-               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+
+               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+  &
      &            CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+
+               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+  &
      &            CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
-               r3=(((((CR6(n,3)*z+CR5(n,3))*z+CR4(n,3))*z+CR3(n,3))*z+
+               r3=(((((CR6(n,3)*z+CR5(n,3))*z+CR4(n,3))*z+CR3(n,3))*z+  &
      &            CR2(n,3))*z+CR1(n,3))*z+CR0(n,3)
             Else
                ai = 1.0D0/T
@@ -891,120 +891,120 @@
             z221= PAQPz1*z121 + B101*z021 + Two*B001*z111
             z222= PAQPz2*z122 + B102*z022 + Two*B002*z112
             z223= PAQPz3*z123 + B103*z023 + Two*B003*z113
-            EFInt(iZeta,iEta, 1)=
+            EFInt(iZeta,iEta, 1)=                                       &
      &    (x121        *   w1)+(x122        *   w2)+(x123        *   w3)
-            EFInt(iZeta,iEta, 2)=
+            EFInt(iZeta,iEta, 2)=                                       &
      &    (x021 * y101)*   w1 +(x022 * y102)*   w2 +(x023 * y103)*   w3
-            EFInt(iZeta,iEta, 3)=
+            EFInt(iZeta,iEta, 3)=                                       &
      &     x021        * z101 + x022        * z102 + x023        * z103
-            EFInt(iZeta,iEta, 4)=
+            EFInt(iZeta,iEta, 4)=                                       &
      &     x221        *   w1 + x222        *   w2 + x223        *   w3
-            EFInt(iZeta,iEta, 5)=
+            EFInt(iZeta,iEta, 5)=                                       &
      &    (x121 *   w1)* y101 +(x122 *   w2)* y102 +(x123 *   w3)* y103
-            EFInt(iZeta,iEta, 6)=
+            EFInt(iZeta,iEta, 6)=                                       &
      &     x121        * z101 + x122        * z102 + x123        * z103
-            EFInt(iZeta,iEta, 7)=
+            EFInt(iZeta,iEta, 7)=                                       &
      &     x021 * y201 *   w1 + x022 * y202 *   w2 + x023 * y203 *   w3
-            EFInt(iZeta,iEta, 8)=
+            EFInt(iZeta,iEta, 8)=                                       &
      &    (x021 * y101)* z101 +(x022 * y102)* z102 +(x023 * y103)* z103
-            EFInt(iZeta,iEta, 9)=
+            EFInt(iZeta,iEta, 9)=                                       &
      &     x021        * z201 + x022        * z202 + x023        * z203
-            EFInt(iZeta,iEta,10)=
+            EFInt(iZeta,iEta,10)=                                       &
      &    (x111 *   w1)* y011 +(x112 *   w2)* y012 +(x113 *   w3)* y013
-            EFInt(iZeta,iEta,11)=
+            EFInt(iZeta,iEta,11)=                                       &
      &    (x011 * y111)*   w1 +(x012 * y112)*   w2 +(x013 * y113)*   w3
-            EFInt(iZeta,iEta,12)=
+            EFInt(iZeta,iEta,12)=                                       &
      &    (x011 * y011)* z101 +(x012 * y012)* z102 +(x013 * y013)* z103
-            EFInt(iZeta,iEta,13)=
+            EFInt(iZeta,iEta,13)=                                       &
      &    (x211 *   w1)* y011 +(x212 *   w2)* y012 +(x213 *   w3)* y013
-            EFInt(iZeta,iEta,14)=
+            EFInt(iZeta,iEta,14)=                                       &
      &     x111 * y111 *   w1 + x112 * y112 *   w2 + x113 * y113 *   w3
-            EFInt(iZeta,iEta,15)=
+            EFInt(iZeta,iEta,15)=                                       &
      &     x111 *(y011 * z101)+ x112 *(y012 * z102)+ x113 *(y013 * z103)
-            EFInt(iZeta,iEta,16)=
+            EFInt(iZeta,iEta,16)=                                       &
      &     x011 *(y211 *   w1)+ x012 *(y212 *   w2)+ x013 *(y213 *   w3)
-            EFInt(iZeta,iEta,17)=
+            EFInt(iZeta,iEta,17)=                                       &
      &    (x011 * y111)* z101 +(x012 * y112)* z102 +(x013 * y113)* z103
-            EFInt(iZeta,iEta,18)=
+            EFInt(iZeta,iEta,18)=                                       &
      &    (x011 * y011)* z201 +(x012 * y012)* z202 +(x013 * y013)* z203
-            EFInt(iZeta,iEta,19)=
+            EFInt(iZeta,iEta,19)=                                       &
      &     x111        * z011 + x112        * z012 + x113        * z013
-            EFInt(iZeta,iEta,20)=
+            EFInt(iZeta,iEta,20)=                                       &
      &    (x011 * y101)* z011 +(x012 * y102)* z012 +(x013 * y103)* z013
-            EFInt(iZeta,iEta,21)=
+            EFInt(iZeta,iEta,21)=                                       &
      &     x011        * z111 + x012        * z112 + x013        * z113
-            EFInt(iZeta,iEta,22)=
+            EFInt(iZeta,iEta,22)=                                       &
      &     x211        * z011 + x212        * z012 + x213        * z013
-            EFInt(iZeta,iEta,23)=
+            EFInt(iZeta,iEta,23)=                                       &
      &     x111 *(y101 * z011)+ x112 *(y102 * z012)+ x113 *(y103 * z013)
-            EFInt(iZeta,iEta,24)=
+            EFInt(iZeta,iEta,24)=                                       &
      &     x111        * z111 + x112        * z112 + x113        * z113
-            EFInt(iZeta,iEta,25)=
+            EFInt(iZeta,iEta,25)=                                       &
      &    (x011 * y201)* z011 +(x012 * y202)* z012 +(x013 * y203)* z013
-            EFInt(iZeta,iEta,26)=
+            EFInt(iZeta,iEta,26)=                                       &
      &    (x011 * y101)* z111 +(x012 * y102)* z112 +(x013 * y103)* z113
-            EFInt(iZeta,iEta,27)=
+            EFInt(iZeta,iEta,27)=                                       &
      &     x011        * z211 + x012        * z212 + x013        * z213
-            EFInt(iZeta,iEta,28)=
+            EFInt(iZeta,iEta,28)=                                       &
      &     x101 * y021 *   w1 + x102 * y022 *   w2 + x103 * y023 *   w3
-            EFInt(iZeta,iEta,29)=
+            EFInt(iZeta,iEta,29)=                                       &
      &           (y121 *   w1)+       (y122 *   w2)+       (y123 *   w3)
-            EFInt(iZeta,iEta,30)=
+            EFInt(iZeta,iEta,30)=                                       &
      &           (y021 * z101)+       (y022 * z102)+       (y023 * z103)
-            EFInt(iZeta,iEta,31)=
+            EFInt(iZeta,iEta,31)=                                       &
      &     x201 * y021 *   w1 + x202 * y022 *   w2 + x203 * y023 *   w3
-            EFInt(iZeta,iEta,32)=
+            EFInt(iZeta,iEta,32)=                                       &
      &     x101 *(y121 *   w1)+ x102 *(y122 *   w2)+ x103 *(y123 *   w3)
-            EFInt(iZeta,iEta,33)=
+            EFInt(iZeta,iEta,33)=                                       &
      &     x101 *(y021 * z101)+ x102 *(y022 * z102)+ x103 *(y023 * z103)
-            EFInt(iZeta,iEta,34)=
+            EFInt(iZeta,iEta,34)=                                       &
      &            y221 *   w1 +        y222 *   w2 +        y223 *   w3
-            EFInt(iZeta,iEta,35)=
+            EFInt(iZeta,iEta,35)=                                       &
      &            y121 * z101 +        y122 * z102 +        y123 * z103
-            EFInt(iZeta,iEta,36)=
+            EFInt(iZeta,iEta,36)=                                       &
      &            y021 * z201 +        y022 * z202 +        y023 * z203
-            EFInt(iZeta,iEta,37)=
+            EFInt(iZeta,iEta,37)=                                       &
      &    (x101 * y011)* z011 +(x102 * y012)* z012 +(x103 * y013)* z013
-            EFInt(iZeta,iEta,38)=
+            EFInt(iZeta,iEta,38)=                                       &
      &            y111 * z011 +        y112 * z012 +        y113 * z013
-            EFInt(iZeta,iEta,39)=
+            EFInt(iZeta,iEta,39)=                                       &
      &            y011 * z111 +        y012 * z112 +        y013 * z113
-            EFInt(iZeta,iEta,40)=
+            EFInt(iZeta,iEta,40)=                                       &
      &    (x201 * y011)* z011 +(x202 * y012)* z012 +(x203 * y013)* z013
-            EFInt(iZeta,iEta,41)=
+            EFInt(iZeta,iEta,41)=                                       &
      &    (x101 * y111)* z011 +(x102 * y112)* z012 +(x103 * y113)* z013
-            EFInt(iZeta,iEta,42)=
+            EFInt(iZeta,iEta,42)=                                       &
      &    (x101 * y011)* z111 +(x102 * y012)* z112 +(x103 * y013)* z113
-            EFInt(iZeta,iEta,43)=
+            EFInt(iZeta,iEta,43)=                                       &
      &            y211 * z011 +        y212 * z012 +        y213 * z013
-            EFInt(iZeta,iEta,44)=
+            EFInt(iZeta,iEta,44)=                                       &
      &            y111 * z111 +        y112 * z112 +        y113 * z113
-            EFInt(iZeta,iEta,45)=
+            EFInt(iZeta,iEta,45)=                                       &
      &            y011 * z211 +        y012 * z212 +        y013 * z213
-            EFInt(iZeta,iEta,46)=
+            EFInt(iZeta,iEta,46)=                                       &
      &     x101        * z021 + x102        * z022 + x103        * z023
-            EFInt(iZeta,iEta,47)=
+            EFInt(iZeta,iEta,47)=                                       &
      &           (y101 * z021)+       (y102 * z022)+       (y103 * z023)
-            EFInt(iZeta,iEta,48)=
+            EFInt(iZeta,iEta,48)=                                       &
      &                   z121 +               z122 +               z123
-            EFInt(iZeta,iEta,49)=
+            EFInt(iZeta,iEta,49)=                                       &
      &     x201        * z021 + x202        * z022 + x203        * z023
-            EFInt(iZeta,iEta,50)=
+            EFInt(iZeta,iEta,50)=                                       &
      &     x101 *(y101 * z021)+ x102 *(y102 * z022)+ x103 *(y103 * z023)
-            EFInt(iZeta,iEta,51)=
+            EFInt(iZeta,iEta,51)=                                       &
      &     x101        * z121 + x102        * z122 + x103        * z123
-            EFInt(iZeta,iEta,52)=
+            EFInt(iZeta,iEta,52)=                                       &
      &            y201 * z021 +        y202 * z022 +        y203 * z023
-            EFInt(iZeta,iEta,53)=
+            EFInt(iZeta,iEta,53)=                                       &
      &            y101 * z121 +        y102 * z122 +        y103 * z123
-            EFInt(iZeta,iEta,54)=
+            EFInt(iZeta,iEta,54)=                                       &
      &                   z221 +               z222 +               z223
  23      Continue
  13   Continue
       Go To 99
-*
-*-----AACC case
-*
+!
+!-----AACC case
+!
  400  Continue
       PQx = CoorAC(1,1)-CoorAC(1,2)
       PQy = CoorAC(2,1)-CoorAC(2,2)
@@ -1012,24 +1012,24 @@
       PQ2 = PQx**2 + PQy**2 + PQz**2
       Do 14 iEta = 1, nEta
          Do 24 iZeta = 1, nZeta
-            ZEInv = One/(Eta(iEta)+Zeta(iZeta)
-     >              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
+            ZEInv = One/(Eta(iEta)+Zeta(iZeta)                          &
+     &              +(Eta(iEta)*Zeta(iZeta)*ChiI2)*Dble(IsChi))
             rho = Zeta(iZeta)*(Eta(iEta)*ZEInv)
             T = rho * PQ2
             If (T.lt.TMax) Then
                n = iPntr(Int((T+dddx)*xdInv))
                z = T - x0(n)
-               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+
+               w1=(((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+  &
      &            CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+
+               w2=(((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+  &
      &            CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-               w3=(((((CW6(n,3)*z+CW5(n,3))*z+CW4(n,3))*z+CW3(n,3))*z+
+               w3=(((((CW6(n,3)*z+CW5(n,3))*z+CW4(n,3))*z+CW3(n,3))*z+  &
      &            CW2(n,3))*z+CW1(n,3))*z+Cw0(n,3)
-               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+
+               r1=(((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+  &
      &            CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+
+               r2=(((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+  &
      &            CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
-               r3=(((((CR6(n,3)*z+CR5(n,3))*z+CR4(n,3))*z+CR3(n,3))*z+
+               r3=(((((CR6(n,3)*z+CR5(n,3))*z+CR4(n,3))*z+CR3(n,3))*z+  &
      &            CR2(n,3))*z+CR1(n,3))*z+CR0(n,3)
             Else
                ai = 1.0D0/T
@@ -1150,82 +1150,82 @@
             z221= PAQPz1*z121 + B101*z021 + Two*B001*z111
             z222= PAQPz2*z122 + B102*z022 + Two*B002*z112
             z223= PAQPz3*z123 + B103*z023 + Two*B003*z113
-            EFInt(iZeta,iEta, 1)=
+            EFInt(iZeta,iEta, 1)=                                       &
      &     x221        *   w1 + x222        *   w2 + x223        *   w3
-            EFInt(iZeta,iEta, 2)=
+            EFInt(iZeta,iEta, 2)=                                       &
      &    (x121 *   w1)* y101 +(x122 *   w2)* y102 +(x123 *   w3)* y103
-            EFInt(iZeta,iEta, 3)=
+            EFInt(iZeta,iEta, 3)=                                       &
      &     x121        * z101 + x122        * z102 + x123        * z103
-            EFInt(iZeta,iEta, 4)=
+            EFInt(iZeta,iEta, 4)=                                       &
      &     x021 * y201 *   w1 + x022 * y202 *   w2 + x023 * y203 *   w3
-            EFInt(iZeta,iEta, 5)=
+            EFInt(iZeta,iEta, 5)=                                       &
      &    (x021 * y101)* z101 +(x022 * y102)* z102 +(x023 * y103)* z103
-            EFInt(iZeta,iEta, 6)=
+            EFInt(iZeta,iEta, 6)=                                       &
      &     x021        * z201 + x022        * z202 + x023        * z203
-            EFInt(iZeta,iEta, 7)=
+            EFInt(iZeta,iEta, 7)=                                       &
      &    (x211 *   w1)* y011 +(x212 *   w2)* y012 +(x213 *   w3)* y013
-            EFInt(iZeta,iEta, 8)=
+            EFInt(iZeta,iEta, 8)=                                       &
      &     x111 * y111 *   w1 + x112 * y112 *   w2 + x113 * y113 *   w3
-            EFInt(iZeta,iEta, 9)=
+            EFInt(iZeta,iEta, 9)=                                       &
      &     x111 *(y011 * z101)+ x112 *(y012 * z102)+ x113 *(y013 * z103)
-            EFInt(iZeta,iEta,10)=
+            EFInt(iZeta,iEta,10)=                                       &
      &     x011 *(y211 *   w1)+ x012 *(y212 *   w2)+ x013 *(y213 *   w3)
-            EFInt(iZeta,iEta,11)=
+            EFInt(iZeta,iEta,11)=                                       &
      &    (x011 * y111)* z101 +(x012 * y112)* z102 +(x013 * y113)* z103
-            EFInt(iZeta,iEta,12)=
+            EFInt(iZeta,iEta,12)=                                       &
      &    (x011 * y011)* z201 +(x012 * y012)* z202 +(x013 * y013)* z203
-            EFInt(iZeta,iEta,13)=
+            EFInt(iZeta,iEta,13)=                                       &
      &     x211        * z011 + x212        * z012 + x213        * z013
-            EFInt(iZeta,iEta,14)=
+            EFInt(iZeta,iEta,14)=                                       &
      &     x111 *(y101 * z011)+ x112 *(y102 * z012)+ x113 *(y103 * z013)
-            EFInt(iZeta,iEta,15)=
+            EFInt(iZeta,iEta,15)=                                       &
      &     x111        * z111 + x112        * z112 + x113        * z113
-            EFInt(iZeta,iEta,16)=
+            EFInt(iZeta,iEta,16)=                                       &
      &    (x011 * y201)* z011 +(x012 * y202)* z012 +(x013 * y203)* z013
-            EFInt(iZeta,iEta,17)=
+            EFInt(iZeta,iEta,17)=                                       &
      &    (x011 * y101)* z111 +(x012 * y102)* z112 +(x013 * y103)* z113
-            EFInt(iZeta,iEta,18)=
+            EFInt(iZeta,iEta,18)=                                       &
      &     x011        * z211 + x012        * z212 + x013        * z213
-            EFInt(iZeta,iEta,19)=
+            EFInt(iZeta,iEta,19)=                                       &
      &     x201 * y021 *   w1 + x202 * y022 *   w2 + x203 * y023 *   w3
-            EFInt(iZeta,iEta,20)=
+            EFInt(iZeta,iEta,20)=                                       &
      &     x101 *(y121 *   w1)+ x102 *(y122 *   w2)+ x103 *(y123 *   w3)
-            EFInt(iZeta,iEta,21)=
+            EFInt(iZeta,iEta,21)=                                       &
      &     x101 *(y021 * z101)+ x102 *(y022 * z102)+ x103 *(y023 * z103)
-            EFInt(iZeta,iEta,22)=
+            EFInt(iZeta,iEta,22)=                                       &
      &            y221 *   w1 +        y222 *   w2 +        y223 *   w3
-            EFInt(iZeta,iEta,23)=
+            EFInt(iZeta,iEta,23)=                                       &
      &            y121 * z101 +        y122 * z102 +        y123 * z103
-            EFInt(iZeta,iEta,24)=
+            EFInt(iZeta,iEta,24)=                                       &
      &            y021 * z201 +        y022 * z202 +        y023 * z203
-            EFInt(iZeta,iEta,25)=
+            EFInt(iZeta,iEta,25)=                                       &
      &    (x201 * y011)* z011 +(x202 * y012)* z012 +(x203 * y013)* z013
-            EFInt(iZeta,iEta,26)=
+            EFInt(iZeta,iEta,26)=                                       &
      &    (x101 * y111)* z011 +(x102 * y112)* z012 +(x103 * y113)* z013
-            EFInt(iZeta,iEta,27)=
+            EFInt(iZeta,iEta,27)=                                       &
      &    (x101 * y011)* z111 +(x102 * y012)* z112 +(x103 * y013)* z113
-            EFInt(iZeta,iEta,28)=
+            EFInt(iZeta,iEta,28)=                                       &
      &            y211 * z011 +        y212 * z012 +        y213 * z013
-            EFInt(iZeta,iEta,29)=
+            EFInt(iZeta,iEta,29)=                                       &
      &            y111 * z111 +        y112 * z112 +        y113 * z113
-            EFInt(iZeta,iEta,30)=
+            EFInt(iZeta,iEta,30)=                                       &
      &            y011 * z211 +        y012 * z212 +        y013 * z213
-            EFInt(iZeta,iEta,31)=
+            EFInt(iZeta,iEta,31)=                                       &
      &     x201        * z021 + x202        * z022 + x203        * z023
-            EFInt(iZeta,iEta,32)=
+            EFInt(iZeta,iEta,32)=                                       &
      &     x101 *(y101 * z021)+ x102 *(y102 * z022)+ x103 *(y103 * z023)
-            EFInt(iZeta,iEta,33)=
+            EFInt(iZeta,iEta,33)=                                       &
      &     x101        * z121 + x102        * z122 + x103        * z123
-            EFInt(iZeta,iEta,34)=
+            EFInt(iZeta,iEta,34)=                                       &
      &            y201 * z021 +        y202 * z022 +        y203 * z023
-            EFInt(iZeta,iEta,35)=
+            EFInt(iZeta,iEta,35)=                                       &
      &            y101 * z121 +        y102 * z122 +        y103 * z123
-            EFInt(iZeta,iEta,36)=
+            EFInt(iZeta,iEta,36)=                                       &
      &                   z221 +               z222 +               z223
  24      Continue
  14   Continue
-*
+!
  99   Continue
-*
+!
       Return
       End

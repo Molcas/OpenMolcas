@@ -1,50 +1,50 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Roland Lindh                                     *
-*               1995, Anders Bernhardsson                              *
-************************************************************************
-      SubRoutine Rs2Dgh(xyz2D0,nT,nRys,la,lb,lc,ld,xyz2D1,xyz2D2,
-     &                  IfHss,IndHss,IfGrad,IndGrd,IfG,
-     &                  Coora,Alpha,Beta,Gamma,Delta,nZeta,
-     &                  nEta,Scrtch,Scrtch2,Temp,Index1,Index2,
-     &                  Index3,Index4,ng,nh,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Roland Lindh                                     *
+!               1995, Anders Bernhardsson                              *
+!***********************************************************************
+      SubRoutine Rs2Dgh(xyz2D0,nT,nRys,la,lb,lc,ld,xyz2D1,xyz2D2,       &
+     &                  IfHss,IndHss,IfGrad,IndGrd,IfG,                 &
+     &                  Coora,Alpha,Beta,Gamma,Delta,nZeta,             &
+     &                  nEta,Scrtch,Scrtch2,Temp,Index1,Index2,         &
+     &                  Index3,Index4,ng,nh,                            &
      &                  ExpX,ExpY,mZeta,mEta,nIrrep,Tr)
-************************************************************************
-*                                                                      *
-* Object:To compute the gradients and the Hessians of the 2D-integrals.*
-*                                                                      *
-*     Author: Anders Bernhardsson & Roland Lindh,                      *
-*             Dept. of Theoretical Chemistry,                          *
-*             University of Lund, SWEDEN                               *
-*             Februar '95                                              *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object:To compute the gradients and the Hessians of the 2D-integrals.*
+!                                                                      *
+!     Author: Anders Bernhardsson & Roland Lindh,                      *
+!             Dept. of Theoretical Chemistry,                          *
+!             University of Lund, SWEDEN                               *
+!             Februar '95                                              *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
       External ExpX, ExpY
 #include "real.fh"
-      Real*8 xyz2D0(nRys*nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3),
-     &       xyz2D1(nRys*nT,0:la  ,0:lb  ,0:lc  ,0:ld  ,3,3),
-     &       xyz2D2(nRys*nT,0:la  ,0:lb  ,0:lc  ,0:ld  ,3,6),
-     &       Coora(3,4),
-     &       Alpha(nZeta), Beta(nZeta), Gamma(nEta), Delta(nEta),
+      Real*8 xyz2D0(nRys*nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3),             &
+     &       xyz2D1(nRys*nT,0:la  ,0:lb  ,0:lc  ,0:ld  ,3,3),           &
+     &       xyz2D2(nRys*nT,0:la  ,0:lb  ,0:lc  ,0:ld  ,3,6),           &
+     &       Coora(3,4),                                                &
+     &       Alpha(nZeta), Beta(nZeta), Gamma(nEta), Delta(nEta),       &
      &       Scrtch2(nRys*nT),Scrtch(nRys*nT), Temp(nT)
       Logical IfGrad(3,4),IfHss(4,3,4,3),IfG(4), EQ, Tr(4)
-      Integer IndGrd(3,4,0:nIrrep-1), Ind1(3),
-     &        Ind2(3),Ind3(3),Ind4(3),
-     &        Index2(3,4,4),Index1(3,4),
-     &        Index3(3,3),Index4(2,6,3),ng(3),nh(3),
+      Integer IndGrd(3,4,0:nIrrep-1), Ind1(3),                          &
+     &        Ind2(3),Ind3(3),Ind4(3),                                  &
+     &        Index2(3,4,4),Index1(3,4),                                &
+     &        Index3(3,3),Index4(2,6,3),ng(3),nh(3),                    &
      &        IndHss(4,3,4,3,0:nIrrep-1)
 #ifdef NAGFOR
       Save Ind1, Ind2, Ind3, Ind4
 #endif
-*
+!
       nx = 0
       ny = 0
       nz = 0
@@ -53,9 +53,9 @@
       mz=0
       Call ICopy(12,[0],0,Index1,1)
       Call ICopy(48,[0],0,Index2,1)
-*
-*     Differentiate with respect to the first center
-*
+!
+!     Differentiate with respect to the first center
+!
       If (IfG(1)) Then
         Call ExpX(Temp  ,mZeta,mEta,Alpha,Sqrt(Two))
         Call Exp_2(Scrtch,nRys,nT,Temp,Sqrt(Two))
@@ -87,7 +87,7 @@
         Do i=nvec+1,3
          Ind1(i)=0
         End Do
-*
+!
         mvec=0
         If (IfHss(1,1,1,1)) Then
          mx=mx+1
@@ -121,9 +121,9 @@
         End Do
         nvecx=max(nvec,mvec)
         If (nVecx.ne.0) Then
-*
-*    Here we go with center 1
-*
+!
+!    Here we go with center 1
+!
         Do n=1,nvec
          Do  id = 0, ld
           Do  ic = 0, lc
@@ -132,8 +132,8 @@
             Do  ia=0,la
              ra=ra+Two
              Do  iVec = 1, nRys*nT
-              xyz2D1(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &                    Scrtch(iVec) *
+              xyz2D1(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =                &
+     &                    Scrtch(iVec) *                                &
      &                   xyz2D0(iVec,ia+1,ib,ic,id,Ind2(n))
              End Do
             End Do
@@ -149,10 +149,10 @@
             Do  ia=0,la
              ra=ra+Two
              Do  iVec = 1, nRys*nT
-              xyz2D2(iVec,ia,ib,ic,id,Ind4(n),Ind3(n))=
-     &                 Scrtch(iVec)**2*
-     &               xyz2D0(iVec,ia+2,ib,ic,id,Ind4(n))-
-     &                   ra*  Scrtch(iVec) *
+              xyz2D2(iVec,ia,ib,ic,id,Ind4(n),Ind3(n))=                 &
+     &                 Scrtch(iVec)**2*                                 &
+     &               xyz2D0(iVec,ia+2,ib,ic,id,Ind4(n))-                &
+     &                   ra*  Scrtch(iVec) *                            &
      &                   xyz2D0(iVec,ia,ib,ic,id,Ind4(n))
              End Do
             End Do
@@ -168,8 +168,8 @@
              ra=Zero
              Do  ia=1,la
               ra=ra+One
-              Call DaXpY_inline(nRys*nT,-ra,
-     &                   xyz2D0(1,ia-1,ib,ic,id,Ind2(n)),1,
+              Call DaXpY_inline(nRys*nT,-ra,                            &
+     &                   xyz2D0(1,ia-1,ib,ic,id,Ind2(n)),1,             &
      &                   xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
              End Do
             End Do
@@ -186,8 +186,8 @@
            Do  ia=2,la
             ra=ra+One
                Fact=ra*ra-ra
-               Call Daxpy_inline(nRys*nT,Fact,
-     &                    xyz2D0(1,ia-2,ib,ic,id,Ind4(n)),1,
+               Call Daxpy_inline(nRys*nT,Fact,                          &
+     &                    xyz2D0(1,ia-2,ib,ic,id,Ind4(n)),1,            &
      &                    xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)),1)
               End Do
              End Do
@@ -198,9 +198,9 @@
         End If
       End If
 
-*
-*    Cross term center 1 and center 2
-*
+!
+!    Cross term center 1 and center 2
+!
       If (IfG(2)) Then
          Call ExpX(Temp  ,mZeta,mEta,Beta,Sqrt(Two))
          Call Exp_2(Scrtch2,nRys,nT,Temp,Sqrt(Two))
@@ -244,8 +244,8 @@
            Do  ib=0,lb
             Do  ia=0,la
              Do  iVec = 1, nRys*nT
-              xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               Scrtch(iVec)  *  Scrtch2(iVec)*
+              xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =                &
+     &               Scrtch(iVec)  *  Scrtch2(iVec)*                    &
      &               xyz2D0(iVec,ia+1,ib+1,ic,id,Ind2(n))
              End DO
             End DO
@@ -262,9 +262,9 @@
              Do  ia=1,la
               ra=ra+One
               Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  ra  *  Scrtch2(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  ra  *  Scrtch2(iVec)*                           &
      &                  xyz2D0(iVec,ia-1,ib+1,ic,id,Ind2(n))
               End Do
              End Do
@@ -282,9 +282,9 @@
              rb=rb+One
              Do  ia=0,la
               Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  rb  *  Scrtch(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  rb  *  Scrtch(iVec)*                            &
      &                  xyz2D0(iVec,ia+1,ib-1,ic,id,Ind2(n))
               End Do
              End Do
@@ -304,8 +304,8 @@
              Do  ia=1,la
               ra=ra+One
               Fact=ra*rb
-              Call DaXpY_inline(nRys*nT,Fact,
-     &                   xyz2D0(1,ia-1,ib-1,ic,id,Ind2(n)),1,
+              Call DaXpY_inline(nRys*nT,Fact,                           &
+     &                   xyz2D0(1,ia-1,ib-1,ic,id,Ind2(n)),1,           &
      &                   xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
              End Do
             End Do
@@ -315,10 +315,10 @@
         End If
         End If
       End If
-*
-*     Differentiate with respect to the second center
-*
-*
+!
+!     Differentiate with respect to the second center
+!
+!
       If (IfG(2) ) Then
          Call ExpX(Temp  ,mZeta,mEta,Beta,Sqrt(Two))
          Call Exp_2(Scrtch2,nRys,nT,Temp,Sqrt(Two))
@@ -350,7 +350,7 @@
         Do i=nvec+1,3
          Ind1(i)=0
         End Do
-*
+!
         mvec=0
         If (IfHss(2,1,2,1)) Then
           mx=mx+1
@@ -384,7 +384,7 @@
         End Do
         nvecx=max(nvec,mvec)
         If (nVecx.ne.0) Then
-*
+!
         Do n=1,nVec
          Do  id = 0, ld
           Do  ic = 0, lc
@@ -393,8 +393,8 @@
             rb=rb+Two
             Do  ia = 0, la
              Do  iVec = 1, nRys*nT
-              xyz2D1(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &                   Scrtch2(iVec) *
+              xyz2D1(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =                &
+     &                   Scrtch2(iVec) *                                &
      &                 xyz2D0(iVec,ia,ib+1,ic,id,Ind2(n))
              End Do
             End Do
@@ -410,10 +410,10 @@
             rb=rb+Two
             Do  ia = 0, la
              Do  iVec = 1, nRys*nT
-              xyz2D2(iVec,ia,ib,ic,id,Ind4(n),Ind3(n))=
-     &                 Scrtch2(iVec)**2*
-     &               xyz2D0(iVec,ia,ib+2,ic,id,Ind4(n))-
-     &               rb * Scrtch2(iVec) *
+              xyz2D2(iVec,ia,ib,ic,id,Ind4(n),Ind3(n))=                 &
+     &                 Scrtch2(iVec)**2*                                &
+     &               xyz2D0(iVec,ia,ib+2,ic,id,Ind4(n))-                &
+     &               rb * Scrtch2(iVec) *                               &
      &               xyz2D0(iVec,ia,ib,ic,id,Ind4(n))
              End Do
             End Do
@@ -430,8 +430,8 @@
            Do  ib=1,lb
             rb=rb+One
           Do  ia=0,la
-              Call DaXpy_inline(nRys*nT,-rb,
-     &                   xyz2D0(1,ia,ib-1,ic,id,Ind2(n)),1,
+              Call DaXpy_inline(nRys*nT,-rb,                            &
+     &                   xyz2D0(1,ia,ib-1,ic,id,Ind2(n)),1,             &
      &                   xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
              End Do
             End Do
@@ -448,8 +448,8 @@
             rb=rb+One
               Fact=rb*rb-rb
           Do  ia=0,la
-              Call DaXpy_inline(nRys*nT,Fact,
-     &                   xyz2D0(1,ia,ib-2,ic,id,Ind4(n)),1,
+              Call DaXpy_inline(nRys*nT,Fact,                           &
+     &                   xyz2D0(1,ia,ib-2,ic,id,Ind4(n)),1,             &
      &                   xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)),1)
              End Do
             End Do
@@ -459,8 +459,8 @@
         End If
         End If
       End If
-*   Cross Term center 2 and 3
-*
+!   Cross Term center 2 and 3
+!
       If (IfG(2).and.IfG(3)) Then
          Call ExpX(Temp  ,mZeta,mEta,Beta,Sqrt(Two))
          Call Exp_2(Scrtch2,nRys,nT,Temp,Sqrt(Two))
@@ -505,8 +505,8 @@
           Do  ib = 0, lb
            Do  ia = 0, la
             Do  iVec = 1, nRys*nT
-              xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               Scrtch(iVec)  *  Scrtch2(iVec)*
+              xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =                &
+     &               Scrtch(iVec)  *  Scrtch2(iVec)*                    &
      &               xyz2D0(iVec,ia,ib+1,ic+1,id,Ind2(n))
             End Do
            End Do
@@ -523,9 +523,9 @@
             rb=rb+One
             Do  ia=0,la
              Do  iVec = 1, nRys*nT
-              xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &        xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                rb  *  Scrtch(iVec)*
+              xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =                &
+     &        xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -                &
+     &                rb  *  Scrtch(iVec)*                              &
      &                xyz2D0(iVec,ia,ib-1,ic+1,id,Ind2(n))
              End DO
             End DO
@@ -543,9 +543,9 @@
            Do  ib=0,lb
             Do  ia=0,la
              Do  iVec = 1, nRys*nT
-               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &                xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                rc  * Scrtch2(iVec)*
+               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =               &
+     &                xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -        &
+     &                rc  * Scrtch2(iVec)*                              &
      &                xyz2D0(iVec,ia,ib+1,ic-1,id,Ind2(n))
              End Do
             End Do
@@ -565,8 +565,8 @@
             rb=rb+One
             Fact=rb*rc
             Do  ia=0,la
-             Call DaxPy_inline(nRys*nT,Fact,
-     &                  xyz2D0(1,ia,ib-1,ic-1,id,Ind2(n)),1,
+             Call DaxPy_inline(nRys*nT,Fact,                            &
+     &                  xyz2D0(1,ia,ib-1,ic-1,id,Ind2(n)),1,            &
      &                  xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
             End Do
            End Do
@@ -576,10 +576,10 @@
        End If
        End If
       End If
-*
-*
-*     Differentiate with respect to the third center
-*
+!
+!
+!     Differentiate with respect to the third center
+!
       If (IfG(3)) Then
          Call ExpY(Temp  ,mZeta,mEta,Gamma,Sqrt(Two))
          Call Exp_2(Scrtch,nRys,nT,Temp,Sqrt(Two))
@@ -611,7 +611,7 @@
        Do i=nvec+1,3
         Ind1(i)=0
        End Do
-*
+!
        mvec=0
        If (IfHss(3,1,3,1)) Then
         mx=mx+1
@@ -653,8 +653,8 @@
           Do  ib=0,lb
            Do  ia = 0, la
             Do  iVec = 1, nRys*nT
-             xyz2D1(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &            Scrtch(iVec) *
+             xyz2D1(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =                 &
+     &            Scrtch(iVec) *                                        &
      &            xyz2D0(iVec,ia,ib,ic+1,id,Ind2(n))
             End Do
            End Do
@@ -670,10 +670,10 @@
           Do  ib=0,lb
            Do  ia = 0, la
             Do  iVec = 1, nRys*nT
-                      xyz2D2(iVec,ia,ib,ic,id,Ind4(n),Ind3(n))=
-     &                    Scrtch(iVec)**2*
-     &                    xyz2D0(iVec,ia,ib,ic+2,id,Ind4(n))-
-     &                    Rc* Scrtch(iVec) *
+                      xyz2D2(iVec,ia,ib,ic,id,Ind4(n),Ind3(n))=         &
+     &                    Scrtch(iVec)**2*                              &
+     &                    xyz2D0(iVec,ia,ib,ic+2,id,Ind4(n))-           &
+     &                    Rc* Scrtch(iVec) *                            &
      &                    xyz2D0(iVec,ia,ib,ic,id,Ind4(n))
             End Do
            End Do
@@ -690,8 +690,8 @@
             rc=rc+One
           Do  ib=0,lb
          Do  ia=0,la
-             Call DaXpY_inline(nRys*nT,-rc,
-     &                  xyz2D0(1,ia,ib,ic-1,id,Ind2(n)),1,
+             Call DaXpY_inline(nRys*nT,-rc,                             &
+     &                  xyz2D0(1,ia,ib,ic-1,id,Ind2(n)),1,              &
      &                  xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
             End Do
            End Do
@@ -708,8 +708,8 @@
             Fact=rc*rc-rc
           Do  ib=0,lb
          Do  ia=0,la
-             Call DaXpY_inline(nt*nrys,Fact,
-     &                  xyz2D0(1,ia,ib,ic-2,id,Ind4(n)),1,
+             Call DaXpY_inline(nt*nrys,Fact,                            &
+     &                  xyz2D0(1,ia,ib,ic-2,id,Ind4(n)),1,              &
      &                  xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)) ,1)
             End Do
            End Do
@@ -719,9 +719,9 @@
        End If
        End If
       End If
-*
-*         Cross term 1 3
-*
+!
+!         Cross term 1 3
+!
       If (IfG(1).and.IfG(3)) Then
          Call ExpX(Temp  ,mZeta,mEta,Alpha,Sqrt(Two))
          Call Exp_2(Scrtch2,nRys,nT,Temp,Sqrt(Two))
@@ -765,8 +765,8 @@
             Do  ib = 0, lb
              Do  ia = 0, la
               Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &                   Scrtch(iVec)  *  Scrtch2(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &                   Scrtch(iVec)  *  Scrtch2(iVec)*                &
      &                  xyz2D0(iVec,ia+1,ib,ic+1,id,Ind2(n))
               End Do
              End Do
@@ -783,9 +783,9 @@
               Do  ia=1,la
                 ra=ra+One
                 Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  ra  *  Scrtch(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  ra  *  Scrtch(iVec)*                            &
      &                  xyz2D0(iVec,ia-1,ib,ic+1,id,Ind2(n))
                 End Do
               End Do
@@ -803,9 +803,9 @@
              Do  ib=0,lb
               Do  ia=0,la
                 Do  iVec = 1, nRys*nT
-                   xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  rc  *  Scrtch2(iVec)*
+                   xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =           &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  rc  *  Scrtch2(iVec)*                           &
      &                  xyz2D0(iVec,ia+1,ib,ic-1,id,Ind2(n))
                 End Do
               End Do
@@ -825,8 +825,8 @@
               Do  ia=1,la
                ra=ra+One
                Fact=rc*ra
-               Call DaXpy_inline(nt*nrys,Fact,
-     &                    xyz2D0(1,ia-1,ib,ic-1,id,Ind2(n)),1,
+               Call DaXpy_inline(nt*nrys,Fact,                          &
+     &                    xyz2D0(1,ia-1,ib,ic-1,id,Ind2(n)),1,          &
      &               xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)) ,1)
               End Do
              End Do
@@ -836,7 +836,7 @@
          End If
          End If
       End If
-*                 1 4
+!                 1 4
 
       If (IfG(4)) Then
        Call ExpY(Temp  ,mZeta,mEta,Delta,Sqrt(Two))
@@ -875,17 +875,17 @@
          Do i=nVec+1,3
           Ind1(i)=0
          End Do
-*
+!
          If (nVec.ne.0) Then
-*
+!
          Do n=1,nvec
           Do  id = 0, ld
            Do  ic = 0, lc
             Do  ib = 0, lb
              Do  ia = 0, la
               Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &                   Scrtch(iVec)  *  Scrtch2(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &                   Scrtch(iVec)  *  Scrtch2(iVec)*                &
      &                  xyz2D0(iVec,ia+1,ib,ic,id+1,Ind2(n))
               End Do
              End Do
@@ -903,9 +903,9 @@
               Do  ia=1,la
                ra=ra+One
                Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  ra  *  Scrtch(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  ra  *  Scrtch(iVec)*                            &
      &                  xyz2D0(iVec,ia-1,ib,ic,id+1,Ind2(n))
                End Do
               End Do
@@ -925,9 +925,9 @@
               Do  ib=0,lb
                Do ia=0,la
                 Do iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  rd  *  Scrtch2(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  rd  *  Scrtch2(iVec)*                           &
      &                  xyz2D0(iVec,ia+1,ib,ic,id-1,Ind2(n))
                 End Do
                End Do
@@ -947,8 +947,8 @@
               Do  ia=1,la
                 ra=ra+One
                 Fact=rd*ra
-                      Call DaxPy_inline( nRys*nT,Fact,
-     &                  xyz2D0(1,ia-1,ib,ic,id-1,Ind2(n)),1,
+                      Call DaxPy_inline( nRys*nT,Fact,                  &
+     &                  xyz2D0(1,ia-1,ib,ic,id-1,Ind2(n)),1,            &
      &                  xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
               End Do
              End Do
@@ -958,9 +958,9 @@
          End If
          End If
         End If
-*
-*        Cross terms between 2 4
-*
+!
+!        Cross terms between 2 4
+!
         If (IfG(2).and.Ifg(4)) Then
          Call ExpX(Temp  ,mZeta,mEta,Beta,Sqrt(Two))
          Call Exp_2(Scrtch2,nRys,nT,Temp,Sqrt(Two))
@@ -995,9 +995,9 @@
          Do i=nVec+1,3
            Ind1(i)=0
          End Do
-*
+!
          If (nvec.ne.0) Then
-*
+!
 
          Do n=1,nvec
           Do  id = 0, ld
@@ -1005,8 +1005,8 @@
             Do  ib = 0, lb
              Do  ia = 0, la
                 Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &                   Scrtch(iVec)  *  Scrtch2(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &                   Scrtch(iVec)  *  Scrtch2(iVec)*                &
      &                  xyz2D0(iVec,ia,ib+1,ic,id+1,Ind2(n))
                 End Do
              End Do
@@ -1024,9 +1024,9 @@
               rb=rb+One
               Do  ia=0,la
                 Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  rb  *  Scrtch(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  rb  *  Scrtch(iVec)*                            &
      &                  xyz2D0(iVec,ia,ib-1,ic,id+1,Ind2(n))
                 End Do
               End Do
@@ -1046,9 +1046,9 @@
              Do  ib=0,lb
               Do  ia=0,la
                 Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  rd  *  Scrtch2(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  rd  *  Scrtch2(iVec)*                           &
      &                  xyz2D0(iVec,ia,ib+1,ic,id-1,Ind2(n))
                 End do
               End do
@@ -1068,8 +1068,8 @@
               rb=rb+One
               Do ia=0,la
                 Fact=rb*rd
-                     Call DaxPy_inline(nt*nrys,Fact,
-     &                  xyz2D0(1,ia,ib-1,ic,id-1,Ind2(n)),1,
+                     Call DaxPy_inline(nt*nrys,Fact,                    &
+     &                  xyz2D0(1,ia,ib-1,ic,id-1,Ind2(n)),1,            &
      &               xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
               End Do
              End Do
@@ -1079,9 +1079,9 @@
          End If
          End If
         End If
-*
-*       Cross Term 3 4
-*
+!
+!       Cross Term 3 4
+!
         If (IfG(3).and.IfG(4)) Then
          Call ExpY(Temp  ,mZeta,mEta,Gamma,Sqrt(Two))
          Call Exp_2(Scrtch2,nRys,nT,Temp,Sqrt(Two))
@@ -1117,17 +1117,17 @@
          Do i=nVec+1,3
           Ind1(i)=0
          End Do
-*
+!
          If (nvec.ne.0) Then
-*
+!
          Do n=1,nvec
           Do  id = 0, ld
            Do  ic = 0, lc
             Do  ib = 0, lb
              Do  ia = 0, la
               Do iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &                   Scrtch(iVec)  *  Scrtch2(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &                   Scrtch(iVec)  *  Scrtch2(iVec)*                &
      &                  xyz2D0(iVec,ia,ib,ic+1,id+1,Ind2(n))
               End Do
              End Do
@@ -1145,9 +1145,9 @@
              Do  ib=0,lb
               Do  ia=0,la
                 Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  rc  *  Scrtch(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  rc  *  Scrtch(iVec)*                            &
      &                  xyz2D0(iVec,ia,ib,ic-1,id+1,Ind2(n))
                  End Do
               End Do
@@ -1165,9 +1165,9 @@
              Do  ib=0,lb
               Do  ia=0,la
                 Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -
-     &                  rd  *  Scrtch2(iVec)*
+                     xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =         &
+     &               xyz2D2(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) -         &
+     &                  rd  *  Scrtch2(iVec)*                           &
      &                  xyz2D0(iVec,ia,ib,ic+1,id-1,Ind2(n))
                 End DO
               End DO
@@ -1187,8 +1187,8 @@
              Do  ib=0,lb
               Do ia=0,la
                 Fact=rc*rd
-                Call DaxPy_inline(nt*nRys,fact,
-     &                  xyz2D0(1,ia,ib,ic-1,id-1,Ind2(n)),1,
+                Call DaxPy_inline(nt*nRys,fact,                         &
+     &                  xyz2D0(1,ia,ib,ic-1,id-1,Ind2(n)),1,            &
      &               xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
               End Do
              End Do
@@ -1198,9 +1198,9 @@
          End If
          End If
         End If
-*
-*     Differentiate with respect to the fourth center
-*
+!
+!     Differentiate with respect to the fourth center
+!
           nvec=0
           If (IfGrad(1,4)) Then
             nx = nx + 1
@@ -1229,7 +1229,7 @@
           Do i=nvec+1,3
            Ind1(i)=0
           End Do
-*
+!
           mvec=0
           If (IfHss(4,1,4,1)) Then
            mx=mx+1
@@ -1262,9 +1262,9 @@
            Ind3(i)=0
           End Do
           nvecx=max(nvec,mvec)
-*
+!
           If (nVecx.ne.0) Then
-*
+!
           Do n=1,nvec
            rd=-One
            Do  id = 0, ld
@@ -1273,8 +1273,8 @@
              Do ib=0,lb
               Do  ia = 0, la
                Do  iVec = 1, nRys*nT
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =
-     &                   Scrtch(iVec) *
+                xyz2D1(iVec,ia,ib,ic,id,Ind2(n),Ind1(n)) =              &
+     &                   Scrtch(iVec) *                                 &
      &                 xyz2D0(iVec,ia,ib,ic,id+1,Ind2(n))
                End do
               End do
@@ -1290,10 +1290,10 @@
              Do ib=0,lb
               Do  ia = 0, la
                Do  iVec = 1, nRys*nT
-                     xyz2D2(iVec,ia,ib,ic,id,Ind4(n),Ind3(n))=
-     &                   Scrtch(iVec)**2*
-     &                   xyz2D0(iVec,ia,ib,ic,id+2,Ind4(n))-
-     &                   rd* Scrtch(iVec) *
+                     xyz2D2(iVec,ia,ib,ic,id,Ind4(n),Ind3(n))=          &
+     &                   Scrtch(iVec)**2*                               &
+     &                   xyz2D0(iVec,ia,ib,ic,id+2,Ind4(n))-            &
+     &                   rd* Scrtch(iVec) *                             &
      &                   xyz2D0(iVec,ia,ib,ic,id,Ind4(n))
                End do
               End do
@@ -1309,8 +1309,8 @@
                Do  ic=0,lc
               Do  ib=0,lb
              Do  ia=0,la
-                 Call Daxpy_inline(nt*nrys,-rd,
-     &                      xyz2D0(1,ia,ib,ic,id-1,Ind2(n)),1,
+                 Call Daxpy_inline(nt*nrys,-rd,                         &
+     &                      xyz2D0(1,ia,ib,ic,id-1,Ind2(n)),1,          &
      &                      xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
                 End DO
                End DO
@@ -1327,8 +1327,8 @@
                Do  ic=0,lc
               Do ib=0,lb
              Do ia=0,la
-                 Call Daxpy_inline(nt*nrys,Fact,
-     &                      xyz2D0(1,ia,ib,ic,id-2,Ind4(n)),1,
+                 Call Daxpy_inline(nt*nrys,Fact,                        &
+     &                      xyz2D0(1,ia,ib,ic,id-2,Ind4(n)),1,          &
      &                      xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)),1)
                 End Do
                End Do
@@ -1339,9 +1339,9 @@
 
            End If
       End If
-*
-*-----Sum over common centers
-*
+!
+!-----Sum over common centers
+!
       Do iCent = 1, 3
          If (IfG(iCent)) Then
          Do jCent =  iCent+1, 4
@@ -1353,47 +1353,47 @@
                      i3 = Index2(iCar,jCent,iCent)
                      j4=Index1(iCar,jCent)
                      j5=Index1(iCar,iCent)
-                     If (IfHss(jCent,iCar,jCent,iCar).and.
+                     If (IfHss(jCent,iCar,jCent,iCar).and.              &
      &                   IfHss(iCent,iCar,iCent,iCar)) Then
-                       Call DaXpY_inline(
-     &                          nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),
-     &                          One,xyz2D2(1,0,0,0,0,iCar,i2),1,
+                       Call DaXpY_inline(                               &
+     &                          nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),    &
+     &                          One,xyz2D2(1,0,0,0,0,iCar,i2),1,        &
      &                          xyz2D2(1,0,0,0,0,iCar,i1),1)
                      End If
-                     If (IfHss(jCent,iCar,iCent,iCar).and.
+                     If (IfHss(jCent,iCar,iCent,iCar).and.              &
      &                   IfHss(iCent,iCar,iCent,iCar)) Then
-                        Call DaXpY_inline(
-     &                          nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),
-     &                          Two,xyz2D2(1,0,0,0,0,iCar,i3),1,
+                        Call DaXpY_inline(                              &
+     &                          nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),    &
+     &                          Two,xyz2D2(1,0,0,0,0,iCar,i3),1,        &
      &                          xyz2D2(1,0,0,0,0,iCar,i1),1)
                      End If
-                     If ((j4.ne.0).and.(j5.ne.0).and.
-     &               (ifgrad(iCar,iCent).and.ifgrad(iCar,jCent)))
-     &               Call DaXpY_inline(
-     &                          nRys*nT*(la+1)*(lb+1)*
-     &                          (lc+1)*(ld+1),
-     &                          One,xyz2D1(1,0,0,0,0,iCar,j4),1,
+                     If ((j4.ne.0).and.(j5.ne.0).and.                   &
+     &               (ifgrad(iCar,iCent).and.ifgrad(iCar,jCent)))       &
+     &               Call DaXpY_inline(                                 &
+     &                          nRys*nT*(la+1)*(lb+1)*                  &
+     &                          (lc+1)*(ld+1),                          &
+     &                          One,xyz2D1(1,0,0,0,0,iCar,j4),1,        &
      &                          xyz2D1(1,0,0,0,0,iCar,j5),1)
                      Do kCent=1,4
                       If (IfG(kCent)) Then
-                       If ((kcent.ne.iCent).and.(kcent.ne.jcent))
+                       If ((kcent.ne.iCent).and.(kcent.ne.jcent))       &
      &                 Then
-                        If (ifHss(kCent,iCar,jCent,iCar).or.
+                        If (ifHss(kCent,iCar,jCent,iCar).or.            &
      &                       ifHss(jCent,iCar,kCent,iCar)) Then
-                          i4=Index2(iCar,Max(kCent,jCent),
+                          i4=Index2(iCar,Max(kCent,jCent),              &
      &                                    Min(jCent,kCent))
-                          i5=Index2(iCar,Max(kCent,iCent),
+                          i5=Index2(iCar,Max(kCent,iCent),              &
      &                                    Min(iCent,kCent))
-                          Call DaXpY_inline(
-     &                          nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),
-     &                          One,xyz2D2(1,0,0,0,0,iCar,i4),1,
+                          Call DaXpY_inline(                            &
+     &                          nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),    &
+     &                          One,xyz2D2(1,0,0,0,0,iCar,i4),1,        &
      &                          xyz2D2(1,0,0,0,0,iCar,i5),1)
                         End If
                        End If
                       End If
                End Do ! kCent
                End Do ! iCar
-*
+!
                IfG(jCent)=.false.
                Tr(jCent)=.false.
                Do jCar=1,3
@@ -1412,13 +1412,13 @@
                  End Do
                 End Do
                End Do
-*
+!
               End If
          End If ! end eq
          End Do    ! jCent
          End If
       End Do       ! iCent
-*
+!
       nh(1)=mx
       nh(2)=my
       nh(3)=mz
@@ -1435,7 +1435,7 @@
        B(i)=B(i)+r*A(i)
       end do
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(inca)
          Call Unused_integer(incB)

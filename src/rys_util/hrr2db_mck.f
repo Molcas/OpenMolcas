@@ -1,41 +1,41 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991,1992, Roland Lindh                                *
-************************************************************************
-      SubRoutine Hrr2Db_mck(Arr1,nVec,ncdMax,
-     &                 Arr2,C,D,la,lb,lc,ld,IfHss,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991,1992, Roland Lindh                                *
+!***********************************************************************
+      SubRoutine Hrr2Db_mck(Arr1,nVec,ncdMax,                           &
+     &                 Arr2,C,D,la,lb,lc,ld,IfHss,                      &
      &                 IfGrd ,nt,nrys)
-************************************************************************
-*                                                                      *
-* Object: to apply the transfer equation to the 2D-integrals.          *
-*         The transformation is in place and the recursion             *
-*         is replaced with the indentity when applicable.              *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             September '91                                            *
-*             Modified to recurrence algorithm, February '92           *
-*             Improved algorithm, June '92.                            *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to apply the transfer equation to the 2D-integrals.          *
+!         The transformation is in place and the recursion             *
+!         is replaced with the indentity when applicable.              *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             September '91                                            *
+!             Modified to recurrence algorithm, February '92           *
+!             Improved algorithm, June '92.                            *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
+!#include "print.fh"
 #include "real.fh"
-      Real*8 C(3), D(3),
-     &                   Arr1(nVec,0:la+2,0:lb+2,0:ncdMax,3),
+      Real*8 C(3), D(3),                                                &
+     &                   Arr1(nVec,0:la+2,0:lb+2,0:ncdMax,3),           &
      &                   Arr2(nVec,0:la+2,0:lb+2,0:lc+2,0:ld+2,3)
       Logical IfHss(4,3,4,3),ifgrd(3,4)
-*
-c     iRout = 233
-c     iPrint = nPrint(iRout)
-*
+!
+!     iRout = 233
+!     iPrint = nPrint(iRout)
+!
       Do 10 iCar = 1, 3
          llc = 0
          lld = 0
@@ -54,7 +54,7 @@ c     iPrint = nPrint(iRout)
             Do 100 ia = 0, la+lla
             Do 101 ib = 0, lb+llb
                If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 101
-*--------------Using the identity
+!--------------Using the identity
                Do 200 ic = 0, lc+llc
                   Do 210 id = 0, ld+lld
                   icd = ic + id
@@ -71,7 +71,7 @@ c     iPrint = nPrint(iRout)
                Do 102 ia = 0, la+lla
                Do 103 ib = 0, lb+llb
                   If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 103
-*-----------------Move the first row I(ic,0)
+!-----------------Move the first row I(ic,0)
                   Do 20 ic = 0, lc+ld+Max(llc,lld)
                      jc = ic
                      jd = 0
@@ -83,7 +83,7 @@ c     iPrint = nPrint(iRout)
                      Arr2(i,ia,ib,jc,jd,iCar)=Arr1(i,ia,ib,ic,iCar)
                      enddo
  20               Continue
-*-----------------Generate I(ic,id) for fixed id
+!-----------------Generate I(ic,id) for fixed id
                   Do 30 id = 1, ld + lld
                      Do 31 ic = lc+ld+Max(llc,lld)-id, 0, -1
                         jc = ic
@@ -101,8 +101,8 @@ c     iPrint = nPrint(iRout)
                            kc = kc - (lc+3)
                            kd = kd + 1
                         End If
-                        Call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1,
-     &                                      Arr2(1,ia,ib,kc,kd,iCar),1,
+                        Call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1, &
+     &                                      Arr2(1,ia,ib,kc,kd,iCar),1, &
      &                                      Arr2(1,ia,ib,jc,jd,iCar),1)
  31                  Continue
  30               Continue
@@ -113,7 +113,7 @@ c     iPrint = nPrint(iRout)
                Do 104 ia = 0, la+lla
                Do 105 ib = 0, lb+llb
                   If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 105
-*-----------------Move the first row I(0,id)
+!-----------------Move the first row I(0,id)
                   Do 40 id = 0, lc+ld+Max(llc,lld)
                      jd = id
                      jc = 0
@@ -125,7 +125,7 @@ c     iPrint = nPrint(iRout)
                      Arr2(i,ia,ib,jc,jd,iCar)=Arr1(i,ia,ib,id,iCar)
                      enddo
  40               Continue
-*-----------------Generate I(ic,id) for fixed ic
+!-----------------Generate I(ic,id) for fixed ic
                   Do 50 ic = 1, lc + llc
                      Do 51 id = lc+ld+Max(llc,lld)-ic, 0, -1
                         jd = id
@@ -143,8 +143,8 @@ c     iPrint = nPrint(iRout)
                            kd = kd - (ld+3)
                            kc = kc + 1
                         End If
-                        Call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1,
-     &                                      Arr2(1,ia,ib,kc,kd,iCar),1,
+                        Call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1, &
+     &                                      Arr2(1,ia,ib,kc,kd,iCar),1, &
      &                                      Arr2(1,ia,ib,jc,jd,iCar),1)
  51                  Continue
  50               Continue
@@ -153,9 +153,9 @@ c     iPrint = nPrint(iRout)
             End If
          End If
  10   Continue
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(nt)
          Call Unused_integer(nrys)

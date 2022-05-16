@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
-*               1990, IBM                                              *
-************************************************************************
-      SubRoutine Cff2DS(nabMax,ncdMax,nRys,
-     &                  Zeta,ZInv,Eta,EInv,nT,
-     &                  Coori,CoorAC,P,Q,
-     &                  la,lb,lc,ld,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Roland Lindh                                     *
+!               1990, IBM                                              *
+!***********************************************************************
+      SubRoutine Cff2DS(nabMax,ncdMax,nRys,                             &
+     &                  Zeta,ZInv,Eta,EInv,nT,                          &
+     &                  Coori,CoorAC,P,Q,                               &
+     &                  la,lb,lc,ld,                                    &
      &                  U2,PAQP,QCPQ,B10,B00,lac,B01)
-************************************************************************
-*                                                                      *
-* Object: to compute the coefficients in the three terms recurrence    *
-*         relation of the 2D-integrals.                                *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March 1990                                               *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to compute the coefficients in the three terms recurrence    *
+!         relation of the 2D-integrals.                                *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March 1990                                               *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 Zeta(nT), ZInv(nT), Eta(nT), EInv(nT),
-     &       Coori(3,4), CoorAC(3,2),
-     &       P(nT,3), Q(nT,3), U2(nRys,nT),
-     &       PAQP(nRys,nT,3), QCPQ(nRys,nT,3),
-     &       B10(nRys,nT,3),
-     &       B00(nRys,nT,3),
+      Real*8 Zeta(nT), ZInv(nT), Eta(nT), EInv(nT),                     &
+     &       Coori(3,4), CoorAC(3,2),                                   &
+     &       P(nT,3), Q(nT,3), U2(nRys,nT),                             &
+     &       PAQP(nRys,nT,3), QCPQ(nRys,nT,3),                          &
+     &       B10(nRys,nT,3),                                            &
+     &       B00(nRys,nT,3),                                            &
      &       B01(nRys,nT,3)
-*     Local arrays
+!     Local arrays
       Logical AeqB, CeqD, EQ
-*define _DEBUGPRINT_
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Character*30 Label
       Call RecPrt(' In Cff2Ds: Coori',' ',Coori,3,4)
@@ -44,34 +44,34 @@
 #endif
       AeqB = EQ(Coori(1,1),Coori(1,2))
       CeqD = EQ(Coori(1,3),Coori(1,4))
-*
+!
       h12 = Half
       If (nabMax.ne.0 .and. ncdMax.ne.0) Then
          Do 10 iT = 1, nT
             Do iRys = 1, nRys
                B00(iRys,iT,1) = h12 * U2(iRys,iT)
-               B10(iRys,iT,1) = ( h12 -
+               B10(iRys,iT,1) = ( h12 -                                 &
      &            h12 * U2(iRys,iT) * Zeta(iT))*ZInv(iT)
                B01(iRys,iT,1) = B10(iRys,iT,1)
             End Do
  10      Continue
       Else If (ncdMax.eq.0 .and. nabMax.ne.0 .and. lac.eq.0) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &        'Cff2DS: ncdMax.eq.0 .and. nabMax.ne.0 .and. lac.eq.0')
          Write (6,*) 'ncdMax,nabMax,lac=',ncdMax,nabMax,lac
          Call Abend()
       Else If (nabMax.eq.0 .and. ncdMax.ne.0 .and. lac.eq.0) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &        'Cff2DS: nabMax.eq.0 .and. ncdMax.ne.0 .and. lac.eq.0')
          Write (6,*) 'ncdMax,nabMax,lac=',ncdMax,nabMax,lac
          Call Abend()
       Else If (ncdMax.eq.0 .and. nabMax.ne.0) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &               'Cff2DS: ncdMax.eq.0 .and. nabMax.ne.0')
          Write (6,*) 'ncdMax,nabMax,lac=',ncdMax,nabMax,lac
          Call Abend()
       Else If (nabMax.eq.0 .and. ncdMax.ne.0) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &               'Cff2DS: nabMax.eq.0 .and. ncdMax.ne.0')
          Write (6,*) 'ncdMax,nabMax,lac=',ncdMax,nabMax,lac
          Call Abend()
@@ -90,7 +90,7 @@
          call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,2),1)
          call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,3),1)
       End If
-*
+!
       If (la+lb.ne.0 .and. lc+ld.ne.0) Then
          If (.Not.AeqB .and. .Not.CeqD) Then
          Do 100 iCar = 1, 3
@@ -165,7 +165,7 @@
       End If
 #endif
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(EInv)
          Call Unused_real_array(Eta)

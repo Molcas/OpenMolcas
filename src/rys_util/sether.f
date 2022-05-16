@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Per Ake Malmqvist                                *
-*               1992, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Per Ake Malmqvist                                *
+!               1992, Roland Lindh                                     *
+!***********************************************************************
        Subroutine SetHer(nDiff)
-************************************************************************
-*                                                                      *
-* Object: to setup the roots and weights of the Hermite polynomials    *
-*         for the evaluation of one electron integrals.                *
-*                                                                      *
-*    Authors: Per-AAke Malmqvist and Roland Lindh,                     *
-*             March 1992.                                              *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to setup the roots and weights of the Hermite polynomials    *
+!         for the evaluation of one electron integrals.                *
+!                                                                      *
+!    Authors: Per-AAke Malmqvist and Roland Lindh,                     *
+!             March 1992.                                              *
+!***********************************************************************
       use Her_RW
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
@@ -27,20 +27,20 @@
 #include "real.fh"
 #include "status.fh"
       Real*8, Dimension(:), Allocatable :: Beta, BInv, Herm
-*
+!
       If (nPrp.gt.nPrpMx) Then
          Write (6,*) 'nPrp, nPrpMx=',nPrp, nPrpMx
          Call WarningMessage(2,'SetHer: nPrp too large!')
          Call Abend()
       End If
-*
-*
-*     1) Hermite-Gauss
-*     2) Rys-Gauss (asymtotic formula)
-*
+!
+!
+!     1) Hermite-Gauss
+!     2) Rys-Gauss (asymtotic formula)
+!
       n_1111 = (2*S%iAngMx+nPrp+2+nDiff)/2
       n_2222 = 4*S%iAngMx+2+nDiff
-*
+!
       If (Allocated(HerR) .and. Max(n_1111,n_2222).le.MaxHer) Then
          Return
       Else If (Allocated(HerR)) Then
@@ -49,9 +49,9 @@
       MaxHer = Max(n_1111,n_2222)
       Call mma_allocate(iHerR,MaxHer,label='iHerR')
       Call mma_allocate(iHerW,MaxHer,label='iHerW')
-*
-*     Set up square of roots and weights for Hermite polynomials
-*
+!
+!     Set up square of roots and weights for Hermite polynomials
+!
       nMem = (MaxHer*MaxHer+MaxHer)/2
       Call mma_Allocate(HerR,nMem,label='HerR')
       iHerR(1)=1
@@ -83,7 +83,7 @@
         iHerR(iHer) = iHerR(1) + i_1111
         iHerW(iHer) = iHerW(1) + i_1111
  11   Continue
-*
+!
       Alpha = BInv(1)
       DO 2000 IDEG=3,MaxHer
         i_0000 = (IDEG*IDEG-IDEG)/2
@@ -132,7 +132,7 @@
           IF(ABS(DELTA).GT.1.0d-8) then
              if(abs(DELTA).gt.1.0d8) then
                 Call WarningMessage(1,'Warning: large value in sether')
-c               write(6,*) delta
+!               write(6,*) delta
               endif
               goto 99
              endif
@@ -162,8 +162,8 @@ c               write(6,*) delta
       Call mma_deallocate(Beta)
       Call mma_deallocate(BInv)
       Call mma_deallocate(Herm)
-*
-*define _DEBUGPRINT_
+!
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call TriPrt(' Hermite roots',' ',HerR(iHerR(1)),MaxHer)
       Call TriPrt(' Hermite weights',' ',HerW(iHerW(1)),MaxHer)

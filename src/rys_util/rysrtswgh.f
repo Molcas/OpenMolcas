@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Walter Gautschi                                  *
-*               1994, Gene H. Golub                                    *
-*               2017, Ignacio Fdez. Galvan                             *
-************************************************************************
-*
-* Compute Rys roots and weights from scratch:
-* - For high t values use the asymptotic scaled Hermite quadrature
-* - For lower t, get first alpha and beta from the auxiliary Legendre
-*   quadrature, then compute roots and weights
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Walter Gautschi                                  *
+!               1994, Gene H. Golub                                    *
+!               2017, Ignacio Fdez. Galvan                             *
+!***********************************************************************
+!
+! Compute Rys roots and weights from scratch:
+! - For high t values use the asymptotic scaled Hermite quadrature
+! - For lower t, get first alpha and beta from the auxiliary Legendre
+!   quadrature, then compute roots and weights
+!
       Subroutine RysRtsWgh(TValues,nT,Roots,Weights,Order)
       Use Leg_RW
       Use vRys_RW
@@ -34,7 +34,7 @@
       Real*8, Parameter :: eps=1.0d-16
       Real*8, External :: TAsymp
       Integer, External :: WhichQuad
-*
+!
       Do i = 1, nT
         If (TValues(i).gt.TAsymp(Order) .or. asymptotic_Rys) Then
           Do j = 1, Order
@@ -55,7 +55,7 @@
             Call WarningMessage(2,'Error in Lanczos')
             Call AbEnd()
           End If
-          Call GaussQuad(Order,Alpha,Beta,eps,
+          Call GaussQuad(Order,Alpha,Beta,eps,                          &
      &                   Roots(1,i),Weights(1,i),Err)
           If (Err.ne.0) Then
             write(6,*) Err
@@ -66,14 +66,14 @@
           Call mma_deallocate(b)
         End If
       End Do
-*
+!
       End Subroutine RysRtsWgh
-*
-* This function returns the asymptotic limit for the t parameter,
-* for values larger than this the scaled Hermite quadrature is
-* accurate enough. These values are quite conservative, with
-* estimated errors below 1e-16.
-*
+!
+! This function returns the asymptotic limit for the t parameter,
+! for values larger than this the scaled Hermite quadrature is
+! accurate enough. These values are quite conservative, with
+! estimated errors below 1e-16.
+!
       Function TAsymp(Order)
       Implicit None
       Real*8 :: TAsymp
@@ -120,14 +120,14 @@
         Case (20)
           TAsymp=144.0D0
         Case Default
-* Rough fit
+! Rough fit
           TAsymp=50.0D0+5*Order
       End Select
       End Function TAsymp
-*
-* This function returns the number of points to use in the auxiliary
-* Legendre quadrature.
-*
+!
+! This function returns the number of points to use in the auxiliary
+! Legendre quadrature.
+!
       Function WhichQuad(Order)
       Use Leg_RW
       Implicit None
@@ -175,63 +175,63 @@
         Case (20)
           WhichQuad = 10 !73
         Case Default
-* Maximum naux
+! Maximum naux
           WhichQuad = 11 !300
       End Select
       End Function WhichQuad
-*
-************************************************************************
-* Routines GaussQuad and Lanczos adapted from:
-*
-* Algorithm 726: ORTHPOL -- A package of Routines for Generating
-* Orthogonal Polynomials and Gauss-Type Quadrature Rules
-*   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
-*   doi:10.1145/174603.174605
-************************************************************************
-*
+!
+!***********************************************************************
+! Routines GaussQuad and Lanczos adapted from:
+!
+! Algorithm 726: ORTHPOL -- A package of Routines for Generating
+! Orthogonal Polynomials and Gauss-Type Quadrature Rules
+!   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
+!   doi:10.1145/174603.174605
+!***********************************************************************
+!
       Subroutine GaussQuad(n,alpha,beta,eps,roots,weights,ierr)
-c Given  n  and a measure  dlambda, this routine generates the n-point
-c Gaussian quadrature formula
-c
-c     integral over supp(dlambda) of f(x)dlambda(x)
-c
-c        = sum from k=1 to k=n of w(k)f(x(k)) + R(n;f).
-c
-c The nodes are returned as  roots(k)=x(k) and the weights as
-c weights(k)=w(k), k=1,2,...,n. The user has to supply the recursion
-c coefficients  alpha(k), beta(k), k=0,1,2,...,n-1, for the measure
-c dlambda. The routine computes the nodes as eigenvalues, and the
-c weights in term of the first component of the respective normalized
-c eigenvectors of the n-th order Jacobi matrix associated with  dlambda.
-c It uses a translation and adaptation of the algol procedure  imtql2,
-c Numer. Math. 12, 1968, 377-383, by Martin and Wilkinson, as modified
-c by Dubrulle, Numer. Math. 15, 1970, 450. See also Handbook for
-c Autom. Comput., vol. 2 - Linear Algebra, pp.241-248, and the eispack
-c routine  imtql2.
-c
-c        Input:  n - - the number of points in the Gaussian quadrature
-c                      formula; type integer
-c                alpha,beta - arrays of dimension  n  to be filled
-c                      with the values of  alpha(k-1), beta(k-1), k=1,2,
-c                      ...,n
-c                eps - the relative accuracy desired in the nodes
-c                      and weights
-c
-c        Output: roots - array of dimension  n  containing the Gaussian
-c                      nodes (in increasing order)  roots(k)=x(k), k=1,2,
-c                      ...,n
-c                weights - array of dimension  n  containing the
-c                      Gaussian weights  weights(k)=w(k), k=1,2,...,n
-c                ierr - an error flag equal to  0  on normal return,
-c                      equal to  i  if the QR algorithm does not
-c                      converge within 30 iterations on evaluating the
-c                      i-th eigenvalue, equal to  -1  if  n  is not in
-c                      range, and equal to  -2  if one of the beta's is
-c                      negative.
+! Given  n  and a measure  dlambda, this routine generates the n-point
+! Gaussian quadrature formula
+!
+!     integral over supp(dlambda) of f(x)dlambda(x)
+!
+!        = sum from k=1 to k=n of w(k)f(x(k)) + R(n;f).
+!
+! The nodes are returned as  roots(k)=x(k) and the weights as
+! weights(k)=w(k), k=1,2,...,n. The user has to supply the recursion
+! coefficients  alpha(k), beta(k), k=0,1,2,...,n-1, for the measure
+! dlambda. The routine computes the nodes as eigenvalues, and the
+! weights in term of the first component of the respective normalized
+! eigenvectors of the n-th order Jacobi matrix associated with  dlambda.
+! It uses a translation and adaptation of the algol procedure  imtql2,
+! Numer. Math. 12, 1968, 377-383, by Martin and Wilkinson, as modified
+! by Dubrulle, Numer. Math. 15, 1970, 450. See also Handbook for
+! Autom. Comput., vol. 2 - Linear Algebra, pp.241-248, and the eispack
+! routine  imtql2.
+!
+!        Input:  n - - the number of points in the Gaussian quadrature
+!                      formula; type integer
+!                alpha,beta - arrays of dimension  n  to be filled
+!                      with the values of  alpha(k-1), beta(k-1), k=1,2,
+!                      ...,n
+!                eps - the relative accuracy desired in the nodes
+!                      and weights
+!
+!        Output: roots - array of dimension  n  containing the Gaussian
+!                      nodes (in increasing order)  roots(k)=x(k), k=1,2,
+!                      ...,n
+!                weights - array of dimension  n  containing the
+!                      Gaussian weights  weights(k)=w(k), k=1,2,...,n
+!                ierr - an error flag equal to  0  on normal return,
+!                      equal to  i  if the QR algorithm does not
+!                      converge within 30 iterations on evaluating the
+!                      i-th eigenvalue, equal to  -1  if  n  is not in
+!                      range, and equal to  -2  if one of the beta's is
+!                      negative.
       Implicit None
       Integer :: n,ierr,i,ii,j,k,l,m,mml
       Integer, Parameter :: maxcyc=30
-      Real*8 :: alpha(n),beta(n),roots(n),weights(n),eps,e(n),
+      Real*8 :: alpha(n),beta(n),roots(n),weights(n),eps,e(n),          &
      &          b,c,f,g,p,s,r
 #include "real.fh"
       ierr=0
@@ -239,9 +239,9 @@ c                      negative.
         ierr=-1
         return
       end if
-c
-c Initialization
-c
+!
+! Initialization
+!
       do k=1,n
         roots(k)=alpha(k)
         if (beta(k).lt.zero) then
@@ -258,23 +258,23 @@ c
         weights(1)=one
         e(n) = zero
       endif
-c
-c Loop over roots
-c
+!
+! Loop over roots
+!
       do l=1,n
         do j=1,maxcyc
-c
-c Look for a small subdiagonal element.
-c
+!
+! Look for a small subdiagonal element.
+!
           do m=l,n
             if (m.eq.n) exit
             if (abs(e(m)).le.eps*(abs(roots(m))+abs(roots(m+1)))) exit
           end do
           p=roots(l)
           if (m.eq.l) exit
-c
-c Form shift.
-c
+!
+! Form shift.
+!
           g=(roots(l+1)-p)/(two*e(l))
           r=sqrt(g*g+one)
           g=roots(m)-p+e(l)/(g+sign(r,g))
@@ -282,9 +282,9 @@ c
           c=one
           p=zero
           mml=m-l
-c
-c For i=m-1 step -1 until l do ...
-c
+!
+! For i=m-1 step -1 until l do ...
+!
           do ii=1,mml
             i=m-ii
             f=s*e(i)
@@ -307,9 +307,9 @@ c
             p=s*r
             roots(i+1)=g+p
             g=c*r-b
-c
-c Form first component of vector.
-c
+!
+! Form first component of vector.
+!
             f=weights(i+1)
             weights(i+1)=s*weights(i)+c*f
             weights(i)=c*weights(i)-s*f
@@ -318,17 +318,17 @@ c
           e(l)=g
           e(m)=zero
         end do
-c
-c Set error - no convergence to an eigenvalue after maxcyc iterations.
-c
+!
+! Set error - no convergence to an eigenvalue after maxcyc iterations.
+!
         if (j.gt.maxcyc) then
           ierr=l
           return
         end if
       end do
-c
-c Order eigenvalues and eigenvectors.
-c
+!
+! Order eigenvalues and eigenvectors.
+!
       do ii=2,n
         i=ii-1
         k=i
@@ -352,46 +352,46 @@ c
       end do
       return
       end
-*
+!
       Subroutine Lanczos(n,ncap,x,w,alpha,beta,ierr)
-c This routine carries out the same task as the routine  sti, but
-c uses the more stable Lanczos method. The meaning of the input
-c and output parameters is the same as in the routine  sti. (This
-c routine is adapted from the routine RKPW in W.B. Gragg and
-c W.J. Harrod, "The numerically stable reconstruction of Jacobi
-c matrices from spectral data", Numer. Math. 44, 1984, 317-335.)
-c
-c Routine sti:
-c
-c This routine applies "Stieltjes's procedure" (cf. Section 2.1 of
-c W. Gautschi, "On generating orthogonal polynomials", SIAM J. Sci.
-c Statist. Comput. 3, 1982, 289-317) to generate the recursion
-c coefficients  alpha(k), beta(k) , k=0,1,...,n-1, for the discrete
-c (monic) orthogonal polynomials associated with the inner product
-c
-c     (f,g)=sum over k from 1 to ncap of w(k)*f(x(k))*g(x(k)).
-c
-c The integer  n  must be between  1  and  ncap, inclusive; otherwise,
-c there is an error exit with  ierr=1. The results are stored in the
-c arrays  alpha, beta.
-c
-c If there is a threat of underflow or overflow in the calculation
-c of the coefficients  alpha(k)  and  beta(k), the routine exits with
-c the error flag  ierr  set equal to  -k  (in the case of underflow)
-c or  +k  (in the case of overflow), where  k  is the recursion index
-c for which the problem occurs. The former [latter] can often be avoided
-c by multiplying all weights  w(k)  by a sufficiently large [small]
-c scaling factor prior to entering the routine, and, upon exit, divide
-c the coefficient  beta(0)  by the same factor.
-c
-c This routine should be used with caution if  n  is relatively close
-c to  ncap, since there is a distinct possibility of numerical
-c instability developing. (See W. Gautschi, "Is the recurrence relation
-c for orthogonal polynomials always stable?", BIT, 1993, to appear.)
-c In that case, the routine  lancz  should be used.
+! This routine carries out the same task as the routine  sti, but
+! uses the more stable Lanczos method. The meaning of the input
+! and output parameters is the same as in the routine  sti. (This
+! routine is adapted from the routine RKPW in W.B. Gragg and
+! W.J. Harrod, "The numerically stable reconstruction of Jacobi
+! matrices from spectral data", Numer. Math. 44, 1984, 317-335.)
+!
+! Routine sti:
+!
+! This routine applies "Stieltjes's procedure" (cf. Section 2.1 of
+! W. Gautschi, "On generating orthogonal polynomials", SIAM J. Sci.
+! Statist. Comput. 3, 1982, 289-317) to generate the recursion
+! coefficients  alpha(k), beta(k) , k=0,1,...,n-1, for the discrete
+! (monic) orthogonal polynomials associated with the inner product
+!
+!     (f,g)=sum over k from 1 to ncap of w(k)*f(x(k))*g(x(k)).
+!
+! The integer  n  must be between  1  and  ncap, inclusive; otherwise,
+! there is an error exit with  ierr=1. The results are stored in the
+! arrays  alpha, beta.
+!
+! If there is a threat of underflow or overflow in the calculation
+! of the coefficients  alpha(k)  and  beta(k), the routine exits with
+! the error flag  ierr  set equal to  -k  (in the case of underflow)
+! or  +k  (in the case of overflow), where  k  is the recursion index
+! for which the problem occurs. The former [latter] can often be avoided
+! by multiplying all weights  w(k)  by a sufficiently large [small]
+! scaling factor prior to entering the routine, and, upon exit, divide
+! the coefficient  beta(0)  by the same factor.
+!
+! This routine should be used with caution if  n  is relatively close
+! to  ncap, since there is a distinct possibility of numerical
+! instability developing. (See W. Gautschi, "Is the recurrence relation
+! for orthogonal polynomials always stable?", BIT, 1993, to appear.)
+! In that case, the routine  lancz  should be used.
       Implicit None
       Integer :: n,ncap,ierr,i,k
-      Real*8 :: x(ncap),w(ncap),alpha(n),beta(n),p0(ncap),p1(ncap),
+      Real*8 :: x(ncap),w(ncap),alpha(n),beta(n),p0(ncap),p1(ncap),     &
      &          gam,pj,rho,sig,t,tk,tmp,tsig,xlam
 #include "real.fh"
       ierr=0
