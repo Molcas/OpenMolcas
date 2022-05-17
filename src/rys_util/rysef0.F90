@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine RysEF0(Ixy4D,Iz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin, &
+subroutine RysEF0(Ixy4D,Iz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin, &
                   nzeMax,nzfMin,nzfMax)
 !***********************************************************************
 !                                                                      *
@@ -107,10 +107,5 @@ select case (nRys)
 end select
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(neMin)
-  call Unused_integer(nfMin)
-end if
 
 end subroutine RysEF0

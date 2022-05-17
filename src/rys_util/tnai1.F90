@@ -30,6 +30,11 @@ implicit real*8(A-H,O-Z)
 #include "print.fh"
 real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), ZEInv(nT), T(nT)
 
+#include "macros.fh"
+unused_var(Eta)
+unused_var(IsChi)
+unused_var(ChiI2)
+
 #ifdef _DEBUGPRINT_
 iRout = 57
 iPrint = nPrint(iRout)
@@ -53,11 +58,5 @@ end if
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Eta)
-  call Unused_integer(IsChi)
-  call Unused_real(ChiI2)
-end if
 
 end subroutine TNAI1

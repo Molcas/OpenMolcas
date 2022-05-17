@@ -11,7 +11,7 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine HrrCtl_mck(Arr1,nArr1,Arr2,nArr2,la,lb,lc,ld,nabMax,ncdMax,nTR,A,B,C,D,IfHss,IfGrd,nt,nrys)
+subroutine HrrCtl_mck(Arr1,nArr1,Arr2,nArr2,la,lb,lc,ld,nabMax,ncdMax,nTR,A,B,C,D,IfHss,IfGrd)
 !***********************************************************************
 !                                                                      *
 ! Object: to act as a shell towards the HRR subroutines.               *
@@ -31,7 +31,7 @@ logical IfHss(4,3,4,3), IfGrd(3,4)
 
 call Hrr2Da_mck(Arr1,nTR,nabMax,ncdMax,Arr2,A,B,la,lb,lc,ld,IfHss,IfGrd)
 
-call Hrr2Db_mck(Arr2,nTR,ncdMax,Arr1,C,D,la,lb,lc,ld,IfHss,IfGrd,nt,nrys)
+call Hrr2Db_mck(Arr2,nTR,ncdMax,Arr1,C,D,la,lb,lc,ld,IfHss,IfGrd)
 
 return
 

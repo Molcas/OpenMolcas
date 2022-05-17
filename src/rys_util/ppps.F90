@@ -30,6 +30,9 @@ real*8 EFInt(nZeta,nEta,27), Zeta(nZeta), Eta(nEta), CoorAC(3,2), ZInv(nZeta), E
 integer iPntr(nPntr)
 logical EQ
 
+#include "macros.fh"
+unused_var(EInv)
+
 xdInv = One/ddx
 dddx = ddx/10d0+ddx
 
@@ -460,7 +463,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(EInv)
 
 end subroutine ppps

@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,1992, Roland Lindh                                *
 !***********************************************************************
 
-subroutine Hrr2Db_mck(Arr1,nVec,ncdMax,Arr2,C,D,la,lb,lc,ld,IfHss,IfGrd,nt,nrys)
+subroutine Hrr2Db_mck(Arr1,nVec,ncdMax,Arr2,C,D,la,lb,lc,ld,IfHss,IfGrd)
 !***********************************************************************
 !                                                                      *
 ! Object: to apply the transfer equation to the 2D-integrals.          *
@@ -147,10 +147,5 @@ do iCar=1,3
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nt)
-  call Unused_integer(nrys)
-end if
 
 end subroutine Hrr2Db_mck

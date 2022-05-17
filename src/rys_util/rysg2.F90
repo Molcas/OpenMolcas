@@ -254,8 +254,8 @@ ip = ip-6*nT
 ! -------------------------------
 ! Compute the intermediate 2D-integrals from the roots and weights.
 
-call Rs2Dmm(Array(ip2D0),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),max(nabMax-1,0),Array(ipB00),labMax, &
-            Array(ipB01),max(ncdMax-1,0),la,lb,lc,ld,IfHss,IfGrd)
+call Rs2Dmm(Array(ip2D0),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),Array(ipB01),la,lb,lc,ld, &
+            IfHss,IfGrd)
 
 ! Drop ipB01
 ip = ip-nTR*3*lB01
@@ -271,7 +271,7 @@ ip = ip-nTR*3
 ! Apply the transfer equation to the intermediate 2D-integrals.
 
 call HrrCtl_mck(Array(ip2D0),n2D0,Array(ip2D1),n2D1,la,lb,lc,ld,nabmax,ncdmax,nTR,Coora(1,1),Coora(1,2),Coora(1,3),Coora(1,4), &
-                IfHss,IfGrd,nt,nrys)
+                IfHss,IfGrd)
 
 ! Compute the gradients of the 2D-integrals. Copy some information
 ! which will be modified. This has to be done in order to facilitate

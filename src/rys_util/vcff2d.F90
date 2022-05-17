@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine vCff2D(iDum1,iDum2,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01)
+subroutine vCff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the coefficients in the three terms recurrence    *
@@ -39,7 +39,14 @@ character*30 Label
 logical AeqB, CeqD, EQ
 #ifdef _DEBUGPRINT_
 logical PrintB10, PrintB00, PrintB01
+#endif
 
+#include "macros.fh"
+unused_var(nabMax)
+unused_var(ncdMax)
+unused_var(lac)
+
+#ifdef _DEBUGPRINT_
 call RecPrt(' In vCff2D: Coori',' ',Coori,3,4)
 call RecPrt(' In vCff2D: U2',' ',U2,nRys,nT)
 call RecPrt(' in vCff2d: Zeta',' ',Zeta,1,nT)
@@ -236,11 +243,5 @@ end if
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iDum1)
-  call Unused_integer(iDum2)
-  call Unused_integer(lac)
-end if
 
 end subroutine vCff2D

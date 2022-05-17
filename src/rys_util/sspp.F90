@@ -30,6 +30,9 @@ real*8 EFInt(nZeta,nEta,9), Zeta(nZeta), Eta(nEta), CoorAC(3,2), ZInv(nZeta), EI
 integer iPntr(nPntr)
 logical ABeqCD, EQ
 
+#include "macros.fh"
+unused_var(ZInv)
+
 xdInv = One/ddx
 dddx = ddx/10d0+ddx
 
@@ -309,7 +312,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(ZInv)
 
 end subroutine sspp

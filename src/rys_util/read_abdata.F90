@@ -18,7 +18,7 @@ character(len=*), parameter :: ABDATA_NAME = 'ABDATA'
 integer, parameter :: lu_abdata = 22
 logical :: found_abdata
 character(len=8) :: key
-integer :: i, itab, ipos, k, nerr
+integer :: i, ipos, k, nerr
 
 call f_Inquire(ABDATA_NAME,found_abdata)
 if (.not. found_abdata) then
@@ -51,7 +51,7 @@ do i=ntab1,ntab2
     if (key == 'TAB POIN') exit
   end do
   ipos = ipos+1
-  read(lu_abdata,*) itab,tvalue(ipos),p0(ipos)
+  read(lu_abdata,*) k,tvalue(ipos),p0(ipos)
   read(lu_abdata,*)
   read(lu_abdata,*) (atab(k,ipos),k=0,maxdeg)
   read(lu_abdata,*)
@@ -61,8 +61,5 @@ end do
 close(lu_abdata)
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(itab)
-#endif
 
 end subroutine read_abdata

@@ -32,7 +32,14 @@ logical AeqB, CeqD, EQ
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 character*30 Label
+#endif
 
+#include "macros.fh"
+unused_var(EInv)
+unused_var(Eta)
+unused_var(Q)
+
+#ifdef _DEBUGPRINT_
 call RecPrt(' In Cff2Ds: Coori',' ',Coori,3,4)
 call RecPrt(' In Cff2Ds: U2',' ',U2,nRys,nT)
 #endif
@@ -155,11 +162,5 @@ end if
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(EInv)
-  call Unused_real_array(Eta)
-  call Unused_real_array(Q)
-end if
 
 end subroutine Cff2DS

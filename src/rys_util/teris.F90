@@ -29,12 +29,17 @@ implicit real*8(A-H,O-Z)
 #include "real.fh"
 real*8 Zeta(nT), P(nT,3), rKapab(nT), T(nT), Fact(nT), ZEInv(nT)
 
+#include "macros.fh"
+unused_var(Eta)
+unused_var(P)
+unused_var(Q)
+unused_var(rKapcd)
+
 #ifdef _DEBUGPRINT_
 iRout = 244
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   call RecPrt(' Zeta in TERIS',' ',Zeta,nT,1)
-  call RecPrt(' P in TERIS',' ',P,nT,3)
   call RecPrt(' Kab in TERIS',' ',rKapab,nT,1)
 end if
 #endif
@@ -51,17 +56,8 @@ if (iPrint >= 99) then
   call RecPrt('In TERIS: Tvalue',' ',T,nT,1)
   call RecPrt('In TERIS: Fact  ',' ',Fact,nT,1)
 end if
-#else
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(P)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(Eta)
-  call Unused_real(Q)
-  call Unused_real(rKapcd)
-end if
 
 end subroutine TERIS

@@ -243,8 +243,8 @@ ip = ip-6*nT
 
 ! Compute the intermediate 2D-integrals from the roots and weights.
 
-call vRys2Dm(Array(ip2D0),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),max(nabMax-1,0),Array(ipB00),labMax, &
-             Array(ipB01),max(ncdMax-1,0),la,lb,lc,ld,IfGrad)
+call vRys2Dm(Array(ip2D0),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),Array(ipB01),la,lb,lc,ld, &
+             IfGrad)
 ! Drop ipB01
 ip = ip-nTR*3*lB01
 ! Drop ipB00
@@ -291,7 +291,7 @@ ip = ip-nTR*3*n2D0
 
 ! Distribute the contributions to the molecular gradient
 
-call Distg1(Temp,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+call Distg1(Temp,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 ! Drop ipAC
 !ip = ip-nT*nPAO*9
 #ifdef _CHECK_

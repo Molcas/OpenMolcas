@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine XRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,laa,B00,lac,B01,lcc)
+subroutine XRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the 2-dimensional integrals of the Rys            *
@@ -42,9 +42,9 @@ iPrint = nPrint(iRout)
 if (iPrint >= 59) then
   if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
   if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
-  if (laa /= 0) call RecPrt(' B10',' ',B10,nArg*lRys,3)
-  if (lac /= 0) call RecPrt(' B00',' ',B00,nArg*lRys,3)
-  if (lcc /= 0) call RecPrt(' B01',' ',B01,nArg*lRys,3)
+  call RecPrt(' B10',' ',B10,nArg*lRys,3)
+  call RecPrt(' B00',' ',B00,nArg*lRys,3)
+  call RecPrt(' B01',' ',B01,nArg*lRys,3)
 end if
 #endif
 
@@ -102,13 +102,6 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',xyz2D(1+2*nArg*lRys,iab,icd),nArg,lRys)
     end do
   end do
-end if
-#else
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(laa)
-  call Unused_integer(lac)
-  call Unused_integer(lcc)
 end if
 #endif
 

@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine vRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,laa,B00,lac,B01,lcc)
+subroutine vRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the 2-dimensional integrals of the Rys            *
@@ -39,9 +39,9 @@ character*30 Label
 
 if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,lRys,nArg*3)
 if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,lRys,nArg*3)
-if (laa /= 0) call RecPrt(' B10',' ',B10,lRys,nArg)
-if (lac /= 0) call RecPrt(' B00',' ',B00,lRys,nArg)
-if (lcc /= 0) call RecPrt(' B01',' ',B01,lRys,nArg)
+call RecPrt(' B10',' ',B10,lRys,nArg)
+call RecPrt(' B00',' ',B00,lRys,nArg)
+call RecPrt(' B01',' ',B01,lRys,nArg)
 #endif
 
 iOffy = nArg*lRys
@@ -277,13 +277,6 @@ do iab=0,nabMax
     call RecPrt(Label,' ',xyz2D(1+2*nArg*lRys,iab,icd),lRys,nArg)
   end do
 end do
-#else
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(laa)
-  call Unused_integer(lac)
-  call Unused_integer(lcc)
-end if
 #endif
 
 return

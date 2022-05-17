@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine XCff2D(iDum1,iDum2,nRys,Zeta,ZInv,rDum3,rDum4,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01)
+subroutine XCff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the coefficients in the three terms recurrence    *
@@ -36,6 +36,12 @@ real*8 Zeta(nT), ZInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT
 character*30 Label
 #endif
 logical AeqB, CeqD, EQ
+
+#include "macros.fh"
+unused_var(nabMax)
+unused_var(ncdMax)
+unused_var(Eta)
+unused_var(EInv)
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In XCff2D: Coori',' ',Coori,3,4)
@@ -166,12 +172,5 @@ end if
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iDum1)
-  call Unused_integer(iDum2)
-  call Unused_real(rDum3)
-  call Unused_real(rDum4)
-end if
 
 end subroutine XCff2D

@@ -22,11 +22,10 @@ implicit real*8(A-H,O-Z)
 #include "real.fh"
 real*8 U2(mT,nRys), ZEInv(mT)
 
+#include "macros.fh"
+unused_var(U2)
+unused_var(ZEInv)
+
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(U2)
-  call Unused_real_array(ZEInv)
-end if
 
 end subroutine Fake

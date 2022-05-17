@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Distg1(Temp,mVec,Grad,nGrad,IfGrad,IndGrd,iStab,kOp)
+subroutine Distg1(Temp,Grad,nGrad,IfGrad,IndGrd,iStab,kOp)
 
 !***********************************************************************
 !                                                                      *
@@ -119,8 +119,5 @@ end if
 #endif
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(mVec)
-#endif
 
 end subroutine Distg1

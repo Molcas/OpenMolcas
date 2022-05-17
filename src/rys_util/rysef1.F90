@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine RysEF1(Iz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin, &
-                  nzeMax,nzfMin,nzfMax)
+subroutine RysEF1(Iz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax,nzfMin, &
+                  nzfMax)
 !***********************************************************************
 !                                                                      *
 !     Object: kernel routine to assemble the integrals from the Ixy    *
@@ -105,10 +105,5 @@ select case (nRys)
 end select
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(neMin)
-  call Unused_integer(nfMin)
-end if
 
 end subroutine RysEF1

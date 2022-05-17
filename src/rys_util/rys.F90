@@ -406,8 +406,7 @@ select case (ijkl)
 
       ! Compute the 2D-integrals from the roots and weights
 
-      call Rys2D(Array(ipxyz),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),max(nabMax-1,0),Array(ipB00),labMax, &
-                 Array(ipB01),max(ncdMax-1,0))
+      call Rys2D(Array(ipxyz),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),Array(ipB01))
       ip = ip-nTR*3*lB01
       ip = ip-nTR*3*lB00
       ip = ip-nTR*3*lB10

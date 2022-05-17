@@ -31,6 +31,9 @@ implicit real*8(A-H,O-Z)
 #include "real.fh"
 real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), T(nT), Fact(nT), ZEInv(nT)
 
+#include "macros.fh"
+unused_var(Eta)
+
 #ifdef _DEBUGPRINT_
 iRout = 56
 iPrint = nPrint(iRout)
@@ -60,7 +63,5 @@ end if
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Eta)
 
 end subroutine TERISq

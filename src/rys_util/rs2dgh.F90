@@ -155,7 +155,7 @@ if (IfG(1)) then
               ra = Zero
               do ia=1,la
                 ra = ra+One
-                call DaXpY_inline(nRys*nT,-ra,xyz2D0(1,ia-1,ib,ic,id,Ind2(n)),1,xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                call DaXpY_inline(nRys*nT,-ra,xyz2D0(1,ia-1,ib,ic,id,Ind2(n)),xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -171,7 +171,7 @@ if (IfG(1)) then
               do ia=2,la
                 ra = ra+One
                 Fact = ra*ra-ra
-                call Daxpy_inline(nRys*nT,Fact,xyz2D0(1,ia-2,ib,ic,id,Ind4(n)),1,xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)),1)
+                call Daxpy_inline(nRys*nT,Fact,xyz2D0(1,ia-2,ib,ic,id,Ind4(n)),xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)))
               end do
             end do
           end do
@@ -279,7 +279,7 @@ if (IfG(2) .and. Ifg(1)) then
               do ia=1,la
                 ra = ra+One
                 Fact = ra*rb
-                call DaXpY_inline(nRys*nT,Fact,xyz2D0(1,ia-1,ib-1,ic,id,Ind2(n)),1,xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                call DaXpY_inline(nRys*nT,Fact,xyz2D0(1,ia-1,ib-1,ic,id,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -397,7 +397,7 @@ if (IfG(2)) then
             do ib=1,lb
               rb = rb+One
               do ia=0,la
-                call DaXpy_inline(nRys*nT,-rb,xyz2D0(1,ia,ib-1,ic,id,Ind2(n)),1,xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                call DaXpy_inline(nRys*nT,-rb,xyz2D0(1,ia,ib-1,ic,id,Ind2(n)),xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -413,7 +413,7 @@ if (IfG(2)) then
               rb = rb+One
               Fact = rb*rb-rb
               do ia=0,la
-                call DaXpy_inline(nRys*nT,Fact,xyz2D0(1,ia,ib-2,ic,id,Ind4(n)),1,xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)),1)
+                call DaXpy_inline(nRys*nT,Fact,xyz2D0(1,ia,ib-2,ic,id,Ind4(n)),xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)))
               end do
             end do
           end do
@@ -523,7 +523,7 @@ if (IfG(2) .and. IfG(3)) then
               rb = rb+One
               Fact = rb*rc
               do ia=0,la
-                call DaxPy_inline(nRys*nT,Fact,xyz2D0(1,ia,ib-1,ic-1,id,Ind2(n)),1,xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                call DaxPy_inline(nRys*nT,Fact,xyz2D0(1,ia,ib-1,ic-1,id,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -640,7 +640,7 @@ if (IfG(3)) then
             rc = rc+One
             do ib=0,lb
               do ia=0,la
-                call DaXpY_inline(nRys*nT,-rc,xyz2D0(1,ia,ib,ic-1,id,Ind2(n)),1,xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                call DaXpY_inline(nRys*nT,-rc,xyz2D0(1,ia,ib,ic-1,id,Ind2(n)),xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -656,7 +656,7 @@ if (IfG(3)) then
             Fact = rc*rc-rc
             do ib=0,lb
               do ia=0,la
-                call DaXpY_inline(nt*nrys,Fact,xyz2D0(1,ia,ib,ic-2,id,Ind4(n)),1,xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)),1)
+                call DaXpY_inline(nt*nrys,Fact,xyz2D0(1,ia,ib,ic-2,id,Ind4(n)),xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)))
               end do
             end do
           end do
@@ -765,7 +765,7 @@ if (IfG(1) .and. IfG(3)) then
               do ia=1,la
                 ra = ra+One
                 Fact = rc*ra
-                call DaXpy_inline(nt*nrys,Fact,xyz2D0(1,ia-1,ib,ic-1,id,Ind2(n)),1,xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                call DaXpy_inline(nt*nrys,Fact,xyz2D0(1,ia-1,ib,ic-1,id,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -879,7 +879,7 @@ if (IfG(4)) then
                 do ia=1,la
                   ra = ra+One
                   Fact = rd*ra
-                  call DaxPy_inline(nRys*nT,Fact,xyz2D0(1,ia-1,ib,ic,id-1,Ind2(n)),1,xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                  call DaxPy_inline(nRys*nT,Fact,xyz2D0(1,ia-1,ib,ic,id-1,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
                 end do
               end do
             end do
@@ -990,7 +990,7 @@ if (IfG(4)) then
                 rb = rb+One
                 do ia=0,la
                   Fact = rb*rd
-                  call DaxPy_inline(nt*nrys,Fact,xyz2D0(1,ia,ib-1,ic,id-1,Ind2(n)),1,xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                  call DaxPy_inline(nt*nrys,Fact,xyz2D0(1,ia,ib-1,ic,id-1,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
                 end do
               end do
             end do
@@ -1101,7 +1101,7 @@ if (IfG(4)) then
               do ib=0,lb
                 do ia=0,la
                   Fact = rc*rd
-                  call DaxPy_inline(nt*nRys,fact,xyz2D0(1,ia,ib,ic-1,id-1,Ind2(n)),1,xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                  call DaxPy_inline(nt*nRys,fact,xyz2D0(1,ia,ib,ic-1,id-1,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
                 end do
               end do
             end do
@@ -1216,7 +1216,7 @@ if (IfG(4)) then
           do ic=0,lc
             do ib=0,lb
               do ia=0,la
-                call Daxpy_inline(nt*nrys,-rd,xyz2D0(1,ia,ib,ic,id-1,Ind2(n)),1,xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)),1)
+                call Daxpy_inline(nt*nrys,-rd,xyz2D0(1,ia,ib,ic,id-1,Ind2(n)),xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -1232,7 +1232,7 @@ if (IfG(4)) then
           do ic=0,lc
             do ib=0,lb
               do ia=0,la
-                call Daxpy_inline(nt*nrys,Fact,xyz2D0(1,ia,ib,ic,id-2,Ind4(n)),1,xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)),1)
+                call Daxpy_inline(nt*nrys,Fact,xyz2D0(1,ia,ib,ic,id-2,Ind4(n)),xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)))
               end do
             end do
           end do
@@ -1257,21 +1257,20 @@ do iCent=1,3
             j4 = Index1(iCar,jCent)
             j5 = Index1(iCar,iCent)
             if (IfHss(jCent,iCar,jCent,iCar) .and. IfHss(iCent,iCar,iCent,iCar)) then
-              call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D2(1,0,0,0,0,iCar,i2),1,xyz2D2(1,0,0,0,0,iCar,i1),1)
+              call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D2(1,0,0,0,0,iCar,i2),xyz2D2(1,0,0,0,0,iCar,i1))
             end if
             if (IfHss(jCent,iCar,iCent,iCar) .and. IfHss(iCent,iCar,iCent,iCar)) then
-              call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),Two,xyz2D2(1,0,0,0,0,iCar,i3),1,xyz2D2(1,0,0,0,0,iCar,i1),1)
+              call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),Two,xyz2D2(1,0,0,0,0,iCar,i3),xyz2D2(1,0,0,0,0,iCar,i1))
             end if
             if ((j4 /= 0) .and. (j5 /= 0) .and. ifgrad(iCar,iCent) .and. ifgrad(iCar,jCent)) &
-              call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D1(1,0,0,0,0,iCar,j4),1,xyz2D1(1,0,0,0,0,iCar,j5),1)
+              call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D1(1,0,0,0,0,iCar,j4),xyz2D1(1,0,0,0,0,iCar,j5))
             do kCent=1,4
               if (IfG(kCent)) then
                 if ((kcent /= iCent) .and. (kcent /= jCent)) then
                   if (ifHss(kCent,iCar,jCent,iCar) .or. ifHss(jCent,iCar,kCent,iCar)) then
                     i4 = Index2(iCar,max(kCent,jCent),min(jCent,kCent))
                     i5 = Index2(iCar,max(kCent,iCent),min(iCent,kCent))
-                    call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D2(1,0,0,0,0,iCar,i4),1, &
-                                      xyz2D2(1,0,0,0,0,iCar,i5),1)
+                    call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D2(1,0,0,0,0,iCar,i4),xyz2D2(1,0,0,0,0,iCar,i5))
                   end if
                 end if
               end if
@@ -1314,7 +1313,7 @@ return
 
 end subroutine Rs2Dgh
 
-subroutine Daxpy_inline(nt,r,A,inca,B,incB)
+subroutine Daxpy_inline(nt,r,A,B)
 
 implicit real*8(A-H,O-Z)
 real*8 A(*), B(*)
@@ -1324,10 +1323,5 @@ do i=1,nt
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(inca)
-  call Unused_integer(incB)
-end if
 
 end subroutine Daxpy_inline

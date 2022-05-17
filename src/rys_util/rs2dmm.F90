@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Rs2Dmm(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,laa,B00,lac,B01,lcc,la,lb,lc,ld,IfHss,ifgrd)
+subroutine Rs2Dmm(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01,la,lb,lc,ld,IfHss,ifgrd)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the 2-dimensional integrals of the Rys            *
@@ -40,9 +40,9 @@ logical IfGrd(3,4), ifhss(4,3,4,3)
 !if (iPrint >= 99) then
 !  if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
 !  if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
-!  if (laa /= 0) call RecPrt(' B10',' ',B10,nArg*lRys,3)
-!  if (lac /= 0) call RecPrt(' B00',' ',B00,nArg*lRys,3)
-!  if (lcc /= 0) call RecPrt(' B01',' ',B01,nArg*lRys,3)
+!  call RecPrt(' B10',' ',B10,nArg*lRys,3)
+!  call RecPrt(' B00',' ',B00,nArg*lRys,3)
+!  call RecPrt(' B01',' ',B01,nArg*lRys,3)
 !end if
 
 ! Compute 2D integrals with index (0,0). Observe that the z
@@ -176,11 +176,5 @@ end do
 !end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(laa)
-  call Unused_integer(lac)
-  call Unused_integer(lcc)
-end if
 
 end subroutine Rs2Dmm

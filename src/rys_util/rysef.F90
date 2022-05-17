@@ -82,18 +82,18 @@ do ief=1,ne*nf
 
     if (ixe+ixf+iye+iyf == 0) then
 
-      call RysEF1(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin, &
-                  nzeMax,nzfMin,nzfMax)
+      call RysEF1(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax,nzfMin, &
+                  nzfMax)
 
     else if (ixe+ixf == 0) then
 
-      call RysEF0(xyz2D(1,1,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf, &
-                  ixye,ixyf,nzeMin,nzeMax,nzfMin,nzfMax)
+      call RysEF0(xyz2D(1,1,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
+                  nzeMin,nzeMax,nzfMin,nzfMax)
 
     else if (iye+iyf == 0) then
 
-      call RysEF0(xyz2D(1,1,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf, &
-                  ixye,ixyf,nzeMin,nzeMax,nzfMin,nzfMax)
+      call RysEF0(xyz2D(1,1,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
+                  nzeMin,nzeMax,nzfMin,nzfMax)
 
     else
 
@@ -102,8 +102,8 @@ do ief=1,ne*nf
           Scrtch(iRys,iArg) = xyz2D(iRys,iArg,1,ixe,ixf)*xyz2D(iRys,iArg,2,iye,iyf)
         end do
       end do
-      call RysEF0(Scrtch,xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
-                  nzeMin,nzeMax,nzfMin,nzfMax)
+      call RysEF0(Scrtch,xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
+                  nzfMin,nzfMax)
 
     end if
 
@@ -115,23 +115,21 @@ do ief=1,ne*nf
 
     if (ixe+ixf+iye+iyf == 0) then
 
-      call RysEF2(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin, &
-                  nzeMax,nzfMin,nzfMax)
+      call RysEF2(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMax,nzfMax)
 
     else if (ixe+ixf == 0) then
 
-      call RysEF3(xyz2D(1,1,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf, &
-                  ixye,ixyf,nzeMin,nzeMax,nzfMin,nzfMax)
+      call RysEF3(xyz2D(1,1,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
+                  nzeMax,nzfMax)
 
     else if (iye+iyf == 0) then
 
-      call RysEF3(xyz2D(1,1,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf, &
-                  ixye,ixyf,nzeMin,nzeMax,nzfMin,nzfMax)
+      call RysEF3(xyz2D(1,1,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
+                  nzeMax,nzfMax)
 
     else
 
-      call RysEF4(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin, &
-                  nzeMax,nzfMin,nzfMax)
+      call RysEF4(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMax,nzfMax)
 
     end if
 
