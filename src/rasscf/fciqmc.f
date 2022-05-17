@@ -20,7 +20,6 @@
       use definitions, only: MPIInt
       use Para_Info, only: Is_Real_Par
 #endif
-      use, intrinsic :: iso_fortran_env, only: int64
       use definitions, only: wp
       use Para_Info, only: MyRank
 #ifdef _NECI_
@@ -51,10 +50,10 @@
      &  tGUGA_in  = .false.
 
 #ifdef _NECI_
-
       interface
         subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
-          import :: int64, wp, nroots
+          use, intrinsic :: iso_fortran_env, only: int64
+          import :: wp, nroots
           implicit none
           character(len=*), intent(in) :: fcidmp, input_name
           integer(int64), intent(in) :: MemSize
