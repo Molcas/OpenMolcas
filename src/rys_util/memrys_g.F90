@@ -8,15 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine MemRys_g(iSD4,nSD,nRys,MemPrm)
-      Implicit Real*8 (a-h,o-z)
-      Integer iSD4(0:nSD,4), iAnga(4)
-!
-      iAnga(1) = iSD4(1,1)
-      iAnga(2) = iSD4(1,2)
-      iAnga(3) = iSD4(1,3)
-      iAnga(4) = iSD4(1,4)
-      Call MemRg1(iAnga,nRys,MemPrm)
-!
-      Return
-      End
+
+subroutine MemRys_g(iSD4,nSD,nRys,MemPrm)
+
+implicit real*8(a-h,o-z)
+integer iSD4(0:nSD,4), iAnga(4)
+
+iAnga(1) = iSD4(1,1)
+iAnga(2) = iSD4(1,2)
+iAnga(3) = iSD4(1,3)
+iAnga(4) = iSD4(1,4)
+call MemRg1(iAnga,nRys,MemPrm)
+
+return
+
+end subroutine MemRys_g

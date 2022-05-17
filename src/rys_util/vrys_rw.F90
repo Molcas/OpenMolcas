@@ -8,12 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module vRys_RW
-      Integer, Parameter :: MaxRys=9
-      Real*8, Dimension(:), Allocatable :: TMax, ddx, x0
-      Real*8, Dimension(:), Allocatable :: HerR2, HerW2, Cff
-      Integer, Dimension(:), Allocatable :: Map
-      Integer, Dimension(:), Allocatable :: iHerR2, iHerW2
-      Integer   iMap(MaxRys), nMap(MaxRys), ix0(MaxRys), nx0(MaxRys),   &
-     &          iCffR(0:6,MaxRys), iCffW(0:6,MaxRys), nMxRys
-      End Module vRys_RW
+
+module vRys_RW
+
+integer, parameter :: MaxRys = 9
+real*8, dimension(:), allocatable :: TMax, ddx, x0
+real*8, dimension(:), allocatable :: HerR2, HerW2, Cff
+integer, dimension(:), allocatable :: Map
+integer, dimension(:), allocatable :: iHerR2, iHerW2
+integer iMap(MaxRys), nMap(MaxRys), ix0(MaxRys), nx0(MaxRys), iCffR(0:6,MaxRys), iCffW(0:6,MaxRys), nMxRys
+
+end module vRys_RW

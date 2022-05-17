@@ -11,7 +11,8 @@
 ! Copyright (C) 1990,1996, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine SetUp_RW(DoRys,nDiff)
+
+subroutine SetUp_RW(DoRys,nDiff)
 !***********************************************************************
 !                                                                      *
 ! Object: to setup tables for auxiliary functions to be used direct    *
@@ -26,31 +27,33 @@
 !                                                                      *
 !             Unified version August '96, RL.                          *
 !***********************************************************************
-      use External_Centers, only: XF, nOrdEF
-      use Sizes_of_Seward, only: S
-      use Gateway_Info, only: GIAO
-      Implicit Real*8 (A-H,O-Z)
-      Logical DoRys
-      Integer nDiff
-!
-!     Compute max sum of angular momentum index
-!
-      iAng2 = 4*S%iAngMx
-!
-!     Set up roots and weights for Hermite polynomials.
-!
-      Call SetHer(nDiff)
-!
-!     Set up coefficients for Rys polynomials.
-!
-!     1) for two-electron integrals
-!     2) for external field and nuclear attraction
-!
-      mRys =(iAng2+2+nDiff)/2
-      If (Allocated(XF).or.(nOrdEF.eq.1).or.GIAO)                       &
-     &   mRys=Max(mRys,(2*S%iAngMx+1+2+nDiff)/2)
-      If (nOrdEF.eq.2) mRys=Max(mRys,(2*S%iAngMx+2+2+nDiff)/2)
-      If (DoRys) Call SetUpR(mRys)
-!
-      Return
-      End
+
+use External_Centers, only: XF, nOrdEF
+use Sizes_of_Seward, only: S
+use Gateway_Info, only: GIAO
+
+implicit real*8(A-H,O-Z)
+logical DoRys
+integer nDiff
+
+! Compute max sum of angular momentum index
+
+iAng2 = 4*S%iAngMx
+
+! Set up roots and weights for Hermite polynomials.
+
+call SetHer(nDiff)
+
+! Set up coefficients for Rys polynomials.
+
+! 1) for two-electron integrals
+! 2) for external field and nuclear attraction
+
+mRys = (iAng2+2+nDiff)/2
+if (allocated(XF) .or. (nOrdEF == 1) .or. GIAO) mRys = max(mRys,(2*S%iAngMx+1+2+nDiff)/2)
+if (nOrdEF == 2) mRys = max(mRys,(2*S%iAngMx+2+2+nDiff)/2)
+if (DoRys) call SetUpR(mRys)
+
+return
+
+end subroutine SetUp_RW

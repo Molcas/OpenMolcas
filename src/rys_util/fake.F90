@@ -11,18 +11,22 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Fake(U2,mT,nRys,ZEInv)
+
+subroutine Fake(U2,mT,nRys,ZEInv)
 !***********************************************************************
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             May '90                                                  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-      Real*8 U2(mT,nRys), ZEInv(mT)
-      Return
+real*8 U2(mT,nRys), ZEInv(mT)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(U2)
-         Call Unused_real_array(ZEInv)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(U2)
+  call Unused_real_array(ZEInv)
+end if
+
+end subroutine Fake

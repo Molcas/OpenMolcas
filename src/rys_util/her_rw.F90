@@ -8,9 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module Her_RW
-      Integer, Parameter :: nPrpMx=20
-      Integer MaxHer, nPrp
-      Integer, Dimension(:), Allocatable :: iHerR, iHerW
-      Real*8, Dimension (:), Allocatable :: HerR, HerW
-      End Module Her_RW
+
+module Her_RW
+
+integer, parameter :: nPrpMx = 20
+integer MaxHer, nPrp
+integer, dimension(:), allocatable :: iHerR, iHerW
+real*8, dimension(:), allocatable :: HerR, HerW
+
+end module Her_RW

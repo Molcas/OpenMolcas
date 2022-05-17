@@ -11,11 +11,8 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine XCff2D(iDum1,iDum2,nRys,                               &
-     &                  Zeta,ZInv,rDum3,rDum4,nT,                       &
-     &                  Coori,CoorAC,P,Q,                               &
-     &                  la,lb,lc,ld,                                    &
-     &                  U2,PAQP,QCPQ,B10,B00,lac,B01)
+
+subroutine XCff2D(iDum1,iDum2,nRys,Zeta,ZInv,rDum3,rDum4,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the coefficients in the three terms recurrence    *
@@ -27,166 +24,154 @@
 ! Modified loop structure for RISC 1991 R. Lindh, Dept. of Theoretical *
 ! Chemistry, University of Lund, Sweden.                               *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 Zeta(nT), ZInv(nT),                                        &
-     &       Coori(3,4), CoorAC(3,2),                                   &
-     &       P(nT,3), Q(nT,3), U2(nRys,nT),                             &
-     &       PAQP(nRys,nT,3), QCPQ(nRys,nT,3),                          &
-     &       B10(nRys,nT,3),                                            &
-     &       B00(nRys,nT,3),                                            &
-     &       B01(nRys,nT,3)
-!     Local arrays
+real*8 Zeta(nT), ZInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT), PAQP(nRys,nT,3), QCPQ(nRys,nT,3), &
+       B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
+! Local arrays
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Character*30 Label
+character*30 Label
 #endif
-      Logical AeqB, CeqD, EQ
-!
+logical AeqB, CeqD, EQ
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In XCff2D: Coori',' ',Coori,3,4)
-      Call RecPrt(' In XCff2D: P',' ',P,nT,3)
-      Call RecPrt(' In XCff2D: Q',' ',Q,nT,3)
+call RecPrt(' In XCff2D: Coori',' ',Coori,3,4)
+call RecPrt(' In XCff2D: P',' ',P,nT,3)
+call RecPrt(' In XCff2D: Q',' ',Q,nT,3)
 #endif
-      AeqB = EQ(Coori(1,1),Coori(1,2))
-      CeqD = EQ(Coori(1,3),Coori(1,4))
-!
-      nabMax=la+lb
-      ncdMax=ld+lc
-      h12 = Half
-!
-!---- Compute B10, B00, and B01
-!
-      If (nabMax.gt.1) Then
-         Do 10 iT = 1, nT
-            Do 31 iRys = 1, nRys
-                  B10(iRys,iT,1) = ( h12 -                              &
-     &              h12 * U2(iRys,iT))*ZInv(iT)
- 31         Continue
- 10      Continue
-         call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,2),1)
-         call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,3),1)
-      End If
-      If (lac.ne.0) Then
-         call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,1),1)
-         call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,2),1)
-         call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,3),1)
-      End If
-      If (ncdMax.gt.1) Then
-         Do iT = 1, nT
-            Do iRys = 1, nRys
-               B01(iRys,iT,1) = Two * Zeta(iT) * U2(iRys,iT)
-            End Do
-         End Do
-         call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,2),1)
-         call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,3),1)
-      End If
-!
-      If (nabMax.ne.0 .and. ncdMax.ne.0) Then
-         If (.Not.AeqB .and. CeqD) Then
-            Do 300 iCar = 1, 3
-               Do 310 iT = 1, nT
-                  Do 330 iRys = 1, nRys
-                     PAQP(iRys,iT,iCar) =                               &
-     &                   P(iT,iCar) - CoorAC(iCar,1) +                  &
-     &                   (U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar)))
-                     QCPQ(iRys,iT,iCar) = - Two * Zeta(iT) *            &
-     &                   (U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar)))
- 330              Continue
- 310           Continue
- 300        Continue
-         Else
-            Do 400 iCar = 1, 3
-               Do 410 iT = 1, nT
-                  Do 430 iRys = 1, nRys
-                     PAQP(iRys,iT,iCar) =                               &
-     &                   (U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar)))
-                     QCPQ(iRys,iT,iCar) = - Two * Zeta(iT) *            &
-     &                   (U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar)))
- 430              Continue
- 410           Continue
- 400        Continue
-         End If
-      Else If (nabMax.ne.0) Then
-         If (.Not.AeqB) Then
-            Do 101 iCar = 1, 3
-               Do 111 iT = 1, nT
-                  Do 131 iRys = 1, nRys
-                     PAQP(iRys,iT,iCar) =                               &
-     &                   P(iT,iCar) - CoorAC(iCar,1) +                  &
-     &                   U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar))
- 131              Continue
- 111           Continue
- 101        Continue
-         Else
-            Do 201 iCar = 1, 3
-               Do 211 iT = 1, nT
-                  Do 231 iRys = 1, nRys
-                     PAQP(iRys,iT,iCar) =                               &
-     &                    U2(iRys,iT) * (Q(iT,iCar)-P(iT,iCar))
- 231              Continue
- 211           Continue
- 201        Continue
-         End If
-      Else If (ncdMax.ne.0) Then
-         Do 202 iCar = 1, 3
-            Do 212 iT = 1, nT
-               Do 232 iRys = 1, nRys
-                  QCPQ(iRys,iT,iCar) = Two * Zeta(iT) *                 &
-     &                U2(iRys,iT) * (P(iT,iCar)-Q(iT,iCar))
- 232              Continue
- 212        Continue
- 202     Continue
-      End If
+AeqB = EQ(Coori(1,1),Coori(1,2))
+CeqD = EQ(Coori(1,3),Coori(1,4))
+
+nabMax = la+lb
+ncdMax = ld+lc
+h12 = Half
+
+! Compute B10, B00, and B01
+
+if (nabMax > 1) then
+  do iT=1,nT
+    do iRys=1,nRys
+      B10(iRys,iT,1) = (h12-h12*U2(iRys,iT))*ZInv(iT)
+    end do
+  end do
+  call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,2),1)
+  call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,3),1)
+end if
+if (lac /= 0) then
+  call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,1),1)
+  call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,2),1)
+  call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,3),1)
+end if
+if (ncdMax > 1) then
+  do iT=1,nT
+    do iRys=1,nRys
+      B01(iRys,iT,1) = Two*Zeta(iT)*U2(iRys,iT)
+    end do
+  end do
+  call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,2),1)
+  call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,3),1)
+end if
+
+if ((nabMax /= 0) .and. (ncdMax /= 0)) then
+  if ((.not. AeqB) .and. CeqD) then
+    do iCar=1,3
+      do iT=1,nT
+        do iRys=1,nRys
+          PAQP(iRys,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
+          QCPQ(iRys,iT,iCar) = -Two*Zeta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
+        end do
+      end do
+    end do
+  else
+    do iCar=1,3
+      do iT=1,nT
+        do iRys=1,nRys
+          PAQP(iRys,iT,iCar) = (U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
+          QCPQ(iRys,iT,iCar) = -Two*Zeta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
+        end do
+      end do
+    end do
+  end if
+else if (nabMax /= 0) then
+  if (.not. AeqB) then
+    do iCar=1,3
+      do iT=1,nT
+        do iRys=1,nRys
+          PAQP(iRys,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar))
+        end do
+      end do
+    end do
+  else
+    do iCar=1,3
+      do iT=1,nT
+        do iRys=1,nRys
+          PAQP(iRys,iT,iCar) = U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar))
+        end do
+      end do
+    end do
+  end if
+else if (ncdMax /= 0) then
+  do iCar=1,3
+    do iT=1,nT
+      do iRys=1,nRys
+        QCPQ(iRys,iT,iCar) = Two*Zeta(iT)*U2(iRys,iT)*(P(iT,iCar)-Q(iT,iCar))
+      end do
+    end do
+  end do
+end if
 #ifdef _DEBUGPRINT_
-      If (la+lb.gt.0) Then
-         Write (Label,'(A)') ' PAQP(x)'
-         Call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)
-         Write (Label,'(A)') ' PAQP(y)'
-         Call RecPrt(Label,' ',PAQP(1,1,2),nRys,nT)
-         Write (Label,'(A)') ' PAQP(z)'
-         Call RecPrt(Label,' ',PAQP(1,1,3),nRys,nT)
-      End If
-      If (lc+ld.gt.0) Then
-         Write (Label,'(A)') ' QCPQ(x)'
-         Call RecPrt(Label,' ',QCPQ(1,1,1),nRys,nT)
-         Write (Label,'(A)') ' QCPQ(y)'
-         Call RecPrt(Label,' ',QCPQ(1,1,2),nRys,nT)
-         Write (Label,'(A)') ' QCPQ(z)'
-         Call RecPrt(Label,' ',QCPQ(1,1,3),nRys,nT)
-      End If
-      If (nabMax.ne.0) Then
-         Write (Label,'(A)') ' B10(x)'
-         Call RecPrt(Label,' ',B10(1,1,1),nRys,nT)
-         Write (Label,'(A)') ' B10(y)'
-         Call RecPrt(Label,' ',B10(1,1,2),nRys,nT)
-         Write (Label,'(A)') ' B10(z)'
-         Call RecPrt(Label,' ',B10(1,1,3),nRys,nT)
-      End If
-      If (lac.ne.0) Then
-         Write (Label,'(A)') ' B00(x)'
-         Call RecPrt(Label,' ',B00(1,1,1),nRys,nT)
-         Write (Label,'(A)') ' B00(y)'
-         Call RecPrt(Label,' ',B00(1,1,2),nRys,nT)
-         Write (Label,'(A)') ' B00(z)'
-         Call RecPrt(Label,' ',B00(1,1,3),nRys,nT)
-      End If
-      If (ncdMax.ne.0) Then
-         Write (Label,'(A)') ' B01(x)'
-         Call RecPrt(Label,' ',B01(1,1,1),nRys,nT)
-         Write (Label,'(A)') ' B01(y)'
-         Call RecPrt(Label,' ',B01(1,1,2),nRys,nT)
-         Write (Label,'(A)') ' B01(z)'
-         Call RecPrt(Label,' ',B01(1,1,3),nRys,nT)
-      End If
+if (la+lb > 0) then
+  write(Label,'(A)') ' PAQP(x)'
+  call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)
+  write(Label,'(A)') ' PAQP(y)'
+  call RecPrt(Label,' ',PAQP(1,1,2),nRys,nT)
+  write(Label,'(A)') ' PAQP(z)'
+  call RecPrt(Label,' ',PAQP(1,1,3),nRys,nT)
+end if
+if (lc+ld > 0) then
+  write(Label,'(A)') ' QCPQ(x)'
+  call RecPrt(Label,' ',QCPQ(1,1,1),nRys,nT)
+  write(Label,'(A)') ' QCPQ(y)'
+  call RecPrt(Label,' ',QCPQ(1,1,2),nRys,nT)
+  write(Label,'(A)') ' QCPQ(z)'
+  call RecPrt(Label,' ',QCPQ(1,1,3),nRys,nT)
+end if
+if (nabMax /= 0) then
+  write(Label,'(A)') ' B10(x)'
+  call RecPrt(Label,' ',B10(1,1,1),nRys,nT)
+  write(Label,'(A)') ' B10(y)'
+  call RecPrt(Label,' ',B10(1,1,2),nRys,nT)
+  write(Label,'(A)') ' B10(z)'
+  call RecPrt(Label,' ',B10(1,1,3),nRys,nT)
+end if
+if (lac /= 0) then
+  write(Label,'(A)') ' B00(x)'
+  call RecPrt(Label,' ',B00(1,1,1),nRys,nT)
+  write(Label,'(A)') ' B00(y)'
+  call RecPrt(Label,' ',B00(1,1,2),nRys,nT)
+  write(Label,'(A)') ' B00(z)'
+  call RecPrt(Label,' ',B00(1,1,3),nRys,nT)
+end if
+if (ncdMax /= 0) then
+  write(Label,'(A)') ' B01(x)'
+  call RecPrt(Label,' ',B01(1,1,1),nRys,nT)
+  write(Label,'(A)') ' B01(y)'
+  call RecPrt(Label,' ',B01(1,1,2),nRys,nT)
+  write(Label,'(A)') ' B01(z)'
+  call RecPrt(Label,' ',B01(1,1,3),nRys,nT)
+end if
 #endif
-      Return
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iDum1)
-         Call Unused_integer(iDum2)
-         Call Unused_real(rDum3)
-         Call Unused_real(rDum4)
-      End If
-      End
+if (.false.) then
+  call Unused_integer(iDum1)
+  call Unused_integer(iDum2)
+  call Unused_real(rDum3)
+  call Unused_real(rDum4)
+end if
+
+end subroutine XCff2D

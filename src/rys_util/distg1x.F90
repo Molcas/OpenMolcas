@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Distg1X(g1,PAO,nT,mPAO,mVec,Grad,nGrad,IfGrad,IndGrd,  &
-     &                   iStab,kOp)
+
+subroutine Distg1X(g1,PAO,nT,mPAO,mVec,Grad,nGrad,IfGrad,IndGrd,iStab,kOp)
 !***********************************************************************
 !                                                                      *
 ! Object: trace the gradient of the ERI's with the second order        *
@@ -21,116 +21,111 @@
 !             University of Lund, SWEDEN                               *
 !             October '91                                              *
 !***********************************************************************
-      use Symmetry_Info, only: nIrrep, iChBas
-      Implicit Real*8 (A-H,O-Z)
+
+use Symmetry_Info, only: nIrrep, iChBas
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 g1(nT,mPAO,mVec), PAO(nT,mPAO), Grad(nGrad),               &
-     &       Temp(9), PAOg1(12), Prmt(0:7)
-      Logical IfGrad(3,4)
-      Integer   IndGrd(3,4), kOp(4), iStab(4)
+real*8 g1(nT,mPAO,mVec), PAO(nT,mPAO), Grad(nGrad), Temp(9), PAOg1(12), Prmt(0:7)
+logical IfGrad(3,4)
+integer IndGrd(3,4), kOp(4), iStab(4)
 #ifdef _DEBUGPRINT_
-      Character*80 Label
+character*80 Label
 #endif
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-!
-!     Statement Function
-!
-      xPrmt(i,j) = Prmt(iAnd(i,j))
-!
+data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
+! Statement Function
+xPrmt(i,j) = Prmt(iand(i,j))
+
 #ifdef _DEBUGPRINT_
-      iRout = 239
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt('PAO',' ',PAO,nT,mPAO)
-         Do 500 iVec = 1, mVec
-            Write (Label,'(A,I2,A)') ' g1(',iVec,')'
-            Call RecPrt(Label,' ',g1(1,1,iVec),nT,mPAO)
- 500     Continue
-         Call RecPrt('Accumulated gradient on entrance',                &
-     &               ' ',Grad,nGrad,1)
-      End If
-      If (iPrint.ge.49) Write (6,*) IndGrd
+iRout = 239
+iPrint = nPrint(iRout)
+if (iPrint >= 99) then
+  call RecPrt('PAO',' ',PAO,nT,mPAO)
+  do iVec=1,mVec
+    write(Label,'(A,I2,A)') ' g1(',iVec,')'
+    call RecPrt(Label,' ',g1(1,1,iVec),nT,mPAO)
+  end do
+  call RecPrt('Accumulated gradient on entrance',' ',Grad,nGrad,1)
+end if
+if (iPrint >= 49) write(6,*) IndGrd
 #endif
-!
-!-----Trace the integral derivatives with the second order density
-!     matrix.
-!
-      Call dGeMV_('T',nT*mPAO,mVec,                                     &
-     &           One,g1,nT*mPAO,                                        &
-     &           PAO,1,                                                 &
-     &           Zero,Temp,1)
-      nVec = 0
+
+! Trace the integral derivatives with the second order density matrix.
+
+call dGeMV_('T',nT*mPAO,mVec,One,g1,nT*mPAO,PAO,1,Zero,Temp,1)
+nVec = 0
 #ifdef __INTEL_COMPILER
-      Do kl = 1, 12
-         iCar = (kl-1)/4 + 1
-         iCent = kl - (iCar-1)*4
-         ij = 3*(iCent-1)+iCar
-         If (IfGrad(iCar,iCent)) Then
-            nVec = nVec + 1
-            PAOg1(ij) = Temp(nVec)
-         Else
-            PAOg1(ij) = Zero
-         End If
-      End Do
+do kl=1,12
+  iCar = (kl-1)/4+1
+  iCent = kl-(iCar-1)*4
+  ij = 3*(iCent-1)+iCar
+  if (IfGrad(iCar,iCent)) then
+    nVec = nVec+1
+    PAOg1(ij) = Temp(nVec)
+  else
+    PAOg1(ij) = Zero
+  end if
+end do
 #else
-!
-!     Original code didn't work for Intel compiler with -O3
-!     options since it swaps the loops.
-!
-      Do iCar = 1, 3
-         Do iCent = 1, 4
-            ij = 3*(iCent-1)+iCar
-            If (IfGrad(iCar,iCent)) Then
-               nVec = nVec + 1
-               PAOg1(ij) = Temp(nVec)
-            Else
-               PAOg1(ij) = Zero
-            End If
-         End Do
-      End Do
+
+! Original code didn't work for Intel compiler with -O3
+! options since it swaps the loops.
+
+do iCar=1,3
+  do iCent=1,4
+    ij = 3*(iCent-1)+iCar
+    if (IfGrad(iCar,iCent)) then
+      nVec = nVec+1
+      PAOg1(ij) = Temp(nVec)
+    else
+      PAOg1(ij) = Zero
+    end if
+  end do
+end do
 #endif
-!
-!-----Compute some of the contributions via the translational invariance
-!
-      Do 200 iCn = 1, 4
-         Do 210 iCar = 1, 3
-            If (IndGrd(iCar,iCn).lt.0) Then
-               ij = 3*(iCn-1) + iCar
-               Do 220 jCn = 1, 4
-                  If (iCn.eq.jCn) Go To 220
-                  If (IfGrad(iCar,jCn)) Then
-                     kl = 3*(jCn-1) + iCar
-                     PAOg1(ij)=PAOg1(ij)-PAOg1(kl)
-                  End If
- 220           Continue
-            End If
- 210     Continue
- 200  Continue
+
+! Compute some of the contributions via the translational invariance
+
+do iCn=1,4
+  do iCar=1,3
+    if (IndGrd(iCar,iCn) < 0) then
+      ij = 3*(iCn-1)+iCar
+      do jCn=1,4
+        if (iCn == jCn) Go To 220
+        if (IfGrad(iCar,jCn)) then
+          kl = 3*(jCn-1)+iCar
+          PAOg1(ij) = PAOg1(ij)-PAOg1(kl)
+        end if
+220     continue
+      end do
+    end if
+  end do
+end do
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.49) Call RecPrt('PAOg1',' ',PAOg1,12,1)
+if (iPrint >= 49) call RecPrt('PAOg1',' ',PAOg1,12,1)
 #endif
-!
-!-----Distribute contribution to the gradient.
-!
-      Do 100 iCn = 1, 4
-         Do 110 iCar = 1, 3
-            ij = 3*(iCn-1) + iCar
-            If (IndGrd(iCar,iCn).ne.0) Then
-               iGrad = Abs(IndGrd(iCar,iCn))
-!--------------Parity due to integration direction
-               ps = xPrmt(kOp(iCn),iChBas(1+iCar))
-               Fact = ps * DBLE(iStab(iCn)) / DBLE(nIrrep)
-               Grad(iGrad) = Grad(iGrad) + Fact * PAOg1(ij)
-            End If
- 110    Continue
- 100  Continue
+
+! Distribute contribution to the gradient.
+
+do iCn=1,4
+  do iCar=1,3
+    ij = 3*(iCn-1)+iCar
+    if (IndGrd(iCar,iCn) /= 0) then
+      iGrad = abs(IndGrd(iCar,iCn))
+      ! Parity due to integration direction
+      ps = xPrmt(kOp(iCn),iChBas(1+iCar))
+      Fact = ps*dble(iStab(iCn))/dble(nIrrep)
+      Grad(iGrad) = Grad(iGrad)+Fact*PAOg1(ij)
+    end if
+  end do
+end do
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.49) Then
-         Call RecPrt('Accumulated gradient on exit',                    &
-     &               ' ',Grad,nGrad,1)
-      End If
-!
+if (iPrint >= 49) then
+  call RecPrt('Accumulated gradient on exit',' ',Grad,nGrad,1)
+end if
 #endif
-      Return
-      End
+
+return
+
+end subroutine Distg1X

@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine HrrCtl_mck(Arr1,nArr1,Arr2,nArr2,                      &
-     &                  la,lb,lc,ld,nabMax,ncdMax,nTR,                  &
-     &                  A,B,C,D,IfHss,IfGrd,nt,nrys)
+
+subroutine HrrCtl_mck(Arr1,nArr1,Arr2,nArr2,la,lb,lc,ld,nabMax,ncdMax,nTR,A,B,C,D,IfHss,IfGrd,nt,nrys)
 !***********************************************************************
 !                                                                      *
 ! Object: to act as a shell towards the HRR subroutines.               *
@@ -20,23 +19,20 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 !#include "print.fh"
 #include "real.fh"
-      Real*8 Arr1(nTR,3*nArr1), Arr2(nTR,3*nArr2),                      &
-     &       A(3), B(3), C(3), D(3)
-      Logical IfHss(4,3,4,3),IfGrd(3,4)
-!
-!     iRout = 233
-!     iPrint = nPrint(iRout)
-!
-      Call Hrr2Da_mck(Arr1,nTR,nabMax,ncdMax,Arr2,A,B,                  &
-     &             la,lb,lc,ld,IfHss,                                   &
-     &            IfGrd)
-!
-      Call Hrr2Db_mck(Arr2,nTR,       ncdMax,Arr1,C,D,                  &
-     &             la,lb,lc,ld,IfHss,                                   &
-     &            IfGrd,nt,nrys)
-!
-      Return
-      End
+real*8 Arr1(nTR,3*nArr1), Arr2(nTR,3*nArr2), A(3), B(3), C(3), D(3)
+logical IfHss(4,3,4,3), IfGrd(3,4)
+
+!iRout = 233
+!iPrint = nPrint(iRout)
+
+call Hrr2Da_mck(Arr1,nTR,nabMax,ncdMax,Arr2,A,B,la,lb,lc,ld,IfHss,IfGrd)
+
+call Hrr2Db_mck(Arr2,nTR,ncdMax,Arr1,C,D,la,lb,lc,ld,IfHss,IfGrd,nt,nrys)
+
+return
+
+end subroutine HrrCtl_mck

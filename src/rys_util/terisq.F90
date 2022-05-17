@@ -10,12 +10,12 @@
 !                                                                      *
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !***********************************************************************
-      SubRoutine TERISq(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,     &
-     &                  IsChi,ChiI2)
+
+subroutine TERISq(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
-! Object: to entities for the two-electron integrals which are used in *
-!         in the Rys quadrature to evaluate these integrals.           *
+! Object: to compute entities for the two-electron integrals which are *
+!         used in the Rys quadrature to evaluate these integrals.      *
 !                                                                      *
 !         OBSERVE that the prefactor is only partial!!!                *
 !                                                                      *
@@ -25,44 +25,42 @@
 !             May '92 Modified to fit 2nd order differential scheme for*
 !             the gradient estimates.                                  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3),                       &
-     &       rKapab(nT), rKapcd(nT),                                    &
-     &       T(nT), Fact(nT), ZEInv(nT)
-!
+real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), T(nT), Fact(nT), ZEInv(nT)
+
 #ifdef _DEBUGPRINT_
-      iRout = 56
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' Zeta in TERISq',' ',Zeta,nT,1)
-         Call RecPrt(' P in TERISq',' ',P,nT,3)
-         Call RecPrt(' Q in TERISq',' ',Q,nT,3)
-         Call RecPrt(' Kab in TERISq',' ',rKapab,nT,1)
-         Call RecPrt(' Kcd in TERISq',' ',rKapcd,nT,1)
-      End If
+iRout = 56
+iPrint = nPrint(iRout)
+if (iPrint >= 99) then
+  call RecPrt(' Zeta in TERISq',' ',Zeta,nT,1)
+  call RecPrt(' P in TERISq',' ',P,nT,3)
+  call RecPrt(' Q in TERISq',' ',Q,nT,3)
+  call RecPrt(' Kab in TERISq',' ',rKapab,nT,1)
+  call RecPrt(' Kcd in TERISq',' ',rKapcd,nT,1)
+end if
 #endif
-!
-      Do iT = 1, nT
-         tmp = 1.0D0/(Zeta(iT)+Zeta(iT)                                 &
-     &            +(Zeta(iT)*Zeta(iT)*ChiI2)*Dble(IsChi))
-         ZEInv(iT) = tmp
-         Rho = Zeta(iT)*Zeta(iT)*tmp
-         PQ2 = (P(iT,1)-Q(iT,1))**2                                     &
-     &       + (P(iT,2)-Q(iT,2))**2                                     &
-     &       + (P(iT,3)-Q(iT,3))**2
-         T(iT) = Rho*PQ2
-         Fact(iT) =  rKapab(iT) * rKapcd(iT)
-      End Do
-!
+
+do iT=1,nT
+  tmp = 1.0d0/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*dble(IsChi))
+  ZEInv(iT) = tmp
+  Rho = Zeta(iT)*Zeta(iT)*tmp
+  PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+  T(iT) = Rho*PQ2
+  Fact(iT) = rKapab(iT)*rKapcd(iT)
+end do
+
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt('Tvalue',' ',T,nT,1)
-         Call RecPrt('Fact  ',' ',Fact,nT,1)
-      End If
+if (iPrint >= 99) then
+  call RecPrt('Tvalue',' ',T,nT,1)
+  call RecPrt('Fact  ',' ',Fact,nT,1)
+end if
 #endif
-      Return
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Eta)
-      End
+if (.false.) call Unused_real_array(Eta)
+
+end subroutine TERISq

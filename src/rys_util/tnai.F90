@@ -11,57 +11,57 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine TNAI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi, &
-     &                ChiI2)
+
+subroutine TNAI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
-! Object: to entities for the nucelar attraction integrals which are   *
-!         used in the Rys quadrature to evaluate these integrals.      *
+! Object: to compute entities for the nuclear attraction integrals     *
+!         which are used in the Rys quadrature to evaluate these       *
+!         integrals.                                                   *
 !                                                                      *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3),                       &
-     &       rKapab(nT), rKapcd(nT), ZEInv(nT), T(nT), Fact(nT)
-!
-#ifdef _DEBUGPRINT_
-      iRout = 57
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' Zeta in TNAI',' ',Zeta,nT,1)
-         Call RecPrt(' Eta in TNAI',' ',Eta,nT,1)
-         Call RecPrt(' P in TNAI',' ',P,nT,3)
-         Call RecPrt(' Q in TNAI',' ',Q,nT,3)
-         Call RecPrt(' Kab in TNAI',' ',rKapab,nT,1)
-         Call RecPrt(' Kcd in TNAI',' ',rKapcd,nT,1)
-         Write (6,*) ' In TNAI: ABeqCD=',ABeqCD
-      End If
-#endif
-      Do iT = 1, nT
-         PQ2 = (P(iT,1)-Q(iT,1))**2                                     &
-     &       + (P(iT,2)-Q(iT,2))**2                                     &
-     &       + (P(iT,3)-Q(iT,3))**2
-         T(iT) = Zeta(iT)*PQ2
-         ZEInv(iT) = 1.0D0/Zeta(iT)
-         Fact(iT) =  2.0D0*rKapab(iT)*Pi/Zeta(iT)
-      End Do
-!
-#ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt('Tvalue',' ',T,nT,1)
-         Call RecPrt('Fact  ',' ',Fact,nT,1)
-      End If
-#endif
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Eta)
-         Call Unused_real_array(rKapcd)
-         Call Unused_integer(IsChi)
-         Call Unused_real(ChiI2)
-      End If
+real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), ZEInv(nT), T(nT), Fact(nT)
 
-      Return
-      End
+#ifdef _DEBUGPRINT_
+iRout = 57
+iPrint = nPrint(iRout)
+if (iPrint >= 99) then
+  call RecPrt(' Zeta in TNAI',' ',Zeta,nT,1)
+  call RecPrt(' Eta in TNAI',' ',Eta,nT,1)
+  call RecPrt(' P in TNAI',' ',P,nT,3)
+  call RecPrt(' Q in TNAI',' ',Q,nT,3)
+  call RecPrt(' Kab in TNAI',' ',rKapab,nT,1)
+  call RecPrt(' Kcd in TNAI',' ',rKapcd,nT,1)
+  write(6,*) ' In TNAI: ABeqCD=',ABeqCD
+end if
+#endif
+do iT=1,nT
+  PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+  T(iT) = Zeta(iT)*PQ2
+  ZEInv(iT) = 1.0d0/Zeta(iT)
+  Fact(iT) = 2.0d0*rKapab(iT)*Pi/Zeta(iT)
+end do
+
+#ifdef _DEBUGPRINT_
+if (iPrint >= 99) then
+  call RecPrt('Tvalue',' ',T,nT,1)
+  call RecPrt('Fact  ',' ',Fact,nT,1)
+end if
+#endif
+
+return
+! Avoid unused argument warnings
+if (.false.) then
+  call Unused_real_array(Eta)
+  call Unused_real_array(rKapcd)
+  call Unused_integer(IsChi)
+  call Unused_real(ChiI2)
+end if
+
+end subroutine TNAI

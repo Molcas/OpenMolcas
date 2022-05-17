@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine ModU2(U2,mT,nRys,ZEInv)
+
+subroutine ModU2(U2,mT,nRys,ZEInv)
 !***********************************************************************
 !                                                                      *
 ! Object: precompute u2/(zeta+eta)                                     *
@@ -19,30 +20,32 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             May '90                                                  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 U2(nRys,mT), ZEInv(mT)
-!
-      iRout = 255
-      iPrint = nPrint(iRout)
-!
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In ModU2: U2',' ',U2,nRys,mT)
-         Call RecPrt(' In ModU2: ZEInv',' ',ZEInv,1,mT)
-      End If
-!
-      If (nRys.gt.1) Then
-         Do 11 iT = 1, mT
-            Do 21 iRys = 1, nRys
-                  U2(iRys,iT) = U2(iRys,iT) * ZEInv(iT)
- 21         Continue
- 11      Continue
-      Else
-         Do 31 iT = 1, mT
-            U2(1,iT) = U2(1,iT) * ZEInv(iT)
- 31      Continue
-      End If
-!
-      Return
-      End
+real*8 U2(nRys,mT), ZEInv(mT)
+
+iRout = 255
+iPrint = nPrint(iRout)
+
+if (iPrint >= 99) then
+  call RecPrt(' In ModU2: U2',' ',U2,nRys,mT)
+  call RecPrt(' In ModU2: ZEInv',' ',ZEInv,1,mT)
+end if
+
+if (nRys > 1) then
+  do iT=1,mT
+    do iRys=1,nRys
+      U2(iRys,iT) = U2(iRys,iT)*ZEInv(iT)
+    end do
+  end do
+else
+  do iT=1,mT
+    U2(1,iT) = U2(1,iT)*ZEInv(iT)
+  end do
+end if
+
+return
+
+end subroutine ModU2

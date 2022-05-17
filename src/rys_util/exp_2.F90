@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Exp_2(Vector,n1,n2,Array,Fact)
+
+subroutine Exp_2(Vector,n1,n2,Array,Fact)
 !***********************************************************************
 !                                                                      *
 ! Object: expand an array.                                             *
@@ -19,15 +20,16 @@
 !             University of Lund, SWEDEN                               *
 !             October '91                                              *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Vector(n1,n2), Array(n2)
-!
-!
-      Do 10 i2 = 1, n2
-         Do 20 i1 = 1, n1
-            Vector(i1,i2) = Array(i2)*Fact
- 20      Continue
- 10   Continue
-!
-      Return
-      End
+
+implicit real*8(A-H,O-Z)
+real*8 Vector(n1,n2), Array(n2)
+
+do i2=1,n2
+  do i1=1,n1
+    Vector(i1,i2) = Array(i2)*Fact
+  end do
+end do
+
+return
+
+end subroutine Exp_2

@@ -11,30 +11,34 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine CloseR
+
+subroutine CloseR()
 !***********************************************************************
 !                                                                      *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             September '90                                            *
 !***********************************************************************
-      use vRys_RW
-      use Leg_RW
-      Implicit Real*8 (A-H,O-Z)
+
+use vRys_RW
+use Leg_RW
+
+implicit real*8(A-H,O-Z)
 #include "stdalloc.fh"
-!
+
 #ifdef _RYS_SCRATCH_
-      Call UnSetAux()
+call UnSetAux()
 #endif
-      If (.Not.Allocated(iHerW2)) Return
-      Call mma_deallocate(iHerW2)
-      Call mma_deallocate(iHerR2)
-      Call mma_deallocate(HerW2)
-      Call mma_deallocate(HerR2)
-      Call mma_deallocate(Cff)
-      Call mma_deallocate(x0)
-      Call mma_deallocate(Map)
-      call mma_deallocate(ddx)
-      Call mma_deallocate(TMax)
-!
-      Return
-      End
+if (.not. allocated(iHerW2)) return
+call mma_deallocate(iHerW2)
+call mma_deallocate(iHerR2)
+call mma_deallocate(HerW2)
+call mma_deallocate(HerR2)
+call mma_deallocate(Cff)
+call mma_deallocate(x0)
+call mma_deallocate(Map)
+call mma_deallocate(ddx)
+call mma_deallocate(TMax)
+
+return
+
+end subroutine CloseR

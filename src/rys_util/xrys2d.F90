@@ -11,8 +11,8 @@
 ! Copyright (C) 1990,1991,1995, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine XRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,        &
-     &                 B10,laa,B00,lac,B01,lcc)
+
+subroutine XRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,laa,B00,lac,B01,lcc)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the 2-dimensional integrals of the Rys            *
@@ -28,95 +28,90 @@
 ! Modified for external field version, Feb '95.                        *
 ! VV: improve loop structure                                           *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax),                      &
-     &       PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3),                      &
-     &       B10(nArg*lRys*3), B00(nArg*lRys*3), B01(nArg*lRys*3)
+real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax), PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys*3), B00(nArg*lRys*3), &
+       B01(nArg*lRys*3)
 #ifdef _DEBUGPRINT_
-      Character*30 Label
-      iRout = 15
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.59) Then
-         If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
-         If (ncdMax.gt.0) Call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
-         If (laa.ne.0) Call RecPrt(' B10',' ',B10,nArg*lRys,3)
-         If (lac.ne.0) Call RecPrt(' B00',' ',B00,nArg*lRys,3)
-         If (lcc.ne.0) Call RecPrt(' B01',' ',B01,nArg*lRys,3)
-      End If
+character*30 Label
+
+iRout = 15
+iPrint = nPrint(iRout)
+if (iPrint >= 59) then
+  if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
+  if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
+  if (laa /= 0) call RecPrt(' B10',' ',B10,nArg*lRys,3)
+  if (lac /= 0) call RecPrt(' B00',' ',B00,nArg*lRys,3)
+  if (lcc /= 0) call RecPrt(' B01',' ',B01,nArg*lRys,3)
+end if
 #endif
-!
-!     Compute 2D integrals with index (0,0). Observe that the z
-!     component already contains the weight factor.
-!
-      call dcopy_(2*nArg*lRys,[One],0,xyz2D(1,0,0),1)
-!
-!---- Span first I(i,0)
-!
-      If (nabMax.ge.1) Then
-         Do i = 1, nArg*lRys*3
-            xyz2D(i,1,0) = PAWP(i)*xyz2D(i,0,0)
-         End Do
-      End If
-      Do iab = 1, nabMax-1
-         Do i = 1, nArg*lRys*3
-            xyz2D(i,iab+1,0) = PAWP(i)*xyz2D(i,iab,0)                   &
-     &                       + Dble(iab)*B10(i)*xyz2D(i,iab-1,0)
-         End Do
-      End Do
-!
-!---- Now do the rest!
-!
-      If (ncdMax.ge.1) Then
-         Do i = 1, nArg*lRys*3
-            xyz2D(i,0,1)=QCWQ(i)*xyz2D(i,0,0)
-         End Do
-         Do iab = 1, nabMax
-            Do i = 1, nArg*lRys*3
-               xyz2D(i,iab,1)=QCWQ(i)*xyz2D(i,iab,0)                    &
-     &                       +Dble(iab)*B00(i)*xyz2D(i,iab-1,0)
-            End Do
-         End Do
-      End If
-      Do in = 1, ncdMax-1
-         Do i = 1, nArg*lRys*3
-            xyz2D(i,0,in+1)=QCWQ(i)*xyz2D(i,0,in)                       &
-     &                     -Dble(in)*B01(i)*xyz2D(i,0,in-1)
-         End Do
-         Do iab = 1, nabMax
-            Do i = 1, nArg*lRys*3
-               xyz2D(i,iab,in+1)=QCWQ(i)*xyz2D(i,iab,in)                &
-     &                          +Dble(iab)*B00(i)*xyz2D(i,iab-1,in)     &
-     &                          -Dble( in)*B01(i)*xyz2D(i,iab,in-1)
-            End Do
-         End Do
-      End Do
-!
+
+! Compute 2D integrals with index (0,0). Observe that the z
+! component already contains the weight factor.
+
+call dcopy_(2*nArg*lRys,[One],0,xyz2D(1,0,0),1)
+
+! Span first I(i,0)
+
+if (nabMax >= 1) then
+  do i=1,nArg*lRys*3
+    xyz2D(i,1,0) = PAWP(i)*xyz2D(i,0,0)
+  end do
+end if
+do iab=1,nabMax-1
+  do i=1,nArg*lRys*3
+    xyz2D(i,iab+1,0) = PAWP(i)*xyz2D(i,iab,0)+dble(iab)*B10(i)*xyz2D(i,iab-1,0)
+  end do
+end do
+
+! Now do the rest!
+
+if (ncdMax >= 1) then
+  do i=1,nArg*lRys*3
+    xyz2D(i,0,1) = QCWQ(i)*xyz2D(i,0,0)
+  end do
+  do iab=1,nabMax
+    do i=1,nArg*lRys*3
+      xyz2D(i,iab,1) = QCWQ(i)*xyz2D(i,iab,0)+dble(iab)*B00(i)*xyz2D(i,iab-1,0)
+    end do
+  end do
+end if
+do in=1,ncdMax-1
+  do i=1,nArg*lRys*3
+    xyz2D(i,0,in+1) = QCWQ(i)*xyz2D(i,0,in)-dble(in)*B01(i)*xyz2D(i,0,in-1)
+  end do
+  do iab=1,nabMax
+    do i=1,nArg*lRys*3
+      xyz2D(i,iab,in+1) = QCWQ(i)*xyz2D(i,iab,in)+dble(iab)*B00(i)*xyz2D(i,iab-1,in)-dble(in)*B01(i)*xyz2D(i,iab,in-1)
+    end do
+  end do
+end do
+
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Write (6,*) ' 2D-integral computed in XRys2D'
-         Do 600 iab = 0, nabMax
-            Do 610 icd = 0, ncdMax
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
-               Call RecPrt(Label,' ',                                   &
-     &                     xyz2D(1,iab,icd),nArg,lRys)
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
-               Call RecPrt(Label,' ',                                   &
-     &                     xyz2D(1+nArg*lRys,iab,icd),nArg,lRys)
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
-               Call RecPrt(Label,' ',                                   &
-     &                     xyz2D(1+2*nArg*lRys,iab,icd),nArg,lRys)
- 610        Continue
- 600     Continue
-      End If
+if (iPrint >= 99) then
+  write(6,*) ' 2D-integral computed in XRys2D'
+  do iab=0,nabMax
+    do icd=0,ncdMax
+      write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
+      call RecPrt(Label,' ',xyz2D(1,iab,icd),nArg,lRys)
+      write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
+      call RecPrt(Label,' ',xyz2D(1+nArg*lRys,iab,icd),nArg,lRys)
+      write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
+      call RecPrt(Label,' ',xyz2D(1+2*nArg*lRys,iab,icd),nArg,lRys)
+    end do
+  end do
+end if
 #else
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(laa)
-         Call Unused_integer(lac)
-         Call Unused_integer(lcc)
-      End If
+if (.false.) then
+  call Unused_integer(laa)
+  call Unused_integer(lac)
+  call Unused_integer(lcc)
+end if
 #endif
-      Return
-      End
+
+return
+
+end subroutine XRys2D

@@ -10,59 +10,65 @@
 !                                                                      *
 ! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-!
+
 ! Compute and store roots and weights for a shifted Legendre quadrature,
 ! used for boot-strapping Rys roots and weights.
 ! Different sets of roots and weights are computed
-!
-      Module Leg_RW
-      Implicit None
-      Integer, Dimension(11), Parameter :: naux=[30,35,40,45,50,        &
-     &                                           55,60,65,70,75,300]
-      Real*8, Dimension(:,:), Allocatable :: Leg_r, Leg_w
 
-      Contains
+module Leg_RW
 
-      Subroutine SetAux(eps)
-      Real*8, Intent(In) :: eps
-      Integer, Parameter :: nquad=Size(naux)
-      Real*8, Dimension(:), Allocatable :: a, b
-      Integer :: maux, i, j, Err
-#include "stdalloc.fh"
-#include "real.fh"
-      If (Allocated(Leg_r)) Return
-      maux = MaxVal(naux)
-      Call mma_allocate(Leg_r,maux,nquad,label="Leg_r")
-      Call mma_allocate(Leg_w,maux,nquad,label="Leg_w")
-      Call mma_allocate(a,maux)
-      Call mma_allocate(b,maux)
-      Do j = 1, nquad
-        Do i = 1, naux(j)
-          a(i) = Half
-          If (i == 1) Then
-            b(1) = One
-          Else
-            b(i) = Quart/(Four-One/(i-1)**2)
-          End If
-        End Do
-        Call GaussQuad(naux(j),a,b,eps,Leg_r(1,j),Leg_w(1,j),Err)
-        If (Err.ne.0) Then
-          write(6,*) Err
-          Call WarningMessage(2,'Error in GaussQuad')
-          Call AbEnd()
-        End If
-        Do i = 1, naux(j)
-          Leg_r(i,j)=Leg_r(i,j)*Leg_r(i,j)
-        End Do
-      End Do
-      Call mma_deallocate(a)
-      Call mma_deallocate(b)
-      End Subroutine SetAux
+implicit none
+integer, dimension(11), parameter :: naux = [30,35,40,45,50,55,60,65,70,75,300]
+real*8, dimension(:,:), allocatable :: Leg_r, Leg_w
 
-      Subroutine UnSetAux
-#include "stdalloc.fh"
-      If (Allocated(Leg_r)) Call mma_deallocate(Leg_r)
-      If (Allocated(Leg_w)) Call mma_deallocate(Leg_w)
-      End Subroutine UnSetAux
+contains
 
-      End Module Leg_RW
+subroutine SetAux(eps)
+
+  real*8, intent(In) :: eps
+  integer, parameter :: nquad = size(naux)
+  real*8, dimension(:), allocatable :: a, b
+  integer :: maux, i, j, Err
+# include "stdalloc.fh"
+# include "real.fh"
+
+  if (allocated(Leg_r)) return
+  maux = maxval(naux)
+  call mma_allocate(Leg_r,maux,nquad,label='Leg_r')
+  call mma_allocate(Leg_w,maux,nquad,label='Leg_w')
+  call mma_allocate(a,maux)
+  call mma_allocate(b,maux)
+  do j=1,nquad
+    do i=1,naux(j)
+      a(i) = Half
+      if (i == 1) then
+        b(1) = One
+      else
+        b(i) = Quart/(Four-One/(i-1)**2)
+      end if
+    end do
+    call GaussQuad(naux(j),a,b,eps,Leg_r(1,j),Leg_w(1,j),Err)
+    if (Err /= 0) then
+      write(6,*) Err
+      call WarningMessage(2,'Error in GaussQuad')
+      call AbEnd()
+    end if
+    do i=1,naux(j)
+      Leg_r(i,j) = Leg_r(i,j)*Leg_r(i,j)
+    end do
+  end do
+  call mma_deallocate(a)
+  call mma_deallocate(b)
+
+end subroutine SetAux
+
+subroutine UnSetAux()
+
+# include "stdalloc.fh"
+
+  if (allocated(Leg_r)) call mma_deallocate(Leg_r)
+  if (allocated(Leg_w)) call mma_deallocate(Leg_w)
+
+end subroutine UnSetAux
+
+end module Leg_RW

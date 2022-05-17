@@ -11,49 +11,53 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine TNAI1(Zeta,Eta,P,Q,nT,T,ZEInv,IsChi,ChiI2)
+
+subroutine TNAI1(Zeta,Eta,P,Q,nT,T,ZEInv,IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
-! Object: to entities for the nucelar attraction integrals which are   *
-!         used in the Rys quadrature to evaluate these integrals.      *
+! Object: to compute entities for the nuclear attraction integrals     *
+!         which are used in the Rys quadrature to evaluate these       *
+!         integrals.                                                   *
 !                                                                      *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !                                                                      *
 !             March '92 modified to gradient calculation.              *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3),                       &
-     &       ZEInv(nT), T(nT)
-!
+real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), ZEInv(nT), T(nT)
+
 #ifdef _DEBUGPRINT_
-      iRout = 57
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' Zeta in TNAI1',' ',Zeta,nT,1)
-         Call RecPrt(' Eta in TNAI1',' ',Eta,nT,1)
-         Call RecPrt(' P in TNAI1',' ',P,nT,3)
-         Call RecPrt(' Q in TNAI1',' ',Q,nT,3)
-      End If
+iRout = 57
+iPrint = nPrint(iRout)
+if (iPrint >= 99) then
+  call RecPrt(' Zeta in TNAI1',' ',Zeta,nT,1)
+  call RecPrt(' Eta in TNAI1',' ',Eta,nT,1)
+  call RecPrt(' P in TNAI1',' ',P,nT,3)
+  call RecPrt(' Q in TNAI1',' ',Q,nT,3)
+end if
 #endif
-      Do iT = 1, nT
-         PQ2 = (P(iT,1)-Q(iT,1))**2                                     &
-     &       + (P(iT,2)-Q(iT,2))**2                                     &
-     &       + (P(iT,3)-Q(iT,3))**2
-         T(iT) = Zeta(iT)*PQ2
-         ZEInv(iT) = 1.0D0/Zeta(iT)
-      End Do
-!
+do iT=1,nT
+  PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+  T(iT) = Zeta(iT)*PQ2
+  ZEInv(iT) = 1.0d0/Zeta(iT)
+end do
+
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt('Tvalue',' ',T,nT,1)
-      End If
+if (iPrint >= 99) then
+  call RecPrt('Tvalue',' ',T,nT,1)
+end if
 #endif
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Eta)
-      If (.False.) Call Unused_integer(IsChi)
-      If (.False.) Call Unused_real(ChiI2)
-      Return
-      End
+if (.false.) then
+  call Unused_real_array(Eta)
+  call Unused_integer(IsChi)
+  call Unused_real(ChiI2)
+end if
+
+end subroutine TNAI1

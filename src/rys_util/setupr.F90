@@ -11,7 +11,8 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1992, Per Ake Malmqvist                                *
 !***********************************************************************
-      SubRoutine SetUpR(nRys)
+
+subroutine SetUpR(nRys)
 !***********************************************************************
 !                                                                      *
 ! Object: to setup the coefficients for the Rys roots and weights.     *
@@ -27,65 +28,65 @@
 !             the tables needed to calculate large-order roots and     *
 !             weights on request.                                      *
 !***********************************************************************
-      use Her_RW
-      use vRys_RW
-      use Leg_RW
-      implicit none
+
+use Her_RW
+use vRys_RW
+use Leg_RW
+
+implicit none
 #include "real.fh"
 #include "stdalloc.fh"
 #include "status.fh"
 #include "print.fh"
-!
-      integer :: nRys
-!
-      integer :: iRys, jRys
-      integer :: MemHer, iHer, iOffR
-!
-      If (Allocated(iHerR2)) Then
-         Call WarningMessage(2,                                         &
-     &          'SetupR: Rys_Status is already active!')
-         Call Abend()
-      End If
-!
+integer :: nRys
+integer :: iRys, jRys
+integer :: MemHer, iHer, iOffR
+
+if (allocated(iHerR2)) then
+  call WarningMessage(2,'SetupR: Rys_Status is already active!')
+  call Abend()
+end if
+
 #ifdef _RYS_SCRATCH_
-      CALL SetAux(1.0D-16)
+call SetAux(1.0D-16)
 #endif
-!
-      CALL Read_ABData
-!
-      CALL Read_RysRW
-!
-!     Set up the square of roots and the weights for Hermite polynomials
-!     We will only do this for the even numbered polynomials.
-!
-      MemHer=nRys*(nRys+1)/2
-      Call mma_allocate(iHerR2,nRys,label='iHerR2')
-      iHerR2(1)=1
-      Call mma_allocate(iHerW2,nRys,label='iHerW2')
-      iHerW2(1)=1
-      Call mma_allocate(HerR2,MemHer,label='HerR2')
-      Call mma_allocate(HerW2,MemHer,label='HerW2')
-!
-      If (2*nRys.gt.MaxHer) Then
-         Call WarningMessage(2,'SetupR: 2*nRys>MaxHer')
-         Call Abend()
-      End If
-      Do 110 iRys=1,nRys
-         iHer=2*iRys
-         iOffR=(iRys*(iRys-1))/2
-         iHerR2(iRys) = iHerR2(1) + iOffR
-         iHerW2(iRys) = iHerW2(1) + iOffR
-         Do 105 jRys=0,iRys-1
-            HerR2(iHerR2(iRys)+jRys) = HerR(iHerR(iHer)+iRys+jRys)**2
-            HerW2(iHerW2(iRys)+jRys) = HerW(iHerW(iHer)+iRys+jRys)
- 105     Continue
- 110  Continue
-!
+
+call Read_ABData()
+
+call Read_RysRW()
+
+! Set up the square of roots and the weights for Hermite polynomials
+! We will only do this for the even numbered polynomials.
+
+MemHer = nRys*(nRys+1)/2
+call mma_allocate(iHerR2,nRys,label='iHerR2')
+iHerR2(1) = 1
+call mma_allocate(iHerW2,nRys,label='iHerW2')
+iHerW2(1) = 1
+call mma_allocate(HerR2,MemHer,label='HerR2')
+call mma_allocate(HerW2,MemHer,label='HerW2')
+
+if (2*nRys > MaxHer) then
+  call WarningMessage(2,'SetupR: 2*nRys>MaxHer')
+  call Abend()
+end if
+do iRys=1,nRys
+  iHer = 2*iRys
+  iOffR = (iRys*(iRys-1))/2
+  iHerR2(iRys) = iHerR2(1)+iOffR
+  iHerW2(iRys) = iHerW2(1)+iOffR
+  do jRys=0,iRys-1
+    HerR2(iHerR2(iRys)+jRys) = HerR(iHerR(iHer)+iRys+jRys)**2
+    HerW2(iHerW2(iRys)+jRys) = HerW(iHerW(iHer)+iRys+jRys)
+  end do
+end do
+
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call TriPrt(' Hermite squared roots',' ',HerR2(iHerR2(1)),nRys)
-      Call TriPrt(' Hermite weights      ',' ',HerW2(iHerW2(1)),nRys)
+call TriPrt(' Hermite squared roots',' ',HerR2(iHerR2(1)),nRys)
+call TriPrt(' Hermite weights      ',' ',HerW2(iHerW2(1)),nRys)
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine SetUpR

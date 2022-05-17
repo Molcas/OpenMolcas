@@ -11,8 +11,8 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine TERIS(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,&
-     &                 ChiI2)
+
+subroutine TERIS(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
 ! Object: compute the arguments for the reduced list of integrals which*
@@ -23,45 +23,45 @@
 !                                                                      *
 !             June '91, modified for k2 loop.                          *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 Zeta(nT), P(nT,3), rKapab(nT), T(nT), Fact(nT),            &
-     &       ZEInv(nT)
-!
+real*8 Zeta(nT), P(nT,3), rKapab(nT), T(nT), Fact(nT), ZEInv(nT)
+
 #ifdef _DEBUGPRINT_
-      iRout = 244
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' Zeta in TERIS',' ',Zeta,nT,1)
-         Call RecPrt(' P in TERIS',' ',P,nT,3)
-         Call RecPrt(' Kab in TERIS',' ',rKapab,nT,1)
-      End If
+iRout = 244
+iPrint = nPrint(iRout)
+if (iPrint >= 99) then
+  call RecPrt(' Zeta in TERIS',' ',Zeta,nT,1)
+  call RecPrt(' P in TERIS',' ',P,nT,3)
+  call RecPrt(' Kab in TERIS',' ',rKapab,nT,1)
+end if
 #endif
-!
-      Do iT = 1, nT
-         T(iT) = 0.0D0
-         tmp = 1.0D0/(Zeta(iT)+Zeta(iT)                                 &
-     &         +(Zeta(iT)*Zeta(iT)*ChiI2)*Dble(IsChi))
-         ZEInv(iT) = tmp
-         Fact(iT) =  rKapab(iT) **2 * Sqrt(tmp)
-      End Do
-!
+
+do iT=1,nT
+  T(iT) = 0.0d0
+  tmp = 1.0d0/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*dble(IsChi))
+  ZEInv(iT) = tmp
+  Fact(iT) = rKapab(iT)**2*sqrt(tmp)
+end do
+
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt('In TERIS: Tvalue',' ',T,nT,1)
-         Call RecPrt('In TERIS: Fact  ',' ',Fact,nT,1)
-      End If
+if (iPrint >= 99) then
+  call RecPrt('In TERIS: Tvalue',' ',T,nT,1)
+  call RecPrt('In TERIS: Fact  ',' ',Fact,nT,1)
+end if
 #else
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(P)
+if (.false.) call Unused_real_array(P)
 #endif
-!
-      Return
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real(Eta)
-         Call Unused_real(Q)
-         Call Unused_real(rKapcd)
-      End If
-      End
+if (.false.) then
+  call Unused_real(Eta)
+  call Unused_real(Q)
+  call Unused_real(rKapcd)
+end if
+
+end subroutine TERIS

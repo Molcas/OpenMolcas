@@ -11,8 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine TERI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi, &
-     &                ChiI2)
+
+subroutine TERI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
 ! Object: to entities for the two-electron integrals which are used in *
@@ -21,38 +21,35 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Intrinsic Sqrt
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3),                       &
-     &       rKapab(nT), rKapcd(nT),                                    &
-     &       T(nT), Fact(nT), ZEInv(nT)
-!
+real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), T(nT), Fact(nT), ZEInv(nT)
+
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' Zeta in TERI',' ',Zeta,1,nT)
-      Call RecPrt(' Eta in TERI',' ',Eta,1,nT)
-      Call RecPrt(' P in TERI',' ',P,nT,3)
-      Call RecPrt(' Q in TERI',' ',Q,nT,3)
-      Call RecPrt(' Kab in TERI',' ',rKapab,1,nT)
-      Call RecPrt(' Kcd in TERI',' ',rKapcd,1,nT)
+call RecPrt(' Zeta in TERI',' ',Zeta,1,nT)
+call RecPrt(' Eta in TERI',' ',Eta,1,nT)
+call RecPrt(' P in TERI',' ',P,nT,3)
+call RecPrt(' Q in TERI',' ',Q,nT,3)
+call RecPrt(' Kab in TERI',' ',rKapab,1,nT)
+call RecPrt(' Kcd in TERI',' ',rKapcd,1,nT)
 #endif
 !
-      Do iT = 1, nT
-         tmp = 1.0D0/(Zeta(iT)+Eta(iT)                                  &
-     &       +(Eta(iT)*Zeta(iT)*ChiI2)*Dble(IsChi))
-         ZEInv(iT) = tmp
-         Rho = Zeta(iT)*Eta(iT)*tmp
-         PQ2 = (P(iT,1)-Q(iT,1))**2                                     &
-     &       + (P(iT,2)-Q(iT,2))**2                                     &
-     &       + (P(iT,3)-Q(iT,3))**2
-         T(iT) = Rho*PQ2
-         Fact(iT) =  rKapab(iT) * rKapcd(iT) * Sqrt(tmp)
-       End Do
+do iT=1,nT
+  tmp = 1.0d0/(Zeta(iT)+Eta(iT)+(Eta(iT)*Zeta(iT)*ChiI2)*dble(IsChi))
+  ZEInv(iT) = tmp
+  Rho = Zeta(iT)*Eta(iT)*tmp
+  PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
+  T(iT) = Rho*PQ2
+  Fact(iT) = rKapab(iT)*rKapcd(iT)*sqrt(tmp)
+end do
 #ifdef _DEBUGPRINT_
-       Call RecPrt('Tvalue',' ',T,1,nT)
-       Call RecPrt('Fact  ',' ',Fact,1,nT)
+call RecPrt('Tvalue',' ',T,1,nT)
+call RecPrt('Fact  ',' ',Fact,1,nT)
 #endif
-      Return
-      End
+
+return
+
+end subroutine TERI
