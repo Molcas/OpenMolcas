@@ -62,9 +62,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      kdc=-dbsc(1)%nCntr
+      kdc=0
       Do iCnttp = 1, nCnttp
-         kdc = kdc + dbsc(iCnttp)%nCntr
+         If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr
 
          If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
@@ -111,11 +111,13 @@ cAOM>
                iStrt=iStrt+3
             End Do
          End Do
-C        Write (*,*) 'ncr',(ncr(i),i=1,npot)
-C        Write (*,*) 'zcr',(zcr(i),i=1,npot)
-C        Write (*,*) 'ccr',(ccr(i),i=1,npot)
-C        Write (*,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
-C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
+#ifdef _DEBUGPRINT_
+         Write (6,*) 'ncr',(ncr(i),i=1,npot)
+         Write (6,*) 'zcr',(zcr(i),i=1,npot)
+         Write (6,*) 'ccr',(ccr(i),i=1,npot)
+         Write (6,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
+         Write (6,*) 'nkcru',(nkcru(i,1),i=1,iSh)
+#endif
 *
          Do iCntr = 1, dbsc(iCnttp)%nCntr
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCntr)

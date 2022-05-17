@@ -114,9 +114,9 @@
 ************************************************************************
 *                                                                      *
       iComp = 1
-      kdc =-dbsc(1)%nCntr
+      kdc = 0
       Do iCnttp = 1, nCnttp
-         kdc = kdc + dbsc(iCnttp)%nCntr
+        If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr
          If (dbsc(iCnttp)%Charge.eq.0d0) Cycle
          If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
