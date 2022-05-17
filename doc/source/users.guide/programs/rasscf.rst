@@ -2337,9 +2337,9 @@ A list of these keywords is given below:
   * **Newton:** Newton's method. The Hessian and the gradient of the sum-over-states 
     of the active--active classical Coulomb energies (Q_a-a) are computed. This is the 
     default for calculations with more than two states. Note that Q_a-a may decrease within
-    the minimum number of cycles defined by `CMSI` if a step is too big. After the minimum
+    the minimum number of cycles defined by `CMMI` if a step is too big. After the minimum
     number of cycles, a smaller step will be taken to ensure that Q_a-a increases, and an
-    extra cycle will always be taken even when a smaller step is used.
+    extra cycle will always be taken if a smaller step is used.
   * **Jacobi:** Jacobi's method. States are rotated in pairwise succession, 
     and a trigonometric function is used to fit such rotation to find the 
     maximum. This is the default for calculations with two states.
