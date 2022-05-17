@@ -75,7 +75,7 @@ interface
   subroutine copy_c(src,dst,err) bind(C,name='copy')
     import :: c_char, MOLCAS_C_INT
     character(len=1,kind=c_char), intent(in) :: src(*),dst(*)
-    integer(kind=MOLCAS_C_INT), intent(out), optional :: err
+    integer(kind=MOLCAS_C_INT), intent(out) :: err
   end subroutine copy_c
 
   function access_c(path) bind(C,name='access_wrapper')
@@ -209,7 +209,13 @@ end function
 subroutine copy_(src, dst, err)
   character(len=*), intent(in) :: src, dst
   integer(kind=iwp), intent(out), optional :: err
-  call copy_c(trim(src)//c_null_char, trim(dst)//c_null_char, err)
+  integer(kind=iwp) :: err_
+  call copy_c(trim(src)//c_null_char, trim(dst)//c_null_char, err_)
+  if (present(err)) then
+    err = err_
+  else if (err_ /= 0) then
+    call abort_('Error in copy')
+  end if
 end subroutine
 
 end module filesystem

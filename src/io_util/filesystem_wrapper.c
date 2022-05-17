@@ -103,16 +103,12 @@ void copy(const char *src, const char *dst, INT *err)
     char buf[BUFSIZ];
     size_t size;
 
+    *err = 0;
     FILE* source = fopen(src, "rb");
 
     if (! source) {
-        if (err) {
-            *err = 1;
-            return;
-        } else {
-            printf("File %s does not exist.\n", src);
-            exit(1);
-        }
+        *err = 1;
+        return;
     }
 
     FILE* dest = fopen(dst, "wb");
