@@ -48,89 +48,86 @@ do iCar=1,3
       do ia=0,la+lla
         do ib=0,lb+llb
           iab = ia+ib
-          if (iab > la+lb+max(lla,llb)) Go To 210
+          if (iab > la+lb+max(lla,llb)) cycle
           do i=1,nVec
             Arr2(i,ia,ib,icd,iCar) = Arr1(i,iCar,iab,icd)
           end do
-210       continue
+        end do
+      end do
+    end do
+  else if (la >= lb) then
+    do icd=0,lc+ld+llcd
+      ! Move the first row I(ia,0)
+      do ia=0,la+lb+max(lla,llb)
+        ja = ia
+        jb = 0
+        if (ja > la+1) then
+          ja = ja-(la+2)
+          jb = 1
+        end if
+        do i=1,nVec
+          Arr2(i,ja,jb,icd,iCar) = Arr1(i,iCar,ia,icd)
+        end do
+      end do
+      ! Generate I(ia,ib) for fixed ib
+      do ib=1,lb+llb
+        do ia=la+lb+max(lla,llb)-ib,0,-1
+          ja = ia
+          jb = ib
+          mb = ib-1
+          if (ja > la+1) then
+            ja = ja-(la+2)
+            jb = jb+1
+            mb = mb+1
+          end if
+          ma = ja
+          ka = ia+1
+          kb = ib-1
+          if (ka > la+1) then
+            ka = ka-(la+2)
+            kb = kb+1
+          end if
+          call DZaXpY(nVec,AB,Arr2(1,ma,mb,icd,iCar),1,Arr2(1,ka,kb,icd,iCar),1,Arr2(1,ja,jb,icd,iCar),1)
         end do
       end do
     end do
   else
-    if (la >= lb) then
-      do icd=0,lc+ld+llcd
-        ! Move the first row I(ia,0)
-        do ia=0,la+lb+max(lla,llb)
-          ja = ia
-          jb = 0
-          if (ja > la+1) then
-            ja = ja-(la+2)
-            jb = 1
-          end if
-          do i=1,nVec
-            Arr2(i,ja,jb,icd,iCar) = Arr1(i,iCar,ia,icd)
-          end do
-        end do
-        ! Generate I(ia,ib) for fixed ib
-        do ib=1,lb+llb
-          do ia=la+lb+max(lla,llb)-ib,0,-1
-            ja = ia
-            jb = ib
-            mb = ib-1
-            if (ja > la+1) then
-              ja = ja-(la+2)
-              jb = jb+1
-              mb = mb+1
-            end if
-            ma = ja
-            ka = ia+1
-            kb = ib-1
-            if (ka > la+1) then
-              ka = ka-(la+2)
-              kb = kb+1
-            end if
-            call DZaXpY(nVec,AB,Arr2(1,ma,mb,icd,iCar),1,Arr2(1,ka,kb,icd,iCar),1,Arr2(1,ja,jb,icd,iCar),1)
-          end do
+    AB = -AB
+    do icd=0,lc+ld+llcd
+      ! Move the first row I(0,ib)
+      do ib=0,la+lb+max(lla,llb)
+        jb = ib
+        ja = 0
+        if (jb > lb+1) then
+          jb = jb-(lb+2)
+          ja = 1
+        end if
+        do i=1,nVec
+          Arr2(i,ja,jb,icd,iCar) = Arr1(i,iCar,ib,icd)
         end do
       end do
-    else
-      AB = -AB
-      do icd=0,lc+ld+llcd
-        ! Move the first row I(0,ib)
-        do ib=0,la+lb+max(lla,llb)
+      ! Generate I(ia,ib) for fixed ia
+      do ia=1,la+lla
+        do ib=la+lb+max(lla,llb)-ia,0,-1
           jb = ib
-          ja = 0
+          ja = ia
+          ma = ia-1
           if (jb > lb+1) then
             jb = jb-(lb+2)
-            ja = 1
+            ja = ja+1
+            ma = ma+1
           end if
-          do i=1,nVec
-            Arr2(i,ja,jb,icd,iCar) = Arr1(i,iCar,ib,icd)
-          end do
-        end do
-        ! Generate I(ia,ib) for fixed ia
-        do ia=1,la+lla
-          do ib=la+lb+max(lla,llb)-ia,0,-1
-            jb = ib
-            ja = ia
-            ma = ia-1
-            if (jb > lb+1) then
-              jb = jb-(lb+2)
-              ja = ja+1
-              ma = ma+1
-            end if
-            mb = jb
-            kb = ib+1
-            ka = ia-1
-            if (kb > lb+1) then
-              kb = kb-(lb+2)
-              ka = ka+1
-            end if
-            call DZaXpY(nVec,AB,Arr2(1,ma,mb,icd,iCar),1,Arr2(1,ka,kb,icd,iCar),1,Arr2(1,ja,jb,icd,iCar),1)
-          end do
+          mb = jb
+          kb = ib+1
+          ka = ia-1
+          if (kb > lb+1) then
+            kb = kb-(lb+2)
+            ka = ka+1
+          end if
+          call DZaXpY(nVec,AB,Arr2(1,ma,mb,icd,iCar),1,Arr2(1,ka,kb,icd,iCar),1,Arr2(1,ja,jb,icd,iCar),1)
         end do
       end do
-    end if
+    end do
   end if
 end do
 

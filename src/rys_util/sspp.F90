@@ -34,281 +34,279 @@ xdInv = One/ddx
 dddx = ddx/10d0+ddx
 
 ABeqCD = EQ(A,B) .and. EQ(A,C) .and. EQ(A,D)
-if (ABeqCD) Go To 100
-if (EQ(A,B) .and. (.not. EQ(C,D))) Go To 200
-if ((.not. EQ(A,B)) .and. EQ(C,D)) Go To 300
-if (EQ(A,B) .and. EQ(C,D)) Go To 400
 
-! ABCD case
+if (ABeqCD) then
 
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
-    PQx = P(iZeta,1)-Q(iEta,1)
-    PQy = P(iZeta,2)-Q(iEta,2)
-    PQz = P(iZeta,3)-Q(iEta,3)
-    T = rho*(PQx**2+PQy**2+PQz**2)
-    if (T < TMax) then
-      n = iPntr(int((T+dddx)*xdInv))
-      z = T-x0(n)
-      w1 = (((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-      w2 = (((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-      r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-      r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
-    else
-      ai = 1.0d0/T
-      si = sqrt(ai)
-      w1 = HerW(1)*si
-      w2 = HerW(2)*si
-      r1 = HerR2(1)*ai
-      r2 = HerR2(2)*ai
-    end if
-    Zu21 = r1*(Zeta(iZeta)*ZEInv)
-    Zu22 = r2*(Zeta(iZeta)*ZEInv)
-    QCPQx1 = (Q(iEta,1)-CoorAC(1,2))+Zu21*PQx
-    QCPQx2 = (Q(iEta,1)-CoorAC(1,2))+Zu22*PQx
-    QCPQy1 = (Q(iEta,2)-CoorAC(2,2))+Zu21*PQy
-    QCPQy2 = (Q(iEta,2)-CoorAC(2,2))+Zu22*PQy
-    QCPQz1 = (Q(iEta,3)-CoorAC(3,2))+Zu21*PQz
-    QCPQz2 = (Q(iEta,3)-CoorAC(3,2))+Zu22*PQz
-    B011 = (Half-Half*Zu21)*EInv(iEta)
-    B012 = (Half-Half*Zu22)*EInv(iEta)
-    x011 = QCPQx1
-    x012 = QCPQx2
-    x021 = QCPQx1*x011+B011
-    x022 = QCPQx2*x012+B012
-    y011 = QCPQy1
-    y012 = QCPQy2
-    y021 = QCPQy1*y011+B011
-    y022 = QCPQy2*y012+B012
-    z011 = QCPQz1*w1
-    z012 = QCPQz2*w2
-    z021 = QCPQz1*z011+B011*w1
-    z022 = QCPQz2*z012+B012*w2
-    PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
-    EFInt(iZeta,iEta,1) = PreFct*(x011*w1+x012*w2)
-    EFInt(iZeta,iEta,2) = PreFct*(y011*w1+y012*w2)
-    EFInt(iZeta,iEta,3) = PreFct*(z011+z012)
-    EFInt(iZeta,iEta,4) = PreFct*(x021*w1+x022*w2)
-    EFInt(iZeta,iEta,5) = PreFct*(x011*y011*w1+x012*y012*w2)
-    EFInt(iZeta,iEta,6) = PreFct*(x011*z011+x012*z012)
-    EFInt(iZeta,iEta,7) = PreFct*(y021*w1+y022*w2)
-    EFInt(iZeta,iEta,8) = PreFct*(y011*z011+y012*z012)
-    EFInt(iZeta,iEta,9) = PreFct*(z021+z022)
+  ! AAAA case
+
+  z = -x0(1)
+  w1 = (((((CW6(1,1)*z+CW5(1,1))*z+CW4(1,1))*z+CW3(1,1))*z+CW2(1,1))*z+CW1(1,1))*z+Cw0(1,1)
+  w2 = (((((CW6(1,2)*z+CW5(1,2))*z+CW4(1,2))*z+CW3(1,2))*z+CW2(1,2))*z+CW1(1,2))*z+Cw0(1,2)
+  r1 = (((((CR6(1,1)*z+CR5(1,1))*z+CR4(1,1))*z+CR3(1,1))*z+CR2(1,1))*z+CR1(1,1))*z+CR0(1,1)
+  r2 = (((((CR6(1,2)*z+CR5(1,2))*z+CR4(1,2))*z+CR3(1,2))*z+CR2(1,2))*z+CR1(1,2))*z+CR0(1,2)
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
+      Zu21 = r1*(Zeta(iZeta)*ZEInv)
+      Zu22 = r2*(Zeta(iZeta)*ZEInv)
+      B011 = (Half-Half*Zu21)*EInv(iEta)
+      B012 = (Half-Half*Zu22)*EInv(iEta)
+      PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
+      EFInt(iZeta,iEta,1) = (PreFct*(B011*w1+B012*w2))
+      EFInt(iZeta,iEta,2) = Zero
+      EFInt(iZeta,iEta,3) = Zero
+      EFInt(iZeta,iEta,4) = (PreFct*(B011*w1+B012*w2))
+      EFInt(iZeta,iEta,5) = Zero
+      EFInt(iZeta,iEta,6) = (PreFct*(B011*w1+B012*w2))
+    end do
   end do
-end do
-Go To 99
 
-! AAAA case
+else if (EQ(A,B) .and. (.not. EQ(C,D))) then
 
-100 continue
-z = -x0(1)
-w1 = (((((CW6(1,1)*z+CW5(1,1))*z+CW4(1,1))*z+CW3(1,1))*z+CW2(1,1))*z+CW1(1,1))*z+Cw0(1,1)
-w2 = (((((CW6(1,2)*z+CW5(1,2))*z+CW4(1,2))*z+CW3(1,2))*z+CW2(1,2))*z+CW1(1,2))*z+Cw0(1,2)
-r1 = (((((CR6(1,1)*z+CR5(1,1))*z+CR4(1,1))*z+CR3(1,1))*z+CR2(1,1))*z+CR1(1,1))*z+CR0(1,1)
-r2 = (((((CR6(1,2)*z+CR5(1,2))*z+CR4(1,2))*z+CR3(1,2))*z+CR2(1,2))*z+CR1(1,2))*z+CR0(1,2)
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
-    Zu21 = r1*(Zeta(iZeta)*ZEInv)
-    Zu22 = r2*(Zeta(iZeta)*ZEInv)
-    B011 = (Half-Half*Zu21)*EInv(iEta)
-    B012 = (Half-Half*Zu22)*EInv(iEta)
-    PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
-    EFInt(iZeta,iEta,1) = (PreFct*(B011*w1+B012*w2))
-    EFInt(iZeta,iEta,2) = Zero
-    EFInt(iZeta,iEta,3) = Zero
-    EFInt(iZeta,iEta,4) = (PreFct*(B011*w1+B012*w2))
-    EFInt(iZeta,iEta,5) = Zero
-    EFInt(iZeta,iEta,6) = (PreFct*(B011*w1+B012*w2))
+  ! AACD case
+
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      PQx = CoorAC(1,1)-Q(iEta,1)
+      PQy = CoorAC(2,1)-Q(iEta,2)
+      PQz = CoorAC(3,1)-Q(iEta,3)
+      PQ2 = (PQx**2+PQy**2+PQz**2)
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
+      T = rho*PQ2
+      if (T < TMax) then
+        n = iPntr(int((T+dddx)*xdInv))
+        z = T-x0(n)
+        w1 = (((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
+        w2 = (((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
+        r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
+        r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
+      else
+        ai = 1.0d0/T
+        si = sqrt(ai)
+        w1 = HerW(1)*si
+        w2 = HerW(2)*si
+        r1 = HerR2(1)*ai
+        r2 = HerR2(2)*ai
+      end if
+      Zu21 = r1*(Zeta(iZeta)*ZEInv)
+      Zu22 = r2*(Zeta(iZeta)*ZEInv)
+      QCPQx1 = (Q(iEta,1)-CoorAC(1,2))+Zu21*PQx
+      QCPQx2 = (Q(iEta,1)-CoorAC(1,2))+Zu22*PQx
+      QCPQy1 = (Q(iEta,2)-CoorAC(2,2))+Zu21*PQy
+      QCPQy2 = (Q(iEta,2)-CoorAC(2,2))+Zu22*PQy
+      QCPQz1 = (Q(iEta,3)-CoorAC(3,2))+Zu21*PQz
+      QCPQz2 = (Q(iEta,3)-CoorAC(3,2))+Zu22*PQz
+      B011 = (Half-Half*Zu21)*EInv(iEta)
+      B012 = (Half-Half*Zu22)*EInv(iEta)
+      x011 = QCPQx1
+      x012 = QCPQx2
+      x021 = QCPQx1*x011+B011
+      x022 = QCPQx2*x012+B012
+      y011 = QCPQy1
+      y012 = QCPQy2
+      y021 = QCPQy1*y011+B011
+      y022 = QCPQy2*y012+B012
+      z011 = QCPQz1*w1
+      z012 = QCPQz2*w2
+      z021 = QCPQz1*z011+B011*w1
+      z022 = QCPQz2*z012+B012*w2
+      PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
+      EFInt(iZeta,iEta,1) = PreFct*(x011*w1+x012*w2)
+      EFInt(iZeta,iEta,2) = PreFct*(y011*w1+y012*w2)
+      EFInt(iZeta,iEta,3) = PreFct*(z011+z012)
+      EFInt(iZeta,iEta,4) = PreFct*(x021*w1+x022*w2)
+      EFInt(iZeta,iEta,5) = PreFct*(x011*y011*w1+x012*y012*w2)
+      EFInt(iZeta,iEta,6) = PreFct*(x011*z011+x012*z012)
+      EFInt(iZeta,iEta,7) = PreFct*(y021*w1+y022*w2)
+      EFInt(iZeta,iEta,8) = PreFct*(y011*z011+y012*z012)
+      EFInt(iZeta,iEta,9) = PreFct*(z021+z022)
+    end do
   end do
-end do
-Go To 99
 
-! AACD case
+else if ((.not. EQ(A,B)) .and. EQ(C,D)) then
 
-200 continue
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    PQx = CoorAC(1,1)-Q(iEta,1)
-    PQy = CoorAC(2,1)-Q(iEta,2)
-    PQz = CoorAC(3,1)-Q(iEta,3)
-    PQ2 = (PQx**2+PQy**2+PQz**2)
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
-    T = rho*PQ2
-    if (T < TMax) then
-      n = iPntr(int((T+dddx)*xdInv))
-      z = T-x0(n)
-      w1 = (((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-      w2 = (((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-      r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-      r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
-    else
-      ai = 1.0d0/T
-      si = sqrt(ai)
-      w1 = HerW(1)*si
-      w2 = HerW(2)*si
-      r1 = HerR2(1)*ai
-      r2 = HerR2(2)*ai
-    end if
-    Zu21 = r1*(Zeta(iZeta)*ZEInv)
-    Zu22 = r2*(Zeta(iZeta)*ZEInv)
-    QCPQx1 = (Q(iEta,1)-CoorAC(1,2))+Zu21*PQx
-    QCPQx2 = (Q(iEta,1)-CoorAC(1,2))+Zu22*PQx
-    QCPQy1 = (Q(iEta,2)-CoorAC(2,2))+Zu21*PQy
-    QCPQy2 = (Q(iEta,2)-CoorAC(2,2))+Zu22*PQy
-    QCPQz1 = (Q(iEta,3)-CoorAC(3,2))+Zu21*PQz
-    QCPQz2 = (Q(iEta,3)-CoorAC(3,2))+Zu22*PQz
-    B011 = (Half-Half*Zu21)*EInv(iEta)
-    B012 = (Half-Half*Zu22)*EInv(iEta)
-    x011 = QCPQx1
-    x012 = QCPQx2
-    x021 = QCPQx1*x011+B011
-    x022 = QCPQx2*x012+B012
-    y011 = QCPQy1
-    y012 = QCPQy2
-    y021 = QCPQy1*y011+B011
-    y022 = QCPQy2*y012+B012
-    z011 = QCPQz1*w1
-    z012 = QCPQz2*w2
-    z021 = QCPQz1*z011+B011*w1
-    z022 = QCPQz2*z012+B012*w2
-    PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
-    EFInt(iZeta,iEta,1) = PreFct*(x011*w1+x012*w2)
-    EFInt(iZeta,iEta,2) = PreFct*(y011*w1+y012*w2)
-    EFInt(iZeta,iEta,3) = PreFct*(z011+z012)
-    EFInt(iZeta,iEta,4) = PreFct*(x021*w1+x022*w2)
-    EFInt(iZeta,iEta,5) = PreFct*(x011*y011*w1+x012*y012*w2)
-    EFInt(iZeta,iEta,6) = PreFct*(x011*z011+x012*z012)
-    EFInt(iZeta,iEta,7) = PreFct*(y021*w1+y022*w2)
-    EFInt(iZeta,iEta,8) = PreFct*(y011*z011+y012*z012)
-    EFInt(iZeta,iEta,9) = PreFct*(z021+z022)
+  ! ABCC case
+
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
+      PQx = P(iZeta,1)-CoorAC(1,2)
+      PQy = P(iZeta,2)-CoorAC(2,2)
+      PQz = P(iZeta,3)-CoorAC(3,2)
+      T = rho*(PQx**2+PQy**2+PQz**2)
+      if (T < TMax) then
+        n = iPntr(int((T+dddx)*xdInv))
+        z = T-x0(n)
+        w1 = (((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
+        w2 = (((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
+        r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
+        r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
+      else
+        ai = 1.0d0/T
+        si = sqrt(ai)
+        w1 = HerW(1)*si
+        w2 = HerW(2)*si
+        r1 = HerR2(1)*ai
+        r2 = HerR2(2)*ai
+      end if
+      Zu21 = r1*(Zeta(iZeta)*ZEInv)
+      Zu22 = r2*(Zeta(iZeta)*ZEInv)
+      QCPQx1 = Zu21*PQx
+      QCPQx2 = Zu22*PQx
+      QCPQy1 = Zu21*PQy
+      QCPQy2 = Zu22*PQy
+      QCPQz1 = Zu21*PQz
+      QCPQz2 = Zu22*PQz
+      B011 = (Half-Half*Zu21)*EInv(iEta)
+      B012 = (Half-Half*Zu22)*EInv(iEta)
+      x011 = QCPQx1
+      x012 = QCPQx2
+      x021 = QCPQx1*x011+B011
+      x022 = QCPQx2*x012+B012
+      y011 = QCPQy1
+      y012 = QCPQy2
+      y021 = QCPQy1*y011+B011
+      y022 = QCPQy2*y012+B012
+      z011 = QCPQz1*w1
+      z012 = QCPQz2*w2
+      z021 = QCPQz1*z011+B011*w1
+      z022 = QCPQz2*z012+B012*w2
+      PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
+      EFInt(iZeta,iEta,1) = PreFct*(x021*w1+x022*w2)
+      EFInt(iZeta,iEta,2) = PreFct*(x011*y011*w1+x012*y012*w2)
+      EFInt(iZeta,iEta,3) = PreFct*(x011*z011+x012*z012)
+      EFInt(iZeta,iEta,4) = PreFct*(y021*w1+y022*w2)
+      EFInt(iZeta,iEta,5) = PreFct*(y011*z011+y012*z012)
+      EFInt(iZeta,iEta,6) = PreFct*(z021+z022)
+    end do
   end do
-end do
-Go To 99
 
-! ABCC case
+else if (EQ(A,B) .and. EQ(C,D)) then
 
-300 continue
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
-    PQx = P(iZeta,1)-CoorAC(1,2)
-    PQy = P(iZeta,2)-CoorAC(2,2)
-    PQz = P(iZeta,3)-CoorAC(3,2)
-    T = rho*(PQx**2+PQy**2+PQz**2)
-    if (T < TMax) then
-      n = iPntr(int((T+dddx)*xdInv))
-      z = T-x0(n)
-      w1 = (((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-      w2 = (((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-      r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-      r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
-    else
-      ai = 1.0d0/T
-      si = sqrt(ai)
-      w1 = HerW(1)*si
-      w2 = HerW(2)*si
-      r1 = HerR2(1)*ai
-      r2 = HerR2(2)*ai
-    end if
-    Zu21 = r1*(Zeta(iZeta)*ZEInv)
-    Zu22 = r2*(Zeta(iZeta)*ZEInv)
-    QCPQx1 = Zu21*PQx
-    QCPQx2 = Zu22*PQx
-    QCPQy1 = Zu21*PQy
-    QCPQy2 = Zu22*PQy
-    QCPQz1 = Zu21*PQz
-    QCPQz2 = Zu22*PQz
-    B011 = (Half-Half*Zu21)*EInv(iEta)
-    B012 = (Half-Half*Zu22)*EInv(iEta)
-    x011 = QCPQx1
-    x012 = QCPQx2
-    x021 = QCPQx1*x011+B011
-    x022 = QCPQx2*x012+B012
-    y011 = QCPQy1
-    y012 = QCPQy2
-    y021 = QCPQy1*y011+B011
-    y022 = QCPQy2*y012+B012
-    z011 = QCPQz1*w1
-    z012 = QCPQz2*w2
-    z021 = QCPQz1*z011+B011*w1
-    z022 = QCPQz2*z012+B012*w2
-    PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
-    EFInt(iZeta,iEta,1) = PreFct*(x021*w1+x022*w2)
-    EFInt(iZeta,iEta,2) = PreFct*(x011*y011*w1+x012*y012*w2)
-    EFInt(iZeta,iEta,3) = PreFct*(x011*z011+x012*z012)
-    EFInt(iZeta,iEta,4) = PreFct*(y021*w1+y022*w2)
-    EFInt(iZeta,iEta,5) = PreFct*(y011*z011+y012*z012)
-    EFInt(iZeta,iEta,6) = PreFct*(z021+z022)
+  ! AACC case
+
+  PQx = CoorAC(1,1)-CoorAC(1,2)
+  PQy = CoorAC(2,1)-CoorAC(2,2)
+  PQz = CoorAC(3,1)-CoorAC(3,2)
+  PQ2 = (PQx**2+PQy**2+PQz**2)
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
+      T = rho*PQ2
+      if (T < TMax) then
+        n = iPntr(int((T+dddx)*xdInv))
+        z = T-x0(n)
+        w1 = (((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
+        w2 = (((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
+        r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
+        r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
+      else
+        ai = 1.0d0/T
+        si = sqrt(ai)
+        w1 = HerW(1)*si
+        w2 = HerW(2)*si
+        r1 = HerR2(1)*ai
+        r2 = HerR2(2)*ai
+      end if
+      Zu21 = r1*(Zeta(iZeta)*ZEInv)
+      Zu22 = r2*(Zeta(iZeta)*ZEInv)
+      QCPQx1 = Zu21*PQx
+      QCPQx2 = Zu22*PQx
+      QCPQy1 = Zu21*PQy
+      QCPQy2 = Zu22*PQy
+      QCPQz1 = Zu21*PQz
+      QCPQz2 = Zu22*PQz
+      B011 = (Half-Half*Zu21)*EInv(iEta)
+      B012 = (Half-Half*Zu22)*EInv(iEta)
+      x011 = QCPQx1
+      x012 = QCPQx2
+      x021 = QCPQx1*x011+B011
+      x022 = QCPQx2*x012+B012
+      y011 = QCPQy1
+      y012 = QCPQy2
+      y021 = QCPQy1*y011+B011
+      y022 = QCPQy2*y012+B012
+      z011 = QCPQz1*w1
+      z012 = QCPQz2*w2
+      z021 = QCPQz1*z011+B011*w1
+      z022 = QCPQz2*z012+B012*w2
+      PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
+      EFInt(iZeta,iEta,1) = PreFct*(x021*w1+x022*w2)
+      EFInt(iZeta,iEta,2) = PreFct*(x011*y011*w1+x012*y012*w2)
+      EFInt(iZeta,iEta,3) = PreFct*(x011*z011+x012*z012)
+      EFInt(iZeta,iEta,4) = PreFct*(y021*w1+y022*w2)
+      EFInt(iZeta,iEta,5) = PreFct*(y011*z011+y012*z012)
+      EFInt(iZeta,iEta,6) = PreFct*(z021+z022)
+    end do
   end do
-end do
-Go To 99
 
-! AACC case
+else
 
-400 continue
-PQx = CoorAC(1,1)-CoorAC(1,2)
-PQy = CoorAC(2,1)-CoorAC(2,2)
-PQz = CoorAC(3,1)-CoorAC(3,2)
-PQ2 = (PQx**2+PQy**2+PQz**2)
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
-    T = rho*PQ2
-    if (T < TMax) then
-      n = iPntr(int((T+dddx)*xdInv))
-      z = T-x0(n)
-      w1 = (((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
-      w2 = (((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
-      r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
-      r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
-    else
-      ai = 1.0d0/T
-      si = sqrt(ai)
-      w1 = HerW(1)*si
-      w2 = HerW(2)*si
-      r1 = HerR2(1)*ai
-      r2 = HerR2(2)*ai
-    end if
-    Zu21 = r1*(Zeta(iZeta)*ZEInv)
-    Zu22 = r2*(Zeta(iZeta)*ZEInv)
-    QCPQx1 = Zu21*PQx
-    QCPQx2 = Zu22*PQx
-    QCPQy1 = Zu21*PQy
-    QCPQy2 = Zu22*PQy
-    QCPQz1 = Zu21*PQz
-    QCPQz2 = Zu22*PQz
-    B011 = (Half-Half*Zu21)*EInv(iEta)
-    B012 = (Half-Half*Zu22)*EInv(iEta)
-    x011 = QCPQx1
-    x012 = QCPQx2
-    x021 = QCPQx1*x011+B011
-    x022 = QCPQx2*x012+B012
-    y011 = QCPQy1
-    y012 = QCPQy2
-    y021 = QCPQy1*y011+B011
-    y022 = QCPQy2*y012+B012
-    z011 = QCPQz1*w1
-    z012 = QCPQz2*w2
-    z021 = QCPQz1*z011+B011*w1
-    z022 = QCPQz2*z012+B012*w2
-    PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
-    EFInt(iZeta,iEta,1) = PreFct*(x021*w1+x022*w2)
-    EFInt(iZeta,iEta,2) = PreFct*(x011*y011*w1+x012*y012*w2)
-    EFInt(iZeta,iEta,3) = PreFct*(x011*z011+x012*z012)
-    EFInt(iZeta,iEta,4) = PreFct*(y021*w1+y022*w2)
-    EFInt(iZeta,iEta,5) = PreFct*(y011*z011+y012*z012)
-    EFInt(iZeta,iEta,6) = PreFct*(z021+z022)
+  ! ABCD case
+
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      rho = Eta(iEta)*(Zeta(iZeta)*ZEInv)
+      PQx = P(iZeta,1)-Q(iEta,1)
+      PQy = P(iZeta,2)-Q(iEta,2)
+      PQz = P(iZeta,3)-Q(iEta,3)
+      T = rho*(PQx**2+PQy**2+PQz**2)
+      if (T < TMax) then
+        n = iPntr(int((T+dddx)*xdInv))
+        z = T-x0(n)
+        w1 = (((((CW6(n,1)*z+CW5(n,1))*z+CW4(n,1))*z+CW3(n,1))*z+CW2(n,1))*z+CW1(n,1))*z+Cw0(n,1)
+        w2 = (((((CW6(n,2)*z+CW5(n,2))*z+CW4(n,2))*z+CW3(n,2))*z+CW2(n,2))*z+CW1(n,2))*z+Cw0(n,2)
+        r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
+        r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
+      else
+        ai = 1.0d0/T
+        si = sqrt(ai)
+        w1 = HerW(1)*si
+        w2 = HerW(2)*si
+        r1 = HerR2(1)*ai
+        r2 = HerR2(2)*ai
+      end if
+      Zu21 = r1*(Zeta(iZeta)*ZEInv)
+      Zu22 = r2*(Zeta(iZeta)*ZEInv)
+      QCPQx1 = (Q(iEta,1)-CoorAC(1,2))+Zu21*PQx
+      QCPQx2 = (Q(iEta,1)-CoorAC(1,2))+Zu22*PQx
+      QCPQy1 = (Q(iEta,2)-CoorAC(2,2))+Zu21*PQy
+      QCPQy2 = (Q(iEta,2)-CoorAC(2,2))+Zu22*PQy
+      QCPQz1 = (Q(iEta,3)-CoorAC(3,2))+Zu21*PQz
+      QCPQz2 = (Q(iEta,3)-CoorAC(3,2))+Zu22*PQz
+      B011 = (Half-Half*Zu21)*EInv(iEta)
+      B012 = (Half-Half*Zu22)*EInv(iEta)
+      x011 = QCPQx1
+      x012 = QCPQx2
+      x021 = QCPQx1*x011+B011
+      x022 = QCPQx2*x012+B012
+      y011 = QCPQy1
+      y012 = QCPQy2
+      y021 = QCPQy1*y011+B011
+      y022 = QCPQy2*y012+B012
+      z011 = QCPQz1*w1
+      z012 = QCPQz2*w2
+      z021 = QCPQz1*z011+B011*w1
+      z022 = QCPQz2*z012+B012*w2
+      PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
+      EFInt(iZeta,iEta,1) = PreFct*(x011*w1+x012*w2)
+      EFInt(iZeta,iEta,2) = PreFct*(y011*w1+y012*w2)
+      EFInt(iZeta,iEta,3) = PreFct*(z011+z012)
+      EFInt(iZeta,iEta,4) = PreFct*(x021*w1+x022*w2)
+      EFInt(iZeta,iEta,5) = PreFct*(x011*y011*w1+x012*y012*w2)
+      EFInt(iZeta,iEta,6) = PreFct*(x011*z011+x012*z012)
+      EFInt(iZeta,iEta,7) = PreFct*(y021*w1+y022*w2)
+      EFInt(iZeta,iEta,8) = PreFct*(y011*z011+y012*z012)
+      EFInt(iZeta,iEta,9) = PreFct*(z021+z022)
+    end do
   end do
-end do
 
-99 continue
+end if
 
 return
 ! Avoid unused argument warnings

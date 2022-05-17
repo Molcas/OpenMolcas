@@ -37,10 +37,10 @@ do ia=0,la+ja
     do ic=0,lc+jc
       do id=0,ld+jd
         do iCar=1,3
-          if ((ja == 1) .and. (ia == la+ja) .and. (.not. IfGrad(iCar,1))) Go To 51
-          if ((jb == 1) .and. (ib == lb+jb) .and. (.not. IfGrad(iCar,2))) Go To 51
-          if ((jc == 1) .and. (ic == lc+jc) .and. (.not. IfGrad(iCar,3))) Go To 51
-          if ((jd == 1) .and. (id == ld+jd) .and. (.not. IfGrad(iCar,4))) Go To 51
+          if ((ja == 1) .and. (ia == la+ja) .and. (.not. IfGrad(iCar,1))) cycle
+          if ((jb == 1) .and. (ib == lb+jb) .and. (.not. IfGrad(iCar,2))) cycle
+          if ((jc == 1) .and. (ic == lc+jc) .and. (.not. IfGrad(iCar,3))) cycle
+          if ((jd == 1) .and. (id == ld+jd) .and. (.not. IfGrad(iCar,4))) cycle
           write(Label,'(A,4(I1,A))') ' xyz2D0(',ia,',',ib,',',ic,',',id,ch(iCar)
           if (iPrint >= 99) then
             call RecPrt(Label,' ',xyz2d(1,1,ia,ib,ic,id,iCar),nT,nRys)
@@ -48,7 +48,6 @@ do ia=0,la+ja
             write(6,'(A)') Label
             write(6,*) DDot_(nT*nRys,xyz2d(1,1,ia,ib,ic,id,iCar),1,xyz2d(1,1,ia,ib,ic,id,iCar),1)
           end if
-51        continue
         end do
       end do
     end do

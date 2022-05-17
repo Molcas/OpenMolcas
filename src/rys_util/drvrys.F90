@@ -96,66 +96,65 @@ call Screen(nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,Data1(iZe
 !write(6,*) 'lZeta,lEta:',lZeta,lEta
 if (lZeta*lEta == 0) then
   call FZero(Wrk(iW2),mWork2)
-  Go To 99
-end if
-NoInts = .false.
-
-! Compute [a0|c0], ijkl,a,c
-
-call Rys(iAnga,lZeta*lEta,Zeta,ZInv,lZeta,Eta,EInv,lEta,P,nZeta,Q,nEta,KappAB,KappCD,Coor,Coor,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
-         Wrk(iW2),mWork2,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
-
-! Select between HRR before contraction or to contract
-! and perform the HRR later once the complete set of
-! contracted integrals have been generated.
-
-if ((lZeta*lEta < nijkl) .and. (mZeta == nZeta_tot) .and. (mEta == nEta_tot)) then
-
-  ! Apply the HRR recusions first. Note that this is only
-  ! executed if used in single iteration mode. Hence,
-  ! iW2 and iW4 are identical.
-
-  iW3 = iW2+lZeta*lEta*mabcd
-  call DGeTMO(Wrk(iW2),lZeta*lEta,lZeta*lEta,mabcd,Wrk(iW3),mabcd)
-  call dcopy_(mabcd*lZeta*lEta,Wrk(iW3),1,Wrk(iW2),1)
-  call TnsCtl(Wrk(iW2),nWork2,Coor,mabcd,lZeta*lEta,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
-              iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
-  if (i_Int /= iW2) call dcopy_(lZeta*lEta*nabcd,Wrk(i_int),1,Wrk(iW2),1)
-  Do_TnsCtl = .false.
-  n1 = 1
-  n2 = iCmp(1)*iCmp(2)
-  n3 = 1
-  n4 = iCmp(3)*iCmp(4)
-  kabcd = nabcd
 else
+  NoInts = .false.
 
-  ! Postpone application of the HRR recusions until later.
+  ! Compute [a0|c0], ijkl,a,c
 
-  Do_TnsCtl = .true.
-  n1 = mabMin
-  n2 = mabMax
-  n3 = mcdMin
-  n4 = mcdMax
-  kabcd = mabcd
+  call Rys(iAnga,lZeta*lEta,Zeta,ZInv,lZeta,Eta,EInv,lEta,P,nZeta,Q,nEta,KappAB,KappCD,Coor,Coor,CoorAC,mabMin,mabMax,mcdMin, &
+           mcdMax,Wrk(iW2),mWork2,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+
+  ! Select between HRR before contraction or to contract
+  ! and perform the HRR later once the complete set of
+  ! contracted integrals have been generated.
+
+  if ((lZeta*lEta < nijkl) .and. (mZeta == nZeta_tot) .and. (mEta == nEta_tot)) then
+
+    ! Apply the HRR recusions first. Note that this is only
+    ! executed if used in single iteration mode. Hence,
+    ! iW2 and iW4 are identical.
+
+    iW3 = iW2+lZeta*lEta*mabcd
+    call DGeTMO(Wrk(iW2),lZeta*lEta,lZeta*lEta,mabcd,Wrk(iW3),mabcd)
+    call dcopy_(mabcd*lZeta*lEta,Wrk(iW3),1,Wrk(iW2),1)
+    call TnsCtl(Wrk(iW2),nWork2,Coor,mabcd,lZeta*lEta,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
+                iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
+    if (i_Int /= iW2) call dcopy_(lZeta*lEta*nabcd,Wrk(i_int),1,Wrk(iW2),1)
+    Do_TnsCtl = .false.
+    n1 = 1
+    n2 = iCmp(1)*iCmp(2)
+    n3 = 1
+    n4 = iCmp(3)*iCmp(4)
+    kabcd = nabcd
+  else
+
+    ! Postpone application of the HRR recusions until later.
+
+    Do_TnsCtl = .true.
+    n1 = mabMin
+    n2 = mabMax
+    n3 = mcdMin
+    n4 = mcdMax
+    kabcd = mabcd
+  end if
+
+  ! Accumulate to the contracted integrals
+
+  if (iW4 /= iW2) then
+    ! Account for size of the integrals in
+    nW2 = lZeta*lEta*kabcd
+  else ! iW4 == iW2
+    ! Account for size of the integrals in and out
+    nW2 = max(iBasi*jBasj*kBask*lBasl,lZeta*lEta)*kabcd
+  end if
+  iW3 = iW2+nW2
+  nWork3 = mWork2-nW2
+  !write(6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
+  !write(6,*) 'nWork3:',nWork3
+  call Cntrct(NoPInts,Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Wrk(iW2),n1,n2,n3,n4, &
+              Wrk(iW3),nWork3,Wrk(iW4),IndZet,lZeta,IndEta,lEta)
 end if
 
-! Accumulate to the contracted integrals
-
-if (iW4 /= iW2) then
-  ! Account for size of the integrals in
-  nW2 = lZeta*lEta*kabcd
-else ! iW4 == iW2
-  ! Account for size of the integrals in and out
-  nW2 = max(iBasi*jBasj*kBask*lBasl,lZeta*lEta)*kabcd
-end if
-iW3 = iW2+nW2
-nWork3 = mWork2-nW2
-!write(6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
-!write(6,*) 'nWork3:',nWork3
-call Cntrct(NoPInts,Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Wrk(iW2),n1,n2,n3,n4,Wrk(iW3), &
-            nWork3,Wrk(iW4),IndZet,lZeta,IndEta,lEta)
-
-99 continue
 #ifdef _DEBUGPRINT_
 write(6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
 call RecPrt('DrvRys:(e0|0f)',' ',Wrk(iW4),kabcd,iBasi*jBasj*kBask*lBasl)

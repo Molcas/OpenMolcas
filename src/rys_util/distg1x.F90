@@ -92,12 +92,11 @@ do iCn=1,4
     if (IndGrd(iCar,iCn) < 0) then
       ij = 3*(iCn-1)+iCar
       do jCn=1,4
-        if (iCn == jCn) Go To 220
+        if (iCn == jCn) cycle
         if (IfGrad(iCar,jCn)) then
           kl = 3*(jCn-1)+iCar
           PAOg1(ij) = PAOg1(ij)-PAOg1(kl)
         end if
-220     continue
       end do
     end if
   end do

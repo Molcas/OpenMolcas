@@ -55,8 +55,7 @@ do iCar=1,3
 
     ! Determine the permutation of the cartesian indexes
 
-
-    if (jCar == iCar) goto 94
+    if (jCar == iCar) cycle
     if (iCar*jCar == 2) Kcar = 3
     if (iCar*jCar == 6) kCar = 1
     if (iCar*jCar == 3) KCar = 2
@@ -110,7 +109,6 @@ do iCar=1,3
         end if
       end do
     end do
-94  continue
   end do
 end do
 #ifdef _DEBUGPRINT_

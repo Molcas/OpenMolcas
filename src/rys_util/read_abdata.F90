@@ -27,8 +27,10 @@ if (.not. found_abdata) then
 end if
 call molcas_open(lu_abdata,ABDATA_NAME)
 
-10 read(lu_abdata,'(a8)') key
-if (key /= 'NTAB1, N') goto 10
+do
+  read(lu_abdata,'(a8)') key
+  if (key == 'NTAB1, N') exit
+end do
 read(lu_abdata,*) ntab1,ntab2,maxdeg
 nerr = 0
 if (ntab2-ntab1+1 > mxsiz2) then
@@ -44,8 +46,10 @@ end if
 if (nerr == 1) call abend()
 ipos = 0
 do i=ntab1,ntab2
-20 read(lu_abdata,'(a8)') key
-  if (key /= 'TAB POIN') goto 20
+  do
+    read(lu_abdata,'(a8)') key
+    if (key == 'TAB POIN') exit
+  end do
   ipos = ipos+1
   read(lu_abdata,*) itab,tvalue(ipos),p0(ipos)
   read(lu_abdata,*)

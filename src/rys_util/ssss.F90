@@ -32,38 +32,39 @@ xdInv = One/ddx
 dddx = ddx/10d0+ddx
 
 ABeqCD = EQ(A,B) .and. EQ(A,C) .and. EQ(A,D)
-if (ABeqCD) Go To 100
 
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    ZE = Zeta(iZeta)*Eta(iEta)
-    rho = ZE*ZEInv
-    PQ2 = (P(iZeta,1)-Q(iEta,1))**2+(P(iZeta,2)-Q(iEta,2))**2+(P(iZeta,3)-Q(iEta,3))**2
-    T = rho*PQ2
-    if (T < TMax) then
-      n = iPntr(int((T+dddx)*xdInv))
-      z = T-x0(n)
-      w = (((((W6(n)*z+W5(n))*z+W4(n))*z+W3(n))*z+W2(n))*z+W1(n))*z+w0(n)
+if (ABeqCD) then
+
+  z = -x0(1)
+  w = (((((W6(1)*z+W5(1))*z+W4(1))*z+W3(1))*z+W2(1))*z+W1(1))*z+w0(1)
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
       EFInt(iZeta,iEta) = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)*w
-    else
-      EFInt(iZeta,iEta) = rKappCD(iEta)*rKappAB(iZeta)*HerW*sqrt(One/(ZE*PQ2))
-    end if
+    end do
   end do
-end do
-Go To 99
 
-100 continue
-z = -x0(1)
-w = (((((W6(1)*z+W5(1))*z+W4(1))*z+W3(1))*z+W2(1))*z+W1(1))*z+w0(1)
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    EFInt(iZeta,iEta) = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)*w
+else
+
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZE = Zeta(iZeta)*Eta(iEta)
+      rho = ZE*ZEInv
+      PQ2 = (P(iZeta,1)-Q(iEta,1))**2+(P(iZeta,2)-Q(iEta,2))**2+(P(iZeta,3)-Q(iEta,3))**2
+      T = rho*PQ2
+      if (T < TMax) then
+        n = iPntr(int((T+dddx)*xdInv))
+        z = T-x0(n)
+        w = (((((W6(n)*z+W5(n))*z+W4(n))*z+W3(n))*z+W2(n))*z+W1(n))*z+w0(n)
+        EFInt(iZeta,iEta) = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)*w
+      else
+        EFInt(iZeta,iEta) = rKappCD(iEta)*rKappAB(iZeta)*HerW*sqrt(One/(ZE*PQ2))
+      end if
+    end do
   end do
-end do
 
-99 continue
+end if
 
 return
 

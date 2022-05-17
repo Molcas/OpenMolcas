@@ -47,104 +47,98 @@ do iCar=1,3
   if (CD == Zero) then
     do ia=0,la+lla
       do ib=0,lb+llb
-        if (ia+ib > la+lb+max(lla,llb)) Go To 101
+        if (ia+ib > la+lb+max(lla,llb)) cycle
         ! Using the identity
         do ic=0,lc+llc
           do id=0,ld+lld
             icd = ic+id
-            if (icd > lc+ld+max(llc,lld)) Go To 210
+            if (icd > lc+ld+max(llc,lld)) cycle
             do i=1,nVec
               Arr2(i,ia,ib,ic,id,iCar) = Arr1(i,ia,ib,icd,iCar)
             end do
-210         continue
           end do
         end do
-101     continue
+      end do
+    end do
+  else if (lc >= ld) then
+    do ia=0,la+lla
+      do ib=0,lb+llb
+        if (ia+ib > la+lb+max(lla,llb)) cycle
+        ! Move the first row I(ic,0)
+        do ic=0,lc+ld+max(llc,lld)
+          jc = ic
+          jd = 0
+          if (jc > lc+1) then
+            jc = jc-(lc+2)
+            jd = 1
+          end if
+          do i=1,nVec
+            Arr2(i,ia,ib,jc,jd,iCar) = Arr1(i,ia,ib,ic,iCar)
+          end do
+        end do
+        ! Generate I(ic,id) for fixed id
+        do id=1,ld+lld
+          do ic=lc+ld+max(llc,lld)-id,0,-1
+            jc = ic
+            jd = id
+            md = id-1
+            if (jc > lc+1) then
+              jc = jc-(lc+2)
+              jd = jd+1
+              md = md+1
+            end if
+            mc = jc
+            kc = ic+1
+            kd = id-1
+            if (kc > lc+1) then
+              kc = kc-(lc+2)
+              kd = kd+1
+            end if
+            call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1,Arr2(1,ia,ib,kc,kd,iCar),1,Arr2(1,ia,ib,jc,jd,iCar),1)
+          end do
+        end do
       end do
     end do
   else
-    if (lc >= ld) then
-      do ia=0,la+lla
-        do ib=0,lb+llb
-          if (ia+ib > la+lb+max(lla,llb)) Go To 103
-          ! Move the first row I(ic,0)
-          do ic=0,lc+ld+max(llc,lld)
-            jc = ic
-            jd = 0
-            if (jc > lc+1) then
-              jc = jc-(lc+2)
-              jd = 1
-            end if
-            do i=1,nVec
-              Arr2(i,ia,ib,jc,jd,iCar) = Arr1(i,ia,ib,ic,iCar)
-            end do
+    CD = -CD
+    do ia=0,la+lla
+      do ib=0,lb+llb
+        if (ia+ib > la+lb+max(lla,llb)) cycle
+        ! Move the first row I(0,id)
+        do id=0,lc+ld+max(llc,lld)
+          jd = id
+          jc = 0
+          if (jd > ld+1) then
+            jd = jd-(ld+2)
+            jc = 1
+          end if
+          do i=1,nVec
+            Arr2(i,ia,ib,jc,jd,iCar) = Arr1(i,ia,ib,id,iCar)
           end do
-          ! Generate I(ic,id) for fixed id
-          do id=1,ld+lld
-            do ic=lc+ld+max(llc,lld)-id,0,-1
-              jc = ic
-              jd = id
-              md = id-1
-              if (jc > lc+1) then
-                jc = jc-(lc+2)
-                jd = jd+1
-                md = md+1
-              end if
-              mc = jc
-              kc = ic+1
-              kd = id-1
-              if (kc > lc+1) then
-                kc = kc-(lc+2)
-                kd = kd+1
-              end if
-              call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1,Arr2(1,ia,ib,kc,kd,iCar),1,Arr2(1,ia,ib,jc,jd,iCar),1)
-            end do
-          end do
-103       continue
         end do
-      end do
-    else
-      CD = -CD
-      do ia=0,la+lla
-        do ib=0,lb+llb
-          if (ia+ib > la+lb+max(lla,llb)) Go To 105
-          ! Move the first row I(0,id)
-          do id=0,lc+ld+max(llc,lld)
+        ! Generate I(ic,id) for fixed ic
+        do ic=1,lc+llc
+          do id=lc+ld+max(llc,lld)-ic,0,-1
             jd = id
-            jc = 0
+            jc = ic
+            mc = ic-1
             if (jd > ld+1) then
               jd = jd-(ld+2)
-              jc = 1
+              jc = jc+1
+              mc = mc+1
             end if
-            do i=1,nVec
-              Arr2(i,ia,ib,jc,jd,iCar) = Arr1(i,ia,ib,id,iCar)
-            end do
+            md = jd
+            kd = id+1
+            kc = ic-1
+            if (kd > ld+1) then
+              kd = kd-(ld+2)
+              kc = kc+1
+            end if
+            call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1,Arr2(1,ia,ib,kc,kd,iCar),1,Arr2(1,ia,ib,jc,jd,iCar),1)
           end do
-          ! Generate I(ic,id) for fixed ic
-          do ic=1,lc+llc
-            do id=lc+ld+max(llc,lld)-ic,0,-1
-              jd = id
-              jc = ic
-              mc = ic-1
-              if (jd > ld+1) then
-                jd = jd-(ld+2)
-                jc = jc+1
-                mc = mc+1
-              end if
-              md = jd
-              kd = id+1
-              kc = ic-1
-              if (kd > ld+1) then
-                kd = kd-(ld+2)
-                kc = kc+1
-              end if
-              call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1,Arr2(1,ia,ib,kc,kd,iCar),1,Arr2(1,ia,ib,jc,jd,iCar),1)
-            end do
-          end do
-105       continue
         end do
       end do
-    end if
+    end do
   end if
 end do
 

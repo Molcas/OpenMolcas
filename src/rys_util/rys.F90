@@ -193,291 +193,293 @@ select case (ijkl)
     ip = ip+nabcd*3*nT*nRys
     secondpass = .false.
     ! jump mark for second pass:
-2304 continue
-    ! Allocate memory for the coefficients in the recurrence relation
-    ! of the 2D-integrals.
-    nTR = nT*nRys
-    if (NoSpecial) then
-      ipPAQP = ip
-    else
-      if (nabMax >= 1) then
-        iab = 2
-        icd = 1
-        iabcd = (nabMax+1)*(icd-1)+iab-1
-        ipPAQP = ipxyz+3*nT*nRys*iabcd
+    do
+      ! Allocate memory for the coefficients in the recurrence relation
+      ! of the 2D-integrals.
+      nTR = nT*nRys
+      if (NoSpecial) then
+        ipPAQP = ip
       else
-        ipPAQP = ip_Array_Dummy
+        if (nabMax >= 1) then
+          iab = 2
+          icd = 1
+          iabcd = (nabMax+1)*(icd-1)+iab-1
+          ipPAQP = ipxyz+3*nT*nRys*iabcd
+        else
+          ipPAQP = ip_Array_Dummy
+        end if
       end if
-    end if
-    ip = ip+nTR*3
-    if (NoSpecial) then
-      ipQCPQ = ip
-    else
-      if (ncdMax >= 1) then
-        iab = 1
-        icd = 2
-        iabcd = (nabMax+1)*(icd-1)+iab-1
-        ipQCPQ = ipxyz+3*nT*nRys*iabcd
+      ip = ip+nTR*3
+      if (NoSpecial) then
+        ipQCPQ = ip
       else
-        ipQCPQ = ip_Array_Dummy
+        if (ncdMax >= 1) then
+          iab = 1
+          icd = 2
+          iabcd = (nabMax+1)*(icd-1)+iab-1
+          ipQCPQ = ipxyz+3*nT*nRys*iabcd
+        else
+          ipQCPQ = ip_Array_Dummy
+        end if
       end if
-    end if
-    ip = ip+nTR*3
-    lB10 = max(min(nabMax-1,1),0)
-    if (lB10 >= 1) then
-      ipB10 = ip
-    else
-      ipB10 = ip_Array_Dummy
-    end if
-    ip = ip+nTR*3*lB10
-    labMax = min(nabMax,ncdMax)
-    lB00 = max(min(labMax,1),0)
-    if (lB00 >= 1) then
-      ipB00 = ip
-    else
-      ipB00 = ip_Array_Dummy
-    end if
-    ip = ip+nTR*3*lB00
-    lB01 = max(min(ncdMax-1,1),0)
-    if (lB01 >= 1) then
-      ipB01 = ip
-    else
-      ipB01 = ip_Array_Dummy
-    end if
-    ip = ip+nTR*3*lB01
-    ! Allocate memory for the roots.
-    ipU2 = ip
-    ip = ip+nT*nRys
-    ! Allocate memory for Zeta, ZInv, Eta, EInv
-    ipZeta = ip
-    ip = ip+nT
-    ipEta = ip
-    ip = ip+nT
-    ipZInv = ip
-    ip = ip+nT
-    ipEInv = ip
-    ip = ip+nT
-    ! Allocate memory for P and Q
-    ipP = ip
-    ip = ip+3*nT
-    ipQ = ip
-    ip = ip+3*nT
-    ! Allocate memory for the inverse.
-    ipDiv = ip
-    ip = ip+nT
-    ! Allocate memory for the arguments.
-    ipTv = ip
-    ip = ip+nT
-    ! Allocate memory for rKapab and rKapcd
-    iprKapab = ip
-    ip = ip+nT
-    iprKapcd = ip
-    ip = ip+nT
-!#   define _CHECK_
-#   ifdef _CHECK_
-    if (ip-1 > nArray) then
-      call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.1)')
-      write(6,*) ' nArray=',nArray
-      write(6,*) ' ip-1  =',ip-1
-      write(6,*) ' nRys  =',nRys
-      write(6,*) ' nZeta =',nZeta
-      write(6,*) ' nEta  =',nEta
-      call Abend()
-    end if
-#   endif
-
-    ! Expand Zeta, ZInv, Eta ,EInv, rKapab, rKapcd, P, and Q
-
-    if (nEta*nZeta /= nT) then
-      if ((nEta /= nT) .and. (nZeta /= nT)) then
-        write(6,*) 'Corrupted parameters!'
+      ip = ip+nTR*3
+      lB10 = max(min(nabMax-1,1),0)
+      if (lB10 >= 1) then
+        ipB10 = ip
+      else
+        ipB10 = ip_Array_Dummy
+      end if
+      ip = ip+nTR*3*lB10
+      labMax = min(nabMax,ncdMax)
+      lB00 = max(min(labMax,1),0)
+      if (lB00 >= 1) then
+        ipB00 = ip
+      else
+        ipB00 = ip_Array_Dummy
+      end if
+      ip = ip+nTR*3*lB00
+      lB01 = max(min(ncdMax-1,1),0)
+      if (lB01 >= 1) then
+        ipB01 = ip
+      else
+        ipB01 = ip_Array_Dummy
+      end if
+      ip = ip+nTR*3*lB01
+      ! Allocate memory for the roots.
+      ipU2 = ip
+      ip = ip+nT*nRys
+      ! Allocate memory for Zeta, ZInv, Eta, EInv
+      ipZeta = ip
+      ip = ip+nT
+      ipEta = ip
+      ip = ip+nT
+      ipZInv = ip
+      ip = ip+nT
+      ipEInv = ip
+      ip = ip+nT
+      ! Allocate memory for P and Q
+      ipP = ip
+      ip = ip+3*nT
+      ipQ = ip
+      ip = ip+3*nT
+      ! Allocate memory for the inverse.
+      ipDiv = ip
+      ip = ip+nT
+      ! Allocate memory for the arguments.
+      ipTv = ip
+      ip = ip+nT
+      ! Allocate memory for rKapab and rKapcd
+      iprKapab = ip
+      ip = ip+nT
+      iprKapcd = ip
+      ip = ip+nT
+!#     define _CHECK_
+#     ifdef _CHECK_
+      if (ip-1 > nArray) then
+        call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.1)')
+        write(6,*) ' nArray=',nArray
+        write(6,*) ' ip-1  =',ip-1
+        write(6,*) ' nRys  =',nRys
+        write(6,*) ' nZeta =',nZeta
+        write(6,*) ' nEta  =',nEta
         call Abend()
       end if
-      iOff = 0
-      call dcopy_(nZeta,Zeta,1,Array(iOff+ipZeta),1)
-      call dcopy_(nZeta,ZInv,1,Array(iOff+ipZInv),1)
-      call dcopy_(nZeta,rKapab,1,Array(iOff+iprKapab),1)
-      call dcopy_(nZeta,P(1,1),1,Array(iOff+ipP),1)
-      iOff = iOff+nT
-      call dcopy_(nZeta,P(1,2),1,Array(iOff+ipP),1)
-      iOff = iOff+nT
-      call dcopy_(nZeta,P(1,3),1,Array(iOff+ipP),1)
-      iOff = 0
-      call dcopy_(nEta,Eta,1,Array(iOff+ipEta),1)
-      call dcopy_(nEta,EInv,1,Array(iOff+ipEInv),1)
-      call dcopy_(nEta,rKapcd,1,Array(iOff+iprKapcd),1)
-      call dcopy_(nEta,Q(1,1),1,Array(iOff+ipQ),1)
-      iOff = iOff+nT
-      call dcopy_(nEta,Q(1,2),1,Array(iOff+ipQ),1)
-      iOff = iOff+nT
-      call dcopy_(nEta,Q(1,3),1,Array(iOff+ipQ),1)
-    else
-      do iEta=1,nEta
-        iOff = (iEta-1)*nZeta
+#     endif
+
+      ! Expand Zeta, ZInv, Eta ,EInv, rKapab, rKapcd, P, and Q
+
+      if (nEta*nZeta /= nT) then
+        if ((nEta /= nT) .and. (nZeta /= nT)) then
+          write(6,*) 'Corrupted parameters!'
+          call Abend()
+        end if
+        iOff = 0
         call dcopy_(nZeta,Zeta,1,Array(iOff+ipZeta),1)
         call dcopy_(nZeta,ZInv,1,Array(iOff+ipZInv),1)
         call dcopy_(nZeta,rKapab,1,Array(iOff+iprKapab),1)
         call dcopy_(nZeta,P(1,1),1,Array(iOff+ipP),1)
-        iOff = iOff+nZeta*nEta
+        iOff = iOff+nT
         call dcopy_(nZeta,P(1,2),1,Array(iOff+ipP),1)
-        iOff = iOff+nZeta*nEta
+        iOff = iOff+nT
         call dcopy_(nZeta,P(1,3),1,Array(iOff+ipP),1)
-      end do
-      do iZeta=1,nZeta
-        iOff = iZeta-1
-        call dcopy_(nEta,Eta,1,Array(iOff+ipEta),nZeta)
-        call dcopy_(nEta,EInv,1,Array(iOff+ipEInv),nZeta)
-        call dcopy_(nEta,rKapcd,1,Array(iOff+iprKapcd),nZeta)
-        call dcopy_(nEta,Q(1,1),1,Array(iOff+ipQ),nZeta)
-        iOff = iOff+nZeta*nEta
-        call dcopy_(nEta,Q(1,2),1,Array(iOff+ipQ),nZeta)
-        iOff = iOff+nZeta*nEta
-        call dcopy_(nEta,Q(1,3),1,Array(iOff+ipQ),nZeta)
-      end do
-    end if
+        iOff = 0
+        call dcopy_(nEta,Eta,1,Array(iOff+ipEta),1)
+        call dcopy_(nEta,EInv,1,Array(iOff+ipEInv),1)
+        call dcopy_(nEta,rKapcd,1,Array(iOff+iprKapcd),1)
+        call dcopy_(nEta,Q(1,1),1,Array(iOff+ipQ),1)
+        iOff = iOff+nT
+        call dcopy_(nEta,Q(1,2),1,Array(iOff+ipQ),1)
+        iOff = iOff+nT
+        call dcopy_(nEta,Q(1,3),1,Array(iOff+ipQ),1)
+      else
+        do iEta=1,nEta
+          iOff = (iEta-1)*nZeta
+          call dcopy_(nZeta,Zeta,1,Array(iOff+ipZeta),1)
+          call dcopy_(nZeta,ZInv,1,Array(iOff+ipZInv),1)
+          call dcopy_(nZeta,rKapab,1,Array(iOff+iprKapab),1)
+          call dcopy_(nZeta,P(1,1),1,Array(iOff+ipP),1)
+          iOff = iOff+nZeta*nEta
+          call dcopy_(nZeta,P(1,2),1,Array(iOff+ipP),1)
+          iOff = iOff+nZeta*nEta
+          call dcopy_(nZeta,P(1,3),1,Array(iOff+ipP),1)
+        end do
+        do iZeta=1,nZeta
+          iOff = iZeta-1
+          call dcopy_(nEta,Eta,1,Array(iOff+ipEta),nZeta)
+          call dcopy_(nEta,EInv,1,Array(iOff+ipEInv),nZeta)
+          call dcopy_(nEta,rKapcd,1,Array(iOff+iprKapcd),nZeta)
+          call dcopy_(nEta,Q(1,1),1,Array(iOff+ipQ),nZeta)
+          iOff = iOff+nZeta*nEta
+          call dcopy_(nEta,Q(1,2),1,Array(iOff+ipQ),nZeta)
+          iOff = iOff+nZeta*nEta
+          call dcopy_(nEta,Q(1,3),1,Array(iOff+ipQ),nZeta)
+        end do
+      end if
 
-    ! Compute the arguments for which we will compute the roots and the weights.
+      ! Compute the arguments for which we will compute the roots and the weights.
 
-    call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),Array(iprKapab),Array(iprKapcd),Array(ipTv),Array(ipFact), &
-                Array(ipDiv),nT,IsChi,ChiI2)
-    ! Let go of rKapab and rKapcd
-    ip = ip-2*nT
+      call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),Array(iprKapab),Array(iprKapcd),Array(ipTv),Array(ipFact), &
+                  Array(ipDiv),nT,IsChi,ChiI2)
+      ! Let go of rKapab and rKapcd
+      ip = ip-2*nT
 
-    ! Compute roots and weights. Make sure that the weights ends up in
-    ! the array where the z component of the 2D integrals will be.
-    ! Call vRysRW if roots and weights are tabulated in various Taylor
-    ! expansions. If not tabulated call RtsWgh. If from scratch
-    ! (no table at all), call RysRtsWgh
+      ! Compute roots and weights. Make sure that the weights ends up in
+      ! the array where the z component of the 2D integrals will be.
+      ! Call vRysRW if roots and weights are tabulated in various Taylor
+      ! expansions. If not tabulated call RtsWgh. If from scratch
+      ! (no table at all), call RysRtsWgh
 
-    ! Pointer to z-component of 2D-integrals where the weights will be
-    ! put directly. This corresponds to xyz2D(1,1,3,0,0).
-    ipWgh = ipxyz+2*nT*nRys
-#   ifdef _RYS_SCRATCH_
-#   ifdef _CHECK_
-    if (ip-1 > nArray) then
-      call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.2)')
-      write(6,*) ' nArray=',nArray
-      write(6,*) ' ip-1  =',ip-1
-      call Abend()
-    end if
-#   endif
-    call RysRtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
-#   else
-    if ((nRys > nMxRys) .or. NoTab) then
-#   ifdef _CHECK_
+      ! Pointer to z-component of 2D-integrals where the weights will be
+      ! put directly. This corresponds to xyz2D(1,1,3,0,0).
+      ipWgh = ipxyz+2*nT*nRys
+#     ifdef _RYS_SCRATCH_
+#     ifdef _CHECK_
       if (ip-1 > nArray) then
         call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.2)')
         write(6,*) ' nArray=',nArray
         write(6,*) ' ip-1  =',ip-1
         call Abend()
       end if
-#   endif
-      call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
-    else
-#   ifdef _CHECK_
-      if (ip-1 > nArray) then
-        call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.3)')
-        write(6,*) ' nArray=',nArray
-        write(6,*) ' ip-1  =',ip-1
-        call Abend()
+#     endif
+      call RysRtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+#     else
+      if ((nRys > nMxRys) .or. NoTab) then
+#     ifdef _CHECK_
+        if (ip-1 > nArray) then
+          call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.2)')
+          write(6,*) ' nArray=',nArray
+          write(6,*) ' ip-1  =',ip-1
+          call Abend()
+        end if
+#     endif
+        call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+      else
+#     ifdef _CHECK_
+        if (ip-1 > nArray) then
+          call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.3)')
+          write(6,*) ' nArray=',nArray
+          write(6,*) ' ip-1  =',ip-1
+          call Abend()
+        end if
+#     endif
+        call vRysRW(la,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys)
       end if
-#   endif
-      call vRysRW(la,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys)
-    end if
-#   endif
-    ! Let go of arguments
-    ip = ip-nT
+#     endif
+      ! Let go of arguments
+      ip = ip-nT
 
-    ! Compute coefficients for the recurrence relations of the 2D-integrals
+      ! Compute coefficients for the recurrence relations of the 2D-integrals
 
-    if (la+lb+lc+ld > 0) call ModU2(Array(ipU2),nT,nRys,Array(ipDiv))
-    ! Let go of inverse
-    ip = ip-nT
+      if (la+lb+lc+ld > 0) call ModU2(Array(ipU2),nT,nRys,Array(ipDiv))
+      ! Let go of inverse
+      ip = ip-nT
 
-    call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC, &
-               Array(ipP),Array(ipQ),la,lb,lc,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax, &
-               Array(ipB01))
-    ! Let go of roots
-    ip = ip-nT*nRys
-    ! Let go of Zeta, ZInv, Eta, and EInv
-    ip = ip-nT*4
-    ! Let go of P and Q
-    ip = ip-6*nT
+      call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC, &
+                 Array(ipP),Array(ipQ),la,lb,lc,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax, &
+                 Array(ipB01))
+      ! Let go of roots
+      ip = ip-nT*nRys
+      ! Let go of Zeta, ZInv, Eta, and EInv
+      ip = ip-nT*4
+      ! Let go of P and Q
+      ip = ip-6*nT
 
-    ! Compute the 2D-integrals from the roots and weights
+      ! Compute the 2D-integrals from the roots and weights
 
-    call Rys2D(Array(ipxyz),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),max(nabMax-1,0),Array(ipB00),labMax, &
-               Array(ipB01),max(ncdMax-1,0))
-    ip = ip-nTR*3*lB01
-    ip = ip-nTR*3*lB00
-    ip = ip-nTR*3*lB10
-    ip = ip-nTR*3
-    ip = ip-nTR*3
+      call Rys2D(Array(ipxyz),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),max(nabMax-1,0),Array(ipB00),labMax, &
+                 Array(ipB01),max(ncdMax-1,0))
+      ip = ip-nTR*3*lB01
+      ip = ip-nTR*3*lB00
+      ip = ip-nTR*3*lB10
+      ip = ip-nTR*3
+      ip = ip-nTR*3
 
-    ! Compute [a0|c0] integrals
+      ! Compute [a0|c0] integrals
 
-    ipScr = ip
-    ip = ip+nT*nRys
-    AeqB = EQ(Coora(1,1),Coora(1,2))
-    CeqD = EQ(Coora(1,3),Coora(1,4))
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Use Molpro Coulomb attenuation driver for the
-    ! FMM short-range integrals
-
-    if ((shortrange .and. (isr_simulate <= 1)) .or. FMM_shortrange) then
+      ipScr = ip
+      ip = ip+nT*nRys
+      AeqB = EQ(Coora(1,1),Coora(1,2))
+      CeqD = EQ(Coora(1,3),Coora(1,4))
       !                                                                *
       !*****************************************************************
       !                                                                *
-      if (.not. secondpass) then
+      ! Use Molpro Coulomb attenuation driver for the
+      ! FMM short-range integrals
 
-        ! [in the first pass, the ordinary full integrals are created in Array(ipScr)]
+      if ((shortrange .and. (isr_simulate <= 1)) .or. FMM_shortrange) then
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        if (.not. secondpass) then
+
+          ! [in the first pass, the ordinary full integrals are created in Array(ipScr)]
+          call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax,Array(ipScr), &
+                     Array(ipFact),AeqB,CeqD)
+          ! [release memory at ipScr]
+          ip = ip-nT*nRys
+          ! [in the second pass we will make the long range integrals:]
+          if (FMM_shortrange) then
+            asymptotic_Rys = .true.
+          else
+            IsChi = 1
+          end if
+          ! [set flag for 2nd pass, then go ahead and do 2nd pass]
+          secondpass = .true.
+
+        else
+
+          ! [in the second run, the long range integrals are created in Array(ipScr_long)]
+          call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC_long),mabMin,mabMax,mcdMin,mcdMax, &
+                     Array(ipScr),Array(ipFact),AeqB,CeqD)
+          ! [make difference to produce the desired short range integrals]
+          if ((isr_simulate <= 0) .or. FMM_shortrange) then
+            call daxpy_(nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),-One,Array(ipAC_long),1,Array(ipAC),1)
+          end if
+
+          ! [reset IsChi for ordinary full integrals]
+          if (FMM_shortrange) then
+            asymptotic_Rys = .false.
+          else
+            IsChi = 0
+          end if
+          exit
+
+        end if
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+      else
+        !                                                              *
+        !***************************************************************
+        !                                                              *
         call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax,Array(ipScr), &
                    Array(ipFact),AeqB,CeqD)
-        ! [release memory at ipScr]
-        ip = ip-nT*nRys
-        ! [in the second pass we will make the long range integrals:]
-        if (FMM_shortrange) then
-          asymptotic_Rys = .true.
-        else
-          IsChi = 1
-        end if
-        ! [set flag for 2nd pass, then go ahead and do 2nd pass]
-        secondpass = .true.
-        goto 2304
-
-      else
-
-        ! [in the second run, the long range integrals are created in Array(ipScr_long)]
-        call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC_long),mabMin,mabMax,mcdMin,mcdMax,Array(ipScr), &
-                   Array(ipFact),AeqB,CeqD)
-        ! [make difference to produce the desired short range integrals]
-        if ((isr_simulate <= 0) .or. FMM_shortrange) then
-          call daxpy_(nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),-One,Array(ipAC_long),1,Array(ipAC),1)
-        end if
-
-        ! [reset IsChi for ordinary full integrals]
-        if (FMM_shortrange) then
-          asymptotic_Rys = .false.
-        else
-          IsChi = 0
-        end if
-
+        exit
+        !                                                              *
+        !***************************************************************
+        !                                                              *
       end if
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-    else
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-      call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax,Array(ipScr), &
-                 Array(ipFact),AeqB,CeqD)
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-    end if
+    end do
     !                                                                  *
     !*******************************************************************
     !                                                                  *

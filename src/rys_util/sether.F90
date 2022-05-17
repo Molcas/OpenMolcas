@@ -118,26 +118,25 @@ do IDEG=3,MaxHer
         CORR = CORR+(1.0d0/c_0000)
       end if
     end do
-99  continue
-    Herm(2) = Z*Herm(1)*Alpha
-    do K=1,IDEG-1
-      w_1111 = Herm(K+1)
-      w_3333 = Herm(K)
-      w_4444 = Beta(K)
-      w_5555 = BInv(K+1)
-      w_2222 = (Z*w_1111-w_4444*w_3333)*w_5555
-      Herm(K+2) = w_2222
-    end do
-    HDER = 2.0d0*Beta(IDEG)*Herm(IDEG)
-    DELTA = -Herm(IDEG+1)/(HDER-CORR*Herm(IDEG+1))
-    Z = Z+DELTA
-    if (abs(DELTA) > 1.0d-8) then
+    do
+      Herm(2) = Z*Herm(1)*Alpha
+      do K=1,IDEG-1
+        w_1111 = Herm(K+1)
+        w_3333 = Herm(K)
+        w_4444 = Beta(K)
+        w_5555 = BInv(K+1)
+        w_2222 = (Z*w_1111-w_4444*w_3333)*w_5555
+        Herm(K+2) = w_2222
+      end do
+      HDER = 2.0d0*Beta(IDEG)*Herm(IDEG)
+      DELTA = -Herm(IDEG+1)/(HDER-CORR*Herm(IDEG+1))
+      Z = Z+DELTA
+      if (abs(DELTA) <= 1.0d-8) exit
       if (abs(DELTA) > 1.0d8) then
         call WarningMessage(1,'Warning: large value in sether')
         !write(6,*) delta
       end if
-      goto 99
-    end if
+    end do
     HerR(IR+IROOT) = Z
     HerR(IR+IDEG+1-IROOT) = -Z
   end do

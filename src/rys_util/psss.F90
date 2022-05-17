@@ -33,85 +33,85 @@ xdInv = One/ddx
 dddx = ddx/10d0+ddx
 
 ABeqCD = EQ(A,B) .and. EQ(A,C) .and. EQ(A,D)
-if (ABeqCD) Go To 300
-if (EQ(A,B)) Go To 200
 
-! ABCD case
+if (ABeqCD) then
 
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    ZE = Zeta(iZeta)*Eta(iEta)
-    rho = ZE*ZEInv
-    PQx = P(iZeta,1)-Q(iEta,1)
-    PQy = P(iZeta,2)-Q(iEta,2)
-    PQz = P(iZeta,3)-Q(iEta,3)
-    PQ2 = PQx**2+PQy**2+PQz**2
-    T = rho*PQ2
-    if (T < TMax) then
-      n = iPntr(int((T+dddx)*xdInv))
-      z = T-x0(n)
-      w = (((((W6(n)*z+W5(n))*z+W4(n))*z+W3(n))*z+W2(n))*z+W1(n))*z+w0(n)
-      r = (((((R6(n)*z+R5(n))*z+R4(n))*z+R3(n))*z+R2(n))*z+R1(n))*z+R0(n)
-      Eu2 = r*(Eta(iEta)*ZEInv)
-      PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)*w
-    else
-      Eu2 = HerR2/(Zeta(iZeta)*PQ2)
-      PreFct = rKappCD(iEta)*rKappAB(iZeta)*HerW/sqrt(ZE*PQ2)
-    end if
-    PAQPx = P(iZeta,1)-CoorAC(1,1)-Eu2*PQx
-    PAQPy = P(iZeta,2)-CoorAC(2,1)-Eu2*PQy
-    PAQPz = P(iZeta,3)-CoorAC(3,1)-Eu2*PQz
-    EFInt(iZeta,iEta,1) = PreFct*PAQPx
-    EFInt(iZeta,iEta,2) = PreFct*PAQPy
-    EFInt(iZeta,iEta,3) = PreFct*PAQPz
+  ! CCCC case
+
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      EFInt(iZeta,iEta,1) = Zero
+      EFInt(iZeta,iEta,2) = Zero
+      EFInt(iZeta,iEta,3) = Zero
+    end do
   end do
-end do
-Go To 99
 
-! AACD case
+else if (EQ(A,B)) then
 
-200 continue
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    PQx = (Q(iEta,1)-CoorAC(1,1))
-    PQy = (Q(iEta,2)-CoorAC(2,1))
-    PQz = (Q(iEta,3)-CoorAC(3,1))
-    PQ2 = PQx**2+PQy**2+PQz**2
-    ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
-    ZE = Zeta(iZeta)*Eta(iEta)
-    rho = ZE*ZEInv
-    T = rho*PQ2
-    if (T < TMax) then
-      n = iPntr(int((T+dddx)*xdInv))
-      z = T-x0(n)
-      w = (((((W6(n)*z+W5(n))*z+W4(n))*z+W3(n))*z+W2(n))*z+W1(n))*z+w0(n)
-      r = (((((R6(n)*z+R5(n))*z+R4(n))*z+R3(n))*z+R2(n))*z+R1(n))*z+R0(n)
-      Eu2 = r*(Eta(iEta)*ZEInv)
-      PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)*w
-    else
-      Eu2 = HerR2/(Zeta(iZeta)*PQ2)
-      PreFct = rKappCD(iEta)*rKappAB(iZeta)*HerW/sqrt(ZE*PQ2)
-    end if
-    EFInt(iZeta,iEta,1) = PreFct*Eu2*PQx
-    EFInt(iZeta,iEta,2) = PreFct*Eu2*PQy
-    EFInt(iZeta,iEta,3) = PreFct*Eu2*PQz
+  ! AACD case
+
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      PQx = (Q(iEta,1)-CoorAC(1,1))
+      PQy = (Q(iEta,2)-CoorAC(2,1))
+      PQz = (Q(iEta,3)-CoorAC(3,1))
+      PQ2 = PQx**2+PQy**2+PQz**2
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZE = Zeta(iZeta)*Eta(iEta)
+      rho = ZE*ZEInv
+      T = rho*PQ2
+      if (T < TMax) then
+        n = iPntr(int((T+dddx)*xdInv))
+        z = T-x0(n)
+        w = (((((W6(n)*z+W5(n))*z+W4(n))*z+W3(n))*z+W2(n))*z+W1(n))*z+w0(n)
+        r = (((((R6(n)*z+R5(n))*z+R4(n))*z+R3(n))*z+R2(n))*z+R1(n))*z+R0(n)
+        Eu2 = r*(Eta(iEta)*ZEInv)
+        PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)*w
+      else
+        Eu2 = HerR2/(Zeta(iZeta)*PQ2)
+        PreFct = rKappCD(iEta)*rKappAB(iZeta)*HerW/sqrt(ZE*PQ2)
+      end if
+      EFInt(iZeta,iEta,1) = PreFct*Eu2*PQx
+      EFInt(iZeta,iEta,2) = PreFct*Eu2*PQy
+      EFInt(iZeta,iEta,3) = PreFct*Eu2*PQz
+    end do
   end do
-end do
-Go To 99
 
-! CCCC case
+else
 
-300 continue
-do iEta=1,nEta
-  do iZeta=1,nZeta
-    EFInt(iZeta,iEta,1) = Zero
-    EFInt(iZeta,iEta,2) = Zero
-    EFInt(iZeta,iEta,3) = Zero
+  ! ABCD case
+
+  do iEta=1,nEta
+    do iZeta=1,nZeta
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZE = Zeta(iZeta)*Eta(iEta)
+      rho = ZE*ZEInv
+      PQx = P(iZeta,1)-Q(iEta,1)
+      PQy = P(iZeta,2)-Q(iEta,2)
+      PQz = P(iZeta,3)-Q(iEta,3)
+      PQ2 = PQx**2+PQy**2+PQz**2
+      T = rho*PQ2
+      if (T < TMax) then
+        n = iPntr(int((T+dddx)*xdInv))
+        z = T-x0(n)
+        w = (((((W6(n)*z+W5(n))*z+W4(n))*z+W3(n))*z+W2(n))*z+W1(n))*z+w0(n)
+        r = (((((R6(n)*z+R5(n))*z+R4(n))*z+R3(n))*z+R2(n))*z+R1(n))*z+R0(n)
+        Eu2 = r*(Eta(iEta)*ZEInv)
+        PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)*w
+      else
+        Eu2 = HerR2/(Zeta(iZeta)*PQ2)
+        PreFct = rKappCD(iEta)*rKappAB(iZeta)*HerW/sqrt(ZE*PQ2)
+      end if
+      PAQPx = P(iZeta,1)-CoorAC(1,1)-Eu2*PQx
+      PAQPy = P(iZeta,2)-CoorAC(2,1)-Eu2*PQy
+      PAQPz = P(iZeta,3)-CoorAC(3,1)-Eu2*PQz
+      EFInt(iZeta,iEta,1) = PreFct*PAQPx
+      EFInt(iZeta,iEta,2) = PreFct*PAQPy
+      EFInt(iZeta,iEta,3) = PreFct*PAQPz
+    end do
   end do
-end do
 
-99 continue
+end if
 
 return
 

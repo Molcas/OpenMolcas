@@ -52,7 +52,7 @@ do IT=1,NT
       U2(iroot,IT) = HerR2(iHerR2(nRys)+iroot-1)*tmp
       WGH(iroot,IT) = HerW2(iHerW2(nRys)+iroot-1)*sqrt(tmp)
     end do
-    Go To 5000
+    cycle
   end if
   ! translate to tabulation function for equidist. interp.
   ! xn=interpol. variable.
@@ -117,21 +117,22 @@ do IT=1,NT
         corr = corr+one/(root(iroot,ideg)-root(j,ideg))
       end do
       ! COMPUTE RYS AND FIRST DERIVATIVE, DO NEWTON-RAPHSON:
-99    continue
-      RYS(1) = (Z-ALPHA(0))*RYSD(1)
-      ZZ = (Z-ALPHA(1))
-      RYSD(2) = (ZZ*RYSD(1)+RYS(1))*BINV(2)
-      RYS(2) = (ZZ*RYS(1)-BETA(1)*RYS(0))*BINV(2)
-      do K=2,IDEG-1
-        ZZ = Z-ALPHA(K)
-        BK = BETA(K)
-        RYSD(K+1) = (RYS(K)+ZZ*RYSD(K)-BK*RYSD(K-1))*BINV(K+1)
-        RYS(K+1) = (ZZ*RYS(K)-BK*RYS(K-1))*BINV(K+1)
+      do
+        RYS(1) = (Z-ALPHA(0))*RYSD(1)
+        ZZ = (Z-ALPHA(1))
+        RYSD(2) = (ZZ*RYSD(1)+RYS(1))*BINV(2)
+        RYS(2) = (ZZ*RYS(1)-BETA(1)*RYS(0))*BINV(2)
+        do K=2,IDEG-1
+          ZZ = Z-ALPHA(K)
+          BK = BETA(K)
+          RYSD(K+1) = (RYS(K)+ZZ*RYSD(K)-BK*RYSD(K-1))*BINV(K+1)
+          RYS(K+1) = (ZZ*RYS(K)-BK*RYS(K-1))*BINV(K+1)
+        end do
+        DELTA = -RYS(IDEG)/(RYSD(IDEG)-CORR*RYS(IDEG))
+        Z = Z+DELTA
+        !if (IDEG == NRYS) ITER = ITER+1
+        if (abs(DELTA) <= 1.0d-08) exit
       end do
-      DELTA = -RYS(IDEG)/(RYSD(IDEG)-CORR*RYS(IDEG))
-      Z = Z+DELTA
-      !if (IDEG == NRYS) ITER = ITER+1
-      if (abs(DELTA) > 1.0d-08) goto 99
       ROOT(IROOT,IDEG) = Z
     end do
   end do
@@ -140,26 +141,27 @@ do IT=1,NT
     Z = ROOT(IROOT,NRYS)
     ! COMPUTE RYS VALUES AND ADD SQUARES TO GET WGH:
     SUM = RYS(0)**2
-    if (NRYS == 1) goto 3021
-    RYS(1) = (Z-ALPHA(0))*RYS(0)*BINV(1)
-    SUM = SUM+RYS(1)**2
-    if (NRYS == 2) goto 3021
-    ZZ = (Z-ALPHA(1))
-    RYS(2) = (ZZ*RYS(1)-BETA(1)*RYS(0))*BINV(2)
-    SUM = SUM+RYS(2)**2
-    if (NRYS == 3) goto 3021
-    do K=2,NRYS-2
-      ZZ = Z-ALPHA(K)
-      BK = BETA(K)
-      RYS(K+1) = (ZZ*RYS(K)-BK*RYS(K-1))*BINV(K+1)
-      SUM = SUM+RYS(K+1)**2
-    end do
-3021 continue
+    if (NRYS /= 1) then
+      RYS(1) = (Z-ALPHA(0))*RYS(0)*BINV(1)
+      SUM = SUM+RYS(1)**2
+      if (NRYS /= 2) then
+        ZZ = (Z-ALPHA(1))
+        RYS(2) = (ZZ*RYS(1)-BETA(1)*RYS(0))*BINV(2)
+        SUM = SUM+RYS(2)**2
+        if (NRYS /= 3) then
+          do K=2,NRYS-2
+            ZZ = Z-ALPHA(K)
+            BK = BETA(K)
+            RYS(K+1) = (ZZ*RYS(K)-BK*RYS(K-1))*BINV(K+1)
+            SUM = SUM+RYS(K+1)**2
+          end do
+        end if
+      end if
+    end if
     WGH(IROOT,IT) = ONE/SUM
     U2(IROOT,IT) = ROOT(IROOT,NRYS)
   end do
 
-5000 continue
 end do
 
 #ifdef _DEBUGPRINT_
