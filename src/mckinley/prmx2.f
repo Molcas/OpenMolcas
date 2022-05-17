@@ -21,7 +21,6 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 *     Local arrays
       Real*8 Result(Mem)
       Character Label*(*), Line*80

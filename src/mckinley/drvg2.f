@@ -41,7 +41,6 @@
       External Rsv_Tsk
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
@@ -65,7 +64,7 @@
 #ifdef _DEBUGPRINT_
       Character*40 format
 #endif
-      Real*8, Allocatable:: TMax(:,:)
+      Real*8, Allocatable:: TMax(:,:), Int(:), DTemp(:), DInAc(:)
       Integer, Allocatable:: Ind_ij(:,:)
 *                                                                      *
 ************************************************************************
@@ -82,32 +81,32 @@
       Call StatusLine(' McKinley:',
      &                ' Computing 2-electron 2nd order derivatives')
 *
-      ipDij   = ip_Dummy
-      ipDij2  = ip_Dummy
-      ipDDij  = ip_Dummy
-      ipDDij2 = ip_Dummy
-      ipDkl   = ip_Dummy
-      ipDkl2  = ip_Dummy
-      ipDDkl  = ip_Dummy
-      ipDDkl2 = ip_Dummy
-      ipDik   = ip_Dummy
-      ipDik2  = ip_Dummy
-      ipDDik  = ip_Dummy
-      ipDDik2 = ip_Dummy
-      ipDil   = ip_Dummy
-      ipDil2  = ip_Dummy
-      ipDDil  = ip_Dummy
-      ipDDil2 = ip_Dummy
-      ipDjk   = ip_Dummy
-      ipDjk2  = ip_Dummy
-      ipDDjk  = ip_Dummy
-      ipDDjk2 = ip_Dummy
-      ipDjl   = ip_Dummy
-      ipDjl2  = ip_Dummy
-      ipDDjl  = ip_Dummy
-      ipDDjl2 = ip_Dummy
-      ipBuffer= ip_Dummy
-      ipMOC   = ip_Dummy
+      ipDij   = 0
+      ipDij2  = 0
+      ipDDij  = 0
+      ipDDij2 = 0
+      ipDkl   = 0
+      ipDkl2  = 0
+      ipDDkl  = 0
+      ipDDkl2 = 0
+      ipDik   = 0
+      ipDik2  = 0
+      ipDDik  = 0
+      ipDDik2 = 0
+      ipDil   = 0
+      ipDil2  = 0
+      ipDDil  = 0
+      ipDDil2 = 0
+      ipDjk   = 0
+      ipDjk2  = 0
+      ipDDjk  = 0
+      ipDDjk2 = 0
+      ipDjl   = 0
+      ipDjl2  = 0
+      ipDDjl  = 0
+      ipDDjl2 = 0
+      ipBuffer= 0
+      ipMOC   = 0
       iFnc(1) = -99
       iFnc(2) = -99
       iFnc(3) = -99
@@ -255,7 +254,7 @@
             End Do
          End Do
       End If
-      Call GetMem('Integrals','ALLO','REAL',ipInt,nInt)
+      Call mma_allocate(Int,nInt,Label='Int')
       nTwo=0
       Do iIrrep=0,nIrrep-1
           nTwo=Max(nTwo,nFck(iIrrep))
@@ -273,35 +272,34 @@
 *     canonical, i.e. the relative order of the indices are canonically
 *     ordered.
 *
-      ipDTemp=ip_Dummy
-      ipDIN=ip_Dummy
-      call dcopy_(nInt,[Zero],0,Work(ipInt),1)
+      Int(:)=Zero
+      Call mma_allocate(DTemp,nDens,Label='DTemp')
+      DTemp(:)=Zero
+      Call mma_allocate(DInAc,nDens,Label='DInAc')
+      DInAc(:)=Zero
       If (New_Fock) Then
          If (nmethod.ne.RASSCF) Then
-            Call getmem('DTemp','Allo','Real',ipDTemp,nDens)
-            Call Get_D1ao_Var(Work(ipDTemp),nDens)
-            Call DScal_(nDens,Half,Work(ipDTemp),1)
+            Call Get_D1ao_Var(DTemp,nDens)
+            Call DScal_(nDens,Half,DTemp,1)
             ij=0
             Do i = 1, nBas(0)
                ij = ij + i
-               Work(ipdtemp-1+ij)=Two*Work(ipDTemp-1+ij)
+               DTemp(ij)=Two*DTemp(ij)
             End Do
          Else
-            Call GetMem('DIN','Allo','Real',ipDIN,ndens)
-            Call GetMem('DTemp','Allo','Real',ipDTemp,ndens)
-            Call Din(Work(ipDIN))
-            Call DScal_(nDens,Half,Work(ipDIN),1)
+            Call Din(DInAc)
+            Call DScal_(nDens,Half,DInAc,1)
             ij=0
             Do i = 1, nBas(0)
                ij = ij + i
-               Work(ipDIN-1+ij)=Two*Work(ipDIN-1+ij)
+               DInAc(ij)=Two*DInAc(ij)
             End Do
-            Call Dan(Work(ipDTemp))
-            Call DScal_(nDens,Half,Work(ipDTemp),1)
+            Call Dan(DTemp)
+            Call DScal_(nDens,Half,DTemp,1)
             ij=0
             Do i = 1, nBas(0)
                ij = ij + i
-               Work(ipDtemp-1+ij)=Two*Work(ipDTemp-1+ij)
+               DTemp(ij)=Two*DTemp(ij)
             End Do
          End if
       Else
@@ -310,30 +308,21 @@
          Call mma_allocate(DeDe,mmDeDe+MxDij,label='DeDe')
          ipDijS = 1 + mmDeDe
          If (nMethod.ne.RASSCF) Then
-            Call getmem('DTemp','Allo','Real',ipDTemp,nDens)
-            Call Get_D1ao_Var(Work(ipDTemp),nDens)
-            Call DeDe_mck(Work(ipDTemp),nFck(0),ipOffD,nIndij,
+            Call Get_D1ao_Var(DTemp,nDens)
+            Call DeDe_mck(DTemp,nFck(0),ipOffD,nIndij,
      &                    Dede,mmDeDe,mDeDe,mIndij)
-            Call GetMem('Dtemp','Free','Real',ipDTemp,ndens)
-            ipDTemp=ip_Dummy
          Else
             Call mma_allocate(ipOffDA,3,nIndij,Label='ipOffDA')
             Call mma_allocate(DeDe2,mmDeDe+MxDij,label='DeDe2')
             ipDijS2 = 1 + mmDeDe
-            Call GetMem('DIN','Allo','Real',ipDIN,ndens)
-            Call GetMem('DTemp','Allo','Real',ipDTemp,ndens)
 *
-            Call Dan(Work(ipDTemp))
-            Call DeDe_mck(Work(ipDTemp),nFck(0),ipOffD,nIndij,
+            Call Dan(DTemp)
+            Call DeDe_mck(DTemp,nFck(0),ipOffD,nIndij,
      &                    DeDe,mmDeDe,mDeDe,mIndij)
-            Call GetMem('Dtemp','Free','Real',ipDTemp,ndens)
-            ipDTemp=ip_Dummy
 
-            Call Din(Work(ipDIN))
-            Call DeDe_mck(Work(ipDIN),nFck(0),ipOffDA,nIndij,
+            Call Din(DInAc)
+            Call DeDe_mck(DInAc,nFck(0),ipOffDA,nIndij,
      &                    DeDe2,mmDeDe,mDeDe,mIndij)
-            Call GetMem('DIN','Free','Real',ipDIN,ndens)
-            ipDIN=ip_Dummy
 
             If (mDeDe.ne.nDeDe) Then
                Write (6,*) 'DrvG2: mDeDe.ne.nDeDe'
@@ -662,7 +651,7 @@ C              Do lS = 1, kS
                         ipTmp2= ipTmp2+ nDij*mDCRij
                      End If
                   Else
-                     ipDDij = ip_Dummy
+                     ipDDij = 0
                   End If
 *
                   ipDkl = ipOffD(1,klS)
@@ -677,7 +666,7 @@ C              Do lS = 1, kS
                        ipTmp2= ipTmp2+ nDkl*mDCRkl
                      End If
                   Else
-                     ipDDkl = ip_Dummy
+                     ipDDkl = 0
                   End If
 *
                   ipDik = ipOffD(1,ikS)
@@ -692,7 +681,7 @@ C              Do lS = 1, kS
                       ipTmp2= ipTmp2+ nDik*mDCRik
                     End If
                   Else
-                     ipDDik = ip_Dummy
+                     ipDDik = 0
                   End If
 *
                   ipDil = ipOffD(1,ilS)
@@ -707,7 +696,7 @@ C              Do lS = 1, kS
                       ipTmp2= ipTmp2+ nDil*mDCRil
                      End If
                   Else
-                     ipDDil = ip_Dummy
+                     ipDDil = 0
                   End If
 *
                   ipDjk = ipOffD(1,jkS)
@@ -722,7 +711,7 @@ C              Do lS = 1, kS
                       ipTmp2= ipTmp2 + nDjk*mDCRjk
                      End If
                   Else
-                     ipDDjk = ip_Dummy
+                     ipDDjk = 0
                   End If
 *
                   ipDjl = ipOffD(1,jlS)
@@ -737,7 +726,7 @@ C              Do lS = 1, kS
                       ipTmp2= ipTmp2+ nDjl*mDCRjl
                      End If
                   Else
-                     ipDDjl = ip_Dummy
+                     ipDDjl = 0
                   End If
 *
                   End If  ! If (lpick) Then
@@ -912,18 +901,18 @@ C              Do lS = 1, kS
      &                     jPrimj*lPriml + 1
                     mDjl = Min(nDjl,mDjl)
                     If (.not.lpick) Then
-                     ipddjl1=ip_Dummy
-                     ipddjl2=ip_Dummy
-                     ipddil1=ip_Dummy
-                     ipddil2=ip_Dummy
-                     ipddkl1=ip_Dummy
-                     ipddkl2=ip_Dummy
-                     ipddij1=ip_Dummy
-                     ipddij2=ip_Dummy
-                     ipddik1=ip_Dummy
-                     ipddik2=ip_Dummy
-                     ipddjk1=ip_Dummy
-                     ipddjk2=ip_Dummy
+                     ipddjl1=0
+                     ipddjl2=0
+                     ipddil1=0
+                     ipddil2=0
+                     ipddkl1=0
+                     ipddkl2=0
+                     ipddij1=0
+                     ipddij2=0
+                     ipddik1=0
+                     ipddik2=0
+                     ipddjk1=0
+                     ipddjk2=0
                     End If
 *
 *----------------------------------------------------------------------*
@@ -1008,8 +997,8 @@ C              Do lS = 1, kS
      &                   iCmpV,Sew_Scr(ipFin),MemFin,
      &                   Sew_Scr(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,
      &                   Mem_INT(ipIndEta),Mem_INT(ipIndZet),
-     &                   Work(ipInt),ipd0,Sew_Scr(ipBuffer),MemBuffer,
-     &                   lgrad,ldot2,n8,ltri,Work(ipDTemp),Work(ipDIN),
+     &                   Int,ipd0,Sew_Scr(ipBuffer),MemBuffer,
+     &                   lgrad,ldot2,n8,ltri,DTemp,DInAc,
      &                   moip,nAco,Sew_Scr(ipMOC),MemCMO,new_fock)
                   Post_Process=.True.
 
@@ -1032,7 +1021,7 @@ C           End Do ! kS
                ip4=ip3+jcmp*jBas*naco
                ip5=ip4+iCmp*naco*iBas
                ip6=ip5+jcmp*jbas*naco
-               Call CLR2(Sew_Scr(ipBuffer),Work(ipInt),
+               Call CLR2(Sew_Scr(ipBuffer),Int,
      &                   ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),
      &                   naco,ishelV,
      &                   Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3),
@@ -1061,12 +1050,12 @@ C     End Do !  iS
          Do iS=0,nirrep-1
            Do iD=1,ldisp(is)
             idd=idd+1
-            ip=ipInt-1+ipDisp(idd)
-            Call DScal_(nDens,Half,work(ip),1)
+            ip=ipDisp(idd)
+            Call DScal_(nDens,Half,Int(ip),1)
             ij =ip-1
             Do i = 1, nBas(0)
              ij=ij+i
-             Work(ij)=Two*Work(ij)
+             Int(ij)=Two*Int(ij)
             End Do
            End Do
           End Do
@@ -1075,12 +1064,12 @@ C     End Do !  iS
          Do iS=0,nirrep-1
            Do iD=1,ldisp(is)
             idd=idd+1
-            ip=ipInt-1+ipDisp2(idd)
-            Call DScal_(nDens,Half,work(ip),1)
+            ip=ipDisp2(idd)
+            Call DScal_(nDens,Half,Int(ip),1)
             ij =ip-1
             Do i = 1, nBas(0)
              ij=ij+i
-             Work(ij)=Two*Work(ij)
+             Int(ij)=Two*Int(ij)
             End Do
            End Do
           End Do
@@ -1104,12 +1093,12 @@ C     End Do !  iS
 *
 *    YIPPIEEEE Finished OK fill it UP!!
 *
-      Call GADSum(Work(ipInt),nInt)
+      Call GADSum(Int,nInt)
       jDisp=0
       Do iIrr=0,nIrrep-1
         Do iDisk=1,lDisp(iIrr)
          jDisp=jDisp+1
-           Call WrDisk(Work(ipInt),nInt,jdisp,iIrr)
+           Call WrDisk(Int,nInt,jdisp,iIrr)
         End Do
       End Do
 *
@@ -1129,11 +1118,9 @@ C     End Do !  iS
       Call mma_deallocate(Mem_DBLE)
       Call mma_deallocate(Mem_INT)
 *
-      If (ipDIN.ne.ip_Dummy)
-     &   Call GetMem('DIN','Free','Real',ipDIN,ndens)
-      If (ipDTemp.ne.ip_Dummy)
-     &   Call GetMem('DTemp','Free','Real',ipDTemp,ndens)
-      Call GetMem('Integrals','Free','REAL',ipInt,nInt)
+      Call mma_deallocate(DInAc)
+      Call mma_deallocate(DTemp)
+      Call mma_deallocate(Int)
 *
       Call mma_deallocate(Aux)
 *

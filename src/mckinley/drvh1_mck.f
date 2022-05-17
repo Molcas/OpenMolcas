@@ -30,15 +30,11 @@
       External OvrMem_mck,KneMem_mck,namem_mck,prjmm1,m1mm1, na2mem,
      &         sromm1
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Character*8 Label
       Logical Nona, lECP
       Real*8, Allocatable:: Fock(:), D0(:)
-*
-c     iRout = 131
-c     iPrint = nPrint(iRout)
 *
       If (show) Then
          nFock = 0

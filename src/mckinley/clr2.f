@@ -25,7 +25,6 @@
 #include "buffer.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "WrkSpc.fh"
 *
       Real*8 rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,
      &       nAco*(1+naco)/2,*)

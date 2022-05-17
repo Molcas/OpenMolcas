@@ -19,9 +19,7 @@
      &                      Coeff1,iBasn,Coeff2,jBasn,
      &                      nMemab,Con,
      &                      Wk002,m002,Wk003,m003,Wk004,m004,
-     &                      iStb,jStb,
-     &                      ipTmp1,ipTmp2,ipTmp3,
-     &                      ipKnew,ipLnew,ipPnew,ipQnew)
+     &                      iStb,jStb)
 ************************************************************************
 *                                                                      *
 * Object: to compute zeta, kappa, and P.                               *
@@ -57,13 +55,6 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Con)
          Call Unused_real_array(Wk004)
-         Call Unused_integer(ipTmp1)
-         Call Unused_integer(ipTmp2)
-         Call Unused_integer(ipTmp3)
-         Call Unused_integer(ipKnew)
-         Call Unused_integer(ipLnew)
-         Call Unused_integer(ipPnew)
-         Call Unused_integer(ipQnew)
       End If
 *
 *     This is to allow type punning without an explicit interface

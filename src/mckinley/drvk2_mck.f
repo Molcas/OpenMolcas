@@ -37,14 +37,13 @@
 #include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Real*8  Coor(3,2)
       Integer iDCRR(0:7), iShllV(2), iAngV(4), iCmpV(4)
       Logical New_fock
-      Real*8, Dimension(:), Allocatable :: Data_k2_local
+      Real*8, Allocatable :: Data_k2_local(:), Con(:), Wrk(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -55,7 +54,7 @@
 ************************************************************************
 *                                                                      *
       Call CWTime(TCpu1,TWall1)
-      Call GetMem('k2','Max','Real',idum,maxk2)
+      Call mma_MaxDBLE(Maxk2)
       maxk2 = maxk2 / 2
       Call mma_allocate(Data_k2_local,Maxk2)
       jpk2 = 1
@@ -72,7 +71,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Con','Allo','Real',ipCon,S%m2Max)
+      Call mma_allocate(Con,S%m2Max,Label='Con')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -80,18 +79,12 @@
       Do iAng = 0, S%iAngMx
          MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
-      Call GetMem('Temp1','Allo','Real',ipTmp1,MemTmp )
-      Call GetMem('Temp2','Allo','Real',ipTmp2,MemTmp )
-      Call GetMem('Temp3','Allo','Real',ipTmp3,MemTmp )
-      Call GetMem('Knew ','Allo','Real',ipKnew,S%m2Max  )
-      Call GetMem('Lnew ','Allo','Real',ipLnew,S%m2Max  )
-      Call GetMem('Pnew ','Allo','Real',ipPnew,3*S%m2Max)
-      Call GetMem('Qnew ','Allo','Real',ipQnew,3*S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MaxMem)
-      Call GetMem('MemMax','Allo','Real',ipM001,MaxMem)
+      Call mma_MaxDBLE(MaxMem)
+      Call mma_allocate(Wrk,MaxMem,Label='Wrk')
+      ipM001=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -148,7 +141,7 @@
 *
             nZeta = iPrimi * jPrimj
 *
-            Call ConMax(Work(ipCon),iPrimi,jPrimj,
+            Call ConMax(Con,iPrimi,jPrimj,
      &                  Shells(iShll)%pCff,nBasi,
      &                  Shells(jShll)%pCff,nBasj)
 *
@@ -208,12 +201,10 @@
      &                      Shells(iShllV(2))%Exp,jPrimj,
      &                      Shells(iShllV(1))%pCff,iBas,
      &                      Shells(iShllV(2))%pCff,jBas,
-     &                      nMemab,Work(ipCon),
-     &                      Work(ipM002),M002,Work(ipM003),M003,
-     &                      Work(ipM004),M004,
-     &                      mdci,mdcj,
-     &                      ipTmp1,ipTmp2,ipTmp3,
-     &                      ipKnew,ipLnew,ipPnew,ipQnew)
+     &                      nMemab,Con,
+     &                      Wrk(ipM002),M002,Wrk(ipM003),M003,
+     &                      Wrk(ipM004),M004,
+     &                      mdci,mdcj)
 *
             Indk2(1,ijShll) = jpk2
             Indk2(2,ijShll) = nDCRR
@@ -237,15 +228,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax', 'Free','Real',ipM001, MemMax )
-      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*S%m2Max)
-      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*S%m2Max)
-      Call GetMem(' Lnew',  'Free','Real',ipLnew, S%m2Max  )
-      Call GetMem(' Knew',  'Free','Real',ipKnew, S%m2Max  )
-      Call GetMem('Temp3',  'Free','Real',ipTmp3, MemTmp )
-      Call GetMem('Temp2',  'Free','Real',ipTmp2, MemTmp )
-      Call GetMem('Temp1',  'Free','Real',ipTmp1, MemTmp )
-      Call GetMem('Con','Free','Real',ipCon,S%m2Max)
+      Call mma_deallocate(Wrk)
+      Call mma_deallocate(Con)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -49,8 +49,6 @@
       implicit real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
 
@@ -62,7 +60,7 @@
      &        JndGrd(3,4,0:7),jndhss(4,3,4,3,0:7)
       logical jfgrd(3,4),  EQ, jfhss(4,3,4,3), ifg(4),tr(4)
 *
-       nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
+      nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
       nRys=nHer
 *

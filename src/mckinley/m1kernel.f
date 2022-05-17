@@ -24,8 +24,6 @@
       External TNAI1, Fake, Cff2D
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "disp.fh"
 
       Integer iAng(4),nop(4),iuvwx(4)
@@ -40,7 +38,6 @@
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-      iprint = 0
       lGrad = idcar.ne.0
       lHess = nHess.ne.0
       call dcopy_(12,coor,1,coori,1)
@@ -71,19 +68,20 @@
 
 
 
-      if (iprint.ge.49)
-     &  Write(6,*)'nM1=',dbsc(kCnttp)%nM1,'kCnttp=',kCnttp
+#ifdef _DEBUGPRINT_
+        Write(6,*)'nM1=',dbsc(kCnttp)%nM1,'kCnttp=',kCnttp
+#endif
 
       Do 1011 iM1xp=1, dbsc(kCnttp)%nM1
            Gamma =   dbsc(kCnttp)%M1xp(iM1xp)
            FactECP = dbsc(kCnttp)%M1cf(iM1xp)* Fact
 
 
-           if (iprint.ge.49) then
-              write(6,*) 'Fact=',FactECP,Fact
-              write(6,*) 'im1xp=',iM1xp
-              write(6,*) 'Gamma=',Gamma
-           endif
+#ifdef _DEBUGPRINT_
+           write(6,*) 'Fact=',FactECP,Fact
+           write(6,*) 'im1xp=',iM1xp
+           write(6,*) 'Gamma=',Gamma
+#endif
 *
 *-----------Modify the original basis. Observe that
 *           simplification due to A=B are not valid for the

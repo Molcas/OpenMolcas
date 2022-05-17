@@ -16,7 +16,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "etwas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
       Real*8 COUT(*)
       Integer iCmp(4),nBs(4)
       Integer iTwoj(0:7),iaoii(4)
@@ -29,10 +28,7 @@
       icmp(1)=icmpi
       icmp(2)=jcmpj
       ip2=1
-      nA=0
-      Do iIrrep=0,nIrrep-1
-         nA=nA+nAsh(iIrrep)
-      End Do
+
       Do iCnt=1,2
          ipC=0
          Do iIrrep=0,nIrrep-1

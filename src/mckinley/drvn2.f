@@ -33,7 +33,7 @@
 #include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
       Real*8 A(3), B(3), RB(3), Hess(nGrad*(nGrad+1)/2),prmt(0:7),
      &       C(3), D(3), SD(3)
@@ -41,6 +41,7 @@
      &        iDCRS(0:7),IndHss(2,3,2,3,0:7),nop(2),kop(2)
       Logical EQ, TstFnc,TF, NoLoop
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
+      Real*8, Allocatable:: Pcmhss(:), Der1(:), DerDM(:), Temp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -765,18 +766,18 @@ c     iPrint = nPrint(iRout)
 *
         nPCMHss = nGrad * nGrad
         Call Get_nAtoms_All(nAtoms)
-        Call GetMem('PCM_Hss','Allo','Real',ip_pcmhss,nPCMHss)
-        Call GetMem('Der1','Allo','Real',ip_Der1,nTs)
-        Call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
-        Call GetMem('Temp','Allo','Real',ip_Temp,nTs*nTs)
+        Call mma_allocate(pcmhss,nPCMHss,Label='pcmhss')
+        Call mma_allocate(Der1,nTs,Label='Der1')
+        Call mma_allocate(DerDM,nTs*nTs,Label='DerDM')
+        Call mma_allocate(Temp,nTs*nTs,Label='Temp')
         Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,PCMSph,
      &               PCMiSph,PCM_N,PCMTess,PCM_SQ,
-     &               PCMDM,Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
-     &               dTes,DPnt,dRad,dCntr,Work(ip_pcmhss),nPCMHss)
-        Call GetMem('PCM_Hss','Free','Real',ip_pcmhss,nPCMHss)
-        Call GetMem('Der1','Free','Real',ip_Der1,nTs)
-        Call GetMem('DerDM','Free','Real',ip_DerDM,nTs*nTs)
-        Call GetMem('Temp','Free','Real',ip_Temp,nTs*nTs)
+     &               PCMDM,Der1,DerDM,Temp,
+     &               dTes,DPnt,dRad,dCntr,pcmhss,nPCMHss)
+        Call mma_deallocate(pcmhss)
+        Call mma_deallocate(Der1)
+        Call mma_deallocate(DerDM)
+        Call mma_deallocate(Temp)
 *
       End If
 *                                                                      *

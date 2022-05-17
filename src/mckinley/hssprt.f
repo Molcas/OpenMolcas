@@ -12,13 +12,14 @@
       use Symmetry_Info, only: nIrrep, lIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "real.fh"
       Integer  nDisp(0:7)
       Character Label*39
       Real*8     Hess(nHess)
+      Real*8, Allocatable:: Temp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -39,19 +40,19 @@
          Write(Label,100) 'Hessian in Irrep ',lIrrep(0)
          Call TriPrt(Label,' ',Hess,ldisp(0))
       Else
-         Call GetMem('Temp','ALLO','REAL',ipT,nhess)
+         Call mma_allocate(Temp,nHess,Label='Temp')
          Do iIrrep=0,nIrrep-1
             Write(Label,100) 'Hessian in Irrep ',lIrrep(iIrrep)
             Do i=1,lDisp(iirrep)
                Do j=1,i
-                  ii=ind(i,j)-1
+                  ii=ind(i,j)
                   jj=ind(ndisp(iirrep)+i,ndisp(iirrep)+j)
-                  Work(ipT+ii)=Hess(jj)
+                  Temp(ii)=Hess(jj)
                End Do
             End Do
-            Call TriPrt(Label,' ',Work(ipT),ldisp(iirrep))
+            Call TriPrt(Label,' ',Temp,ldisp(iirrep))
          End Do
-         Call GetMem('Temp','FREE','REAL',ipT,nhess)
+         Call mma_deallocate(Temp)
       End If
 *                                                                      *
 ************************************************************************

@@ -40,7 +40,6 @@
 *******************************************************************************
       Implicit Real*8(a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 
       Logical jfhess(4,3,4,3),lsro
 

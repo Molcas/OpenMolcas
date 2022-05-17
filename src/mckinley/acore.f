@@ -37,7 +37,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
       Logical ABeq(3),jfgrad(3),jfhess(4,3,4,3),

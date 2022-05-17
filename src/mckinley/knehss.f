@@ -27,18 +27,12 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-c#include "print.fh"
 
 #include "hss_interface.fh"
 
 *     Local variables
       Logical ABeq(3)
 *
-c     iRout = 122
-c     iPrint = nPrint(iRout)
-*     Write (*,*) ' IfHss=',IfHss
-*     Write (*,*) ' IndHss=',IndHss
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -64,12 +58,14 @@ c     iPrint = nPrint(iRout)
          Call Abend()
       End If
 *
-c     If (iPrint.ge.49) Then
-c        Call RecPrt(' In KneHss: A',' ',A,1,3)
-c        Call RecPrt(' In KneHss: RB',' ',RB,1,3)
-c        Call RecPrt(' In KneHss: Ccoor',' ',Ccoor,1,3)
-c        Call RecPrt(' In KneHss: P',' ',P,nZeta,3)
-c     End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' IfHss=',IfHss
+      Write (6,*) ' IndHss=',IndHss
+      Call RecPrt(' In KneHss: A',' ',A,1,3)
+      Call RecPrt(' In KneHss: RB',' ',RB,1,3)
+      Call RecPrt(' In KneHss: Ccoor',' ',Ccoor,1,3)
+      Call RecPrt(' In KneHss: P',' ',P,nZeta,3)
+#endif
 *
 *     Compute the cartesian values of the basis functions angular part
 *
