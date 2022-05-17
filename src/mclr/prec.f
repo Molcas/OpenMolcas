@@ -47,7 +47,7 @@
       Use Iso_C_Binding
       Real*8, Target :: rpre(*)
       Integer, Pointer :: ipre(:)
-      Real*8, Allocatable:: JA(:), KA(:), Scr(:),
+      Real*8, Allocatable:: JA(:), KA(:), Scr(:), ActInt(:),
      &                      Temp1(:,:), Temp2(:), Temp3(:)
       nmm=0
       nmmm=0

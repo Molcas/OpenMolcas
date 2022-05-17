@@ -98,7 +98,7 @@
 *
       !! The anti-symmetric RDM is contructed somewhere in the CASPT2
       !! module. It will be read from disk in out_pt2.f.
-      If (PT2) Call DCopy_(ng1,[zero],0,work(ipG1m),1)
+      If (PT2) Call DCopy_(ng1,[zero],0,G1m,1)
 *
       Do i=1,ntAsh**2
         j=itri(i,i)
@@ -244,29 +244,27 @@ C         write (*,*) vslag
           vSLag = SLag(iSLag)
 C         write (*,*) vslag
 C
-          Call CSF2SD(Work(ipIn(ipCI)+(jR-1)*nconf1),Work(ipL),1)
+          Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
           iRC=opout(ipCI)
-          Call CSF2SD(Work(ipIn(ipCI)+(kR-1)*nconf1),Work(ipR),1)
+          Call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
           iRC=opout(ipCI)
           iRC=ipnout(-1)
           icsm=1
           issm=1
 C
           If (abs(vSLag).gt.1.0d-10) Then
-            Call Densi2(2,Work(ipG1q),Work(ipG2q),
-     &                    Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
-            Call DaXpY_(n1dens,vSLag,Work(ipG1q),1,Work(ipG1r),1)
-            Call DaXpY_(n2dens,vSLag,Work(ipG2q),1,Work(ipG2r),1)
+            Call Densi2(2,G1q,G2q,CIL,CIR,0,0,0,n1dens,n2dens)
+            Call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
+            Call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
           End If
 C
           If (kR.ne.jR) Then
             iSLag = kR + nRoots*(jR-1)
             vSLag = SLag(iSLag)
             If (abs(vSLag).gt.1.0d-10) Then
-              Call Densi2(2,Work(ipG1q),Work(ipG2q),
-     &                      Work(ipR),Work(ipL),0,0,0,n1dens,n2dens)
-              Call DaXpY_(n1dens,vSLag,Work(ipG1q),1,Work(ipG1r),1)
-              Call DaXpY_(n2dens,vSLag,Work(ipG2q),1,Work(ipG2r),1)
+              Call Densi2(2,G1q,G2q,CIR,CIL,0,0,0,n1dens,n2dens)
+              Call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
+              Call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
             End If
           End If
         End Do

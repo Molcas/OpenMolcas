@@ -48,8 +48,8 @@
       Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp3(:), Temp4(:),
-     &                      Sc1(:), Sc2(:), Fancy(:)
-
+     &                      Sc1(:), Sc2(:), Fancy(:),
+     &                      SLag(:), wrk(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -190,7 +190,7 @@
 *                                                                      *
       If (PT2) Then
         Call mma_allocate(SLag,nRoots**2,Label='SLag')
-        SLag(:) = Zero
+        SLag(1:nRoots**2) = Zero
         Call RHS_PT2(Kappa,ipST,W(ipST)%Vec,SLag)
       End If
 *

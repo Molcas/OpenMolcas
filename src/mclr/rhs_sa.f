@@ -10,6 +10,7 @@
 ************************************************************************
        Subroutine rhs_sa(Fock,SLag)
        use Arrays, only: Int1
+       use ipPage, only: W
        Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -177,6 +178,7 @@
 C
       Implicit Real*8 (A-H,O-Z)
       integer opout
+      Real*8, Allocatable:: CIL(:), CIR(:)
 C
 C     At present, Molcas accepts equally-weighted MCSCF reference,
 C     so all SLag values are employed in the following computation.
@@ -186,42 +188,40 @@ C     modified, so this may not be realized easily.
 C
       nConfL=Max(nconf1,nint(xispsm(1,1)))
       nConfR=Max(nconf1,nint(xispsm(1,1)))
-      Call GetMem('CIL','ALLO','REAL',ipL,nConfL)
-      Call GetMem('CIR','ALLO','REAL',ipR,nConfR)
+      call mma_allocate(CIL, nConfL, Label='CIL')
+      call mma_allocate(CIR, nConfR, Label='CIR')
       !! iR = iRLXRoot
       Do jR = 1, nRoots
-        Call CSF2SD(Work(ipIn(ipCI)+(jR-1)*nconf1),Work(ipL),1)
+        Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
         Do kR = 1, jR !! jR-1
           iSLag = jR + nRoots*(kR-1)
           vSLag = SLag(iSLag)
           If (abs(vSLag).le.1.0d-10) Cycle
 C
-          Call CSF2SD(Work(ipIn(ipCI)+(jR-1)*nconf1),Work(ipL),1)
+          Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
           iRC=opout(ipCI)
-          Call CSF2SD(Work(ipIn(ipCI)+(kR-1)*nconf1),Work(ipR),1)
+          Call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
           iRC=opout(ipCI)
           iRC=ipnout(-1)
           icsm=1
           issm=1
-          Call Densi2(2,Work(ipG1r),Work(ipG2r),
-     &                  Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
+          Call Densi2(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)
           !! For RDM1
           ij=0
           Do i=0,ntAsh-1
             Do j=0,i-1
-              Work(ipG1q+ij)=Work(ipG1q+ij)+
-     *          (Work(ipG1r+i*ntAsh+j)+
-     *           Work(ipG1r+j*ntAsh+i))*Half*vSLag
               ij=ij+1
+              G1q(ij)=G1q(ij)+
+     *          (G1r(1+i*ntAsh+j)+
+     *           G1r(1+j*ntAsh+i))*Half*vSLag
             End Do
-            Work(ipG1q+ij)=Work(ipG1q+ij)
-     *        + Work(ipG1r+i*ntAsh+i)*vSLag
             ij=ij+1
+            G1q(ij)=G1q(ij) + G1r(1+i*ntAsh+i)*vSLag
           End Do
           !! For RDM2
           Do i=1,ntAsh**2
-            j=itri(i,i)-1
-            Work(ipG2r+j)=Half*Work(ipG2r+j)
+            j=itri(i,i)
+            G2r(j)=Half*G2r(j)
           End Do
           Do i=0,ntAsh-1
             Do j=0,i-1
@@ -235,22 +235,22 @@ C
                     ijkl=ij*(ij+1)/2+kl
                     ij2=i*ntAsh+j
                     kl2=k*ntAsh+l
-                    Work(ipG2q+ijkl)=Work(ipG2q+ijkl)
-     *                + factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                    G2q(1+ijkl)=G2q(1+ijkl)
+     *                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                     ij2=Max(j*ntAsh+i,l*ntAsh+k)
                     kl2=Min(j*ntAsh+i,l*ntAsh+k)
-                    Work(ipG2q+ijkl)=Work(ipG2q+ijkl)
-     &                + factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                    G2q(1+ijkl)=G2q(1+ijkl)
+     &                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                     If (k.ne.l) Then
                       ij2=i*ntAsh+j
                       kl2=l*ntAsh+k
-                      Work(ipG2q+ijkl)=Work(ipG2q+ijkl)
-     &                  + factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                      G2q(1+ijkl)=G2q(1+ijkl)
+     &                  + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                       If (ij.ne.kl) Then
                         ij2=Max(j*ntAsh+i,k*ntAsh+l)
                         kl2=Min(j*ntAsh+i,k*ntAsh+l)
-                        Work(ipG2q+ijkl)=Work(ipG2q+ijkl)
-     &                    + factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                        G2q(1+ijkl)=G2q(1+ijkl)
+     &                    + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                       End If
                     End If
                   End If
@@ -267,12 +267,12 @@ C
                   ijkl=ij*(ij+1)/2+kl
                   ij2=i*ntAsh+i
                   kl2=k*ntAsh+l
-                  Work(ipG2q+ijkl)=Work(ipG2q+ijkl)
-     *              + factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                  G2q(1+ijkl)=G2q(1+ijkl)
+     *              + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                   If (k.ne.l) Then
                     kl2=l*ntAsh+k
-                    Work(ipG2q+ijkl)=Work(ipG2q+ijkl)
-     &                + factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                    G2q(1+ijkl)=G2q(1+ijkl)
+     &                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                   End If
                 End If
               End Do
@@ -280,8 +280,8 @@ C
           End Do
         End Do
       End Do
-      Call GetMem('CIL','FREE','REAL',ipL,nConfL)
-      Call GetMem('CIR','FREE','REAL',ipR,nConfR)
+      call mma_deallocate(CIL)
+      call mma_deallocate(CIR)
       nConf=ncsf(1)
 C
       Return
