@@ -26,13 +26,16 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 rMFact(*),rin(*),rout(*)
+      Real*8, Allocatable:: Temp(:)
 *
-      Call GetMem('Temp','ALLO','REAL',ipT,ndens2)
-      Call Uncompress(rin,Work(ipT),isym)
+      Call mma_allocate(Temp,ndens2,Label='Temp')
+      Call Uncompress(rin,Temp,isym)
 *
-      Call Compress(Work(ipT),rout,isym)
+      Call Compress(Temp,rout,isym)
+      Call mma_deallocate(Temp)
+
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(rMFact)

@@ -21,13 +21,15 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: CMO_Inv, CMO
       Implicit real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
 #include "Files_mclr.fh"
-#include "WrkSpc.fh"
-      Character*5 Fname
+#include "stdalloc.fh"
+      Character(LEN=5) Fname
+      Real*8, Allocatable:: STmat(:), Smat(:)
 *----------------------------------------------------------------------*
 *     start                                                            *
 *----------------------------------------------------------------------*
@@ -67,49 +69,46 @@
           lSqrDens = lSqrDens + nBas(iSym)**2
           nOrbBas  = nOrbBas  + nOrb(iSym)*nBas(iSym)
         End Do
-        Call Getmem('OverlapT','Allo','Real', ip_STmat,lTriDens)
-        Call Getmem('OverlapS','Allo','Real', ip_Smat,lSqrDens)
+        Call mma_allocate(STmat,lTriDens,Label='STmat')
+        Call mma_allocate(Smat,lSqrDens,Label='Smat')
 *
         iSymlbl=1
-        Call RdOne(irc,6,'Mltpl  0',1,Work(ip_STmat),iSymlbl)
+        Call RdOne(irc,6,'Mltpl  0',1,STmat,iSymlbl)
 *
-        index = 0
+        index = 1
         iOff = 0
         Do iSym = 1, nSym
            Do i = 1, nBas(iSym)
               Do j = 1, i-1
-              Work(ip_Smat + j-1 + nBas(iSym)*(i-1)+iOff) =
-     &                        Work(ip_STmat+index)
-              Work(ip_Smat + i-1 + nBas(iSym)*(j-1)+iOff) =
-     &                        Work(ip_STmat+index)
-              index = index + 1
+                 Smat(j+nBas(iSym)*(i-1)+iOff) =STmat(index)
+                 Smat(i+nBas(iSym)*(j-1)+iOff) =STmat(index)
+                 index = index + 1
               End Do
-              Work(ip_Smat + i-1 + nBas(iSym)*(i-1)+iOff) =
-     &                        Work(ip_STmat+index)
+              Smat(i+nBas(iSym)*(i-1)+iOff) =STmat(index)
               index = index + 1
            End Do
            ioff=ioff+nBas(iSym)**2
         End Do
-        Call Getmem('OverlapT','Free','Real', ip_STmat,lTriDens)
+        Call mma_deallocate(STmat)
 *
-        Call GetMem('CMO_inv','Allo','Real',ip_CMO_inv,nOrbBas)
-        iOff1 = 0
-        iOff2 = 0
+        Call mma_allocate(CMO_inv,nOrbBas,Label='CMO_Inv')
+        iOff1 = 1
+        iOff2 = 1
         Do iSym = 1, nSym
            Call dGemm_('T','N', nOrb(iSym),nBas(iSym),nBas(iSym),
-     &                1.0d0,Work(ipCMO+iOff2), nBas(iSym),
-     &                      Work(ip_Smat+iOff1), nBas(iSym),
-     &                0.0d0,Work(ip_CMO_inv+iOff2), nOrb(iSym))
+     &                1.0d0,CMO(iOff2), nBas(iSym),
+     &                      Smat(iOff1), nBas(iSym),
+     &                0.0d0,CMO_Inv(iOff2), nOrb(iSym))
 *
            iOff1 =  iOff1 + nBas(iSym)**2
            iOff2 =  iOff2 + nOrb(iSym)*nBas(iSym)
         End Do
 *
-        Call Getmem('OverlapS','Free','Real', ip_Smat,lSqrDens)
+        Call mma_deallocate(Smat)
       EndIf
 *
       Call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,
-     &                      nFro,nDel,ipCMO,nDens2,
+     &                      nFro,nDel,CMO,nDens2,
      &                      LuTri1,LuTri2,LuHlf2,LuHlf3)
       iType=3  ! Means that TraCtl is called by MCLR
 
@@ -161,10 +160,7 @@
 **    With Cholesky there is no other choice than computing some
 **    integrals used for the preconditioner
 *
-      If (NewCho) Then
-         Call cho_prec_mclr(ipCMO,nIsh,nASh,LuAChoVec,LuChoInt)
-      EndIf
-
+      If (NewCho) Call cho_prec_mclr(CMO,nIsh,nASh,LuAChoVec,LuChoInt)
 *
 *----------------------------------------------------------------------*
 *     exit                                                             *

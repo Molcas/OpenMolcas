@@ -11,6 +11,8 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
       SubRoutine RInt_SP(rkappa,rmos,rmoa,Focki,Sigma)
+      use Arrays, only: FAMO_SpinP, FAMO_SpinM, SFock,
+     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
 *
 *                          ^   ~
 *     Constructs  F  = <0|[Q  ,H]|0>
@@ -20,11 +22,11 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
-#include "glbbas_mclr.fh"
+#include "real.fh"
+#include "stdalloc.fh"
 #include "spin.fh"
-      Real*8 rkappa(nDensC),Sigma(nDensC),
-     &       Focki(ndens2),rMOs(*),rmoa(*)
+      Real*8 rkappa(nDensC),Sigma(nDensC), Focki(ndens2),rMOs(*),rmoa(*)
+      Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), Scr(:)
 *
 *     D,FA used in oit of FA
 *     p11 -> (~~|  )
@@ -33,63 +35,61 @@
 *     sign2=Sign K * Lambda
 *
 *
-      Call GetMem('MOTemp2','ALLO','REAL',ipMT1,nmba)
-      Call GetMem('MOTemp1','ALLO','REAL',ipMT2,nmba)
-      Call GetMem('MOTemp3','ALLO','REAL',ipMT3,nmba)
-      Call GetMem('Sigma','ALLO','REAL',ipScr,ndensc)
+      Call mma_allocate(MT1,nmba,Label='MT1')
+      Call mma_allocate(MT2,nmba,Label='MT2')
+      Call mma_allocate(MT3,nmba,Label='MT3')
+      Call mma_allocate(Scr,ndensc,Label='Scr')
 *
-      Call Oit_sp(rkappa,Work(ipScr),-1,1,
-     &            -1.0d0,Work(ipG2mp),1.0d0,Work(ipfm),
-     &            Work(ipg1m),Work(ipfamo_spinm),
-     &            Work(ipMT1),Work(ipMT2),Focki)
-*     Call DYAX(ndensc,rbetaA/2.0d0,Work(ipSCR),1,sigma,1)
-      Call DYAX(ndensc,1.0d0,Work(ipSCR),1,sigma,1)
-      Call Recprt(' ',' ',Work(ipSCR),ndensc,1)
+      Call Oit_sp(rkappa,Scr,-1,1,
+     &            -One,G2mp,One,Fm,
+     &            G1m,FAMO_Spinm,
+     &            MT1,MT2,Focki)
+*     Call DYAX(ndensc,rbetaA/Two,SCR,1,sigma,1)
+      Call DYAX(ndensc,One,SCR,1,sigma,1)
+      Call Recprt(' ',' ',SCR,ndensc,1)
 *
 *     kappa_S
 *
-      Call Oit_sp(rkappa,Work(ipScr),1,1,
-     &            -1.0d0,Work(ipG2mp),1.0d0,Work(ipfm),
-     &            Work(ipg1m),Work(ipfamo_spinm),
-     &            Work(ipMT1),Work(ipMT2),Focki)
-*     call daxpy_(ndensc,-rbetaA/2.0d0,Work(ipSCR),1,sigma,1)
-      call daxpy_(ndensc,-1.0d0,Work(ipSCR),1,sigma,1)
-      Call Recprt(' ',' ',Work(ipSCR),ndensc,1)
+      Call Oit_sp(rkappa,Scr,1,1,
+     &            -One,G2mp,One,Fm,
+     &            G1m,FAMO_Spinm,
+     &            MT1,MT2,Focki)
+*     call daxpy_(ndensc,-rbetaA/Two,SCR,1,sigma,1)
+      call daxpy_(ndensc,-One,SCR,1,sigma,1)
+      Call Recprt(' ',' ',SCR,ndensc,1)
 *
 *     alpha_S
 *
-      If (rbetas.ne.0.0d0) Then
-        Call Oit_sp(rkappa,Work(ipScr),-1,-1,
-     &            1.0d0,Work(ipG2pp),1.0d0,Work(ipfp),
-     &            Work(ipg1p),Work(ipfamo_spinp),
-     &            Work(ipMT1),Work(ipMT2),Focki)
-*     call daxpy_(ndensc,rbetaS,Work(ipSCR),1,sigma,1)
-      call daxpy_(ndensc,1.0d0,Work(ipSCR),1,sigma,1)
-      Call Recprt(' ',' ',Work(ipSCR),ndensc,1)
+      If (rbetas.ne.Zero) Then
+        Call Oit_sp(rkappa,Scr,-1,-1,
+     &            One,G2pp,One,Fp,
+     &            G1p,FAMO_Spinp,
+     &            MT1,MT2,Focki)
+*     call daxpy_(ndensc,rbetaS,SCR,1,sigma,1)
+      call daxpy_(ndensc,One,SCR,1,sigma,1)
+      Call Recprt(' ',' ',SCR,ndensc,1)
       End if
-      Call Oit_sp(rkappa,Work(ipScr),-1,-1,
-     &            1.0d0,Work(ipG2pp),1.0d0,Work(ipG2mm),
-     &            Work(ipg1p),Work(ipFamo_spinp),
-     &            Work(ipMT1),Work(ipMT2),Focki)
-*     call daxpy_(ndensc,ralphas,Work(ipSCR),1,sigma,1)
-      Call Recprt(' ',' ',Work(ipSCR),ndensc,1)
+      Call Oit_sp(rkappa,Scr,-1,-1,
+     &            One,G2pp,One,G2mm,
+     &            G1p,Famo_spinp,
+     &            MT1,MT2,Focki)
+*     call daxpy_(ndensc,ralphas,SCR,1,sigma,1)
+      Call Recprt(' ',' ',SCR,ndensc,1)
 
-      Call AddGrad_sp(rKappa,Work(ipScr),Work(ipFS),1,1.0d0,1.0d0)
-      Call Recprt(' ',' ',Work(ipSCR),ndensc,1)
-      call daxpy_(ndensc,rbetaA/2.0d0,Work(ipSCR),1,sigma,1)
+      Call AddGrad_sp(rKappa,Scr,SFock,1,One,One)
+      Call Recprt(' ',' ',SCR,ndensc,1)
+      call daxpy_(ndensc,rbetaA/Two,SCR,1,sigma,1)
 *
-      Call DZAXPY(nmba,1.0d0,Work(ipMT1),1,
-     &           Work(ipMT2),1,Work(ipMT3),1)
-      Call PickMO_MCLR(Work(ipMT3),rmos,1)
+      Call DZAXPY(nmba,One,MT1,1,MT2,1,MT3,1)
+      Call PickMO_MCLR(MT3,rmos,1)
 *
-      Call DZAXPY(nmba,-1.0d0,Work(ipMT2),1,
-     &           Work(ipMT1),1,Work(ipMT3),1)
-      Call PickMO_MCLR(Work(ipMT3),rmoa,1)
+      Call DZAXPY(nmba,-One,MT2,1,MT1,1,MT3,1)
+      Call PickMO_MCLR(MT3,rmoa,1)
 
-      Call GetMem('Sigma','FREE','REAL',ipScr,ndensc)
-      Call GetMem('MOTemp3','FREE','REAL',ipMT3,nmba)
-      Call GetMem('MOTemp2','FREE','REAL',ipMT2,nmba)
-      Call GetMem('MOTemp1','FREE','REAL',ipMT1,nmba)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(MT3)
+      Call mma_deallocate(MT2)
+      Call mma_deallocate(MT1)
 *
       return
-      end
+      End

@@ -33,10 +33,10 @@
 *   rOut        :       Submatrix
 *
 ************************************************************************
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
       Real*8 rout(*)
       Real*8 Temp2(nBa,nBa),Focki(nBa,nBa),Focka(nBa,nBa),
      &       Fock(nBa,nBa)
@@ -70,7 +70,7 @@
                   If (kBB.gt.nish(ks).and.kCC.gt.nish(ks)) Then
                      kkB=kBB+nA(ks)-nish(ks)
                      kkC=kCC+nA(ks)-Nish(ks)
-                     rDens1=sign*2.0d0*Work(ipG2-1+
+                     rDens1=sign*2.0d0*G2t(
      &                      itri(itri(iib,iib),itri(kkb,kkc)))
 *
                      If (kbb.ne.kcc) rdens1=rdens1*2.0d0
@@ -92,7 +92,7 @@
                   kkb=nA(kS)+jB-nIsh(kS)
                   Call EXCH(js,ks,js,ks,jb,lb,Temp1,Scr)
                   If (lB.gt.nIsh(kS).and.jB.gt.nIsh(kS)) Then
-                     rDens2=sign*4.0d0*Work(ipG2-1+
+                     rDens2=sign*4.0d0*G2t(
      &                      itri(itri(iib,kkc),itri(kkb,iib)))
                     Call DaXpY_(nBa**2,rDens2,Temp1,1,Temp2,1)
                   End If
@@ -101,7 +101,7 @@
          End If
       End Do
 *
-      rho=sign*2.0d0*Work(ipg1-1+itri(iib,iib))
+      rho=sign*2.0d0*G1t(itri(iib,iib))
       Do iI=nAsh(js)+nIsh(js)+1,nBas(js)
          rOut(ip)=rout(ip)-2.0d0*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
          ip=ip+1

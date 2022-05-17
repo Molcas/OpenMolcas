@@ -9,9 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine RdAB
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Input.fh"
 #include "SysDef.fh"
       Character*8 Label
@@ -62,8 +63,8 @@
             norb(isym)=nbas(isym)-ndel(isym)
             Length=Length+nBas(iSym)*nOrb(iSym)
          End Do
-         Call GetMem('CMO','Allo','Real',ipCMO,Length)
-         Call Get_CMO(Work(ipCMO),Length)
+         Call mma_allocate(CMO,Length,Label='CMO')
+         Call Get_CMO(CMO,Length)
       End If
 
 *

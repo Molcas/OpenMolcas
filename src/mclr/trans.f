@@ -11,10 +11,6 @@
       SubRoutine Trans(A,n,m,B)
 *
       Implicit Real*8 (a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
-#include "WrkSpc.fh"
       Real*8 A(n,m), B(m,n)
 *
       Do i=1, m

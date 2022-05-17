@@ -10,13 +10,13 @@
 ************************************************************************
       SubRoutine HssPrt_MCLR(ideg,Hess,ldisp)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-
+#include "stdalloc.fh"
 #include "Input.fh"
       Integer  kDisp(8),ldisp(nsym)
       Character Title*39
       Real*8     Hess(*)
       integer ideg(*)
+      Real*8, Allocatable:: Temp(:)
 *
       Ind(idisp,jdisp)=idisp*(idisp-1)/2+jdisp
 *
@@ -27,7 +27,7 @@
            Write (6,*) lDisp(iIrrep)
       End Do
 *
-      Call GetMem('Temp','ALLO','REAL',ipT,iDisp**2)
+      Call mma_allocate(Temp,iDisp**2,Label='Temp')
       iaa=0
       Do iIrrep=1,nIrrep
         If (ldisp(iirrep).ne.0) Then
@@ -36,18 +36,18 @@
 
         Do i=1,lDisp(iirrep)
          Do j=1,i
-          ii=ind(i,j)-1
+          ii=ind(i,j)
           jj=iaa+ind(i,j)
-          Work(ipT+ii)=Hess(jj)*
+          Temp(ii)=Hess(jj)*
      &        sqrt(DBLE(ideg(i+kdisp(iirrep))*
      &                    ideg(j+kdisp(iirrep)) ))
          End Do
         End Do
-        Call TriPrt(title,' ',Work(ipT),ldisp(iirrep))
+        Call TriPrt(title,' ',Temp,ldisp(iirrep))
         iaa=iaa+ind(ldisp(iirrep),ldisp(iirrep))
         End If
        End Do
-       Call GetMem('Temp','FREE','REAL',ipT,idum)
+       Call mma_deallocate(Temp)
 
       Return
       End

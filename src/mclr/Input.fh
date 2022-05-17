@@ -159,18 +159,9 @@ c
       Real*8  UserP, UserT(64)
       Common /UserInput/ UserT, UserP, nUserPT, nsRot
 *
-*     Pointers to densities oneelectron(Act),oneelectron (Act <delta|E|0>)
-*                           twoelectron(Act) , (act<delta|E|0>)
-      Integer ipg1,ipg1t,ipg2,ipg2t,ipg2sq
-*
-      Common /Densities/ipg1,ipg1t,ipg2,ipg2t,ipg2sq
-*
 *     Ask Jeppe!!!
 *     We all want a happy LUCIA
 *
-      Logical NewPre
-      Integer ipvt,iphx,iplst,nexp,nexp_max
-      common  /NPrecon/ipvt,iphx,iplst,nexp,nexp_max,NewPre
       Logical Direct
       Common /Inte_Dir/Direct
       Integer NIRREP,NSMOB,NRS0SH(1,20),NRS4SH(20,10),

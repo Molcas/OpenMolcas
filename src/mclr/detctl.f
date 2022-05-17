@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine DetCtl
+      use Arrays, only: pINT1, pINT2
 *
       Implicit Real*8 (A-H,O-Z)
 
@@ -19,21 +20,16 @@
 #include "genop.fh"
 #include "cprnt_mclr.fh"
 #include "cstate_mclr.fh"
-#include "WrkSpc.fh"
-*EAW
+#include "stdalloc.fh"
 #include "Files_mclr.fh"
-#include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
-*
-#include "glbbas_mclr.fh"
-#include "lbbas1.fh"
 #include "cicisp_mclr.fh"
-      Call Getmem('OneOff','ALLO','INTE',KpINT1,nSym)
-      Kapin1=KpINt1
-      Call iCopy(nSym,[0],0,iWork(kpint1),1)
-      Call Getmem('TwoOff','ALLO','INTE',KpINT2,nSym**3)
-      Call iCopy(nSym**3,[0],0,iWork(kpint2),1)
-*EAW
+
+      Call mma_Allocate(pINT1,nSym,Label='pInt1')
+      pInt1(:)=0
+      Call mma_Allocate(pINT2,nSym**3,Label='pInt2')
+      pInt2(:)=0
+
       Pntgrp=1
       NOCSF  = 0
       idenmt=0

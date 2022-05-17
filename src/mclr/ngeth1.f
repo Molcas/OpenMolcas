@@ -15,11 +15,6 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "detdim.fh"
-#include "WrkSpc.fh"
-
-*. Active pointers
-#include "lbbas1.fh"
-
 #include "Input.fh"
 #include "orbinp_mclr.fh"
 *.Output

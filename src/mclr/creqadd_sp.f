@@ -17,7 +17,6 @@
        Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
        Real*8 Q(nDens2),G2(nna,nna,nna,nna), Temp(n2),Scr(n2)
 *                                                                      *

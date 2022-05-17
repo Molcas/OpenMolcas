@@ -24,7 +24,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
       Character*8 Method
 *
 *----------------------------------------------------------------------*

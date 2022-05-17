@@ -21,7 +21,7 @@
       End If
       If (nDLAO/=mDLAO) Then
          Write (6,*) 'Get_DLAO: nDLAO/=mDLAO'
-         Write (6,*) 'nDLAO=',DLAOV
+         Write (6,*) 'nDLAO=',nDLAO
          Write (6,*) 'mDLAO=',mDLAO
          Call Abend()
       End If

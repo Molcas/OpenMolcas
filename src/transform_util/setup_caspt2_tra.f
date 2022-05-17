@@ -9,13 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,
-     &                            nFro_,nDel_,ipCMO,lthCMO,
+     &                            nFro_,nDel_,CMO,lthCMO,
      &                            LuIntM_,LuHlf1_,LuHlf2_,LuHlf3_)
       Implicit Real*8 (a-h,o-z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 *
+      Real*8 CMO(lthCMO)
       Integer nBas_(8),nOrb_(8),nAsh_(8),nIsh_(8), nFro_(8),nDel_(8)
 *                                                                      *
 ************************************************************************
@@ -41,7 +42,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      LCMO=ipCMO
+      LCMO=ip_of_Work(CMO(1))
       nCMO=lthCMO
 *                                                                      *
 ************************************************************************

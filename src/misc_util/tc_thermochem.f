@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,
-     &                 nUserPT,nsRot,iMult,nAtom,ipEVal,in_nFreq,
+     &                 nUserPT,nsRot,iMult,nAtom,EVal,in_nFreq,
      &                 lSlapaf)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
@@ -17,7 +17,7 @@
 #include "WrkSpc.fh"
 #include "real.fh"
       Integer in_nFreq, nFreq, iMult, nUserPT, nsRot, nAtom
-      Real*8 UserT(64), UserP
+      Real*8 UserT(64), UserP, EVal(*)
       Real*8 TotalM, TRotA, TRotB, TRotC
       Real*8 Freq(MxAtom*3-6), VibT(MxAtom*3-6), dFreqI
       Real*8 Energy
@@ -55,7 +55,7 @@
       nTr2=nTr
       If(lSlapaf) nTr2=0
       Do i = 1, in_nFreq
-        dFreqI = Work(ipEVal+i-1)
+        dFreqI = EVal(i)
         If (dFreqI.GT.20.0d0) Then
           nFreq = nFreq + 1
           Freq(nFreq) = dFreqI

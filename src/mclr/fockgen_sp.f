@@ -22,13 +22,15 @@
 *          MOtilde:MO (one index transformed integrals)                *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: FIMO
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
-
 #include "Input.fh"
-#include "WrkSpc.fh"
-      Real*8 Fock(nDens2),fockout(*),
-     &       rdens2(*),rDens1(nna,nna)
+#include "stdalloc.fh"
+      Real*8 d_0
+      Real*8 Fock(*),fockout(*),rdens2(*),rDens1(*)
+!     Real*8 Fock(nDens2),fockout(*),rdens2(*),rDens1(nna*nna)
+      Real*8, Allocatable:: MO(:), Scr(:)
       Parameter ( half  = 0.5d0 )
       Parameter ( two  = 2.0d0 )
       Parameter ( one  = 1.0d0 )
@@ -47,8 +49,8 @@
          n1=Max(n1,nBas(iS))
       End Do
       n2=n1**2
-      Call GetMem('ip_MO','Allo','Real',ip_MO,n2)
-      Call GetMem('ipScr','Allo','Real',ipScr,n2)
+      Call mma_allocate(MO,n2,Label='MO')
+      Call mma_allocate(Scr,n2,Label='Scr')
 *
       Do ips=1,nSym
          Do ks=1,nSym
@@ -64,17 +66,16 @@
                      Do jA=1,nAsh(jS)
                         jAA=jA+nIsh(js)
 *
-                        Call Coul(ipS,kS,iS,jS,iB,jAA,
-     &                            Work(ip_MO),Work(ipScr))
+                        Call Coul(ipS,kS,iS,jS,iB,jAA,MO,Scr)
 *
                         Do kA=1,nAsh(ks)
                            kAA=kA+nIsh(kS)
 *
-                           ipM=ip_MO+(kAA-1)*nBas(ipS)
+                           ipM=1+(kAA-1)*nBas(ipS)
                            ipF=ipMat(ipS,iS)+nBas(ipS)*(iB-1)
-                           rd=rDens1(jA+nA(jS),kA+nA(ks))
+                           rd=rDens1(jA+nA(jS)+(kA+nA(ks)-1)*nna)
                            Call DaXpY_(nBas(ipS),-rd,
-     &                                Work(ipM),1,Fock(ipF),1)
+     &                                MO(ipM),1,Fock(ipF),1)
                         End Do
                      End Do
                   End Do
@@ -91,10 +92,10 @@
             jS=iEOr(is-1,iDSym-1)+1
             Do iA=1,nAsh(is)
                Do jA=1,nAsh(js)
-                  rd=rDens1(iA+nA(iS),jA+nA(js))
-                  ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)-1
+                  rd=rDens1(iA+nA(iS)+(jA+nA(js)-1)*nna)
+                  ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
                   ip2=nBas(iS)*(nIsh(js)+jA-1) +ipmat(is,js)
-                 Call DaxPy_(nBAs(iS),Rd,Work(ipFIMO+ip1),1,Fock(ip2),1)
+                 Call DaxPy_(nBAs(iS),Rd,FIMO(ip1),1,Fock(ip2),1)
                End Do
             End Do
          End If
@@ -102,9 +103,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call CreQADD_sp(Fock,rdens2,idsym,Work(ip_MO),Work(ipScr),n2)
-      Call Free_Work(ipScr)
-      Call Free_Work(ip_MO)
+      Call CreQADD_sp(Fock,rdens2,idsym,MO,Scr,n2)
+
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(MO)
 
 *
       Do iS=1,nSym

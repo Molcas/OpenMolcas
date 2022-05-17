@@ -26,11 +26,11 @@
 *     Written by M.G. Delcey, November 2014                            *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
 #include "standard_iounits.fh"
-#include "WrkSpc.fh"
       Real*8 focki(nbaj,nbaj),fock(nbaj,nbaj),focka(nbaj,nbaj),
      &       rout(*), A_J(nScr), A_K(nScr), Scr(nScr)
 *                                                                      *
@@ -76,10 +76,10 @@
                   jjB=jB+nA(jS)
                   i=itri1(jA,jB)
                   If (iJK.eq.1) Then
-                    rDens1=2.0d0*sign*work(ipg2-1+
-     &                          (itri(itri(jjC,jjD),itri(jjB,jjA))))
+                    rDens1=2.0d0*sign*G2t(
+     &                          itri(itri(jjC,jjD),itri(jjB,jjA)))
                   Else
-                   rDens1=4.0d0*sign*work(ipg2-1+
+                   rDens1=4.0d0*sign*G2t(
      &                          (itri(itri(jjB,jjD),itri(jjC,jjA))))
                   EndIf
                   rout(i)=rout(i)+rDens1*aabb
@@ -100,8 +100,8 @@
                   BCbb=A_J(iBC) ! BbCb if exchange
                   iAC=(jC-1)*nvirt+jA
                   ACbb=A_J(iAC) ! AbCb if exchange
-                  rDens1=-sign*Work(ipg1-1+itri(jAA,jCC))
-                  rDens2=-sign*Work(ipg1-1+itri(jBB,jCC))
+                  rDens1=-sign*G1t(itri(jAA,jCC))
+                  rDens2=-sign*G1t(itri(jBB,jCC))
                   If (jAA.eq.jCC) rDens1=rdens1+sign
                   If (jBB.eq.jCC) rDens2=rdens2+sign
                   rout(i)=rout(i)
@@ -117,7 +117,7 @@
             Do jA=1,nAsh(jS)
               ip=itri1(ja,nd-jVert+1)
               Do jB=1,nAsh(jS)
-                rDens=-sign*Work(ipg1-1+iTri(jA+nA(jS),jB+nA(jS)))
+                rDens=-sign*G1t(iTri(jA+nA(jS),jB+nA(jS)))
                 If (jA.eq.jB) rDens=rdens+sign*2.0d0
 *
                 ivB=(jB-1)*nvirt + nAsh(jS) + 1
@@ -157,7 +157,7 @@
             jBB=jB+nA(jS)
             jjB=jB+nIsh(js)
             i=itri1(jA,jB)
-            rDens=Work(ipG1+itri(jbb,jAA)-1)
+            rDens=G1t(itri(jbb,jAA))
             rout(i)=rout(i)+Sign*(2.0d0*rdens*Fockii + ! (ib,ib)+
      &              2.0d0*(2.0d0*Focki(jjA,jjB)+
      &              2.0d0*FockA(jjA,jjB)-Fock(jjB,jjA)))

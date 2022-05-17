@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,
      &                NK,IEND)
+      Use Str_Info
 *
 *
 * Obtain mappings
@@ -37,11 +38,7 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "detdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp_mclr.fh"
-#include "strinp_mclr.fh"
-#include "stinf_mclr.fh"
-#include "strbas_mclr.fh"
 *
 * =======
 *. Output
@@ -69,13 +66,15 @@ C        write(6,*) ' Unique string group for mappings ',JGRP
       END IF
 *
       CALL ADS1(NK,I1,XI1S,LI1,IORB,NORB,
-     &           ICLS,ISM,iWORK(KSTSTM(JGRP,1)),
-     &           iWORK(KSTSTM(JGRP,2)),iWORK(KSTSTMN(JGRP)),
-     &           iWORK(KSTSTMI(JGRP)),IMPF,LMAP,iWORK(KEL1(IGRP)),
-     &           iWORK(KEL3(IGRP)),iWORK(KEL1(IGRP+1)),
-     &           iWORK(KEL3(IGRP+1)),iWORK(KISTSO(IGRP)),
-     &           iWORK(KNSTSO(IGRP)),iWORK(KISTSO(IGRP+1)),
-     &           iWORK(KNSTSO(IGRP+1)),NOCTYP(IGRP),NOCTYP(IGRP+1),
+     &           ICLS,ISM,
+     &           Str(JGRP)%STSTM(:,1),
+     &           Str(JGRP)%STSTM(:,2),
+     &           Str(JGRP)%STSTMN,
+     &           Str(JGRP)%STSTMI,IMPF,LMAP,Str(IGRP)%EL1,
+     &           Str(IGRP)%EL3,Str(IGRP+1)%EL1,
+     &           Str(IGRP+1)%EL3,Str(IGRP)%ISTSO,
+     &           Str(IGRP)%NSTSO,Str(IGRP+1)%ISTSO,
+     &           Str(IGRP+1)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+1),
      &           NORB1,NORB2,NORB3,ISMFTO,NACOB,KMAX,KMIN,IEND)
 *
       RETURN

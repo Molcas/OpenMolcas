@@ -11,6 +11,7 @@
 * Copyright (C) Jeppe Olsen                                            *
 ************************************************************************
       SUBROUTINE GTSTTP(ICLS,IEL1,IEL3,ITYPE,IWAY)
+      Use Str_Info
 *
 *
 * Relation between number of electrons in RAS1, RAS3 and string type
@@ -19,7 +20,7 @@
 * Get ITYPE : type of strings belonging to class ICLS
 *             with IEL1,IEL3 electrons
 * IWAY = 2 :
-* GET IEL1,IEL3 : Number of electrons of classs ICLS of type ITYPE
+* GET IEL1,IEL3 : Number of electrons of class ICLS of type ITYPE
 *
 *
 * Jeppe Olsen, Another lonely night in Lund
@@ -27,12 +28,11 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
-#include "WrkSpc.fh"
-#include "strbas_mclr.fh"
-#include "stinf_mclr.fh"
 *
-      CALL GTSTTPS(IEL1,IEL3,iWORK(KEL1(ICLS)),iWORK(KEL3(ICLS)),
-     &             NOCTYP(ICLS),ITYPE,IWAY)
+      CALL GTSTTPS(IEL1,IEL3,
+     &             Str(MIN(ICLS,ITYP_Dummy))%EL1,
+     &             Str(MIN(ICLS,ITYP_Dummy))%EL3,
+     &             NOCTYP(MIN(ICLS,ITYP_Dummy)),ITYPE,IWAY)
 *
       RETURN
       END

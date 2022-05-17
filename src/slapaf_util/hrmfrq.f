@@ -89,7 +89,7 @@
       Call Free_Work(ipTemp)
 *
       If (lTherm) Call Thermo_Driver(UserT,UserP,nUserPT,nsRot,
-     &                                    ipEVal,nInter,lTherm)
+     &                               Work(ipEVal),nInter,lTherm)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -11,12 +11,12 @@
       subRoutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,
      &                rMo,loper,idisp,r)
 *
+      use Arrays, only: G1t, CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
 *
       Character*8 Label
       Real*8 FockI(nDens2),Temp2(ndens2),Temp3(nDens2),Temp4(ndens2),
@@ -157,24 +157,24 @@
            End If
            Call DGEMM_('T','N',
      &                 nOrb(iS),nBas(jS),nBAs(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(is),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(is),
      &                 Temp4,nBas(iS),
      &                 0.0d0,Temp3,nOrb(iS))
            Call DGEMM_('N','N',
      &                 nOrb(is),nB(jS),nBas(jS),
      &                 1.0d0,Temp3,nOrb(iS),
-     &                 Work(ipCMO+ipCM(jS)-1),nBas(jS),
+     &                 CMO(ipCM(jS)),nBas(jS),
      &                 0.0d0,Temp2(ipMat(iS,jS)),nOrb(iS))
            If (is.ne.js) Then
            Call DGEMM_('T','T',
      &                 nOrb(jS),nOrb(iS),nBAs(jS),
-     &                 1.0d0,Work(ipCMO+ipCM(jS)-1),nBas(js),
+     &                 1.0d0,CMO(ipCM(jS)),nBas(js),
      &                 Temp4,nBas(iS),
      &                 0.0d0,Temp3,nOrb(jS))
            Call DGEMM_('N','N',
      &                 nOrb(js),nB(iS),nBas(iS),
      &                 1.0d0,Temp3,nOrb(jS),
-     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 CMO(ipCM(iS)),nBas(iS),
      &                 0.0d0,Temp2(ipMat(jS,iS)),nOrb(jS))
           End If
 
@@ -193,7 +193,7 @@
      &    Then
            rde=2.0d0
           Else If  (i.gt.nish(is).and.j.gt.nish(is)) Then
-           rde=Work(ipG1-1+itri(i-nish(is)+nA(is),
+           rde=G1t(itri(i-nish(is)+nA(is),
      &           j-nIsh(is)+nA(is)))
           Else
            rde=0.0d0
@@ -234,18 +234,22 @@ c Avoid unused argument warnings
 #include "Input.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 A(*)
       Integer nbas2(nsym),nbas1(nsym)
-      Call GetMem('A','ALLO','REAL',ipA,ndens2)
+      Real*8, Allocatable:: ATemp(:)
+
+      Call mma_allocate(ATemp,ndens2,Label='ATemp')
+
       Do iS=1,nsym
        js=ieor(is-1,idsym-1) +1
        Do j=0,Min(nbas2(js),nbas1(js))-1
         call dcopy_(Min(nbas1(is),nbas2(is)),
      &             A(ipMat(is,js)+j*nbas1(is)),1,
-     &             Work(ipA-1+ipmat(is,js)+j*nbas2(is)),1)
+     &         ATemp(ipmat(is,js)+j*nbas2(is)),1)
        End Do
       End Do
-      call dcopy_(ndens2,Work(ipA),1,A,1)
-      Call GetMem('A','FREE','REAL',ipA,ndens2)
+      call dcopy_(ndens2,ATemp,1,A,1)
+      Call mma_deallocate(ATemp)
       Return
       End

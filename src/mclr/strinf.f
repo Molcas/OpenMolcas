@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE STRINF(IPRNT)
+      Use Str_Info
 *
 * Strings for internal space.
 * Information is stored in
@@ -24,18 +25,16 @@
 *     (and /LUCINP/ not occuring here )
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
 * ======
 * Output
 * ======
 *
-#include "strinp_mclr.fh"
-#include "stinf_mclr.fh"
-#include "strbas_mclr.fh"
 #include "csm.fh"
 *
-      DIMENSION ISGSTI(1),ISGSTO(1)
+      Integer ISGSTI(1),ISGSTO(1)
+      Integer, Allocatable:: KFREEL(:)
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
 *
@@ -48,18 +47,18 @@
 *
 **.3 : Static memory for string information
 *
-      CALL MEMSTR
+      CALL MEMSTR()
 *
 **.4 :Reverse lexical adresing schemes for each type of string
 *
 *.First free address
-      CALL GetMem('MAXMEM ','MAX    ','INTEGER',KFREEL,imax)
-      CALL GetMem('MAXMEM ','ALLO','INTEGER',KFREEL,imax)
+      Call mma_MaxINT(imax)
+      CALL mma_allocate(KFREEL,imax,Label='KFREEL')
       DO 20 ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        CALL WEIGHT_mclr(iWork(KZ(ITYP)),NELEC(ITYP),NORB1,NORB2,NORB3,
-     &              MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
-     &              iWork(KFREEL) )
+        CALL WEIGHT_mclr(Str(ITYP)%Z,NELEC(ITYP),NORB1,NORB2,NORB3,
+     &                   MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),
+     &                   MXRS3(ITYP),KFREEL )
         END IF
    20 CONTINUE
 *
@@ -68,9 +67,9 @@
       DO 25 ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
-     &             NELEC(ITYP),NOCTYP(ITYP),iwork(KEL1(ITYP)),
-     &             iWork(KEL3(ITYP)),iwork(KEL123(ITYP)),
-     &             iWork(KACTP(ITYP)) )
+     &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
+     &             Str(ITYP)%EL3,Str(ITYP)%EL123,
+     &             Str(ITYP)%ACTP)
         END IF
    25 CONTINUE
 *
@@ -79,15 +78,15 @@
       DO 30 ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL NSTRSO_MCLR(NELEC(ITYP),NORB1,NORB2,NORB3,
-     &              MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
-     &              iWork(KFREEL),NACOB,iwork(KNSTSO(ITYP)),
-     &              NOCTYP(ITYP),NSMST,ITYP,IPRNT)
+     &                   MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),
+     &                   MXRS3(ITYP),KFREEL,NACOB,Str(ITYP)%NSTSO,
+     &                   NOCTYP(ITYP),NSMST,ITYP,IPRNT)
 *. Corresponding offset array
-        CALL ZBASE(iWork(KNSTSO(ITYP)),iwork(KISTSO(ITYP)),
+        CALL ZBASE(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,
      &             NSMST*NOCTYP(ITYP) )
 *. Symmetry and class index for each string
-         CALL ZSMCL(NSMST,NOCTYP(ITYP),iWork(KNSTSO(ITYP)),
-     &        iwork(KSTSM(ITYP)),iWork(KSTCL(ITYP)) )
+         CALL ZSMCL(NSMST,NOCTYP(ITYP),Str(ITYP)%NSTSO,
+     &              Str(ITYP)%STSM,Str(ITYP)%STCL )
         END IF
    30 CONTINUE
 *
@@ -96,10 +95,10 @@
       DO 40 ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),
-     &              MNRS3(ITYP),MXRS3(ITYP),iWork(KISTSO(ITYP)),
-     &              NOCTYP(ITYP),NSMST,iwork(KZ(ITYP)),iwork(KFREEL),
-     &              iWork(KSTREO(ITYP)),iWork(KOCSTR(ITYP)),
-     &              iwork(KFREEL+NOCTYP(ITYP)*NSMST),ITYP,IPRNT)
+     &                   MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,
+     &                   NOCTYP(ITYP),NSMST,Str(ITYP)%Z,KFREEL,
+     &                   Str(ITYP)%STREO,Str(ITYP)%OCSTR,
+     &                   KFREEL(1+NOCTYP(ITYP)*NSMST),ITYP,IPRNT)
         END IF
    40 CONTINUE
 *
@@ -119,12 +118,12 @@
           ELSE
             LROW = NACOB
           END IF
-          Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,1)),1)
-          Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,2)),1)
-          CALL ANNSTR(iWork(KOCSTR(ITYP)),NSTFTP(ITYP),NSTFTP(JTYP),
-     &                NELEC(ITYP),NACOB,iWork(KZ(JTYP)),
-     &                iwork(KSTREO(JTYP)),LROW,0,ISGSTI,ISGSTO,
-     &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
+          Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,1)=0
+          Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,2)=0
+          CALL ANNSTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),
+     &                NELEC(ITYP),NACOB,Str(JTYP)%Z,
+     &                Str(JTYP)%STREO,LROW,0,ISGSTI,ISGSTO,
+     &                Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),
      &                JTYP,IPRNT)
         END IF
         END IF
@@ -148,15 +147,15 @@
           WRITE(6,*) ' Creator  arrays between types ',ITYP,JTYP
           WRITE(6,*) ' ==========================================='
           END IF
-          CALL CRESTR(iwork(KOCSTR(ITYP)),NSTFTP(ITYP),NSTFTP(JTYP),
-     &                NELEC(ITYP),NACOB,iwork(KZ(JTYP)),
-     &                iwork(KSTREO(JTYP)),0,ISGSTI,ISGSTO,
-     &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
-     &                iWORK(KSTSTMN(ITYP)),iWORK(KSTSTMI(ITYP)),
+          CALL CRESTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),
+     &                NELEC(ITYP),NACOB,Str(JTYP)%Z,
+     &                Str(JTYP)%STREO,0,ISGSTI,ISGSTO,
+     &                Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),
+     &                Str(ITYP)%STSTMN,Str(ITYP)%STSTMI,
      &                LROW,JTYP,IPRNT)
         END IF
         END IF
    60 CONTINUE
-      CALL GetMem('MAXMEM ','FREE','INTEGER',KFREEL,imax)
+      CALL mma_deallocate(KFREEL)
       RETURN
       END

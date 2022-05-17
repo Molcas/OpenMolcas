@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Thermo_Driver(UserT,UserP,nUserPT,nsRot,
-     &                              ipEVal,nFreq,lSlapaf)
+     &                              EVal,nFreq,lSlapaf)
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
-      Integer nUserPT, nsRot, ipEVal, nFreq
-      Real*8 UserT(64), UserP
+      Integer nUserPT, nsRot, nFreq
+      Real*8 UserT(64), UserP, Eval(*)
       Logical lSlapaf ! If .True. then Thermo_Driver called by SLAPAF
       Logical lTest
       lTest = .False.
@@ -44,7 +44,7 @@
         Write(6,*)'    UserP=',UserP,'  nsRot=',nsRot,'nUserPT=',nUserPT
         Write(6,*)'    UserT(1-5)==',(UserT(i),i=1,5)
         Write(6,'(A,I3,A,256F8.2)')'  nFreq=',nFreq,
-     &            '  Freq(i)==',(Work(ipEVal+i),i=0,nFreq-1)
+     &            '  Freq(i)==',(EVal(i),i=1,nFreq)
         Write(6,*)'----------------------------------------------------'
         Call XFlush(6)
       EndIf
@@ -57,12 +57,12 @@
         Write(6,*)' UserP=',UserP,'  nsRot=',nsRot,'  nAtom=',nAtom
         Write(6,*)' TotalM,TRotA,TRotB,TRotC==',TotalM,TRotA,TRotB,TRotC
         Write(6,'(A,I3,A,256F8.2)')' nFreq=',nFreq,
-     &            '  Freq(i)==',(Work(ipEVal+i),i=0,nFreq-1)
+     &            '  Freq(i)==',(EVal(i),i=1,nFreq)
         Call XFlush(6)
       EndIf
 *
       Call ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,
-     &                 nsRot,iMult,nAtom,ipEVal,nFreq,lSlapaf)
+     &                 nsRot,iMult,nAtom,EVal,nFreq,lSlapaf)
       Call CollapseOutput(0,'Thermochemistry')
 
       Return

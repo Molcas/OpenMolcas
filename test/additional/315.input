@@ -66,6 +66,7 @@ VELO= 1
 THERMO= 2
 HOP=3
 > END DO
+*&MCLR
 
 * Check that we can resume the dynamics
 >> EXPORT MOLCAS_NOCHECK=POTNUC

@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) Jonna Stalring                                         *
 ************************************************************************
-      SubRoutine RInttd(ekappa,mkappa,isym)
+      SubRoutine RInt_td(ekappa,mkappa,isym)
+      use Arrays, only: G1t
 c
 c
 *******************************************************
@@ -27,20 +28,20 @@ c     isym         Rinttd is called once for each symmtry
 c
 c Local variables
 c
-c     Work(ipdens) The density matrix
-c     Work(wDKt)   Omega*(density matrix)*(kappa transposed)
-c     Work(wKtD)   As above but different order
+c     dens The density matrix
+c     wDKt   Omega*(density matrix)*(kappa transposed)
+c     wKtD   As above but different order
 c
 c
       Implicit Real*8 (a-h,o-z)
 c
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Input.fh"
+#include "real.fh"
 #include "Pointers.fh"
-      Parameter (zero=0.0d0)
-      Parameter (one=1.0d0)
-      Parameter (two=2.0d0)
       Real*8 ekappa(ndens2),mkappa(ndens2)
+      Real*8, Allocatable:: Dens(:), wDKt(:), wKtD(:)
+
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 c
 c---------------------------------------------------------
@@ -51,9 +52,9 @@ c
       Do iS=1,nSym
          lDens = lDens + nBas(iS)**2
       End Do
-      Call GetMem('densmat','Allo','Real',ipdens,lDens)
-      Call GetMem('wDKt','Allo','Real',ipwDKt,ndens2)
-      Call GetMem('wKtD','Allo','Real',ipwKtD,ndens2)
+      Call mma_allocate(Dens,lDens,Label='Dens')
+      Call mma_allocate(wDKt,ndens2,Label='wDKt')
+      Call mma_allocate(wKtD,ndens2,Label='wKtD')
 c
 c---------------------------------------------------------
 c***************************************
@@ -62,11 +63,11 @@ c***************************************
 c
 c For HF
 c
-      call dcopy_(lDens,[0.0d0],0,Work(ipDens),1)
-      ip3 = 0
+      Dens(:)=Zero
+      ip3 = 1
       Do iS=1,nSym
           inc = nBas(iS) + 1
-          call dcopy_(nIsh(iS),[2.0d0],0,Work(ipDens+ip3),inc)
+          call dcopy_(nIsh(iS),[2.0d0],0,Dens(ip3),inc)
           ip3 = ip3 + nBas(iS)*nBas(iS)
       End Do
 *
@@ -76,9 +77,9 @@ c
 *               residual=DMOD((k+1),(nbas(is)+1))
 *               if ((residual.eq.zero).and.(k.lt.(nbas(is)*nIsh
 *     &      (is))).and.(nIsh(is).ne.0)) then
-*                     Work(ipdens+ipCM(is)+k)=two
+*                     Dens(1+ipCM(is)+k)=two
 *               else
-*                     Work(ipdens+ipCM(is)+k)=zero
+*                     Dens(1+ipCM(is)+k)=zero
 *               end if
 *            end do
 *          end do
@@ -93,28 +94,28 @@ c
                    iA=nA(is)+ib
                    jA=nA(is)+jb
                    ip2=itri(iA,jA)
-                   Work(ipdens+ip-1)=Work(ipG1t+ip2-1)
+                   Dens(ip)=G1t(ip2)
                 End Do
              End Do
           End Do
 c*******************************************
 c Multiply D and mkappa wDKt and wKtD
 c*******************************************
-*      Call RecPrt('dens ',' ',Work(ipdens),ldens,1)
+*      Call RecPrt('dens ',' ',dens,ldens,1)
 *      Call RecPrt('ekappa ',' ',ekappa,ndens2,1)
       do is=1,nsym
            js=iEOr(is-1,isym-1)+1
 C      wDKt
            If ( (nBas(iS).gt.0).and.(nBas(jS).gt.0) ) Then
-             call DGEMM_('n','n',nbas(is),nbas(js),nbas(is),2.0d0*Omega,
-     & Work(ipdens+ipCM(is)-1),nbas(is),
-     & mkappa(ipmat(is,js)),nbas(is),zero,
-     & Work(ipwDKt+ipmat(is,js)-1),nbas(is))
+             call DGEMM_('n','n',nbas(is),nbas(js),nbas(is),
+     &                   Two*Omega,Dens(ipCM(is)),nbas(is),
+     &                             mkappa(ipmat(is,js)),nbas(is),
+     &                   zero,wDKt(ipmat(is,js)),nbas(is))
 C      wKtD
-             call DGEMM_('n','n',nbas(is),nbas(js),nbas(js),2.0d0*Omega,
-     & mkappa(ipmat(is,js)),nbas(is),
-     & Work(ipdens+ipCM(js)-1),nbas(js),zero,
-     & Work(ipwKtD+ipmat(is,js)-1),nbas(is))
+             call DGEMM_('n','n',nbas(is),nbas(js),nbas(js),
+     &                   Two*Omega,mkappa(ipmat(is,js)),nbas(is),
+     &                             Dens(ipCM(js)),nbas(js),
+     &                   zero,wKtD(ipmat(is,js)),nbas(is))
 
 c*****************************************************
 c            Replace ekappa ekappa=ekappa-wDKt+wKtD
@@ -122,20 +123,20 @@ c*****************************************************
              incx=1
              incy=incx
              lenght=nbas(is)*nbas(js)
-             call daxpy_(lenght,1.0d0,Work(ipwDKt+ipmat(is,js)-1),
+             call daxpy_(lenght,1.0d0,wDKt(ipmat(is,js)),
      &            incx,ekappa(ipmat(is,js)),incy)
-             call daxpy_(lenght,-1.0d0,Work(ipwKtD+ipmat(is,js)-1),
+             call daxpy_(lenght,-1.0d0,wKtD(ipmat(is,js)),
      &            incx,ekappa(ipmat(is,js)),incy)
           End If
       end do
-*      Call RecPrt('wDKt ',' ',Work(ipwDKt),ndens2,1)
-*      Call RecPrt('wKtD ',' ',Work(ipwKtD),ndens2,1)
+*      Call RecPrt('wDKt ',' ',wDKt,ndens2,1)
+*      Call RecPrt('wKtD ',' ',wKtD,ndens2,1)
 *      Call RecPrt('ekappa ',' ',ekappa,ndens2,1)
 c
 c  Free memory
 c
-      Call GetMem('densmat','Free','Real',ipdens,ldens)
-      Call GetMem('wDKt','Free','Real',ipwDKt,ndens2)
-      Call GetMem('wKtD','Free','Real',ipwKtD,ndens2)
+       Call mma_deallocate(Dens)
+       Call mma_deallocate(wDKt)
+       Call mma_deallocate(wKtD)
       return
       end

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       FUNCTION IOCTP2_MCLR(STRING,NEL,ITYP)
+      use Str_Info
 *
 * Obtain occupation type for STRING .
 * For forbidden strings a zero is returned
@@ -21,7 +22,6 @@
       Logical Reduce_Prt
       External Reduce_Prt
 *. General input
-#include "strinp_mclr.fh"
 #include "orbinp_mclr.fh"
 *
       IF(ITYP.LE.0) THEN

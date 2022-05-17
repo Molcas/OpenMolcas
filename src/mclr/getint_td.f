@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IKSM,JLSM,ICTL,ieaw )
-
+      use Arrays, only: pInt2, KINT2, KINT2a
 *
 * Outer routine for accessing integral block
 *
@@ -21,18 +21,11 @@
 * and NOHSOO (no spin-other-orbit) added by Merethe 19/10-95
 #include "crun_mclr.fh"
 *./ORBINP/  : NOBPTS used
-*.Memory
-#include "WrkSpc.fh"
-*
-
 #include "Input.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
 #include "genop.fh"
 *. Type of operator in action
-
-
-#include "glbbas_mclr.fh"
       Dimension XINT(*)
 *
        NTEST=0
@@ -44,20 +37,19 @@
            If (ictl.eq.2) ICOUL=1
            If (ictl.eq.3) ICOUL=1
            If (ictl.eq.4) IXCHNG=1
-           ip=kint2
-*           Write(*,*)'getint_td ieaw',ieaw
-*           Stop 10
-           If (ieaw.ne.0) ip=kint2a
-           CALL GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,wORK(ip),
-     &                  iWORK(KPINT2),NSMOB,ICOUL,ieaw )
+           If (ieaw.ne.0) Then
+              CALL GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+     &                        IXCHNG,IKSM,JLSM,KINT2a,
+     &                        pINT2,NSMOB,ICOUL,ieaw )
+           Else
+              CALL GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+     &                        IXCHNG,IKSM,JLSM,KINT2,
+     &                        pINT2,NSMOB,ICOUL,ieaw )
+           End If
           ELSE
            CALL GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IKSM,JLSM,wORK(KINT2),
-     &                  iWORK(KPINT2),NSMOB,ICTL)
-C
-*          Write(*,*)'I am in getinc_td'
-*          Call RECPRT('xint getint',' ',xint,10,1)
+     &                  IKSM,JLSM,KINT2,
+     &                  pINT2,NSMOB,ICTL)
 C
           End If
 *

@@ -8,6 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       integer ipDCSF,ipDSD,LUDIA
+       integer ipdia,LUDIA
        Real*8 ECORE
-       Common /incdia/ ecore,ipdcsf,ipdsd,ludia,ipdia
+       Common /incdia/ ecore,ludia,ipdia

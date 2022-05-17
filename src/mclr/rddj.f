@@ -22,12 +22,12 @@
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
-#include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
 #include "sa.fh"
       Real*8 G1r(*), G1Q(*),G2r(*)
+      Real*8, Allocatable:: G2Q(:)
       Dimension rdum(1)
 *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
@@ -36,7 +36,7 @@
       ng1=itri(ntash,ntash)
       ng2=itri(ng1,ng1)
 *
-      Call Getmem('G2Q ','ALLO','REAL',ipG2Q,ng2)
+      Call mma_allocate(G2Q,ng2,Label='G2Q')
 c
 c     Read one and two el dens for state iestate
 c
@@ -50,7 +50,7 @@ c
       End Do
       Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
       Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
-      Call dDaFile(LUJOB ,2,Work(ipG2Q),Ng2,jDisk)
+      Call dDaFile(LUJOB ,2,G2Q,Ng2,jDisk)
       Call dDaFile(LUJOB ,0,rdum,Ng2,jDisk)
 c
 c Make one el rectangular and two el singel triang.
@@ -68,7 +68,7 @@ c
                   If(iDij.lt.iDkl .and. iB.eq.jB) fact=2.0d00
                   iijkl=itri(iDij,iDkl)
                   iRijkl=itri(iRij,iRkl)
-                  G2R(iRijkl)=Fact*Work(ipG2Q+iijkl-1)
+                  G2R(iRijkl)=Fact*G2Q(iijkl)
                End Do
             End Do
          End Do
@@ -79,7 +79,7 @@ c
          End Do
       End Do
 *
-      Call Getmem('G2Q ','FREE','REAL',ipG2Q,ng2)
+      Call mma_deallocate(G2Q)
 *
       Return
       End

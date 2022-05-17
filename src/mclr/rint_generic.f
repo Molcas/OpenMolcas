@@ -11,7 +11,8 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
-     &               idsym,reco,jspin)
+     &                        idsym,reco,jspin)
+      use Arrays, only: CMO_Inv, CMO, G1t, G2t, FAMO, FIMO
 *
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
@@ -19,15 +20,36 @@
 *
       Implicit Real*8(a-h,o-z)
 
+#include "real.fh"
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
-#include "glbbas_mclr.fh"
+#include "stdalloc.fh"
 #include "standard_iounits.fh"
       Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
-      Integer ipAsh(2)
       Logical Fake_CMO2,DoAct
+      Integer ipAsh(2)
+      Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:), DI(:),
+     &                      DLT(:), Dens2(:), DA(:), G2x(:),
+     &                      CoulExch(:,:), CVa(:,:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        SUBROUTINE CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
+     &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &                         ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
+     &                         LuAChoVec,LuIChoVec,iAChoVec)
+        Integer ipDLT,ipDI,ipDA,ipG2,ipkappa,
+     &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &          ipMO1,ipQ,ipAsh(2),ipCMO,ip_CMO_inv
+        Integer nOrb(8),nAsh(8),nIsh(8)
+        Logical doAct,Fake_CMO2
+        Integer LuAChoVec(8),LuIChoVec(8)
+        Integer iAChoVec
+        End SUBROUTINE CHO_LK_MCLR
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -46,22 +68,20 @@
       Write (LuWr,*) 'Focka=',DDot_(nDens2,Focka,1,Focka,1)
 #endif
 *
-      Fact=-1.0d0
-      One=1.0d0
+      Fact=-One
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *
       If (.not.newCho) Then
-        Call GetMem('MOTemp2','ALLO','REAL',ipMT1,nmba)
-        Call GetMem('MOTemp1','ALLO','REAL',ipMT2,nmba)
-        call dcopy_(nmba,[0.0d0],0,Work(ipMT1),1)
-        call dcopy_(nmba,[0.0d0],0,Work(ipMT2),1)
+        Call mma_allocate(MT1,nmba,Label='MT1')
+        Call mma_allocate(MT2,nmba,Label='MT2')
+        MT1(:)=Zero
+        MT2(:)=Zero
 
-        Call R2ElInt(rkappa,work(ipMT1),work(ipMT2),
-     &               focki,focka,
+        Call R2ElInt(rkappa,MT1,MT2,focki,focka,
      &               nDens2,idSym,ReCo,Fact,jspin)
 #ifdef _DEBUGPRINT_
-        Write (LuWr,*) 'MT1=',DDot_(nmba,Work(ipMT1),1,Work(ipMT1),1)
-        Write (LuWr,*) 'MT2=',DDot_(nmba,Work(ipMT2),1,Work(ipMT2),1)
+        Write (LuWr,*) 'MT1=',DDot_(nmba,MT1,1,MT1,1)
+        Write (LuWr,*) 'MT2=',DDot_(nmba,MT2,1,MT2,1)
 #endif
 *                                                                      *
 ************************************************************************
@@ -72,15 +92,15 @@
 *      pi
 *
         If (iMethod.eq.2) Then
-           Call GetMem('QTemp','ALLO','REAL',ipq,ndens2)
-           Call CreQ(Q,Work(ipMT1),Work(ipG2tpp),idsym)
-           Call CreQ(Work(ipQ),Work(ipMT2),Work(ipG2tmm),idsym)
+           Call mma_allocate(QTemp,ndens2,Label='QTemp')
+           Call CreQ(Q,MT1,G2t,idsym)
+           Call CreQ(QTemp,MT2,G2t,idsym)
 #ifdef _DEBUGPRINT_
            Write (LuWr,*) 'Q=',DDot_(nDens2,Q,1,Q,1)
-           Write (LuWr,*) 'ipQ=',DDot_(nDens2,Work(ipQ),1,Work(ipQ),1)
+           Write (LuWr,*) 'QTemp=',DDot_(nDens2,QTemp,1,QTemp,1)
 #endif
-           call daxpy_(ndens2,1.0d0,Work(ipQ),1,Q,1)
-           Call GetMem('QTemp','Free','REAL',ipq,ndens2)
+           call daxpy_(ndens2,One,QTemp,1,Q,1)
+           Call mma_deallocate(QTemp)
         End If
 *************************************************************************
 *                                                                       *
@@ -91,62 +111,55 @@
         Fake_CMO2=.false.
         DoAct=.true.
 *
-        ipkappa  =ip_of_work(rkappa(1))
-        ipFockI  =ip_of_work(FockI(1))
-        ipFockA  =ip_of_work(FockA(1))
-        ipMO1    =ip_of_work(rmos(1))
-        ipQ      =ip_of_work(Q(1))
-*
 **      Form inactive density
 *
-        Call GetMem('DI ','ALLO','REAL',ipDI,nDens2)
-        call dcopy_(nDens2,[0.0d0],0,Work(ipDI),1)
+        Call mma_Allocate(DI,nDens2,Label='DI')
+        DI(:)=Zero
 
         Do iS=1,nsym
          Do iB=1,nIsh(iS)
           ip=ipCM(iS)+(ib-1)*nOrb(is)+ib-1
-          Work(ipDI+ip-1)=2.0d0
+          DI(ip)=Two
          End Do
         End Do
 *
 **      Form AO 1-index transform inactive density
 *
-        Call GetMem('TmpDns2','ALLO','REAL',ipDens2,nDens2)
-        Call GetMem('TDensI','ALLO','REAL',ipDLT,nDens2)
+        Call mma_allocate(Dens2,nDens2,Label='Dens2')
+        Call mma_allocate(DLT,nDens2,Label='DLT')
         Do iS=1,nSym
           If (nOrb(iS).ne.0) Then
             Do jS=1,nSym
               If (iEOr(iS-1,jS-1)+1.eq.idsym.and.nOrb(jS).ne.0) Then
                    Call DGEMM_('N','N',
      &                         nOrb(iS),nOrb(jS),nOrb(jS),
-     &                         1.0d0,rkappa(ipMat(is,js)),nOrb(iS),
-     &                         Work(ipDI+ipCM(js)-1),nOrb(jS),0.0d0,
-     &                         Work(ipDens2+ipMat(iS,jS)-1),nOrb(iS))
+     &                         One,rkappa(ipMat(is,js)),nOrb(iS),
+     &                             DI(ipCM(js)),nOrb(jS),
+     &                         Zero,Dens2(ipMat(iS,jS)),nOrb(iS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
-     &                         1.0d0,Work(ipDens2+ipMat(iS,jS)-1),
-     &                         nOrb(iS),Work(ipCMO+ipCM(is)-1),
-     &                         nOrb(iS),0.0d0,
-     &                         Work(ipDLT+ipMat(jS,iS)-1),nOrb(jS))
-                   Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),1.0d0,
-     &                         Work(ipDLT+ipMat(jS,iS)-1),nOrb(iS),
-     &                         Work(ipCMO+ipCM(js)-1),nOrb(jS),0.0d0,
-     &                         Work(ipDens2+ipMat(iS,jS)-1),nOrb(jS))
+     &                         One,Dens2(ipMat(iS,jS)),nOrb(iS),
+     &                             CMO(ipCM(is)),nOrb(iS),
+     &                         Zero,DLT(ipMat(jS,iS)),nOrb(jS))
+                   Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),
+     &                         One,DLT(ipMat(jS,iS)),nOrb(iS),
+     &                             CMO(ipCM(js)),nOrb(jS),
+     &                         Zero,Dens2(ipMat(iS,jS)),nOrb(jS))
 
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
-     &                         1.0d0,Work(ipDI+ipCM(js)-1),
-     &                         nOrb(iS),Work(ipCMO+ipCM(is)-1),
-     &                         nOrb(iS),0.0d0,
-     &                         Work(ipDLT+ipMat(jS,iS)-1),nOrb(jS))
-                   Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),1.0d0,
-     &                         Work(ipDLT+ipMat(jS,iS)-1),nOrb(iS),
-     &                         Work(ipCMO+ipCM(js)-1),nOrb(jS),0.0d0,
-     &                         Work(ipDI+ipCM(js)-1),nOrb(jS))
+     &                         One,DI(ipCM(js)),
+     &                         nOrb(iS),CMO(ipCM(is)),
+     &                         nOrb(iS),Zero,
+     &                         DLT(ipMat(jS,iS)),nOrb(jS))
+                   Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),One,
+     &                         DLT(ipMat(jS,iS)),nOrb(iS),
+     &                         CMO(ipCM(js)),nOrb(jS),Zero,
+     &                         DI(ipCM(js)),nOrb(jS))
               EndIf
             End Do
           EndIf
         End Do
-        call Fold_Mat(nSym,nOrb,Work(ipDens2),Work(ipDLT))
-        Call DScal_(ndens2,ReCo,Work(ipDLT),1)
+        call Fold_Mat(nSym,nOrb,Dens2,DLT)
+        Call DScal_(ndens2,ReCo,DLT,1)
 *
 **      Form active density and MO coefficients
 *
@@ -168,12 +181,11 @@
           End Do
           nAtri=nact*(nact+1)/2
           nAtri=nAtri*(nAtri+1)/2
-          Call GetMem('Cva','Allo','Real',ipAsh(1),2*nVB)
-          ipAsh(2)=ipAsh(1)+nVB
-          Call GetMem('DA','Allo','Real',ipDA,na2)
+          Call mma_allocate(CVa,nVB,2,Label='CVa')
+          Call mma_allocate(DA,na2,Label='DA')
 *
           ioff=0
-          ioff1=0
+          ioff1=1
           ioff4=1
           ioffD=0
           Do iS=1,nSym
@@ -181,21 +193,21 @@
             ioff5 = ioff4+ nOrb(iS)*nIsh(iS)
             Do iB=1,nAsh(iS)
               ioff3=ioff2+nOrb(iS)*(iB-1)
-              call dcopy_(nOrb(iS),Work(ipCMO+ioff3),1,
-     &                  Work(ipAsh(1)+ioff1+iB-1),nAsh(iS))
+              call dcopy_(nOrb(iS),CMO(1+ioff3),1,
+     &                  CVa(ioff1-1+iB,1),nAsh(iS))
              Do jB=1,nAsh(iS)
               ip=ioffD+ib+(jB-1)*nAsh(is)
               iA=nA(is)+ib
               jA=nA(is)+jb
               ip2=itri(iA,jA)
-              Work(ipDA+ip-1)=Work(ipG1t+ip2-1)
+              DA(ip)=G1t(ip2)
              End Do
             End Do
 *MGD to check
             Call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),1.0d0,
      &                  rkappa(ioff5),nOrb(iS),
-     &                  Work(ipCMO+ioff),nOrb(iS),
-     &                  0.0d0,Work(ipAsh(2)+ioff1),nAsh(iS))
+     &                  CMO(1+ioff),nOrb(iS),
+     &                  0.0d0,CVa(ioff1,2),nAsh(iS))
             ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
             ioff1=ioff1+nAsh(iS)*nOrb(iS)
             ioffD=ioffD+nAsh(iS)**2
@@ -204,8 +216,8 @@
 *
 **      Expand 2-body density matrix
 *
-          Call GetMem('G2x','ALLO','REAL',ipG2x,nG2)
-          ipGx=ipG2x
+          Call mma_allocate(G2x,nG2,Label='G2x')
+          ipGx=0
           Do ijS=1,nSym
             Do iS=1,nSym
               jS=iEOR(is-1,ijS-1)+1
@@ -217,9 +229,8 @@
                     Do iAsh=1,nAsh(is)
                       Do jAsh=1,nAsh(js)
                         iij =itri(iAsh+nA(is),jAsh+nA(jS))
-                        ipG=ipG2+itri(iij,ikl)-1
-                        Work(ipGx)=Work(ipG)
                         ipGx=ipGx+1
+                        G2x(ipGx)=G2t(itri(iij,ikl))
                       End Do
                     End Do
                   End Do
@@ -231,20 +242,36 @@
 *
 **      Allocate temp arrays and zero Fock matrices
 *
-        Call GetMem('Coul+Exc','ALLO','REAL',ipJI,nDens2*4)
-        ipKI=ipJI+nDens2
-        ipJA=ipKI+nDens2
-        ipKA=ipJA+nDens2
-        call dcopy_(ndens2*4,[0.0d0],0,Work(ipJI),1)
+        Call mma_allocate(CoulExch,nDens2,4,Label='CoulExch')
+        CoulExch(:,:)=Zero
+
         call dcopy_(ndens2,[0.0d0],0,FockA,1)
         call dcopy_(ndens2,[0.0d0],0,FockI,1)
-        call dcopy_(nATri,[0.0d0],0,Work(ipMO1),1)
+        call dcopy_(nATri,[0.0d0],0,rMOs,1)
 *
 **      Compute the whole thing
 *
+        ipDLT     = ip_of_Work(DLT(1))
+        ipDI      = ip_of_Work(DI(1))
+        ipDA      = ip_of_Work(DA(1))
+        ipG2      = ip_of_Work(G2x(1))
+        ipkappa   = ip_of_Work(rkappa(1))
+        ipJI      = ip_of_Work(CoulExch(1,1))
+        ipK       = ip_of_Work(CoulExch(1,2))
+        ipJA      = ip_of_Work(CoulExch(1,3))
+        ipKA      = ip_of_Work(CoulExch(1,4))
+        ipFkI     = ip_of_Work(FockI(1))
+        ipFkA     = ip_of_Work(FockA(1))
+        ipMO1     = ip_of_Work(rMOs(1))
+        ipQ       = ip_of_Work(Q(1))
+        ipAsh(1)  = ip_of_Work(CVa(1,1))
+        ipAsh(2)  = ip_of_Work(CVa(1,2))
+        ipCMO     = ip_of_Work(CMO(1))
+        ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
-        Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
-     &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
+                                                                               *
+        Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
+     &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
@@ -255,22 +282,22 @@
           jS=iEOr(iS-1,iDSym-1)+1
           If (nOrb(iS)*nOrb(jS).ne.0) Then
             Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Reco*Fact,
-     &                  Work(ipFIMO+ipCM(iS)-1),nOrb(is),
+     &                  FIMO(ipCM(iS)),nOrb(is),
      &                  rkappa(ipMat(iS,jS)),nOrb(iS),
      &                  One,FockI(ipMat(iS,jS)),nOrb(iS))
             Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),Fact,
      &                  rkappa(ipMat(iS,jS)),nOrb(is),
-     &                  Work(ipFIMO+ipCM(jS)-1),nOrb(jS),
+     &                  FIMO(ipCM(jS)),nOrb(jS),
      &                  One,FockI(ipMat(iS,jS)),nOrb(is))
             If (iMethod.eq.2) Then
                Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),
      &                     Reco*Fact,
-     &                     Work(ipFAMO+ipCM(iS)-1),nOrb(is),
+     &                     FAMO(ipCM(iS)),nOrb(is),
      &                     rkappa(ipMat(iS,jS)),nOrb(iS),
      &                     One,FockA(ipMat(iS,jS)),nOrb(iS))
                Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),Fact,
      &                     rkappa(ipMat(iS,jS)),nOrb(is),
-     &                     Work(ipFAMO+ipCM(jS)-1),nOrb(jS),
+     &                     FAMO(ipCM(jS)),nOrb(jS),
      &                     One,FockA(ipMat(iS,jS)),nOrb(is))
             End If
           End If
@@ -278,15 +305,15 @@
 *
 **      Deallocate
 *
-        Call GetMem('TmpDns2','FREE','REAL',ipDens2,nDens2)
-        Call GetMem('Coul+Exc','FREE','REAL',ipJI,nDens2*4)
+        Call mma_deallocate(Dens2)
+        Call mma_deallocate(CoulExch)
         If (iMethod.eq.2) Then
-          Call GetMem('G2x','Free','REAL',ipG2x,na2*na2)
-          Call GetMem('Cva','Free','Real',ipAsh(1),2*nVB)
-          Call GetMem('DA','Free','Real',ipDA,na2)
+          Call mma_deallocate(Dens2)
+          Call mma_deallocate(CVa)
+          Call mma_deallocate(Dens2)
         EndIf
-        Call GetMem('TDensI','FREE','REAL',ipDLT,nDens2)
-        Call GetMem('DI','FREE','REAL',ipDI,nDens2)
+        Call mma_deallocate(DLT)
+        Call mma_deallocate(DI)
       EndIf
 *                                                                      *
 ************************************************************************
@@ -313,7 +340,7 @@
                Do jAsh=1,nAsh(js)
                   ipF=ipMat(js,is)+nIsh(js)+jAsh-1
                   ipFI=ipMat(is,js)+(nIsh(js)+iAsh-1)*nOrb(is)
-                  Dij=Work(ipg1t+itri(iash+nA(js),jAsh+nA(js))-1)
+                  Dij=G1t(itri(iash+nA(js),jAsh+nA(js)))
 
 *                I
 *        F  = F - F  D
@@ -366,19 +393,18 @@
 *
       Call AddGrad(rKappa,Fock,idsym,2.0d0*fact)
       If (.not.newCho) Then
-        Call GetMem('MOTemp3','ALLO','REAL',ipMT3,nmba)
-        Call DZAXPY(nmba,1.0d0,Work(ipMT1),1,
-     &             Work(ipMT2),1,Work(ipMT3),1)
-        Call PickMO_MCLR(Work(ipMT3),rmos,idsym)
+        Call mma_allocate(MT3,nmba,Label='MT3')
+        Call DZAXPY(nmba,1.0d0,MT1,1,
+     &             MT2,1,MT3,1)
+        Call PickMO_MCLR(MT3,rmos,idsym)
 *
         If (ispop.ne.0) Then
-           Call DZAXPY(nmba,-1.0d0,Work(ipMT1),1,
-     &                 Work(ipMT2),1,Work(ipMT3),1)
-           Call PickMO_MCLR(Work(ipMT3),rmoa,idsym)
+           Call DZAXPY(nmba,-1.0d0,MT1,1,MT2,1,MT3,1)
+           Call PickMO_MCLR(MT3,rmoa,idsym)
         End If
-        Call GetMem('MOTemp3','FREE','REAL',ipMT3,nmba)
-        Call GetMem('MOTemp2','FREE','REAL',ipMT2,nmba)
-        Call GetMem('MOTemp1','FREE','REAL',ipMT1,nmba)
+        Call mma_deallocate(MT3)
+        Call mma_deallocate(MT2)
+        Call mma_deallocate(MT1)
       EndIf
 #ifdef _DEBUGPRINT_
       Write (LuWr,*) 'Exit RInt_Generic'
