@@ -90,7 +90,7 @@
 *     atom labels
       dsetid = mh5_create_dset_str(fileid,
      $        'CENTER_LABELS', 1, [nAtoms], LENIN)
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $          'Unique center labels '//
      $          'arranged as one [NATOMS_UNIQUE] block')
       call mma_allocate(atomlbl,nAtoms)
@@ -102,7 +102,7 @@
 *     atom numbers
       dsetid = mh5_create_dset_int(fileid,
      $        'CENTER_ATNUMS', 1, [nAtoms])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Atomic numbers, storead as '//
      $        'array of size [NATOMS_UNIQUE]')
       call mma_allocate(atnums,nAtoms)
@@ -114,7 +114,7 @@
 *     atom charges
       dsetid = mh5_create_dset_real(fileid,
      $        'CENTER_CHARGES', 1, [nAtoms])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Nuclear charges, storead as '//
      $        'array of size [NATOMS_UNIQUE]')
       call mma_allocate(charges,nAtoms)
@@ -126,7 +126,7 @@
 *     atom coordinates
       dsetid = mh5_create_dset_real(fileid,
      $        'CENTER_COORDINATES', 2, [3,nAtoms])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Atom coordinates, matrix of size [NATOMS_UNIQUE,3], '//
      $        'stored with atom index varying slowest')
       call mma_allocate(coord,3,nAtoms)
@@ -138,7 +138,7 @@
 *     unique basis names
       dsetid = mh5_create_dset_int(fileid,
      $        'BASIS_FUNCTION_IDS', 2, [4,nbast])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Unique basis function IDs (c,n,l,m) '//
      $        'arranged as blocks of size [4*NBAS(i)], i=1,#irreps')
       call mma_allocate(basis_ids,4,nbast)
@@ -156,7 +156,7 @@
 *     desymmetrized atom labels
         dsetid = mh5_create_dset_str(fileid,
      $          'DESYM_CENTER_LABELS', 1, [mcentr], LENIN4)
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $          'Desymmetrized center labels '//
      $          'arranged as one [NATOMS_ALL] block')
         call mma_allocate(desym_atomlbl,mcentr)
@@ -168,7 +168,7 @@
 *     desymmetrized atom numbers
         dsetid = mh5_create_dset_int(fileid,
      $          'DESYM_CENTER_ATNUMS', 1, [MCENTR])
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $          'Desymmetrized atomic numbers, '//
      $          'stored as array of size [NATOMS_ALL]')
         call mma_allocate(atnums,mcentr)
@@ -180,7 +180,7 @@
 *     desymmetrized atom charges
         dsetid = mh5_create_dset_real(fileid,
      $          'DESYM_CENTER_CHARGES', 1, [MCENTR])
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $          'Desymmetrized center charges, '//
      $          'stored as array of size [NATOMS_ALL]')
         call mma_allocate(charges,mcentr)
@@ -192,7 +192,7 @@
 *     desymmetrized atom coordinates
         dsetid = mh5_create_dset_real(fileid,
      $          'DESYM_CENTER_COORDINATES', 2, [3,MCENTR])
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $          'Desymmetrized coordinates, size [NATOMS_ALL,3], '//
      $          'stored with atom index varying slowest')
         call mma_allocate(coord,3,MCENTR)
@@ -203,7 +203,7 @@
 
         dsetid = mh5_create_dset_int(fileid,
      $          'DESYM_BASIS_FUNCTION_IDS', 2, [4,nBast])
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $          'Basis function IDs (desymmetrized) (c,n,l,m) '//
      $          'arranged as one [4*NBAST] block, NBAST=sum(NBAS)')
         call mma_allocate(desym_basis_ids, 4, nbast)
@@ -215,7 +215,7 @@
 *     basis function conversion matrix
         dsetid = mh5_create_dset_real(fileid,
      $          'DESYM_MATRIX', 1, [nbast**2])
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $          'Symmetrization matrix for the basis functions '//
      $          'arranged as a [NBAST,NBAST] block, NBAST=sum(NBAS), '//
      $          'fast index corresponds to desymmetrized basis.')
@@ -233,7 +233,7 @@
 *     radial primitive identifications
       dsetid = mh5_create_dset_int(fileid,
      $        'PRIMITIVE_IDS', 2, [3,nPrim])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Primitive IDs, arranged as an '//
      $        'array of size [3*NPRIM], with consecutive '//
      $        'center_id, angmom, shell_id (C1 2s <-> 1,0,2)')
@@ -263,7 +263,7 @@
 *     atom maximum angular momenta
       dsetid = mh5_create_dset_real(fileid,
      $        'PRIMITIVES', 2, [2,nPrim])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Primitives, arranged as an '//
      $        'array of size [2*NPRIM], with consecutive '//
      $        'exponent, contraction coefficient')

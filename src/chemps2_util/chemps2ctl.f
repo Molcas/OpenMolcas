@@ -130,7 +130,7 @@
            endif
         endif
 ! Check if checkpoint files for 3RDM exist
-        if (chemps2_lrestart.EQ.1.) then
+        if (chemps2_lrestart.EQ.1) then
            call f_inquire('CHEMCANFIE',fiedler)
            call f_inquire('CHEMCANMPS0',mps0)
            if (fiedler .and. mps0) then

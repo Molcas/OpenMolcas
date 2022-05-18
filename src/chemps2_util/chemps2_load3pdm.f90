@@ -16,7 +16,6 @@
 
 subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot )
 
-  USE HDF5
   USE ISO_C_BINDING
 #ifdef _MOLCAS_MPP_
   USE MPI
@@ -34,9 +33,8 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
   CHARACTER(LEN=30) :: file_f4rdm
   LOGICAL           :: irdm, jrdm
 
-  INTEGER( HID_T )   :: file_h5, group_h5, space_h5, dset_h5 ! Handles
-  INTEGER(4)         :: hdferr
-  TYPE( C_PTR )      :: f_ptr
+#include "mh5.fh"
+  INTEGER            :: file_h5, group_h5
   character(len=10) :: rootindex
 
 #ifdef _MOLCAS_MPP_
@@ -47,7 +45,7 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
 
   INTEGER :: ip1, ip2, ip3, iq1, iq2, iq3, idx, iG3
 
-  REAL*8, DIMENSION( 1 : NAC * NAC * NAC * NAC * NAC * NAC ), TARGET :: buffer
+  REAL*8, DIMENSION( NAC * NAC * NAC * NAC * NAC * NAC ) :: buffer
 
   write(rootindex,"(I2)") chemroot-1
   file_3rdm="molcas_3rdm.h5.r"//trim(adjustl(rootindex))
@@ -64,22 +62,16 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
 !#ifdef _MOLCAS_MPP_
 !if ( MPP().AND.KING() ) then
 !#endif
-  CALL h5open_f( hdferr )
   If (doG3.EQV..true.) Then
-    CALL h5fopen_f( file_3rdm, H5F_ACC_RDONLY_F, file_h5, hdferr )
-    CALL h5gopen_f( file_h5, "3-RDM", group_h5, hdferr )
+    file_h5 = mh5_open_file_r(file_3rdm)
+    group_h5 = mh5_open_group(file_h5, '3-RDM')
   Else
-    CALL h5fopen_f( file_f4rdm, H5F_ACC_RDONLY_F, file_h5, hdferr )
-    CALL h5gopen_f( file_h5, "F.4-RDM", group_h5, hdferr )
+    file_h5 = mh5_open_file_r(file_f4rdm)
+    group_h5 = mh5_open_group(file_h5, 'F.4-RDM')
   End If
-  CALL h5dopen_f( group_h5, "elements", dset_h5, hdferr )
-  CALL h5dget_space_f( dset_h5, space_h5, hdferr )
-  f_ptr = C_LOC( buffer( 1 ) )
-  CALL h5dread_f( dset_h5, H5T_NATIVE_DOUBLE, f_ptr, hdferr )
-  CALL h5dclose_f( dset_h5 , hdferr )
-  CALL h5sclose_f( space_h5, hdferr )
-  CALL h5gclose_f( group_h5, hdferr )
-  CALL h5fclose_f( file_h5,  hdferr )
+  call mh5_fetch_dset_array_real(group_h5, 'elements', buffer)
+  call mh5_close_group(group_h5)
+  call mh5_close_file(file_h5)
 !#ifdef _MOLCAS_MPP_
 !end if
 !call MPI_Bcast( buffer, NAC * NAC * NAC * NAC * NAC * NAC, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, IERROR4 )

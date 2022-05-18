@@ -187,21 +187,21 @@
       call one2h5_fckint(fileid, nsym, nbas)
       ! mocoef
       dsetid = mh5_create_dset_real(fileid,'MO_VECTORS', 1, [nCMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Coefficients of the SALCs as produced by MSYM, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
       call mh5_put_dset(dsetid, Work(ipCAO))
       call mh5_close_dset(dsetid)
       ! mooc
       dsetid = mh5_create_dset_real(fileid,'MO_OCCUPATIONS', 1, [nMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Dummy occupation numbers '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, Work(ipOcc))
       call mh5_close_dset(dsetid)
       ! moene
       dsetid = mh5_create_dset_real(fileid,'MO_ENERGIES', 1, [nMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Dummy orbital energies '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, Work(ipOcc))
@@ -209,14 +209,14 @@
       ! supsym
       dsetid = mh5_create_dset_int(fileid,
      $ 'SUPSYM_IRREP_IDS', 1, [nMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Super-symmetry ids as produced by MSYM, '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, iWork(ipIrrIds))
       call mh5_close_dset(dsetid)
       dsetid = mh5_create_dset_int(fileid,
      $ 'SUPSYM_IRREP_INDICES', 1, [nMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Super-symmetry indices as produced by MSYM, '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, iWork(ipIrrInd))
@@ -224,7 +224,7 @@
       ! irrep_labels
       dsetid = mh5_create_dset_str(fileid,
      $ 'SUPSYM_IRREP_LABELS', 1, [nIrr], 8)
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Super-symmetry labels as produced by MSYM, '//
      $        'arranged as array of size i=1,#supsym_irreps')
       call mh5_put_dset(dsetid, irrep_strings)

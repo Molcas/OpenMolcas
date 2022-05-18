@@ -60,6 +60,10 @@ INT mh5c_open_file_rw (char* filename);
 INT mh5c_open_file_r (char* filename);
 INT mh5c_close_file (INT file_id);
 
+/* groups */
+INT mh5c_open_group (INT file_id, char* name);
+INT mh5c_close_group (INT group_id);
+
 /* attributes */
 INT mh5c_create_attr_scalar_int(INT obj_id, char* name);
 INT mh5c_create_attr_scalar_real(INT obj_id, char* name);
@@ -212,6 +216,18 @@ INT mh5c_close_file (INT file_id) {
 
 INT mh5c_is_hdf5(char* filename) {
         return H5Fis_hdf5(filename);
+}
+
+/*
+ * groups
+ */
+
+INT mh5c_open_group (INT file_id, char* name) {
+        return H5Gopen(file_id, name, H5P_DEFAULT);
+}
+
+INT mh5c_close_group (INT group_id) {
+        return H5Gclose(group_id);
 }
 
 INT mh5c_exists_dset(hid_t mh5c_id, char* name) {

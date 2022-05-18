@@ -46,7 +46,7 @@
 *     Nuclear geometry
       dyn_geom = mh5_create_dset_real(dyn_fileid,
      $          'CENTER_COORDINATES', 1, [3*natoms])
-      call mh5_init_attr(dyn_geom, 'description',
+      call mh5_init_attr(dyn_geom, 'DESCRIPTION',
      $          'Geometry in cartesians coordinates '//
      $          'at the current time step')
       call mma_allocate(coord,3,natoms)
@@ -60,7 +60,7 @@
 *     Atom labels
       dyn_dsetid = mh5_create_dset_str(dyn_fileid,
      $          'CENTER_LABELS', 1, [natoms], LENIN)
-      call mh5_init_attr(dyn_dsetid, 'description',
+      call mh5_init_attr(dyn_dsetid, 'DESCRIPTION',
      $          'Center labels '//
      $          'arranged as a [NATOMS] block')
       call mma_allocate(atomlbl,natoms)
@@ -75,26 +75,26 @@
 
 *     Current time
       dyn_time = mh5_create_dset_real (dyn_fileid,'TIME')
-      call mh5_init_attr(dyn_time, 'description',
+      call mh5_init_attr(dyn_time, 'DESCRIPTION',
      $        'Current time of the Molecular Dynamics')
 *     Time step
       dyn_dt = mh5_create_dset_real (dyn_fileid,'TIME_STEP')
-      call mh5_init_attr(dyn_dt, 'description',
+      call mh5_init_attr(dyn_dt, 'DESCRIPTION',
      $        'Time step of the Molecular Dynamics')
 
 *     Total energy at t=0
       dyn_etot0 = mh5_create_dset_real (dyn_fileid,'ETOT_0')
-      call mh5_init_attr(dyn_etot0, 'description',
+      call mh5_init_attr(dyn_etot0, 'DESCRIPTION',
      $        'Total energy at t=0')
 *     Total energy at current time
       dyn_etot = mh5_create_dset_real (dyn_fileid,'ETOT')
-      call mh5_init_attr(dyn_etot, 'description',
+      call mh5_init_attr(dyn_etot, 'DESCRIPTION',
      $        'Total energy at current time')
 
 *     Velocities
       dyn_vel = mh5_create_dset_real(dyn_fileid,
      $          'VELOCITIES', 1, [3*natoms])
-      call mh5_init_attr(dyn_vel, 'description',
+      call mh5_init_attr(dyn_vel, 'DESCRIPTION',
      $          'Velocities in cartesians coordinates '//
      $          'at the current time step')
 
@@ -102,7 +102,7 @@
       nh=6
       dyn_nh = mh5_create_dset_real(dyn_fileid,
      $          'NOSEHOOVER', 1, [nh])
-      call mh5_init_attr(dyn_nh, 'description',
+      call mh5_init_attr(dyn_nh, 'DESCRIPTION',
      $          'NoseHoover degrees of freedom')
 
 *     MaxHop
@@ -116,7 +116,7 @@
 *     Isotopes
       dyn_mass = mh5_create_dset_real(dyn_fileid,
      $          'MASSES', 1, [natoms])
-      call mh5_init_attr(dyn_mass, 'description',
+      call mh5_init_attr(dyn_mass, 'DESCRIPTION',
      $          'Atomic masses, in a.u.')
 
 *     The following variables are relevant to the SURFACEHOP module.
@@ -127,7 +127,7 @@
       call qpg_iscalar('Seed',Found)
       if (Found) then
         surf_dsetid = mh5_create_dset_int (dyn_fileid,'SEED')
-        call mh5_init_attr(surf_dsetid, 'description',
+        call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'Seed number')
         call get_iscalar('Seed',ii)
         call mh5_put_dset(surf_dsetid,ii)
@@ -138,7 +138,7 @@
       call qpg_iscalar('Number of Hops',Found)
       if (Found) then
         surf_dsetid = mh5_create_dset_int (dyn_fileid,'NO. OF HOPS')
-        call mh5_init_attr(surf_dsetid, 'description',
+        call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'Number of hops')
         call get_iscalar('Number of Hops',ii)
         call mh5_put_dset(surf_dsetid,ii)
@@ -149,7 +149,7 @@
       call qpg_iscalar('MaxHopsTully',Found)
       if (Found) then
         surf_dsetid = mh5_create_dset_int (dyn_fileid,'MAX_HOP_TULLY')
-        call mh5_init_attr(surf_dsetid, 'description',
+        call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'Maximum number of hops in Tully algorithm')
         call get_iscalar('MaxHopsTully',ii)
         call mh5_put_dset(surf_dsetid,ii)
@@ -159,8 +159,8 @@
 *     Relax CASSCF root
       call qpg_iscalar('Relax CASSCF root',Found)
       if (Found) then
-        surf_dsetid = mh5_create_dset_int (dyn_fileid,'Relax CAS root')
-        call mh5_init_attr(surf_dsetid, 'description',
+        surf_dsetid = mh5_create_dset_int (dyn_fileid,'RELAX CAS ROOT')
+        call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'Relax CASSCF root')
         call get_iscalar('Relax CASSCF root',ii)
         call mh5_put_dset(surf_dsetid,ii)
@@ -179,9 +179,9 @@
 *     Energies at the previous step
         call qpg_darray('VenergyP',Found,nstates)
         if (Found) then
-          surf_dsetid = mh5_create_dset_real (dyn_fileid,'Energ Prev',
+          surf_dsetid = mh5_create_dset_real (dyn_fileid,'ENERG PREV',
      $            1, [nstates])
-          call mh5_init_attr(surf_dsetid, 'description',
+          call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'Potential energies at the previous time step')
           call mma_allocate(ener,nstates)
           call get_darray('VenergyP',ener,nstates)
@@ -193,9 +193,9 @@
 *     CI coeffs at the previous step
         call qpg_darray('AllCIP',Found,nstates*nconfs)
         if (Found) then
-          surf_dsetid = mh5_create_dset_real (dyn_fileid,'CI Prev',
+          surf_dsetid = mh5_create_dset_real (dyn_fileid,'CI PREV',
      $            1, [nstates*nconfs])
-          call mh5_init_attr(surf_dsetid, 'description',
+          call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'CI coeffs at the previous time step')
           call mma_allocate(ciarray,nstates*nconfs)
           call get_darray('AllCIP',ciarray,nstates*nconfs)
@@ -207,9 +207,9 @@
 *     CI coeffs at the step before the previous step
         call qpg_darray('AllCIPP',Found,nstates*nconfs)
         if (Found) then
-          surf_dsetid = mh5_create_dset_real (dyn_fileid,'CI PPrev',
+          surf_dsetid = mh5_create_dset_real (dyn_fileid,'CI PPREV',
      $            1, [nstates*nconfs])
-          call mh5_init_attr(surf_dsetid, 'description',
+          call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'CI coeffs at the step before the previous time step')
           call mma_allocate(ciarray,nstates*nconfs)
           call get_darray('AllCIPP',ciarray,nstates*nconfs)
@@ -226,16 +226,16 @@
 *     HDF5 format does not deal with complex numbers so split manually into
 *     real and imaginary parts and save 2 datasets
 *         Real part
-          surf_dsetid = mh5_create_dset_real (dyn_fileid,'AmatrixV-R',
+          surf_dsetid = mh5_create_dset_real (dyn_fileid,'AMATRIXV-R',
      $            1, [nstates*nstates])
-          call mh5_init_attr(surf_dsetid, 'description',
+          call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'real part of AmatrixV')
           call mh5_put_dset(surf_dsetid,REAL(Amatrix))
           call mh5_close_dset(surf_dsetid)
 *         Imaginary part
-          surf_dsetid = mh5_create_dset_real (dyn_fileid,'AmatrixV-I',
+          surf_dsetid = mh5_create_dset_real (dyn_fileid,'AMATRIXV-I',
      $            1, [nstates*nstates])
-          call mh5_init_attr(surf_dsetid, 'description',
+          call mh5_init_attr(surf_dsetid, 'DESCRIPTION',
      $        'imaginary part of AmatrixV')
           call mh5_put_dset(surf_dsetid,AIMAG(Amatrix))
           call mh5_close_dset(surf_dsetid)

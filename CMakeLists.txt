@@ -1755,36 +1755,23 @@ if (CHEMPS2)
 
   message ("Configuring CheMPS2-DMRG support:")
 
-  # suppose CheMPS2 has been installed at ${CHEMPS2_DIR} for the time.
-  set (CHEMPS2_DIR ${CHEMPS2_DIR} CACHE PATH "CheMPS2 installation path." FORCE)
-  if ("${CHEMPS2_DIR}" STREQUAL "")
-    message (FATAL_ERROR "You must supply a path for CHEMPS2_DIR.")
-  endif ()
-
   if (NOT HDF5)
-    message (FATAL_ERROR "CheMPS2 interface requires enabling HDF5 with --enable-fortran2003.")
+    message (FATAL_ERROR "CheMPS2 interface requires enabling HDF5")
   endif ()
 
-  find_library (HDF5_Fortran_LIBRARIES hdf5_fortran)
-  if (HDF5_Fortran_LIBRARIES)
-    message ("-- HDF5_Fortran_LIBRARIES: ${HDF5_Fortran_LIBRARIES}")
-    list (APPEND EXTERNAL_LIBRARIES ${HDF5_Fortran_LIBRARIES})
-  else ()
-    message (FATAL_ERROR "CheMPS2 interface require HDF5 with fortran 2003 support")
+  find_program (CHEMPS2_EXE chemps2)
+  if (NOT CHEMPS2_EXE)
+    message (WARNING "No CheMPS2 installation found, you will have to make sure it is available at run time")
   endif ()
 
-  if (EXISTS ${CHEMPS2_DIR}/chemps2)
-    foreach (prog
-      caspt2
-      rasscf
-    )
-      list (APPEND ${prog}_defs "_ENABLE_CHEMPS2_DMRG_")
-    endforeach ()
-    message ("-- CHEMPS2_DIR: ${CHEMPS2_DIR}")
-  else ()
-    message (FATAL_ERROR "No CheMPS2 installation found at ${CheMPS2_DIR}")
-  endif ()
-
+  foreach (prog
+    caspt2
+    rasscf
+  )
+    list (APPEND ${prog}_defs "_ENABLE_CHEMPS2_DMRG_")
+  endforeach ()
+  message ("-- CHEMPS2_EXE: ${CHEMPS2_EXE}")
+  unset (CHEMPS2_EXE CACHE)
 else ()
   mark_as_advanced (FORCE CHEMPS2_DIR)
   message ("CHEMPS2 interface DISABLED")

@@ -13,21 +13,10 @@ The CheMPS2--|molcas| interface requires the following components:
 The CheMPS2--|molcas| interface :cite:`Phung2016,Wouters2016`,
 based on the Block--|molcas| interface :cite:`Nakatani2017`,
 can support DMRG-SS-CASPT2 and DMRG-SA-CASPT2 calculations.
-It requires the following components:
 
-* HDF5: https://support.hdfgroup.org/HDF5
-* CheMPS2 binary: https://github.com/SebWouters/CheMPS2/archive/v1.8.4.tar.gz
-
-HDF5 must be configured with Fortran, Fortran 2003, and C++ enabled:
-
-::
-
-  ./configure --enable-fortran --enable-fortran2003 --enable-cxx
-
-Make sure that both :file:`libhdf5_fortran.so` and :file:`libhdf5.so` are generated.
-
-For CheMPS2 binary installation, consult
-http://sebwouters.github.io/CheMPS2/sourcecode.html
+It requires the CheMPS2 binary. For installation of CheMPS2, consult
+http://sebwouters.github.io/CheMPS2/index.html if it is not already
+available in your OS.
 
 Note that only the version with the Open Multi-Processing (OpenMP) is supported,
 thus build CheMPS2 with:
@@ -67,5 +56,5 @@ Verify the installation:
 
 ::
 
-  molcas verify 850 851
+  molcas verify extra:850,851
   molcas verify benchmark:970

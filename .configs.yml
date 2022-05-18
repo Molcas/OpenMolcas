@@ -33,6 +33,7 @@
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
+      set (CHEMPS2 "ON" CACHE STRING "enable CheMPS2 interface")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
       set (TOOLS "ON" CACHE STRING "compile Tools")
       set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
