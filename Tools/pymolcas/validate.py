@@ -89,6 +89,13 @@ def first_int(string):
 def blank(string):
   return string.strip() == ''
 
+# Find next non-blank line
+def to_next_non_blank(lines):
+  n = 1
+  while ((n < len(lines)) and blank(lines[n])):
+    n += 1
+  return n
+
 # Check if the current line starts a group
 #  1: group matches, consume one line
 #  0: group doesn't match
@@ -642,7 +649,7 @@ def test_custom(lines, keyword):
             elif (parts[0].upper() == 'PROJOP'):
               ll = 1
               n = first_int(lines[l+ll])
-              ll += 1
+              ll += to_next_non_blank(lines[l+ll:])
               for i in range(n+1):
                 n1, n2 = to_int(fortran_split(lines[l+ll])[0:2])
                 ll += test_standard(lines[l+ll:], 'REALS', n2+n1*(1+n2))
@@ -669,6 +676,20 @@ def test_custom(lines, keyword):
             assert (len(parts) > 1)
           elif any([cmp_str(parts[0], i) for i in ['MUON', 'PSEUDO', 'FRAGMENT']]):
             pass
+          elif (cmp_str(parts[0], 'PP')):
+            n1, n2 = to_int(parts[2:4])
+            ll = 0
+            ll += to_next_non_blank(lines[l+ll:])
+            for i in range(n2+1):
+              n1 = first_int(lines[l+ll])
+              ll += to_next_non_blank(lines[l+ll:])
+              for j in range(n1):
+                parts = fortran_split(lines[l+ll])
+                n = fortran_int(parts[0])
+                nums = to_float(parts[1:3])
+                ll += to_next_non_blank(lines[l+ll:])
+            if (ll):
+              l += ll-1
           elif (cmp_str(parts[0], 'SPEC')):
             l += 1
             while (l < len(lines)):
