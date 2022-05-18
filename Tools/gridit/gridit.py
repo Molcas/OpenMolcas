@@ -2,6 +2,7 @@
 """Script to automatically generate grid files from Orbfiles.
 """
 
+import sys
 import os
 from os import remove
 from os.path import join, basename, splitext, relpath
@@ -9,6 +10,11 @@ from os.path import join, basename, splitext, relpath
 import subprocess
 from subprocess import run
 import click
+
+MIN_PYTHON = (3, 6)
+if sys.version_info < MIN_PYTHON:
+    raise RuntimeError('F strings and ordered kwargs required. '
+                       'This requires at least python 3.6.')
 
 
 def create_module_input(module_name, **kwargs):
