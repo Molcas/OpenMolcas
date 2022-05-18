@@ -36,9 +36,9 @@
 *   rOut        :       Submatrix                                      *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8 Fock(nbaj,nbaj),Focki(nbaj,nbaj)
       Real*8 rout(nd*(nd+1)/2), Scr(nScr)
@@ -88,10 +88,10 @@ C
                   bedf=ActInt(jBB,jEE,jDD,jFF)
                   becf=ActInt(jBB,jEE,iCC,jFF)
                   aedf=ActInt(iAA,jEE,jDD,jFF)
-                  rDbedf=Work(ipg2-1+itri(itri(jBB,jEE),itri(jDD,jFF)))
-                  rDaecf=Work(ipg2-1+itri(itri(iAA,jEE),itri(iCC,jFF)))
-                  rDaedf=Work(ipg2-1+itri(itri(iAA,jEE),itri(jDD,jFF)))
-                  rDbecf=Work(ipg2-1+itri(itri(jBB,jEE),itri(iCC,jFF)))
+                  rDbedf=G2t(itri(itri(jBB,jEE),itri(jDD,jFF)))
+                  rDaecf=G2t(itri(itri(iAA,jEE),itri(iCC,jFF)))
+                  rDaedf=G2t(itri(itri(iAA,jEE),itri(jDD,jFF)))
+                  rDbecf=G2t(itri(itri(jBB,jEE),itri(iCC,jFF)))
                   Scr(i) = Scr(i) + 4.0d+00*(aecf*rDbedf+bedf*rDaecf
      *                                        -becf*rDaedf-aedf*rDbecf)
      *                     *sign
@@ -101,10 +101,10 @@ C
                   bdef=ActInt(jBB,jDD,jEE,jFF)
                   bcef=ActInt(jBB,iCC,jEE,jFF)
                   adef=ActInt(iAA,jDD,jEE,jFF)
-                  rDbdef=Work(ipg2-1+itri(itri(jBB,jDD),itri(jEE,jFF)))
-                  rDacef=Work(ipg2-1+itri(itri(iAA,iCC),itri(jEE,jFF)))
-                  rDadef=Work(ipg2-1+itri(itri(iAA,jDD),itri(jEE,jFF)))
-                  rDbcef=Work(ipg2-1+itri(itri(jBB,iCC),itri(jEE,jFF)))
+                  rDbdef=G2t(itri(itri(jBB,jDD),itri(jEE,jFF)))
+                  rDacef=G2t(itri(itri(iAA,iCC),itri(jEE,jFF)))
+                  rDadef=G2t(itri(itri(iAA,jDD),itri(jEE,jFF)))
+                  rDbcef=G2t(itri(itri(jBB,iCC),itri(jEE,jFF)))
                   Scr(i) = Scr(i) + 2.0d+00*(acef*rDbdef+bdef*rDacef
      *                                        -bcef*rDadef-adef*rDbcef)
      *                     *sign
@@ -130,10 +130,10 @@ C
 C           i=itri1(jjB,jjD)
             i=itri(jBB,jDD)
 *
-            rDbd = Work(ipG1-1+itri(jBB,jDD))
-            rDac = Work(ipG1-1+itri(iAA,iCC))
-            rDad = Work(ipG1-1+itri(iAA,jDD))
-            rDbc = Work(ipG1-1+itri(jBB,iCC))
+            rDbd = G1t(itri(jBB,jDD))
+            rDac = G1t(itri(iAA,iCC))
+            rDad = G1t(itri(iAA,jDD))
+            rDbc = G1t(itri(jBB,iCC))
 C
             !! third term
             Scr(i) = Scr(i) + sign*2.0d+00*
