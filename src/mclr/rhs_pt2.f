@@ -20,7 +20,6 @@
 
 #include "Pointers.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "Files_mclr.fh"
 
