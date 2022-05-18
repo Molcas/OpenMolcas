@@ -101,4 +101,11 @@
       return
       end subroutine Setup_kriging
 
+      subroutine Deallocate_protected()
+#include "stdalloc.fh"
+      Call mma_Deallocate(x)
+      Call mma_Deallocate(y)
+      Call mma_Deallocate(dy)
+      end subroutine Deallocate_protected
+
       end module kriging_mod

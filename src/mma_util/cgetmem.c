@@ -304,8 +304,8 @@ INT allocmem(double ref[],char cref[],INT *intof,INT *dblof,INT *sglof, INT *chr
 #endif
      }
 #ifdef _DEBUGPRINT_MEM_
-     printf("ref=%p\n",ref);
-     printf("cref=%p\n",cref);
+     printf("ref=%p\n",(void*)ref);
+     printf("cref=%p\n",(void*)cref);
      setvbuf(stdout, NULL, _IOLBF,0);
 #endif
 #ifdef _OPENMP

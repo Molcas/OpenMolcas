@@ -65,7 +65,7 @@
 #include "WrkSpc.fh"
 #include "mama.fh"
 #ifdef _OPENMP
-      Include 'omp_lib.h'
+#include "omp_lib.h"
 #endif
 *
 *

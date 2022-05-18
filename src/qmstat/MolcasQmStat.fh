@@ -8,11 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#ifdef MOLPRO
-      include "common/maxbfn"
-      include "common/mxatom"
-      Parameter (mxroot = 100)
-#else
 #include "maxbfn.fh"
 #ifndef _DEMO_
        Integer mxAtom,mxroot
@@ -26,7 +21,6 @@
        Integer mxact,mxina
        Parameter (mxact  =  50)
        Parameter (mxina  = maxbfn)
-#endif
 *Jose
 * This is the Molcas.fh file with the four following lines commented
 *      Integer mxbas,mxOrb,mxSym

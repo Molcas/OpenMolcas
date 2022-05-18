@@ -12,7 +12,7 @@
 ************************************************************************
 
       subroutine Write_Input()
-      use stdalloc
+      use stdalloc, only: mma_Allocate, mma_Deallocate
       implicit none
       integer :: LU,nAtoms,i
       real*8, allocatable :: Coord(:,:)

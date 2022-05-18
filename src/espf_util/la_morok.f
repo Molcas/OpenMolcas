@@ -24,7 +24,7 @@ c     iMode = 2 => the LA position is updated
 c     q_LA = q_QM + k * (q_MM - q_QM)
 c
 #include "espf.fh"
-      Include 'stdalloc.fh'
+#include "stdalloc.fh"
 *
       Logical Exist,Exist2,isOkLA,isOkMM,isOkQM,lMorok
       Logical DoTinker,DoGromacs
