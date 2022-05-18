@@ -38,7 +38,7 @@
 
 *     Local variables
       Integer iDCRT(0:7)
-      Logical TstFnc, TF
+      Logical, External :: TF
 #ifdef _PATHSCALE_
       Save Fact
 #endif
@@ -47,9 +47,6 @@
       Logical JfGrad(3,4)
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,
-     &                       dc(mdc)%nStab)
 *
       iRout = 150
       iPrint = nPrint(iRout)

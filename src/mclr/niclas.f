@@ -22,14 +22,11 @@
       Character*40 Label
       Integer nDeg(200),ldisp(0:7)
       Integer inddsp(100,0:7)
-      logical tf,tstfnc
+      Logical, External :: TF
       Real*8 Coor(*)
       Real*8 Dummy(1)
       Real*8, Allocatable:: Htmp(:), Tmp(:)
-
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
-
+*
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       irec(i,j)=nd*(j-1)+i-1
 *

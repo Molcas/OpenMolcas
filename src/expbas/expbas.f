@@ -12,6 +12,7 @@
 *               2008, Valera Veryazov                                  *
 ************************************************************************
       subroutine expbas(ireturn)
+      use info_expbas_mod
 ************************************************************************
 *                                                                      *
 *     Objective: Expand MOs to larger basis set                        *
@@ -22,7 +23,7 @@
       Implicit real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-#include "info_expbas.fh"
+      integer, intent(out) :: ireturn
       Dimension nBas1(mxsym),nBas2(mxsym),Occ1(maxbfn),Eorb1(maxbfn),
      &          Occ2(maxbfn),Eorb2(maxbfn)
       Integer indt1(maxbfn),indt2(maxbfn),Indtype(56)

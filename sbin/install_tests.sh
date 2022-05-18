@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/bin/sh
 #***********************************************************************
 # This file is part of OpenMolcas.                                     *
 #                                                                      *
@@ -8,22 +8,28 @@
 # is provided "as is" and without any express or implied warranties.   *
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2020, Ignacio Fdez. Galván                             *
 #***********************************************************************
 
-# script to convert stack trace with pc addresses
-# to source code files and line numbers
+# Script to ...
+#
 
-print "symbolized stack trace:\n";
-while (<STDIN>) {
-    if (/^(\s+#\d+)\s+0x[0-9a-f]+\s+\(([^\(\)]*)\)/) {
-        my $counter = $1;
-        my $address = $2;
-        my ($exe,$pc) = split(/\+/, $address);
-        my $source = `addr2line -f -p -e $exe $pc`;
-        if ($source =~ /\?\?:\?/) {
-            print "$counter (?) $exe $pc\n";
-        } else {
-            print "$counter $source";
-        }
-    }
-}
+if [ -z "$MOLCAS" ] ; then
+  MOLCAS=$PWD
+fi
+
+export MOLCAS
+
+DEST=$1
+if [ -d "$DEST" ] && [ -w "$DEST" ] ; then
+  true
+else
+  echo "$DEST is not writable directory"
+  exit 1
+fi
+
+for dir in `$MOLCAS/sbin/verify --group | awk -F "= " '/^Physical/,/^Special/ {print $2}'` ; do
+  echo "Copying tests from $dir"
+  cp -a "$dir" "$DEST"
+done

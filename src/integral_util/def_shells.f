@@ -19,14 +19,7 @@
 #include "disp.fh"
 *
       Integer iSD(0:nSD,mSkal)
-      Logical  TF, TstFnc
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *

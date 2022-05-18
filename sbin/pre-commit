@@ -35,6 +35,10 @@ then
     then
         RC=1
     fi
+    if ! sbin/check_tests
+    then
+        RC=1
+    fi
 fi
 
 if (( $RC ))

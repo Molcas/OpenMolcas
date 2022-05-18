@@ -20,7 +20,7 @@ C     Gracefully shuts down a program module.
 C     After everything is closed properly, xquit is
 C     called to do the actual termination.
       implicit none
-      integer :: rc
+      integer, intent(in) :: rc
 #include "WrkSpc.fh"
 #include "timtra.fh"
       integer :: idum = 0

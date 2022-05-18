@@ -94,7 +94,6 @@ def main(my_name):
   args = vars(parser.parse_args())
 
   from molcas_aux import find_molcas, find_sources, attach_streams, dotmolcas
-  from write_molcasrc import write_molcasrc
   from molcas_wrapper import Molcas_wrapper, MolcasException
 
   # Checking for version right at the beginning, in case MOLCAS cannot be found
@@ -104,10 +103,7 @@ def main(my_name):
     return(0)
 
   if (args['setup']):
-    if (write_molcasrc(dotmolcas('molcasrc'), parser.prog)):
-      return(0)
-    else:
-      return(1)
+    args['filename'] = 'setup'
 
   xbin_list={}
   find_molcas(xbin_list, here=(not args['not_here']))

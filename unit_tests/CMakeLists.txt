@@ -15,6 +15,9 @@ include_guard(GLOBAL)
 
 include(${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
 
+# unsupported compilers
+set(not_supported ";SunPro;PGI;")
+
 set(UNIT_TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 function(add_unit_test Target)
@@ -42,6 +45,9 @@ function(add_unit_test Target)
 endfunction()
 
 
-# And start adding tests
-add_subdirectory(linalg_mod/)
-add_subdirectory(fortran_strings/)
+# start adding tests, but don't bother with shitty compilers
+if (NOT ((CMAKE_Fortran_COMPILER_ID IN_LIST not_supported) OR (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")))
+    add_subdirectory(linalg_mod/)
+    add_subdirectory(fortran_strings/)
+    add_subdirectory(sorting/)
+endif()

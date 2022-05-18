@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: CH2
-* Basis: cc-pvtz 
+* Basis: cc-pvtz
 * Symmetry: C2v
 *-------------------------------------------------------------------------------
  &SEWARD   &END
@@ -8,7 +8,7 @@ symmetry
 x y
 basis set
 Te.ano-rcc.Roos.22s19p13d5f3g.6s5p3d1f.
-Te 0.000000 0.000000 0.0000000 
+Te 0.000000 0.000000 0.0000000
 end of basis
 basis set
 H.ano-rcc.Widmark.8s4p3d1f.3s2p1d.
@@ -56,7 +56,7 @@ END_DRT
 SUBSPACEDIM
  5
 ITERATIONS
- 40  1 
+ 40  1
 ACCURACY
  0.001
 REFSPACE
@@ -66,7 +66,7 @@ GENSPACE
 EXLVL
  2
 FROZENCORE
- 11 5 5 2 
+ 11 5 5 2
 REFDOCC
  0 0 0 0
 REFRAS
@@ -74,5 +74,5 @@ REFRAS
 REFCAS
  3 1 2 0
 END_SECTION_MRCI
-end of input 
+end of input
 

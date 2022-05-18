@@ -19,16 +19,16 @@
       Logical :: Kriging = .False.
       Integer :: nspAI = 1
       Logical :: anMd = .True.
-      Real*8  :: pAI = 2
+      Integer :: pAI = 2
       Real*8  :: lb(3) = [20.0D0, 20.0D0, 1.0D0]
       Integer :: Max_MicroIterations = 50
       Real*8  :: Thr_MicroIterations = 1.0D-8
       Logical :: blAI = .False.
       Logical :: mblAI = .False.
       Logical :: blaAI = .True.
-      Real*8  :: blavAI=10.0D0
-      Logical :: set_l=.False.
-      Logical :: ordinary=.False.
+      Real*8  :: blavAI = 10.0D0
+      Logical :: set_l = .False.
+      Logical :: ordinary = .False.
       Real*8  :: blvAI
 *
 !     Memory for coordinates, value and gradients of the

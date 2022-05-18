@@ -1,15 +1,15 @@
-!***********************************************************************
-! This file is part of OpenMolcas.                                     *
-!                                                                      *
-! OpenMolcas is free software; you can redistribute it and/or modify   *
-! it under the terms of the GNU Lesser General Public License, v. 2.1. *
-! OpenMolcas is distributed in the hope that it will be useful, but it *
-! is provided "as is" and without any express or implied warranties.   *
-! For more details see the full text of the license in the file        *
-! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2020, Roland Lindh                                     *
-!***********************************************************************
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2020, Roland Lindh                                     *
+************************************************************************
 
 ************************************************************************
 *      Alpha : exponents of bra gaussians                              *
@@ -46,19 +46,20 @@
 #else
       Integer nAlpha, nBeta
       Real*8 Alpha(nAlpha), Beta(nBeta)
-      Integer nZeta
+      Integer nZeta, la, lb, nIC
       Real*8 Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3)
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
-      Integer la, lb, nIC, nHer
+      Integer nHer
       Real*8 A(3), RB(3)
-      Real*8 Array(nZeta*nArr)
       Integer nArr
-      Integer nCOmp
+      Real*8 Array(nZeta*nArr)
+      Integer nComp
       Real*8 Ccoor(3,nComp)
       Integer nOrdOp
       Integer lOper(nComp), iChO(nComp)
-      Integer iStabM(0:nStabM-1)
       Integer nStabM
+      Integer iStabM(0:nStabM-1)
+      Integer nGrid
       Real*8 PtChrg(nGrid)
       Integer iAddPot
 #endif

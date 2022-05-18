@@ -213,12 +213,12 @@ def EMIL_Parse(input_file):
       elif (re_rm.match(item[1])):
         re_match = re_rm.match(item[1])
         blocks[level].append(ParTask('rm', (re_match.group(1) is not None), [re_match.group(2)]))
-        
+
       # >>> COPY, SAVE, CLONE, COLLECT
       elif (re_copy.match(item[1])):
         re_match = re_copy.match(item[1])
         blocks[level].append(ParTask(re_match.group(1).lower(), (re_match.group(2) is not None), [re_match.group(3), re_match.group(4)]))
-        
+
       # >>> FOREACH
       elif (re_foreach.match(item[1])):
         re_match = re_foreach.match(item[1])

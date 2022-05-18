@@ -476,10 +476,6 @@ contains
         real(wp), intent(out) :: P(:, :)
         integer :: i, j
 
-        ! avoid unused dummy warning
-        select type(self)
-        end select
-
         P(:, :) = 0._wp
         ! calculate projections of basis b_j into eigenvectors v_i:
         ! p_j = sum_i < b_j | v_i > v_i
@@ -490,6 +486,16 @@ contains
                 P(:, j) = P(:, j) + M(j, i) * M(:, i)
             end do
         end do
+
+        return
+#ifdef _WARNING_WORKAROUND_
+        ! avoid unused dummy warning
+        if (.false.) then
+          select type(self)
+            class default
+          end select
+        end if
+#endif
     end subroutine
 
 

@@ -274,7 +274,6 @@ c      If (nOrdOp.eq.1) Then
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(PtChrg)
-         Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)

@@ -44,9 +44,7 @@ C     Cholesky
 *
 *     Allocate Input struct, read and process the Input
 *
-#ifdef ALLOC_SCAL
       ALLOCATE(Input)
-#endif
       LuSpool=21
       Call SpoolInp(LuSpool)
       CALL READIN_CASPT2(LuSpool,nSym)
@@ -161,9 +159,6 @@ C Initialize sizes, offsets etc used in equation solver.
 #include "chocaspt2.fh"
 
       Integer iSym
-#ifndef ALLOC_SCAL
-      Integer iGrp
-#endif
 C     Cholesky return code
       INTEGER irc
 C     size of idsct array
@@ -221,22 +216,5 @@ C     Close all files:
       CALL CLSFLS_CASPT2
 
 C free input struct
-#ifdef ALLOC_SCAL
       DEALLOCATE(Input)
-#else
-      IF (ALLOCATED(Input%MultGroup%State))
-     &   DEALLOCATE(Input%MultGroup%State)
-      IF (ALLOCATED(Input%nXMulState)) DEALLOCATE(Input%nXMulState)
-      IF (ALLOCATED(Input%XMulGroup)) THEN
-        DO iGrp = 1, SIZE(Input%XMulGroup)
-          IF (ALLOCATED(Input%XMulGroup(iGrp)%State))
-     &       DEALLOCATE(Input%XMulGroup(iGrp)%State)
-          DEALLOCATE(Input%XMulGroup)
-        END DO
-      END IF
-      IF (ALLOCATED(Input%nFro)) DEALLOCATE(Input%nFro)
-      IF (ALLOCATED(Input%nDel)) DEALLOCATE(Input%nDel)
-      IF (ALLOCATED(Input%NamFro)) DEALLOCATE(Input%NamFro)
-      IF (ALLOCATED(Input%HEff)) DEALLOCATE(Input%HEff)
-#endif
       End

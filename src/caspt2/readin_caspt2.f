@@ -190,25 +190,11 @@ C types, which are not supported with stdalloc. Hence, the infraction.
       Logical :: CSF  = .False.
       End Type
 
-#ifdef ALLOC_SCAL
       Type(InputTable), Allocatable :: Input
-#else
-      Type(InputTable) :: Input
-#endif
 
       Save
 
       Contains
-
-CIFG Some compilers have problems with allocatable strings.
-C Use an inferior workaround.
-#ifdef ALLOC_CHAR
-#define alloc_dline   Allocate(Character(Len=Len(Line)) :: dLine)
-#define dealloc_dline Deallocate(dLine)
-#else
-#define alloc_dline   !no-op
-#define dealloc_dline !no-op
-#endif
 
       Subroutine Readin_CASPT2(LuIn,nSym)
 CSVC Read and store the input as independent as possible. Any sanity
@@ -219,11 +205,7 @@ C is nSym, as some input lines assume knowledge of the number of irreps.
       Integer, intent(in) :: LuIn, nSym
 
       Character(Len=128) :: Line
-#ifdef ALLOC_CHAR
       Character(len=:), Allocatable :: dLine
-#else
-      Character(Len=(Len(Line))) :: dLine
-#endif
       Character(Len=4) :: Command, Word
 
       Integer :: i, j, iSym, nStates
@@ -281,7 +263,7 @@ C end of input
       Allocate(Input%MultGroup%State(nStates))
       Input%nMultState = nStates
       iSplit = SCAN(Line,' ')
-      alloc_dline
+      Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line(iSplit:)
       iError = -1
       Do While (iError.lt.0)
@@ -293,7 +275,7 @@ C end of input
           Call ExtendLine(dLine,Line)
         End If
       End Do
-      dealloc_dline
+      Deallocate(dLine)
 
       Case('XMUL')
       Input % XMUL = .True.
@@ -313,7 +295,7 @@ C end of input
       Allocate(Input%XMulGroup%State(nStates))
       Input%nXMulState = nStates
       iSplit = SCAN(Line,' ')
-      alloc_dline
+      Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line(iSplit:)
       iError = -1
       Do While (iError.lt.0)
@@ -325,7 +307,7 @@ C end of input
           Call ExtendLine(dLine,Line)
         End If
       End Do
-      dealloc_dline
+      Deallocate(dLine)
 
 
       Case('DWMS')
@@ -351,7 +333,7 @@ C end of input
       Input % FROZ = .True.
       Allocate(Input % nFro(nSYM))
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      alloc_dline
+      Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError.lt.0)
@@ -362,13 +344,13 @@ C end of input
           Call ExtendLine(dLine,Line)
         End If
       End Do
-      dealloc_dline
+      Deallocate(dLine)
 
       Case('DELE')
       Input % DELE = .True.
       Allocate(Input % nDel(nSYM))
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      alloc_dline
+      Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError.lt.0)
@@ -379,7 +361,7 @@ C end of input
           Call ExtendLine(dLine,Line)
         End If
       End Do
-      dealloc_dline
+      Deallocate(dLine)
 
       ! equation solver control
 
@@ -394,7 +376,7 @@ C end of input
       Case('THRE')
       Input % THRE = .True.
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      alloc_dline
+      Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError.lt.0)
@@ -405,7 +387,7 @@ C end of input
           Call ExtendLine(dLine,Line)
         End If
       End Do
-      dealloc_dline
+      Deallocate(dLine)
 
       Case('SHIF')
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
@@ -442,7 +424,7 @@ c      call Quit_OnInstError
 
       Case('WTHR')
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      alloc_dline
+      Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError.lt.0)
@@ -454,7 +436,7 @@ c      call Quit_OnInstError
           Call ExtendLine(dLine,Line)
         End If
       End Do
-      dealloc_dline
+      Deallocate(dLine)
 
 
       ! properties
@@ -505,7 +487,7 @@ c      call Quit_OnInstError
       Input % aFreeze = .True.
       Input % modify_correlating_MOs = .True.
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      alloc_dline
+      Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError.lt.0)
@@ -517,11 +499,11 @@ c      call Quit_OnInstError
           Call ExtendLine(dLine,Line)
         End If
       End Do
-      dealloc_dline
+      Deallocate(dLine)
       Allocate(Input % NamFro(Input % lnFro))
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
       Call UpCase(Line)
-      alloc_dline
+      Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError.lt.0)
@@ -534,7 +516,7 @@ c      call Quit_OnInstError
           Call ExtendLine(dLine,Line)
         End If
       End Do
-      dealloc_dline
+      Deallocate(dLine)
 
       Case('LOVC')
       Input % LovCASPT2 = .True.
@@ -599,7 +581,7 @@ c      call Quit_OnInstError
       Input % HEff = 0.0d0
       Do i=1,nStates
         If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-        alloc_dline
+        Allocate(Character(Len=Len(Line)) :: dLine)
         dLine = Line
         iError = -1
         Do While (iError.lt.0)
@@ -611,7 +593,7 @@ c      call Quit_OnInstError
             Call ExtendLine(dLine,Line)
           End If
         End Do
-        dealloc_dline
+        Deallocate(dLine)
       End Do
 
       Case('SADR')
@@ -709,7 +691,6 @@ C     GoTo 9930
 
       Subroutine ExtendLine(DynLine,Line)
       Implicit None
-#ifdef ALLOC_CHAR
       Character(Len=:), Allocatable, Intent(InOut) :: DynLine
       Character(Len=*), Intent(In) :: Line
       Character(Len=Len_Trim(DynLine)) :: Aux
@@ -717,12 +698,5 @@ C     GoTo 9930
       Deallocate(DynLine)
       Allocate(Character(Len=Len(Aux)+Len(Line)+1) :: DynLine)
       DynLine = Trim(Aux) // ' ' // Line
-#else
-      Character(Len=*), Intent(InOut) :: DynLine
-      Character(Len=*), Intent(In) :: Line
-      If (Len_Trim(DynLine)+Len_Trim(Line)+1 > Len(DynLine))
-     &  Call WarningMessage(2,'Line(s) too long, try a newer compiler.')
-      DynLine = Trim(DynLine) // ' ' // Line
-#endif
       End Subroutine
       End Module

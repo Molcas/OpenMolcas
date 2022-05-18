@@ -12,7 +12,7 @@
       Real*8, Parameter:: Two  =2.0D0, Three=3.0D0
       Real*8, Parameter:: Four =4.0D0, Five =5.0D0
       Real*8, Parameter:: Six  =6.0D0, Seven=7.0D0
-      Real*8, Parameter:: Eight=8.0D0, rNine=9.0D0
+      Real*8, Parameter:: Eight=8.0D0,  Nine=9.0D0
       Real*8, Parameter:: Ten  =1.0D1, Half =0.5D0
       Real*8, Parameter:: Quart=0.25D0, OneHalf=1.5D0
       Real*8, Parameter:: Pi    =3.141592653589793D0

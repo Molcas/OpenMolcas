@@ -11,7 +11,7 @@
 CSVC: print a banner with module name and runtime information
       subroutine print_module_header(modulename)
 #ifdef _OPENMP
-*$    use omp_lib
+      use omp_lib
 #endif
       implicit none
       character(len=*) :: modulename

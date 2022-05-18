@@ -1,4 +1,6 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 #***********************************************************************
 # This file is part of OpenMolcas.                                     *
 #                                                                      *
@@ -10,50 +12,52 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014, Steven Vancoillie                                *
+#               2020, Ignacio Fdez. Galván                             *
 #***********************************************************************
 #
-# modulenames.plx:
+# modulenames.py:
 #
 # extract module names from a test input and generate a proper test name for
 # use with CMake (no spaces, special chars)
 #
 # Steven Vancoillie, Lund, 20th of June 2014
+# Ignacio Fdez. Galván, 2020: Translated from Perl to Python
 
-# Perl modules
-use warnings;
-use strict;
+import sys
+import os
+import re
 
-sub usage {
-    print <<USAGE;
+def usage():
+  name = os.path.basename(__file__)
+  print('''
 
- Usage: modulenames.plx <filename>
+ Usage: {} <filename>
 
         Program to generate a test name by concatenating the
         module names used in a test input given by filename.
+'''.format(name))
+  sys.exit(1)
 
-USAGE
-    exit 1;
-}
+try:
+  filename = sys.argv[1]
+except:
+  usage()
 
-# only argument is the file name
-my $filename = $ARGV[0];
-&usage unless ($filename);
+module = re.compile('&(\w+)')
 
-# open the file
-my %module_names;
-open TESTINPUT, '<', $filename or die "Error: failed to open file $filename\n";
-while (<TESTINPUT>) {
-        my @matches = ($_ =~ /&(\w+)/g);
-        foreach my $name (@matches) {
-                my $lc_name = lc $name;
-                next if $lc_name =~ /end/;
-                $module_names{$lc_name}++;
-        }
-}
-close TESTINPUT;
+module_names = []
 
-my $output = join ('_', keys %module_names);
+try:
+  with open(filename, 'r') as f:
+    for line in f:
+      matches = module.findall(line)
+      for name in matches:
+        lc_name = name.lower()
+        if lc_name != 'end':
+          module_names.append(lc_name)
+except IOError:
+  sys.exit('Error: failed to open file {}'.format(filename))
 
-print "$output\n";
+output = '_'.join(sorted(set(module_names)))
 
-exit 0;
+print(output)

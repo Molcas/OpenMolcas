@@ -39,17 +39,16 @@
      &       C(3), D(3), SD(3)
       Integer iDCRR(0:7),IndGrd(3,2,0:7),ii(2), iStb(0:7),jStb(0:7),
      &        iDCRS(0:7),IndHss(2,3,2,3,0:7),nop(2),kop(2)
-      Logical EQ, TstFnc,TF, NoLoop
+      Logical EQ, NoLoop
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
       Real*8, Allocatable:: Pcmhss(:), Der1(:), DerDM(:), Temp(:)
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement Function
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
       iTri(i1,i2)=Max(i1,i2)*(Max(i1,i2)-1)/2+Min(i1,i2)
 *                                                                      *
 ************************************************************************

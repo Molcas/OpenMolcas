@@ -43,9 +43,8 @@ c
 c     kinetic energy density or tau
 c
       REAL*8 tauu,DTol
-      REAL*8 f13, f43, f53, f83, f113, f4o3
+      REAL*8 f43, f53, f83
       REAL*8 gx, gg, x, z, kx,xk,zk
-      REAL*8 Nine, F10, F11
       REAL*8 cf, Axlsda, r1, r2, r3, r4, r5, r6
 
 c      functional derivatives below FFFFFFFFFFFF
@@ -56,9 +55,7 @@ c      functional derivatives above FFFFFFFFFFFF
 
        parameter (cf = 9.115599720d0, Axlsda = -0.9305257363491d0 )
        parameter (gg  = 0.00186726d0)
-       parameter (f13=1.d0/3.d0,f43=4.0d0/3.0d0,f53=5.0d0/3.0d0)
-       parameter (f83=8.d0/3.0d0, F113=11.0d0/3.d0,f4o3=4.0D0/3.D0)
-       parameter (Nine=9.0d0,F10=10.d0, F11=11.d0)
+       parameter (f43=4.0d0/3.0d0, f53=5.0d0/3.0d0, f83=8.d0/3.0d0)
 
       if (ijzy.eq.1) then
 c
@@ -124,7 +121,7 @@ c
          grdrhoa_y=rho(ipdRy,igrid)
          grdrhoa_z=rho(ipdRz,igrid)
 
-         rho43 = rhoo**F4o3
+         rho43 = rhoo**F43
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F53
@@ -167,7 +164,7 @@ c
          grdrhoa_y=rho(ipdRya,iGrid)
          grdrhoa_z=rho(ipdRza,iGrid)
 
-         rho43 = rhoo**F4o3
+         rho43 = rhoo**F43
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F53
@@ -205,7 +202,7 @@ c
          grdrhoa_y=rho(ipdRyb,iGrid)
          grdrhoa_z=rho(ipdRzb,iGrid)
 
-         rho43 = rhoo**F4o3
+         rho43 = rhoo**F43
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F53

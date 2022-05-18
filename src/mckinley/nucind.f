@@ -22,20 +22,19 @@
       Real*8 Coor(3,4)
       Integer IndGrd(0:2,0:1,0:(nIrrep-1)),
      &        IndHss(0:1,0:2,0:1,0:2,0:(nIrrep-1))
-      Logical IfHss(0:1,0:2,0:1,0:2),IfGrd(0:2,0:1), TstFnc, TF,
+      Logical IfHss(0:1,0:2,0:1,0:2),IfGrd(0:2,0:1),
      &        IfG(0:3),Tr(0:3)
       Integer JndGrd(0:2,0:3,0:(nIrrep-1)),
      &        JndHss(0:3,0:2,0:3,0:2,0:(nIrrep-1))
 *
       Logical JfHss(0:3,0:2,0:3,0:2),JfGrd(0:2,0:3),EQ
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement functions
 *
       IX(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *

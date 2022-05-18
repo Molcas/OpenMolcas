@@ -7,10 +7,10 @@
 # is provided "as is" and without any express or implied warranties.   *
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2020, Oskar Weser                                      *
 #***********************************************************************
-# Version 0.1
-# used to build a docker image with a Molcas installation in it
-FROM ubuntu:14.04
-MAINTAINER Steven Vancoillie "molcas@steven.se"
-RUN apt-get update && apt-get install -y gcc g++ gfortran perl bash curl cmake
-ADD . /opt/molcas/src
+
+include(${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
+
+add_unit_test(test_sorting test_sorting.F90)
