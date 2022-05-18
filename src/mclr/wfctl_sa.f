@@ -101,7 +101,7 @@
 *
 *          Output: Commonblocks (Pointers.fh)
 *
-      nConf2=nint(xispsm(State_SYM,1))
+      ! nConf2=nint(xispsm(State_SYM,1))
       nConf3=nint(Max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
 
       Call Setup_MCLR(iSym)
@@ -191,7 +191,7 @@
       If (PT2) Then
         Call mma_allocate(SLag,nRoots**2,Label='SLag')
         SLag(1:nRoots**2) = Zero
-        Call RHS_PT2(Kappa,ipST,W(ipST)%Vec,SLag)
+        Call RHS_PT2(Kappa,CLag,Slag)
       End If
 *
       If (isNAC) Then
@@ -205,7 +205,6 @@
         Call DaXpY_(nDens2,1.0D+00,Kappa,1,Temp4,1)
         Kappa(1:nDens2)=Zero
       End If
-*
       irc=opOut(ipci)
 *
       If (lprint) Write(6,*)
@@ -214,15 +213,12 @@
       iLen=nDensC
       iRHSDisp(iDisp)=iDis
       Call Compress(Temp4,Sigma,iSym)
-*     Call RecPrt('RHS',' ',Sigma,nDensc,1)
       r1=ddot_(nDensc,Sigma,1,Sigma,1)
       If (PT2) R1 = R1 + DDot_(nConf1*nRoots,W(ipST)%Vec,1,
      *                                       W(ipST)%Vec,1)
       If(debug)Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 *
-      irc=ipIn(ipCIT)
-      call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
       If (PT2) then
         Call DSCAL_(nConf1*nRoots,-One,W(ipST)%Vec,1)
         If (CI) Then
@@ -240,7 +236,7 @@
           Call mma_deallocate(wrk)
 C
           !! precondition (z0 = M^{-1}*r0)
-          Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum,isym,W(ipS)%Vec)
+          Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum(1),isym,W(ipS)%Vec)
           irc=opOut(ipci)
           irc=opOut(ipdia)
           !! z0 <= p0
@@ -248,8 +244,10 @@ C
      *                              W(ipCId)%Vec,1)
         End If
       Else
+        irc=ipIn(ipCIT)
         irc=ipIn(ipST)
         irc=ipIn(ipCID)
+        call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
         call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%Vec,1)
         call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
       End If
@@ -491,6 +489,7 @@ C
 *
       Call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
       Call mma_allocate(Sc1,nDens2,Label='Sc1')
+      Sc1(:)=Zero
       Call mma_allocate(Sc2,nDens2,Label='Sc2')
       Call mma_allocate(Sc3,nDens2,Label='Sc3')
       Call mma_allocate(Temp3,nDens2,Label='Temp3')
@@ -503,7 +502,7 @@ C
       Call Uncompress(Kap,Sc1,isym)
 
 ! Integral derivative !yma
-      Call RInt_generic(SC1,rmoaa,rdum,
+      Call RInt_generic(SC1,rmoaa,rdum(1),
      &                 Sc2,
      &                 Temp3,Temp4,Sc3,
      &                 isym,reco,jspin)

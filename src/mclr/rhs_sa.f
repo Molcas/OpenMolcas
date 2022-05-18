@@ -65,10 +65,9 @@
        Call dDaFile(LUJOB ,0,rdum,Ng2,jDisk)
 *
        !! Add SLag (rotations of states) contributions from the partial
-       !! derivative of the CASPT2 energy. Work(ipG1q) and Work(ipG2q)
-       !! are modified. The modified density will be used in out_pt2.f
-       !! and ptrans_sa.f etc.
-       If (PT2.and.nRoots.gt.1) Call PT2_SLag
+       !! derivative of the CASPT2 energy. G1q and G2q are modified.
+       !! The modified density will be used in out_pt2.f and ptrans_sa.f
+       If (PT2.and.nRoots.gt.1) Call PT2_SLag()
 *
        Call Put_P2MO(G2q,ng2)
        Call Put_D1MO(G1q,ng1)
@@ -175,17 +174,17 @@
        Contains
 
       Subroutine PT2_SLag
-C
+
       Implicit Real*8 (A-H,O-Z)
       integer opout
       Real*8, Allocatable:: CIL(:), CIR(:)
-C
-C     At present, Molcas accepts equally-weighted MCSCF reference,
-C     so all SLag values are employed in the following computation.
-C     For unequally-weighted reference as in GAMESS-US, some more
-C     operations are required, but the CP-MCSCF part has to be
-C     modified, so this may not be realized easily.
-C
+
+!     At present, Molcas accepts equally-weighted MCSCF reference,
+!     so all SLag values are employed in the following computation.
+!     For unequally-weighted reference as in GAMESS-US, some more
+!     operations are required, but the CP-MCSCF part has to be
+!     modified, so this may not be realized easily.
+
       nConfL=Max(nconf1,nint(xispsm(1,1)))
       nConfR=Max(nconf1,nint(xispsm(1,1)))
       call mma_allocate(CIL, nConfL, Label='CIL')

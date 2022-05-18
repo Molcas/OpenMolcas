@@ -243,12 +243,12 @@
             !! symmetry not yet
             !! Eq. (C.12e)
             If (nRs1(iS).ne.0.or.nRs3(iS).ne.0)
-     &         Call Precaaa(ib,is,js,nd,ir,Work(ipTemp3),
+     &         Call Precaaa(ib,is,js,nd,ir,Temp3,
      &                      nOrb(is),nOrb(js),
-     &                      Work(ipFIMO+ipCM(js)-1),
-     &                      Work(ipF0SqMO+ipCM(js)-1),sign,
-     &                      Work(ipS),n2,
-     &                      Work(ipActInt)) ! OK
+     &                      FIMO(ipCM(js)),
+     &                      F0SqMO(ipCM(js)),sign,
+     &                      Scr,n2,
+     &                      ActInt) ! OK
             EndIf ! newCho
 
             Call SQM(Temp3,rpre(ip),nD)
