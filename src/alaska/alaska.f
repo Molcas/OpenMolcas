@@ -284,16 +284,16 @@
       If (isNAC) Then
         Call PrGrad('CI derivative coupling ',
      &                 Grad,lDisp(0),ChDisp,iPrint)
-        EDiff_s = Max(One, Ten**(-Floor(Log10(Abs(EDiff)))-4))
-        EDiff_f = EDiff*EDiff_s
         If (DoCSF) Then
           Call mma_Allocate(CSFG,lDisp(0),Label='CSFG')
           Call CSFGrad(CSFG,lDisp(0))
           Call PrGrad('CSF derivative coupling ',
      &                  CSFG,lDisp(0),ChDisp,iPrint)
-          Call daxpy_(lDisp(0),EDiff_f,CSFG,1,Grad,1)
+          Call daxpy_(lDisp(0),EDiff,CSFG,1,Grad,1)
           Call mma_deallocate(CSFG)
         End If
+        EDiff_s = Max(One, Ten**(-Floor(Log10(Abs(EDiff)))-4))
+        EDiff_f = EDiff*EDiff_s
         write(6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
         Label = ''
         If (EDiff_s.gt.One)
