@@ -115,7 +115,7 @@
           If (DiskBased) Then
              Do ii=1,ia-1
                 If (Status(ii).ne.Null_Vector)
-     &             Call dDafile(Lu_ip,dWrite,rdum,n(ii),
+     &             Call dDafile(Lu_ip,dWrite,rdum(1),n(ii),
      &                          iDisk_Addr_End)
              End do
           End If

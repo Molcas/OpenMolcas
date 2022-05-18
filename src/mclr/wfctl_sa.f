@@ -191,7 +191,7 @@
       If (PT2) Then
         Call mma_allocate(SLag,nRoots**2,Label='SLag')
         SLag(1:nRoots**2) = Zero
-        Call RHS_PT2(Kappa,CLag,Slag)
+        Call RHS_PT2(Kappa,W(ipST)%Vec,Slag)
       End If
 *
       If (isNAC) Then
@@ -236,7 +236,7 @@
           Call mma_deallocate(wrk)
 C
           !! precondition (z0 = M^{-1}*r0)
-          Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum(1),isym,W(ipS)%Vec)
+          Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum(1),isym,fancy)
           irc=opOut(ipci)
           irc=opOut(ipdia)
           !! z0 <= p0
