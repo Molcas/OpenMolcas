@@ -60,7 +60,7 @@
       Call mma_allocate(CIL,nConfL,Label='CIL')
       Call mma_allocate(CIR,nConfR,Label='CIR')
       If (PT2) Then
-        Call PT2_SLag
+        Call PT2_SLag()
       Else
         irc=ipIn(ipCI)
         Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,1)

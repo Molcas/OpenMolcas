@@ -188,9 +188,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_allocate(SLag,nRoots**2,Label='SLag')
+      SLag(1:nRoots**2) = Zero
       If (PT2) Then
-        Call mma_allocate(SLag,nRoots**2,Label='SLag')
-        SLag(1:nRoots**2) = Zero
         Call RHS_PT2(Kappa,W(ipST)%Vec,Slag)
       End If
 *
@@ -201,10 +201,10 @@
       End If
 *
       If (PT2) Then
-        Call mma_deallocate(SLag)
         Call DaXpY_(nDens2,1.0D+00,Kappa,1,Temp4,1)
         Kappa(1:nDens2)=Zero
       End If
+      Call mma_deallocate(SLag)
       irc=opOut(ipci)
 *
       If (lprint) Write(6,*)
