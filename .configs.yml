@@ -5,8 +5,8 @@
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (needs access to a license)
-# - intel13: use Intel 2013 compilers (specific runner)
-# - nag: use NAG Fortran compiler and Garble (specific runner)
+# - intel13: use Intel 2013 compilers (build on specific runner)
+# - nag: use NAG Fortran compiler and Garble (build on specific runner)
 # - garble: setup with Garble option and gcc compilers
 # - bounds: enable bounds checking (slow)
 # - debug: build with no optimization (no tests)
@@ -95,14 +95,12 @@
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
       # with -fsyntax-only and only_objs we create all interface files
-      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
-    pre_run_script: |
-      . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     CC: "icc"
     CXX: "icpc"
     FC: "ifort"
@@ -110,6 +108,7 @@
     - intel_license
 
 .intel13:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
@@ -118,15 +117,13 @@
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
       # with -fsyntax-only and only_objs we create all interface files
-      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
       . /usr/local/bin/setupintel.sh
       rm -rf ${install_path}
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
-    pre_run_script: |
-      . /usr/local/bin/setupintel.sh
     CC: "icc"
     CXX: "icpc"
     FC: "ifort"
@@ -145,12 +142,12 @@
       set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE STRING "use static HDF5")
       set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+      set (EXTRA_FFLAGS "-w=obs -w=x77 -unsharedrts -gline" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
       rm -rf ${install_path}
     CC: "gcc"
     CXX: "g++"
     FC: "nagfor"
-    FFLAGS: "-w=obs -w=x77 -unsharedrts -gline"
   tags:
     - nagfor
 
