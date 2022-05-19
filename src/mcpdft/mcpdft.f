@@ -727,14 +727,14 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          if(.not.do_hybrid) then
           write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
           Do Jroot=1,lroots
-            write(6,'(6X,3A,1X,I2,5X,A13,F18.8)')
+            write(6,'(6X,3A,1X,I4,3X,A13,F18.8)')
      & '::    ',MSPDFTMethod,' Root',
      &      Jroot,'Total energy:',Work(LRState+Jroot-1)
           End Do
          else
           write(6,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Energies:'
           Do Jroot=1,lroots
-            write(6,'(6X,4A,1X,I2,5X,A13,F18.8)')
+            write(6,'(6X,4A,1X,I4,3X,A13,F18.8)')
      & '::    ','Hybrid ',MSPDFTMethod,' Root',
      &      Jroot,'Total energy:',Work(LRState+Jroot-1)
           End Do
@@ -784,7 +784,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call GetMem('XScratch','ALLO','Real',LXScratch,NXScratch)
           Call FZero(Work(LXScratch),NXScratch)
           Call FZero(Work(LRState)  ,NXScratch)
-          CALL ReadMatPDFT('ROT_VEC',MatInfo,WORK(LRState),
+          CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),
      &                     lRoots,lRoots,7,18,'T')
           CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,Work(LRState),
      &         lRoots,Work(LHRot),lRoots,0.0d0,Work(LXScratch),lRoots)
@@ -792,7 +792,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
           Call RecPrt(' ','(7X,10(F9.6,6X))',
      &                Work(LXScratch),lroots,lroots)
-          CALL PrintMatPDFT('FIN_VEC',MatInfo,WORK(LXScratch),
+          CALL PrintMat2('FIN_VEC',MatInfo,WORK(LXScratch),
      &                      lRoots,lRoots,7,18,'T')
           Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
          end if
