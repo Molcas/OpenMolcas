@@ -137,7 +137,7 @@
       END IF
       IF(Trans.eq.'T') THEN
        WRITE(PrtFmt,'(A1,I5,A14)')
-     & '(',NCol,'(E19.10E2,1X))'
+     & '(',NCol,'(E24.14E4,1X))'
        DO IRow=1,NRow
         iOff=(IRow-1)*nCol
         write(LU,PrtFmt)
@@ -145,7 +145,7 @@
        END DO
       ELSE
        WRITE(PrtFmt,'(A1,I5,A14)')
-     & '(',NRow,'(E19.10E2,1X))'
+     & '(',NRow,'(E24.14E4,1X))'
        DO ICol=1,NCol
         write(LU,PrtFmt)
      & (Matrix((iRow-1)*nCol+iCol),IRow=1,NRow)

@@ -87,9 +87,6 @@ C      CALL RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
      &                trim(CMSStartMat),len_trim(CMSStartMat))
 
       CALL OneDFoil(R,RotMat,lRoots,lRoots)
-      write(6,*) 'Rotation Matrix'
-      CALL RecPrt(' ','(10(F9.6,1X))',R,lRoots,lRoots)
-
 
 ******Print header of CMS iterations
       CALL CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))

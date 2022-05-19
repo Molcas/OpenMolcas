@@ -37,14 +37,13 @@
 
       Integer LHrot,NHrot                ! storing info in H0_Rotate.txt
       Integer LRCIVec,LRCItmp,NRCIVec,LRCIScr ! storing CIVec
-      Integer LRState,LRSttmp,NRState    ! storing info in Do_Rotate.txt
+      Integer LRState,NRState            ! storing info in Do_Rotate.txt
       Integer LHScr                      ! calculating rotated H
       Integer rcidisk
-      INTEGER LURot,IsFreeUnit
+      INTEGER IsFreeUnit
       EXTERNAL IsFreeUnit
-      INTEGER JRoot,Kroot,IPRLEV
+      INTEGER JRoot,IPRLEV
       CHARACTER(Len=18)::MatInfo
-      INTEGER ReadStat
       write(LF,*)
       write(LF,*) ('=',i=1,71)
       write(LF,*)
@@ -76,27 +75,11 @@
       IPRLEV=IPRLOC(3)
 
 *JB   read rotation matrix in Do_Rotate.txt
-C      LUROT=183
-C      LUROT=IsFreeUnit(LURot)
-C      CALL Molcas_Open(LURot,'ROT_VEC')
-C      LRSttmp=LRState
-C      Do jRoot = 1,lRoots
-C       read(LURot,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
-C       LRSttmp=LRSttmp+lRoots
-C      End Do
-C      Read(LURot,*,iostat=ReadStat) MatInfo
-C      IF(ReadStat.eq.-1) MatInfo='an unknown method'
-C      close(LURot)
       CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),lRoots,lRoots,
      &              7,18,'T')
       iF(IPRLEV.GE.DEBUG) Then
         write(LF,*)'rotation matrix'
         CALL RecPrt(' ',' ',WORK(LRState),lRoots,lRoots)
-C        LRSttmp=LRState
-C        Do jRoot = 1,lRoots
-C         write(LF,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
-C         LRSttmp=LRSttmp+lRoots
-C        End Do
       eND iF
       NHRot=lRoots**2
       CALL DCOPY_(NHRot,[0.0d0],0,WORK(LHRot),1)
@@ -107,14 +90,6 @@ C        End Do
      &     lRoots,Work(LHRot),lRoots,0.0D0,Work(LHScr),lRoots)
       Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,Work(LHScr),
      &     lRoots,Work(LRState),lRoots,0.0D0,Work(LHRot),lRoots)
-C      LUROT=IsFreeUnit(LURot)
-C      CALL Molcas_Open(LURot,'ROT_HAM')
-C      Do Jroot=1,lroots
-C        write(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
-C     &               ,kroot=1,lroots)
-C      End Do
-C      write(LURot,*) MatInfo
-C      Close(LUROT)
       CALL PrintMat2('ROT_HAM',MatInfo,WORK(LHRot),lRoots,lRoots,
      &              7,18,'T')
       if(IPRLEV.GE.DEBUG) Then
@@ -131,8 +106,6 @@ C      Close(LUROT)
       End Do
       Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,Work(LRCIScr),
      &     nConf,Work(LRState),lRoots,0.0D0,Work(LRCIVec),nConf)
-C      Call DGEMM_('n','t',lRoots,NConf,lRoots,1.0D0,Work(LRState),
-C    &       lRoots,Work(LRCIVec),nConf,0.0D0,Work(LRCIScr),lRoots)
 
 C     updating final energies as those for rotated states
       rcidisk=IADR15(4)
