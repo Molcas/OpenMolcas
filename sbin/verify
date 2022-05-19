@@ -301,7 +301,7 @@ def updatetest(inputfile, checkfile):
   # read and store the first section of the input
   try:
     input_lines = []
-    with open(inputfile, 'r') as f:
+    with open(inputfile, 'r', encoding='utf-8') as f:
       for line in f:
         if line.rstrip() == '>>FILE checkfile':
           break
@@ -312,7 +312,7 @@ def updatetest(inputfile, checkfile):
   # write the first section of the input and the contents of the
   # checkfile back to the input file.
   try:
-    with open(inputfile, 'w+') as fi, open(checkfile, 'r') as fc:
+    with open(inputfile, 'w+', encoding='utf-8') as fi, open(checkfile, 'r', encoding='utf-8') as fc:
       for line in input_lines:
         fi.write(line)
       fi.write('>>FILE checkfile\n')
