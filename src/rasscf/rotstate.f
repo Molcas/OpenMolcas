@@ -76,24 +76,27 @@
       IPRLEV=IPRLOC(3)
 
 *JB   read rotation matrix in Do_Rotate.txt
-      LUROT=183
-      LUROT=IsFreeUnit(LURot)
-      CALL Molcas_Open(LURot,'ROT_VEC')
-      LRSttmp=LRState
-      Do jRoot = 1,lRoots
-       read(LURot,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
-       LRSttmp=LRSttmp+lRoots
-      End Do
-      Read(LURot,*,iostat=ReadStat) MatInfo
-      IF(ReadStat.eq.-1) MatInfo='an unknown method'
-      close(LURot)
+C      LUROT=183
+C      LUROT=IsFreeUnit(LURot)
+C      CALL Molcas_Open(LURot,'ROT_VEC')
+C      LRSttmp=LRState
+C      Do jRoot = 1,lRoots
+C       read(LURot,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
+C       LRSttmp=LRSttmp+lRoots
+C      End Do
+C      Read(LURot,*,iostat=ReadStat) MatInfo
+C      IF(ReadStat.eq.-1) MatInfo='an unknown method'
+C      close(LURot)
+      CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),lRoots,lRoots,
+     &              7,18,'T')
       iF(IPRLEV.GE.DEBUG) Then
         write(LF,*)'rotation matrix'
-        LRSttmp=LRState
-        Do jRoot = 1,lRoots
-         write(LF,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
-         LRSttmp=LRSttmp+lRoots
-        End Do
+        CALL RecPrt(' ',' ',WORK(LRState),lRoots,lRoots)
+C        LRSttmp=LRState
+C        Do jRoot = 1,lRoots
+C         write(LF,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
+C         LRSttmp=LRSttmp+lRoots
+C        End Do
       eND iF
       NHRot=lRoots**2
       CALL DCOPY_(NHRot,[0.0d0],0,WORK(LHRot),1)
@@ -104,14 +107,16 @@
      &     lRoots,Work(LHRot),lRoots,0.0D0,Work(LHScr),lRoots)
       Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,Work(LHScr),
      &     lRoots,Work(LRState),lRoots,0.0D0,Work(LHRot),lRoots)
-      LUROT=IsFreeUnit(LURot)
-      CALL Molcas_Open(LURot,'ROT_HAM')
-      Do Jroot=1,lroots
-        write(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
-     &               ,kroot=1,lroots)
-      End Do
-      write(LURot,*) MatInfo
-      Close(LUROT)
+C      LUROT=IsFreeUnit(LURot)
+C      CALL Molcas_Open(LURot,'ROT_HAM')
+C      Do Jroot=1,lroots
+C        write(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
+C     &               ,kroot=1,lroots)
+C      End Do
+C      write(LURot,*) MatInfo
+C      Close(LUROT)
+      CALL PrintMat2('ROT_HAM',MatInfo,WORK(LHRot),lRoots,lRoots,
+     &              7,18,'T')
       if(IPRLEV.GE.DEBUG) Then
        write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
        write(LF,*) (Work(LHRot+jroot),jroot=0,NHRot-1)
