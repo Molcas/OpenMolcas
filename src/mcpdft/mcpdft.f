@@ -51,6 +51,7 @@
 ************************************************************************
 
       use csfbas, only: CONF, KCFTP
+      use hybridpdft, only: do_hybrid
       use stdalloc, only : mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use OFembed, only: Do_OFemb, FMaux
@@ -84,6 +85,8 @@
 #include "wjob.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
+      Real*8  MSPDFTShift
+      Logical lshiftdiag
       CHARACTER(Len=18)::MatInfo
       Integer LXScratch,NXScratch
       INTEGER LUMS,IsFreeUnit
@@ -95,8 +98,8 @@
       Character*80 Line
       Logical IfOpened
       Logical Found
-      Character(len=8),DIMENSION(:),Allocatable::VecStat
-      CHARACTER(Len=8)::StatVec
+      Character(len=9),DIMENSION(:),Allocatable::VecStat
+      CHARACTER(Len=9)::StatVec
       CHARACTER(Len=30)::mspdftfmt
       Logical RefBas
       Logical Gradient
@@ -682,9 +685,25 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          Write(6,*)
          Write(6,'(6X,80a)') ('*',i=1,80)
          Write(6,*)
-         write(6,'(6X,2A)')
-     &   MSPDFTMethod,' Effective Hamiltonian'
-         Call RecPrt(' ','',Work(LHRot),lroots,lroots)
+
+         lshiftdiag=.false.
+         CALL shiftdiag(WORK(LHRot),MSPDFTShift,lshiftdiag,lRoots,10)
+         if(.not.do_hybrid) then
+          write(6,'(6X,2A)')
+     &    MSPDFTMethod,' Effective Hamiltonian'
+         else
+          write(6,'(6X,3A)')
+     &    'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
+         end if
+         if(lshiftdiag) then
+          write(6,'(6X,A,F9.2,A)')
+     &    '(diagonal values increased by',-MSPDFTShift,' hartree)'
+          Do JRoot=1,lRoots
+           Work(LHRot+Jroot-1+(Jroot-1)*lroots)=
+     &     Work(LHRot+Jroot-1+(Jroot-1)*lroots)-MSPDFTShift
+          End Do
+         end if
+         Call RecPrt(' ','(7X,10(F9.6,1X))',Work(LHRot),lroots,lroots)
          write (6,*)
 *MS-PDFT    To diagonalize the final MS-PDFT effective H matrix.
 *MS-PDFT    Eigenvectors will be stored in LRState. This notation for the
@@ -698,35 +717,50 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          Call GetMem('XScratch','Allo','Real',LXScratch,NXScratch)
          Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
      &               Work(LXScratch),NXScratch,INFO)
-         write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
-         Do Jroot=1,lroot s
-           write(6,'(6X,3 A,1X,I2,5X,A13,F18.8)')
-     &'::    ',MSPDFTMethod,' Root',
-     &     Jroot,'Total energy:',Work(LRState+Jroot-1)
-         End Do
+
+         if(lshiftdiag) then
+          Do Jroot=1,lRoots
+           Work(LRState+Jroot-1)=Work(LRState+Jroot-1)+MSPDFTShift
+          End Do
+         end if
+
+         if(.not.do_hybrid) then
+          write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
+          Do Jroot=1,lroots
+            write(6,'(6X,3A,1X,I2,5X,A13,F18.8)')
+     & '::    ',MSPDFTMethod,' Root',
+     &      Jroot,'Total energy:',Work(LRState+Jroot-1)
+          End Do
+         else
+          write(6,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Energies:'
+          Do Jroot=1,lroots
+            write(6,'(6X,4A,1X,I2,5X,A13,F18.8)')
+     & '::    ','Hybrid ',MSPDFTMethod,' Root',
+     &      Jroot,'Total energy:',Work(LRState+Jroot-1)
+          End Do
+         end if
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',WORK(LRState),nroots)
       Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
          Write(6,*)
          CALL mma_allocate(VecStat,lRoots)
          Do Jroot=1,lRoots
-          write(StatVec,'(A6,I2)')'Root ',JRoot
+          write(StatVec,'(A5,I4)')'Root ',JRoot
           VecStat(JRoot)=StatVec
          End Do
-         write(6,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
-         write(6,'(7X,A)')'Intermediate-state Basis'
-         if(lroots.lt.10) then
-          write(mspdftfmt,'(A5,I1,A9)')
-     &     '(13X,',lRoots,'(A8,16X))'
-          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+         if(.not.do_hybrid) then
+          write(6,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
          else
-          write(mspdftfmt,'(A5,I2,A9)')
-     &     '(13X,',lRoots,'(A8,16X))'
-          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+          write(6,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Eigenvectors:'
          end if
+         write(6,'(7X,A)')'Intermediate-state Basis'
+          write(mspdftfmt,'(A4,I5,A9)')
+     &     '(6X,',lRoots,'(A10,5X))'
+          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
 *Added by Chen to write energies and states of MS-PDFT into JOBIPH
          If(IWJOB==1) Call writejobms(iadr19,LRState,LHRot)
-         Call RecPrt(' ','',Work(LHRot),lroots,lroots)
+         Call RecPrt(' ','(7X,10(F9.6,6X))',
+     &               Work(LHRot),lroots,lroots)
          if(DoGradMSPD) then
            Call MSPDFTGrad_Misc(LHRot)
            Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
@@ -760,7 +794,8 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &         lRoots,Work(LHRot),lRoots,0.0d0,Work(LXScratch),lRoots)
           write(6,'(7X,A)')'Reference-state Basis'
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
-          Call RecPrt(' ',' ',Work(LXScratch),lroots,lroots)
+          Call RecPrt(' ','(7X,10(F9.6,6X))',
+     &                Work(LXScratch),lroots,lroots)
           close(LUMS)
           CALL Molcas_Open(LUMS,'FIN_VEC')
           Do JRoot=1,lRoots

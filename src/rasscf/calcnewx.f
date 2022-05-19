@@ -102,18 +102,22 @@ C       END IF
       Real*8 Qnew,Qold
       Logical Saved
 
-      INTEGER iterscale
+      INTEGER iterscale,nScaleMax
 
       Saved=.true.
       ITERscale=0
 
+*      NScaleMax=ICMSIterMax
+      NScaleMax=max(20,ICMSIterMax)
+      NScaleMax=min(80,NScaleMax)
       DO WHILE ((Qold-Qnew).gt.CMSThreshold)
        ITERscale=ITERscale+1
 *       write(6,*) 'rescaling',ITERscale
-       IF(ITERscale.eq.ICMSIterMax) THEN
+       IF(ITERscale.eq.nScaleMax) THEN
         CALL FZero(X,nSPair)
         write(6,*) 'Scaling does not save Qaa from decreasing'
         Saved=.false.
+        Exit
        END IF
        CALL DCopy_(lRoots2,RCopy,1,R,1)
        CALL DCopy_(nGD,GDCopy,1,GDState,1)
@@ -128,9 +132,12 @@ C       END IF
        CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
        CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
 
-       IF(ITERscale.eq.iCMSIterMax) THEN
-        Exit
-       END IF
+C       write(6,*) 'rescaling',ITERscale,Qold,Qnew,CMSThreshold,
+C     &            ICMSIterMax
+
+*       IF(ITERscale.eq.iCMSIterMax) THEN
+*        Exit
+*       END IF
       END DO
 
       RETURN
