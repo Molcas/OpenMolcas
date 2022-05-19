@@ -784,12 +784,6 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call GetMem('XScratch','ALLO','Real',LXScratch,NXScratch)
           Call FZero(Work(LXScratch),NXScratch)
           Call FZero(Work(LRState)  ,NXScratch)
-C          LUMS=IsFreeUnit(LUMS)
-C          CALL Molcas_Open(LUMS,'ROT_VEC')
-C          Do Jroot=1,lroots
-C            read(LUMS,*) (Work(LRState+kroot-1+(jroot-1)*lroots)
-C     &                   ,kroot=1,lroots)
-C          End Do
           CALL ReadMatPDFT('ROT_VEC',MatInfo,WORK(LRState),
      &                     lRoots,lRoots,7,18,'T')
           CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,Work(LRState),
@@ -800,15 +794,7 @@ C          End Do
      &                Work(LXScratch),lroots,lroots)
           CALL PrintMatPDFT('FIN_VEC',MatInfo,WORK(LXScratch),
      &                      lRoots,lRoots,7,18,'T')
-C          close(LUMS)
-C          CALL Molcas_Open(LUMS,'FIN_VEC')
-C          Do JRoot=1,lRoots
-C           write(LUMS,*)(Work(LXScratch+(JRoot-1)*lRoots+kRoot-1),
-C     &     kRoot=1,lRoots)
-C          End Do
-C          write(LUMS,*) MSPDFTMethod
           Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
-C          Close(LUMS)
          end if
 *        Gradient part
          if(DoGradMSPD) then
