@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Select_Hidden(mTtAtm,nHidden,Coord,HiddenCoord,
-     &                         iHiddenAN,nKept,rHidden,iPL)
+     &                         iHiddenAN,nKept,iPL)
+      use Slapaf_Parameters, only: rHidden
       Implicit Real*8 (a-h,o-z)
 *
 *  Select among the hidden atoms the ones to be kept

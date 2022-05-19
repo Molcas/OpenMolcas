@@ -13,27 +13,29 @@
       Subroutine OutZMAT(nAtoms,XYZCoords,N_ZMAT)
       Implicit Real*8 (a-h,o-z)
       Real*8 XYZCoords(3,nAtoms)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
+      Character(LEN=5), Allocatable:: Symbols(:)
+      Integer, Allocatable:: NAT(:)
+      Real*8, Allocatable:: ZMATCoords(:,:), ZMAT(:,:)
 *
-      nSymbols=(5+2)*N_ZMAT
-      Call GetMem('Symbols','Allo','Char',ip_Symbols,nSymbols)
-      Call GetMem('NAT','Allo','Inte',ip_NAT,N_ZMAT)
-      Call GetMem('ZMATCoors','Allo','Real',ip_ZMATCoords,3*N_ZMAT)
-      Call GetMem('ZMAT','Allo','Real',ip_ZMAT,N_ZMAT*3)
+      Call mma_allocate(Symbols,N_ZMAT,Label='Symbols')
+      Call mma_allocate(NAT,N_ZMAT,Label='NAT')
+      Call mma_allocate(ZMATCoords,3,N_ZMAT,Label='ZMATCoords')
+      Call mma_allocate(ZMAT,N_ZMAT,3,Label='ZMAT')
 *
-      Call OutZMAT_(nAtoms,XYZCoords,N_ZMAT,cWork(ip_Symbols),
-     &             iWork(ip_NAT),Work(ip_ZMATCoords),Work(ip_ZMAT))
+      Call OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,
+     &                      ZMATCoords,ZMAT)
 *
-      Call GetMem('ZMAT','Free','Real',ip_ZMAT,N_ZMAT*3)
-      Call GetMem('ZMATCoors','Free','Real',ip_ZMATCoords,3*N_ZMAT)
-      Call GetMem('NAT','Free','Inte',ip_NAT,N_ZMAT)
-      Call GetMem('Symbols','Free','Char',ip_Symbols,nSymbols)
+      Call mma_deallocate(ZMAT)
+      Call mma_deallocate(ZMATCoords)
+      Call mma_deallocate(NAT)
+      Call mma_deallocate(Symbols)
 *
       Return
       End
-      Subroutine OutZMAT_(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,
-     &                    ZMATCoords,ZMAT)
+      Subroutine OutZMAT_Internal(nAtoms,XYZCoords,N_ZMAT,Symbols,NAT,
+     &                            ZMATCoords,ZMAT)
 ************************************************************************
 * Author: Giovanni Ghigo                                               *
 *         Torino (Italy)  February-March 2007                          *
@@ -48,14 +50,14 @@
       Implicit Integer (i-n)
 #include "angstr.fh"
       Parameter (MaxAtoms=256) ! See src/gateway_util/g_zmatconv.fh
-      Character*5 Symbols(N_ZMAT)   ! Obs: Restricted record
+      Character(LEN=5) Symbols(N_ZMAT)   ! Obs: Restricted record
       Integer NAT(N_ZMAT)           ! Obs: Restricted record
       Integer iZmat(MaxAtoms,3)     ! Obs: Full record
       Real*8 XYZCoords(3,nAtoms), ZMATCoords(3,N_ZMAT), ZMAT(N_ZMAT,3)
       Real*8 CTX(3,4), Bt(3,4), dBt(3,4,3,4)
       Logical BigTrasl, IfTest
-      Character*8 Label
-      Parameter (ThrsTrasl=1.0d0) ! Threshold for warning
+      Character(LEN=8) Label
+      Real*8, Parameter :: ThrsTrasl=1.0d0  ! Threshold for warning
 *
 #ifdef _DEBUGPRINT_
       IfTest=.True.

@@ -25,22 +25,21 @@
 !                                                                      *
 !***********************************************************************
 
-      Integer    IWORKLEN, ICWORKLEN
-      PARAMETER (IWORKLEN=8)
+#include "WrkSpc_min.fh"
+
+      Integer    ICWORKLEN
       PARAMETER (ICWORKLEN=IWORKLEN)
 ! for boundary checks: ./configure -compiler g95 -bound
 !     PARAMETER (IWORKLEN=552 800 000)
 !     PARAMETER (ICWORKLEN=552 800)
-      Real*8       Work(1:IWORKLEN)
       Real*4       sWork(1:IWORKLEN)
       Integer      iWork(1:IWORKLEN)
       Character*1  cWork(1:2*ICWORKLEN)
-      Integer      mxMem,ip_Dummy,ip_sDummy,ip_iDummy
+      Integer      ip_Dummy,ip_sDummy,ip_iDummy
 
       Equivalence (Work,sWork)
       Equivalence (Work,iWork)
       Equivalence (Work,cWork)
-      Common /WrkSpc/  Work,mxMem
 
       Common /iWrkSpc/ ip_Dummy,ip_sDummy,ip_iDummy
       Integer*1 i1Work(1:IWORKLEN)

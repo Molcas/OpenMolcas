@@ -11,7 +11,6 @@
       Subroutine Hess_Vec(nAtoms,Hess,EVec,mAtoms,nDim)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
       Real*8 Hess(3*nAtoms*(3*nAtoms+1)/2),EVec((3*mAtoms)**2)
 *                                                                      *
 ************************************************************************

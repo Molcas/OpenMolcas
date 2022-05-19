@@ -12,10 +12,10 @@
 ************************************************************************
       Subroutine OutOfPlane_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
-     &                 nB,iANr,qLbl,iRef,
-     &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
+     &                 nsAtom,iIter,nIter,Cx,
+     &                 Process,Value,
+     &                 nB,qLbl,iRef,
+     &                 fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                 nqB)
@@ -24,27 +24,24 @@
 *     of-plane angle. RL, Tokyo June, 2004.                            *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: nStab, jStab, AtomLbl, ANr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
       Parameter (mB = 4*3)
-      Real*8 Cx(3,nAtoms,nIter), A(3,4), Grad(mB), Hess(mB**2),
+      Real*8 Cx(3,nsAtom,nIter), A(3,4), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB),
      &       Grad_ref(9), RX4Y(3,3), BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms),
-     &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
+      Integer   iDCRR(0:7), iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint,
-     &        MinBas, Help, Proc_dB, R_Stab_A
+      Logical  Process, PSPrint, MinBas, Help, Proc_dB, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
 #include "Molcas.fh"
-      Character*(LENIN) Name(nAtoms)
       Character*(LENIN4) Lbls(4)
 #include "bondtypes.fh"
 #define _FMIN_
@@ -115,8 +112,8 @@
             End If
             iAtom=iTabAI(1,iAtom_)
             jAtom=iTabAI(1,jAtom_)
-            ir = iTabRow(iANr(iAtom))
-            jr = iTabRow(iANr(jAtom))
+            ir = iTabRow(ANr(iAtom))
+            jr = iTabRow(ANr(jAtom))
             Ind(1) = jAtom
             Ind(4) = iAtom
 *
@@ -125,12 +122,12 @@
             iDCR(1)=iTabAI(2,jAtom_)
 #ifdef _DEBUGPRINT_
             Write (6,*)
-            Write (6,*) 'E,R=',Name(iAtom),ChOp(iDCR(4)),
-     &                         Name(jAtom),ChOp(iDCR(1))
+            Write (6,*) 'E,R=',AtomLbl(iAtom),ChOp(iDCR(4)),
+     &                         AtomLbl(jAtom),ChOp(iDCR(1))
 #endif
-            nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
-            nFgBond_j=nFgBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nFgBond_j=nFgBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             If (nCoBond_j.gt.1.and.nFgBond_j.eq.0) Go To 201
             If (iDCR(4).ne.iOper(0)) Go To 201
@@ -211,8 +208,8 @@
                If (kBond.eq.jBond) Go To 301
 *
                kAtom=iTabAI(1,kAtom_)
-               ik_=nAtoms*(kAtom-1)+iAtom
-               kr = iTabRow(iANr(kAtom))
+               ik_=nsAtom*(kAtom-1)+iAtom
+               kr = iTabRow(ANr(kAtom))
                Ind(2) = kAtom
                iDCR(2)=iTabAI(2,kAtom_)
 *
@@ -226,7 +223,7 @@
                End If
 #ifdef _DEBUGPRINT_
                Write (6,*)
-               Write (6,*) 'T=',Name(kAtom),ChOp(iDCR(2))
+               Write (6,*) 'T=',AtomLbl(kAtom),ChOp(iDCR(2))
                Write (6,*) 'kAtom=', kAtom
 #endif
 *
@@ -247,8 +244,8 @@
                   Write (6,*) 'lAtom=', lAtom
 #endif
 *
-                  il_=nAtoms*(lAtom-1)+iAtom
-                  lr = iTabRow(iANr(lAtom))
+                  il_=nsAtom*(lAtom-1)+iAtom
+                  lr = iTabRow(ANr(lAtom))
                   Ind(3) = lAtom
                   iDCR(3)=iTabAI(2,lAtom_)
 C                 If (kAtom.gt.lAtom) Go To 401
@@ -276,7 +273,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                End If
 #ifdef _DEBUGPRINT_
                   Write (6,*)
-                  Write (6,*) 'TS=',Name(lAtom),ChOp(iDCR(3))
+                  Write (6,*) 'TS=',AtomLbl(lAtom),ChOp(iDCR(3))
 #endif
 *
                   Help = ir.gt.3.or.jr.gt.3.or.kr.gt.3.or.lr.gt.3
@@ -517,12 +514,12 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
                   nqO = nqO + 1
                   iF1=1
-                  Call NxtWrd(Name(iAtom),iF1,iE1)
-                  Lbls(1)=Name(iAtom)(iF1:iE1)
+                  Call NxtWrd(AtomLbl(iAtom),iF1,iE1)
+                  Lbls(1)=AtomLbl(iAtom)(iF1:iE1)
 *
                   iF2=1
-                  Call NxtWrd(Name(jAtom),iF2,iE2)
-                  Lbls(2)=Name(jAtom)(iF2:iE2)
+                  Call NxtWrd(AtomLbl(jAtom),iF2,iE2)
+                  Lbls(2)=AtomLbl(jAtom)(iF2:iE2)
                   If (kDCRR.ne.0) Then
                      Lbls(2)(iE2+1:iE2+1)='('
                      Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
@@ -533,8 +530,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 *
                   iF3=1
-                  Call NxtWrd(Name(kAtom),iF3,iE3)
-                  Lbls(3)=Name(kAtom)(iF3:iE3)
+                  Call NxtWrd(AtomLbl(kAtom),iF3,iE3)
+                  Lbls(3)=AtomLbl(kAtom)(iF3:iE3)
                   If (kDCRT.ne.0) Then
                      Lbls(3)(iE3+1:iE3+1)='('
                      Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=
@@ -545,8 +542,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 *
                   iF4=1
-                  Call NxtWrd(Name(lAtom),iF4,iE4)
-                  Lbls(4)=Name(lAtom)(iF4:iE4)
+                  Call NxtWrd(AtomLbl(lAtom),iF4,iE4)
+                  Lbls(4)=AtomLbl(lAtom)(iF4:iE4)
                   If (kDCRTS.ne.0) Then
                      Lbls(4)(iE4+1:iE4+1)='('
                      Lbls(4)(iE4+2:iE4+1+iChOp(kDCRTS))=
@@ -578,9 +575,9 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   If (Process) Then
 *
                      Indq(1,nq)=6
-                     ij = (jAtom-1)*nAtoms + iAtom
-                     kl = (lAtom-1)*nAtoms + kAtom
-                     Indq(2,nq) = (kl-1)*nAtoms**2 + ij
+                     ij = (jAtom-1)*nsAtom + iAtom
+                     kl = (lAtom-1)*nsAtom + kAtom
+                     Indq(2,nq) = (kl-1)*nsAtom**2 + ij
                      ijDCR = kDCRT*8 + kDCRR+1
                      Indq(3,nq) = kDCRS*8**2 + ijDCR
 *
@@ -596,9 +593,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
 *------------------- Project the gradient vector
 *
-                     Call ProjSym(nAtoms,nCent,Ind,nStab,
-     &                            jStab,A,iDCR,Grad,
-     &                            Smmtrc,nDim,PSPrint,Hess,
+                     Call ProjSym(nCent,Ind,A,iDCR,Grad,
+     &                            Hess,
      &                            mB_Tot,mdB_Tot,
      &                            BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                            Proc_dB,nqB,nB,nq,rMult(nq))

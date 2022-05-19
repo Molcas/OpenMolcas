@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Integer ip_B,ip_dB,ip_iB,ip_idB,ip_nqB,mB_Tot,mdB_Tot,mq
+      Integer mB_Tot,mdB_Tot,mq
       Logical Force_dB
-      Common/db/ ip_B,ip_dB,ip_iB,ip_idB,ip_nqB,mB_Tot,mdB_Tot,mq,
-     &           Force_dB
+      Common/db/ mB_Tot,mdB_Tot,mq, Force_dB
 

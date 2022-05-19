@@ -8,15 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
+      subroutine ddV(Cart,mTtAtm,Hess,iANr,
      &               iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "sbs.fh"
-      Real*8 Cart(3,nAtoms+nHidden),Hess((3*nAtoms)*(3*nAtoms+1)/2)
-      Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
-     &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
-      Logical Schlegel
+      Real*8 Cart(3,mTtAtm+nHidden),Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
+      Integer   iANr(mTtAtm+nHidden), iTabBonds(3,nBonds),
+     &          iTabAtoms(2,0:nMax,mTtAtm+nHidden)
+      Real*8, Allocatable:: HBig(:)
 *
 *  Temporary big hessian
 *
@@ -26,50 +26,52 @@
 *                                                                      *
 ************************************************************************
       If (nHidden.gt.0) Then
-         nTot = nAtoms+nHidden
-         Call Allocate_Work(ipHBig,(3*nTot)*(3*nTot+1)/2)
+         nTot = mTtAtm+nHidden
+         Call mma_allocate(HBig,(3*nTot)*(3*nTot+1)/2,Label='HBig')
 *
 * Temporary turn on the translational/rotational invariance
 *
          iSBS = iEOr(iSBS,2**7)
          iSBS = iEOr(iSBS,2**8)
-         Call ddV_(Cart,nTot,Work(ipHBig),iANr,Schlegel,iOptC,iTabBonds,
+         Call ddV_(Cart,nTot,HBig,iANr,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
          iSBS = iOr(iSBS,2**7)
          iSBS = iOr(iSBS,2**8)
-         Call dCopy_((3*nAtoms)*(3*nAtoms+1)/2,Work(ipHBig),1,Hess,1)
+         Call dCopy_((3*mTtAtm)*(3*mTtAtm+1)/2,HBig,1,Hess,1)
 #ifdef _DEBUGPRINT_
          write(6,*) 'DDV: Improved Hessian'
          Call RecPrt('Coord (with hidden atoms):',' ',Cart,3,nTot)
-         Call TriPrt('Hessian (hidden atoms):',' ',Work(ipHBig),3*nTot)
-         Call TriPrt('Hessian (normal):',' ',Hess,3*nAtoms)
+         Call TriPrt('Hessian (hidden atoms):',' ',HBig,3*nTot)
+         Call TriPrt('Hessian (normal):',' ',Hess,3*mTtAtm)
 #endif
-         Call Free_Work(ipHBig)
+         Call mma_deallocate(HBig)
       Else
-         Call ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
+         Call ddV_(Cart,mTtAtm,Hess,iANr,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
       End If
       End
 *
-      Subroutine ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
+      Subroutine ddV_(Cart,mTtAtm,Hess,iANr,iTabBonds,
      &               iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Parameters, only: ddV_Schlegel, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "sbs.fh"
-#include "WrkSpc.fh"
-      Real*8 Cart(3,nAtoms),rij(3),rjk(3),rkl(3),
-     &       Hess((3*nAtoms)*(3*nAtoms+1)/2),si(3),sj(3),sk(3),
+#include "stdalloc.fh"
+      Real*8 Cart(3,mTtAtm),rij(3),rjk(3),rkl(3),
+     &       Hess((3*mTtAtm)*(3*mTtAtm+1)/2),si(3),sj(3),sk(3),
      &       sl(3),sm(3),x(2),y(2),z(2),
      &       xyz(3,4), C(3,4), Dum(1),
      &       ril(3), rik(3)
-      Integer   iANr(nAtoms), iTabBonds(3,nBonds),
-     &          iTabAtoms(2,0:nMax,nAtoms)
-      Logical Schlegel, MinBas, Help, TransVar, RotVar, Torsion_Check,
+      Integer   iANr(mTtAtm), iTabBonds(3,nBonds),
+     &          iTabAtoms(2,0:nMax,mTtAtm)
+      Logical MinBas, Help, TransVar, RotVar, Torsion_Check,
      &        Invariant(3)
 *
       Real*8 Trans(3), RotVec(3), RotMat(3,3)
+      Real*8, Allocatable:: xMass(:), Grad(:,:,:), CurrXYZ(:,:)
 *
 #include "warnings.fh"
 #define _FMIN_
@@ -92,7 +94,7 @@
       nqB=0
       nqT=0
       nqO=0
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
 *
          nNeighbor_i = iTabAtoms(1,0,iAtom)
          Write (6,*) 'iAtom,nNeighbor=',iAtom,nNeighbor_i
@@ -115,7 +117,7 @@
          Fact=One
       End If
       rZero=1.0d-10
-      n3=3*nAtoms
+      n3=3*mTtAtm
 *
       call dcopy_((n3*(n3+1)/2),[Zero],0,Hess,1)
 #ifdef _DEBUGPRINT_
@@ -129,10 +131,10 @@
       TransVar=iAnd(iSBS,2**7).eq. 2**7
       RotVar  =iAnd(iSBS,2**8).eq. 2**8
 *
-      Call Allocate_Work(ip_xMass,nAtoms)
-      Call Get_Mass_All(Work(ip_xMass),nAtoms-nHidden)
-      Do iAtom=nAtoms-nHidden+1,nAtoms
-         Work(ip_xMass+iAtom-1)=rMass(iANr(iAtom))
+      Call mma_allocate(xMass,mTtAtm,Label='xMass')
+      Call Get_Mass_All(xMass,mTtAtm-nHidden)
+      Do iAtom=mTtAtm-nHidden+1,mTtAtm
+         xMass(iAtom)=rMass(iANr(iAtom))
       End Do
 *                                                                      *
 ************************************************************************
@@ -154,13 +156,13 @@
       If (.Not.RotVar) Fact=2.0D-2
 *
       TMass=Zero
-      Do iAtom = 1, nAtoms
-         TMass=TMass+Work(ip_xMass+iAtom-1)
+      Do iAtom = 1, mTtAtm
+         TMass=TMass+xMass(iAtom)
       End Do
-      Do iAtom = 1, nAtoms
-         f1=Work(ip_xMass+iAtom-1)/TMass
+      Do iAtom = 1, mTtAtm
+         f1=xMass(iAtom)/TMass
          Do jAtom = 1, iAtom-1
-            f2=Work(ip_xMass+jAtom-1)/TMass
+            f2=xMass(jAtom)/TMass
 *
             f_const=Max(Trans_Const,f_const_Min_)
             gmm=Fact*f_const*f1*f2
@@ -213,7 +215,7 @@
       End Do
       If (Invariant(1).and.Invariant(2).and.Invariant(3)) Go To 778
 *
-c     If (nAtoms.le.2) Then
+c     If (mTtAtm.le.2) Then
 c        Call WarningMessage(2,'Error in ddV')
 c        Write (6,*)
 c        Write (6,*) ' Warning!'
@@ -223,36 +225,32 @@ c        Write (6,*) ' Add dummy atoms to your input and try again!'
 c        Write (6,*)
 c        Call Quit(_RC_GENERAL_ERROR_)
 c     End If
-      Call Allocate_Work(ip_Grad,3*3*nAtoms)
-      Call Allocate_Work(ip_CurrXYZ,3*nAtoms)
-      Do iAtom = 1, nAtoms
+      Call mma_allocate(Grad,3,3,mTtAtm,Label='Grad')
+      Call mma_allocate(CurrXYZ,3,mTtAtm,Label='CurrXYZ')
+      Do iAtom = 1, mTtAtm
          If (iANr(iAtom).le.0) Then
-            Work(ip_xMass-1+iAtom) = 1.0D-10
+            xMass(iAtom) = 1.0D-10
          End If
       End Do
       nOrder=1
-      Call FZero(Trans,3)
-      Call FZero(RotVec,3)
-      call dcopy_(3*nAtoms,Cart,1,Work(ip_CurrXYZ),1)
-      Call RotDer(nAtoms,Work(ip_xMass),Work(ip_CurrXYZ),Cart,
-     &            Trans,RotAng,
-     &            RotVec,RotMat,nOrder,Work(ip_Grad),dum,dum,dum)
-      Call Free_Work(ip_CurrXYZ)
+      Trans(:)=Zero
+      RotVec(:)=Zero
+      CurrXYZ(:,:)=Cart(:,:)
+      Call RotDer(mTtAtm,xMass,CurrXYZ,Cart,Trans,RotAng,
+     &            RotVec,RotMat,nOrder,Grad,dum)
+      Call mma_deallocate(CurrXYZ)
 *
 *
-      Do iAtom = 1, nAtoms
-         ix = (iAtom-1)*3 + 1
-         iy = (iAtom-1)*3 + 2
-         iz = (iAtom-1)*3 + 3
-         dO1_dx1 =  Work( (ix-1)*3 +     ip_Grad)
-         dO2_dx1 =  Work( (ix-1)*3 + 1 + ip_Grad)
-         dO3_dx1 =  Work( (ix-1)*3 + 2 + ip_Grad)
-         dO1_dy1 =  Work( (iy-1)*3 +     ip_Grad)
-         dO2_dy1 =  Work( (iy-1)*3 + 1 + ip_Grad)
-         dO3_dy1 =  Work( (iy-1)*3 + 2 + ip_Grad)
-         dO1_dz1 =  Work( (iz-1)*3 +     ip_Grad)
-         dO2_dz1 =  Work( (iz-1)*3 + 1 + ip_Grad)
-         dO3_dz1 =  Work( (iz-1)*3 + 2 + ip_Grad)
+      Do iAtom = 1, mTtAtm
+         dO1_dx1 =  Grad(1,1,iAtom)
+         dO2_dx1 =  Grad(2,1,iAtom)
+         dO3_dx1 =  Grad(3,1,iAtom)
+         dO1_dy1 =  Grad(1,2,iAtom)
+         dO2_dy1 =  Grad(2,2,iAtom)
+         dO3_dy1 =  Grad(3,2,iAtom)
+         dO1_dz1 =  Grad(1,3,iAtom)
+         dO2_dz1 =  Grad(2,3,iAtom)
+         dO3_dz1 =  Grad(3,3,iAtom)
          If (Invariant(1)) Then
             dO1_dx1 = Zero
             dO1_dy1 = Zero
@@ -269,18 +267,15 @@ c     End If
             dO3_dz1 = Zero
          End If
          Do jAtom = 1, iAtom-1
-            jx = (jAtom-1)*3 + 1
-            jy = (jAtom-1)*3 + 2
-            jz = (jAtom-1)*3 + 3
-            dO1_dx2 =  Work( (jx-1)*3 +     ip_Grad)
-            dO2_dx2 =  Work( (jx-1)*3 + 1 + ip_Grad)
-            dO3_dx2 =  Work( (jx-1)*3 + 2 + ip_Grad)
-            dO1_dy2 =  Work( (jy-1)*3 +     ip_Grad)
-            dO2_dy2 =  Work( (jy-1)*3 + 1 + ip_Grad)
-            dO3_dy2 =  Work( (jy-1)*3 + 2 + ip_Grad)
-            dO1_dz2 =  Work( (jz-1)*3 +     ip_Grad)
-            dO2_dz2 =  Work( (jz-1)*3 + 1 + ip_Grad)
-            dO3_dz2 =  Work( (jz-1)*3 + 2 + ip_Grad)
+            dO1_dx2 =  Grad(1,1,jAtom)
+            dO2_dx2 =  Grad(2,1,jAtom)
+            dO3_dx2 =  Grad(3,1,jAtom)
+            dO1_dy2 =  Grad(1,2,jAtom)
+            dO2_dy2 =  Grad(2,2,jAtom)
+            dO3_dy2 =  Grad(3,2,jAtom)
+            dO1_dz2 =  Grad(1,3,jAtom)
+            dO2_dz2 =  Grad(2,3,jAtom)
+            dO3_dz2 =  Grad(3,3,jAtom)
             If (Invariant(1)) Then
                dO1_dx2 = Zero
                dO1_dy2 = Zero
@@ -363,14 +358,14 @@ c     End If
      &                      +dO3_dz1*dO3_dz1)
 *
       End Do
-      Call Free_Work(ip_Grad)
+      Call mma_deallocate(Grad)
 #ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian after Rotation','(12f12.7)',
      &               Hess,n3)
       Call DiagMtrx_T(Hess,n3,iNeg)
 #endif
  778  Continue
-      Call Free_Work(ip_xMass)
+      Call mma_deallocate(xMass)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -392,7 +387,7 @@ C        If (iBondType.gt.Magic_Bond) Go To 10
          r0=rAv(kr,lr)
          alpha=aAv(kr,lr)
 *
-         If (Schlegel.or.Help) Then
+         If (ddV_Schlegel.or.Help) Then
             Rab=Sqrt(rkl2)
             RabCov=CovRad(iANr(kAtom))+CovRad(iANr(lAtom))
             If ((kr.eq.1.and.lr.eq.1).or.Help) Then
@@ -464,7 +459,7 @@ C10      Continue
 *     Hessian for bending
 *
       If (nBonds.lt.2) Go To 999
-      Do mAtom = 1, nAtoms
+      Do mAtom = 1, mTtAtm
          mr=iTabRow(iANr(mAtom))
 *
          nNeighbor=iTabAtoms(1,0,mAtom)
@@ -513,7 +508,7 @@ C10      Continue
                rij2 = xij**2 + yij**2 + zij**2
                rrij=sqrt(rij2)
 *
-               If (Schlegel.or.Help) Then
+               If (ddV_Schlegel.or.Help) Then
                   Rab=rmi
                   RabCov=CovRad(iANr(iAtom))+CovRad(iANr(mAtom))
                   Rbc=rmj
@@ -575,7 +570,7 @@ chjw modified
 *-------------Non-linear case
 *
               Thr_Line=Sin(Pi*25.0d0/180.0D0)
-              If (nAtoms.eq.3) Thr_Line=rZero
+              If (mTtAtm.eq.3) Thr_Line=rZero
               If (SinPhi.gt.Thr_Line) Then
                 si(1)=(xmi/rmi*cosphi-xmj/rmj)/(rmi*sinphi)
                 si(2)=(ymi/rmi*cosphi-ymj/rmj)/(rmi*sinphi)
@@ -829,7 +824,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                Write (6,*) 'rkl=',rkl,rkl2
 #endif
 *
-               If (Schlegel.or.Help) Then
+               If (ddV_Schlegel.or.Help) Then
                   Rab=Sqrt(rij2)
                   RabCov=(CovRadT(iANr(iAtom))
      &                   +CovRadT(iANr(jAtom)))/bohr
@@ -878,7 +873,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                tij = Max(tij,f_const_Min_)
                If (Torsion_Check(iAtom,jAtom,kAtom,lAtom,
      &                           xyz,iTabAtoms,
-     &                           nMax,nAtoms) )Then
+     &                           nMax,mTtAtm) )Then
                   tij = Max(tij,10.0D0*f_const_Min_)
                End If
 #ifdef _DEBUGPRINT_
@@ -968,7 +963,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
 C     Go To 999
       If (nBonds.lt.3) Go To 999
 *
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
 *
          nNeighbor_i = iTabAtoms(1,0,iAtom)
 C        Write (*,*) 'iAtom,nNeighbor_i=',iAtom,nNeighbor_i
@@ -983,7 +978,7 @@ C           Write (*,*) 'jAtom=',jAtom
             iBond = iTabAtoms(2,iNb0,iAtom)
             iBondType=iTabBonds(3,iBond)
 C           Write (*,*) 'iBondType=',iBondType
-            nCoBond_j=nCoBond(jAtom,nAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_j=nCoBond(jAtom,mTtAtm,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             If (nCoBond_j.gt.1) Go To 447
 *           If (iBondType.eq.vdW_Bond) Go To 447
@@ -1062,7 +1057,7 @@ C                 Write (*,*) 'Help=',Help
      &                        CosFi2,CosFi3,CosFi4
 #endif
 *
-                  If (Schlegel.or.Help) Then
+                  If (ddV_Schlegel.or.Help) Then
 *
 *------------------- I do not have a clue to how this will really work!
 *
@@ -1168,44 +1163,45 @@ C                 tij=Max(tij,f_const_Min_)
       Subroutine DiagMtrx_T(H,nH,iNeg)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       character*16 filnam
       Real*8 H(*)
       Logical Exist
+      Real*8, Allocatable:: EVal(:), EVec(:), rK(:), qEVec(:)
 *
       Lu=6
       iRout=22
       iprint=nPrint(iRout)
 *
-      Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
-      Call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
+      Call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
+      Call mma_allocate(EVec,nH*nH,Label='EVec')
 *
 *---- Copy elements for H
 *
-      call dcopy_(nH*(nH+1)/2,H,1,Work(ipEVal),1)
+      call dcopy_(nH*(nH+1)/2,H,1,EVal,1)
 *
 *---- Set up a unit matrix
 *
-      call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
-      call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
+      call dcopy_(nH*nH,[Zero],0,EVec,1)
+      call dcopy_(nH,[One],0,EVec,nH+1)
 *
 *---- Compute eigenvalues and eigenvectors
 *
-      Call NIDiag_new(Work(ipEVal),Work(ipEVec),nH,nH,0)
-      Call Jacord(Work(ipEVal),Work(ipEVec),nH,nH)
+      Call NIDiag_new(EVal,EVec,nH,nH,0)
+      Call Jacord(EVal,EVec,nH,nH)
 *
 *---- Print out the result
 *
       iNeg=0
       Do i = 1, nH
-         If (Work(i*(i+1)/2+ipEVal-1).lt.Zero) iNeg=iNeg+1
+         If (EVal(i*(i+1)/2).lt.Zero) iNeg=iNeg+1
       End Do
       IF (iprint.gt.5) THEN
         Write (Lu,*)
         Write (Lu,*) 'Eigenvalues of the Hessian'
         Write (Lu,*)
-        Write (Lu,'(5G20.6)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
+        Write (Lu,'(5G20.6)') (EVal(i*(i+1)/2),i=1,nH)
       END IF
 *
       call f_Inquire('SPCINX',Exist)
@@ -1225,13 +1221,13 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
 *
          If (nQQ.eq.nH) Then
 *
-           Call GetMem('rK','Allo','Real',iprK,nq*nQQ)
-           Call GetMem('qEVec','Allo','Real',ipqEVec,nq*nH)
-           Call Print_qEVec(Work(ipEVec),nH,ipEVal,nq,
-     &                      Work(iprK),Work(ipqEVec),LuTmp)
+           Call mma_allocate(rK,nq*nQQ,Label='rK')
+           Call mma_allocate(qEVec,nq*nH,Label='qEVec')
+
+           Call Print_qEVec(EVec,nH,EVal,nq,rK,qEVec,LuTmp)
 *
-           Call GetMem('qEVec','Free','Real',ipqEVec,nq*nH)
-           Call GetMem('rK','Free','Real',iprK,nq*nQQ)
+           Call mma_deallocate(qEVec)
+           Call mma_deallocate(rk)
 *
          Else
 *
@@ -1240,7 +1236,7 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
            Write (Lu,*)
            Do i = 1, nH
               Write (Lu,'(10F10.5)')
-     &              (Work((j-1)*nH+i+ipEVec-1),j=1,nH)
+     &              (EVec((j-1)*nH+i),j=1,nH)
            End Do
          End If
 *
@@ -1251,13 +1247,13 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
          Write (Lu,*) 'Eigenvectors of the Hessian'
          Write (Lu,*)
          Do i = 1, nH
-            Write (Lu,'(10F10.5)') (Work((j-1)*nH+i+ipEVec-1),j=1,nH)
+            Write (Lu,'(10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
          End Do
 *
       End If
 *
-      Call GetMem('EVec','Free','Real',ipEVec,nH*nH)
-      Call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
+      Call mma_deallocate(EVec)
+      Call mma_deallocate(EVal)
 *
       Return
       End

@@ -10,25 +10,23 @@
 ************************************************************************
 * From: D.R. Yarkony, J. Phys. Chem. A 105 (2001) 6277-6293
 * and: J. Chem. Theory Comput. 12 (2016) 3636-3653
+************************************************************************
       Subroutine CI_Summary(Lu)
+      use Slapaf_Info, only: Gx, Gx0, NAC, Energy
+      use Slapaf_Parameters, only: CallLast, iter
       Implicit None
-      Integer Lu, n, ip_g, ip_h, ip_s, i
+      Integer Lu, n, i
       Real*8, Dimension(:), Allocatable :: g, h, tmp
       Real*8 gg, hh, gh, sg, sh, dgh, deltagh, beta_ang, norm_g, norm_h,
      &       st, srel, shead, peaked, bif, aux
       Real*8, External :: dDot_
       Character(Len=2) LabA
       Character(Len=40) Description
-#include "info_slapaf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nadc.fh"
 #include "real.fh"
 *
-      n=3*nsAtom
-      ip_s=ipGx+(iter-1)*n
-      ip_g=ipGx0+(iter-1)*n
-      ip_h=ipNADC
+      n=3*SIZE(Gx,2)
       Call mma_Allocate(g,n)
       Call mma_Allocate(h,n)
 *
@@ -36,16 +34,16 @@
 *     Note that d(E1-E0)/dx is stored, but we want to use d((E1-E0)/2)/dx
 *     (and forces instead of gradients)
 *
-      gg=dDot_(n,Work(ip_g),1,Work(ip_g),1)*Quart
-      hh=dDot_(n,Work(ip_h),1,Work(ip_h),1)
-      gh=-dDot_(n,Work(ip_g),1,Work(ip_h),1) !Factor 2 included
+      gg=dDot_(n,Gx0(1,1,iter),1,Gx0(1,1,iter),1)*Quart
+      hh=dDot_(n,NAC,1,NAC,1)
+      gh=-dDot_(n,Gx0(1,1,iter),1,NAC,1) !Factor 2 included
       beta_ang=Atan2(gh,gg-hh)*Half
-      Call dCopy_(n,Work(ip_g),1,g,1)
+      Call dCopy_(n,Gx0(1,1,iter),1,g,1)
       Call dScal_(n,-Half*Cos(beta_ang),g,1)
-      Call dAxpY_(n,Sin(beta_ang),Work(ip_h),1,g,1)
-      Call dCopy_(n,Work(ip_h),1,h,1)
+      Call dAxpY_(n,Sin(beta_ang),NAC,1,g,1)
+      Call dCopy_(n,NAC,1,h,1)
       Call dScal_(n,Cos(beta_ang),h,1)
-      Call dAxpY_(n,Half*Sin(beta_ang),Work(ip_g),1,h,1)
+      Call dAxpY_(n,Half*Sin(beta_ang),Gx0(1,1,iter),1,h,1)
       gg=dDot_(n,g,1,g,1)
       hh=dDot_(n,h,1,h,1)
       norm_g=Sqrt(gg)
@@ -71,8 +69,8 @@
         norm_g=norm_h
         norm_h=aux
       End If
-      sg=-dDot_(n,Work(ip_s),1,g,1)
-      sh=-dDot_(n,Work(ip_s),1,h,1)
+      sg=-dDot_(n,Gx(1,1,iter),1,g,1)
+      sh=-dDot_(n,Gx(1,1,iter),1,h,1)
 *     Ensure that the tilt heading will be in the first quadrant
 *     this fixes the signs of the x and y vectors
       If (sg.lt.Zero) Then
@@ -133,9 +131,9 @@
       Write(Lu,*)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Gradient difference','',work(ip_g),n,1)
-      Call RecPrt('Coupling vector','',work(ip_h),n,1)
-      Call RecPrt('Average gradient','',work(ip_s),n,1)
+      Call RecPrt('Gradient difference','',Gx0(1,1,iter),n,1)
+      Call RecPrt('Coupling vector','',NAC,n,1)
+      Call RecPrt('Average gradient','',Gx(1,1,iter),n,1)
       Write(Lu,100) 'Beta angle:',beta_ang
       Write(Lu,*)
 #endif
@@ -153,20 +151,20 @@
       Write(Lu,*)
       Write(Lu,*) 'Local linear representation:'
       Call mma_Allocate(tmp,n)
-      Do i=1,nsAtom
-        tmp(0*nsAtom+i) = g((i-1)*3+1)
-        tmp(1*nsAtom+i) = g((i-1)*3+2)
-        tmp(2*nsAtom+i) = g((i-1)*3+3)
+      Do i=1,SIZE(Gx,2)
+        tmp(0*SIZE(Gx,2)+i) = g((i-1)*3+1)
+        tmp(1*SIZE(Gx,2)+i) = g((i-1)*3+2)
+        tmp(2*SIZE(Gx,2)+i) = g((i-1)*3+3)
       End Do
-      Call RecPrt('Local x','',tmp,nsAtom,3)
-      Do i=1,nsAtom
-        tmp(0*nsAtom+i) = h((i-1)*3+1)
-        tmp(1*nsAtom+i) = h((i-1)*3+2)
-        tmp(2*nsAtom+i) = h((i-1)*3+3)
+      Call RecPrt('Local x','',tmp,SIZE(Gx,2),3)
+      Do i=1,SIZE(Gx,2)
+        tmp(0*SIZE(Gx,2)+i) = h((i-1)*3+1)
+        tmp(1*SIZE(Gx,2)+i) = h((i-1)*3+2)
+        tmp(2*SIZE(Gx,2)+i) = h((i-1)*3+3)
       End Do
-      Call RecPrt('Local y','',tmp,nsAtom,3)
+      Call RecPrt('Local y','',tmp,SIZE(Gx,2),3)
       Write(Lu,*)
-      Write(Lu,110) Work(ipEner+iter-1),sg,sh
+      Write(Lu,110) Energy(iter),sg,sh
       Write(Lu,120) Two*dgh,deltagh
       Call mma_Deallocate(tmp)
       Call CollapseOutput(0,'Conical Intersection Characterization')

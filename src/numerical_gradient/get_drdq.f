@@ -11,52 +11,70 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 *               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
 ************************************************************************
-      Subroutine get_drdq(drdq,mLambda)
+      Subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter)
+      use Slapaf_Info, only: BMx, Degen
+      use Slapaf_Parameters, only: iRow_c, Curvilinear
       Implicit None
 ************************************************************************
 *     subroutine to get the dr/dq vectors for the constraints as given *
 *     in the 'UDC' file.                                               *
 ************************************************************************
-#include "info_slapaf.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
-      Real*8, Intent(InOut) :: drdq(mInt,nLambda)
-      Integer, Intent(Out) :: mLambda
+#include "stdalloc.fh"
+      Integer, Intent(In)    :: mInt, nLambda
+      Real*8,  Intent(InOut) :: drdq(mInt,nLambda)
+      Integer, Intent(Out)   :: mLambda
+      Integer, Intent(In)    :: Iter
 *
-      Integer n3,nBV,i,iLambda,iOff,iOff2,ipCoor_l
-      Integer ipBMx,ipdBMx,ipBVc,ipdBVc,ipcInt,ipcInt0,ipValue,ipValue0,
-     &        ipMult,ip_iFlip
+      Integer n3,nBV,i,iLambda,iOff,iOff2, iAtom, ixyz
       Real*8 RR
       Real*8, External :: DDot_
 *
-      Character*8 Lbl(mInt), Labels(iRow_c-1)
+      Character(LEN=8), Allocatable:: Lbl(:)
+      Real*8, Allocatable:: BVc(:), dBVc(:), BMx_t(:,:), Value(:),
+     &                      Value0(:), cInt(:), cInt0(:), Mult(:),
+     &                      dBMx(:)
+      Integer, Allocatable:: iFlip(:)
+      Logical :: lWrite
 *
-      n3=3*nsAtom
+      lWrite = .FALSE.
+      n3=SIZE(Degen)
 *
       If (nLambda.ne.0) Then
          nBV=iRow_c-nLambda-1
-         Call GetMem('BVec','Allo','Real',ipBVc,n3*nBV)
-         Call GetMem('dBVec','Allo','Real',ipdBVc,nBV*n3**2)
-         Call GetMem('BMx','Allo','Real',ipBMx,n3*nLambda)
-         Call GetMem('Value','Allo','Real',ipValue,nBV)
-         Call GetMem('Value0','Allo','Real',ipValue0,nBV)
-         Call FZero(Work(ipValue0),nBV) ! dummy initiate
-         Call GetMem('cInt','Allo','Real',ipcInt,nLambda)
-         Call GetMem('cInt0','Allo','Real',ipcInt0,nLambda)
-         Call GetMem('Mult','Allo','Real',ipMult,nBV**2)
-         Call GetMem('dBMx','Allo','Real',ipdBMx,nLambda*n3**2)
-         Call GetMem('iFlip','Allo','Inte',ip_iFlip,nBV)
+         Call mma_allocate(BMx_t,n3,nLambda,Label='BMx_t')
+
+         Call mma_allocate(BVc,n3*nBV,Label='BVc')
+         Call mma_allocate(dBVc,nBV*n3**2,Label='dBVc')
+         Call mma_allocate(Value,nBV,Label='Value')
+         Call mma_allocate(Value0,nBV,Label='Value0')
+         Value0(:)=Zero
+         Call mma_allocate(cInt,nLambda,Label='cInt')
+         Call mma_allocate(cInt0,nLambda,Label='cInt0')
+         Call mma_allocate(Mult,nBV**2,Label='Mult')
+         Call mma_allocate(dBMx,nLambda*n3**2,Label='dBMx')
+         Call mma_allocate(iFlip,nBV,Label='iFlip')
+         Call mma_allocate(Lbl,mInt,Label='Lbl')
 *
-         ipCoor_l=ipCx+(Iter-1)*n3
-         Call DefInt2(Work(ipBVc),Work(ipdBVc),nBV,Labels,
-     &                Work(ipBMx),nLambda,nsAtom,iRow_c,
-     &                Work(ipValue),Work(ipcInt),Work(ipcInt0),
-     &                Lbl,AtomLbl,Work(ipCoor_l),
-     &                lWrite,jStab,nStab,mxdc,
-     &                Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
-     &                Work(ipValue0),Iter,iWork(ip_iFlip),
-     &                Work(ipCM))
-*        Call RecPrt('dr/dx',' ',Work(ipBMx),n3,nLambda)
+         Call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,
+     &                SIZE(Degen,2),iRow_c,
+     &                Value,cInt,cInt0,Lbl,lWrite,
+     &                Mult,dBMx,Value0,Iter,iFlip)
+
+         Call mma_deallocate(Lbl)
+         Call mma_deallocate(iFlip)
+         Call mma_deallocate(dBMx)
+         Call mma_deallocate(Mult)
+         Call mma_deallocate(cInt0)
+         Call mma_deallocate(cInt)
+         Call mma_deallocate(Value0)
+         Call mma_deallocate(Value)
+         Call mma_deallocate(dBVc)
+         Call mma_deallocate(BVc)
+
+#ifdef _DEBUGPRINT_
+         Call RecPrt('BMx_t',' ',BMx_t,n3,nLambda)
+#endif
 *
 *        Assemble dr/dq: Solve  B dr/dq = dr/dx
 *
@@ -66,28 +84,22 @@
 *        is propted up with the full degeneracy factor.
 *
          If (.not.Curvilinear) Then
-            iOff=ipBMx
             Do iLambda=1,nLambda
                Do i=1,n3
-                  Work(iOff+i-1)=Work(iOff+i-1)/Degen(i)
+                  iAtom = (i+2)/3
+                  ixyz  = i - (iAtom-1)*3
+                  BMx_t(i,iLambda)=BMx_t(i,iLambda)/Degen(ixyz,iAtom)
                End Do
-               iOff=iOff+n3
             End Do
          End If
-         Call Eq_Solver('N',n3,mInt,nLambda,Work(ipB),Curvilinear,Degen,
-     &                  Work(ipBMx),drdq)
-*        Call RecPrt('drdq',' ',drdq,mInt,nLambda)
+
+         Call Eq_Solver('N',n3,mInt,nLambda,BMx,Curvilinear,Degen,
+     &                  BMx_t,drdq)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('drdq',' ',drdq,mInt,nLambda)
+#endif
 *
-         Call Free_iWork(ip_iFlip)
-         Call Free_Work(ipdBMx)
-         Call Free_Work(ipMult)
-         Call Free_Work(ipcInt0)
-         Call Free_Work(ipcInt)
-         Call Free_Work(ipValue0)
-         Call Free_Work(ipValue)
-         Call Free_Work(ipBMx)
-         Call Free_Work(ipdBVc)
-         Call Free_Work(ipBVc)
+         Call mma_deallocate(BMx_t)
       End If
 *
 *     Double check that we don't have any null vectors

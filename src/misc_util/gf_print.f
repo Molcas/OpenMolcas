@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GF_Print(EVal,EVec,dDipM,iel,nX,nDim,ictl,IRInt,RedM,
+      Subroutine GF_Print(EVal,EVec,dDipM,iel,nDoF,nDim,ictl,IRInt,RedM,
      &                    Lu_10,iOff)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "constants2.fh"
 #include "WrkSpc.fh"
-      Real*8 EVal(nDim), EVec(2,nX,nDim),dDipM(ndim,iel),IRInt(nDim),
+      Real*8 EVal(nDim), EVec(2,nDoF,nDim),dDipM(ndim,iel),IRInt(nDim),
      &       RedM(nDim)
       Parameter(Inc=6)
       Real*8 Tmp(Inc)
@@ -74,7 +74,7 @@
          End if
 *
          Write(Format,'(A,I3,A)') '(5X,A,1x,',Jnc,'F10.5)'
-         Do iInt = 1, nX
+         Do iInt = 1, nDoF
             Write (LUt,Format) ChDisp(iInt+iOff)(1:LENIN6),
      &            (EVec(1,iInt,i),
      &            i=iHarm,iHarm+Jnc-1)
@@ -83,16 +83,16 @@
          Write (LUt,*)
       End Do
 *
-      Call GetMem('Temp','ALLO','REAL',ipT,nDim*nX)
+      Call GetMem('Temp','ALLO','REAL',ipT,nDim*nDoF)
       ij=-1
       Do i=1,nDim
-         Do j=1,nX
+         Do j=1,nDoF
             ij=ij+1
             Work(ipT+ij)=Evec(1,j,i)
          End Do
       End Do
-      Call WRH(Lu_10,1,[nX],[nDim],Work(ipT),EVAL,1,'*FREQUENCIES')
-      Call GetMem('Temp','FREE','REAL',ipT,nDim*nX)
+      Call WRH(Lu_10,1,[nDoF],[nDim],Work(ipT),EVAL,1,'*FREQUENCIES')
+      Call GetMem('Temp','FREE','REAL',ipT,nDim*nDoF)
 *
       If (ictl.ne.0) Then
 *        Write(Lu_10,*) '*BEGIN PROJECTED DIPOLE TRANSITIONS'

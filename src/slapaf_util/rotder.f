@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine rotder(nmass,xmass,currxyz,ref123,trans,rotang,
-     &   rotvec,rotmat,norder,dRVdXYZ,d2RVdXYZ2,d3RVdXYZ3,d4RVdXYZ4)
+     &   rotvec,rotmat,norder,dRVdXYZ,d2RVdXYZ2)
       implicit none
 #include "stdalloc.fh"
       Integer nmass,norder
@@ -17,8 +17,6 @@
       real*8 trans(3),RotAng,RotVec(3), RotMat(3,3)
       real*8 dRVdXYZ(3,3*nMass)
       real*8 d2RVdXYZ2(3,3*nMass,3*nMass)
-      real*8 d3RVdXYZ3(3,3*nMass,3*nMass,3*nMass)
-      real*8 d4RVdXYZ4(3,3*nMass,3*nMass,3*nMass,3*nMass)
 * Local variables:
       Integer i,imass,ip,ip1,ip2,ipk,ipk1,ipk2
       Integer iter,j,j1,j2,k,k1,k2
@@ -251,11 +249,6 @@ c     MOIInv(3,3)=G(3,3)*DetInv
       Call mma_deallocate(tmp)
       Call mma_deallocate(dAdXYZ)
       return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(d3RVdXYZ3)
-         Call Unused_real_array(d4RVdXYZ4)
-      End If
       end
 *                                                                      *
 ************************************************************************
