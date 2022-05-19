@@ -5,6 +5,14 @@
 * Features tested: Copy RASORB files per iteration
 * Responsible person: Oskar Weser
 *-------------------------------------------------------------------------------
+> export SKIPPED_TEST_CODE=36
+> rm -force test_hdf5
+> if ( $molcas_driver = unknown_variable )
+    > export MOLCAS_DRIVER=molcas
+> endif
+> shell ${MOLCAS_DRIVER} have_feature hdf5 || touch test_hdf5
+
+
  &GATEWAY
     RICD
     coord
@@ -31,8 +39,13 @@
     if the source is not there */
 > foreach i in ( 1 .. 5 )
     > copy $Project.IterOrb.${i} asdf
-    /* > copy $Project.rasscf.h5.${i} asdf */
 > end do
+
+> if ( -file test_hdf5 )
+    > foreach i in ( 1 .. 5 )
+        > copy $Project.IterOrb.${i} asdf
+    > end do
+> endif
 
 > rm asdf
 
