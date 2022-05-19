@@ -134,8 +134,6 @@
       real*8, allocatable :: PLWO(:)
       integer ivkcnf
       Dimension Dummy(1)
-* Start the traceback utilities
-*
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)

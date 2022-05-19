@@ -153,9 +153,6 @@
 #endif
       Dimension Dummy(1)
 
-* Start the traceback utilities
-*
-
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
 
@@ -174,6 +171,7 @@
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
       EAV1=0.0d0
+      THMAX=0.0d0
       Call RasScf_Init()
       Call Seward_Init()
 * Open the one-olectron integral file:
@@ -1231,8 +1229,6 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &                    WORK(LD1A),Work(ipTmpD1S_DFT))
         CALL GETMEM('TmpD1S_DFT','Free','REAL',ipTmpD1S_DFT,NTOT2)
         CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
-* to fix complains from garble option on borr machines... initialize THMAX to zero.
-        THMAX = 0.0d0
       end if
 
 c        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',

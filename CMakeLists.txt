@@ -98,7 +98,7 @@ option (GA "Use Global Arrays library." OFF)
 
 option (OPENMP "Enable multi-threading." OFF)
 
-option (BOUNDS "Enable bounds checking (only gfortran >= 4.8)." OFF)
+option (BOUNDS "Enable bounds checking (only GNU Fortran)." OFF)
 
 option (EXPERT "Show advanced CMake cache entries in GUI)." OFF)
 
@@ -872,16 +872,21 @@ set (FFLAGS_PGI_FAST "-fast")
 # defines NAGFOR
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
-set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte")
+set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte -ieee=full")
 set (FFLAGS_NAG_PREPROCESS "-fpp")
 set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
-set (FFLAGS_NAG_DEBUG "-O0 -g -ieee=full")
-set (FFLAGS_NAG_GARBLE "-O2 -g -ieee=full -nan")
-set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
-set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
-set (FFLAGS_NAG_FAST "-O3 -ieee=full")
+set (FFLAGS_NAG_DEBUG "-O0 -g")
+set (FFLAGS_NAG_GARBLE "-O2 -g -nan")
+set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g")
+set (FFLAGS_NAG_RELEASE "-O2")
+set (FFLAGS_NAG_FAST "-O4")
+
+# Fix for NAG compiler (similar to GNU Fortran)
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
+  set (FFLAGS_NAG_BASIC "${FFLAGS_NAG_BASIC} -Wc,-fno-aggressive-loop-optimizations")
+endif ()
 
 # The option does not exist, or I cannot find it
 #set (FFLAGS_NAG_BIGOT "???")

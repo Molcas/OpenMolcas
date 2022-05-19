@@ -6,7 +6,7 @@
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (needs access to a license)
 # - intel13: use Intel 2013 compilers (specific runner)
-# - nag: use NAG Fortran compiler and Garble (specific runner, disabled)
+# - nag: use NAG Fortran compiler and Garble (specific runner)
 # - garble: setup with Garble option and gcc compilers
 # - bounds: enable bounds checking (slow)
 # - debug: build with no optimization (no tests)
@@ -121,8 +121,6 @@
       set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
     pre_compile_script: |
       . /usr/local/bin/setupintel.sh
-      export PATH=$${PWD}:$${PATH}
-      touch pymolcas
       rm -rf ${install_path}
     pre_make_script: |
       $${make} only_objs
@@ -136,21 +134,25 @@
     - intel13
 
 .nag:
+  # use this image for better compatibility with the nag runner
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
   variables:
+    install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
-      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (HDF5_ROOT "/opt/hdf5_v1.12.0_gnu" CACHE STRING "HDF5 location") # specific for nag runner
+      set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE STRING "use static HDF5")
+      set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
     pre_compile_script: |
-      export PATH=$${PWD}:/opt/NAG/Fortran-amd64/6.0/bin:$${PATH}
+      rm -rf ${install_path}
     CC: "gcc"
     CXX: "g++"
     FC: "nagfor"
-    NAG_KUSARI_FILE: "/opt/NAG/npl6a60na.key"
-    FFLAGS: "-w=obs -w=x77 -Wc,-fno-aggressive-loop-optimizations -Qpath /opt/NAG/Fortran-amd64/6.0/lib"
+    FFLAGS: "-w=obs -w=x77 -unsharedrts -gline"
   tags:
-    - nag
+    - nagfor
 
 .garble:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest

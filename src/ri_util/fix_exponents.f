@@ -41,7 +41,7 @@
           Call mma_allocate(Scr,mP,1,1,Label='Scr')
           Scr(1:mP,1,1)=Exp(1:mP)
           Call mma_deallocate(Exp)
-          Call mma_allocate(Exp,nP,Label='Exp')
+          Call mma_allocate(Exp,mP,Label='Exp')
           Exp(:)=Scr(:,1,1)
           Call mma_deallocate(Scr)
 *
