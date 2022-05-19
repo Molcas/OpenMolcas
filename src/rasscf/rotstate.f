@@ -40,8 +40,6 @@
       Integer LRState,NRState            ! storing info in Do_Rotate.txt
       Integer LHScr                      ! calculating rotated H
       Integer rcidisk
-      INTEGER IsFreeUnit
-      EXTERNAL IsFreeUnit
       INTEGER JRoot,IPRLEV
       CHARACTER(Len=18)::MatInfo
       write(LF,*)
