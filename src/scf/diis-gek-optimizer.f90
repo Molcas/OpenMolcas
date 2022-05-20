@@ -42,6 +42,8 @@ Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
 Real*8, Allocatable:: dq_diis(:)
 Real*8, Allocatable:: H_Diis(:,:)
+Real*8, Allocatable:: Vec(:,:)
+Real*8, Allocatable:: Val(:)
 Real*8 :: gg
 Character(Len=1) Step_Trunc_
 Character(Len=6) UpMeth_
@@ -49,8 +51,9 @@ Real*8 :: dqHdq, Variance, Fact
 Real*8 :: StepMax=0.D0
 Real*8 :: StepMax_Seed=0.1D0
 Real*8 :: Thr_RS=1.0D-7
-!Real*8 :: Beta_Disp=0.3D0
-Real*8 :: Beta_Disp=5.0D-4      ! Maybe it should be set to the last energy difference?
+Real*8 :: Beta_Disp_Seed=0.05D0
+Real*8 :: Beta_Disp_Min=1.0D-3
+Real*8 :: Beta_Disp
 Real*8 :: FAbs, RMS, RMSMx, dEner
 Real*8 :: ThrGrd=1.0D-6
 Integer, Parameter:: Max_Iter=50
@@ -58,12 +61,12 @@ Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
 Integer :: nWindow=10
-Logical :: Converged=.FALSE.
+Logical :: Converged=.FALSE., Terminate=.False.
 Integer :: nExplicit
 Real*8, Allocatable :: Probe(:)
 Real*8 :: Test
 
-
+Beta_Disp=Beta_Disp_Seed
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Enter DIIS-GEK Optimizer'
 #endif
@@ -93,8 +96,8 @@ Do i = iFirst, iter
 
 End Do
 #ifdef _DEBUGPRINT_
-Call RecPrt('q',' ',q,mOV,iterso)
-Call RecPrt('g',' ',g,mOV,iterso)
+Call RecPrt('q',' ',q,mOV,nDIIS)
+Call RecPrt('g',' ',g,mOV,nDIIS)
 #endif
 
 
@@ -166,8 +169,8 @@ End Do
 Call mma_allocate(Probe,mOV,Label='Probe')
 
 Probe(:) = Zero
-!Do j = 1, nDIIS
-Do j = nDIIS, nDIIS
+Do j = 1, nDIIS
+!Do j = nDIIS, nDIIS
 !Do j = Max(1,nDIIS-3), nDIIS
 !  If (nDIIS==1) Then
       Do i = 1, mOV
@@ -180,8 +183,10 @@ Do j = nDIIS, nDIIS
 !     End Do
 !  End If
 End Do
+!Write (6,*) 'Check HDiag'
 Do i = 1, mOV
    Probe(i)=Sqrt(Probe(i))/DBLE(nDIIS)
+!  If (HDiag(i)<Zero) Write(6,*) HDiag(i)
 End Do
 !Call RecPrt('Probe',' ',Probe(:),mOV,1)
 
@@ -211,7 +216,7 @@ Do i = 1, nExplicit
       Write(6,*) 'j==0'
       Call Abend()
    Else
-!     Write (6,*) 'j=',j, g(j,nDIIS)
+!     Write (6,*) 'j,Probe(j)=',j, Probe(j)
       mDIIS = mDIIS + 1
       e_diis(j,mDIIS)=One
       Probe(j)=Zero
@@ -220,19 +225,20 @@ End Do
 
 Call mma_deallocate(Probe)
 
-Do i = 1, nDIIS      ! Pick up the modified gradient vectors.
+Do i = 1, nDIIS      ! Pick up the gradient vectors as a seed for the reduced set of unit vectors.
    gg = 0.0D0
    Do l = 1, mOV
       gg = gg + g(l,i)**2
    End Do
-   If (gg<1.0D-10) Then
-      e_diis(:,i+nExplicit) = Zero
-   Else
+!  If (gg<1.0D-10) Then
+!     e_diis(:,i+nExplicit) = Zero
+!  Else
       e_diis(:,i+nExplicit) = g(:,i)/Sqrt(gg)
-   End If
+!  End If
 !  Write (6,*) i,i,DDot_(mOV,e_diis(:,i),1,e_diis(:,i),1)
 End Do
 
+! now orthogonalize all vectors
 j = 1
 Do i = 2, nDIIS + nExplicit
    Do k = 1, j
@@ -247,7 +253,7 @@ Do i = 2, nDIIS + nExplicit
       gg = gg + e_diis(l,i)**2
    End Do
 !  Write (6,*) 'i,gg=',i,gg
-   If (gg>1.0D-10) Then
+   If (gg>1.0D-10) Then   ! Skip vector if linear dependent.
       j = j + 1
       e_diis(:,j) = e_diis(:,i)/Sqrt(gg)
    End If
@@ -270,7 +276,7 @@ Call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Computed the projected displacement coordinates. Note that the displacements are relative to the last coordinate, nDIIS.
+! Computed the projected displacement coordinates. Note that the displacements are relative to the last coordinate, q(:,nDIIS).
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Call mma_allocate(q_diis,mDIIS,nDIIS+Max_Iter,Label='q_diis')
 q_diis(:,:)=0.0D0
@@ -336,13 +342,15 @@ Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),H_diis)
 !Write (6,*) blAI, mblAI, blaAI, blavAI
 
 UpMeth='RVO'
-
-Step_Trunc=' '
+Terminate=.False.
+Step_Trunc='N'
 Converged=.FALSE.
 
 Iteration      =nDiis-1
 Iteration_Micro=0
 Iteration_Total=iter-1
+If (nDIIS>1) Beta_Disp=Min(Beta_Disp_Seed,Max(Beta_Disp_Min,Abs(Energy(iter)-Energy(iter-1))))
+!Write (6,*) '->',Energy(iter)-Energy(iter-1),nDIIS,Beta_Disp
 Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    Iteration_Micro = Iteration_Micro + 1
    Iteration_Total = Iteration_Total + 1
@@ -362,6 +370,7 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    Write (6,*) 'Micro Iteration=',Iteration_Micro
    Write (6,*) '================================'
    Write (6,*)
+   Write (6,*) 'Step_Trunc:',Step_Trunc
    Write (6,*) '-----> Start RVO step'
 #endif
 
@@ -370,8 +379,39 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    ! Loop to enforce restricted variance. Note, if the step restriction kicks no problem since we will still microiterate.
    Do
 
-   ! Compute the surrogate Hessian
+      ! Compute the surrogate Hessian
       Call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
+
+      Call mma_allocate(Val,mDIIS*(mDIIS+1)/2,Label='Val')
+      Call mma_allocate(Vec,mDIIS,mDIIS,Label='Vec')
+
+      Vec(:,:)=Zero
+      Do i = 1, mDIIS
+         Vec(:,:)=One
+         Do j = 1, i
+            Val((i-1)*i/2+j)=H_diis(i,j)
+         End Do
+      End Do
+
+      Call NIDiag_new(Val,Vec,mDIIS,mDIIS)
+      Call Jacord(Val,Vec,mDIIS,mDIIS)
+
+!     If negative eigenvalues then correct and signal that the micro iterartions should be terminanted.
+      Do i = 1, mDIIS
+!        Write (*,*) Val(i*(i+1)/2)
+         If (Val(i*(i+1)/2)<Zero) Then
+            Terminate=.True.
+            Do j = 1, mDIIS
+               Do k = 1, mDIIS
+                  H_Diis(j,k) = H_Diis(j,k) + Two*Abs(Val(i*(i+1)/2))*Vec(j,i)*Vec(k,i)
+               End Do
+            End Do
+         End If
+      End Do
+
+      Call mma_deallocate(Vec)
+      Call mma_deallocate(Val)
+
 #ifdef _DEBUGPRINT_
       Call RecPrt('q_diis(:,Iteration)',' ',q_diis(:,Iteration),mDIIS,1)
       Call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
@@ -379,20 +419,21 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 #endif
 
       Step_Trunc_=Step_Trunc
-      Step_Trunc ='N'   ! set to not defined
       dqHdq=Zero
-      Call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth_,dqHdq,StepMax,Step_Trunc,Thr_RS)
+      Call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth_,dqHdq,StepMax,Step_Trunc_,Thr_RS)
       dq_diis(:)=-dq_diis(:)
       q_diis(:,Iteration+1) = q_diis(:,Iteration) + dq_diis(:)
+      dqdq=Sqrt(DDot_(SIZE(dq_diis),dq_diis(:),1,dq_diis(:),1))
 
 #ifdef _DEBUGPRINT_
       Write (6,*)
-      Write (6,*) 'Subiteration: Step_Trunc, StepMax:',Step_Trunc,StepMax
+      Write (6,*) 'Subiteration: Step_Trunc, StepMax:',Step_Trunc,StepMax, dqdq
+      Write (6,*) 'Subiteration: Step_Trunc_        :',Step_Trunc_
       Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
       Call RecPrt('q_diis(:,Iteration+1)',' ',q_diis(:,Iteration+1),mDIIS,1)
 #endif
       If (Step_Trunc.eq.'N') Step_Trunc=' '   ! set to blank if not touched
-      If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.' ! Mark that we have had a step reduction previously
+      If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.' ! Mark that we have had a step Reduction
 
       Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
 #ifdef _DEBUGPRINT_
@@ -404,12 +445,17 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 
       Fact   =Half*Fact
       StepMax=Half*StepMax
+
+      ! Note that we might have converged because the step restriction kicked in. However, we fill implicitly
+      ! fix that during the second micro iteration.
+
       If (One-Variance/Beta_Disp>1.0D-3) Exit
       If ( (Fact<1.0D-5) .OR. (Variance<Beta_Disp) ) Exit
-      Step_Trunc='*'
+      Step_Trunc='*' ! This will only happen if variance restriction kicks in
 
    End Do  ! Restricted variance
 #ifdef _DEBUGPRINT_
+   Write (6,*)
    Write (6,*) 'Step_Trunc:',Step_Trunc
    Write (6,*) '-----> Exit RVO step'
    Write (6,*)
@@ -445,17 +491,25 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    Write (6,*) 'RMSMx=',RMSMx
    Write (6,*)
 #endif
+   If (Step_Trunc=='.') Step_Trunc=' '
    Converged = FAbs<ThrGrd
    Converged = Converged .AND. RMS<Four*ThrGrd
    Converged = Converged .AND. RMSMx<ThrGrd*Six
-   Converged = Converged .AND. Step_Trunc==' '
-   If (Step_Trunc=='.') Step_Trunc=' '
+   Converged = Converged .AND. (Step_Trunc==' ' .or. Step_Trunc=='#')
 !  Write (6,*) 'Step_Trunc:',Step_Trunc
    If (Step_Trunc=='*') Converged=.True.
+   If (Terminate) Then
+      Step_Trunc='#'
+!     Exit
+   End If
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 End Do  ! While not converged
+#ifdef _DEBUGPRINT_
+Write (6,*) 'Converged'
+Write (6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
+#endif
 Write (UpMeth(5:6),'(I2)') Iteration_Micro
 
 
