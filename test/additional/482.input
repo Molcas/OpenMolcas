@@ -10,7 +10,7 @@
 > if ( $molcas_driver = unknown_variable )
     > export MOLCAS_DRIVER=molcas
 > endif
-> shell ${MOLCAS_DRIVER} have_feature hdf5 || touch test_hdf5
+> shell ${MOLCAS_DRIVER} have_feature hdf5 && touch SUPPORTS_HDF5
 
 
  &GATEWAY
@@ -38,12 +38,12 @@
 /* We are not interested in the copy, it should just fail,
     if the source is not there */
 > foreach i in ( 1 .. 5 )
-    > copy $Project.IterOrb.${i} asdf
+    > copy ${Project}.IterOrb.${i} asdf
 > end do
 
-> if ( -file test_hdf5 )
+> if ( -file SUPPORTS_HDF5 )
     > foreach i in ( 1 .. 5 )
-        > copy $Project.IterOrb.${i} asdf
+        > copy ${Project}.rasscf.h5.${i}  asdf
     > end do
 > endif
 
