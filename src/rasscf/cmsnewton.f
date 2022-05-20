@@ -33,13 +33,13 @@
      &                                 XScr,GScr,ScrDiag,
      &                                 RCopy,GDCopy,DgCopy
 
+      Real*8,DIMENSION(:,:),Allocatable::RotMat
       INTEGER iStep,nDDg,lRoots2,NAC2,
-     &        nSPair,nSPair2,nScr,QuaterIterMax
+     &        nSPair,nSPair2,nScr
       Real*8 Qnew,Qold
       Logical CMSScaled,Saved
 
 *     preparation
-      QuaterIterMax=iCMSIterMax/4
       lRoots2=lRoots**2
       NAC2=NAC**2
       nDDg=lRoots2**2
@@ -57,6 +57,7 @@
       CALL mma_allocate(GDCopy ,nGD      )
       CALL mma_allocate(DgCopy ,nGD      )
       CALL mma_allocate(RCopy  ,lRoots2  )
+      CALL mma_allocate(RotMat ,lRoots,lRoots)
 *     Step 0
       iStep=0
       Qold=0.0d0
@@ -99,8 +100,9 @@
        CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
 
        CMSScaled=.false.
+       Saved=.true.
        IF((Qold-Qnew).gt.CMSThreshold) THEN
-        If(iStep.gt.QuaterIterMax) Then
+        If(iStep.gt.ICMSIterMin) Then
          CMSScaled=.true.
 *        When Onew is less than Qold, scale the rotation matrix
          CALL CMSScaleX(X,R,DeltaR,Qnew,Qold,
@@ -110,6 +112,9 @@
         End If
        END IF
        CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
+       CALL AntiOneDFoil(RotMat,R,lRoots,lRoots)
+       CALL PrintMat('ROT_VEC','CMS-PDFT temp',
+     &                RotMat,lroots,lroots,7,13,'T')
 
        IF(.not. Saved) THEN
         CMSNotConverged=.true.
@@ -138,6 +143,7 @@
       CALL mma_deallocate(GDCopy )
       CALL mma_deallocate(DgCopy )
       CALL mma_deallocate(RCopy  )
+      CALL mma_deallocate(RotMat )
       RETURN
       End Subroutine
 
