@@ -21,21 +21,19 @@ subroutine read_rysrw()
 !             Modified to DaFile February '91                          *
 !***********************************************************************
 
-use vRys_RW
+use vRys_RW, only: Cff, ddx, iCffR, iCffW, iMap, ix0, Map, nMap, nMxRys, nx0, TMax, x0
+use stdalloc, only: mma_allocate
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-!VV: some variables used under #ifdef are not defined.
-!implicit none
-#include "SysDef.fh"
-#include "itmax.fh"
-#include "stdalloc.fh"
+implicit none
+integer :: i, io, iOff, iRys, lu_rysrw, mRys, nCff, nMap_Tot, nMem, nMem_Tot, nOrder, nx0_Tot
+real(kind=wp) :: acc(size(iMap))
+logical(kind=iwp) :: found_rysrw
 character(len=*), parameter :: RYSRW_NAME = 'RYSRW'
-integer, parameter :: lu_rysrw = 22
-logical :: found_rysrw
-integer :: mRys, nOrder, nCff
-real*8 :: acc(maxrys)
-integer :: iRys, iOff
-integer :: nMap_Tot, nMem_Tot, nx0_Tot, nMem
-integer :: io
+integer(kind=iwp), external :: isFreeUnit
 
 ! Open file for data base
 
@@ -44,10 +42,8 @@ if (.not. found_rysrw) then
   call warningmessage(2,' the rysrw file does not exist.')
   call abend()
 end if
+lu_rysrw = isFreeUnit(22)
 call molcas_open(lu_rysrw,RYSRW_NAME)
-#ifdef _DEBUGPRINT_
-write(6,*) ' nDisk=',nDisk
-#endif
 
 ! Read initial data
 
@@ -55,7 +51,7 @@ io = 1
 do while (io /= 0)
   read(lu_rysrw,*,IOStat=io) mRys,nOrder
 end do
-if (mRys > MaxRys) then
+if (mRys > size(iMap)) then
   call WarningMessage(2,' Database requires new code! Database and code are at incompatible levels!')
   call Abend()
 end if
@@ -63,12 +59,12 @@ nMxRys = mRys
 nCff = 2*(nOrder+1)
 read(lu_rysrw,*) (Acc(i),i=1,mRys)
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' Reading tables for roots and weights of Rys poly.'
-write(6,*) ' Highest order is:',mRys
-write(6,*) ' Order of approximating polynomial:',nOrder
-write(6,*) ' Relative accuracy of computed values:',(Acc(i),i=1,mRys)
-write(6,*)
+write(u6,*)
+write(u6,*) ' Reading tables for roots and weights of Rys poly.'
+write(u6,*) ' Highest order is:',mRys
+write(u6,*) ' Order of approximating polynomial:',nOrder
+write(u6,*) ' Relative accuracy of computed values:',(Acc(i),i=1,mRys)
+write(u6,*)
 #endif
 
 ! Read value of T at which asymptotic formulas will be used
@@ -91,14 +87,14 @@ call RecPrt(' ddx ',' ',ddx,mRys,1)
 
 read(lu_rysrw,*) (nMap(i),i=1,mRys)
 #ifdef _DEBUGPRINT_
-write(6,*) ' nMap=',nMap
+write(u6,*) ' nMap=',nMap
 #endif
 
-!     Read number of subranges
+! Read number of subranges
 
 read(lu_rysrw,*) (nx0(i),i=1,mRys)
 #ifdef _DEBUGPRINT_
-write(6,*) ' nx0=',nx0
+write(u6,*) ' nx0=',nx0
 #endif
 
 ! Read map array and x0 array for each order of Rys polynomials

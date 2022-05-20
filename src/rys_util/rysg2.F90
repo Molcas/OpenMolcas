@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gamma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
+subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
                  Tvalue,ModU2,Cff2D,PAO,nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,nOp,iuvwx,IfG,mvec,Index_Out,lGrad,lHess,Tr)
 !***********************************************************************
 !                                                                      *
@@ -27,63 +27,68 @@ subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gamma,Delta,Zeta,ZInv,nZeta,Eta,EInv,n
 !             Anders Bernhardsson Theoretical Chemistry,               *
 !             University of Lund                                       *
 !***********************************************************************
-!   @parameter iAnga Angular momenta for each center
-!   @parameter nRys  Order of rys polynomia
-!   @parameter nT    Number of alpha-beta-gamma-delta multiplies
-!   @parameter Alpha Explonents on 1st center
-!   @parameter Beta Explonents on 2nd center
-!   @parameter Gamma Explonents on 3rd center
-!   @parameter Delta Explonents on 4ht center
-!   @parameter Zeta  Alpha*Beta
-!   @parameter Zeta  Zeta invers
-!   @parameter nZeta Alpha Beta multiplies
-!   @parameter Eta  Gamma*Delta
-!   @parameter Eta  Eta invers
-!   @parameter nEta gamma delta multiplies
+!   @parameter iAnga     Angular momenta for each center
+!   @parameter nRys      Order of Rys polynomia
+!   @parameter nT        Number of alpha-beta-gamma-delta multiplies
+!   @parameter Alpha     Exponents on 1st center
+!   @parameter Beta      Exponents on 2nd center
+!   @parameter Gmma      Exponents on 3rd center
+!   @parameter Delta     Exponents on 4th center
+!   @parameter Zeta      Alpha*Beta
+!   @parameter Zeta      Zeta inverse
+!   @parameter nZeta     Alpha Beta multiplies
+!   @parameter Eta       Gmma*Delta
+!   @parameter Eta       Eta inverse
+!   @parameter nEta      Gmma Delta multiplies
 !   @parameter P
-!   @parameter lP  Length of p
+!   @parameter lP        Length of P
 !   @parameter Q
-!   @parameter lQ  Length of Q
-!   @parameter Coori Coordinates of center just used to check AeqB CeqD etc
-!   @parameter Coora Coordinates of center used in hor. recursion
-!   @parameter CoorAC Coordinates of center <max(la,lb),max(lc,ld)>
-!   @parameter Array Scratch and output area for 1st derivatives
-!   @parameter nArray Size of scratch area
-!   @parameter PAO Density
-!   @parameter nPAO lenth of density
-!   @parameter Hess Output area for hessian (added)
-!   @parameter nHess Size of hessian
-!   @parameter ifgrad true for all 1st derivatives that are needed
-!   @parameter indgrad  index in gradient on which integrals should be added
-!   @parameter ifhss true for all 2nd derivatives that are needed
-!   @parameter indhss  index in hess on which contracted integrals should be added
-!   @parameter nop oerator number for the operator that generates center
-!   @parameter iuvwx number of stabilazors
-!   @parameter ifg true for all centers on which derivatives should be calculated
-!   @parameter index_out  index where first derivatives are stored (out)
-!   @parameter lhess true if 2nd derivatives should be calculated
-!   @parameter lgrad true if 1st derivatives should be calculated
-!   @parameter tr  true for all centers on which should be calculated via translation invarians
+!   @parameter lQ        Length of Q
+!   @parameter Coori     Coordinates of center just used to check AeqB CeqD etc.
+!   @parameter Coora     Coordinates of center used in hor. recursion
+!   @parameter CoorAC    Coordinates of center <max(la,lb),max(lc,ld)>
+!   @parameter Array     Scratch and output area for 1st derivatives
+!   @parameter nArray    Size of scratch area
+!   @parameter PAO       Density
+!   @parameter nPAO      Length of density
+!   @parameter Hess      Output area for Hessian (added)
+!   @parameter nHess     Size of Hessian
+!   @parameter IfGrad    True for all 1st derivatives that are needed
+!   @parameter IndGrad   Index in gradient on which integrals should be added
+!   @parameter IfHss     True for all 2nd derivatives that are needed
+!   @parameter IndHss    Index in Hess on which contracted integrals should be added
+!   @parameter nOp       Operator number for the operator that generates center
+!   @parameter iuvwx     Number of stabilizers
+!   @parameter IfG       True for all centers on which derivatives should be calculated
+!   @parameter Index_Out Index where first derivatives are stored (out)
+!   @parameter lHess     True if 2nd derivatives should be calculated
+!   @parameter lGrad     True if 1st derivatives should be calculated
+!   @parameter Tr        True for all centers on which should be calculated via translation invariance
 
-use vRys_RW
+use vRys_RW, only: nMxRys
 use Symmetry_Info, only: nIrrep, iOper
 use Gateway_Info, only: ChiI2
 use Gateway_global, only: IsChi
+use Index_Functions, only: nTri_Elem1
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Tvalue, ModU2, Cff2D
-external Exp_1, Exp_2
+implicit none
+integer(kind=iwp) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nOp(4), &
+                     iuvwx(4), mvec, Index_Out(3,4)
+real(kind=wp) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), &
+                 Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Hess(nHess)
+external :: Tvalue, ModU2, Cff2D
+logical(kind=iwp) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), lGrad, lHess, Tr(4)
 #include "notab.fh"
-#include "real.fh"
-real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3), Eta(nEta), EInv(nEta), Q(lQ,3), Alpha(nZeta), Beta(nZeta), gamma(nEta), Delta(nEta), &
-       CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray), PAO(nT,nPAO), Hess(nHess)
-integer iAnga(4), IndGrd(3,4,0:7), Index1(3,4), nOp(4), iuvwx(4), JndGrd(3,4,0:7), lOp(4), IndHss(4,3,4,3,0:7), Index2(3,4,4), &
-        Index3(3,3), Index4(2,6,3), ng(3), nh(3), Index_Out(3,4)
-logical IfGrd(3,4), JfGrd(3,4), IfG(4), KfGrd(3,4), ifhss(4,3,4,3), lgrad, lhess, Tr(4)
-nElem(i) = (i+1)*(i+2)/2
+integer(kind=iwp) :: i, iCa, iCar, iCe, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), iOff, ip, ip2D0, &
+                     ip2D1, ip2D2, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipg2, ipP, ipPAQP, ipQ, ipQCPQ, ipScr, ipScr2, &
+                     ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iStop, iZeta, jCar, jCent, JndGrd(3,4,0:7), kCent, la, lab, labMax, &
+                     lb, lB00, lB01, lB10, lc, lCar, lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, mVec_, n2D0, n2D1, n2D2, &
+                     nabMax, ncdMax, ng(3), nh(3), nTR
+logical(kind=iwp) :: KfGrd(3,4)
+external :: Exp_1, Exp_2
 
-call LCopy(12,[.false.],0,JfGrd,1)
-call LCopy(12,[.false.],0,KfGrd,1)
+KfGrd(:,:) = .false.
 lOp(1) = iOper(nOp(1))
 lOp(2) = iOper(nOp(2))
 lOp(3) = iOper(nOp(3))
@@ -115,7 +120,7 @@ ncdMax = lc+ld+lcd
 
 ip = 1
 
-MemFinal = 9*nt*nElem(la)*nElem(lb)*nElem(lc)*nElem(ld)
+MemFinal = 9*nt*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 ip = ip+MemFinal
 
 ! Allocate memory for the 2D-integrals.
@@ -173,7 +178,7 @@ ipTv = ip
 ip = ip+nT
 if (ip-1 > nArray) then
   call WarningMessage(2,'Rysg2: ip-1 > nArray (pos. 1)')
-  write(6,*) 'ip,nArray=',ip,nArray
+  write(u6,*) 'ip,nArray=',ip,nArray
   call Abend()
 end if
 
@@ -215,7 +220,7 @@ ipWgh = ip2D0+2*nT*nRys
 if ((nRys > nMxRys) .or. NoTab) then
   if (ip-1 > nArray) then
     call WarningMessage(2,'Rysg2: ip-1 > nArray (pos. 2)')
-    write(6,*) 'ip,nArray=',ip,nArray
+    write(u6,*) 'ip,nArray=',ip,nArray
     call Abend()
   end if
 
@@ -223,7 +228,7 @@ if ((nRys > nMxRys) .or. NoTab) then
 else
   if (ip-1 > nArray) then
     call WarningMessage(2,'Rysg2: ip-1 > nArray (pos. 3)')
-    write(6,*) 'ip,nArray=',ip,nArray
+    write(u6,*) 'ip,nArray=',ip,nArray
     call Abend()
   end if
 
@@ -288,15 +293,10 @@ ipScr2 = ip
 ip = ip+nT*nRys
 if (ip-1 > nArray) then
   call WarningMessage(2,'Rysg2: ip-1 > nArray (pos. 4)')
-  write(6,*) 'ip,nArray=',ip,nArray
+  write(u6,*) 'ip,nArray=',ip,nArray
   call Abend()
 end if
 call ICopy(12*nirrep,IndGrd,1,JndGrd,1)
-do i=1,3
-  do j=1,4
-    JfGrd(i,j) = IfGrd(i,j)
-  end do
-end do
 do iCent=1,4
   do jCar=1,3
     do kCent=1,i
@@ -308,8 +308,8 @@ do iCent=1,4
       do lCar=1,istop
         if (jCar /= lCar) then
           if (ifhss(iCent,jCar,kCent,lCar)) then
-            kfgrd(jCar,iCent) = .true.
-            kfgrd(lCar,kCent) = .true.
+            KfGrd(jCar,iCent) = .true.
+            KfGrd(lCar,kCent) = .true.
           end if
         end if
       end do
@@ -318,13 +318,13 @@ do iCent=1,4
 end do
 do jCent=1,4
   do iCar=1,3
-    if (kfgrd(iCar,jCent) .or. Ifgrd(iCar,jCent)) then
-      kfgrd(iCar,jCent) = .true.
+    if (KfGrd(iCar,jCent) .or. Ifgrd(iCar,jCent)) then
+      KfGrd(iCar,jCent) = .true.
     end if
   end do
 end do
 
-call Rs2Dgh(Array(ip2D0),nT,nRys,la,lb,lc,ld,Array(ip2D1),Array(ip2D2),IfHss,IndHss,KfGrd,JndGrd,IfG,Coora,Alpha,Beta,Gamma,Delta, &
+call Rs2Dgh(Array(ip2D0),nT,nRys,la,lb,lc,ld,Array(ip2D1),Array(ip2D2),IfHss,IndHss,KfGrd,JndGrd,IfG,Coora,Alpha,Beta,Gmma,Delta, &
             nZeta,nEta,Array(ipScr),Array(ipScr2),Array(ipTmp),Index1,Index2,Index3,Index4,ng,nh,Exp_1,Exp_2,nZeta,nEta,nIrrep,Tr)
 ! Drop ipScr
 ip = ip-nTR
@@ -339,17 +339,17 @@ ipg2 = ip
 ip = ip+78
 if (ip-1 > nArray) then
   call WarningMessage(2,'Rysg2: ip-1 > nArray (pos. 5)')
-  write(6,*) 'ip,nArray=',ip,nArray
+  write(u6,*) 'ip,nArray=',ip,nArray
   call Abend()
 end if
 
 if (lGrad) then
   do iCe=1,4
     do iCa=1,3
-      kfGrd(iCa,iCe) = kfgrd(iCa,iCe) .and. ifgrd(iCa,iCe)
+      KfGrd(iCa,iCe) = KfGrd(iCa,iCe) .and. ifgrd(iCa,iCe)
     end do
   end do
-  call Assg1_mck(Array,nT,nRys,la,lb,lc,ld,Array(ip2D0),Array(ip2D1),kfGrd,Index1,mVec_,Index_out)
+  call Assg1_mck(Array,nT,nRys,la,lb,lc,ld,Array(ip2D0),Array(ip2D1),KfGrd,Index1,mVec_,Index_out)
   mVec = mVec_
 
 end if
@@ -373,10 +373,10 @@ ip = ip-n2D2*nT*nRys
 
 if (ip /= 1+MemFinal) then
   call WarningMessage(2,'Rysg2: ip /= 1+MemFinal (pos. 5)')
-  write(6,*) 'ip,MemFinal=',ip,MemFinal
+  write(u6,*) 'ip,MemFinal=',ip,MemFinal
   call Abend()
 end if
-call lCopy(12,kfgrd,1,ifgrd,1)
+IfGrd(:,:) = KfGrd(:,:)
 
 return
 

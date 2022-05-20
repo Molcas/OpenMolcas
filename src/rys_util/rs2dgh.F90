@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Rs2Dgh(xyz2D0,nT,nRys,la,lb,lc,ld,xyz2D1,xyz2D2,IfHss,IndHss,IfGrad,IndGrd,IfG,Coora,Alpha,Beta,Gamma,Delta,nZeta,nEta, &
+subroutine Rs2Dgh(xyz2D0,nT,nRys,la,lb,lc,ld,xyz2D1,xyz2D2,IfHss,IndHss,IfGrad,IndGrd,IfG,Coora,Alpha,Beta,Gmma,Delta,nZeta,nEta, &
                   Scrtch,Scrtch2,Temp,Index1,Index2,Index3,Index4,ng,nh,ExpX,ExpY,mZeta,mEta,nIrrep,Tr)
 !***********************************************************************
 !                                                                      *
@@ -24,18 +24,21 @@ subroutine Rs2Dgh(xyz2D0,nT,nRys,la,lb,lc,ld,xyz2D1,xyz2D2,IfHss,IndHss,IfGrad,I
 !             Februar '95                                              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-external ExpX, ExpY
-#include "real.fh"
-real*8 xyz2D0(nRys*nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), &
-       xyz2D2(nRys*nT,0:la,0:lb,0:lc,0:ld,3,6), Coora(3,4), Alpha(nZeta), Beta(nZeta), gamma(nEta), Delta(nEta), Scrtch2(nRys*nT), &
-       Scrtch(nRys*nT), Temp(nT)
-logical IfGrad(3,4), IfHss(4,3,4,3), IfG(4), EQ, Tr(4)
-integer IndGrd(3,4,0:nIrrep-1), Ind1(3), Ind2(3), Ind3(3), Ind4(3), Index2(3,4,4), Index1(3,4), Index3(3,3), Index4(2,6,3), ng(3), &
-        nh(3), IndHss(4,3,4,3,0:nIrrep-1)
-#ifdef NAGFOR
-save Ind1, Ind2, Ind3, Ind4
-#endif
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, nIrrep, IndHss(4,3,4,3,0:nIrrep-1), IndGrd(3,4,0:nIrrep-1), nZeta, nEta, &
+                     Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), ng(3), nh(3), mZeta, mEta
+real(kind=wp) :: xyz2D0(nRys*nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), &
+                 xyz2D2(nRys*nT,0:la,0:lb,0:lc,0:ld,3,6), Coora(3,4), Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), &
+                 Scrtch(nRys*nT), Scrtch2(nRys*nT), Temp(nT)
+logical(kind=iwp) :: IfHss(4,3,4,3), IfGrad(3,4), IfG(4), Tr(4)
+external :: ExpX, ExpY
+integer(kind=iwp) :: i, i1, i2, i3, i4, i5, ia, ib, ic, iCar, iCent, id, iIrrep, Ind1(3), Ind2(3), Ind3(3), Ind4(3), iVec, j4, j5, &
+                     jCar, jCent, kCar, kCent, mvec, mx, my, mz, n, nVec, nvecx, nx, ny, nz
+real(kind=wp) :: Fact, ra, rb, rc, rd
+logical(kind=iwp), external :: EQ
 
 nx = 0
 ny = 0
@@ -428,7 +431,7 @@ end if
 if (IfG(2) .and. IfG(3)) then
   call ExpX(Temp,mZeta,mEta,Beta,sqrt(Two))
   call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
-  call ExpY(Temp,mZeta,mEta,Gamma,sqrt(Two))
+  call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nVec = 0
   if (ifHss(3,1,2,1)) then
@@ -536,7 +539,7 @@ end if
 ! Differentiate with respect to the third center
 
 if (IfG(3)) then
-  call ExpY(Temp,mZeta,mEta,Gamma,sqrt(Two))
+  call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nvec = 0
   if (IfGrad(1,3)) then
@@ -566,7 +569,7 @@ if (IfG(3)) then
   do i=nvec+1,3
     Ind1(i) = 0
   end do
-!
+
   mvec = 0
   if (IfHss(3,1,3,1)) then
     mx = mx+1
@@ -671,7 +674,7 @@ end if
 if (IfG(1) .and. IfG(3)) then
   call ExpX(Temp,mZeta,mEta,Alpha,sqrt(Two))
   call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
-  call ExpY(Temp,mZeta,mEta,Gamma,sqrt(Two))
+  call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nVec = 0
   if (ifHss(3,1,1,1)) then
@@ -1003,7 +1006,7 @@ if (IfG(4)) then
   ! Cross Term 3 4
 
   if (IfG(3) .and. IfG(4)) then
-    call ExpY(Temp,mZeta,mEta,Gamma,sqrt(Two))
+    call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
     call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
     nVec = 0
     if (ifHss(4,1,3,1)) then

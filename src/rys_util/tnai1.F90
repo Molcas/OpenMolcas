@@ -25,10 +25,14 @@ subroutine TNAI1(Zeta,Eta,P,Q,nT,T,ZEInv,IsChi,ChiI2)
 !             March '92 modified to gradient calculation.              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), ZEInv(nT), T(nT)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nT, IsChi
+real(kind=wp) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), T(nT), ZEInv(nT), ChiI2
+integer(kind=iwp) :: iT
+real(kind=wp) :: PQ2
 
 #include "macros.fh"
 unused_var(Eta)
@@ -48,7 +52,7 @@ end if
 do iT=1,nT
   PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
   T(iT) = Zeta(iT)*PQ2
-  ZEInv(iT) = 1.0d0/Zeta(iT)
+  ZEInv(iT) = One/Zeta(iT)
 end do
 
 #ifdef _DEBUGPRINT_

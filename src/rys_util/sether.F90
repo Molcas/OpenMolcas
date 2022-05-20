@@ -22,20 +22,22 @@ subroutine SetHer(nDiff)
 !             March 1992.                                              *
 !***********************************************************************
 
-use Her_RW
+use Her_RW, only: HerR, HerW, iHerR, iHerW, MaxHer, nPrp
 use Sizes_of_Seward, only: S
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Pi
+use Definitions, only: wp, iwp
+!define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
-#include "real.fh"
-#include "status.fh"
-real*8, dimension(:), allocatable :: Beta, BInv, Herm
-
-if (nPrp > nPrpMx) then
-  write(6,*) 'nPrp, nPrpMx=',nPrp,nPrpMx
-  call WarningMessage(2,'SetHer: nPrp too large!')
-  call Abend()
-end if
+implicit none
+integer(kind=iwp) :: nDiff
+integer(kind=iwp) :: i_0000, i_1111, i_2222, i_3333, IDEG, IDH, iHer, IR, IROOT, IW, j, j_0000, j_1111, j_2222, j_3333, K, n_1111, &
+                     n_2222, nMem
+real(kind=wp) :: Alpha, B, b_1111, c_0000, CORR, DELTA, HDER, R, RSUM, W, w_1111, w_2222, w_3333, w_4444, w_5555, X, Z
+real(kind=wp), allocatable :: Beta(:), BInv(:), Herm(:)
 
 ! 1) Hermite-Gauss
 ! 2) Rys-Gauss (asymtotic formula)
@@ -57,29 +59,29 @@ call mma_allocate(iHerW,MaxHer,label='iHerW')
 nMem = (MaxHer*MaxHer+MaxHer)/2
 call mma_Allocate(HerR,nMem,label='HerR')
 iHerR(1) = 1
-call dCopy_(nMem,[0.0d0],0,HerR,1)
+call dCopy_(nMem,[Zero],0,HerR,1)
 call mma_allocate(HerW,nMem,label='HerW')
 iHerW(1) = 1
-call dCopy_(nMem,[0.0d0],0,HerW,1)
+call dCopy_(nMem,[Zero],0,HerW,1)
 call mma_allocate(Beta,MaxHer,label='Beta')
-call dCopy_(MaxHer,[0.0d0],0,Beta,1)
+call dCopy_(MaxHer,[Zero],0,Beta,1)
 call mma_allocate(BInv,MaxHer,label='BInv')
-call dCopy_(MaxHer,[0.0d0],0,BInv,1)
+call dCopy_(MaxHer,[Zero],0,BInv,1)
 call mma_allocate(Herm,MaxHer+1,label='Herm')
-call dCopy_(MaxHer+1,[0.0d0],0,Herm,1)
+call dCopy_(MaxHer+1,[Zero],0,Herm,1)
 do K=1,MaxHer
-  b_1111 = HALF*dble(K)
+  b_1111 = HALF*real(K,kind=wp)
   B = sqrt(b_1111)
   Beta(K) = B
-  BInv(K) = 1.0d0/B
+  BInv(K) = One/B
 end do
-HerR(iHerR(1)) = 0.0d0
+HerR(iHerR(1)) = Zero
 HerR(iHerR(1)+2) = sqrt(HALF)
 HerR(iHerR(1)+1) = -HerR(iHerR(1)+2)
 HerW(iHerW(1)) = sqrt(PI)
 HerW(iHerW(1)+1) = HerW(iHerW(1))*HALF
 HerW(iHerW(1)+2) = HerW(iHerW(1)+1)
-Herm(1) = 1.0d0/sqrt(HerW(iHerW(1)))
+Herm(1) = One/sqrt(HerW(iHerW(1)))
 do iHer=2,MaxHer
   i_1111 = (iHer*iHer-iHer)/2
   iHerR(iHer) = iHerR(1)+i_1111
@@ -97,8 +99,8 @@ do IDEG=3,MaxHer
   w_3333 = HerR(i_3333)
   i_2222 = i_3333+1
   w_2222 = HerR(i_2222)
-  X = (w_2222-w_3333)/2.0d0
-  HerR(i_1111) = 0.0d0
+  X = (w_2222-w_3333)/Two
+  HerR(i_1111) = Zero
   do IROOT=2,IDEG,2
     j_0000 = IROOT/2
     j_1111 = IR+j_0000
@@ -111,11 +113,11 @@ do IDEG=3,MaxHer
   do IROOT=1,IDH
     j_0000 = IR+IROOT
     Z = HerR(j_0000)
-    CORR = 0.0d0
+    CORR = Zero
     do j=1,ideg
       if (j /= iroot) then
         c_0000 = Z-HerR(IR+J)
-        CORR = CORR+(1.0d0/c_0000)
+        CORR = CORR+(One/c_0000)
       end if
     end do
     do
@@ -128,13 +130,13 @@ do IDEG=3,MaxHer
         w_2222 = (Z*w_1111-w_4444*w_3333)*w_5555
         Herm(K+2) = w_2222
       end do
-      HDER = 2.0d0*Beta(IDEG)*Herm(IDEG)
+      HDER = Two*Beta(IDEG)*Herm(IDEG)
       DELTA = -Herm(IDEG+1)/(HDER-CORR*Herm(IDEG+1))
       Z = Z+DELTA
-      if (abs(DELTA) <= 1.0d-8) exit
-      if (abs(DELTA) > 1.0d8) then
+      if (abs(DELTA) <= 1.0e-8_wp) exit
+      if (abs(DELTA) > 1.0e8_wp) then
         call WarningMessage(1,'Warning: large value in sether')
-        !write(6,*) delta
+        !write(u6,*) delta
       end if
     end do
     HerR(IR+IROOT) = Z
@@ -144,8 +146,8 @@ do IDEG=3,MaxHer
     j_0000 = IR+IROOT
     Z = HerR(j_0000)
     Herm(2) = Z*Herm(1)*Alpha
-    SUM = Herm(1)**2
-    SUM = SUM+Herm(2)**2
+    RSUM = Herm(1)**2
+    RSUM = RSUM+Herm(2)**2
     do K=1,IDEG-2
       w_1111 = Herm(K+1)
       w_3333 = Herm(K)
@@ -153,9 +155,9 @@ do IDEG=3,MaxHer
       w_5555 = BInv(K+1)
       w_2222 = (Z*w_1111-w_4444*w_3333)*w_5555
       Herm(K+2) = w_2222
-      SUM = SUM+w_2222*w_2222
+      RSUM = RSUM+w_2222*w_2222
     end do
-    W = 1.0d0/SUM
+    W = One/RSUM
     HerW(IW+IROOT) = W
     HerW(IW+IDEG+1-IROOT) = W
   end do
@@ -164,11 +166,10 @@ call mma_deallocate(Beta)
 call mma_deallocate(BInv)
 call mma_deallocate(Herm)
 
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call TriPrt(' Hermite roots',' ',HerR(iHerR(1)),MaxHer)
 call TriPrt(' Hermite weights',' ',HerW(iHerW(1)),MaxHer)
-write(6,*) ' MaxHer=',MaxHer,nPrp,S%iAngMx
+write(u6,*) ' MaxHer=',MaxHer,nPrp,S%iAngMx
 #endif
 
 return

@@ -11,20 +11,22 @@
 
 subroutine read_abdata()
 
+use Definitions, only: iwp, u6
+
 implicit none
-#include "SysDef.fh"
 #include "abtab.fh"
-character(len=*), parameter :: ABDATA_NAME = 'ABDATA'
-integer, parameter :: lu_abdata = 22
-logical :: found_abdata
+integer(kind=iwp) :: i, ipos, k, lu_abdata, nerr
 character(len=8) :: key
-integer :: i, ipos, k, nerr
+logical(kind=iwp) :: found_abdata
+character(len=*), parameter :: ABDATA_NAME = 'ABDATA'
+integer(kind=iwp), external :: isFreeUnit
 
 call f_Inquire(ABDATA_NAME,found_abdata)
 if (.not. found_abdata) then
   call warningmessage(2,' the abdata file does not exist.')
   call abend()
 end if
+lu_abdata = isFreeUnit(22)
 call molcas_open(lu_abdata,ABDATA_NAME)
 
 do
@@ -35,12 +37,12 @@ read(lu_abdata,*) ntab1,ntab2,maxdeg
 nerr = 0
 if (ntab2-ntab1+1 > mxsiz2) then
   call warningmessage(2,' mxsiz2 is too small in readab.')
-  write(6,*) ' recompile. needs mxsiz2=',ntab2-ntab1+1
+  write(u6,*) ' recompile. needs mxsiz2=',ntab2-ntab1+1
   nerr = 1
 end if
 if (maxdeg > mxsiz1) then
   call warningmessage(2,' mxsiz1 is too small in readab.')
-  write(6,*) ' recompile. needs mxsiz1=',maxdeg
+  write(u6,*) ' recompile. needs mxsiz1=',maxdeg
   nerr = 1
 end if
 if (nerr == 1) call abend()

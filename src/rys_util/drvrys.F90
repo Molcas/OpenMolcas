@@ -18,7 +18,7 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mDat
 !***********************************************************************
 ! Routine for the computation of primitive integrals and accumulation  *
 ! to the (ab|cd) or the (e0|f0) set of integrals. If the primitive     *
-! set of integrals are smaller than the set of contracted integrals    *
+! set of integrals is smaller than the set of contracted integrals     *
 ! the code selects to apply the HRR recursion {e0|f0} -> {ab|cd} here  *
 ! before the contraction generating the (ab|cd) set of integrals, if   *
 ! not the {e0|f0} set is contracted to the (e0|f0) set directly and    *
@@ -26,27 +26,27 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mDat
 !                                                                      *
 ! For the contraction we have that either all primitive integrals      *
 ! can be computed in a single step, otherwise subsets of primitive     *
-! integrals are computed and acculumulated to the contracted set.      *
+! integrals are computed and accumulated to the contracted set.        *
 !                                                                      *
-! The Wrk array is subdiveded into 2 or 3 blocks depending on if the   *
-! calling code iterate over subsets of primitive integrals.            *
+! The Wrk array is subdivided into 2 or 3 blocks depending on if the   *
+! calling code iterates over subsets of primitive integrals.           *
 !                                                                      *
 ! Memory blocking                                                      *
 ! ===============                                                      *
-! For an interative use:                                               *
-!      iW4 points to the start of Wkr, length nWork2-mWork2            *
+! For an iterative use:                                                *
+!      iW4 points to the start of Wrk, length nWork2-mWork2            *
 !      iW2 points at nWork2-mWork+1, length mWork2                     *
 !      iW3 points at nWork2, length nWork3                             *
 !                                                                      *
 ! For single iteration use:                                            *
-!      iW4 and iW2 points at the start of Wkr, length nWork2           *
+!      iW4 and iW2 point at the start of Wrk, length nWork2            *
 !      iW3 points at nWork2, length nWork3                             *
 !                                                                      *
 ! Usage of memory                                                      *
 !      Screen: does not use Wrk                                        *
-!      Rys:    use iW2 secrtion                                        *
+!      Rys:    use iW2 section                                         *
 !      HRR:    use the aggregated iW2 and iW3 section                  *
-!      Cntrct: use the iW2, iW3, and iW4 sections seperately           *
+!      Cntrct: use the iW2, iW3, and iW4 sections separately           *
 !                                                                      *
 ! Author: Roland Lindh                                                 *
 !         Dept Chemistry - Angstrom, the Theoretical Chem. Prog.       *
@@ -54,26 +54,31 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mDat
 !         2015                                                         *
 !***********************************************************************
 
-implicit none
-external TERI, ModU2, vCff2D, vRys2D
-external ip_ZtMax, ip_abMax, ip_ZtMaxD, ip_abMaxD
-integer iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, nGamma, nDelta, IndZ(nZeta), &
-        IndE(nEta), IndZet(nZeta), IndEta(nEta), ix1, iy1, iz1, ix2, iy2, iz2, mDij, mDkl, iOffZ, iOffE, iAnga(4), iCmp(4), &
-        iShll(4), la, lb, lc, ld, mabMin, mabMax, mcdMin, mcdMax, nijkl, nabcd, mabcd, nWork2, mWork2, iW2, iW4, iBasi, jBasj, &
-        kBask, lBasl, kabcd, ip_ZtMax, ip_abMax, ip_ZtMaxD, ip_abMaxD
-real*8 Data1(mData1), Data2(mData2), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), KappAB(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), &
-        KappCD(nEta), ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), Wrk(nWork2), HMtrxAB(*), HMtrxCD(*), &
-        Dij(mDij), Dkl(mDkl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
-logical Prescreen_On_Int_Only, NoInts, NoPInts, Do_TnsCtl
-! Local arrays
-integer lZeta, lEta, i_Int, n1, n2, n3, n4, iW3, nWork3, nW2
-logical Nospecial
-
+use Definitions, only: wp, iwp
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*) 'Enter DrvRys'
-write(6,*) 'iZeta, nZeta, mZeta, nZeta_Tot=',iZeta,nZeta,mZeta,nZeta_Tot
-write(6,*) 'iEta , nEta , mEta , nEta_Tot=',iEta,nEta,mEta,nEta_Tot
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, nGamma, nDelta, &
+                     IndZ(nZeta), IndZet(nZeta), IndE(nEta), IndEta(nEta), ix1, iy1, iz1, ix2, iy2, iz2, iAnga(4), mabMin, mabMax, &
+                     mcdMin, mcdMax, nijkl, nabcd, mabcd, iW2, iW4, nWork2, mWork2, la, lb, lc, ld, iCmp(4), iShll(4), mDij, mDkl, &
+                     kabcd, iBasi, jBasj, kBask, lBasl
+real(kind=wp) :: Data1(mData1), Data2(mData2), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), KappAB(nZeta), Eta(nEta), EInv(nEta), &
+                 Q(nEta,3), KappCD(nEta), ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), Wrk(nWork2), &
+                 HMtrxAB(*), HMtrxCD(*), Dij(mDij), Dkl(mDkl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
+                 Coeff4(nDelta,lBasl)
+logical(kind=iwp) :: Prescreen_On_Int_Only, NoInts, NoPInts, Do_TnsCtl
+integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
+logical(kind=iwp) :: Nospecial
+external :: TERI, ModU2, vCff2D, vRys2D
+integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMax, ip_ZtMaxD
+
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Enter DrvRys'
+write(u6,*) 'iZeta, nZeta, mZeta, nZeta_Tot=',iZeta,nZeta,mZeta,nZeta_Tot
+write(u6,*) 'iEta , nEta , mEta , nEta_Tot=',iEta,nEta,mEta,nEta_Tot
 call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)
 call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
 call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
@@ -93,7 +98,7 @@ call Screen(nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,Data1(iZe
             IndEta,Data2(iEta),nGamma,nDelta,IndE(iEta),Data2(ip_ZtMax(nEta)),Data2(ip_abMax(nEta)),Data2(ip_ZtMaxD(nEta)), &
             Data2(ip_abMaxD(nEta)),Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &
             Prescreen_On_Int_Only)
-!write(6,*) 'lZeta,lEta:',lZeta,lEta
+!write(u6,*) 'lZeta,lEta:',lZeta,lEta
 if (lZeta*lEta == 0) then
   call FZero(Wrk(iW2),mWork2)
 else
@@ -149,14 +154,14 @@ else
   end if
   iW3 = iW2+nW2
   nWork3 = mWork2-nW2
-  !write(6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
-  !write(6,*) 'nWork3:',nWork3
+  !write(u6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
+  !write(u6,*) 'nWork3:',nWork3
   call Cntrct(NoPInts,Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Wrk(iW2),n1,n2,n3,n4, &
               Wrk(iW3),nWork3,Wrk(iW4),IndZet,lZeta,IndEta,lEta)
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
+write(u6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
 call RecPrt('DrvRys:(e0|0f)',' ',Wrk(iW4),kabcd,iBasi*jBasj*kBask*lBasl)
 #endif
 

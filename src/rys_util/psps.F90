@@ -21,16 +21,23 @@ subroutine psps(EFInt,Zeta,nZeta,P,lP,rKappAB,A,B,Eta,nEta,Q,lQ,rKappCD,C,D,Coor
 !             of Lund, SWEDEN. 1994                                    *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 EFInt(nZeta,nEta,3,3), Zeta(nZeta), Eta(nEta), CoorAC(3,2), P(lP,3), Q(lQ,3), A(3), B(3), C(3), D(3), rKappAB(nZeta), &
-       rKappCD(nEta), x0(nMax), CW6(nMax,2), CW5(nMax,2), CW4(nMax,2), CW3(nMax,2), CW2(nMax,2), CW1(nMax,2), CW0(nMax,2), &
-       CR6(nMax,2), CR5(nMax,2), CR4(nMax,2), CR3(nMax,2), CR2(nMax,2), CR1(nMax,2), CR0(nMax,2), HerW(2), HerR2(2)
-integer iPntr(nPntr)
-logical ABeqCD, EQ
+use Constants, only: Zero, One, Ten, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, lP, nEta, lQ, nPntr, iPntr(nPntr), nMax, IsChi
+real(kind=wp) :: EFInt(nZeta,nEta,3,3), Zeta(nZeta), P(lP,3), rKappAB(nZeta), A(3), B(3), Eta(nEta), Q(lQ,3), rKappCD(nEta), C(3), &
+                 D(3), CoorAC(3,2), TMax, x0(nMax), CW6(nMax,2), CW5(nMax,2), CW4(nMax,2), CW3(nMax,2), CW2(nMax,2), CW1(nMax,2), &
+                 CW0(nMax,2), CR6(nMax,2), CR5(nMax,2), CR4(nMax,2), CR3(nMax,2), CR2(nMax,2), CR1(nMax,2), CR0(nMax,2), ddx, &
+                 HerW(2), HerR2(2), ChiI2
+integer(kind=iwp) :: iEta, iZeta, n
+real(kind=wp) :: ai, B001, B002, dddx, Eu21, Eu22, PAQPx1, PAQPx2, PAQPy1, PAQPy2, PAQPz1, PAQPz2, PQ2, PQx, PQy, PQz, PreFct, &
+                 QCPQx1, QCPQx2, QCPQy1, QCPQy2, QCPQz1, QCPQz2, r1, r2, rho, si, T, w1, w2, x011, x012, x101, x102, x111, x112, &
+                 xdInv, y011, y012, y101, y102, y111, y112, z, z011, z012, z101, z102, z111, z112, ZEInv, Zu21, Zu22
+logical(kind=iwp) :: ABeqCD, EQ
 
 xdInv = One/ddx
-dddx = ddx/10d0+ddx
+dddx = ddx/Ten+ddx
 
 ABeqCD = EQ(A,B) .and. EQ(A,C) .and. EQ(A,D)
 
@@ -45,7 +52,7 @@ if (ABeqCD) then
   r2 = (((((CR6(1,2)*z+CR5(1,2))*z+CR4(1,2))*z+CR3(1,2))*z+CR2(1,2))*z+CR1(1,2))*z+CR0(1,2)
   do iEta=1,nEta
     do iZeta=1,nZeta
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       B001 = w1*Half*(r1*ZEInv)
       B002 = w2*Half*(r2*ZEInv)
       PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
@@ -70,7 +77,7 @@ else if (EQ(A,B) .and. (.not. EQ(C,D))) then
       PQx = CoorAC(1,1)-Q(iEta,1)
       PQy = CoorAC(2,1)-Q(iEta,2)
       PQz = CoorAC(3,1)-Q(iEta,3)
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       rho = Zeta(iZeta)*Eta(iEta)*ZEInv
       T = rho*(PQx**2+PQy**2+PQz**2)
       if (T < TMax) then
@@ -81,7 +88,7 @@ else if (EQ(A,B) .and. (.not. EQ(C,D))) then
         r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
         r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
       else
-        ai = 1.0d0/T
+        ai = One/T
         si = sqrt(ai)
         w1 = HerW(1)*si
         w2 = HerW(2)*si
@@ -143,7 +150,7 @@ else if ((.not. EQ(A,B)) .and. EQ(C,D)) then
 
   do iEta=1,nEta
     do iZeta=1,nZeta
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       rho = Zeta(iZeta)*Eta(iEta)*ZEInv
       PQx = P(iZeta,1)-CoorAC(1,2)
       PQy = P(iZeta,2)-CoorAC(2,2)
@@ -157,7 +164,7 @@ else if ((.not. EQ(A,B)) .and. EQ(C,D)) then
         r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
         r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
       else
-        ai = 1.0d0/T
+        ai = One/T
         si = sqrt(ai)
         w1 = HerW(1)*si
         w2 = HerW(2)*si
@@ -223,7 +230,7 @@ else if (EQ(A,B) .and. EQ(C,D)) then
   PQ2 = (PQx**2+PQy**2+PQz**2)
   do iEta=1,nEta
     do iZeta=1,nZeta
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       rho = Zeta(iZeta)*Eta(iEta)*ZEInv
       T = rho*PQ2
       if (T < TMax) then
@@ -234,7 +241,7 @@ else if (EQ(A,B) .and. EQ(C,D)) then
         r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
         r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
       else
-        ai = 1.0d0/T
+        ai = One/T
         si = sqrt(ai)
         w1 = HerW(1)*si
         w2 = HerW(2)*si
@@ -296,7 +303,7 @@ else
 
   do iEta=1,nEta
     do iZeta=1,nZeta
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       rho = Zeta(iZeta)*Eta(iEta)*ZEInv
       PQx = P(iZeta,1)-Q(iEta,1)
       PQy = P(iZeta,2)-Q(iEta,2)
@@ -310,7 +317,7 @@ else
         r1 = (((((CR6(n,1)*z+CR5(n,1))*z+CR4(n,1))*z+CR3(n,1))*z+CR2(n,1))*z+CR1(n,1))*z+CR0(n,1)
         r2 = (((((CR6(n,2)*z+CR5(n,2))*z+CR4(n,2))*z+CR3(n,2))*z+CR2(n,2))*z+CR1(n,2))*z+CR0(n,2)
       else
-        ai = 1.0d0/T
+        ai = One/T
         si = sqrt(ai)
         w1 = HerW(1)*si
         w2 = HerW(2)*si

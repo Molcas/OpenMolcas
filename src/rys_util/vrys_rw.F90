@@ -11,11 +11,16 @@
 
 module vRys_RW
 
-integer, parameter :: MaxRys = 9
-real*8, dimension(:), allocatable :: TMax, ddx, x0
-real*8, dimension(:), allocatable :: HerR2, HerW2, Cff
-integer, dimension(:), allocatable :: Map
-integer, dimension(:), allocatable :: iHerR2, iHerW2
-integer iMap(MaxRys), nMap(MaxRys), ix0(MaxRys), nx0(MaxRys), iCffR(0:6,MaxRys), iCffW(0:6,MaxRys), nMxRys
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: MaxRys = 9
+integer(kind=iwp) :: iCffR(0:6,MaxRys), iCffW(0:6,MaxRys), iMap(MaxRys), ix0(MaxRys), nMap(MaxRys), nMxRys, nx0(MaxRys)
+real(kind=wp), allocatable :: Cff(:), ddx(:), HerR2(:), HerW2(:), TMax(:), x0(:)
+integer(kind=iwp), allocatable :: iHerR2(:), iHerW2(:), Map(:)
+
+public :: Cff, ddx, HerR2, HerW2, iCffR, iCffW, iHerR2, iHerW2, iMap, ix0, Map, nMap, nMxRys, nx0, TMax, x0
 
 end module vRys_RW

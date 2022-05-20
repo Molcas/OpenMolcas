@@ -21,7 +21,7 @@
 ************************************************************************
       Use Iso_C_Binding
       use Real_Spherical
-      use Her_RW
+      use Her_RW, only: nPrp
       use External_Centers
       use Gateway_global, only: Test
       use DKH_Info, only: DKroll

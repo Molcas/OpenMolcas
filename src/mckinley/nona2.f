@@ -24,7 +24,7 @@
 *     AFTER PROGRAMMING PATTERN ESTABLISHED BY ROLAND LINDH
 *
 ************************************************************************
-      use Her_RW
+      use Her_RW, only: HerR, HerW, iHerR, iHerW
       use Center_Info
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real.fh"
@@ -86,7 +86,7 @@ CPAM: WILL WE NEED THIS??
      &             ARRAY(IPAXYZ),LA+1,
      &             ARRAY(IPRXYZ),NORDOP,
      &             ARRAY(IPBXYZ),LB+1,
-     &             NZETA,HerR(iHerW(NHER)),NHER)
+     &             NZETA,HerW(iHerW(NHER)),NHER)
 
 * COMBINE THE CARTESIAN COMPONENTS OF THE 2DC MATRIX ELEMENTS
       IP = IPALPH

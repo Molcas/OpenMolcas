@@ -22,7 +22,7 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, January '91                  *
 ************************************************************************
-      use Her_RW
+      use Her_RW, only: HerR, HerW, iHerR, iHerW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"

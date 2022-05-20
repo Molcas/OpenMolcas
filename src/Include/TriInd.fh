@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      Integer I_Max,IJ_Max
       Parameter (I_Max=50,IJ_Max=(I_Max*(I_Max+1))/2)
       Integer iTriInd(2,IJ_Max)
       Common /C_TriInd/ iTriInd

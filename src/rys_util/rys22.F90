@@ -19,28 +19,29 @@ subroutine Rys22(Arg,nArg,Root,Weight,iPntr,nPntr,x0,nMax,R6,R5,R4,R3,R2,R1,R0,W
 !             September '90                                            *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Arg(nArg), Root(2,nArg), Weight(2,nArg), x0(nMax), R6(nMax,2), R5(nMax,2), R4(nMax,2), R3(nMax,2), R2(nMax,2), R1(nMax,2), &
-       R0(nMax,2), W6(nMax,2), W5(nMax,2), W4(nMax,2), W3(nMax,2), W2(nMax,2), W1(nMax,2), W0(nMax,2), HerW(3), HerR2(3)
-integer iPntr(nPntr)
+use Constants, only: One, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nArg, nPntr, iPntr(nPntr), nMax
+real(kind=wp) :: Arg(nArg), Root(2,nArg), Weight(2,nArg), x0(nMax), R6(nMax,2), R5(nMax,2), R4(nMax,2), R3(nMax,2), R2(nMax,2), &
+                 R1(nMax,2), R0(nMax,2), W6(nMax,2), W5(nMax,2), W4(nMax,2), W3(nMax,2), W2(nMax,2), W1(nMax,2), W0(nMax,2), ddx, &
+                 HerW(3), HerR2(3), TMax
+integer(kind=iwp) :: iArg, n
+real(kind=wp) :: ai, dddx, si, xdInv, z
 
 xdInv = One/ddx
-dddx = ddx/10d0+ddx
+dddx = ddx/Ten+ddx
 do iArg=1,nArg
   if (Arg(iArg) < TMax) then
     n = iPntr(int((Arg(iArg)+dddx)*xdInv))
     z = Arg(iArg)-x0(n)
-    r = (((((R6(n,1)*z+R5(n,1))*z+R4(n,1))*z+R3(n,1))*z+R2(n,1))*z+R1(n,1))*z+R0(n,1)
-    Root(1,iArg) = r
-    r = (((((R6(n,2)*z+R5(n,2))*z+R4(n,2))*z+R3(n,2))*z+R2(n,2))*z+R1(n,2))*z+R0(n,2)
-    Root(2,iArg) = r
-    r = (((((W6(n,1)*z+W5(n,1))*z+W4(n,1))*z+W3(n,1))*z+W2(n,1))*z+W1(n,1))*z+W0(n,1)
-    Weight(1,iArg) = r
-    r = (((((W6(n,2)*z+W5(n,2))*z+W4(n,2))*z+W3(n,2))*z+W2(n,2))*z+W1(n,2))*z+W0(n,2)
-    Weight(2,iArg) = r
+    Root(1,iArg) = (((((R6(n,1)*z+R5(n,1))*z+R4(n,1))*z+R3(n,1))*z+R2(n,1))*z+R1(n,1))*z+R0(n,1)
+    Root(2,iArg) = (((((R6(n,2)*z+R5(n,2))*z+R4(n,2))*z+R3(n,2))*z+R2(n,2))*z+R1(n,2))*z+R0(n,2)
+    Weight(1,iArg) = (((((W6(n,1)*z+W5(n,1))*z+W4(n,1))*z+W3(n,1))*z+W2(n,1))*z+W1(n,1))*z+W0(n,1)
+    Weight(2,iArg) = (((((W6(n,2)*z+W5(n,2))*z+W4(n,2))*z+W3(n,2))*z+W2(n,2))*z+W1(n,2))*z+W0(n,2)
   else
-    ai = 1.0d0/Arg(iArg)
+    ai = One/Arg(iArg)
     si = sqrt(ai)
     Root(1,iArg) = HerR2(1)*ai
     Root(2,iArg) = HerR2(2)*ai

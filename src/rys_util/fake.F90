@@ -18,9 +18,11 @@ subroutine Fake(U2,mT,nRys,ZEInv)
 !             May '90                                                  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 U2(mT,nRys), ZEInv(mT)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: mT, nRys
+real(kind=wp) :: U2(mT,nRys), ZEInv(mT)
 
 #include "macros.fh"
 unused_var(U2)

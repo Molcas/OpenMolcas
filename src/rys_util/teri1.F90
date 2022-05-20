@@ -22,10 +22,14 @@ subroutine TERI1(Zeta,Eta,P,Q,nT,T,ZEInv,IsChi,ChiI2)
 !             March '90                                                *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), T(nT), ZEInv(nT)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nT, IsChi
+real(kind=wp) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), T(nT), ZEInv(nT), ChiI2
+integer(kind=iwp) :: iT
+real(kind=wp) :: PQ2, Rho, tmp
 
 #ifdef _DEBUGPRINT_
 iRout = 56
@@ -39,7 +43,7 @@ end if
 #endif
 
 do iT=1,nT
-  tmp = 1.0d0/(Zeta(iT)+Eta(iT)+(Eta(iT)*Zeta(iT)*ChiI2)*dble(IsChi))
+  tmp = One/(Zeta(iT)+Eta(iT)+(Eta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
   ZEInv(iT) = tmp
   Rho = Zeta(iT)*Eta(iT)*tmp
   PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2

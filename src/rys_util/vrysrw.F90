@@ -17,7 +17,7 @@ subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys)
 !                                                                      *
 !  Object: to compute the roots and weights of the Rys polynomials.    *
 !          This is done with two approximations. For low arguments     *
-!          we will use a 6'th order polynomial and for high arguments  *
+!          we will use a 6th order polynomial and for high arguments   *
 !          we will use the asymptotic formulas which are based on the  *
 !          roots and weight of Hermite polynomials.                    *
 !                                                                      *
@@ -25,13 +25,15 @@ subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys)
 !             September '90                                            *
 !***********************************************************************
 
-use vRys_RW
+use vRys_RW, only: Cff, ddx, HerR2, HerW2, iCffR, iCffW, iHerR2, iHerW2, iMap, ix0, Map, nMap, nMxRys, nx0, TMax, x0
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
+integer(kind=iwp) :: la, lb, lc, ld, nArg, nRys
+real(kind=wp) :: Arg(nArg), Root(nRys,nArg), Weight(nRys,nArg)
 #include "FMM.fh"
-real*8 Arg(nArg), Root(nRys,nArg), Weight(nRys,nArg), Tmax_
+integer(kind=iwp) :: labcd
+real(kind=wp) :: Tmax_
 
 #ifdef _DEBUGPRINT_
 iRout = 78
@@ -42,8 +44,8 @@ labcd = 1
 
 if (nRys > nMxRys) then
   call WarningMessage(2,'vRysrw: nRys in vRysRW is larger than nMxRys!')
-  write(6,*) ' nRys  =',nRys
-  write(6,*) ' nMxRys=',nMxRys
+  write(u6,*) ' nRys  =',nRys
+  write(u6,*) ' nMxRys=',nMxRys
   call Abend()
 end if
 
@@ -51,7 +53,7 @@ end if
 ! multipole-component of the integrals
 
 TMax_ = TMax(nRys)
-if (asymptotic_Rys) TMax_ = 1.0d99
+if (asymptotic_Rys) TMax_ = huge(TMax_)
 
 select case (nRys)
 

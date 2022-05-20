@@ -30,7 +30,7 @@ subroutine KnEGrd( &
 !             Modified to gradients October '91.                       *
 !***********************************************************************
 
-use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Center_Info, only: dc
 use Definitions, only: wp, iwp, u6
 

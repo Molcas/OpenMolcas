@@ -11,13 +11,13 @@
 
 subroutine MemRys_g(iSD4,nSD,nRys,MemPrm)
 
-implicit real*8(a-h,o-z)
-integer iSD4(0:nSD,4), iAnga(4)
+use Definitions, only: iwp
 
-iAnga(1) = iSD4(1,1)
-iAnga(2) = iSD4(1,2)
-iAnga(3) = iSD4(1,3)
-iAnga(4) = iSD4(1,4)
+implicit none
+integer(kind=iwp) :: nSD, iSD4(0:nSD,4), nRys, MemPrm
+integer(kind=iwp) :: iAnga(4)
+
+iAnga(:) = iSD4(1,:)
 call MemRg1(iAnga,nRys,MemPrm)
 
 return

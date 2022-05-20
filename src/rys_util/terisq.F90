@@ -26,10 +26,14 @@ subroutine TERISq(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !             the gradient estimates.                                  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), T(nT), Fact(nT), ZEInv(nT)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nT, IsChi
+real(kind=wp) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), T(nT), Fact(nT), ZEInv(nT), ChiI2
+integer(kind=iwp) :: iT
+real(kind=wp) :: PQ2, Rho, tmp
 
 #include "macros.fh"
 unused_var(Eta)
@@ -47,7 +51,7 @@ end if
 #endif
 
 do iT=1,nT
-  tmp = 1.0d0/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*dble(IsChi))
+  tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
   ZEInv(iT) = tmp
   Rho = Zeta(iT)*Zeta(iT)*tmp
   PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2

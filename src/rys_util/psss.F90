@@ -21,16 +21,20 @@ subroutine psss(EFInt,Zeta,nZeta,P,lP,rKappAB,A,B,Eta,nEta,Q,lQ,rKappCD,C,D,Coor
 !             of Lund, SWEDEN. 1994                                    *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 EFInt(nZeta,nEta,3), Zeta(nZeta), Eta(nEta), CoorAC(3,2), P(lP,3), Q(lQ,3), A(3), B(3), C(3), D(3), rKappAB(nZeta), &
-       rKappCD(nEta), x0(nMax), W6(nMax), W5(nMax), W4(nMax), W3(nMax), W2(nMax), W1(nMax), W0(nMax), R6(nMax), R5(nMax), &
-       R4(nMax), R3(nMax), R2(nMax), R1(nMax), R0(nMax)
-integer iPntr(nPntr)
-logical ABeqCD, EQ
+use Constants, only: Zero, One, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, lP, nEta, lQ, nPntr, iPntr(nPntr), nMax, IsChi
+real(kind=wp) :: EFInt(nZeta,nEta,3), Zeta(nZeta), P(lP,3), rKappAB(nZeta), A(3), B(3), Eta(nEta), Q(lQ,3), rKappCD(nEta), C(3), &
+                 D(3), CoorAC(3,2), TMax, x0(nMax), W6(nMax), W5(nMax), W4(nMax), W3(nMax), W2(nMax), W1(nMax), W0(nMax), &
+                 R6(nMax), R5(nMax), R4(nMax), R3(nMax), R2(nMax), R1(nMax), R0(nMax), ddx, HerW, HerR2, ChiI2
+integer(kind=iwp) :: iEta, iZeta, n
+real(kind=wp) :: dddx, Eu2, PAQPx, PAQPy, PAQPz, PQ2, PQx, PQy, PQz, PreFct, r, rho, t, w, xdInv, z, ZE, ZEInv
+logical(kind=iwp) :: ABeqCD, EQ
 
 xdInv = One/ddx
-dddx = ddx/10d0+ddx
+dddx = ddx/Ten+ddx
 
 ABeqCD = EQ(A,B) .and. EQ(A,C) .and. EQ(A,D)
 
@@ -56,7 +60,7 @@ else if (EQ(A,B)) then
       PQy = (Q(iEta,2)-CoorAC(2,1))
       PQz = (Q(iEta,3)-CoorAC(3,1))
       PQ2 = PQx**2+PQy**2+PQz**2
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       ZE = Zeta(iZeta)*Eta(iEta)
       rho = ZE*ZEInv
       T = rho*PQ2
@@ -83,7 +87,7 @@ else
 
   do iEta=1,nEta
     do iZeta=1,nZeta
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       ZE = Zeta(iZeta)*Eta(iEta)
       rho = ZE*ZEInv
       PQx = P(iZeta,1)-Q(iEta,1)

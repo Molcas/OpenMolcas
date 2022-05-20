@@ -34,7 +34,7 @@
 *             Modified to out-of-core version Feb '07                  *
 ************************************************************************
       use iSD_data
-      use Wrj12
+      use Wrj12, only: Lu_Q, nChV
       use Basis_Info, only: dbsc, nBas, nBas_Aux
       use Gateway_global, only: force_out_of_core
       use Gateway_Info, only: CutInt

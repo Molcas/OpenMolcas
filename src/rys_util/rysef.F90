@@ -29,15 +29,17 @@ subroutine RysEF(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,
 !             Modified for decreased memory access January '94.        *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax
+real(kind=wp) :: xyz2D(nRys,mArg,3,0:neMax,0:nfMax), EFInt(nArg,meMin:meMax,mfMin:mfMax), Scrtch(nRys,mArg), PreFct(mArg)
+logical(kind=iwp) :: AeqB, CeqD
 #include "TriInd.fh"
-#include "real.fh"
-#include "print.fh"
-real*8 xyz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg), Scrtch(nRys,mArg), EFInt(nArg,meMin:meMax,mfMin:mfMax)
-logical AeqB, CeqD
+integer(kind=iwp) :: iArg, ie, ief, if_, iRys, ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-character*80 Label
+character(len=80) :: Label
 #endif
 
 !                                                                      *
@@ -47,21 +49,21 @@ ne = (neMax+1)*(neMax+2)/2
 nf = (nfMax+1)*(nfMax+2)/2
 
 if ((ne > IJ_Max) .or. (nf > IJ_Max)) then
-  write(6,*) 'ne,nf=',ne,nf
+  write(u6,*) 'ne,nf=',ne,nf
   call WarningMessage(2,'Increase IJ_Max to the larger of the above!')
   call Abend()
 end if
 
 do ief=1,ne*nf
-  if = (ief-1)/ne+1
-  ie = ief-(if-1)*ne
+  if_ = (ief-1)/ne+1
+  ie = ief-(if_-1)*ne
 
   ixe = iTriInd(1,ie)
   iye = iTriInd(2,ie)
   ixye = ixe+iye
 
-  ixf = iTriInd(1,if)
-  iyf = iTriInd(2,if)
+  ixf = iTriInd(1,if_)
+  iyf = iTriInd(2,if_)
   ixyf = ixf+iyf
   !                                                                    *
   !*********************************************************************

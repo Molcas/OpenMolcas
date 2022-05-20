@@ -19,7 +19,7 @@ use Para_Info, only: nProcs
 use omp_lib, only: omp_get_max_threads
 #endif
 use stdalloc, only: mxMem
-use Definitions, only: iwp, wp, u6, RtoB
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 character(len=*) :: modulename

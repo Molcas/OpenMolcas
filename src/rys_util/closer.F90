@@ -19,11 +19,13 @@ subroutine CloseR()
 !             September '90                                            *
 !***********************************************************************
 
-use vRys_RW
-use Leg_RW
+use vRys_RW, only: Cff, ddx, HerR2, HerW2, iHerR2, iHerW2, Map, TMax, x0
+#ifdef _RYS_SCRATCH_
+use RysScratch, only: UnSetAux
+#endif
+use stdalloc, only: mma_deallocate
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
+implicit none
 
 #ifdef _RYS_SCRATCH_
 call UnSetAux()

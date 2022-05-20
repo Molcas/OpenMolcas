@@ -25,19 +25,21 @@ subroutine RysEF0(Ixy4D,Iz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,
 !             Modified for decreased memory access January '94.        *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 Ixy4D(nRys,mArg), Iz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg), EFInt(nArg,meMin:meMax,mfMin:mfMax)
-! Statement function to compute canonical index
-iCan(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6+(ixyz-ix)*(ixyz-ix+1)/2+iz
+use Index_Functions, only: C3_Ind
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, ixye, ixyf, nzeMin, nzeMax, nzfMin, &
+                     nzfMax
+real(kind=wp) :: Ixy4D(nRys,mArg), Iz2D(nRys,mArg,3,0:neMax,0:nfMax), EFInt(nArg,meMin:meMax,mfMin:mfMax), PreFct(mArg)
+integer(kind=iwp) :: iArg, Inde, Indf, iRys, ize, izf
 
 select case (nRys)
   case (1)
     do izf=nzfMin,nzfMax
-      Indf = iCan(ixyf+izf,ixf,izf)
+      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
-        Inde = iCan(ixye+ize,ixe,ize)
+        Inde = C3_Ind(ixye+ize,ixe,ize)-1
         do iArg=1,mArg
           EFInt(iArg,Inde,Indf) = PreFct(iArg)*Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)
         end do
@@ -45,9 +47,9 @@ select case (nRys)
     end do
   case (2)
     do izf=nzfMin,nzfMax
-      Indf = iCan(ixyf+izf,ixf,izf)
+      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
-        Inde = iCan(ixye+ize,ixe,ize)
+        Inde = C3_Ind(ixye+ize,ixe,ize)-1
         do iArg=1,mArg
           EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)+Ixy4D(2,iArg)*Iz2D(2,iArg,3,ize,izf))
         end do
@@ -55,9 +57,9 @@ select case (nRys)
     end do
   case (3)
     do izf=nzfMin,nzfMax
-      Indf = iCan(ixyf+izf,ixf,izf)
+      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
-        Inde = iCan(ixye+ize,ixe,ize)
+        Inde = C3_Ind(ixye+ize,ixe,ize)-1
         do iArg=1,mArg
           EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)+Ixy4D(2,iArg)*Iz2D(2,iArg,3,ize,izf)+ &
                                   Ixy4D(3,iArg)*Iz2D(3,iArg,3,ize,izf))
@@ -66,9 +68,9 @@ select case (nRys)
     end do
   case (4)
     do izf=nzfMin,nzfMax
-      Indf = iCan(ixyf+izf,ixf,izf)
+      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
-        Inde = iCan(ixye+ize,ixe,ize)
+        Inde = C3_Ind(ixye+ize,ixe,ize)-1
         do iArg=1,mArg
           EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)+Ixy4D(2,iArg)*Iz2D(2,iArg,3,ize,izf)+ &
                                   Ixy4D(3,iArg)*Iz2D(3,iArg,3,ize,izf)+Ixy4D(4,iArg)*Iz2D(4,iArg,3,ize,izf))
@@ -77,9 +79,9 @@ select case (nRys)
     end do
   case (5)
     do izf=nzfMin,nzfMax
-      Indf = iCan(ixyf+izf,ixf,izf)
+      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
-        Inde = iCan(ixye+ize,ixe,ize)
+        Inde = C3_Ind(ixye+ize,ixe,ize)-1
         do iArg=1,mArg
           EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)+Ixy4D(2,iArg)*Iz2D(2,iArg,3,ize,izf)+ &
                                   Ixy4D(3,iArg)*Iz2D(3,iArg,3,ize,izf)+Ixy4D(4,iArg)*Iz2D(4,iArg,3,ize,izf)+ &
@@ -89,12 +91,12 @@ select case (nRys)
     end do
   case default
 
-  ! General code
+    ! General code
 
     do izf=nzfMin,nzfMax
-      Indf = iCan(ixyf+izf,ixf,izf)
+      Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
-        Inde = iCan(ixye+ize,ixe,ize)
+        Inde = C3_Ind(ixye+ize,ixe,ize)-1
         do iArg=1,mArg
           EFInt(iArg,Inde,Indf) = Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)
           do iRys=2,nRys

@@ -19,14 +19,18 @@ subroutine Rys11(Arg,nArg,Root,Weight,iPntr,nPntr,x0,nMax,R6,R5,R4,R3,R2,R1,R0,W
 !             September '90                                            *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Arg(nArg), Root(nArg), Weight(nArg), x0(nMax), R6(nMax), R5(nMax), R4(nMax), R3(nMax), R2(nMax), R1(nMax), R0(nMax), &
-       W6(nMax), W5(nMax), W4(nMax), W3(nMax), W2(nMax), W1(nMax), W0(nMax)
-integer iPntr(nPntr)
+use Constants, only: One, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nArg, nPntr, iPntr(nPntr), nMax
+real(kind=wp) :: Arg(nArg), Root(nArg), Weight(nArg), x0(nMax), R6(nMax), R5(nMax), R4(nMax), R3(nMax), R2(nMax), R1(nMax), &
+                 R0(nMax), W6(nMax), W5(nMax), W4(nMax), W3(nMax), W2(nMax), W1(nMax), W0(nMax), ddx, HerW, HerR2, TMax
+integer(kind=iwp) :: iArg, n
+real(kind=wp) :: ai, dddx, xdInv, z
 
 xdInv = One/ddx
-dddx = ddx/10d0+ddx
+dddx = ddx/Ten+ddx
 do iArg=1,nArg
   if (Arg(iArg) < TMax) then
     n = iPntr(int((Arg(iArg)+dddx)*xdInv))
@@ -34,7 +38,7 @@ do iArg=1,nArg
     Root(iArg) = (((((r6(n)*z+r5(n))*z+r4(n))*z+r3(n))*z+r2(n))*z+r1(n))*z+r0(n)
     Weight(iArg) = (((((w6(n)*z+w5(n))*z+w4(n))*z+w3(n))*z+w2(n))*z+w1(n))*z+w0(n)
   else
-    ai = 1.0d0/Arg(iArg)
+    ai = One/Arg(iArg)
     Root(iArg) = HerR2*ai
     Weight(iArg) = HerW*sqrt(ai)
   end if

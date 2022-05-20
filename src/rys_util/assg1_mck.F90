@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Assg1_mck(g1,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,IfGrad,Index,mVec,Index2)
+subroutine Assg1_mck(g1,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,IfGrad,Indx,mVec,Indx2)
 !***********************************************************************
 !                                                                      *
 ! Object: to assemble the gradients of the ERI's.                      *
@@ -21,38 +21,42 @@ subroutine Assg1_mck(g1,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,IfGrad,Index,mVec,Inde
 !             October '91                                              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-!#include "print.fh"
-#include "real.fh"
+use Index_Functions, only: nTri_Elem1, nTri3_Elem
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, Indx(3,4), mVec, Indx2(3,4)
+real(kind=wp) :: g1(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nTri_Elem1(ld),9), &
+                 xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9)
+logical(kind=iwp) :: IfGrad(3,4)
 #include "itmax.fh"
 #include "iavec.fh"
-real*8 g1(nT,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,(lc+1)*(lc+2)/2,(ld+1)*(ld+2)/2,9), xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), &
-       xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9)
-logical IfGrad(3,4)
-integer Ind1(3), Ind2(3), index(3,4), Index2(3,4)
-! Statement function
-nElem(i) = (i+1)*(i+2)/2
+integer(kind=iwp) :: iCent, ii, Ind1(3), Ind2(3), ipa, ipaii, ipb, ipbjj, ipc, ipckk, ipd, ipdll, iRys, iT, ixa, ixab, ixabc, &
+                     ixabcd, ixb, ixc, ixd, iya, iyab, iyabc, iyabcd, iyb, iyc, iyd, iza, izb, izc, izd, jj, ka, kb, kc, kd, kk, &
+                     ll, ng1, nVec
+real(kind=wp) :: tmp, tmp1, tmp2, tmp3
 
-ka = (la+1)*(la+2)/2
-kb = (lb+1)*(lb+2)/2
-kc = (lc+1)*(lc+2)/2
-kd = (ld+1)*(ld+2)/2
-nG1 = nT*9*ka*kb*kc*kd
-call dcopy_(nG1,[Zero],0,G1,1)
-call ICOPY(12,[0],0,Index2,1)
+ka = nTri_Elem1(la)
+kb = nTri_Elem1(lb)
+kc = nTri_Elem1(lc)
+kd = nTri_Elem1(ld)
+ng1 = nT*9*ka*kb*kc*kd
+call dcopy_(ng1,[Zero],0,g1,1)
+call ICOPY(12,[0],0,Indx2,1)
 
-ii = la*(la+1)*(la+2)/6
-jj = lb*(lb+1)*(lb+2)/6
-kk = lc*(lc+1)*(lc+2)/6
-ll = ld*(ld+1)*(ld+2)/6
+ii = nTri3_Elem(la)
+jj = nTri3_Elem(lb)
+kk = nTri3_Elem(lc)
+ll = nTri3_Elem(ld)
 
-do ipa=1,nElem(la)
+do ipa=1,nTri_Elem1(la)
   ipaii = ipa+ii
   ixa = ixyz(1,ipaii)
   iya = ixyz(2,ipaii)
   iza = ixyz(3,ipaii)
 
-  do ipb=1,nElem(lb)
+  do ipb=1,nTri_Elem1(lb)
     ipbjj = ipb+jj
     ixb = ixyz(1,ipbjj)
     iyb = ixyz(2,ipbjj)
@@ -61,7 +65,7 @@ do ipa=1,nElem(la)
     ixab = ixa+ixb
     iyab = iya+iyb
 
-    do ipc=1,nElem(lc)
+    do ipc=1,nTri_Elem1(lc)
       ipckk = ipc+kk
       ixc = ixyz(1,ipckk)
       iyc = ixyz(2,ipckk)
@@ -70,7 +74,7 @@ do ipa=1,nElem(la)
       ixabc = ixab+ixc
       iyabc = iyab+iyc
 
-      do ipd=1,nElem(ld)
+      do ipd=1,nTri_Elem1(ld)
         ipdll = ipd+ll
         ixd = ixyz(1,ipdll)
         iyd = ixyz(2,ipdll)
@@ -87,9 +91,9 @@ do ipa=1,nElem(la)
           if (IfGrad(1,iCent)) then
             mVec = mVec+1
             nVec = nVec+1
-            Ind1(nVec) = 3*(index(1,iCent)-1)+1
+            Ind1(nVec) = 3*(Indx(1,iCent)-1)+1
             Ind2(nVec) = mVec
-            Index2(1,iCent) = mVec
+            Indx2(1,iCent) = mVec
           end if
         end do
 
@@ -98,9 +102,9 @@ do ipa=1,nElem(la)
           select case (nVec)
             case (3)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
-                tmp3 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
+                tmp3 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)*xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,ixa,ixb,ixc,ixd,Ind1(1))
@@ -113,8 +117,8 @@ do ipa=1,nElem(la)
               end do
             case (2)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)*xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,ixa,ixb,ixc,ixd,Ind1(1))
@@ -125,7 +129,7 @@ do ipa=1,nElem(la)
               end do
             case (1)
               do iT=1,nT
-                tmp1 = 0.0d0
+                tmp1 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)*xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,ixa,ixb,ixc,ixd,Ind1(1))
@@ -139,9 +143,9 @@ do ipa=1,nElem(la)
           select case (nVec)
             case (3)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
-                tmp3 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
+                tmp3 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,ixa,ixb,ixc,ixd,Ind1(1))
@@ -154,8 +158,8 @@ do ipa=1,nElem(la)
               end do
             case (2)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,ixa,ixb,ixc,ixd,Ind1(1))
@@ -166,7 +170,7 @@ do ipa=1,nElem(la)
               end do
             case (1)
               do iT=1,nT
-                tmp1 = 0.0d0
+                tmp1 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,ixa,ixb,ixc,ixd,Ind1(1))
@@ -184,9 +188,9 @@ do ipa=1,nElem(la)
           if (IfGrad(2,iCent)) then
             mVec = mVec+1
             nVec = nVec+1
-            Ind1(nVec) = 3*(index(2,iCent)-1)+2
+            Ind1(nVec) = 3*(Indx(2,iCent)-1)+2
             Ind2(nVec) = mVec
-            Index2(2,iCent) = mVec
+            Indx2(2,iCent) = mVec
           end if
         end do
 
@@ -195,9 +199,9 @@ do ipa=1,nElem(la)
           select case (nVec)
             case (3)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
-                tmp3 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
+                tmp3 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)*xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iya,iyb,iyc,iyd,Ind1(1))
@@ -210,8 +214,8 @@ do ipa=1,nElem(la)
               end do
             case (2)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)*xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iya,iyb,iyc,iyd,Ind1(1))
@@ -222,7 +226,7 @@ do ipa=1,nElem(la)
               end do
             case (1)
               do iT=1,nT
-                tmp1 = 0.0d0
+                tmp1 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)*xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iya,iyb,iyc,iyd,Ind1(1))
@@ -236,9 +240,9 @@ do ipa=1,nElem(la)
           select case (nVec)
             case (3)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
-                tmp3 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
+                tmp3 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iya,iyb,iyc,iyd,Ind1(1))
@@ -251,8 +255,8 @@ do ipa=1,nElem(la)
               end do
             case (2)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iya,iyb,iyc,iyd,Ind1(1))
@@ -263,7 +267,7 @@ do ipa=1,nElem(la)
               end do
             case (1)
               do iT=1,nT
-                tmp1 = 0.0d0
+                tmp1 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iza,izb,izc,izd,3)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iya,iyb,iyc,iyd,Ind1(1))
@@ -281,9 +285,9 @@ do ipa=1,nElem(la)
           if (IfGrad(3,iCent)) then
             mVec = mVec+1
             nVec = nVec+1
-            Ind1(nVec) = 3*(index(3,iCent)-1)+3
+            Ind1(nVec) = 3*(Indx(3,iCent)-1)+3
             Ind2(nVec) = mVec
-            Index2(3,iCent) = mVec
+            Indx2(3,iCent) = mVec
           end if
         end do
 
@@ -292,9 +296,9 @@ do ipa=1,nElem(la)
           select case (nVec)
             case (3)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
-                tmp3 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
+                tmp3 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)*xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -307,8 +311,8 @@ do ipa=1,nElem(la)
               end do
             case (2)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)*xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -319,7 +323,7 @@ do ipa=1,nElem(la)
               end do
             case (1)
               do iT=1,nT
-                tmp1 = 0.0d0
+                tmp1 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)*xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -333,9 +337,9 @@ do ipa=1,nElem(la)
           select case (nVec)
             case (3)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
-                tmp3 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
+                tmp3 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -348,8 +352,8 @@ do ipa=1,nElem(la)
               end do
             case (2)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -360,7 +364,7 @@ do ipa=1,nElem(la)
               end do
             case (1)
               do iT=1,nT
-                tmp1 = 0.0d0
+                tmp1 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,iya,iyb,iyc,iyd,2)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -374,9 +378,9 @@ do ipa=1,nElem(la)
           select case (nVec)
             case (3)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
-                tmp3 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
+                tmp3 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -389,8 +393,8 @@ do ipa=1,nElem(la)
               end do
             case (2)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -401,7 +405,7 @@ do ipa=1,nElem(la)
               end do
             case (1)
               do iT=1,nT
-                tmp1 = 0.0d0
+                tmp1 = Zero
                 do iRys=1,nRys
                   tmp = xyz2D0(iRys,iT,ixa,ixb,ixc,ixd,1)
                   tmp1 = tmp1+tmp*xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
@@ -415,9 +419,9 @@ do ipa=1,nElem(la)
           select case (nVec)
             case (3)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
-                tmp3 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
+                tmp3 = Zero
                 do iRys=1,nRys
                   tmp1 = tmp1+xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
                   tmp2 = tmp2+xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(2))
@@ -429,8 +433,8 @@ do ipa=1,nElem(la)
               end do
             case (2)
               do iT=1,nT
-                tmp1 = 0.0d0
-                tmp2 = 0.0d0
+                tmp1 = Zero
+                tmp2 = Zero
                 do iRys=1,nRys
                   tmp1 = tmp1+xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
                   tmp2 = tmp2+xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(2))
@@ -440,7 +444,7 @@ do ipa=1,nElem(la)
               end do
             case (1)
               do iT=1,nT
-                tmp1 = 0.0d0
+                tmp1 = Zero
                 do iRys=1,nRys
                   tmp1 = tmp1+xyz2D1(iRys,iT,iza,izb,izc,izd,Ind1(1))
                 end do

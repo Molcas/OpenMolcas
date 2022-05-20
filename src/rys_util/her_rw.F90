@@ -11,9 +11,15 @@
 
 module Her_RW
 
-integer, parameter :: nPrpMx = 20
-integer MaxHer, nPrp
-integer, dimension(:), allocatable :: iHerR, iHerW
-real*8, dimension(:), allocatable :: HerR, HerW
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: MaxHer = 0, nPrp
+integer(kind=iwp), allocatable :: iHerR(:), iHerW(:)
+real(kind=wp), allocatable :: HerR(:), HerW(:)
+
+public :: HerR, HerW, iHerR, iHerW, MaxHer, nPrp
 
 end module Her_RW

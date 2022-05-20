@@ -20,14 +20,12 @@ subroutine HrrCtl_mck(Arr1,nArr1,Arr2,nArr2,la,lb,lc,ld,nabMax,ncdMax,nTR,A,B,C,
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-!#include "print.fh"
-#include "real.fh"
-real*8 Arr1(nTR,3*nArr1), Arr2(nTR,3*nArr2), A(3), B(3), C(3), D(3)
-logical IfHss(4,3,4,3), IfGrd(3,4)
+use Definitions, only: wp, iwp
 
-!iRout = 233
-!iPrint = nPrint(iRout)
+implicit none
+integer(kind=iwp) :: nArr1, nArr2, la, lb, lc, ld, nabMax, ncdMax, nTR
+real(kind=wp) :: Arr1(nTR,3*nArr1), Arr2(nTR,3*nArr2), A(3), B(3), C(3), D(3)
+logical(kind=iwp) :: IfHss(4,3,4,3), IfGrd(3,4)
 
 call Hrr2Da_mck(Arr1,nTR,nabMax,ncdMax,Arr2,A,B,la,lb,lc,ld,IfHss,IfGrd)
 

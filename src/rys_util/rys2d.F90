@@ -28,11 +28,15 @@ subroutine Rys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 ! VV: improve loop structure                                           *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax), PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys*3), B00(nArg*lRys*3), &
-       B01(nArg*lRys*3)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nArg, lRys, nabMax, ncdMax
+real(kind=wp) :: xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax), PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys*3), B00(nArg*lRys*3), &
+                 B01(nArg*lRys*3)
+integer(kind=iwp) :: i, iab, icd
+real(kind=wp) :: temp1, temp2, temp3
 
 #ifdef _DEBUGPRINT_
 character*30 Label
@@ -63,7 +67,7 @@ else if (nabMax > 2) then
   do iab=1,nabMax-1
     do i=1,nArg*lRys*3
       temp1 = PAWP(i)*xyz2D(i,iab,0)
-      temp2 = dble(iab)*B10(i)*xyz2D(i,iab-1,0)
+      temp2 = real(iab,kind=wp)*B10(i)*xyz2D(i,iab-1,0)
       xyz2D(i,iab+1,0) = temp1+temp2
     end do
   end do
@@ -84,7 +88,7 @@ else if (ncdMax > 2) then
   do icd=1,ncdMax-1
     do i=1,nArg*lRys*3
       temp1 = QCWQ(i)*xyz2D(i,0,icd)
-      temp2 = dble(icd)*B01(i)*xyz2D(i,0,icd-1)
+      temp2 = real(icd,kind=wp)*B01(i)*xyz2D(i,0,icd-1)
       xyz2D(i,0,icd+1) = temp1+temp2
     end do
   end do
@@ -95,18 +99,18 @@ end if
 if (ncdMax <= nabMax) then
   do icd=1,ncdMax
     do i=1,nArg*lRys*3
-      xyz2D(i,1,icd) = PAWP(i)*xyz2D(i,0,icd)+dble(icd)*B00(i)*xyz2D(i,0,icd-1)
+      xyz2D(i,1,icd) = PAWP(i)*xyz2D(i,0,icd)+real(icd,kind=wp)*B00(i)*xyz2D(i,0,icd-1)
     end do
     if (nabMax == 2) then
       do i=1,nArg*lRys*3
-        xyz2D(i,2,icd) = PAWP(i)*xyz2D(i,1,icd)+B10(i)*xyz2D(i,0,icd)+dble(icd)*B00(i)*xyz2D(i,1,icd-1)
+        xyz2D(i,2,icd) = PAWP(i)*xyz2D(i,1,icd)+B10(i)*xyz2D(i,0,icd)+real(icd,kind=wp)*B00(i)*xyz2D(i,1,icd-1)
       end do
     else if (nabMax > 2) then
       do iab=1,nabMax-1
         do i=1,nArg*lRys*3
           temp1 = PAWP(i)*xyz2D(i,iab,icd)
-          temp2 = dble(iab)*B10(i)*xyz2D(i,iab-1,icd)
-          temp3 = dble(icd)*B00(i)*xyz2D(i,iab,icd-1)
+          temp2 = real(iab,kind=wp)*B10(i)*xyz2D(i,iab-1,icd)
+          temp3 = real(icd,kind=wp)*B00(i)*xyz2D(i,iab,icd-1)
           xyz2D(i,iab+1,icd) = temp1+temp2+temp3
         end do
       end do
@@ -115,18 +119,18 @@ if (ncdMax <= nabMax) then
 else
   do iab=1,nabMax
     do i=1,nArg*lRys*3
-      xyz2D(i,iab,1) = QCWQ(i)*xyz2D(i,iab,0)+dble(iab)*B00(i)*xyz2D(i,iab-1,0)
+      xyz2D(i,iab,1) = QCWQ(i)*xyz2D(i,iab,0)+real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,0)
     end do
     if (ncdMax == 2) then
       do i=1,nArg*lRys*3
-        xyz2D(i,iab,2) = QCWQ(i)*xyz2D(i,iab,1)+B01(i)*xyz2D(i,iab,0)+dble(iab)*B00(i)*xyz2D(i,iab-1,1)
+        xyz2D(i,iab,2) = QCWQ(i)*xyz2D(i,iab,1)+B01(i)*xyz2D(i,iab,0)+real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,1)
       end do
     else if (ncdMax > 2) then
       do icd=1,ncdmax-1
         do i=1,nArg*lRys*3
           temp1 = QCWQ(i)*xyz2D(i,iab,icd)
-          temp2 = dble(icd)*B01(i)*xyz2D(i,iab,icd-1)
-          temp3 = dble(iab)*B00(i)*xyz2D(i,iab-1,icd)
+          temp2 = real(icd,kind=wp)*B01(i)*xyz2D(i,iab,icd-1)
+          temp3 = real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,icd)
           xyz2D(i,iab,icd+1) = temp1+temp2+temp3
         end do
       end do

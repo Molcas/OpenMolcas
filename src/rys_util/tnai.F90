@@ -23,10 +23,17 @@ subroutine TNAI(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !             March '90                                                *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), ZEInv(nT), T(nT), Fact(nT)
+use Constants, only: One, Two, Pi
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: nT, IsChi
+real(kind=wp) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), T(nT), Fact(nT), ZEInv(nT), ChiI2
+integer(kind=iwp) :: iT
+real(kind=wp) :: PQ2
 
 #include "macros.fh"
 unused_var(Eta)
@@ -44,14 +51,14 @@ if (iPrint >= 99) then
   call RecPrt(' Q in TNAI',' ',Q,nT,3)
   call RecPrt(' Kab in TNAI',' ',rKapab,nT,1)
   call RecPrt(' Kcd in TNAI',' ',rKapcd,nT,1)
-  write(6,*) ' In TNAI: ABeqCD=',ABeqCD
+  write(u6,*) ' In TNAI: ABeqCD=',ABeqCD
 end if
 #endif
 do iT=1,nT
   PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
   T(iT) = Zeta(iT)*PQ2
-  ZEInv(iT) = 1.0d0/Zeta(iT)
-  Fact(iT) = 2.0d0*rKapab(iT)*Pi/Zeta(iT)
+  ZEInv(iT) = One/Zeta(iT)
+  Fact(iT) = Two*rKapab(iT)*Pi/Zeta(iT)
 end do
 
 #ifdef _DEBUGPRINT_

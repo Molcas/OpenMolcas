@@ -27,18 +27,19 @@ subroutine Cff2Dq(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,l
 !             for the evaluation of the gradient estimates.            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT), PAQP(nRys,nT,3), &
-       QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
-! Local arrays
-logical AeqB, CeqD, EQ
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
+real(kind=wp) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT), PAQP(nRys,nT,3), &
+                 QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
+integer(kind=iwp) :: iCar, iRys, iT
+real(kind=wp) :: h12
+logical(kind=iwp) :: AeqB, CeqD, EQ
+
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-! Local arrays
-character*30 Label
-
 call RecPrt(' In Cff2dq: Coori',' ',Coori,3,4)
 call RecPrt(' In Cff2dq: U2',' ',U2,nRys,nT)
 #endif
@@ -129,44 +130,29 @@ else if (lc+ld /= 0) then
 end if
 #ifdef _DEBUGPRINT_
 if (la+lb > 0) then
-  write(Label,'(A)') ' PAQP(x)'
-  call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)
-  write(Label,'(A)') ' PAQP(y)'
-  call RecPrt(Label,' ',PAQP(1,1,2),nRys,nT)
-  write(Label,'(A)') ' PAQP(z)'
-  call RecPrt(Label,' ',PAQP(1,1,3),nRys,nT)
+  call RecPrt(' PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
+  call RecPrt(' PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
+  call RecPrt(' PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
 end if
 if (lc+ld > 0) then
-  write(Label,'(A)') ' QCPQ(x)'
-  call RecPrt(Label,' ',QCPQ(1,1,1),nRys,nT)
-  write(Label,'(A)') ' QCPQ(y)'
-  call RecPrt(Label,' ',QCPQ(1,1,2),nRys,nT)
-  write(Label,'(A)') ' QCPQ(z)'
-  call RecPrt(Label,' ',QCPQ(1,1,3),nRys,nT)
+  call RecPrt(' QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
+  call RecPrt(' QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
+  call RecPrt(' QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
 end if
 if (nabMax /= 0) then
-  write(Label,'(A)') ' B10(x)'
-  call RecPrt(Label,' ',B10(1,1,1),nRys,nT)
-  write(Label,'(A)') ' B10(y)'
-  call RecPrt(Label,' ',B10(1,1,2),nRys,nT)
-  write(Label,'(A)') ' B10(z)'
-  call RecPrt(Label,' ',B10(1,1,3),nRys,nT)
+  call RecPrt(' B10(x)',' ',B10(:,:,1),nRys,nT)
+  call RecPrt(' B10(y)',' ',B10(:,:,2),nRys,nT)
+  call RecPrt(' B10(z)',' ',B10(:,:,3),nRys,nT)
 end if
 if (lac /= 0) then
-  write(Label,'(A)') ' B00(x)'
-  call RecPrt(Label,' ',B00(1,1,1),nRys,nT)
-  write(Label,'(A)') ' B00(y)'
-  call RecPrt(Label,' ',B00(1,1,2),nRys,nT)
-  write(Label,'(A)') ' B00(z)'
-  call RecPrt(Label,' ',B00(1,1,3),nRys,nT)
+  call RecPrt(' B00(x)',' ',B00(:,:,1),nRys,nT)
+  call RecPrt(' B00(y)',' ',B00(:,:,2),nRys,nT)
+  call RecPrt(' B00(z)',' ',B00(:,:,3),nRys,nT)
 end if
 if (ncdMax /= 0) then
-  write(Label,'(A)') ' B01(x)'
-  call RecPrt(Label,' ',B01(1,1,1),nRys,nT)
-  write(Label,'(A)') ' B01(y)'
-  call RecPrt(Label,' ',B01(1,1,2),nRys,nT)
-  write(Label,'(A)') ' B01(z)'
-  call RecPrt(Label,' ',B01(1,1,3),nRys,nT)
+  call RecPrt(' B01(x)',' ',B01(:,:,1),nRys,nT)
+  call RecPrt(' B01(y)',' ',B01(:,:,2),nRys,nT)
+  call RecPrt(' B01(z)',' ',B01(:,:,3),nRys,nT)
 end if
 #endif
 

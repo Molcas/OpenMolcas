@@ -24,16 +24,17 @@ subroutine Distg2(g2,Hess,nHess,IndGrd,IfHss,IndHss,iuvwx,kOp,nop,Tr,IfGr)
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChTbl, iChBas
+use Index_Functions, only: iTri
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 g2(78), Prmt(0:7), Hess(nHess)
-logical IfHss(4,3,4,3), Tr(4), IfGr(4)
-integer IndGrd(3,4,0:(nIrrep-1)), kOp(4), iuvwx(4), IndHss(4,3,4,3,0:(nIrrep-1)), nop(4)
-data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-! Statement Functions
-xPrmt(i,j) = Prmt(iand(i,j))
-ix(icn,icar,jcn,jcar) = (((icn-1)*3+icar)*((icn-1)*3+icar-1))/2+(jcn-1)*3+jcar
+implicit none
+integer(kind=iwp) :: nHess, IndGrd(3,4,0:(nIrrep-1)), IndHss(4,3,4,3,0:(nIrrep-1)), iuvwx(4), kOp(4), nop(4)
+real(kind=wp) :: g2(78), Hess(nHess)
+logical(kind=iwp) :: IfHss(4,3,4,3), Tr(4), IfGr(4)
+integer(kind=iwp) :: iCa1, iCa2, iCar, iCh1, iCh2, iCn, iCn1, iCn2, iHess, iIrrep, ij, iStop, jCar, jCn, k1, k2, kCn, kl, lCn
+real(kind=wp) :: Fact, ps
+real(kind=wp), parameter :: Prmt(0:7) = [One,-One,-One,One,-One,One,One,-One]
 
 !                                                                      *
 !***********************************************************************
@@ -58,8 +59,8 @@ do iCn=1,4
       end if
       do jCar=1,iStop
         if (Tr(iCn) .or. Tr(jCn)) then
-          ij = ix(iCn,iCar,jCn,jCar)
-          g2(ij) = zero
+          ij = iTri((iCn-1)*3+iCar,(jCn-1)*3+jCar)
+          g2(ij) = Zero
           !------------------------------------------------------------*
           !
           ! Both derivatives by translation!
@@ -73,13 +74,13 @@ do iCn=1,4
                   iCa2 = min(iCar,jCar)
                   iCa1 = max(iCar,jCar)
                   if (IfHss(kCn,iCa1,lCn,iCa2)) then
-                    k1 = Ix(kCn,iCa1,lCn,iCa2)
+                    k1 = iTri((kCn-1)*3+iCa1,(lCn-1)*3+iCa2)
                     g2(ij) = g2(ij)+g2(k1)
                   end if
                 else
                   if (IfHss(kCn,iCar,lCn,jCar)) then
-                    k1 = Ix(kCn,iCar,lCn,jCar)
-                    k2 = Ix(kCn,jCar,lCn,iCar)
+                    k1 = iTri((kCn-1)*3+iCar,(lCn-1)*3+jCar)
+                    k2 = iTri((kCn-1)*3+jCar,(lCn-1)*3+iCar)
                     g2(ij) = g2(ij)+g2(k1)+g2(k2)
                   end if
                 end if
@@ -109,7 +110,7 @@ do iCn=1,4
                 iCa2 = min(iCar,jCar)
               end if
               if (IfHss(iCn1,iCa1,iCn2,iCa2)) then
-                kl = Ix(iCn1,iCa1,iCn2,iCa2)
+                kl = iTri((iCn1-1)*3+iCa1,(iCn2-1)*3+iCa2)
                 g2(ij) = g2(ij)-g2(kl)
               end if
             end do
@@ -137,7 +138,7 @@ do iCn=1,4
                 iCa2 = min(iCar,jCar)
               end if
               if (IfHss(iCn1,iCa1,iCn2,iCa2)) then
-                kl = Ix(iCn1,iCa1,iCn2,iCa2)
+                kl = iTri((iCn1-1)*3+iCa1,(iCn2-1)*3+iCa2)
                 g2(ij) = g2(ij)-g2(kl)
               end if
             end do
@@ -171,14 +172,14 @@ do iIrrep=0,nIrrep-1
             ! Get indices
             !
             !----------------------------------------------------------*
-            ij = Ix(iCn,iCar,jCn,jCar)
+            ij = iTri((iCn-1)*3+iCar,(jCn-1)*3+jCar)
             iHess = abs(IndHss(iCn,iCar,jCn,jCar,iIrrep))
             !----------------------------------------------------------*
             !
             ! Sign due to integral direction
             !
             !----------------------------------------------------------*
-            ps = dble(iChTbl(iIrrep,nOp(iCn))*iChTbl(iIrrep,nOp(jCn)))
+            ps = real(iChTbl(iIrrep,nOp(iCn))*iChTbl(iIrrep,nOp(jCn)),kind=wp)
             !----------------------------------------------------------*
             !
             ! If over & under triangular integrals are needed
@@ -195,13 +196,13 @@ do iIrrep=0,nIrrep-1
             !----------------------------------------------------------*
             iCh1 = iChBas(iCar+1)
             iCh2 = iChBas(jCar+1)
-            ps = ps*xPrmt(kOp(iCn),iCh1)*xPrmt(kOp(jCn),iCh2)
+            ps = ps*Prmt(iand(kOp(iCn),iCh1))*Prmt(iand(kOp(jCn),iCh2))
             !----------------------------------------------------------*
             !
             ! Multiply by number of stabilisers.
             !
             !----------------------------------------------------------*
-            Fact = ps*dble(iuvwx(iCn))/dble(nIrrep*nirrep)*dble(iuvwx(jCn))
+            Fact = ps*real(iuvwx(iCn),kind=wp)/real(nIrrep*nirrep,kind=wp)*real(iuvwx(jCn),kind=wp)
             !----------------------------------------------------------*
             !
             ! Add to hessian

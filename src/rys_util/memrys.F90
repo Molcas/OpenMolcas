@@ -13,18 +13,19 @@
 !***********************************************************************
 
 subroutine MemRys(iAnga,MemPrm)
-
-implicit real*8(a-h,o-z)
 ! This routine will compute the memory requirement of RYS
 ! Memory requirement is per primitive!
-#include "itmax.fh"
+
+use Index_Functions, only: nTri3_Elem1
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: iAnga(4), MemPrm
 #include "print.fh"
 #include "FMM.fh"
-!gh - stuff for short range integrals
 #include "srint.fh"
-integer iAnga(4)
-! Statement function for canonical index, etc.
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
+integer(kind=iwp) :: iPrint, iRout, la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
+                     ncdMax, nRys
 
 iRout = 13
 iPrint = nPrint(iRout)
@@ -33,16 +34,16 @@ lb = iAnga(2)
 lc = iAnga(3)
 ld = iAnga(4)
 nRys = (la+lb+lc+ld+2)/2
-labMin = nabSz(max(la,lb)-1)+1
-labMax = nabSz(la+lb)
-lcdMin = nabSz(max(lc,ld)-1)+1
-lcdMax = nabSz(lc+ld)
+labMin = nTri3_Elem1(max(la,lb)-1)
+labMax = nTri3_Elem1(la+lb)-1
+lcdMin = nTri3_Elem1(max(lc,ld)-1)
+lcdMax = nTri3_Elem1(lc+ld)-1
 labcd = (labMax-labMin+1)*(lcdMax-lcdMin+1)
 if (iPrint >= 99) then
-  write(6,*) ' labMin=',labMin
-  write(6,*) ' labMax=',labMax
-  write(6,*) ' lcdMin=',lcdMin
-  write(6,*) ' lcdMax=',lcdMax
+  write(u6,*) ' labMin=',labMin
+  write(u6,*) ' labMax=',labMax
+  write(u6,*) ' lcdMin=',lcdMin
+  write(u6,*) ' lcdMax=',lcdMax
 end if
 MemPrm = 0
 ! [a0|c0]
@@ -81,17 +82,17 @@ MemPrm = MemPrm+1
 ! Expanded versions of Zeta, ZetInv, Eta, EtaInv, rKapab, rKapcd, P and Q
 MemPrm = MemPrm+12
 if (iPrint >= 99) then
-  write(6,*) ' [e0|f0] integrals   :',labcd
-  write(6,*) ' Normalization factor:',1
-  write(6,*) ' 2D-integrals        :',nabcd*3*nRys
-  write(6,*) ' PAQP vector         :',3*nRys
-  write(6,*) ' QCPQ vector         :',3*nRys
-  write(6,*) ' B10 coefficients    :',nRys*3*lB10
-  write(6,*) ' B00 coefficients    :',nRys*3*lB00
-  write(6,*) ' B01 coefficients    :',nRys*3*lB01
-  write(6,*) ' Roots               :',nRys
-  write(6,*) ' Inverse arguments   :',1
-  write(6,*) ' Arguments           :',1
+  write(u6,*) ' [e0|f0] integrals   :',labcd
+  write(u6,*) ' Normalization factor:',1
+  write(u6,*) ' 2D-integrals        :',nabcd*3*nRys
+  write(u6,*) ' PAQP vector         :',3*nRys
+  write(u6,*) ' QCPQ vector         :',3*nRys
+  write(u6,*) ' B10 coefficients    :',nRys*3*lB10
+  write(u6,*) ' B00 coefficients    :',nRys*3*lB00
+  write(u6,*) ' B01 coefficients    :',nRys*3*lB01
+  write(u6,*) ' Roots               :',nRys
+  write(u6,*) ' Inverse arguments   :',1
+  write(u6,*) ' Arguments           :',1
 end if
 
 return

@@ -22,18 +22,20 @@ subroutine Assg2(g2,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,xyz2D2,IfHss,Index1,Index2
 !             March '95                                                *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-!#include "print.fh"
-#include "real.fh"
+use Index_Functions, only: nTri_Elem, nTri_Elem1, nTri3_Elem
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, Index1(3,3), Index2(2,6,3), ng(3), nh(3)
+real(kind=wp) :: g2(78), xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9), &
+                 xyz2D2(nRys,nT,0:la,0:lb,0:lc,0:ld,18), PAO(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nTri_Elem1(ld))
+logical(kind=iwp) :: IfHss(4,3,4,3)
 #include "itmax.fh"
 #include "iavec.fh"
-real*8 g2(78), PAO(nt,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,(lc+1)*(lc+2)/2,(ld+1)*(ld+2)/2), &
-       xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9), xyz2D2(nRys,nT,0:la,0:lb,0:lc,0:ld,18)
-logical IfHss(4,3,4,3)
-integer Index2(2,6,3), Index1(3,3), ng(3), nh(3)
-! Statement functions
-nElem(i) = (i+1)*(i+2)/2
-Ind(Icent,Icar,Jcent,jCar) = ((iCent-1)*3+iCar-1)*((iCent-1)*3+iCar)/2+(jCent-1)*3+jCar
+integer(kind=iwp) :: I, ia1, ia2, ia3, ib1, ib2, ib3, ic1, ic2, ic3, iCar, iCent, id1, id2, id3, iDer, ii, ipa, ipb, ipc, ipd, &
+                     iRys, it, ix1, ix2, jCar, jCent, jDer, jj, kcar, kk, ll
+real(kind=wp) :: tmp
 
 !define _DEBUGPRINT_
 !iRout = 248
@@ -42,10 +44,10 @@ call dcopy_(78,[Zero],0,g2,1)
 #ifdef _DEBUGPRINT_
 call RecPrt('Assg2: g2(0)',' ',g2,1,78)
 #endif
-ii = la*(la+1)*(la+2)/6
-jj = lb*(lb+1)*(lb+2)/6
-kk = lc*(lc+1)*(lc+2)/6
-ll = ld*(ld+1)*(ld+2)/6
+ii = nTri3_Elem(la)
+jj = nTri3_Elem(lb)
+kk = nTri3_Elem(lc)
+ll = nTri3_Elem(ld)
 kcar = 0 ! dummy initialize
 
 ! First we construct the non diagonal derivatives
@@ -61,7 +63,7 @@ do iCar=1,3
     if (iCar*jCar == 3) KCar = 2
 
     ! Loop over the atomic centre, in order
-    ! that the intgrals are calculated in.
+    ! that the integrals are calculated in.
 
     do iDer=1,ng(iCar)
       do jDer=1,ng(jCar)
@@ -69,32 +71,32 @@ do iCar=1,3
         jCent = Index1(jDer,jCar)
 
         if (IfHss(iCent,iCar,jCent,jCar)) then
-          I = Ind(iCent,iCar,jCent,jCar)
+          I = nTri_Elem((iCent-1)*3+iCar-1)+(jCent-1)*3+jCar
           ix1 = (iDer-1)*3+iCar
           ix2 = (jDer-1)*3+jCar
 
           ! Loop over angular momentas
 
-          do ipd=1,nelem(ld)
+          do ipd=1,nTri_Elem1(ld)
             id1 = ixyz(iCar,ll+ipd)
             id2 = ixyz(jCar,ll+ipd)
             id3 = ixyz(kCar,ll+ipd)
-            do ipc=1,nelem(lc)
+            do ipc=1,nTri_Elem1(lc)
               ic1 = ixyz(iCar,kk+ipc)
               ic2 = ixyz(jCar,kk+ipc)
               ic3 = ixyz(kCar,kk+ipc)
-              do ipb=1,nelem(lb)
+              do ipb=1,nTri_Elem1(lb)
                 ib1 = ixyz(iCar,jj+ipb)
                 ib2 = ixyz(jCar,jj+ipb)
                 ib3 = ixyz(kCar,jj+ipb)
-                do ipa=1,nelem(la)
+                do ipa=1,nTri_Elem1(la)
                   ia1 = ixyz(iCar,ii+ipa)
                   ia2 = ixyz(jCar,ii+ipa)
                   ia3 = ixyz(kCar,ii+ipa)
 
                   ! Loop over Rys-polynomia and exponents of the basis set!
 
-                  tmp = 0.0d0
+                  tmp = Zero
                   do it=1,nt
                     do iRys=1,nRys
                       tmp = tmp+PAO(iT,ipa,ipb,ipc,ipd)*xyz2D0(iRys,iT,ia3,ib3,ic3,id3,kCar)*xyz2D1(iRys,iT,ia1,ib1,ic1,id1,ix1)* &
@@ -125,28 +127,28 @@ do iCar=1,3
     iCent = Index2(1,iDer,iCar)
     jCent = Index2(2,iDer,iCar)
     if (IfHss(iCent,iCar,jCent,iCar)) then
-      I = Ind(iCent,iCar,jCent,iCar)
+      I = nTri_Elem((iCent-1)*3+iCar-1)+(jCent-1)*3+iCar
 
-      do ipd=1,nelem(ld)
+      do ipd=1,nTri_Elem1(ld)
         id1 = ixyz(iCar,ll+ipd)
         id2 = ixyz(jCar,ll+ipd)
         id3 = ixyz(kCar,ll+ipd)
 
-        do ipc=1,nelem(lc)
+        do ipc=1,nTri_Elem1(lc)
           ic1 = ixyz(iCar,kk+ipc)
           ic2 = ixyz(jCar,kk+ipc)
           ic3 = ixyz(kCar,kk+ipc)
 
-          do ipb=1,nelem(lb)
+          do ipb=1,nTri_Elem1(lb)
             ib1 = ixyz(iCar,jj+ipb)
             ib2 = ixyz(jCar,jj+ipb)
             ib3 = ixyz(kCar,jj+ipb)
-            do ipa=1,nelem(la)
+            do ipa=1,nTri_Elem1(la)
               ia1 = ixyz(iCar,ii+ipa)
               ia2 = ixyz(jCar,ii+ipa)
               ia3 = ixyz(kCar,ii+ipa)
 
-              tmp = 0.0d0
+              tmp = Zero
               do it=1,nt
                 do iRys=1,nRys
                   tmp = tmp+PAO(iT,ipa,ipb,ipc,ipd)*xyz2D0(iRys,iT,ia2,ib2,ic2,id2,jCar)*xyz2D0(iRys,iT,ia3,ib3,ic3,id3,kCar)* &

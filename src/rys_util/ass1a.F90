@@ -11,11 +11,16 @@
 
 subroutine ass1a(D01,D1,PAO,tmp1_,nt,nrys)
 
-implicit real*8(a-h,o-z)
-dimension D01(nrys,nt)
-dimension D1(nrys,nt), PAO(nt)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-tmp1 = 0.0d0
+implicit none
+integer(kind=iwp) :: nt, nrys
+real(kind=wp) :: D01(nrys,nt), D1(nrys,nt), PAO(nt), tmp1_
+integer(kind=iwp) :: iRys, it
+real(kind=wp) :: tmp1
+
+tmp1 = Zero
 
 select case (nRys)
 

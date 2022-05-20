@@ -31,7 +31,7 @@ subroutine RFGrd( &
 !             Modified to gradient calculations May '95                *
 !***********************************************************************
 
-use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Her_RW, only: HerR, HerW, iHerR, iHerW
 use PCM_arrays, only: MM
 use Center_Info, only: dc
 use Constants, only: Half

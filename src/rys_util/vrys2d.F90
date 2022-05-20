@@ -28,15 +28,23 @@ subroutine vRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 ! Further modifications in Jan-Feb. 1994.                              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax), PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys), B00(nArg*lRys), B01(nArg*lRys)
-logical lPAWP, lQCWQ
+use Constants, only: One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nArg, lRys, nabMax, ncdMax
+real(kind=wp) :: xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax), PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys), B00(nArg*lRys), &
+                 B01(nArg*lRys)
+integer(kind=iwp) :: i, iab, icd, iOffy, iOffz
+real(kind=wp) :: Fac1, Fac2, Fact, PAWPx, PAWPy, PAWPz, QCWQx, QCWQy, QCWQz, temp1x, temp1y, temp1z, temp2x, temp2y, temp2z, &
+                 temp3x, temp3y, temp3z
+logical(kind=iwp) :: lPAWP, lQCWQ
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-character*30 Label
+character(len=30) :: Label
+#endif
 
+#ifdef _DEBUGPRINT_
 if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,lRys,nArg*3)
 if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,lRys,nArg*3)
 call RecPrt(' B10',' ',B10,lRys,nArg)

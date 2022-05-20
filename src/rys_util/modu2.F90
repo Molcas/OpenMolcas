@@ -21,10 +21,13 @@ subroutine ModU2(U2,mT,nRys,ZEInv)
 !             May '90                                                  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: mT, nRys
+real(kind=wp) :: U2(nRys,mT), ZEInv(mT)
 #include "print.fh"
-real*8 U2(nRys,mT), ZEInv(mT)
+integer(kind=iwp) :: iPrint, iRout, iRys, iT
 
 iRout = 255
 iPrint = nPrint(iRout)

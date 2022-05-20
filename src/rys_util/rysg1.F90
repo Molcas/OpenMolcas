@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gamma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
+subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
                  Tvalue,ModU2,Cff2D,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
 !***********************************************************************
 !                                                                      *
@@ -24,21 +24,28 @@ subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gamma,Delta,Zeta,ZInv,nZeta,Eta,EInv,n
 !             Modified to 1st order derivatives October '91            *
 !***********************************************************************
 
-use vRys_RW
+use vRys_RW, only: nMxRys
 use Symmetry_Info, only: iOper
 use Gateway_Info, only: ChiI2
 use Gateway_global, only: IsChi
+use Definitions, only: wp, iwp
+#if defined(_DEBUGPRINT_) || defined (_CHECK_)
+use Definitions, only: u6
+#endif
 
-implicit real*8(A-H,O-Z)
-external Tvalue, ModU2, Cff2D
-external Exp_1, Exp_2
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
+real(kind=wp) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), &
+                 Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Grad(nGrad)
+external :: Tvalue, ModU2, Cff2D
+logical(kind=iwp) :: IfGrad(3,4)
 #include "notab.fh"
-#include "print.fh"
-real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3), Eta(nEta), EInv(nEta), Q(lQ,3), Alpha(nZeta), Beta(nZeta), gamma(nEta), Delta(nEta), &
-       CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray), PAO(nT,nPAO), Grad(nGrad), Temp(9)
-integer iAnga(4), IndGrd(3,4), index(3,4), kOp(4), iuvwx(4), JndGrd(3,4), lOp(4)
-logical IfGrad(3,4), JfGrad(3,4)
+integer(kind=iwp) :: i, iEta, Indx(3,4), iOff, ip, ip2D0, ip2D1, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipP, ipPAQP, ipQ, &
+                     ipQCPQ, ipScr, ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iZeta, j, JndGrd(3,4), la, lab, labMax, lb, lB00, &
+                     lB01, lB10, lc, lcd, ld, lla, llb, llc, lld, lOp(4), mVec, n2D0, n2D1, nabMax, ncdMax, nTR
+real(kind=wp) :: Temp(9)
+logical(kind=iwp) :: JfGrad(3,4)
+external :: Exp_1, Exp_2
 
 lOp(1) = iOper(kOp(1))
 lOp(2) = iOper(kOp(2))
@@ -59,12 +66,12 @@ call RecPrt(' In Rysg1:Eta',' ',Eta,nEta,1)
 call RecPrt(' In Rysg1:EInv',' ',EInv,nEta,1)
 call RecPrt(' In Rysg1:Alpha',' ',Alpha,nZeta,1)
 call RecPrt(' In Rysg1:Beta ',' ',Beta,nZeta,1)
-call RecPrt(' In Rysg1:Gamma',' ',Gamma,nEta,1)
+call RecPrt(' In Rysg1:Gamma',' ',Gmma,nEta,1)
 call RecPrt(' In Rysg1:Delta',' ',Delta,nEta,1)
 call RecPrt(' In Rysg1:Coora',' ',Coora,3,4)
 call RecPrt(' In Rysg1:Coori',' ',Coori,3,4)
 call RecPrt(' In Rysg1:CoorAC',' ',CoorAC,3,2)
-write(6,*) ' In Rysg1: iAnga=',iAnga
+write(u6,*) ' In Rysg1: iAnga=',iAnga
 #endif
 la = iAnga(1)
 lb = iAnga(2)
@@ -156,11 +163,11 @@ ip = ip+nT
 #ifdef _CHECK_
 if (ip-1 > nArray) then
   call WarningMessage(2,'Rysg1: ip-1 =/= nArray (pos.1)')
-  write(6,*) ' nArray=',nArray
-  write(6,*) ' ip-1  =',ip-1
-  write(6,*) ' nRys  =',nRys
-  write(6,*) ' nZeta =',nZeta
-  write(6,*) ' nEta  =',nEta
+  write(u6,*) ' nArray=',nArray
+  write(u6,*) ' ip-1  =',ip-1
+  write(u6,*) ' nRys  =',nRys
+  write(u6,*) ' nZeta =',nZeta
+  write(u6,*) ' nEta  =',nEta
   call Abend()
 end if
 #endif
@@ -204,8 +211,8 @@ if ((nRys > nMxRys) .or. NoTab) then
 # ifdef _CHECK_
   if (ip-1 > nArray) then
     call WarningMessage(2,'Rysg1: ip-1 =/= nArray (pos.2)')
-    write(6,*) ' nArray=',nArray
-    write(6,*) ' ip-1  =',ip-1
+    write(u6,*) ' nArray=',nArray
+    write(u6,*) ' ip-1  =',ip-1
     call Abend()
   end if
 # endif
@@ -214,8 +221,8 @@ else
 # ifdef _CHECK_
   if (ip-1 > nArray) then
     call WarningMessage(2,'Rysg1: ip-1 =/= nArray (pos.3)')
-    write(6,*) ' nArray=',nArray
-    write(6,*) ' ip-1  =',ip-1
+    write(u6,*) ' nArray=',nArray
+    write(u6,*) ' ip-1  =',ip-1
     call Abend()
   end if
 # endif
@@ -274,8 +281,8 @@ do i=1,3
     JfGrad(i,j) = IfGrad(i,j)
   end do
 end do
-call Rys2Dg(Array(ip2D0),nT,nRys,la,lb,lc,ld,Array(ip2D1),JfGrad,JndGrd,Coora,Alpha,Beta,Gamma,Delta,nZeta,nEta,Array(ipScr), &
-            Array(ipTmp),Index,Exp_1,Exp_2,nZeta,nEta)
+call Rys2Dg(Array(ip2D0),nT,nRys,la,lb,lc,ld,Array(ip2D1),JfGrad,JndGrd,Coora,Alpha,Beta,Gmma,Delta,nZeta,nEta,Array(ipScr), &
+            Array(ipTmp),Indx,Exp_1,Exp_2,nZeta,nEta)
 ! Drop ipScr
 ip = ip-nTR
 ! Drop ipTmp
@@ -283,7 +290,7 @@ ip = ip-nT
 
 ! Assemble the gradients of the ERI's
 
-call Assg1(Temp,PAO,nT,nRys,la,lb,lc,ld,Array(ip2D0),Array(ip2D1),JfGrad,Index,mVec)
+call Assg1(Temp,PAO,nT,nRys,la,lb,lc,ld,Array(ip2D0),Array(ip2D1),JfGrad,Indx,mVec)
 ! Drop ip2D1
 ip = ip-nTR*3*n2D1
 ! Drop ip2D0

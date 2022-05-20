@@ -25,11 +25,15 @@ subroutine Hrr2Db_mck(Arr1,nVec,ncdMax,Arr2,C,D,la,lb,lc,ld,IfHss,IfGrd)
 !             Improved algorithm, June '92.                            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-!#include "print.fh"
-#include "real.fh"
-real*8 C(3), D(3), Arr1(nVec,0:la+2,0:lb+2,0:ncdMax,3), Arr2(nVec,0:la+2,0:lb+2,0:lc+2,0:ld+2,3)
-logical IfHss(4,3,4,3), ifgrd(3,4)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nVec, ncdMax, la, lb, lc, ld
+real(kind=wp) :: Arr1(nVec,0:la+2,0:lb+2,0:ncdMax,3), Arr2(nVec,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), C(3), D(3)
+logical(kind=iwp) :: IfHss(4,3,4,3), ifGrd(3,4)
+integer(kind=iwp) :: i, ia, ib, ic, iCar, icd, id, jc, jd, kc, kd, lla, llb, llc, lld, mc, md
+real(kind=wp) :: CD
 
 !iRout = 233
 !iPrint = nPrint(iRout)

@@ -28,13 +28,15 @@ subroutine SetUp_RW(DoRys,nDiff)
 !             Unified version August '96, RL.                          *
 !***********************************************************************
 
-use External_Centers, only: XF, nOrdEF
+use External_Centers, only: nOrdEF, XF
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: GIAO
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
-logical DoRys
-integer nDiff
+implicit none
+logical(kind=iwp) :: DoRys
+integer(kind=iwp) :: nDiff
+integer(kind=iwp) :: iAng2, mRys
 
 ! Compute max sum of angular momentum index
 

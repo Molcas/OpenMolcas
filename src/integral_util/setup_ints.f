@@ -23,8 +23,6 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
-      use Her_RW
-      use vRys_RW
       use iSD_data
       use k2_arrays
       use LundIO

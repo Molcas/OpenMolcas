@@ -29,14 +29,22 @@ subroutine XRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 ! VV: improve loop structure                                           *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax), PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys*3), B00(nArg*lRys*3), &
-       B01(nArg*lRys*3)
+use Constants, only: One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-character*30 Label
+use Definitions, only: u6
+#endif
 
+implicit none
+integer(kind=iwp) :: nArg, lRys, nabMax, ncdMax
+real(kind=wp) :: xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax), PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys*3), B00(nArg*lRys*3), &
+                 B01(nArg*lRys*3)
+integer(kind=iwp) :: i, iab, in_
+#ifdef _DEBUGPRINT_
+character(len=30) :: Label
+#endif
+
+#ifdef _DEBUGPRINT_
 iRout = 15
 iPrint = nPrint(iRout)
 if (iPrint >= 59) then
@@ -62,7 +70,7 @@ if (nabMax >= 1) then
 end if
 do iab=1,nabMax-1
   do i=1,nArg*lRys*3
-    xyz2D(i,iab+1,0) = PAWP(i)*xyz2D(i,iab,0)+dble(iab)*B10(i)*xyz2D(i,iab-1,0)
+    xyz2D(i,iab+1,0) = PAWP(i)*xyz2D(i,iab,0)+real(iab,kind=wp)*B10(i)*xyz2D(i,iab-1,0)
   end do
 end do
 
@@ -74,24 +82,25 @@ if (ncdMax >= 1) then
   end do
   do iab=1,nabMax
     do i=1,nArg*lRys*3
-      xyz2D(i,iab,1) = QCWQ(i)*xyz2D(i,iab,0)+dble(iab)*B00(i)*xyz2D(i,iab-1,0)
+      xyz2D(i,iab,1) = QCWQ(i)*xyz2D(i,iab,0)+real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,0)
     end do
   end do
 end if
-do in=1,ncdMax-1
+do in_=1,ncdMax-1
   do i=1,nArg*lRys*3
-    xyz2D(i,0,in+1) = QCWQ(i)*xyz2D(i,0,in)-dble(in)*B01(i)*xyz2D(i,0,in-1)
+    xyz2D(i,0,in_+1) = QCWQ(i)*xyz2D(i,0,in_)-real(in_,kind=wp)*B01(i)*xyz2D(i,0,in_-1)
   end do
   do iab=1,nabMax
     do i=1,nArg*lRys*3
-      xyz2D(i,iab,in+1) = QCWQ(i)*xyz2D(i,iab,in)+dble(iab)*B00(i)*xyz2D(i,iab-1,in)-dble(in)*B01(i)*xyz2D(i,iab,in-1)
+      xyz2D(i,iab,in_+1) = QCWQ(i)*xyz2D(i,iab,in_)+real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,in_)- &
+                          real(in_,kind=wp)*B01(i)*xyz2D(i,iab,in_-1)
     end do
   end do
 end do
 
 #ifdef _DEBUGPRINT_
 if (iPrint >= 99) then
-  write(6,*) ' 2D-integral computed in XRys2D'
+  write(u6,*) ' 2D-integral computed in XRys2D'
   do iab=0,nabMax
     do icd=0,ncdMax
       write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'

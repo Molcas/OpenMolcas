@@ -29,34 +29,41 @@ subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Co
 !             Modified for special routines Jan-Mar '94                *
 !***********************************************************************
 
-use vRys_RW
+use vRys_RW, only: Cff, ddx, HerR2, HerW2, iCffR, iCffW, iHerR2, iHerW2, iMap, ix0, Map, nMap, nx0, TMax, x0
 use Gateway_Info, only: ChiI2
 use Gateway_global, only: IsChi
+#ifdef _RYS_SCRATCH_
+use RysScratch, only: RysRtsWgh
+#else
+use vRys_RW, only: nMxRys
+#endif
+use Index_Functions, only: iTri
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Tvalue, ModU2, Cff2D, Rys2D
+implicit none
+integer(kind=iwp) :: iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabMax, mcdMin, mcdMax, nArray
+real(kind=wp) :: Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), Q(lQ,3), rKapab(nZeta), rKapcd(nEta), Coori(3,4), &
+                 Coora(3,4), CoorAC(3,2), Array(nArray)
+external :: Tvalue, ModU2, Cff2D, Rys2D
+logical(kind=iwp) :: NoSpecial
 #include "notab.fh"
-#include "print.fh"
-#include "real.fh"
-!gh - stuff for short range integrals
 #include "FMM.fh"
-logical secondpass
 #include "srint.fh"
-real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3), rKapab(nZeta), Eta(nEta), EInv(nEta), Q(lQ,3), rKapcd(nEta), CoorAC(3,2), Coora(3,4), &
-       Coori(3,4), Array(nArray)
-integer iAnga(4)
-logical AeqB, CeqD, EQ, NoSpecial
-! Statement function for canonical index, etc.
-iTri(i,j) = (max(i,j)*(max(i,j)-1))/2+min(i,j)
+integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, ipAC, ipAC_long, ipB00, ipB01, ipB10, ipDiv, &
+                     ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipZeta, &
+                     ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabMax, nabMin, ncdMax, ncdMin, nRys, nTR
+logical(kind=iwp) :: AeqB, CeqD, secondpass
+logical(kind=iwp), external :: EQ
 
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*) 'NoSpecial=',NoSpecial
+write(u6,*) 'NoSpecial=',NoSpecial
 call RecPrt(' In Rys:P','(10G15.5)',P,lP,3)
 call RecPrt(' In Rys:Q','(10G15.5)',Q,lQ,3)
 call RecPrt(' In Rys:Zeta','(10G15.5)',Zeta,nZeta,1)
 call RecPrt(' In Rys:Eta','(10G15.5)',Eta,nEta,1)
-write(6,*) ' In Rys: iAnga=',iAnga
+write(u6,*) ' In Rys: iAnga=',iAnga
 call RecPrt('CoorAC',' ',CoorAC,3,2)
 call RecPrt('Coora',' ',Coora,3,4)
 call RecPrt('Coori',' ',Coori,3,4)
@@ -277,11 +284,11 @@ select case (ijkl)
 #     ifdef _CHECK_
       if (ip-1 > nArray) then
         call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.1)')
-        write(6,*) ' nArray=',nArray
-        write(6,*) ' ip-1  =',ip-1
-        write(6,*) ' nRys  =',nRys
-        write(6,*) ' nZeta =',nZeta
-        write(6,*) ' nEta  =',nEta
+        write(u6,*) ' nArray=',nArray
+        write(u6,*) ' ip-1  =',ip-1
+        write(u6,*) ' nRys  =',nRys
+        write(u6,*) ' nZeta =',nZeta
+        write(u6,*) ' nEta  =',nEta
         call Abend()
       end if
 #     endif
@@ -290,7 +297,7 @@ select case (ijkl)
 
       if (nEta*nZeta /= nT) then
         if ((nEta /= nT) .and. (nZeta /= nT)) then
-          write(6,*) 'Corrupted parameters!'
+          write(u6,*) 'Corrupted parameters!'
           call Abend()
         end if
         iOff = 0
@@ -356,32 +363,32 @@ select case (ijkl)
 #     ifdef _CHECK_
       if (ip-1 > nArray) then
         call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.2)')
-        write(6,*) ' nArray=',nArray
-        write(6,*) ' ip-1  =',ip-1
+        write(u6,*) ' nArray=',nArray
+        write(u6,*) ' ip-1  =',ip-1
         call Abend()
       end if
 #     endif
       call RysRtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
 #     else
       if ((nRys > nMxRys) .or. NoTab) then
-#     ifdef _CHECK_
+#       ifdef _CHECK_
         if (ip-1 > nArray) then
           call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.2)')
-          write(6,*) ' nArray=',nArray
-          write(6,*) ' ip-1  =',ip-1
+          write(u6,*) ' nArray=',nArray
+          write(u6,*) ' ip-1  =',ip-1
           call Abend()
         end if
-#     endif
+#       endif
         call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
       else
-#     ifdef _CHECK_
+#       ifdef _CHECK_
         if (ip-1 > nArray) then
           call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.3)')
-          write(6,*) ' nArray=',nArray
-          write(6,*) ' ip-1  =',ip-1
+          write(u6,*) ' nArray=',nArray
+          write(u6,*) ' ip-1  =',ip-1
           call Abend()
         end if
-#     endif
+#       endif
         call vRysRW(la,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys)
       end if
 #     endif

@@ -24,19 +24,20 @@ subroutine RysEF4(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax
 !             Modified for decreased memory access January '94.        *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 xyz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg), EFInt(nArg,meMin:meMax,mfMin:mfMax)
-! Statement function to compute canonical index
-iCan(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6+(ixyz-ix)*(ixyz-ix+1)/2+iz
+use Index_Functions, only: C3_Ind
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, ixye, ixyf, nzeMax, nzfMax
+real(kind=wp) xyz2D(nRys,mArg,3,0:neMax,0:nfMax), EFInt(nArg,meMin:meMax,mfMin:mfMax), PreFct(mArg)
+integer(kind=iwp) :: iArg, Inde, Indf, iRys, iye, iyf, ize, izf
 
 iyf = ixyf-ixf
 iye = ixye-ixe
 izf = nzfMax
 ize = nzeMax
-Indf = iCan(ixyf+izf,ixf,izf)
-Inde = iCan(ixye+ize,ixe,ize)
+Indf = C3_Ind(ixyf+izf,ixf,izf)-1
+Inde = C3_Ind(ixye+ize,ixe,ize)-1
 select case (nRys)
   case (1)
     do iArg=1,mArg

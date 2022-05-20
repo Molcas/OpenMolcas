@@ -25,11 +25,15 @@ subroutine Hrr2Db(Arr1,nVec,ncdMax,Arr2,C,D,la,lb,lc,ld,IfGrad)
 !             Improved algorithm, June '92.                            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 C(3), D(3), Arr1(nVec,0:la+1,0:lb+1,0:ncdMax,3), Arr2(nVec,0:la+1,0:lb+1,0:lc+1,0:ld+1,3)
-logical IfGrad(3,4)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nVec, ncdMax, la, lb, lc, ld
+real(kind=wp) :: Arr1(nVec,0:la+1,0:lb+1,0:ncdMax,3), Arr2(nVec,0:la+1,0:lb+1,0:lc+1,0:ld+1,3), C(3), D(3)
+logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp) :: i, ia, ib, ic, iCar, icd, id, jc, jd, kc, kd, lla, llb, llc, lld, mc, md
+real(kind=wp) :: CD
 
 !iQ = 0
 

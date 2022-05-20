@@ -52,7 +52,7 @@ subroutine M2Grd( &
 
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
-use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 

@@ -25,7 +25,7 @@
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
 ************************************************************************
-      use Her_RW
+      use Her_RW, only: HerR, HerW, iHerR, iHerW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "oneswi.fh"

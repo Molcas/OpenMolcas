@@ -12,7 +12,6 @@
 !***********************************************************************
 
 subroutine HRR2Da_mck(Arr1,nVec,nabMax,ncdMax,Arr2,A,B,la,lb,lc,ld,IfHss,IfGrd)
-
 !***********************************************************************
 !                                                                      *
 ! Object: to apply the transfer equation to the 2D-integrals.          *
@@ -26,11 +25,15 @@ subroutine HRR2Da_mck(Arr1,nVec,nabMax,ncdMax,Arr2,A,B,la,lb,lc,ld,IfHss,IfGrd)
 !             Improved algorithm, June '92.                            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-!#include "print.fh"
-#include "real.fh"
-real*8 A(3), B(3), Arr1(nVec,3,0:nabMax,0:ncdMax), Arr2(nVec,0:la+2,0:lb+2,0:ncdMax,3)
-logical IfHss(4,3,4,3), IfGrd(3,4)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nVec, nabMax, ncdMax, la, lb, lc, ld
+real(kind=wp) :: Arr1(nVec,3,0:nabMax,0:ncdMax), Arr2(nVec,0:la+2,0:lb+2,0:ncdMax,3), A(3), B(3)
+logical(kind=iwp) :: IfHss(4,3,4,3), IfGrd(3,4)
+integer(kind=iwp) :: i, ia, iab, ib, iCar, icd, ja, jb, ka, kb, lla, llb, llcd, ma, mb
+real(kind=wp) :: AB
 
 !iRout = 233
 !iPrint = nPrint(iRout)

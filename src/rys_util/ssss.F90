@@ -21,15 +21,20 @@ subroutine ssss(EFInt,Zeta,nZeta,P,lP,rKappAB,A,B,Eta,nEta,Q,lQ,rKappCD,C,D,TMax
 !             of Lund, SWEDEN. 1994                                    *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 EFInt(nZeta,nEta), Zeta(nZeta), Eta(nEta), P(lP,3), Q(lQ,3), A(3), B(3), C(3), D(3), rKappAB(nZeta), rKappCD(nEta), &
-       x0(nMax), W6(nMax), W5(nMax), W4(nMax), W3(nMax), W2(nMax), W1(nMax), W0(nMax)
-integer iPntr(nPntr)
-logical ABeqCD, EQ
+use Constants, only: One, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, lP, nEta, lQ, nPntr, iPntr(nPntr), nMax, IsChi
+real(kind=wp) :: EFInt(nZeta,nEta), Zeta(nZeta), P(lP,3), rKappAB(nZeta), A(3), B(3), Eta(nEta), Q(lQ,3), rKappCD(nEta), C(3), &
+                 D(3), TMax, x0(nMax), W6(nMax), W5(nMax), W4(nMax), W3(nMax), W2(nMax), W1(nMax), W0(nMax), ddx, HerW, ChiI2
+integer(kind=iwp) :: iEta, iZeta, n
+real(kind=wp) :: dddx, PQ2, rho, T, w, xdInv, z, ZE, ZEInv
+logical(kind=iwp) :: ABeqCD
+logical(kind=iwp), external :: EQ
 
 xdInv = One/ddx
-dddx = ddx/10d0+ddx
+dddx = ddx/Ten+ddx
 
 ABeqCD = EQ(A,B) .and. EQ(A,C) .and. EQ(A,D)
 
@@ -39,7 +44,7 @@ if (ABeqCD) then
   w = (((((W6(1)*z+W5(1))*z+W4(1))*z+W3(1))*z+W2(1))*z+W1(1))*z+w0(1)
   do iEta=1,nEta
     do iZeta=1,nZeta
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       EFInt(iZeta,iEta) = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)*w
     end do
   end do
@@ -48,7 +53,7 @@ else
 
   do iEta=1,nEta
     do iZeta=1,nZeta
-      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*dble(IsChi))
+      ZEInv = One/(Eta(iEta)+Zeta(iZeta)+(Eta(iEta)*Zeta(iZeta)*ChiI2)*real(IsChi,kind=wp))
       ZE = Zeta(iZeta)*Eta(iEta)
       rho = ZE*ZEInv
       PQ2 = (P(iZeta,1)-Q(iEta,1))**2+(P(iZeta,2)-Q(iEta,2))**2+(P(iZeta,3)-Q(iEta,3))**2

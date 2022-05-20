@@ -51,7 +51,7 @@ subroutine PrjGrd( &
 
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
-use Her_RW, only: iHerR, iHerW, HerR, HerW
+use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Real_Spherical, only: ipSph, RSph
 use Symmetry_Info, only: iOper
 use Index_Functions, only: nTri_Elem1

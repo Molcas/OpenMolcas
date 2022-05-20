@@ -183,7 +183,7 @@ Here is a list of EMIL commands:
   A compulsory value for this command is the filename. A command to inline a
   file in the input file. The file will be extracted into WorkDir before the
   start of the calculation. The end of file should be marked as :command:`EOF` command.
-  Not that the file is only created in the master process WorkDir, if the slaves
+  Note that the file is only created in the master process WorkDir, if the slaves
   need access to it, you'll need to use the :command:`COPY` command (see below).
   All files specified with :command:`FILE` are created at the beginning of the calculation,
   regardless of their placement in the input.

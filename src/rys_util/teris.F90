@@ -24,10 +24,14 @@ subroutine TERIS(Zeta,Eta,P,Q,rKapab,rKapcd,T,Fact,ZEInv,nT,IsChi,ChiI2)
 !             June '91, modified for k2 loop.                          *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 Zeta(nT), P(nT,3), rKapab(nT), T(nT), Fact(nT), ZEInv(nT)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nT, IsChi
+real(kind=wp) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), T(nT), Fact(nT), ZEInv(nT), ChiI2
+integer(kind=iwp) :: iT
+real(kind=wp) :: tmp
 
 #include "macros.fh"
 unused_var(Eta)
@@ -45,8 +49,8 @@ end if
 #endif
 
 do iT=1,nT
-  T(iT) = 0.0d0
-  tmp = 1.0d0/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*dble(IsChi))
+  T(iT) = Zero
+  tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
   ZEInv(iT) = tmp
   Fact(iT) = rKapab(iT)**2*sqrt(tmp)
 end do

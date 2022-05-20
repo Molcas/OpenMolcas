@@ -11,7 +11,14 @@
 
 module Wrj12
 
-integer iOffA(4,0:7), Lu_Q(0:7), Lu_A(0:7), nChV(0:7)
-integer, allocatable :: SO2Ind(:)
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: iOffA(4,0:7), Lu_A(0:7), Lu_Q(0:7), nChV(0:7)
+integer(kind=iwp), allocatable :: SO2Ind(:)
+
+public :: iOffA, Lu_A, Lu_Q, nChV, SO2Ind
 
 end module Wrj12

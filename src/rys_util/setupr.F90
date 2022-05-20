@@ -29,18 +29,18 @@ subroutine SetUpR(nRys)
 !             weights on request.                                      *
 !***********************************************************************
 
-use Her_RW
-use vRys_RW
-use Leg_RW
+use Her_RW, only: HerR, HerW, iHerR, iHerW, MaxHer
+use vRys_RW, only: HerR2, HerW2, iHerR2, iHerW2
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
+#ifdef _RYS_SCRATCH_
+use RysScratch, only: SetAux
+use Definitions, only: wp
+#endif
 
 implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-#include "status.fh"
-#include "print.fh"
-integer :: nRys
-integer :: iRys, jRys
-integer :: MemHer, iHer, iOffR
+integer(kind=iwp) :: nRys
+integer(kind=iwp) :: iHer, iOffR, iRys, jRys, MemHer
 
 if (allocated(iHerR2)) then
   call WarningMessage(2,'SetupR: Rys_Status is already active!')
@@ -48,7 +48,7 @@ if (allocated(iHerR2)) then
 end if
 
 #ifdef _RYS_SCRATCH_
-call SetAux(1.0D-16)
+call SetAux(1.0e-16_wp)
 #endif
 
 call Read_ABData()

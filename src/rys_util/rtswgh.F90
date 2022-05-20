@@ -11,32 +11,40 @@
 
 subroutine RTSWGH(TARR,NT,U2,WGH,NRYS)
 
-use vRys_RW
+use vRys_RW, only: HerR2, HerW2, iHerR2, iHerW2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Five, Twelve, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "itmax.fh"
-#include "real.fh"
-#include "print.fh"
+implicit none
+integer(kind=iwp) :: NT, NRYS
+real(kind=wp) :: TARR(NT), U2(NRYS,NT), WGH(NRYS,NT)
 #include "abtab.fh"
-!MAW
 #include "FMM.fh"
-dimension TARR(NT), U2(NRYS,NT), WGH(NRYS,NT)
-dimension ROOT(MXSIZ1,MXSIZ1), RYS(0:MXSIZ1), RYSD(0:MXSIZ1)
-dimension ALPHA(0:MXSIZ1), BETA(0:MXSIZ1)
-dimension BINV(0:MXSIZ1)
-parameter(coef1=-1.0d0/120d0,coef2=-5d0*coef1,coef3=-2d0*coef2)
-parameter(coef4=-coef3,coef5=-coef2,coef6=-coef1)
+integer(kind=iwp) :: IDEG, iroot, IT, itab, J, k, nx
+real(kind=wp) :: a2, a3, a4, a5, a6, b1, b2, b3, b4, b5, BK, c1, c2, c3, c4, c5, c6, corr, DELTA, p, R, R1, R2, RSUM, T, tmp, x1, &
+                 x2, x3, xn, Z, ZZ
+real(kind=wp), allocatable :: ALPHA(:), BETA(:), BINV(:), ROOT(:,:), RYS(:), RYSD(:)
+real(kind=wp), parameter :: coef1 = -One/120.0_wp, coef2 = Five/120.0_wp, coef3 = -One/Twelve, coef4 = One/Twelve, &
+                            coef5 = -Five/120.0_wp, coef6 = One/120.0_wp
 
 #ifdef _DEBUGPRINT_
 iRout = 78
 iPrint = nPrint(iRout)
 #endif
-RYSD(0) = ZERO
 
 if (NRYS > maxdeg) then
   call WarningMessage(2,' Too many requested Rys roots.')
   call AbEnd()
 end if
+
+call mma_allocate(ALPHA,[0,max(NRYS,1)],label='ALPHA')
+call mma_allocate(BETA,[0,max(NRYS,1)],label='BETA')
+call mma_allocate(BINV,max(NRYS,2),label='BINV')
+call mma_allocate(ROOT,max(NRYS,2),max(NRYS,2),label='ROOT')
+call mma_allocate(RYS,[0,max(NRYS,2)],label='RYS')
+call mma_allocate(RYSD,[0,max(NRYS,1)],label='RYSD')
+RYSD(0) = Zero
 
 do IT=1,NT
   T = TARR(IT)
@@ -48,7 +56,7 @@ do IT=1,NT
 
   if ((t > TVALUE(NTAB2-NTAB1-1)) .or. asymptotic_Rys) then
     do iroot=1,nRYS
-      tmp = 1.0d0/T
+      tmp = One/T
       U2(iroot,IT) = HerR2(iHerR2(nRys)+iroot-1)*tmp
       WGH(iroot,IT) = HerW2(iHerW2(nRys)+iroot-1)*sqrt(tmp)
     end do
@@ -58,20 +66,20 @@ do IT=1,NT
   ! xn=interpol. variable.
   ! Ex: T=0.0--0.05 gives xn=0.0--1.0 (approx.)
   ! itab= Start tab index for interp. Ex above: itab=1.
-  xn = 5d0*T+200d0*T/(14d0+T)
+  xn = Five*T+200.0_wp*T/(14.0_wp+T)
   nx = int(xn)
   itab = nx-1-NTAB1
-  p = xn-dble(nx)
-  a2 = (p+2d0)
-  a3 = (p+1d0)*a2
+  p = xn-real(nx,kind=wp)
+  a2 = (p+Two)
+  a3 = (p+One)*a2
   a4 = (p)*a3
-  a5 = (p-1d0)*a4
-  a6 = (p-2d0)*a5
-  b5 = (p-3d0)
-  b4 = (p-2d0)*b5
-  b3 = (p-1d0)*b4
+  a5 = (p-One)*a4
+  a6 = (p-Two)*a5
+  b5 = (p-Three)
+  b4 = (p-Two)*b5
+  b3 = (p-One)*b4
   b2 = (p)*b3
-  b1 = (p+1d0)*b2
+  b1 = (p+One)*b2
   c1 = coef1*b1
   c2 = coef2*a2*b2
   c3 = coef3*a3*b3
@@ -86,20 +94,20 @@ do IT=1,NT
   end do
   rys(0) = c1*p0(itab)+c2*p0(itab+1)+c3*p0(itab+2)+c4*p0(itab+3)+c5*p0(itab+4)+c6*p0(itab+5)
   ROOT(1,1) = ALPHA(0)
-  x1 = (ALPHA(0)+ALPHA(1))/2d0
-  x2 = (ALPHA(0)-ALPHA(1))/2d0
+  x1 = (ALPHA(0)+ALPHA(1))*Half
+  x2 = (ALPHA(0)-ALPHA(1))*Half
   x3 = sqrt(x2**2+BETA(1)**2)
   ROOT(1,2) = x1-x3
   ROOT(2,2) = x1+x3
   ! LOOP OVER DEGREE OF RYS POLY
   do IDEG=3,NRYS
     ! ESTIMATE POSITION OF U2 OF THIS DEGREE:
-    ROOT(1,IDEG) = (dble(IDEG)-0.5d00)*ROOT(1,IDEG-1)/dble(IDEG)
-    ROOT(IDEG,IDEG) = ONE-(dble(IDEG)-0.5d00)*(ONE-ROOT(IDEG-1,IDEG-1))/dble(IDEG)
+    ROOT(1,IDEG) = (real(IDEG,kind=wp)-Half)*ROOT(1,IDEG-1)/real(IDEG,kind=wp)
+    ROOT(IDEG,IDEG) = ONE-(real(IDEG,kind=wp)-Half)*(ONE-ROOT(IDEG-1,IDEG-1))/real(IDEG,kind=wp)
     do IROOT=2,IDEG-1
       R1 = ROOT(IROOT,IDEG-1)
       R2 = ROOT(IROOT-1,IDEG-1)
-      x2 = (dble(IROOT)-0.5d00)/dble(IDEG)
+      x2 = (real(IROOT,kind=wp)-Half)/real(IDEG,kind=wp)
       x1 = ONE-x2
       R = x1*R1+x2*R2
       ROOT(IROOT,IDEG) = R
@@ -109,7 +117,7 @@ do IT=1,NT
     do IROOT=1,IDEG
       Z = ROOT(IROOT,IDEG)
       ! Compute the correction coefficient:
-      corr = zero
+      corr = Zero
       do J=1,iroot-1
         corr = corr+one/(root(iroot,ideg)-root(j,ideg))
       end do
@@ -131,38 +139,45 @@ do IT=1,NT
         DELTA = -RYS(IDEG)/(RYSD(IDEG)-CORR*RYS(IDEG))
         Z = Z+DELTA
         !if (IDEG == NRYS) ITER = ITER+1
-        if (abs(DELTA) <= 1.0d-08) exit
+        if (abs(DELTA) <= 1.0e-8_wp) exit
       end do
       ROOT(IROOT,IDEG) = Z
     end do
   end do
-  !if (NRYS > 2) write(6,'(1x,a,f8.2)') ' Avg. iter/root:',(iter*one)/NRYS
+  !if (NRYS > 2) write(u6,'(1x,a,f8.2)') ' Avg. iter/root:',(iter*one)/NRYS
   do IROOT=1,NRYS
     Z = ROOT(IROOT,NRYS)
     ! COMPUTE RYS VALUES AND ADD SQUARES TO GET WGH:
-    SUM = RYS(0)**2
+    RSUM = RYS(0)**2
     if (NRYS /= 1) then
       RYS(1) = (Z-ALPHA(0))*RYS(0)*BINV(1)
-      SUM = SUM+RYS(1)**2
+      RSUM = RSUM+RYS(1)**2
       if (NRYS /= 2) then
         ZZ = (Z-ALPHA(1))
         RYS(2) = (ZZ*RYS(1)-BETA(1)*RYS(0))*BINV(2)
-        SUM = SUM+RYS(2)**2
+        RSUM = RSUM+RYS(2)**2
         if (NRYS /= 3) then
           do K=2,NRYS-2
             ZZ = Z-ALPHA(K)
             BK = BETA(K)
             RYS(K+1) = (ZZ*RYS(K)-BK*RYS(K-1))*BINV(K+1)
-            SUM = SUM+RYS(K+1)**2
+            RSUM = RSUM+RYS(K+1)**2
           end do
         end if
       end if
     end if
-    WGH(IROOT,IT) = ONE/SUM
+    WGH(IROOT,IT) = ONE/RSUM
     U2(IROOT,IT) = ROOT(IROOT,NRYS)
   end do
 
 end do
+
+call mma_deallocate(ALPHA)
+call mma_deallocate(BETA)
+call mma_deallocate(BINV)
+call mma_deallocate(ROOT)
+call mma_deallocate(RYS)
+call mma_deallocate(RYSD)
 
 #ifdef _DEBUGPRINT_
 if (iPrint >= 99) then

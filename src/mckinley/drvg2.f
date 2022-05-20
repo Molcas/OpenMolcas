@@ -380,6 +380,7 @@
 ************************************************************************
 *                                                                      *
       Call mma_MaxDBLE(MemMax)
+      If (MemMax.gt.1000) MemMax=MemMax-1000
       Call mma_allocate(Sew_Scr,MemMax-iii,Label='Sew_Scr')
       ipMem=1
       memmax=memmax-iii

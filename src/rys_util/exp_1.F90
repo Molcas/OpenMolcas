@@ -21,8 +21,12 @@ subroutine Exp_1(Vector,n1,n2,Array,Fact)
 !             October '91                                              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 Vector(n1,n2), Array(n1)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n1, n2
+real(kind=wp) :: Vector(n1,n2), Array(n1), Fact
+integer(kind=iwp) :: i1, i2
 
 do i2=1,n2
   do i1=1,n1

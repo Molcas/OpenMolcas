@@ -12,7 +12,6 @@
 !***********************************************************************
 
 subroutine Distg1(Temp,Grad,nGrad,IfGrad,IndGrd,iStab,kOp)
-
 !***********************************************************************
 !                                                                      *
 ! Object: trace the gradient of the ERI's with the second order        *
@@ -24,27 +23,30 @@ subroutine Distg1(Temp,Grad,nGrad,IfGrad,IndGrd,iStab,kOp)
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 Grad(nGrad), Temp(9), PAOg1(12), Prmt(0:7)
-logical IfGrad(3,4)
-integer IndGrd(3,4), kOp(4), iStab(4)
-data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-! Statement Function
-xPrmt(i,j) = Prmt(iand(i,j))
+implicit none
+integer(kind=iwp) :: nGrad, IndGrd(3,4), iStab(4), kOp(4)
+real(kind=wp) :: Temp(9), Grad(nGrad)
+logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp) :: iCar, iCent, iCn, iGrad, ij, jCn, kl, nVec
+real(kind=wp) :: Fact, PAOg1(12), ps
+real(kind=wp), parameter :: Prmt(0:7) = [One,-One,-One,One,-One,One,One,-One]
 
 #ifdef _DEBUGPRINT_
 iRout = 239
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   call RecPrt('Accumulated gradient on entrance',' ',Grad,nGrad,1)
-  write(6,*) ' kOp=',kOp
-  write(6,*) ' iStab=',iStab
+  write(u6,*) ' kOp=',kOp
+  write(u6,*) ' iStab=',iStab
   call RecPrt('Distg1: Temp',' ',Temp,9,1)
 end if
-if (iPrint >= 49) write(6,*) IndGrd
+if (iPrint >= 49) write(u6,*) IndGrd
 #endif
 
 ! Distribute Temp in PAOg1
@@ -103,8 +105,8 @@ do iCn=1,4
     if (IndGrd(iCar,iCn) /= 0) then
       iGrad = abs(IndGrd(iCar,iCn))
       ! Parity due to integration direction
-      ps = xPrmt(kOp(iCn),iChBas(1+iCar))
-      Fact = ps*dble(iStab(iCn))/dble(nIrrep)
+      ps = Prmt(iand(kOp(iCn),iChBas(1+iCar)))
+      Fact = ps*real(iStab(iCn),kind=wp)/real(nIrrep,kind=wp)
       Grad(iGrad) = Grad(iGrad)+Fact*PAOg1(ij)
     end if
 

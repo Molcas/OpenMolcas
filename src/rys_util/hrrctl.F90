@@ -20,11 +20,12 @@ subroutine HrrCtl(Arr1,nArr1,Arr2,nArr2,la,lb,lc,ld,nabMax,ncdMax,nTR,A,B,C,D,If
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 Arr1(nTR,3*nArr1), Arr2(nTR,3*nArr2), A(3), B(3), C(3), D(3)
-logical IfGrad(3,4)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nArr1, nArr2, la, lb, lc, ld, nabMax, ncdMax, nTR
+real(kind=wp) :: Arr1(nTR,3*nArr1), Arr2(nTR,3*nArr2), A(3), B(3), C(3), D(3)
+logical(kind=iwp) :: IfGrad(3,4)
 
 call Hrr2Da(Arr1,nTR,nabMax,ncdMax,Arr2,A,B,la,lb,lc,ld,IfGrad)
 

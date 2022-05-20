@@ -11,11 +11,17 @@
 
 subroutine ass2b(D1,D2,PAO,tmp1_,tmp2_,nt,nrys)
 
-implicit real*8(a-h,o-z)
-dimension D1(nRys,nt), d2(nRys,nt), PAO(nt)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-tmp1 = 0.0d0
-tmp2 = 0.0d0
+implicit none
+integer(kind=iwp) :: nt, nrys
+real(kind=wp) :: D1(nRys,nt), D2(nRys,nt), PAO(nt), tmp1_, tmp2_
+integer(kind=iwp) :: iRys, it
+real(kind=wp) :: tmp1, tmp2
+
+tmp1 = Zero
+tmp2 = Zero
 
 select case (nRys)
 

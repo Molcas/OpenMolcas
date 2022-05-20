@@ -16,7 +16,7 @@ use Definitions, only: iwp
 implicit none
 private
 
-public :: C_Ind, C_Ind3, iTri, nTri_Elem, nTri_Elem1, nTri3_Elem, nTri3_Elem1
+public :: C_Ind, C_Ind3, C3_Ind, iTri, nTri_Elem, nTri_Elem1, nTri3_Elem, nTri3_Elem1
 
 #include "macros.fh"
 
@@ -46,6 +46,12 @@ pure function C_Ind3(lx,ly,lz)
   unused_var(lx)
   C_Ind3 = (ly+lz)*(ly+lz+1)/2+lz+1
 end function C_Ind3
+
+pure function C3_Ind(l,lx,lz)
+  integer(kind=iwp) :: C3_Ind
+  integer(kind=iwp), intent(in) :: l, lx, lz
+  C3_Ind = l*(l+1)*(l+2)/6+(l-lx)*(l-lx+1)/2+lz+1
+end function C3_Ind
 
 ! Number of elements in a triangular matrix of side n
 !

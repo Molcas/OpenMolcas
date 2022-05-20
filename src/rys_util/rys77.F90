@@ -19,48 +19,39 @@ subroutine Rys77(Arg,nArg,Root,Weight,iPntr,nPntr,x0,nMax,R6,R5,R4,R3,R2,R1,R0,W
 !             September '90                                            *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Arg(nArg), Root(7,nArg), Weight(7,nArg), x0(nMax), R6(nMax,7), R5(nMax,7), R4(nMax,7), R3(nMax,7), R2(nMax,7), R1(nMax,7), &
-       R0(nMax,7), W6(nMax,7), W5(nMax,7), W4(nMax,7), W3(nMax,7), W2(nMax,7), W1(nMax,7), W0(nMax,7), HerW(7), HerR2(7)
-integer iPntr(nPntr)
+use Constants, only: One, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nArg, nPntr, iPntr(nPntr), nMax
+real(kind=wp) :: Arg(nArg), Root(7,nArg), Weight(7,nArg), x0(nMax), R6(nMax,7), R5(nMax,7), R4(nMax,7), R3(nMax,7), R2(nMax,7), &
+                 R1(nMax,7), R0(nMax,7), W6(nMax,7), W5(nMax,7), W4(nMax,7), W3(nMax,7), W2(nMax,7), W1(nMax,7), W0(nMax,7), ddx, &
+                 HerW(7), HerR2(7), TMax
+integer(kind=iwp) :: iArg, n
+real(kind=wp) :: ai, dddx, si, xdInv, z
 
 xdInv = One/ddx
-dddx = ddx/10d0+ddx
+dddx = ddx/Ten+ddx
 do iArg=1,nArg
   if (Arg(iArg) < TMax) then
     n = iPntr(int((Arg(iArg)+dddx)*xdInv))
     z = Arg(iArg)-x0(n)
-    r = (((((R6(n,1)*z+R5(n,1))*z+R4(n,1))*z+R3(n,1))*z+R2(n,1))*z+R1(n,1))*z+R0(n,1)
-    Root(1,iArg) = r
-    r = (((((R6(n,2)*z+R5(n,2))*z+R4(n,2))*z+R3(n,2))*z+R2(n,2))*z+R1(n,2))*z+R0(n,2)
-    Root(2,iArg) = r
-    r = (((((R6(n,3)*z+R5(n,3))*z+R4(n,3))*z+R3(n,3))*z+R2(n,3))*z+R1(n,3))*z+R0(n,3)
-    Root(3,iArg) = r
-    r = (((((R6(n,4)*z+R5(n,4))*z+R4(n,4))*z+R3(n,4))*z+R2(n,4))*z+R1(n,4))*z+R0(n,4)
-    Root(4,iArg) = r
-    r = (((((R6(n,5)*z+R5(n,5))*z+R4(n,5))*z+R3(n,5))*z+R2(n,5))*z+R1(n,5))*z+R0(n,5)
-    Root(5,iArg) = r
-    r = (((((R6(n,6)*z+R5(n,6))*z+R4(n,6))*z+R3(n,6))*z+R2(n,6))*z+R1(n,6))*z+R0(n,6)
-    Root(6,iArg) = r
-    r = (((((R6(n,7)*z+R5(n,7))*z+R4(n,7))*z+R3(n,7))*z+R2(n,7))*z+R1(n,7))*z+R0(n,7)
-    Root(7,iArg) = r
-    r = (((((W6(n,1)*z+W5(n,1))*z+W4(n,1))*z+W3(n,1))*z+W2(n,1))*z+W1(n,1))*z+W0(n,1)
-    Weight(1,iArg) = r
-    r = (((((W6(n,2)*z+W5(n,2))*z+W4(n,2))*z+W3(n,2))*z+W2(n,2))*z+W1(n,2))*z+W0(n,2)
-    Weight(2,iArg) = r
-    r = (((((W6(n,3)*z+W5(n,3))*z+W4(n,3))*z+W3(n,3))*z+W2(n,3))*z+W1(n,3))*z+W0(n,3)
-    Weight(3,iArg) = r
-    r = (((((W6(n,4)*z+W5(n,4))*z+W4(n,4))*z+W3(n,4))*z+W2(n,4))*z+W1(n,4))*z+W0(n,4)
-    Weight(4,iArg) = r
-    r = (((((W6(n,5)*z+W5(n,5))*z+W4(n,5))*z+W3(n,5))*z+W2(n,5))*z+W1(n,5))*z+W0(n,5)
-    Weight(5,iArg) = r
-    r = (((((W6(n,6)*z+W5(n,6))*z+W4(n,6))*z+W3(n,6))*z+W2(n,6))*z+W1(n,6))*z+W0(n,6)
-    Weight(6,iArg) = r
-    r = (((((W6(n,7)*z+W5(n,7))*z+W4(n,7))*z+W3(n,7))*z+W2(n,7))*z+W1(n,7))*z+W0(n,7)
-    Weight(7,iArg) = r
+    Root(1,iArg) = (((((R6(n,1)*z+R5(n,1))*z+R4(n,1))*z+R3(n,1))*z+R2(n,1))*z+R1(n,1))*z+R0(n,1)
+    Root(2,iArg) = (((((R6(n,2)*z+R5(n,2))*z+R4(n,2))*z+R3(n,2))*z+R2(n,2))*z+R1(n,2))*z+R0(n,2)
+    Root(3,iArg) = (((((R6(n,3)*z+R5(n,3))*z+R4(n,3))*z+R3(n,3))*z+R2(n,3))*z+R1(n,3))*z+R0(n,3)
+    Root(4,iArg) = (((((R6(n,4)*z+R5(n,4))*z+R4(n,4))*z+R3(n,4))*z+R2(n,4))*z+R1(n,4))*z+R0(n,4)
+    Root(5,iArg) = (((((R6(n,5)*z+R5(n,5))*z+R4(n,5))*z+R3(n,5))*z+R2(n,5))*z+R1(n,5))*z+R0(n,5)
+    Root(6,iArg) = (((((R6(n,6)*z+R5(n,6))*z+R4(n,6))*z+R3(n,6))*z+R2(n,6))*z+R1(n,6))*z+R0(n,6)
+    Root(7,iArg) = (((((R6(n,7)*z+R5(n,7))*z+R4(n,7))*z+R3(n,7))*z+R2(n,7))*z+R1(n,7))*z+R0(n,7)
+    Weight(1,iArg) = (((((W6(n,1)*z+W5(n,1))*z+W4(n,1))*z+W3(n,1))*z+W2(n,1))*z+W1(n,1))*z+W0(n,1)
+    Weight(2,iArg) = (((((W6(n,2)*z+W5(n,2))*z+W4(n,2))*z+W3(n,2))*z+W2(n,2))*z+W1(n,2))*z+W0(n,2)
+    Weight(3,iArg) = (((((W6(n,3)*z+W5(n,3))*z+W4(n,3))*z+W3(n,3))*z+W2(n,3))*z+W1(n,3))*z+W0(n,3)
+    Weight(4,iArg) = (((((W6(n,4)*z+W5(n,4))*z+W4(n,4))*z+W3(n,4))*z+W2(n,4))*z+W1(n,4))*z+W0(n,4)
+    Weight(5,iArg) = (((((W6(n,5)*z+W5(n,5))*z+W4(n,5))*z+W3(n,5))*z+W2(n,5))*z+W1(n,5))*z+W0(n,5)
+    Weight(6,iArg) = (((((W6(n,6)*z+W5(n,6))*z+W4(n,6))*z+W3(n,6))*z+W2(n,6))*z+W1(n,6))*z+W0(n,6)
+    Weight(7,iArg) = (((((W6(n,7)*z+W5(n,7))*z+W4(n,7))*z+W3(n,7))*z+W2(n,7))*z+W1(n,7))*z+W0(n,7)
   else
-    ai = 1.0d0/Arg(iArg)
+    ai = One/Arg(iArg)
     si = sqrt(ai)
     Root(1,iArg) = HerR2(1)*ai
     Root(2,iArg) = HerR2(2)*ai

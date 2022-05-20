@@ -27,14 +27,21 @@ subroutine vRys2Dm(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01,la,lb,lc,
 ! Chemistry, University of Lund, Sweden.                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax), PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys), B00(nArg*lRys), B01(nArg*lRys)
-logical IfGrad(3,4)
-#ifdef _DEBUGPRINT_
-character*30 Label
+use Constants, only: One
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp) :: nArg, lRys, nabMax, ncdMax, la, lb, lc, ld
+real(kind=wp) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax), PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys), B00(nArg*lRys), &
+                 B01(nArg*lRys)
+logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp) :: i, iab, iCar, icd, llab, llcd, mabMax, mcdMax
+real(kind=wp) :: Fac1, Fac2, Fact, temp1, temp2, temp3
+#ifdef _DEBUGPRINT_
+character(len=30) :: Label
+#endif
+
+#ifdef _DEBUGPRINT_
 if (nabMax > 0) call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
 if (ncdMax > 0) call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
 call RecPrt(' B10',' ',B10,nArg*lRys,3)
@@ -158,11 +165,11 @@ end do
 do iab=0,nabMax
   do icd=0,ncdMax
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
-    call RecPrt(Label,' ',xyz2D(1,1,iab,icd),nArg,lRys)
+    call RecPrt(Label,' ',xyz2D(:,1,iab,icd),nArg,lRys)
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
-    call RecPrt(Label,' ',xyz2D(1,2,iab,icd),nArg,lRys)
+    call RecPrt(Label,' ',xyz2D(:,2,iab,icd),nArg,lRys)
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
-    call RecPrt(Label,' ',xyz2D(1,3,iab,icd),nArg,lRys)
+    call RecPrt(Label,' ',xyz2D(:,3,iab,icd),nArg,lRys)
   end do
 end do
 #endif

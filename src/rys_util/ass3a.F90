@@ -11,13 +11,18 @@
 
 subroutine ass3a(D01,D1,D2,D3,PAO,tmp1_,tmp2_,tmp3_,nt,nrys)
 
-implicit real*8(a-h,o-z)
-dimension D01(nrys,nt)
-dimension D1(nrys,nt), d2(nrys,nt), D3(nrys,nt), PAO(nt)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-tmp1 = 0.0d0
-tmp2 = 0.0d0
-tmp3 = 0.0d0
+implicit none
+integer(kind=iwp) :: nt, nrys
+real(kind=wp) :: D01(nrys,nt), D1(nrys,nt), D2(nrys,nt), D3(nrys,nt), PAO(nt), tmp1_, tmp2_, tmp3_
+integer(kind=iwp) :: iRys, it
+real(kind=wp) :: tmp1, tmp2, tmp3
+
+tmp1 = Zero
+tmp2 = Zero
+tmp3 = Zero
 
 select case (nRys)
 

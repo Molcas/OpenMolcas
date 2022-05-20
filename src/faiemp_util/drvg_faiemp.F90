@@ -181,6 +181,7 @@ if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',Grad,nGrad,ChDis
 !***********************************************************************
 !                                                                      *
 call mma_MaxDBLE(MemMax)
+if (MemMax > 1000) MemMax=MemMax-1000
 call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 ipMem1 = 1
 !                                                                      *

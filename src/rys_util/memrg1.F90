@@ -14,19 +14,18 @@
 
 subroutine MemRg1(iAnga,nRys,MemPrm)
 !***********************************************************************
+! This routine will compute the memory requirement of Rysg1            *
+! Memory requirement is per primitive!                                 *
 !                                                                      *
 ! Modified to gradients 1991 R. Lindh, Dept. of Theoretical Chemistry, *
 ! University of Lund.                                                  *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-! This routine will compute the memory requirement of Rysg1
-! Memory requirement is per primitive!
-!#include "print.fh"
-#include "itmax.fh"
-integer iAnga(4)
-! Statement function
-!nElem(i) = (i+1)*(i+2)/2
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iAnga(4), nRys, MemPrm
+integer(kind=iwp) :: la, lb, lB00, lB01, lB10, lc, ld, n2D0, n2D1, nabcd, nabMax, ncdMax
 
 !iRout = 13
 !iPrint = nPrint(iRout)
@@ -37,7 +36,7 @@ ld = iAnga(4)
 nRys = (la+lb+lc+ld+2+1)/2
 
 MemPrm = 0
-!nPAO = nElem(la)*nElem(lb)*nElem(lc)*nElem(ld)
+!nPAO = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 ! 1st order gradient of [ab|cd]
 !MemPrm = MemPrm+nPAO*9
 nabMax = la+lb+1
@@ -63,17 +62,17 @@ MemPrm = MemPrm+1
 ! Expanded versions of Zeta, ZetInv, Eta, EtaInv, P and Q
 MemPrm = MemPrm+10
 !if (iPrint >= 99) then
-!  write(6,*) ' [ab|cd] 1st grad.   :',nPAO*9
-!  write(6,*) ' 2D-integrals        :',n2D0*3*nRys
-!  write(6,*) ' 2D-integrals (1st)  :',n2D1*3*nRys
-!  write(6,*) ' PAQP vector         :',3*nRys
-!  write(6,*) ' QCPQ vector         :',3*nRys
-!  write(6,*) ' B10 coefficients    :',nRys*3*lB10
-!  write(6,*) ' B00 coefficients    :',nRys*3*lB00
-!  write(6,*) ' B01 coefficients    :',nRys*3*lB01
-!  write(6,*) ' Roots               :',nRys
-!  write(6,*) ' Inverse arguments   :',1
-!  write(6,*) ' Arguments           :',1
+!  write(u6,*) ' [ab|cd] 1st grad.   :',nPAO*9
+!  write(u6,*) ' 2D-integrals        :',n2D0*3*nRys
+!  write(u6,*) ' 2D-integrals (1st)  :',n2D1*3*nRys
+!  write(u6,*) ' PAQP vector         :',3*nRys
+!  write(u6,*) ' QCPQ vector         :',3*nRys
+!  write(u6,*) ' B10 coefficients    :',nRys*3*lB10
+!  write(u6,*) ' B00 coefficients    :',nRys*3*lB00
+!  write(u6,*) ' B01 coefficients    :',nRys*3*lB01
+!  write(u6,*) ' Roots               :',nRys
+!  write(u6,*) ' Inverse arguments   :',1
+!  write(u6,*) ' Arguments           :',1
 !end if
 
 return

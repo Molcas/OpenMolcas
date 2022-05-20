@@ -32,7 +32,7 @@
 * @parameter ld Order of derivatives
 * @parameter debug guess
       Use Basis_Info
-      use Her_RW
+      use Her_RW, only: HerR, HerW, iHerR, iHerW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"

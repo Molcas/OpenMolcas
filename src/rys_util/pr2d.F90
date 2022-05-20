@@ -9,17 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Pr2D(xyz2D,nT,nRys,la,lb,lc,ld,IfGrad,iPrint)
+subroutine Pr2D(xyz2d,nT,nRys,la,lb,lc,ld,IfGrad,iPrint)
 
-implicit real*8(a-h,o-z)
-real*8 xyz2d(nT,nRys,0:la+1,0:lb+1,0:lc+1,0:ld+1,3)
-logical IfGrad(3,4)
-character Label*80, ch(3)*3
-data ch/',x)',',y)',',z)'/
+use Definitions, only: wp, iwp, u6, r8
 
-write(6,*)
-write(6,*) ' Printing the 2d-integrals'
-write(6,*)
+implicit none
+integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, iPrint
+real(kind=wp) :: xyz2d(nT,nRys,0:la+1,0:lb+1,0:lc+1,0:ld+1,3)
+logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp) :: ia, ib, ic, iCar, id, ja, jb, jc, jd
+character(len=80) :: Label
+character(len=*), parameter :: ch(3) = [',x)',',y)',',z)']
+real(kind=r8), external :: DDot_
+
+write(u6,*)
+write(u6,*) ' Printing the 2d-integrals'
+write(u6,*)
 
 Label = ' '
 ja = 0
@@ -43,10 +48,10 @@ do ia=0,la+ja
           if ((jd == 1) .and. (id == ld+jd) .and. (.not. IfGrad(iCar,4))) cycle
           write(Label,'(A,4(I1,A))') ' xyz2D0(',ia,',',ib,',',ic,',',id,ch(iCar)
           if (iPrint >= 99) then
-            call RecPrt(Label,' ',xyz2d(1,1,ia,ib,ic,id,iCar),nT,nRys)
+            call RecPrt(Label,' ',xyz2d(:,:,ia,ib,ic,id,iCar),nT,nRys)
           else
-            write(6,'(A)') Label
-            write(6,*) DDot_(nT*nRys,xyz2d(1,1,ia,ib,ic,id,iCar),1,xyz2d(1,1,ia,ib,ic,id,iCar),1)
+            write(u6,'(A)') Label
+            write(u6,*) DDot_(nT*nRys,xyz2d(1,1,ia,ib,ic,id,iCar),1,xyz2d(1,1,ia,ib,ic,id,iCar),1)
           end if
         end do
       end do
