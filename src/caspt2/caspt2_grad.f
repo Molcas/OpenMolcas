@@ -20,6 +20,13 @@ C
 #include "caspt2_grad.fh"
 #include "pt2_guga.fh"
 C
+
+      ! Define logical unit numbers for gradients files
+      LUPT2    = 17 ! MCLR
+      LUGAMMA  = 60 ! ERI derivatives ALASKA
+      LUCMOPT2 = 61 ! Back-transform ALASKA
+      LUSTD    = 62 ! S and T derivatives in CASPT2
+
       !! nStLag is the number of states involved in the Lagrangian
       !! nStLag = nState for (X)MS/XDW/RMS-CASPT2
       !!        = 1      for SS-CASPT2

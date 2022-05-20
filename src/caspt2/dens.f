@@ -883,16 +883,7 @@ C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
             write(6,*) "Please use DF or CD"
             write(6,*) "I may not fix in the future"
             call abend()
-            ! Call PrgmTranslate('CMOPT2',RealName,lRealName)
-!             call molcas_Open(LuCMOPT2,RealName(1:lRealName))
-!             Do iBasI = 1, nBasT
-!               Do jBasI = 1, iBasI
-!                 Write (LuCMOPT2) Work(ipDPTAO+iBasI-1+nBasT*(jBasI-1)),
-!      *                           Work(ipWRK1 +iBasI-1+nBasT*(jBasI-1))
-!               End Do
-!             End Do
-! C
-!             Close (LuCMOPT2)
+
           End If
           IF (IPRGLB.GE.USUAL) THEN
             CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
@@ -1973,10 +1964,12 @@ C
       Call GetMem('A_PT2 ','ALLO','REAL',ipA_PT2,NumChoTot**2)
       !! Read A_PT2
       Call PrgmTranslate('CMOPT2',RealName,lRealName)
+      write(6,*) 'Opening LUCMOPT2 = ',LUCMOPT2
       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                      'DIRECT','UNFORMATTED',
      &                      iost,.FALSE.,
      &                        1,'OLD',is_error)
+      write(6,*) 'Opened LUCMOPT2 = ',LUCMOPT2
       Read (LuCMOPT2) Work(ipA_PT2:ipA_PT2+NumChoTot**2-1)
 C
       !! Open B_PT2

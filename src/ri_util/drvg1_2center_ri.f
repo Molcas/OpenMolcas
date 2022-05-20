@@ -274,11 +274,6 @@
         !! Now, read
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         LuCMOPT2 = 61
-C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
-C       Open (Unit=LuCMOPT2,
-C    *        File=RealName(1:lRealName),
-C    *        Status='OLD',
-C    *        Form='UNFORMATTED')
         Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                        'DIRECT','UNFORMATTED',
      &                        iost,.FALSE.,

@@ -37,8 +37,8 @@ C     Integer Lu_B(4), Lu_A(2) , iAdrA_in(8), iAdrA_Out(8)
       COMMON  /CHOTIME /timings
 *
       Character*4096 RealName
-      Integer, Parameter :: LuCMOPT2=61, !! The A-vector
-     *                      LuGAMMA=60   !! The B-vector
+      Integer LUCMOPT2  !! The A-vector
+      Integer LUGAMMA   !! The B-vector
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -101,24 +101,13 @@ C        write (*,*) "nBas2 = ", nBas2
       Call GetMem('A_vec','Allo','Real',ip_A,l_A)
       Call GetMem('A_HalfT_vec','Allo','Real',ip_A_ht,l_A_ht)
 *
+      LUCMOPT2 = 61
       Call PrgmTranslate('CMOPT2',RealName,lRealName)
-C     call molcas_Open(LuCMOPT2,RealName(1:lRealName))
-C     Open (Unit=LuCMOPT2,
-C    *      File=RealName(1:lRealName),
-C    *      Status='OLD',
-C    *      Form='UNFORMATTED')
       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                      'DIRECT','UNFORMATTED',
      &                      iost,.FALSE.,
      &                      1,'OLD',is_error)
-C     If (is_error) then
-C       write (6,'(x,"Maybe, you did not add GRAD or GRDT ",
-C    *               "keyword in &CASPT2?")')
-C       write (6,'(x,"Please add either one, if this is single-point ",
-C    *               "gradient calculation.")')
-C       write (6,'(x,"Otherwise, something is wrong...")')
-C       call abend()
-C     end if
+
       Read (LuCMOPT2,END=100) Work(ip_A_t:ip_A_t+l_A_t-1)
 *
       !! Symmetrized A_PT2
@@ -186,19 +175,13 @@ C     write (*,*) "nvec in mult = ", nvec
       l_B   = nLRb(iSym)*nVec
       l_B_t = nLRb(iSym)*nVec
       ip_B = ip_B_t + l_B_t
-*
+
+      LUGAMMA = 60
       Call PrgmTranslate('GAMMA',RealName,lRealName)
-C     call molcas_Open(LuGAMMA,RealName(1:lRealName))
-C     Open (Unit=LuGAMMA,
-C    *      File=RealName(1:lRealName),
-C    *      Status='OLD',
-C    *      Form='UNFORMATTED',
-C    *      Access='DIRECT',
-C    *      Recl=nBas2*8)
-        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
-     &                        iost,.TRUE.,
-     &                        nBas2*8,'OLD',is_error)
+      Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                     'DIRECT','UNFORMATTED',
+     &                      iost,.TRUE.,
+     &                      nBas2*8,'OLD',is_error)
 *
 *     The B-vectors should be read one batch at the time
 *     --------------------------------------------------

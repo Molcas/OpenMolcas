@@ -57,20 +57,24 @@ C
         !! First, save A_PT2 in LuCMOPT2
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         If (IFMSCOUP.and.jState.ne.1) Then
+          write(6,*) 'Opening LUCMOPT2 = ',LUCMOPT2
           Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                          'DIRECT','UNFORMATTED',
      &                          iost,.FALSE.,
      &                          1,'OLD',is_error)
+          write(6,*) 'Opened LUCMOPT2 = ',LUCMOPT2
           Call GetMem('WRK3','ALLO','Real',ipWRK3,NumCho*NumCho)
           Read (LuCMOPT2) Work(ipWRK3:ipWRK3+NumCho**2-1)
           Call DaXpY_(NumCho*NumCho,1.0D+00,Work(ipWRK3),1,A_PT2,1)
           Call GetMem('WRK3','FREE','Real',ipWRK3,NumCho*NumCho)
           REWIND LuCMOPT2
         Else
+          write(6,*) 'Opening LUCMOPT2 = ',LUCMOPT2
           Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                         'DIRECT','UNFORMATTED',
      &                          iost,.FALSE.,
      &                          1,'REPLACE',is_error)
+          write(6,*) 'Opened LUCMOPT2 = ',LUCMOPT2
         End If
 C       write(6,*) "write...",numcho,lucmopt2
 
