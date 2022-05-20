@@ -1963,15 +1963,17 @@ C
 C
       Call GetMem('A_PT2 ','ALLO','REAL',ipA_PT2,NumChoTot**2)
       !! Read A_PT2
-      Call PrgmTranslate('CMOPT2',RealName,lRealName)
-      write(6,*) 'Opening LUCMOPT2 = ',LUCMOPT2
-      Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                      'DIRECT','UNFORMATTED',
-     &                      iost,.FALSE.,
-     &                        1,'OLD',is_error)
-      write(6,*) 'Opened LUCMOPT2 = ',LUCMOPT2
-      Read (LuCMOPT2) Work(ipA_PT2:ipA_PT2+NumChoTot**2-1)
-C
+    !   Call PrgmTranslate('CMOPT2',RealName,lRealName)
+    !   Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+    !  &                      'DIRECT','UNFORMATTED',
+    !  &                      iost,.FALSE.,
+    !  &                        1,'OLD',is_error)
+    !   Read (LuCMOPT2) Work(ipA_PT2:ipA_PT2+NumChoTot**2-1)
+
+      ! Read A_PT2 from LUAPT2
+      id = 0
+      call ddafile(LUAPT2, 2, work(ipA_PT2), numChoTot**2, id)
+
       !! Open B_PT2
       Call PrgmTranslate('GAMMA',RealName,lRealName)
       Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
@@ -2132,9 +2134,14 @@ C
      *            1.0D+00,Work(ipA_PT2),NumCho)
 C
       !! Write A_PT2
-      REWIND LuCMOPT2
-      Write (LuCMOPT2) Work(ipA_PT2:ipA_PT2+NumChoTot**2-1)
-      Close (LuCMOPT2)
+      ! REWIND LuCMOPT2
+      ! Write (LuCMOPT2) Work(ipA_PT2:ipA_PT2+NumChoTot**2-1)
+      ! Close (LuCMOPT2)
+
+      ! write to A_PT2 in LUAPT2
+      id = 0
+      call ddafile(LUAPT2, 1, Work(ipA_PT2), NumChoTot**2, id)
+
       Call GetMem('A_PT2 ','FREE','REAL',ipA_PT2,NumChoTot**2)
 C
       CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)

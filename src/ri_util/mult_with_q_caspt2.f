@@ -37,8 +37,9 @@ C     Integer Lu_B(4), Lu_A(2) , iAdrA_in(8), iAdrA_Out(8)
       COMMON  /CHOTIME /timings
 *
       Character*4096 RealName
-      Integer LUCMOPT2  !! The A-vector
+      ! Integer LUCMOPT2  !! The A-vector
       Integer LUGAMMA   !! The B-vector
+      Integer LUAPT2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -101,15 +102,21 @@ C        write (*,*) "nBas2 = ", nBas2
       Call GetMem('A_vec','Allo','Real',ip_A,l_A)
       Call GetMem('A_HalfT_vec','Allo','Real',ip_A_ht,l_A_ht)
 *
-      LUCMOPT2 = 61
-      Call PrgmTranslate('CMOPT2',RealName,lRealName)
-      Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                      'DIRECT','UNFORMATTED',
-     &                      iost,.FALSE.,
-     &                      1,'OLD',is_error)
+    !   LUCMOPT2 = 61
+    !   Call PrgmTranslate('CMOPT2',RealName,lRealName)
+    !   Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+    !  &                      'DIRECT','UNFORMATTED',
+    !  &                      iost,.FALSE.,
+    !  &                      1,'OLD',is_error)
 
-      Read (LuCMOPT2,END=100) Work(ip_A_t:ip_A_t+l_A_t-1)
-*
+    !   Read (LuCMOPT2,END=100) Work(ip_A_t:ip_A_t+l_A_t-1)
+
+      ! Read A_PT2 from LUAPT2
+      LUAPT2 = 77
+      call daname_mf_wa(LUAPT2, 'A_PT2')
+      id = 0
+      call ddafile(LUAPT2, 2, work(ip_A_t), l_A_t, id)
+
       !! Symmetrized A_PT2
       Do i = 1, NumCV
          Do j = 1, i
@@ -148,13 +155,14 @@ C        write (*,*) "nBas2 = ", nBas2
 *
 *     Put transformed A-vectors back on disk
 *
-      Rewind (LuCMOPT2)
-      Write (LuCMOPT2) Work(ip_A:ip_A+l_A-1)
-*
-      Close (LuCMOPT2)
-C     write (*,*) "l_A_t = ", l_A_t
-C     write (*,*) "l_A   = ", l_A
-*
+      ! Rewind (LuCMOPT2)
+      ! Write (LuCMOPT2) Work(ip_A:ip_A+l_A-1)
+      ! Close (LuCMOPT2)
+
+      ! write A_PT2 to LUAPT2
+      id = 0
+      call ddafile(LUAPT2, 1, work(ip_A), l_A, id)
+
       Call GetMem('A_Tilde_vec','Free','Real',ip_A_t,l_A_t)
       Call GetMem('A_vec','Free','Real',ip_A,l_A)
       Call GetMem('A_HalfT_vec','Free','Real',ip_A_ht,l_A_ht)
@@ -226,6 +234,7 @@ C     write (*,*) "nvec in mult = ", nvec
       Call GetMem('Q_Vector','Free','Real',ip_Q,l_Q)
 *
       Call DaClos(Lu_Q)
+      call daclos(LUAPT2)
       Close (LuGAMMA)
 *
       End Do ! iSym

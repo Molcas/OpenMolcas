@@ -272,14 +272,20 @@
         End Do
         Call MMA_Allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
         !! Now, read
-        Call PrgmTranslate('CMOPT2',RealName,lRealName)
-        LuCMOPT2 = 61
-        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
-     &                        iost,.FALSE.,
-     &                        1,'OLD',is_error)
-        Read (LuCMOPT2) A_PT2(1:nBasASQ,1)
-        Close (LuCMOPT2)
+    !     Call PrgmTranslate('CMOPT2',RealName,lRealName)
+    !     LuCMOPT2 = 61
+    !     Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+    !  &                        'DIRECT','UNFORMATTED',
+    !  &                        iost,.FALSE.,
+    !  &                        1,'OLD',is_error)
+    !     Read (LuCMOPT2) A_PT2(1:nBasASQ,1)
+    !     Close (LuCMOPT2)
+        ! Read A_PT2 from LUAPT2
+        LUAPT2 = 77
+        call daname_mf_wa(LUAPT2, 'A_PT2')
+        id = 0
+        call ddafile(LUAPT2, 2, A_PT2, nBasASq, id)
+        call daclos(LUAPT2)
       End If
 *                                                                      *
 ************************************************************************

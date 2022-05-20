@@ -108,6 +108,8 @@ C  AO one-electron integrals
       End If
 
 *--- for gradients ----------------------------------------------------*
+      LUAPT2=77
+      CALL DANAME_MF_wa(LUAPT2,'A_PT2')
 
 *----------------------------------------------------------------------*
 C  Exit

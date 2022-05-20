@@ -41,6 +41,7 @@
       Call DaClos(LUDMAT)
       Call DaClos(LUSOLV)
       Call DaClos(LUSBT)
+      Call DaClos(LUAPT2)
       DO IVEC=1,6
         CALL DaClos(LURHS(IVEC))
       END DO

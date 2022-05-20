@@ -57,33 +57,39 @@ C
         !! First, save A_PT2 in LuCMOPT2
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         If (IFMSCOUP.and.jState.ne.1) Then
-          write(6,*) 'Opening LUCMOPT2 = ',LUCMOPT2
-          Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                          'DIRECT','UNFORMATTED',
-     &                          iost,.FALSE.,
-     &                          1,'OLD',is_error)
-          write(6,*) 'Opened LUCMOPT2 = ',LUCMOPT2
+    !       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+    !  &                          'DIRECT','UNFORMATTED',
+    !  &                          iost,.FALSE.,
+    !  &                          1,'OLD',is_error)
           Call GetMem('WRK3','ALLO','Real',ipWRK3,NumCho*NumCho)
-          Read (LuCMOPT2) Work(ipWRK3:ipWRK3+NumCho**2-1)
+    !       Read (LuCMOPT2) Work(ipWRK3:ipWRK3+NumCho**2-1)
+
+          ! read A_PT2 from LUAPT2
+          id = 0
+          call ddafile(LUAPT2, 2, Work(ipWRK3), NumCho**2, id)
+
           Call DaXpY_(NumCho*NumCho,1.0D+00,Work(ipWRK3),1,A_PT2,1)
           Call GetMem('WRK3','FREE','Real',ipWRK3,NumCho*NumCho)
-          REWIND LuCMOPT2
+          ! REWIND LuCMOPT2
         Else
-          write(6,*) 'Opening LUCMOPT2 = ',LUCMOPT2
-          Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                         'DIRECT','UNFORMATTED',
-     &                          iost,.FALSE.,
-     &                          1,'REPLACE',is_error)
-          write(6,*) 'Opened LUCMOPT2 = ',LUCMOPT2
+    !       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+    !  &                         'DIRECT','UNFORMATTED',
+    !  &                          iost,.FALSE.,
+    !  &                          1,'REPLACE',is_error)
         End If
 C       write(6,*) "write...",numcho,lucmopt2
 
         ! For SS-CASPT2 I should write A_PT2 on disk only
         ! for the correct iRlxRoot
         if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
-          Write (LuCMOPT2) A_PT2(1:NumCho**2)
+          ! Write (LuCMOPT2) A_PT2(1:NumCho**2)
+
+          ! write A_PT2 in LUAPT2
+          id = 0
+          call ddafile(LUAPT2,1,A_PT2,NumCho**2,id)
+
         end if
-        Close (LuCMOPT2)
+        ! Close (LuCMOPT2)
 
         !! Prepare for saving B_PT2. B_PT2 is saved in VVVOX2
         Call PrgmTranslate('GAMMA',RealName,lRealName)
@@ -150,7 +156,6 @@ C     Call dDaFile(LuGamma,1,Work(LCMOPT2),nBasT*nBasT,iDisk)
         end if
       Else
         !! This is only for conventional calculations!!
-        write(6,*) 'WARNING!! THIS MIGHT BE WRONG!'
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                       'DIRECT','UNFORMATTED',
