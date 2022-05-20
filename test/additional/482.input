@@ -10,7 +10,7 @@
 > if ( $molcas_driver = unknown_variable )
     > export MOLCAS_DRIVER=molcas
 > endif
-> shell ${MOLCAS_DRIVER} have_feature hdf5 && touch SUPPORTS_HDF5
+> shell ${MOLCAS_DRIVER} have_feature hdf5 && touch SUPPORTS_HDF5 || true
 
 
  &GATEWAY
