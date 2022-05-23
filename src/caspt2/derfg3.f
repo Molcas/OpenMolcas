@@ -1,5 +1,8 @@
       SUBROUTINE DERFG3(CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,idxG3,
      *                  DEPSA,G1,G2)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -8,7 +11,6 @@
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
-#include "para_info.fh"
       LOGICAL RSV_TSK
 
       REAL*8, INTENT(IN) :: CI(MXCI)
@@ -66,7 +68,7 @@ C Put in zeroes. Recognize special cases:
 
       IF(NACTEL.EQ.0) GOTO 999
 
-      NCI=NCSF(LSYM)
+      NCI=NCSF(STSYM)
 * This should not happen, but...
       IF(NCI.EQ.0) GOTO 999
 
@@ -400,7 +402,7 @@ C     write(6,*) "PREP    : CPU/WALL TIME=", cput,wallt
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
       DO issg1=1,nsym
-       isp1=mul(issg1,lsym)
+       isp1=mul(issg1,STSYM)
        nsgm1=ncsf(issg1)
        !! Work(LBufD) = \sum_t <I|E_{tt}|I>*f_{tt}
        CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
@@ -530,7 +532,7 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
           ip1_buf(ibuf1)=ip1i
           lto=lbuf1+mxci*(ibuf1-1)
           call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-          CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,LSYM,CI,WORK(LTO),
+          CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -547,7 +549,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
       ! The ip1 buffer could be the same on different processes
       ! so only compute the G1 contribution when ip3 is 1, as
       ! this will only be one task per buffer.
-      if (issg1.eq.lsym.AND.ip3.eq.1) then
+      if (issg1.eq.STSYM.AND.ip3.eq.1) then
         !! lbuf1 = <Psi0|E_ip1|I>
         !! <0|E_{tu}I> = <I|E_{ut}|0>
 C       write(6,*) "ib loop"
@@ -609,13 +611,13 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       iylev=idx2ij(1,ip3)
       izlev=idx2ij(2,ip3)
       isyz=mul(ism(iylev),ism(izlev))
-      issg2=mul(isyz,lsym)
+      issg2=mul(isyz,STSYM)
       nsgm2=ncsf(issg2)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
       lto=lbuf2
       call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
-      CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,LSYM,CI,WORK(LTO),
+      CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -669,7 +671,7 @@ C
         Do ivlev = 1, nlev
           L = LBUFX + MXCI*(ivlev-1)
           Call DCopy_(nsgm1,[0.0D0],0,Work(L),1)
-          CALL SIGMA1_CP2(IVLEV,IXLEV0,1.0D+00,LSYM,Work(LFROM),Work(L),
+          CALL SIGMA1_CP2(IVLEV,IXLEV0,1.0D+0,STSYM,Work(LFROM),Work(L),
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -772,7 +774,7 @@ C
      *      + work(lbuf4+icsf-1)*(work(lbufd+icsf-1)-epsa(iv))
         end do
         !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
-       CALL SIGMA1_CP2(IXLEV,IVLEV,1.0D+00,LSYM,WORK(LBUF3),WORK(LDYZ),
+       CALL SIGMA1_CP2(IXLEV,IVLEV,1.0D+00,STSYM,WORK(LBUF3),WORK(LDYZ),
      &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &      WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -785,7 +787,7 @@ C
 C
       !! Complete the right derivative contribution:
       !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
-      CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D+00,LSYM,WORK(LDYZ),CLAG,
+      CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D+00,STSYM,WORK(LDYZ),CLAG,
      &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -813,7 +815,7 @@ C
           iulev=idx2ij(2,idx)
           lto=ldtu+mxci*(ib-1)
           !! left derivative
-          CALL SIGMA1_CP2(ITLEV,IULEV,1.0D00,LSYM,WORK(LTO),CLAG,
+          CALL SIGMA1_CP2(ITLEV,IULEV,1.0D00,STSYM,WORK(LTO),CLAG,
      &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -822,7 +824,7 @@ C
           Do IALEV = 1, NLEV
             Do IBLEV = 1, NLEV
               Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF2),1)
-        CALL SIGMA1_CP2(IALEV,IBLEV,1.0D+00,LSYM,Work(IBUF),Work(LBUF2),
+       CALL SIGMA1_CP2(IALEV,IBLEV,1.0D+00,STSYM,Work(IBUF),Work(LBUF2),
      &          IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &          IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &          WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -895,6 +897,9 @@ C
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION DF1(NASHT,NASHT),DF2(NASHT,NASHT,NASHT,NASHT),DF3(*)
       DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
@@ -909,7 +914,6 @@ C OR CLOSED-SHELL SCF CASE.
 #include "output.fh"
 #include "pt2_guga.fh"
 
-#include "para_info.fh"
       LOGICAL RSV_TSK
 
 

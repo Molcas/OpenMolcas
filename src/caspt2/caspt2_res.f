@@ -140,6 +140,9 @@ C-----------------------------------------------------------------------
 C
       !! RHS_SGMDIA
       SUBROUTINE CASPT2_ResD(Mode,NIN,NIS,lg_W,DIN,DIS)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -151,7 +154,6 @@ C
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
 
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

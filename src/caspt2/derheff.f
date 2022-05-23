@@ -75,7 +75,7 @@ C
         END DO
 C
         CALL DCOPY_(NCONF,[0.0D+00],0,WORK(LCI3),1)
-        CALL DERTG3(.TRUE.,LSYM,LSYM,WORK(LCI1),WORK(LCI2),OVL,
+        CALL DERTG3(.TRUE.,STSYM,STSYM,WORK(LCI1),WORK(LCI2),OVL,
      &              WORK(LDTG1),WORK(LDTG2),NTG3,WORK(LDTG3),
      &              WORK(LCI3),CLag(1,JST))
 C
@@ -107,6 +107,9 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DerHeffX(IVEC,JVEC,OVL,DTG1,DTG2,DTG3)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -127,7 +130,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
-#include "para_info.fh"
       Dimension DTG1(NASHT,NASHT)
       Dimension DTG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)

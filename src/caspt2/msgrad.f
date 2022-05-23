@@ -22,7 +22,6 @@ C
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
-#include "para_info.fh"
 
 #include "caspt2_grad.fh"
 #include "csfbas.fh"
@@ -104,7 +103,7 @@ C Read root vectors nr. IST and JST from LUCI.
         END DO
       END IF
 
-      CALL MKTG3(LSYM,LSYM,WORK(LCI1),WORK(LCI2),OVL,
+      CALL MKTG3(STSYM,STSYM,WORK(LCI1),WORK(LCI2),OVL,
      &           WORK(LTG1),WORK(LTG2),NTG3,WORK(LTG3))
       CALL GETMEM('MCCI1','FREE','REAL',LCI1,MXCI)
       CALL GETMEM('MCCI2','FREE','REAL',LCI2,MXCI)
@@ -133,6 +132,9 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE MS_STRANS(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL,SCAL)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -153,7 +155,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
-#include "para_info.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -889,11 +890,11 @@ C    *                  Work(ipTG1),
 C    *                  Work(ipDF1),Work(ipDF2),Work(ipDF3),
 C    *     U0)
 C         Else
-          lsym=1
+          STSYM=1
       NTG1=NASHT**2
       NTG3=(NTG1*(NTG1+1)*(NTG1+2))/6
       OVL=0.0D+00
-          CALL DERTG3(.False.,LSYM,LSYM,WORK(ipCI1),WORK(ipCI2),OVL,
+          CALL DERTG3(.False.,STSYM,STSYM,WORK(ipCI1),WORK(ipCI2),OVL,
      &                WORK(ipDG1),WORK(ipDG2),NTG3,WORK(ipDG3),
      &                Work(ipCLag+nConf*(iStat-1)),
      &                Work(ipCLag+nConf*(jStat-1)))
@@ -1310,6 +1311,9 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DENS1T_RPT2_CLag (CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1319,7 +1323,6 @@ C
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
-#include "para_info.fh"
       LOGICAL RSV_TSK
 
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI)
@@ -1403,11 +1406,11 @@ C     ENDDO
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,LSYM)
+          ISSG=MUL(ISTU,STSYM)
           NSGM=NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
-          CALL GETSGM2(LU,LT,LSYM,CI1,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
           IF(ISTU.EQ.1) THEN
             ! Symmetry not yet
 C            write(6,*) "it,iu = ", it,iu
@@ -1415,7 +1418,7 @@ C            write(6,*) "it,iu = ", it,iu
 C           if (IT.ne.IU)
 C    *        Call DaXpY_(NSGM,2.0d+00*RDMEIG(IT,IU),SGM1,1,CLag,1)
           END IF
-          CALL GETSGM2(LU,LT,LSYM,CI2,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI2,SGM1)
           IF(ISTU.EQ.1) THEN
             Call DaXpY_(NSGM,RDMEIG(IT,IU)*SCAL,SGM1,1,CLag1,1)
           END IF
@@ -1784,6 +1787,9 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DENS1T_RPT2 (CI1,CI2,SGM1,G1)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1793,7 +1799,6 @@ C
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
-#include "para_info.fh"
       LOGICAL RSV_TSK
 
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI)
@@ -1876,10 +1881,10 @@ C         LTU=LTU+1
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,LSYM)
+          ISSG=MUL(ISTU,STSYM)
           NSGM=NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
-          CALL GETSGM2(LU,LT,LSYM,CI1,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
           IF(ISTU.EQ.1) THEN
             GTU=DDOT_(NSGM,CI2,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU

@@ -17,6 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS2T_RPT2 (CI1,CI2,SGM1,SGM2,G1,G2)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -26,7 +29,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
-#include "para_info.fh"
       LOGICAL RSV_TSK
 
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI),SGM2(MXCI)
@@ -124,16 +126,16 @@ C         LTU=LTU+1
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,LSYM)
+          ISSG=MUL(ISTU,STSYM)
           NSGM=NCSF(ISSG)
 C         IF(NSGM.EQ.0) GOTO 130
           IF(NSGM.EQ.0) GOTO 500
-C         CALL GETSGM2(LT,LU,LSYM,CI1,SGM1)
+C         CALL GETSGM2(LT,LU,STSYM,CI1,SGM1)
 C         write(6,*) "LT,LU=",lt,lu
 C         do ix = 1, nsgm
 C         write(6,'(i3,f20.10)') ix,sgm1(ix)
 C         end do
-          CALL GETSGM2(LU,LT,LSYM,CI1,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
           IF(ISTU.EQ.1) THEN
             GTU=DDOT_(NSGM,CI2,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU
@@ -164,7 +166,7 @@ C             ELSE
 C               IF(LVX.EQ.LTU) THEN
 C                 GTUXV=DDOT_(NSGM,SGM1,1,SGM1,1)
 C               ELSE
-C                 CALL GETSGM2(LX,LV,LSYM,CI,SGM2)
+C                 CALL GETSGM2(LX,LV,STSYM,CI,SGM2)
 C                 GTUXV=DDOT_(NSGM,SGM1,1,SGM2,1)
 C               END IF
 C             END IF
@@ -174,7 +176,7 @@ C             G2(IT,IU,IX,IV)=GTUXV
             END DO
           END DO
 
-          CALL GETSGM2(LU,LT,LSYM,CI2,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI2,SGM1)
           IF(ISTU.EQ.1) THEN
             GTU=DDOT_(NSGM,CI1,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU

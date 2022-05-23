@@ -123,6 +123,9 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                 VECROT)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -132,9 +135,6 @@ C
 #include "WrkSpc.fh"
 #include "sigma.fh"
 #include "pt2_guga.fh"
-#ifdef _MOLCAS_MPP_
-      LOGICAL Is_Real_Par, KING
-#endif
 
       DIMENSION G1(*),G2(*),G3(*),DG1(*),DG2(*),DG3(*),
      *          DF1(*),DF2(*),DF3(*),DEPSA(*),VECROT(*)
@@ -1202,7 +1202,7 @@ C         Call LoadCI_XMS('C',1,Work(LCI),JSTATE,U0)
           ELSE
             WRITE(6,*)' With new orbitals, the CI array is:'
           END IF
-          CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
+          CALL PRWF_CP2(STSYM,NCONF,WORK(LCI),CITHR)
         END IF
       Else
         WORK(LCI) = 1.0D+00
@@ -1487,6 +1487,9 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1496,7 +1499,6 @@ C
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
-#include "para_info.fh"
       LOGICAL RSV_TSK
 
       REAL*8 CI(MXCI),SGM1(MXCI)
@@ -1579,11 +1581,11 @@ C     ENDDO
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,LSYM)
+          ISSG=MUL(ISTU,STSYM)
           NSGM=NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
-          CALL GETSGM2(LU,LT,LSYM,CI,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
           IF(ISTU.EQ.1) THEN
             ! Symmetry not yet
 C            write(6,*) "it,iu = ", it,iu
@@ -1614,7 +1616,7 @@ C       end do
 C           write(6,*) "nsgm = ", nsgm
 C          do lu = 1, nlev
 C          do lt = 1, nlev
-C         CALL GETSGM2(LU,LT,LSYM,CI,SGM1)
+C         CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
 C         write(6,*) "lu,lt = ", lu,lt
 C           write(6,'(5f15.10)') (sgm1(itask),itask=1,nsgm)
 C         Call DaXpY_(NSGM,2.0d+00*RDMEIG(lT,lU),SGM1,1,CLag,1)
@@ -1735,20 +1737,20 @@ C Transform SGM to use original MO:
         ITO=ITOSTA
         IF(NR1.GT.0) THEN
           ISTART=NAES(ISYM)+1
-          CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),LSYM,
+          CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
      &                                         NSG,CI)
         END IF
         ITO=ITO+NR1**2
         IF(NR2.GT.0) THEN
           ISTART=NAES(ISYM)+NR1+1
-          CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),LSYM,
+          CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),STSYM,
      &                                         NSG,CI)
         END IF
         ITO=ITO+NR2**2
         IF(NR3.GT.0) THEN
           ISTART=NAES(ISYM)+NR1+NR2+1
          !! NR1 should be NR3?
-          CALL TRACI_RPT2(ISTART,NR3,WORK(LTAT-1+ITO),LSYM,
+          CALL TRACI_RPT2(ISTART,NR3,WORK(LTAT-1+ITO),STSYM,
      &                                         NSG,CI)
         END IF
       END DO
@@ -3296,11 +3298,12 @@ C-----------------------------------------------------------------------
 C
       !! dens2_rpt2.f
       Subroutine TimesE2(CIin,CIout,INT1,INT2)
-C
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
+
       Implicit Real*8 (A-H,O-Z)
-C
-C#include "para_info.fh"
-C
+
       Dimension CIin(nConf,nState),CIout(nConf,nState)
       Real*8    INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
       LOGICAL   RSV_TSK
@@ -3351,12 +3354,12 @@ C         if (tras.and.uras) go to 500
             ISU=ISM(LU)
             IU=L2ACT(LU)
             ISTU=MUL(IST,ISU)
-            ISSG=MUL(ISTU,LSYM)
+            ISSG=MUL(ISTU,STSYM)
             NSGM=NCSF(ISSG)
             IF(NSGM.EQ.0) GOTO 500
             !! <CIin|Etu
-            CALL GETSGM2(LU,LT,LSYM,CIin(1,iState),Work(LSGM1))
-C           CALL GETSGM2(LT,LU,LSYM,CIin(1,iState),Work(LSGM1))
+            CALL GETSGM2(LU,LT,STSYM,CIin(1,iState),Work(LSGM1))
+C           CALL GETSGM2(LT,LU,STSYM,CIin(1,iState),Work(LSGM1))
             IF(ISTU.EQ.1) THEN
               !! <CIin|Etu|CIout>*I1tu
               Call DaXpY_(NSGM,INT1(IT,IU),Work(LSGM1),1,

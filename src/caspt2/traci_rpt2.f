@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,LSYM,NCI,CI)
+      SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION XMAT(NDIM,NDIM),CI(*)
 #include "pt2_guga.fh"
@@ -53,7 +53,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           LI=LEVEL(IORB)
           SCL=0.5D0*WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-0.5D00
-          CALL SIGMA1_CP2(LI,LJ,SCL,LSYM,CI,WORK(LSGM),
+          CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -63,7 +63,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           LI=LEVEL(IORB)
           SCL=WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-1.0D00
-          CALL SIGMA1_CP2(LI,LJ,SCL,LSYM,WORK(LSGM),CI,
+          CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
