@@ -727,14 +727,14 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          if(.not.do_hybrid) then
           write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
           Do Jroot=1,lroots
-            write(6,'(6X,3A,1X,I2,5X,A13,F18.8)')
+            write(6,'(6X,3A,1X,I4,3X,A13,F18.8)')
      & '::    ',MSPDFTMethod,' Root',
      &      Jroot,'Total energy:',Work(LRState+Jroot-1)
           End Do
          else
           write(6,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Energies:'
           Do Jroot=1,lroots
-            write(6,'(6X,4A,1X,I2,5X,A13,F18.8)')
+            write(6,'(6X,4A,1X,I4,3X,A13,F18.8)')
      & '::    ','Hybrid ',MSPDFTMethod,' Root',
      &      Jroot,'Total energy:',Work(LRState+Jroot-1)
           End Do
@@ -784,27 +784,17 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call GetMem('XScratch','ALLO','Real',LXScratch,NXScratch)
           Call FZero(Work(LXScratch),NXScratch)
           Call FZero(Work(LRState)  ,NXScratch)
-          LUMS=IsFreeUnit(LUMS)
-          CALL Molcas_Open(LUMS,'ROT_VEC')
-          Do Jroot=1,lroots
-            read(LUMS,*) (Work(LRState+kroot-1+(jroot-1)*lroots)
-     &                   ,kroot=1,lroots)
-          End Do
+          CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),
+     &                     lRoots,lRoots,7,18,'T')
           CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,Work(LRState),
      &         lRoots,Work(LHRot),lRoots,0.0d0,Work(LXScratch),lRoots)
           write(6,'(7X,A)')'Reference-state Basis'
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
           Call RecPrt(' ','(7X,10(F9.6,6X))',
      &                Work(LXScratch),lroots,lroots)
-          close(LUMS)
-          CALL Molcas_Open(LUMS,'FIN_VEC')
-          Do JRoot=1,lRoots
-           write(LUMS,*)(Work(LXScratch+(JRoot-1)*lRoots+kRoot-1),
-     &     kRoot=1,lRoots)
-          End Do
-          write(LUMS,*) MSPDFTMethod
+          CALL PrintMat2('FIN_VEC',MatInfo,WORK(LXScratch),
+     &                      lRoots,lRoots,7,18,'T')
           Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
-          Close(LUMS)
          end if
 *        Gradient part
          if(DoGradMSPD) then
