@@ -244,12 +244,12 @@ C     write (6,*) 'CPU/Wall Time for mult_with_q_caspt2:',
 C    *  totcpu1-totcpu0, totwall1-totwall0
       Return
 C
-  100 continue
-      write (6,'(x,"Maybe, you did not add GRAD or GRDT ",
-     *             "keyword in &CASPT2?")')
-      write (6,'(x,"Please add either one, if this is single-point ",
-     *             "gradient calculation.")')
-      write (6,'(x,"Otherwise, something is wrong...")')
-      call abend()
+  ! 100 continue
+    !   write (6,'(x,"Maybe, you did not add GRAD or GRDT ",
+    !  *             "keyword in &CASPT2?")')
+    !   write (6,'(x,"Please add either one, if this is single-point ",
+    !  *             "gradient calculation.")')
+    !   write (6,'(x,"Otherwise, something is wrong...")')
+    !   call abend()
 C
       End
