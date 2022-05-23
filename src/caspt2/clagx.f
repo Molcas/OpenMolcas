@@ -1400,7 +1400,7 @@ C
           Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
           SLag(ijst) = SLag(ijst) + Scal
           IF (IPRGLB.GE.USUAL) THEN
-            write(6,'(x,"SLag for State ",i1,"-",i1," = ",f20.10)')
+            write(6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
      *         ilstat,jlstat,slag(ijst)
           END IF
         end do

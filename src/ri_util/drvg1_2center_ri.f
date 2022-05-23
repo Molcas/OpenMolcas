@@ -69,11 +69,11 @@
       Character Format*72
 *
       Character*8 Method_chk
-      Character*4096 RealName
+      ! Character*4096 RealName
 *
       Integer iSD4(0:nSD,4)
       Save MemPrm
-      Logical is_error
+      ! Logical is_error
 *                                                                      *
 ************************************************************************
 *                                                                      *
