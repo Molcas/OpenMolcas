@@ -81,8 +81,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iPL = iPrintLevel(-1)
-*
       Write (LuInput,'(A)') '>ECHO OFF'
       Write (LuInput,'(A)') '>export MCK_OLD_TRAP=$MOLCAS_TRAP'
       Write (LuInput,'(A)') '>export MCK_OLD_MAXITER=$MOLCAS_MAXITER'

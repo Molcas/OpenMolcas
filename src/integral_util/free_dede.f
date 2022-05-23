@@ -27,7 +27,6 @@
 *.... Fix the diagonal elements of D and F
          Call DScal_(nDens,Two,Dens,1)
          nc=nbas(0)
-         mDens=nBas(0)**2
          ijq=0
          jiq=1-nc
          ij=0

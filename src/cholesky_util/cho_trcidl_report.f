@@ -16,6 +16,7 @@ C     Thomas Bondo Pedersen, May 2010.
 C
 C     Report idle status for all processors
 C
+      Use Para_Info, Only: nProcs
       Implicit None
 #include "cholesky.fh"
 #include "choptr2.fh"

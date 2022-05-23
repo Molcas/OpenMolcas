@@ -98,8 +98,6 @@ c JOPT=6 Read the property, skipping the nuclear contribution and the origin
 c (see misc_util/OneFlags.fh)
       JOPT=1
       CALL iRDONE(IRC,JOPT,CHARPROP,IC,IDUM,ISCHK)
-      IF (IRC.EQ.0) NSIZ=IDUM(1)
-
 
 c Actually read the integral
       JOPT=0

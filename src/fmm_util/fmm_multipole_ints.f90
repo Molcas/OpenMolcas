@@ -284,7 +284,7 @@ CONTAINS
       INTEGER :: It1, Iu1, Iv1
       INTEGER :: It2, Iu2, Iv2
       INTEGER :: IJ, IBatch
-      INTEGER :: IIBatch
+!     INTEGER :: IIBatch
       INTEGER :: IL2Temp
       INTEGER :: Labelp, Labelq, ndim
       REAL(REALK) :: Temp1, Temp2
@@ -305,7 +305,7 @@ CONTAINS
 
       IEqJ = (ISh == JSh)
       IBatch = 0
-      IIBatch = 0
+!     IIBatch = 0
       Labelp = basis%KLoc_Car(ISh)
       DO IL1 = basis%LtuvMin_Car(IAnglA), basis%LtuvMax_Car(IAnglA)
          Labelp = Labelp + 1
@@ -406,7 +406,7 @@ CONTAINS
       INTEGER :: IL1, IL2 !, IJ
       INTEGER :: MType, MSph
       INTEGER :: IBatch
-      INTEGER :: IIBatch
+!     INTEGER :: IIBatch
       INTEGER :: IL2Temp
       INTEGER :: Labelp, Labelq
 
@@ -415,7 +415,7 @@ CONTAINS
       IAnglB = basis%KType(Jsh)
 
       IBatch = 0
-      IIBatch = 0
+!     IIBatch = 0
       Labelp = basis%KLoc_Car(ISh)
       DO IL1 = basis%LtuvMin_Car(IAnglA), basis%LtuvMax_Car(IAnglA)
          Labelp = Labelp + 1

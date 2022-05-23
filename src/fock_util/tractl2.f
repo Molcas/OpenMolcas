@@ -17,6 +17,9 @@
 *     - Fock matrix generation                                         *
 *                                                                      *
 ************************************************************************
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (A-H,O-Z)
       Parameter ( Zero=0.0d0 )
 
@@ -24,9 +27,6 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "wadr.fh"
-#if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
-#endif
 
 *
       Dimension CMO(*), PUVX(*), TUVX(*)

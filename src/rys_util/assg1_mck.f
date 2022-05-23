@@ -63,7 +63,6 @@ c#include "print.fh"
 *
          ixab = ixa + ixb
          iyab = iya + iyb
-         izab = iza + izb
 *
       Do 300 ipc = 1, nElem(lc)
          ipckk=ipc+kk
@@ -73,7 +72,6 @@ c#include "print.fh"
 *
          ixabc = ixab + ixc
          iyabc = iyab + iyc
-         izabc = izab + izc
 *
       Do 400 ipd = 1, nElem(ld)
          ipdll=ipd+ll
@@ -83,7 +81,6 @@ c#include "print.fh"
 *
          ixabcd = ixabc + ixd
          iyabcd = iyabc + iyd
-         izabcd = izabc + izd
 *
 *        Compute all desired gradients with respect to an x-component.
 *

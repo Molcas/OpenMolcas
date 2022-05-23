@@ -16,6 +16,7 @@ C-TODO/FIXME: The features not allowed in parallel execution of the
 C             Cholesky decomposition should be implemented later. Thus,
 C             this subroutine is, in effect, a TODO-list.
 C
+      Use Para_Info, Only: nProcs, Is_Real_Par
       Implicit None
       Integer irc
 #include "cholesky.fh"

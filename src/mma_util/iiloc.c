@@ -13,7 +13,7 @@
 /**************************************************************************/
 /*                                                                        */
 /* This function is to be used by fortran routines. The purpose is to     */
-/* return the address of the argument, useful in f77 dymanic memory       */
+/* return the address of the argument, useful in f77 dynamic memory       */
 /* allocation.                                                            */
 /*                                                                        */
 /*------------------------------------------------------------------------*/

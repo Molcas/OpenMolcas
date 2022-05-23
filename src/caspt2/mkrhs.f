@@ -166,11 +166,9 @@ C VJTI CASE:
           NISP=NIGEJ(ISYM)
           NVP=NASP*NISP
           IF(NVP.EQ.0) GOTO 290
-          NSBP=(NASP*(NASP+1))/2
           NASM=NTGTU(ISYM)
           NISM=NIGTJ(ISYM)
           NVM=NASM*NISM
-          NSBM=(NASM*(NASM+1))/2
 C   Allocate WP,WM
           NV=NVP+NVM
           CALL GETMEM('WB','ALLO','REAL',LW,NV)
@@ -396,7 +394,6 @@ C   Allocate W; W subdivided into W1,W2.
           NIS=NISUP(ISYM,5)
           NV=NAS*NIS
           IF(NV.EQ.0) GOTO 490
-          NSD=(NAS*(NAS+1))/2
 C Compute W1(tu,ai)=(ai,tu) + FIMO(a,i)*delta(t,u)/NACTEL
 C Compute W2(tu,ai)=(ti,au)
           CALL GETMEM('WD','ALLO','REAL',LW,NV)
@@ -490,11 +487,9 @@ C   Allocate W with parts WP,WM
           NAS=NASH(ISYM)
           NISP=NISUP(ISYM,6)
           NISM=NISUP(ISYM,7)
-          NIS=NISP+NISM
           NVP=NAS*NISP
           IF(NVP.EQ.0) GOTO 590
           NVM=NAS*NISM
-          NSE=(NAS*(NAS+1))/2
           NV=NVP+NVM
           CALL GETMEM('WE','ALLO','REAL',LW,NV)
           LWP=LW
@@ -585,8 +580,6 @@ C number IVEC of LUSOLV, for cases 8 and 9 (BVAT).
           NVP=NASP*NISP
           IF(NVP.EQ.0)GOTO 690
           NVM=NASM*NISM
-          NSFP=(NASP*(NASP+1))/2
-          NSFM=(NASM*(NASM+1))/2
           CALL GETMEM('WFP','ALLO','REAL',LWP,NVP)
           IF(NVM.GT.0) CALL GETMEM('WFM','ALLO','REAL',LWM,NVM)
 C   Let W(t,u,ab)=(aubt)
@@ -693,11 +686,9 @@ C   Allocate W with parts WP,WM
           NAS=NASH(ISYM)
           NISP=NISUP(ISYM,10)
           NISM=NISUP(ISYM,11)
-          NIS=NISP+NISM
           NVP=NAS*NISP
           IF(NVP.EQ.0) GOTO 790
           NVM=NAS*NISM
-          NSG=(NAS*(NAS+1))/2
           NV=NVP+NVM
           CALL GETMEM('WG','ALLO','REAL',LW,NV)
           CALL DCOPY_(NV,[0.0D0],0,WORK(LW),1)
@@ -866,12 +857,14 @@ C With new norm., divide by /SQRT(12)
 CSVC: special routine to save the RHS array. MKRHS works in serial, so
 C in case of a true parallel run we need to put the local array in a
 C global array and then save that to disk in a distributed fashion.
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "caspt2.fh"
-#include "para_info.fh"
 
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)

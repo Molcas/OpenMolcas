@@ -60,7 +60,6 @@
      &        PreSch, Free_K2, Verbose, Indexation,
      &        DoIntegrals, DoFock, DoGrad, Triangular
       Integer iTOffs(8,8,8)
-      Logical Debug
       Character*72 SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
@@ -69,14 +68,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
-       Debug=.true.
-#else
-       Debug=.false.
-#endif
-*
       SLine='Computing 2-electron integrals'
       Call StatusLine(' SCF:',SLine)
 *                                                                      *
@@ -291,7 +282,6 @@
       Go To 10
  11   Continue
 *     End of big task loop
-      Lu=6
       Call CWTime(TCpu2,TWall2)
       Call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 *                                                                      *

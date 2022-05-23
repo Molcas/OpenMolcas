@@ -382,7 +382,6 @@
                   ZA = dbsc(iCnttp)%Charge
                   If (iPrint.ge.99) Then
                      Write (6,*) ' Charge=',ZA
-                     Write (6,*) ' ixyz=',ixyz
                      Call RecPrt(' Centers',' ',
      &                           dbsc(iCnttp)%Coor,3,
      &                           dbsc(iCnttp)%nCntr)

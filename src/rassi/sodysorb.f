@@ -70,7 +70,6 @@ C And MSPROJS which saves their ms projections for later use
       CALL GETMEM('SO2SF','ALLO','INTE',SO2SFNUM,NSS)
       MSPROJS=0
       CALL GETMEM('MSPROJS','ALLO','REAL',MSPROJS,NSS)
-      ISS=0
       SOTOT=0
       SFTOT=0
       DO ISTATE=1,NSTATE
@@ -183,7 +182,6 @@ C SO Dyson orbitals
          ! For each initial state JSTATE up to DYSEXPSFSO we will
          ! gather all the obtained Dysorbs
          ! and export to a shared .molden file
-         IFILE=1
          SODYSCIND=0 ! Orbital coeff. index
          ORBNUM=0 ! Dysorb index for given JSTATE
          SODYSCMOR=0.0D0 ! Real orbital coefficients

@@ -31,7 +31,7 @@
 SUBROUTINE fmm_call_get_J_matrix(ndim,nBas,dens,Fock)
 
    USE fmm_global_paras
-   USE fmm_interface, ONLY: fmm_get_J_matrix
+!   USE fmm_interface, ONLY: fmm_get_J_matrix
 
    IMPLICIT NONE
    INTEGER(INTK), INTENT(IN)    :: ndim, nBas

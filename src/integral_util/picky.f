@@ -28,8 +28,6 @@
       ij2(i,j,k) = (k-1)*((nEnd-nSt+1)*(mEnd-mSt+1)+1) +
      &             (j-1)*(nEnd-nSt+1) + i
 *
-      iRout = 236
-      iPrint = nPrint(iRout)
 *     Call GetMem('Enter Picky','Check','Real',iDum,iDum)
 *
       If (nSt.eq.1.and.nEnd.eq.n .and.

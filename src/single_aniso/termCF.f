@@ -43,7 +43,7 @@ c
       Real(kind=8), intent(in) :: amfi(3,ldimcf,ldimcf)
       Real(kind=8), intent(in) :: maxes2(3,3)
 
-      Real(kind=8)                 :: finddetr, dnrm2
+      Real(kind=8)                 :: finddetr
 !      Real(kind=8)                 :: knm(12,0:12)
       Real(kind=8), allocatable    :: maxes(:,:)
       Real(kind=8), allocatable    :: gtens(:)
@@ -55,7 +55,6 @@ c
       Real(kind=8)                 :: Bstev(lDIMcf,-lDIMcf:lDIMcf)
       Complex(kind=8)              ::
      &                            Akq((lDIMcf-1),-(lDIMcf-1):(lDIMcf-1))
-      Complex(kind=8)              :: trace
       Complex(kind=8), allocatable :: Angm(:,:,:) ! 3,ldimcf,ldimcf
       Complex(kind=8), allocatable :: dipso(:,:,:) ! 3,ldimcf,ldimcf
       Complex(kind=8), allocatable :: amfi_c(:,:,:) ! 3,ldimcf,ldimcf
@@ -67,7 +66,7 @@ c
       Complex(kind=8), allocatable :: Zinit(:,:) !ldimcf,ldimcf
 
       Integer       :: i, j, l, info, i1, i2
-      External      :: finddetr, trace, dnrm2
+      External      :: finddetr
       Logical       :: debug =.false.
       Real(kind=8) :: au2cm=2.194746313705d5
 
@@ -76,7 +75,7 @@ c
       Integer       :: MS, ML, MJ
       Integer       :: ij, iLS, nLS, ibasS(100), ibasL(100), ibasJ(100)
       Integer       :: irootL(100), ir, icas, k
-      complex(kind=8) :: CFC(100,100),zl(lDIMcf,lDIMcf)
+      complex(kind=8) :: CFC(100,100)
 !============== End of variable declarations ==========================
       Call mma_allocate(maxes,3,3,'maxes')
       Call mma_allocate(gtens,3,'gtens')
@@ -261,9 +260,6 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z is the 
           Do I=1,lDIMcf
             Write(6,'(A,I3,A,3X,20(2F9.6,1X))') '|',
      &                 (lDIMcf-1)/2+(1-I),' > :',(Z(j,I),j=1,lDIMcf)
-             do k=1,lDIMcf
-                zl( (lDIMcf-1)/2+(1-I),k)=Z(k,I)
-             enddo
           End Do
         Else
           Do I=1,lDIMcf

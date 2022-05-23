@@ -18,12 +18,13 @@
 *     Datasets:
 *       AO_OVERLAP_MATRIX
 
+      use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,
+     &               mh5_close_dset
       implicit none
       integer :: fileid
       integer :: nsym, nbas(*)
 #  include "Molcas.fh"
 #  include "stdalloc.fh"
-#  include "mh5.fh"
 
       integer :: isym
       integer :: nb, nbast, nbast1, nbast2
@@ -89,12 +90,13 @@
 *     Datasets:
 *       AO_FOCKINT_MATRIX
 
+      use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,
+     &               mh5_close_dset
       implicit none
       integer :: fileid
       integer :: nsym, nbas(*)
 #  include "Molcas.fh"
 #  include "stdalloc.fh"
-#  include "mh5.fh"
 
       integer :: isym
       integer :: nb, nbast, nbast1, nbast2
@@ -163,12 +165,13 @@
 *       MLTPL_XX, MLTPL_YY, MLTPL_ZZ, MLTPL_XY, MLTPL_YZ, MLTPL_XZ
 *       MLTPL_ORIG
 
+      use mh5, only: mh5_init_attr, mh5_create_dset_real,
+     &               mh5_put_dset_array_real, mh5_close_dset
       implicit none
       integer :: fileid
       integer :: nsym, nbas(*)
 #  include "Molcas.fh"
 #  include "stdalloc.fh"
-#  include "mh5.fh"
 
       integer :: isym, jsym, msym
       integer :: nb, nbast, nB1, nB2

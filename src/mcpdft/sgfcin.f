@@ -153,7 +153,6 @@ C Local print level (if any)
 *     modify the one electron Hamiltonian for reaction
 *     field calculations
       ERFX = Zero
-      ERFhi = Zero
       iCharge=Int(Tot_Charge)
       Call DecideOnESPF(Do_ESPF)
       If ( Do_ESPF .or. lRF .or. KSDFT.ne.'SCF'

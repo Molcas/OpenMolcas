@@ -26,8 +26,6 @@
 *
       Character*4 Command
       Character*180  Line
-      Character*180 Get_LN
-      External Get_LN
 *
 
 * If the return code is already set to indicate an error, there will

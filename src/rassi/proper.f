@@ -93,7 +93,6 @@ C-------------------------------------------
         j=jState
         indCall=i*(i-1)/2+j  !Which call this is
         ToCM(indCall)=iDiskSav
-        ind=indCall+1
         iDisk=iDiskSav
 *       Write (*,*) 'IndCall,iDisk=',IndCall,iDisk
         Call dDaFile(LuToM,1,SCR,4*nSCR,iDisk) !The THING.

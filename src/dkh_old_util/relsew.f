@@ -34,7 +34,6 @@ C
 *
 C
 c      write(6,*) ' in SCFCLI', N, iSize
-      TOL=1.D-14
       PREA=1d0/(VELIT*VELIT)
       CON2=PREA+PREA
       CON=1.D0/PREA
@@ -47,7 +46,7 @@ c      do i=1,n
 c         write(6,'(5f10.5)') (TMPB(i,j),j=1,n)
 c      enddo
       icontr=-1
-      dtol=tol
+      dtol=1.D-14
       CALL dcopiv(TMPB,TMPB,n,1,n,dtol,det,iex,icontr,TMP2)
       if(idbg.gt.0)WRITE (idbg,2016) icontr,det,iex
 2016  FORMAT('  relsew| DCOPIV rc=',I2,', |S|=',D20.6,'x 10**(',I4,') ')

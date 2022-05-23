@@ -71,7 +71,10 @@
       Real*8    tread(2),tcoul(2),texch(2)
       Common /CHOUNIT / Lunit(8)
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
-      Logical Debug,DensityCheck,Square,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical DensityCheck,Square,timings
       Logical REORD,DECO,ALGO
       COMMON   /CHOTIME /timings
       COMMON    /CHODENSITY/ DensityCheck
@@ -95,12 +98,8 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 **************************************************
 
-
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in SCF-debug
-#else
-      Debug=.false.
 #endif
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
@@ -271,10 +270,8 @@ C Max dimension of a symmetry block
         Do iSym=1,nSym
            if(NBAS(iSym).gt.Nmax .and. iSkip(iSym).ne.0)then
            Nmax = NBAS(iSym)
-           iSymMax= iSym
            endif
         End Do
-        NNmax = Nmax * (Nmax+1)/2
 
        CALL CWTIME(TCR1,TWR1)
 
@@ -677,7 +674,6 @@ c     &              -FactX(jDen),WORK(KQS1),NBAS(ISYMG),
 c     & WORK(KQS1),NBAS(ISYMD),ONE,Work(ISFSQ),NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipG=0
                ipF=0
                LVK=NUMV*NK
                DO jD=1,NBAS(iSymD)
@@ -767,7 +763,6 @@ C -- Close Files
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM CHO_FTWO_MO.'

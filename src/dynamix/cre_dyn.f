@@ -11,8 +11,13 @@
       subroutine cre_dyn
 *     MV: Create a dynamix file. If another .dyn.h5 file already
 *     exists, it will be overwritten.
-      implicit none
 #ifdef _HDF5_
+      use mh5, only: mh5_create_file, mh5_init_attr, mh5_init_dset,
+     &               mh5_create_dset_real, mh5_create_dset_str,
+     &               mh5_create_dset_int, mh5_put_dset, mh5_fetch_attr,
+     &               mh5_put_dset_array_real, mh5_close_file,
+     &               mh5_open_file_r, mh5_exists_attr
+      implicit none
 #  include "Molcas.fh"
 #  include "dyn.fh"
 #  include "stdalloc.fh"

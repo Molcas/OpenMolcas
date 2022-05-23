@@ -38,7 +38,6 @@
 *
       iRout = 133
       iPrint = nPrint(iRout)
-      iQ=0
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
          Call RecPrt(' In DesymD: DSO',' ',DSO,iBas*jBas,nDSO)

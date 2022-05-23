@@ -46,8 +46,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      irout = 109
-      iprint = nprint(irout)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)

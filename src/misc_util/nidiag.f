@@ -58,6 +58,10 @@ c         Write (6,*) 'NIdiag: backup call to Jacob!'
 *                                                                      *
 *----------------------------------------------------------------------*
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iOpt)
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Then
+         Call Unused_integer(iOpt)
+         Call Unused_real(Tmp)
+      End If
+#endif
       End

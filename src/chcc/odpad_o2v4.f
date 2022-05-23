@@ -2918,7 +2918,7 @@ c
 c
 c        help variables
         integer abPerm,cdPerm,abcdPerm
-        integer abSGrp,cdSGrp,abcdSGrp
+        integer abSGrp,cdSGrp
         integer abLen,cdLen,abcdLen
         integer dima,dimb,dimc,dimd
         integer pSGrp,qSGrp,rSGrp,sSGrp,dimp,dimq,dimr,dims
@@ -2970,13 +2970,11 @@ c2.2        Def cdPerm, cdSGrp
           dims=dimc
         end if
 c
-c2.3        Def abcdPerm, abcdSGrp
+c2.3        Def abcdPerm
         if (abSGrp.ge.cdSGrp) then
           abcdPerm=0
-          abcdSGrp=(abSGrp*(abSGrp-1)/2)+cdSGrp
         else
           abcdPerm=1
-          abcdSGrp=(cdSGrp*(cdSGrp-1)/2)+abSGrp
           i=pSGrp
           pSGrp=rSGrp
           rSGrp=i
@@ -3794,11 +3792,11 @@ c!      drajver procesu na testovanie ktory W3/W4 file
 c        treba na ktorom node
 c        N.B. upraveny drajver o2v4 procesu
 c
+        use Para_Info, only: nProcs
         implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 c
         integer NvGrp,NvSGrp,LunAux
 c
@@ -3955,10 +3953,10 @@ c        Inspect W3 and W4 files requirements of o2v4 procedure
 c        on this node. It checks which of the W3 and W4 files
 c        are used on this node
 c
+        use Para_Info, only: MyRank
         implicit none
 #include "chcc1.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 #include "o2v4.fh"
 c
         integer NaGrp,NbeGrp,NaSGrp,NbeSgrp
@@ -4182,8 +4180,7 @@ c
         integer aSGrp,bSGrp,cSGrp,dSGrp,length
 c
 c        help variables
-        integer abPerm,cdPerm,abcdPerm
-        integer abSGrp,cdSGrp,abcdSGrp
+        integer abSGrp,cdSGrp
         integer abLen,cdLen,abcdLen
         integer dima,dimb,dimc,dimd
         integer pSGrp,qSGrp,rSGrp,sSGrp,dimp,dimq,dimr,dims
@@ -4201,16 +4198,14 @@ c1        Def dima,dimb,dimc,dimc
 c
 c
 c        In steps 2.1 - 2.3 also dimp-dims and pSGrp-sSGrp
-c2.1        Def abPerm, abSGrp
+c2.1        Def abSGrp
         if (aSGrp.ge.bSGrp) then
-          abPerm=0
           abSGrp=(aSGrp*(aSGrp-1)/2)+bSGrp
           pSGrp=aSGrp
           qSGrp=bSGrp
           dimp=dima
           dimq=dimb
         else
-          abPerm=1
           abSGrp=(bSGrp*(bSGrp-1)/2)+aSGrp
           pSGrp=bSGrp
           qSGrp=aSGrp
@@ -4218,16 +4213,14 @@ c2.1        Def abPerm, abSGrp
           dimq=dima
         end if
 c
-c2.2        Def cdPerm, cdSGrp
+c2.2        Def cdSGrp
         if (cSGrp.ge.dSGrp) then
-          cdPerm=0
           cdSGrp=(cSGrp*(cSGrp-1)/2)+dSGrp
           rSGrp=cSGrp
           sSGrp=dSGrp
           dimr=dimc
           dims=dimd
         else
-          cdPerm=1
           cdSGrp=(dSGrp*(dSGrp-1)/2)+cSGrp
           rSGrp=dSGrp
           sSGrp=cSGrp
@@ -4235,13 +4228,7 @@ c2.2        Def cdPerm, cdSGrp
           dims=dimc
         end if
 c
-c2.3        Def abcdPerm, abcdSGrp
-        if (abSGrp.ge.cdSGrp) then
-          abcdPerm=0
-          abcdSGrp=(abSGrp*(abSGrp-1)/2)+cdSGrp
-        else
-          abcdPerm=1
-          abcdSGrp=(cdSGrp*(cdSGrp-1)/2)+abSGrp
+        if (abSGrp.lt.cdSGrp) then
           i=pSGrp
           pSGrp=rSGrp
           rSGrp=i

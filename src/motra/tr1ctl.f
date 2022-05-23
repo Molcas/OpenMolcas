@@ -123,7 +123,6 @@
 *
 *     Transform kinetic energy matrix
 *
-      IRC=0
       CALL GETMEM('KAO','ALLO','REAL',LWKAO,NTOT1)
       CALL GETMEM('KMO','ALLO','REAL',LWKMO,NORBTT)
       CALL GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)

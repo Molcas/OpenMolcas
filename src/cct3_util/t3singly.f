@@ -61,7 +61,7 @@ c     k      - value of occupied index k (Inlut)
 c     symi   - symmetry of index i (Input)
 c     symj   - symmetry of index j (Input)
 c     symk   - symmetry of index k (Input)
-c     rc     - return (error) code (Output)
+c     rc1    - return (error) code (Output)
 c     mapd,mapi,poss - parameterrs for M1-3,H1-3 files (I)
 c
 c     this routine add contributions from diconnected
@@ -110,7 +110,7 @@ c
 #include "t31.fh"
 #include "wrk.fh"
 c
-       integer ssw,typdiv,i,j,k,symi,symj,symk,rc
+       integer ssw,typdiv,i,j,k,symi,symj,symk
        integer mapdw(0:512,1:6)
        integer mapds1(0:512,1:6)
        integer mapds2(0:512,1:6)
@@ -1061,7 +1061,6 @@ c
 c
        else
 c     RC=1 , typdiv is not 1,2,3 (NCI)
-       rc=1
        return
 c
        end if

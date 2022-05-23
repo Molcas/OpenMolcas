@@ -19,13 +19,15 @@ C
 C     Atom and Atom Pair data must have been set up before calling this
 C     routine.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer irc
 #include "localdf.fh"
 #include "localdf_print.fh"
 #include "ldf_atom_pair_info.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 
       Character*30 SecNam
       Parameter (SecNam='LDF_ComputeFittingCoefficients')

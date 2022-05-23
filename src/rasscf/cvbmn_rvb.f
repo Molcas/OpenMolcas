@@ -10,7 +10,6 @@
 ************************************************************************
       subroutine cvbmn_rvb(icode)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 
 #include "optze_cvb.fh"
@@ -24,6 +23,5 @@ c  ICODE=2 end of variational calculation (print summary)
       call cvbstart_rvb_lt9(icode)
       call main_cvb()
       call setretvals_cvb(esym,n_iter)
-      call cvbfinish_cvb(icode)
       return
       end

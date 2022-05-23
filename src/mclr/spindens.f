@@ -61,7 +61,6 @@
 *               0       0
 *
 
-      n1=2*n1dens
       n2=2*n2dens+nnA**4
       Call mma_allocate(Dens,n1dens,2,Label='Dens')
       Call mma_allocate(Pens,n2,Label='Pens')
@@ -129,8 +128,6 @@
            Do kA=1,nnA
             Do lA=1,nnA
              ijklab=(ia-1)*nna**3+(ja-1)*nna**2+(ka-1)*nna+la
-             ilkjab=(ia-1)*nna**3+(la-1)*nna**2+(ka-1)*nna+ja
-             ilkjba=(ka-1)*nna**3+(ja-1)*nna**2+(ia-1)*nna+la
              ijklba=(ka-1)*nna**3+(la-1)*nna**2+(ia-1)*nna+ja
              ijkl=itri((ia-1)*nna+ja,(ka-1)*nna+la)
              rP1(ia,ja, ka,la)=
@@ -146,8 +143,6 @@
            Do kA=1,nnA
             Do lA=1,nnA
              ijklab=(ia-1)*nna**3+(ja-1)*nna**2+(ka-1)*nna+la
-             ilkjab=(ia-1)*nna**3+(la-1)*nna**2+(ka-1)*nna+ja
-             ilkjba=(ka-1)*nna**3+(ja-1)*nna**2+(ia-1)*nna+la
              ijklba=(ka-1)*nna**3+(la-1)*nna**2+(ia-1)*nna+ja
              ijkl=itri((ia-1)*nna+ja,(ka-1)*nna+la)
              rP2(ia,ja, ka,la)=

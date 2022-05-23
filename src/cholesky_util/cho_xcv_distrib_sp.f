@@ -17,6 +17,7 @@ C
 C     Determine distribution of Shell Pairs according to their
 C     dimension.
 C
+      Use Para_Info, Only: MyRank, nProcs
       Implicit None
       Integer l_mySP
       Integer mySP(l_mySP)

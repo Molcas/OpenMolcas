@@ -141,4 +141,7 @@
 *                                                                      *
 *----------------------------------------------------------------------*
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_real(Tmp)
+#endif
       End

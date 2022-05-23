@@ -58,7 +58,7 @@ C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
       DO I=1,8
         NCSF(I)=0
       END DO
-      NCSF(LSYM)=1
+      NCSF(STSYM)=1
 
       IF ((.NOT.DoCumulant).AND.
      &    (NACTEL.GT.0).AND.(ISCF.EQ.0)) CALL GINIT_CP2

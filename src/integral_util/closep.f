@@ -28,9 +28,6 @@
 #include "mp2alaska.fh"
       Logical DoCholesky
 *
-      iRout = 249
-      iPrint = nPrint(iRout)
-*
       If(case_mp2) then
          Call DecideOnCholesky(DoCholesky)
          If(.not. DoCholesky) Then

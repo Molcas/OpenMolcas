@@ -88,7 +88,7 @@
      &          nOp(4), iuvwx(4),   JndGrd(3,4,0:7), lOp(4),
      &          IndHss(4,3,4,3,0:7),Index2(3,4,4),
      &          Index3(3,3),Index4(2,6,3),ng(3),nh(3),Index_Out(3,4)
-      Logical AeqB, CeqD, AeqC, EQ, IfGrd(3,4),
+      Logical IfGrd(3,4),
      &          JfGrd(3,4),IfG(4),KfGrd(3,4),
      &          ifhss(4,3,4,3),lgrad,lhess,Tr(4)
       nElem(i) = (i+1)*(i+2)/2
@@ -104,9 +104,6 @@
       lb = iAnga(2)
       lc = iAnga(3)
       ld = iAnga(4)
-      AeqB = EQ(Coora(1,1),Coora(1,2))
-      CeqD = EQ(Coora(1,3),Coora(1,4))
-      AeqC = EQ(Coora(1,1),Coora(1,3))
       lla = 0
       llb = 0
       llc = 0
@@ -131,7 +128,6 @@
 *
       ip = 1
 
-      ipFinal=ip
       MemFinal=9*nt*nElem(la)*nElem(lb)*nElem(lc)*nElem(ld)
       ip=ip+MemFinal
 *

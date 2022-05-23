@@ -37,7 +37,6 @@
 !     LineWords = 25
       Character*(storageSize) sBasis
       Real*8 eqBasis(LineWords)
-      Equivalence(sBasis,eqBasis)
       Integer iPrint,i,j,iBasis,ierr
 *                                                                      *
 ************************************************************************
@@ -91,6 +90,7 @@
 *
       do i = 1,nFragType
           sBasis=Get_Ln(lUnit)
+          eqBasis=Transfer(sBasis,eqBasis) ! ???
           do j = 1,LineWords
              dbsc(iCnttp)%FragType(j,i) = eqBasis(j)
           enddo

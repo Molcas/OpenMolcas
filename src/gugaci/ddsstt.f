@@ -21,7 +21,7 @@ C calculate dd, ss and tt space
       w1gdd=-sqrt(3.d0)/sqrt(2.d0)
       idisk_lp=idisk_array(3)
 
-      DO lpblock=1,lpblock_dd
+      DO lpb=1,lpblock_dd
         call read_lp()
         IpaeL=iml+1
         Ipae =imr+1
@@ -47,7 +47,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 #include "lpextmode_h.fh"
 
       LOGIC_DH=.TRUE.
-      ISMA=MUL_TAB(IML,IMR)
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
       GOTO(101,102,103,104,105,106,10,108,10,10,111,112,
@@ -478,7 +477,6 @@ C...........................03_01......................
               IF(LRK.EQ.LRJ) CYCLE
               LMK=LSM_INN(LRK)
               LMKI=MUL_TAB(LMK,LMI)
-              LMKJ=MUL_TAB(LMK,LMJ)
 !TT(11-3) Drl(33)-C"(22)-C"(22)-
 !TT(11-3) (22)Drl(33)-C"(22)-
 !TT(11-3) (22)(22)Drl(33)-
@@ -604,7 +602,6 @@ C...........................03_01......................
 !=======================================================================
 !VV(25) ACT -BL- ....................................................
 125   IF(LINELP.NE.14.OR.NLG2.NE.1) RETURN
-      W0VV=W0_VV
 !VV(25) Drl(33)-
       IWDL=0
       IWDR=0
@@ -634,8 +631,6 @@ C=======================================================================
       LOGIC_DH=.FALSE.
       LRAI=NLG1
       LRAJ=NLG2
-      INTPOS=NLG1
-      ISMA=MUL_TAB(IML,IMR)
 !line=5 A&r-B&l<-->EXT
 !5    CONTINUE
       IF(LINELP.EQ.5) THEN
@@ -659,7 +654,7 @@ C=======================================================================
       call external_space_plpmode_value_ss()
       idisk_lp=idisk_array(13)
 
-      DO lpblock=1,lpblock_ss
+      DO lpb=1,lpblock_ss
         call read_lp()
         IpaeL=iml+17
         Ipae =imr+17
@@ -688,7 +683,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 #include "lpextmode_h.fh"
 
       LOGIC_DH=.TRUE.
-      ISMA=MUL_TAB(IML,IMR)
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
       GOTO(101,102,10,104,105,106,10,108,10,10,111,112,
@@ -1049,7 +1043,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 !=======================================================================
 !VV(25) ACT -C"- .false.
 125   IF(LINELP.NE.14.OR.NLG2.NE.1) RETURN
-      W0VV=W0_VV
 !VV(25) Drl(33)-
       IWDL=0
       IWDR=0
@@ -1080,8 +1073,6 @@ C=======================================================================
       LOGIC_DH=.FALSE.
       LRAI=NLG1
       LRAJ=NLG2
-      INTPOS=NLG1
-      ISMA=MUL_TAB(IML,IMR)
 !line=5 A&r-B&l<-->EXT
 !5    CONTINUE
       IF(LINELP.EQ.5) THEN
@@ -1105,7 +1096,7 @@ C=======================================================================
       call external_space_plpmode_value_ST()
       idisk_lp=idisk_array(12)
 
-      DO lpblock=1,lpblock_st
+      DO lpb=1,lpblock_st
         call read_lp()
         IpaeL=iml+17
         Ipae =imr+9
@@ -1133,7 +1124,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 #include "lpextmode_h.fh"
 
       LOGIC_DH=.TRUE.
-      ISMA=MUL_TAB(IML,IMR)
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
 !      GOTO(101,102,103,10,10,106,10,10,10,10,111,10,
@@ -1353,7 +1343,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 
 1111  W0TT2=W0_TT(2)
       W1TT2=W1_TT(2)
-      W0TT3=W0_TT(3)
       DO LRI=NORB_FRZ+1,NORB_DZ-1
         LMI=LSM_INN(LRI)
         DO LRJ=LRI+1,NORB_DZ
@@ -1417,7 +1406,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 
 1191  W0DD2=W0_DD(2)
       W1DD2=W1_DD(2)
-      W0DD3=W0_DD(3)
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
         IF(LMI.NE.JML) CYCLE
@@ -1510,8 +1498,6 @@ C=======================================================================
       LOGIC_DH=.FALSE.
       LRAI=NLG1
       LRAJ=NLG2
-      INTPOS=NLG1
-      ISMA=MUL_TAB(IML,IMR)
 !line=5 A&r-B&l<-->EXT
 !5    CONTINUE
       IF(LINELP.EQ.5) THEN
@@ -1534,7 +1520,7 @@ C=======================================================================
 
       call external_space_plpmode_value_TS()
       idisk_lp=idisk_array(9)
-      DO lpblock=1,lpblock_ts
+      DO lpb=1,lpblock_ts
         call read_lp()
         IpaeL=iml+9
         Ipae =imr+17
@@ -1562,7 +1548,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 #include "lpextmode_h.fh"
 
       LOGIC_DH=.TRUE.
-      ISMA=MUL_TAB(IML,IMR)
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
       GOTO(101,102,103,104,105,106,10,108,10,10,111,112,
@@ -1837,7 +1822,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 
 1111  W0TT2=W0_TT(2)
       W1TT2=W1_TT(2)
-      W0TT3=W0_TT(3)
       DO LRI=NORB_FRZ+1,NORB_DZ-1
         LMI=LSM_INN(LRI)
         DO LRJ=LRI+1,NORB_DZ
@@ -1901,7 +1885,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 
 1191  W0DD2=W0_DD(2)
       W1DD2=W1_DD(2)
-      W0DD3=W0_DD(3)
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
         IF(LMI.NE.JML) CYCLE
@@ -1936,8 +1919,6 @@ C=======================================================================
       LOGIC_DH=.FALSE.
       LRAI=NLG1
       LRAJ=NLG2
-      INTPOS=NLG1
-      ISMA=MUL_TAB(IML,IMR)
 !line=5 A&r-B&l<-->EXT
 !5    CONTINUE
       IF(LINELP.EQ.5) THEN
@@ -1962,7 +1943,7 @@ C=======================================================================
       call external_space_plpmode_value_tt()
       idisk_lp=idisk_array(8)
 
-      DO lpblock=1,lpblock_tt
+      DO lpb=1,lpblock_tt
         call read_lp()
         IpaeL=iml+9
         Ipae =imr+9
@@ -1991,7 +1972,6 @@ C        JMLR=MUL_TAB(JML,JMR)
 #include "lpextmode_h.fh"
 
       LOGIC_DH=.TRUE.
-      ISMA=MUL_TAB(IML,IMR)
       JMLR=MUL_TAB(JML,JMR)
       LPOK=JPADLR
       GOTO(101,102,103,104,105,106,10,108,10,10,111,112,
@@ -2397,7 +2377,6 @@ C     enddo
 !=======================================================================
 !VV(25) ACT -BL- ....................................................
 125   IF(LINELP.NE.14.OR.NLG2.NE.1) RETURN
-      W0VV=W0_VV
 !VV(25) Drl(33)-
       IWDL=0
       IWDR=0
@@ -2428,8 +2407,6 @@ C=======================================================================
       LOGIC_DH=.FALSE.
       LRAI=NLG1
       LRAJ=NLG2
-      INTPOS=NLG1
-      ISMA=MUL_TAB(IML,IMR)
 !line=5 A&r-B&l<-->EXT
 !5    CONTINUE
       IF(LINELP.EQ.5) THEN

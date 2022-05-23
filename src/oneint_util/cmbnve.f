@@ -29,8 +29,8 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 161
-      iPrint = nPrint(iRout)
+*     iRout = 161
+*     iPrint = nPrint(iRout)
 *     Call GetMem(' Enter CmbnVe','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la

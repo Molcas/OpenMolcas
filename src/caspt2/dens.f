@@ -17,9 +17,10 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF)
-C
       USE CHOVEC_IO
-C
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -28,7 +29,6 @@ C
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
-#include "para_info.fh"
 
 #include "caspt2_grad.fh"
 #include "csfbas.fh"

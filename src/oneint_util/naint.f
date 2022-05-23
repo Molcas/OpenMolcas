@@ -88,8 +88,6 @@
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
 *
-      llOper = lOper(1)
-*
 *     Modify Zeta if the two-electron code will be used!
 *
       If (Nuclear_Model.eq.Gaussian_Type .or.

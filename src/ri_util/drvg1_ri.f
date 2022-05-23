@@ -25,11 +25,11 @@
       use pso_stuff
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
+      use Para_Info, only: myRank, nProcs
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
-#include "para_info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"

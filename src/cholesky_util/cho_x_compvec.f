@@ -67,9 +67,6 @@ C
       Integer N2
       Parameter (N2=InfVec_N2)
 
-      Logical  Cho_Rsv_Tsk
-      External Cho_Rsv_Tsk
-
       Integer  Cho_F2SP
       External Cho_F2SP
 

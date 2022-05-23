@@ -168,6 +168,9 @@ c       Call InR(Cff(iCffR(0,iRys)),nMem*nCff,lu_rysrw)
       Close (lu_rysrw)
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unusued_real_array(Acc)
+#endif
       End
 
       Subroutine InR(A,n,Lu)

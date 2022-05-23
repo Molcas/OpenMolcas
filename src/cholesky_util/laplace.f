@@ -62,6 +62,7 @@ C
       Real*8  t(l_wt)
       Integer irc
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer mGrid
       Parameter (mGrid=20) ! limited by Remez implementation
@@ -69,7 +70,8 @@ C
       Character*8 DefaultGrid
       Parameter (DefaultGrid='MICRO   ')
 
-      Integer     ip_Coeff, l_Coeff
+      Integer     l_Coeff
+      Real*8, Allocatable :: Coeff(:)
       Integer     K_Lap
       Character*8 Demand
       Logical     Inf
@@ -101,11 +103,11 @@ C
          Demand='        '
       End If
       l_Coeff=2*mGrid
-      Call GetMem('LapCoef','Allo','Real',ip_Coeff,l_Coeff)
+      Call mma_Allocate(Coeff,l_Coeff,Label='LapCoef')
       Inf=.false.
-      Call Remez(Verbose,K_Lap,xmin,xmax,Work(ip_Coeff),Demand,Inf)
+      Call Remez(Verbose,K_Lap,xmin,xmax,Coeff,Demand,Inf)
       If (K_Lap.lt.0) Then
-         Call GetMem('LapCoef','Free','Real',ip_Coeff,l_Coeff)
+         Call mma_Deallocate(Coeff)
          irc=-1
          Write(6,'(A,I10)')
      &   'MinimaxLaplace: Remez returned K_Lap=',K_Lap
@@ -114,17 +116,17 @@ C
       If (N.eq.0) N=K_Lap
       If (l_wt.lt.K_Lap) Then
          Do i=1,l_wt
-            w(i)=Work(ip_Coeff+2*(i-1))
-            t(i)=Work(ip_Coeff+2*(i-1)+1)
+            w(i)=Coeff(2*i-1)
+            t(i)=Coeff(2*i)
          End Do
          irc=2
       Else
          Do i=1,K_Lap
-            w(i)=Work(ip_Coeff+2*(i-1))
-            t(i)=Work(ip_Coeff+2*(i-1)+1)
+            w(i)=Coeff(2*i-1)
+            t(i)=Coeff(2*i)
          End Do
       End If
-      Call GetMem('LapCoef','Free','Real',ip_Coeff,l_Coeff)
+      Call mma_Deallocate(Coeff)
 
       End
       Subroutine Remez_SetupPrint(print_to_molcas_log)
@@ -361,7 +363,6 @@ C
       Call ThisIsRestrictedCode('Thomas Bondo Pedersen',
      &        'Laplace quadrature generation (subroutine remez)',.true.)
 C
-!     Dbg = .TRUE.
       Dbg = .FALSE.
       SkpRem = .FALSE.
       Change = .FALSE.
@@ -771,7 +772,6 @@ C
          IRes = 1
          CALL AltErr(K_Lap,Coeff,T,VV,Eps0)
          IF (Eps0.GT.Tol) THEN
-            Eps = 1.0D-07
             CALL PtDiff(IDim,Coeff,T,A)
 C
             IF (Dbg) THEN
@@ -1448,11 +1448,10 @@ C
      *              1.0D+03, 2.0D+03, 3.0D+03, 4.0D+03, 5.0D+03,
      *              6.0D+03, 7.0D+03, 8.0D+03, 9.0D+03, 1.0D+04/
 C
-      LOGICAL Dbg,Trial
+      LOGICAL Trial
 C
 C     ===== Check a larger R value =====
 C
-      Dbg = .FALSE.
       Trial = .FALSE.
 C
       WRITE(IW,'("Demanded accuracy is ",A8,".")')Demand

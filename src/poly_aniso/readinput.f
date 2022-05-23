@@ -171,7 +171,7 @@ c      Real(lind=wp) :: magncoords(2*maxanisofiles,3)
       External      :: finddetr
 
 c variables connected to computation of g and d tensors
-      Logical       :: check_nneq_presence, readgfact, ab_initio_all
+      Logical       :: ab_initio_all
       Logical       :: tcheck, hcheck, encut_check
       Logical       :: check_symm_presence
       Logical       :: checktmag
@@ -193,7 +193,6 @@ c      Character(Len=14) :: namefile_energy(nDirZee)
 
       DBG=.false.
 
-      check_nneq_presence   = .true.
       check_title           = .false.
       icount_B_sites        = 0
       i_pair                = 0
@@ -806,7 +805,6 @@ c this is the most important keyword for Poly_Aniso
                Call quit(_RC_INPUT_ERROR_)
             End If
          End Do
-         check_nneq_presence=.true.
          Do i=1,nneq
             If (neq(i).gt.1) Then
                nosym = .false.
@@ -841,7 +839,6 @@ c         End Do
          End If
 
          If(ab_initio_all .eqv. .false.) Then
-            readgfact=.true.
 
 !           type of the center:   A -- the information is read from aniso_ion.input
 !                                 B -- the center is isotropic with g factor read from the input

@@ -43,8 +43,7 @@
       Logical Shijij, Found
 *     Local Array
       Integer jSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7),CumnnP(0:7),CumnnP2(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer CumnnP(0:7),CumnnP2(0:7)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -60,7 +59,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      lOper=1
       PMax=Zero
       iSO=1
       ip_CikJ = ip_CijK

@@ -78,17 +78,11 @@
 #include "ofio.fh"
 #endif
       Character*8 Stdnam, ext
-      Character*100 My_Progname,Get_Progname
-      External Get_Progname
-      Integer Length_Progname
       Character*256 tmp
       Character*80 Text
       Character*16 TheName
       Data TheName/'MpDaFile'/
 
-      My_Progname=Get_Progname()
-      Length_Progname=StrnLn(My_Progname)
-*
       max_File_Size = MaxFileSizel*10**6
       max_Bytes     = MIN(max_File_Length,max_File_Size)
       n_Bytes       = lBuf
@@ -107,7 +101,6 @@ c
       Call PrgmTranslate(StdNam,tmp,ltmp)
          Write (6,*) '          Current I/O Status as follows'
          Write (6,*)
-         iDum=iPrintLevel(3)
          Call FASTIO('STATUS')
        Call SysAbendFileMsg(TheName,StdNam,
      &   'Extensions out of range!',
@@ -231,7 +224,6 @@ cvv               LuName(Lu_Mod)    = tmp
       If (offset.gt.MaxSplitFile-1 ) Then
          Write (6,*) '          Current I/O Status as follows'
          Write (6,*)
-         iDum=iPrintLevel(3)
          Call FASTIO('STATUS')
        Call SysAbendFileMsg(TheName,StdNam,
      &   'Extensions out of range!',

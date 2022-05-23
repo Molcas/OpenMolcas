@@ -48,10 +48,10 @@
          Do 120 k = 2, mWidth-1
             Line(k:k) = ' '
  120     Continue
-         Lenght = iEnd-iFrst+1
-         nSplit = (mWidth-2-Lenght)/2
+         Length = iEnd-iFrst+1
+         nSplit = (mWidth-2-Length)/2
          jFrst = 1+nSplit+1
-         jEnd = jFrst+Lenght-1
+         jEnd = jFrst+Length-1
          Line(jFrst:jEnd) = Lines(i)(iFrst:iEnd)
          Write (6,Format) Line
  10   Continue

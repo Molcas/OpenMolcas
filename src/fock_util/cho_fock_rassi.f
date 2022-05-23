@@ -44,7 +44,10 @@ C
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Integer   ipAorb(8,2)
-      Logical   Debug,timings,DoRead,DoReord
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead,DoReord
       Character*50 CFmt
       Character*14 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_RASSI')
@@ -75,10 +78,7 @@ C
 
 
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
 
 
@@ -104,7 +104,6 @@ c --- Various offsets
 c --------------------
         ISTLT(1)=0
       DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive F matrix
       END DO
@@ -571,7 +570,6 @@ C --- free memory
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in RASSI-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM

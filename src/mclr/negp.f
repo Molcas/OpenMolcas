@@ -51,4 +51,7 @@
       Call mma_deallocate(Tmp3)
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

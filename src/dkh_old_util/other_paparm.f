@@ -36,7 +36,6 @@ c
       real*8 ducoeffs(maxorder),scr(scrmax)
       character*(3) paramtype
       integer i
-      intrinsic DBLE
       if (maxorder.gt.scrmax) then
         write (stdout,1001) maxorder,scrmax
 1001    format(5X,'Parameter  maxorder = ',I3,' is larger than ',I3,'.',

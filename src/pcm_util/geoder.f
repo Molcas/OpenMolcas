@@ -58,7 +58,6 @@
       Data One,Two,Four /1.0d0,2.0d0,4.0d0/
 C
       PI  = Four*ATan(One)
-      TPI = Two*PI
       FPI = Four*PI
       ANTOAU = One/ToAng
 C
@@ -117,7 +116,6 @@ C
       SESE=ZERO
       SNSN=ZERO
       SESN=ZERO
-      SNSE=ZERO
       DO 2010 ITS=1,NTS
         L = ISPHE(ITS)
         XNI = - (Sphere(1,L) - Tessera(1,ITS)) / Sphere(4,L)

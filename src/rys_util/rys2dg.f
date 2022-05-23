@@ -33,9 +33,9 @@
       Logical IfGrad(3,4), EQ
       Integer IndGrd(3,4), Ind1(3), Ind2(3), Index(3,4)
 *
+#ifdef _DEBUGPRINT_
       iRout = 249
       iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In Rys2Dg: Alpha',' ',Alpha,1,nZeta)
          Call RecPrt(' In Rys2Dg: Beta ',' ',Beta ,1,nZeta)

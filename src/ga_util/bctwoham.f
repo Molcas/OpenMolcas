@@ -32,10 +32,12 @@
 *
 *----------------------------------------------------------------------*
       SubRoutine BCTwoHam(TwoHam,nDens,TCPU,TWall)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
       Real*8 TwoHam(nDens)
 #ifdef _MOLCAS_MPP_
-#include "para_info.fh"
 #include "real.fh"
 *
 #include "global.fh"

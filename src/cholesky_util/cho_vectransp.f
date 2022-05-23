@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: MyRank, nProcs
+#endif
       Implicit Real*8 (a-h,o-z)
       Real*8   Vec(*)
       Integer  Jin, Jfi, iSym, iRed, iPass

@@ -152,7 +152,6 @@ C     E                         AA
 C    RR                         TT
      *VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
       NULLIFY(iREL)
-      K=NBAS1*(NBAS1+1)/2
 C
 C     TRANSFER RELATIVISTIC KINETIC ENERGY AND POTENTIAL INTEGRALS
 C

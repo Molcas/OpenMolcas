@@ -407,7 +407,6 @@
             Ei = Efro(iFro(iSym)+iI)
             iOrbI = iI
             Do iA = 1, nVir(iSym)
-               iOrbA = nFro(iSym) + nOcc(iSym) + iA
                Wrk(kWak(iSym) + iA-1 + nVir(iSym)*(iI-1)) =
      &           Wrk(kWak(iSym) + iA-1 + nVir(iSym)*(iI-1)) - 2.0d0*
      &           Wrk(kPaK(iSym) + iA-1 + nVir(iSym)*(iI-1))*Ei
@@ -417,7 +416,6 @@
             Ei = EOcc(iOcc(iSym)+iI)
             iOrbI = nFro(iSYm) + iI
             Do iA = 1, nVir(iSym)
-               iOrbA = nFro(iSym) + nOcc(iSym) + iA
                Wrk(kWai(iSym) + iA-1 + nVir(iSym)*(iI-1)) =
      &           Wrk(kWai(iSym) + iA-1 + nVir(iSym)*(iI-1)) - 2.0d0*
      &           Wrk(kPai(iSym) + iA-1 + nVir(iSym)*(iI-1))*Ei
@@ -691,7 +689,6 @@
 
       lWij2 = nOccAll(iSym)*nOccAll(iSym)
       kWij2 = kEndVip
-      kEndWij2 = kWij2 + lWij2
       Do i = 1, lWij2
          Wrk(kWij2+i-1) = 0.0d0
       End Do

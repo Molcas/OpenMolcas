@@ -35,7 +35,10 @@ C               content in those chunks of memory will
 C               be overwritten!
 C*********************************************************
       Implicit Real*8 (a-h,o-z)
-      Logical Debug,add,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical add,timings
       Real*8  tread(2),tcoul(2)
       Integer ISLT(8),ipDLT(nDen),ipFLT(nDen)
       Character*12  SECNAM
@@ -65,14 +68,9 @@ C*********************************************************
 
 #ifdef _DEBUGPRINT_
       Debug=.true.
-#else
-      Debug=.false.
 #endif
 
-
       FactC = one
-
-      IREDC = -1
 
 C --- For Coulomb only, the vectors symmetry is restricted to 1
       JSYM=1
@@ -122,8 +120,6 @@ C ---
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
         call abend()
       endif
-
-      IREDC=JRED
 
       nRS = nDimRS(JSYM,JRED)
 

@@ -47,7 +47,6 @@
       If ( iVecTyp.eq.2 ) Then
         call f_Inquire (FnInpOrb,okay)
         If ( okay ) Then
-          lOcc = 0
           Call RdVec(FnInpOrb,LuInpOrb,'C',nSym,nBas,nBas,
      &          Cmo, Dummy, Dummy, iDummy,
      &          VecTit, 0, iErr)

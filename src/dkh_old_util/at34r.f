@@ -34,7 +34,6 @@ C
 C      CALL PRMAT(6,SMAT,N,0,'SMAT    ')
       VELIT=CLightAU
       ISIZE=N*(N+1)/2
-      TOL=1.D-14
       PREA=1/(VELIT*VELIT)
       CON2=PREA+PREA
       CON=1.D0/PREA

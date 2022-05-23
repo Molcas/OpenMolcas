@@ -142,7 +142,6 @@
 * Just use the first CSFs as subspace
 *
         ICNF = 0
-        ICSF = 0
         DO 100 ITYP = 1, NTYP
           NJCNF = NCNATS(ITYP,IREFSM)
           NIRREP = NCPCNT(ITYP)
@@ -336,7 +335,6 @@
 *. Pointers in H0
       KLPHP  = 1
       KLPHQ = KLPHP + NPCSF*(NPCSF+1)/2
-      KLQHQ = KLPHQ + NP1CSF*NQCSF
 *
 *.PHP matrix
 *

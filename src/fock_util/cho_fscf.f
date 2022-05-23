@@ -41,7 +41,10 @@ C
       Integer   ipDLT(nDen),ipFLT(nDen)
       Integer   ipPorb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
-      Logical   Debug,timings,DoRead
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead
       Character*50 CFmt
       Character*8 SECNAM
       Parameter (SECNAM = 'CHO_FSCF')
@@ -67,12 +70,8 @@ C
 ************************************************************************
 
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
-
 
       FactCI = one
       FactXI = xone*ExFac
@@ -444,7 +443,6 @@ C --- free memory
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM

@@ -10,18 +10,18 @@
 ************************************************************************
       interface cptr2loff
         integer function d_cptr2loff(buffer)
-          real*8 :: buffer
+          real*8, target, intent(in) :: buffer
         end function
         integer function i_cptr2loff(buffer)
-          integer :: buffer
+          integer, target, intent(in) :: buffer
         end function
         integer function c_cptr2loff(buffer)
-          character(len=*) :: buffer
+          character(len=*), target, intent(in) :: buffer
         end function
         integer function z_cptr2loff(buffer)
-          complex*16 :: buffer
+          complex*16, target, intent(in) :: buffer
         end function
         integer function l_cptr2loff(buffer)
-          logical :: buffer
+          logical, target, intent(in) :: buffer
         end function
       end interface

@@ -860,6 +860,10 @@ C     ------------
       GO TO 9999
 
  9999 CALL CHO_QUIT('Error in '//SECNAM,IRC)
+      RETURN
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) Call Unused_character(Line)
+#endif
       END
 ************************************************************************
 *                                                                      *

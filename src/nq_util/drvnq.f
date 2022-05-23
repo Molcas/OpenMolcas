@@ -59,9 +59,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      RMx=0.0D0
-      RNx=0.0D0
-
       If (Functional_Type.eq.CASDFT_Type) Then
       Do_TwoEl        =.True.
       End If
@@ -153,14 +150,12 @@
       nCmo=1
       nD1mo=1
       nMos=1
-      nTmpTUVX=1
       nTmpPUVX=1
       ipP2mo=ip_Dummy
       ipCmo=ip_Dummy
       ipD1mo=ip_Dummy
       ipDoIt=ip_iDummy
       ipTmpPUVX=ip_Dummy
-      ipTmpTUVX=ip_Dummy
 *
       NQNAC=0
       If (DFTFOCK.ne.'SCF ') Then
@@ -466,7 +461,7 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
       End If
 ***
 *     Prepare memory for two-electron integrals:
-*     nPUVX, nTUVX
+*     nPUVX
 *
       If (Do_TwoEl) Then
          If (.not.Do_MO) Then
@@ -476,7 +471,6 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
          End If
          NQNACPAR = ( NQNAC**2 + NQNAC )/2
          NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
-         nTmpTUVX = NQNACPR2
 *
          iStack = 0
          Do iIrrep = 0, mIrrep-1
@@ -530,7 +524,6 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Thr=Threshold
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
       If(l_casdft) then

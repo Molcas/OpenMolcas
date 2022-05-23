@@ -79,7 +79,7 @@ C SBMAT need:
 *       N=NTUV(ISYM)
 *       NG3C=NG3C+(N*(N+1))/2
 *     END DO
-      NG3C=iPARDIV(NG3TOT,NG2)
+*     NG3C=iPARDIV(NG3TOT,NG2)
 
 C Sizes and addresses to lists:
       DO ISL1=1,NSYM

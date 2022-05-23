@@ -72,7 +72,6 @@
       Real*8 dTot_d,ratio_d,Zeta_d
       Integer nAOs
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
-      Integer ntot1
       Integer LOE_DB,LTEG_DB
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -87,8 +86,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
       iRout = 112
       iPrint = nPrint(iRout)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -131,7 +132,6 @@
       thrsrho2=1.0d-15
       thrsrho3=0.9000000000d0
       thrsrho4=1.1500000000d0
-      thrspi = 1.0d-15
       Ab1=-4.756065601d+2
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
@@ -204,7 +204,6 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             iPrim_Eff=List_Exp(ilist_s)
             iAO   = iSD( 7,iSh)
             mdci  = iSD(10,iSh)
-            iShell= iSD(11,iSh)
             iShll = iSD(0,iSh)
             iCnttp= iSD(13,iSh)
             iCnt  = iSD(14,iSh)
@@ -216,7 +215,6 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
                nForm = nForm + nElem(iDrv)
             End Do
             nTerm    = 2**nDrv
-            nAngular = 5*nForm*nTerm
             nxyz     = mGrid*3*(iAng+mRad)
             nRadial  = iBas_Eff*mGrid*mRad
             ipRadial = ipxyz + nxyz
@@ -380,7 +378,6 @@ c            write(6,*) 'iOff =', iOff
             iPrim = iSD( 5,iSh)
             iAO   = iSD( 7,iSh)
             mdci  = iSD(10,iSh)
-            iShell= iSD(11,iSh)
 *
 *---------- Allocate memory for SO and MO
 *
@@ -432,9 +429,9 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
          If (Do_Grad)
      &      Call dRho_dR_LDA(Dens,nDens,nD,dRho_dR,ndRho_dr,
      &                       mGrid,list_s,nlist_s,
-     &                       TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                       nGrad_Eff,list_g,Maps2p,
-     &                       nShell,Grid_Type,Fixed_Grid,
+     &                       TabAO,ipTabAO,mAO,nTabAO,
+     &                       nGrad_Eff,list_g,
+     &                       Grid_Type,Fixed_Grid,
      &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
      &                       list_bas,Index,nIndex)
 
@@ -467,7 +464,7 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
      &                 Work(ipRhoA),mRho,Do_Grad)
 
        Else !AO-based run for gradients
-         nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
+!         nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
          P2_ontop_d(:,:,:) = 0
          !Determine number of AOs:
          nAOs = nMOs
@@ -621,7 +618,7 @@ cRKCft
 
        Else !AO-based run for gradients
 !        write(*,*) 'nlist_s',nlist_s
-         nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
+!         nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
 !         Call GetMem('P2_ontop_d','Allo','Real',ipP2_d,nP2_ontop_d)
 !         Call FZero(Work(ipP2_d),nP2_ontop_d)
          P2_ontop_d(:,:,:) = 0
@@ -783,9 +780,9 @@ c         end do
 C        If (Do_Hess)
 C    &      Call d2Rho_dR2_LDA(Dens,nDens,nD,dRho_dR,d2Rho_dr2,
 C    &                         ndRho_dr,mGrid,list_s,nlist_s,
-C    &                         TabAO,ipTabAO,mAO,nTabAO,nSym,
-C    &                         nGrad_Eff,list_g,Maps2p,
-C    &                         nShell,Grid_Type,Fixed_Grid,
+C    &                         TabAO,ipTabAO,mAO,nTabAO,
+C    &                         nGrad_Eff,list_g,
+C    &                         Grid_Type,Fixed_Grid,
 C    &                         Work(ip_Fact),ndc,Work(ipTmp),T_X,
 C    &                         list_bas,Index,nIndex)
 *
@@ -799,9 +796,9 @@ C    &                         list_bas,Index,nIndex)
          If (Do_Grad)
      &      Call dRho_dR_GGA(Dens,nDens,nD,dRho_dR,ndRho_dr,
      &                       mGrid,list_s,nlist_s,
-     &                       TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                       nGrad_Eff,list_g,Maps2p,
-     &                       nShell,Grid_Type,Fixed_Grid,
+     &                       TabAO,ipTabAO,mAO,nTabAO,
+     &                       nGrad_Eff,list_g,
+     &                       Grid_Type,Fixed_Grid,
      &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
      &                       list_bas,Index,nIndex)
 
@@ -839,7 +836,7 @@ C         End If
      &                 nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
      &                 Work(ipRhoA),mRho,Do_Grad)
        Else !AO-based run for gradients
-         nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
+!         nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
          P2_ontop_d(:,:,:) = 0
          !Determine number of AOs:
          nAOs = nMOs
@@ -891,9 +888,9 @@ cGLM     &                               0.25*thrsrho**3.0d0)then
             if(l_tanhr) ratio = tanh(ratio)
             if((1.0d0-ratio).gt.thrsrho2) then
              Zeta  = sqrt(1.0d0-ratio)
-             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
-             pi_p_y = (1.0d0 - zeta**2.0d0)*dTot*grad_y/2.0d0
-             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
+c             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
+c             pi_p_y = (1.0d0 - zeta**2.0d0)*dTot*grad_y/2.0d0
+c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
 * Compute alpha and beta densities for ratio < 1
               Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
               Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
@@ -962,9 +959,9 @@ c
 *     &        Rho(6,iGrid+1),Rho(7,iGrid+1),Rho(8,iGrid+1)
            else
              Zeta  = 0.0d0
-             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
-             pi_p_y = (1.0d0 - zeta**2.0d0)*dTot*grad_y/2.0d0
-             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
+c             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
+c             pi_p_y = (1.0d0 - zeta**2.0d0)*dTot*grad_y/2.0d0
+c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
 * Compute alpha and beta densities if ratio > 1
               Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
               Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
@@ -1118,7 +1115,7 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
      &                 nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
      &                 Work(ipRhoA),mRho,Do_Grad)
        Else !AO-based run for gradients
-         nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
+!         nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
          P2_ontop_d(:,:,:) = 0
          !Determine number of AOs:
          nAOs = nMOs
@@ -1153,9 +1150,9 @@ cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(((1.0d0-ratio).gt.thrsrho2).and.(ratio.lt.thrsrho3)) then
              Zeta  = sqrt(1.0d0-ratio)
-             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
-             pi_p_y = (1.0d0 - zeta**2.0d0)*dTot*grad_y/2.0d0
-             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
+c             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
+c             pi_p_y = (1.0d0 - zeta**2.0d0)*dTot*grad_y/2.0d0
+c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
 * Compute alpha and beta densities
               Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
               Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
@@ -1184,9 +1181,9 @@ cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
                Zeta = (Ab1*(ratio-1.15d0)**5.0d0) +
      &        (Bb1*(ratio-1.15d0)**4.0d0) + (Cb1*(ratio-1.15d0)**3.0d0)
 
-             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
-             pi_p_y = (1.0d0 - zeta**2.0d0)*dTot*grad_y/2.0d0
-             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
+c             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
+c             pi_p_y = (1.0d0 - zeta**2.0d0)*dTot*grad_y/2.0d0
+c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
 
 * Compute alpha and beta densities
 
@@ -1581,9 +1578,9 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 C        If (Do_Hess)
 C    &      Call dRho_dR_GGA(Dens,nDens,nD,dRho_dR,d2Rho_dR2,
 C    &                       ndRho_dr,mGrid,list_s,nlist_s,
-C    &                       TabAO,ipTabAO,mAO,nTabAO,nSym,
-C    &                       nGrad_Eff,list_g,Maps2p,
-C    &                       nShell,Grid_Type,Fixed_Grid,
+C    &                       TabAO,ipTabAO,mAO,nTabAO,
+C    &                       nGrad_Eff,list_g,
+C    &                       Grid_Type,Fixed_Grid,
 C    &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
 C    &                       list_bas,Index,nIndex)
 *
@@ -1597,17 +1594,17 @@ C    &                       list_bas,Index,nIndex)
 C        If (Do_Grad)
 C    &      Call dRho_dR_CAS(Dens,nDens,nD,dRho_dR,ndRho_dr,
 C    &                       mGrid,list_s,nlist_s,
-C    &                       TabAO,ipTabAO,mAO,nTabAO,nSym,
-C    &                       nGrad_Eff,list_g,Maps2p,
-C    &                       nShell,Grid_Type,Fixed_Grid,
+C    &                       TabAO,ipTabAO,mAO,nTabAO,
+C    &                       nGrad_Eff,list_g,
+C    &                       Grid_Type,Fixed_Grid,
 C    &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
 C    &                       list_bas,Index,nIndex)
 C        If (Do_Hess)
 C    &      Call dRho_dR_CAS(Dens,nDens,nD,dRho_dR,d2Rho_dR2,
 C    &                       ndRho_dr,mGrid,list_s,nlist_s,
-C    &                       TabAO,ipTabAO,mAO,nTabAO,nSym,
-C    &                       nGrad_Eff,list_g,Maps2p,
-C    &                       nShell,Grid_Type,Fixed_Grid,
+C    &                       TabAO,ipTabAO,mAO,nTabAO,
+C    &                       nGrad_Eff,list_g,
+C    &                       Grid_Type,Fixed_Grid,
 C    &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
 C    &                       list_bas,Index,nIndex)
 *------- Compute P2_OnTop at the grid
@@ -1626,8 +1623,8 @@ C    &                       list_bas,Index,nIndex)
      &      Call dRho_dR_meta_GGA1
      &                      (nD,dRho_dR,ndRho_dr,
      &                       mGrid,list_s,nlist_s,
-     &                       TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                       nGrad_Eff,list_g,Maps2p,nShell,
+     &                       TabAO,ipTabAO,mAO,nTabAO,
+     &                       nGrad_Eff,list_g,
      &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
      &                       list_bas,Index,nIndex)
 *
@@ -1642,8 +1639,8 @@ C    &                       list_bas,Index,nIndex)
      &      Call dRho_dR_meta_GGA2
      &                      (nD,dRho_dR,ndRho_dr,
      &                       mGrid,list_s,nlist_s,
-     &                       TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                       nGrad_Eff,list_g,Maps2p,nShell,
+     &                       TabAO,ipTabAO,mAO,nTabAO,
+     &                       nGrad_Eff,list_g,
      &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
      &                       list_bas,Index,nIndex)
       End If
@@ -1778,8 +1775,8 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 *
             Else
 !First, calculate some sizes:
-             NFINT=nTmpPUVX
-             NTOT1=nFckInt
+!             NFINT=nTmpPUVX
+!             NTOT1=nFckInt
 
              If(KSDFA(1:5).eq.'TLSDA') then
                If(do_pdftPot) then
@@ -1884,8 +1881,8 @@ cGLM     write(6,*) 'Func in do_batch =', Func
      &                            TmpPUVX,nTmpPUVX)
 ******************
            Else
-             NFINT=nTmpPUVX
-             NTOT1=nFckInt
+!             NFINT=nTmpPUVX
+!             NTOT1=nFckInt
 
              If(KSDFA(1:4).eq.'TPBE'.or.
      &               KSDFA(1:5).eq.'TOPBE'.or.
@@ -2025,4 +2022,6 @@ cGLM     write(6,*) 'Func in do_batch =', Func
       Debug=Debug_Save
 #endif
       Return
+* Avoid unused argument warnings
+      If (.False.) Call Unused_integer_array(Maps2p)
       End

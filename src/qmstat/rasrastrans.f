@@ -33,7 +33,6 @@
 *
       LuIn=66
       kaunt=0
-      iSkutt=0
       iDisk=0
       Call DaName(LuIn,RassiM)
       nTriSP=nStatePrim*(nStatePrim+1)/2

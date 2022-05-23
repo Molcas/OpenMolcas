@@ -12,8 +12,6 @@
 ************************************************************************
       subroutine f_inquire(NAME,exist)
       Character*(*) name
-      Integer StrnLn
-      External StrnLn
       Logical exist
       Character*256 RealName
 #ifdef _SOLARIS_

@@ -71,7 +71,7 @@ c      END IF
 *
 * Allocate arrays
 *
-      IDUM=0
+*     IDUM=0
 *     CALL MEMMAN(IDUM, IDUM, 'MARK', IDUM, 'DENS_M')
       CALL GETMEM('VEC1  ','ALLO','REAL',KVEC1,LBLOCK)
       CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,kvec3_length)
@@ -132,7 +132,6 @@ C      ksrho1 : DONE!!! - Comming with glbbas.fh.
          CALL TriPak(work(krho1), work(lw6), 1, ntoob, ntoob)
          CALL TriPak(work(ksrho1), work(lw7), 1, ntoob, ntoob)
       END IF
-      LRHO2 = NTOOB**2*(NTOOB**2+1)/2
 *
       CALL CSDTVC(work(lscr1),work(lscr2),2,work(kdtoc_pointer),
      &     iwork(KSDREO_POINTER), iRefSm, 1)

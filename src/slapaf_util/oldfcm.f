@@ -54,7 +54,7 @@
       lHess = iInter**2
       If ( nHess.ne.lHess ) Then
          Call WarningMessage(2,'OldFCM: nHess.ne.lHess')
-         Write (6,*) 'length,lHess=',length,lHess
+         Write (6,*) 'nHess,lHess=',nHess,lHess
          Call Abend()
       End If
 *

@@ -47,7 +47,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "periodic_table.fh"
 #include "WrkSpc.fh"
 #include "constants2.fh"
       Character*2 Element(nAtoms)
@@ -128,13 +127,18 @@
       End
 
       Subroutine fmsym_generate_orbital_subspaces(ctx)
+#ifdef _HDF5_
+      Use mh5, Only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_real, mh5_create_dset_int,
+     &               mh5_create_dset_str, mh5_put_dset, mh5_close_dset,
+     &               mh5_close_file
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#include "mh5.fh"
       integer fileid, dsetid
 #endif
       Character*80 Title

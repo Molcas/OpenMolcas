@@ -53,8 +53,6 @@
 ************************************************************************
 *
       nSaddle_Max=100
-      Delta_Max=0.10D0
-      ratio=Zero
       quadratic=.false.
 *
 **    Avoid warnings
@@ -503,7 +501,6 @@
                Else
                   HSR=Delta*HSR
                End If
-               ratio=1.0d0
 *
 **        Calculate tangent vector
 *

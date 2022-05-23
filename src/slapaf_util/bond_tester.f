@@ -20,9 +20,9 @@
       Integer iTab(0:nMax,nx,ny,nz), iANr(nAtoms),
      &        iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
       Logical Help
-      Real*8 A(3)
 #define _OLD_CODE
 #ifndef _OLD_CODE_
+      Real*8 A(3)
       Real*8 B(3)
 #endif
 #include "bondtypes.fh"
@@ -73,8 +73,10 @@ C        If (iAtom.le.jAtom) Cycle Box
          x = Coor(1,iAtom)-Coor(1,jAtom)
          y = Coor(2,iAtom)-Coor(2,jAtom)
          z = Coor(3,iAtom)-Coor(3,jAtom)
+#ifndef _OLD_CODE_
          A(:)=Coor(:,iAtom)-Coor(:,jAtom)
          ANorm = dot_product(A,A)
+#endif
          rij2 = x**2 + y**2 + z**2
          r0 = rAv(iRow,jRow)
          alpha=aAv(iRow,jRow)

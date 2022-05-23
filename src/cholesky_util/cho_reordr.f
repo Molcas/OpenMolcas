@@ -52,7 +52,6 @@
 
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
-      Logical Debug
       Integer ipChoV(*),iSkip(*)
 
 #include "cholesky.fh"
@@ -79,11 +78,6 @@
       iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUGPRINT_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
 **********************************************************
 C
 C    From Reduced sets to full storage

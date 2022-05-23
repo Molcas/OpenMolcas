@@ -90,7 +90,6 @@
 * Symmetry-occupation-occupation blocks
 *
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 #include "io_util.fh"
 *.General input
       INTEGER ICOCOC(NOCTPA,NOCTPB),ISOCOC(NOCTPA,NOCTPB)

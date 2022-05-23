@@ -10,10 +10,16 @@
 ************************************************************************
       Subroutine Start(ModuleName)
 * Initialization procedure for a program module.
+      Use Para_Info, Only: MyRank, King
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Set_Do_Parallel
+#endif
+#ifdef _DEBUGPRINT_
+      Use Para_Info, Only: nProcs
+#endif
       Implicit None
       Character*(*) ModuleName
       Character*8 Prin
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
       Logical parallelized
 #endif

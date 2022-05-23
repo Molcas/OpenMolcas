@@ -155,10 +155,8 @@ C                  ICOFF = (JB-1)*NJ*NKA + 1
           SGNK = XKBIB(KB,K)
 *
           IF(IKORD.EQ.0) THEN
-             LI = NI
              IMIN = 1
           ELSE
-             LI = NI-K+1
              IMIN = K
           END IF
 *

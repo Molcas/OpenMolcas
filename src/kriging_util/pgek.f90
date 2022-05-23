@@ -339,7 +339,7 @@ Contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Real*8 Function p_x(xl,l)
 Real*8 :: xl
-Integer l
+Integer :: j, l
 
 d=One
 h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth
@@ -361,6 +361,7 @@ End Function p_x
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Real*8 Function p_y(yl)
 Real*8 :: yl
+Integer :: j
 
 d=One
 h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth
@@ -380,7 +381,7 @@ End Function p_y
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Real*8 Function p_xy(xl,yl,l)
 Real*8 :: xl, yl
-Integer l
+Integer :: j, l
 
 d=Two
 h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth

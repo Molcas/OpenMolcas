@@ -82,7 +82,10 @@
       Write (6,*) 'Iter fmax             testa'
 #endif
       Iter=0
-555   testa=fmax*afac
+555   continue
+#ifdef _DEBUGPRINT_
+      testa=fmax*afac
+#endif
       Iter=Iter+1
 *
 *---- Loop over Langevin grid and make EF and dipol moments at the
@@ -160,8 +163,6 @@ c         Dip_Eff=DipEff(iGrid)*DBLE(Min(Iter,100))/100.0D0
             alang=(ex+emx)/(ex-emx)-One/x
 c            alang=x/Three  !Linear approximation
             i=iGrid
-            radabs=sqrt(Grid(1,i)*Grid(1,i)+Grid(2,i)*Grid(2,i)
-     &           +Grid(3,i)*Grid(3,i))
             uind=Dip_Eff*alang+ftot*PolEff(1,iGrid)*ftots
             DipMom(1,iGrid)=uind*fx*ftots
             DipMom(2,iGrid)=uind*fy*ftots

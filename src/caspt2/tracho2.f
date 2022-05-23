@@ -31,7 +31,6 @@
       LOGICAL IF_TRNSF
 
       INTEGER NCES(8),ip_HTVec(8)
-      Integer, External :: Cho_IRange
       INTEGER ISTART(8),NUSE(8)
 
       REAL*8 E,ECORE1,ECORE2
@@ -39,7 +38,7 @@
       REAL*8 FACTC,FACTXA,FACTXI
 
       INTEGER I,J,IC,IA,ICASE,IRC,ILOC
-      INTEGER JSTART,JEND
+      INTEGER JSTART
       INTEGER JRED,JRED1,JRED2,JREDC,JNUM,JV1,JV2
       INTEGER IASTA,IAEND,IISTA,IIEND
       INTEGER NA,NASZ,NI,NISZ,NBUFFY,NF,NK,NW,NPQ,NRS
@@ -53,7 +52,7 @@
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
       INTEGER N,N1,N2
       INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ip_v,ipnt
-      INTEGER NUMV,NV,NVECS_RED,NVTOT,NHTOFF,MUSED
+      INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
       REAL*8 SCL
 
@@ -197,7 +196,7 @@ c Initialize Fock matrices in AO basis to zero:
 * the mapping between reduced index and basis set pairs.
 * The reduced set is divided into suitable batches.
 * First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
-      JEND=JSTART+NVECS_RED-1
+*      JEND=JSTART+NVECS_RED-1
 *      write(6,*)'  JRED:  JSTART,JEND:',JRED,JSTART,JEND
 
       IF(JSYM.EQ.1) THEN
@@ -519,11 +518,9 @@ C ---------------------------------------------------------------------
       IF (IF_TRNSF.AND.RHSDIRECT) THEN
         IP_LFT=IP_FTSPC
         DO JSYM=1,NSYM
-          NVTOT=NVTOT_CHOSYM(JSYM)
           IBSTA=NBTCHES(JSYM)+1
           IBEND=NBTCHES(JSYM)+NBTCH(JSYM)
           DO IB=IBSTA,IBEND
-            NV=NVLOC_CHOBATCH(IB)
             DO ISYQ=1,NSYM
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)

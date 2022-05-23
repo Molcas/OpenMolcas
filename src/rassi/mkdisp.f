@@ -17,7 +17,7 @@
 #include "disp.fh"
 #include "diff.fh"
 #include "WrkSpc.fh"
-      Logical TstFnc, Type
+      Logical TstFnc
 C Purpose: Pick out the following data from INFO:
 C nUqCnt=Nr of unique centers
 C nAlCnt  =Nr of centers (total)
@@ -149,7 +149,6 @@ C-------------------------------------------
       nDisp = 0
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0
-         Type = .True.
 *        Loop over basis function definitions
          mdc = 0
          mc  = 1
@@ -170,7 +169,6 @@ C-------------------------------------------
                      End If
                      If (iIrrep.eq.0) InxDsp(mdc,iCar+1) = nDisp
                      lDisp(iIrrep) = lDisp(iIrrep) + 1
-                     Type = .False.
                   End If
                End Do
                mc = mc + nIrrep/dc(mdc)%nStab

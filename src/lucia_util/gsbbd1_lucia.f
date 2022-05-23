@@ -75,8 +75,8 @@
 * Jeppe Olsen, Winter of 1991
 * Updated for GAS , August '95
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(NSMSX,NSMST),
      &        STSTSX(NSMST,NSMST)
@@ -96,7 +96,7 @@
 *
       DIMENSION IJ_REO(2),IJ_DIM(2),IJ_SM(2),IJ_TP(2),IJ_AC(2)
       DIMENSION IJ_OFF(2)
-      DIMENSION ISCR(2)
+c     DIMENSION ISCR(2)
       DIMENSION ICGRP(16),ISGRP(16)
       DIMENSION H(*)
 *. Add or subtract for spindensity
@@ -123,7 +123,6 @@
       END IF
 *
       IFRST = 1
-      JFRST = 1
 *. Number of partitionings over column strings
 CSVC: determine optimum number of partions as the lowest multiple of
 C     NPROCS that satisfies a block size smaller than MAXI:
@@ -154,7 +153,7 @@ C          GET_SPGP_INF(ISPGP,ITP,IGRP)
 *. Hvilken vej skal vi valge,
 *. Mi pojdem drugim putem (C)
 *. VV: the code below confuses Absoft compiler and was rewritten.
-        NOP = 2
+c       NOP = 2
         IJ_AC(1) = 2
         IJ_AC(2) = 1
         IJ_TP(1) = ITYP
@@ -177,8 +176,8 @@ c        END IF
         IJ_AC(1) = IJ_AC(2)
         IJ_AC(2) = IXXX
 *
-        ISCR(1) = ITYP
-        ISCR(2) = JTYP
+c       ISCR(1) = ITYP
+c       ISCR(2) = JTYP
         IJ_TP(1) = JTYP
         IJ_TP(2) = ITYP
         endif

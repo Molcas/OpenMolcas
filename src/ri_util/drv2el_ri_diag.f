@@ -40,11 +40,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Initialize for 2-electron integral evaluation. Do not generate
 *     tables for indexation.
 *

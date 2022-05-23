@@ -83,10 +83,7 @@
       iPrint=5
 #endif
       If (IfTest) iPrint=99
-      ip_Dummy=-1
       dbsc(nCnttp)%FOp = .True.
-      nM1=0
-      nM2=0
       lAng=0
 *
       If (IfTest) Write (6,'(A,A)') 'DDName=',DDName

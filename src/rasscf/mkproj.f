@@ -20,7 +20,6 @@
       DIMENSION CRVEC(NCRVEC), CMO(NTOT2)
       dimension TUVX(*)
 
-      NFI=NFRO(1)+NISH(1)
       NA=NASH(1)
       NB=NBAS(1)
 

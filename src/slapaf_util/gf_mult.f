@@ -27,7 +27,6 @@
             jj = (jX-1)*nDoF + jX
             XMass_j = Sqrt(G(jj))
             ij = (jX-1)*nDoF + iX
-            ji = (iX-1)*nDoF + jX
             ijT= iX*(iX-1)/2+jX
             GF(ijT) = XMass_i*XMass_j*F(ij)
          End Do

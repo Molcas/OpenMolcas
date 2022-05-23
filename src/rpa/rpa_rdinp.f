@@ -249,4 +249,8 @@ C
          Call RPA_Warn(3,'Integer read problem for keyword '//Key)
       End If
 
+      Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_character(Line)
+#endif
       End

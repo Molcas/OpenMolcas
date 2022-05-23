@@ -48,23 +48,23 @@ c
 c
 c     help variables
 c
-       integer lenght,rc1
+       integer length,rc1
 c
        rc=0
 c
 c1    read mapd
 c
-      call cct3_getmap (lun,poss0,lenght,mapd,mapi,rc1)
+      call cct3_getmap (lun,poss0,length,mapd,mapi,rc1)
 c
 c2    read mediate in one block
 c
-       if (lenght.eq.0) then
-c     RC=1 : there is nothing to read, lenght of mediate is 0
+       if (length.eq.0) then
+c     RC=1 : there is nothing to read, length of mediate is 0
        rc=1
        return
        end if
 c
-       call cct3_rea (lun,lenght,wrk(poss0))
+       call cct3_rea (lun,length,wrk(poss0))
 c
        return
        end
@@ -95,7 +95,7 @@ c
 c
 c     help variables
 c
-       integer im,lenght,poss0
+       integer im,length,poss0
 c
        rc=0
 c
@@ -103,38 +103,38 @@ c1    write mapd
 c
       call cct3_wrtmap (lun,mapd,mapi,rc1)
 c
-c2    calculate overall lenght
+c2    calculate overall length
 c
-       lenght=0
+       length=0
 c
        do 100 im=1,mapd(0,5)
-       lenght=lenght+mapd(im,2)
+       length=length+mapd(im,2)
  100    continue
 c
 c     write mediate in one block
 c
-       if (lenght.eq.0) then
-c     RC=1 : there is nothing to write, lenght of mediate is 0
+       if (length.eq.0) then
+c     RC=1 : there is nothing to write, length of mediate is 0
        rc=1
        return
        end if
 c
        poss0=mapd(1,1)
-       call cct3_wri (lun,lenght,wrk(poss0))
+       call cct3_wri (lun,length,wrk(poss0))
 c
        return
        end
 c
 c     ----------------------------
 c
-       subroutine cct3_getmap (lun,poss0,lenght,mapd,mapi,rc)
+       subroutine cct3_getmap (lun,poss0,length,mapd,mapi,rc)
 c
 c     this routine reads mapd and mapi of the given mediade
 c     from lun and reconstruct mapd to actual possitions poss0
 c
 c     lun   - Logical unit number of file, where mediate is stored (Input)
 c     poss0 - initial possition in WRK, where mediate will be stored (Input)
-c     lenght- overall lenght of mediate (Output)
+c     length- overall length of mediate (Output)
 c     mapd  - direct map matrix corresponding to given mediate (Output)
 c     mapi  - inverse map matrix corresponding to given mediate (Output)
 c     rc    - return (error) code (Output)
@@ -152,7 +152,7 @@ c
 c
 c     help variables
 c
-       integer poss,im,lenght
+       integer poss,im,length
 c
        rc=0
 c
@@ -168,16 +168,16 @@ c      MOLCAS IO
        call idafile (lun,2,mapi,8*8*8,daddr(lun))
        end if
 c
-c2    change possitions in mapd to proper one and calculate overall lenght
+c2    change possitions in mapd to proper one and calculate overall length
 c
        poss=poss0
-       lenght=0
+       length=0
 c
        do 100 im=1,mapd(0,5)
 c
        mapd(im,1)=poss
        poss=poss+mapd(im,2)
-       lenght=lenght+mapd(im,2)
+       length=length+mapd(im,2)
 c
  100    continue
 c
@@ -221,28 +221,28 @@ c
 c
 c     ----------------------------
 c
-       subroutine cct3_rea (lun,lenght,vector)
+       subroutine cct3_rea (lun,length,vector)
 c
-c     this routine read lenght-R8 numbers from opened unformatted file
+c     this routine read length-R8 numbers from opened unformatted file
 c     with number lun form the given possition as one record
 c
 c     lun    - Logical unit number of file, where mediate is stored (Input)
-c     lenght - # of R8 numbers to be read  (Input)
+c     length - # of R8 numbers to be read  (Input)
 c     vector - space, where numbers are stored after reading  (Output)
 
 c
 #include "t31.fh"
 c
-       integer lun,lenght
-       real*8 vector(1:lenght)
+       integer lun,length
+       real*8 vector(1:length)
 c
        if (iokey.eq.1) then
 c      Fortran IO
-       read (lun) (vector(i),i=1,lenght)
+       read (lun) (vector(i),i=1,length)
 c
        else
 c      MOLCAS IO
-       call ddafile (lun,2,vector,lenght,daddr(lun))
+       call ddafile (lun,2,vector,length,daddr(lun))
        end if
 c
        return
@@ -250,20 +250,20 @@ c
 c
 c     ----------------------------
 c
-       subroutine cct3_wri (lun,lenght,vector)
+       subroutine cct3_wri (lun,length,vector)
 c
-c     this routine write lenght-R8 numbers to opened unformatted file
+c     this routine write length-R8 numbers to opened unformatted file
 c     with number lun at the given possition as one record
 c
 c     lun    - Logical unit number of file, where mediate will be stored (Input)
-c     lenght - # of R8 numbers to be written  (Input)
+c     length - # of R8 numbers to be written  (Input)
 c     vector - space, where numbers are stored  (Input)
 
 c
 #include "t31.fh"
 c
-       integer lun,lenght
-       real*8 vector(1:lenght)
+       integer lun,length
+       real*8 vector(1:length)
 c
        if (iokey.eq.1) then
 c      Fortran IO
@@ -271,7 +271,7 @@ c      Fortran IO
 c
        else
 c      MOLCAS IO
-       call ddafile (lun,1,vector,lenght,daddr(lun))
+       call ddafile (lun,1,vector,length,daddr(lun))
        end if
 c
        return

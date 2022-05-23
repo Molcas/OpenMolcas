@@ -31,7 +31,7 @@ C...  auxiliar constant pool:    only DFAC is used here.
 C...  Flags: MV bit 2, DW bit 3
 *     Data iMVPot/2/,iDWPot/4/
 C
-      LU6=6
+*     LU6=6
       N=ISIM
 C
 C...  Reads the Mass Velocity and Darwin potentials for the

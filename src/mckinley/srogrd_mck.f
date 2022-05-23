@@ -149,8 +149,8 @@
             Do 1966 iAng = 0, dbsc(kCnttp)%nSRO-1
                iShll = dbsc(kCnttp)%iSRO + iAng
                nExpi=Shells(iShll)%nExp
-               nBasisi=Shells(iShll)%nBasis
 #ifdef _DEBUGPRINT_
+               nBasisi=Shells(iShll)%nBasis
                Write (6,*) 'nExpi=',nExpi
                Write (6,*) 'nBasis(iShll)=',nBasisi
                Write (6,*) ' iAng=',iAng

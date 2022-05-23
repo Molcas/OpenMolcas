@@ -42,7 +42,7 @@ c
      *        oddcounter,oddleng(maxuops),oddorder(maxuops,3),
      *        eoodd(maxuops),reslengl,reslengr
       real*8 doperators(maxoperators),dodd(maxuops),
-     *                 signum1,signum2,scrcoeff1,scrcoeff2
+     *                 scrcoeff1,scrcoeff2
       character*(maxlength) odd(maxuops),rescharl,rescharr
 #if defined(_MOLCAS_) || defined(MOLPRO)
       character*(maxlength) opstring
@@ -53,13 +53,11 @@ c
 C     integer idum1,idum2,idum3,m,n
       integer idum1,idum2,idum3,m
       logical ctrlflg
-      intrinsic ABS,DBLE,SIGN
+      intrinsic ABS
 c
       idum1=j
       idum2=k
       idum3=l
-      signum1=SIGN(one,doperators(k))
-      signum2=SIGN(one,doperators(l))
       scrcoeff1=doperators(k)
       scrcoeff2=doperators(l)
       ctrlflg=.false.

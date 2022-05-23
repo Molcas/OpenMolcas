@@ -339,7 +339,6 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
          iBMtrx = iBMtrx + 1
          rInt(iBMtrx) = Zero
          Write(Lbl(iBMtrx),'(A,I3.3)') 'Cns',iBMtrx
-         RR=Zero
 *
 *------- Find the label of the first primitive
 *

@@ -82,7 +82,7 @@ C
       Integer nRHS
       Integer irc
       Integer ip_S
-      Integer ip_lambda, l_lambda
+      Integer ip_lambda
 
       Real*8  eta
 
@@ -105,7 +105,6 @@ C
       nAB=nA*nB
       M=LDF_nBasAux_Pair(AB)
       If (nAB.lt.1 .or. M.lt.1) Then
-         l_lambda=0
          ip_lambda=0
          Return
       End If

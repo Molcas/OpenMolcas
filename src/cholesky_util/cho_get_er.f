@@ -71,8 +71,6 @@
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-      IREDC = -1
-
       JSYM=1
       If (NumCho(JSYM).lt.1) Then
          Write(6,*)SECNAM//'No total symmetric vectors present'
@@ -129,8 +127,6 @@ C ---
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
         call abend()
       endif
-
-      IREDC=JRED
 
       nRS = nDimRS(JSYM,JRED)
 

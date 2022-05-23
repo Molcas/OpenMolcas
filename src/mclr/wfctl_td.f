@@ -35,7 +35,7 @@
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
 
-      Logical Orb,CI,Response
+      Logical Orb,CI
       Parameter (iTimeCC = 1 )
       Parameter (iTimeKK = 2 )
       Parameter (iTimeKC = 3 )
@@ -89,7 +89,6 @@
       fail=.false.
       Converged(:)=.true.
       lprint=.false.
-      idasave=0
       LU_50 = 50
       If (SAVE) CALL DANAME(LU_50,'RESIDUALS')
       If (iAnd(kprint,2).eq.2) lprint=.true.
@@ -124,7 +123,7 @@ c
 *          Output: Commonblocks (Pointers.fh)
 *
         PState_SYM=iEor(State_Sym-1,iSym-1)+1
-        nConf2=nint(xispsm(PState_SYM,1))
+*       nConf2=nint(xispsm(PState_SYM,1))
 *       nConf2=ndtasm(PState_SYM)
         nconf3=nint(Max(xispsm(PState_SYM,1),xispsm(State_SYM,1)))
 *       nconf3=Max(ndtasm(PState_SYM),ndtasm(State_SYM))
@@ -489,7 +488,6 @@ c
 *
 *-----------------------------------------------------------------------------
 *
-             Response=.true.
              irc=ipnout(-1)
 c
              Call CIDens_TD(ipCid,PState_Sym,Pens,Dens)     ! Jeppes
@@ -790,4 +788,7 @@ C
 *----------------------------------------------------------------------*
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

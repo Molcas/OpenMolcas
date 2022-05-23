@@ -718,8 +718,10 @@ c      Call mma_deallocate(Temp)
 
        irc=ipclose(-1)
 *
-
        Return
+#ifdef _WARNING_WORKAROUND_
+       If (.False.) Call Unused_integer(irc)
+#endif
        End
 
 c --------------------------------------------------------------------------

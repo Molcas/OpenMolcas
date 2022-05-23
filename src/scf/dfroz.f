@@ -138,7 +138,6 @@
          nOr = nOrb(iSym)
          nFr = nFro(iSym)
 *
-         nBF = nBs - nFr
          nOF = nOr - nFr
          lth = nBs*(nBs + 1)/2
 *

@@ -50,7 +50,7 @@ c local variables
      &            icoord(lmax),
      &            nb1, nb2, lb1, lb2, i1, i2, is1, is2,
      &            js1, js2, nb, i, j, l, lp, lb, lpr, ibuf
-      Integer  :: CtoB, RtoB, ItoB, mem_local
+      Integer  :: CtoB, mem_local
       Integer  :: norder
       Real(kind=8) :: dznrm2_
       External :: norder, dznrm2_
@@ -91,8 +91,6 @@ c local variables
       End If !ibuf
 !=======================================================================
 ! allocate memory
-      ItoB=8
-      RtoB=8
       CtoB=16
       mem_local=0
       If(exch>=0) Then

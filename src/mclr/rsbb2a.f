@@ -192,8 +192,6 @@
                   L = 1
                   DO  IJL = 1, NJL
                     CALL NXTIJ(J,L,NJ,NL,JLPSM,NONEW)
-                    LEFF = L + LOFF - 1
-                    JEFF = J + JOFF - 1
 *.CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
                     JLOFF = (IJL-1)*NKBTC*NIBTC+1
                     JLOFF2 = (IJL-1)*NKSTREF + 1
@@ -243,8 +241,6 @@
                    K = 1
                    DO  IK = 1, NIK
                     CALL NXTIJ(I,K,NI,NK,IKPSM,NONEW)
-                    IEFF = I + IOFF - 1
-                    KEFF = K + KOFF - 1
                     ISBOFF = 1+(IK-1)*NIBTC*NKBTC
                     IKOFF = (IK-1)*NKSTREF+1
                     IF( SIGN .EQ. -1.0D0)
@@ -271,8 +267,6 @@
                   K = 1
                   DO IK = 1, NIK
                     CALL NXTIJ(I,K,NI,NK,IKPSM,NONEW)
-                    IEFF = I + IOFF - 1
-                    KEFF = K + KOFF - 1
                     ISBOFF = 1+(IK-1)*NIBTC*NKBTC
                     IKOFF = (IK-1)*NKSTREF+1
 *. Well, someplace the minus must come in

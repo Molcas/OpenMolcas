@@ -11,9 +11,9 @@
 
       SUBROUTINE RasScf_Mcontrol(id_call)
 
+      Use Para_Info, Only: MyRank
       Implicit Real*8 (a-h,o-z)
 #include "rasdim.fh"
-#include "para_info.fh"
 #include "general.fh"
 #include "rasscf.fh"
       Logical  timings,DoLock,Deco

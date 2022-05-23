@@ -11,6 +11,7 @@
       SUBROUTINE H0SPCT
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather
+      USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -19,7 +20,6 @@
 #include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
-#include "para_info.fh"
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

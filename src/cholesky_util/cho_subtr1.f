@@ -173,7 +173,6 @@ C        Read as many vectors as possible into buffer.
 C        ---------------------------------------------
 
          CALL CHO_TIMER(C1,W1)
-         IRED1 = INFVEC(IVEC1,2,ISYM)
          NVRD  = 0
          MUSED = 0
          CALL CHO_VECRD(WRK(KREAD),LREAD,IVEC1,NUMCHO(ISYM),ISYM,

@@ -33,7 +33,7 @@
       character*20 title
       character*20 lbl(nat)
 
-      Write(6,'(a8i1)') '--- GEOM'
+      Write(6,'(a8,i1)') '--- GEOM'
       Write(6,'(i4)') nat
       Write(6,*) title
       Do iat=1,nat
@@ -52,7 +52,7 @@
      &             (Geom(icomp,iat),icomp=1,3)
         end if
       End Do
-      Write(6,'(a8i1)') '--- GEOM'
+      Write(6,'(a8,i1)') '--- GEOM'
 
       if (iLU.ne.-1) then
         Write(iLU,'(i4)') nat

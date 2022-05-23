@@ -39,7 +39,7 @@ module generic_CI
         subroutine CI_run_t(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, TUVX, &
                                F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
             use general_data, only : ntot, ntot1, ntot2
-            use rasscf_data, only : Nac, nAcPar, nAcpr2
+            use rasscf_data, only : nAcPar, nAcpr2
 
             integer, intent(in) :: actual_iter
             real*8, intent(in) :: CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), &

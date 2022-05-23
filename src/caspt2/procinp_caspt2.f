@@ -12,6 +12,9 @@
 CSVC: process CASPT2 input based on the data in the input table, and
 C initialize global common-block variables appropriately.
       Use InputData
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
 #include "rasdim.fh"
 #include "warnings.fh"
@@ -22,7 +25,6 @@ C initialize global common-block variables appropriately.
 #include "stdalloc.fh"
 #include "SysDef.fh"
 #include "ofembed.fh"
-#include "para_info.fh"
 #include "caspt2_grad.fh"
 #include "nadc.fh"
 
@@ -360,7 +362,6 @@ C     really parallel or not.
         IF(IPRGLB.GE.TERSE) THEN
           Call WarningMessage(1,'User changed nr of frozen orbitals.')
         END IF
-        IERR=0
         DO I=1,NSYM
           NFI=NFRO(I)+NISH(I)
           IF(NFI.LT.Input%nFro(I)) THEN
@@ -374,7 +375,6 @@ C     really parallel or not.
       ENDIF
 * Set user-specified number of deleted orbitals.
       IF(Input % DELE) THEN
-        IERR=0
         DO I=1,NSYM
           NSD=NSSH(I)+NDEL(I)
           IF(NSD.LT.Input%nDel(I)) THEN

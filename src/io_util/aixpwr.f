@@ -96,14 +96,12 @@
       CtlBlk(pWhere,nFile)=pDisk+nBuf
       if(nBuf.gt.0) rc=c_pwrite(desc,Buf,nBuf,pDisk)
       If(rc.lt.0) Then
-         idum=iPrintLevel(3)
          Call FASTIO('STATUS')
          AixPWr=AixErr(ErrTxt)
             Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,
      *            TheName,FCtlBlk(nFile),
      *     'Premature abort while writing buffer to disk', ErrTxt)
       Else If(rc.ne.nBuf) Then
-         idum=iPrintLevel(3)
          Call FASTIO('STATUS')
          AixPWr=eEof
             Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,

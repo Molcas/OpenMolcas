@@ -36,9 +36,12 @@ C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
 
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   rc,ipScr
+      Integer   ipScr
       Integer   ipLpq(8,3)
       Integer   iSkip(8),kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8),iASQ(8,8,8)
@@ -49,7 +52,10 @@ C
       Integer   ipAsh(2),ipAorb(8,2),nChMo(8)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
-      Logical   Debug,timings,DoRead,DoReord,DoScreen
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead,DoScreen
       Real*8    FactCI,FactXI,thrv(2),xtau(2),norm
       Character*50 CFmt
       Character*14 SECNAM
@@ -67,7 +73,6 @@ C
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 
       Real*8 LKThr
 
@@ -109,19 +114,13 @@ C
       iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
 ************************************************************************
 
-
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
-
 
       timings=.false.
 *
 *
-      DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
 
       nDen = 2  ! the two bi-orthonormal sets of orbitals
@@ -520,14 +519,15 @@ C ------------------------------------------------------------------
 
          JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
          JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+#if defined (_MOLCAS_MPP_)
          myJRED1=JRED1 ! first red set present on this node
-         myJRED2=JRED2 ! last  red set present on this node
+         ntv0=0
+#endif
 
 c --- entire red sets range for parallel run
          Call GAIGOP_SCAL(JRED1,'min')
          Call GAIGOP_SCAL(JRED2,'max')
 
-         ntv0=0
          kscreen=1
          DoScreen=.true.
 
@@ -623,7 +623,6 @@ C --- BATCH over the vectors ----------------------------
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-                  rc=77
                   RETURN
                End If
 
@@ -1559,7 +1558,6 @@ C -------------------------------------------------------------
 
 
                if (irc.ne.0) then
-                  rc = irc
                   RETURN
                endif
 
@@ -1848,7 +1846,6 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                tintg(2) = tintg(2) + (TWINT2 - TWINT1)
 
                if (irc.ne.0) then
-                  rc = irc
                   RETURN
                endif
 
@@ -2206,7 +2203,6 @@ C--- have performed screening in the meanwhile
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in RASSI-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -2225,8 +2221,6 @@ c Print the Fock-matrix
       endif
 
 #endif
-      rc  = 0
-
 
       Return
 c Avoid unused argument warnings

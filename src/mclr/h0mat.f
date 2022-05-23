@@ -43,17 +43,17 @@
       iprt=100
       intspc=1
 *     luhdia=0
-      IATP = IASTFI(INTSPC)
-      IBTP = IBSTFI(INTSPC)
-      MNR1 = MNR1IC(INTSPC)
-      MXR1 = MXR1IC(INTSPC)
-      MNR3 = MNR3IC(INTSPC)
-      MXR3 = MXR3IC(INTSPC)
+*     IATP = IASTFI(INTSPC)
+*     IBTP = IBSTFI(INTSPC)
+*     MNR1 = MNR1IC(INTSPC)
+*     MXR1 = MXR1IC(INTSPC)
+*     MNR3 = MNR3IC(INTSPC)
+*     MXR3 = MXR3IC(INTSPC)
       NAEL = NAELCI(INTSPC)
       NBEL = NBELCI(INTSPC)
 *
-      NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
+*     NOCTPA = NOCTYP(IATP)
+*     NOCTPB = NOCTYP(IBTP)
 *. Allowed combination of alpha and beta strings
 *     Call mma_allocate(IOCOC,NOCTPA*NOCTPB,Label='IOCOC')
 *     CALL IAIBCM_MCLR(MNR1,MXR3,NOCTPA,NOCTPB,

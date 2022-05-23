@@ -48,10 +48,9 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
+#ifdef _DEBUGPRINT_
       iRout = 150
       iPrint = nPrint(iRout)
-*
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Write (6,*) ' In NAGrd: nArr=',nArr
          nDAO = nElem(la) * nElem(lb)

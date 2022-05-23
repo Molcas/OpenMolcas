@@ -12,9 +12,9 @@
 C
 C     Purpose: print statistics from decomposition.
 C
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "cho_para_info.fh"
 #include "choprint.fh"
 #include "choorb.fh"
 #include "choptr.fh"

@@ -21,7 +21,6 @@
       BP=Half*C
       START=Sqrt(Pi)
       PRSUM=EXP(BP*BP*A+EXPA)
-      SUM=Zero
       ALF=sqrt(A)
       ARG=(BP*ALF)**2
       nT = 1

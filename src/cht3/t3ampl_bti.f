@@ -39,10 +39,11 @@ c     First version w/ trick: JN, June 12, 2003
 c     Parallel version: PV, 15 oct 2003.
 c     Implemented integer offsets, PV, 14 may 2004.
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      use Para_Info, Only: MyRank, nProcs
       implicit none
       integer IUHF,LU(6)
       integer i,nuga,nugc,nga,ngb,ngc,vblock, it1
-      integer NOAB,NNOAB,NUAB,NNUAB,iopt,iout,isp,krem
+      integer NOAB,NNOAB,NUAB,NNUAB,iopt,isp,krem
       real*8 OEH(*),OEP(*),ddot_,ccsdt,ccsdt4,energ(4),tccsd,
      $     ENSCF, RESULT,times(10),
      $     times_parr(10), totcpu, totwal, timerel
@@ -74,7 +75,6 @@ cmp
 cmp!      include 'task_info_inc'
 cmp!      include 'ws_conn_inc'
 cmp
-#include "para_info.fh"
 #include "cht3_ccsd1.fh"
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
@@ -100,8 +100,6 @@ c
 !?      nprocs0=nprocs
 c Uncomment the following to force sequential mode
 !      nprocs=1
-
-      IOUT=IOPT(14)
 
       if (nprocs.gt.1) then
          write(6,'(A,i4,A)') ' Parallel run on ',nprocs,' nodes'

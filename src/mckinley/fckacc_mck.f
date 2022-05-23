@@ -85,7 +85,7 @@ c     Logical Qij, Qkl
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
-      iprint=0
+*     iprint=0
 *
 *     Write (*,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),
 *    &            DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One  ,0)
@@ -711,8 +711,8 @@ c     Character*72 Label
       xPrmt(i,j) = Prmt(iAnd(i,j))
 c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-      iRout = 38
-      iPrint = nPrint(iRout)
+*     iRout = 38
+*     iPrint = nPrint(iRout)
 *
 *     If (iPrint.ge.49) Then
 *        Write (*,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,

@@ -118,6 +118,7 @@
       Subroutine StoreDens(EigVec)
       Use rassi_aux, Only : iDisk_TDM
       Use rassi_global_arrays, Only : JbNum
+      Use mh5, Only: mh5_put_dset_array_real
       Implicit None
 #include "rassi.fh"
 #include "Molcas.fh"

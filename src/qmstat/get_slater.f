@@ -21,7 +21,6 @@
 
       Dimension CoordTest(3),SlFactQ(6)
       Dimension SlExpQ(MxMltp+1,MxQCen),outxyz(MxQCen,3)
-      Character*13 TheLine
       Logical Exist,lCheck
 
 
@@ -79,7 +78,7 @@
         End do
 *Jose. No read nuclear charge
 *       Read(Lu,104)PointP(ind)
-        Read(Lu,'(A)') TheLine
+        Read(Lu,*)
       End do
 
       Close(Lu)
@@ -90,4 +89,7 @@
 105   Format(3(F20.14))
 
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_real_array(SlFactQ)
+#endif
       End

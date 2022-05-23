@@ -112,7 +112,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iComp = 1
       kdc = 0
       Do iCnttp = 1, nCnttp
         If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr

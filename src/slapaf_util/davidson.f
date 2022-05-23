@@ -49,8 +49,10 @@
 *
 #include "stdalloc.fh"
 #include "real.fh"
+#if _DEBUGPRINT_
       INTEGER iPrint,iRout
 #include "print.fh"
+#endif
 
 *define _DEBUGPRINT_
 * Diagonal preconditioned residue (Davidson)
@@ -60,10 +62,9 @@
 * Generalized Jacobi-Davidson (Sleijpen et al.) (DO NOT USE IT)
 #define DAV_GJD 3
 
+#ifdef _DEBUGPRINT_
       iRout=216
       iPrint=nPrint(iRout)
-
-#ifdef _DEBUGPRINT_
       CALL TriPrt('Initial matrix','',A,n)
 #endif
 

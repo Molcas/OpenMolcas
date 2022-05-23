@@ -64,7 +64,9 @@
 *     2) nuclear-electronic, constant: added to h1 once
 *     3) electronic-electronic, linearly dependent of the density: TwoHam
 *
+#ifdef _DEBUGPRINT_
       tmp_RepNuc=RepNuc
+#endif
       NonEq=.False.
       If(lRFCav) Call RctFld(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 *                                                                      *
@@ -80,23 +82,16 @@
 *     and the dipole moments on the grid (EnucDip). This scalar terms
 *     depends also on D_tot and modifies RepNuc at each iteration.
 *
-      qq0=Zero
-*
       Edip2=Zero
       Eint=Zero
       Eself=Zero
       Enucdip=Zero
       Esimple=Zero
-      iMax=1
       agsum=Zero
 
 *
       Do iGrid=1,nGrid_
-*------- Grid coordinates
-         ghx=Grid(1,iGrid)
-         ghy=Grid(2,iGrid)
-         ghz=Grid(3,iGrid)
-*------- Langevin dipol moment
+*------- Langevin dipole moment
          dx=DipMom(1,iGrid)
          dy=DipMom(2,iGrid)
          dz=DipMom(3,iGrid)
@@ -130,11 +125,11 @@
          x=ftot*DipEff(iGrid)*tk
          If (x.le.0.0000001d0) Then
             ag=Zero
-            alang=Zero
+c           alang=Zero
          Else
             ex=exp(x)
             emx=One/ex
-            alang=(ex+emx)/(ex-emx)-One/x
+c           alang=(ex+emx)/(ex-emx)-One/x
             ag=-log((ex-emx)/(Two*x))/tk
          End If
 *

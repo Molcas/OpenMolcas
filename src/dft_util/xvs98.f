@@ -42,7 +42,7 @@
 c
 c     kinetic energy density or tau
 c
-      REAL*8 tauu,DTol
+      REAL*8 tauu
       REAL*8 f43, f53, f83
       REAL*8 gx, gg, x, z, kx,xk,zk
       REAL*8 cf, Axlsda, r1, r2, r3, r4, r5, r6
@@ -101,8 +101,6 @@ c
         r5 =   0.000000D+00
         r6 =   0.000000D+00
       endif
-
-      DTol = T_X
 
 *                                                                      *
 ************************************************************************

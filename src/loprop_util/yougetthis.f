@@ -33,7 +33,6 @@
 *---- Coordinates of centre.
 *
         Write(LuYou,103)(EC(k,i),k=1,3)
-        kaunt=0
         Do l=0,lMax
           nS=l*(l+1)*(l+2)/6
           nT=(l+1)*(l+2)*(l+3)/6

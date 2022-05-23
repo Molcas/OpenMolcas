@@ -46,7 +46,6 @@
 *=====
 *.D2h
 *=====
-        NSMOB = 0
         DO 10 IRREP = 1, 8
           NOSPIR(IRREP) = 1
           IOSPIR(1,IRREP) = IRREP

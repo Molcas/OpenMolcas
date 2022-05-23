@@ -27,7 +27,7 @@
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Logical Print
+C     Logical Print
       Real*8 q(nInter,nIter+1), dq(nInter,nIter), g(nInter,nIter),
      &       error(nInter,nIter+1), B((nIter+1)*(nIter+1)),
      &       RHS(nIter+1),
@@ -50,7 +50,7 @@
 *
 *---- Print out of the Hessian and determination of the Hessian index.
 *
-      print=.true.
+C     print=.true.
 C     Call View(H,nInter,print)
 *
       E_Delta=Zero

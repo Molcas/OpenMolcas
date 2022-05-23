@@ -46,8 +46,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
       Call RecPrt('PGet1_CD2: V_k',' ',V_k,1,mV_k)
 #endif
@@ -69,7 +67,6 @@ C     Fac = One / Four
 
       iSym = 1
       jSym = 1
-      kSym = 1
       lSym = 1
       iSO = 1
 

@@ -46,9 +46,6 @@
       SIGN = 0.0D0 ! jwk-cleanup
       ISTR = 0 ! jwk-cleanup
 *
-      IMULTK = NSTAK*NSTB
-      IMULTI = NSTAI*NSTB
-*
 C?    WRITE(6,*) ' ICRESTR '
 C?    CALL IWRTMA(ICRESTR,LROW_IN,NSTAK,LROW_IN,NSTAK)
 C?    WRITE(6,*) ' IOFFI = ', IOFFI

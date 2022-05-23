@@ -45,8 +45,8 @@
          Call Abend
       EndIf
       Do i=2,iter0
-         read(Lu,'(I4,4F18.10)') kiter, Ene(i,1), Ene(i,2), Ene(i,3),
-     &                                  Ene(i,4)
+         read(Lu,'(I4,4F18.10)') iter, Ene(i,1), Ene(i,2), Ene(i,3),
+     &                                 Ene(i,4)
       End Do
 *
       iter=iter0+1

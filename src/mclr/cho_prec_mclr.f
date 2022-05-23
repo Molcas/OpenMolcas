@@ -386,7 +386,6 @@ c         !set index arrays at iLoc
      &                     NUMV,IREDC,MUSED)
 
             If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-               rc=77
                RETURN
             End If
 
@@ -426,7 +425,6 @@ c         !set index arrays at iLoc
             ipCMOt(:) = ipCMOt(:) + 1 - inc
 
             if (irc.ne.0) then
-               rc = irc
                RETURN
             endif
 

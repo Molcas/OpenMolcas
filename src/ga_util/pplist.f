@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_PPList
+      Use Para_Info, only: MyRank, nProcs, Is_Real_Par
       Implicit Real*8 (a-h,o-z)
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
       Logical Debug
@@ -59,9 +59,9 @@ c     Write (*,*) (iWork(ipTskL+iTsk),iTsk = 0, nTasks-1)
       Return
       End
       Subroutine ReInit_PPList(Semi_Direct)
+      Use Para_Info, only: MyRank, nProcs
       Implicit Real*8 (a-h,o-z)
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
       Logical Debug,Semi_Direct
@@ -126,8 +126,8 @@ c        Write (*,*) 'mTasks=',mTasks
       End
 *
       Subroutine Free_PPList
+      Use Para_Info, only: nProcs, Is_Real_Par
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
 *

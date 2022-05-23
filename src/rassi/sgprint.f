@@ -15,7 +15,6 @@
 #include "WrkSpc.fh"
 
 C Unpack structure iSGStruct:
-      nSym   =iSGStruct(1)
       nLev   =iSGStruct(2)
       lISm   =iSGStruct(3)
       nVert  =iSGStruct(4)
@@ -26,7 +25,6 @@ C Unpack structure iSGStruct:
       MVSta  =iSGStruct(9)
       MVEnd  =iSGStruct(10)
       lMAW   =iSGStruct(11)
-      lLTV   =iSGStruct(12)
       Write(6,*)' Split-Graph UGA. Graph description:'
       Write(6,*)' Nr of levels:',nLev
       Write(6,*)' Orbital symmetry labels:'

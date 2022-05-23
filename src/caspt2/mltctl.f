@@ -44,8 +44,6 @@
       END IF
 
 C Write out the effective Hamiltonian, for use in e.g. RASSI:
-      IRC=-1
-      IOPT=1
       INLAB='HEFF'
       CALL put_darray(INLAB,HEFF,NSTATE**2)
 

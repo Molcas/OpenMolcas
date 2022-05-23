@@ -144,6 +144,9 @@ C as this is how they are used to compute the integrals for RHS.
 * Read (transposed) cholesky vectors from disk, they
 * are indexed as CHOBUF(IVEC,IQ,IK)
 ************************************************************************
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -153,7 +156,6 @@ C as this is how they are used to compute the integrals for RHS.
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL :: IS_REAL_PAR
 #endif
 
       INTEGER :: ICASE,LCHOBUF
@@ -284,7 +286,8 @@ C always write the chunks to LUDRA, both for serial and parallel
 * all of them on each process in case of parallel run.
 ************************************************************************
 #ifdef _MOLCAS_MPP_
-      use mpi
+      USE MPI
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
 #endif
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -292,7 +295,6 @@ C always write the chunks to LUDRA, both for serial and parallel
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "chocaspt2.fh"
-#include "para_info.fh"
       REAL*8 :: CHOBUF(*)
       INTEGER :: ICASE,ISYQ,JSYM,IB
 
@@ -390,7 +392,7 @@ C Avoid unused argument warnings
 ************************************************************************
 * Wrapper to MPI_Allgatherv dealing with ILP64 incompatibility.
 ************************************************************************
-      use mpi
+      USE MPI
       IMPLICIT NONE
       REAL*8 SENDBUF(*), RCVBUF(*)
       INTEGER NSEND, NRCV(*),NOFF(*)

@@ -104,7 +104,7 @@
 *
       TAbs = RSlPar(16)
       Call Cavitation(DoDeriv,ToAng,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs,
-     &                TCE,RSolv,PCMSph,PCMTess,PCMiSph)
+     &                RSolv,PCMSph,PCMTess,PCMiSph)
 *
 *---- Define PCM matrix: the inverse is stored in PCMDM
 *

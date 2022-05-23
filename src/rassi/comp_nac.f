@@ -99,7 +99,6 @@ C***********************************************************************C
 * INDGRD(IIRREP) will be zero, except for those irreps, and
 * will then contain the ordering number of the displacement.
                   Do iIrrep = 0, nIrrep-1
-                     iSmLbl = 2**iIrrep
                      If ((iAnd(2**iIrrep,lOper).ne.0).and.
      &                    (MUL(iIrrep+1,isy12).eq.1))  Then
                         idisp = indgrd(iirrep)

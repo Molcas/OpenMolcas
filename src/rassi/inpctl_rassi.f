@@ -29,9 +29,6 @@
 #include "centra.fh"
 #include "rasdef.fh"
 #include "cntrl.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 
       LOGICAL READ_STATES
       INTEGER JOB, i

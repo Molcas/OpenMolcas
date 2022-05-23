@@ -47,9 +47,6 @@ C
 
       Real*8 tC0, tW0, tC1, tW1
 
-      Integer  LDF_nBasSh
-      External LDF_nBasSh
-
       Integer i, j
       Integer iTime
       iTime(i,j)=ip_T-1+2*(j-1)+i

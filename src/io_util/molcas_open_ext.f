@@ -13,8 +13,7 @@
 
         subroutine molcas_open_ext2(Lu,f_Name,f_access,
      &   f_form,f_iostat,is_recl,f_recl,f_status,is_error)
-        Integer Lu,f_recl,f_iostat,strnln
-        External StrnLn
+        Integer Lu,f_recl,f_iostat
         Character*(*) f_Name
         Character*4096 RealName
         Character*(*) f_access,f_form,f_status
@@ -47,8 +46,6 @@ c        print *,'Unit ', Lu
 
         subroutine molcas_binaryopen_vanilla(Lu,f_name)
         integer Lu
-        Integer StrnLn
-        External StrnLn
         Character*(*) f_name
         Character*4096 RealName
 c        RealName=f_Name

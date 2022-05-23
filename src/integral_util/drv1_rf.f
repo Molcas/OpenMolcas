@@ -62,8 +62,6 @@
       iRout = 112
       iPrint = nPrint(iRout)
 *
-      iIrrep = 0
-*
 *     Auxiliary memory allocation.
 *
       Call mma_allocate(Zeta,S%m2Max,Label='Zeta')

@@ -95,10 +95,10 @@ c       t2(A',B',IJ)  T2xxyy xx - Group of A'
 c                            yy - Group of B'
 c
 c
+        use Para_Info, only: MyRank
         implicit none
 #include "chcc1.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 #include "o3v3.fh"
 #include "chcc_files.fh"
 #include "wrk.fh"

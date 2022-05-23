@@ -49,11 +49,10 @@ c      Logical Debug
 *...  Prologue
 c      Debug=.false.
       isEner=1
-      iRout = 2
       ipCutOff=ip_iDummy
 
       dNorm=0
-      ddNorm=0
+c     ddNorm=0
       if(iRun.eq.1.and.levelprint.ge.3) then
        Write (6,*)
        Write (6,'(A,8I5)') 'Irreps  : ',(i,i=1,nIrrep)
@@ -276,12 +275,12 @@ c       call iXML('nMOs',nMOs)
         Call GetMem('DOValue','ALLO','REAL',ipOut,nInc)
 
 
-      if (imoPack .ne. 0) then
-        Call GetMem('PackedBlock','ALLO','INTE',ipPBlock,nInc)
-      else
+!      if (imoPack .ne. 0) then
+!        Call GetMem('PackedBlock','ALLO','INTE',ipPBlock,nInc)
+!      else
         Call GetMem('PackedBlock','ALLO','INTE',ipPBlock,1)
         iWork(ipPBlock)=0
-      endif
+!      endif
 *
 *.... Allocate memory for the some grid points
 *
@@ -384,7 +383,6 @@ c       Print *, 'HERE header isdone'
 c      if(isAtom.eq.1) goto 6000
 
       iiiCoord=0
-      dtot=0.d0
 c      if(isCutOff.eq.1) nCoor=iiCoord
 cccccccccccccc  main loop starts here  ccccccccccccccccccccccccccccccccc
       iShiftCut=0
@@ -699,11 +697,11 @@ c6000  continue
       endif
       if(isUserGrid.eq.1)
      *  Call GetMem('Grid','FREE','REAL',ipGrid,nGridPoints*3)
-      if (imoPack .ne. 0) then
-        Call GetMem('PackedBlock','FREE','INTE',ipPBlock,nInc)
-      else
+!      if (imoPack .ne. 0) then
+!        Call GetMem('PackedBlock','FREE','INTE',ipPBlock,nInc)
+!      else
         Call GetMem('PackedBlock','FREE','INTE',ipPBlock,1)
-      endif
+!      endif
 
         Call GetMem('Pab' ,'FREE','REAL',ipPab,nMOs)
         Call GetMem('DoIt','FREE','INTE',ipDoIt,nMOs)

@@ -51,7 +51,6 @@
 *                                                                      *
       If (nBonds.lt.1) Return
 *
-*
       nqB=0
 #ifdef _DEBUGPRINT_
       Write (6,*)

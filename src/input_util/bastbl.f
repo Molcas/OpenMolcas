@@ -15,7 +15,7 @@
 c
 c  translate basis file names
 c
-      character *256 Filename, DirName, OrigName, TransName
+      character *256 Filename, DirName, OrigName
       character *256 Line
       Integer Strnln,irecl
       External StrnLn
@@ -79,7 +79,6 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
        ib=i
        ia=index(Line(ib:),' ')
        if(ia.eq.0) ia=len(Line)+1
-       TransName=Line(ib:ib+ia-1)
        FileName=DirName(1:ileft)//Line(ib:ib+ia-1)
 #ifdef _DEBUGPRINT_
        write(6,*) '*** Basis set was redirected to ',FileName
@@ -159,8 +158,6 @@ c
 c  translate basis file names
 c
       character *(*) Filename
-      Logical King
-      External King
       Integer StrnLn
       External StrnLn
       character *256 DirName, OrigName

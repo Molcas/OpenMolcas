@@ -57,7 +57,6 @@ C transformation.)
       END IF
 
 C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
-      ISY12=MUL(LSYM1,LSYM2)
       IOFFTD=0
       ICOFF=1
       DO 120 ISY1=1,NSYM
@@ -67,7 +66,6 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
         IF(NA1.EQ.0) GOTO 110
         NI1=NISH(ISY1)
         DO 100 I=1,NA1
-          IA=IOFFA(ISY1)+I
           II=NI1+I
           IPOS=IOFFTD+II
 

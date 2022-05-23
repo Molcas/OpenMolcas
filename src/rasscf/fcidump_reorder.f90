@@ -12,9 +12,8 @@
 !               2019, Oskar Weser                                      *
 !***********************************************************************
 module fcidump_reorder
-  use stdalloc, only : mma_allocate, mma_deallocate
   use fcidump_tables, only :  FockTable, TwoElIntTable, OrbitalTable,&
-    mma_allocate, mma_deallocate, length
+    mma_deallocate, length
   use sorting_funcs, only : leq_i
 
   implicit none

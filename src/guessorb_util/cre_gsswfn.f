@@ -11,8 +11,10 @@
       subroutine cre_gsswfn
 *     SVC: Create a wavefunction file. If another .guessorb.h5 file already
 *     exists, it will be overwritten.
-      implicit none
 #ifdef _HDF5_
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_real, mh5_create_dset_str
+      implicit none
 #  include "Molcas.fh"
 #  include "commgo.fh"
 #  include "gsswfn.fh"
@@ -72,8 +74,9 @@
       end
 
       subroutine cls_gsswfn
-      implicit none
 #ifdef _HDF5_
+      use mh5, only: mh5_close_file
+      implicit none
 #  include "gsswfn.fh"
       call mh5_close_file(wfn_fileid)
 #endif

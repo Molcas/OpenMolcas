@@ -28,7 +28,6 @@
 *-- Second the repulsion with boundary that keeps QM away from
 *   boundary.
 *
-      RMax=0.0d0
       Do 901, iAt=1,iQ_Atoms
         R=Cordst(iAt,1)**2+Cordst(iAt,2)**2+Cordst(iAt,3)**2
         R=sqrt(R)

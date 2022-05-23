@@ -35,7 +35,6 @@
 *----------------------------------------------------------------------*
 * Rotate solvent orbitals and make AO integration.                     *
 *----------------------------------------------------------------------*
-      s90um=0.0d0
       Cut_ExSq1=Cut_Ex1**2
       Cut_ExSq2=Cut_Ex2**2
       nOrbSize=iOrb(1)*iOrb(2)

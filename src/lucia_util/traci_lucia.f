@@ -47,8 +47,6 @@
 * Some dummy initializations
       IOFF = 0 ! jwk-cleanup
 *
-      IDUM=0
-*
       NTEST = 0
       IF(NTEST.GE.5) THEN
         WRITE(6,*) ' ================'

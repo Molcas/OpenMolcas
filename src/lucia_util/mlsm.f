@@ -35,28 +35,22 @@ C     COMMON/CSM/NSMSX,NSMDX,NSMST,NSMCI,ITSSX,ITSDX
 *.(Tired of warnings from 3090 Compiler so )
 * (
       NML = 0
-      MXML= 0
       MNML= 0
 *             )
       IF(TYPE.EQ.'OB') THEN
         NML = NMLOB
-        MXML = MXMLOB
         MNML = MNMLOB
       ELSE IF(TYPE.EQ.'SX') THEN
         NML = NMLSX
-        MXML = MXMLSX
         MNML = MNMLSX
       ELSE IF(TYPE.EQ.'DX') THEN
         NML = NMLDX
-        MXML = MXMLDX
         MNML = MNMLDX
       ELSE IF(TYPE.EQ.'ST') THEN
         NML = NMLST
-        MXML = MXMLST
         MNML = MNMLST
       ELSE IF(TYPE.EQ.'CI') THEN
         NML = NMLCI
-        MXML = MXMLCI
         MNML = MNMLCI
       END IF
 *

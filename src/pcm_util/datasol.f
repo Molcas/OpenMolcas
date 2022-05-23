@@ -27,12 +27,12 @@ C
         RSolv  = 1.385d0
         VMol   = 18.07d0
         TCE    = 2.57d-4
-        STen   = 71.81d0
-        DSTen  = 0.650d0
-        CMF    = 1.277d0
+*       STen   = 71.81d0
+*       DSTen  = 0.650d0
+*       CMF    = 1.277d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 3.348d-2
-        NATyp  = 2
+*       Rho    = 3.348d-2
+*       NATyp  = 2
 C     Atom O:
         NTT(1)    = 1
         RDiff(1) = 1.5d0
@@ -55,12 +55,12 @@ C
         RSolv  = 2.155d0
         VMol   = 53.68d0
         TCE    = 1.192d-3
-        STen   = 36.47d0
-        DSTen  = 1.373d0
-        CMF    = 0.808d0
+*       STen   = 36.47d0
+*       DSTen  = 1.373d0
+*       CMF    = 0.808d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 1.153d-2
-        NATyp  = 3
+*       Rho    = 1.153d-2
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 2
         RDiff(1) = 1.76d0
@@ -87,12 +87,12 @@ C
         RSolv  = 1.855d0
         VMol   = 40.7d0
         TCE    = 1.182d-3
-        STen   = 22.12d0
-        DSTen  = 1.154d0
-        CMF    = 1.776d0
+*       STen   = 22.12d0
+*       DSTen  = 1.154d0
+*       CMF    = 1.776d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 1.495d-2
-        NATyp  = 3
+*       Rho    = 1.495d-2
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 1
         RDiff(1) = 1.76d0
@@ -119,12 +119,12 @@ C
         RSolv  = 2.180d0
         VMol   = 58.7d0
         TCE    = 1.103d-3
-        STen   = 21.89d0
-        DSTen  = 1.146d0
-        CMF    = 1.543d0
+*       STen   = 21.89d0
+*       DSTen  = 1.146d0
+*       CMF    = 1.543d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 1.032d-2
-        NATyp  = 3
+*       Rho    = 1.032d-2
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 2
         RDiff(1) = 1.76d0
@@ -151,12 +151,12 @@ C
         RSolv  = 3.50d0
         VMol   = 117.27d0
         TCE    = 1.255d-3
-        STen   = 26.53d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 26.53d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 5.135d-3
-        NATyp  = 3
+*       Rho    = 5.135d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 9
         RDiff(1) = 1.5d0
@@ -183,12 +183,12 @@ C
         RSolv  = 3.50d0
         VMol   = 117.27d0
         TCE    = 1.255d-3
-        STen   = 26.53d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 26.53d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 5.135d-3
-        NATyp  = 3
+*       Rho    = 5.135d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 9
         RDiff(1) = 1.5d0
@@ -215,12 +215,12 @@ C
         RSolv  = 2.48d0
         VMol   = 80.7d0
         TCE    = 1.255d-3
-        STen   = 26.53d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 26.53d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 7.482d-3
-        NATyp  = 3
+*       Rho    = 7.482d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 1
         RDiff(1) = 2.82d0
@@ -247,12 +247,12 @@ C
         RSolv  = 2.785d0
         VMol   = 103.84d0
         TCE    = 1.617d-3
-        STen   = Zero
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = Zero
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 5.799d-3
-        NATyp  = 3
+*       Rho    = 5.799d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 4
         RDiff(1) = 1.76d0
@@ -279,12 +279,12 @@ C
         RSolv  = 2.27d0
         VMol   = 64.5d0
         TCE    = 1.367d-3
-        STen   = 27.33d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 27.33d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 9.74d-3
-        NATyp  = 3
+*       Rho    = 9.74d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 1
         RDiff(1) = 1.76d0
@@ -311,12 +311,12 @@ C
         RSolv  = 2.505d0
         VMol   = 79.4d0
         TCE    = 1.156d-3
-        STen   = 31.54d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 31.54d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 7.576d-3
-        NATyp  = 3
+*       Rho    = 7.576d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 2
         RDiff(1) = 1.76d0
@@ -343,12 +343,12 @@ C
         RSolv  = 2.685d0
         VMol   = 96.5d0
         TCE    = 1.270d-3
-        STen   = 26.15d0
-        DSTen  = 1.436d0
-        CMF    = 0.629d0
+*       STen   = 26.15d0
+*       DSTen  = 1.436d0
+*       CMF    = 0.629d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 6.241d-3
-        NATyp  = 2
+*       Rho    = 6.241d-3
+*       NATyp  = 2
 C     Atom C:
         NTT(1)    = 1
         RDiff(1) = 2.82d0
@@ -370,12 +370,12 @@ C
         RSolv  = 2.63d0
         VMol   = 88.91d0
         TCE    = 1.380d-3
-        STen   = 28.18d0
-        DSTen  = 1.469d0
-        CMF    = 0.629d0
+*       STen   = 28.18d0
+*       DSTen  = 1.469d0
+*       CMF    = 0.629d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 6.773d-3
-        NATyp  = 2
+*       Rho    = 6.773d-3
+*       NATyp  = 2
 C     Atom C:
         NTT(1)    = 6
         RDiff(1) = 1.5d0
@@ -397,12 +397,12 @@ C
         RSolv  = 2.82d0
         VMol   = 106.3d0
         TCE    = 1.08d-3
-        STen   = 27.92d0
-        DSTen  = 1.391d0
-        CMF    = 0.679d0
+*       STen   = 27.92d0
+*       DSTen  = 1.391d0
+*       CMF    = 0.679d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 5.665d-3
-        NATyp  = 2
+*       Rho    = 5.665d-3
+*       NATyp  = 2
 C     Atom C:
         NTT(1)    = 7
         RDiff(1) = 1.5d0
@@ -424,12 +424,12 @@ C
         RSolv  = 2.805d0
         VMol   = 101.79d0
         TCE    = 0.981d-3
-        STen   = 32.69d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 32.69d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 5.916d-3
-        NATyp  = 3
+*       Rho    = 5.916d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 6
         RDiff(1) = 1.5d0
@@ -456,12 +456,12 @@ C
         RSolv  = 2.155d0
         VMol   = 53.68d0
         TCE    = 1.192d-3
-        STen   = 36.47d0
-        DSTen  = 1.373d0
-        CMF    = 0.808d0
+*       STen   = 36.47d0
+*       DSTen  = 1.373d0
+*       CMF    = 0.808d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 1.122d-2
-        NATyp  = 4
+*       Rho    = 1.122d-2
+*       NATyp  = 4
 C     Atom C:
         NTT(1)    = 1
         RDiff(1) = 1.76d0
@@ -493,12 +493,12 @@ C
         RSolv  = 3.125d0
         VMol   = 146.56d0
         TCE    = 1.25d-3
-        STen   = 19.80d0
-        DSTen  = 1.505d0
-        CMF    = 0.687d0
+*       STen   = 19.80d0
+*       DSTen  = 1.505d0
+*       CMF    = 0.687d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 4.109d-3
-        NATyp  = 2
+*       Rho    = 4.109d-3
+*       NATyp  = 2
 C     Atom C:
         NTT(1)    = 7
         RDiff(1) = 1.76d0
@@ -520,12 +520,12 @@ C
         RSolv  = 2.815d0
         VMol   = 108.10d0
         TCE    = 1.20d-3
-        STen   = 24.38d0
-        DSTen  = 1.467d0
-        CMF    = 0.621d0
+*       STen   = 24.38d0
+*       DSTen  = 1.467d0
+*       CMF    = 0.621d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 5.571d-3
-        NATyp  = 2
+*       Rho    = 5.571d-3
+*       NATyp  = 2
 C     Atom C:
         NTT(1)    = 6
         RDiff(1) = 1.76d0
@@ -547,12 +547,12 @@ C
         RSolv  = 2.80d0
         VMol   = 91.15d0
         TCE    = 0.85d-3
-        STen   = 42.79d0
-        DSTen  = 0.731d0
-        CMF    = 0.972d0
+*       STen   = 42.79d0
+*       DSTen  = 0.731d0
+*       CMF    = 0.972d0
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 6.607d-3
-        NATyp  = 3
+*       Rho    = 6.607d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 6
         RDiff(1) = 1.5d0
@@ -579,12 +579,12 @@ C
         RSolv  = 2.38d0
         VMol   = 73.52d0
         TCE    = 1.42d-3
-        STen   = 22.67d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 22.67d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 8.190d-3
-        NATyp  = 3
+*       Rho    = 8.190d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 3
         RDiff(1) = 1.76d0
@@ -611,12 +611,12 @@ C
         RSolv  = 2.56d0
         VMol   = 81.11d0
         TCE    = 1.142d-3
-        STen   = 26.40d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 26.40d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 7.425d-3
-        NATyp  = 3
+*       Rho    = 7.425d-3
+*       NATyp  = 3
 C     Atom C:
         NTT(1)    = 4
         RDiff(1) = 1.76d0
@@ -643,12 +643,12 @@ C
         RSolv  = 2.455d0
         VMol   = 70.94d0
         TCE    = 9.82d-2
-        STen   = 42.86d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 42.86d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 8.49d-3
-        NATyp  = 4
+*       Rho    = 8.49d-3
+*       NATyp  = 4
 C     Atom C:
         NTT(1)    = 2
         RDiff(1) = 1.76d0
@@ -683,19 +683,19 @@ C              the numeral density) and VMol (i.e. the molar volume)
 C              properly. Of course, the proper dielectric constant
 C              must be provided too.
 C
-        Tabs   = 118.0d0
+*       Tabs   = 118.0d0
         Eps    = 1.430d0
         EpsInf = 1.430d0
         DerEps = Zero
         RSolv  = 1.875d0
         VMol   = 34.29d0
         TCE    = 9.82d-2
-        STen   = 42.86d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 42.86d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 1.756d-2
-        NATyp  = 1
+*       Rho    = 1.756d-2
+*       NATyp  = 1
 C     Atom Ar:
         NTT(1)    = 1
         RDiff(1) = 1.875d0
@@ -715,19 +715,19 @@ C              the numeral density) and VMol (i.e. the molar volume)
 C              properly. Of course, the proper dielectric constant
 C              must be provided too.
 C
-        Tabs   = 168.0d0
+*       Tabs   = 168.0d0
         Eps    = 1.519d0
         EpsInf = 1.519d0
         DerEps = Zero
         RSolv  = 2.07d0
         VMol   = 42.71d0
         TCE    = 9.82d-2
-        STen   = 42.86d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 42.86d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 1.410d-02
-        NATyp  = 1
+*       Rho    = 1.410d-02
+*       NATyp  = 1
 C     Atom Kr:
         NTT(1)    = 1
         RDiff(1) = 2.07d0
@@ -747,19 +747,19 @@ C              the numeral density) and VMol (i.e. the molar volume)
 C              properly. Of course, the proper dielectric constant
 C              must be provided too.
 C
-        Tabs   = 210.0d0
+*       Tabs   = 210.0d0
         Eps    = 1.706d0
         EpsInf = 1.706d0
         DerEps = Zero
         RSolv  = 2.20d0
         VMol   = 50.38d0
         TCE    = 9.82d-2
-        STen   = 42.86d0
-        DSTen  = Zero
-        CMF    = Zero
+*       STen   = 42.86d0
+*       DSTen  = Zero
+*       CMF    = Zero
 C     Atomic parameters for dispersion and repulsion
-        Rho    = 1.195d-02
-        NATyp  = 1
+*       Rho    = 1.195d-02
+*       NATyp  = 1
 C     Atom Xe:
         NTT(1)    = 1
         RDiff(1) = 2.20d0

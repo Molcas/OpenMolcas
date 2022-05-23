@@ -53,8 +53,6 @@
       Call Wr_Motra_Info(iLu1,2,iDisk,iToc,64,Ecor,nSymM,nBasM,nOrbM
      &,nFroM,nDelM,MxSym,NameM,lenin8*maxbfn) !Last argument depends on
                                               !mxorb in Molcas.fh.
-      nOrbMFirst=nOrbM(1)
-
 *
 *-- One checks.
 *

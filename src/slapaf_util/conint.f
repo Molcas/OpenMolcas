@@ -157,7 +157,6 @@ C------------- Absolute value ----------
 *---- Compute the cartesian derivative of the B-Matrix.
 *
       If (ldB) Then
-         nGrad=3*nCent
          If (iOpt.eq.1) Then
 C---------- Linear ------------------
             Call FZero(dBf,(3*nCent)**2)

@@ -151,8 +151,6 @@ c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
      &   IEL.GT.NOBPT(IOBTP).OR.JEL.GT.NOBPT(JOBTP)) THEN
 *. No strings with this number of elecs - be happy : No work
         NK = 0
-        KACT = 0
-        KACGRP = 0
         IF(NTEST.GE.100) WRITE(6,*) ' Trivial zero excitations'
         ITRIVIAL = 1
 C       GOTO 9999
@@ -262,8 +260,8 @@ C    &                              NORBT,IDOREO,IZ,IREO)
       JJOB = IOBPTS(JOBTP,JOBSM) + JOB - 1
 *
       IZERO = 0
-      ZERO = 0.0D0
       CALL ISETVC(I1  ,IZERO,LI1*NIOB*NJOB)
+COLD  ZERO = 0.0D0
 COLD  CALL SETVEC(XI1S,ZERO ,LI1*NIOB*NJOB)
 *
       CALL ADAADAS1_GAS(      NK,      I1,    XI1S,     LI1,    IIOB,

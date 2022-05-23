@@ -31,7 +31,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Character(LEN=1) help_c*1
+      Character(LEN=1) help_c
       Character(LEN=16) FMT
       Character(LEN=LENIN), Allocatable:: Lblxxx(:)
       Real*8, Dimension (:,:), Allocatable :: Centr
@@ -92,9 +92,6 @@
          End If
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = dbsc(jCnttp)%Coor(1,jCnt)
-            y1 = dbsc(jCnttp)%Coor(2,jCnt)
-            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/dc(ndc)%nStab - 1
                Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
      &                 Centr(1:3,nc))
@@ -118,7 +115,6 @@
      &                    Centr(1:3,nc)*angstr
                   endif
                End If
-               nchr=dbsc(jCnttp)%AtmNr
                if (nc.gt.8*MxAtom) Then
                   Call WarningMessage(2,'lblxxx too small')
                   Call Abend()

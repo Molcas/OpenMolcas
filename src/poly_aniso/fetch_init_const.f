@@ -35,8 +35,9 @@ c local variables:
       Real(kind=8):: rdummy
       Real(kind=8):: TempMagn(NMAXC)
       Logical :: ab_initio_all
-      Logical :: KeyCoor, KeyPair, KeyHEXP, KeyTEXP, KeyHINT, KeyTINT,
-     &           KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
+      Logical :: KeyCoor, KeyPair, KeyHEXP, KeyTEXP
+c     Logical :: KeyHINT, KeyTINT,
+c    &           KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
       Integer :: LUANISO, Isfreeunit
       Character(Len=1)   :: itype(NMAXC)
       Character(Len=280) :: line
@@ -79,18 +80,18 @@ c      namefile_aniso='              '
       DBG=.false.
 
 
-      KeyNNEQ=.false.
+c     KeyNNEQ=.false.
       KeyPair=.false.
       KeyCoor=.false.
       KeyHEXP=.false.
       KeyTEXP=.false.
-      KeyTMAG=.false.
-      KeyTINT=.false.
-      KeyHINT=.false.
-      KeyMLTP=.false.
-      KeyMVEC=.false.
-      KeyZEEM=.false.
-      KeyITOJ=.false.
+c     KeyTMAG=.false.
+c     KeyTINT=.false.
+c     KeyHINT=.false.
+c     KeyMLTP=.false.
+c     KeyMVEC=.false.
+c     KeyZEEM=.false.
+c     KeyITOJ=.false.
       nH_HEXP=0
       nH_HINT=0
       nT_TEXP=0
@@ -121,7 +122,7 @@ C=========== End of default settings====================================
 
       If (line(1:4).eq.'NNEQ') Then
 
-         KeyNNEQ=.true.
+c        KeyNNEQ=.true.
          READ(Input,*) nneq, ab_initio_all, ifHDF
 
          If(DBG) WRITE(6,*) nneq, ab_initio_all, ifHDF
@@ -304,7 +305,7 @@ C=========== End of default settings====================================
 
       If (line(1:4).eq.'HINT') Then
 
-          KeyHINT=.true.
+c         KeyHINT=.true.
           READ(Input,*) rdummy, rdummy, nH_HINT
 
           If ( nH_HINT<=0 ) Then
@@ -322,7 +323,7 @@ C=========== End of default settings====================================
 
       If (line(1:4).eq.'TINT') Then
 
-          KeyTINT=.true.
+c         KeyTINT=.true.
           READ(Input,*) rdummy, rdummy, nT_TINT
 
           If ( nT_TINT<=0 ) Then
@@ -341,7 +342,7 @@ C=========== End of default settings====================================
 
       If (line(1:4).eq.'TMAG') Then
 
-          KeyTMAG=.true.
+c         KeyTMAG=.true.
           READ(Input,*) nTempMagn_TMAG
 
           If ( nTempMagn_TMAG<=0 ) Then
@@ -359,7 +360,7 @@ C=========== End of default settings====================================
 
       If (line(1:4).eq.'MVEC') Then
 
-          KeyMVEC=.true.
+c         KeyMVEC=.true.
           READ(Input,*) nDir
 
           If ( nDir<=0 ) Then
@@ -376,7 +377,7 @@ C=========== End of default settings====================================
 
 
       If (line(1:4).eq.'ZEEM') Then
-          KeyZEEM=.false.
+c         KeyZEEM=.false.
           READ(Input,*) nDirZee
 
           If ( nDirZee<=0 ) Then
@@ -394,7 +395,7 @@ C=========== End of default settings====================================
 
       If (line(1:4).eq.'MLTP') Then
 
-          KeyMLTP=.true.
+c         KeyMLTP=.true.
           READ(Input,*) nMult
 
           If ( nMult<=0 ) Then
@@ -514,4 +515,11 @@ C------ errors ------------------------------
 
 190   Continue
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Then
+         Call Unused_integer(idummy)
+         Call Unused_real(rdummy)
+         Call Unused_real_array(TempMagn)
+      End If
+#endif
       End

@@ -31,9 +31,6 @@
       Character*8 Method, Label
       Integer mBas(8)
 *
-      iOpt1=1
-      iOpt2=2
-*
       Call Get_cArray('Relax Method',Method,8)
       Call Allocate_Work(ipC,1)
       Call Get_iScalar('nSym',i)

@@ -110,7 +110,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
           ELSE
             WRITE(6,*)' With new orbitals, the CI array is:'
           END IF
-          CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
+          CALL PRWF_CP2(STSYM,NCONF,WORK(LCI),CITHR)
         END IF
       ELSE
         WORK(LCI)=1.0D0

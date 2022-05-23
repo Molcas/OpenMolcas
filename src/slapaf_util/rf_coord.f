@@ -87,10 +87,9 @@
             iDCR(iCent)=iCoSet(i,iAtom)
          End Do
       End Do
-      nCurrXYZ=iCent
 *
-      Fact=One
-      If (.Not.RotVar) Fact=2.0D-2
+C     Fact=One
+C     If (.Not.RotVar) Fact=2.0D-2
 *
 *     Write (6,*) 'nCent=',nCent
 *     Write (6,*) (Ind(iCent),iCent=1,nCent)
@@ -123,8 +122,6 @@
          COM_xyz=COM_xyz/TMass
 *
          If (.Not.TransVar) Go To 199
-         f_Const=One
-*        Write (6,*) ' RF Force Constant:',f_Const
 *
          iDeg=1
          Deg=Sqrt(DBLE(iDeg))

@@ -37,12 +37,10 @@
       Not_Defined=-1
       nSet(:)=Not_Defined
 *
-      iX = 0
       nStack=1
       iAtom = 1
       iStack(nStack)=iAtom
       iSet = 1
-      mBonds=0
       nSet(iAtom)=iSet
 *
 #ifdef _DEBUGPRINT_

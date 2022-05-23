@@ -87,7 +87,7 @@
         Integer nDens, nDisc
         Real*8, Target:: Dens(nDens), TwoHam(nDens)
         Real*8 Thize, ExFac
-        Logical NoCoul,NoExch
+        Logical NoCoul
         Logical FstItr, PreSch
         End Subroutine Drv2El_dscf
       End Interface

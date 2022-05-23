@@ -94,14 +94,12 @@
          ProfData(7,Lu)=ProfData(7,Lu)+1
 #endif
          If(rc.lt.0) Then
-            idum=iPrintLevel(3)
             Call FASTIO('STATUS')
             AixWr=AixErr(ErrTxt)
             Call SysWarnFileMsg(TheName, FCtlBlk(nFile),
      *                                 'MSG: seek', ErrTxt)
             Call SysCondMsg('rc < 0', rc, '<', 0)
          Else If(rc.ne.pDisk) Then
-            idum=iPrintLevel(3)
             Call FASTIO('STATUS')
             AixWr=eInErr
             Call SysWarnFileMsg(TheName, FCtlBlk(nFile),
@@ -115,13 +113,11 @@
 *----------------------------------------------------------------------*
       rc=c_write(desc,Buf,nBuf)
       If(rc.lt.0) Then
-         idum=iPrintLevel(3)
          Call FASTIO('STATUS')
          AixWr=AixErr(ErrTxt)
             Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,
      *            TheName,FCtlBlk(nFile), Temp, ErrTxt)
       Else If(rc.ne.nBuf) Then
-         idum=iPrintLevel(3)
          Call FASTIO('STATUS')
          AixWr=eEof
             Call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,

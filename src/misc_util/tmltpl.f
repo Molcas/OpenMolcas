@@ -38,8 +38,6 @@ c
 ************************************************************************
       implicit real*8 (a-h,o-z)
       character*1 l1,l2,l3,l4
-      character*12 l12
-      character*13 l13
       character*14 l14
       character*16 labs(1:maxlab)
       dimension prvec(1:ndim,1:maxlab)
@@ -91,7 +89,7 @@ c
           t(i,j)=0.0d+00
   202   continue
         t(i,i)=t(i,i)+2.5d+00
-        read (labs(i),'(a13,3a1)') l13,l1,l2,l3
+        read (labs(i),'(a13,3a1)') l14,l1,l2,l3
         if (l1.eq.l2) then
           do 203 i1=1,3
             do 204 i2=1,3
@@ -171,7 +169,7 @@ c
           t(i,j)=0.0d+00
   302   continue
         t(i,i)=t(i,i)+4.375d+00
-        read (labs(i),'(a12,4a1)') l12,l1,l2,l3,l4
+        read (labs(i),'(a12,4a1)') l14,l1,l2,l3,l4
         if (l1.eq.l2) then
           do 303 i1=1,3
             do 304 i2=1,3
@@ -356,4 +354,7 @@ c
     1 continue
 c
       return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call unused_character(l14)
+#endif
       end

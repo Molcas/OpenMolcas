@@ -23,9 +23,6 @@
       Save RepNuc_Temp
       Dimension RepNucXX(1)
       Real*8, Allocatable:: RFld(:,:), h1_RF(:), h1_XX(:)
-*
-      iRout = 1
-      iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -72,7 +72,6 @@
       end do
 *MGD I think this is nice when printed...
       lprint=.true.
-      idasave=0
       reco=-One
       Lu_50=50
       If (SAVE) CALL DANAME(Lu_50,'RESIDUALS')
@@ -101,7 +100,6 @@
 *
 *          Output: Commonblocks (Pointers.fh)
 *
-      ! nConf2=nint(xispsm(State_SYM,1))
       nConf3=nint(Max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
 
       Call Setup_MCLR(iSym)
@@ -471,6 +469,9 @@ C
 *----------------------------------------------------------------------*
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End
 
       Subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
@@ -545,4 +546,7 @@ C     end do
       end if
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

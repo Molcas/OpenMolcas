@@ -13,12 +13,13 @@ c
 c
 c     program for CCSD
 c
+       use Para_Info, only: MyRank, nProcs
        Logical run_triples
 c
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "filemgr.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 
 #include "SysDef.fh"
 c
@@ -44,7 +45,7 @@ c
 CLD    real*8 pz1aa,pz1bb,pz2aaaa,pz2bbbb,pz2abab
 c
 c      parameters for par
-       real*8 timtotcpu,timtotcpun,timdifcpu,timtotwc,timtotwcn,timdifwc
+       real*8 timtotcpu,timtotcpun,timtotwc,timtotwcn,timdifwc
        real*8 timtotit
        integer i
 c
@@ -326,7 +327,7 @@ c
        call init (Work(iOff),wrksize,
      & lunabij1,lunabij2,lunabij3)
        call CWTime (timtotcpun,timtotwcn)
-       timdifcpu=timtotcpun-timtotcpu
+ctmp   timdifcpu=timtotcpun-timtotcpu
        timdifwc=timtotwcn-timtotwc
        timtotcpu=timtotcpun
        timtotwc=timtotwcn
@@ -339,7 +340,7 @@ c
        call sumoverab (Work(iOff),wrksize,
      & lunt2o1,lunt2o2,lunt2o3,nabstack,possabstack,niter)
        call CWTime (timtotcpun,timtotwcn)
-       timdifcpu=timtotcpun-timtotcpu
+ctmp   timdifcpu=timtotcpun-timtotcpu
        timdifwc=timtotwcn-timtotwc
        timtotcpu=timtotcpun
        timtotwc=timtotwcn
@@ -354,7 +355,7 @@ c
      & lunt2o1,lunt2o2,lunt2o3,
      & lunw3aaaa,lunw3baab,lunw3bbaa,lunw3bbbb,lunw3abba,lunw3aabb)
        call CWTime (timtotcpun,timtotwcn)
-       timdifcpu=timtotcpun-timtotcpu
+ctmp   timdifcpu=timtotcpun-timtotcpu
        timdifwc=timtotwcn-timtotwc
        timtotcpu=timtotcpun
        timtotwc=timtotwcn
@@ -367,7 +368,7 @@ c
      & lunw3baab,lunw3aabb,lunw3bbaa,lunt2o1,lunt2o2,lunt2o3,
      & lunabij1,lunabij2,lunabij3)
        call CWTime (timtotcpun,timtotwcn)
-       timdifcpu=timtotcpun-timtotcpu
+ctmp   timdifcpu=timtotcpun-timtotcpu
        timdifwc=timtotwcn-timtotwc
        timtotcpu=timtotcpun
        timtotwc=timtotwcn
@@ -379,7 +380,7 @@ c
      & lunabij1,lunabij2,lunabij3,
      & lunt2o1,lunt2o2,lunt2o3)
        call CWTime (timtotcpun,timtotwcn)
-       timdifcpu=timtotcpun-timtotcpu
+ctmp   timdifcpu=timtotcpun-timtotcpu
        timdifwc=timtotwcn-timtotwc
        timtotcpu=timtotcpun
        timtotwc=timtotwcn
@@ -391,7 +392,7 @@ c
 cpar
        call joinamplitudes (Work(iOff),wrksize)
        call CWTime (timtotcpun,timtotwcn)
-       timdifcpu=timtotcpun-timtotcpu
+ctmp   timdifcpu=timtotcpun-timtotcpu
        timdifwc=timtotwcn-timtotwc
        timtotcpu=timtotcpun
        timtotwc=timtotwcn
@@ -600,7 +601,7 @@ c3.7  save restart informations - energy, iteration cycle
 c
 ctmp   call timing (timtotcpu,timdifcpu,timtotwc,timdifwc)
        call CWTime (timtotcpun,timtotwcn)
-       timdifcpu=timtotcpun-timtotcpu
+ctmp   timdifcpu=timtotcpun-timtotcpu
        timdifwc=timtotwcn-timtotwc
        timtotcpu=timtotcpun
        timtotwc=timtotwcn
@@ -758,25 +759,25 @@ c
 c
 c     help variables
 c
-       integer poss,lenght
+       integer poss,length
        integer nhelp,nzero
        real*8 zerolim
 c
-c     def lenght, poss, zerolim
+c     def length, poss, zerolim
 c
        poss=mapd(1,1)
        nhelp=mapd(0,5)
-       lenght=mapd(nhelp,1)+mapd(nhelp,2)-mapd(1,1)
+       length=mapd(nhelp,1)+mapd(nhelp,2)-mapd(1,1)
        zerolim=1.0d-6
 c
-       if (lenght.gt.0) then
+       if (length.gt.0) then
        nzero=0
-       do 100 nhelp=poss,poss+lenght-1
+       do 100 nhelp=poss,poss+length-1
        if (abs(wrk(nhelp)).lt.zerolim) then
        nzero=nzero+1
        end if
  100    continue
-       pz = dble(100*nzero)/dble(lenght)
+       pz = dble(100*nzero)/dble(length)
        else
        pz=1.0d0
        end if

@@ -74,7 +74,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      MaxValue = 200
       Do iSym = 1, nSym
 *
          nBas2 = nLRb(iSym)
@@ -161,7 +160,6 @@
             Call ChoMP2_Quit(SecNam,'nVec is non-positive','[1]')
          End If
 *
-         l_B   = nLRb(iSym)*nVec
          l_B_t = nLRb(iSym)*nVec
          ip_B = ip_B_t + l_B_t
 *

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRDTMP(DPT2)
+      USE Para_Info, ONLY: King
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
@@ -17,7 +18,6 @@
 #include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-      LOGICAL KING
 
       DIMENSION DPT2(*)
       if(nasht.eq.0) return

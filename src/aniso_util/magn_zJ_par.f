@@ -72,7 +72,7 @@ c local variables:
 ! defines the maximal number of iterations for determination of the average spin
 !      parameter (mxIter=100) ! it is of any importance only If ( zJ.ne.0 )
       Integer          :: i, l, iT
-      Real(kind=8)    :: kB, mB, ST(3), STsave(3)
+      Real(kind=8)    :: ST(3), STsave(3)
       Real(kind=8), allocatable :: WM(:)
       Real(kind=8), allocatable :: RWORK(:)
       Complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
@@ -80,10 +80,6 @@ c local variables:
       Complex(kind=8), allocatable :: SZ(:,:,:)
       Complex(kind=8), allocatable :: MZ(:,:,:)
 !                                      SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
-
-      kB=0.6950356000_wp   ! Boltzmann constant,  in cm^-1*K-1
-      mB=0.4668643740_wp   ! Bohr magneton,       in cm-1*T-1
-
 
 c a few checks, before proceeding:
       Do iT=1,nT

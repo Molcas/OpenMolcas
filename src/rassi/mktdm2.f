@@ -31,7 +31,7 @@
       REAL*8 SGNJL,SGNIK
       REAL*8 GVAL,GAAAA,GABBA,GBAAB,GBBBB,GABAB,GBABA
       INTEGER LSYM1,MSPROJ1,LSYM2,MSPROJ2,ISYOP,MS2OP
-      INTEGER MPLET1,MPLET2, MPLETD
+      INTEGER MPLET1,MPLET2
       INTEGER IAAAA,IABAB,IABBA,IAKA,IAKB,IBAAB,IBABA,IBBBB,IBIA
       INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
@@ -60,7 +60,6 @@ C Pick out nr of active orbitals from orbital table:
       SPD2(:)=0.0D0
       ISYOP   = MUL(LSYM1,LSYM2)
       MS2OP   = MSPROJ1-MSPROJ2
-      MPLETD =  MPLET1 - MPLET2
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
@@ -246,15 +245,17 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
         TDM2(IJIJ)=0.5D0*TDM2(IJIJ)
       END DO
       RETURN
-#ifndef _DMRG_
-! Leon: Avoid warnings for unused variables if DMRG support is disabled
+! Avoid unused argument warnings
       if (.false.) then
+        call Unused_integer(MPLET1)
+        call Unused_integer(MPLET2)
         call Unused_integer(ISTATE)
         call Unused_integer(JSTATE)
+#ifndef _DMRG_
         call Unused_integer(job1)
         call Unused_integer(job2)
         call Unused_integer(ist)
         call Unused_integer(jst)
-      endif
 #endif
+      endif
       END

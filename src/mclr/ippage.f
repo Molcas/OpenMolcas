@@ -44,7 +44,6 @@
 *
        Call mma_maxDBLE(nMax)
        nmax=nmax/2
-       npp=nconf*10
 *
        If (Page) Then
 *
@@ -82,6 +81,8 @@
        ipopen=DiskBased
 *
        Return
+* Avoid unused argument warnings
+       If (.False.) Call Unused_integer(nconf)
        End
 *                                                                      *
 ************************************************************************
@@ -343,7 +344,6 @@
        If (.not.diskbased) Return
 *
        If (Status(ii).eq.In_Memory .and. ii.gt.0) Then
-          nn=n(ii)
           Status(ii)=On_Disk
           Call mma_deallocate(W(ii)%Vec)
        Else

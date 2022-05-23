@@ -61,7 +61,7 @@
          iIrrep_B=iTable(3,iBlock)
          iIrrep_C=iTable(4,iBlock)
          iIrrep_D=iTable(5,iBlock)
-         IND     =iTable(6,iBlock)
+C        IND     =iTable(6,iBlock)
 *        Write (*,*)  'Irreps:',iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D
 *
          nA=nBas(iIrrep_A)
@@ -276,7 +276,7 @@ C           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
       Do iQuad = 1, nQuad
          BackChain=DBLE(iDisk)
          Call dDaFile(LuGamma,iWrite,Bin(1,1,iQuad),2*nBin,iDisk)
-         lxx=Int(Bin(1,nBin,iQuad))
+*        lxx=Int(Bin(1,nBin,iQuad))
 *        Write (*,*) 'lxx=',lxx
 *        Call RecPrt('Bins',' ',Bin(1,1,iQuad),2,lxx)
          G_Toc(iQuad)=BackChain

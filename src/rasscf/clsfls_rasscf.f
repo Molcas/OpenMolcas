@@ -26,6 +26,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+#ifdef _HDF5_
+      use mh5, only: mh5_close_file
+#endif
       Implicit Real*8 (A-H,O-Z)
       Logical DoCholesky
 #include "rasdim.fh"

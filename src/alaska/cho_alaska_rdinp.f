@@ -33,8 +33,6 @@
       dmpK_default = dmpK
       nScreen = 10
 *
-      iPrint=5
-
 *     Process the input
  1000 continue
       Key=Get_Ln(LuSpool)

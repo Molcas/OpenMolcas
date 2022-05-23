@@ -380,7 +380,6 @@
          If (Label.eq.'MOPERT') Then
             iTmp=SymLab
             Do iIrr=1,TocOne(pSym)
-             If (iTmp.eq.1) iIrrep=iIrr
              iTmp=iTmp/2
             End Do
             na=0

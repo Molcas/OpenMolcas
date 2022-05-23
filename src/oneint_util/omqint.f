@@ -37,9 +37,6 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-      iRout = 210
-      iPrint = nPrint(iRout)
-*
       nip = 1
       ipB = nip
       nip = nip + nZeta

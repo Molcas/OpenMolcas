@@ -37,7 +37,7 @@
 #include "rctfld.fh"
       Real*8 A(3), B(3), RB(3), Hess(nGrad*(nGrad+1)/2),prmt(0:7),
      &       C(3), D(3), SD(3)
-      Integer iDCRR(0:7),IndGrd(3,2,0:7),ii(2), iStb(0:7),jStb(0:7),
+      Integer iDCRR(0:7),IndGrd(3,2,0:7),ii(2), iStb(0:7),
      &        iDCRS(0:7),IndHss(2,3,2,3,0:7),nop(2),kop(2)
       Logical EQ, NoLoop
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
@@ -515,9 +515,6 @@ c     iPrint = nPrint(iRout)
          NoLoop = Q_ij.eq.Zero
          If (NoLoop) Go To 122
          C(1:3) = PCMTess(1:3,jTs)
-*
-         mStb=1
-         jStb(0)=0
 *
 *        Loop over the basis functions
 *

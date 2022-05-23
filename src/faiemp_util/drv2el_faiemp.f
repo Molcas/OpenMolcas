@@ -44,13 +44,13 @@
       Logical      lNoSkip, EnergyWeight
       Integer      i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS,
      &             iOpt, ip_ij, ipDMax,
-     &             ipFragDensAO, ipOneHam, ipTMax, iRC, iPrint, iRout,
+     &             ipFragDensAO, ipOneHam, ipTMax, iRC,
      &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
      &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
-     &             nOneHam, Nr_Dens, nSkal, nSkal_Fragments,
+     &             nOneHam, Nr_Dens, nSkal,
      &             nSkal_Valence
 
-      Real*8       Aint, Count, Disc, Disc_Mx, Dix_Mx, Dtst, ExFac,
+      Real*8       Aint, Count, Disc, Disc_Mx, Dtst, ExFac,
      &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
      &             TskHi, TskLw, TWall1, TWall2, DMax, TMax
       Real*8, Allocatable, Target:: Dens(:), Fock(:)
@@ -70,8 +70,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 203
-      iPrint = nPrint(iRout)
       call xFlush(6)
       ExFac=One
       Nr_Dens=1
@@ -204,7 +202,6 @@ c              ! position in fragment density matrix
       DoFock=.True.
       DoGrad=.False.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-      nSkal_Fragments=nSkal-nSkal_Valence
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -213,7 +210,6 @@ c              ! position in fragment density matrix
       Disc_Mx=Zero
 *
       Disc=Zero
-      Dix_Mx=Zero
       TskHi=Zero
       TskLw=Zero
       ThrInt = CutInt   ! Integral neglect threshold from SCF

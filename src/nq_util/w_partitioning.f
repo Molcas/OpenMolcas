@@ -18,7 +18,7 @@
 #include "nq_info.fh"
 #include "debug.fh"
       Real*8 R(3), Weights, dW_dR(nGrad_Eff), dW_Temp(3,nlist_p),
-     &       dPB(3,nlist_p,nlist_p), sxyz(3)
+     &       dPB(3,nlist_p,nlist_p)
 *
       Integer list_p(nlist_p), iTab(4,nGrad_Eff)
       Logical Do_Grad
@@ -99,9 +99,9 @@ c                 p3=p(p2)
 *        "atomic" displacement vector relative to center A is computed.
 *
          iA=ilist_p
-         sxyz(1) = R(1)-Work(ip_Coor(iNQ)  )
-         sxyz(2) = R(2)-Work(ip_Coor(iNQ)+1)
-         sxyz(3) = R(3)-Work(ip_Coor(iNQ)+2)
+c        sxyz(1) = R(1)-Work(ip_Coor(iNQ)  )
+c        sxyz(2) = R(2)-Work(ip_Coor(iNQ)+1)
+c        sxyz(3) = R(3)-Work(ip_Coor(iNQ)+2)
 *
          Z=Zero
          Call FZero(dPB,3*nlist_p**2)

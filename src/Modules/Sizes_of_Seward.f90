@@ -39,7 +39,6 @@ End Type Sizes_of_Stuff
 !
 Type (Sizes_of_Stuff), Target :: S
 Integer, Pointer :: p_ix(:)
-Integer iix(2)
 Integer nByte_i
 Integer Len, Len2
 Integer iiLoc
@@ -70,7 +69,8 @@ End Interface
 Contains
 
 Subroutine Size_Init()
-Use Iso_C_Binding
+  Use Iso_C_Binding
+  Integer :: iix(2) = [0, 0]
   nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
   Len = iiLoc(S%High_Anchor)-iiLoc(S%Low_Anchor)
   Len = (Len+nByte_i)/nByte_i

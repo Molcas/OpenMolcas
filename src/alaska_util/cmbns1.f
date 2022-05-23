@@ -38,7 +38,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-      iQ = 1
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6

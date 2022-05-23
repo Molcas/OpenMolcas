@@ -114,7 +114,6 @@
         End DO
        End DO
 
-      rcora=Zero
       rcorei=Zero
       rcorea=Zero
       Do iS=1,nSym
@@ -133,7 +132,7 @@
         End Do
        End Do
       End Do
-      rcore=rCorei+rcoreA
+!      rcore=rCorei+rcoreA
 !      write(*,*) 'In rhs_sa'
 !      Write(*,*) 'Checking energy',0.5d0*renergy+potnuc+half*rcore !yma
 !      Write(*,*) 'Checking energy',0.5d0*renergy,potnuc,rcore      !yma

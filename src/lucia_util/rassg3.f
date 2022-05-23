@@ -30,7 +30,6 @@
 *
 
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "io_util.fh"
 *. Batches of sigma

@@ -27,7 +27,6 @@
      &       temp4(*)
       Character*8 Label
 *
-      idum=1
       call dcopy_(ndens2,[0.0d0],0,Temp3,1)
       If (iAnd(ntpert(idisp),2**3).eq.8) Then
        Do iS=1,nSym

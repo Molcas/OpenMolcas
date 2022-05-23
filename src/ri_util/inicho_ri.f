@@ -30,6 +30,7 @@
 *> @param[in] nShij    Number of shell pairs
 ************************************************************************
       SubRoutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
+      Use Para_Info, Only: Is_Real_Par
       Implicit None
       Integer nSkal, nIrrep, nShij
       Integer nVec_Aux(0:nIrrep-1)
@@ -39,7 +40,6 @@
 #include "choptr.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 #if defined (_MOLCAS_MPP_)
 #include "choglob.fh"
 #endif

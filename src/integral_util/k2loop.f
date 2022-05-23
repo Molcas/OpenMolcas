@@ -128,7 +128,6 @@
 *
          Call ICopy(1024,nPrint,1,iSave,1)
          Call ICopy(1024,[5],0,nPrint,1)
-         iR = iDCRR(lDCRR)
 *
          Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))

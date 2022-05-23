@@ -155,8 +155,6 @@ c----------------------------------------------------------------------
       iRout = 112
       iPrint = nPrint(iRout)
 *
-      iIrrep = 0
-*
 *     Auxiliary memory allocation.
 *
       Call GetMem('Zeta','ALLO','REAL',iZeta,S%m2Max)

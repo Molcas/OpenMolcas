@@ -203,7 +203,6 @@
 *   ---   Start Generation of Integrals files  TCVx -> MOLINT
 
 *         Start Loop on I, J, A, B Symmetries
-          nSymP=(nSym**2+nSym)/2
           Do iSymI = 1, nSym
             Do iSymJ = 1, iSymI
               Do iSymA = 1, nSym

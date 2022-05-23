@@ -46,14 +46,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                               unity(:,:), a_dir(:,:), a_inv(:,:)
       ! main values and axes of XT tensors:
       Real (kind=8), allocatable :: WT(:), ZT(:,:)
-      Real (kind=8) :: rdummy(1)
       Character(len=50) :: label
 c constants used in this subrutine
       RtoB=8
       mem_local=0
       coeff_X=0.125048612_wp*3.0_wp
       boltz_k=0.6950356_wp !boltzmann constant
-      rdummy=0.0_wp
 
       DBG=.false.
       If(iPrint.gt.2) DBG=.true.

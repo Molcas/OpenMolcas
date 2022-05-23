@@ -11,9 +11,12 @@
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #ifdef _HDF5_
       SUBROUTINE Restart_Dynamix(file_h5res)
+      USE mh5, ONLY: mh5_open_file_r, mh5_fetch_attr, mh5_open_attr,
+     &               mh5_get_attr, mh5_close_attr, mh5_exists_dset,
+     &               mh5_fetch_dset, mh5_open_dset, mh5_get_dset_dims,
+     &               mh5_close_dset, mh5_close_file
       IMPLICIT NONE
 #include "stdalloc.fh"
-#include "mh5.fh"
       REAL*8, ALLOCATABLE ::    vel(:),NHC(:)
       REAL*8              ::    time,dt,e
       INTEGER             ::    attr_id,i,restart_fileid,natom,nsym,
@@ -52,37 +55,38 @@ C read number of atoms
         attr_id = mh5_open_attr(restart_fileid,'NATOMS_UNIQUE')
       endif
       call mh5_get_attr(attr_id,natom)
+      call mh5_close_attr(attr_id)
 
 C read time and save in RunFile
-      call mh5_fetch_dset_scalar_real(restart_fileid,'TIME',time)
+      call mh5_fetch_dset(restart_fileid,'TIME',time)
       CALL Put_dScalar('MD_Time',time)
 
 C read time step and save in RunFile
-      call mh5_fetch_dset_scalar_real(restart_fileid,'TIME_STEP',dt)
+      call mh5_fetch_dset(restart_fileid,'TIME_STEP',dt)
       CALL Put_dScalar('Timestep',dt)
 
 C read max hop and save in RunFile
       if (mh5_exists_dset(restart_fileid,'MAX_HOP')) then
-        call mh5_fetch_dset_scalar_int(restart_fileid,'MAX_HOP',i)
+        call mh5_fetch_dset(restart_fileid,'MAX_HOP',i)
         CALL Put_iScalar('MaxHops',i)
       endif
 
 C read total energy and save in RunFile
-      call mh5_fetch_dset_scalar_real(restart_fileid,'ETOT',e)
+      call mh5_fetch_dset(restart_fileid,'ETOT',e)
       CALL Put_dScalar('MD_Etot',e)
 
 C read velocities and save in RunFile
       CALL mma_allocate(vel,natom*3)
-      call mh5_fetch_dset_array_real(restart_fileid,'VELOCITIES',vel)
+      call mh5_fetch_dset(restart_fileid,'VELOCITIES',vel)
       call Put_dArray('Velocities',vel,3*natom)
       CALL mma_deallocate(vel)
 
 C read thermostat info and save in RunFile
       dset_id=mh5_open_dset(restart_fileid,'NOSEHOOVER')
-      call mh5_get_dset_array_dims(dset_id,nh)
+      call mh5_get_dset_dims(dset_id,nh)
       call mh5_close_dset(dset_id)
       CALL mma_allocate(NHC,nh(1))
-      call mh5_fetch_dset_array_real(restart_fileid,'NOSEHOOVER',NHC)
+      call mh5_fetch_dset(restart_fileid,'NOSEHOOVER',NHC)
       call Put_dArray('NOSEHOOVER',NHC,nh(1))
       CALL mma_deallocate(NHC)
 

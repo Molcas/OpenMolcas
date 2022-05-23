@@ -82,15 +82,15 @@ c      END IF
 *
 c      IF (ENVIRO(1:6) .NE. 'RASSCF' .OR. IPRNT .GE. 20)
 c     &       WRITE(6,*) ' INTIM : First integrals in WORK(KINT1) '
-      LLL = MIN(10,NINT1)
-      LLL = NINT1
+c      LLL = MIN(10,NINT1)
+c      LLL = NINT1
 c      IF (ENVIRO(1:6) .NE. 'RASSCF' .OR. IPRNT .GE. 20) THEN
 c         WRITE(6,*) ' NINT1 = ',NINT1
 c         CALL WRTMAT(WORK(KINT1),1,LLL,1,LLL)
 c         WRITE(6,*) ' INTIM : First integrals in WORK(KINT2) '
 c      ENDIF
-      LLL = MIN(10,NINT2)
-      LLL = NINT2
+c      LLL = MIN(10,NINT2)
+c      LLL = NINT2
 c      IF (ENVIRO(1:6) .NE. 'RASSCF' .OR. IPRNT .GE. 20) THEN
 c         WRITE(6,*) ' NINT2 = ',NINT2
 c         CALL WRTMAT(WORK(KINT2),1,LLL,1,LLL)

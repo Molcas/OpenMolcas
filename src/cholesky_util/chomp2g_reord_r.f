@@ -84,10 +84,6 @@
          kEndRia1 = kRia1 + lRia
 
          kRia2 = kEndRia1
-         kEndRia2 = kRia2 + lRia
-
-         kRia3 = kEndRia2
-         kEndRia3 = kRia3 + lRia
 
 *        Open Cholesky amplitude vectors
 *        -------------------------------

@@ -36,9 +36,6 @@
       iCan(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6 +
      &   (ixyz-ix)*(ixyz-ix+1)/2 + iz
 *
-      iRout = 17
-      iPrint = nPrint(iRout)
-*
       If (nRys.eq.1) Then
          Do izf = nzfMin, nzfMax
             Indf=iCan(ixyf+izf,ixf,izf)

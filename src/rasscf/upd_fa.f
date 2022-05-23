@@ -39,14 +39,11 @@
 #include "rasdim.fh"
 #include "general.fh"
 
-      Integer case, state_symmetry
+      Integer case
       Integer   off_PUVX, off_Dmat, off_Fmat
       Dimension off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
 
       iTri(i)=(i*i-i)/2
-
-*     nasty, but necessary
-      state_symmetry=lSym
 
 *     generate offsets
 
@@ -345,9 +342,6 @@
           End Do
         End Do
       End Do
-
-*     nasty, but necessary
-      lSym=state_symmetry
 
       Return
       End

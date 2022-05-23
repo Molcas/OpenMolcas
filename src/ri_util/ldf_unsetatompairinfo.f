@@ -32,9 +32,6 @@ C
       Integer iAtomPair
       Integer ip, l
 
-      Integer  LDF_AtomPair_DiagDim
-      External LDF_AtomPair_DiagDim
-
       Integer i, j
       Integer AP_2CFunctions, AP_1CLinDep
       AP_2CFunctions(i,j)=iWork(ip_AP_2CFunctions-1+2*(j-1)+i)

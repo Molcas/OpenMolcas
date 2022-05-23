@@ -112,7 +112,6 @@
             nOrbmF = nOrb(iSym)-nFro(iSym)
 *
             If (nOrb(iSym).gt.0) Then
-               lth = nBs*(nBs + 1)/2
 *define _ALTERNATIVE_CODE_
 #ifdef _ALTERNATIVE_CODE_
 *

@@ -12,8 +12,8 @@
 * Init_GTList
 ************************************************************************
       Subroutine Init_GTList
+      Use Para_Info, Only: nProcs, Is_Real_Par
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
 *
@@ -30,8 +30,8 @@
       Return
       End
       Subroutine ReInit_GTList
+      Use Para_Info, Only: nProcs, Is_Real_Par
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
 *
@@ -53,6 +53,7 @@
 * Rsv_GTList
 ************************************************************************
       Logical Function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
+      Use Para_Info, Only: nProcs, Is_Real_Par
       Implicit Real*8 (a-h,o-z)
 #ifdef _MOLCAS_MPP_
       External RsvTsk
@@ -60,7 +61,6 @@
 #endif
       Logical NewBatch
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 *                                                                      *
@@ -125,8 +125,8 @@
 * Free_GTList
 ************************************************************************
       Subroutine Free_GTList
+      Use Para_Info, Only: nProcs, Is_Real_Par
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
 *

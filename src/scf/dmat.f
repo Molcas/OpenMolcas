@@ -47,6 +47,7 @@
 * history: UHF- V.Veryazov 2003                                        *
 *                                                                      *
 ************************************************************************
+      Use Interfaces_SCF, Only: dOne_SCF, MinDns
       Implicit Real*8 (a-h,o-z)
       Real*8 Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT), Vxc(nDT,nD,NumDT),
      &       CMO(nCMO,nD),OccNo(lthO,nD), Ovrlp(nDT), XCf(nXCf,nD)
@@ -56,7 +57,6 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
-#include "interfaces_scf.fh"
 *----------------------------------------------------------------------*
 * Local variables                                                      *
 *----------------------------------------------------------------------*

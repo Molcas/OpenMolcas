@@ -62,10 +62,6 @@
       call dcopy_(nBa**2,[0.0d0],0,Temp2,1)
 *
       Do kS=1,nSym
-        iOpt=1
-        ijB=1
-        ijBas=0
-        ijBB=0
         If (nOrb(js)*nash(ks).gt.0) Then
 
         Do kBB=nish(ks)+1,nB(kS)
@@ -90,14 +86,10 @@
       End Do
 *
       Do Ks=1,nsym
-       iOpt=1
-       JLB=1
-       JLBas=0
        ijkl=nOrb(js)*nash(ks)
        If (ijkl.ne.0) Then
 *
 
-        jlBB=0
         Do LB=nish(ks)+1,nB(KS)
          kkc=nA(ks)+lb-nish(ks)
          Do JB=nish(ks)+1,nB(KS)
@@ -113,8 +105,6 @@
         End Do
        End If
       End Do
-
-      iu=ip
 
       rho=sign*2.0d0*G1t(itri(iib,iib))
       Do iI=nAsh(js)+nIsh(js)+1,nOrb(js)

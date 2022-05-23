@@ -48,8 +48,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-      nD = iUHF + 1
-*
 *---- Deallocate memory
       Call mma_deallocate(Darwin)
       Call mma_deallocate(MssVlc)

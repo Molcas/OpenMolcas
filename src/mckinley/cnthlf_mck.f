@@ -72,8 +72,6 @@ c#include "print.fh"
 *
 *-----First quarter transformation
 *
-      i = 0
-*
       Do iPrm1 = 1, nPrm1
          Do iCntr1 = 1, nCntr1
 *-----------Check for zero due to segmented basis
@@ -98,7 +96,6 @@ c#include "print.fh"
 *
 *-----First quarter transformation
 *
-      i = 0
       Do iPrm1 = 1, nPrm1
          Do iCntr1 = 1, nCntr1
             Do iPrm2 = 1, nPrm2

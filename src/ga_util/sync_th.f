@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Sync_TH(TwoHam,nDens)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
       Real*8 TwoHam(nDens)
-*
-#include "para_info.fh"
 *
 #ifdef _MOLCAS_MPP_
       If (.Not. Is_Real_Par()) Return

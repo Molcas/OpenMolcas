@@ -25,7 +25,6 @@
       iPrint = 5
       If (iPL.ge.3) iPrint = 50
       If (iPL.ge.4) iPrint = 99
-      nDiff = 0
       Call GetMem('Atomic Numbers','Allo','Inte',ipAN,natom)
       Call GetMem('Get_Atoms','Allo','Real',ipChrg,natom)
       Call Get_dArray('Nuclear charge',Work(ipChrg),natom)

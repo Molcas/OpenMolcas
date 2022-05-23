@@ -28,8 +28,6 @@
       nElem(i) = (i+1)*(i+2)/2
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 63
-      iPrint = nPrint(iRout)
       If (la.eq.0 .or. lb.eq.0) Then
          ipRs = 1
          Return
@@ -47,7 +45,6 @@
                iyaMax = la - ixa
                ixab = ixa + ixb
                Do 210 iya = 0, iyaMax
-                  iyab = iya + iyb
                   iza = iyaMax - iya
                   izab = iza + izb
                   ixyza = Ind(la,ixa,iza)

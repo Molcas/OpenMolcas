@@ -86,6 +86,9 @@ C looping, etc in the rest  of the routines.
 ********************************************************************************
       SUBROUTINE MKSA(DREF,PREF,NG3,G3,idxG3)
       USE SUPERINDEX
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -93,7 +96,6 @@ C looping, etc in the rest  of the routines.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -892,6 +894,9 @@ C Add -dyu Gvzxt
 ********************************************************************************
       SUBROUTINE MKSC(DREF,PREF,NG3,G3,idxG3)
       USE SUPERINDEX
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -899,7 +904,6 @@ C Add -dyu Gvzxt
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

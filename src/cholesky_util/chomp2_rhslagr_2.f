@@ -67,7 +67,6 @@
                   iSymAI = MulD2h(iSymI,iSymA)
                   iSymQ = MulD2h(iSymA,iSymAQ)
                   iSymIQ = MulD2h(iSymI,iSymQ)
-                  iSymAP = iSymIQ
                   LaOrb = LnBatOrb(iSymA,jBatch)
      &                  - nOccLeftJ(iSymA)
                   Do La = 1, LaOrb

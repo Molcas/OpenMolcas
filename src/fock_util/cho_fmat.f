@@ -45,7 +45,10 @@ C
       Character*8 SECNAM
       Parameter (SECNAM = 'Cho_Fmat')
 
-      Logical   Debug,timings,DoRead
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead
       COMMON    /CHOTIME /timings
 
       parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
@@ -76,10 +79,7 @@ C
 ************************************************************************
 
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
 
 
@@ -474,7 +474,6 @@ C --- free memory
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM

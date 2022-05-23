@@ -27,8 +27,6 @@
       Logical Type
 *
       Lu=6
-      iRout = 126
-      iPrint = nPrint(iRout)
       If (mCentr.gt.Max_Center) Go To 99
 *
       Type = .False.

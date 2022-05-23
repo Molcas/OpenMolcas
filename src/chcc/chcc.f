@@ -18,11 +18,14 @@ c
 c
 c       docasny drajver reorder procesu
 c
+        use Para_Info, only: MyRank, nProcs
+#ifdef _MOLCAS_MPP_
+        use Para_Info, only: Is_Real_Par
+#endif
         implicit none
 #include "chcc1.fh"
 #include "chcc2.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 #include "chcc_files.fh"
 #include "chcc_reord.fh"
 c#include <SysDef.fh>
@@ -401,10 +404,6 @@ c
         integer PossT,PossMax
 c        jalove
         integer Jal1,Jal2,Jal3
-cmp
-        logical hasEnough
-c
-        hasEnough = .true.
 c
 c2      Distribute memory (and redefine wrksize)
 c

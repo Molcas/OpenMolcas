@@ -457,8 +457,7 @@ CONTAINS
 
    SUBROUTINE fmm_T_con_FULL(T_pair)
 
-      USE fmm_T_worker, ONLY: fmm_get_FLTSQ_T_matrix, fmm_postfac_Vff,  &
-                              fmm_contract_Tq
+      USE fmm_T_worker, ONLY: fmm_get_FLTSQ_T_matrix, fmm_postfac_Vff
 
       IMPLICIT NONE
       TYPE(T_pair_single), INTENT(IN) :: T_pair

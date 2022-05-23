@@ -78,7 +78,6 @@
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
 *
          Do jS = 1, iS
@@ -89,7 +88,6 @@
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
 *
             If (nIrrep.eq.1) Then

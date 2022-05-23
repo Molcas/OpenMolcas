@@ -11,6 +11,9 @@
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE Dynamix(iReturn)
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_put_dset, mh5_close_file
+#endif
       IMPLICIT REAL*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"

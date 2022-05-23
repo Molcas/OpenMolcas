@@ -8,10 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
-
       integer                 wfn_fileid,
      $        wfn_mocoef, wfn_occnum, wfn_dens, wfn_spindens,
      $        wfn_supsym, wfn_basfns, wfn_ovlmat,

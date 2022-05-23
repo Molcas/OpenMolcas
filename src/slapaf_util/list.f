@@ -26,8 +26,6 @@
 #include "print.fh"
 #include "real.fh"
 *
-      iRout = 118
-      iPrint = nPrint(iRout)
       Lu=6
 *
       Write (Lu,*)

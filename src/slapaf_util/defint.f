@@ -62,7 +62,7 @@
          Labels(jBVct)=' '
       End Do
 *
-      Lu=6
+*     Lu=6
       nTemp=Len(Temp)
       Write (Format,'(A,I3.3,A)') '(F',nTemp,'.0)'
 *

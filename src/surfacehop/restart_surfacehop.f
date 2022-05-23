@@ -11,6 +11,10 @@
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       SUBROUTINE Restart_SurfaceHop
       use Tully_variables
+#ifdef _HDF5_
+      use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_attr,
+     &               mh5_exists_dset, mh5_fetch_dset, mh5_close_file
+#endif
       IMPLICIT NONE
 #ifdef _HDF5_
 #include "surfacehop.fh"
@@ -60,35 +64,35 @@ C read seed number and save in RunFile
 
 C read number of hops and save in RunFile
       if (mh5_exists_attr(restart_fileid,'NO. OF HOPS')) then
-        call mh5_fetch_dset_scalar_int(restart_fileid,'NO. OF HOPS',i)
+        call mh5_fetch_dset(restart_fileid,'NO. OF HOPS',i)
         CALL Put_iScalar('Number of Hops',i)
       endif
 
 C read max hop for Tully and save in RunFile
       if (mh5_exists_dset(restart_fileid,'MAX_HOP_TULLY')) then
-        call mh5_fetch_dset_scalar_int(restart_fileid,'MAX_HOP_TULLY',i)
+        call mh5_fetch_dset(restart_fileid,'MAX_HOP_TULLY',i)
         CALL Put_iScalar('MaxHopsTully',i)
       endif
 
 C read relax root number and save in RunFile
-      call mh5_fetch_dset_scalar_int(restart_fileid,'Relax CAS root',i)
+      call mh5_fetch_dset(restart_fileid,'Relax CAS root',i)
       CALL Put_iScalar('Relax CASSCF root',i)
 
 C read the energies of the previous step and save in RunFile
       CALL mma_allocate(ener,nstates)
-      call mh5_fetch_dset_array_real(restart_fileid,'Energ Prev',ener)
+      call mh5_fetch_dset(restart_fileid,'Energ Prev',ener)
       CALL Put_darray('VenergyP',ener,nstates)
       CALL mma_deallocate(ener)
 
 C read the CI arrays of the previous step and save in RunFile
       CALL mma_allocate(ciarray,nstates*nconfs)
-      call mh5_fetch_dset_array_real(restart_fileid,'CI Prev',ciarray)
+      call mh5_fetch_dset(restart_fileid,'CI Prev',ciarray)
       CALL Put_darray('AllCIP',ciarray,nstates*nconfs)
       CALL mma_deallocate(ciarray)
 
 C read the CI arrays of the step before the previous step and save in RunFile
       CALL mma_allocate(ciarray,nstates*nconfs)
-      call mh5_fetch_dset_array_real(restart_fileid,'CI PPrev',ciarray)
+      call mh5_fetch_dset(restart_fileid,'CI PPrev',ciarray)
       CALL Put_darray('AllCIPP',ciarray,nstates*nconfs)
       CALL mma_deallocate(ciarray)
 
@@ -96,10 +100,8 @@ C read the AmatrixV and save in RunFile
       CALL mma_allocate(real_amatrix,nstates*nstates)
       CALL mma_allocate(imag_amatrix,nstates*nstates)
       CALL mma_allocate(amatrix,nstates*nstates)
-      call mh5_fetch_dset_array_real(restart_fileid,'AmatrixV-R'
-     &          ,real_amatrix)
-      call mh5_fetch_dset_array_real(restart_fileid,'AmatrixV-I'
-     &          ,imag_amatrix)
+      call mh5_fetch_dset(restart_fileid,'AmatrixV-R',real_amatrix)
+      call mh5_fetch_dset(restart_fileid,'AmatrixV-I',imag_amatrix)
       amatrix(:) = DCMPLX(real_amatrix,imag_amatrix)
       CALL Put_zarray('AmatrixV',amatrix,nstates*nstates)
       CALL mma_deallocate(amatrix)

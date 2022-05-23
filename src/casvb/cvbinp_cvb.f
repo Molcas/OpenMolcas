@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine cvbinp_cvb(icode,luinp)
       implicit real*8 (a-h,o-z)
@@ -17,6 +18,5 @@
       call hello_cvb()
       call parse_init_cvb(luinp)
       call input_cvb()
-      call cvbfinish_cvb(icode+10)
       return
       end

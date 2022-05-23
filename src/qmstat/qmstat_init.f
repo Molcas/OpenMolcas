@@ -166,7 +166,6 @@
       Exdt1 = 0.060d0
       Surf = 30.0d0
       iOrb(2)=5
-      iOcc2=5
       Diel = 80.0d0
       iExtra = 0
       Smeq=.false.

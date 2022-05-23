@@ -93,7 +93,7 @@ C?   &  ISCALE,SCLFAC
          ELSE IF(IDC .EQ. 3 ) THEN
             PSIGN = PLSIGN
          END IF
-         PLSSGN = PLSIGN * PSSIGN
+c        PLSSGN = PLSIGN * PSSIGN
 * check for different packing possibilities and unpack
          IF(IASM.GT.IBSM.OR.IDC.EQ.1
      &        .OR.(IDC.EQ.3.AND.IASM.GE.IBSM))THEN

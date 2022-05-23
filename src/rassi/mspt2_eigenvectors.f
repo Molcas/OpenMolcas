@@ -12,6 +12,10 @@
 ************************************************************************
       module mspt2_eigenvectors
 
+#ifdef _HDF5_
+        use mh5, only: mh5_put_dset_array_real
+#endif
+
         implicit none
 
         type mspt2evc

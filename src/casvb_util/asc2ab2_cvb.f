@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine asc2ab2_cvb(detvec,nvec,nel,nalf,
      >  nbet,ndet,
@@ -28,7 +29,6 @@
       call occupy_cvb(nkdet,nel,locc,locc(nalf+1))
       inddet=1
 200   continue
-      tip=party_cvb(locc,nel)
       call dscal_(nvec,party_cvb(locc,nel),detvec(inddet,1),ndet)
       call loind_cvb(nel,nalf,nkdet,mindet,maxdet,
      >               locc,locc(nalf+1),inddet,xdet,*200)

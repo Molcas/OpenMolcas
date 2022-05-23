@@ -65,7 +65,6 @@ C Read, and transpose, the active orbital transformation matrices
           NR1=NRAS1(ISYM)
           NR2=NRAS2(ISYM)
           NR3=NRAS3(ISYM)
-          NA=NASH(ISYM)
           NS=NSSH(ISYM)
 * Skip inactive transformation matrix:
           IOFF1=IOFF1+NI**2
@@ -122,10 +121,8 @@ C effective Hamiltonian matrix elements.
         DO ISTATE=1,NSTATE
           IF(ISTATE.NE.JSTATE) THEN
             CALL DDAFILE(LUCIEX,2,WORK(LBRACI),NCONF,ID)
-            VALUE=DDOT_(NCONF,WORK(LBRACI),1,WORK(LSGM),1)
           ELSE
             CALL DDAFILE(LUCIEX,0,WORK(LBRACI),NCONF,ID)
-            VALUE=E2TOT
           END IF
         END DO
         CALL GETMEM('BRACI','FREE','REAL',LBRACI,NCONF)
@@ -137,32 +134,29 @@ C Transform SGM to use original MO:
         ITOEND=0
         DO ISYM=1,NSYM
          NI=NISH(ISYM)
-         NA=NASH(ISYM)
          NR1=NRAS1(ISYM)
          NR2=NRAS2(ISYM)
          NR3=NRAS3(ISYM)
          NS=NSSH(ISYM)
-         NO=NORB(ISYM)
-         NB=NBAS(ISYM)
          ITOSTA=ITOEND+1
          ITOEND=ITOEND+NR1**2+NR2**2+NR3**2
 *         ITO=ITOSTA+NI**2
          ITO=ITOSTA
          IF(NR1.GT.0) THEN
            ISTART=NAES(ISYM)+1
-           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),LSYM,
+           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
      &                                           NSG,WORK(LSGM))
          END IF
          ITO=ITO+NR1**2
          IF(NR2.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+1
-           CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),LSYM,
+           CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
          ITO=ITO+NR2**2
          IF(NR3.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+NR2+1
-           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),LSYM,
+           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
         END DO
@@ -207,32 +201,29 @@ C Transform SGM to use original MO:
         ITOEND=0
         DO ISYM=1,NSYM
          NI=NISH(ISYM)
-         NA=NASH(ISYM)
          NR1=NRAS1(ISYM)
          NR2=NRAS2(ISYM)
          NR3=NRAS3(ISYM)
          NS=NSSH(ISYM)
-         NO=NORB(ISYM)
-         NB=NBAS(ISYM)
          ITOSTA=ITOEND+1
          ITOEND=ITOEND+NR1**2+NR2**2+NR3**2
 *         ITO=ITOSTA+NI**2
          ITO=ITOSTA
          IF(NR1.GT.0) THEN
            ISTART=NAES(ISYM)+1
-           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),LSYM,
+           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
          ITO=ITO+NR1**2
          IF(NR2.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+1
-           CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),LSYM,
+           CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
          ITO=ITO+NR2**2
          IF(NR3.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+NR2+1
-           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),LSYM,
+           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
         END DO

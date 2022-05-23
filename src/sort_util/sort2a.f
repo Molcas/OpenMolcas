@@ -116,7 +116,6 @@ C        Write (*,*) 'Mode: Sparse'
       Do while ( iDaTmp.ge.0 )
         nStk=nStk+1
         If ( nStk.gt.lStk ) then
-          iRC=001
           Write(6,*)
           Write(6,'(2X,A,I3.3,A)')
      &    '*** Error in SORT2A ***'
@@ -141,7 +140,6 @@ C        Write (*,*) 'Mode: Sparse'
           nInts1=PkIBin(ist1-1)
           nInts2=Int(PkVBin(ist2-1))
           If ( nInts1.ne.nInts2 ) then
-            iRC=002
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2A ***'
@@ -153,7 +151,6 @@ C        Write (*,*) 'Mode: Sparse'
           End If
           nInts=nInts1
           If ( nInts.gt.lBin ) then
-            iRC=003
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2A ***'

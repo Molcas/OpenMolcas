@@ -42,7 +42,6 @@
 *
 800   Continue
       iStep=iStep+1
-      Fact=0.1D0*DBLE(iStep)
 *
 900   Continue
 *

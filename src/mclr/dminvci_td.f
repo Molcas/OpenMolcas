@@ -60,4 +60,7 @@
       rout(1:nConf1) = Half * rout(1:nConf1)
 
       return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       end

@@ -51,7 +51,6 @@ C
       PIN=natom*3
       iPrint=2
       DT=1.0D1
-      TIME=0.0D0
       RESTART=0.0D0
       lH5Restart= .False.
 *

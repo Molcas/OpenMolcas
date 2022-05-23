@@ -258,7 +258,7 @@ c     MOIInv(3,3)=G(3,3)*DetInv
 * Call arguments:
       integer norder
       real*8 S(3,3)
-      real*8 X(3),A(3),dXdA(3,3),d2XdA2(3,3,3),d3XdA3(3,3,3,3)
+      real*8 X(3),dXdA(3,3),d2XdA2(3,3,3),d3XdA3(3,3,3,3)
       real*8 d4XdA4(3,3,3,3,3)
 * Local variables:
       integer i,i1,i2,i3,ia,ib,ic,id,j,k,l,m,n
@@ -272,7 +272,7 @@ c     MOIInv(3,3)=G(3,3)*DetInv
       real*8 U(3,3),dUdX(3,3,3),d2UdX2(3,3,3,3),d3UdX3(3,3,3,3,3)
       real*8 d4UdX4(3,3,3,3,3,3)
       real*8 S0(3,3)
-      real*8 P(3,3),dPdX(3,3,3),d2PdX2(3,3,3,3),d3PdX3(3,3,3,3,3)
+      real*8 dPdX(3,3,3),d2PdX2(3,3,3,3),d3PdX3(3,3,3,3,3)
       real*8 d4PdX4(3,3,3,3,3,3)
       real*8 dAdX(3,3),d2AdX2(3,3,3),d3AdX3(3,3,3,3)
       real*8 d4AdX4(3,3,3,3,3)
@@ -678,11 +678,11 @@ c     real*8 T(3,3),det,detinv
 * the variables X, and its derivatives:
       do i=1,3
        do j=1,3
-        sum=0.0D0
-        do i1=1,3
-         sum=sum+S0(i,i1)*U(i1,j)
-        end do
-        P(i,j)=sum
+*       sum=0.0D0
+*       do i1=1,3
+*        sum=sum+S0(i,i1)*U(i1,j)
+*       end do
+*       P(i,j)=sum
         do k=1,3
          sum=0.0D0
          do i1=1,3
@@ -742,9 +742,9 @@ c     real*8 T(3,3),det,detinv
       end do
  301  continue
 * The vector A is the dual of the antisymmetric part of P:
-        A(1)=P(3,2)-P(2,3)
-        A(2)=P(1,3)-P(3,1)
-        A(3)=P(2,1)-P(1,2)
+*       A(1)=P(3,2)-P(2,3)
+*       A(2)=P(1,3)-P(3,1)
+*       A(3)=P(2,1)-P(1,2)
         do i=1,3
          dAdX(1,i)=dPdX(3,2,i)-dPdX(2,3,i)
          dAdX(2,i)=dPdX(1,3,i)-dPdX(3,1,i)

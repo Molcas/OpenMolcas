@@ -48,7 +48,7 @@
 #endif
 
       Integer i1, i2, i3, i4
-      Integer iShlI, iShlJ, iShlK, iShlL
+      Integer iShlI, iShlK
       Integer iSO, jSO, kSO, lSO
       Integer iSOi, jSOj, kSOk, lSOl
       Integer ii, jj, kk, ll
@@ -86,9 +86,7 @@
 #endif
 
       iShlI=SHA
-      iShlJ=SHB
       iShlK=SHC
-      iShlL=SHD
       iShlIJ=SPAB
       iShlKL=SPCD
       Do i4=1,lCmp

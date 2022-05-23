@@ -34,7 +34,10 @@
 *                                                                      *
 ************************************************************************
       use OccSets
-      use IOBUF
+      use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r
+#endif
 *
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
@@ -50,12 +53,9 @@
 #include "file.fh"
 #include "iprlv.fh"
 #include "ksdft.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 *
 *---- Define local variables
-      Character*180  Key, Line, BLIne
+      Character*180  Key, Line
       Character*180 Get_Ln
       External Get_Ln
       Integer nLev,iArray(32)
@@ -99,7 +99,6 @@
 *
       Call ICopy(2*MxPrLv,[0],0,iPrLV,1)
 *
-      BLine=' '
       OccSet=.false.
       FermSet=.false.
       CharSet=.false.

@@ -105,9 +105,12 @@
 *                                                                      *
 ************************************************************************
 
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 
-      Logical   Debug,timings,DoRead,DoExchange,DoCAS,lSA
+      Logical   timings,DoRead,DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipAorb(8,*),ipTxy(8,8,2)
@@ -138,7 +141,6 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 #include "print.fh"
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh
@@ -192,16 +194,7 @@ ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUGPRINT_
-c      Debug=.true.
-      Debug=.false.! to avoid double printing
-#else
-      Debug=.false.
-#endif
-
-************************************************************************
-*                                                                      *
-*     General Initializiation                                          *
+*     General Initialization                                           *
 *                                                                      *
 ************************************************************************
 
@@ -286,7 +279,9 @@ c      Debug=.true.
 **   Initialize pointers to avoid compiler warnings
 *
       ipDIAG=ip_Dummy
+#if defined (_MOLCAS_MPP_)
       ipjDIAG=ip_Dummy
+#endif
       ipDIAH=ip_Dummy
       ipAbs=ip_Dummy
       ipY=ip_Dummy
@@ -649,8 +644,10 @@ c      Debug=.true.
             JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last
 *                                               !vec
          End If
+#if defined (_MOLCAS_MPP_)
          myJRED1=JRED1 ! first red set present on this node
-         myJRED2=JRED2 ! last  red set present on this node
+         ntv0=0
+#endif
 
 c --- entire red sets range for parallel run
          Call GAIGOP_SCAL(JRED1,'min')
@@ -660,7 +657,6 @@ c --- entire red sets range for parallel run
 ** MGD does it need to be so?
 *
          DoScreen=.True.
-         ntv0=0
          kscreen=1
 
          Do JRED=JRED1,JRED2
@@ -884,7 +880,6 @@ C --- Transform the densities to reduced set storage
 *
 
                   CALL FZero(Work(ipLF),LFULL*JNUM)
-                  ip_B = ipLF + LFULL*JNUM
                   CALL FZero(Work(ip_SvShp),2*nnShl)
 
                   CALL CHO_getShFull(Work(ipLrs),lread,JNUM,JSYM,

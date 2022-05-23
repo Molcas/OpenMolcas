@@ -13,9 +13,7 @@
 ************************************************************************
 
       module fciqmc_read_RDM
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use general_data, only : iSpin, nActEl
-      use rasscf_data, only : nAc, nAcPar
+      use general_data, only : nActEl
 ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
       use CI_solver_util, only: CleanMat
@@ -45,14 +43,14 @@
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
       subroutine read_neci_RDM(DMAT, DSPN, PSMAT, PAMAT)
+      use Para_Info, only: MyRank
       implicit none
-#include "para_info.fh"
 #include "output_ras.fh"
       real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
-     &  pqrs, iread, Nalpha, norb, iprlev
+     &  pqrs, iread, norb, iprlev
       logical :: tExist, switch
-      real*8 :: fac, RDMval, fcalpha, fcbeta, fcnacte
+      real*8 :: fac, RDMval, fcnacte
       real*8 :: D_alpha(size(DMAT)), D_beta(size(DMAT))
       parameter(routine = 'read_neci_RDM')
 
@@ -102,10 +100,7 @@
       PSMAT(:) = 0.0d0
       PAMAT(:) = 0.0d0
 
-      Nalpha = (nactel + iSpin - 1) / 2
       fac = merge(0.5d0, 1.0d0, switch)
-      fcalpha = 1.0d0 / dble(nalpha - 1)
-      fcbeta = 1.0d0 / dble(nactel - nalpha - 1)
       fcnacte = 1.0d0 / dble(nactel - 1)
 
 *******************************************************************************************

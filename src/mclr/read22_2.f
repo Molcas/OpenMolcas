@@ -217,10 +217,6 @@
             lS=jS
             If (iEor(iEor(is-1,js-1),iEor(ks-1,ls-1)).ne.0) Go To 200
             If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)   Go To 200
-            JLB=1
-            JLB1=0
-            JLBas=0
-            jlBB=0
             Do LB=1,nB(LS)
                Do JB=1,nB(JS)
 *                                                                      *
@@ -419,7 +415,6 @@
         ipAsh(2)  = ip_of_Work(Cva(1,2))
         ipCMO     = ip_of_Work(CMO(1))
         ip_CMO_inv= ip_of_Work(CMO(1))
-        istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
@@ -451,7 +446,6 @@
       Do iS=1,nSym
          If (nOrb(iS).eq.0) Go To 300
 *
-         ip_1 = ipCM(iS)
          If (nIsh(iS).gt.0)
      &      Call DYaX(nOrb(iS)*nIsh(is),2.0d0,
      &                FockI(ipCM(iS)),1,

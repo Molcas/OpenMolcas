@@ -58,8 +58,6 @@
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-      IREDC = -1
-
       JSYM=1
 
       If (Mvec.ne.NumCho(jSym)) Then
@@ -103,8 +101,6 @@ C ------------------------------------------------------------------
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
         call abend()
        endif
-
-       IREDC=JRED
 
        nRS = nDimRS(JSYM,JRED)
 

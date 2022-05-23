@@ -35,8 +35,6 @@
      &       Wout(mab*nijx)
       Logical Tr1, Pr1, Tr2, Pr2
 *
-      iRout = 26
-      iPrint = nPrint(iRout)
       l1=(n1+1)*(n1+2)/2
       k1=l1
       If (Pr1) k1 = 2*n1 + 1

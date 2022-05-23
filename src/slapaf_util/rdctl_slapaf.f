@@ -35,7 +35,6 @@
 #include "print.fh"
       Integer iDum(1)
       Logical Found, Dummy_Call
-      Character*8 Command
       Character(LEN=180) Get_Ln
       Character*16 FilNam
       Character*3 MEPLab
@@ -52,9 +51,8 @@
 *     mxn should be len(line)/2+1
       parameter (mxn=91)
       common/cgetln/ ncol, jstrt(mxn),jend(mxn)
-      Integer StrnLn
-      External Get_Ln, StrnLn
-      Logical External_UDC, External_Case,
+      External Get_Ln
+      Logical External_UDC,
      &        Explicit_IRC, Expert, ThrInp, FirstNum, Manual_Beta
 #include "angstr.fh"
 *                                                                      *
@@ -76,8 +74,6 @@
       iSetAll=2**30 - 1
 *
       Call f_Inquire('UDC.Gateway',External_UDC)
-      LuRd2=LuSpool
-      External_Case=.False.
 *
       iMEP=0
       Explicit_IRC=.False.
@@ -108,11 +104,9 @@
 *                                                                      *
       LuRd=LuSpool
       Call RdNlst(LuRd,'SLAPAF')
-      Command='&SLAPAF'
  999  Char=Get_Ln(LuRd)
  666  Continue
       Call UpCase(Char)
-      Command=Char(1:8)
 C     Write (Lu,'(A)') Char
 C     Write (Lu,*) iOptC
       If (Char.eq.BLine) Go To 999
@@ -1253,7 +1247,6 @@ C              Write (6,*) 'RUNFILE: Found=',Found
 *
       If (iAnd(iOptC,128).ne.128) Then
          If (iAnd(iOptH,8).ne.8) iOptH=iOr(16,iAnd(iOptH,32)) ! MSP
-         ThrB=0.01D+00
          Line_search=.False.
       End If
 *                                                                      *
@@ -1352,7 +1345,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *
 *        No micro iterations the first MEP iteration
 *
-         If ((MEP.or.rMEP).and.(iter.eq.1)) miAI=0
+         If ((MEP.or.rMEP).and.(iter.eq.1)) Max_Microiterations=0
 *
 *        Reduce default maximum dispersion during the initial
 *        stage of a FindTS calculation: we don't want to fulfil the

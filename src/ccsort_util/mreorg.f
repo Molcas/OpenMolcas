@@ -42,7 +42,7 @@ c
 c
 c     help variables
 c
-       integer symp,symq,symm,possv3,lenght
+       integer symp,symq,symm,possv3,length
        integer ii,iiv2d,iiv2i,possv2d,possv2i
        integer posst
 c
@@ -57,13 +57,13 @@ c
 c
 c*    def parameters of #3
        possv3=mapd3(ii,1)
-       lenght=mapd3(ii,2)
+       length=mapd3(ii,2)
        symm=mapd3(ii,3)
        symp=mapd3(ii,4)
        symq=mapd3(ii,5)
 c
 c*    vanish #3
-       call ccsort_mv0zero (lenght,lenght,wrk(possv3))
+       call ccsort_mv0zero (length,length,wrk(possv3))
 c
        if (directyes.eq.1) then
 c

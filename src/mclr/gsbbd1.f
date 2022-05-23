@@ -89,9 +89,6 @@ C     INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
 *.Local arrays
       DIMENSION ITP(3*3),JTP(3*3)
 *
-      IFRST = 1
-      JFRST = 1
-*
 * Type of single excitations that connects the two column strings
       CALL SXTYP_GAS(NSXTP,ITP,JTP,3,ISEL,ICEL)
 *.Symmetry of single excitation that connects IBSM and JBSM
@@ -102,8 +99,6 @@ C     INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
         JTYP = JTP(IJTP)
         DO 800 ISM = 1, NSMOB
 *. new i and j so new intermediate strings
-          KFRST = 1
-*
           JSM = ADSXA(ISM,IJSM)
           IF(JSM.EQ.0) GOTO 800
           NIORB = NOBPTS(ITYP,ISM)

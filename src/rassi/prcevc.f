@@ -14,7 +14,6 @@
 #include "cntrl.fh"
 #include "prgm.fh"
 #include "stdalloc.fh"
-#include "rassiwfn.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='PRCEVC')
 

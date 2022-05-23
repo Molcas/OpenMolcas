@@ -30,9 +30,9 @@
 #include "FMM.fh"
       Real*8 Arg(nArg), Root(nRys,nArg), Weight(nRys,nArg), Tmax_
 *
+#ifdef _DEBUGPRINT_
       iRout = 78
       iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Call RecPrt('In vRysRW:Arg',' ',Arg,nArg,1)
 #endif
       labcd=1

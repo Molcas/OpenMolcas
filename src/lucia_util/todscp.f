@@ -49,9 +49,6 @@ C       CALL ITODS(ISCR,2,MMBLOCK,IFIL)
         IF(IMZERO.EQ.1) GOTO 1001
       END IF
 *
-C
-      NBLOCK = MBLOCK
-      IF ( MBLOCK .LE. 0 ) NBLOCK = NDIM
 *. Loop over packed records of dimension LPBLK
       IELMNT = 0
  1000 CONTINUE

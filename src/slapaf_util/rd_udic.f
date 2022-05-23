@@ -23,11 +23,6 @@
       Character*120 Temp
       character*16 filnam
 *
-      iRout = 27
-      iPrint = nPrint(iRout)
-*
-      Lu=6
-*
       Lu_UDIC=91
       filnam='UDIC'
       call molcas_open(Lu_UDIC,filnam)

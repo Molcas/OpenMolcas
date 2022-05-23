@@ -18,7 +18,9 @@
       Call RecPrt('Modify_TInt_p: TInt',' ',TInt,nTheta_All,nTheta_All)
 #endif
       Do iTheta_All= 1, nTheta_All
+#ifdef _DEBUGPRINT_
          iPrim=List2(5,iTheta_All)
+#endif
          iShll=List2(7,iTheta_All)
          nConti=Shells(iShll)%nBasis_C
          nPrimi=Shells(iShll)%nExp
@@ -26,7 +28,9 @@
      &                          Shells(iShll)%Cff_c(1,1,1),nPrimi)
          Coeff_i = Sqrt(Coeff_i)
 *
+#ifdef _DEBUGPRINT_
          jPrim=List2(6,iTheta_All)
+#endif
          jShll=List2(8,iTheta_All)
          nContj=Shells(jShll)%nBasis_C
          nPrimj=Shells(jShll)%nExp
@@ -35,7 +39,9 @@
          Coeff_j = Sqrt(Coeff_j)
 *
          Do jTheta_All = 1, nTheta_All
+#ifdef _DEBUGPRINT_
             kPrim=List2(5,jTheta_All)
+#endif
             kShll=List2(7,jTheta_All)
             nContk=Shells(kShll)%nBasis_C
             nPrimk=Shells(kShll)%nExp
@@ -43,7 +49,9 @@
      &                             Shells(kShll)%Cff_c(1,1,1),nPrimk)
             Coeff_k = Sqrt(Coeff_k)
 *
+#ifdef _DEBUGPRINT_
             lPrim=List2(6,jTheta_All)
+#endif
             lShll=List2(8,jTheta_All)
             nContl=Shells(lShll)%nBasis_C
             nPriml=Shells(lShll)%nExp

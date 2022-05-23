@@ -13,8 +13,14 @@
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info
+      use mh5, only: mh5_fetch_dset_array_str
 #endif
       use mspt2_eigenvectors
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+     &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_fetch_dset_array_real, mh5_close_file
+#endif
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -31,10 +37,9 @@
 #include "SysDef.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: refwfn_id
 
-      integer :: ref_nSym, ref_lSym, ref_nBas(mxSym), ref_iSpin
+      integer :: ref_nSym, ref_stSym, ref_nBas(mxSym), ref_iSpin
       integer :: ref_nfro(mxSym), ref_nish(mxSym), ref_nrs1(mxSym),
      &           ref_nrs2(mxSym), ref_nrs3(mxSym), ref_nssh(mxSym),
      &           ref_ndel(mxSym), ref_nash(mxSym)
@@ -92,7 +97,7 @@
       call mh5_fetch_attr (refwfn_id,'MOLCAS_MODULE', molcas_module)
       call mh5_fetch_attr (refwfn_id,'SPINMULT', ref_iSpin)
       call mh5_fetch_attr (refwfn_id,'NSYM', ref_nSym)
-      call mh5_fetch_attr (refwfn_id,'LSYM', ref_lSym)
+      call mh5_fetch_attr (refwfn_id,'LSYM', ref_stSym)
       call mh5_fetch_attr (refwfn_id,'NBAS', ref_nBas)
 
       call mh5_fetch_attr (refwfn_id,'NACTEL', ref_nactel)
@@ -213,8 +218,7 @@
       Else If (mh5_exists_dset(refwfn_id, pt2_e_string)) Then
         HAVE_DIAG=.TRUE.
         call mma_allocate(ref_energies,ref_nstates)
-        call mh5_fetch_dset_array_real(refwfn_id,
-     &         pt2_e_string,ref_energies)
+        call mh5_fetch_dset(refwfn_id,pt2_e_string,ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
@@ -225,8 +229,7 @@
       Else If (mh5_exists_dset(refwfn_id, 'ROOT_ENERGIES')) Then
         HAVE_DIAG=.TRUE.
         call mma_allocate(ref_energies,ref_nroots)
-        call mh5_fetch_dset_array_real(refwfn_id,
-     &         'ROOT_ENERGIES',ref_energies)
+        call mh5_fetch_dset(refwfn_id,'ROOT_ENERGIES',ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
@@ -283,7 +286,7 @@
       NHOLE1(JOB)=ref_nhole1
       NELE3(JOB)=ref_nelec3
       MLTPLT(JOB)=ref_iSpin
-      IRREP(JOB)=ref_lSym
+      IRREP(JOB)=ref_stSym
       NCONF(JOB)=ref_nConf
       NROOTS(JOB)=ref_nroots
 
@@ -669,6 +672,10 @@ C Where is the CMO data set stored?
 *                                                                      *
 ************************************************************************
       Subroutine rdjob_nstates(JOB)
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,
+     &               mh5_close_file
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "cntrl.fh"
@@ -677,7 +684,6 @@ C Where is the CMO data set stored?
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: refwfn_id
       integer :: ref_nstates
 #endif

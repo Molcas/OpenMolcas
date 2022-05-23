@@ -54,7 +54,7 @@ CONTAINS
       INTEGER(INTK), INTENT(IN) :: LMAX
 
       INTEGER(INTK) :: L, LL, I, M
-      INTEGER(INTK) :: IX, IY, IZ
+      INTEGER(INTK) :: IX, IY
       INTEGER(INTK) :: IPX1, IPY1, IPZ1, IPY2, IPZ2, IPX2
       REAL(REALK)   :: Denom, PreFac, Arg
 !
@@ -93,7 +93,6 @@ CONTAINS
          I = 0
          DO IX = L, 0, -1
             DO IY = L - IX, 0, -1
-               IZ = L - IX - IY
                I = I + 1
                IPX1 = I
                IPY1 = I + (L - IX + 1)                                                    ! Increase 1 Y
@@ -127,7 +126,6 @@ CONTAINS
          I = 0
          DO IX = L - 1, 0, -1
             DO IY = L - 1 - IX, 0, -1
-               IZ = L - 1 - IX - IY
                I = I + 1
                IPX2 = I
                IPY2 = I + (L - 1 - IX + 1) + (L - 1 - IX + 2)   ! Increase 2 Y

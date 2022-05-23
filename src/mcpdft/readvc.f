@@ -57,6 +57,9 @@
 *                                                                      *
 ************************************************************************
 
+#ifdef _HDF5_
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
+#endif
       Implicit Real*8 (A-H,O-Z)
 
 *     global data declarations
@@ -71,7 +74,6 @@
 #include "warnings.fh"
 #include "wadr.fh"
 #include "casvb.fh"
-#include "raswfn.fh"
 #include "sxci.fh"
 *     calling arguments
 
