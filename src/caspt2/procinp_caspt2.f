@@ -47,8 +47,6 @@ C initialize global common-block variables appropriately.
       Integer ISYM
 * State selection
       Integer iGroup, IOFF
-* Error condition
-      Integer IERR
 * Do numerical gradient?
       Logical DNG
       Integer iDNG
