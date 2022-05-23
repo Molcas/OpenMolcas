@@ -6,13 +6,13 @@
 * Responsible person: Oskar Weser
 *-------------------------------------------------------------------------------
 > export SKIPPED_TEST_CODE=36
-> rm -force test_hdf5
-> if ( $molcas_driver = unknown_variable )
-    > export MOLCAS_DRIVER=molcas
-> endif
+> rm -force SUPPORTS_HDF5
+
+> IF ( ${MOLCAS_DRIVER} = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+
 > shell ${MOLCAS_DRIVER} have_feature hdf5 && touch SUPPORTS_HDF5 || true
-
-
  &GATEWAY
     RICD
     coord
@@ -25,9 +25,10 @@
 
 &SEWARD
 
+> copy N2.InpOrb INPORB
 
 &RASSCF
-    FileOrb = N2.InpOrb
+    LUMORB
     Spin = 1
     nactel = 6
     ciroot = 2 2 1
