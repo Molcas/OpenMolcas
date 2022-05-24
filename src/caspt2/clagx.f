@@ -1455,7 +1455,6 @@ C
       INTEGER LSGM1
 
       INTEGER I
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
       REAL*8 :: CLag(*), RDMEIG(*)
 
 
@@ -1513,8 +1512,6 @@ C     REAL*8 GTU
       INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
 
       INTEGER ISSG,NSGM
-
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
 
 * Purpose: Compute the 1-electron density matrix array G1.
 

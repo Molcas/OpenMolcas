@@ -702,84 +702,86 @@ C
               Call FDGTRF(DI,FIMO)
             End If
             !! Coulomb
-       !    Val = DDot_(nBasK*nBasL,X2,1,DPT2AO(ISTSQ(iSymI)+1),1)
-       !    iSF = ISTSQ(iSYmI) + iP + nBasI*(jQ-1)
-       !    FPT2AO(iSF) = FPT2AO(iSF) + Val
-       !    !! Exchange
-       !    iSF = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
-       !    iSD = ISTSQ(iSymI) + (iP-1)*nBasI+1
-       !    CALL DGEMV_('N',nBasK,nBasL,
-     * !                -0.5D+00,X2,nBasK,DPT2AO(iSD),1,
-     * !                1.0D+00,FPT2AO(iSF),1)
-       !    If (iP.ne.jQ) Then
-       !      iSF = ISTSQ(iSymI) + jQ + nBasJ*(iP-1)
-       !      FPT2AO(iSF) = FPT2AO(iSF) + Val
-       !      iSF = ISTSQ(iSymI) + (iP-1)*nBasI+1
-       !      iSD = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
-       !      CALL DGEMV_('N',nBasK,nBasL,
-     * !                  -0.5D+00,X2,nBasK,DPT2AO(iSD),1,
-     * !                  1.0D+00,FPT2AO(iSF),1)
-       !    End If
-C
-       !    !! DPT2CAO -> FPT2CAO transformation
-       !    !! Coulomb
-       !    Val = DDot_(nBasK*nBasL,X2,1,DPT2CAO(ISTSQ(iSymI)+1),1)
-       !    iSF = ISTSQ(iSYmI) + iP + nBasI*(jQ-1)
-       !    FPT2CAO(iSF) = FPT2CAO(iSF) + Val
-       !    !! Exchange
-       !    iSF = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
-       !    iSD = ISTSQ(iSymI) + (iP-1)*nBasI+1
-       !    CALL DGEMV_('N',nBasK,nBasL,
-     * !                -0.5D+00,X2,nBasK,DPT2CAO(iSD),1,
-     * !                1.0D+00,FPT2CAO(iSF),1)
-       !    If (iP.ne.jQ) Then
-       !      iSF = ISTSQ(iSymI) + jQ + nBasJ*(iP-1)
-       !      FPT2CAO(iSF) = FPT2CAO(iSF) + Val
-       !      iSF = ISTSQ(iSymI) + (iP-1)*nBasI+1
-       !      iSD = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
-       !      CALL DGEMV_('N',nBasK,nBasL,
-     * !                  -0.5D+00,X2,nBasK,DPT2CAO(iSD),1,
-     * !                  1.0D+00,FPT2CAO(iSF),1)
-       !    End If
+!           Val = DDot_(nBasK*nBasL,X2,1,DPT2AO(ISTSQ(iSymI)+1),1)
+!           iSF = ISTSQ(iSYmI) + iP + nBasI*(jQ-1)
+!           FPT2AO(iSF) = FPT2AO(iSF) + Val
+!           !! Exchange
+!           iSF = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
+!           iSD = ISTSQ(iSymI) + (iP-1)*nBasI+1
+!           CALL DGEMV_('N',nBasK,nBasL,
+!    *                  -0.5D+00,X2,nBasK,DPT2AO(iSD),1,
+!    *                  1.0D+00,FPT2AO(iSF),1)
+!           If (iP.ne.jQ) Then
+!             iSF = ISTSQ(iSymI) + jQ + nBasJ*(iP-1)
+!             FPT2AO(iSF) = FPT2AO(iSF) + Val
+!             iSF = ISTSQ(iSymI) + (iP-1)*nBasI+1
+!             iSD = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
+!             CALL DGEMV_('N',nBasK,nBasL,
+!    *                    -0.5D+00,X2,nBasK,DPT2AO(iSD),1,
+!    *                    1.0D+00,FPT2AO(iSF),1)
+!           End If
+!
+!           !! DPT2CAO -> FPT2CAO transformation
+!           !! Coulomb
+!           Val = DDot_(nBasK*nBasL,X2,1,DPT2CAO(ISTSQ(iSymI)+1),1)
+!           iSF = ISTSQ(iSYmI) + iP + nBasI*(jQ-1)
+!           FPT2CAO(iSF) = FPT2CAO(iSF) + Val
+!           !! Exchange
+!           iSF = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
+!           iSD = ISTSQ(iSymI) + (iP-1)*nBasI+1
+!           CALL DGEMV_('N',nBasK,nBasL,
+!    *                  -0.5D+00,X2,nBasK,DPT2CAO(iSD),1,
+!    *                  1.0D+00,FPT2CAO(iSF),1)
+!           If (iP.ne.jQ) Then
+!             iSF = ISTSQ(iSymI) + jQ + nBasJ*(iP-1)
+!             FPT2CAO(iSF) = FPT2CAO(iSF) + Val
+!             iSF = ISTSQ(iSymI) + (iP-1)*nBasI+1
+!             iSD = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
+!             CALL DGEMV_('N',nBasK,nBasL,
+!    *                    -0.5D+00,X2,nBasK,DPT2CAO(iSD),1,
+!    *                    1.0D+00,FPT2CAO(iSF),1)
+!           End If
           End Do
         End Do
-      ELSE IF ( IS.EQ.JS .AND. IS.NE.KS ) THEN
-        ! CASE 2: Integrals are of symmetry type (II/JJ)
-        ! Coulomb terms need to be accumulated only
-      ELSE IF ( IS.EQ.KS .AND. JS.EQ.LS ) THEN
-        ! CASE 3: Integrals are of symmetry type (IJ/IJ)
-        ! Exchange terms need to be accumulated only
-       !  IOPT=1
-       !  LPQ=0
-       !  IPQ=0
-       !  NPQ=0
-       !  DO IP=1,IB
-       !    DO JQ=1,JB
-       !      IPQ=IPQ+1
-       !      LPQ=LPQ+1
-       !      IF ( IPQ.GT.NPQ ) THEN
-       !        CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-       !        IF(IRC.GT.1) GOTO 999
-       !        IOPT=2
-       !        IPQ=1
-       !      ENDIF
-       !      ISX=(IPQ-1)*KLB+1
-       !      IF ( NFI.NE.0 ) THEN
-       !        ISD=ISTSQ(IS)+(IP-1)*IB+1
-       !        ISF=ISTSQ(JS)+(JQ-1)*JB+1
-       !        CALL DGEMV_('N',LB,KB,(-0.5D0*ExFac),X1(ISX),LB,
-     & !                     DSQ(ISD),1,1.0D0,FSQ(ISF),1)
-       !      ENDIF
-       !      IF ( NFJ.NE.0 ) THEN
-       !        ISD=ISTSQ(JS)+(JQ-1)*JB+1
-       !        ISF=ISTSQ(IS)+(IP-1)*IB+1
-       !        CALL DGEMV_('T',LB,KB,(-0.5D0*ExFac),X1(ISX),LB,
-     & !                     DSQ(ISD),1,1.0D0,FSQ(ISF),1)
-       !      ENDIF
-       !    End Do
-       !  End Do
       End If
-*
+
+!     ELSE IF ( IS.EQ.JS .AND. IS.NE.KS ) THEN
+!       ! CASE 2: Integrals are of symmetry type (II/JJ)
+!       ! Coulomb terms need to be accumulated only
+!     ELSE IF ( IS.EQ.KS .AND. JS.EQ.LS ) THEN
+!       ! CASE 3: Integrals are of symmetry type (IJ/IJ)
+!       ! Exchange terms need to be accumulated only
+!         IOPT=1
+!         LPQ=0
+!         IPQ=0
+!         NPQ=0
+!         DO IP=1,IB
+!           DO JQ=1,JB
+!             IPQ=IPQ+1
+!             LPQ=LPQ+1
+!             IF ( IPQ.GT.NPQ ) THEN
+!               CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+!               IF(IRC.GT.1) GOTO 999
+!               IOPT=2
+!               IPQ=1
+!             ENDIF
+!             ISX=(IPQ-1)*KLB+1
+!             IF ( NFI.NE.0 ) THEN
+!               ISD=ISTSQ(IS)+(IP-1)*IB+1
+!               ISF=ISTSQ(JS)+(JQ-1)*JB+1
+!               CALL DGEMV_('N',LB,KB,(-0.5D0*ExFac),X1(ISX),LB,
+!    &                       DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+!             ENDIF
+!             IF ( NFJ.NE.0 ) THEN
+!               ISD=ISTSQ(JS)+(JQ-1)*JB+1
+!               ISF=ISTSQ(IS)+(IP-1)*IB+1
+!               CALL DGEMV_('T',LB,KB,(-0.5D0*ExFac),X1(ISX),LB,
+!    &                       DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+!             ENDIF
+!           End Do
+!         End Do
+!     End If
+
       RETURN
  999  CONTINUE
       WRITE(6,*)' Error return code IRC=',IRC

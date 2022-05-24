@@ -46,7 +46,7 @@
       INTEGER LDUM,NDUM
       INTEGER NCI,ICSF
 
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
+      REAL*8, EXTERNAL :: DDOT_
 
       ! translation tables for levels i,j to and from pair indices idx
       INTEGER IJ2IDX(MXLEV,MXLEV)

@@ -231,8 +231,6 @@ C
 
       INTEGER I,ITER
       INTEGER IVECP,IVECT,IVECU
-      INTEGER Cho_X_GetTol
-      EXTERNAL Cho_X_GetTol
       REAL*8 ALPHA,BETA,PR,PT,UR
       REAL*8 ECORR(0:8,0:MXCASE)
       REAL*8 EAIVX,EATVX,EBJAI,EBJAT,EBVAT,EVJAI,EVJTI,EVJTU
@@ -350,100 +348,8 @@ C---------------------
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,'(25A5)')('-----',I=1,25)
        WRITE(6,*)
-C      WRITE(6,*)' FINAL CASPT2 RESULT:'
-      END IF
-C     CALL POVLVEC(IRHS,IVECX,ECORR)
-C     EVJTU=ECORR(0,1)
-C     EVJTI=ECORR(0,2)+ECORR(0,3)
-C     EATVX=ECORR(0,4)
-C     EAIVX=ECORR(0,5)
-C     EVJAI=ECORR(0,6)+ECORR(0,7)
-C     EBVAT=ECORR(0,8)+ECORR(0,9)
-C     EBJAT=ECORR(0,10)+ECORR(0,11)
-C     EBJAI=ECORR(0,12)+ECORR(0,13)
-C     E2NONV=ECORR(0,0)
-C     CALL POVLVEC(IVECX,IVECX,OVLAPS)
-C     DENORM=1.0D0+OVLAPS(0,0)
-C     REFWGT=1.0D00/DENORM
-CPAM Insert: Compute the variational second-order energy.
-CPAM Use unshifted H0. Save any shifts, then restore them.
-C     SAV=SHIFT
-C     SAVI=SHIFTI
-C     SHIFT=0.0d0
-C     SHIFTI=0.0d0
-C     CALL SIGMA_CASPT2(1.0d0,0.0d0,IVECX,IVECT)
-C     SHIFT=SAV
-C     SHIFTI=SAVI
-C     CALL POVLVEC(IVECX,IVECT,OVLAPS)
-C     E2CORR=2.0D0*E2NONV+OVLAPS(0,0)
-CPAM End of insert.
-C     ESHIFT=E2CORR-E2NONV
-C     E2TOT=EREF+E2CORR
-
-C     IF(IPRGLB.GT.USUAL.or.iprglb.ne.silent) THEN
-C       WRITE(6,*)
-C       WRITE(6,*)' Correlation energy /Case, /Symm, and sums:'
-C       DO IC=1,13
-C        WRITE(6,'(1X,A8,9F12.8)')
-C    &      CASES(IC),(ECORR(IS,IC),IS=1,NSYM),ECORR(0,IC)
-C       END DO
-C       WRITE(6,'(1X,A8,9F12.8)')
-C    &    'Summed: ', (ECORR(IS,0),IS=1,NSYM),ECORR(0,0)
-C     ENDIF
-
-      IF (IPRGLB.GE.TERSE) THEN
-      !  WRITE(6,*)
-
-      !  If (.not.Input % LovCASPT2) Then
-C     !     WRITE(6,'(6x,a,f18.10)')'Reference energy:     ',EREF
-      !     WRITE(6,'(6x,a,f30.20)')'Reference energy:     ',EREF
-C     !     WRITE(6,'(6x,a,f18.10)')'E2 (Non-variational): ',E2NONV
-      !     WRITE(6,'(6x,a,f30.20)')'E2 (Non-variational): ',E2NONV
-      !     IF(SHIFT.NE.0.0d0.or.SHIFTI.ne.0.0d0) THEN
-C     !       WRITE(6,'(6x,a,f18.10)')'Shift correction:     ',ESHIFT
-      !       WRITE(6,'(6x,a,f30.20)')'Shift correction:     ',ESHIFT
-      !     END IF
-C     !     WRITE(6,'(6x,a,f18.10)')'E2 (Variational):     ',E2CORR
-      !     WRITE(6,'(6x,a,f30.20)')'E2 (Variational):     ',E2CORR
-      !     If (.not.Input % FnoCASPT2) Then
-C     !        WRITE(6,'(6x,a,f18.10)')'Total energy:         ',E2TOT
-      !        write(6,'(6x,a,f30.20)')'Total energy:         ',E2TOT
-      !     Else
-      !        WRITE(6,'(6x,a,f18.10,a)')'FNO correction:       ',EMP2,
-     &!             '   (estimate)   '
-      !        WRITE(6,'(6x,a,f13.5)')
-      !        E2TOT=E2TOT+EMP2
-      !        WRITE(6,'(6x,a,f18.10,a)')'Total energy:         ',E2TOT,
-     &!             '   (FNO-CASPT2) '
-      !     EndIf
-      !     WRITE(6,'(6x,a,f18.10)')'Residual norm:        ',RNORM
-C     !     WRITE(6,'(6x,a,f13.5)') 'Reference weight:     ',REFWGT
-      !     WRITE(6,'(6x,a,f30.20)') 'Reference weight:     ',REFWGT
-      !  Else
-      !     WRITE(6,'(6x,a,f18.10)')
-     &!             'Reference energy:                 ',EREF
-      !     WRITE(6,'(6x,a,f18.10)')
-     &!             'Active-Site E2 (Non-variational): ',E2NONV
-      !     IF(SHIFT.NE.0.0d0.or.SHIFTI.ne.0.0d0) THEN
-      !       WRITE(6,'(6x,a,f18.10)')
-     &!             'Shift correction:                 ',ESHIFT
-      !     END IF
-      !     WRITE(6,'(6x,a,f18.10)')
-     &!             'Active-Site E2 (Variational):     ',E2CORR
-      !     WRITE(6,'(6x,a,f18.10)')
-     &!             'Frozen region E2 :                ',EMP2
-      !     WRITE(6,'(6x,a,f18.10)')
-     &!             'Residual norm:                    ',RNORM
-      !     WRITE(6,'(6x,a,f13.5)')
-     &!             'Reference weight:                 ',REFWGT
-      !     WRITE(6,'(6x,a,f13.5)')
-      !     E2TOT=E2TOT+EMP2
-      !     WRITE(6,'(6x,a,f18.10)')
-     &!             'Total energy (LovCASPT2):         ',E2TOT
-      !  EndIf
       END IF
 
-C
       RETURN
-C
+
       END SUBROUTINE PCG_RES
