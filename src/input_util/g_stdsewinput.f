@@ -202,7 +202,8 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *     Here we will have to fix that the 6-31G family of basis sets
 *     should by default be used with 6 d-functions rather than 5.
 *
-      KWord=BSLbl(1:Indx-1)
+      KWord=''
+      KWord(1:Indx-1)=BSLbl(1:Indx-1)
       Call UpCase(KWord)
       If (INDEX(KWord,'6-31G').ne.0) Then
          Do iSh = jShll+3, iShll
