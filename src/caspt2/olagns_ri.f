@@ -102,7 +102,7 @@ C
         WRITE(6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
       END IF
 C
-      iVec = iVecX
+      ! iVec = iVecX
       iSym = iSym0
       SCLNEL = 1.0D+00/DBLE(MAX(1,NACTEL))
 *                                                                      *
@@ -622,7 +622,7 @@ C
         ITABS=IT+NAES(ISYT)
         iTtot = iT + nFro(iSyT) + nIsh(iSyT)
         DO IJ=1,NJ
-          IJABS=IJ+NIES(ISYJ)
+          ! IJABS=IJ+NIES(ISYJ)
           iJtot = iJ + nFro(iSyJ)
 C
           DO IV=1,NV
@@ -1149,7 +1149,7 @@ C Set up offset table:
       NAS=NASH(ISYM)
       NISP=NISUP(ISYM,6)
       NISM=NISUP(ISYM,7)
-      NIS=NISP+NISM
+      ! NIS=NISP+NISM
       NWP=NAS*NISP
       NWM=NAS*NISM
       NW=NWP+NWM
@@ -1188,11 +1188,11 @@ C
         DO IJ=IJSTA,IJEND
           IJABS=IJ+NIES(ISYJ)
           DO IA=IASTA,IAEND
-            IAABS=IA+NSES(ISYA)
+            ! IAABS=IA+NSES(ISYA)
             IAJ=IAJ+1
 C
             DO IV=1,NV
-              IVABS=IV+NAES(ISYV)
+              ! IVABS=IV+NAES(ISYV)
               DO IL=1,NL
                 ILABS=IL+NIES(ISYL)
                 SCL=SQRT(0.5D0)
@@ -1258,11 +1258,11 @@ C
         DO IJ=IJSTA,IJEND
           IJABS=IJ+NIES(ISYJ)
           DO IA=IASTA,IAEND
-            IAABS=IA+NSES(ISYA)
+            ! IAABS=IA+NSES(ISYA)
             IAJ=IAJ+1
 C
             DO IV=1,NV
-              IVABS=IV+NAES(ISYV)
+              ! IVABS=IV+NAES(ISYV)
               DO IL=1,NL
                 ILABS=IL+NIES(ISYL)
                 IF(IJABS.NE.ILABS) THEN
@@ -1488,10 +1488,10 @@ C   Allocate W with parts WP,WM
       NAS=NASH(ISYM)
       NISP=NISUP(ISYM,10)
       NISM=NISUP(ISYM,11)
-      NIS=NISP+NISM
+      ! NIS=NISP+NISM
       NWGP=NAS*NISP
       NWGM=NAS*NISM
-      NWG=NWGP+NWGM
+      ! NWG=NWGP+NWGM
 C
 C     LDGP=NAS
 C     LDGM=NAS
@@ -1525,15 +1525,15 @@ C
           NCSZ=ICEND-ICSTA+1
           DO ILSTA=1,NL,NBXSZL
             ILEND=MIN(ILSTA-1+NBXSZL,NL)
-            NLSZ=ILEND-ILSTA+1
+            ! NLSZ=ILEND-ILSTA+1
 C
             ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
             Call DCopy_(NAUCL,[0.0D+00],0,AUCL,1)
 C
         ICL=0
-        IBUF=0
+        ! IBUF=0
         DO IL=ILSTA,ILEND
-          ILABS=IL+NIES(ISYL)
+          ! ILABS=IL+NIES(ISYL)
           DO IC=ICSTA,ICEND
             ICABS=IC+NSES(ISYC)
             ICL=ICL+1
@@ -1548,7 +1548,7 @@ C
                IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
               END IF
               DO IU=1,NU
-                IUABS=IU+NAES(ISYU)
+                ! IUABS=IU+NAES(ISYU)
                 IW1=IU
                 IW2=IL+NL*(IAGEC-1)+IOFF1(ISYL)
                 IW=IW1+NAS*(IW2-1)
@@ -1605,15 +1605,15 @@ C
           NCSZ=ICEND-ICSTA+1
           DO ILSTA=1,NL,NBXSZL
             ILEND=MIN(ILSTA-1+NBXSZL,NL)
-            NLSZ=ILEND-ILSTA+1
+            ! NLSZ=ILEND-ILSTA+1
 C
             ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
             Call DCopy_(NAUCL,[0.0D+00],0,AUCL,1)
 C
         ICL=0
-        IBUF=0
+        ! IBUF=0
         DO IL=ILSTA,ILEND
-          ILABS=IL+NIES(ISYL)
+          ! ILABS=IL+NIES(ISYL)
           DO IC=ICSTA,ICEND
             ICABS=IC+NSES(ISYC)
             ICL=ICL+1
@@ -1630,7 +1630,7 @@ C
                 CYCLE
               End If
               DO IU=1,NU
-                IUABS=IU+NAES(ISYU)
+                ! IUABS=IU+NAES(ISYU)
                 IW1=IU
                 IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
                 IW=IW1+NAS*(IW2-1)
@@ -1740,12 +1740,12 @@ C
             NCSZ=ICEND-ICSTA+1
             DO ILSTA=1,NL,NBXSZL
               ILEND=MIN(ILSTA-1+NBXSZL,NL)
-              NLSZ=ILEND-ILSTA+1
+              ! NLSZ=ILEND-ILSTA+1
 C
               ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
 C
       IAJ=0
-      IBUF=0
+      ! IBUF=0
       DO IJ=IJSTA,IJEND
         IJABS=IJ+NIES(ISYJ)
         ILMAX=NL
@@ -1835,12 +1835,12 @@ C
             NCSZ=ICEND-ICSTA+1
             DO ILSTA=1,NL,NBXSZL
               ILEND=MIN(ILSTA-1+NBXSZL,NL)
-              NLSZ=ILEND-ILSTA+1
+              ! NLSZ=ILEND-ILSTA+1
 C
               ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
 C
       IAJ=0
-      IBUF=0
+      ! IBUF=0
       DO IJ=IJSTA,IJEND
         IJABS=IJ+NIES(ISYJ)
         ILMAX=NL

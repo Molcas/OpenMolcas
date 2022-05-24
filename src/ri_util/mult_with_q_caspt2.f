@@ -19,7 +19,6 @@
 **************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-! #include "choptr.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
@@ -67,7 +66,6 @@ C        iAdrA_out(iSym) = iA_out
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      MaxValue = 200
       Do iSym = 1, nSym
 *
          nBas2 = nLRb(iSym)
@@ -180,7 +178,6 @@ C     write (*,*) "nvec in mult = ", nvec
          Call ChoMP2_Quit(SecNam,'nVec is non-positive','[1]')
       End If
 *
-      l_B   = nLRb(iSym)*nVec
       l_B_t = nLRb(iSym)*nVec
       ip_B = ip_B_t + l_B_t
 

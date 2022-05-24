@@ -46,7 +46,7 @@ C
       Call GetMem('WRK2','Allo','Real',ipWRK2,nBasT*nBasT)
       Call GetOrd(IRC,Square,nSymX,nBasX,KEEP)
 C
-      nTot1 = nBasT*(nBasT+1)/2
+      ! nTot1 = nBasT*(nBasT+1)/2
       nTot2 = nBast*nBasT
       ipvLag = ipWRK1
       Call DCopy_(nBasT*nBasT,[0.0D+00],0,Work(ipvLag),1)
@@ -261,7 +261,7 @@ C       call bbbb
           If (nBasI.gt.MaxShlAO) MaxShlAO = nBasI
           iOffAO(iSh+1) = iOffAO(iSh)+nBasI
         End Do
-        nMax = MaxShlAO*MaxShlAO*nOcc*nOcc
+        ! nMax = MaxShlAO*MaxShlAO*nOcc*nOcc
 C       write(6,*) "maxshlao = ", maxshlao
 
         Allocate (T_hbf(nOcc,nOcc,MaxShlAO,MaxShlAO))
@@ -489,7 +489,7 @@ C       write(6,*) "calling vvvox2"
      *              FIFA,FIMO)
 C       write(6,*) "finished vvvox2"
       Else
-        Call VVVOX(nSym,nBas,nAux,nFro,Keep,
+        Call VVVOX(nSym,nBas,nFro,Keep,
      *             iSymI,iSymJ,iSymK,iSymL,
      *             T2AO,vLag,CMO,nOcc,nBasT,
      *             LBUF,Work(LW1),Work(LW2),Work(LWRK),
@@ -544,7 +544,7 @@ C
 C-----------------------------------------------------------------------
 C
       !! focktwo.f
-      SUBROUTINE VVVOX(NSYM,NBAS,NAUX,NFRO,KEEP,
+      SUBROUTINE VVVOX(NSYM,NBAS,NFRO,KEEP,
      *                 iSymI,iSymJ,iSymK,iSymL,
      &                 T2AO,vLag,CMO,nOcc,nBasT,LBUF,X1,X2,WRK,
      *                 DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
@@ -556,7 +556,7 @@ C
      *       X1(*),X2(*),WRK(*)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
-      Integer ISTLT(8),ISTSQ(8),KEEP(8),NBAS(8),NAUX(8),NFRO(8)
+      Integer ISTLT(8),ISTSQ(8),KEEP(8),NBAS(8),NFRO(8)
 C
 C     write(6,*) "start vvvox"
 C     MUL(I,J)=IEOR(I-1,J-1)+1
@@ -577,10 +577,10 @@ C     write(6,*) "a"
 C
       nBasI  = nBas(iSymI)
       KEEPI  = KEEP(iSymI)
-      nAuxI  = nAux(iSymI)
+      ! nAuxI  = nAux(iSymI)
       nBasJ  = nBas(iSymJ)
       KEEPJ  = KEEP(iSymJ)
-      nAuxJ  = nAux(iSymJ)
+      ! nAuxJ  = nAux(iSymJ)
       iSymIJ = 1+iEor(iSymI-1,iSymJ-1)
       nBasIJ = nBasI*nBasJ
       If (iSymI.EQ.iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
@@ -589,14 +589,14 @@ C     write(6,*) "b"
 
       nBasK  = nBas(iSymK)
       KEEPK  = KEEP(iSymK)
-      nAuxK  = nAux(iSymK)
+      ! nAuxK  = nAux(iSymK)
       iSMax  = iSymK
       If (iSymK.EQ.iSymI) iSMax = iSymJ
       iSymL  = 1+iEor(iSymIJ-1,iSymK-1)
       IF (iSymL.GT.iSMax) Return !! should not
       nBasL  = nBas(iSymL)
       KEEPL  = KEEP(iSymL)
-      nAuxL  = nAux(iSymL)
+      ! nAuxL  = nAux(iSymL)
       nBasKL = nBasK*nBasL
       IF (iSymK.EQ.iSymL) nBasKL = (nBasK*(nBasK+1))/2
       If (nBasKL.eq.0) Return
@@ -874,10 +874,10 @@ C
 C     write(6,*) "sym=",isymi,isymj,isymk,isyml
       nBasI  = nBas(iSymI)
       KEEPI  = KEEP(iSymI)
-      nAuxI  = nAux(iSymI)
+      ! nAuxI  = nAux(iSymI)
       nBasJ  = nBas(iSymJ)
       KEEPJ  = KEEP(iSymJ)
-      nAuxJ  = nAux(iSymJ)
+      ! nAuxJ  = nAux(iSymJ)
       iSymIJ = 1+iEor(iSymI-1,iSymJ-1)
       nBasIJ = nBasI*nBasJ
       If (iSymI.EQ.iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
@@ -886,7 +886,7 @@ C     write(6,*) "nbasij = ", nbasij
 
       nBasK  = nBas(iSymK)
       KEEPK  = KEEP(iSymK)
-      nAuxK  = nAux(iSymK)
+      ! nAuxK  = nAux(iSymK)
       iSMax  = iSymK
       If (iSymK.EQ.iSymI) iSMax = iSymJ
       iSymL  = 1+iEor(iSymIJ-1,iSymK-1)
@@ -894,7 +894,7 @@ C     write(6,*) "isyml,ismax = ", isyml,ismax
       IF (iSymL.GT.iSMax) Return !! should not
       nBasL  = nBas(iSymL)
       KEEPL  = KEEP(iSymL)
-      nAuxL  = nAux(iSymL)
+      ! nAuxL  = nAux(iSymL)
       nBasKL = nBasK*nBasL
       IF (iSymK.EQ.iSymL) nBasKL = (nBasK*(nBasK+1))/2
 C     write(6,*) "nbaskl = ", nbaskl
@@ -911,17 +911,17 @@ C
       kSym = iSymK
       lSym = iSymL
       nIshI = nIsh(iSym)
-      nIshJ = nIsh(jSym)
-      nIshK = nIsh(kSym)
-      nIshL = nIsh(lSym)
+      ! nIshJ = nIsh(jSym)
+      ! nIshK = nIsh(kSym)
+      ! nIshL = nIsh(lSym)
       nAshI = nAsh(iSym)
-      nAshJ = nAsh(jSym)
-      nAshK = nAsh(kSym)
-      nAshL = nAsh(lSym)
+      ! nAshJ = nAsh(jSym)
+      ! nAshK = nAsh(kSym)
+      ! nAshL = nAsh(lSym)
       nSshI = nSsh(iSym)
-      nSshJ = nSsh(jSym)
-      nSshK = nSsh(kSym)
-      nSshL = nSsh(lSym)
+      ! nSshJ = nSsh(jSym)
+      ! nSshK = nSsh(kSym)
+      ! nSshL = nSsh(lSym)
       nOrbI = nIshI+nAshI+nSshI
 C
 C     write(6,*) "nchspc = ", nchspc
@@ -953,7 +953,7 @@ C     write(6,*) "jred1,jred2 = ", jred1,jred2
 * the mapping between reduced index and basis set pairs.
 * The reduced set is divided into suitable batches.
 * First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
-        JEND=JSTART+NVECS_RED-1
+        ! JEND=JSTART+NVECS_RED-1
 
 * Determine batch length for this reduced set.
 * Make sure to use the same formula as in the creation of disk
@@ -1128,68 +1128,68 @@ C
       Call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC,nBra,
      *                      IBSTA,IBEND)
       IPQ = nAshI*nIshI
-      Do iVec = 1, NVEC
+      Do jVec = 1, NVEC
         ! a. AI -> mu I
         Call DGemm_('T','T',nIshI,nBasI,nAshI,
-     *              1.0D+00,CHSPC(1+IPQ*(iVec-1)),nAshI,
+     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nAshI,
      *                      CMO(1,1+nIshI),nBasI,
-     *              0.0D+00,HTSPC(1,1,iVec),nOrbI)
+     *              0.0D+00,HTSPC(1,1,jVec),nOrbI)
         ! a. AI -> A mu
         Call DGemm_('N','T',nAshI,nBasI,nIshI,
-     *              1.0D+00,CHSPC(1+IPQ*(iVec-1)),nAshI,
+     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nAshI,
      *                      CMO(1,1),nBasI,
-     *              0.0D+00,HTSPC(1+nIshI,1,iVec),nOrbI)
+     *              0.0D+00,HTSPC(1+nIshI,1,jVec),nOrbI)
       End Do
 C
       !! BraSI
       Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,CHSPC,nBra,
      *                      IBSTA,IBEND)
       IPQ = nIshI*nSshI
-      Do iVec = 1, NVEC
+      Do jVec = 1, NVEC
         ! b. SI -> mu I
         Call DGemm_('T','T',nIshI,nBasI,nSshI,
-     *              1.0D+00,CHSPC(1+IPQ*(iVec-1)),nSshI,
+     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nSshI,
      *                      CMO(1,1+nIshI+nAshI),nBasI,
-     *              1.0D+00,HTSPC(1,1,iVec),nOrbI)
+     *              1.0D+00,HTSPC(1,1,jVec),nOrbI)
         ! a. SI -> S mu
         Call DGemm_('N','T',nSshI,nBasI,nIshI,
-     *              1.0D+00,CHSPC(1+IPQ*(iVec-1)),nSshI,
+     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nSshI,
      *                      CMO(1,1),nBasI,
-     *              0.0D+00,HTSPC(1+nIshI+nAshI,1,iVec),nOrbI)
+     *              0.0D+00,HTSPC(1+nIshI+nAshI,1,jVec),nOrbI)
       End Do
 C
       !! BraSA
       Call Cholesky_Vectors(2,Active,Virtual,JSYM,CHSPC,nBra,
      *                      IBSTA,IBEND)
       IPQ = nAshI*nSshI
-      Do iVec = 1, NVEC
+      Do jVec = 1, NVEC
         ! d. SA -> mu A
         Call DGemm_('T','T',nAshI,nBasI,nSshI,
-     *              1.0D+00,CHSPC(1+IPQ*(iVec-1)),nSshI,
+     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nSshI,
      *                      CMO(1,1+nIshI+nAshI),nBasI,
-     *              1.0D+00,HTSPC(1+nIshI,1,iVec),nOrbI)
+     *              1.0D+00,HTSPC(1+nIshI,1,jVec),nOrbI)
         ! b. SA -> S mu
         Call DGemm_('N','T',nSshI,nBasI,nAshI,
-     *              1.0D+00,CHSPC(1+IPQ*(iVec-1)),nSshI,
+     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nSshI,
      *                      CMO(1,1+nIshI),nBasI,
-     *              1.0D+00,HTSPC(1+nIshI+nAshI,1,iVec),nOrbI)
+     *              1.0D+00,HTSPC(1+nIshI+nAshI,1,jVec),nOrbI)
       End Do
 C
       !! BraAA
       Call Cholesky_Vectors(2,Active,Active,JSYM,CHSPC,nBra,
      *                      IBSTA,IBEND)
       IPQ = nAshI*nAshI
-      Do iVec = 1, NVEC
+      Do jVec = 1, NVEC
         ! b. AA -> mu A
         Call DGemm_('T','T',nAshI,nBasI,nAshI,
-     *              1.0D+00,CHSPC(1+IPQ*(iVec-1)),nAshI,
+     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nAshI,
      *                      CMO(1,1+nIshI),nBasI,
-     *              1.0D+00,HTSPC(1+nIshI,1,iVec),nOrbI)
+     *              1.0D+00,HTSPC(1+nIshI,1,jVec),nOrbI)
         ! c. AA -> A mu
         Call DGemm_('N','T',nAshI,nBasI,nAshI,
-     *              1.0D+00,CHSPC(1+IPQ*(iVec-1)),nAshI,
+     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nAshI,
      *                      CMO(1,1+nIshI),nBasI,
-     *              1.0D+00,HTSPC(1+nIshI,1,iVec),nOrbI)
+     *              1.0D+00,HTSPC(1+nIshI,1,jVec),nOrbI)
       End Do
 C
       End Subroutine VVVOTRA_RI

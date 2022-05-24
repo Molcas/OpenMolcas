@@ -154,14 +154,14 @@ C           End of loop nest
 C           Deallocate VEC1 and VEC2
 C  End of loop.
 
-      HEL=0.0D0
+      ! HEL=0.0D0
 C     HECOMP=0.0D0
       DO ICASE=1,13
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIN=NINDEP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          HEBLK=0.0D0
+          ! HEBLK=0.0D0
 
           IF(NAS*NIS.EQ.0) GOTO 1
           IF(NIN.EQ.0) GOTO 1
@@ -273,7 +273,7 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       Dimension DTG3(*)
 
 
-      HEBLK=0.0D0
+      ! HEBLK=0.0D0
 
       IF (IISTA.LE.0) RETURN
 
@@ -871,8 +871,8 @@ C     CALL DCOPY_(NTG3,[0.0D0],0,TG3,1)
 
 C -Special code for the closed-shell or hi-spin cases:
 C ISCF=1 for closed-shell, =2 for hispin
-      OCC=2.0D0
-      IF(ISCF.EQ.2) OCC=1.0D0
+      ! OCC=2.0D0
+      ! IF(ISCF.EQ.2) OCC=1.0D0
       DO IT=1,NASHT
       ! TG1(IT,IT)=OCC
       END DO
@@ -926,7 +926,7 @@ C       VAL=VAL-TG2(IT2,IU2,IT1,IU3)
       END IF
 
 C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
-      ITG3=((IND1+1)*IND1*(IND1-1))/6+(IND2*(IND2-1))/2+IND3
+      ! ITG3=((IND1+1)*IND1*(IND1-1))/6+(IND2*(IND2-1))/2+IND3
 C     TG3(ITG3)=VAL
 
 

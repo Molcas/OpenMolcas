@@ -1160,7 +1160,6 @@ C     write(6,*) "nosqt = ", nosqt
 C     write(6,*) "nbast = ", nbast
       Do iSym = 1, nSym
         nBasI = nBas(iSym)
-        nOrbI = nOrb(iSym)
         nFroI = nFro(iSym)
         nIshI = nIsh(iSym)
         nAshI = nAsh(iSym)
@@ -1177,7 +1176,6 @@ C       write(6,*) "nAshI",nAsh(iSym)
 C       write(6,*) "nSshI",nSsh(iSym)
 C       write(6,*) "nDelI",nDel(iSym)
         nCor  = nFroI + nIshI
-        nOcc  = nCor  + nAshI
         nVir  = nSshI + nDelI
         ipTrfL = ipTrfL + iSQ
         !! frozen + inactive
@@ -1294,10 +1292,10 @@ C
           !! Add active orbital density
           !! Probably incorrect if symmetry
           Do iOrb0 = 1, nAsh(iSym)
-            iOrb1 = nIsh(iSym)+iOrb0
+            ! iOrb1 = nIsh(iSym)+iOrb0
             iOrb2 = nFro(iSym)+nIsh(iSym)+iOrb0
             Do jOrb0 = 1, nAsh(iSym)
-              jOrb1 = nIsh(iSym)+jOrb0
+              ! jOrb1 = nIsh(iSym)+jOrb0
               jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
               DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
      *          = DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
@@ -1469,10 +1467,10 @@ C
           !! Add active orbital density
           Do iOrb0 = 1, nAsh(iSym)
             iOrb = nIsh(iSym)+iOrb0
-            iOrb2= nFro(iSym)+nIsh(iSym)+iOrb0
+            ! iOrb2= nFro(iSym)+nIsh(iSym)+iOrb0
             Do jOrb0 = 1, nAsh(iSym)
               jOrb = nIsh(iSym)+jOrb0
-              jOrb2= nFro(iSym)+nIsh(iSym)+jOrb0
+              ! jOrb2= nFro(iSym)+nIsh(iSym)+jOrb0
               DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
      *          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + DEPSA(iOrb0,jOrb0)
               DSUM(iMO+iOrb-1+nOrbI*(jOrb-1))
@@ -1615,8 +1613,6 @@ C     call sqprt(work(ipolag),nbast)
         nSshI = nSsh(iSym)
         nDelI = nDel(iSym)
         nCor  = nFroI + nIshI
-        nOcc  = nCor  + nAshI
-        nVir  = nSshI + nDelI
         !! Inactive orbital contributions: (p,q) = (all,inact)
         CALL DaXpY_(nOrbI*nCor,2.0D+00,Work(ipFPT2+iSQ-1),1,
      *              Work(ipOLAG+iSQ-1),1)
@@ -1756,8 +1752,6 @@ C
         nSshI = nSsh(iSym)
         nDelI = nDel(iSym)
         nCor  = nFroI + nIshI
-        nOcc  = nCor  + nAshI
-        nVir  = nSshI + nDelI
         !! Inactive orbital contributions: (p,q) = (all,inact)
         CALL DaXpY_(nOrbI*nCor,2.0D+00,Work(ipFPT2+iSQ-1),1,
      *              Work(ipOLAG+iSQ-1),1)
@@ -2017,7 +2011,6 @@ C
 * the mapping between reduced index and basis set pairs.
 * The reduced set is divided into suitable batches.
 * First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
-        JEND=JSTART+NVECS_RED-1
 
 * Determine batch length for this reduced set.
 * Make sure to use the same formula as in the creation of disk

@@ -136,7 +136,7 @@ C
       SQ2    = SQRT(2.0D+00)
       SQI2   = 1.0D+00/SQ2
       SQ3    = SQRT(3.0D+00)
-      iVec   = iVecX
+      ! iVec   = iVecX
       IO1=0
       IO2=0
       DO iSymK = 1, nSym
@@ -156,15 +156,15 @@ C
         nINP = nINDEP(iSym,iCase)
         nASP = nASup(iSym,iCase)
         nISP = nISup(iSym,iCase)
-        If (nINP.ne.0) Then
-          nVec = nINP*nISP
-        End If
+        ! If (nINP.ne.0) Then
+        !   nVec = nINP*nISP
+        ! End If
         nINM = nINDEP(iSym,iCase+1)
         nASM = nASup(iSym,iCase+1)
         nISM = nISup(iSym,iCase+1)
-        If (nINM.ne.0) Then
-          nVec = nINM*nISM
-        End If
+        ! If (nINM.ne.0) Then
+        !   nVec = nINM*nISM
+        ! End If
         If (nASP*nISP.ne.0) Then
           Call RHS_ALLO(nASP,nISP,ipTCP)
           CALL RHS_READ_C(ipTCP,iCase,iSym,iVecC2)
@@ -177,9 +177,9 @@ C
         nIN = nINDEP(iSym,iCase)
         nAS = nASup(iSym,iCase)
         nIS = nISup(iSym,iCase)
-        If (nIN.ne.0) Then
-          nVec = nIN*nIS
-        End If
+        ! If (nIN.ne.0) Then
+        !   nVec = nIN*nIS
+        ! End If
         If (nAS*nIS.ne.0) Then
           Call RHS_ALLO(nAS,nIS,ipTC)
           CALL RHS_READ_C(ipTC,iCase,iSym,iVecC2)
@@ -245,18 +245,18 @@ C
       nOccJ = nCorJ+nAshJ
       nOccA = nCorA+nAshA
       nOccB = nCorB+nAshB
-      nOccI2= nOccI-nFroI
-      nOccJ2= nOccJ-nFroJ
+      ! nOccI2= nOccI-nFroI
+      ! nOccJ2= nOccJ-nFroJ
       nOccA2= nOccA-nFroA
       nOccB2= nOccB-nFroB
       nOrbI = nOccI+nSshI
       nOrbJ = nOccJ+nSshJ
       nOrbA = nOccA+nSshA
-      nOrbB = nOccB+nSshB
-      nOrbI = nOccI+nSshI
-      nOrbJ = nOccJ+nSshJ
+      ! nOrbB = nOccB+nSshB
+      ! nOrbI = nOccI+nSshI
+      ! nOrbJ = nOccJ+nSshJ
 C
-      nOcc  = nFro(iSym)+nIsh(iSym)+nAsh(iSym)
+      ! nOcc  = nFro(iSym)+nIsh(iSym)+nAsh(iSym)
 C
       !! active+virtual part for the right index
 C     nJ = nFro(iSymJ)+nIsh(iSymJ)+nAsh(iSymJ)
@@ -315,10 +315,10 @@ C
 C
       If (nAshI.eq.0.or.nIshJ.eq.0.or.nAshA.eq.0.or.nAshB.eq.0) Return
 C
-      nJ = nIshJ
+      ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
-        iItot = iI + nCorI
+        ! iItot = iI + nCorI
 C       If (iSymI.eq.iSymJ) nJ = iI
         Do iJ = 1, nIshJ
           iJabs = iJ + nIes(iSymJ)
@@ -341,7 +341,7 @@ C
 C
           Do iA = 1, nAshA
             iAabs = iA + nAes(iSymA)
-            iAtot = iA + nCorA
+            ! iAtot = iA + nCorA
             Do iB = 1, nAshB
               iBabs = iB + nAes(iSymB)
               iBtot = iB + nCorB
@@ -402,11 +402,11 @@ C
       nJ = nIshJ
       Do iI = 1, nIshI
         iIabs = iI + nIes(iSymI)
-        iItot = iI + nFroI
+        ! iItot = iI + nFroI
         If (iSymI.eq.iSymJ) nJ = iI
         Do iJ = 1, nJ
           iJabs = iJ + nIes(iSymJ)
-          iJtot = iJ + nFroJ
+          ! iJtot = iJ + nFroJ
           If (iIabs.lt.iJabs) Cycle
           Fac = 1.0D+00
 C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
@@ -425,10 +425,10 @@ C
 C
           Do iA = 1, nAshA
             iAabs = iA + nAes(iSymA)
-            iAtot = iA + nCorA
+            ! iAtot = iA + nCorA
             Do iB = 1, nAshB
               iBabs = iB + nAes(iSymB)
-              iBtot = iB + nCorB
+              ! iBtot = iB + nCorB
 C
               if (iaabs.gt.ibabs) then
                 iTabs = iAabs
@@ -501,14 +501,14 @@ C
 C
       If (nAshI.eq.0.or.nAshJ.eq.0.or.nSshA.eq.0.or.nAshB.eq.0) Return
 C
-      nJ = nIshJ
+      ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
-        iItot = iI + nCorI
+        ! iItot = iI + nCorI
 C       If (iSymI.eq.iSymJ) nJ = iI
         Do iJ = 1, nAshJ
           iJabs = iJ + nIshJ + nAes(iSymJ)
-          iJtot = iJ + nCorJ
+          ! iJtot = iJ + nCorJ
           If (iIabs.lt.iJabs) Cycle
           Fac = 1.0D+00
 C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
@@ -537,7 +537,7 @@ C
               iVabs = iJ + nAes(iSymJ)
 C             write(6,*) itabs,iuabs,ivabs
               !! (at|uv) -> (ai|bj) -> (at|uv)
-              IW1 = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
+              ! IW1 = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
               ValC1 = 0.0D+00
               ValC2 = 0.0D+00
 C             Do iICB = 1, nIN
@@ -639,7 +639,7 @@ C
 C
       If (nAshI.eq.0.or.nIshJ.eq.0.or.nSshA.eq.0.or.nAshB.eq.0) Return
 C
-      nJ = nIshJ
+      ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
         iItot = iI + nCorI
@@ -667,7 +667,7 @@ C
             iAabs = iA + nSes(iSymA)
             iAtot = iA + nFroA + nIshA + nAshA
             Do iB = 1, nAshB
-              iBabs = iB + nAes(iSymB)
+              ! iBabs = iB + nAes(iSymB)
               iBtot = iB + nCorB
 C
 C             iVi   = iJabs + nIshA*(iAabs-1)+IOFF1(iSymA)
@@ -735,11 +735,11 @@ C
       nJ = nIshJ
       Do iI = 1, nIshI
         iIabs = iI + nIes(iSymI)
-        iItot = iI
+        ! iItot = iI
         If (iSymI.eq.iSymJ) nJ = iI
         Do iJ = 1, nJ
           iJabs = iJ + nIes(iSymJ)
-          iJtot = iJ
+          ! iJtot = iJ
           If (iIabs.lt.iJabs) Cycle
           Fac = 1.0D+00
 C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
@@ -760,10 +760,10 @@ C
           IgtJ  = kIgtJ(iIabs,iJabs) - nIgtJes(iSym) ! iSymIJ
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
-            iAtot = iA + nIshA + nAshA
+            ! iAtot = iA + nIshA + nAshA
             Do iB = 1, nAshB
               iBabs = iB + nAes(iSymB)
-              iBtot = iB + nIshB
+              ! iBtot = iB + nIshB
 C
               iASP  = iBabs
               iISP  = iAabs + nSshA*(IgeJ-1)+iOFF1(iSymA)
@@ -810,14 +810,14 @@ C
 C
       If (nAshI.eq.0.or.nAshJ.eq.0.or.nSshA.eq.0.or.nSshB.eq.0) Return
 C
-      nJ = nIshJ
+      ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
-        iItot = iI + nCorI
+        ! iItot = iI + nCorI
 C       If (iSymI.eq.iSymJ) nJ = iI
         Do iJ = 1, nAshI
           iJabs = iJ + nIshJ + nIes(iSymJ)
-          iJtot = iJ + nCorJ
+          ! iJtot = iJ + nCorJ
           If (iIabs.lt.iJabs) Cycle
           Fac = 1.0D+00
 C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
@@ -838,11 +838,11 @@ C
           iUabs = iJ + nAes(iSymJ)
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
-            iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
+            ! iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
             Do iB = 1, nSshB
               iBabs = iB + nSes(iSymB)
               If (iAabs.lt.iBabs) Cycle
-              iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
+              ! iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
 C
               iASP  = kTgeU(iTabs,iUabs)-nTgeUes(iSym)
               iISP  = kAgeB(iAabs,iBabs)-nAgeBes(iSym)
@@ -892,14 +892,14 @@ C
 C
       If (nAshI.eq.0.or.nIshJ.eq.0.or.nSshA.eq.0.or.nSshB.eq.0) Return
 C
-      nJ = nIshJ
+      ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
-        iItot = iI + nCorI
+        ! iItot = iI + nCorI
 C       If (iSymI.eq.iSymJ) nJ = iI
         Do iJ = 1, nIshI
           iJabs = iJ + nIes(iSymJ)
-          iJtot = iJ
+          ! iJtot = iJ
 C         If (iIabs.lt.iJabs) Cycle
           Fac = 1.0D+00
 C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
@@ -920,11 +920,11 @@ C
 C
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
-            iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
+            ! iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
             Do iB = 1, nSshB
               iBabs = iB + nSes(iSymB)
               If (iAabs.lt.iBabs) Cycle
-              iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
+              ! iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
 C
               iAgeB = kAgeB(iAabs,iBabs)-nAgeBes(iSym) !! iSymAB
               iVjP  = iJ + nIsh(iSymJ)*(iAgeB-1)+IOFF1(iSymJ)
@@ -980,11 +980,11 @@ C
       nJ = nIshJ
       Do iI = 1, nIshI
         iIabs = iI + nIes(iSymI)
-        iItot = iI
+        ! iItot = iI
         If (iSymI.eq.iSymJ) nJ = iI
         Do iJ = 1, nJ
           iJabs = iJ + nIes(iSymJ)
-          iJtot = iJ
+          ! iJtot = iJ
           If (iIabs.lt.iJabs) Cycle
           Fac = 1.0D+00
 C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
@@ -1007,11 +1007,11 @@ C
           iViHM = nAgtB(iSym)*(iViHM0-1)
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
-            iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
+            ! iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
             Do iB = 1, nSshB
               iBabs = iB + nSes(iSymB)
               If (iAabs.lt.iBabs) Cycle
-              iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
+              ! iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
               iVaHP = kAgeB(iAabs,iBabs) - nAgeBes(iSym)
               iVHP  = iVaHP + iViHP !! nAgeB(iSym)*(iViP-1)
 C

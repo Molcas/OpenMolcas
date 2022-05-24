@@ -84,7 +84,7 @@ C
      &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,
      &          CPE,CPUTOT,TIOE,TIOTOT
 * Indices
-      INTEGER I
+      INTEGER I,iGrd
       INTEGER ISTATE
       INTEGER IGROUP,JSTATE_OFF
 * Convergence check
@@ -207,7 +207,9 @@ C
           Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
         End IF
       End If
-      GRADLOOP: Do iStpGrd = 1, nStpGrd
+      GRADLOOP: Do iGrd = 1, nStpGrd
+      ! to momentarily avoid NAG complaints
+      iStpGrd = iGrd
       IF (INPUT%JMS) GOTO 1000
 
 * For (X)Multi-State, a long loop over root states.

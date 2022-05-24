@@ -182,13 +182,13 @@ C
 C
       NLOOP=2
       DO 1000 ILOOP=1,NLOOP
-        IF(ILOOP.EQ.1) THEN
-          IBRA=IVEC
-          IKET=JVEC
-        ELSE
-          IBRA=JVEC
-          IKET=IVEC
-        END IF
+        ! IF(ILOOP.EQ.1) THEN
+        !   IBRA=IVEC
+        !   IKET=JVEC
+        ! ELSE
+        !   IBRA=JVEC
+        !   IKET=IVEC
+        ! END IF
 
 C Loop over types and symmetry block of VEC1 vector:
       DO 400 ICASE1=1,13

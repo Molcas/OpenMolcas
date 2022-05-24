@@ -43,7 +43,7 @@
       INTEGER L,LTO,LFROM
       INTEGER MEMMAX, MEMMAX_SAFE
       INTEGER NLEV2
-      INTEGER LDUM,NDUM
+      INTEGER LDUM
       INTEGER NCI,ICSF
 
       REAL*8, EXTERNAL :: DDOT_
@@ -339,7 +339,7 @@ C
 C
 * Dummy values necessary for fooling syntax checkers:
       ldum=1
-      ndum=1
+      ! ndum=1
       call getmem('memmx','max','real',ldum,memmax)
 
 * Use *almost* all remaining memory:

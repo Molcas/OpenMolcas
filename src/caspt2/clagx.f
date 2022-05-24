@@ -618,7 +618,7 @@ C
             !! For IPEA shift
             If (iTU.eq.iXY.and.BSHIFT.ne.0.0D+00) Then
               idT=(iTabs*(iTabs+1))/2
-              idU=(iUabs*(iUabs+1))/2
+              ! idU=(iUabs*(iUabs+1))/2
               NSEQ = iTU*(iTU+1)/2
               bsBDER = BSHIFT*0.5D+00*BDER
               !! BSHIFT*0.5d0*(DREF(IDT)+DREF(IDU))*WORK(LSDP-1+ITGEU)
@@ -1015,7 +1015,7 @@ C
             BDER = Work(LWRK3+iBadr-1)
             If (iTU.eq.iXY.and.BSHIFT.ne.0.0D+00) Then
               idT=(iTabs*(iTabs+1))/2
-              idU=(iUabs*(iUabs+1))/2
+              ! idU=(iUabs*(iUabs+1))/2
               NSEQ = iTU*(iTU+1)/2
               bsBDER = BSHIFT*0.5D+00*BDER
 C             !! BSHIFT*0.5d0*(4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDP-1+ITGEU)
@@ -1052,10 +1052,10 @@ C
      *      DEASUM = DEASUM - ScalB2*G2(iUabs,iXabs,iTabs,iYabs)
      *                      - ScalB1*G2(iUabs,iYabs,iTabs,iXabs)
 C
-            iTX = iTabs+nAshT*(iXabs-1)
-            iUY = iUabs+nAshT*(iYabs-1)
-            iTY = iTabs+nAshT*(iYabs-1)
-            iUX = iUabs+nAshT*(iXabs-1)
+            ! iTX = iTabs+nAshT*(iXabs-1)
+            ! iUY = iUabs+nAshT*(iYabs-1)
+            ! iTY = iTabs+nAshT*(iYabs-1)
+            ! iUX = iUabs+nAshT*(iXabs-1)
 C
             DF2(iTabs,iXabs,iUabs,iYabs)
      *        = DF2(iTabs,iXabs,iUabs,iYabs) + ScalB1
@@ -1507,7 +1507,7 @@ C     REAL*8 GTU
 
       INTEGER ID
       INTEGER IST,ISU,ISTU
-      INTEGER IT,IU,LT,LU,LTU
+      INTEGER IT,IU,LT,LU
 
       INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
 
@@ -1574,7 +1574,6 @@ C     ENDDO
         IST=ISM(LT)
         IT=L2ACT(LT)
         LU=iWork(lTask2U+iTask-1)
-          LTU=iTask
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
@@ -1679,7 +1678,6 @@ C
         NR1=NRAS1(ISYM)
         NR2=NRAS2(ISYM)
         NR3=NRAS3(ISYM)
-        NA=NASH(ISYM)
         NS=NSSH(ISYM)
 * Skip inactive transformation matrix:
         IOFF1=IOFF1+NI**2
@@ -1721,13 +1719,10 @@ C Transform SGM to use original MO:
       NSG=NCONF
       DO ISYM=1,NSYM
         NI=NISH(ISYM)
-        NA=NASH(ISYM)
         NR1=NRAS1(ISYM)
         NR2=NRAS2(ISYM)
         NR3=NRAS3(ISYM)
         NS=NSSH(ISYM)
-        NO=NORB(ISYM)
-        NB=NBAS(ISYM)
         ITOSTA=ITOEND+1
         ITOEND=ITOEND+NR1**2+NR2**2+NR3**2
 *        ITO=ITOSTA+NI**2
@@ -2978,7 +2973,7 @@ C     Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
       MaxIter = 100
       Iter    = 1
       iSym    = 1
-      jspin   = 0
+      ! jspin   = 0
       ! r^T dot z
       ! r (residue) = ipST
       ! z (prec. r) = ipS2
@@ -3304,7 +3299,7 @@ C
       Dimension CIin(nConf,nState),CIout(nConf,nState)
       Real*8    INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
       LOGICAL   RSV_TSK
-      logical tras,uras,vras,xras
+      ! logical tras,uras,vras,xras
 C
 C     --- H_{IJ}*P_J
 C    <CI1|EtuEvx|CI2>=<CI1|Evx
@@ -3328,10 +3323,10 @@ C
       Call GetMem('SGM2','ALLO','REAL',LSGM2,nConf)
 C
       Call DCopy_(nConf*nState,[0.0D+00],0,CIout,1)
-      Do iState = 1, nState
+      Do kState = 1, nState
 C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
         Wgt = 1.0D+00/nState
-        Call DScal_(nConf,Wgt,CIin(1,iState),1)
+        Call DScal_(nConf,Wgt,CIin(1,kState),1)
 C
         !! Start the actual part of dens2_rpt2
         Call Init_Tsk(ID, nTasks)
@@ -3339,15 +3334,15 @@ C
  500    If (.NOT.Rsv_Tsk (ID,iTask)) GOTO 501
 C
         LT=iWork(lTask2T+iTask-1)
-        tras=.false.
-        if (lt.le.nras1(1)) tras=.true.
+        ! tras=.false.
+        ! if (lt.le.nras1(1)) tras=.true.
           IST=ISM(LT)
           IT=L2ACT(LT)
           LU=iWork(lTask2U+iTask-1)
-          uras=.false.
-          if (lu.gt.nras1(1)+nras2(1)) uras=.true.
+          ! uras=.false.
+          ! if (lu.gt.nras1(1)+nras2(1)) uras=.true.
 C         if (tras.and.uras) go to 500
-            LTU=iTask
+            ! LTU=iTask
             ISU=ISM(LU)
             IU=L2ACT(LU)
             ISTU=MUL(IST,ISU)
@@ -3355,32 +3350,32 @@ C         if (tras.and.uras) go to 500
             NSGM=NCSF(ISSG)
             IF(NSGM.EQ.0) GOTO 500
             !! <CIin|Etu
-            CALL GETSGM2(LU,LT,STSYM,CIin(1,iState),Work(LSGM1))
+            CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),Work(LSGM1))
 C           CALL GETSGM2(LT,LU,STSYM,CIin(1,iState),Work(LSGM1))
             IF(ISTU.EQ.1) THEN
               !! <CIin|Etu|CIout>*I1tu
               Call DaXpY_(NSGM,INT1(IT,IU),Work(LSGM1),1,
-     *                                     CIout(1,iState),1)
+     *                                     CIout(1,kState),1)
             END IF
             LVX=0
             DO LV=1,NLEV
               ISV=ISM(LV)
               IV=L2ACT(LV)
-              vras=.false.
-              if (lv.le.nras1(1)) vras=.true.
+              ! vras=.false.
+              ! if (lv.le.nras1(1)) vras=.true.
               DO LX=1,NLEV
                 LVX=LVX+1
                 ISX=ISM(LX)
                 ISVX=MUL(ISV,ISX)
-                xras=.false.
-                if (lx.gt.nras1(1)+nras2(1)) xras=.true.
+                ! xras=.false.
+                ! if (lx.gt.nras1(1)+nras2(1)) xras=.true.
 C               if (vras.and.xras) go to 110
                 IF(ISVX.NE.ISTU) GOTO 110
                 IX=L2ACT(LX)
                 CALL GETSGM2(LX,LV,ISSG,Work(LSGM1),Work(LSGM2))
 C               CALL GETSGM2(LV,LX,ISSG,Work(LSGM1),Work(LSGM2))
                 Call DaXpY_(NSGM,INT2(IT,IU,IV,IX),Work(LSGM2),1,
-     *                      CIout(1,iState),1)
+     *                      CIout(1,kState),1)
  110          CONTINUE
               END DO
             END DO
@@ -3395,7 +3390,7 @@ C
         CALL Free_Tsk(ID)
         !! End the actual part of dens2_rpt2
 C
-        Call DScal_(nConf,1.0D+00/Wgt,CIin(1,iState),1)
+        Call DScal_(nConf,1.0D+00/Wgt,CIin(1,kState),1)
       End Do
 C
       CALL GETMEM ('Tasks','FREE','INTE',lTask,2*nTasks)
@@ -3404,12 +3399,12 @@ C
 C
 C     --- -E_{S}*CJ + zL_{KL}
 C
-      Do iState = 1, nState
+      Do kState = 1, nState
 C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
         Wgt = 1.0D+00/nState
 C       EC=(rin_ene+potnuc-REFENE(iState))*Wgt
-        EC=Eact(iState)*Wgt
-        Call Daxpy_(nConf,EC,CIin(1,iState),1,CIout(1,iState),1)
+        EC=Eact(kState)*Wgt
+        Call Daxpy_(nConf,EC,CIin(1,kState),1,CIout(1,kState),1)
       End Do
 C
       !! Do projection
@@ -3478,19 +3473,19 @@ C     Call DaXpY_(NG1,-0.5D+00,Work(LG1T),1,G1,1)
 C     Call DaXpY_(NG2,-0.5D+00,Work(LG2T),1,G2,1)
 C
       iSLag = 0
-      Do iState = 1, nState
+      Do kState = 1, nState
 C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
         Wgt = 1.0D+00/nState
 C
         !! <CI|Etu|CIT>+<CIT|Etu|CI> and the t+ u+ x v variant
-        Call Dens2T_RPT2(CI(1,iState),CIT(1,iState),
+        Call Dens2T_RPT2(CI(1,kState),CIT(1,kState),
      *                   Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T))
         Call DaXpY_(NG1,WGT,Work(LG1T),1,G1,1)
         Call DaXpY_(NG2,WGT,Work(LG2T),1,G2,1)
 C
         !! For the orbital contribution of CASSCF Lagrangian
         !! Just add the SLag rotation contributions
-        ilState = iState
+        ilState = kState
         Do jlState = 1, ilState-1
           iSLag = iSLag + 1
           Call Dens2T_RPT2(CI(1,ilState),CI(1,jlState),
@@ -3584,7 +3579,7 @@ C                   ipQ=ipMat(ipS,iS)+nOrb(ipS)*(iAA-1)
                     ipQ=nAsh(ipS)*(iAsh-1)
 C                   ipM=1+nIsh(jS)*nOrb(ipS)
                     Do jAsh=1,nAsh(jS)
-                      jAA=jAsh+nFro(jS)+nIsh(jS)
+                      ! jAA=jAsh+nFro(jS)+nIsh(jS)
                       ipM=nFro(ipS)+nIsh(ipS)
      *                   +(nFro(jS)+nIsh(jS)+jAsh-1)*nBas(ipS)
 C                     iij=nna*(jAsh+nA(jS)-1)+iAsh+nA(iS)

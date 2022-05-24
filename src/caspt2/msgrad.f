@@ -10,40 +10,40 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      SUBROUTINE MSGradPrep(UEFF)
-C
-      USE CHOVEC_IO
-C
-      IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "output.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "sigma.fh"
+!       SUBROUTINE MSGradPrep(UEFF)
+! C
+!       USE CHOVEC_IO
+! C
+!       IMPLICIT REAL*8 (A-H,O-Z)
+! C
+! #include "rasdim.fh"
+! #include "caspt2.fh"
+! #include "output.fh"
+! #include "eqsolv.fh"
+! #include "WrkSpc.fh"
+! #include "sigma.fh"
 
-#include "caspt2_grad.fh"
-#include "csfbas.fh"
-C
-#include "pt2_guga.fh"
-C
-#include "chocaspt2.fh"
-C
-      DIMENSION UEFF(nState,nState)
-      DIMENSION VECROT(nState,nState)
-C
-      iRoot1 = iRlxRoot
-      iRoot2 = iRlxRoot
-      DO ilStat = 1, nState
-        DO jlStat = 1, nState
-          TMP = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
-     *        + UEFF(ilStat,iRoot2)*UEFF(jlStat,iRoot1)
-          VECROT(ilStat,jlStat) = TMP*0.5D+00
-        END DO
-      END DO
-C
-      END SUBROUTINE MSGradPrep
+! #include "caspt2_grad.fh"
+! #include "csfbas.fh"
+! C
+! #include "pt2_guga.fh"
+! C
+! #include "chocaspt2.fh"
+! C
+!       DIMENSION UEFF(nState,nState)
+!       DIMENSION VECROT(nState,nState)
+! C
+!       iRoot1 = iRlxRoot
+!       iRoot2 = iRlxRoot
+!       DO ilStat = 1, nState
+!         DO jlStat = 1, nState
+!           TMP = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
+!      *        + UEFF(ilStat,iRoot2)*UEFF(jlStat,iRoot1)
+!           VECROT(ilStat,jlStat) = TMP*0.5D+00
+!         END DO
+!       END DO
+! C
+!       END SUBROUTINE MSGradPrep
 C
 C-----------------------------------------------------------------------
 C
@@ -304,7 +304,7 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       Dimension TG3(*)
 
 
-      HEBLK=0.0D0
+      ! HEBLK=0.0D0
 
       IF (IISTA.LE.0) RETURN
 
@@ -1332,7 +1332,7 @@ C     REAL*8 GTU
 
       INTEGER ID
       INTEGER IST,ISU,ISTU
-      INTEGER IT,IU,LT,LU,LTU
+      INTEGER IT,IU,LT,LU
 
       INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
 
@@ -1399,7 +1399,7 @@ C     ENDDO
         IST=ISM(LT)
         IT=L2ACT(LT)
         LU=iWork(lTask2U+iTask-1)
-          LTU=iTask
+          ! LTU=iTask
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
@@ -1471,7 +1471,7 @@ C
       nIshI = nIsh(iSym)
       nCorI = nFroI+nIshI
       nBasI = nBas(iSym)
-      nOrbI = nOrb(iSym)
+      ! nOrbI = nOrb(iSym)
 
 C     CALL GETMEM('FIMO  ','ALLO','REAL',ipFIMO,nBasSq)
       CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1,nBasSq)
@@ -1716,10 +1716,10 @@ C
           !! Add active orbital density
           !! Probably incorrect if symmetry
           Do iOrb0 = 1, nAsh(iSym)
-            iOrb1 = nIsh(iSym)+iOrb0
+            ! iOrb1 = nIsh(iSym)+iOrb0
             iOrb2 = nFro(iSym)+nIsh(iSym)+iOrb0
             Do jOrb0 = 1, nAsh(iSym)
-              jOrb1 = nIsh(iSym)+jOrb0
+              ! jOrb1 = nIsh(iSym)+jOrb0
               jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
               DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
      *          = DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
@@ -1805,7 +1805,7 @@ C
 
       INTEGER ID
       INTEGER IST,ISU,ISTU
-      INTEGER IT,IU,LT,LU,LTU
+      INTEGER IT,IU,LT,LU
 
       INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
 
@@ -1874,7 +1874,7 @@ C     DO 140 LT=1,NLEV
 C       DO 130 LU=1,LT
         LU=iWork(lTask2U+iTask-1)
 C         LTU=LTU+1
-          LTU=iTask
+          ! LTU=iTask
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)

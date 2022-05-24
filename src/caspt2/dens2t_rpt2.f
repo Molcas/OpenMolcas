@@ -38,7 +38,7 @@
 
       INTEGER ID
       INTEGER IST,ISU,ISV,ISX,ISTU,ISVX
-      INTEGER IT,IU,IV,IX,LT,LU,LV,LX,LTU,LVX
+      INTEGER IT,IU,IV,IX,LT,LU,LV,LX,LVX
       integer itu,ivx
 
       INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
@@ -122,7 +122,7 @@ C     DO 140 LT=1,NLEV
 C       DO 130 LU=1,LT
         LU=iWork(lTask2U+iTask-1)
 C         LTU=LTU+1
-          LTU=iTask
+          ! LTU=iTask
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)

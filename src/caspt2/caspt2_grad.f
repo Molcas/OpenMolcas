@@ -87,7 +87,7 @@ C
       If (IFXMS) Then
         CALL GETMEM('FIFASA ','ALLO','REAL',ipFIFASA  ,nBasSq)
         Call DCopy_(nBasSq ,[0.0D+00],0,Work(ipFIFASA),1)
-        norbi=norb(1)
+        ! norbi=norb(1)
       End If
 C
       If (IFDW) Then
@@ -653,20 +653,17 @@ C
       End Subroutine OLagFinal
 C
 C-----------------------------------------------------------------------
-C
+
       Subroutine CnstFIFAFIMO(MODE)
-C
+
       Implicit Real*8 (A-H,O-Z)
-C
+
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
-C
-C     nOrbI = nOrb(1)
-C     Call SQUARE(Work(LFIFA),Work(ipFIFASA),1,nOrbI,nOrbI)
-C     return
-C
+
+
       If (IfChol) Then
         !! For DF or CD, we already have FIFA and FIMO in AO,
         !! so just do AO -> MO transformation
@@ -674,25 +671,25 @@ C
         CALL GETMEM('WRK2   ','ALLO','REAL',ipWRK2   ,nBasSq)
         Call DCopy_(nBasSq ,[0.0D+0],0,Work(ipWRK1)  ,1)
         Call DCopy_(nBasSq ,[0.0D+0],0,Work(ipWRK2)  ,1)
-C
-C           write (*,*) "ipfifa,ipfimo"
-C           do i = 1, 10
-C           write (*,*) i,work(ipfifa+i-1),work(ipfimo+i-1)
-C           end do
+
+!           write (*,*) "ipfifa,ipfimo"
+!           do i = 1, 10
+!           write (*,*) i,work(ipfifa+i-1),work(ipfimo+i-1)
+!           end do
         !! Read H_{\mu \nu}
-C       IRC=-1
-C       IOPT=6
-C       ICOMP=1
-C       ISYLBL=1
-C       CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,Work(ipWRK1),ISYLBL)
-C       Call DaXpY_(nBasTr,1.0D+00,Work(ipWRK1),1,Work(ipFIMO),1)
-C       Call DaXpY_(nBasTr,1.0D+00,Work(ipWRK1),1,Work(ipFIFA),1)
-C
-C       Call DaXpY_(nBasTr,1.0D+00,Work(ipFIMO),1,Work(ipFIFA),1)
+!       IRC=-1
+!       IOPT=6
+!       ICOMP=1
+!       ISYLBL=1
+!       CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,Work(ipWRK1),ISYLBL)
+!       Call DaXpY_(nBasTr,1.0D+00,Work(ipWRK1),1,Work(ipFIMO),1)
+!       Call DaXpY_(nBasTr,1.0D+00,Work(ipWRK1),1,Work(ipFIFA),1)
+!
+!       Call DaXpY_(nBasTr,1.0D+00,Work(ipFIMO),1,Work(ipFIFA),1)
         iSQ = 0
         iTR = 0
         Do iSym = 1, nSym
-          nOrbI = nOrb(iSym)
+          ! nOrbI = nOrb(iSym)
           nBasI = nBas(iSym)
           !! FIFA
           If (nFroT.eq.0) Then
@@ -754,7 +751,7 @@ C
           iSQ = 0
           iTR = 0
           Do iSym = 1, nSym
-            nOrbI = nOrb(iSym)
+            ! nOrbI = nOrb(iSym)
             nBasI = nBas(iSym)
             Call SQUARE(Work(LFIFA+iTr),Work(ipFIFA+iSQ),
      *                  1,nBasI,nBasI)

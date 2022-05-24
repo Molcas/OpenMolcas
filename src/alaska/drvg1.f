@@ -515,8 +515,6 @@ C
            lS = Ind_ij(2,klS)
          Else If (Method_chk.eq.'CASPT2  ') Then
            Call CASPT2_Grad_FwdCnt(iS,jS,kS,lS,LoadVec)
-           ikS = Max(iS,kS)*(Max(iS,kS)-1)/2+Min(iS,kS)
-           jlS = Max(jS,lS)*(Max(jS,lS)-1)/2+Min(jS,lS)
          End If
          Go To 13
 *

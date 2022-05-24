@@ -26,9 +26,9 @@ C
         nOrbI2 = nBas(iSym)-nDel(iSym)
         If (nOrbI1.gt.0) Then
           nFroI = nFro(iSym)
-          nIshI = nIsh(iSym)
-          nAshI = nAsh(iSym)
-          nSshI = nSsh(iSym)
+          ! nIshI = nIsh(iSym)
+          ! nAshI = nAsh(iSym)
+          ! nSshI = nSsh(iSym)
 C
           !! Do for all orbitals
           Do iOrb = 1, nOrbI1
@@ -185,7 +185,7 @@ C     end do
         nFroI = nFro(iSym)
         If (nOrbI.gt.0.and.nFroI.gt.0) Then
           nIshI = nIsh(iSym)
-          nBasI = nBas(iSym)
+          ! nBasI = nBas(iSym)
           !! Make sure that the frozen orbital of the orbital Lagrangian
           !! is zero
           Call dcopy_(nOrbI*nFroI,[0.0D+00],0,OLag,1)
@@ -465,7 +465,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-! #include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 #include "output.fh"
@@ -537,7 +536,7 @@ C
 * the mapping between reduced index and basis set pairs.
 * The reduced set is divided into suitable batches.
 * First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
-        JEND=JSTART+NVECS_RED-1
+        ! JEND=JSTART+NVECS_RED-1
 
 * Determine batch length for this reduced set.
 * Make sure to use the same formula as in the creation of disk
