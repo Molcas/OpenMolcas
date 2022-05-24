@@ -1926,7 +1926,9 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstAB_SSDM(DPT2AO,SSDM)
 C
-      USE CHOVEC_IO
+      use ChoVec_io
+      use ChoSwp, only: InfVec
+      use ChoArr, only: nDimRS
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1937,7 +1939,7 @@ C
 C
 #include "warnings.fh"
 #include "chocaspt2.fh"
-#include "choptr.fh"
+! #include "choptr.fh"
 #include "choglob.fh"
 C
       Dimension DPT2AO(*),SSDM(*)
@@ -1946,7 +1948,7 @@ C
       integer nnbstr(8,3)
       Logical is_error
 C
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
+      ! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       call getritrfinfo(nnbstr,maxvec,n2)
       iSym = 1 !! iSym0
 C
@@ -1997,9 +1999,11 @@ C
 
       IF(NUMCHO_PT2(iSym).EQ.0) Return
 
-      ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
-      JRED1=iWork(ipnt)
-      JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
+      ! ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
+      ! JRED1=iWork(ipnt)
+      ! JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
+      JRED1=InfVec(1,2,iSym)
+      JRED2=InfVec(NumCho_PT2(iSym),2,iSym)
 
 * Loop over JRED
       DO JRED=JRED1,JRED2
@@ -2053,11 +2057,13 @@ C
           Do iVec = 1, NUMV
 C
             !! reduced form -> squared AO vector (mu nu|iVec)
-            If (l_NDIMRS.LT.1) Then
+            ! If (l_NDIMRS.LT.1) Then
+            If (size(nDimRS).lt.1) Then
               lscr  = NNBSTR(iSym,3)
             Else
               JREDL = INFVEC(iVec,2,iSym)
-              lscr  = iWork(ip_nDimRS+iSym-1+nSym*(JREDL-1)) !! JRED?
+              ! lscr  = iWork(ip_nDimRS+iSym-1+nSym*(JREDL-1)) !! JRED?
+              lscr  = nDimRS(iSym,JREDL)
             End If
             Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,1,
@@ -2091,7 +2097,7 @@ C
             CALL CHO_VECRD(WORK(IP_CHSPC),NCHSPC,KV1,KV2,iSym,
      &                              NUMV,JREDC,MUSED)
            Call R2FIP(Work(ip_CHSPC),Work(ipWRK(iSym)),ipWRK(iSym),NUMV,
-     *                l_NDIMRS,IWORK(ip_INFVEC),iWork(ip_nDimRS),
+     *                size(nDimRS),infVec,nDimRS,
      *                nBasT,nSym,iSym,iSkip,irc,JREDC)
 C
             !! Exchange part of A_PT2

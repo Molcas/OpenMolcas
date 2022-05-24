@@ -826,38 +826,37 @@ C
      *                  vLag,CMO,WRK,
      *                  DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                  FIFA,FIMO)
-C
-      USE CHOVEC_IO
-C
+
+      use ChoVec_io
+      use ChoSwp, only: InfVec
+      use ChoArr, only: nDimRS
+
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+
 #include "rasdim.fh"
 #include "warnings.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choptr.fh"
+! #include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 #include "output.fh"
 #include "caspt2_grad.fh"
-C
+
       Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       Dimension FIFA(*),FIMO(*)
       Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8),ipWRK(8)
-C
+
       Integer iSkip(8)
-C     integer nnbstr(8,3)
-C
-C     INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-C
-C     call getritrfinfo(nnbstr,maxvec,n2)
-C
+
+!     INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
+
       Do jSym = 1, nSym
         iSkip(jSym) = 1
       End Do
-C
+
       ISTSQ(1)=0
       ISTLT(1)=0
       nAuxT = 0
@@ -869,7 +868,7 @@ C
         ISTLT(jSym) = ISTLT(jSym-1) + nB3
         nAuxT = nAuxT + nAux(jSym)
       End Do
-C
+
 C     write(6,*) "sym=",isymi,isymj,isymk,isyml
       nBasI  = nBas(iSymI)
       KEEPI  = KEEP(iSymI)
@@ -933,9 +932,11 @@ C
 
       IF(NUMCHO_PT2(iSym).EQ.0) Return
 
-      ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
-      JRED1=iWork(ipnt)
-      JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
+      ! ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
+      ! JRED1=iWork(ipnt)
+      ! JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
+      JRED1=InfVec(1,2,jSym)
+      JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
 C     write(6,*) "jred1,jred2 = ", jred1,jred2
 
 * Loop over JRED
@@ -1007,8 +1008,9 @@ C
 C
           !! (strange) reduced form -> squared AO (mu nu|iVec)
           !! is it possible to avoid this transformation?
+      ! choptr.fh
           Call R2FIP(Work(ip_CHSPC),Work(ipWRK(iSym)),ipWRK(iSym),NUMV,
-     *               l_NDIMRS,IWORK(ip_INFVEC),iWork(ip_nDimRS),
+     *               size(nDimRS),infVec,nDimRS,
      *               nBasT,nSym,iSym,iSkip,irc,JREDC)
 C
 C           ----- Fock-like transformations (if needed) -----

@@ -19,7 +19,7 @@
 **************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "choptr.fh"
+! #include "choptr.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"

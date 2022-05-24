@@ -453,32 +453,34 @@ C
       !! focktwo.f
       SUBROUTINE OLagFro4(iSym0,iSymI,iSymJ,iSymK,iSymL0,
      *                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK)
-C
+
       USE CHOVEC_IO
-C
+      use ChoSwp, only: InfVec
+      use ChoArr, only: nDimRS
+
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+
 #include "rasdim.fh"
 #include "warnings.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choptr.fh"
+! #include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 #include "output.fh"
 #include "caspt2_grad.fh"
-C
+
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),WRK(*)
       Integer ISTLT(8),ISTSQ(8),iSkip(8),ipWRK(8)
-C
+
       integer nnbstr(8,3)
-C
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-C
+
+      ! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
+
       iSym = iSym0
       call getritrfinfo(nnbstr,maxvec,n2)
-C
+
       ISTSQ(1)=0
       ISTLT(1)=0
       Do jSym = 2, nSym
@@ -491,7 +493,7 @@ C
       Do jSym = 1, nSym
         iSkip(jSym) = 1
       End Do
-C
+
       nBasI  = nBas(iSymI)
       nBasJ  = nBas(iSymJ)
       iSymIJ = 1+iEor(iSymI-1,iSymJ-1)
@@ -508,18 +510,20 @@ C
       nBasKL = nBasK*nBasL
       IF (iSymK.EQ.iSymL0) nBasKL = (nBasK*(nBasK+1))/2
       If (nBasKL.eq.0) Return
-C
+
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(iSym),nBasT*nBasT)
-C
+
       IBATCH_TOT=NBTCHES(iSym)
 
       IF(NUMCHO_PT2(iSym).EQ.0) Return
 
-      ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
-      JRED1=iWork(ipnt)
-      JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
-C     write(6,*) "jred1,jred2 = ", jred1,jred2
+      ! ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
+      ! JRED1=iWork(ipnt)
+      ! JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
+      JRED1=InfVec(1,2,iSym)
+      JRED2=InfVec(NumCho_PT2(iSym),2,iSym)
+!     write(6,*) "jred1,jred2 = ", jred1,jred2
 
 * Loop over JRED
       DO JRED=JRED1,JRED2
@@ -575,11 +579,13 @@ C
             !! (strange) reduced form -> squared AO vector (mu nu|iVec)
             jVref = 1 !! only for iSwap=1
 C           lscr  = nBasI*(nBasI+1)/2
-            If (l_NDIMRS.LT.1) Then
+            ! If (l_NDIMRS.LT.1) Then
+            If (size(nDimRS).lt.1) Then
               lscr  = NNBSTR(iSym,3)
             Else
               JREDL = INFVEC(iVec,2,iSym)
-              lscr  = iWork(ip_nDimRS+iSym-1+nSym*(JREDL-1)) !! JRED?
+              ! lscr  = iWork(ip_nDimRS+iSym-1+nSym*(JREDL-1)) !! JRED?
+              lscr  = nDimRS(iSym,JREDL)
             End If
             JVEC1 = 1
             iSwap = 2
