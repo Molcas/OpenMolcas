@@ -12,33 +12,24 @@
 C
 C     Purpose: initialize reduced set dimension.
 C
+      use ChoArr, only: nDimRS
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       IF (RSTCHO) THEN
          ILOC = 3
          DO IRS = 1,XNPASS
-            KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
-            KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-            CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                      IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                      IWORK(ip_iSP2F),
-     &                      MAXRED,NSYM,NNSHL,MMBSTRT,IRS,.FALSE.)
-            CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                         NSYM,NNSHL,ILOC)
-            KOFF3 = ip_NDIMRS + NSYM*(IRS - 1)
-            CALL ICOPY(NSYM,NNBSTR(1,ILOC),1,IWORK(KOFF3),1)
+            CALL CHO_GETRED(IRS,ILOC,.FALSE.)
+            CALL CHO_SETREDIND(ILOC)
+            CALL ICOPY(NSYM,NNBSTR(:,ILOC),1,nDimRS(:,iRS),1)
          END DO
          NSET = XNPASS
       ELSE
-         CALL ICOPY(NSYM,NNBSTR(1,1),1,IWORK(ip_NDIMRS),1)
+         CALL ICOPY(NSYM,NNBSTR(1,1),1,nDimRS,1)
          NSET = 1
       END IF
 
       NUM   = NSYM*(MAXRED - NSET)
-      KOFF  = ip_NDIMRS + NSYM*NSET
-      CALL CHO_IZERO(IWORK(KOFF),NUM)
+      CALL CHO_IZERO(nDimRS(1,NSET+1),NUM)
 
       END

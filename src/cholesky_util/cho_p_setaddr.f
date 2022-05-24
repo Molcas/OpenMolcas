@@ -13,10 +13,10 @@ C
 C     Purpose: set initial disk adresses for local as well as global
 C              reduced sets.
 C
+      use ChoSwp, only: InfRed, InfRed_G
+      use ChoSwp, only: InfVec, InfVec_G
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
 
@@ -37,8 +37,8 @@ C        ----------------------------------------------------------
 C        Global.
 C        -------
 
-         Call Cho_P_SetAddr_2(iWork(ip_InfRed_G),iWork(ip_InfVec_G),
-     &                        MaxRed,MaxVec,InfVec_N2,nSym,irc)
+         Call Cho_P_SetAddr_2(InfRed_G,InfVec_G,
+     &                        MaxRed,MaxVec,SIZE(InfVec,2),nSym,irc)
          If (irc .ne. 0) Then
             Write(Lupri,*) SecNam,': Cho_P_SetAddr_2 returned ',irc
             Call Cho_Quit('Error in '//SecNam,104)
@@ -49,8 +49,8 @@ C        -------
 C     Local.
 C     ------
 
-      Call Cho_SetAddr(iWork(ip_InfRed),iWork(ip_InfVec),
-     &                 MaxRed,MaxVec,InfVec_N2,nSym)
+      Call Cho_SetAddr(InfRed,InfVec,
+     &                 MaxRed,MaxVec,SIZE(InfVec,2),nSym)
 
       End
 ************************************************************************

@@ -22,7 +22,6 @@
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "etwas.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
@@ -491,11 +490,10 @@
 ************************************************************************
       Subroutine OFembed_dmat(Dens,nDens)
 
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (a-h,o-z)
       Real*8 Dens(nDens)
 #include "WrkSpc.fh"
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16 NamRfil
 
       If (.not.Do_OFemb) Return

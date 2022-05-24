@@ -19,17 +19,17 @@ set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 if (PYTHONINTERP_FOUND)
 
   foreach (prog IN ITEMS dynamixtools)
-          file (READ ${CMAKE_CURRENT_LIST_DIR}/${prog}.py content)
-          file (WRITE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "#!/usr/bin/env ${PYTHON_EXECUTABLE}\n")
-          file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "${content}")
-          file (COPY ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py
-                DESTINATION ${EXECUTABLE_OUTPUT_PATH}
-                FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-          )
-          install (PROGRAMS
-                   ${EXECUTABLE_OUTPUT_PATH}/${prog}.py
-                   DESTINATION ${CMAKE_INSTALL_PREFIX}/${tooldir}
-          )
+    file (READ ${CMAKE_CURRENT_LIST_DIR}/${prog}.py content)
+    file (WRITE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "#!/usr/bin/env ${PYTHON_EXECUTABLE}\n")
+    file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "${content}")
+    file (COPY ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py
+          DESTINATION ${EXECUTABLE_OUTPUT_PATH}
+          FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    )
+    install (PROGRAMS
+             ${EXECUTABLE_OUTPUT_PATH}/${prog}.py
+             DESTINATION ${CMAKE_INSTALL_PREFIX}/${tooldir}
+    )
   endforeach (prog)
 
 else ()

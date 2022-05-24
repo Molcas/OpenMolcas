@@ -11,7 +11,7 @@
 * Copyright (C) 1997, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
-      USE REFWFN
+      USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
 C CMO's and CI arrays of the JOBIPH, except that the CI arrays have

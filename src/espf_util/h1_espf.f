@@ -25,6 +25,27 @@
       Logical StandAlone,First,Do_DFT
       Logical DynExtPot,Exist,DoTinker,DoGromacs,lMorok,UpdateVMM
       Logical DoDirect
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,
+     &                     iQMChg,nAtMM,StandAlone,DoDirect)
+      Integer, Intent(In):: nAtom
+      Real*8, Intent(In):: Cord(3,nAtom)
+      Integer, Intent(In):: ipMltp
+      Integer, Intent(In):: IsMM(nAtom)
+      Integer, Intent(In):: MltOrd
+      Logical, Intent(InOut):: DynExtPot
+      Integer, Intent(In):: iQMChg
+      Integer, Intent(InOut):: nAtMM
+      Logical, Intent(In):: StandAlone
+      Logical, Intent(In):: DoDirect
+      End Subroutine RunTinker
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       iPL = iPrintLevel(-1)
 *
@@ -199,7 +220,8 @@
       End If
       iQMchg = 1
       If (First .and. Do_DFT) UpdateVMM = .True.
-      If (UpdateVMM) Call RunTinker(natom,ipCord,ipMltp,ipIsMM,MltOrd,
+      If (UpdateVMM) Call RunTinker(natom,Work(ipCord),ipMltp,
+     &                              iWork(ipIsMM),MltOrd,
      &                    DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
 *
 * Read the MM electrostatic potential (and derivatives) from PotFile

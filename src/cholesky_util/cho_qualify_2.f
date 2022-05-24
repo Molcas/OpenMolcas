@@ -12,21 +12,13 @@
 C
 C     Purpose: qualify diagonals ("qualify until full, then largest").
 C
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_QUALIFY_2')
-
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
-
-      KOFF0 = ip_IQUAB - 1 + MAXQUAL*(ISYM-1)
 
       NDIM = NNBSTRSH(ISYM,ISHLAB,2)
       IF (NDIM .GT. 0) THEN
@@ -47,8 +39,7 @@ C
                END DO
                IF (IMAX .GT. 0) THEN
                   NUMQ = NUMQ + 1
-                  KOFF = KOFF0 + IOFFQ(ISYM) + NUMQ
-                  IWORK(KOFF) = IMAX
+                  iQuAB(IOFFQ(ISYM)+NUMQ,ISYM) = IMAX
                END IF
             ELSE ! full search
                DO I = I1,I2
@@ -56,8 +47,7 @@ C
                   IF (DIAG(J) .GE. DIAMIN(ISYM)) THEN
                      IF (NUMQ .LT. MAXQ) THEN
                         NUMQ = NUMQ + 1
-                        KOFF = KOFF0 + IOFFQ(ISYM) + NUMQ
-                        IWORK(KOFF) = I
+                        iQuAB(IOFFQ(ISYM)+NUMQ,ISYM) = I
                      ELSE IF (NUMQ .EQ. MAXQ) THEN
                         K1  = IOFFQ(ISYM) + 1
                         K2  = K1 + NUMQ - 1
@@ -74,8 +64,7 @@ C
                            END IF
                         END DO
                         IF (DIAG(J) .GT. XMIN) THEN ! replace
-                           KOFF = KOFF0 + KKMN
-                           IWORK(KOFF) = I
+                           iQuAB(KKMN,ISYM) = I
                         END IF
                      ELSE
                         CALL CHO_QUIT('Logical error in '//SECNAM,

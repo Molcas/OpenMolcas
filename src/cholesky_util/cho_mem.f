@@ -40,6 +40,8 @@ C
          CALL GETMEM(TEXT,'MAX ',TYPE,KPOINT,LENGTH)
          CALL GETMEM(TEXT,'ALLO',TYPE,KPOINT,LENGTH)
       ELSE IF (MYJOB(1:4) .EQ. 'FLUS') THEN
+         Write (6,*) 'CHO_MEM: keyword  FLUSH is now disabled'
+         Call Abend()
          LENDUM = -1
          CALL GETMEM(TEXT,'FLUSH',TYPE,KPOINT,LENDUM)
          CALL GETMEM(TEXT,'FREE',TYPE,KPOINT,LENGTH)

@@ -19,11 +19,12 @@ C              block. If ifail != 0 on exit, some error occurred and,
 C              most likely, some of the restart info is not
 C              defined/initialized.
 C
+      use ChoSwp, only: InfRed, InfRed_Hidden
+      use ChoSwp, only: InfVec, InfVec_Hidden
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_X_RdRst')
@@ -137,8 +138,9 @@ C     --------------------------------------
 C     Allocate InfVec array.
 C     ----------------------
 
-      l_InfVec = MaxVec*InfVec_N2*nSym
-      Call GetMem('InfVec','Allo','Inte',ip_InfVec,l_InfVec)
+      Call mma_allocate(InfVec_Hidden,MaxVec,InfVec_N2,nSym,
+     &                  Label='InfVec_Hidden')
+      InfVec => InfVec_Hidden
 
 C     Allocate and initialize (read) InfRed array.
 C     --------------------------------------------
@@ -154,13 +156,13 @@ C     --------------------------------------------
          ifail = 4
          Go To 100
       Else
-         l_InfRed = MaxRed
-         Call GetMem('InfRed','Allo','Inte',ip_InfRed,l_InfRed)
+         Call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
+         InfRed => InfRed_Hidden
          iOpt = 2
-         Call iDAFile(LuRst,iOpt,iWork(ip_InfRed),l_InfRed,iAdr)
-         If (iWork(ip_InfRed) .ne. 0) Then
+         Call iDAFile(LuRst,iOpt,InfRed,SIZE(InfRed),iAdr)
+         If (InfRed(1) .ne. 0) Then
             Write(6,'(A,A,I10)')
-     &      SecNam,': disk address of 1st reduced set:',iWork(ip_InfRed)
+     &      SecNam,': disk address of 1st reduced set:',InfRed(1)
             ifail = 5
             Go To 100
          End If
@@ -182,20 +184,13 @@ C     ------------------
             Go To 100
          Else
             If (NumCho(iSym) .lt. 1) Then
-               kOff = ip_InfVec + MaxVec*InfVec_N2*(iSym-1)
-               Call Cho_iZero(iWork(kOff),MaxVec*InfVec_N2)
+               Call Cho_iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
             Else
-               Do j = 1,InfVec_N2
+               InfVec(:,:,iSym) = 0
+               Do j = 1,SIZE(InfVec,2)
                   iOpt = 2
-                  kOff = ip_InfVec + MaxVec*InfVec_N2*(iSym-1)
-     &                 + MaxVec*(j-1)
-                  Call iDAFile(LuRst,iOpt,iWork(kOff),NumCho(iSym),iAdr)
-                  nRest = MaxVec - NumCho(iSym)
-                  If (nRest .gt. 0) Then
-                     kOff = ip_InfVec + MaxVec*InfVec_N2*(iSym-1)
-     &                    + MaxVec*(j-1) + NumCho(iSym)
-                     Call Cho_iZero(iWork(kOff),nRest)
-                  End If
+                  Call iDAFile(LuRst,iOpt,InfVec(:,j,iSym),NumCho(iSym),
+     &                         iAdr)
                End Do
             End If
          End If

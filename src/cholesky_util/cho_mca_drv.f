@@ -14,6 +14,7 @@ C     Purpose: MOLCAS interface to Cholesky decomposition driver.
 C
 #include "implicit.fh"
 #include "cholesky.fh"
+#include "choptr2.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*11 SECNAM
@@ -82,5 +83,11 @@ C     ----------------------------
 
       CALL GASYNC
       Call Free_iSD()
+
+      If (l_mySP .gt. 0) Then
+         Call GetMem('mySP','Free','Inte',ip_mySP,l_mySP)
+         l_mySP = 0
+      End If
+      Call Cho_X_dealloc(irc)
 
       END

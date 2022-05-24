@@ -12,6 +12,8 @@
 ************************************************************************
       SUBROUTINE TRACHO2(CMO,DREF,FFAO,FIAO,FAAO,IF_TRNSF)
       USE CHOVEC_IO
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -19,7 +21,6 @@
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 #include "output.fh"
@@ -51,7 +52,7 @@
       INTEGER ISFA,ISFF,ISFI
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
       INTEGER N,N1,N2
-      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ip_v,ipnt
+      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ip_v
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
       REAL*8 SCL
@@ -160,14 +161,13 @@ c Initialize Fock matrices in AO basis to zero:
       DO JSYM=1,NSYM
       IBATCH_TOT=NBTCHES(JSYM)
 
-*      write(6,*)' Tracho2 JSYM=',JSYM
-*      write(6,*)'    NUMCHO_PT2(JSYM)=',NUMCHO_PT2(JSYM)
+*     write(6,*)' Tracho2 JSYM=',JSYM
+*     write(6,*)'    NUMCHO_PT2(JSYM)=',NUMCHO_PT2(JSYM)
       IF(NUMCHO_PT2(JSYM).EQ.0) GOTO 1000
 
-      ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(jSym-1))
-      JRED1=iWork(ipnt)
-      JRED2=iWork(ipnt-1+NumCho_PT2(jSym))
-*      write(6,*)'  JRED1,JRED2:',JRED1,JRED2
+      JRED1=InfVec(1,2,jSym)
+      JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
+*     write(6,*)'tracho2:  JRED1,JRED2:',JRED1,JRED2
 
       IF(JSYM.EQ.1) THEN
 * Allocate space for temporary vector 'V' used for Coulomb contrib to
@@ -200,7 +200,7 @@ c Initialize Fock matrices in AO basis to zero:
 *      write(6,*)'  JRED:  JSTART,JEND:',JRED,JSTART,JEND
 
       IF(JSYM.EQ.1) THEN
-      NRS=IWORK(IP_NDIMRS-1+NSYM*(JRED-1)+JSYM)
+      NRS=NDIMRS(JSYM,JRED)
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDF_RED),1)
       CALL full2red(Work(ipDF),Work(ipDF_Red))
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDI_RED),1)

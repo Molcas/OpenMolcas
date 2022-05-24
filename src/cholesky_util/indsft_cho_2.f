@@ -28,9 +28,9 @@
 ************************************************************************
       use Symmetry_Info, only: nIrrep
       use SOAO_Info, only: iAOtSO, iOffSO
+      use ChoArr, only: iSOShl, iShlSO, nBstSh
       Implicit Real*8 (A-H,O-Z)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosew.fh"
 #include "real.fh"
 #include "print.fh"
@@ -51,9 +51,6 @@
 *     statement function
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-3)/2 + i + j
-      ISOSHL(I)=IWORK(ip_iSOShl-1+I)
-      ISHLSO(I)=IWORK(ip_iShlSO-1+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
       iShP2RS(i,j)=iWork(ip_iShP2RS-1+2*(j-1)+i)
       iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 *

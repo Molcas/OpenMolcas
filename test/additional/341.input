@@ -1,4 +1,8 @@
 ****SOLVENT ORBITALS****
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
 >export Molcas_Solvent=$Project.Water
 >export Molcas_SolvDir=$WorkDir
 >export Molcas_OldDir=$WorkDir

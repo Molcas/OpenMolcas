@@ -17,12 +17,11 @@ C              integral columns. The vectors are returned in xInt.
 C              Wrk (dimension lWrk) is work space allocated in calling
 C              routine. QDiag contains the qualified diagonals.
 C
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Real*8 Diag(*), xInt(*), VecK(*), QDiag(*), Wrk(lWrk)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_CompVec')
@@ -32,8 +31,6 @@ C
 
       Integer  Cho_P_IndxParentDiag
       External Cho_P_IndxParentDiag
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
 C     Subtract previous vectors.
 C     --------------------------

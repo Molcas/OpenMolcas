@@ -21,6 +21,8 @@ C
 C --- F(ab) = 2 * sum_J  Lab,J * sum_gd  D(gd) * Lgd,J
 C
 C********************************************************
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 #ifdef _DEBUGPRINT_
       Logical Debug
@@ -37,17 +39,8 @@ C********************************************************
       parameter (zero = 0.0d0, one = 1.0d0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-************************************************************************
 
 #ifdef _DEBUGPRINT_
       Debug=.true.
@@ -264,7 +257,8 @@ c Print the Fock-matrix
 
 
       SUBROUTINE switch_sto(irc,iLoc,ipXLT,ipXab,mode,add)
-
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao
       External cho_isao
@@ -272,16 +266,11 @@ c Print the Fock-matrix
       Character*6 mode
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
 ************************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
 

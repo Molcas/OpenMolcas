@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2014-2016, Steven Vancoillie                           *
-*               2015,2020, Ignacio Fdez. Galvan                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2014-2016, Steven Vancoillie                           *
+!               2015,2020, Ignacio Fdez. Galvan                        *
+!***********************************************************************
 
-* Given _SUBR_NAME_, and _DIMENSIONS_, this defines:
-*   [_SUBR_NAME_]_allo_[_DIMENSIONS_]D
-*   [_SUBR_NAME_]_allo_[_DIMENSIONS_]D_lim
-*   [_SUBR_NAME_]_free_[_DIMENSIONS_]D
+! Given _SUBR_NAME_, and _DIMENSIONS_, this defines:
+!   [_SUBR_NAME_]_allo_[_DIMENSIONS_]D
+!   [_SUBR_NAME_]_allo_[_DIMENSIONS_]D_lim
+!   [_SUBR_NAME_]_free_[_DIMENSIONS_]D
 
 #define PASTE(a) a
 #define CAT(a,b) PASTE(a)b
@@ -176,14 +176,14 @@
 #elif _DIMENSIONS_==3
         ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1)
 #elif _DIMENSIONS_==4
-        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *
+        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
      &         (l4(2)-l4(1)+1)
 #elif _DIMENSIONS_==5
-        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *
+        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
      &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1)
 #elif _DIMENSIONS_==7
-        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *
-     &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1) * (l6(2)-l6(1)+1) *
+        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
+     &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1) * (l6(2)-l6(1)+1) *    &
      &         (l7(2)-l7(1)+1)
 #endif
         bufsize = storage_size(buffer) * ntot / 8
@@ -197,14 +197,14 @@
 #elif _DIMENSIONS_==3
           allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2)))
 #elif _DIMENSIONS_==4
-          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),
+          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
      &                    l4(1):l4(2)))
 #elif _DIMENSIONS_==5
-          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),
+          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
      &                    l4(1):l4(2),l5(1):l5(2)))
 #elif _DIMENSIONS_==7
-          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),
-     &                    l4(1):l4(2),l5(1):l5(2),l6(1):l6(2),
+          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
+     &                    l4(1):l4(2),l5(1):l5(2),l6(1):l6(2),          &
      &                    l7(1):l7(2)))
 #endif
           if (ntot.gt.0) then
@@ -219,7 +219,7 @@
 #elif _DIMENSIONS_==5
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
 #elif _DIMENSIONS_==7
-            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),   &
      &                                 l6(1),l7(1)))
 #endif
             if (present(label)) then
@@ -264,30 +264,30 @@
 #if _DIMENSIONS_==1
             loffset = cptr2loff(buffer(lbound(buffer,1)))
 #elif _DIMENSIONS_==2
-            loffset = cptr2loff(buffer(lbound(buffer,1),
+            loffset = cptr2loff(buffer(lbound(buffer,1),                &
      &                                 lbound(buffer,2)))
 #elif _DIMENSIONS_==3
-            loffset = cptr2loff(buffer(lbound(buffer,1),
-     &                                 lbound(buffer,2),
+            loffset = cptr2loff(buffer(lbound(buffer,1),                &
+     &                                 lbound(buffer,2),                &
      &                                 lbound(buffer,3)))
 #elif _DIMENSIONS_==4
-            loffset = cptr2loff(buffer(lbound(buffer,1),
-     &                                 lbound(buffer,2),
-     &                                 lbound(buffer,3),
+            loffset = cptr2loff(buffer(lbound(buffer,1),                &
+     &                                 lbound(buffer,2),                &
+     &                                 lbound(buffer,3),                &
      &                                 lbound(buffer,4)))
 #elif _DIMENSIONS_==5
-            loffset = cptr2loff(buffer(lbound(buffer,1),
-     &                                 lbound(buffer,2),
-     &                                 lbound(buffer,3),
-     &                                 lbound(buffer,4),
+            loffset = cptr2loff(buffer(lbound(buffer,1),                &
+     &                                 lbound(buffer,2),                &
+     &                                 lbound(buffer,3),                &
+     &                                 lbound(buffer,4),                &
      &                                 lbound(buffer,5)))
 #elif _DIMENSIONS_==7
-            loffset = cptr2loff(buffer(lbound(buffer,1),
-     &                                 lbound(buffer,2),
-     &                                 lbound(buffer,3),
-     &                                 lbound(buffer,4),
-     &                                 lbound(buffer,5),
-     &                                 lbound(buffer,6),
+            loffset = cptr2loff(buffer(lbound(buffer,1),                &
+     &                                 lbound(buffer,2),                &
+     &                                 lbound(buffer,3),                &
+     &                                 lbound(buffer,4),                &
+     &                                 lbound(buffer,5),                &
+     &                                 lbound(buffer,6),                &
      &                                 lbound(buffer,7)))
 #endif
             call getmem(_DEF_LABEL_,'EXCL',_DN_,loffset,_SIZE_)

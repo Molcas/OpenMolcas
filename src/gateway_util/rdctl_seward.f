@@ -31,6 +31,7 @@
      &                     Do_acCD_Basis, Skip_High_AC, DiagCheck,
      &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
       use Logical_Info
+      use Gateway_Interfaces, only: GetBS
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -149,12 +150,6 @@
 #include "angstr.fh"
       Data DefNm/'basis_library'/
       Data IfTest/.False./
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-#include "getbs_interface.fh"
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

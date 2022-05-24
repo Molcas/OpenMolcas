@@ -71,6 +71,9 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
 #if defined (_MOLCAS_MPP_) && !defined (_GA_)
       Use Para_Info, Only: nProcs
 #endif
+#if defined (_MOLCAS_MPP_)
+      use ChoSwp, only: nnBstRSh, iiBstRSh
+#endif
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -81,7 +84,6 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       Integer NVT(l_NVT)
 #if defined (_MOLCAS_MPP_)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "choprint.fh"
 #include "mafdecls.fh"
@@ -113,15 +115,12 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       Integer J0, J1, J2
 #if !defined(_GA_)
       Integer Jst,Jen
+#else
+      Integer i, j
 #endif
       Integer iSP, iSP_, iSP1, iSP2
       Integer iSP_Batch
       Integer nSP_this_batch
-
-      Integer i, j, k
-      Integer iiBstRsh, nnBstRSh
-      iiBStRsh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBStRsh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       ! Init return code
       irc=0
@@ -349,6 +348,7 @@ c Avoid unused argument warnings
 
       End
       SubRoutine Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP)
+      use ChoSwp, only: nnBstRSh, iiBstRSh
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -356,7 +356,6 @@ c Avoid unused argument warnings
       Integer n_mySP
       Integer id_mySP(n_mySP)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "choprint.fh"
 
@@ -374,11 +373,7 @@ c Avoid unused argument warnings
       Integer kV, kT, kOffV, kOffT
       Integer lTot, iAdr, iAdr0
       Integer iSP_Batch, nSP_this_batch
-
-      Integer i, j, k
-      Integer iiBstRsh, nnBstRSh
-      iiBStRsh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBStRsh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
+      Integer i, j
 
       ! Init return code
       irc=0

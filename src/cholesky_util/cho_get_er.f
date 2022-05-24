@@ -48,6 +48,8 @@
 *> @param[in]     timings switch on/off timings printout
 ************************************************************************
       SUBROUTINE CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Logical timings
       Integer nOcc(*),iOcc(8),isMO(8)
@@ -59,17 +61,10 @@
       parameter (zero = 0.0d0, half = 0.5d0, two = 2.0d0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
       parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-************************************************************************
 
       JSYM=1
       If (NumCho(JSYM).lt.1) Then
@@ -294,22 +289,18 @@ C --- Compute the ER-functional from its orbital components
 
 
       SUBROUTINE switch_density(iLoc,ipXLT,ipXab,kSym)
-
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  cho_isao
       External cho_isao
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
 ************************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
       jSym = 1 ! only total symmetric density

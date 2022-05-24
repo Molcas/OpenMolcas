@@ -49,33 +49,23 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
-
+      use ChoArr, only: nDimRS, iRS2F
+      use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoV(*),iSkip(*)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
       Integer  cho_isao
       External cho_isao
 
-      Parameter (IV_N2 = INFVEC_N2)
-
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*IV_N2*(k-1)+MaxVec*(j-1)+i)
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
 **********************************************************

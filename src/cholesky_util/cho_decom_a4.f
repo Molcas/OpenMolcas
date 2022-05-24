@@ -17,7 +17,6 @@ C
       Integer LstQSP(NumSP)
 #include "cholesky.fh"
 #include "chovecbuf.fh"
-#include "choptr.fh"
 #include "cholq.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"

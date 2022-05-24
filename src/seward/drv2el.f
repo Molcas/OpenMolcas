@@ -114,7 +114,6 @@
 ************************************************************************
 *                                                                      *
       Triangular=.True.
-      Call Alloc_TList(Triangular,P_Eff)
       Call Init_TList(Triangular,P_Eff)
       Call Init_PPList
       Call Init_GTList
@@ -172,7 +171,7 @@
 *
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (AInt.lt.CutInt) Go To 14
-         Call Eval_Ints_New_Internal
+         Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,Integral_WrOut,
 * the following are dummy arguments

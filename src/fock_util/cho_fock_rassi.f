@@ -35,7 +35,8 @@ C      k:        MO-index   belonging to (Inactive)
 C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
-
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,ipLxy(8),ipScr(8,8)
@@ -62,18 +63,11 @@ C
 
 #include "rassi.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-      parameter ( N2 = InfVec_N2 )
-
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 **************************************************
 
 
@@ -597,7 +591,8 @@ c Print the Fock-matrix
 **************************************************************
 
       SUBROUTINE swap_sto(irc,iLoc,ipXLT,ISLT,ipXab,mode)
-
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao
       External cho_isao
@@ -605,16 +600,11 @@ c Print the Fock-matrix
       Character*6 mode
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
 ************************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
 

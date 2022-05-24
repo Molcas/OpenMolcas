@@ -1,3 +1,4 @@
+>> COPY MCPDFT.InpOrb .
 &GATEWAY
 coord
 2

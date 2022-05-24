@@ -27,6 +27,7 @@
       Use Basis_Info
       Use Center_Info
       use Sizes_of_Seward, only: S
+      use Gateway_Interfaces, only: GetBS
       Implicit None
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -55,12 +56,6 @@
       Real*8      NucExp, rMass
       External    NucExp, rMass, iMostAbundantIsotope, iCLast
       Data DefNm/'basis_library'/
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-#include "getbs_interface.fh"
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

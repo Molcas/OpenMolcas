@@ -28,7 +28,7 @@
 
       subroutine nevpt2wfn_init(create_h5)
 !     Create a wavefunction file and replace any existing .wfn file
-      use refwfn
+      use refwfn, only: refwfn_active
       use nevpt2_cfg
       use info_state_energy  ! energies, effective Hamiltonian
       use info_orbital_space ! orbital specifications read from JobIph
@@ -184,9 +184,8 @@
 
       subroutine nevpt2wfn_data
 #ifdef _DMRG_
-      use qcmaquis_info
+      use qcmaquis_info, only: qcm_group_names
 #endif
-      use refwfn
       use nevpt2_cfg, only : MultGroup
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset, mh5_put_dset_array_real
@@ -226,7 +225,6 @@
       end subroutine
 
       subroutine nevpt2wfn_estore()
-      use refwfn
       use nevpt2_cfg
       use info_state_energy  ! energies + effective Hamiltonian
 #ifdef _HDF5_
@@ -253,7 +251,7 @@
 
       subroutine nevpt2wfn_close
 #ifdef _DMRG_
-      use qcmaquis_info
+      use qcmaquis_info, only: qcmaquis_info_deinit
 #endif
 #ifdef _HDF5_
       use mh5, only: mh5_close_file

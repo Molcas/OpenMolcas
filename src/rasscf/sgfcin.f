@@ -57,6 +57,8 @@
      &    doBlockDMRG
       use general_data, only : iSpin, nActEl, nSym, nTot1,
      &    nBas, nIsh, nAsh, nFro
+      use OFEmbed, only: Do_OFemb, OFE_first, FMaux
+      use OFEmbed, only: Rep_EN
 
 
       implicit none
@@ -64,6 +66,7 @@
 #include "output_ras.fh"
       Parameter (ROUTINE='SGFCIN  ')
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
@@ -80,23 +83,17 @@
       logical :: doDMRG = .false.
 #endif
 *
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16 NamRfil
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
       real*8, parameter ::  Zero=0.0d0, One=1.0d0
-      real*8 :: CASDFT_Funct, dumm(1), Emyn, energy_nad, Eone,
-     &  Erf1, Erf2, Erfx, Etwo, func_a, func_ab, func_b,
-     &  potnuc_ref, rep_en, v_emb, v_nuc_ab, v_nuc_ba, dDot_
+      real*8 :: CASDFT_Funct, dumm(1), Emyn, Eone,
+     &  Erf1, Erf2, Erfx, Etwo,  potnuc_ref, dDot_
       integer :: i, iadd, ibas, icharge, iComp,
-     &  ioff, iopt, ip_ndsd,
-     &  ipam, ipfmaux, iprlev, iptmpfcki, ntmpfck,
+     &  ioff, iopt,
+     &  ipam, iprlev, iptmpfcki, ntmpfck,
      &  irc, iSyLbl,
      &  iSym, iTmp0, iTmp1, iTmp2, iTmp3, iTmp4, iTmp5, iTmp6, iTmp7,
-     &  iTmp8, iTmpx, iTmpz, iTu, j, l_ndsd, lx0, lx1, lx2, lx3,
+     &  iTmp8, iTmpx, iTmpz, iTu, j, lx0, lx1, lx2, lx3,
      &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
 
 C Local print level (if any)
@@ -337,15 +334,13 @@ C Local print level (if any)
 *
       If (Do_OFemb) Then
          If (OFE_first) Then
-          Call GetMem('FMaux','Allo','Real',ipFMaux,nTot1)
-          Call Coul_DMB(.true.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                         nTot1)
+          Call mma_allocate(FMaux,nTot1,Label='FMAux')
+          Call Coul_DMB(.true.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
           OFE_first=.false.
          Else
-          Call Coul_DMB(.false.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                          nTot1)
+          Call Coul_DMB(.false.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
          EndIf
-         Call DaXpY_(nTot1,One,Work(ipFMaux),1,Work(iTmp1),1)
+         Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
 *
          Call Get_NameRun(NamRfil) ! save the old RUNFILE name
          Call NameRun('AUXRFIL')   ! switch the RUNFILE name

@@ -12,21 +12,15 @@
 C
 C     Purpose: set max. shell pair data for selection procedure.
 C
+      use ChoArr, only: iSP2F, iAtomShl
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_SETMAXSHL')
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
-      IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
 
 C     Initialize the largest diagonal in each shell pair.
 C     ---------------------------------------------------

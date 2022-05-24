@@ -50,7 +50,7 @@
 
 #ifdef _DMRG_
 !     module dependencies
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_cfg
       use qcmaquis_interface_version
       use qcmaquis_interface_environment, only:
@@ -58,17 +58,15 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use write_orbital_files, only : OrbFiles, putOrbFile
-
       use generic_CI, only: CI_solver_t
-      use fciqmc, only: DoNECI, fciqmc_solver_t
+      use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
-
       use orthonormalization, only : ON_scheme
-      use print_RDMs_NECI_format, only: printRDMs_NECI
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset_array_real
 #endif
+      use OFembed, only: Do_OFemb, FMaux
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -126,17 +124,12 @@
       COMMON /CHOTIME / timings
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
 * --------- End Cholesky stuff
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
       Character*8 EMILOOP
-* --------- End Orbital-Free Embedding stuff
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
-* --------- Procedure pointers for CI-solvers
+* --------- CI-solver class
         class(CI_solver_t), allocatable :: CI_solver
-* --------- End Procedure pointers.
 
 ! actual_iter starts at 0, so iter 1A == 0, 1B == 1, 2 == 2, 3 == 3 and so on
       integer :: actual_iter
@@ -265,17 +258,14 @@
 
       Call InpPri(lOpto)
 
-* Note that CI_solver subclasses can provide a final procedure
-* (some people might call it destructor). Hence the deallocation and
+* Note that CI_solver subclasses provide a cleanup procedure
+* (C++ people might call it destructor). Hence the deallocation and
 * cleanup is automatically performed, when it goes out of scope.
       if (DoNECI) then
-        allocate(fciqmc_solver_t :: CI_solver)
+        allocate(CI_solver, source=fciqmc_solver_t(tGUGA_in))
       else if (Do_CC_CI) then
-        allocate(CC_CI_solver_t :: CI_solver)
+        allocate(CI_solver, source=CC_CI_solver_t())
       end if
-
-      if (allocated(CI_solver)) call CI_solver%init()
-
 
 *
 * If this is not CASDFT make sure the DFT flag is unset
@@ -431,16 +421,6 @@
       end if
 * Only now are such variables finally known.
 
-      If ( IPRLEV.ge.DEBUG ) then
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',Work(LDMAT),NAC)
-        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
-     &              ' ',Work(LDSPN),NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',WORK(LPMAT),NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',WORK(LPA),NACPAR)
-      END IF
 *
 * Allocate core space for dynamic storage of data
 *
@@ -1555,6 +1535,7 @@ cGLM some additional printout for MC-PDFT
         END IF
       end if
 
+
 *
 * Convergence check:
 * check is done on largest BLB matrix
@@ -1922,13 +1903,7 @@ c  i_root>0 gives natural spin orbitals for that root
 
 * Create output orbital files:
       Call OrbFiles(JOBIPH,IPRLEV)
-*
-************************************************************************
-************ Printing final RDMs in NECI format        *****************
-************************************************************************
-      If ( IPRLEV.ge.DEBUG ) then
-       Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
-      End If
+
 ************************************************************************
 ******************           Closing up RASSCF       *******************
 ************************************************************************
@@ -1962,7 +1937,7 @@ c deallocating TUVX memory...
             Write(LF,*)' Try to recover. Calculation continues.'
          endif
          If (Do_OFemb) Then
-            Call GetMem('FMaux','Free','Real',ipFMaux,nTot1)
+            Call mma_deallocate(FMaux)
             Call OFE_print(EAV)
          EndIf
       endif

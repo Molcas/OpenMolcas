@@ -11,6 +11,7 @@
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
 !***********************************************************************
+#include "macros.fh"
 module fcidump_dump
   use fcidump_tables
   implicit none
@@ -192,17 +193,9 @@ contains
 
     call FastIO('STATUS')
 #else
-! Avoid unused argument warnings
-#ifdef _WARNING_WORKAROUND_
-    if (.false.) then
-      call unused_real(EMY)
-      call unused_character(path)
-      call unused(orbital_table)
-      call unused(fock_table)
-      call unused(two_el_table)
-      call unused_integer_array(orbsym)
-    end if
-#endif
+    unused_var(EMY); unused_var(path)
+    unused_var(orbital_table); unused_var(fock_table)
+    unused_var(two_el_table); unused_var(orbsym)
 #endif
   end subroutine dump_hdf5
 end module fcidump_dump

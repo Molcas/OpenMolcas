@@ -12,26 +12,23 @@
 C
 C     Purpose: test symmetry of integral matrix.
 C
+      use ChoArr, only: iSP2F, nBstSh
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*18 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_INT_1_DBG2')
+      CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG2'
 
-      LOGICAL PRTINT
-      PARAMETER (PRTINT = .FALSE.)
+      LOGICAL, PARAMETER:: PRTINT = .FALSE.
 
-      PARAMETER (THR = 1.0D-14)
+      Real*8, PARAMETER:: THR = 1.0D-14
 
       INTEGER  CHO_ISAOSH
       EXTERNAL CHO_ISAOSH
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
       WRITE(LUPRI,*)
       WRITE(LUPRI,*)
@@ -49,7 +46,7 @@ C     ------------------------------------------
 
       LINTT = 2*MX2SH*MX2SH
       CALL GETMEM('Int1.dbg2.1','ALLO','REAL',KINT1,LINTT)
-      CALL GETMEM('Int1.dbg2.2','MAX ','REAL',KSEW,LSEW)
+      Call mma_maxDBLE(LSEW)
       CALL XSETMEM_INTS(LSEW)
 
       NTST = 0
@@ -150,9 +147,8 @@ c    &                         1,LUPRI)
          END DO
       END DO
 
-      CALL XRLSMEM_INTS
-      CALL GETMEM('Int1.flsh','FLUSH','REAL',KINT1,LINTT)
-      CALL GETMEM('Int1.free','FREE','REAL',KINT1,LINTT)
+      CALL XRLSMEM_INTS()
+      CALL GETMEM('Int1.dbg2.1','FREE','REAL',KSEW,LSEW)
 
       WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,
      &               ' #errors: ',NERR

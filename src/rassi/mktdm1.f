@@ -17,10 +17,10 @@
 #ifdef _DMRG_
       use rassi_global_arrays, only: LROOT
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util
-      use qcmaquis_info
+      use qcmaquis_info, only: qcm_group_names
 #endif
 
       IMPLICIT NONE

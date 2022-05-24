@@ -21,20 +21,18 @@ C              apart from first)
 C           3) full integral symmetry not used
 C              (only partial particle permutation symmetry)
 C
+      use ChoArr, only: nBstSh, iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*16 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_DBGINT_A')
+      CHARACTER(LEN=16), PARAMETER:: SECNAM = 'CHO_MCA_DBGINT_A'
 
       DIMENSION XLBAS(8)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Force computation of full shell quadruple.
 C     ------------------------------------------
@@ -59,8 +57,7 @@ C     ----------------
 C     Make first reduced set the current reduced set.
 C     -----------------------------------------------
 
-      CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                IWORK(ip_INDRED),1,2,NSYM,NNSHL,MMBSTRT,3)
+      CALL CHO_RSCOPY(1,2)
 
 C     Allocate memory for largest integral quadruple.
 C     -----------------------------------------------
@@ -71,7 +68,7 @@ C     -----------------------------------------------
 C     Allocate max. memory
 C     ----------------------------------------------------------
 
-      CALL GETMEM('DBGINT.2','MAX ','REAL',KWRK,LWRK)
+      Call mma_maxDBLE(LWRK)
       CALL GETMEM('DBGINT.2','ALLO','REAL',KWRK,LWRK/2)
       CALL XSETMEM_INTS(LWRK/2)
 
@@ -184,9 +181,8 @@ C     -------------------
 C     Release all memory allocated here (and release seward memory).
 C     --------------------------------------------------------------
 
-      CALL XRLSMEM_INTS
+      CALL XRLSMEM_INTS()
       CALL GETMEM('DBGINT.2','FREE','REAL',KWRK,LWRK/2)
-      CALL GETMEM('INTDBG.3','FLUSH','REAL',KINT1,LINTMX)
       CALL GETMEM('INTDBG.4','FREE','REAL',KINT1,LINTMX)
 
 C     Check total number of comparisons.

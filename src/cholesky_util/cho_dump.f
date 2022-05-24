@@ -17,7 +17,6 @@ C
 C     Purpose: print all entries in include files
 C              choorb.fh
 C              cholesky.fh
-C              choptr.fh
 C              chosubscr.fh
 C
 C     On input, Lunit is the logical unit to print to...
@@ -204,7 +203,7 @@ C     -------------
       Write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
       Call Cho_Flush(Lunit)
 
-C     choptr.fh.
+C     choswp.f90 and choarr.f90
 C     -----------
 
       Call Cho_PrintPointers(irc,Lunit)
@@ -223,59 +222,41 @@ C     --------------
 
       End
       SubRoutine Cho_PrintPointers(irc,Lunit)
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iSP2F,
+     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed,
+     &                  InfVec, IndRed
 C
-C     Purpose: print all entries in choptr.fh to Lunit.
+C     Purpose: print all entries in choarr.f90 and choswp.f90
 C
       Implicit None
       Integer irc, Lunit
-#include "choptr.fh"
-      Integer nAlloc
 
-      nAlloc = 0  ! allocation counter
-
-      Write(Lunit,*) '*** Contents of choptr.fh:'
-      Write(Lunit,*) '    (pointer,dimension)'
+      Write(Lunit,*) '*** Contents of choarr.f90 and choswp.f90:'
+      Write(Lunit,*) '    (dimension)'
       Write(Lunit,*)
       Call Cho_Flush(Lunit)
-      Write(Lunit,*) 'InfRed  : ',ip_InfRed,l_InfRed
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'InfVec  : ',ip_InfVec,l_InfVec
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'IndRed  : ',ip_IndRed,l_IndRed
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'IndRSh  : ',ip_IndRsh,l_IndRsh
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iScr    : ',ip_iScr,l_iScr
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iiBstRSh: ',ip_iiBstRSh,l_iiBstRSh
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'nnBstRSh: ',ip_nnBstRSh,l_nnBstRSh
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'IntMap  : ',ip_IntMap,l_IntMap
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'nDimRS  : ',ip_nDimRS,l_nDimRS
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iRS2F   : ',ip_iRS2F,l_iRS2F
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iSOShl  : ',ip_iSOShl,l_iSOShl
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iShlSO  : ',ip_iShlSO,l_iShlSO
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iQuab   : ',ip_iQuab,l_iQuab
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iBasSh  : ',ip_iBasSh,l_iBasSh
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'nBasSh  : ',ip_nBasSh,l_nBasSh
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'nBstSh  : ',ip_nBstSh,l_nBstSh
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iAtomShl: ',ip_iAtomShl,l_iAtomShl
-      nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iSP2F   : ',ip_iSP2F,l_iSP2F
-      nAlloc    = nAlloc + 1
+      Write(Lunit,*) 'InfRed  : ',SIZE(InfRed)
+      Write(Lunit,*) 'InfVec  : ',SIZE(InfVec)
+      Write(Lunit,*) 'IndRed  : ',SIZE(IndRed)
+      Write(Lunit,*) 'IndRSh  : ',SIZE(IndRsh)
+      Write(Lunit,*) 'iScr    : ',SIZE(iScr)
+      Write(Lunit,*) 'iiBstRSh: ',SIZE(iiBstRSh)
+      Write(Lunit,*) 'nnBstRSh: ',SIZE(nnBstRSh)
+      Write(Lunit,*) 'IntMap  : ',SIZE(IntMap)
+      Write(Lunit,*) 'nDimRS  : ',SIZE(nDimRS)
+      Write(Lunit,*) 'iRS2F   : ',SIZE(iRS2F)
+      Write(Lunit,*) 'iSOShl  : ',SIZE(iSOShl)
+      Write(Lunit,*) 'iShlSO  : ',SIZE(iShlSO)
+      Write(Lunit,*) 'iQuab   : ',SIZE(iQuab)
+      Write(Lunit,*) 'iBasSh  : ',SIZE(iBasSh)
+      Write(Lunit,*) 'nBasSh  : ',SIZE(nBasSh)
+      Write(Lunit,*) 'nBstSh  : ',SIZE(nBstSh)
+      Write(Lunit,*) 'iAtomShl: ',SIZE(iAtomShl)
+      Write(Lunit,*) 'iSP2F   : ',SIZE(iSP2F)
       Write(Lunit,*)
       Call Cho_Flush(Lunit)
 
-      irc = CHO_NALLOC - nAlloc
+      irc = 0
 
       End

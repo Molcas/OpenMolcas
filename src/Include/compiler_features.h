@@ -53,17 +53,17 @@ incomplete.
 #define C_PTR_BINDING
 #endif
 
-/* Internal procedures as arguments */
-/* PGI 20 ( __PGIC__ >= 20 ) supports it, but it appears to be buggy */
+/* Internal procedures as arguments.
+With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtime! */
 #if (( __SUNPRO_F90 ) || ( __PGI ))
 #undef INTERNAL_PROC_ARG
 #else
 #define INTERNAL_PROC_ARG
 #endif
 
-/* Pointer bounds remapping */
-#if ( __SUNPRO_F90 )
-#undef POINTER_BOUNDS_REMAPPING
+/* Allows files with no compilable instructions */
+#if ( NAGFOR )
+#undef EMPTY_FILES
 #else
-#define POINTER_BOUNDS_REMAPPING
+#define EMPTY_FILES
 #endif

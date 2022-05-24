@@ -90,7 +90,6 @@
 
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
 **************************************************

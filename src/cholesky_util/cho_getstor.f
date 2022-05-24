@@ -40,30 +40,19 @@ C
 C
 C     Purpose: get total vector storage (in words), symmetry ISYM.
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
 
       IF (NUMCHO(ISYM) .LT. 1) THEN
          VCSTOR = 0.0D0
       ELSE
-         IF (l_NDIMRS .LT. 1) THEN
+         IF (.NOT.Allocated(nDimRS)) Then
             IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
             JRED = 3
-            KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(JRED - 1)
-            KOFF2 = ip_INDRED   + MMBSTRT*(JRED - 1)
-            CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                      IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                      IWORK(ip_iSP2F),
-     &                      MAXRED,NSYM,NNSHL,MMBSTRT,IRED,.FALSE.)
-            CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                         NSYM,NNSHL,JRED)
+            CALL CHO_GETRED(IRED,JRED,.FALSE.)
+            CALL CHO_SETREDIND(JRED)
             VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))
      &             + DBLE(NNBSTR(ISYM,JRED))
          ELSE

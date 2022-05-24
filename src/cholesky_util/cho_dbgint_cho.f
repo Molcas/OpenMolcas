@@ -18,23 +18,17 @@ C              XINT (for debugging).
 C
 C     NOTE: this is *only* for debugging.
 C
+      use ChoArr, only: nBstSh, iSP2F
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       DIMENSION XINT(NCD,NAB), WRK(LWRK)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*14 SECNAM
       PARAMETER (SECNAM = 'CHO_DBGINT_CHO')
 
       INTEGER  CHO_LREAD
       EXTERNAL CHO_LREAD
-
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=iWORK(ip_iSP2F-1+I)
 
 C     Initializations.
 C     ----------------

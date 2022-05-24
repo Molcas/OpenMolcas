@@ -35,6 +35,7 @@
       use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
       use Temporary_Parameters, only: PrPrt
+      use Integral_Interfaces, only: OneEl_Integrals
       Implicit Real*8 (a-h,o-z)
       External EFInt,EFMem
 #include "real.fh"
@@ -50,8 +51,6 @@
       Integer, Allocatable:: ips(:), lOper(:), kOper(:)
       Real*8, Allocatable::  C_Coor(:,:)
       Real*8, Allocatable:: Integrals(:)
-*
-#include "oneel_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

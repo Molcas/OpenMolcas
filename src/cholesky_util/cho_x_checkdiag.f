@@ -229,23 +229,16 @@ C     --------------
 
       End
       Subroutine OneCenter_ChkDiag(Diag,l_D,Stat,DoPrint)
-
+      use ChoArr, only: iRS2F
       Implicit Real*8 (a-h,o-z)
       Real*8 Diag(l_D), Stat(7)
       Logical DoPrint
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
       Character*(LENIN8)  Name(maxbfn)
       Character*(LENIN)  ctmp1, ctmp2
       Real*8 Err(4)
-
-************************************************************************
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
-************************************************************************
-
 
       Call Get_cArray('Unique Basis Names',Name,LENIN8*nBasT)
 

@@ -18,7 +18,7 @@ module fcidump_tables
   private
   public :: FockTable, TwoElIntTable, OrbitalTable, mma_allocate, &
     mma_deallocate, length, print, fill_orbitals, fill_fock, fill_2ElInt, &
-    cutoff_default, unused
+    cutoff_default
   save
 
   type :: FockTable
@@ -62,10 +62,6 @@ module fcidump_tables
 
   interface print
     module procedure FockTable_print, TwoElIntTable_print, OrbitalTable_print
-  end interface
-
-  interface unused
-    module procedure FockTable_unused, TwoElIntTable_unused, OrbitalTable_unused
   end interface
 
 contains
@@ -131,14 +127,6 @@ contains
       write(6, '(E15.7, I7)') table%values(i), table%index(i)
     end do
   end subroutine OrbitalTable_print
-
-  subroutine OrbitalTable_unused(table)
-    type(OrbitalTable), intent(in) :: table
-#ifdef _WARNING_WORKAROUND_
-    return
-    if (length(table).lt.0) continue
-#endif
-  end subroutine OrbitalTable_unused
 
   subroutine FockTable_allocate(fock_table, n)
     implicit none
@@ -210,14 +198,6 @@ contains
       write(6, '(E15.7, I7, I7)') table%values(j), (table%index(i, j), i=1, 2)
     end do
   end subroutine FockTable_print
-
-  subroutine FockTable_unused(table)
-    type(FockTable), intent(in) :: table
-#ifdef _WARNING_WORKAROUND_
-    return
-    if (length(table).lt.0) continue
-#endif
-  end subroutine FockTable_unused
 
   subroutine TwoElIntTable_allocate(table, n)
     implicit none
@@ -294,12 +274,4 @@ contains
         table%values(j), (table%index(i, j), i=1, 4)
     end do
   end subroutine TwoElIntTable_print
-
-  subroutine TwoElIntTable_unused(table)
-    type(TwoElIntTable), intent(in) :: table
-#ifdef _WARNING_WORKAROUND_
-    return
-    if (length(table).lt.0) continue
-#endif
-  end subroutine TwoElIntTable_unused
 end module fcidump_tables

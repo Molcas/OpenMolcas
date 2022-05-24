@@ -51,6 +51,7 @@
 ************************************************************************
 
       use stdalloc, only : mma_allocate, mma_deallocate
+      use OFembed, only: Do_OFemb, FMaux
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -110,11 +111,7 @@
       COMMON /CHOTIME / timings
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
 * --------- End Cholesky stuff
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
       Character*8 EMILOOP
-* --------- End Orbital-Free Embedding stuff
 
 #include "sxci.fh"
 
@@ -837,7 +834,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
             Write(LF,*)' Try to recover. Calculation continues.'
          endif
          If (Do_OFemb) Then
-            Call GetMem('FMaux','Free','Real',ipFMaux,nTot1)
+            Call mma_deallocate(FMaux)
             Call OFE_print(EAV)
          EndIf
       endif

@@ -32,6 +32,7 @@
       use Temporary_Parameters
       use RICD_Info, only: Do_RI, Cholesky
       use Para_Info, only: nProcs, King
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (A-H,O-Z)
       External RF_On
 #include "Molcas.fh"
@@ -49,8 +50,6 @@
       Character(Len=180) Label
       Real*8, Allocatable:: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
 
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 ************ columbus interface ****************************************
         Integer  Columbus, colgradmode
         Integer lcartgrd

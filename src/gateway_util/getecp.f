@@ -28,8 +28,19 @@
 *                                                                      *
 *     Modified: Per Boussard -93.                                      *
 ************************************************************************
-#define _ACTUAL_
-#include "getecp_interface.fh"
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+      SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
+      Use Basis_Info
+      Implicit Real*8 (A-H,O-Z)
+#include "itmax.fh"
+#include "Molcas.fh"
+#include "real.fh"
+#include "stdalloc.fh"
+      Integer lUnit
+      Integer iShll
+      Integer nProj
+      Logical UnNorm
 *     Local variables
       Character(LEN=180) Line, Get_Ln
 *     External Get_Ln
@@ -335,4 +346,12 @@ C        Write (6,*) 'Done'
          Call WarningMessage(2,
      &      'Abend in GetBS: Error while reading the coefficients')
          Call Quit_OnUserError()
-      End
+      End Subroutine GetECP
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(GetECP)
+
+#endif

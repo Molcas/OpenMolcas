@@ -16,24 +16,20 @@ C              iLoc = 2 or 3).
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
+      use ChoArr, only: iSP2F, nBstSh
+      use ChoSwp, only: iQuAB, IndRed
+#if defined (_DEBUGPRINT_)
+      use ChoSwp, only: IndRSh
+#endif
 #include "implicit.fh"
       Integer nAB(8)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
 
 #if defined (_DEBUGPRINT_)
       Character*12 SecNam
       Parameter (SecNam = 'Cho_SetShP2Q')
-#endif
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-#if defined (_DEBUGPRINT_)
-      IndRsh(i)=iWork(ip_IndRSh-1+i)
 #endif
 
 C     Check allocations.

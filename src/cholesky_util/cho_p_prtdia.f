@@ -17,6 +17,7 @@ C              specifies which symmetry blocks to print, and iLoc points
 C              to the memory location of the reduced set index arrays to
 C              use for printing (and synchronizing, if requested).
 C
+      use ChoSwp, only: Diag_G
       Implicit None
       Real*8  Diag(*)
       Logical Sync
@@ -25,7 +26,6 @@ C
       Integer iLoc
 #include "cho_para_info.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       If (Cho_Real_Par) Then
 
@@ -41,7 +41,7 @@ C        to print diagonal.
 C        ------------------------------------------------------------------
 
          Call Cho_P_IndxSwp()
-         Call Cho_PrtDia(Work(ip_Diag_G),iSyLst,nSyLst,iLoc)
+         Call Cho_PrtDia(Diag_G,iSyLst,nSyLst,iLoc)
          Call Cho_P_IndxSwp()
 
       Else

@@ -20,11 +20,11 @@ C              DSPNorm = 'Fro' : Frobenius norm
 C
 C              Any other norm is taken to be 'Max'.
 C
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       Dimension ChoVec(*)
       Character*(*) DSPNorm
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosubscr.fh"
 #include "WrkSpc.fh"
 
@@ -33,8 +33,6 @@ C
 
       Character*3 myDSPNorm
 
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       DSubScr(i)=Work(ip_DSubScr-1+i)
 
 #if defined (_DEBUGPRINT_)

@@ -16,7 +16,7 @@
 
 
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
 
       implicit none
 

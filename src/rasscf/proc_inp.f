@@ -18,15 +18,15 @@
 ! module dependencies
       use qcmaquis_interface_environment, only: initialize_dmrg
       use qcmaquis_interface_cfg
+      use active_space_solver_cfg, only: as_solver_inp_proc
 #ifdef _MOLCAS_MPP_
       use Para_Info, Only: nProcs
 #endif
 #endif
-      use active_space_solver_cfg
       use write_orbital_files, only: OrbFiles
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
-      use fciqmc, only: DoEmbdNECI, DoNECI
+      use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI
       use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
@@ -39,6 +39,8 @@
      &               mh5_close_file
 #endif
 
+      use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
+     &                   ThrFThaw, Xsigma, dFMD
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -64,14 +66,7 @@
 #include "rasscf_lucia.fh"
 *^ needed for passing kint1_pointer
 *
-      Logical Do_OFemb,KEonly,OFE_first,l_casdft
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      Character*16  OFE_KSDFT
-      COMMON  / OFembed_C / OFE_KSDFT
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
-      COMMON  / OFembed_T / ThrFThaw
-      COMMON  / OFembed_R1/ Xsigma
-      COMMON  / OFembed_R2/ dFMD
+      Logical l_casdft
 *
       Character*180  Line
       Character*8 NewJobIphName
@@ -179,17 +174,6 @@ C   No changing about read in orbital information from INPORB yet.
       do i = 1, MxAct
         hfocc(i) = 0
       end do
-
-* Orbital-free embedding
-      Do_OFemb=.false.
-      KEonly  =.false.
-      OFE_first  =.true.
-      ipFMaux = -666666
-      ip_NDSD = -696969
-      l_NDSD = 0
-      ThrFThaw = 0.0d0
-      dFMD = 0.0d0
-      Xsigma=1.0d4
 
 *    SplitCAS related variables declaration  (GLMJ)
       DoSplitCAS= .false.
@@ -2008,6 +1992,15 @@ C orbitals accordingly
      &'not compiled with embedded NECI. Please use -DNECI=ON '//
      &'for compiling or use an external NECI.')
 #endif
+        end if
+*----------------------------------------------------------------------------------------
+        if (KeyGUGA) then
+            tGUGA_in = .true.
+            if(DBG) write(6, *) 'spin-free GUGA-NECI RDMs are actived'
+            if (.not. KeyNECI) then
+              call WarningMessage(2, 'GUGA requires NECI keyword!')
+              GoTo 9930
+            end if
         end if
 *--- This block is to process the DEFINEDET -------------------
         if(KeyDEFI) then

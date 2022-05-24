@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_SetAtomShl(irc,iAtomShl,n)
+      use ChoArr, only: iSOShl
 C
 C     Purpose: set mapping from shell to atom (i.e., center).
 C
@@ -18,7 +19,6 @@ C
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*14 SecNam
@@ -37,7 +37,6 @@ C
 
       nBas_per_Atom(i)=iWork(ip_nBas_per_Atom-1+i)
       nBas_Start(i)=iWork(ip_nBas_Start-1+i)
-      iSOShl(i)=iWork(ip_iSOShl-1+i)
 
       If (Debug) Then
          Write(Lupri,*) '>>> Enter ',SecNam

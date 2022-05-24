@@ -104,6 +104,7 @@
 *                                                                      *
       Subroutine Get_Ecorr_dft(nh1,Grad,nGrad,DFTFOCK,ipF_DFT,ip_D_DS,
      &                             KSDFT,Ec_AB)
+      use OFembed, only: dFMD
       Implicit Real*8 (a-h,o-z)
 
 #include "real.fh"
@@ -114,7 +115,6 @@
       Logical Do_MO,Do_TwoEl,Do_Grad
       Character*4 DFTFOCK
       Character*16  KSDFT
-      COMMON  / OFembed_R2/ dFMD
       External VWN_III_emb,
      &         VWN_V_emb,
      &         cBLYP_emb,

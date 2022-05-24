@@ -8,30 +8,30 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_RSCOPY(IIBSTRSH,NNBSTRSH,INDRED,IRS1,IRS2,
-     &                      MSYM,MMSHL,LMMBSTRT,NRS)
+      SUBROUTINE CHO_RSCOPY(IRS1,IRS2)
 C
 C     Purpose: copy red. set info from location IRS1 to IRS2.
 C              Special action is taken with INDRED if IRS1=1 so that it
 C              will point as expected for the "current" reduced set.
 C
+      use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
       IMPLICIT NONE
-      INTEGER IRS1, IRS2, MSYM, MMSHL, LMMBSTRT, NRS
-      INTEGER IIBSTRSH(MSYM,MMSHL,NRS), NNBSTRSH(MSYM,MMSHL,NRS)
-      INTEGER INDRED(LMMBSTRT,NRS)
+      INTEGER IRS1, IRS2
       INTEGER IAB
+      INTEGER MSYM
 #include "cholesky.fh"
 
-      CALL ICOPY(MSYM*MMSHL,IIBSTRSH(1,1,IRS1),1,IIBSTRSH(1,1,IRS2),1)
-      CALL ICOPY(MSYM*MMSHL,NNBSTRSH(1,1,IRS1),1,NNBSTRSH(1,1,IRS2),1)
-      CALL ICOPY(MSYM,IIBSTR(1,IRS1),1,IIBSTR(1,IRS2),1)
-      CALL ICOPY(MSYM,NNBSTR(1,IRS1),1,NNBSTR(1,IRS2),1)
+      MSYM=SIZE(iiBstRSh,1)
+      nnBstRSh(:,:,IRS2) = nnBstRSh(:,:,IRS1)
+      iiBstRSh(:,:,IRS2) = iiBstRSh(:,:,IRS1)
+      iiBstR    (1:MSYM,IRS2) = iiBstR    (1:MSYM,IRS1)
+      nnBstR    (1:MSYM,IRS2) = nnBstR    (1:MSYM,IRS1)
       IF (IRS1 .EQ. 1) THEN
-         DO IAB = 1,MMBSTRT
+         DO IAB = 1,SIZE(INDRED,1)
             INDRED(IAB,IRS2) = IAB
          END DO
       ELSE
-         CALL ICOPY(MMBSTRT,INDRED(1,IRS1),1,INDRED(1,IRS2),1)
+         IndRed(:,iRS2) = IndRed(:,iRS1)
       END IF
       NNBSTRT(IRS2) = NNBSTRT(IRS1)
 

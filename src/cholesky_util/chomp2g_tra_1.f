@@ -20,11 +20,11 @@ C              block iSym. Files are assumed open.
 C              If requested (DoDiag=.true.), compute (pq|pq) integral
 C              diagonal.
 C
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       Real*8  COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
       Logical DoDiag
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chomp2.fh"
 #include "chomp2g.fh"
 #include "WrkSpc.fh"
@@ -36,10 +36,6 @@ C
       External Cho_lRead
 
       Integer pq
-
-      Parameter (N2 = InfVec_N2)
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
 *     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
       iVecType = iMoType2 + (iMoType1-1)*nMoType

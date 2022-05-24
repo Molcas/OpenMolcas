@@ -11,6 +11,7 @@
 * Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
 ************************************************************************
       SubRoutine ChoMP2_Setup(irc)
+      use ChoMP2
 C
 C     Thomas Bondo Pedersen, Oct. 2004 / Feb. 2005.
 C
@@ -233,6 +234,8 @@ C     -------------------------------------
             l_LiPQprod = 1
          End If
          l_lUnit  = nSym*nBatch
+         Call ChoMP2_deallocate(irc)
+         ChoMP2_allocated=.TRUE.
          Call GetMem('First','Allo','Inte',ip_First,l_First)
          Call GetMem('FirstS','Allo','Inte',ip_FirstS,l_FirstS)
          Call GetMem('NumOcc','Allo','Inte',ip_NumOcc,l_NumOcc)
@@ -307,42 +310,13 @@ C     -------------------------------------
      &                                  iWork(ip_LnPQprod),
      &                                  NumVec,nFrac,
      &                                  nSym,nBatch,lAvail)
+
          If (ForceBatch .and. nBatch.eq.1) Then
             Accepted = .false. ! force batching
          End If
+
          If (.not. Accepted) Then
-            Call GetMem('lUnit','Free','Inte',ip_lUnit,l_lUnit)
-            Call GetMem('LiMatij','Free','Inte',ip_LiMatij,l_LiMatij)
-            Call GetMem('LnMatij','Free','Inte',ip_LnMatij,l_LnMatij)
-            Call GetMem('LiT1am','Free','Inte',ip_LiT1am,l_LiT1am)
-            Call GetMem('LnT1am','Free','Inte',ip_LnT1am,l_LnT1am)
-            Call GetMem('LnOcc','Free','Inte',ip_LnOcc,l_LnOcc)
-            Call GetMem('NumOcc','Free','Inte',ip_NumOcc,l_NumOcc)
-            Call GetMem('FirstS','Free','Inte',ip_FirstS,l_FirstS)
-            Call GetMem('First','Free','Inte',ip_First,l_First)
-            Call GetMem('NumBatOrb','Free','Inte',ip_NumBatOrb,
-     &                  l_NumBatOrb)
-            Call GetMem('LnBatOrb','Free','Inte',ip_LnBatOrb,l_LnBatOrb)
-            Call GetMem('LnPQprod','Free','Inte',ip_LnPQprod,
-     &                   l_LnPQprod)
-            Call GetMem('LiPQprod','Free','Inte',ip_LiPQprod,
-     &                   l_LiPQprod)
-*
-            l_LiT1am  = 0
-            l_LnT1am  = 0
-            l_LnOcc   = 0
-            l_NumOcc  = 0
-            l_First   = 0
-            l_FirstS  = 0
-            l_LnMatij = 0
-            l_LiMatij = 0
-            l_lUnit   = 0
-            l_NumBatOrb = 0
-            l_LnBatOrb  = 0
-            l_LnPQprod = 0
-            l_LiPQprod = 0
-
-
+            Call ChoMP2_deallocate(irc)
          End If
 
          If (irc.eq.1) Then

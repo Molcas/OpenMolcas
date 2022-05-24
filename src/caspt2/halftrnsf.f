@@ -12,7 +12,7 @@
 *               2007, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE HALFTRNSF(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,
-     &        JREDC,CMO,ISTART,NUSE,ipChoT)
+     &                     JREDC,CMO,ISTART,NUSE,ipChoT)
 *********************************************************
 *   Author: F. Aquilante as subroutine cho_vtra
 *   Modified PAM 2007: Use ordinary CMO array without restructuring
@@ -49,7 +49,8 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
-
+      use ChoArr, only: iRS2F, nDimRS
+      use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoT(8)
@@ -60,16 +61,12 @@
       Integer  cho_isao
       External cho_isao
 
-* Uses InfVec_N2, MAXVEC, NSYM, IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3) in
+* Uses MAXVEC, NSYM, IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3) in
 * cholesky.fh commons /CHOLEV/, /CHORST/, /CHOSHL/
 #include "cholesky.fh"
-* Uses ip_iRS2F, ip_indred, ip_infvec, ip_ndimRS in choptr.fh common /CHMIND/
-#include "choptr.fh"
 * Uses ibas(8), nbas(8) in choorb.fh common /CHOORB/
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      Parameter (N2 = InfVec_N2)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -98,7 +95,7 @@
 * JVTRNS=Cholesky vector to be transformed.
          JVTRNS=JVEC1-1+JVEC
 * JRED: Which reduced set does it belong to:
-         JRED = iWork(ip_InfVec-1+JVTRNS+MaxVec*(1+N2*(JSYM-1)))
+         JRED = InfVec(JVTRNS,2,JSYM)
 
 * Is it the same still?
          IF (JRED .NE. JREDC) THEN
@@ -115,7 +112,7 @@
          END IF
 
          kscr = NREAD
-         NREAD = NREAD + iWork(ip_nDimRS-1+nSym*(JRED-1)+JSYM)
+         NREAD = NREAD + nDimRS(JSYM,JRED)
 
          IF (JSYM.eq.1) THEN
 * L(a,b,J)=L(b,a,J); only a.ge.b stored
@@ -123,11 +120,11 @@
             Do jRab=1,nnBstR(jSym,iLoc)
 
                kRab = iiBstr(jSym,iLoc) + jRab
-               iRab = iWork(ip_IndRed-1+2*nnBstrT(1)+kRab)
+               iRab = IndRed(kRab,3)
 
 * Global address:
-               iag = iWork(ip_iRS2F+2*(iRab-1)  )
-               ibg = iWork(ip_iRS2F+2*(iRab-1)+1)
+               iag = iRS2F(1,iRab)
+               ibg = iRS2F(2,iRab)
 
                iSyma = cho_isao(iag)
 
@@ -178,11 +175,11 @@
            Do jRab=1,nnBstR(jSym,iLoc)
 
               kRab = iiBstr(jSym,iLoc) + jRab
-              iRab = iWork(ip_IndRed-1+2*nnBstrT(1)+kRab)
+              iRab = IndRed(kRab,3)
 
 * Global address:
-              iag = iWork(ip_iRS2F+2*(iRab-1)  )
-              ibg = iWork(ip_iRS2F+2*(iRab-1)+1)
+              iag = iRS2F(1,iRab)
+              ibg = iRS2F(2,iRab)
 
 * iSyma = cho_isao(iag) = symmetry block of basis function iag
               iSyma = cho_isao(iag)

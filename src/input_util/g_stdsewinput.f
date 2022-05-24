@@ -19,6 +19,7 @@
       use Center_Info
       use Sizes_of_Seward, only: S
       use Logical_Info, only: UnNorm, Do_FckInt
+      use Gateway_Interfaces, only: GetBS
       Implicit Real*8 (a-h,o-z)
 *
 #include "Molcas.fh"
@@ -61,12 +62,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *
 #include "angstr.fh"
       Data DefNm/'basis_library'/ ! CGGd,
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-#include "getbs_interface.fh"
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

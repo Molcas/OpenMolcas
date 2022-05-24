@@ -9,10 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Cho_P_QualSwp()
-
+      use ChoSwp, only: iQuAB, iQuAB_L, pTemp
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "cholq.fh"
 
       Integer i, scr
@@ -23,18 +22,10 @@ C --- Swap nQual array  local <-> global
          nQual_L(i) = nQual(i)
          nQual(i) = scr
       End Do
-c      Call iSwap(nSym,nQual,1,nQual_L,1)
-
 
 C --- Swap pointer for iQuAB  local <-> global
-      scr = ip_iQuAB_L
-      ip_iQuAB_L = ip_iQuAB
-      ip_iQuAB = scr
-
-C --- Swap length for iQuAB   local <-> global
-      scr = l_iQuAB_L
-      l_iQuAB_L = l_iQuAB
-      l_iQuAB = scr
-
+      pTemp => iQuAB
+      iQuAB => iQuAB_L
+      iQuAB_L => pTemp
 
       End

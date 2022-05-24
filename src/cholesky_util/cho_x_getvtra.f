@@ -71,7 +71,6 @@
       Parameter (SECNAM = 'Cho_X_GetVtra')
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
