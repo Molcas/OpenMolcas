@@ -310,14 +310,6 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
   Do_ESPF = .false.
   call Get_iScalar('SA ready',iGo)
   call Get_iScalar('Relax CASSCF root',iRlxRoot)
-  ! TRS-Density fitting input, you need to use the DOAN keyword in
-  ! SEWARD for the gradients
-
-  if (Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1))) then
-    Do_Numerical_Cholesky = .false.
-  end if
-
-  ! TRS
 
   ! Andrew - I need to identify the root and make sure it is not a
   ! state averaged calculation.  iGo=1 means do MCLR
