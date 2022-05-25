@@ -1610,8 +1610,8 @@ C     call sqprt(work(ipolag),nbast)
         nFroI = nFro(iSym)
         nIshI = nIsh(iSym)
         nAshI = nAsh(iSym)
-        nSshI = nSsh(iSym)
-        nDelI = nDel(iSym)
+        ! nSshI = nSsh(iSym)
+        ! nDelI = nDel(iSym)
         nCor  = nFroI + nIshI
         !! Inactive orbital contributions: (p,q) = (all,inact)
         CALL DaXpY_(nOrbI*nCor,2.0D+00,Work(ipFPT2+iSQ-1),1,
@@ -1749,8 +1749,8 @@ C
         nFroI = nFro(iSym)
         nIshI = nIsh(iSym)
         nAshI = nAsh(iSym)
-        nSshI = nSsh(iSym)
-        nDelI = nDel(iSym)
+        ! nSshI = nSsh(iSym)
+        ! nDelI = nDel(iSym)
         nCor  = nFroI + nIshI
         !! Inactive orbital contributions: (p,q) = (all,inact)
         CALL DaXpY_(nOrbI*nCor,2.0D+00,Work(ipFPT2+iSQ-1),1,

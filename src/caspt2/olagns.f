@@ -249,8 +249,8 @@ C
       ! nOccJ2= nOccJ-nFroJ
       nOccA2= nOccA-nFroA
       nOccB2= nOccB-nFroB
-      nOrbI = nOccI+nSshI
-      nOrbJ = nOccJ+nSshJ
+      ! nOrbI = nOccI+nSshI
+      ! nOrbJ = nOccJ+nSshJ
       nOrbA = nOccA+nSshA
       ! nOrbB = nOccB+nSshB
       ! nOrbI = nOccI+nSshI

@@ -908,8 +908,8 @@ C     write(6,*) "nAux=",nAuxi,nAuxj,nAuxk,nAuxl
 C     IF (nAuxI+nAuxJ+nAuxK+nAuxL.EQ.0) Return ! frozen orbitals
 C
       jSym = iSymJ
-      kSym = iSymK
-      lSym = iSymL
+      ! kSym = iSymK
+      ! lSym = iSymL
       nIshI = nIsh(iSym)
       ! nIshJ = nIsh(jSym)
       ! nIshK = nIsh(kSym)
