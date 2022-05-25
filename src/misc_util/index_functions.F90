@@ -16,7 +16,7 @@ use Definitions, only: iwp
 implicit none
 private
 
-public :: C_Ind, C_Ind3, C3_Ind, iTri, nTri_Elem, nTri_Elem1, nTri3_Elem, nTri3_Elem1
+public :: C_Ind, C_Ind3, C_Ind3_Rev, C3_Ind, C3_Ind3, iTri, iTri_Rev, nTri_Elem, nTri_Elem1, nTri3_Elem, nTri3_Elem1
 
 #include "macros.fh"
 
@@ -47,11 +47,32 @@ pure function C_Ind3(lx,ly,lz)
   C_Ind3 = (ly+lz)*(ly+lz+1)/2+lz+1
 end function C_Ind3
 
+! Cumulative C_Ind, including all previous l values
 pure function C3_Ind(l,lx,lz)
   integer(kind=iwp) :: C3_Ind
   integer(kind=iwp), intent(in) :: l, lx, lz
   C3_Ind = l*(l+1)*(l+2)/6+(l-lx)*(l-lx+1)/2+lz+1
 end function C3_Ind
+
+! Same as C3_Ind, but from lx, ly, lz directly
+pure function C3_Ind3(lx,ly,lz)
+  integer(kind=iwp) :: C3_Ind3
+  integer(kind=iwp), intent(in) :: lx, ly, lz
+  C3_Ind3 = (lx+ly+lz)*(lx+ly+lz+1)*(lx+ly+lz+2)/6+(ly+lz)*(ly+lz+1)/2+lz+1
+end function C3_Ind3
+
+! Inverse of C_Ind3: from the index and l, return lx, ly, lz
+pure function C_Ind3_Rev(lxyz,l)
+  use Constants, only: Seven, Eight
+  integer(kind=iwp) :: C_Ind3_Rev(3)
+  integer(kind=iwp), intent(in) :: lxyz, l
+  integer(kind=iwp) :: lx, ly, lyz, lz
+  lyz = (int(sqrt(Eight*lxyz-Seven))-1)/2
+  lz = lxyz-lyz*(lyz+1)/2-1
+  ly = lyz-lz
+  lx = l-lyz
+  C_Ind3_Rev(:) = [lx,ly,lz]
+end function C_Ind3_Rev
 
 ! Number of elements in a triangular matrix of side n
 !
@@ -106,5 +127,16 @@ pure function iTri(i,j)
   jj = min(i,j)
   iTri = ii*(ii-1)/2+jj
 end function iTri
+
+! Inverse of iTri: from the index, return i and j
+pure function iTri_Rev(ij)
+  use Constants, only: Seven, Eight
+  integer(kind=iwp) :: iTri_Rev(2)
+  integer(kind=iwp), intent(in) :: ij
+  integer(kind=iwp) :: i, j
+  i = (int(sqrt(Eight*ij-Seven))+1)/2
+  j = ij-i*(i-1)/2
+  iTri_Rev(:) = [i,j]
+end function iTri_Rev
 
 end module

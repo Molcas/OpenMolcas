@@ -31,7 +31,7 @@ subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Co
 
 use vRys_RW, only: Cff, ddx, HerR2, HerW2, iCffR, iCffW, iHerR2, iHerW2, iMap, ix0, Map, nMap, nx0, TMax, x0
 use Gateway_Info, only: ChiI2
-use Gateway_global, only: IsChi
+use Gateway_global, only: asymptotic_Rys, FMM_shortrange, IsChi, NoTab
 #ifdef _RYS_SCRATCH_
 use RysScratch, only: RysRtsWgh
 #else
@@ -47,9 +47,6 @@ real(kind=wp) :: Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), Q(lQ,
                  Coora(3,4), CoorAC(3,2), Array(nArray)
 external :: Tvalue, ModU2, Cff2D, Rys2D
 logical(kind=iwp) :: NoSpecial
-#include "notab.fh"
-#include "FMM.fh"
-#include "srint.fh"
 integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, ipAC, ipAC_long, ipB00, ipB01, ipB10, ipDiv, &
                      ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipZeta, &
                      ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabMax, nabMin, ncdMax, ncdMin, nRys, nTR
@@ -96,7 +93,7 @@ if (NoSpecial) ijkl = -1
 ! For FMM, compute short-range integrals disabling special cases
 !gh - disable special cases anyway for the short range integrals
 
-if (shortrange .or. FMM_shortrange) ijkl = -1
+if (FMM_shortrange) ijkl = -1
 
 ij = iTri(la+1,lb+1)
 kl = iTri(lc+1,ld+1)
@@ -188,7 +185,7 @@ select case (ijkl)
     !gh - the long range integrals
     !gh - (additional memory has been declared in MemRys)
     ipAC_long = ipAC
-    if (shortrange .or. FMM_shortrange) then
+    if (FMM_shortrange) then
       ipAC_long = ip
       ip = ip+nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
     end if
@@ -432,7 +429,7 @@ select case (ijkl)
       ! Use Molpro Coulomb attenuation driver for the
       ! FMM short-range integrals
 
-      if ((shortrange .and. (isr_simulate <= 1)) .or. FMM_shortrange) then
+      if (FMM_shortrange) then
         !                                                              *
         !***************************************************************
         !                                                              *
@@ -458,9 +455,7 @@ select case (ijkl)
           call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC_long),mabMin,mabMax,mcdMin,mcdMax, &
                      Array(ipScr),Array(ipFact),AeqB,CeqD)
           ! [make difference to produce the desired short range integrals]
-          if ((isr_simulate <= 0) .or. FMM_shortrange) then
-            call daxpy_(nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),-One,Array(ipAC_long),1,Array(ipAC),1)
-          end if
+          if (FMM_shortrange) call daxpy_(nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),-One,Array(ipAC_long),1,Array(ipAC),1)
 
           ! [reset IsChi for ordinary full integrals]
           if (FMM_shortrange) then
@@ -493,7 +488,7 @@ select case (ijkl)
     ip = ip-nabcd*3*nT*nRys
     ip = ip-nT
     ! - release additional memory allocated for long range integrals
-    if (shortrange .or. FMM_shortrange) ip = ip-nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    if (FMM_shortrange) ip = ip-nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 end select
 #ifdef _DEBUGPRINT_
 mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)

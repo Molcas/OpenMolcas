@@ -12,6 +12,8 @@
 subroutine RTSWGH(TARR,NT,U2,WGH,NRYS)
 
 use vRys_RW, only: HerR2, HerW2, iHerR2, iHerW2
+use abdata, only: atab, btab, p0, tvalue
+use Gateway_global, only: asymptotic_Rys
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Five, Twelve, Half
 use Definitions, only: wp, iwp
@@ -19,9 +21,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: NT, NRYS
 real(kind=wp) :: TARR(NT), U2(NRYS,NT), WGH(NRYS,NT)
-#include "abtab.fh"
-#include "FMM.fh"
-integer(kind=iwp) :: IDEG, iroot, IT, itab, J, k, nx
+integer(kind=iwp) :: IDEG, iroot, IT, J, k, nx
 real(kind=wp) :: a2, a3, a4, a5, a6, b1, b2, b3, b4, b5, BK, c1, c2, c3, c4, c5, c6, corr, DELTA, p, R, R1, R2, RSUM, T, tmp, x1, &
                  x2, x3, xn, Z, ZZ
 real(kind=wp), allocatable :: ALPHA(:), BETA(:), BINV(:), ROOT(:,:), RYS(:), RYSD(:)
@@ -33,7 +33,7 @@ iRout = 78
 iPrint = nPrint(iRout)
 #endif
 
-if (NRYS > maxdeg) then
+if (NRYS > ubound(atab,1)) then
   call WarningMessage(2,' Too many requested Rys roots.')
   call AbEnd()
 end if
@@ -49,12 +49,12 @@ RYSD(0) = Zero
 do IT=1,NT
   T = TARR(IT)
   ! Use asymptotic formulae if outside table.
-  !MAW if (t > TVALUE(NTAB2-NTAB1-1)) then
+  !MAW if (t > TVALUE(ubound(TVALUE,1)-2)) then
 
   ! For the FMM we use the asymptotic limit to compute the
   ! multipole-component of the integrals
 
-  if ((t > TVALUE(NTAB2-NTAB1-1)) .or. asymptotic_Rys) then
+  if ((t > TVALUE(ubound(TVALUE,1)-2)) .or. asymptotic_Rys) then
     do iroot=1,nRYS
       tmp = One/T
       U2(iroot,IT) = HerR2(iHerR2(nRys)+iroot-1)*tmp
@@ -65,10 +65,8 @@ do IT=1,NT
   ! translate to tabulation function for equidist. interp.
   ! xn=interpol. variable.
   ! Ex: T=0.0--0.05 gives xn=0.0--1.0 (approx.)
-  ! itab= Start tab index for interp. Ex above: itab=1.
   xn = Five*T+200.0_wp*T/(14.0_wp+T)
   nx = int(xn)
-  itab = nx-1-NTAB1
   p = xn-real(nx,kind=wp)
   a2 = (p+Two)
   a3 = (p+One)*a2
@@ -86,13 +84,13 @@ do IT=1,NT
   c4 = coef4*a4*b4
   c5 = coef5*a5*b5
   c6 = coef6*a6
-  ALPHA(0) = c1*ATAB(0,itab)+c2*ATAB(0,itab+1)+c3*ATAB(0,itab+2)+c4*ATAB(0,itab+3)+c5*ATAB(0,itab+4)+c6*ATAB(0,itab+5)
+  ALPHA(0) = c1*ATAB(0,nx-2)+c2*ATAB(0,nx-1)+c3*ATAB(0,nx)+c4*ATAB(0,nx+1)+c5*ATAB(0,nx+2)+c6*ATAB(0,nx+3)
   do k=1,NRYS
-    ALPHA(k) = c1*ATAB(k,itab)+c2*ATAB(k,itab+1)+c3*ATAB(k,itab+2)+c4*ATAB(k,itab+3)+c5*ATAB(k,itab+4)+c6*ATAB(k,itab+5)
-    BETA(k) = c1*BTAB(k,itab)+c2*BTAB(k,itab+1)+c3*BTAB(k,itab+2)+c4*BTAB(k,itab+3)+c5*BTAB(k,itab+4)+c6*BTAB(k,itab+5)
+    ALPHA(k) = c1*ATAB(k,nx-2)+c2*ATAB(k,nx-1)+c3*ATAB(k,nx)+c4*ATAB(k,nx+1)+c5*ATAB(k,nx+2)+c6*ATAB(k,nx+3)
+    BETA(k) = c1*BTAB(k,nx-2)+c2*BTAB(k,nx-1)+c3*BTAB(k,nx)+c4*BTAB(k,nx+1)+c5*BTAB(k,nx+2)+c6*BTAB(k,nx+3)
     BINV(K) = ONE/BETA(K)
   end do
-  rys(0) = c1*p0(itab)+c2*p0(itab+1)+c3*p0(itab+2)+c4*p0(itab+3)+c5*p0(itab+4)+c6*p0(itab+5)
+  rys(0) = c1*p0(nx-2)+c2*p0(nx-1)+c3*p0(nx)+c4*p0(nx+1)+c5*p0(nx+2)+c6*p0(nx+3)
   ROOT(1,1) = ALPHA(0)
   x1 = (ALPHA(0)+ALPHA(1))*Half
   x2 = (ALPHA(0)-ALPHA(1))*Half

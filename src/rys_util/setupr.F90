@@ -31,6 +31,7 @@ subroutine SetUpR(nRys)
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW, MaxHer
 use vRys_RW, only: HerR2, HerW2, iHerR2, iHerW2
+use abdata, only: read_abdata
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 #ifdef _RYS_SCRATCH_

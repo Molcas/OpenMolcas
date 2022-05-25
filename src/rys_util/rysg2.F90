@@ -68,7 +68,7 @@ subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nE
 use vRys_RW, only: nMxRys
 use Symmetry_Info, only: nIrrep, iOper
 use Gateway_Info, only: ChiI2
-use Gateway_global, only: IsChi
+use Gateway_global, only: IsChi, NoTab
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
@@ -79,7 +79,6 @@ real(kind=wp) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta)
                  Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Hess(nHess)
 external :: Tvalue, ModU2, Cff2D
 logical(kind=iwp) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), lGrad, lHess, Tr(4)
-#include "notab.fh"
 integer(kind=iwp) :: i, iCa, iCar, iCe, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), iOff, ip, ip2D0, &
                      ip2D1, ip2D2, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipg2, ipP, ipPAQP, ipQ, ipQCPQ, ipScr, ipScr2, &
                      ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iStop, iZeta, jCar, jCent, JndGrd(3,4,0:7), kCent, la, lab, labMax, &

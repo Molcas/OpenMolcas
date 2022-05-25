@@ -26,12 +26,12 @@ subroutine vRysRW(la,lb,lc,ld,Arg,Root,Weight,nArg,nRys)
 !***********************************************************************
 
 use vRys_RW, only: Cff, ddx, HerR2, HerW2, iCffR, iCffW, iHerR2, iHerW2, iMap, ix0, Map, nMap, nMxRys, nx0, TMax, x0
+use Gateway_global, only: asymptotic_Rys
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: la, lb, lc, ld, nArg, nRys
 real(kind=wp) :: Arg(nArg), Root(nRys,nArg), Weight(nRys,nArg)
-#include "FMM.fh"
 integer(kind=iwp) :: labcd
 real(kind=wp) :: Tmax_
 

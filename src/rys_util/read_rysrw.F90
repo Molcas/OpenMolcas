@@ -49,7 +49,7 @@ call molcas_open(lu_rysrw,RYSRW_NAME)
 
 io = 1
 do while (io /= 0)
-  read(lu_rysrw,*,IOStat=io) mRys,nOrder
+  read(lu_rysrw,*,iostat=io) mRys,nOrder
 end do
 if (mRys > size(iMap)) then
   call WarningMessage(2,' Database requires new code! Database and code are at incompatible levels!')

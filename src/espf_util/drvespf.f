@@ -26,7 +26,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "wldata.fh"
-#include "iavec.fh"
 #include "stdalloc.fh"
       Character Label*80
       Real*8 Grad(nGrad), Temp(nGrad)
@@ -42,22 +41,6 @@
 *
 *...  Prologue
       iPrint = 1
-*
-*     Set up the angular index vector
-*
-      i = 0
-      Do 1000 iR = 0, iTabMx
-         Do 2000 ix = iR, 0, -1
-            Do 3000 iy = iR-ix, 0, -1
-               iz = iR-ix-iy
-               i = i + 1
-               ixyz(1,i) = ix
-               ixyz(2,i) = iy
-               ixyz(3,i) = iz
- 3000       Continue
- 2000    Continue
- 1000 Continue
-
 *
 *---- Allocate memory for density matrix
 *

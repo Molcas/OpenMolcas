@@ -21,7 +21,7 @@ subroutine Assg1_mck(g1,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,IfGrad,Indx,mVec,Indx2
 !             October '91                                              *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1, nTri3_Elem
+use Index_Functions, only: C_Ind3_Rev, nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -31,10 +31,8 @@ real(kind=wp) :: g1(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nTri_Elem1(l
                  xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9)
 logical(kind=iwp) :: IfGrad(3,4)
 #include "itmax.fh"
-#include "iavec.fh"
-integer(kind=iwp) :: iCent, ii, Ind1(3), Ind2(3), ipa, ipaii, ipb, ipbjj, ipc, ipckk, ipd, ipdll, iRys, iT, ixa, ixab, ixabc, &
-                     ixabcd, ixb, ixc, ixd, iya, iyab, iyabc, iyabcd, iyb, iyc, iyd, iza, izb, izc, izd, jj, ka, kb, kc, kd, kk, &
-                     ll, ng1, nVec
+integer(kind=iwp) :: iCent, icir(3), Ind1(3), Ind2(3), ipa, ipb, ipc, ipd, iRys, iT, ixa, ixab, ixabc, ixabcd, ixb, ixc, ixd, iya, &
+                     iyab, iyabc, iyabcd, iyb, iyc, iyd, iza, izb, izc, izd, ka, kb, kc, kd, ng1, nVec
 real(kind=wp) :: tmp, tmp1, tmp2, tmp3
 
 ka = nTri_Elem1(la)
@@ -45,40 +43,35 @@ ng1 = nT*9*ka*kb*kc*kd
 call dcopy_(ng1,[Zero],0,g1,1)
 call ICOPY(12,[0],0,Indx2,1)
 
-ii = nTri3_Elem(la)
-jj = nTri3_Elem(lb)
-kk = nTri3_Elem(lc)
-ll = nTri3_Elem(ld)
-
 do ipa=1,nTri_Elem1(la)
-  ipaii = ipa+ii
-  ixa = ixyz(1,ipaii)
-  iya = ixyz(2,ipaii)
-  iza = ixyz(3,ipaii)
+  icir(:) = C_Ind3_Rev(ipa,la)
+  ixa = icir(1)
+  iya = icir(2)
+  iza = icir(3)
 
   do ipb=1,nTri_Elem1(lb)
-    ipbjj = ipb+jj
-    ixb = ixyz(1,ipbjj)
-    iyb = ixyz(2,ipbjj)
-    izb = ixyz(3,ipbjj)
+    icir(:) = C_Ind3_Rev(ipb,lb)
+    ixb = icir(1)
+    iyb = icir(2)
+    izb = icir(3)
 
     ixab = ixa+ixb
     iyab = iya+iyb
 
     do ipc=1,nTri_Elem1(lc)
-      ipckk = ipc+kk
-      ixc = ixyz(1,ipckk)
-      iyc = ixyz(2,ipckk)
-      izc = ixyz(3,ipckk)
+      icir(:) = C_Ind3_Rev(ipc,lc)
+      ixc = icir(1)
+      iyc = icir(2)
+      izc = icir(3)
 
       ixabc = ixab+ixc
       iyabc = iyab+iyc
 
       do ipd=1,nTri_Elem1(ld)
-        ipdll = ipd+ll
-        ixd = ixyz(1,ipdll)
-        iyd = ixyz(2,ipdll)
-        izd = ixyz(3,ipdll)
+        icir(:) = C_Ind3_Rev(ipd,ld)
+        ixd = icir(1)
+        iyd = icir(2)
+        izd = icir(3)
 
         ixabcd = ixabc+ixd
         iyabcd = iyabc+iyd

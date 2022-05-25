@@ -100,6 +100,7 @@ end subroutine UnSetAux
 subroutine RysRtsWgh(TValues,nT,Roots,Weights,Order)
 
   use vRys_RW, only: HerR2, HerW2, iHerR2, iHerW2
+  use Gateway_global, only: asymptotic_Rys
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Five
   use Definitions, only: u6
@@ -107,7 +108,6 @@ subroutine RysRtsWgh(TValues,nT,Roots,Weights,Order)
   integer(kind=iwp), intent(in) :: nT, Order
   real(kind=wp), intent(in) :: TValues(nT)
   real(kind=wp), intent(out) :: Roots(Order,nT), Weights(Order,nT)
-# include "FMM.fh"
   integer(kind=iwp) :: i, j, iquad, Err
   real(kind=wp) :: Alpha(Order), Beta(Order), TA
   real(kind=wp), allocatable :: a(:), b(:)

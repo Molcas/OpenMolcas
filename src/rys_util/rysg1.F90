@@ -27,7 +27,7 @@ subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nE
 use vRys_RW, only: nMxRys
 use Symmetry_Info, only: iOper
 use Gateway_Info, only: ChiI2
-use Gateway_global, only: IsChi
+use Gateway_global, only: IsChi, NoTab
 use Definitions, only: wp, iwp
 #if defined(_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
@@ -39,7 +39,6 @@ real(kind=wp) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta)
                  Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Grad(nGrad)
 external :: Tvalue, ModU2, Cff2D
 logical(kind=iwp) :: IfGrad(3,4)
-#include "notab.fh"
 integer(kind=iwp) :: i, iEta, Indx(3,4), iOff, ip, ip2D0, ip2D1, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipP, ipPAQP, ipQ, &
                      ipQCPQ, ipScr, ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iZeta, j, JndGrd(3,4), la, lab, labMax, lb, lB00, &
                      lB01, lB10, lc, lcd, ld, lla, llb, llc, lld, lOp(4), mVec, n2D0, n2D1, nabMax, ncdMax, nTR

@@ -16,14 +16,13 @@ subroutine MemRys(iAnga,MemPrm)
 ! This routine will compute the memory requirement of RYS
 ! Memory requirement is per primitive!
 
+use Gateway_global, only: FMM_shortrange
 use Index_Functions, only: nTri3_Elem1
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: iAnga(4), MemPrm
 #include "print.fh"
-#include "FMM.fh"
-#include "srint.fh"
 integer(kind=iwp) :: iPrint, iRout, la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
                      ncdMax, nRys
 
@@ -53,9 +52,8 @@ MemPrm = MemPrm+labcd
 !                                                                      *
 ! For FMM, we only want short-range integrals, using twice the memory
 ! to store full and long-range components (which are subtracted)
-! -same for MOLPRO shortrange
 
-if (FMM_shortrange .or. shortrange) MemPrm = MemPrm+labcd
+if (FMM_shortrange) MemPrm = MemPrm+labcd
 !                                                                      *
 !***********************************************************************
 !                                                                      *

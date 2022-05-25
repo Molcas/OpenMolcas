@@ -22,7 +22,7 @@ subroutine Assg1(Temp,PAO,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,IfGrad,Indx,mVec)
 !             October '91; modified by H.-J. Werner, Mai 1996          *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1, nTri3_Elem
+use Index_Functions, only: C_Ind3_Rev, nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -32,16 +32,10 @@ real(kind=wp) :: Temp(9), PAO(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nT
                  xyz2D0(nRys,nT,0:la+1,0:lb+1,0:lc+1,0:ld+1,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9)
 logical(kind=iwp) :: IfGrad(3,4)
 #include "itmax.fh"
-#include "iavec.fh"
-integer(kind=iwp) :: i, iCent, ii, Ind1(3,3), Ind2(3,3), ipa, ipb, ipc, ipd, ixa, ixabcd, ixb, ixbcd, ixc, ixcd, ixd, iya, iyabcd, &
-                     iyb, iybcd, iyc, iycd, iyd, iza, izb, izc, izd, jj, kk, ll, nVec(3)
+integer(kind=iwp) :: i, iCent, icir(3), Ind1(3,3), Ind2(3,3), ipa, ipb, ipc, ipd, ixa, ixabcd, ixb, ixbcd, ixc, ixcd, ixd, iya, &
+                     iyabcd, iyb, iybcd, iyc, iycd, iyd, iza, izb, izc, izd, nVec(3)
 
 call dcopy_(9,[Zero],0,Temp,1)
-
-ii = nTri3_Elem(la)
-jj = nTri3_Elem(lb)
-kk = nTri3_Elem(lc)
-ll = nTri3_Elem(ld)
 
 mVec = 0
 do i=1,3       ! Cartesian directions
@@ -57,30 +51,34 @@ do i=1,3       ! Cartesian directions
 end do
 
 do ipd=1,nTri_Elem1(ld)
-  ixd = ixyz(1,ll+ipd)
-  iyd = ixyz(2,ll+ipd)
-  izd = ixyz(3,ll+ipd)
+  icir(:) = C_Ind3_Rev(ipd,ld)
+  ixd = icir(1)
+  iyd = icir(2)
+  izd = icir(3)
 
   do ipc=1,nTri_Elem1(lc)
-    ixc = ixyz(1,kk+ipc)
-    iyc = ixyz(2,kk+ipc)
-    izc = ixyz(3,kk+ipc)
+    icir(:) = C_Ind3_Rev(ipc,lc)
+    ixc = icir(1)
+    iyc = icir(2)
+    izc = icir(3)
 
     ixcd = ixc+ixd
     iycd = iyc+iyd
 
     do ipb=1,nTri_Elem1(lb)
-      ixb = ixyz(1,jj+ipb)
-      iyb = ixyz(2,jj+ipb)
-      izb = ixyz(3,jj+ipb)
+      icir(:) = C_Ind3_Rev(ipb,lb)
+      ixb = icir(1)
+      iyb = icir(2)
+      izb = icir(3)
 
       ixbcd = ixcd+ixb
       iybcd = iycd+iyb
 
       do ipa=1,nTri_Elem1(la)
-        ixa = ixyz(1,ii+ipa)
-        iya = ixyz(2,ii+ipa)
-        iza = ixyz(3,ii+ipa)
+        icir(:) = C_Ind3_Rev(ipa,la)
+        ixa = icir(1)
+        iya = icir(2)
+        iza = icir(3)
 
         ixabcd = ixbcd+ixa
         iyabcd = iybcd+iya

@@ -30,7 +30,7 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
 use DKH_Info, only: iCtrLD, BSS, CLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
 use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_nacCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
-                          iWRopt, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+                          iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 #ifdef _FDE_
 use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
                             embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
@@ -52,7 +52,6 @@ logical(kind=iwp), intent(inout) :: lOPTO
 logical(kind=iwp), intent(out) :: Do_OneEl
 #include "Molcas.fh"
 #include "angtp.fh"
-#include "notab.fh"
 #include "rctfld.fh"
 #include "rmat.fh"
 #include "print.fh"

@@ -20,6 +20,7 @@ subroutine CloseR()
 !***********************************************************************
 
 use vRys_RW, only: Cff, ddx, HerR2, HerW2, iHerR2, iHerW2, Map, TMax, x0
+use abdata, only: close_abdata
 #ifdef _RYS_SCRATCH_
 use RysScratch, only: UnSetAux
 #endif
@@ -30,6 +31,9 @@ implicit none
 #ifdef _RYS_SCRATCH_
 call UnSetAux()
 #endif
+
+call close_abdata()
+
 if (.not. allocated(iHerW2)) return
 call mma_deallocate(iHerW2)
 call mma_deallocate(iHerR2)
