@@ -228,8 +228,6 @@ C
       nAshJ = nAsh(iSymJ)
       nAshA = nAsh(iSymA)
       nAshB = nAsh(iSymB)
-      nSshI = nSsh(iSymI)
-      nSshJ = nSsh(iSymJ)
       nSshA = nSsh(iSymA)
       nSshB = nSsh(iSymB)
       nBasI = nBas(iSymI)
@@ -241,20 +239,11 @@ C
       nCorJ = nFroJ+nIshJ
       nCorA = nFroA+nIshA
       nCorB = nFroB+nIshB
-      nOccI = nCorI+nAshI
-      nOccJ = nCorJ+nAshJ
       nOccA = nCorA+nAshA
       nOccB = nCorB+nAshB
-      ! nOccI2= nOccI-nFroI
-      ! nOccJ2= nOccJ-nFroJ
       nOccA2= nOccA-nFroA
       nOccB2= nOccB-nFroB
-      ! nOrbI = nOccI+nSshI
-      ! nOrbJ = nOccJ+nSshJ
       nOrbA = nOccA+nSshA
-      ! nOrbB = nOccB+nSshB
-      ! nOrbI = nOccI+nSshI
-      ! nOrbJ = nOccJ+nSshJ
 C
       ! nOcc  = nFro(iSym)+nIsh(iSym)+nAsh(iSym)
 C
