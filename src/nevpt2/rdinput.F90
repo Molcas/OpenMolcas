@@ -19,16 +19,17 @@ subroutine rdinput(refwfnfile)
 ! use global variables directly from the NEVPT2 program
 use nevpt2_cfg, only: igelo, MultGroup, no_pc, nr_frozen_orb, nr_states, rdm_distributed, rdm_path, rdm_read, skip_effective_ham, &
                       skip_koopro_molcas
+use text_file, only: extend_line, next_non_comment
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*), intent(out) :: refwfnfile
-character(len=180) :: Line, key
-character(len=9001) :: dline
-character(len=9001) :: frozen_str
 integer(kind=iwp) :: LuSpool, iError, i, isplit
+character(len=180) :: Line, key
+character(len=9001) :: frozen_str
+character(len=:), allocatable :: dLine, Line2
 integer(kind=iwp), external :: isFreeUnit
-logical(kind=iwp), external :: next_non_comment
 character(len=180), external :: Get_Ln
 
 ! Initial values
@@ -146,13 +147,13 @@ do
     case ('MULT')
       !========= MULT =============
       ! multi-state QD-NEVPT2 calculation requested with the states given below
-      if (.not. next_non_comment(LuSpool,Line)) call error(1)
-      read(Line,*) key
+      if (.not. next_non_comment(LuSpool,Line2)) call error(1)
+      read(Line2,*) key
       call upcase(key)
       if (trim(key) == 'ALL') then
         nr_states = 0
       else
-        read(Line,*,iostat=iError) nr_states
+        read(Line2,*,iostat=iError) nr_states
         if (iError /= 0) call error(0)
         if (nr_states <= 0) then
           write(u6,*) ' number of MULT states must be > 0, quitting!'
@@ -163,24 +164,26 @@ do
       ! is deallocated somewhere in the external library
       if (allocated(MultGroup%State)) deallocate(MultGroup%State)
       allocate(MultGroup%State(nr_states))
-      iSplit = scan(Line,' ')
-      dLine = line(iSplit:)
+      iSplit = scan(Line2,' ')
+      call mma_allocate (dLine,len(Line),label='dLine')
+      dLine = line2(iSplit:)
       iError = -1
       do while (iError < 0)
         read(dLine,*,iostat=iError) (MultGroup%State(i),i=1,nr_states)
         if (iError > 0) call error(0)
         if (iError < 0) then
-          if (.not. next_non_comment(LuSpool,Line)) call error(1)
-          dline = trim(dline)//' '//line
+          if (.not. next_non_comment(LuSpool,Line2)) call error(1)
+          call extend_line(dLine,Line)
         end if
       end do
+      call mma_deallocate (dLine)
 
     case ('FILE')
       !========= FILE =============
       ! Specifiy the name of the reference wfn file for NEVPT2.
-      if (.not. next_non_comment(LuSpool,Line)) call error(1)
-      line = adjustl(line)
-      call fileorb(Line,refwfnfile)
+      if (.not. next_non_comment(LuSpool,Line2)) call error(1)
+      line2(:) = adjustl(line2)
+      call fileorb(Line2,refwfnfile)
 
     case ('RDMR')
       !========= RDMR ============= a.k.a. RDMRead
@@ -197,8 +200,8 @@ do
       ! of the format "A-B-C-D", where A,B,C,D are the first four indices of the 4-RDM to be calculated
       ! Each subdirectory should contain the results of a single calculation in a batch
       rdm_distributed = .true.
-      if (.not. next_non_comment(LuSpool,Line)) call error(1)
-      read(Line,'(A)') key
+      if (.not. next_non_comment(LuSpool,Line2)) call error(1)
+      read(Line2,'(A)') key
       rdm_path = trim(key)
 
     case ('END ')
@@ -213,6 +216,8 @@ do
 
 end do
 ! END of Input
+
+if (allocated(Line2)) call mma_deallocate(Line2)
 
 !> make sure the array is allocated for the minimal input
 !> &NEVPT2 &END
