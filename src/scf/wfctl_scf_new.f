@@ -129,7 +129,6 @@
       MinDMx = 0
       If(MiniDn) MinDMx = Max(0,nIter(nIterP)-1)
 *
-      QNR1st=.TRUE.
 *
 *     Optimization options
 *
@@ -139,6 +138,7 @@
 *     iOpt=3: RS-RFO in the space of the anti-symmetric X matrix.
 *
       iOpt=0
+      QNR1st=.TRUE.
 *
 *     START INITIALIZATION
 *
