@@ -170,6 +170,8 @@ End Do
 Call mma_allocate(Probe,mOV,Label='Probe')
 
 Probe(:) = Zero
+#define _Case1_
+#ifdef _Case1_
 Do j = 1, nDIIS
 !Do j = nDIIS, nDIIS
 !Do j = Max(1,nDIIS-3), nDIIS
@@ -184,6 +186,12 @@ Do j = 1, nDIIS
 !     End Do
 !  End If
 End Do
+#else
+Do j = 1, nDIIS
+   Call SOrUpV(g(:,j),HDiag,mOV,dq,'DISP','BFGS')
+   Probe(:) = Probe(:) + dq(:)**2
+End Do
+#endif
 !Write (6,*) 'Check HDiag'
 Do i = 1, mOV
    Probe(i)=Sqrt(Probe(i))/DBLE(nDIIS)

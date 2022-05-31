@@ -172,7 +172,6 @@
       MinDMx = 0
       If(MiniDn) MinDMx = Max(0,nIter(nIterP)-1)
 *
-      QNR1st=.TRUE.
 *
 *     Optimization options
 *
@@ -182,6 +181,7 @@
 *     iOpt=3: RS-RFO in the space of the anti-symmetric X matrix.
 *
       iOpt=0
+      QNR1st=.TRUE.
 *
 *     START INITIALIZATION
 *
@@ -367,8 +367,6 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-#define _NEW_CODE_
-#ifdef _NEW_CODE_
          Call SCF_Energy(FstItr,E1V,E2V,EneV)
          Energy(iter)=EneV
          If(iter.eq.1) Then
@@ -376,7 +374,6 @@
          Else
             EDiff = EneV-EnVold
          End If
-#endif
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -448,7 +445,6 @@
 *
             End If
          End If
-#ifdef _NEW_CODE_
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -668,9 +664,15 @@
                StepMax=Max(StepMax*0.75D0,0.8D-3)
             End If
 
-            dqHdq=Zero
-            Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
-     &                      dqHdq,StepMax,AccCon(9:9))
+*#define _NEW_CODE_
+#ifdef _NEW_CODE_
+               Call DIIS_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),
+     &                                               AccCon(9:9))
+#else
+               dqHdq=Zero
+               Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
+     &                         dqHdq,StepMax,AccCon(9:9))
+#endif
 
 *           Pick up X(n) and compute X(n+1)=X(n)+dX(n)
 
@@ -706,308 +708,6 @@
             Write (6,*) 'WfCtl_SCF: Illegal option'
             Call Abend()
          End Select
-#else
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*        Move over to DIIS optimization. Here we compute the optimal
-*        coefficients CInter.
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         If ( iOpt.eq.0 ) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*           Interpolation DIIS
-*
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-*
-*           Compute traces: TrDh, TrDP and TrDD.
-*
-            Call TraClc_i(OneHam,Dens,TwoHam,Vxc,nBT,nDens,iter,
-     &                    TrDh,TrDP,TrDD,MxIter,nD)
-*
-            If (kOptim.eq.1) Then
-*
-*              If we only have one density, then nothing much to intra-
-*              polate over.
-*
-               AccCon = 'None     '
-*
-            Else
-*
-*              DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
-*
-               iOpt_DIIS=1 ! EDIIS option
-*              iOpt_DIIS=2 ! ADIIS option (untested option)
-*              iOpt_DIIS=3 ! LDIIS option (not implemented option)
-*
-               Call DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,MxIter,nD,
-     &                     iOpt_DIIS,Ind)
-*
-*----          Compute optimal density, dft potentials, and TwoHam
-*
-               Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
-*
-            End If
-*
-*---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
-*
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,nIter(nIterP),
-     &                  nD)
-*---        Diagonalize Fock matrix and obtain new orbitals
-*
-            ScramNeworb=Scrmbl.and.iter.eq.1
-            Call NewOrb_SCF(Fock,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,nFO,
-     &                  AllowFlip,ScramNeworb,nD)
-*
-*---        Transform density matrix to MO basis
-*
-            Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         Else If ( iOpt.eq.1 ) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*           Extrapolation DIIS
-*
-*           The section of the code operates on the derivatives of
-*           the energy w.r.t the elements of the anti-symmetric X
-*           matrix.
-*
-*           The optimal density matrix is found with the DIIS and
-*           canonical CMOs are generated by the diagonalization of the
-*           Fock matrix.
-*
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-*
-            Call GrdClc(FrstDs,iOpt)
-*
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
-*
-*----       Compute optimal density, dft potentials, and TwoHam
-*
-            Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
-*
-*---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
-*
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,nIter(nIterP),
-     &                  nD)
-*---        Diagonalize Fock matrix and obtain new orbitals
-*
-            ScramNeworb=Scrmbl.and.iter.eq.1
-            Call NewOrb_SCF(Fock,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,nFO,
-     &                  AllowFlip,ScramNeworb,nD)
-*
-*---        Transform density matrix to MO basis
-*
-            Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         Else If ( iOpt.eq.2 ) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*           Extrapolation DIIS & QNR
-*
-*           In this section we operate directly on the anti-symmetric X
-*           matrix.
-*
-*           Initially the energy is determined through a line seach,
-*           followed by the Fock matrix etc. In this respect, this
-*           approach is doing in this iteration what was already done
-*           by the two other approaches in the end of the previous
-*           iteration.
-*
-*           Note also, that since we work directly with the X matrix we
-*           also rotate the orbitals with this matrix (note the call to
-*           RotMOs right before the call to SCF_Energy in the line
-*           search routine, linser). Thus, the orbitals here are not
-*           canonical and would require at the termination of the
-*           optimization that these are computed.
-*
-*           Initiate if the first QNR step
-*
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-*
-            Call GrdClc(QNR1st,iOpt)
-*
-            Call dGrd()
-*
-*---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
-*           AO basis
-*
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,
-     &                  nIter(nIterP),nD)
-*
-*---        and transform the Fock matrix into the new MO space,
-*
-            Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrlp,nD)
-*
-*---        update QNR iteration counter
-*
-            iterso=iterso+1
-*
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
-*
-*----       Compute extrapolated g(n) and X(n)
-*
-            Call mma_allocate(Grd1,mOV,Label='Grd1')
-            Call mma_allocate(Xnp1,mOV,Label='Xnp1')
-*
-            Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
-     &                      kOptim,kOV)
-
-            Call mma_allocate(Disp,mOV,Label='Disp')
-*
-*-------    compute new displacement vector delta
-*           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
-*
-            Call SOrUpV(Grd1,HDiag,mOV,Disp,'DISP','BFGS')
-!
-!           from this, compute new orb rot parameter X(n+1)
-!
-!           X(n+1) = X(n) -H(-1)grd'(X(n))
-!
-            Call Daxpy_(mOV,-One,Disp,1,Xnp1,1)
-            Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
-*
-*           get address of actual X(n) in corresponding LList
-*
-            jpXn=LstPtr(iter,LLx)
-*
-*           and compute actual displacement dX(n)=X(n+1)-X(n)
-*
-            Call DZAXPY(mOV,-One,SCF_V(jpXn)%A,1,Xnp1,1,Disp,1)
-*
-*           store dX(n) vector from Disp to LList
-*
-            Call PutVec(Disp,mOV,iter,'NOOP',LLDelt)
-*
-*           compute Norm of dX(n)
-*
-            DltNrm=DBLE(nD)*DNRM2_(mOV,Disp,1)
-
-*           Generate the CMOs, rotate MOs accordingly to new point
-*
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT)
-*
-*           and release memory...
-            Call mma_deallocate(Xnp1)
-            Call mma_deallocate(Disp)
-            Call mma_deallocate(Grd1)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         Else If ( iOpt.eq.3 ) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*           Quasi-2nd order scheme (rational function optimization)
-*           with  restricted.step.
-*
-*           In this section we operate directly on the anti-symmetric X
-*           matrix.
-*
-*           Initially the energy is determined through a line seach,
-*           followed by the Fock matrix etc. In this respect, this
-*           approach is doing in this iteration what was already done
-*           by the two other approaches in the end of the previous
-*           iteration.
-*
-*           Note also, that since we work directly with the X matrix we
-*           also rotate the orbitals with this matrix (note the call to
-*           RotMOs right before the call to SCF_Energy in the line
-*           search routine, linser). Thus, the orbitals here are not
-*           canonical and would require at the termination of the
-*           optimization that these are computed.
-*
-*           Initiate if the first QNR step
-*
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-*
-            Call GrdClc(QNR1st,iOpt)
-*
-            Call dGrd()
-*
-*---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
-*           AO basis
-*
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,
-     &                  nIter(nIterP),nD)
-*
-*---        and transform the Fock matrix into the new MO space,
-*
-            Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrlp,nD)
-*
-*---        update QNR iteration counter
-*
-            iterso=iterso+1
-*
-*           Allocate memory for the current gradient and
-*           displacement vector.
-*
-            Call mma_allocate(Grd1,mOV,Label='Grd1')
-            Call mma_allocate(Disp,mOV,Label='Disp')
-*
-*           get last gradient grad(n) from LList
-*
-            Call GetVec(iter,LLGrad,inode,Grd1,mOV)
-#ifdef _DEBUGPRINT_
-            Call RecPrt('Wfctl: g(n)',' ',Grd1,1,mOV)
-#endif
-*
-*           Call restricted-step rational function optimization procedure
-*           to compute dX(n)=Xn+1 - Xn
-*
-            StepMax=0.3D0
-            dqHdq=Zero
-            Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
-     &                      dqHdq,StepMax,AccCon(9:9))
-*
-*           store dX(n) vector from Disp to LList
-*
-            Call PutVec(Disp,mOV,iter,'NOOP',LLDelt)
-#ifdef _DEBUGPRINT_
-            Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
-            Call RecPrt('Wfctl: dX(n)',' ',Disp,1,mOV)
-#endif
-*
-*           compute Norm of delta(n)
-*
-            DltNrm=DBLE(nD)*dqdq
-*
-*           Generate the CMOs, rotate MOs accordingly to new point
-*
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT)
-*
-*           and release memory...
-            Call mma_deallocate(Disp)
-            Call mma_deallocate(Grd1)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         Else
-            Write (6,*) 'WfCtl_SCF: Illegal option'
-            Call Abend()
-         End If
-#endif
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -1083,14 +783,12 @@
 *        Update some parameters to be used in subsequent iterations
 *
          If(iter.eq.1) Then
-            EDiff  = Zero
             DMOold = DMOmax
             FMOold = FMOmax
             nEconv = 0
             nDconv = 0
             nFconv = 0
          Else
-            EDiff = EneV-EnVold
             If(Abs(Ediff).le.10.0d0*Ethr) Then
                nEconv=nEconv+1
             Else
@@ -1189,6 +887,9 @@
 !
 !        EmConv is true.
 !
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EThr
          If (iter.ne.1             .AND.
      &       (Abs(EDiff).le.EThr)  .AND.
@@ -1198,7 +899,9 @@
      &       ((DltNrm.le.DltNTh).AND.iOpt.ge.2))
      &       .OR.EmConv
      &      ) Then
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
             If(Aufb) Then
                WarnPocc=.true.
                EmConv=.False.
