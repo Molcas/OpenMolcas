@@ -118,6 +118,7 @@
           call mma_oom(label,bufsize,mma_avail)
         else
 #if _DIMENSIONS_==0
+          if (n0 .eq. 0) call abend()
           allocate(character(len=n0) :: buffer)
 #elif _DIMENSIONS_==1
           allocate(buffer(n1))

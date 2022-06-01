@@ -58,18 +58,19 @@ set (sources
      molcas_open_ext2.F90
      molcas_open.F90
      mpdafile.F90
-     next_non_comment.F90
      prgm.F90
      prgminit.F90
      prgmtranslatec.F90
      prgmtranslate.F90
      prgmtranslate_master.F90
+     text_file.F90
      zip.c
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      prgm.F90
+     text_file.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
