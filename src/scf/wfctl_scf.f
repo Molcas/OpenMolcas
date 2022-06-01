@@ -416,12 +416,17 @@
          If (iOpt.ge.2 .OR.
      &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
      &      Then
-            If (RSRFO) Then
-               iOpt=3
+            If (RSRFO.or.RGEK) Then
+               If (RSRFO) Then
+                  iOpt=3
+               Else
+                  iOpt=4
+               End If
                kOptim=2
             Else
                iOpt=2
             End If
+
             If (QNR1st) Then
 !------        1st QNR step, reset kOptim to 1
 
@@ -543,7 +548,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Case(2,3)
+         Case(2,3,4)
 *                                                                      *
 *           Extrapolation DIIS & QNR
 *
@@ -632,7 +637,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Case(3)
+         Case(3,4)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -664,15 +669,15 @@
                StepMax=Max(StepMax*0.75D0,0.8D-3)
             End If
 
-*#define _NEW_CODE_
-#ifdef _NEW_CODE_
-               Call DIIS_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),
-     &                                               AccCon(9:9))
-#else
+            Select Case(iOpt)
+            Case(3)
                dqHdq=Zero
                Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                         dqHdq,StepMax,AccCon(9:9))
-#endif
+            Case(4)
+               Call DIIS_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),
+     &                                               AccCon(9:9))
+            End Select
 
 *           Pick up X(n) and compute X(n+1)=X(n)+dX(n)
 

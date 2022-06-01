@@ -300,6 +300,7 @@
       If (Line(1:4).eq.'C1DI') Go To 3600
       If (Line(1:4).eq.'QUAD') Go To 3700
       If (Line(1:4).eq.'RS-R') Go To 3750
+      If (Line(1:4).eq.'R-GE') Go To 3751
       If (Line(1:4).eq.'SCRA') Go To 3800
       If (Line(1:4).eq.'EXTR') Go To 3900
       If (Line(1:4).eq.'RFPE') Go To 4000
@@ -860,6 +861,13 @@ c      End If
 *>>>>>>>>>>>>> RS-R <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3750 Continue
       RSRFO = .True.
+      RGEK  = .False.
+      GoTo 1000
+*
+*>>>>>>>>>>>>> R-GE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 3751 Continue
+      RGEK  = .True.
+      RSRFO = .False.
       GoTo 1000
 *
 *>>>>>>>>>>>>> SCRA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

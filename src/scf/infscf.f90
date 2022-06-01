@@ -256,7 +256,8 @@ Logical FrstDs,FrstDa,DSCF,lRel,                                        &
         Damping,Diis,One_Grid,DoCholesky,DDnOFF,Two_Thresholds,         &
         PmTime,EmConv,WarnCfg,DoHLgap,AddFragments,WarnPocc,            &
         DoFMM,LKon,OnlyProp,DoLDF,NoExchange,WarnSlow,NoProp,           &
-        FckAuf,Falcon,RSRFO
+        FckAuf,Falcon
+Logical :: RSRFO=.False., RGEK=.False.
 
 Integer iStatPRN
 End Module InfSCF
