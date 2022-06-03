@@ -19,8 +19,9 @@ use Constants, only: Zero, One, Two, Three, Five, Twelve, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NT, NRYS
-real(kind=wp) :: TARR(NT), U2(NRYS,NT), WGH(NRYS,NT)
+integer(kind=iwp), intent(in) :: NT, NRYS
+real(kind=wp), intent(in) :: TARR(NT)
+real(kind=wp), intent(out) :: U2(NRYS,NT), WGH(NRYS,NT)
 integer(kind=iwp) :: IDEG, iroot, IT, J, k, nx
 real(kind=wp) :: a2, a3, a4, a5, a6, b1, b2, b3, b4, b5, BK, c1, c2, c3, c4, c5, c6, corr, DELTA, p, R, R1, R2, RSUM, T, tmp, x1, &
                  x2, x3, xn, Z, ZZ

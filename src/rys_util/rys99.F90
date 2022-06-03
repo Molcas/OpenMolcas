@@ -23,10 +23,11 @@ use Constants, only: One, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nArg, nPntr, iPntr(nPntr), nMax
-real(kind=wp) :: Arg(nArg), Root(9,nArg), Weight(9,nArg), x0(nMax), R6(nMax,9), R5(nMax,9), R4(nMax,9), R3(nMax,9), R2(nMax,9), &
-                 R1(nMax,9), R0(nMax,9), W6(nMax,9), W5(nMax,9), W4(nMax,9), W3(nMax,9), W2(nMax,9), W1(nMax,9), W0(nMax,9), ddx, &
-                 HerW(9), HerR2(9), TMax
+integer(kind=iwp), intent(in) :: nArg, nPntr, iPntr(nPntr), nMax
+real(kind=wp), intent(in) :: Arg(nArg), x0(nMax), R6(nMax,9), R5(nMax,9), R4(nMax,9), R3(nMax,9), R2(nMax,9), R1(nMax,9), &
+                             R0(nMax,9), W6(nMax,9), W5(nMax,9), W4(nMax,9), W3(nMax,9), W2(nMax,9), W1(nMax,9), W0(nMax,9), ddx, &
+                             HerW(9), HerR2(9), TMax
+real(kind=wp), intent(out) :: Root(9,nArg), Weight(9,nArg)
 integer(kind=iwp) :: iArg, n
 real(kind=wp) :: ai, dddx, si, xdInv, z
 

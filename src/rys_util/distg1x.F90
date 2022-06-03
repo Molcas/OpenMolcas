@@ -30,9 +30,10 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nT, mPAO, mVec, nGrad, IndGrd(3,4), iStab(4), kOp(4)
-real(kind=wp) :: g1(nT,mPAO,mVec), PAO(nT,mPAO), Grad(nGrad)
-logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp), intent(in) :: nT, mPAO, mVec, nGrad, IndGrd(3,4), iStab(4), kOp(4)
+real(kind=wp), intent(in) :: g1(nT,mPAO,mVec), PAO(nT,mPAO)
+real(kind=wp), intent(inout) :: Grad(nGrad)
+logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp) :: iCar, iCent, iCn, iGrad, ij, jCn, kl, nVec
 real(kind=wp) :: Fact, PAOg1(12), ps, Temp(9)
 #ifdef _DEBUGPRINT_

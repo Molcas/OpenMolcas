@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine RysEF0(Ixy4D,Iz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin, &
-                  nzeMax,nzfMin,nzfMax)
+subroutine RysEF0(Ixy4D,Iz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
+                  nzfMin,nzfMax)
 !***********************************************************************
 !                                                                      *
 !     Object: kernel routine to assemble the integrals from the Ixy    *
@@ -29,9 +29,10 @@ use Index_Functions, only: C3_Ind
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, ixye, ixyf, nzeMin, nzeMax, nzfMin, &
-                     nzfMax
-real(kind=wp) :: Ixy4D(nRys,mArg), Iz2D(nRys,mArg,3,0:neMax,0:nfMax), EFInt(nArg,meMin:meMax,mfMin:mfMax), PreFct(mArg)
+integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, ixye, ixyf, nzeMin, nzeMax, &
+                                 nzfMin, nzfMax
+real(kind=wp), intent(in) :: Ixy4D(nRys,mArg), Iz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
+real(kind=wp), intent(inout) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
 integer(kind=iwp) :: iArg, Inde, Indf, iRys, ize, izf
 
 select case (nRys)

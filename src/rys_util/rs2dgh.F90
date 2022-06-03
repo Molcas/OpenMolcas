@@ -28,12 +28,14 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, nIrrep, IndHss(4,3,4,3,0:nIrrep-1), IndGrd(3,4,0:nIrrep-1), nZeta, nEta, &
-                     Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), ng(3), nh(3), mZeta, mEta
-real(kind=wp) :: xyz2D0(nRys*nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), &
-                 xyz2D2(nRys*nT,0:la,0:lb,0:lc,0:ld,3,6), Coora(3,4), Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), &
-                 Scrtch(nRys*nT), Scrtch2(nRys*nT), Temp(nT)
-logical(kind=iwp) :: IfHss(4,3,4,3), IfGrad(3,4), IfG(4), Tr(4)
+integer(kind=iwp), intent(in) :: nT, nRys, la, lb, lc, ld, nZeta, nEta, mZeta, mEta, nIrrep
+real(kind=wp), intent(in) :: xyz2D0(nRys*nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), Coora(3,4), Alpha(nZeta), Beta(nZeta), Gmma(nEta), &
+                             Delta(nEta)
+real(kind=wp), intent(out) :: xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), xyz2D2(nRys*nT,0:la,0:lb,0:lc,0:ld,3,6), Scrtch(nRys*nT), &
+                              Scrtch2(nRys*nT), Temp(nT)
+logical(kind=iwp), intent(inout) :: IfHss(4,3,4,3), IfGrad(3,4), IfG(4), Tr(4)
+integer(kind=iwp), intent(inout) :: IndHss(4,3,4,3,0:nIrrep-1), IndGrd(3,4,0:nIrrep-1)
+integer(kind=iwp), intent(out) :: Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), ng(3), nh(3)
 external :: ExpX, ExpY
 integer(kind=iwp) :: i, i1, i2, i3, i4, i5, ia, ib, ic, iCar, iCent, id, iIrrep, Ind1(3), Ind2(3), Ind3(3), Ind4(3), iVec, j4, j5, &
                      jCar, jCent, kCar, kCent, mvec, mx, my, mz, n, nVec, nvecx, nx, ny, nz
@@ -189,9 +191,9 @@ if (IfG(2)) then
   call ExpX(Temp,mZeta,mEta,Beta,sqrt(Two))
   call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
 end if
-if (IfG(2) .and. Ifg(1)) then
+if (IfG(2) .and. IfG(1)) then
   nVec = 0
-  if (ifHss(2,1,1,1)) then
+  if (IfHss(2,1,1,1)) then
     mx = mx+1
     nVec = nVec+1
     Ind1(nvec) = mx
@@ -200,7 +202,7 @@ if (IfG(2) .and. Ifg(1)) then
     Index4(1,mx,1) = 2
     Index4(2,mx,1) = 1
   end if
-  if (ifHss(2,2,1,2)) then
+  if (IfHss(2,2,1,2)) then
     my = my+1
     nVec = nVec+1
     Ind1(nvec) = my
@@ -209,7 +211,7 @@ if (IfG(2) .and. Ifg(1)) then
     Index4(1,my,2) = 2
     Index4(2,my,2) = 1
   end if
-  if (ifHss(2,3,1,3)) then
+  if (IfHss(2,3,1,3)) then
     mz = mz+1
     nVec = nVec+1
     Ind1(nvec) = mz
@@ -434,7 +436,7 @@ if (IfG(2) .and. IfG(3)) then
   call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nVec = 0
-  if (ifHss(3,1,2,1)) then
+  if (IfHss(3,1,2,1)) then
     mx = mx+1
     nVec = nVec+1
     Ind1(nvec) = mx
@@ -443,7 +445,7 @@ if (IfG(2) .and. IfG(3)) then
     Index4(1,mx,1) = 3
     Index4(2,mx,1) = 2
   end if
-  if (ifHss(3,2,2,2)) then
+  if (IfHss(3,2,2,2)) then
     my = my+1
     nVec = nVec+1
     Ind1(nvec) = my
@@ -452,7 +454,7 @@ if (IfG(2) .and. IfG(3)) then
     Index4(1,my,2) = 3
     Index4(2,my,2) = 2
   end if
-  if (ifHss(3,3,2,3)) then
+  if (IfHss(3,3,2,3)) then
     mz = mz+1
     nVec = nVec+1
     Ind1(nvec) = mz
@@ -659,7 +661,7 @@ if (IfG(3)) then
             Fact = rc*rc-rc
             do ib=0,lb
               do ia=0,la
-                call DaXpY_inline(nt*nrys,Fact,xyz2D0(1,ia,ib,ic-2,id,Ind4(n)),xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)))
+                call DaXpY_inline(nRys*nT,Fact,xyz2D0(1,ia,ib,ic-2,id,Ind4(n)),xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)))
               end do
             end do
           end do
@@ -677,7 +679,7 @@ if (IfG(1) .and. IfG(3)) then
   call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nVec = 0
-  if (ifHss(3,1,1,1)) then
+  if (IfHss(3,1,1,1)) then
     mx = mx+1
     nVec = nVec+1
     Ind1(nvec) = mx
@@ -686,7 +688,7 @@ if (IfG(1) .and. IfG(3)) then
     Index4(2,mx,1) = 1
     Index2(1,3,1) = mx
   end if
-  if (ifHss(3,2,1,2)) then
+  if (IfHss(3,2,1,2)) then
     my = my+1
     nVec = nVec+1
     Ind1(nvec) = my
@@ -695,7 +697,7 @@ if (IfG(1) .and. IfG(3)) then
     Index4(2,my,2) = 1
     Index2(2,3,1) = my
   end if
-  if (ifHss(3,3,1,3)) then
+  if (IfHss(3,3,1,3)) then
     mz = mz+1
     nVec = nVec+1
     Ind1(nvec) = mz
@@ -768,7 +770,7 @@ if (IfG(1) .and. IfG(3)) then
               do ia=1,la
                 ra = ra+One
                 Fact = rc*ra
-                call DaXpy_inline(nt*nrys,Fact,xyz2D0(1,ia-1,ib,ic-1,id,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
+                call DaXpy_inline(nRys*nT,Fact,xyz2D0(1,ia-1,ib,ic-1,id,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -787,7 +789,7 @@ if (IfG(4)) then
     call ExpX(Temp,mZeta,mEta,Alpha,sqrt(Two))
     call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
     nVec = 0
-    if (ifHss(4,1,1,1)) then
+    if (IfHss(4,1,1,1)) then
       mx = mx+1
       nVec = nVec+1
       Ind1(nvec) = mx
@@ -796,7 +798,7 @@ if (IfG(4)) then
       Index4(1,mx,1) = 4
       Index4(2,mx,1) = 1
     end if
-    if (ifHss(4,2,1,2)) then
+    if (IfHss(4,2,1,2)) then
       my = my+1
       nVec = nVec+1
       Ind1(nvec) = my
@@ -805,7 +807,7 @@ if (IfG(4)) then
       Index4(1,my,2) = 4
       Index4(2,my,2) = 1
     end if
-    if (ifHss(4,3,1,3)) then
+    if (IfHss(4,3,1,3)) then
       mz = mz+1
       nVec = nVec+1
       Ind1(nvec) = mz
@@ -894,11 +896,11 @@ if (IfG(4)) then
 
   ! Cross terms between 2 4
 
-  if (IfG(2) .and. Ifg(4)) then
+  if (IfG(2) .and. IfG(4)) then
     call ExpX(Temp,mZeta,mEta,Beta,sqrt(Two))
     call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
     nVec = 0
-    if (ifHss(4,1,2,1)) then
+    if (IfHss(4,1,2,1)) then
       mx = mx+1
       nVec = nVec+1
       Ind1(nvec) = mx
@@ -907,7 +909,7 @@ if (IfG(4)) then
       Index4(1,mx,1) = 4
       Index4(2,mx,1) = 2
     end if
-    if (ifHss(4,2,2,2)) then
+    if (IfHss(4,2,2,2)) then
       my = my+1
       nVec = nVec+1
       Ind1(nvec) = my
@@ -916,7 +918,7 @@ if (IfG(4)) then
       Index4(1,my,2) = 4
       Index4(2,my,2) = 2
     end if
-    if (ifHss(4,3,2,3)) then
+    if (IfHss(4,3,2,3)) then
       mz = mz+1
       nVec = nVec+1
       Ind1(nvec) = mz
@@ -993,7 +995,7 @@ if (IfG(4)) then
                 rb = rb+One
                 do ia=0,la
                   Fact = rb*rd
-                  call DaxPy_inline(nt*nrys,Fact,xyz2D0(1,ia,ib-1,ic,id-1,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
+                  call DaxPy_inline(nRys*nT,Fact,xyz2D0(1,ia,ib-1,ic,id-1,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
                 end do
               end do
             end do
@@ -1009,7 +1011,7 @@ if (IfG(4)) then
     call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
     call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
     nVec = 0
-    if (ifHss(4,1,3,1)) then
+    if (IfHss(4,1,3,1)) then
       mx = mx+1
       nVec = nVec+1
       Ind1(nvec) = mx
@@ -1018,7 +1020,7 @@ if (IfG(4)) then
       Index4(1,mx,1) = 4
       Index4(2,mx,1) = 3
     end if
-    if (ifHss(4,2,3,2)) then
+    if (IfHss(4,2,3,2)) then
       my = my+1
       nVec = nVec+1
       Ind1(nvec) = my
@@ -1028,7 +1030,7 @@ if (IfG(4)) then
       Index4(2,my,2) = 3
 
     end if
-    if (ifHss(4,3,3,3)) then
+    if (IfHss(4,3,3,3)) then
       mz = mz+1
       nVec = nVec+1
       Ind1(nvec) = mz
@@ -1104,7 +1106,7 @@ if (IfG(4)) then
               do ib=0,lb
                 do ia=0,la
                   Fact = rc*rd
-                  call DaxPy_inline(nt*nRys,fact,xyz2D0(1,ia,ib,ic-1,id-1,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
+                  call DaxPy_inline(nRys*nT,Fact,xyz2D0(1,ia,ib,ic-1,id-1,Ind2(n)),xyz2D2(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
                 end do
               end do
             end do
@@ -1219,7 +1221,7 @@ if (IfG(4)) then
           do ic=0,lc
             do ib=0,lb
               do ia=0,la
-                call Daxpy_inline(nt*nrys,-rd,xyz2D0(1,ia,ib,ic,id-1,Ind2(n)),xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
+                call Daxpy_inline(nRys*nT,-rd,xyz2D0(1,ia,ib,ic,id-1,Ind2(n)),xyz2D1(1,ia,ib,ic,id,Ind2(n),Ind1(n)))
               end do
             end do
           end do
@@ -1235,7 +1237,7 @@ if (IfG(4)) then
           do ic=0,lc
             do ib=0,lb
               do ia=0,la
-                call Daxpy_inline(nt*nrys,Fact,xyz2D0(1,ia,ib,ic,id-2,Ind4(n)),xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)))
+                call Daxpy_inline(nRys*nT,Fact,xyz2D0(1,ia,ib,ic,id-2,Ind4(n)),xyz2D2(1,ia,ib,ic,id,Ind4(n),Ind3(n)))
               end do
             end do
           end do
@@ -1265,12 +1267,12 @@ do iCent=1,3
             if (IfHss(jCent,iCar,iCent,iCar) .and. IfHss(iCent,iCar,iCent,iCar)) then
               call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),Two,xyz2D2(1,0,0,0,0,iCar,i3),xyz2D2(1,0,0,0,0,iCar,i1))
             end if
-            if ((j4 /= 0) .and. (j5 /= 0) .and. ifgrad(iCar,iCent) .and. ifgrad(iCar,jCent)) &
+            if ((j4 /= 0) .and. (j5 /= 0) .and. IfGrad(iCar,iCent) .and. IfGrad(iCar,jCent)) &
               call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D1(1,0,0,0,0,iCar,j4),xyz2D1(1,0,0,0,0,iCar,j5))
             do kCent=1,4
               if (IfG(kCent)) then
                 if ((kcent /= iCent) .and. (kcent /= jCent)) then
-                  if (ifHss(kCent,iCar,jCent,iCar) .or. ifHss(jCent,iCar,kCent,iCar)) then
+                  if (IfHss(kCent,iCar,jCent,iCar) .or. IfHss(jCent,iCar,kCent,iCar)) then
                     i4 = Index2(iCar,max(kCent,jCent),min(jCent,kCent))
                     i5 = Index2(iCar,max(kCent,iCent),min(iCent,kCent))
                     call DaXpY_inline(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D2(1,0,0,0,0,iCar,i4),xyz2D2(1,0,0,0,0,iCar,i5))
@@ -1283,9 +1285,9 @@ do iCent=1,3
           IfG(jCent) = .false.
           Tr(jCent) = .false.
           do jCar=1,3
-            IfGrad(jcar,jCent) = .false.
+            IfGrad(jCar,jCent) = .false.
             do iIrrep=0,nIrrep-1
-              IndGrd(jCar,jcent,iIrrep) = 0
+              IndGrd(jCar,jCent,iIrrep) = 0
             end do
             do kCent=1,4
               do kCar=1,3
@@ -1318,12 +1320,14 @@ end subroutine Rs2Dgh
 
 subroutine Daxpy_inline(nt,r,A,B)
 
-implicit real*8(A-H,O-Z)
-real*8 A(*), B(*)
+use Definitions, only: wp, iwp
 
-do i=1,nt
-  B(i) = B(i)+r*A(i)
-end do
+implicit none
+integer(kind=iwp), intent(in) :: nt
+real(kind=wp), intent(in) :: r, A(nt)
+real(kind=wp), intent(inout) :: B(nt)
+
+B(:) = B+r*A
 
 return
 

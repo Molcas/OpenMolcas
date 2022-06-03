@@ -30,8 +30,10 @@ use Gateway_global, only: asymptotic_Rys
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: la, lb, lc, ld, nArg, nRys
-real(kind=wp) :: Arg(nArg), Root(nRys,nArg), Weight(nRys,nArg)
+integer(kind=iwp), intent(in) :: la, lb, lc, ld, nArg, nRys
+real(kind=wp), intent(in) :: Arg(nArg)
+real(kind=wp), intent(inout) :: Root(nRys,nArg)
+real(kind=wp), intent(out) :: Weight(nRys,nArg)
 integer(kind=iwp) :: labcd
 real(kind=wp) :: Tmax_
 

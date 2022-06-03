@@ -23,9 +23,11 @@ subroutine HrrCtl(Arr1,nArr1,Arr2,nArr2,la,lb,lc,ld,nabMax,ncdMax,nTR,A,B,C,D,If
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nArr1, nArr2, la, lb, lc, ld, nabMax, ncdMax, nTR
-real(kind=wp) :: Arr1(nTR,3*nArr1), Arr2(nTR,3*nArr2), A(3), B(3), C(3), D(3)
-logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp), intent(in) :: nArr1, nArr2, la, lb, lc, ld, nabMax, ncdMax, nTR
+real(kind=wp), intent(inout) :: Arr1(nTR,3*nArr1)
+real(kind=wp), intent(out) :: Arr2(nTR,3*nArr2)
+real(kind=wp), intent(in) :: A(3), B(3), C(3), D(3)
+logical(kind=iwp), intent(in) :: IfGrad(3,4)
 
 call Hrr2Da(Arr1,nTR,nabMax,ncdMax,Arr2,A,B,la,lb,lc,ld,IfGrad)
 

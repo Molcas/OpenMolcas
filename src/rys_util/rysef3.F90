@@ -28,8 +28,9 @@ use Index_Functions, only: C3_Ind
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, ixye, ixyf, nzeMax, nzfMax
-real(kind=wp) :: Ixy4D(nRys,mArg), Iz2D(nRys,mArg,3,0:neMax,0:nfMax), EFInt(nArg,meMin:meMax,mfMin:mfMax), PreFct(mArg)
+integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, ixye, ixyf, nzeMax, nzfMax
+real(kind=wp), intent(in) :: Ixy4D(nRys,mArg), Iz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
+real(kind=wp), intent(inout) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
 integer(kind=iwp) :: iArg, Inde, Indf, iRys, ize, izf
 
 izf = nzfMax

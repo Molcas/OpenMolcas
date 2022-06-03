@@ -31,12 +31,12 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nArg, lRys, nabMax, ncdMax, la, lb, lc, ld
-real(kind=wp) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax), PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys,3), B00(nArg*lRys,3), &
-                 B01(nArg*lRys,3)
-logical(kind=iwp) :: IfHss(4,3,4,3), IfGrd(3,4)
+integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax, la, lb, lc, ld
+real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
+real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys,3), B00(nArg*lRys,3), B01(nArg*lRys,3)
+logical(kind=iwp), intent(in) :: IfHss(4,3,4,3), IfGrd(3,4)
 integer(kind=iwp) :: i, iab, iCar, icd, llab, llcd, mabMax, mcdMax
-real(kind=wp) :: Fac1, Fac2, Fact, temp1, temp2, temp3
+real(kind=wp) :: Fac1, Fac2, Fact
 
 !iRout = 15
 !iPrint = nPrint(iRout)
@@ -79,9 +79,7 @@ do iCar=1,3
     Fact = One
     do iab=1,mabMax-1
       do i=1,nArg*lRys
-        temp1 = PAWP(i,iCar)*xyz2D(i,iCar,iab,0)
-        temp2 = Fact*B10(i,iCar)*xyz2D(i,iCar,iab-1,0)
-        xyz2D(i,iCar,iab+1,0) = temp1+temp2
+        xyz2D(i,iCar,iab+1,0) = PAWP(i,iCar)*xyz2D(i,iCar,iab,0)+Fact*B10(i,iCar)*xyz2D(i,iCar,iab-1,0)
       end do
       Fact = Fact+One
     end do
@@ -102,9 +100,7 @@ do iCar=1,3
     Fact = One
     do icd=1,mcdMax-1
       do i=1,nArg*lRys
-        temp1 = QCWQ(i,iCar)*xyz2D(i,iCar,0,icd)
-        temp2 = Fact*B01(i,iCar)*xyz2D(i,iCar,0,icd-1)
-        xyz2D(i,iCar,0,icd+1) = temp1+temp2
+        xyz2D(i,iCar,0,icd+1) = QCWQ(i,iCar)*xyz2D(i,iCar,0,icd)+Fact*B01(i,iCar)*xyz2D(i,iCar,0,icd-1)
       end do
       Fact = Fact+One
     end do
@@ -127,10 +123,8 @@ do iCar=1,3
         Fac2 = One
         do iab=1,mabMax-1
           do i=1,nArg*lRys
-            temp1 = PAWP(i,iCar)*xyz2D(i,iCar,iab,icd)
-            temp2 = Fac2*B10(i,iCar)*xyz2D(i,iCar,iab-1,icd)
-            temp3 = Fac1*B00(i,iCar)*xyz2D(i,iCar,iab,icd-1)
-            xyz2D(i,iCar,iab+1,icd) = temp1+temp2+temp3
+            xyz2D(i,iCar,iab+1,icd) = PAWP(i,iCar)*xyz2D(i,iCar,iab,icd)+Fac2*B10(i,iCar)*xyz2D(i,iCar,iab-1,icd)+ &
+                                      Fac1*B00(i,iCar)*xyz2D(i,iCar,iab,icd-1)
           end do
           Fac2 = Fac2+One
         end do
@@ -152,10 +146,8 @@ do iCar=1,3
         Fac2 = One
         do icd=1,mcdMax-1
           do i=1,nArg*lRys
-            temp1 = QCWQ(i,iCar)*xyz2D(i,iCar,iab,icd)
-            temp2 = Fac2*B01(i,iCar)*xyz2D(i,iCar,iab,icd-1)
-            temp3 = Fac1*B00(i,iCar)*xyz2D(i,iCar,iab-1,icd)
-            xyz2D(i,iCar,iab,icd+1) = temp1+temp2+temp3
+            xyz2D(i,iCar,iab,icd+1) = QCWQ(i,iCar)*xyz2D(i,iCar,iab,icd)+Fac2*B01(i,iCar)*xyz2D(i,iCar,iab,icd-1)+ &
+                                      Fac1*B00(i,iCar)*xyz2D(i,iCar,iab-1,icd)
           end do
           Fac2 = Fac2+One
         end do

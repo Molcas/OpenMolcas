@@ -29,10 +29,10 @@ use Constants, only: Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
-real(kind=wp) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT), PAQP(nRys,nT,3), &
-                 QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
-integer(kind=iwp) :: iCar, iRys, iT
+integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
+real(kind=wp), intent(in) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT)
+real(kind=wp), intent(inout) :: PAQP(nRys,nT,3), QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
+integer(kind=iwp) :: iCar, iRys, iT, nabMax_, ncdMax_
 logical(kind=iwp) :: AeqB, CeqD
 logical(kind=iwp), external :: EQ
 
@@ -51,36 +51,36 @@ call RecPrt(' In XCff2D: Q',' ',Q,nT,3)
 AeqB = EQ(Coori(1,1),Coori(1,2))
 CeqD = EQ(Coori(1,3),Coori(1,4))
 
-nabMax = la+lb
-ncdMax = ld+lc
+nabMax_ = la+lb
+ncdMax_ = ld+lc
 
 ! Compute B10, B00, and B01
 
-if (nabMax > 1) then
+if (nabMax_ > 1) then
   do iT=1,nT
     do iRys=1,nRys
       B10(iRys,iT,1) = (Half-Half*U2(iRys,iT))*ZInv(iT)
     end do
   end do
-  call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,2),1)
-  call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,3),1)
+  call dcopy_(nRys*nT,B10(:,:,1),1,B10(:,:,2),1)
+  call dcopy_(nRys*nT,B10(:,:,1),1,B10(:,:,3),1)
 end if
 if (lac /= 0) then
-  call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,1),1)
-  call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,2),1)
-  call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,3),1)
+  call dcopy_(nRys*nT,U2,1,B00(:,:,1),1)
+  call dcopy_(nRys*nT,U2,1,B00(:,:,2),1)
+  call dcopy_(nRys*nT,U2,1,B00(:,:,3),1)
 end if
-if (ncdMax > 1) then
+if (ncdMax_ > 1) then
   do iT=1,nT
     do iRys=1,nRys
       B01(iRys,iT,1) = Two*Zeta(iT)*U2(iRys,iT)
     end do
   end do
-  call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,2),1)
-  call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,3),1)
+  call dcopy_(nRys*nT,B01(:,:,1),1,B01(:,:,2),1)
+  call dcopy_(nRys*nT,B01(:,:,1),1,B01(:,:,3),1)
 end if
 
-if ((nabMax /= 0) .and. (ncdMax /= 0)) then
+if ((nabMax_ /= 0) .and. (ncdMax_ /= 0)) then
   if ((.not. AeqB) .and. CeqD) then
     do iCar=1,3
       do iT=1,nT
@@ -100,7 +100,7 @@ if ((nabMax /= 0) .and. (ncdMax /= 0)) then
       end do
     end do
   end if
-else if (nabMax /= 0) then
+else if (nabMax_ /= 0) then
   if (.not. AeqB) then
     do iCar=1,3
       do iT=1,nT
@@ -118,7 +118,7 @@ else if (nabMax /= 0) then
       end do
     end do
   end if
-else if (ncdMax /= 0) then
+else if (ncdMax_ /= 0) then
   do iCar=1,3
     do iT=1,nT
       do iRys=1,nRys
@@ -138,7 +138,7 @@ if (lc+ld > 0) then
   call RecPrt(' QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
   call RecPrt(' QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
 end if
-if (nabMax /= 0) then
+if (nabMax_ /= 0) then
   call RecPrt(' B10(x)',' ',B10(:,:,1),nRys,nT)
   call RecPrt(' B10(y)',' ',B10(:,:,2),nRys,nT)
   call RecPrt(' B10(z)',' ',B10(:,:,3),nRys,nT)
@@ -148,7 +148,7 @@ if (lac /= 0) then
   call RecPrt(' B00(y)',' ',B00(:,:,2),nRys,nT)
   call RecPrt(' B00(z)',' ',B00(:,:,3),nRys,nT)
 end if
-if (ncdMax /= 0) then
+if (ncdMax_ /= 0) then
   call RecPrt(' B01(x)',' ',B01(:,:,1),nRys,nT)
   call RecPrt(' B01(y)',' ',B01(:,:,2),nRys,nT)
   call RecPrt(' B01(z)',' ',B01(:,:,3),nRys,nT)

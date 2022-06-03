@@ -27,10 +27,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, Index1(3,3), Index2(2,6,3), ng(3), nh(3)
-real(kind=wp) :: g2(78), xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9), &
-                 xyz2D2(nRys,nT,0:la,0:lb,0:lc,0:ld,18), PAO(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nTri_Elem1(ld))
-logical(kind=iwp) :: IfHss(4,3,4,3)
+real(kind=wp), intent(out) :: g2(78)
+integer(kind=iwp), intent(in) :: nT, nRys, la, lb, lc, ld, Index1(3,3), Index2(2,6,3), ng(3), nh(3)
+real(kind=wp), intent(in) :: xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9), &
+                             xyz2D2(nRys,nT,0:la,0:lb,0:lc,0:ld,18), &
+                             PAO(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nTri_Elem1(ld))
+logical(kind=iwp), intent(in) :: IfHss(4,3,4,3)
 #include "itmax.fh"
 integer(kind=iwp) :: I, ia1, ia2, ia3, ib1, ib2, ib3, ic1, ic2, ic3, iCar, iCent, icir(3), id1, id2, id3, iDer, ipa, ipb, ipc, &
                      ipd, iRys, it, ix1, ix2, jCar, jCent, jDer, kCar

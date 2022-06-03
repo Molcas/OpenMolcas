@@ -15,9 +15,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nt, nrys
-real(kind=wp) :: D1(nRys,nt), D2(nRys,nt), PAO(nt), tmp1_, tmp2_
-integer(kind=iwp) :: iRys, it
+integer(kind=iwp), intent(in) :: nt, nrys
+real(kind=wp), intent(in) :: D1(nRys,nt), D2(nRys,nt), PAO(nt)
+real(kind=wp), intent(inout) :: tmp1_, tmp2_
+integer(kind=iwp) :: iRys, iT
 real(kind=wp) :: tmp1, tmp2
 
 tmp1 = Zero
@@ -26,64 +27,64 @@ tmp2 = Zero
 select case (nRys)
 
   case (1)
-    do it=1,nt
+    do iT=1,nt
       tmp1 = tmp1+PAO(iT)*D1(1,iT)
       tmp2 = tmp2+PAO(iT)*D2(1,iT)
     end do
 
   case (2)
-    do it=1,nt
-      tmp1 = tmp1+(D1(1,iT)+D1(2,iT))*PAO(It)
-      tmp2 = tmp2+(D2(1,iT)+D2(2,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+(D1(1,iT)+D1(2,iT))*PAO(iT)
+      tmp2 = tmp2+(D2(1,iT)+D2(2,iT))*PAO(iT)
     end do
 
   case (3)
-    do it=1,nt
-      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT))*PAO(It)
-      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT))*PAO(iT)
+      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT))*PAO(iT)
     end do
 
   case (4)
-    do it=1,nt
-      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT))*PAO(It)
-      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT))*PAO(iT)
+      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT))*PAO(iT)
     end do
 
   case (5)
-    do it=1,nt
-      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT))*PAO(It)
-      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT))*PAO(iT)
+      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT))*PAO(iT)
     end do
 
   case (6)
-    do it=1,nt
-      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT)+D1(6,iT))*PAO(It)
-      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT)+D2(6,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT)+D1(6,iT))*PAO(iT)
+      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT)+D2(6,iT))*PAO(iT)
     end do
 
   case (7)
-    do it=1,nt
-      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT)+D1(6,iT)+D1(7,iT))*PAO(It)
-      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT)+D2(6,iT)+D2(7,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT)+D1(6,iT)+D1(7,iT))*PAO(iT)
+      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT)+D2(6,iT)+D2(7,iT))*PAO(iT)
     end do
 
   case (8)
-    do it=1,nt
-      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT)+D1(6,iT)+D1(7,iT)+D1(8,iT))*PAO(It)
-      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT)+D2(6,iT)+D2(7,iT)+D2(8,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT)+D1(6,iT)+D1(7,iT)+D1(8,iT))*PAO(iT)
+      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT)+D2(6,iT)+D2(7,iT)+D2(8,iT))*PAO(iT)
     end do
 
   case (9)
-    do it=1,nt
-      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT)+D1(6,iT)+D1(7,iT)+D1(8,iT)+D1(9,iT))*PAO(It)
-      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT)+D2(6,iT)+D2(7,iT)+D2(8,iT)+D2(9,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+(D1(1,iT)+D1(2,iT)+D1(3,iT)+D1(4,iT)+D1(5,iT)+D1(6,iT)+D1(7,iT)+D1(8,iT)+D1(9,iT))*PAO(iT)
+      tmp2 = tmp2+(D2(1,iT)+D2(2,iT)+D2(3,iT)+D2(4,iT)+D2(5,iT)+D2(6,iT)+D2(7,iT)+D2(8,iT)+D2(9,iT))*PAO(iT)
     end do
 
   case default
-    do iT=1,nT
+    do iT=1,nt
       do iRys=1,nRys
-        tmp1 = tmp1+PAO(It)*D1(iRys,iT)
-        tmp2 = tmp2+PAO(It)*D2(iRys,iT)
+        tmp1 = tmp1+PAO(iT)*D1(iRys,iT)
+        tmp2 = tmp2+PAO(iT)*D2(iRys,iT)
       end do
     end do
 

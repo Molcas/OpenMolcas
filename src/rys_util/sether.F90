@@ -15,8 +15,8 @@
 subroutine SetHer(nDiff)
 !***********************************************************************
 !                                                                      *
-! Object: to setup the roots and weights of the Hermite polynomials    *
-!         for the evaluation of one electron integrals.                *
+! Object: to set up the roots and weights of the Hermite polynomials   *
+!         for the evaluation of one-electron integrals.                *
 !                                                                      *
 !    Authors: Per-AAke Malmqvist and Roland Lindh,                     *
 !             March 1992.                                              *
@@ -33,14 +33,14 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nDiff
+integer(kind=iwp), intent(in) :: nDiff
 integer(kind=iwp) :: i_0000, i_1111, i_2222, i_3333, IDEG, IDH, iHer, IR, IROOT, IW, j, j_0000, j_1111, j_2222, j_3333, K, n_1111, &
                      n_2222, nMem
 real(kind=wp) :: Alpha, B, b_1111, c_0000, CORR, DELTA, HDER, R, RSUM, W, w_1111, w_2222, w_3333, w_4444, w_5555, X, Z
 real(kind=wp), allocatable :: Beta(:), BInv(:), Herm(:)
 
 ! 1) Hermite-Gauss
-! 2) Rys-Gauss (asymtotic formula)
+! 2) Rys-Gauss (asymptotic formula)
 
 n_1111 = (2*S%iAngMx+nPrp+2+nDiff)/2
 n_2222 = 4*S%iAngMx+2+nDiff

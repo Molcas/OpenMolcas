@@ -30,8 +30,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nT, IsChi
-real(kind=wp) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), T(nT), Fact(nT), ZEInv(nT), ChiI2
+integer(kind=iwp), intent(in) :: nT, IsChi
+real(kind=wp), intent(in) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), rKapab(nT), rKapcd(nT), ChiI2
+real(kind=wp), intent(out) :: T(nT), Fact(nT), ZEInv(nT)
 integer(kind=iwp) :: iT
 real(kind=wp) :: PQ2, Rho, tmp
 

@@ -32,9 +32,9 @@ use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nArg, lRys, nabMax, ncdMax
-real(kind=wp) :: xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax), PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys), B00(nArg*lRys), &
-                 B01(nArg*lRys)
+integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
+real(kind=wp), intent(inout) :: xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax)
+real(kind=wp), intent(in) :: PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys), B00(nArg*lRys), B01(nArg*lRys)
 integer(kind=iwp) :: i, iab, icd, iOffy, iOffz
 real(kind=wp) :: Fac1, Fac2, Fact, PAWPx, PAWPy, PAWPz, QCWQx, QCWQy, QCWQz, temp1x, temp1y, temp1z, temp2x, temp2y, temp2z, &
                  temp3x, temp3y, temp3z

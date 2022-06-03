@@ -14,9 +14,9 @@ subroutine Pr2D(xyz2d,nT,nRys,la,lb,lc,ld,IfGrad,iPrint)
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, iPrint
-real(kind=wp) :: xyz2d(nT,nRys,0:la+1,0:lb+1,0:lc+1,0:ld+1,3)
-logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp), intent(in) :: nT, nRys, la, lb, lc, ld, iPrint
+real(kind=wp), intent(in) :: xyz2d(nT,nRys,0:la+1,0:lb+1,0:lc+1,0:ld+1,3)
+logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp) :: ia, ib, ic, iCar, id, ja, jb, jc, jd
 character(len=80) :: Label
 character(len=*), parameter :: ch(3) = [',x)',',y)',',z)']
@@ -51,7 +51,7 @@ do ia=0,la+ja
             call RecPrt(Label,' ',xyz2d(:,:,ia,ib,ic,id,iCar),nT,nRys)
           else
             write(u6,'(A)') Label
-            write(u6,*) DDot_(nT*nRys,xyz2d(1,1,ia,ib,ic,id,iCar),1,xyz2d(1,1,ia,ib,ic,id,iCar),1)
+            write(u6,*) DDot_(nT*nRys,xyz2d(:,:,ia,ib,ic,id,iCar),1,xyz2d(:,:,ia,ib,ic,id,iCar),1)
           end if
         end do
       end do

@@ -29,10 +29,10 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
-real(kind=wp) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT), PAQP(nRys,nT,3), &
-                 QCPQ(nRys,nT,3), B10(nRys,nT), B00(nRys,nT), B01(nRys,nT)
-integer(kind=iwp) :: icar, iRys, iT
+integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
+real(kind=wp), intent(in) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT)
+real(kind=wp), intent(inout) :: PAQP(nRys,nT,3), QCPQ(nRys,nT,3), B10(nRys,nT), B00(nRys,nT), B01(nRys,nT)
+integer(kind=iwp) :: icar, iRys, iT, nabMax_, ncdMax_
 real(kind=wp) :: tmp
 logical(kind=iwp) :: AeqB, CeqD
 !define _DEBUGPRINT_
@@ -62,9 +62,9 @@ PrintB01 = .false.
 PrintB00 = .false.
 #endif
 
-nabMax = la+lb
-ncdMax = lc+ld
-if ((nabMax >= 2) .and. (ncdMax >= 2)) then
+nabMax_ = la+lb
+ncdMax_ = lc+ld
+if ((nabMax_ >= 2) .and. (ncdMax_ >= 2)) then
   do iT=1,nT
     do iRys=1,nRys
       tmp = Half*U2(iRys,iT)
@@ -78,7 +78,7 @@ if ((nabMax >= 2) .and. (ncdMax >= 2)) then
   PrintB01 = .true.
   PrintB00 = .true.
 # endif
-else if ((ncdMax == 0) .and. (nabMax >= 2)) then
+else if ((ncdMax_ == 0) .and. (nabMax_ >= 2)) then
   do iT=1,nT
     do iRys=1,nRys
       B10(iRys,iT) = (Half-Half*U2(iRys,iT)*Eta(iT))*ZInv(iT)
@@ -87,7 +87,7 @@ else if ((ncdMax == 0) .and. (nabMax >= 2)) then
 # ifdef _DEBUGPRINT_
   PrintB10 = .true.
 # endif
-else if ((nabMax == 0) .and. (ncdMax >= 2)) then
+else if ((nabMax_ == 0) .and. (ncdMax_ >= 2)) then
   do iT=1,nT
     do iRys=1,nRys
       B01(iRys,iT) = (Half-Half*U2(iRys,iT)*Zeta(iT))*EInv(iT)
@@ -96,7 +96,7 @@ else if ((nabMax == 0) .and. (ncdMax >= 2)) then
 # ifdef _DEBUGPRINT_
   PrintB01 = .true.
 # endif
-else if ((ncdMax == 1) .and. (nabMax >= 2)) then
+else if ((ncdMax_ == 1) .and. (nabMax_ >= 2)) then
   do iT=1,nT
     do iRys=1,nRys
       tmp = Half*U2(iRys,iT)
@@ -108,7 +108,7 @@ else if ((ncdMax == 1) .and. (nabMax >= 2)) then
   PrintB10 = .true.
   PrintB00 = .true.
 # endif
-else if ((nabMax == 1) .and. (ncdMax >= 2)) then
+else if ((nabMax_ == 1) .and. (ncdMax_ >= 2)) then
   do iT=1,nT
     do iRys=1,nRys
       tmp = Half*U2(iRys,iT)
@@ -120,7 +120,7 @@ else if ((nabMax == 1) .and. (ncdMax >= 2)) then
   PrintB01 = .true.
   PrintB00 = .true.
 # endif
-else if ((nabMax == 1) .and. (ncdMax == 1)) then
+else if ((nabMax_ == 1) .and. (ncdMax_ == 1)) then
   do iT=1,nT
     do iRys=1,nRys
       B00(iRys,iT) = Half*U2(iRys,iT)
@@ -131,7 +131,7 @@ else if ((nabMax == 1) .and. (ncdMax == 1)) then
 # endif
 end if
 
-if ((nabMax /= 0) .and. (ncdMax /= 0)) then
+if ((nabMax_ /= 0) .and. (ncdMax_ /= 0)) then
   if ((.not. AeqB) .and. (.not. CeqD)) then
     do iCar=1,3
       do iT=1,nT
@@ -173,7 +173,7 @@ if ((nabMax /= 0) .and. (ncdMax /= 0)) then
       end do
     end do
   end if
-else if (nabMax /= 0) then
+else if (nabMax_ /= 0) then
   if (.not. AeqB) then
     do iCar=1,3
       do iT=1,nT
@@ -191,7 +191,7 @@ else if (nabMax /= 0) then
       end do
     end do
   end if
-else if (ncdMax /= 0) then
+else if (ncdMax_ /= 0) then
   if (.not. CeqD) then
     do iCar=1,3
       do iT=1,nT

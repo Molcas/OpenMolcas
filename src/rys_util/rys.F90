@@ -42,11 +42,12 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabMax, mcdMin, mcdMax, nArray
-real(kind=wp) :: Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), Q(lQ,3), rKapab(nZeta), rKapcd(nEta), Coori(3,4), &
-                 Coora(3,4), CoorAC(3,2), Array(nArray)
+integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabMax, mcdMin, mcdMax, nArray
+real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), Q(lQ,3), rKapab(nZeta), rKapcd(nEta), &
+                             Coori(3,4), Coora(3,4), CoorAC(3,2)
+real(kind=wp), intent(inout) :: Array(nArray)
 external :: Tvalue, ModU2, Cff2D, Rys2D
-logical(kind=iwp) :: NoSpecial
+logical(kind=iwp), intent(in) :: NoSpecial
 integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, ipAC, ipAC_long, ipB00, ipB01, ipB10, ipDiv, &
                      ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipZeta, &
                      ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabMax, nabMin, ncdMax, ncdMin, nRys, nTR
@@ -128,10 +129,9 @@ select case (ijkl)
     ! (ps|ps)
 
     call psps(Array,Zeta,nZeta,P,lP,rKapAB,Coori(1,1),Coori(1,2),Eta,nEta,Q,lQ,rKapCD,Coori(1,3),Coori(1,4),CoorAC,Tmax(2), &
-                           Map(iMap(2)),nMap(2),x0(ix0(2)),nx0(2),Cff(iCffW(6,2)),Cff(iCffW(5,2)),Cff(iCffW(4,2)),Cff(iCffW(3,2)), &
-                           Cff(iCffW(2,2)),Cff(iCffW(1,2)),Cff(iCffW(0,2)),Cff(iCffR(6,2)),Cff(iCffR(5,2)),Cff(iCffR(4,2)), &
-                           Cff(iCffR(3,2)),Cff(iCffR(2,2)),Cff(iCffR(1,2)),Cff(iCffR(0,2)),ddx(2),HerW2(iHerW2(2)), &
-                           HerR2(iHerR2(2)),IsChi,ChiI2)
+              Map(iMap(2)),nMap(2),x0(ix0(2)),nx0(2),Cff(iCffW(6,2)),Cff(iCffW(5,2)),Cff(iCffW(4,2)),Cff(iCffW(3,2)), &
+              Cff(iCffW(2,2)),Cff(iCffW(1,2)),Cff(iCffW(0,2)),Cff(iCffR(6,2)),Cff(iCffR(5,2)),Cff(iCffR(4,2)),Cff(iCffR(3,2)), &
+              Cff(iCffR(2,2)),Cff(iCffR(1,2)),Cff(iCffR(0,2)),ddx(2),HerW2(iHerW2(2)),HerR2(iHerR2(2)),IsChi,ChiI2)
 
   case (4)
 

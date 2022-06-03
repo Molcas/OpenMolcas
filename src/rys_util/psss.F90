@@ -25,10 +25,11 @@ use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, lP, nEta, lQ, nPntr, iPntr(nPntr), nMax, IsChi
-real(kind=wp) :: EFInt(nZeta,nEta,3), Zeta(nZeta), P(lP,3), rKappAB(nZeta), A(3), B(3), Eta(nEta), Q(lQ,3), rKappCD(nEta), C(3), &
-                 D(3), CoorAC(3,2), TMax, x0(nMax), W6(nMax), W5(nMax), W4(nMax), W3(nMax), W2(nMax), W1(nMax), W0(nMax), &
-                 R6(nMax), R5(nMax), R4(nMax), R3(nMax), R2(nMax), R1(nMax), R0(nMax), ddx, HerW, HerR2, ChiI2
+integer(kind=iwp), intent(in) :: nZeta, lP, nEta, lQ, nPntr, iPntr(nPntr), nMax, IsChi
+real(kind=wp), intent(out) :: EFInt(nZeta,nEta,3)
+real(kind=wp), intent(in) :: Zeta(nZeta), P(lP,3), rKappAB(nZeta), A(3), B(3), Eta(nEta), Q(lQ,3), rKappCD(nEta), C(3), D(3), &
+                             CoorAC(3,2), TMax, x0(nMax), W6(nMax), W5(nMax), W4(nMax), W3(nMax), W2(nMax), W1(nMax), W0(nMax), &
+                             R6(nMax), R5(nMax), R4(nMax), R3(nMax), R2(nMax), R1(nMax), R0(nMax), ddx, HerW, HerR2, ChiI2
 integer(kind=iwp) :: iEta, iZeta, n
 real(kind=wp) :: dddx, Eu2, PAQPx, PAQPy, PAQPz, PQ2, PQx, PQy, PQz, PreFct, r, rho, t, w, xdInv, z, ZE, ZEInv
 logical(kind=iwp) :: ABeqCD, EQ

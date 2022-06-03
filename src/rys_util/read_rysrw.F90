@@ -29,7 +29,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer :: i, io, iOff, iRys, lu_rysrw, mRys, nCff, nMap_Tot, nMem, nMem_Tot, nOrder, nx0_Tot
+integer(kind=iwp) :: i, io, iOff, iRys, lu_rysrw, mRys, nCff, nMap_Tot, nMem, nMem_Tot, nOrder, nx0_Tot
 real(kind=wp) :: acc(size(iMap))
 logical(kind=iwp) :: found_rysrw
 character(len=*), parameter :: RYSRW_NAME = 'RYSRW'

@@ -24,14 +24,13 @@ subroutine Exp_1(Vector,n1,n2,Array,Fact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n1, n2
-real(kind=wp) :: Vector(n1,n2), Array(n1), Fact
-integer(kind=iwp) :: i1, i2
+integer(kind=iwp), intent(in) :: n1, n2
+real(kind=wp), intent(out) :: Vector(n1,n2)
+real(kind=wp), intent(in) :: Array(n1), Fact
+integer(kind=iwp) :: i2
 
 do i2=1,n2
-  do i1=1,n1
-    Vector(i1,i2) = Array(i1)*Fact
-  end do
+  Vector(:,i2) = Array*Fact
 end do
 
 return

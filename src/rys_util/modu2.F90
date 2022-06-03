@@ -24,8 +24,9 @@ subroutine ModU2(U2,mT,nRys,ZEInv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mT, nRys
-real(kind=wp) :: U2(nRys,mT), ZEInv(mT)
+integer(kind=iwp), intent(in) :: mT, nRys
+real(kind=wp), intent(inout) :: U2(nRys,mT)
+real(kind=wp), intent(in) :: ZEInv(mT)
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, iRys, iT
 

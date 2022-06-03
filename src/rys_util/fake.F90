@@ -21,8 +21,9 @@ subroutine Fake(U2,mT,nRys,ZEInv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mT, nRys
-real(kind=wp) :: U2(mT,nRys), ZEInv(mT)
+integer(kind=iwp), intent(in) :: mT, nRys
+real(kind=wp), intent(inout) :: U2(mT,nRys)
+real(kind=wp), intent(in) :: ZEInv(mT)
 
 #include "macros.fh"
 unused_var(U2)

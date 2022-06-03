@@ -61,15 +61,18 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, nGamma, nDelta, &
-                     IndZ(nZeta), IndZet(nZeta), IndE(nEta), IndEta(nEta), ix1, iy1, iz1, ix2, iy2, iz2, iAnga(4), mabMin, mabMax, &
-                     mcdMin, mcdMax, nijkl, nabcd, mabcd, iW2, iW4, nWork2, mWork2, la, lb, lc, ld, iCmp(4), iShll(4), mDij, mDkl, &
-                     kabcd, iBasi, jBasj, kBask, lBasl
-real(kind=wp) :: Data1(mData1), Data2(mData2), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), KappAB(nZeta), Eta(nEta), EInv(nEta), &
-                 Q(nEta,3), KappCD(nEta), ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), Wrk(nWork2), &
-                 HMtrxAB(*), HMtrxCD(*), Dij(mDij), Dkl(mDkl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
-                 Coeff4(nDelta,lBasl)
-logical(kind=iwp) :: Prescreen_On_Int_Only, NoInts, NoPInts, Do_TnsCtl
+integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, &
+                                 nGamma, nDelta, IndZ(nZeta), IndE(nEta), ix1, iy1, iz1, ix2, iy2, iz2, iAnga(4), mabMin, mabMax, &
+                                 mcdMin, mcdMax, nijkl, nabcd, mabcd, iW2, iW4, nWork2, mWork2, la, lb, lc, ld, iCmp(4), iShll(4), &
+                                 mDij, mDkl, iBasi, jBasj, kBask, lBasl
+real(kind=wp), intent(in) :: Data1(mData1), Data2(mData2), ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), &
+                             HMtrxAB(*), HMtrxCD(*), Dij(mDij), Dkl(mDkl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
+                             Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
+real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3)
+real(kind=wp), intent(inout) :: KappAB(nZeta), KappCD(nEta), Wrk(nWork2)
+integer(kind=iwp), intent(out) :: IndZet(nZeta), IndEta(nEta), kabcd
+logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
+logical(kind=iwp), intent(inout) :: NoInts, NoPInts, Do_TnsCtl
 integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
 logical(kind=iwp) :: Nospecial
 external :: TERI, ModU2, vCff2D, vRys2D
@@ -115,7 +118,7 @@ else
 
   if ((lZeta*lEta < nijkl) .and. (mZeta == nZeta_tot) .and. (mEta == nEta_tot)) then
 
-    ! Apply the HRR recusions first. Note that this is only
+    ! Apply the HRR recursions first. Note that this is only
     ! executed if used in single iteration mode. Hence,
     ! iW2 and iW4 are identical.
 
@@ -133,7 +136,7 @@ else
     kabcd = nabcd
   else
 
-    ! Postpone application of the HRR recusions until later.
+    ! Postpone application of the HRR recursions until later.
 
     Do_TnsCtl = .true.
     n1 = mabMin

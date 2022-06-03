@@ -28,7 +28,8 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iAnga(4), nRys, MemPrm, ider
+integer(kind=iwp), intent(in) :: iAnga(4), ider
+integer(kind=iwp), intent(out) :: nRys, MemPrm
 integer(kind=iwp) :: la, lb, lB00, lB01, lB10, lc, ld, MemPrm2, MemPrm3, n2D0, n2D1, n2D2, nabcd, nabMax, ncdMax, nPAO
 
 !iRout = 13

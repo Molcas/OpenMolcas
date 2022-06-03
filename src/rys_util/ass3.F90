@@ -15,9 +15,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nt, nrys
-real(kind=wp) :: D01(nrys,nt), D02(nrys,nt), D1(nrys,nt), D2(nrys,nt), D3(nrys,nt), PAO(nt), tmp1_, tmp2_, tmp3_
-integer(kind=iwp) :: iRys, it
+integer(kind=iwp), intent(in) :: nt, nrys
+real(kind=wp), intent(in) :: D01(nrys,nt), D02(nrys,nt), D1(nrys,nt), D2(nrys,nt), D3(nrys,nt), PAO(nt)
+real(kind=wp), intent(inout) :: tmp1_, tmp2_, tmp3_
+integer(kind=iwp) :: iRys, iT
 real(kind=wp) :: tmp1, tmp2, tmp3
 
 tmp1 = Zero
@@ -27,101 +28,101 @@ tmp3 = Zero
 select case (nRys)
 
   case (1)
-    do it=1,nt
+    do iT=1,nt
       tmp1 = tmp1+(D01(1,iT)*D02(1,iT)*PAO(iT))*D1(1,iT)
       tmp2 = tmp2+(D01(1,iT)*D02(1,iT)*PAO(iT))*D2(1,iT)
       tmp3 = tmp3+(D01(1,iT)*D02(1,iT)*PAO(iT))*D3(1,iT)
     end do
 
   case (2)
-    do it=1,nt
-      tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT))*PAO(It)
-      tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT))*PAO(It)
-      tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT))*PAO(iT)
+      tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT))*PAO(iT)
+      tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT))*PAO(iT)
     end do
 
   case (3)
-    do it=1,nt
-      tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT)+(D01(3,iT)*D02(3,iT))*D1(3,iT))*PAO(It)
-      tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT)+(D01(3,iT)*D02(3,iT))*D2(3,iT))*PAO(It)
-      tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT)+(D01(3,iT)*D02(3,iT))*D3(3,iT))*PAO(It)
+    do iT=1,nt
+      tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT)+(D01(3,iT)*D02(3,iT))*D1(3,iT))*PAO(iT)
+      tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT)+(D01(3,iT)*D02(3,iT))*D2(3,iT))*PAO(iT)
+      tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT)+(D01(3,iT)*D02(3,iT))*D3(3,iT))*PAO(iT)
     end do
 
   case (4)
-    do it=1,nt
+    do iT=1,nt
       tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT)+(D01(3,iT)*D02(3,iT))*D1(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D1(4,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D1(4,iT))*PAO(iT)
       tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT)+(D01(3,iT)*D02(3,iT))*D2(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D2(4,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D2(4,iT))*PAO(iT)
       tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT)+(D01(3,iT)*D02(3,iT))*D3(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D3(4,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D3(4,iT))*PAO(iT)
     end do
 
   case (5)
-    do it=1,nt
+    do iT=1,nt
       tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT)+(D01(3,iT)*D02(3,iT))*D1(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D1(4,iT)+(D01(5,iT)*D02(5,iT))*D1(5,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D1(4,iT)+(D01(5,iT)*D02(5,iT))*D1(5,iT))*PAO(iT)
       tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT)+(D01(3,iT)*D02(3,iT))*D2(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D2(4,iT)+(D01(5,iT)*D02(5,iT))*D2(5,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D2(4,iT)+(D01(5,iT)*D02(5,iT))*D2(5,iT))*PAO(iT)
       tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT)+(D01(3,iT)*D02(3,iT))*D3(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D3(4,iT)+(D01(5,iT)*D02(5,iT))*D3(5,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D3(4,iT)+(D01(5,iT)*D02(5,iT))*D3(5,iT))*PAO(iT)
     end do
 
   case (6)
-    do it=1,nt
+    do iT=1,nt
       tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT)+(D01(3,iT)*D02(3,iT))*D1(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D1(4,iT)+(D01(5,iT)*D02(5,iT))*D1(5,iT)+(D01(6,iT)*D02(6,iT))*D1(6,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D1(4,iT)+(D01(5,iT)*D02(5,iT))*D1(5,iT)+(D01(6,iT)*D02(6,iT))*D1(6,iT))*PAO(iT)
       tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT)+(D01(3,iT)*D02(3,iT))*D2(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D2(4,iT)+(D01(5,iT)*D02(5,iT))*D2(5,iT)+(D01(6,iT)*D02(6,iT))*D2(6,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D2(4,iT)+(D01(5,iT)*D02(5,iT))*D2(5,iT)+(D01(6,iT)*D02(6,iT))*D2(6,iT))*PAO(iT)
       tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT)+(D01(3,iT)*D02(3,iT))*D3(3,iT)+ &
-             (D01(4,iT)*D02(4,iT))*D3(4,iT)+(D01(5,iT)*D02(5,iT))*D3(5,iT)+(D01(6,iT)*D02(6,iT))*D3(6,iT))*PAO(It)
+             (D01(4,iT)*D02(4,iT))*D3(4,iT)+(D01(5,iT)*D02(5,iT))*D3(5,iT)+(D01(6,iT)*D02(6,iT))*D3(6,iT))*PAO(iT)
     end do
 
   case (7)
-    do it=1,nt
+    do iT=1,nt
       tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT)+(D01(3,iT)*D02(3,iT))*D1(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D1(4,iT)+(D01(5,iT)*D02(5,iT))*D1(5,iT)+(D01(6,iT)*D02(6,iT))*D1(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D1(7,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D1(7,iT))*PAO(iT)
       tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT)+(D01(3,iT)*D02(3,iT))*D2(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D2(4,iT)+(D01(5,iT)*D02(5,iT))*D2(5,iT)+(D01(6,iT)*D02(6,iT))*D2(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D2(7,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D2(7,iT))*PAO(iT)
       tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT)+(D01(3,iT)*D02(3,iT))*D3(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D3(4,iT)+(D01(5,iT)*D02(5,iT))*D3(5,iT)+(D01(6,iT)*D02(6,iT))*D3(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D3(7,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D3(7,iT))*PAO(iT)
     end do
 
   case (8)
-    do it=1,nt
+    do iT=1,nt
       tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT)+(D01(3,iT)*D02(3,iT))*D1(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D1(4,iT)+(D01(5,iT)*D02(5,iT))*D1(5,iT)+(D01(6,iT)*D02(6,iT))*D1(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D1(7,iT)+(D01(8,iT)*D02(8,iT))*D1(8,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D1(7,iT)+(D01(8,iT)*D02(8,iT))*D1(8,iT))*PAO(iT)
       tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT)+(D01(3,iT)*D02(3,iT))*D2(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D2(4,iT)+(D01(5,iT)*D02(5,iT))*D2(5,iT)+(D01(6,iT)*D02(6,iT))*D2(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D2(7,iT)+(D01(8,iT)*D02(8,iT))*D2(8,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D2(7,iT)+(D01(8,iT)*D02(8,iT))*D2(8,iT))*PAO(iT)
       tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT)+(D01(3,iT)*D02(3,iT))*D3(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D3(4,iT)+(D01(5,iT)*D02(5,iT))*D3(5,iT)+(D01(6,iT)*D02(6,iT))*D3(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D3(7,iT)+(D01(8,iT)*D02(8,iT))*D3(8,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D3(7,iT)+(D01(8,iT)*D02(8,iT))*D3(8,iT))*PAO(iT)
     end do
 
   case (9)
-    do it=1,nt
+    do iT=1,nt
       tmp1 = tmp1+((D01(1,iT)*D02(1,iT))*D1(1,iT)+(D01(2,iT)*D02(2,iT))*D1(2,iT)+(D01(3,iT)*D02(3,iT))*D1(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D1(4,iT)+(D01(5,iT)*D02(5,iT))*D1(5,iT)+(D01(6,iT)*D02(6,iT))*D1(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D1(7,iT)+(D01(8,iT)*D02(8,iT))*D1(8,iT)+(D01(9,iT)*D02(9,iT))*D1(9,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D1(7,iT)+(D01(8,iT)*D02(8,iT))*D1(8,iT)+(D01(9,iT)*D02(9,iT))*D1(9,iT))*PAO(iT)
       tmp2 = tmp2+((D01(1,iT)*D02(1,iT))*D2(1,iT)+(D01(2,iT)*D02(2,iT))*D2(2,iT)+(D01(3,iT)*D02(3,iT))*D2(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D2(4,iT)+(D01(5,iT)*D02(5,iT))*D2(5,iT)+(D01(6,iT)*D02(6,iT))*D2(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D2(7,iT)+(D01(8,iT)*D02(8,iT))*D2(8,iT)+(D01(9,iT)*D02(9,iT))*D2(9,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D2(7,iT)+(D01(8,iT)*D02(8,iT))*D2(8,iT)+(D01(9,iT)*D02(9,iT))*D2(9,iT))*PAO(iT)
       tmp3 = tmp3+((D01(1,iT)*D02(1,iT))*D3(1,iT)+(D01(2,iT)*D02(2,iT))*D3(2,iT)+(D01(3,iT)*D02(3,iT))*D3(3,iT)+ &
              (D01(4,iT)*D02(4,iT))*D3(4,iT)+(D01(5,iT)*D02(5,iT))*D3(5,iT)+(D01(6,iT)*D02(6,iT))*D3(6,iT)+ &
-             (D01(7,iT)*D02(7,iT))*D3(7,iT)+(D01(8,iT)*D02(8,iT))*D3(8,iT)+(D01(9,iT)*D02(9,iT))*D3(9,iT))*PAO(It)
+             (D01(7,iT)*D02(7,iT))*D3(7,iT)+(D01(8,iT)*D02(8,iT))*D3(8,iT)+(D01(9,iT)*D02(9,iT))*D3(9,iT))*PAO(iT)
     end do
 
   case default
-    do iT=1,nT
+    do iT=1,nt
       do iRys=1,nRys
-        tmp1 = tmp1+(D01(iRys,iT)*D02(iRys,iT)*PAO(It))*D1(iRys,iT)
-        tmp2 = tmp2+(D01(iRys,iT)*D02(iRys,iT)*PAO(It))*D2(iRys,iT)
-        tmp3 = tmp3+(D01(iRys,iT)*D02(iRys,iT)*PAO(It))*D3(iRys,iT)
+        tmp1 = tmp1+(D01(iRys,iT)*D02(iRys,iT)*PAO(iT))*D1(iRys,iT)
+        tmp2 = tmp2+(D01(iRys,iT)*D02(iRys,iT)*PAO(iT))*D2(iRys,iT)
+        tmp3 = tmp3+(D01(iRys,iT)*D02(iRys,iT)*PAO(iT))*D3(iRys,iT)
       end do
     end do
 

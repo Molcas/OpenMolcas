@@ -40,7 +40,7 @@ use Definitions, only: wp
 #endif
 
 implicit none
-integer(kind=iwp) :: nRys
+integer(kind=iwp), intent(in) :: nRys
 integer(kind=iwp) :: iHer, iOffR, iRys, jRys, MemHer
 
 if (allocated(iHerR2)) then

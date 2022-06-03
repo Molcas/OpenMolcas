@@ -205,8 +205,10 @@ subroutine GaussQuad(n,alpha,beta,eps,roots,weights,ierr)
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Two
 
-  integer(kind=iwp) :: n, ierr
-  real(kind=wp) :: alpha(n), beta(n), eps, roots(n), weights(n)
+  integer(kind=iwp), intent(in) :: n
+  real(kind=wp), intent(in) :: alpha(n), beta(n), eps
+  real(kind=wp), intent(out) :: roots(n), weights(n)
+  integer(kind=iwp), intent(out) :: ierr
   integer(kind=iwp) :: i, ii, j, k, l, m, mml
   real(kind=wp) :: b, c, f, g, p, r, s
   real(kind=wp), allocatable :: e(:)
@@ -220,7 +222,7 @@ subroutine GaussQuad(n,alpha,beta,eps,roots,weights,ierr)
 
   ! Initialization
 
-  call mma_allocate(e,n,label='n')
+  call mma_allocate(e,n,label='e')
   do k=1,n
     roots(k) = alpha(k)
     if (beta(k) < Zero) then
@@ -375,8 +377,10 @@ subroutine Lanczos(n,ncap,x,w,alpha,beta,ierr)
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One
 
-  integer(kind=iwp) :: n, ncap, ierr
-  real(kind=wp) :: x(ncap), w(ncap), alpha(n), beta(n)
+  integer(kind=iwp), intent(in) :: n, ncap
+  real(kind=wp), intent(in) :: x(ncap), w(ncap)
+  real(kind=wp), intent(out) :: alpha(n), beta(n)
+  integer(kind=iwp), intent(out) :: ierr
   integer(kind=iwp) :: i, k
   real(kind=wp) :: gam, pj, rho, sig, t, tk, tmp, tsig, xlam
   real(kind=wp), allocatable :: p0(:), p1(:)
@@ -420,8 +424,8 @@ subroutine Lanczos(n,ncap,x,w,alpha,beta,ierr)
       p1(k) = tmp
     end do
   end do
-  alpha(1:n) = p0(1:n)
-  beta(1:n) = p1(1:n)
+  alpha(:) = p0(1:n)
+  beta(:) = p1(1:n)
   call mma_deallocate(p0)
   call mma_deallocate(p1)
 

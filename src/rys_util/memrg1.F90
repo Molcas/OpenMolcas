@@ -24,7 +24,8 @@ subroutine MemRg1(iAnga,nRys,MemPrm)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iAnga(4), nRys, MemPrm
+integer(kind=iwp), intent(in) :: iAnga(4)
+integer(kind=iwp), intent(out) :: nRys, MemPrm
 integer(kind=iwp) :: la, lb, lB00, lB01, lB10, lc, ld, n2D0, n2D1, nabcd, nabMax, ncdMax
 
 !iRout = 13

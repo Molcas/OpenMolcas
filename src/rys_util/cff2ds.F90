@@ -26,9 +26,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
-real(kind=wp) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT), PAQP(nRys,nT,3), &
-                 QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
+integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
+real(kind=wp), intent(in) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT)
+real(kind=wp), intent(inout) :: PAQP(nRys,nT,3), QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
 integer(kind=iwp) :: iCar, iRys, iT
 real(kind=wp) :: h12
 logical(kind=iwp) :: AeqB, CeqD, EQ
@@ -72,19 +72,19 @@ else if ((nabMax == 0) .and. (ncdMax /= 0)) then
   write(u6,*) 'ncdMax,nabMax,lac=',ncdMax,nabMax,lac
   call Abend()
 else if ((nabMax == 0) .and. (ncdMax == 0) .and. (lac /= 0)) then
-  call DYaX(nRys*nT,h12,U2(1,1),1,B00(1,1,1),1)
+  call DYaX(nRys*nT,h12,U2(:,:),1,B00(:,:,1),1)
 end if
 if (nabMax /= 0) then
-  call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,2),1)
-  call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,3),1)
+  call dcopy_(nRys*nT,B10(:,:,1),1,B10(:,:,2),1)
+  call dcopy_(nRys*nT,B10(:,:,1),1,B10(:,:,3),1)
 end if
 if (lac /= 0) then
-  call dcopy_(nRys*nT,B00(1,1,1),1,B00(1,1,2),1)
-  call dcopy_(nRys*nT,B00(1,1,1),1,B00(1,1,3),1)
+  call dcopy_(nRys*nT,B00(:,:,1),1,B00(:,:,2),1)
+  call dcopy_(nRys*nT,B00(:,:,1),1,B00(:,:,3),1)
 end if
 if (ncdMax /= 0) then
-  call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,2),1)
-  call dcopy_(nRys*nT,B01(1,1,1),1,B01(1,1,3),1)
+  call dcopy_(nRys*nT,B01(:,:,1),1,B01(:,:,2),1)
+  call dcopy_(nRys*nT,B01(:,:,1),1,B01(:,:,3),1)
 end if
 
 if ((la+lb /= 0) .and. (lc+ld /= 0)) then

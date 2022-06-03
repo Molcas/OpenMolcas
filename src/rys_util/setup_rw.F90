@@ -34,8 +34,8 @@ use Gateway_Info, only: GIAO
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: DoRys
-integer(kind=iwp) :: nDiff
+logical(kind=iwp), intent(in) :: DoRys
+integer(kind=iwp), intent(in) :: nDiff
 integer(kind=iwp) :: iAng2, mRys
 
 ! Compute max sum of angular momentum index

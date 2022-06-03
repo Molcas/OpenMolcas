@@ -21,7 +21,8 @@ use Index_Functions, only: nTri3_Elem1
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iAnga(4), MemPrm
+integer(kind=iwp), intent(in) :: iAnga(4)
+integer(kind=iwp), intent(out) :: MemPrm
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, la, labcd, labMax, labMin, lb, lB00, lB01, lB10, lc, lcdMax, lcdMin, ld, nabcd, nabMax, &
                      ncdMax, nRys

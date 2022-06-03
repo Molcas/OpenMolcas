@@ -29,9 +29,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nVec, nabMax, ncdMax, la, lb, lc, ld
-real(kind=wp) :: Arr1(nVec,3,0:nabMax,0:ncdMax), Arr2(nVec,0:la+1,0:lb+1,0:ncdMax,3), A(3), B(3)
-logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp), intent(in) :: nVec, nabMax, ncdMax, la, lb, lc, ld
+real(kind=wp), intent(in) :: Arr1(nVec,3,0:nabMax,0:ncdMax), A(3), B(3)
+real(kind=wp), intent(out) :: Arr2(nVec,0:la+1,0:lb+1,0:ncdMax,3)
+logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp) :: i, ia, iab, ib, iCar, icd, ja, jb, ka, kb, lla, llb, llcd, ma, mb
 real(kind=wp) :: AB
 
@@ -91,7 +92,7 @@ do iCar=1,3
             ka = ka-(la+2)
             kb = kb+1
           end if
-          call DZaXpY(nVec,AB,Arr2(1,ma,mb,icd,iCar),1,Arr2(1,ka,kb,icd,iCar),1,Arr2(1,ja,jb,icd,iCar),1)
+          call DZaXpY(nVec,AB,Arr2(:,ma,mb,icd,iCar),1,Arr2(:,ka,kb,icd,iCar),1,Arr2(:,ja,jb,icd,iCar),1)
         end do
       end do
     end do
@@ -128,7 +129,7 @@ do iCar=1,3
             kb = kb-(lb+2)
             ka = ka+1
           end if
-          call DZaXpY(nVec,AB,Arr2(1,ma,mb,icd,iCar),1,Arr2(1,ka,kb,icd,iCar),1,Arr2(1,ja,jb,icd,iCar),1)
+          call DZaXpY(nVec,AB,Arr2(:,ma,mb,icd,iCar),1,Arr2(:,ka,kb,icd,iCar),1,Arr2(:,ja,jb,icd,iCar),1)
         end do
       end do
     end do

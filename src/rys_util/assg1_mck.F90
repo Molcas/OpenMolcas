@@ -26,10 +26,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, Indx(3,4), mVec, Indx2(3,4)
-real(kind=wp) :: g1(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nTri_Elem1(ld),9), &
-                 xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9)
-logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp), intent(in) :: nT, nRys, la, lb, lc, ld, Indx(3,4)
+real(kind=wp), intent(out) :: g1(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nTri_Elem1(ld),9)
+real(kind=wp), intent(in) :: xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9)
+logical(kind=iwp), intent(in) :: IfGrad(3,4)
+integer(kind=iwp), intent(out) :: mVec, Indx2(3,4)
 #include "itmax.fh"
 integer(kind=iwp) :: iCent, icir(3), Ind1(3), Ind2(3), ipa, ipb, ipc, ipd, iRys, iT, ixa, ixab, ixabc, ixabcd, ixb, ixc, ixd, iya, &
                      iyab, iyabc, iyabcd, iyb, iyc, iyd, iza, izb, izc, izd, ka, kb, kc, kd, ng1, nVec

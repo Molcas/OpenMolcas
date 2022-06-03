@@ -29,9 +29,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nVec, ncdMax, la, lb, lc, ld
-real(kind=wp) :: Arr1(nVec,0:la+2,0:lb+2,0:ncdMax,3), Arr2(nVec,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), C(3), D(3)
-logical(kind=iwp) :: IfHss(4,3,4,3), ifGrd(3,4)
+integer(kind=iwp), intent(in) :: nVec, ncdMax, la, lb, lc, ld
+real(kind=wp), intent(in) :: Arr1(nVec,0:la+2,0:lb+2,0:ncdMax,3), C(3), D(3)
+real(kind=wp), intent(out) :: Arr2(nVec,0:la+2,0:lb+2,0:lc+2,0:ld+2,3)
+logical(kind=iwp), intent(in) :: IfHss(4,3,4,3), ifGrd(3,4)
 integer(kind=iwp) :: i, ia, ib, ic, iCar, icd, id, jc, jd, kc, kd, lla, llb, llc, lld, mc, md
 real(kind=wp) :: CD
 
@@ -102,7 +103,7 @@ do iCar=1,3
               kc = kc-(lc+3)
               kd = kd+1
             end if
-            call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1,Arr2(1,ia,ib,kc,kd,iCar),1,Arr2(1,ia,ib,jc,jd,iCar),1)
+            call DZaXpY(nVec,CD,Arr2(:,ia,ib,mc,md,iCar),1,Arr2(:,ia,ib,kc,kd,iCar),1,Arr2(:,ia,ib,jc,jd,iCar),1)
           end do
         end do
       end do
@@ -142,7 +143,7 @@ do iCar=1,3
               kd = kd-(ld+3)
               kc = kc+1
             end if
-            call DZaXpY(nVec,CD,Arr2(1,ia,ib,mc,md,iCar),1,Arr2(1,ia,ib,kc,kd,iCar),1,Arr2(1,ia,ib,jc,jd,iCar),1)
+            call DZaXpY(nVec,CD,Arr2(:,ia,ib,mc,md,iCar),1,Arr2(:,ia,ib,kc,kd,iCar),1,Arr2(:,ia,ib,jc,jd,iCar),1)
           end do
         end do
       end do

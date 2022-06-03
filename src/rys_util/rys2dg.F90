@@ -29,10 +29,12 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nT, nRys, la, lb, lc, ld, IndGrd(3,4), nZeta, nEta, Indx(3,4), mZeta, mEta
-real(kind=wp) :: xyz2D0(nRys*nT,0:la+1,0:lb+1,0:lc+1,0:ld+1,3), xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), Coora(3,4), Alpha(nZeta), &
-                 Beta(nZeta), Gmma(nEta), Delta(nEta), Scrtch(nRys*nT), Temp(nT)
-logical(kind=iwp) :: IfGrad(3,4)
+integer(kind=iwp), intent(in) :: nT, nRys, la, lb, lc, ld, nZeta, nEta, mZeta, mEta
+real(kind=wp), intent(in) :: xyz2D0(nRys*nT,0:la+1,0:lb+1,0:lc+1,0:ld+1,3), Coora(3,4), Alpha(nZeta), Beta(nZeta), Gmma(nEta), &
+                             Delta(nEta)
+real(kind=wp), intent(out) :: xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), Scrtch(nRys*nT), Temp(nT)
+logical(kind=iwp), intent(inout) :: IfGrad(3,4)
+integer(kind=iwp), intent(inout) :: IndGrd(3,4), Indx(3,4)
 external :: ExpX, ExpY
 integer(kind=iwp) :: i1, i2, ia, ib, ic, iCar, iCent, id, Ind1(3), Ind2(3), iVec, jCent, nVec, nx, ny, nz
 real(kind=wp) :: Fact, tmp1, tmp2

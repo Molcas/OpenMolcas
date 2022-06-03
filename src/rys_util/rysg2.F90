@@ -14,7 +14,7 @@
 !***********************************************************************
 
 subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
-                 Tvalue,ModU2,Cff2D,PAO,nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,nOp,iuvwx,IfG,mvec,Index_Out,lGrad,lHess,Tr)
+                 Tvalue,ModU2,Cff2D,PAO,nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,nOp,iuvwx,IfG,mVec,Index_Out,lGrad,lHess,Tr)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradient of the two-electron integrals.       *
@@ -73,17 +73,20 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nOp(4), &
-                     iuvwx(4), mvec, Index_Out(3,4)
-real(kind=wp) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), &
-                 Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Hess(nHess)
+integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nHess, IndGrd(3,4,0:7), nOp(4), iuvwx(4)
+real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), &
+                             P(lP,3), Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), PAO(nT,nPAO)
+real(kind=wp), intent(inout) :: Array(nArray), Hess(nHess)
 external :: Tvalue, ModU2, Cff2D
-logical(kind=iwp) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), lGrad, lHess, Tr(4)
+logical(kind=iwp), intent(inout) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), Tr(4)
+integer(kind=iwp), intent(inout) :: IndHss(4,3,4,3,0:7)
+integer(kind=iwp), intent(out) :: mVec, Index_Out(3,4)
+logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iCa, iCar, iCe, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), iOff, ip, ip2D0, &
                      ip2D1, ip2D2, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipg2, ipP, ipPAQP, ipQ, ipQCPQ, ipScr, ipScr2, &
                      ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iStop, iZeta, jCar, jCent, JndGrd(3,4,0:7), kCent, la, lab, labMax, &
-                     lb, lB00, lB01, lB10, lc, lCar, lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, mVec_, n2D0, n2D1, n2D2, &
-                     nabMax, ncdMax, ng(3), nh(3), nTR
+                     lb, lB00, lB01, lB10, lc, lCar, lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, &
+                     ncdMax, ng(3), nh(3), nTR
 logical(kind=iwp) :: KfGrd(3,4)
 external :: Exp_1, Exp_2
 
@@ -119,7 +122,7 @@ ncdMax = lc+ld+lcd
 
 ip = 1
 
-MemFinal = 9*nt*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
+MemFinal = 9*nT*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 ip = ip+MemFinal
 
 ! Allocate memory for the 2D-integrals.
@@ -287,7 +290,7 @@ ip = ip+n2D2*nT*nRys
 ipScr = ip
 ip = ip+nT*nRys
 ipTmp = ip
-ip = ip+nrys*nT
+ip = ip+nT*nRys
 ipScr2 = ip
 ip = ip+nT*nRys
 if (ip-1 > nArray) then
@@ -306,7 +309,7 @@ do iCent=1,4
       end if
       do lCar=1,istop
         if (jCar /= lCar) then
-          if (ifhss(iCent,jCar,kCent,lCar)) then
+          if (IfHss(iCent,jCar,kCent,lCar)) then
             KfGrd(jCar,iCent) = .true.
             KfGrd(lCar,kCent) = .true.
           end if
@@ -317,7 +320,7 @@ do iCent=1,4
 end do
 do jCent=1,4
   do iCar=1,3
-    if (KfGrd(iCar,jCent) .or. Ifgrd(iCar,jCent)) then
+    if (KfGrd(iCar,jCent) .or. IfGrd(iCar,jCent)) then
       KfGrd(iCar,jCent) = .true.
     end if
   end do
@@ -345,11 +348,10 @@ end if
 if (lGrad) then
   do iCe=1,4
     do iCa=1,3
-      KfGrd(iCa,iCe) = KfGrd(iCa,iCe) .and. ifgrd(iCa,iCe)
+      KfGrd(iCa,iCe) = KfGrd(iCa,iCe) .and. IfGrd(iCa,iCe)
     end do
   end do
-  call Assg1_mck(Array,nT,nRys,la,lb,lc,ld,Array(ip2D0),Array(ip2D1),KfGrd,Index1,mVec_,Index_out)
-  mVec = mVec_
+  call Assg1_mck(Array,nT,nRys,la,lb,lc,ld,Array(ip2D0),Array(ip2D1),KfGrd,Index1,mVec,Index_out)
 
 end if
 
@@ -375,7 +377,7 @@ if (ip /= 1+MemFinal) then
   write(u6,*) 'ip,MemFinal=',ip,MemFinal
   call Abend()
 end if
-IfGrd(:,:) = KfGrd(:,:)
+IfGrd(:,:) = KfGrd
 
 return
 

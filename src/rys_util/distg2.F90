@@ -14,7 +14,7 @@
 subroutine Distg2(g2,Hess,nHess,IndGrd,IfHss,IndHss,iuvwx,kOp,nop,Tr,IfGr)
 !***********************************************************************
 !                                                                      *
-! @parameter kop   operators for center generator                      *
+! @parameter kOp   operators for center generator                      *
 !                                                                      *
 ! Object: trace the gradient of the ERI's with the second order        *
 !         density matrix                                               *
@@ -29,9 +29,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nHess, IndGrd(3,4,0:(nIrrep-1)), IndHss(4,3,4,3,0:(nIrrep-1)), iuvwx(4), kOp(4), nop(4)
-real(kind=wp) :: g2(78), Hess(nHess)
-logical(kind=iwp) :: IfHss(4,3,4,3), Tr(4), IfGr(4)
+integer(kind=iwp), intent(in) :: nHess, IndGrd(3,4,0:(nIrrep-1)), IndHss(4,3,4,3,0:(nIrrep-1)), iuvwx(4), kOp(4), nOp(4)
+real(kind=wp), intent(inout) :: g2(78), Hess(nHess)
+logical(kind=iwp), intent(in) :: IfHss(4,3,4,3), Tr(4), IfGr(4)
 integer(kind=iwp) :: iCa1, iCa2, iCar, iCh1, iCh2, iCn, iCn1, iCn2, iHess, iIrrep, ij, iStop, jCar, jCn, k1, k2, kCn, kl, lCn
 real(kind=wp) :: Fact, ps
 real(kind=wp), parameter :: Prmt(0:7) = [One,-One,-One,One,-One,One,One,-One]
@@ -66,7 +66,7 @@ do iCn=1,4
           ! Both derivatives by translation!
           !
           !------------------------------------------------------------*
-          if (tr(iCn) .and. tr(jCn)) then
+          if (Tr(iCn) .and. Tr(jCn)) then
             do kCn=1,4
               do lCn=1,kCn
                 if (lCn == kCn) then
@@ -86,7 +86,7 @@ do iCn=1,4
                 end if
               end do
             end do
-          else if (ifgr(iCn) .and. tr(jCn)) then
+          else if (IfGr(iCn) .and. Tr(jCn)) then
             !----------------------------------------------------------*
             !
             ! Centre jCn by translation
@@ -114,7 +114,7 @@ do iCn=1,4
                 g2(ij) = g2(ij)-g2(kl)
               end if
             end do
-          else if (IfGr(jCn) .and. tr(iCn)) then
+          else if (IfGr(jCn) .and. Tr(iCn)) then
             !----------------------------------------------------------*
             !
             ! Centre iCn by translation
@@ -186,7 +186,7 @@ do iIrrep=0,nIrrep-1
             ! multiply by two instead!
             !
             !----------------------------------------------------------*
-            if ((iCn /= jCn) .and. (iCar == jCar) .and. (abs(indgrd(iCar,iCn,iIrrep)) == abs(indgrd(jCar,jCn,iIrrep)))) then
+            if ((iCn /= jCn) .and. (iCar == jCar) .and. (abs(IndGrd(iCar,iCn,iIrrep)) == abs(IndGrd(jCar,jCn,iIrrep)))) then
               ps = ps*Two
             end if
             !----------------------------------------------------------*

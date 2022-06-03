@@ -33,10 +33,12 @@ use Index_Functions, only: iTri_Rev
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax
-real(kind=wp) :: xyz2D(nRys,mArg,3,0:neMax,0:nfMax), EFInt(nArg,meMin:meMax,mfMin:mfMax), Scrtch(nRys,mArg), PreFct(mArg)
-logical(kind=iwp) :: AeqB, CeqD
-integer(kind=iwp) :: iArg, ie, ief, if_, iRys, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
+integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax
+real(kind=wp), intent(in) :: xyz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
+real(kind=wp), intent(out) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
+real(kind=wp), intent(inout) :: Scrtch(nRys,mArg)
+logical(kind=iwp), intent(in) :: AeqB, CeqD
+integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
@@ -85,21 +87,17 @@ do ief=1,ne*nf
 
     else if (ixe+ixf == 0) then
 
-      call RysEF0(xyz2D(1,1,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
+      call RysEF0(xyz2D(:,:,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
                   nzeMin,nzeMax,nzfMin,nzfMax)
 
     else if (iye+iyf == 0) then
 
-      call RysEF0(xyz2D(1,1,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
+      call RysEF0(xyz2D(:,:,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
                   nzeMin,nzeMax,nzfMin,nzfMax)
 
     else
 
-      do iArg=1,mArg
-        do iRys=1,nRys
-          Scrtch(iRys,iArg) = xyz2D(iRys,iArg,1,ixe,ixf)*xyz2D(iRys,iArg,2,iye,iyf)
-        end do
-      end do
+      Scrtch(:,:) = xyz2D(:,:,1,ixe,ixf)*xyz2D(:,:,2,iye,iyf)
       call RysEF0(Scrtch,xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf,nzeMin,nzeMax, &
                   nzfMin,nzfMax)
 
@@ -117,12 +115,12 @@ do ief=1,ne*nf
 
     else if (ixe+ixf == 0) then
 
-      call RysEF3(xyz2D(1,1,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
+      call RysEF3(xyz2D(:,:,2,iye,iyf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
                   nzeMax,nzfMax)
 
     else if (iye+iyf == 0) then
 
-      call RysEF3(xyz2D(1,1,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
+      call RysEF3(xyz2D(:,:,1,ixe,ixf),xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,ixye,ixyf, &
                   nzeMax,nzfMax)
 
     else

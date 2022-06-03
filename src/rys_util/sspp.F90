@@ -25,11 +25,12 @@ use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, lP, nEta, lQ, nPntr, iPntr(nPntr), nMax, IsChi
-real(kind=wp) :: EFInt(nZeta,nEta,9), Zeta(nZeta), ZInv(nZeta), P(lP,3), rKappAB(nZeta), A(3), B(3), Eta(nEta), EInv(nEta), &
-                 Q(lQ,3), rKappCD(nEta), C(3), D(3), CoorAC(3,2), TMax, x0(nMax), CW6(nMax,2), CW5(nMax,2), CW4(nMax,2), &
-                 CW3(nMax,2), CW2(nMax,2), CW1(nMax,2), CW0(nMax,2), CR6(nMax,2), CR5(nMax,2), CR4(nMax,2), CR3(nMax,2), &
-                 CR2(nMax,2), CR1(nMax,2), CR0(nMax,2), ddx, HerW(2), HerR2(2), ChiI2
+integer(kind=iwp), intent(in) :: nZeta, lP, nEta, lQ, nPntr, iPntr(nPntr), nMax, IsChi
+real(kind=wp), intent(out) :: EFInt(nZeta,nEta,9)
+real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), P(lP,3), rKappAB(nZeta), A(3), B(3), Eta(nEta), EInv(nEta), Q(lQ,3), &
+                             rKappCD(nEta), C(3), D(3), CoorAC(3,2), TMax, x0(nMax), CW6(nMax,2), CW5(nMax,2), CW4(nMax,2), &
+                             CW3(nMax,2), CW2(nMax,2), CW1(nMax,2), CW0(nMax,2), CR6(nMax,2), CR5(nMax,2), CR4(nMax,2), &
+                             CR3(nMax,2), CR2(nMax,2), CR1(nMax,2), CR0(nMax,2), ddx, HerW(2), HerR2(2), ChiI2
 integer(kind=iwp) :: iEta, iZeta, n
 real(kind=wp) :: ai, B011, B012, dddx, PQ2, PQx, PQy, PQz, PreFct, QCPQx1, QCPQx2, QCPQy1, QCPQy2, QCPQz1, QCPQz2, r1, r2, rho, &
                  si, T, w1, w2, x011, x012, x021, x022, xdInv, y011, y012, y021, y022, z, z011, z012, z021, z022, ZEInv, Zu21, Zu22
