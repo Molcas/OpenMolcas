@@ -13,12 +13,14 @@
 
 #define _XOPEN_SOURCE 500
 #include <ftw.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include "molcastype.h"
 
 /* C_SIZE_T (or in general unsigned ints) is not supported by FORTRAN */
@@ -94,4 +96,29 @@ static int unlink_cb(const char* fpath, const struct stat* sb, int typeflag, str
 void remove_wrapper(const char* path, INT* err)
 {
   *err = (INT) nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+}
+
+void copy(const char *src, const char *dst, INT *err)
+{
+    char buf[BUFSIZ];
+    size_t size;
+
+    *err = 0;
+    FILE* source = fopen(src, "rb");
+
+    if (! source) {
+        *err = 1;
+        return;
+    }
+
+    FILE* dest = fopen(dst, "wb");
+
+    // feof(FILE* stream) returns non-zero if the end of file indicator for stream is set
+
+    while ((size = fread(buf, 1, BUFSIZ, source))) {
+        fwrite(buf, 1, size, dest);
+    }
+
+    fclose(source);
+    fclose(dest);
 }

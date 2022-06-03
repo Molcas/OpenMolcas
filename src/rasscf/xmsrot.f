@@ -342,10 +342,12 @@ C       END DO
       CHARACTER(Len=LenName)::FileName
       CHARACTER(Len=LenInfo)::MatInfo
       CHARACTER(Len=1)::Trans
+      CHARACTER(Len=80)::PrtFmt
       Real*8,DIMENSION(NRow,NCol)::Matrix
 
       INTEGER LU,IsFreeUnit,IRow,ICol
       External IsFreeUnit
+
 
       IF(LenName.gt.0) THEN
       LU=100
@@ -354,13 +356,20 @@ C       END DO
       ELSE
       LU=6
       END IF
+
       IF(Trans.eq.'N') THEN
+       WRITE(PrtFmt,'(A1,I5,A14)')
+     & '(',NCol,'(E24.14E4,1X))'
        DO IRow=1,NRow
-        write(LU,*) (Matrix(IRow,ICol),ICol=1,NCol)
+        write(LU,PrtFmt)
+     &  (Matrix(IRow,ICol),ICol=1,NCol)
        END DO
       ELSE
+       WRITE(PrtFmt,'(A1,I5,A14)')
+     & '(',NRow,'(E24.14E4,1X))'
        DO ICol=1,NCol
-        write(LU,*) (Matrix(IRow,ICol),IRow=1,NRow)
+        write(LU,PrtFmt)
+     &  (Matrix(IRow,ICol),IRow=1,NRow)
        END DO
       END IF
       WRITE(LU,*)MatInfo

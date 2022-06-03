@@ -153,12 +153,12 @@ def normal_mode(dictio,label,method):
         if (method==3):
             sample=0
             while (sample==0):
-                rand1=random.uniform(0, 1)*np.sqrt(hbar/freqSI)
-                rand2=random.uniform(0, 1)*np.sqrt(hbar*freqSI)
+                rand1=random.uniform(-1, 1)*np.sqrt(hbar/freqSI)
+                rand2=random.uniform(-1, 1)*np.sqrt(hbar*freqSI)
                 rand3=random.uniform(0, 1)
                 Ei=0.5*(np.power(freqSI*rand1,2)+np.power(rand2,2))
                 probability=1.0/(np.pi)*np.exp(-(2.0*Ei)/(hbar*freqSI))
-                if (probability/np.pi > rand3):
+                if (probability > rand3/np.pi):
                     sample=sample+1
                     x=rand1
                     v=rand2
@@ -168,12 +168,12 @@ def normal_mode(dictio,label,method):
             sample=0
             while (sample==0):
                 alpha=np.tanh(hbar*freqSI/(2.0*kb*T))
-                rand1=random.uniform(0, 1)*np.sqrt(hbar/(freqSI*alpha))
-                rand2=random.uniform(0, 1)*np.sqrt(hbar*freqSI*(1.0/alpha))
+                rand1=random.uniform(-1, 1)*np.sqrt(hbar/(freqSI*alpha))
+                rand2=random.uniform(-1, 1)*np.sqrt(hbar*freqSI*(1.0/alpha))
                 rand3=random.uniform(0, 1)
                 Ei=0.5*(np.power(freqSI*rand1,2)+np.power(rand2,2))
                 probability=alpha/(np.pi)*np.exp(-2.0*alpha*(np.power(freqSI*rand1,2)+np.power(rand2,2))/(hbar*freqSI))
-                if (probability/(np.pi/alpha) > rand3):
+                if (probability > rand3/(np.pi/alpha)):
                     sample=sample+1
                     x=rand1
                     v=rand2
@@ -199,30 +199,41 @@ def normal_mode(dictio,label,method):
         E=E+np.sum(Ei)
         j=j+1
     E=E+KE  
-    #print("initial E, KE, Etot", E-KE, " ", KE, " " , Etot, '\n')
+    #This can be uncommented for testing print("initial E, KE, Etot", E-KE, " ", KE, " " , Etot, '\n')
     ##Begin to removal any supurious COM translation or rotation in the molecule and then adjusting the velocities and displacements to conserve energy
     accept=0.0
+    Mass=AtMass*amu_to_kg
     while (accept==0):
-        ##First remove any COM in velocities and calculate the cartesian coordinates of new molecular coordinates with the COM at origin
-        com=CenterOfMass(AtMass, vel_reshape, atomN)
-        com_xyz=CenterOfMass(AtMass, xyz_reshape, atomN)
+        ##First calculate the cartesian coordinates with the COM at origin
+        com=CenterOfMass(Mass, vel_reshape, atomN)
+        com_xyz=CenterOfMass(Mass, xyz_reshape, atomN)
         xyz_reshape_COM=xyz_reshape
-        vel_reshape[:, 0] -= com[0]
-        vel_reshape[:, 1] -= com[1]
-        vel_reshape[:, 2] -= com[2]
         xyz_reshape_COM[:, 0] -= com_xyz[0]
         xyz_reshape_COM[:, 1] -= com_xyz[1]
         xyz_reshape_COM[:, 2] -= com_xyz[2]
-        ##Next generate angular momentum, moment of interia, and angular velocity correction
-        Ltot=angular_mo(AtMass, xyz_reshape_COM, vel_reshape, atomN)
-        invI=inertia(xyz_reshape_COM, AtMass, atomN)
+        ##Next generate angular momentum, inverse moment of interia matrix, and angular velocity
+        Ltot=angular_mo(Mass, xyz_reshape_COM, vel_reshape, atomN)
+        invI=inertia(xyz_reshape_COM, Mass, atomN)
         ang_vel=np.dot(invI, Ltot)
-        ang_corr=angular_vel(AtMass, xyz_reshape_COM, ang_vel, atomN)
-        ##Remove any spurious angular velocity 
-        vel_reshape[:, 0] -= ang_corr[0]
-        vel_reshape[:, 1] -= ang_corr[1]
-        vel_reshape[:, 2] -= ang_corr[2]
-        ##Calculate Harmonic energy and compare to original value
+        xyz_reshaped=np.reshape(xyz_reshape_COM, (atomN, 3))
+        j=0
+        while (j < atomN):
+            ##Remove spurious rotational velocity
+            x=xyz_reshaped[j,0]
+            y=xyz_reshaped[j,1]
+            z=xyz_reshaped[j,2]
+            xyz_corr=np.array([x, y, z])
+            ang_corr=angular_vel(Mass, xyz_corr, ang_vel, atomN)
+            vel_reshape[j, 0] -= ang_corr[0]
+            vel_reshape[j, 1] -= ang_corr[1]
+            vel_reshape[j, 2] -= ang_corr[2]
+            j=j+1
+        ##Remove spurious COM velocity
+        com=CenterOfMass(Mass, vel_reshape, atomN)
+        vel_reshape[:, 0] -= com[0]
+        vel_reshape[:, 1] -= com[1]
+        vel_reshape[:, 2] -= com[2]
+        ##Calculate harmonic energy and compare to original value
         E=0.0
         j=COM_modes
         KE=np.power(mmatrix[:]*np.reshape(vel_reshape, (1, 3*atomN)), 2.0)/(2.0*mmatrix[:])
@@ -232,7 +243,7 @@ def normal_mode(dictio,label,method):
             E=E+np.sum(Ei)
             j=j+1
         E=E+KE
-        #print("after error removal E, KE, Etot", E-KE, " ", KE, " " , Etot)
+        #This can be uncommented for testing print("after error removal E, KE, Etot", E-KE, " ", KE, " " , Etot)
         ##If the  value differs by less than 1 percent accept and move to next conndition, otherwise scale the displacements and velocities and try again
         if (abs(E-Etot)/Etot*100 < 1):
             accept=accept+1
@@ -242,8 +253,6 @@ def normal_mode(dictio,label,method):
             vel_reshape=vel_reshape*np.power(Etot/E, 0.5)
             xyz_reshape=np.reshape(xyz_old+(coord_samp)*np.power(Etot/E, 0.5), (atomN, 3))
             coord_samp_save=(coord_samp_save)*np.power(Etot/E, 0.5)
-    # Transformed into ANGSTROM !!
-    # in Jan 2019, Dynamix takes geometries in angstrom but velocities in bohr
     ##Prepare for final coordinate and velocity file writing
     xyz_final=np.reshape(coord_final, (atomN, 3))
     vel_final=np.reshape(vel_final, (atomN, 3))
@@ -634,23 +643,13 @@ def angular_mo (mass, xyz, vel, atomN):
     return Ltot
 
 def angular_vel (mass, xyz, vel, atomN):
-    wxtot=0
-    wytot=0
-    wztot=0
-    h=0
-    xyz=np.reshape(xyz, (atomN, 3))
-    while (h < atomN):
-        px=float(vel[0])
-        py=float(vel[1])
-        pz=float(vel[2])
-        wx=-float(xyz[h, 1])*pz+float(xyz[h, 2])*py
-        wy=-float(xyz[h, 2])*px+float(xyz[h, 0])*pz
-        wz=-float(xyz[h, 0])*py+float(xyz[h, 1])*px
-        wxtot=wxtot+wx
-        wytot=wytot+wy
-        wztot=wztot+wz
-        h=h+1
-    wtot=np.array([wxtot, wytot, wztot])
+    px=float(vel[0])
+    py=float(vel[1])
+    pz=float(vel[2])
+    wx=-float(xyz[1])*pz+float(xyz[2])*py
+    wy=-float(xyz[2])*px+float(xyz[0])*pz
+    wz=-float(xyz[0])*py+float(xyz[1])*px
+    wtot=np.array([wx, wy, wz])
     return wtot
 
 def main():

@@ -124,7 +124,7 @@
       write(6,'(4X,A12,8X,A8)')
      &'OPT ALGO  ','JACOBI'
       END IF
-      write(6,'(4X,A12,8X,ES8.2E2)')
+      write(6,'(4X,A12,8X,ES9.2E2)')
      &'THRESHOLD ',CMSThreshold
       write(6,'(4X,A12,8X,I8)')
      &'MAX CYCLES',ICMSIterMax
@@ -219,3 +219,6 @@
       NScr=INT(Scr(1))
       RETURN
       End Subroutine
+
+
+

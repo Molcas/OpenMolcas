@@ -2127,6 +2127,10 @@ endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
 if (NECI)
+  message(FATAL_ERROR "At the moment the embedded NECI does not work. "
+    "Please use external NECI instead and contact the developers. "
+    "If https://gitlab.com/Molcas/OpenMolcas/-/issues/346 is resolved we can enable it again."
+  )
   if (NOT MPI)
     message (FATAL_ERROR "NECI requires MPI (-DMPI=ON).")
   endif ()

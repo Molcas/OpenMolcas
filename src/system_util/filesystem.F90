@@ -17,12 +17,14 @@ module filesystem
 
 use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr, c_null_char
 use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str
+use linalg_mod, only: abort_
 use Definitions, only: iwp, MOLCAS_C_INT
 
 implicit none
 private
 
-public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, remove_, real_path, basename, inquire_
+public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, &
+  remove_, real_path, basename, inquire_, copy_
 
 interface
   subroutine getcwd_c(path,n,err) bind(C,name='getcwd_wrapper')
@@ -69,6 +71,12 @@ interface
     character(len=1,kind=c_char), intent(in) :: path(*)
     integer(kind=MOLCAS_C_INT), intent(out) :: err
   end subroutine remove_c
+
+  subroutine copy_c(src,dst,err) bind(C,name='copy')
+    import :: c_char, MOLCAS_C_INT
+    character(len=1,kind=c_char), intent(in) :: src(*),dst(*)
+    integer(kind=MOLCAS_C_INT), intent(out) :: err
+  end subroutine copy_c
 
   function access_c(path) bind(C,name='access_wrapper')
     import :: c_char, MOLCAS_C_INT
@@ -190,5 +198,24 @@ function inquire_(path)
   logical(kind=iwp) :: inquire_
   inquire_ = access_c(trim(path)//c_null_char) == 0
 end function
+
+!> @brief
+!> Copy file from src to dst
+!>
+!> @details
+!> This function is not guaranteed to be thread-safe.
+!> As long as `dst` is different for two processes calling at the same
+!> time, it is safe to use in process-based parallelisation.
+subroutine copy_(src, dst, err)
+  character(len=*), intent(in) :: src, dst
+  integer(kind=iwp), intent(out), optional :: err
+  integer(kind=iwp) :: err_
+  call copy_c(trim(src)//c_null_char, trim(dst)//c_null_char, err_)
+  if (present(err)) then
+    err = err_
+  else if (err_ /= 0) then
+    call abort_('Error in copy')
+  end if
+end subroutine
 
 end module filesystem
