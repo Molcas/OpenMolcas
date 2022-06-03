@@ -19,6 +19,7 @@ module InputData
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One
   use definitions, only: wp,iwp,u6
+  use fciqmc_interface, only: DoFCIQMC
 
   implicit none
   private
@@ -199,6 +200,11 @@ contains
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
     Logical(kind=iwp) :: dochemps2 = .false.
+#endif
+
+#ifdef _NECI_
+    ! even if SCF was performed with FCIQMC, CASPT2 requires manual invocation.
+    DoFCIQMC = .false.
 #endif
 
     rewind (LuIn)
@@ -585,6 +591,9 @@ contains
         !Quan: Using the same variable doCumulant in Block
         Input%doCumulant = .true.
         dochemps2 = .true.
+#elif _NECI_
+      case ('FCIQMC')
+      DoFciQMC = .true.
 #endif
 
       case ('EFFE')
@@ -659,6 +668,13 @@ contains
     ! Check if nState>1
     if ((dochemps2 .EQV. .true.) .and. (nStates > 1)) then
       write (u6,*) 'CHEMPS2> Only State Specific calculation supported'
+      call Quit_OnUserError()
+    endif
+#endif
+#ifdef _NECI_
+    ! Check if nState>1
+    if ((DoFCIQMC == .true.) .and. (nStates > 1)) then
+      write (u6,*) 'FCIQMC supports only state-specific CASPT2'
       call Quit_OnUserError()
     endif
 #endif

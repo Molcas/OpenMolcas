@@ -185,11 +185,12 @@ C
        END IF
 
        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+! TODO: Understand this
        CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0)
        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
        CPUGIN=CPTF10-CPTF0
        TIOGIN=TIOTF10-TIOTF0
-CProducing XMS Rotated States
+* Producing XMS Rotated States
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -199,6 +200,7 @@ CProducing XMS Rotated States
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+! TODO: Understand this
          CALL STINI
          CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
          CPUSIN=CPTF11-CPTF0
@@ -214,6 +216,7 @@ CProducing XMS Rotated States
          Write(STLNE2,'(A27,I3)')'Solve CASPT2 eqs for state ',
      &                               MSTATE(JSTATE)
          Call StatusLine('CASPT2:',TRIM(STLNE2))
+! TODO: Understand this
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():

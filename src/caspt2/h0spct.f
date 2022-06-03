@@ -92,7 +92,6 @@ C positioning.
           CALL RHS_ALLO(NIN,NIS,lg_VEC)
           CALL RHS_READ_SR(lg_RHS,ICASE,ISYM,IRHS)
           CALL RHS_READ_SR(lg_VEC,ICASE,ISYM,IVECX)
-
           IBUF=0
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN

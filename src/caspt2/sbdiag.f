@@ -251,6 +251,7 @@ C Addition, for the scaled symmetric ON.
         SCA=WORK(LSCA-1+I)
         CALL DSCAL_(NIN,SCA,WORK(LVEC-1+I),NAS)
       END DO
+
       CALL GETMEM('LSCA','FREE','REAL',LSCA,NAS)
 C The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
