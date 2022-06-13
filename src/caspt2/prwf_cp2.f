@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994, Per Ake Malmqvist                                *
-**********************************************************************
+************************************************************************
 *--------------------------------------------*
 * 1994  PER-AAKE MALMQUIST                   *
 * DEPARTMENT OF THEORETICAL CHEMISTRY        *

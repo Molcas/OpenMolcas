@@ -88,7 +88,7 @@
 #include "warnings.h"
       Parameter ( two = 2.0d0, one = 1.0d0, zero = 0.0d0 )
       Parameter ( thr_neg = -1.0d-8 )
-**********************************************************************
+************************************************************************
       If (thr .lt. zero) Then
          Call WarningMessage(2,'Error in Inv_Cho_Factor')
          write(6,*)'thr must be .ge. zero'
