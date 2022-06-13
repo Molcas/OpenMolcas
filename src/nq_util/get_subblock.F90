@@ -33,7 +33,7 @@ use nq_Grid, only: dRho_dR, dW_dR, Grid, IndGrd, iTab, kAO, List_G, nR_Eff, R2_t
 use NQ_Structure, only: NQ_Data
 use nq_MO, only: nMOs
 use nq_Info, only: Block_Size, Grid_Type, Moving_Grid, nPot1, nTotGP, nx, ny, nz, Off, On, Threshold, x_min, y_min, z_min
-use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, Lu_Grid, LuGridFile, nBatch, Use_Old
+use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, Lu_Grid, LuGridFile, nBatch, nBatch_Max, Use_Old
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -392,6 +392,7 @@ if (Do_Grad) then
 end if
 if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
   if (Grid_Status /= Use_Old) then
+    call mma_allocate(iBatchInfo,3,nBatch_Max,label='iBatchInfo')
     iBatchInfo(:,:) = 0
     !                                                                  *
     !*******************************************************************
@@ -531,6 +532,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
     GridInfo(1,ixyz) = iDisk_Grid
     GridInfo(2,ixyz) = nBatch
     call iDaFile(Lu_Grid,1,iBatchInfo,3*nBatch,iDisk_Grid)
+    call mma_deallocate(iBatchInfo)
   end if
   !                                                                    *
   !*********************************************************************
@@ -539,6 +541,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
 
   iDisk_Grid = GridInfo(1,ixyz)
   nBatch = GridInfo(2,ixyz)
+  call mma_allocate(iBatchInfo,3,nBatch,label='iBatchInfo')
   call iDaFile(Lu_Grid,2,iBatchInfo,3*nBatch,iDisk_Grid)
 
   iBatch = 0
@@ -617,6 +620,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       if (.not. More_To_Come) exit
     end do
   end do outer
+  call mma_deallocate(iBatchInfo)
 end if
 !                                                                      *
 !***********************************************************************

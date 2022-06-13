@@ -25,7 +25,7 @@ subroutine Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,
 
 use NQ_structure, only: Info_Ang, NQ_Data
 use nq_Info, only: Angular_Pruning, iOpt_Angular, ntotgp, On
-use Grid_On_Disk, only: iBatchInfo, iDisk_Grid, Lu_Grid, nBatch
+use Grid_On_Disk, only: ExpandBatchInfo, iBatchInfo, iDisk_Grid, Lu_Grid, nBatch
 use Constants, only: One, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -232,10 +232,7 @@ do
 
           ! Dump grid information to disk
           nBatch = nBatch+1
-          if (nBatch > size(iBatchInfo,2)) then
-            call WarningMessage(2,'Subblock: nBatch > size(iBatchInfo,2)')
-            call Abend()
-          end if
+          if (nBatch > size(iBatchInfo,2)) call ExpandBatchInfo()
 
           ! Generate weights
 
@@ -286,10 +283,7 @@ if (Process .and. (number_of_grid_points > 0)) then
 
   ! Dump grid information to disk
   nBatch = nBatch+1
-  if (nBatch > size(iBatchInfo,2)) then
-    call WarningMessage(2,'Subblock: nBatch > size(iBatchInfo,2)')
-    call Abend()
-  end if
+  if (nBatch > size(iBatchInfo,2)) call ExpandBatchInfo()
   iBatchInfo(1,nBatch) = iDisk_Grid
   iBatchInfo(2,nBatch) = number_of_grid_points
   iBatchInfo(3,nBatch) = iNQ
