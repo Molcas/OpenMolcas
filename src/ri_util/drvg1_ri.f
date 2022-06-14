@@ -53,10 +53,11 @@
 ************************************************************************
 *                                                                      *
       Interface
-      Subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
+      Subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,CASPT2,ipUk)
       Integer nProc, myProc
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)
+      Logical CASPT2
       End Subroutine Compute_AuxVec
       End Interface
 *                                                                      *
