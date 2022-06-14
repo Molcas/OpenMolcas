@@ -16,12 +16,11 @@ C              from unit LUNIT. LUOUT is the unit of the output file
 C              which is stored internally in the Cholesky program as
 C              LUPRI (in cholesky.fh).
 C
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, SSNorm
 #include "implicit.fh"
       LOGICAL DFONLY
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "choprint.fh"
-#include "chosimri.fh"
 
       CHARACTER*7 SECNAM
       PARAMETER (SECNAM = 'CHO_INP')

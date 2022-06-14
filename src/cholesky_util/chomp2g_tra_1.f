@@ -27,7 +27,6 @@ C
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2g.fh"
-#include "WrkSpc.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'ChoMP2_Tra_1')

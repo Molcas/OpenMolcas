@@ -30,7 +30,6 @@ C
       Integer iLoc, nPotSh
 #include "cho_para_info.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       If (Cho_Real_Par) Then
 

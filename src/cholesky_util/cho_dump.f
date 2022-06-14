@@ -17,15 +17,16 @@ C
 C     Purpose: print all entries in include files
 C              choorb.fh
 C              cholesky.fh
-C              chosubscr.fh
+C              chosubscr.f90
 C
 C     On input, Lunit is the logical unit to print to...
 C
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+     &                     DSPNm
       Implicit None
       Integer irc, Lunit
 #include "choorb.fh"
 #include "choprint.fh"
-#include "chosubscr.fh"
 #include "cholesky.fh"
 
       Character*8 SecNam
@@ -209,16 +210,16 @@ C     -----------
       Call Cho_PrintPointers(irc,Lunit)
       If (irc .ne. 0) Return
 
-C     chosubscr.fh.
+C     chosubscr.f90.
 C     --------------
 
-      Write(Lunit,*) '*** Contents of chosubscr.fh:'
+      Write(Lunit,*) '*** Contents of chosubscr.f90:'
       Write(Lunit,*)
       Write(Lunit,*) 'Cho_SScreen: ',Cho_SScreen
       Write(Lunit,*) 'SSTau      : ',SSTau
       Write(Lunit,*) 'SubScrStat : ',(SubScrStat(i),i=1,2)
-      Write(Lunit,*) 'DSubScr    : ',ip_DSubScr,l_DSubScr
-      Write(Lunit,*) 'DSPNm      : ',ip_DSPNm,l_DSPNm
+      Write(Lunit,*) 'DSubScr    : ',SIZE(DSubScr)
+      Write(Lunit,*) 'DSPNm      : ',SIZE(DSPNm)
 
       End
       SubRoutine Cho_PrintPointers(irc,Lunit)

@@ -21,22 +21,21 @@ C
 C     Note: it is assumed that array DiaMax and number of Cholesky
 C     vectors are properly updated before calling this routine.
 C
+      use ChoBkm, only: BkmVec, BkmThr, nCol_BkmVec, nCol_BkmThr
       Implicit None
       Integer iRS
 #include "cho_para_info.fh"
 #include "choglob.fh"
-#include "chobkm.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
-      If (l_BkmVec.lt.1 .or. l_BkmThr.lt.1) Return
+      If (.NOT.Allocated(BkmVec) .or. .NOT.Allocated(BkmThr)) Return
 
       If (Cho_Real_Par) Then
          Call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho_G,DiaMaxT,
-     &                            iWork(ip_BkmVec),Work(ip_BkmThr))
+     &                            BkmVec,BkmThr)
       Else
          Call Cho_UpdateBookmarks(iRS,nSym,MaxRed,NumCho,DiaMaxT,
-     &                            iWork(ip_BkmVec),Work(ip_BkmThr))
+     &                            BkmVec,BkmThr)
       End If
       nCol_BkmVec=nCol_BkmVec+1
       nCol_BkmThr=nCol_BkmThr+1

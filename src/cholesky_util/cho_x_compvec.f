@@ -44,6 +44,7 @@ C
 #if defined (_DEBUGPRINT_)
       use ChoArr, only: iSP2F
 #endif
+      use ChoArr, only: iOff_Batch, nDim_Batch
       use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
       Implicit None
       Integer irc
@@ -59,7 +60,6 @@ C
       Integer ip_Z(l_Z1,l_Z2)
       Logical Free_Z
 #include "cholesky.fh"
-#include "chosew.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "choprint.fh"
@@ -305,8 +305,7 @@ C
       Call GetMem('XCVnBt','Allo','Inte',ip_BatchDim,l_BatchDim)
 
       ! Allocate offset array for batched SP loop
-      l_iOff_Batch=nSym*nnShl
-      Call GetMem('XCVOFB','Allo','Inte',ip_iOff_Batch,l_iOff_Batch)
+      Call mma_allocate(iOff_Batch,nSym,nnShl,Label='iOff_Batch')
 
       ! Split remaining memory in two parts.
       ! One for integrals/vectors, one for Seward.
@@ -380,7 +379,7 @@ C
             nDim_Batch(iSym)=0
             Do iSP_=iSP_1,iSP_2
                iSP=iWork(ip_Tmp-1+iSP_)
-               iWork(ip_iOff_Batch-1+nSym*(iSP-1)+iSym)=nDim_Batch(iSym)
+               iOff_Batch(iSym,iSP)=nDim_Batch(iSym)
                nDim_Batch(iSym)=nDim_Batch(iSym)+nnBstRSh(iSym,iSP,2)
             End Do
          End Do
@@ -519,8 +518,7 @@ C
       ! Deallocations
       Call xRlsMem_Ints()
       Call GetMem('XCVInt','Free','Real',ip_Int,l_Int)
-      Call GetMem('XCVOFB','Free','Inte',ip_iOff_Batch,l_iOff_Batch)
-      l_iOff_Batch=0
+      Call mma_deallocate(iOff_Batch)
       Call GetMem('XCVZd','Free','Real',ip_Zd,l_Zd)
       iQuAB => Null()
       Call mma_deallocate(iQuAB_here)

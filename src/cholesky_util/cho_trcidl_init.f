@@ -17,22 +17,20 @@ C
 C     Allocate and init array for tracing idle processors
 C
       Use Para_Info, Only: nProcs
+      use ChoArr, only: Idle
       Implicit None
-#include "choptr2.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Integer i
+      Integer l_Idle
 
       If (Cho_Real_Par) Then
          l_Idle=nProcs
       Else
          l_Idle=1
       End If
-      Call GetMem('TrcIdl','Allo','Inte',ip_Idle,l_Idle)
+      Call mma_allocate(Idle,l_Idle,Label='Idle')
 
-      Do i=0,l_Idle-1
-         iWork(ip_Idle+i)=0
-      End Do
+      Idle(:)=0
 
       End

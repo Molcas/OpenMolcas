@@ -38,6 +38,7 @@
 *> @param[out] irc   Return code
 ************************************************************************
       Subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmThr
       Implicit None
       Real*8  Thr
       Integer mSym
@@ -45,7 +46,6 @@
       Real*8  delta(mSym)
       Integer irc
 #include "cho_para_info.fh"
-#include "chobkm.fh"
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 
@@ -65,8 +65,9 @@
       Integer i, j
       Integer nV
       Real*8  del
-      nV(i,j)=iWork(ip_BkmVec-1+nRow_BkmVec*(j-1)+i)
-      del(i,j)=Work(ip_BkmThr-1+nRow_BkmThr*(j-1)+i)
+
+      nV(i,j) =BkmVec(i,j)
+      del(i,j)=BkmThr(i,j)
 
 C     Set return code.
 C     ----------------
@@ -76,7 +77,7 @@ C     ----------------
 C     Check that bookmarks are available.
 C     -----------------------------------
 
-      If (l_BkmVec.lt.1 .or. l_BkmThr.lt.1) Then
+      If (.NOT.Allocated(BkmVec) .or. .NOT.Allocated(BkmThr)) Then
          irc=-1
          Return
       End If

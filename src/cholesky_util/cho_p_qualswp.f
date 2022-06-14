@@ -10,9 +10,9 @@
 ************************************************************************
       SUBROUTINE Cho_P_QualSwp()
       use ChoSwp, only: iQuAB, iQuAB_L, pTemp
+      use ChoArr, only: nQual_L
       Implicit None
 #include "cholesky.fh"
-#include "cholq.fh"
 
       Integer i, scr
 

@@ -17,31 +17,28 @@ C
 C     Update array for tracing idle processors
 C
       Use Para_Info, Only: MyRank
+      use ChoArr, only: Idle
       Implicit None
       Logical IAmIdle
-#include "choptr2.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
 #if defined (_DEBUGPRINT_)
 #include "cholesky.fh"
 #endif
 
 #if defined (_DEBUGPRINT_)
-      If (l_Idle.lt.1 .or. .not.Trace_Idle) Then
+      If (.NOT.Allocated(Idle) .or. .not.Trace_Idle) Then
          Write(LuPri,'(A)')
      &   'Cho_TrcIdl_Update should not be called in this run!'
          Write(LuPri,*) 'Trace_Idle=',Trace_Idle
-         Write(LuPri,'(A,2I10)')
-     &   'ip_Idle,l_Idle=',ip_Idle,l_Idle
          Call Cho_Quit('Illegal call to Cho_TrcIdl_Update',103)
       End If
 #endif
 
       If (IAmIdle) Then
          If (Cho_Real_Par) Then
-            iWork(ip_Idle+myRank)=iWork(ip_Idle+myRank)+1
+            Idle(1+myRank) = Idle(1+myRank)+1
          Else
-            iWork(ip_Idle)=iWork(ip_Idle)+1
+            Idle(1)=Idle(1)+1
          End If
       End If
 

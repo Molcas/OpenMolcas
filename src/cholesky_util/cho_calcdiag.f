@@ -14,6 +14,7 @@ C     Purpose: shell-driven calculation of the integral diagonal and
 C              setup of the first reduced set.
 C
       use ChoArr, only: iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
+      use ChoArr, only: MySP, n_MySP
       use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       DIMENSION BUF(LENBUF), SCR(LENSCR)
@@ -21,7 +22,6 @@ C
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "choptr2.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*12 SECNAM
@@ -98,12 +98,12 @@ C     ----------------------------------------------
       NDUMP  = 0
       N_MYSP = 0
       IOPT = 2
-      CALL CHO_P_DISTRIB_SP(IOPT,IWORK(ip_MYSP),N_MYSP)
+      CALL CHO_P_DISTRIB_SP(IOPT,MYSP,N_MYSP)
       CALL GETMEM('MAXIDA','MAX','REAL',KINTD,LINTD)
       CALL XSETMEM_INTS(LINTD) ! set memory for seward
-      DO I_MYSP = 0,N_MYSP-1
+      DO I_MYSP = 1,N_MYSP
 
-         ISAB = IWORK(ip_MYSP+I_MYSP)
+         ISAB = MYSP(I_MYSP)
 
          ISHLAB = ISP2F(ISAB)
          CALL CHO_INVPCK(ISHLAB,ISHLA,ISHLB,.TRUE.)

@@ -15,11 +15,12 @@ C
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use ChoArr, only: nDimRS, IntMap
       use ChoSwp, only: nnBstRSh, InfVec
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat,
+     &                     DSPNm, SSNorm
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "chosubscr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*8 SECNAM
@@ -36,8 +37,6 @@ C
       LOGICAL DOCPCT, DOWPCT, CHO_SSCREEN_SAVE, PARALG
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      DSPNM(I)=WORK(ip_DSPNM-1+I)
-
 
       PARALG=CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6
 

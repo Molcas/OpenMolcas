@@ -24,10 +24,13 @@
 #if defined (_MOLCAS_MPP_)
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "cholq.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "mafdecls.fh"
+
+#ifndef _GA_
+#include "WrkSpc.fh"
+#endif
 
       Logical LocDbg
 #if defined (_DEBUGPRINT_)
@@ -46,11 +49,9 @@ CVVP:2014 DGA is here
       Integer   ga_local_woff,nelm,iGAL
       External  ga_local_woff,ga_create_local
 #endif
-***************************************************************
-      map(i) = iWork(ip_map-1+i)
-      iDV(i) = iWork(ip_iVecR-1+i)
-      nRSL(i) = iWork(ip_nRSL-1+i)
-      iAdrLG(i,j) = iWork(ip_iAdrLG-1+MxRSL*(j-1)+i)
+      Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:),
+     &                       nRSL(:), MapRS2RS(:)
+      Real*8, Allocatable:: VecR(:,:)
 ***************************************************************
 
       If (.not.Cho_Real_Par) Then
@@ -75,36 +76,31 @@ CVVP:2014 DGA is here
       nV = Jfi - Jin + 1
       nVR = 0
 
-      l_iVecR = nV
-      Call GetMem('iVecR','Allo','Inte',ip_iVecR,l_iVecR)
-      Call cho_p_distrib_vec(Jin,Jfi,iWork(ip_iVecR),nVR)
-      l_VecR = nRS_g*(nVR+1)
-      Call GetMem('VecR','Allo','Real',ip_VecR,l_VecR)
+      call mma_allocate(iVecR,nV,Label='iVecR')
+      Call cho_p_distrib_vec(Jin,Jfi,iVecR,nVR)
+      Call mma_allocate(VecR,nRS_g,nVR+1,Label='VecR')
 
-      l_nRSL=nProcs
-      Call GetMem('RSL','Allo','Inte',ip_nRSL,l_nRSL)
-      Call iZero(iWork(ip_nRSL),nProcs)
-      iWork(ip_nRSL+MyRank) = nRS_l  ! MyRank starts from 0
-      Call Cho_GAIGOP(iWork(ip_nRSL),nProcs,'+')
+      Call mma_allocate(nRSL,nProcs,Label='nRSL')
+      nRSL(:)=0
+      nRSL(1+MyRank) = nRS_l  ! MyRank starts from 0
+      Call Cho_GAIGOP(nRSL,nProcs,'+')
 
       MxRSL=nRSL(1)
       Do i=2,nProcs
          MxRSL=max(MxRSL,nRSL(i))
       End Do
-      l_iAdrLG=MxRSL*nProcs
-      Call GetMem('iAdrLG','Allo','Inte',ip_iAdrLG,l_iAdrLG)
+      Call mma_allocate(iAdrLG,MxRSL,nProcs,Label='iAdrLG')
 
-      l_Map = nProcs
-      Call GetMem('Map','Allo','Inte',ip_Map,l_Map)
+      Call mma_allocate(Map,nProcs,Label='Map')
       nProcs_eff = 0
       iStart = 1
       myStart = 0
       Do i=1,nProcs
          If (nRSL(i) .gt. 0) Then
-            iWork(ip_Map+nProcs_eff) = iStart
+            nProcs_eff = nProcs_eff + 1
+            Map(nProcs_eff) = iStart
             If ((i-1) .eq. myRank) myStart = iStart
             iStart = iStart + nRSL(i)
-            nProcs_eff = nProcs_eff + 1
          End If
       End Do
 
@@ -124,7 +120,7 @@ CVVP:2014 DGA is here
       End If
 CVVP:2014 Local rather than Global
 #ifdef _GA_
-      ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',iWork(ip_Map),
+      ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,
      &                     nProcs_eff,1,1,g_a)
 #else
       ok = ga_create_local(mt_dbl,nRS_g,nV,'Ga_Vec',g_a)
@@ -149,13 +145,12 @@ CVVP:2014 the minimal latency and scalable putC call
 #endif
       Jin0 = Jin - 1
       Do i=1,nVR
-         iv=ip_VecR+nRS_g*(i-1)
-         jv=iDV(i) - Jin0
+         jv=iVecR(i) - Jin0
 #ifdef _GA_
-         Call ga_get(g_a,1,nRS_g,jv,jv,Work(iv),nRS_g)
+         Call ga_get(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
 #else
 CVVP:2014 the minimal latency and scalable getC call
-         Call ga_getc(g_a,1,nRS_g,jv,jv,Work(iv),nRS_g)
+         Call ga_getc(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
 #endif
       End Do
 
@@ -172,21 +167,21 @@ C --- write the reordered vec on disk
      &                 ': Non-zero return code from Cho_X_RSCopy',
      &                 104)
       End If
-      l_mapRS2RS = nnBstR(iSym,1)
-      Call GetMem('mapRS2RS','Allo','Inte',ip_mapRS2RS,l_mapRS2RS)
-      Call Cho_RS2RS(iWork(ip_mapRS2RS),l_mapRS2RS,jRed,iRed,iPass,iSym)
+
+      Call mma_allocate(MapRS2RS,nnBstR(iSym,1),Label='MapRS2RS')
+      Call Cho_RS2RS(mapRS2RS,SIZE(mapRS2RS),jRed,iRed,iPass,iSym)
       Call Cho_P_IndxSwp()
 
-      Call iZero(iWork(ip_iAdrLG),l_iAdrLG)
+      iAdrLG(:,:)=0
       Do i = 1,nRS_l
          i1 = IndRed(iiBstR(iSym,iRed)+i,iRed) ! addr in local rs1
          j1 = iL2G(i1) ! addr in global rs1
-         j = iWork(ip_mapRS2RS-1+j1-iiBstR_G(iSym,1)) ! addr in glob. rs
-         iWork(ip_iAdrLG-1+MxRSL*myRank+i) = j
+         j = mapRS2RS(j1-iiBstR_G(iSym,1)) ! addr in glob. rs
+         iAdrLG(i,myRank+1) = j
       End Do
-      Call Cho_GAIGOP(iWork(ip_iAdrLG),l_iAdrLG,'+')
+      Call Cho_GAIGOP(iAdrLG,SIZE(iAdrLG),'+')
 
-      Call GetMem('mapRS2RS','Free','Inte',ip_mapRS2RS,l_mapRS2RS)
+      Call mma_deallocate(MapRS2RS)
 
       If (LocDbg) Then
          iCount=0
@@ -202,13 +197,11 @@ C --- write the reordered vec on disk
 
       iScr=ip_VecR+NRS_g*nVR
       Do j=1,nVR
-         iv=ip_VecR+nRS_g*(j-1)
-         Call dCopy_(nRS_g,Work(iv),1,Work(iScr),1)
+         Call dCopy_(nRS_g,VecR(:,j),1,VecR(:,nVr+1),1)
          iCount=0
-         iv=iv-1
          Do iNode=1,nProcs
             Do iRSL=1,nRSL(iNode)
-               Work(iv+iAdrLG(iRSL,iNode))=Work(iScr+iCount)
+               VecR(iAdrLG(iRSL,iNode),j)=VecR(1+iCount,nVR+1)
                iCount=iCount+1
             End Do
          End Do
@@ -222,7 +215,7 @@ C --- write the reordered vec on disk
          If (lTot .gt. 0) Then
             iOpt=1
             iAdr=InfVec_G(iVec1,3,iSym)
-            Call dDAfile(LuCho_G(iSym),iOpt,Work(ip_VecR),lTot,iAdr)
+            Call dDAfile(LuCho_G(iSym),iOpt,VecR,lTot,iAdr)
          End If
          Do iVec = 1,nVR
             jVec = iVec1 + iVec - 1
@@ -240,11 +233,11 @@ C --- write the reordered vec on disk
 
 C --- deallocations
 
-      Call GetMem('Map','Free','Inte',ip_Map,l_Map)
-      Call GetMem('iAdrLG','Free','Inte',ip_iAdrLG,l_iAdrLG)
-      Call GetMem('RSL','Free','Inte',ip_nRSL,l_nRSL)
-      Call GetMem('VecR','Free','Real',ip_VecR,l_VecR)
-      Call GetMem('iVecR','Free','Inte',ip_iVecR,l_iVecR)
+      Call mma_deallocate(Map)
+      Call mma_deallocate(iAdrLG)
+      Call mma_deallocate(nRSL)
+      Call mma_deallocate(VecR)
+      Call mma_deallocate(iVecR)
 #else
       Call Cho_Quit(SecNam//
      &              ' should never be called in serial installation',
