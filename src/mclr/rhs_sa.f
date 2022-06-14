@@ -175,7 +175,7 @@
       Subroutine PT2_SLag
 
       Implicit Real*8 (A-H,O-Z)
-      integer opout
+      ! integer opout
       Real*8, Allocatable:: CIL(:), CIR(:)
 
 !     At present, Molcas accepts equally-weighted MCSCF reference,
