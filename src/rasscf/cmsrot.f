@@ -37,7 +37,7 @@ C     Allocating Memory
       CALL mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
       CALL mma_allocate(DDG,lRoots,lRoots,lRoots,lRoots)
 
-      CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
+      CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
 
       CALL LoadGtuvx(TUVX,Gtuvx)
 
@@ -48,7 +48,7 @@ C     Allocating Memory
       CALL NStateOpt(RotMat,DDg)
 
       VecName='CMS-PDFT'
-      CALL PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
+      CALL PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
 
 C     Deallocating Memory
       CALL mma_deallocate(GDMat)

@@ -112,9 +112,7 @@ C      call dcopy_(ndim,Zero,0,CntrZ,1)
 *
 *---- Transform cartesian to spherical components
 *
-#ifndef  _NO_F90_COMPILER_
-C     CALL mm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
-#endif
+C     CALL fmm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
 *
 *---- Write to FMM interface file
 *
@@ -151,9 +149,7 @@ C     &                    SphMoms(ij,iM,L+1), Dens(ij)
 *---- Now call multipole code to update the Fock matrix with the
 *     long-range multipole-computed Coulomb matrix elements.
 *
-#ifndef  _NO_F90_COMPILER_
-C     CALL mm_call_get_J_matrix(TwoHam,ndim,nBasTot,LMAX)
-#endif
+C     CALL fmm_call_get_J_matrix(TwoHam,ndim,nBasTot,LMAX)
 *
 *     Coulomb contributions of TwoHam should now be complete!
 *

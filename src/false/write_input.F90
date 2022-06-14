@@ -47,8 +47,8 @@ call mma_Deallocate(Symbol)
 
 return
 
-100 format(A)
-101 format(I6)
-102 format(A2,1X,3F20.12)
+100 format(a)
+101 format(i6)
+102 format(a2,1x,3f20.12)
 
 end subroutine Write_Input

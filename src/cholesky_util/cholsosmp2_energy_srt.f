@@ -17,6 +17,7 @@ C
 C     Compute Laplace-SOS-MP2 energy correction from sorted Cholesky
 C     vectors (i.e., occupied orbitals processed in batches).
 C
+      use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, lUnit
       Implicit None
       Integer N
       Real*8  w(N)
@@ -26,16 +27,16 @@ C
       Logical Delete
       Real*8  EMP2
       Integer irc
-#include "WrkSpc.fh"
+
+#include "real.fh"
+#include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "cholesky.fh"
+#include "stdalloc.fh"
 
-      Character*21 SecNam
-      Parameter (SecNam='ChoLSOSMP2_Energy_Srt')
+      Character(LEN=21), Parameter:: SecNam='ChoLSOSMP2_Energy_Srt'
 
-      Real*8   dDot_
-      external ddot_
+      Real*8, External:: dDot_
 
 #if !defined (_I8_) || defined (_DEBUGPRINT_)
       Character*2 Unt
@@ -45,8 +46,7 @@ C
       Integer nEnrVec(8)
 
       Integer iSym
-      Integer ip_X, l_X
-      Integer ip_V, l_V
+      Integer l_X
       Integer Nai
       Integer nBlock
       Integer iOpt, iAddr, l_Tot
@@ -66,23 +66,20 @@ C
       Real*8  lX, xM, xn, xb, xbp
       Real*8  tq, Eq, wq
 
-      Integer j, k, l
+      Real*8, Allocatable:: X(:), V(:)
+      Integer j, k
       Real*8  epsi, epsa
-      Integer MulD2h, lUnit, LnT1am, LiT1am, LnOcc, iFirstS
+      Integer MulD2h
+
       epsi(j,k)=EOcc(iOcc(k)+j)
       epsa(j,k)=EVir(iVir(k)+j)
       MulD2h(j,k)=iEOr(j-1,k-1)+1
-      lUnit(j,k)=iWork(ip_lUnit-1+nSym*(k-1)+j)
-      LnT1am(j,k)=iWork(ip_LnT1am-1+nSym*(k-1)+j)
-      LiT1am(j,k,l)=iWork(ip_LiT1am-1+nSym*nSym*(l-1)+nSym*(k-1)+j)
-      iFirstS(j,k)=iWork(ip_FirstS-1+nSym*(k-1)+j)
-      LnOcc(j,k)=iWork(ip_LnOcc-1+nSym*(k-1)+j)
 
       ! init return code
       irc=0
 
       ! init energy
-      EMP2=0.0d0
+      EMP2=Zero
 
       ! check input (incl. common block variables)
       If (nBatch.lt.2) Then
@@ -106,7 +103,7 @@ C
       End If
 
       ! allocate X
-      lX=0.0d0
+      lX=Zero
       Do iSym=1,nSym
          If (nT1am(iSym).gt.0 .and. nEnrVec(iSym).gt.0) Then
             bsize=min(Laplace_BlockSize,nEnrVec(iSym))
@@ -138,7 +135,7 @@ C
          Return
       End If
 #endif
-      Call GetMem('LSMX','Allo','Real',ip_X,l_X)
+      Call mma_allocate(X,l_X,Label='X')
 
       ! allocate vector array
       Nai=0
@@ -147,8 +144,7 @@ C
             Nai=max(Nai,LnT1am(iSym,iBatch)*nEnrVec(iSym))
          End Do
       End Do
-      l_V=Nai
-      Call GetMem('LSMV','Allo','Real',ip_V,l_V)
+      Call mma_allocate(V,Nai,Label='V')
 
       ! compute energy correction
       Do q=1,N
@@ -175,7 +171,7 @@ C
                   Call Abend()
                End If
 #endif
-               Call fZero(Work(ip_X),lenX)
+               X(1:lenX)=Zero
                Do iBatch=1,nBatch
                   Nai=LnT1am(iSym,iBatch)
                   If (Nai.gt.0) Then
@@ -187,19 +183,19 @@ C
                      l_Tot=Nai*nEnrVec(iSym)
                      iAddr=1
 #if defined (_DEBUGPRINT_)
-                     If (l_Tot.gt.l_V) Then
+                     If (l_Tot.gt.SIZE(V)) Then
                         Call WarningMessage(2,
      &                            SecNam//': insufficient V allocation')
-                        Write(6,'(A,2(1X,I10))') 'l_Tot,l_V=',l_Tot,l_V
+                        Write(6,'(A,2(1X,I10))') 'l_Tot,SIZE(V)=',
+     &                                            l_Tot,SIZE(V)
                         Call Abend()
                      End If
 #endif
-                     Call dDAFile(lUnit(iSym,iBatch),iOpt,Work(ip_V),
-     &                            l_Tot,iAddr)
+                     Call dDAFile(lUnit(iSym,iBatch),iOpt,V,l_Tot,iAddr)
                      Call ChoMP2_OpenB(2,iSym,iBatch)
                      ! scale vectors
                      Do iVec=1,nEnrVec(iSym)
-                        ip0=ip_V-1+Nai*(iVec-1)
+                        ip0=Nai*(iVec-1)
                         Do iSymi=1,nSym
                            If (LnOcc(iSymi,iBatch).gt.0) Then
                               iSyma=MulD2h(iSym,iSymi)
@@ -208,12 +204,12 @@ C
                                  ii=iFirstS(iSymi,iBatch)+i
                                  Call dScal_(nVir(iSyma),
      &                                      exp(epsi(ii,iSymi)*tq),
-     &                                      Work(ip1+nVir(iSyma)*i+1),1)
+     &                                      V(ip1+nVir(iSyma)*i+1),1)
                               End Do
                               Do a=1,nVir(iSyma)
                                  Call dScal_(LnOcc(iSymi,iBatch),
      &                                      exp(-epsa(a,iSyma)*tq),
-     &                                      Work(ip1+a),nVir(iSyma))
+     &                                      V(ip1+a),nVir(iSyma))
                               End Do
                            End If
                         End Do
@@ -221,9 +217,9 @@ C
                      ! loop over vector blocks to compute
                      ! X(J,K) +=
                      ! sum_ai L(ai,J)*L(ai,K)*exp(-(e(a)-e(i))*t(q)/2)
-                     ipX=ip_X
+                     ipX=1
                      Do jBlock=1,nBlock
-                        ipj=ip_V+Nai*Laplace_BlockSize*(jBlock-1)
+                        ipj=1+Nai*Laplace_BlockSize*(jBlock-1)
                         If (jBlock.eq.nBlock) Then
                            nVecj=nEnrVec(iSym)
      &                          -Laplace_BlockSize*(nBlock-1)
@@ -231,7 +227,7 @@ C
                            nVecj=Laplace_BlockSize
                         End If
                         Do iBlock=jBlock,nBlock
-                           ipi=ip_V+Nai*Laplace_BlockSize*(iBlock-1)
+                           ipi=1+Nai*Laplace_BlockSize*(iBlock-1)
                            If (iBlock.eq.nBlock) Then
                               nVeci=nEnrVec(iSym)
      &                             -Laplace_BlockSize*(nBlock-1)
@@ -239,17 +235,18 @@ C
                               nVeci=Laplace_BlockSize
                            End If
                            Call dGEMM_('T','N',nVeci,nVecj,Nai,
-     &                                1.0d0,Work(ipi),Nai,Work(ipj),Nai,
-     &                                1.0d0,Work(ipX),nVeci)
+     &                                1.0d0,V(ipi),Nai,
+     &                                      V(ipj),Nai,
+     &                                1.0d0,X(ipX),nVeci)
                            ipX=ipX+nVeci*nVecj
                         End Do
                      End Do
 #if defined (_DEBUGPRINT_)
-                     If (lenX.ne.(ipX-ip_X)) Then
+                     If (lenX.ne.(ipX-1)) Then
                         Call WarningMessage(2,
      &                                SecNam//': dimension problem [1]')
                         Write(6,'(A,I10,A,I10)')
-     &                  'lenX=',lenX,' ipX-ip_X=',ipX-ip_X
+     &                  'lenX=',lenX,' ipX-1=',ipX-1
                         Call Abend()
                      End If
 #endif
@@ -257,7 +254,7 @@ C
                End Do
                ! compute energy contribution
                ! Eq += sum_JK [X(J,K)]**2
-               ipX=ip_X
+               ipX=1
                Do jBlock=1,nBlock
                   If (jBlock.eq.nBlock) Then
                      nVecj=nEnrVec(iSym)
@@ -273,21 +270,19 @@ C
                         nVeci=Laplace_BlockSize
                      End If
                      If (iBlock.eq.jBlock) Then
-                        Eq=Eq+0.5d0*dDot_(nVeci*nVecj,
-     &                                   Work(ipX),1,Work(ipX),1)
+                        Eq=Eq+0.5d0*dDot_(nVeci*nVecj,X(ipX),1,X(ipX),1)
                      Else
-                        Eq=Eq+dDot_(nVeci*nVecj,
-     &                             Work(ipX),1,Work(ipX),1)
+                        Eq=Eq+dDot_(nVeci*nVecj,X(ipX),1,X(ipX),1)
                      End If
                      ipX=ipX+nVeci*nVecj
                   End Do
                End Do
 #if defined (_DEBUGPRINT_)
-               If (lenX.ne.(ipX-ip_X)) Then
+               If (lenX.ne.(ipX-1)) Then
                   Call WarningMessage(2,
      &                             SecNam//': dimension problem [2]')
                   Write(6,'(A,I10,A,I10)')
-     &            'lenX=',lenX,' ipX-ip_X=',ipX-ip_X
+     &            'lenX=',lenX,' ipX-1=',ipX-1
                   Call Abend()
                End If
 #endif
@@ -300,8 +295,8 @@ C
       End Do
 
       ! deallocations
-      Call GetMem('LSMV','Free','Real',ip_V,l_V)
-      Call GetMem('LSMX','Free','Real',ip_X,l_X)
+      Call mma_deallocate(V)
+      Call mma_deallocate(X)
 
       ! delete files if requested
       If (Delete) Then

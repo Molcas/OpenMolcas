@@ -50,9 +50,9 @@ end if
 
 U1dU2 = ddot_(3,U1,1,U2,1)
 V1dV2 = ddot_(3,V1,1,V2,1)
-coeff = ( One-U1dU2**2 ) / ( One-V1dV2**2 )
+coeff = (One-U1dU2**2)/(One-V1dV2**2)
 coeff = sqrt(coeff)
-V2(:) = ( U1dU2 - V1dV2 * coeff ) * V1(:) + coeff * V2(:)
+V2(:) = (U1dU2-V1dV2*coeff)*V1(:)+coeff*V2(:)
 if (debug) call RecPrt('IN QUATERSETUP modified V2','',V2,3,1)
 
 return

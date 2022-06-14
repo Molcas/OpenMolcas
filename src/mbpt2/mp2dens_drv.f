@@ -289,9 +289,11 @@
          End Do
       End Do
 *
-      Call Build_Mp2Dens(ip_AOTriDens,ip_Density,
+*     use the old interface for now ... (RL)
+
+      Call Build_Mp2Dens_Old(ip_AOTriDens,ip_Density,
      &                   Work(ipCMO),nSym,nOrbAll,nOccAll,.true.)
-      Call Build_Mp2Dens(ip_WAOTriDens, ip_WDensity,
+      Call Build_Mp2Dens_Old(ip_WAOTriDens, ip_WDensity,
      &                   Work(ipCMO),nSym,nOrbAll,nOccAll,.false.)
 *
 #ifdef _DEBUGPRINT_

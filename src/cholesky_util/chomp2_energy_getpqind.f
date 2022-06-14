@@ -17,23 +17,19 @@ C     Jonas Bostrom, june 2008
 C
 C     Purpose: setup (pq|rs) index arrays for calculating mp2_densities.
 C
+      use ChoMP2, only: LnPQprod
       Implicit None
       Integer iBatch, jBatch
       Integer LnPQRSprod,LiPQRSprod(8)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       Integer iSym
-      Integer i, j
-      Integer LnPQprod
 
       Character*14 String
       Character*22 SecNam
       Parameter (SecNam = 'ChoMP2_Energy_GetPQInd')
-
-      LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)
 
       If (iBatch .eq. jBatch) Then
          LnPQRSprod = 0

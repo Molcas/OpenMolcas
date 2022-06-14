@@ -25,12 +25,13 @@ C
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       CHARACTER(LEN=16), PARAMETER:: SECNAM = 'CHO_MCA_DBGINT_A'
 
-      DIMENSION XLBAS(8)
+      Real*8 XLBAS(8)
+
+      Real*8, Allocatable:: Int1(:), Wrk(:)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
 
@@ -63,13 +64,13 @@ C     Allocate memory for largest integral quadruple.
 C     -----------------------------------------------
 
       LINTMX = MX2SH*MX2SH
-      CALL GETMEM('DBGINT.1','ALLO','REAL',KINT1,LINTMX)
+      Call mma_allocate(INT1,LINTMX,Label='INT1')
 
 C     Allocate max. memory
 C     ----------------------------------------------------------
 
       Call mma_maxDBLE(LWRK)
-      CALL GETMEM('DBGINT.2','ALLO','REAL',KWRK,LWRK/2)
+      Call mma_allocate(WRK,LWRK/2,Label='WRK')
       CALL XSETMEM_INTS(LWRK/2)
 
 C     Print header.
@@ -126,16 +127,15 @@ C           ---------------------------------------
 C           Calculate shell quadruple (CD|AB).
 C           ----------------------------------
 
-            CALL CHO_DZERO(WORK(KINT1),LINT1)
-            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,WORK(KINT1),
-     &                         LINT1,.FALSE.)
+            INT1(1:LINT1)=0.0D0
+            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,INT1,LINT1,.FALSE.)
 
 C           Calculate integrals from Cholesky vectors.
 C           ------------------------------------------
 
-            CALL CHO_DBGINT_CHO(WORK(KINT1),NUMCD,NUMAB,WORK(KWRK),
-     &                           LWRK/2,ERRMAX,ERRMIN,ERRRMS,NCMP,
-     &                           ISHLCD,ISHLAB)
+            CALL CHO_DBGINT_CHO(INT1,NUMCD,NUMAB,WRK,
+     &                          LWRK/2,ERRMAX,ERRMIN,ERRRMS,NCMP,
+     &                          ISHLCD,ISHLAB)
 
 C           Write report.
 C           -------------
@@ -182,8 +182,8 @@ C     Release all memory allocated here (and release seward memory).
 C     --------------------------------------------------------------
 
       CALL XRLSMEM_INTS()
-      CALL GETMEM('DBGINT.2','FREE','REAL',KWRK,LWRK/2)
-      CALL GETMEM('INTDBG.4','FREE','REAL',KINT1,LINTMX)
+      Call mma_deallocate(WRK)
+      Call mma_deallocate(INT1)
 
 C     Check total number of comparisons.
 C     ----------------------------------

@@ -19,15 +19,16 @@ C
       Integer LstQSP(nQSP)
       Integer iV1(mSym), nV(mSym)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*16 SecNam
-      Parameter (SecNam = 'Cho_VecDsk_GetLQ')
+      Character(LEN=16), Parameter:: SecNam = 'Cho_VecDsk_GetLQ'
 
       Integer nVecTot(8)
 
-      Integer  Cho_P_LocalSP
-      External Cho_P_LocalSP
+      Integer, External:: Cho_P_LocalSP
+
+      Real*8, Allocatable:: Scr(:)
+      Integer, Allocatable:: iQuAB_2(:)
 
 C     Check input.
 C     ------------
@@ -66,7 +67,7 @@ C     ----------------------------
             l_Scr = max(l_Scr,lDim)
          End If
       End Do
-      Call GetMem('VDSK_Scr','Allo','Real',ip_Scr,l_Scr)
+      Call mma_allocate(Scr,l_Scr,Label='Scr')
 
 C     Allocate extra mapping from qualified to reduced set.
 C     -----------------------------------------------------
@@ -75,7 +76,7 @@ C     -----------------------------------------------------
       Do iSym = 2,nSym
          l_iQuAB_2 = max(l_iQuAB_2,nQual(iSym))
       End Do
-      Call GetMem('iQuAB_2','Allo','Inte',ip_iQuAB_2,l_iQuAB_2)
+      Call mma_allocate(iQuAB_2,l_iQuAB_2,Label='iQuAB_2')
 
 C     Extract in each symmetry block.
 C     -------------------------------
@@ -86,24 +87,21 @@ C     -------------------------------
       iLoc = 3
       iRedC = -1
       kOffQ = 0
-      kI = ip_iQuAB_2 - 1
       Do iSym = 1,nSym
          iRedQ = -2
          If (nV(iSym).gt.0 .and. nQual(iSym).gt.0) Then
             iV2 = iV1(iSym) + nV(iSym) - 1
             Do jV = iV1(iSym),iV2
-               Call Cho_1VecRd_SP(Work(ip_Scr),l_Scr,jV,iSym,LstQSP,
-     &                            nQSP,iRedC,iLoc)
+               Call Cho_1VecRd_SP(Scr,l_Scr,jV,iSym,LstQSP,nQSP,iRedC,
+     &                            iLoc)
                If (iRedQ .ne. iRedC) Then
-                  Call Cho_SetQ2(iWork(ip_iQuAB_2),LstQSP,nQSP,
-     &                           iSym,jLoc,iLoc)
+                  Call Cho_SetQ2(iQuAB_2,LstQSP,nQSP,iSym,jLoc,iLoc)
                   iRedQ = iRedC
                End If
                kQ = kOffQ + nQual(iSym)*(jV-1)
-               kS = ip_Scr - 1
                Do iQ = 1,nQual(iSym)
-                  iAB = iWork(kI+iQ)
-                  QVec(kQ+iQ) = Work(kS+iAB)
+                  iAB = iQuAB_2(iQ)
+                  QVec(kQ+iQ) = Scr(iAB)
                End Do
             End Do
          End If
@@ -113,7 +111,7 @@ C     -------------------------------
 C     Deallocations.
 C     --------------
 
-      Call GetMem('iQuAB_2','Free','Inte',ip_iQuAB_2,l_iQuAB_2)
-      Call GetMem('VDSK_Scr','Free','Real',ip_Scr,l_Scr)
+      Call mma_deallocate(iQuAB_2)
+      Call mma_deallocate(Scr)
 
       End

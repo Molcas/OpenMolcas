@@ -32,15 +32,18 @@
 #  define empty_prefix() empty_
 #  define dummy_empty_procedure(name) subroutine empty_prefix()name() ; end subroutine
 
-#ifdef _WARNING_WORKAROUND_
+#  ifdef _WARNING_WORKAROUND_
 
-#define unused_var(x) associate(tmp => x); end associate
+#    define unused_var(x) associate(tmp => x); end associate
+!    For external procedures, associate doesn't work with all compilers
+#    define unused_proc(x) if (.false.) call x()
 
-#else
+#  else
 
-#define unused_var(x)
+#    define unused_var(x)
+#    define unused_proc(x)
 
-#endif
+#  endif
 
 ! This should be the last end if
 #endif

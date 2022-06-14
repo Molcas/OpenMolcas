@@ -985,12 +985,14 @@ c Avoid unused argument warnings
 *. Scratch
       DIMENSION IICL(*),IIOP(*),IIOC(NORB1+NORB2+NORB3)
 *
+      Logical Test
 *
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
       ILOOP = 0
       ILOOP2 = 0
       NCNF = 0
+      NORBT=NORB1+NORB2+NORB3
 
 *
       CALL iCOPY(MXPCSM*MXPCNT,[0],0,NCNATS,1)
@@ -1131,14 +1133,16 @@ COLD        IF(IFRSTO .EQ. 0 .AND. NOP .NE. 0 ) THEN
               NEWORB = IPRORB + 1
               IIOC(IPRORB) = 0
   690         CONTINUE
-                IF(NEWORB .LE. MXMPTY .AND. IIOC(NEWORB) .NE. 0) THEN
+                IF(NEWORB .LE. MXMPTY .AND.
+     &             IIOC(MIN(NORBT,NEWORB)) .NE. 0) THEN
                    NEWORB = NEWORB + 1
                    IF(NEWORB .LE. MXMPTY ) GOTO 690
                 END IF
 C 691         End of loop
-            IF(IPLACE .LT. NOP .AND. NEWORB .LT. IIOP(IPLACE+1)
-     &      .OR.
-     &      IPLACE .EQ. NOP .AND. NEWORB .LE. MXMPTY ) THEN
+            Test=IPLACE .LT. NOP
+            If (Test) Test=NEWORB .LT. IIOP(IPLACE+1)
+            IF(Test .OR.
+     &        IPLACE .EQ. NOP .AND. NEWORB .LE. MXMPTY ) THEN
               IIOP(IPLACE) = NEWORB
               IIOC(NEWORB) = 1
            ELSE IF (  IPLACE .NE. NOP ) THEN
@@ -1589,6 +1593,7 @@ c Avoid unused argument warnings
 *.Scratch
       DIMENSION IIOC(*),IICL(*),IIOP(*)
 *
+      Logical Test
 *
       NTEST = 0000
 
@@ -1733,14 +1738,17 @@ C. Next open shell configuration
 
 * PAM 2013: Searching for next orbital with IIOC=0:
   690         CONTINUE
-              IF(NEWORB.LE.MXMPTY .and. IIOC(NEWORB) .NE. 0) THEN
+              Test = NEWORB.LE.MXMPTY
+              If (Test) Test=IIOC(NEWORB) .NE. 0
+              IF(Test) THEN
                 NEWORB = NEWORB + 1
                 GOTO 690
               END IF
 
-            IF(IPLACE .LT. NOP .AND. NEWORB .LT. IIOP(IPLACE+1)
-     &      .OR.
-     &      IPLACE .EQ. NOP .AND. NEWORB .LE. MXMPTY ) THEN
+            Test = IPLACE .LT. NOP
+            If (Test) Test=NEWORB .LT. IIOP(IPLACE+1)
+            IF(Test .OR.
+     &        IPLACE .EQ. NOP .AND. NEWORB .LE. MXMPTY ) THEN
               IIOP(IPLACE) = NEWORB
               IIOC(NEWORB) = 1
            ELSE IF (  IPLACE .NE. NOP ) THEN
