@@ -47,6 +47,7 @@
   xMult   = all
   ipea    = 0.00
   dwms    = 50
+  dwtype  = 1
   convergence = 1.0d-07
   thresholds  = 1.0d-9 1.0d-07
   rlxRoot = 1
@@ -57,6 +58,7 @@
   xMult   = all
   ipea    = 0.00
   dwms    = 50
+  dwtype  = 1
   convergence = 1.0d-07
   thresholds  = 1.0d-9 1.0d-07
   rlxRoot = 2
@@ -64,9 +66,10 @@
 &ALASKA
 
 &CASPT2
-  xMult = all
-  ipea  = 0.00
-  dwms  = 50
+  xMult  = all
+  ipea   = 0.00
+  dwms   = 50
+  dwtype = 1
   convergence = 1.0d-07
   thresholds  = 1.0d-9 1.0d-07
   nac   = 1 2

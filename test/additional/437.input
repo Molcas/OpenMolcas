@@ -48,6 +48,7 @@
   shift   = 0.20
   ipea    = 0.00
   dwms    = -1
+  dwtype  = 1
   convergence = 1.0d-07
   thresholds  = 1.0d-9 1.0d-07
   rlxRoot = 1
@@ -59,6 +60,7 @@
   shift   = 0.20
   ipea    = 0.00
   dwms    = -1
+  dwtype  = 1
   convergence = 1.0d-07
   thresholds  = 1.0d-9 1.0d-07
   rlxRoot = 2
@@ -70,6 +72,7 @@
   shift = 0.20
   ipea  = 0.00
   dwms  = -1
+  dwtype  = 1
   convergence = 1.0d-07
   thresholds  = 1.0d-9 1.0d-07
   nac   = 1 2
