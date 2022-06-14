@@ -600,6 +600,13 @@ subroutine ProcInp_Caspt2
                           ' the CASPT2 calculation.')
     call quit_onUserError
   end if
+  ! for the time being only allow RMS analytic gradients with
+  ! XMS + DWMS + DWtype keywords and not RMUL
+  if (ifgrdt.and.ifrms) then
+    call warningMessage(2,'Use XMUL & DWMS = -1 & DWTY = 1 for'//  &
+                          ' RMS-CASPT2 analytic gradients.')
+    call quit_onUserError
+  end if
 
   !---  Exit
   Return
