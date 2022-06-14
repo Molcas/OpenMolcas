@@ -108,9 +108,9 @@
 
       If (.not.debug) Then !yma debug ??
        renergy=Zero
-       Do i=1,nsym
-        Do j=1,nbas(i)
-         renergy = renergy + T(ipmat(i,i)+j-1+nbas(i)*(j-1))
+       Do ii=1,nsym
+        Do jj=1,nbas(ii)
+         renergy = renergy + T(ipmat(ii,ii)+jj-1+nbas(ii)*(jj-1))
         End DO
        End DO
 
@@ -197,12 +197,12 @@
           If (abs(vSLag).le.1.0d-10) Cycle
 C
           Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
-          iRC=opout(ipCI)
+          ! iRC=opout(ipCI)
           Call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
-          iRC=opout(ipCI)
-          iRC=ipnout(-1)
-          icsm=1
-          issm=1
+          ! iRC=opout(ipCI)
+          ! iRC=ipnout(-1)
+          ! icsm=1
+          ! issm=1
           Call Densi2(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)
           !! For RDM1
           ij=0

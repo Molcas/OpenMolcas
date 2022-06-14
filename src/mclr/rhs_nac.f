@@ -26,7 +26,7 @@
       Real*8 factor
       External ipIn,opOut,ipnOut
 *
-      Integer iSLag,jR,kR
+      Integer iSLag !,jR,kR
       Real*8, Allocatable:: G1q(:), G1m(:), G1r(:), G2q(:), G2r(:),
      &                      CIL(:), CIR(:), T(:), F(:)
 *                                                                      *
@@ -232,7 +232,8 @@ C     Almost the same to the subroutine in rhs_sa.f,
 C     but slightly modified
 C
       Implicit Real*8 (A-H,O-Z)
-      integer opout
+      ! integer opout
+      integer jR,kR
 C
       !! iR = iRLXRoot
       Do jR = 1, nRoots
@@ -245,12 +246,12 @@ C         write (*,*) vslag
 C         write (*,*) vslag
 C
           Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
-          iRC=opout(ipCI)
+          ! iRC=opout(ipCI)
           Call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
-          iRC=opout(ipCI)
-          iRC=ipnout(-1)
-          icsm=1
-          issm=1
+          ! iRC=opout(ipCI)
+          ! iRC=ipnout(-1)
+          ! icsm=1
+          ! issm=1
 C
           If (abs(vSLag).gt.1.0d-10) Then
             Call Densi2(2,G1q,G2q,CIL,CIR,0,0,0,n1dens,n2dens)

@@ -48,11 +48,11 @@
 
   200 continue
       write(6,*)
-      write(6,'(x,"The file which has to be written in CASPT2 module ",
+      write(6,'(1x,"The file which has to be written in CASPT2 module ",
      *            "does not exist in RHS_PT2.")')
-      write(6,'(x,"For single-point gradient calculation, you need ",
+      write(6,'(1x,"For single-point gradient calculation, you need ",
      *            "GRAD or GRDT keyword in &CASPT2.")')
-      write(6,'(x,"For geometry optimization, you do not need ",
+      write(6,'(1x,"For geometry optimization, you do not need ",
      *            "anything, so something is wrong with the code.")')
       write(6,*)
       call abend()

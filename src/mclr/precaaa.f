@@ -57,9 +57,7 @@
       iiC = iC+nIsh(iS)
       iA  = iC
       iAA = iCC
-      iiA = iiC
 *
-C     i=itri1(iiA,iiC)
       i=itri(iAA,iCC)
       !! Construct for all active orbitals first
       Call DCopy_(ntAsh*(ntAsh+1)/2,[0.0d+00],0,Scr,1)
