@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF)
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,usual
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif

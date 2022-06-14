@@ -146,6 +146,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine GrdCls(UEFF,U0,H0)
 C
+      use output_caspt2, only:iPrGlb,usual
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -472,6 +473,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine GradStart
 C
+      use output_caspt2, only:iPrGlb,usual
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

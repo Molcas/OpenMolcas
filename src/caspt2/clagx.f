@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 C
+      use output_caspt2, only:iPrGlb,usual
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -1350,7 +1351,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagFinal(CLag,SLag)
 C
-      use output_caspt2, only:iPrGlb,usual,verbose
+      use output_caspt2, only:iPrGlb,usual
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       Dimension CLag(nConf,nState),SLag(*)
@@ -2806,7 +2807,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2)
 C
-      use output_caspt2, only:iPrGlb,usual,verbose
+      use output_caspt2, only:iPrGlb,usual
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
