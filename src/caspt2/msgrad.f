@@ -18,7 +18,6 @@
 ! C
 ! #include "rasdim.fh"
 ! #include "caspt2.fh"
-! #include "output.fh"
 ! #include "eqsolv.fh"
 ! #include "WrkSpc.fh"
 ! #include "sigma.fh"
@@ -53,7 +52,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
@@ -151,7 +149,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
@@ -292,7 +289,6 @@ C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "eqsolv.fh"
 
@@ -1216,8 +1212,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
 C
@@ -1269,7 +1263,6 @@ C
 * MATRIX FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
@@ -1317,7 +1310,6 @@ C
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -1452,8 +1444,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-C#include "pt2_guga.fh"
-C#include "output.fh"
 #include "chocaspt2.fh"
 #include "caspt2_grad.fh"
 C
@@ -1787,11 +1777,11 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"

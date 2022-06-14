@@ -467,7 +467,6 @@ C
 #include "chocaspt2.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
-#include "output.fh"
 #include "caspt2_grad.fh"
 
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),WRK(*)

@@ -1138,19 +1138,9 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-C#include "output.fh"
-C#include "eqsolv.fh"
-C#include "WrkSpc.fh"
-C#include "sigma.fh"
-C#include "para_info.fh"
 
-C#include "caspt2_grad.fh"
-C#include "csfbas.fh"
-C
-C#include "pt2_guga.fh"
-C
       Dimension Trf0(*),Trf(*)
-C
+
       iSQ = 0
       iTOrb = 1 ! LTOrb
       ipTrfL = 0

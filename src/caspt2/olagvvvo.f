@@ -840,10 +840,8 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-! #include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
-#include "output.fh"
 #include "caspt2_grad.fh"
 
       Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)

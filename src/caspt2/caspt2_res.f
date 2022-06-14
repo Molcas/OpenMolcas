@@ -16,7 +16,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "caspt2_grad.fh"
@@ -147,7 +146,6 @@ C
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION DIN(*),DIS(*)
@@ -219,11 +217,11 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE PCG_RES(ICONV)
       USE INPUTDATA
+      use output_caspt2, only:iPrGlb,terse,usual
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 

@@ -23,7 +23,6 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "sigma.fh"

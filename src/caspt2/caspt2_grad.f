@@ -152,7 +152,6 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
-#include "output.fh"
 C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
@@ -477,7 +476,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "caspt2_grad.fh"
 C
       ! This should also be moved to input processing

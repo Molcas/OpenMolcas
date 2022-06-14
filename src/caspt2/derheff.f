@@ -16,7 +16,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
@@ -126,7 +125,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
@@ -261,7 +259,6 @@ C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "eqsolv.fh"
 
@@ -823,8 +820,6 @@ C
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
-
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"

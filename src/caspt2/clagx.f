@@ -16,10 +16,7 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
-C#include "eqsolv.fh"
 #include "WrkSpc.fh"
-C#include "sigma.fh"
 #include "pt2_guga.fh"
 C
       DIMENSION CLag(nConf,nState)
@@ -130,7 +127,6 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
@@ -1129,13 +1125,13 @@ C
       SUBROUTINE CnstCLag(IFF,CLag,
      *                    DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
      *                    G1,G2,G3)
-C
+
+      use output_caspt2, only:iPrGlb,usual,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
 C
@@ -1262,11 +1258,8 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
-C
 #include "caspt2_grad.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*)
@@ -1357,6 +1350,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagFinal(CLag,SLag)
 C
+      use output_caspt2, only:iPrGlb,usual,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       Dimension CLag(nConf,nState),SLag(*)
@@ -1364,10 +1358,7 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "output.fh"
 
-Cinclude "pt2_guga.fh"
-Cinclude "SysDef.fh"
       Call GetMem('LCI1','ALLO','REAL',LCI1,nConf)
       Call GetMem('LCI2','ALLO','REAL',LCI2,nConf)
 C
@@ -1437,7 +1428,6 @@ C
 * MATRIX FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
@@ -1485,7 +1475,6 @@ C
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -1889,7 +1878,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -2100,7 +2088,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -2296,7 +2283,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -2505,7 +2491,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -2821,13 +2806,13 @@ C-----------------------------------------------------------------------
 C
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2)
 C
+      use output_caspt2, only:iPrGlb,usual,verbose
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "output.fh"
 C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
      *          WRK1(nBasT,nBasT),WRK2(*)

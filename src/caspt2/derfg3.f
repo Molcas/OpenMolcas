@@ -3,10 +3,10 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use output_caspt2, only:iPrGlb,verbose,debug
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
@@ -911,18 +911,9 @@ C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
-
-
-C     CALL DCOPY_(NG1,[0.0D0],0,G1,1)
-C     CALL DCOPY_(NG2,[0.0D0],0,G2,1)
-C     CALL DCOPY_(NG3,[0.0D0],0,G3,1)
-C     CALL DCOPY_(NG1,[0.0D0],0,F1,1)
-C     CALL DCOPY_(NG2,[0.0D0],0,F2,1)
-C     CALL DCOPY_(NG3,[0.0D0],0,F3,1)
 
       ESUM=0.0D0
       DESUM=0.0D+00
