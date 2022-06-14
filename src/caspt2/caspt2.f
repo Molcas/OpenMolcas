@@ -15,6 +15,7 @@
       USE SUPERINDEX
       USE INPUTDATA
       USE PT2WFN
+      use output_caspt2, only:iPrGlb,terse,usual,verbose,debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
@@ -70,7 +71,6 @@ C
 #include "warnings.fh"
 #include "constants.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "intgrl.fh"
@@ -172,7 +172,7 @@ C
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
 * states according to the XMS prescription in xdwinit
-      if (IFXMS.and.IFDW) then
+      if ((IFXMS .and. IFDW) .or. (IFRMS)) then
         call xdwinit(Heff,H0,U0)
         if (IFEFOCK) then
           call wgtinit(H0)
