@@ -123,10 +123,10 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                 VECROT)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
-C
+! #ifdef _MOLCAS_MPP_
+!       USE Para_Info, ONLY: Is_Real_Par, King
+! #endif
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -197,46 +197,42 @@ C           write(6,'(i4,2f20.10)') i,work(lg_v5+i-1),work(lg_v6+i-1)
 C         end do
 C         call abend
 C
-#ifdef _MOLCAS_MPP_
-          IF (Is_Real_Par()) THEN
-            IF (KING()) THEN
-              ! copy global array to local buffer
-              CALL GETMEM('VEC1','ALLO','REAL',LVEC1,NVEC)
-              CALL GA_GET(lg_V1,1,NIN,1,NIS,WORK(LVEC1),NIN)
-C             IF(IVEC.EQ.JVEC) THEN
-C               LVEC2=LVEC1
-C             ELSE
-                CALL GETMEM('VEC2','ALLO','REAL',LVEC2,NVEC)
-                CALL GA_GET(lg_V2,1,NIN,1,NIS,WORK(LVEC2),NIN)
-C             END IF
+! #ifdef _MOLCAS_MPP_
+    !       IF (Is_Real_Par()) THEN
+    !         IF (KING()) THEN
+    !           ! copy global array to local buffer
+    !           CALL GETMEM('VEC1','ALLO','REAL',LVEC1,NVEC)
+    !           CALL GA_GET(lg_V1,1,NIN,1,NIS,WORK(LVEC1),NIN)
+    !           CALL GETMEM('VEC2','ALLO','REAL',LVEC2,NVEC)
+    !           CALL GA_GET(lg_V2,1,NIN,1,NIS,WORK(LVEC2),NIN)
 
-              CALL CLagDX(0,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
-     *                    WORK(LVEC3),WORK(LVEC4),
-     *                    nIN,nIS,nAS,G1,G2,G3,
-     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                    VECROT,Work(lg_V5))
+    !           CALL CLagDX(0,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
+    !  *                    WORK(LVEC3),WORK(LVEC4),
+    !  *                    nIN,nIS,nAS,G1,G2,G3,
+    !  *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+    !  *                    VECROT,Work(lg_V5))
 
-              ! free local buffer
-              CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
-              CALL GETMEM('VEC2','FREE','REAL',LVEC2,nVec)
-            END IF
-            CALL GASYNC
-          ELSE
-            CALL CLagDX(0,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     *                  Work(lg_V3),Work(lg_V4),
-     *                  nIN,nIS,nAS,G1,G2,G3,
-     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                  VECROT,Work(lg_V5))
-          END IF
-#else
+    !           ! free local buffer
+    !           CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
+    !           CALL GETMEM('VEC2','FREE','REAL',LVEC2,nVec)
+    !         END IF
+    !         CALL GASYNC
+    !       ELSE
+    !         CALL CLagDX(0,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
+    !  *                  Work(lg_V3),Work(lg_V4),
+    !  *                  nIN,nIS,nAS,G1,G2,G3,
+    !  *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+    !  *                  VECROT,Work(lg_V5))
+    !       END IF
+! #else
 C          write(6,*) "calling clagdx for icase = ", icase
           CALL CLagDX(0,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                Work(lg_V3),Work(lg_V4),
      *                nIN,nIS,nAS,G1,G2,G3,
      *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                VECROT,Work(lg_V5))
-#endif
-C
+! #endif
+
           If (SHIFTI.ne.0) Then
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
@@ -244,15 +240,15 @@ C
             iD = iDBMat(iSym,iCase)
             Call dDaFile(LUSBT,2,Work(LBD),nAS,iD)
             Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
-C
+
             CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
             Call CASPT2_ResD(2,nIN,nIS,lg_V1,Work(LBD),Work(LID))
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
             Call CASPT2_ResD(2,nIN,nIS,lg_V2,Work(LBD),Work(LID))
             CALL RHS_READ_SR(lg_V4,ICASE,ISYM,iVecR)
             Call CASPT2_ResD(2,nIN,nIS,lg_V4,Work(LBD),Work(LID))
-C           Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
-C
+!           Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
+
             Call DScal_(NG1,-1.0D+00,DG1,1)
             Call DScal_(NG2,-1.0D+00,DG2,1)
             Call DScal_(NG3,-1.0D+00,DG3,1)
@@ -261,47 +257,43 @@ C
             Call DScal_(NG3,-1.0D+00,DF3,1)
             DEASUM = -DEASUM
             Call DScal_(NG1,-1.0D+00,DEPSA,1)
-C
-#ifdef _MOLCAS_MPP_
-          IF (Is_Real_Par()) THEN
-            IF (KING()) THEN
-              ! copy global array to local buffer
-              CALL GETMEM('VEC1','ALLO','REAL',LVEC1,NVEC)
-              CALL GA_GET(lg_V1,1,NIN,1,NIS,WORK(LVEC1),NIN)
-C             IF(IVEC.EQ.JVEC) THEN
-C               LVEC2=LVEC1
-C             ELSE
-                CALL GETMEM('VEC2','ALLO','REAL',LVEC2,NVEC)
-                CALL GA_GET(lg_V2,1,NIN,1,NIS,WORK(LVEC2),NIN)
-C             END IF
 
-              CALL CLagDX(1,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
-     *                    WORK(LVEC3),WORK(LVEC4),
-     *                    nIN,nIS,nAS,G1,G2,G3,
-     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                    VECROT,Work(lg_V5))
+! #ifdef _MOLCAS_MPP_
+!           IF (Is_Real_Par()) THEN
+!             IF (KING()) THEN
+!               ! copy global array to local buffer
+!               CALL GETMEM('VEC1','ALLO','REAL',LVEC1,NVEC)
+!               CALL GA_GET(lg_V1,1,NIN,1,NIS,WORK(LVEC1),NIN)
+!               CALL GETMEM('VEC2','ALLO','REAL',LVEC2,NVEC)
+!               CALL GA_GET(lg_V2,1,NIN,1,NIS,WORK(LVEC2),NIN)
 
-              ! free local buffer
-              CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
-              CALL GETMEM('VEC2','FREE','REAL',LVEC2,nVec)
-            END IF
-            CALL GASYNC
-          ELSE
-            CALL CLagDX(1,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
+!               CALL CLagDX(1,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
+!      *                    WORK(LVEC3),WORK(LVEC4),
+!      *                    nIN,nIS,nAS,G1,G2,G3,
+!      *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+!      *                    VECROT,Work(lg_V5))
+
+!               ! free local buffer
+!               CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
+!               CALL GETMEM('VEC2','FREE','REAL',LVEC2,nVec)
+!             END IF
+!             CALL GASYNC
+!           ELSE
+!             CALL CLagDX(1,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
+!      *                  Work(lg_V3),Work(lg_V4),
+!      *                  nIN,nIS,nAS,G1,G2,G3,
+!      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+!      *                  VECROT,Work(lg_V5))
+!           END IF
+! #else
+C          write(6,*) "calling clagdx for icase = ", icase
+            CALL CLagDX(1,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                  Work(lg_V3),Work(lg_V4),
      *                  nIN,nIS,nAS,G1,G2,G3,
      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                  VECROT,Work(lg_V5))
-          END IF
-#else
-C          write(6,*) "calling clagdx for icase = ", icase
-          CALL CLagDX(1,iSym,iCase,Work(lg_V1),WORK(lg_V2),
-     *                Work(lg_V3),Work(lg_V4),
-     *                nIN,nIS,nAS,G1,G2,G3,
-     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                VECROT,Work(lg_V5))
-#endif
-C
+! #endif
+
             Call DScal_(NG1,-1.0D+00,DG1,1)
             Call DScal_(NG2,-1.0D+00,DG2,1)
             Call DScal_(NG3,-1.0D+00,DG3,1)
@@ -1486,9 +1478,9 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
+! #ifdef _MOLCAS_MPP_
+!       USE Para_Info, ONLY: Is_Real_Par, King
+! #endif
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1598,9 +1590,9 @@ C           G1(IU,IT)=GTU
 *      needed to achieve better load balancing. So it exits from the task
 *      list. It has to do it here since each process gets at least one
 *      task.
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
+! #if defined (_MOLCAS_MPP_) && !defined (_GA_)
+!       IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
+! #endif
 
       GOTO 500
  501  CONTINUE
@@ -3290,9 +3282,9 @@ C-----------------------------------------------------------------------
 C
       !! dens2_rpt2.f
       Subroutine TimesE2(CIin,CIout,INT1,INT2)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
+! #ifdef _MOLCAS_MPP_
+!       USE Para_Info, ONLY: Is_Real_Par, King
+! #endif
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -3381,9 +3373,9 @@ C               CALL GETSGM2(LV,LX,ISSG,Work(LSGM1),Work(LSGM2))
             END DO
 
 C
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
-        IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
+! #if defined (_MOLCAS_MPP_) && !defined (_GA_)
+!         IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
+! #endif
 C
         GOTO 500
  501    CONTINUE
