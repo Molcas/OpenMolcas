@@ -188,8 +188,8 @@ subroutine dmrg_task_process_update(                                  &
 
 # include "macros.fh"
   unused_var(task)
-  unused_var(x1)
-  unused_var(x2)
+  unused_var(x1(1))
+  unused_var(x2(1))
   unused_var(energy)
   unused_var(ndim)
   unused_var(mdim)

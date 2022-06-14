@@ -11,6 +11,7 @@
 # - bounds: enable bounds checking (slow)
 # - debug: build with no optimization (no tests)
 # - qcmaquis: default build with QCMaquis and NEVPT2 support (only qcmaquis tests)
+# - mpi: build with Global Arrays, OpenMPI, OpenBLAS
 
 .plain:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
@@ -234,5 +235,27 @@
     CXX: "g++"
     FC: "gfortran"
     tests: "qcmaquis"
+  tags:
+    - docker
+
+.mpi:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
+  variables:
+    cache_file: |
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (MPI "ON" CACHE STRING "enable MPI parallelization")
+      set (GA "ON" CACHE STRING "enable Global Arrays")
+      set (GA_BUILD "ON" CACHE STRING "build our own Global Arrays (needs submodule)")
+      set (OPENMP "ON" CACHE STRING "enable OpenMP diagnostics")
+      set (LINALG "OpenBLAS" CACHE STRING "use OpenBLAS library")
+      set (MPI_LAUNCHER "/usr/bin/mpiexec $$MPI_FLAGS -n $$MOLCAS_NPROCS" CACHE STRING "custom MPI launcher command line")
+      set (DEFMOLCASMEM "768" CACHE STRING "reduce memory for 2 processes")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    submodules: "External/ga"
+    tests: ".all"
+    MPI_FLAGS: "--allow-run-as-root"
+    MOLCAS_NPROCS: "2"
   tags:
     - docker

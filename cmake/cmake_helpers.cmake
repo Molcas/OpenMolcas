@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2016,2018,2020, Ignacio Fdez. Galván                   *
+# Copyright (C) 2016,2018,2020,2021, Ignacio Fdez. Galván              *
 #               2020, Oskar Weser                                      *
 #***********************************************************************
 
@@ -119,4 +119,15 @@ function (set_absolute_paths Output Base_Dir)
     list (APPEND absolute_paths ${file_path})
   endforeach ()
   set (${Output} ${absolute_paths} PARENT_SCOPE)
+endfunction ()
+
+# Make a cache variable internal, setting it to its current value
+# or to the optional argument
+function (make_internal Var)
+  get_property (help CACHE ${Var} PROPERTY HELPSTRING)
+  if (${ARGC} GREATER 1)
+    set (${Var} ${ARGV1} CACHE INTERNAL "${help}" FORCE)
+  else ()
+    set (${Var} ${${Var}} CACHE INTERNAL "${help}" FORCE)
+  endif ()
 endfunction ()

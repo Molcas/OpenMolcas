@@ -8,17 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Compute_AuxVec(ipVk,ipUk,ipZpk,myProc,nProc,CASPT2)
+      Subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,CASPT2,ipUk)
       use pso_stuff
       use Basis_Info, only: nBas, nBas_Aux
       use Temporary_Parameters, only: force_out_of_core
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-      Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
+      Integer ipVk(nProc), ipZpk(nProc)
+      Integer, Optional:: ipUk(nProc)
       Logical CASPT2
 #include "itmax.fh"
-! #include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "cholesky.fh"
@@ -50,6 +50,10 @@
       EndIf
 *
       If(iMp2prpt.eq.2) Then
+          If (.NOT.Present(ipUk)) Then
+            Write (6,*) 'No ipUk input present!'
+            Call Abend()
+          End If
           nU_ls=0
           Do i=0,nIrrep-1
              nU_l(i) = NumCho(i+1) ! local # of vecs in parallel run
@@ -79,7 +83,7 @@
 *
       DoCAS=lPSO
 *
-      If (nV_ls .gt. 1) Then ! can be = 0 in a parallel run
+      If (nV_ls >=1) Then ! can be = 0 in a parallel run
 *
          jp_V_k = ipVk(myProc)
          jp_Z_p_k = ipZpk(myProc)
@@ -94,7 +98,7 @@
 ************************************************************************
 *
          Timings=.False.
-*         Timings=.True.
+*        Timings=.True.
 *
          Call Get_iArray('nIsh',nIOrb,nIrrep)
 
@@ -152,7 +156,7 @@
          End If
 ************************************************************************
 *                                                                      *
-*     Compute Fr+In+Ac localized orbitals                              *
+*       Compute Fr+In+Ac localized orbitals                            *
 *       using Cholesky  decomposition for PD matrices                  *
 *       using Eigenvalue decomposition for non-PD matrices (SA-CASSCF) *
 *                                                                      *
@@ -376,16 +380,18 @@
 *
          Call OFembed_dmat(Work(ipDMlt(1)),nDens)
 *
-*         nScreen=10 ! Some default values for the screening parameters
-*         dmpK=One
+*        nScreen=10 ! Some default values for the screening parameters
+*        dmpK=One
          Estimate=.False.
          Update=.True.
          Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,
      &                     Txy,n_Txy*nAdens,ipTxy,
      &                     DoExchange,lSA,nChOrb,ipAOrb,nAsh,
-     &                     DoCAS,Estimate,Update,V_k(jp_V_k,1),
-     &                     U_k(jp_U_k),Z_p_k(jp_Z_p_k,1),nnP,npos,
-     &                     nZ_p_k)
+     &                     DoCAS,Estimate,Update,
+     &                     V_k(jp_V_k,1), nV_k,
+     &                     U_k(jp_U_k),
+     &                     Z_p_k(jp_Z_p_k,1), nZ_p_k,
+     &                     nnP,npos)
 *
          If (irc.ne.0) Then
             Call WarningMessage(2,
@@ -404,9 +410,11 @@
 *
 *     For parallel run: reordering of the V_k(tilde) vector from
 *     the "node storage" to the Q-vector storage
-*MGD will probably not work for SA-CASSCF
-      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1,
-     &                               V_k)
+      If (nProc.gt.1)  Then
+         Do i = 1, SIZE(V_K,2)
+            Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1,V_k(:,i))
+         End Do
+      End If
 ************************************************************************
 *                                                                      *
 *     Second step: contract with the Q-vectors to produce V_k          *
@@ -450,9 +458,8 @@
          Call GetMem('Zv','Allo','Real',ipZv,nZ_p_k)
 *
          Do iAvec=1,nAvec
-*MGD wrong
-           If (nProc.gt.1)  Call Reord_Vk(ipZpk(1),nProc,myProc,
-     &                    nV_l,nV_t,nnP,nIrrep,Z_p_k)
+           If (nProc.gt.1) Call Reord_Vk(ipZpk(1),nProc,myProc,
+     &                    nV_l,nV_t,nnP,nIrrep,Z_p_k(:,iAVec))
 *
            Call Mult_Zp_Qv_s(Z_p_k(ipZpk(1),iAvec),nZ_p_k,
      &                       Work(ipQv),nQv,Work(ipZv),nZ_p_k,nV_t,nnP,

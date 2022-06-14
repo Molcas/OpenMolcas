@@ -195,7 +195,6 @@ C --- write the reordered vec on disk
          End If
       End If
 
-      iScr=ip_VecR+NRS_g*nVR
       Do j=1,nVR
          Call dCopy_(nRS_g,VecR(:,j),1,VecR(:,nVr+1),1)
          iCount=0
