@@ -335,32 +335,6 @@ C
       IF(nWec_.GT.0) THEN
         CALL GETMEM('WEC1','ALLO','REAL',lWec_,nWec_)
         CALL DCOPY_(nWec_,[0.0D0],0,WORK(lWec_),1)
-#ifdef _MOLCAS_MPP_
-C       IF (IS_REAL_PAR()) THEN
-C           CALL GETMEM('TMP1','ALLO','REAL',LTMP1,NVEC1)
-C           CALL RHS_GET(NAS1,NIS1,LVEC1,WORK(LTMP1))
-C           IF(ICASE1.EQ.1) THEN
-C             CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LTMP1),
-C    &                WORK(LWEC1))
-C           ELSE IF(ICASE1.EQ.4) THEN
-C             CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LTMP1),
-C    &                WORK(LWEC1))
-C           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-C             CALL SPEC1D(IMLTOP,FACT,WORK(LTMP1),WORK(LWEC1))
-C           END IF
-C           CALL GETMEM('TMP1','FREE','REAL',LTMP1,NVEC1)
-C       ELSE
-C         IF(ICASE1.EQ.1) THEN
-C           CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),
-C    &                WORK(LWEC1))
-C         ELSE IF(ICASE1.EQ.4) THEN
-C           CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LVEC1),
-C    &                WORK(LWEC1))
-C         ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-C           CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WORK(LWEC1))
-C         END IF
-C       END IF
-#else
         IF(iCase_.EQ.1) THEN
           CALL SPEC1A(IMLTOP_,FACT,iSym_,WORK(lVec_),WORK(lWec_))
         ELSE IF(iCase_.EQ.4) THEN
@@ -368,7 +342,6 @@ C       END IF
         ELSE IF(iCase_.EQ.5.AND.iSym_.EQ.1) THEN
           CALL SPEC1D(IMLTOP_,FACT,WORK(lVec_),WORK(lWec_))
         END IF
-#endif
       END IF
 C
 C
@@ -387,36 +360,9 @@ C
       CALL RHS_SCAL(nAS_,nIS_,lVecS_,0.0D+00)
       CALL RHS_STRANS (nAS_,nIS_,1.0D+00,lVec_,lVecS_,iCase_,iSym_)
 C
-      !! Consider parallelization later...
       IF(nWec_.GT.0) THEN
         CALL GETMEM('WEC1S','ALLO','REAL',lWecS_,nWec_)
         CALL DCOPY_(nWec_,[0.0D0],0,WORK(lWecS_),1)
-#ifdef _MOLCAS_MPP_
-C       IF (IS_REAL_PAR()) THEN
-C           CALL GETMEM('TMP1','ALLO','REAL',LTMP1,NVEC1)
-C           CALL RHS_GET(NAS1,NIS1,LVEC1,WORK(LTMP1))
-C           IF(ICASE1.EQ.1) THEN
-C             CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LTMP1),
-C    &                WORK(LWEC1))
-C           ELSE IF(ICASE1.EQ.4) THEN
-C             CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LTMP1),
-C    &                WORK(LWEC1))
-C           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-C             CALL SPEC1D(IMLTOP,FACT,WORK(LTMP1),WORK(LWEC1))
-C           END IF
-C           CALL GETMEM('TMP1','FREE','REAL',LTMP1,NVEC1)
-C       ELSE
-C         IF(ICASE1.EQ.1) THEN
-C           CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),
-C    &                WORK(LWEC1))
-C         ELSE IF(ICASE1.EQ.4) THEN
-C           CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LVEC1),
-C    &                WORK(LWEC1))
-C         ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-C           CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WORK(LWEC1))
-C         END IF
-C       END IF
-#else
         IF(iCase_.EQ.1) THEN
           CALL SPEC1A(IMLTOP_,FACT,iSym_,WORK(lVecS_),WORK(lWecS_))
         ELSE IF(iCase_.EQ.4) THEN
@@ -424,7 +370,6 @@ C       END IF
         ELSE IF(iCase_.EQ.5.AND.iSym_.EQ.1) THEN
           CALL SPEC1D(IMLTOP_,FACT,WORK(lVecS_),WORK(lWecS_))
         END IF
-#endif
       END IF
 C
       End Subroutine PrepVec1
