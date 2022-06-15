@@ -201,10 +201,8 @@ contains
     Logical(kind=iwp) :: dochemps2 = .false.
 #endif
 
-#ifdef _NECI_
-    ! even if SCF was performed with FCIQMC, CASPT2 requires manual invocation.
+    ! even if SCF was performed with FCIQMC, stochastic CASPT2 requires manual invocation.
     DoFCIQMC = .false.
-#endif
 
     rewind (LuIn)
     call RdNLst(LuIn,'CASPT2')
@@ -590,10 +588,9 @@ contains
         !Quan: Using the same variable doCumulant in Block
         Input%doCumulant = .true.
         dochemps2 = .true.
-#elif _NECI_
-      case ('FCIQMC')
-      DoFciQMC = .true.
 #endif
+      case ('FCIQ')
+        DoFciQMC = .true.
 
       case ('EFFE')
         Input%JMS = .true.
@@ -670,13 +667,11 @@ contains
       call Quit_OnUserError()
     endif
 #endif
-#ifdef _NECI_
-    ! Check if nState>1
-    if ((DoFCIQMC == .true.) .and. (nStates > 1)) then
-      write (u6,*) 'FCIQMC supports only state-specific CASPT2'
+
+    if ((DoFCIQMC .eqv. .true.) .and. (nStates > 1)) then
+      write (u6,*) 'FCIQMC supports only state-specific CASPT2.'
       call Quit_OnUserError()
     endif
-#endif
 
     call mma_deallocate(Line)
 

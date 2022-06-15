@@ -57,6 +57,7 @@ C>                   to active indices
 
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3)
       use output_caspt2, only:iPrGlb,verbose,debug
+      use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
 #if defined (_MOLCAS_MPP_) && !defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
@@ -543,127 +544,132 @@ C  only for the G1 and G2 replicate arrays
       CALL GADSUM(F1,NG1)
       CALL GADSUM(F2,NG2)
 
-* Correction to G2: It is now = <0| E_tu E_yz |0>
-      do iu=1,nlev
-       do iz=1,nlev
-        do it=1,nlev
-         G2(it,iu,iu,iz)=G2(it,iu,iu,iz)-G1(it,iz)
-        end do
-       end do
-      end do
-C-SVC20100310: took some spurious mirroring of G2 values out
-C-of the loops and put them here, after the parallel section has
-C-finished, so that GAdSUM works correctly.
-      do ip1=ntri2+1,nlev2
-       itlev=idx2ij(1,ip1)
-       iulev=idx2ij(2,ip1)
-       it=L2ACT(itlev)
-       iu=L2ACT(iulev)
-       do ip3=ntri1+1,ip1
-        iylev=idx2ij(1,ip3)
-        izlev=idx2ij(2,ip3)
-        iy=L2ACT(iylev)
-        iz=L2ACT(izlev)
-        G2(it,iu,iy,iz)=G2(iz,iy,iu,it)
-       end do
-      end do
-* Correction to G2: Some values not computed follow from symmetry
-      do ip1=1,nlev2-1
-       itlev=idx2ij(1,ip1)
-       iulev=idx2ij(2,ip1)
-       it=L2ACT(itlev)
-       iu=L2ACT(iulev)
-       do ip3=ip1+1,nlev2
-        iylev=idx2ij(1,ip3)
-        izlev=idx2ij(2,ip3)
-        iy=L2ACT(iylev)
-        iz=L2ACT(izlev)
-        G2(it,iu,iy,iz)=G2(iy,iz,it,iu)
-       end do
-      end do
-      IF(IFF.ne.0) THEN
-* Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
-       do iz=1,nlev
-        do iy=1,nlev
-         do iu=1,nlev
-          do it=1,nlev
-           F2(it,iu,iy,iz)=F2(it,iu,iy,iz)-
-     &           (EPSA(iu)+EPSA(iy))*G2(it,iu,iy,iz)
+          ! Correction to G2: It is now = <0| E_tu E_yz |0>
+          do iu=1,nlev
+           do iz=1,nlev
+            do it=1,nlev
+             G2(it,iu,iu,iz)=G2(it,iu,iu,iz)-G1(it,iz)
+            end do
+           end do
           end do
-         end do
-        end do
-       end do
-       do iz=1,nlev
-        do iu=1,nlev
-         do it=1,nlev
-          F2(it,iu,iu,iz)=F2(it,iu,iu,iz)-
-     &          (F1(it,iz)+EPSA(iu)*G1(it,iz))
-         end do
-        end do
-       end do
-C-SVC20100310: took some spurious mirroring of F2 values out
-C-of the loops and put them here, after the parallel section has
-C-finished, so that GAdSUM works correctly.
-       do ip1=ntri2+1,nlev2
-        itlev=idx2ij(1,ip1)
-        iulev=idx2ij(2,ip1)
-        it=L2ACT(itlev)
-        iu=L2ACT(iulev)
-        do ip3=ntri1+1,ip1
-         iylev=idx2ij(1,ip3)
-         izlev=idx2ij(2,ip3)
-         iy=L2ACT(iylev)
-         iz=L2ACT(izlev)
-         F2(it,iu,iy,iz)=F2(iz,iy,iu,it)
-        end do
-       end do
-* Correction to F2: Some values not computed follow from symmetry
-       do ip1=1,nlev2-1
-        itlev=idx2ij(1,ip1)
-        iulev=idx2ij(2,ip1)
-        it=L2ACT(itlev)
-        iu=L2ACT(iulev)
-        do ip3=ip1+1,nlev2
-         iylev=idx2ij(1,ip3)
-         izlev=idx2ij(2,ip3)
-         iy=L2ACT(iylev)
-         iz=L2ACT(izlev)
-         F2(it,iu,iy,iz)=F2(iy,iz,it,iu)
-        end do
-       end do
-      END IF
+          ! SVC20100310: took some spurious mirroring of G2 values out
+          ! of the loops and put them here, after the parallel section has
+          ! finished, so that GAdSUM works correctly.
+          do ip1=ntri2+1,nlev2
+           itlev=idx2ij(1,ip1)
+           iulev=idx2ij(2,ip1)
+           it=L2ACT(itlev)
+           iu=L2ACT(iulev)
+           do ip3=ntri1+1,ip1
+            iylev=idx2ij(1,ip3)
+            izlev=idx2ij(2,ip3)
+            iy=L2ACT(iylev)
+            iz=L2ACT(izlev)
+            G2(it,iu,iy,iz)=G2(iz,iy,iu,it)
+           end do
+          end do
+          ! Correction to G2: Some values not computed follow from symmetry
+          do ip1=1,nlev2-1
+           itlev=idx2ij(1,ip1)
+           iulev=idx2ij(2,ip1)
+           it=L2ACT(itlev)
+           iu=L2ACT(iulev)
+           do ip3=ip1+1,nlev2
+            iylev=idx2ij(1,ip3)
+            izlev=idx2ij(2,ip3)
+            iy=L2ACT(iylev)
+            iz=L2ACT(izlev)
+            G2(it,iu,iy,iz)=G2(iy,iz,it,iu)
+           end do
+          end do
+          IF(IFF.ne.0) THEN
+           ! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
+           do iz=1,nlev
+            do iy=1,nlev
+             do iu=1,nlev
+              do it=1,nlev
+               F2(it,iu,iy,iz)=F2(it,iu,iy,iz)-
+     &               (EPSA(iu)+EPSA(iy))*G2(it,iu,iy,iz)
+              end do
+             end do
+            end do
+           end do
+           do iz=1,nlev
+            do iu=1,nlev
+             do it=1,nlev
+              F2(it,iu,iu,iz)=F2(it,iu,iu,iz)-
+     &              (F1(it,iz)+EPSA(iu)*G1(it,iz))
+             end do
+            end do
+           end do
+           ! SVC20100310: took some spurious mirroring of F2 values out
+           ! of the loops and put them here, after the parallel section has
+           ! finished, so that GAdSUM works correctly.
+           do ip1=ntri2+1,nlev2
+            itlev=idx2ij(1,ip1)
+            iulev=idx2ij(2,ip1)
+            it=L2ACT(itlev)
+            iu=L2ACT(iulev)
+            do ip3=ntri1+1,ip1
+             iylev=idx2ij(1,ip3)
+             izlev=idx2ij(2,ip3)
+             iy=L2ACT(iylev)
+             iz=L2ACT(izlev)
+             F2(it,iu,iy,iz)=F2(iz,iy,iu,it)
+            end do
+           end do
+           ! Correction to F2: Some values not computed follow from symmetry
+           do ip1=1,nlev2-1
+            itlev=idx2ij(1,ip1)
+            iulev=idx2ij(2,ip1)
+            it=L2ACT(itlev)
+            iu=L2ACT(iulev)
+            do ip3=ip1+1,nlev2
+             iylev=idx2ij(1,ip3)
+             izlev=idx2ij(2,ip3)
+             iy=L2ACT(iylev)
+             iz=L2ACT(izlev)
+             F2(it,iu,iy,iz)=F2(iy,iz,it,iu)
+            end do
+           end do
+          END IF
 
-* Correction to G3: It is now <0| E_tu E_vx E_yz |0>
-* Similar for F3 values.
-      DO iG3=1,NG3
-       iT=idxG3(1,iG3)
-       iU=idxG3(2,iG3)
-       iV=idxG3(3,iG3)
-       iX=idxG3(4,iG3)
-       iY=idxG3(5,iG3)
-       iZ=idxG3(6,iG3)
-* Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
-       if(iY.eq.iX) then
-        G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
-        IF(IFF.ne.0) F3(iG3)=
-     &           F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
-        if(iv.eq.iu) then
-         G3(iG3)=G3(iG3)-G1(iT,iZ)
-         IF(IFF.ne.0) F3(iG3)=F3(iG3)-F1(iT,iZ)
-        end if
-       end if
-       if(iV.eq.iU) then
-         G3(iG3)=G3(iG3)-G2(iT,iX,iY,iZ)
-         IF(IFF.ne.0) F3(iG3)=F3(iG3)-
-     &            (F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
-       end if
-       if(iY.eq.iU) then
-         G3(iG3)=G3(iG3)-G2(iV,iX,iT,iZ)
-         IF(IFF.ne.0) F3(iG3)=
-     &            F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
-       end if
-       IF(IFF.ne.0) F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
-      END DO
+      ! Correction to G3: It is now <0| E_tu E_vx E_yz |0>
+      ! Similar for F3 values.
+          DO iG3=1,NG3
+           iT=idxG3(1,iG3)
+           iU=idxG3(2,iG3)
+           iV=idxG3(3,iG3)
+           iX=idxG3(4,iG3)
+           iY=idxG3(5,iG3)
+           iZ=idxG3(6,iG3)
+           ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
+           if(iY.eq.iX) then
+            G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
+            IF(IFF.ne.0) F3(iG3)=
+     &               F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
+            if(iv.eq.iu) then
+             G3(iG3)=G3(iG3)-G1(iT,iZ)
+             IF(IFF.ne.0) F3(iG3)=F3(iG3)-F1(iT,iZ)
+            end if
+           end if
+           if(iV.eq.iU) then
+             G3(iG3)=G3(iG3)-G2(iT,iX,iY,iZ)
+             IF(IFF.ne.0) F3(iG3)=F3(iG3)-
+     &                (F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
+           end if
+           if(iY.eq.iU) then
+             G3(iG3)=G3(iG3)-G2(iV,iX,iT,iZ)
+             IF(IFF.ne.0) F3(iG3)=
+     &                F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
+           end if
+           IF(IFF.ne.0) F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
+          END DO
+
+      if (DoFCIQMC .eqv. .true.) then
+          call mkfg3fciqmc(WORK(LG1),WORK(LG2),WORK(LG3),
+     &               WORK(LF1),WORK(LF2),WORK(LF3),idxG3)
+      end if
 
       IF(iPrGlb.GE.DEBUG) THEN
 CSVC: if running parallel, G3/F3 are spread over processes,

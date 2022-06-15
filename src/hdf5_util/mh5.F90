@@ -139,6 +139,7 @@ interface mh5_fetch_dset
                       mh5_fetch_dset_scalar_real, &
                       mh5_fetch_dset_scalar_str, &
                       mh5_fetch_dset_array_int, &
+                      mh5_fetch_dset_array_int_2d, &
                       mh5_fetch_dset_array_real, &
                       mh5_fetch_dset_array_real_2d, &
                       mh5_fetch_dset_array_real_3d, &
@@ -1508,6 +1509,23 @@ subroutine mh5_put_dset_array_real_3d(dsetid,buffer,exts,offs)
   end if
   if (rc < 0) call abend()
 end subroutine mh5_put_dset_array_real_3d
+
+subroutine mh5_fetch_dset_array_int_2d(lu,dsetname,buffer,exts,offs)
+  integer(kind=iwp), intent(in) :: lu
+  character(len=*), intent(in) :: dsetname
+  integer(kind=iwp), intent(_OUT_) :: buffer(:,:)
+  integer(kind=iwp), intent(in), optional :: exts(*), offs(*)
+  integer(kind=iwp) :: dsetid
+  dsetid = mh5_open_dset(lu,dsetname)
+  if (present(exts) .and. present(offs)) then
+    call mh5_get_dset_array_int(dsetid,buffer,exts,offs)
+  else if (present(exts) .or. present(offs)) then
+    call abend()
+  else
+    call mh5_get_dset_array_int(dsetid,buffer)
+  end if
+  call mh5_close_dset(dsetid)
+end subroutine mh5_fetch_dset_array_int_2d
 
 subroutine mh5_fetch_dset_array_real_2d(lu,dsetname,buffer,exts,offs)
   integer(kind=iwp), intent(in) :: lu

@@ -47,8 +47,7 @@
         CALL GETMEM('LSGM2','ALLO','REAL',LSGM2 ,MXCI)
         CALL GETMEM('LG1TMP','ALLO','REAL',LG1TMP,NG1)
         CALL GETMEM('LG2TMP','ALLO','REAL',LG2TMP,NG2)
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || \
-      defined _NECI_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         IF(.Not.DoCumulant) THEN
 #endif
           CALL DENS2_RPT2(CI,WORK(LSGM1),WORK(LSGM2),
@@ -76,8 +75,8 @@
      &          , DNRM2_(NG2,WORK(LG2TMP),1)
           ENDIF
         END IF
-      END IF
 #endif
+      END IF
 
 * REINITIALIZE USE OF DMAT.
 * The fields IADR10 and CLAB10 are kept in common included from pt2_guga.fh
