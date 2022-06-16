@@ -210,7 +210,7 @@ do iTs=1,nTs
     Coori(:,3) = TC(:)
     Coori(:,4) = TC(:)
 
-    call DYaX(nZeta*nDAO,Fact*Q,DAO,1,Array(ipDAO),1)
+    Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*Q*pack(DAO,.true.)
 
     ! Compute integrals with the Rys quadrature.
 

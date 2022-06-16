@@ -186,7 +186,7 @@ do iTs=1,1
     call dcopy_(3,TC,1,Coori(1,3),1)
     call dcopy_(3,TC,1,Coori(1,4),1)
 
-    call DYaX(nZeta*nDAO,Fact*Q,DAO,1,Array(ipDAO),1)
+    Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*Q*pack(DAO,.true.)
 
     ! Compute integrals with the Rys quadrature.
 

@@ -33,11 +33,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
-real(kind=wp), intent(inout) :: xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax)
-real(kind=wp), intent(in) :: PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys), B00(nArg*lRys), B01(nArg*lRys)
-integer(kind=iwp) :: i, iab, icd, iOffy, iOffz
-real(kind=wp) :: Fac1, Fac2, Fact, PAWPx, PAWPy, PAWPz, QCWQx, QCWQy, QCWQz, temp1x, temp1y, temp1z, temp2x, temp2y, temp2z, &
-                 temp3x, temp3y, temp3z
+real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
+real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys), B00(nArg*lRys), B01(nArg*lRys)
+integer(kind=iwp) :: iab, icd
+real(kind=wp) :: Fac1, Fac2, Fact
 logical(kind=iwp) :: lPAWP, lQCWQ
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -52,8 +51,6 @@ call RecPrt(' B00',' ',B00,lRys,nArg)
 call RecPrt(' B01',' ',B01,lRys,nArg)
 #endif
 
-iOffy = nArg*lRys
-iOffz = 2*nArg*lRys
 if ((nabMax /= 0) .or. (ncdMax /= 0)) then
 
   ! General code
@@ -69,47 +66,26 @@ if ((nabMax /= 0) .or. (ncdMax /= 0)) then
       lQCWQ = .true.
     end if
   end if
-  if (lPAWP) call dcopy_(nArg*lRys,PAWP(1+iOffz),1,xyz2D(1,0,0),1)
-  if (lQCWQ) call dcopy_(nArg*lRys,QCWQ(1+iOffz),1,xyz2D(1+iOffy,0,0),1)
+  if (lPAWP) xyz2D(:,1,0,0) = PAWP(:,3)
+  if (lQCWQ) xyz2D(:,2,0,0) = QCWQ(:,3)
 
   ! Compute 2D integrals with index (i,0)
 
   if (nabMax == 0) then
 
   else if (nabMax == 1) then
-    do i=1,nArg*lRys
-      PAWPz = xyz2D(i+iOffz,1,0)
-      xyz2D(i+iOffz,1,0) = PAWPz*xyz2D(i+iOffz,0,0)
-    end do
+    xyz2D(:,3,1,0) = xyz2D(:,3,1,0)*xyz2D(:,3,0,0)
   else if (nabMax >= 2) then
-    do i=1,nArg*lRys
-      PAWPx = xyz2D(i,1,0)
-      xyz2D(i,2,0) = PAWPx*xyz2D(i,1,0)+B10(i)
-
-      PAWPy = xyz2D(i+iOffy,1,0)
-      xyz2D(i+iOffy,2,0) = PAWPy*xyz2D(i+iOffy,1,0)+B10(i)
-
-      PAWPz = xyz2D(i+iOffz,1,0)
-      xyz2D(i+iOffz,1,0) = PAWPz*xyz2D(i+iOffz,0,0)
-      xyz2D(i+iOffz,2,0) = PAWPz*xyz2D(i+iOffz,1,0)+B10(i)*xyz2D(i+iOffz,0,0)
-    end do
+    xyz2D(:,1,2,0) = xyz2D(:,1,1,0)**2+B10(:)
+    xyz2D(:,2,2,0) = xyz2D(:,2,1,0)**2+B10(:)
+    xyz2D(:,3,2,0) = (xyz2D(:,3,1,0)**2+B10(:))*xyz2D(:,3,0,0)
+    xyz2D(:,3,1,0) = xyz2D(:,3,1,0)*xyz2D(:,3,0,0)
     if (nabMax > 2) then
       Fact = Two
       do iab=2,nabMax-1
-        do i=1,nArg*lRys
-          PAWPx = xyz2D(i,1,0)
-          PAWPy = xyz2D(i+iOffy,1,0)
-          PAWPz = xyz2D(i,0,0)
-          temp1x = PAWPx*xyz2D(i,iab,0)
-          temp1y = PAWPy*xyz2D(i+iOffy,iab,0)
-          temp1z = PAWPz*xyz2D(i+iOffz,iab,0)
-          temp2x = Fact*B10(i)*xyz2D(i,iab-1,0)
-          temp2y = Fact*B10(i)*xyz2D(i+iOffy,iab-1,0)
-          temp2z = Fact*B10(i)*xyz2D(i+iOffz,iab-1,0)
-          xyz2D(i,iab+1,0) = temp1x+temp2x
-          xyz2D(i+iOffy,iab+1,0) = temp1y+temp2y
-          xyz2D(i+iOffz,iab+1,0) = temp1z+temp2z
-        end do
+        xyz2D(:,1,iab+1,0) = xyz2D(:,1,1,0)*xyz2D(:,1,iab,0)+Fact*B10(:)*xyz2D(:,1,iab-1,0)
+        xyz2D(:,2,iab+1,0) = xyz2D(:,2,1,0)*xyz2D(:,2,iab,0)+Fact*B10(:)*xyz2D(:,2,iab-1,0)
+        xyz2D(:,3,iab+1,0) = xyz2D(:,1,0,0)*xyz2D(:,3,iab,0)+Fact*B10(:)*xyz2D(:,3,iab-1,0)
         Fact = Fact+One
       end do
     end if
@@ -118,40 +94,18 @@ if ((nabMax /= 0) .or. (ncdMax /= 0)) then
   ! Compute 2D integrals with index (0,i)
 
   if (ncdMax == 1) then
-    do i=1,nArg*lRys
-
-      QCWQz = xyz2D(i+iOffz,0,1)
-      xyz2D(i+iOffz,0,1) = QCWQz*xyz2D(i+iOffz,0,0)
-    end do
+    xyz2D(:,3,0,1) = xyz2D(:,3,0,1)*xyz2D(:,3,0,0)
   else if (ncdMax >= 2) then
-    do i=1,nArg*lRys
-      QCWQx = xyz2D(i,0,1)
-      xyz2D(i,0,2) = QCWQx*xyz2D(i,0,1)+B01(i)
-
-      QCWQy = xyz2D(i+iOffy,0,1)
-      xyz2D(i+iOffy,0,2) = QCWQy*xyz2D(i+iOffy,0,1)+B01(i)
-
-      QCWQz = xyz2D(i+iOffz,0,1)
-      xyz2D(i+iOffz,0,1) = QCWQz*xyz2D(i+iOffz,0,0)
-      xyz2D(i+iOffz,0,2) = QCWQz*xyz2D(i+iOffz,0,1)+B01(i)*xyz2D(i+iOffz,0,0)
-    end do
+    xyz2D(:,1,0,2) = xyz2D(:,1,0,1)**2+B01(:)
+    xyz2D(:,2,0,2) = xyz2D(:,2,0,1)**2+B01(:)
+    xyz2D(:,3,0,2) = (xyz2D(:,3,0,1)**2+B01(:))*xyz2D(:,3,0,0)
+    xyz2D(:,3,0,1) = xyz2D(:,3,0,1)*xyz2D(:,3,0,0)
     if (ncdMax > 2) then
       Fact = Two
       do icd=2,ncdMax-1
-        do i=1,nArg*lRys
-          QCWQx = xyz2D(i,0,1)
-          QCWQy = xyz2D(i+iOffy,0,1)
-          QCWQz = xyz2D(i+iOffy,0,0)
-          temp1x = QCWQx*xyz2D(i,0,icd)
-          temp1y = QCWQy*xyz2D(i+iOffy,0,icd)
-          temp1z = QCWQz*xyz2D(i+iOffz,0,icd)
-          temp2x = Fact*B01(i)*xyz2D(i,0,icd-1)
-          temp2y = Fact*B01(i)*xyz2D(i+iOffy,0,icd-1)
-          temp2z = Fact*B01(i)*xyz2D(i+iOffz,0,icd-1)
-          xyz2D(i,0,icd+1) = temp1x+temp2x
-          xyz2D(i+iOffy,0,icd+1) = temp1y+temp2y
-          xyz2D(i+iOffz,0,icd+1) = temp1z+temp2z
-        end do
+        xyz2D(:,1,0,icd+1) = xyz2D(:,1,0,1)*xyz2D(:,1,0,icd)+Fact*B01(:)*xyz2D(:,1,0,icd-1)
+        xyz2D(:,2,0,icd+1) = xyz2D(:,2,0,1)*xyz2D(:,2,0,icd)+Fact*B01(:)*xyz2D(:,2,0,icd-1)
+        xyz2D(:,3,0,icd+1) = xyz2D(:,2,0,0)*xyz2D(:,3,0,icd)+Fact*B01(:)*xyz2D(:,3,0,icd-1)
         Fact = Fact+One
       end do
     end if
@@ -163,53 +117,24 @@ if ((nabMax /= 0) .or. (ncdMax /= 0)) then
     Fac1 = One
     do icd=1,ncdMax
       if (icd == 1) then
-        do i=1,nArg*lRys
-          PAWPx = xyz2D(i,1,0)
-          PAWPy = xyz2D(i+iOffy,1,0)
-          PAWPz = xyz2D(i,0,0)
-          xyz2D(i,1,1) = PAWPx*xyz2D(i,0,1)+B00(i)
-          xyz2D(i+iOffy,1,1) = PAWPy*xyz2D(i+iOffy,0,1)+B00(i)
-          xyz2D(i+iOffz,1,1) = PAWPz*xyz2D(i+iOffz,0,1)+B00(i)*xyz2D(i+iOffz,0,0)
-        end do
+        xyz2D(:,1,1,1) = xyz2D(:,1,1,0)*xyz2D(:,1,0,1)+B00(:)
+        xyz2D(:,2,1,1) = xyz2D(:,2,1,0)*xyz2D(:,2,0,1)+B00(:)
+        xyz2D(:,3,1,1) = xyz2D(:,1,0,0)*xyz2D(:,3,0,1)+B00(:)*xyz2D(:,3,0,0)
       else
-        do i=1,nArg*lRys
-          PAWPx = xyz2D(i,1,0)
-          PAWPy = xyz2D(i+iOffy,1,0)
-          PAWPz = xyz2D(i,0,0)
-          xyz2D(i,1,icd) = PAWPx*xyz2D(i,0,icd)+Fac1*B00(i)*xyz2D(i,0,icd-1)
-          xyz2D(i+iOffy,1,icd) = PAWPy*xyz2D(i+iOffy,0,icd)+Fac1*B00(i)*xyz2D(i+iOffy,0,icd-1)
-          xyz2D(i+iOffz,1,icd) = PAWPz*xyz2D(i+iOffz,0,icd)+Fac1*B00(i)*xyz2D(i+iOffz,0,icd-1)
-        end do
+        xyz2D(:,1,1,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,0,icd)+Fac1*B00(:)*xyz2D(:,1,0,icd-1)
+        xyz2D(:,2,1,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,0,icd)+Fac1*B00(:)*xyz2D(:,2,0,icd-1)
+        xyz2D(:,3,1,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,0,icd)+Fac1*B00(:)*xyz2D(:,3,0,icd-1)
       end if
       if (nabMax == 2) then
-        do i=1,nArg*lRys
-          PAWPx = xyz2D(i,1,0)
-          PAWPy = xyz2D(i+iOffy,1,0)
-          PAWPz = xyz2D(i,0,0)
-          xyz2D(i,2,icd) = PAWPx*xyz2D(i,1,icd)+B10(i)*xyz2D(i,0,icd)+Fac1*B00(i)*xyz2D(i,1,icd-1)
-          xyz2D(i+iOffy,2,icd) = PAWPy*xyz2D(i+iOffy,1,icd)+B10(i)*xyz2D(i+iOffy,0,icd)+Fac1*B00(i)*xyz2D(i+iOffy,1,icd-1)
-          xyz2D(i+iOffz,2,icd) = PAWPz*xyz2D(i+iOffz,1,icd)+B10(i)*xyz2D(i+iOffz,0,icd)+Fac1*B00(i)*xyz2D(i+iOffz,1,icd-1)
-        end do
+        xyz2D(:,1,2,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,1,icd)+B10(:)*xyz2D(:,1,0,icd)+Fac1*B00(:)*xyz2D(:,1,1,icd-1)
+        xyz2D(:,2,2,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,1,icd)+B10(:)*xyz2D(:,2,0,icd)+Fac1*B00(:)*xyz2D(:,2,1,icd-1)
+        xyz2D(:,3,2,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,1,icd)+B10(:)*xyz2D(:,3,0,icd)+Fac1*B00(:)*xyz2D(:,3,1,icd-1)
       else if (nabMax > 2) then
         Fac2 = One
         do iab=1,nabMax-1
-          do i=1,nArg*lRys
-            PAWPx = xyz2D(i,1,0)
-            PAWPy = xyz2D(i+iOffy,1,0)
-            PAWPz = xyz2D(i,0,0)
-            temp1x = PAWPx*xyz2D(i,iab,icd)
-            temp1y = PAWPy*xyz2D(i+iOffy,iab,icd)
-            temp1z = PAWPz*xyz2D(i+iOffz,iab,icd)
-            temp2x = Fac2*B10(i)*xyz2D(i,iab-1,icd)
-            temp2y = Fac2*B10(i)*xyz2D(i+iOffy,iab-1,icd)
-            temp2z = Fac2*B10(i)*xyz2D(i+iOffz,iab-1,icd)
-            temp3x = Fac1*B00(i)*xyz2D(i,iab,icd-1)
-            temp3y = Fac1*B00(i)*xyz2D(i+iOffy,iab,icd-1)
-            temp3z = Fac1*B00(i)*xyz2D(i+iOffz,iab,icd-1)
-            xyz2D(i,iab+1,icd) = temp1x+temp2x+temp3x
-            xyz2D(i+iOffy,iab+1,icd) = temp1y+temp2y+temp3y
-            xyz2D(i+iOffz,iab+1,icd) = temp1z+temp2z+temp3z
-          end do
+          xyz2D(:,1,iab+1,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,iab,icd)+Fac2*B10(:)*xyz2D(:,1,iab-1,icd)+Fac1*B00(:)*xyz2D(:,1,iab,icd-1)
+          xyz2D(:,2,iab+1,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,iab,icd)+Fac2*B10(:)*xyz2D(:,2,iab-1,icd)+Fac1*B00(:)*xyz2D(:,2,iab,icd-1)
+          xyz2D(:,3,iab+1,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,iab,icd)+Fac2*B10(:)*xyz2D(:,3,iab-1,icd)+Fac1*B00(:)*xyz2D(:,3,iab,icd-1)
           Fac2 = Fac2+One
         end do
       end if
@@ -219,53 +144,24 @@ if ((nabMax /= 0) .or. (ncdMax /= 0)) then
     Fac1 = One
     do iab=1,nabMax
       if (iab == 1) then
-        do i=1,nArg*lRys
-          QCWQx = xyz2D(i,0,1)
-          QCWQy = xyz2D(i+iOffy,0,1)
-          QCWQz = xyz2D(i+iOffy,0,0)
-          xyz2D(i,1,1) = QCWQx*xyz2D(i,1,0)+B00(i)
-          xyz2D(i+iOffy,1,1) = QCWQy*xyz2D(i+iOffy,1,0)+B00(i)
-          xyz2D(i+iOffz,1,1) = QCWQz*xyz2D(i+iOffz,1,0)+B00(i)*xyz2D(i+iOffz,0,0)
-        end do
+        xyz2D(:,1,1,1) = xyz2D(:,1,0,1)*xyz2D(:,1,1,0)+B00(:)
+        xyz2D(:,2,1,1) = xyz2D(:,2,0,1)*xyz2D(:,2,1,0)+B00(:)
+        xyz2D(:,3,1,1) = xyz2D(:,2,0,0)*xyz2D(:,3,1,0)+B00(:)*xyz2D(:,3,0,0)
       else
-        do i=1,nArg*lRys
-          QCWQx = xyz2D(i,0,1)
-          QCWQy = xyz2D(i+iOffy,0,1)
-          QCWQz = xyz2D(i+iOffy,0,0)
-          xyz2D(i,iab,1) = QCWQx*xyz2D(i,iab,0)+Fac1*B00(i)*xyz2D(i,iab-1,0)
-          xyz2D(i+iOffy,iab,1) = QCWQy*xyz2D(i+iOffy,iab,0)+Fac1*B00(i)*xyz2D(i+iOffy,iab-1,0)
-          xyz2D(i+iOffz,iab,1) = QCWQz*xyz2D(i+iOffz,iab,0)+Fac1*B00(i)*xyz2D(i+iOffz,iab-1,0)
-        end do
+        xyz2D(:,1,iab,1) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,0)+Fac1*B00(:)*xyz2D(:,1,iab-1,0)
+        xyz2D(:,2,iab,1) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,0)+Fac1*B00(:)*xyz2D(:,2,iab-1,0)
+        xyz2D(:,3,iab,1) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,0)+Fac1*B00(:)*xyz2D(:,3,iab-1,0)
       end if
       if (ncdMax == 2) then
-        do i=1,nArg*lRys
-          QCWQx = xyz2D(i,0,1)
-          QCWQy = xyz2D(i+iOffy,0,1)
-          QCWQz = xyz2D(i+iOffy,0,0)
-          xyz2D(i,iab,2) = QCWQx*xyz2D(i,iab,1)+B01(i)*xyz2D(i,iab,0)+Fac1*B00(i)*xyz2D(i,iab-1,1)
-          xyz2D(i+iOffy,iab,2) = QCWQy*xyz2D(i+iOffy,iab,1)+B01(i)*xyz2D(i+iOffy,iab,0)+Fac1*B00(i)*xyz2D(i+iOffy,iab-1,1)
-          xyz2D(i+iOffz,iab,2) = QCWQz*xyz2D(i+iOffz,iab,1)+B01(i)*xyz2D(i+iOffz,iab,0)+Fac1*B00(i)*xyz2D(i+iOffz,iab-1,1)
-        end do
+        xyz2D(:,1,iab,2) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,1)+B01(:)*xyz2D(:,1,iab,0)+Fac1*B00(:)*xyz2D(:,1,iab-1,1)
+        xyz2D(:,2,iab,2) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,1)+B01(:)*xyz2D(:,2,iab,0)+Fac1*B00(:)*xyz2D(:,2,iab-1,1)
+        xyz2D(:,3,iab,2) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,1)+B01(:)*xyz2D(:,3,iab,0)+Fac1*B00(:)*xyz2D(:,3,iab-1,1)
       else if (ncdMax > 2) then
         Fac2 = One
         do icd=1,ncdmax-1
-          do i=1,nArg*lRys
-            QCWQx = xyz2D(i,0,1)
-            QCWQy = xyz2D(i+iOffy,0,1)
-            QCWQz = xyz2D(i+iOffy,0,0)
-            temp1x = QCWQx*xyz2D(i,iab,icd)
-            temp1y = QCWQy*xyz2D(i+iOffy,iab,icd)
-            temp1z = QCWQz*xyz2D(i+iOffz,iab,icd)
-            temp2x = Fac2*B01(i)*xyz2D(i,iab,icd-1)
-            temp2y = Fac2*B01(i)*xyz2D(i+iOffy,iab,icd-1)
-            temp2z = Fac2*B01(i)*xyz2D(i+iOffz,iab,icd-1)
-            temp3x = Fac1*B00(i)*xyz2D(i,iab-1,icd)
-            temp3y = Fac1*B00(i)*xyz2D(i+iOffy,iab-1,icd)
-            temp3z = Fac1*B00(i)*xyz2D(i+iOffz,iab-1,icd)
-            xyz2D(i,iab,icd+1) = temp1x+temp2x+temp3x
-            xyz2D(i+iOffy,iab,icd+1) = temp1y+temp2y+temp3y
-            xyz2D(i+iOffz,iab,icd+1) = temp1z+temp2z+temp3z
-          end do
+          xyz2D(:,1,iab,icd+1) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,icd)+Fac2*B01(:)*xyz2D(:,1,iab,icd-1)+Fac1*B00(:)*xyz2D(:,1,iab-1,icd)
+          xyz2D(:,2,iab,icd+1) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,icd)+Fac2*B01(:)*xyz2D(:,2,iab,icd-1)+Fac1*B00(:)*xyz2D(:,2,iab-1,icd)
+          xyz2D(:,3,iab,icd+1) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,icd)+Fac2*B01(:)*xyz2D(:,3,iab,icd-1)+Fac1*B00(:)*xyz2D(:,3,iab-1,icd)
           Fac2 = Fac2+One
         end do
       end if
@@ -278,11 +174,11 @@ end if
 do iab=0,nabMax
   do icd=0,ncdMax
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
-    call RecPrt(Label,' ',xyz2D(1,iab,icd),lRys,nArg)
+    call RecPrt(Label,' ',xyz2D(:,1,iab,icd),lRys,nArg)
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
-    call RecPrt(Label,' ',xyz2D(1+nArg*lRys,iab,icd),lRys,nArg)
+    call RecPrt(Label,' ',xyz2D(:,2,iab,icd),lRys,nArg)
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
-    call RecPrt(Label,' ',xyz2D(1+2*nArg*lRys,iab,icd),lRys,nArg)
+    call RecPrt(Label,' ',xyz2D(:,3,iab,icd),lRys,nArg)
   end do
 end do
 #endif

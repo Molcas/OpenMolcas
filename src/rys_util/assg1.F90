@@ -37,11 +37,11 @@ integer(kind=iwp), intent(out) :: mVec
 integer(kind=iwp) :: i, iCent, icir(3), Ind1(3,3), Ind2(3,3), ipa, ipb, ipc, ipd, ixa, ixabcd, ixb, ixbcd, ixc, ixcd, ixd, iya, &
                      iyabcd, iyb, iybcd, iyc, iycd, iyd, iza, izb, izc, izd, nVec(3)
 
-call dcopy_(9,[Zero],0,Temp,1)
+Temp(:) = Zero
 
 mVec = 0
+nVec(:) = 0
 do i=1,3       ! Cartesian directions
-  nVec(i) = 0
   do iCent=1,4 ! Centers of integral
     if (IfGrad(i,iCent)) then
       mVec = mVec+1

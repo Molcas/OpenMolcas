@@ -54,6 +54,7 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mDat
 !         2015                                                         *
 !***********************************************************************
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -103,7 +104,7 @@ call Screen(nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,Data1(iZe
             Prescreen_On_Int_Only)
 !write(u6,*) 'lZeta,lEta:',lZeta,lEta
 if (lZeta*lEta == 0) then
-  call FZero(Wrk(iW2),mWork2)
+  Wrk(iW2:iW2+mWork2-1) = Zero
 else
   NoInts = .false.
 
@@ -122,12 +123,14 @@ else
     ! executed if used in single iteration mode. Hence,
     ! iW2 and iW4 are identical.
 
-    iW3 = iW2+lZeta*lEta*mabcd
+    n1 = lZeta*lEta*mabcd
+    iW3 = iW2+n1
     call DGeTMO(Wrk(iW2),lZeta*lEta,lZeta*lEta,mabcd,Wrk(iW3),mabcd)
-    call dcopy_(mabcd*lZeta*lEta,Wrk(iW3),1,Wrk(iW2),1)
+    Wrk(iW2:iW2+n1-1) = Wrk(iW3:iW3+n1-1)
     call TnsCtl(Wrk(iW2),nWork2,Coor,mabcd,lZeta*lEta,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
                 iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
-    if (i_Int /= iW2) call dcopy_(lZeta*lEta*nabcd,Wrk(i_int),1,Wrk(iW2),1)
+    n2 = lZeta*lEta*nabcd
+    if (i_Int /= iW2) Wrk(iW2:iW2+n2-1) = Wrk(i_Int:i_Int+n2-1)
     Do_TnsCtl = .false.
     n1 = 1
     n2 = iCmp(1)*iCmp(2)

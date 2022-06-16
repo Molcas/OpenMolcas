@@ -35,7 +35,7 @@ implicit none
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7), iDum, iFd, ii, iOrdOp, ipA, ipAOff, ipB, ipBOff, &
                      ipDAO, iPrint, iRout, iStb(0:7), iuvwx(4), iZeta, j, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, lOp(4), &
                      mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nip, nRys, nStb, nT
-real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3), ZFdx, ZFdy, ZFdz
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3)
 logical(kind=iwp) :: JfGrad(3,4), NoLoop
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: iChAtm, NrOpr
@@ -198,18 +198,15 @@ do iOrdOp=0,nOrd_XF
       Coori(:,4) = TC(:)
 
       if (iOrdOp == 0) then
-        call DYaX(nZeta*nDAO,Fact*ZFd(1),DAO,1,Array(ipDAO),1)
+        Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*ZFd(1)*pack(DAO,.true.)
       else
         call OA(iDCRT(lDCRT),ZFd,TZFd)
         jpDAO = ipDAO
-        ZFdx = TZFd(1)
-        call DYaX(nZeta*nDAO,Fact*ZFdx,DAO,1,Array(jpDAO),1)
+        Array(jpDAO:jpDAO+nZeta*nDAO-1) = Fact*TZFd(1)*pack(DAO,.true.)
         jpDAO = jpDAO+nZeta*nDAO
-        ZFdy = TZFd(2)
-        call DYaX(nZeta*nDAO,Fact*ZFdy,DAO,1,Array(jpDAO),1)
+        Array(jpDAO:jpDAO+nZeta*nDAO-1) = Fact*TZFd(2)*pack(DAO,.true.)
         jpDAO = jpDAO+nZeta*nDAO
-        ZFdz = TZFd(3)
-        call DYaX(nZeta*nDAO,Fact*ZFdz,DAO,1,Array(jpDAO),1)
+        Array(jpDAO:jpDAO+nZeta*nDAO-1) = Fact*TZFd(3)*pack(DAO,.true.)
       end if
 
       ! Compute integrals with the Rys quadrature.

@@ -32,7 +32,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
 real(kind=wp), intent(in) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT)
 real(kind=wp), intent(inout) :: PAQP(nRys,nT,3), QCPQ(nRys,nT,3), B10(nRys,nT,3), B00(nRys,nT,3), B01(nRys,nT,3)
-integer(kind=iwp) :: iCar, iRys, iT
+integer(kind=iwp) :: iCar, iT
 real(kind=wp) :: h12
 logical(kind=iwp) :: AeqB, CeqD, EQ
 
@@ -46,90 +46,72 @@ CeqD = EQ(Coori(1,3),Coori(1,4))
 
 h12 = Half
 if ((nabMax /= 0) .and. (ncdMax /= 0)) then
+  B00(:,:,1) = h12*U2(:,:)
   do iT=1,nT
-    do iRys=1,nRys
-      B00(iRys,iT,1) = (h12*U2(iRys,iT))
-      B10(iRys,iT,1) = (h12-(h12*U2(iRys,iT))*Eta(iT))*ZInv(iT)
-      B01(iRys,iT,1) = (h12-(h12*U2(iRys,iT))*Zeta(iT))*EInv(iT)
-    end do
+    B10(:,iT,1) = (h12-h12*U2(:,iT)*Eta(iT))*ZInv(iT)
+    B01(:,iT,1) = (h12-h12*U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 else if ((ncdMax == 0) .and. (nabMax /= 0) .and. (lac == 0)) then
   do iT=1,nT
-    do iRys=1,nRys
-      B10(iRys,iT,1) = (h12-h12*U2(iRys,iT)*Eta(iT))*ZInv(iT)
-    end do
+    B10(:,iT,1) = (h12-h12*U2(:,iT)*Eta(iT))*ZInv(iT)
   end do
 else if ((nabMax == 0) .and. (ncdMax /= 0) .and. (lac == 0)) then
   do iT=1,nT
-    do iRys=1,nRys
-      B01(iRys,iT,1) = (h12-h12*U2(iRys,iT)*Zeta(iT))*EInv(iT)
-    end do
+    B01(:,iT,1) = (h12-h12*U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 else if ((ncdMax == 0) .and. (nabMax /= 0)) then
+  B00(:,:,1) = h12*U2(:,:)
   do iT=1,nT
-    do iRys=1,nRys
-      B00(iRys,iT,1) = (h12*U2(iRys,iT))
-      B10(iRys,iT,1) = (h12-(h12*U2(iRys,iT))*Eta(iT))*ZInv(iT)
-    end do
+    B10(:,iT,1) = (h12-h12*U2(:,iT)*Eta(iT))*ZInv(iT)
   end do
 else if ((nabMax == 0) .and. (ncdMax /= 0)) then
+  B00(:,:,1) = h12*U2(:,:)
   do iT=1,nT
-    do iRys=1,nRys
-      B00(iRys,iT,1) = (h12*U2(iRys,iT))
-      B01(iRys,iT,1) = (h12-(h12*U2(iRys,iT))*Zeta(iT))*EInv(iT)
-    end do
+    B01(:,iT,1) = (h12-h12*U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 else if ((nabMax == 0) .and. (ncdMax == 0) .and. (lac /= 0)) then
-  call DYaX(nRys*nT,h12,U2(:,:),1,B00(:,:,1),1)
+  B00(:,:,1) = h12*U2(:,:)
 end if
 if (nabMax /= 0) then
-  call dcopy_(nRys*nT,B10(:,:,1),1,B10(:,:,2),1)
-  call dcopy_(nRys*nT,B10(:,:,1),1,B10(:,:,3),1)
+  B10(:,:,2) = B10(:,:,1)
+  B10(:,:,3) = B10(:,:,1)
 end if
 if (lac /= 0) then
-  call dcopy_(nRys*nT,B00(:,:,1),1,B00(:,:,2),1)
-  call dcopy_(nRys*nT,B00(:,:,1),1,B00(:,:,3),1)
+  B00(:,:,2) = B00(:,:,1)
+  B00(:,:,3) = B00(:,:,1)
 end if
 if (ncdMax /= 0) then
-  call dcopy_(nRys*nT,B01(:,:,1),1,B01(:,:,2),1)
-  call dcopy_(nRys*nT,B01(:,:,1),1,B01(:,:,3),1)
+  B01(:,:,2) = B01(:,:,1)
+  B01(:,:,3) = B01(:,:,1)
 end if
 
 if ((la+lb /= 0) .and. (lc+ld /= 0)) then
   if ((.not. AeqB) .and. (.not. CeqD)) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          PAQP(iRys,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-          QCPQ(iRys,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-        end do
+        PAQP(:,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
+        QCPQ(:,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else if (AeqB .and. (.not. CeqD)) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          PAQP(iRys,iT,iCar) = Eta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-          QCPQ(iRys,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-        end do
+        PAQP(:,iT,iCar) = Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
+        QCPQ(:,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else if ((.not. AeqB) .and. CeqD) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          PAQP(iRys,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-          QCPQ(iRys,iT,iCar) = -Zeta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-        end do
+        PAQP(:,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
+        QCPQ(:,iT,iCar) = -Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          PAQP(iRys,iT,iCar) = Eta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-          QCPQ(iRys,iT,iCar) = -Zeta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-        end do
+        PAQP(:,iT,iCar) = Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
+        QCPQ(:,iT,iCar) = -Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   end if
@@ -137,17 +119,13 @@ else if (la+lb /= 0) then
   if (.not. AeqB) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          PAQP(iRys,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar))
-        end do
+        PAQP(:,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          PAQP(iRys,iT,iCar) = Eta(iT)*U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar))
-        end do
+        PAQP(:,iT,iCar) = Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   end if
@@ -155,17 +133,13 @@ else if (lc+ld /= 0) then
   if (.not. CeqD) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          QCPQ(iRys,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)+Zeta(iT)*U2(iRys,iT)*(P(iT,iCar)-Q(iT,iCar))
-        end do
+        QCPQ(:,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)+Zeta(iT)*U2(:,iT)*(P(iT,iCar)-Q(iT,iCar))
       end do
     end do
   else
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          QCPQ(iRys,iT,iCar) = Zeta(iT)*U2(iRys,iT)*(P(iT,iCar)-Q(iT,iCar))
-        end do
+        QCPQ(:,iT,iCar) = Zeta(iT)*U2(:,iT)*(P(iT,iCar)-Q(iT,iCar))
       end do
     end do
   end if

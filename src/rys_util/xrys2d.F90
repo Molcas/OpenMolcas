@@ -37,9 +37,9 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
-real(kind=wp), intent(inout) :: xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax)
-real(kind=wp), intent(in) :: PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys*3), B00(nArg*lRys*3), B01(nArg*lRys*3)
-integer(kind=iwp) :: i, iab, in_
+real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
+real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys,3), B00(nArg*lRys,3), B01(nArg*lRys,3)
+integer(kind=iwp) :: iab, in_
 #ifdef _DEBUGPRINT_
 character(len=30) :: Label
 #endif
@@ -59,42 +59,30 @@ end if
 ! Compute 2D integrals with index (0,0). Observe that the z
 ! component already contains the weight factor.
 
-call dcopy_(2*nArg*lRys,[One],0,xyz2D(1,0,0),1)
+xyz2D(:,1:2,0,0) = One
 
 ! Span first I(i,0)
 
 if (nabMax >= 1) then
-  do i=1,nArg*lRys*3
-    xyz2D(i,1,0) = PAWP(i)*xyz2D(i,0,0)
+  xyz2D(:,:,1,0) = PAWP(:,:)*xyz2D(:,:,0,0)
+  do iab=1,nabMax-1
+    xyz2D(:,:,iab+1,0) = PAWP(:,:)*xyz2D(:,:,iab,0)+real(iab,kind=wp)*B10(:,:)*xyz2D(:,:,iab-1,0)
   end do
 end if
-do iab=1,nabMax-1
-  do i=1,nArg*lRys*3
-    xyz2D(i,iab+1,0) = PAWP(i)*xyz2D(i,iab,0)+real(iab,kind=wp)*B10(i)*xyz2D(i,iab-1,0)
-  end do
-end do
 
 ! Now do the rest!
 
 if (ncdMax >= 1) then
-  do i=1,nArg*lRys*3
-    xyz2D(i,0,1) = QCWQ(i)*xyz2D(i,0,0)
-  end do
+  xyz2D(:,:,0,1) = QCWQ(:,:)*xyz2D(:,:,0,0)
   do iab=1,nabMax
-    do i=1,nArg*lRys*3
-      xyz2D(i,iab,1) = QCWQ(i)*xyz2D(i,iab,0)+real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,0)
-    end do
+    xyz2D(:,:,iab,1) = QCWQ(:,:)*xyz2D(:,:,iab,0)+real(iab,kind=wp)*B00(:,:)*xyz2D(:,:,iab-1,0)
   end do
 end if
 do in_=1,ncdMax-1
-  do i=1,nArg*lRys*3
-    xyz2D(i,0,in_+1) = QCWQ(i)*xyz2D(i,0,in_)-real(in_,kind=wp)*B01(i)*xyz2D(i,0,in_-1)
-  end do
+  xyz2D(:,:,0,in_+1) = QCWQ(:,:)*xyz2D(:,:,0,in_)-real(in_,kind=wp)*B01(:,:)*xyz2D(:,:,0,in_-1)
   do iab=1,nabMax
-    do i=1,nArg*lRys*3
-      xyz2D(i,iab,in_+1) = QCWQ(i)*xyz2D(i,iab,in_)+real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,in_)- &
-                          real(in_,kind=wp)*B01(i)*xyz2D(i,iab,in_-1)
-    end do
+    xyz2D(:,:,iab,in_+1) = QCWQ(:,:)*xyz2D(:,:,iab,in_)+real(iab,kind=wp)*B00(:,:)*xyz2D(:,:,iab-1,in_)- &
+                           real(in_,kind=wp)*B01(:,:)*xyz2D(:,:,iab,in_-1)
   end do
 end do
 
@@ -104,11 +92,11 @@ if (iPrint >= 99) then
   do iab=0,nabMax
     do icd=0,ncdMax
       write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
-      call RecPrt(Label,' ',xyz2D(1,iab,icd),nArg,lRys)
+      call RecPrt(Label,' ',xyz2D(:,1,iab,icd),nArg,lRys)
       write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
-      call RecPrt(Label,' ',xyz2D(1+nArg*lRys,iab,icd),nArg,lRys)
+      call RecPrt(Label,' ',xyz2D(:,2,iab,icd),nArg,lRys)
       write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
-      call RecPrt(Label,' ',xyz2D(1+2*nArg*lRys,iab,icd),nArg,lRys)
+      call RecPrt(Label,' ',xyz2D(:,3,iab,icd),nArg,lRys)
     end do
   end do
 end if

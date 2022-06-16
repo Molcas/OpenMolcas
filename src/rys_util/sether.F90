@@ -34,47 +34,42 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nDiff
-integer(kind=iwp) :: i_0000, i_1111, i_2222, i_3333, IDEG, IDH, iHer, IR, IROOT, IW, j, j_0000, j_1111, j_2222, j_3333, K, n_1111, &
-                     n_2222, nMem
-real(kind=wp) :: Alpha, B, b_1111, c_0000, CORR, DELTA, HDER, R, RSUM, W, w_1111, w_2222, w_3333, w_4444, w_5555, X, Z
+integer(kind=iwp) :: i_0, i_1, IDEG, IDH, iHer, IR, IROOT, IW, j, j_0, K, n_1, n_2, nMem
+real(kind=wp) :: Alpha, CORR, DELTA, HDER, R, RSUM, W, X, Z
 real(kind=wp), allocatable :: Beta(:), BInv(:), Herm(:)
 
 ! 1) Hermite-Gauss
 ! 2) Rys-Gauss (asymptotic formula)
 
-n_1111 = (2*S%iAngMx+nPrp+2+nDiff)/2
-n_2222 = 4*S%iAngMx+2+nDiff
+n_1 = (2*S%iAngMx+nPrp+2+nDiff)/2
+n_2 = 4*S%iAngMx+2+nDiff
 
-if (allocated(HerR) .and. (max(n_1111,n_2222) <= MaxHer)) then
+if (allocated(HerR) .and. (max(n_1,n_2) <= MaxHer)) then
   return
 else if (allocated(HerR)) then
   call Free_HerRW()
 end if
-MaxHer = max(n_1111,n_2222)
+MaxHer = max(n_1,n_2)
 call mma_allocate(iHerR,MaxHer,label='iHerR')
+iHerR(1) = 1
 call mma_allocate(iHerW,MaxHer,label='iHerW')
+iHerW(1) = 1
 
 ! Set up square of roots and weights for Hermite polynomials
 
 nMem = (MaxHer*MaxHer+MaxHer)/2
 call mma_Allocate(HerR,nMem,label='HerR')
-iHerR(1) = 1
-call dCopy_(nMem,[Zero],0,HerR,1)
+HerR(:) = Zero
 call mma_allocate(HerW,nMem,label='HerW')
-iHerW(1) = 1
-call dCopy_(nMem,[Zero],0,HerW,1)
+HerW(:) = Zero
 call mma_allocate(Beta,MaxHer,label='Beta')
-call dCopy_(MaxHer,[Zero],0,Beta,1)
 call mma_allocate(BInv,MaxHer,label='BInv')
-call dCopy_(MaxHer,[Zero],0,BInv,1)
 call mma_allocate(Herm,MaxHer+1,label='Herm')
-call dCopy_(MaxHer+1,[Zero],0,Herm,1)
+Herm(:) = Zero
 do K=1,MaxHer
-  b_1111 = HALF*real(K,kind=wp)
-  B = sqrt(b_1111)
-  Beta(K) = B
-  BInv(K) = One/B
+  Beta(K) = sqrt(Half*K)
 end do
+BInv(:) = One/Beta
 HerR(iHerR(1)) = Zero
 HerR(iHerR(1)+2) = sqrt(HALF)
 HerR(iHerR(1)+1) = -HerR(iHerR(1)+2)
@@ -83,52 +78,36 @@ HerW(iHerW(1)+1) = HerW(iHerW(1))*HALF
 HerW(iHerW(1)+2) = HerW(iHerW(1)+1)
 Herm(1) = One/sqrt(HerW(iHerW(1)))
 do iHer=2,MaxHer
-  i_1111 = (iHer*iHer-iHer)/2
-  iHerR(iHer) = iHerR(1)+i_1111
-  iHerW(iHer) = iHerW(1)+i_1111
+  i_1 = (iHer*iHer-iHer)/2
+  iHerR(iHer) = iHerR(1)+i_1
+  iHerW(iHer) = iHerW(1)+i_1
 end do
 
 Alpha = BInv(1)
 do IDEG=3,MaxHer
-  i_0000 = (IDEG*IDEG-IDEG)/2
-  IR = iHerR(1)-1+i_0000
-  IW = iHerW(1)-1+i_0000
+  i_0 = (IDEG*IDEG-IDEG)/2
+  IR = iHerR(1)-1+i_0
+  IW = iHerW(1)-1+i_0
   IDH = IDEG/2
-  i_1111 = IR+IDH+1
-  i_3333 = i_1111-IDEG
-  w_3333 = HerR(i_3333)
-  i_2222 = i_3333+1
-  w_2222 = HerR(i_2222)
-  X = (w_2222-w_3333)/Two
-  HerR(i_1111) = Zero
+  i_1 = IR+IDH+1
+  X = Half*(HerR(i_1-IDEG+1)-HerR(i_1-IDEG))
+  HerR(i_1) = Zero
   do IROOT=2,IDEG,2
-    j_0000 = IROOT/2
-    j_1111 = IR+j_0000
-    j_2222 = IR-IDEG+1+j_0000
-    j_3333 = IR+IDEG+1-j_0000
-    R = HerR(j_2222)-X
-    HerR(j_1111) = R
-    HerR(j_3333) = -R
+    j_0 = IROOT/2
+    R = HerR(IR-IDEG+1+j_0)-X
+    HerR(IR+j_0) = R
+    HerR(IR+IDEG+1-j_0) = -R
   end do
   do IROOT=1,IDH
-    j_0000 = IR+IROOT
-    Z = HerR(j_0000)
+    Z = HerR(IR+IROOT)
     CORR = Zero
     do j=1,ideg
-      if (j /= iroot) then
-        c_0000 = Z-HerR(IR+J)
-        CORR = CORR+(One/c_0000)
-      end if
+      if (j /= iroot) CORR = CORR+(One/Z-HerR(IR+J))
     end do
     do
       Herm(2) = Z*Herm(1)*Alpha
       do K=1,IDEG-1
-        w_1111 = Herm(K+1)
-        w_3333 = Herm(K)
-        w_4444 = Beta(K)
-        w_5555 = BInv(K+1)
-        w_2222 = (Z*w_1111-w_4444*w_3333)*w_5555
-        Herm(K+2) = w_2222
+        Herm(K+2) = (Z*Herm(K+1)-Beta(K)*Herm(K))*BInv(K+1)
       end do
       HDER = Two*Beta(IDEG)*Herm(IDEG)
       DELTA = -Herm(IDEG+1)/(HDER-CORR*Herm(IDEG+1))
@@ -143,19 +122,13 @@ do IDEG=3,MaxHer
     HerR(IR+IDEG+1-IROOT) = -Z
   end do
   do IROOT=1,IDH+1
-    j_0000 = IR+IROOT
-    Z = HerR(j_0000)
+    Z = HerR(IR+IROOT)
     Herm(2) = Z*Herm(1)*Alpha
     RSUM = Herm(1)**2
     RSUM = RSUM+Herm(2)**2
     do K=1,IDEG-2
-      w_1111 = Herm(K+1)
-      w_3333 = Herm(K)
-      w_4444 = Beta(K)
-      w_5555 = BInv(K+1)
-      w_2222 = (Z*w_1111-w_4444*w_3333)*w_5555
-      Herm(K+2) = w_2222
-      RSUM = RSUM+w_2222*w_2222
+      Herm(K+2) = (Z*Herm(K+1)-Beta(K)*Herm(K))*BInv(K+1)
+      RSUM = RSUM+Herm(K+2)**2
     end do
     W = One/RSUM
     HerW(IW+IROOT) = W

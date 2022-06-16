@@ -41,9 +41,9 @@ real(kind=wp), intent(inout) :: P(lP,3), Q(lQ,3), Grad(nGrad)
 real(kind=wp), intent(out) :: Array(nArray)
 external :: Tvalue, ModU2, Cff2D
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
-integer(kind=iwp) :: i, iEta, Indx(3,4), iOff, ip, ip2D0, ip2D1, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipP, ipPAQP, ipQ, &
-                     ipQCPQ, ipScr, ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iZeta, j, JndGrd(3,4), la, lab, labMax, lb, lB00, &
-                     lB01, lB10, lc, lcd, ld, lla, llb, llc, lld, lOp(4), mVec, n2D0, n2D1, nabMax, ncdMax, nTR
+integer(kind=iwp) :: iEta, Indx(3,4), iOff, ip, ip2D0, ip2D1, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipP, ipPAQP, ipQ, ipQCPQ, &
+                     ipScr, ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iZeta, JndGrd(3,4), la, lab, labMax, lb, lB00, lB01, lB10, &
+                     lc, lcd, ld, lla, llb, llc, lld, lOp(4), mVec, n2D0, n2D1, nabMax, ncdMax, nTR
 real(kind=wp) :: Temp(9)
 logical(kind=iwp) :: JfGrad(3,4)
 external :: Exp_1, Exp_2
@@ -53,13 +53,9 @@ lOp(2) = iOper(kOp(2))
 lOp(3) = iOper(kOp(3))
 lOp(4) = iOper(kOp(4))
 #ifdef _DEBUGPRINT_
-call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,1),1)
-call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,2),1)
-call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,3),1)
+P(nZeta+1:,:) = Zero
 call RecPrt(' In Rysg1:P',' ',P,lP,3)
-call dcopy_(lQ-nEta,[Zero],0,Q(nEta+1,1),1)
-call dcopy_(lQ-nEta,[Zero],0,Q(nEta+1,2),1)
-call dcopy_(lQ-nEta,[Zero],0,Q(nEta+1,3),1)
+Q(nEta+1:,:) = Zero
 call RecPrt(' In Rysg1:Q',' ',Q,lQ,3)
 call RecPrt(' In Rysg1:Zeta',' ',Zeta,nZeta,1)
 call RecPrt(' In Rysg1:ZInv',' ',ZInv,nZeta,1)
@@ -82,20 +78,10 @@ lla = 0
 llb = 0
 llc = 0
 lld = 0
-do i=1,3
-  if (IfGrad(i,1)) then
-    lla = 1
-  end if
-  if (IfGrad(i,2)) then
-    llb = 1
-  end if
-  if (IfGrad(i,3)) then
-    llc = 1
-  end if
-  if (IfGrad(i,4)) then
-    lld = 1
-  end if
-end do
+if (any(IfGrad(:,1))) lla = 1
+if (any(IfGrad(:,2))) llb = 1
+if (any(IfGrad(:,3))) llc = 1
+if (any(IfGrad(:,4))) lld = 1
 lab = max(lla,llb)
 lcd = max(llc,lld)
 nabMax = la+lb+lab
@@ -276,12 +262,8 @@ ipScr = ip
 ip = ip+nT*nRys
 ipTmp = ip
 ip = ip+nT
-call ICopy(12,IndGrd,1,JndGrd,1)
-do i=1,3
-  do j=1,4
-    JfGrad(i,j) = IfGrad(i,j)
-  end do
-end do
+JndGrd(:,:) = IndGrd
+JfGrad(:,:) = IfGrad
 call Rys2Dg(Array(ip2D0),nT,nRys,la,lb,lc,ld,Array(ip2D1),JfGrad,JndGrd,Coora,Alpha,Beta,Gmma,Delta,nZeta,nEta,Array(ipScr), &
             Array(ipTmp),Indx,Exp_1,Exp_2,nZeta,nEta)
 ! Drop ipScr

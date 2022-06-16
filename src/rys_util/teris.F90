@@ -49,8 +49,8 @@ if (iPrint >= 99) then
 end if
 #endif
 
+T(:) = Zero
 do iT=1,nT
-  T(iT) = Zero
   tmp = One/(Zeta(iT)+Zeta(iT)+(Zeta(iT)*Zeta(iT)*ChiI2)*real(IsChi,kind=wp))
   ZEInv(iT) = tmp
   Fact(iT) = rKapab(iT)**2*sqrt(tmp)

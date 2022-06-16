@@ -32,7 +32,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess, IndGrd(3,4,0:(nIrrep-1)), IndHss(4,3,4,3,0:(nIrrep-1)), iuvwx(4), kOp(4), nOp(4)
 real(kind=wp), intent(inout) :: g2(78), Hess(nHess)
 logical(kind=iwp), intent(in) :: IfHss(4,3,4,3), Tr(4), IfGr(4)
-integer(kind=iwp) :: iCa1, iCa2, iCar, iCh1, iCh2, iCn, iCn1, iCn2, iHess, iIrrep, ij, iStop, jCar, jCn, k1, k2, kCn, kl, lCn
+integer(kind=iwp) :: iCa1, iCa2, iCar, iCn, iCn1, iCn2, iHess, iIrrep, ij, iStop, jCar, jCn, k1, k2, kCn, kl, lCn
 real(kind=wp) :: Fact, ps
 real(kind=wp), parameter :: Prmt(0:7) = [One,-One,-One,One,-One,One,One,-One]
 
@@ -194,9 +194,7 @@ do iIrrep=0,nIrrep-1
             ! Sign due to which symmetry group the translation is in
             !
             !----------------------------------------------------------*
-            iCh1 = iChBas(iCar+1)
-            iCh2 = iChBas(jCar+1)
-            ps = ps*Prmt(iand(kOp(iCn),iCh1))*Prmt(iand(kOp(jCn),iCh2))
+            ps = ps*Prmt(iand(kOp(iCn),iChBas(1+iCar)))*Prmt(iand(kOp(jCn),iChBas(1+jCar)))
             !----------------------------------------------------------*
             !
             ! Multiply by number of stabilisers.

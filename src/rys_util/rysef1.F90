@@ -33,7 +33,7 @@ integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, m
                                  nzfMin, nzfMax
 real(kind=wp), intent(in) :: Iz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
 real(kind=wp), intent(inout) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
-integer(kind=iwp) :: iArg, Inde, Indf, iRys, ize, izf
+integer(kind=iwp) :: Inde, Indf, iRys, ize, izf
 
 select case (nRys)
   case (1)
@@ -41,9 +41,7 @@ select case (nRys)
       Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
-        do iArg=1,mArg
-          EFInt(iArg,Inde,Indf) = PreFct(iArg)*Iz2D(1,iArg,3,ize,izf)
-        end do
+        EFInt(1:mArg,Inde,Indf) = PreFct(:)*Iz2D(1,:,3,ize,izf)
       end do
     end do
   case (2)
@@ -51,9 +49,7 @@ select case (nRys)
       Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
-        do iArg=1,mArg
-          EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Iz2D(1,iArg,3,ize,izf)+Iz2D(2,iArg,3,ize,izf))
-        end do
+        EFInt(1:mArg,Inde,Indf) = PreFct(:)*(Iz2D(1,:,3,ize,izf)+Iz2D(2,:,3,ize,izf))
       end do
     end do
   case (3)
@@ -61,9 +57,7 @@ select case (nRys)
       Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
-        do iArg=1,mArg
-          EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Iz2D(1,iArg,3,ize,izf)+Iz2D(2,iArg,3,ize,izf)+Iz2D(3,iArg,3,ize,izf))
-        end do
+        EFInt(1:mArg,Inde,Indf) = PreFct(:)*(Iz2D(1,:,3,ize,izf)+Iz2D(2,:,3,ize,izf)+Iz2D(3,:,3,ize,izf))
       end do
     end do
   case (4)
@@ -71,10 +65,7 @@ select case (nRys)
       Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
-        do iArg=1,mArg
-          EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Iz2D(1,iArg,3,ize,izf)+Iz2D(2,iArg,3,ize,izf)+Iz2D(3,iArg,3,ize,izf)+ &
-                                  Iz2D(4,iArg,3,ize,izf))
-        end do
+        EFInt(1:mArg,Inde,Indf) = PreFct(:)*(Iz2D(1,:,3,ize,izf)+Iz2D(2,:,3,ize,izf)+Iz2D(3,:,3,ize,izf)+Iz2D(4,:,3,ize,izf))
       end do
     end do
   case (5)
@@ -82,10 +73,8 @@ select case (nRys)
       Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
-        do iArg=1,mArg
-          EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Iz2D(1,iArg,3,ize,izf)+Iz2D(2,iArg,3,ize,izf)+Iz2D(3,iArg,3,ize,izf)+ &
-                                  Iz2D(4,iArg,3,ize,izf)+Iz2D(5,iArg,3,ize,izf))
-        end do
+        EFInt(1:mArg,Inde,Indf) = PreFct(:)*(Iz2D(1,:,3,ize,izf)+Iz2D(2,:,3,ize,izf)+Iz2D(3,:,3,ize,izf)+Iz2D(4,:,3,ize,izf)+ &
+                                             Iz2D(5,:,3,ize,izf))
       end do
     end do
   case default
@@ -96,13 +85,11 @@ select case (nRys)
       Indf = C3_Ind(ixyf+izf,ixf,izf)-1
       do ize=nzeMin,nzeMax
         Inde = C3_Ind(ixye+ize,ixe,ize)-1
-        do iArg=1,mArg
-          EFInt(iArg,Inde,Indf) = Iz2D(1,iArg,3,ize,izf)
-          do iRys=2,nRys
-            EFInt(iArg,Inde,Indf) = EFInt(iArg,Inde,Indf)+Iz2D(iRys,iArg,3,ize,izf)
-          end do
-          EFInt(iArg,Inde,Indf) = EFInt(iArg,Inde,Indf)*PreFct(iArg)
+        EFInt(1:mArg,Inde,Indf) = Iz2D(1,:,3,ize,izf)
+        do iRys=2,nRys
+          EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)+Iz2D(iRys,:,3,ize,izf)
         end do
+        EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
       end do
     end do
 end select

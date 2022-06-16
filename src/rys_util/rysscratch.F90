@@ -60,13 +60,10 @@ subroutine SetAux(eps)
   call mma_allocate(a,maux)
   call mma_allocate(b,maux)
   do j=1,nquad
-    do i=1,naux(j)
-      a(i) = Half
-      if (i == 1) then
-        b(1) = One
-      else
-        b(i) = Quart/(Four-One/(i-1)**2)
-      end if
+    a(1:naux(j)) = Half
+    b(1) = One
+    do i=2,naux(j)
+      b(i) = Quart/(Four-One/(i-1)**2)
     end do
     call GaussQuad(naux(j),a,b,eps,Leg_r(1,j),Leg_w(1,j),Err)
     if (Err /= 0) then
@@ -74,9 +71,7 @@ subroutine SetAux(eps)
       call WarningMessage(2,'Error in GaussQuad')
       call AbEnd()
     end if
-    do i=1,naux(j)
-      Leg_r(i,j) = Leg_r(i,j)*Leg_r(i,j)
-    end do
+    Leg_r(1:naux(j),j) = Leg_r(1:naux(j),j)**2
   end do
   call mma_deallocate(a)
   call mma_deallocate(b)
@@ -108,7 +103,7 @@ subroutine RysRtsWgh(TValues,nT,Roots,Weights,Order)
   integer(kind=iwp), intent(in) :: nT, Order
   real(kind=wp), intent(in) :: TValues(nT)
   real(kind=wp), intent(out) :: Roots(Order,nT), Weights(Order,nT)
-  integer(kind=iwp) :: i, j, iquad, Err
+  integer(kind=iwp) :: i, iquad, Err
   real(kind=wp) :: Alpha(Order), Beta(Order), TA
   real(kind=wp), allocatable :: a(:), b(:)
   real(kind=wp), parameter :: eps = 1.0e-16_wp
@@ -122,18 +117,14 @@ subroutine RysRtsWgh(TValues,nT,Roots,Weights,Order)
 
   do i=1,nT
     if ((TValues(i) > TA) .or. asymptotic_Rys) then
-      do j=1,Order
-        Roots(j,i) = HerR2(iHerR2(Order)+j-1)/TValues(i)
-        Weights(j,i) = HerW2(iHerW2(Order)+j-1)/sqrt(TValues(i))
-      end do
+      Roots(:,i) = HerR2(iHerR2(Order):iHerR2(Order)+Order-1)/TValues(i)
+      Weights(:,i) = HerW2(iHerW2(Order):iHerW2(Order)+Order-1)/sqrt(TValues(i))
     else
       iquad = WhichQuad(min(Order,size(WhichQuad)))
       call mma_allocate(a,naux(iquad))
       call mma_allocate(b,naux(iquad))
-      do j=1,naux(iquad)
-        a(j) = Leg_r(j,iquad)
-        b(j) = Leg_w(j,iquad)*exp(-TValues(i)*a(j))
-      end do
+      a(1:naux(iquad)) = Leg_r(1:naux(iquad),iquad)
+      b(1:naux(iquad)) = Leg_w(1:naux(iquad),iquad)*exp(-TValues(i)*a(1:naux(iquad)))
       call Lanczos(Order,naux(iquad),a,b,Alpha,Beta,Err)
       if (Err /= 0) then
         write(u6,*) Err
@@ -223,15 +214,13 @@ subroutine GaussQuad(n,alpha,beta,eps,roots,weights,ierr)
   ! Initialization
 
   call mma_allocate(e,n,label='e')
-  do k=1,n
-    roots(k) = alpha(k)
-    if (beta(k) < Zero) then
-      ierr = -2
-      return
-    end if
-    weights(k) = Zero
-    if (k > 1) e(k-1) = sqrt(beta(k))
-  end do
+  roots(:) = alpha
+  weights(:) = Zero
+  if (any(beta < Zero)) then
+    ierr = -2
+    return
+  end if
+  e(1:n-1) = sqrt(beta(2:n))
   if (n == 1) then
     weights(1) = beta(1)
     return
@@ -247,8 +236,7 @@ subroutine GaussQuad(n,alpha,beta,eps,roots,weights,ierr)
 
       ! Look for a small subdiagonal element.
 
-      do m=l,n
-        if (m == n) exit
+      do m=l,n-1
         if (abs(e(m)) <= eps*(abs(roots(m))+abs(roots(m+1)))) exit
       end do
       p = roots(l)
@@ -329,9 +317,7 @@ subroutine GaussQuad(n,alpha,beta,eps,roots,weights,ierr)
       weights(k) = p
     end if
   end do
-  do k=1,n
-    weights(k) = beta(1)*weights(k)*weights(k)
-  end do
+  weights(:) = beta(1)*weights**2
 
   return
 

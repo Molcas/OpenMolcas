@@ -28,7 +28,7 @@ integer(kind=iwp), intent(in) :: mT, nRys
 real(kind=wp), intent(inout) :: U2(nRys,mT)
 real(kind=wp), intent(in) :: ZEInv(mT)
 #include "print.fh"
-integer(kind=iwp) :: iPrint, iRout, iRys, iT
+integer(kind=iwp) :: iPrint, iRout, iT
 
 iRout = 255
 iPrint = nPrint(iRout)
@@ -40,14 +40,10 @@ end if
 
 if (nRys > 1) then
   do iT=1,mT
-    do iRys=1,nRys
-      U2(iRys,iT) = U2(iRys,iT)*ZEInv(iT)
-    end do
+    U2(:,iT) = U2(:,iT)*ZEInv(iT)
   end do
 else
-  do iT=1,mT
-    U2(1,iT) = U2(1,iT)*ZEInv(iT)
-  end do
+  U2(1,:) = U2(1,:)*ZEInv(:)
 end if
 
 return

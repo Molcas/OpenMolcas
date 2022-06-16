@@ -33,10 +33,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
-real(kind=wp), intent(inout) :: xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax)
-real(kind=wp), intent(in) :: PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3), B10(nArg*lRys*3), B00(nArg*lRys*3), B01(nArg*lRys*3)
-integer(kind=iwp) :: i, iab, icd
-real(kind=wp) :: temp1, temp2, temp3
+real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
+real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys,3), B00(nArg*lRys,3), B01(nArg*lRys,3)
+integer(kind=iwp) :: iab, icd
 
 #ifdef _DEBUGPRINT_
 character*30 Label
@@ -50,89 +49,57 @@ call RecPrt(' B01',' ',B01,nArg*lRys,3)
 ! Compute 2D integrals with index (0,0). Observe that the z
 ! component already contains the weight factor.
 
-call dcopy_(2*nArg*lRys,[One],0,xyz2D(1,0,0),1)
+xyz2D(:,1:2,0,0) = One
 
 ! Compute 2D integrals with index (i,0)
 
 if (nabMax /= 0) then
-  do i=1,nArg*lRys*3
-    xyz2D(i,1,0) = PAWP(i)*xyz2D(i,0,0)
-  end do
-end if
-if (nabMax == 2) then
-  do i=1,nArg*lRys*3
-    xyz2D(i,2,0) = PAWP(i)*xyz2D(i,1,0)+B10(i)*xyz2D(i,0,0)
-  end do
-else if (nabMax > 2) then
-  do iab=1,nabMax-1
-    do i=1,nArg*lRys*3
-      temp1 = PAWP(i)*xyz2D(i,iab,0)
-      temp2 = real(iab,kind=wp)*B10(i)*xyz2D(i,iab-1,0)
-      xyz2D(i,iab+1,0) = temp1+temp2
+  xyz2D(:,:,1,0) = PAWP(:,:)*xyz2D(:,:,0,0)
+  if (nabMax == 2) then
+    xyz2D(:,:,2,0) = PAWP(:,:)*xyz2D(:,:,1,0)+B10(:,:)*xyz2D(:,:,0,0)
+  else if (nabMax > 2) then
+    do iab=1,nabMax-1
+      xyz2D(:,:,iab+1,0) = PAWP(:,:)*xyz2D(:,:,iab,0)+real(iab,kind=wp)*B10(:,:)*xyz2D(:,:,iab-1,0)
     end do
-  end do
+  end if
 end if
 
 ! Compute 2D integrals with index (0,i)
 
 if (ncdMax /= 0) then
-  do i=1,nArg*lRys*3
-    xyz2D(i,0,1) = QCWQ(i)*xyz2D(i,0,0)
-  end do
-end if
-if (ncdMax == 2) then
-  do i=1,nArg*lRys*3
-    xyz2D(i,0,2) = QCWQ(i)*xyz2D(i,0,1)+B01(i)*xyz2D(i,0,0)
-  end do
-else if (ncdMax > 2) then
-  do icd=1,ncdMax-1
-    do i=1,nArg*lRys*3
-      temp1 = QCWQ(i)*xyz2D(i,0,icd)
-      temp2 = real(icd,kind=wp)*B01(i)*xyz2D(i,0,icd-1)
-      xyz2D(i,0,icd+1) = temp1+temp2
+  xyz2D(:,:,0,1) = QCWQ(:,:)*xyz2D(:,:,0,0)
+  if (ncdMax == 2) then
+    xyz2D(:,:,0,2) = QCWQ(:,:)*xyz2D(:,:,0,1)+B01(:,:)*xyz2D(:,:,0,0)
+  else if (ncdMax > 2) then
+    do icd=1,ncdMax-1
+      xyz2D(:,:,0,icd+1) = QCWQ(:,:)*xyz2D(:,:,0,icd)+real(icd,kind=wp)*B01(:,:)*xyz2D(:,:,0,icd-1)
     end do
-  end do
+  end if
 end if
 
 ! Compute 2D integrals with index (i,j)
 
 if (ncdMax <= nabMax) then
   do icd=1,ncdMax
-    do i=1,nArg*lRys*3
-      xyz2D(i,1,icd) = PAWP(i)*xyz2D(i,0,icd)+real(icd,kind=wp)*B00(i)*xyz2D(i,0,icd-1)
-    end do
+    xyz2D(:,:,1,icd) = PAWP(:,:)*xyz2D(:,:,0,icd)+real(icd,kind=wp)*B00(:,:)*xyz2D(:,:,0,icd-1)
     if (nabMax == 2) then
-      do i=1,nArg*lRys*3
-        xyz2D(i,2,icd) = PAWP(i)*xyz2D(i,1,icd)+B10(i)*xyz2D(i,0,icd)+real(icd,kind=wp)*B00(i)*xyz2D(i,1,icd-1)
-      end do
+      xyz2D(:,:,2,icd) = PAWP(:,:)*xyz2D(:,:,1,icd)+B10(:,:)*xyz2D(:,:,0,icd)+real(icd,kind=wp)*B00(:,:)*xyz2D(:,:,1,icd-1)
     else if (nabMax > 2) then
       do iab=1,nabMax-1
-        do i=1,nArg*lRys*3
-          temp1 = PAWP(i)*xyz2D(i,iab,icd)
-          temp2 = real(iab,kind=wp)*B10(i)*xyz2D(i,iab-1,icd)
-          temp3 = real(icd,kind=wp)*B00(i)*xyz2D(i,iab,icd-1)
-          xyz2D(i,iab+1,icd) = temp1+temp2+temp3
-        end do
+        xyz2D(:,:,iab+1,icd) = PAWP(:,:)*xyz2D(:,:,iab,icd)+real(iab,kind=wp)*B10(:,:)*xyz2D(:,:,iab-1,icd)+ &
+                               real(icd,kind=wp)*B00(:,:)*xyz2D(:,:,iab,icd-1)
       end do
     end if
   end do
 else
   do iab=1,nabMax
-    do i=1,nArg*lRys*3
-      xyz2D(i,iab,1) = QCWQ(i)*xyz2D(i,iab,0)+real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,0)
-    end do
+    xyz2D(:,:,iab,1) = QCWQ(:,:)*xyz2D(:,:,iab,0)+real(iab,kind=wp)*B00(:,:)*xyz2D(:,:,iab-1,0)
     if (ncdMax == 2) then
-      do i=1,nArg*lRys*3
-        xyz2D(i,iab,2) = QCWQ(i)*xyz2D(i,iab,1)+B01(i)*xyz2D(i,iab,0)+real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,1)
-      end do
+      xyz2D(:,:,iab,2) = QCWQ(:,:)*xyz2D(:,:,iab,1)+B01(:,:)*xyz2D(:,:,iab,0)+real(iab,kind=wp)*B00(:,:)*xyz2D(:,:,iab-1,1)
     else if (ncdMax > 2) then
       do icd=1,ncdmax-1
-        do i=1,nArg*lRys*3
-          temp1 = QCWQ(i)*xyz2D(i,iab,icd)
-          temp2 = real(icd,kind=wp)*B01(i)*xyz2D(i,iab,icd-1)
-          temp3 = real(iab,kind=wp)*B00(i)*xyz2D(i,iab-1,icd)
-          xyz2D(i,iab,icd+1) = temp1+temp2+temp3
-        end do
+        xyz2D(:,:,iab,icd+1) = QCWQ(:,:)*xyz2D(:,:,iab,icd)+real(icd,kind=wp)*B01(:,:)*xyz2D(:,:,iab,icd-1)+ &
+                               real(iab,kind=wp)*B00(:,:)*xyz2D(:,:,iab-1,icd)
       end do
     end if
   end do
@@ -143,11 +110,11 @@ end if
 do iab=0,nabMax
   do icd=0,ncdMax
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
-    call RecPrt(Label,' ',xyz2D(1,iab,icd),lRys,nArg)
+    call RecPrt(Label,' ',xyz2D(:,1,iab,icd),lRys,nArg)
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
-    call RecPrt(Label,' ',xyz2D(1+nArg*lRys,iab,icd),lRys,nArg)
+    call RecPrt(Label,' ',xyz2D(:,2,iab,icd),lRys,nArg)
     write(Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
-    call RecPrt(Label,' ',xyz2D(1+2*nArg*lRys,iab,icd),lRys,nArg)
+    call RecPrt(Label,' ',xyz2D(:,3,iab,icd),lRys,nArg)
   end do
 end do
 #endif

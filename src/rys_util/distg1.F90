@@ -53,23 +53,6 @@ if (iPrint >= 49) write(u6,*) IndGrd
 ! Distribute Temp in PAOg1
 
 nVec = 0
-#ifdef __INTEL_COMPILER
-do kl=1,12
-  iCar = (kl-1)/4+1
-  iCent = kl-(iCar-1)*4
-  ij = 3*(iCent-1)+iCar
-  if (IfGrad(iCar,iCent)) then
-    nVec = nVec+1
-    PAOg1(ij) = Temp(nVec)
-  else
-    PAOg1(ij) = Zero
-  end if
-end do
-#else
-
-! Original code didn't work for Intel compiler with -O3
-! options since it swaps the loops.
-
 do iCar=1,3
   do iCent=1,4
     ij = 3*(iCent-1)+iCar
@@ -81,7 +64,6 @@ do iCar=1,3
     end if
   end do
 end do
-#endif
 
 ! a) Compute some of the contributions via the translational invariance
 ! b) Distribute contribution to the gradient.

@@ -56,11 +56,9 @@ do IT=1,NT
   ! multipole-component of the integrals
 
   if ((t > TVALUE(ubound(TVALUE,1)-2)) .or. asymptotic_Rys) then
-    do iroot=1,nRYS
-      tmp = One/T
-      U2(iroot,IT) = HerR2(iHerR2(nRys)+iroot-1)*tmp
-      WGH(iroot,IT) = HerW2(iHerW2(nRys)+iroot-1)*sqrt(tmp)
-    end do
+    tmp = One/T
+    U2(:,IT) = HerR2(iHerR2(nRys):iHerR2(nRys)+nRys-1)*tmp
+    WGH(:,IT) = HerW2(iHerW2(nRys):iHerW2(nRys)+nRys-1)*sqrt(tmp)
     cycle
   end if
   ! translate to tabulation function for equidist. interp.
@@ -86,11 +84,11 @@ do IT=1,NT
   c5 = coef5*a5*b5
   c6 = coef6*a6
   ALPHA(0) = c1*ATAB(0,nx-2)+c2*ATAB(0,nx-1)+c3*ATAB(0,nx)+c4*ATAB(0,nx+1)+c5*ATAB(0,nx+2)+c6*ATAB(0,nx+3)
-  do k=1,NRYS
-    ALPHA(k) = c1*ATAB(k,nx-2)+c2*ATAB(k,nx-1)+c3*ATAB(k,nx)+c4*ATAB(k,nx+1)+c5*ATAB(k,nx+2)+c6*ATAB(k,nx+3)
-    BETA(k) = c1*BTAB(k,nx-2)+c2*BTAB(k,nx-1)+c3*BTAB(k,nx)+c4*BTAB(k,nx+1)+c5*BTAB(k,nx+2)+c6*BTAB(k,nx+3)
-    BINV(K) = ONE/BETA(K)
-  end do
+  ALPHA(1:NRYS) = c1*ATAB(1:NRYS,nx-2)+c2*ATAB(1:NRYS,nx-1)+c3*ATAB(1:NRYS,nx)+c4*ATAB(1:NRYS,nx+1)+c5*ATAB(1:NRYS,nx+2)+ &
+                  c6*ATAB(1:NRYS,nx+3)
+  BETA(1:NRYS) = c1*BTAB(1:NRYS,nx-2)+c2*BTAB(1:NRYS,nx-1)+c3*BTAB(1:NRYS,nx)+c4*BTAB(1:NRYS,nx+1)+c5*BTAB(1:NRYS,nx+2)+ &
+                 c6*BTAB(1:NRYS,nx+3)
+  BINV(1:NRYS) = One/BETA(1:NRYS)
   rys(0) = c1*p0(nx-2)+c2*p0(nx-1)+c3*p0(nx)+c4*p0(nx+1)+c5*p0(nx+2)+c6*p0(nx+3)
   ROOT(1,1) = ALPHA(0)
   x1 = (ALPHA(0)+ALPHA(1))*Half

@@ -63,12 +63,12 @@ if (ABeqCD) then
       B011 = (Half-Half*Zu21)*EInv(iEta)
       B012 = (Half-Half*Zu22)*EInv(iEta)
       PreFct = rKappCD(iEta)*rKappAB(iZeta)*sqrt(ZEInv)
-      EFInt(iZeta,iEta,1) = (PreFct*(B011*w1+B012*w2))
+      EFInt(iZeta,iEta,1) = PreFct*(B011*w1+B012*w2)
       EFInt(iZeta,iEta,2) = Zero
       EFInt(iZeta,iEta,3) = Zero
-      EFInt(iZeta,iEta,4) = (PreFct*(B011*w1+B012*w2))
+      EFInt(iZeta,iEta,4) = PreFct*(B011*w1+B012*w2)
       EFInt(iZeta,iEta,5) = Zero
-      EFInt(iZeta,iEta,6) = (PreFct*(B011*w1+B012*w2))
+      EFInt(iZeta,iEta,6) = PreFct*(B011*w1+B012*w2)
     end do
   end do
 

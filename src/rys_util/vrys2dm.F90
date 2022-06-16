@@ -35,7 +35,7 @@ integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax, la, lb, lc, ld
 real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
 real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys), B00(nArg*lRys), B01(nArg*lRys)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
-integer(kind=iwp) :: i, iab, iCar, icd, llab, llcd, mabMax, mcdMax
+integer(kind=iwp) :: iab, iCar, icd, llab, llcd, mabMax, mcdMax
 real(kind=wp) :: Fac1, Fac2, Fact
 #ifdef _DEBUGPRINT_
 character(len=30) :: Label
@@ -52,7 +52,7 @@ call RecPrt(' B01',' ',B01,nArg*lRys,3)
 ! Compute 2D integrals with index (0,0). Observe that the z
 ! component already contains the weight factor.
 
-call dcopy_(2*nArg*lRys,[One],0,xyz2D(1,1,0,0),1)
+xyz2D(:,1:2,0,0) = One
 
 ! Compute 2D integrals with index (i,0)
 
@@ -65,43 +65,31 @@ do iCar=1,3
   mcdMax = lc+ld+llcd
 
   if (mabMax /= 0) then
-    do i=1,nArg*lRys
-      xyz2D(i,iCar,1,0) = PAWP(i,iCar)*xyz2D(i,iCar,0,0)
-    end do
-  end if
-  if (mabMax-1 == 1) then
-    do i=1,nArg*lRys
-      xyz2D(i,iCar,2,0) = PAWP(i,iCar)*xyz2D(i,iCar,1,0)+B10(i)*xyz2D(i,iCar,0,0)
-    end do
-  else if (mabMax-1 > 1) then
-    Fact = One
-    do iab=1,mabMax-1
-      do i=1,nArg*lRys
-        xyz2D(i,iCar,iab+1,0) = PAWP(i,iCar)*xyz2D(i,iCar,iab,0)+Fact*B10(i)*xyz2D(i,iCar,iab-1,0)
+    xyz2D(:,iCar,1,0) = PAWP(:,iCar)*xyz2D(:,iCar,0,0)
+    if (mabMax == 2) then
+      xyz2D(:,iCar,2,0) = PAWP(:,iCar)*xyz2D(:,iCar,1,0)+B10(:)*xyz2D(:,iCar,0,0)
+    else if (mabMax > 2) then
+      Fact = One
+      do iab=1,mabMax-1
+        xyz2D(:,iCar,iab+1,0) = PAWP(:,iCar)*xyz2D(:,iCar,iab,0)+Fact*B10(:)*xyz2D(:,iCar,iab-1,0)
+        Fact = Fact+One
       end do
-      Fact = Fact+One
-    end do
+    end if
   end if
 
   ! Compute 2D integrals with index (0,i)
 
   if (mcdMax /= 0) then
-    do i=1,nArg*lRys
-      xyz2D(i,iCar,0,1) = QCWQ(i,iCar)*xyz2D(i,iCar,0,0)
-    end do
-  end if
-  if (mcdMax-1 == 1) then
-    do i=1,nArg*lRys
-      xyz2D(i,iCar,0,2) = QCWQ(i,iCar)*xyz2D(i,iCar,0,1)+B01(i)*xyz2D(i,iCar,0,0)
-    end do
-  else if (mcdMax-1 > 1) then
-    Fact = One
-    do icd=1,mcdMax-1
-      do i=1,nArg*lRys
-        xyz2D(i,iCar,0,icd+1) = QCWQ(i,iCar)*xyz2D(i,iCar,0,icd)+Fact*B01(i)*xyz2D(i,iCar,0,icd-1)
+    xyz2D(:,iCar,0,1) = QCWQ(:,iCar)*xyz2D(:,iCar,0,0)
+    if (mcdMax == 2) then
+      xyz2D(:,iCar,0,2) = QCWQ(:,iCar)*xyz2D(:,iCar,0,1)+B01(:)*xyz2D(:,iCar,0,0)
+    else if (mcdMax > 2) then
+      Fact = One
+      do icd=1,mcdMax-1
+        xyz2D(:,iCar,0,icd+1) = QCWQ(:,iCar)*xyz2D(:,iCar,0,icd)+Fact*B01(:)*xyz2D(:,iCar,0,icd-1)
+        Fact = Fact+One
       end do
-      Fact = Fact+One
-    end do
+    end if
   end if
 
   ! Compute 2D integrals with index (i,iCar,j)
@@ -109,20 +97,14 @@ do iCar=1,3
   if (mcdMax <= mabMax) then
     Fac1 = One
     do icd=1,mcdMax
-      do i=1,nArg*lRys
-        xyz2D(i,iCar,1,icd) = PAWP(i,iCar)*xyz2D(i,iCar,0,icd)+Fac1*B00(i)*xyz2D(i,iCar,0,icd-1)
-      end do
-      if (mabMax-1 == 1) then
-        do i=1,nArg*lRys
-          xyz2D(i,iCar,2,icd) = PAWP(i,iCar)*xyz2D(i,iCar,1,icd)+B10(i)*xyz2D(i,iCar,0,icd)+Fac1*B00(i)*xyz2D(i,iCar,1,icd-1)
-        end do
-      else if (mabMax-1 > 1) then
+      xyz2D(:,iCar,1,icd) = PAWP(:,iCar)*xyz2D(:,iCar,0,icd)+Fac1*B00(:)*xyz2D(:,iCar,0,icd-1)
+      if (mabMax == 2) then
+        xyz2D(:,iCar,2,icd) = PAWP(:,iCar)*xyz2D(:,iCar,1,icd)+B10(:)*xyz2D(:,iCar,0,icd)+Fac1*B00(:)*xyz2D(:,iCar,1,icd-1)
+      else if (mabMax > 2) then
         Fac2 = One
         do iab=1,mabMax-1
-          do i=1,nArg*lRys
-            xyz2D(i,iCar,iab+1,icd) = PAWP(i,iCar)*xyz2D(i,iCar,iab,icd)+Fac2*B10(i)*xyz2D(i,iCar,iab-1,icd)+ &
-                                      Fac1*B00(i)*xyz2D(i,iCar,iab,icd-1)
-          end do
+          xyz2D(:,iCar,iab+1,icd) = PAWP(:,iCar)*xyz2D(:,iCar,iab,icd)+Fac2*B10(:)*xyz2D(:,iCar,iab-1,icd)+ &
+                                    Fac1*B00(:)*xyz2D(:,iCar,iab,icd-1)
           Fac2 = Fac2+One
         end do
       end if
@@ -131,20 +113,14 @@ do iCar=1,3
   else
     Fac1 = One
     do iab=1,mabMax
-      do i=1,nArg*lRys
-        xyz2D(i,iCar,iab,1) = QCWQ(i,iCar)*xyz2D(i,iCar,iab,0)+Fac1*B00(i)*xyz2D(i,iCar,iab-1,0)
-      end do
-      if (mcdMax-1 == 1) then
-        do i=1,nArg*lRys
-          xyz2D(i,iCar,iab,2) = QCWQ(i,iCar)*xyz2D(i,iCar,iab,1)+B01(i)*xyz2D(i,iCar,iab,0)+Fac1*B00(i)*xyz2D(i,iCar,iab-1,1)
-        end do
-      else if (mcdMax-1 > 1) then
+      xyz2D(:,iCar,iab,1) = QCWQ(:,iCar)*xyz2D(:,iCar,iab,0)+Fac1*B00(:)*xyz2D(:,iCar,iab-1,0)
+      if (mcdMax == 2) then
+        xyz2D(:,iCar,iab,2) = QCWQ(:,iCar)*xyz2D(:,iCar,iab,1)+B01(:)*xyz2D(:,iCar,iab,0)+Fac1*B00(:)*xyz2D(:,iCar,iab-1,1)
+      else if (mcdMax > 2) then
         Fac2 = One
         do icd=1,mcdMax-1
-          do i=1,nArg*lRys
-            xyz2D(i,iCar,iab,icd+1) = QCWQ(i,iCar)*xyz2D(i,iCar,iab,icd)+Fac2*B01(i)*xyz2D(i,iCar,iab,icd-1)+ &
-                                      Fac1*B00(i)*xyz2D(i,iCar,iab-1,icd)
-          end do
+          xyz2D(:,iCar,iab,icd+1) = QCWQ(:,iCar)*xyz2D(:,iCar,iab,icd)+Fac2*B01(:)*xyz2D(:,iCar,iab,icd-1)+ &
+                                    Fac1*B00(:)*xyz2D(:,iCar,iab-1,icd)
           Fac2 = Fac2+One
         end do
       end if

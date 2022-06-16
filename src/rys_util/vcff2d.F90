@@ -25,15 +25,14 @@ subroutine vCff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,l
 !             Modified for decreased memory access January '94.        *
 !***********************************************************************
 
-use Constants, only: Half
+use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
 real(kind=wp), intent(in) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT)
 real(kind=wp), intent(inout) :: PAQP(nRys,nT,3), QCPQ(nRys,nT,3), B10(nRys,nT), B00(nRys,nT), B01(nRys,nT)
-integer(kind=iwp) :: icar, iRys, iT, nabMax_, ncdMax_
-real(kind=wp) :: tmp
+integer(kind=iwp) :: iCar, iT, nabMax_, ncdMax_
 logical(kind=iwp) :: AeqB, CeqD
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -65,13 +64,10 @@ PrintB00 = .false.
 nabMax_ = la+lb
 ncdMax_ = lc+ld
 if ((nabMax_ >= 2) .and. (ncdMax_ >= 2)) then
+  B00(:,:) = Half*U2
   do iT=1,nT
-    do iRys=1,nRys
-      tmp = Half*U2(iRys,iT)
-      B00(iRys,iT) = tmp
-      B10(iRys,iT) = (Half-tmp*Eta(iT))*ZInv(iT)
-      B01(iRys,iT) = (Half-tmp*Zeta(iT))*EInv(iT)
-    end do
+    B10(:,iT) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
+    B01(:,iT) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB10 = .true.
@@ -80,52 +76,38 @@ if ((nabMax_ >= 2) .and. (ncdMax_ >= 2)) then
 # endif
 else if ((ncdMax_ == 0) .and. (nabMax_ >= 2)) then
   do iT=1,nT
-    do iRys=1,nRys
-      B10(iRys,iT) = (Half-Half*U2(iRys,iT)*Eta(iT))*ZInv(iT)
-    end do
+    B10(:,iT) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB10 = .true.
 # endif
 else if ((nabMax_ == 0) .and. (ncdMax_ >= 2)) then
   do iT=1,nT
-    do iRys=1,nRys
-      B01(iRys,iT) = (Half-Half*U2(iRys,iT)*Zeta(iT))*EInv(iT)
-    end do
+    B01(:,iT) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB01 = .true.
 # endif
 else if ((ncdMax_ == 1) .and. (nabMax_ >= 2)) then
+  B00(:,:) = Half*U2
   do iT=1,nT
-    do iRys=1,nRys
-      tmp = Half*U2(iRys,iT)
-      B00(iRys,iT) = tmp
-      B10(iRys,iT) = (Half-tmp*Eta(iT))*ZInv(iT)
-    end do
+    B10(:,iT) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB10 = .true.
   PrintB00 = .true.
 # endif
 else if ((nabMax_ == 1) .and. (ncdMax_ >= 2)) then
+  B00(:,:) = Half*U2
   do iT=1,nT
-    do iRys=1,nRys
-      tmp = Half*U2(iRys,iT)
-      B00(iRys,iT) = tmp
-      B01(iRys,iT) = (Half-tmp*Zeta(iT))*EInv(iT)
-    end do
+    B01(:,iT) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB01 = .true.
   PrintB00 = .true.
 # endif
 else if ((nabMax_ == 1) .and. (ncdMax_ == 1)) then
-  do iT=1,nT
-    do iRys=1,nRys
-      B00(iRys,iT) = Half*U2(iRys,iT)
-    end do
-  end do
+  B00(:,:) = Half*U2
 # ifdef _DEBUGPRINT_
   PrintB00 = .true.
 # endif
@@ -135,41 +117,29 @@ if ((nabMax_ /= 0) .and. (ncdMax_ /= 0)) then
   if ((.not. AeqB) .and. (.not. CeqD)) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          tmp = U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar))
-          PAQP(iRys,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*tmp
-          QCPQ(iRys,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*tmp
-        end do
+        PAQP(:,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
+        QCPQ(:,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else if (AeqB .and. (.not. CeqD)) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          tmp = U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar))
-          PAQP(iRys,iT,iCar) = Eta(iT)*tmp
-          QCPQ(iRys,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*tmp
-        end do
+        PAQP(:,iT,iCar) = Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
+        QCPQ(:,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else if ((.not. AeqB) .and. CeqD) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          tmp = U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar))
-          PAQP(iRys,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*tmp
-          QCPQ(iRys,iT,iCar) = -Zeta(iT)*tmp
-        end do
+        PAQP(:,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
+        QCPQ(:,iT,iCar) = -Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          tmp = U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar))
-          PAQP(iRys,iT,iCar) = Eta(iT)*tmp
-          QCPQ(iRys,iT,iCar) = -Zeta(iT)*tmp
-        end do
+        PAQP(:,iT,iCar) = Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
+        QCPQ(:,iT,iCar) = -Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   end if
@@ -177,17 +147,13 @@ else if (nabMax_ /= 0) then
   if (.not. AeqB) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          PAQP(iRys,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-        end do
+        PAQP(:,iT,iCar) = P(iT,iCar)-CoorAC(iCar,1)+Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          PAQP(iRys,iT,iCar) = Eta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-        end do
+        PAQP(:,iT,iCar) = Eta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   end if
@@ -195,17 +161,13 @@ else if (ncdMax_ /= 0) then
   if (.not. CeqD) then
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          QCPQ(iRys,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-        end do
+        QCPQ(:,iT,iCar) = Q(iT,iCar)-CoorAC(iCar,2)-Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   else
     do iCar=1,3
       do iT=1,nT
-        do iRys=1,nRys
-          QCPQ(iRys,iT,iCar) = -Zeta(iT)*(U2(iRys,iT)*(Q(iT,iCar)-P(iT,iCar)))
-        end do
+        QCPQ(:,iT,iCar) = -Zeta(iT)*U2(:,iT)*(Q(iT,iCar)-P(iT,iCar))
       end do
     end do
   end if

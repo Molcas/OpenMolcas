@@ -33,16 +33,11 @@ logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp), intent(out) :: mVec, Indx2(3,4)
 #include "itmax.fh"
 integer(kind=iwp) :: iCent, icir(3), Ind1(3), Ind2(3), ipa, ipb, ipc, ipd, iRys, iT, ixa, ixab, ixabc, ixabcd, ixb, ixc, ixd, iya, &
-                     iyab, iyabc, iyabcd, iyb, iyc, iyd, iza, izb, izc, izd, ka, kb, kc, kd, ng1, nVec
+                     iyab, iyabc, iyabcd, iyb, iyc, iyd, iza, izb, izc, izd, nVec
 real(kind=wp) :: tmp, tmp1, tmp2, tmp3
 
-ka = nTri_Elem1(la)
-kb = nTri_Elem1(lb)
-kc = nTri_Elem1(lc)
-kd = nTri_Elem1(ld)
-ng1 = nT*9*ka*kb*kc*kd
-call dcopy_(ng1,[Zero],0,g1,1)
-call ICOPY(12,[0],0,Indx2,1)
+g1(:,:,:,:,:,:) = Zero
+Indx2(:,:) = 0
 
 do ipa=1,nTri_Elem1(la)
   icir(:) = C_Ind3_Rev(ipa,la)

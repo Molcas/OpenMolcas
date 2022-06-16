@@ -26,7 +26,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nArg, nPntr, iPntr(nPntr), nMax
 real(kind=wp), intent(in) :: Arg(nArg), x0(nMax), R6(nMax,2), R5(nMax,2), R4(nMax,2), R3(nMax,2), R2(nMax,2), R1(nMax,2), &
                              R0(nMax,2), W6(nMax,2), W5(nMax,2), W4(nMax,2), W3(nMax,2), W2(nMax,2), W1(nMax,2), W0(nMax,2), ddx, &
-                             HerW(3), HerR2(3), TMax
+                             HerW(2), HerR2(2), TMax
 real(kind=wp), intent(out) :: Root(2,nArg), Weight(2,nArg)
 integer(kind=iwp) :: iArg, n
 real(kind=wp) :: ai, dddx, si, xdInv, z
@@ -37,17 +37,13 @@ do iArg=1,nArg
   if (Arg(iArg) < TMax) then
     n = iPntr(int((Arg(iArg)+dddx)*xdInv))
     z = Arg(iArg)-x0(n)
-    Root(1,iArg) = (((((R6(n,1)*z+R5(n,1))*z+R4(n,1))*z+R3(n,1))*z+R2(n,1))*z+R1(n,1))*z+R0(n,1)
-    Root(2,iArg) = (((((R6(n,2)*z+R5(n,2))*z+R4(n,2))*z+R3(n,2))*z+R2(n,2))*z+R1(n,2))*z+R0(n,2)
-    Weight(1,iArg) = (((((W6(n,1)*z+W5(n,1))*z+W4(n,1))*z+W3(n,1))*z+W2(n,1))*z+W1(n,1))*z+W0(n,1)
-    Weight(2,iArg) = (((((W6(n,2)*z+W5(n,2))*z+W4(n,2))*z+W3(n,2))*z+W2(n,2))*z+W1(n,2))*z+W0(n,2)
+    Root(:,iArg) = (((((R6(n,:)*z+R5(n,:))*z+R4(n,:))*z+R3(n,:))*z+R2(n,:))*z+R1(n,:))*z+R0(n,:)
+    Weight(:,iArg) = (((((W6(n,:)*z+W5(n,:))*z+W4(n,:))*z+W3(n,:))*z+W2(n,:))*z+W1(n,:))*z+W0(n,:)
   else
     ai = One/Arg(iArg)
     si = sqrt(ai)
-    Root(1,iArg) = HerR2(1)*ai
-    Root(2,iArg) = HerR2(2)*ai
-    Weight(1,iArg) = HerW(1)*si
-    Weight(2,iArg) = HerW(2)*si
+    Root(:,iArg) = HerR2(:)*ai
+    Weight(:,iArg) = HerW(:)*si
   end if
 end do
 

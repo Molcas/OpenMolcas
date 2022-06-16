@@ -31,7 +31,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMax, nfMax, meMin, meMax, mfMin, mfMax, ixe, ixf, ixye, ixyf, nzeMax, nzfMax
 real(kind=wp), intent(in) :: Ixy4D(nRys,mArg), Iz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg)
 real(kind=wp), intent(inout) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
-integer(kind=iwp) :: iArg, Inde, Indf, iRys, ize, izf
+integer(kind=iwp) :: Inde, Indf, iRys, ize, izf
 
 izf = nzfMax
 ize = nzeMax
@@ -39,40 +39,28 @@ Indf = C3_Ind(ixyf+izf,ixf,izf)-1
 Inde = C3_Ind(ixye+ize,ixe,ize)-1
 select case (nRys)
   case (1)
-    do iArg=1,mArg
-      EFInt(iArg,Inde,Indf) = PreFct(iArg)*Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)
-    end do
+    EFInt(1:mArg,Inde,Indf) = PreFct(:)*Ixy4D(1,:)*Iz2D(1,:,3,ize,izf)
   case (2)
-    do iArg=1,mArg
-      EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)+Ixy4D(2,iArg)*Iz2D(2,iArg,3,ize,izf))
-    end do
+    EFInt(1:mArg,Inde,Indf) = PreFct(:)*(Ixy4D(1,:)*Iz2D(1,:,3,ize,izf)+Ixy4D(2,:)*Iz2D(2,:,3,ize,izf))
   case (3)
-    do iArg=1,mArg
-      EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)+Ixy4D(2,iArg)*Iz2D(2,iArg,3,ize,izf)+ &
-                              Ixy4D(3,iArg)*Iz2D(3,iArg,3,ize,izf))
-    end do
+    EFInt(1:mArg,Inde,Indf) = PreFct(:)*(Ixy4D(1,:)*Iz2D(1,:,3,ize,izf)+Ixy4D(2,:)*Iz2D(2,:,3,ize,izf)+ &
+                                         Ixy4D(3,:)*Iz2D(3,:,3,ize,izf))
   case (4)
-    do iArg=1,mArg
-      EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)+Ixy4D(2,iArg)*Iz2D(2,iArg,3,ize,izf)+ &
-                              Ixy4D(3,iArg)*Iz2D(3,iArg,3,ize,izf)+Ixy4D(4,iArg)*Iz2D(4,iArg,3,ize,izf))
-    end do
+    EFInt(1:mArg,Inde,Indf) = PreFct(:)*(Ixy4D(1,:)*Iz2D(1,:,3,ize,izf)+Ixy4D(2,:)*Iz2D(2,:,3,ize,izf)+ &
+                                         Ixy4D(3,:)*Iz2D(3,:,3,ize,izf)+Ixy4D(4,:)*Iz2D(4,:,3,ize,izf))
   case (5)
-    do iArg=1,mArg
-      EFInt(iArg,Inde,Indf) = PreFct(iArg)*(Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)+Ixy4D(2,iArg)*Iz2D(2,iArg,3,ize,izf)+ &
-                              Ixy4D(3,iArg)*Iz2D(3,iArg,3,ize,izf)+Ixy4D(4,iArg)*Iz2D(4,iArg,3,ize,izf)+ &
-                              Ixy4D(5,iArg)*Iz2D(5,iArg,3,ize,izf))
-    end do
+    EFInt(1:mArg,Inde,Indf) = PreFct(:)*(Ixy4D(1,:)*Iz2D(1,:,3,ize,izf)+Ixy4D(2,:)*Iz2D(2,:,3,ize,izf)+ &
+                                         Ixy4D(3,:)*Iz2D(3,:,3,ize,izf)+Ixy4D(4,:)*Iz2D(4,:,3,ize,izf)+ &
+                                         Ixy4D(5,:)*Iz2D(5,:,3,ize,izf))
   case default
 
     ! General code
 
-    do iArg=1,mArg
-      EFInt(iArg,Inde,Indf) = Ixy4D(1,iArg)*Iz2D(1,iArg,3,ize,izf)
-      do iRys=2,nRys
-        EFInt(iArg,Inde,Indf) = EFInt(iArg,Inde,Indf)+Ixy4D(iRys,iArg)*Iz2D(iRys,iArg,3,ize,izf)
-      end do
-      EFInt(iArg,Inde,Indf) = EFInt(iArg,Inde,Indf)*PreFct(iArg)
+    EFInt(1:mArg,Inde,Indf) = Ixy4D(1,:)*Iz2D(1,:,3,ize,izf)
+    do iRys=2,nRys
+      EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)+Ixy4D(iRys,:)*Iz2D(iRys,:,3,ize,izf)
     end do
+    EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
 end select
 
 return

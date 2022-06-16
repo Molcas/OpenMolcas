@@ -33,7 +33,7 @@ integer(kind=iwp), intent(in) :: nVec, ncdMax, la, lb, lc, ld
 real(kind=wp), intent(in) :: Arr1(nVec,0:la+1,0:lb+1,0:ncdMax,3), C(3), D(3)
 real(kind=wp), intent(out) :: Arr2(nVec,0:la+1,0:lb+1,0:lc+1,0:ld+1,3)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
-integer(kind=iwp) :: i, ia, ib, ic, iCar, icd, id, jc, jd, kc, kd, lla, llb, llc, lld, mc, md
+integer(kind=iwp) :: ia, ib, ic, iCar, icd, id, jc, jd, kc, kd, lla, llb, llc, lld, mc, md
 real(kind=wp) :: CD
 
 !iQ = 0
@@ -58,9 +58,7 @@ do iCar=1,3
           do id=0,ld+lld
             icd = ic+id
             if (icd > lc+ld+max(llc,lld)) cycle
-            do i=1,nVec
-              Arr2(i,ia,ib,ic,id,iCar) = Arr1(i,ia,ib,icd,iCar)
-            end do
+            Arr2(:,ia,ib,ic,id,iCar) = Arr1(:,ia,ib,icd,iCar)
           end do
         end do
       end do
@@ -77,9 +75,7 @@ do iCar=1,3
             jc = jc-(lc+2)
             jd = 1
           end if
-          do i=1,nVec
-            Arr2(i,ia,ib,jc,jd,iCar) = Arr1(i,ia,ib,ic,iCar)
-          end do
+          Arr2(:,ia,ib,jc,jd,iCar) = Arr1(:,ia,ib,ic,iCar)
         end do
         ! Generate I(ic,id) for fixed id
         do id=1,ld+lld
@@ -99,7 +95,7 @@ do iCar=1,3
               kc = kc-(lc+2)
               kd = kd+1
             end if
-            call DZaXpY(nVec,CD,Arr2(:,ia,ib,mc,md,iCar),1,Arr2(:,ia,ib,kc,kd,iCar),1,Arr2(:,ia,ib,jc,jd,iCar),1)
+            Arr2(:,ia,ib,jc,jd,iCar) = CD*Arr2(:,ia,ib,mc,md,iCar)+Arr2(:,ia,ib,kc,kd,iCar)
           end do
         end do
       end do
@@ -117,9 +113,7 @@ do iCar=1,3
             jd = jd-(ld+2)
             jc = 1
           end if
-          do i=1,nVec
-            Arr2(i,ia,ib,jc,jd,iCar) = Arr1(i,ia,ib,id,iCar)
-          end do
+          Arr2(:,ia,ib,jc,jd,iCar) = Arr1(:,ia,ib,id,iCar)
         end do
         ! Generate I(ic,id) for fixed ic
         do ic=1,lc+llc
@@ -139,7 +133,7 @@ do iCar=1,3
               kd = kd-(ld+2)
               kc = kc+1
             end if
-            call DZaXpY(nVec,CD,Arr2(:,ia,ib,mc,md,iCar),1,Arr2(:,ia,ib,kc,kd,iCar),1,Arr2(:,ia,ib,jc,jd,iCar),1)
+            Arr2(:,ia,ib,jc,jd,iCar) = CD*Arr2(:,ia,ib,mc,md,iCar)+Arr2(:,ia,ib,kc,kd,iCar)
           end do
         end do
       end do

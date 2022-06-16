@@ -44,13 +44,7 @@ if (ABeqCD) then
 
   ! CCCC case
 
-  do iEta=1,nEta
-    do iZeta=1,nZeta
-      EFInt(iZeta,iEta,1) = Zero
-      EFInt(iZeta,iEta,2) = Zero
-      EFInt(iZeta,iEta,3) = Zero
-    end do
-  end do
+  EFInt(:,:,:) = Zero
 
 else if (EQ(C,D)) then
 
@@ -82,6 +76,7 @@ else if (EQ(C,D)) then
       EFInt(iZeta,iEta,3) = PreFct*Zu2*PQz
     end do
   end do
+
 else
 
   ! ABCD case

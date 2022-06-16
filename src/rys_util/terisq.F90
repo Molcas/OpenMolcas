@@ -57,8 +57,8 @@ do iT=1,nT
   Rho = Zeta(iT)*Zeta(iT)*tmp
   PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
   T(iT) = Rho*PQ2
-  Fact(iT) = rKapab(iT)*rKapcd(iT)
 end do
+Fact(:) = rKapab*rKapcd
 
 #ifdef _DEBUGPRINT_
 if (iPrint >= 99) then

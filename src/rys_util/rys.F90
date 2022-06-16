@@ -38,7 +38,6 @@ use RysScratch, only: RysRtsWgh
 use vRys_RW, only: nMxRys
 #endif
 use Index_Functions, only: iTri
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -50,7 +49,8 @@ external :: Tvalue, ModU2, Cff2D, Rys2D
 logical(kind=iwp), intent(in) :: NoSpecial
 integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, ipAC, ipAC_long, ipB00, ipB01, ipB10, ipDiv, &
                      ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipZeta, &
-                     ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabMax, nabMin, ncdMax, ncdMin, nRys, nTR
+                     ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabMax, nabMin, ncdMax, ncdMin, nRys, &
+                     ntmp, nTR
 logical(kind=iwp) :: AeqB, CeqD, secondpass
 logical(kind=iwp), external :: EQ
 
@@ -455,7 +455,10 @@ select case (ijkl)
           call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC_long),mabMin,mabMax,mcdMin,mcdMax, &
                      Array(ipScr),Array(ipFact),AeqB,CeqD)
           ! [make difference to produce the desired short range integrals]
-          if (FMM_shortrange) call daxpy_(nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),-One,Array(ipAC_long),1,Array(ipAC),1)
+          if (FMM_shortrange) then
+            ntmp = nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+            Array(ipAC:ipAC+ntmp-1) = Array(ipAC:ipAC+ntmp-1)-Array(ipAC_long:ipAC_long+ntmp-1)
+          end if
 
           ! [reset IsChi for ordinary full integrals]
           if (FMM_shortrange) then

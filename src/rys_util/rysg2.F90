@@ -82,11 +82,10 @@ logical(kind=iwp), intent(inout) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), Tr(4)
 integer(kind=iwp), intent(inout) :: IndHss(4,3,4,3,0:7)
 integer(kind=iwp), intent(out) :: mVec, Index_Out(3,4)
 logical(kind=iwp), intent(in) :: lGrad, lHess
-integer(kind=iwp) :: i, iCa, iCar, iCe, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), iOff, ip, ip2D0, &
-                     ip2D1, ip2D2, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipg2, ipP, ipPAQP, ipQ, ipQCPQ, ipScr, ipScr2, &
-                     ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iStop, iZeta, jCar, jCent, JndGrd(3,4,0:7), kCent, la, lab, labMax, &
-                     lb, lB00, lB01, lB10, lc, lCar, lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, &
-                     ncdMax, ng(3), nh(3), nTR
+integer(kind=iwp) :: i, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), iOff, ip, ip2D0, ip2D1, ip2D2, ipB00, &
+                     ipB01, ipB10, ipDiv, ipEInv, ipEta, ipg2, ipP, ipPAQP, ipQ, ipQCPQ, ipScr, ipScr2, ipTmp, ipTv, ipU2, ipWgh, &
+                     ipZeta, ipZInv, iStop, iZeta, jCar, JndGrd(3,4,0:7), kCent, la, lab, labMax, lb, lB00, lB01, lB10, lc, lCar, &
+                     lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, ncdMax, ng(3), nh(3), nTR
 logical(kind=iwp) :: KfGrd(3,4)
 external :: Exp_1, Exp_2
 
@@ -103,15 +102,15 @@ lla = 0
 llb = 0
 llc = 0
 lld = 0
+if (any(IfGrd(:,1))) lla = 1
+if (any(IfGrd(:,2))) llb = 1
+if (any(IfGrd(:,3))) llc = 1
+if (any(IfGrd(:,4))) lld = 1
 do i=1,3
   if (IfHss(1,i,1,i)) lla = 2
-  if (IfGrd(i,1)) lla = max(lla,1)
   if (IfHss(2,i,2,i)) llb = 2
-  if (IfGrd(i,2)) llb = max(llb,1)
   if (IfHss(3,i,3,i)) llc = 2
-  if (IfGrd(i,3)) llc = max(llc,1)
   if (IfHss(4,i,4,i)) lld = 2
-  if (IfGrd(i,4)) lld = max(lld,1)
 end do
 lab = max(lla,llb)
 lcd = max(llc,lld)
@@ -298,7 +297,7 @@ if (ip-1 > nArray) then
   write(u6,*) 'ip,nArray=',ip,nArray
   call Abend()
 end if
-call ICopy(12*nirrep,IndGrd,1,JndGrd,1)
+JndGrd(:,:,:) = IndGrd(:,:,:)
 do iCent=1,4
   do jCar=1,3
     do kCent=1,i
@@ -318,13 +317,7 @@ do iCent=1,4
     end do
   end do
 end do
-do jCent=1,4
-  do iCar=1,3
-    if (KfGrd(iCar,jCent) .or. IfGrd(iCar,jCent)) then
-      KfGrd(iCar,jCent) = .true.
-    end if
-  end do
-end do
+KfGrd(:,:) = KfGrd .or. IfGrd
 
 call Rs2Dgh(Array(ip2D0),nT,nRys,la,lb,lc,ld,Array(ip2D1),Array(ip2D2),IfHss,IndHss,KfGrd,JndGrd,IfG,Coora,Alpha,Beta,Gmma,Delta, &
             nZeta,nEta,Array(ipScr),Array(ipScr2),Array(ipTmp),Index1,Index2,Index3,Index4,ng,nh,Exp_1,Exp_2,nZeta,nEta,nIrrep,Tr)
@@ -346,11 +339,7 @@ if (ip-1 > nArray) then
 end if
 
 if (lGrad) then
-  do iCe=1,4
-    do iCa=1,3
-      KfGrd(iCa,iCe) = KfGrd(iCa,iCe) .and. IfGrd(iCa,iCe)
-    end do
-  end do
+  KfGrd(:,:) = KfGrd .and. IfGrd
   call Assg1_mck(Array,nT,nRys,la,lb,lc,ld,Array(ip2D0),Array(ip2D1),KfGrd,Index1,mVec,Index_out)
 
 end if

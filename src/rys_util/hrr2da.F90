@@ -33,7 +33,7 @@ integer(kind=iwp), intent(in) :: nVec, nabMax, ncdMax, la, lb, lc, ld
 real(kind=wp), intent(in) :: Arr1(nVec,3,0:nabMax,0:ncdMax), A(3), B(3)
 real(kind=wp), intent(out) :: Arr2(nVec,0:la+1,0:lb+1,0:ncdMax,3)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
-integer(kind=iwp) :: i, ia, iab, ib, iCar, icd, ja, jb, ka, kb, lla, llb, llcd, ma, mb
+integer(kind=iwp) :: ia, iab, ib, iCar, icd, ja, jb, ka, kb, lla, llb, llcd, ma, mb
 real(kind=wp) :: AB
 
 !iQ = 0
@@ -54,9 +54,7 @@ do iCar=1,3
         do ib=0,lb+llb
           iab = ia+ib
           if (iab > la+lb+max(lla,llb)) cycle
-          do i=1,nVec
-            Arr2(i,ia,ib,icd,iCar) = Arr1(i,iCar,iab,icd)
-          end do
+          Arr2(:,ia,ib,icd,iCar) = Arr1(:,iCar,iab,icd)
         end do
       end do
     end do
@@ -70,9 +68,7 @@ do iCar=1,3
           ja = ja-(la+2)
           jb = 1
         end if
-        do i=1,nVec
-          Arr2(i,ja,jb,icd,iCar) = Arr1(i,iCar,ia,icd)
-        end do
+        Arr2(:,ja,jb,icd,iCar) = Arr1(:,iCar,ia,icd)
       end do
       ! Generate I(ia,ib) for fixed ib
       do ib=1,lb+llb
@@ -92,7 +88,7 @@ do iCar=1,3
             ka = ka-(la+2)
             kb = kb+1
           end if
-          call DZaXpY(nVec,AB,Arr2(:,ma,mb,icd,iCar),1,Arr2(:,ka,kb,icd,iCar),1,Arr2(:,ja,jb,icd,iCar),1)
+          Arr2(:,ja,jb,icd,iCar) = AB*Arr2(:,ma,mb,icd,iCar)+Arr2(:,ka,kb,icd,iCar)
         end do
       end do
     end do
@@ -107,9 +103,7 @@ do iCar=1,3
           jb = jb-(lb+2)
           ja = 1
         end if
-        do i=1,nVec
-          Arr2(i,ja,jb,icd,iCar) = Arr1(i,iCar,ib,icd)
-        end do
+        Arr2(:,ja,jb,icd,iCar) = Arr1(:,iCar,ib,icd)
       end do
       ! Generate I(ia,ib) for fixed ia
       do ia=1,la+lla
@@ -129,7 +123,7 @@ do iCar=1,3
             kb = kb-(lb+2)
             ka = ka+1
           end if
-          call DZaXpY(nVec,AB,Arr2(:,ma,mb,icd,iCar),1,Arr2(:,ka,kb,icd,iCar),1,Arr2(:,ja,jb,icd,iCar),1)
+          Arr2(:,ja,jb,icd,iCar) = AB*Arr2(:,ma,mb,icd,iCar)+Arr2(:,ka,kb,icd,iCar)
         end do
       end do
     end do

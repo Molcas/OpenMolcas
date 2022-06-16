@@ -36,8 +36,8 @@ real(kind=wp), intent(out) :: xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), Scrtch(nR
 logical(kind=iwp), intent(inout) :: IfGrad(3,4)
 integer(kind=iwp), intent(inout) :: IndGrd(3,4), Indx(3,4)
 external :: ExpX, ExpY
-integer(kind=iwp) :: i1, i2, ia, ib, ic, iCar, iCent, id, Ind1(3), Ind2(3), iVec, jCent, nVec, nx, ny, nz
-real(kind=wp) :: Fact, tmp1, tmp2
+integer(kind=iwp) :: i1, i2, ia, ib, ic, iCar, iCent, id, Ind1(3), Ind2(3), jCent, nVec, nx, ny, nz
+real(kind=wp) :: Fact
 logical(kind=iwp), external :: EQ
 
 #ifdef _DEBUGPRINT_
@@ -55,7 +55,7 @@ end if
 nx = 0
 ny = 0
 nz = 0
-call ICopy(12,[0],0,Indx,1)
+Indx(:,:) = 0
 
 ! Differentiate with respect to the first center
 
@@ -93,59 +93,41 @@ if (nVec /= 0) then
     do ic=0,lc
       do ib=0,lb
         if (nVec == 3) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,0,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,1,ib,ic,id,Ind2(1))
-            xyz2D1(iVec,0,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(iVec)*xyz2D0(iVec,1,ib,ic,id,Ind2(2))
-            xyz2D1(iVec,0,ib,ic,id,Ind2(3),Ind1(3)) = Two*Scrtch(iVec)*xyz2D0(iVec,1,ib,ic,id,Ind2(3))
-          end do
+          xyz2D1(:,0,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,1,ib,ic,id,Ind2(1))
+          xyz2D1(:,0,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,1,ib,ic,id,Ind2(2))
+          xyz2D1(:,0,ib,ic,id,Ind2(3),Ind1(3)) = Two*Scrtch(:)*xyz2D0(:,1,ib,ic,id,Ind2(3))
           if (la >= 1) then
             Fact = -One
             do ia=1,la
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia+1,ib,ic,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia-1,ib,ic,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia+1,ib,ic,id,Ind2(2))
-                tmp2 = Fact*xyz2D0(iVec,ia-1,ib,ic,id,Ind2(2))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(2),Ind1(2)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia+1,ib,ic,id,Ind2(3))
-                tmp2 = Fact*xyz2D0(iVec,ia-1,ib,ic,id,Ind2(3))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(3),Ind1(3)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia+1,ib,ic,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia-1,ib,ic,id,Ind2(1))
+              xyz2D1(:,ia,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia+1,ib,ic,id,Ind2(2))+ &
+                                                      Fact*xyz2D0(:,ia-1,ib,ic,id,Ind2(2))
+              xyz2D1(:,ia,ib,ic,id,Ind2(3),Ind1(3)) = Two*Scrtch(:)*xyz2D0(:,ia+1,ib,ic,id,Ind2(3))+ &
+                                                      Fact*xyz2D0(:,ia-1,ib,ic,id,Ind2(3))
               Fact = Fact-One
             end do
           end if
         else if (nVec == 2) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,0,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,1,ib,ic,id,Ind2(1))
-            xyz2D1(iVec,0,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(iVec)*xyz2D0(iVec,1,ib,ic,id,Ind2(2))
-          end do
+          xyz2D1(:,0,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,1,ib,ic,id,Ind2(1))
+          xyz2D1(:,0,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,1,ib,ic,id,Ind2(2))
           if (la >= 1) then
             Fact = -One
             do ia=1,la
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia+1,ib,ic,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia-1,ib,ic,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia+1,ib,ic,id,Ind2(2))
-                tmp2 = Fact*xyz2D0(iVec,ia-1,ib,ic,id,Ind2(2))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(2),Ind1(2)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia+1,ib,ic,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia-1,ib,ic,id,Ind2(1))
+              xyz2D1(:,ia,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia+1,ib,ic,id,Ind2(2))+ &
+                                                      Fact*xyz2D0(:,ia-1,ib,ic,id,Ind2(2))
               Fact = Fact-One
             end do
           end if
         else if (nVec == 1) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,0,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,1,ib,ic,id,Ind2(1))
-          end do
+          xyz2D1(:,0,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,1,ib,ic,id,Ind2(1))
           if (la >= 1) then
             Fact = -One
             do ia=1,la
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia+1,ib,ic,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia-1,ib,ic,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia+1,ib,ic,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia-1,ib,ic,id,Ind2(1))
               Fact = Fact-One
             end do
           end if
@@ -192,59 +174,41 @@ if (nVec /= 0) then
     do ic=0,lc
       do ia=0,la
         if (nVec == 3) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,0,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,1,ic,id,Ind2(1))
-            xyz2D1(iVec,ia,0,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,1,ic,id,Ind2(2))
-            xyz2D1(iVec,ia,0,ic,id,Ind2(3),Ind1(3)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,1,ic,id,Ind2(3))
-          end do
+          xyz2D1(:,ia,0,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,1,ic,id,Ind2(1))
+          xyz2D1(:,ia,0,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,1,ic,id,Ind2(2))
+          xyz2D1(:,ia,0,ic,id,Ind2(3),Ind1(3)) = Two*Scrtch(:)*xyz2D0(:,ia,1,ic,id,Ind2(3))
           if (lb >= 1) then
             Fact = -One
             do ib=1,lb
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib+1,ic,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib-1,ic,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib+1,ic,id,Ind2(2))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib-1,ic,id,Ind2(2))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(2),Ind1(2)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib+1,ic,id,Ind2(3))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib-1,ic,id,Ind2(3))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(3),Ind1(3)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib+1,ic,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib-1,ic,id,Ind2(1))
+              xyz2D1(:,ia,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib+1,ic,id,Ind2(2))+ &
+                                                      Fact*xyz2D0(:,ia,ib-1,ic,id,Ind2(2))
+              xyz2D1(:,ia,ib,ic,id,Ind2(3),Ind1(3)) = Two*Scrtch(:)*xyz2D0(:,ia,ib+1,ic,id,Ind2(3))+ &
+                                                      Fact*xyz2D0(:,ia,ib-1,ic,id,Ind2(3))
               Fact = Fact-One
             end do
           end if
         else if (nVec == 2) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,0,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,1,ic,id,Ind2(1))
-            xyz2D1(iVec,ia,0,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,1,ic,id,Ind2(2))
-          end do
+          xyz2D1(:,ia,0,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,1,ic,id,Ind2(1))
+          xyz2D1(:,ia,0,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,1,ic,id,Ind2(2))
           if (lb >= 1) then
             Fact = -One
             do ib=1,lb
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib+1,ic,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib-1,ic,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib+1,ic,id,Ind2(2))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib-1,ic,id,Ind2(2))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(2),Ind1(2)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib+1,ic,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib-1,ic,id,Ind2(1))
+              xyz2D1(:,ia,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib+1,ic,id,Ind2(2))+ &
+                                                      Fact*xyz2D0(:,ia,ib-1,ic,id,Ind2(2))
               Fact = Fact-One
             end do
           end if
         else if (nVec == 1) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,0,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,1,ic,id,Ind2(1))
-          end do
+          xyz2D1(:,ia,0,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,1,ic,id,Ind2(1))
           if (lb >= 1) then
             Fact = -One
             do ib=1,lb
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib+1,ic,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib-1,ic,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib+1,ic,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib-1,ic,id,Ind2(1))
               Fact = Fact-One
             end do
           end if
@@ -291,59 +255,41 @@ if (nVec /= 0) then
     do ib=0,lb
       do ia=0,la
         if (nVec == 3) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,ib,0,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,1,id,Ind2(1))
-            xyz2D1(iVec,ia,ib,0,id,Ind2(2),Ind1(2)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,1,id,Ind2(2))
-            xyz2D1(iVec,ia,ib,0,id,Ind2(3),Ind1(3)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,1,id,Ind2(3))
-          end do
+          xyz2D1(:,ia,ib,0,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,1,id,Ind2(1))
+          xyz2D1(:,ia,ib,0,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,1,id,Ind2(2))
+          xyz2D1(:,ia,ib,0,id,Ind2(3),Ind1(3)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,1,id,Ind2(3))
           if (lc >= 1) then
             Fact = -One
             do ic=1,lc
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic+1,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic-1,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic+1,id,Ind2(2))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic-1,id,Ind2(2))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(2),Ind1(2)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic+1,id,Ind2(3))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic-1,id,Ind2(3))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(3),Ind1(3)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic+1,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic-1,id,Ind2(1))
+              xyz2D1(:,ia,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic+1,id,Ind2(2))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic-1,id,Ind2(2))
+              xyz2D1(:,ia,ib,ic,id,Ind2(3),Ind1(3)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic+1,id,Ind2(3))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic-1,id,Ind2(3))
               Fact = Fact-One
             end do
           end if
         else if (nVec == 2) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,ib,0,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,1,id,Ind2(1))
-            xyz2D1(iVec,ia,ib,0,id,Ind2(2),Ind1(2)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,1,id,Ind2(2))
-          end do
+          xyz2D1(:,ia,ib,0,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,1,id,Ind2(1))
+          xyz2D1(:,ia,ib,0,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,1,id,Ind2(2))
           if (lc >= 1) then
             Fact = -One
             do ic=1,lc
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic+1,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic-1,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic+1,id,Ind2(2))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic-1,id,Ind2(2))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(2),Ind1(2)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic+1,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic-1,id,Ind2(1))
+              xyz2D1(:,ia,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic+1,id,Ind2(2))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic-1,id,Ind2(2))
               Fact = Fact-One
             end do
           end if
         else if (nVec == 1) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,ib,0,id,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,1,id,Ind2(1))
-          end do
+          xyz2D1(:,ia,ib,0,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,1,id,Ind2(1))
           if (lc >= 1) then
             Fact = -One
             do ic=1,lc
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic+1,id,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic-1,id,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic+1,id,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic-1,id,Ind2(1))
               Fact = Fact-One
             end do
           end if
@@ -390,59 +336,41 @@ if (nVec /= 0) then
     do ib=0,lb
       do ia=0,la
         if (nVec == 3) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,ib,ic,0,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,1,Ind2(1))
-            xyz2D1(iVec,ia,ib,ic,0,Ind2(2),Ind1(2)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,1,Ind2(2))
-            xyz2D1(iVec,ia,ib,ic,0,Ind2(3),Ind1(3)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,1,Ind2(3))
-          end do
+          xyz2D1(:,ia,ib,ic,0,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,1,Ind2(1))
+          xyz2D1(:,ia,ib,ic,0,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,1,Ind2(2))
+          xyz2D1(:,ia,ib,ic,0,Ind2(3),Ind1(3)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,1,Ind2(3))
           if (ld >= 1) then
             Fact = -One
             do id=1,ld
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,id+1,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic,id-1,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,id+1,Ind2(2))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic,id-1,Ind2(2))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(2),Ind1(2)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,id+1,Ind2(3))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic,id-1,Ind2(3))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(3),Ind1(3)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,id+1,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic,id-1,Ind2(1))
+              xyz2D1(:,ia,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,id+1,Ind2(2))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic,id-1,Ind2(2))
+              xyz2D1(:,ia,ib,ic,id,Ind2(3),Ind1(3)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,id+1,Ind2(3))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic,id-1,Ind2(3))
               Fact = Fact-One
             end do
           end if
         else if (nVec == 2) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,ib,ic,0,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,1,Ind2(1))
-            xyz2D1(iVec,ia,ib,ic,0,Ind2(2),Ind1(2)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,1,Ind2(2))
-          end do
+          xyz2D1(:,ia,ib,ic,0,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,1,Ind2(1))
+          xyz2D1(:,ia,ib,ic,0,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,1,Ind2(2))
           if (ld >= 1) then
             Fact = -One
             do id=1,ld
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,id+1,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic,id-1,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,id+1,Ind2(2))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic,id-1,Ind2(2))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(2),Ind1(2)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,id+1,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic,id-1,Ind2(1))
+              xyz2D1(:,ia,ib,ic,id,Ind2(2),Ind1(2)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,id+1,Ind2(2))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic,id-1,Ind2(2))
               Fact = Fact-One
             end do
           end if
         else if (nVec == 1) then
-          do iVec=1,nT*nRys
-            xyz2D1(iVec,ia,ib,ic,0,Ind2(1),Ind1(1)) = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,1,Ind2(1))
-          end do
+          xyz2D1(:,ia,ib,ic,0,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,1,Ind2(1))
           if (ld >= 1) then
             Fact = -One
             do id=1,ld
-              do iVec=1,nT*nRys
-                tmp1 = Two*Scrtch(iVec)*xyz2D0(iVec,ia,ib,ic,id+1,Ind2(1))
-                tmp2 = Fact*xyz2D0(iVec,ia,ib,ic,id-1,Ind2(1))
-                xyz2D1(iVec,ia,ib,ic,id,Ind2(1),Ind1(1)) = tmp1+tmp2
-              end do
+              xyz2D1(:,ia,ib,ic,id,Ind2(1),Ind1(1)) = Two*Scrtch(:)*xyz2D0(:,ia,ib,ic,id+1,Ind2(1))+ &
+                                                      Fact*xyz2D0(:,ia,ib,ic,id-1,Ind2(1))
               Fact = Fact-One
             end do
           end if
@@ -467,7 +395,7 @@ do iCent=1,3
           IndGrd(iCar,jCent) = 0
           i1 = Indx(iCar,iCent)
           i2 = Indx(iCar,jCent)
-          call DaXpY_(nRys*nT*(la+1)*(lb+1)*(lc+1)*(ld+1),One,xyz2D1(1,0,0,0,0,iCar,i2),1,xyz2D1(1,0,0,0,0,iCar,i1),1)
+          xyz2D1(:,:,:,:,:,iCar,i1) = xyz2D1(:,:,:,:,:,iCar,i1)+xyz2D1(:,:,:,:,:,iCar,i2)
         end if
 
       end do

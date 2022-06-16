@@ -27,10 +27,10 @@ implicit none
 integer(kind=iwp), intent(in) :: n1, n2
 real(kind=wp), intent(out) :: Vector(n1,n2)
 real(kind=wp), intent(in) :: Array(n2), Fact
-integer(kind=iwp) :: i2
+integer(kind=iwp) :: i1
 
-do i2=1,n2
-  Vector(:,i2) = Array(i2)*Fact
+do i1=1,n1
+  Vector(i1,:) = Array*Fact
 end do
 
 return

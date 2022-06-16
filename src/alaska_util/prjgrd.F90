@@ -63,7 +63,8 @@ implicit none
 integer(kind=iwp) :: i, ia, iaC, iAng, ib, iBk, iC, iCar, iCb, iCent, iCmp, iDCRT(0:7), iGamma, iIrrep, ip, ipA, ipaC, ipAxyz, &
                      ipB, ipBxyz, ipCb, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrint, ipRxyz, ipTmp, &
                      ipZ1, ipZ2, ipZI1, ipZI2, iRout, iShll, iStrt, iuvwx(4), iVec, j, JndGrd(3,4), kCnt, kCnttp, kdc, ld, lDCRT, &
-                     LmbdT, lOp(4), mGrad, mVec, mVecAC, mVecCB, nac, nBasisi, ncb, nDAO, nDCRT, nDisp, nExpi, nRys, nVecAC, nVecCB
+                     LmbdT, lOp(4), mGrad, mVec, mVecAC, mVecCB, nac, nBasisi, ncb, nDAO, nDCRT, nDisp, nExpi, nRys, ntmp, nVecAC, &
+                     nVecCB
 real(kind=wp) :: C(3), Fact, TC(3)
 character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3), JfGrad(3,4), EQ
@@ -343,9 +344,9 @@ do kCnttp=1,nCnttp
 
           ! 3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 
+          ntmp = nac*nVecAC*nAlpha
           do iBk=1,nBasisi
-            call DYaX(nac*nVecAC*nAlpha,Shells(iShll)%Bk(iBk),Array((iBk-1)*nac*nVecAC*nAlpha+ipF1),1, &
-                      Array((iBk-1)*nac*nVecAC*nAlpha+ipTmp),1)
+            Array(ipTmp+(iBk-1)*ntmp:ipTmp+iBk*ntmp-1) = Shells(iShll)%Bk(iBk)*Array(ipF1+(iBk-1)*ntmp:ipF1+iBk*ntmp-1)
           end do
 
           ! 4) a,ciK -> ciKa

@@ -41,7 +41,7 @@ real(kind=wp) :: tmp
 !define _DEBUGPRINT_
 !iRout = 248
 !iPrint = nPrint(iRout)
-call dcopy_(78,[Zero],0,g2,1)
+g2(:) = Zero
 #ifdef _DEBUGPRINT_
 call RecPrt('Assg2: g2(0)',' ',g2,1,78)
 #endif

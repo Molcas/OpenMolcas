@@ -53,8 +53,8 @@ end if
 do iT=1,nT
   PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
   T(iT) = Zeta(iT)*PQ2
-  ZEInv(iT) = One/Zeta(iT)
 end do
+ZEInv(:) = One/Zeta
 
 #ifdef _DEBUGPRINT_
 if (iPrint >= 99) then
