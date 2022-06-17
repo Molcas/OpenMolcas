@@ -48,7 +48,7 @@ C     future
 ******Step 4
       ThreG=CMSThres*1.0d-2
       ThreH=CMSThres*1.0d-4
-      MinGrad=CMSThres*1.0d2
+      MinGrad=CMSThres*1.0d5
       PosHess=.false.
       write(6,*) 'gradient'
       CALL RecPrt(' ','(1X,15(F9.6,1X))',GScr,1,nSPair)
@@ -92,8 +92,8 @@ C         write(6,*) 'local minimum for pair',ipair
 C       END IF
       END DO
 
-C      write(6,*) 'steps taken'
-C      CALL RecPrt(' ',' ',XScr,1,nSPair)
+      write(6,*) 'steps taken'
+      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
 ******Step 5
       CALL DGEMM_('n','t',1,nSPair,nSPair,
      &            1.0d0,XScr,1,H,nSPair,

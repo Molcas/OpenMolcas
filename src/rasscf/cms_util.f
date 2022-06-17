@@ -32,7 +32,7 @@
       ELSE
        If (iCMSOpt.eq.1) Then
         if(CMSScaled.and.PosHess) then
-         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A1)')
+         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A2)')
      &   iStep, Qnew,Diff,'*^'
         else if(CMSScaled) then
          write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A1)')
