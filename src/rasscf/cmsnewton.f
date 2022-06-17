@@ -17,7 +17,7 @@
 
 
       Subroutine CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
-      use CMS, only:CMSNotConverged,CMSThres
+      use CMS, only:CMSNotConverged,CMSThres,CMSScaled,PosHess
       use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -37,7 +37,7 @@
       INTEGER iStep,nDDg,lRoots2,NAC2,
      &        nSPair,nSPair2,nScr
       Real*8 Qnew,Qold
-      Logical CMSScaled,Saved
+      Logical Saved
 
 *     preparation
       lRoots2=lRoots**2
@@ -120,14 +120,18 @@
         CMSNotConverged=.true.
         Exit
        END IF
-
+*      sanity check
        IF(abs(Qnew-Qold).lt.CMSThreshold) THEN
-        If(iStep.ge.iCMSIterMin) CMSNotConverged=.false.
-        If(CMSScaled) CMSNotConverged=.true.
-        If(.not.CMSNotConverged) write(6,'(4X,A)')'CONVERGENCE REACHED'
-       ELSE
+        CMSNotConverged=.false.
+        If(PosHess)              CMSNotConverged=.true.
+        If(iStep.lt.iCMSIterMin) CMSNotConverged=.true.
+        If(CMSScaled)            CMSNotConverged=.true.
+       END IF
+       IF(CMSNotConverged) THEN
         CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
         CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
+       ELSE
+        write(6,'(4X,A)')'CONVERGENCE REACHED'
        END IF
       END DO
 

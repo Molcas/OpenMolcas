@@ -19,6 +19,7 @@
 * are written in files with the name as the subroutine name.
 
       Subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
+      use CMS, only: iCMSOpt,CMSScaled,PosHess
       INTEGER iStep,lRoots
       Real*8 Qnew,Qold,Diff
       Real*8 RMat(lRoots**2)
@@ -29,8 +30,24 @@
        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
      & iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
       ELSE
-       write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
-     & iStep, Qnew,Diff
+       If (iCMSOpt.eq.1) Then
+        if(CMSScaled.and.PosHess) then
+         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A1)')
+     &   iStep, Qnew,Diff,'*^'
+        else if(CMSScaled) then
+         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A1)')
+     &   iStep, Qnew,Diff,'*'
+        else if (PosHess) then
+         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A1)')
+     &   iStep, Qnew,Diff,'^'
+        else
+         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+     &   iStep, Qnew,Diff
+        end if
+       Else
+        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+     &  iStep, Qnew,Diff
+       End If
       END IF
       RETURN
       End Subroutine
@@ -97,7 +114,7 @@
 
 
       Subroutine CMSHeader(CMSSFile,LenCMSS)
-      use CMS, only: iCMSOpt
+      use CMS, only: iCMSOpt, CMSGuessFile
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -115,7 +132,7 @@
      &'START MATRX','XMS INTERMEDIATE STATES'
       ELSE
        write(6,'(5X,A12,8X,A23)')
-     &'START MATRX',CMSSFile
+     &'START MATRX',CMSGuessFile
       END IF
       IF(iCMSOpt.eq.1) THEN
       write(6,'(4X,A12,8X,A8)')
@@ -130,6 +147,10 @@
      &'MAX CYCLES',ICMSIterMax
       write(6,'(4X,A12,8X,I8)')
      &'MIN CYCLES',ICMSIterMin
+      write(6,'(6X,A)')
+     &'A ^ sign means Q_a-a is at a saddle point.'
+      write(6,'(6X,A)')
+     &"A * sign means a scaled step is taken in the Newton's method."
       write(6,*)('=',i=1,71)
       IF(lRoots.gt.2) THEN
       write(6,'(4X,A8,2X,2(A16,11X))')
