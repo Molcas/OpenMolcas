@@ -19,12 +19,12 @@
 
 C     Commented lines are options under development and may be used in
 C     future
-C      use CMS, only:CMSThres
+      use CMS, only:CMSThres,PosHess
       INTEGER nSPair,INFO,iPair,nScr
       Real*8 X(nSPair),G(nSPair),XScr(nSPair)
       Real*8 H(nSPair**2),ScrDiag(nScr),GScr(nSPair)
       Real*8 EigVal(nSPair**2)
-C      Real*8 MinStep,ThreG,ThreH
+      Real*8 MinGrad,ThreG,ThreH
 ******Thanks to Matthew R. Hermes for this algorithm
 
 ******Solve for x in hx=-g.
@@ -46,14 +46,14 @@ C      Real*8 MinStep,ThreG,ThreH
      &                                    0.0d0,GScr,1)
 
 ******Step 4
-C      MinStep=1.0d-2
-C      ThreG=CMSThres
-C      ThreH=ThreG**2
-
-*      write(6,*) 'gradient'
-*      CALL RecPrt(' ',' ',GScr,1,nSPair)
-*      write(6,*) 'hessian'
-*      CALL RecPrt(' ',' ',EigVal,1,nSPair)
+      ThreG=CMSThres*1.0d-2
+      ThreH=CMSThres*1.0d-4
+      MinGrad=CMSThres*1.0d2
+      PosHess=.false.
+      write(6,*) 'gradient'
+      CALL RecPrt(' ','(1X,15(F9.6,1X))',GScr,1,nSPair)
+      write(6,*) 'hessian'
+      CALL RecPrt(' ','(1X,15(F9.6,1X))',EigVal,1,nSPair)
 
       DO iPair=1,nSPair
 C       IF(abs(GScr(iPair)).lt.ThreG)  THEN
@@ -69,10 +69,31 @@ C        Else
 C         XScr(iPair)=GScr(iPair)/Abs(EigVal(iPair))
 C        End If
 C       ELSE
-        XScr(iPair)=GScr(iPair)/Abs(EigVal(iPair))
+
+
+        IF(EigVal(iPair).gt.ThreH) THEN
+         PosHess=.true.
+        END IF
+
+        IF(      (Abs(GScr(iPair))  .lt.ThreG)
+     &      .and.(Abs(EigVal(iPair)).lt.ThreH)) THEN
+C         write(6,*) 'constant Qaa for pair',ipair
+         XScr(iPair)=0.0d0
+        ELSE
+         XScr(iPair)=GScr(iPair)/Abs(EigVal(iPair))
+        END IF
+
+        IF(      (Abs(GScr(iPair)) .lt. ThreG)
+     &      .and.(   EigVal(iPair) .gt. ThreH)) THEN
+C         write(6,*) 'local minimum for pair',ipair
+         XScr(iPair)=MinGrad/Abs(EigVal(iPair))
+        END IF
+
 C       END IF
       END DO
 
+C      write(6,*) 'steps taken'
+C      CALL RecPrt(' ',' ',XScr,1,nSPair)
 ******Step 5
       CALL DGEMM_('n','t',1,nSPair,nSPair,
      &            1.0d0,XScr,1,H,nSPair,

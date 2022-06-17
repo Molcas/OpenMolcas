@@ -21,5 +21,8 @@ Logical CMSGiveOpt
 Real*8  CMSThres
 Real*8,DIMENSION(:),Allocatable:: RGD
 INTEGER iCMSOpt
+Logical CMSScaled
+Logical PosHess
+CHARACTER*128 cmsguessfile
 End Module CMS
 
