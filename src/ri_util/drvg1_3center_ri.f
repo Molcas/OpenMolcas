@@ -86,6 +86,7 @@
       Logical Timings,FlipFlop
       COMMON /CHOTIME / timings
       Logical is_error
+      Logical ReadBPT2
 #include "ymnij.fh"
 *                                                                      *
 ************************************************************************
@@ -112,6 +113,7 @@
       iFnc(4)=0
       PMax=Zero
       call dcopy_(nGrad,[Zero],0,Temp,1)
+      ReadBPT2 = .False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -577,20 +579,15 @@
 *-----CASPT2
 *
       If (Method.eq.'CASPT2  ') Then
-        !! Just read B_{mu nu,J} type matrix constructed in CASPT2
-        Call MMA_Allocate(B_PT2,nBasT,nBasT,nBasA,Label='B_PT2')
-C       B_PT2(:,:,:)=Zero
-        !! Now, read
-        Call PrgmTranslate('GAMMA',RealName,lRealName)
-        LuGAMMA = 60
-        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                       'DIRECT','UNFORMATTED',
+        !! Open B_{J, mu nu}
+        Call MMA_Allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
+*
+        Call PrgmTranslate('GAMMA2',RealName,lRealName)
+        LuGAMMA2 = 62
+        Call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
      &                        iost,.TRUE.,
-     &                        nBasT*nBasT*8,'OLD',is_error)
-        Do iRec = 1, nBasA
-          Read (Unit=LuGAMMA,Rec=iRec) B_PT2(1:nBasT**2,1,iRec)
-        End Do
-        Close (LuGAMMA)
+     &                        nBasA*8,'OLD',is_error)
       End If
 *                                                                      *
 ************************************************************************
@@ -701,6 +698,7 @@ C       B_PT2(:,:,:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      If (Method.eq.'CASPT2  ') ReadBPT2 = .True.
       Do ijS = 1, nij
          iS = iWork((ijS-1)*2+ip_ij2  )
          jS = iWork((ijS-1)*2+ip_ij2+1)
@@ -805,6 +803,11 @@ C       B_PT2(:,:,:)=Zero
          Do 430 lBasAO = 1, lBasl, lBsInc
            lBasn=Min(lBsInc,lBasl-lBasAO+1)
            iAOst(4) = lBasAO-1
+*
+           If (Method.eq.'CASPT2  '.and.ReadBPT2) Then
+             Call DoReadBPT2
+             ReadBPT2 = .False.
+           End If
 *
 *----------Get the 2nd order density matrix in SO basis.
 *
@@ -948,7 +951,10 @@ C       B_PT2(:,:,:)=Zero
       Call GetMem('ip_ij','Free','Inte',ip_ij2,mij)
       Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
       Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
-      If (Method.eq.'CASPT2  ') Call MMA_DeAllocate(B_PT2)
+      If (Method.eq.'CASPT2  ') Then
+        Call MMA_DeAllocate(B_PT2)
+        Close (LuGamma2)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -978,4 +984,41 @@ C       B_PT2(:,:,:)=Zero
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Grad)
+*
+      Contains
+*
+      Subroutine DoReadBPT2
+*
+*     Read back-transformed density elements of the Kth and Lth shells
+*     All elements of the Jth shell (auxiliary functions) are read
+*     Only for C1 symmetry
+*
+      use SOAO_Info, only: iAOtSO
+*
+      Implicit Real*8 (A-H,O-Z)
+*
+      Call DCopy_(nBasA*MxInShl*MxInShl,[0.0d+00],0,B_PT2,1)
+*
+      lSO0 = iAOtSO(iAOV(4)+1,0)+iAOst(4)-1
+      kSO0 = iAOtSO(iAOV(3)+1,0)+iAOst(3)-1
+      Do i4 = 1, iCmpa(4)
+        lSO = iAOtSO(iAOV(4)+i4,0)+iAOst(4)
+        Do i3 = 1, iCmpa(3)
+          kSO = iAOtSO(iAOV(3)+i3,0)+iAOst(3)
+          Do lAOl = 0, lBasn-1
+            lSOl = lSO + lAOl
+            Do kAOk = 0, kBasn-1
+              kSOk = kSO + kAOk
+              loc = Max(kSOk,lSOl)*(Max(kSOk,lSOl)-1)/2+Min(kSOk,lSOl)
+              Read (Unit=LuGAMMA2,Rec=loc)
+     *          B_PT2(1:nBasA,kSOk-kSO0,lSOl-lSO0)
+            End Do
+          End Do
+        End Do
+      End Do
+*
+      Return
+*
+      End Subroutine DoReadBPT2
+*
       End

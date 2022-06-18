@@ -884,8 +884,10 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
+                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
+                        Kth=kAOk+(i3-1)*kBas
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
@@ -919,7 +921,8 @@
                            temp=temp+Thpkl(iThpkl)
 *
                            If (Gamma_On) Then !! For CASPT2
-                             temp = temp + B_PT2(kSOk,lSOl,jSOj)
+                             temp = temp + B_PT2(jSOj,Kth+1,Lth+1)
+C                            temp = temp + B_PT2(kSOk,lSOl,jSOj)
                            End If
 *
                            PMax=Max(PMax,Abs(temp))

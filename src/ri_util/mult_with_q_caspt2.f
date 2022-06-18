@@ -171,15 +171,17 @@ C        write (*,*) "nBas2 = ", nBas2
       MaxMem=9*(MaxMem/10)
       Call GetMem('MaxMem','Allo','Real',ip_B_t,MaxMem)
 *
-      nVec = MaxMem / ( 2*nLRb(iSym) )
+      !! Applicable to C1 only
+      nBasTri = nBas(1)*(nBas(1)+1)/2
+      nVec = MaxMem / ( 2*nBasTri+1 ) ! MaxMem / ( 2*nLRb(iSym)+1 )
       nVec = min(Max(NumCV,NumAux),nVec)
-C     write (*,*) "nvec in mult = ", nvec
       If(nVec .lt. 1) Then
          Call ChoMP2_Quit(SecNam,'nVec is non-positive','[1]')
       End If
 *
-      l_B_t = nLRb(iSym)*nVec
+      l_B_t = nBasTri*nVec ! nLRb(iSym)*nVec
       ip_B = ip_B_t + l_B_t
+      ip_B2= ip_B   + l_B_t
 
       LUGAMMA = 60
       Call PrgmTranslate('GAMMA',RealName,lRealName)
@@ -188,44 +190,76 @@ C     write (*,*) "nvec in mult = ", nvec
      &                      iost,.TRUE.,
      &                      nBas2*8,'OLD',is_error)
 *
+      LuGamma2 = 62
+      Call PrgmTranslate('GAMMA2',RealName,lRealName)
+      Call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),
+     &                      'DIRECT','UNFORMATTED',
+     &                      iost,.TRUE.,
+     &                      NumAux*8,'REPLACE',is_error)
+*
 *     The B-vectors should be read one batch at the time
 *     --------------------------------------------------
 *
       Do kVec = 1, NumAux, nVec
-         NumVecK = Min(nVec,NumAux-(kVec-1))
+        NumVecK = Min(nVec,NumAux-(kVec-1))
 *
-         Do jVec = 1, NumCV, nVec
-            NumVecJ = Min(nVec,NumCV - (jVec-1))
+        Do jVec = 1, NumCV, nVec
+          NumVecJ = Min(nVec,NumCV - (jVec-1))
 *
-            Do lVec = 1, NumCV
-              Read (Unit=LuGAMMA,Rec=lVec)
-     *       Work(ip_B_t+nBas2*(lVec-1):ip_B_t+nBas2-1+nBas2*(lVec-1))
+          Do lVec = 1, NumVecJ
+            Read (Unit=LuGAMMA,Rec=jVec+lVec-1)Work(ip_B2:ip_B2+nBas2-1)
+            !! symmetrize (mu nu | P)
+            !! only the lower triangle part is used
+            nseq = 0
+            Do i = 1, nBas(1)
+               Do j = 1, i
+                 aaa = Work(ip_B2+i-1+nBas(1)*(j-1))
+     *               + Work(ip_B2+j-1+nBas(1)*(i-1))
+                 Work(ip_B_t+nseq+nBasTri*(lVec-1)) = aaa
+                 nseq = nseq + 1
+               End Do
             End Do
+          End Do
 *
-            Fac = 0.0D0
-            If (jVec.ne.1) Fac = 1.0D0
-            iOffQ1 = kVec-1 + NumAux*(jVec-1)
-            Call dGemm_('N','T',nBas2, NumVecK, NumVecJ,
-     &                 1.0d0,Work(ip_B_t), nBas2,
-     &                       Work(ip_Q+iOffQ1),NumAux,
-     &                 Fac,  Work(ip_B),nBas2)
-         End Do
+          Fac = 0.0D0
+          If (jVec.ne.1) Fac = 1.0D0
+          iOffQ1 = kVec-1 + NumAux*(jVec-1)
+          Call dGemm_('N','T',nBasTri, NumVecK, NumVecJ,
+     &               1.0d0,Work(ip_B_t), nBasTri,
+     &                     Work(ip_Q+iOffQ1),NumAux,
+     &               Fac,  Work(ip_B),nBasTri)
+        End Do
 *
-         Do lVec = 1, NumAux
-          !! Symmetrized B_PT2
-           Do i = 1, nBas(1)
-              Do j = 1, i-1
-                aaa = Work(ip_B+i-1+nBas(1)*(j-1)+nBas2*(lVec-1))
-     *              + Work(ip_B+j-1+nBas(1)*(i-1)+nBas2*(lVec-1))
-                aaa = aaa*0.5d+00
-                Work(ip_B+i-1+nBas(1)*(j-1)+nBas2*(lVec-1)) = aaa
-                Work(ip_B+j-1+nBas(1)*(i-1)+nBas2*(lVec-1)) = aaa
-              End Do
-           End Do
-           Write (Unit=LuGAMMA,Rec=lVec)
-     *       Work(ip_B+nBas2*(lVec-1):ip_B+nBas2-1+nBas2*(lVec-1))
-         End Do
+        !! Because scaling with 0.5 is omitted when symmetrized
+        Call DScal_(nBasTri*NumVecK,0.5D+00,Work(ip_B),1)
+*
+        !! (mu nu | P) --> (P | mu nu)
+        If (Max(NumCV,NumAux).eq.nVec) Then
+          nseq = 0
+          Do lVec = 1, nBas(1)
+            Do jVec = 1, lVec
+              nseq = nseq + 1
+            Call DCopy_(NumAux,Work(ip_B+nseq-1),nBasTri,Work(ip_B_t),1)
+             Write (Unit=LuGAMMA2,Rec=nseq) Work(ip_B_t:ip_B_t+NumAux-1)
+            End Do
+          End Do
+        Else
+          nseq = 0
+          Do lVec = 1, nBas(1)
+            Do jVec = 1 ,lVec
+              nseq = nseq + 1
+              If (kVec.ne.1) Read (Unit=LuGAMMA2,Rec=nseq)
+     *          Work(ip_B_t:ip_B_t+kVec-2)
+              Call DCopy_(NumVecK,Work(ip_B+nseq-1),nBasTri,
+     *                            Work(ip_B_t+kVec-1),1)
+              Write (Unit=LuGAMMA2,Rec=nseq)
+     *          (Work(ip_B_t:ip_B_t+kVec+NumVecK-2))
+            End Do
+          End Do
+        End If
       End Do
+*
+      Close (LuGAMMA2)
 *
       Call GetMem('MaxMem','Free','Real',ip_B_t,MaxMem)
       Call GetMem('Q_Vector','Free','Real',ip_Q,l_Q)
