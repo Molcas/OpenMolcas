@@ -136,8 +136,8 @@ c     endif
       dimension ndr(max_innorb)
       integer, pointer :: jph(:),jeh(:),jwh(:)
       real*8, pointer :: th(:),thh(:)
-      common/ptlph/jph,jeh,jwh
-      common/ptlphv/th,thh
+#include "ptlph.fh"
+#include "ptlphv.fh"
       real*8, allocatable :: te(:), tee(:)
       integer, allocatable :: jpe(:), jee(:), jwe(:)
 c     write(6,*)'               ***** start h-diaelm *****'
@@ -263,8 +263,8 @@ c************************************************************
       dimension ndr(max_innorb)
       integer, pointer :: jph(:),jeh(:),jwh(:)
       real*8, pointer :: th(:),thh(:)
-      common/ptlph/jph,jeh,jwh
-      common/ptlphv/th,thh
+#include "ptlph.fh"
+#include "ptlphv.fh"
       real*8, allocatable :: te(:), tee(:)
       integer, allocatable :: jpe(:), jee(:), jwe(:)
 c     write(6,*)'               ***** start h-diaelm *****'
@@ -403,8 +403,8 @@ c************************************************************
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
       integer, pointer :: jph(:),jeh(:),jwh(:)
       real*8, pointer :: th(:),thh(:)
-      common/ptlph/jph,jeh,jwh
-      common/ptlphv/th,thh
+#include "ptlph.fh"
+#include "ptlphv.fh"
       data dsq2,vsq2/1.414213562373095d0,0.7071067811865d0/
 !     dsq2=sqrt(2.d0)
 !     vsq2=1/sqrt(2.d0)
@@ -517,8 +517,8 @@ c     :   vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
       integer, pointer :: jph(:),jeh(:),jwh(:)
       real*8, pointer :: th(:),thh(:)
-      common/ptlph/jph,jeh,jwh
-      common/ptlphv/th,thh
+#include "ptlph.fh"
+#include "ptlphv.fh"
       data dsq2,vsq2/1.414213562373095d0, 0.7071067811865d0/
 !     dsq2=sqrt(2.d0)
 !     vsq2=1/sqrt(2.d0)
@@ -770,8 +770,8 @@ c          do lr=norb_frz+1,norb_dz
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
       integer, pointer :: jph(:),jeh(:),jwh(:)
       real*8, pointer :: th(:),thh(:)
-      common/ptlph/jph,jeh,jwh
-      common/ptlphv/th,thh
+#include "ptlph.fh"
+#include "ptlphv.fh"
       data dsq2,vsq2/1.414213562373095d0, 0.7071067811865d0/
 !     dsq2=sqrt(2.d0)
 !     vsq2=1/sqrt(2.d0)
@@ -962,8 +962,8 @@ c          do lr=norb_frz+1,norb_dz
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
       integer, pointer :: jph(:),jeh(:),jwh(:)
       real*8, pointer :: th(:),thh(:)
-      common/ptlph/jph,jeh,jwh
-      common/ptlphv/th,thh
+#include "ptlph.fh"
+#include "ptlphv.fh"
       data dsq2,vsq2/1.414213562373095d0, 0.7071067811865d0 /
       data dsq3vsq2/1.224744871392d0/
 !     dsq2=sqrt(2.d0)

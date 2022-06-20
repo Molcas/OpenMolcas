@@ -61,8 +61,7 @@ C
         Logical Do_int
         Logical Do_ChoInit
 
-        Logical timings
-        COMMON /CHOTIME /timings
+#include "chotime.fh"
 #include "WrkSpc.fh"
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -176,7 +175,7 @@ C
       Character*6 BName
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   timings,DoRead,Do_int
+      Logical   DoRead,Do_int
       Integer   nPorb(8),ipOrb(8)
       Integer   ipLpb(8),iSkip(8)
       Integer   LunChVF(8),kOff(8),iOffB(8),nOB(8)
@@ -186,9 +185,8 @@ C
       Character*10 SECNAM
       Parameter (SECNAM = 'CHO_TR_drv')
 
-      COMMON    /CHOTIME /timings
-      Character*3  tv2disk
-      COMMON    /CHOTRAW /tv2disk
+#include "chotime.fh"
+#include "chotraw.fh"
 
       parameter (zero = 0.0D0, one = 1.0D0)
 

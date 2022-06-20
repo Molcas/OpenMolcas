@@ -58,7 +58,7 @@
 #include "wadr.fh"
 #include "rasdim.fh"
 #include "warnings.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "rasrc.fh"
 #include "general.fh"
@@ -76,11 +76,13 @@
 #include "gugx.fh"
 #include "pamint.fh"
 #include "davctl.fh"
-#include "qnctl.fh"
-#include "orthonormalize.fh"
+#include "qnctl_mcpdft.fh"
+#include "orthonormalize_mcpdft.fh"
 #include "ciinfo.fh"
 *JB XMC-PDFT stuff
 #include "mspdft.fh"
+*Chen write JOBIPH
+#include "wjob.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
       CHARACTER(Len=18)::MatInfo
@@ -92,7 +94,6 @@
       Logical DSCF
       Logical lOPTO
       Character*80 Line
-      Logical DoQmat,DoActive
       Logical IfOpened
       Logical Found
       Character(len=8),DIMENSION(:),Allocatable::VecStat
@@ -102,19 +103,15 @@
       Logical Gradient
 
 * --------- Cholesky stuff:
-      Integer ALGO
-      Logical DoCholesky
-      Logical timings,DoLock,Deco
-      Integer Nscreen
-      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHLCAS /DoCholesky,ALGO
-      COMMON /CHOPAR/ ChFracMem
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
+#include "chotodo.fh"
+#include "chlcas.fh"
+#include "chopar.fh"
+#include "chotime.fh"
+#include "cholk.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 
-#include "sxci.fh"
+#include "sxci_mcpdft.fh"
 
       External Get_ProgName
 !      External Get_SuperName
@@ -178,7 +175,7 @@
 * with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
 * substring beginning with '!' with blanks.
 * That copy will be in file 'CleanInput', and its unit number is returned
-* as LUInput in common (included file input_ras.fh) by the following call:
+* as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
       Call cpinp_(LUInput,iRc)
 !      write(*,*) LUINPUT, IRC
 * If something wrong with input file:
@@ -694,8 +691,10 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
         Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
      &       Work(iRef_E))
+        If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
+
         If (Do_Rotate) Then
-        NHRot=lroots**2
+         NHRot=lroots**2
          Do Jroot=1,lroots
           Work(LHRot+Jroot-1+(Jroot-1)*lroots)=Work(iRef_E-1+Jroot)
          End DO
@@ -744,6 +743,8 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &     '(13X,',lRoots,'(A8,16X))'
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
          end if
+*Added by Chen to write energies and states of MS-PDFT into JOBIPH
+         If(IWJOB==1) Call writejobms(iadr19,LRState,LHRot)
          Call RecPrt(' ','',Work(LHRot),lroots,lroots)
 *         Write(6,*)
          refbas=.false.

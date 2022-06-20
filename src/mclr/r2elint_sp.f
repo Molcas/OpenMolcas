@@ -29,7 +29,7 @@
 #include "Pointers.fh"
 #include "Input.fh"
 #include "stdalloc.fh"
-#include "spin.fh"
+#include "spin_mclr.fh"
       Logical lFI,lFA,lMo
       Parameter ( One = 1.0d0 )
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),

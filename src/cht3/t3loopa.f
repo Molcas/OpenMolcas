@@ -20,14 +20,13 @@ cmp      real*8 g(*),energ(*),oeh(*),oep(*),enx,t1a(*),t1b(*)
       integer nug
       integer isp,vblock,n,lu(*),nga,ngb,ngc,adim,bdim,cdim
       INTEGER iasblock(3),aset,bset,cset
-      CHARACTER ich*1
       logical ifvo,lastcall,scored
-      INTEGER IOPT,NOAB,NNOAB,NUAB,NNUAB,IUHF
+      INTEGER IUHF
 cmp
         integer jjj
 cmp
-      COMMON/UHF/NOAB(2),NNOAB(3),NUAB(2),NNUAB(3),ICH(3)
-      COMMON/IOIND/IOPT(96)
+#include "uhf.fh"
+#include "ioind.fh"
       integer ka,kb,kc,la,lb,lc,t3a,t3b,voa,vob,voc,mi,mij
       SAVE      ka,kb,kc,la,lb,lc,t3a,t3b,voa,vob,voc,mi,mij,
      $     iasblock,iuhf,nug

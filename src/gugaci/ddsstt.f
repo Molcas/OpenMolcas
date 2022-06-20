@@ -14,7 +14,7 @@ C calculate dd, ss and tt space
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
       DATA VSQ2/0.7071067811865950D0/
       w0gdd=vsq2
 !      w1gdd=-sq3vsq2
@@ -649,7 +649,7 @@ C=======================================================================
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 
       call external_space_plpmode_value_ss()
       idisk_lp=idisk_array(13)
@@ -1091,7 +1091,7 @@ C=======================================================================
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 
       call external_space_plpmode_value_ST()
       idisk_lp=idisk_array(12)
@@ -1516,7 +1516,7 @@ C=======================================================================
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 
       call external_space_plpmode_value_TS()
       idisk_lp=idisk_array(9)
@@ -1938,7 +1938,7 @@ C=======================================================================
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 
       call external_space_plpmode_value_tt()
       idisk_lp=idisk_array(8)

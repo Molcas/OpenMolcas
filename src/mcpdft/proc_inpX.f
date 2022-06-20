@@ -28,16 +28,18 @@
 #include "WrkSpc.fh"
 #include "gas.fh"
 #include "rasscf.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "orthonormalize.fh"
+#include "orthonormalize_mcpdft.fh"
 #include "ksdft.fh"
       Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
+*Chen write JOBIPH
+#include "wjob.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "csfbas.fh"
@@ -62,19 +64,14 @@
 !      Dimension iMAlter(8,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
-      Logical DoCholesky,timings,DensityCheck
-      Logical DoLocK,Deco
-      Logical Estimate,Update
-      Integer ALGO,Nscreen
-      Real*8  dmpk,ChFracMem
       Logical DBG, exist
 
-      Common /CHLCAS / DoCholesky,ALGO
-      COMMON /CHODENSITY/ DensityCheck
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
-      COMMON /CHOSCREEN/ Estimate,Update
-      COMMON /CHOPAR/ ChFracMem
+#include "chlcas.fh"
+#include "chodensity.fh"
+#include "chotime.fh"
+#include "cholk.fh"
+#include "choscreen.fh"
+#include "chopar.fh"
 
       Integer IScratch(10)
 * Label informing on what type of data is available on an INPORB file.
@@ -891,6 +888,14 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        If (DBG) Write(6,*) ' MSPD keyword was used.'
        iMSPDFT=1
        Call SetPos_m(LUInput,'MSPD',Line,iRc)
+       Call ChkIfKey_m()
+      End If
+*---  Process WJOB command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if write JOBIPH case.'
+      If (KeyWJOB) Then
+       If (DBG) Write(6,*) ' WJOB keyword was used.'
+       iWJOB=1
+       Call SetPos_m(LUInput,'WJOB',Line,iRc)
        Call ChkIfKey_m()
       End If
 *---  Process CION command --------------------------------------------*

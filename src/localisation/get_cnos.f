@@ -242,12 +242,9 @@
       Integer nBDT, nBas(8)
       Real*8  Dma(nBDT), Dmb(nBDT)
 #include "WrkSpc.fh"
-      Integer ALGO,NSCREEN
-      Logical REORD,DECO
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
-      Logical Estimate, Update, timings
-      COMMON /CHOSCREEN/ Estimate,Update
-      COMMON  /CHOTIME /timings
+#include "choscf.fh"
+#include "choscreen.fh"
+#include "chotime.fh"
       Integer ipFLT(2), ipKLT(2), nIorb(8,2), ipPorb(2)
       Integer ipDm(2)
 c      Real*8   Get_ExFac

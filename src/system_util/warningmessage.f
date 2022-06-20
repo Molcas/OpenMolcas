@@ -33,7 +33,7 @@
       Subroutine WarningMessage(Level,STR)
       character*(*) STR
       Integer Level
-      common /WarnMess/ MaxWarnMess
+#include "warn.fh"
       if(Level.gt.MaxWarnMess) MaxWarnMess=Level
       call SysPutsStart()
       if (Level .eq. 1) then
@@ -60,13 +60,13 @@ c      write(6,'(A)') '*** '
       Return
       End
       Subroutine WarningInit
-      common /WarnMess/ MaxWarnMess
+#include "warn.fh"
 c this is unfinished routine. it must be possible to keep more info
       MaxWarnMess=-1
       return
       end
       Subroutine WarningCheckOut(iWarn)
-      common /WarnMess/ MaxWarnMess
+#include "warn.fh"
       iWarn=MaxWarnMess
       return
       end

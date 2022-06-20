@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ColorizeInit()
-      Common /icolorize/icolorize
+#include "icolorize.fh"
       Character Str*32
       Str=' '
       icolorize=1

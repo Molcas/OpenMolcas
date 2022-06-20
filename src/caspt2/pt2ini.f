@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PT2INI
-      USE INPUTDATA
+      USE INPUTDATA, ONLY: INPUT, READIN_CASPT2
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
       USE PT2WFN
@@ -149,7 +149,7 @@ C Initialize sizes, offsets etc used in equation solver.
 
       SUBROUTINE PT2CLS
       USE SUPERINDEX
-      USE INPUTDATA
+      USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE PT2WFN
 * NOT TESTED
 #if 0
@@ -217,5 +217,5 @@ C     Close all files:
       CALL CLSFLS_CASPT2
 
 C free input struct
-      DEALLOCATE(Input)
+      CALL CleanUp_Input()
       End

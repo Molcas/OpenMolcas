@@ -56,8 +56,8 @@
 #include "cgas.fh"
 #include "gasstr.fh"
 *. Local scratch
-      COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
-      COMMON/SSAVE/NELIS(4), NSTRKS(4)
+#include "hidscr.fh"
+#include "ssave.fh"
 *
 * =======
 *. Output

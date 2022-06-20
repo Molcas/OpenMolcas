@@ -30,7 +30,7 @@ C
 #include "general.fh"
 #include "WrkSpc.fh"
       DIMENSION X(*),P(*)
-      COMMON /CHOPMAT / ipPL
+#include "chopmat.fh"
 
 C
 c     Loop over all reordered 2-matrix elements.

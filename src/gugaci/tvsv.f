@@ -13,7 +13,7 @@
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 c      dsq3=1.732050807568877d0
 c      iltype =3
 c      irtype =1
@@ -324,7 +324,7 @@ c        jmlr=mul_tab(jml,jmr)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
       dsq2=1.414213562373095d0
       w0g36a=-1.d0
       w1g36a=0.d0

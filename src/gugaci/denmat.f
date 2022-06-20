@@ -14,14 +14,13 @@
 #include "pl_structure_h.fh"
 #include "grad_h.fh"
 #include "files_gugaci.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 c     character*256 filename
-      common /lgrn/ xlgrn(max_orb,max_orb)
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /grad_xyz/dxyz(3,max_atom),numat
-      common /ncprhf/ nrot,nxyz,ndbl,next,nsolv,nres,n_frz,n_all
+#include "lgrn.fh"
+#include "iaib.fh"
+#include "vect.fh"
+#include "grad_xyz.fh"
+#include "ncprhf.fh"
       parameter (htoklm=627.50956d+00,zero=0.0d+00)
 c     dimension x1e(50000)
 !      logical logic_mulroot
@@ -258,7 +257,7 @@ c                        call ddatard(nft,buff,kbuf,idisk)
 
       subroutine init_canonical
 #include "drt_h.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
 c========================================
 c  calculate the canonical order for index transform
 
@@ -275,8 +274,8 @@ c  calculate the canonical order for index transform
 
       subroutine density_scf_frz
 #include "drt_h.fh"
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /density/ p(max_orb,max_orb)
+#include "vect.fh"
+#include "density.fh"
       parameter (zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
 
       do i=1,naorbs
@@ -381,7 +380,7 @@ c            write(2,'(2i8,f18.10)') i,j,p(i,j)
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "files_gugaci.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
       dimension indx_m(maxgdm),idisk_array(max_root+1)
       parameter (zero=0.0d+00, half=0.5d+00, two=2.0d+00)
 c=============================================================

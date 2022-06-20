@@ -31,9 +31,8 @@
 *
       Dimension CMO(*), PUVX(*), TUVX(*)
       Dimension D1I(*), D1A(*), FI(*), FA(*)
-      Logical lSquare,DoCholesky,TraOnly
-      Integer ALGO
-      Common /CHLCAS / DoCholesky,ALGO
+      Logical lSquare,TraOnly
+#include "chlcas.fh"
 *
 *
 *

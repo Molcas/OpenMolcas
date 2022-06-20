@@ -11,7 +11,7 @@
 subroutine ProcInp_Caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
-  use InputData
+  use InputData, only: Input
   use definitions, only:iwp
   use output_caspt2, only:iPrGlb,terse,cmpThr,cntThr,dnmThr
 #ifdef _MOLCAS_MPP_

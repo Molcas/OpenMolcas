@@ -25,11 +25,11 @@
 #include "etwas.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
-      Logical Timings, DoExchange, DoCAS, Estimate, Update
+      Logical DoExchange, DoCAS, Estimate, Update
       Integer nIOrb(0:7),nV_l(0:7),nV_t(0:7)
       Integer nU_l(0:7), nU_t(0:7)
       Integer ipTxy(0:7,0:7,2),ipDLT2,jp_V_k
-      COMMON    /CHOTIME /timings
+#include "chotime.fh"
       Character*8 Method
 *                                                                      *
 ************************************************************************

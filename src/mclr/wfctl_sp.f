@@ -33,7 +33,7 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "spin.fh"
+#include "spin_mclr.fh"
 #include "real.fh"
 #include "crun_mclr.fh"
       Character*8   Fmt2

@@ -24,11 +24,10 @@ c
 #endif
         implicit none
 #include "chcc1.fh"
-#include "chcc2.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 #include "chcc_files.fh"
 #include "chcc_reord.fh"
-c#include <SysDef.fh>
+c#include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "chcc_casy.fh"
         integer ireturn

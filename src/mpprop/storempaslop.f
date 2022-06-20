@@ -12,8 +12,7 @@
      &                       ,ipMP,lMax,ip_EC)
       Implicit Real*8 (a-h,o-z)
 
-#include "MpParam.fh"
-#include "Address.fh"
+#include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
 

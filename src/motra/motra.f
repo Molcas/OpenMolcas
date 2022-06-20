@@ -29,9 +29,8 @@
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
-      COMMON / CHO_Minp / iCTonly, iDoInt
-      Character*3  tv2disk
-      COMMON / CHOTRAW /tv2disk
+#include "cho_minp.fh"
+#include "chotraw.fh"
       Logical DoCholesky, Do_int
 *----------------------------------------------------------------------*
 *     Start program and say Hello                                      *

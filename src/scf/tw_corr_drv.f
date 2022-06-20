@@ -129,9 +129,7 @@ C
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),
      &        nDel(nSym)
       Real*8  CMOI(*), EOcc(*), EVir(*), DM0(*), DM(*)
-      Real*8  DeMP2
-      Logical MP2_small
-      Common / ChFNOPT/ DeMP2, MP2_small
+#include "chfnopt.fh"
 *
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 *

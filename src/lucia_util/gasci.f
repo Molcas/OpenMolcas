@@ -46,12 +46,12 @@
 #include "io_util.fh"
 *
 *. Common block for communicating with sigma
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
+#include "cands.fh"
 *
 #include "cecore.fh"
-      COMMON/CMXCJ/MXCJ,MAXK1_MX,LSCMAX_MX
+#include "cmxcj.fh"
 *
-      COMMON/H_OCC_CONS/IH_OCC_CONS
+*#include "h_occ_cons.fh"
 *
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
 *

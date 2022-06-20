@@ -38,7 +38,7 @@
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt,mTInt)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
       Logical Shijij
-      Common /ibas_ricd/ jbas_, lbas_
+#include "ibas_ricd.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

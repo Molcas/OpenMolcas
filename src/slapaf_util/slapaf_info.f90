@@ -149,7 +149,7 @@ Contains
 
   iter  =Information(2)+1
   If (iter.ge.MaxItr+1) Then
-     Write (6,*) 'Increase MaxItr in info_slapaf.fh'
+     Write (6,*) 'Increase MaxItr in slapaf_info.f90'
      Call WarningMessage(2,'iter.ge.MaxItr+1')
      Call Abend()
   End If

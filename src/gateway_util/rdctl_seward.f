@@ -61,9 +61,10 @@
 #include "print.fh"
 #include "RelLight.fh"
 #include "gateway.fh"
-#include "hyper.fh"
 #include "relae.fh"
-      Common /AMFn/ iAMFn
+#ifdef _HAVE_EXTRA_
+#include "hyper.fh"
+#endif
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
@@ -75,8 +76,7 @@
       Character(LEN=80):: Title(10)=['','','','','','','','','','']
       Character(LEN=14):: Vrsn='Gateway/Seward'
       Character(LEN=512):: Align_Weights='MASS'
-      Character*180 Line
-      common/cgetlc/ Line
+#include "cgetl.fh"
       Character*180 Get_Ln
       External Get_Ln
       Logical lTtl, lSkip, lMltpl, DoRys, RF_read, Convert, IfTest,
@@ -117,6 +117,7 @@
       Logical NoDKroll
       Logical DoTinker
       Logical DoGromacs
+      Logical OrigInput
       Logical OriginSet
       Logical FragSet
       Logical HyperParSet
@@ -129,10 +130,10 @@
       Real*8 HypParam(3), RandVect(3)
       Logical Vlct_, nmwarn, FOUND
 *
-      Logical DoEMPC, Basis_test, lECP, lPP
+      Logical Basis_test, lECP, lPP
       Logical :: lDMS=.FALSE., lOAM=.FALSE., lOMQ=.False.,
      &           lXF=.False., lFAIEMP=.False.
-      Common /EmbPCharg/ DoEMPC
+#include "embpcharg.fh"
 *
 #ifdef _GROMACS_
       Integer, Dimension(:), Allocatable :: CastMM
@@ -234,8 +235,9 @@
       ForceZMAT=.false.
       DoTinker = .False.
       DoGromacs = .False.
-      origin_input = .False.
+      OrigInput = .False.
 #ifdef _HAVE_EXTRA_
+      origin_input = .False.
       geoInput = .False.
       OldZmat = .False.
       isHold=-1
@@ -303,7 +305,6 @@
       End If
 *
       iDNG=0
-      iAMFn = 0   ! usual AMFI
       BasisTypes(:)=0
       KeepBasis=' '
 cperiod
@@ -1428,12 +1429,12 @@ c Simplistic validity check for value
          Write (LuWr,*) '        MxAtom=',MxAtom
          Call Quit_OnUserError()
       End If
-      iend=Index(KWord,' ')
-      If (iEnd.gt.LENIN+1) Then
-         Write (6,*) 'Warning: the label ', KWord(1:iEnd),
+      jend=Index(KWord,' ')
+      If (jEnd.gt.LENIN+1) Then
+         Write (6,*) 'Warning: the label ', KWord(1:jEnd),
      &               ' will be truncated to ',LENIN,' characters!'
       End If
-      dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))
+      dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,jend-1))
       dbas=dc(mdc+nCnt)%LblCnt(1:LENIN)
       Call Upcase(dbas)
       If (dbas.eq.'DBAS') Then
@@ -1483,12 +1484,12 @@ c Simplistic validity check for value
                      Call Quit_OnUserError()
                   End If
 
-                  iend=Index(KWord,' ')
-                  If (iEnd.gt.5) Then
-                     Write (6,*) 'Warning: the label ', KWord(1:iEnd),
+                  jend=Index(KWord,' ')
+                  If (jEnd.gt.5) Then
+                     Write (6,*) 'Warning: the label ', KWord(1:jEnd),
      &               ' will be truncated to ',LENIN,' characters!'
                   End If
-                  dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))//
+                  dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,jend-1))//
      &              CHAR4
 
                   Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
@@ -1956,7 +1957,6 @@ c Simplistic validity check for value
 *
  8761 Continue
       lAMFI=.True.
-      iAMFn = 1
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -1966,7 +1966,6 @@ c Simplistic validity check for value
 *
  8762 Continue
       lAMFI=.True.
-      iAMFn = 2
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -1976,7 +1975,6 @@ c Simplistic validity check for value
 *
  8763 Continue
       lAMFI=.True.
-      iAMFn = 3
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -2162,12 +2160,12 @@ c Simplistic validity check for value
          Call Upcase(Key)
          jTmp = iChar(Key(1:1))
          If (jTmp .ge. 65 .AND. jTmp .le. 90) Then
-            iEnd=Index(Key,' ')-1
+            jEnd=Index(Key,' ')-1
             iOff = 0
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
                Do iCnt = iOff+1, iOff+dbsc(iCnttp)%nCntr
-                  If (Key(1:iEnd) .Eq. dc(iCnt)%LblCnt(1:iEnd)) Then
+                  If (Key(1:jEnd) .Eq. dc(iCnt)%LblCnt(1:jEnd)) Then
                      iFound_Label = 1
                      EFt(1:3,iEF)=dbsc(iCnttp)%Coor(1:3,iCnt-iOff)
                   End If
@@ -2177,7 +2175,7 @@ c Simplistic validity check for value
             If (iFound_Label .Eq. 0) Then
                Call WarningMessage(2,';'
      &                     //' Error in processing the keyword FLDG.;'
-     &                     //' The label '''//Key(1:iEnd)
+     &                     //' The label '''//Key(1:jEnd)
      &                  //''' could not be found among the centers.;'
      &                     //' Remember to specify the atom center'
      &                     //' before specifying the FLDG keyword.')
@@ -3316,7 +3314,10 @@ c
 *                                                                      *
 *     Defines translation and rotation for each xyz-file
 *
- 8015 Origin_input = .True.
+ 8015 OrigInput = .True.
+#ifdef _HAVE_EXTRA_
+      Origin_input = .True.
+#endif
       If(FragSet) Then
          Write(6,*) 'Keywords FRGM and ORIG are mutually exclusive!'
          Call Quit_OnUserError()
@@ -3433,7 +3434,10 @@ c
 *                                                                      *
 ***** FRGM *************************************************************
 *                                                                      *
- 8025 Origin_input= .True.
+ 8025 OrigInput = .True.
+#ifdef _HAVE_EXTRA_
+      Origin_input = .True.
+#endif
       GWinput = .True.
       If(OriginSet) Then
          Write(6,*) 'Keywords FRGM and ORIG are mutually exclusive!'
@@ -3760,13 +3764,13 @@ c
             FRAG_Type(iFrag)=KWord
             Do i = 1, 3
                KWord = Get_Ln(LuRd)
-               iend=Index(KWord,' ')
-               If (iEnd.gt.LENIN+1) Then
-                  Write (LuWr,*) 'Warning: the label ', KWord(1:iEnd),
+               jend=Index(KWord,' ')
+               If (jEnd.gt.LENIN+1) Then
+                  Write (LuWr,*) 'Warning: the label ', KWord(1:jEnd),
      &                        ' will be truncated to ',LENIN,
      &                        ' characters!'
                End If
-               ABC(i,iFrag) = KWord(1:Min(LENIN,iend-1))
+               ABC(i,iFrag) = KWord(1:Min(LENIN,jend-1))
                Call Get_F(2,EFP_COORS((i-1)*3+1,iFrag),3)
             End Do
          End Do
@@ -4550,7 +4554,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Deallocate fields from keyword ORIGIN
 *
-      If(Origin_input) Then
+      If(OrigInput) Then
          Call mma_deallocate(OrigRot)
          Call mma_deallocate(OrigTrans)
       End If

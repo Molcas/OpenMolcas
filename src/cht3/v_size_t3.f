@@ -14,13 +14,11 @@
       integer t3_size_a,t3_size
       integer isp,vblock,maxnu
       integer nuga,nugc,vblock_isp(2),nprocs,rest
-      CHARACTER ich*1
 cmp
         integer printkey, tmp
 cmp
-      INTEGER IOPT,NOAB,NNOAB,NUAB,NNUAB
-      COMMON/UHF/NOAB(2),NNOAB(3),NUAB(2),NNUAB(3),ICH(3)
-      COMMON/IOIND/IOPT(96)
+#include "uhf.fh"
+#include "ioind.fh"
 C number of elementary subprocesses: nugc*nuga*(nuga+1)/2
 C                                   + nuga*nugc*(nugc+1)/2
 C                                   + nugc**3/6

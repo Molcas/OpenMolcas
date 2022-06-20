@@ -19,16 +19,13 @@
       Real*8 DSQ(*),DLT(*)
       Parameter (MaxDs = 1)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
-      Integer Lunit(8)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
       Integer ipDLT(MaxDs),ipDSQ(MaxDs),ipFLT(MaxDs),ipFSQ(MaxDs)
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
-      Integer ALGO
-      Logical REORD,DECO
 
-      Common /CHOUNIT / Lunit
-      Common /CHORAS / REORD,DECO,ALGO
+#include "chounit.fh"
+#include "choras.fh"
 *
 *
 C  **************************************************

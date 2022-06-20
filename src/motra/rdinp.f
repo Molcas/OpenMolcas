@@ -36,9 +36,8 @@
      &            'EXTR','RFPE','CTON','DIAG','HDF5',
      &            'END '/
 *
-      COMMON / CHO_Minp / iCTonly, iDoInt
-      Character*3 tv2disk
-      COMMON / CHOTRAW / tv2disk
+#include "cho_minp.fh"
+#include "chotraw.fh"
 *
 
 

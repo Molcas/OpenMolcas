@@ -27,8 +27,6 @@
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
 #  include "rassiwfn.fh"
-#  include "lebedev.fh"
-
       integer :: ISTATE, NSS
       integer :: nData, nIJ
       integer, allocatable :: state_irreps(:), state_mult(:)

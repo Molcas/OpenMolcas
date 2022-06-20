@@ -121,7 +121,7 @@
      &    TIOPT2,TIOSBM,TIOEIG,TIONAD,TIORHS,TIOSER,                    &
      &    TIOPCG,TIOSCA,TIOLCS,TIOOVL,TIOVEC,TIOSGM,                    &
      &    TIOPRP,TIOGRD
-      COMMON/TIMERS/                                                    &
+      COMMON/TIMERS_CASPT2/                                             &
      &    CPUGIN,CPUINT,CPUFMB,                                         &
      &    CPUSIN,CPUFG3,                                                &
      &    CPUPT2,CPUSBM,CPUEIG,CPUNAD,CPURHS,CPUSER,                    &

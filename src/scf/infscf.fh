@@ -135,8 +135,7 @@
 * ChFracMem - fraction of memory used as a buffer for keeping          *
 *             Cholesky vectors previously read from disk               *
 *----------------------------------------------------------------------*
-      Real*8 ChFracMem
-      COMMON /CHOPAR/ ChFracMem
+#include "chopar.fh"
 
       Integer MxConstr, nConstr(8), indxC(16,2,8), klockan
       COMMON /iCSCF/ MxConstr, nConstr, indxC, klockan

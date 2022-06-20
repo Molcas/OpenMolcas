@@ -12,12 +12,12 @@
 *     one- and two-electron integrals in MO basis
       Character*8   FnOneMO,FnTwoMO
       Integer       LuOneMO,LuTwoMO
-      Common /Motra_Files/
+      Common /Motra_Files_ci/
      &  FnOneMO,FnTwoMO,LuOneMO,LuTwoMO
 
       Character*8   FnDrt,FnLoop
       Integer       LuDrt,LuLoop
-      Common /Drt_files/
+      Common /Drt_files_ci/
      &  FnDrt,FnLoop,LuDrt,LuLoop
 
 *     sorted MO integrals

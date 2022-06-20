@@ -30,9 +30,7 @@
       Integer irc,IFQCAN
       Real*8  EMP2, vfrac
       Logical DoMP2
-      Real*8  DeMP2
-      Logical MP2_small
-      Common / ChFNOPT/ DeMP2, MP2_small
+#include "chfnopt.fh"
 *
       Integer ns_V(8), nAct(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)

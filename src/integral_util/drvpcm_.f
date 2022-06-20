@@ -32,8 +32,6 @@
       Logical First
       Character*8 Label
       Logical Save_tmp, NonEq
-      Real*8 RepNuc_Save
-      Common /RF/RepNuc_Save
       Dimension ip(1)
 *                                                                      *
 ************************************************************************
@@ -223,7 +221,6 @@
      &            + Half * W_or_InfNuc
      &            - Half * W_0_or_el
      &            - Half * W_0_or_Inf
-         RepNuc_Save=RepNuc
          Label='PotNuc00'
          Call Put_Temp(Label,[RepNuc],1)
       End If

@@ -49,8 +49,8 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   timings,DoRead
-      COMMON    /CHOTIME /timings
+      Logical   DoRead
+#include "chotime.fh"
 
       parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
 

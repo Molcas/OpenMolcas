@@ -13,8 +13,7 @@
       Implicit real*8 (a-h,o-z)
 
 #include "WrkSpc.fh"
-#include "MpParam.fh"
-#include "Address.fh"
+#include "MpData.fh"
 #include "MolProp.fh"
 
       iStdOut = 6

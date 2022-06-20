@@ -29,7 +29,7 @@
 #endif
       Character*54 Stars
       Logical MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly, IfTest
-      Common /Nucleus/ Charge, Exp_Finite
+#include "nucleus.fh"
       Integer OUT, iBeginIRed(8), iDelperSym(8)
       Data IfTest/.False./
 *

@@ -77,9 +77,8 @@
 #endif
       Logical  DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
       Real*8   tread(2),tcoul(2),texch(2)
-      Logical  timings
 
-      COMMON   /CHOTIME /timings
+#include "chotime.fh"
       Character*50 CFmt
       Character*15 SECNAM
       Parameter (SECNAM = 'CHO_FOCKTWO_RED')

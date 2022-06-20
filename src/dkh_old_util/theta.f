@@ -10,14 +10,13 @@
 ************************************************************************
       REAL*8 FUNCTION THETA(M,N)
       IMPLICIT REAL*8 (A-H,O-Z)
-      COMMON /CRELOP/ PI,ZWP,SQPI,VELIT,PREA,CSQ,ZWPH32,FAK(26),
-     *ZWPH12,BCO(210),GAM(20),IMAX
+#include "crelop.fh"
 C
 C     INTEGRATION OVER THETA. INCLUDES A FACTOR SIN(TH)
 C     FOR THE VOLUME ELEMENT
 C
       IF (MOD(N,2).EQ.1) GOTO 10
-      THETA=GAM(M+2)*GAM(N+1)/GAM(M+N+3)
+      THETA=GA(M+2)*GA(N+1)/GA(M+N+3)
       RETURN
 10    THETA=0.D0
       RETURN

@@ -200,7 +200,6 @@ c  variables in "mgrid.fh"
       get_nP(3,30)=631
       get_nP(3,31)=694
       get_nP(3,32)=760
-c variables in "mvect.fh"
       compute_Mdir_vector=.false.
       zeeman_energy=.false.
       Do i=1,nDir

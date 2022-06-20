@@ -14,9 +14,8 @@
      &                      ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,
      &                      LFirstRun,LLumOrb)
       Implicit Real*8 (a-h,o-z)
-#include "MpParam.fh"
+#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "Address.fh"
 #include "MolProp.fh"
 !      Dimension oNum(nOrb)
 !      Dimension oCof(nBas,nPrim)
@@ -51,9 +50,8 @@
      &                      ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,
      &                      iCompMat,Qexp,LFirstRun,LLumOrb)
       Implicit Real*8 (a-h,o-z)
-#include "MpParam.fh"
+#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "Address.fh"
 #include "MolProp.fh"
 !      Dimension oNum(nOrb)
 !      Dimension oCof(nBas,nPrim)

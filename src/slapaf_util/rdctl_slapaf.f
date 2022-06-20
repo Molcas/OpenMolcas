@@ -41,16 +41,9 @@
       Character(LEN=100), External:: Get_SuperName
       Character(LEN=100) SuperName
       Character(LEN=180), Parameter:: BLine=''
-      Character(LEN=180):: Line='', Char=''
+      Character(LEN=180):: Key='', Char=''
       Real*8, Allocatable:: DIR(:,:), Tmp(:), TmpRx(:)
-*
-*     Compare with inputil.f. Note that here Line is defined in
-*     info:slapaf.fh. Otherwise the common cgetln should be
-*     identical in size.
-*
-*     mxn should be len(line)/2+1
-      parameter (mxn=91)
-      common/cgetln/ ncol, jstrt(mxn),jend(mxn)
+#include "cgetl.fh"
       External Get_Ln
       Logical External_UDC,
      &        Explicit_IRC, Expert, ThrInp, FirstNum, Manual_Beta
@@ -227,9 +220,9 @@ C     Write (Lu,*) iOptC
 *                      =
 *     and has the dimension (3*nsAtom x mInt).
  992  Continue
-         Line=Get_Ln(LuRd)
-         Call UpCase(Line)
-         If (Line(1:4).eq.'END ') Then
+         Key=Get_Ln(LuRd)
+         Call UpCase(Key)
+         If (Key(1:4).eq.'END ') Then
             Close(Lu_UDIC)
             Go To 999
          End If
@@ -239,16 +232,16 @@ C     Write (Lu,*) iOptC
 *
 *        Lines with VARY or FIX doesn't have equal signs
 *
-         If (Line(1:4).eq.'VARY') nBVec=iRow
-         If (Line(1:4).eq.'VARY'.or.
-     &       Line(1:3).eq.'FIX' .or.
-     &       Line(1:4).eq.'ROWH') Then
+         If (Key(1:4).eq.'VARY') nBVec=iRow
+         If (Key(1:4).eq.'VARY'.or.
+     &       Key(1:3).eq.'FIX' .or.
+     &       Key(1:4).eq.'ROWH') Then
             New_Line=0
          End If
 *
  111     Continue
          If (New_Line.eq.1) Then
-            If (Index(Line,'=').eq.0) Call FixEqualSign2(Line,LuRd,
+            If (Index(Key,'=').eq.0) Call FixEqualSign2(Key,LuRd,
      &                                                   Lu_UDIC,iRow,
      &                                                   New_Line)
             If (New_Line.eq.2) Then
@@ -260,11 +253,11 @@ C     Write (Lu,*) iOptC
 *
          iRow = iRow + 1
 *
-         Write (Lu_UDIC,'(A)') Line
+         Write (Lu_UDIC,'(A)') Key
 *
 *        If this line does not have a continuation the next line should
 *        have a equal sign!
-         If (Index(Line,'&').eq.0) New_Line=1
+         If (Index(Key,'&').eq.0) New_Line=1
       Go To 992
 *                                                                      *
 ****** CTOF ************************************************************
@@ -288,10 +281,10 @@ C     Write (Lu,*) iOptC
       FilNam='UDIC'
       call molcas_open(Lu_UDIC,FilNam)
       ReWind(Lu_UDIC)
-      Line=Get_Ln(LuRd)
-      Call UpCase(Line)
-      Call FixEqualSign2(Line,LuRd,Lu_UDIC,iNull,New_Line)
-      Write (Lu_UDIC,'(A)') Line
+      Key=Get_Ln(LuRd)
+      Call UpCase(Key)
+      Call FixEqualSign2(Key,LuRd,Lu_UDIC,iNull,New_Line)
+      Write (Lu_UDIC,'(A)') Key
       Close(Lu_UDIC)
       Go To 999
 *                                                                      *
@@ -327,11 +320,11 @@ C     Write (Lu,*) iOptC
       Lu_UDC=IsFreeUnit(Lu_UDC)
       Call Molcas_Open(Lu_UDC,FilNam)
  318  Continue
-      Line=Get_Ln(LuRd)
-      Call UpCase(Line)
-      Call LeftAd(Line)
-      Write(Lu_UDC,'(A)') Trim(Line)
-      If (Line(1:4).ne.'END') Go To 318
+      Key=Get_Ln(LuRd)
+      Call UpCase(Key)
+      Call LeftAd(Key)
+      Write(Lu_UDC,'(A)') Trim(Key)
+      If (Key(1:4).ne.'END') Go To 318
       Close(Lu_UDC)
       Go To 999
 *                                                                      *
@@ -410,11 +403,11 @@ C     Write (Lu,*) iOptC
       Call Get_I1(1,nSupSy)
       Call mma_allocate(nSup,NSUPSY,Label='nSup')
       Call mma_allocate(Atom,nsAtom,Label='Atom')
-      iStrt = 1
+      jStrt = 1
       Do 950 i = 1, nSupSy
          Read(LuRd,*,Err=9630) nSup(i),
-     &       (Atom(j),j=iStrt,iStrt+nSup(i)-1)
-         iStrt = iStrt + nSup(i)
+     &       (Atom(j),j=jStrt,jStrt+nSup(i)-1)
+         jStrt = jStrt + nSup(i)
  950  Continue
       Go To 999
 9630  Call WarningMessage(2,'Error in RdCtl_Slapaf')
@@ -804,11 +797,11 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       FilNam='TSC'
       LuTS=IsFreeUnit(LuTS)
       Call Molcas_Open(LuTS,FilNam)
- 319  Line=Get_Ln(LuRd)
-      Call UpCase(Line)
-      Call LeftAd(Line)
-      Write(LuTS,'(A)') Trim(Line)
-      If (Line(1:4).ne.'END') Go To 319
+ 319  Key=Get_Ln(LuRd)
+      Call UpCase(Key)
+      Call LeftAd(Key)
+      Write(LuTS,'(A)') Trim(Key)
+      If (Key(1:4).ne.'END') Go To 319
       Close(LuTS)
       TSConstraints=.True.
       Go To 999
@@ -933,8 +926,8 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** rHidden *********************************************************
 *                                                                      *
- 988  Line = Get_Ln(LuRd)
-      Call UpCase(Line)
+ 988  Key = Get_Ln(LuRd)
+      Call UpCase(Key)
       Call Get_F1(1,rHidden)
       If (rHidden.lt.Zero) Then
          Call WarningMessage(2,'Error in RdCtl_Slapaf')
@@ -944,7 +937,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
          Write (Lu,*) '************************************'
          Call Quit_OnUserError()
       End If
-      If (Index(Line,'ANGSTROM').ne.0) rHidden = rHidden/angstr
+      If (Index(Key,'ANGSTROM').ne.0) rHidden = rHidden/angstr
       Go To 999
 *                                                                      *
 ****** IRC *************************************************************

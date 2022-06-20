@@ -14,8 +14,7 @@ c*****************************************************************
 c     26 feb 2007 - revised
 c
 #include "drt_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
 c     write(6,*) ' ext_test '
 c      return
@@ -51,9 +50,8 @@ c...end of complete_ext_loop
       subroutine complete_ext_loop_g()
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "gext_sequence.fh"
+#include "iaib.fh"
 
       lwei=isegsta
       do iupwei=1,isegupwei

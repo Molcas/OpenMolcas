@@ -27,8 +27,7 @@
 * Patched: Valera Veryazov                                             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      Logical Quit_On_Error
-      common /getlnQOE/ Quit_On_Error
+#include "getlnqoe.fh"
       Dimension nCGTO(0:lCGTO),mCGTO(0:lCGTO)
       Character*80 BSLBl,BSLB*180,string,atom,type,author,basis,blank,
      &            CGTO,CGTOm,atomb, aux,
