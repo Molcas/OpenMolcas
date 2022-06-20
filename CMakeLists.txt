@@ -103,16 +103,16 @@ option (EXPERT "Show advanced compiler flags in CMake GUI)." OFF)
 
 option (BIGOT "Do not allow any compiler warning (treat them as errors)." OFF)
 
-set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, OpenBLAS, ACML, Accelerate.")
+set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, OpenBLAS, AOCL, Accelerate.")
 if (DEFINED LINALG)
   set (LINALG "${LINALG}" CACHE STRING "${LINALG_OPTIONS}")
-  if (NOT ";Internal;Runtime;MKL;OpenBLAS;ACML;Accelerate;" MATCHES ";${LINALG};")
+  if (NOT ";Internal;Runtime;MKL;OpenBLAS;AOCL;Accelerate;" MATCHES ";${LINALG};")
       message (FATAL_ERROR "Unsuported LINALG: ${LINALG}")
   endif ()
 else ()
   set (LINALG "Internal" CACHE STRING "${LINALG_OPTIONS}")
 endif ()
-set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS ACML Accelerate)
+set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS AOCL Accelerate)
 
 option (CUBLAS "Enable CUDA BLAS library." OFF)
 option (NVBLAS "Enable NVidia BLAS library." OFF)
@@ -1262,41 +1262,60 @@ else ()
   mark_as_advanced (FORCE MKLROOT)
 endif ()
 
-# ACML settings, I don't think FindBLAS supports recent ACML either
-set (ACMLROOT "" CACHE PATH "ACML path.")
-if (LINALG STREQUAL "ACML")
-  message ("-- Using AMD Core Math Library (ACML)")
+# AOCL settings, I don't think FindBLAS supports recent AOCL either
+set (AOCLROOT "" CACHE PATH "AOCL path.")
+if (LINALG STREQUAL "AOCL")
+  message ("-- Using AMD Optimizing CPU Libraries (AOCL)")
 
-  mark_as_advanced (CLEAR ACMLROOT)
-  if (ACMLROOT STREQUAL "")
-    set (ACMLROOT $ENV{ACMLROOT} CACHE PATH "ACML root directory." FORCE)
-    if (NOT ACMLROOT)
+  mark_as_advanced (CLEAR AOCLROOT)
+  if (AOCLROOT STREQUAL "")
+    set (AOCLROOT $ENV{AOCLROOT} CACHE PATH "AOCL root directory." FORCE)
+    if (NOT AOCLROOT)
       message (FATAL_ERROR
-               "You must set environment variable ACMLROOT, "
-               "or specify -DACMLROOT=/path/to/acml_dir "
+               "You must set environment variable AOCLROOT, "
+               "or specify -DAOCLROOT=/path/to/AOCL_dir "
                "when running cmake.")
     endif ()
   endif ()
 
-  unset (LIBACML CACHE)
-  find_library (LIBACML
-    NAMES acml
-    PATHS ${ACMLROOT}
+  # Search libflame first
+  find_library (LIBFLAME
+    NAMES flame
+    PATHS ${AOCLROOT}
     PATH_SUFFIXES lib
     NO_DEFAULT_PATH
   )
 
-  if (NOT LIBACML)
-    message (FATAL_ERROR
-             "ACML library not found, please check that "
-             "the ACMLROOT variable is set and points to "
-             "a valid ACML installation directory.")
+  if (NOT LIBFLAME)
+    message (FATAL_ERROR "LIBFLAME not found" )
   endif ()
 
-  list (APPEND linalg_util_defs "_ACML_")
-  set (LINALG_LIBRARIES ${LIBACML})
+  # Search libblis
+  find_library (LIBBLIS
+    NAMES blis
+    PATHS ${AOCLROOT}
+    PATH_SUFFIXES lib
+    NO_DEFAULT_PATH
+  )
+
+  if (NOT LIBBLIS)
+    message (FATAL_ERROR "LIBBLIS not found" )
+  endif ()
+
+  unset (LIBAOCL CACHE)
+  set (LIBAOCL ${LIBFLAME} ${LIBBLIS})
+
+  if (NOT LIBAOCL)
+    message (FATAL_ERROR
+             "AOCL library not found, please check that "
+             "the AOCLROOT variable is set and points to "
+             "a valid AOCL installation directory.")
+  endif ()
+
+  list (APPEND linalg_util_defs "_AOCL_")
+  set (LINALG_LIBRARIES ${LIBAOCL})
 else ()
-  mark_as_advanced (FORCE ACMLROOT)
+  mark_as_advanced (FORCE AOCLROOT)
 endif ()
 
 # OpenBLAS
@@ -1463,7 +1482,7 @@ if (CUBLAS OR NVBLAS)
     list (APPEND CUDA_LIBRARIES ${LIBCUBLAS})
   else ()
     if (NOT LINALG)
-      message (FATAL_ERROR "NVBLAS needs an external linear algebra library such as MKL or ACML.")
+      message (FATAL_ERROR "NVBLAS needs an external linear algebra library such as MKL or AOCL.")
     endif ()
     find_library (LIBNVBLAS nvblas
       PATHS ${CUDAROOT}
@@ -1872,13 +1891,6 @@ if (GCOV)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
     set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fprofile-arcs -ftest-coverage")
   endif ()
-endif ()
-
-# FDE interface
-#==============
-
-if (FDE)
-  add_compile_definitions (_FDE_)
 endif ()
 
 ################################################################################
@@ -2395,6 +2407,7 @@ foreach (util ${utils})
   endif ()
 endforeach ()
 
+# activate FDE interface
 if (FDE)
   set (util embedding_util)
   find_source (${util} ${source_roots})
@@ -2403,13 +2416,14 @@ if (FDE)
   else ()
     message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
+  # directories using FDE
   foreach (prog
     gateway_util
-    seward
-    scf
     rasscf
+    scf
+    seward
   )
-    list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${util}_src})
+    list (APPEND ${prog}_defs "_FDE_")
   endforeach ()
 endif ()
 

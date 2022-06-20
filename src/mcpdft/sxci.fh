@@ -9,4 +9,4 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Integer IDXCI(mxAct),IDXSX(mxAct)
-      Common /IDSXCI/ IDXCI,IDXSX
+      Common /IDSXCI_M/ IDXCI,IDXSX

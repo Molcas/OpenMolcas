@@ -9,4 +9,20 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     embedding_global.F90
+     embpotene.F90
+     embpotfreemem.F90
+     embpotinit.F90
+     embpotkernel.F90
+     embpotmem.F90
+     embpotoutput.F90
+     embpotrdrun.F90
+     embpotwrrun.F90
+)
+
+set (modfile_list
+     embedding_global.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

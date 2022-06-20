@@ -12,7 +12,7 @@
      &                       dM, sM, ST, dbg )
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 
       Integer, intent(in)          :: EXCH, N
       Real(kind=8), intent(in)    :: H, X,Y,Z, zJ, T
@@ -64,7 +64,7 @@
 !     using ONLY Zeeman basis (N)
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 
       Integer, intent(in)       :: N
       Real(kind=8), intent(in) :: H, X,Y,Z, zJ, T, W(N)
@@ -200,7 +200,7 @@
 !     using ONLY Zeeman basis (N)
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 
       Integer, intent(in)          :: EXCH, N
       Real(kind=8), intent(in)    :: H, X,Y,Z, zJ, T, W(EXCH)

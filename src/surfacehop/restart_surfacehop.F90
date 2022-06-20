@@ -59,7 +59,7 @@ call mh5_fetch_attr(restart_fileid,'NCONFS',nconfs)
 ! Save on the RUNFILE information for SURFACEHOP now
 
 ! read seed number and save in RunFile
-call mh5_fetch_dset_scalar_int(restart_fileid,'SEED',i)
+call mh5_fetch_dset(restart_fileid,'SEED',i)
 call Put_iScalar('Seed',i)
 
 ! read number of hops and save in RunFile
