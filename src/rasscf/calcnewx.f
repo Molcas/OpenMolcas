@@ -19,12 +19,14 @@
 
 C     Commented lines are options under development and may be used in
 C     future
-      use CMS, only:CMSThres,PosHess
+      use CMS, only:CMSThres,PosHess,BigQaaGrad,nPosHess,LargestQaaGrad,
+     &              NeedMoreStep
       INTEGER nSPair,INFO,iPair,nScr
       Real*8 X(nSPair),G(nSPair),XScr(nSPair)
       Real*8 H(nSPair**2),ScrDiag(nScr),GScr(nSPair)
       Real*8 EigVal(nSPair**2)
       Real*8 MinGrad,ThreG,ThreH
+      Real*8 ValGrad,AbsGrad,ValHess,AbsHess
 ******Thanks to Matthew R. Hermes for this algorithm
 
 ******Solve for x in hx=-g.
@@ -49,42 +51,35 @@ C     future
       ThreG=CMSThres*1.0d-2
       ThreH=CMSThres*1.0d-4
       MinGrad=CMSThres*1.0d5
-      PosHess=.false.
-      write(6,*) 'gradient'
-      CALL RecPrt(' ','(1X,15(F9.6,1X))',GScr,1,nSPair)
-      write(6,*) 'hessian'
-      CALL RecPrt(' ','(1X,15(F9.6,1X))',EigVal,1,nSPair)
+C      write(6,*) 'gradient'
+C      CALL RecPrt(' ','(1X,15(F9.6,1X))',GScr,1,nSPair)
+C      write(6,*) 'hessian'
+C      CALL RecPrt(' ','(1X,15(F9.6,1X))',EigVal,1,nSPair)
 
+      LargestQaaGrad=0.0d0
+      nPosHess=0
       DO iPair=1,nSPair
-C       IF(abs(GScr(iPair)).lt.ThreG)  THEN
-C        If(EigVal(iPair).gt.ThreH) Then
-C        write(6,*) 'encounter local minimum',iPair
-C        write(6,*) 'Gradient=',GScr(iPair)
-C        write(6,*) 'Hessian =',EigVal(iPair)
-C        XScr(iPair)=MinStep
-C        Else If(abs(EigVal(iPair)).lt.ThreH) Then
-C         write(6,*) 'encounter independent variable',iPair
-C         XScr(iPair)=0.0d0
-C        Else
-C         XScr(iPair)=GScr(iPair)/Abs(EigVal(iPair))
-C        End If
-C       ELSE
+        ValGrad=GScr(iPair)
+        AbsGrad=Abs(ValGrad)
+        ValHess=EigVal(iPair)
+        AbsHess=Abs(ValHess)
 
-
-        IF(EigVal(iPair).gt.ThreH) THEN
-         PosHess=.true.
+        IF(ValHess.gt.ThreH) THEN
+         nPosHess=nPosHess+1
         END IF
+        IF(AbsGrad.gt.LargestQaaGrad)
+     &   LargestQaaGrad=ValGrad
 
-        IF(      (Abs(GScr(iPair))  .lt.ThreG)
-     &      .and.(Abs(EigVal(iPair)).lt.ThreH)) THEN
+        IF(      (AbsGrad.lt.ThreG)
+     &      .and.(AbsHess.lt.ThreH)) THEN
 C         write(6,*) 'constant Qaa for pair',ipair
          XScr(iPair)=0.0d0
         ELSE
-         XScr(iPair)=GScr(iPair)/Abs(EigVal(iPair))
+         XScr(iPair)=ValGrad/AbsHess
         END IF
 
-        IF(      (Abs(GScr(iPair)) .lt. ThreG)
-     &      .and.(   EigVal(iPair) .gt. ThreH)) THEN
+        IF(      (AbsGrad .lt. ThreG)
+     &      .and.(ValHess .gt. ThreH)) THEN
 C         write(6,*) 'local minimum for pair',ipair
          XScr(iPair)=MinGrad/Abs(EigVal(iPair))
         END IF
@@ -92,8 +87,16 @@ C         write(6,*) 'local minimum for pair',ipair
 C       END IF
       END DO
 
-      write(6,*) 'steps taken'
-      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
+      PosHess=.false.
+      BigQaaGrad=.false.
+      NeedMoreStep=.false.
+      IF(nPosHess.gt.0) PosHess=.true.
+      IF(LargestQaaGrad.gt.ThreG) BigQaaGrad=.true.
+
+      IF(PosHess.or.BigQaaGrad) NeedMoreStep=.true.
+
+C      write(6,*) 'steps taken'
+C      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
 ******Step 5
       CALL DGEMM_('n','t',1,nSPair,nSPair,
      &            1.0d0,XScr,1,H,nSPair,
