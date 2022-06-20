@@ -17,7 +17,8 @@
 
 
       Subroutine CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
-      use CMS, only:CMSNotConverged,CMSThres,CMSScaled,PosHess
+      use CMS, only:CMSNotConverged,CMSThres,CMSScaled,NeedMoreStep,
+     &              nPosHess,LargestQaaGrad
       use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -68,7 +69,10 @@
       CALL TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
       CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
       CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
-
+      nPosHess=0
+      LargestQaaGrad=0.0d0
+      CMSScaled=.false.
+      Qold=Qnew
       CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
       CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
       CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
@@ -123,7 +127,7 @@
 *      sanity check
        IF(abs(Qnew-Qold).lt.CMSThreshold) THEN
         CMSNotConverged=.false.
-        If(PosHess)              CMSNotConverged=.true.
+        If(NeedMoreStep)         CMSNotConverged=.true.
         If(iStep.lt.iCMSIterMin) CMSNotConverged=.true.
         If(CMSScaled)            CMSNotConverged=.true.
        END IF

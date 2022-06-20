@@ -19,35 +19,43 @@
 * are written in files with the name as the subroutine name.
 
       Subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
-      use CMS, only: iCMSOpt,CMSScaled,PosHess
+      use CMS, only: iCMSOpt,CMSScaled,NPosHess,LargestQaaGrad
       INTEGER iStep,lRoots
       Real*8 Qnew,Qold,Diff
       Real*8 RMat(lRoots**2)
+      CHARACTER(len=1) Scaled
 
 *      write(6,*) 'iteration information'
       Diff=Qnew-Qold
-      IF(lRoots.eq.2) THEN
-       write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
-     & iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
-      ELSE
-       If (iCMSOpt.eq.1) Then
-        if(CMSScaled.and.PosHess) then
-         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A2)')
-     &   iStep, Qnew,Diff,'*^'
-        else if(CMSScaled) then
-         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A1)')
-     &   iStep, Qnew,Diff,'*'
-        else if (PosHess) then
-         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3,A1)')
-     &   iStep, Qnew,Diff,'^'
-        else
-         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
-     &   iStep, Qnew,Diff
-        end if
+      IF(iCMSOpt.eq.2) THEN
+
+
+       If(lRoots.eq.2) Then
+        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
+     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
        Else
-        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
-     &  iStep, Qnew,Diff
+         write(6,'(6X,I4,2X,F14.8,2X,ES14.4E3)')
+     &   iStep, Qnew,Diff
        End If
+
+
+      ELSE
+
+
+       If(CMSScaled) Then
+        Scaled='Y'
+       Else
+        Scaled='N'
+       End If
+       If(lRoots.eq.2) Then
+        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
+     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
+       Else
+       write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,4X,A1)')
+     &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,Scaled
+       End If
+
+
       END IF
       RETURN
       End Subroutine
@@ -147,17 +155,25 @@
      &'MAX CYCLES',ICMSIterMax
       write(6,'(4X,A12,8X,I8)')
      &'MIN CYCLES',ICMSIterMin
-      write(6,'(6X,A)')
-     &'A ^ sign means Q_a-a is at a saddle point.'
-      write(6,'(6X,A)')
-     &"A * sign means a scaled step is taken in the Newton's method."
       write(6,*)('=',i=1,71)
-      IF(lRoots.gt.2) THEN
-      write(6,'(4X,A8,2X,2(A16,11X))')
-     &'Cycle','Q_a-a','Difference'
+      IF(iCMSOpt.eq.2) THEN
+       If(lRoots.gt.2) Then
+       write(6,'(4X,A8,2X,2(A16,11X))')
+     & 'Cycle','Q_a-a','Difference'
+       Else
+       write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
+     & 'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
+       End If
       ELSE
-      write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
-     &'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
+       If(lRoots.gt.2) Then
+       write(6,'(6X,A5,7X,A5,8X,A10,2X,A6,5X,A7,3X,A7)')
+     & 'Cycle','Q_a-a','Difference','# Pos.','Largest','Reduced'
+       write(6,'(43X,A7,4X,A8,2X,A5)')
+     & 'Hessian','Gradient','Step?'
+       Else
+       write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
+     & 'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
+       End If
       END IF
       write(6,*)('-',i=1,71)
 
