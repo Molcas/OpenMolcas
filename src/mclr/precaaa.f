@@ -54,7 +54,7 @@
 *                                                                      *
       nTri=itri(nd,nd)
       iCC = iC+nA(iS)
-      iiC = iC+nIsh(iS)
+      ! iiC = iC+nIsh(iS)
       iA  = iC
       iAA = iCC
 *

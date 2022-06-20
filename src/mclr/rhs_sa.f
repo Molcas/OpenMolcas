@@ -53,7 +53,7 @@
 *
        iR=iroot(istate)
        jdisk=itoc(3)
-       Do i=1,iR-1
+       Do ii=1,iR-1
          Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
          Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
          Call dDaFile(LUJOB ,0,rdum,Ng2,jDisk)
