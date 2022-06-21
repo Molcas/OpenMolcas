@@ -28,10 +28,10 @@
 #include "cicisp_mclr.fh"
 #include "disp_mclr.fh"
 #include "sa.fh"
-      Character*8   Fmt1,Fmt2
-      Character XYZ(3)
-      Character*100  Line,BlLine,StLine
-      Data XYZ / 'X','Y','Z' /
+      Character(LEN=8) Fmt1,Fmt2
+      Character(LEN=100)  Line,BlLine,StLine
+      Character(LEN=1) :: XYZ(3)=['X','Y','Z']
+      Logical :: RICD=.FALSE.
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
@@ -46,6 +46,8 @@
       left=5
       Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+*----------------------------------------------------------------------*
+      Call DecideOnCholesky(RICD)
 *----------------------------------------------------------------------*
 *     Print the project title                                          *
 *----------------------------------------------------------------------*
@@ -178,7 +180,7 @@
             Write(6,Fmt2//'A,T47,8I6)')
      &               'Number of Orbitals',
      &                              (nOrb(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I8)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &            'Number of configurations',
      &                             (ncsf(isym),isym=1,nsym)
 
@@ -235,6 +237,13 @@
      &      'Convergence threshold= ',Epsilon
          Write(6,Fmt2//'A,T45,I8)')
      &      'Max number of iterations in PCG: ',nIter
+         If (RICD) Then
+            If (NewCho) Then
+               Write(6,Fmt2//'A)') 'Using the Cho-Fock Algorithm'
+            Else
+               Write(6,Fmt2//'A)') 'Using the Cho-MO Algorithm'
+            End If
+         End If
 *
       If (SPINPOL) Then
          Write(6,Fmt1) 'CALCULATING SPIN POLARIZATION'

@@ -54,7 +54,17 @@
         call dmrg_spc_change_mclr(RGras2(1:8),nash)
       end if
 
-      If (newCho) Go to 15
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Select Case (NewCho)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (.False.) ! Cho-MO
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call mma_allocate(MO,n2,Label='MO')
       Call mma_allocate(Scr,n2,Label='Scr')
 *
@@ -127,12 +137,14 @@
       Call CreQADD(Fock,rdens2,idsym,MO,Scr,n2)
       Call mma_deallocate(Scr)
       Call mma_deallocate(MO)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (.TRUE.) ! Cho-Fock
 *
 ************************************************************************
 *       new Cholesky code                                              *
 ************************************************************************
- 15   Continue
-      if (newCho) Then
         nVB=0
         nG2=0
         Do iSym=1,nSym
@@ -200,7 +212,12 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
         Call mma_deallocate(Scr1)
         Call mma_deallocate(CVa)
         Call mma_deallocate(G2x)
-      EndIf
+
+        Call GADSum(Fock,nDens2)
+*                                                                      *
+************************************************************************
+*                                                                      *
+        End Select
 *
 ************************************************************************
 *       Common part                                                    *

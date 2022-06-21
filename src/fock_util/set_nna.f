@@ -15,21 +15,12 @@
       Integer nSym,nAorb(8)
       Integer nnA(8,8)
 
-**************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-**************************************************
-
       do j=1,nSym
-         do i=j,nSym
-
-            kSym     = MulD2h(i,j)
-
+         do i=1,j-1
             nnA(i,j) = nAorb(i)*nAorb(j)
-     &               + Min(0,kSym-2)*nAorb(i)*(nAorb(i)-1)/2
-
             nnA(j,i) = nnA(i,j)
-
          end do
+         nnA(j,j) = nAorb(j)*(nAorb(j)+1)/2
       end do
 
       Return

@@ -9,4 +9,15 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     init_ppu.F90
+     peek_dscalar.F90
+     peek_iscalar.F90
+     peekpoke.F90
+     poke_dscalar.F90
+     poke_iscalar.F90
+)
+
+set (modfile_list "")
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

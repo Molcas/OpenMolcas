@@ -1753,6 +1753,7 @@ if (BLOCK)
 
   if (EXISTS ${BLOCK_DIR}/libqcdmrg.so)
     foreach (prog
+      wfn_util
       caspt2
       rasscf
     )
@@ -1794,6 +1795,7 @@ if (CHEMPS2)
   endif ()
 
   foreach (prog
+    wfn_util
     caspt2
     rasscf
   )
@@ -2411,6 +2413,7 @@ if (NEVPT2)
   set (prog nevpt2)
   list (APPEND progs ${prog})
   list (APPEND ${prog}_incs ${NEVPT2_INCLUDE})
+  list (APPEND ${prog}_deps nevpt2_ext)
   list (APPEND ${prog}_deplibs ${NEVPT2_LIBRARIES})
 endif ()
 

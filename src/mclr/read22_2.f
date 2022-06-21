@@ -20,7 +20,7 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
-      use Arrays, only: CMO, Int1, G1t, G2t
+      use Arrays, only: CMO, CMO_Inv, Int1, G1t, G2t
       use Data_Structures, only: CMO_Type
       use Data_Structures, only: Allocate_CMO, Deallocate_CMO
       Implicit Real*8(a-h,o-z)
@@ -82,8 +82,17 @@
       Do is=1,nSym
        nAS=nAS+nAsh(is)
       end do
-*
-      If (newCho) Go to 50
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Select Case (NewCho)
+*                                                                      *
+************************************************************************
+*                                                                      *
+       Case (.False.)   ! Cho-MO algorithm
+*                                                                      *
+************************************************************************
+*                                                                      *
       Do iS=1,nSym
          Do jS=1,iS
             ijS=iEOr(iS-1,jS-1)+1
@@ -165,7 +174,9 @@
 *                                                                      *
 *    Construct Q matrix: Q = sum(jkl)(pj|kl)d
 *                         pi                 ijkl
+
       If (iMethod.eq.iCASSCF) Then
+
          Call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
 *
 *        Sort out MO (ij|kl)
@@ -218,8 +229,8 @@
          kS=iS
          Do js=1,nSym
             lS=jS
-            If (iEor(iEor(is-1,js-1),iEor(ks-1,ls-1)).ne.0) Go To 200
-            If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)   Go To 200
+            If (iEor(iEor(is-1,js-1),iEor(ks-1,ls-1)).ne.0) Cycle
+            If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)   Cycle
             Do LB=1,nB(LS)
                Do JB=1,nB(JS)
 *                                                                      *
@@ -264,17 +275,15 @@
 *                                                                      *
                End Do
             End Do
- 200        Continue
-         End Do
-      End Do
-*
-************************************************************************
-*                                                                      *
-*     Cholesky code                                                    *
+         End Do ! jS
+      End Do ! iS
 *                                                                      *
 ************************************************************************
- 50   Continue
-      If (NewCho) Then
+*                                                                      *
+      Case (.TRUE.)   ! Cho-Fock Algorithm
+*                                                                      *
+************************************************************************
+*                                                                      *
         Fake_CMO2=.true.
         DoAct=.true.
 *
@@ -324,9 +333,9 @@
             nG2=nG2+nAG2**2
           End Do
           Call Allocate_CMO(CVa(1),nAsh,nOrb,nSym)
-          CVa(1)%CMO_Full(:)=0.0D0
+          CVa(1)%A0(:)=0.0D0
           Call Allocate_CMO(CVa(2),nAsh,nOrb,nSym)
-          CVa(2)%CMO_Full(:)=0.0D0
+          CVa(2)%A0(:)=0.0D0
           Call mma_allocate(DA,na2,Label='DA')
 *
           ioff=0
@@ -335,7 +344,7 @@
             ioff2 = ioff + nOrb(iSym)*nIsh(iSym)
             do ikk=1,nAsh(iSym)
                ioff3=ioff2+nOrb(iSym)*(ikk-1)
-               CVa(1)%pA(iSym)%A(ikk,:) =
+               CVa(1)%SB(iSym)%A(ikk,:) =
      &            CMO(ioff3+1:ioff3+nOrb(iSym))
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
@@ -412,13 +421,14 @@
         ipMO1     = ip_of_Work(MO1(1))
         ipQ       = ip_of_Work(Q(1))
         ipCMO     = ip_of_Work(CMO(1))
-        ip_CMO_inv= ip_of_Work(CMO(1))
+        ip_CMO_inv= ip_of_Work(CMO_Inv(1))
+        istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
-     &                   LuAChoVec,LuIChoVec,iAChoVec)
+     &                   LuAChoVec,LuIChoVec,istore)
 
         nAtri=nAct*(nAct+1)/2
         nAtri=nAtri*(nAtri+1)/2
@@ -432,13 +442,30 @@
         Call deallocate_CMO(CVa(2))
         Call deallocate_CMO(CVa(1))
         Call mma_deallocate(DA)
-      EndIf
-************************************************************************
-*                                                                      *
-*     End of new Cho                                                   *
-*                                                                      *
-************************************************************************
 *
+        Call GADSum(FockI,nDens2)
+        Call GADSum(FockA,nDens2)
+        Call GADSum(    Q,nDens2)
+        Call GADSum(  MO1,nAtri)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End Select
+*                                                                      *
+************************************************************************
+*                                                                      *
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Do iSym = 1, nSym
+        Write (6,*) 'iSym=',iSym
+        Call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+        Call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+        Call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
+      End Do
+      nAtri=nas*(nas+1)/2
+      nAtri=nAtri*(nAtri+1)/2
+      Call RecPrt('MO1',' ',MO1,1,nAtri)
+#endif
       Call DaXpY_(ndens2,One,Int1,1,FockI,1)
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *

@@ -221,10 +221,10 @@ c --- reorder the MOs to fit Cholesky needs
 
                ioff1=ioff+nBasF(iSym)*(ikk-1)
 
-               MO1(1)%pA(iSym)%A(ikk,:) =
+               MO1(1)%SB(iSym)%A(ikk,:) =
      &            CMO1(ioff1+1:ioff1+nBasF(iSym))
 
-               MO1(2)%pA(iSym)%A(ikk,:) =
+               MO1(2)%SB(iSym)%A(ikk,:) =
      &            CMO2(ioff1+1:ioff1+nBasF(iSym))
             end do
 
@@ -234,10 +234,10 @@ c --- reorder the MOs to fit Cholesky needs
 
                ioff3=ioff2+nBasF(iSym)*(ikk-1)
 
-               MO2(1)%pA(iSym)%A(ikk,:) =
+               MO2(1)%SB(iSym)%A(ikk,:) =
      &            CMO1(ioff3+1:ioff3+nBasF(iSym))
 
-               MO2(2)%pA(iSym)%A(ikk,:) =
+               MO2(2)%SB(iSym)%A(ikk,:) =
      &            CMO2(ioff3+1:ioff3+nBasF(iSym))
             end do
 
@@ -278,10 +278,10 @@ C *** Only the active orbitals MO coeff need reordering
 
                ioff3=ioff2+nBasF(iSym)*(ikk-1)
 
-               Ash(1)%pA(iSym)%A(ikk,:) =
+               Ash(1)%SB(iSym)%A(ikk,:) =
      &             CMO1(ioff3+1:ioff3+nBasF(iSym))
 
-               Ash(2)%pA(iSym)%A(ikk,:) =
+               Ash(2)%SB(iSym)%A(ikk,:) =
      &             CMO2(ioff3+1:ioff3+nBasF(iSym))
 
             end do
