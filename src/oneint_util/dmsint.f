@@ -1,52 +1,52 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
-      SubRoutine DMSInt(
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
+      SubRoutine DMSInt(                                                &
 #define _CALLING_
 #include "int_interface.fh"
      &                 )
-************************************************************************
-*                                                                      *
-* Object: kernel routine for the computation of diamagnetic shielding  *
-*         integrals.                                                   *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, Sweden, February '91                            *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: kernel routine for the computation of diamagnetic shielding  *
+!         integrals.                                                   *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, Sweden, February '91                            *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
 
-*     Local variables
+!     Local variables
 
       Real*8 TC(3,2)
       Integer iDCRT(0:7), iStabO(0:7)
-*
-*     Statement function for Cartesian index
-*
+!
+!     Statement function for Cartesian index
+!
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
+!
       iRout = 230
       iPrint = nPrint(iRout)
-*
+!
       nRys=nHer
-*
+!
       If (iPrint.ge.99) Then
          Call RecPrt(' In DMSInt: Alpha',' ',Alpha,nAlpha,1)
          Call RecPrt(' In DMSInt: Beta',' ',Beta,nBeta,1)
       End If
-*
+!
       nip = 1
       ipS1 = nip
       nip = nip + nZeta*nElem(la)*nElem(lb+1)*3
@@ -62,9 +62,9 @@
       End If
       ipArr = nip
       mArr = nZeta*nArr - nip + 1
-*
+!
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
-*
+!
       iComp = 1
       llOper = lOper(1)
       Do 90 iComp = 2, nComp
@@ -72,37 +72,37 @@
  90   Continue
       Call SOS(iStabO,nStabO,llOper)
       Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-*
+!
       Do 102 lDCRT = 0, nDCRT-1
          Call OA(iDCRT(lDCRT),Ccoor(1:3,1),TC(1:3,1))
          Call OA(iDCRT(lDCRT),Ccoor(1:3,2),TC(1:3,2))
-*
-*-------Compute contribution from a,b+1
-*
+!
+!-------Compute contribution from a,b+1
+!
          nComp_=1
-         Call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,
-     &               Array(ipS1),nZeta,nComp_,la,lb+1,A,RB,nRys,
+         Call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,         &
+     &               Array(ipS1),nZeta,nComp_,la,lb+1,A,RB,nRys,        &
      &               Array(ipArr),mArr,TC,nOrdOp-1)
-*
-*--------Compute contribution from a,b
-*
-         Call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,
-     &               Array(ipS2),nZeta,nComp_,la,lb,A,RB,nRys,
+!
+!--------Compute contribution from a,b
+!
+         Call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,         &
+     &               Array(ipS2),nZeta,nComp_,la,lb,A,RB,nRys,          &
      &               Array(ipArr),mArr,TC,nOrdOp-1)
-*
-*--------Assemble final integral from the derivative integrals
-*
-         Call Util4(nZeta,Array(ipRes),la,lb,
+!
+!--------Assemble final integral from the derivative integrals
+!
+         Call Util4(nZeta,Array(ipRes),la,lb,                           &
      &              Array(ipS1),Array(ipS2),RB,TC(1,2))
-*
+!
          nOp = NrOpr(iDCRT(lDCRT))
-         Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
+         Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,          &
      &               nOp,lOper,iChO,One)
-*
+!
  102  Continue
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)

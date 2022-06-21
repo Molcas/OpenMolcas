@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
-      SubRoutine CCmbnVe(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,nComp,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
+      SubRoutine CCmbnVe(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,nComp,     &
      &                  Vxyz,KVector,P)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             January  91                                              *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             January  91                                              *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), rKappa(nZeta), rTemp, Fact, KVector(3),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
+     &       Zeta(nZeta), rKappa(nZeta), rTemp, Fact, KVector(3),       &
      &       P(nZeta,3), k_dot_P
-      Complex*16 Rnxyz(nZeta,3,0:la+1,0:lb+1),
-     &          Vxyz(nZeta,3,0:la,0:lb,2), Temp1, Temp2,
+      Complex*16 Rnxyz(nZeta,3,0:la+1,0:lb+1),                          &
+     &          Vxyz(nZeta,3,0:la,0:lb,2), Temp1, Temp2,                &
      &          Tempp, Tempm, i
-*
-*     Statement function for Cartesian index
-*
+!
+!     Statement function for Cartesian index
+!
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-*
+!
       iRout = 161
       iPrint = nPrint(iRout)
-*
+!
       i = (0.0D0,1.0D0)
       Do 10 ixa = 0, la
          iyaMax=la-ixa
@@ -45,25 +45,25 @@
          Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
-*
-*           Combine integrals
-*
+!
+!           Combine integrals
+!
             Do 30 iZeta = 1, nZeta
-*
-*              Put in the correct prefactors
-*
+!
+!              Put in the correct prefactors
+!
                rTemp=KVector(1)**2 + kVector(2)**2 + kVector(3)**2
                rTemp=rTemp/(Four*Zeta(iZeta))
-               Fact = rKappa(iZeta) * Zeta(iZeta)**(-Three/Two) *
+               Fact = rKappa(iZeta) * Zeta(iZeta)**(-Three/Two) *       &
      &               Exp(-rTemp)
-               k_dot_P=kVector(1)*P(iZeta,1)
-     &                +kVector(2)*P(iZeta,2)
+               k_dot_P=kVector(1)*P(iZeta,1)                            &
+     &                +kVector(2)*P(iZeta,2)                            &
      &                +kVector(3)*P(iZeta,3)
-               Temp1=Vxyz(iZeta,1,ixa,ixb,1)*
-     &               Rnxyz(iZeta,2,iya,iyb)*
+               Temp1=Vxyz(iZeta,1,ixa,ixb,1)*                           &
+     &               Rnxyz(iZeta,2,iya,iyb)*                            &
      &               Rnxyz(iZeta,3,iza,izb)
-               Temp2=Vxyz(iZeta,1,ixa,ixb,2)*
-     &               Rnxyz(iZeta,2,iya,iyb)*
+               Temp2=Vxyz(iZeta,1,ixa,ixb,2)*                           &
+     &               Rnxyz(iZeta,2,iya,iyb)*                            &
      &               Rnxyz(iZeta,3,iza,izb)
                Tempp = Exp(i*k_dot_P) * Fact * (Temp1+Temp2) * Half
                Tempm = Exp(i*k_dot_P) * Fact * (Temp1-Temp2) * Half
@@ -71,11 +71,11 @@
                Final(iZeta,ipa,ipb,4) = DBLE(Tempm)
                Final(iZeta,ipa,ipb,7) = DIMAG(Tempp)
                Final(iZeta,ipa,ipb,10)= DIMAG(Tempm)
-               Temp1=Rnxyz(iZeta,1,ixa,ixb)*
-     &               Vxyz(iZeta,2,iya,iyb,1)*
+               Temp1=Rnxyz(iZeta,1,ixa,ixb)*                            &
+     &               Vxyz(iZeta,2,iya,iyb,1)*                           &
      &               Rnxyz(iZeta,3,iza,izb)
-               Temp2=Rnxyz(iZeta,1,ixa,ixb)*
-     &               Vxyz(iZeta,2,iya,iyb,2)*
+               Temp2=Rnxyz(iZeta,1,ixa,ixb)*                            &
+     &               Vxyz(iZeta,2,iya,iyb,2)*                           &
      &               Rnxyz(iZeta,3,iza,izb)
                Tempp = Exp(i*k_dot_P) * Fact * (Temp1+Temp2) * Half
                Tempm = Exp(i*k_dot_P) * Fact * (Temp1-Temp2) * Half
@@ -83,11 +83,11 @@
                Final(iZeta,ipa,ipb,5) = DBLE(Tempm)
                Final(iZeta,ipa,ipb,8) = DIMAG(Tempp)
                Final(iZeta,ipa,ipb,11)= DIMAG(Tempm)
-               Temp1=Rnxyz(iZeta,1,ixa,ixb)*
-     &               Rnxyz(iZeta,2,iya,iyb)*
+               Temp1=Rnxyz(iZeta,1,ixa,ixb)*                            &
+     &               Rnxyz(iZeta,2,iya,iyb)*                            &
      &               Vxyz(iZeta,3,iza,izb,1)
-               Temp2=Rnxyz(iZeta,1,ixa,ixb)*
-     &               Rnxyz(iZeta,2,iya,iyb)*
+               Temp2=Rnxyz(iZeta,1,ixa,ixb)*                            &
+     &               Rnxyz(iZeta,2,iya,iyb)*                            &
      &               Vxyz(iZeta,3,iza,izb,2)
                Tempp = Exp(i*k_dot_P) * Fact * (Temp1+Temp2) * Half
                Tempm = Exp(i*k_dot_P) * Fact * (Temp1-Temp2) * Half
@@ -114,11 +114,11 @@
                Write (6,*) Final(1,ipa,ipb,9)
                Write (6,*) Final(1,ipa,ipb,12)
             End If
-*
+!
  21      Continue
  20      Continue
  11   Continue
  10   Continue
-*
+!
       Return
       End

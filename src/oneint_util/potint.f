@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
-      SubRoutine PotInt(
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
+      SubRoutine PotInt(                                                &
 #define _CALLING_
 #include "int_interface.fh"
      &                 )
-************************************************************************
-*                                                                      *
-* Object: kernel routine for the computation of potential integrals    *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, Sweden, January '91                             *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: kernel routine for the computation of potential integrals    *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, Sweden, January '91                             *
+!***********************************************************************
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
-*     Used for normal nuclear attraction integrals
+!     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
 #include "oneswi.fh"
@@ -31,18 +31,18 @@
 
 #include "int_interface.fh"
 
-*-----Local variables
+!-----Local variables
       Integer iStabO(0:7), iPh(3), iAnga(4), iDCRT(0:7)
       Real*8 TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
-*
-*     Statement function for Cartesian index
-*
+!
+!     Statement function for Cartesian index
+!
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*
+!
       Call fzero(final,nZeta*nElem(la)*nElem(lb)*nIC)
-*
+!
       iAnga(1) = la
       iAnga(2) = lb
       iAnga(3) = 0
@@ -53,34 +53,34 @@
       mabMin = nabSz(Max(la,lb)-1)+1
       mabMax = nabSz(la+lb)
       If (EQ(A,RB)) mabMin=nabSz(la+lb-1)+1
-*
-*     Compute FLOP's and size of work array which Hrr will use.
-*
+!
+!     Compute FLOP's and size of work array which Hrr will use.
+!
       Call mHrr(la,lb,nFLOP,nMem)
-*
-*     Find center to accumulate angular momentum on. (HRR)
-*
+!
+!     Find center to accumulate angular momentum on. (HRR)
+!
       If (la.ge.lb) Then
          call dcopy_(3,A,1,CoorAC(1,1),1)
       Else
          call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-*
+!
       llOper = lOper(1)
-*
-*     Loop over grid
-*
-*-----------Find the DCR for M and S
-*
+!
+!     Loop over grid
+!
+!-----------Find the DCR for M and S
+!
       Call SOS(iStabO,nStabO,llOper)
       Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-c     Fact = DBLE(nStabM) / DBLE(LmbdT)
+!     Fact = DBLE(nStabM) / DBLE(LmbdT)
       FACT=1.D0
 
       nT = nZeta
       Chrg=-1.d0
       NoSpecial=.True.
-*
+!
       Do lDCRT = 0, nDCRT-1
 
          Do i = 1, 3
@@ -91,7 +91,7 @@ c     Fact = DBLE(nStabM) / DBLE(LmbdT)
          Do 100 iGrid = 1, nGrid
             If (iAddPot.ne.0) Chrg=ptchrg(iGrid)
             If (Chrg.eq.Zero) Go To 100
-*
+!
                Do i = 1, 3
                   TC(i)=DBLE(iPh(i))*CCoor(i,iGrid)
                   CoorAC(i,2)=TC(i)
@@ -100,28 +100,28 @@ c     Fact = DBLE(nStabM) / DBLE(LmbdT)
                   Coora(i,3)=TC(i)
                   Coora(i,4)=TC(i)
                End Do
-*
-*              Compute integrals with the Rys quadrature.
-*
-               Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &                  [One],[One],1,P,nZeta,
-     &                  TC,1,rKappa,[One],Coori,Coora,CoorAC,
-     &                  mabmin,mabmax,0,0,Array,nArr*nZeta,
+!
+!              Compute integrals with the Rys quadrature.
+!
+               Call Rys(iAnga,nT,Zeta,ZInv,nZeta,                       &
+     &                  [One],[One],1,P,nZeta,                          &
+     &                  TC,1,rKappa,[One],Coori,Coora,CoorAC,           &
+     &                  mabmin,mabmax,0,0,Array,nArr*nZeta,             &
      &                  TNAI,Fake,XCff2D,XRys2D,NoSpecial)
-*
-*--------------Use the HRR to compute the required primitive integrals.
-*
+!
+!--------------Use the HRR to compute the required primitive integrals.
+!
                Call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
-*
-*--------------Accumulate contributions to the symmetry adapted operator
-*
-               Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
+!
+!--------------Accumulate contributions to the symmetry adapted operator
+!
+               Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,     &
      &                     nOp,lOper,iChO,-Fact*Chrg)
  100        Continue
       End Do
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
@@ -138,43 +138,43 @@ c Avoid unused argument warnings
       Real*8  CCoor(3,nGrid),pot(nGrid)
       Real*8 C(3), TC(3)
       Integer iStabM(0:7),iDCRT(0:7)
-*
-*  compute nuclear contribution to potential
-*
+!
+!  compute nuclear contribution to potential
+!
       kdc = 0
       Do iGrid=1,nGrid
          pot(iGrid)=0d0
       End Do
-*
-chjw is this always correct?
+!
+!hjw is this always correct?
       istabm(0)=0
       nstabm=1
-*
+!
       Do 100 kCnttp = 1, nCnttp
          If (dbsc(kCnttp)%Charge.eq.Zero) Go To 111
-*
+!
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
-*
+!
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-            Call DCR(LmbdT,iStabM,nStabM,
+            Call DCR(LmbdT,iStabM,nStabM,                               &
      &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
-*
+!
             Do lDCRT = 0, nDCRT-1
                Call OA(iDCRT(lDCRT),C,TC)
-*
+!
                Do iGrid=1,nGrid
-                 r12=sqrt((TC(1)-CCoor(1,iGrid))**2
-     &                   +(TC(2)-CCoor(2,iGrid))**2
+                 r12=sqrt((TC(1)-CCoor(1,iGrid))**2                     &
+     &                   +(TC(2)-CCoor(2,iGrid))**2                     &
      &                   +(TC(3)-CCoor(3,iGrid))**2)
-                 if(r12.gt.1.d-8)
+                 if(r12.gt.1.d-8)                                       &
      &            pot(iGrid)=pot(iGrid)+dbsc(kCnttp)%Charge*fact/r12
                End Do
-*
+!
             End Do
  101     Continue
  111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
-*
+!
       Return
       End

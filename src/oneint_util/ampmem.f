@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Per Ake Malmqvist                                *
-*               1996, Roland Lindh                                     *
-************************************************************************
-      Subroutine AMPMem(
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Per Ake Malmqvist                                *
+!               1996, Roland Lindh                                     *
+!***********************************************************************
+      Subroutine AMPMem(                                                &
 #define _CALLING_
 #include "mem_interface.fh"
      &)
 #include "mem_interface.fh"
-C     Statement function for Cartesian index
+!     Statement function for Cartesian index
       nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
-C Mem1: Workspace for MltPrm.
-C Mem2: Tables Tpp,Tp,T0,Tm, and Tmm.
-C Mem3: Result from AMPr.
+! Mem1: Workspace for MltPrm.
+! Mem2: Tables Tpp,Tp,T0,Tm, and Tmm.
+! Mem3: Result from AMPr.
       Mem1=0
       Call MltMmP(nOrder,Mem,la,lb+2,2)
       Mem1=max(Mem1,Mem)
@@ -48,6 +48,6 @@ C Mem3: Result from AMPr.
       Mem=Mem1+Mem2+Mem3+1
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(lr)
       End

@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 #ifdef _HDF5_
 
       subroutine one2h5_ovlmat(fileid, nsym, nbas)
-*     IFG: read atomic overlap matrix from the 1-electron integral file
-*     and write it to the HDF5 file specified with fileid.
-*     This routine does nothing if HDF5 is not supported.
-*
-*     Datasets:
-*       AO_OVERLAP_MATRIX
+!     IFG: read atomic overlap matrix from the 1-electron integral file
+!     and write it to the HDF5 file specified with fileid.
+!     This routine does nothing if HDF5 is not supported.
+!
+!     Datasets:
+!       AO_OVERLAP_MATRIX
 
-      use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,
+      use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset, &
      &               mh5_close_dset
       implicit none
       integer :: fileid
@@ -48,12 +48,12 @@
         nbast2=nbast2+nb**2
       end do
 
-*     atomic orbital overlap matrix
-      dsetid = mh5_create_dset_real(fileid,
-     $        'AO_OVERLAP_MATRIX', 1, [NBAST2])
-      call mh5_init_attr(dsetid, 'DESCRIPTION',
-     $        'Overlap matrix of the atomic orbitals, '//
-     $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
+!     atomic orbital overlap matrix
+      dsetid = mh5_create_dset_real(fileid,                             &
+     &        'AO_OVERLAP_MATRIX', 1, [NBAST2])
+      call mh5_init_attr(dsetid, 'DESCRIPTION',                         &
+     &        'Overlap matrix of the atomic orbitals, '//               &
+     &        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
       call mma_allocate(SAO,NBAST1)
       iRc=-1
@@ -69,8 +69,8 @@
         If ( nb.gt.0 ) then
           call mma_allocate(scr,nb*nb)
           Call Square(SAO(1+iOff1),Scr,1,nb,nb)
-          call mh5_put_dset(dsetid,
-     $            Scr,[nb*nb],[iOff2])
+          call mh5_put_dset(dsetid,                                     &
+     &            Scr,[nb*nb],[iOff2])
           call mma_deallocate(scr)
         end if
         iOff1 = iOff1 + (nb*nb+nb)/2
@@ -83,14 +83,14 @@
       end
 
       subroutine one2h5_fckint(fileid, nsym, nbas)
-*     IFG: read atomic Fock matrix from the 1-electron integral file
-*     and write it to the HDF5 file specified with fileid.
-*     This routine does nothing if HDF5 is not supported.
-*
-*     Datasets:
-*       AO_FOCKINT_MATRIX
+!     IFG: read atomic Fock matrix from the 1-electron integral file
+!     and write it to the HDF5 file specified with fileid.
+!     This routine does nothing if HDF5 is not supported.
+!
+!     Datasets:
+!       AO_FOCKINT_MATRIX
 
-      use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,
+      use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset, &
      &               mh5_close_dset
       implicit none
       integer :: fileid
@@ -120,12 +120,12 @@
         nbast2=nbast2+nb**2
       end do
 
-*     atomic orbital Fock matrix
-      dsetid = mh5_create_dset_real(fileid,
-     $        'AO_FOCKINT_MATRIX', 1, [NBAST2])
-      call mh5_init_attr(dsetid, 'DESCRIPTION',
-     $        'Fock matrix of the atomic orbitals, '//
-     $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
+!     atomic orbital Fock matrix
+      dsetid = mh5_create_dset_real(fileid,                             &
+     &        'AO_FOCKINT_MATRIX', 1, [NBAST2])
+      call mh5_init_attr(dsetid, 'DESCRIPTION',                         &
+     &        'Fock matrix of the atomic orbitals, '//                  &
+     &        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
       call mma_allocate(SAO,NBAST1)
       iRc=-1
@@ -141,8 +141,8 @@
         If ( nb.gt.0 ) then
           call mma_allocate(scr,nb*nb)
           Call Square(SAO(1+iOff1),Scr,1,nb,nb)
-          call mh5_put_dset(dsetid,
-     $            Scr,[nb*nb],[iOff2])
+          call mh5_put_dset(dsetid,                                     &
+     &            Scr,[nb*nb],[iOff2])
           call mma_deallocate(scr)
         end if
         iOff1 = iOff1 + (nb*nb+nb)/2
@@ -155,18 +155,18 @@
       end
 
       subroutine one2h5_crtmom(fileid, nsym, nbas)
-*     SVC: read cartesian moments from the 1-electron integral file
-*     and write it to the HDF5 file specified with fileid.
-*     This routine does nothing if HDF5 is not supported.
-*     FP: also include the origins used for the operators
-*
-*     Datasets:
-*       MLTPL_X, MLTPL_Y, MLTPL_Z
-*       MLTPL_XX, MLTPL_YY, MLTPL_ZZ, MLTPL_XY, MLTPL_YZ, MLTPL_XZ
-*       MLTPL_ORIG
+!     SVC: read cartesian moments from the 1-electron integral file
+!     and write it to the HDF5 file specified with fileid.
+!     This routine does nothing if HDF5 is not supported.
+!     FP: also include the origins used for the operators
+!
+!     Datasets:
+!       MLTPL_X, MLTPL_Y, MLTPL_Z
+!       MLTPL_XX, MLTPL_YY, MLTPL_ZZ, MLTPL_XY, MLTPL_YZ, MLTPL_XZ
+!       MLTPL_ORIG
 
       use Symmetry_Info, only: Mul
-      use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,
+      use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset, &
      &               mh5_close_dset
       implicit none
       integer :: fileid
@@ -208,7 +208,7 @@
       iSyMsk=0
       Label='Mltpl  1'
       Call RdOne(iRc,iOpt,Label,iComp,Scratch,iSyMsk)
-* iSyMsk tells us which symmetry combination is valid
+! iSyMsk tells us which symmetry combination is valid
       iScrOff = 0
       iOff = 0
       Do iSym = 1,nSym
@@ -247,11 +247,11 @@
           MLTPL(j,i)=MLTPL(i,j)
         End Do
       End Do
-      dsetid = mh5_create_dset_real(fileid,
-     $        'AO_MLTPL_'//mltpl1_comp(icomp), 2, [NBAST,NBAST])
-      call mh5_init_attr(dsetid, 'DESCRIPTION',
-     $        '1st-order multipole matrix of the atomic orbitals, '//
-     $        'arranged as matrix of size [NBAST,NBAST]')
+      dsetid = mh5_create_dset_real(fileid,                             &
+     &        'AO_MLTPL_'//mltpl1_comp(icomp), 2, [NBAST,NBAST])
+      call mh5_init_attr(dsetid, 'DESCRIPTION',                         &
+     &        '1st-order multipole matrix of the atomic orbitals, '//   &
+     &        'arranged as matrix of size [NBAST,NBAST]')
       call mh5_put_dset(dsetid,MLTPL)
       call mh5_close_dset(dsetid)
       end do
@@ -265,7 +265,7 @@
       iSyMsk=0
       Label='Mltpl  2'
       Call RdOne(iRc,iOpt,Label,iComp,Scratch,iSyMsk)
-* iSyMsk tells us which symmetry combination is valid
+! iSyMsk tells us which symmetry combination is valid
       iScrOff = 0
       iOff = 0
       Do iSym = 1,nSym
@@ -304,11 +304,11 @@
           MLTPL(j,i)=MLTPL(i,j)
         End Do
       End Do
-      dsetid = mh5_create_dset_real(fileid,
-     $        'AO_MLTPL_'//mltpl2_comp(icomp), 2, [NBAST,NBAST])
-      call mh5_init_attr(dsetid, 'DESCRIPTION',
-     $        '2nd-order multipole matrix of the atomic orbitals, '//
-     $        'arranged as matrix of size [NBAST,NBAST]')
+      dsetid = mh5_create_dset_real(fileid,                             &
+     &        'AO_MLTPL_'//mltpl2_comp(icomp), 2, [NBAST,NBAST])
+      call mh5_init_attr(dsetid, 'DESCRIPTION',                         &
+     &        '2nd-order multipole matrix of the atomic orbitals, '//   &
+     &        'arranged as matrix of size [NBAST,NBAST]')
       call mh5_put_dset(dsetid,MLTPL)
       call mh5_close_dset(dsetid)
       end do
@@ -318,18 +318,18 @@
       call mma_deallocate(MLTPL)
       call mma_deallocate(Scratch)
 
-      dsetid = mh5_create_dset_real(fileid,
-     $        'MLTPL_ORIG', 2, [3,3])
-      call mh5_init_attr(dsetid, 'DESCRIPTION',
-     $        'Origin used for the multipole moment operators: '//
-     $        'arranged as overlap, dipole, quadrupole')
+      dsetid = mh5_create_dset_real(fileid,                             &
+     &        'MLTPL_ORIG', 2, [3,3])
+      call mh5_init_attr(dsetid, 'DESCRIPTION',                         &
+     &        'Origin used for the multipole moment operators: '//      &
+     &        'arranged as overlap, dipole, quadrupole')
       call mh5_put_dset(dsetid,mp_orig,[3,3],[0,0])
       call mh5_close_dset(dsetid)
 
       end
 
 #elif defined (NAGFOR)
-c Some compilers do not like empty files
+! Some compilers do not like empty files
       Subroutine empty_one2h5_ovlmat()
       End
 #endif
