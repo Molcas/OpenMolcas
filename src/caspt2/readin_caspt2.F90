@@ -212,7 +212,8 @@ contains
     Character(len=:),allocatable :: dLine
     Character(len=4) :: Command,Word
 
-    Integer(kind=iwp) :: i,j,iSym,nStates
+    Integer(kind=iwp) :: i,j,iSym
+    Integer(kind=iwp) :: nStates = 0
     Integer(kind=iwp) :: iSplit,iError
 
     Logical(kind=iwp),external :: next_non_comment
