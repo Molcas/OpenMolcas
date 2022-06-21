@@ -40,7 +40,6 @@
 #include "warnings.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='GUESS   ')
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 

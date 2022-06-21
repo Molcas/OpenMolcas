@@ -21,7 +21,6 @@ C
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      PARAMETER(ROUTINE='MKGUGA  ')
 #include "gugx.fh"
 #include "WrkSpc.fh"
 C

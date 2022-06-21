@@ -191,7 +191,6 @@
       integer, intent(in) :: n_to_ON(:), nNew(:)
       integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
      &  nDelt, nSec, nOrbt, nTot3, nTot4
-      parameter(ROUTINE='update_orb_numbe')
 
       integer :: iSym, remove(nSym), total_remove
 
@@ -263,7 +262,6 @@
 #include "output_ras.fh"
         type(t_blockdiagonal) :: S(nSym)
 
-        parameter(ROUTINE='update_orb_numbe')
         integer :: size_S_buffer
         real(wp) :: Mol_Charge
         real(wp), allocatable :: S_buffer(:)

@@ -20,7 +20,6 @@
 #include "casvb.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='INTERF  ')
       Character*10 Filename
       Character*80 Note
       Dimension Ene(*)

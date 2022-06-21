@@ -18,7 +18,6 @@
 #include "rasdim.fh"
 #include "input_ras_mcpdft.fh"
 #include "output_ras.fh"
-      Parameter(ROUTINE='SetPos  ')
       Intrinsic len, min
 * Read until, and including, a line beginning with a particular
 * string in an ASCII file, assumed already opened, with unit

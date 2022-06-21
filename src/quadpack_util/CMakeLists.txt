@@ -9,4 +9,24 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     d1mach.F90
+     dqage.F90
+     dqag.F90
+     dqagie.F90
+     dqagi.F90
+     dqelg.F90
+     dqk15.F90
+     dqk15i.F90
+     dqk21.F90
+     dqk31.F90
+     dqk41.F90
+     dqk51.F90
+     dqk61.F90
+     dqpsrt.F90
+     xerror.F90
+)
+
+set (modfile_list "")
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

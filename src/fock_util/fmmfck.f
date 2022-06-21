@@ -154,6 +154,7 @@ C     CALL fmm_call_get_J_matrix(TwoHam,ndim,nBasTot,LMAX)
 *     Coulomb contributions of TwoHam should now be complete!
 *
 #else
+      Call Untested('FMMFck')
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real(Dens)

@@ -21,7 +21,6 @@ C
 #include "gugx.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-      Parameter(Routine='MKSGNUM')
 C
       DIMENSION IDOWN(NVERT,0:3),IUP(NVERT,0:3)
       DIMENSION IDAW(NVERT,0:4),IRAW(NVERT,0:4)

@@ -18,7 +18,6 @@
 #include "rasdim.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
-      Parameter(ROUTINE='SetPos  ')
       Intrinsic len, min
 
 

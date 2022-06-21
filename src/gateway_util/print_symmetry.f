@@ -23,7 +23,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "gateway.fh"
       Character SymOpr(0:7)*29, Format*80,  ChSymO(0:7)*5
       Data SymOpr/' Unit operation              ',
      &            ' Reflection in the yz-plane  ',

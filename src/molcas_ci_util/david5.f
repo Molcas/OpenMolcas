@@ -31,7 +31,6 @@
 * nsel in general.fh
       Dimension iSel(nSel), ExplE(nSel), ExplV(nSel,nSel)
 
-      PARAMETER (ROUTINE='DAVID5  ')
       Dimension Alpha(mxRoot), Beta(mxRoot)
       Dimension HTUTRI(*), GTUVXTRI(*)
       real*8, allocatable :: sgm(:,:), psi(:,:)

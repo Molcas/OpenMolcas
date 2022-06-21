@@ -35,6 +35,7 @@
       use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO,
      &                        FNMC, lPSOI
       use Symmetry_Info, only: nIrrep
+      use Gateway_global, only: Run_Mode, GS_Mode
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "rinfo.fh"
@@ -44,7 +45,6 @@
 #include "relmp.fh"
 #include "relae.fh"
 #include "print.fh"
-#include "gateway.fh"
 #include "localdf.fh"
       Logical l_aCD_Thr, lOPTO, Found
       Logical lNoPair, lPam2, lECP, lPP

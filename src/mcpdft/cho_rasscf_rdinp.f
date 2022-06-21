@@ -20,7 +20,6 @@
 #include "real.fh"
 #include "print.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='CHO_RASS')
 #include "WrkSpc.fh"
       Character*180 KWord, Key, Get_Ln
       External Get_Ln

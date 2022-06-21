@@ -13,8 +13,8 @@
       SubRoutine Radlq(Zeta,nZeta,lsum,Rnr,icop)
 ************************************************************************
 *                                                                      *
-* Object: to compute the radial part of the continuum  Coulomb         *
-*         integrals outside the  R-matrix sphere                       *
+* Object: to compute the radial part of the continuum Coulomb          *
+*         integrals outside the R-matrix sphere                        *
 *                                                                      *
 * Called from: KneInt                                                  *
 *                                                                      *
@@ -37,6 +37,7 @@
 ccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 ccccccccccccccccccccccccccccccccccccccc
+      Call Untested('Radlq')
 *                                                                      *
 ************************************************************************
 *                                                                      *

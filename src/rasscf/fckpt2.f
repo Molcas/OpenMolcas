@@ -47,6 +47,7 @@
 #include "output_ras.fh"
 #include "WrkSpc.fh"
 #include "raswfn.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='FCKPT2  ')
 
       DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
@@ -71,7 +72,7 @@
       enddo
 
 * Get character table to convert MOLPRO symmetry format
-      Call MOLPRO_ChTab_BIS(nSym,Label,iChMolpro)
+      Call MOLPRO_ChTab(nSym,Label,iChMolpro)
 
 * Convert orbital symmetry into MOLPRO format
       Call Getmem('OrbSym','Allo','Inte',lOrbSym,NAC)

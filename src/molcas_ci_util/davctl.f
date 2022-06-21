@@ -59,7 +59,6 @@
 #include "WrkSpc.fh"
 #include "output_ras.fh"
 #include "lucia_ini.fh"
-      Parameter(ROUTINE='DAVCTL  ')
 C
 C -------------------------------------------------------------------- C
 C -- INITIALIZE THE DAVIDSON DIAGONALIZATION

@@ -165,7 +165,6 @@ CSVC: check if NU<NT are included in the same gas space
       Subroutine RdPAM(Line,iNumber,rNumber)
       Implicit Real*8 (A-H,O-Z)
 #include "output_ras.fh"
-      Parameter (ROUTINE='RDPAM')
 *
 *     Subroutine read character line and
 *     read one integer and later one real

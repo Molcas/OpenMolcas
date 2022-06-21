@@ -959,8 +959,8 @@ Keywords for two-electron integrals
 
   .. xmldoc:: </GROUP>
 
-Keywords associated to electron-molecule scattering calculations within the framework of the :math:`R`\-matrix method
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Keywords associated to electron--molecule scattering calculations within the framework of the :math:`R`\-matrix method
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 This section contains keyword which control the radial numerical integration
 of the diffuse basis functions describing the scattered electrons in the

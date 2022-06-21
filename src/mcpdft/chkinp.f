@@ -33,7 +33,6 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "warnings.fh"
-      Parameter (ROUTINE='ChkInp  ')
 *----------------------------------------------------------------------*
 C Local print level (if any)
       IERR=0
