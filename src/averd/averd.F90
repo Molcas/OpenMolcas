@@ -140,7 +140,7 @@ if (.not. DensityBased) then
     end do
     ! Print print print.
     if (iPrint >= 5) then
-      ThrO = 1d-5
+      ThrO = 1.0e-5_wp
       call Primo(Titorb,PrOcc,PrEne,ThrO,Dummy(1),nSym,nBas,nBas,BsLbl,Dummy,Occ,CMO,-1)
     end if
   end do
@@ -251,7 +251,7 @@ do iSym=1,nSym
   call Add_Info('AVERD_OCC',OccNat,5,5)
   if (iPrint >= 5) then
     write(Titorb,'(a)') 'All average orbitals in this irrep.'
-    Thr = -1d0
+    Thr = -One
     call Primo(Titorb,.true.,.false.,Thr,Dum,1,nBas(iSym),nBas(iSym),BsLbl,Dummy,OccNat,AUX,-1)
   end if
   call dcopy_(nBS,AUX,1,Orbs(indS),1)

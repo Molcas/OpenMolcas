@@ -14,6 +14,7 @@ subroutine ProcInp_Caspt2
   use InputData, only: Input
   use definitions, only:iwp
   use output_caspt2, only:iPrGlb,terse,cmpThr,cntThr,dnmThr
+  use slapaf_parameters, only: EDiffZero, iState
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
@@ -32,7 +33,6 @@ subroutine ProcInp_Caspt2
 #include "SysDef.fh"
 #include "chocaspt2.fh"
 #include "caspt2_grad.fh"
-#include "nadc.fh"
 
   Integer(kind=iwp) :: iDummy
 

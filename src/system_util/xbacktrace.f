@@ -14,9 +14,9 @@ CSVC: this routine tries to print a backtrace
 C     use backtrace intrinsic (introduced since gfortran 4.8)
 #include "compiler_features.h"
 #if   defined(__GNUC__) && (GCC_VERSION >= 40800)
-      call backtrace
+      call backtrace()
 C     use tracebackqq intrinsic for ifort
 #elif defined(__INTEL_COMPILER)
-      call tracebackqq
+      call tracebackqq()
 #endif
       end

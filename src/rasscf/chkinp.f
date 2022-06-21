@@ -41,8 +41,8 @@
       integer :: i, iSym, iAlter
       integer :: iB0, iA0, iC0
 
-      integer :: spin_orbs_per_GAS(nGAS), max_per_GAS(nGAS),
-     &             min_per_GAS(nGAS)
+!     These are the cumulated number of spin orbitals per GAS space.
+      integer :: c_orbs_per_GAS(nGAS)
 *----------------------------------------------------------------------*
 C Local print level (if any)
       IERR=0
@@ -170,10 +170,8 @@ C Local print level (if any)
         write(lf,*)'************************************************'
        endif
 
-       spin_orbs_per_GAS = sum(ngssh(: nGAS, : nSym), 2) * 2
-       min_per_GAS = igsoccx(:nGAS, 1) - eoshift(igsoccx(:nGAS, 2), -1)
-       max_per_GAS = igsoccx(:nGAS, 2) - eoshift(igsoccx(:nGAS, 1), -1)
-       if (any(spin_orbs_per_GAS < min_per_GAS)) then
+       c_orbs_per_GAS = cumsum(sum(ngssh(: nGAS, : nSym), 2) * 2)
+       if (any(c_orbs_per_GAS < igsoccx(:nGAS, 1))) then
       write(lf, *)
       write(lf, *) 'In at least one GAS space, the minimum required '
       write(lf, *) 'particle number by GAS constraints '
@@ -184,7 +182,7 @@ C Local print level (if any)
        end if
        ! Conceptionally this should not be a problem, but the code
        ! assumes it to be not the case.
-       if (any(spin_orbs_per_GAS < max_per_GAS)) then
+       if (any(c_orbs_per_GAS < igsoccx(:nGAS, 2))) then
       write(lf, *)
       write(lf, *) 'In at least one GAS space, the maximum allowed '
       write(lf, *) 'particle number by GAS constraints '
@@ -478,4 +476,16 @@ CBOR  Check INVEC
       END IF
 *----------------------------------------------------------------------*
       Return
+
+      contains
+
+        pure function cumsum(X) result(res)
+            integer, intent(in) :: X(:)
+            integer :: res(size(X))
+            integer :: i
+            res(1) = X(1)
+            do i = 2, size(res)
+                res(i) = res(i - 1) + X(i)
+            end do
+        end function
       End
