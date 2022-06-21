@@ -9,10 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Start_Alaska()
-      use Slapaf_Parameters, only: Request_Alaska, Request_RASSI
+      use Slapaf_Parameters, only: Request_Alaska, Request_RASSI, iState
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
-#include "nadc.fh"
       Character*100 ProgName, Get_ProgName
       Character*128 FileName
       Character*16 StdIn, JOB1, JOB2

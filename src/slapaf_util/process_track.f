@@ -15,7 +15,6 @@
       use Slapaf_parameters, only: Request_RASSI
       IMPLICIT NONE
 #include "print.fh"
-#include "nadc.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       INTEGER :: nOv,nRoots,i

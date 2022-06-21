@@ -24,7 +24,6 @@
       LOGICAL TRIANG
 
 #include "intgrl.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "blksize.fh"
 

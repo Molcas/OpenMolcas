@@ -214,7 +214,6 @@ C
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Real*8, Allocatable:: Lrs(:)

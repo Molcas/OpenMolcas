@@ -32,13 +32,13 @@
 *> @param[in]  iPrint Print level
 ************************************************************************
       SUBROUTINE Preprocess_UDC(Lu,iPrint)
-      use Slapaf_parameters, only: MEPCons, MEP_Type, lSoft
+      use Slapaf_parameters, only: MEPCons, MEP_Type, lSoft, NADC,
+     &                             EDiffZero, NADC, iState
       IMPLICIT NONE
       INTEGER :: Lu,iPrint,iPos,Error,nLines,i,j
       CHARACTER(LEN=180) :: Line1,Line2,EDiffName,Get_Ln
       REAL*8 :: EDiffValue
 #include "real.fh"
-#include "nadc.fh"
 
       EDiffName = ''
       EDiffZero = .FALSE.

@@ -26,13 +26,12 @@
      &                       Cx, Gx, BMx, Degen, Smmtrc
       use Slapaf_Parameters, only: HWRS, Analytic_Hessian, MaxItr,
      &                             iOptC, BSet, HSet, PrQ, lOld,
-     &                             Numerical
+     &                             Numerical, mB_Tot, mdB_Tot, mq
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "db.fh"
 #include "print.fh"
       Integer, Intent(In):: nsAtom, nDimBC
       Integer, Intent(In):: nIter, mAtoms

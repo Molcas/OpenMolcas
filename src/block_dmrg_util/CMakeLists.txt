@@ -9,4 +9,13 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     blockctl.F90
+     block_densi_rasscf.F90
+     cu4f3.F90
+     mkxmat.F90
+)
+
+set (modfile_list "")
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

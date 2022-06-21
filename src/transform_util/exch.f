@@ -23,7 +23,6 @@
       DIMENSION ERI(*), SCR(*)
       LOGICAL TRANSP
 #include "intgrl.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "blksize.fh"
 

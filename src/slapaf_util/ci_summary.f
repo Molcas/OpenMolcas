@@ -23,7 +23,6 @@
       Character(Len=2) LabA
       Character(Len=40) Description
 #include "stdalloc.fh"
-#include "nadc.fh"
 #include "real.fh"
 *
       n=3*SIZE(Gx,2)

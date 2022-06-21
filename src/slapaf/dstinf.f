@@ -22,7 +22,6 @@
 #include "print.fh"
 #include "SysDef.fh"
 #include "angstr.fh"
-#include "weighting.fh"
       Real*8, Allocatable:: Cx_p(:,:), CC(:,:), RV(:,:), xyz(:,:)
 *
       LOGICAL do_printcoords, do_fullprintcoords, Just_Frequencies,
