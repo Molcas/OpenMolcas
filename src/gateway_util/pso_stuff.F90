@@ -33,4 +33,8 @@ Integer iD0Lbl
 ! This should eventually totally replace ipAOrb
 Type (CMO_Type), Allocatable, Target:: AOrb(:)
 
+! DF-CASPT2
+Real*8, Allocatable :: A_PT2(:,:),B_PT2(:,:,:)
+Integer nBasT,nBasA,nBasASQ
+
 End Module PSO_Stuff
