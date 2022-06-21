@@ -14,12 +14,14 @@
       use Temporary_Parameters, only: force_out_of_core
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
+      use Data_Structures, only: Allocate_CMO, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)
       Logical CASPT2
 #include "itmax.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "cholesky.fh"
 #include "etwas.fh"
@@ -31,7 +33,8 @@
       Integer ipTxy(0:7,0:7,2),ipDLT2,jp_V_k
 #include "chotime.fh"
       Character*8 Method
-*                                                                      *
+
+*
 ************************************************************************
 *                                                                      *
       DoExchange=Exfac.ne.Zero
@@ -347,29 +350,35 @@
             iOff=iOff+iOff2*nnP(kIrrep)
             mAO=mAO+nBas(kIrrep)*nASh(kIrrep)
          End Do
-         Call GetMem('AOrb','Allo','Real',ipAOrb(0,1),mAO*nADens)
+
+         Allocate(AOrb(nADens))
+         Do iADens = 1, nADens
+            Call Allocate_CMO(AOrb(iADens),nAsh,nBas,nIrrep)
+            Call Map_to_CMO(AOrb(iADens),ipAOrb(:,iADens))
+         End Do
+
 *
 * --- Reordering of the active MOs :  C(a,v) ---> C(v,a)
+*
          iCount=0
-         lCount=0
          Do iIrrep=0,nIrrep-1
+
             jCount = iCount + nBas(iIrrep)*nIOrb(iIrrep)
-            ipAOrb(iIrrep,1) = ipAOrb(0,1) + lCount
-            ipAOrb(iIrrep,2) = ipAOrb(iIrrep,1)+mAO
+
+            iCount = iCount + nBas(iIrrep)**2
+            If (nBas(iIrrep)*nASh(iIrrep)==0) Cycle
+
+         Do iADens=1, nADens
+
             Do i=1,nASh(iIrrep)
                kOff1 = 1 + jCount + nBas(iIrrep)*(i-1)
-               kOff2 = ipAOrb(iIrrep,1) + i - 1
-               Call dCopy_(nBas(iIrrep),CMO(kOff1,1),1,
-     &                               Work(kOff2),nASh(iIrrep))
-               If (lSA) Then
-                 kOff2 = ipAOrb(iIrrep,2) + i - 1
-                 Call dCopy_(nBas(iIrrep),CMO(kOff1,2),1,
-     &                               Work(kOff2),nASh(iIrrep))
-               EndIf
+               AOrb(iADens)%pA(iIrrep+1)%A(i,1:nBas(iIrrep)) =
+     &            CMO(kOff1:kOff1-1+nBas(iIrrep),iADens)
             End Do
-            iCount = iCount + nBas(iIrrep)**2
-            lCount = lCount + nBas(iIrrep)*nASh(iIrrep)
-         End Do
+
+         End Do ! iADens
+
+         End Do ! iIrrep
 *
          If (nKdens.eq.2) Then ! for Coulomb term
             Call daxpy_(nDens,One,Work(ipDMLT(2)),1,
@@ -386,7 +395,7 @@
          Update=.True.
          Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,
      &                     Txy,n_Txy*nAdens,ipTxy,
-     &                     DoExchange,lSA,nChOrb,ipAOrb,nAsh,
+     &                     DoExchange,lSA,nChOrb,AOrb,nAsh,
      &                     DoCAS,Estimate,Update,
      &                     V_k(jp_V_k,1), nV_k,
      &                     U_k(jp_U_k),
@@ -398,7 +407,7 @@
      &                  'Compute_AuxVec: failed in Cho_Get_Grad !!')
             Call Abend()
          End If
-*         Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO)
+
          If (DoCAS .or. DoExchange) Then
             Call GetMem('ChMOs','Free','Real',ipChM(1),nCMO*nKdens)
          EndIf

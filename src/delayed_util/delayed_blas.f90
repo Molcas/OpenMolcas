@@ -375,6 +375,15 @@ subroutine zdscal(n,da,zx,incx)
   call lb_zdscal(n,da,zx,incx)
 end subroutine zdscal
 
+subroutine zdrot(n,cx,incx,cy,incy,c,s)
+  use link_blas
+  implicit none
+  integer  ::         incx, incy, n
+  real*8 :: c, s
+  complex*16 ::       cx(*), cy(*)
+  call lb_zdrot(n,cx,incx,cy,incy,c,s)
+end subroutine zdrot
+
 subroutine zgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
   use link_blas
   implicit none

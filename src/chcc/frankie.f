@@ -11,15 +11,15 @@
 
         subroutine frankie(nfro,no,nv,printkey)
 c
+        use Data_Structures, only: CMO_Type
+        use Data_Structures, only: Allocate_CMO, Deallocate_CMO
         implicit none
-c
-#include "WrkSpc.fh"
 c
         integer nbas,norb,nocc,nfro,ndel
         integer no,nv
         integer printkey
 c
-        integer ipCmo
+        Type (CMO_Type) CMO
         integer rc
 c
         real*8  FracMem
@@ -62,13 +62,13 @@ c
 c.2 - allocate space for CMO with removed SCF deleted and frozen orbitals
 c     final ordering of indexes : (o+v,nbas)
 c
-        Call GetMem('CMO','Allo','Real',ipCmo,((no+nv)*nbas))
+        Call Allocate_CMO(CMO,[no+nv],[nbas],1)
         if (printkey.ge.10) then
         write (6,*) 'Dopice 1 - Allo'
         end if
 c
 c.3 - read CMO
-        call read_mo(ipCmo,nfro,no,nv,ndel,nbas,nOrb)
+        call read_mo(Cmo,nfro,no,nv,ndel,nbas,nOrb)
 c.3 - invert the CMO matrix
         FracMem=0.0d0 ! in a parallel run set it to a sensible value
         rc=0
@@ -77,7 +77,7 @@ c.3 - invert the CMO matrix
         write (6,*) 'Dopice 2 ',rc
         end if
 
-        call CHO_CC_drv(rc,(/no/),(/0/),(/nv/),ipCmo)
+        call CHO_CC_drv(rc,CMO)
         if (printkey.ge.10) then
         write (6,*) 'Dopice 3 '
         end if
@@ -93,23 +93,24 @@ c
         end if
 c
 c.  -  deallocate CMO
-        Call GetMem('CMO','Free','Real',ipCmo,((no+nv)*nbas))
+        Call Deallocate_CMO(CMO)
 c
         return
         end
 c
 c -------------------------------------
 c
-      Subroutine read_mo (ipCmo,nfro,no,nv,ndel,nbas,nOrb)
+      Subroutine read_mo (CMO,nfro,no,nv,ndel,nbas,nOrb)
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (A-H,O-Z)
 
 *     declaration of calling arguments
-      Integer ipCMO,lthCMO
+      Type (CMO_Type) CMO
+      Integer lthCMO
       integer nfro_scf(8)
       integer nfro
 #include "real.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
       Real*8, Allocatable:: CMO_t(:,:)
 
 #include "SysDef.fh"
@@ -128,7 +129,7 @@ c
 c
 c - transpose MO matrix, skip the frozen occupied orbitals
 c
-      call mo_transp(Work(ipCMO),CMO_t(:,1+nfro:nOrb),no,nv,ndel,nbas)
+      call mo_transp(CMO%CMO_Full,CMO_t(:,1+nfro:nOrb),no,nv,ndel,nbas)
 c
       Call mma_deallocate(CMO_t)
 c
@@ -158,7 +159,7 @@ c
 c
 c -------------------------------------
 c
-      SUBROUTINE CHO_CC_drv(rc,nIsh,nAsh,nSsh,ipPorb)
+      SUBROUTINE CHO_CC_drv(rc,CMO)
 
 **********************************************************************
 C
@@ -168,17 +169,17 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
-      Integer   rc,nIsh(*),nAsh(*),nSsh(*)
+      Integer   rc
+      Type (CMO_Type) CMO
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical   DoRead
-      Integer   nPorb(8),ipOrb(8)
+      Integer   nPorb(8)
       Integer   ipLpb(8)
-cmp
       integer   iskip(8)
-cmp
 
       Character*50 CFmt
       Character*10 SECNAM
@@ -191,8 +192,7 @@ cmp
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
+#include "stdalloc.fh"
 
       integer isfreeunit
 
@@ -227,7 +227,7 @@ cmp
 c --- Define MOs used in CC
 c -----------------------------------
         do i=1,nSym
-           nPorb(i) = nIsh(i) + nAsh(i) + nSsh(i)
+           nPorb(i) = SIZE(CMO%pA(i)%A,1)
         end do
 
 
@@ -235,14 +235,6 @@ C ==================================================================
 
 c --- Various offsets & pointers
 c ------------------------------
-      ipOrb(1)=ipPorb
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NP=NPORB(ISYM-1)
-        NP2=NB*NP
-        ipOrb(ISYM)=ipOrb(ISYM-1)+NP2 !  MO coeff. symm pointers
-      END DO
-
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -311,7 +303,7 @@ cmp!     &                           rc= ',irc
 
             nRS = nDimRS(JSYM,JRED)
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            Call mma_maxDBLE(LWORK)
 
             nVec  = Min(LWORK/(nRS+mvec),nVrs)
 
@@ -379,7 +371,7 @@ C --------------------------------------------------------------------
                CALL CWTIME(TCM1,TWM1)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nPorb,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],
      &                           ipLpb,iSkip,DoRead)
 
                if (irc.ne.0) then
@@ -413,7 +405,7 @@ C --------------------------------------------------------------------
 
                     CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
      &                         One,Work(ipLJpb),NAp,
-     &                             Work(ipOrb(iSymb)),NAq,
+     &                             CMO%pA(iSymb)%A,NAq,
      &                        Zero,Work(ipLJpq),NAp)
 
                       End Do

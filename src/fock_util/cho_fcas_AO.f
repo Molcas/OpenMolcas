@@ -12,8 +12,8 @@
 ************************************************************************
 
       SUBROUTINE CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,
-     &                          FactXI,ipPorb,ipDI,ipDA1,ipDA2,DoActive,
-     &                          DoQmat,ipChM,nChM,ipInt,ExFac)
+     &                          FactXI,ipDI,ipDA1,ipDA2,DoActive,
+     &                          DoQmat,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -42,17 +42,18 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
+      Type (CMO_Type) POrb(3)
+
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
-      Integer   ipOrb(8,3),nOrb(8,3)
-      Integer   ISTAQ(8),ISTAV(8),iSkip(8)
-      Integer   ISTLT(8),ISTCH(8),ISZW(8)
+      Integer   ISTAV(8),iSkip(8)
+      Integer   ISTLT(8),ISZW(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tqmat(2)
       Real*8    ExFac
-*      Integer   ipDA1,ipDA2,ipDI
       Integer   ipDA1,ipDA2(8,8,8),ipDI
-      Integer   ipPorb,ipFA,ipFI
+      Integer   ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
@@ -82,7 +83,6 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-
       DoRead  = .false.
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -125,36 +125,16 @@ C ==================================================================
 
 c --- Various offsets
 c --------------------
-        ISTAQ(1)=0
-        ISTAV(1)=0
-        ISTLT(1)=0
-        ISTCH(1)=0
+      ISTAV(1)=0
+      ISTLT(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        NP=NPORB(ISYM-1)
-        NP2=NB*NP
         NV2=NB*NAORB(ISYM-1)
-        NCH=NB*NCHM(ISYM-1)
+
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive and Active D and F mat
-        ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! MOs coefficients
         ISTAV(ISYM)=ISTAV(ISYM-1)+NV2 ! Q-matrix
-        ISTCH(ISYM)=ISTCH(ISYM-1)+NCH ! "Cholesky MOs"
       END DO
-
-      Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
-
-         ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
-         nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
-
-         ipOrb(iSym,2) = ipChM + ISTCH(iSym)
-         nOrb(iSym,2)  = nChM(iSym)
-
-         ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
-     &                 + nOrb(iSym,1)*nBas(iSym)
-         nOrb(iSym,3)  = nAorb(iSym)
-
-      End Do
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -433,7 +413,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
                CALL CWTIME(TCR3,TWR3)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                         JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+     &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                         ipLab,iSkip,DoRead)
 
 
@@ -507,7 +487,7 @@ C --------------------------------------------------------------------
                   nMOs = 2
 
                   CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
 
@@ -573,7 +553,7 @@ C --------------------------------------------------------------------
                nMOs = 3  ! Active MOs
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
 
@@ -593,16 +573,13 @@ C --------------------------------------------------------------------
 
                      If(NAv.ne.0)Then
 
-                      NK   = nForb(iSyma) + nIorb(iSyma)
-                      ISMO = ipPorb + ISTAQ(iSyma) + NK*nBas(iSyma)
-
                       Do JVC=1,JNUM
 
                        ipLvb = ipLab(iSyma,3) + nBas(iSyma)*NAv*(JVC-1)
                        ipLvw = ipLxy(iSyma) + nnA(iSyma,iSyma)*(JVC-1)
 
                        CALL DGEMM_Tri('N','N',NAv,NAv,nBas(iSyma),
-     &                                One,Work(ISMO),NAv,
+     &                                One,POrb(3)%pA(iSyma)%A,NAv,
      &                                    Work(ipLvb),nBas(iSyma),
      &                               Zero,Work(ipLvw),NAv)
 
@@ -626,13 +603,11 @@ C --------------------------------------------------------------------
 
                      If(NAv*NAw.ne.0.and.iSymv.gt.iSymb)Then
 
-                      NK = nForb(iSymb) + nIorb(iSymb)
-                      ISMO = ipPorb + ISTAQ(iSymb) + NK*nBas(iSymb)
                       ipLvb = ipLab(iSymv,3)
                       ipLvw = ipLxy(iSymv)
 
                       CALL DGEMM_('N','N',NAw,NAv*JNUM,nBas(iSymb),
-     &                            One,Work(ISMO),NAw,
+     &                            One,POrb(3)%pA(iSymb)%A,NAw,
      &                                Work(ipLvb),nBas(iSymb),
      &                           Zero,Work(ipLvw),NAw)
 

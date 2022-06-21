@@ -198,9 +198,10 @@ Keywords
 Input example
 .............
 
+An example with single JobIph:
 ::
 
-  &MPSSI &END
+  &MPSSI
   NrofJobIphs
   1 2           --- 1 JobIph (actually an .h5 file) - 2 states to be read
   1 2           --- which roots from the .h5 file.
@@ -217,8 +218,72 @@ Input example
   'AngMom' 1
   'AngMom' 2
   'AngMom' 3
-  * This input will compute spinfree and spin-orbit igenstates in the space
+  * This input will compute spinfree and spin-orbit eigenstates in the space
   * spanned by the 2 input functions
+
+An example with two separate JobIphs (singlet and triplet calculation of methylene):
+::
+  * Triplet calculation
+  &DMRGSCF
+    ActiveSpaceOptimizer=QCMaquis
+    DMRGSettings
+      max_bond_dimension=1024
+      nsweeps=10
+    EndDMRGSettings
+    OOptimizationSettings
+      Spin=3
+      Inactive=1
+      Ras2=6
+      NActEl=6,0,0
+    EndOOptimizationSettings
+  * Save JobIph, because it will be overwritten by the subsequent calculation
+  >> COPY $Project.JobIph JOBOLD
+  >> COPY $Project.dmrgscf.h5 $Project.trip.h5
+  * Save QCMaquis checkpoint since it will also be overwritten.
+  * COPY does not work on directories so we move it
+  >> EXEC mv $CurrDir/$Project.checkpoint_state.0.h5 $CurrDir/$Project.trip.checkpoint_state.0.h5
+  * The rasscf.h5 file contains the QCMaquis checkpoint file name.
+  * Now that QCMaquis checkpoint has been renamed, the name needs to
+  * be changed in the rasscf.h5 file. The script below accomplishes this
+  >> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.trip.h5 -q
+
+  * Singlet calculation
+  &DMRGSCF
+    ActiveSpaceOptimizer=QCMaquis
+    DMRGSettings
+      max_bond_dimension=1024
+      nsweeps=10
+    EndDMRGSettings
+    OOptimizationSettings
+      Spin=1
+      Inactive=1
+      Ras2=6
+      NActEl=6,0,0
+      JobIph
+    EndOOptimizationSettings
+
+  * Perform checkpoint manipulations as with triplet
+  >> COPY $Project.dmrgscf.h5 $Project.sing.h5
+  >> EXEC mv $CurrDir/$Project.checkpoint_state.0.h5 $CurrDir/$Project.sing.checkpoint_state.0.h5
+  >> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.sing.h5 -q
+
+  * Run MPSSI
+  &MPSSI
+  Nrof
+  2 1 1
+  1
+  1
+  FILE
+  2
+  $Project.trip.h5
+  $Project.sing.h5
+  EJOB
+  SOCOupling
+  0.0001
+
+The input is similar to an analogous :program:`RASSI` input, with a notable exception of manipulations of QCMaquis checkpoints and :file:`rasscf.h5` files. Since the MPS is stored in QCMaquis checkpoint folders, these have to be saved in addition to the :file:`rasscf.h5` file. In addition, :file:`rasscf.h5` saves the QCMaquis checkpoint file name, so when the latter is renamed, also the name saved in :file:`rasscf.h5` must be changed. This is accomplished with the command ::
+
+  $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py <rasscf.h5> -q
 
 .. xmldoc:: <INCLUDE MODULE="RASSI" />
 

@@ -18,12 +18,13 @@
       !> module dependencies
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util
-      use qcmaquis_info, only: qcm_group_names
+      use qcmaquis_info
+      use qcmaquis_interface_mpssi
 #endif
       use mspt2_eigenvectors
+      use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, jDisk_TDM, iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -78,14 +79,6 @@ CC    NTO section
       real*8, Allocatable:: TDM2(:), TRA1(:), TRA2(:), FMO(:), TUVX(:)
       real*8, Allocatable:: DYSCOF(:), DYSAB(:), DYSZZ(:)
 
-#ifdef _DMRG_
-!     strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
-      character(len=3) :: mplet1s, msproj1s
-      ! new checkpoint names
-      character(len=2300) :: checkpoint1_2u1,checkpoint2_2u1
-#else
-      logical             :: doDMRG = .false.
-#endif
 #include "SysDef.fh"
 
 #define _TIME_GTDM
@@ -217,16 +210,12 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
       END IF
 
       IF (IF11) THEN
-        NTRAD=NASHT**2
+        NTRAD=NASHT**2 ! NTRAD == NWERD == NTRASD
         Call mma_allocate(TRAD,nTRAD+1,Label='TRAD')
         Call mma_allocate(TRASD,nTRAD+1,Label='TRASD')
         Call mma_allocate(WERD,nTRAD+1,Label='WERD')
       END IF
-      IF (IF22) THEN
-        Call mma_allocate(TDM2,nTDM2,Label='TDM2')
-      ELSE
-        Call mma_allocate(TDM2,0,Label='TDM2')
-      END IF
+      IF (IF22) Call mma_allocate(TDM2,nTDM2,Label='TDM2')
 
       IF(JOB1.NE.JOB2) THEN
 C Transform to biorthonormal orbital system
@@ -934,44 +923,12 @@ C             Write density 1-matrices in AO basis to disk.
      &                            WORK(LDET1),WORK(LDET2))
 #ifdef _DMRG_
               else
-                if (doMPSSICheckpoints) then
-
-                  if (dmrg_external%MPSrotated) then
-                    write(mplet1s,'(I3)')  MPLET1-1
-                    write(msproj1s,'(I3)')  MSPROJ1
-
-                    checkpoint1_2u1 = qcm_group_names(job1)%states(ist)
-     &(1:len_trim(qcm_group_names(job1)%states(ist))-3)
-     &//"."//trim(adjustl(mplet1s))//"."//trim(adjustl(msproj1s))//".h5"
-                    checkpoint2_2u1 = qcm_group_names(job2)%states(jst)
-     &(1:len_trim(qcm_group_names(job2)%states(jst))-3)
-     &//"."//trim(adjustl(mplet1s))//"."//trim(adjustl(msproj1s))//".h5"
-
-                    call dmrg_interface_ctl(
-     &                                      task       = 'overlapU',
-     &                                      energy     = sij,
-     &                                      checkpoint1=checkpoint1_2u1,
-     &                                      checkpoint2=checkpoint2_2u1
-     &                                     )
-                  else
-                    call dmrg_interface_ctl(
-     &                                      task        = 'overlap ',
-     &                                      energy      = sij,
-     &                                      checkpoint1 =
-     &                               qcm_group_names(job1)%states(ist),
-     &                                      checkpoint2 =
-     &                               qcm_group_names(job2)%states(jst)
-     &                                     )
-                  end if
-                else
-!                 > Leon: TODO: Add possibility to calculate overlap of rotated MPS without using checkpoint names
-                  call dmrg_interface_ctl(
-     &                               task   = 'overlap ',
-     &                               energy = sij,
-     &                               state  = LROOT(istate),
-     &                               stateL = LROOT(jstate)
-     &                              )
-                end if
+                sij = qcmaquis_mpssi_overlap(
+     &            qcm_prefixes(job1),
+     &            ist,
+     &            qcm_prefixes(job2),
+     &            jst,
+     &            .true.)
               end if !doDMRG
 #endif
             END IF ! IF00
@@ -988,7 +945,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                  LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),
      &                  IWORK(LSSTAB),IWORK(LOMAP),
      &                  WORK(LDET1),WORK(LDET2),NTDM2,TDM2,
-     &                  ISTATE,JSTATE,job1,job2,ist,jst)
+     &                  ISTATE,JSTATE)
 
 !           > Compute 2-electron contribution to Hamiltonian matrix element:
             IF(IFTWO.AND.(MPLET1.EQ.MPLET2))
@@ -1250,7 +1207,7 @@ C             Write density 1-matrices in AO basis to disk.
           Call mma_deallocate(WDMZZ)
         END IF
       END IF
-      Call mma_deallocate(TDM2)
+      IF (IF22) Call mma_deallocate(TDM2)
 
       IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
         Call mma_deallocate(FMO)

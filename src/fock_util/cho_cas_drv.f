@@ -9,37 +9,35 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_CAS_DRV(rc,CMO,DI,FI,DA1,FA,DA2,TraOnly)
+      Use Data_Structures, only: CMO_Type, Allocate_CMO,
+     &                           Deallocate_CMO
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
-      Integer   ISTAQ(8)
       Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
-      Integer   ipDSA2(8,8,8),nnA(8,8),ipAorb(2),ipKLT(2)
+      Integer   ipDSA2(8,8,8),nnA(8,8),ipKLT(2)
       Logical   TraOnly
-      Logical   DeAllocte_CVA
 
 #include "chotodo.fh"
 #include "chopmat.fh"
 #include "chlcas.fh"
 #include "cholk.fh"
 
-      Character*11 SECNAM
-      Parameter (SECNAM = 'CHO_CAS_DRV')
+      Character(LEN=11), Parameter:: SECNAM = 'CHO_CAS_DRV'
 
 #include "rasdim.fh"
 #include "wadr.fh"
 #include "general.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
+
+      Type (CMO_type) CVa(2), POrb(3)
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C  **************************************************
 
-
       rc=0
-
-      DeAllocte_CVA=.False.
 
       IF (TraOnly) THEN
 c
@@ -57,10 +55,6 @@ c
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FI(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Work(iTmp1),
      &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
      &               0.0d0,Work(iTmp2),iBas)
@@ -207,68 +201,47 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 
       EndIf
 
-c --- Various offsets
-c --------------------
-        ISTAQ(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NP=NCHI(ISYM-1)+NAORB(ISYM-1)
-        NP2=NB*NP
-        ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! Reordered MOs coeff
-      END DO
-
 C --- Reordering of the MOs coefficients to fit cholesky needs
       If(.not.DoLocK)Then
 
-        NTaq = ISTAQ(nSym) + nBas(nSym)*(nChI(nSym)+nAorb(nSym))
-
-        Call Getmem('rMOs','Allo','Real',ipPorb,NTaq)
+        Call Allocate_CMO(POrb(1),nChI,nBas,nSym)
+        Call Allocate_CMO(POrb(3),nAOrb,nBas,nSym)
 
         nOcs=0
         ioff1=0
         Do iSym=1,nSym
+
            do ikk=1,nChI(iSym)
               ioff2=ioff1+nBas(iSym)*(ikk-1)
-              call dcopy_(nBas(iSym),Work(ipInc+ioff2),1,
-     &        Work(ipPorb+ISTAQ(iSym)+ikk-1),nChI(iSym))
+              POrb(1)%pA(iSym)%A(ikk,:) =
+     &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
            end do
+
            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
            do ikk=1,nAorb(iSym)
-              call dcopy_(nBas(iSym),CMO(1+ioff2+nBas(iSym)*(ikk-1)),1,
-     &        Work(ipPorb+ISTAQ(iSym)+nChI(iSym)*nBas(iSym)+ikk-1),
-     &             nAorb(iSym))
+              POrb(3)%pA(iSym)%A(ikk,:) =
+     &             CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
+     &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
            end do
            ioff1=ioff1+nBas(iSym)**2
-c           call recprt('ReorIMOs','',Work(ipPorb+ISTAQ(iSym)),
-c     &                  nChI(iSym),nBas(iSym))
-c           call recprt('ReorAMOs','',Work(ipPorb+ISTAQ(iSym)+nChI(iSym)*
-c     &                  nBas(iSym)),
-c     &                  nAorb(iSym),nBas(iSym))
-
-            nOcs = nOcs + nAorb(iSym)**2
+           nOcs = nOcs + nAorb(iSym)**2
 
         End Do
 
       Else
 
 C *** Only the active orbitals MO coeff need reordering
-           nVB=0
-           Do iSym=1,nSym
-            nVB = nVB + nAorb(iSym)*nBas(iSym)
-           End Do
-           Call GetMem('Cva','Allo','Real',ipAorb(1),nVB)
-           DeAllocte_CVA=.True.
+           Call Allocate_CMO(CVa(1),nAorb,nBas,nSym)
 
            ioff1 = 0
-           ioff3 = 0
            Do iSym=1,nSym
             ioff2 = ioff1 + nBas(iSym)*(nForb(iSym)+nIorb(iSym))
             do ikk=1,nAorb(iSym)
-               call dcopy_(nBas(iSym),CMO(1+ioff2+nBas(iSym)*(ikk-1)),1,
-     &                 Work(ipAorb(1)+ioff3+ikk-1),nAorb(iSym))
+               ioff = ioff2+nBas(iSym)*(ikk-1)
+               CVa(1)%pA(iSym)%A(ikk,:) =
+     &           CMO(ioff +  1 : ioff + nBas(iSym))
             end do
             ioff1 = ioff1 + nBas(iSym)**2
-            ioff3 = ioff3 + nAorb(iSym)*nBas(iSym)
            End Do
 
       EndIf
@@ -323,19 +296,18 @@ C ---  Decompose the active density  -----------------------------
        end do
 #endif
 
-        CALL GETMEM('choMOs','allo','real',ipVec,NTot2) !cholesk MOs
+        Call Allocate_CMO(CVa(2),nBas,nBas,nSym)
         CALL GETMEM('ddec','allo','real',ipddec,NTot2)
         call dcopy_(NTot2,DA1(1),1,Work(ipddec),1)
 
         Thr = 1.0d-12
         ipd = ipddec
-        ipV = ipVec
-        nTvec = 0
         Do i=1,nSym
            if(nAorb(i).gt.0)then
 ! NOTE(Giovanni): CD will proceed with approx. decompos for QMC
 !                 This will avoid warnings for negative-definit
-             call CD_InCore(Work(ipd),nBas(i),Work(ipV),nBas(i),
+             call CD_InCore(Work(ipd),nBas(i),
+     &                      CVa(2)%pA(i)%A,nBas(i),
      &                      NumV,Thr,rc)
              If (rc.ne.0) Then
                 write(6,*)SECNAM//': ill-defined dens decomp for active'
@@ -347,43 +319,35 @@ C ---  Decompose the active density  -----------------------------
              nChM(i) = 0
            endif
            ipd = ipd + nBas(i)**2
-           ipV = ipV + nBas(i)**2
-           nTvec = nTvec + nChM(i)*nBas(i)
         End Do
 
         CALL GETMEM('ddec','free','real',ipddec,NTot2)
 
       Else
 
-        ipVec = -999999999  ! avoid compiler warnings
-
-        Do i=1,nSym
-           nChM(i) = 0
-        End Do
+        ! Dummy allocation
+        Call Allocate_CMO(CVa(2),[1],[1],1)
+        nChM(:) = 0
 
       EndIf
 
       If (.not.DoLocK .and. DoActive) Then
+
 c --- reorder "Cholesky MOs" to Cva storage
 
-        CALL GETMEM('chM','allo','real',ipChM,nTvec) !cholesky reord MOs
-        ioff1=0
-        ioff2=0
-         Do iSym=1,nSym
+        Call Allocate_CMO(POrb(2),nChM,nBas,nSym)
+        Do iSym=1,nSym
            If (nBas(iSym)*nChM(iSym).ne.0) Then
                do ikk=1,nChM(iSym)
-                  koff = ioff1 + nBas(iSym)*(ikk-1)
-                  call dcopy_(nBas(iSym),Work(ipVec+koff),1,
-     &                 Work(ipChM+ioff2+ikk-1),nChM(iSym))
+                  POrb(2)%pA(iSym)%A(ikk,:) =
+     &               CVa(2)%pA(iSym)%A(:,ikk)
                end do
            EndIf
-           ioff1=ioff1+nBas(iSym)**2
-           ioff2=ioff2+nChM(iSym)*nBas(iSym)
-         End Do
+        End Do
 
       Else
 
-         ipChM = -9999999  ! avoid compiler warnings
+        Call Allocate_CMO(POrb(2),[1],[1],1)
 
       EndIf
 C ----------------------------------------------------------------
@@ -401,14 +365,13 @@ C ----------------------------------------------------------------
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
          CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &        ipPorb,ipDILT,ipDALT,DoActive,ipChM,nChM,ipInt,ExFac)
+     &                   ipDILT,ipDALT,DoActive,POrb,nChM,ipInt,ExFac)
 
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
 
          ipInt = lpwxy   ! (PU|VX) integrals are computed
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
-         ipAorb(2) = ipVec  ! decomposed active density
 
          Call Getmem('KILT','Allo','Real',ipKLT(1),NTot1)
          Call Fzero(Work(ipKLT(1)),NTot1)
@@ -419,7 +382,7 @@ C ----------------------------------------------------------------
          EndIf
 
          CALL CHO_LK_CASSCF(ipDILT,ipDALT,ipFI,ipFA,ipKLT,ipInc,ipInt,
-     &                      FactXI,nChI,nAorb,nChM,ipAorb,DoActive,
+     &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
 
          If(DoActive) Call Getmem('KALT','Free','Real',ipKLT(2),NTot1)
@@ -431,8 +394,8 @@ C ----------------------------------------------------------------
          ipInt = LTUVX   ! (TU|VX) integrals only are computed
 
          CALL CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,FactXI,
-     &    ipPorb,ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,ipChM,nChM,ipInt,
-     &    ExFac)
+     &                    ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,POrb,
+     &                    nChM,ipInt,ExFac)
 
 *  Synchronization of the Fock matrices
          Call GaDsum(Work(ipFI),NTot1)
@@ -455,24 +418,14 @@ C ----------------------------------------------------------------
 
       ENDIF
 
-
-      If(.not.DoLocK .and. DoActive)Then
-
-        CALL GETMEM('chM','free','real',ipChM,nTvec) !cholesky reord MOs
-
-      EndIf
-
-      If (DeAllocte_CVA) Call GetMem('Cva','free','Real',ipAorb(1),nVB)
-
-
-      If(DoActive) CALL GETMEM('choMOs','free','real',ipVec,NTot2)
+      If (Allocated(POrb(3)%CMO_full)) Call Deallocate_CMO(POrb(3))
+      If (Allocated(POrb(2)%CMO_full)) Call Deallocate_CMO(POrb(2))
+      If (Allocated(POrb(1)%CMO_full)) Call Deallocate_CMO(POrb(1))
+      If (Allocated(CVa(1)%CMO_full)) Call Deallocate_CMO(CVa(1))
+      If (Allocated(CVa(2)%CMO_full)) Call Deallocate_CMO(CVa(2))
 
       If (DoQmat.and.ALGO.ne.1) Then
          Call Getmem('P-mat','Free','Real',ipPmat,NPmat)
-      EndIf
-
-      If(.not.DoLocK)Then
-        Call Getmem('rMOs','Free','Real',ipPorb,NTaq)
       EndIf
 
       If (Deco) CALL GETMEM('choIn','free','real',ipIna,NTot2)

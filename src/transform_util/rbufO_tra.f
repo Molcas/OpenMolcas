@@ -12,18 +12,22 @@
       Implicit real*8(a-h,o-z)
 
 #include "SysDef.fh"
+#include "stdalloc.fh"
       Dimension W(*)
-      Call GetMem('MaxMem','MAX','REAL',KDUM,MEMX)
+
+      Call mma_maxDBLE(MEMX)
       IADX=(KKTU-1)*IADXS
       IST=1
       Length=LBuf
       IEnd=LBuf
+
    52 CALL dDAFILE(LUHLFX,2,W(IST),Length,IADX)
       IST=IST+LBuf
       IEnd=IEnd+LBuf
       If(IEnd.gt.LL)Length=mod(LL,LBuf)
       IADX=IADX+(NOTU-1)*IADXS
       IF(IST.LE.LL) GO TO 52
+
       IST=1
       Return
       End
