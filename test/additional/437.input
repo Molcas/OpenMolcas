@@ -30,6 +30,8 @@
   end of constraints
   ricd
 
+>> copy guess.RasOrb .
+
 >>> DoWhile
 
 &SEWARD

@@ -29,6 +29,8 @@
 
 &SEWARD
 
+>> copy guess.RasOrb .
+
 &RASSCF
   fileOrb  = guess.RasOrb
   thrs     = 1.0d-09, 1.0d-05, 1.0d-05

@@ -29,10 +29,11 @@
   end of constraints
   ricd
 
+>> copy guess.RasOrb .
+
 >>> DoWhile
 
 &SEWARD
-  Verbose
 
 &RASSCF
   fileOrb  = guess.RasOrb
