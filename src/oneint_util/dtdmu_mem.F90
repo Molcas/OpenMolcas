@@ -10,33 +10,34 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine dTdmu_mem(                                             &
-#define _CALLING_
+
+subroutine dTdmu_mem( &
+#                    define _CALLING_
+#                    include "mem_interface.fh"
+                    )
+
 #include "mem_interface.fh"
-     &)
-#include "mem_interface.fh"
-!
-!     Statement function for Cartesian index
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-      Mem=0
-      nHer =0
-      Call EFMmP(nOrder,MmEFP,la,lb+1,lr)
-      Mem=Max(Mem,MmEFP)
-      nHer =Max(nHer,nOrder)
-      If (lb.ge.1) Then
-         Call EFMmP(nOrder,MmEFP,la,lb-1,lr)
-         Mem=Max(Mem,MmEFP)
-         nHer =Max(nHer,nOrder)
-      End If
-!
-!     Add a scratch area for intermediate integrals
-!
-      MemDer = 3*nElem(la)*nElem(lb+1)
-      If (lb.ge.1) MemDer=MemDer + 3*nElem(la)*nElem(lb-1)
-      Mem = Mem + MemDer + 1
-      Mem = Mem + nElem(la)*nElem(lb)*3
-!
-      Return
-      End
+! Statement function for Cartesian index
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+Mem = 0
+nHer = 0
+call EFMmP(nOrder,MmEFP,la,lb+1,lr)
+Mem = max(Mem,MmEFP)
+nHer = max(nHer,nOrder)
+if (lb >= 1) then
+  call EFMmP(nOrder,MmEFP,la,lb-1,lr)
+  Mem = max(Mem,MmEFP)
+  nHer = max(nHer,nOrder)
+end if
+
+! Add a scratch area for intermediate integrals
+
+MemDer = 3*nElem(la)*nElem(lb+1)
+if (lb >= 1) MemDer = MemDer+3*nElem(la)*nElem(lb-1)
+Mem = Mem+MemDer+1
+Mem = Mem+nElem(la)*nElem(lb)*3
+
+return
+
+end subroutine dTdmu_mem

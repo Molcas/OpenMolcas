@@ -8,20 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine KnEMem_GIAO(nHer,MemKne_GIAO,la,lb,lr)
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
-      nHer=((la+1)+(lb+1)+lr+3)/2
 
-      MemKnE_GIAO = 3*nHer*(la+2)                                       &
-     &            + 3*nHer*(lb+2)                                       &
-     &            + 3*nHer*(lr+2)                                       &
-     &            + 3*(la+2)*(lb+2)*(lr+2)                              &
-     &            + 3*(la+1)*(lb+1)*(lr+2)                              &
-     &            + 3*(la+1)*(lb+1)*2                                   &
-     &            + 1 + 1                                               &
-     &            + nElem(la)*nElem(lb)*3
-!
-      Return
-      End
+subroutine KnEMem_GIAO( &
+#                      define _CALLING_
+#                      include "mem_interface.fh"
+                      )
+
+#include "mem_interface.fh"
+! Statement function
+nElem(i) = (i+1)*(i+2)/2
+
+nHer = ((la+1)+(lb+1)+lr+3)/2
+
+Mem = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr+2)+3*(la+2)*(lb+2)*(lr+2)+3*(la+1)*(lb+1)*(lr+2)+3*(la+1)*(lb+1)*2+1+1+ &
+      nElem(la)*nElem(lb)*3
+
+return
+
+end subroutine KnEMem_GIAO

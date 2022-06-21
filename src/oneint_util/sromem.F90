@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine SROMem(                                                &
-#define _CALLING_
-#include "mem_interface.fh"
-     &)
+
+subroutine SROMem( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 !***********************************************************************
 !  Object: to compute the number of real*8 the kernel routine will     *
 !          need for the computation of a matrix element between two    *
@@ -25,52 +26,54 @@
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-!
-      use Basis_Info, only: dbsc, nCnttp, Shells
+
+use Basis_Info, only: dbsc, nCnttp, Shells
+
 #include "mem_interface.fh"
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
-      nHer = 0
-      Mem = 0
-      Do 1960 iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%ECP) Cycle
-         Do 1966 iAng = 0, dbsc(iCnttp)%nSRO-1
-            iShll = dbsc(iCnttp)%iSRO + iAng
-            nExpi = Shells(iShll)%nExp
-            If (nExpi.eq.0) Cycle
-!
-            ip = 0
-            ip = ip + nExpi**2
-            nac = nElem(la)*nElem(iAng)
-            ip = ip + nExpi*nac
-            ip = ip + 3 * nExpi
-            ip = ip + nExpi
-            ip = ip + nExpi
-            ip = ip + nExpi
-!
-            Call MltMmP(nH,MemMlt,la,iAng,lr)
-            nHer = Max(nH,nHer)
-            Mem = Max(Mem,ip+nExpi*MemMlt)
-            ip = ip - 6 * nExpi
-!
-            ncb = nElem(iAng)*nElem(lb)
-            ip = ip + nExpi*ncb
-            ip = ip + 3 * nExpi
-            ip = ip + nExpi
-            ip = ip + nExpi
-            ip = ip + nExpi
-!
-            Call MltMmP(nH,MemMlt,iAng,lb,lr)
-            nHer = Max(nH,nHer)
-            Mem = Max(Mem,ip+nExpi*MemMlt)
-            ip = ip - 6 * nExpi
-!
-            ip = ip + Max(nExpi*nac,ncb*nExpi)
-            Mem = Max(Mem,ip)
-!
- 1966    Continue
- 1960 Continue
-!
-      Return
-      End
+! Statement function
+nElem(i) = (i+1)*(i+2)/2
+
+nHer = 0
+Mem = 0
+do iCnttp=1,nCnttp
+  if (.not. dbsc(iCnttp)%ECP) cycle
+  do iAng=0,dbsc(iCnttp)%nSRO-1
+    iShll = dbsc(iCnttp)%iSRO+iAng
+    nExpi = Shells(iShll)%nExp
+    if (nExpi == 0) cycle
+
+    ip = 0
+    ip = ip+nExpi**2
+    nac = nElem(la)*nElem(iAng)
+    ip = ip+nExpi*nac
+    ip = ip+3*nExpi
+    ip = ip+nExpi
+    ip = ip+nExpi
+    ip = ip+nExpi
+
+    call MltMmP(nH,MemMlt,la,iAng,lr)
+    nHer = max(nH,nHer)
+    Mem = max(Mem,ip+nExpi*MemMlt)
+    ip = ip-6*nExpi
+
+    ncb = nElem(iAng)*nElem(lb)
+    ip = ip+nExpi*ncb
+    ip = ip+3*nExpi
+    ip = ip+nExpi
+    ip = ip+nExpi
+    ip = ip+nExpi
+
+    call MltMmP(nH,MemMlt,iAng,lb,lr)
+    nHer = max(nH,nHer)
+    Mem = max(Mem,ip+nExpi*MemMlt)
+    ip = ip-6*nExpi
+
+    ip = ip+max(nExpi*nac,ncb*nExpi)
+    Mem = max(Mem,ip)
+
+  end do
+end do
+
+return
+
+end subroutine SROMem

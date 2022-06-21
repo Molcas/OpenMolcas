@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine WelInt(                                                &
-#define _CALLING_
-#include "int_interface.fh"
-     &                 )
+
+subroutine WelInt( &
+#                 define _CALLING_
+#                 include "int_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the Pauli repulsion integrals with the            *
@@ -22,102 +23,100 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden. October '92.                            *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "wldata.fh"
 #include "print.fh"
-
 #include "int_interface.fh"
-!
-      iRout = 122
-      iPrint = nPrint(iRout)
+
+iRout = 122
+iPrint = nPrint(iRout)
 !     iQ = 1
-      If (iPrint.ge.59) Then
-         Write (6,*) ' In WelInt'
-         Write (6,*) ' r0, ExpB=',r0,ExpB
-         Write (6,*) ' la,lb=',la,lb
-      End If
-!
-      k = la + lb
-      jsum = 1
-      Do 10 i = 1, k
-         jsum = jsum + 3**i
- 10   Continue
-!
-      ip = 1
-      ipGri = ip
-      ip = ip + nZeta*jsum
-      ipGrin= ip
-      ip = ip + nZeta*(k+1)*(k/2+1)*(k/4+1)
-      iPxyz = ip
-      ip = ip + nZeta
-      If (ip-1.gt.nZeta*nArr) Then
-         Call WarningMessage(2, 'WelInt:  ip-1.gt.nZeta*nArr(pos.1)')
-         Write (6,*) ip-1,'>',nZeta*nArr
-         Call Abend()
-      End If
-!
-      Call Rowel(nZeta,r0,expB,k,Zeta,P,Array(iPxyz),Array(ipGri),      &
-     &           Array(ipGrin),jsum)
-      ip = ip - nZeta
-      ip = ip - nZeta*(k+1)*(k/2+1)*(k/4+1)
-!
-      ipA = ip
-      ip = ip + nZeta*9
-      ipScr = ip
-      ip = ip + nZeta*3**k
-      If (ip-1.gt.nZeta*nArr) Then
-         Call WarningMessage(2, 'WelInt:  ip-1.gt.nZeta*nArr(pos.2)')
-         Write (6,*) ip-1,'>',nZeta*nArr
-         Call Abend()
-      End If
-!
-!-----Transform each block to the global coordinate system
-!
-      iOff = ipgri + nZeta
-      Do 100 ik = 1, k
-         If (ik.eq.1) Call SetUpA(nZeta,Array(ipA),P)
-         Call Traxyz(nZeta,ik,Array(iOff),Array(ipScr),Array(ipA))
-         iOff = iOff + nZeta*3**ik
- 100  Continue
-      If (iPrint.ge.99) Call RecPrt(' In WelInt: Array(ipGri)',' ',     &
-     &   Array(ipGri),nZeta,jSum)
-      ip = ip - nZeta*3**k
-      ip = ip - nZeta*9
-!
-      ip1 = ip
-      ip = ip + nZeta
-      ip2 = ip
-      ip = ip + nZeta
-      ip3 = ip
-      ip = ip + nZeta
-      ip4 = ip
-      ip = ip + nZeta
-      ip5 = ip
-      ip = ip + nZeta
-      If (ip-1.gt.nZeta*nArr) Then
-         Call WarningMessage(2, 'WelInt:  ip-1.gt.nZeta*nArr(pos.3)')
-         Write (6,*) ip-1,'>',nZeta*nArr
-         Call Abend()
-      End If
-      Call TraPAB(nZeta,la,lb,Final,Array(ipgri),jSum,rKappa,Array(ip1),&
-     &            Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
-      ip = ip - nZeta*5
-      ip = ip - nZeta*jsum
-!
-      Return
+if (iPrint >= 59) then
+  write(6,*) ' In WelInt'
+  write(6,*) ' r0, ExpB=',r0,ExpB
+  write(6,*) ' la,lb=',la,lb
+end if
+
+k = la+lb
+jsum = 1
+do i=1,k
+  jsum = jsum+3**i
+end do
+
+ip = 1
+ipGri = ip
+ip = ip+nZeta*jsum
+ipGrin = ip
+ip = ip+nZeta*(k+1)*(k/2+1)*(k/4+1)
+iPxyz = ip
+ip = ip+nZeta
+if (ip-1 > nZeta*nArr) then
+  call WarningMessage(2,'WelInt:  ip-1 > nZeta*nArr(pos.1)')
+  write(6,*) ip-1,'>',nZeta*nArr
+  call Abend()
+end if
+
+call Rowel(nZeta,r0,expB,k,Zeta,P,Array(iPxyz),Array(ipGri),Array(ipGrin),jsum)
+ip = ip-nZeta
+ip = ip-nZeta*(k+1)*(k/2+1)*(k/4+1)
+
+ipA = ip
+ip = ip+nZeta*9
+ipScr = ip
+ip = ip+nZeta*3**k
+if (ip-1 > nZeta*nArr) then
+  call WarningMessage(2,'WelInt:  ip-1 > nZeta*nArr(pos.2)')
+  write(6,*) ip-1,'>',nZeta*nArr
+  call Abend()
+end if
+
+! Transform each block to the global coordinate system
+
+iOff = ipgri+nZeta
+do ik=1,k
+  if (ik == 1) call SetUpA(nZeta,Array(ipA),P)
+  call Traxyz(nZeta,ik,Array(iOff),Array(ipScr),Array(ipA))
+  iOff = iOff+nZeta*3**ik
+end do
+if (iPrint >= 99) call RecPrt(' In WelInt: Array(ipGri)',' ',Array(ipGri),nZeta,jSum)
+ip = ip-nZeta*3**k
+ip = ip-nZeta*9
+
+ip1 = ip
+ip = ip+nZeta
+ip2 = ip
+ip = ip+nZeta
+ip3 = ip
+ip = ip+nZeta
+ip4 = ip
+ip = ip+nZeta
+ip5 = ip
+ip = ip+nZeta
+if (ip-1 > nZeta*nArr) then
+  call WarningMessage(2,'WelInt:  ip-1 > nZeta*nArr(pos.3)')
+  write(6,*) ip-1,'>',nZeta*nArr
+  call Abend()
+end if
+call TraPAB(nZeta,la,lb,final,Array(ipgri),jSum,rKappa,Array(ip1),Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
+ip = ip-nZeta*5
+ip = ip-nZeta*jsum
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Alpha)
-         Call Unused_real_array(Beta)
-         Call Unused_real_array(ZInv)
-         Call Unused_integer(nHer)
-         Call Unused_real_array(Ccoor)
-         Call Unused_integer(nOrdOp)
-         Call Unused_integer_array(lOper)
-         Call Unused_integer_array(iChO)
-         Call Unused_integer_array(iStabM)
-         Call Unused_real_array(PtChrg)
-         Call Unused_integer(iAddPot)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(Alpha)
+  call Unused_real_array(Beta)
+  call Unused_real_array(ZInv)
+  call Unused_integer(nHer)
+  call Unused_real_array(Ccoor)
+  call Unused_integer(nOrdOp)
+  call Unused_integer_array(lOper)
+  call Unused_integer_array(iChO)
+  call Unused_integer_array(iStabM)
+  call Unused_real_array(PtChrg)
+  call Unused_integer(iAddPot)
+end if
+
+end subroutine WelInt

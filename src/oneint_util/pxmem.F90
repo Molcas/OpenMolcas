@@ -10,27 +10,30 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine PXMem(                                                 &
-#define _CALLING_
+
+subroutine PXMem( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
+
 #include "mem_interface.fh"
-     &)
-#include "mem_interface.fh"
-      External NAMem, MltMem, EFMem, CntMem
+external NAMem, MltMem, EFMem, CntMem
 #include "property_label.fh"
-!
-      If (PLabel.eq.'NAInt ') Then
-         Call PVMem(nHer,Mem,la,lb,lr,NAMem)
-      Else If (PLabel.eq.'MltInt') Then
-         Call PVMem(nHer,Mem,la,lb,lr,MltMem)
-      Else If (PLabel.eq.'EFInt ') Then
-         Call PVMem(nHer,Mem,la,lb,lr,EFMem)
-      Else If (PLabel.eq.'CntInt') Then
-         Call PVMem(nHer,Mem,la,lb,lr,CntMem)
-      Else
-         Call WarningMessage(2,'PXMem: Illegal type!')
-         Write(6,*) '       PLabel=',PLabel
-         Call Abend()
-      End If
-!
-      Return
-      End
+
+if (PLabel == 'NAInt ') then
+  call PVMem(nHer,Mem,la,lb,lr,NAMem)
+else if (PLabel == 'MltInt') then
+  call PVMem(nHer,Mem,la,lb,lr,MltMem)
+else if (PLabel == 'EFInt ') then
+  call PVMem(nHer,Mem,la,lb,lr,EFMem)
+else if (PLabel == 'CntInt') then
+  call PVMem(nHer,Mem,la,lb,lr,CntMem)
+else
+  call WarningMessage(2,'PXMem: Illegal type!')
+  write(6,*) '       PLabel=',PLabel
+  call Abend()
+end if
+
+return
+
+end subroutine PXMem

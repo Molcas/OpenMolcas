@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine VelInt(Vxyz,Sxyz,na,nb,Beta,nZeta)
+
+subroutine VelInt(Vxyz,Sxyz,na,nb,Beta,nZeta)
 !***********************************************************************
 !                                                                      *
 ! Object: to assemble the cartesian components of the velocity inte-   *
@@ -20,45 +21,42 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 Vxyz(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na,0:nb+1),        &
-     &       Beta(nZeta)
-      Character*80 Label
-      iRout=160
-      iPrint = nPrint(iRout)
+real*8 Vxyz(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na,0:nb+1), Beta(nZeta)
+character*80 Label
 
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In VelInt: Beta ',' ',Beta ,nZeta,1)
-      End If
-      Do 10 ia = 0, na
-         Do 20 ib = 0, nb
-            If (ib.eq.0) Then
-               Do 33 iCar = 1, 3
-                  Do 43 iZeta = 1, nZeta
-                     Vxyz(iZeta,iCar,ia,ib) =                           &
-     &                 - Beta(iZeta) * Two * Sxyz(iZeta,iCar,ia,ib+1)
- 43               Continue
- 33            Continue
-            Else
-               Do 30 iCar = 1, 3
-                  Do 40 iZeta = 1, nZeta
-                     Vxyz(iZeta,iCar,ia,ib) =                           &
-     &                    Dble(ib) * Sxyz(iZeta,iCar,ia,ib-1)           &
-     &                 - Beta(iZeta) * Two * Sxyz(iZeta,iCar,ia,ib+1)
- 40               Continue
- 30            Continue
-            End If
-!
-            If (iPrint.ge.99) Then
-               Write (Label,'(A,I2,A,I2,A)') ' In VelInt: Vxyz(',ia,',',&
-     &                ib,')'
-               Call RecPrt(Label,' ',Vxyz(1,1,ia,ib),nZeta,3)
-            End If
- 20      Continue
- 10   Continue
+iRout = 160
+iPrint = nPrint(iRout)
 
-!     Call GetMem(' Exit VelInt  ','CHECK','REAL',iDum,iDum)
-      Return
-      End
+if (iPrint >= 99) then
+  call RecPrt(' In VelInt: Beta ',' ',Beta,nZeta,1)
+end if
+do ia=0,na
+  do ib=0,nb
+    if (ib == 0) then
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Vxyz(iZeta,iCar,ia,ib) = -Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+        end do
+      end do
+    else
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Vxyz(iZeta,iCar,ia,ib) = dble(ib)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+        end do
+      end do
+    end if
+
+    if (iPrint >= 99) then
+      write(Label,'(A,I2,A,I2,A)') ' In VelInt: Vxyz(',ia,',',ib,')'
+      call RecPrt(Label,' ',Vxyz(1,1,ia,ib),nZeta,3)
+    end if
+  end do
+end do
+
+return
+
+end subroutine VelInt

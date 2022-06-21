@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Kntc_GIAO(Txyz,Rxyz,Wxyz,na,nb,nr,Alpha,Beta,nZeta)
+
+subroutine Kntc_GIAO(Txyz,Rxyz,Wxyz,na,nb,nr,Alpha,Beta,nZeta)
 !***********************************************************************
 !                                                                      *
 ! Object: to assemble the cartesian components of the kinetic energy   *
@@ -21,150 +22,107 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 Txyz(nZeta,3,0:na  ,0:nb,  0:1),                           &
-     &       Rxyz(nZeta,3,0:na+1,0:nb+1,0:1),                           &
-     &       Wxyz(nZeta,3,0:na  ,0:nb  ,  2),                           &
-     &       Alpha(nZeta), Beta(nZeta)
-      Character*80 Label
+real*8 Txyz(nZeta,3,0:na,0:nb,0:1), Rxyz(nZeta,3,0:na+1,0:nb+1,0:1), Wxyz(nZeta,3,0:na,0:nb,2), Alpha(nZeta), Beta(nZeta)
+character*80 Label
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout = 115
-      iPrint = nPrint(iRout)
+iRout = 115
+iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
-         Call RecPrt(' In Kntc: Beta ',' ',Beta ,nZeta,1)
-         Do ia = 0, na+1
-            Do ib = 0, nb+1
-               Write (Label,'(A,I2,A,I2,A)')                            &
-     &               ' In Kntc: Rxyz(',ia,',',ib,',0)'
-               Call RecPrt(Label,' ',Rxyz(1,1,ia,ib,0),nZeta,3)
-               Write (Label,'(A,I2,A,I2,A)')                            &
-     &               ' In Kntc: Rxyz(',ia,',',ib,',1)'
-               Call RecPrt(Label,' ',Rxyz(1,1,ia,ib,1),nZeta,3)
-            End Do
-         End Do
-      End If
+if (iPrint >= 99) then
+  call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
+  call RecPrt(' In Kntc: Beta ',' ',Beta,nZeta,1)
+  do ia=0,na+1
+    do ib=0,nb+1
+      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Rxyz(',ia,',',ib,',0)'
+      call RecPrt(Label,' ',Rxyz(1,1,ia,ib,0),nZeta,3)
+      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Rxyz(',ia,',',ib,',1)'
+      call RecPrt(Label,' ',Rxyz(1,1,ia,ib,1),nZeta,3)
+    end do
+  end do
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Do ia = 0, na
-         Do ib = 0, nb
-            If (ia.eq.0 .and. ib.eq.0) Then
-               Do iCar = 1, 3
-                  Do iZeta = 1, nZeta
-                     Txyz(iZeta,iCar,ia,ib,0) =                         &
-     &                   Two * Alpha(iZeta) * Beta(iZeta) *             &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib+1,0)
-                     Txyz(iZeta,iCar,ia,ib,1) =                         &
-     &                   Two * Alpha(iZeta) * Beta(iZeta) *             &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib+1,1)
-                     Wxyz(iZeta,iCar,ia,ib,1) =                         &
-     &                  -Two * Alpha(iZeta) *                           &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib  ,0)
-                     Wxyz(iZeta,iCar,ia,ib,2) =                         &
-     &                  -Two *  Beta(iZeta) *                           &
-     &                                      Rxyz(iZeta,iCar,ia  ,ib+1,0)
-                  End Do
-               End Do
-            Else If (ia.eq.0) Then
-               Do iCar = 1, 3
-                  Do iZeta = 1, nZeta
-                     Txyz(iZeta,iCar,ia,ib,0) =                         &
-     &                   Two * Alpha(iZeta) * Beta(iZeta) *             &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib+1,0)&
-     &                - Alpha(iZeta) * ib * Rxyz(iZeta,iCar,ia+1,ib-1,0)
-                     Txyz(iZeta,iCar,ia,ib,1) =                         &
-     &                   Two * Alpha(iZeta) * Beta(iZeta) *             &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib+1,1)&
-     &                - Alpha(iZeta) * ib * Rxyz(iZeta,iCar,ia+1,ib-1,1)
-                     Wxyz(iZeta,iCar,ia,ib,1) =                         &
-     &                  -Two * Alpha(iZeta) *                           &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib  ,0)
-                     Wxyz(iZeta,iCar,ia,ib,2) =                         &
-     &                  -Two *  Beta(iZeta) *                           &
-     &                                      Rxyz(iZeta,iCar,ia  ,ib+1,0)&
-     &                  +              ib * Rxyz(iZeta,iCar,ia  ,ib-1,0)
-                  End Do
-               End Do
-            Else If (ib.eq.0) Then
-               Do iCar = 1, 3
-                  Do iZeta = 1, nZeta
-                     Txyz(iZeta,iCar,ia,ib,0) =                         &
-     &                   Two * Alpha(iZeta) * Beta(iZeta) *             &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib+1,0)&
-     &                - Beta(iZeta)  * ia * Rxyz(iZeta,iCar,ia-1,ib+1,0)
-                     Txyz(iZeta,iCar,ia,ib,1) =                         &
-     &                   Two * Alpha(iZeta) * Beta(iZeta) *             &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib+1,1)&
-     &                - Beta(iZeta)  * ia * Rxyz(iZeta,iCar,ia-1,ib+1,1)
-                     Wxyz(iZeta,iCar,ia,ib,1) =                         &
-     &                  -Two * Alpha(iZeta) *                           &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib  ,0)&
-     &                  +              ia * Rxyz(iZeta,iCar,ia-1,ib  ,0)
-                     Wxyz(iZeta,iCar,ia,ib,2) =                         &
-     &                  -Two *  Beta(iZeta) *                           &
-     &                                      Rxyz(iZeta,iCar,ia  ,ib+1,0)
-                  End Do
-               End Do
-            Else
-               Do iCar = 1, 3
-                  Do iZeta = 1, nZeta
-                     Txyz(iZeta,iCar,ia,ib,0) =                         &
-     &                     Half * ia * ib * Rxyz(iZeta,iCar,ia-1,ib-1,0)&
-     &                - Beta(iZeta)  * ia * Rxyz(iZeta,iCar,ia-1,ib+1,0)&
-     &                - Alpha(iZeta) * ib * Rxyz(iZeta,iCar,ia+1,ib-1,0)&
-     &                + Two * Alpha(iZeta) * Beta(iZeta) *              &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib+1,0)
-                     Txyz(iZeta,iCar,ia,ib,1) =                         &
-     &                     Half * ia * ib * Rxyz(iZeta,iCar,ia-1,ib-1,1)&
-     &                - Beta(iZeta)  * ia * Rxyz(iZeta,iCar,ia-1,ib+1,1)&
-     &                - Alpha(iZeta) * ib * Rxyz(iZeta,iCar,ia+1,ib-1,1)&
-     &                + Two * Alpha(iZeta) * Beta(iZeta) *              &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib+1,1)
-                     Wxyz(iZeta,iCar,ia,ib,1) =                         &
-     &                  -Two * Alpha(iZeta) *                           &
-     &                                      Rxyz(iZeta,iCar,ia+1,ib  ,0)&
-     &                  +              ia * Rxyz(iZeta,iCar,ia-1,ib  ,0)
-                     Wxyz(iZeta,iCar,ia,ib,2) =                         &
-     &                  -Two *  Beta(iZeta) *                           &
-     &                                      Rxyz(iZeta,iCar,ia  ,ib+1,0)&
-     &                  +              ib * Rxyz(iZeta,iCar,ia  ,ib-1,0)
-                  End Do
-               End Do
-            End If
+do ia=0,na
+  do ib=0,nb
+    if ((ia == 0) .and. (ib == 0)) then
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Txyz(iZeta,iCar,ia,ib,0) = Two*Alpha(iZeta)*Beta(iZeta)*Rxyz(iZeta,iCar,ia+1,ib+1,0)
+          Txyz(iZeta,iCar,ia,ib,1) = Two*Alpha(iZeta)*Beta(iZeta)*Rxyz(iZeta,iCar,ia+1,ib+1,1)
+          Wxyz(iZeta,iCar,ia,ib,1) = -Two*Alpha(iZeta)*Rxyz(iZeta,iCar,ia+1,ib,0)
+          Wxyz(iZeta,iCar,ia,ib,2) = -Two*Beta(iZeta)*Rxyz(iZeta,iCar,ia,ib+1,0)
+        end do
+      end do
+    else if (ia == 0) then
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Txyz(iZeta,iCar,ia,ib,0) = Two*Alpha(iZeta)*Beta(iZeta)*Rxyz(iZeta,iCar,ia+1,ib+1,0)- &
+                                     Alpha(iZeta)*ib*Rxyz(iZeta,iCar,ia+1,ib-1,0)
+          Txyz(iZeta,iCar,ia,ib,1) = Two*Alpha(iZeta)*Beta(iZeta)*Rxyz(iZeta,iCar,ia+1,ib+1,1)- &
+                                     Alpha(iZeta)*ib*Rxyz(iZeta,iCar,ia+1,ib-1,1)
+          Wxyz(iZeta,iCar,ia,ib,1) = -Two*Alpha(iZeta)*Rxyz(iZeta,iCar,ia+1,ib,0)
+          Wxyz(iZeta,iCar,ia,ib,2) = -Two*Beta(iZeta)*Rxyz(iZeta,iCar,ia,ib+1,0)+ib*Rxyz(iZeta,iCar,ia,ib-1,0)
+        end do
+      end do
+    else if (ib == 0) then
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Txyz(iZeta,iCar,ia,ib,0) = Two*Alpha(iZeta)*Beta(iZeta)*Rxyz(iZeta,iCar,ia+1,ib+1,0)- &
+                                     Beta(iZeta)*ia*Rxyz(iZeta,iCar,ia-1,ib+1,0)
+          Txyz(iZeta,iCar,ia,ib,1) = Two*Alpha(iZeta)*Beta(iZeta)*Rxyz(iZeta,iCar,ia+1,ib+1,1)- &
+                                     Beta(iZeta)*ia*Rxyz(iZeta,iCar,ia-1,ib+1,1)
+          Wxyz(iZeta,iCar,ia,ib,1) = -Two*Alpha(iZeta)*Rxyz(iZeta,iCar,ia+1,ib,0)+ia*Rxyz(iZeta,iCar,ia-1,ib,0)
+          Wxyz(iZeta,iCar,ia,ib,2) = -Two*Beta(iZeta)*Rxyz(iZeta,iCar,ia,ib+1,0)
+        end do
+      end do
+    else
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Txyz(iZeta,iCar,ia,ib,0) = Half*ia*ib*Rxyz(iZeta,iCar,ia-1,ib-1,0)-Beta(iZeta)*ia*Rxyz(iZeta,iCar,ia-1,ib+1,0)- &
+                                     Alpha(iZeta)*ib*Rxyz(iZeta,iCar,ia+1,ib-1,0)+ &
+                                     Two*Alpha(iZeta)*Beta(iZeta)*Rxyz(iZeta,iCar,ia+1,ib+1,0)
+          Txyz(iZeta,iCar,ia,ib,1) = Half*ia*ib*Rxyz(iZeta,iCar,ia-1,ib-1,1)-Beta(iZeta)*ia*Rxyz(iZeta,iCar,ia-1,ib+1,1)- &
+                                     Alpha(iZeta)*ib*Rxyz(iZeta,iCar,ia+1,ib-1,1)+ &
+                                     Two*Alpha(iZeta)*Beta(iZeta)*Rxyz(iZeta,iCar,ia+1,ib+1,1)
+          Wxyz(iZeta,iCar,ia,ib,1) = -Two*Alpha(iZeta)*Rxyz(iZeta,iCar,ia+1,ib,0)+ia*Rxyz(iZeta,iCar,ia-1,ib,0)
+          Wxyz(iZeta,iCar,ia,ib,2) = -Two*Beta(iZeta)*Rxyz(iZeta,iCar,ia,ib+1,0)+ib*Rxyz(iZeta,iCar,ia,ib-1,0)
+        end do
+      end do
+    end if
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    if (iPrint >= 99) then
+      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,',0)'
+      call RecPrt(Label,' ',Txyz(1,1,ia,ib,0),nZeta,3)
+      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,',1)'
+      call RecPrt(Label,' ',Txyz(1,1,ia,ib,1),nZeta,3)
+      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',ib,',1)'
+      call RecPrt(Label,' ',Wxyz(1,1,ia,ib,1),nZeta,3)
+      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',ib,',2)'
+      call RecPrt(Label,' ',Wxyz(1,1,ia,ib,2),nZeta,3)
+    end if
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  end do
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-            If (iPrint.ge.99) Then
-               Write (Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',  &
-     &                ib,',0)'
-               Call RecPrt(Label,' ',Txyz(1,1,ia,ib,0),nZeta,3)
-               Write (Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',  &
-     &                ib,',1)'
-               Call RecPrt(Label,' ',Txyz(1,1,ia,ib,1),nZeta,3)
-               Write (Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',  &
-     &                ib,',1)'
-               Call RecPrt(Label,' ',Wxyz(1,1,ia,ib,1),nZeta,3)
-               Write (Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',  &
-     &                ib,',2)'
-               Call RecPrt(Label,' ',Wxyz(1,1,ia,ib,2),nZeta,3)
-            End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         End Do
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Return
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nr)
-      End
+if (.false.) call Unused_integer(nr)
+
+end subroutine Kntc_GIAO

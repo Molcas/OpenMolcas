@@ -1,0 +1,84 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+#include "compiler_features.h"
+#ifdef _HDF5_
+
+subroutine one2h5_fckint(fileid,nsym,nbas)
+! IFG: read atomic Fock matrix from the 1-electron integral file
+! and write it to the HDF5 file specified with fileid.
+! This routine does nothing if HDF5 is not supported.
+!
+! Datasets:
+!   AO_FOCKINT_MATRIX
+
+use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,mh5_close_dset
+
+implicit none
+integer :: fileid
+integer :: nsym, nbas(*)
+#include "Molcas.fh"
+#include "stdalloc.fh"
+integer :: isym
+integer :: nb, nbast, nbast1, nbast2
+real*8, allocatable :: SAO(:), Scr(:)
+integer :: iRc, iOpt, iComp, iSyLbl
+character(len=8) :: Label
+integer :: iOff1, iOff2
+integer :: dsetid
+
+nbast = 0
+nbast1 = 0
+nbast2 = 0
+do isym=1,nsym
+  nb = nbas(isym)
+  nbast = nbast+nb
+  nbast1 = nbast1+(nb*(nb+1))/2
+  nbast2 = nbast2+nb**2
+end do
+
+! atomic orbital Fock matrix
+dsetid = mh5_create_dset_real(fileid,'AO_FOCKINT_MATRIX',1,[NBAST2])
+call mh5_init_attr(dsetid,'DESCRIPTION','Fock matrix of the atomic orbitals, arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
+
+call mma_allocate(SAO,NBAST1)
+iRc = -1
+iOpt = 6
+iComp = 1
+iSyLbl = 1
+Label = 'FckInt  '
+call RdOne(iRc,iOpt,Label,iComp,SAO,iSyLbl)
+iOff1 = 0
+iOff2 = 0
+do iSym=1,nSym
+  nB = nBas(iSym)
+  if (nb > 0) then
+    call mma_allocate(scr,nb*nb)
+    call Square(SAO(1+iOff1),Scr,1,nb,nb)
+    call mh5_put_dset(dsetid,Scr,[nb*nb],[iOff2])
+    call mma_deallocate(scr)
+  end if
+  iOff1 = iOff1+(nb*nb+nb)/2
+  iOff2 = iOff2+(nb*nb)
+end do
+call mma_deallocate(SAO)
+
+call mh5_close_dset(dsetid)
+
+end subroutine one2h5_fckint
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(one2h5_fckint)
+
+#endif

@@ -8,7 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-Module PAM2
-Integer ::  kCnttpPAM=0, iPAMPrim=0, iPAMCount=0
-End Module PAM2
+
+module PAM2
+
+integer :: kCnttpPAM = 0, iPAMPrim = 0, iPAMCount = 0
+
+end module PAM2

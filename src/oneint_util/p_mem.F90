@@ -8,20 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine P_Mem(                                                 &
-#define _CALLING_
+
+subroutine P_Mem( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
+
 #include "mem_interface.fh"
-     &)
-#include "mem_interface.fh"
-!
-      Mem=1
-!
-      Return
+
+Mem = 1
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nHer)
-         Call Unused_integer(la)
-         Call Unused_integer(lb)
-         Call Unused_integer(lr)
-      End If
-      End
+if (.false.) then
+  call Unused_integer(nHer)
+  call Unused_integer(la)
+  call Unused_integer(lb)
+  call Unused_integer(lr)
+end if
+
+end subroutine P_Mem

@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2006, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine PXInt(                                                 &
-#define _CALLING_
-#include "int_interface.fh"
-     &                )
+
+subroutine PXInt( &
+#                define _CALLING_
+#                include "int_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of  pX integrals          *
@@ -23,203 +24,171 @@
 ! Author: Roland Lindh, Dept. Chem. Phys., Lund University,            *
 !         June 2006                                                    *
 !***********************************************************************
-      use Symmetry_Info, only: nIrrep, iChBas
-      Implicit Real*8 (A-H,O-Z)
-      External NAInt, MltInt, EFInt, CntInt
+
+use Symmetry_Info, only: nIrrep, iChBas
+
+implicit real*8(A-H,O-Z)
+external NAInt, MltInt, EFInt, CntInt
 #include "print.fh"
 #include "property_label.fh"
-
 #include "int_interface.fh"
+! Local variables
+parameter(mComp=200)
+integer kOper(mComp), kChO(mComp)
 
-!     Local variables
-      Parameter (mComp=200)
-      Integer kOper(mComp), kChO(mComp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!      Interface
-!      Subroutine PVINT(
-!#define _CALLING_
-!#include "int_interface.fh"
-!     &                , Kernel)
-!#include "int_interface.fh"
-!      External Kernel
-!      End Subroutine PVINT
-!      End Interface
+! nIC: number of symmetry adapted blocks in total for the nComp
+!      elements of the compund operator, pX.
+! nComp: is the number of elements of the compund operator
+!
+! kIC: number of symmetry adapted blocks in total for the kComp
+!      elements of the operator X
+! kComp: is the number of elements of the operator X.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+! Note that the p operator's each element is only a basis function
+! of a single irreducible representation. Hence, 3*kIC=nIC.
 !
+! In addition if the operator X has kComp elements pX has 3*kComp
+! elements.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     nIC: number of symmetry adapted blocks in total for the nComp
-!          elements of the compund operator, pX.
-!     nComp: is the number of elements of the compund operator
-!
-!     kIC: number of symmetry adapted blocks in total for the kComp
-!          elements of the operator X
-!     kComp: is the number of elements of the operator X.
+nRys = nHer
+kIC = nIC/3
+kComp = nComp/3
+kOrdOp = nOrdOp-1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Note that the p operator's each element is only a basis function
-!     of a single irreducible representation. Hence, 3*kIC=nIC.
+! Now produce the kOper array with kComp elements from the lOper
+! array. Dito kChO/iChO.
 !
-!     In addition if the operator X has kComp elements pX has 3*kComp
-!     elements.
+! lOper is an integer which bit pattern indicate to which irreps
+! the component of the operator is a basis function. Note that the
+! operator is not symmetry adapted, i.e. it can be a basis function
+! in more than one irrep.
+!
+! iChO is an integer which describe the parity character of the
+! operator with respect to X, Y, and Z coordinates. For example,
+! if the first bit is set this means that the operator change sign
+! under a reflextion  in the yz-plane, etc.
+
+if (kComp > mComp) then
+  call WarningMessage(2,'PXInt: kComp > mComp')
+  write(6,*) 'kComp=',kComp
+  write(6,*) 'mComp=',mComp
+  call Abend()
+end if
+
+! As we remove the p operator (three of them) X should be the same
+! regardless of if we remove d/dx, d/dy, or d/dz.
+
+iSym_p1 = IrrFnc(1)   ! d/dx
+iSym_p2 = IrrFnc(2)   ! d/dy
+iSym_p3 = IrrFnc(4)   ! d/dz
+!write(6,*)
+!write(6,*) 'pXInt******'
+!write(*,*) 'iSym_p=',iSym_p1,iSym_p2,iSym_p3
+ipar_p1 = iChBas(2)
+ipar_p2 = iChBas(3)
+ipar_p3 = iChBas(4)
+!write(6,*) 'ipar_p=',ipar_p1,ipar_p2,ipar_p3
+do iComp=1,kComp
+  jComp1 = (iComp-1)*3+1
+  jComp2 = (iComp-1)*3+2
+  jComp3 = (iComp-1)*3+3
+  jpar_p1 = iChO(jComp1)
+  jpar_p2 = iChO(jComp2)
+  jpar_p3 = iChO(jComp3)
+
+  ! Look thru all irreps and check if pX is a basis function in
+  ! irrep iSym_pX. If so find the symmetry to which X is a basis function
+
+  jTemp1 = 0
+  jTemp2 = 0
+  jTemp3 = 0
+  !write(6,*) 'lOper=',lOper(jComp1),lOper(jComp2),lOper(jComp3)
+  do iSym_pX=0,nIrrep-1
+    if (iand(2**iSym_pX,lOper(jComp1)) /= 0) then
+      iSym_X = ieor(iSym_pX,iSym_p1)
+      !write(6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
+      jTemp1 = ior(jTemp1,2**iSym_X)
+      !write(6,*) 'jTemp1=',jTemp1
+    end if
+    if (iand(2**iSym_pX,lOper(jComp2)) /= 0) then
+      iSym_X = ieor(iSym_pX,iSym_p2)
+      !write(6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
+      jTemp2 = ior(jTemp2,2**iSym_X)
+      !write(6,*) 'jTemp2=',jTemp2
+    end if
+    if (iand(2**iSym_pX,lOper(jComp3)) /= 0) then
+      iSym_X = ieor(iSym_pX,iSym_p3)
+      !write(6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
+      jTemp3 = ior(jTemp3,2**iSym_X)
+      !write(6,*) 'jTemp3=',jTemp3
+    end if
+  end do
+
+  ! Check for consistency!
+
+  if ((jTemp1 /= jTemp2) .or. (jTemp1 /= jTemp3)) then
+    call WarningMessage(2,'PXInt: corrupted jTemps!')
+    write(6,*) 'jTemp1,jTemp2,jTemp3=',jTemp1,jTemp2,jTemp3
+    call Abend()
+  end if
+
+  ! Compute the parity of X
+
+  jpar_p1 = ieor(jpar_p1,ipar_p1)
+  jpar_p2 = ieor(jpar_p2,ipar_p2)
+  jpar_p3 = ieor(jpar_p3,ipar_p3)
+
+  if ((jpar_p1 /= jpar_p2) .or. (jpar_p1 /= jpar_p3)) then
+    call WarningMessage(2,'PXInt: corrupted jpars!')
+    call Abend()
+  end if
+
+  ! Store the data
+
+  kOper(iComp) = jTemp1
+  kChO(iComp) = jpar_p1
+end do
+
+!write(6,*) 'pXpInt'
+!do iComp=1,nComp
+!  write(6,*) lOper(iComp),iChO(iComp)
+!end do
+!write(6,*)
+!do iComp=1,kComp
+!  write(6,*) kOper(iComp),kChO(iComp)
+!end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nRys = nHer
-      kIC=nIC/3
-      kComp=nComp/3
-      kOrdOp = nOrdOp-1
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Now produce the kOper array with kComp elements from the lOper
-!     array. Dito kChO/iChO.
-!
-!     lOper is an integer which bit pattern indicate to which irreps
-!     the component of the operator is a basis function. Note that the
-!     operator is not symmetry adapted, i.e. it can be a basis function
-!     in more than one irrep.
-!
-!     iChO is an integer which describe the parity character of the
-!     operator with respect to X, Y, and Z coordinates. For example,
-!     if the first bit is set this means that the operator change sign
-!     under a reflextion  in the yz-plane, etc.
-!
-      If (kComp.gt.mComp) Then
-         Call WarningMessage(2,'PXInt: kComp.gt.mComp')
-         Write (6,*) 'kComp=',kComp
-         Write (6,*) 'mComp=',mComp
-         Call Abend()
-      End If
-!
-!     As we remove the p operator (three of them) X should be the same
-!     regardless of if we remove d/dx, d/dy, or d/dz.
-!
-      iSym_p1 = IrrFnc(1)   ! d/dx
-      iSym_p2 = IrrFnc(2)   ! d/dy
-      iSym_p3 = IrrFnc(4)   ! d/dz
-!     Write (6,*)
-!     Write (6,*) 'pXInt******'
-!     Write (*,*) 'iSym_p=',iSym_p1,iSym_p2,iSym_p3
-      ipar_p1 = iChBas(2)
-      ipar_p2 = iChBas(3)
-      ipar_p3 = iChBas(4)
-!     Write (6,*) 'ipar_p=',ipar_p1,ipar_p2,ipar_p3
-      Do iComp = 1, kComp
-         jComp1 = (iComp-1)*3 + 1
-         jComp2 = (iComp-1)*3 + 2
-         jComp3 = (iComp-1)*3 + 3
-         jpar_p1 = iChO(jComp1)
-         jpar_p2 = iChO(jComp2)
-         jpar_p3 = iChO(jComp3)
-!
-!        Look thru all irreps and check if pX is a basis function in
-!        irrep iSym_pX. If so find the symmetry to which X is a basis
-!        function
-!
-         jTemp1= 0
-         jTemp2= 0
-         jTemp3= 0
-!        Write (6,*) 'lOper=',lOper(jComp1),lOper(jComp2),lOper(jComp3)
-         Do iSym_pX = 0, nIrrep-1
-            If (iAnd(2**iSym_pX,lOper(jComp1)).ne.0) Then
-                iSym_X = iEOr(iSym_pX,iSym_p1)
-!               Write (6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
-                jTemp1=iOr(jTemp1,2**iSym_X)
-!               Write (6,*) 'jTemp1=',jTemp1
-            End If
-            If (iAnd(2**iSym_pX,lOper(jComp2)).ne.0) Then
-                iSym_X = iEOr(iSym_pX,iSym_p2)
-!               Write (6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
-                jTemp2=iOr(jTemp2,2**iSym_X)
-!               Write (6,*) 'jTemp2=',jTemp2
-            End If
-            If (iAnd(2**iSym_pX,lOper(jComp3)).ne.0) Then
-                iSym_X = iEOr(iSym_pX,iSym_p3)
-!               Write (6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
-                jTemp3=iOr(jTemp3,2**iSym_X)
-!               Write (6,*) 'jTemp3=',jTemp3
-            End If
-         End Do
-!
-!        Check for consistency!
-!
-         If (jTemp1.ne.jTemp2.or.jTemp1.ne.jTemp3) Then
-            Call WarningMessage(2,'PXInt: corrupted jTemps!')
-            Write (6,*) 'jTemp1,jTemp2,jTemp3=',                        &
-     &                   jTemp1,jTemp2,jTemp3
-            Call Abend()
-         End If
-!
-!        Compute the parity of X
-!
-         jpar_p1=iEOr(jpar_p1,ipar_p1)
-         jpar_p2=iEOr(jpar_p2,ipar_p2)
-         jpar_p3=iEOr(jpar_p3,ipar_p3)
-!
-         If (jpar_p1.ne.jpar_p2.or.jpar_p1.ne.jpar_p3) Then
-            Call WarningMessage(2,'PXInt: corrupted jpars!')
-            Call Abend()
-         End If
-!
-!        Store the data
-!
-         kOper(iComp)=jTemp1
-         kChO(iComp)=jpar_p1
-      End Do
-!
-!     Write (6,*) 'pXpInt'
-!     Do iComp = 1, nComp
-!        Write (6,*) lOper(iComp), iChO(iComp)
-!     End Do
-!     Write (6,*)
-!     Do iComp = 1, kComp
-!        Write (6,*) kOper(iComp), kChO(iComp)
-!     End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Compute now the integrals
-!
-      If (PLabel.eq.'NAInt ') Then
-         Call PVInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,        &
-     &              Final,nZeta,kIC,kComp,la,lb,A,RB,nRys,              &
-     &              Array,nArr,CCoor,kOrdOp,kOper,kChO,                 &
-     &              iStabM,nStabM,                                      &
-     &              PtChrg,nGrid,iAddPot,                               &
-     &              NAInt)
-      Else If (PLabel.eq.'MltInt') Then
-         Call PVInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,        &
-     &              Final,nZeta,kIC,kComp,la,lb,A,RB,nRys,              &
-     &              Array,nArr,CCoor,kOrdOp,kOper,kChO,                 &
-     &              iStabM,nStabM,                                      &
-     &              PtChrg,nGrid,iAddPot,                               &
-     &              MltInt)
-      Else If (PLabel.eq.'EFInt ') Then
-         Call PVInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,        &
-     &              Final,nZeta,kIC,kComp,la,lb,A,RB,nRys,              &
-     &              Array,nArr,CCoor,kOrdOp,kOper,kChO,                 &
-     &              iStabM,nStabM,                                      &
-     &              PtChrg,nGrid,iAddPot,                               &
-     &              EFInt)
-      Else If (PLabel.eq.'CntInt') Then
-         Call PVInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,        &
-     &              Final,nZeta,kIC,kComp,la,lb,A,RB,nRys,              &
-     &              Array,nArr,CCoor,kOrdOp,kOper,kChO,                 &
-     &              iStabM,nStabM,                                      &
-     &              PtChrg,nGrid,iAddPot,                               &
-     &              CntInt)
-      Else
-         Call WarningMessage(2,'PXInt: Illegal type!')
-         Write(6,*) '       PLabel=',PLabel
-         Call Abend()
-      End If
-!
-      Return
-      End
+! Compute now the integrals
+
+if (PLabel == 'NAInt ') then
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+             iStabM,nStabM,PtChrg,nGrid,iAddPot,NAInt)
+else if (PLabel == 'MltInt') then
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+             iStabM,nStabM,PtChrg,nGrid,iAddPot,MltInt)
+else if (PLabel == 'EFInt ') then
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+             iStabM,nStabM,PtChrg,nGrid,iAddPot,EFInt)
+else if (PLabel == 'CntInt') then
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+             iStabM,nStabM,PtChrg,nGrid,iAddPot,CntInt)
+else
+  call WarningMessage(2,'PXInt: Illegal type!')
+  write(6,*) '       PLabel=',PLabel
+  call Abend()
+end if
+
+return
+
+end subroutine PXInt

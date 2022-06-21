@@ -11,6 +11,31 @@
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 
+!***********************************************************************
+! Alpha : exponents of bra gaussians                                   *
+! nAlpha: number of primitives (exponents) of bra gaussians            *
+! Beta  : as Alpha but for ket gaussians                               *
+! nBeta : as nAlpha but for the ket gaussians                          *
+! Zeta  : sum of exponents (nAlpha x nBeta)                            *
+! ZInv  : inverse of Zeta                                              *
+! rKappa: gaussian prefactor for the products of bra and ket gaussians *
+! P     : center of new gaussian from the products of bra and ket      *
+!         gaussians                                                    *
+! rFinal: array for computed integrals                                 *
+! nZeta : nAlpha x nBeta                                               *
+! nComp : number of components in the operator (e.g. dipole moment     *
+!         operator has three components)                               *
+! la    : total angular momentum of bra gaussian                       *
+! lb    : total angular momentum of ket gaussian                       *
+! A     : center of bra gaussian                                       *
+! B     : center of ket gaussian                                       *
+! nHer  : order of Rys- or Hermite-Gauss polynomial                    *
+! Array : Auxiliary memory as requested by ECPMem                      *
+! nArr  : length of Array                                              *
+! Ccoor : coordinates of the operator, zero for symmetric oper.        *
+! nOrdOp: Order of the operator                                        *
+!***********************************************************************
+
 #ifdef _CALLING_
 Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdc, &
 ndc,kOp,lOper,nComp,iStabM,nStabM &

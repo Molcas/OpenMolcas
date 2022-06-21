@@ -10,47 +10,50 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine VpMem(                                                 &
-#define _CALLING_
+
+subroutine VPMem( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
+
 #include "mem_interface.fh"
-     &)
-#include "mem_interface.fh"
-      Integer iAngV(4)
-!
-      nElem(i)=(i+1)*(i+2)/2
-!
-      Call mHrr(la,lb+1,nFlop,nMem)
-!
-      nHer=(la+lb+1+lr+2)/2
-      iAngV(1) = la
-      iAngV(2) = lb+1
-      iAngV(3) = 0
-      iAngV(4) = 0
-      Call MemRys(iAngV,MemNA1)
-!
-      MemNA1 = Max(nMem,MemNA1)
-!
-      If (lb.ne.0) Then
-         Call mHrr(la,lb-1,nFlop,nMem)
-!
-         nHer=(la+lb-1+lr+2)/2
-         iAngV(1) = la
-         iAngV(2) = lb-1
-         iAngV(3) = 0
-         iAngV(4) = 0
-         Call MemRys(iAngV,MemNA2)
-!
-         MemNA2 = Max(nMem,MemNA2)
-      Else
-         MemNA2=0
-      End If
-!
-      Mem=Max(MemNA1,MemNA2)
-!
-      Mem=Mem+1
-!
-      Mem = Mem+nElem(la)*nElem(lb+1)
-      If (lb.ne.0) Mem=Mem+nElem(la)*nElem(lb-1)
-!
-      Return
-      End
+integer iAngV(4)
+! Statement function
+nElem(i) = (i+1)*(i+2)/2
+
+call mHrr(la,lb+1,nFlop,nMem)
+
+nHer = (la+lb+1+lr+2)/2
+iAngV(1) = la
+iAngV(2) = lb+1
+iAngV(3) = 0
+iAngV(4) = 0
+call MemRys(iAngV,MemNA1)
+
+MemNA1 = max(nMem,MemNA1)
+
+if (lb /= 0) then
+  call mHrr(la,lb-1,nFlop,nMem)
+
+  nHer = (la+lb-1+lr+2)/2
+  iAngV(1) = la
+  iAngV(2) = lb-1
+  iAngV(3) = 0
+  iAngV(4) = 0
+  call MemRys(iAngV,MemNA2)
+
+  MemNA2 = max(nMem,MemNA2)
+else
+  MemNA2 = 0
+end if
+
+Mem = max(MemNA1,MemNA2)
+
+Mem = Mem+1
+
+Mem = Mem+nElem(la)*nElem(lb+1)
+if (lb /= 0) Mem = Mem+nElem(la)*nElem(lb-1)
+
+return
+
+end subroutine VPMem

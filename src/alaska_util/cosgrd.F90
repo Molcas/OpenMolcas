@@ -131,7 +131,7 @@ do iTs=1,nTs
   kat = nint(PCMTess(4,iTs))
   if (iPrint >= 99) call RecPrt('C',' ',C,3,1)
 
-  ! Generate stabilizor of C
+  ! Generate stabilizer of C
 
   nStb = 1
   iStb(0) = 0

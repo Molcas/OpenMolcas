@@ -8,58 +8,69 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1991, Roland Lindh                                     *
-!               2016, Lasse Kragh Soerensen                            *
+! Copyright (C) 2002, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine OAMInt( &
-#                 define _CALLING_
-#                 include "int_interface.fh"
-                 )
+subroutine dTdmu_int( &
+#                    define _CALLING_
+#                    include "int_interface.fh"
+                    )
 !***********************************************************************
 !                                                                      *
-! Object: kernel routine for the computation of orbital angular        *
-!         momentum integrals.                                          *
+! Object: kernel routine for the computation of diamagnetic shielding  *
+!         integrals.                                                   *
 !                                                                      *
-!     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-!             of Lund, Sweden, February '91                            *
-!             Placed restrictions on the differentiation. Lasse '16    *
+!     Author: Roland Lindh, Dept. of Chemical Physics, University      *
+!             of Lund, Sweden, September 2002.                         *
 !***********************************************************************
-
-use Gateway_Info, only: lUPONLY, lDOWNONLY
 
 implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
 #include "int_interface.fh"
 ! Local variables
-real*8 TC(3)
-integer iStabO(0:7), iDCRT(0:7)
+real*8 TC(3,2)
+integer iDCRT(0:7), iStabO(0:7)
 ! Statement function for Cartesian index
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+iRout = 230
+iPrint = nPrint(iRout)
+
+nRys = nHer
+
+if (iPrint >= 99) then
+  call RecPrt(' In dTdmu_int: Alpha',' ',Alpha,nAlpha,1)
+  call RecPrt(' In dTdmu_int: Beta',' ',Beta,nBeta,1)
+end if
+
 nip = 1
-ipB = nip
-nip = nip+nZeta
 ipS1 = nip
 nip = nip+nZeta*nElem(la)*nElem(lb+1)*3
-ipS2 = 1
-if (lb > 0) then
-  ipS2 = nip
-  nip = nip+nZeta*nElem(la)*nElem(lb-1)*3
-end if
+ipS2 = nip
+if (lb >= 1) nip = nip+nZeta*nElem(la)*nElem(lb-1)*3
 ipRes = nip
 nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+ipB = nip
+nip = nip+nZeta
 if (nip-1 > nZeta*nArr) then
-  call WarningMessage(2,' OAMInt: nip-1 > nZeta*nArr')
+  call WarningMessage(2,'dTdmu_int: nip-1 > nZeta*nArr')
+  write(6,*) 'nip=',nip
+  write(6,*) 'nZeta,nArr=',nZeta,nArr
   call Abend()
 end if
 ipArr = nip
-mArr = (nArr*nZeta-(nip-1))/nZeta
+mArr = nZeta*nArr-nip+1
 
 call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
 
-iComp = 3
+ipOff = ipB
+do iAlpha=1,nAlpha
+  call dcopy_(nBeta,Beta,1,Array(ipOff),nAlpha)
+  ipOff = ipOff+1
+end do
+!
+iComp = 1
 llOper = lOper(1)
 do iComp=2,nComp
   llOper = ior(llOper,lOper(iComp))
@@ -67,34 +78,22 @@ end do
 call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
-ipOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipOff),nAlpha)
-  ipOff = ipOff+1
-end do
-
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),CCoor,TC)
+  call OA(iDCRT(lDCRT),Ccoor(1:3,1),TC(1:3,1))
+  call OA(iDCRT(lDCRT),Ccoor(1:3,2),TC(1:3,2))
 
-  if (.not. lDOWNONLY) then
-    nHer = (la+(lb+1)+(nOrdOp-1)+2)/2
-    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,iComp,la,lb+1,A,RB,nHer,Array(ipArr),mArr,TC,nOrdOp-1)
-  end if
+  ! Compute contribution from a,b+1
 
-  if (lb > 0) then
-    if (.not. lUPONLY) then
-      nHer = (la+(lb-1)+(nOrdOp-1)+2)/2
-      call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,iComp,la,lb-1,A,RB,nHer,Array(ipArr),mArr,TC, &
-                  nOrdOp-1)
-    end if
-  end if
+  call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nComp,la,lb+1,A,RB,nRys,Array(ipArr),mArr,TC,nOrdOp)
 
-  ! Combine derivatives of dipole integrals to generate the
-  ! orbital angular momentum integrals.
+  ! Compute contribution from a,b-1
 
-  call Util2(Array(ipB),nZeta,Array(ipRes),la,lb,Array(ipS1),Array(ipS2))
+  if (lb >= 1) &
+    call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nComp,la,lb-1,A,RB,nRys,Array(ipArr),mArr,TC,nOrdOp)
 
-  ! Accumulate contributions
+  ! Assemble final integral from the derivative integrals
+
+  call Assemble_dTdmu(nZeta,Array(ipRes),la,lb,Array(ipS1),Array(ipS2),Array(ipB))
 
   nOp = NrOpr(iDCRT(lDCRT))
   call SymAdO(Array(ipRes),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
@@ -108,4 +107,4 @@ if (.false.) then
   call Unused_integer(iAddPot)
 end if
 
-end subroutine OAMInt
+end subroutine dTdmu_int

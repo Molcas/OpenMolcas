@@ -8,26 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine KnEMem(                                                &
-#define _CALLING_
+
+subroutine KnEMem( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
+
 #include "mem_interface.fh"
-     &)
-#include "mem_interface.fh"
-!
 #include "rmat_option.fh"
-!
-      nHer=(la+lb+lr+2)/2
-      Mem = 3*nHer*(la+2) +                                             &
-     &      3*nHer*(lb+2) +                                             &
-     &      3*nHer*(lr-1) +                                             &
-     &      3*(la+2)*(lb+2)*(lr-1) +                                    &
-     &      3*(la+1)*(lb+1) + 1 + 1
-      If (RMat_type_integrals) Then
-         Mem = Mem                                                      &
-     &       + la+lb+3                                                  &
-     &       + la+lb+1                                                  &
-     &       + la+lb+1
-      End If
-!
-      Return
-      End
+
+nHer = (la+lb+lr+2)/2
+Mem = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr-1)+3*(la+2)*(lb+2)*(lr-1)+3*(la+1)*(lb+1)+1+1
+if (RMat_type_integrals) then
+  Mem = Mem+la+lb+3+la+lb+1+la+lb+1
+end if
+
+return
+
+end subroutine KnEMem

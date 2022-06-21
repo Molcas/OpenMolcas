@@ -10,18 +10,25 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine PVMem(nHer,Mem,la,lb,lr,KrnMem)
-      External KrnMem
-!
-      Call KrnMem(nHer,MemNA1,la+1,lb,lr-1)
-!
-      If (la.ne.0) Then
-         Call KrnMem(nHer,MemNA2,la-1,lb,lr-1)
-      Else
-         MemNA2=0
-      End If
-!
-      Mem=Max(MemNA1,MemNA2)
-!
-      Return
-      End
+
+subroutine PVMem( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                 ,KrnMem)
+
+#include "mem_interface.fh"
+external KrnMem
+
+call KrnMem(nHer,MemNA1,la+1,lb,lr-1)
+
+if (la /= 0) then
+  call KrnMem(nHer,MemNA2,la-1,lb,lr-1)
+else
+  MemNA2 = 0
+end if
+
+Mem = max(MemNA1,MemNA2)
+
+return
+
+end subroutine PVMem

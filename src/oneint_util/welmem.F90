@@ -8,23 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine WelMem(                                                &
-#define _CALLING_
+
+subroutine WelMem( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
+
 #include "mem_interface.fh"
-     &)
-#include "mem_interface.fh"
-!
-      k = la+lb
-      jsum = 1
-      Do 10 i = 1, k
-         jsum = jsum + 3**i
- 10   Continue
-      nHer=1
-      Mem = jsum +Max((k+1)*(k/2+1)*(k/4+1)+1,                          &
-     &                9+3**k,                                           &
-     &                5)
-!
-      Return
+
+k = la+lb
+jsum = 1
+do i=1,k
+  jsum = jsum+3**i
+end do
+nHer = 1
+Mem = jsum+max((k+1)*(k/2+1)*(k/4+1)+1,9+3**k,5)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine WelMem

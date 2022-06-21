@@ -8,19 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine D1Mem(                                                 &
-#define _CALLING_
+
+subroutine D1Mem( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
+
+use Sizes_of_Seward, only: S
+
+implicit real*8(A-H,O-Z)
 #include "mem_interface.fh"
-     &)
-      use Sizes_of_Seward, only: S
-      Implicit Real*8 (A-H,O-Z)
-#include "mem_interface.fh"
-!
-      nHer=S%mCentr
-      Mem = 3*(la+1)*nHer +                                             &
-     &      3*(lb+1)*nHer
-!
-      Return
+
+nHer = S%mCentr
+Mem = 3*(la+1)*nHer+3*(lb+1)*nHer
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine D1Mem

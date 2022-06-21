@@ -10,115 +10,96 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine CCmbnVe(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,nComp,     &
-     &                  Vxyz,KVector,P)
+
+subroutine CCmbnVe(Rnxyz,nZeta,la,lb,Zeta,rKappa,final,nComp,Vxyz,KVector,P)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             January  91                                              *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
-     &       Zeta(nZeta), rKappa(nZeta), rTemp, Fact, KVector(3),       &
-     &       P(nZeta,3), k_dot_P
-      Complex*16 Rnxyz(nZeta,3,0:la+1,0:lb+1),                          &
-     &          Vxyz(nZeta,3,0:la,0:lb,2), Temp1, Temp2,                &
-     &          Tempp, Tempm, i
-!
-!     Statement function for Cartesian index
-!
-      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-!
-      iRout = 161
-      iPrint = nPrint(iRout)
-!
-      i = (0.0D0,1.0D0)
-      Do 10 ixa = 0, la
-         iyaMax=la-ixa
-      Do 11 ixb = 0, lb
-         iybMax=lb-ixb
-         Do 20 iya = 0, iyaMax
-            iza = la-ixa-iya
-            ipa= Ind(la,ixa,iza)
-         Do 21 iyb = 0, iybMax
-            izb = lb-ixb-iyb
-            ipb= Ind(lb,ixb,izb)
-!
-!           Combine integrals
-!
-            Do 30 iZeta = 1, nZeta
-!
-!              Put in the correct prefactors
-!
-               rTemp=KVector(1)**2 + kVector(2)**2 + kVector(3)**2
-               rTemp=rTemp/(Four*Zeta(iZeta))
-               Fact = rKappa(iZeta) * Zeta(iZeta)**(-Three/Two) *       &
-     &               Exp(-rTemp)
-               k_dot_P=kVector(1)*P(iZeta,1)                            &
-     &                +kVector(2)*P(iZeta,2)                            &
-     &                +kVector(3)*P(iZeta,3)
-               Temp1=Vxyz(iZeta,1,ixa,ixb,1)*                           &
-     &               Rnxyz(iZeta,2,iya,iyb)*                            &
-     &               Rnxyz(iZeta,3,iza,izb)
-               Temp2=Vxyz(iZeta,1,ixa,ixb,2)*                           &
-     &               Rnxyz(iZeta,2,iya,iyb)*                            &
-     &               Rnxyz(iZeta,3,iza,izb)
-               Tempp = Exp(i*k_dot_P) * Fact * (Temp1+Temp2) * Half
-               Tempm = Exp(i*k_dot_P) * Fact * (Temp1-Temp2) * Half
-               Final(iZeta,ipa,ipb,1) = DBLE(Tempp)
-               Final(iZeta,ipa,ipb,4) = DBLE(Tempm)
-               Final(iZeta,ipa,ipb,7) = DIMAG(Tempp)
-               Final(iZeta,ipa,ipb,10)= DIMAG(Tempm)
-               Temp1=Rnxyz(iZeta,1,ixa,ixb)*                            &
-     &               Vxyz(iZeta,2,iya,iyb,1)*                           &
-     &               Rnxyz(iZeta,3,iza,izb)
-               Temp2=Rnxyz(iZeta,1,ixa,ixb)*                            &
-     &               Vxyz(iZeta,2,iya,iyb,2)*                           &
-     &               Rnxyz(iZeta,3,iza,izb)
-               Tempp = Exp(i*k_dot_P) * Fact * (Temp1+Temp2) * Half
-               Tempm = Exp(i*k_dot_P) * Fact * (Temp1-Temp2) * Half
-               Final(iZeta,ipa,ipb,2) = DBLE(Tempp)
-               Final(iZeta,ipa,ipb,5) = DBLE(Tempm)
-               Final(iZeta,ipa,ipb,8) = DIMAG(Tempp)
-               Final(iZeta,ipa,ipb,11)= DIMAG(Tempm)
-               Temp1=Rnxyz(iZeta,1,ixa,ixb)*                            &
-     &               Rnxyz(iZeta,2,iya,iyb)*                            &
-     &               Vxyz(iZeta,3,iza,izb,1)
-               Temp2=Rnxyz(iZeta,1,ixa,ixb)*                            &
-     &               Rnxyz(iZeta,2,iya,iyb)*                            &
-     &               Vxyz(iZeta,3,iza,izb,2)
-               Tempp = Exp(i*k_dot_P) * Fact * (Temp1+Temp2) * Half
-               Tempm = Exp(i*k_dot_P) * Fact * (Temp1-Temp2) * Half
-               Final(iZeta,ipa,ipb,3) = DBLE(Tempp)
-               Final(iZeta,ipa,ipb,6 )= DBLE(Tempm)
-               Final(iZeta,ipa,ipb,9 )= DIMAG(Tempp)
-               Final(iZeta,ipa,ipb,12)= DIMAG(Tempm)
- 30         Continue
-            If (iPrint.ge.99) Then
-               Write (6,*) '(',ixa,iya,iza,ixb,iyb,izb,')'
-               Write (6,*) 'x-component'
-               Write (6,*) Final(1,ipa,ipb,1)
-               Write (6,*) Final(1,ipa,ipb,4)
-               Write (6,*) Final(1,ipa,ipb,7)
-               Write (6,*) Final(1,ipa,ipb,10)
-               Write (6,*) 'y-component'
-               Write (6,*) Final(1,ipa,ipb,2)
-               Write (6,*) Final(1,ipa,ipb,5)
-               Write (6,*) Final(1,ipa,ipb,8)
-               Write (6,*) Final(1,ipa,ipb,11)
-               Write (6,*) 'z-component'
-               Write (6,*) Final(1,ipa,ipb,3)
-               Write (6,*) Final(1,ipa,ipb,6)
-               Write (6,*) Final(1,ipa,ipb,9)
-               Write (6,*) Final(1,ipa,ipb,12)
-            End If
-!
- 21      Continue
- 20      Continue
- 11   Continue
- 10   Continue
-!
-      Return
-      End
+real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), rKappa(nZeta), rTemp, Fact, KVector(3), P(nZeta,3), k_dot_P
+complex*16 Rnxyz(nZeta,3,0:la+1,0:lb+1), Vxyz(nZeta,3,0:la,0:lb,2), Temp1, Temp2, Tempp, Tempm, i
+! Statement function for Cartesian index
+Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
+
+iRout = 161
+iPrint = nPrint(iRout)
+
+i = (0.0d0,1.0d0)
+do ixa=0,la
+  iyaMax = la-ixa
+  do ixb=0,lb
+    iybMax = lb-ixb
+    do iya=0,iyaMax
+      iza = la-ixa-iya
+      ipa = Ind(la,ixa,iza)
+      do iyb=0,iybMax
+        izb = lb-ixb-iyb
+        ipb = Ind(lb,ixb,izb)
+
+        ! Combine integrals
+
+        do iZeta=1,nZeta
+
+          ! Put in the correct prefactors
+
+          rTemp = KVector(1)**2+kVector(2)**2+kVector(3)**2
+          rTemp = rTemp/(Four*Zeta(iZeta))
+          Fact = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)*exp(-rTemp)
+          k_dot_P = kVector(1)*P(iZeta,1)+kVector(2)*P(iZeta,2)+kVector(3)*P(iZeta,3)
+          Temp1 = Vxyz(iZeta,1,ixa,ixb,1)*Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
+          Temp2 = Vxyz(iZeta,1,ixa,ixb,2)*Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
+          Tempp = exp(i*k_dot_P)*Fact*(Temp1+Temp2)*Half
+          Tempm = exp(i*k_dot_P)*Fact*(Temp1-Temp2)*Half
+          final(iZeta,ipa,ipb,1) = dble(Tempp)
+          final(iZeta,ipa,ipb,4) = dble(Tempm)
+          final(iZeta,ipa,ipb,7) = DIMAG(Tempp)
+          final(iZeta,ipa,ipb,10) = DIMAG(Tempm)
+          Temp1 = Rnxyz(iZeta,1,ixa,ixb)*Vxyz(iZeta,2,iya,iyb,1)*Rnxyz(iZeta,3,iza,izb)
+          Temp2 = Rnxyz(iZeta,1,ixa,ixb)*Vxyz(iZeta,2,iya,iyb,2)*Rnxyz(iZeta,3,iza,izb)
+          Tempp = exp(i*k_dot_P)*Fact*(Temp1+Temp2)*Half
+          Tempm = exp(i*k_dot_P)*Fact*(Temp1-Temp2)*Half
+          final(iZeta,ipa,ipb,2) = dble(Tempp)
+          final(iZeta,ipa,ipb,5) = dble(Tempm)
+          final(iZeta,ipa,ipb,8) = DIMAG(Tempp)
+          final(iZeta,ipa,ipb,11) = DIMAG(Tempm)
+          Temp1 = Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Vxyz(iZeta,3,iza,izb,1)
+          Temp2 = Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Vxyz(iZeta,3,iza,izb,2)
+          Tempp = exp(i*k_dot_P)*Fact*(Temp1+Temp2)*Half
+          Tempm = exp(i*k_dot_P)*Fact*(Temp1-Temp2)*Half
+          final(iZeta,ipa,ipb,3) = dble(Tempp)
+          final(iZeta,ipa,ipb,6) = dble(Tempm)
+          final(iZeta,ipa,ipb,9) = DIMAG(Tempp)
+          final(iZeta,ipa,ipb,12) = DIMAG(Tempm)
+        end do
+        if (iPrint >= 99) then
+          write(6,*) '(',ixa,iya,iza,ixb,iyb,izb,')'
+          write(6,*) 'x-component'
+          write(6,*) final(1,ipa,ipb,1)
+          write(6,*) final(1,ipa,ipb,4)
+          write(6,*) final(1,ipa,ipb,7)
+          write(6,*) final(1,ipa,ipb,10)
+          write(6,*) 'y-component'
+          write(6,*) final(1,ipa,ipb,2)
+          write(6,*) final(1,ipa,ipb,5)
+          write(6,*) final(1,ipa,ipb,8)
+          write(6,*) final(1,ipa,ipb,11)
+          write(6,*) 'z-component'
+          write(6,*) final(1,ipa,ipb,3)
+          write(6,*) final(1,ipa,ipb,6)
+          write(6,*) final(1,ipa,ipb,9)
+          write(6,*) final(1,ipa,ipb,12)
+        end if
+
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine CCmbnVe

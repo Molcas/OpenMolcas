@@ -8,24 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PXPMem(                                                &
-#define _CALLING_
+
+subroutine pXpMem( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
+
 #include "mem_interface.fh"
-     &)
-#include "mem_interface.fh"
-!
-!     Statement function for Cartesian index
-!
-      Mem=0
-      nHer =0
-      Call PXMem(nOrder,MemPX,la,lb+1,lr-1)
-      Mem=Max(Mem,MemPX)
-      nHer =Max(nHer,nOrder)
-      If (lb.GT.0) Then
-         Call PXMem(nOrder,MemPX,la,lb-1,lr-1)
-         Mem=Max(Mem,MemPX)
-         nHer =Max(nHer,nOrder)
-      End If
-!
-      Return
-      End
+
+Mem = 0
+nHer = 0
+call PXMem(nOrder,MemPX,la,lb+1,lr-1)
+Mem = max(Mem,MemPX)
+nHer = max(nHer,nOrder)
+if (lb > 0) then
+  call PXMem(nOrder,MemPX,la,lb-1,lr-1)
+  Mem = max(Mem,MemPX)
+  nHer = max(nHer,nOrder)
+end if
+
+return
+
+end subroutine pXpMem

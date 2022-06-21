@@ -11,10 +11,11 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine P_Int (                                                &
-#define _CALLING_
-#include "int_interface.fh"
-     &                 )
+
+subroutine P_Int( &
+#                define _CALLING_
+#                include "int_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the multipole moments integrals with the          *
@@ -24,60 +25,54 @@
 !             November '90                                             *
 !             Modified to multipole moments November '90               *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "oneswi.fh"
 #include "print.fh"
-
 #include "int_interface.fh"
+! Local variables
+character*80 Label
+! Statement function for Cartesian index
+nElem(i) = (i+1)*(i+2)/2
 
-!     Local variables
-      Character*80 Label
-!
-!     Statement function for Cartesian index
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
-      iRout = 122
-      iPrint = nPrint(iRout)
-!
-!---- Observe that this code does not make any sense in case of symmetry!
-!
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
-!
-      If (iPrint.ge.99) Then
-         Write (6,*) ' Result in P_Int'
-         Do ia = 1, nElem(la)
-            Do ib = 1, nElem(lb)
-               Do iIC = 1, nIC
-                  Write (Label,'(A,I2,A,I2,A,I2,A)')                    &
-     &               ' Final(a=',ia,',b=',ib,',iIC=',iIC,')'
-                  Call RecPrt(Label,' ',Final(1,ia,ib,iIC),nAlpha,nBeta)
-               End Do
-            End Do
-         End Do
-      End If
-!
-!     Call GetMem(' Exit P_Int','LIST','REAL',iDum,iDum)
-      Return
+iRout = 122
+iPrint = nPrint(iRout)
+! Observe that this code does not make any sense in case of symmetry!
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+
+if (iPrint >= 99) then
+  write(6,*) ' Result in P_Int'
+  do ia=1,nElem(la)
+    do ib=1,nElem(lb)
+      do iIC=1,nIC
+        write(Label,'(A,I2,A,I2,A,I2,A)') ' Final(a=',ia,',b=',ib,',iIC=',iIC,')'
+        call RecPrt(Label,' ',final(1,ia,ib,iIC),nAlpha,nBeta)
+      end do
+    end do
+  end do
+end if
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Alpha)
-         Call Unused_real_array(Beta)
-         Call Unused_real_array(Zeta)
-         Call Unused_real_array(ZInv)
-         Call Unused_real_array(rKappa)
-         Call Unused_real_array(P)
-         Call Unused_real_array(A)
-         Call Unused_real_array(RB)
-         Call Unused_integer(nHer)
-         Call Unused_real_array(Array)
-         Call Unused_real_array(Ccoor)
-         Call Unused_integer(nOrdOp)
-         Call Unused_integer_array(lOper)
-         Call Unused_integer_array(iChO)
-         Call Unused_integer_array(iStabM)
-         Call Unused_real_array(PtChrg)
-         Call Unused_integer(iAddPot)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(Alpha)
+  call Unused_real_array(Beta)
+  call Unused_real_array(Zeta)
+  call Unused_real_array(ZInv)
+  call Unused_real_array(rKappa)
+  call Unused_real_array(P)
+  call Unused_real_array(A)
+  call Unused_real_array(RB)
+  call Unused_integer(nHer)
+  call Unused_real_array(Array)
+  call Unused_real_array(Ccoor)
+  call Unused_integer(nOrdOp)
+  call Unused_integer_array(lOper)
+  call Unused_integer_array(iChO)
+  call Unused_integer_array(iStabM)
+  call Unused_real_array(PtChrg)
+  call Unused_integer(iAddPot)
+end if
+
+end subroutine P_Int

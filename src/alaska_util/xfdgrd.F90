@@ -138,7 +138,7 @@ do iOrdOp=0,nOrd_XF
 
     if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
 
-    ! Generate stabilizor of C
+    ! Generate stabilizer of C
 
     iChxyz = iChAtm(C)
     call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)

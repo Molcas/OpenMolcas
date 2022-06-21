@@ -11,12 +11,11 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PrjMem( &
-#                 define _CALLING_
-#                 include "mem_interface.fh"
-                 )
+subroutine PAM2Mem( &
+#                  define _CALLING_
+#                  include "mem_interface.fh"
+                  )
 !***********************************************************************
-!                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *
 !          need for the computation of a matrix element between two    *
 !          cartesian Gaussian functions with the total angular momentum*
@@ -27,55 +26,16 @@ subroutine PrjMem( &
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-
-use Basis_Info, only: dbsc, nCnttp, Shells
-
+!
 #include "mem_interface.fh"
 ! Statement function
 nElem(i) = (i+1)*(i+2)/2
 
-nHer = 0
-Mem = 0
-do iCnttp=1,nCnttp
-  if (.not. dbsc(iCnttp)%ECP) cycle
-  do iAng=0,dbsc(iCnttp)%nPrj-1
-    iShll = dbsc(iCnttp)%iPrj+iAng
-    nExpi = Shells(iShll)%nExp
-    nBasisi = Shells(iShll)%nBasis
-    if ((nExpi == 0) .or. (nBasisi == 0)) Go To 1966
+nComp = nElem(lr)
 
-    ip = 0
-    nac = nElem(la)*nElem(iAng)
-    ip = ip+nExpi*nac
-    ip = ip+3*nExpi
-    ip = ip+nExpi
-    ip = ip+nExpi
-    ip = ip+nExpi
-
-    call MltMmP(nH,MemMlt,la,iAng,lr)
-    nHer = max(nH,nHer)
-    Mem = max(Mem,ip+nExpi*MemMlt)
-    ip = ip-6*nExpi
-
-    ncb = nElem(iAng)*nElem(lb)
-    ip = ip+nExpi*ncb
-    ip = ip+3*nExpi
-    ip = ip+nExpi
-    ip = ip+nExpi
-    ip = ip+nExpi
-
-    call MltMmP(nH,MemMlt,iAng,lb,lr)
-    nHer = max(nH,nHer)
-    Mem = max(Mem,ip+nExpi*MemMlt)
-    ip = ip-6*nExpi
-
-    ip = ip+max(nExpi*nac,ncb*nBasisi)
-    Mem = max(Mem,ip)
-
-1966 continue
-  end do
-end do
+nHer = (la+lb+lr+2)/2
+Mem = 3*nHer*(la+1)+3*nHer*(lb+1)+3*nHer*(lr+1)+3*(la+1)*(lb+1)*(lr+1)+5+nElem(la)*nElem(lb)*nComp
 
 return
 
-end subroutine PrjMem
+end subroutine PAM2Mem

@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine M1Mem(                                                 &
-#define _CALLING_
-#include "mem_interface.fh"
-     &)
+
+subroutine M1Mem( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
 !***********************************************************************
 !  Object: to compute the number of real*8 the kernel routine will     *
 !          need for the computation of a matrix element between two    *
@@ -25,31 +26,32 @@
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-!
+
 #include "mem_interface.fh"
-      Integer iAng(4)
-!
-      nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-!
-      Call mHrr(la,lb,nFlop,nMem)
-!
-      iAng(1) = la
-      iAng(2) = lb
-      iAng(3) = 0
-      iAng(4) = 0
-      Call MemRys(iAng,MemPrm)
-      MemM10= 6 + MemPrm
-      nHer = (la+lb+2)/2
-!
-      k = nabSz(la+lb) - nabSz(Max(la,lb)-1)
-!
-!-----nMem : memory for Hrr
-!     k    : memory for primitives in M1Int0
-!     MemM10: scratch in M1Int0
-!
-      Mem = MemM10 + Max(nMem,k)
-!
-      Return
+integer iAng(4)
+! Statement function
+nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
+
+call mHrr(la,lb,nFlop,nMem)
+
+iAng(1) = la
+iAng(2) = lb
+iAng(3) = 0
+iAng(4) = 0
+call MemRys(iAng,MemPrm)
+MemM10 = 6+MemPrm
+nHer = (la+lb+2)/2
+
+k = nabSz(la+lb)-nabSz(max(la,lb)-1)
+
+! nMem : memory for Hrr
+! k    : memory for primitives in M1Int0
+! MemM10: scratch in M1Int0
+
+Mem = MemM10+max(nMem,k)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine M1Mem

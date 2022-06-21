@@ -11,43 +11,46 @@
 ! Copyright (C) 1996, Per Ake Malmqvist                                *
 !               1996, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine AMPMem(                                                &
-#define _CALLING_
+
+subroutine AMPMem( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
+
 #include "mem_interface.fh"
-     &)
-#include "mem_interface.fh"
-!     Statement function for Cartesian index
-      nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
+! Statement function for Cartesian index
+nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 ! Mem1: Workspace for MltPrm.
 ! Mem2: Tables Tpp,Tp,T0,Tm, and Tmm.
 ! Mem3: Result from AMPr.
-      Mem1=0
-      Call MltMmP(nOrder,Mem,la,lb+2,2)
-      Mem1=max(Mem1,Mem)
-      Mem2=6*nElem(la)*nElem(lb+2)
-      nHer = nOrder
-      Call MltMmP(nOrder,Mem,la,lb+1,1)
-      Mem1=max(Mem1,Mem)
-      Mem2=Mem2+3*nElem(la)*nElem(lb+1)
-      Call MltMmP(nOrder,Mem,la,lb  ,2)
-      Mem1=max(Mem1,Mem)
-      Mem2=Mem2+6*nElem(la)*nElem(lb)
-      If (lb.ge.1) Then
-        Call MltMmP(nOrder,Mem,la,lb-1,1)
-        Mem1=max(Mem1,Mem)
-        Mem2=Mem2+3*nElem(la)*nElem(lb-1)
-        If (lb.ge.2) Then
-          Call MltMmP(nOrder,Mem,la,lb-2,2)
-          Mem1=max(Mem1,Mem)
-          Mem2=Mem2+6*nElem(la)*nElem(lb-2)
-        End If
-      End If
-      Mem3=6*nElem(la)*nElem(lb)
+Mem1 = 0
+call MltMmP(nOrder,Mem,la,lb+2,2)
+Mem1 = max(Mem1,Mem)
+Mem2 = 6*nElem(la)*nElem(lb+2)
+nHer = nOrder
+call MltMmP(nOrder,Mem,la,lb+1,1)
+Mem1 = max(Mem1,Mem)
+Mem2 = Mem2+3*nElem(la)*nElem(lb+1)
+call MltMmP(nOrder,Mem,la,lb,2)
+Mem1 = max(Mem1,Mem)
+Mem2 = Mem2+6*nElem(la)*nElem(lb)
+if (lb >= 1) then
+  call MltMmP(nOrder,Mem,la,lb-1,1)
+  Mem1 = max(Mem1,Mem)
+  Mem2 = Mem2+3*nElem(la)*nElem(lb-1)
+  if (lb >= 2) then
+    call MltMmP(nOrder,Mem,la,lb-2,2)
+    Mem1 = max(Mem1,Mem)
+    Mem2 = Mem2+6*nElem(la)*nElem(lb-2)
+  end if
+end if
+Mem3 = 6*nElem(la)*nElem(lb)
 
-      Mem=Mem1+Mem2+Mem3+1
+Mem = Mem1+Mem2+Mem3+1
 
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine AMPMem

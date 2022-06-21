@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1993, Bernd Artur Hess                                 *
 !***********************************************************************
-      SubRoutine VPInt(                                                 &
-#define _CALLING_
-#include "int_interface.fh"
-     &                )
+
+subroutine VPInt( &
+#                define _CALLING_
+#                include "int_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of  pV integrals          *
@@ -21,90 +22,81 @@
 !     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 !             Chemie, University of Bonn, Germany, April 1993          *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      External TNAI, Fake, XCff2D, XRys2D
+
+implicit real*8(A-H,O-Z)
+external TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
 #include "print.fh"
-
 #include "int_interface.fh"
-!
-!     Statement function for Cartesian index
-!
-      nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
-!
-      iRout = 221
-      iPrint = nPrint(iRout)
-!
-!
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In vpint: Alpha','(5D20.13)',Alpha,nAlpha,1)
-         Call RecPrt(' In vpint: Beta','(5D20.13)',Beta,nBeta,1)
-      End If
-!
-      nRys=nHer
-!
-      nip = 1
-      ipB = nip
-      nip = nip + nZeta
-      ipS1 = nip
-      nip = nip + nZeta*nElem(la)*nElem(lb+1)
-      If (lb.gt.0) Then
-         ipS2 = nip
-         nip = nip + nZeta*nElem(la)*nElem(lb-1)
-      Else
-         ipS2=ipS1
-      End If
-      ipArr = nip
-      mArr = nArr - (nip-1)/nZeta
-      If (mArr.lt.0) Then
-         Call WarningMessage(2,'VpInt: mArr<0!')
-         Call Abend()
-      End If
-!
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
-      call dcopy_(nZeta*nArr,[Zero],0,Array,1)
-!     Compute contribution from a,b+1
-!
-      kRys = ((la+1)+lb+2)/2
-!
-      kIC=1
-      kComp=1
-      Call NAInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,           &
-     &           Array(ipS1),nZeta,nIC,nComp,la,lb+1,A,RB,kRys,         &
-     &           Array(ipArr),mArr,CCoor,nOrdOp,lOper,iChO,             &
-     &           iStabM,nStabM,                                         &
-     &           PtChrg,nGrid,iAddPot)
+! Statement function for Cartesian index
+nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
-      ipOff = ipB
-      Do 100 iAlpha = 1, nAlpha
-         call dcopy_(nBeta,Beta,1,Array(ipOff),nAlpha)
-         ipOff = ipOff + 1
-100   Continue
-!
-!     Compute contribution from a,b-1
-!
-      If (lb.gt.0) Then
-         kRys = ((la-1)+lb+2)/2
-!
-         Call NAInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,        &
-     &              Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,nRys,      &
-     &              Array(ipArr),mArr,CCoor,nOrdOp,lOper,iChO,          &
-     &              iStabM,nStabM,                                      &
-     &              PtChrg,nGrid,iAddPot)
-      End If
-!
-!     Assemble final integral from the derivative integrals
-!
-      If (iPrint.ge.99) Call RecPrt(' In vpint: Beta (expanded)',       &
-     &                  '(5D20.13)',Array(ipB),nZeta,1)
-!
-      Call Util8(Array(ipB),nZeta,Final,la,lb,Array(ipS1),Array(ipS2))
-!
-      If (iPrint.ge.49) Then
-         Do i=1,3
-            Call RecPrt('VpInt: Final',' ',Final(1,1,1,i),nZeta,        &
-     &                 nElem(la)*nElem(lb))
-         End Do
-      End If
-      Return
-      End
+iRout = 221
+iPrint = nPrint(iRout)
+
+if (iPrint >= 99) then
+  call RecPrt(' In vpint: Alpha','(5D20.13)',Alpha,nAlpha,1)
+  call RecPrt(' In vpint: Beta','(5D20.13)',Beta,nBeta,1)
+end if
+
+nRys = nHer
+
+nip = 1
+ipB = nip
+nip = nip+nZeta
+ipS1 = nip
+nip = nip+nZeta*nElem(la)*nElem(lb+1)
+if (lb > 0) then
+  ipS2 = nip
+  nip = nip+nZeta*nElem(la)*nElem(lb-1)
+else
+  ipS2 = ipS1
+end if
+ipArr = nip
+mArr = nArr-(nip-1)/nZeta
+if (mArr < 0) then
+  call WarningMessage(2,'VpInt: mArr<0!')
+  call Abend()
+end if
+
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nArr,[Zero],0,Array,1)
+! Compute contribution from a,b+1
+
+kRys = ((la+1)+lb+2)/2
+
+kIC = 1
+kComp = 1
+call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nComp,la,lb+1,A,RB,kRys,Array(ipArr),mArr,CCoor, &
+           nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
+
+ipOff = ipB
+do iAlpha=1,nAlpha
+  call dcopy_(nBeta,Beta,1,Array(ipOff),nAlpha)
+  ipOff = ipOff+1
+end do
+
+! Compute contribution from a,b-1
+
+if (lb > 0) then
+  kRys = ((la-1)+lb+2)/2
+
+  call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,nRys,Array(ipArr),mArr,CCoor, &
+             nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
+end if
+
+! Assemble final integral from the derivative integrals
+
+if (iPrint >= 99) call RecPrt(' In vpint: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
+
+call Util8(Array(ipB),nZeta,final,la,lb,Array(ipS1),Array(ipS2))
+
+if (iPrint >= 49) then
+  do i=1,3
+    call RecPrt('VpInt: Final',' ',final(1,1,1,i),nZeta,nElem(la)*nElem(lb))
+  end do
+end if
+
+return
+
+end subroutine VPInt

@@ -10,37 +10,41 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine NAMem(                                                 &
-#define _CALLING_
+
+subroutine NAMem( &
+#                define _CALLING_
+#                include "mem_interface.fh"
+                )
+
+use Basis_Info
+
 #include "mem_interface.fh"
-     &)
-      use Basis_Info
-#include "mem_interface.fh"
-      Integer iAngV(4)
-!
+integer iAngV(4)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mHrr(la,lb,nFlop,nMem)
-!
-      iAngV(1) = la
-      iAngV(2) = lb
-      iAngV(3) = lr
-      iAngV(4) = 0
-      Call MemRys(iAngV,Mem)
-      nHer=(la+lb+lr+2)/2
-      If (Nuclear_Model.eq.mGaussian_Type) Then
-!
-         labcd = (la+1)*(la+2)/2 * (lb+1)*(lb+2)/2
-!
-         iAngV(3)=lr+2
-         Call MemRys(iAngV,MemNA2)
-         Mem=Max(Mem,MemNA2)
-         nHer=(la+lb+lr+4)/2
-         Mem=Mem+labcd
-      End If
-!
-      Mem = Max(nMem,Mem)
-!
-      Return
-      End
+call mHrr(la,lb,nFlop,nMem)
+
+iAngV(1) = la
+iAngV(2) = lb
+iAngV(3) = lr
+iAngV(4) = 0
+call MemRys(iAngV,Mem)
+nHer = (la+lb+lr+2)/2
+if (Nuclear_Model == mGaussian_Type) then
+
+  labcd = (la+1)*(la+2)/2*(lb+1)*(lb+2)/2
+
+  iAngV(3) = lr+2
+  call MemRys(iAngV,MemNA2)
+  Mem = max(Mem,MemNA2)
+  nHer = (la+lb+lr+4)/2
+  Mem = Mem+labcd
+end if
+
+Mem = max(nMem,Mem)
+
+return
+
+end subroutine NAMem

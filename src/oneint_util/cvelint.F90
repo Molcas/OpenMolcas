@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine CVelInt(Vxyz,Sxyz,na,nb,Alpha,Beta,nZeta)
+
+subroutine CVelInt(Vxyz,Sxyz,na,nb,Alpha,Beta,nZeta)
 !***********************************************************************
 !                                                                      *
 ! Object: to assemble the cartesian components of the velocity inte-   *
@@ -25,74 +26,62 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Complex*16 Vxyz(nZeta,3,0:na,0:nb,2), Sxyz(nZeta,3,0:na+1,0:nb+1)
-      Real*8 Alpha(nZeta), Beta(nZeta)
-      Character*80 Label
-      iRout=160
-      iPrint = nPrint(iRout)
+complex*16 Vxyz(nZeta,3,0:na,0:nb,2), Sxyz(nZeta,3,0:na+1,0:nb+1)
+real*8 Alpha(nZeta), Beta(nZeta)
+character*80 Label
+iRout = 160
+iPrint = nPrint(iRout)
 
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In CVelInt: Beta ',' ',Beta ,nZeta,1)
-      End If
-      Do 10 ia = 0, na
-         Do 20 ib = 0, nb
-            If (ia.ne.0 .and. ib.ne.0) Then
-               Do iCar = 1, 3
-                  Do iZeta = 1, nZeta
-                     Vxyz(iZeta,iCar,ia,ib,1) =                         &
-     &                    Dble(ia) * Sxyz(iZeta,iCar,ia-1,ib)           &
-     &                 - Alpha(iZeta) * Two * Sxyz(iZeta,iCar,ia+1,ib)
-                     Vxyz(iZeta,iCar,ia,ib,2) =                         &
-     &                    Dble(ib) * Sxyz(iZeta,iCar,ia,ib-1)           &
-     &                 - Beta(iZeta) * Two * Sxyz(iZeta,iCar,ia,ib+1)
-                  End Do
-               End Do
-            Else If (ia.eq.0 .and. ib.ne.0) Then
-               Do iCar = 1, 3
-                  Do iZeta = 1, nZeta
-                     Vxyz(iZeta,iCar,ia,ib,1) =                         &
-     &                 - Alpha(iZeta) * Two * Sxyz(iZeta,iCar,ia+1,ib)
-                     Vxyz(iZeta,iCar,ia,ib,2) =                         &
-     &                    Dble(ib) * Sxyz(iZeta,iCar,ia,ib-1)           &
-     &                 - Beta(iZeta) * Two * Sxyz(iZeta,iCar,ia,ib+1)
-                  End Do
-               End Do
-            Else If (ia.ne.0 .and. ib.eq.0) Then
-               Do iCar = 1, 3
-                  Do iZeta = 1, nZeta
-                     Vxyz(iZeta,iCar,ia,ib,1) =                         &
-     &                    Dble(ia) * Sxyz(iZeta,iCar,ia-1,ib)           &
-     &                 - Alpha(iZeta) * Two * Sxyz(iZeta,iCar,ia+1,ib)
-                     Vxyz(iZeta,iCar,ia,ib,2) =                         &
-     &                 - Beta(iZeta) * Two * Sxyz(iZeta,iCar,ia,ib+1)
-                  End Do
-               End Do
-            Else
-               Do iCar = 1, 3
-                  Do iZeta = 1, nZeta
-                     Vxyz(iZeta,iCar,ia,ib,1) =                         &
-     &                 - Alpha(iZeta) * Two * Sxyz(iZeta,iCar,ia+1,ib)
-                     Vxyz(iZeta,iCar,ia,ib,2) =                         &
-     &                 - Beta(iZeta) * Two * Sxyz(iZeta,iCar,ia,ib+1)
-                  End Do
-               End Do
-            End If
-!
-            If (iPrint.ge.99) Then
-               Write (Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',      &
-     &                ia,',',ib,',1)'
-               Call CRecPrt(Label,' ',Vxyz(1,1,ia,ib,1),nZeta,3,'R')
-               Call CRecPrt(Label,' ',Vxyz(1,1,ia,ib,1),nZeta,3,'I')
-               Write (Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',      &
-     &                ia,',',ib,',2)'
-               Call CRecPrt(Label,' ',Vxyz(1,1,ia,ib,2),nZeta,3,'R')
-               Call CRecPrt(Label,' ',Vxyz(1,1,ia,ib,2),nZeta,3,'I')
-            End If
- 20      Continue
- 10   Continue
+if (iPrint >= 99) then
+  call RecPrt(' In CVelInt: Beta ',' ',Beta,nZeta,1)
+end if
+do ia=0,na
+  do ib=0,nb
+    if ((ia /= 0) .and. (ib /= 0)) then
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Vxyz(iZeta,iCar,ia,ib,1) = dble(ia)*Sxyz(iZeta,iCar,ia-1,ib)-Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
+          Vxyz(iZeta,iCar,ia,ib,2) = dble(ib)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+        end do
+      end do
+    else if ((ia == 0) .and. (ib /= 0)) then
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Vxyz(iZeta,iCar,ia,ib,1) = -Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
+          Vxyz(iZeta,iCar,ia,ib,2) = dble(ib)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+        end do
+      end do
+    else if ((ia /= 0) .and. (ib == 0)) then
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Vxyz(iZeta,iCar,ia,ib,1) = dble(ia)*Sxyz(iZeta,iCar,ia-1,ib)-Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
+          Vxyz(iZeta,iCar,ia,ib,2) = -Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+        end do
+      end do
+    else
+      do iCar=1,3
+        do iZeta=1,nZeta
+          Vxyz(iZeta,iCar,ia,ib,1) = -Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
+          Vxyz(iZeta,iCar,ia,ib,2) = -Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+        end do
+      end do
+    end if
 
-      Return
-      End
+    if (iPrint >= 99) then
+      write(Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',ia,',',ib,',1)'
+      call CRecPrt(Label,' ',Vxyz(1,1,ia,ib,1),nZeta,3,'R')
+      call CRecPrt(Label,' ',Vxyz(1,1,ia,ib,1),nZeta,3,'I')
+      write(Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',ia,',',ib,',2)'
+      call CRecPrt(Label,' ',Vxyz(1,1,ia,ib,2),nZeta,3,'R')
+      call CRecPrt(Label,' ',Vxyz(1,1,ia,ib,2),nZeta,3,'I')
+    end if
+  end do
+end do
+
+return
+
+end subroutine CVelInt

@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine EPEInt(                                                &
-#define _CALLING_
-#include "int_interface.fh"
-     &                 )
+
+subroutine EPEInt( &
+#                 define _CALLING_
+#                 include "int_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of nuclear attraction     *
@@ -22,92 +23,86 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden, February '91                            *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      External TNAI, Fake, Cff2D, XRys2D
+
+implicit real*8(A-H,O-Z)
+external TNAI, Fake, Cff2D, XRys2D
 #include "real.fh"
 #include "print.fh"
-
 #include "int_interface.fh"
+! Local variables
+real*8 TC(3), Coori(3,4), Coora(3,4), CoorAC(3,2)
+integer iAnga(4), iDCRT(0:7), iStabO(0:7)
+logical EQ, NoSpecial
+! Statement function for Cartesian index
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
-!     Local variables
-      Real*8 TC(3), Coori(3,4), Coora(3,4), CoorAC(3,2)
-      Integer iAnga(4), iDCRT(0:7), iStabO(0:7)
-      Logical EQ, NoSpecial
-!
-!     Statement function for Cartesian index
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-!
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
-!
-      iAnga(1) = la
-      iAnga(2) = lb
-      iAnga(3) = 0
-      iAnga(4) = 0
-      call dcopy_(3,A,1,Coora(1,1),1)
-      call dcopy_(3,RB,1,Coora(1,2),1)
-      call dcopy_(2*3,Coora(1,1),1,Coori(1,1),1)
-      mabMin = nabSz(Max(la,lb)-1)+1
-      mabMax = nabSz(la+lb)
-      If (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
-!
-!     Compute FLOP's and size of the work array which Hrr will use.
-!
-      Call mHrr(la,lb,nFLOP,nMem)
-!
-!-----Find center to accumulate angular momentum on.
-!
-      If (la.ge.lb) Then
-         call dcopy_(3,A,1,CoorAC(1,1),1)
-      Else
-         call dcopy_(3,RB,1,CoorAC(1,1),1)
-      End If
-!
-      llOper = lOper(1)
-      Do 90 iComp = 2, nComp
-         llOper = iOr(llOper,lOper(iComp))
- 90   Continue
-      Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-      Do 100 lDCRT = 0, nDCRT-1
-         Call OA(iDCRT(lDCRT),CCoor,TC)
-         call dcopy_(3,TC,1,CoorAC(1,2),1)
-         call dcopy_(3,TC,1,Coori(1,3),1)
-         call dcopy_(3,TC,1,Coori(1,4),1)
-         call dcopy_(3,TC,1,Coora(1,3),1)
-         call dcopy_(3,TC,1,Coora(1,4),1)
-!
-!--------Compute primitive integrals before the application of HRR.
-!
-         nT = nZeta
-         NoSpecial=.True.
-         Call Rys(iAnga,nt,Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,       &
-     &            TC,1,rKappa,[One],Coori,Coora,CoorAC,                 &
-     &            mabmin,mabmax,0,0,Array,nArr*nZeta,                   &
-     &            TNAI,Fake,Cff2D,xRys2D,NoSpecial)
-!
-!--------Use the HRR to compute the required primitive integrals.
-!
-         Call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
-!
-!--------Accumulate contributions to the symmetry adaped operator
-!
-         nOp = NrOpr(iDCRT(lDCRT))
-         Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,           &
-     &               nOp         ,lOper,iChO,One)
-!
- 100  Continue
-!
-!     Call GetMem(' Exit EPEInt','LIST','REAL',iDum,iDum)
-      Return
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+
+iAnga(1) = la
+iAnga(2) = lb
+iAnga(3) = 0
+iAnga(4) = 0
+call dcopy_(3,A,1,Coora(1,1),1)
+call dcopy_(3,RB,1,Coora(1,2),1)
+call dcopy_(2*3,Coora(1,1),1,Coori(1,1),1)
+mabMin = nabSz(max(la,lb)-1)+1
+mabMax = nabSz(la+lb)
+if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
+
+! Compute FLOP's and size of the work array which Hrr will use.
+
+call mHrr(la,lb,nFLOP,nMem)
+
+! Find center to accumulate angular momentum on.
+
+if (la >= lb) then
+  call dcopy_(3,A,1,CoorAC(1,1),1)
+else
+  call dcopy_(3,RB,1,CoorAC(1,1),1)
+end if
+
+llOper = lOper(1)
+do iComp=2,nComp
+  llOper = ior(llOper,lOper(iComp))
+end do
+call SOS(iStabO,nStabO,llOper)
+call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
+do lDCRT=0,nDCRT-1
+  call OA(iDCRT(lDCRT),CCoor,TC)
+  call dcopy_(3,TC,1,CoorAC(1,2),1)
+  call dcopy_(3,TC,1,Coori(1,3),1)
+  call dcopy_(3,TC,1,Coori(1,4),1)
+  call dcopy_(3,TC,1,Coora(1,3),1)
+  call dcopy_(3,TC,1,Coora(1,4),1)
+
+  ! Compute primitive integrals before the application of HRR.
+
+  nT = nZeta
+  NoSpecial = .true.
+  call Rys(iAnga,nt,Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,rKappa,[One],Coori,Coora,CoorAC,mabmin,mabmax,0,0,Array,nArr*nZeta, &
+           TNAI,Fake,Cff2D,xRys2D,NoSpecial)
+
+  ! Use the HRR to compute the required primitive integrals.
+
+  call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
+
+  ! Accumulate contributions to the symmetry adapted operator
+
+  nOp = NrOpr(iDCRT(lDCRT))
+  call SymAdO(Array(ipIn),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Alpha)
-         Call Unused_real_array(Beta)
-         Call Unused_integer(nHer)
-         Call Unused_integer(nOrdOp)
-         Call Unused_real_array(PtChrg)
-         Call Unused_integer(iAddPot)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(Alpha)
+  call Unused_real_array(Beta)
+  call Unused_integer(nHer)
+  call Unused_integer(nOrdOp)
+  call Unused_real_array(PtChrg)
+  call Unused_integer(iAddPot)
+end if
+
+end subroutine EPEInt

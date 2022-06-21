@@ -21,30 +21,6 @@ subroutine M2Grd( &
 ! Object: kernel routine for the computation of M2 integrals used in   *
 !         ECP calculations. The operator is a s-type gaussian          *
 !                                                                      *
-!      Alpha : exponents of bra gaussians                              *
-!      nAlpha: number of primitives (exponents) of bra gaussians       *
-!      Beta  : as Alpha but for ket gaussians                          *
-!      nBeta : as nAlpha but for the ket gaussians                     *
-!      Zeta  : sum of exponents (nAlpha x nBeta)                       *
-!      ZInv  : inverse of Zeta                                         *
-!      rKappa: gaussian prefactor for the products of bra and ket      *
-!              gaussians.                                              *
-!      P     : center of new gaussian from the products of bra and ket *
-!              gaussians.                                              *
-!      rFinal: array for computed integrals                            *
-!      nZeta : nAlpha x nBeta                                          *
-!      nComp : number of components in the operator (e.g. dipolmoment  *
-!              operator has three components)                          *
-!      la    : total angular momentum of bra gaussian                  *
-!      lb    : total angular momentum of ket gaussian                  *
-!      A     : center of bra gaussian                                  *
-!      B     : center of ket gaussian                                  *
-!      nRys  : order of Rys- or Hermite-Gauss polynomial               *
-!      Array : Auxiliary memory as requested by ECPMem                 *
-!      nArr  : length of Array                                         *
-!      Ccoor : coordinates of the operator, zero for symmetric oper.   *
-!      NOrdOp: Order of the operator                                   *
-!                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 !             Physics, University of Stockholm, Sweden, October '93.   *
