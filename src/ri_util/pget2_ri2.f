@@ -32,26 +32,24 @@
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnp, lPSO, lsa, DMdiag
       use Symmetry_Info, only: nIrrep
+      use ExTerm, only: CijK, iMP2prpt, A
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "print.fh"
-#include "WrkSpc.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K,nSA),Z_p_K(nZ_p_k,*)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij, Found
 *     Local Array
       Integer jSym(0:7), lSym(0:7)
       Integer CumnnP(0:7),CumnnP2(0:7)
+
+      Real*8, Pointer :: CiKj(:)=>Null(), CiKl(:)=>Null(),
+     &                   V2(:)=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      iRout = 39
-      iPrint = nPrint(iRout)
-      iPrint=99
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 
@@ -61,8 +59,6 @@
 *                                                                      *
       PMax=Zero
       iSO=1
-      ip_CikJ = ip_CijK
-      nMaxBas = Max(jBas,lBas)
 *
       Call FZero(PSO,nijkl*nPSO)
 *
@@ -126,11 +122,11 @@
 *
                Do ls = 0, nlSym-1
                   j4 = lSym(ls)
-                  If (j2.ne.j4) Go To 410
+                  If (j2/=j4) Cycle
                   lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
 *
                   MemSO2 = MemSO2 + 1
-                  If (j2.ne.0) Go To 410
+                  If (j2/=0) Cycle
 *
                   mijkl = 0
                   Do lAOl = 0, lBas-1
@@ -154,7 +150,6 @@
                      End Do
                   End Do
 *
- 410              Continue
                End Do
             End Do
 *
@@ -197,43 +192,49 @@
 *
                Do ls = 0, nlSym-1
                   j4 = lSym(ls)
-                  If (j2.ne.j4) Go To 510
+                  If (j2/=j4) Cycle
                   lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
 *
                   MemSO2 = MemSO2 + 1
 *
-                  Call FZero(Work(ip_A),jBas*lBas)
+                  A(1:jBas*lBas)=Zero
 *
                   Do iSym = 1, nIrrep
                      kSym = iEor(j2,iSym-1)+1
                      nik = nIJ1(iSym,kSym,iSO)
 *
-                     If (nik.eq.0) Go To 520
+                     If (nik==0) Cycle
 *
+                     iS = 1
+                     iE = nik*jBas
+                     CiKj(1:nik*jBas) => CijK(iS:iE)
+
+
                      jSOj= jSO-nBas(j2)
                      iAdrJ = nik*(jSOj-1)+iAdrCVec(j2+1,iSym,iSO)
-                     Call dDaFile(LuCVector(j2+1,iSO),2,Work(ip_CikJ),
-     &                            nik*jBas,iAdrJ)
+                     Call dDaFile(LuCVector(j2+1,iSO),2,CikJ,nik*jBas,
+     &                            iAdrJ)
 *
                      If (lSO.ne.jSO) Then
-                        ip_CikL = ip_CikJ + nik*nMaxBas
+                        iS = iE + 1
+                        iE = iE + nik*lBas
+                        CiKl(1:nik*lBas) => CijK(iS:iE)
+
                         lSOl=lSO-nBas(j4)
                         iAdrL = nik*(lSOl-1)+iAdrCVec(j4+1,iSym,iSO)
-                        Call dDaFile(LuCVector(j4+1,iSO),2,
-     &                               Work(ip_CikL),nik*lBas,iAdrL)
-                        ip_V2 = ip_CikL
+                        Call dDaFile(LuCVector(j4+1,iSO),2,CiKl,
+     &                               nik*lBas,iAdrL)
+                        V2(1:) => CiKl(1:)
                      Else
-                        ip_V2 = ip_CikJ
+                        V2(1:) => CiKj(1:)
                      End If
 *
                      Fact=One
                      If (iSym.ne.kSym) Fact=Half
                      Call DGEMM_('T','N',jBas,lBas,nik,
-     &                           Fact,Work(ip_CikJ),nik,
-     &                           Work(ip_V2),nik,
-     &                           1.0D0,Work(ip_A),jBas)
-*
- 520                 Continue
+     &                           Fact,CikJ,nik,
+     &                                V2,nik,
+     &                          1.0D0,A,jBas)
 *
                   End Do
 
@@ -254,8 +255,7 @@
                         End If
 *
 *-----------------------Exchange contribution
-                        temp = temp
-     &                       - ExFac*Work(ip_A+mijkl-1)
+                        temp = temp - ExFac*A(mijkl)
 *
                         PMax=Max(PMax,Abs(Temp))
                         PSO(mijkl,MemSO2) =  Fac * temp
@@ -263,7 +263,6 @@
                      End Do
                   End Do
 *
- 510              Continue
                End Do
             End Do
 *
@@ -315,43 +314,48 @@
 *
                Do ls = 0, nlSym-1
                   j4 = lSym(ls)
-                  If (j2.ne.j4) Go To 610
+                  If (j2/=j4) Cycle
                   lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
 *
                   MemSO2 = MemSO2 + 1
 *
-                  Call FZero(Work(ip_A),jBas*lBas)
+                  A(1:jBas*lBas)=Zero
 *
                   Do iSym = 1, nIrrep
                      kSym = iEor(j2,iSym-1)+1
                      nik = nIJ1(iSym,kSym,iSO)
 *
-                     If (nik.eq.0) Go To 620
+                     If (nik==0) Cycle
+
+                     iS = 1
+                     iE = nik*jBas
+                     CiKj(1:nik*jBas) => CijK(iS:iE)
 *
                      jSOj= jSO-nBas(j2)
                      iAdrJ = nik*(jSOj-1)+iAdrCVec(j2+1,iSym,iSO)
-                     Call dDaFile(LuCVector(j2+1,iSO),2,Work(ip_CikJ),
-     &                            nik*jBas,iAdrJ)
+                     Call dDaFile(LuCVector(j2+1,iSO),2,CiKj,nik*jBas,
+     &                            iAdrJ)
 *
                      If (lSO.ne.jSO) Then
-                        ip_CikL = ip_CikJ + nik*nMaxBas
+                        iS = iE + 1
+                        iE = iE + nik*lBas
+                        CiKl(1:nik*lBas) => CijK(iS:iE)
+
                         lSOl=lSO-nBas(j4)
                         iAdrL = nik*(lSOl-1)+iAdrCVec(j4+1,iSym,iSO)
-                        Call dDaFile(LuCVector(j4+1,iSO),2,
-     &                               Work(ip_CikL),nik*lBas,iAdrL)
-                        ip_V2 = ip_CikL
+                        Call dDaFile(LuCVector(j4+1,iSO),2,CiKl,
+     &                               nik*lBas,iAdrL)
+                        V2(1:) => CiKl(1:)
                      Else
-                        ip_V2 = ip_CikJ
+                        V2(1:) => CiKj(1:)
                      End If
 *
                      Fact=One
                      If (iSym.ne.kSym) Fact=Half
                      Call DGEMM_('T','N',jBas,lBas,nik,
-     &                           Fact,Work(ip_CikJ),nik,
-     &                           Work(ip_V2),nik,
-     &                           1.0D0,Work(ip_A),jBas)
-*
- 620                 Continue
+     &                           Fact,CikJ,nik,
+     &                                V2,nik,
+     &                          1.0D0,A,jBas)
 *
                   End Do
 *
@@ -372,8 +376,7 @@
                         End If
 *
 *-----------------------Exchange contribution
-                        temp = temp
-     &                       - ExFac*Work(ip_A+mijkl-1)
+                        temp = temp - ExFac*A(mijkl)
 *
                         temp2=0.0d0
                         jpSOj=CumnnP2(j2)+(jSOj-1)*nnP(j2)
@@ -391,7 +394,6 @@
                      End Do
                   End Do
 *
- 610              Continue
                End Do
             End Do
 *
@@ -437,43 +439,48 @@
 *
                Do ls = 0, nlSym-1
                   j4 = lSym(ls)
-                  If (j2.ne.j4) Go To 710
+                  If (j2/=j4) Cycle
                   lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
 *
                   MemSO2 = MemSO2 + 1
 *
-                  Call FZero(Work(ip_A),jBas*lBas)
+                  A(1:jBas*lBas) = Zero
 *
                   Do iSym = 1, nIrrep
                      kSym = iEor(j2,iSym-1)+1
                      nik = nIJ1(iSym,kSym,iSO)
 *
-                     If (nik.eq.0) Go To 720
+                     If (nik==0) Cycle
+
+                     iS = 1
+                     iE = nik*jBas
+                     CiKj(1:nik*jBas) => CijK(iS:iE)
 *
                      jSOj= jSO-nBas(j2)
                      iAdrJ = nik*(jSOj-1)+iAdrCVec(j2+1,iSym,iSO)
-                     Call dDaFile(LuCVector(j2+1,iSO),2,Work(ip_CikJ),
-     &                            nik*jBas,iAdrJ)
+                     Call dDaFile(LuCVector(j2+1,iSO),2,CiKj,nik*jBas,
+     &                            iAdrJ)
 *
                      If (lSO.ne.jSO) Then
-                        ip_CikL = ip_CikJ + nik*nMaxBas
+                        iS = iE + 1
+                        iE = iE + nik*lBas
+                        CiKl(1:nik*lBas) => CijK(iS:iE)
+
                         lSOl=lSO-nBas(j4)
                         iAdrL = nik*(lSOl-1)+iAdrCVec(j4+1,iSym,iSO)
-                        Call dDaFile(LuCVector(j4+1,iSO),2,
-     &                               Work(ip_CikL),nik*lBas,iAdrL)
-                        ip_V2 = ip_CikL
+                        Call dDaFile(LuCVector(j4+1,iSO),2,CiKl,
+     &                               nik*lBas,iAdrL)
+                        V2(1:) => CiKl(1:)
                      Else
-                        ip_V2 = ip_CikJ
+                        V2(1:) => CiKj(1:)
                      End If
 *
                      Fact=One
                      If (iSym.ne.kSym) Fact=Half
                      Call DGEMM_('T','N',jBas,lBas,nik,
-     &                           Fact,Work(ip_CikJ),nik,
-     &                           Work(ip_V2),nik,
-     &                           1.0D0,Work(ip_A),jBas)
-*
- 720                 Continue
+     &                           Fact,CiKJ,nik,
+     &                                V2,nik,
+     &                          1.0D0,A,jBas)
 *
                   End Do
 
@@ -497,8 +504,7 @@
                         End If
 *
 *-----------------------Exchange contribution
-                        temp = temp
-     &                       - ExFac*Work(ip_A+mijkl-1)
+                        temp = temp - ExFac*A(mijkl)
 *
                         PMax=Max(PMax,Abs(Temp))
                         PSO(mijkl,MemSO2) =  Fac * temp
@@ -506,7 +512,6 @@
                      End Do
                   End Do
 *
- 710              Continue
                End Do
             End Do
 *
@@ -552,43 +557,48 @@
 *
                Do ls = 0, nlSym-1
                   j4 = lSym(ls)
-                  If (j2.ne.j4) Go To 810
+                  If (j2/=j4) Cycle
                   lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
 *
                   MemSO2 = MemSO2 + 1
 *
-                  Call FZero(Work(ip_A),jBas*lBas)
+                  A(1:jBas*lBas) = Zero
 *
                   Do iSym = 1, nIrrep
                      kSym = iEor(j2,iSym-1)+1
                      nik = nIJ1(iSym,kSym,iSO)
 *
-                     If (nik.eq.0) Go To 820
+                     If (nik==0) Cycle
+
+                     iS = 1
+                     iE = nik*jBas
+                     CiKj(1:nik*jBas) => CijK(iS:iE)
 *
                      jSOj= jSO-nBas(j2)
                      iAdrJ = nik*(jSOj-1)+iAdrCVec(j2+1,iSym,iSO)
-                     Call dDaFile(LuCVector(j2+1,iSO),2,Work(ip_CikJ),
-     &                            nik*jBas,iAdrJ)
+                     Call dDaFile(LuCVector(j2+1,iSO),2,CiKj,nik*jBas,
+     &                            iAdrJ)
 *
                      If (lSO.ne.jSO) Then
-                        ip_CikL = ip_CikJ + nik*nMaxBas
+                        iS = iE + 1
+                        iE = iE + nik*lBas
+                        CiKl(1:nik*lBas) => CijK(iS:iE)
+
                         lSOl=lSO-nBas(j4)
                         iAdrL = nik*(lSOl-1)+iAdrCVec(j4+1,iSym,iSO)
-                        Call dDaFile(LuCVector(j4+1,iSO),2,
-     &                               Work(ip_CikL),nik*lBas,iAdrL)
-                        ip_V2 = ip_CikL
+                        Call dDaFile(LuCVector(j4+1,iSO),2,CiKl,
+     &                               nik*lBas,iAdrL)
+                        V2(1:) => CiKl(1:)
                      Else
-                        ip_V2 = ip_CikJ
+                        V2(1:) => CiKj(1:)
                      End If
 *
                      Fact=One
                      If (iSym.ne.kSym) Fact=Half
                      Call DGEMM_('T','N',jBas,lBas,nik,
-     &                           Fact,Work(ip_CikJ),nik,
-     &                           Work(ip_V2),nik,
-     &                           1.0D0,Work(ip_A),jBas)
-*
- 820                 Continue
+     &                           Fact,CiKj,nik,
+     &                                V2,nik,
+     &                          1.0D0,A,jBas)
 *
                   End Do
 *
@@ -609,8 +619,7 @@
                         End If
 *
 *-----------------------Exchange contribution
-                        temp = temp
-     &                       - ExFac*Work(ip_A+mijkl-1)
+                        temp = temp - ExFac*A(mijkl)
 *
                         PMax=Max(PMax,Abs(Temp))
                         PSO(mijkl,MemSO2) =  Fac * temp
@@ -618,7 +627,6 @@
                      End Do
                   End Do
 *
- 810              Continue
                End Do
             End Do
 *
@@ -628,6 +636,9 @@
 ************************************************************************
 *                                                                      *
       End If
+      CiKj => Null()
+      CiKl => Null()
+      V2   => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -638,10 +649,7 @@
       End If
 *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGet2_RI2:PSO ',' ',PSO,nijkl,nPSO)
-      End If
-      Call GetMem(' Exit PGet2_RI2','CHECK','REAL',iDum,iDum)
+      Call RecPrt(' In PGet2_RI2:PSO ',' ',PSO,nijkl,nPSO)
 #endif
 *
       Call CWTime(Cpu2,Wall2)

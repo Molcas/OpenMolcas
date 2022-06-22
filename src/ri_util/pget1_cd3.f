@@ -31,12 +31,11 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
+      use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector,
+     &                  CMOi
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "print.fh"
-#include "chomp2g_alaska.fh"
 #include "exterm.fh"
-#include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k),
      &       U_k(mV_k), DSO_Var(nDSO)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
@@ -74,9 +73,7 @@ C     Fac = One / Four
          nLBas = lBas*iCmp(4)
 
          kSO = iAOtSO(iAO(3)+1,kOp(3))+iAOst(3)
-         index2k= NumOrb*(kSO-1)
          lSO = iAOtSO(iAO(4)+1,kOp(4))+iAOst(4)
-         index2l= NumOrb*(lSO-1)
 
          Do i1 = 1, iCmp(1)
             iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
@@ -99,18 +96,18 @@ C     Fac = One / Four
                      If(ijVec.ne.0) Then
                         iAdr = nIJR(kSym,lSym,1)*(ijVec-1) +
      &                       iAdrCVec(jSym,kSym,1)
-                        Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK),
+                        Call dDaFile(LuCVector(jSym,1),2,CijK,
      &                       nIJR(kSym,lSym,1),iAdr)
 
                         Call dGEMM_('T','N',NumOrb,nKBas,NumOrb,
-     &                             1.0d0,Work(ip_CijK),NumOrb,
-     &                             Work(ip_CMOi(1)+index2k),NumOrb,
-     &                             0.0d0,Work(ip_CilK),Max(1,NumOrb))
+     &                             1.0d0,CijK,NumOrb,
+     &                                   CMOi(1)%SB(1)%A2(:,kSO),NumOrb,
+     &                             0.0d0,CilK,Max(1,NumOrb))
 
                         Call dGEMM_('T','N',nKBas,nLBas,NumOrb,
-     &                             1.0d0,Work(ip_CilK),NumOrb,
-     &                             Work(ip_CMOi(1)+index2l),NumOrb,
-     &                             0.0d0,Work(ip_BklK),Max(1,nKBas))
+     &                             1.0d0,CilK,NumOrb,
+     &                                   CMOi(1)%SB(1)%A2(:,lSO),NumOrb,
+     &                             0.0d0,BklK,Max(1,nKBas))
                      End If
 
                      Do i3 = 1, iCmp(3)
@@ -126,8 +123,7 @@ C     Fac = One / Four
                               lSOl = lSO + lAOl
                               Do kAOk = 0, kBas-1
                                  kSOk = kSO + kAOk
-                                 indexB = ip_BklK +
-     &                                    (kAOk + (i3-1)*kBas)
+                                 indexB = 1 + (kAOk + (i3-1)*kBas)
      &                                  + (lAOl + (i4-1)*lBas)*nKBas
                                  nijkl = iAOi + jAOj*iBas
      &                                 + kAOk*iBas*jBas
@@ -138,7 +134,7 @@ C     Fac = One / Four
                                  Indkl=(Indk-1)*Indk/2+Indl
                                  temp=V_k(Indij)*DSO(Indkl)*coulfac
                                  If(ijVec .ne. 0) Then
-                                    tempK = Work(indexB)
+                                    tempK = BklK(indexB)
                                  Else
                                     tempK = 0.0d0
                                  End If
@@ -162,9 +158,7 @@ C     Fac = One / Four
          nLBas = lBas*iCmp(4)
 
          kSO = iAOtSO(iAO(3)+1,kOp(3))+iAOst(3)
-         index2k= NumOrb*(kSO-1)
          lSO = iAOtSO(iAO(4)+1,kOp(4))+iAOst(4)
-         index2l= NumOrb*(lSO-1)
 
          Do i1 = 1, iCmp(1)
             iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
@@ -186,23 +180,23 @@ C     Fac = One / Four
                      If(ijVec.ne.0) Then
                         iAdr = nIJR(kSym,lSym,1)*(ijVec-1) +
      &                       iAdrCVec(jSym,kSym,1)
-                        Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK),
+                        Call dDaFile(LuCVector(jSym,1),2,CijK,
      &                       nIJR(kSym,lSym,1),iAdr)
 
                         Call dGEMM_('T','N',NumOrb,nKBas,NumOrb,
-     &                             1.0d0,Work(ip_CijK),NumOrb,
-     &                             Work(ip_CMOi(1)+index2k),NumOrb,
-     &                             0.0d0,Work(ip_CilK),Max(1,NumOrb))
+     &                             1.0d0,CijK,NumOrb,
+     &                                   CMOi(1)%SB(1)%A2(:,kSO),NumOrb,
+     &                             0.0d0,CilK,Max(1,NumOrb))
 
                         Call dGEMM_('T','N',nKBas,nLBas,NumOrb,
-     &                             1.0d0,Work(ip_CilK),NumOrb,
-     &                             Work(ip_CMOi(1)+index2l),NumOrb,
-     &                             0.0d0,Work(ip_BklK),Max(1,nKBas))
+     &                             1.0d0,CilK,NumOrb,
+     &                                   CMOi(1)%SB(1)%A2(:,lSO),NumOrb,
+     &                             0.0d0,BklK,Max(1,nKBas))
                         lBVec = nBas(0)*nBas(0)
                         Do i = 1,2
                            iAdr = 1 + nBas(0)*nBas(0)*(ijVec-1)
-                           Call dDaFile(LuBVector(i),2,Work(ip_B_mp2(i))
-     &                                  , lBVec,iAdr)
+                           Call dDaFile(LuBVector(i),2,Bmp2(:,i),lBVec,
+     &                                  iAdr)
                         End Do
 
                      End If
@@ -219,8 +213,7 @@ C     Fac = One / Four
                               lSOl = lSO + lAOl
                               Do kAOk = 0, kBas-1
                                  kSOk = kSO + kAOk
-                                 indexB = ip_BklK +
-     &                                    (kAOk + (i3-1)*kBas)
+                                 indexB = 1 + (kAOk + (i3-1)*kBas)
      &                                  + (lAOl + (i4-1)*lBas)*nKBas
                                  nijkl = iAOi + jAOj*iBas
      &                                 + kAOk*iBas*jBas
@@ -232,7 +225,7 @@ C     Fac = One / Four
                                  temp=V_k(Indij)*DSO(Indkl)*coulfac
 
                                  If(ijVec.ne.0) Then
-                                    tempK = Work(indexB)
+                                    tempK = BklK(indexB)
                                  Else
                                     tempK = 0.0d0
                                  End If
@@ -241,13 +234,13 @@ C     Fac = One / Four
                                  temp = temp + V_k(indij)*
      &                               (DSO_Var(indkl)-DSO(indkl))*CoulFac
                                  if(ijVec.ne.0) Then
-                                    tempJ = Compute_B_4(irc,kSOk,
+                                    tempJ = Compute_B(irc,kSOk,
      &                                   lSOl,0,nBas(0),2)
                                     temp = temp + tempJ*CoulFac*
      &                                   fac_ij
 
                                     tempK = tempK +
-     &                                   Compute_B_4(irc,kSOk,lSOl,
+     &                                   Compute_B(irc,kSOk,lSOl,
      &                                   0,nBas(0),1)
                                  End If
                                  temp = temp - tempK*ExFac*Half*fac_ij
@@ -316,7 +309,6 @@ C     Fac = One / Four
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_CD3:PAO ',' ',PAO,ijkl,nPAO)
-      Call GetMem(' Exit PGet1_CD3','CHECK','REAL',iDum,iDum)
 #endif
 
       Call CWTime(Cpu2,Wall2)

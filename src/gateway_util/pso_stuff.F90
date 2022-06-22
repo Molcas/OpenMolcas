@@ -13,7 +13,7 @@ use Data_structures, only: DSBA_Type
 
 Logical lPSO,lsa, Case_3C, Case_2C, Case_mp2
 
-Integer nnP(0:7), iOff_ij2K(8),npos(0:7,3),ipAOrb(0:7,2)
+Integer nnP(0:7), iOff_ij2K(8),npos(0:7,3)
 
 Real*8, Allocatable:: DMdiag(:,:), Thpkl(:), G2(:,:), CMO(:,:)
 Real*8, Allocatable:: Txy(:,:), V_k(:,:), U_k(:), Z_p_k(:,:)
@@ -30,7 +30,6 @@ Integer nZ_p_k
 Integer nV_K, nSOs1
 Integer iD0Lbl
 
-! This should eventually totally replace ipAOrb
 Type (DSBA_Type), Allocatable, Target:: AOrb(:)
 
 ! DF-CASPT2

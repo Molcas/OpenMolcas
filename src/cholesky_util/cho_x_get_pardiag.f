@@ -11,16 +11,12 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_X_GET_PARDIAG(jSym,ip_List_rs,iSO_ab)
+      SUBROUTINE CHO_X_GET_PARDIAG(jSym,iSO_ab)
 
 ************************************************************************
 *      Returns an array of the "a" and "b" indeces that give rise to the
 *      parent diagonal from which a given J-index has been originated
 *      by the (molecular) Cholesky decomposition procedure
-*
-*        ip_List_rs : pointer to the portion of InfVec corresponding
-*                     to loc=1 and JSym, thus
-*                     ip_of_iWork(InfVec(1,1,jSym)
 *
 *        ia=iSO_ab(1,numcho(jSym))  contains the index of the basis "a"
 *                                   within its symm. block.
@@ -38,10 +34,10 @@
       Use Para_Info, Only: MyRank, nProcs
 #endif
       use ChoArr, only: iRS2F
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      Integer ip_List_rs, iSO_ab(2,*)
+      Integer iSO_ab(2,*)
 
-#include "WrkSpc.fh"
 #include "cholesky.fh"
 #ifdef _MOLCAS_MPP_
 #include "stdalloc.fh"
@@ -65,7 +61,7 @@
 
       Do jv=1,NumCho(jSym)
 
-         jRab = iWork(ip_List_rs+jv-1) ! addr. 1st red set within jSym
+         jRab = InfVec(jv,1,jSym) ! addr. 1st red set within jSym
 
          kRab = iiBstr(jSym,1) + jRab ! global addr. 1st red set
 
@@ -77,7 +73,7 @@
       Call mma_allocate(ip_Aux,2,nTot,Label='ip_Aux')
       ip_Aux(:,:)=0
       Do jv=1,NumCho(jSym)
-         kv=iWork(ip_List_rs+4*MaxVec+jv-1) ! InfVec(jv,5,jSym)
+         kv=InfVec(jv,5,jSym)
          ip_Aux(1,kv) = iSO_ab(1,jv+iOff)
          ip_Aux(2,kv) = iSO_ab(2,jv+iOff)
       End Do

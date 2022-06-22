@@ -8,22 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module exterm
+use Data_Structures, only: DSBA_type
+Private
+Public :: CijK, VJ, CilK, BklK
+Public :: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
+Public :: Yij
 
-      Integer nChOrb(0:7,5)
-      Integer nIJ1(8,8,2),nIJR(8,8,2)
-      Integer iAdrCVec(8,8,2),LuCVector(8,2)
-      Integer NumAuxVec(8)
-      Integer MxChVInShl,ljkvec,nScreen
+Public :: A, AMP2, BMP2
+Public :: iMP2prpt, nAuxVe
+Public :: LuAVector, LuBVector
 
-      Common /ExTe1/ nChOrb,nIJ1,nIJR,                                  &
-     &               iAdrCVec, LuCVector, NumAuxVec,                    &
-     &               MxChVInShl, ljkvec, nScreen
+Public :: CMOi, DMLT
 
-      Logical        DoCholExch, Timings_default
-      Common /ExTe2/ DoCholExch, Timings_default
+Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
+Integer, Allocatable:: Ymnij(:)
+Integer ipYmnij(5), nYmnij(8,5), iOff_Ymnij(8,5)
+Real*8, Allocatable, Target:: Yij(:,:,:)
+Real*8, Allocatable:: A(:)
 
-      Real*8         dmpK, tbvec(2), tavec(2)
-      Common /ExTe3/ dmpK, tbvec,    tavec
+!  Cholesky Mp2-gradients
+Real*8, Allocatable:: AMP2(:,:)
+Real*8, Allocatable:: BMP2(:,:)
+Integer :: iMP2prpt, nAuxVe
+Integer :: LuAVector(2), LuBVector(2)
 
-      Integer          nDM, nJdens, nKdens, nKvec, nAdens, nAvec
-      Common /DensMat/ nDM, nJdens, nKdens, nKvec, nAdens, nAvec
+Type (DSBA_Type), Target :: CMOi(5), DMLT(5)
+End Module exterm

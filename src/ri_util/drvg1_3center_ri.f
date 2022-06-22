@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1992,2000,2007, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Drvg1_3Center_RI(Grad,Temp,nGrad,ip_ij3,nij_Eff)
+      SubRoutine Drvg1_3Center_RI(Grad,Temp,nGrad,ij3,nij_Eff)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals. The four outermost loops *
@@ -44,12 +44,15 @@
       use Real_Info, only: CutInt
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
+      use ExTerm, only: CijK, CilK, BklK, VJ
+      use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
+      use ExTerm, only: Yij, BMP2, iMP2prpt, CMOi, DMLT
+      use Data_Structures, only: Deallocate_DSBA
       Implicit Real*8 (A-H,O-Z)
-      External Rsv_Tsk2
+      Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -57,28 +60,26 @@
 #include "cholesky.fh"
 #include "setup.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
 #include "bdshell.fh"
-      Integer  Cho_irange
-      External Cho_irange
+      Integer nGrad, nij_Eff
+      Real*8  Grad(nGrad), Temp(nGrad)
+      Integer, Allocatable:: ij3(:,:)
 *     Local arrays
-      Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
+      Real*8  Coor(3,4)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4),
      &        nAct(0:7)
-      Integer ipXmi(5)
       Logical EQ, Shijij, AeqB, CeqD, DoGrad, DoFock, Indexation,
-     &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk2, Found,
-     &        FreeK2, Verbose
+     &        JfGrad(3,4), ABCDeq, No_Batch, Found, FreeK2, Verbose
       Character Format*72, Method*8, KSDFT*16
       Character*50 CFmt
-      Character*16 SECNAM
       Character*4096 RealName
-      Parameter (SECNAM = 'drvg1_3center_ri')
+      Character(LEN=16), Parameter :: SECNAM = 'drvg1_3center_ri'
+      Integer, External:: Cho_irange
 *
       Integer iSD4(0:nSD,4)
       save MemPrm
@@ -86,14 +87,18 @@
 #include "chotime.fh"
       Logical is_error
       Logical ReadBPT2
-#include "ymnij.fh"
+
+      Real*8, Allocatable:: MaxDens(:), SDG(:), Thhalf(:)
+      Integer, Allocatable:: Shij(:,:), Shij2(:,:), LBList(:)
+      Real*8, Allocatable:: CVec2(:,:,:), CVec(:,:)
+      Real*8, Allocatable:: Xmi(:,:,:,:)
+      Real*8, Allocatable:: Tmp(:,:), TMax_Valence(:,:),
+     &                      TMax_Auxiliary(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement functions
 *
-      TMax_Valence(i,j)=Work(ipTMax-1+(j-1)*nSkal_Valence+i)
-      TMax_Auxiliary(i)=Work(ipTMax-1+nSkal_Valence**2+i)
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 *                                                                      *
 ************************************************************************
@@ -181,34 +186,31 @@
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      nTMax=nSkal_Valence**2+nSkal_Auxiliary
-      If (Do_RI) nTMax = nTMax-1
-      Call GetMem('TMax','Allo','Real',ipTMax,nTMax)
+      Call mma_allocate(TMax_Valence,nSkal_Valence,nSkal_Valence,
+     &                  Label='TMax_Valence')
+      nTMax=nSkal_Auxiliary
+      If (Do_RI) nTMax = Max(1,nTMax-1)
+      Call mma_allocate(TMax_Auxiliary,nTMax,Label='TMax_Auxiliary')
 *
-      Call Allocate_Work(ip_Tmp,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ip_Tmp))
+      Call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
+      Call Shell_MxSchwz(nSkal,Tmp)
       TMax_all=Zero
       Do iS = 1, nSkal_Valence
          Do jS = 1, iS
-            ip_Out=ip_Tmp + (jS-1)*nSkal + iS -1
-            ip_In =ipTMax + (jS-1)*nSkal_Valence + iS -1
-            Work(ip_In)=Work(ip_Out)
-            ip_In =ipTMax + (iS-1)*nSkal_Valence + jS -1
-            Work(ip_In)=Work(ip_Out)
-            TMax_all=Max(TMax_all,Work(ip_Out))
+            TMax_Valence(iS,jS)=Tmp(iS,jS)
+            TMax_Valence(jS,iS)=Tmp(iS,jS)
+            TMax_all=Max(TMax_all,Tmp(iS,jS))
          End Do
       End Do
       If (Do_RI) Then
          Do iS = 1, nSkal_Auxiliary-1
             iS_ = iS + nSkal_Valence
             jS_ = nSkal_Valence + nSkal_Auxiliary
-            ip_Out = ip_Tmp + (iS_-1)*nSkal + jS_ -1
-            ip_In  = ipTMax + nSkal_Valence**2 + iS -1
-            Work(ip_In)=Work(ip_Out)
+            TMax_Auxiliary(iS)=Tmp(iS_,jS_)
          End Do
       End If
 *
-      Call Free_Work(ip_Tmp)
+      Call mma_deallocate(Tmp)
 
 *                                                                      *
 ************************************************************************
@@ -221,48 +223,46 @@
 *     Calculate maximum density value for each shellpair
 *
       lMaxDens = nSkal_Valence*(nSkal_Valence+1)/2
-      Call GetMem('MaxDensity','Allo','Real',ip_MaxDens,lMaxDens)
-      Call FZero(Work(ip_MaxDens),lMaxDens)
+      Call mma_allocate(MaxDens,lMaxDens,Label='MaxDens')
+      MaxDens(:)=Zero
 *
-      iOff=0
       Do iSym = 0, nSym-1
          kS=1+nSkal_Valence*iSym ! note diff wrt declaration of iBDsh
          Do j=1,nBas(iSym)
             jsh=Cho_Irange(j,iBDsh(kS),nSkal_Valence,.true.)
             Do i=1,j
                ish=Cho_Irange(i,iBDsh(kS),nSkal_Valence,.true.)
-               ijS=ip_MaxDens-1+jsh*(jsh-1)/2+ish
+               ijS=jsh*(jsh-1)/2+ish
                Do iSO=1,nJDens
-                 If (ipDMLT(iSO).eq.ip_Dummy) Cycle
-                 ij=ipDMLT(iSO)+iOff-1+j*(j-1)/2+i
-                 Dm_ij=abs(Work(ij))
-                 Work(ijS)=Max(Work(ijS),Dm_ij)
+                 If (.NOT.Allocated(DMLT(iSO)%A0)) Cycle
+                 ij=j*(j-1)/2+i
+                 Dm_ij=abs(DMLT(iSO)%SB(iSym+1)%A1(ij))
+                 MaxDens(ijS)=Max(MaxDens(ijS),Dm_ij)
                End Do
             End Do
          End Do
-         iOff=iOff+nBas(iSym)*(nBas(iSym)+1)/2
       End Do
 *
-      If (ipDMLT(1).ne.ip_Dummy) Call Free_Work(ipDMLT(1))
-      If (nKdens.eq.2 .and. ipDMLT(2).ne.ip_Dummy)
-     &   Call Free_Work(ipDMLT(2))
+      Do i = 1, 5
+         If (Allocated(DMLT(i)%A0)) Call deallocate_DSBA(DMLT(i))
+      End Do
 *
 *     Create list of non-vanishing pairs
 *
 *1)   For the valence basis set
 *
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,
-     &            nSkal_Valence*(nSkal_Valence+1))
+      Call mma_allocate(Shij,2,nSkal_Valence*(nSkal_Valence+1)/2,
+     &                  Label='Shij')
       nSkal2=0
       Do iS = 1, nSkal_Valence
          iiQ = iS*(iS+1)/2
-         XDm_ii = Work(ip_MaxDens+iiQ-1)
+         XDm_ii = MaxDens(iiQ)
          Do jS = 1, iS
             jjQ = jS*(jS+1)/2
-            XDm_jj = Work(ip_MaxDens+jjQ-1)
+            XDm_jj = MaxDens(jjQ)
             ijQ=iS*(iS-1)/2+jS
-            XDm_ij = Work(ip_MaxDens+ijQ-1)
+            XDm_ij = MaxDens(ijQ)
             XDm_max = Max(XDm_ij,XDm_ii,XDm_jj)
             Aint_ij=TMax_Valence(iS,jS)
             If (TMax_All*Aint_ij .ge. CutInt) Then
@@ -272,8 +272,8 @@
 *
                If (Aint_ij*XDm_max .ge. CutInt) Then
                   nSkal2 = nSkal2 + 1
-                  iWork((nSkal2-1)*2+ip_ij  )=iS
-                  iWork((nSkal2-1)*2+ip_ij+1)=jS
+                  Shij(1,nSkal2)=iS
+                  Shij(2,nSkal2)=jS
                End If
 *
             End If
@@ -283,28 +283,28 @@
 *2)   For the auxiliary basis set
 *
       If (Do_RI) Then
-         mij = nSkal_Auxiliary*2
-         Call GetMem('ip_ij','Allo','Inte',ip_ij2,mij)
+         mij = nSkal_Auxiliary
+         Call mma_allocate(Shij2,2,mij,Label='Shij2')
          nij=0
          Do jS = nSkal_Valence+1, nSkal-1
             If (TMax_All*TMax_Auxiliary(jS-nSkal_Valence).ge.CutInt)
      &         Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij2  )=nSkal
-               iWork((nij-1)*2+ip_ij2+1)=jS
+               Shij2(1,nij)=nSkal
+               Shij2(2,nij)=jS
             End If
          End Do
       Else
-         mij = 2*nij_Eff
-         Call GetMem('ip_ij','Allo','Inte',ip_ij2,mij)
+         mij = nij_Eff
+         Call mma_allocate(Shij2,2,mij,Label='Shij2')
          nij=0
          Do ij = 1, nij_Eff
-            iS = iWork(ip_ij3-1 + (ij-1)*2 +1)
-            jS = iWork(ip_ij3-1 + (ij-1)*2 +2)
+            iS = ij3(1,ij)
+            jS = ij3(2,ij)
             If (TMax_All*TMax_Valence(iS,jS).ge.CutInt) Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij2  )=iS
-               iWork((nij-1)*2+ip_ij2+1)=jS
+               Shij2(1,nij)=iS
+               Shij2(2,nij)=jS
             End If
          End Do
       End If
@@ -357,17 +357,15 @@
          lCijK = nIJRMax*MxChVInShl
          lCilK = MxInShl*nIMax*MxChVInShl
          lCilK = Max(lCilK,lCijK) ! it is used as scratch in pget
-         Call GetMem('CijK','Allo','Real',ip_CijK,lCilK)
+         Call mma_allocate(CijK,lCilK,Label='CijK')
          If (lPSO) lCilK=Max(lCilK,maxnAct) ! used as scratch
-         Call GetMem('CilK','Allo','Real',ip_CilK,lCilK)
+         Call mma_allocate(CilK,lCilK,Label='CilK')
          lBklK = MxInShl**2*MxChVInShl
-         Call GetMem('BklK','Allo','Real',ip_BklK,lBklK)
+         Call mma_allocate(BklK,lBklK,Label='BklK')
 *
          If(iMp2prpt .eq. 2) Then
             lB_mp2 = mxChVInShl*nBas(0)*nBas(0)
-            Do i = 1, 2
-               Call GetMem('B_mp2','Allo','Real',ip_B_mp2(i),lB_mp2)
-            End Do
+            Call mma_allocate(BMP2,lB_mp2,2,Label='BMP2')
          End If
 *                                                                      *
 *----------------------------------------------------------------------*
@@ -380,11 +378,6 @@
          kSym = 1
          nK = NumAuxVec(kSym)
 *
-         lCVec  = nIJ1Max*nK
-         lCVec2 = nIJRMax*nK
-         Call GetMem('C_Vector','Allo','Real',ip_CVec,  lCVec )
-         Call GetMem('C_Vector2','Allo','Real',ip_CVec2,lCVec2)
-*
          Do iSO=1,nKVec
            If (lSA) Go to 15
            Do iSym = 1, nSym
@@ -394,26 +387,25 @@
 *             Read a whole block of C_ij^K
 *
               iAdrC = iAdrCVec(kSym,iSym,iSO)
-              Call dDaFile(LuCVector(kSym,iSO),2,Work(ip_CVec),
+              Call mma_allocate(CVec,nIJ1(iSym,jSym,iSO),nK,
+     &                          Label='CVec')
+              Call dDaFile(LuCVector(kSym,iSO),2,CVec,
      &                     nIJ1(iSym,jSym,iSO)*nK,iAdrC)
 *
               ni = nChOrb(iSym-1,iSO)
+              Call mma_allocate(CVec2,ni,ni,nK,Label='CVec2')
 *             nj=ni
-              index1 = ip_CVec
+
               Do KAux = 1, nK
-                 index_aux = ip_CVec2+(KAux-1)*(ni*ni)
 *
                  Do i = 1, ni
                     Do j = 1, i-1
-                       index2 = index_aux + i-1 + (j-1)*ni
-                       index3 = index_aux + j-1 + (i-1)*ni
-                       Work(index2) = Work(index1)
-                       Work(index3) = Work(index1)
-                       index1 = index1 + 1
+                       ij = j + i*(i-1)/2
+                       CVec2(i,j,KAux) = CVec(ij,KAux)
+                       CVec2(j,i,KAux) = CVec(ij,KAux)
                     End Do
-                    index2 = index_aux + i-1 + (j-1)*ni
-                    Work(index2) = Work(index1)*Sqrt(Two)
-                    index1 = index1 + 1
+                    ii = i*(i+1)/2
+                    CVec2(i,i,KAux) = CVec(ii,KAux)*Sqrt(Two)
                  End Do
 *
               End Do
@@ -424,15 +416,14 @@
 *             problems.
 *
               iAdrC = iAdrCVec(kSym,iSym,iSO)
-              Call dDaFile(LuCVector(kSym,iSO),1,Work(ip_CVec2),
+              Call dDaFile(LuCVector(kSym,iSO),1,CVec2,
      &                     nIJR(iSym,jSym,iSO)*nK,iAdrC)
 *
+              Call mma_deallocate(CVec2)
+              Call mma_deallocate(CVec)
            End Do
  15        Continue
          End Do
-*
-         Call GetMem('C_Vector','Free','Real',ip_CVec,  lCVec )
-         Call GetMem('C_Vector2','Free','Real',ip_CVec2,lCVec2)
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -451,8 +442,9 @@
 *        Scratch store the index of the MOs which finds the estimate
 *        according to Eq. 18 to be larger than the threshold.
 *
-         Call GetMem('Ymnij','Allo','Inte',ipYmnij(1),NumOrb)
-         Call IZero(iWork(ipYmnij(1)),NumOrb)
+         Call mma_allocate(Ymnij,NumOrb,Label='Ymnij')
+         Ymnij(:)=0
+         ipYmnij(1)=1
          Do i=2,nKDens
            ipYmnij(i)=ipYmnij(1)+ipYmnij(i)
          End Do
@@ -461,31 +453,22 @@
 *        SQRT(ABS( (mu,nu|mu,nu) ))
 *
          nnSkal = nSkal_valence*(nSkal_valence+1)/2
-         Call GetMem('MaxDG','Allo','Real',ipSDG,nnSkal)
-         Call get_maxDG(Work(ipSDG),nnSkal,MxBasSh)
+         Call mma_allocate(SDG,nnSkal,Label='SDG')
+         Call get_maxDG(SDG,nnSkal,MxBasSh)
 *
 *        Scratch for reduced lists of X_mi. Used in pget.
 *
          nXki=MumOrb*MxBasSh*nSym
-         Call GetMem('MOs_Yij','Allo','Real',jr_Xki(1),2*nKDens*nXki)
-         jr_Xli(1)=jr_Xki(1)+nXki
-         Do i=2,nKDens
-           jr_Xki(i)=jr_Xki(i-1)+2*nXki
-           jr_Xli(i)=jr_Xki(i)+nXki
-         End Do
+         Call mma_allocate(Yij,nXki,2,nKDens,Label='Yij')
 *
 *        Make a list the largest element X_mu,i for each valence shell
 *        and a fixed i. X_mu,i defined in Eq. 13.
 *
-         l_MaxXi=MumOrb*nSkal_valence*nIrrep ! X_i,ishell,isym
-         Call GetMem('MaxXi','Allo','Real',ipXmi(1),l_MaxXi*nKDens)
-         Do i=2,nKDens
-           ipXmi(i)=ipXmi(i-1)+l_MaxXi
-         End Do
-         l_MaxXi=l_MaxXi*nKDens
+         Call mma_allocate(Xmi,MumOrb,nSkal_Valence,nIrrep,nKDens,
+     &                     Label='Xmi')
 *
          Do iSO=1,nKDens
-            Call get_mXOs(iSO,Work(ipXmi(iSO)),MumOrb,nSkal_valence,
+            Call get_mXOs(iSO,Xmi(:,:,:,iSO),MumOrb,nSkal_valence,
      &                 nIrrep,nChOrb(0,iSO))
          End Do
 *
@@ -503,18 +486,18 @@
 *
       If (lPSO) Then
          nBas_Aux(0)=nBas_Aux(0)-1
-         Call GetMem('Thhalf','Allo','Real',ip_Thhalf,maxnnP)
+         Call mma_allocate(Thhalf,maxnnP,Label='Thhalf')
          nThpkl=MxChVInShl*MxInShl**2
          Call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
 *
          Call contract_Zpk_Tpxy(Z_p_k ,nZ_p_k,
      &                          Txy   ,n_Txy,
-     &                          Work(ip_Thhalf),maxnnP,
+     &                          Thhalf,maxnnP,
      &                          DMdiag ,nG1,
      &                          nnP,nBas_Aux,
      &                          nADens,nAvec,nAct,nIrrep)
 *
-         Call GetMem('Thhalf','Free','Real',ip_Thhalf,maxnnP)
+         Call mma_deallocate(Thhalf)
          nBas_Aux(0)=nBas_Aux(0)+1
       Else
          nThpkl=1
@@ -559,19 +542,20 @@
       End If
       If(.not. Do_RI) iOpt=0
 *
-      ip_LB=ip_iDummy
       If (iOpt.eq.1) Then
          Call qpg_iArray('LBList',Found,nSkal2_)
          If (Found) Then
-            Call Allocate_iWork(ip_LB,nSkal2_)
-            Call Get_iArray('LBList',iWork(ip_LB),nSkal2_)
+            Call mma_allocate(LBList,nSkal2_,Label='LBList')
+            Call Get_iArray('LBList',LBList,nSkal2_)
          Else
             Call WarningMessage(2,'LBList not found!')
             Call Abend()
          End If
+      Else
+         Call mma_allocate(LBList,1,Label='LBList')
       End If
-      Call Init_Tsk2(id,nSkal2,iOpt,iWork(ip_LB))
-      If (iOpt.eq.1) Call Free_iWork(ip_LB)
+      Call Init_Tsk2(id,nSkal2,iOpt,LBList)
+      Call mma_deallocate(LBList)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -602,8 +586,8 @@
    10    Continue
          If (.Not.Rsv_Tsk2(id,klS)) Go To 11
 *
-         kS = iWork((klS-1)*2+ip_ij  )
-         lS = iWork((klS-1)*2+ip_ij+1)
+         kS = Shij(1,klS)
+         lS = Shij(2,klS)
 *
          AInt_kl = TMax_Valence(kS,lS)
 *
@@ -619,7 +603,7 @@
 *           For the shell-pair, (kS,lS), pick up the largest element
 *           Sqrt(Abs(  (kappa,lambda|kappa,lambda) ))
 *
-            SDGmn=Work(ipSDG+klS_-1)
+            SDGmn=SDG(klS_)
 *
 *
 *           Loop over the MO basis, jb and ib and approximate Y_ij
@@ -633,26 +617,22 @@
  20           Continue
               nj=0
               Do jSym = 1, nSym
-                NumOrb_j  = nChOrb(jSym-1,iMOleft)-1
 *
                 mj=0
-                Do jb=0,NumOrb_j
-                  ip_Xmi=ipXmi(iMOleft) + MumOrb*nSkal_valence*(jSym-1)
-                  Xjk=Work(ip_Xmi+MumOrb*(kS-1)+jb)
-                  Xjl=Work(ip_Xmi+MumOrb*(lS-1)+jb)
+                Do jb= 1, nChOrb(jSym-1,iMOleft)
+                  Xjk=Xmi(jb,kS,jSym,iMOleft)
+                  Xjl=Xmi(jb,lS,jSym,iMOleft)
 *
                   jSym_s = jSym
                   if (ks.ne.ls.or.iMOright.ne.iMOleft) jSym_s=1
                   Do iSym = jsym_s, nSym
-                     NumOrb_i  = nChOrb(iSym-1,iMOright)-1
+                     NumOrb_i  = nChOrb(iSym-1,iMOright)
                      If (iSym.eq.jSym.and.ks.eq.ls
      &                    .and.iMOright.eq.iMOleft) NumOrb_i = jb
 *
-                     Do ib = NumOrb_i, 0, -1
-                       jp_Xmi=ipXmi(iMOright)+
-     &                        MumOrb*nSkal_valence*(iSym-1)
-                       Xik=Work(jp_Xmi+MumOrb*(kS-1)+ib)
-                       Xil=Work(jp_Xmi+MumOrb*(lS-1)+ib)
+                     Do ib = NumOrb_i, 1, -1
+                       Xik=Xmi(ib,kS,iSym,iMOright)
+                       Xil=Xmi(ib,lS,iSym,iMOright)
 *
 * ---                  Yij[mn] = (1+Pij) Xim * (mn|mn)^1/2 * Xjn
 *
@@ -663,7 +643,7 @@
 *
                        If ( PZmnij.ge.xfk*ThrCom ) Then
 !                        orbital in the list
-                         iWork(ipYmnij(iMOleft)+mj+nj)=jb+1
+                         Ymnij(ipYmnij(iMOleft)+mj+nj)=jb
                          mj=mj+1
                          Go To 666
                        End If
@@ -671,9 +651,6 @@
                   End Do    ! iSym
  666              Continue
                 End Do
-*
-*               Trick used in pget to skip
-*               If (mj.eq.NumOrb_j .and. xfk.gt.zero) mj=-mj
 *
 *               The first element is to keep track on how many elements
 *               that were saved.
@@ -699,8 +676,8 @@
 *                                                                      *
       If (Method.eq.'CASPT2  ') ReadBPT2 = .True.
       Do ijS = 1, nij
-         iS = iWork((ijS-1)*2+ip_ij2  )
-         jS = iWork((ijS-1)*2+ip_ij2+1)
+         iS = Shij2(1,ijS)
+         jS = Shij2(2,ijS)
 *
          If (Do_RI) Then
             Aint=AInt_kl*TMax_Auxiliary(jS-nSkal_Valence)
@@ -914,46 +891,33 @@
 *     Deallocate scratch for exchange term
 *
       If (DoCholExch) Then
-         Call GetMem('MaxXi','Free','Real',ipXmi(1),l_MaxXi)
-         Call GetMem('MOs_Yij','Free','Real',jr_Xki(1),2*nKVec*nXki)
-         Call GetMem('MaxDG','Free','Real',ipSDG,nnSkal)
-         Call GetMem('Ymnij','Free','Inte',ipYmnij(1),NumOrb)
+         Call mma_deallocate(Xmi)
+         Call mma_deallocate(Yij)
+         Call mma_deallocate(SDG)
+         Call mma_deallocate(Ymnij)
       End If
-      If (ip_CijK.ne.ip_Dummy)
-     &   Call GetMem('CijK','Free','Real',ip_CijK,lCijK)
-      If (ip_CilK.ne.ip_Dummy)
-     &   Call GetMem('CilK','Free','Real',ip_CilK,lCilK)
-      If (ip_BklK.ne.ip_Dummy)
-     &   Call GetMem('BklK','Free','Real',ip_BklK,lBklK)
-      If (ipijList.ne.ip_iDummy)
-     &   Call GetMem('ijList','Free','Inte',ipijList,lijList)
-      If (ipijListTri.ne.ip_iDummy)
-     &   Call GetMem('ijListTri','Free','Inte',ipijListTri,lijList)
-      If (ip_VJ.ne.ip_Dummy)
-     &   Call GetMem('JKVEC','Free','Real',ip_VJ,ljkVec)
+      If (Allocated(CijK)) Call mma_deallocate(CijK)
+      If (Allocated(CilK)) Call mma_deallocate(CilK)
+      If (Allocated(BklK)) Call mma_deallocate(BklK)
+      If (Allocated(VJ)) Call mma_deallocate(VJ)
       Do i=1,nKDens
-         If (ip_CMOi(i).ne.ip_Dummy)
-     &      Call GetMem('CMO_inv','FREE','Real',ip_CMOi(i), lCMOi(i))
+         If (Allocated(CMOi(i)%A0)) Call Deallocate_DSBA(CMOi(i))
       End Do
-      Call GetMem('MaxDensity','Free','Real',ip_MaxDens,lMaxDens)
+      Call mma_deallocate(MaxDens)
 *
-      If(iMp2prpt .eq. 2) Then
-         Do i = 1, 2
-            Call GetMem('B_mp2','Free','Real',ip_B_mp2(i),lB_mp2)
-         End Do
-      End If
-*
+      If (Allocated(BMP2)) Call mma_deallocate(BMP2)
       If (Allocated(Thpkl)) Call mma_deallocate(Thpkl)
 *
       Call mma_deallocate(Sew_Scr)
       Call Free_Tsk2(id)
-      Call GetMem('ip_ij','Free','Inte',ip_ij2,mij)
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
       If (Method.eq.'CASPT2  ') Then
         Call MMA_DeAllocate(B_PT2)
         Close (LuGamma2)
       End If
+      Call mma_deallocate(Shij2)
+      Call mma_deallocate(Shij)
+      Call mma_deallocate(TMax_Auxiliary)
+      Call mma_deallocate(TMax_Valence)
 *                                                                      *
 ************************************************************************
 *                                                                      *

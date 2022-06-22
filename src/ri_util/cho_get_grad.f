@@ -12,7 +12,7 @@
 *               2011, Thomas Bondo Pedersen                            *
 ************************************************************************
       SUBROUTINE CHO_GET_GRAD(irc,nDen,
-     &                        ipDLT,ipDLT2,ipMSQ,
+     &                        DLT,DLT2,MSQ,
      &                        Txy,nTxy,ipTxy,DoExchange,lSA,
      &                        nChOrb_,AOrb,nAorb,DoCAS,
      &                        Estimate,Update,
@@ -45,14 +45,13 @@
 *         nDen : is equal to 2 iff Spin Unrestricted                   *
 *                4 for SA-CASSCF, otherwise nDen=1                     *
 *                                                                      *
-*         ipDLT : pointer to the LT-packed and symm. blocked           *
-*                 one-body Dmat.                                       *
+*         DLT : the LT-packed and symm. blocked one-body Dmat.         *
 *                 For spin unrestricted, Dmat = Dalpha + Dbeta         *
 *                                                                      *
-*         ipDLT2: pointer to the LT-packed and symm. blocked           *
+*         DLT2: pointer to the LT-packed and symm. blocked             *
 *                 one body MP2 Dmat.                                   *
 *                                                                      *
-*         ipMSQ : Cholesky MOs stored as C(a,i) symm. blocked          *
+*         MSQ : Cholesky MOs stored as C(a,i) symm. blocked            *
 *                 with blocks of dim. (nBas,nBas). These are           *
 *                 obtained from CD of the 1-particle DMAT.             *
 *                 (Two pointers iff alpha and beta spinorbitals)       *
@@ -108,20 +107,21 @@
       use ChoSwp, only: nnBstRSh, InfVec, IndRed
       use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: Allocate_DSBA
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
       use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
      &                           L_Full_Type
       use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
      &                           Lab_Type
-
+      use ExTerm, only: VJ, iMP2prpt, CMOi
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 
       Type (NDSBA_Type) DiaH
-      Type (DSBA_Type) AOrb(*)
+      Type (DSBA_Type) DLT(5), DLT2, MSQ(nDen), AOrb(*)
       Type (SBA_Type) Laq(1), Lxy
       Type (L_Full_Type) L_Full
       Type (Lab_Type) Lab
@@ -129,11 +129,11 @@
       Logical   DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
-      Integer   ipMSQ(nDen),ipTxy(8,8,2)
+      Integer   ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
-      Integer   ipDLT(5),ipDLT2
+      Integer :: ipDLT(5)=[0,0,0,0,0],ipDLT2=0
       Integer   npos(8,3)
-      Integer   iSTSQ(8), iSTLT(8), nnA(8,8), nInd
+      Integer   iSTSQ(8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
 
       Real*8    Txy(nTxy),V_k(nV_k,*),Z_p_k(nZ_p_k,*), U_k(*)
@@ -150,10 +150,8 @@
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -230,6 +228,11 @@
 *                                                                      *
 ************************************************************************
 
+      Do i = 1, 5
+         If (Allocated(DLT(i)%A0)) ipDLT(i)=ip_of_Work(DLT(i)%A0(1))
+      End Do
+      If (Allocated(DLT2%A0)) ipDLT2=ip_of_Work(DLT2%A0(1))
+
       iRout = 9
       iPrint = nPrint(iRout)
 
@@ -253,30 +256,12 @@
 **    Various offsets
 *
       MaxB=nBas(1)
-      ISTLT(1)=0
       ISTSQ(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         NBQ=NBAS(ISYM-1)**2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D matrix
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
       END DO
-*
-**     Size for occupied CMO-matrix
-*
-      Do jDen = 1, nKdens
-         lCMOi(jDen) = 0
-         iOff_CMOi(1,jDen)=0
-         Do i = 1, nSym
-            lCMOi(jDen) = lCMOi(jDen) + nBas(i)*nChOrb_(i,jDen)
-         End Do
-         Do i = 2,nSym
-            iOff_CMOi(i,jDen)=iOff_CMOi(i-1,jDen) +
-     &                        nBas(i-1)*nChOrb_(i-1,jDen)
-         End Do
-      End Do
-
 *
 **
 *
@@ -319,32 +304,6 @@
 *                                                                      *
 ************************************************************************
       If(DoExchange) Then
-
-         lijList=0
-         Do jDen=nKvec,1,-1
-            iMOleft=jDen
-            iMOright=jDen
-            If (DoCAS.and.lSA) iMOright=jDen+2
-            iChOrbR(1,1,jDen) = 0
-            iChOrbT(1,jDen) = 0
-            Do k = 2, nSym
-               iChOrbR(k,1,jDen) = iChOrbR(k-1,1,jDen)+
-     &                     (nChOrb_(k-1,iMOright)+1)*nChOrb_(1,iMOleft)
-            End Do
-            Do i=2,nSym
-               iChOrbR(1,i,jDen) = iChOrbR(nSym,i-1,jDen)+
-     &              (nChOrb_(nSym,iMOright)+1)*nChOrb_(i-1,iMOleft)
-               Do k = 2,nSym
-                  iChOrbR(k,i,jDen) = iChOrbR(k-1,i,jDen)
-     &                 + (nChOrb_(k-1,iMOright)+1)*nChOrb_(i,iMOleft)
-               End Do
-               iChOrbT(i,jDen) = iChOrbT(i-1,jDen)
-     &                 + nChOrb_(i-1,iMOleft)*(nChOrb_(i-1,iMOright)+1)
-            End Do
-            lijList = max(lijList, iChOrbR(nSym,nSym,jDen)+
-     &                nChOrb_(nSym,iMOleft)*(nChOrb_(nSym,iMOright)+1))
-         End Do
-
 *
 ** Define the screening thresholds
 *
@@ -435,16 +394,8 @@
 ** allocate memory for rearranged CMO-matrix
 *
          Do i=1,nDen
-           If (lCMOi(i).gt.0) Then
-              Call GetMem('CMO_inv','Allo','Real',ip_CMOi(i), lCMOi(i))
-           Else
-              ip_CMOi(i)=ip_Dummy
-           End If
+           Call Allocate_DSBA(CMOi(i),nChOrb_(:,i),nBas,nSym)
          End Do
-         Call GetMem('ijList','Allo','Inte',ipijList,lijList)
-         Call GetMem('ijListTri','Allo','Inte',ipijListTri,lijList)
-         Call IZero(iWork(ipijList),lijList)
-         Call IZero(iWork(ipijListTri),lijList)
 
          nQoT = 0
 *
@@ -468,17 +419,16 @@
 
                Do jK=1,nChOrb_(kSym,jDen)
                   jK_a = jK + kOff(kSym,jDen)
-
-                  ipMO = ipMSQ(jDen) + ISTSQ(kSym)
-     &                 + nBas(kSym)*(jK-1)
 *
                   Do iaSh=1,nShell
 
-                     ipMsh = ipMO + kOffSh(iaSh,kSym)
+                     iS = kOffSh(iaSh,kSym) + 1
+                     iE = kOffSh(iaSh,kSym) + nBasSh(kSym,iaSh)
 
-                     SKsh=zero
-                     Do ik=0,nBasSh(kSym,iaSh)-1
-                        SKsh = SKsh + Work(ipMsh+ik)**2
+                     SKSh=Zero
+                     Do ik=iS,iE
+                        SKsh = SKsh
+     &                       + MSQ(jDen)%SB(kSym)%A2(ik,jK)**2
                      End Do
 
                      SumClk%Den(jDen)%A2(iaSh,jK_a) = SkSh
@@ -500,31 +450,22 @@
                  npos2=npos(ksym,jDen-2)
                  Do jK = 1, nPos2
                     Do jGam = 1, nBas(kSym)
-                       ipMO = ipMSQ(jDen) + iSTSQ(kSym)
-     &                      + nBas(kSym)*(jK-1) + jGam-1
-                       ipMO2 = ip_CMOi(jDen) + iOff_CMOi(kSym,jDen)
-     &                      + (jGam-1)*nChOrb_(kSym,jDen) + jK-1
-                       Work(ipMO2) = Work(ipMO)
+                       CMOi(jDen)%SB(kSym)%A2(jK,jGam) =
+     &                               MSQ(jDen)%SB(kSym)%A2(jGam,jK)
                     End Do
                  End Do
                  Do jK = npos2+1,nChOrb_(kSym,jDen)
                     Do jGam = 1, nBas(kSym)
-                       ipMO = ipMSQ(jDen) + iSTSQ(kSym)
-     &                      + nBas(kSym)*(jK-1) + jGam-1
-                       ipMO2 = ip_CMOi(jDen) + iOff_CMOi(kSym,jDen)
-     &                      + (jGam-1)*nChOrb_(kSym,jDen) + jK-1
-                       Work(ipMO2) = -Work(ipMO)
+                       CMOi(jDen)%SB(kSym)%A2(jK,jGam) =
+     &                              - MSQ(jDen)%SB(kSym)%A2(jGam,jK)
                     End Do
                  End Do
                Else
 *
                  Do jK = 1, nChOrb_(kSym,jDen)
                     Do jGam = 1, nBas(kSym)
-                       ipMO = ipMSQ(jDen) + iSTSQ(kSym)
-     &                      + nBas(kSym)*(jK-1) + jGam-1
-                       ipMO2 = ip_CMOi(jDen) + iOff_CMOi(kSym,jDen)
-     &                      + (jGam-1)*nChOrb_(kSym,jDen) + jK-1
-                       Work(ipMO2) = Work(ipMO)
+                       CMOi(jDen)%SB(kSym)%A2(jK,jGam) =
+     &                               MSQ(jDen)%SB(kSym)%A2(jGam,jK)
                     End Do
                  End Do
                EndIf
@@ -988,17 +929,16 @@ C --- Transform the densities to reduced set storage
                            Lik(:,:)=Zero
                            Lab%A0(1:nBas(lSym)*JNUM)=Zero
 
-                            ipMO = ipMSQ(iMOleft) + ISTSQ(kSym)
-     &                           + nBas(kSym)*(jK-1)
-
                         IF (DoScreen .and. iBatch.eq.1) THEN
                            CALL CWTIME(TCS1,TWS1)
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
 
-                           Do ik=0,nBas(kSym)-1
-                              AbsC(1+ik) = abs(Work(ipMO+ik))
+                           Do ik=1,nBas(kSym)
+                              AbsC(ik) = abs(
+     &                          MSQ(iMOleft)%SB(kSym)%A2(ik,jK)
+     &                                      )
                            End Do
 
                            If (lSym.ge.kSym) Then
@@ -1040,11 +980,10 @@ C------------------------------------------------------------------
                            nQo=0
                            Do i=iStart,nChOrb_(lSym,iMOright)
 
-                              ipMO_ = ipMSQ(iMOright) + ISTSQ(lSym)
-     &                             + nBas(lSym)*(i-1)
-
-                              Do ik=0,nBas(lSym)-1
-                                 AbsC(1+ik) = abs(Work(ipMO_+ik))
+                              Do ik=1,nBas(lSym)
+                                 AbsC(ik) = abs(
+     &                             MSQ(iMOright)%SB(lSym)%A2(ik,i)
+     &                                         )
                               End Do
 *
                               pYik(i,jK_a)=ddot_(nBas(lSym),
@@ -1206,9 +1145,9 @@ C------------------------------------------------------------------
                                     n2 = nBasSh(kSym,ibSh)
 
                                    Call DGEMV_(Mode(1:1),n1,n2,
-     &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
-     &                                       Work(ipMO+ioffShb),1,
-     &                                   ONE,Lab%SB(iaSh,lSym,1)%A,1)
+     &                    One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
+     &                        MSQ(iMOleft)%SB(kSym)%A2(iOffShb+1:,jK),1,
+     &                    ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                                 Else   ! lSym < kSym
 
@@ -1224,9 +1163,9 @@ C------------------------------------------------------------------
                                     n2 = JNUM*nBasSh(lSym,iaSh)
 
                                     Call DGEMV_(Mode(1:1),n1,n2,
-     &                     One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
-     &                                       Work(ipMO+ioffShb),1,
-     &                                   ONE,Lab%SB(iaSh,lSym,1)%A,1)
+     &                    One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
+     &                        MSQ(iMOleft)%SB(kSym)%A2(iOffShb+1:,jK),1,
+     &                    ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                                 EndIf
 
@@ -1256,16 +1195,13 @@ C------------------------------------------------------------------
 
                           it = Indik(1+ir,nInd)
 
-                          ipMO = ipMSQ(iMOright) + ISTSQ(lSym)
-     &                         + nBas(lSym)*(it-1)
-
                           Do iSh=1,Indx(0,nInd)
 
                              iaSh = Indx(iSh,nInd)
 
                              If (.NOT.Lab%Keep(iaSh,1)) Cycle
 
-                             ip_Cai = ipMO + kOffsh(iaSh,lSym)
+                             iS = kOffsh(iaSh,lSym) + 1
 *
                              If (lSym.ge.kSym) Then
 
@@ -1288,9 +1224,9 @@ C------------------------------------------------------------------
                              EndIf
 
                              CALL DGEMV_(Mode(1:1),n1,n2,
-     &                                   One,Lab%SB(iaSh,lSym,1)%A,n1,
-     &                                       Work(ip_Cai),1,
-     &                                   one,Lik(:,it),1)
+     &                          One,Lab%SB(iaSh,lSym,1)%A,n1,
+     &                              MSQ(iMOright)%SB(lSym)%A2(iS:,it),1,
+     &                          one,Lik(:,it),1)
 
                           End Do
 
@@ -1362,44 +1298,32 @@ C --- subtraction is done in the 1st reduced set
                      If (Is_Real_Par()) then
 
                       Do krs=1,nRS
-
                         mrs = iiBstR(JSYM,iLoc) + krs
                         jrs = IndRed(mrs,iLoc) - iiBstR(JSYM,1)
-
                         Do jvc=1,JNUM
-
                            DiagJ(jrs) = DiagJ(jrs) + Lrs(krs,jvc)**2
                         End Do
-
                       End Do
 
                      Else
 
                       Do krs=1,nRS
-
                         mrs = iiBstR(JSYM,iLoc) + krs
                         jrs = IndRed(mrs,iLoc) ! address in 1st red set
-
                         Do jvc=1,JNUM
-
                            Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                         End Do
-
                       End Do
 
                      EndIf
 
 #else
                      Do krs=1,nRS
-
                         mrs = iiBstR(JSYM,iLoc) + krs
                         jrs = IndRed(mrs,iLoc) ! address in 1st red set
-
                         Do jvc=1,JNUM
-
                            Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                         End Do
-
                      End Do
 #endif
 
@@ -1540,11 +1464,9 @@ C --- subtraction is done in the 1st reduced set
                               ! diagonal symmetry blocks are triangular
                               CALL DGEMM_('T','N',
      &                           nnP(JSYM),JNUM,nnA(iSymx,iSymy),
-     &                           ONE,Txy(ipTxy(iSymx,iSymy,iTxy)),
-     &                                   nnP(JSYM),
-     &                                   Lxy%SB(iSymx)%A2,
-     &                                   nnA(iSymx,iSymy),
-     &                               ONE,Z_p_k(ipZp,iAvec),nnP(JSYM))
+     &                       ONE,Txy(ipTxy(iSymx,iSymy,iTxy)),nnP(JSYM),
+     &                           Lxy%SB(iSymx)%A2,nnA(iSymx,iSymy),
+     &                       ONE,Z_p_k(ipZp,iAvec),nnP(JSYM))
 
                             Else
 *MGD may rearrange the loops
@@ -1679,7 +1601,7 @@ C--- have performed screening in the meanwhile
            End Do
         End Do
         ljkVec = 2*nIJMax
-        Call GetMem('JKVEC','Allo','Real',ip_VJ,ljkVec)
+        Call mma_allocate(VJ,ljkVec,Label='VJ')
       End If
 
       Call mma_deallocate(iShp_rs)

@@ -10,9 +10,8 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_Fock_MCLR(DA,G2,JA,KA,FkA,
-     &                         CVa,nVB,CMO,nIsh,nAsh,LuAChoVec)
-
+      SUBROUTINE CHO_Fock_MCLR(DA,G2,JA,KA,FkA,CVa,CMO,nIsh,nAsh,
+     &                         LuAChoVec)
 ************************************************************************
 *                                                                      *
 *  Author : M. G. Delcey                                               *
@@ -20,23 +19,22 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Character*13 SECNAM
-      Parameter (SECNAM = 'CHO_FOCK_MCLR')
+      Character(LEN=13), Parameter :: SECNAM = 'CHO_FOCK_MCLR'
       Integer   ISTLT(8),ISTSQ(8),ipLpq(8,3)
-      Integer   ipAorb(8,2),LuAChoVec(8)
+      Integer   LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
 #include "stdalloc.fh"
-      Real*8 DA(*), G2(*), JA(*), KA(*), FkA(*), CMO(*), CVa(nVB,2)
-      parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
-      parameter (FactCI = -2.0D0, FactXI = 0.5D0)
+      Type (DSBA_type) CVa
+      Real*8 DA(*), G2(*), JA(*), KA(*), FkA(*), CMO(*)
+      Real*8, parameter:: xone=-One, FactCI = -Two, FactXI = Half
       Character*6 mode
-      Integer   Cho_LK_MaxVecPerBatch
-      External  Cho_LK_MaxVecPerBatch
+      Integer , External :: Cho_LK_MaxVecPerBatch
       Integer, Allocatable:: kOffSh(:,:)
       Real*8, Allocatable:: Scr(:), Fab(:), Lrs(:), LF(:)
       Logical add
@@ -74,13 +72,6 @@
          End Do
       End Do
 *
-      DO jDen=1,nDen
-         ipAorb(1,jDen)= ip_of_work(CVa(1,jDen))
-         DO ISYM=2,NSYM
-            ipAorb(iSym,jDen) = ipAorb(iSym-1,jDen)
-     &                        + nAsh(iSym-1)*nBas(iSym-1)
-         END DO
-      END DO
 *     memory for the Q matrices --- temporary array
       Call mma_allocate(Scr,nsBB*nDen,Label='Scr')
       Scr(:)=Zero
@@ -232,7 +223,7 @@ C --------------------------------------------------------------------
                   ipLvw = ipLpq(iSymv,2) + NAv*Naw*(JVC-1)
                   CALL DGEMM_('N','T',NAv,Naw,NBAS(iSymb),
      &                       One,LF(ipLvb),NAv,
-     &                       Work(ipAOrb(iSymb,1)),Naw,
+     &                       CVa%SB(iSymb)%A2,Naw,
      &                      Zero,LF(ipLvw),NAv)
                  End Do
 *                 CALL CWTIME(TCINT2,TWINT2)

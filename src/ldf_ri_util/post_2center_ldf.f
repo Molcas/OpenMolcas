@@ -11,8 +11,8 @@
 * Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Post_2Center_LDF(ipA_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
-     &                            nLocal_A,ipSO2C,nSO_Aux)
+      SubRoutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,
+     &                            SO2C,nSO_Aux)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
@@ -37,18 +37,23 @@
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "nsd.fh"
       Character Name_Q*6
       Integer nQvec(0:7)
+      Real*8, Allocatable :: A_Diag(:), Local_A(:,:)
+      Integer, Allocatable :: SO2C(:), AB(:,:)
+
+      Real*8, Allocatable :: Scr(:)
+      Integer, Allocatable :: iDiag(:), SO2lO(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute the number of AB blocks
 *
-      nAB=MaxCntr*(MaxCntr+1)
-      Call GetMem('A-blocks','Allo','Inte',ipAB,nAB)
-      Call iZero(iWork(ipAB),nAB)
+      nAB=MaxCntr*(MaxCntr+1)/2
+      Call mma_allocate(AB,2,nAB,Label='AB')
+      AB(:,:)=0
 *
 *     Find the size of the largest AB block!
 *
@@ -56,15 +61,14 @@
       Do iCenter = 1, MaxCntr
          nCenter=0
          Do i = 1, nSO_Aux
-            jCenter=iWork(ipSO2C+i-1)
+            jCenter=SO2C(i)
             If (jCenter.eq.iCenter) nCenter=nCenter+1
          End Do
          Max_AA = Max(Max_AA,nCenter)
       End Do
       nLocal_A=(2*Max_AA)**2
-      Call GetMem('Local_A','Allo','Real',ipLocal_A,2*nLocal_A)
-      ipLocal_AInv = ipLocal_A + nLocal_A
-      Call GetMem('SO2lO','Allo','Inte',ipSO2lO,nSO_Aux)
+      Call mma_allocate(Local_A,nLocal_A,2,Label='Local_A')
+      Call mma_allocate(SO2lO,nSO_Aux,Label='SO2lO')
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -86,8 +90,8 @@
 *
       nA_Diag=nB
       lScr=3*nXZ
-      Call GetMem('iD_Diag','Allo','Inte',ip_iDiag,nA_Diag)
-      Call GetMem('ip_Scr','Allo','Real',ip_Scr,lScr)
+      Call mma_allocate(iDiag,nA_Diag,Label='iDiag')
+      Call mma_allocate(Scr,lScr,Label='Scr')
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -105,11 +109,11 @@
          niSO=0
          nlO=0
          Do iSO = 1, nSO_Aux
-            kCenter = iWork(ipSO2C+iSO-1)
+            kCenter = SO2C(iSO)
             If (kCenter.eq.iCenter) Then
                niSO=niSO+1
                nlO = nlO + 1
-               iWork(ipSO2lO+iSO-1)=nlO
+               SO2lO(iSO)=nlO
             End If
          End Do
 
@@ -122,45 +126,43 @@
             iIrrep=0
             If (jCenter.eq.iCenter) Then
 *
-               Call FZero(Work(ipLocal_A),niSO**2)
+               Local_A(1:niSO**2,1)=Zero
 *
                Do iSO = 1, nSO_Aux
-                  Call dDaFile(Lu_A(iIrrep),2,Work(ip_Scr),
+                  Call dDaFile(Lu_A(iIrrep),2,Scr,
      &                         nSO_Aux,iAddr)
-C                 Call RecPrt('Work(ip_Scr)','(6G23.15)',
-C    &                         Work(ip_Scr),1,nSO_Aux)
-                  kCenter = iWork(ipSO2C+iSO-1)
+C                 Call RecPrt('Scr','(6G23.15)',Scr,1,nSO_Aux)
+                  kCenter = SO2C(iSO)
                   If (kCenter.eq.iCenter) Then
-                      ilO=iWork(ipSO2lO+iSO-1)
+                      ilO=SO2lO(iSO)
                       Do jSO = 1, iSO
-                         lCenter = iWork(ipSO2C+jSO-1)
+                         lCenter = SO2C(jSO)
                          If (lCenter.eq.iCenter) Then
-                            AElement=Work(ip_Scr+jSO-1)
-                            jlO=iWork(ipSO2lO+jSO-1)
+                            AElement=Scr(jSO)
+                            jlO=SO2lO(jSO)
                             ij = (ilO-1)*nlO + jlO
                             ji = (jlO-1)*nlO + ilO
-                            AElement=Work(ip_Scr+jSO-1)
-                            Work(ipLocal_A+ij-1)=AElement
-                            Work(ipLocal_A+ji-1)=AElement
+                            AElement=Scr(jSO)
+                            Local_A(ij,1)=AElement
+                            Local_A(ji,1)=AElement
                          End If
                       End Do
                   End If
                End Do
 C              Call RecPrt('Local_A','(6G23.15)',
-C    &                     Work(ipLocal_A),nlO,nlO)
+C    &                     Local_A(:,1),nlO,nlO)
 *
-               Call CD_AInv(Work(ipLocal_A),nlO,Work(ipLocal_AInv),
-     &                      Thrshld_CD)
+               Call CD_AInv(Local_A(:,1),nlO,Local_A(:,2),Thrshld_CD)
 *
 C              Call RecPrt('Local_AInv','(6G23.15)',
-C    &                     Work(ipLocal_AInv),nlO,nlO)
+C    &                     Local_A(:,2),nlO,nlO)
 *
 *              Store the address of the matrix, size and write the
 *              matrix to *              disk.
 *
-               iWork(ipAB+(ijCenter-1)*2  )=iAdr_AB
-               iWork(ipAB+(ijCenter-1)*2+1)=nlO
-               Call dDaFile(Lu_AB,1,Work(ipLocal_AInv),nlO**2,iAdr_AB)
+               AB(1,ijCenter)=iAdr_AB
+               AB(2,ijCenter)=nlO
+               Call dDaFile(Lu_AB,1,Local_A(:,2),nlO**2,iAdr_AB)
 *
             Else
 *
@@ -169,49 +171,47 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
                njSO=0
                mlO = 0
                Do jSO = 1, nSO_Aux
-                  lCenter = iWork(ipSO2C+jSO-1)
+                  lCenter = SO2C(jSO)
                   If (lCenter.eq.jCenter) Then
                      njSO=njSO+1
                      mlO = mlO + 1
-                     iWork(ipSO2lO+jSO-1)=mlO+nlO
+                     SO2lO(jSO)=mlO+nlO
                   End If
                End Do
 *
-               Call FZero(Work(ipLocal_A),(niSO+njSO)**2)
+               Local_A(1:(niSO+njSO)**2,1)=Zero
 *
                Do iSO = 1, nSO_Aux
-                  Call dDaFile(Lu_A(iIrrep),2,Work(ip_Scr),
-     &                         nSO_Aux,iAddr)
-                  kCenter = iWork(ipSO2C+iSO-1)
+                  Call dDaFile(Lu_A(iIrrep),2,Scr,nSO_Aux,iAddr)
+                  kCenter = SO2C(iSO)
                   If (kCenter.eq.iCenter.or.
      &                kCenter.eq.jCenter) Then
-                      ilO=iWork(ipSO2lO+iSO-1)
+                      ilO=SO2lO(iSO)
                       Do jSO = 1, iSO
-                         lCenter = iWork(ipSO2C+jSO-1)
+                         lCenter = SO2C(jSO)
                          If (lCenter.eq.iCenter.or.
      &                       lCenter.eq.jCenter) Then
-                            AElement=Work(ip_Scr+jSO-1)
-                            jlO=iWork(ipSO2lO+jSO-1)
+                            AElement=Scr(jSO)
+                            jlO=SO2lO(jSO)
                             ij = (ilO-1)*(nlO+mlO) + jlO
                             ji = (jlO-1)*(nlO+mlO) + ilO
-                            AElement=Work(ip_Scr+jSO-1)
-                            Work(ipLocal_A+ij-1)=AElement
-                            Work(ipLocal_A+ji-1)=AElement
+                            AElement=Scr(jSO)
+                            Local_A(ij,1)=AElement
+                            Local_A(ji,1)=AElement
                          End If
                       End Do
                   End If
                End Do
 *
-               Call CD_AInv(Work(ipLocal_A),nlO+mlO,Work(ipLocal_AInv),
+               Call CD_AInv(Local_A(:,1),nlO+mlO,Local_A(:,2),
      &                      Thrshld_CD)
 *
 *              Store the address of the matrix, size and write the
 *               matrix to *              disk.
 *
-               iWork(ipAB+(ijCenter-1)*2  )=iAdr_AB
-               iWork(ipAB+(ijCenter-1)*2+1)=nlO+mlO
-               Call dDaFile(Lu_AB,1,Work(ipLocal_AInv),(nlO+mlO)**2,
-     &                      iAdr_AB)
+               AB(1,ijCenter)=iAdr_AB
+               AB(2,ijCenter)=nlO+mlO
+               Call dDaFile(Lu_AB,1,Local_A(:,2),(nlO+mlO)**2,iAdr_AB)
 *
             End If
          End Do
@@ -221,7 +221,7 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *                                                                      *
 *     Fill in the lower part of the A matrix as it is stored on disk.
 *
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+      Call mma_maxDBLE(MaxMem)
       Do iIrrep = 0, nIrrep-1
          nB = nBas_Aux(iIrrep)
          If (iIrrep.eq.0) nB = nB - 1 ! subtract dummay af
@@ -232,7 +232,7 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *                                                                      *
       ThrQ=1.0D-12
       ichk=0
-      is=0
+      is=1
       Do iIrrep = 0, nIrrep-1
          nB = nBas_Aux(iIrrep)
          If (iIrrep.eq.0) nB = nB - 1 ! subtract dummy aux. func.
@@ -243,10 +243,9 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
             Write(Name_Q,'(A4,I2.2)') 'QVec',iIrrep
             Call DaName_MF_WA(Lu_Q(iIrrep),Name_Q)
 *
-            Call get_pivot_idx(Work(ipA_Diag+is),nB,nQvec(iIrrep),
+            Call get_pivot_idx(A_Diag(is),nB,nQvec(iIrrep),
      &                         Lu_A(iIrrep),Lu_Q(iIrrep),
-     &                         iWork(ip_iDiag+is),Work(ip_Scr),lScr,
-     &                         ThrQ)
+     &                         iDiag(is),Scr,lScr,ThrQ)
             nChV(iIrrep)=nQvec(iIrrep)
             ichk=ichk+Min(1,nB-nQvec(iIrrep))
             is=is+nB
@@ -271,10 +270,10 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('ip_Scr','Free','Real',ip_Scr,lScr)
-      Call GetMem('iD_Diag','Free','Inte',ip_iDiag,nA_Diag)
-      Call GetMem('A_Diag','Free','Real',ipA_Diag,nA_Diag)
-      Call GetMem('SO2lO','Free','Inte',ipSO2lO,nSO_Aux)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(iDiag)
+      Call mma_deallocate(A_Diag)
+      Call mma_deallocate(SO2lO)
 *                                                                      *
 ************************************************************************
 *                                                                      *

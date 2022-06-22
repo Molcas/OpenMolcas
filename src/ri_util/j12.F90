@@ -8,22 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-
-      Integer nChOrb(0:7,5)
-      Integer nIJ1(8,8,2),nIJR(8,8,2)
-      Integer iAdrCVec(8,8,2),LuCVector(8,2)
-      Integer NumAuxVec(8)
-      Integer MxChVInShl,ljkvec,nScreen
-
-      Common /ExTe1/ nChOrb,nIJ1,nIJR,                                  &
-     &               iAdrCVec, LuCVector, NumAuxVec,                    &
-     &               MxChVInShl, ljkvec, nScreen
-
-      Logical        DoCholExch, Timings_default
-      Common /ExTe2/ DoCholExch, Timings_default
-
-      Real*8         dmpK, tbvec(2), tavec(2)
-      Common /ExTe3/ dmpK, tbvec,    tavec
-
-      Integer          nDM, nJdens, nKdens, nKvec, nAdens, nAvec
-      Common /DensMat/ nDM, nJdens, nKdens, nKvec, nAdens, nAvec
+      Module j12
+      Integer :: nSO, nSkal_Valence, klS
+      Integer, Allocatable :: SOShl(:), ShlSO(:)
+      Integer, Allocatable :: nBasSh(:,:)
+      Integer, Allocatable :: iSSOff(:,:,:)
+      Integer, Allocatable :: iShij(:,:)
+      End Module j12

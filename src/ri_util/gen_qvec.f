@@ -11,10 +11,38 @@
       Subroutine  Gen_QVec(nIrrep,nBas_Aux)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer nBas_Aux(0:nIrrep-1), Lu_Q(0:7), Lu_A(0:7)
       Logical Out_Of_Core
       Character*6 Name_Q
+
+      Real*8, Allocatable, Target :: Mem(:)
+      Real*8, Pointer:: A_l(:)=>Null(), Q_l(:)=>Null()
+      Real*8, Pointer:: A_k(:)=>Null(), Q_k(:)=>Null()
+      Real*8, Pointer:: Am(:)=>Null(), Qm(:)=>Null()
+      Integer, Allocatable:: iDiag(:)
+      Real*8, Allocatable:: Scr(:), X(:), Z(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      INTERFACE
+      SUBROUTINE SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,
+     &                    Diag)
+      Integer irc
+      Integer nSym
+      Integer nDim(nSym)
+      Integer nVec(nSym)
+      Integer iD_A(*)
+      Integer lu_A0(nSym)
+      Character(LEN=7) mode
+      Integer lScr
+      Real*8  Scr(lScr)
+      Real*8, Optional ::  Diag(*)
+      END SUBROUTINE SORT_mat
+      END INTERFACE
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       ThrQ=1.0D-14 ! Threshold for Inv_Cho_Factor
 *
@@ -37,12 +65,12 @@
       End Do
       nBfn2=mB**2
 *
-      Call Allocate_Work(ipZ,mB)
-      Call Allocate_Work(ipX,mB)
+      Call mma_allocate(Z,mB,Label='Z')
+      Call mma_allocate(X,mB,Label='X')
       lScr=3*mB
-      Call Allocate_Work(ip_Scr,lScr)
-      Call GetMem('MemX','Max','Real',iDum,Mem_Max)
-      Call GetMem('MemX','Allo','Real',ip_Mem,Mem_Max)
+      Call mma_allocate(Scr,lScr,Label='Scr')
+      Call mma_maxDBLE(Mem_Max)
+      Call mma_allocate(Mem,Mem_Max,Label='Mem')
 *
       Do iIrrep = 0, nIrrep-1
          nB = nBas_Aux(iIrrep)
@@ -64,56 +92,61 @@
                Write (6,*) 'nB,mB=',nB,mB
                Call Abend()
             End If
-            ip_Q_k = ip_Mem + 2*kQm
-            ip_A_k = ip_Mem + 2*kQm + mB
+            iE = 2*kQm
+            iS = iE + 1
+            iE = iE + mB
+            Q_k(1:mB) => Mem(iS:iE)
+            iS = iE + 1
+            iE = iE + mB
+            A_k(1:mB) => Mem(iS:iE)
          Else
             mB = nB
             kQm = nQm
-            ip_Q_k = ip_Dummy
-            ip_A_k = ip_Dummy
          End If
 *
-         ip_Qm=ip_Mem
-         ip_Am=ip_Mem + kQm
-         Call FZero(Work(ip_Qm),kQm)
-         Call FZero(Work(ip_Am),kQm)
+         iS = 1
+         iE = kQm
+         Qm(1:kQm) => Mem(iS:iE)
+         iS = iE + 1
+         iE = iE + kQm
+         Am(1:kQm) => Mem(iS:iE)
 *
          iAddr=0
          Do kCol = 1, nB
 *
             If (kCol.le.mB) Then
                iOff = (kCol-1)*kCol/2
-               ip_A_l = ip_Am + iOff
+               A_l(1:) => Am(1+iOff:)
             Else
-               ip_A_l = ip_A_k
+               A_l(1:) => A_k(1:)
             End If
 *
             iAddr_ = iAddr
             If (kCol.le.mB.and.kCol.eq.1) Then
-               Call dDaFile(Lu_A(iIrrep),2,Work(ip_Am),kQm,iAddr_)
+               Call dDaFile(Lu_A(iIrrep),2,Am,kQm,iAddr_)
             Else If (kCol.gt.mB) Then
-               Call dDaFile(Lu_A(iIrrep),2,Work(ip_A_l),kCol,iAddr_)
+               Call dDaFile(Lu_A(iIrrep),2,A_l,kCol,iAddr_)
             End If
 #ifdef _DEBUGPRINT_
             Write (6,*) 'kCol=',kCol
-            Call TriPrt('Am',' ',Work(ip_Am),mB)
-            Call RecPrt('Al',' ',Work(ip_A_l),1,kCol)
+            Call TriPrt('Am',' ',Am,mB)
+            Call RecPrt('Al',' ',A_l,1,kCol)
 #endif
 *
             If (kCol.le.mB) Then
                iOff = (kCol-1)*kCol/2
-               ip_Q_l = ip_Qm + iOff
+               Q_l(1:) => Qm(1+iOff:)
             Else
-               ip_Q_l = ip_Q_k
+               Q_l(1:) => Q_k(1:)
             End If
 *
             LinDep=2
-            Call Inv_Cho_Factor(Work(ip_A_l),kCol,
-     &                          Work(ip_Am),Work(ip_Qm),mB,
+            Call Inv_Cho_Factor(A_l,kCol,
+     &                          Am,Qm,mB,
      &                          Lu_A(iIrrep),Lu_Q(iIrrep),
-     &                          Work(ip_Scr),lScr,
-     &                          Work(ipZ),Work(ipX),ThrQ,
-     &                          Work(ip_Q_l),LinDep)
+     &                          Scr,lScr,
+     &                          Z,X,ThrQ,
+     &                          Q_l,LinDep)
 
             If (LinDep.ne.0) Then
                Call WarningMessage(2,'Error in Gen_QVec')
@@ -121,8 +154,8 @@
                Call Abend()
             End If
 #ifdef _DEBUGPRINT_
-            Call TriPrt('Qm',' ',Work(ip_Qm),Min(mB,kCol))
-            Call RecPrt('Ql',' ',Work(ip_Q_l),1,kCol)
+            Call TriPrt('Qm',' ',Qm,Min(mB,kCol))
+            Call RecPrt('Ql',' ',Q_l,1,kCol)
 #endif
 *
 *           Write the new A/Q-vector to file
@@ -130,47 +163,53 @@
             iAddr_=iAddr
             If (kCol.eq.mB) Then
                lQm=kCol*(kCol+1)/2
-               Call dDaFile(Lu_Q(iIrrep),1,Work(ip_Qm),lQm,iAddr )
-               Call dDaFile(Lu_A(iIrrep),1,Work(ip_Am),lQm,iAddr_)
+               Call dDaFile(Lu_Q(iIrrep),1,Qm,lQm,iAddr )
+               Call dDaFile(Lu_A(iIrrep),1,Am,lQm,iAddr_)
             Else If (kCol.gt.mB) Then
                nQ_k=kCol
-               Call dDaFile(Lu_Q(iIrrep),1,Work(ip_Q_l),nQ_k,iAddr )
-               Call dDaFile(Lu_A(iIrrep),1,Work(ip_A_l),nQ_k,iAddr_)
+               Call dDaFile(Lu_Q(iIrrep),1,Q_l,nQ_k,iAddr )
+               Call dDaFile(Lu_A(iIrrep),1,A_l,nQ_k,iAddr_)
             End If
 *
          End Do    ! kCol
          Call DaClos(Lu_A(iIrrep))
       End Do       ! iIrrep
 *
-      Call GetMem('MemX','Free','Real',ip_Mem,Mem_Max)
-      Call Free_Work(ip_Scr)
-      Call Free_Work(ipX)
-      Call Free_Work(ipZ)
+      A_l=>Null()
+      Q_l=>Null()
+      A_k=>Null()
+      Q_k=>Null()
+      Am=>Null()
+      Qm=>Null()
+      Call mma_deallocate(Mem)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(X)
+      Call mma_deallocate(Z)
 *
 *     Sort the Q-matrix to square storage.
 *
-      Call GetMem('iDiag','Allo','Inte',ip_iDiag,nA_Diag)
-      ik = ip_iDiag
+      Call mma_allocate(iDiag,nA_Diag,Label='iDiag')
+      ik = 0
       Do iIrrep=0,nIrrep-1
          Do k=1,nBas_Aux(iIrrep)
-            iWork(ik) = k  ! dummy assignement
             ik = ik + 1
+            iDiag(ik) = k  ! dummy assignement
          End Do
       End Do
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem2)
+      Call mma_maxDBLE(MaxMem2)
       lScr=Min(MaxMem2,nBfn2)
-      Call GetMem('Scr','Allo','Real',ip_Scr,lScr)
+      Call mma_allocate(Scr,lScr,Label='Scr')
 *
-      Call SORT_Mat(irc,Work(ip_Dummy),nBas_Aux,nBas_Aux,
-     &              iWork(ip_iDiag),nIrrep,Lu_Q,'Restore',
-     &              lScr,Work(ip_Scr))
+      Call SORT_Mat(irc,nBas_Aux,nBas_Aux,
+     &              iDiag,nIrrep,Lu_Q,'Restore',
+     &              lScr,Scr)
 *
 *     Note: after the 'Restore' call to Sort_mat, the Q-matrix is
 *           no longer stored as upper-triangular but as squared
 *           (zeros have been added).
 *
-      Call GetMem('Scr','Free','Real',ip_Scr,lScr)
-      Call GetMem('iD_Diag','Free','Inte',ip_iDiag,nA_Diag)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(iDiag)
 *
       Do iIrrep=0,nIrrep-1
          Call DaClos(Lu_Q(iIrrep))

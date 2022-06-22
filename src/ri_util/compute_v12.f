@@ -10,8 +10,10 @@
 ************************************************************************
       SubRoutine Compute_V12(V,V12,nDim)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 V(nDim,nDim), V12(nDim,nDim)
+
+      Real*8, Allocatable :: Vec(:), VTri(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -20,13 +22,13 @@
 ************************************************************************
 *                                                                      *
 *
-      Call Allocate_Work(ipVec,nDim**2)
-      Call Allocate_Work(ipVTri,nDim*(nDim+1)/2)
+      Call mma_allocate(Vec,nDim**2,Label='Vec')
+      Call mma_allocate(VTri,nDim*(nDim+1)/2,Label='VTri')
 *
-      Call Compute_V12_(V,V12,Work(ipVTri),Work(ipVec),nDim)
+      Call Compute_V12_(V,V12,VTri,Vec,nDim)
 *
-      Call Free_Work(ipVTri)
-      Call Free_Work(ipVec)
+      Call mma_deallocate(VTri)
+      Call mma_deallocate(Vec)
 *
       Return
       End

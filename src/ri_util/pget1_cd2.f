@@ -32,17 +32,17 @@
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
+      use ExTerm, only: CijK, iMP2prpt, nAuxVe
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "print.fh"
-#include "WrkSpc.fh"
-#include "chomp2g_alaska.fh"
 #include "exterm.fh"
       Real*8 PAO(ijkl,nPAO), V_k(mV_k), U_K(mV_K), Z_p_K(nnP1,mV_K),
      &       Fac_ij,Fac_kl
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij
       External mn2K
+
+      Real*8, Pointer :: CiKj(:,:)=>Null(), V2(:)=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -129,7 +129,10 @@ C     Fac = One / Four
       Else If(iMP2prpt .ne. 2) Then
          NumIK = nIJ1(iSym,lSym,iSO)
          If(NumIK.eq.0) Return
-         ip_CijK2 = ip_CijK + NumIK
+
+         iS = 1
+         iE = NumIK * 2
+         CiKj(1:NumIK,1:2) => CijK(iS:iE)
 
          Do i1 = 1, iCmp(1)
             Do i2 = 1, iCmp(2)
@@ -152,12 +155,12 @@ C     Fac = One / Four
                            Indl=kSOk+lSOl-Indk
                            Indkl=(Indk-1)*Indk/2+Indl
                            klVec=mn2K(Indkl,1)
+
                            If(klvec.ne.0) Then
                               iAdrL = NumIK*(klVec-1)
      &                              + iAdrCVec(jSym,iSym,iSO)
                               Call dDaFile(LuCVector(jSym,iSO),2,
-     &                                     Work(ip_CijK),
-     &                                     NumIK,iAdrL)
+     &                                     CiKj(:,1),NumIK,iAdrL)
                            End If
 
 
@@ -176,11 +179,10 @@ C     Fac = One / Four
                                     iAdrJ = NumIK*(ijVec-1) +
      &                                      iAdrCVec(jSym,iSym,iSO)
                                     Call dDaFile(LuCVector(jSym,iSO),2,
-     &                                           Work(ip_CijK2),NumIK,
-     &                                           iAdrJ)
-                                    ip_V2 = ip_CijK2
+     &                                           CiKj(:,2),NumIK,iAdrJ)
+                                    V2(1:) => CiKj(1:,2)
                                  Else
-                                    ip_V2 = ip_CijK
+                                    V2(1:) => CiKj(1:,1)
                                  End If
 
                                  temp=V_k(Indij)*V_k(Indkl)*CoulFac
@@ -200,8 +202,7 @@ C     Fac = One / Four
 *----- Exchange contribution
 
                                  temp = temp - ExFac*Fac_ij*Fac_kl*
-     &                                  dDot_(NumIK,Work(ip_CijK),1,
-     &                                             Work(ip_V2),1)
+     &                                  dDot_(NumIK,CiKJ(:,1),1,V2,1)
 *-----Active space contribution (any factor?)
                                  Do jp=1,nnP1
                                     temp = temp
@@ -223,7 +224,10 @@ C     Fac = One / Four
       Else
          NumIK = nIJ1(iSym,lSym,iSO)
          If(NumIK.eq.0) Return
-         ip_CijK2 = ip_CijK + NumIK
+
+         iS = 1
+         iE = NumIK * 2
+         CiKj(1:NumIK,1:2) => CijK(iS:iE)
 
          Do i1 = 1, iCmp(1)
             Do i2 = 1, iCmp(2)
@@ -249,8 +253,7 @@ C     Fac = One / Four
                               iAdrL = NumIK*(klVec-1)
      &                              + iAdrCVec(jSym,iSym,iSO)
                               Call dDaFile(LuCVector(jSym,iSO),2,
-     &                                     Work(ip_CijK),
-     &                                     NumIK,iAdrL)
+     &                                     CiKj(:,1),NumIK,iAdrL)
                            End If
 
 
@@ -269,11 +272,10 @@ C     Fac = One / Four
                                     iAdrJ = NumIK*(ijVec-1) +
      &                                      iAdrCVec(jSym,iSym,iSO)
                                     Call dDaFile(LuCVector(jSym,iSO),2,
-     &                                           Work(ip_CijK2),NumIK,
-     &                                           iAdrJ)
-                                    ip_V2 = ip_CijK2
+     &                                           CiKj(:,2),NumIK,iAdrJ)
+                                    V2(1:) => CiKj(:,2)
                                  Else
-                                    ip_V2 = ip_CijK
+                                    V2(1:) => CiKj(:,1)
                                  End If
 
                                  temp= V_k(Indij)*V_k(Indkl)*CoulFac
@@ -304,11 +306,10 @@ C     Fac = One / Four
 
 
                                  tempK = 2.0d0*Fac_ij*Fac_kl*
-     &                                   dDot_(NumIK,Work(ip_CijK),1,
-     &                                              Work(ip_V2),1)
+     &                                   dDot_(NumIK,CiKj(:,1),1,V2,1)
                                  Call compute_A_jk_Mp2(1,ijVec,klVec,
-     &                                tempK_mp2,
-     &                                fac_ij,fac_kl,nAuxVe,1)
+     &                                                 tempK_mp2,fac_ij,
+     &                                                 fac_kl,nAuxVe,1)
 
                                  tempK = tempK + tempK_mp2
 
@@ -333,6 +334,8 @@ C     Fac = One / Four
          End Do
       End If
 *
+      CiKj => Null()
+      V2   => Null()
 
       If (iPAO.ne.nPAO) Then
          Write (6,*) ' Error in PGet1_CD2!'
@@ -341,7 +344,6 @@ C     Fac = One / Four
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_CD2:PAO ',' ',PAO,ijkl,nPAO)
-      Call GetMem(' Exit PGet1_CD2','CHECK','REAL',iDum,iDum)
 #endif
 
       Call CWTime(Cpu2,Wall2)

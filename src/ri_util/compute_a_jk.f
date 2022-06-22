@@ -18,11 +18,10 @@
 *     Purpose: Loading A-matrix for mp2 from disk
 *
 **************************************************************************
+      use ExTerm, only: iMP2prpt, LuAVector
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
-#include "chomp2g_alaska.fh"
-#include "WrkSpc.fh"
-      Real*8  Ajk,Fac_ij, Fac_kl, dum(1)
+      Real*8  :: Ajk, Fac_ij, Fac_kl, dum(1)
 
       Character*16 SECNAM
       Parameter (SECNAM = 'Compute_A_jk_mp2')
