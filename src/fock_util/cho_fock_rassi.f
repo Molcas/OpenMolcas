@@ -37,14 +37,14 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: DSBA_Type
       use Data_Structures, only: SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) MO1(2), MO2(2)
+      Type (DSBA_Type) MO1(2), MO2(2)
       Type (SBA_Type), Target:: Laq(2)
       Type (twxy_type) Scr
 
@@ -55,24 +55,24 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical  DoReord
+      Logical  DoReord, add
       Logical, Parameter:: DoRead = .false.
       Character*50 CFmt
       Character(LEN=14), Parameter:: SECNAM = 'CHO_FOCK_RASSI'
 #include "chotime.fh"
+#include "real.fh"
 
-      parameter (FactCI = 1.0D0, FactXI = -1.0D0)
+      Real*8, Parameter:: FactCI = One, FactXI = -One
       Character*6 mode
 #include "cho_jobs.fh"
 
-#include "real.fh"
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
 
       Real*8, Pointer:: VJ(:)=>Null()
 
@@ -165,10 +165,10 @@ C ------------------------------------------------------------------
 
             If(JSYM.eq.1)Then
 
-               Call GetMem('rsDtot','Allo','Real',ipDab,nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-               Call Fzero(Work(ipDab),nRS)
-               Call Fzero(Work(ipFab),nRS)
+               Call mma_allocate(Drs,nRS,Label='Drs')
+               Call mma_allocate(Frs,nRS,Label='Frs')
+               Drs(:)=Zero
+               Frs(:)=Zero
             EndIf
 
             Call mma_MaxDBLE(LWORK)
@@ -192,7 +192,10 @@ C ------------------------------------------------------------------
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
                mode = 'toreds'
-               Call swap_sto(irc,iLoc,ipDLT,ISTLT,ipDab,mode)
+               add =.False.
+               mDen=1
+               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipDLT],Drs,
+     &                           mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -245,7 +248,7 @@ C
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab),1,ZERO,VJ,1)
+     &                 Drs,1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -254,7 +257,7 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 VJ,1,Fact,Work(ipFab),1)
+     &                 VJ,1,Fact,Frs,1)
 
 
                   CALL CWTIME(TCC2,TWC2)
@@ -385,7 +388,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                MO2(kDen)%SB(iSymb)%A,NAw,
+     &                                MO2(kDen)%SB(iSymb)%A2,NAw,
      &                           Zero,Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                       End Do
@@ -425,15 +428,18 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
-               Call swap_sto(irc,iLoc,ipFLT,ISTLT,ipFab,mode)
+               add = .True.
+               mDen=1
+               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipFLT],Frs,
+     &                           mode,add)
             EndIf
 
 C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              Call GetMem('rsFC','Free','Real',ipFab,nRS)
-              Call GetMem('rsDtot','Free','Real',ipDab,nRS)
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 
@@ -506,87 +512,5 @@ c Print the Fock-matrix
 
       rc  = 0
 
-
       Return
       END
-
-**************************************************************
-
-      SUBROUTINE swap_sto(irc,iLoc,ipXLT,ISLT,ipXab,mode)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),cho_isao
-      External cho_isao
-      Integer ipXLT,ipXab
-      Character*6 mode
-
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "WrkSpc.fh"
-
-************************************************************************
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-************************************************************************
-
-
-      jSym = 1 ! only total symmetric density
-
-      If (mode.eq.'toreds') then
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            kfrom = ipXLT + isLT(iSyma) + iab - 1
-
-            Work(ipXab+jRab-1) = Work(kfrom)
-
-         End Do  ! jRab loop
-
-      ElseIf (mode.eq.'tofull') then
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            kto = ipXLT + isLT(iSyma) + iab - 1
-
-            Work(kto) = Work(kto)
-     &                + Work(ipXab+jRab-1)
-
-
-         End Do  ! jRab loop
-
-      Else
-
-         write(6,*)'Wrong input parameter. mode = ',mode
-         irc = 66
-         Call abend()
-
-      EndIf
-
-      irc = 0
-
-      Return
-      End

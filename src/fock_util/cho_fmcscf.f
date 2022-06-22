@@ -41,13 +41,13 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, SBA_Type
+      use Data_structures, only: DSBA_Type, SBA_Type
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
       use Data_structures, only: twxy_Type
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) POrb(3)
+      Type (DSBA_Type) POrb(3)
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
@@ -57,7 +57,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
       Integer   ipDA1,ipDI
       Integer   ipFA,ipFI
-      Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
+      Integer   ipDLT(2),ipFLT(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -79,7 +79,7 @@ C
       Character*6 mode
 
       Integer nAux(8)
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:,:), Frs(:,:)
       Real*8, Pointer:: VJ(:)=>Null()
 
 
@@ -90,7 +90,6 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-
       if(ExFac.ne.1.0d0) then
           write(6,*) 'WARNING: if you are running MCPDFT calculations'
           write(6,*) 'and end up with this message, you are in trouble.'
@@ -209,12 +208,12 @@ C ------------------------------------------------------------------
 
             If(JSYM.eq.1)Then
 
-               Call GetMem('rsDI','Allo','Real',ipDab(1),nRS)
-               Call GetMem('rsFI','Allo','Real',ipFab(1),nRS)
-
                if(DoActive)then
-                 Call GetMem('rsDA1','Allo','Real',ipDab(2),nRS)
-                 Call GetMem('rsFA','Allo','Real',ipFab(2),nRS)
+                 Call mma_allocate(Drs,nRS,2,Label='Drs')
+                 Call mma_allocate(Frs,nRS,2,Label='Frs')
+               Else
+                 Call mma_allocate(Drs,nRS,1,Label='Drs')
+                 Call mma_allocate(Frs,nRS,1,Label='Frs')
                endif
 
             EndIf
@@ -243,7 +242,8 @@ C ------------------------------------------------------------------
 C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
-               Call change_sto(irc,iLoc,nDen,ipDLT,ipDab,mode,add)
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipDLT],Drs,
+     &                           mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -291,7 +291,7 @@ C==========================================================
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab(1)),1,ZERO,VJ,1)
+     &                 Drs(:,1),1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -300,7 +300,7 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 VJ,1,xfac,Work(ipFab(1)),1)
+     &                 VJ,1,xfac,Frs(:,1),1)
 
 
                   If (DoActive) Then
@@ -313,7 +313,7 @@ C==========================================================
 C
                      CALL DGEMV_('T',nRS,JNUM,
      &                          ONE,Lrs,nRS,
-     &                          Work(ipDab(2)),1,ZERO,VJ,1)
+     &                          Drs(:,2),1,ZERO,VJ,1)
 
 C --- FA(rs){#J} <- FA(rs){#J} + FactCA * sum_J L(rs,{#J})*U{#J}
 C===============================================================
@@ -322,7 +322,7 @@ C===============================================================
 
                      CALL DGEMV_('N',nRS,JNUM,
      &                          FactCA,Lrs,nRS,
-     &                          VJ,1,xfac,Work(ipFab(2)),1)
+     &                          VJ,1,xfac,Frs(:,2),1)
 
                   EndIf
 
@@ -507,7 +507,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_Tri('N','T',NAv,NAv,nBas(iSyma),
      &                             One,Laq(3)%SB(iSyma)%A3(:,:,JVC),NAv,
-     &                                    POrb(3)%SB(iSyma)%A,NAv,
+     &                                    POrb(3)%SB(iSyma)%A2,NAv,
      &                               Zero,Lxy%SB(iSyma)%A2(:,JVC),NAv)
 
                       End Do
@@ -534,7 +534,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,nBas(iSymb),
      &                            One,Laq(3)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                POrb(3)%SB(iSymb)%A,NAw,
+     &                                POrb(3)%SB(iSymb)%A2,NAw,
      &                           Zero,Lxy%SB(iSymv)%A2(:,JVC),NAv)
 
                       End Do
@@ -581,20 +581,18 @@ C --------------------------------------------------------------------
 c --- backtransform fock matrix in full storage
                mode = 'tofull'
                add  = .true.
-               Call change_sto(irc,iLoc,nDen,ipFLT,ipFab,mode,add)
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipFLT],Frs,
+     &                           mode,add)
             endif
 
 C --- free memory
             Call mma_deallocate(Lrs)
 
             if (JSYM.eq.1) then
-               if(DoActive)then
-                 Call GetMem('rsFA','Free','Real',ipFab(2),nRS)
-                 Call GetMem('rsDA1','Free','Real',ipDab(2),nRS)
-               endif
-               Call GetMem('rsFI','Free','Real',ipFab(1),nRS)
-               Call GetMem('rsDI','Free','Real',ipDab(1),nRS)
+               Call mma_deallocate(Drs)
+               Call mma_deallocate(Frs)
             endif
+
 
 
 999         CONTINUE
@@ -681,149 +679,3 @@ c Print the Fock-matrix
 
       Return
       END
-
-**************************************************************
-**************************************************************
-
-
-
-      SUBROUTINE change_sto(irc,iLoc,nDen,ipXLT,ipXab,mode,add)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),cho_isao,nDen
-      External cho_isao
-      Integer ipXLT(nDen),ipXab(nDen)
-      Logical add
-      Character*6 mode
-
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "WrkSpc.fh"
-
-************************************************************************
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-************************************************************************
-
-
-c Offsets to symmetry block in the LT matrix
-      ISLT(1)=0
-      DO ISYM=2,NSYM
-         ISLT(ISYM) = ISLT(ISYM-1)
-     &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-      END DO
-
-**************************************************
-
-      jSym = 1 ! only total symmetric density
-
-* PAM06
-*      xf=0.0d0
-*      if (add) xf=1.0d0 !accumulate contributions
-
-      If (mode.eq.'toreds') then
-* PAM06 Inactivated lines above replaced by this insert:
-         If (.not.add) then
-          Do jDen=1,nDen
-           Do jRab=1,nnBstR(jSym,iLoc)
-            Work(ipXab(jDen)+jRab-1) = 0.0D0
-           End Do
-          End Do
-         End If
-* PAM06 End of insert
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            Do jDen=1,nDen
-
-               kfrom = ipXLT(jDen) + isLT(iSyma) + iab - 1
-
-* PAM06 These two lines...
-*               Work(ipXab(jDen)+jRab-1) = xf*Work(ipXab(jDen)+jRab-1)
-*     &                                  +    Work(kfrom)
-* PAM06 ...replaced by:
-               Work(ipXab(jDen)+jRab-1) = Work(ipXab(jDen)+jRab-1)
-     &                                  +    Work(kfrom)
-* PAM06 End of replacement
-* PAM06 These two lines...
-* PAM06 ...replaced by:
-* PAM06 End of replacement
-            End Do
-
-         End Do  ! jRab loop
-
-      ElseIf (mode.eq.'tofull') then
-* PAM06 Similar with this insert:
-         If (.not.add) then
-          Do jRab=1,nnBstR(jSym,iLoc)
-           kRab = iiBstr(jSym,iLoc) + jRab
-           iRab = IndRed(kRab,iLoc)
-           iag   = iRS2F(1,iRab)  !global address
-           ibg   = iRS2F(2,iRab)
-           iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-           ias   = iag - ibas(iSyma)  !address within that symm block
-           ibs   = ibg - ibas(iSyma)
-           iab   = iTri(ias,ibs)
-           Do jDen=1,nDen
-            kto = ipXLT(jDen) + isLT(iSyma) + iab - 1
-            Work(kto) = 0.0D0
-           End Do
-          End Do
-         End If
-* PAM06 End of insert
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            Do jDen=1,nDen
-
-               kto = ipXLT(jDen) + isLT(iSyma) + iab - 1
-
-* PAM06 These two lines...
-*               Work(kto) = xf*Work(kto)
-*     &                   +    Work(ipXab(jDen)+jRab-1)
-* PAM06 ...replaced by:
-               Work(kto) = Work(kto)
-     &                   +    Work(ipXab(jDen)+jRab-1)
-* PAM06 End of replacement
-
-            End Do
-
-
-         End Do  ! jRab loop
-
-      Else
-
-         write(6,*)'Wrong input parameter. mode = ',mode
-         irc = 66
-         Call abend()
-
-      EndIf
-
-      irc = 0
-
-      Return
-      End

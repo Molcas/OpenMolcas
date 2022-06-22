@@ -27,8 +27,8 @@
 ************************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, Allocate_CMO
-      use Data_structures, only: Deallocate_CMO
+      use Data_structures, only: DSBA_Type, Allocate_DSBA
+      use Data_structures, only: Deallocate_DSBA
       use Data_structures, only: SBA_Type
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
@@ -36,7 +36,7 @@
 #include "warnings.fh"
       Character(LEN=13), Parameter:: SECNAM = 'CHO_PREC_MCLR'
 
-      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
+      Integer   ISTLT(8),ISTSQ(8)
       Integer   LuAChoVec(8),LuChoInt(2)
       Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),nAshb(8),nAshe(8)
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
@@ -50,12 +50,12 @@
       Character*50 CFmt
       Real*8, parameter:: xone=-One
       Character*6 mode
-      Logical taskleft
+      Logical taskleft, add
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
      &                      Lrs(:,:), Integral(:)
-      Type (CMO_Type) CMOt
+      Type (DSBA_Type) CMOt
       Type (SBA_Type) Lpq(1)
 
       Real*8, Allocatable, Target :: Lii(:), Lij(:)
@@ -301,13 +301,13 @@
 *
 **    Transpose CMO
 *
-        Call allocate_CMO(CMOt,nIShe,nBas,nSym)
+        Call Allocate_DSBA(CMOt,nIShe,nBas,nSym)
 
         ioff =0
         Do iSym=1,nsym
           Do j=1,nIshe(iSym)
             ioff3=ioff+nBas(iSym)*(nIshb(iSym)+j-1)
-            CMOt%SB(iSym)%A(j,:) = CMO(ioff3+1:ioff3+nBas(iSym))
+            CMOt%SB(iSym)%A2(j,:) = CMO(ioff3+1:ioff3+nBas(iSym))
           End Do
           ioff =ioff +nBas(iSym)**2
         End Do
@@ -598,19 +598,20 @@ c         !set index arrays at iLoc
 **        Transform to full storage, use Lrs as temp storage
 *
           If (jsym.eq.1) Then
+            add = .True.
+            mode = 'tofull'
+            nMat = 1
             Do i=1,ntotie
               ip1=ip_of_Work(iiab(1))+nab*(i-1)
               ipRS1=ip_of_Work(iirs(1))+nRS*(i-1)
-              mode = 'tofull'
-              Call play_rassi_sto(irc,iLoc,JSYM,ISTSQ,ISSQ,
-     &                                   ip1,ipRS1,mode)
+              Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                          [ip1],Work(ipRS1),mode,add)
             End Do
             Do i=1,ntue
               ip1=ip_of_Work(tupq(1))+npq*(i-1)
-              ipRS1=ip_of_Work(turs(1))+nrs*(i-1)
-              mode = 'tofull'
-              Call play_rassi_sto(irc,iLoc,JSYM,ISTSQ,ISSQ,
-     &                                   ip1,ipRS1,mode)
+              ipRS1=ip_of_Work(turs(1))+nRS*(i-1)
+              Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                          [ip1],Work(ipRS1),mode,add)
             End Do
           EndIf
 *
@@ -777,7 +778,7 @@ c         !set index arrays at iLoc
           nIshb(i)=nIshb(i)+nIshe(i)  ! now those are done!
           nAshb(i)=nAshb(i)+nAshe(i)  ! now those are done!
         EndDo
-        Call deallocate_CMO(CMOt)
+        Call Deallocate_DSBA(CMOt)
         Call mma_deallocate(iiab)
         If (ntotae.gt.0) Call mma_deallocate(tupq)
         If (taskleft) Go to 50  ! loop over i/t batches

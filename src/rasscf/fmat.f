@@ -149,7 +149,7 @@ c         End Do
 c         Call FZero(FA,nTot1)
 c         Call FTwo_Drv(nSym,nBas,nAsh,nSkipX,
 c     &                    Work(iTmp1),D1A,FA,nTot1,
-c     &                    ExFac,nTot2,nBMX,CMO)
+c     &                    ExFac,nBMX,CMO)
 c      End If
 
 *     Inactive-active contribution to ECAS

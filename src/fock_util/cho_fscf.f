@@ -30,7 +30,7 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, SBA_Type
+      use Data_structures, only: DSBA_Type, SBA_Type
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
 
@@ -40,7 +40,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    FactCI,FactXI,ExFac
       Integer   ipDLT(nDen),ipFLT(nDen)
-      Type (CMO_Type)   Porb(nDen)
+      Type (DSBA_Type)   Porb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -61,7 +61,7 @@ C
       Logical add
       Character*6 mode
 
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
       Real*8, Allocatable:: VJ(:)
       Integer:: nAux(8)
 
@@ -159,12 +159,10 @@ C ------------------------------------------------------------------
             nRS = nDimRS(JSYM,JRED)
 
             If(JSYM.eq.1)Then
-
-               Call GetMem('rsDtot','Allo','Real',ipDab,nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-               Call Fzero(Work(ipDab),nRS)
-               Call Fzero(Work(ipFab),nRS)
-
+               Call mma_allocate(Drs,nRS,Label='Drs')
+               Call mma_allocate(Frs,nRS,Label='Frs')
+               Drs(:)=Zero
+               Frs(:)=Zero
             EndIf
 
             Call mma_maxDBLE(LWORK)
@@ -190,6 +188,7 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
                nMat=1
+               ipDab = ip_of_Work(Drs(1))
                Call move_sto(irc,iLoc,nMat,ipDLT,ipDab,mode,add)
             EndIf
 
@@ -237,7 +236,7 @@ C
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab),1,ZERO,VJ,1)
+     &                 Drs,1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -246,7 +245,7 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 VJ,1,Fact,Work(ipFab),1)
+     &                 VJ,1,Fact,Frs,1)
 
 
                   CALL CWTIME(TCC2,TWC2)
@@ -347,6 +346,7 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add  = .true.
                nMat = nDen
+               ipFab = ip_of_Work(Frs(1))
                Call move_sto(irc,iLoc,nMat,ipFLT,ipFab,mode,add)
             EndIf
 
@@ -354,8 +354,8 @@ C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              Call GetMem('rsFC','Free','Real',ipFab,nRS)
-              Call GetMem('rsDtot','Free','Real',ipDab,nRS)
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 

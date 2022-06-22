@@ -28,7 +28,7 @@ logical(kind=iwp) :: DiffOp, lECP, lPP, lFAIEMP
 character(len=80) :: Label
 character(len=16) :: NamRfil
 integer(kind=iwp), allocatable :: lOper(:)
-real(kind=iwp), allocatable :: Coor(:,:), D_Var(:)
+real(kind=wp), allocatable :: Coor(:,:), D_Var(:)
 external :: OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd, WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, FragPGrd, MltGrd, &
             OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG, WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG, MltMmG
 

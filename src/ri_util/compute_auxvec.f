@@ -14,7 +14,7 @@
       use Temporary_Parameters, only: force_out_of_core
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
-      use Data_Structures, only: Allocate_CMO, Map_to_CMO
+      use Data_Structures, only: Allocate_DSBA, Map_to_DSBA
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)
@@ -353,8 +353,8 @@
 
          Allocate(AOrb(nADens))
          Do iADens = 1, nADens
-            Call Allocate_CMO(AOrb(iADens),nAsh,nBas,nIrrep)
-            Call Map_to_CMO(AOrb(iADens),ipAOrb(:,iADens))
+            Call Allocate_DSBA(AOrb(iADens),nAsh,nBas,nIrrep)
+            Call Map_to_DSBA(AOrb(iADens),ipAOrb(:,iADens))
          End Do
 
 *
@@ -372,7 +372,7 @@
 
             Do i=1,nASh(iIrrep)
                kOff1 = 1 + jCount + nBas(iIrrep)*(i-1)
-               AOrb(iADens)%SB(iIrrep+1)%A(i,1:nBas(iIrrep)) =
+               AOrb(iADens)%SB(iIrrep+1)%A2(i,1:nBas(iIrrep)) =
      &            CMO(kOff1:kOff1-1+nBas(iIrrep),iADens)
             End Do
 

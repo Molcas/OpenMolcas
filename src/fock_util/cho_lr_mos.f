@@ -38,6 +38,12 @@
       Integer  ipCM(nDen), ipMSQ(nDen)
 
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable, Target:: DMat0(:), PMat0(:)
+      Real*8, Pointer:: DMat(:,:)=>Null()
+      Real*8, Pointer:: PMat(:,:,:,:)=>Null()
+
 ************************************************************************
 
       irc=0
@@ -47,16 +53,25 @@
       Do iSym=2,nSym
          nBm=Max(nBm,nBas(iSym))
       End Do
-      Call GetMem('Dmat','Allo','Real',ipD,nBm**2)
-      ipP = ipD
-      ipV = ipMSQ(1)
+      Call mma_allocate(DMat0,nBm**2,Label='DMat0')
       If (nDen.gt.1) Then
-         Call GetMem('Pmat','Allo','Real',ipP,2*(nDen*nBm)**2)
-         ipV = ipP + (nDen*nBm)**2
+         Call mma_allocate(PMat0,2*(nDen*nBm)**2,Label='PMat0')
+         ipV = ip_of_Work(PMat0(1+(nDen*nBm)**2))
+      Else
+         ipV = ipMSQ(1)
       EndIf
 
       iSym=1
       Do while (iSym .le. nSym)
+
+        DMat(1:nBas(iSym),1:nBas(iSym)) => DMat0(1:nBas(iSym)**2)
+        If (nDen==1) Then
+           PMat(1:nBas(iSym),1:1,1:nBas(iSym),1:1) =>
+     &          DMat0(1:nBas(iSym)**2)
+        Else
+           PMat(1:nBas(iSym),1:nDen,1:nBas(iSym),1:nDen) =>
+     &          PMat0(1:(nDen*nBas(iSym))**2)
+        End If
 
         If (nBas(iSym).gt.0 .and. nIsh(iSym).gt.0) then
 
@@ -75,13 +90,10 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
                Call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),
      &                      1.0d0,Work(kCM),nBas(iSym),
      &                            Work(lCM),nBas(iSym),
-     &                      0.0d0,Work(ipD),nBas(iSym))
+     &                      0.0d0,DMat,nBas(iSym))
 
-               Do ib=1,nBas(iSym)*Min(1,nDen-1)
-                  ifr=nBas(iSym)*(ib-1)+ipD
-                  ito=n2b*(ib-1)+nBas(iSym)*(k-1)+
-     &                n2b*nBas(iSym)*(l-1)+ipP
-                  call dcopy_(nBas(iSym),Work(ifr),1,Work(ito),1)
+               Do ib=1,nBas(iSym)
+                  PMat(:,k,ib,l) = DMat(:,ib)
                End Do
 
             End Do
@@ -89,16 +101,16 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
          End Do
 
          Ymax=0.0d0
-         do ja=1,n2b
-            jaa=ipP-1+n2b*(ja-1)+ja
-            Ymax=Max(Ymax,Work(jaa))
+         do ja=1,n2b  ! Loop over the compound index
+            k = (ja-1)/nBas(iSym) + 1
+            ia = ja - (k-1)*nBas(iSym)
+            Ymax=Max(Ymax,PMat(ia,k,ia,k))
          end do
          Thr=1.0d-13*Ymax
 
          If (nDen.eq.1) ipV = ipMSQ(1) + ISK(iSym)
 
-         CALL CD_InCore(Work(ipP),n2b,Work(ipV),n2b,
-     &                  NumV,Thr,irc)
+         CALL CD_InCore(PMat,n2b,Work(ipV),n2b,NumV,Thr,irc)
 
          If (NumV.ne.nIsh(iSym)) ikc=1
 
@@ -120,12 +132,14 @@ C --- Inactive P[kl](a,b) = sum_i C[k](a,i)*C[l](b,i)
 
         iSym=iSym+1
 
+        DMat => Null()
+        PMat => Null()
+
       End Do
 
 
-      If (nDen.gt.1) Call GetMem('Pmat','Free','Real',
-     &                            ipP,2*(nDen*nBm)**2)
-      Call GetMem('Dmat','Free','Real',ipD,nBm**2)
+      If (nDen.gt.1) Call mma_deallocate(PMat0)
+      Call mma_deallocate(DMat0)
 
       iOK=0
       If (irc.ne.0 .or. ikc.ne.0) iOK=1

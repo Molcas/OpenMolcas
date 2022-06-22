@@ -16,12 +16,12 @@ subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt
 !***********************************************************************
 
 use Constants, only: Zero, Two
-use Definitions, only: iwp
+use Definitions, only: iwp, wp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuVal, nShowMOs, nMOs, GRef(*), iType(*), NZ(*), nCoor, nBlocks, nInc
 logical(kind=iwp), intent(in) :: isDensity, isEner, ifpartial, isLine, isSphere, isColor, isLuscus
-real(kind=iwp), intent(in) :: Occ(*), E(*), VBocc
+real(kind=wp), intent(in) :: Occ(*), E(*), VBocc
 character(len=7), intent(in) :: Crypt
 integer(kind=iwp) :: i, iActOrb, ib, j, Sizeof8
 character(len=128) :: Line

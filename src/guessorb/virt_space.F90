@@ -215,7 +215,7 @@ kBas_1_nBas: do kBas=1,nBas
 
       if (tmp > thr) then
         if (mVirt+1 > nVirt) then
-          write(u6,*) 'mVirt.gt.nVirt'
+          write(u6,*) 'mVirt > nVirt'
           write(u6,*) 'mVirt=',mVirt
           write(u6,*) 'nVirt=',nVirt
           call Abend()
@@ -242,7 +242,7 @@ end do kBas_1_nBas
 call mma_deallocate(C_tmp)
 
 if (mVirt /= nVirt) then
-  write(u6,*) 'mVirt.ne.nVirt'
+  write(u6,*) 'mVirt /= nVirt'
   write(u6,*) 'mVirt,nVirt=',mVirt,nVirt
   call Abend()
 end if

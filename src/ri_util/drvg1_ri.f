@@ -27,7 +27,7 @@
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: myRank, nProcs
       use ChoSwp, only: InfVec
-      use Data_Structures, only: Deallocate_CMO
+      use Data_Structures, only: Deallocate_DSBA
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "disp.fh"
@@ -451,7 +451,7 @@ C     ipAOrb(:,:)=ip_Dummy
 *    &   Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
       If (Allocated(AOrb)) Then
          Do iADens = 1, nADens
-            Call Deallocate_CMO(AOrb(iADens))
+            Call Deallocate_DSBA(AOrb(iADens))
          End Do
          deallocate(AOrb)
       End If

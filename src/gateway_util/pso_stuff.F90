@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module PSO_Stuff
-use Data_structures, only: CMO_type
+use Data_structures, only: DSBA_Type
 
 Logical lPSO,lsa, Case_3C, Case_2C, Case_mp2
 
@@ -31,7 +31,7 @@ Integer nV_K, nSOs1
 Integer iD0Lbl
 
 ! This should eventually totally replace ipAOrb
-Type (CMO_Type), Allocatable, Target:: AOrb(:)
+Type (DSBA_Type), Allocatable, Target:: AOrb(:)
 
 ! DF-CASPT2
 Real*8, Allocatable :: A_PT2(:,:),B_PT2(:,:,:)

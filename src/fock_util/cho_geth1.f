@@ -8,13 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_GETH1(nBtri,ipH1,RFpert,ERFNuc)
+      SUBROUTINE CHO_GETH1(nBtri,H1,RFpert,ERFNuc)
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "WrkSpc.fh"
-      Character*8 OneLbl
+#include "real.fh"
+#include "stdalloc.fh"
+      Integer nBTri
+      Real*8 H1(nBTri)
       Logical RFpert
+      Real*8 ERFNuc
+
+      Character*8 OneLbl
+      Real*8, Allocatable:: Tmp(:)
 
       iRc=-1
       iOpt=6
@@ -22,7 +28,7 @@
       iSyLab=1
       OneLbl='OneHam  '
 
-      Call RdOne(iRc,iOpt,OneLbl,iCmp,Work(ipH1),iSyLab)
+      Call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
 
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
@@ -32,13 +38,15 @@
         CALL Abend
       ENDIF
 
-      ERFNuc=0.0D0
+      ERFNuc=Zero
       If ( RFpert ) then
-         Call GetMem('RFFLD','Allo','Real',ipTmp,nBtri)
+         Call mma_allocate(Tmp,nBTri,Label='Tmp')
          Call Get_dScalar('RF Self Energy',ERFNuc)
-         Call Get_dArray('Reaction field',Work(ipTmp),nBtri)
-         Call Daxpy_(nBtri,1.0D0,Work(ipTmp),1,WORK(ipH1),1)
-         Call GetMem('RFFLD','Free','Real',ipTmp,nBtri)
+         Call Get_dArray('Reaction field',Tmp,nBtri)
+
+         H1(:) = H1(:) + Tmp(:)
+
+         Call mma_deallocate(Tmp)
       End If
 
 

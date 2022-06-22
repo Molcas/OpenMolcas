@@ -12,13 +12,13 @@
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
 #endif
-      use Data_structures, only: CMO_Type, Allocate_CMO,
-     &                           Deallocate_CMO
+      use Data_structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       DIMENSION KEEP(8),NBSX(8)
       LOGICAL   ISQARX
-      Type (CMO_Type) Ash(2), MO1(2), MO2(2)
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2)
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Molcas.fh"
@@ -190,7 +190,7 @@ C Note: CHO_GETH1 also adds the reaction field contribution to the
 C 1-electron hamiltonian, and the variable ERFNuc in common /general/,
 C which is the RF contribution to the nuclear repulsion
 
-         CALL CHO_GETH1(nBtri,ipFLT,RFpert,ERFNuc)
+         CALL CHO_GETH1(nBtri,Work(ipFLT),RFpert,ERFNuc)
 
          ECORE1=DDOT_(nBtri,WORK(ipFLT),1,WORK(ipDLT),1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO
@@ -209,10 +209,10 @@ C --- to avoid double counting when using gadsum
          If (ALGO.eq.1) Then
 c --- reorder the MOs to fit Cholesky needs
 
-           Call Allocate_CMO(MO1(1),nIsh,nBasF,nSym)
-           Call Allocate_CMO(MO1(2),nIsh,nBasF,nSym)
-           Call Allocate_CMO(MO2(1),nAsh,nBasF,nSym)
-           Call Allocate_CMO(MO2(2),nAsh,nBasF,nSym)
+           Call Allocate_DSBA(MO1(1),nIsh,nBasF,nSym)
+           Call Allocate_DSBA(MO1(2),nIsh,nBasF,nSym)
+           Call Allocate_DSBA(MO2(1),nAsh,nBasF,nSym)
+           Call Allocate_DSBA(MO2(2),nAsh,nBasF,nSym)
 
            ioff=0
            Do iSym=1,nSym
@@ -221,10 +221,10 @@ c --- reorder the MOs to fit Cholesky needs
 
                ioff1=ioff+nBasF(iSym)*(ikk-1)
 
-               MO1(1)%SB(iSym)%A(ikk,:) =
+               MO1(1)%SB(iSym)%A2(ikk,:) =
      &            CMO1(ioff1+1:ioff1+nBasF(iSym))
 
-               MO1(2)%SB(iSym)%A(ikk,:) =
+               MO1(2)%SB(iSym)%A2(ikk,:) =
      &            CMO2(ioff1+1:ioff1+nBasF(iSym))
             end do
 
@@ -234,10 +234,10 @@ c --- reorder the MOs to fit Cholesky needs
 
                ioff3=ioff2+nBasF(iSym)*(ikk-1)
 
-               MO2(1)%SB(iSym)%A(ikk,:) =
+               MO2(1)%SB(iSym)%A2(ikk,:) =
      &            CMO1(ioff3+1:ioff3+nBasF(iSym))
 
-               MO2(2)%SB(iSym)%A(ikk,:) =
+               MO2(2)%SB(iSym)%A2(ikk,:) =
      &            CMO2(ioff3+1:ioff3+nBasF(iSym))
             end do
 
@@ -255,10 +255,10 @@ c ---     and compute the (tu|vx) integrals
               CALL CHO_FOCK_RASSI_X(ipDLT,MO1,MO2,ipFLT,LFAO,LTUVX)
            EndIf
 
-           Call Deallocate_CMO(MO2(2))
-           Call Deallocate_CMO(MO2(1))
-           Call Deallocate_CMO(MO1(2))
-           Call Deallocate_CMO(MO1(1))
+           Call Deallocate_DSBA(MO2(2))
+           Call Deallocate_DSBA(MO2(1))
+           Call Deallocate_DSBA(MO1(2))
+           Call Deallocate_DSBA(MO1(1))
 
          Else  ! algo=2 (local exchange algorithm)
 
@@ -266,8 +266,8 @@ c ---     and compute the (tu|vx) integrals
            ipMO2 = ip_of_Work(CMO2(1))
 
 C *** Only the active orbitals MO coeff need reordering
-           Call Allocate_CMO(Ash(1),nAsh,nBasF,nSym)
-           Call Allocate_CMO(Ash(2),nAsh,nBasF,nSym)
+           Call Allocate_DSBA(Ash(1),nAsh,nBasF,nSym)
+           Call Allocate_DSBA(Ash(2),nAsh,nBasF,nSym)
 
            ioff=0
            Do iSym=1,nSym
@@ -278,10 +278,10 @@ C *** Only the active orbitals MO coeff need reordering
 
                ioff3=ioff2+nBasF(iSym)*(ikk-1)
 
-               Ash(1)%SB(iSym)%A(ikk,:) =
+               Ash(1)%SB(iSym)%A2(ikk,:) =
      &             CMO1(ioff3+1:ioff3+nBasF(iSym))
 
-               Ash(2)%SB(iSym)%A(ikk,:) =
+               Ash(2)%SB(iSym)%A2(ikk,:) =
      &             CMO2(ioff3+1:ioff3+nBasF(iSym))
 
             end do
@@ -309,8 +309,8 @@ c ---     and compute the (tu|vx) integrals
              CALL GetMem('K-mat','Free','Real',ipK,NBSQ)
            EndIf
 
-           Call Deallocate_CMO(Ash(2))
-           Call Deallocate_CMO(Ash(1))
+           Call Deallocate_DSBA(Ash(2))
+           Call Deallocate_DSBA(Ash(1))
 
          EndIf
 
