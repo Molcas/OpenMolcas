@@ -59,22 +59,22 @@ do lDCRT=0,nDCRT-1
   ! to the basis functions centered on the first center.
 
   call dcopy_(nZeta*3,[One],0,Axyz(1,1,0),1)
-  if (la == 0) Go To 60
 
-  do iCar=1,3
+  if (la /= 0) then
+    do iCar=1,3
 
-    do iZeta=1,nZeta
-      Axyz(iZeta,iCar,1) = TC(iCar)-A(iCar)
-    end do
-
-    do ia=2,la
       do iZeta=1,nZeta
-        Axyz(iZeta,iCar,ia) = Axyz(iZeta,iCar,1)*Axyz(iZeta,iCar,ia-1)
+        Axyz(iZeta,iCar,1) = TC(iCar)-A(iCar)
       end do
-    end do
 
-  end do
-60 continue
+      do ia=2,la
+        do iZeta=1,nZeta
+          Axyz(iZeta,iCar,ia) = Axyz(iZeta,iCar,1)*Axyz(iZeta,iCar,ia-1)
+        end do
+      end do
+
+    end do
+  end if
 
   ! Compute the value of the angular components associated to
   ! the basis functions centered on the second center.
@@ -86,30 +86,29 @@ do lDCRT=0,nDCRT-1
   do iZeta=1,nZeta
     Bxyz(iZeta,3,0) = exp(-Zeta(iZeta)*((TC(1)-P(iZeta,1))**2+(TC(2)-P(iZeta,2))**2+(TC(3)-P(iZeta,3))**2))
   end do
-  if (lb == 0) Go To 61
 
-  do iCar=1,3
+  if (lb /= 0) then
+    do iCar=1,3
 
-    do iZeta=1,nZeta
-      Bxyz(iZeta,iCar,1) = TC(iCar)-RB(iCar)
-    end do
-
-    do ib=2,lb
       do iZeta=1,nZeta
-        Bxyz(iZeta,iCar,ib) = Bxyz(iZeta,iCar,1)*Bxyz(iZeta,iCar,ib-1)
+        Bxyz(iZeta,iCar,1) = TC(iCar)-RB(iCar)
+      end do
+
+      do ib=2,lb
+        do iZeta=1,nZeta
+          Bxyz(iZeta,iCar,ib) = Bxyz(iZeta,iCar,1)*Bxyz(iZeta,iCar,ib-1)
+        end do
       end do
     end do
-  end do
 
-  ! Modify z-components with the exponential contribution
+    ! Modify z-components with the exponential contribution
 
-  do ib=1,lb
-    do iZeta=1,nZeta
-      Bxyz(iZeta,3,ib) = Bxyz(iZeta,3,ib)*Bxyz(iZeta,3,0)
+    do ib=1,lb
+      do iZeta=1,nZeta
+        Bxyz(iZeta,3,ib) = Bxyz(iZeta,3,ib)*Bxyz(iZeta,3,0)
+      end do
     end do
-  end do
-
-61 continue
+  end if
 
   ! Combine contributions from the various angular components.
 

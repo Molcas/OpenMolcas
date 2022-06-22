@@ -119,8 +119,10 @@ end if
 ! Loop over nuclear centers
 
 kdc = 0
+if (nCnttp > 0) kdc = -dbsc(1)%nCntr ! to make sure we start at 0
 do kCnttp=1,nCnttp
-  if (dbsc(kCnttp)%Charge == Zero) Go To 111
+  kdc = kdc+dbsc(kCnttp)%nCntr
+  if (dbsc(kCnttp)%Charge == Zero) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
     if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
@@ -224,7 +226,6 @@ do kCnttp=1,nCnttp
 
     end do
   end do
-111 kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 !                                                                      *
 !***********************************************************************

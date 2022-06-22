@@ -61,24 +61,24 @@ do iHer=1,nHer
     end do
   end do
 end do
-if (na == 0) Go to 99
 
-do iHer=1,nHer
-  do iCar=1,3
+if (na /= 0) then
+  do iHer=1,nHer
+    do iCar=1,3
 
-    do iZeta=1,nZeta
-      Axyz(iZeta,iCar,iHer,1) = DCMPLX(HerR(iHer)*1/sqrt(Zeta(iZeta))+P(iZeta,iCar)-A(iCar),KVector(iCar)/(Two*Zeta(iZeta)))
-    end do
-
-    do ia=2,na
       do iZeta=1,nZeta
-        Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1)*Axyz(iZeta,iCar,iHer,ia-1)
+        Axyz(iZeta,iCar,iHer,1) = DCMPLX(HerR(iHer)*1/sqrt(Zeta(iZeta))+P(iZeta,iCar)-A(iCar),KVector(iCar)/(Two*Zeta(iZeta)))
       end do
-    end do
 
+      do ia=2,na
+        do iZeta=1,nZeta
+          Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1)*Axyz(iZeta,iCar,iHer,ia-1)
+        end do
+      end do
+
+    end do
   end do
-end do
-99 continue
+end if
 
 if (iPrint >= 99) then
   write(Label,'(A)') ' In CCrtCmp: Axyz '

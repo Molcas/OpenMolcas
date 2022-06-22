@@ -25,7 +25,6 @@ integer iStabM(0:7), iDCRT(0:7)
 
 ! compute nuclear contribution to potential
 
-kdc = 0
 do iGrid=1,nGrid
   pot(iGrid) = 0d0
 end do
@@ -34,8 +33,11 @@ end do
 istabm(0) = 0
 nstabm = 1
 
+kdc = 0
+if (nCnttp > 0) kdc = -dbsc(1)%nCntr ! to make sure we start at 0
 do kCnttp=1,nCnttp
-  if (dbsc(kCnttp)%Charge == Zero) Go To 111
+  kdc = kdc+dbsc(kCnttp)%nCntr
+  if (dbsc(kCnttp)%Charge == Zero) cycle
 
   do kCnt=1,dbsc(kCnttp)%nCntr
 
@@ -53,7 +55,6 @@ do kCnttp=1,nCnttp
 
     end do
   end do
-111 kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 
 return

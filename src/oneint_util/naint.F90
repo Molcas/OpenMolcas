@@ -134,7 +134,7 @@ do kCnttp=1,nCnttp
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
       ! switch (only two center NA matrix...)
-      if (No3Cnt .and. (.not. (EQ(A,TC) .or. EQ(RB,TC)))) Go To 102
+      if (No3Cnt .and. (.not. (EQ(A,TC) .or. EQ(RB,TC)))) cycle
       ! switch
       call dcopy_(3,TC,1,CoorAC(1,2),1)
       call dcopy_(3,TC,1,Coori(1,3),1)
@@ -237,7 +237,6 @@ do kCnttp=1,nCnttp
         call RecPrt('NaInt: Final',' ',final,nZeta,nElem(la)*nElem(lb)*nIC)
       end if
 
-102   continue
     end do
   end do
 end do

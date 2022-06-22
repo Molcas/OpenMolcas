@@ -101,7 +101,7 @@ do iOrdOp=0,nOrdOp
       NoLoop = NoLoop .and. (ZFd(jElem) == Zero)
     end do
 
-    if (NoLoop) Go To 111
+    if (NoLoop) cycle
     ! Pick up the center coordinates
     C(1:3) = XF(1:3,iFd)
 
@@ -202,7 +202,6 @@ do iOrdOp=0,nOrdOp
 #     endif
 
     end do ! End loop over DCRs
-111 continue
   end do   ! iFd
 
   nData = nData+nElem(iOrdOp)

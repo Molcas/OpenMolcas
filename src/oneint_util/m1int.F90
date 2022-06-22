@@ -108,9 +108,11 @@ call dcopy_(nZeta*max(k,nMem),[Zero],0,Array(ipAInt),1)
 ! Loop over nuclear centers.
 
 kdc = 0
+if (nCnttp > 0) kdc = -dbsc(1)%nCntr ! to make sure we start at 0
 do kCnttp=1,nCnttp
-  if (.not. dbsc(kCnttp)%ECP) Go To 111
-  if (dbsc(kCnttp)%nM1 == 0) Go To 111
+  kdc = kdc+dbsc(kCnttp)%nCntr
+  if (.not. dbsc(kCnttp)%ECP) cycle
+  if (dbsc(kCnttp)%nM1 == 0) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
@@ -171,7 +173,6 @@ do kCnttp=1,nCnttp
       end do
     end do
   end do
-111 kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 
 ! Use the HRR to compute the required primitive integrals.

@@ -89,7 +89,7 @@ do lDCRT=0,nDCRT-1
 
   do iGrid=1,nGrid
     if (iAddPot /= 0) Chrg = ptchrg(iGrid)
-    if (Chrg == Zero) Go To 100
+    if (Chrg == Zero) cycle
 
     do i=1,3
       TC(i) = dble(iPh(i))*CCoor(i,iGrid)
@@ -112,7 +112,6 @@ do lDCRT=0,nDCRT-1
     ! Accumulate contributions to the symmetry adapted operator
 
     call SymAdO(Array(ipIn),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,-Fact*Chrg)
-100 continue
   end do
 end do
 

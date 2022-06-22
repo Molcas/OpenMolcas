@@ -42,7 +42,7 @@ do iCnttp=1,nCnttp
     iShll = dbsc(iCnttp)%iPrj+iAng
     nExpi = Shells(iShll)%nExp
     nBasisi = Shells(iShll)%nBasis
-    if ((nExpi == 0) .or. (nBasisi == 0)) Go To 1966
+    if ((nExpi == 0) .or. (nBasisi == 0)) cycle
 
     ip = 0
     nac = nElem(la)*nElem(iAng)
@@ -72,7 +72,6 @@ do iCnttp=1,nCnttp
     ip = ip+max(nExpi*nac,ncb*nBasisi)
     Mem = max(Mem,ip)
 
-1966 continue
   end do
 end do
 

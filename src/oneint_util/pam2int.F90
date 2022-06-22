@@ -97,8 +97,6 @@ if (kCnttpPAM > 1) then
 end if
 
 kCnttp = kCnttpPAM
-if (.not. dbsc(kCnttp)%lPAM2) Go To 111
-if (dbsc(kCnttp)%nPAM2 == -1) Go To 111
 
 do kCnt=1,dbsc(kCnttp)%nCntr
   C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
@@ -195,7 +193,6 @@ do kCnt=1,dbsc(kCnttp)%nCntr
 
   end do
 end do
-111 kdc = kdc+dbsc(kCnttp)%nCntr
 
 !if (nOrdOp == 1) then
 if (iPrint >= 99) then
