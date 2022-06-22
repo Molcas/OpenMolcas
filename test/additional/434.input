@@ -6,6 +6,10 @@
 * Responsible person: Stefano Battaglia
 * Comments: RICD, no frozen, properties, shifts
 *-------------------------------------------------------------------------------
+* analytic gradients do not work in parallel for the time being
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
 
 *-------------------------------------------------------------------------------
 * 3rd excited state analytic gradient with imaginary shift

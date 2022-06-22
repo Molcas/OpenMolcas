@@ -6,6 +6,10 @@
 * Responsible person: S. Battaglia
 * Comments: XDW-CASPT2 with analytic gradients and NAC, RICD and no shift
 *-------------------------------------------------------------------------------
+* analytic gradients do not work in parallel for the time being
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
 
 *-------------------------------------------------------------------------------
 * XDW-CASPT2 MECI optimization of ethylene with RICD

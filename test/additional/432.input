@@ -7,6 +7,10 @@
 * Comments: Use SA-CASSCF ref. wf, no inactive orbitals, RICD, change rlxroot
 *           in CASPT2
 *-------------------------------------------------------------------------------
+* analytic gradients do not work in parallel for the time being
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
 
 *-------------------------------------------------------------------------------
 * Full geometry optimization of 2nd excited state without shifts

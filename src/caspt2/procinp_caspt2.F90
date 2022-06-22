@@ -16,7 +16,7 @@ subroutine ProcInp_Caspt2
   use output_caspt2, only:iPrGlb,terse,cmpThr,cntThr,dnmThr
   use slapaf_parameters, only: EDiffZero, iState
 #ifdef _MOLCAS_MPP_
-  use Para_Info, only:Is_Real_Par
+  use Para_Info, only:Is_Real_Par, nProcs
 #endif
 ! NOT TESTED
 #if 0
@@ -607,6 +607,15 @@ subroutine ProcInp_Caspt2
                           ' RMS-CASPT2 analytic gradients.')
     call quit_onUserError
   end if
+
+#ifdef _MOLCAS_MPP_
+  ! for the time being no gradients with MPI
+  if (ifgrdt .and. nProcs > 1) then
+    call warningMessage(2,'Analytic gradients not available'//  &
+                          ' in parallel executions.')
+    call quit_onUserError
+  end if
+#endif
 
   !---  Exit
   Return

@@ -6,6 +6,10 @@
 * Responsible person: S. Battaglia
 * Comments: Use SA-RASSCF ref. wf, SADref and conventional eri
 *-------------------------------------------------------------------------------
+* analytic gradients do not work in parallel for the time being
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
 
 *-------------------------------------------------------------------------------
 * Testing SS-RASPT2 gradients with conventional eri and real shift
