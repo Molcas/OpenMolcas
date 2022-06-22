@@ -98,7 +98,7 @@ C           Call RecPrt('CMO',' ',CMO(ip_CMO),iBas,iBas)
 *
 * --- compute W^-1/2
 *
-               Call Lowdin(Temp,SCRATCH,iOcc)
+               Call Lowdin_LP(Temp,SCRATCH,iOcc)
 *
 * --- compute C' = C*W^-1/2
 *

@@ -28,7 +28,7 @@
 *> @param[in] lDisp Number of displacements per irrep
 ************************************************************************
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
-      use Symmetry_Info, only: nIrrep
+      use Symmetry_Info, only: nIrrep, VarR, VarT
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
@@ -81,6 +81,8 @@
       Character(Len=180), External :: Get_Ln_EOF
       Character(LEN=180):: Line
       Real*8, External :: DDot_
+
+      Logical :: Bk_VarR, Bk_VarT
 
       Real*8, Allocatable:: Bk_Energy(:)
       Real*8, Allocatable:: Bk_Energy0(:)
@@ -387,7 +389,6 @@
       Bk_mB_Tot=mB_Tot
       Bk_mdB_Tot=mdB_Tot
       Bk_mq=mq
-      Bk_iSBS=iSBS
       Bk_WeightedConstraints=WeightedConstraints
       Bk_NADC=NADC
       Bk_EDiffZero=EDiffZero
@@ -397,6 +398,8 @@
       Bk_iRow_c=iRow_c
       Bk_nFix = nFix
       Bk_iInt = iInt
+      Bk_VarR = VarR
+      Bk_VarT = VarT
 *
 *---- Make a backup of the runfile, since we are going to change the
 *     internal coordinates definition.
@@ -408,10 +411,8 @@
 *     invariance
 *
       Call Put_dArray('Hess',rDum,0)
-      Call Get_iScalar('System BitSwitch',iSBS)
-      iSBS=iOr(iSBS,2**7)
-      iSBS=iOr(iSBS,2**8)
-      Call Put_iScalar('System BitSwitch',iSBS)
+      VarR=.True.
+      VarT=.True.
 *                                                                      *
 ************************************************************************
 * Call Slapaf to build the B matrix and get the displacement vectors   *
@@ -649,7 +650,6 @@
       mB_Tot=Bk_mB_Tot
       mdB_Tot=Bk_mdB_Tot
       mq=Bk_mq
-      iSBS=Bk_iSBS
       WeightedConstraints=Bk_WeightedConstraints
       NADC=Bk_NADC
       EDiffZero=Bk_EDiffZero
@@ -659,6 +659,8 @@
       iRow_c=Bk_iRow_c
       nFix = Bk_nFix
       iInt = Bk_iInt
+      VarR = Bk_VarR
+      VarT = Bk_VarT
 *
 *     Process arrays that is always allocated.
 *

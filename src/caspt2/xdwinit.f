@@ -13,7 +13,7 @@
 ************************************************************************
       subroutine xdwinit(Heff,H0,U0)
 
-      use output_caspt2, only:iPrGlb,verbose,debug,insane
+      use output_caspt2, only:iPrGlb,usual,verbose,debug,insane
       use definitions, only:wp,iwp,u6
 
       implicit none
@@ -103,7 +103,7 @@
       end do
 * End of loop over states
 
-      if (IPRGLB.ge.VERBOSE) then
+      if (IPRGLB.ge.USUAL) then
         write(u6,*)
         write(u6,*)' H0 in the original model space basis:'
         call prettyprint(H0,Nstate,Nstate)
@@ -114,7 +114,7 @@
 
 * Transform the Fock matrix in the new basis
       call transmat(H0,U0,Nstate)
-        if (IPRGLB.ge.VERBOSE) then
+        if (IPRGLB.ge.USUAL) then
           write(u6,*)' H0 eigenvectors:'
           call prettyprint(U0,Nstate,Nstate)
         end if

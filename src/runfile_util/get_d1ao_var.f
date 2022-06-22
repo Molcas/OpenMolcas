@@ -21,7 +21,6 @@
       Integer nD1ao
       Real*8 D1ao(nD1ao)
 
-      Call Get_iScalar('System BitSwitch',iOption)
 *
 *...  Read the variational 1st order density matrix
 *...  density matrix in AO/SO basis

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Lowdin(S,C,nDim)
+      Subroutine Lowdin_LP(S,C,nDim)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -26,14 +26,14 @@
       call dcopy_(nDim**2,[Zero],0,Work(ip_B),1)
       call dcopy_(nDim,[One],0,Work(ip_B),nDim+1)
 *
-      Call Lowdin_(S,Work(ip_S),C,nDim,nDim,Work(ip_B))
+      Call Lowdin_LP_(S,Work(ip_S),C,nDim,nDim,Work(ip_B))
 *
       Call Free_Work(ip_B)
       Call Free_Work(ip_S)
       Return
       End
 
-      Subroutine Lowdin_(S,Eval,C,nDim,nDim2,Blk)
+      Subroutine Lowdin_LP_(S,Eval,C,nDim,nDim2,Blk)
 *
 *     S: full-storage overlap matrix (it will be destroyed!)
 *     C: on exit, the S^-1/2 matrix

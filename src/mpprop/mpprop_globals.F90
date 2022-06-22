@@ -21,6 +21,7 @@ private
 
 ! A type for multipole array data, where each element
 ! is an array of different size (number of components)
+! (Different from blockdiagonal_matrices, because here each "block" is not square)
 type MltPlArr
   real(kind=wp), allocatable :: M(:,:)
 end type MltPlArr
