@@ -81,7 +81,7 @@ end do
 #ifdef _DEBUGPRINT_
 call RecPrt('U',' ',U,nPoints,nPoints)
 #endif
-call nidiag_new(HTri,U,nPoints,nPoints,0)
+call nidiag_new(HTri,U,nPoints,nPoints)
 call Jacord(HTri,U,nPoints,nPoints)
 
 ! Introduce canonical phase factor
@@ -284,7 +284,7 @@ do i=1,nPoints
     HTri(ij) = Full_R(i,j)
   end do
 end do
-call nidiag_new(HTri,U,nPoints,nPoints,0)
+call nidiag_new(HTri,U,nPoints,nPoints)
 call Jacord(HTri,U,nPoints,nPoints)
 ! Standardized phase factor
 do i=1,nPoints

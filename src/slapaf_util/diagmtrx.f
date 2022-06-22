@@ -46,7 +46,7 @@
 *
 *---- Compute eigenvalues and eigenvectors
 *
-      Call NIDiag_new(EVal,EVec,nH,nH,0)
+      Call NIDiag_new(EVal,EVec,nH,nH)
       Call Jacord(EVal,EVec,nH,nH)
 *
 *---- Print out the result

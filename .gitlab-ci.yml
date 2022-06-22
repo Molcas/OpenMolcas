@@ -143,6 +143,7 @@ include:
         eval "${pre_make_script}"
       fi
     - ${make} all
+    - ${make} test
     - ${make} install
     - cd ${install_path}
     - ./pymolcas verify --keep 000
@@ -458,4 +459,4 @@ test:mpi:
   <<: *run-tests
   needs:
     - build:mpi
-  parallel: 4
+  parallel: 6

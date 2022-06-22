@@ -12,7 +12,10 @@
 !               2016, Liviu Ungur                                      *
 !***********************************************************************
 
-subroutine FragPMmG(nHer,MemFrag,la,lb,lr)
+subroutine FragPMmG( &
+#                   define _CALLING_
+#                   include "mem_interface.fh"
+                   )
 !***********************************************************************
 !  Object: to compute the number of real*8 the kernal routine will     *
 !          need for the computation of a matrix element between two    *
@@ -33,12 +36,12 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(out) :: nHer, MemFrag
-integer(kind=iwp), intent(in) :: la, lb, lr
+#define _USE_WP_
+#include "mem_interface.fh"
 integer(kind=iwp) :: nOrder, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, nExpi, nExpj, nBasisi, nBasisj
 
 nOrder = 0
-MemFrag = 0
+Mem = 0
 maxDensSize = 0
 ! largest possible fragment energy weighted density matrix
 do iCnttp=1,nCnttp
@@ -80,7 +83,7 @@ do iCnttp=1,nCnttp
         ip = ip+nExpi*3*nHer*(la+2)*(iAng+1)*(lr+1)
         ip = ip+nExpi
 
-        MemFrag = max(MemFrag,ip)
+        Mem = max(Mem,ip)
         ip = ip-nExpi*(6+3*nHer*((la+2)+(iAng+1)+(lr+1)+(la+2)*(iAng+1)*(lr+1))+1)
 
         ncb = 4*(jAng+1)*(jAng+2)/2*(lb+1)*(lb+2)/2
@@ -97,11 +100,11 @@ do iCnttp=1,nCnttp
         ip = ip+nExpj*3*nHer*(lb+2)*(jAng+1)*(lr+1)
         ip = ip+nExpj
 
-        MemFrag = max(MemFrag,ip)
+        Mem = max(Mem,ip)
         ip = ip-nExpj*(6+3*nHer*((lb+2)+(jAng+1)+(lr+1)+(lb+2)*(jAng+1)*(lr+1))+1)
 
         ip = ip+max(max(nExpi,nBasisj)*nac,ncb*nBasisj)
-        MemFrag = max(MemFrag,ip)
+        Mem = max(Mem,ip)
       end do  !jAng
 
     end do  !jCnttp

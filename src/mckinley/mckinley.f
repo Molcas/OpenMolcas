@@ -91,8 +91,8 @@ C     Call Banner(Lines,nLines,lLine)
 *                                                                      *
 *     Set error conditions
 *
-      Call XuFlow()
-      Call ErrSet(209,1,1,2,1,209)
+      !Call XuFlow()
+      !Call ErrSet(209,1,1,2,1,209)
 *                                                                      *
 ************************************************************************
 *                                                                      *

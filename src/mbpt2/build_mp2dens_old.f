@@ -130,7 +130,7 @@
                End Do
 *
                Call NIDiag(Work(ip_MOTriBlock),Work(ip_EigenVecBlock),
-     &                     nOrbAll(iSym),nOrbAll(iSym),0)
+     &                     nOrbAll(iSym),nOrbAll(iSym))
 
 
 

@@ -31,6 +31,8 @@
 
 subroutine FockOper(RC,Fock)
 
+#include "intent.fh"
+
 use GuessOrb_Global, only: Label, MxAtom, AtName, nBas, nNuc, nSym, xCharge
 use Constants, only: Zero, One, Three, Six, Seven, Eight
 use Definitions, only: wp, iwp, u6
@@ -40,7 +42,7 @@ implicit none
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
 integer(kind=iwp), intent(out) :: RC
-real(kind=wp), intent(out) :: Fock(*)
+real(kind=wp), intent(_OUT_) :: Fock(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*

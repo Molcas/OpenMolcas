@@ -39,7 +39,7 @@ C UNIT 28=LUREST, (DA,MRCIVECT) CI VECTOR
 *     Prologue, print program header
 *
 *      CALL SETTIM
-      CALL XUFLOW
+      !CALL XUFLOW
 *
 *     ( Workspace allocated in Start() )
 *

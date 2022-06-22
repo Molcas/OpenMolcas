@@ -26,6 +26,8 @@
 
 subroutine goLowdin(CMO)
 
+#include "intent.fh"
+
 use GuessOrb_Global, only: nBas, nDel, nSym, SThr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -35,13 +37,13 @@ implicit none
 !----------------------------------------------------------------------*
 ! Dummy variables.                                                     *
 !----------------------------------------------------------------------*
-real(kind=wp), intent(out) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: CMO(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 logical(kind=iwp) :: Debug, Trace
 integer(kind=iwp) :: nBig, nTot, nTri, nTriTot, iSym, iBas, jBas, kBas, iOrb, ipOvl(8), ipCMO, npSmat, irc, iSymlb
-real(kind=wp) :: Temp, OrbPhase
+real(kind=wp) :: Temp
 real(kind=wp), allocatable :: Ovl(:), SMat(:), Vec(:), Eig(:), Tmp(:,:)
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -92,10 +94,10 @@ do iSym=1,nSym
   end if
   call FZero(Vec,nBas(iSym)**2)
   call DCopy_(nBas(iSym),[One],0,Vec,nBas(iSym)+1)
-  call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
+  call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym))
 
   do iBas=1,nBas(iSym)
-    temp = OrbPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
+    call VecPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
   end do
 
   if (Debug) then

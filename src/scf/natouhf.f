@@ -184,8 +184,7 @@
 *
 * Diagonalize
 *
-         Call NIdiag(Aux2,Nato(iOffCMO+1),
-     &               nOrb(iSym),nBas(iSym),0)
+         Call NIdiag(Aux2,Nato(iOffCMO+1),nOrb(iSym),nBas(iSym))
          Call Pickup(Aux2,Eta(iOffEta+1),nOrb(iSym))
          Do i=1,nOrb(iSym)
             Eta(iOffEta+i)=-Eta(iOffEta+i)

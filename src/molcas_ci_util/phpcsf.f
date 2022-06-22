@@ -22,9 +22,9 @@ C     explicit representation of hamilton matrix in subspace
 C
 C     ARGUMENTS :
 C     ===========
-C     PHP    : hamilton matrix in subspace ( output)
+C     PHP    : hamilton matrix in subspace (output)
 C     IPCSF  : CSF's defining subspace (output)
-C     IPCNF  : Configurations defining subspace (output )
+C     IPCNF  : Configurations defining subspace (output)
 C     MXPDIM : Largest allowed dimension of subspace (Input)
 C     DTOC   : Transformation matrix between CSF's and DET's (input)
 C     IPRODT : Prototype determinants (input)
@@ -36,7 +36,7 @@ C     NACTOB : Number of active orbitals (input)
 C     SCR    : Scratch array of length ????
 C     NCONF  : Number of configurations of symmetry IREFSM
 C     NPCNF  : Number of primary configurations obtained (output)
-C     NPCSF  : Number of primary CSF's obtained  (OUTPUT)
+C     NPCSF  : Number of primary CSF's obtained  (output)
 C     TUVX   : Two-electron integrals (MO space)
 C     DIAG   : Hamilton diagonal over CSF's
 *

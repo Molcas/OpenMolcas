@@ -29,11 +29,10 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use Symmetry_Info, only: nIrrep
+      use sort_data, only: nSkip
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "srt0.fh"
-#include "srt1.fh"
 *
       Real*8 SOint(ijkl,nSOint), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4), iOffA(4,0:7),

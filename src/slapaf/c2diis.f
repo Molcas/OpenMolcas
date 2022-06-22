@@ -172,7 +172,7 @@
       If (iPrint.ge.99) Call TriPrt(' The B Matrix',' ',B,mIter)
       call dcopy_(mIter**2,[Zero],0,Scrt1,1)
       call dcopy_(mIter,[One],0,Scrt1,mIter+1)
-      Call NIDiag_new(B,Scrt1,mIter,mIter,0)
+      Call NIDiag_new(B,Scrt1,mIter,mIter)
       If (iPrint.ge.99) Then
          Call TriPrt(' The B Matrix after diagonalization','(9E10.2)',
      &                B,mIter)

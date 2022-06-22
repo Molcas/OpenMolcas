@@ -124,6 +124,7 @@
       Real*8 msym_ctx
 #endif
       Dimension Dummy(1),iDummy(7,8)
+      External DNRM2_
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -583,7 +584,7 @@
 *
 *           compute Norm of dX(n)
 *
-            DltNrm=DBLE(nD)*DNORM2(nOV*nD,Disp,1)
+            DltNrm=DBLE(nD)*DNRM2_(nOV*nD,Disp,1)
 
 *           Generate the CMOs, rotate MOs accordingly to new point
 *

@@ -515,8 +515,8 @@ C***** NAME AddMar
       Call dCopy_(n*n,[0.0D0],0,Eig,1)
       Call dCopy_(n,[1.0D0],0,Eig,n+1)
       Call dCopy_(N*(N+1)/2,AUXI,1,AUX,1)
-C      Call NIDiag(AUXI,EIG,N,N,0)
-      Call NIDiag_New(AUXI,EIG,N,N,0)
+C      Call NIDiag(AUXI,EIG,N,N)
+      Call NIDiag_New(AUXI,EIG,N,N)
       Call vEig(N,AUXI,EW)
       Call JacOrd2(EW, Eig, n, n)
 *

@@ -201,7 +201,7 @@ do iSym=1,nSym
   end if
 
   !call Jacob(TFk,CMO(ipCMO(iSym)),nbas(iSym),nbas(iSym))
-  call NIdiag(TFk,CMO(ipCMO(iSym)),nbas(iSym),nbas(iSym),0)
+  call NIdiag(TFk,CMO(ipCMO(iSym)),nbas(iSym),nbas(iSym))
   if (Debug) then
     call TriPrt('Diagonalized atomic Fock matrix','(12f12.6)',TFk,nBas(iSym))
   end if
