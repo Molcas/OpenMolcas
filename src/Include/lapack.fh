@@ -15,6 +15,7 @@
 * delayed_util should be updated too, use delayed.py for the latter
 
 * dgesdd, dsyevd, dlamc3 are used by libwfa
+* dpstrf, dpstf2 are used by GA to detect LAPACK
 
 #ifndef _LAPACK_FH_
 
@@ -160,6 +161,8 @@
 #include "dpotrf2.f"
 #include "dpotrs.f"
 #include "dpptrf.f"
+#include "dpstf2.f"
+#include "dpstrf.f"
 #include "drscl.f"
 #include "dspev.f"
 #include "dspgst.f"

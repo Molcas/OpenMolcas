@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule:
-* Basis: DEF-SV(P)
+* Basis: def-SV(P)
 * Symmetry: ..
 * Features tested: RI options
 * Responsible person: R. Lindh, 070125
@@ -10,19 +10,19 @@
 
  &SEWARD &END
 Title
-ethine, DEF-SV(P)
+ethane, def-SV(P)
 Symmetry
 x
 Basis set
 
-C.DEF-SV(P)....
+C.def-SV(P)....
 C1     .00000000000000       .00000000000000      1.43853872219802
 C2     .00000000000000       .00000000000000     -1.43853872219802
 
 End of basis
 
 Basis set
-H.DEF-SV(P)....
+H.def-SV(P)....
 H1   -1.66325715555122       .96028196648907      2.18760288216581
 H2     .00000000000000     -1.92056393297814      2.18760288216581
 H3     .00000000000000      1.92056393297814     -2.18760288216581
@@ -33,7 +33,7 @@ End of input
 *----------------------------------------------------------------------------
  &SCF &END
 Title
-ethine
+ethane
 ITERATIONS
  50
 Occupation
@@ -49,19 +49,19 @@ End of input
 
  &SEWARD &END
 Title
-ethine, DEF-SV(P)
+ethane, def-SV(P)
 Symmetry
 x
 Basis set
 
-C.DEF-SV(P)....
+C.def-SV(P)....
 C1     .00000000000000       .00000000000000      1.43853872219802
 C2     .00000000000000       .00000000000000     -1.43853872219802
 
 End of basis
 
 Basis set
-H.DEF-SV(P)....
+H.def-SV(P)....
 H1   -1.66325715555122       .96028196648907      2.18760288216581
 H2     .00000000000000     -1.92056393297814      2.18760288216581
 H3     .00000000000000      1.92056393297814     -2.18760288216581
@@ -73,7 +73,7 @@ End of input
 *----------------------------------------------------------------------------
  &SCF &END
 Title
-ethine
+ethane
 ITERATIONS
  50
 Occupation

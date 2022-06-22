@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: Butadiene
-* Basis: TZVP
+* Basis: Def-TZVP
 * Symmetry: No Symmetry
 * Features tested: SS-RASPT2 analytic gradients
 * Responsible person: S. Battaglia
@@ -28,7 +28,7 @@
     H       -0.027063421      2.505728605      2.095088190
     H       -0.027063421     -0.653863728     -1.586705932
     H       -0.027063421      1.525682033      3.655720198
-  basis = TZVP
+  basis = DEF-TZVP
   nocd
 
 &SEWARD

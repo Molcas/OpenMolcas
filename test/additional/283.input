@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule:
-* Basis: DEF-SV(P)
+* Basis: def-SV(P)
 * Symmetry: ..
 * Features tested: RI options
 * Responsible person: R. Lindh, 070125
@@ -10,17 +10,17 @@
 
  &SEWARD &END
 Title
-ethine, DEF-SV(P)
+ethine, def-SV(P)
 Symmetry
 z
 Basis set
 
-C.DEF-SV(P)....
+C.def-SV(P)....
 c     .00000000000000       .00000000000000      1.12460820684763
 End of basis
 
 Basis set
-H.DEF-SV(P)....
+H.def-SV(P)....
 h     .00000000000000       .00000000000000      3.13880190398645
 End of basis
 RIJ
@@ -44,17 +44,17 @@ End of input
 
  &SEWARD &END
 Title
-ethine, DEF-SV(P)
+ethine, def-SV(P)
 Symmetry
 z
 Basis set
 
-C.DEF-SV(P)....
+C.def-SV(P)....
 c     .00000000000000       .00000000000000      1.12460820684763
 End of basis
 
 Basis set
-H.DEF-SV(P)....
+H.def-SV(P)....
 h     .00000000000000       .00000000000000      3.13880190398645
 End of basis
 RIJ

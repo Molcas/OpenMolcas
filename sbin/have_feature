@@ -240,6 +240,15 @@ while [ -n "$1" ]; do
       Echo
       ;;
 
+    "gen1int")
+      Echo "Processing feature: $FEATURE"
+      if ! find_symbol test_f90mod_sgto_mag seward ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
     *)
       Echo "Unknown feature: $FEATURE"
       RC=2

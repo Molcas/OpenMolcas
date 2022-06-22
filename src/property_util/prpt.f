@@ -210,6 +210,7 @@ c
 *
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "hfc_logical.fh"
 c
       Character*8 label
       Logical short, NxtOpr, var, Reduce_Prt, ifallorb
@@ -217,6 +218,8 @@ c
       Integer nBas(0:nirrep-1), mBas(0:7)
       Real*8  occ(1:ndim), scr(1:maxscr), Vec(n2Tot)
       Dimension idum(1)
+c
+      Integer tNUC, nbast
 c
       Call Prpt_Internal(Scr)
 c Avoid unused argument warnings
@@ -377,7 +380,7 @@ c
 101     continue
         If (.Not.NxtOpr) Then
            If (.Not.Short) Call Free_Work(iadEl_Work)
-           Go To 199
+           Go To 195
         End If
         iadTmt=iadOpr+nblock
         if (i.le.4) then
@@ -399,6 +402,48 @@ c
         Nullify(cScr)
         If (.Not.Short) Call Free_Work(iadEl_Work)
 100   continue
+c
+c     Scan 'ONEINT' for magnetic hyperfine integrals
+c
+195   continue
+*                                                                      *
+************************************************************************
+*                                                                      *
+*
+*     This check if the magnetic hypferfine integrals are available
+*     and only calculates hyperfine tensor matrix for UHF wavefunction
+*     in C1 symmetry. Since for UHF the spin density matrix is easily
+*     obtained.
+*
+      MAG_X2C = .False.
+      irc=-1
+      iopt=1
+      label='MAGXP  1'
+      iComp=1
+      Call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
+      If (irc.eq.0) Then
+        MAG_X2C = .True.
+      Else
+        Go to 199
+      End If
+*
+!      If (Method.eq.'UHF-SCF ') Then
+      If (iUHF.eq.1) Then
+        If (UHF_HFC) Then
+          If (nIrrep.eq.1) Then
+            tNUC = 0
+            nbast = nbas(0)
+            Call Get_iScalar('LP_nCenter', tNUC)
+            Call cmp_hfc(nbast,tNUC)
+          Else
+            write(6,'(/,/,6X,A)')
+     &      'Skipping Hyperfine tensor matrix for UHF with symmetry'
+          End If
+        Else
+          write(6,'(/,/,6X,A)')
+     &    'Skipping Hyperfine tensor matrix'
+        End If
+      End If
 c
 c     Scan 'ONEINT' for electric field integrals
 c
@@ -496,10 +541,15 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
 *          (assuming error scales with sqrt(ncen))
            iTol=5
            iTol=iTol-NInt(Half*Log10(Dble(nCen)))
-           Write (label,'(a,i1,a)') 'EF',iEF,'   el'
-           Call Add_Info(label,Work(iadElSum),nComp,iTol)
-           Write (label,'(a,i1,a)') 'EF',iEF,'  nuc'
-           Call Add_Info(label,Work(iadNucSum),nComp,iTol)
+!  set MAG_X2C to avoid tests of electric field properties when
+!  wavefunction is X2C transformed (there is no way to tell but we
+!  can kind of tell by reading MAG x2c integrals) This is a workaround.
+           If (.not.MAG_X2C) Then
+             Write (label,'(a,i1,a)') 'EF',iEF,'   el'
+             Call Add_Info(label,Work(iadElSum),nComp,iTol)
+             Write (label,'(a,i1,a)') 'EF',iEF,'  nuc'
+             Call Add_Info(label,Work(iadNucSum),nComp,iTol)
+           End If
          End If
          Call GetMem('ElSum','Free','Real',iadElSum,nComp)
          Call GetMem('NucSum','Free','Real',iadNucSum,nComp)
@@ -595,10 +645,12 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
 *          (assuming error scales with sqrt(ncen))
            iTol=5
            iTol=iTol-NInt(Half*Log10(Dble(nCen)))
-           Write (label,'(a,a)') 'CNT','   el'
-           Call Add_Info(label,Work(iadElSum),nComp,iTol)
-           Write (label,'(a,a)') 'CNT','  nuc'
-           Call Add_Info(label,Work(iadNucSum),nComp,iTol)
+           If (.not.MAG_X2C) Then
+             Write (label,'(a,a)') 'CNT','   el'
+             Call Add_Info(label,Work(iadElSum),nComp,iTol)
+             Write (label,'(a,a)') 'CNT','  nuc'
+             Call Add_Info(label,Work(iadNucSum),nComp,iTol)
+           End If
          End If
          Call GetMem('ElSum','Free','Real',iadElSum,nComp)
          Call GetMem('NucSum','Free','Real',iadNucSum,nComp)

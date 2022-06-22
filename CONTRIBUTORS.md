@@ -80,8 +80,10 @@ Michael Diedenhofen
 Werner Dobrautz  
 Sijia S. Dong  
 Thomas Dresselhaus  
+Thomas J. Duignan  
 Daniel Fairhead  
 Ignacio Fdez. Galván  
+Rulin Feng  
 Nicolas Ferré  
 Timo Fleig  
 Niclas Forsberg  

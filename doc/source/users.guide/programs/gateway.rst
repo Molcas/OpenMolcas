@@ -1828,6 +1828,23 @@ Keywords associated to one-electron integrals
               </HELP>
               </KEYWORD>
 
+:kword:`MXTC`
+  Requests the computation of X2C transformed hyperfine magnetic integrals (used in subsequent
+  hyperfine calculations), has to be used together with the keyword :kword:`RX2C`.
+  If one wants to calculate the non-relativistic limit, one can simply set up a large 
+  speed of light value.
+  See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="MXTC" APPEAR="X2C hyperfine magnetic" KIND="SINGLE" REQUIRE="RX2C" LEVEL="BASIC">
+              %%Keyword: MXTC <basic>
+              <HELP>
+              Requests the computation of X2C transformed hyperfine magnetic integrals (used in subsequent
+              hyperfine calculations), has to be used together with the keyword RX2C.
+              If one wants to calculate the non-relativistic limit, one can simply set up a large 
+              speed of light value.
+              </HELP>
+              </KEYWORD>
+
   .. :kword:`DOUGlas-kroll`
      Explicit request that the one-electron Hamiltonian include the scalar relativistic
      effects according to the so-called Douglas--Kroll transformation.

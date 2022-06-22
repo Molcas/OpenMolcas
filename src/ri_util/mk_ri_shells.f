@@ -34,7 +34,8 @@
 #include "print.fh"
       Logical Hit, IfTest
       Character*13 DefNm
-      Character*80 Ref(2), BSLbl, BSLB*180
+      Character*180 Ref(2), BSLB
+      Character*80 BSLbl
       Character*80 atom,type,author,basis,CGTO, Aux
       Character*80 atomb
       Character *256 Basis_lib, Fname
@@ -169,8 +170,8 @@
          If (Show.and.iPrint.ge.6 .and.
      &      Ref(1).ne.'' .and. Ref(2).ne.'') Then
             Write (6,'(1x,a)')  'Basis Set Reference(s):'
-            If (Ref(1).ne.'') Write (6,'(5x,a)') Ref(1)
-            If (Ref(2).ne.'') Write (6,'(5x,a)') Ref(2)
+            If (Ref(1).ne.'') Write (6,'(5x,a)') Trim(Ref(1))
+            If (Ref(2).ne.'') Write (6,'(5x,a)') Trim(Ref(2))
             Write (6,*)
             Write (6,*)
          End If
