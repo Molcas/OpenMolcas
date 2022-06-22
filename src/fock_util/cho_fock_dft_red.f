@@ -23,12 +23,13 @@ C
 C********************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
 #ifdef _DEBUGPRINT_
       Logical Debug
 #endif
       Logical add
-      Real*8  DLT(*),FLT(*)
+      Type (DSBA_Type) DLT, FLT
       Real*8  tread(2),tcoul(2)
       Character*16  SECNAM
       Character*6   mode
@@ -47,7 +48,6 @@ C********************************************************
 #ifdef _DEBUGPRINT_
       Debug=.true.
 #endif
-
 
       FactC = one
 
@@ -114,9 +114,8 @@ C ---
 C --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
-      ipDLT = ip_of_Work(DLT(1))
       nDen=1
-      Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipDLT],Drs,mode,add)
+      Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,mode,add)
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -182,8 +181,7 @@ C==========================================================
 c --- backtransform fock matrix in full storage
          mode = 'tofull'
          add  = JRED.gt.JRED1
-         ipFLT = ip_of_Work(FLT(1))
-         Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipFLT],Frs,mode,add)
+         Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[FLT],Frs,mode,add)
       endif
 
 C --- free memory
@@ -233,15 +231,12 @@ c Print the Fock-matrix
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
       WRITE(6,'(6X,A)')
-      ioff=0
       DO ISYM=1,NSYM
-        ISFI= ioff + 1
         NB=NBAS(ISYM)
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT('Coulomb Fmat',' ',FLT(ISFI),NB)
+          CALL TRIPRT('Coulomb Fmat',' ',FLT%SB(ISYM)%A1,NB)
         END IF
-        ioff = ioff + NB*(NB+1)/2
       END DO
 
       endif

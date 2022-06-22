@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Get_DEcorr(nh1,Grad,nGrad,DFTFOCK)
+      use SCF_Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
-#include "addr.fh"
 #include "WrkSpc.fh"
 #include "infscf.fh"
       Real*8  Grad(nGrad), Ec_AB(2)
@@ -26,7 +26,7 @@
       ip_Db=ip_D_DS+nBT
 *
       Do iAB=1,2
-       iOff=0
+       iOff=1
        jOff=0
        lOff=0
        Do iSym=1,nSym
@@ -38,10 +38,10 @@
              nXoX=nConstr(iSym)
              iXoX=nOcc(iSym,1)-nConstr(iSym)
           EndIf
-          mAdCMOO=mAdCMO+iOff+nBas(iSym)*iXoX
+          mAdCMOO=iOff+nBas(iSym)*iXoX
           Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nXoX,
-     &                     1.0d0,Work(mAdCMOO),nBas(iSym),
-     &                           Work(mAdCMOO),nBas(iSym),
+     &                     1.0d0,CMO(mAdCMOO,1),nBas(iSym),
+     &                           CMO(mAdCMOO,1),nBas(iSym),
      &                     0.0d0,Work(ipDaa),nBas(iSym))
           ipDbb=ip_Db+jOff
           If (iAB.eq.1) Then
@@ -51,10 +51,10 @@
              nXoX=nConstr(iSym)
              iXoX=nOcc(iSym,2)-nConstr(iSym)
           EndIf
-          mAdCMOO=mAdCMO_ab+iOff+nBas(iSym)*iXoX
+          mAdCMOO=iOff+nBas(iSym)*iXoX
           Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nXoX,
-     &                     1.0d0,Work(mAdCMOO),nBas(iSym),
-     &                           Work(mAdCMOO),nBas(iSym),
+     &                     1.0d0,CMO(mAdCMOO,2),nBas(iSym),
+     &                           CMO(mAdCMOO,2),nBas(iSym),
      &                     0.0d0,Work(ipDbb),nBas(iSym))
 *
           If (Do_SpinAV) Then

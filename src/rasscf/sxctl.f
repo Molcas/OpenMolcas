@@ -196,7 +196,7 @@ C --------------------------------------
          Call GetMem('DALT','Free','Real',iDA,nTot1)
 
          TraOnly=.true.
-         Call CHO_CAS_DRV(irc,CMO,D,FI,D1A,FA,P,TraOnly)
+         Call CHO_CAS_DRV(irc,CMO,D,FI,D1A,FA,Work(ip_Dummy),TraOnly)
 
          if (irc.ne.0) then
          Write(LF,*)'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc

@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,
-     &                  ipFLT,ipFSQ)
+      SUBROUTINE CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
 
 *****************************************************************
 *  Author : F. Aquilante
@@ -21,39 +20,22 @@
 *           to the frozen AO-Fock matrices for alpha and beta
 *           spin as defined in the calling routine
 ******************************************************************
-
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer   rc,nBas(8),nSym,iUHF
-      Integer   ISTSQ(8),ISTLT(8)
-      Integer   ipFLT(*),ipFSQ(*)
+
+      Type (DSBA_Type) FLT(*), FSQ(*)
       Logical DoExchange(*)
-
-
-#include "WrkSpc.fh"
 
 **************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 **************************************************
 
-       if(iUHF.eq.1)then
-               nDen=3
-       else
-               nDen=1
-       endif
-
-
-c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
-c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
-        ISTSQ(1)=0
-        ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NB2=NB*NB
-        NB3=(NB2+NB)/2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
-      END DO
-
+      if (iUHF.eq.1)then
+         nDen=3
+      else
+         nDen=1
+      endif
 
 c Accumulate the contributions and Square the final matrix
 c FLT is in lower triangular storage
@@ -66,20 +48,16 @@ c
       DO ISYM=1,NSYM
        NB = NBAS(ISYM)
        IF (NB.gt.0) THEN
-       koff1 = ipFLT(1) - 1
-       koff2 = ipFSQ(1) - 1
        If (DoExchange(1)) Then
-        K1 = koff1 + ISTLT(ISYM)
-        K2 = koff2 + ISTSQ(ISYM)
         DO IB=1,NB
           DO JB=IB,NB
-              Work(K1+iTri(JB,IB)) = Work(K1+iTri(JB,IB)) + Work(K2+JB)
+             IJB=iTri(JB,IB)
+             FLT(1)%SB(ISYM)%A1(IJB)= FLT(1)%SB(ISYM)%A1(IJB)
+     &                              + FSQ(1)%SB(ISYM)%A2(JB,IB)
           END DO
-          K2 = K2 + NB
         END DO
        End If
-      CALL SQUARE(Work(ipFLT(1)+ISTLT(ISYM)),Work(ipFSQ(1)+ISTSQ(ISYM))
-     &            ,1,NB,NB)
+       CALL SQUARE(FLT(1)%SB(ISYM)%A1,FSQ(1)%SB(ISYM)%A2,1,NB,NB)
        ENDIF
       END DO
 
@@ -89,29 +67,20 @@ c
       DO ISYM=1,NSYM
        NB = NBAS(ISYM)
        IF (NB.gt.0) THEN
-       koff0= ipFLT(1) - 1
-       koff1= ipFLT(2) - 1
-       koff2= ipFSQ(2) - 1
-       koff3= ipFSQ(3) - 1
        If (DoExchange(2)) Then
-        K0 = koff0 + ISTLT(ISYM)
-        K1 = koff1 + ISTLT(ISYM)
-        K2 = koff2 + ISTSQ(ISYM)
-        K3 = koff3 + ISTSQ(ISYM)
         DO IB=1,NB
           DO JB=IB,NB
-            Work(K0+iTri(JB,IB)) = Work(K0+iTri(JB,IB)) + Work(K2+JB)
-            Work(K1+iTri(JB,IB)) = Work(K1+iTri(JB,IB)) + Work(K3+JB)
+            IJB=iTri(JB,IB)
+            FLT(1)%SB(ISYM)%A1(IJB) = FLT(1)%SB(ISYM)%A1(IJB)
+     &                              + FSQ(2)%SB(ISYM)%A2(JB,IB)
+            FLT(2)%SB(ISYM)%A1(IJB) = FLT(2)%SB(ISYM)%A1(IJB)
+     &                              + FSQ(3)%SB(ISYM)%A2(JB,IB)
           END DO
-          K2 = K2 + NB
-          K3 = K3 + NB
         END DO
        End If
 
-       CALL SQUARE(Work(ipFLT(1)+ISTLT(ISYM)),Work(ipFSQ(2)+ISTSQ(ISYM))
-     &            ,1,NB,NB)
-       CALL SQUARE(Work(ipFLT(2)+ISTLT(ISYM)),Work(ipFSQ(3)+ISTSQ(ISYM))
-     &            ,1,NB,NB)
+       CALL SQUARE(FLT(1)%SB(ISYM)%A1,FSQ(2)%SB(ISYM)%A2,1,NB,NB)
+       CALL SQUARE(FLT(2)%SB(ISYM)%A1,FSQ(3)%SB(ISYM)%A2,1,NB,NB)
 
        ENDIF
       END DO
@@ -129,28 +98,22 @@ c Print the Fock-matrix
       do jDen=1,2
       if(jDen.eq.1)WRITE(6,'(6X,A)')'SPIN ALPHA'
       if(jDen.eq.2)WRITE(6,'(6X,A)')'SPIN BETA'
-      icount=0
       DO ISYM=1,NSYM
-       ILT=ipFLT(jDen)+icount
         NB=NBAS(ISYM)
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',Work(ILT),NB)
-          icount=icount+NB*(NB+1)/2
+          CALL TRIPRT(' ',' ',FLT(jDen)%SB(ISYM)%A1,NB)
         END IF
       END DO
       end do
 
       else ! nDen=1
 
-      icount=0
       DO ISYM=1,NSYM
-      ILT=ipFLT(1)+icount
         NB=NBAS(ISYM)
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',Work(ILT),NB)
-          icount=icount+NB*(NB+1)/2
+          CALL TRIPRT(' ',' ',FLT(1)%SB(ISYM)%A1,NB)
         END IF
       END DO
 

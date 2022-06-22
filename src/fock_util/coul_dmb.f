@@ -9,16 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Coul_DMB(GetFM,nDM,Rep_EN,FM,DMA,DMB,lFDM)
-
+      use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
       Logical GetFM
       Integer nDM, lFDM
       Real*8  FM(lFDM), DMA(lFDM), DMB(lFDM)
-#include "stdalloc.fh"
+
+      Type (DSBA_Type) DLT, FLT
+
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
       Character(LEN=16) NamRfil
-      Real*8, Allocatable:: DM(:)
 *
       If (nDM.gt.2 .or. nDM.lt.1) Then
          write(6,*) ' In Coul_DMB: wrong value of nDM= ',nDM
@@ -27,20 +30,23 @@
 *
       If (.not.GetFM) Go To 99
 *
+       Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=FM)
+
       Call Get_NameRun(NamRfil) ! save the old RUNFILE name
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
 *
-      Call mma_allocate(DM,lFDM,Label='DM')
-      Call get_dArray('D1ao',DM,lFDM)
+       Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI')
+      Call get_dArray('D1ao',DLT%A0,lFDM)
 *
-      Call FZero(FM,lFDM)
-      Call CHO_FOCK_DFT_RED(irc,DM,FM)
-      Call GADSum(FM,lFDM)
+      FLT%A0(:)=Zero
+      Call CHO_FOCK_DFT_RED(irc,DLT,FLT)
       If (irc.ne.0) Then
          Call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
       EndIf
+      Call GADSum(FM,lFDM)
 *
-      Call mma_deallocate(DM)
+      Call deallocate_DSBA(DLT)
+      Call deallocate_DSBA(FLT)
 *
       Call NameRun(NamRfil)   ! switch back RUNFILE name
 *

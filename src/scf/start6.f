@@ -471,7 +471,10 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *                                                                      *
 ************************************************************************
       Subroutine Get_Fmat_nondyn(Dma,Dmb,nBDT,DFTX)
+      use Data_Structures, only: DSBA_type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
+#include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "WrkSpc.fh"
@@ -481,14 +484,13 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
 #include "choscf.fh"
-      Integer ipFLT(2), ipKLT(2), nForb(8,2), nIorb(8,2), ipPorb(2)
-      Integer ipPLT(2)
-      Real*8, Dimension(:), Allocatable:: PLT
-      Real*8, Dimension(:,:), Allocatable:: Porb, Dm, FCNO, KLT
+      Integer nForb(8,2), nIorb(8,2)
+      Real*8, Dimension(:,:), Allocatable:: Dm
       Real*8 E2act(1)
 *
       Real*8   Get_ExFac
       External Get_ExFac
+      Type (DSBA_Type) FLT(2), KLT(2), POrb(2), PLT(2)
 *
 #include "dcscf.fh"
 #include "spave.fh"
@@ -500,24 +502,22 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          nForb(i,2)=0
       End Do
       If (DFTX) Then
-         FactXI=Get_ExFac(KSDFT)-1.0d0 ! note this trick
+         FactXI=Get_ExFac(KSDFT)-One ! note this trick
       Else
-         FactXI=1.0d0
+         FactXI=One
       EndIf
 *
-      Call mma_allocate(PLT,nBDT,Label='PLT')
-      ipPLT(1)=ip_of_Work(PLT(1))
-      ipPLT(2)=ipPLT(1)
+      Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(PLT(2),nBas,nBas,nSym,Case='TRI',Ref=PLT(1)%A0)
       If (DFTX) Then
-         Call FZero(PLT,nBDT) ! to exclude Coulomb contrib
+         PLT(1)%A0(:)=Zero
       Else
-         call dcopy_(nBDT,Dma,1,PLT,1)
-         Call daxpy_(nBDT,1.0d0,Dmb,1,PLT,1)
+         PLT(1)%A0(:)= Dma(:) + Dmb(:)
       EndIf
 *
-      Call mma_allocate(Porb,nBB,2,Label='Porb')
-      ipPorb(1) = ip_of_Work(Porb(1,1))
-      ipPorb(2) = ipPorb(1)+nBB
+      Call Allocate_DSBA(POrb(1),nBas,nBas,nSym)
+      Call Allocate_DSBA(POrb(2),nBas,nBas,nSym)
+
       Call mma_allocate(Dm,nBB,2,Label='Dm')
       Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
       Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
@@ -534,17 +534,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
       iOff=0
       Do i=1,nSym
-         ipV=1+iOff
          ipDai=1+iOff
-         Call CD_InCore(Dm(ipDai,1),nBas(i),Porb(ipV,1),nBas(i),
+         Call CD_InCore(Dm(ipDai,1),nBas(i),Porb(1)%SB(i)%A2,nBas(i),
      &                  nIorb(i,1),1.0d-12,irc)
          If (irc.ne.0) Then
             write(6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
             Call Abend()
          EndIf
-         ipV=1+iOff
          ipDbi=1+iOff
-         Call CD_InCore(Dm(ipDbi,2),nBas(i),Porb(ipV,2),nBas(i),
+         Call CD_InCore(Dm(ipDbi,2),nBas(i),Porb(2)%SB(i)%A2,nBas(i),
      &                  nIorb(i,2),1.0d-12,irc)
          If (irc.ne.0) Then
             write(6,*) ' Beta density. Sym= ',i,'   rc= ',irc
@@ -553,18 +551,19 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          iOff=iOff+nBas(i)**2
       End Do
 *
-      Call mma_allocate(FCNO,nBDT,2,Label='FCNO')
-      Call FZero(FCNO,2*nBDT)
-      ipFLT(1)=ip_of_Work(FCNO(1,1))
-      ipFLT(2)=ipFLT(1)+nBDT
-      Call mma_allocate(KLT,nBDT,2,Label='KLT')
-      Call FZero(KLT,2*nBDT)
-      ipKLT(1)=ip_of_Work(KLT(1,1))
-      ipKLT(2)=ipKLT(1)+nBDT
+      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI')
+      FLT(1)%A0(:)=Zero
+      FLT(2)%A0(:)=Zero
+
+      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI')
+      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,Case='TRI')
+      KLT(1)%A0(:)=Zero
+      KLT(2)%A0(:)=Zero
 *
       dFmat=0.0d0
-      Call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,
-     &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+      Call CHO_LK_SCF(irc,nDMat,FLT,KLT,nForb,nIorb,
+     &                Porb,PLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
          CALL Abend
@@ -574,13 +573,13 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
          Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
          Call daxpy_(NBB,-1.0d0,Work(ip_DSc),1,Dm(1,1),1)
-         Call daxpy_(NBB,1.0d0,Work(ip_DSc),1,Dm(1,2),1)
+         Call daxpy_(NBB, 1.0d0,Work(ip_DSc),1,Dm(1,2),1)
          Call Fold(nSym,nBas,Dm(1,1),Dma)
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf
 *
-      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FCNO(1,1),1)
-     &         +        ddot_(nBDT,Dmb,1,FCNO(1,2),1))
+      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)
+     &         +        ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
       Call GADSum(E2act(1),1)
 *
       If (DFTX) Then
@@ -589,11 +588,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          E_nondyn=E_nondyn-E2act(1)
       EndIf
 *
-      Call mma_deallocate(KLT)
-      Call mma_deallocate(FCNO)
+      Call deallocate_DSBA(KLT(2))
+      Call deallocate_DSBA(KLT(1))
+      Call deallocate_DSBA(FLT(2))
+      Call deallocate_DSBA(FLT(1))
       Call mma_deallocate(Dm)
-      Call mma_deallocate(Porb)
-      Call mma_deallocate(PLT)
+      Call deallocate_DSBA(POrb(2))
+      Call deallocate_DSBA(POrb(1))
+      Call deallocate_DSBA(PLT(2))
+      Call deallocate_DSBA(PLT(1))
 *
       Return
       End

@@ -40,7 +40,6 @@
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "addr.fh"
 #include "stdalloc.fh"
 #include "lnklst.fh"
 #include "infso.fh"
@@ -56,12 +55,6 @@
       nD=(iUHF+1)
       Call mma_allocate(TrM,nBB,nD,Label='TrM')
       Call mma_allocate(CMO,nBB,nD,Label='CMO')
-*
-*     Produce pointers to work for codes that still use GetMem and
-*     (i)Work.
-*
-      mAdCMO    = ip_of_Work(CMO(1,1))
-      mAdCMO_ab = mAdCMO + (nD-1)*nBB
 *
       Call mma_allocate(Fock,nBT,nD,Label='Fock')
       Call FZero(Fock,nBT*nD)

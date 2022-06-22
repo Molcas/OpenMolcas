@@ -131,9 +131,8 @@
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
-      Integer :: ipDLT(5)=[0,0,0,0,0],ipDLT2=0
       Integer   npos(8,3)
-      Integer   iSTSQ(8), nnA(8,8), nInd
+      Integer   nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
 
       Real*8    Txy(nTxy),V_k(nV_k,*),Z_p_k(nZ_p_k,*), U_k(*)
@@ -228,11 +227,6 @@
 *                                                                      *
 ************************************************************************
 
-      Do i = 1, 5
-         If (Allocated(DLT(i)%A0)) ipDLT(i)=ip_of_Work(DLT(i)%A0(1))
-      End Do
-      If (Allocated(DLT2%A0)) ipDLT2=ip_of_Work(DLT2%A0(1))
-
       iRout = 9
       iPrint = nPrint(iRout)
 
@@ -256,11 +250,8 @@
 **    Various offsets
 *
       MaxB=nBas(1)
-      ISTSQ(1)=0
       DO ISYM=2,NSYM
         MaxB=Max(MaxB,nBas(iSym))
-        NBQ=NBAS(ISYM-1)**2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
       END DO
 *
 **
@@ -682,12 +673,12 @@ C --- Transform the densities to reduced set storage
                nMat=1
                Do jDen=1,nJdens
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              [ipDLT(jDen)],Drs(:,jDen),
+     &                              DLT(jDen),Drs(:,jDen),
      &                              mode,add)
                End Do
                If(iMp2prpt .eq. 2) Then
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              [ipDLT2],Drs2(:,1),mode,add)
+     &                              [DLT2],Drs2(:,1),mode,add)
                End If
             EndIf
 *

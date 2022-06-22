@@ -9,6 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       INTEGER         LDMAT,LPMAT,LPA,LDIA,LSXN,LBM,LF1,LF2,LG,LH,LHD,
-     *                NLX,ipFocc,ipDens,ltuvx,ldspn,lfi,lpwxy,nPWXY,ipCM
+     *                NLX,ipFocc,ipDens,ltuvx,ldspn,lfi,nPWXY
       COMMON/WADR/    LDMAT,LPMAT,LPA,LDIA,LSXN,LBM,LF1,LF2,LG,LH,LHD,
-     *                NLX,ipFocc,ipDens,ltuvx,ldspn,lfi,lpwxy,nPWXY,ipCM
+     *                NLX,ipFocc,ipDens,ltuvx,ldspn,lfi,nPWXY
