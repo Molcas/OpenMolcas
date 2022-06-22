@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Kntc_GIAO(Txyz,Rxyz,Wxyz,na,nb,nr,Alpha,Beta,nZeta)
+subroutine Kntc_GIAO(Txyz,Rxyz,Wxyz,na,nb,Alpha,Beta,nZeta)
 !***********************************************************************
 !                                                                      *
 ! Object: to assemble the cartesian components of the kinetic energy   *
@@ -122,7 +122,5 @@ end do
 !                                                                      *
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nr)
 
 end subroutine Kntc_GIAO

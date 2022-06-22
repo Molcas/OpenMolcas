@@ -42,6 +42,15 @@ integer iDCRT(0:7)
 ! Statement function for Cartesian index
 nElem(k) = (k+1)*(k+2)/2
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(ZInv)
+unused_var(lOper)
+unused_var(iChO)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 122
 iPrint = nPrint(iRout)
 
@@ -189,15 +198,5 @@ if (iPrint >= 99) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_real_array(ZInv)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iChO)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine M2Int

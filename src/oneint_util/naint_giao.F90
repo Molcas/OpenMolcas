@@ -46,6 +46,13 @@ integer iAnga_EF(4), iAnga_NA(4)
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(PtChrg)
+unused_var(iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -240,15 +247,5 @@ end if
 !                                                                      *
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_integer(nHer)
-  call Unused_real_array(Ccoor)
-  call Unused_real(PtChrg)
-  call Unused_integer(nGrid)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine NAInt_GIAO

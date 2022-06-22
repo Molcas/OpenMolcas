@@ -44,12 +44,19 @@ data iTwoj/1,2,4,8,16,32,64,128/
 ! Statement function for Cartesian index
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(P)
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(iChO)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 #ifdef _DEBUGPRINT_
-call RecPrt(' In PrjInt: Zeta',' ',Zeta,1,nZeta)
 call RecPrt(' In PrjInt: A',' ',A,1,3)
 call RecPrt(' In PrjInt: RB',' ',RB,1,3)
 call RecPrt(' In PrjInt: Ccoor',' ',Ccoor,1,3)
-call RecPrt(' In PrjInt: P',' ',P,nZeta,3)
 write(6,*) ' In PrjInt: la,lb=',' ',la,lb
 #endif
 
@@ -248,16 +255,5 @@ end do
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(P)
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_integer(nRys)
-  call Unused_integer_array(iChO)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine PrjInt

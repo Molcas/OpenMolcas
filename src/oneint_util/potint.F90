@@ -40,6 +40,12 @@ logical EQ, NoSpecial
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(nHer)
+unused_var(nOrdOp)
+
 call fzero(final,nZeta*nElem(la)*nElem(lb)*nIC)
 
 iAnga(1) = la
@@ -116,12 +122,5 @@ do lDCRT=0,nDCRT-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_integer(nHer)
-  call Unused_integer(nOrdOp)
-end if
 
 end subroutine PotInt

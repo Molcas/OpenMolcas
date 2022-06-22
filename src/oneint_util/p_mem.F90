@@ -16,15 +16,14 @@ subroutine P_Mem( &
 
 #include "mem_interface.fh"
 
+#include "macros.fh"
+unused_var(nHer)
+unused_var(la)
+unused_var(lb)
+unused_var(lr)
+
 Mem = 1
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nHer)
-  call Unused_integer(la)
-  call Unused_integer(lb)
-  call Unused_integer(lr)
-end if
 
 end subroutine P_Mem

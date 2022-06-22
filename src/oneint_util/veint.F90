@@ -36,6 +36,13 @@ integer iStabO(0:7), iDCRT(0:7)
 ! Statement function for Cartesian index
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(ZInv)
+unused_var(nOrdOp)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 195
 iPrint = nPrint(iRout)
 ABeq(1) = A(1) == RB(1)
@@ -123,13 +130,5 @@ do lDCRT=0,nDCRT-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(ZInv)
-  call Unused_integer(nOrdOp)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine VeInt

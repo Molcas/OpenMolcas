@@ -19,6 +19,9 @@ subroutine EPEMem( &
 #include "mem_interface.fh"
 integer iAngV(4)
 
+#include "macros.fh"
+unused_var(lr)
+
 call mHrr(la,lb,nFlop,MemHrr)
 
 nHer = (la+lb+2)/2
@@ -31,7 +34,5 @@ call MemRys(iAngV,Mem)
 Mem = max(Mem,MemHrr)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine EPEMem

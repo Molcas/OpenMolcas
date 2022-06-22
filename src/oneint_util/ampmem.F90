@@ -21,6 +21,9 @@ subroutine AMPMem( &
 ! Statement function for Cartesian index
 nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
+#include "macros.fh"
+unused_var(lr)
+
 ! Mem1: Workspace for MltPrm.
 ! Mem2: Tables Tpp,Tp,T0,Tm, and Tmm.
 ! Mem3: Result from AMPr.
@@ -50,7 +53,5 @@ Mem3 = 6*nElem(la)*nElem(lb)
 Mem = Mem1+Mem2+Mem3+1
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine AMPMem

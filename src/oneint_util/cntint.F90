@@ -33,6 +33,14 @@ character*80 Label
 ! Statement function
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(ZInv)
+unused_var(nOrdOp)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 150
 iPrint = nPrint(iRout)
 
@@ -46,8 +54,7 @@ nip = nip+nZeta*3*nHer*(lb+1)
 ipArr = nip
 na = (la+1)*(la+2)/2
 nb = (lb+1)*(lb+2)/2
-mArr = na*nb
-nip = nip+nZeta*mArr
+nip = nip+nZeta*na*nb
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'CntInt: nip-1 > nArr*nZeta')
   write(6,*) 'nip=',nip
@@ -65,8 +72,7 @@ end if
 
 ! Compute the contact terms.
 
-call Contact(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,Ccoor,lOper,iCho,nIC,Array(ipArr),mArr,final,iStabM,nStabM,nComp, &
-             rKappa)
+call Contact(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,Ccoor,lOper,iCho,nIC,Array(ipArr),final,iStabM,nStabM,nComp,rKappa)
 
 if (iPrint >= 99) then
   do iIC=1,nIC
@@ -80,14 +86,5 @@ if (iPrint >= 99) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_real_array(ZInv)
-  call Unused_integer(nOrdOp)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine CntInt

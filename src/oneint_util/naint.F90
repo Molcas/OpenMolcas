@@ -48,6 +48,15 @@ data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 151
 iPrint = nPrint(iRout)
 
@@ -248,15 +257,5 @@ if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) the
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_integer(nHer)
-  call Unused_real_array(CCoor)
-  call Unused_integer(nOrdOp)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine NAInt

@@ -36,6 +36,25 @@ character*80 Label
 ! Statement function for Cartesian index
 nElem(i) = (i+1)*(i+2)/2
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(P)
+unused_var(A)
+unused_var(RB)
+unused_var(nHer)
+unused_var(Array)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(lOper)
+unused_var(iChO)
+unused_var(iStabM)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 122
 iPrint = nPrint(iRout)
 ! Observe that this code does not make any sense in case of symmetry!
@@ -54,25 +73,5 @@ if (iPrint >= 99) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_real_array(P)
-  call Unused_real_array(A)
-  call Unused_real_array(RB)
-  call Unused_integer(nHer)
-  call Unused_real_array(Array)
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iChO)
-  call Unused_integer_array(iStabM)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine P_Int

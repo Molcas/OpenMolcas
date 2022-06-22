@@ -39,22 +39,16 @@ implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "int_interface.fh"
 ! Local variables
-logical ABeq(3)
 integer iStabO(0:7), iDCRT(0:7)
+
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(PtChrg)
+unused_var(iAddPot)
 
 call EMFInt_Internal(Array)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iChO)
-  call Unused_integer_array(iStabM)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 ! This is to allow type punning without an explicit interface
 contains
@@ -70,9 +64,6 @@ subroutine EMFInt_Internal(Array)
 
   iRout = 195
   iPrint = nPrint(iRout)
-  ABeq(1) = A(1) == RB(1)
-  ABeq(2) = A(2) == RB(2)
-  ABeq(3) = A(3) == RB(3)
 
   nip = 1
   ipAxyz = nip
@@ -118,9 +109,9 @@ subroutine EMFInt_Internal(Array)
   ! Note that these arrays are complex.
 
   call c_f_pointer(c_loc(Array(ipAxyz)),zAxyz,[nZeta*3*nHer*(la+nOrdOp+1)])
-  call CCrtCmp(Zeta,P,nZeta,A,zAxyz,la+nOrdOp,HerR(iHerR(nHer)),nHer,ABeq,CCoor)
+  call CCrtCmp(Zeta,P,nZeta,A,zAxyz,la+nOrdOp,HerR(iHerR(nHer)),nHer,CCoor)
   call c_f_pointer(c_loc(Array(ipBxyz)),zBxyz,[nZeta*3*nHer*(lb+nOrdOp+1)])
-  call CCrtCmp(Zeta,P,nZeta,RB,zBxyz,lb+nOrdOp,HerR(iHerR(nHer)),nHer,ABeq,CCoor)
+  call CCrtCmp(Zeta,P,nZeta,RB,zBxyz,lb+nOrdOp,HerR(iHerR(nHer)),nHer,CCoor)
   nullify(zAxyz,zBxyz)
 
   ! Compute the cartesian components for the multipole moment

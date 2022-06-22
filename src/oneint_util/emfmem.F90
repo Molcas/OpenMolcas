@@ -27,7 +27,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine EMFMem

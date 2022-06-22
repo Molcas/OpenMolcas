@@ -36,6 +36,14 @@ character*80 Label
 ! Statement function for Cartesian index
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(lOper)
+unused_var(iChO)
+unused_var(iStabM)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 190
 iPrint = nPrint(iRout)
 ABeq(1) = A(1) == RB(1)
@@ -125,14 +133,5 @@ if (iPrint >= 99) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iChO)
-  call Unused_integer_array(iStabM)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine MVeInt

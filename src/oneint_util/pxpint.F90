@@ -37,6 +37,9 @@ integer kOper(mComp), kChO(mComp)
 ! Statement function for Cartesian index
 nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
+#include "macros.fh"
+unused_var(nHer)
+
 iRout = 220
 iPrint = nPrint(iRout)
 
@@ -160,7 +163,5 @@ call Ass_pXp(Array(ipB),nZeta,final,la,lb,Array(ipS1),Array(ipS2),nComp)
 if (iPrint >= 49) call RecPrt('pXpInt: Final',' ',final,nZeta,nElem(la)*nElem(lb))
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nHer)
 
 end subroutine pXpInt

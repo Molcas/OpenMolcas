@@ -31,11 +31,12 @@ subroutine M2Mem( &
 ! Statement function
 nElem(i) = (i+1)*(i+2)/2
 
+#include "macros.fh"
+unused_var(lr)
+
 nHer = (la+lb+2)/2
 Mem = 3*nHer*(la+1)+3*nHer*(lb+1)+3*nHer+3*(la+1)*(lb+1)+5+nElem(la)*nElem(lb)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine M2Mem

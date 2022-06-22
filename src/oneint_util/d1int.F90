@@ -32,6 +32,16 @@ character*80 Label
 ! Statement function
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(ZInv)
+unused_var(nOrdOp)
+unused_var(lOper)
+unused_var(iChO)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 150
 iPrint = nPrint(iRout)
 
@@ -69,16 +79,5 @@ if (iPrint >= 99) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_real_array(ZInv)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iChO)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine D1Int

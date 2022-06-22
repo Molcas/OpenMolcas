@@ -41,6 +41,13 @@ character*80 Label
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(nHer)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 200
 iPrint = nPrint(iRout)
 
@@ -164,13 +171,5 @@ do lDCRT=0,nDCRT-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_integer(nHer)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine EFInt

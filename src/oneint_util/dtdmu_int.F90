@@ -34,6 +34,10 @@ integer iDCRT(0:7), iStabO(0:7)
 ! Statement function for Cartesian index
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 230
 iPrint = nPrint(iRout)
 
@@ -101,10 +105,5 @@ do lDCRT=0,nDCRT-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine dTdmu_int

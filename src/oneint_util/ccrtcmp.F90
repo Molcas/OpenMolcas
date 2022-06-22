@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine CCrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,ABeq,KVector)
+subroutine CCrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,KVector)
 !***********************************************************************
 !                                                                      *
 ! Object: to compile the value of the angular part of a basis function *
@@ -38,7 +38,6 @@ implicit real*8(A-H,O-Z)
 real*8 Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer), KVector(3)
 complex*16 Axyz(nZeta,3,nHer,0:na)
 character*80 Label
-logical ABeq(3)
 
 iRout = 116
 iPrint = nPrint(iRout)
@@ -87,7 +86,5 @@ if (iPrint >= 99) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical_array(ABeq)
 
 end subroutine CCrtCmp

@@ -19,11 +19,12 @@ use Sizes_of_Seward, only: S
 implicit real*8(A-H,O-Z)
 #include "mem_interface.fh"
 
+#include "macros.fh"
+unused_var(lr)
+
 nHer = S%mCentr
 Mem = 3*(la+1)*nHer+3*(lb+1)*nHer
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine D1Mem

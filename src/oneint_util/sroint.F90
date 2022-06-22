@@ -44,6 +44,14 @@ data iTwoj/1,2,4,8,16,32,64,128/
 ! Statement function for Cartesian index
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(iChO)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 191
 iPrint = nPrint(iRout)
 
@@ -253,15 +261,5 @@ if (iPrint >= 99) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_integer(nRys)
-  call Unused_integer_array(iChO)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine SROInt

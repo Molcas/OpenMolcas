@@ -38,6 +38,10 @@ integer iStabO(0:7), iDCRT(0:7)
 ! Statement function for Cartesian index
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
+#include "macros.fh"
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 nip = 1
 ipB = nip
 nip = nip+nZeta
@@ -102,10 +106,5 @@ do lDCRT=0,nDCRT-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine OAMInt

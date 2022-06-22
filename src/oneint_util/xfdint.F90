@@ -44,6 +44,14 @@ nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 !nElem(ixyz) = 2*ixyz+1
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 151
 iPrint = nPrint(iRout)
 
@@ -208,14 +216,5 @@ do iOrdOp=0,nOrdOp
 end do     ! iOrdOp
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_integer(nHer)
-  call Unused_real_array(CCoor)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine XFdInt

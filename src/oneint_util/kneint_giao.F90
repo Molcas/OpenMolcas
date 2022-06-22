@@ -43,12 +43,17 @@ nElem(i) = (i+1)*(i+2)/2
 !iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 !Index(ixyz,ix,iz) = Ind(ixyz,ix,iz)+iOff(ixyz)
 
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 150
 iPrint = nPrint(iRout)
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
 ABeq(3) = A(3) == RB(3)
-!
+
 nip = 1
 ipAxyz = nip
 nip = nip+nZeta*3*nHer*(la+2)
@@ -135,7 +140,7 @@ do lDCRT=0,nDCRT-1
     ipBOff = ipBOff+1
   end do
 
-  call Kntc_GIAO(Array(ipTxyz),Array(ipQxyz),Array(ipWxyz),la,lb,nOrdOp,Array(ipA),Array(ipB),nZeta)
+  call Kntc_GIAO(Array(ipTxyz),Array(ipQxyz),Array(ipWxyz),la,lb,Array(ipA),Array(ipB),nZeta)
 
   ! Combine the cartesian components to the full one electron integral.
 
@@ -150,11 +155,5 @@ do lDCRT=0,nDCRT-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine KnEInt_GIAO

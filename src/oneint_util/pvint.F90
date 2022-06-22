@@ -31,6 +31,8 @@ external Kernel
 ! Statement function for Cartesian index
 nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
+#include "macros.fh"
+unused_var(nHer)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -106,7 +108,5 @@ if (iPrint >= 49) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nHer)
 
 end subroutine PVInt

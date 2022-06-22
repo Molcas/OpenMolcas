@@ -32,6 +32,9 @@ integer iAng(4)
 ! Statement function
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
+#include "macros.fh"
+unused_var(lr)
+
 call mHrr(la,lb,nFlop,nMem)
 
 iAng(1) = la
@@ -51,7 +54,5 @@ k = nabSz(la+lb)-nabSz(max(la,lb)-1)
 Mem = MemM10+max(nMem,k)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine M1Mem

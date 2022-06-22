@@ -30,9 +30,22 @@ implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "int_interface.fh"
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(ZInv)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(lOper)
+unused_var(iChO)
+unused_var(iStabM)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 iRout = 122
 iPrint = nPrint(iRout)
-!     iQ = 1
+!iQ = 1
 if (iPrint >= 59) then
   write(6,*) ' In WelInt'
   write(6,*) ' r0, ExpB=',r0,ExpB
@@ -104,19 +117,5 @@ ip = ip-nZeta*5
 ip = ip-nZeta*jsum
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_real_array(ZInv)
-  call Unused_integer(nHer)
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-  call Unused_integer_array(iChO)
-  call Unused_integer_array(iStabM)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine WelInt

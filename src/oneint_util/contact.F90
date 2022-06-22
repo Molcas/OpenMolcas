@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Contact(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,Ccoor,lOper,iChO,nIC,Array,nArr,final,iStabM,nStabM,nComp,rKappa)
+subroutine Contact(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,Ccoor,lOper,iChO,nIC,Array,final,iStabM,nStabM,nComp,rKappa)
 !***********************************************************************
 !                                                                      *
 ! Object: to compoute the 1-electron contact term.                     *
@@ -137,7 +137,5 @@ do lDCRT=0,nDCRT-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nArr)
 
 end subroutine Contact

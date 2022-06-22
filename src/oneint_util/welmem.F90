@@ -16,6 +16,9 @@ subroutine WelMem( &
 
 #include "mem_interface.fh"
 
+#include "macros.fh"
+unused_var(lr)
+
 k = la+lb
 jsum = 1
 do i=1,k
@@ -25,7 +28,5 @@ nHer = 1
 Mem = jsum+max((k+1)*(k/2+1)*(k/4+1)+1,9+3**k,5)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine WelMem
