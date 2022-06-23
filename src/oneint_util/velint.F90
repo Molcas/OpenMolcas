@@ -22,11 +22,15 @@ subroutine VelInt(Vxyz,Sxyz,na,nb,Beta,nZeta)
 !             November '90                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: na, nb, nZeta
+real(kind=wp) :: Vxyz(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na,0:nb+1), Beta(nZeta)
 #include "print.fh"
-real*8 Vxyz(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na,0:nb+1), Beta(nZeta)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
+character(len=80) :: Label
 
 iRout = 160
 iPrint = nPrint(iRout)
@@ -45,7 +49,7 @@ do ia=0,na
     else
       do iCar=1,3
         do iZeta=1,nZeta
-          Vxyz(iZeta,iCar,ia,ib) = dble(ib)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+          Vxyz(iZeta,iCar,ia,ib) = real(ib,kind=wp)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
         end do
       end do
     end if

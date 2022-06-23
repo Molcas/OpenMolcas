@@ -27,14 +27,18 @@ subroutine AMPInt( &
 !     After pattern of other SEWARD soubroutines by R. Lindh.          *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "int_interface.fh"
-! Local Variables
-real*8 TC(3)
-integer iStabO(0:7), iDCRT(0:7)
+#include "print.fh"
+integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), iDum, iOrdOp, ipArr, ipB, ipOff, ipRes, iPrint, ipT, ipTm, ipTmm, ipTp, ipTpp, &
+                     iRout, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nDCRT, nip, nOp, nStabO
+real(kind=wp) :: TC(3)
+integer(kind=iwp), external :: NrOpr
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 #include "macros.fh"
@@ -73,7 +77,7 @@ end if
 ipArr = nip
 mArr = (nArr*nZeta-(nip-1))/nZeta
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 ipOff = ipB
 do iAlpha=1,nAlpha
@@ -116,17 +120,17 @@ do lDCRT=0,nDCRT-1
     call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTm),nZeta,iComp,la,lb-1,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp)
   end if
 
-  if (iprint > 49) write(6,*) ' AMPInt calling AMPr.'
+  if (iprint > 49) write(u6,*) ' AMPInt calling AMPr.'
   call AMPr(Array(ipB),nZeta,Array(ipRes),la,lb,Array(ipTpp),Array(ipTp),Array(ipT),Array(ipTm),Array(ipTmm))
 
   ! Symmetry adaption:
-  if (iprint > 49) write(6,*) ' AMPInt calling SymAdO'
+  if (iprint > 49) write(u6,*) ' AMPInt calling SymAdO'
   nOp = NrOpr(iDCRT(lDCRT))
-  call SymAdO(Array(ipRes),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
-  if (iprint > 49) write(6,*) ' Back to AMPInt.'
+  call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
+  if (iprint > 49) write(u6,*) ' Back to AMPInt.'
 end do
 
-if (iprint > 49) write(6,*) ' Leaving AMPInt.'
+if (iprint > 49) write(u6,*) ' Leaving AMPInt.'
 
 return
 

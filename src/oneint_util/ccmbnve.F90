@@ -11,25 +11,32 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CCmbnVe(Rnxyz,nZeta,la,lb,Zeta,rKappa,final,nComp,Vxyz,KVector,P)
+subroutine CCmbnVe(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,nComp,Vxyz,KVector,P)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             January  91                                              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Two, Three, Four, Half, Onei
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, nComp
+complex(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Vxyz(nZeta,3,0:la,0:lb,2)
+real(kind=wp) :: Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), kVector(3), P(nZeta,3)
 #include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), rKappa(nZeta), rTemp, Fact, KVector(3), P(nZeta,3), k_dot_P
-complex*16 Rnxyz(nZeta,3,0:la+1,0:lb+1), Vxyz(nZeta,3,0:la,0:lb,2), Temp1, Temp2, Tempp, Tempm, i
+integer(kind=iwp) :: ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+real(kind=wp) :: Fact, k_dot_P, rTemp
+complex(kind=wp) :: Temp1, Temp2, Tempm, Tempp
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iRout = 161
 iPrint = nPrint(iRout)
 
-i = (0.0d0,1.0d0)
 do ixa=0,la
   iyaMax = la-ixa
   do ixb=0,lb
@@ -53,46 +60,46 @@ do ixa=0,la
           k_dot_P = kVector(1)*P(iZeta,1)+kVector(2)*P(iZeta,2)+kVector(3)*P(iZeta,3)
           Temp1 = Vxyz(iZeta,1,ixa,ixb,1)*Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
           Temp2 = Vxyz(iZeta,1,ixa,ixb,2)*Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
-          Tempp = exp(i*k_dot_P)*Fact*(Temp1+Temp2)*Half
-          Tempm = exp(i*k_dot_P)*Fact*(Temp1-Temp2)*Half
-          final(iZeta,ipa,ipb,1) = dble(Tempp)
-          final(iZeta,ipa,ipb,4) = dble(Tempm)
-          final(iZeta,ipa,ipb,7) = DIMAG(Tempp)
-          final(iZeta,ipa,ipb,10) = DIMAG(Tempm)
+          Tempp = exp(Onei*k_dot_P)*Fact*(Temp1+Temp2)*Half
+          Tempm = exp(Onei*k_dot_P)*Fact*(Temp1-Temp2)*Half
+          rFinal(iZeta,ipa,ipb,1) = real(Tempp)
+          rFinal(iZeta,ipa,ipb,4) = real(Tempm)
+          rFinal(iZeta,ipa,ipb,7) = aimag(Tempp)
+          rFinal(iZeta,ipa,ipb,10) = aimag(Tempm)
           Temp1 = Rnxyz(iZeta,1,ixa,ixb)*Vxyz(iZeta,2,iya,iyb,1)*Rnxyz(iZeta,3,iza,izb)
           Temp2 = Rnxyz(iZeta,1,ixa,ixb)*Vxyz(iZeta,2,iya,iyb,2)*Rnxyz(iZeta,3,iza,izb)
-          Tempp = exp(i*k_dot_P)*Fact*(Temp1+Temp2)*Half
-          Tempm = exp(i*k_dot_P)*Fact*(Temp1-Temp2)*Half
-          final(iZeta,ipa,ipb,2) = dble(Tempp)
-          final(iZeta,ipa,ipb,5) = dble(Tempm)
-          final(iZeta,ipa,ipb,8) = DIMAG(Tempp)
-          final(iZeta,ipa,ipb,11) = DIMAG(Tempm)
+          Tempp = exp(Onei*k_dot_P)*Fact*(Temp1+Temp2)*Half
+          Tempm = exp(Onei*k_dot_P)*Fact*(Temp1-Temp2)*Half
+          rFinal(iZeta,ipa,ipb,2) = real(Tempp)
+          rFinal(iZeta,ipa,ipb,5) = real(Tempm)
+          rFinal(iZeta,ipa,ipb,8) = aimag(Tempp)
+          rFinal(iZeta,ipa,ipb,11) = aimag(Tempm)
           Temp1 = Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Vxyz(iZeta,3,iza,izb,1)
           Temp2 = Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Vxyz(iZeta,3,iza,izb,2)
-          Tempp = exp(i*k_dot_P)*Fact*(Temp1+Temp2)*Half
-          Tempm = exp(i*k_dot_P)*Fact*(Temp1-Temp2)*Half
-          final(iZeta,ipa,ipb,3) = dble(Tempp)
-          final(iZeta,ipa,ipb,6) = dble(Tempm)
-          final(iZeta,ipa,ipb,9) = DIMAG(Tempp)
-          final(iZeta,ipa,ipb,12) = DIMAG(Tempm)
+          Tempp = exp(Onei*k_dot_P)*Fact*(Temp1+Temp2)*Half
+          Tempm = exp(Onei*k_dot_P)*Fact*(Temp1-Temp2)*Half
+          rFinal(iZeta,ipa,ipb,3) = real(Tempp)
+          rFinal(iZeta,ipa,ipb,6) = real(Tempm)
+          rFinal(iZeta,ipa,ipb,9) = aimag(Tempp)
+          rFinal(iZeta,ipa,ipb,12) = aimag(Tempm)
         end do
         if (iPrint >= 99) then
-          write(6,*) '(',ixa,iya,iza,ixb,iyb,izb,')'
-          write(6,*) 'x-component'
-          write(6,*) final(1,ipa,ipb,1)
-          write(6,*) final(1,ipa,ipb,4)
-          write(6,*) final(1,ipa,ipb,7)
-          write(6,*) final(1,ipa,ipb,10)
-          write(6,*) 'y-component'
-          write(6,*) final(1,ipa,ipb,2)
-          write(6,*) final(1,ipa,ipb,5)
-          write(6,*) final(1,ipa,ipb,8)
-          write(6,*) final(1,ipa,ipb,11)
-          write(6,*) 'z-component'
-          write(6,*) final(1,ipa,ipb,3)
-          write(6,*) final(1,ipa,ipb,6)
-          write(6,*) final(1,ipa,ipb,9)
-          write(6,*) final(1,ipa,ipb,12)
+          write(u6,*) '(',ixa,iya,iza,ixb,iyb,izb,')'
+          write(u6,*) 'x-component'
+          write(u6,*) rFinal(1,ipa,ipb,1)
+          write(u6,*) rFinal(1,ipa,ipb,4)
+          write(u6,*) rFinal(1,ipa,ipb,7)
+          write(u6,*) rFinal(1,ipa,ipb,10)
+          write(u6,*) 'y-component'
+          write(u6,*) rFinal(1,ipa,ipb,2)
+          write(u6,*) rFinal(1,ipa,ipb,5)
+          write(u6,*) rFinal(1,ipa,ipb,8)
+          write(u6,*) rFinal(1,ipa,ipb,11)
+          write(u6,*) 'z-component'
+          write(u6,*) rFinal(1,ipa,ipb,3)
+          write(u6,*) rFinal(1,ipa,ipb,6)
+          write(u6,*) rFinal(1,ipa,ipb,9)
+          write(u6,*) rFinal(1,ipa,ipb,12)
         end if
 
       end do

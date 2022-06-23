@@ -27,18 +27,23 @@ subroutine MltInt_GIAO( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+#include "int_interface.fh"
 #include "oneswi.fh"
 #include "print.fh"
-#include "int_interface.fh"
-real*8  RAB(3), TC(3)
-character*80 Label, ChOper(0:7)*3
-integer iStabO(0:7), iDCRT(0:7)
-logical ABeq(3), EQ
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+integer(kind=iwp) :: ia, ib, iComp, iDCRT(0:7), ii, iIC, ipAxyz, ipBxyz, ipFnl, ipQxyz, iPrint, ipRxyz, iRout, iStabO(0:7), lDCRT, &
+                     llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
+real(kind=wp) ::  RAB(3), TC(3)
+character(len=80) :: Label
+logical(kind=iwp) :: ABeq(3)
+character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
@@ -51,7 +56,7 @@ unused_var(iAddPot)
 iRout = 122
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 if (.not. EQ(A,RB)) then
 
@@ -63,7 +68,7 @@ if (.not. EQ(A,RB)) then
   RAB(3) = A(3)-RB(3)
   ! switch (only single center overlap matrix...)
   if (NDDO .and. (.not.(ABeq(1)) .and. ABeq(2) .and. ABeq(3))) then
-    call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,final,1)
+    call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,rFinal,1)
     return
   end if
   ! switch
@@ -81,8 +86,8 @@ if (.not. EQ(A,RB)) then
   nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
   if (nip-1 > nArr*nZeta) then
     call WarningMessage(2,'MltInt_GIAO: nip-1 > nArr*nZeta')
-    write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-    write(6,*) ' Abend in MltInt'
+    write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+    write(u6,*) ' Abend in MltInt'
     call Abend()
   end if
 
@@ -93,7 +98,7 @@ if (.not. EQ(A,RB)) then
     call RecPrt(' In MltInt: Kappa',' ',rKappa,nAlpha,nBeta)
     call RecPrt(' In MltInt: Zeta',' ',Zeta,nAlpha,nBeta)
     call RecPrt(' In MltInt: P',' ',P,nZeta,3)
-    write(6,*) ' In MltInt: la,lb=',la,lb
+    write(u6,*) ' In MltInt: la,lb=',la,lb
   end if
 
   llOper = lOper(1)
@@ -109,13 +114,13 @@ if (.not. EQ(A,RB)) then
   call SOS(iStabO,nStabO,llOper)
   call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
   if (iPrint >= 99) then
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(6,*) ' s      =',nStabO
-    write(6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
-    write(6,*) ' LambdaT=',LmbdT
-    write(6,*) ' t      =',nDCRT
-    write(6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStabO
+    write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
   end if
 
   do lDCRT=0,nDCRT-1
@@ -141,19 +146,19 @@ if (.not. EQ(A,RB)) then
     ! Accumulate contributions
 
     nOp = NrOpr(iDCRT(lDCRT))
-    call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+    call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
   end do
 
 end if
 
 if (iPrint >= 99) then
-  write(6,*) ' Result in MltInt'
+  write(u6,*) ' Result in MltInt'
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
       do iIC=1,nIC
-        write(Label,'(A,I2,A,I2,A,I2,A)') ' Final(a=',ia,',b=',ib,',iIC=',iIC,')'
-        call RecPrt(Label,' ',final(1,ia,ib,iIC),nAlpha,nBeta)
+        write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
+        call RecPrt(Label,' ',rFinal(1,ia,ib,iIC),nAlpha,nBeta)
       end do
     end do
   end do

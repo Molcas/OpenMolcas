@@ -24,24 +24,28 @@ subroutine XFdInt( &
 !             of Lund, Sweden, April '95                               *
 !***********************************************************************
 
-use external_centers
-use Phase_Info
+use external_centers, only: nXF, XF
+use Phase_Info, only: iPhase
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI, Fake, XCff2D, XRys2D
-#include "itmax.fh"
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables
-real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd((iTabMx+1)*(iTabMx+2)/2), ZRFd((iTabMx+1)*(iTabMx+2)/2)
-logical EQ, NoLoop, NoSpecial
-integer iAnga(4), iDCRT(0:7), iStb(0:7), jCoSet(8,8)
-character ChOper(0:7)*3
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+#include "print.fh"
+integer(kind=iwp) :: i, iAnga(4), iChxyz, iDCRT(0:7), iDum, iFd, ii, iOrdOp, ip1, ip2, ip3, ipI, ipIn, iPrint, iRout, iStb(0:7), &
+                     ix, iy, iz, jCoSet(8,8), jElem, kab, lab, labcd, lcd, lDCRT, LmbdT, mabMax, mabMin, mArr, mcdMax, mcdMin, &
+                     nData, nDCRT, nFLOP, nMem, nOp, nStb, nT
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Factx, Facty, Factz, TC(3)
+logical(kind=iwp) :: NoLoop, NoSpecial
+real(kind=wp), allocatable :: ZFd(:), ZRFd(:)
+character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: iChAtm, NrOpr
+logical(kind=iwp), external :: EQ
+external TNAI, Fake, XCff2D, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!nElem(ixyz) = 2*ixyz+1
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
@@ -55,7 +59,10 @@ unused_var(iAddPot)
 iRout = 151
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+
+call mma_allocate(ZFd,nElem(nOrdOp),label='ZFd')
+call mma_allocate(ZRFd,nElem(nOrdOp),label='ZRFd')
 
 ! Loop over charges and dipole moments in the external field
 
@@ -105,7 +112,7 @@ do iOrdOp=0,nOrdOp
     do jElem=1,nElem(iOrdOp)
       ZFd(jElem) = XF(nData+jElem,iFd)
       ! Divide quadrupole diagonal by 2 due to different normalisation
-      if ((iOrdOp == 2) .and. ((jElem == 1) .or. (jElem == 4) .or. (jElem == 6))) ZFd(jElem) = ZFd(jElem)*0.5d0
+      if ((iOrdOp == 2) .and. ((jElem == 1) .or. (jElem == 4) .or. (jElem == 6))) ZFd(jElem) = ZFd(jElem)*Half
       NoLoop = NoLoop .and. (ZFd(jElem) == Zero)
     end do
 
@@ -123,16 +130,16 @@ do iOrdOp=0,nOrdOp
     !-Find the DCR for M and S
 
     call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     if (iPrint >= 99) then
-      write(6,*) ' m      =',nStabM
-      write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-      write(6,*) ' s      =',nStb
-      write(6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
-      write(6,*) ' LambdaT=',LmbdT
-      write(6,*) ' t      =',nDCRT
-      write(6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+      write(u6,*) ' m      =',nStabM
+      write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+      write(u6,*) ' s      =',nStb
+      write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
+      write(u6,*) ' LambdaT=',LmbdT
+      write(u6,*) ' t      =',nDCRT
+      write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
     end if
 
     do lDCRT=0,nDCRT-1
@@ -143,19 +150,19 @@ do iOrdOp=0,nOrdOp
         if (mod(ix,2) == 0) then
           Factx = One
         else
-          Factx = dble(iPhase(1,iDCRT(lDCRT)))
+          Factx = real(iPhase(1,iDCRT(lDCRT)),kind=wp)
         end if
         do iy=iOrdOp-ix,0,-1
           if (mod(iy,2) == 0) then
             Facty = One
           else
-            Facty = dble(iPhase(2,iDCRT(lDCRT)))
+            Facty = real(iPhase(2,iDCRT(lDCRT)),kind=wp)
           end if
           iz = iOrdOp-ix-iy
           if (mod(iz,2) == 0) then
             Factz = One
           else
-            Factz = dble(iPhase(3,iDCRT(lDCRT)))
+            Factz = real(iPhase(3,iDCRT(lDCRT)),kind=wp)
           end if
 
           jElem = jElem+1
@@ -199,14 +206,14 @@ do iOrdOp=0,nOrdOp
       ipI = ip1
 
       do i=1,nElem(iOrdOp)
-        if (ZRFd(i) /= Zero) call SymAdO(Array(ipI),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,-Fact*ZRFd(i))
+        if (ZRFd(i) /= Zero) call SymAdO(Array(ipI),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*ZRFd(i))
         ipI = ipI+nZeta*nElem(la)*nElem(lb)
       end do
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) (Fact*ZFd(i),i=1,nElem(iOrdOp))
+      write(u6,*) (Fact*ZFd(i),i=1,nElem(iOrdOp))
       call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nElem(iOrdOp))
-      call RecPrt('Final',' ',final,nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nIC)
+      call RecPrt('rFinal',' ',rFinal,nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nIC)
 #     endif
 
     end do ! End loop over DCRs
@@ -214,6 +221,9 @@ do iOrdOp=0,nOrdOp
 
   nData = nData+nElem(iOrdOp)
 end do     ! iOrdOp
+
+call mma_deallocate(ZFd)
+call mma_deallocate(ZRFd)
 
 return
 

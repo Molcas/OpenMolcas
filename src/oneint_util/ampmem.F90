@@ -17,8 +17,13 @@ subroutine AMPMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
+integer(kind=iwp) :: Mem1, Mem2, Mem3, nOrder
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 #include "macros.fh"

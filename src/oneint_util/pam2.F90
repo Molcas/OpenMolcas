@@ -11,6 +11,13 @@
 
 module PAM2
 
-integer :: kCnttpPAM = 0, iPAMPrim = 0, iPAMCount = 0
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: iPAMCount = 0, iPAMPrim = 0, kCnttpPAM = 0
+
+public :: iPAMcount, iPAMPrim, kCnttpPAM
 
 end module PAM2

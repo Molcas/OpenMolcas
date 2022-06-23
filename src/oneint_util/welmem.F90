@@ -14,7 +14,11 @@ subroutine WelMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
+integer(kind=iwp) :: i, jsum, k
 
 #include "macros.fh"
 unused_var(lr)

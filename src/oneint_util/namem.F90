@@ -16,10 +16,12 @@ subroutine NAMem( &
 #                include "mem_interface.fh"
                 )
 
-use Basis_Info
+use Basis_Info, only: mGaussian_Type, Nuclear_Model
+use Definitions, only: iwp
 
+implicit none
 #include "mem_interface.fh"
-integer iAngV(4)
+integer(kind=iwp) :: iAngV(4), labcd, MemNA2, nFlop, nMem
 
 !                                                                      *
 !***********************************************************************

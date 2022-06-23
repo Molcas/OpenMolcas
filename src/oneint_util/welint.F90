@@ -24,11 +24,13 @@ subroutine WelInt( &
 !             of Lund, Sweden. October '92.                            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
+#include "int_interface.fh"
 #include "wldata.fh"
 #include "print.fh"
-#include "int_interface.fh"
+integer(kind=iwp) :: i, ik, iOff, ip, ip1, ip2, ip3, ip4, ip5, ipA, ipGri, ipGrin, iPrint, ipScr, iPxyz, iRout, jsum, k
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -47,9 +49,9 @@ iRout = 122
 iPrint = nPrint(iRout)
 !iQ = 1
 if (iPrint >= 59) then
-  write(6,*) ' In WelInt'
-  write(6,*) ' r0, ExpB=',r0,ExpB
-  write(6,*) ' la,lb=',la,lb
+  write(u6,*) ' In WelInt'
+  write(u6,*) ' r0, ExpB=',r0,ExpB
+  write(u6,*) ' la,lb=',la,lb
 end if
 
 k = la+lb
@@ -67,7 +69,7 @@ iPxyz = ip
 ip = ip+nZeta
 if (ip-1 > nZeta*nArr) then
   call WarningMessage(2,'WelInt:  ip-1 > nZeta*nArr(pos.1)')
-  write(6,*) ip-1,'>',nZeta*nArr
+  write(u6,*) ip-1,'>',nZeta*nArr
   call Abend()
 end if
 
@@ -81,7 +83,7 @@ ipScr = ip
 ip = ip+nZeta*3**k
 if (ip-1 > nZeta*nArr) then
   call WarningMessage(2,'WelInt:  ip-1 > nZeta*nArr(pos.2)')
-  write(6,*) ip-1,'>',nZeta*nArr
+  write(u6,*) ip-1,'>',nZeta*nArr
   call Abend()
 end if
 
@@ -109,10 +111,10 @@ ip5 = ip
 ip = ip+nZeta
 if (ip-1 > nZeta*nArr) then
   call WarningMessage(2,'WelInt:  ip-1 > nZeta*nArr(pos.3)')
-  write(6,*) ip-1,'>',nZeta*nArr
+  write(u6,*) ip-1,'>',nZeta*nArr
   call Abend()
 end if
-call TraPAB(nZeta,la,lb,final,Array(ipgri),jSum,rKappa,Array(ip1),Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
+call TraPAB(nZeta,la,lb,rFinal,Array(ipgri),jSum,rKappa,Array(ip1),Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
 ip = ip-nZeta*5
 ip = ip-nZeta*jsum
 

@@ -26,15 +26,18 @@ subroutine PXInt( &
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external NAInt, MltInt, EFInt, CntInt
-#include "print.fh"
-#include "property_label.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables
-parameter(mComp=200)
-integer kOper(mComp), kChO(mComp)
+#include "property_label.fh"
+integer(kind=iwp), parameter :: mComp = 200
+integer(kind=iwp) :: iComp, ipar_p1, ipar_p2, ipar_p3, iSym_p1, iSym_p2, iSym_p3, iSym_px, iSym_X, jComp1, jComp2, jComp3, &
+                     jpar_p1, jpar_p2, jpar_p3, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, nRys
+integer(kind=iwp), allocatable :: kChO(:), kOper(:)
+integer(kind=iwp), external :: IrrFnc
+external :: CntInt, EFInt, MltInt, NAInt
 
 !                                                                      *
 !***********************************************************************
@@ -65,7 +68,7 @@ kOrdOp = nOrdOp-1
 !***********************************************************************
 !                                                                      *
 ! Now produce the kOper array with kComp elements from the lOper
-! array. Dito kChO/iChO.
+! array. Ditto kChO/iChO.
 !
 ! lOper is an integer which bit pattern indicate to which irreps
 ! the component of the operator is a basis function. Note that the
@@ -75,14 +78,10 @@ kOrdOp = nOrdOp-1
 ! iChO is an integer which describe the parity character of the
 ! operator with respect to X, Y, and Z coordinates. For example,
 ! if the first bit is set this means that the operator change sign
-! under a reflextion  in the yz-plane, etc.
+! under a reflection  in the yz-plane, etc.
 
-if (kComp > mComp) then
-  call WarningMessage(2,'PXInt: kComp > mComp')
-  write(6,*) 'kComp=',kComp
-  write(6,*) 'mComp=',mComp
-  call Abend()
-end if
+call mma_allocate(kChO,kComp,label='kChO')
+call mma_allocate(kOper,kComp,label='kOper')
 
 ! As we remove the p operator (three of them) X should be the same
 ! regardless of if we remove d/dx, d/dy, or d/dz.
@@ -90,13 +89,13 @@ end if
 iSym_p1 = IrrFnc(1)   ! d/dx
 iSym_p2 = IrrFnc(2)   ! d/dy
 iSym_p3 = IrrFnc(4)   ! d/dz
-!write(6,*)
-!write(6,*) 'pXInt******'
-!write(*,*) 'iSym_p=',iSym_p1,iSym_p2,iSym_p3
+!write(u6,*)
+!write(u6,*) 'pXInt******'
+!write(u6,*) 'iSym_p=',iSym_p1,iSym_p2,iSym_p3
 ipar_p1 = iChBas(2)
 ipar_p2 = iChBas(3)
 ipar_p3 = iChBas(4)
-!write(6,*) 'ipar_p=',ipar_p1,ipar_p2,ipar_p3
+!write(u6,*) 'ipar_p=',ipar_p1,ipar_p2,ipar_p3
 do iComp=1,kComp
   jComp1 = (iComp-1)*3+1
   jComp2 = (iComp-1)*3+2
@@ -111,25 +110,25 @@ do iComp=1,kComp
   jTemp1 = 0
   jTemp2 = 0
   jTemp3 = 0
-  !write(6,*) 'lOper=',lOper(jComp1),lOper(jComp2),lOper(jComp3)
+  !write(u6,*) 'lOper=',lOper(jComp1),lOper(jComp2),lOper(jComp3)
   do iSym_pX=0,nIrrep-1
     if (iand(2**iSym_pX,lOper(jComp1)) /= 0) then
       iSym_X = ieor(iSym_pX,iSym_p1)
-      !write(6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
+      !write(u6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
       jTemp1 = ior(jTemp1,2**iSym_X)
-      !write(6,*) 'jTemp1=',jTemp1
+      !write(u6,*) 'jTemp1=',jTemp1
     end if
     if (iand(2**iSym_pX,lOper(jComp2)) /= 0) then
       iSym_X = ieor(iSym_pX,iSym_p2)
-      !write(6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
+      !write(u6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
       jTemp2 = ior(jTemp2,2**iSym_X)
-      !write(6,*) 'jTemp2=',jTemp2
+      !write(u6,*) 'jTemp2=',jTemp2
     end if
     if (iand(2**iSym_pX,lOper(jComp3)) /= 0) then
       iSym_X = ieor(iSym_pX,iSym_p3)
-      !write(6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
+      !write(u6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
       jTemp3 = ior(jTemp3,2**iSym_X)
-      !write(6,*) 'jTemp3=',jTemp3
+      !write(u6,*) 'jTemp3=',jTemp3
     end if
   end do
 
@@ -137,7 +136,7 @@ do iComp=1,kComp
 
   if ((jTemp1 /= jTemp2) .or. (jTemp1 /= jTemp3)) then
     call WarningMessage(2,'PXInt: corrupted jTemps!')
-    write(6,*) 'jTemp1,jTemp2,jTemp3=',jTemp1,jTemp2,jTemp3
+    write(u6,*) 'jTemp1,jTemp2,jTemp3=',jTemp1,jTemp2,jTemp3
     call Abend()
   end if
 
@@ -158,13 +157,13 @@ do iComp=1,kComp
   kChO(iComp) = jpar_p1
 end do
 
-!write(6,*) 'pXpInt'
+!write(u6,*) 'pXpInt'
 !do iComp=1,nComp
-!  write(6,*) lOper(iComp),iChO(iComp)
+!  write(u6,*) lOper(iComp),iChO(iComp)
 !end do
-!write(6,*)
+!write(u6,*)
 !do iComp=1,kComp
-!  write(6,*) kOper(iComp),kChO(iComp)
+!  write(u6,*) kOper(iComp),kChO(iComp)
 !end do
 !                                                                      *
 !***********************************************************************
@@ -172,22 +171,25 @@ end do
 ! Compute now the integrals
 
 if (PLabel == 'NAInt ') then
-  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,NAInt)
 else if (PLabel == 'MltInt') then
-  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,MltInt)
 else if (PLabel == 'EFInt ') then
-  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,EFInt)
 else if (PLabel == 'CntInt') then
-  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,CntInt)
 else
   call WarningMessage(2,'PXInt: Illegal type!')
-  write(6,*) '       PLabel=',PLabel
+  write(u6,*) '       PLabel=',PLabel
   call Abend()
 end if
+
+call mma_deallocate(kChO)
+call mma_deallocate(kOper)
 
 return
 

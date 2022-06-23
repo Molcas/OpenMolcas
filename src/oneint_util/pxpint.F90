@@ -25,16 +25,20 @@ subroutine pXpInt( &
 !             R. Lindh, modified to molcas 4.1 form, Oct 1999          *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iChBas
+use Symmetry_Info, only: iChBas, nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables
-parameter(mComp=200)
-integer kOper(mComp), kChO(mComp)
+#include "print.fh"
+integer(kind=iwp) :: iAlpha, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, iSize, &
+                     iSym_p1, iSym_p2, iSym_p3, iSym_pX, iSym_pXp, iTemp, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, mArr, nip
+integer(kind=iwp), allocatable :: kChO(:,:), kOper(:,:)
+integer(kind=iwp), external :: IrrFnc
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 #include "macros.fh"
@@ -44,7 +48,7 @@ iRout = 220
 iPrint = nPrint(iRout)
 
 iSize = nZeta*nElem(la)*nElem(lb)*nComp
-call dcopy_(iSize,[Zero],0,final,1)
+call dcopy_(iSize,[Zero],0,rFinal,1)
 call dcopy_(nZeta*nArr,[Zero],0,Array,1)
 nip = 1
 ipB = nip
@@ -74,25 +78,20 @@ end if
 kIC = nIC*3
 kComp = nComp*3
 kOrdOp = nOrdOp-1
-if (kComp > mComp) then
-  write(6,*) 'pxpint: kComp > mComp'
-  call Abend()
-end if
-!write(6,*)
-!write(6,*) 'pXpInt:**********'
+call mma_allocate(kChO,3,nComp,label='kChO')
+call mma_allocate(kOper,3,nComp,label='kOper')
+!write(u6,*)
+!write(u6,*) 'pXpInt:**********'
 
 iSym_p1 = IrrFnc(1)
 iSym_p2 = IrrFnc(2)
 iSym_p3 = IrrFnc(4)
-!write(6,*) 'iSym_p=',iSym_p1,iSym_p2,iSym_p3
+!write(u6,*) 'iSym_p=',iSym_p1,iSym_p2,iSym_p3
 ipar_p1 = iChBas(2)
 ipar_p2 = iChBas(3)
 ipar_p3 = iChBas(4)
-!write(6,*) 'ipar_p=',ipar_p1,ipar_p2,ipar_p3
+!write(u6,*) 'ipar_p=',ipar_p1,ipar_p2,ipar_p3
 do iComp=1,nComp
-  jComp1 = (iComp-1)*3+1
-  jComp2 = (iComp-1)*3+2
-  jComp3 = (iComp-1)*3+3
   iTemp = lOper(iComp)
   ipar = iChO(iComp)
 
@@ -102,27 +101,27 @@ do iComp=1,nComp
   do iSym_pXp=0,nIrrep-1
     if (iand(2**iSym_pXp,iTemp) /= 0) then
       iSym_pX = ieor(iSym_pXp,iSym_p1)
-      !write(6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
+      !write(u6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
       jTemp1 = ior(jTemp1,2**iSym_pX)
     end if
     if (iand(2**iSym_pXp,iTemp) /= 0) then
       iSym_pX = ieor(iSym_pXp,iSym_p2)
-      !write(6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
+      !write(u6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
       jTemp2 = ior(jTemp2,2**iSym_pX)
     end if
     if (iand(2**iSym_pXp,iTemp) /= 0) then
       iSym_pX = ieor(iSym_pXp,iSym_p3)
-      !write(6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
+      !write(u6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
       jTemp3 = ior(jTemp3,2**iSym_pX)
     end if
   end do
-  kOper(jComp1) = jTemp1
-  kOper(jComp2) = jTemp2
-  kOper(jComp3) = jTemp3
+  kOper(1,iComp) = jTemp1
+  kOper(2,iComp) = jTemp2
+  kOper(3,iComp) = jTemp3
 
-  kChO(jComp1) = ieor(ipar,ipar_p1)
-  kChO(jComp2) = ieor(ipar,ipar_p2)
-  kChO(jComp3) = ieor(ipar,ipar_p3)
+  kChO(1,iComp) = ieor(ipar,ipar_p1)
+  kChO(2,iComp) = ieor(ipar,ipar_p2)
+  kChO(3,iComp) = ieor(ipar,ipar_p3)
 
 end do
 !                                                                      *
@@ -137,6 +136,8 @@ if (lb > 0) then
   call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,iDum,Array(ipArr),mArr,CCoor, &
              kOrdOp,kOper,kChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 end if
+call mma_deallocate(kChO)
+call mma_deallocate(kOper)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -145,7 +146,7 @@ do iAlpha=1,nAlpha
   call dcopy_(nBeta,Beta,1,Array(ipOff),nAlpha)
   ipOff = ipOff+1
 end do
-!
+
 if (iPrint >= 99) then
   call RecPrt(' In pXpint: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
 end if
@@ -156,11 +157,11 @@ end if
 !
 ! Note that the pX integrals have 3*nComp components.
 
-call Ass_pXp(Array(ipB),nZeta,final,la,lb,Array(ipS1),Array(ipS2),nComp)
+call Ass_pXp(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nComp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iPrint >= 49) call RecPrt('pXpInt: Final',' ',final,nZeta,nElem(la)*nElem(lb))
+if (iPrint >= 49) call RecPrt('pXpInt: Final',' ',rFinal,nZeta,nElem(la)*nElem(lb))
 
 return
 

@@ -26,9 +26,13 @@ subroutine M2Mem( &
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-!
+
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"

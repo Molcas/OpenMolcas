@@ -23,11 +23,15 @@ subroutine Kntc_GIAO(Txyz,Rxyz,Wxyz,na,nb,Alpha,Beta,nZeta)
 !             November '90                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: na, nb, nZeta
+real(kind=wp) :: Txyz(nZeta,3,0:na,0:nb,0:1), Rxyz(nZeta,3,0:na+1,0:nb+1,0:1), Wxyz(nZeta,3,0:na,0:nb,2), Alpha(nZeta), Beta(nZeta)
 #include "print.fh"
-#include "real.fh"
-real*8 Txyz(nZeta,3,0:na,0:nb,0:1), Rxyz(nZeta,3,0:na+1,0:nb+1,0:1), Wxyz(nZeta,3,0:na,0:nb,2), Alpha(nZeta), Beta(nZeta)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
+character(len=80) :: Label
 
 !                                                                      *
 !***********************************************************************

@@ -23,11 +23,15 @@ subroutine Kntc(Txyz,Sxyz,na,nb,Alpha,Beta,nZeta)
 !             November '90                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: na, nb, nZeta
+real(kind=wp) :: Txyz(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na+1,0:nb+1), Alpha(nZeta), Beta(nZeta)
 #include "print.fh"
-#include "real.fh"
-real*8 Txyz(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na+1,0:nb+1), Alpha(nZeta), Beta(nZeta)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
+character(len=80) :: Label
 
 iRout = 115
 iPrint = nPrint(iRout)
@@ -54,21 +58,22 @@ do ia=0,na
       do iCar=1,3
         do iZeta=1,nZeta
           Txyz(iZeta,iCar,ia,ib) = Two*Alpha(iZeta)*Beta(iZeta)*Sxyz(iZeta,iCar,ia+1,ib+1)- &
-                                   Alpha(iZeta)*dble(ib)*Sxyz(iZeta,iCar,ia+1,ib-1)
+                                   Alpha(iZeta)*real(ib,kind=wp)*Sxyz(iZeta,iCar,ia+1,ib-1)
         end do
       end do
     else if (ib == 0) then
       do iCar=1,3
         do iZeta=1,nZeta
           Txyz(iZeta,iCar,ia,ib) = Two*Alpha(iZeta)*Beta(iZeta)*Sxyz(iZeta,iCar,ia+1,ib+1)- &
-                                   Beta(iZeta)*dble(ia)*Sxyz(iZeta,iCar,ia-1,ib+1)
+                                   Beta(iZeta)*real(ia,kind=wp)*Sxyz(iZeta,iCar,ia-1,ib+1)
         end do
       end do
     else
       do iCar=1,3
         do iZeta=1,nZeta
-          Txyz(iZeta,iCar,ia,ib) = Half*dble(ia*ib)*Sxyz(iZeta,iCar,ia-1,ib-1)-Beta(iZeta)*dble(ia)*Sxyz(iZeta,iCar,ia-1,ib+1)- &
-                                   Alpha(iZeta)*dble(ib)*Sxyz(iZeta,iCar,ia+1,ib-1)+ &
+          Txyz(iZeta,iCar,ia,ib) = Half*real(ia*ib,kind=wp)*Sxyz(iZeta,iCar,ia-1,ib-1)- &
+                                   Beta(iZeta)*real(ia,kind=wp)*Sxyz(iZeta,iCar,ia-1,ib+1)- &
+                                   Alpha(iZeta)*real(ib,kind=wp)*Sxyz(iZeta,iCar,ia+1,ib-1)+ &
                                    Two*Alpha(iZeta)*Beta(iZeta)*Sxyz(iZeta,iCar,ia+1,ib+1)
         end do
       end do

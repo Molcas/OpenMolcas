@@ -63,17 +63,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Interface
-      Subroutine Kernel(
-#define _CALLING_
-#include "int_interface.fh"
-     &                 )
-#include "int_interface.fh"
-      End Subroutine Kernel
-      End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
       If (Label(1:3).eq.'MAG') Then
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)

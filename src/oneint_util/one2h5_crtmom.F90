@@ -24,23 +24,18 @@ subroutine one2h5_crtmom(fileid,nsym,nbas)
 !   MLTPL_ORIG
 
 use Symmetry_Info, only: Mul
-use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,mh5_close_dset
+use mh5, only: mh5_close_dset, mh5_create_dset_real, mh5_init_attr, mh5_put_dset
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: fileid
-integer :: nsym, nbas(*)
-#include "Molcas.fh"
-#include "stdalloc.fh"
-integer :: isym, jsym, msym
-integer :: nb, nbast, nB1, nB2
-real*8, allocatable :: MLTPL(:,:), Scratch(:)
-real*8, dimension(3,3) :: mp_orig
-integer :: iRc, iOpt, iComp, iSyMsk
+integer(kind=iwp) :: fileid, nsym, nbas(*)
+integer(kind=iwp) :: dsetid, i, iBas, iComp, iOff, iOpt, iRc, iScrOff, isym, iSyMsk, j, jBas, jOff, jsym, msym, nb, nB1, nB2, nbast
+real(kind=wp) :: mp_orig(3,3)
 character(len=8) :: Label
-character(len=1) :: mltpl1_comp(3) = ['X','Y','Z']
-character(len=2) :: mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
-integer :: i, j, iOff, jOff, iScrOff, iBas, jBas
-integer :: dsetid
+real(kind=wp), allocatable :: MLTPL(:,:), Scratch(:)
+character(len=*), parameter :: mltpl1_comp(3) = ['X','Y','Z'], mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
 
 nbast = 0
 do isym=1,nsym
@@ -54,7 +49,7 @@ call mma_allocate(MLTPL,NBAST,NBAST)
 call mma_allocate(Scratch,NBAST**2+3)
 
 do icomp=1,3
-  MLTPL = 0.0d0
+  MLTPL = Zero
   iRc = -1
   iOpt = 4
   iSyMsk = 0
@@ -109,7 +104,7 @@ end do
 mp_orig(1:3,2) = Scratch(iScrOff+1:iScrOff+3)
 
 do icomp=1,6
-  MLTPL = 0.0d0
+  MLTPL = Zero
   iRc = -1
   iOpt = 4
   iSyMsk = 0

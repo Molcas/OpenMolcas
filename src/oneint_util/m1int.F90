@@ -27,20 +27,23 @@ subroutine M1Int( &
 !             Physics, University of Stockholm, Sweden, October '93.   *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI, Fake, Cff2D, XRys2D
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables
-real*8 C(3), TC(3), CoorAC(3,2), Coori(3,4), Coora(3,4)
-character*80 Label
-integer iDCRT(0:7), iAnga(4)
-logical EQ, NoSpecial
+#include "print.fh"
+integer(kind=iwp) :: ia, iAnga(4), ib, iDCRT(0:7), ii, iM1xp, ip, ipAInt, ipIn, ipK, ipPx, ipPy, ipPz, iPrint, ipTmp, ipZ, ipZI, &
+                     iRout, iZeta, k, kCnt, kCnttp, kdc, lDCRT, LmbdT, mabMax, mabMin, mAInt, mArray, nDCRT, nFlop, nMem, nT
+real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
+character(len=80) :: Label
+logical(kind=iwp) :: NoSpecial
+logical(kind=iwp), external :: EQ
+external :: Cff2D, Fake, TNAI, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
@@ -63,7 +66,7 @@ if (iPrint >= 49) then
   call RecPrt(' In M1Int: RB',' ',RB,1,3)
   call RecPrt(' In M1Int: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In M1Int: P',' ',P,nZeta,3)
-  write(6,*) ' In M1Int: la,lb=',' ',la,lb
+  write(u6,*) ' In M1Int: la,lb=',' ',la,lb
 end if
 
 iAnga(1) = la
@@ -107,8 +110,8 @@ ipPz = ip
 ip = ip+nZeta
 if (ip-1 > nArr*nZeta) then
   call WarningMessage(2,'M1Int: ip-1 > nArr*nZeta')
-  write(6,*) ' nArr,nZeta=',nArr,nZeta
-  write(6,*) ' nMem=',nMem
+  write(u6,*) ' nArr,nZeta=',nArr,nZeta
+  write(u6,*) ' nMem=',nMem
   call Abend()
 end if
 ipTmp = ip
@@ -128,7 +131,7 @@ do kCnttp=1,nCnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
@@ -146,7 +149,7 @@ do kCnttp=1,nCnttp
       call dcopy_(3,TC,1,Coora(1,4),1)
 
       do iM1xp=1,dbsc(kCnttp)%nM1
-        Gamma = dbsc(kCnttp)%M1xp(iM1xp)
+        Gmma = dbsc(kCnttp)%M1xp(iM1xp)
 
         ! Modify the original basis. Observe that
         ! simplification due to A=B are not valid for the
@@ -154,14 +157,14 @@ do kCnttp=1,nCnttp
 
         do iZeta=1,nZeta
           PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
-          Tmp0 = Zeta(iZeta)+Gamma
-          Tmp1 = exp(-Zeta(iZeta)*Gamma*PTC2/Tmp0)
+          Tmp0 = Zeta(iZeta)+Gmma
+          Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
           Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
           Array(ipZ+iZeta-1) = Tmp0
           Array(ipZI+iZeta-1) = One/Tmp0
-          Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gamma*TC(1))/Tmp0
-          Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gamma*TC(2))/Tmp0
-          Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gamma*TC(3))/Tmp0
+          Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
+          Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
+          Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
         end do
 
         ! Compute integrals with the Rys quadrature.
@@ -191,14 +194,14 @@ end do
 call HRR(la,lb,A,RB,Array(ipAInt),nZeta,nMem,ipIn)
 ii = ipAInt+ipIn-1
 ! Move result
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Array(ii),1,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Array(ii),1,rFinal,1)
 
 if (iPrint >= 99) then
-  write(6,*) ' Result in M1Int'
+  write(u6,*) ' Result in M1Int'
   do ia=1,nElem(la)
     do ib=1,nElem(lb)
-      write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-      call RecPrt(Label,' ',final(1,ia,ib,1),nAlpha,nBeta)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+      call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
     end do
   end do
 end if

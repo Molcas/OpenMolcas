@@ -25,15 +25,17 @@ subroutine MVeInt( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables
-logical ABeq(3)
-character*80 Label
+#include "print.fh"
+integer(kind=iwp) :: ia, iAlpha, ib, iBeta, iDum, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, iPrint, iprV2, iprV4, ipRxyz, &
+                     iRout, nip
+logical(kind=iwp) :: ABeq(3)
+character(len=80) :: Label
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
@@ -69,8 +71,8 @@ ipB = nip
 nip = nip+nZeta
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'MVeInt: nip-1 > nArr*nZeta')
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  write(6,*) ' Abend in MVeInt'
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' Abend in MVeInt'
   call Abend()
 end if
 
@@ -82,7 +84,7 @@ if (iPrint >= 49) then
   call RecPrt(' In MVeInt: Zeta',' ',Zeta,nZeta,1)
   call RecPrt(' In MVeInt: Roots',' ',HerR(iHerR(nHer)),nHer,1)
   call GetMem(' In MVeInt','LIST','REAL',iDum,iDum)
-  write(6,*) ' In MVeInt: la,lb=',la,lb
+  write(u6,*) ' In MVeInt: la,lb=',la,lb
 end if
 
 ! Compute the cartesian values of the basis functions angular part
@@ -121,13 +123,13 @@ call MVe(Array(iprV2),Array(iprV4),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZe
 
 ! Combine the cartesian components to the full one electron integral.
 
-call CmbnMV(Array(ipQxyz),nZeta,la,lb,nOrdOp-4,Zeta,rKappa,final,nComp,Array(iprV2),Array(iprV4))
+call CmbnMV(Array(ipQxyz),nZeta,la,lb,nOrdOp-4,Zeta,rKappa,rFinal,nComp,Array(iprV2),Array(iprV4))
 
 if (iPrint >= 99) then
   do ia=1,nElem(la)
     do ib=1,nElem(lb)
       write(Label,'(A,I2,A,I2,A)') 'Mass-Velocity(',ia,',',ib,')'
-      call RecPrt(Label,' ',final(1,1,ia,ib),nZeta,nComp)
+      call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
     end do
   end do
 end if

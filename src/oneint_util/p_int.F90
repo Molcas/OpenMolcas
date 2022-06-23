@@ -26,14 +26,16 @@ subroutine P_Int( &
 !             Modified to multipole moments November '90               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "oneswi.fh"
-#include "print.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "int_interface.fh"
-! Local variables
-character*80 Label
+#include "print.fh"
+integer(kind=iwp) :: ia, ib, iIC, iPrint, iRout
+character(len=80) :: Label
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
@@ -58,15 +60,15 @@ unused_var(iAddPot)
 iRout = 122
 iPrint = nPrint(iRout)
 ! Observe that this code does not make any sense in case of symmetry!
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 if (iPrint >= 99) then
-  write(6,*) ' Result in P_Int'
+  write(u6,*) ' Result in P_Int'
   do ia=1,nElem(la)
     do ib=1,nElem(lb)
       do iIC=1,nIC
-        write(Label,'(A,I2,A,I2,A,I2,A)') ' Final(a=',ia,',b=',ib,',iIC=',iIC,')'
-        call RecPrt(Label,' ',final(1,ia,ib,iIC),nAlpha,nBeta)
+        write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
+        call RecPrt(Label,' ',rFinal(1,ia,ib,iIC),nAlpha,nBeta)
       end do
     end do
   end do

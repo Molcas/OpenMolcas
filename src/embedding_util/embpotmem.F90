@@ -10,17 +10,16 @@
 !***********************************************************************
 
 subroutine embPotMem( &
-#define _CALLING_
-#include "mem_interface.fh"
-)
-
-#include "macros.fh"
+#                    define _CALLING_
+#                    include "mem_interface.fh"
+                    )
 
 use Definitions, only: iwp
 
 implicit none
-#define _USE_WP_
 #include "mem_interface.fh"
+
+#include "macros.fh"
 unused_var(la)
 unused_var(lb)
 unused_var(lr)

@@ -16,9 +16,12 @@ subroutine PXMem( &
 #                include "mem_interface.fh"
                 )
 
+use Definitions, only: iwp, u6
+
+implicit none
 #include "mem_interface.fh"
-external NAMem, MltMem, EFMem, CntMem
 #include "property_label.fh"
+external :: CntMem, EFMem, MltMem, NAMem
 
 if (PLabel == 'NAInt ') then
   call PVMem(nHer,Mem,la,lb,lr,NAMem)
@@ -30,7 +33,7 @@ else if (PLabel == 'CntInt') then
   call PVMem(nHer,Mem,la,lb,lr,CntMem)
 else
   call WarningMessage(2,'PXMem: Illegal type!')
-  write(6,*) '       PLabel=',PLabel
+  write(u6,*) '       PLabel=',PLabel
   call Abend()
 end if
 

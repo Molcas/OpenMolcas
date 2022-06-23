@@ -22,11 +22,16 @@ subroutine Assmbl(Rnxyz,Axyz,la,Rxyz,lr,Bxyz,lb,nZeta,HerW,nHer)
 !             November '90                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: la, lr, lb, nZeta, nHer
+real(kind=wp) :: Rnxyz(nZeta*3,0:la,0:lb,0:lr), Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), &
+                 HerW(nHer)
 #include "print.fh"
-#include "real.fh"
-real*8 Rnxyz(nZeta*3,0:la,0:lb,0:lr), HerW(nHer), Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iHer, iPrint, ir, iRout, iZCar
+character(len=80) :: Label
 
 iRout = 123
 iPrint = nPrint(iRout)

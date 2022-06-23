@@ -16,8 +16,11 @@ subroutine EPEMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
-integer iAngV(4)
+integer(kind=iwp) :: iAngV(4), MemHrr, nFlop
 
 #include "macros.fh"
 unused_var(lr)

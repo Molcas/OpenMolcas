@@ -26,18 +26,24 @@ subroutine EFInt( &
 ! Modified for explicit code, R. Lindh, February '95.                  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-external TNAI, Fake, XCff2D, XRys2D
-#include "real.fh"
-#include "print.fh"
+use Constants, only: Zero, One, Two, Three
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "int_interface.fh"
-! Local variables
-integer iDCRT(0:7), iStabO(0:7)
-real*8 TC(3), Coori(3,4), CoorAC(3,2)
-logical EQ, NoSpecial
-integer iAnga(4)
-character*80 Label
+#include "print.fh"
+integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), iElem, ij, iOffxx, iOffyy, iOffzz, ip, ip1, ip2, ip3, ipIn, iPrint, iRout, &
+                     iStabO(0:7), jElem, kab, lab, labcd, lcd, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, &
+                     nFLOP, nMem, nOp, nStabO, nT, nzab
+real(kind=wp) :: CoorAC(3,2), Coori(3,4), RR, TC(3), XX, YY
+logical(kind=iwp) :: NoSpecial
+character(len=80) :: Label
+real(kind=wp), parameter :: ThreeI = One/Three
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+external :: Fake, TNAI, XCff2D, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
@@ -51,7 +57,7 @@ unused_var(iAddPot)
 iRout = 200
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 iAnga(1) = la
 iAnga(2) = lb
@@ -134,7 +140,6 @@ do lDCRT=0,nDCRT-1
     iOffxx = ip1
     iOffyy = ip1+nzab*3
     iOffzz = ip1+nzab*5
-    ThreeI = One/Three
     do i=0,nzab-1
       RR = Array(iOffxx+i)+Array(iOffyy+i)+Array(iOffzz+i)
       XX = Two*Array(iOffxx+i)-Array(iOffyy+i)-Array(iOffzz+i)
@@ -148,14 +153,14 @@ do lDCRT=0,nDCRT-1
   ! Stored as nZeta,iElem,jElem,iComp
 
   if (iPrint >= 49) then
-    write(6,*) ' In EFInt la,lb=',la,lb
+    write(u6,*) ' In EFInt la,lb=',la,lb
     nzab = nZeta*kab
     do iElem=1,nElem(la)
       do jElem=1,nElem(lb)
         ij = (jElem-1)*nElem(la)+iElem
         ip = ip1+nZeta*(ij-1)
         do iComp=1,nComp
-          write(Label,'(A,I2,A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',',iComp,') '
+          write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',',iComp,') '
           call RecPrt(Label,' ',Array(ip),nZeta,1)
           ip = ip+nzab
         end do
@@ -166,7 +171,7 @@ do lDCRT=0,nDCRT-1
   ! Accumulate contributions
 
   nOp = NrOpr(iDCRT(lDCRT))
-  call SymAdO(Array(ip1),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+  call SymAdO(Array(ip1),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
 

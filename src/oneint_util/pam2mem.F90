@@ -26,9 +26,14 @@ subroutine PAM2Mem( &
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-!
+
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
+integer(kind=iwp) :: nComp
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nComp = nElem(lr)

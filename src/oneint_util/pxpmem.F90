@@ -14,7 +14,11 @@ subroutine pXpMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
+integer(kind=iwp) :: MemPX, nOrder
 
 Mem = 0
 nHer = 0

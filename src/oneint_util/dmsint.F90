@@ -24,14 +24,18 @@ subroutine DMSInt( &
 !             of Lund, Sweden, February '91                            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "int_interface.fh"
-! Local variables
-real*8 TC(3,2)
-integer iDCRT(0:7), iStabO(0:7)
+#include "print.fh"
+integer(kind=iwp) :: iComp, iDCRT(0:7), ipArr, ipRes, iPrint, ipS1, ipS2, iRout, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nComp_, &
+                     nDCRT, nip, nOp, nRys, nStabO
+real(kind=wp) :: TC(3,2)
+integer(kind=iwp), external :: NrOpr
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
@@ -57,14 +61,14 @@ ipRes = nip
 nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
 if (nip-1 > nZeta*nArr) then
   call WarningMessage(2,'DMSInt: nip-1 > nZeta*nArr')
-  write(6,*) 'nip=',nip
-  write(6,*) 'nZeta,nArr=',nZeta,nArr
+  write(u6,*) 'nip=',nip
+  write(u6,*) 'nZeta,nArr=',nZeta,nArr
   call Abend()
 end if
 ipArr = nip
 mArr = nZeta*nArr-nip+1
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 iComp = 1
 llOper = lOper(1)
@@ -92,7 +96,7 @@ do lDCRT=0,nDCRT-1
   call Util4(nZeta,Array(ipRes),la,lb,Array(ipS1),Array(ipS2),RB,TC(1,2))
 
   nOp = NrOpr(iDCRT(lDCRT))
-  call SymAdO(Array(ipRes),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+  call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
 

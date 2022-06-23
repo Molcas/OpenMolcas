@@ -27,12 +27,17 @@ subroutine CVelInt(Vxyz,Sxyz,na,nb,Alpha,Beta,nZeta)
 !             November '90                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: na, nb, nZeta
+complex(kind=wp) :: Vxyz(nZeta,3,0:na,0:nb,2), Sxyz(nZeta,3,0:na+1,0:nb+1)
+real(kind=wp) :: Alpha(nZeta), Beta(nZeta)
 #include "print.fh"
-complex*16 Vxyz(nZeta,3,0:na,0:nb,2), Sxyz(nZeta,3,0:na+1,0:nb+1)
-real*8 Alpha(nZeta), Beta(nZeta)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
+character(len=80) :: Label
+
 iRout = 160
 iPrint = nPrint(iRout)
 
@@ -44,21 +49,21 @@ do ia=0,na
     if ((ia /= 0) .and. (ib /= 0)) then
       do iCar=1,3
         do iZeta=1,nZeta
-          Vxyz(iZeta,iCar,ia,ib,1) = dble(ia)*Sxyz(iZeta,iCar,ia-1,ib)-Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
-          Vxyz(iZeta,iCar,ia,ib,2) = dble(ib)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+          Vxyz(iZeta,iCar,ia,ib,1) = real(ia,kind=wp)*Sxyz(iZeta,iCar,ia-1,ib)-Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
+          Vxyz(iZeta,iCar,ia,ib,2) = real(ib,kind=wp)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
         end do
       end do
     else if ((ia == 0) .and. (ib /= 0)) then
       do iCar=1,3
         do iZeta=1,nZeta
           Vxyz(iZeta,iCar,ia,ib,1) = -Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
-          Vxyz(iZeta,iCar,ia,ib,2) = dble(ib)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
+          Vxyz(iZeta,iCar,ia,ib,2) = real(ib,kind=wp)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
         end do
       end do
     else if ((ia /= 0) .and. (ib == 0)) then
       do iCar=1,3
         do iZeta=1,nZeta
-          Vxyz(iZeta,iCar,ia,ib,1) = dble(ia)*Sxyz(iZeta,iCar,ia-1,ib)-Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
+          Vxyz(iZeta,iCar,ia,ib,1) = real(ia,kind=wp)*Sxyz(iZeta,iCar,ia-1,ib)-Alpha(iZeta)*Two*Sxyz(iZeta,iCar,ia+1,ib)
           Vxyz(iZeta,iCar,ia,ib,2) = -Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
         end do
       end do

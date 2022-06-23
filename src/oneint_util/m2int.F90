@@ -26,20 +26,22 @@ subroutine M2Int( &
 !             Physics, University of Stockholm, Sweden, October '93.   *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables.
-real*8 TC(3), C(3)
-character*80 Label
-logical ABeq(3)
-integer iDCRT(0:7)
+#include "print.fh"
+integer(kind=iwp) :: ia, iab, ib, iDCRT(0:7), iM2xp, ipab, ipAxyz, ipBxyz, ipK, ipPx, ipPy, ipPz, ipQxyz, ipRes, iPrint, ipRxyz, &
+                     ipZ, iRout, iZeta, kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nip
+real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
+character(len=80) :: Label
+logical(kind=iwp) :: ABeq(3)
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, k
 nElem(k) = (k+1)*(k+2)/2
 
 #include "macros.fh"
@@ -77,8 +79,8 @@ ipRes = nip
 nip = nip+nZeta*nComp*nElem(la)*nElem(lb)
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'M2Int: nip-1 > nArr*nZeta')
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  write(6,*) ' Abend in M2Int'
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' Abend in M2Int'
   call Abend()
 end if
 
@@ -89,10 +91,10 @@ if (iPrint >= 49) then
   call RecPrt(' In M2Int: Kappa',' ',rKappa,nAlpha,nBeta)
   call RecPrt(' In M2Int: Zeta',' ',Zeta,nAlpha,nBeta)
   call RecPrt(' In M2Int: P',' ',P,nZeta,3)
-  write(6,*) ' In M2Int: la,lb,nHer=',la,lb,nHer
+  write(u6,*) ' In M2Int: la,lb,nHer=',la,lb,nHer
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 ! Loop over nuclear centers
 
@@ -107,29 +109,29 @@ do kCnttp=1,nCnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
 
       do iM2xp=1,dbsc(kCnttp)%nM2
-        Gamma = dbsc(kCnttp)%M2xp(iM2xp)
-        if (iPrint >= 99) write(6,*) ' Gamma=',Gamma
+        Gmma = dbsc(kCnttp)%M2xp(iM2xp)
+        if (iPrint >= 99) write(u6,*) ' Gamma=',Gmma
 
         ! Modify the original basis.
 
         do iZeta=1,nZeta
           PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
-          Tmp0 = Zeta(iZeta)+Gamma
-          Tmp1 = exp(-Zeta(iZeta)*Gamma*PTC2/Tmp0)
+          Tmp0 = Zeta(iZeta)+Gmma
+          Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
           Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
           Array(ipZ+iZeta-1) = Tmp0
-          Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gamma*TC(1))/Tmp0
-          Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gamma*TC(2))/Tmp0
-          Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gamma*TC(3))/Tmp0
+          Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
+          Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
+          Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
         end do
         if (iPrint >= 99) then
-          write(6,*) ' The modified basis set'
+          write(u6,*) ' The modified basis set'
           call RecPrt(' In M2Int: Kappa',' ',Array(ipK),nAlpha,nBeta)
           call RecPrt(' In M2Int: Zeta',' ',Array(ipZ),nAlpha,nBeta)
           call RecPrt(' In M2Int: P',' ',Array(ipPx),nZeta,3)
@@ -159,7 +161,7 @@ do kCnttp=1,nCnttp
 
         call CmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Array(ipZ),Array(ipK),Array(ipRes),nComp)
         if (iPrint >= 99) then
-          write(6,*) ' Intermediate result in M2Int'
+          write(u6,*) ' Intermediate result in M2Int'
           do ia=1,nElem(la)
             do ib=1,nElem(lb)
               iab = (ib-1)*nElem(la)+ia
@@ -177,8 +179,8 @@ do kCnttp=1,nCnttp
         ! Multiply result by Zeff*Const
 
         Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)*Fact
-        if (iPrint >= 99) write(6,*) ' Factor=',Factor
-        call DaXpY_(nZeta*nElem(la)*nElem(lb)*nIC,Factor,Array(ipRes),1,final,1)
+        if (iPrint >= 99) write(u6,*) ' Factor=',Factor
+        call DaXpY_(nZeta*nElem(la)*nElem(lb)*nIC,Factor,Array(ipRes),1,rFinal,1)
 
       end do
 
@@ -188,11 +190,11 @@ do kCnttp=1,nCnttp
 end do
 
 if (iPrint >= 99) then
-  write(6,*) ' Result in M2Int'
+  write(u6,*) ' Result in M2Int'
   do ia=1,nElem(la)
     do ib=1,nElem(lb)
-      write(Label,'(A,I2,A,I2,A)') ' Final(ia=',ia,',ib=',ib,')'
-      call RecPrt(Label,' ',final(1,ia,ib,1),nAlpha,nBeta)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal(ia=',ia,',ib=',ib,')'
+      call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
     end do
   end do
 end if

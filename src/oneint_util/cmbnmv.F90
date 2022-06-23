@@ -11,24 +11,30 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CmbnMV(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,rV2Int,rV4Int)
+subroutine CmbnMV(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,rV2Int,rV4Int)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN, February '91                 *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), Zeta(nZeta), rKappa(nZeta), Rnxyz(nZeta,3,0:la+2,0:lb+2,0:lr), &
-       rV2Int(nZeta,3,0:la,0:lb,2), rV4Int(nZeta,3,0:la,0:lb)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: One, Two, Three, Eight, c_in_au
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, lr, nComp
+real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb)), &
+                 rV2Int(nZeta,3,0:la,0:lb,2), rV4Int(nZeta,3,0:la,0:lb)
+integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+real(kind=wp) :: Fact, rMVel, x2x2, x2y2, x2z2, y2x2, y2y2, y2z2, z2x2, z2y2, z2z2
+real(kind=wp), parameter :: Const = -One/(Eight*c_in_au**2)
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 !iRout = 191
 !iPrint = nPrint(iRout)
 
-Const = -One2C2/Four
 iComp = 1
 do ixa=0,la
   iyaMax = la-ixa
@@ -41,8 +47,8 @@ do ixa=0,la
         izb = lb-ixb-iyb
         ipb = Ind(lb,ixb,izb)
         !if (iPrint >= 99) then
-        !  write(6,*) ixa,iya,iza,ixb,iyb,izb
-        !  write(6,*) ipa,ipb
+        !  write(u6,*) ixa,iya,iza,ixb,iyb,izb
+        !  write(u6,*) ipa,ipb
         !end if
 
         ! Combine integrals
@@ -61,7 +67,7 @@ do ixa=0,la
 
           rMVel = x2x2+x2y2+x2z2+y2x2+y2y2+y2z2+z2x2+z2y2+z2z2
 
-          final(iZeta,iComp,ipa,ipb) = Fact*rMVel
+          rFinal(iZeta,iComp,ipa,ipb) = Fact*rMVel
         end do
 
       end do

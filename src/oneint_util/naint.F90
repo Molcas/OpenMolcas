@@ -24,27 +24,29 @@ subroutine NAInt( &
 !             of Lund, Sweden, January 1991                            *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, Gaussian_Type, iCnttp_Dummy, mGaussian_Type, nCnttp, Nuclear_Model, Point_Charge
+use Center_Info, only: dc
 use Gateway_global, only: Primitive_Pass
 use DKH_Info, only: DKroll
+use Constants, only: Zero, One, Two, Three, Pi, TwoP54
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Used for normal nuclear attraction integrals
-external TNAI, Fake, XCff2D, XRys2D
-! Used for finite nuclei
-external TERI, ModU2, vCff2D, vRys2D
-#include "real.fh"
+implicit none
+#include "int_interface.fh"
 #include "oneswi.fh"
 #include "print.fh"
-#include "int_interface.fh"
-! Local arrys
-real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
-logical EQ, NoSpecial, No3Cnt, lECP
-integer iAnga(4), iDCRT(0:7)
-character ChOper(0:7)*3
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ii, ipIn, ipOff, iPrint, iRout, iZeta, kCnt, kCnttp, kdc, lc, ld, lDCRT, LmbdT, &
+                     mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, nFLOP, nMem, nOp, nT
+real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q_Nuc, rKappcd, TC(3)
+logical(kind=iwp) :: lECP, No3Cnt, NoSpecial
+character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+! Used for normal nuclear attraction integrals: TNAI, Fake, XCff2D, XRys2D
+! Used for finite nuclei: TERI, ModU2, vCff2D, vRys2D
+external :: Fake, ModU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
@@ -60,7 +62,7 @@ unused_var(iAddPot)
 iRout = 151
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 lECP = .false.
 do i=1,nCnttp
@@ -114,7 +116,7 @@ do kCnttp=1,nCnttp
   ! is used for the DKH transformation (see dkh_util/dkrelint_dp)!
 
   if (DKroll .and. Primitive_Pass .and. lECP) then
-    Q_Nuc = dble(dbsc(kCnttp)%AtmNr)
+    Q_Nuc = real(dbsc(kCnttp)%AtmNr,kind=wp)
   else
     Q_Nuc = dbsc(kCnttp)%Charge
   end if
@@ -128,16 +130,16 @@ do kCnttp=1,nCnttp
     ! Find the DCR for M and S
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     if (iPrint >= 99) then
-      write(6,*) ' m      =',nStabM
-      write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-      write(6,*) ' s      =',dc(kdc+kCnt)%nStab
-      write(6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),ii=0,dc(kdc+kCnt)%nStab-1)
-      write(6,*) ' LambdaT=',LmbdT
-      write(6,*) ' t      =',nDCRT
-      write(6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+      write(u6,*) ' m      =',nStabM
+      write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+      write(u6,*) ' s      =',dc(kdc+kCnt)%nStab
+      write(u6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),ii=0,dc(kdc+kCnt)%nStab-1)
+      write(u6,*) ' LambdaT=',LmbdT
+      write(u6,*) ' t      =',nDCRT
+      write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
     end if
 
     do lDCRT=0,nDCRT-1
@@ -196,7 +198,7 @@ do kCnttp=1,nCnttp
                  mcdMax,Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
 
         ! d type function w*(x**2+y**2+z**2)
-        if (dbsc(kCnttp)%w_mGauss > 0.0d0) then
+        if (dbsc(kCnttp)%w_mGauss > Zero) then
           rKappcd = rKappcd*dbsc(kCnttp)%w_mGauss
           iAnga(3) = 2
           mcdMin = nabSz(2+ld-1)+1
@@ -239,11 +241,11 @@ do kCnttp=1,nCnttp
       ! Accumulate contributions to the symmetry adapted operator
 
       nOp = NrOpr(iDCRT(lDCRT))
-      call SymAdO(Array(ipIn),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,-Fact*Q_Nuc)
+      call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*Q_Nuc)
       if (iPrint >= 99) then
-        write(6,*) Fact*Q_Nuc
+        write(u6,*) Fact*Q_Nuc
         call RecPrt('NaInt: Array(ipIn)',' ',Array(ipIn),nZeta,nElem(la)*nElem(lb)*nComp)
-        call RecPrt('NaInt: Final',' ',final,nZeta,nElem(la)*nElem(lb)*nIC)
+        call RecPrt('NaInt: rFinal',' ',rFinal,nZeta,nElem(la)*nElem(lb)*nIC)
       end if
 
     end do

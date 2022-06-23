@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,2000, Roland Lindh                                *
 !***********************************************************************
 
-subroutine CmbnMP_GIAO(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,nB,RAB,C)
+subroutine CmbnMP_GIAO(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,nB,RAB,C)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
@@ -20,13 +20,18 @@ subroutine CmbnMP_GIAO(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,nB,RAB,C)
 !              Japan, January 2000.                                    *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,nB), Zeta(nZeta), rKappa(nZeta), Rnxyz(nZeta,3,0:la,0:lb,0:lr+1), RAB(3), &
-       C(3)
-integer ix_(3,2)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Two, Three, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, lr, nComp, nB
+real(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr+1), Zeta(nZeta), rKappa(nZeta), &
+                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,nB), RAB(3), C(3)
+integer(kind=iwp) :: iBx, iBy, iBz, iComp, ipa, ipb, ix_(3,2), ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+real(kind=wp) :: Fact, temp, tempy, tempz
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 do ixa=0,la
@@ -63,7 +68,7 @@ do ixa=0,la
 
                 ! The term has only an imaginary component
 
-                final(iZeta,ipa,ipb,iComp,iBx) = Half*Fact*(RAB(iBy)*(Tempz+C(iBz)*Temp)-RAB(iBz)*(Tempy+C(iBy)*Temp))
+                rFinal(iZeta,ipa,ipb,iComp,iBx) = Half*Fact*(RAB(iBy)*(Tempz+C(iBz)*Temp)-RAB(iBz)*(Tempy+C(iBy)*Temp))
               end do
             end do
           end do

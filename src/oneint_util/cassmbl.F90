@@ -22,12 +22,16 @@ subroutine CAssmbl(Rnxyz,Axyz,la,Bxyz,lb,nZeta,HerW,nHer)
 !             November '90                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: cZero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: la, lb, nZeta, nHer
+complex(kind=wp) :: Rnxyz(nZeta*3,0:la,0:lb), Axyz(nZeta*3,nHer,0:la), Bxyz(nZeta*3,nHer,0:lb)
+real(kind=wp) :: HerW(nHer)
 #include "print.fh"
-#include "real.fh"
-real*8 HerW(nHer)
-complex*16 Rnxyz(nZeta*3,0:la,0:lb), Axyz(nZeta*3,nHer,0:la), Bxyz(nZeta*3,nHer,0:lb)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iHer, iPrint, iRout, iZCar, iZeta
+character(len=80) :: Label
 
 iRout = 123
 iPrint = nPrint(iRout)
@@ -44,7 +48,7 @@ end if
 do ib=0,lb
   do ia=0,la
     do iZeta=1,nZeta
-      Rnxyz(iZeta,ia,ib) = DCMPLX(Zero,Zero)
+      Rnxyz(iZeta,ia,ib) = cZero
     end do
   end do
 end do

@@ -11,24 +11,32 @@
 ! Copyright (C) 1993, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine PVInt( &
-#                define _CALLING_
-#                include "int_interface.fh"
-                 ,Kernel)
+subroutine PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nIC,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,lOper, &
+                 iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot,Kernel)
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of  pX integrals          *
+!                                                                      *
+!   (See arguments in int_interface.fh)                                *
 !                                                                      *
 !     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 !             Chemie, University of Bonn, Germany, April 1993          *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-external Kernel
-#include "real.fh"
+use Index_Functions, only: nTri_Elem1
+use Definitions, only: wp, iwp, u6
+
+implicit none
+! TODO: unknown intents, probably all "in" except rFinal
+integer(kind=iwp) :: nAlpha, nBeta, nZeta, nIC, nComp, la, lb, nHer, nArr, nOrdOp, lOper(nComp), iChO(nComp), nStabM, &
+                     iStabM(0:nStabM-1), nGrid, iAddPot
+real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
+                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC), A(3), RB(3), Array(nZeta*nArr), Ccoor(3,nComp), PtChrg(nGrid)
+external :: Kernel
 #include "print.fh"
-#include "int_interface.fh"
+integer(kind=iwp) :: i, iBeta, ipA, ipArr, ipOff, iPrint, ipS1, ipS2, iRout, kRys, mArr, nip
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 #include "macros.fh"
@@ -40,7 +48,7 @@ iRout = 221
 iPrint = nPrint(iRout)
 
 if (iPrint >= 99) then
-  write(6,*) 'PVInt: nIC,nComp=',nIC,nComp
+  write(u6,*) 'PVInt: nIC,nComp=',nIC,nComp
   call RecPrt(' In pvint: Alpha','(5D20.13)',Alpha,nAlpha,1)
   call RecPrt(' In pvint: Beta','(5D20.13)',Beta,nBeta,1)
 end if
@@ -97,13 +105,13 @@ end if
 !                                                                      *
 ! Assemble final integral from the derivative integrals
 
-call Ass_pX(Array(ipA),nZeta,final,la,lb,Array(ipS1),Array(ipS2),nIC)
+call Ass_pX(Array(ipA),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nIC)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (iPrint >= 49) then
   do i=1,3
-    call RecPrt('pVInt: Final',' ',final(1,1,1,i),nZeta,nElem(la)*nElem(lb))
+    call RecPrt('pVInt: rFinal',' ',rFinal(1,1,1,i),nZeta,nElem(la)*nElem(lb))
   end do
 end if
 

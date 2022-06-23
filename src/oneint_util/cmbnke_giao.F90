@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,2002, Roland Lindh                                *
 !***********************************************************************
 
-subroutine CmbnKE_GIAO(Rxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,nB,Txyz,Wxyz,A,RB,C)
+subroutine CmbnKE_GIAO(Rxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,nB,Txyz,Wxyz,A,RB,C)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the first derivative of the kinetic energy        *
@@ -23,13 +23,20 @@ subroutine CmbnKE_GIAO(Rxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,nB,Txyz,Wxyz,
 !     Modified for GIAO's by RL June 2002, Tokyo, Japan.               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nB), Zeta(nZeta), rKappa(nZeta), Rxyz(nZeta,3,0:la+1,0:lb+1,0:lr+1), &
-       Txyz(nZeta,3,0:la,0:lb,0:lr+1), Wxyz(nZeta,3,0:la,0:lb,2), A(3), RB(3), RAB(3), C(3)
-integer index(3,2)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Two, Three, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, lr, nComp, nB
+real(kind=wp) :: Rxyz(nZeta,3,0:la+1,0:lb+1,0:lr+1), Zeta(nZeta), rKappa(nZeta), &
+                 rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb),nB), Txyz(nZeta,3,0:la,0:lb,0:lr+1), Wxyz(nZeta,3,0:la,0:lb,2), &
+                 A(3), RB(3), C(3)
+integer(kind=iwp) :: iBx, iBy, iBz, iComp, indx(3,2), ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, jxa, jxb, &
+                     jya, jyb, jza, jzb
+real(kind=wp) :: Fact, RAB(3), temp1, temp2a, temp2b, temp2c
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 !iRout = 134
@@ -42,26 +49,26 @@ RAB(3) = A(3)-RB(3)
 iComp = 1
 do ixa=0,la
   iyaMax = la-ixa
-  index(1,1) = ixa
+  indx(1,1) = ixa
   do ixb=0,lb
     iybMax = lb-ixb
-    index(1,2) = ixb
+    indx(1,2) = ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      index(2,1) = iya
-      index(3,1) = iza
+      indx(2,1) = iya
+      indx(3,1) = iza
       ipa = Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        index(2,2) = iyb
-        index(3,2) = izb
+        indx(2,2) = iyb
+        indx(3,2) = izb
         ipb = Ind(lb,ixb,izb)
 
         !if (iPrint >= 99) then
-        !  write(6,*)
-        !  write(6,*) ixa,iya,iza
-        !  write(6,*) ixb,iyb,izb
-        !  write(6,*) ipa,ipb
+        !  write(u6,*)
+        !  write(u6,*) ixa,iya,iza
+        !  write(u6,*) ixb,iyb,izb
+        !  write(u6,*) ipa,ipb
         !end if
         !                                                              *
         !***************************************************************
@@ -71,16 +78,16 @@ do ixa=0,la
         do iBx=1,3
           iBy = iBx+1-((iBx+1)/4)*3
           iBz = iBy+1-((iBy+1)/4)*3
-          jxa = index(iBx,1)
-          jxb = index(iBx,2)
-          jya = index(iBy,1)
-          jyb = index(iBy,2)
-          jza = index(iBz,1)
-          jzb = index(iBz,2)
-          !write(6,*) 'iBx,iBy,iBz=',iBx,iBy,iBz
-          !write(6,*) 'nZeta=',nZeta
-          !write(6,*) jxa,jya,jza
-          !write(6,*) jxb,jyb,jzb
+          jxa = indx(iBx,1)
+          jxb = indx(iBx,2)
+          jya = indx(iBy,1)
+          jyb = indx(iBy,2)
+          jza = indx(iBz,1)
+          jzb = indx(iBz,2)
+          !write(u6,*) 'iBx,iBy,iBz=',iBx,iBy,iBz
+          !write(u6,*) 'nZeta=',nZeta
+          !write(u6,*) jxa,jya,jza
+          !write(u6,*) jxb,jyb,jzb
           !                                                            *
           !*************************************************************
           !                                                            *
@@ -110,9 +117,9 @@ do ixa=0,la
                                                 (Rxyz(iZeta,iBy,jya,jyb,1)+Rxyz(iZeta,iBy,jya,jyb,0)*C(iBy))* &
                                                 RAB(iBz)*Txyz(iZeta,iBz,jza,jzb,0))
 
-            final(iZeta,iComp,ipa,ipb,iBx) = Half*Fact*(temp1+Half*(temp2a+temp2b+temp2c))
+            rFinal(iZeta,iComp,ipa,ipb,iBx) = Half*Fact*(temp1+Half*(temp2a+temp2b+temp2c))
           end do
-          !write(6,*)
+          !write(u6,*)
           !                                                            *
           !*************************************************************
           !                                                            *

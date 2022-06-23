@@ -23,13 +23,15 @@ subroutine D1Int( &
 !             University of Lund, Sweden, February '91                 *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "int_interface.fh"
-! Local variables
-character*80 Label
+#include "print.fh"
+integer(kind=iwp) :: ia, ib, ipAxyz, ipBxyz, iPrint, iRout, nip
+character(len=80) :: Label
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
@@ -52,8 +54,8 @@ ipBxyz = nip
 nip = nip+nZeta*3*nHer*(lb+1)
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'D1Int: nip-1 > nArr*nZeta')
-  write(6,*) 'nip=',nip
-  write(6,*) 'nArr,nZeta=',nArr,nZeta
+  write(u6,*) 'nip=',nip
+  write(u6,*) 'nArr,nZeta=',nArr,nZeta
   call Abend()
 end if
 
@@ -62,18 +64,18 @@ if (iPrint >= 49) then
   call RecPrt(' In D1Int: RB',' ',RB,1,3)
   call RecPrt(' In D1Int: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In D1Int: P',' ',P,nZeta,3)
-  write(6,*) ' In D1Int: la,lb=',la,lb
+  write(u6,*) ' In D1Int: la,lb=',la,lb
 end if
 
 ! Compute the contact terms.
 
-call Darwin(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,final,iStabM,nStabM,nComp,rKappa)
+call Darwin(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,rFinal,iStabM,nStabM,nComp,rKappa)
 
 if (iPrint >= 99) then
   do ia=1,nElem(la)
     do ib=1,nElem(lb)
       write(Label,'(A,I2,A,I2,A)') 'Darwin contact(',ia,',',ib,')'
-      call RecPrt(Label,' ',final(1,1,ia,ib),nZeta,nComp)
+      call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
     end do
   end do
 end if

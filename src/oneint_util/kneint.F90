@@ -27,15 +27,16 @@ subroutine KnEInt( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+#include "int_interface.fh"
 #include "rmat_option.fh"
 #include "rmat.fh"
 #include "print.fh"
-#include "int_interface.fh"
-! Local variables
-logical ABeq(3)
+integer(kind=iwp) :: iAlpha, iBeta, icop, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipDi, ipqC, ipQxyz, iPrint, ipRnr, ipRxyz, &
+                     ipTxyz, iRout, lsum, nip
+logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -86,8 +87,8 @@ end if
 !                                                                      *
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'KNEInt: nip-1 > nArr*nZeta')
-  write(6,*) 'nip=',nip
-  write(6,*) 'nArr,nZeta=',nArr,nZeta
+  write(u6,*) 'nip=',nip
+  write(u6,*) 'nArr,nZeta=',nArr,nZeta
   call Abend()
 end if
 
@@ -96,7 +97,7 @@ if (iPrint >= 49) then
   call RecPrt(' In KnEInt: RB',' ',RB,1,3)
   call RecPrt(' In KnEInt: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
-  write(6,*) ' In KnEInt: la,lb=',la,lb
+  write(u6,*) ' In KnEInt: la,lb=',la,lb
 end if
 
 if (RMat_type_integrals) then
@@ -129,7 +130,7 @@ if (RMat_type_integrals) then
 
   ! Combine the radial and angular component to the full one electron integral.
 
-  call CmbnKEr(Array(ipRnr),Array(ipqC),Array(ipDi),nZeta,la,lb,Zeta,final,nComp,Alpha,nAlpha,Beta,nBeta)
+  call CmbnKEr(Array(ipRnr),Array(ipqC),Array(ipDi),nZeta,la,lb,Zeta,rFinal,nComp,Alpha,nAlpha,Beta,nBeta)
 
 else
   !                                                                    *
@@ -172,7 +173,7 @@ else
 
   ! Combine the cartesian components to the full one electron integral.
 
-  call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,final,nComp,Array(ipTxyz))
+  call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,rFinal,nComp,Array(ipTxyz))
 
 end if
 

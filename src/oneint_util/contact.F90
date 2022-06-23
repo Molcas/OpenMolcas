@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Contact(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,Ccoor,lOper,iChO,nIC,Array,final,iStabM,nStabM,nComp,rKappa)
+subroutine Contact(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,Ccoor,lOper,iChO,nIC,Array,rFinal,iStabM,nStabM,nComp,rKappa)
 !***********************************************************************
 !                                                                      *
 ! Object: to compoute the 1-electron contact term.                     *
@@ -20,13 +20,21 @@ subroutine Contact(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,Ccoor,lOper,iChO,nIC,Array,
 !             University of Lund, Sweden, February '91                 *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, nComp, lOper(nComp), iCho(nComp), nIC, nStabM, iStabM(0:nStabM-1)
+real(kind=wp) :: Zeta(nZeta), P(nZeta,3),A(3), Axyz(nZeta,3,0:la), RB(3), Bxyz(nZeta,3,0:lb), Ccoor(3), &
+                 Array(nZeta,nTri_Elem1(la),nTri_Elem1(lb)), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC), rKappa(nZeta)
 #include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC), rKappa(nZeta), Ccoor(3), Array(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), &
-       Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb), Zeta(nZeta), P(nZeta,3), A(3), RB(3), TC(3)
-integer iStabM(0:nStabM-1), iStabO(0:7), iDCRT(0:7), lOper(nComp), iChO(nComp)
+integer(kind=iwp) :: ia, ib, iCar, iComp, iDCRT(0:7), ipa, ipb, iPrint, iRout, iStabO(0:7), ixa, ixb, iya, iyb, iza, izb, iZeta, &
+                     lDCRT, llOper, LmbdT, nDCRT, nOp, nStabO
+real(kind=wp) :: TC(3)
+integer(kind=iwp), external :: NrOpr
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, Ind, ixyz, ix, iz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
@@ -132,7 +140,7 @@ do lDCRT=0,nDCRT-1
   ! Accumulate contributions
 
   nOp = NrOpr(iDCRT(lDCRT))
-  call SymAdO(Array,nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+  call SymAdO(Array,nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
 

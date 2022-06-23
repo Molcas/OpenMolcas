@@ -12,7 +12,7 @@
 !               2015, Lasse Kragh Soerensen                            *
 !***********************************************************************
 
-subroutine Util3(Beta,nZeta,final,la,lb,Slalbp,Slalb,Slalbm)
+subroutine Util3(Beta,nZeta,rFinal,la,lb,Slalbp,Slalb,Slalbm)
 !***********************************************************************
 !                                                                      *
 ! Object: to assemble the orbital magnetic quadrupole integrals from   *
@@ -24,28 +24,35 @@ subroutine Util3(Beta,nZeta,final,la,lb,Slalbp,Slalb,Slalbm)
 !             February '15                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,9), Slalbp(nZeta,(la+1)*(la+2)/2,(lb+2)*(lb+3)/2,6), &
-       Slalb(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,3), Slalbm(nZeta,(la+1)*(la+2)/2,lb*(lb+1)/2,6), Beta(nZeta)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 ! Notice CmbnMP has just 6 components instead of 9!!! (automatically assumes symmetry) Well fuck you CmbnMP
 ! This means Slalbp and Slalbm in reality only have 6 components....
 ! XX = 1, XY=YX=2, XZ=ZX=3, YY=4, YZ=ZY=5 and ZZ=6
 ! There are only six components since zy d/di = yz d/di
-! We still keep the 9 components in final
+! We still keep the 9 components in rFinal
+implicit none
+integer(kind=iwp) :: nZeta, la, lb
+real(kind=wp) :: Beta(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),6), &
+                 Slalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),6)
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb, iZeta
+real(kind=wp) :: temp_x, temp_xx, temp_xy, temp_xz, temp_y, temp_yx, temp_yy, temp_yz, temp_z, temp_zx, temp_zy, temp_zz
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-character*80 Label
+character(len=80) :: Label
 #endif
 ! Statement function for cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: nElem
 nElem(ix) = (ix+1)*(ix+2)/2
 #endif
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In Util3 la,lb=',la,lb
+write(u6,*) ' In Util3 la,lb=',la,lb
 call RecPrt('Beta',' ',Beta,nZeta,1)
 do ia=1,nElem(la)
   do ib=1,nElem(lb+1)
@@ -131,77 +138,77 @@ do ixa=la,0,-1
           temp_z = Slalb(iZeta,ipa,Ind(lb,ixb,izb),3)
 
           ! xx term
-          final(iZeta,ipa,ipb,1) = Two*temp_xx
+          rFinal(iZeta,ipa,ipb,1) = Two*temp_xx
           ! xy term
-          final(iZeta,ipa,ipb,2) = Two*temp_xy-temp_z
+          rFinal(iZeta,ipa,ipb,2) = Two*temp_xy-temp_z
           ! xz term
-          final(iZeta,ipa,ipb,3) = Two*temp_xz+temp_y
+          rFinal(iZeta,ipa,ipb,3) = Two*temp_xz+temp_y
           ! yx term
-          final(iZeta,ipa,ipb,4) = Two*temp_yx+temp_z
+          rFinal(iZeta,ipa,ipb,4) = Two*temp_yx+temp_z
           ! yy term
-          final(iZeta,ipa,ipb,5) = Two*temp_yy
+          rFinal(iZeta,ipa,ipb,5) = Two*temp_yy
           ! yz term
-          final(iZeta,ipa,ipb,6) = Two*temp_yz-temp_x
+          rFinal(iZeta,ipa,ipb,6) = Two*temp_yz-temp_x
           ! zx term
-          final(iZeta,ipa,ipb,7) = Two*temp_zx-temp_y
+          rFinal(iZeta,ipa,ipb,7) = Two*temp_zx-temp_y
           ! zy term
-          final(iZeta,ipa,ipb,8) = Two*temp_zy+temp_x
+          rFinal(iZeta,ipa,ipb,8) = Two*temp_zy+temp_x
           ! zz term
-          final(iZeta,ipa,ipb,9) = Two*temp_zz
+          rFinal(iZeta,ipa,ipb,9) = Two*temp_zz
         end do
 
         if (ixb > 0) then
           do iZeta=1,nZeta
-            temp_yx = dble(ixb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),3)
-            temp_yy = dble(ixb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),5)
-            temp_yz = dble(ixb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),6)
-            temp_zx = -dble(ixb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),2)
-            temp_zy = -dble(ixb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),4)
-            temp_zz = -dble(ixb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),5)
+            temp_yx = real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),3)
+            temp_yy = real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),5)
+            temp_yz = real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),6)
+            temp_zx = -real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),2)
+            temp_zy = -real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),4)
+            temp_zz = -real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),5)
 
-            final(iZeta,ipa,ipb,4) = final(iZeta,ipa,ipb,4)+Two*temp_yx
-            final(iZeta,ipa,ipb,5) = final(iZeta,ipa,ipb,5)+Two*temp_yy
-            final(iZeta,ipa,ipb,6) = final(iZeta,ipa,ipb,6)+Two*temp_yz
-            final(iZeta,ipa,ipb,7) = final(iZeta,ipa,ipb,7)+Two*temp_zx
-            final(iZeta,ipa,ipb,8) = final(iZeta,ipa,ipb,8)+Two*temp_zy
-            final(iZeta,ipa,ipb,9) = final(iZeta,ipa,ipb,9)+Two*temp_zz
+            rFinal(iZeta,ipa,ipb,4) = rFinal(iZeta,ipa,ipb,4)+Two*temp_yx
+            rFinal(iZeta,ipa,ipb,5) = rFinal(iZeta,ipa,ipb,5)+Two*temp_yy
+            rFinal(iZeta,ipa,ipb,6) = rFinal(iZeta,ipa,ipb,6)+Two*temp_yz
+            rFinal(iZeta,ipa,ipb,7) = rFinal(iZeta,ipa,ipb,7)+Two*temp_zx
+            rFinal(iZeta,ipa,ipb,8) = rFinal(iZeta,ipa,ipb,8)+Two*temp_zy
+            rFinal(iZeta,ipa,ipb,9) = rFinal(iZeta,ipa,ipb,9)+Two*temp_zz
           end do
         end if
 
         if (iyb > 0) then
           do iZeta=1,nZeta
-            temp_xx = -dble(iyb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),3)
-            temp_xy = -dble(iyb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),5)
-            temp_xz = -dble(iyb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),6)
-            temp_zx = dble(iyb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),1)
-            temp_zy = dble(iyb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),2)
-            temp_zz = dble(iyb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),3)
+            temp_xx = -real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),3)
+            temp_xy = -real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),5)
+            temp_xz = -real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),6)
+            temp_zx = real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),1)
+            temp_zy = real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),2)
+            temp_zz = real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),3)
 
-            final(iZeta,ipa,ipb,1) = final(iZeta,ipa,ipb,1)+Two*temp_xx
-            final(iZeta,ipa,ipb,2) = final(iZeta,ipa,ipb,2)+Two*temp_xy
-            final(iZeta,ipa,ipb,3) = final(iZeta,ipa,ipb,3)+Two*temp_xz
-            final(iZeta,ipa,ipb,7) = final(iZeta,ipa,ipb,7)+Two*temp_zx
-            final(iZeta,ipa,ipb,8) = final(iZeta,ipa,ipb,8)+Two*temp_zy
-            final(iZeta,ipa,ipb,9) = final(iZeta,ipa,ipb,9)+Two*temp_zz
+            rFinal(iZeta,ipa,ipb,1) = rFinal(iZeta,ipa,ipb,1)+Two*temp_xx
+            rFinal(iZeta,ipa,ipb,2) = rFinal(iZeta,ipa,ipb,2)+Two*temp_xy
+            rFinal(iZeta,ipa,ipb,3) = rFinal(iZeta,ipa,ipb,3)+Two*temp_xz
+            rFinal(iZeta,ipa,ipb,7) = rFinal(iZeta,ipa,ipb,7)+Two*temp_zx
+            rFinal(iZeta,ipa,ipb,8) = rFinal(iZeta,ipa,ipb,8)+Two*temp_zy
+            rFinal(iZeta,ipa,ipb,9) = rFinal(iZeta,ipa,ipb,9)+Two*temp_zz
 
           end do
         end if
 
         if (izb > 0) then
           do iZeta=1,nZeta
-            temp_xx = dble(izb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2)
-            temp_xy = dble(izb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),4)
-            temp_xz = dble(izb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),5)
-            temp_yx = -dble(izb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),1)
-            temp_yy = -dble(izb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2)
-            temp_yz = -dble(izb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),3)
+            temp_xx = real(izb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2)
+            temp_xy = real(izb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),4)
+            temp_xz = real(izb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),5)
+            temp_yx = -real(izb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),1)
+            temp_yy = -real(izb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2)
+            temp_yz = -real(izb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),3)
 
-            final(iZeta,ipa,ipb,1) = final(iZeta,ipa,ipb,1)+Two*temp_xx
-            final(iZeta,ipa,ipb,2) = final(iZeta,ipa,ipb,2)+Two*temp_xy
-            final(iZeta,ipa,ipb,3) = final(iZeta,ipa,ipb,3)+Two*temp_xz
-            final(iZeta,ipa,ipb,4) = final(iZeta,ipa,ipb,4)+Two*temp_yx
-            final(iZeta,ipa,ipb,5) = final(iZeta,ipa,ipb,5)+Two*temp_yy
-            final(iZeta,ipa,ipb,6) = final(iZeta,ipa,ipb,6)+Two*temp_yz
+            rFinal(iZeta,ipa,ipb,1) = rFinal(iZeta,ipa,ipb,1)+Two*temp_xx
+            rFinal(iZeta,ipa,ipb,2) = rFinal(iZeta,ipa,ipb,2)+Two*temp_xy
+            rFinal(iZeta,ipa,ipb,3) = rFinal(iZeta,ipa,ipb,3)+Two*temp_xz
+            rFinal(iZeta,ipa,ipb,4) = rFinal(iZeta,ipa,ipb,4)+Two*temp_yx
+            rFinal(iZeta,ipa,ipb,5) = rFinal(iZeta,ipa,ipb,5)+Two*temp_yy
+            rFinal(iZeta,ipa,ipb,6) = rFinal(iZeta,ipa,ipb,6)+Two*temp_yz
           end do
         end if
 
@@ -212,27 +219,27 @@ do ixa=la,0,-1
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In Util3 la,lb=',la,lb
+write(u6,*) ' In Util3 la,lb=',la,lb
 do iElem=1,nElem(la)
   do jElem=1,nElem(lb)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',xx) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,1),nZeta,1)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',xy) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,2),nZeta,1)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',xz) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,3),nZeta,1)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',yx) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,4),nZeta,1)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',yy) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,5),nZeta,1)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',yz) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,6),nZeta,1)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',zx) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,7),nZeta,1)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',zy) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,8),nZeta,1)
-    write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',zz) '
-    call RecPrt(Label,' ',final(1,iElem,jElem,9),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',xx) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,1),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',xy) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,2),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',xz) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,3),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',yx) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,4),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',yy) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,5),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',yz) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,6),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',zx) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,7),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',zy) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,8),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',zz) '
+    call RecPrt(Label,' ',rFinal(1,iElem,jElem,9),nZeta,1)
   end do
 end do
 #endif

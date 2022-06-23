@@ -28,21 +28,24 @@ subroutine NAInt_GIAO( &
 ! Modified for GIAOs, R. Lindh, June 2002, Tokyo, Japan.               *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, Gaussian_Type, nCnttp, Nuclear_Model, Point_Charge
+use Center_Info, only: dc
+use Constants, only: Zero, One, Two, Three, Pi, TwoP54
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-external TNAI, Fake, XCff2D, XRys2D
-external TERI, MODU2, vCff2D, vRys2D
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-integer iDCRT(0:7)
-! Local arrays
-real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2)
-logical EQ, NoSpecial
-integer iAnga_EF(4), iAnga_NA(4)
+#include "print.fh"
+integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, ipHRR, ipIn, ipNAInt, iPrint, ipRys, iRout, iZeta, &
+                     kab, kCnt, kCnttp, kdc, lab, labcd_EF, labcd_NA, lcd_EF, lcd_NA, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, &
+                     mcdMax_EF, mcdMax_NA, mcdMin_EF, mcdMin_NA, nDCRT, nFLOP, nHRR, nMem, nOp, nT
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappcd, TC(3)
+logical(kind=iwp) :: NoSpecial
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+external :: Fake, MODU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
@@ -59,7 +62,7 @@ unused_var(iAddPot)
 iRout = 200
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 call dcopy_(3,A,1,Coori(1,1),1)
 call dcopy_(3,RB,1,Coori(1,2),1)
@@ -137,7 +140,7 @@ do kCnttp=1,nCnttp
     ! Find the DCR for M and S
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
@@ -229,7 +232,7 @@ do kCnttp=1,nCnttp
       ! Accumulate contributions
 
       nOp = NrOpr(iDCRT(lDCRT))
-      call SymAdO(Array(ipEFInt),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,-Fact*dbsc(kCnttp)%Charge)
+      call SymAdO(Array(ipEFInt),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*dbsc(kCnttp)%Charge)
 
     end do
   end do

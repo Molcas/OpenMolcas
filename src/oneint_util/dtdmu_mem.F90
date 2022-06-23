@@ -16,8 +16,13 @@ subroutine dTdmu_mem( &
 #                    include "mem_interface.fh"
                     )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
+integer(kind=iwp) :: MemDer, MmEFP, nOrder
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 Mem = 0

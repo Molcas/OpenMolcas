@@ -24,13 +24,15 @@ subroutine CntInt( &
 !             Modified from D1Int January 2008.                        *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "int_interface.fh"
-! Local variables
-character*80 Label
+#include "print.fh"
+integer(kind=iwp) :: ia, ib, iIC, ipArr, ipAxyz, ipBxyz, iPrint, iRout, na, nb, nip
+character(len=80) :: Label
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
@@ -44,7 +46,7 @@ unused_var(iAddPot)
 iRout = 150
 iPrint = nPrint(iRout)
 
-call FZero(final,nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2)*nIC)
+call FZero(rFinal,nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2)*nIC)
 
 nip = 1
 ipAxyz = nip
@@ -57,8 +59,8 @@ nb = (lb+1)*(lb+2)/2
 nip = nip+nZeta*na*nb
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'CntInt: nip-1 > nArr*nZeta')
-  write(6,*) 'nip=',nip
-  write(6,*) 'nArr,nZeta=',nArr,nZeta
+  write(u6,*) 'nip=',nip
+  write(u6,*) 'nArr,nZeta=',nArr,nZeta
   call Abend()
 end if
 
@@ -67,19 +69,20 @@ if (iPrint >= 49) then
   call RecPrt(' In CntInt: RB',' ',RB,1,3)
   call RecPrt(' In CntInt: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In CntInt: P',' ',P,nZeta,3)
-  write(6,*) ' In CntInt: la,lb=',la,lb
+  write(u6,*) ' In CntInt: la,lb=',la,lb
 end if
 
 ! Compute the contact terms.
 
-call Contact(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,Ccoor,lOper,iCho,nIC,Array(ipArr),final,iStabM,nStabM,nComp,rKappa)
+call Contact(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,Ccoor,lOper,iCho,nIC,Array(ipArr),rFinal,iStabM,nStabM,nComp, &
+             rKappa)
 
 if (iPrint >= 99) then
   do iIC=1,nIC
     do ia=1,nElem(la)
       do ib=1,nElem(lb)
         write(Label,'(A,I2,A,I2,A)') 'Contact term(',ia,',',ib,')'
-        call RecPrt(Label,' ',final(1,ia,ib,iIC),1,nZeta)
+        call RecPrt(Label,' ',rFinal(1,ia,ib,iIC),1,nZeta)
       end do
     end do
   end do

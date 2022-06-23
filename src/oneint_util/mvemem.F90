@@ -16,6 +16,9 @@ subroutine MVeMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
 
 nHer = (la+lb+lr+2)/2

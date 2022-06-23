@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine CCrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,KVector)
+subroutine CCrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,kVector)
 !***********************************************************************
 !                                                                      *
 ! Object: to compile the value of the angular part of a basis function *
@@ -32,12 +32,16 @@ subroutine CCrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,KVector)
 !             Modification to wave vectors and complex representation. *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Two, cOne
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, na, nHer
+real(kind=wp) :: Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer), kVector(3)
+complex(kind=wp) :: Axyz(nZeta,3,nHer,0:na)
 #include "print.fh"
-#include "real.fh"
-real*8 Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer), KVector(3)
-complex*16 Axyz(nZeta,3,nHer,0:na)
-character*80 Label
+integer(kind=iwp) :: ia, iCar, iHer, iPrint, iRout, iZeta
+character(len=80) :: Label
 
 iRout = 116
 iPrint = nPrint(iRout)
@@ -51,12 +55,12 @@ if (iPrint >= 99) then
   call RecPrt(' In CCrtCmp: Zeta',' ',Zeta,nZeta,1)
   call RecPrt(' In CCrtCmp: A   ',' ',A,1,3)
   call RecPrt(' In CCrtCmp: P   ',' ',P,nZeta,3)
-  call RecPrt(' In CCrtCmp: KVec',' ',KVector,1,3)
+  call RecPrt(' In CCrtCmp: KVec',' ',kVector,1,3)
 end if
 do iHer=1,nHer
   do iCar=1,3
     do iZeta=1,nZeta
-      Axyz(iZeta,iCar,iHer,0) = DCMPLX(One,Zero)
+      Axyz(iZeta,iCar,iHer,0) = cOne
     end do
   end do
 end do
@@ -66,7 +70,7 @@ if (na /= 0) then
     do iCar=1,3
 
       do iZeta=1,nZeta
-        Axyz(iZeta,iCar,iHer,1) = DCMPLX(HerR(iHer)*1/sqrt(Zeta(iZeta))+P(iZeta,iCar)-A(iCar),KVector(iCar)/(Two*Zeta(iZeta)))
+        Axyz(iZeta,iCar,iHer,1) = cmplx(HerR(iHer)/sqrt(Zeta(iZeta))+P(iZeta,iCar)-A(iCar),kVector(iCar)/(Two*Zeta(iZeta)),kind=wp)
       end do
 
       do ia=2,na

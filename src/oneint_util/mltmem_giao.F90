@@ -14,9 +14,13 @@ subroutine MltMem_GIAO( &
 #                      include "mem_interface.fh"
                       )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
-parameter(nB=3)
+integer(kind=iwp), parameter :: nB = 3
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nHer = (la+lb+lr+3)/2

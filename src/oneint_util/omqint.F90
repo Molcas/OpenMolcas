@@ -25,15 +25,17 @@ subroutine OMQInt( &
 !             Based on OAMInt                                          *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
+implicit none
 #include "int_interface.fh"
-! Local variables
-real*8 TC(3)
-integer iStabO(0:7), iDCRT(0:7)
+integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, ipS1, ipS2, ipS3, iStabO(0:7), lDCRT, llOper, LmbdT, &
+                     mArr, nDCRT, nip, nOp, nStabO
+real(kind=wp) :: TC(3)
+integer(kind=iwp), external :: NrOpr
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
@@ -68,7 +70,7 @@ end if
 ipArr = nip
 mArr = (nArr*nZeta-(nip-1))/nZeta
 
-call DCopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call DCopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 llOper = lOper(1)
 do iComp=2,nComp
@@ -110,7 +112,7 @@ do lDCRT=0,nDCRT-1
   ! Accumulate contributions
 
   nOp = NrOpr(iDCRT(lDCRT))
-  call SymAdO(Array(ipRes),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+  call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
 

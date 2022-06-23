@@ -11,13 +11,14 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PVMem( &
-#                define _CALLING_
-#                include "mem_interface.fh"
-                 ,KrnMem)
+subroutine PVMem(nHer,Mem,la,lb,lr,KrnMem)
 
-#include "mem_interface.fh"
-external KrnMem
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nHer, Mem, la, lb, lr
+external :: KrnMem
+integer(kind=iwp) :: MemNA1, MemNA2
 
 call KrnMem(nHer,MemNA1,la+1,lb,lr-1)
 

@@ -16,8 +16,13 @@ subroutine OAMMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
+integer(kind=iwp) :: MmMltP, nOrder
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 call MltMmP(nOrder,Mem,la,lb+1,lr-1)

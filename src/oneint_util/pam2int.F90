@@ -26,22 +26,25 @@ subroutine PAM2Int( &
 !             Physics, University of Stockholm, Sweden, October '93.   *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, PAMexp
+use Center_Info, only: dc
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use PAM2
+use PAM2, only: iPAMPrim, kCnttpPAM
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+#include "int_interface.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-#include "int_interface.fh"
-! Local variables
-real*8 TC(3), C(3)
-character*80 Label
-logical ABeq(3)
-integer iDCRT(0:7)
+integer(kind=iwp) :: ia, iab, ib, iDCRT(0:7), ikdc, iM2xp, ipab, ipAxyz, ipBxyz, ipK, ipPx, ipPy, ipPz, ipQxyz, ipRes, iPrint, &
+                     ipRxyz, ipScr, ipZ, iRout, iZeta, kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nip, nOp
+real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
+character(len=80) :: Label
+logical(kind=iwp) :: ABeq(3)
+integer(kind=iwp), external :: NrOpr
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, k
 nElem(k) = (k+1)*(k+2)/2
 
 #include "macros.fh"
@@ -77,8 +80,8 @@ ipRes = nip
 nip = nip+nZeta*nComp*nElem(la)*nElem(lb)
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'PAM2Int: nip-1 > nArr*nZeta')
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  write(6,*) ' Abend in PAM2Int'
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' Abend in PAM2Int'
   call Abend()
 end if
 
@@ -89,10 +92,10 @@ if (iPrint >= 49) then
   call RecPrt(' In PAM2Int: Kappa',' ',rKappa,nAlpha,nBeta)
   call RecPrt(' In PAM2Int: Zeta',' ',Zeta,nAlpha,nBeta)
   call RecPrt(' In PAM2Int: P',' ',P,nZeta,3)
-  write(6,*) ' In PAM2Int: la,lb,nHer=',la,lb,nHer
+  write(u6,*) ' In PAM2Int: la,lb,nHer=',la,lb,nHer
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 ! Loop over nuclear centers
 
@@ -109,7 +112,7 @@ do kCnt=1,dbsc(kCnttp)%nCntr
   C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
   call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-  Fact = dble(nStabM)/dble(LmbdT)
+  Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
   do lDCRT=0,nDCRT-1
     call OA(iDCRT(lDCRT),C,TC)
@@ -117,24 +120,24 @@ do kCnt=1,dbsc(kCnttp)%nCntr
     call GetMem(' Scr','ALLO','REAL',ipScr,nZeta*nElem(la)*nElem(lb)*nComp)
     call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,Work(ipScr),1)
     do iM2xp=1,iPAMPrim
-      Gamma = PAMexp(iM2xp,1)
+      Gmma = PAMexp(iM2xp,1)
 
-      if (iPrint >= 99) write(6,*) ' Gamma=',Gamma
+      if (iPrint >= 99) write(u6,*) ' Gamma=',Gmma
 
       ! Modify the original basis.
 
       do iZeta=1,nZeta
         PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
-        Tmp0 = Zeta(iZeta)+Gamma
-        Tmp1 = exp(-Zeta(iZeta)*Gamma*PTC2/Tmp0)
+        Tmp0 = Zeta(iZeta)+Gmma
+        Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
         Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
         Array(ipZ+iZeta-1) = Tmp0
-        Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gamma*TC(1))/Tmp0
-        Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gamma*TC(2))/Tmp0
-        Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gamma*TC(3))/Tmp0
+        Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
+        Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
+        Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
       end do
       if (iPrint >= 99) then
-        write(6,*) ' The modified basis set'
+        write(u6,*) ' The modified basis set'
         call RecPrt(' In PAM2Int: Kappa',' ',Array(ipK),nAlpha,nBeta)
         call RecPrt(' In PAM2Int: Zeta',' ',Array(ipZ),nAlpha,nBeta)
         call RecPrt(' In PAM2Int: P',' ',Array(ipPx),nZeta,3)
@@ -164,7 +167,7 @@ do kCnt=1,dbsc(kCnttp)%nCntr
 
       call CmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Array(ipZ),Array(ipK),Array(ipRes),nComp)
       if (iPrint >= 99) then
-        write(6,*) ' Intermediate result in PAM2Int'
+        write(u6,*) ' Intermediate result in PAM2Int'
         do ia=1,nElem(la)
           do ib=1,nElem(lb)
             iab = (ib-1)*nElem(la)+ia
@@ -185,9 +188,9 @@ do kCnt=1,dbsc(kCnttp)%nCntr
 
       ! FOR DMFT calculation!!!
 
-      !write(6,*) ' Cff',PAMexp(iM2xp,2)
-      Factor = 1.00d0*Fact*PAMexp(iM2xp,2)
-      if (iPrint >= 99) write(6,*) ' Factor=',Factor
+      !write(u6,*) ' Cff',PAMexp(iM2xp,2)
+      Factor = Fact*PAMexp(iM2xp,2)
+      if (iPrint >= 99) write(u6,*) ' Factor=',Factor
       call DaXpY_(nZeta*nElem(la)*nElem(lb)*nComp,Factor,Array(ipRes),1,Work(ipScr),1)
 
     end do
@@ -195,7 +198,7 @@ do kCnt=1,dbsc(kCnttp)%nCntr
     ! Accumulate contributions
 
     nOp = NrOpr(iDCRT(lDCRT))
-    call SymAdO(Work(ipScr),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+    call SymAdO(Work(ipScr),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
     call GetMem(' Scr','FREE','REAL',ipScr,nZeta*nElem(la)*nElem(lb)*nComp)
 
   end do
@@ -203,11 +206,11 @@ end do
 
 !if (nOrdOp == 1) then
 if (iPrint >= 99) then
-  write(6,*) ' Result in PAM2Int'
+  write(u6,*) ' Result in PAM2Int'
   do ia=1,nElem(la)
     do ib=1,nElem(lb)
-      write(Label,'(A,I2,A,I2,A)') ' Final(ia=',ia,',ib=',ib,')'
-      call RecPrt(Label,' ',final(1,ia,ib,1),nAlpha,nBeta)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal(ia=',ia,',ib=',ib,')'
+      call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
     end do
   end do
 end if

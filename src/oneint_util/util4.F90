@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Util4(nZeta,final,la,lb,Elalbp,Elalb,Bcoor,Dcoor)
+subroutine Util4(nZeta,rFinal,la,lb,Elalbp,Elalb,Bcoor,Dcoor)
 !***********************************************************************
 !                                                                      *
 ! Object: to assemble the diamagnetic shielding integrals from         *
@@ -22,13 +22,20 @@ subroutine Util4(nZeta,final,la,lb,Elalbp,Elalb,Bcoor,Dcoor)
 !             February '91                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Half, c_in_au
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb
+real(kind=wp) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9), Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), &
+                 Elalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Bcoor(3), Dcoor(3)
 #include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,9), Elalbp(nZeta,(la+1)*(la+2)/2,(lb+2)*(lb+3)/2,3), &
-       Elalb(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,3), Bcoor(3), Dcoor(3), BD(3)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta
+real(kind=wp) :: BD(3), Fact, xCxD, xCyD, xCzD, yCxD, yCyD, yCzD, zCxD, zCyD, zCzD
+character(len=80) :: Label
 ! Statement function for cartesian index
+integer(kind=iwp) :: Ind, nElem, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 nElem(ix) = (ix+1)*(ix+2)/2
 
@@ -38,9 +45,9 @@ iPrint = nPrint(iRout)
 BD(1) = Bcoor(1)-Dcoor(1)
 BD(2) = Bcoor(2)-Dcoor(2)
 BD(3) = Bcoor(3)-Dcoor(3)
-Fact = -1.d6*One2C2
+Fact = -1.0e-6_wp*Half/c_in_au**2
 if (iPrint >= 99) then
-  write(6,*) ' In Util4 la,lb=',la,lb
+  write(u6,*) ' In Util4 la,lb=',la,lb
   do ia=1,nElem(la)
     do ib=1,nElem(lb+1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
@@ -83,15 +90,15 @@ do ixa=la,0,-1
           xCzD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),1)+BD(3)*Elalb(iZeta,ipa,ipb,1)
           yCzD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),2)+BD(3)*Elalb(iZeta,ipa,ipb,2)
           zCzD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),3)+BD(3)*Elalb(iZeta,ipa,ipb,3)
-          final(iZeta,ipa,ipb,1) = Fact*(+yCyD+zCzD)
-          final(iZeta,ipa,ipb,2) = Fact*(-yCxD)
-          final(iZeta,ipa,ipb,3) = Fact*(-zCxD)
-          final(iZeta,ipa,ipb,4) = Fact*(-xCyD)
-          final(iZeta,ipa,ipb,5) = Fact*(xCxD+zCzD)
-          final(iZeta,ipa,ipb,6) = Fact*(-zCyD)
-          final(iZeta,ipa,ipb,7) = Fact*(-xCzD)
-          final(iZeta,ipa,ipb,8) = Fact*(-yCzD)
-          final(iZeta,ipa,ipb,9) = Fact*(xCxD+yCyD)
+          rFinal(iZeta,ipa,ipb,1) = Fact*(+yCyD+zCzD)
+          rFinal(iZeta,ipa,ipb,2) = Fact*(-yCxD)
+          rFinal(iZeta,ipa,ipb,3) = Fact*(-zCxD)
+          rFinal(iZeta,ipa,ipb,4) = Fact*(-xCyD)
+          rFinal(iZeta,ipa,ipb,5) = Fact*(xCxD+zCzD)
+          rFinal(iZeta,ipa,ipb,6) = Fact*(-zCyD)
+          rFinal(iZeta,ipa,ipb,7) = Fact*(-xCzD)
+          rFinal(iZeta,ipa,ipb,8) = Fact*(-yCzD)
+          rFinal(iZeta,ipa,ipb,9) = Fact*(xCxD+yCyD)
         end do
 
       end do
@@ -102,8 +109,8 @@ end do
 
 if (iPrint >= 49) then
   do iComp=1,9
-    write(Label,'(A,I2,A)') ' Final (',iComp,') '
-    call RecPrt(Label,' ',final(1,1,1,iComp),nZeta,nElem(la)*nELem(lb))
+    write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
+    call RecPrt(Label,' ',rFinal(1,1,1,iComp),nZeta,nElem(la)*nELem(lb))
   end do
 end if
 

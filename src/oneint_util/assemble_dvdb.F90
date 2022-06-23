@@ -21,10 +21,14 @@ subroutine Assemble_dVdB(NAInt,EFInt,nZeta,la,lb,A,B,C)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 NAInt(nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2)), EFInt(nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2),3), A(3), B(3), C(3), &
-       RAB(3)
+use Index_Functions, only: nTri_Elem1
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb
+real(kind=wp) :: NAInt(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)), EFInt(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),3), A(3), B(3), C(3)
+integer(kind=iwp) :: iVec, nVec
+real(kind=wp) :: EFInt_x, EFInt_y, EFInt_z, RAB(3)
 
 RAB(1) = A(1)-B(1)
 RAB(2) = A(2)-B(2)
@@ -32,7 +36,7 @@ RAB(3) = A(3)-B(3)
 
 ! Recombine in place!
 
-nVec = nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2)
+nVec = size(EFInt,1)
 do iVec=1,nVec
   EFInt_x = EFInt(iVec,1)
   EFInt_y = EFInt(iVec,2)

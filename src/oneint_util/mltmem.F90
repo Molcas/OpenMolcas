@@ -14,17 +14,20 @@ subroutine MltMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
 #include "rmat_option.fh"
+integer(kind=iwp) :: nComp
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nHer = (la+lb+lr+2)/2
 nComp = nElem(lr)
 Mem = 3*nHer*(la+1)+3*nHer*(lb+1)+3*nHer*(lr+1)+3*(la+1)*(lb+1)*(lr+1)+nElem(la)*nElem(lb)*nComp
-if (RMat_type_integrals) then
-  Mem = Mem+la+lb+lr+1
-end if
+if (RMat_type_integrals) Mem = Mem+la+lb+lr+1
 
 return
 

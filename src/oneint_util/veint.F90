@@ -25,15 +25,18 @@ subroutine VeInt( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables.
-logical ABeq(3)
-integer iStabO(0:7), iDCRT(0:7)
+#include "print.fh"
+integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, iPrint, ipRxyz, ipVxyz, iRout, &
+                     iStabO(0:7), lDCRT, llOper, LmbdT, nDCRT, nip, nOp, nStabO
+logical(kind=iwp) :: ABeq(3)
+integer(kind=iwp), external :: NrOpr
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
@@ -66,8 +69,8 @@ ipRes = nip
 nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'VeInt: nip-1 > nArr*nZeta')
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  write(6,*) ' Abend in VeInt'
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' Abend in VeInt'
   call Abend()
 end if
 
@@ -76,10 +79,10 @@ if (iPrint >= 49) then
   call RecPrt(' In VeInt: RB',' ',RB,1,3)
   call RecPrt(' In VeInt: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In VeInt: P',' ',P,nZeta,3)
-  write(6,*) ' In VeInt: la,lb=',la,lb
+  write(u6,*) ' In VeInt: la,lb=',la,lb
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 ! Compute the cartesian values of the basis functions angular part
 
@@ -125,7 +128,7 @@ do lDCRT=0,nDCRT-1
   ! Accumulate contributions
 
   nOp = NrOpr(iDCRT(lDCRT))
-  call SymAdO(Array(ipRes),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+  call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
 

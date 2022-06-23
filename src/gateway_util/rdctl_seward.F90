@@ -27,7 +27,7 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOrb, DoFMM, E1, E2, EMFR, FNMC, GIAO, kVector, &
                         lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
                         Thrs, UnNorm, Vlct
-use DKH_Info, only: iCtrLD, BSS, CLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
+use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
 use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_nacCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
                           iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
@@ -1582,9 +1582,9 @@ do
         ! Speed of light (in au)
 
         KWord = Get_Ln(LuRd)
-        call Get_F1(1,CLightAU)
-        CLightAU = abs(CLightAU)
-        write(u6,*) 'The speed of light in this calculation =',CLightAU
+        call Get_F1(1,cLightAU)
+        cLightAU = abs(cLightAU)
+        write(u6,*) 'The speed of light in this calculation =',cLightAU
 
       case (KeyW(94))
         !                                                              *

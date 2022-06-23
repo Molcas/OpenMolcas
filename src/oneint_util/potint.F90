@@ -23,20 +23,21 @@ subroutine PotInt( &
 !             of Lund, Sweden, January '91                             *
 !***********************************************************************
 
-use Phase_Info
+use Phase_Info, only: iPhase
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! Used for normal nuclear attraction integrals
-external TNAI, Fake, XCff2D, XRys2D
-#include "real.fh"
-#include "oneswi.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables
-integer iStabO(0:7), iPh(3), iAnga(4), iDCRT(0:7)
-real*8 TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
-logical EQ, NoSpecial
+integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), iGrid, iPh(3), ipIn, iStabO(0:7), lDCRT, llOper, LmbdT, mabMax, mabMin, nDCRT, &
+                     nFLOP, nMem, nOp, nStabO, nT
+real(kind=wp) :: Chrg, Coora(3,4), CoorAC(3,2), Coori(3,4), FACT, TC(3)
+logical(kind=iwp) :: NoSpecial
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+external :: Fake, TNAI, XCff2D, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
@@ -46,7 +47,7 @@ unused_var(Beta)
 unused_var(nHer)
 unused_var(nOrdOp)
 
-call fzero(final,nZeta*nElem(la)*nElem(lb)*nIC)
+call fzero(rFinal,nZeta*nElem(la)*nElem(lb)*nIC)
 
 iAnga(1) = la
 iAnga(2) = lb
@@ -79,11 +80,11 @@ llOper = lOper(1)
 
 call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-!Fact = dble(nStabM)/dble(LmbdT)
-FACT = 1.d0
+!Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
+FACT = One
 
 nT = nZeta
-Chrg = -1.d0
+Chrg = -One
 NoSpecial = .true.
 
 do lDCRT=0,nDCRT-1
@@ -98,7 +99,7 @@ do lDCRT=0,nDCRT-1
     if (Chrg == Zero) cycle
 
     do i=1,3
-      TC(i) = dble(iPh(i))*CCoor(i,iGrid)
+      TC(i) = real(iPh(i),kind=wp)*CCoor(i,iGrid)
       CoorAC(i,2) = TC(i)
       Coori(i,3) = TC(i)
       Coori(i,4) = TC(i)
@@ -117,7 +118,7 @@ do lDCRT=0,nDCRT-1
 
     ! Accumulate contributions to the symmetry adapted operator
 
-    call SymAdO(Array(ipIn),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,-Fact*Chrg)
+    call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*Chrg)
   end do
 end do
 

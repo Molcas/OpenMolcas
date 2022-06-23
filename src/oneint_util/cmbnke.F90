@@ -11,18 +11,24 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CmbnKE(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,Txyz)
+subroutine CmbnKE(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Txyz)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), Zeta(nZeta), rKappa(nZeta), Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), &
-       Txyz(nZeta,3,0:la,0:lb)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Two, Three
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, lr, nComp
+real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb)), &
+                 Txyz(nZeta,3,0:la,0:lb)
+integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+real(kind=wp) :: Tmp
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 !iRout = 134
@@ -40,8 +46,8 @@ do ixa=0,la
         izb = lb-ixb-iyb
         ipb = Ind(lb,ixb,izb)
         !if (iPrint >= 99) then
-        !  write(6,*) ixa,iya,iza,ixb,iyb,izb
-        !  write(6,*) ipa,ipb
+        !  write(u6,*) ixa,iya,iza,ixb,iyb,izb
+        !  write(u6,*) ipa,ipb
         !end if
 
         ! Combine integrals
@@ -50,7 +56,7 @@ do ixa=0,la
           Tmp = Txyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb,0)*Rnxyz(iZeta,3,iza,izb,0)+ &
                 Rnxyz(iZeta,1,ixa,ixb,0)*Txyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb,0)+ &
                 Rnxyz(iZeta,1,ixa,ixb,0)*Rnxyz(iZeta,2,iya,iyb,0)*Txyz(iZeta,3,iza,izb)
-          final(iZeta,iComp,ipa,ipb) = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)*Tmp
+          rFinal(iZeta,iComp,ipa,ipb) = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)*Tmp
         end do
 
       end do

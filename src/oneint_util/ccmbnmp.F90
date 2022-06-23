@@ -11,21 +11,27 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,kVector,P)
+subroutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,kVector,P)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-complex*16 Rnxyz(nZeta,3,0:la,0:lb,0:lr), Temp, i
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), rKappa(nZeta), kVector(3), P(nZeta,3), k_Dot_P, Fact
+use Index_Functions, only: nTri_Elem1
+use Constants, only: One, Four, Onei
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, lr, nComp
+complex(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr)
+real(kind=wp) :: Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), kVector(3), P(nZeta,3)
+integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+complex(kind=wp) :: Temp
+real(kind=wp) :: Fact, k_Dot_P, rTemp
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
-i = (0.0d0,1.0d0)
 do ixa=0,la
   iyaMax = la-ixa
   do ixb=0,lb
@@ -46,11 +52,11 @@ do ixa=0,la
             do iZeta=1,nZeta
               rTemp = KVector(1)**2+kVector(2)**2+kVector(3)**2
               rTemp = rTemp/(Four*Zeta(iZeta))
-              Fact = rKappa(iZeta)*(1.0d0/sqrt(Zeta(iZeta)**3))*exp(-rTemp)
+              Fact = rKappa(iZeta)*(One/sqrt(Zeta(iZeta)**3))*exp(-rTemp)
               k_Dot_P = kVector(1)*P(iZeta,1)+kVector(2)*P(iZeta,2)+kVector(3)*P(iZeta,3)
-              Temp = exp(i*k_Dot_P)*Fact*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)*Rnxyz(iZeta,3,iza,izb,iz)
-              final(iZeta,ipa,ipb,iComp+1) = dble(Temp)
-              final(iZeta,ipa,ipb,iComp+2) = DIMAG(Temp)
+              Temp = exp(Onei*k_Dot_P)*Fact*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)*Rnxyz(iZeta,3,iza,izb,iz)
+              rFinal(iZeta,ipa,ipb,iComp+1) = real(Temp)
+              rFinal(iZeta,ipa,ipb,iComp+2) = aimag(Temp)
             end do
             iComp = iComp+2
           end do

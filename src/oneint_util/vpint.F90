@@ -23,12 +23,16 @@ subroutine VPInt( &
 !             Chemie, University of Bonn, Germany, April 1993          *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-external TNAI, Fake, XCff2D, XRys2D
-#include "real.fh"
-#include "print.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "int_interface.fh"
+#include "print.fh"
+integer(kind=iwp) :: i, iAlpha, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
+external :: Fake, TNAI, XCff2D, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 iRout = 221
@@ -59,7 +63,7 @@ if (mArr < 0) then
   call Abend()
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 call dcopy_(nZeta*nArr,[Zero],0,Array,1)
 ! Compute contribution from a,b+1
 
@@ -89,11 +93,11 @@ end if
 
 if (iPrint >= 99) call RecPrt(' In vpint: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
 
-call Util8(Array(ipB),nZeta,final,la,lb,Array(ipS1),Array(ipS2))
+call Util8(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2))
 
 if (iPrint >= 49) then
   do i=1,3
-    call RecPrt('VpInt: Final',' ',final(1,1,1,i),nZeta,nElem(la)*nElem(lb))
+    call RecPrt('VpInt: rFinal',' ',rFinal(1,1,1,i),nZeta,nElem(la)*nElem(lb))
   end do
 end if
 

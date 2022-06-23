@@ -28,9 +28,13 @@ subroutine SROMem( &
 !***********************************************************************
 
 use Basis_Info, only: dbsc, nCnttp, Shells
+use Definitions, only: iwp
 
+implicit none
 #include "mem_interface.fh"
+integer(kind=iwp) :: iAng, iCnttp, ip, iShll, memMlt, nac, ncb, nExpi, nH
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nHer = 0

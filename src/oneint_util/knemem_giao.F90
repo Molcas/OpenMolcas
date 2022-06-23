@@ -14,8 +14,12 @@ subroutine KnEMem_GIAO( &
 #                      include "mem_interface.fh"
                       )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nHer = ((la+1)+(lb+1)+lr+3)/2

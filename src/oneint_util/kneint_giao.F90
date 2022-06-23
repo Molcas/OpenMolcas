@@ -27,21 +27,20 @@ subroutine KnEInt_GIAO( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "rmat_option.fh"
-#include "rmat.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-real*8 TC(3)
-integer iStabO(0:7), iDCRT(0:7)
-logical ABeq(3)
+#include "print.fh"
+integer(kind=iwp) :: iAlpha, iBeta, iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipFnl, ipQxyz, iPrint, ipRxyz, &
+                     ipTxyz, ipWxyz, iRout, iStabO(0:7), lDCRT, llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
+real(kind=wp) :: TC(3)
+logical(kind=iwp) :: ABeq(3)
+integer(kind=iwp), external :: NrOpr
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
-!Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-!iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
-!Index(ixyz,ix,iz) = Ind(ixyz,ix,iz)+iOff(ixyz)
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -78,8 +77,8 @@ nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
 !                                                                      *
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'KNEInt: nip-1 > nArr*nZeta')
-  write(6,*) 'nip=',nip
-  write(6,*) 'nArr,nZeta=',nArr,nZeta
+  write(u6,*) 'nip=',nip
+  write(u6,*) 'nArr,nZeta=',nArr,nZeta
   call Abend()
 end if
 
@@ -88,7 +87,7 @@ if (iPrint >= 49) then
   call RecPrt(' In KnEInt: RB',' ',RB,1,3)
   call RecPrt(' In KnEInt: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
-  write(6,*) ' In KnEInt: la,lb=',la,lb
+  write(u6,*) ' In KnEInt: la,lb=',la,lb
 end if
 !                                                                      *
 !***********************************************************************
@@ -150,7 +149,7 @@ do lDCRT=0,nDCRT-1
   ! Accumulate contributions
 
   nOp = NrOpr(iDCRT(lDCRT))
-  call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+  call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
 

@@ -14,14 +14,15 @@ subroutine KnEMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
 #include "rmat_option.fh"
 
 nHer = (la+lb+lr+2)/2
 Mem = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr-1)+3*(la+2)*(lb+2)*(lr-1)+3*(la+1)*(lb+1)+1+1
-if (RMat_type_integrals) then
-  Mem = Mem+la+lb+3+la+lb+1+la+lb+1
-end if
+if (RMat_type_integrals) Mem = Mem+la+lb+3+la+lb+1+la+lb+1
 
 return
 

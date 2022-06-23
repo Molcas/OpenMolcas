@@ -32,14 +32,21 @@ subroutine EMFInt( &
 !             University of Uppsala, Sweden. December 2015             *
 !***********************************************************************
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables
-integer iStabO(0:7), iDCRT(0:7)
+#include "print.fh"
+integer(kind=iwp) :: iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, iPrint, ipVxyz, iRout, iStabO(0:7), &
+                     llOper, LmbdT, nDCRT, nip, nOp, nStabO
+integer(kind=iwp), external :: NrOpr
+! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -55,12 +62,9 @@ contains
 
 subroutine EMFInt_Internal(Array)
 
-  use iso_c_binding
-
-  real*8, target :: Array(*)
-  complex*16, pointer :: zAxyz(:), zBxyz(:), zQxyz(:), zVxyz(:)
-  ! Statement function for Cartesian index
-  nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+  real(kind=wp), target :: Array(*)
+  complex(kind=wp), pointer :: zAxyz(:), zBxyz(:), zQxyz(:), zVxyz(:)
+  integer(kind=iwp) :: iAlpha, iBeta, iComp, lDCRT
 
   iRout = 195
   iPrint = nPrint(iRout)
@@ -90,8 +94,8 @@ subroutine EMFInt_Internal(Array)
   end if
   if (nip-1 > nArr*nZeta) then
     call WarningMessage(2,'EMFInt: nip-1 > nArr*nZeta')
-    write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-    write(6,*) ' Abend in EMFInt'
+    write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+    write(u6,*) ' Abend in EMFInt'
     call Abend()
   end if
 
@@ -100,10 +104,10 @@ subroutine EMFInt_Internal(Array)
     call RecPrt(' In EMFInt: RB',' ',RB,1,3)
     call RecPrt(' In EMFInt: KVector',' ',CCoor,1,3)
     call RecPrt(' In EMFInt: P',' ',P,nZeta,3)
-    write(6,*) ' In EMFInt: la,lb=',la,lb
+    write(u6,*) ' In EMFInt: la,lb=',la,lb
   end if
 
-  call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+  call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
   ! Compute the cartesian values of the basis functions angular part
   ! Note that these arrays are complex.
@@ -168,7 +172,7 @@ subroutine EMFInt_Internal(Array)
     ! Accumulate contributions
 
     nOp = NrOpr(iDCRT(lDCRT))
-    call SymAdO(Array(ipRes),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+    call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
   end do
 

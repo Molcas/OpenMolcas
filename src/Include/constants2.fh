@@ -12,7 +12,7 @@
       Real*8 diel,rPi,UTOAU,elmass,ATOKG,elcharge,rNAVO,cLight,auTocm,  &
      &       rPlanck,rBohr,cm_s,Debye,Angstrom,RF,auToHz,auTofs,auToN,  &
      &       auToeV,auTokJ,auTokcalmol,kBoltzmann,c_in_au,cal_to_J,     &
-     &       Rgas,deg2rad,mu2elmass,cLightAU,atmToau
+     &       Rgas,deg2rad,mu2elmass,atmToau
       Parameter (diel= CONST_DIELECTRIC_IN_SI_)
       Parameter (rPi = CONST_PI_)
       Parameter (deg2rad = CONST_PI_/180.0d0)
@@ -44,6 +44,5 @@
       Parameter (c_in_au = CONST_C_IN_AU_)
       Parameter (cal_to_J = CONV_CAL_TO_J_)
       Parameter (Rgas = CONST_MOLAR_GAS_)
-      Parameter (cLightAU = CONST_C_IN_AU_)
       Parameter (atmToau =                                               &
      &CONV_ATM_TO_AU_)

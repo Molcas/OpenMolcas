@@ -27,9 +27,13 @@ subroutine M1Mem( &
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
-integer iAng(4)
+integer(kind=iwp) :: iAng(4), k, MemM10, MemPrm, nFlop, nMem
 ! Statement function
+integer(kind=iwp) :: nabSz, ixyz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"

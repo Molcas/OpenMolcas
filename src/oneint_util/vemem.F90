@@ -14,8 +14,12 @@ subroutine VeMem( &
 #                include "mem_interface.fh"
                 )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nHer = (la+(lb+1)+2)/2

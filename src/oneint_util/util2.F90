@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Util2(Beta,nZeta,final,la,lb,Slalbp,Slalbm)
+subroutine Util2(Beta,nZeta,rFinal,la,lb,Slalbp,Slalbm)
 !***********************************************************************
 !                                                                      *
 ! Object: to assemble the orbital angular momentum integrals from the  *
@@ -22,13 +22,19 @@ subroutine Util2(Beta,nZeta,final,la,lb,Slalbp,Slalbm)
 !             February '91                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb
+real(kind=wp) :: Beta(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), &
+                 Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3)
 #include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,3), Slalbp(nZeta,(la+1)*(la+2)/2,(lb+2)*(lb+3)/2,3), &
-       Slalbm(nZeta,(la+1)*(la+2)/2,lb*(lb+1)/2,3), Beta(nZeta)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iElem, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, jElem
+character(len=80) :: Label
 ! Statement function for cartesian index
+integer(kind=iwp) :: Ind, nElem, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 nElem(ix) = (ix+1)*(ix+2)/2
 
@@ -36,7 +42,7 @@ iRout = 211
 iPrint = nPrint(iRout)
 
 if (iPrint >= 99) then
-  write(6,*) ' In Util2 la,lb=',la,lb
+  write(u6,*) ' In Util2 la,lb=',la,lb
   call RecPrt('Beta',' ',Beta,nZeta,1)
   do ia=1,nElem(la)
     do ib=1,nElem(lb+1)
@@ -73,29 +79,30 @@ do ixa=la,0,-1
         ipb = Ind(lb,ixb,izb)
 
         do iZeta=1,nZeta
-          final(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*(Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),2)-Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb),3))
-          final(iZeta,ipa,ipb,2) = Two*Beta(iZeta)*(Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),3)-Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),1))
-          final(iZeta,ipa,ipb,3) = Two*Beta(iZeta)*(Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb),1)-Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),2))
+          rFinal(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*(Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),2)-Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb),3))
+          rFinal(iZeta,ipa,ipb,2) = Two*Beta(iZeta)* &
+                                    (Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),3)-Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),1))
+          rFinal(iZeta,ipa,ipb,3) = Two*Beta(iZeta)*(Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb),1)-Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),2))
         end do
 
         if (ixb > 0) then
           do iZeta=1,nZeta
-            final(iZeta,ipa,ipb,2) = final(iZeta,ipa,ipb,2)-dble(ixb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),3)
-            final(iZeta,ipa,ipb,3) = final(iZeta,ipa,ipb,3)+dble(ixb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),2)
+            rFinal(iZeta,ipa,ipb,2) = rFinal(iZeta,ipa,ipb,2)-real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),3)
+            rFinal(iZeta,ipa,ipb,3) = rFinal(iZeta,ipa,ipb,3)+real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),2)
           end do
         end if
 
         if (iyb > 0) then
           do iZeta=1,nZeta
-            final(iZeta,ipa,ipb,3) = final(iZeta,ipa,ipb,3)-dble(iyb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),1)
-            final(iZeta,ipa,ipb,1) = final(iZeta,ipa,ipb,1)+dble(iyb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),3)
+            rFinal(iZeta,ipa,ipb,3) = rFinal(iZeta,ipa,ipb,3)-real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),1)
+            rFinal(iZeta,ipa,ipb,1) = rFinal(iZeta,ipa,ipb,1)+real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb),3)
           end do
         end if
 
         if (izb > 0) then
           do iZeta=1,nZeta
-            final(iZeta,ipa,ipb,1) = final(iZeta,ipa,ipb,1)-dble(izb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2)
-            final(iZeta,ipa,ipb,2) = final(iZeta,ipa,ipb,2)+dble(izb)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),1)
+            rFinal(iZeta,ipa,ipb,1) = rFinal(iZeta,ipa,ipb,1)-real(izb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2)
+            rFinal(iZeta,ipa,ipb,2) = rFinal(iZeta,ipa,ipb,2)+real(izb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),1)
           end do
         end if
 
@@ -106,15 +113,15 @@ do ixa=la,0,-1
 end do
 
 if (iPrint >= 49) then
-  write(6,*) ' In Util2 la,lb=',la,lb
+  write(u6,*) ' In Util2 la,lb=',la,lb
   do iElem=1,nElem(la)
     do jElem=1,nElem(lb)
-      write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',x) '
-      call RecPrt(Label,' ',final(1,iElem,jElem,1),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',y) '
-      call RecPrt(Label,' ',final(1,iElem,jElem,2),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Final (',iElem,',',jElem,',z) '
-      call RecPrt(Label,' ',final(1,iElem,jElem,3),nZeta,1)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',x) '
+      call RecPrt(Label,' ',rFinal(1,iElem,jElem,1),nZeta,1)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',y) '
+      call RecPrt(Label,' ',rFinal(1,iElem,jElem,2),nZeta,1)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',z) '
+      call RecPrt(Label,' ',rFinal(1,iElem,jElem,3),nZeta,1)
     end do
   end do
 end if

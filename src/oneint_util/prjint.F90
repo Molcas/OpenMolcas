@@ -25,23 +25,26 @@ subroutine PrjInt( &
 !             Physics, University of Stockholm, Sweden, October '93.   *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Real_Spherical
-use Symmetry_Info, only: nIrrep, iChTbl
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
+use Real_Spherical, only: ipSph, RSph
+use Symmetry_Info, only: iChTbl, nIrrep
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
 #include "int_interface.fh"
-! Local varables
-real*8 C(3), TC(3)
-integer iDCRT(0:7), iTwoj(0:7)
+integer(kind=iwp) :: ia, iaC, iAng, ib, iBk, iC, iCb, iCnt, iCnttp, iComp, iDCRT(0:7), iIC, iIrrep, ip, ipaC, ipCb, ipF1, ipf2, &
+                     ipK1, ipK2, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iShll, lDCRT, llOper, LmbdT, mArr, mdc, nac, &
+                     nBasisi, ncb, nDCRT, nExpi, nOp
+real(kind=wp) :: Bk, C(3), Fact, Factor, TC(3), Xg
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-character*80 Label
+character(len=80) :: Label
 #endif
-data iTwoj/1,2,4,8,16,32,64,128/
+integer(kind=iwp), external :: NrOpr
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
@@ -57,10 +60,10 @@ unused_var(iAddPot)
 call RecPrt(' In PrjInt: A',' ',A,1,3)
 call RecPrt(' In PrjInt: RB',' ',RB,1,3)
 call RecPrt(' In PrjInt: Ccoor',' ',Ccoor,1,3)
-write(6,*) ' In PrjInt: la,lb=',' ',la,lb
+write(u6,*) ' In PrjInt: la,lb=',' ',la,lb
 #endif
 
-final(:,:,:,:) = Zero
+rFinal(:,:,:,:) = Zero
 
 llOper = lOper(1)
 iComp = 1
@@ -74,7 +77,7 @@ do iCnttp=1,nCnttp
     C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
@@ -168,7 +171,7 @@ do iCnttp=1,nCnttp
 
         ! 2) aciK =  k,aci * k,K
 
-        call DGEMM_('T','N',nAlpha*nac,nBasisi,nExpi,1.0d0,Array(ipTmp),nExpi,Shells(iShll)%pCff,nExpi,0.0d0,Array(ipF1),nAlpha*nac)
+        call DGEMM_('T','N',nAlpha*nac,nBasisi,nExpi,One,Array(ipTmp),nExpi,Shells(iShll)%pCff,nExpi,Zero,Array(ipF1),nAlpha*nac)
 
         ! 3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 
@@ -183,14 +186,14 @@ do iCnttp=1,nCnttp
 
         ! 5) iKa,C = c,iKa * c,C
 
-        call DGEMM_('T','N',nAlpha*nBasisi*nElem(la),(2*iAng+1),nElem(iAng),1.0d0,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),0.0d0,Array(ipF1),nAlpha*nBasisi*nElem(la))
+        call DGEMM_('T','N',nAlpha*nBasisi*nElem(la),(2*iAng+1),nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
+                    nElem(iAng),Zero,Array(ipF1),nAlpha*nBasisi*nElem(la))
 
         ! And (almost) the same thing for the righthand side, form
         ! KjCb from kjcb
         ! 1) jcb,K = k,jcb * k,K
 
-        call DGEMM_('T','N',nBeta*ncb,nBasisi,nExpi,1.0d0,Array(ipF2),nExpi,Shells(iShll)%pCff,nExpi,0.0d0,Array(ipTmp),nBeta*ncb)
+        call DGEMM_('T','N',nBeta*ncb,nBasisi,nExpi,One,Array(ipF2),nExpi,Shells(iShll)%pCff,nExpi,Zero,Array(ipTmp),nBeta*ncb)
 
         ! 2)  j,cbK -> cbK,j
 
@@ -198,8 +201,8 @@ do iCnttp=1,nCnttp
 
         ! 3) bKj,C = c,bKj * c,C
 
-        call DGEMM_('T','N',nElem(lb)*nBasisi*nBeta,(2*iAng+1),nElem(iAng),1.0d0,Array(ipF2),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),0.0d0,Array(ipTmp),nElem(lb)*nBasisi*nBeta)
+        call DGEMM_('T','N',nElem(lb)*nBasisi*nBeta,(2*iAng+1),nElem(iAng),One,Array(ipF2),nElem(iAng),RSph(ipSph(iAng)), &
+                    nElem(iAng),Zero,Array(ipTmp),nElem(lb)*nBasisi*nBeta)
 
         ! 4) b,KjC -> KjC,b
 
@@ -225,12 +228,12 @@ do iCnttp=1,nCnttp
 
               iIC = 0
               do iIrrep=0,nIrrep-1
-                if (iand(llOper,iTwoj(iIrrep)) == 0) cycle
+                if (.not. btest(llOper,iIrrep)) cycle
                 iIC = iIC+1
                 nOp = NrOpr(iDCRT(lDCRT))
-                Xg = dble(iChTbl(iIrrep,nOp))
+                Xg = real(iChTbl(iIrrep,nOp),kind=wp)
                 Factor = Xg*Fact
-                call DGEMM_('N','N',nAlpha,nBeta,nBasisi,Factor,Array(ipaC),nAlpha,Array(ipCb),nBasisi,One,final(1,ia,ib,iIC), &
+                call DGEMM_('N','N',nAlpha,nBeta,nBasisi,Factor,Array(ipaC),nAlpha,Array(ipCb),nBasisi,One,rFinal(1,ia,ib,iIC), &
                             nAlpha)
               end do ! iIrrep
 
@@ -245,11 +248,11 @@ do iCnttp=1,nCnttp
 end do ! iCnttp
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Result in PrjInt'
+write(u6,*) ' Result in PrjInt'
 do ia=1,(la+1)*(la+2)/2
   do ib=1,(lb+1)*(lb+2)/2
-    write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-    call RecPrt(Label,' ',final(1,ia,ib,1),nAlpha,nBeta)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+    call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
   end do
 end do
 #endif

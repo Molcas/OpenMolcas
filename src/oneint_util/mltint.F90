@@ -27,21 +27,25 @@ subroutine MltInt( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+#include "int_interface.fh"
 #include "rmat_option.fh"
 #include "oneswi.fh"
 #include "print.fh"
-#include "int_interface.fh"
-! Local variable
-real*8 TC(3), Origin(3)
-integer iStabO(0:7), iDCRT(0:7)
-logical ABeq(3), EQ
-character*80 Label, ChOper(0:7)*3
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-data Origin/0.0d0,0.0d0,0.0d0/
+integer(kind=iwp) :: iComp, iDCRT(0:7), ii, iIC, ipAxyz, ipBxyz, ipFnl, ipQxyz, iPrint, ipRnr, ipRxyz, iRout, iStabO(0:7), lDCRT, &
+                     llOper, LmbdT, lsum, nDCRT, nip, nOp, nStabO
+real(kind=wp) :: TC(3)
+logical(kind=iwp) :: ABeq(3)
+character(len=80) :: Label
+real(kind=wp), parameter :: Origin(3) = Zero
+character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
@@ -54,14 +58,14 @@ unused_var(iAddPot)
 iRout = 122
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
 ABeq(3) = A(3) == RB(3)
 ! switch (only single center overlap matrix...)
 if (NDDO .and. (.not.(ABeq(1)) .and. ABeq(2) .and. ABeq(3))) then
-  call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,final,1)
+  call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,rFinal,1)
   return
 end if
 ! switch
@@ -90,8 +94,8 @@ end if
 !                                                                      *
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'MltInt: nip-1 > nArr*nZeta')
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  write(6,*) ' Abend in MltInt'
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' Abend in MltInt'
   call Abend()
 end if
 
@@ -102,7 +106,7 @@ if (iPrint >= 49) then
   call RecPrt(' In MltInt: Kappa',' ',rKappa,nAlpha,nBeta)
   call RecPrt(' In MltInt: Zeta',' ',Zeta,nAlpha,nBeta)
   call RecPrt(' In MltInt: P',' ',P,nZeta,3)
-  write(6,*) ' In MltInt: la,lb=',la,lb
+  write(u6,*) ' In MltInt: la,lb=',la,lb
 end if
 
 llOper = lOper(1)
@@ -116,10 +120,10 @@ if (RMat_type_integrals) then
 
   if (.not. EQ(CCoor,Origin)) then
     call WarningMessage(2,'MltInt: R-matrix error')
-    write(6,*) 'MltInt: Wrong center of origin in case of R-matrix type of integrals!'
-    write(6,*) ' Origin should always be (0.0,0.0,0.0)!'
-    write(6,*) ' User the CENTER option to do this (see the SEWARD input section in the manual).'
-    write(6,'(A,I3)') 'nOrdOp=',nOrdOp
+    write(u6,*) 'MltInt: Wrong center of origin in case of R-matrix type of integrals!'
+    write(u6,*) ' Origin should always be (0.0,0.0,0.0)!'
+    write(u6,*) ' User the CENTER option to do this (see the SEWARD input section in the manual).'
+    write(u6,'(A,I3)') 'nOrdOp=',nOrdOp
     call Abend()
   end if
 
@@ -137,13 +141,13 @@ if (RMat_type_integrals) then
   call SOS(iStabO,nStabO,llOper)
   call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
   if (iPrint >= 99) then
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(6,*) ' s      =',nStabO
-    write(6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
-    write(6,*) ' LambdaT=',LmbdT
-    write(6,*) ' t      =',nDCRT
-    write(6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStabO
+    write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
   end if
 
   do lDCRT=0,nDCRT-1
@@ -151,7 +155,7 @@ if (RMat_type_integrals) then
     ! Accumulate contributions
 
     nOp = NrOpr(iDCRT(lDCRT))
-    call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+    call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
   end do
 
 else
@@ -166,13 +170,13 @@ else
   call SOS(iStabO,nStabO,llOper)
   call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
   if (iPrint >= 99) then
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(6,*) ' s      =',nStabO
-    write(6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
-    write(6,*) ' LambdaT=',LmbdT
-    write(6,*) ' t      =',nDCRT
-    write(6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStabO
+    write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
   end if
 
   do lDCRT=0,nDCRT-1
@@ -197,22 +201,22 @@ else
     ! Accumulate contributions
 
     nOp = NrOpr(iDCRT(lDCRT))
-    call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+    call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
   end do
 
 end if
 
 if (iPrint >= 99) then
-  write(6,*)
-  write(6,*) ' Result in MltInt'
-  write(6,*)
-  write(6,*) 'la,lb,nHer=',la,lb,nHer
-  write(6,*) 'nComp=',nComp
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Result in MltInt'
+  write(u6,*)
+  write(u6,*) 'la,lb,nHer=',la,lb,nHer
+  write(u6,*) 'nComp=',nComp
+  write(u6,*)
   do iIC=1,nIC
     write(Label,'(A,I2,A)') ' MltInt(iIC=',iIC,')'
-    call RecPrt(Label,'(10G15.8) ',final(1,1,1,iIC),nZeta,nElem(la)*nElem(lb))
+    call RecPrt(Label,'(10G15.8) ',rFinal(1,1,1,iIC),nZeta,nElem(la)*nElem(lb))
   end do
 end if
 

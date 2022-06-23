@@ -48,7 +48,6 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "int_interface.fh"
 ! Local variables
 integer(kind=iwp) :: iAng, iBas, iCnttp, iComp, iCurCenter, iCurCnttp, iCurMdc, iIC, iIrrep, iLoc, iPrim, ip, ipF1, ipF2, ipIJ, &
@@ -103,7 +102,7 @@ call RecPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
 call TrcPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
 #endif
 
-Final(:,:,:,:) = Zero
+rFinal(:,:,:,:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -480,11 +479,11 @@ do iS=1,nSkal
       !                  W = iBas*iSize * jBas*jSize                          (iBas,   iSize, jBas,          jSize)
 
 #     ifdef _DEBUGPRINT_
-      write(u6,*) ' Current contents of Final():'
+      write(u6,*) ' Current contents of rFinal():'
       do ia=1,nTri0Elem(la)
         do ib=1,nTri0Elem(lb)
-          write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-          call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
+          write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+          call RecPrt(Label,' ',rFinal(:,ia,ib,:),nAlpha,nBeta)
         end do
       end do
 #     endif
@@ -502,7 +501,7 @@ do iS=1,nSkal
           call xFlush(u6)
 
           call FragPCont(Array(ipF1),nAlpha,iBas,nTri0Elem(la),iSize,Array(ipF2),jBas,nBeta,jSize,nTri0Elem(lb),Array(ipIJ), &
-                         Final(:,:,:,iIC),Factor)
+                         rFinal(:,:,:,iIC),Factor)
         end if
       end do
       if (iIC /= nIC) stop 'iIC /= nIC'
@@ -511,8 +510,8 @@ do iS=1,nSkal
       write(u6,*) ' After contraction:'
       do ia=1,nTri0Elem(la)
         do ib=1,nTri0Elem(lb)
-          write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-          call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
+          write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+          call RecPrt(Label,' ',rFinal(:,ia,ib,:),nAlpha,nBeta)
         end do
       end do
 #     endif
@@ -531,8 +530,8 @@ call xFlush(u6)
 write(u6,*) ' Result in FragPInt'
 do ia=1,nTri0Elem(la)
   do ib=1,nTri0Elem(lb)
-    write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-    call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+    call RecPrt(Label,' ',rFinal(:,ia,ib,:),nAlpha,nBeta)
   end do
 end do
 #endif
@@ -547,7 +546,7 @@ end do
 !  do ia=1,nTri0Elem(la)
 !    do ib=1,nTri0Elem(lb)
 !      dA = Zero
-!      dA = dnrm2_(nAlpha*nBeta,Final(1,ia,ib,1),1)
+!      dA = dnrm2_(nAlpha*nBeta,rFinal(1,ia,ib,1),1)
 !      if (dA > 1.0e-6_wp) then
 !        write(label,'(A,i2,A,i2)') 'Fragpint: ',ia,' ib ',ib
 !        call Add_Info(label,dA,1,6)

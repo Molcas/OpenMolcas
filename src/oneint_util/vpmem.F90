@@ -16,9 +16,13 @@ subroutine VPMem( &
 #                include "mem_interface.fh"
                 )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
-integer iAngV(4)
+integer(kind=iwp) :: iAngV(4), MemNA1, MemNA2, nFlop, nMem
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 call mHrr(la,lb+1,nFlop,nMem)

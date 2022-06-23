@@ -11,6 +11,7 @@
 !   K.P.
 !   Dieses File enthaelt Feld fuer die theta/phi  Integration der
 !   Ein-Elektronen-Integrale fuer die R-Matrix.
+      Integer lgammax,lgamma,n_gam,m_gam
       Parameter(lgammax=15)
       Real*8 gammath(-2:2*lgammax+3,-2:2*lgammax+4),                    &
      &        gammaph(-2:2*lgammax+3,-2:2*lgammax+4)

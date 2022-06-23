@@ -11,21 +11,30 @@
 ! Copyright (C) Kurt Pfingst                                           *
 !***********************************************************************
 
-subroutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,final,nComp,Alpha,nAlpha,Beta,nBeta)
+subroutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,rFinal,nComp,Alpha,nAlpha,Beta,nBeta)
 !***********************************************************************
 !     Author: Kurt Pfingst                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Two, Three, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, nComp, nAlpha, nBeta
+real(kind=wp) :: Rnr(nZeta,0:la+lb+2), qC(nZeta,0:la+lb), Di(nZeta,-1:la+lb-1), Zeta(nZeta), &
+                 rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb)), Alpha(nAlpha), Beta(nBeta)
 #include "print.fh"
-#include "real.fh"
 #include "nrmf.fh"
 #include "rmat.fh"
 #include "gam.fh"
-real*8 final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), Zeta(nZeta), Rnr(nZeta,0:la+lb+2), qC(nZeta,0:la+lb), &
-       Di(nZeta,-1:la+lb-1), Alpha(nAlpha), Beta(nBeta)
-character*80 Label
+integer(kind=iwp) :: ia, ialpha, ib, ibeta, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, k, kc, lrs, m, n, &
+                     na, nb
+real(kind=wp) :: b1, b1a, b2, b2a, b3, BBLoch, c0, c1, c2, CConst1, CConst2, CConst3, ck1, const1, const2, const3, Fact, Fact1, &
+                 Fact2, Fact3, ralpha, rbeta, rx1, ry1, rz1, W
+character(len=80) :: Label
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iRout = 134
@@ -34,7 +43,7 @@ iPrint = nPrint(iRout)
 iComp = 1
 do ixa=0,la
   do ixb=0,lb
-    rx1 = dble(ixb*(ixb-1))
+    rx1 = real(ixb*(ixb-1),kind=wp)
     n = ixa+ixb
     do iya=0,la-ixa
       iza = la-ixa-iya
@@ -42,15 +51,15 @@ do ixa=0,la
       do iyb=0,lb-ixb
         izb = lb-ixb-iyb
         ipb = Ind(lb,ixb,izb)
-        ry1 = dble(iyb*(iyb-1))
+        ry1 = real(iyb*(iyb-1),kind=wp)
         m = iya+iyb
-        rz1 = dble(izb*(izb-1))
+        rz1 = real(izb*(izb-1),kind=wp)
         k = iza+izb
 
         ! Combine integrals
         ! define various factors
         !***************************************************
-        ck1 = 2d0*dble(ixb+iyb+izb)+3d0
+        ck1 = Two*real(ixb+iyb+izb,kind=wp)+Three
         !***************************************************
         !***************************************************
         const1 = rx1*gammath(n+m-2,k)*gammaph(m,n-2)
@@ -59,8 +68,8 @@ do ixa=0,la
         !***************************************************
         const3 = rz1*gammath(n+m,k-2)*gammaph(m,n)
         !***************************************************
-        CConst1 = const1+const2+const3
         !***************************************************
+        CConst1 = const1+const2+const3
         !***************************************************
         CConst2 = ck1*gammath(n+m,k)*gammaph(m,n)
         !***************************************************
@@ -69,8 +78,8 @@ do ixa=0,la
         ! Constants for Bloch term b1/b2/b3
         na = ixa+iya+iza
         nb = ixb+iyb+izb
-        b1 = 0.5d0*(dble(nb)+1.d0)*rmatr**(na+nb+1)
-        b1a = 0.5d0*(dble(na)+1.d0)*rmatr**(na+nb+1)
+        b1 = Half*(real(nb+1,kind=wp))*rmatr**(na+nb+1)
+        b1a = Half*(real(na+1,kind=wp))*rmatr**(na+nb+1)
         W = gammath(n+m,k)*gammaph(m,n)
 
         ibeta = 1
@@ -83,10 +92,10 @@ do ixa=0,la
           b2a = ralpha*rmatr**(na+nb+3)
           b3 = exp(-Zeta(iZeta)*rmatr*rmatr)
           BBLoch = W*b3*((b1-b2)-bParm*(b1-b2)*(b1a-b2a))
-          c0 = 0.5d0
+          c0 = Half
           c1 = -rbeta
-          c2 = 2d0*rbeta*rbeta
-          final(iZeta,iComp,ipa,ipb) = BBloch-(c0*CConst1*Rnr(iZeta,n+m+k-2)+c1*CConst2*Rnr(iZeta,n+m+k)+ &
+          c2 = Two*rbeta*rbeta
+          rFinal(iZeta,iComp,ipa,ipb) = BBloch-(c0*CConst1*Rnr(iZeta,n+m+k-2)+c1*CConst2*Rnr(iZeta,n+m+k)+ &
                                                c2*CConst3*Rnr(iZeta,n+m+k+2))
           if (iZeta == kc*nalpha) then
             ibeta = ibeta+1
@@ -104,11 +113,11 @@ end do
 !***********************************************************************
 
 if (iPrint >= 99) then
-  write(6,*) ' Result in Cmbnker1'
+  write(u6,*) ' Result in Cmbnker1'
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
-      write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-      call RecPrt(Label,' ',final(1,1,ia,ib),nZeta,nComp)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+      call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
     end do
   end do
 end if
@@ -133,9 +142,9 @@ if (abs(qCoul) > Epsq) then
           lcosf = ixa+ixb
           Fact = gammath(lsint,lcost)*gammaph(lsinf,lcosf)
           do iZeta=1,nZeta
-            final(iZeta,iComp,ipa,ipb) = final(iZeta,iComp,ipa,ipb)+Fact*qCoul*qC(iZeta,lrs)
+            rFinal(iZeta,iComp,ipa,ipb) = rFinal(iZeta,iComp,ipa,ipb)+Fact*qCoul*qC(iZeta,lrs)
           end do
-!
+
         end do
       end do
     end do
@@ -145,11 +154,11 @@ end if
 !***********************************************************************
 
 if (iPrint >= 99) then
-  write(6,*) ' Result in Cmbnker2'
+  write(u6,*) ' Result in Cmbnker2'
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
-      write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-      call RecPrt(Label,' ',final(1,1,ia,ib),nZeta,nComp)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+      call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
     end do
   end do
 end if
@@ -189,7 +198,7 @@ if (abs(Dipol1) > Epsq) then
           ! Summe
           Fact = Fact1+Fact2+Fact3
           do iZeta=1,nZeta
-            final(iZeta,iComp,ipa,ipb) = final(iZeta,iComp,ipa,ipb)+Fact*Di(iZeta,lrs)
+            rFinal(iZeta,iComp,ipa,ipb) = rFinal(iZeta,iComp,ipa,ipb)+Fact*Di(iZeta,lrs)
           end do
 
         end do

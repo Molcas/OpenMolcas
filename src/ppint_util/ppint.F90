@@ -26,7 +26,6 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "int_interface.fh"
 integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
 integer(kind=iwp) :: iA, iAB, iAlpha, iB, iBeta, iCntr, iCnttp, iDCRT(0:7), iExp, intmax, iOff, iOff2, ipA, ipScr, iSh, iStrt, &
@@ -53,7 +52,7 @@ unused_var(iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call dcopy_(nZeta*nTri0Elem(la)*nTri0Elem(lb)*nIC,[Zero],0,Final,1)
+call dcopy_(nZeta*nTri0Elem(la)*nTri0Elem(lb)*nIC,[Zero],0,rFinal,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -164,7 +163,7 @@ do iCnttp=1,nCnttp
       ! Symmetry Adapt
 
       nOp = NrOpr(iDCRT(lDCRT))
-      call SymAdO(Array(ipA),nZeta,la,lb,nComp,Final,nIC,nOp,lOper,iChO,Fact)
+      call SymAdO(Array(ipA),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,Fact)
     end do ! lDCRT
     !                                                                  *
     !*******************************************************************

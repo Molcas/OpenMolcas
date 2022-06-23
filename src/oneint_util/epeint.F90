@@ -24,16 +24,20 @@ subroutine EPEInt( &
 !             of Lund, Sweden, February '91                            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-external TNAI, Fake, Cff2D, XRys2D
-#include "real.fh"
-#include "print.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "int_interface.fh"
-! Local variables
-real*8 TC(3), Coori(3,4), Coora(3,4), CoorAC(3,2)
-integer iAnga(4), iDCRT(0:7), iStabO(0:7)
-logical EQ, NoSpecial
+integer(kind=iwp) :: iAnga(4), iComp, iDCRT(0:7), ipIn, iStabO(0:7), lDCRT, llOper, LmbdT, mabMax, mabMin, nDCRT, nFLOP, nMem, &
+                     nOp, nStabO, nT
+real(kind=wp) :: Coora(3,4), CoorAC(3,2), Coori(3,4), TC(3)
+logical(kind=iwp) :: NoSpecial
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+external :: Cff2D, Fake, TNAI, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
@@ -45,7 +49,7 @@ unused_var(nOrdOp)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 iAnga(1) = la
 iAnga(2) = lb
@@ -98,7 +102,7 @@ do lDCRT=0,nDCRT-1
   ! Accumulate contributions to the symmetry adapted operator
 
   nOp = NrOpr(iDCRT(lDCRT))
-  call SymAdO(Array(ipIn),nZeta,la,lb,nComp,final,nIC,nOp,lOper,iChO,One)
+  call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
 

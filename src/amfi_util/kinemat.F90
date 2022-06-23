@@ -15,7 +15,7 @@ subroutine kinemat(ndim,evtkin,type1,type2,Energy)
 !bs The c in the second kinematic factor comes from Jan Almloef and
 !bs Odd Gropen in Rev in Comp.Chem. 8(1996)
 
-use Constants, only: Zero, One, Half, speed => cLightAU
+use Constants, only: Zero, One, Half, speed => c_in_au
 use Definitions, only: wp, iwp
 
 implicit none

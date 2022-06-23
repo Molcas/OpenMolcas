@@ -26,22 +26,25 @@ subroutine SROInt( &
 !             September '94.                                           *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Real_Spherical
-use Symmetry_Info, only: nIrrep, iChTbl
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
+use Real_Spherical, only: ipSph, RSph
+use Symmetry_Info, only: iChTbl, nIrrep
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
 #include "int_interface.fh"
-! Local variables
-real*8 C(3), TC(3)
-integer iDCRT(0:7), iTwoj(0:7)
-character*80 Label
-logical EQ
-data iTwoj/1,2,4,8,16,32,64,128/
+#include "print.fh"
+integer(kind=iwp) :: ia, iaC, iAng, ib, iC, iCb, iCnt, iCnttp, iComp, iDCRT(0:7), iIC, iIrrep, ip, ipaC, ipC, ipCb, ipF1, ipF2, &
+                     ipK1, ipK2, ipP1, ipP2, iPrint, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iRout, iShll, lDCRT, llOper, LmbdT, mArr, &
+                     mdc, nac, ncb, nDCRT, nExpi, nOp
+real(kind=wp) :: C(3), Fact, Factor, TC(3), Xg
+character(len=80) :: Label
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
@@ -60,10 +63,10 @@ if (iPrint >= 49) then
   call RecPrt(' In SROInt: RB',' ',RB,1,3)
   call RecPrt(' In SROInt: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In SROInt: P',' ',P,nZeta,3)
-  write(6,*) ' In SROInt: la,lb=',' ',la,lb
+  write(u6,*) ' In SROInt: la,lb=',' ',la,lb
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
 
 llOper = lOper(1)
 iComp = 1
@@ -77,7 +80,7 @@ do iCnttp=1,nCnttp
     C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
@@ -110,9 +113,9 @@ do iCnttp=1,nCnttp
         ip = ip+nAlpha*nExpi
         if (ip-1 > nArr*nZeta) then
           call WarningMessage(2,'SROInt: ip-1 > nArr*nZeta(1)')
-          write(6,*) ' nArr, nZeta=',nArr,nZeta
-          write(6,*) ' nac, nAlpha=',nac,nAlpha
-          write(6,*) ' nExpi=',nExpi
+          write(u6,*) ' nArr, nZeta=',nArr,nZeta
+          write(u6,*) ' nac, nAlpha=',nac,nAlpha
+          write(u6,*) ' nExpi=',nExpi
           call Abend()
         end if
         mArr = (nArr*nZeta-(ip-1))/nZeta
@@ -181,8 +184,8 @@ do iCnttp=1,nCnttp
 
         ! 2) ika,C = c,ika * c,C
 
-        call DGEMM_('T','N',nAlpha*nExpi*nElem(la),(2*iAng+1),nElem(iAng),1.0d0,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),0.0d0,Array(ipF1),nAlpha*nExpi*nElem(la))
+        call DGEMM_('T','N',nAlpha*nExpi*nElem(la),(2*iAng+1),nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
+                    nElem(iAng),Zero,Array(ipF1),nAlpha*nExpi*nElem(la))
         if (iPrint >= 99) call RecPrt('<A|srbs>',' ',Array(ipF1),nAlpha*nExpi,nElem(la)*(2*iAng+1))
 
         ! And (almost) the same thing for the righthand side, form
@@ -193,8 +196,8 @@ do iCnttp=1,nCnttp
 
         ! 2) bkj,C = c,bkj * c,C
 
-        call DGEMM_('T','N',nElem(lb)*nExpi*nBeta,(2*iAng+1),nElem(iAng),1.0d0,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),0.0d0,Array(ipF2),nElem(lb)*nExpi*nBeta)
+        call DGEMM_('T','N',nElem(lb)*nExpi*nBeta,(2*iAng+1),nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
+                    nElem(iAng),Zero,Array(ipF2),nElem(lb)*nExpi*nBeta)
 
         ! 3) b,kjC -> kjC,b
 
@@ -215,10 +218,10 @@ do iCnttp=1,nCnttp
 
         do ib=1,nElem(lb)
           do ia=1,nElem(la)
-            if (iPrint >= 99) write(6,*) ' ia,ib=',ia,ib
+            if (iPrint >= 99) write(u6,*) ' ia,ib=',ia,ib
 
             do iC=1,(2*iAng+1)
-              if (iPrint >= 99) write(6,*) ' iC,=',iC
+              if (iPrint >= 99) write(u6,*) ' iC,=',iC
               iaC = (iC-1)*nElem(la)+ia
               ipaC = (iaC-1)*nAlpha*nExpi+ipF1
               iCb = (ib-1)*(2*iAng+1)+iC
@@ -230,14 +233,14 @@ do iCnttp=1,nCnttp
                 call RecPrt('<iC|ib>',' ',Array(ipCb),nExpi,nBeta)
               end if
               do iIrrep=0,nIrrep-1
-                if (iand(llOper,iTwoj(iIrrep)) == 0) cycle
-                if (iPrint >= 99) write(6,*) ' iIC=',iIC
+                if (.not. btest(llOper,iIrrep)) cycle
+                if (iPrint >= 99) write(u6,*) ' iIC=',iIC
                 iIC = iIC+1
                 nOp = NrOpr(iDCRT(lDCRT))
-                Xg = dble(iChTbl(iIrrep,nOp))
+                Xg = real(iChTbl(iIrrep,nOp),kind=wp)
                 Factor = Xg*Fact
                 call DGEMM_('N','N',nAlpha,nExpi,nExpi,One,Array(ipaC),nAlpha,Array(ipC),nExpi,Zero,Array(ipTmp),nAlpha)
-                call DGEMM_('N','N',nAlpha,nBeta,nExpi,Factor,Array(ipTmp),nAlpha,Array(ipCb),nExpi,One,final(1,ia,ib,iIC),nAlpha)
+                call DGEMM_('N','N',nAlpha,nBeta,nExpi,Factor,Array(ipTmp),nAlpha,Array(ipCb),nExpi,One,rFinal(1,ia,ib,iIC),nAlpha)
               end do
 
             end do
@@ -251,11 +254,11 @@ do iCnttp=1,nCnttp
 end do
 
 if (iPrint >= 99) then
-  write(6,*) ' Result in SROInt'
+  write(u6,*) ' Result in SROInt'
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
-      write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-      call RecPrt(Label,' ',final(1,ia,ib,1),nAlpha,nBeta)
+      write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+      call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
     end do
   end do
 end if

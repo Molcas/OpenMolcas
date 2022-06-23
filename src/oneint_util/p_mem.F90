@@ -14,15 +14,18 @@ subroutine P_Mem( &
 #                include "mem_interface.fh"
                 )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
 
 #include "macros.fh"
-unused_var(nHer)
 unused_var(la)
 unused_var(lb)
 unused_var(lr)
 
 Mem = 1
+nHer = 0
 
 return
 

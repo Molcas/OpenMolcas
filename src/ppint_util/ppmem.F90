@@ -18,7 +18,6 @@ use Index_util, only: nTri0Elem
 use Definitions, only: iwp
 
 implicit none
-#define _USE_WP_
 #include "mem_interface.fh"
 integer(kind=iwp) :: intmax
 

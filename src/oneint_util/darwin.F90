@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Darwin(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,final,iStabM,nStabM,nComp,rKappa)
+subroutine Darwin(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,rFinal,iStabM,nStabM,nComp,rKappa)
 !***********************************************************************
 !                                                                      *
 ! Object: to compoute the 1-electron Darwin contact term.              *
@@ -20,17 +20,22 @@ subroutine Darwin(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,final,iStabM,nStabM,nComp,rK
 !             University of Lund, Sweden, February '91                 *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Zero, One, Half, Pi, c_in_au
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "constants.fh"
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, nStabM, iStabM(0:nStabM-1), nComp
+real(kind=wp) :: Zeta(nZeta), P(nZeta,3), A(3), Axyz(nZeta,3,0:la), RB(3), Bxyz(nZeta,3,0:lb), &
+                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), rKappa(nZeta)
 #include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), rKappa(nZeta), Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb), Zeta(nZeta), &
-       P(nZeta,3), A(3), RB(3), C(3), TC(3)
-integer iStabM(0:nStabM-1), iDCRT(0:7)
+integer(kind=iwp) :: ia, ib, iCar, iDCRT(0:7), ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, kCnt, kCnttp, kdc, &
+                     lDCRT, LmbdT, nDCRT
+real(kind=wp) :: C(3), Fact, Factor, TC(3)
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, Ind, ixyz, ix, iz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
@@ -42,7 +47,7 @@ if (iPrint >= 99) then
   call RecPrt(' In Darwin: P',' ',P,nZeta,3)
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,final,1)
+call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,rFinal,1)
 
 kdc = 0
 do kCnttp=1,nCnttp
@@ -51,7 +56,7 @@ do kCnttp=1,nCnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
@@ -122,8 +127,8 @@ do kCnttp=1,nCnttp
               izb = lb-ixb-iyb
               ipb = Ind(lb,ixb,izb)
               do iZeta=1,nZeta
-                final(iZeta,ipa,ipb,1) = final(iZeta,ipa,ipb,1)+Fact*Axyz(iZeta,1,ixa)*Axyz(iZeta,2,iya)*Axyz(iZeta,3,iza)* &
-                                         Bxyz(iZeta,1,ixb)*Bxyz(iZeta,2,iyb)*Bxyz(iZeta,3,izb)
+                rFinal(iZeta,ipa,ipb,1) = rFinal(iZeta,ipa,ipb,1)+Fact*Axyz(iZeta,1,ixa)*Axyz(iZeta,2,iya)*Axyz(iZeta,3,iza)* &
+                                          Bxyz(iZeta,1,ixb)*Bxyz(iZeta,2,iyb)*Bxyz(iZeta,3,izb)
               end do
             end do
           end do
@@ -137,12 +142,11 @@ end do
 
 ! Factor from operator (pi/(2*c**2), c=137.036 au)
 
-!Factor = Pi*One2C2
-Factor = Pi/(Two*CONST_C_IN_AU_**2)
+Factor = Pi*Half/c_in_au**2
 do ipa=1,nElem(la)
   do ipb=1,nELem(lb)
     do iZeta=1,nZeta
-      final(iZeta,ipa,ipb,1) = rKappa(iZeta)*Factor*final(iZeta,ipa,ipb,1)
+      rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Factor*rFinal(iZeta,ipa,ipb,1)
     end do
   end do
 end do

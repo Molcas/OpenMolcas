@@ -16,9 +16,14 @@ subroutine NAMem_GIAO( &
 #                     include "mem_interface.fh"
                      )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
-integer iAngV(4)
+integer(kind=iwp) :: iAngV(4), kab, lab, labcd_EF, labMax, labMin, lc, lcd_EF, lcd_NA, lcdMax_EF, lcdMax_NA, lcdMin_EF, lcdMin_NA, &
+                     ld, Mem0, Mem1, Mem2, Mem2_EF, Mem2_NA, nFlop, nMem
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 

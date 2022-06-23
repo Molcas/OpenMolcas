@@ -16,9 +16,13 @@ subroutine EFMem( &
 #                include "mem_interface.fh"
                 )
 
+use Definitions, only: iwp
+
+implicit none
 #include "mem_interface.fh"
-integer iAngV(4)
+integer(kind=iwp) :: iAngV(4), kab, lab, labcd, labMax, labMin, lc, lcd, lcdMax, lcdMin, ld, Mem1, Mem2, nFlop, nMem
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, nabSz, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 

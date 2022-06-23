@@ -11,19 +11,25 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CmbnVe(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,Vxyz)
+subroutine CmbnVe(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Vxyz)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             January '91                                              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), rKappa(nZeta), Rnxyz(nZeta,3,0:la,0:lb+1,0:lr), &
-       Vxyz(nZeta,3,0:la,0:lb)
+use Index_Functions, only: nTri_Elem1
+use Constants, only: Two, Three
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, lr, nComp
+real(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), &
+                 Vxyz(nZeta,3,0:la,0:lb)
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+real(kind=wp) :: Fact
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 !iRout = 161
@@ -40,17 +46,17 @@ do ixa=0,la
         izb = lb-ixb-iyb
         ipb = Ind(lb,ixb,izb)
         !if (iPrint >= 99) then
-        !  write(6,*) ixa,iya,iza,ixb,iyb,izb
-        !  write(6,*) ipa,ipb
+        !  write(u6,*) ixa,iya,iza,ixb,iyb,izb
+        !  write(u6,*) ipa,ipb
         !end if
 
         ! Combine integrals
 
         do iZeta=1,nZeta
           Fact = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)
-          final(iZeta,ipa,ipb,1) = Fact*Vxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb,0)*Rnxyz(iZeta,3,iza,izb,0)
-          final(iZeta,ipa,ipb,2) = Fact*Rnxyz(iZeta,1,ixa,ixb,0)*Vxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb,0)
-          final(iZeta,ipa,ipb,3) = Fact*Rnxyz(iZeta,1,ixa,ixb,0)*Rnxyz(iZeta,2,iya,iyb,0)*Vxyz(iZeta,3,iza,izb)
+          rFinal(iZeta,ipa,ipb,1) = Fact*Vxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb,0)*Rnxyz(iZeta,3,iza,izb,0)
+          rFinal(iZeta,ipa,ipb,2) = Fact*Rnxyz(iZeta,1,ixa,ixb,0)*Vxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb,0)
+          rFinal(iZeta,ipa,ipb,3) = Fact*Rnxyz(iZeta,1,ixa,ixb,0)*Rnxyz(iZeta,2,iya,iyb,0)*Vxyz(iZeta,3,iza,izb)
         end do
 
       end do

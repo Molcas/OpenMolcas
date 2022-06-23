@@ -11,12 +11,16 @@
 
 subroutine Assemble_mGauss(As,Ad,nAs)
 
-implicit real*8(a-h,o-z)
-real*8 As(nAs), Ad(nAs,6)
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-call DaXpY_(nAs,1.0d0,Ad(1,1),1,As,1)
-call DaXpY_(nAs,1.0d0,Ad(1,4),1,As,1)
-call DaXpY_(nAs,1.0d0,Ad(1,6),1,As,1)
+implicit none
+integer(kind=iwp) :: nAs
+real(kind=wp) :: As(nAs), Ad(nAs,6)
+
+call DaXpY_(nAs,One,Ad(1,1),1,As,1)
+call DaXpY_(nAs,One,Ad(1,4),1,As,1)
+call DaXpY_(nAs,One,Ad(1,6),1,As,1)
 
 return
 

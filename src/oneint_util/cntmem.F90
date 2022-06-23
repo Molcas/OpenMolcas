@@ -15,8 +15,9 @@ subroutine CntMem( &
                  )
 
 use Sizes_of_Seward, only: s
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "mem_interface.fh"
 
 #include "macros.fh"

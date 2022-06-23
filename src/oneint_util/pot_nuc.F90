@@ -13,20 +13,21 @@
 
 subroutine Pot_nuc(CCoor,pot,nGrid)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 CCoor(3,nGrid), pot(nGrid)
-real*8 C(3), TC(3)
-integer iStabM(0:7), iDCRT(0:7)
+implicit none
+integer(kind=iwp) :: nGrid
+real(kind=wp) :: CCoor(3,nGrid), pot(nGrid)
+integer(kind=iwp) :: iDCRT(0:7), iGrid, iStabM(0:7), kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nstabm
+real(kind=wp) :: C(3), Fact, r12, TC(3)
 
 ! compute nuclear contribution to potential
 
 do iGrid=1,nGrid
-  pot(iGrid) = 0d0
+  pot(iGrid) = Zero
 end do
 
 !hjw is this always correct?
@@ -43,14 +44,14 @@ do kCnttp=1,nCnttp
 
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
 
       do iGrid=1,nGrid
         r12 = sqrt((TC(1)-CCoor(1,iGrid))**2+(TC(2)-CCoor(2,iGrid))**2+(TC(3)-CCoor(3,iGrid))**2)
-        if (r12 > 1.d-8) pot(iGrid) = pot(iGrid)+dbsc(kCnttp)%Charge*fact/r12
+        if (r12 > 1.0e-8_wp) pot(iGrid) = pot(iGrid)+dbsc(kCnttp)%Charge*fact/r12
       end do
 
     end do

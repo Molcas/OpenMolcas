@@ -20,20 +20,15 @@ subroutine one2h5_fckint(fileid,nsym,nbas)
 ! Datasets:
 !   AO_FOCKINT_MATRIX
 
-use mh5, only: mh5_init_attr, mh5_create_dset_real, mh5_put_dset,mh5_close_dset
+use mh5, only: mh5_close_dset, mh5_create_dset_real, mh5_init_attr, mh5_put_dset
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: fileid
-integer :: nsym, nbas(*)
-#include "Molcas.fh"
-#include "stdalloc.fh"
-integer :: isym
-integer :: nb, nbast, nbast1, nbast2
-real*8, allocatable :: SAO(:), Scr(:)
-integer :: iRc, iOpt, iComp, iSyLbl
+integer(kind=iwp) :: fileid, nsym, nbas(*)
+integer(kind=iwp) :: dsetid, iComp, iOff1, iOff2, iOpt, iRc, iSyLbl, isym, nb, nbast, nbast1, nbast2
 character(len=8) :: Label
-integer :: iOff1, iOff2
-integer :: dsetid
+real(kind=wp), allocatable :: SAO(:), Scr(:)
 
 nbast = 0
 nbast1 = 0

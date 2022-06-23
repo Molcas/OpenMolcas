@@ -25,11 +25,15 @@ subroutine MVe(rV2Int,rV4Int,Sxyz,na,nb,Alpha,Beta,nZeta)
 !             Mikes and Roland Lindh.                                  *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Two, Four
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: na, nb, nZeta
+real(kind=wp) :: rV2Int(nZeta,3,0:na,0:nb,2), rV4Int(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na+2,0:nb+2), Alpha(nZeta), Beta(nZeta)
 #include "print.fh"
-#include "real.fh"
-real*8 rV2Int(nZeta,3,0:na,0:nb,2), rV4Int(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na+2,0:nb+2), Alpha(nZeta), Beta(nZeta)
-character*80 Label
+integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
+character(len=80) :: Label
 
 iRout = 192
 iPrint = nPrint(iRout)
@@ -51,31 +55,33 @@ do ib=0,nb
       do iZeta=1,nZeta
 
         rV2Int(iZeta,iCar,ia,ib,1) = Four*Alpha(iZeta)**2*Sxyz(iZeta,iCar,ia+2,ib)- &
-                                     Two*Alpha(iZeta)*(Two*dble(ia)+One)*Sxyz(iZeta,iCar,ia,ib)
+                                     Two*Alpha(iZeta)*real(2*ia+1,kind=wp)*Sxyz(iZeta,iCar,ia,ib)
         if (ia >= 2) then
-          rV2Int(iZeta,iCar,ia,ib,1) = rV2Int(iZeta,iCar,ia,ib,1)+dble(ia*(ia-1))*Sxyz(iZeta,iCar,ia-2,ib)
+          rV2Int(iZeta,iCar,ia,ib,1) = rV2Int(iZeta,iCar,ia,ib,1)+real(ia*(ia-1),kind=wp)*Sxyz(iZeta,iCar,ia-2,ib)
         end if
 
         rV2Int(iZeta,iCar,ia,ib,2) = Four*Beta(iZeta)**2*Sxyz(iZeta,iCar,ia,ib+2)- &
-                                     Two*Beta(iZeta)*(Two*dble(ib)+One)*Sxyz(iZeta,iCar,ia,ib)
+                                     Two*Beta(iZeta)*real(2*ib+1,kind=wp)*Sxyz(iZeta,iCar,ia,ib)
         if (ib >= 2) then
-          rV2Int(iZeta,iCar,ia,ib,2) = rV2Int(iZeta,iCar,ia,ib,2)+dble(ib*(ib-1))*Sxyz(iZeta,iCar,ia,ib-2)
+          rV2Int(iZeta,iCar,ia,ib,2) = rV2Int(iZeta,iCar,ia,ib,2)+real(ib*(ib-1),kind=wp)*Sxyz(iZeta,iCar,ia,ib-2)
         end if
 
         rV4Int(iZeta,iCar,ia,ib) = Four*Alpha(iZeta)**2*Four*Beta(iZeta)**2*Sxyz(iZeta,iCar,ia+2,ib+2)- &
-                                   Four*Alpha(iZeta)**2*Two*Beta(iZeta)*(Two*dble(ib)+One)*Sxyz(iZeta,iCar,ia+2,ib)- &
-                                   Four*Beta(iZeta)**2*Two*Alpha(iZeta)*(Two*dble(ia)+One)*Sxyz(iZeta,iCar,ia,ib+2)+ &
-                                   Two*Alpha(iZeta)*(Two*dble(ia)+One)*Two*Beta(iZeta)*(Two*dble(ib)+One)*Sxyz(iZeta,iCar,ia,ib)
+                                   Four*Alpha(iZeta)**2*Two*Beta(iZeta)*real(2*ib+1,kind=wp)*Sxyz(iZeta,iCar,ia+2,ib)- &
+                                   Four*Beta(iZeta)**2*Two*Alpha(iZeta)*real(2*ia+1,kind=wp)*Sxyz(iZeta,iCar,ia,ib+2)+ &
+                                   Two*Alpha(iZeta)*real(2*ia+1,kind=wp)*Two*Beta(iZeta)*real(2*ib+1,kind=wp)*Sxyz(iZeta,iCar,ia,ib)
         if (ia >= 2) then
-          rV4Int(iZeta,iCar,ia,ib) = rV4Int(iZeta,iCar,ia,ib)+dble(ia*(ia-1))*(Four*Beta(iZeta)**2*Sxyz(iZeta,iCar,ia-2,ib+2)- &
-                                     Two*Beta(iZeta)*(Two*dble(ib)+One)*Sxyz(iZeta,iCar,ia-2,ib))
+          rV4Int(iZeta,iCar,ia,ib) = rV4Int(iZeta,iCar,ia,ib)+real(ia*(ia-1),kind=wp)* &
+                                     (Four*Beta(iZeta)**2*Sxyz(iZeta,iCar,ia-2,ib+2)- &
+                                      Two*Beta(iZeta)*real(2*ib+1,kind=wp)*Sxyz(iZeta,iCar,ia-2,ib))
         end if
         if (ib >= 2) then
-          rV4Int(iZeta,iCar,ia,ib) = rV4Int(iZeta,iCar,ia,ib)+dble(ib*(ib-1))*(Four*Alpha(iZeta)**2*Sxyz(iZeta,iCar,ia+2,ib-2)- &
-                                     Two*Alpha(iZeta)*(Two*dble(ia)+One)*Sxyz(iZeta,iCar,ia,ib-2))
+          rV4Int(iZeta,iCar,ia,ib) = rV4Int(iZeta,iCar,ia,ib)+real(ib*(ib-1),kind=wp)* &
+                                     (Four*Alpha(iZeta)**2*Sxyz(iZeta,iCar,ia+2,ib-2)- &
+                                      Two*Alpha(iZeta)*real(2*ia+1,kind=wp)*Sxyz(iZeta,iCar,ia,ib-2))
         end if
         if ((ia >= 2) .and. (ib >= 2)) then
-          rV4Int(iZeta,iCar,ia,ib) = rV4Int(iZeta,iCar,ia,ib)+dble(ia*(ia-1)*ib*(ib-1))*Sxyz(iZeta,iCar,ia-2,ib-2)
+          rV4Int(iZeta,iCar,ia,ib) = rV4Int(iZeta,iCar,ia,ib)+real(ia*(ia-1)*ib*(ib-1),kind=wp)*Sxyz(iZeta,iCar,ia-2,ib-2)
         end if
 
       end do
