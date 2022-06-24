@@ -16,7 +16,10 @@
 
       module fciqmc_read_RDM
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset
+      use mh5, only: mh5_open_file_r, mh5_close_file, mh5_put_dset,
+     &               mh5_open_group, mh5_close_group,
+     &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
+     &               mh5_get_dset_dims, mh5_exists_dset
 #endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
@@ -26,7 +29,8 @@
       use rasscf_data, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
       ! Note that two_el_idx_flatten has also out parameters.
-      use index_symmetry, only : one_el_idx, two_el_idx_flatten
+      use index_symmetry, only : one_el_idx, two_el_idx_flatten,
+     &                           one_el_idx_flatten
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
 
@@ -34,6 +38,7 @@
 
 ! TODO: Have to figure out how to encapsulate into rasscf_data
 #include "raswfn.fh"
+#include "intent.fh"
 
       private
       public :: read_neci_RDM, cleanup
@@ -61,11 +66,11 @@
 
 
       subroutine read_neci_RDM(
-     &    iroot, weight, tGUGA, ifinal, DMAT, DSPN, PSMAT, PAMAT
-     &  )
+     &    iroot, weight, tGUGA, ifinal, DMAT, DSPN, PSMAT, PAMAT)
 
           ! wrapper around `read_single_neci_(GUGA)_RDM` to average
           ! normal and GUGA density matrices for stochastic SA-MCSCF.
+          use fciqmc, only: tHDF5_RDMs
 
           integer(wp), intent(in) :: iroot(:), ifinal
           real(wp), intent(in) :: weight(:)
@@ -91,7 +96,6 @@
           DMAT(:) = 0.0_wp; DSPN(:) = 0.0_wp
           PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp
 
-
           do i = 1, NRoots
               do j = 1, size(iroot)
                   if (iroot(j) == i) then
@@ -100,6 +104,11 @@
      &                        iroot(j), temp_DMAT, temp_DSPN,
      &                        temp_PSMAT, temp_PAMAT
      &                    )
+#ifdef _HDF5_
+                      else if (tHDF5_RDMs) then
+                          call read_hdf5_denmats(iroot(j), temp_DMAT,
+     &                        temp_DSPN, temp_PSMAT, temp_PAMAT)
+#endif
                       else
                           call read_single_neci_RDM(
      &                        iroot(j), temp_DMAT, temp_DSPN,
@@ -577,6 +586,7 @@
         if (err == 0) write(u6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
 
+
 #ifdef _HDF5_
       subroutine expand_1rdm(dmat, decompressed_dmat)
         ! Decompresses DMAT from subroutine read_neci_RDM from a
@@ -601,6 +611,80 @@
           end do
         end do
       end subroutine expand_1rdm
+
+
+      subroutine read_hdf5_denmats(iroot, dmat, dspn, psmat, pamat)
+        ! quick hack to get it working with M7 and debug CASPT2
+        integer, intent(in) :: iroot
+        real(wp), intent(_OUT_) :: dmat(:), dspn(:), psmat(:), pamat(:)
+        integer, allocatable :: indices(:,:)
+        real(wp), allocatable :: values(:)
+        integer :: len4index(2), pqrs, pq, n_kl, p, q, r, s, i,
+     &             hdf5_file, hdf5_group, hdf5_dset
+        real(wp) :: rdm2_temp(nAc, nAc, nAc, nAc)
+        logical :: tExist
+
+        call f_Inquire('spinfree-TwoRDM.' //str(iroot)// '.h5', tExist)
+        call verify_(tExist, 'spinfree-TwoRDM.' // str(iroot)
+     &              // '.h5 does not exist.')
+        hdf5_file = mh5_open_file_r('spinfree-TwoRDM.' // str(iroot)
+     &                             // '.h5')
+        hdf5_group = mh5_open_group(hdf5_file, 'archive/rdms/2200')
+        hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
+        len4index(:) = 0
+        call mh5_get_dset_dims(hdf5_dset, len4index)
+        call mma_allocate(indices, 4, len4index(2))
+        call mma_allocate(values, len4index(2))
+        indices(:,:) = 0
+        values(:) = 0.0_wp
+        call mh5_fetch_dset(hdf5_group, 'values', values)
+        call mh5_fetch_dset(hdf5_group, 'indices', indices)
+        call mh5_close_group(hdf5_group)
+        call mh5_close_file(hdf5_file)
+
+        rdm2_temp(:,:,:,:) = 0.0_wp
+        do i = 1, len4index(2)
+          p = indices(1, i) + 1; q = indices(2, i) + 1
+          r = indices(3, i) + 1; s = indices(4, i) + 1
+          rdm2_temp(p, q, r, s) = values(i)
+          rdm2_temp(q, p, s, r) = values(i)  ! symmetry
+          rdm2_temp(r, s, p, q) = values(i)
+          rdm2_temp(s, r, q, p) = values(i)
+        end do
+        call mma_deallocate(indices)
+        call mma_deallocate(values)
+
+        do s = 1, nAc
+          do r = 1, nAc
+            do q = 1, nAc
+              do p = 1, nAc
+              if (r == s) n_kl = 1
+              if (r > s)  n_kl = 2
+              pqrs = two_el_idx_flatten(p, q, r, s)
+              psmat(pqrs) = 0.5_wp * n_kl * (rdm2_temp(p, q, r, s) +
+     &              rdm2_temp(q, p, r, s)) / 2
+              pamat(pqrs) = 0.5_wp * n_kl * (rdm2_temp(p, q, r, s) -
+     &              rdm2_temp(q, p, r, s)) / 2
+              end do
+            end do
+          end do
+        end do
+
+        do i = 1, nAc
+          do q = 1, nAc
+            do p = 1, nAc
+              pq = one_el_idx_flatten(p, q)
+              dmat(pq) = dmat(pq) + rdm2_temp(p, q, i, i)
+            end do
+          end do
+        end do
+        dmat(:) = dmat(:) / nActEl
+
+        write(u6,'(a)') "This function is for debugging CASPT2."
+        write(u6,'(a)') "DSPN is not populated, despite working in SDs."
+        write(u6,'(a)') "Do NOT run systems with spin polarisation yet."
+
+      end subroutine read_hdf5_denmats
 #endif
 
       ! Add your deallocations here. Called when exiting rasscf.

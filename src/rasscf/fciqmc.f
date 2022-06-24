@@ -42,12 +42,13 @@
       use definitions, only: u6
 
       implicit none
-      save  ! preserves values when modules go out of scope, legacy.
+      save
       private
-      public :: DoNECI, DoEmbdNECI, fciqmc_solver_t, tGUGA_in
+      public :: DoNECI, DoEmbdNECI, fciqmc_solver_t, tGUGA_in,
+     &          tHDF5_RDMs
 
       logical :: DoEmbdNECI = .false., DoNECI = .false.,
-     &  tGUGA_in  = .false.
+     &  tGUGA_in  = .false., tHDF5_RDMs = .false.
 
 #ifdef _NECI_
       interface
@@ -321,6 +322,9 @@
         if (tGUGA) then
           write(u6,'(4x, A)') 'cp PSMAT.* PAMAT.* DMAT.* '//
      &          trim(WorkDir)
+        else if (tHDF5_RDMs) then
+          write(u6,'(4x, a)')
+     &      'copy your HDF5 file from M7 into '//trim(WorkDir)
         else
           write(u6,'(4x, A)')
      &      'cp TwoRDM_* '//trim(WorkDir)

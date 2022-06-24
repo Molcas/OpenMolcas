@@ -42,6 +42,7 @@
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
+      use fciqmc, only: tHDF5_RDMs
 #endif
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
@@ -2069,6 +2070,15 @@ C orbitals accordingly
      &'not compiled with embedded NECI. Please use -DNECI=ON '//
      &'for compiling or use an external NECI.')
 #endif
+        end if
+*----------------------------------------------------------------------------------------
+        if (KeyH5DM) then
+            tHDF5_RDMs = .true.
+            if(DBG) write(6, *) 'RDMs will be read from HDF5 files'
+            if (.not. KeyNECI) then
+              call WarningMessage(2, 'HDF5 reads require NECI keyword!')
+              GoTo 9930
+            end if
         end if
 *----------------------------------------------------------------------------------------
         if (KeyGUGA) then
