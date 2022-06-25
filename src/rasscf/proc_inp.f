@@ -863,7 +863,14 @@ C   No changing about read in orbital information from INPORB yet.
        End If
        if(.not.(trim(Line).eq.'XMS'))  then
          CMSGuessFile=trim(Line)
-         call fileorb(Line,CMSStartMat)
+         CMSStartMat=CMSGuessFile
+         call F_Inquire(trim(CMSStartMat),lExists)
+         if(.not.lExists) then
+           write(LF,'(6X,A,A)') trim(CMSStartMat),
+     &' is not found. Use XMS intermediate states as initial guess.'
+           CMSStartMat='XMS'
+         end if
+C         call fileorb(Line,CMSStartMat)
        end if
       End If
 *---  Process CMSO command --------------------------------------------*

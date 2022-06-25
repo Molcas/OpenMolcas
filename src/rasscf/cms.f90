@@ -21,8 +21,8 @@ Logical CMSGiveOpt
 Real*8  CMSThres
 Real*8,DIMENSION(:),Allocatable:: RGD
 INTEGER iCMSOpt
-Logical CMSScaled,PosHess,BigQaaGrad,NeedMoreStep
-INTEGER nPosHess
+Logical PosHess,BigQaaGrad,NeedMoreStep
+INTEGER nPosHess,nCMSScale
 Real*8  LargestQaaGrad
 CHARACTER*128 cmsguessfile
 End Module CMS

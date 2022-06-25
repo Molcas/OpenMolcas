@@ -82,6 +82,7 @@ C         write(6,*) 'constant Qaa for pair',ipair
      &      .and.(ValHess .gt. ThreH)) THEN
 C         write(6,*) 'local minimum for pair',ipair
          XScr(iPair)=MinGrad/Abs(EigVal(iPair))
+         If(XScr(iPair).gt.1.0d-2) XScr(iPair)=1.0d-2
         END IF
 
 C       END IF
@@ -113,6 +114,7 @@ C      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
      &                     RCopy,GDCopy,DgCopy,
      &                     GDstate,GDOrbit,Dgstate,DgOrbit,DDg,
      &                     nSPair,lRoots2,nGD,NAC2,nDDg,Saved)
+      use CMS, only: NCMSScale
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -126,27 +128,25 @@ C      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
       Real*8 Qnew,Qold
       Logical Saved
 
-      INTEGER iterscale,nScaleMax
+      INTEGER nScaleMax
 
       Saved=.true.
-      ITERscale=0
 
-*      NScaleMax=ICMSIterMax
-      NScaleMax=max(20,ICMSIterMax)
-      NScaleMax=min(80,NScaleMax)
+      NScaleMax=5
       DO WHILE ((Qold-Qnew).gt.CMSThreshold)
-       ITERscale=ITERscale+1
-*       write(6,*) 'rescaling',ITERscale
-       IF(ITERscale.eq.nScaleMax) THEN
-        CALL FZero(X,nSPair)
-        write(6,*) 'Scaling does not save Qaa from decreasing'
+       NCMSScale=NCMSScale+1
+       IF(NCMSScale.eq.nScaleMax) THEN
+        write(6,'(6X,A)')
+     &  'Scaling does not save Qaa from decreasing.'
+        write(6,'(6X,A)')
+     &  'Q_a-a decreases for this step.'
         Saved=.false.
         Exit
        END IF
        CALL DCopy_(lRoots2,RCopy,1,R,1)
        CALL DCopy_(nGD,GDCopy,1,GDState,1)
        CALL DCopy_(nGD,DgCopy,1,DgState,1)
-       CALL DScal_(nSPair,0.5d0,X,1)
+       CALL DScal_(nSPair,0.1d0,X,1)
 
        CALL UpDateRotMat(R,DeltaR,X,lRoots,nSPair)
        CALL RotGD(GDstate,DeltaR,nGD,lRoots,NAC2)
@@ -156,12 +156,6 @@ C      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
        CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
        CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
 
-C       write(6,*) 'rescaling',ITERscale,Qold,Qnew,CMSThreshold,
-C     &            ICMSIterMax
-
-*       IF(ITERscale.eq.iCMSIterMax) THEN
-*        Exit
-*       END IF
       END DO
 
       RETURN
