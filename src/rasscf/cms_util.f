@@ -19,11 +19,10 @@
 * are written in files with the name as the subroutine name.
 
       Subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
-      use CMS, only: iCMSOpt,CMSScaled,NPosHess,LargestQaaGrad
+      use CMS, only: iCMSOpt,NPosHess,LargestQaaGrad,NCMSScale
       INTEGER iStep,lRoots
       Real*8 Qnew,Qold,Diff
       Real*8 RMat(lRoots**2)
-      CHARACTER(len=1) Scaled
 
 *      write(6,*) 'iteration information'
       Diff=Qnew-Qold
@@ -42,18 +41,18 @@
       ELSE
 
 
-       If(CMSScaled) Then
-        Scaled='Y'
-       Else
-        Scaled='N'
-       End If
-       If(lRoots.eq.2) Then
-        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
-     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
-       Else
-       write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,4X,A1)')
-     &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,Scaled
-       End If
+C       If(lRoots.eq.2) Then
+C        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
+C     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
+C       Else
+        if (NCMSScale.gt.0) then
+      write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,I1)')
+     &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,'1E-',NCMSScale
+        else
+       write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)')
+     &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,'1.0'
+        end if
+C       End If
 
 
       END IF
@@ -134,26 +133,31 @@
       CHARACTER(len=LenCMSS)::CMSSFile
       write(6,*)
       write(6,*)
-      write(6,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
+      write(6,'(4X,A35)')
+     & 'CMS INTERMEDIATE-STATE OPTIMIZATION'
       IF(CMSSFile.eq.'XMS') THEN
-       write(6,'(5X,A12,8X,A23)')
+       write(6,'(5X,A11,9X,A25)')
      &'START MATRX','XMS INTERMEDIATE STATES'
       ELSE
-       write(6,'(5X,A12,8X,A23)')
+       write(6,'(5X,A11,9X,A25)')
      &'START MATRX',CMSGuessFile
       END IF
       IF(iCMSOpt.eq.1) THEN
-      write(6,'(4X,A12,8X,A8)')
-     &'OPT ALGO  ','NEWTON'
+       write(6,'(5X,A8,12X,A25)')
+     & 'OPT ALGO','NEWTON'
       ELSE IF(iCMSOpt.eq.2) THEN
-      write(6,'(4X,A12,8X,A8)')
-     &'OPT ALGO  ','JACOBI'
+       write(6,'(5X,A8,12X,A25)')
+     & 'OPT ALGO','JACOBI'
       END IF
-      write(6,'(4X,A12,8X,ES9.2E2)')
-     &'THRESHOLD ',CMSThreshold
-      write(6,'(4X,A12,8X,I8)')
+      write(6,'(5X,A15,5X,16X,ES9.2E2)')
+     &'Q_a-a THRESHOLD',CMSThreshold
+      IF(iCMSOpt.eq.1) THEN
+        write(6,'(5X,A15,5X,16X,ES9.2E2)')
+     &  'GRAD  THRESHOLD',CMSThreshold*1.0d-2
+      END IF
+      write(6,'(5X,A10,10X,I25)')
      &'MAX CYCLES',ICMSIterMax
-      write(6,'(4X,A12,8X,I8)')
+      write(6,'(5X,A10,10X,I25)')
      &'MIN CYCLES',ICMSIterMin
       write(6,*)('=',i=1,71)
       IF(iCMSOpt.eq.2) THEN
@@ -165,15 +169,10 @@
      & 'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
        End If
       ELSE
-       If(lRoots.gt.2) Then
-       write(6,'(6X,A5,7X,A5,8X,A10,2X,A6,5X,A7,3X,A7)')
-     & 'Cycle','Q_a-a','Difference','# Pos.','Largest','Reduced'
-       write(6,'(43X,A7,4X,A8,2X,A5)')
-     & 'Hessian','Gradient','Step?'
-       Else
-       write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
-     & 'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
-       End If
+       write(6,'(6X,A5,7X,A5,8X,A10,2X,A6,5X,A7,4X,A4)')
+     & 'Cycle','Q_a-a','Difference','# Pos.','Largest','Step'
+       write(6,'(43X,A7,4X,A8,3X,A6)')
+     & 'Hessian','Gradient','Scaled'
       END IF
       write(6,*)('-',i=1,71)
 
