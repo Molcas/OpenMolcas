@@ -67,7 +67,7 @@ character(len=72) :: formt
 character(len=8) :: Method_chk
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
 ! CASPT2 gradients
-logical(kind=wp) :: LoadVec, is_error
+logical(kind=iwp) :: LoadVec, is_error
 real(kind=wp), allocatable :: CMOPT2(:)
 integer(kind=iwp), allocatable :: iOffAO(:)
 integer(kind=iwp) :: nOcc(8), nFro(8), iCnt, iost, iSSDM, luCMOPT2, luGamma, lRealName, nBasT, nBasI, MaxShlAO
