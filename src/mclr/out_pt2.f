@@ -26,6 +26,7 @@
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
+      Character*8 Method
       Logical CI, Is_Roots_Set
       Character(LEN=80) Note
 ! Added for DMRG calculation
@@ -395,15 +396,21 @@ c
 c
 c Read active one el dens for state j from JOBIPH and store in G1q
 c
-         Do i=1,iR-1  ! Dummy read until state j
-           Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
-           Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
-           Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
-           Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
-         End Do
-         Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
-         If (PT2.and.nRoots.gt.1)
-     *     Call Get_dArray("D1mo",G1q,ng1)
+         Call Get_cArray('Relax Method',Method,8)
+         if(Method.eq.'MSPDFT  ') then
+          Call Get_DArray('D1MOt           ',G1q,ng1)
+         else
+           Do i=1,iR-1  ! Dummy read until state j
+             Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
+             Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
+             Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
+             Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
+           End Do
+           Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
+
+           If (PT2.and.nRoots.gt.1) Call Get_dArray("D1mo",G1q,ng1)
+
+         end if
        EndIf
 *
 *    Construct a variationally stable density matrix. In MO

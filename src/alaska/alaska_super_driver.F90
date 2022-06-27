@@ -306,7 +306,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. &
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (Method == 'MCPDFT') then
+else if ((Method == 'MCPDFT').or.(Method == 'MSPDFT')) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *

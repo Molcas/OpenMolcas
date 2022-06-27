@@ -147,6 +147,8 @@ c      idp=rtoi
          nA(iSym)=nna
          nnA=nnA+nAsh(isym)
       end do
+      nacpar=(nnA+1)*nnA/2
+      nacpr2=(nacpar+1)*nacpar/2
 
       Call Start_MCLR()
 *
@@ -193,7 +195,11 @@ c      idp=rtoi
 *        Call WfCtl_PCG(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
 *        Call Abend()
       Else if(iMCPD) Then!pdft
-         Call WfCtl_PDFT(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
+        if(iMSPD) then
+          Call WfCtl_MSPD(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
+        else
+          Call WfCtl_PDFT(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
+        end if
       Else if (SA.or.PT2) Then
          Call WfCtl_SA(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
       Else If (TimeDep) Then

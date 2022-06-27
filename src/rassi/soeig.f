@@ -190,6 +190,14 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
         END DO
       END DO
 
+* VKochetov 2021 put SOC matrix elements to hdf5:
+#ifdef _HDF5_
+      if (rhodyn) then
+        call mh5_put_dset(wfn_sos_vsor, work(LHTOTR))
+        call mh5_put_dset(wfn_sos_vsoi, work(LHTOTI))
+      endif
+#endif
+
 * Perhaps write out large spin-orbit coupling elements:
       IF(NSOTHR_PRT.GT.0) THEN
 * Prevent infinite loop below:

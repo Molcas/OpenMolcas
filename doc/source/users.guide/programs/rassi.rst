@@ -1281,6 +1281,17 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`RHODyn`
+  Required to run :program:`RHODYN` program. Enable saving pure spin--orbit coupling Hamiltonian and SO Dyson amplitudes (not squared!) to HDF5 file of :program:`RASSI`.
+  Keywords :kword:`SPINorbit`, :kword:`MESO`, :kword:`XVES`, :kword:`XVSO`, :kword:`DYSOn` are required to print corresponding properties.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="RHOD" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: RHODyn <advanced>
+              <HELP>
+              Enables saving V_SOC and Dyson amplitudes to HDF5.
+              </HELP>
+              </KEYWORD>
+
 :kword:`NTOCalc`
   Enables natural transition orbital (NTO) calculation of two states from two JobIph files (which can be identical to each other).
   The NTO calculations can be performed for states with different spatial symmetries.
@@ -1295,6 +1306,31 @@ Keywords
               %%Keyword: NTOC <advanced>
               <HELP>
               Enables natural transition orbital calculation from two JobIph files.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SONT`
+  This computes the spin--orbit natural transition orbitals (SO-NTOs) for two spin--orbit coupled states, and it also
+  performs the transition dipole moment (TDM) partitioning study based on the obtained SO-NTOs. It starts by an integer number
+  specifying the number of requested SO-NTO pairs, followed by the same number of lines. Each line contains two integers
+  for the two spin--orbit (SO) coupled states. An input example has been shown below.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONT" APPEAR="Spin-orbit natural transition orbitals" KIND="INTS_COMPUTED" SIZE="2" LEVEL="ADVANCED" >
+              %%Keyword: SONT <advanced>
+              <HELP>
+              This computes the spin--orbit natural transition orbitals (SO-NTOs) for two spin--orbit coupled states, and it also
+              performs the transition dipole moment (TDM) partitioning study based on the obtained SO-NTOs.
+              </HELP>
+              </KEYWORD>
+
+:kword:`ARGU`
+  This minimizes the imaginary component of the calculated SO-NTOs.
+  The keyword :kword:`SONT` is needed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ARGU" APPEAR="Argument Phi" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="SONT">
+              %%Keyword: ARGU <advanced>
+              <HELP>
+              This minimizes the imaginary component of the calculated SO-NTOs. The SO-NTOs are required (use keyword SONT).
               </HELP>
               </KEYWORD>
 
@@ -1414,6 +1450,27 @@ An NTO input example using the JobIph file from a state-averaged calculation is 
   1; 2
   *This NTO calculation is performed for the ground state and the first
   *excited state of the previous calculation done in the &RASSCF module.
+
+An SO-NTO input example from three singlets and two triplets: ::
+
+  >>COPY  $Project.JobIph.s0s1s2 JOB001
+  >>COPY  $Project.JobIph.t1t2 JOB002
+
+  &RASSI
+  Nr of JobIphs
+  2 3 2
+  1 2 3
+  1 2
+  SPINorbit
+  ARGU *This minimizes the imaginary component of SO-NTOs
+  SONT
+  3
+  1 2
+  1 3
+  2 3
+  *Three pairs of SO-NTOs are requested, between SO state 1 and 2,
+  *SO state 1 and 3, and SO state 2 and 3.
+  *Note that the states are SO coupled states.
 
 An illustrative hyperfine calculation input for a diatomic molecule: ::
 

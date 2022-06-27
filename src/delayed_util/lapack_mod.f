@@ -10,6 +10,8 @@
 ************************************************************************
       module LAPACK_MOD
 
+      use LAPACK_MOD_F90
+
       contains
 
 #include "lapack.fh"

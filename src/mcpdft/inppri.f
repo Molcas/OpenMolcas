@@ -37,6 +37,7 @@
 #include "WrkSpc.fh"
 #include "splitcas.fh"
 #include "ksdft.fh"
+#include "mspdft.fh"
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
@@ -412,7 +413,7 @@ C.. for GAS
         Write(LF,Fmt2//'A,T45,E10.3)')'Correlation scaling factor',
      &                                 CoefR
        end if
-       If (dogradPDFT) then
+       If (dogradPDFT.or.dogradMSPD) then
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
        Write(LF,Fmt2//'A,T45,I6)')'Maximum number of macro iterations',

@@ -185,6 +185,8 @@ c         RecLab( 58)='GEO_nConnect    '
          RecLab( 74)='Unique centers  '
          RecLab( 75)='nXF             '
          RecLab( 76)='CSPF            '
+*        For MS-PDFT gradient
+         RecLab( 77)='NCONF           '
 *                     1234567890123456
 *
 *        Note, when the counter here exceeds 128 update this line

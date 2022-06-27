@@ -14,7 +14,7 @@ workflow:
 .template: &sources
   changes:
     - .gitlab-ci.yml
-    - .configs.yml
+    - .gitlab-ci_configs.yml
     - .gitmodules
     - basis_library/**/*
     - CMakeLists.txt
@@ -69,7 +69,7 @@ workflow:
 # There can only be a single "include" per file
 include:
   # Configurations defined in an external file
-  - "/.configs.yml"
+  - "/.gitlab-ci_configs.yml"
   # Jobs for building the documentation
   #  - "/doc/.gitlab-ci.yml"
 

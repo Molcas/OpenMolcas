@@ -47,6 +47,8 @@ C      iMethod=3
        iMethod=4
       Else If ( Method.eq.'MCPDFT  ' ) then
        iMethod=2
+      Else If ( Method.eq.'MSPDFT  ' ) then
+       iMethod=2
       End If
 *---  read file header  -----------------------------------------------*
       Call Get_cArray('Seward Title',Header1I,144)

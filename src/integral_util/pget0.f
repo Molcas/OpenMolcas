@@ -38,6 +38,8 @@
 #include "setup.fh"
 #include "etwas.fh"
 #include "columbus_gamma.fh"
+#include "mspdft.fh"
+
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)
       Integer iAO(4), iCmp(4), kOp(4), iAOst(4)
       Logical Shijij
@@ -75,6 +77,7 @@
          ipS2 = ipS1 + 2*nScr1
 *
          If (lSA) nSA=4
+         If (DoGradMSPD) nSA=5
 *
          If (nIrrep.eq.1) Then
             kOp(1) = 0

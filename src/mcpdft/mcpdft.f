@@ -662,6 +662,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 !      write(*,*) "two ints",Work(LPUVX:LPUVX+NACPR2-1)
 !      write(*,*) "LCMO",Work(LCMO:LCMO+NTOT2-1)
       If (.not.DoCholesky .or. ALGO.eq.1) Then
+         if(dogradmspd) then
+           CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
+         end if
          Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
       EndIf
 
@@ -685,7 +688,17 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &    KSDFT_TEMP(1:4).eq.'TPBE'.or.
      &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
      &     KSDFT_TEMP(1:6).eq.'FTOPBE') THEN
-
+       IF(DoGradMSPD) THEN
+        Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
+        Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
+        Call GetMem('FxyMS','Allo','Real',iFxyMS,nTot4*nRoots)
+        Call GetMem('F2MS' ,'Allo','Real',iF2MS ,nACPR2*nRoots)
+        Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
+        Call GetMem('DIDA' ,'Allo','Real',iDIDA ,nTot1*(nRoots+1))
+        Call GetMem('D1AOMS' ,'Allo','Real',D1AOMS,nTot1*nRoots)
+        Call GetMem('D1SAOMS' ,'Allo','Real',D1SAOMS,nTot1*nRoots)
+        Call FZero(Work(iP2MOt),lRoots*NACPR2)
+       END IF
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
         Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
      &       Work(iRef_E))
@@ -706,9 +719,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &   MSPDFTMethod,' Effective Hamiltonian'
          Call RecPrt(' ','',Work(LHRot),lroots,lroots)
          write (6,*)
-*XMC-PDFT    To diagonalize the final MS-PDFT effective H matrix.
-*XMC-PDFT    Eigenvectors will be stored in LRState. This notation for the
-*XMC-PDFT    address here is the same for the rotated space in XMS-CASPT2.
+*MS-PDFT    To diagonalize the final MS-PDFT effective H matrix.
+*MS-PDFT    Eigenvectors will be stored in LRState. This notation for the
+*MS-PDFT    address here is the same for the rotated space in XMS-CASPT2.
          NRState=NHRot
          CALL GETMEM('RotStat','ALLO','REAL',LRState,NRState)
          Call FZero(Work(LRState),NRState)
@@ -719,14 +732,14 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
      &               Work(LXScratch),NXScratch,INFO)
          write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
-         Do Jroot=1,lroots
-           write(6,'(6X,3A,1X,I2,5X,A13,F18.8)')
+         Do Jroot=1,lroot s
+           write(6,'(6X,3 A,1X,I2,5X,A13,F18.8)')
      &'::    ',MSPDFTMethod,' Root',
      &     Jroot,'Total energy:',Work(LRState+Jroot-1)
          End Do
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',WORK(LRState),nroots)
-      Call Put_dScalar('Last energy',WORK(iRlxRoot-1))
+      Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
          Write(6,*)
          CALL mma_allocate(VecStat,lRoots)
          Do Jroot=1,lRoots
@@ -747,6 +760,18 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 *Added by Chen to write energies and states of MS-PDFT into JOBIPH
          If(IWJOB==1) Call writejobms(iadr19,LRState,LHRot)
          Call RecPrt(' ','',Work(LHRot),lroots,lroots)
+         if(DoGradMSPD) then
+           Call MSPDFTGrad_Misc(LHRot)
+           Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
+           Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
+           Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)
+           Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
+           Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
+           Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
+           Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
+           if (ispin.eq.1)
+     &     Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
+          end if
 *         Write(6,*)
          refbas=.false.
          call f_inquire('ROT_VEC',RefBas)
@@ -778,6 +803,13 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           write(LUMS,*) MSPDFTMethod
           Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
           Close(LUMS)
+         end if
+*        Gradient part
+         if(DoGradMSPD) then
+          Call Put_iScalar('Number of roots',nroots)
+          Call Put_cArray('Relax Method','MSPDFT  ',8)
+          Call Put_cArray('MCLR Root','****************',16)
+          Call Put_iScalar('Relax CASSCF root',irlxroot)
          end if
          Write(6,'(6X,80a)') ('*',i=1,80)
          CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)

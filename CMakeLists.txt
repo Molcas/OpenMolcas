@@ -1452,8 +1452,9 @@ if (LINALG STREQUAL "Internal")
   if (NOT DEFINED ${util}_src)
     message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
+  set (linalgmod "${${util}_src}/la_constants_.F90" "${${util}_src}/la_xisnan_.F90")
   foreach (lib ${LINALG_LIBRARIES})
-    set (source ${${util}_src}/${lib}.f)
+    set (source ${${util}_src}/${lib}.f ${${util}_src}/${lib}_f90.F90 ${linalgmod})
     add_library (${lib} ${source})
     list (APPEND ALL_SOURCES ${source})
     list (APPEND ${util}_incs ${internal_linalg})
@@ -2610,6 +2611,7 @@ if (HDF5 AND HDF5_FOUND)
     poly_aniso
     rasscf
     rassi
+    rhodyn
     scf
     single_aniso
     slapaf
@@ -2626,6 +2628,9 @@ if (HDF5 AND HDF5_FOUND)
       list (APPEND ${prog}_deplibs qcmaquis-hdf5-interface)
     endforeach ()
   endif ()
+else ()
+  message (WARNING "RHODYN program requires HDF5 interface, disabled")
+  list (REMOVE_ITEM progs rhodyn)
 endif ()
 
 # Libraries that require QCMaquis-OpenMolcas interface
@@ -2737,7 +2742,7 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w")
 endif ()
 if (netlib_nowarn_flags)
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
+  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90 ${delayed_util_src}/*.f ${delayed_util_src}/*.F90)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
 endif ()
 
@@ -2789,6 +2794,13 @@ if (BUILD_SHARED_LIBS)
   set_target_properties (mods_obj PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
 endif ()
 set_target_properties (mods_obj PROPERTIES Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR})
+
+# set the module directory for internal linalg
+if (LINALG STREQUAL "Internal")
+  foreach (lib ${LINALG_LIBRARIES})
+    set_module_directory (${lib})
+  endforeach ()
+endif ()
 
 # now go through utility list
 foreach (util ${utils})
