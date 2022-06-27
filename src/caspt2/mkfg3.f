@@ -210,9 +210,13 @@ C-SVC20100301: calculate maximum number of tasks possible
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
       DO issg1=1,nsym
-       isp1=mul(issg1,stsym)
-       nsgm1=ncsf(issg1)
-       CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
+        isp1=mul(issg1,stsym)
+        if (DoFCIQMC) then
+            continue
+        else
+          nsgm1=ncsf(issg1)
+          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
+        end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
 C-is basically the number of buffers we fill with sigma1 vectors.
@@ -329,12 +333,16 @@ C-sigma vectors in the buffer.
          if(istu.eq.isp1) then
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
-          lto=lbuf1+mxci*(ibuf1-1)
-          call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-          CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+          if (DoFCIQMC) then
+              continue
+          else
+              lto=lbuf1+mxci*(ibuf1-1)
+              call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
+              CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
+     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+          end if
          end if
         end do
         myBuffer=iTask
@@ -343,26 +351,30 @@ C-sigma vectors in the buffer.
       ENDIF
 C-SVC20100301: necessary batch of sigma vectors is now in the buffer
 
-      ! The ip1 buffer could be the same on different processes
-      ! so only compute the G1 contribution when ip3 is 1, as
-      ! this will only be one task per buffer.
-      if (issg1.eq.stsym.AND.ip3.eq.1) then
-        do ib=1,ibuf1
-          idx=ip1_buf(ib)
-          itlev=idx2ij(1,idx)
-          iulev=idx2ij(2,idx)
-          it=L2ACT(itlev)
-          iu=L2ACT(iulev)
-          lto=lbuf1+mxci*(ib-1)
-          G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
-          IF(IFF.ne.0) then
-            F1sum=0.0D0
-            do i=1,nsgm1
-              F1sum=F1sum+CI(i)*work(lto-1+i)*work(lbufd-1+i)
+      if (DoFCIQMC) then
+          continue
+      else
+          ! The ip1 buffer could be the same on different processes
+          ! so only compute the G1 contribution when ip3 is 1, as
+          ! this will only be one task per buffer.
+          if (issg1.eq.stsym.AND.ip3.eq.1) then
+            do ib=1,ibuf1
+              idx=ip1_buf(ib)
+              itlev=idx2ij(1,idx)
+              iulev=idx2ij(2,idx)
+              it=L2ACT(itlev)
+              iu=L2ACT(iulev)
+              lto=lbuf1+mxci*(ib-1)
+              G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
+              IF(IFF.ne.0) then
+                F1sum=0.0D0
+                do i=1,nsgm1
+                  F1sum=F1sum+CI(i)*work(lto-1+i)*work(lbufd-1+i)
+                end do
+                F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
+              end if
             end do
-            F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
           end if
-        end do
       end if
 
 C     ip3mx=ntri2
@@ -385,33 +397,41 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       izlev=idx2ij(2,ip3)
       isyz=mul(ism(iylev),ism(izlev))
       issg2=mul(isyz,stsym)
-      nsgm2=ncsf(issg2)
+      if (DoFCIQMC) then
+          continue
+      else
+          nsgm2=ncsf(issg2)
+      end if
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
-      lto=lbuf2
-      call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
-      CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-      if(issg2.eq.issg1) then
-        do ib=1,ibuf1
-          idx=ip1_buf(ib)
-          itlev=idx2ij(1,idx)
-          iulev=idx2ij(2,idx)
-          it=L2ACT(itlev)
-          iu=L2ACT(iulev)
-          G2(it,iu,iy,iz)=DDOT_(nsgm1,work(lto),1,
-     &         work(lbuf1+mxci*(ib-1)),1)
-          IF(IFF.ne.0) THEN
-            F2sum=0.0D0
-            do i=1,nsgm1
-              F2sum=F2sum+work(lto-1+i)*work(lbufd-1+i)*
-     &             work(lbuf1-1+i+mxci*(ib-1))
+      if (DoFCIQMC) then
+          continue
+      else
+          lto=lbuf2
+          call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
+          CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
+     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+          if(issg2.eq.issg1) then
+            do ib=1,ibuf1
+              idx=ip1_buf(ib)
+              itlev=idx2ij(1,idx)
+              iulev=idx2ij(2,idx)
+              it=L2ACT(itlev)
+              iu=L2ACT(iulev)
+              G2(it,iu,iy,iz)=DDOT_(nsgm1,work(lto),1,
+     &             work(lbuf1+mxci*(ib-1)),1)
+              IF(IFF.ne.0) THEN
+                F2sum=0.0D0
+                do i=1,nsgm1
+                  F2sum=F2sum+work(lto-1+i)*work(lbufd-1+i)*
+     &                 work(lbuf1-1+i+mxci*(ib-1))
+                end do
+                F2(it,iu,iy,iz)=F2sum
+              END IF
             end do
-            F2(it,iu,iy,iz)=F2sum
-          END IF
-        end do
+          end if
       end if
       nbtot=0
       do ip2=ip3,ntri2
@@ -421,13 +441,17 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
         if(isvx.ne.mul(issg1,issg2)) goto 99
-        lfrom=lbuf2
-        lto=lbuft
-        call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-        CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
-     &       IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &       IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &       WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+        if (DoFCIQMC) then
+            continue
+        else
+            lfrom=lbuf2
+            lto=lbuft
+            call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
+            CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
+     &           WORK(LTO),IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),
+     &           IWORK(LIOW),IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &           WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+        end if
 *-----------
 * Max and min values of index p1:
         ip1mx=ntri2
@@ -453,12 +477,16 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
-        l1=lbuf1+mxci*(ibmn-1)
-        call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
-     &       work(lbuft),1,0.0D0,bufr,1)
+        if (DoFCIQMC) then
+            continue
+        else
+            l1=lbuf1+mxci*(ibmn-1)
+            call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
+     &           work(lbuft),1,0.0D0,bufr,1)
 * and distribute this result into G3:
-        call dcopy_(nb,bufr,1,G3(iG3OFF+1),1)
+            call dcopy_(nb,bufr,1,G3(iG3OFF+1),1)
 * and copy the active indices into idxG3:
+        end if
         do ib=1,nb
          iG3=iG3OFF+ib
          idx=ip1_buf(ibmn-1+ib)
@@ -473,17 +501,21 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
          idxG3(5,iG3)=int(iY,I1)
          idxG3(6,iG3)=int(iZ,I1)
         end do
-        IF(IFF.ne.0) THEN
+        if (DoFCIQMC) then
+            continue
+        else
+            IF(IFF.ne.0) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
-          do icsf=1,nsgm1
-            work(lbuft-1+icsf)=
-     &           (work(lbufd-1+icsf)-epsa(iv))*work(lbuft-1+icsf)
-          end do
+                do icsf=1,nsgm1
+                  work(lbuft-1+icsf)=
+     &                 (work(lbufd-1+icsf)-epsa(iv))*work(lbuft-1+icsf)
+                end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-          call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
-     &         work(lbuft),1,0.0D0,bufr,1)
-          call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
-        END IF
+                call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
+     &           work(lbuft),1,0.0D0,bufr,1)
+                call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
+            END IF
+        end if
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb
  99     continue
@@ -544,6 +576,10 @@ C  only for the G1 and G2 replicate arrays
       CALL GADSUM(F1,NG1)
       CALL GADSUM(F2,NG2)
 
+      if (DoFCIQMC) then
+          call mkfg3fciqmc(WORK(LG1),WORK(LG2),WORK(LG3),
+     &               WORK(LF1),WORK(LF2),WORK(LF3),idxG3)
+      else
           ! Correction to G2: It is now = <0| E_tu E_yz |0>
           do iu=1,nlev
            do iz=1,nlev
@@ -665,11 +701,8 @@ C  only for the G1 and G2 replicate arrays
            end if
            IF(IFF.ne.0) F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
           END DO
-
-      if (DoFCIQMC .eqv. .true.) then
-          call mkfg3fciqmc(WORK(LG1),WORK(LG2),WORK(LG3),
-     &               WORK(LF1),WORK(LF2),WORK(LF3),idxG3)
       end if
+
 
       IF(iPrGlb.GE.DEBUG) THEN
 CSVC: if running parallel, G3/F3 are spread over processes,

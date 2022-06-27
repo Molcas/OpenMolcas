@@ -615,6 +615,8 @@
 
       subroutine read_hdf5_denmats(iroot, dmat, dspn, psmat, pamat)
         ! quick hack to get it working with M7 and debug CASPT2
+        use rasscf_init, only: ispin
+        use rasscf_data, only: lowms  ! spin projection
         integer, intent(in) :: iroot
         real(wp), intent(_OUT_) :: dmat(:), dspn(:), psmat(:), pamat(:)
         integer, allocatable :: indices(:,:)
@@ -623,6 +625,7 @@
      &             hdf5_file, hdf5_group, hdf5_dset
         real(wp) :: rdm2_temp(nAc, nAc, nAc, nAc)
         logical :: tExist
+        real(wp) :: rdm2_intermed
 
         call f_Inquire('spinfree-TwoRDM.' //str(iroot)// '.h5', tExist)
         call verify_(tExist, 'spinfree-TwoRDM.' // str(iroot)
@@ -678,7 +681,25 @@
             end do
           end do
         end do
-        dmat(:) = dmat(:) / nActEl
+        dmat(:) = dmat(:) / (nActEl - 1)
+
+        ! spin density from 1RDM and 2RDM:
+        ! 10.1080/00268976.2022.2091049
+        do q = 1, nAc
+          do p = 1, nAc
+            pq = one_el_idx_flatten(p, q)
+            rdm2_intermed = 0.0_wp
+            do i = 1, nAc
+              ! index order differs from paper, because NECI 2RDMs are
+              ! < E_pq E_rs > not < e_pqrs >
+              rdm2_intermed = rdm2_intermed &
+                  + (1 / (ispin + 1)) * rdm2_temp(p, q, i, i)
+            end do
+              dspn(pq) = dspn(pq) + &
+                (2 - 0.5_wp * nActEl)/(ispin + 1) - rdm2_intermed
+              dspn(pq) = (lowms / ispin) * dpsn(pq)
+          end do
+        end do
 
         write(u6,'(a)') "This function is for debugging CASPT2."
         write(u6,'(a)') "DSPN is not populated, despite working in SDs."
