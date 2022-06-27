@@ -96,6 +96,7 @@ Laura Gagliardi
 Walter Gautschi  
 Giovanni Ghigo  
 Coen de Graaf  
+Joseph Golub  
 Gene H. Golub  
 Sergey Gusarov  
 Daniel Hagberg  

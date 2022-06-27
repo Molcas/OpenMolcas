@@ -17,11 +17,10 @@
 *                                                                      *
 *             Modified for Langevin polarizabilities, March 2000 (RL)  *
 ************************************************************************
+      Use Iso_C_Binding
       use PCM_arrays
-      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "angstr.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
@@ -45,7 +44,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Reinitiate always for gradient calculations
+*---- Reinitialize always for gradient calculations
 *
       DoDeriv=.False.
 cpcm_solvent
@@ -130,9 +129,8 @@ cpcm_solvent end
 *     iPrint: Print level
 *     ICharg: Molecular charge
 *     nAtoms: total number of atoms
-*     angstr: conversion factor from bohr to Angstrom
 *     Coor: Coordinates of atoms
-*    MxVert*nTs ANr: atomic numbers
+*     MxVert*nTs ANr: atomic numbers
 *     LcCoor: local array for atomic coordinates
 *     LcANr: local array for atomic numbers
 *     Solvent: string with explicit solvent name
@@ -142,8 +140,8 @@ cpcm_solvent end
 *     ip_Ts: pointer to tesserae
 *     nTs  : number of tesserae
 *
-      Call PCM_Init(iPrint,ICharg,nAtoms,angstr,Coor,ANr,LcCoor,
-     &              LcANr,nIrrep,NonEq)
+      Call PCM_Init(iPrint,ICharg,nAtoms,Coor,ANr,LcCoor,
+     &              LcANr,NonEq)
       If (iPrint.gt.5) Then
          Write (6,*)
          Write (6,*)
@@ -171,7 +169,6 @@ cpcm_solvent end
 *     This is to allow type punning without an explicit interface
       Contains
       SubRoutine Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
-      Use Iso_C_Binding
       Integer, Target :: cRFStrt,iRFStrt,lRFStrt
       Real*8, Target :: rRFStrt
       Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:)

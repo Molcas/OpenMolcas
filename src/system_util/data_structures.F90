@@ -18,6 +18,8 @@
 module Data_Structures
 
 use Symmetry_Info, only: Mul
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -31,9 +33,10 @@ public :: G2_Type, Allocate_G2, Deallocate_G2
 public :: L_Full_Type, Allocate_L_Full, Deallocate_L_Full
 public :: Lab_Type, Allocate_Lab, Deallocate_Lab
 public :: Integer_Pointer
+public :: Alloc1DArray_Type, Alloc2DArray_Type
 
-#include "stdalloc.fh"
-#include "real.fh"
+!#include "stdalloc.fh"
+!#include "real.fh"
 
 type Integer_Pointer
   integer(kind=iwp), contiguous, pointer :: I1(:) => null()
@@ -126,6 +129,14 @@ type Lab_Type
   logical(kind=iwp), allocatable :: Keep(:,:)
   type(V1), allocatable :: SB(:,:,:)
 end type Lab_Type
+
+type Alloc1DArray_Type
+  real(kind=wp), allocatable :: A(:)
+end type Alloc1DArray_Type
+
+type Alloc2DArray_Type
+  real(kind=wp), allocatable :: A(:,:)
+end type Alloc2DArray_Type
 
 contains
 

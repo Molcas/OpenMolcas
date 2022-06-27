@@ -74,7 +74,6 @@
 #include "csfbas.fh"
 #include "gugx.fh"
 #include "pamint.fh"
-#include "davctl.fh"
 #include "qnctl_mcpdft.fh"
 #include "orthonormalize_mcpdft.fh"
 #include "ciinfo.fh"

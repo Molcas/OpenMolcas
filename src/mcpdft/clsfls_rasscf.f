@@ -33,7 +33,6 @@
 #include "general.fh"
 #include "output_ras.fh"
 
-#include "davctl.fh"
 #include "qnctl_mcpdft.fh"
 *----------------------------------------------------------------------*
 *     Start                                                            *

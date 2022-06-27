@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE I_AM_SO_EXCITED(NBATCH,IBATCH,LBATCH,I1BATCH)
 *
-* Subroutine by Lasse from Oktober 2015
+* Subroutine by Lasse from October 2015
 *
 * Updated March 2018 for doubly excited states
 *
