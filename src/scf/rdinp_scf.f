@@ -39,6 +39,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r
 #endif
+      use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 *
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
@@ -71,8 +72,6 @@
 
 #include "choscf.fh"
 #include "chotime.fh"
-#include "chodensity.fh"
-#include "choscreen.fh"
 #include "choauf.fh"
 
 #include "addcorr.fh"

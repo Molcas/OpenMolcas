@@ -22,7 +22,6 @@
 *
       iRout=133
       iPrint=nPrint(iRout)
-*     Call GetMem('SOAdpt_E','CHEC','REAL',iDum,iDum)
 *
       If (MolWgh.eq.0) Then
          Fact=One/DBLE(nDeg)

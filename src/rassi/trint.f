@@ -10,6 +10,7 @@
 ************************************************************************
 
       SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
+      USE Fock_util_global, only: Fake_CMO2
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
 #endif
@@ -19,7 +20,7 @@
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, KSQ,
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT(1), KSQ,
      &                 FAO, Temp_SQ, DInAO
 #include "real.fh"
 #include "rassi.fh"
@@ -32,7 +33,6 @@
 
       Real*8, Dimension(:), Allocatable:: Prod
 
-#include "cho_jobs.fh"
 #include "chorassi.fh"
 
 *****************************************************************
@@ -183,7 +183,7 @@ c --- FAO already contains the one-electron part
 
 #endif
 
-         Call Allocate_DSBA(FLT,nBasF,nBasF,nSym,aCase='TRI')
+         Call Allocate_DSBA(FLT(1),nBasF,nBasF,nSym,aCase='TRI')
 
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
 C PUT IT INTO A FOCK MATRIX IN AO BASIS:
@@ -191,9 +191,9 @@ C Note: CHO_GETH1 also adds the reaction field contribution to the
 C 1-electron hamiltonian, and the variable ERFNuc in common /general/,
 C which is the RF contribution to the nuclear repulsion
 
-         CALL CHO_GETH1(nBtri,FLT%A0,RFpert,ERFNuc)
+         CALL CHO_GETH1(nBtri,FLT(1)%A0,RFpert,ERFNuc)
 
-         ECORE1=DDOT_(nBtri,FLT%A0,1,DLT%A0,1)
+         ECORE1=DDOT_(nBtri,FLT(1)%A0,1,DLT%A0,1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO
          If ( IfTest ) Write (6,*) '      FAKE_CMO2=',FAKE_CMO2
 
@@ -201,7 +201,7 @@ C which is the RF contribution to the nuclear repulsion
          If (nProcs.gt.1) Then
              scx=1.0/dble(nProcs)
 C --- to avoid double counting when using gadsum
-             FLT%A0(:) = scx * FLT%A0(:)
+             FLT(1)%A0(:) = scx * FLT(1)%A0(:)
          EndIf
 #endif
 
@@ -328,12 +328,12 @@ c ---     and compute the (tu|vx) integrals
 
          If (Fake_CMO2) Then
             Do i=1,nSym
-               CALL SQUARE(FLT%SB(i)%A1,FAO%SB(i)%A2,
+               CALL SQUARE(FLT(1)%SB(i)%A1,FAO%SB(i)%A2,
      &                     1,nBasF(i),nBasF(i))
             End Do
          EndIf
 
-         Call Deallocate_DSBA(FLT)
+         Call Deallocate_DSBA(FLT(1))
          Call Deallocate_DSBA(DLT)
 
          Call GADSUM(FAO%A0,NBSQ)

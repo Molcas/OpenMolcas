@@ -11,20 +11,19 @@
 
 subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 
+use Fock_util_global, only: Estimate, Update
+use Data_structures, only: DSBA_type, Allocate_DSBA, Deallocate_DSBA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
-use Data_structures, only: DSBA_type, Allocate_DSBA, Deallocate_DSBA
 
 implicit none
 integer(kind=iwp), intent(in) :: nBDT, nBas(8), nSym
 real(kind=wp), intent(in) :: Dma(nBDT), Dmb(nBDT)
 real(kind=wp), intent(out) :: Etwo
-#include "choscf.fh"
-#include "choscreen.fh"
 #include "chotime.fh"
-integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2)
-real(kind=wp) :: ChFracMem, dFmat, FactXI
+integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2), NSCREEN
+real(kind=wp) :: ChFracMem, dFmat, dmpk, FactXI
 !character(len=16) :: KSDFT
 real(kind=wp), allocatable :: Dm1(:), Dm2(:)
 real(kind=r8), external :: ddot_ !, Get_ExFac
@@ -32,13 +31,9 @@ type (DSBA_type) :: FLT(2), KLT(2), POrb(2), PLT(2)
 
 timings = .false.
 Estimate = .false.
-REORD = .false.
 
 Update = .true.
-DECO = .true.
 dmpk = One
-dFKmat = Zero
-ALGO = 4
 NSCREEN = 10
 
 nForb(:,:) = 0

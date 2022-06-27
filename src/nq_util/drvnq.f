@@ -25,10 +25,12 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use KSDFT_Info, only: KSDFA
+      use KSDFT_Info, only: KSDFA, F_xca, F_xcb, TmpB
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
+      use nq_Grid, only: l_CASDFT, kAO
+      use nq_Grid, only: Exc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -44,7 +46,7 @@
 #include "ksdft.fh"
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
-      Logical l_XHol, l_casdft
+      Logical l_XHol
       Character*4 DFTFOCK
       Integer nBas(8), nDel(8)
 *                                                                      *
@@ -148,7 +150,6 @@
 *                                                                      *
 *     CASDFT stuff:
 *
-      l_casdft=.false.
       nP2=1
       nCmo=1
       nD1mo=1
@@ -170,6 +171,26 @@
       LuGridFile=31
       LuGridFile=IsFreeUnit(LuGridFile)
       Call Molcas_Open(LuGridFile,'GRIDFILE')
+*                                                                      *
+************************************************************************
+* Global variable for MCPDFT functionals                               *
+      l_casdft = KSDFA.eq.'TLSDA'   .or.
+     &           KSDFA.eq.'TLSDA5'  .or.
+     &           KSDFA.eq.'TBLYP'   .or.
+     &           KSDFA.eq.'TSSBSW'  .or.
+     &           KSDFA.eq.'TSSBD'   .or.
+     &           KSDFA.eq.'TS12G'   .or.
+     &           KSDFA.eq.'TPBE'    .or.
+     &           KSDFA.eq.'FTPBE'   .or.
+     &           KSDFA.eq.'TOPBE'   .or.
+     &           KSDFA.eq.'FTOPBE'  .or.
+     &           KSDFA.eq.'TREVPBE' .or.
+     &           KSDFA.eq.'FTREVPBE'.or.
+     &           KSDFA.eq.'FTLSDA'  .or.
+     &           KSDFA.eq.'FTBLYP'
+      if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
+      if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
+************************************************************************
 ************************************************************************
 *
 ************************************************************************
@@ -198,6 +219,7 @@
 *        We need the AOs, for gradients we need the derivatives too.
 *
          mAO=1
+         kAO=mAO
          If (Do_Grad) mAO=4
 *
 *        We need rho.
@@ -205,7 +227,7 @@
 *
          nRho=nD
          mdRho_dr=0
-         If (Do_Grad) mdRho_dr=nRho
+         If (Do_Grad) mdRho_dr=nD
          nSigma=0
          nGradRho=0
          nLapl=0
@@ -229,17 +251,17 @@
 *        the second derivatives too.
 *
          mAO=4
+         kAO=mAO
          If (Do_Grad) mAO=10
 *
 *        We need rho and grad rho
 *        For gradients we need the derrivatives wrt the coordinates
 *
-         nRho=4*nD
-*        nRho=nD
+         nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
          mdRho_dR=0
-         If (Do_Grad) mdRho_dR=nRho
+         If (Do_Grad) mdRho_dR=4*nD
 *
 *        We need derivatives of the functional with respect to
 *        rho(alpha), gamma(alpha,alpha) and gamma(alpha,beta).
@@ -264,19 +286,19 @@
 *        the second derivatives too.
 *
          mAO=4
+         kAO=mAO
          If (Do_Grad) mAO=10
 *
 *        We need rho, grad rho and tau.
 *        For gradients we need the derrivatives wrt the coordinates
 *
-         nRho=5*nD
-*        nRho=nD
+         nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
          nLapl=0
          nTau=nD
          mdRho_dR=0
-         If (Do_Grad) mdRho_dR=nRho
+         If (Do_Grad) mdRho_dR=5*nD
 *
 *        We need derivatives of the functional with respect to
 *        rho(alpha), gamma(alpha,alpha), gamma(alpha,beta) and
@@ -302,19 +324,19 @@
 *        gradients we need the 3rd order derivatives too.
 *
          mAO=10
+         kAO=mAO
          If (Do_Grad) mAO=20
 *
 *        We need rho, grad rho, tau, and the Laplacian
 *        For gradients we need the derrivatives wrt the coordinates
 *
-         nRho=6*nD
-*        nRho=nD
+         nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
          nTau=nD
          nLapl=nD
          mdRho_dR=0
-         If (Do_Grad) mdRho_dR=nRho
+         If (Do_Grad) mdRho_dR=6*nD
 *
 *        We need derivatives of the functional with respect to
 *        rho(alpha), gamma(alpha,alpha), gamma(alpha,beta),
@@ -340,14 +362,14 @@
 *        This needs to be restructured.
 *
          mAO=10
+         kAO=mAO
 
-         nRho=4*nD
-*        nRho=nD
+         nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
-         nTau=0
+         nTau=nD
          nLapl=0
-         mdRho_dR=0
+         If (Do_Grad) mdRho_dR=4*nD
          If (Do_Grad) Then
              Call WarningMessage(2,'CASDFT: Gradient not available.')
              Call Abend()
@@ -389,7 +411,12 @@
       If (nLapl.ne.0) Call mma_allocate(Lapl,nLapl,nGridMax,
      &                                 Label='Lapl')
 
-      Call GetMem('F_xc','Allo','Real',ip_F_xc,nGridMax)
+      Call mma_allocate(Exc,nGridMax,Label='Exc')
+      If (l_casdft) Then
+         Call mma_allocate(F_xca,nGridMax,Label='F_xca')
+         Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
+         Call mma_allocate(TmpB,nGridMax,Label='TmpB')
+      End If
       Call GetMem('dF_dRho','Allo','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
@@ -397,27 +424,7 @@
       iplist_bas=iplist_exp+nIrrep*nShell
       Call GetMem('list_p','Allo','Inte',iplist_p,nNQ)
       Call GetMem('R2_trail','Allo','Real',ipR2_trail,nNQ)
-c     Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
-*                                                                      *
-************************************************************************
-* Global variable for MCPDFT functionals                               *
-      l_casdft = KSDFA.eq.'TLSDA'   .or.
-     &           KSDFA.eq.'TLSDA5'  .or.
-     &           KSDFA.eq.'TBLYP'   .or.
-     &           KSDFA.eq.'TSSBSW'  .or.
-     &           KSDFA.eq.'TSSBD'   .or.
-     &           KSDFA.eq.'TS12G'   .or.
-     &           KSDFA.eq.'TPBE'    .or.
-     &           KSDFA.eq.'FTPBE'   .or.
-     &           KSDFA.eq.'TOPBE'   .or.
-     &           KSDFA.eq.'FTOPBE'  .or.
-     &           KSDFA.eq.'TREVPBE' .or.
-     &           KSDFA.eq.'FTREVPBE'.or.
-     &           KSDFA.eq.'FTLSDA'  .or.
-     &           KSDFA.eq.'FTBLYP'
-      if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
-      if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
-************************************************************************
+
       If (Do_MO) Then
          If (NQNAC.ne.0) Then
            If(.not.l_casdft) Then
@@ -567,8 +574,7 @@ c     Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Work(ip_F_xc),
-     &            Work(ip_dFdRho),work(ipdF_dP2ontop),
+     &            Exc,Work(ip_dFdRho),work(ipdF_dP2ontop),
      &            DFTFOCK,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
@@ -597,7 +603,12 @@ c     Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
          Call Put_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
          Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
       End If
-      Call GetMem('F_xc','Free','Real',ip_F_xc,nGridMax)
+      If (l_casdft) Then
+         Call mma_deallocate(TmpB)
+         Call mma_deallocate(F_xcb)
+         Call mma_deallocate(F_xca)
+      End If
+      Call mma_deallocate(Exc)
 *
       If (Allocated(Lapl)) Call mma_deallocate(Lapl)
       If (Allocated(Tau)) Call mma_deallocate(Tau)

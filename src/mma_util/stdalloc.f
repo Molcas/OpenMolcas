@@ -39,11 +39,13 @@
 #include "molcastypes.fh"
 
 * out-of-memory handling
-      subroutine mma_oom(bufsize,mma_avail)
+      subroutine mma_oom(label,bufsize,mma_avail)
         implicit none
 #include "warnings.h"
+        character(len=*) :: label
         integer :: bufsize, mma_avail
         write(6,'(1x,a)') '?mma_allo_?D: error: out-of-memory'
+        write(6,'(1x,a,a)') 'label: ',label
         write(6,'(1x,a,i12)') ' available (kB): ',
      &    nint(mma_avail * 1.0d-3)
         write(6,'(1x,a,i12)') ' required  (kB):  ',

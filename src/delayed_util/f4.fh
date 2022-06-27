@@ -74,6 +74,7 @@
       lb_dgebd2=>int_dgebd2
       lb_dgebrd=>int_dgebrd
       lb_dgecon=>int_dgecon
+      lb_dgees=>int_dgees
       lb_dgeev=>int_dgeev
       lb_dgehd2=>int_dgehd2
       lb_dgehrd=>int_dgehrd
@@ -235,6 +236,8 @@
       lb_dsytrd=>int_dsytrd
       lb_dtrevc3=>int_dtrevc3
       lb_dtrexc=>int_dtrexc
+      lb_dtrsen=>int_dtrsen
+      lb_dtrsyl=>int_dtrsyl
       lb_dtrti2=>int_dtrti2
       lb_dtrtri=>int_dtrtri
       lb_dtrtrs=>int_dtrtrs

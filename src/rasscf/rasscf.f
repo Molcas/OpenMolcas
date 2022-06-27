@@ -55,6 +55,7 @@
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use write_orbital_files, only : OrbFiles, putOrbFile
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
@@ -112,11 +113,9 @@
 #endif
 
 * --------- Cholesky stuff:
-#include "chotodo.fh"
-#include "chlcas.fh"
 #include "chopar.fh"
 #include "chotime.fh"
-#include "cholk.fh"
+#include "qmat.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 * --------- FCIDUMP stuff:

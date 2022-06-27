@@ -77,8 +77,6 @@
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(Fa+Fb)
-cGLM         F_xca(iGrid)=F_xca(iGrid)+Coeff*(Fa)
-cGLM         F_xcb(iGrid)=F_xcb(iGrid)+Coeff*(Fb)
          dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
          dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
@@ -87,7 +85,6 @@ cGLM         F_xcb(iGrid)=F_xcb(iGrid)+Coeff*(Fb)
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*dFdgammabb
  210     continue
         end do
-cGLM        call DCopy_(mGrid,F_xc,1,tmpB,1)
 
       end if
 

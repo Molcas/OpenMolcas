@@ -18,7 +18,7 @@
 ************************************************************************
 C-Ajitha Modifying the kernel output structure
       use KSDFT_Info, only: F_xca, F_xcb
-      use nq_Grid, only: Rho
+      use nq_Grid, only: Rho, l_casdft
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -77,11 +77,12 @@ C-Ajitha Modifying the kernel output structure
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      If (l_casdft) Then
       Do iGrid = 1, mGrid
          d_alpha =Max(Rho_Min,Rho(1,iGrid))
          d_beta  =Max(Rho_Min,Rho(2,iGrid))
          DTot=d_alpha+d_beta
-         If (DTot.lt.T_X) Go To 200
+         If (DTot.lt.T_X) Cycle
 *------- Exchange contributions to energy
 *
          functional =-Three/Four*CVX*(d_alpha**FTHIRD+d_beta**FTHIRD)
@@ -101,9 +102,30 @@ C-Ajitha Modifying the kernel output structure
          dF_dRho(ipRb,iGrid) = dF_dRho(ipRb,iGrid)
      &                               + Coeff*func_d_rho_beta
 *
- 200     Continue
+      End Do
+      Else
+      Do iGrid = 1, mGrid
+         d_alpha =Max(Rho_Min,Rho(1,iGrid))
+         d_beta  =Max(Rho_Min,Rho(2,iGrid))
+         DTot=d_alpha+d_beta
+         If (DTot.lt.T_X) Cycle
+*------- Exchange contributions to energy
+*
+         functional =-Three/Four*CVX*(d_alpha**FTHIRD+d_beta**FTHIRD)
+         F_xc(iGrid) =F_xc(iGrid) +Coeff*functional
+*
+*------- Exchange contributions to the AO integrals
+*
+         func_d_rho_alpha=-CVX*d_alpha**THIRD
+         func_d_rho_beta =-CVX*d_beta **THIRD
+*
+         dF_dRho(ipRa,iGrid) = dF_dRho(ipRa,iGrid)
+     &                               + Coeff*func_d_rho_alpha
+         dF_dRho(ipRb,iGrid) = dF_dRho(ipRb,iGrid)
+     &                               + Coeff*func_d_rho_beta
 *
       End Do
+      End If
 *
       End If
 *

@@ -213,7 +213,7 @@
 * TotCpu - total CPU time                                              *
 * TotIO  - total I/O time                                              *
 * TimFld - time of specified sections of the program                   *
-* NamFld - names of those sections (set up in scf.f)                   *
+* NamFld - names of those sections (set up in scf_init)                *
 *----------------------------------------------------------------------*
       Integer    nFld
       Parameter (nFld = 16)
