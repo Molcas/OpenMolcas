@@ -492,6 +492,9 @@ C.. for GAS
         Write(LF,Fmt1)
      &  'Starting CI array(s) will be read from file'
        End If
+      END IF
+      Write(LF,*)
+
        Call Put_dScalar('EThr',ThrE)
 *
 *---- Print out grid information in case of DFT
@@ -501,9 +504,6 @@ C.. for GAS
          Call Put_dScalar('DFT corr coeff',CoefR)
          Call Funi_Print
        End If
-      END IF
-      Write(LF,*)
-
   900 CONTINUE
       Call XFlush(LF)
 *----------------------------------------------------------------------*
