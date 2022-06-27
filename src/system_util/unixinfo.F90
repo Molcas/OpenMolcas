@@ -18,6 +18,15 @@ character(len=*), intent(in) :: SuperModuleName, ModuleName
 integer(kind=iwp) :: Ich, Islash, LenProgName
 integer(kind=iwp), external :: StrnLn
 logical(kind=iwp) :: IfTest = .false.
+interface
+  subroutine UnixInfoC(pid,ppid,sec,min_,hour,mday,mon,year,wday,yday,isdst,username,realname,homedir,shell,molcasdir) &
+             bind(C,name='unixinfoc_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: pid, ppid, sec, min_, hour, mday, mon, year, wday, yday, isdst
+    character(kind=c_char) :: username(*), realname(*), homedir(*), shell(*), molcasdir(*)
+  end subroutine UnixInfoC
+end interface
 #include "unixinfo.fh"
 
 #ifdef _DEBUGPRINT_

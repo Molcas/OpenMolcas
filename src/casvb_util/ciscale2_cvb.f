@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvec(*)
 
       ivec=nint(cvec(1))
@@ -27,10 +27,10 @@
       iformat=iform_ci(ivec)
       if(iformat.eq.0)then
         do 100 idet=1,ndet
-        w(idet+iaddr_ci(ivec)-1)=scale*w(idet+iaddr_ci(ivec)-1)
-        if(abs(w(idet+iaddr_ci(ivec)-1)).gt.p8)then
+        work(idet+iaddr_ci(ivec)-1)=scale*work(idet+iaddr_ci(ivec)-1)
+        if(abs(work(idet+iaddr_ci(ivec)-1)).gt.p8)then
           iscf=idet
-          cscf=w(idet+iaddr_ci(ivec)-1)
+          cscf=work(idet+iaddr_ci(ivec)-1)
         endif
 100     continue
       else

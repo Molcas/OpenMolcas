@@ -71,7 +71,8 @@
 *     Call pkERI(nData,PkThrs,nByte,InBuf,OutBuf)
       Kase=iAnd(iOpt,15)
       If(Kase.eq.0) Then
-         Call tce_r8(InBuf,nData, OutBuf,nComp, PkThrs,Init_do_setup_e)
+         Call tce_r8_wrapper(InBuf,nData, OutBuf,nComp, PkThrs,
+     &                       Init_do_setup_e)
          Init_do_setup_e=0
          nByte=nComp
       Else
@@ -84,4 +85,29 @@
 *----------------------------------------------------------------------*
 
       Return
+
+      Contains
+
+      Subroutine tce_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_e)
+
+      Use, Intrinsic :: iso_c_binding, only: c_loc
+
+      Real*8 :: in_(*), thr
+      Integer :: n_in, n_out, Init_do_setup_e
+      Real*8, Target :: out_(*)
+      Interface
+        Subroutine tce_r8(in_,n_in,out_,n_out,thr,Init_do_setup_e)
+     &             bind(C,name='tce_r8_')
+          Use, Intrinsic :: iso_c_binding, only: c_ptr
+          Use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+          Real(kind=MOLCAS_C_REAL) :: in_(*), thr
+          Integer(kind=MOLCAS_C_INT) :: n_in, n_out, Init_do_setup_e
+          Type(c_ptr), Value :: out_
+        End Subroutine tce_r8
+      End Interface
+
+      Call tce_r8(in_,n_in,c_loc(out_),n_out,thr,Init_do_setup_e)
+
+      End Subroutine tce_r8_wrapper
+
       End

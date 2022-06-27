@@ -22,7 +22,7 @@ c ... Make: up to date? ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "mo_cvb.fh"
       dimension orbs(norb,norb),cvb(nvb)
       dimension irdorbs(norb),orbsao(nbas_mo,norb)
@@ -47,7 +47,7 @@ c  -- restore from previous optim --
           i1=mstacki_cvb(ndetvb1)
           i2=mstackr_cvb(ndetvb1)
           call mkrestgs_cvb(orbsao,irdorbs,cvb,
-     >      w(lw(9)),iw(ll(11)),iw(ll(12)),iw(i1),w(i2))
+     >      work(lw(9)),iwork(ll(11)),iwork(ll(12)),iwork(i1),work(i2))
           call mfreei_cvb(i1)
         endif
         call untouch_cvb('RESTGS')
@@ -63,14 +63,14 @@ c  -- input --
       if(.not.up2date_cvb('INPGS'))then
         i1 = mstacki_cvb(norb)
         call rdioff_cvb(6,recinp,ioffs)
-        call rdi_cvb(iw(i1),norb,recinp,ioffs)
+        call rdi_cvb(iwork(i1),norb,recinp,ioffs)
         call rdioff_cvb(5,recinp,ioffs)
         do 200 iorb=1,norb
-        if(iw(iorb+i1-1).eq.1)then
+        if(iwork(iorb+i1-1).eq.1)then
 c MO basis ...
           irdorbs(iorb)=1
           call rdr_cvb(orbsao(1,iorb),norb,recinp,ioffs)
-        elseif(iw(iorb+i1-1).eq.2)then
+        elseif(iwork(iorb+i1-1).eq.2)then
 c AO basis ...
           irdorbs(iorb)=2
           call rdr_cvb(orbsao(1,iorb),nbas_mo,recinp,ioffs)
@@ -81,12 +81,12 @@ c AO basis ...
 
         i1 = mstackr_cvb(nvbinp)
         call rdioff_cvb(7,recinp,ioffs)
-        call rdrs_cvb(w(i1),nvbinp,recinp,ioffs)
-        if(dnrm2_(nvbinp,w(i1),1).gt.thresh)then
+        call rdrs_cvb(work(i1),nvbinp,recinp,ioffs)
+        if(dnrm2_(nvbinp,work(i1),1).gt.thresh)then
           call rdioff_cvb(3,recinp,ioffs)
           call rdis_cvb(idum,1,recinp,ioffs)
           kbasiscvb=idum(1)
-          call fmove_cvb(w(i1),w(lv(2)),nvbinp)
+          call fmove_cvb(work(i1),work(lv(2)),nvbinp)
         endif
         call mfreer_cvb(i1)
 
@@ -123,12 +123,12 @@ c  Collect orbitals and transform AO -> MO :
       endif
       enddo
       i1=mstackr_cvb(norb*norb_ao)
-      call ao2mo_cvb(orbsao,w(i1),norb_ao)
+      call ao2mo_cvb(orbsao,work(i1),norb_ao)
       iorb_ao=0
       do iorb=1,norb
       if(irdorbs(iorb).eq.2)then
         iorb_ao=iorb_ao+1
-        call fmove_cvb(w((iorb_ao-1)*norb+i1),orbs(1,iorb),norb)
+        call fmove_cvb(work((iorb_ao-1)*norb+i1),orbs(1,iorb),norb)
       endif
       enddo
       call mfreer_cvb(i1)

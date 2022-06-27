@@ -24,7 +24,7 @@
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
 1000  call fstring_cvb(string,nstrin,istr,ncmp,2)
       if(istr.eq.1)then
@@ -67,8 +67,8 @@ c 'CON'
      >      mavaili_cvb(),mxconf,nconf
           call abend_cvb()
         endif
-        call izero(iw(noe*(nconf-1)+ip_iconfs),noe)
-        call int_cvb(iw(noe*(nconf-1)+ip_iconfs),noe,nread,1)
+        call izero(iwork(noe*(nconf-1)+ip_iconfs),noe)
+        call int_cvb(iwork(noe*(nconf-1)+ip_iconfs),noe,nread,1)
         call fstring_cvb('CON',1,istr2,3,2)
         if(istr2.ne.0)then
           nconf_fr(nfrag)=nconf_fr(nfrag)+1

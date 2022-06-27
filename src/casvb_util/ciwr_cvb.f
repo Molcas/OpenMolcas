@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvec(*)
 c  *********************************************************************
 c  *                                                                   *
@@ -32,7 +32,7 @@ c  *********************************************************************
         ioffs=0
         call wris_cvb(iform_ci(ivec),1,recn,ioffs)
         call wris_cvb(icnt_ci(ivec),1,recn,ioffs)
-        call wrrs_cvb(w(iaddr_ci(ivec)),ndet,recn,ioffs)
+        call wrrs_cvb(work(iaddr_ci(ivec)),ndet,recn,ioffs)
       else
         write(6,*)' Unsupported format in CIWR :',iformat
         call abend_cvb()

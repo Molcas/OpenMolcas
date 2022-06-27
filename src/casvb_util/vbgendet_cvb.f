@@ -21,7 +21,7 @@
       dimension iapr(ndetvb),ixapr(nda+1),ibpr(ndetvb),ixbpr(ndb+1)
       dimension iconfs(noe,nconf),idetvb(ndetvb)
       dimension nconfion(0:nel)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       k1= mstacki_cvb(ndetvb)
       k2= mstacki_cvb(ndetvb)
@@ -33,7 +33,7 @@
      >  nconf,nconfion,
      >  nda,ndb,ndetvb,nel,
      >  noe,nalf,nbet,norb,
-     >  iw(k1),iw(k2),iw(k3),iw(k4))
+     >  iwork(k1),iwork(k2),iwork(k3),iwork(k4))
       call mfreei_cvb(k1)
       return
       end

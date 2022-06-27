@@ -20,7 +20,7 @@
 
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension civec(nda,ndb),cvbdet(ndetvb),dvbdet(ndetvb),dum(1)
 
       k1 = mstacki_cvb(nfrag)
@@ -37,10 +37,11 @@
       call dpci2vb2_cvb(civec,cvbdet,dvbdet,dum,ic1,ret,ic,
      >  nda,ndb,ndetvb,
      >  nfrag,nda_fr(1,1),ndb_fr(1,1),
-     >  iw(ll(7)),iw(ll(8)),iw(k1),iw(k2),iw(k3),iw(k4),
-     >  iw(k5),mxstack,w(k6),iw(k7),
-     >  iw(ll(20)),iw(ll(21)),
-     >  iw(k8),iw(k9),iw(k10),
+     >  iwork(ll(7)),iwork(ll(8)),iwork(k1),iwork(k2),iwork(k3),
+     >  iwork(k4),
+     >  iwork(k5),mxstack,work(k6),iwork(k7),
+     >  iwork(ll(20)),iwork(ll(21)),
+     >  iwork(k8),iwork(k9),iwork(k10),
      >  ndetvb_fr,ndavb)
       call mfreei_cvb(k1)
       return
@@ -54,7 +55,7 @@
 
 
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension civec(nda,ndb),cvbdet(ndetvb)
       dimension evbdet(*)
       icivec=nint(civec(1,1))
@@ -73,14 +74,16 @@
       k8 = mstacki_cvb(nfrag)
       k9 = mstacki_cvb(nfrag)
       k10= mstacki_cvb(nfrag)
-      call dpci2vb2_cvb(w(iaddr_ci(icivec)),cvbdet,w(lv(5)),evbdet,
+      call dpci2vb2_cvb(work(iaddr_ci(icivec)),cvbdet,work(lv(5)),
+     >  evbdet,
      >  0,dum,5,
      >  nda,ndb,ndetvb,
      >  nfrag,nda_fr(1,1),ndb_fr(1,1),
-     >  iw(ll(7)),iw(ll(8)),iw(k1),iw(k2),iw(k3),iw(k4),
-     >  iw(k5),mxstack,w(k6),iw(k7),
-     >  iw(ll(20)),iw(ll(21)),
-     >  iw(k8),iw(k9),iw(k10),
+     >  iwork(ll(7)),iwork(ll(8)),iwork(k1),iwork(k2),iwork(k3),
+     >  iwork(k4),
+     >  iwork(k5),mxstack,work(k6),iwork(k7),
+     >  iwork(ll(20)),iwork(ll(21)),
+     >  iwork(k8),iwork(k9),iwork(k10),
      >  ndetvb_fr,ndavb)
       call mfreei_cvb(k1)
       return

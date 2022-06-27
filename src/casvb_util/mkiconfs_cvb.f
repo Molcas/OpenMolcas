@@ -25,28 +25,28 @@ c ... Files/Hamiltonian available ...
 
 #include "frag_cvb.fh"
 #include "formats_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
 c  ICONFS
       call rdioff_cvb(4,recinp,ioffs)
-      call rdis_cvb(iw(ll(15)),nconf*noe,recinp,ioffs)
+      call rdis_cvb(iwork(ll(15)),nconf*noe,recinp,ioffs)
       return
       entry mksymelm_cvb()
       call rdioff_cvb(8,recinp,ioffs)
-      call rdr_cvb(w(ls(1)),nsyme*norb*norb,recinp,ioffs)
+      call rdr_cvb(work(ls(1)),nsyme*norb*norb,recinp,ioffs)
       if(ip(2).ge.1.and..not.up2date_cvb('PRSYMELM'))then
         do 300 isyme=1,nsyme
         write(6,'(/,a,i4,3x,a)')' Symmetry element no.',
      >    isyme,tags(isyme)
         ishft=norb*norb*(isyme-1)
-        call mxprint_cvb(w(ishft+ls(1)),norb,norb,0)
+        call mxprint_cvb(work(ishft+ls(1)),norb,norb,0)
 300     continue
         if(nsyme.gt.0)write(6,*)' '
         call untouch_cvb('PRSYMELM')
       endif
       return
       entry mkconstruc_cvb()
-      call construc_cvb(w(ls(15)),iw(ls(16)))
+      call construc_cvb(work(ls(15)),iwork(ls(16)))
       return
       entry mkrdint_cvb()
       return
@@ -69,11 +69,11 @@ c  Get CASSCF eigenvector
       else
         if(ip(3).ge.2)
      >    write(6,'(/,a)') ' Read CASSCF eigenvector:'
-        call getci_cvb(w(lc(1)))
+        call getci_cvb(work(lc(1)))
       endif
-      call cinorm2_cvb(w(lc(1)),cnrm)
+      call cinorm2_cvb(work(lc(1)),cnrm)
       cnrm=one/cnrm
-      call ciscale2_cvb(w(lc(1)),cnrm,iscf,cscf)
+      call ciscale2_cvb(work(lc(1)),cnrm,iscf,cscf)
       if((.not.up2date_cvb('CASCHECK')).or.ip(3).ge.2)then
         call untouch_cvb('CASCHECK')
 c  Some checks
@@ -88,13 +88,13 @@ c  Some checks
           write(6,formE) '     coefficient:',cscf
         endif
         if(ifhamil_cvb())then
-          call cicopy_cvb(w(lc(1)),w(lc(2)))
-          call applyh_cvb(w(lc(2)))
-          call cidot_cvb(w(lc(1)),w(lc(2)),eexp)
+          call cicopy_cvb(work(lc(1)),work(lc(2)))
+          call applyh_cvb(work(lc(2)))
+          call cidot_cvb(work(lc(1)),work(lc(2)),eexp)
           if(ip(3).ge.1)write(6,formE)' CASSCF energy :',eexp+corenrg
           if(ip(3).ge.1)write(6,'(a)')' '
         endif
       endif
-      if(.not.memplenty)call ciwr_cvb(w(lc(1)),61001.2d0)
+      if(.not.memplenty)call ciwr_cvb(work(lc(1)),61001.2d0)
       return
       end

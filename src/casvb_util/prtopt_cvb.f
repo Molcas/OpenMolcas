@@ -21,7 +21,7 @@
 #include "seth_cvb.fh"
 #include "initopt_cvb.fh"
 #include "loopcntr_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       external istkprobe_cvb
       logical istkprobe_cvb
 
@@ -52,13 +52,13 @@ c  First determine if end of multi-step optimization may have been reached:
       i4 = mstacki_cvb(nvb)
 
       call rdioff_cvb(11,recinp,ioffs)
-      call rdis_cvb(iw(i2),norb,recinp,ioffs)
-      call rdis_cvb(iw(i3),nfxvb,recinp,ioffs)
-      call rdis_cvb(iw(i4),nzrvb,recinp,ioffs)
-      call rdis_cvb(iw(i1),2*nort,recinp,ioffs)
+      call rdis_cvb(iwork(i2),norb,recinp,ioffs)
+      call rdis_cvb(iwork(i3),nfxvb,recinp,ioffs)
+      call rdis_cvb(iwork(i4),nzrvb,recinp,ioffs)
+      call rdis_cvb(iwork(i1),2*nort,recinp,ioffs)
 
       call prtopt2_cvb(ioptstep1,ioptim,italter,noptim,
-     >  iw(i1),iw(i2),iw(i3),iw(i4))
+     >  iwork(i1),iwork(i2),iwork(i3),iwork(i4))
       call mfreei_cvb(i1)
       return
       end

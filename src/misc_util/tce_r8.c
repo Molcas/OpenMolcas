@@ -42,7 +42,7 @@
 #endif
 
 void one_ulp(double *);
-void tce_r8(double in[], INT *n_in, unsigned char out[], INT *n_out, double *thr, INT *Init_do_setup_e) {
+void tce_r8(double in[], INT *n_in, unsigned char *out, INT *n_out, double *thr, INT *Init_do_setup_e) {
 /* unsigned long long int *ptr_64; */
    unsigned short         *ptr_16;
    unsigned char          *ptr_8;

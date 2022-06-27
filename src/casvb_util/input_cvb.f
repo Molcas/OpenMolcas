@@ -19,7 +19,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       ibase = mstacki_cvb(0)
 
@@ -38,8 +38,9 @@
       irdorbs = mstackiz_cvb(mxorb)
 
       call input2_cvb(
-     >  iw(iorbrel),mxdimrel,iw(ifxorb),
-     >  iw(iorts),iw(irots),iw(izeta),w(iorbs),iw(irdorbs))
+     >  iwork(iorbrel),mxdimrel,iwork(ifxorb),
+     >  iwork(iorts),iwork(irots),iwork(izeta),work(iorbs),
+     >  iwork(irdorbs))
       call mfreei_cvb(ibase)
       return
       end

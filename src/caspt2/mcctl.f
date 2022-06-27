@@ -22,7 +22,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
 #include "stdalloc.fh"

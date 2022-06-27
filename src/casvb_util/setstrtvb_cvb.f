@@ -20,7 +20,7 @@ c ... Files/Hamiltonian available ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       save recdef
       data recdef/3200.2d0/
 
@@ -44,7 +44,7 @@ c ... Files/Hamiltonian available ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       save recdef
       data recdef/3200.2d0/
       if(recn.ne.zero)return

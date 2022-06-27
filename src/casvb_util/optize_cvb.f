@@ -38,7 +38,7 @@ c  *                                                                   *
 c  *********************************************************************
       implicit real*8 (a-h,o-z)
       logical maxinp,iter_is_1,strucopt
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "opt_cvb.fh"
 
 #include "locopt1_cvb.fh"
@@ -101,14 +101,14 @@ c  Parameters initialized:
         ix(6) = mstackr_cvb(nparm)
         ix(7) = mstackr_cvb(nparm)
         call optize2_cvb(fx,nparm,ioptc,
-     >    w(ix(1)),w(ix(2)),iter_is_1,
+     >    work(ix(1)),work(ix(2)),iter_is_1,
      >    o123a_cvb,o123b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.5)then
         ix(1) = mstackr_cvb(nparm)
         ix(2) = mstackr_cvb(nparm)
         call optize2_cvb(fx,nparm,ioptc,
-     >    w(ix(1)),w(ix(2)),iter_is_1,
+     >    work(ix(1)),work(ix(2)),iter_is_1,
      >    dum_a_cvb,o5b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.7)then
@@ -120,7 +120,7 @@ c  Parameters initialized:
      >    ifollow,isaddle,ipdd1,zero,n_div)
         call asonC7init_cvb(ix(2),ipdd2)
         call optize2_cvb(fx,nparm,ioptc,
-     >    w(ix(1)),w(ix(2)),iter_is_1,
+     >    work(ix(1)),work(ix(2)),iter_is_1,
      >    o7a_cvb,o7b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.8)then
@@ -129,7 +129,7 @@ c  Parameters initialized:
         ix(3) = mstackr_cvb((nparm+1)*(nparm+1))
         ix(4) = mstackr_cvb(nparm+1)
         call optize2_cvb(fx,nparm,ioptc,
-     >    w(ix(1)),w(ix(2)),iter_is_1,
+     >    work(ix(1)),work(ix(2)),iter_is_1,
      >    dum_a_cvb,o8b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.9)then
@@ -137,7 +137,7 @@ c  Parameters initialized:
         i2 = mstackr_cvb(nparm)
         i3 = mstackr_cvb(nparm)
         call optize9_cvb(fx,nparm,ioptc,
-     >    w(i1),w(i2),w(i3))
+     >    work(i1),work(i2),work(i3))
       call mfreer_cvb(i1)
       elseif(imethod.eq.10)then
         ix(1)  = mstackr_cvb(nparm)
@@ -148,7 +148,7 @@ c  Parameters initialized:
      >    ifollow,isaddle,ipdd1,zero,n_div)
         call asonc10init_cvb(ipdd2)
         call optize2_cvb(fx,nparm,ioptc,
-     >    w(ix(1)),w(ix(2)),iter_is_1,
+     >    work(ix(1)),work(ix(2)),iter_is_1,
      >    o10a_cvb,o10b_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.12.and.maxize)then
@@ -167,7 +167,7 @@ c  Parameters initialized:
      >    ifollow,isaddle,ipdd1,zero,0)
         call asonc12sinit_cvb(ipdd2)
         call optize2_cvb(fx,nparm_dav,ioptc,
-     >    w(ix(1)),w(ix(2)),iter_is_1,
+     >    work(ix(1)),work(ix(2)),iter_is_1,
      >    o12sa_cvb,o12sb_cvb)
         call mfreer_cvb(ix(1))
       elseif(imethod.eq.12.and..not.maxize)then
@@ -186,7 +186,7 @@ c  Parameters initialized:
      >    ifollow,isaddle,ipdd1,corenrg,n_div)
         call asonc12einit_cvb(ipdd2)
         call optize2_cvb(fx,nparm_dav,ioptc,
-     >    w(ix(1)),w(ix(2)),iter_is_1,
+     >    work(ix(1)),work(ix(2)),iter_is_1,
      >    o12ea_cvb,o12eb_cvb)
         call mfreer_cvb(ix(1))
       else

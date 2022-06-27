@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       i1 = mstackr_cvb(norb*norb)
       i2 = mstackr_cvb(norb)
@@ -30,12 +30,13 @@ C citmp is not used
         lc_citmp=lc(1)
       endif
 
-      call reprt2_cvb(w(lv(1)),w(lv(2)),
-     >  w(lc(1)),w(lc(2)),w(lc(3)),w(lc(4)),w(lc_citmp),
-     >  w(lp(1)),w(lp(2)),
-     >  w(lw(1)),w(lw(2)),w(lw(3)),w(lw(4)),w(lw(5)),w(lw(6)),
-     >  w(lw(7)),w(lw(8)),w(lw(9)),w(lw(10)),w(lw(11)),
-     >  w(i1),w(i2))
+      call reprt2_cvb(work(lv(1)),work(lv(2)),
+     >  work(lc(1)),work(lc(2)),work(lc(3)),work(lc(4)),work(lc_citmp),
+     >  work(lp(1)),work(lp(2)),
+     >  work(lw(1)),work(lw(2)),work(lw(3)),work(lw(4)),work(lw(5)),
+     >  work(lw(6)),
+     >  work(lw(7)),work(lw(8)),work(lw(9)),work(lw(10)),work(lw(11)),
+     >  work(i1),work(i2))
       call mfreer_cvb(i1)
       return
       end

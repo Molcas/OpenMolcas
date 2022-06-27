@@ -24,7 +24,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
 *
       INTEGER, INTENT(IN) :: IFF

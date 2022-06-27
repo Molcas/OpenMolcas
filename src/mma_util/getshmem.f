@@ -72,8 +72,16 @@
       Character*8      FldNam,eopr,elbl,etyp
       Character*4      Key,VarTyp
       Integer          iPos,Length,ShmId
-      Integer          c_getshmem
-      External         c_getshmem
+      Interface
+        Function c_getshmem(name_,Op,dtyp,offset,len_,path,SHM_Id)
+     &           bind(C,name='c_getshmem_')
+          Use, Intrinsic :: iso_c_binding, only: c_char
+          Use Definitions, only: MOLCAS_C_INT
+          Integer(kind=MOLCAS_C_INT) :: c_getshmem
+          Character(kind=c_char) :: name_(*), Op(*), dtyp(*), path(*)
+          Integer(kind=MOLCAS_C_INT) :: offset, len_, SHM_Id
+        End Function c_getshmem
+      End Interface
 
 *----------------------------------------------------------------------*
 *     Initialize the Common / MemCtl / the first time it is referenced *

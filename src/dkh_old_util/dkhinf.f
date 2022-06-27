@@ -53,7 +53,7 @@ c
 c
 c***************************************************************************
 c
-c   Adjust parameters "maxoperators" and "maxuops" approriately,
+c   Adjust parameters "maxoperators" and "maxuops" appropriately,
 c   i.e., depending on the chosen value of dkhorder.
 c
 c   written by:  M. Reiher and A. Wolf  (Univ. Jena)

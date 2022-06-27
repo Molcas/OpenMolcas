@@ -172,6 +172,12 @@ C     continue to run the master process in serial mode.
       Character(Len=*)  buf
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
+      Interface
+        Subroutine GA_Brdcst(type,buf,lenbuf,root)
+          Integer type,lenbuf,root
+          Type(*) buf
+        End Subroutine GA_Brdcst
+      End Interface
 
       If (Is_Real_Par()) CALL GA_Brdcst(dType,Buf,nByte,Root)
 #else

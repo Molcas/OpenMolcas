@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(nprm,nvec),axc(nprm,nvec)
       save igrad,iter,ipp
       save thresh
@@ -33,7 +33,7 @@
       endif
 
       do 100 ivec=1,nvec
-      axc(1,ivec)=ddot_(nprm-1,w(igrad),1,c(2,ivec),1)
+      axc(1,ivec)=ddot_(nprm-1,work(igrad),1,c(2,ivec),1)
       call fmove_cvb(c(2,ivec),axc(2,ivec),nprm-1)
 c  Save Hessian application (& DNRM2 call) whenever possible :
 c  (C assumed to be normalized)
@@ -42,7 +42,7 @@ c  (C assumed to be normalized)
       elseif(dnrm2_(nprm-1,axc(2,ivec),1).gt.thresh)then
         call hess_cvb(axc(2,ivec))
       endif
-      call daxpy_(nprm-1,c(1,ivec),w(igrad),1,axc(2,ivec),1)
+      call daxpy_(nprm-1,c(1,ivec),work(igrad),1,axc(2,ivec),1)
       call ddproj_cvb(axc(2,ivec),nprm-1)
 100   continue
       return

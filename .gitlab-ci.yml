@@ -271,51 +271,51 @@ checks:
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
 
-#tinker:
-#  stage: build
-#  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
-#  interruptible: true
-#  variables:
-#    # A patch to the tinker patch to make it work in low memory conditions
-#    patch_to_patch: |
-#                    diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/sizes.i 6.3.3/source/sizes.i
-#                    --- 6.3.3/source_orig/sizes.i   2015-04-14 13:58:10.122343730 +0200
-#                    +++ 6.3.3/source/sizes.i        2015-04-15 13:48:53.796041225 +0200
-#                    @@ -64,7 +64,7 @@
-#                           integer maxele,maxamino,maxnuc
-#                           integer maxbnd,maxang,maxtors
-#                           integer maxbitor
-#                    -      parameter (maxatm=100000)
-#                    +      parameter (maxatm=1000)
-#                           parameter (maxval=8)
-#                           parameter (maxgrp=1000)
-#                           parameter (maxref=10)
-#  before_script:
-#    - >
-#      if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
-#  script:
-#    # Use backup if the tinker website is down
-#    - >
-#      sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
-#    # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
-#    - >
-#      sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
-#    # Apply the low-memory patch
-#    - |
-#      eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
-#      eval `grep PATCH= Tools/patch2tinker/get_tinker`
-#      echo "${patch_to_patch}" >> Tools/patch2tinker/${PATCH}
-#    - >
-#      echo "y" | Tools/patch2tinker/get_tinker
-#  after_script:
-#    - |
-#      mkdir build
-#      cp -Lr tinker build
-#  artifacts:
-#    paths:
-#      - build/
-#    expire_in: 1 day
-#  <<: *compile-jobs
+tinker:
+  stage: build
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  interruptible: true
+  variables:
+    # A patch to the tinker patch to make it work in low memory conditions
+    patch_to_patch: |
+                    diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/sizes.i 6.3.3/source/sizes.i
+                    --- 6.3.3/source_orig/sizes.i   2015-04-14 13:58:10.122343730 +0200
+                    +++ 6.3.3/source/sizes.i        2015-04-15 13:48:53.796041225 +0200
+                    @@ -64,7 +64,7 @@
+                           integer maxele,maxamino,maxnuc
+                           integer maxbnd,maxang,maxtors
+                           integer maxbitor
+                    -      parameter (maxatm=100000)
+                    +      parameter (maxatm=1000)
+                           parameter (maxval=8)
+                           parameter (maxgrp=1000)
+                           parameter (maxref=10)
+  before_script:
+    - >
+      if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
+  script:
+    # Use backup if the tinker website is down
+    - >
+      sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
+    # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
+    - >
+      sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
+    # Apply the low-memory patch
+    - |
+      eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
+      eval `grep PATCH= Tools/patch2tinker/get_tinker`
+      echo "${patch_to_patch}" >> Tools/patch2tinker/${PATCH}
+    - >
+      echo "y" | Tools/patch2tinker/get_tinker
+  after_script:
+    - |
+      mkdir build
+      cp -Lr tinker build
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 day
+  <<: *compile-jobs
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
@@ -328,7 +328,6 @@ test:plain:
   <<: *run-tests
   needs:
     - build:plain
-#   - tinker
   parallel: 2
 
 build:options:
@@ -361,7 +360,6 @@ test:pgi:
   <<: *run-tests
   needs:
     - build:pgi
-#   - tinker
   parallel: 2
 
 #build:sun:
@@ -407,7 +405,7 @@ test:nag:
   <<: *run-tests
   needs:
     - build:nag
-  parallel: 4
+  parallel: 6
   tags:
     - docker
 

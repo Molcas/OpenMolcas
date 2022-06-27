@@ -16,18 +16,18 @@
       implicit real*8 (a-h,o-z)
       logical share
       dimension aikcof(ndet,ifns),bikcof(ndet,ifns)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       if(i2s.ne.2*nalf-nel)then
         nalf_use=(i2s+nel)/2
         ndet_use=ndet_cvb(nel,nalf_use)
         i1 = mstackr_cvb(ndet_use*ifns)
         i2 = mstackr_cvb(ndet_use*ifns)
-        call biksmain_cvb(w(i1),w(i2),
+        call biksmain_cvb(work(i1),work(i2),
      >   nel,nalf_use,ndet_use,ifns,kbasis,.false.,iprint)
-        call sminus_cvb(w(i1),bikcof,
+        call sminus_cvb(work(i1),bikcof,
      >    nel,nalf_use,nalf,ifns)
-        if(.not.share)call sminus_cvb(w(i2),aikcof,
+        if(.not.share)call sminus_cvb(work(i2),aikcof,
      >    nel,nalf_use,nalf,ifns)
         call mfreer_cvb(i1)
       else

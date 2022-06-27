@@ -18,7 +18,13 @@
 #include "crun.fh"
 #include "cstate.fh"
 #include "cands.fh"
-#include "cicisp.fh"
+!#include "cicisp.fh"
+      COMMON/CICISP/IDUMMY,NICISP,
+     &              NELCI(MXPICI),
+     &              XISPSM(MXPCSM,MXPICI),
+     &              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,
+     &              NBLKIC(MXPCSM,MXPICI),LCOLIC(MXPCSM,MXPICI),
+     &              MXNTTS,MXSOOB_AS
 #include "cprnt.fh"
 #include "stinf.fh"
 #include "strbas.fh"

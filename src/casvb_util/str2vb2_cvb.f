@@ -16,16 +16,16 @@
      >  i2s,nS,nalf1,nMs,
      >  ifnss,ndetvbs,
      >  absym,mnion,mxion,nconf,ndetvb,nvb,kbasis,nel,nalf,neltot,
-     >  work,nconfion)
+     >  w,nconfion)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       logical absym
       dimension bikcof(*),ikcoff(0:neltot,0:neltot,0:neltot)
       dimension cvb(nvb),cvbdet(ndetvb)
       dimension idetvb(ndetvb)
       dimension i2S(nS),nalf1(nMs)
       dimension ifnss(0:neltot,0:neltot),ndetvbs(0:neltot,0:neltot)
-      dimension work(ndetvb),nconfion(0:*)
+      dimension w(ndetvb),nconfion(0:*)
       save one,sqp5,sq2
       data one/1d0/,sqp5/.70710678118654752440d0/
       data sq2/1.41421356237309504880d0/
@@ -37,10 +37,10 @@ c  Determinant to structure transformation
       if(iway.eq.1)then
         call fzero(cvb,nvb)
         do 100 idet=1,ndetvb
-        work(idet)=cvbdet(idetvb(idet))
+        w(idet)=cvbdet(idetvb(idet))
 100     continue
       elseif(iway.eq.2)then
-        call fzero(work,ndetvb)
+        call fzero(w,ndetvb)
       endif
       idadd=0
       isadd=0
@@ -82,10 +82,10 @@ c  necessary :
               do 700 idet=1,ifnss(nelsing,i2s(iS))
               if(i2s(iS).eq.0.and.absym.and.
      >          ndetvbs(nelsing,nalfsing).ne.1)then
-                call daxpy_(nconfion(ion),sq2,work(idet+idadd),n_det,
+                call daxpy_(nconfion(ion),sq2,w(idet+idadd),n_det,
      >            cvb(idet+isadd),n_spin)
               else
-                call daxpy_(nconfion(ion),one,work(idet+idadd),n_det,
+                call daxpy_(nconfion(ion),one,w(idet+idadd),n_det,
      >            cvb(idet+isadd),n_spin)
               endif
 700           continue
@@ -94,12 +94,12 @@ c  necessary :
               if(i2s(iS).eq.0.and.absym.and.
      >          ndetvbs(nelsing,nalfsing).ne.1)then
                 call daxpy_(nconfion(ion),sqp5,cvb(idet+isadd),n_spin,
-     >            work(idet+idadd),n_det)
+     >            w(idet+idadd),n_det)
                 call daxpy_(nconfion(ion),sqp5,cvb(idet+isadd),n_spin,
-     >            work(ndetvbs(nelsing,nalfsing)-idet+1+idadd),n_det)
+     >            w(ndetvbs(nelsing,nalfsing)-idet+1+idadd),n_det)
               else
                 call daxpy_(nconfion(ion),one,cvb(idet+isadd),n_spin,
-     >            work(idet+idadd),n_det)
+     >            w(idet+idadd),n_det)
               endif
 800           continue
             endif
@@ -112,11 +112,11 @@ c  Skip collection if not necessary ...
         if(iway.eq.1)then
           call mxattbp_cvb(
      >      bikcof(1+ikcoff(nelsing,nalfsing_keep,i2s_keep)),
-     >      work(1+idadd),n_spin,n_det,nconfion(ion),cvb(1+isadd))
+     >      w(1+idadd),n_spin,n_det,nconfion(ion),cvb(1+isadd))
         elseif(iway.eq.2)then
           call mxatbp_cvb(
      >      bikcof(1+ikcoff(nelsing,nalfsing_keep,i2s_keep)),
-     >      cvb(1+isadd),n_det,n_spin,nconfion(ion),work(1+idadd))
+     >      cvb(1+isadd),n_det,n_spin,nconfion(ion),w(1+idadd))
         endif
       else
         i1 = mstackrz_cvb(n_det*n_spin)
@@ -131,7 +131,7 @@ c  Skip collection if not necessary ...
               ioff_bikcof=1+ikcoff(nelsing,nalfsing,i2s(iS))
               ioff_i1=i1+i_spin*n_det+i_det
               do 1100 j_spin=1,ifnss(nelsing,i2s(iS))
-              call fmove_cvb(bikcof(ioff_bikcof),w(ioff_i1),
+              call fmove_cvb(bikcof(ioff_bikcof),work(ioff_i1),
      >          ndetvbs(nelsing,nalfsing))
               ioff_bikcof=ioff_bikcof+ndetvbs(nelsing,nalfsing)
               ioff_i1=ioff_i1+n_det
@@ -145,11 +145,11 @@ c  Skip collection if not necessary ...
 900     continue
 
         if(iway.eq.1)then
-          call mxattbp_cvb(w(i1),work(1+idadd),
+          call mxattbp_cvb(work(i1),w(1+idadd),
      >     n_spin,n_det,nconfion(ion),cvb(1+isadd))
         elseif(iway.eq.2)then
-          call mxatbp_cvb(w(i1),cvb(1+isadd),
-     >      n_det,n_spin,nconfion(ion),work(1+idadd))
+          call mxatbp_cvb(work(i1),cvb(1+isadd),
+     >      n_det,n_spin,nconfion(ion),w(1+idadd))
         endif
         call mfreer_cvb(i1)
       endif
@@ -159,7 +159,7 @@ c  Skip collection if not necessary ...
 200   continue
       if(iway.eq.2)then
         do 1200 idet=1,ndetvb
-        cvbdet(idetvb(idet))=work(idet)
+        cvbdet(idetvb(idet))=w(idet)
 1200    continue
       endif
       return

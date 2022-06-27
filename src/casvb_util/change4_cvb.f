@@ -28,7 +28,7 @@ c ... Change of dimensioning variables ...
 
 #include "casinfo_cvb.fh"
 #include "rls_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       save ndres_ok
 
       changed=.false.
@@ -111,17 +111,17 @@ c  CIVECP and CIVBH share memory --> LC(2)
       lc(iv) = mstackr_cvb(ndres)
       enddo
         do iv=1,nv
-        w(lc(iv))=zero
-        w(lc(iv)+1)=zero
+        work(lc(iv))=zero
+        work(lc(iv)+1)=zero
         enddo
       do iv=1,nv
       lc(iv)=lc(iv)+2
       enddo
 c Fix to put in "objects" :
       do iv=1,nv
-      call creatci_cvb(iv,w(lc(iv)),lc(iv)+1,nint(w(lc(iv)-2)),
-     >  w(lc(iv)-1))
-      if(.not.ndres_ok)call setcnt_cvb(w(lc(iv)),0)
+      call creatci_cvb(iv,work(lc(iv)),lc(iv)+1,nint(work(lc(iv)-2)),
+     >  work(lc(iv)-1))
+      if(.not.ndres_ok)call setcnt_cvb(work(lc(iv)),0)
       enddo
 c-- ins
       if((ifinish.eq.1.or.ifinish.eq.2).and..not.lciweights)then

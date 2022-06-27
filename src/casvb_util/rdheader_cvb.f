@@ -19,22 +19,22 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       logical debug
       data debug/.false./
 
       iheader=mstackiz_cvb(10)
       call mfreei_cvb(iheader)
       iheader=mstackiz_cvb(10)
-      call rdi_cvb(iw(iheader),10,recn,0)
-      norb1=iw(iheader)
-      nbas_mo1=iw(1+iheader)
-      nvb1=iw(2+iheader)
-      kbasiscvb1=iw(3+iheader)
-      ioffs_orbs=iw(5+iheader)
-      ioffs_cvb=iw(6+iheader)
-      ioffs_orbsao=iw(7+iheader)
-      ioffs_orbslao=iw(8+iheader)
+      call rdi_cvb(iwork(iheader),10,recn,0)
+      norb1=iwork(iheader)
+      nbas_mo1=iwork(1+iheader)
+      nvb1=iwork(2+iheader)
+      kbasiscvb1=iwork(3+iheader)
+      ioffs_orbs=iwork(5+iheader)
+      ioffs_cvb=iwork(6+iheader)
+      ioffs_orbsao=iwork(7+iheader)
+      ioffs_orbslao=iwork(8+iheader)
       call mfreei_cvb(iheader)
       if(debug)then
         write(6,*)' rdheader :'
@@ -58,7 +58,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       logical debug
       data debug/.false./
 
@@ -68,15 +68,15 @@
         ioffs_orbslao=ioffs_orbsao+norb1*nbas_mo1
         call reserv_cvb(ioffs_orbslao+norb1*nbas_mo1,recn)
       iheader=mstackiz_cvb(10)
-      iw(iheader)=norb1
-      iw(1+iheader)=nbas_mo1
-      iw(2+iheader)=nvb1
-      iw(3+iheader)=kbasiscvb1
-      iw(5+iheader)=ioffs_orbs
-      iw(6+iheader)=ioffs_cvb
-      iw(7+iheader)=ioffs_orbsao
-      iw(8+iheader)=ioffs_orbslao
-      call wri_cvb(iw(iheader),10,recn,0)
+      iwork(iheader)=norb1
+      iwork(1+iheader)=nbas_mo1
+      iwork(2+iheader)=nvb1
+      iwork(3+iheader)=kbasiscvb1
+      iwork(5+iheader)=ioffs_orbs
+      iwork(6+iheader)=ioffs_cvb
+      iwork(7+iheader)=ioffs_orbsao
+      iwork(8+iheader)=ioffs_orbslao
+      call wri_cvb(iwork(iheader),10,recn,0)
       call mfreei_cvb(iheader)
       if(debug)then
         write(6,*)' wrheader :'

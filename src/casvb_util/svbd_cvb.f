@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb),cvb(nvb)
 
       i1 = mstackr_cvb(nvb*maxdav)
@@ -29,8 +29,9 @@
       i6 = mstackr_cvb(maxdav)
       i7 = mstackr_cvb(maxdav)
       call svbd2_cvb(orbs,cvb,fx,ioptc,iter,
-     >  w(lc(1)),w(lc(2)),w(lw(4)),w(lw(5)),w(lw(6)),w(lw(9)),
-     >  w(i1),w(i2),w(i3),w(i4),w(i5),w(i6),w(i7))
+     >  work(lc(1)),work(lc(2)),work(lw(4)),work(lw(5)),work(lw(6)),
+     >  work(lw(9)),
+     >  work(i1),work(i2),work(i3),work(i4),work(i5),work(i6),work(i7))
       call mfreer_cvb(i1)
       return
       end

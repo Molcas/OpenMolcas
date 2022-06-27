@@ -19,11 +19,12 @@ c  Applies H and S on c vector(s).
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(nvb,nvec),axc(nvb,nvec),sxc(nvb,nvec)
 
       call asonc2_cvb(c,axc,sxc,nvec,
-     >  w(lc(1)),w(lc(2)),w(lv(1)),w(lw(4)),w(lw(5)),w(lw(6)),w(lw(9)))
+     >  work(lc(1)),work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),
+     >  work(lw(6)),work(lw(9)))
       return
 c Avoid unused argument warnings
       if (.false.) call Unused_integer(nprm)

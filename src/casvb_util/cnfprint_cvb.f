@@ -22,7 +22,7 @@ c ... Make: up to date? ...
 
 #include "inpmod_cvb.fh"
 #include "frag_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       logical recinpcmp_cvb
       dimension idum(1)
 
@@ -37,13 +37,13 @@ c ... Make: up to date? ...
         !nconf1=idum(1)
         call rdis_cvb(idum,1,recinp,ioffs)
         !kbasiscvb1=idum(1)
-        call rdis_cvb(iw(i1),noe*nconf,recinp,ioffs)
+        call rdis_cvb(iwork(i1),noe*nconf,recinp,ioffs)
         if(nconf.eq.0)then
           do 225 i=1,min(nel,norb)
-          iw(i+i1-1)=1
+          iwork(i+i1-1)=1
 225       continue
           do 250 i=1,nel-norb
-          iw(i+i1-1)=2
+          iwork(i+i1-1)=2
 250       continue
         endif
         nconf_off=0
@@ -53,7 +53,7 @@ c ... Make: up to date? ...
         write(6,'(/,a)')' Spatial VB configurations'
         write(6,'(a)')' -------------------------'
         write(6,'(a)')'     Conf. =>   Orbitals'
-        call cnfprt_cvb(iw(noe*nconf_off+i1),
+        call cnfprt_cvb(iwork(noe*nconf_off+i1),
      >    nconf_fr(ifrag),nel_fr(ifrag))
         write(6,'(/,a,i6)')' Number of VB configurations :',
      >    nconf_fr(ifrag)

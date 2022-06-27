@@ -43,7 +43,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       iOff1 = 0
       iOff2 = 0

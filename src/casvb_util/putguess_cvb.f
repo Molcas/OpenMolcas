@@ -19,7 +19,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "mo_cvb.fh"
       dimension orbs(norb,*),cvb(*)
 
@@ -35,27 +35,27 @@
      >  endvar)))
       if(use_ao)then
         iorbsao = mstackr_cvb(nbas_mo*norb)
-        call mo2ao_cvb(orbs,w(iorbsao),norb)
+        call mo2ao_cvb(orbs,work(iorbsao),norb)
         do 200 iorb=1,norb
-        call wrgspr_cvb(recn,w((iorb-1)*nbas_mo+iorbsao),
+        call wrgspr_cvb(recn,work((iorb-1)*nbas_mo+iorbsao),
      >    iorb,nbas_mo,3,ierr)
 200     continue
         if(ip(5).ge.2)then
           write(6,'(/,a)')' VB orbitals in AO basis :'
           write(6,'(a)')  ' -------------------------'
-          call mxprint_cvb(w(iorbsao),nbas_mo,norb,0)
+          call mxprint_cvb(work(iorbsao),nbas_mo,norb,0)
         endif
         if(ploc)then
           i1 = mstackr_cvb(norb*norb)
           i2 = mstackr_cvb(norb*norb)
           i3 = mstackr_cvb(norb)
-          !call getr_plc(w(i1))
+          !call getr_plc(work(i1))
           call getr_plc()
-          call transp_cvb(w(i1),w(i1),norb,norb)
-          call mxatb_cvb(w(i1),orbs,norb,norb,norb,w(i2))
-          call lmo2ao_cvb(w(i2),w(iorbsao),norb)
+          call transp_cvb(work(i1),work(i1),norb,norb)
+          call mxatb_cvb(work(i1),orbs,norb,norb,norb,work(i2))
+          call lmo2ao_cvb(work(i2),work(iorbsao),norb)
           do 300 iorb=1,norb
-          call wrgspr_cvb(recn,w((iorb-1)*nbas_mo+iorbsao),
+          call wrgspr_cvb(recn,work((iorb-1)*nbas_mo+iorbsao),
      >      iorb,nbas_mo,4,ierr)
 300       continue
           if(ip(5).ge.2)then
@@ -63,16 +63,16 @@
      >        ' Original localized VB orbitals in AO basis :'
             write(6,'(a)')
      >        ' --------------------------------------------'
-            call mxprint_cvb(w(iorbsao),nbas_mo,norb,0)
+            call mxprint_cvb(work(iorbsao),nbas_mo,norb,0)
           endif
           do 400 i=1,norb
-          w(i+i3-1)=dnrm2_(norb,w((i-1)*norb+i2),1)
-          call dscal_(norb,1d0/w(i+i3-1),w((i-1)*norb+i2),1)
+          work(i+i3-1)=dnrm2_(norb,work((i-1)*norb+i2),1)
+          call dscal_(norb,1d0/work(i+i3-1),work((i-1)*norb+i2),1)
 400       continue
           if(ip(5).ge.2)then
             write(6,'(/,a)')' Norms of original localized VB orbitals :'
             write(6,'(a)')  ' -----------------------------------------'
-            call mxprint_cvb(w(i3),1,norb,0)
+            call mxprint_cvb(work(i3),1,norb,0)
           endif
           call mfreer_cvb(i1)
         endif

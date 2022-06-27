@@ -40,7 +40,7 @@ c  *********************************************************************
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension igjorb(*),cvec(*)
 
       call iapplyt_cvb_internal(igjorb)
@@ -57,9 +57,10 @@ c  *********************************************************************
       if(iform_ci(ivec).eq.0)then
         call permci_cvb(cvec,igjorb(1+ioff))
         call c_f_pointer(c_loc(igjorb(1)),gjorb,[1])
-        call applyt2_cvb(w(iaddr_ci(ivec)),
+        call applyt2_cvb(work(iaddr_ci(ivec)),
      >    gjorb,igjorb(1+norb+ioff),
-     >    iw(ll(1)),iw(ll(2)),iw(ll(5)),iw(ll(6)),w(ll(9)),w(ll(10)))
+     >    iwork(ll(1)),iwork(ll(2)),iwork(ll(5)),iwork(ll(6)),
+     >    work(ll(9)),work(ll(10)))
         nullify(gjorb)
       else
         write(6,*)' Unsupported format in APPLYT :',iform_ci(ivec)

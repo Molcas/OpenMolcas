@@ -20,18 +20,18 @@ c  and overlap matrix corresonding to ORBS :
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb),gjorb(*),gjorb2(*),gjorb3(*)
 
       iowrk  = mstackr_cvb(norb*norb)
 
       call gaussj_cvb(orbs,gjorb)
 
-      call transp_cvb(orbs,w(iowrk),norb,norb)
-      call gaussj_cvb(w(iowrk),gjorb2)
+      call transp_cvb(orbs,work(iowrk),norb,norb)
+      call gaussj_cvb(work(iowrk),gjorb2)
 
-      call mxattb_cvb(orbs,orbs,norb,norb,norb,w(iowrk))
-      call gaussj_cvb(w(iowrk),gjorb3)
+      call mxattb_cvb(orbs,orbs,norb,norb,norb,work(iowrk))
+      call gaussj_cvb(work(iowrk),gjorb3)
 
       call mfreer_cvb(iowrk)
 

@@ -65,6 +65,7 @@ CONTAINS
     IMPLICIT NONE
     REAL(REAL64), INTENT(IN) :: OII(:,:), OAA(:,:), OSS(:,:)
     REAL(REAL64), INTENT(INOUT) :: CMO(:,:), ONEINT(:,:), TWOINT(:,:,:,:)
+    REAL(REAL64), ALLOCATABLE :: TMP1(:,:), TMP2(:,:)
     INTEGER :: NI, NA, NS, NMO
     INTEGER :: P, Q
 
@@ -75,79 +76,100 @@ CONTAINS
     NMO=SIZE(CMO,2)
 
     ! orbitals
-    CMO(:,1:NI) = MATMUL(CMO(:,1:NI),OII)
-    CMO(:,NI+1:NI+NA) = MATMUL(CMO(:,NI+1:NI+NA),OAA)
-    CMO(:,NI+NA+1:NI+NA+NS) = MATMUL(CMO(:,NI+NA+1:NI+NA+NS),OSS)
+    ALLOCATE(TMP1(NMO,NI))
+    TMP1(:,:) = MATMUL(CMO(:,1:NI),OII)
+    CMO(:,1:NI) = TMP1
+    DEALLOCATE(TMP1)
+    ALLOCATE(TMP1(NMO,NA))
+    TMP1(:,:) = MATMUL(CMO(:,NI+1:NI+NA),OAA)
+    CMO(:,NI+1:NI+NA) = TMP1
+    DEALLOCATE(TMP1)
+    ALLOCATE(TMP1(NMO,NS))
+    TMP1(:,:) = MATMUL(CMO(:,NI+NA+1:NI+NA+NS),OSS)
+    CMO(:,NI+NA+1:NI+NA+NS) = TMP1
+    DEALLOCATE(TMP1)
 
     ! 1-el integral transforms
     ! inactive
-    ONEINT(:,1:NI) = &
-         & MATMUL(ONEINT(:,1:NI),OII)
-    ONEINT(1:NI,:) = &
-         & MATMUL(TRANSPOSE(OII),ONEINT(1:NI,:))
+    ALLOCATE(TMP1(NMO,NI),TMP2(NI,NMO))
+    TMP1(:,:) = MATMUL(ONEINT(:,1:NI),OII)
+    ONEINT(:,1:NI) = TMP1
+    TMP2(:,:) = MATMUL(TRANSPOSE(OII),ONEINT(1:NI,:))
+    ONEINT(1:NI,:) = TMP2
+    DEALLOCATE(TMP1,TMP2)
     ! active
-    ONEINT(:,NI+1:NI+NA) = &
-         & MATMUL(ONEINT(:,NI+1:NI+NA),OAA)
-    ONEINT(NI+1:NI+NA,:) = &
-         & MATMUL(TRANSPOSE(OAA),ONEINT(NI+1:NI+NA,:))
+    ALLOCATE(TMP1(NMO,NA),TMP2(NA,NMO))
+    TMP1(:,:) = MATMUL(ONEINT(:,NI+1:NI+NA),OAA)
+    ONEINT(:,NI+1:NI+NA) = TMP1
+    TMP2(:,:) = MATMUL(TRANSPOSE(OAA),ONEINT(NI+1:NI+NA,:))
+    ONEINT(NI+1:NI+NA,:) = TMP2
+    DEALLOCATE(TMP1,TMP2)
     ! virtual
-    ONEINT(:,NI+NA+1:NI+NA+NS) = &
-         & MATMUL(ONEINT(:,NI+NA+1:NI+NA+NS),OSS)
-    ONEINT(NI+NA+1:NI+NA+NS,:) = &
-         & MATMUL(TRANSPOSE(OSS),ONEINT(NI+NA+1:NI+NA+NS,:))
+    ALLOCATE(TMP1(NMO,NS),TMP2(NS,NMO))
+    TMP1(:,:) = MATMUL(ONEINT(:,NI+NA+1:NI+NA+NS),OSS)
+    ONEINT(:,NI+NA+1:NI+NA+NS) = TMP1
+    TMP2(:,:) = MATMUL(TRANSPOSE(OSS),ONEINT(NI+NA+1:NI+NA+NS,:))
+    ONEINT(NI+NA+1:NI+NA+NS,:) = TMP2
+    DEALLOCATE(TMP1,TMP2)
 
     ! 2-el integral transforms
     ! inactive
+    ALLOCATE(TMP1(NMO,NI),TMP2(NI,NMO))
     DO P=1,NMO
       DO Q=1,NMO
-        TWOINT(:,P,Q,1:NI) = &
-             & MATMUL(TWOINT(:,P,Q,1:NI),OII)
-        TWOINT(1:NI,P,Q,:) = &
-             & MATMUL(TRANSPOSE(OII),TWOINT(1:NI,P,Q,:))
+        TMP1(:,:) = MATMUL(TWOINT(:,P,Q,1:NI),OII)
+        TWOINT(:,P,Q,1:NI) = TMP1
+        TMP2(:,:) = MATMUL(TRANSPOSE(OII),TWOINT(1:NI,P,Q,:))
+        TWOINT(1:NI,P,Q,:) = TMP2
       END DO
     END DO
     DO P=1,NMO
       DO Q=1,NMO
-        TWOINT(P,:,1:NI,Q) = &
-             & MATMUL(TWOINT(P,:,1:NI,Q),OII)
-        TWOINT(P,1:NI,:,Q) = &
-             & MATMUL(TRANSPOSE(OII),TWOINT(P,1:NI,:,Q))
+        TMP1(:,:) = MATMUL(TWOINT(P,:,1:NI,Q),OII)
+        TWOINT(P,:,1:NI,Q) = TMP1
+        TMP2(:,:) = MATMUL(TRANSPOSE(OII),TWOINT(P,1:NI,:,Q))
+        TWOINT(P,1:NI,:,Q) = TMP2
       END DO
     END DO
+    DEALLOCATE(TMP1,TMP2)
     ! active
+    ALLOCATE(TMP1(NMO,NA),TMP2(NA,NMO))
     DO P=1,NMO
       DO Q=1,NMO
-        TWOINT(:,P,Q,NI+1:NI+NA) = &
-             & MATMUL(TWOINT(:,P,Q,NI+1:NI+NA),OAA)
-        TWOINT(NI+1:NI+NA,P,Q,:) = &
-             & MATMUL(TRANSPOSE(OAA),TWOINT(NI+1:NI+NA,P,Q,:))
+        TMP1(:,:) = MATMUL(TWOINT(:,P,Q,NI+1:NI+NA),OAA)
+        TWOINT(:,P,Q,NI+1:NI+NA) = TMP1
+        TMP2(:,:) = MATMUL(TRANSPOSE(OAA),TWOINT(NI+1:NI+NA,P,Q,:))
+        TWOINT(NI+1:NI+NA,P,Q,:) = TMP2
       END DO
     END DO
     DO P=1,NMO
       DO Q=1,NMO
-        TWOINT(P,:,NI+1:NI+NA,Q) = &
-             & MATMUL(TWOINT(P,:,NI+1:NI+NA,Q),OAA)
-        TWOINT(P,NI+1:NI+NA,:,Q) = &
-             & MATMUL(TRANSPOSE(OAA),TWOINT(P,NI+1:NI+NA,:,Q))
+        TMP1(:,:) = MATMUL(TWOINT(P,:,NI+1:NI+NA,Q),OAA)
+        TWOINT(P,:,NI+1:NI+NA,Q) = TMP1
+        TMP2(:,:) = MATMUL(TRANSPOSE(OAA),TWOINT(P,NI+1:NI+NA,:,Q))
+        TWOINT(P,NI+1:NI+NA,:,Q) = TMP2
       END DO
     END DO
+    DEALLOCATE(TMP1,TMP2)
     ! virtual
+    ALLOCATE(TMP1(NMO,NS),TMP2(NS,NMO))
     DO P=1,NMO
       DO Q=1,NMO
-        TWOINT(:,P,Q,NI+NA+1:NI+NA+NS) = &
-             & MATMUL(TWOINT(:,P,Q,NI+NA+1:NI+NA+NS),OSS)
-        TWOINT(NI+NA+1:NI+NA+NS,P,Q,:) = &
-             & MATMUL(TRANSPOSE(OSS),TWOINT(NI+NA+1:NI+NA+NS,P,Q,:))
+        TMP1(:,:) = MATMUL(TWOINT(:,P,Q,NI+NA+1:NI+NA+NS),OSS)
+        TWOINT(:,P,Q,NI+NA+1:NI+NA+NS) = TMP1
+        TMP2(:,:) = MATMUL(TRANSPOSE(OSS),TWOINT(NI+NA+1:NI+NA+NS,P,Q,:))
+        TWOINT(NI+NA+1:NI+NA+NS,P,Q,:) = TMP2
       END DO
     END DO
     DO P=1,NMO
       DO Q=1,NMO
-        TWOINT(P,:,NI+NA+1:NI+NA+NS,Q) = &
-             & MATMUL(TWOINT(P,:,NI+NA+1:NI+NA+NS,Q),OSS)
-        TWOINT(P,NI+NA+1:NI+NA+NS,:,Q) = &
-             & MATMUL(TRANSPOSE(OSS),TWOINT(P,NI+NA+1:NI+NA+NS,:,Q))
+        TMP1(:,:) = MATMUL(TWOINT(P,:,NI+NA+1:NI+NA+NS,Q),OSS)
+        TWOINT(P,:,NI+NA+1:NI+NA+NS,Q) = TMP1
+        TMP2(:,:) = MATMUL(TRANSPOSE(OSS),TWOINT(P,NI+NA+1:NI+NA+NS,:,Q))
+        TWOINT(P,NI+NA+1:NI+NA+NS,:,Q) = TMP2
       END DO
     END DO
+    DEALLOCATE(TMP1,TMP2)
   END SUBROUTINE ORBINT_TRANSFORM
 
 END MODULE ORBINT

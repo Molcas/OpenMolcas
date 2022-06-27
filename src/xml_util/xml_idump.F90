@@ -31,6 +31,14 @@ implicit none
 !----------------------------------------------------------------------*
 character(len=*), intent(in) :: TagName, Appear, Units
 integer(kind=iwp), intent(in) :: Content(*), nx, ny, Level
+interface
+  subroutine xml_iDumpc(name_,nx_name,appear,nx_appear,units,nx_units,Level,data_,nxx,nyx) bind(C,name='xml_idumpc_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*), appear(*), units(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name, nx_appear, nx_units, Level, data_(*), nxx, nyx
+  end subroutine xml_iDumpc
+end interface
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
