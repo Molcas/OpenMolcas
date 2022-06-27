@@ -34,11 +34,11 @@
 ************************************************************************
 *                                                                      *
       CoeffA=One*CoefR
-      Call CPBEsol(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call CPBEsol(mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X)
 
       CoeffB=One*CoefX
-      Call XPBEsol(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call XPBEsol(mGrid,dF_dRho,ndF_dRho,
      &          CoeffB,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
@@ -46,6 +46,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

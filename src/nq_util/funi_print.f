@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Funi_Print
+      use nq_Grid, only: nGridMax
       Implicit Real*8 (A-H,O-Z)
 #include "nq_info.fh"
 #include "print.fh"

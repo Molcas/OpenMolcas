@@ -32,19 +32,19 @@
 *---- Dirac Exchange
 *
       Coeff=One
-      Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
+      Call Diracx(mGrid,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- Becke 88 Exchange
 *
       Coeff=One
-      Call xB88(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xB88(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Wigner Correlation
 *
       Coeff=One
-      Call CWIG(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call CWIG(mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
@@ -52,6 +52,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

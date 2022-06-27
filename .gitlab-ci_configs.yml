@@ -114,7 +114,7 @@
     - intel_license
 
 .intel13:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
@@ -132,6 +132,8 @@
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
+    pre_run_script: |
+      . /opt/intel/oneapi/setvars.sh intel64
     CC: "icc"
     CXX: "icpc"
     FC: "ifort"
@@ -139,8 +141,7 @@
     - intel13
 
 .nag:
-  # use this image for better compatibility with the nag runner
-  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |

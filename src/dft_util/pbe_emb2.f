@@ -31,7 +31,7 @@
 *---- NDSD potential
 *
       Coeff=One
-      Call ndsd_Ts(mGrid,Rho,nRho,nDmat,F_xc,
+      Call ndsd_Ts(mGrid,nDmat,F_xc,
      &                   dF_dRho,ndF_dRho,Coeff,T_X)
 
       If (KEonly) Return
@@ -66,11 +66,11 @@
 ************************************************************************
 *                                                                      *
       CoeffA=0.0D0
-      Call CPBE_ofe(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call CPBE_ofe(mGrid,dF_dRho,ndF_dRho,
      &              CoeffA,iSpin,F_xc,T_X)
 
       CoeffB=0.0D0
-      Call XPBE_ofe(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call XPBE_ofe(mGrid,dF_dRho,ndF_dRho,
      &              CoeffB,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
@@ -78,6 +78,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If
