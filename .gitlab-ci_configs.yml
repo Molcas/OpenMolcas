@@ -122,6 +122,8 @@
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      # use python3 instead of python3.4 for better compatibility
+      set (Python_EXECUTABLE "/usr/bin/python3" CACHE STRING "Python interpreter")
       # with -fsyntax-only and only_objs we create all interface files
       set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
     pre_compile_script: |

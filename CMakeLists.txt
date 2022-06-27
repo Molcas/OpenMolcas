@@ -48,10 +48,7 @@ find_program (GIT "git")
 find_program (PERL "perl")
 mark_as_advanced (FORCE GIT PERL)
 
-FIND_PACKAGE (PythonInterp 3.0)
-if (NOT PYTHONINTERP_FOUND)
-  FIND_PACKAGE (PythonInterp 2.7)
-endif ()
+FIND_PACKAGE (Python COMPONENTS Interpreter)
 
 ################################################################################
 #                                                                              #
@@ -2227,7 +2224,7 @@ if (MolGUI)
   include (ExternalProject)
   ExternalProject_Add (${projname}
                        GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
-                       GIT_TAG 2667899eac1195c28e1a33c6f3ae28b6350fe52c
+                       GIT_TAG 599b75e79fab49501adb313f3e2dfab9d8211795
                        PREFIX ${projdir}
                        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
                                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -3144,9 +3141,9 @@ add_custom_target (prgms ALL
 add_dependencies (mods_obj prgms)
 
 # generate help databases from doc
-if (PYTHONINTERP_FOUND)
+if (Python_FOUND)
   execute_process (
-    COMMAND ${PYTHON_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
+    COMMAND ${Python_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
     ERROR_VARIABLE EXTRACT_ERROR
     RESULT_VARIABLE EXTRACT_RESULT
   )
@@ -3167,7 +3164,7 @@ if (PYTHONINTERP_FOUND)
     endif ()
   endif ()
 else ()
-  message (WARNING "No python found, help databases will not be created.")
+  message (WARNING "No Python found, help databases will not be created.")
 endif ()
 
 # generate rcodes.txt file

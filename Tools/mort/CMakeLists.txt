@@ -16,9 +16,9 @@ endif ()
 file (RELATIVE_PATH tooldir ${BASE_DIR} ${CMAKE_CURRENT_LIST_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 
-if (Python_FOUND)
+if (Python_FOUND AND Python_VERSION VERSION_GREATER_EQUAL 3.6)
 
-  foreach (prog IN ITEMS dynamixtools)
+  foreach (prog IN ITEMS mort)
     file (READ ${CMAKE_CURRENT_LIST_DIR}/${prog}.py content)
     file (WRITE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "#!/usr/bin/env ${Python_EXECUTABLE}\n")
     file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "${content}")
@@ -34,6 +34,6 @@ if (Python_FOUND)
 
 else ()
 
-  message (WARNING "No appropriate Python interpreter found, dynamixtools will be disabled")
+  message (WARNING "No appropriate Python interpreter found, mort will be disabled (Python >= 3.6 required)")
 
 endif ()

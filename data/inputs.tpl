@@ -16,7 +16,6 @@
 &GATEWAY
 &SEWARD
 &SCF
-&GRID_IT
 
 @SCF/DFT geometry optimization
 *
@@ -28,7 +27,6 @@
 &SCF
 &SLAPAF
 >> EndDo
-&GRID_IT
 
 @SCF/DFT geo. opt. and freq. calculation
 *
@@ -41,7 +39,6 @@
 &SLAPAF
 >> EndDo
 &MCKINLEY
-&GRID_IT
 
 @MP2 single point
 *
@@ -51,7 +48,6 @@
 &SEWARD
 &SCF
 &MBPT2
-&GRID_IT
 
 @MP2 geometry optimization
 *
@@ -64,7 +60,6 @@
 &MBPT2
 &SLAPAF
 >> EndDo
-&GRID_IT
 
 @MP2 geo. opt. and freq. calculation
 *
@@ -78,7 +73,6 @@
 &SLAPAF
 >> EndDo
 &MCKINLEY
-&GRID_IT
 
 @CASSCF/RASSCF single point
 *
@@ -89,7 +83,6 @@
 &SCF
 &RASSCF
   LumOrb
-&GRID_IT
 
 @CASSCF/RASSCF geometry optimization
 *
@@ -102,7 +95,6 @@
   FileOrb = _Start_Orbitals
 &SLAPAF
 >> EndDo
-&GRID_IT
 
 @CASSCF/RASSCF geo. opt. and freq. calculation
 *
@@ -129,7 +121,8 @@
 &SLAPAF
   IRC
   nIRC = 5
-  ReactionVector = 3*n_real_numbers
+  ReactionVector
+    3*n_real_numbers
 >>EndDo
 
 @CASPT2/MS-CASPT2 single point
@@ -142,7 +135,6 @@
 &RASSCF
   LumOrb
 &CASPT2
-&GRID_IT
 
 @CASPT2/MS-CASPT2 geometry optimization
 *
@@ -287,8 +279,6 @@
   nMEP = 10
   MaxStep = 0.1
 >> EndDo
-&GRID_IT
-  All
 
 @Computation of Spectrum
 *
