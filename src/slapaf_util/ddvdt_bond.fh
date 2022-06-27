@@ -10,15 +10,12 @@
 ************************************************************************
 #ifdef _SCHLEGEL_
       Real*8 A_Str, A_StrH(2), B_Str(6)
+      Parameter(A_Str=1.734d0)
+      Parameter(B_Str=[-.244d0,0.352d0,1.085d0,0.660d0,1.522d0,2.068d0])
+      Parameter(A_StrH=[0.3601d0,1.944d0])
 #endif
       Real*8 rkr_vdW, rkr
 *
-#ifdef _SCHLEGEL_
-      Data A_Str/1.734d0/
-      Data B_Str/-.244d0,0.352d0,1.085d0,0.660d0,1.522d0,2.068d0/
-      Data A_StrH/0.3601d0,1.944d0/
-#endif
-*
-*     Parameter from 1999 paper
-      Data rkr/0.4500D+00/
-      Data rkr_vdW/0.5D-01/
+*     Parameters from 1999 paper
+      Parameter(rkr=0.4500D+00)
+      Parameter(rkr_vdW=0.5D-01)
