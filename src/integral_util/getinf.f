@@ -19,6 +19,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 ************************************************************************
+      Use Iso_C_Binding
       use Real_Spherical
       use Her_RW
       use External_Centers
@@ -46,7 +47,6 @@
       Contains
       SubRoutine GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,
      &                           cQStrt,iQStrt,rQStrt)
-      Use Iso_C_Binding
       Integer, Target :: cRFStrt,iRFStrt,lRFStrt,cQStrt,iQStrt
       Real*8, Target :: rRFStrt,rQStrt
       Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:),p_cQ(:),p_iQ(:)

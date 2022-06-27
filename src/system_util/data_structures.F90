@@ -188,13 +188,14 @@ Subroutine Allocate_NDSBA(Adam,n,m,nSym)
 !                                                                     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Subroutine Allocate_DSBA(Adam,n,m,nSym,Case,Ref)
+Subroutine Allocate_DSBA(Adam,n,m,nSym,Case,Ref,Label)
   Implicit None
   Type (DSBA_Type),Target, Intent(Out) :: Adam
   Integer, Intent(In) :: nSym
   Integer, Intent(In) :: n(nSym), m(nSym)
-  Character(LEN=3), Intent(In), Optional :: Case
+  Character(Len=3), Intent(In), Optional :: Case
   Real*8, Target, Optional :: Ref(*)
+  Character(Len=*), Intent(In), Optional :: Label
 
   Integer iE, iS, iSym, MemTot
   Integer :: iCase=0
@@ -242,7 +243,11 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case,Ref)
     Adam%A0(1:MemTot) => Ref(1:MemTot)
   Else
     Adam%A0=>Null()
-    Call mma_allocate(Adam%A00,MemTot,Label='%A00')
+    If (Present(Label)) Then
+      Call mma_allocate(Adam%A00,MemTot,Label=Label)
+    Else
+      Call mma_allocate(Adam%A00,MemTot,Label='%A00')
+    End If
     Adam%A0(1:MemTot) => Adam%A00(1:MemTot)
   End If
 

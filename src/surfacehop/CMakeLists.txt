@@ -11,7 +11,7 @@
 
 set (sources
      main.F90
-     getIphInfo.F90
+     getiphinfo.F90
      initial_surfacehop.F90
      rdinp_surfacehop.F90
      restart_surfacehop.F90

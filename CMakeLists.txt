@@ -1978,6 +1978,11 @@ if (DMRG)
   # Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
   add_subdirectory (${proj_bin} ${proj_bin})
 
+  # Make sure GlobalArrays is built first if we're building both
+  if (TARGET GlobalArrays)
+    add_dependencies (qcmaquis GlobalArrays)
+  endif ()
+
   foreach (lib ${HDF5_QCM_LIBRARIES})
     get_filename_component (name ${lib} NAME_WE)
     if (NOT TARGET ${name})

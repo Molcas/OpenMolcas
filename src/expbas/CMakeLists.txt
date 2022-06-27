@@ -12,7 +12,7 @@
 set (sources
      main.F90
      desym.F90
-     driverBas.F90
+     driverbas.F90
      expandbas.F90
      expbas.F90
      info_expbas.F90

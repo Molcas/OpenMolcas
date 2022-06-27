@@ -16,6 +16,7 @@ set (sources
      refwfn.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list
      active_space_solver_cfg.F90
      qcmaquis_info.F90

@@ -44,21 +44,21 @@ do kcr=kcrl,kcru
     rk = Zero
     t = Zero
     qsum(ltot1,1,1) = qsum(ltot1,1,1)+prd*qcomp(alpha,dfac,npi+ltot1-1,0,t,rk)
-  elseif (rka == Zero) then
+  else if (rka == Zero) then
     ! rka=0 and rkb>0
     rk = rkb
     t = arc2
     do lamb=l,lmbhi
       qsum(lamb-l+lit,lamb,1) = qsum(lamb-l+lit,lamb,1)+prd*qcomp(alpha,dfac,npi+lamb-l+lit-1,lamb-1,t,rk)
     end do
-  elseif (rkb == Zero) then
+  else if (rkb == Zero) then
     ! rka>0 and rkb=0
     rk = rka
     t = arc2
     do lama=l,lmahi
       qsum(lama-l+ljt,1,lama) = qsum(lama-l+ljt,1,lama)+prd*qcomp(alpha,dfac,npi+lama-l+ljt-1,lama-1,t,rk)
     end do
-  elseif (npi == 2) then
+  else if (npi == 2) then
     ! rka>0 and rkb>0; use bessel function formula.
     ! To be applicable for a set of integrals, must have nu<=l and
     ! nu==(integer), where nu=l+1-npi/2, so it is used here only
@@ -66,7 +66,7 @@ do kcr=kcrl,kcru
     ! only for partial sets for npi=0
     nu = l
     call qbess(alpha,binom,dfac,l,lambu,lmahi,lmbhi,ltot1,nu,prd,qsum,rka,rkb)
-  elseif (arc2 >= 50.0_wp) then
+  else if (arc2 >= 50.0_wp) then
     ! rka>0 and rkb>0; use pts and wts method
     ! estimate radial integrals and compare to threshold
     qlim = abs(prd)/(max(One,(rc+rc)*rka)*max(One,(rc+rc)*rkb))*sqrt(Four*(tai+tai)**lit*(taj+taj)**ljt*sqrt(tai*taj)/alpha)
@@ -101,7 +101,7 @@ if ((rka == Zero) .and. (rkb /= Zero)) then
     end do
     f2lmb3 = f2lmb3-Two
   end do
-elseif ((rka /= Zero) .and. (rkb == Zero)) then
+else if ((rka /= Zero) .and. (rkb == Zero)) then
   ! rka>0 and rkb=0
   f2lma3 = real(2*lmahi-3,kind=wp)
   do lama=lmahi-2,lmalo,-1
@@ -112,7 +112,7 @@ elseif ((rka /= Zero) .and. (rkb == Zero)) then
     end do
     f2lma3 = f2lma3-Two
   end do
-elseif ((rka /= Zero) .and. (rkb /= Zero)) then
+else if ((rka /= Zero) .and. (rkb /= Zero)) then
   ! rka>0 and rkb>0
   f2lma3 = real(lmahi+lmahi+1,kind=wp)
   do lama=lmahi,lmalo,-1

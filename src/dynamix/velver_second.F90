@@ -89,7 +89,7 @@ call GetMassDx(Mass,natom)
 ! Check if reduced dimensionality
 if (POUT /= 0) then
   call project_out_for(force,natom)
-elseif (PIN /= natom*3) then
+else if (PIN /= natom*3) then
   call project_in_for(force,natom)
 end if
 
@@ -141,7 +141,7 @@ if (hybrid) then
     if (line(i:i) == '$') then
       read(filenum,'(es20.13)') Epot
       i = 80
-    elseif (i == 80 .and. line(i:i) /= '$') then
+    else if (i == 80 .and. line(i:i) /= '$') then
       write(u6,*) 'No energy found'
       call Abend()
     end if

@@ -28,8 +28,6 @@ character(len=80) :: Label
 
 iRout = 133
 iPrint = nPrint(iRout)
-!call GetMem('SOAdpt_E','CHEC','REAL',iDum,iDum)
-
 if (MolWgh == 0) then
   Fact = One/nDeg
 else if (MolWgh == 1) then
@@ -57,8 +55,6 @@ if (iPrint >= 49) then
     call RecPrt(Label,' ',SOValue(1,1,1,iCmp),mAO*nCoor,mBas)
   end do
 end if
-
-!call GetMem('SOAdpt_X','CHEC','REAL',iDum,iDum)
 
 return
 

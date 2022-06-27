@@ -83,39 +83,39 @@ if (info /= 0) then
 # ifdef _DEBUGPRINT_
   write(u6,'(A,I4)') 'Failed to tridiagonalize matrix',info
 # endif
-  Go To 10
-end if
-#if defined(_ACML_) && defined(__PGI)
-call ILAENVSET(10,'X','X',0,0,0,0,1,INFO)
-call ILAENVSET(11,'X','X',0,0,0,0,1,INFO)
-#endif
-abstol = dlamch_('Safe minimum')
-info = 0
-call dstevr_('V','A',n,DIA,OFF,Zero,Zero,0,0,abstol,M,EVL,U,nv,IPSZ,RWRK,lrwrk,IWRK,liwrk,info)
+else
 
-if (info /= 0) then
-# ifdef _DEBUGPRINT_
-  write(u6,'(A,I4)') 'Failed to diagonalize matrix',info
+# if defined(_ACML_) && defined(__PGI)
+  call ILAENVSET(10,'X','X',0,0,0,0,1,INFO)
+  call ILAENVSET(11,'X','X',0,0,0,0,1,INFO)
 # endif
-  Go To 10
+  abstol = dlamch_('Safe minimum')
+  info = 0
+  call dstevr_('V','A',n,DIA,OFF,Zero,Zero,0,0,abstol,M,EVL,U,nv,IPSZ,RWRK,lrwrk,IWRK,liwrk,info)
+
+  if (info /= 0) then
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,I4)') 'Failed to diagonalize matrix',info
+#   endif
+  else
+
+    call dopmtr_('Left','U','N',N,N,HDUP,TAU,U,nv,RWRK,info)
+
+    if (info /= 0) then
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,I4)') 'Failed to back transform vectors',info
+#     endif
+    else
+
+      call dcopy_(lh,HDUP,1,H,1)
+
+      do I=1,N
+        H((I*(I+1))/2) = EVL(I)
+      end do
+    end if
+  end if
 end if
 
-call dopmtr_('Left','U','N',N,N,HDUP,TAU,U,nv,RWRK,info)
-
-if (info /= 0) then
-# ifdef _DEBUGPRINT_
-  write(u6,'(A,I4)') 'Failed to back transform vectors',info
-# endif
-  Go To 10
-end if
-
-call dcopy_(lh,HDUP,1,H,1)
-
-do I=1,N
-  H((I*(I+1))/2) = EVL(I)
-end do
-
-10 continue
 call mma_deallocate(DIA)
 call mma_deallocate(EVL)
 call mma_deallocate(OFF)

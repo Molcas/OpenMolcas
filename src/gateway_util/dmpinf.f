@@ -31,6 +31,7 @@
 * modified by M.P. Fuelscher                                           *
 * - changed to used communication file                                 *
 ************************************************************************
+      Use Iso_C_Binding
       use External_Centers
       use Basis_Info, only: Basis_Info_Dmp
       use Center_Info, only: Center_Info_Dmp
@@ -58,7 +59,6 @@
       Contains
       SubRoutine DmpInf_Internal(
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
-      Use Iso_C_Binding
       Integer, Target :: cRFStrt,iRFStrt,lRFStrt,
      &                   cQStrt,iQStrt
       Real*8, Target :: rRFStrt,rQStrt

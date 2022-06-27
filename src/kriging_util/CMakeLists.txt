@@ -33,6 +33,7 @@ set (sources
      trans_k.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list
      kriging_mod.F90
 )

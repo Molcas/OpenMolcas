@@ -40,6 +40,7 @@
       mdc = 0
       MaxAto=0
       Do iCnttp = 1, nCnttp
+         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Cycle
          nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
             mdc = mdc + 1
@@ -54,6 +55,7 @@
       ndc = 0
       nc = 0
       Do jCnttp = 1, nCnttp
+         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
          Z = dbsc(jCnttp)%Charge
          mCnt = dbsc(jCnttp)%nCntr
          If (dbsc(jCnttp)%AtmNr.ge.1) Then

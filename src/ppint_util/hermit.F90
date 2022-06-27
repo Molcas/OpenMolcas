@@ -44,13 +44,13 @@ do i=1,n2
   if (i == 1) then
     ! largest zero
     xt = s**3-1.85575_wp/s
-  elseif (i == 2) then
+  else if (i == 2) then
     ! second zero
     xt = xt-1.14_wp*fn**0.426_wp/xt
-  elseif (i == 3) then
+  else if (i == 3) then
     ! third zero
     xt = 1.86_wp*xt-0.86_wp*x(1)
-  elseif (i == 4) then
+  else if (i == 4) then
     ! fourth zero
     xt = 1.91_wp*xt-0.91_wp*x(2)
   else
