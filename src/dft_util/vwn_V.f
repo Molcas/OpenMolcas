@@ -74,7 +74,7 @@ C     CVX   =(two**THIRD)*((three/Pi)**THIRD)
          DTot=Two*d_alpha
          If (DTot.lt.T_X) Go To 100
 *
-*------- Accumulate Correlation contributions to the AO intergrals
+*------- Accumulate Correlation contributions to the AO integrals
 *
          r_s=(Three/(DTot*Pi*Four))**THIRD
          x=Sqrt(r_s)
@@ -137,7 +137,7 @@ C     CVX   =(two**THIRD)*((three/Pi)**THIRD)
          DSpn=d_alpha-d_beta
          nSpin=3
 *
-*------- Accumulate Correlation contributions to the AO intergrals
+*------- Accumulate Correlation contributions to the AO integrals
 *
          r_s=(Three/(DTot*Pi*Four))**THIRD
          x=Sqrt(r_s)

@@ -309,7 +309,7 @@
          Call Drvh1(Grad,Temp,nGrad)
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
-*    &               Grad,lDisp(0),ChDisp,iPrint)
+*    &               Grad,lDisp(0),ChDisp)
          call dcopy_(nGrad,[Zero],0,Temp,1)
          If (Do_RI) Then
             Call Set_Basis_Mode('Auxiliary')
@@ -400,7 +400,7 @@ C        End If
      &               iBsInc,jBsInc,kBsInc,lBsInc,
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
-     &               iPrint,iFnc, MemPSO)
+     &               iFnc, MemPSO)
          iBasi    = iSD4(3,1)
          jBasj    = iSD4(3,2)
          kBask    = iSD4(3,3)
@@ -411,7 +411,7 @@ C        End If
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 indij,k2ij,nDCRR,k2kl,nDCRS,
+     &                 k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,
      &                 ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,
@@ -498,7 +498,7 @@ C        End If
 #endif
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1_2Center_RI: Grad',
-     &                  Temp,nGrad,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp)
 *
  430     Continue
  420     Continue

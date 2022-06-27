@@ -4,8 +4,8 @@
 
 .. _TUT\:sec\:mbpt2:
 
-:program:`MBPT2`-- A Second-Order Many-Body PT RHF Program
-==========================================================
+:program:`MBPT2` --- A Second-Order Many-Body PT RHF Program
+============================================================
 
 The :program:`MBPT2` program performs second-order Many Body Perturbation
 Theory calculations based on a RHF-type of wave function (MP2 method).

@@ -12,7 +12,8 @@
 subroutine gugadrt_rcas(id,indd)
 
 use gugadrt_global, only: iseg_downwei, iprint, ja, ja_sys, jb, jb_sys, jc_sys, jd, jj, jm, jroute_sys, js, jt, jv, kk, lsm_inn, &
-                          max_innorb, max_node, max_ref, mul_tab, mxnode, n_electron, ng_sm, no, norb_dz, norb_inn, ns_sm, nu_ad
+                          max_innorb, max_node, max_ref, mxnode, n_electron, ng_sm, no, norb_dz, norb_inn, ns_sm, nu_ad
+use Symmetry_Info, only: mul_tab => Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 

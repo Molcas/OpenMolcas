@@ -57,7 +57,7 @@ use Definitions, only: wp
 
 implicit none
 integer(kind=iwp), intent(inout) :: Lu
-character(len=*) :: String
+character(len=*), intent(in) :: String
 logical(kind=iwp), intent(in) :: mf, wa
 integer(kind=iwp) :: i, inUse, iRc, temp, tmp
 character(len=80) :: Text

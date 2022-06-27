@@ -417,8 +417,8 @@ test:garble:
   <<: *run-tests
   needs:
     - build:garble
-#    - tinker
-  parallel: 4
+    - tinker
+  parallel: 6
 
 build:bounds:
   extends: .bounds

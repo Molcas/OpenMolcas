@@ -39,6 +39,7 @@ use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
@@ -92,7 +93,7 @@ do iS=1,nSkal
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
-  niAng = (iAng+1)*(iAng+2)/2
+  niAng = nTri_Elem1(iAng)
   do jS=1,iS
     jShll = iSD(0,jS)
     jAng = iSD(1,jS)
@@ -105,7 +106,7 @@ do iS=1,nSkal
     jCnttp = iSD(13,jS)
     jCnt = iSD(14,jS)
     B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
-    njAng = (jAng+1)*(jAng+2)/2
+    njAng = nTri_Elem1(jAng)
 
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)

@@ -2284,7 +2284,7 @@ A list of these keywords is given below:
   This keyword is only effective when there is a file named :file:`Do_Rotate.txt` present in the scratch directory; otherwise the states will not be rotated.
   The file :file:`Do_Rotate.txt` stores the rotation vector that rotates the states; the rotation vector is stored in a format such that the first line of the file records the first row of the rotation matrix, and so on. This keyword writes a file called :file:`H0_Rotate.txt` in the scratch directory; :file:`H0_Rotate.txt` contains the Hamiltonian matrix of the rotated states.
   This keyword currently does not work for wave functions optimized with the DMRG algorithm.
-  More information regarding XMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+  More information regarding XMS-PDFT or CMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ROSTate" APPEAR="Rotate states" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: ROSTate <basic>

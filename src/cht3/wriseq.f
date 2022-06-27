@@ -31,7 +31,7 @@ C     write(6,*)'reading',ifile,idimens
       RETURN
 
 
-C     WRITED BY J. SIMUNEK JULY 2006
+C     WRITTEN BY J. SIMUNEK JULY 2006
 C     START PART
 
       ENTRY WRI_I(INDI,IDIMENS,IFILE,IAS)
