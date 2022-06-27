@@ -12,7 +12,7 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(NROW,N),B(NCOL,N),CJ(1000)
       DIMENSION C(NROW,NCOL)
-#include "warnings.fh"
+#include "warnings.h"
 
       If ( nRow.gt.1000 ) then
          WRITE(6,*)

@@ -34,7 +34,7 @@ real(kind=wp), parameter :: kb = kBoltzmann/(auTokJ*1.0e3_wp)
 character(len=2), allocatable :: atom(:)
 real(kind=wp), allocatable :: Mass(:), vel(:), pcoo(:,:)
 integer(kind=iwp), external :: AixRm, IsFreeUnit, IsStructure
-#include "warnings.fh"
+#include "warnings.h"
 
 iReturn = 99
 

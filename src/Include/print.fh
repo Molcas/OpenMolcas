@@ -14,3 +14,5 @@
       Logical Show
       Common /Print/ nPrint
       Common/lPrint/ Show
+      Integer icolorize
+      Common /icolorize/icolorize

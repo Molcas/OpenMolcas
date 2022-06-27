@@ -34,7 +34,7 @@ logical(kind=iwp) :: Failed
 integer(kind=iwp), allocatable :: iPivot(:), iQual(:)
 real(kind=wp), allocatable :: Bin(:), Buf(:), Qual(:)
 logical(kind=iwp), parameter :: Restart = .false.
-character(len=17), parameter :: SecNam = 'Cho_SOSmp2_DecDrv'
+character(len=*), parameter :: SecNam = 'Cho_SOSmp2_DecDrv'
 external :: Cho_SOSmp2_Col, ChoMP2_Vec
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"

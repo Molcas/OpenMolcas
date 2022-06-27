@@ -30,7 +30,8 @@ c
        integer nsym
 c
 c        help variables
-        integer iorb,ii,i,symi,length,posst
+        integer iorb,ii,i,symi,length,posst,idum(1)
+        real*8 dum(1)
 c
 c
 c0        open t3nam file
@@ -42,7 +43,9 @@ c1        set address poiter to 0
 c
 c2        first record in t3nam file is T3IntPoss
 c       (emulate writing of T3IntPoss)
-        call idafile (lunt3,0,[0],mbas,daddr(lunt3))
+        idum(1)=0
+        dum(1)=0.0d0
+        call idafile (lunt3,0,idum,mbas,daddr(lunt3))
 c
         iorb=0
 c3        cycle over irreps
@@ -60,8 +63,8 @@ c3.2.1      save initial addres for this orbital
             T3IntPoss(iorb)=daddr(lunt3)
 c
 c3.2.2      emulate writing of mapd and mapp
-            call idafile (lunt3,0,[0],513*6,daddr(lunt3))
-            call idafile (lunt3,0,[0],8*8*8,daddr(lunt3))
+            call idafile (lunt3,0,idum,513*6,daddr(lunt3))
+            call idafile (lunt3,0,idum,8*8*8,daddr(lunt3))
 c
 c3.2.3      cycle over all blocks of R_i(a,bc), which will
 c           be stored separately
@@ -76,7 +79,7 @@ c             first occ. orbital in given irrep T3Off is defined
 c
 c3.2.3.2      emulate writing of each block
               length=mapdri(ii,2)
-              call ddafile (lunt3,0,[0.0d0],length,daddr(lunt3))
+              call ddafile (lunt3,0,dum,length,daddr(lunt3))
 c
             end do
           end do

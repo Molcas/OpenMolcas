@@ -10,7 +10,8 @@
 ************************************************************************
       subroutine make_close_rvb
       implicit real*8(a-h,o-z)
-#include "fio.fh"
+      integer find_lu
+      external find_lu
       character*8 vec(11)
       vec(1)='TMP01'
       vec(2)='TMP02'
@@ -24,15 +25,9 @@
       vec(10)='VBWFN'
       il=10
 c  Preassign some file names to identifiers :
-      do n=1,MxFile
-         do i=1,il
-             if(isOpen(n).eq.1) then
-              if (LuName(n).eq.vec(i)) then
-c         print *,'closing ',LuName(n)
-                call daclos(n)
-              endif
-              endif
-      enddo
+      do i=1,il
+        n=find_lu(vec(i))
+        if(n.gt.0)call daclos(n)
       enddo
       return
       end

@@ -40,7 +40,7 @@ c 98-09-02 J.Hasegawa Modified for non-squared integrals.
       IMPLICIT REAL*8 (A-H,O-Z)
       LOGICAL IFTEST
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

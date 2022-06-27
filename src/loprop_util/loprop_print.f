@@ -47,7 +47,7 @@
      &             //'type!'
       Call Banner (Banner_Line,3,120)
 #else
-      Write(6,'(6X,A)') Banner_Line(1)(:mylen(Banner_Line(1)))
+      Write(6,'(6X,A)') trim(Banner_Line(1))
 #endif
 *
 *---- Collect data

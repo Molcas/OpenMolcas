@@ -122,7 +122,7 @@ subroutine fmm_get_J_matrix(nBas,dens,fockAO)
   real(REALK), intent(in)    :: dens(nBas*(nBas+1)/2)
   real(REALK), intent(inoUt) :: fockAO(nBas*(nBas+1)/2)
 
-  character(len=10), parameter :: FName = 'multipoles'
+  character(len=*), parameter :: FName = 'multipoles'
   character(len=255) :: FBuf
   real(REALK) :: J_matrix(nBas,nBas)
   real(REALK) :: sq_dens(nBas,nBas)
@@ -216,7 +216,7 @@ subroutine fmm_initialise_gfc_grid(npoints,coor)
   integer(INTK), intent(in) :: npoints
   real(REALK), intent(in)   :: coor(3,npoints)
 
-  character(len=10), parameter :: FName = 'multipoles'
+  character(len=*), parameter :: FName = 'multipoles'
   character(len=255) :: FBuf
   integer(INTK) :: i
   integer(INTK), external :: IsFreeUnit

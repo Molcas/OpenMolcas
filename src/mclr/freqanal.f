@@ -18,7 +18,7 @@
       logical Do_Molden
       Integer nrvec(*),nDeg(*),iel(3),ldisp(nsym)
       Real*8, Allocatable:: NMod(:), EVec(:), EVal(:), Intens(:),
-     &                      RedMas(:), Tmp2(:), Tmp3(:), Temp(:)
+     &                      RedMas(:), Tmp3(:), Temp(:)
 #include "temperatures.fh"
 *
       Call mma_allocate(NMod,nDisp**2,Label='NMod')
@@ -69,13 +69,10 @@
             Write(6,*)
 *
             If (converged(isym))  Then
-               naux=Max(nx*2,nX**2)
-               Call mma_allocate(Tmp2,naux,Label='Tmp2')
                Call mma_allocate(Tmp3,nX**2,Label='Tmp3')
                Call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),
-     &                   Tmp2,Tmp3,EVec,EVal(i1),RedMas,iNeg)
+     &                   Tmp3,EVec,EVal(i1),RedMas,iNeg)
                Call mma_deallocate(Tmp3)
-               Call mma_deallocate(Tmp2)
 *
                iCtl=0
                ll=0

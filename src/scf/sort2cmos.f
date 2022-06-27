@@ -12,7 +12,7 @@
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(nCMO,nD), Occ(nnB,nD)
       Integer nBas(nSym), nOrb(nSym), OrbType(nnB,nD)
-*define _DEBUGPRINT_
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
          iOff=1
@@ -51,7 +51,8 @@
                Do jOrb = iOrb + 1, nOrb(iSym)
                   Occ_j = Occ(iOff1+jOrb,iD)
 *                 Write (6,*) 'Occ_j,jOrb=',Occ_j,jOrb
-                  If (Occ_j.gt.Occ_i) Then
+                  If (Occ_i==0.0D0 .and.
+     &                Occ_j.gt.Occ_i) Then
                      Occ_i=Occ_j
                      kOrb = jOrb
                   End If

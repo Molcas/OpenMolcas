@@ -18,7 +18,7 @@
 * Return codes are _RC_ALL_IS_WELL_ or _RC_INPUT_ERROR_
 * ------------------------------------------------------------
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "WrkSpc.fh"
 #include "input_ras_mcpdft.fh"
 #include "output_ras.fh"

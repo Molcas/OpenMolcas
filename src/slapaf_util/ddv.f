@@ -74,7 +74,7 @@
       Real*8 Trans(3), RotVec(3), RotMat(3,3)
       Real*8, Allocatable:: xMass(:), Grad(:,:,:), CurrXYZ(:,:)
 *
-#include "warnings.fh"
+#include "warnings.h"
 #define _FMIN_
 #define _VDW_
 #include "ddvdt.fh"

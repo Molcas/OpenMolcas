@@ -48,7 +48,7 @@
 
 #include "maxi.fh"
 #include "numbers.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension Rot(3,3),Cmo(MxBasC,MxOrb_C),iQ(MxBasC),nCnC(MxBasC)
 

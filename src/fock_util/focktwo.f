@@ -47,8 +47,8 @@ c
       MUL(I,J)=IEOR(I-1,J-1)+1
 *                                                                      *
 ************************************************************************
-      Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI',Ref=W_DLT)
-      Call Allocate_DSBA(FLT,nBas,nBas,nSym,Case='TRI',Ref=W_FLT)
+      Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+      Call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
       Call Allocate_DSBA(DSQ,nBas,nBas,nSym,Ref=W_DSQ)
       Call Allocate_DSBA(FSQ,nBas,nBas,nSym,Ref=W_FSQ)
 

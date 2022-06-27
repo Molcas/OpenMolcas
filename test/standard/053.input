@@ -10,6 +10,7 @@
 * Responsible person: T. B. Pedersen 110316
 * Comments:
 *-------------------------------------------------------------------------------
+>EXPORT MOLCAS_ISDEV=TEST
  &GATEWAY
 Title
 CH3 radical

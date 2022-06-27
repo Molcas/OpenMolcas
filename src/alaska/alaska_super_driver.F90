@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iRC
-#include "warnings.fh"
+#include "warnings.h"
 #include "nac.fh"
 integer(kind=iwp) :: Columbus, iForceAnalytical, iGo, iMp2Prpt, iPL, iReturn, istatus, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, &
                      nSym

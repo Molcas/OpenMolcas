@@ -61,7 +61,7 @@
             If ( i.ge.4 .and. i.le.nLine-2 )
      &         Write(Line,'(18A4)')(TitleIN((i-4)*18+j),j=1,18)
             If (iPL.ge.3) Then
-               Call Center(Line)
+               Call Center_Text(Line)
                Write(6,Fmt1) '*'//Line//'*'
             End If
          End Do
@@ -75,9 +75,9 @@
          Write(6,Fmt1) 'Header of the ONEINT file:'
          Write(6,Fmt1) '--------------------------'
          Write(Line,Fmt1)  Header1I(1)
-         Write(6,'(A)') Line(:mylen(Line))
+         Write(6,'(A)') trim(Line)
          Write(Line,Fmt1)  Header1I(2)
-         Write(6,'(A)') Line(:mylen(Line))
+         Write(6,'(A)') trim(Line)
          Write(6,*)
 *----------------------------------------------------------------------*
 *     Print cartesian coordinates of the system                        *

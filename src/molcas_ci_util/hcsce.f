@@ -165,7 +165,7 @@
       Implicit Real*8(A-H,O-Z)
       Dimension S(N,N),C(N,N),Temp(N)
 * PAM 2009, New Gram-Schmidt 090216
-#include "warnings.fh"
+#include "warnings.h"
 
       M=0
       do i=1,N

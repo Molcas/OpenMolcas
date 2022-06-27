@@ -24,7 +24,7 @@ c           the original routines by Hess are called!
 c
       Implicit real*8(a-h,o-z)
 #include "Molcas.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rinfo.fh"
 #include "print.fh"
 #include "real.fh"

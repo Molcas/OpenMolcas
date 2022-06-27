@@ -50,7 +50,7 @@ end do
 !ExFac = Get_ExFac(KSDFT)
 !FactXI = ExFac
 FactXI = One  ! always HF energy
-Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,Case='TRI')
+Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,aCase='TRI')
 PLT(1)%A0(:) = Dma(:)+Dmb(:)
 
 Call Allocate_DSBA(POrb(1),nBas,nBas,nSym)
@@ -74,13 +74,13 @@ do i=1,nSym
   iOff = iOff+nBas(i)**2
 end do
 
-Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,Case='TRI')
-Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,Case='TRI')
+Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI')
+Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI')
 FLT(1)%A0(:)=Zero
 FLT(2)%A0(:)=Zero
 
-Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,Case='TRI')
-Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,Case='TRI')
+Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI')
+Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,aCase='TRI')
 KLT(1)%A0(:)=Zero
 KLT(2)%A0(:)=Zero
 

@@ -112,8 +112,7 @@
       End If
       Call Charge(nSym,nBas,Name,H(LW(87)),H(LW(90)),H(LW(91)),2,.True.,
      &            .True.)
-      Call Prpt_old(nSym,nBas,nSum,n2Sum,H(LW(87)),H(LW(90)),
-     *          Lic-LW(92)+1,H(LW(92)))
+      Call Prpt_old(nSym,nBas,nSum,n2Sum,H(LW(87)),H(LW(90)))
 *
       If (iCPF.eq.1) Then
          Header='* CPF NO COEFS'

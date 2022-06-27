@@ -15,44 +15,33 @@
       implicit real*8 (a-h,o-z)
       character*(*) fname
 #include "dancom_cvb.fh"
-#include "fio.fh"
-      logical find_unused
+      integer find_lu, isfreeunit, i_open
+      logical find_unused, is_opened
+      external find_lu, isfreeunit, is_opened
 
-      do 100 ilu=1,99
-      if(isOpen(ilu).eq.1)then
-        if(LuName(ilu).eq.fname)then
-          lu=ilu
-          goto 1000
-        endif
+      ilu=find_lu(fname)
+      if(ilu.gt.0)then
+        lu=ilu
+        goto 1000
       endif
-100   continue
-      find_unused=(lu.lt.1.or.lu.gt.99)
-      if(.not.find_unused)find_unused=(isOpen(lu).eq.1)
+      find_unused=(lu.lt.1)
+      if(.not.find_unused)find_unused=is_opened(lu)
       if(find_unused)then
-        do 200 ilu=10,99
-        if(isOpen(ilu).eq.0)then
-          lu=ilu
-          goto 1000
-        endif
-200     continue
-        do 300 ilu=1,9
-        if(ilu.ne.5.and.ilu.ne.6.and.isOpen(ilu).eq.0)then
-          lu=ilu
-          goto 1000
-        endif
-300     continue
-        write(6,'(a)')' Unused unit number not found in DANAME!'
-        call abend_cvb()
+        ilu=isfreeunit(10)
       endif
 
-1000  call istkpush_cvb(idan,isOpen(lu))
-      if(isOpen(lu).eq.0)call daname(lu,fname)
+1000  if(is_opened(lu)) then
+        i_open=1
+      else
+        i_open=0
+      end if
+      call istkpush_cvb(idan,i_open)
+      if(i_open.eq.0)call daname(lu,fname)
       return
       end
       subroutine daclos_cvb(lu)
       implicit real*8 (a-h,o-z)
 #include "dancom_cvb.fh"
-#include "fio.fh"
 c      logical find_unused
 
       call istkpop_cvb(idan,iwasopen)
@@ -62,7 +51,6 @@ c      logical find_unused
       subroutine daninit_cvb()
       implicit real*8 (a-h,o-z)
 #include "dancom_cvb.fh"
-#include "fio.fh"
 c      logical find_unused
       call istkinit_cvb(idan,mxfiles)
       return

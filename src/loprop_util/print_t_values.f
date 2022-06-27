@@ -63,7 +63,7 @@
             End Do
 *
             If (Num_Warnings .gt. 0) Then
-               Call Warnings(iWarnings(ii),Warning,iLength)
+               Call Warnings_lp(iWarnings(ii),Warning,iLength)
                If (iT_sets(ii) .eq. 1) Then
                   Write(6,'(1X,I3,5X,8X,A17,24X,F7.4,3X,A)')
      &               iAtom,BondLbl,T_Values(ij),Warning
@@ -125,7 +125,7 @@
                End Do
 *
                If (Num_Warnings .gt. 0) Then
-                  Call Warnings(iWarnings(ij),Warning,iLength)
+                  Call Warnings_lp(iWarnings(ij),Warning,iLength)
                   If (iT_sets(ij) .eq. 1) Then
                Write(6,'(1X,I3,5X,I3,5X,A17,F6.3,5X,F7.4,6X,F7.4,3X,A)')
      &              iAtom,jAtom,BondLbl,Factor,BS_t,T_Values(ij),Warning

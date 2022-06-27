@@ -42,7 +42,7 @@ C
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
 #include "mgrid.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
 c  definition of the cluster:
       Integer       :: nneq, neqv, neq(nneq), nCenter

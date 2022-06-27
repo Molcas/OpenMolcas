@@ -34,7 +34,7 @@ real(kind=wp) :: Thrs_Save, xNrm
 character(len=80) :: Txt
 character(len=4) :: myModel
 logical(kind=iwp) :: Converged
-character(len=18), parameter :: SecNam = 'Localise_Iterative'
+character(len=*), parameter :: SecNam = 'Localise_Iterative'
 
 irc = 0
 Functional = -huge(Functional)

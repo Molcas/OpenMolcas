@@ -104,7 +104,7 @@
 #include "llists.fh"
 #include "twoswi.fh"
 #include "ldfscf.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8, Dimension(:),   Allocatable:: D1Sao
       Real*8, Dimension(:,:), Allocatable:: Grd1, Disp, Xnp1
 

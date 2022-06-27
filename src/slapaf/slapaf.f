@@ -18,7 +18,7 @@
       Character*8 ELOOP
 ************ columbus interface ****************************************
       Integer Columbus
-#include "warnings.fh"
+#include "warnings.h"
 *                                                                      *
 ************************************************************************
 *                                                                      *

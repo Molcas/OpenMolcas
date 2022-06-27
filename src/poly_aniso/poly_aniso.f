@@ -14,7 +14,7 @@
      &                         old_aniso_format, iReturn )
 
       Implicit None
-#include "warnings.fh"
+#include "warnings.h"
 #include "stdalloc.fh"
       Integer, parameter        :: wp=kind(0.d0)
 !======================================================================

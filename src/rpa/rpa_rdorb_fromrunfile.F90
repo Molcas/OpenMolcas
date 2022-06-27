@@ -20,7 +20,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: iUHF, iSym, i, nB, nB2, ip, ipO, ipV
 logical(kind=iwp) :: Found
-character(len=21), parameter :: SecNam = 'RPA_RdOrb_FromRunfile'
+character(len=*), parameter :: SecNam = 'RPA_RdOrb_FromRunfile'
 integer(kind=iwp), external :: RPA_iUHF
 
 ! Restricted (1) or unrestricted (2)

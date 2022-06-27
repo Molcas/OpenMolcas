@@ -29,7 +29,7 @@
 #include "SysDef.fh"
 #include "intgrl.fh"
 #include "eqsolv.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "stdalloc.fh"
       LOGICAL IF_TRNSF
       CHARACTER(LEN=27)  STLNE2

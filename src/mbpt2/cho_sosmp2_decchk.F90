@@ -42,7 +42,7 @@ real(kind=wp), intent(inout) :: Col(nDim,nCol)
 real(kind=wp), intent(out) :: Wrk(lWrk), ErrStat(3)
 integer(kind=iwp) :: iBatCol, ibj1, kai, kbj, lU, Nai, nBatCol, Nbj, NumCol, NumVec
 real(kind=wp) :: Fac, xdim
-character(len=17), parameter :: SecNam = 'Cho_SOSmp2_DecChk'
+character(len=*), parameter :: SecNam = 'Cho_SOSmp2_DecChk'
 real(kind=r8), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"

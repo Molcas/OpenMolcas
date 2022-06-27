@@ -42,7 +42,7 @@
 
 #include "maxi.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension xyz(MxAt,MxAt,3),CordMul(MxMltp,3),outxyz(MxQCen,3)
       Dimension nOcc(MxAt),natyp(MxAt),nBasAt(MxBas)

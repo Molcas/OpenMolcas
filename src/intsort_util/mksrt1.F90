@@ -37,7 +37,7 @@ use Definitions, only: iwp, u6, RtoI
 
 implicit none
 #include "print.fh"
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: ib, ibj, ij, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
                      kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, lSyml, lSymMx, MaxMem, mnBin, MxSrtA1, MxSrtA2, nij, &
                      nSlice, nSym

@@ -16,7 +16,7 @@ c  this routine looks into the file "single_aniso.input" for the "RESTart" keywo
 c
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
-#include "warnings.fh"
+#include "warnings.h"
       Integer, intent(out) :: nneq, neqv, nmax, exch, nLoc,
      &                        nCenter, nT, nH, nTempMagn, nDir,
      &                        nDirZee, nMult, nPair, MxRank1, MxRank2,

@@ -37,13 +37,13 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 integer(kind=iwp), intent(_OUT_) :: IndT(*)
 real(kind=wp), intent(_OUT_) :: CMO(*), Occ(*), EOrb(*)
 character(len=*), intent(in) :: FName
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: i, iErr, iSym, iUHF, iWarn, iWFType, k1, k2, l_CMO, Lu, nBasT, nOrbT
 real(kind=wp) :: Dummy(1)
 character(len=80) :: VTitle
 integer(kind=iwp), allocatable :: Ind_(:)
 real(kind=wp), allocatable :: CMO_(:), EOr_(:), Occ_(:)
-character(len=18), parameter :: SecNam = 'RdVec_Localisation'
+character(len=*), parameter :: SecNam = 'RdVec_Localisation'
 
 nBasT = nBas(1)
 nOrbT = nOrb(1)

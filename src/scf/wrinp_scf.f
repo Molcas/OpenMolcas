@@ -63,9 +63,9 @@
       If (jPrint.ge.2) Then
          Write(6,'(6X,A)')  'Header of the integral files:'
          Write(Line,'(A72)') Header(1)
-         Write(6,'(6X,A)') Line(:mylen(Line))
+         Write(6,'(6X,A)') trim(Line)
          Write(Line,'(A72)') Header(2)
-         Write(6,'(6X,A)') Line(:mylen(Line))
+         Write(6,'(6X,A)') trim(Line)
          Write(6,*)
       End If
 *
@@ -77,7 +77,7 @@
          Else If (jPrint.ge.2) Then
              Write (6,'(6X,A)') ' Title:'
              Do iTit = 1, nTit
-                Write (6,'(8X,A)') Title(iTit)(:mylen(Title(iTit)))
+                Write (6,'(8X,A)') trim(Title(iTit))
              End Do
          End If
       End If
@@ -455,7 +455,7 @@ c           Call Abend()
             Write(6,Fmt) 'Input vectors read from HDF5 file'
          Else
             Write(6,Fmt) 'Input vectors read from INPORB'
-            Write(6,Fmt) 'Orbital file label: ',VTitle(:mylen(VTitle))
+            Write(6,Fmt) 'Orbital file label: ',trim(VTitle)
          End If
       Else If (InVec.eq.3) Then
          Write(6,Fmt) 'Input density matrix read from RUNFILE'

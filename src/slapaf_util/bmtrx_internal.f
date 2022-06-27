@@ -29,7 +29,7 @@
      &                             Numerical, mB_Tot, mdB_Tot, mq
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"

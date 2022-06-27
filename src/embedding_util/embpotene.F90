@@ -79,6 +79,7 @@ end function embPotEneSCF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 real(kind=wp) function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nSym)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -101,13 +102,13 @@ integer(kind=iwp) :: i, dens_dim_packed, iRow, iCol, counter, counter2
 !  call Abend()
 !end if
 
-allocate(totalDensity(nBasTotSquare))
+call mma_allocate(totalDensity,nBasTotSquare)
 
 dens_dim_packed = 0
 do i=1,nSym
   dens_dim_packed = dens_dim_packed+((nBasPerSym(i)*(nBasPerSym(i)+1))/2)
 end do
-allocate(totalDensityPacked(dens_dim_packed))
+call mma_allocate(totalDensityPacked,dens_dim_packed)
 
 call dcopy_(nBasTotSquare,densityInactive,1,totalDensity,1)
 call daxpy_(nBasTotSquare,One,densityActive,1,totalDensity,1)
@@ -160,9 +161,9 @@ end do
 !embPotEneMODensities = embPotEneSCF(totalDensity,transformedEmbInts,dens_dim)
 embPotEneMODensities = embPotEneSCF(totalDensityPacked,embeddingInts,dens_dim_packed)
 
-deallocate(totalDensity)
-deallocate(totalDensityPacked)
-!deallocate(transformedEmbInts)
+call mma_deallocate(totalDensity)
+call mma_deallocate(totalDensityPacked)
+!call mma_deallocate(transformedEmbInts)
 
 return
 

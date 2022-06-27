@@ -22,7 +22,7 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasscf_lucia.fh"
 
 ******Input
@@ -70,7 +70,7 @@ C     Deallocating Memory
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasscf_lucia.fh"
 ******Input
       Real*8,DIMENSION(NTOT1)::FI,FA
@@ -154,7 +154,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasscf_lucia.fh"
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
@@ -209,7 +209,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasscf_lucia.fh"
 
 ******Input

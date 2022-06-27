@@ -1921,9 +1921,8 @@ C
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
 C
-#include "warnings.fh"
+#include "warnings.h"
 #include "chocaspt2.fh"
-! #include "choptr.fh"
 #include "choglob.fh"
 C
       Dimension DPT2AO(*),SSDM(*)

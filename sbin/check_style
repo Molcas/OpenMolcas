@@ -101,7 +101,7 @@ stop = re.compile(r'[\s\d]*stop(?!\s*=)', re.IGNORECASE)
 def test_stop(line, filename):
   if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
     return False
-  if (filename.endswith(('xerbla.f', 'xquit.f', 'xabort.f'))):
+  if (filename.endswith(('xerbla.f', 'xquit.F90', 'xabort.F90'))):
     return False
   return stop.match(line.decode('ascii', 'ignore').strip('\n'))
 

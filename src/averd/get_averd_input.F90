@@ -37,7 +37,7 @@ character(len=180) :: Key
 character(len=4) :: Kword
 character(len=180), external :: Get_Ln
 integer(kind=iwp), external :: iCLast
-#include "warnings.fh"
+#include "warnings.h"
 
 !-- Call subroutines that handle the input.
 

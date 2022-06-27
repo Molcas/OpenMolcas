@@ -25,7 +25,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Parameter(NRHS=1)
       Integer, Intent(In):: Iter, nAtom
       Real*8,  Intent(InOut):: Coor(3,nAtom)

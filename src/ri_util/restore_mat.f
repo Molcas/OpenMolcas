@@ -20,7 +20,7 @@
       Integer n, m, lu_A0, lu_A, iD_A(n), lScr
       Real*8  Scr(lScr)
       Logical Add0s
-#include "warnings.fh"
+#include "warnings.h"
 
       lmax=lScr-n
       If (lmax .lt. n) Then

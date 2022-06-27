@@ -75,7 +75,7 @@ C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"

@@ -13,7 +13,6 @@
 ************************************************************************
       subroutine dafupd_cvb(lu,ioffset)
       implicit real*8(a-h,o-z)
-#include "fio.fh"
 #include "idbl_cvb.fh"
       dimension ibuf(1000)
       Integer   mxddr

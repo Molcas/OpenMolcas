@@ -14,7 +14,7 @@
 
 #include "numbers.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension HmatOld(MxDim),Vmat(MxDim),VpolMat(MxDim),Smat(MxDim)
       Character QMMethod*5

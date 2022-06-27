@@ -17,7 +17,7 @@
 #include "maxi.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension Coord(MxAt*3)
       Dimension nBas(1),nBas_C(1),nCnC_C(MxBasC)

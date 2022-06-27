@@ -12,6 +12,7 @@
 * Comments: This test should ensure that LDF2 can reproduce the correct energy
 *           and that the option "useConventional" gives the correct energy.
 *-------------------------------------------------------------------------------
+>EXPORT MOLCAS_ISDEV=TEST
  &Gateway
 Title
  H2O LDF feature tests with def-SVP basis set

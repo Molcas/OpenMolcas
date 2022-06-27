@@ -11,7 +11,7 @@
       Subroutine MandatoryInp(YesNo)
       Implicit Real*8 (a-h,o-z)
 
-#include "warnings.fh"
+#include "warnings.h"
 
       Logical YesNo(20)
 

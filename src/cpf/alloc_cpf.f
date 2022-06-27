@@ -231,9 +231,8 @@ C     OCCUPATION NUMBERS FOR ALL POSSIBLE ORBITALS
       LW(90)=LW(89)+NBMAX*NBMAX
 C     OVERLAP MATRIX IN CHARGE
       LW(91)=LW(90)+NTOT
-*     Scratch for property calculation
-      LW(92)=LW(91)+LCIN
 C     ADDRESSES NOT USED
+      LW(92)=LW(91)
       LW(93)=LW(92)
       LIM=LW(93)
 CPAM96      WRITE(6,349)LIM

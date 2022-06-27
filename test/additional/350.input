@@ -8,6 +8,7 @@
 * Comments: Test of geometry optimization using numerical gradients and DFT
 *           with local density fitting (LDF2).
 *-------------------------------------------------------------------------------
+>EXPORT MOLCAS_ISDEV=TEST
 &Gateway
  Title
   Generation of the auxiliary basis set

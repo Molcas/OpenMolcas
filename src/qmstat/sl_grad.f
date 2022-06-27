@@ -46,7 +46,7 @@
      &                  ,EintSl,EintSl_Nuc,lAtom)
       Implicit Real*8 (a-h,o-z)
 
-#include "warnings.fh"
+#include "warnings.h"
 
       Parameter (MxMltp=2,MxK=(MxMltp*(MxMltp**2+6*MxMltp+11)+6)/6)
 

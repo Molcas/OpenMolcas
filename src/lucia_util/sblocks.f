@@ -119,10 +119,10 @@
 #include "bk_approx.fh"
 #include "io_util.fh"
 *
-#include "h_occ_cons.fh"
 
       DIMENSION C(1),ICOOSC(1),IPHGAS(*),iDUMMY(1)
       INTEGER DXSTST(1)
+      DATA IH_OCC_CONS/0/
 * IH_OCC_CONS =1 implies that we should employ occupation conserving
 * part of Hamiltonian
 

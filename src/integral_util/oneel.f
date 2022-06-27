@@ -25,9 +25,7 @@
       External Kernel, KrnlMm
 #include "stdalloc.fh"
 #include "real.fh"
-      Real*8, Dimension(:), Allocatable :: Out, Nuc, TMat, Temp, El,
-     &                                     Array
-      Character*16, Dimension(:), Allocatable :: plabs
+      Real*8, Dimension(:), Allocatable :: Out, Nuc, El, Array
       Character Label*8, LBL*4
       Character L_Temp*8
       Real*8 CCoor(3,nComp), rNuc(nComp), PtChrg(nGrid)
@@ -160,7 +158,7 @@
             If (nInt.ne.0)
      &      Call XProp(Short,ifallorb,
      &                 nIrrep,nBas,nVec,Vec,nOcc,Occ,
-     &                 Thrs,nDen,Array(ip(iComp)),
+     &                 nDen,Array(ip(iComp)),
      &                 Out(ipOut+(iComp-1)*mDim))
 *
             If (Label(1:3).eq.'PAM') Then
@@ -198,9 +196,6 @@ c               Close(28)
                Else If (LBL.eq.'VELO') Then
                    lpole = 1
                End If
-               Call mma_allocate(plabs,nComp,label='plabs')
-               Call mma_allocate(TMat,nComp**2,label='TMat')
-               Call mma_allocate(Temp,nComp,label='Temp')
                If (nComp.eq.1) Then
                   ipC2 = 1 ! dummy
                Else
@@ -208,7 +203,7 @@ c               Close(28)
                End If
                Call Prop(Short,Label,Ccoor(1,1),Ccoor(1,ipC2),
      &                   nIrrep,nBas,mDim,Occ,Thrs,
-     &                   Out,Nuc,lpole,plabs,TMat,Temp,ifallorb)
+     &                   Out,Nuc,lpole,ifallorb)
 *
 * For a properties calculation, save the values of EF or CNT operators,
 * they will be used to write the sum through Add_Info in Drv1El
@@ -237,9 +232,6 @@ c               Close(28)
                  Call mma_deallocate(El)
                End If
 *
-               Call mma_deallocate(Temp)
-               Call mma_deallocate(TMat)
-               Call mma_deallocate(plabs)
                Call mma_deallocate(Nuc)
                Call mma_deallocate(Out)
             End If

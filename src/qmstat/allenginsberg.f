@@ -17,7 +17,7 @@
 #include "maxi.fh"
 #include "numbers.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Dimension Eint(MxQCen,10),Poli(MxQCen,10)
       Dimension Cha(MxBaux,MxQCen),Dip(MxBaux,3,MxQCen)

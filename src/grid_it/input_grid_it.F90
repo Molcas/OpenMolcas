@@ -37,12 +37,12 @@ character(len=256) :: FileStr, FileIn
 character(len=120) :: SelectStr
 character(len=80) :: Key, MULLprt
 character :: What
-character(len=265), parameter :: AllKeys = 'PRIN BINA ASCI NPOI DENS SPAR ORBI REGI ONE  TITL '// &
-                                           'GAP  END  NODE TOTA NAME VB   ALL  ATOM CUBE GRID '// &
-                                           'PACK PKLI PKBI NOOR LINE ORAN ERAN DEBU CUTO NOPA '// &
-                                           'GORI SELE NOSO FILE SPHR COLO VIRT MULL SUBB XDER '// &
-                                           'YDER ZDER GDER CURD CRXJ UMAX NOLU XFIE LUS1 LUS2 '// &
-                                           'PLUS MINU XFMI'
+character(len=*), parameter :: AllKeys = 'PRIN BINA ASCI NPOI DENS SPAR ORBI REGI ONE  TITL &
+                                         &GAP  END  NODE TOTA NAME VB   ALL  ATOM CUBE GRID &
+                                         &PACK PKLI PKBI NOOR LINE ORAN ERAN DEBU CUTO NOPA &
+                                         &GORI SELE NOSO FILE SPHR COLO VIRT MULL SUBB XDER &
+                                         &YDER ZDER GDER CURD CRXJ UMAX NOLU XFIE LUS1 LUS2 &
+                                         &PLUS MINU XFMI'
 integer(kind=iwp), external :: MyGetKey
 
 !do i=1,nRout

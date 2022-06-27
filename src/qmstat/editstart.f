@@ -15,7 +15,7 @@
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Parameter (ThrdSpread=1.0d0)
       Dimension iC(3),iC2(3)

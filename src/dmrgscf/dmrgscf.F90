@@ -14,9 +14,6 @@
 subroutine dmrgscf(iReturn)
 
 use rasscf_data, only: doDMRG
-#ifdef _DMRG_
-use qcmaquis_interface_cfg
-#endif
 use Definitions, only: iwp
 
 implicit none

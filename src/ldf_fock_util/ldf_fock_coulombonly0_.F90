@@ -31,7 +31,7 @@ real(kind=wp), intent(in) :: FactC(nD)
 integer(kind=iwp) :: l_WBlkP, iD, TaskListID, AB, CD, l, A, B, nuv, M, ipW, ipF
 integer(kind=iwp), allocatable :: WBlkP(:)
 real(kind=wp), allocatable :: C_AB(:)
-character(len=22), parameter :: SecNam = 'LDF_Fock_CoulombOnly0_'
+character(len=*), parameter :: SecNam = 'LDF_Fock_CoulombOnly0_'
 logical(kind=iwp), external :: Rsv_Tsk
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Pair
 #include "WrkSpc.fh"

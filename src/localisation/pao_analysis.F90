@@ -32,7 +32,7 @@ logical(kind=iwp) :: Debug
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: DAt(:), EigI(:), EigR(:), RAt(:), S(:), SX(:), Tst(:), XAt(:)
 real(kind=wp), parameter :: Tol = 1.0e-10_wp
-character(len=12), parameter :: SecNam = 'PAO_Analysis'
+character(len=*), parameter :: SecNam = 'PAO_Analysis'
 real(kind=r8), external :: ddot_
 
 call Untested('PAO_Analysis')

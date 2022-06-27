@@ -36,7 +36,7 @@ character(len=4) :: myModel
 logical(kind=iwp) :: Normalize
 real(kind=wp), allocatable :: Dens(:), Dv(:), DvSav(:), R(:)
 logical(kind=iwp), parameter :: Test_OrthoPAO = .false.
-character(len=21), parameter :: SecNam = 'Localise_Noniterative'
+character(len=*), parameter :: SecNam = 'Localise_Noniterative'
 integer(kind=iwp), external :: isFreeUnit
 
 irc = 0

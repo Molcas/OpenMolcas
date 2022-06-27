@@ -42,7 +42,7 @@ C ********** IBM-3090 RELEASE 89 01 23 **********
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"

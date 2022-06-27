@@ -61,7 +61,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "warnings.fh"
+#include "warnings.h"
 #include "print.fh"
 integer(kind=iwp) :: i, iOpt, iRC, iRout, iWrOpt_Save, Lu_One, LuSpool, MaxDax, nByte_r, nChoV(8), nDiff, nDNA
 real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), rrx(2), TCpu1, TCpu2, TWall1, Twall2

@@ -25,7 +25,6 @@
 
 #include "intgrl.fh"
 #include "SysDef.fh"
-#include "blksize.fh"
 
 C Return a matrix ERI(IP,IQ) of two-electron integrals (pq,ij).
 C IP=1..NORB(ISYP), IQ=1..NORB(ISYQ),1<=II<=NOSH(ISYI),

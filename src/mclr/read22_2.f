@@ -312,7 +312,7 @@
            EndIf
         End Do
 *
-        Call Allocate_DSBA(DLT,nBas,nBas,nSym,Case='TRI')
+        Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
         call Fold_Mat(nSym,nOrb,Temp2,DLT%A0)
 *
 **      Form active CMO and density
@@ -401,7 +401,7 @@
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
-        Call Allocate_DSBA(JI,nBas,nBas,nSym,Case='TRI',Ref=Temp3)
+        Call Allocate_DSBA(JI,nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
         JI%A0(:)=Zero
         Call Allocate_DSBA(KI,nBas,nBas,nSym,Ref=Scr)
         KI%A0(:)=Zero

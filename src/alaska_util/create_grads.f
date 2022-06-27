@@ -41,7 +41,7 @@
       Subroutine Create_Grads(FN,nRoots,nGrad)
       Implicit None
 #include "stdalloc.fh"
-      Integer :: nRoots,nGrad,Lu,TOC(5),nCoup,iAd
+      Integer :: nRoots,nGrad,Lu,TOC(5),nCoup,iAd,iDum(1)
       Character(LEN=*) :: FN
       Integer, Dimension(:), Allocatable:: i_grad, i_nac
 *
@@ -57,9 +57,11 @@
       iAd=0
       Call iDaFile(Lu,1,TOC,SIZE(TOC),iAd)
       TOC(1)=iAd
-      Call iDaFile(Lu,1,[nRoots],1,iAd)
+      iDum(1)=nRoots
+      Call iDaFile(Lu,1,iDum,1,iAd)
       TOC(2)=iAd
-      Call iDaFile(Lu,1,[nGrad],1,iAd)
+      iDum(1)=nGrad
+      Call iDaFile(Lu,1,iDum,1,iAd)
       TOC(3)=iAd
       Call iDaFile(Lu,1,i_grad,nRoots,iAd)
       TOC(4)=iAd

@@ -22,7 +22,7 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasscf_lucia.fh"
 
       Real*8,DIMENSION(NACPR2)::TUVX
@@ -69,7 +69,7 @@ C     Deallocating Memory
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RotMat
 
@@ -161,7 +161,7 @@ C     Deallocating Memory
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
       INTEGER NPairs
       Real*8 SumVee
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
@@ -295,7 +295,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RotMat
       Real*8,DIMENSION(:),Allocatable::Vee
@@ -386,7 +386,7 @@ C      write(6,*)a,b,c,x(4),y(4)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RMat
       Real*8,DIMENSION(lroots)::Vee
@@ -418,7 +418,7 @@ C     & IState,' is ',Vee(IState)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
@@ -474,7 +474,7 @@ C     & IState,' is ',Vee(IState)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX
       Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx

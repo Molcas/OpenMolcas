@@ -37,7 +37,7 @@
 #include "glbbas.fh"
 #include "cgas.fh"
 #include "spinfo_lucia.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "gasstr.fh"
 * Input type of occupation classes
       INTEGER IOCCLS(NGAS,*)
@@ -372,7 +372,7 @@ c     ntest=10
 #include "glbbas.fh"
 #include "cgas.fh"
 #include "spinfo_lucia.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1

@@ -35,13 +35,13 @@
       Real*4       sWork(1:IWORKLEN)
       Integer      iWork(1:IWORKLEN)
       Character*1  cWork(1:2*ICWORKLEN)
-      Integer      ip_Dummy,ip_sDummy,ip_iDummy
+      Integer      ip_Dummy,ip_iDummy
 
       Equivalence (Work,sWork)
       Equivalence (Work,iWork)
       Equivalence (Work,cWork)
 
-      Common /iWrkSpc/ ip_Dummy,ip_sDummy,ip_iDummy
+      Common /iWrkSpc/ ip_Dummy,ip_iDummy
       Integer*1 i1Work(1:IWORKLEN)
       Integer*4 i4Work(1:IWORKLEN)
       Equivalence (cWork,i1Work)

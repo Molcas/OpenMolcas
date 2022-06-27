@@ -31,7 +31,7 @@ character(len=180) :: Key, Line
 logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef, Freeze
 integer(kind=iwp), parameter :: Occupied = 0, Virtual = 1, AllOrb = 2
 real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, ThrRotDef = 1.0e-10_wp, ThrGradDef = 1.0e-2_wp
-character(len=20), parameter :: SecNam = 'Readinp_localisation'
+character(len=*), parameter :: SecNam = 'Readinp_localisation'
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 character(len=180), external :: Get_Ln
 

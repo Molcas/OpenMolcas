@@ -15,7 +15,7 @@
 
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8, Allocatable:: D1ao(:)
       Character*10 Label
       Logical Found

@@ -29,7 +29,7 @@ c          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 c
       IMPLICIT REAL*8 (a-h,o-z)
 #include "output_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
 
       DIMENSION x(*), x2(*), v(*), a(*), b(*), y(*)
 

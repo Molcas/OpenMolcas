@@ -13,7 +13,7 @@
 ************************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Real*8 B(M,*),Degen(M),dSS(*),DFC(*)
       Logical Curvilinear
       Character(LEN=1) Mode
