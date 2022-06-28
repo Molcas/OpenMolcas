@@ -11,7 +11,7 @@
 
 subroutine CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,W_PWXY,TraOnly)
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Fock_util_global, only: ALGO, Deco, dmpk, DoActive, DoLocK, Nscreen
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -41,9 +41,9 @@ character(len=*), parameter :: SECNAM = 'CHO_CAS_DRV'
 !                                                                      *
 rc = 0
 
-call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FI)
-call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI',Ref=FA)
-call Allocate_DSBA(CMO,nBas,nBas,nSym,Ref=W_CMO)
+call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FI)
+call Allocate_DT(FLT(2),nBas,nBas,nSym,aCase='TRI',Ref=FA)
+call Allocate_DT(CMO,nBas,nBas,nSym,Ref=W_CMO)
 
 !                                                                      *
 !***********************************************************************
@@ -56,8 +56,8 @@ if (TraOnly) then
   !                                                                    *
   ! Let us construct a second pointer structure based on nOrb
 
-  call Allocate_DSBA(FLT_MO(1),nOrb,nOrb,nSym,aCase='TRI',Ref=FI)
-  call Allocate_DSBA(FLT_MO(2),nOrb,nOrb,nSym,aCase='TRI',Ref=FA)
+  call Allocate_DT(FLT_MO(1),nOrb,nOrb,nSym,aCase='TRI',Ref=FI)
+  call Allocate_DT(FLT_MO(2),nOrb,nOrb,nSym,aCase='TRI',Ref=FA)
   !
   ! It only performs the MO transformation of FI and FA
   ! ---------------------------------------------------
@@ -72,14 +72,14 @@ if (TraOnly) then
       call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
       call Square(FLT(i)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
       call DGEMM_('N','N',iBas,iOrb,iBas,One,Tmp1,iBas,CMO%SB(iSym)%A1(1+iFro*iBas:),iBas,Zero,Tmp2,iBas)
-      call MXMT(Tmp2,iBas,1,CMO%SB(iSym)%A1(1+iFro*iBas:),1,iBas,FLT_MO(i)%SB(iSym)%A1,iOrb,iBas)
+      call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO%SB(iSym)%A1(1+iFro*iBas:),iBas,Zero,FLT_MO(i)%SB(iSym)%A1,iOrb)
       call mma_deallocate(Tmp2)
       call mma_deallocate(Tmp1)
     end do
   end do
 
-  call deallocate_DSBA(FLT_MO(1))
-  call deallocate_DSBA(FLT_MO(2))
+  call Deallocate_DT(FLT_MO(1))
+  call Deallocate_DT(FLT_MO(2))
   !                                                                    *
   !*********************************************************************
   !*********************************************************************
@@ -100,8 +100,8 @@ else
   nAorb(:) = nAsh(:)
 
   ! Build the packed densities from the Squared ones
-  call Allocate_DSBA(DLT(1),nBas,nBas,nSym,aCase='TRI')
-  call Allocate_DSBA(DLT(2),nBas,nBas,nSym,aCase='TRI')
+  call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI')
+  call Allocate_DT(DLT(2),nBas,nBas,nSym,aCase='TRI')
 
   call Fold(nSym,nBas,DI,DLT(1)%A0)
   call Fold(nSym,nBas,DA1,DLT(2)%A0)
@@ -119,11 +119,11 @@ else
     !      FactXI = 0-(ExFac*Half)
 
     ! --- decompose the Inactive density on request
-    call Allocate_DSBA(ChoIn,nBas,nBas,nSym)
-    call Allocate_DSBA(DDec,nBas,nBas,nSym)
+    call Allocate_DT(ChoIn,nBas,nBas,nSym)
+    call Allocate_DT(DDec,nBas,nBas,nSym)
     DDec%A0(1:NTot2) = DI(1:NTot2)
 
-    call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=ChoIn%A0)
+    call Allocate_DT(MSQ,nBas,nBas,nSym,Ref=ChoIn%A0)
 
     incs = 0
     do i=1,nSym
@@ -157,7 +157,7 @@ else
       write(u6,*) 'LK-damping decreased from ',dmpk_old,' to ',dmpk
     end if
 
-    call Deallocate_DSBA(DDEc)
+    call Deallocate_DT(DDEc)
 
     ! --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
     if (.not. DoLocK) then
@@ -167,7 +167,7 @@ else
 
   else
 
-    call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=W_CMO)
+    call Allocate_DT(MSQ,nBas,nBas,nSym,Ref=W_CMO)
 
     nChI(:) = nForb(:)+nIorb(:)
 
@@ -177,8 +177,8 @@ else
 
   if (.not. DoLocK) then
 
-    call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
-    call Allocate_DSBA(POrb(3),nAOrb,nBas,nSym)
+    call Allocate_DT(POrb(1),nChI,nBas,nSym)
+    call Allocate_DT(POrb(3),nAOrb,nBas,nSym)
 
     do iSym=1,nSym
 
@@ -196,7 +196,7 @@ else
   else
 
     ! *** Only the active orbitals MO coeff need reordering
-    call Allocate_DSBA(CVa(1),nAorb,nBas,nSym)
+    call Allocate_DT(CVa(1),nAorb,nBas,nSym)
 
     do iSym=1,nSym
       do ikk=1,nAorb(iSym)
@@ -218,8 +218,8 @@ else
     end do
 #   endif
 
-    call Allocate_DSBA(CVa(2),nBas,nBas,nSym)
-    call Allocate_DSBA(DDec,nBas,nBas,nSym)
+    call Allocate_DT(CVa(2),nBas,nBas,nSym)
+    call Allocate_DT(DDec,nBas,nBas,nSym)
     DDec%A0(1:NTot2) = DA1(1:NTot2)
 
     do i=1,nSym
@@ -238,12 +238,12 @@ else
       end if
     end do
 
-    call Deallocate_DSBA(DDec)
+    call Deallocate_DT(DDec)
 
   else
 
     ! Dummy allocation
-    call Allocate_DSBA(CVa(2),[1],[1],1)
+    call Allocate_DT(CVa(2),[1],[1],1)
     nChM(:) = 0
 
   end if
@@ -252,7 +252,7 @@ else
 
     ! reorder "Cholesky MOs" to Cva storage
 
-    call Allocate_DSBA(POrb(2),nChM,nBas,nSym)
+    call Allocate_DT(POrb(2),nChM,nBas,nSym)
     do iSym=1,nSym
       if (nBas(iSym)*nChM(iSym) /= 0) then
         do ikk=1,nChM(iSym)
@@ -263,7 +263,7 @@ else
 
   else
 
-    call Allocate_DSBA(POrb(2),[1],[1],1)
+    call Allocate_DT(POrb(2),[1],[1],1)
 
   end if
   ! --------------------------------------------------------------------
@@ -302,18 +302,18 @@ else
 
   !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 
-  call Deallocate_DSBA(POrb(3))
-  call Deallocate_DSBA(POrb(2))
-  call Deallocate_DSBA(POrb(1))
-  call Deallocate_DSBA(CVa(1))
-  call Deallocate_DSBA(CVa(2))
+  call Deallocate_DT(POrb(3))
+  call Deallocate_DT(POrb(2))
+  call Deallocate_DT(POrb(1))
+  call Deallocate_DT(CVa(1))
+  call Deallocate_DT(CVa(2))
 
-  if (Deco) call Deallocate_DSBA(ChoIn)
+  if (Deco) call Deallocate_DT(ChoIn)
 
-  call Deallocate_DSBA(DLT(2))
-  call Deallocate_DSBA(DLT(1))
+  call Deallocate_DT(DLT(2))
+  call Deallocate_DT(DLT(1))
 
-  call deallocate_DSBA(MSQ)
+  call Deallocate_DT(MSQ)
   !                                                                    *
   !*********************************************************************
   !*********************************************************************
@@ -323,9 +323,9 @@ end if
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-call deallocate_DSBA(CMO)
-call deallocate_DSBA(FLT(2))
-call deallocate_DSBA(FLT(1))
+call Deallocate_DT(CMO)
+call Deallocate_DT(FLT(2))
+call Deallocate_DT(FLT(1))
 
 return
 

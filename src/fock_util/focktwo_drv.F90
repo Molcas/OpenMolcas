@@ -13,7 +13,7 @@ subroutine FockTwo_Drv(nSym,nBas,nAux,Keep,DLT,DSQ,FLT,nFLT,ExFac,nBMX)
 
 use Fock_util_interface, only: CHOras_drv
 use Fock_util_global, only: ALGO
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -38,7 +38,7 @@ if (ALGO == 0) GenInt = .true. ! use GenInt to regenerate integrals
 
 call DecideOnCholesky(DoCholesky)
 
-call Allocate_DSBA(WFSQ(1),nBas,nBas,nSym)
+call Allocate_DT(WFSQ(1),nBas,nBas,nSym)
 WFSQ(1)%A0(:) = Zero
 
 if ((.not. DoCholesky) .or. GenInt) then
@@ -119,7 +119,7 @@ call DaXpY_(nFlt,One,Temp,1,FLT,1)
 call mma_deallocate(Temp)
 if (allocated(W1)) call mma_deallocate(W1)
 if (allocated(W2)) call mma_deallocate(W2)
-call Deallocate_DSBA(WFSQ(1))
+call Deallocate_DT(WFSQ(1))
 
 return
 

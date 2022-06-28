@@ -47,6 +47,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
@@ -57,8 +58,6 @@
       Real*8 Fock(nFock,nD),CMO(nCMO,nD),FOVMax,EOrb(nEOrb,nD),
      &       Ovrlp(nFock)
       Logical canorb
-*
-#include "spave.fh"
 *
       Real*8, Dimension(:), Allocatable:: FckM, FckS, HlfF, EigV,
      &                                    Ctmp, Scratch, CMOOld,
@@ -119,9 +118,10 @@
      &                1.0d0,FckS,nBas(iSym),
      &                CMO(iCMO,iD),nBas(iSym),
      &                0.0d0,HlfF,nBas(iSym))
-          Call MxMt(CMO(iCMO,iD),nBas(iSym),1,
-     &              HlfF,1,nBas(iSym),
-     &              FckS,nOrbmF,nBas(iSym))
+          Call DGEMM_Tri('T','N',nOrbmF,nOrbmF,nBas(iSym),
+     &                  One,CMO(iCMO,iD),nBas(iSym),
+     &                      HlfF,nBas(iSym),
+     &                  Zero,FckS,nOrbmF)
 *debug
 c         Write(6,*) 'transformed Fck in trafck:'
 c         Call TriPrt(' ',' ',FckS,nOrbmF)

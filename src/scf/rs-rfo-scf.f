@@ -12,7 +12,7 @@
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax,
-     &                      Step_Trunc,MemRsv)
+     &                      Step_Trunc)
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -95,8 +95,7 @@
 *        which computes Hc, where c is a trial vector, from an initial
 *        Hessian based on a diagonal approximation and a BFGS update.
 *
-         Call Davidson_SCF(HDiag,g,nInter,NumVal,A_RFO,Val,Vec,MemRsv,
-     &                     iStatus)
+         Call Davidson_SCF(HDiag,g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
          If (iStatus.gt.0) Then
             Call SysWarnMsg('RS_RFO',
      &       'Davidson procedure did not converge','')

@@ -19,7 +19,7 @@ subroutine GetGrad_ER(Functional,GradNorm,R,CMO,nBasis,nOrb2Loc,Timing)
 !
 ! Note: symmetry is NOT allowed (but is not tested!).
 
-use Data_structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Constants, only: Zero, Four
 use Definitions, only: wp, iwp
 
@@ -44,7 +44,7 @@ if ((nOrb2Loc < 1) .or. (nBasis < 1)) return
 ! Transpose CMO (only the part to be localised).
 ! ----------------------------------------------
 
-call Allocate_DSBA(CMOt,[nOrb2Loc],[nBasis],nSym)
+call Allocate_DT(CMOt,[nOrb2Loc],[nBasis],nSym)
 do i=1,nOrb2Loc
   CMOt%SB(1)%A2(i,:) = CMO(:,i)
 end do
@@ -59,7 +59,7 @@ if (irc /= 0) then
   write(Txt,'(A,I6)') 'Cho_Get_Rij returned',irc
   call SysAbendMsg(SecNam,'Calculation of ER gradient failed:',Txt)
 end if
-call Deallocate_DSBA(CMOt)
+call Deallocate_DT(CMOt)
 
 ! Compute gradient norm and functional.
 ! -------------------------------------

@@ -63,7 +63,7 @@
 
 subroutine PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -132,7 +132,7 @@ end if
 ! Compute raw projected AOs.
 ! --------------------------
 
-call Allocate_DSBA(R,nBas,nBas,nSym,label='R')
+call Allocate_DT(R,nBas,nBas,nSym,label='R')
 
 Normalize = .true.
 call GetRawPAOs(R%A0,CMO,nBas,nOrb,nOcc,nVir,nSym,Normalize)
@@ -143,7 +143,7 @@ if (Level == 1) then
   return
 end if
 
-call Allocate_DSBA(P,nBas,nVir,nSym,label='P',Ref=PAO)
+call Allocate_DT(P,nBas,nVir,nSym,label='P',Ref=PAO)
 
 ! Use Cholesky decomposition to compute a linearly independent set
 ! of nonorthonormal PAOs.
@@ -199,8 +199,8 @@ contains
 
 subroutine FreeMem()
 
-  call Deallocate_DSBA(R)
-  call Deallocate_DSBA(P)
+  call Deallocate_DT(R)
+  call Deallocate_DT(P)
   if (allocated(D)) call mma_deallocate(D)
 
 end subroutine FreeMem

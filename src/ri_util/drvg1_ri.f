@@ -26,7 +26,7 @@
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: myRank, nProcs
-      use Data_Structures, only: Deallocate_DSBA
+      use Data_Structures, only: Deallocate_DT
       use ExTerm, only: iMP2prpt, LuAVector, LuBVector
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -448,7 +448,7 @@
       If(Allocated(DMdiag))  Call mma_deallocate(DMdiag)
       If (Allocated(AOrb)) Then
          Do iADens = 1, nADens
-            Call Deallocate_DSBA(AOrb(iADens))
+            Call Deallocate_DT(AOrb(iADens))
          End Do
          deallocate(AOrb)
       End If

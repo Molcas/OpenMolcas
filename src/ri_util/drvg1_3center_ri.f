@@ -47,7 +47,7 @@
       use ExTerm, only: CijK, CilK, BklK, VJ
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
       use ExTerm, only: Yij, BMP2, iMP2prpt, CMOi, DMLT
-      use Data_Structures, only: Deallocate_DSBA
+      use Data_Structures, only: Deallocate_DT
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
@@ -244,7 +244,7 @@
       End Do
 *
       Do i = 1, 5
-         If (DMLT(i)%Active) Call deallocate_DSBA(DMLT(i))
+         If (DMLT(i)%Active) Call Deallocate_DT(DMLT(i))
       End Do
 *
 *     Create list of non-vanishing pairs
@@ -901,7 +901,7 @@
       If (Allocated(BklK)) Call mma_deallocate(BklK)
       If (Allocated(VJ)) Call mma_deallocate(VJ)
       Do i=1,nKDens
-         Call Deallocate_DSBA(CMOi(i))
+         Call Deallocate_DT(CMOi(i))
       End Do
       Call mma_deallocate(MaxDens)
 *

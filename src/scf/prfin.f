@@ -44,6 +44,7 @@
 *     history: UHF - V.Veryazov, 2003                                  *
 *                                                                      *
 ************************************************************************
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
       External EFP_ON
 *
@@ -58,7 +59,6 @@
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
-#include "spave.fh"
 *
 *---- Define local variables
       Character Fmt*60

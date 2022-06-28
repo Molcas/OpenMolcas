@@ -19,8 +19,7 @@
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
 *                  pq       pq                 pq
 *
-      use Data_Structures, only: DSBA_Type
-      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
+      use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       Implicit Real*8(a-h,o-z)
 
 #include "real.fh"
@@ -107,7 +106,7 @@
 *
 **      Form inactive density
 *
-        Call Allocate_DSBA(DI,nOrb,nOrb,nSym)
+        Call Allocate_DT(DI,nOrb,nOrb,nSym)
         DI%A0(:)=Zero
 
         Do iS=1,nsym
@@ -120,7 +119,7 @@
 *
         Call mma_allocate(Dens2,nDens2,Label='Dens2')
         Dens2(:)=Zero
-        Call Allocate_DSBA(DLT,nOrb,nOrb,nSym) ! Note SQ format
+        Call Allocate_DT(DLT,nOrb,nOrb,nSym) ! Note SQ format
         DLT%A0(:)=Zero
 
         If (idSym/=1) Then
@@ -159,8 +158,8 @@
           EndIf
         End Do
         ! Release and allocate again in LT format
-        Call Deallocate_DSBA(DLT)
-        Call Allocate_DSBA(DLT,nOrb,nOrb,nSym,aCase='TRI')
+        Call Deallocate_DT(DLT)
+        Call Allocate_DT(DLT,nOrb,nOrb,nSym,aCase='TRI')
 
         call Fold_Mat(nSym,nOrb,Dens2,DLT%A0)
         DLT%A0(:) = ReCo * DLT%A0(:)
@@ -184,9 +183,9 @@
           nAtri=nact*(nact+1)/2
           nAtri=nAtri*(nAtri+1)/2
 
-          Call Allocate_DSBA(CVa(1),nAsh,nOrb,nSym)
-          Call Allocate_DSBA(CVa(2),nAsh,nOrb,nSym)
-          Call Allocate_DSBA(DA,nAsh,nAsh,nSym)
+          Call Allocate_DT(CVa(1),nAsh,nOrb,nSym)
+          Call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
+          Call Allocate_DT(DA,nAsh,nAsh,nSym)
 *
           ioff=0
           ioff4=1
@@ -251,22 +250,22 @@
 *
 **      Compute the whole thing
 *
-        Call Allocate_DSBA(Kappa,nBas,nBas,nSym,Ref=rKappa)
-        Call Allocate_DSBA(JI(1),nBas,nBas,nSym,aCase='TRI')
+        Call Allocate_DT(Kappa,nBas,nBas,nSym,Ref=rKappa)
+        Call Allocate_DT(JI(1),nBas,nBas,nSym,aCase='TRI')
         JI(1)%A0(:)=Zero
-        Call Allocate_DSBA(KI,nBas,nBas,nSym)
+        Call Allocate_DT(KI,nBas,nBas,nSym)
         KI%A0(:)=Zero
-        Call Allocate_DSBA(JA,nBas,nBas,nSym)
+        Call Allocate_DT(JA,nBas,nBas,nSym)
         JA%A0(:)=Zero
-        Call Allocate_DSBA(KA,nBas,nBas,nSym)
+        Call Allocate_DT(KA,nBas,nBas,nSym)
         KA%A0(:)=Zero
-        Call Allocate_DSBA(FkI,nBas,nBas,nSym,Ref=FockI)
+        Call Allocate_DT(FkI,nBas,nBas,nSym,Ref=FockI)
         FkI%A0(:)=Zero
-        Call Allocate_DSBA(FkA,nBas,nBas,nSym,Ref=FockA)
+        Call Allocate_DT(FkA,nBas,nBas,nSym,Ref=FockA)
         FkA%A0(:)=Zero
-        Call Allocate_DSBA(QVec,nBas,nAsh,nSym,Ref=Q)
-        Call Allocate_DSBA(CMO,nBas,nAsh,nSym,Ref=W_CMO)
-        Call Allocate_DSBA(CMO_Inv,nBas,nAsh,nSym,Ref=W_CMO_Inv)
+        Call Allocate_DT(QVec,nBas,nAsh,nSym,Ref=Q)
+        Call Allocate_DT(CMO,nBas,nAsh,nSym,Ref=W_CMO)
+        Call Allocate_DT(CMO_Inv,nBas,nAsh,nSym,Ref=W_CMO_Inv)
         iread=2 ! Asks to read the half-transformed Cho vectors
 
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
@@ -274,16 +273,16 @@
      &                   nIsh, nAsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
-        Call Deallocate_DSBA(CMO_Inv)
-        Call Deallocate_DSBA(CMO)
-        Call Deallocate_DSBA(QVec)
-        Call Deallocate_DSBA(FkA)
-        Call Deallocate_DSBA(FkI)
-        Call Deallocate_DSBA(KA)
-        Call Deallocate_DSBA(JA)
-        Call Deallocate_DSBA(KI)
-        Call Deallocate_DSBA(JI(1))
-        Call Deallocate_DSBA(Kappa)
+        Call Deallocate_DT(CMO_Inv)
+        Call Deallocate_DT(CMO)
+        Call Deallocate_DT(QVec)
+        Call Deallocate_DT(FkA)
+        Call Deallocate_DT(FkI)
+        Call Deallocate_DT(KA)
+        Call Deallocate_DT(JA)
+        Call Deallocate_DT(KI)
+        Call Deallocate_DT(JI(1))
+        Call Deallocate_DT(Kappa)
         Call GADSum(FockI,nDens2)
         Call GADSum(FockA,nDens2)
 *#define _DEBUGPRINT_
@@ -336,13 +335,13 @@
 
         If (iMethod.eq.2) Then
           Call mma_deallocate(G2x)
-          Call Deallocate_DSBA(CVa(2))
-          Call Deallocate_DSBA(CVa(1))
-          Call deallocate_DSBA(DA)
+          Call Deallocate_DT(CVa(2))
+          Call Deallocate_DT(CVa(1))
+          Call deallocate_DT(DA)
         EndIf
 
-        Call deallocate_DSBA(DLT)
-        Call deallocate_DSBA(DI)
+        Call deallocate_DT(DLT)
+        Call deallocate_DT(DI)
 
         Call GADSum(    Q,nDens2)
         Call GADSum( rMOs,nAtri)

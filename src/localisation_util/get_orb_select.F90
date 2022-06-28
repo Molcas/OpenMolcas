@@ -11,7 +11,7 @@
 
 subroutine Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,BName,NamAct,nSym,nActa,mOrb,nBas,ortho,ThrSel,n_OK)
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
@@ -51,9 +51,9 @@ call mma_allocate(Q,nOrbmx,label='Q')
 call mma_allocate(Fock,nOrbmx,2,label='Fock')
 Q(:) = Zero
 
-call Allocate_DSBA(C,nBas,mOrb,nSym,label='C',Ref=CMO)
-call Allocate_DSBA(X,nBas,mOrb,nSym,label='X',Ref=XMO)
-call Allocate_DSBA(S,nBas,nBas,nSym,label='S',Ref=Smat)
+call Allocate_DT(C,nBas,mOrb,nSym,label='C',Ref=CMO)
+call Allocate_DT(X,nBas,mOrb,nSym,label='X',Ref=XMO)
+call Allocate_DT(S,nBas,nBas,nSym,label='S',Ref=Smat)
 
 iOff = 0
 lOff = 0
@@ -160,9 +160,9 @@ call mma_deallocate(Scr1)
 call mma_deallocate(U)
 call mma_deallocate(Q)
 call mma_deallocate(Fock)
-call Deallocate_DSBA(C)
-call Deallocate_DSBA(X)
-call Deallocate_DSBA(S)
+call Deallocate_DT(C)
+call Deallocate_DT(X)
+call Deallocate_DT(S)
 
 return
 

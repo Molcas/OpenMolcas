@@ -128,7 +128,7 @@ else if (Method == 'MBPT2   ') then
   Occ(:,:) = Zero
   var = .true.
 else
-  write(u6,*) 'Properties not supported for ',Method
+  write(u6,'(6X,2A)') 'Properties not supported for ',Method
 end if
 
 call Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,var,Short,iUHF,ifallorb)

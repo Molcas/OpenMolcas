@@ -13,7 +13,7 @@ subroutine MpProp(iReturn)
 
 use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, &
                           iAtomPar, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc
-use Data_Structures, only: Alloc_Alloc2DArray, Free_Alloc2DArray
+use Data_Structures, only: Allocate_DT, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, RtoB
@@ -183,7 +183,7 @@ do
 end do
 nMltpl = max(0,iMltpl-1)
 
-call Alloc_Alloc2DArray(MltPl,[0,nMltPl],'MltPl')
+call Allocate_DT(MltPl,[0,nMltPl],'MltPl')
 call mma_allocate(CordMltPl,[1,3],[0,nMltPl],label='CordMltPl')
 nSum = nSum+3*(nMltPl+1)
 
@@ -234,9 +234,9 @@ end do
 !                                                                      *
 ! Allocate Memory For Multipoles on Atoms + Atoms and Bonds
 
-call Alloc_Alloc2DArray(AtMltPl,[0,nMltPl],'AtMltPl')
-call Alloc_Alloc2DArray(AtBoMltPl,[0,nMltPl],'AtBoMltPl')
-call Alloc_Alloc2DArray(AtBoMltPlCopy,[0,nMltPl],'AtBoMltPlCopy')
+call Allocate_DT(AtMltPl,[0,nMltPl],'AtMltPl')
+call Allocate_DT(AtBoMltPl,[0,nMltPl],'AtBoMltPl')
+call Allocate_DT(AtBoMltPlCopy,[0,nMltPl],'AtBoMltPlCopy')
 do iMltpl=0,nMltPl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'AMtPl',iMltpl
@@ -602,10 +602,10 @@ call mma_deallocate(TM)
 call mma_deallocate(CenX)
 call mma_deallocate(CenY)
 call mma_deallocate(CenZ)
-call Free_Alloc2DArray(AtMltPl)
-call Free_Alloc2DArray(AtBoMltPl)
-call Free_Alloc2DArray(AtBoMltPlCopy)
-call Free_Alloc2DArray(MltPl)
+call Deallocate_DT(AtMltPl)
+call Deallocate_DT(AtBoMltPl)
+call Deallocate_DT(AtBoMltPlCopy)
+call Deallocate_DT(MltPl)
 call mma_deallocate(CordMltPl)
 call mma_deallocate(Coor)
 call mma_deallocate(Labe)

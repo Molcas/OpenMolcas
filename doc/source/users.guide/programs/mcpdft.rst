@@ -279,4 +279,5 @@ The following example shows a part of the input to run CMS-PDFT geometry optimiz
 
     &SLAPAF
     >>> EndDo
+
 .. xmldoc:: </MODULE>

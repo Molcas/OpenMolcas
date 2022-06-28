@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,MinMem,lOff1)
+subroutine CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,lOff1)
 !****************************************************************
 !  Author : F. Aquilante
 !
@@ -37,7 +37,7 @@ use Data_Structures, only: Integer_Pointer
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), iUHF, ALGO
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nD, ALGO
 logical(kind=iwp), intent(in) :: DoExchange(*), REORD
 type(Integer_Pointer), intent(in) :: pNocc(*)
 integer(kind=iwp), intent(out) :: MinMem(nSym), lOff1
@@ -45,13 +45,8 @@ integer(kind=iwp) :: i, iSym, iSymp, j, jSym, ksym, Nab, nDen, Nmax, NSab, Mabmx
 logical(kind=iwp) :: xToDo
 
 !*************************************************
-if (iUHF == 0) then
-  nDen = 1
-  xToDo = DoExChange(1)
-else
-  nDen = 3
-  xToDo = DoExChange(2)
-end if
+nDen = nD*(nD+1)/2
+xToDo = DoExChange(nD)
 
 !============================
 lOff1 = 0
