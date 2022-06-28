@@ -259,11 +259,11 @@ do iEF=0,2
   if (nCen > 0) then
     ! set the tolerance according to the total number of centers
     ! (assuming error scales with sqrt(ncen))
-    If (Label(1:3)=='EF2') Then
-       iTol = 4
-    Else
-       iTol = 5
-    End If
+    if (Label(1:3) == 'EF2') then
+      iTol = 4
+    else
+      iTol = 5
+    end if
     iTol = iTol-nint(Half*log10(real(nCen,kind=wp)))
     ! set MAG_X2C to avoid tests of electric field properties when
     ! wavefunction is X2C transformed (there is no way to tell but we

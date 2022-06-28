@@ -37,11 +37,11 @@
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,80A)') ('*',i=1,80)
       IF(Do_Rotate) Then
-      write(6,'(6X,2A,1X,I2.2,1X,A)')'**                       '//
+      write(6,'(6X,2A,1X,I4.4,1X,A)')'**                      '//
      &    MSpdftMethod,' INTERMEDIATE STATE', jroot,
-     & '                      ** '
+     & '                     ** '
       ELSE
-      write(6,'(6X,A,1X,I2.2,1X,A)')'**                         '//
+      write(6,'(6X,A,1X,I4.4,1X,A)')'**                         '//
      &    ' MC-PDFT RESULTS, STATE', jroot,
      & '                        ** '
       ENDIF
@@ -84,8 +84,8 @@
       write(6,'(6X,80A)')
       IF(Do_Hybrid) Then
        write(6,'(6X,A)') 'Information for hybrid PDFT:'
-       write(6,'(6X,A,34X,F18.8)')
-     & 'Wave function ratio (Lambda)',Ratio_WF
+       write(6,'(6X,A,37X,F6.2)')
+     & 'Wave function percentage (Lambda*100)',Ratio_WF*1.0d2
        write(6,'(6X,A,42X,F18.8)')
      & 'Wave function energy',Ratio_WF*Ref_Ener(jRoot)
        write(6,'(6X,A,51X,F18.8)')
@@ -94,10 +94,10 @@
       END IF
 
       IF(Do_Rotate) Then
-      write(6,'(6X,A,2X,I3,14X,F18.8)')
+      write(6,'(6X,A,2X,I4,13X,F18.8)')
      &'Total MC-PDFT energy for intermediate state', jroot,CASDFT_E
       ELSE
-      write(6,'(6X,A,2X,I3,27X,F18.8)')
+      write(6,'(6X,A,2X,I4,26X,F18.8)')
      &'Total MC-PDFT energy for state',jroot,CASDFT_E
       END IF
       if ((CoefX*CoefR.ne.0.0).and.(CoefX.ne.1.0.or.CoefR.ne.1.0)) Then

@@ -85,6 +85,7 @@ C      CALL RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
 ******Load initial rotation matrix
       CALL InitRotMat(RotMat,lRoots,
      &                trim(CMSStartMat),len_trim(CMSStartMat))
+
       CALL OneDFoil(R,RotMat,lRoots,lRoots)
 
 ******Print header of CMS iterations

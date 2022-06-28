@@ -27,7 +27,7 @@
 #endif
       use csfbas, only: CONF, KCFTP
       use Fock_util_global, only: DoCholesky
-      use write_orbital_files, only: OrbFiles
+      use write_orbital_files, only: OrbFiles, write_orb_per_iter
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
@@ -46,7 +46,7 @@
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
-      use CMS, only: iCMSOpt
+      use CMS, only: iCMSOpt,CMSGiveOpt
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -879,6 +879,7 @@ C   No changing about read in orbital information from INPORB yet.
         ReadStatus='Wrong value assigned to keyword CMSO'
         GoTo 9920
        End If
+       CMSGiveOpt=.true.
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        If (DBG) Then
         Write(6,*) ' CMS Optimization Option',iCMSOpt
@@ -2045,6 +2046,9 @@ C orbitals accordingly
           call WarningMessage(2, 'Invalid ORTH keyword')
           goto 9930
         end if
+      end if
+      if (KeyPERI) then
+        write_orb_per_iter = .true.
       end if
 *---  Process NECI commands -------------------------------------------*
       if (KeyNECI) then

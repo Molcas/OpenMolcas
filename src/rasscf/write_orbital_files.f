@@ -16,12 +16,15 @@
 
         implicit none
         private
-        public :: OrbFiles, get_typeidx, putOrbFile
+        public :: OrbFiles, get_typeidx, putOrbFile,
+     &      write_orb_per_iter
         save
 
         interface get_typeidx
           module procedure RAS_get_typeidx, GAS_get_typeidx
         end interface
+
+        logical :: write_orb_per_iter = .false.
 
         interface
           integer function isfreeunit(iseed)

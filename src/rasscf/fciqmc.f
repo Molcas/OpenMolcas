@@ -50,12 +50,11 @@
      &  tGUGA_in  = .false.
 
 #ifdef _NECI_
-
       interface
         subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
           use, intrinsic :: iso_fortran_env, only: int64
-          use rasscf_data, only: nroots
-          use definitions, only: wp
+          import :: wp, nroots
+          implicit none
           character(len=*), intent(in) :: fcidmp, input_name
           integer(int64), intent(in) :: MemSize
           real(wp), intent (out) :: NECIen(nroots)
