@@ -521,8 +521,8 @@ outer: do
       end do
       call UpCase(Line)
       do i=1,nActa
-        call LeftAd(Line)
         if (Line == '') call error()
+        Line = adjustl(Line)
         j = index(Line,' ')
         namAct(i) = Line(1:j-1)
         Line(1:j-1) = ''
@@ -587,13 +587,13 @@ if (.not. allocated(iDel)) call mma_allocate(iDel,8,0,label='iDel')
 
 ! Postprocessing for SOS-MP2 and Laplace
 if (SOS_MP2) then
-  if (.not.(DoCholesky .or. DoDF .or. DoLDF)) then
+  if (.not. (DoCholesky .or. DoDF .or. DoLDF)) then
     call WarningMessage(2,'SOS-MP2 only implemented for CD/DF/LDF')
     call Quit(_RC_INPUT_ERROR_)
   end if
 end if
 if (Laplace) then
-  if (.not.(DoCholesky .or. DoDF .or. DoLDF)) then
+  if (.not. (DoCholesky .or. DoDF .or. DoLDF)) then
     call WarningMessage(2,'Laplace transformation only implemented for CD/DF/LDF')
     call Quit(_RC_INPUT_ERROR_)
   end if

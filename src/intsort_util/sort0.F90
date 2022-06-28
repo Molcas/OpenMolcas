@@ -74,8 +74,8 @@ use Basis_Info, only: nBas
 use sort_data, only: iDaTmp, iDaTw0, iDaTwo, IndBin, lBin, lDaRec, lIndx, lInts, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, &
                      nBin, ValBin
 use Symmetry_Info, only: nIrrep, iSkip
-use Integral_parameters, only: iPack
-use Real_Info, only: PkAcc
+use Gateway_global, only: iPack
+use Gateway_Info, only: PkAcc
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 

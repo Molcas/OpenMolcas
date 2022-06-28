@@ -31,7 +31,7 @@
       use iSD_data
       use Wrj12
       use Index_arrays, only: iSO2Sh, nShBF
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       use RICD_Info, only: LDF
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)

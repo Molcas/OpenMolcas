@@ -8,32 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module PSO_Stuff
+
+module PSO_Stuff
+
 use Data_structures, only: DSBA_Type
+use Definitions, only: wp, iwp
 
-Logical lPSO,lsa, Case_3C, Case_2C, Case_mp2
+implicit none
+private
 
-Integer nnP(0:7), iOff_ij2K(8),npos(0:7,3)
+integer(kind=iwp) :: iD0Lbl, iOff_ij2K(8), kCMO, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nDens, nG1, nG2, nnP(0:7), &
+                     npos(0:7,3), nSOs1, nV_K, nZ_p_k
+logical(kind=iwp) :: lPSO, lsa, Case_3C, Case_2C, Case_mp2
+integer(kind=iwp), allocatable :: ij2K(:)
+real(wp), allocatable :: CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:,:), G1(:,:), G2(:,:), Thpkl(:), Txy(:,:), U_k(:), &
+                         V_k(:,:), Z_p_k(:,:)
+type(DSBA_Type), allocatable, target :: AOrb(:)
 
-Real*8, Allocatable:: DMdiag(:,:), Thpkl(:), G2(:,:), CMO(:,:)
-Real*8, Allocatable:: Txy(:,:), V_k(:,:), U_k(:), Z_p_k(:,:)
-Real*8, Allocatable:: G1(:,:), D0(:,:), DVar(:,:), DS(:), DSVar(:)
-Integer, Allocatable:: ij2K(:)
-
-Integer nG2, mG2
-Integer nG1, mG1
-Integer mCMO, kCMO
-Integer nDens, mDens
-Integer n_Txy, m_Txy
-Integer n_ij2K
-Integer nZ_p_k
-Integer nV_K, nSOs1
-Integer iD0Lbl
-
-Type (DSBA_Type), Allocatable, Target:: AOrb(:)
+public :: AOrb, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, lPSO, lsa, &
+          m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nDens, nG1, nG2, nnP, npos, nSOs1, nV_K, nZ_p_k, Thpkl, Txy, U_k, V_k, Z_p_k
 
 ! DF-CASPT2
-Real*8, Allocatable :: A_PT2(:,:),B_PT2(:,:,:)
-Integer nBasT,nBasA,nBasASQ
+real(kind=wp), allocatable :: A_PT2(:,:), B_PT2(:,:,:)
+integer(kind=iwp) :: nBasT, nBasA, nBasASQ
 
 End Module PSO_Stuff

@@ -388,8 +388,8 @@ do
       call UpCase(Line)
       call mma_allocate(NamAct,nActa,label='NamAct')
       do i=1,nActa
-        call LeftAd(Line)
         if (Line == ' ') call Error()
+        Line = adjustl(Line)
         j = index(Line,' ')
         NamAct(i) = Line(1:j-1)
         Line(1:j-1) = ' '

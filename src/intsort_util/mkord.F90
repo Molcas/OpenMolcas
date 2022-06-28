@@ -32,7 +32,7 @@ subroutine MkOrd(iDisk)
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
 use sort_data, only: iDVBin, LuTwo, mDaTwo, mxSyP, nBs, nSkip, nSln, nSyOp, Square
-use Integral_Parameters, only: iPack
+use Gateway_global, only: iPack
 use Definitions, only: iwp
 
 implicit none

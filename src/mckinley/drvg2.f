@@ -36,7 +36,7 @@
       use Basis_Info
       use Symmetry_Info, only: nIrrep, iOper
       use Sizes_of_Seward, only:S
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "Molcas.fh"

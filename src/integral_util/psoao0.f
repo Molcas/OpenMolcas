@@ -42,8 +42,7 @@
 *             Modified for unified Work2 and Work3 block. Febr. 2015   *
 ************************************************************************
       use lw_Info
-      use Temporary_parameters, only: force_part_c, force_part_p
-      use Integral_Parameters, only: iWROpt
+      use Gateway_global, only: force_part_c, force_part_p, iWROpt
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)

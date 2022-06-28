@@ -31,12 +31,6 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
-if(SINGLE_MOD_DIR)
-  set(mod_dir ${MAIN_MOD_DIR}/_single)
-else()
-  set(mod_dir ${MAIN_MOD_DIR}/gen1int_util)
-endif()
-
 list(APPEND GEN1INTCMakeArgs
   -DCMAKE_BUILD_TYPE=${GEN1INT_BUILD_TYPE}
   -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External

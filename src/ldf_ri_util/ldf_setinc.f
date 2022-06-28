@@ -45,7 +45,6 @@ C
 #include "ldf_qdiag.fh"
 #include "ldf_oneel.fh"
 #include "ldf_charge_constraint_info.fh"
-#include "ldf_atomiclabels.fh"
 
 C     localdf.fh
 C     ===========
@@ -54,7 +53,7 @@ C     ===========
       VerifyFit=.False.
       CheckPairIntegrals=.False.
       CheckOverlapIntegrals=.False.
-      Thr_Prescreen=-1.0d9
+      Thr_LDFPrescreen=-1.0d9
       Thr_Accuracy=-1.0d9
       LDF_Run_Mode=0
       LDF_Constraint=-1
@@ -225,13 +224,6 @@ C     ===============================
       l_CC_Overlap=0
       ip_CC_lambda=0
       l_CC_lambda=0
-
-C     ldf_atomiclabels.fh.
-C     =====================
-
-      AtomicLabelsSet=.False.
-      ip_AtomicLabels=0
-      l_AtomicLabels=0
 
       End
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

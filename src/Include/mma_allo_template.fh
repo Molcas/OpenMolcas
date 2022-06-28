@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2014-2016, Steven Vancoillie                           *
-!               2015,2020, Ignacio Fdez. Galvan                        *
+!               2015,2020,2022, Ignacio Fdez. Galvan                   *
 !***********************************************************************
 
 ! Given _SUBR_NAME_, and _DIMENSIONS_, this defines:
@@ -36,6 +36,12 @@
 #else
 #define _MMA_ATTR_ allocatable
 #define _MMA_FUNC_ allocated
+#endif
+
+#ifdef _NO_GARBLE_
+#define _KEY_ 'RGSTN'
+#else
+#define _KEY_ 'RGST'
 #endif
 
 ! NAME_allo_xD definition
@@ -84,8 +90,7 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
-          if (present(label)) write(6,*) label
-          call mma_double_allo
+          call mma_double_allo()
         end if
         call mma_maxbytes(mma_avail)
 #if _DIMENSIONS_==0
@@ -144,9 +149,9 @@
             loffset = cptr2loff(buffer(1,1,1,1,1,1,1))
 #endif
             if (present(label)) then
-              call getmem(label,'RGST',_DN_,loffset,_SIZE_)
+              call getmem(label,_KEY_,_DN_,loffset,_SIZE_)
             else
-              call getmem(_DEF_LABEL_,'RGST',_DN_,loffset,_SIZE_)
+              call getmem(_DEF_LABEL_,_KEY_,_DN_,loffset,_SIZE_)
             end if
           end if
         end if
@@ -195,7 +200,7 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
-          call mma_double_allo
+          call mma_double_allo()
         end if
         call mma_maxbytes(mma_avail)
 #if _DIMENSIONS_==1
@@ -252,9 +257,9 @@
      &                                 l6(1),l7(1)))
 #endif
             if (present(label)) then
-              call getmem(label,'RGST',_DN_,loffset,_SIZE_)
+              call getmem(label,_KEY_,_DN_,loffset,_SIZE_)
             else
-              call getmem(_DEF_LABEL_,'RGST',_DN_,loffset,_SIZE_)
+              call getmem(_DEF_LABEL_,_KEY_,_DN_,loffset,_SIZE_)
             end if
           end if
         end if
@@ -336,7 +341,7 @@
           nullify(buffer)
 #endif
         else
-          call mma_double_free
+          call mma_double_free()
         end if
       end subroutine _FREE_NAME_
 

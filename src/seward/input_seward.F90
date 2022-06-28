@@ -26,8 +26,8 @@ subroutine Input_Seward(lOPTO)
 
 use Sizes_of_Seward, only: S
 use Basis_Info, only: nBas
-use Temporary_Parameters, only: Test, PrPrt, Primitive_Pass
-use Logical_Info, only: Do_GuessOrb
+use Gateway_global, only: Test, PrPrt, Primitive_Pass
+use Gateway_Info, only: Do_GuessOrb
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp

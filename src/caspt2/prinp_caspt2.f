@@ -60,11 +60,9 @@
       WRITE(6,Fmt1) 'Header of the ONEINT file:'
       WRITE(6,Fmt1) '--------------------------'
       WRITE(Line,'(36A2)') (Header(i),i=1,36)
-      Call LeftAd(Line)
-      WRITE(6,Fmt1)  trim(Line)
+      WRITE(6,Fmt1)  trim(adjustl(Line))
       WRITE(Line,'(36A2)') (Header(i),i=37,72)
-      Call LeftAd(Line)
-      WRITE(6,Fmt1)  trim(Line)
+      WRITE(6,Fmt1)  trim(adjustl(Line))
       WRITE(6,*)
       END IF
 *----------------------------------------------------------------------*
@@ -147,7 +145,7 @@
 *
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
-         Call RightAd(lIrrep(iSym))
+         lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
 *
       IF(IPRGLB.GE.USUAL  ) THEN

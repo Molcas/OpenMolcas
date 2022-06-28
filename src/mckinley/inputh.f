@@ -25,8 +25,8 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
-      use Temporary_Parameters
-      use Real_Info, only: CutInt
+      use Gateway_global, only: Onenly, Test
+      use Gateway_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"

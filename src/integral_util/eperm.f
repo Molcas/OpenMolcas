@@ -30,7 +30,7 @@
       use external_centers
       use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
-      use Temporary_Parameters, only: PrPrt
+      use Gateway_global, only: PrPrt
       Implicit Real*8 (a-h,o-z)
       External EFInt, EFMem
 #include "real.fh"

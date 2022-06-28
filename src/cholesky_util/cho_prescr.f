@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_PreScr(Thr1,Thr2)
-      use Real_Info, only: ThrInt, CutInt
+      use Gateway_Info, only: ThrInt, CutInt
 C
 C     Purpose: read integral prescreening thresholds from common block.
 C

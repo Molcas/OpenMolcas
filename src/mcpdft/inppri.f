@@ -97,11 +97,9 @@
        Write(LF,Fmt1) 'Header of the ONEINT file:'
        Write(LF,Fmt1) '--------------------------'
        Write(Line,'(36A2)') (Header(i),i=1,36)
-       Call LeftAd(Line)
-       Write(LF,Fmt1)  trim(Line)
+       Write(LF,Fmt1)  trim(adjustl(Line))
        Write(Line,'(36A2)') (Header(i),i=37,72)
-       Call LeftAd(Line)
-       Write(LF,Fmt1)  trim(Line)
+       Write(LF,Fmt1)  trim(adjustl(Line))
        Write(LF,*)
 *----------------------------------------------------------------------*
 *     Print the status of ORDINT                                       *
@@ -167,7 +165,7 @@ C.. for GAS
 *
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
-         Call RightAd(lIrrep(iSym))
+         lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
 *
       Write(LF,*)

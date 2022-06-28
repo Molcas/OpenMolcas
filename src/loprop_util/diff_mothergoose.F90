@@ -45,7 +45,7 @@ if (Diffuse(2)) then
   write(u6,993) '           Low:',dLimmo(1),'     High:',dLimmo(2)
   call Diff_Numerical(nAt,nB,MP,nij,EC,ANr,Ttot,Ttot_Inv,lMax,TP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul,Pot_Expo,Pot_Point, &
                       Pot_Fac,Diffed)
-elseif (Diffuse(3)) then
+else if (Diffuse(3)) then
   write(u6,*)
   write(u6,*) 'Not programmed yet, bitte sehr.'
   call Abend()

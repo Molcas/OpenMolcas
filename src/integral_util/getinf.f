@@ -23,7 +23,7 @@
       use Real_Spherical
       use Her_RW
       use External_Centers
-      use Temporary_Parameters, only: Test
+      use Gateway_global, only: Test
       use DKH_Info, only: DKroll
       use Sizes_of_Seward, only: S
       use nq_Info

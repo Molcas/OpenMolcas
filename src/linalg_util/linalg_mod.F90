@@ -793,7 +793,7 @@ subroutine Gram_Schmidt(basis,n_to_ON,ONB,n_new,S)
       if (.not. lin_dep_detected) then
         curr = curr/L
       end if
-      if (.not.(improve_solution .or. lin_dep_detected)) then
+      if (.not. (improve_solution .or. lin_dep_detected)) then
         n_new = n_new+1
       end if
     end do

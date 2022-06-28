@@ -223,6 +223,7 @@ subroutine Allocate_DSBA(Adam,n,m,nSym,aCase,Ref,Label)
   real(kind=wp), target, intent(in), optional :: Ref(*)
   character(len=*), intent(in), optional :: Label
   integer(kind=iwp) :: iE, iS, iSym, MemTot, iCase = 0
+  character(len=3) :: aCase_
 
   if (Adam%Active) then
     write(u6,*) 'DSBA-Type double allocate'
@@ -230,25 +231,26 @@ subroutine Allocate_DSBA(Adam,n,m,nSym,aCase,Ref,Label)
   end if
 
   if (present(aCase)) then
-    select case (aCase)
-      case ('TRI')
-        iCase = 2
-        do iSym=1,nSym
-          if (n(iSym) /= m(iSym)) then
-            write(u6,*) 'Allocate_DSBA: n(iSym)/=m(iSym), illegal if aCase="TRI".'
-            call Abend()
-          end if
-        end do
-      case ('REC')
-        iCase = 1
-      case default
-        write(u6,*) 'Allocate_DSBA: Illegal aCase parameter, aCase=',aCase
-        write(u6,*) 'Allowed value are "TRI" and "REC".'
-        call Abend()
-    end select
+    aCase_ = aCase
   else
-    iCase = 1
+    aCase_ = 'REC'
   end if
+  select case (aCase_)
+    case ('TRI')
+      iCase = 2
+      do iSym=1,nSym
+        if (n(iSym) /= m(iSym)) then
+          write(u6,*) 'Allocate_DSBA: n(iSym)/=m(iSym), illegal if aCase="TRI".'
+          call Abend()
+        end if
+      end do
+    case ('REC')
+      iCase = 1
+    case default
+      write(u6,*) 'Allocate_DSBA: Illegal aCase parameter, aCase=',aCase_
+      write(u6,*) 'Allowed value are "TRI" and "REC".'
+      call Abend()
+  end select
   Adam%iCase = iCase
   Adam%nSym = nSym
 

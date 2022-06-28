@@ -27,7 +27,7 @@
       use k2_arrays, only: Sew_Scr
       use SOAO_Info, only: iAOtSO, iOffSO
       use lw_Info
-      use Real_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       use Symmetry_Info, only: nIrrep
       use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square,
      &                     TriSyB

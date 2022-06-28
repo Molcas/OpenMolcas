@@ -113,7 +113,7 @@ C Local print level (if any)
 *
         Call Get_cArray('Irreps',lIrrep,24)
         Do iSym = 1, nSym
-           Call RightAd(lIrrep(iSym))
+           lIrrep(iSym) = adjustr(lIrrep(iSym))
         End Do
 *
         Write(LF,*)

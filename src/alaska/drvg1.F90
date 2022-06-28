@@ -37,7 +37,7 @@ use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
 use Aces_Stuff, only: G_toc,nSSDM,SSDM
 use Basis_Info, only: Shells, nBas
 use Sizes_of_Seward, only: S
-use Real_Info, only: CutInt
+use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: nProcs, King
 use stdalloc, only: mma_allocate, mma_deallocate

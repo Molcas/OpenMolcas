@@ -100,12 +100,12 @@ C     --------------------------------------------------------
     1 KEY = GET_LN(LUNIT)
       KWORD = KEY
       CALL UPCASE(KWORD)
-      CALL LEFTAD(KWORD)
+      KWORD = ADJUSTL(KWORD)
       DO WHILE (KWORD(1:1).EQ.COMMENT .OR. KWORD.EQ.BLINE)
          KEY = GET_LN(LUNIT)
          KWORD = KEY
          CALL UPCASE(KWORD)
-         CALL LEFTAD(KWORD)
+         KWORD = ADJUSTL(KWORD)
       END DO
 
       LAST = ICLAST(KWORD,LEN(KWORD))

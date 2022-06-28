@@ -78,7 +78,7 @@
       use k2_arrays
       use iSD_data
       use Basis_Info
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc

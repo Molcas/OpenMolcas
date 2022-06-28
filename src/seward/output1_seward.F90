@@ -30,27 +30,23 @@ use EFP_Module, only: lEFP
 use EFP_Module, only: nEFP_Fragments
 #endif
 use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nXF, OAM_Center, OMQ_Center, XF
-use Temporary_Parameters, only: Onenly, Prprt, Test
-use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, LDKroll, nCtrLD, radiLD
+use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, iRELMP, LDKroll, nCtrLD, radiLD
 use Sizes_of_Seward, only: S
-use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
+use Gateway_Info, only: CutInt, DoFMM, EMFR, FNMC, GIAO, kVector, lAMFI, lMXTC, lRel, RPQMin, ThrInt, Vlct
 use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Do_nacCD_Basis, Thrshld_CD
-use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO, FNMC, lMXTC
 use Symmetry_Info, only: nIrrep
-use Gateway_global, only: Run_Mode, GS_Mode
+use Gateway_global, only: GS_Mode, Onenly, Run_Mode, Prprt, Test
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
 #include "Molcas.fh"
-#include "rinfo.fh"
 #include "rmat.fh"
 #include "rctfld.fh"
-#include "relmp.fh"
 #include "print.fh"
 #include "localdf.fh"
-integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nrSym, nTtl
+integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nTtl
 real(kind=wp) :: temp
 logical(kind=iwp) :: l_aCD_Thr, Found, lNoPair, lPam2, lECP, lPP
 character(len=80) :: Title(10)
@@ -106,23 +102,24 @@ else
     end if
     if (lECP) then
       if (lNoPair) then
-        if (IRELMP == 0) then
-          write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair contributions'
-        else if (IRELMP == 1) then
-          write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK1) contributions'
-        else if (IRELMP == 2) then
-          write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK2) contributions'
-        else if (IRELMP == 3) then
-          write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK3) contributions'
-        else if (IRELMP == 11) then
-          write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and RESC contributions'
-        else if (IRELMP == 21) then
-          write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and ZORA contributions'
-        else if (IRELMP == 22) then
-          write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and ZORA-FP contributions'
-        else if (IRELMP == 23) then
-          write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and IORA contributions'
-        end if
+        select case (IRELMP)
+          case (0)
+            write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair contributions'
+          case (1)
+            write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK1) contributions'
+          case (2)
+            write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK2) contributions'
+          case (3)
+            write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK3) contributions'
+          case (11)
+            write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and RESC contributions'
+          case (21)
+            write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and ZORA contributions'
+          case (22)
+            write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and ZORA-FP contributions'
+          case (23)
+            write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and IORA contributions'
+        end select
       else
         write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP contributions'
       end if
@@ -142,31 +139,32 @@ else
     if (Vlct) write(LuWr,'(15X,A)') '   Velocity integrals'
     if (DKroll) then
       if (iRELAE < 1000) then
-        if (iRELAE == 0) then
-          write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll integrals'
-        else if (IRELAE == 1) then
-          write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK1) integrals'
-        else if (IRELAE == 2) then
-          write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK2) integrals'
-        else if (IRELAE == 3) then
-          write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK3) integrals'
-        else if (IRELAE == 4) then
-          write(LuWr,'(15X,A)') '   full Relativistic Douglas-Kroll (DK3) integrals'
-        else if (IRELAE == 11) then
-          write(LuWr,'(15X,A)') '   Relativistic RESC integrals'
-        else if (IRELAE == 21) then
-          write(LuWr,'(15X,A)') '   Relativistic ZORA integrals'
-        else if (IRELAE == 22) then
-          write(LuWr,'(15X,A)') '   Relativistic ZORA-FP integrals'
-        else if (IRELAE == 23) then
-          write(LuWr,'(15X,A)') '   Relativistic IORA integrals'
-        else if (IRELAE == 101) then
-          write(LuWr,'(15X,A)') '   Relativistic X2C integrals'
-        else if (IRELAE == 102) then
-          write(LuWr,'(15X,A)') '   Relativistic BSS integrals'
-        else if (BSS) then
-          write(LuWr,'(15X,A)') '   Relativistic Barysz-Sadlej-Snijders integrals'
-        end if
+        select case (IRELAE)
+          case (0)
+            write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll integrals'
+          case (1)
+            write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK1) integrals'
+          case (2)
+            write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK2) integrals'
+          case (3)
+            write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK3) integrals'
+          case (4)
+            write(LuWr,'(15X,A)') '   full Relativistic Douglas-Kroll (DK3) integrals'
+          case (11)
+            write(LuWr,'(15X,A)') '   Relativistic RESC integrals'
+          case (21)
+            write(LuWr,'(15X,A)') '   Relativistic ZORA integrals'
+          case (22)
+            write(LuWr,'(15X,A)') '   Relativistic ZORA-FP integrals'
+          case (23)
+            write(LuWr,'(15X,A)') '   Relativistic IORA integrals'
+          case (101)
+            write(LuWr,'(15X,A)') '   Relativistic X2C integrals'
+          case (102)
+            write(LuWr,'(15X,A)') '   Relativistic BSS integrals'
+          case default
+            if (BSS) write(LuWr,'(15X,A)') '   Relativistic Barysz-Sadlej-Snijders integrals'
+        end select
       else
         if (LDKroll) then
           write(LuWr,'(17X,A)') ' Relativistic Local-Douglas-Kroll-Hess integrals:'

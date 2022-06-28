@@ -24,11 +24,11 @@
 
       Logical LDF2, VerifyFit, CheckPairIntegrals, CheckOverlapIntegrals
       Logical WriteUnconstrainedC, UseUniqueAtomPairs
-      Real*8  Thr_Prescreen, Thr_Accuracy
+      Real*8  Thr_LDFPrescreen, Thr_Accuracy
       Integer LDF_Run_Mode, LDF_Constraint
 
       Common / LDFCFL / LDF2, VerifyFit, CheckPairIntegrals,            &
      &                  CheckOverlapIntegrals, WriteUnconstrainedC,     &
      &                  UseUniqueAtomPairs
-      Common / LDFCFR / Thr_Prescreen, Thr_Accuracy
+      Common / LDFCFR / Thr_LDFPrescreen, Thr_Accuracy
       Common / LDFCFI / LDF_Run_Mode, LDF_Constraint
