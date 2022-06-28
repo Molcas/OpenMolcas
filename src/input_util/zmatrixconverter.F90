@@ -23,12 +23,16 @@
 !> This new code is in the ::StdSewInput routine.
 !> Only the standard basis present in the ``$MOLCAS/basis_library`` are allowed.
 !>
-!> @param[in]    LuRd    Input file unit number
-!> @param[in]    LuWr    Output file unit number
-!> @param[in]    mxAtom  Parameter
-!> @param[out]   STDINP  String vector of seward standard input
-!> @param[out]   lSTDINP Length of String vector \p STDINP
-!> @param[out]   iErr    Error flag
+!> @param[in]     LuRd    Input file unit number
+!> @param[in]     LuWr    Output file unit number
+!> @param[in]     mxAtom  Parameter
+!> @param[out]    STDINP  String vector of seward standard input
+!> @param[out]    lSTDINP Length of String vector \p STDINP
+!> @param[in]     iglobal
+!> @param[in,out] nxbas
+!> @param[in]     xb_label
+!> @param[in]     xb_bas
+!> @param[out]    iErr    Error flag
 !***********************************************************************
 
 subroutine ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_label,xb_bas,iErr)

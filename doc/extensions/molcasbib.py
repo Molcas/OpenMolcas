@@ -445,12 +445,7 @@ class ShortStyle(MolcasStyle):
       self.format_volume_and_series(e),
       sentence [
         field('publisher'),
-        optional_field('address'),
-        optional [
-          words [field('edition'), 'edition']
-        ],
         date,
-        optional_field('note'),
       ],
       self.format_web_refs(e),
     ]
@@ -462,7 +457,6 @@ class ShortStyle(MolcasStyle):
       words [
         'In',
         sentence [
-          optional [ self.format_editor(e, as_sentence=False) ],
           self.format_btitle(e, 'booktitle', as_sentence=False),
           self.format_volume_and_series(e, as_sentence=False),
           self.format_chapter_and_pages(e),
@@ -470,10 +464,22 @@ class ShortStyle(MolcasStyle):
       ],
       sentence [
         optional_field('publisher'),
-        optional_field('address'),
-        self.format_edition(e),
         date,
       ],
+      self.format_web_refs(e),
+    ]
+    return template
+
+  def get_book_template(self, e):
+    template = toplevel [
+      self.format_author_or_editor(e),
+      self.format_btitle(e, 'title'),
+      self.format_volume_and_series(e),
+      sentence [
+        field('publisher'),
+        date
+      ],
+      sentence [ optional_field('note') ],
       self.format_web_refs(e),
     ]
     return template

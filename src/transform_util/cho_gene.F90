@@ -23,6 +23,7 @@
 !> secondary ``A,B`` MO.
 !>
 !> @param[in] iSymI,iSymJ,iSymA,iSymB Symmetry block of the two-electrons integrals
+!> @param[in] iI,iJ
 !> @param[in] NumV                    Number of Cholesky vectors to transform in the current batch
 !> @param[in,out] AddEx               Array of the ``A,B`` integrals block
 !> @param[in] LenEx                   Length of the ``A,B`` integrals block

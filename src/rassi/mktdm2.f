@@ -14,7 +14,7 @@
      &                  MAPORB,DET1,DET2,NTDM2,TDM2,
      &                  ISTATE,JSTATE)
 
-      !> module dependencies
+      ! module dependencies
 #ifdef _DMRG_
       use rasscf_data, only: doDMRG
       use qcmaquis_info

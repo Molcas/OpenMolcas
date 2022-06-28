@@ -42,7 +42,7 @@ character(len=512) :: sstrin
 character :: c
 character(len=*), parameter :: up = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', &
                                lw = 'abcdefghijklmnopqrstuvwxyz ', &
-                               printable = '1234567890-=~!@#$%^&*()_+<>,.?/[]":;'
+                               printable = '1234567890-=~!@#$%^&*()_+<>,.?/\[]":;'
 ! FORTRAN hash :-)
 integer(kind=iwp), parameter :: MAXlabel = 8
 integer(kind=iwp), save :: MSGlen(MAXlabel)
@@ -64,7 +64,7 @@ character(len=*), parameter :: MSGlabel(MAXlabel) = [character(len=13) :: &
                        'Premature abort while seeking the file',                        & !SEEK
                        'An invalid option or combination of options has been supplied', & !INVALIDOPTION
                        'Invalid unit number. The file is already opened',               & !USED
-                       'File is not Opened'                                             & !NOT OPENED
+                       'File is not Opened'                                             & !NOTOPENED
                       ]
 
 ! preset of saved data
@@ -93,15 +93,9 @@ sstrin = strin
 if (sstrin(1:4) /= 'MSG:') then
   do ii=1,len(sstrin)
     c = sstrin(ii:ii)
-#   ifdef NAGFOR
-    if (c /= '\') then
-#   endif
       ip = index(up,c)+index(lw,c)+index(printable,c)
       !write(u6,*) 'ii',ii
       if (ip == 0) sstrin(ii:ii) = ' '
-#   ifdef NAGFOR
-    end if
-#   endif
   end do
   iRet = 0
   return

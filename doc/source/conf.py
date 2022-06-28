@@ -9,7 +9,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2018, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2018,2022, Ignacio Fdez. Galván                   *
 #***********************************************************************
 #
 # This file is execfile()d with the current directory set to its
@@ -460,6 +460,14 @@ latex_elements['preamble'] += r'''
   \edef\spx@tempa{\getpagerefnumber{current\thecPage}}%
   \old@spx@thefnmark{#1}{#2}%
 }%
+\makeatother%
+% Fix sphinx bug #10188
+\let\sphinxstepexplicit\relax%
+% Fix sphinx bug #10342
+\makeatletter%
+\ifdefined\sphinxAtStartPar%
+  \g@addto@macro\sphinxAtStartPar{\@ifnextchar\par{\@gobble}{}}%
+\fi%
 \makeatother%
 '''
 

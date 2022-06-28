@@ -24,6 +24,7 @@
 ******************************************************************
       use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
       use nq_Info
+      Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot
       Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
@@ -80,8 +81,17 @@
       write(6,'(6X,A,51X,F18.8)') 'Core energy',E_cor
       write(6,'(6X,A,36X,F18.8)') 'CASSCF contribution energy',E_cas
       write(6,'(6X,A,49X,F18.8)') 'On-top energy',E_ot
-
       write(6,'(6X,80A)')
+      IF(Do_Hybrid) Then
+       write(6,'(6X,A)') 'Information for hybrid PDFT:'
+       write(6,'(6X,A,34X,F18.8)')
+     & 'Wave function ratio (Lambda)',Ratio_WF
+       write(6,'(6X,A,42X,F18.8)')
+     & 'Wave function energy',Ratio_WF*Ref_Ener(jRoot)
+       write(6,'(6X,A,51X,F18.8)')
+     & 'PDFT energy',(1-Ratio_WF)*E_NoHyb
+       write(6,'(6X,80A)')
+      END IF
 
       IF(Do_Rotate) Then
       write(6,'(6X,A,2X,I3,14X,F18.8)')

@@ -33,10 +33,11 @@
 !> @note
 !> Requires Qfread and of course a RASSI-computation and also MPPROP.
 !>
-!> @param[in] nBas  Number of contracted AO-basis functions
-!> @param[in] nOcc  Number of basis functions on the \f$ i \f$ th atom-type.
-!> @param[in] natyp Number of atoms of the \f$ i \f$ th atom-type
-!> @param[in] nntyp Number of atom-types
+!> @param[in] nBas     Number of contracted AO-basis functions
+!> @param[in] iQ_Atoms
+!> @param[in] nOcc     Number of basis functions on the \f$ i \f$ th atom-type.
+!> @param[in] natyp    Number of atoms of the \f$ i \f$ th atom-type
+!> @param[in] nntyp    Number of atom-types
 !***********************************************************************
 
 subroutine RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)

@@ -59,6 +59,8 @@
       use write_orbital_files, only : OrbFiles, putOrbFile
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
+      use spin_correlation, only: spin_correlation_driver,
+     &    orb_range_p, orb_range_q
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
@@ -1823,6 +1825,13 @@ c Clean-close as much as you can the CASDFT stuff...
      &                         'TDM keyword ignored.')
 #endif
       End If
+
+      if (KeySSCR) then
+        call spin_correlation_driver(orb_range_p, orb_range_q, iroot)
+        call mma_deallocate(orb_range_p)
+        call mma_deallocate(orb_range_q)
+      end if
+
 *
 *****************************************************************
 * Export all information relevant to geometry optimizations.
