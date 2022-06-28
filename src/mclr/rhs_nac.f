@@ -19,7 +19,8 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "cands.fh"
-      Real*8 Fock(*),SLag(*)
+      Real*8 Fock(*)
+      real*8, optional :: SLag(*)
       Integer ng1,ng2,i,j,k,l,ij,kl,ijkl,ij2,kl2,ijkl2
       Integer iTri
       Integer ipIn,opOut,ipnOut,nConfL,nConfR,iRC,LuDens
