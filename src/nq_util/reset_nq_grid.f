@@ -10,10 +10,10 @@
 ************************************************************************
       Subroutine Reset_NQ_Grid
       use Grid_On_Disk
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
-#include "nq_info.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,9 +33,10 @@
       Crowding     =ThrC
 *
       Write (6,*)
-      Write (6,*) 'Reset the NQ grid!'
+      Write (6,'(6X,A)') 'Reset the NQ grid!'
       Write (6,*)
       Call Funi_Print()
+      Write (6,*)
 *                                                                      *
 ************************************************************************
 *                                                                      *

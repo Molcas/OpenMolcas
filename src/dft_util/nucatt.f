@@ -16,6 +16,7 @@
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
       use nq_Grid, only: Grid
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -23,7 +24,6 @@
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "nq_info.fh"
       Real*8, Allocatable:: RA(:,:), ZA(:), Eff(:)
       Integer, Allocatable:: nStab(:)
 *

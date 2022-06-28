@@ -40,10 +40,10 @@
       use NQ_Structure, only: NQ_Data
       use Grid_On_Disk
       use nq_MO, only: nMOs
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
-#include "nq_info.fh"
 #include "Molcas.fh"
 #include "nsd.fh"
 #include "setup.fh"

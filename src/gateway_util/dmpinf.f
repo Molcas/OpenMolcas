@@ -42,11 +42,11 @@
       use Real_Info, only: Real_Info_Dmp
       use RICD_Info, only: RICD_Info_Dmp
       use Logical_Info, only: Logical_Info_Dmp
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "nq_info.fh"
 *
       Call DmpInf_Internal(
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)

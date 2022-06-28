@@ -101,11 +101,11 @@
       Subroutine Get_Ecorr_dft(nh1,Grad,nGrad,DFTFOCK,ipF_DFT,ip_D_DS,
      &                             KSDFT,Ec_AB)
       use OFembed, only: dFMD, Do_Core
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "nq_info.fh"
 #include "debug.fh"
       Real*8  Grad(nGrad)
       Logical Do_MO,Do_TwoEl,Do_Grad

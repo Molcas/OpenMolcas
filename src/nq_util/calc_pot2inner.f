@@ -15,7 +15,7 @@
 * Jie J. Bao, on Dec. 25, 2021, created this file.               *
 * ****************************************************************
       Subroutine Calc_Pot2_Inner(Pot2,mGrid,MOP,MOU,MOV,MOX,lSum)
-#include "nq_info.fh"
+      use nq_Info
 #include "stdalloc.fh"
 ******Input
       INTEGER mGrid

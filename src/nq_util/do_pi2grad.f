@@ -37,9 +37,9 @@
       use Basis_Info, only: nBas
       use nq_pdft,    only: lft,lGGA
       use nq_Grid,    only: List_G
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "nq_info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"

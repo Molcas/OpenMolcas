@@ -20,9 +20,9 @@ use libxc,   only: Only_exc
 use nq_Grid, only: l_casdft
 use nq_pdft, only: lft
 use Definitions, only: LibxcInt
+use nq_Info
 Implicit None
 #include "real.fh"
-#include "nq_info.fh"
 #include "ksdft.fh"
 Character*(*) KSDFA
 Logical Do_Grad

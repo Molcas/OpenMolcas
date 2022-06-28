@@ -17,9 +17,9 @@
 *                                                                      *
 ************************************************************************
       use NQ_Structure, only: NQ_Data
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
-#include "nq_info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3)
@@ -36,7 +36,7 @@
 #endif
       If (L_Quad.gt.lMax_NQ) Then
          Call WarningMessage(2,'GenVoronoi: L_Quad.gt.lMax_NQ')
-         Write (6,*) 'Redimension lMax_NQ in nq_info.fh'
+         Write (6,*) 'Redimension lMax_NQ in nq_info.f90'
          Write (6,*) 'lMax_NQ=',lMax_NQ
          Write (6,*) 'L_Quad=',L_Quad
          Call Abend()

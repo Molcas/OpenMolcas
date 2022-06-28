@@ -58,9 +58,9 @@ end function Get_Func_ExFac
 subroutine Get_Funcs(Label)
 
   use libxc_parameters, only: Coeffs, func_id, nFuncs
+  use nq_Info
 
   character(len=*), intent(in) :: Label
-# include "nq_info.fh"
 
   call Init_Funcs(Label)
   nFuncs = Def_nFuncs

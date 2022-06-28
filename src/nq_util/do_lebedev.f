@@ -15,8 +15,8 @@
 *                                                                      *
 ************************************************************************
       use nq_Grid, only: Pax
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
-#include "nq_info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Parameter (nSet=11)
