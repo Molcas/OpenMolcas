@@ -8,14 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer LDA_type,                                                 &
-     &        GGA_type,                                                 &
-     &        meta_GGA_type1,                                           &
-     &        meta_GGA_type2,                                           &
-     &        Other_type
-      Parameter(Other_Type    =0,                                       &
-     &          LDA_Type      =1,                                       &
-     &          GGA_Type      =2,                                       &
-     &          meta_GGA_Type1=3,                                       &
-! With the laplacian
-     &          meta_GGA_Type2=4)
+      Integer, Parameter ::                                             &
+     &          LDA_Type     =0,                                        &
+     &          GGA_Type     =1,                                        &
+     &          meta_GGA_Type1=2,                                       &
+     &          meta_GGA_Type2=7,                                       &
+     &          Other_Type   =3

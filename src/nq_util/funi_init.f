@@ -31,7 +31,7 @@
 *
       ntotgp=0
 *
-*     Various idefault thresholds for the integral evaluation.
+*     Various default thresholds for the integral evaluation.
 *
       T_X      =1.0D-18
       T_Y      =1.0D-11
@@ -40,7 +40,8 @@
       Angular_Prunning = On
       Grid_Type=Moving_Grid
       Rotational_Invariance= On
-      NQ_Direct=On
+      NQ_Direct=Off
+*     NQ_Direct=On
       Packing=On
 C     Packing=Off
 *
