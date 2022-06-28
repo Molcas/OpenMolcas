@@ -318,7 +318,6 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
 
   ! Andrew - I need to identify the root and make sure it is not a
   ! state averaged calculation.  iGo=1 means do MCLR
-
   ! iGo=99 means the potentials were not calculated during the
   ! MCPDFT step, which is required for analytic gradients.
   if (iGO == 99) then
