@@ -107,7 +107,7 @@ if (icc /= 0) then
         ! (pq,TU) -> (Aq,TU)
         call DGEMM_('N','N',NBQ,NOP,NBP,One,X2,NBQ,CMO(LMOP),NBP,Zero,X1,NBQ)
         ! (Aq,TU) -> (AB,TU)
-        Call DGEMM_Tri('T','N',NOP,NOP,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,Zero,X2,NOP)
+        call DGEMM_Tri('T','N',NOP,NOP,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,Zero,X2,NOP)
         IX2 = (NOP+NOP**2)/2
       else
         ! (pq,TU) -> (Aq,TU)

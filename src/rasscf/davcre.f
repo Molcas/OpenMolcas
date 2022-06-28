@@ -291,7 +291,7 @@ C
         SC(K)=EI-HD(K)
         IF(ABS(SC(K)).LT.THRZ) SC(K)=1.0d0
        END DO
-       CALL VDIV(SC,1,Q(IST+NDIM),1,Q(IST),1,NDIM)
+       Q(IST:IST+NDIM-1) = Q(IST+NDIM:IST+2*NDIM-1)/SC(1:NDIM)
        IST=IST+NDIM
       END DO
 C Remove any unwanted components. These are signalled by

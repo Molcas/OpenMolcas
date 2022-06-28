@@ -15,11 +15,11 @@
 
 subroutine ONEEL_GUGA()
 
-use guga_global, only: ICH, IJ, ILIM, IOUT, IWAY, J1, J2, LN, Lu_10, MXVERT, NBUF, NMAT, NSM
+use guga_global, only: IADD10, ICH, IJ, ILIM, IOUT, IWAY, J1, J2, LN, Lu_10, MXVERT, NBUF, NMAT, NSM
+use guga_util_global, only: COP, ICOP1, nCOP
 use Definitions, only: iwp, u6
 
 implicit none
-#include "cop.fh"
 integer(kind=iwp) :: I, ISTOP, IT1, IT2, ITT, ITYP, J, K, KJL, KJS, KM, NI, NK, NSI, NSK
 logical(kind=iwp) :: first
 

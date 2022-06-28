@@ -144,7 +144,7 @@ if (ISP > ISR) then
           ! (pq,rs) -> (pU,rs)
           call DGEMM_('T','N',NBP,NOCQ,NBQ,One,X2,NBQ,CMO(LMOQ2),NBQ,Zero,X1,NBP)
           ! (pU,rs) -> (TU,rs)
-          Call DGEMM_Tri('T','N',NOCP,NOCP,NBP,One,X1,NBP,CMO(LMOP2),NBP,Zero,X2,NOCP)
+          call DGEMM_Tri('T','N',NOCP,NOCP,NBP,One,X1,NBP,CMO(LMOP2),NBP,Zero,X2,NOCP)
         else
           call dcopy_(NBPQ,PQRS(NBPQ*(LRS-1)+1),1,X2,1)
           ! (pq,rs) -> (pU,rs)
@@ -189,7 +189,7 @@ if (ISP > ISR) then
           ! (TU,rs) -> (TU,sB)
           call DGEMM_('T','N',NBR,NOS,NBS,One,X2,NBS,CMO(LMOS2),NBS,Zero,X1,NBR)
           ! (TU,sB) -> (TU,AB)
-          Call DGEMM_Tri('T','N',NOR,NOR,NBR,One,X1,NBR,CMO(LMOR2),NBR,Zero,X2,NOR)
+          call DGEMM_Tri('T','N',NOR,NOR,NBR,One,X1,NBR,CMO(LMOR2),NBR,Zero,X2,NOR)
           IX2 = (NOR*NOR+NOR)/2
         else
           call dcopy_(NBRS,TURS(IPQST),1,X2,1)

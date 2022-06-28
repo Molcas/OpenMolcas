@@ -13,16 +13,14 @@
 
 subroutine INPUT_GUGA(L0,L1,L2,L3,ISPAC)
 
-use guga_global, only: ICASE, ICH, IFIRST, ILIM, IPRINT, ISPIN, JRC, LN, LNP, Lu_10, MXVERT, N, NIORB, NSM, NSYM, S
-use Symmetry_Info, only: Mul
+use guga_global, only: IADD10, ICASE, ICH, IFIRST, ILIM, IPRINT, ISPIN, JRC, LN, LNP, Lu_10, MXVERT, N, NIORB, NSM, NSYM, S
+use guga_util_global, only: IAD10, nIOCR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: iwp, u5, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), L3(4*MXVERT), ISPAC
-#include "niocr.fh"
-#include "cop.fh"
 #include "warnings.h"
 integer(kind=iwp), parameter :: mxTit = 10, nCmd = 18
 integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN_, IN1, IN2, IN3, INTNUM, IOM, IONE(8), iOpt, IR, IR1, IR2, iRef, &
@@ -415,8 +413,8 @@ IR2 = (IR+9)/10
 iOpt = 1
 nJJS = size(JJS)
 nJRC = size(JRC)
-call WR_GUGA(Lu_10,iOpt,IADD10,NFREF,S,N,LN,NSYM,IR1,IR2,IFIRST,INTNUM,LSYM,NREF,LN1,NRLN1,Mul,size(Mul),NSH,NISH,8,JRC,nJRC,JJS, &
-             nJJS,NVAL,IOCR,nIOCR)
+call WR_GUGA(Lu_10,iOpt,IADD10,NFREF,S,N,LN,NSYM,IR1,IR2,IFIRST,INTNUM,LSYM,NREF,LN1,NRLN1,NSH,NISH,8,JRC,nJRC,JJS,nJJS,NVAL,IOCR, &
+             nIOCR)
 call iDAFILE(Lu_10,1,ICASE,IR1,IADD10)
 call iDAFILE(Lu_10,1,JSY,IR2,IADD10)
 IAD10(2) = IADD10

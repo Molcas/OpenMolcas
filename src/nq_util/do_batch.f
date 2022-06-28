@@ -45,7 +45,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
-#include "ksdft.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "pamint.fh"

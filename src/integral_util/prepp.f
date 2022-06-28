@@ -46,7 +46,7 @@
 ************************************************************************
       Integer nFro(0:7)
       Integer Columbus
-      Character*8 RlxLbl,Method, KSDFT*16
+      Character*8 RlxLbl,Method, KSDFT*80
       Logical lPrint
       Logical DoCholesky
       Real*8 CoefX,CoefR
@@ -91,7 +91,7 @@
      &    Method.eq. 'MSPDFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
-         Call Get_cArray('DFT functional',KSDFT,16)
+         Call Get_cArray('DFT functional',KSDFT,80)
          Call Get_dScalar('DFT exch coeff',CoefX)
          Call Get_dScalar('DFT corr coeff',CoefR)
          ExFac=Get_ExFac(KSDFT)

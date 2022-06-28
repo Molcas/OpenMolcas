@@ -160,7 +160,7 @@ if (dFMD > Zero) then
   Grad_A(:) = Zero
   call mma_allocate(Fcorr,nh1,nFckDim,Label='Fcorr')
 
-  call cwrap_DrvNQ(KSDFT,F_DFT(1,3),nFckDim,Func_A,D_DS(1,3),nh1,nFckDim,Do_Grad,Grad_A,nGrad,DFTFOCK,Fcorr)
+  call cwrap_DrvNQ(KSDFT,nFckDim,Func_A,D_DS(1,3),nh1,nFckDim,Do_Grad,Grad_A,nGrad,DFTFOCK,Fcorr)
 
   call get_dScalar('NAD dft energy',Energy_NAD)
   Fakt_ = Xlambda(abs(Energy_NAD),Xsigma)

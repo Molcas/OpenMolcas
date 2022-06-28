@@ -75,7 +75,7 @@
      &        nAct(0:7)
       Logical EQ, Shijij, AeqB, CeqD, DoGrad, DoFock, Indexation,
      &        JfGrad(3,4), ABCDeq, No_Batch, Found, FreeK2, Verbose
-      Character Format*72, Method*8, KSDFT*16
+      Character Format*72, Method*8, KSDFT*80
       Character*50 CFmt
       Character*4096 RealName
       Character(LEN=16), Parameter :: SECNAM = 'drvg1_3center_ri'
@@ -535,7 +535,7 @@
       If (Method.ne.'KS-DFT  ') Then
          iOpt=1
       Else
-         Call Get_cArray('DFT functional',KSDFT,16)
+         Call Get_cArray('DFT functional',KSDFT,80)
          ExFac=Get_ExFac(KSDFT)
          iOpt=0
          If (ExFac.ne.Zero) iOpt=1

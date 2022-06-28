@@ -25,9 +25,9 @@ integer(kind=iwp) :: Columbus, iForceAnalytical, iGo, iMp2Prpt, iPL, iReturn, is
 logical(kind=iwp) :: Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exists, Do_Numerical_Cholesky, Do_1CCD, MCLR_Ready
 character(len=128) :: FileName
 character(len=180) :: Line
-character(len=16) :: KSDFT, StdIn
+character(len=80) :: KSDFT
+character(len=16) :: mstate1, mstate2, StdIn
 character(len=8) :: Method
-character(Len=16) mstate1, mstate2
 real(kind=wp), allocatable :: Grad(:)
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 logical(kind=iwp), external :: Reduce_Prt
@@ -90,7 +90,7 @@ call Get_iScalar('agrad',iForceAnalytical)
 if (iForceAnalytical == 1) Do_Numerical_Cholesky = .false.
 
 if ((Method == 'KS-DFT  ') .and. Do_Numerical_Cholesky) then
-  call Get_cArray('DFT functional',KSDFT,16)
+  call Get_cArray('DFT functional',KSDFT,80)
 
   !   RI/DF                         1C-CD
   if (Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1))) then

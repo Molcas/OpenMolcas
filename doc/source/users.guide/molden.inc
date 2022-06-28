@@ -53,7 +53,7 @@ shells for a give angular momentum have to be either Cartesian or
 real spherical harmonics, otherwise no MOLDEN file for orbitals will be generated.
 
 For further details with respect to Molden consult
-http://www.cmbi.ru.nl/molden/.
+https://www.theochem.ru.nl/molden/.
 
 For further details with respect to LUSCUS consult
 http://luscus.sourceforge.net/.

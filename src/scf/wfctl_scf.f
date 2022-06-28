@@ -117,7 +117,7 @@
 
 *---  Define local variables
       Logical QNR1st,FstItr
-      Character Meth*(*)
+      Character Meth*(*), Meth_*10
       Character*72 Note
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
       Logical ScramNeworb
@@ -140,6 +140,11 @@
       Call Put_D1Sao(D1Sao,nBT)
       Call mma_deallocate(D1Sao)
 *
+      If (Len_Trim(Meth) > Len(Meth_)) Then
+        Meth_ = '[...]'
+      Else
+        Meth_ = Trim(Meth)
+      End If
       iTerm=0
       iDMin = - 1
 *---  Choose between normal and minimized differences
@@ -226,7 +231,7 @@
 *
 *---  Print header to iterations
 *
-      If(KSDFT.eq.'SCF'.or.One_Grid) Call PrBeg(Meth)
+      If(KSDFT.eq.'SCF'.or.One_Grid) Call PrBeg(Meth_)
       AufBau_Done=.False.
 *                                                                      *
 *======================================================================*
@@ -251,7 +256,7 @@
          If(KSDFT.ne.'SCF'.and..Not.One_Grid) Then
             Reset=.True.
             Call Modify_NQ_Grid()
-            Call PrBeg(Meth)
+            Call PrBeg(Meth_)
          End If
 *
       End If
@@ -1023,7 +1028,7 @@
             If (.Not.One_Grid) Then
                iterX=0
                Call Reset_NQ_grid()
-*              Call PrBeg(Meth)
+*              Call PrBeg(Meth_)
             End If
             If ( iOpt.eq.0 ) kOptim=1
          End If
