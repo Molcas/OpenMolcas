@@ -130,30 +130,31 @@ C
       call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
 *
 *======================================================================*
-* If the EFFE keyword has been used, we already have the multi state
-* coupling Hamiltonian effective matrix, just copy the energies and
-* proceed to the MS coupling section.
-* Otherwise, put the CASSCF energies on the diagonal, i.e. form the
+* Put the CASSCF energies on the diagonal of Heff, i.e. form the
 * first-order corrected effective Hamiltonian:
 *     Heff[1] = PHP
 * and later on we will add the second-order correction
 * Heff(2) = PH \Omega_1 P to Heff[1]
+      DO I=1,NSTATE
+        HEFF(I,I) = REFENE(I)
+      END DO
+      IF (IPRGLB.GE.VERBOSE) THEN
+        write(6,*)' Heff[1] in the original model space basis:'
+        call prettyprint(Heff,Nstate,Nstate)
+      END IF
+* If the EFFE keyword has been used, we already have the multi state
+* coupling Hamiltonian effective matrix, just copy the energies and
+* proceed to the MS coupling section.
       IF (INPUT%JMS) THEN
+        ! in case of XMS, XDW, RMS, we need to rotate the states
+        if (IFXMS .or. IFRMS) then
+          call xdwinit(Heff,H0,U0)
+        end if
         DO I=1,NSTATE
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
         HEFF(:,:)=INPUT%HEFF(:,:)
-        !! May not work for gradient
-        !! Have to check
-C       GOTO 1000
-      ELSE
-        DO I=1,NSTATE
-          HEFF(I,I) = REFENE(I)
-        END DO
-        IF (IPRGLB.GE.VERBOSE) THEN
-          write(6,*)' Heff[1] in the original model space basis:'
-          call prettyprint(Heff,Nstate,Nstate)
-        END IF
+        GOTO 1000
       END IF
 C
       !! Some preparations for gradient calculation
