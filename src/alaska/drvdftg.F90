@@ -78,10 +78,7 @@ end do
 !call Get_iOption(iDFT)
 
 call Get_cArray('DFT functional',KSDFT,16)
-l_casdft = (KSDFT(1:5) == 'TLSDA') .or. (KSDFT(1:6) == 'TLSDA5') .or. (KSDFT(1:5) == 'TBLYP') .or. (KSDFT(1:5) == 'TOPBE') .or. &
-           (KSDFT(1:6) == 'TSSBSW') .or. (KSDFT(1:5) == 'TSSBD') .or. (KSDFT(1:5) == 'TS12G') .or. (KSDFT(1:4) == 'TPBE') .or. &
-           (KSDFT(1:5) == 'FTPBE') .or. (KSDFT(1:7) == 'TREVPBE') .or. (KSDFT(1:8) == 'FTREVPBE') .or. &
-           (KSDFT(1:6) == 'FTLSDA') .or. (KSDFT(1:6) == 'FTOPBE') .or. (KSDFT(1:6) == 'FTBLYP)')
+l_casdft = (KSDFT(1:2) == 'T:') .or. (KSDFT(1:3) == 'FT:')
 
 if (l_casdft) then
   DFTFOCK = 'ROKS'

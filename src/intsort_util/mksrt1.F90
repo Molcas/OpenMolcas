@@ -45,6 +45,7 @@ integer(kind=iwp) :: ib, ibj, ij, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iS
 integer(kind=iwp) :: ix
 integer(kind=iwp), parameter :: lim_32 = 2**30
 #endif
+logical(kind=iwp), external:: Reduce_Prt
 
 iRout = 80
 iPrint = nPrint(iRout)
@@ -177,7 +178,7 @@ do iSyBlk=1,mSyBlk
 end do
 MxSrtA1 = ((1+RtoI)*nBin*lBin)/RtoI
 
-if (iPrint > 5) then
+if (.not. Reduce_Prt() .and. iPrint > 5) then
   write(u6,*)
   write(u6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',MxSrtA1,' Words(Real*8) in the first phase (=',nBin,' bins).'
   write(u6,'(A,I12,A)') '  SEWARD will use a sorting area of',MxSrtA2,' Words(Real*8) in the second phase.'

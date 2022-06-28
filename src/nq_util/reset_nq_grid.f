@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Reset_NQ_Grid
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
 #include "nq_info.fh"
-#include "grid_on_disk.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

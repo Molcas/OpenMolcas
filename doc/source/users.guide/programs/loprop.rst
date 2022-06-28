@@ -278,20 +278,6 @@ There are no compulsory keywords.
               density between the first and second state which should be localized,
               the integers should be 1 and 2. The keyword implies NOFIeld.
 
-:kword:`XHOLe`
-  The exchange hole dipole moment is computed, localized and given
-  as additional output.
-  This quantity can be used to compute local dispersion coefficients
-  according to Becke and Johnson :cite:`Becke:05`. The numerical integration
-  routine in |molcas| is used.
-
-  .. xmldoc:: %%Keyword: XHole <basic>
-              The exchange hole dipole moment is computed, localized and given
-              as additional output.
-              This quantity can be used to compute local dispersion coefficients
-              according to Becke and Johnson. The numerical integration
-              routine in Molcas is used.
-
 Input example
 .............
 

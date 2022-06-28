@@ -22,7 +22,7 @@
       call f_Inquire(ABDATA_NAME,found_abdata)
       if (.not.found_abdata) then
         call warningmessage(2,
-     &              ' the abdata.ascii file does not exist.')
+     &              ' the abdata file does not exist.')
         call abend()
       end if
       call molcas_open(lu_abdata,ABDATA_NAME)

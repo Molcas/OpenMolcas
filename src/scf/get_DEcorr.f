@@ -100,7 +100,7 @@
 *                                                                      *
       Subroutine Get_Ecorr_dft(nh1,Grad,nGrad,DFTFOCK,ipF_DFT,ip_D_DS,
      &                             KSDFT,Ec_AB)
-      use OFembed, only: dFMD
+      use OFembed, only: dFMD, Do_Core
       Implicit Real*8 (a-h,o-z)
 
 #include "real.fh"
@@ -111,12 +111,7 @@
       Logical Do_MO,Do_TwoEl,Do_Grad
       Character*4 DFTFOCK
       Character*16  KSDFT
-      External VWN_III_emb,
-     &         VWN_V_emb,
-     &         cBLYP_emb,
-     &         cPBE_emb
-*
-      lKSDFT=LEN(KSDFT)
+
       Debug=.False.
 *                                                                      *
 ************************************************************************
@@ -132,74 +127,16 @@
       Do_Grad=.false.
 *
       nFckDim=2
-      nD=2
       dFMD_=dFMD
       dFMD=1.0d0
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LSDA LDA SVWN
-*
-       If (KSDFT.eq.'LSDA ' .or.
-     &     KSDFT.eq.'LDA '  .or.
-     &     KSDFT.eq.'SVWN ') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=LDA_type
-         Call DrvNQ(VWN_III_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LSDA5 LDA5 SVWN5
-*
-       Else If (KSDFT.eq.'LSDA5' .or.
-     &          KSDFT.eq.'LDA5'  .or.
-     &          KSDFT.eq.'SVWN5') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=LDA_type
-         Call DrvNQ(VWN_V_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     BLYP
-*
-      Else If (KSDFT.eq.'BLYP') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(cBLYP_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     PBE
-*
-      Else If (KSDFT.eq.'PBE') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(cPBE_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
-         Call WarningMessage(2,
-     &               ' Get_Ecorr_dft: Unsupported functional type!')
-         Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
-         Call Quit_OnUserError()
-      End If
+      Do_Core=.True.
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+     &            Do_MO,Do_TwoEl,Work(ip_D_DS),
+     &                          Work(ipF_DFT),nh1,nFckDim,DFTFOCK)
+      Do_Core=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *

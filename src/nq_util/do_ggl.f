@@ -8,22 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Do_GGL(L_Eff,mPt,ipR)
+      Subroutine Do_GGL(L_Eff,mPt,R)
 ************************************************************************
 *                                                                      *
 *     Computes datas useful for the angular quadrature.                *
 *                                                                      *
 ************************************************************************
+      use nq_Grid, only: Pax
       Implicit Real*8 (a-h,o-z)
 #include "nq_info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement Function
-*
-      Pax(i) = Work(ip_O-1+i)
+#include "stdalloc.fh"
+      Real*8, Allocatable:: Th(:,:)
+      Real*8, Allocatable:: R(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -38,16 +35,16 @@
       nPhi   = L_Eff+1
 *
       mPt    = nTheta*nPhi
-      Call GetMem('AngRW','Allo','Real',ipR,4*mPt)
+      Call mma_Allocate(R,4,mPt,Label='R')
 *
-      Call GetMem('Theta','Allo','Real',ipTh,2*nTheta)
+      Call mma_allocate(Th,2,nTheta,Label='Th')
 *
-      Call GauLeg(-One,One,Work(ipTh),nTheta)
+      Call GauLeg(-One,One,Th,nTheta)
 *
-      iOff = ipR
+      iOff = 1
       Do iTheta = 1, nTheta
-         Cos_Theta = Work(ipTh+(iTheta-1)*2  )
-         w_Theta   = Work(ipTh+(iTheta-1)*2+1)
+         Cos_Theta = Th(1,iTheta)
+         w_Theta   = Th(2,iTheta)
          Sin_Theta = Sqrt(One-Cos_Theta**2)
 *
          Do iPhi = 1, nPhi
@@ -56,17 +53,17 @@
             x = Sin_Theta*Cos_Phi
             y = Sin_Theta*Sin_Phi
             z = Cos_Theta
-            Work(iOff  )=Pax(1)*x+Pax(4)*y+Pax(7)*z
-            Work(iOff+1)=Pax(2)*x+Pax(5)*y+Pax(8)*z
-            Work(iOff+2)=Pax(3)*x+Pax(6)*y+Pax(9)*z
-            Work(iOff+3)=w_Theta*w_Phi
-            iOff = iOff + 4
+            R(1,iOff)=Pax(1,1)*x+Pax(1,2)*y+Pax(1,3)*z
+            R(2,iOff)=Pax(2,1)*x+Pax(2,2)*y+Pax(2,3)*z
+            R(3,iOff)=Pax(3,1)*x+Pax(3,2)*y+Pax(3,3)*z
+            R(4,iOff)=w_Theta*w_Phi
+            iOff = iOff + 1
 *
          End Do    ! iPhi
 *
       End Do       ! iTheta
 *
-      Call GetMem('Theta','Free','Real',ipTh,2*nTheta)
+      Call mma_deallocate(Th)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -15,18 +15,11 @@
      &                    list_s,nlist_s,List_Exp,List_Bas,
      &                    Index,nIndex,
      &                    FckInt,nFckDim,nFckInt,
-     &                    ipTabAO,mAO,nSym,
-     &                    Dens,nDens,nD,
-     &                    nP2_ontop,nShell,
-     &                    Do_Mo,Do_TwoEl,l_Xhol,
-     &                    TmpPUVX,nTmpPUVX,TabMO,TabSO,
-     &                    nMOs,CMOs,nCMO,DoIt,
-     &                    P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,
-     &                    P2_ontop,
-     &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
-     &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
-     &                    DFTFOCK,LTEG_DB,
-     &                    PDFTPot1,PDFTFocI,PDFTFocA)
+     &                    ipTabAO,mAO,nSym,nD,
+     &                    nP2_ontop,Do_Mo,
+     &                    TabMO,TabSO,nMOs,
+     &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,iNQ,
+     &                    EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
@@ -40,50 +33,41 @@
       use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
+      use nq_Grid, only: F_xc, F_xca, F_xcb
+      use nq_Grid, only: Fact, Tmp, SOs, Angular, Mem
+      use nq_Grid, only: D1UnZip, P2UnZip
       use nq_pdft
+      use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "print.fh"
 #include "debug.fh"
 #include "ksdft.fh"
 #include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "pamint.fh"
-#include "grid_on_disk.fh"
-      Integer list_s(2,nlist_s),List_Exp(nlist_s),DoIt(nMOs),
-     &        ipTabAO(nlist_s+1,2), IndGrd(nGrad_Eff),
-     &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
-     &        Maps2p(nShell,0:nSym-1), List_Bas(2,nlist_s)
-      Real*8 A(3), RA(3), Grad(nGrad),
-     &       FckInt(nFckInt,nFckDim), Dens(nDens,nD),
+      Integer list_s(2,nlist_s),List_Exp(nlist_s),
+     &        ipTabAO(nlist_s+1,2),Index(nIndex),
+     &        List_Bas(2,nlist_s)
+      Real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
-     &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo),
-     &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
-     &       F_xc(mGrid),
-     &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
-      Real*8 TmpPUVX(nTmpPUVX)
-      Logical Do_Grad,Do_Mo,Do_TwoEl,Unpack
-      Logical l_Xhol, l_tanhr
-      Character*4 DFTFOCK
-      Integer nAOs
+      Logical Do_Grad,Do_Mo,Unpack
+      Logical l_tanhr
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
       Real*8,DIMENSION(:),ALLOCATABLE::P2MOCube,P2MOCubex,P2MOCubey,
      &                                 P2MOCubez,MOs,MOx,MOy,MOz
 *     MOs,MOx,MOy and MOz are for active MOs.
 *     MOas is for all MOs.
-      Real*8,DIMENSION(NASHT4)::P2Unzip
-      Real*8,DIMENSION(NASHT**2)::D1Unzip
-      Integer LTEG_DB,nPMO3p
-*define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-      Logical Debug_Save
-#endif
+      Integer nPMO3p
+      Real*8 EG_OT(nTmpPUVX)
+      Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
+      Real*8, Allocatable:: TmpCMO(:)
+      Integer, Allocatable:: TDoIt(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -93,57 +77,21 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUGPRINT_
-      iRout = 112
-      iPrint = nPrint(iRout)
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (Do_Twoel.and.nTmpPUVX.eq.1) Then
-         TmpPUVX(1)=0.0D0
-         Write (6,*) DFTFOCK
-         Call abend()
-      End If
-************************************************************************
-*                                                                      *
       nTabAO=Size(TabAO)
-#ifdef _DEBUGPRINT_
-      Debug_Save=Debug
-      Debug=Debug.or.iPrint.ge.99
-*
-      If (Debug) Then
-         Write (6,*) ' In Do_Batch'
-         Write (6,*) ' nRho=',nRho
-         Write (6,*) 'Grid=',DDot_(mGrid,Grid(1,1),3,Grid(1,1),3),
-     &                       DDot_(mGrid,Grid(2,1),3,Grid(2,1),3),
-     &                       DDot_(mGrid,Grid(3,1),3,Grid(3,1),3),
-     &                       DDot_(mGrid,Weights  ,1,Weights  ,1), mGrid
-      End If
-#endif
-*                                                                      *
-      mRho=-1
+      nCMO  =Size(CMO)
+      T_Rho=T_X*1.0D-4
       l_tanhr=.false.
 
       CALL PDFTMemAlloc(mGrid,nOrbt)
-      If (Functional_Type.eq.CASDFT_Type) Then
+      If ( l_casdft ) Then
          mRho = nP2_ontop
-      Else If(l_casdft) then !GLM
-         mRho = nP2_ontop
-      End If
-*
-      If (mRho.ne.-1) Then
-         Call GetMem('Rho_I','Allo','Real',ipRhoI,mGrid*mRho)
-         Call GetMem('Rho_A','Allo','Real',ipRhoA,mGrid*mRho)
-         call dcopy_(mGrid*mRho,[Zero],0 ,Work(ipRhoI), 1)
-         call dcopy_(mGrid*mRho,[Zero],0 ,Work(ipRhoA), 1)
+         Call mma_allocate(RhoI,mRho,mGrid,Label='RhoI')
+         Call mma_allocate(RhoA,mRho,mGrid,Label='RhoA')
+         RhoI(:,:)=Zero
+         RhoA(:,:)=Zero
       Else
-         ipRhoI = ip_Dummy
-         ipRhoA = ip_Dummy
+         mRho=-1
       End If
-************************************************************************
-*                                                                      *
-      ipSOS=0 ! dummy initialize
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -168,8 +116,8 @@
 *
 *------- Generate the values of the AOs on the grid
 *
-         Call FZero(Work(ipMem),nMem)
-         ipxyz=ipMem
+         Mem(:)=Zero
+         ipxyz=1
 *
          iOff = 1
          Do ilist_s=1,nlist_s
@@ -196,10 +144,8 @@
             End Do
             nTerm    = 2**nDrv
             nxyz     = mGrid*3*(iAng+mRad)
-            nRadial  = iBas_Eff*mGrid*mRad
+!           nRadial  = iBas_Eff*mGrid*mRad
             ipRadial = ipxyz + nxyz
-            ipAng_   = ipRadial + nRadial
-            ipAng    = ip_of_iWork_d(Work(ipAng_))
 *
             iR=list_s(2,ilist_s)
 *
@@ -218,13 +164,12 @@
 *
             ipTabAO(iList_s,1)=iOff
 *                                                                      *
-            Call AOEval(iAng,mGrid,Grid,Work(ipxyz),RA,
+            Call AOEval(iAng,mGrid,Grid,Mem(ipxyz),RA,
      &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
-     &                  iWork(ipAng),nTerm,nForm,T_X,mRad,
+     &                  Angular,nTerm,nForm,T_X,mRad,
      &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,
-     &                  Work(ipRadial),
-     &                  iBas_Eff,
+     &                  Mem(ipRadial),iBas_Eff,
      &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
      &                  TabAO_Pack(iOff:),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
@@ -253,14 +198,12 @@
 *                 Check if we should store any AOs at all!
 *
                   iOff = ipTabAO(ilist_s,1)
-                  If (nData.gt.nTmp) Then
-                     Call WarningMessage(2,'nData.gt.nTmp')
+                  If (nData.gt.SIZE(Tmp)) Then
+                     Call WarningMessage(2,'nData.gt.SIZE(Tmp)')
                      Call Abend()
                   End If
-                  call dcopy_(nData,TabAO_Pack(iOff:),1,
-     &                              Work(ipTmp),1)
-                  Call PkR8(0,nData,nByte,Work(ipTmp),
-     &                                    TabAO_Pack(jOff:))
+                  call dcopy_(nData,TabAO_Pack(iOff:),1,Tmp,1)
+                  Call PkR8(0,nData,nByte,Tmp,TabAO_Pack(jOff:))
                   mData = (nByte+RtoB-1)/RtoB
                   If (mData.gt.nData) Then
                      Call WarningMessage(2,'mData.gt.nData')
@@ -300,12 +243,12 @@
             If (nByte.gt.0) Then
                mData = (nByte+RtoB-1)/RtoB
                jOff = jOff - mData
-               If (mData.gt.nTmp) Then
-                  Call WarningMessage(2,'mData.gt.nTmp')
+               If (mData.gt.SIZE(Tmp)) Then
+                  Call WarningMessage(2,'mData.gt.SIZE(Tmp)')
                   Call Abend()
                End If
-               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff:),Work(ipTmp))
-               call dcopy_(nData,Work(ipTmp),1,TabAO_Pack(iOff:),1)
+               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff:),Tmp)
+               call dcopy_(nData,Tmp,1,TabAO_Pack(iOff:),1)
             Else
                mData=0
                TabAO_Pack(1:nData)=Zero
@@ -325,6 +268,8 @@
          Call FZero(TabMO,mAO*mGrid*nMOs)
          Call FZero(TabSO,mAO*mGrid*nMOs)
 *
+         Call mma_Allocate(TmpCMO,nCMO,Label='TmpCMO')
+         Call mma_Allocate(TDoIt,nMOs,Label='TDoIt')
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
             iCmp  = iSD( 2,iSh)
@@ -339,8 +284,7 @@
             kAO   = iCmp*iBas*mGrid
             nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
-            ipSOs = ipMem
-            Call FZero(Work(ipSOs),nSO)
+            Call FZero(SOs,nSO)
 *
             iR=list_s(2,ilist_s)
             iSym=NrOpr(iR)
@@ -350,22 +294,17 @@
 *           temporarily!
 *
             Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
-     &                     iBas,iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,
-     &                     iAO)
+     &                     iBas,iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
 *
-            Call GetMem('TmpCM','Allo','Real',ipTmpCMO,nCMO)
-            Call GetMem('TDoIt','Allo','Inte',ipTDoIt,nMOs)
-            Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,
-     &                   iCmp,nDeg,TabSO,
-     &                   nMOs,iAO,Work(ipTmpCMO),
-     &                   nCMO,iWork(ipTDoIt))
-            Call GetMem('TmpCM','Free','Real',ipTmpCMO,nCMO)
-            Call GetMem('TDoIt','Free','Inte',ipTDoIt,nMOs)
+            Call  SODist2(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+     &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
 *
-            Call  SODist(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabMO,
-     &                  nMOs,iAO,CMOs,nCMO,DoIt)
+            Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabMO,
+     &                   nMOs,iAO,CMO,nCMO,DoIt)
 *
          End Do
+         Call mma_deAllocate(TDoIt)
+         Call mma_deAllocate(TmpCMO)
       End If
 *                                                                      *
 ************************************************************************
@@ -377,8 +316,7 @@
 *     In case of gradient calculations compute Cartesian derivatives
 *     of Rho, Grad Rho, Tau, and the Laplacian.
 *                                                                      *
-      Call Mk_Rho(list_s,nlist_s,Work(ip_Fact),ndc,list_bas,
-     &            Index,nIndex,list_g,Do_Grad)
+      Call Mk_Rho(list_s,nlist_s,Fact,ndc,list_bas,Index,nIndex,Do_Grad)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -386,7 +324,6 @@
 ************************************************************************
 *                                                                      *
       If (l_casdft) then
-         T_Rho=T_X*1.0D-4
          Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
          Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
          Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
@@ -410,21 +347,19 @@
          Call Fzero(P2_ontop,nP2_ontop*mGrid)
 
          If (.not.Do_Grad) then !regular MO-based run
-            Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
-     &                  nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
-     &                  Work(ipRhoA),mRho,Do_Grad,
+            Call Do_PI2(D1MO,SIZE(D1MO),TabMO,mAO,mGrid,
+     &                  nMOs,P2_ontop,nP2_ontop,RhoI,
+     &                  RhoA,mRho,Do_Grad,
      &                  P2MOCube,MOs,MOx,MOy,MOz)
          Else !AO-based run for gradients
 !           nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
             P2_ontop_d(:,:,:) = 0
-            !Determine number of AOs:
-            nAOs = nMOs
             Call  Do_Pi2grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
-     &                       P2_ontop,nP2_ontop,Do_Grad,nGrad_Eff,
-     &                       list_s,nlist_s,list_bas,Index,nIndex,
-     &                       D1mo,nd1mo,TabMO,list_g,P2_ontop_d,
-     &                       Work(ipRhoI),Work(ipRhoA),mRho,nMOs,CMOs,
-     &                       nAOs,nCMO,TabSO,nsym,lft,
+     &                       P2_ontop,nP2_ontop,nGrad_Eff,
+     &                       list_s,nlist_s,list_bas,
+     &                       D1MO,SIZE(D1MO),TabMO,P2_ontop_d,
+     &                       RhoI,RhoA,mRho,nMOs,CMO,
+     &                       nCMO,TabSO,nsym,lft,
      &                       P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                       nPMO3p,MOs,MOx,MOy,MOz)
          End If
@@ -465,63 +400,10 @@
          End If
 
 *        Integrate out the number of electrons
-         T_Rho=T_X*1.0D-4
          Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
          Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
          Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
 
-      End If
-
-      If (Functional_type.eq.LDA_type) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else If (Functional_type.eq.GGA_type) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else If (Functional_type.eq.CASDFT_type) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*
-*------- Compute P2_OnTop at the grid
-         Call Do_P2new(P2mo,np2act,D1mo,nd1mo,TabMO,mAO,mGrid,
-     &                 nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
-     &                 Work(ipRhoA),mRho)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else If (Functional_type.eq.meta_GGA_type1) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else If (Functional_type.eq.meta_GGA_type2) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
       End If
 *                                                                      *
 ************************************************************************
@@ -529,7 +411,6 @@
 *                                                                      *
 *     Integrate out the number of electrons, |grad|, and tau
 *
-      T_Rho=T_X*1.0D-4
       If (Functional_type.eq.LDA_Type) Then
          Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
       Else If (Functional_type.eq.GGA_type) Then
@@ -544,19 +425,6 @@
          Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
          Tau_I =Tau_I +Compute_Tau (Weights,mGrid,nD,T_Rho)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-- (A.Ohrn): Here I add the routine which constructs the kernel for
-*   the Xhole application. A bit 'cheating' but hey what da hey!
-*
-      If(l_Xhol) then
-#ifdef _NOT_USED_TESTED_OR_MAINTAINED_
-        Call Xhole(nRho,mGrid,Rho,Grid,mAO,nMOs,TabMO,ndF_dRho,nD,
-     &             dF_dRho,Weights,ip_OrbDip,Func)
-#endif
-        Go To 1979
-      Endif
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -574,7 +442,6 @@
       If (l_casdft) Then
          F_xca(1:mGrid)=Zero
          F_xcb(1:mGrid)=Zero
-         tmpB(1:mGrid)=Zero
       End If
 *
 *1)   evaluate the energy density, the derivative of the functional with
@@ -592,202 +459,82 @@
       If (l_casdft) Then
          Funcaa=Funcaa+DDot_(mGrid,Weights,1,F_xca,1)
          Funcbb=Funcbb+DDot_(mGrid,Weights,1,F_xcb,1)
-         Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
+         Funccc=Func-Funcaa-Funcbb
       End If
 *                                                                      *
 ************************************************************************
-*                                                                      *
-1979  Continue  !Jump here and skip the call to the kernel.
-      IF(do_pdftPot) THEN
-       CALL mma_allocate(MOs ,mGrid*NASHT)
-      END IF
-
-      If (.Not.Do_Grad) Then
-*                                                                      *
-************************************************************************
 ************************************************************************
 *                                                                      *
-*---- Compute the DFT contribution to the Fock matrix                  *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         If (Functional_type.eq.LDA_Type) Then
-*
-*2)         form matrix elements for the potential, from derivative of
-*           the functional with  respect to rho, respectively.
-*
-!First, calculate some sizes:
-!             NFINT=nTmpPUVX
-!             NTOT1=nFckInt
-
-             If(KSDFA(1:5).eq.'TLSDA') then
-               If(do_pdftPot) then
-               lft=.false.
-               lGGA=.false.
-
-               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
-               IF(lft.and.lGGA) THEN
-                CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
-                CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
-                CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
-               END IF
-               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
-
-               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,MOas)
-               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
-               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-              end if
-             else If(KSDFA(1:6).eq.'FTLSDA') then
-               If(do_pdftPot) then
-               lft=.true.
-               lGGA=.false.
-
-               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
-               IF(lft.and.lGGA) THEN
-                CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
-                CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
-                CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
-               END IF
-               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
-
-               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,MOas)
-               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
-               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-              end if
-             end if
-
-             If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
-                 Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                        nD,Work(ip_Fact),ndc,list_bas)
-             End If
+      If (Do_Grad) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
-        Else If (Functional_type.eq.GGA_type   .or.
-     &           Functional_type.eq.CASDFT_type     ) Then     ! CGG
-*
-*2)        form matrix elements for the potential, from derivative of
-*          the functional with  respect to rho, respectively.
-*
-*          and
-*
-*3)        form contributions to the matrix elements of the potenial
-*          from the derivative of the functional with respect to grad
-*          rho.
-*
-             If(KSDFA(1:4).eq.'TPBE'.or.
-     &               KSDFA(1:5).eq.'TOPBE'.or.
-     &               KSDFA(1:5).eq.'TBLYP'.or.
-     &               KSDFA(1:7).eq.'TREVPBE') then
-
-              If(do_pdftPot) then
-               lft=.false.
-               lGGA=.true.
-
-               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
-               IF(lft.and.lGGA) THEN
-                CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
-                CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
-                CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
-               END IF
-               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
-
-               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,MOas)
-
-               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
-
-               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-              end if
-             Else If(KSDFA(1:5).eq.'FTPBE'.or.
-     &               KSDFA(1:6).eq.'FTOPBE'.or.
-     &               KSDFA(1:6).eq.'FTBLYP'.or.
-     &               KSDFA(1:8).eq.'FTREVPBE') then
-               If(do_pdftPot) then
-               lft=.true.
-               lGGA=.true.
-
-               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
-               IF(lft.and.lGGA) THEN
-                CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
-                CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
-                CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
-               END IF
-               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
-
-               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,MOas)
-               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
-               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-              end if
-             end if
-             If(.not.l_casdft) then
-               Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                      nD,Work(ip_Fact),ndc,list_bas)
-             end if
+*        Compute the DFT contribution to the gradient                  *
 *                                                                      *
 ************************************************************************
 *                                                                      *
-        Else If (Functional_type.eq.meta_GGA_type1 .or.
-     &           Functional_Type.eq.meta_GGA_type2) Then
-*
-*2)        form matrix elements for the potential, from derivative of
-*          the functional with  respect to rho, respectively.
-*
-*          and
-*
-*3)        form contributions to the matrix elements of the potenial
-*          from the derivative of the functional with respect to grad
-*          rho.
-*
-*         and
-*
-*4)       form contributions to the matrix elements of the potential
-*         from the derivatives of the functional with respect to nabla
-*         rho and/or tau.
-*
-          Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                 nD,Work(ip_Fact),ndc,list_bas)
-*                                                                      *
-************************************************************************
-*                                                                      *
-         Else
-            Call WarningMessage(2,'Wrong type of functional')
-            Call Abend()
-         End If    !  Functional Type
-*                                                                      *
-************************************************************************
-*                                                                      *
-*    Compute the DFT contribution to the gradient                      *
+         Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,
+     &                nGrad_Eff,Weights,iNQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Else
-*
-         Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,
-     &                 dRho_dR,ndRho_dR,nGrad_Eff,IndGrd,
-     &                 Weights,iTab,Temp,F_xc,dW_dR,iNQ)
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
+         If (l_casdft) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+*------- For MC-PDFT optionally compute stuff for the CP-MC-PDFT       *
+*                                                                      *
+************************************************************************
+*                                                                      *
+           If (do_pdftPot) then
+              CALL mma_allocate(MOs ,mGrid*NASHT)
+              CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
+              IF (lft.and.lGGA) THEN
+                 CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
+                 CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
+                 CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
+              END IF
+              CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
+              Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
+     &                       nP2_ontop,MOas)
+              Call Calc_Pot2(EG_OT,mGrid,P2_ontop,nP2_ontop)
+              Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
+              CALL mma_deallocate(MOs)
+           End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+         Else
+*                                                                      *
+************************************************************************
+*                                                                      *
+*------- Compute the DFT contribution to the Fock matrix               *
+*                                                                      *
+************************************************************************
+*                                                                      *
+           Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc,
+     &                  list_bas)
+*                                                                      *
+************************************************************************
+*                                                                      *
+         End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
 *                                                                      *
-      If(do_pdftPot) then
-       CALL mma_deallocate(MOs   )
-      End If
 ************************************************************************
 *                                                                      *
       CALL PDFTMemDeAlloc()
-      If(mRho.ne.-1) Then
-        Call GetMem('Rho_I','Free','Real',ipRhoI,mGrid*mRho)
-        Call GetMem('Rho_A','Free','Real',ipRhoA,mGrid*mRho)
+
+      If (Allocated(RhoI)) Then
+         Call mma_deallocate(RhoI)
+         Call mma_deallocate(RhoA)
       End If
-#ifdef _DEBUGPRINT_
-      Debug=Debug_Save
-#endif
+
       Return
-* Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(Maps2p)
-      If (.False.) Call Unused_real_array(Dens)
       End

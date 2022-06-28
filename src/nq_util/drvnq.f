@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DrvNQ(Kernel,FckInt,nFckDim,Func,
+      Subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,
      &                 Density,nFckInt,nD,
      &                 Do_Grad,Grad,nGrad,
      &                 Do_MO,Do_TwoEl,DFTFOCK)
@@ -25,68 +25,44 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use KSDFT_Info, only: KSDFA, F_xca, F_xcb, TmpB
+      use KSDFT_Info, only: KSDFA
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
-      use nq_Grid, only: Exc
-      use nq_pdft, only: lft, lGGA
+      use nq_Grid, only: F_xc, F_xca, F_xcb
+      use nq_Grid, only: List_G, IndGrd, iTab, Temp, SOs, Angular, Mem
+      use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp, nR_Eff
+      use nq_pdft, only: lGGA
+      use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
+      use nq_Structure, only: Close_NQ_Data
+      use Grid_On_Disk
+      use libxc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "itmax.fh"
 #include "nq_info.fh"
 #include "setup.fh"
 #include "nsd.fh"
 #include "debug.fh"
-#include "grid_on_disk.fh"
 #include "status.fh"
 #include "ksdft.fh"
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
-      Logical l_XHol
       Character*4 DFTFOCK
       Integer nBas(8), nDel(8)
+      Integer, Allocatable:: Maps2p(:,:), List_s(:,:), List_Exp(:),
+     &                       List_Bas(:,:), List_P(:)
+      Real*8, Allocatable:: R_Min(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Statement functions
-*
-#include "nq_structure.fh"
-      declare_ip_r_quad
-      declare_ip_angular
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (Functional_Type.eq.CASDFT_Type) Then
-      Do_TwoEl        =.True.
-      End If
-*
       If (Do_TwoEl) Then
-      Do_MO           =.True.
+         Do_MO           =.True.
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*-- Additions for Xhole. DFTFOCK is here reset to SCF, but we
-*   define a new logical variable. This is no DFT-integrations,
-*   just dummy-stuff for getting the numerical LoProp-
-*   integrations. (A.Ohrn)
-*
-      If (DFTFOCK(1:4).eq.'XHOL') then
-      Write(DFTFOCK,'(A)')'SCF '
-      l_Xhol=.true.
-      Else
-      l_Xhol=.false.
-      Endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -94,36 +70,14 @@
 *
       Call Set_Basis_Mode('Valence')
       Call Nr_Shells(nShell)
-      Call GetMem('s2p','Allo','Inte',ips2p,nShell*nIrrep)
-      Call GetMem('R_Min','Allo','Real',ipR_Min,LMax_NQ+1)
+      Call mma_allocate(Maps2p,nShell,nIrrep,Label='Maps2p')
+      Call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 *
-        NQ_Status=Inactive
-      Call Setup_NQ(iWork(ips2p),nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
-     &              PThr,PMode,Work(ipR_Min),LMax_NQ)
+      NQ_Status=Inactive
+      Call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
+     &              PThr,PMode,R_Min,LMax_NQ)
 *
-      Call GetMem('R_Min','Free','Real',ipR_Min,LMax_NQ)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Allocate scratch memory for the temporary SO matrix
-*     elements
-*
-      iSmLbl=1
-      nSOTemp=0
-      Do iSkal = 1, nShell
-         iCmp  = iSD( 2,iSkal)
-         iBas  = iSD( 3,iSkal)
-         iAO   = iSD( 7,iSkal)
-         iShell= iSD(11,iSkal)
-         Do jSkal = 1, iSkal
-            jCmp  = iSD( 2,jSkal)
-            jBas  = iSD( 3,jSkal)
-            jAO   = iSD( 7,jSkal)
-            jShell= iSD(11,jSkal)
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-            nSOTemp=Max(nSOTemp,iBas*jBas*nSO)
-         End Do
-      End Do
+      Call mma_deallocate(R_Min)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -137,51 +91,24 @@
 *                                                                      *
 *     CASDFT stuff:
 *
-      nP2=1
-      nCmo=1
-      nD1mo=1
-      nMos=1
+!     Note, l_CASDFT=.True. implies that both Do_MO and Do_Twoel are
+!     true.
+
       nTmpPUVX=1
-      ipP2mo=ip_Dummy
-      ipCmo=ip_Dummy
-      ipD1mo=ip_Dummy
-      ipDoIt=ip_iDummy
-      ipTmpPUVX=ip_Dummy
 *
       NQNAC=0
-      If (DFTFOCK.ne.'SCF ') Then
+      If (l_casdft) Call Get_iArray('nAsh',nAsh,mIrrep)
+      If (DFTFOCK.ne.'SCF '.or.l_CASDFT) Then
          Do iIrrep = 0, mIrrep - 1
             NQNAC = NQNAC + nAsh(iIrrep)
          End Do
       End If
+      NQNACPAR = ( NQNAC**2 + NQNAC )/2
+      NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
 *
       LuGridFile=31
       LuGridFile=IsFreeUnit(LuGridFile)
       Call Molcas_Open(LuGridFile,'GRIDFILE')
-*                                                                      *
-************************************************************************
-* Global variable for MCPDFT functionals                               *
-
-      l_casdft = KSDFA.eq.'TLSDA'   .or.
-     &           KSDFA.eq.'TLSDA5'  .or.
-     &           KSDFA.eq.'TBLYP'   .or.
-     &           KSDFA.eq.'TSSBSW'  .or.
-     &           KSDFA.eq.'TSSBD'   .or.
-     &           KSDFA.eq.'TS12G'   .or.
-     &           KSDFA.eq.'TPBE'    .or.
-     &           KSDFA.eq.'FTPBE'   .or.
-     &           KSDFA.eq.'TOPBE'   .or.
-     &           KSDFA.eq.'FTOPBE'  .or.
-     &           KSDFA.eq.'TREVPBE' .or.
-     &           KSDFA.eq.'FTREVPBE'.or.
-     &           KSDFA.eq.'FTLSDA'  .or.
-     &           KSDFA.eq.'FTBLYP'
-
-      lft      = KSDFA.eq.'FTPBE'   .or.
-     &           KSDFA.eq.'FTOPBE'  .or.
-     &           KSDFA.eq.'FTREVPBE'.or.
-     &           KSDFA.eq.'FTLSDA'  .or.
-     &           KSDFA.eq.'FTBLYP'
 
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
@@ -283,7 +210,8 @@
          nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
-         nLapl=0
+*        nLapl=0
+         nLapl=nD
          nTau=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=5*nD
@@ -301,7 +229,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Not debugged yet!
 *        We need the AOs and their 1st and 2nd derivatives, for
 *        gradients we need the 3rd order derivatives too.
 *
@@ -330,31 +257,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.CASDFT_type) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        nD  definition is not consistent with the use here!
-*        This needs to be restructured.
-*
-         mAO=10
-         kAO=mAO
-
-         nRho=nD
-         nSigma=nD*(nD+1)/2
-         nGradRho=nD*3
-         nTau=nD
-         nLapl=0
-         If (Do_Grad) mdRho_dR=4*nD
-         If (Do_Grad) Then
-             Call WarningMessage(2,'CASDFT: Gradient not available.')
-             Call Abend()
-         End If
-*
-         nP2_ontop=6
-*                                                                      *
-************************************************************************
-*                                                                      *
       Else
 *                                                                      *
 ************************************************************************
@@ -372,9 +274,12 @@
 *                                                                      *
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
       Call mma_allocate(vRho,nRho,nGridMax,Label='vRho')
+      Call mma_allocate(dfunc_drho,nRho,nGridMax,Label='dfunc_drho')
       If (nSigma.ne.0) Then
          Call mma_Allocate(Sigma,nSigma,nGridMax,Label='Sigma')
          Call mma_Allocate(vSigma,nSigma,nGridMax,Label='vSigma')
+         Call mma_Allocate(dfunc_dSigma,nSigma,nGridMax,
+     &                     Label='dfunc_dSigma')
       End If
       If (nGradRho.ne.0) Then
          Call mma_Allocate(GradRho,nGradRho,nGridMax,Label='GradRho')
@@ -382,37 +287,38 @@
       If (nTau.ne.0) Then
          Call mma_allocate(Tau,nTau,nGridMax,Label='Tau')
          Call mma_allocate(vTau,nTau,nGridMax,Label='vTau')
+         Call mma_allocate(dfunc_dTau,nTau,nGridMax,Label='dfunc_dTau')
+         Tau(:,:)=Zero
       End If
       If (nLapl.ne.0) Then
          Call mma_allocate(Lapl,nLapl,nGridMax,Label='Lapl')
          Call mma_allocate(vLapl,nLapl,nGridMax,Label='vLapl')
+         Call mma_allocate(dfunc_dLapl,nLapl,nGridMax,
+     &                     Label='dfunc_dLapl')
+         Lapl(:,:)=Zero
       End If
 
-      Call mma_allocate(Exc,nGridMax,Label='Exc')
+      Call mma_allocate(F_xc,nGridMax,Label='F_xc')
+      Call mma_allocate(func,nGridMax,Label='func')
       If (l_casdft) Then
          Call mma_allocate(F_xca,nGridMax,Label='F_xca')
          Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
-         Call mma_allocate(TmpB,nGridMax,Label='TmpB')
       End If
 *
-      Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
-      Call GetMem('list_exp','Allo','Inte',iplist_exp,3*nIrrep*nShell)
-      iplist_bas=iplist_exp+nIrrep*nShell
-      Call GetMem('list_p','Allo','Inte',iplist_p,nNQ)
-      Call GetMem('R2_trail','Allo','Real',ipR2_trail,nNQ)
+      Call mma_allocate(List_S,2,nIrrep*nShell,Label='List_S')
+      Call mma_allocate(List_Exp,nIrrep*nShell,Label='List_Exp')
+      Call mma_allocate(List_Bas,2,nIrrep*nShell,Label='List_Bas')
+      Call mma_allocate(List_P,nNQ,Label='List_P')
+      Call mma_allocate(R2_trial,nNQ,Label='R2_trial')
 
       If (Do_MO) Then
          If (NQNAC.ne.0) Then
-           If(.not.l_casdft) Then
-             NQNACPAR = ( NQNAC**2 + NQNAC )/2
-             nd1mo=NQNACPAR
-             Call GetMem('D1MO','Allo','Real',ipD1MO,nd1mo)
-             Call Get_D1MO(Work(ipD1mo),nd1mo)
-             NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
-             Call GetMem('P2MO','Allo','Real',ipP2MO,nP2)
-             Call Get_P2mo(Work(ipP2mo),nP2)
-
-           End If
+            nD1MO = NQNACPAR
+            Call mma_allocate(D1MO,nD1MO,Label='D1MO')
+            Call Get_D1MO(D1MO,nD1MO)
+            nP2 = NQNACPR2
+            Call mma_Allocate(P2MO,nP2,Label='P2MO')
+            call Get_P2mo(P2MO,nP2)
          End If
          Call Get_iArray('nBas',nBas,mIrrep)
          Call Get_iArray('nDel',nDel,mIrrep)
@@ -420,23 +326,23 @@
          Do i = 1, mIrrep
             nCMO = nCMO + nBas(i)*(nBas(i)-nDel(i))
          End Do
-         Call GetMem('CMO','Allo','Real',ipCMO,nCMO)
-         Call Get_CMO(Work(ipCMO),nCMO)
+         Call mma_allocate(CMO,nCMO,Label='CMO')
+         Call Get_CMO(CMO,nCMO)
          Call Get_iArray('nAsh',nAsh,mIrrep)
          nMOs=0
          Do iIrrep = 0, mIrrep-1
             nMOs=nMOs+mBas(iIrrep)
          End Do
-         Call GetMem('DoIt','Allo','Inte',ipDoIt,nMOs)
-         iMO=ipDoIt-1
+         Call mma_Allocate(DoIt,nMOs,Label='DoIt')
+         iMO=0
          Do iIrrep = 0, mIrrep-1
             Do jMO = 1, nISh(iIrrep)+nASh(iIrrep)
                iMO=iMO+1
-               iWork(iMO)=1
+               DoIt(iMO)=1
             End Do
             Do jMO = 1, mBas(iIrrep)-nISh(iIrrep)-nASh(iIrrep)
                iMO=iMO+1
-               iWork(iMO)=1
+               DoIt(iMO)=1
             End Do
          End Do
       End If
@@ -450,8 +356,6 @@
      &              ' Can''t produce 2 el dft integrals without MO')
             Call Abend()
          End If
-         NQNACPAR = ( NQNAC**2 + NQNAC )/2
-         NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
 *
          iStack = 0
          Do iIrrep = 0, mIrrep-1
@@ -474,28 +378,14 @@
          End Do
          nTmpPUVX=iStack
 *
-         Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
-         Call dCopy_(nTmpPUVX,[0.0d0],0,Work(ipTmpPUVX),1)
       End If
 *
-      If (Functional_Type.eq.CASDFT_Type) Then
-         Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
-     &               nP2_ontop*nGridMax)
-      Else
-         ipP2_ontop=ip_Dummy
-      Endif
-*
       If (Do_Grad) Then
-         Call GetMem('list_g','Allo','Inte',iplist_g,3*nShell*nIrrep)
+         Call mma_allocate(List_g,3,nShell*nIrrep,Label='List_G')
          mGrad=3*nAtoms
-         Call GetMem('IndGrd','Allo','Inte',ipIndGrd,mGrad)
-         Call GetMem('iTab','Allo','Inte',ipiTab,4*mGrad)
-         Call GetMem('Temp','Allo','Real',ipTemp,mGrad)
-      Else
-         iplist_g=ip_iDummy
-         ipIndGrd=ip_iDummy
-         ipiTab  =ip_iDummy
-         ipTemp  =ip_Dummy
+         Call mma_allocate(IndGrd,mGrad,Label='IndGrd')
+         Call mma_allocate(iTab,4,mGrad,Label='iTab')
+         Call mma_allocate(Temp,mGrad,Label='Temp')
       End If
 
       If (.Not.Do_Grad) Call FZero(FckInt,nFckInt*nFckDim)
@@ -504,92 +394,63 @@
 *                                                                      *
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
-      If(l_casdft) then
-        NQNAC=0
-        Call Get_iArray('nAsh',nAsh,mIrrep)
-        Do iIrrep = 0, mIrrep - 1
-          NQNAC = NQNAC + nAsh(iIrrep)
-        End Do
-        IF(NQNAC.ne.0) then
-          NQNACPAR = ( NQNAC**2 + NQNAC )/2
-          NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
-          nd1mo = NQNACPAR
-          Call GetMem('D1MO','Allo','Real',ipD1MO,nd1mo)
-          Call Get_D1MO(Work(ipD1mo),nd1mo)
-          nP2 = NQNACPR2
-          Call GetMEM('P2MO','Allo','Real',ipP2MO,nP2)
-          call Get_P2mo(Work(ipP2mo),nP2)
-        END IF
-         Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
-     &               nP2_ontop*nGridMax)
-        Call dCopy_(nP2_ontop*nGridMax,[0.0d0],0,Work(ipp2_ontop),1)
 
+      If(l_casdft) then
+        Call mma_allocate(P2_ontop,nP2_ontop,nGridMax,Label='P2_ontop')
+        P2_ontop(:,:)=Zero
       end if
 
-      Call DrvNQ_Inner(
-     &            Kernel,Func,
-     &            iWork(ips2p),nIrrep,
-     &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
-     &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
-     &            FckInt,nFckDim,
-     &            Density,nFckInt,nD,
-     &            nGridMax,
-     &            nP2_ontop,
-     &            Do_Mo,Do_TwoEl,l_Xhol,
-     &            Work(ipTmpPUVX),nTmpPUVX,
-     &            nMOs,Work(ipCMO),nCMO,
-     &            iWork(ipDoIt),
-     &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
-     &            Do_Grad,Grad,nGrad,iWork(iplist_g),
-     &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Exc,
-     &            DFTFOCK,mAO,mdRho_dR)
+      Call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,
+     &                 List_bas,nShell,List_P,nNQ,
+     &                 FckInt,nFckDim,Density,nFckInt,nD,
+     &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
+     &                 Do_Grad,Grad,nGrad,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *-----Deallocate the memory
 *
-      Call GetMem('O','Free','Real',ip_O,3*3)
+      Call mma_deallocate(Pax)
       If (Do_Grad) Then
-         Call GetMem('Temp','Free','Real',ipTemp,mGrad)
-         Call GetMem('iTab','Free','Inte',ipiTab,4*mGrad)
-         Call GetMem('IndGrd','Free','Inte',ipIndGrd,mGrad)
-         Call GetMem('list_g','Free','Inte',iplist_g,3*nShell*nIrrep)
+         Call mma_deallocate(Temp)
+         Call mma_deallocate(iTab)
+         Call mma_deallocate(IndGrd)
+         Call mma_deallocate(List_G)
       End If
-      Call GetMem('R2_trail','Free','Real',ipR2_trail,nNQ)
-      Call GetMem('list_p','Free','Inte',iplist_p,nNQ)
-      Call GetMem('list_exp','Free','Inte',iplist_exp,3*nIrrep*nShell)
-      Call GetMem('list_s','Free','Inte',iplist_s,2*nIrrep*nShell)
+      Call mma_deallocate(R2_trial)
+      Call mma_deallocate(List_P)
+      Call mma_deallocate(List_Bas)
+      Call mma_deallocate(List_Exp)
+      Call mma_deallocate(List_S)
 *Do_TwoEl
-      If(ipP2mo.ne.ip_Dummy) Call Free_Work(ipP2mo)
-      If(ipD1MO.ne.ip_Dummy) Call Free_Work(ipD1MO)
-      If(ipCMO.ne.ip_Dummy)  Call Free_Work(ipCMO)
-      If(ipDoIt.ne.ip_iDummy) Call GetMem('DoIt','Free','Inte',
-     &                                    ipDoIt,nMOs)
-      If(ipTmpPUVX.ne.ip_Dummy) Then
-         Call Put_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
-         Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
-      End If
+      If (Allocated(D1MO)) Call mma_deallocate(D1MO)
+      If (Allocated(P2MO)) Call mma_deallocate(P2MO)
+      If (Allocated(CMO)) Call mma_deallocate(CMO)
+      If (Allocated(DoIt)) Call mma_deallocate(DoIt)
       If (l_casdft) Then
-         Call mma_deallocate(TmpB)
          Call mma_deallocate(F_xcb)
          Call mma_deallocate(F_xca)
       End If
-      Call mma_deallocate(Exc)
+      Call mma_deallocate(func)
+      Call mma_deallocate(F_xc)
 *
       If (Allocated(Lapl)) Then
+         Call mma_deallocate(dfunc_dLapl)
          Call mma_deallocate(vLapl)
          Call mma_deallocate(Lapl)
       End If
       If (Allocated(Tau)) Then
+         Call mma_deallocate(dfunc_dTau)
          Call mma_deallocate(vTau)
          Call mma_deallocate(Tau)
       End If
       If (Allocated(GradRho)) Call mma_deallocate(GradRho)
       If (Allocated(Sigma)) Then
-         Call mma_deallocate(Sigma)
+         Call mma_deallocate(dfunc_dSigma)
          Call mma_deallocate(vSigma)
+         Call mma_deallocate(Sigma)
       End If
+      Call mma_deallocate(dfunc_dRho)
       Call mma_deallocate(vRho)
       Call mma_deallocate(Rho)
 
@@ -598,27 +459,20 @@
 
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
-      If (Functional_type.eq.CASDFT_Type.or.l_casdft) Then
-         Call GetMem('P2_ontop','Free','Real',ipP2_ontop,
-     &               nP2_ontop*nGridMax)
+      If (l_casdft) Then
+         Call mma_deallocate(P2_ontop)
       End If
 *
-      Do iNQ = 1, nNQ
-         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-         ip_Rx=iWork(ip_iRx)
-         Call GetMem('Radial','Free','Real',ip_Rx,iDum)
-         ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
-         ip_A=iWork(ip_iA)
-         Call GetMem('ip_Angular','Free','Inte',ip_A,iDum)
-      End Do
-      Call GetMem('NumRadEff','Free','Inte',ip_nR_eff,nNQ)
-      Call GetMem('Coor','FREE','REAL',ipCoor,3*8*nAtoms)
+      Call mma_deallocate(nR_Eff)
+      Call mma_deallocate(Coor)
 
-      Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
-      Call GetMem('nMem','Free','Real',ipMem,nMem)
-      Call GetMem('Tmp','Free','Real',ipTmp,nTmp)
-      Call Free_Work(ip_Fact)
-      Call GetMem('s2p','Free','Inte',ips2p,nshell)
+      Call Close_NQ_Data()
+      Call mma_deallocate(Mem)
+      Call mma_deallocate(Angular)
+      Call mma_deallocate(SOs)
+      Call mma_deallocate(Tmp)
+      Call mma_deallocate(Fact)
+      Call mma_deallocate(Maps2p)
       NQ_Status=Inactive
 *                                                                      *
 ************************************************************************
@@ -632,12 +486,12 @@
       iDisk_Grid=0
       Call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
       iDisk_Grid=iDisk_Set(iGrid_Set)
-      Call iDaFile(Lu_Grid,1,iWork(ip_GridInfo),
+      Call iDaFile(Lu_Grid,1,GridInfo,
      &             2*number_of_subblocks,iDisk_Grid)
 *
       Call DaClos(Lu_Grid)
 *
-      Call Free_iWork(ip_GridInfo)
+      Call mma_deallocate(GridInfo)
 *                                                                      *
 ************************************************************************
 *                                                                      *

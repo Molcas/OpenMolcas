@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -12,18 +12,12 @@
 ************************************************************************
       Subroutine Get_Subblock(Kernel,Func,ixyz,
      &                        Maps2p,list_s,list_exp,list_bas,
-     &                        nShell,nSym, list_p,R2_trial,nNQ,
-     &                        FckInt,nFckDim,nFckInt,
-     &                        Dens,nDens,nD,
-     &                        mGrid,
-     &                        nP2_ontop,
-     &                        Do_Mo,Do_TwoEl,l_Xhol,
-     &                        TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
-     &                  P2mo,P2Unzip,np2act,D1mo,D1Unzip,nD1mo,P2_ontop,
-     &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
-     &                        Temp,mGrad,F_xc,
-     &                        DFTFOCK,mAO,mdRho_dR,
-     &                        LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                        nShell,nSym, list_p,nNQ,
+     &                        FckInt,nFckDim,nFckInt,nD,
+     &                        mGrid,nP2_ontop,Do_Mo,
+     &                        Do_Grad,Grad,nGrad,
+     &                        mAO,mdRho_dR,
+     &                        EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *                                                                      *
 * Object: to generate the list of the shell and exponent that have an  *
@@ -41,7 +35,11 @@
       use Center_Info
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
-     &                   kAO, iBfn_Index
+     &                   kAO, iBfn_Index, R2_trial
+      use nq_Grid, only: List_G, IndGrd, iTab, dW_dR, nR_Eff
+      use nq_MO, only: DoIt
+      use NQ_Structure, only: NQ_Data
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -50,43 +48,27 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "real.fh"
-#include "grid_on_disk.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
 #include "ksdft.fh"
-      Integer Maps2p(nShell,0:nSym-1), list_s(2,*), List_G(3,*),
+      Integer Maps2p(nShell,0:nSym-1), list_s(2,*),
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
-     &        list_p(nNQ), DoIt(nMOs), iTab(4,mGrad),IndGrd(mGrad)
-      Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
-     &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
-     &       CMOs(nCMO), P2mo(np2act), D1mo(nD1mo),
-     &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
+     &        list_p(nNQ)
+      Real*8 FckInt(nFckInt,nFckDim),Grad(nGrad),Roots(3,3),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
-      Real*8 TmpPUVX(nTmpPUVX)
       Logical InBox(MxAtom), Do_Grad, More_to_come
-      Logical Do_Mo,Do_TwoEl,l_Xhol
-      Character*4 DFTFOCK
-      Integer LTEG_DB
-      Real*8,DIMENSION(NASHT4)::P2Unzip
-      Real*8,DIMENSION(NASHT**2)::D1Unzip
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
-#include "nq_structure.fh"
-      declare_ip_coor
-      declare_ip_r_max
-      declare_ip_angular
-      iGridInfo(i,iNQ)=iWork(ip_GridInfo+(iNQ-1)*2+i-1)
+      Logical Do_Mo
+      Real*8 EG_OT(nTmpPUVX)
+      Integer, Allocatable:: Index(:)
+      Real*8, Allocatable:: dW_Temp(:,:), dPB(:,:,:)
+      Integer, Allocatable:: ipTabAO(:,:)
+      Real*8, Allocatable:: ipTabMO(:), ipTabSO(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
       If (Debug) Then
          Write(6,*) 'Enter Get_Subblock'
-         Write(6,*) 'ip_nR_Eff GET_SBK',ip_nR_Eff
       End If
 #endif
 *
@@ -135,9 +117,9 @@
       Do 10 iNQ=1,nNQ
          InBox(iNQ)=.False.
 *--------Get the coordinates of the partitionning
-         x_NQ =Work(ip_Coor(iNQ)  )
-         y_NQ =Work(ip_Coor(iNQ)+1)
-         z_NQ =Work(ip_Coor(iNQ)+2)
+         x_NQ =NQ_Data(iNQ)%Coor(1)
+         y_NQ =NQ_Data(iNQ)%Coor(2)
+         z_NQ =NQ_Data(iNQ)%Coor(3)
 *
 *        1) center is in the box
 *
@@ -153,7 +135,7 @@
 *
 *        2) atomic grid of this center extends inside the box.
 *
-         RMax = Work(ip_R_Max(iNQ))
+         RMax = NQ_Data(iNQ)%R_Max
          t1=(x_NQ-x_min_)/(x_max_-x_min_)
          If (t1.lt.Zero) t1=Zero
          If (t1.gt.One ) t1=One
@@ -203,7 +185,7 @@
 #endif
 *
             iNQ=Maps2p(iShell,NrOpr(iSym))
-            RMax_NQ = Work(ip_R_Max(iNQ))
+            RMax_NQ = NQ_Data(iNQ)%R_Max
 #ifdef _DEBUGPRINT_
             If (debug) Then
                Write (6,*) 'iNQ=',iNQ
@@ -259,27 +241,14 @@
                list_s(1,ilist_s)=iShell
                list_s(2,ilist_s)=iSym
                list_exp(ilist_s)=nExpTmp
-*              Write (6,*) 'iShell,NrExp,nExpTmp=',
-*    &                      iShell,NrExp,nExpTm
 *
 *              Examine if contracted basis functions can be ignored.
 *              This will be the case for segmented basis sets.
 *
-c              list_bas(1,ilist_s)=NrBas ! temporary full shell!
-c              write (6,*) 'ilist_s,NrBas=',ilist_s,NrBas
-c              crite (*,*) 'ilist_s,NrBas=',ilist_s,NrBas
                list_bas(1,ilist_s)=nBas_Eff(NrExp,NrBas,
      &                                      Shells(iShll)%Exp,
      &                                      Shells(iShll)%pCff,
      &                                      list_exp(ilist_s))
-C              If (list_bas(1,ilist_s).ne.NrBas) Then
-C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas,'*'
-C                 Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,
-C    &                        list_exp(1,ilist_s))
-C                 Call RecPrt('Cff',' ',Shells(iShll)%pCff,NrExp,NrBas)
-C              Else
-C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas
-C              End If
             End If
  20         Continue
          End Do ! iSym
@@ -304,7 +273,7 @@ C              End If
          nIndex=nIndex + NrBas_Eff*iCmp
       End Do
 *
-      Call GetMem('Index','Allo','Inte',ipIndex,nIndex)
+      Call mma_allocate(Index,nIndex,Label='Index')
 *
       iIndex=1
       nAOs=0
@@ -317,7 +286,7 @@ C              End If
          nAOs=nAOs+NrBas*iCmp
          nAOs_Eff=nAOs_Eff+NrBas_Eff*iCmp
          list_bas(2,ilist_s)=iIndex
-         Call Do_Index(iWork(ipIndex-1+iIndex),NrBas,NrBas_Eff,iCmp)
+         Call Do_Index(Index(iIndex),NrBas,NrBas_Eff,iCmp)
          iIndex=iIndex + NrBas_Eff*iCmp
       End Do
 *                                                                      *
@@ -341,22 +310,23 @@ C              End If
          nBfn=nBfn+NrBas_Eff*iCmp
       End Do
 *
-      Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
+      Call mma_Allocate(ipTabAO,(nlist_s+1),2,Label='ipTabAO')
       Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
       Call mma_Allocate(Ind_Grd,3,nBfn,Label='Ind_Grd')
       Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
       Ind_Grd(:,:)=0
       iBfn_Index(:,:)=0
 *
-      If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
+      If (Do_MO) Then
+         nMOs=SIZE(DoIt)
          nTabMO=mAO*nMOs*mGrid
-         Call Allocate_Work(ipTabMO,nTabMO)
          nTabSO=mAO*nMOs*mGrid
-         Call Allocate_Work(ipTabSO,nTabSO)
       Else
-         ipTabMO=ip_Dummy
-         ipTabSO=ip_Dummy
+         nTabMO=1
+         nTabSO=1
       End If
+      Call mma_allocate(ipTabMO,nTabMO,Label='ipTabMO')
+      Call mma_allocate(ipTabSO,nTabSO,Label='ipTabSO')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -390,8 +360,8 @@ C              End If
                   iTab(1,nGrad_Eff)=iCar+1
                   iTab(3,nGrad_Eff)=iNQ
                   kNQ=Maps2p(iShell,0)
-                  Xref=Work(ip_Coor(kNQ)+iCar)
-                  X   =Work(ip_Coor(iNQ)+iCar)
+                  Xref=NQ_Data(kNQ)%Coor(iCar+1)
+                  X   =NQ_Data(iNQ)%Coor(iCar+1)
                   If (X.eq.Xref) Then
                      iTab(4,nGrad_Eff)=dc(mdci)%nStab
                   Else
@@ -442,21 +412,10 @@ C              End If
          End Do
 *
          If (Grid_Type.eq.Moving_Grid) Then
-            ndW_dR=nGrad_Eff*mGrid
-            Call GetMem('dW_dR','Allo','Real',ip_dW_dR,ndW_dR)
-            ndW_Temp=3*nlist_p
-            Call GetMem('dW_Temp','Allo','Real',ip_dW_Temp,ndW_Temp)
-            ndPB=3*nlist_p**2
-            Call GetMem('dPB','Allo','Real',ip_dPB,ndPB)
-         Else
-            ip_dW_dR  =ip_Dummy
-            ip_dW_Temp=ip_Dummy
-            ip_dPB    =ip_Dummy
+            Call mma_allocate(dW_dR,nGrad_Eff,mGrid,Label='dW_dR')
+            Call mma_allocate(dW_Temp,3,nList_P,Label='dW_Temp')
+            Call mma_allocate(dPB,3,nlist_p,nlist_p,Label='dPB')
          End If
-      Else
-         ip_dW_dR  =ip_Dummy
-         ip_dW_Temp=ip_Dummy
-         ip_dPB    =ip_Dummy
       End If
       If (Do_Grad.and.nGrad_Eff.eq.0) Go To 998
       If (Grid_Status.eq.Use_Old) Go To 997
@@ -507,12 +466,12 @@ C              End If
          End If
 *
 *--------Get the coordinates of the partition
-         x_NQ =Work(ip_Coor(iNQ)  )
-         y_NQ =Work(ip_Coor(iNQ)+1)
-         z_NQ =Work(ip_Coor(iNQ)+2)
+         x_NQ =NQ_Data(iNQ)%Coor(1)
+         y_NQ =NQ_Data(iNQ)%Coor(2)
+         z_NQ =NQ_Data(iNQ)%Coor(3)
 *--------Get the maximum radius on which we have to integrate for the
 *        partition
-         RMax=Work(ip_R_Max(iNQ))
+         RMax=NQ_Data(iNQ)%R_Max
 *
          Call Box_On_Sphere(x_Min_-x_NQ,x_Max_-x_NQ, y_Min_-y_NQ,
      &                      y_Max_-y_NQ, z_Min_-z_NQ,z_Max_-z_NQ,
@@ -596,22 +555,19 @@ c        translational invariance on the atomic contributions to the
 c        gradient.
 c
          nTotGP_Save = nTotGP
-         ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
-         ip_A=iWork(ip_iA)
-         nR_Eff=iWork(ip_nR_eff-1+iNQ)
          Call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox(iNQ),
      &                 x_min_,x_max_, y_min_,y_max_, z_min_,z_max_,
      &                 list_p,nlist_p,Grid,Weights,mGrid,.True.,
      &                 number_of_grid_points,R_Box_Min,R_Box_Max,
-     &                 iList_p,xyz0,iWork(ip_A),nR_Eff)
+     &                 iList_p,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
          nTotGP = nTotGP_Save
 *
 #ifdef _DEBUGPRINT_
          If (Debug) write(6,*) 'Subblock ----> Get_Subblock'
 #endif
       End Do
-      iWork(ip_GridInfo+(ixyz-1)*2)=iDisk_Grid
-      iWork(ip_GridInfo+(ixyz-1)*2+1)=nBatch
+      GridInfo(1,ixyz)=iDisk_Grid
+      GridInfo(2,ixyz)=nBatch
       Call iDaFile(Lu_Grid,1,iBatchInfo,3*nBatch,iDisk_Grid)
 *                                                                      *
 ************************************************************************
@@ -620,8 +576,8 @@ c
 *
  997  Continue
 *
-      iDisk_Grid =iGridInfo(1,ixyz)
-      nBatch=iGridInfo(2,ixyz)
+      iDisk_Grid =GridInfo(1,ixyz)
+      nBatch=GridInfo(2,ixyz)
       Call iDaFile(Lu_Grid,2,iBatchInfo,3*nBatch,iDisk_Grid)
 *
       iBatch = 0
@@ -677,8 +633,8 @@ c
 *              if needed.
 *
                Call dWdR(Grid,ilist_p,Weights,list_p,nlist_p,
-     &                   Work(ip_dW_dR),nGrad_Eff,iTab,Work(ip_dW_Temp),
-     &                   Work(ip_dPB),number_of_grid_points)
+     &                   dW_dR,nGrad_Eff,iTab,dW_Temp,
+     &                   dPB,number_of_grid_points)
             End If
          End If
 *
@@ -696,21 +652,13 @@ c
 
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
-     &                 iWork(ipIndex),nIndex,
+     &                 Index,nIndex,
      &                 FckInt,nFckDim,nFckInt,
-     &                 iWork(ipTabAO),mAO,nSym,Dens,nDens,nD,
-     &                 nP2_ontop,
-     &                 nShell,Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
-     &                 Work(ipTabMO),Work(ipTabSO),
-     &                 nMOs,CMOs,nCMO,DoIt,
-     &                 P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
+     &                 ipTabAO,mAO,nSym,nD,nP2_ontop,
+     &                 Do_Mo,ipTabMO,ipTabSO,nMOs,
      &                 Do_Grad,Grad,nGrad,
-     &                 mdRho_dR,nGrad_Eff,
-     &                 list_g,IndGrd,iTab,Temp,F_xc,
-     &                 Work(ip_dW_dR),iNQ,
-     &                 Maps2p,
-     &                 DFTFOCK,LTEG_DB,PDFTPot1,PDFTFocI,
-     &                 PDFTFocA)
+     &                 mdRho_dR,nGrad_Eff,iNQ,
+     &                 EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
          If (Allocated(TabAO_Short)) Call mma_deallocate(TabAO_Short)
@@ -739,15 +687,15 @@ c
 *                                                                      *
       Call mma_deAllocate(iBfn_Index)
       Call mma_deAllocate(Ind_Grd)
-      Call GetMem('Index','Free','Real',ipIndex,nIndex)
-      Call Free_iWork(ipTabAO)
+      Call mma_deAllocate(Index)
+      Call mma_deallocate(ipTabAO)
       Call mma_deallocate(Dens_AO)
-      If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
-      If (ipTabSO.ne.ip_Dummy) Call Free_Work(ipTabSO)
+      If (Allocated(ipTabMO)) Call mma_deallocate(ipTabMO)
+      If (Allocated(ipTabSO)) Call mma_deallocate(ipTabSO)
       If (Do_Grad.and.Grid_Type.eq.Moving_Grid) Then
-         Call GetMem('dPB','Free','Real',ip_dPB,ndPB)
-         Call GetMem('dW_Temp','Free','Real',ip_dW_Temp,ndW_Temp)
-         Call GetMem('dW_dR','Free','Real',ip_dW_dR,ndW_dR)
+         Call mma_deAllocate(dPB)
+         Call mma_deAllocate(dW_Temp)
+         Call mma_deAllocate(dW_dR)
       End If
 *                                                                      *
 ************************************************************************

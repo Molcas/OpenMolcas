@@ -68,13 +68,8 @@
 ************************************************************************
 *                                                                      *
       Subroutine Get_Exc_dft(nh1,Grad,nGrad,DFTFOCK,ipF_DFT,ip_D_DS,
-     &                           KSDFT)
+     &                       KSDFT)
       Implicit Real*8 (a-h,o-z)
-      External LSDA, Overlap, BLYP, B3LYP, HFS, HFB,
-     &         XAlpha, LSDA5, B3LYP5,TLYP,
-     &         NucAtt,
-     &         PBE, PBE0, M06L, M06, M062X,
-     &         M06HF
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "nq_info.fh"
@@ -84,8 +79,8 @@
       Character*4 DFTFOCK
       Character*16  KSDFT
 #include "dcscf.fh"
+
 *
-      lKSDFT=LEN(KSDFT)
       Debug=.False.
 *                                                                      *
 ************************************************************************
@@ -101,238 +96,12 @@
       Do_Grad=.false.
 *
       nFckDim=2
-      nD=2
-*
-************************************************************************
-*                                                                      *
-*      LSDA LDA SVWN
-*
-       If (KSDFT.eq.'LSDA ' .or.
-     &     KSDFT.eq.'LDA '  .or.
-     &     KSDFT.eq.'SVWN ') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=LDA_type
-         Call DrvNQ(LSDA   ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LSDA5 LDA5 SVWN5
-*
-       Else If (KSDFT.eq.'LSDA5' .or.
-     &          KSDFT.eq.'LDA5'  .or.
-     &          KSDFT.eq.'SVWN5') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=LDA_type
-         Call DrvNQ(LSDA5  ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     HFB
-*
-       Else If (KSDFT.eq.'HFB') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(HFB    ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      HFS
-*
-       Else If (KSDFT.eq.'HFS') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=LDA_type
-         Call DrvNQ(HFS    ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      XALPHA
-*
-       Else If (KSDFT.eq.'XALPHA') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=LDA_type
-         Call DrvNQ(XAlpha ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Overlap
-*
-      Else If (KSDFT.eq.'Overlap') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=LDA_type
-         Call DrvNQ(Overlap,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     NucAtt
-*
-      Else If (KSDFT.eq.'NucAtt') Then
-c        ExFac=One
-         Functional_type=LDA_type
-         Call DrvNQ(NucAtt,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     BLYP
-*
-      Else If (KSDFT.eq.'BLYP') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(BLYP   ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     TLYP
-*
-      Else If (KSDFT.eq.'TLYP') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(TLYP   ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B3LYP
-*
-      Else If (KSDFT.eq.'B3LYP ') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(B3LYP  ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B3LYP5
-*
-      Else If (KSDFT.eq.'B3LYP5') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(B3LYP5 ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     PBE
-*
-      Else If (KSDFT.eq.'PBE') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(PBE   ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     PBE0
-*
-      Else If (KSDFT.eq.'PBE0') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(PBE0  ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06-L
-*
-      Else If (KSDFT.eq.'M06L') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=meta_GGA_type1
-         Call DrvNQ(M06L,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06
-      Else If (KSDFT.eq.'M06 ') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=meta_GGA_type1
-         Call DrvNQ(M06,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06-2X
-      Else If (KSDFT.eq.'M062X') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=meta_GGA_type1
-         Call DrvNQ(M062X,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06-HF
-      Else If (KSDFT.eq.'M06HF') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=meta_GGA_type1
-         Call DrvNQ(M06HF,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
-         Call WarningMessage(2,
-     &               ' Get_Exc_dft: Undefined functional type!')
-         Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
-         Call Quit_OnUserError()
-      End If
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+     &            Do_MO,Do_TwoEl,Work(ip_D_DS),
+     &                          Work(ipF_DFT),nh1,nFckDim,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *

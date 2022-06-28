@@ -34,7 +34,6 @@
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nsd.fh"
@@ -48,7 +47,7 @@
 *     contributions to the SO integrals on the fly.
 *
       mGrid=SIZE(TabAO,2)
-      mAO = SIZE(Grid_AO,1)
+      mAO = SIZE(TabAO,1)
 *
       nBfn = Size(AOIntegrals,1)
       nFn  = Size(Grid_AO,1)

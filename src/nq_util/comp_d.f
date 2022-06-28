@@ -32,7 +32,7 @@
 ************************************************************************
       If (iSpin.eq.1) Then
          Do iGrid = 1, mGrid
-           d_alpha=Rho(1,iGrid)
+           d_alpha=half*Rho(1,iGrid)
            if(iSwitch.eq.1) then
              DTot=d_alpha
            else if(iSwitch.eq.2) then

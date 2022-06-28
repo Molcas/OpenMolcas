@@ -35,6 +35,7 @@
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
       use Fock_util_global, only: DoLocK
+      use Functionals, only: Init_Funcs, Print_Info
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -51,6 +52,7 @@
       Character*8   Fmt1,Fmt2,Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
+      Character*16 KSDFT2
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Character*3 SNAC
 #endif
@@ -489,7 +491,9 @@ C.. for GAS
 ************************************************************************
 * Some printout for mcpdft method
 ************************************************************************
+       KSDFT2 = KSDFT
        IF(l_casdft) then
+          KSDFT2 = KSDFT(index(KSDFT,'T:')+2:)
           Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
      &                         'with functional: '//KSDFT
           Write(LF,Fmt2//'A,T45,E10.3)')'Exchange scaling factor',CoefX
@@ -582,7 +586,16 @@ C.. for GAS
        If (KSDFT.ne.'SCF') Then
          Call Put_dScalar('DFT exch coeff',CoefX)
          Call Put_dScalar('DFT corr coeff',CoefR)
-         Call Funi_Print
+         Call Funi_Print()
+         IF(IPRLEV.GE.USUAL) THEN
+            Write(6,*)
+            Write(6,'(6X,A)') 'DFT functional specifications'
+            Write(6,'(6X,A)') '-----------------------------'
+            Call libxc_version()
+            Call Init_Funcs(KSDFT2)
+            Call Print_Info()
+            Write(6,*)
+         END IF
        End If
       END IF
       Write(LF,*)

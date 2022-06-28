@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -10,21 +10,12 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DrvNQ_Inner(
-     &                  Kernel,Func,
+      Subroutine DrvNQ_Inner(Kernel,Func,
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
-     &                  nShell,list_p,R2_trial,nNQ,
-     &                  FckInt,nFckDim,
-     &                  Density,nFckInt,nD,
-     &                  mGrid,
-     &                  nP2_ontop,
-     &                  Do_Mo,Do_TwoEl,l_Xhol,
-     &                  TmpPUVX,nTmpPUVX,
-     &                  nMOs,
-     &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
-     &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
-     &                  mGrad,F_xc,
-     &                  DFTFOCK,mAO,mdRho_dR)
+     &                  nShell,list_p,nNQ,
+     &                  FckInt,nFckDim,Density,nFckInt,nD,
+     &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,
+     &                  Do_Grad,Grad,nGrad,mAO,mdRho_dR)
 ************************************************************************
 *                                                                      *
 * Object: Driver for numerical quadrature.                             *
@@ -40,61 +31,41 @@
       use Real_Spherical
       use Symmetry_Info, only: nIrrep, iOper
       use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
+      use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
+      use nq_MO, only: D1MO, P2MO
+      use nq_Structure, only: Close_Info_Ang
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
 #include "nq_info.fh"
-#include "grid_on_disk.fh"
 #include "debug.fh"
 #include "ksdft.fh"
 #include "stdalloc.fh"
       Integer Maps2p(nShell,0:nSym-1),
      &        list_s(nSym*nShell), list_exp(nSym*nShell),
-     &        list_p(nNQ), DoIt(nMOs), List_g(3,nSym*nShell),
-     &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
-      Real*8 FckInt(nFckInt,nFckDim),
-     &       Density(nFckInt,nD), R2_trial(nNQ),
-     &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
-     &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
-     &       F_xc(mGrid)
-      Real*8 TmpPUVX(nTmpPUVX)
+     &        list_p(nNQ), list_bas(2,nSym*nShell)
+      Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Check, Do_Grad, Rsv_Tsk
-      Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft,Exist,l_tgga
-      Character*4 DFTFOCK
-      REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
-     &PDFTPot1,PDFTFocI,PDFTFocA
+      Logical Do_Mo,Exist,l_tgga
+      REAL*8,DIMENSION(:),Allocatable:: PDFTPot1,PDFTFocI,PDFTFocA
+      Real*8, Allocatable:: OE_OT(:), EG_OT(:)
+      Real*8, Allocatable:: FI_V(:), FA_V(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement functions
 *
       Check(i,j)=iAnd(i,2**(j-1)).ne.0
-      iGridInfo(i,iNQ)=iWork(ip_GridInfo+(iNQ-1)*2+i-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 ************************************************************************
 * Initializations for MC-PDFT                                          *
 ************************************************************************
-      l_casdft = .false.
-      l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
-     &           KSDFA(1:6).eq.'TLSDA5'  .or.
-     &           KSDFA(1:5).eq.'TBLYP'   .or.
-     &           KSDFA(1:6).eq.'TSSBSW'  .or.
-     &           KSDFA(1:5).eq.'TSSBD'   .or.
-     &           KSDFA(1:5).eq.'TS12G'   .or.
-     &           KSDFA(1:4).eq.'TPBE'    .or.
-     &           KSDFA(1:5).eq.'FTPBE'   .or.
-     &           KSDFA(1:5).eq.'TOPBE'   .or.
-     &           KSDFA(1:6).eq.'FTOPBE'  .or.
-     &           KSDFA(1:7).eq.'TREVPBE' .or.
-     &           KSDFA(1:8).eq.'FTREVPBE'.or.
-     &           KSDFA(1:6).eq.'FTLSDA'  .or.
-     &           KSDFA(1:6).eq.'FTBLYP'
 ************************************************************************
 * Open file for MC-PDFT to store density, pair density and ratio:      *
 *                   ratio = 4pi/rho^2                                  *
@@ -126,14 +97,14 @@ c        Call append_file(LuMT)
      &                    '       dTot*W    ,       Weights   ,'//
      &                    '       dTot '
        END IF
-      END IF
 
       CALL CalcOrbOff()
       NASHT4=NASHT**4
       CALL mma_allocate(P2Unzip,NASHT4)
       CALL mma_allocate(D1Unzip,NASHT**2)
-      CALL UnzipD1(D1Unzip,D1MO,nD1MO)
-      CALL UnzipP2(P2Unzip,P2MO,nP2Act)
+      CALL UnzipD1(D1Unzip,D1MO,SIZE(D1MO))
+      CALL UnzipP2(P2Unzip,P2MO,SIZE(P2MO))
+      END IF
 ************************************************************************
 *
 *----- Desymmetrize the 1-particle density matrix
@@ -145,30 +116,28 @@ c        Call append_file(LuMT)
         CALL mma_allocate(PDFTPot1,nPot1)
         CALL mma_allocate(PDFTFocI,nPot1)
         CALL mma_allocate(PDFTFocA,nPot1)
-        CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,nFckInt)
-        CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,nTmpPUVX)
-        Call GETMEM('FI_V','ALLO','REAL',ifiv,nFckInt)
-        Call GETMEM('FI_A','ALLO','REAL',ifav,nFckInt)
-!        Call GETMEM('FI_V','ALLO','REAL',ifiv_n,nFckInt)
-!        Call GETMEM('FI_A','ALLO','REAL',ifav_n,nFckInt)
+        CALL mma_allocate(OE_OT,nFckInt,Label='OE_OT')
+        CALL mma_allocate(EG_OT,nTmpPUVX,Label='EG_OT')
+        Call mma_allocate(FI_V,nFckInt,Label='FI_V')
+        Call mma_allocate(FA_V,nFckInt,Label='FA_V')
 
-        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(LOE_DB),1)!NTOT1
-        CALL DCOPY_(nTmpPUVX,[0.0D0],0,WORK(LTEG_DB),1)
-        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv),1)
-        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav),1)
+        OE_OT(:)=Zero
+        EG_OT(:)=Zero
+        FI_V(:)=Zero
+        FA_V(:)=Zero
         CALL FZero(PDFTPot1,nPot1)
         CALL FZero(PDFTFocI,nPot1)
         CALL FZero(PDFTFocA,nPot1)
         CALL CalcPUVXOff()
-!        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv_n),1)
-!        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav_n),1)
       Else
         nPot1=1
+        CALL mma_allocate(OE_OT,nPot1,Label='OE_OT')
+        CALL mma_allocate(EG_OT,nPot1,Label='EG_OT')
+        Call mma_allocate(FI_V,nPot1,Label='FI_V')
+        Call mma_allocate(FA_V,nPot1,Label='FA_V')
         CALL mma_allocate(PDFTPot1,nPot1)
         CALL mma_allocate(PDFTFocI,nPot1)
         CALL mma_allocate(PDFTFocA,nPot1)
-        LOE_DB = ip_dummy
-        LTEG_DB = ip_dummy
       End If
 *                                                                      *
 ************************************************************************
@@ -193,7 +162,7 @@ C     Do iSB = 1, number_of_subblocks
 *           Try to find a subblock which was generated by this processor.
             iSB = iSB + 1
             If (iSB.gt.number_of_subblocks) Go To 200
-            If (iGridInfo(2,iSB).eq.0) Go To 100
+            If (GridInfo(2,iSB).eq.0) Go To 100
          End If
 *                                                                      *
 ************************************************************************
@@ -239,18 +208,11 @@ C        Debug=.True.
 *
          Call Get_Subblock(Kernel,Func,iSB,
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
-     &                     list_p,R2_trial,nNQ,
-     &                     FckInt,nFckDim,nFckInt,
-     &                     Density,nFckInt,nD,
-     &                     mGrid,
-     &                     nP2_ontop,
-     &                     Do_Mo,Do_TwoEl,l_Xhol,
-     &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,P2MO,
-     &                     P2Unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
-     &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
-     &                     mGrad,F_xc,
-     &                     DFTFOCK,mAO,mdRho_dR,
-     &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                     list_p,nNQ,FckInt,nFckDim,nFckInt,nD,
+     &                     mGrid,nP2_ontop,Do_Mo,
+     &                     Do_Grad,Grad,nGrad,
+     &                     mAO,mdRho_dR,
+     &                     EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -283,8 +245,6 @@ C     End Do ! number_of_subblocks
          Tau_I  = DBLE(nIrrep)*Tau_I
 *
          Call DScal_(nFckInt*nFckDim,DBLE(nIrrep),FckInt,1)
-         If (Do_TwoEl)
-     &   Call DScal_(nTmpPUVX,DBLE(nIrrep),TmpPUVX,1)
 *
       End If
 
@@ -297,9 +257,7 @@ C     End Do ! number_of_subblocks
 *
 *---- Free memory for angular grids
 *
-      Do iSet = 1, nAngularGrids
-         Call GetMem('AngRW','Free','Real',Info_Ang(3,iSet),nDum)
-      End Do
+      Call Close_Info_Ang()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -362,10 +320,10 @@ C     End Do ! number_of_subblocks
          Call GADSum_SCAL(Tau_I)
          Call GADSum(FckInt,nFckInt*nD)
         If(l_casdft.and.do_pdftPot) then
-          Call GADSum(Work(LOE_DB),nFckInt)
-          Call GADSum(Work(LTEG_DB),nTmpPUVX)
-          Call GADSum(Work(ifiv),nFckInt)
-          Call GADSum(Work(ifav),nFckInt)
+          Call GADSum(OE_OT,nFckInt)
+          Call GADSum(EG_OT,nTmpPUVX)
+          Call GADSum(FI_V,nFckInt)
+          Call GADSum(FA_V,nFckInt)
           if(l_tgga) then
            CALL GADSum(PDFTPot1,nPot1)
            CALL GADSum(PDFTFocI,nPot1)
@@ -379,40 +337,25 @@ C     End Do ! number_of_subblocks
       If(l_casdft.and.do_pdftPot) then
 
 
-!        CALL DCOPY_(nFckInt,Work(ifav_n),1,WORK(ifav),1)
-!        CALL DCOPY_(nFckInt,Work(ifiv_n),1,WORK(ifiv),1)
-
         If(l_tgga) Then
-         CALL PackPot1(work(LOE_DB),PDFTPot1,nFckInt,dble(nIrrep)*0.5d0)
-         CALL DScal_(nPot2,dble(nIrrep),WORK(LTEG_DB),1)
-         CALL PackPot1(work(IFIV),PDFTFocI,nFckInt,dble(nIrrep)*0.25d0)
-         CALL PackPot1(work(IFAV),PDFTFocA,nFckInt,dble(nIrrep)*0.5d0)
+         CALL PackPot1(OE_OT,PDFTPot1,nFckInt,dble(nIrrep)*0.5d0)
+         CALL DScal_(nPot2,dble(nIrrep),EG_OT,1)
+         CALL PackPot1(FI_V,PDFTFocI,nFckInt,dble(nIrrep)*0.25d0)
+         CALL PackPot1(FA_V,PDFTFocA,nFckInt,dble(nIrrep)*0.5d0)
         End If
-        Call Put_dArray('ONTOPO',work(LOE_DB),nFckInt)
-        Call Put_dArray('ONTOPT',work(LTEG_DB),nTmpPUVX)
-        Call Put_dArray('FI_V',Work(ifiv),nFckInt)
-        Call Put_dArray('FA_V',Work(ifav),nFckInt)
+        Call Put_dArray('ONTOPO',OE_OT,nFckInt)
+        Call Put_dArray('ONTOPT',EG_OT,nTmpPUVX)
+        Call Put_dArray('FI_V',FI_V,nFckInt)
+        Call Put_dArray('FA_V',FA_V,nFckInt)
 
-        CALL GETMEM('OE_OT','Free','REAL',LOE_DB,nFckInt)
-        CALL GETMEM('TEG_OT','Free','REAL',LTEG_DB,nTmpPUVX)
-        CALL GETMEM('FI_V','FREE','REAL',ifiv,nFckInt)
-!        CALL GETMEM('FI_V','FREE','REAL',ifiv_n,nFckInt)
-        CALL GETMEM('FA_V','FREE','REAL',ifav,nFckInt)
-!        CALL GETMEM('FA_V','FREE','REAL',ifav_n,nFckInt)
-
-!      write(*,*) 'Potential timings:'
-!      write(*,*) 'PUVX time: ',PUVX_Time
-!      write(*,*) 'FA time: ',FA_Time
-!      write(*,*) 'FI time: ',FI_Time
-!      write(*,*) 'SP time: ',SP_Time
-!        PUVX_Time= 0d0
-!        FA_Time = 0d0
-!        FI_time = 0d0
-!        sp_time = 0d0
       End If
-        CALL mma_deallocate(PDFTPot1)
-        CALL mma_deallocate(PDFTFocI)
-        CALL mma_deallocate(PDFTFocA)
+      Call mma_deallocate(OE_OT)
+      Call mma_deallocate(EG_OT)
+      Call mma_deallocate(FA_V)
+      Call mma_deallocate(FI_V)
+      CALL mma_deallocate(PDFTPot1)
+      CALL mma_deallocate(PDFTFocI)
+      CALL mma_deallocate(PDFTFocA)
 
       IF(debug. and. l_casdft) THEN
         write(6,*) 'Dens_I in drvnq_ :', Dens_I

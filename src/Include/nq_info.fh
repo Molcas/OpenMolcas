@@ -25,13 +25,11 @@
 !
 ! Pointer
 !
-!     ipcoor      : Pointer to the coordinates of the atoms.
 !     ip_ioffsh   : Pointer to the offset of the shells in the
 !                    overlap matrix.
 !
       Integer LMax_NQ
       Parameter(LMax_NQ=62)
-      Integer Info_Ang(3,LMax_NQ)
       Integer mBas(0:7),nISh(0:7), nAsh(0:7), nFro(0:7),mOrb(0:7)
       Integer IOff_Ash(0:7),IOff_Bas(0:7),IOff_BasAct(0:7)
       Integer OffOrb(0:7),OffOrb2(0:7),OffOrbTri(0:7),OffBas2(0:7)
@@ -46,30 +44,30 @@
       Integer Packing
       Parameter(On=1, Off=0)
       Integer          iQStrt,NASHT,NASHT4,NPOt1,nOrbt,nPot2,maxUVX,    &
-     &                 ip_Fact, ndc,nUVXt ,nVXt,                        &
+     &                          ndc,nUVXt ,nVXt,                        &
      &                           nAngularGrids,                         &
      &                 L_Quad_save, nR_Save,                            &
-     &                 ipNQ,nx,ny,nz,number_of_subblocks,               &
+     &                      nx,ny,nz,number_of_subblocks,               &
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
-     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,        &
-     &                 iOpt_Angular,ip_O,mIrrep,                        &
-     &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
-     &                 ipTabAOMax,NQ_Direct,                            &
+     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,               &
+     &                 iOpt_Angular,     mIrrep,                        &
+     &                            mTmp,mRad,nAOMax,                     &
+     &                            NQ_Direct,                            &
      &                 iQEnd,ip_OrbDip(3)
       Common /Quad_i / iQStrt,NASHT,NASHT4,NPot1,nOrbt,nPot2,maxUVX,    &
-     &                 ip_Fact, ndc,                                    &
-     &                 Info_Ang, nAngularGrids,                         &
+     &                          ndc,                                    &
+     &                           nAngularGrids,                         &
      &                 L_Quad_save, nR_Save, Angular_Prunning,          &
-     &                 ipNQ,nx,ny,nz,number_of_subblocks,               &
+     &                      nx,ny,nz,number_of_subblocks,               &
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
-     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,        &
-     &                 iOpt_Angular,ip_O,                               &
+     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,               &
+     &                 iOpt_Angular,                                    &
      &                 mIrrep, nISh, nAsh, mBas,Functional_type,mOrb,   &
      &                 Grid_Type, Rotational_Invariance,                &
-     &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
-     &                 ipTabAOMax,NQ_Direct,Packing,OffPUVX,            &
+     &                            mTmp,mRad,nAOMax,                     &
+     &                            NQ_Direct,Packing,OffPUVX,            &
      &                 iQEnd,ip_OrbDip,ioff_ash,ioff_bas,ioff_basact,   &
      &                 OffBas,OffOrb,OffOrb2,OffOrbTri,OffBas2,         &
      &                 OffBasFro,OffUVX,nUVX,nUVXt,OffVX,nVX,nVXt
