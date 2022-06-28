@@ -30,6 +30,7 @@ subroutine NAInt_GIAO( &
 
 use Basis_Info, only: dbsc, Gaussian_Type, nCnttp, Nuclear_Model, Point_Charge
 use Center_Info, only: dc
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Constants, only: Zero, One, Two, Three, Pi, TwoP54
 use Definitions, only: wp, iwp
 
@@ -44,10 +45,6 @@ logical(kind=iwp) :: NoSpecial
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 external :: Fake, MODU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, nabSz, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -62,7 +59,7 @@ unused_var(iAddPot)
 iRout = 200
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 call dcopy_(3,A,1,Coori(1,1),1)
 call dcopy_(3,RB,1,Coori(1,2),1)
@@ -71,23 +68,23 @@ iAnga_EF(1) = la
 iAnga_EF(2) = lb
 iAnga_NA(1) = la
 iAnga_NA(2) = lb
-mabMin = nabSz(max(la,lb)-1)+1
-if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
-mabMax = nabSz(la+lb)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
+mabMax = nTri3_Elem1(la+lb)-1
 lab = (mabMax-mabMin+1)
-kab = nElem(la)*nElem(lb)
+kab = nTri_Elem1(la)*nTri_Elem1(lb)
 
 iAnga_EF(3) = nOrdOp
 iAnga_EF(4) = 0
-mcdMin_EF = nabSz(nOrdOp-1)+1
-mcdMax_EF = nabSz(nOrdop)
+mcdMin_EF = nTri3_Elem1(nOrdOp-1)
+mcdMax_EF = nTri3_Elem1(nOrdop)-1
 lcd_EF = (mcdMax_EF-mcdMin_EF+1)
 labcd_EF = lab*lcd_EF
 
 iAnga_NA(3) = nOrdOp-1
 iAnga_NA(4) = 0
-mcdMin_NA = nabSz(nOrdOp-2)+1
-mcdMax_NA = nabSz(nOrdop-1)
+mcdMin_NA = nTri3_Elem1(nOrdOp-2)
+mcdMax_NA = nTri3_Elem1(nOrdop-1)-1
 lcd_NA = (mcdMax_NA-mcdMin_NA+1)
 labcd_NA = lab*lcd_NA
 

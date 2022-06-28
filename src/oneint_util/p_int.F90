@@ -26,6 +26,7 @@ subroutine P_Int( &
 !             Modified to multipole moments November '90               *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -34,9 +35,6 @@ implicit none
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iIC, iPrint, iRout
 character(len=80) :: Label
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -60,12 +58,12 @@ unused_var(iAddPot)
 iRout = 122
 iPrint = nPrint(iRout)
 ! Observe that this code does not make any sense in case of symmetry!
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 if (iPrint >= 99) then
   write(u6,*) ' Result in P_Int'
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb)
       do iIC=1,nIC
         write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
         call RecPrt(Label,' ',rFinal(1,ia,ib,iIC),nAlpha,nBeta)

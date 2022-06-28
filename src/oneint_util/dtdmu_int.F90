@@ -24,6 +24,7 @@ subroutine dTdmu_int( &
 !             of Lund, Sweden, September 2002.                         *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -34,9 +35,6 @@ integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, iPrint
                      LmbdT, mArr, nDCRT, nip, nOp, nRys, nStabO
 real(kind=wp) :: TC(3,2)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(PtChrg)
@@ -54,11 +52,11 @@ end if
 
 nip = 1
 ipS1 = nip
-nip = nip+nZeta*nElem(la)*nElem(lb+1)*3
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)*3
 ipS2 = nip
-if (lb >= 1) nip = nip+nZeta*nElem(la)*nElem(lb-1)*3
+if (lb >= 1) nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb-1)*3
 ipRes = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 ipB = nip
 nip = nip+nZeta
 if (nip-1 > nZeta*nArr) then
@@ -70,7 +68,7 @@ end if
 ipArr = nip
 mArr = nZeta*nArr-nip+1
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 ipOff = ipB
 do iAlpha=1,nAlpha

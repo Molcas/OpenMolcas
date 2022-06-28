@@ -23,6 +23,7 @@ subroutine VPInt( &
 !             Chemie, University of Bonn, Germany, April 1993          *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -31,9 +32,6 @@ implicit none
 #include "print.fh"
 integer(kind=iwp) :: i, iAlpha, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
 external :: Fake, TNAI, XCff2D, XRys2D
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 iRout = 221
 iPrint = nPrint(iRout)
@@ -49,10 +47,10 @@ nip = 1
 ipB = nip
 nip = nip+nZeta
 ipS1 = nip
-nip = nip+nZeta*nElem(la)*nElem(lb+1)
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)
 if (lb > 0) then
   ipS2 = nip
-  nip = nip+nZeta*nElem(la)*nElem(lb-1)
+  nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb-1)
 else
   ipS2 = ipS1
 end if
@@ -63,7 +61,7 @@ if (mArr < 0) then
   call Abend()
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 call dcopy_(nZeta*nArr,[Zero],0,Array,1)
 ! Compute contribution from a,b+1
 
@@ -97,7 +95,7 @@ call Util8(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2))
 
 if (iPrint >= 49) then
   do i=1,3
-    call RecPrt('VpInt: rFinal',' ',rFinal(1,1,1,i),nZeta,nElem(la)*nElem(lb))
+    call RecPrt('VpInt: rFinal',' ',rFinal(1,1,1,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
 end if
 

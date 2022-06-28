@@ -17,7 +17,7 @@ subroutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,kVector,P)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: One, Four, Onei
 use Definitions, only: wp, iwp
 
@@ -25,12 +25,9 @@ implicit none
 integer(kind=iwp) :: nZeta, la, lb, lr, nComp
 complex(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr)
 real(kind=wp) :: Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), kVector(3), P(nZeta,3)
-integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 complex(kind=wp) :: Temp
 real(kind=wp) :: Fact, k_Dot_P, rTemp
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 do ixa=0,la
   iyaMax = la-ixa
@@ -38,10 +35,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         ! Combine multipole moment integrals
 

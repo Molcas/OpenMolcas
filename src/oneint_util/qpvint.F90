@@ -24,6 +24,7 @@ subroutine QpVInt( &
 !             of Lund, Sweden, February '91                            *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -33,9 +34,6 @@ integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, ipS1, 
                      nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(PtChrg)
@@ -45,14 +43,14 @@ nip = 1
 ipB = nip
 nip = nip+nZeta
 ipS1 = nip
-nip = nip+nZeta*nElem(la)*nElem(lb+1)*3
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)*3
 ipS2 = 1
 if (lb > 0) then
   ipS2 = nip
-  nip = nip+nZeta*nElem(la)*nElem(lb-1)*3
+  nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb-1)*3
 end if
 ipRes = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 if (nip-1 > nZeta*nArr) then
   call WarningMessage(2,' QpVInt: nip-1 > nZeta*nArr')
   call Abend()
@@ -60,7 +58,7 @@ end if
 ipArr = nip
 mArr = (nArr*nZeta-(nip-1))/nZeta
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 iComp = 3
 llOper = lOper(1)

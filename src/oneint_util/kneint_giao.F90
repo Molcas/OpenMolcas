@@ -27,6 +27,7 @@ subroutine KnEInt_GIAO( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Index_Functions, only: nTri_Elem1
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -38,9 +39,6 @@ integer(kind=iwp) :: iAlpha, iBeta, iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB,
 real(kind=wp) :: TC(3)
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -71,7 +69,7 @@ nip = nip+nZeta
 ipB = nip
 nip = nip+nZeta
 ipFnl = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 !                                                                      *
 !***********************************************************************
 !                                                                      *

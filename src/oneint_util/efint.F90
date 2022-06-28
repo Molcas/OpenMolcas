@@ -26,6 +26,7 @@ subroutine EFInt( &
 ! Modified for explicit code, R. Lindh, February '95.                  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp, u6
 
@@ -42,10 +43,6 @@ real(kind=wp), parameter :: ThreeI = One/Three
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 external :: Fake, TNAI, XCff2D, XRys2D
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, nabSz, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -57,7 +54,7 @@ unused_var(iAddPot)
 iRout = 200
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 iAnga(1) = la
 iAnga(2) = lb
@@ -65,13 +62,13 @@ iAnga(3) = nOrdOp
 iAnga(4) = 0
 call dcopy_(3,A,1,Coori(1,1),1)
 call dcopy_(3,RB,1,Coori(1,2),1)
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
-if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
-mcdMin = nabSz(nOrdOp-1)+1
-mcdMax = nabSz(nOrdop)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
+if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
+mcdMin = nTri3_Elem1(nOrdOp-1)
+mcdMax = nTri3_Elem1(nOrdop)-1
 lab = (mabMax-mabMin+1)
-kab = nElem(la)*nElem(lb)
+kab = nTri_Elem1(la)*nTri_Elem1(lb)
 lcd = (mcdMax-mcdMin+1)
 labcd = lab*lcd
 
@@ -155,9 +152,9 @@ do lDCRT=0,nDCRT-1
   if (iPrint >= 49) then
     write(u6,*) ' In EFInt la,lb=',la,lb
     nzab = nZeta*kab
-    do iElem=1,nElem(la)
-      do jElem=1,nElem(lb)
-        ij = (jElem-1)*nElem(la)+iElem
+    do iElem=1,nTri_Elem1(la)
+      do jElem=1,nTri_Elem1(lb)
+        ij = (jElem-1)*nTri_Elem1(la)+iElem
         ip = ip1+nZeta*(ij-1)
         do iComp=1,nComp
           write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',',iComp,') '

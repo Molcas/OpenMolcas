@@ -23,6 +23,7 @@ subroutine D1Int( &
 !             University of Lund, Sweden, February '91                 *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,9 +31,6 @@ implicit none
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, ipAxyz, ipBxyz, iPrint, iRout, nip
 character(len=80) :: Label
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -72,8 +70,8 @@ end if
 call Darwin(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,rFinal,iStabM,nStabM,nComp,rKappa)
 
 if (iPrint >= 99) then
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') 'Darwin contact(',ia,',',ib,')'
       call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
     end do

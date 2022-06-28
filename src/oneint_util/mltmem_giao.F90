@@ -14,17 +14,15 @@ subroutine MltMem_GIAO( &
 #                      include "mem_interface.fh"
                       )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp), parameter :: nB = 3
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 nHer = (la+lb+lr+3)/2
-Mem = 3*nHer*(la+1)+3*nHer*(lb+1)+3*nHer*(lr+2)+3*(la+1)*(lb+1)*(lr+2)+nElem(la)*nElem(lb)*nElem(lr)*nB
+Mem = 3*nHer*(la+1)+3*nHer*(lb+1)+3*nHer*(lr+2)+3*(la+1)*(lb+1)*(lr+2)+nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lr)*nB
 
 return
 

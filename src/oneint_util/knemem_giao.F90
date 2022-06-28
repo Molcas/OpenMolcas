@@ -14,18 +14,16 @@ subroutine KnEMem_GIAO( &
 #                      include "mem_interface.fh"
                       )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 nHer = ((la+1)+(lb+1)+lr+3)/2
 
 Mem = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr+2)+3*(la+2)*(lb+2)*(lr+2)+3*(la+1)*(lb+1)*(lr+2)+3*(la+1)*(lb+1)*2+1+1+ &
-      nElem(la)*nElem(lb)*3
+      nTri_Elem1(la)*nTri_Elem1(lb)*3
 
 return
 

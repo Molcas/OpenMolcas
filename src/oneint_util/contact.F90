@@ -20,7 +20,7 @@ subroutine Contact(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,Ccoor,lOper,iChO,nIC,Array,
 !             University of Lund, Sweden, February '91                 *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -33,10 +33,6 @@ integer(kind=iwp) :: ia, ib, iCar, iComp, iDCRT(0:7), ipa, ipb, iPrint, iRout, i
                      lDCRT, llOper, LmbdT, nDCRT, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, Ind, ixyz, ix, iz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 !                                                                      *
 !***********************************************************************
@@ -61,7 +57,7 @@ call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 do lDCRT=0,nDCRT-1
   call OA(iDCRT(lDCRT),Ccoor,TC)
 
-  call dcopy_(nZeta*nElem(la)*nElem(lb),[Zero],0,Array,1)
+  call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),[Zero],0,Array,1)
 
   ! Compute the value of the angular components associated
   ! to the basis functions centered on the first center.
@@ -124,10 +120,10 @@ do lDCRT=0,nDCRT-1
     do ixb=lb,0,-1
       do iya=la-ixa,0,-1
         iza = la-ixa-iya
-        ipa = Ind(la,ixa,iza)
+        ipa = C_Ind(la,ixa,iza)
         do iyb=lb-ixb,0,-1
           izb = lb-ixb-iyb
-          ipb = Ind(lb,ixb,izb)
+          ipb = C_Ind(lb,ixb,izb)
           do iZeta=1,nZeta
             Array(iZeta,ipa,ipb) = Array(iZeta,ipa,ipb)+rKappa(iZeta)*Axyz(iZeta,1,ixa)*Axyz(iZeta,2,iya)*Axyz(iZeta,3,iza)* &
                                    Bxyz(iZeta,1,ixb)*Bxyz(iZeta,2,iyb)*Bxyz(iZeta,3,izb)

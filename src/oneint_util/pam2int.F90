@@ -30,6 +30,7 @@ use Basis_Info, only: dbsc, PAMexp
 use Center_Info, only: dc
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use PAM2, only: iPAMPrim, kCnttpPAM
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -43,9 +44,6 @@ real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, k
-nElem(k) = (k+1)*(k+2)/2
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -77,7 +75,7 @@ nip = nip+nZeta
 ipPz = nip
 nip = nip+nZeta
 ipRes = nip
-nip = nip+nZeta*nComp*nElem(la)*nElem(lb)
+nip = nip+nZeta*nComp*nTri_Elem1(la)*nTri_Elem1(lb)
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'PAM2Int: nip-1 > nArr*nZeta')
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
@@ -95,7 +93,7 @@ if (iPrint >= 49) then
   write(u6,*) ' In PAM2Int: la,lb,nHer=',la,lb,nHer
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 ! Loop over nuclear centers
 
@@ -117,8 +115,8 @@ do kCnt=1,dbsc(kCnttp)%nCntr
   do lDCRT=0,nDCRT-1
     call OA(iDCRT(lDCRT),C,TC)
 
-    call GetMem(' Scr','ALLO','REAL',ipScr,nZeta*nElem(la)*nElem(lb)*nComp)
-    call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,Work(ipScr),1)
+    call GetMem(' Scr','ALLO','REAL',ipScr,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
+    call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,[Zero],0,Work(ipScr),1)
     do iM2xp=1,iPAMPrim
       Gmma = PAMexp(iM2xp,1)
 
@@ -168,9 +166,9 @@ do kCnt=1,dbsc(kCnttp)%nCntr
       call CmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Array(ipZ),Array(ipK),Array(ipRes),nComp)
       if (iPrint >= 99) then
         write(u6,*) ' Intermediate result in PAM2Int'
-        do ia=1,nElem(la)
-          do ib=1,nElem(lb)
-            iab = (ib-1)*nElem(la)+ia
+        do ia=1,nTri_Elem1(la)
+          do ib=1,nTri_Elem1(lb)
+            iab = (ib-1)*nTri_Elem1(la)+ia
             ipab = (iab-1)*nZeta+ipRes
             write(Label,'(A,I2,A,I2,A)') ' Array(',ia,',',ib,')'
             if (nComp /= 1) then
@@ -191,7 +189,7 @@ do kCnt=1,dbsc(kCnttp)%nCntr
       !write(u6,*) ' Cff',PAMexp(iM2xp,2)
       Factor = Fact*PAMexp(iM2xp,2)
       if (iPrint >= 99) write(u6,*) ' Factor=',Factor
-      call DaXpY_(nZeta*nElem(la)*nElem(lb)*nComp,Factor,Array(ipRes),1,Work(ipScr),1)
+      call DaXpY_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,Factor,Array(ipRes),1,Work(ipScr),1)
 
     end do
 
@@ -199,7 +197,7 @@ do kCnt=1,dbsc(kCnttp)%nCntr
 
     nOp = NrOpr(iDCRT(lDCRT))
     call SymAdO(Work(ipScr),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
-    call GetMem(' Scr','FREE','REAL',ipScr,nZeta*nElem(la)*nElem(lb)*nComp)
+    call GetMem(' Scr','FREE','REAL',ipScr,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
 
   end do
 end do
@@ -207,8 +205,8 @@ end do
 !if (nOrdOp == 1) then
 if (iPrint >= 99) then
   write(u6,*) ' Result in PAM2Int'
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' rFinal(ia=',ia,',ib=',ib,')'
       call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
     end do

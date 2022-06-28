@@ -16,14 +16,12 @@ subroutine VPMem( &
 #                include "mem_interface.fh"
                 )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: iAngV(4), MemNA1, MemNA2, nFlop, nMem
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 call mHrr(la,lb+1,nFlop,nMem)
 
@@ -55,8 +53,8 @@ Mem = max(MemNA1,MemNA2)
 
 Mem = Mem+1
 
-Mem = Mem+nElem(la)*nElem(lb+1)
-if (lb /= 0) Mem = Mem+nElem(la)*nElem(lb-1)
+Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb+1)
+if (lb /= 0) Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb-1)
 
 return
 

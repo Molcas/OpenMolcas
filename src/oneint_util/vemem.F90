@@ -14,16 +14,14 @@ subroutine VeMem( &
 #                include "mem_interface.fh"
                 )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nHer = (la+(lb+1)+2)/2
-Mem = 3*nHer*(la+1)+3*nHer*(lb+2)+3*nHer+3*(la+1)*(lb+2)+3*(la+1)*(lb+1)+1+3*nElem(la)*nElem(lb)*nELem(lr)
+Mem = 3*nHer*(la+1)+3*nHer*(lb+2)+3*nHer+3*(la+1)*(lb+2)+3*(la+1)*(lb+1)+1+3*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lr)
 
 return
 

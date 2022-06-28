@@ -16,34 +16,31 @@ subroutine NAMem_GIAO( &
 #                     include "mem_interface.fh"
                      )
 
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: iAngV(4), kab, lab, labcd_EF, labMax, labMin, lc, lcd_EF, lcd_NA, lcdMax_EF, lcdMax_NA, lcdMin_EF, lcdMin_NA, &
                      ld, Mem0, Mem1, Mem2, Mem2_EF, Mem2_NA, nFlop, nMem
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, nabSz, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 lc = lr
 ld = 0
 nHer = (la+lb+lc+ld+2)/2
 
-labMin = nabSz(max(la,lb)-1)+1
-labMax = nabSz(la+lb)
+labMin = nTri3_Elem1(max(la,lb)-1)
+labMax = nTri3_Elem1(la+lb)-1
 lab = (labMax-labMin+1)
-kab = nElem(la)*nElem(lb)
+kab = nTri_Elem1(la)*nTri_Elem1(lb)
 
-lcdMin_EF = nabSz(lr-1)+1
-lcdMax_EF = nabSz(lr)
+lcdMin_EF = nTri3_Elem1(lr-1)
+lcdMax_EF = nTri3_Elem1(lr)-1
 lcd_EF = (lcdMax_EF-lcdMin_EF+1)
 labcd_EF = lab*lcd_EF
 Mem0 = labcd_EF
 
-lcdMin_NA = nabSz(lr-2)+1
-lcdMax_NA = nabSz(lr-1)
+lcdMin_NA = nTri3_Elem1(lr-2)
+lcdMax_NA = nTri3_Elem1(lr-1)-1
 lcd_NA = (lcdMax_NA-lcdMin_NA+1)
 
 call mHRR(la,lb,nFlop,nMem)

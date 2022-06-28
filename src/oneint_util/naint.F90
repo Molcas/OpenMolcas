@@ -28,6 +28,7 @@ use Basis_Info, only: dbsc, Gaussian_Type, iCnttp_Dummy, mGaussian_Type, nCnttp,
 use Center_Info, only: dc
 use Gateway_global, only: Primitive_Pass
 use DKH_Info, only: DKroll
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Constants, only: Zero, One, Two, Three, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
 
@@ -45,10 +46,6 @@ logical(kind=iwp), external :: EQ
 ! Used for normal nuclear attraction integrals: TNAI, Fake, XCff2D, XRys2D
 ! Used for finite nuclei: TERI, ModU2, vCff2D, vRys2D
 external :: Fake, ModU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, nabSz, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -62,7 +59,7 @@ unused_var(iAddPot)
 iRout = 151
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 lECP = .false.
 do i=1,nCnttp
@@ -77,11 +74,11 @@ iAnga(4) = ld
 call dcopy_(3,A,1,Coora(1,1),1)
 call dcopy_(3,RB,1,Coora(1,2),1)
 call dcopy_(2*3,Coora,1,Coori,1)
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
 No3Cnt = .false.
 if (EQ(A,RB)) then
-  mabMin = nabSz(la+lb-1)+1
+  mabMin = nTri3_Elem1(la+lb-1)
 else if (NDDO) then
   No3Cnt = .true.
 end if
@@ -201,8 +198,8 @@ do kCnttp=1,nCnttp
         if (dbsc(kCnttp)%w_mGauss > Zero) then
           rKappcd = rKappcd*dbsc(kCnttp)%w_mGauss
           iAnga(3) = 2
-          mcdMin = nabSz(2+ld-1)+1
-          mcdMax = nabSz(2+ld)
+          mcdMin = nTri3_Elem1(2+ld-1)
+          mcdMax = nTri3_Elem1(2+ld)-1
           ! tweak the pointers
           ipOff = 1+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
           mArr = nArr-(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
@@ -244,8 +241,8 @@ do kCnttp=1,nCnttp
       call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*Q_Nuc)
       if (iPrint >= 99) then
         write(u6,*) Fact*Q_Nuc
-        call RecPrt('NaInt: Array(ipIn)',' ',Array(ipIn),nZeta,nElem(la)*nElem(lb)*nComp)
-        call RecPrt('NaInt: rFinal',' ',rFinal,nZeta,nElem(la)*nElem(lb)*nIC)
+        call RecPrt('NaInt: Array(ipIn)',' ',Array(ipIn),nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
+        call RecPrt('NaInt: rFinal',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nIC)
       end if
 
     end do

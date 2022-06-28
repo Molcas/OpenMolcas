@@ -16,14 +16,12 @@ subroutine dTdmu_mem( &
 #                    include "mem_interface.fh"
                     )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: MemDer, MmEFP, nOrder
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 Mem = 0
 nHer = 0
@@ -38,10 +36,10 @@ end if
 
 ! Add a scratch area for intermediate integrals
 
-MemDer = 3*nElem(la)*nElem(lb+1)
-if (lb >= 1) MemDer = MemDer+3*nElem(la)*nElem(lb-1)
+MemDer = 3*nTri_Elem1(la)*nTri_Elem1(lb+1)
+if (lb >= 1) MemDer = MemDer+3*nTri_Elem1(la)*nTri_Elem1(lb-1)
 Mem = Mem+MemDer+1
-Mem = Mem+nElem(la)*nElem(lb)*3
+Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb)*3
 
 return
 

@@ -23,7 +23,7 @@ subroutine CmbnKE_GIAO(Rxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,nB,Txyz,Wxyz
 !     Modified for GIAO's by RL June 2002, Tokyo, Japan.               *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Three, Half
 use Definitions, only: wp, iwp
 
@@ -35,9 +35,6 @@ real(kind=wp) :: Rxyz(nZeta,3,0:la+1,0:lb+1,0:lr+1), Zeta(nZeta), rKappa(nZeta),
 integer(kind=iwp) :: iBx, iBy, iBz, iComp, indx(3,2), ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, jxa, jxb, &
                      jya, jyb, jza, jzb
 real(kind=wp) :: Fact, RAB(3), temp1, temp2a, temp2b, temp2c
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 !iRout = 134
 !iPrint = nPrint(iRout)
@@ -57,12 +54,12 @@ do ixa=0,la
       iza = la-ixa-iya
       indx(2,1) = iya
       indx(3,1) = iza
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
         indx(2,2) = iyb
         indx(3,2) = izb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         !if (iPrint >= 99) then
         !  write(u6,*)

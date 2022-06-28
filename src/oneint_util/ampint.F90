@@ -27,6 +27,7 @@ subroutine AMPInt( &
 !     After pattern of other SEWARD soubroutines by R. Lindh.          *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -37,9 +38,6 @@ integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), iDum, iOrdOp, ipArr, ipB, ipOff,
                      iRout, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 #include "macros.fh"
 unused_var(nOrdOp)
@@ -53,23 +51,23 @@ nip = 1
 ipB = nip
 nip = nip+nZeta
 ipTpp = nip
-nip = nip+nZeta*nElem(la)*nElem(lb+2)*6
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+2)*6
 ipTp = nip
-nip = nip+nZeta*nElem(la)*nElem(lb+1)*3
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)*3
 ipT = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*6
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*6
 ipTm = 1
 ipTmm = 1
 if (lb > 0) then
   ipTm = nip
-  nip = nip+nZeta*nElem(la)*nElem(lb-1)*3
+  nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb-1)*3
   if (lb > 1) then
     ipTmm = nip
-    nip = nip+nZeta*nElem(la)*nElem(lb-2)*6
+    nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb-2)*6
   end if
 end if
 ipRes = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 if (nip-1 > nZeta*nArr) then
   call WarningMessage(2,' AMPInt: nip-1 > nZeta*nArr')
   call Abend()
@@ -77,7 +75,7 @@ end if
 ipArr = nip
 mArr = (nArr*nZeta-(nip-1))/nZeta
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 ipOff = ipB
 do iAlpha=1,nAlpha

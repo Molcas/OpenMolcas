@@ -27,6 +27,7 @@ subroutine MltInt_GIAO( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -42,9 +43,6 @@ logical(kind=iwp) :: ABeq(3)
 character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -56,7 +54,7 @@ unused_var(iAddPot)
 iRout = 122
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 if (.not. EQ(A,RB)) then
 
@@ -68,7 +66,7 @@ if (.not. EQ(A,RB)) then
   RAB(3) = A(3)-RB(3)
   ! switch (only single center overlap matrix...)
   if (NDDO .and. (.not.(ABeq(1)) .and. ABeq(2) .and. ABeq(3))) then
-    call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,rFinal,1)
+    call dcopy_(nZeta*nIC*nTri_Elem1(la)*nTri_Elem1(lb),[Zero],0,rFinal,1)
     return
   end if
   ! switch
@@ -83,7 +81,7 @@ if (.not. EQ(A,RB)) then
   ipQxyz = nip
   nip = nip+nZeta*3*(la+1)*(lb+1)*(nOrdOp+2)
   ipFnl = nip
-  nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+  nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
   if (nip-1 > nArr*nZeta) then
     call WarningMessage(2,'MltInt_GIAO: nip-1 > nArr*nZeta')
     write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta

@@ -22,7 +22,7 @@ subroutine Util4(nZeta,rFinal,la,lb,Elalbp,Elalb,Bcoor,Dcoor)
 !             February '91                                             *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Half, c_in_au
 use Definitions, only: wp, iwp, u6
 
@@ -34,10 +34,6 @@ real(kind=wp) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9), Elalbp(nZeta,nTr
 integer(kind=iwp) :: ia, ib, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta
 real(kind=wp) :: BD(3), Fact, xCxD, xCyD, xCzD, yCxD, yCyD, yCzD, zCxD, zCyD, zCzD
 character(len=80) :: Label
-! Statement function for cartesian index
-integer(kind=iwp) :: Ind, nElem, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-nElem(ix) = (ix+1)*(ix+2)/2
 
 iRout = 231
 iPrint = nPrint(iRout)
@@ -48,8 +44,8 @@ BD(3) = Bcoor(3)-Dcoor(3)
 Fact = -1.0e-6_wp*Half/c_in_au**2
 if (iPrint >= 99) then
   write(u6,*) ' In Util4 la,lb=',la,lb
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb+1)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb+1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
       call RecPrt(Label,' ',Elalbp(1,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
@@ -58,8 +54,8 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',Elalbp(1,ia,ib,3),nZeta,1)
     end do
   end do
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' Elalb(',ia,',',ib,',x)'
       call RecPrt(Label,' ',Elalb(1,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Elalb(',ia,',',ib,',y)'
@@ -73,23 +69,23 @@ end if
 do ixa=la,0,-1
   do iya=la-ixa,0,-1
     iza = la-ixa-iya
-    ipa = Ind(la,ixa,iza)
+    ipa = C_Ind(la,ixa,iza)
 
     do ixb=lb,0,-1
       do iyb=lb-ixb,0,-1
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         do iZeta=1,nZeta
-          xCxD = Elalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),1)+BD(1)*Elalb(iZeta,ipa,ipb,1)
-          yCxD = Elalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),2)+BD(1)*Elalb(iZeta,ipa,ipb,2)
-          zCxD = Elalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),3)+BD(1)*Elalb(iZeta,ipa,ipb,3)
-          xCyD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb),1)+BD(2)*Elalb(iZeta,ipa,ipb,1)
-          yCyD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb),2)+BD(2)*Elalb(iZeta,ipa,ipb,2)
-          zCyD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb),3)+BD(2)*Elalb(iZeta,ipa,ipb,3)
-          xCzD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),1)+BD(3)*Elalb(iZeta,ipa,ipb,1)
-          yCzD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),2)+BD(3)*Elalb(iZeta,ipa,ipb,2)
-          zCzD = Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),3)+BD(3)*Elalb(iZeta,ipa,ipb,3)
+          xCxD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb),1)+BD(1)*Elalb(iZeta,ipa,ipb,1)
+          yCxD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb),2)+BD(1)*Elalb(iZeta,ipa,ipb,2)
+          zCxD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb),3)+BD(1)*Elalb(iZeta,ipa,ipb,3)
+          xCyD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb),1)+BD(2)*Elalb(iZeta,ipa,ipb,1)
+          yCyD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb),2)+BD(2)*Elalb(iZeta,ipa,ipb,2)
+          zCyD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb),3)+BD(2)*Elalb(iZeta,ipa,ipb,3)
+          xCzD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1),1)+BD(3)*Elalb(iZeta,ipa,ipb,1)
+          yCzD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1),2)+BD(3)*Elalb(iZeta,ipa,ipb,2)
+          zCzD = Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1),3)+BD(3)*Elalb(iZeta,ipa,ipb,3)
           rFinal(iZeta,ipa,ipb,1) = Fact*(+yCyD+zCzD)
           rFinal(iZeta,ipa,ipb,2) = Fact*(-yCxD)
           rFinal(iZeta,ipa,ipb,3) = Fact*(-zCxD)
@@ -110,7 +106,7 @@ end do
 if (iPrint >= 49) then
   do iComp=1,9
     write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
-    call RecPrt(Label,' ',rFinal(1,1,1,iComp),nZeta,nElem(la)*nELem(lb))
+    call RecPrt(Label,' ',rFinal(1,1,1,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
 end if
 

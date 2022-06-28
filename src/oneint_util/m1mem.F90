@@ -27,14 +27,12 @@ subroutine M1Mem( &
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: iAng(4), k, MemM10, MemPrm, nFlop, nMem
-! Statement function
-integer(kind=iwp) :: nabSz, ixyz
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(lr)
@@ -49,7 +47,7 @@ call MemRys(iAng,MemPrm)
 MemM10 = 6+MemPrm
 nHer = (la+lb+2)/2
 
-k = nabSz(la+lb)-nabSz(max(la,lb)-1)
+k = nTri3_Elem1(la+lb)-nTri3_Elem1(max(la,lb)-1)
 
 ! nMem : memory for Hrr
 ! k    : memory for primitives in M1Int0

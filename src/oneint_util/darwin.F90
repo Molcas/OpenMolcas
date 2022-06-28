@@ -22,7 +22,7 @@ subroutine Darwin(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,rFinal,iStabM,nStabM,nComp,r
 
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Zero, One, Half, Pi, c_in_au
 use Definitions, only: wp, iwp
 
@@ -34,10 +34,6 @@ real(kind=wp) :: Zeta(nZeta), P(nZeta,3), A(3), Axyz(nZeta,3,0:la), RB(3), Bxyz(
 integer(kind=iwp) :: ia, ib, iCar, iDCRT(0:7), ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, kCnt, kCnttp, kdc, &
                      lDCRT, LmbdT, nDCRT
 real(kind=wp) :: C(3), Fact, Factor, TC(3)
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, Ind, ixyz, ix, iz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iRout = 170
 iPrint = nPrint(iRout)
@@ -47,7 +43,7 @@ if (iPrint >= 99) then
   call RecPrt(' In Darwin: P',' ',P,nZeta,3)
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,[Zero],0,rFinal,1)
 
 kdc = 0
 do kCnttp=1,nCnttp
@@ -122,10 +118,10 @@ do kCnttp=1,nCnttp
         do ixb=lb,0,-1
           do iya=la-ixa,0,-1
             iza = la-ixa-iya
-            ipa = Ind(la,ixa,iza)
+            ipa = C_Ind(la,ixa,iza)
             do iyb=lb-ixb,0,-1
               izb = lb-ixb-iyb
-              ipb = Ind(lb,ixb,izb)
+              ipb = C_Ind(lb,ixb,izb)
               do iZeta=1,nZeta
                 rFinal(iZeta,ipa,ipb,1) = rFinal(iZeta,ipa,ipb,1)+Fact*Axyz(iZeta,1,ixa)*Axyz(iZeta,2,iya)*Axyz(iZeta,3,iza)* &
                                           Bxyz(iZeta,1,ixb)*Bxyz(iZeta,2,iyb)*Bxyz(iZeta,3,izb)
@@ -143,8 +139,8 @@ end do
 ! Factor from operator (pi/(2*c**2), c=137.036 au)
 
 Factor = Pi*Half/c_in_au**2
-do ipa=1,nElem(la)
-  do ipb=1,nELem(lb)
+do ipa=1,nTri_Elem1(la)
+  do ipb=1,nTri_Elem1(lb)
     do iZeta=1,nZeta
       rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Factor*rFinal(iZeta,ipa,ipb,1)
     end do

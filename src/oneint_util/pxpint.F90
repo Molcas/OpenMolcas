@@ -26,6 +26,7 @@ subroutine pXpInt( &
 !***********************************************************************
 
 use Symmetry_Info, only: iChBas, nIrrep
+use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -37,9 +38,6 @@ integer(kind=iwp) :: iAlpha, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr
                      iSym_p1, iSym_p2, iSym_p3, iSym_pX, iSym_pXp, iTemp, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, mArr, nip
 integer(kind=iwp), allocatable :: kChO(:,:), kOper(:,:)
 integer(kind=iwp), external :: IrrFnc
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 #include "macros.fh"
 unused_var(nHer)
@@ -47,17 +45,17 @@ unused_var(nHer)
 iRout = 220
 iPrint = nPrint(iRout)
 
-iSize = nZeta*nElem(la)*nElem(lb)*nComp
+iSize = nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 call dcopy_(iSize,[Zero],0,rFinal,1)
 call dcopy_(nZeta*nArr,[Zero],0,Array,1)
 nip = 1
 ipB = nip
 nip = nip+nZeta
 ipS1 = nip
-nip = nip+nZeta*nElem(la)*nElem(lb+1)*3*nIC
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)*3*nIC
 if (lb > 0) then
   ipS2 = nip
-  nip = nip+nZeta*nElem(la)*nElem(lb-1)*3*nIC
+  nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb-1)*3*nIC
 else
   ipS2 = ipS1
 end if
@@ -161,7 +159,7 @@ call Ass_pXp(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nComp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iPrint >= 49) call RecPrt('pXpInt: Final',' ',rFinal,nZeta,nElem(la)*nElem(lb))
+if (iPrint >= 49) call RecPrt('pXpInt: rFinal',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
 
 return
 

@@ -28,14 +28,12 @@ subroutine SROMem( &
 !***********************************************************************
 
 use Basis_Info, only: dbsc, nCnttp, Shells
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: iAng, iCnttp, ip, iShll, memMlt, nac, ncb, nExpi, nH
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 nHer = 0
 Mem = 0
@@ -48,7 +46,7 @@ do iCnttp=1,nCnttp
 
     ip = 0
     ip = ip+nExpi**2
-    nac = nElem(la)*nElem(iAng)
+    nac = nTri_Elem1(la)*nTri_Elem1(iAng)
     ip = ip+nExpi*nac
     ip = ip+3*nExpi
     ip = ip+nExpi
@@ -60,7 +58,7 @@ do iCnttp=1,nCnttp
     Mem = max(Mem,ip+nExpi*MemMlt)
     ip = ip-6*nExpi
 
-    ncb = nElem(iAng)*nElem(lb)
+    ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)
     ip = ip+nExpi*ncb
     ip = ip+3*nExpi
     ip = ip+nExpi

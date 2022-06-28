@@ -14,20 +14,18 @@ subroutine EMFMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nHer = (la+lb+lr+2)/2
 Mem = 3*nHer*(la+1+lr)*2+3*nHer*(lb+1+lr)*2+3*(la+1+lr)*(lb+1+lr)*2
 if (lr == 1) then
-  Mem = Mem+6*(la+1)*(lb+1)*2+2+nElem(la)*nElem(lb)*nElem(lr)*12
+  Mem = Mem+6*(la+1)*(lb+1)*2+2+nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lr)*12
 else
-  Mem = Mem+nElem(la)*nElem(lb)*nElem(lr)*2
+  Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lr)*2
 end if
 
 return

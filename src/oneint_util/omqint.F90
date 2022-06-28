@@ -25,6 +25,7 @@ subroutine OMQInt( &
 !             Based on OAMInt                                          *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -34,9 +35,6 @@ integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, ipS1, 
                      mArr, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(PtChrg)
@@ -48,21 +46,21 @@ nip = nip+nZeta
 
 ! L + 1 component
 ipS1 = nip
-nip = nip+nZeta*nElem(la)*nElem(lb+1)*6 ! not ncomp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)*6 ! not ncomp
 
 ! L - 1 component
 ipS2 = 1
 if (lb > 0) then
   ipS2 = nip
-  nip = nip+nZeta*nElem(la)*nElem(lb-1)*6 ! not ncomp
+  nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb-1)*6 ! not ncomp
 end if
 
 ! L + 0 component
 ipS3 = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*3
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*3
 
 ipRes = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 if (nip-1 > nZeta*nArr) then
   call WarningMessage(2,' OMQInt: nip-1 > nZeta*nArr')
   call Abend()
@@ -70,7 +68,7 @@ end if
 ipArr = nip
 mArr = (nArr*nZeta-(nip-1))/nZeta
 
-call DCopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call DCopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 llOper = lOper(1)
 do iComp=2,nComp

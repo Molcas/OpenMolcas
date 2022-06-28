@@ -29,6 +29,7 @@ subroutine M1Int( &
 
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -42,10 +43,6 @@ character(len=80) :: Label
 logical(kind=iwp) :: NoSpecial
 logical(kind=iwp), external :: EQ
 external :: Cff2D, Fake, TNAI, XRys2D
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, nabSz, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -73,9 +70,9 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = 0
 iAnga(4) = 0
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
-if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
+if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
 mAInt = (mabMax-mabMin+1)
 
 ! Find center to accumulate angular momentum on. (HRR)
@@ -94,7 +91,7 @@ call mHrr(la,lb,nFlop,nMem)
 
 ip = 1
 ipAInt = ip
-k = nabSz(la+lb)-nabSz(max(la,lb)-1)
+k = nTri3_Elem1(la+lb)-nTri3_Elem1(max(la,lb)-1)
 ip = ip+nZeta*max(k,nMem)
 ipK = ip
 ip = ip+nZeta
@@ -194,12 +191,12 @@ end do
 call HRR(la,lb,A,RB,Array(ipAInt),nZeta,nMem,ipIn)
 ii = ipAInt+ipIn-1
 ! Move result
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Array(ii),1,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,Array(ii),1,rFinal,1)
 
 if (iPrint >= 99) then
   write(u6,*) ' Result in M1Int'
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
       call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
     end do

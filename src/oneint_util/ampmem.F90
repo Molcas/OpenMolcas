@@ -17,14 +17,12 @@ subroutine AMPMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: Mem1, Mem2, Mem3, nOrder
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 #include "macros.fh"
 unused_var(lr)
@@ -35,25 +33,25 @@ unused_var(lr)
 Mem1 = 0
 call MltMmP(nOrder,Mem,la,lb+2,2)
 Mem1 = max(Mem1,Mem)
-Mem2 = 6*nElem(la)*nElem(lb+2)
+Mem2 = 6*nTri_Elem1(la)*nTri_Elem1(lb+2)
 nHer = nOrder
 call MltMmP(nOrder,Mem,la,lb+1,1)
 Mem1 = max(Mem1,Mem)
-Mem2 = Mem2+3*nElem(la)*nElem(lb+1)
+Mem2 = Mem2+3*nTri_Elem1(la)*nTri_Elem1(lb+1)
 call MltMmP(nOrder,Mem,la,lb,2)
 Mem1 = max(Mem1,Mem)
-Mem2 = Mem2+6*nElem(la)*nElem(lb)
+Mem2 = Mem2+6*nTri_Elem1(la)*nTri_Elem1(lb)
 if (lb >= 1) then
   call MltMmP(nOrder,Mem,la,lb-1,1)
   Mem1 = max(Mem1,Mem)
-  Mem2 = Mem2+3*nElem(la)*nElem(lb-1)
+  Mem2 = Mem2+3*nTri_Elem1(la)*nTri_Elem1(lb-1)
   if (lb >= 2) then
     call MltMmP(nOrder,Mem,la,lb-2,2)
     Mem1 = max(Mem1,Mem)
-    Mem2 = Mem2+6*nElem(la)*nElem(lb-2)
+    Mem2 = Mem2+6*nTri_Elem1(la)*nTri_Elem1(lb-2)
   end if
 end if
-Mem3 = 6*nElem(la)*nElem(lb)
+Mem3 = 6*nTri_Elem1(la)*nTri_Elem1(lb)
 
 Mem = Mem1+Mem2+Mem3+1
 

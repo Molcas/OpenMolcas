@@ -30,6 +30,7 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Real_Spherical, only: ipSph, RSph
 use Symmetry_Info, only: iChTbl, nIrrep
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -43,9 +44,6 @@ real(kind=wp) :: C(3), Fact, Factor, TC(3), Xg
 character(len=80) :: Label
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(Zeta)
@@ -66,7 +64,7 @@ if (iPrint >= 49) then
   write(u6,*) ' In SROInt: la,lb=',' ',la,lb
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 llOper = lOper(1)
 iComp = 1
@@ -101,7 +99,7 @@ do iCnttp=1,nCnttp
         end if
 
         ipF1 = ip
-        nac = nElem(la)*nElem(iAng)
+        nac = nTri_Elem1(la)*nTri_Elem1(iAng)
         ip = ip+nAlpha*nExpi*nac
         ipP1 = ip
         ip = ip+3*nAlpha*nExpi
@@ -134,7 +132,7 @@ do iCnttp=1,nCnttp
         ip = ip-6*nAlpha*nExpi
 
         ipF2 = ip
-        ncb = nElem(iAng)*nElem(lb)
+        ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)
         ip = ip+nExpi*nBeta*ncb
         ipP2 = ip
         ip = ip+3*nExpi*nBeta
@@ -180,30 +178,32 @@ do iCnttp=1,nCnttp
         ! From the lefthandside overlap, form ikaC from ikac by
         ! 1) ika,c -> c,ika
 
-        call DgeTMo(Array(ipF1),nAlpha*nExpi*nElem(la),nAlpha*nExpi*nElem(la),nElem(iAng),Array(ipTmp),nElem(iAng))
+        call DgeTMo(Array(ipF1),nAlpha*nExpi*nTri_Elem1(la),nAlpha*nExpi*nTri_Elem1(la),nTri_Elem1(iAng),Array(ipTmp), &
+                    nTri_Elem1(iAng))
 
         ! 2) ika,C = c,ika * c,C
 
-        call DGEMM_('T','N',nAlpha*nExpi*nElem(la),(2*iAng+1),nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),Zero,Array(ipF1),nAlpha*nExpi*nElem(la))
-        if (iPrint >= 99) call RecPrt('<A|srbs>',' ',Array(ipF1),nAlpha*nExpi,nElem(la)*(2*iAng+1))
+        call DGEMM_('T','N',nAlpha*nExpi*nTri_Elem1(la),(2*iAng+1),nTri_Elem1(iAng),One,Array(ipTmp),nTri_Elem1(iAng), &
+                    RSph(ipSph(iAng)),nTri_Elem1(iAng),Zero,Array(ipF1),nAlpha*nExpi*nTri_Elem1(la))
+        if (iPrint >= 99) call RecPrt('<A|srbs>',' ',Array(ipF1),nAlpha*nExpi,nTri_Elem1(la)*(2*iAng+1))
 
         ! And (almost) the same thing for the righthand side, form
         ! kjCb from kjcb
         ! 1) kj,cb -> cb,kj
 
-        call DgeTMo(Array(ipF2),nBeta*nExpi,nBeta*nExpi,nElem(iAng)*nElem(lb),Array(ipTmp),nElem(iAng)*nElem(lb))
+        call DgeTMo(Array(ipF2),nBeta*nExpi,nBeta*nExpi,nTri_Elem1(iAng)*nTri_Elem1(lb),Array(ipTmp), &
+                    nTri_Elem1(iAng)*nTri_Elem1(lb))
 
         ! 2) bkj,C = c,bkj * c,C
 
-        call DGEMM_('T','N',nElem(lb)*nExpi*nBeta,(2*iAng+1),nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),Zero,Array(ipF2),nElem(lb)*nExpi*nBeta)
+        call DGEMM_('T','N',nTri_Elem1(lb)*nExpi*nBeta,(2*iAng+1),nTri_Elem1(iAng),One,Array(ipTmp),nTri_Elem1(iAng), &
+                    RSph(ipSph(iAng)),nTri_Elem1(iAng),Zero,Array(ipF2),nTri_Elem1(lb)*nExpi*nBeta)
 
         ! 3) b,kjC -> kjC,b
 
-        call DgeTMo(Array(ipF2),nElem(lb),nElem(lb),nExpi*nBeta*(2*iAng+1),Array(ipTmp),nExpi*nBeta*(2*iAng+1))
-        call dcopy_(nExpi*nBeta*(2*iAng+1)*nElem(lb),Array(ipTmp),1,Array(ipF2),1)
-        if (iPrint >= 99) call RecPrt('<srbs|B>',' ',Array(ipF2),nExpi*nBeta,(2*iAng+1)*nElem(lb))
+        call DgeTMo(Array(ipF2),nTri_Elem1(lb),nTri_Elem1(lb),nExpi*nBeta*(2*iAng+1),Array(ipTmp),nExpi*nBeta*(2*iAng+1))
+        call dcopy_(nExpi*nBeta*(2*iAng+1)*nTri_Elem1(lb),Array(ipTmp),1,Array(ipF2),1)
+        if (iPrint >= 99) call RecPrt('<srbs|B>',' ',Array(ipF2),nExpi*nBeta,(2*iAng+1)*nTri_Elem1(lb))
 
         ! Next Contract (ikaC)*(klC)*(ljCb) over k,l and C,
         ! producing ijab,
@@ -216,13 +216,13 @@ do iCnttp=1,nCnttp
         !   End loop C
         ! End Loop b and a
 
-        do ib=1,nElem(lb)
-          do ia=1,nElem(la)
+        do ib=1,nTri_Elem1(lb)
+          do ia=1,nTri_Elem1(la)
             if (iPrint >= 99) write(u6,*) ' ia,ib=',ia,ib
 
             do iC=1,(2*iAng+1)
               if (iPrint >= 99) write(u6,*) ' iC,=',iC
-              iaC = (iC-1)*nElem(la)+ia
+              iaC = (iC-1)*nTri_Elem1(la)+ia
               ipaC = (iaC-1)*nAlpha*nExpi+ipF1
               iCb = (ib-1)*(2*iAng+1)+iC
               ipCb = (iCb-1)*nExpi*nBeta+ipF2

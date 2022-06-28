@@ -18,7 +18,7 @@ subroutine CmbnVe(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Vxyz)
 !             January '91                                              *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 
@@ -28,9 +28,6 @@ real(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rF
                  Vxyz(nZeta,3,0:la,0:lb)
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
 real(kind=wp) :: Fact
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 !iRout = 161
 !iPrint = nPrint(iRout)
@@ -41,10 +38,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
         !if (iPrint >= 99) then
         !  write(u6,*) ixa,iya,iza,ixb,iyb,izb
         !  write(u6,*) ipa,ipb

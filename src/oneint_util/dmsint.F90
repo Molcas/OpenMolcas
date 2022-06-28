@@ -24,6 +24,7 @@ subroutine DMSInt( &
 !             of Lund, Sweden, February '91                            *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -34,9 +35,6 @@ integer(kind=iwp) :: iComp, iDCRT(0:7), ipArr, ipRes, iPrint, ipS1, ipS2, iRout,
                      nDCRT, nip, nOp, nRys, nStabO
 real(kind=wp) :: TC(3,2)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(PtChrg)
@@ -54,11 +52,11 @@ end if
 
 nip = 1
 ipS1 = nip
-nip = nip+nZeta*nElem(la)*nElem(lb+1)*3
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb+1)*3
 ipS2 = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*3
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*3
 ipRes = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 if (nip-1 > nZeta*nArr) then
   call WarningMessage(2,'DMSInt: nip-1 > nZeta*nArr')
   write(u6,*) 'nip=',nip
@@ -68,7 +66,7 @@ end if
 ipArr = nip
 mArr = nZeta*nArr-nip+1
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 iComp = 1
 llOper = lOper(1)

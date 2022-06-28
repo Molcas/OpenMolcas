@@ -22,7 +22,7 @@ subroutine Assemble_dTdmu(nZeta,rFinal,la,lb,Elalbp,Elalbm,Beta)
 !             February '91                                             *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
@@ -34,10 +34,6 @@ real(kind=wp) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Elalbp(nZeta,nTr
 integer(kind=iwp) :: ia, ib, ib_max, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta
 real(kind=wp) :: xyTmp, xzTmp, yxTmp, yzTmp, zxTmp, zyTmp
 character(len=80) Label
-! Statement function for cartesian index
-integer(kind=iwp) :: Ind, nElem, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-nElem(ix) = (ix+1)*(ix+2)/2
 
 iRout = 231
 iPrint = nPrint(iRout)
@@ -45,8 +41,8 @@ iPrint = nPrint(iRout)
 !Fact = -1.0e6_wp*Half/c_in_au**2
 if (iPrint >= 99) then
   write(u6,*) ' In Assemble_dTdmu la,lb=',la,lb
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb+1)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb+1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
       call RecPrt(Label,' ',Elalbp(1,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
@@ -55,8 +51,8 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',Elalbp(1,ia,ib,3),nZeta,1)
     end do
   end do
-  do ia=1,nElem(la)
-    ib_max = nElem(lb-1)
+  do ia=1,nTri_Elem1(la)
+    ib_max = nTri_Elem1(lb-1)
     if (lb == 0) ib_max = 0
     do ib=1,ib_max
       write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',x)'
@@ -72,31 +68,31 @@ end if
 do ixa=la,0,-1
   do iya=la-ixa,0,-1
     iza = la-ixa-iya
-    ipa = Ind(la,ixa,iza)
+    ipa = C_Ind(la,ixa,iza)
 
     do ixb=lb,0,-1
       do iyb=lb-ixb,0,-1
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         do iZeta=1,nZeta
-          xyTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb),1)
-          yxTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),2)
-          yzTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),2)
-          zyTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb),3)
-          zxTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),3)
-          xzTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),1)
+          xyTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb),1)
+          yxTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb),2)
+          yzTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1),2)
+          zyTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb),3)
+          zxTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb),3)
+          xzTmp = -Two*Beta(nzeta)*Elalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1),1)
           if (ixb >= 1) then
-            yxTmp = yxTmp+real(ixb,kind=wp)*Elalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),2)
-            zxTmp = zxTmp+real(ixb,kind=wp)*Elalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),3)
+            yxTmp = yxTmp+real(ixb,kind=wp)*Elalbm(iZeta,ipa,C_Ind(lb-1,ixb-1,izb),2)
+            zxTmp = zxTmp+real(ixb,kind=wp)*Elalbm(iZeta,ipa,C_Ind(lb-1,ixb-1,izb),3)
           end if
           if (iyb >= 1) then
-            xyTmp = xyTmp+real(iyb,kind=wp)*Elalbm(iZeta,ipa,Ind(lb-1,ixb,izb),1)
-            zyTmp = xyTmp+real(iyb,kind=wp)*Elalbm(iZeta,ipa,Ind(lb-1,ixb,izb),3)
+            xyTmp = xyTmp+real(iyb,kind=wp)*Elalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb),1)
+            zyTmp = xyTmp+real(iyb,kind=wp)*Elalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb),3)
           end if
           if (izb >= 1) then
-            xzTmp = xzTmp+real(izb,kind=wp)*Elalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),1)
-            yzTmp = yzTmp+real(izb,kind=wp)*Elalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2)
+            xzTmp = xzTmp+real(izb,kind=wp)*Elalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb-1),1)
+            yzTmp = yzTmp+real(izb,kind=wp)*Elalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb-1),2)
           end if
           rFinal(iZeta,ipa,ipb,1) = -(xyTmp-yxTmp)
           rFinal(iZeta,ipa,ipb,2) = -(yzTmp-zyTmp)
@@ -112,7 +108,7 @@ end do
 if (iPrint >= 49) then
   do iComp=1,3
     write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
-    call RecPrt(Label,' ',rFinal(1,1,1,iComp),nZeta,nElem(la)*nELem(lb))
+    call RecPrt(Label,' ',rFinal(1,1,1,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
 end if
 

@@ -25,6 +25,7 @@ subroutine VeInt( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -35,9 +36,6 @@ integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), ipAxyz, ipB, ipBOff, ipBxyz, ipQ
                      iStabO(0:7), lDCRT, llOper, LmbdT, nDCRT, nip, nOp, nStabO
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -66,7 +64,7 @@ nip = nip+nZeta*3*(la+1)*(lb+1)
 ipB = nip
 nip = nip+nZeta
 ipRes = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'VeInt: nip-1 > nArr*nZeta')
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
@@ -82,7 +80,7 @@ if (iPrint >= 49) then
   write(u6,*) ' In VeInt: la,lb=',la,lb
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 ! Compute the cartesian values of the basis functions angular part
 

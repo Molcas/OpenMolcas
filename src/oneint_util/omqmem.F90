@@ -16,14 +16,12 @@ subroutine OMQMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: MemM, MemN, MemP, nOrder
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 call MltMmP(nOrder,MemP,la,lb+1,lr-1)
 ! Not sure what this does. nHer is set on the outside anyway???
@@ -34,13 +32,13 @@ Mem = max(MemP,MemN)
 if (lb > 0) then
   call MltMmP(nOrder,MemM,la,lb-1,lr-1)
   ! For L - 1 Component
-  Mem = max(Mem,MemM)+nElem(la)*nElem(lb-1)*6
+  Mem = max(Mem,MemM)+nTri_Elem1(la)*nTri_Elem1(lb-1)*6
 end if
 ! For dipole term ( L + 0 Component)
-Mem = Mem+nElem(la)*nElem(lb)*3
+Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb)*3
 ! For L + 1 Component
-Mem = Mem+1+nElem(la)*nElem(lb+1)*6
-Mem = Mem+nElem(la)*nElem(lb)*9 ! final term
+Mem = Mem+1+nTri_Elem1(la)*nTri_Elem1(lb+1)*6
+Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb)*9 ! final term
 
 return
 

@@ -16,14 +16,12 @@ subroutine DMSMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: MemDer, MmEFP, nOrder
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 Mem = 0
 nHer = 0
@@ -36,9 +34,9 @@ nHer = max(nHer,nOrder)
 
 ! Add a scratch area for intermediate integrals
 
-MemDer = 3*(nElem(la)*nElem(lb+1)+nElem(la)*nElem(lb))
+MemDer = 3*(nTri_Elem1(la)*nTri_Elem1(lb+1)+nTri_Elem1(la)*nTri_Elem1(lb))
 Mem = Mem+MemDer
-Mem = Mem+nElem(la)*nElem(lb)*9
+Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb)*9
 
 return
 

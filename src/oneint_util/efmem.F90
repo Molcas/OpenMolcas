@@ -16,25 +16,22 @@ subroutine EFMem( &
 #                include "mem_interface.fh"
                 )
 
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: iAngV(4), kab, lab, labcd, labMax, labMin, lc, lcd, lcdMax, lcdMin, ld, Mem1, Mem2, nFlop, nMem
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, nabSz, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 lc = lr
 ld = 0
 nHer = (la+lb+lc+ld+2)/2
-labMin = nabSz(max(la,lb)-1)+1
-labMax = nabSz(la+lb)
-lcdMin = nabSz(lr-1)+1
-lcdMax = nabSz(lr)
+labMin = nTri3_Elem1(max(la,lb)-1)
+labMax = nTri3_Elem1(la+lb)-1
+lcdMin = nTri3_Elem1(lr-1)
+lcdMax = nTri3_Elem1(lr)-1
 lab = (labMax-labMin+1)
-kab = nElem(la)*nElem(lb)
+kab = nTri_Elem1(la)*nTri_Elem1(lb)
 lcd = (lcdMax-lcdMin+1)
 labcd = lab*lcd
 

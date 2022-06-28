@@ -25,6 +25,7 @@ subroutine MVeInt( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -34,9 +35,6 @@ integer(kind=iwp) :: ia, iAlpha, ib, iBeta, iDum, ipA, ipAOff, ipAxyz, ipB, ipBO
                      iRout, nip
 logical(kind=iwp) :: ABeq(3)
 character(len=80) :: Label
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -126,8 +124,8 @@ call MVe(Array(iprV2),Array(iprV4),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZe
 call CmbnMV(Array(ipQxyz),nZeta,la,lb,nOrdOp-4,Zeta,rKappa,rFinal,nComp,Array(iprV2),Array(iprV4))
 
 if (iPrint >= 99) then
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') 'Mass-Velocity(',ia,',',ib,')'
       call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
     end do

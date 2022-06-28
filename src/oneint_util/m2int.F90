@@ -29,6 +29,7 @@ subroutine M2Int( &
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -40,9 +41,6 @@ integer(kind=iwp) :: ia, iab, ib, iDCRT(0:7), iM2xp, ipab, ipAxyz, ipBxyz, ipK, 
 real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3)
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, k
-nElem(k) = (k+1)*(k+2)/2
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -76,7 +74,7 @@ nip = nip+nZeta
 ipPz = nip
 nip = nip+nZeta
 ipRes = nip
-nip = nip+nZeta*nComp*nElem(la)*nElem(lb)
+nip = nip+nZeta*nComp*nTri_Elem1(la)*nTri_Elem1(lb)
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'M2Int: nip-1 > nArr*nZeta')
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
@@ -94,7 +92,7 @@ if (iPrint >= 49) then
   write(u6,*) ' In M2Int: la,lb,nHer=',la,lb,nHer
 end if
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 ! Loop over nuclear centers
 
@@ -162,9 +160,9 @@ do kCnttp=1,nCnttp
         call CmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Array(ipZ),Array(ipK),Array(ipRes),nComp)
         if (iPrint >= 99) then
           write(u6,*) ' Intermediate result in M2Int'
-          do ia=1,nElem(la)
-            do ib=1,nElem(lb)
-              iab = (ib-1)*nElem(la)+ia
+          do ia=1,nTri_Elem1(la)
+            do ib=1,nTri_Elem1(lb)
+              iab = (ib-1)*nTri_Elem1(la)+ia
               ipab = (iab-1)*nZeta+ipRes
               write(Label,'(A,I2,A,I2,A)') ' Array(',ia,',',ib,')'
               if (nComp /= 1) then
@@ -180,7 +178,7 @@ do kCnttp=1,nCnttp
 
         Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)*Fact
         if (iPrint >= 99) write(u6,*) ' Factor=',Factor
-        call DaXpY_(nZeta*nElem(la)*nElem(lb)*nIC,Factor,Array(ipRes),1,rFinal,1)
+        call DaXpY_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,Factor,Array(ipRes),1,rFinal,1)
 
       end do
 
@@ -191,8 +189,8 @@ end do
 
 if (iPrint >= 99) then
   write(u6,*) ' Result in M2Int'
-  do ia=1,nElem(la)
-    do ib=1,nElem(lb)
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' rFinal(ia=',ia,',ib=',ib,')'
       call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
     end do

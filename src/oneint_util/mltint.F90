@@ -27,6 +27,7 @@ subroutine MltInt( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -44,9 +45,6 @@ real(kind=wp), parameter :: Origin(3) = Zero
 character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -58,14 +56,14 @@ unused_var(iAddPot)
 iRout = 122
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
 ABeq(3) = A(3) == RB(3)
 ! switch (only single center overlap matrix...)
 if (NDDO .and. (.not.(ABeq(1)) .and. ABeq(2) .and. ABeq(3))) then
-  call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,rFinal,1)
+  call dcopy_(nZeta*nIC*nTri_Elem1(la)*nTri_Elem1(lb),[Zero],0,rFinal,1)
   return
 end if
 ! switch
@@ -79,7 +77,7 @@ nip = nip+nZeta*3*nHer*(nOrdOp+1)
 ipQxyz = nip
 nip = nip+nZeta*3*(la+1)*(lb+1)*(nOrdOp+1)
 ipFnl = nip
-nip = nip+nZeta*nElem(la)*nElem(lb)*nComp
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -216,7 +214,7 @@ if (iPrint >= 99) then
   write(u6,*)
   do iIC=1,nIC
     write(Label,'(A,I2,A)') ' MltInt(iIC=',iIC,')'
-    call RecPrt(Label,'(10G15.8) ',rFinal(1,1,1,iIC),nZeta,nElem(la)*nElem(lb))
+    call RecPrt(Label,'(10G15.8) ',rFinal(1,1,1,iIC),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
 end if
 

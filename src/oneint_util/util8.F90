@@ -21,7 +21,7 @@ subroutine Util8(Beta,nZeta,rFinal,la,lb,Slalbp,Slalbm)
 !             Chemie, University of Bonn, Germany, August 1994         *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
@@ -32,10 +32,6 @@ real(kind=wp) :: Beta(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Sla
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iElem, iiComp, iiZeta, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, jElem
 character(len=80) :: Label
-! Statement function for cartesian index
-integer(kind=iwp) :: Ind, nElem, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-nElem(ix) = (ix+1)*(ix+2)/2
 
 iRout = 203
 iPrint = nPrint(iRout)
@@ -43,14 +39,14 @@ iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   write(u6,*) ' In util8 la,lb=',la,lb
   call RecPrt('Beta','(5f15.8)',Beta,nZeta,1)
-  do ib=1,nElem(lb)
+  do ib=1,nTri_Elem1(lb)
     write(Label,'(A,I2,A)') ' Slalbp(',la,ib,')'
-    call RecPrt(Label,'(5f15.8)',Slalbp(1,1,ib),nZeta,nElem(la+1))
+    call RecPrt(Label,'(5f15.8)',Slalbp(1,1,ib),nZeta,nTri_Elem1(la+1))
   end do
   if (lb > 0) then
-    do ia=1,nElem(la)
+    do ia=1,nTri_Elem1(la)
       write(Label,'(A,I2,A)') ' Slalbm(',la,ib,')'
-      call RecPrt(Label,'(5f15.8)',Slalbm(1,1,ib),nZeta,nElem(lb-1))
+      call RecPrt(Label,'(5f15.8)',Slalbm(1,1,ib),nZeta,nTri_Elem1(lb-1))
     end do
   end if
 end if
@@ -58,45 +54,45 @@ end if
 do ixa=la,0,-1
   do iya=la-ixa,0,-1
     iza = la-ixa-iya
-    ipa = Ind(la,ixa,iza)
+    ipa = C_Ind(la,ixa,iza)
 
     do ixb=lb,0,-1
       do iyb=lb-ixb,0,-1
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         if (ixb == 0) then
           do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb))
+            rFinal(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb))
           end do
         else
           do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb))- &
-                                      real(ixb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb))
+            rFinal(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb))- &
+                                      real(ixb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb-1,izb))
           end do
         end if
 
         if (iyb == 0) then
 
           do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,2) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb))
+            rFinal(iZeta,ipa,ipb,2) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb))
           end do
         else
           do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,2) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb))- &
-                                      real(iyb,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb))
+            rFinal(iZeta,ipa,ipb,2) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb))- &
+                                      real(iyb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb))
           end do
         end if
 
         if (izb == 0) then
 
           do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,3) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1))
+            rFinal(iZeta,ipa,ipb,3) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1))
           end do
         else
           do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,3) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1))- &
-                                      real(iza,kind=wp)*Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1))
+            rFinal(iZeta,ipa,ipb,3) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1))- &
+                                      real(iza,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb-1))
           end do
         end if
 
@@ -109,8 +105,8 @@ end do
 if (iPrint >= 49) then
   write(u6,*) ' In UTIL8 la,lb=',la,lb
   do iiComp=1,3
-    do jElem=1,nElem(lb)
-      do iElem=1,nElem(la)
+    do jElem=1,nTri_Elem1(lb)
+      do iElem=1,nTri_Elem1(la)
         do iiZeta=1,nZeta
           write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,') '
           !call RecPrt(Label,'(5f15.8)',

@@ -29,6 +29,7 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Real_Spherical, only: ipSph, RSph
 use Symmetry_Info, only: iChTbl, nIrrep
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -43,9 +44,6 @@ real(kind=wp) :: Bk, C(3), Fact, Factor, TC(3), Xg
 character(len=80) :: Label
 #endif
 integer(kind=iwp), external :: NrOpr
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(P)
@@ -92,7 +90,7 @@ do iCnttp=1,nCnttp
 #       endif
         ip = 1
         ipF1 = ip
-        nac = nElem(la)*nElem(iAng)
+        nac = nTri_Elem1(la)*nTri_Elem1(iAng)
         ip = ip+nAlpha*nExpi*nac
         ipP1 = ip
         ip = ip+3*nAlpha*nExpi
@@ -121,7 +119,7 @@ do iCnttp=1,nCnttp
         ip = ip-6*nAlpha*nExpi
 
         ipF2 = ip
-        ncb = nElem(iAng)*nElem(lb)
+        ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)
         ip = ip+nExpi*nBeta*ncb
         ipP2 = ip
         ip = ip+3*nExpi*nBeta
@@ -182,12 +180,13 @@ do iCnttp=1,nCnttp
 
         ! 4) a,ciK -> ciKa
 
-        call DgeTMo(Array(ipF1),nElem(la),nElem(la),nElem(iAng)*nAlpha*nBasisi,Array(ipTmp),nElem(iAng)*nAlpha*nBasisi)
+        call DgeTMo(Array(ipF1),nTri_Elem1(la),nTri_Elem1(la),nTri_Elem1(iAng)*nAlpha*nBasisi,Array(ipTmp), &
+                    nTri_Elem1(iAng)*nAlpha*nBasisi)
 
         ! 5) iKa,C = c,iKa * c,C
 
-        call DGEMM_('T','N',nAlpha*nBasisi*nElem(la),(2*iAng+1),nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),Zero,Array(ipF1),nAlpha*nBasisi*nElem(la))
+        call DGEMM_('T','N',nAlpha*nBasisi*nTri_Elem1(la),(2*iAng+1),nTri_Elem1(iAng),One,Array(ipTmp),nTri_Elem1(iAng), &
+                    RSph(ipSph(iAng)),nTri_Elem1(iAng),Zero,Array(ipF1),nAlpha*nBasisi*nTri_Elem1(la))
 
         ! And (almost) the same thing for the righthand side, form
         ! KjCb from kjcb
@@ -201,12 +200,12 @@ do iCnttp=1,nCnttp
 
         ! 3) bKj,C = c,bKj * c,C
 
-        call DGEMM_('T','N',nElem(lb)*nBasisi*nBeta,(2*iAng+1),nElem(iAng),One,Array(ipF2),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),Zero,Array(ipTmp),nElem(lb)*nBasisi*nBeta)
+        call DGEMM_('T','N',nTri_Elem1(lb)*nBasisi*nBeta,(2*iAng+1),nTri_Elem1(iAng),One,Array(ipF2),nTri_Elem1(iAng), &
+                    RSph(ipSph(iAng)),nTri_Elem1(iAng),Zero,Array(ipTmp),nTri_Elem1(lb)*nBasisi*nBeta)
 
         ! 4) b,KjC -> KjC,b
 
-        call DgeTMo(Array(ipTmp),nElem(lb),nElem(lb),nBasisi*nBeta*(2*iAng+1),Array(ipF2),nBasisi*nBeta*(2*iAng+1))
+        call DgeTMo(Array(ipTmp),nTri_Elem1(lb),nTri_Elem1(lb),nBasisi*nBeta*(2*iAng+1),Array(ipF2),nBasisi*nBeta*(2*iAng+1))
 
         ! Next Contract (iKaC)*(KjCb) over K and C, producing ijab,
         ! by the following procedure:
@@ -217,11 +216,11 @@ do iCnttp=1,nCnttp
         !   End loop C
         ! End Loop b and a
 
-        do ib=1,nElem(lb)
-          do ia=1,nElem(la)
+        do ib=1,nTri_Elem1(lb)
+          do ia=1,nTri_Elem1(la)
 
             do iC=1,(2*iAng+1)
-              iaC = (iC-1)*nElem(la)+ia
+              iaC = (iC-1)*nTri_Elem1(la)+ia
               ipaC = (iaC-1)*nAlpha*nBasisi+ipF1
               iCb = (ib-1)*(2*iAng+1)+iC
               ipCb = (iCb-1)*nBasisi*nBeta+ipF2

@@ -24,6 +24,7 @@ subroutine CntInt( &
 !             Modified from D1Int January 2008.                        *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -31,9 +32,6 @@ implicit none
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iIC, ipArr, ipAxyz, ipBxyz, iPrint, iRout, na, nb, nip
 character(len=80) :: Label
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -79,8 +77,8 @@ call Contact(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,Ccoor,lOper,iCh
 
 if (iPrint >= 99) then
   do iIC=1,nIC
-    do ia=1,nElem(la)
-      do ib=1,nElem(lb)
+    do ia=1,nTri_Elem1(la)
+      do ib=1,nTri_Elem1(lb)
         write(Label,'(A,I2,A,I2,A)') 'Contact term(',ia,',',ib,')'
         call RecPrt(Label,' ',rFinal(1,ia,ib,iIC),1,nZeta)
       end do

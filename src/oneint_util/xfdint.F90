@@ -26,6 +26,7 @@ subroutine XFdInt( &
 
 use external_centers, only: nXF, XF
 use Phase_Info, only: iPhase
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -43,10 +44,6 @@ character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz 
 integer(kind=iwp), external :: iChAtm, NrOpr
 logical(kind=iwp), external :: EQ
 external TNAI, Fake, XCff2D, XRys2D
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, nabSz, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -59,10 +56,10 @@ unused_var(iAddPot)
 iRout = 151
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 
-call mma_allocate(ZFd,nElem(nOrdOp),label='ZFd')
-call mma_allocate(ZRFd,nElem(nOrdOp),label='ZRFd')
+call mma_allocate(ZFd,nTri_Elem1(nOrdOp),label='ZFd')
+call mma_allocate(ZRFd,nTri_Elem1(nOrdOp),label='ZRFd')
 
 ! Loop over charges and dipole moments in the external field
 
@@ -75,13 +72,13 @@ do iOrdOp=0,nOrdOp
   iAnga(4) = 0
   call dcopy_(3,A,1,Coori(1,1),1)
   call dcopy_(3,RB,1,Coori(1,2),1)
-  mabMin = nabSz(max(la,lb)-1)+1
-  mabMax = nabSz(la+lb)
-  if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
-  mcdMin = nabSz(iOrdOp-1)+1
-  mcdMax = nabSz(iOrdOp)
+  mabMin = nTri3_Elem1(max(la,lb)-1)
+  mabMax = nTri3_Elem1(la+lb)-1
+  if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
+  mcdMin = nTri3_Elem1(iOrdOp-1)
+  mcdMax = nTri3_Elem1(iOrdOp)-1
   lab = (mabMax-mabMin+1)
-  kab = nElem(la)*nElem(lb)
+  kab = nTri_Elem1(la)*nTri_Elem1(lb)
   lcd = (mcdMax-mcdMin+1)
   labcd = lab*lcd
 
@@ -109,7 +106,7 @@ do iOrdOp=0,nOrdOp
   do iFd=1,nXF
 
     NoLoop = .true.
-    do jElem=1,nElem(iOrdOp)
+    do jElem=1,nTri_Elem1(iOrdOp)
       ZFd(jElem) = XF(nData+jElem,iFd)
       ! Divide quadrupole diagonal by 2 due to different normalisation
       if ((iOrdOp == 2) .and. ((jElem == 1) .or. (jElem == 4) .or. (jElem == 6))) ZFd(jElem) = ZFd(jElem)*Half
@@ -205,21 +202,21 @@ do iOrdOp=0,nOrdOp
       nOp = NrOpr(iDCRT(lDCRT))
       ipI = ip1
 
-      do i=1,nElem(iOrdOp)
+      do i=1,nTri_Elem1(iOrdOp)
         if (ZRFd(i) /= Zero) call SymAdO(Array(ipI),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*ZRFd(i))
-        ipI = ipI+nZeta*nElem(la)*nElem(lb)
+        ipI = ipI+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)
       end do
 
 #     ifdef _DEBUGPRINT_
-      write(u6,*) (Fact*ZFd(i),i=1,nElem(iOrdOp))
-      call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nElem(iOrdOp))
+      write(u6,*) (Fact*ZFd(i),i=1,nTri_Elem1(iOrdOp))
+      call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nTri_Elem1(iOrdOp))
       call RecPrt('rFinal',' ',rFinal,nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nIC)
 #     endif
 
     end do ! End loop over DCRs
   end do   ! iFd
 
-  nData = nData+nElem(iOrdOp)
+  nData = nData+nTri_Elem1(iOrdOp)
 end do     ! iOrdOp
 
 call mma_deallocate(ZFd)

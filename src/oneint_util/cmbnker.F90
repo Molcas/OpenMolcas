@@ -16,7 +16,7 @@ subroutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,rFinal,nComp,Alpha,nAlpha,Beta,nBe
 !     Author: Kurt Pfingst                                             *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Three, Half
 use Definitions, only: wp, iwp, u6
 
@@ -33,9 +33,6 @@ integer(kind=iwp) :: ia, ialpha, ib, ibeta, iComp, ipa, ipb, iPrint, iRout, ixa,
 real(kind=wp) :: b1, b1a, b2, b2a, b3, BBLoch, c0, c1, c2, CConst1, CConst2, CConst3, ck1, const1, const2, const3, Fact, Fact1, &
                  Fact2, Fact3, ralpha, rbeta, rx1, ry1, rz1, W
 character(len=80) :: Label
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 iRout = 134
 iPrint = nPrint(iRout)
@@ -47,10 +44,10 @@ do ixa=0,la
     n = ixa+ixb
     do iya=0,la-ixa
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,lb-ixb
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
         ry1 = real(iyb*(iyb-1),kind=wp)
         m = iya+iyb
         rz1 = real(izb*(izb-1),kind=wp)
@@ -131,10 +128,10 @@ if (abs(qCoul) > Epsq) then
     do ixb=0,lb
       do iya=0,la-ixa
         iza = la-ixa-iya
-        ipa = Ind(la,ixa,iza)
+        ipa = C_Ind(la,ixa,iza)
         do iyb=0,lb-ixb
           izb = lb-ixb-iyb
-          ipb = Ind(lb,ixb,izb)
+          ipb = C_Ind(lb,ixb,izb)
           lrs = ixa+ixb+iya+iyb+iza+izb
           lcost = iza+izb
           lsint = ixa+ixb+iya+iyb
@@ -172,10 +169,10 @@ if (abs(Dipol1) > Epsq) then
     do ixb=0,lb
       do iya=0,la-ixa
         iza = la-ixa-iya
-        ipa = Ind(la,ixa,iza)
+        ipa = C_Ind(la,ixa,iza)
         do iyb=0,lb-ixb
           izb = lb-ixb-iyb
-          ipb = Ind(lb,ixb,izb)
+          ipb = C_Ind(lb,ixb,izb)
           lrs = ixa+ixb+iya+iyb+iza+izb
           ! Beitrag der x-Komponente
           lcost = iza+izb

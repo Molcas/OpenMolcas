@@ -20,7 +20,7 @@ subroutine CmbnMP_GIAO(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,nB,RAB,C)
 !              Japan, January 2000.                                    *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Three, Half
 use Definitions, only: wp, iwp
 
@@ -28,11 +28,8 @@ implicit none
 integer(kind=iwp) :: nZeta, la, lb, lr, nComp, nB
 real(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr+1), Zeta(nZeta), rKappa(nZeta), &
                  rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,nB), RAB(3), C(3)
-integer(kind=iwp) :: iBx, iBy, iBz, iComp, ipa, ipb, ix_(3,2), ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+integer(kind=iwp) :: iBx, iBy, iBz, iComp, ipa, ipb, ix, ix_(3,2), ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 real(kind=wp) :: Fact, temp, tempy, tempz
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 do ixa=0,la
   iyaMax = la-ixa
@@ -40,10 +37,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         ! Combine multipole moment integrals
 

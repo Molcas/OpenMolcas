@@ -24,6 +24,7 @@ subroutine PotInt( &
 !***********************************************************************
 
 use Phase_Info, only: iPhase
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -36,10 +37,6 @@ logical(kind=iwp) :: NoSpecial
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 external :: Fake, TNAI, XCff2D, XRys2D
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, nabSz, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -47,7 +44,7 @@ unused_var(Beta)
 unused_var(nHer)
 unused_var(nOrdOp)
 
-call fzero(rFinal,nZeta*nElem(la)*nElem(lb)*nIC)
+call fzero(rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC)
 
 iAnga(1) = la
 iAnga(2) = lb
@@ -56,9 +53,9 @@ iAnga(4) = 0
 call dcopy_(3,A,1,Coora(1,1),1)
 call dcopy_(3,RB,1,Coora(1,2),1)
 call dcopy_(2*3,Coora,1,Coori,1)
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
-if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
+if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
 
 ! Compute FLOP's and size of work array which Hrr will use.
 

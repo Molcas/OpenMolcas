@@ -16,23 +16,21 @@ subroutine QpVMem( &
 #                 include "mem_interface.fh"
                  )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
 integer(kind=iwp) :: MmMltP, nOrder
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 call MltMmP(nOrder,Mem,la,lb+1,lr-1)
 nHer = nOrder
 if (lb > 0) then
   call MltMmP(nOrder,MmMltP,la,lb-1,lr-1)
-  Mem = max(Mem,MmMltP)+nElem(la)*nElem(lb-1)*3
+  Mem = max(Mem,MmMltP)+nTri_Elem1(la)*nTri_Elem1(lb-1)*3
 end if
-Mem = Mem+1+nElem(la)*nElem(lb+1)*3
-Mem = Mem+nElem(la)*nElem(lb)*6
+Mem = Mem+1+nTri_Elem1(la)*nTri_Elem1(lb+1)*3
+Mem = Mem+nTri_Elem1(la)*nTri_Elem1(lb)*6
 
 return
 

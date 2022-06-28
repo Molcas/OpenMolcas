@@ -35,9 +35,6 @@ real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZ
 external :: Kernel
 #include "print.fh"
 integer(kind=iwp) :: i, iBeta, ipA, ipArr, ipOff, iPrint, ipS1, ipS2, iRout, kRys, mArr, nip
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
 #include "macros.fh"
 unused_var(nHer)
@@ -57,11 +54,11 @@ nip = 1
 ipA = nip
 nip = nip+nZeta
 ipS1 = nip
-nip = nip+nZeta*nElem(la+1)*nElem(lb)*nIC
+nip = nip+nZeta*nTri_Elem1(la+1)*nTri_Elem1(lb)*nIC
 ipS2 = 1
 if (la > 0) then
   ipS2 = nip
-  nip = nip+nZeta*nElem(la-1)*nElem(lb)*nIC
+  nip = nip+nZeta*nTri_Elem1(la-1)*nTri_Elem1(lb)*nIC
 else
   ipS2 = ipS1
 end if
@@ -111,7 +108,7 @@ call Ass_pX(Array(ipA),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nIC)
 !                                                                      *
 if (iPrint >= 49) then
   do i=1,3
-    call RecPrt('pVInt: rFinal',' ',rFinal(1,1,1,i),nZeta,nElem(la)*nElem(lb))
+    call RecPrt('pVInt: rFinal',' ',rFinal(1,1,1,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
 end if
 
