@@ -88,7 +88,7 @@
 
         select case (scheme%val)
           case(ON_scheme_values%no_ON)
-            continue
+            !continue
           case(ON_scheme_values%Lowdin)
             call Lowdin_Blocks(basis, S, ONB)
           case(ON_scheme_values%Canonical)

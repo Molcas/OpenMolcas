@@ -546,8 +546,6 @@ if (lISC) then
         lInCore = .false.
       end if
     end if
-  else
-    continue
   end if
 
   call Timing(CPTF0,CPE,TIOTF0,TIOE)

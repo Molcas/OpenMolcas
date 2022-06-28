@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine XM06(mGrid,dF_dRho,ndF_dRho,
-     &                CoeffA,iSpin,F_xc,T_X,ijzy)
+      Subroutine XM06(mGrid,
+     &                CoeffA,iSpin,F_xc,ijzy)
 ************************************************************************
 *                                                                      *
 *  M06x evaluates the exchange part of the M06 suite of                *
@@ -31,11 +31,11 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
+      use nq_Grid, only: vRho, vSigma, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
       Integer mGrid
 
       integer ijzy
@@ -172,13 +172,12 @@ C     Parameters for M06-2X
          dFdTau=dFdW*dWdT*dTdTau
          dGGAdG =(fNL*dE/(Two*Gamma))
 *        dF/dRho
-         dF_dRho(ipR,igrid)=dF_dRho(ipR,igrid)+dGGAdR*Fsig
+         vRho(1,igrid)=vRho(1,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGamma
-         dF_dRho(ipGxx,igrid)=dF_dRho(ipGxx,iGrid)+ dGGAdG*Fsig
+         vSigma(1,igrid)=vSigma(1,iGrid)+ dGGAdG*Fsig
 *        dF/dTau
-         dF_dRho(ipT,iGrid)
-     &      =dF_dRho(ipT,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
+         vTau(1,iGrid)=vTau(1,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 
 110     continue
        Enddo
@@ -235,13 +234,12 @@ C     Parameters for M06-2X
          dFdTau=dFdW*dWdT*dTdTau
          dGGAdG =(fNL*dE/(Two*Gamma))
 *        dF/dRhoa
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,igrid)+dGGAdR*Fsig
+         vRho(1,iGrid)=vRho(1,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGammaaa
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ dGGAdG*Fsig
+         vSigma(1,iGrid)=vSigma(1,iGrid)+ dGGAdG*Fsig
 *        dF/dTaua
-         dF_dRho(ipTa,iGrid)
-     &      =dF_dRho(ipTa,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
+         vTau(1,iGrid)=vTau(1,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 210      continue
 *
 * beta component
@@ -285,13 +283,12 @@ C     Parameters for M06-2X
          dFdTau=dFdW*dWdT*dTdTau
          dGGAdG =(fNL*dE/(Two*Gamma))
 *        dF/dRhob
-         dF_dRho(ipRb,igrid)=dF_dRho(ipRb,igrid)+dGGAdR*Fsig
+         vRho(2,igrid)=vRho(2,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGammabb
-         dF_dRho(ipGbb,igrid)=dF_dRho(ipGbb,iGrid)+ dGGAdG*Fsig
+         vSigma(3,igrid)=vSigma(3,iGrid)+ dGGAdG*Fsig
 *        dF/dTaub
-         dF_dRho(ipTb,igrid)
-     &      =dF_dRho(ipTb,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
+         vTau(2,igrid)=vTau(2,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 310     continue
        enddo
 *                                                                      *

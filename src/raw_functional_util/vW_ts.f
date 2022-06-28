@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine vW_Ts(mGrid,nDmat,F_xc,dF_dRho,
-     &                       ndF_dRho,Coeff,T_X)
+      Subroutine vW_Ts(mGrid,nDmat,F_xc,
+     &                       Coeff)
 ************************************************************************
 *                                                                      *
 * Object:  compute Func for von Weizsacker KE functional               *
@@ -19,8 +19,8 @@
       use nq_grid, only: Rho, Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -79,6 +79,4 @@
       End If
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(df_dRho)
       End

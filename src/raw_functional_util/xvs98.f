@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine XVS98(mGrid,dF_dRho,ndF_dRho,
-     &                 CoeffA,iSpin,F_xc,T_X,ijzy)
+      Subroutine XVS98(mGrid,
+     &                 CoeffA,iSpin,F_xc,ijzy)
 ************************************************************************
 *                                                                      *
 *  xvs98 evaluates the exchange part of the VS98 and M06 suite of      *
@@ -31,10 +31,11 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
+      use nq_Grid, only: vRho, vSigma, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
       Integer mGrid
 
       integer ijzy
@@ -139,12 +140,12 @@ c
 c     functional derivatives
 c
 *        dF/dRho
-         dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+ f43*rho13*gx +
+         vRho(1,iGrid)=vRho(1,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGamma
-         dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+rho43*(dgdx*dxdg)
+         vSigma(1,iGrid)=vSigma(1,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTau
-         dF_dRho(ipT,iGrid)=dF_dRho(ipT,iGrid)+ rho43*(dgdz*dzdt)
+         vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
 110     continue
         Enddo
        else
@@ -179,12 +180,12 @@ c
 c     functional derivatives
 c
 *        dF/dRhoa
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+ f43*rho13*gx +
+         vRho(1,iGrid)=vRho(1,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGammaaa
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+rho43*(dgdx*dxdg)
+         vSigma(1,iGrid)=vSigma(1,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTaua
-         dF_dRho(ipTa,iGrid)=dF_dRho(ipTa,iGrid)+ rho43*(dgdz*dzdt)
+         vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
 210      continue
 c
 c beta component
@@ -214,12 +215,12 @@ c
 c     functional derivatives
 c
 *        dF/dRhob
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+ f43*rho13*gx +
+         vRho(2,iGrid)=vRho(2,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGammabb
-         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+rho43*(dgdx*dxdg)
+         vSigma(3,iGrid)=vSigma(3,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTaub
-         dF_dRho(ipTb,iGrid)=dF_dRho(ipTb,iGrid)+ rho43*(dgdz*dzdt)
+         vTau(2,iGrid)=vTau(2,iGrid)+ rho43*(dgdz*dzdt)
 310      continue
         enddo
        endif

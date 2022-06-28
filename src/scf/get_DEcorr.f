@@ -114,8 +114,7 @@
       External VWN_III_emb,
      &         VWN_V_emb,
      &         cBLYP_emb,
-     &         cPBE_emb,
-     &         Checker
+     &         cPBE_emb
 *
       lKSDFT=LEN(KSDFT)
       Debug=.False.
@@ -188,19 +187,6 @@ c        ExFac=Get_ExFac(KSDFT)
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(cPBE_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Checker
-*
-      Else If (KSDFT.eq.'CHECKER') Then
-c        ExFac=Zero
-         Functional_type=meta_GGA_type2
-         Call DrvNQ(Checker,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,

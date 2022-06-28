@@ -11,8 +11,8 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine LYP_OFE(mGrid,dF_dRho,ndF_dRho,
-     &                   Coeff,iSpin,F_xc,T_X)
+      Subroutine LYP_OFE(mGrid,
+     &                   Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:  Lyp Functional(Formula taken from Molpro Manual)            *
@@ -25,10 +25,11 @@
 *              and adopt for closed shell case                         *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *
       data Cfconst / 2.8712340001881918D0 /
       data aconst,bconst,cconst,dconst
@@ -135,13 +136,13 @@
 ************************************************************************
 *                                                                      *
 *      dF/dRho
-       dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)
+       vRho(1,iGrid)=vRho(1,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
 *      dF/dGaa
-       dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)
+       vSigma(1,iGrid)=vSigma(1,iGrid)
      &                     +Coeff*(dec34dsa+dec34ds)
+     &                     +Coeff*(dec34ds)
 *      dF/dGab
-       dF_dRho(ipGxy,iGrid)=dF_dRho(ipGxy,iGrid)+2.0d0*Coeff*(dec34ds)
 101   Continue
       End Do
 
@@ -240,16 +241,16 @@
 ************************************************************************
 *                                                                      *
 *       dF/dRhoa, dF/dRhob
-        dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)
+        vRho(1,iGrid)=vRho(1,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
-        dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)
+        vRho(2,iGrid)=vRho(2,iGrid)
      &                   +Coeff*(dec1drb+dec2drb+dec3drb+dec4drb)
 *       dF/dGaa, dF/dGab, and dF/dGbb
-        dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)
+        vSigma(1,iGrid)=vSigma(1,iGrid)
      &                      +Coeff*(dec34dsa+dec34ds)
-        dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)
+        vSigma(3,iGrid)=vSigma(3,iGrid)
      &                      +Coeff*(dec34dsb+dec34ds)
-        dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+2.0d0*Coeff*dec34ds
+        vSigma(2,iGrid)=vSigma(2,iGrid)+2.0d0*Coeff*dec34ds
 201   Continue
       End Do
       Endif

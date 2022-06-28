@@ -100,8 +100,6 @@
               If (iSetPrev.ne.iDominantSet) Then
                 z(i-1) = z(i)
                 i = i - 1
-              Else
-                continue
               End If
               iSetPrev = iSetThis
             End If

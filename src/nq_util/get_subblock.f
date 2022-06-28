@@ -13,19 +13,17 @@
       Subroutine Get_Subblock(Kernel,Func,ixyz,
      &                        Maps2p,list_s,list_exp,list_bas,
      &                        nShell,nSym, list_p,R2_trial,nNQ,
-     &                        AOInt,nAOInt,
-     &                        FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
+     &                        FckInt,nFckDim,nFckInt,
      &                        Dens,nDens,nD,
      &                        mGrid,
-     &                        ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &                        nP2_ontop,
      &                        Do_Mo,Do_TwoEl,l_Xhol,
      &                        TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
      &                  P2mo,P2Unzip,np2act,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
-     &                        Temp,mGrad,F_xc,dF_dRho,
-     &                        dF_dP2ontop,
+     &                        Temp,mGrad,F_xc,
      &                        DFTFOCK,mAO,mdRho_dR,
-     &                        LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                        LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *                                                                      *
 * Object: to generate the list of the shell and exponent that have an  *
@@ -43,7 +41,7 @@
       use Center_Info
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
-     &                   kAO
+     &                   kAO, iBfn_Index
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -61,18 +59,15 @@
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
      &        list_p(nNQ), DoIt(nMOs), iTab(4,mGrad),IndGrd(mGrad)
       Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
-     &       AOInt(nAOInt,nAOInt,nD), SOTemp(nSOTemp,nD),
      &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
      &       CMOs(nCMO), P2mo(np2act), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
-     &       dF_dRho(ndF_dRho,mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo,Do_TwoEl,l_Xhol
       Character*4 DFTFOCK
-      Integer LOE_DB,LTEG_DB
+      Integer LTEG_DB
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Real*8,DIMENSION(NASHT**2)::D1Unzip
 *                                                                      *
@@ -340,16 +335,18 @@ C              End If
 *
       nBfn=0
       Do iList_s = 1, nList_s
-         iSkal = list_s(1,ilist_s)
+         iSkal    =list_s(1,ilist_s)
+         NrBas_Eff=list_bas(1,ilist_s)
          iCmp  = iSD( 2,iSkal)
-         iBas  = iSD( 3,iSkal)
-         nBfn=nBfn+iBas*iCmp
+         nBfn=nBfn+NrBas_Eff*iCmp
       End Do
 *
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
       Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
       Call mma_Allocate(Ind_Grd,3,nBfn,Label='Ind_Grd')
+      Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
       Ind_Grd(:,:)=0
+      iBfn_Index(:,:)=0
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
          nTabMO=mAO*nMOs*mGrid
@@ -699,10 +696,10 @@ c
 
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
-     &                 iWork(ipIndex),nIndex,AOInt,nAOInt,
-     &                 FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
+     &                 iWork(ipIndex),nIndex,
+     &                 FckInt,nFckDim,nFckInt,
      &                 iWork(ipTabAO),mAO,nSym,Dens,nDens,nD,
-     &                 ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &                 nP2_ontop,
      &                 nShell,Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
@@ -711,8 +708,8 @@ c
      &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
-     &                 Maps2p,dF_dRho,dF_dP2ontop,
-     &                 DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,
+     &                 Maps2p,
+     &                 DFTFOCK,LTEG_DB,PDFTPot1,PDFTFocI,
      &                 PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
@@ -740,6 +737,7 @@ c
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deAllocate(iBfn_Index)
       Call mma_deAllocate(Ind_Grd)
       Call GetMem('Index','Free','Real',ipIndex,nIndex)
       Call Free_iWork(ipTabAO)

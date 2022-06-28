@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2002, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DFT_Grad(Grad,nGrad,dF_dRho,ndF_dRho,iSpin,
+      Subroutine DFT_Grad(Grad,nGrad,iSpin,
      &                    Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,
      &                    IndGrd,Weights,iTab,Temp,F_xc,
      &                    dW_dR,iNQ)
@@ -22,7 +22,7 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University of   *
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
-      use nq_Grid, only: GradRho
+      use nq_Grid, only: GradRho, vRho, vSigma, vTau, vLapl
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -34,9 +34,7 @@
 #include "ksdft.fh"
       Parameter (Mxdc=MxAtom)
 #include "disp.fh"
-#include "nq_index.fh"
       Real*8 Grad(nGrad), Temp(nGrad_Eff), Grid(3,mGrid),
-     &       dF_dRho(ndF_dRho,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
      &       R_Grid(3),
      &       Weights(mGrid), F_xc(mGrid), dW_dR(nGrad_Eff,mGrid)
@@ -129,7 +127,7 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  dF_dr = dF_dRho(ipR,j)    *dRho_dR(1,j,i_Eff)
+                  dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
 *
                   tmp = tmp + Weights(j) * dF_dr
 *
@@ -152,8 +150,8 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  dF_dr = dF_dRho(ipRa,j)    *dRho_dR(1,j,i_Eff)
-     &                  +dF_dRho(ipRb,j)    *dRho_dR(2,j,i_Eff)
+                  dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
+     &                  +vRho(2,j)    *dRho_dR(2,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -184,10 +182,10 @@
                   gx=Gradrho(1,j)
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
-                  Temp0=dF_dRho(ipR,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
+                  Temp0=vRho(1,j)
+                  Temp1=2.0d0*vSigma(1,j)*gx
+                  Temp2=2.0d0*vSigma(1,j)*gy
+                  Temp3=2.0d0*vSigma(1,j)*gz
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -221,20 +219,20 @@
                   gyb=Gradrho(5,j)
                   gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
-                  Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
-     &                          +dF_dRho(ipGab,j)*gxb )
-                  Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
-     &                          +dF_dRho(ipGab,j)*gxa )
-                  Temp2a=( 2.0d0*dF_dRho(ipGaa,j)*gya
-     &                          +dF_dRho(ipGab,j)*gyb )
-                  Temp2b=( 2.0d0*dF_dRho(ipGbb,j)*gyb
-     &                          +dF_dRho(ipGab,j)*gya )
-                  Temp3a=( 2.0d0*dF_dRho(ipGaa,j)*gza
-     &                          +dF_dRho(ipGab,j)*gzb )
-                  Temp3b=( 2.0d0*dF_dRho(ipGbb,j)*gzb
-     &                          +dF_dRho(ipGab,j)*gza )
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
+                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
+     &                          +vSigma(2,j)*gxb )
+                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
+     &                          +vSigma(2,j)*gxa )
+                  Temp2a=( 2.0d0*vSigma(1,j)*gya
+     &                          +vSigma(2,j)*gyb )
+                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
+     &                          +vSigma(2,j)*gya )
+                  Temp3a=( 2.0d0*vSigma(1,j)*gza
+     &                          +vSigma(2,j)*gzb )
+                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
+     &                          +vSigma(2,j)*gza )
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -271,11 +269,11 @@
                   gx=Gradrho(1,j)
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
-                  Temp0=dF_dRho(ipR,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
-                  Temp4=Half*dF_dRho(ipT,j)
+                  Temp0=vRho(1,j)
+                  Temp1=2.0d0*vSigma(1,j)*gx
+                  Temp2=2.0d0*vSigma(1,j)*gy
+                  Temp3=2.0d0*vSigma(1,j)*gz
+                  Temp4=Half*vTau(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -308,22 +306,22 @@
                   gyb=Gradrho(5,j)
                   gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
-                  Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
-     &                          +dF_dRho(ipGab,j)*gxb )
-                  Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
-     &                          +dF_dRho(ipGab,j)*gxa )
-                  Temp2a=( 2.0d0*dF_dRho(ipGaa,j)*gya
-     &                          +dF_dRho(ipGab,j)*gyb )
-                  Temp2b=( 2.0d0*dF_dRho(ipGbb,j)*gyb
-     &                          +dF_dRho(ipGab,j)*gya )
-                  Temp3a=( 2.0d0*dF_dRho(ipGaa,j)*gza
-     &                          +dF_dRho(ipGab,j)*gzb )
-                  Temp3b=( 2.0d0*dF_dRho(ipGbb,j)*gzb
-     &                          +dF_dRho(ipGab,j)*gza )
-                  Temp4a=dF_dRho(ipTa,j)
-                  Temp4b=dF_dRho(ipTb,j)
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
+                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
+     &                          +vSigma(2,j)*gxb )
+                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
+     &                          +vSigma(2,j)*gxa )
+                  Temp2a=( 2.0d0*vSigma(1,j)*gya
+     &                          +vSigma(2,j)*gyb )
+                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
+     &                          +vSigma(2,j)*gya )
+                  Temp3a=( 2.0d0*vSigma(1,j)*gza
+     &                          +vSigma(2,j)*gzb )
+                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
+     &                          +vSigma(2,j)*gza )
+                  Temp4a=vTau(1,j)
+                  Temp4b=vTau(2,j)
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -362,12 +360,12 @@
                   gx=Gradrho(1,j)
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
-                  Temp0=dF_dRho(ipR,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
-                  Temp4=dF_dRho(ipT,j)
-                  Temp5=dF_dRho(ipL,j)
+                  Temp0=vRho(1,j)
+                  Temp1=2.0d0*vSigma(1,j)*gx
+                  Temp2=2.0d0*vSigma(1,j)*gy
+                  Temp3=2.0d0*vSigma(1,j)*gz
+                  Temp4=vTau(1,j)
+                  Temp5=vLapl(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -401,24 +399,24 @@
                   gyb=Gradrho(5,j)
                   gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
-                  Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
-     &                          +dF_dRho(ipGab,j)*gxb )
-                  Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
-     &                          +dF_dRho(ipGab,j)*gxa )
-                  Temp2a=( 2.0d0*dF_dRho(ipGaa,j)*gya
-     &                          +dF_dRho(ipGab,j)*gyb )
-                  Temp2b=( 2.0d0*dF_dRho(ipGbb,j)*gyb
-     &                          +dF_dRho(ipGab,j)*gya )
-                  Temp3a=( 2.0d0*dF_dRho(ipGaa,j)*gza
-     &                          +dF_dRho(ipGab,j)*gzb )
-                  Temp3b=( 2.0d0*dF_dRho(ipGbb,j)*gzb
-     &                          +dF_dRho(ipGab,j)*gza )
-                  Temp4a=dF_dRho(ipTa,j)
-                  Temp4b=dF_dRho(ipTb,j)
-                  Temp5a=dF_dRho(ipLa,j)
-                  Temp5b=dF_dRho(ipLb,j)
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
+                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
+     &                          +vSigma(2,j)*gxb )
+                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
+     &                          +vSigma(2,j)*gxa )
+                  Temp2a=( 2.0d0*vSigma(1,j)*gya
+     &                          +vSigma(2,j)*gyb )
+                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
+     &                          +vSigma(2,j)*gya )
+                  Temp3a=( 2.0d0*vSigma(1,j)*gza
+     &                          +vSigma(2,j)*gzb )
+                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
+     &                          +vSigma(2,j)*gza )
+                  Temp4a=vTau(1,j)
+                  Temp4b=vTau(2,j)
+                  Temp5a=vLapl(1,j)
+                  Temp5b=vLapl(2,j)
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
