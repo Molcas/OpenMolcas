@@ -31,10 +31,7 @@ C
 #include "sigma.fh"
 
 #include "caspt2_grad.fh"
-#include "csfbas.fh"
-C
 #include "pt2_guga.fh"
-C
 #include "chocaspt2.fh"
       DIMENSION DMAT(*),UEFF(nState,nState)
       Dimension VECROT(nState)

@@ -154,6 +154,7 @@ C
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
         HEFF(:,:)=INPUT%HEFF(:,:)
+        iStpGrd = 1
         GOTO 1000
       END IF
 C
@@ -210,7 +211,7 @@ C
       GRADLOOP: Do iGrd = 1, nStpGrd
       ! to momentarily avoid NAG complaints
       iStpGrd = iGrd
-      IF (INPUT%JMS) GOTO 1000
+      ! IF (INPUT%JMS) GOTO 1000
 
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number

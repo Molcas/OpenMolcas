@@ -653,7 +653,7 @@ contains
         if (iError > 0) call IOError(Line)
         if (iError < 0) then
           if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-          call ExtendLine(dLine,Line)
+          call extend_line(dLine,Line)
         end if
       end do
       deallocate (dLine)
