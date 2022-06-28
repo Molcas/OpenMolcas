@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=134)
+      Parameter (NKeys=135)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -45,7 +45,8 @@
      &     KeyDFCF, KeyNKEE, KeyREOR, KeyTRIA, KeyPOPS,
      &     KeySEMI, KeyMEMO, KeyIVO , KeyCRPR, KeyRDML,
      &     KeyORTH, KeyCCCI, KeyROST, KeyXMSI, KeyCMSI,
-     &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyZZZZ
+     &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyCMSS,
+     &     KeyZZZZ
 
       Common /InputFlags/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -74,7 +75,8 @@
      &     KeyDFCF, KeyNKEE, KeyREOR, KeyTRIA, KeyPOPS,
      &     KeySEMI, KeyMEMO, KeyIVO , KeyCRPR, KeyRDML,
      &     KeyORTH, KeyCCCI, KeyROST, KeyXMSI, KeyCMSI,
-     &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyZZZZ
+     &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyCMSS,
+     &     KeyZZZZ
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -106,7 +108,7 @@
      &                  'DFCF','NKEE','REOR','TRIA','POPS',
      &                  'SEMI','MEMO','IVO ','CRPR','RDML',
      &                  'ORTH','CCCI','ROST','XMSI','CMSI',
-     &                  'CMMA','CMMI','CMTH','GUGA'])
+     &                  'CMMA','CMMI','CMTH','GUGA','CMSS'])
 *------------------------------------------------------
 * Input data sets:
       Integer iCI_I,IROOT_I,NFRO_I,NISH_I,NRS1_I,NRS2_I,NRS3_I,NDEL_I,

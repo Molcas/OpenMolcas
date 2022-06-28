@@ -38,6 +38,7 @@
       use OFembed
       use Functionals, only: Custom_File, Custom_Func
       use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
+      use InfSO
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r
 #endif
@@ -51,7 +52,6 @@
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
 #include "stdalloc.fh"
 #include "ldfscf.fh"
 #include "file.fh"
@@ -101,7 +101,7 @@
       timings=.false.
       UHFSet=.false.
       Nscreen = 10    ! default screening interval (# of red sets)
-      dmpk = 1.0d0   ! default damping of the screening threshold
+      dmpk = 0.1d0   ! default damping of the screening threshold
       Estimate=.false.
       Update=.true.
 #if defined (_MOLCAS_MPP_)

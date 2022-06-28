@@ -22,7 +22,7 @@ public :: Half, Quart, OneHalf, Pi, SqrtP2, TwoP34, TwoP54, One2C2
 
 #include "constants2.fh"
 public :: diel, deg2rad, UTOAU, elmass, ATOKG, elcharge, rNAVO, cLight, auTocm, rPlanck, kBoltzmann, rBohr, cm_s, Debye, Angstrom, &
-          RF, auToHz, auTofs, auToN, auToeV, auTokJ, auTokcalmol, c_in_au, cal_to_J, Rgas, mu2elmass
+          RF, auToHz, auTofs, auToN, auToeV, auTokJ, auTokcalmol, c_in_au, cal_to_J, Rgas, mu2elmass, cLightAU, atmToau
 
 complex(kind=wp), parameter :: cZero = (Zero,Zero), cOne = (One,Zero), Onei = (Zero,One)
 

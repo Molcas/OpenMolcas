@@ -16,8 +16,8 @@
 *
 * Jeppe Olsen, November 2001
 *
+      USE csfbas, only: maxop_lucia
 #include "implicit.fh"
-#include "csfbas.fh"
 *. Input
       INTEGER IOCLS(NGAS,NOCLS)
       INTEGER NOBPT(NGAS)

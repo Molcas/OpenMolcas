@@ -30,6 +30,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSO
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
       Logical QNR
@@ -39,7 +40,6 @@
 *
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "infso.fh"
       character cEDiff, cDMOMax, cFMOMax,cDltNrm
 
       If(iterprlv.gt.0) Then

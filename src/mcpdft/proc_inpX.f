@@ -11,6 +11,7 @@
       Subroutine Proc_InpX(DSCF,iRc)
 
 ! module dependencies
+      use csfbas, only: CONF, KCFTP
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif
@@ -42,7 +43,6 @@
 #include "wjob.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
-#include "csfbas.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
 #include "stdalloc.fh"
@@ -826,7 +826,7 @@ CSVC: check if NU<NT are included in the same gas space
       IF (ICICH.EQ.1) THEN
         CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
         CALL UG2SG_m(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
-     *             IWORK(KICONF(1)),IWORK(KCFTP),IWORK(LUG2SG),
+     *             CONF,IWORK(KCFTP),IWORK(LUG2SG),
      *             ICI,JCJ,CCI,MXROOT)
         CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
       END IF

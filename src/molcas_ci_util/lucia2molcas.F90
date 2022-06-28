@@ -14,6 +14,8 @@ subroutine LUCIA2MOLCAS(KDFTP_LUCIA,KCFTP_LUCIA,KDTOC_LUCIA,KICONF_OCC_LUCIA,KSD
                         nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
+use csfbas, only: CONF, CTS, KCFTP, KDFTP, KDTOC, maxop_lucia
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
@@ -22,8 +24,8 @@ integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KDFTP_LUCIA, KCFTP_LUCIA, KDTOC
                                  NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
 integer(kind=iwp), intent(out) :: KICTS_POINTER
 integer(kind=iwp) :: I, ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, J, LCONF, LDET, LLCONF, LUCIA_TYPE, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
+integer(kind=iwp), external :: ip_of_iWork
 #include "rasdim.fh"
-#include "csfbas.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "rasscf.fh"
@@ -127,17 +129,13 @@ do ISYM=1,NSYM
   LDET = max(LDET,NDTASM(ISYM))
 end do
 
-call GetMem('KICONF','Allo','Integer',KICONF(1),LCONF)
-call GetMem('KICTS','Allo','Integer',KICTS(1),LDET)
-KICTS_POINTER = KICTS(1)
+call mma_allocate(CONF,LCONF,label='CONF')
+call mma_allocate(CTS,LDET,label='CTS')
+KICTS_POINTER = ip_of_iWork(CTS(1))
 
-do I=1,LCONF
-  IWORK(KICONF(1)+I-1) = KICONF_OCC_LUCIA(I)
-end do
+CONF(:) = KICONF_OCC_LUCIA(1:LCONF)
 
-do I=1,LDET
-  IWORK(KICTS(1)+I-1) = KSDREO_I(I)
-end do
+CTS(:) = KSDREO_I(1:LDET)
 
 NDET = NDET_LUCIA
 MULTS = MULTS_LUCIA

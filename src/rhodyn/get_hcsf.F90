@@ -85,7 +85,7 @@ if (.not. flag_so) then
 else
   HTOT_CSF(:,:) = HTOTRE_CSF+V_CSF
 end if
-if (ipglob > 2) write(u6,*) 'end contructing full Hamiltonian'
+if (ipglob > 2) write(u6,*) 'end constructing full Hamiltonian'
 
 ! Check whether total Hamiltonian is hermitian
 if (ipglob > 3) then

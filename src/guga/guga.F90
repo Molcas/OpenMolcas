@@ -37,11 +37,7 @@ integer(kind=iwp), external :: isFreeUnit
 
 ! Prologue
 
-! Allocate workspace through GETMEM:
-! PAM Aug -06: Get rid of fixed upper limit of workspace
-! PAM      NCOR = 1000000
-! PAM      call GETMEM('SOArr','Allo','Real',LSOArr,NCOR)
-! Replace by: Find max possible allocatable
+! Find max possible allocatable
 call mma_maxINT(NCOR)
 ! Grab almost all of it, but leave a little to be safe:
 NCOR = NCOR-100000

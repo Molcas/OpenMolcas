@@ -92,7 +92,7 @@ cI.6  read CCSD energy and amplitudes
       call t3reaccsd (Work(iOff),wrksize,
      & eccsd)
 c
-cI.7  get address vector T3IntPoss
+cI.7  get address vector T3IntPos
 c       they are located at the beggining of the t3nam file
       call GetIntPoss
 c

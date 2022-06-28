@@ -75,7 +75,7 @@ subroutine Print_Info()
 
   use xc_f03_lib_m, only: xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_name, xc_f03_func_info_get_references, &
                           xc_f03_func_info_t, xc_f03_func_init, xc_f03_func_reference_get_doi, xc_f03_func_reference_get_ref, &
-                          xc_f03_func_reference_t, xc_f03_func_t
+                          xc_f03_func_reference_t, xc_f03_func_t, XC_UNPOLARIZED
   use Definitions, only: u6
 
   integer(kind=iwp) :: i, old_j
@@ -88,7 +88,7 @@ subroutine Print_Info()
 
   write(u6,*)
   do i=1,Def_nFuncs
-    call xc_f03_func_init(func,Def_func_id(i),0_LibxcInt)
+    call xc_f03_func_init(func,Def_func_id(i),xc_unpolarized)
     info = xc_f03_func_get_info(func)
     write(u6,100) trim(xc_f03_func_info_get_name(info))
     ! old_j is a workaround for a bug in Libxc 5.2.0
@@ -113,7 +113,7 @@ subroutine Find_Functional(Label)
   use xc_f03_lib_m, only: xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_family, xc_f03_func_info_get_flags, &
                           xc_f03_func_info_t, xc_f03_func_init, xc_f03_func_t, xc_f03_hyb_exx_coef, XC_FAMILY_GGA, &
                           XC_FAMILY_HYB_GGA, XC_FAMILY_HYB_LDA, XC_FAMILY_HYB_MGGA, XC_FAMILY_LDA, XC_FAMILY_MGGA, &
-                          XC_FLAGS_NEEDS_LAPLACIAN
+                          XC_FLAGS_NEEDS_LAPLACIAN, XC_UNPOLARIZED
   use fortran_strings, only: to_upper
   use Constants, only: One
   use Definitions, only: u6
@@ -214,7 +214,7 @@ subroutine Find_Functional(Label)
   ! Now process the functional(s)
 
   do i=1,Def_nFuncs
-    call xc_f03_func_init(func(i),Def_func_id(i),0_LibxcInt)
+    call xc_f03_func_init(func(i),Def_func_id(i),XC_UNPOLARIZED)
     info(i) = xc_f03_func_get_info(func(i))
     flags(i) = xc_f03_func_info_get_flags(info(i))
   end do

@@ -311,16 +311,16 @@ C especially for already diagonal Hamiltonian matrix.
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
 C components of H and S in original RASSCF wave function basis:
-      EPSH=MAX(5.0D-10,ABS(ENERGY(1))*5.0D-11)
       EPSS=5.0D-11
+      EPSH=MAX(5.0D-10,ABS(ENERGY(1))*EPSS)
       IDX=100
       DO I=1,NSTATE
-       EI=ENERGY(I)
+       EI=ENERGY(I)*EPSS
        V2SUM=0.0D0
        DO J=1,NSTATE
         V2SUM=V2SUM+EIGVEC(J,I)**2
        END DO
-       ERMS=SQRT(EPSH**2+EI**2*EPSS**2)*V2SUM
+       ERMS=SQRT(EPSH**2+EI**2)*V2SUM
        IDX=MIN(IDX,INT(-LOG10(ERMS)))
       END DO
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
@@ -617,8 +617,8 @@ C                                                                      C
       IF(DIPR) THEN
         WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
       END IF
-! this is to ensure that the total transistion strength is non-zero
-! Negative transitions strengths can occur for quadrupole transistions
+! this is to ensure that the total transition strength is non-zero
+! Negative transitions strengths can occur for quadrupole transitions
 ! due to the truncation of the Taylor expansion.
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
