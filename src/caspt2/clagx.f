@@ -337,6 +337,7 @@ C
      *                  DEASUM,DEPSA,VECROT,VEC5)
 C
       USE SUPERINDEX
+      use stdalloc, only: mma_allocate, mma_deallocate
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -356,7 +357,10 @@ C
      *          DEPSA(nAshT,nAshT),VECROT(*)
 C
       Real*8, Allocatable :: WrkBbf(:,:,:,:),WrkSbf(:,:,:,:)
-C
+
+      INTEGER*1, allocatable :: idxG3(:,:)
+      ! INTEGER, PARAMETER :: I1=KIND(idxG3)
+
       nAshI = nAsh(iSym)
       Call GETMEM('WRK1  ','ALLO','REAL',LWRK1 ,nAS**2)
       Call GETMEM('WRK2  ','ALLO','REAL',LWRK2 ,MAX(nAS**2,nAS*nIS))
@@ -542,17 +546,16 @@ C
      *                   DF2,DG2,DF1,DG1,DEPSA,DEASUM,
      *                   1,nAS,1,nAS,0,g1,g2,work(lwrk2))
         !! G3 and F3 relevant
-        iPad=ItoB-MOD(6*NG3,ItoB)
-        CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
+        CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
-        CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
+        CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
         idS = idSMAT(iSym,1)
         CALL DDAFILE(LUSBT,2,WORK(LWRK2),nAS*(nAS+1)/2,idS)
-        CALL MKSC_G3(iSym,Work(LWRK2),nG3,G3,i1Work(LidxG3))
+        CALL MKSC_G3(iSym,Work(LWRK2),nG3,G3,idxG3)
         call CLagDXA_FG3(iSym,nAS,NG3,Work(LWRK3),Work(LWRK1),
      *                   DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
-     *                   Work(LWRK2),i1Work(LidxG3))
-        CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
+     *                   Work(LWRK2),idxG3)
+        call mma_deallocate(idxG3)
       Else If (iCase.eq. 2.or.iCase.eq. 3) Then !! B
         Allocate (WrkBbf(nAshT,nAshT,nAshT,nAshT))
         Allocate (WrkSbf(nAshT,nAshT,nAshT,nAshT))
@@ -780,17 +783,16 @@ C     call docpy_nas*nas,0.0d+00,0,work(lwrk1),1)
      *                   1,nAS,1,nAS,0,g1,g2,work(lwrk2))
 C
         !! G3 and F3 relevant
-        iPad=ItoB-MOD(6*NG3,ItoB)
-        CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
+        CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
-        CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
+        CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
         idS = idSMAT(iSym,4)
         CALL DDAFILE(LUSBT,2,WORK(LWRK2),nAS*(nAS+1)/2,idS)
-        CALL MKSC_G3(iSym,Work(LWRK2),nG3,G3,i1Work(LidxG3))
+        CALL MKSC_G3(iSym,Work(LWRK2),nG3,G3,idxG3)
         call CLagDXC_FG3(iSym,nAS,NG3,Work(LWRK3),Work(LWRK1),
      *                   DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
-     *                   Work(LWRK2),i1Work(LidxG3))
-        CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
+     *                   Work(LWRK2),idxG3)
+        call mma_deallocate(idxG3)
       Else If (iCase.eq. 5) Then !! D
         LS=0
         If (BSHIFT.ne.0.0D+00) Then
@@ -1127,6 +1129,7 @@ C
      *                    DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
      *                    G1,G2,G3)
 
+      use stdalloc, only: mma_allocate, mma_deallocate
       use output_caspt2, only:iPrGlb,usual,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -1142,8 +1145,9 @@ C
       DIMENSION DEPSA(*)
 C
       INTEGER ILEV
-      INTEGER NG3MAX,IPAD,LIDXG3
+      INTEGER NG3MAX
       INTEGER ILUID
+      integer*1, allocatable :: idxG3(:,:)
 C
       INTEGER IDCI
       INTEGER J
@@ -1161,11 +1165,9 @@ C-SVC20100831: recompute approximate max NG3 size needed
       NG3MAX=iPARDIV(NG3TOT,NG2)
 
 C-SVC20100831: allocate local G3 matrices
-      iPad=ItoB-MOD(6*NG3,ItoB)
-      CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
+      CALL mma_allocate(idxG3,6,NG3,label='idxG3')
       iLUID=0
-      CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
-
+      CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 * NG3 will change inside subroutine MKFG3 to the actual
 * number of nonzero elements, that is why here we allocate
 * with NG3MAX, but we only store (PT2_PUT) the first NG3
@@ -1197,14 +1199,12 @@ C         Call LoadCI_XMS('C',1,Work(LCI),JSTATE,U0)
         WORK(LCI) = 1.0D+00
       End If
 C
-C     CALL MKFG3mod(IFF,WORK(LCI),WORK(LG1),WORK(LF1),WORK(LG2),
-C    &              WORK(LF2),WORK(LG3),WORK(LF3),i1WORK(LidxG3))
       IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       If (ISCF.EQ.0) Then
         CALL DERFG3(WORK(LCI),CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
-     &              i1WORK(LidxG3),DEPSA,G1,G2)
+     &              idxG3,DEPSA,G1,G2)
       Else
-        CALL DERSPE(DF1,DF2,DF3,i1WORK(LidxG3),DEPSA,G1,G2,G3)
+        CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       End If
       IF (IPRGLB.GE.USUAL) THEN
         CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
@@ -1244,7 +1244,7 @@ C    *    clag(i)*2.0d+00
 C     end do
 C
       CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
-      CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
+      call mma_deallocate(idxG3)
 C
       Return
 C

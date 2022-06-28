@@ -25,11 +25,12 @@ real(wp), allocatable :: CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:
                          V_k(:,:), Z_p_k(:,:)
 type(DSBA_Type), allocatable, target :: AOrb(:)
 
-public :: AOrb, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, lPSO, lsa, &
-          m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nDens, nG1, nG2, nnP, npos, nSOs1, nV_K, nZ_p_k, Thpkl, Txy, U_k, V_k, Z_p_k
-
 ! DF-CASPT2
 real(kind=wp), allocatable :: A_PT2(:,:), B_PT2(:,:,:)
 integer(kind=iwp) :: nBasT, nBasA, nBasASQ
+
+public :: AOrb, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, lPSO, lsa, &
+          m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nDens, nG1, nG2, nnP, npos, nSOs1, nV_K, nZ_p_k, Thpkl, Txy, U_k, V_k, &
+          Z_p_k, A_PT2, B_PT2, nBasT, nBasA, nBasASQ
 
 End Module PSO_Stuff
