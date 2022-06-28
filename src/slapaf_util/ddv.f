@@ -379,8 +379,6 @@ C        If (iBondType.gt.Magic_Bond) Go To 10
          ykl=Cart(2,kAtom)-Cart(2,lAtom)
          zkl=Cart(3,kAtom)-Cart(3,lAtom)
          rkl2 = xkl**2 + ykl**2 + zkl**2
-         r0=rAv(kr,lr)
-         alpha=aAv(kr,lr)
 *
          If (ddV_Schlegel.or.Help) Then
             Rab=Sqrt(rkl2)
@@ -392,6 +390,8 @@ C        If (iBondType.gt.Magic_Bond) Go To 10
                gmm=Fact*A_Str/(Rab-B_Str(ij))**3
             End If
          Else
+            r0=rAv(kr,lr)
+            alpha=aAv(kr,lr)
             gmm=rkr     *Exp(alpha    *(r0    **2-rkl2))
             If (iAnd(iOptC,1024).eq.1024) Then
                r0_vdW= r_ref_vdW(kr,lr)
@@ -471,8 +471,6 @@ C10      Continue
             zmi=(Cart(3,iAtom)-Cart(3,mAtom))
             rmi2 = xmi**2 + ymi**2 + zmi**2
             rmi=sqrt(rmi2)
-            r0mi=rAv(mr,ir)
-            ami=aAv(mr,ir)
 *
             Do jNeighbor = 1, iNeighbor-1
                jAtom=iTabAtoms(1,jNeighbor,mAtom)
@@ -487,8 +485,6 @@ C10      Continue
                zmj=(Cart(3,jAtom)-Cart(3,mAtom))
                rmj2 = xmj**2 + ymj**2 + zmj**2
                rmj=sqrt(rmj2)
-               r0mj=rAv(mr,jr)
-               amj=aAv(mr,jr)
 *
 *------------- Test if zero angle
 *
@@ -513,6 +509,10 @@ C10      Continue
                      gij=Fact*A_Bend(2)
                   End If
                Else
+                  r0mi=rAv(mr,ir)
+                  ami=aAv(mr,ir)
+                  r0mj=rAv(mr,jr)
+                  amj=aAv(mr,jr)
                   gim=exp(ami*(r0mi**2-rmi2))
                   gjm=exp(amj*(r0mj**2-rmj2))
                   If (iAnd(iOptC,1024).eq.1024) Then
@@ -785,22 +785,16 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                rij(2)=Cart(2,iAtom)-Cart(2,jAtom)
                rij(3)=Cart(3,iAtom)-Cart(3,jAtom)
                rij2=rij(1)**2+rij(2)**2+rij(3)**2
-               rij0=rAv(ir,jr)**2
-               aij =aAv(ir,jr)
 *
                rjk(1)=Cart(1,jAtom)-Cart(1,kAtom)
                rjk(2)=Cart(2,jAtom)-Cart(2,kAtom)
                rjk(3)=Cart(3,jAtom)-Cart(3,kAtom)
                rjk2=rjk(1)**2+rjk(2)**2+rjk(3)**2
-               rjk0=rAv(jr,kr)**2
-               ajk =aAv(jr,kr)
 *
                rkl(1)=Cart(1,kAtom)-Cart(1,lAtom)
                rkl(2)=Cart(2,kAtom)-Cart(2,lAtom)
                rkl(3)=Cart(3,kAtom)-Cart(3,lAtom)
                rkl2=rkl(1)**2+rkl(2)**2+rkl(3)**2
-               rkl0=rAv(kr,lr)**2
-               akl =aAv(kr,lr)
 *
 *              Allow only angles in the range of 35-145
                A35 = (35.0D0/180.D0)* Pi
@@ -829,6 +823,12 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                   If (Diff.lt.Zero) Diff=Zero
                   tij=Fact*A_Trsn(1)+A_Trsn(2)*Diff
                Else
+                  rij0=rAv(ir,jr)**2
+                  aij =aAv(ir,jr)
+                  rjk0=rAv(jr,kr)**2
+                  ajk =aAv(jr,kr)
+                  rkl0=rAv(kr,lr)**2
+                  akl =aAv(kr,lr)
 *                 Magic bond fix
                   rjk2=rjk2/Fact**2
 *
@@ -1011,20 +1011,14 @@ C                 Write (*,*) 'Help=',Help
                   rij(1)=Cart(1,iAtom)-Cart(1,jAtom)
                   rij(2)=Cart(2,iAtom)-Cart(2,jAtom)
                   rij(3)=Cart(3,iAtom)-Cart(3,jAtom)
-                  rij0=rAv(ir,jr)**2
-                  aij =aAv(ir,jr)
 *
                   rik(1)=Cart(1,iAtom)-Cart(1,kAtom)
                   rik(2)=Cart(2,iAtom)-Cart(2,kAtom)
                   rik(3)=Cart(3,iAtom)-Cart(3,kAtom)
-                  rik0=rAv(ir,kr)**2
-                  aik =aAv(ir,kr)
 *
                   ril(1)=Cart(1,iAtom)-Cart(1,lAtom)
                   ril(2)=Cart(2,iAtom)-Cart(2,lAtom)
                   ril(3)=Cart(3,iAtom)-Cart(3,lAtom)
-                  ril0=rAv(ir,lr)**2
-                  ail =aAv(ir,lr)
 *
                   rij2=rij(1)**2+rij(2)**2+rij(3)**2
                   rik2=rik(1)**2+rik(2)**2+rik(3)**2
@@ -1054,6 +1048,12 @@ C                 Write (*,*) 'Help=',Help
 *
                      tij = f_const_Min_
                  Else
+                     rij0=rAv(ir,jr)**2
+                     aij =aAv(ir,jr)
+                     rik0=rAv(ir,kr)**2
+                     aik =aAv(ir,kr)
+                     ril0=rAv(ir,lr)**2
+                     ail =aAv(ir,lr)
                      beta=rko*
      &                        exp( (aij*rij0+aik*rik0+ail*ril0))
                      tij=beta*exp(-(aij*rij2+aik*rik2+ail*ril2))
