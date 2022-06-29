@@ -19,7 +19,9 @@
       use mh5, only: mh5_open_file_r, mh5_close_file, mh5_put_dset,
      &               mh5_open_group, mh5_close_group,
      &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
-     &               mh5_get_dset_dims, mh5_exists_dset
+     &               mh5_get_dset_dims, mh5_exists_dset,
+     &               mh5_create_file, mh5_create_dset_int,
+     &               mh5_create_dset_real, mh5_init_attr
 #endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
@@ -40,8 +42,12 @@
 #include "raswfn.fh"
 #include "intent.fh"
 
+
       private
-      public :: read_neci_RDM, cleanup
+      public :: read_neci_RDM, cleanup, dump_active_fockmat,
+     &          tHDF5_RDMs
+      logical, save :: tHDF5_RDMs = .false.
+
       contains
 
 !>  @brief
@@ -70,7 +76,6 @@
 
           ! wrapper around `read_single_neci_(GUGA)_RDM` to average
           ! normal and GUGA density matrices for stochastic SA-MCSCF.
-          use fciqmc, only: tHDF5_RDMs
 
           integer(wp), intent(in) :: iroot(:), ifinal
           real(wp), intent(in) :: weight(:)
@@ -615,7 +620,7 @@
 
       subroutine read_hdf5_denmats(iroot, dmat, dspn, psmat, pamat)
         ! quick hack to get it working with M7 and debug CASPT2
-        use rasscf_init, only: ispin
+        use general_data, only: ispin
         use rasscf_data, only: lowms  ! spin projection
         integer, intent(in) :: iroot
         real(wp), intent(_OUT_) :: dmat(:), dspn(:), psmat(:), pamat(:)
@@ -692,20 +697,52 @@
             do i = 1, nAc
               ! index order differs from paper, because NECI 2RDMs are
               ! < E_pq E_rs > not < e_pqrs >
-              rdm2_intermed = rdm2_intermed &
-                  + (1 / (ispin + 1)) * rdm2_temp(p, q, i, i)
+              rdm2_intermed = rdm2_intermed
+     &            + (1 / (ispin + 1)) * rdm2_temp(p, q, i, i)
             end do
-              dspn(pq) = dspn(pq) + &
-                (2 - 0.5_wp * nActEl)/(ispin + 1) - rdm2_intermed
-              dspn(pq) = (lowms / ispin) * dpsn(pq)
+              dspn(pq) = dspn(pq) +
+     &          (2 - 0.5_wp * nActEl)/(ispin + 1) - rdm2_intermed
+              dspn(pq) = (lowms / ispin) * dspn(pq)
           end do
         end do
-
-        write(u6,'(a)') "This function is for debugging CASPT2."
-        write(u6,'(a)') "DSPN is not populated, despite working in SDs."
-        write(u6,'(a)') "Do NOT run systems with spin polarisation yet."
-
       end subroutine read_hdf5_denmats
+
+
+      subroutine dump_active_fockmat(path, F_act)
+        use general_data, only: nTot1
+        character(len=*), intent(in) :: path
+        real(wp), intent(inout) :: F_act(nTot1)
+        integer :: pq, p, q
+        integer, allocatable :: indices(:,:)
+        integer :: file_id, dset_id
+
+        write(u6,'(A)') 'Active space Fockian requested.'
+
+        call mma_allocate(indices, 2, nTot1)
+        indices(:,:) = 0
+        do pq = 1, nTot1
+          call one_el_idx(pq, p, q)
+          indices(1, pq) = p; indices(2, pq) = q
+        end do
+
+        file_id = mh5_create_file(path)
+        dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
+     &    2, [2, nTot1])
+        call mh5_init_attr(dset_id, 'DESCRIPTION',
+     &    'Indices i, j of active Fock matrix elements <i| F |j>.')
+        call mh5_put_dset(dset_id, indices)
+        call mh5_close_dset(dset_id)
+
+        dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_VALUES',
+     &    1, [nTot1])
+        call mh5_init_attr(dset_id, 'DESCRIPTION',
+     &    'The active Fock matrix elements <i| F |j>.')
+        call mh5_put_dset(dset_id, F_act)
+        call mh5_close_dset(dset_id)
+
+        write(u6,'(A)') 'Dumped active space Fockian to "f_act.h5".'
+        call mma_deallocate(indices)
+      end subroutine dump_active_fockmat
 #endif
 
       ! Add your deallocations here. Called when exiting rasscf.

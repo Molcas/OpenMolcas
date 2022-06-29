@@ -61,6 +61,8 @@
       use fciqmc, only : DoNECI
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use fciqmc, only: tPrepStochCASPT2
+      use fciqmc_read_RDM, only: dump_active_fockmat
 #endif
       use Fock_util_global, only: ALGO, DoCholesky
       Implicit Real*8 (A-H,O-Z)
@@ -178,6 +180,11 @@ C --------------------------------------
            Write(LF,3333)WORD,lPUVX
          END IF
          Call Fmat(CMO,Work(lPUVX),D,D1A,FI,FA)
+#ifdef _HDF5_
+         if (tPrepStochCASPT2) then  ! dump active space Fock matrix in HDF5
+           call dump_active_fockmat('f_act.h5', FA)
+         end if
+#endif
 
       ElseIf (ALGO.eq.2) Then
 

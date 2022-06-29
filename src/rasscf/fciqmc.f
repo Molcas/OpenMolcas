@@ -38,17 +38,17 @@
       use CI_solver_util, only: wait_and_read
 
       use generic_CI, only: CI_solver_t
-      use fciqmc_read_RDM, only: read_neci_RDM
+      use fciqmc_read_RDM, only: read_neci_RDM, tHDF5_RDMs
       use definitions, only: u6
 
       implicit none
       save
       private
       public :: DoNECI, DoEmbdNECI, fciqmc_solver_t, tGUGA_in,
-     &          tHDF5_RDMs
+     &          tPrepStochCASPT2
 
       logical :: DoEmbdNECI = .false., DoNECI = .false.,
-     &  tGUGA_in  = .false., tHDF5_RDMs = .false.
+     &  tGUGA_in  = .false., tPrepStochCASPT2 = .false.
 
 #ifdef _NECI_
       interface

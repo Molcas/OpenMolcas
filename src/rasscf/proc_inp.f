@@ -42,7 +42,8 @@
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
-      use fciqmc, only: tHDF5_RDMs
+      use fciqmc, only:  tPrepStochCASPT2
+      use fciqmc_read_RDM, only: tHDF5_RDMs
 #endif
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
@@ -1008,6 +1009,11 @@ C   No changing about read in orbital information from INPORB yet.
         Write(6,*) ' Response field will follow CISE root: ',ICIRFROOT
        End If
       End If
+*----------------------------------------------------------------------------------------
+      if (KeyPPT2) then
+          tPrepStochCASPT2 = .true.
+          if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
+      end if
 *---  Process SSCR command --------------------------------------------*
       if (KeySSCR) then
         if (DBG) write(6,*) ' SSCR command was given.'
