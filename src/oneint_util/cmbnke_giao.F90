@@ -28,10 +28,10 @@ use Constants, only: Two, Three, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, lr, nComp, nB
-real(kind=wp) :: Rxyz(nZeta,3,0:la+1,0:lb+1,0:lr+1), Zeta(nZeta), rKappa(nZeta), &
-                 rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb),nB), Txyz(nZeta,3,0:la,0:lb,0:lr+1), Wxyz(nZeta,3,0:la,0:lb,2), &
-                 A(3), RB(3), C(3)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp, nB
+real(kind=wp), intent(in) :: Rxyz(nZeta,3,0:la+1,0:lb+1,0:lr+1), Zeta(nZeta), rKappa(nZeta), Txyz(nZeta,3,0:la,0:lb,0:lr+1), &
+                             Wxyz(nZeta,3,0:la,0:lb,2), A(3), RB(3), C(3)
+real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb),nB)
 integer(kind=iwp) :: iBx, iBy, iBz, iComp, indx(3,2), ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, jxa, jxb, &
                      jya, jyb, jza, jzb
 real(kind=wp) :: Fact, RAB(3), temp1, temp2a, temp2b, temp2c

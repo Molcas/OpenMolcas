@@ -27,9 +27,10 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), &
-                 Elalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3), Beta(nZeta)
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3)
+real(kind=wp), intent(in) :: Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), Elalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3), &
+                             Beta(nZeta)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, ib_max, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta
 real(kind=wp) :: xyTmp, xzTmp, yxTmp, yzTmp, zxTmp, zyTmp

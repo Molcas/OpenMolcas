@@ -31,9 +31,10 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: na, nb, nZeta
-complex(kind=wp) :: Vxyz(nZeta,3,0:na,0:nb,2), Sxyz(nZeta,3,0:na+1,0:nb+1)
-real(kind=wp) :: Alpha(nZeta), Beta(nZeta)
+integer(kind=iwp), intent(in) :: na, nb, nZeta
+complex(kind=wp), intent(out) :: Vxyz(nZeta,3,0:na,0:nb,2)
+complex(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na+1,0:nb+1)
+real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
 character(len=80) :: Label

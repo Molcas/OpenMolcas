@@ -16,7 +16,8 @@ subroutine PVMem(nHer,Mem,la,lb,lr,KrnMem)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nHer, Mem, la, lb, lr
+integer(kind=iwp), intent(out) :: nHer, Mem
+integer(kind=iwp), intent(in) :: la, lb, lr
 external :: KrnMem
 integer(kind=iwp) :: MemNA1, MemNA2
 

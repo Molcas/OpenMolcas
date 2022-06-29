@@ -27,9 +27,10 @@ use Constants, only: Half, c_in_au
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9), Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), &
-                 Elalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Bcoor(3), Dcoor(3)
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9)
+real(kind=wp), intent(in) :: Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), Elalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), &
+                             Bcoor(3), Dcoor(3)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta
 real(kind=wp) :: BD(3), Fact, xCxD, xCyD, xCzD, yCxD, yCyD, yCzD, zCxD, zCyD, zCzD

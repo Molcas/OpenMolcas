@@ -37,7 +37,7 @@ implicit none
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iComp, iDCRT(0:7), ii, iIC, ipAxyz, ipBxyz, ipFnl, ipQxyz, iPrint, ipRxyz, iRout, iStabO(0:7), lDCRT, &
                      llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
-real(kind=wp) ::  RAB(3), TC(3)
+real(kind=wp) :: RAB(3), TC(3)
 character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3)
 character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']

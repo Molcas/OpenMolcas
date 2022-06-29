@@ -27,10 +27,11 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: Alpha(nZeta), Beta(nZeta), rFinal(nZeta,3,nTri_Elem1(la),nTri_Elem1(lb)), &
-                 Slaplb(nZeta,nTri_Elem1(la+1),nTri_Elem1(lb)), Slamlb(nZeta,nTri_Elem1(la-1),nTri_Elem1(lb)), &
-                 Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1)), Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1))
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Slaplb(nZeta,nTri_Elem1(la+1),nTri_Elem1(lb)), &
+                             Slamlb(nZeta,nTri_Elem1(la-1),nTri_Elem1(lb)), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1)), &
+                             Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1))
+real(kind=wp), intent(out) :: rFinal(nZeta,3,nTri_Elem1(la),nTri_Elem1(lb))
 #include "print.fh"
 integer(kind=iwp) :: ib, iElem, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, jElem
 character(len=80) :: Label

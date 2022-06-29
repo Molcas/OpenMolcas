@@ -28,10 +28,11 @@ use Constants, only: Two, Four, Eight, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: Beta(nZeta), Rslt(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6), Tabpp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+2),6), &
-                 Tabp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), Tab0(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6), &
-                 Tabm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3), Tabmm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-2),6)
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+real(kind=wp), intent(in) :: Beta(nZeta), Tabpp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+2),6), &
+                             Tabp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), Tab0(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6), &
+                             Tabm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3), Tabmm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-2),6)
+real(kind=wp), intent(out) :: Rslt(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iElem, ipa, ipb, iPrint, iRout, ix, ixa, ixb, iy, iya, iyb, iz, iza, izb, iZeta, jElem
 real(kind=wp) :: B, B2, Bx2, By2, Bz2, Term1, Term2, Term3, Term4, Term5, Term6

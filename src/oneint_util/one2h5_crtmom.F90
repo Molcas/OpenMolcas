@@ -12,7 +12,7 @@
 #include "compiler_features.h"
 #ifdef _HDF5_
 
-subroutine one2h5_crtmom(fileid,nsym,nbas)
+subroutine one2h5_crtmom(fileid,nSym,nBas)
 ! SVC: read cartesian moments from the 1-electron integral file
 ! and write it to the HDF5 file specified with fileid.
 ! This routine does nothing if HDF5 is not supported.
@@ -30,16 +30,16 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: fileid, nsym, nbas(*)
-integer(kind=iwp) :: dsetid, i, iBas, iComp, iOff, iOpt, iRc, iScrOff, isym, iSyMsk, j, jBas, jOff, jsym, msym, nb, nB1, nB2, nbast
+integer(kind=iwp), intent(in) :: fileid, nSym, nBas(nSym)
+integer(kind=iwp) :: dsetid, i, iBas, iComp, iOff, iOpt, iRc, iScrOff, iSym, iSyMsk, j, jBas, jOff, jsym, msym, nb, nB1, nB2, nbast
 real(kind=wp) :: mp_orig(3,3)
 character(len=8) :: Label
 real(kind=wp), allocatable :: MLTPL(:,:), Scratch(:)
 character(len=*), parameter :: mltpl1_comp(3) = ['X','Y','Z'], mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
 
 nbast = 0
-do isym=1,nsym
-  nb = nbas(isym)
+do iSym=1,nSym
+  nb = nBas(iSym)
   nbast = nbast+nb
 end do
 

@@ -34,9 +34,10 @@ use Definitions, only: wp, iwp
 ! There are only six components since zy d/di = yz d/di
 ! We still keep the 9 components in rFinal
 implicit none
-integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: Beta(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),6), &
-                 Slalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),6)
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+real(kind=wp), intent(in) :: Beta(nZeta), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),6), &
+                             Slalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),6)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9)
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb, iZeta
 real(kind=wp) :: temp_x, temp_xx, temp_xy, temp_xz, temp_y, temp_yx, temp_yy, temp_yz, temp_z, temp_zx, temp_zy, temp_zz
 !define _DEBUGPRINT_

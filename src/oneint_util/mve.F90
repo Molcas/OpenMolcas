@@ -29,8 +29,9 @@ use Constants, only: Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: na, nb, nZeta
-real(kind=wp) :: rV2Int(nZeta,3,0:na,0:nb,2), rV4Int(nZeta,3,0:na,0:nb), Sxyz(nZeta,3,0:na+2,0:nb+2), Alpha(nZeta), Beta(nZeta)
+integer(kind=iwp), intent(in) :: na, nb, nZeta
+real(kind=wp), intent(out) :: rV2Int(nZeta,3,0:na,0:nb,2), rV4Int(nZeta,3,0:na,0:nb)
+real(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na+2,0:nb+2), Alpha(nZeta), Beta(nZeta)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
 character(len=80) :: Label

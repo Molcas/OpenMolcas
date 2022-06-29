@@ -27,7 +27,7 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
-! TODO: unknown intents, probably all "in" except rFinal
+! TODO: unknown intents, probably all "in" except rFinal (see int_interface.fh)
 integer(kind=iwp) :: nAlpha, nBeta, nZeta, nIC, nComp, la, lb, nHer, nArr, nOrdOp, lOper(nComp), iChO(nComp), nStabM, &
                      iStabM(0:nStabM-1), nGrid, iAddPot
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &

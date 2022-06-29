@@ -22,9 +22,10 @@ use Constants, only: One, Four, Onei
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, lr, nComp
-complex(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr)
-real(kind=wp) :: Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), kVector(3), P(nZeta,3)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
+complex(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr)
+real(kind=wp), intent(in) :: Zeta(nZeta), rKappa(nZeta), kVector(3), P(nZeta,3)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
 integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 complex(kind=wp) :: Temp
 real(kind=wp) :: Fact, k_Dot_P, rTemp
@@ -47,7 +48,7 @@ do ixa=0,la
           do iy=lr-ix,0,-1
             iz = lr-ix-iy
             do iZeta=1,nZeta
-              rTemp = KVector(1)**2+kVector(2)**2+kVector(3)**2
+              rTemp = kVector(1)**2+kVector(2)**2+kVector(3)**2
               rTemp = rTemp/(Four*Zeta(iZeta))
               Fact = rKappa(iZeta)*(One/sqrt(Zeta(iZeta)**3))*exp(-rTemp)
               k_Dot_P = kVector(1)*P(iZeta,1)+kVector(2)*P(iZeta,2)+kVector(3)*P(iZeta,3)

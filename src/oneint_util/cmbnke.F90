@@ -22,9 +22,9 @@ use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, lr, nComp
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb)), &
-                 Txyz(nZeta,3,0:la,0:lb)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), Txyz(nZeta,3,0:la,0:lb)
+real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
 integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
 real(kind=wp) :: Tmp
 

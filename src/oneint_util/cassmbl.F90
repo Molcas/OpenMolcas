@@ -26,9 +26,10 @@ use Constants, only: cZero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: la, lb, nZeta, nHer
-complex(kind=wp) :: Rnxyz(nZeta*3,0:la,0:lb), Axyz(nZeta*3,nHer,0:la), Bxyz(nZeta*3,nHer,0:lb)
-real(kind=wp) :: HerW(nHer)
+integer(kind=iwp), intent(in) :: la, lb, nZeta, nHer
+complex(kind=wp), intent(out) :: Rnxyz(nZeta*3,0:la,0:lb)
+complex(kind=wp), intent(in) :: Axyz(nZeta*3,nHer,0:la), Bxyz(nZeta*3,nHer,0:lb)
+real(kind=wp), intent(in) :: HerW(nHer)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iHer, iPrint, iRout, iZCar, iZeta
 character(len=80) :: Label
@@ -47,7 +48,7 @@ end if
 
 do ib=0,lb
   do ia=0,la
-    do iZeta=1,nZeta
+    do iZeta=1,3*nZeta
       Rnxyz(iZeta,ia,ib) = cZero
     end do
   end do

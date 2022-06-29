@@ -12,7 +12,7 @@
 #include "compiler_features.h"
 #ifdef _HDF5_
 
-subroutine one2h5_fckint(fileid,nsym,nbas)
+subroutine one2h5_fckint(fileid,nSym,nBas)
 ! IFG: read atomic Fock matrix from the 1-electron integral file
 ! and write it to the HDF5 file specified with fileid.
 ! This routine does nothing if HDF5 is not supported.
@@ -25,16 +25,16 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: fileid, nsym, nbas(*)
-integer(kind=iwp) :: dsetid, iComp, iOff1, iOff2, iOpt, iRc, iSyLbl, isym, nb, nbast, nbast1, nbast2
+integer(kind=iwp) :: fileid, nSym, nBas(nSym)
+integer(kind=iwp) :: dsetid, iComp, iOff1, iOff2, iOpt, iRc, iSyLbl, iSym, nb, nbast, nbast1, nbast2
 character(len=8) :: Label
 real(kind=wp), allocatable :: SAO(:), Scr(:)
 
 nbast = 0
 nbast1 = 0
 nbast2 = 0
-do isym=1,nsym
-  nb = nbas(isym)
+do iSym=1,nSym
+  nb = nBas(iSym)
   nbast = nbast+nb
   nbast1 = nbast1+(nb*(nb+1))/2
   nbast2 = nbast2+nb**2

@@ -15,8 +15,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAs
-real(kind=wp) :: As(nAs), Ad(nAs,6)
+integer(kind=iwp), intent(in) :: nAs
+real(kind=wp), intent(inout) :: As(nAs)
+real(kind=wp), intent(in) :: Ad(nAs,6)
 
 call DaXpY_(nAs,One,Ad(1,1),1,As,1)
 call DaXpY_(nAs,One,Ad(1,4),1,As,1)

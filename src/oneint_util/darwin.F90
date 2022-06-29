@@ -27,9 +27,9 @@ use Constants, only: Zero, One, Half, Pi, c_in_au
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, nStabM, iStabM(0:nStabM-1), nComp
-real(kind=wp) :: Zeta(nZeta), P(nZeta,3), A(3), Axyz(nZeta,3,0:la), RB(3), Bxyz(nZeta,3,0:lb), &
-                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), rKappa(nZeta)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, nStabM, iStabM(0:nStabM-1), nComp
+real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), RB(3), rKappa(nZeta)
+real(kind=wp), intent(out) :: Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iCar, iDCRT(0:7), ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, kCnt, kCnttp, kdc, &
                      lDCRT, LmbdT, nDCRT

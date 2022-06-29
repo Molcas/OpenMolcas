@@ -36,9 +36,9 @@ use Constants, only: Two, cOne
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, na, nHer
-real(kind=wp) :: Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer), kVector(3)
-complex(kind=wp) :: Axyz(nZeta,3,nHer,0:na)
+integer(kind=iwp), intent(in) :: nZeta, na, nHer
+real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer), kVector(3)
+complex(kind=wp), intent(out) :: Axyz(nZeta,3,nHer,0:na)
 #include "print.fh"
 integer(kind=iwp) :: ia, iCar, iHer, iPrint, iRout, iZeta
 character(len=80) :: Label

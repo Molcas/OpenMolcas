@@ -27,8 +27,9 @@ use Constants, only: Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: na, nb, nZeta
-real(kind=wp) :: Txyz(nZeta,3,0:na,0:nb,0:1), Rxyz(nZeta,3,0:na+1,0:nb+1,0:1), Wxyz(nZeta,3,0:na,0:nb,2), Alpha(nZeta), Beta(nZeta)
+integer(kind=iwp), intent(in) :: na, nb, nZeta
+real(kind=wp), intent(in) :: Rxyz(nZeta,3,0:na+1,0:nb+1,0:1), Alpha(nZeta), Beta(nZeta)
+real(kind=wp), intent(out) :: Txyz(nZeta,3,0:na,0:nb,0:1), Wxyz(nZeta,3,0:na,0:nb,2)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
 character(len=80) :: Label

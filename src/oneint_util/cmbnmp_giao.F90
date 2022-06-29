@@ -25,9 +25,9 @@ use Constants, only: Two, Three, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, lr, nComp, nB
-real(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr+1), Zeta(nZeta), rKappa(nZeta), &
-                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,nB), RAB(3), C(3)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp, nB
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr+1), Zeta(nZeta), rKappa(nZeta), RAB(3), C(3)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,nB)
 integer(kind=iwp) :: iBx, iBy, iBz, iComp, ipa, ipb, ix, ix_(3,2), ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 real(kind=wp) :: Fact, temp, tempy, tempz
 

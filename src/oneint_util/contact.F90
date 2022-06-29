@@ -25,9 +25,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, nComp, lOper(nComp), iCho(nComp), nIC, nStabM, iStabM(0:nStabM-1)
-real(kind=wp) :: Zeta(nZeta), P(nZeta,3),A(3), Axyz(nZeta,3,0:la), RB(3), Bxyz(nZeta,3,0:lb), Ccoor(3), &
-                 Array(nZeta,nTri_Elem1(la),nTri_Elem1(lb)), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC), rKappa(nZeta)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp, lOper(nComp), iCho(nComp), nIC, nStabM, iStabM(0:nStabM-1)
+real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3), rKappa(nZeta)
+real(kind=wp), intent(out) :: Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb), Array(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
+real(kind=wp), intent(inout) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iCar, iComp, iDCRT(0:7), ipa, ipb, iPrint, iRout, iStabO(0:7), ixa, ixb, iya, iyb, iza, izb, iZeta, &
                      lDCRT, llOper, LmbdT, nDCRT, nOp, nStabO

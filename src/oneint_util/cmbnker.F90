@@ -21,9 +21,9 @@ use Constants, only: Two, Three, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, nComp, nAlpha, nBeta
-real(kind=wp) :: Rnr(nZeta,0:la+lb+2), qC(nZeta,0:la+lb), Di(nZeta,-1:la+lb-1), Zeta(nZeta), &
-                 rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb)), Alpha(nAlpha), Beta(nBeta)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp, nAlpha, nBeta
+real(kind=wp), intent(in) :: Rnr(nZeta,0:la+lb+2), qC(nZeta,0:la+lb), Di(nZeta,-1:la+lb-1), Zeta(nZeta), Alpha(nAlpha), Beta(nBeta)
+real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
 #include "print.fh"
 #include "nrmf.fh"
 #include "rmat.fh"
@@ -83,8 +83,8 @@ do ixa=0,la
         ialpha = 1
         kc = 1
         do iZeta=1,nZeta
-          ralpha = alpha(ialpha)
-          rbeta = beta(ibeta)
+          ralpha = Alpha(ialpha)
+          rbeta = Beta(ibeta)
           b2 = rbeta*rmatr**(na+nb+3)
           b2a = ralpha*rmatr**(na+nb+3)
           b3 = exp(-Zeta(iZeta)*rmatr*rmatr)
@@ -93,8 +93,8 @@ do ixa=0,la
           c1 = -rbeta
           c2 = Two*rbeta*rbeta
           rFinal(iZeta,iComp,ipa,ipb) = BBloch-(c0*CConst1*Rnr(iZeta,n+m+k-2)+c1*CConst2*Rnr(iZeta,n+m+k)+ &
-                                               c2*CConst3*Rnr(iZeta,n+m+k+2))
-          if (iZeta == kc*nalpha) then
+                                                c2*CConst3*Rnr(iZeta,n+m+k+2))
+          if (iZeta == kc*nAlpha) then
             ibeta = ibeta+1
             ialpha = 0
             kc = kc+1

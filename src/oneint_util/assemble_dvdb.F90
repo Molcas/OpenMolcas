@@ -14,7 +14,7 @@
 subroutine Assemble_dVdB(NAInt,EFInt,nZeta,la,lb,A,B,C)
 !***********************************************************************
 !                                                                      *
-!     Object: to assemble the derivative of the nuclear attractoion    *
+!     Object: to assemble the derivative of the nuclear attraction     *
 !             integrals with respect to the magnetic field.            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Chemical Physics,                 *
@@ -25,8 +25,9 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: NAInt(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)), EFInt(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),3), A(3), B(3), C(3)
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+real(kind=wp), intent(in) :: NAInt(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)), A(3), B(3), C(3)
+real(kind=wp), intent(inout) :: EFInt(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),3)
 integer(kind=iwp) :: iVec, nVec
 real(kind=wp) :: EFInt_x, EFInt_y, EFInt_z, RAB(3)
 

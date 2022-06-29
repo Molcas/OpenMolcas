@@ -26,9 +26,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: la, lr, lb, nZeta, nHer
-real(kind=wp) :: Rnxyz(nZeta*3,0:la,0:lb,0:lr), Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), &
-                 HerW(nHer)
+integer(kind=iwp), intent(in) :: la, lr, lb, nZeta, nHer
+real(kind=wp), intent(out) :: Rnxyz(nZeta*3,0:la,0:lb,0:lr)
+real(kind=wp), intent(in) :: Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), HerW(nHer)
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, iHer, iPrint, ir, iRout, iZCar
 character(len=80) :: Label

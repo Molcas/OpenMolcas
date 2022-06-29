@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGrid
-real(kind=wp) :: CCoor(3,nGrid), pot(nGrid)
+integer(kind=iwp), intent(in) :: nGrid
+real(kind=wp), intent(in) :: CCoor(3,nGrid)
+real(kind=wp), intent(out) :: pot(nGrid)
 integer(kind=iwp) :: iDCRT(0:7), iGrid, iStabM(0:7), kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nstabm
 real(kind=wp) :: C(3), Fact, r12, TC(3)
 
