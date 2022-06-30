@@ -601,8 +601,9 @@
         real(wp), allocatable, intent(out) :: decompressed_dmat(:,:)
         integer :: dim, pq, p, q
 
-        ! maximum decompressed index of dmat
-        dim = ceiling(-0.5_wp + sqrt(2.0_wp * size(dmat)))
+        ! maximum decompressed index of dmat are inverse triangular numbers
+        ! 2 T_N = n^2 + n  <=>  n = -1/2 + sqrt(1/4 + 2 T_N)
+        dim = int(-0.5_wp + sqrt(0.25_wp + 2.0_wp * size(dmat)))
         allocate(decompressed_dmat(dim, dim))
         decompressed_dmat(:,:) = 0.0_wp
         do pq = 1, size(dmat)
