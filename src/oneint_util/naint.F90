@@ -29,15 +29,15 @@ use Center_Info, only: dc
 use Gateway_global, only: Primitive_Pass
 use DKH_Info, only: DKroll
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
-use Constants, only: Zero, One, Two, Three, Pi, TwoP54
+use Constants, only: Zero, One, Two, Three, OneHalf, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
 #include "oneswi.fh"
 #include "print.fh"
-integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ii, ipIn, ipOff, iPrint, iRout, iZeta, kCnt, kCnttp, kdc, lc, ld, lDCRT, LmbdT, &
-                     mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, nFLOP, nMem, nOp, nT
+integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ii, ipIn, ipOff, iPrint, iRout, kCnt, kCnttp, kdc, lc, ld, lDCRT, LmbdT, mabMax, &
+                     mabMin, mArr, mcdMax, mcdMin, nDCRT, nFLOP, nMem, nOp, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q_Nuc, rKappcd, TC(3)
 logical(kind=iwp) :: lECP, No3Cnt, NoSpecial
 character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
@@ -59,7 +59,7 @@ unused_var(iAddPot)
 iRout = 151
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
 lECP = .false.
 do i=1,nCnttp
@@ -71,9 +71,9 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = lc
 iAnga(4) = ld
-call dcopy_(3,A,1,Coora(1,1),1)
-call dcopy_(3,RB,1,Coora(1,2),1)
-call dcopy_(2*3,Coora,1,Coori,1)
+Coora(:,1) = A
+Coora(:,2) = RB
+Coori(:,1:2) = Coora(:,1:2)
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
 No3Cnt = .false.
@@ -90,17 +90,15 @@ call mHrr(la,lb,nFLOP,nMem)
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 
 ! Modify Zeta if the two-electron code will be used!
 
 if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) then
-  do iZeta=1,nZeta
-    rKappa(iZeta) = rKappa(iZeta)*(TwoP54/Zeta(iZeta))
-  end do
+  rKappa(:) = rKappa*(TwoP54/Zeta)
 end if
 
 ! Loop over nuclear centers.
@@ -144,11 +142,11 @@ do kCnttp=1,nCnttp
       ! switch (only two center NA matrix...)
       if (No3Cnt .and. (.not. (EQ(A,TC) .or. EQ(RB,TC)))) cycle
       ! switch
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
-      call dcopy_(3,TC,1,Coora(1,3),1)
-      call dcopy_(3,TC,1,Coora(1,4),1)
+      CoorAC(:,2) = TC
+      Coori(:,3) = TC
+      Coori(:,4) = TC
+      Coora(:,3) = TC
+      Coora(:,4) = TC
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -169,7 +167,7 @@ do kCnttp=1,nCnttp
         EInv = One/Eta
         rKappcd = TwoP54/Eta
         ! Tag on the normalization
-        rKappcd = rKappcd*(Eta/Pi)**(Three/Two)
+        rKappcd = rKappcd*(Eta/Pi)**OneHalf
         ! s-type function
         mcdMin = 0
         mcdMax = 0
@@ -187,7 +185,7 @@ do kCnttp=1,nCnttp
         EInv = One/Eta
         rKappcd = TwoP54/Eta
         ! Tag on the normalization
-        rKappcd = rKappcd*(Eta/Pi)**(Three/Two)/(One+Three*dbsc(kCnttp)%w_mGauss/(Two*Eta))
+        rKappcd = rKappcd*(Eta/Pi)**OneHalf/(One+Three*dbsc(kCnttp)%w_mGauss/(Two*Eta))
         ! s type function
         mcdMin = 0
         mcdMax = 0
@@ -250,9 +248,7 @@ do kCnttp=1,nCnttp
 end do
 
 if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) then
-  do iZeta=1,nZeta
-    rKappa(iZeta) = rKappa(iZeta)/(TwoP54/Zeta(iZeta))
-  end do
+  rKappa = rKappa/(TwoP54/Zeta)
 end if
 
 return

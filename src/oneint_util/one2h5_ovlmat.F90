@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp) :: fileid, nSym, nBas(nSym)
 integer(kind=iwp) :: dsetid, iComp, iOff1, iOff2, iOpt, iRc, iSyLbl, iSym, nb, nbast, nbast1, nbast2
 character(len=8) :: Label
-real(kind=wp), allocatable :: SAO(:), Scr(:)
+real(kind=wp), allocatable :: SAO(:), Scr(:,:)
 
 nbast = 0
 nbast1 = 0
@@ -55,15 +55,15 @@ call RdOne(iRc,iOpt,Label,iComp,SAO,iSyLbl)
 iOff1 = 0
 iOff2 = 0
 do iSym=1,nSym
-  nB = nBas(iSym)
+  nb = nBas(iSym)
   if (nb > 0) then
-    call mma_allocate(scr,nb*nb)
+    call mma_allocate(Scr,nb,nb,label='Scr')
     call Square(SAO(1+iOff1),Scr,1,nb,nb)
     call mh5_put_dset(dsetid,Scr,[nb*nb],[iOff2])
-    call mma_deallocate(scr)
+    call mma_deallocate(Scr)
   end if
-  iOff1 = iOff1+(nb*nb+nb)/2
-  iOff2 = iOff2+(nb*nb)
+  iOff1 = iOff1+nb*(nb+1)/2
+  iOff2 = iOff2+nb**2
 end do
 call mma_deallocate(SAO)
 

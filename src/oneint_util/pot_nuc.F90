@@ -27,9 +27,7 @@ real(kind=wp) :: C(3), Fact, r12, TC(3)
 
 ! compute nuclear contribution to potential
 
-do iGrid=1,nGrid
-  pot(iGrid) = Zero
-end do
+pot(:) = Zero
 
 !hjw is this always correct?
 istabm(0) = 0

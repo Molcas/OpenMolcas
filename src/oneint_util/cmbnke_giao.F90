@@ -24,7 +24,7 @@ subroutine CmbnKE_GIAO(Rxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,nB,Txyz,Wxyz
 !***********************************************************************
 
 use Index_Functions, only: C_Ind, nTri_Elem1
-use Constants, only: Two, Three, Half
+use Constants, only: Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
@@ -39,9 +39,7 @@ real(kind=wp) :: Fact, RAB(3), temp1, temp2a, temp2b, temp2c
 !iRout = 134
 !iPrint = nPrint(iRout)
 
-RAB(1) = A(1)-RB(1)
-RAB(2) = A(2)-RB(2)
-RAB(3) = A(3)-RB(3)
+RAB(:) = A-RB
 
 iComp = 1
 do ixa=0,la
@@ -92,7 +90,7 @@ do ixa=0,la
 
           do iZeta=1,nZeta
 
-            Fact = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)
+            Fact = rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
 
             temp1 = Rxyz(iZeta,iBx,jxa,jxb,0)*(Wxyz(iZeta,iBy,jya,jyb,2)*Rxyz(iZeta,iBz,jza+1,jzb,0)- &
                                                Rxyz(iZeta,iBy,jya+1,jyb,0)*Wxyz(iZeta,iBz,jza,jzb,2)- &

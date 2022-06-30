@@ -32,7 +32,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "int_interface.fh"
 #include "print.fh"
-integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, iPrint, ipRxyz, ipVxyz, iRout, &
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, iPrint, ipRxyz, ipVxyz, iRout, &
                      iStabO(0:7), lDCRT, llOper, LmbdT, nDCRT, nip, nOp, nStabO
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
@@ -46,9 +46,7 @@ unused_var(iAddPot)
 
 iRout = 195
 iPrint = nPrint(iRout)
-ABeq(1) = A(1) == RB(1)
-ABeq(2) = A(2) == RB(2)
-ABeq(3) = A(3) == RB(3)
+ABeq(:) = A == RB
 
 nip = 1
 ipAxyz = nip
@@ -80,7 +78,7 @@ if (iPrint >= 49) then
   write(u6,*) ' In VeInt: la,lb=',la,lb
 end if
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
 ! Compute the cartesian values of the basis functions angular part
 
@@ -89,9 +87,7 @@ call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the contribution from the multipole moment operator
 
-ABeq(1) = .false.
-ABeq(2) = .false.
-ABeq(3) = .false.
+ABeq(:) = .false.
 call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),0,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the cartesian components for the multipole moment
@@ -102,10 +98,10 @@ call Assmbl(Array(ipQxyz),Array(ipAxyz),la,Array(ipRxyz),0,Array(ipBxyz),lb+1,nZ
 ! Compute the cartesian components for the velocity integrals.
 ! The velocity components are linear combinations of overlap components.
 
-ipBOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-  ipBOff = ipBOff+1
+ipBOff = ipB-1
+do iBeta=1,nBeta
+  Array(ipBOff+1:ipBOff+nAlpha) = Beta(iBeta)
+  ipBOff = ipBOff+nAlpha
 end do
 
 call VelInt(Array(ipVxyz),Array(ipQxyz),la,lb,Array(ipB),nZeta)

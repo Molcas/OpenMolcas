@@ -73,7 +73,7 @@ if (iPrint >= 99) then
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') 'Darwin contact(',ia,',',ib,')'
-      call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
+      call RecPrt(Label,' ',rFinal(:,ia,ib,:),nZeta,nComp)
     end do
   end do
 end if

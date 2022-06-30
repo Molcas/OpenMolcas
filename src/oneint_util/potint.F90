@@ -44,15 +44,15 @@ unused_var(Beta)
 unused_var(nHer)
 unused_var(nOrdOp)
 
-call fzero(rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC)
+rFinal(:,:,:,:) = Zero
 
 iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = 0
 iAnga(4) = 0
-call dcopy_(3,A,1,Coora(1,1),1)
-call dcopy_(3,RB,1,Coora(1,2),1)
-call dcopy_(2*3,Coora,1,Coori,1)
+Coora(:,1) = A
+Coora(:,2) = RB
+Coori(:,1:2) = Coora(:,1:2)
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
 if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
@@ -64,9 +64,9 @@ call mHrr(la,lb,nFLOP,nMem)
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 
 llOper = lOper(1)
@@ -86,9 +86,7 @@ NoSpecial = .true.
 
 do lDCRT=0,nDCRT-1
 
-  do i=1,3
-    iph(i) = iPhase(i,iDCRT(lDCRT))
-  end do
+  iPh(:) = iPhase(:,iDCRT(lDCRT))
   nOp = NrOpr(iDCRT(lDCRT))
 
   do iGrid=1,nGrid

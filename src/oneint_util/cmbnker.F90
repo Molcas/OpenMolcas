@@ -30,8 +30,8 @@ real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
 #include "gam.fh"
 integer(kind=iwp) :: ia, ialpha, ib, ibeta, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, k, kc, lrs, m, n, &
                      na, nb
-real(kind=wp) :: b1, b1a, b2, b2a, b3, BBLoch, c0, c1, c2, CConst1, CConst2, CConst3, ck1, const1, const2, const3, Fact, Fact1, &
-                 Fact2, Fact3, ralpha, rbeta, rx1, ry1, rz1, W
+real(kind=wp) :: b1, b1a, b2, b2a, b3, BBLoch, CConst1, CConst2, CConst3, ck1, const1, const2, const3, Fact, Fact1, Fact2, Fact3, &
+                 ralpha, rbeta, rx1, ry1, rz1, W
 character(len=80) :: Label
 
 iRout = 134
@@ -87,13 +87,10 @@ do ixa=0,la
           rbeta = Beta(ibeta)
           b2 = rbeta*rmatr**(na+nb+3)
           b2a = ralpha*rmatr**(na+nb+3)
-          b3 = exp(-Zeta(iZeta)*rmatr*rmatr)
+          b3 = exp(-Zeta(iZeta)*rmatr**2)
           BBLoch = W*b3*((b1-b2)-bParm*(b1-b2)*(b1a-b2a))
-          c0 = Half
-          c1 = -rbeta
-          c2 = Two*rbeta*rbeta
-          rFinal(iZeta,iComp,ipa,ipb) = BBloch-(c0*CConst1*Rnr(iZeta,n+m+k-2)+c1*CConst2*Rnr(iZeta,n+m+k)+ &
-                                                c2*CConst3*Rnr(iZeta,n+m+k+2))
+          rFinal(iZeta,iComp,ipa,ipb) = BBloch-(Half*CConst1*Rnr(iZeta,n+m+k-2)-rbeta*CConst2*Rnr(iZeta,n+m+k)+ &
+                                                Two*rbeta**2*CConst3*Rnr(iZeta,n+m+k+2))
           if (iZeta == kc*nAlpha) then
             ibeta = ibeta+1
             ialpha = 0
@@ -114,7 +111,7 @@ if (iPrint >= 99) then
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
       write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-      call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
+      call RecPrt(Label,' ',rFinal(:,:,ia,ib),nZeta,nComp)
     end do
   end do
 end if
@@ -138,9 +135,7 @@ if (abs(qCoul) > Epsq) then
           lsinf = iya+iyb
           lcosf = ixa+ixb
           Fact = gammath(lsint,lcost)*gammaph(lsinf,lcosf)
-          do iZeta=1,nZeta
-            rFinal(iZeta,iComp,ipa,ipb) = rFinal(iZeta,iComp,ipa,ipb)+Fact*qCoul*qC(iZeta,lrs)
-          end do
+          rFinal(:,iComp,ipa,ipb) = rFinal(:,iComp,ipa,ipb)+Fact*qCoul*qC(:,lrs)
 
         end do
       end do
@@ -155,7 +150,7 @@ if (iPrint >= 99) then
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
       write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-      call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
+      call RecPrt(Label,' ',rFinal(:,:,ia,ib),nZeta,nComp)
     end do
   end do
 end if
@@ -193,10 +188,7 @@ if (abs(Dipol1) > Epsq) then
           lcosf = ixa+ixb
           Fact3 = Dipol(3)*gammath(lsint,lcost)*gammaph(lsinf,lcosf)
           ! Summe
-          Fact = Fact1+Fact2+Fact3
-          do iZeta=1,nZeta
-            rFinal(iZeta,iComp,ipa,ipb) = rFinal(iZeta,iComp,ipa,ipb)+Fact*Di(iZeta,lrs)
-          end do
+          rFinal(:,iComp,ipa,ipb) = rFinal(:,iComp,ipa,ipb)+(Fact1+Fact2+Fact3)*Di(:,lrs)
 
         end do
       end do

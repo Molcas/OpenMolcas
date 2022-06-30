@@ -58,7 +58,7 @@ unused_var(iAddPot)
 iRout = 122
 iPrint = nPrint(iRout)
 ! Observe that this code does not make any sense in case of symmetry!
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
 if (iPrint >= 99) then
   write(u6,*) ' Result in P_Int'
@@ -66,7 +66,7 @@ if (iPrint >= 99) then
     do ib=1,nTri_Elem1(lb)
       do iIC=1,nIC
         write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
-        call RecPrt(Label,' ',rFinal(1,ia,ib,iIC),nAlpha,nBeta)
+        call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),nAlpha,nBeta)
       end do
     end do
   end do

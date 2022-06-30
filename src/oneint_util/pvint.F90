@@ -89,9 +89,9 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-ipOff = ipA
+ipOff = ipA-1
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ipOff),1)
+  Array(ipOff+1:ipOff+nAlpha) = Alpha
   ipOff = ipOff+nAlpha
 end do
 if (iPrint >= 99) then
@@ -108,7 +108,7 @@ call Ass_pX(Array(ipA),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nIC)
 !                                                                      *
 if (iPrint >= 49) then
   do i=1,3
-    call RecPrt('pVInt: rFinal',' ',rFinal(1,1,1,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+    call RecPrt('pVInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
 end if
 

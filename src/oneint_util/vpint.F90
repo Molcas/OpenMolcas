@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "int_interface.fh"
 #include "print.fh"
-integer(kind=iwp) :: i, iAlpha, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
+integer(kind=iwp) :: i, iBeta, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
 external :: Fake, TNAI, XCff2D, XRys2D
 
 iRout = 221
@@ -61,8 +61,8 @@ if (mArr < 0) then
   call Abend()
 end if
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
-call dcopy_(nZeta*nArr,[Zero],0,Array,1)
+rFinal(:,:,:,:) = Zero
+Array(:) = Zero
 ! Compute contribution from a,b+1
 
 kRys = ((la+1)+lb+2)/2
@@ -72,10 +72,10 @@ kComp = 1
 call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nComp,la,lb+1,A,RB,kRys,Array(ipArr),mArr,CCoor, &
            nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 
-ipOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipOff),nAlpha)
-  ipOff = ipOff+1
+ipOff = ipB-1
+do iBeta=1,nBeta
+  Array(ipOff+1:ipOff+nAlpha) = Beta(iBeta)
+  ipOff = ipOff+nAlpha
 end do
 
 ! Compute contribution from a,b-1
@@ -95,7 +95,7 @@ call Util8(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2))
 
 if (iPrint >= 49) then
   do i=1,3
-    call RecPrt('VpInt: rFinal',' ',rFinal(1,1,1,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+    call RecPrt('VpInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
 end if
 

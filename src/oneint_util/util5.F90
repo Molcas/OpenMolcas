@@ -34,7 +34,7 @@ real(kind=wp), intent(in) :: Beta(nZeta), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1
                              Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6)
 #include "print.fh"
-integer(kind=iwp) :: ia, ib, iElem, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, jElem
+integer(kind=iwp) :: ia, ib, iElem, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, jElem
 character(len=80) :: Label
 
 iRout = 211
@@ -46,22 +46,22 @@ if (iPrint >= 99) then
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb+1)
       write(Label,'(A,I2,A,I2,A)') ' Slalbp(',ia,',',ib,'x)'
-      call RecPrt(Label,' ',Slalbp(1,ia,ib,1),nZeta,1)
+      call RecPrt(Label,' ',Slalbp(:,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Slalbp(',ia,',',ib,'y)'
-      call RecPrt(Label,' ',Slalbp(1,ia,ib,2),nZeta,1)
+      call RecPrt(Label,' ',Slalbp(:,ia,ib,2),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Slalbp(',ia,',',ib,'z)'
-      call RecPrt(Label,' ',Slalbp(1,ia,ib,3),nZeta,1)
+      call RecPrt(Label,' ',Slalbp(:,ia,ib,3),nZeta,1)
     end do
   end do
   if (lb > 0) then
     do ia=1,nTri_Elem1(la)
       do ib=1,nTri_Elem1(lb-1)
         write(Label,'(A,I2,A,I2,A)') ' Slalbm(',ia,',',ib,'x)'
-        call RecPrt(Label,' ',Slalbm(1,ia,ib,1),nZeta,1)
+        call RecPrt(Label,' ',Slalbm(:,ia,ib,1),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Slalbm(',ia,',',ib,'y)'
-        call RecPrt(Label,' ',Slalbm(1,ia,ib,2),nZeta,1)
+        call RecPrt(Label,' ',Slalbm(:,ia,ib,2),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Slalbm(',ia,',',ib,'z)'
-        call RecPrt(Label,' ',Slalbm(1,ia,ib,3),nZeta,1)
+        call RecPrt(Label,' ',Slalbm(:,ia,ib,3),nZeta,1)
       end do
     end do
   end if
@@ -77,40 +77,29 @@ do ixa=la,0,-1
         izb = lb-ixb-iyb
         ipb = C_Ind(lb,ixb,izb)
 
-        do iZeta=1,nZeta
-          rFinal(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*Two*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb),1)
-          rFinal(iZeta,ipa,ipb,2) = Two*Beta(iZeta)* &
-                                    (Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb),1)+Slalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb),2))
-          rFinal(iZeta,ipa,ipb,3) = Two*Beta(iZeta)* &
-                                    (Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1),1)+Slalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb),3))
-          rFinal(iZeta,ipa,ipb,4) = Two*Beta(iZeta)*Two*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb),2)
-          rFinal(iZeta,ipa,ipb,5) = Two*Beta(iZeta)* &
-                                    (Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1),2)+Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb),3))
-          rFinal(iZeta,ipa,ipb,6) = Two*Beta(iZeta)*Two*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1),3)
-        end do
+        rFinal(:,ipa,ipb,1) = Two*Beta*Two*Slalbp(:,ipa,C_Ind(lb+1,ixb+1,izb),1)
+        rFinal(:,ipa,ipb,2) = Two*Beta*(Slalbp(:,ipa,C_Ind(lb+1,ixb,izb),1)+Slalbp(:,ipa,C_Ind(lb+1,ixb+1,izb),2))
+        rFinal(:,ipa,ipb,3) = Two*Beta*(Slalbp(:,ipa,C_Ind(lb+1,ixb,izb+1),1)+Slalbp(:,ipa,C_Ind(lb+1,ixb+1,izb),3))
+        rFinal(:,ipa,ipb,4) = Two*Beta*Two*Slalbp(:,ipa,C_Ind(lb+1,ixb,izb),2)
+        rFinal(:,ipa,ipb,5) = Two*Beta*(Slalbp(:,ipa,C_Ind(lb+1,ixb,izb+1),2)+Slalbp(:,ipa,C_Ind(lb+1,ixb,izb),3))
+        rFinal(:,ipa,ipb,6) = Two*Beta*Two*Slalbp(:,ipa,C_Ind(lb+1,ixb,izb+1),3)
 
         if (ixb > 0) then
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,1) = rFinal(iZeta,ipa,ipb,1)-real(ixb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb-1,izb),1)*Two
-            rFinal(iZeta,ipa,ipb,2) = rFinal(iZeta,ipa,ipb,2)-real(ixb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb-1,izb),2)
-            rFinal(iZeta,ipa,ipb,3) = rFinal(iZeta,ipa,ipb,3)-real(ixb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb-1,izb),3)
-          end do
+          rFinal(:,ipa,ipb,1) = rFinal(:,ipa,ipb,1)-real(ixb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb-1,izb),1)*Two
+          rFinal(:,ipa,ipb,2) = rFinal(:,ipa,ipb,2)-real(ixb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb-1,izb),2)
+          rFinal(:,ipa,ipb,3) = rFinal(:,ipa,ipb,3)-real(ixb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb-1,izb),3)
         end if
 
         if (iyb > 0) then
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,2) = rFinal(iZeta,ipa,ipb,2)-real(iyb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb),1)
-            rFinal(iZeta,ipa,ipb,4) = rFinal(iZeta,ipa,ipb,4)-real(iyb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb),2)*Two
-            rFinal(iZeta,ipa,ipb,5) = rFinal(iZeta,ipa,ipb,5)-real(iyb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb),3)
-          end do
+          rFinal(:,ipa,ipb,2) = rFinal(:,ipa,ipb,2)-real(iyb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb,izb),1)
+          rFinal(:,ipa,ipb,4) = rFinal(:,ipa,ipb,4)-real(iyb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb,izb),2)*Two
+          rFinal(:,ipa,ipb,5) = rFinal(:,ipa,ipb,5)-real(iyb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb,izb),3)
         end if
 
         if (izb > 0) then
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,3) = rFinal(iZeta,ipa,ipb,3)-real(izb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb-1),1)
-            rFinal(iZeta,ipa,ipb,5) = rFinal(iZeta,ipa,ipb,5)-real(izb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb-1),2)
-            rFinal(iZeta,ipa,ipb,6) = rFinal(iZeta,ipa,ipb,6)-real(izb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb-1),3)*Two
-          end do
+          rFinal(:,ipa,ipb,3) = rFinal(:,ipa,ipb,3)-real(izb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb,izb-1),1)
+          rFinal(:,ipa,ipb,5) = rFinal(:,ipa,ipb,5)-real(izb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb,izb-1),2)
+          rFinal(:,ipa,ipb,6) = rFinal(:,ipa,ipb,6)-real(izb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb,izb-1),3)*Two
         end if
 
       end do
@@ -124,17 +113,17 @@ if (iPrint >= 49) then
   do iElem=1,nTri_Elem1(la)
     do jElem=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',xx) '
-      call RecPrt(Label,' ',rFinal(1,iElem,jElem,1),nZeta,1)
+      call RecPrt(Label,' ',rFinal(:,iElem,jElem,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',xy) '
-      call RecPrt(Label,' ',rFinal(1,iElem,jElem,2),nZeta,1)
+      call RecPrt(Label,' ',rFinal(:,iElem,jElem,2),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',xz) '
-      call RecPrt(Label,' ',rFinal(1,iElem,jElem,3),nZeta,1)
+      call RecPrt(Label,' ',rFinal(:,iElem,jElem,3),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',yy) '
-      call RecPrt(Label,' ',rFinal(1,iElem,jElem,4),nZeta,1)
+      call RecPrt(Label,' ',rFinal(:,iElem,jElem,4),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',yz) '
-      call RecPrt(Label,' ',rFinal(1,iElem,jElem,5),nZeta,1)
+      call RecPrt(Label,' ',rFinal(:,iElem,jElem,5),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',zz) '
-      call RecPrt(Label,' ',rFinal(1,iElem,jElem,6),nZeta,1)
+      call RecPrt(Label,' ',rFinal(:,iElem,jElem,6),nZeta,1)
     end do
   end do
 end if

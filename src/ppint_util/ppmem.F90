@@ -14,7 +14,7 @@ subroutine PPMem( &
 #                include "mem_interface.fh"
                 )
 
-use Index_util, only: nTri0Elem
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
@@ -26,7 +26,7 @@ unused_var(lr)
 
 nHer = 0
 Mem = 0
-intmax = max(nTri0Elem(la),nTri0Elem(lb))
+intmax = max(nTri_Elem1(la),nTri_Elem1(lb))
 intmax = intmax**2
 Mem = Mem+3*intmax
 

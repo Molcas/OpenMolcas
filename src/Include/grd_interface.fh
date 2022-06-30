@@ -44,8 +44,8 @@ ndc,kOp,lOper,nComp,iStabM,nStabM &
 integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, nStabM, &
                      lOper(nComp), iStabM(0:nStabM-1)
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                 rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr), Ccoor(3), Grad(nGrad), &
-                 DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
+                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6), A(3), RB(3), Array(nZeta*nArr), Ccoor(3), Grad(nGrad), &
+                 DAO(nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
 logical(kind=iwp) :: IfGrad(3,2)
 #endif
 #undef _CALLING_

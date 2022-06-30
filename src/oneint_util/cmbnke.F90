@@ -18,15 +18,14 @@ subroutine CmbnKE(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Txyz)
 !***********************************************************************
 
 use Index_Functions, only: C_Ind, nTri_Elem1
-use Constants, only: Two, Three
+use Constants, only: OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), Txyz(nZeta,3,0:la,0:lb)
 real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
-integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
-real(kind=wp) :: Tmp
+integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb
 
 !iRout = 134
 !iPrint = nPrint(iRout)
@@ -49,12 +48,9 @@ do ixa=0,la
 
         ! Combine integrals
 
-        do iZeta=1,nZeta
-          Tmp = Txyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb,0)*Rnxyz(iZeta,3,iza,izb,0)+ &
-                Rnxyz(iZeta,1,ixa,ixb,0)*Txyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb,0)+ &
-                Rnxyz(iZeta,1,ixa,ixb,0)*Rnxyz(iZeta,2,iya,iyb,0)*Txyz(iZeta,3,iza,izb)
-          rFinal(iZeta,iComp,ipa,ipb) = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)*Tmp
-        end do
+        rFinal(:,iComp,ipa,ipb) = rKappa*Zeta**(-OneHalf)*(Txyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb,0)*Rnxyz(:,3,iza,izb,0)+ &
+                                                           Rnxyz(:,1,ixa,ixb,0)*Txyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb,0)+ &
+                                                           Rnxyz(:,1,ixa,ixb,0)*Rnxyz(:,2,iya,iyb,0)*Txyz(:,3,iza,izb))
 
       end do
     end do

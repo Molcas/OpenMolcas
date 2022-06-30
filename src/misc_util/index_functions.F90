@@ -16,7 +16,7 @@ use Definitions, only: iwp
 implicit none
 private
 
-public :: C_Ind, C_Ind3, C_Ind3_Rev, C3_Ind, C3_Ind3, iTri, iTri_Rev, nTri_Elem, nTri_Elem1, nTri3_Elem, nTri3_Elem1
+public :: C3_Ind, C3_Ind3, C_Ind, C_Ind3, C_Ind3_Rev, iTri, iTri_Rev, nTri3_Elem, nTri3_Elem1, nTri_Elem, nTri_Elem1
 
 #include "macros.fh"
 

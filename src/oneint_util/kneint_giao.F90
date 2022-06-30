@@ -34,8 +34,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "int_interface.fh"
 #include "print.fh"
-integer(kind=iwp) :: iAlpha, iBeta, iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipFnl, ipQxyz, iPrint, ipRxyz, &
-                     ipTxyz, ipWxyz, iRout, iStabO(0:7), lDCRT, llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipFnl, ipQxyz, iPrint, ipRxyz, ipTxyz, &
+                     ipWxyz, iRout, iStabO(0:7), lDCRT, llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
@@ -47,9 +47,7 @@ unused_var(iAddPot)
 
 iRout = 150
 iPrint = nPrint(iRout)
-ABeq(1) = A(1) == RB(1)
-ABeq(2) = A(2) == RB(2)
-ABeq(3) = A(3) == RB(3)
+ABeq(:) = A == RB
 
 nip = 1
 ipAxyz = nip
@@ -111,9 +109,7 @@ do lDCRT=0,nDCRT-1
 
   ! Compute the contribution from the multipole moment operator
 
-  ABeq(1) = .false.
-  ABeq(2) = .false.
-  ABeq(3) = .false.
+  ABeq(:) = .false.
   call CrtCmp(Zeta,P,nZeta,TC,Array(ipRxyz),nOrdOp+1,HerR(iHerR(nHer)),nHer,ABeq)
 
   ! Compute the cartesian components for the multipole moment
@@ -125,16 +121,16 @@ do lDCRT=0,nDCRT-1
   ! integrals. The kinetic energy components are linear
   ! combinations of overlap components.
 
-  ipAOff = ipA
+  ipAOff = ipA-1
   do iBeta=1,nBeta
-    call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+    Array(ipAOff+1:ipAOff+nAlpha) = Alpha
     ipAOff = ipAOff+nAlpha
   end do
 
-  ipBOff = ipB
-  do iAlpha=1,nAlpha
-    call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-    ipBOff = ipBOff+1
+  ipBOff = ipB-1
+  do iBeta=1,nBeta
+    Array(ipBOff+1:ipBOff+nAlpha) = Beta(iBeta)
+    ipBOff = ipBOff+nAlpha
   end do
 
   call Kntc_GIAO(Array(ipTxyz),Array(ipQxyz),Array(ipWxyz),la,lb,Array(ipA),Array(ipB),nZeta)

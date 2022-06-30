@@ -32,6 +32,7 @@ subroutine KnEGrd( &
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -47,9 +48,7 @@ unused_var(iStabM)
 
 iRout = 150
 iPrint = nPrint(iRout)
-ABeq(1) = A(1) == RB(1)
-ABeq(2) = A(2) == RB(2)
-ABeq(3) = A(3) == RB(3)
+ABeq(:) = A == RB
 
 nip = 1
 ipAxyz = nip
@@ -88,9 +87,7 @@ call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),lb+2,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the contribution from the multipole moment operator
 
-ABeq(1) = .false.
-ABeq(2) = .false.
-ABeq(3) = .false.
+ABeq(:) = .false.
 call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the cartesian components for the multipole moment

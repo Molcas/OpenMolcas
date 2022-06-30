@@ -26,6 +26,7 @@ subroutine PXInt( &
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
+use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -112,22 +113,22 @@ do iComp=1,kComp
   jTemp3 = 0
   !write(u6,*) 'lOper=',lOper(jComp1),lOper(jComp2),lOper(jComp3)
   do iSym_pX=0,nIrrep-1
-    if (iand(2**iSym_pX,lOper(jComp1)) /= 0) then
+    if (btest(lOper(jComp1),iSym_pX)) then
       iSym_X = ieor(iSym_pX,iSym_p1)
       !write(u6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
-      jTemp1 = ior(jTemp1,2**iSym_X)
+      jTemp1 = ibset(jTemp1,iSym_X)
       !write(u6,*) 'jTemp1=',jTemp1
     end if
-    if (iand(2**iSym_pX,lOper(jComp2)) /= 0) then
+    if (btest(lOper(jComp2),iSym_pX)) then
       iSym_X = ieor(iSym_pX,iSym_p2)
       !write(u6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
-      jTemp2 = ior(jTemp2,2**iSym_X)
+      jTemp2 = ibset(jTemp2,iSym_X)
       !write(u6,*) 'jTemp2=',jTemp2
     end if
-    if (iand(2**iSym_pX,lOper(jComp3)) /= 0) then
+    if (btest(lOper(jComp3),iSym_pX)) then
       iSym_X = ieor(iSym_pX,iSym_p3)
       !write(u6,*) 'iSym_pX,iSym_X=',iSym_pX,iSym_X
-      jTemp3 = ior(jTemp3,2**iSym_X)
+      jTemp3 = ibset(jTemp3,iSym_X)
       !write(u6,*) 'jTemp3=',jTemp3
     end if
   end do

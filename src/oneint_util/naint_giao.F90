@@ -31,14 +31,14 @@ subroutine NAInt_GIAO( &
 use Basis_Info, only: dbsc, Gaussian_Type, nCnttp, Nuclear_Model, Point_Charge
 use Center_Info, only: dc
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
-use Constants, only: Zero, One, Two, Three, Pi, TwoP54
+use Constants, only: Zero, One, OneHalf, Pi, TwoP54
 use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
 #include "print.fh"
-integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, ipHRR, ipIn, ipNAInt, iPrint, ipRys, iRout, iZeta, &
-                     kab, kCnt, kCnttp, kdc, lab, labcd_EF, labcd_NA, lcd_EF, lcd_NA, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, &
+integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, ipHRR, ipIn, ipNAInt, iPrint, ipRys, iRout, kab, &
+                     kCnt, kCnttp, kdc, lab, labcd_EF, labcd_NA, lcd_EF, lcd_NA, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, &
                      mcdMax_EF, mcdMax_NA, mcdMin_EF, mcdMin_NA, nDCRT, nFLOP, nHRR, nMem, nOp, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappcd, TC(3)
 logical(kind=iwp) :: NoSpecial
@@ -59,10 +59,10 @@ unused_var(iAddPot)
 iRout = 200
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A
+Coori(:,2) = RB
 
 iAnga_EF(1) = la
 iAnga_EF(2) = lb
@@ -103,11 +103,11 @@ ipHRR = ipRys+nZeta*mArr
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
-!
+
 llOper = lOper(1)
 do iComp=2,nComp
   llOper = ior(llOper,lOper(iComp))
@@ -116,9 +116,7 @@ end do
 ! Modify Zeta if the two-electron code will be used!
 
 if (Nuclear_Model == Gaussian_Type) then
-  do iZeta=1,nZeta
-    rKappa(iZeta) = rKappa(iZeta)*(TwoP54/Zeta(iZeta))
-  end do
+  rKappa = rKappa*(TwoP54/Zeta)
 end if
 !                                                                      *
 !***********************************************************************
@@ -141,9 +139,9 @@ do kCnttp=1,nCnttp
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
+      CoorAC(:,2) = TC
+      Coori(:,3) = TC
+      Coori(:,4) = TC
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -160,7 +158,7 @@ do kCnttp=1,nCnttp
         EInv = One/Eta
         rKappcd = TwoP54/Eta
         ! Tag on the normalization
-        rKappcd = rKappcd*(Eta/Pi)**(Three/Two)
+        rKappcd = rKappcd*(Eta/Pi)**OneHalf
         call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa,[rKappcd],Coori,Coori,CoorAC,mabMin,mabMax, &
                  mcdMin_EF,mcdMax_EF,Array(ipRys),mArr*nZeta,TERI,MODU2,vCff2D,vRys2D,NoSpecial)
       else if (Nuclear_Model == Point_Charge) then
@@ -202,7 +200,7 @@ do kCnttp=1,nCnttp
         EInv = One/Eta
         rKappcd = TwoP54/Eta
         ! Tag on the normalization
-        rKappcd = rKappcd*(Eta/Pi)**(Three/Two)
+        rKappcd = rKappcd*(Eta/Pi)**OneHalf
         call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa,[rKappcd],Coori,Coori,CoorAC,mabMin,mabMax,0,0, &
                  Array(ipRys),mArr*nZeta,TERI,MODU2,vCff2D,vRys2D,NoSpecial)
       else if (Nuclear_Model == Point_Charge) then
@@ -238,9 +236,7 @@ end do
 !***********************************************************************
 !                                                                      *
 if (Nuclear_Model == Gaussian_Type) then
-  do iZeta=1,nZeta
-    rKappa(iZeta) = rKappa(iZeta)*(TwoP54/Zeta(iZeta))
-  end do
+  rKappa = rKappa*(TwoP54/Zeta)
 end if
 !                                                                      *
 !***********************************************************************

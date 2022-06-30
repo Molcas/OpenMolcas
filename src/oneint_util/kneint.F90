@@ -27,6 +27,7 @@ subroutine KnEInt( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -34,8 +35,8 @@ implicit none
 #include "rmat_option.fh"
 #include "rmat.fh"
 #include "print.fh"
-integer(kind=iwp) :: iAlpha, iBeta, icop, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipDi, ipqC, ipQxyz, iPrint, ipRnr, ipRxyz, &
-                     ipTxyz, iRout, lsum, nip
+integer(kind=iwp) :: iBeta, icop, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipDi, ipqC, ipQxyz, iPrint, ipRnr, ipRxyz, ipTxyz, &
+                     iRout, lsum, nip
 logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
@@ -48,9 +49,7 @@ unused_var(iAddPot)
 
 iRout = 150
 iPrint = nPrint(iRout)
-ABeq(1) = A(1) == RB(1)
-ABeq(2) = A(2) == RB(2)
-ABeq(3) = A(3) == RB(3)
+ABeq(:) = A == RB
 
 nip = 1
 ipAxyz = nip
@@ -144,9 +143,7 @@ else
 
   ! Compute the contribution from the multipole moment operator
 
-  ABeq(1) = .false.
-  ABeq(2) = .false.
-  ABeq(3) = .false.
+  ABeq(:) = .false.
   call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp-2,HerR(iHerR(nHer)),nHer,ABeq)
 
   ! Compute the cartesian components for the multipole moment
@@ -157,16 +154,16 @@ else
   ! Compute the cartesian components for the kinetic energy integrals.
   ! The kinetic energy components are linear combinations of overlap components.
 
-  ipAOff = ipA
+  ipAOff = ipA-1
   do iBeta=1,nBeta
-    call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+    Array(ipAOff+1:ipAOff+nAlpha) = Alpha
     ipAOff = ipAOff+nAlpha
   end do
 
-  ipBOff = ipB
-  do iAlpha=1,nAlpha
-    call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-    ipBOff = ipBOff+1
+  ipBOff = ipB-1
+  do iBeta=1,nBeta
+    Array(ipBOff+1:ipBOff+nAlpha) = Beta(iBeta)
+    ipBOff = ipBOff+nAlpha
   end do
 
   call Kntc(Array(ipTxyz),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZeta)

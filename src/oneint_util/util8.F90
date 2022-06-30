@@ -31,7 +31,7 @@ real(kind=wp), intent(in) :: Beta(nZeta), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1
                              Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1))
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3)
 #include "print.fh"
-integer(kind=iwp) :: ia, ib, iElem, iiComp, iiZeta, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, jElem
+integer(kind=iwp) :: ia, ib, iElem, iiComp, iiZeta, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, jElem
 character(len=80) :: Label
 
 iRout = 203
@@ -42,12 +42,12 @@ if (iPrint >= 99) then
   call RecPrt('Beta','(5f15.8)',Beta,nZeta,1)
   do ib=1,nTri_Elem1(lb)
     write(Label,'(A,I2,A)') ' Slalbp(',la,ib,')'
-    call RecPrt(Label,'(5f15.8)',Slalbp(1,1,ib),nZeta,nTri_Elem1(la+1))
+    call RecPrt(Label,'(5f15.8)',Slalbp(:,:,ib),nZeta,nTri_Elem1(la+1))
   end do
   if (lb > 0) then
     do ia=1,nTri_Elem1(la)
       write(Label,'(A,I2,A)') ' Slalbm(',la,ib,')'
-      call RecPrt(Label,'(5f15.8)',Slalbm(1,1,ib),nZeta,nTri_Elem1(lb-1))
+      call RecPrt(Label,'(5f15.8)',Slalbm(:,:,ib),nZeta,nTri_Elem1(lb-1))
     end do
   end if
 end if
@@ -63,38 +63,21 @@ do ixa=la,0,-1
         ipb = C_Ind(lb,ixb,izb)
 
         if (ixb == 0) then
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb))
-          end do
+          rFinal(:,ipa,ipb,1) = Two*Beta*Slalbp(:,ipa,C_Ind(lb+1,ixb+1,izb))
         else
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,1) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb+1,izb))- &
-                                      real(ixb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb-1,izb))
-          end do
+          rFinal(:,ipa,ipb,1) = Two*Beta*Slalbp(:,ipa,C_Ind(lb+1,ixb+1,izb))-real(ixb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb-1,izb))
         end if
 
         if (iyb == 0) then
-
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,2) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb))
-          end do
+          rFinal(:,ipa,ipb,2) = Two*Beta*Slalbp(:,ipa,C_Ind(lb+1,ixb,izb))
         else
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,2) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb))- &
-                                      real(iyb,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb))
-          end do
+          rFinal(:,ipa,ipb,2) = Two*Beta*Slalbp(:,ipa,C_Ind(lb+1,ixb,izb))-real(iyb,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb,izb))
         end if
 
         if (izb == 0) then
-
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,3) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1))
-          end do
+          rFinal(:,ipa,ipb,3) = Two*Beta*Slalbp(:,ipa,C_Ind(lb+1,ixb,izb+1))
         else
-          do iZeta=1,nZeta
-            rFinal(iZeta,ipa,ipb,3) = Two*Beta(iZeta)*Slalbp(iZeta,ipa,C_Ind(lb+1,ixb,izb+1))- &
-                                      real(iza,kind=wp)*Slalbm(iZeta,ipa,C_Ind(lb-1,ixb,izb-1))
-          end do
+          rFinal(:,ipa,ipb,3) = Two*Beta*Slalbp(:,ipa,C_Ind(lb+1,ixb,izb+1))-real(iza,kind=wp)*Slalbm(:,ipa,C_Ind(lb-1,ixb,izb-1))
         end if
 
       end do

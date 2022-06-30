@@ -51,54 +51,54 @@ if (iPrint >= 99) then
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb+2)
       write(Label,'(A,I2,A,I2,A)') ' Tabpp(',ia,',',ib,'xx)'
-      call RecPrt(Label,' ',Tabpp(1,ia,ib,1),nZeta,1)
+      call RecPrt(Label,' ',Tabpp(:,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tabpp(',ia,',',ib,'xy)'
-      call RecPrt(Label,' ',Tabpp(1,ia,ib,2),nZeta,1)
+      call RecPrt(Label,' ',Tabpp(:,ia,ib,2),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tabpp(',ia,',',ib,'xz)'
-      call RecPrt(Label,' ',Tabpp(1,ia,ib,3),nZeta,1)
+      call RecPrt(Label,' ',Tabpp(:,ia,ib,3),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tabpp(',ia,',',ib,'yy)'
-      call RecPrt(Label,' ',Tabpp(1,ia,ib,4),nZeta,1)
+      call RecPrt(Label,' ',Tabpp(:,ia,ib,4),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tabpp(',ia,',',ib,'yz)'
-      call RecPrt(Label,' ',Tabpp(1,ia,ib,5),nZeta,1)
+      call RecPrt(Label,' ',Tabpp(:,ia,ib,5),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tabpp(',ia,',',ib,'zz)'
-      call RecPrt(Label,' ',Tabpp(1,ia,ib,6),nZeta,1)
+      call RecPrt(Label,' ',Tabpp(:,ia,ib,6),nZeta,1)
     end do
   end do
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb+1)
       write(Label,'(A,I2,A,I2,A)') ' Tabp(',ia,',',ib,'x)'
-      call RecPrt(Label,' ',Tabp(1,ia,ib,1),nZeta,1)
+      call RecPrt(Label,' ',Tabp(:,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tabp(',ia,',',ib,'y)'
-      call RecPrt(Label,' ',Tabp(1,ia,ib,2),nZeta,1)
+      call RecPrt(Label,' ',Tabp(:,ia,ib,2),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tabp(',ia,',',ib,'z)'
-      call RecPrt(Label,' ',Tabp(1,ia,ib,3),nZeta,1)
+      call RecPrt(Label,' ',Tabp(:,ia,ib,3),nZeta,1)
     end do
   end do
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' Tab0',ia,',',ib,'xx)'
-      call RecPrt(Label,' ',Tab0(1,ia,ib,1),nZeta,1)
+      call RecPrt(Label,' ',Tab0(:,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tab0',ia,',',ib,'xy)'
-      call RecPrt(Label,' ',Tab0(1,ia,ib,2),nZeta,1)
+      call RecPrt(Label,' ',Tab0(:,ia,ib,2),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tab0',ia,',',ib,'xz)'
-      call RecPrt(Label,' ',Tab0(1,ia,ib,3),nZeta,1)
+      call RecPrt(Label,' ',Tab0(:,ia,ib,3),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tab0',ia,',',ib,'yy)'
-      call RecPrt(Label,' ',Tab0(1,ia,ib,4),nZeta,1)
+      call RecPrt(Label,' ',Tab0(:,ia,ib,4),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tab0',ia,',',ib,'yz)'
-      call RecPrt(Label,' ',Tab0(1,ia,ib,5),nZeta,1)
+      call RecPrt(Label,' ',Tab0(:,ia,ib,5),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Tab0',ia,',',ib,'zz)'
-      call RecPrt(Label,' ',Tab0(1,ia,ib,6),nZeta,1)
+      call RecPrt(Label,' ',Tab0(:,ia,ib,6),nZeta,1)
     end do
   end do
   if (lb > 0) then
     do ia=1,nTri_Elem1(la)
       do ib=1,nTri_Elem1(lb-1)
         write(Label,'(A,I2,A,I2,A)') ' Tabm(',ia,',',ib,'x)'
-        call RecPrt(Label,' ',Tabm(1,ia,ib,1),nZeta,1)
+        call RecPrt(Label,' ',Tabm(:,ia,ib,1),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Tabm(',ia,',',ib,'y)'
-        call RecPrt(Label,' ',Tabm(1,ia,ib,2),nZeta,1)
+        call RecPrt(Label,' ',Tabm(:,ia,ib,2),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Tabm(',ia,',',ib,'z)'
-        call RecPrt(Label,' ',Tabm(1,ia,ib,3),nZeta,1)
+        call RecPrt(Label,' ',Tabm(:,ia,ib,3),nZeta,1)
       end do
     end do
   end if
@@ -106,17 +106,17 @@ if (iPrint >= 99) then
     do ia=1,nTri_Elem1(la)
       do ib=1,nTri_Elem1(lb-2)
         write(Label,'(A,I2,A,I2,A)') ' Tabmm(',ia,',',ib,'xx)'
-        call RecPrt(Label,' ',Tabmm(1,ia,ib,1),nZeta,1)
+        call RecPrt(Label,' ',Tabmm(:,ia,ib,1),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Tabmm(',ia,',',ib,'xy)'
-        call RecPrt(Label,' ',Tabmm(1,ia,ib,2),nZeta,1)
+        call RecPrt(Label,' ',Tabmm(:,ia,ib,2),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Tabmm(',ia,',',ib,'xz)'
-        call RecPrt(Label,' ',Tabmm(1,ia,ib,3),nZeta,1)
+        call RecPrt(Label,' ',Tabmm(:,ia,ib,3),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Tabmm(',ia,',',ib,'yy)'
-        call RecPrt(Label,' ',Tabmm(1,ia,ib,4),nZeta,1)
+        call RecPrt(Label,' ',Tabmm(:,ia,ib,4),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Tabmm(',ia,',',ib,'yz)'
-        call RecPrt(Label,' ',Tabmm(1,ia,ib,5),nZeta,1)
+        call RecPrt(Label,' ',Tabmm(:,ia,ib,5),nZeta,1)
         write(Label,'(A,I2,A,I2,A)') ' Tabmm(',ia,',',ib,'zz)'
-        call RecPrt(Label,' ',Tabmm(1,ia,ib,6),nZeta,1)
+        call RecPrt(Label,' ',Tabmm(:,ia,ib,6),nZeta,1)
       end do
     end do
   end if
@@ -280,17 +280,17 @@ if (iPrint >= 49) then
   do iElem=1,nTri_Elem1(la)
     do jElem=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' Rslt (',iElem,',',jElem,',xx) '
-      call RecPrt(Label,' ',Rslt(1,iElem,jElem,kxx),nZeta,1)
+      call RecPrt(Label,' ',Rslt(:,iElem,jElem,kxx),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Rslt (',iElem,',',jElem,',xy) '
-      call RecPrt(Label,' ',Rslt(1,iElem,jElem,kxy),nZeta,1)
+      call RecPrt(Label,' ',Rslt(:,iElem,jElem,kxy),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Rslt (',iElem,',',jElem,',xz) '
-      call RecPrt(Label,' ',Rslt(1,iElem,jElem,kxz),nZeta,1)
+      call RecPrt(Label,' ',Rslt(:,iElem,jElem,kxz),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Rslt (',iElem,',',jElem,',yy) '
-      call RecPrt(Label,' ',Rslt(1,iElem,jElem,kyy),nZeta,1)
+      call RecPrt(Label,' ',Rslt(:,iElem,jElem,kyy),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Rslt (',iElem,',',jElem,',yz) '
-      call RecPrt(Label,' ',Rslt(1,iElem,jElem,kyz),nZeta,1)
+      call RecPrt(Label,' ',Rslt(:,iElem,jElem,kyz),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Rslt (',iElem,',',jElem,',zz) '
-      call RecPrt(Label,' ',Rslt(1,iElem,jElem,kzz),nZeta,1)
+      call RecPrt(Label,' ',Rslt(:,iElem,jElem,kzz),nZeta,1)
     end do
   end do
   write(u6,*) ' Leaving AMPr.'

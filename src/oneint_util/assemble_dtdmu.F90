@@ -45,11 +45,11 @@ if (iPrint >= 99) then
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb+1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
-      call RecPrt(Label,' ',Elalbp(1,ia,ib,1),nZeta,1)
+      call RecPrt(Label,' ',Elalbp(:,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
-      call RecPrt(Label,' ',Elalbp(1,ia,ib,2),nZeta,1)
+      call RecPrt(Label,' ',Elalbp(:,ia,ib,2),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',z)'
-      call RecPrt(Label,' ',Elalbp(1,ia,ib,3),nZeta,1)
+      call RecPrt(Label,' ',Elalbp(:,ia,ib,3),nZeta,1)
     end do
   end do
   do ia=1,nTri_Elem1(la)
@@ -57,11 +57,11 @@ if (iPrint >= 99) then
     if (lb == 0) ib_max = 0
     do ib=1,ib_max
       write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',x)'
-      call RecPrt(Label,' ',Elalbm(1,ia,ib,1),nZeta,1)
+      call RecPrt(Label,' ',Elalbm(:,ia,ib,1),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',y)'
-      call RecPrt(Label,' ',Elalbm(1,ia,ib,2),nZeta,1)
+      call RecPrt(Label,' ',Elalbm(:,ia,ib,2),nZeta,1)
       write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',z)'
-      call RecPrt(Label,' ',Elalbm(1,ia,ib,3),nZeta,1)
+      call RecPrt(Label,' ',Elalbm(:,ia,ib,3),nZeta,1)
     end do
   end do
 end if
@@ -109,7 +109,7 @@ end do
 if (iPrint >= 49) then
   do iComp=1,3
     write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
-    call RecPrt(Label,' ',rFinal(1,1,1,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+    call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
 end if
 

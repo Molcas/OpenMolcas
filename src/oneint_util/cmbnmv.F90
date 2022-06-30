@@ -18,7 +18,7 @@ subroutine CmbnMV(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,rV2Int,rV4Int)
 !***********************************************************************
 
 use Index_Functions, only: C_Ind, nTri_Elem1
-use Constants, only: One, Two, Three, Eight, c_in_au
+use Constants, only: One, Eight, OneHalf, c_in_au
 use Definitions, only: wp, iwp
 
 implicit none
@@ -26,8 +26,7 @@ integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+2,0:lb+2,0:lr), Zeta(nZeta), rKappa(nZeta), rV2Int(nZeta,3,0:la,0:lb,2), &
                              rV4Int(nZeta,3,0:la,0:lb)
 real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
-integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
-real(kind=wp) :: x2x2, x2y2, x2z2, y2x2, y2y2, y2z2, z2x2, z2y2, z2z2
+integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb
 real(kind=wp), parameter :: Const = -One/(Eight*c_in_au**2)
 
 !iRout = 191
@@ -51,19 +50,15 @@ do ixa=0,la
 
         ! Combine integrals
 
-        do iZeta=1,nZeta
-          x2x2 = rV4Int(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb,0)*Rnxyz(iZeta,3,iza,izb,0)
-          x2y2 = rV2Int(iZeta,1,ixa,ixb,1)*rV2Int(iZeta,2,iya,iyb,2)*Rnxyz(iZeta,3,iza,izb,0)
-          x2z2 = rV2Int(iZeta,1,ixa,ixb,1)*Rnxyz(iZeta,2,iya,iyb,0)*rV2Int(iZeta,3,iza,izb,2)
-          y2x2 = rV2Int(iZeta,1,ixa,ixb,2)*rV2Int(iZeta,2,iya,iyb,1)*Rnxyz(iZeta,3,iza,izb,0)
-          y2y2 = Rnxyz(iZeta,1,ixa,ixb,0)*rV4Int(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb,0)
-          y2z2 = Rnxyz(iZeta,1,ixa,ixb,0)*rV2Int(iZeta,2,iya,iyb,1)*rV2Int(iZeta,3,iza,izb,2)
-          z2x2 = rV2Int(iZeta,1,ixa,ixb,2)*Rnxyz(iZeta,2,iya,iyb,0)*rV2Int(iZeta,3,iza,izb,1)
-          z2y2 = Rnxyz(iZeta,1,ixa,ixb,0)*rV2Int(iZeta,2,iya,iyb,2)*rV2Int(iZeta,3,iza,izb,1)
-          z2z2 = Rnxyz(iZeta,1,ixa,ixb,0)*Rnxyz(iZeta,2,iya,iyb,0)*rV4Int(iZeta,3,iza,izb)
-
-          rFinal(iZeta,iComp,ipa,ipb) = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)*Const*(x2x2+x2y2+x2z2+y2x2+y2y2+y2z2+z2x2+z2y2+z2z2)
-        end do
+        rFinal(:,iComp,ipa,ipb) = rKappa*Zeta**(-OneHalf)*Const*(rV4Int(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb,0)*Rnxyz(:,3,iza,izb,0)+ &
+                                                                 rV2Int(:,1,ixa,ixb,1)*rV2Int(:,2,iya,iyb,2)*Rnxyz(:,3,iza,izb,0)+ &
+                                                                 rV2Int(:,1,ixa,ixb,1)*Rnxyz(:,2,iya,iyb,0)*rV2Int(:,3,iza,izb,2)+ &
+                                                                 rV2Int(:,1,ixa,ixb,2)*rV2Int(:,2,iya,iyb,1)*Rnxyz(:,3,iza,izb,0)+ &
+                                                                 Rnxyz(:,1,ixa,ixb,0)*rV4Int(:,2,iya,iyb)*Rnxyz(:,3,iza,izb,0)+ &
+                                                                 Rnxyz(:,1,ixa,ixb,0)*rV2Int(:,2,iya,iyb,1)*rV2Int(:,3,iza,izb,2)+ &
+                                                                 rV2Int(:,1,ixa,ixb,2)*Rnxyz(:,2,iya,iyb,0)*rV2Int(:,3,iza,izb,1)+ &
+                                                                 Rnxyz(:,1,ixa,ixb,0)*rV2Int(:,2,iya,iyb,2)*rV2Int(:,3,iza,izb,1)+ &
+                                                                 Rnxyz(:,1,ixa,ixb,0)*Rnxyz(:,2,iya,iyb,0)*rV4Int(:,3,iza,izb))
 
       end do
     end do

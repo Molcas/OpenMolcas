@@ -29,6 +29,7 @@ subroutine PCMgrd( &
 
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 

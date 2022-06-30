@@ -14,7 +14,7 @@ subroutine PPMmG( &
 #                include "mem_interface.fh"
                 )
 
-use Index_util, only: nTri0Elem
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
@@ -27,21 +27,21 @@ unused_var(lr)
 nHer = 0
 Mem = 0
 
-lapbl = max(nTri0Elem(la+1),nTri0Elem(lb))**2
+lapbl = max(nTri_Elem1(la+1),nTri_Elem1(lb))**2
 Mem = Mem+2*lapbl
 
 if (la > 0) then
-  lambl = max(nTri0Elem(la-1),nTri0Elem(lb))**2
+  lambl = max(nTri_Elem1(la-1),nTri_Elem1(lb))**2
 else
   lambl = 0
 end if
 Mem = Mem+2*lambl
 
-lalbp = max(nTri0Elem(la),nTri0Elem(lb+1))**2
+lalbp = max(nTri_Elem1(la),nTri_Elem1(lb+1))**2
 Mem = Mem+2*lalbp
 
 if (lb > 0) then
-  lalbm = max(nTri0Elem(la),nTri0Elem(lb-1))**2
+  lalbm = max(nTri_Elem1(la),nTri_Elem1(lb-1))**2
 else
   lalbm = 0
 end if

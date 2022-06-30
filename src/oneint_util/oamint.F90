@@ -33,7 +33,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, ipS1, ipS2, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, &
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, ipS1, ipS2, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, &
                      nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
@@ -61,7 +61,7 @@ end if
 ipArr = nip
 mArr = (nArr*nZeta-(nip-1))/nZeta
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
 iComp = 3
 llOper = lOper(1)
@@ -71,10 +71,10 @@ end do
 call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
-ipOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipOff),nAlpha)
-  ipOff = ipOff+1
+ipOff = ipB-1
+do iBeta=1,nBeta
+  Array(ipOff+1:ipOff+nAlpha) = Beta(iBeta)
+  ipOff = ipOff+nAlpha
 end do
 
 do lDCRT=0,nDCRT-1

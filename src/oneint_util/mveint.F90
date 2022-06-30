@@ -31,8 +31,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "int_interface.fh"
 #include "print.fh"
-integer(kind=iwp) :: ia, iAlpha, ib, iBeta, iDum, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, iPrint, iprV2, iprV4, ipRxyz, &
-                     iRout, nip
+integer(kind=iwp) :: ia, ib, iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, iPrint, iprV2, iprV4, ipRxyz, iRout, nip
 logical(kind=iwp) :: ABeq(3)
 character(len=80) :: Label
 
@@ -46,9 +45,7 @@ unused_var(iAddPot)
 
 iRout = 190
 iPrint = nPrint(iRout)
-ABeq(1) = A(1) == RB(1)
-ABeq(2) = A(2) == RB(2)
-ABeq(3) = A(3) == RB(3)
+ABeq(:) = A == RB
 
 nip = 1
 ipAxyz = nip
@@ -81,7 +78,6 @@ if (iPrint >= 49) then
   call RecPrt(' In MVeInt: P',' ',P,nZeta,3)
   call RecPrt(' In MVeInt: Zeta',' ',Zeta,nZeta,1)
   call RecPrt(' In MVeInt: Roots',' ',HerR(iHerR(nHer)),nHer,1)
-  call GetMem(' In MVeInt','LIST','REAL',iDum,iDum)
   write(u6,*) ' In MVeInt: la,lb=',la,lb
 end if
 
@@ -92,9 +88,7 @@ call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),lb+2,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the contribution from the multipole moment operator
 
-ABeq(1) = .false.
-ABeq(2) = .false.
-ABeq(3) = .false.
+ABeq(:) = .false.
 call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp-4,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the cartesian components for the multipole moment
@@ -105,16 +99,16 @@ call Assmbl(Array(ipQxyz),Array(ipAxyz),la+2,Array(ipRxyz),nOrdOp-4,Array(ipBxyz
 ! Compute the cartesian components for the mass-velocity integrals.
 ! The kinetic energy components are linear combinations of overlap components.
 
-ipAOff = ipA
+ipAOff = ipA-1
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  Array(ipAOff+1:ipAOff+nAlpha) = Alpha
   ipAOff = ipAOff+nAlpha
 end do
 
-ipBOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-  ipBOff = ipBOff+1
+ipBOff = ipB-1
+do iBeta=1,nBeta
+  Array(ipBOff+1:ipBOff+nAlpha) = Beta(iBeta)
+  ipBOff = ipBOff+nAlpha
 end do
 
 call MVe(Array(iprV2),Array(iprV4),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZeta)
@@ -127,7 +121,7 @@ if (iPrint >= 99) then
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') 'Mass-Velocity(',ia,',',ib,')'
-      call RecPrt(Label,' ',rFinal(1,1,ia,ib),nZeta,nComp)
+      call RecPrt(Label,' ',rFinal(:,ia,ib,:),nZeta,nComp)
     end do
   end do
 end if

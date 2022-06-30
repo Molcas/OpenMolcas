@@ -30,8 +30,8 @@ real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3), rKa
 real(kind=wp), intent(out) :: Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb), Array(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
 real(kind=wp), intent(inout) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC)
 #include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iComp, iDCRT(0:7), ipa, ipb, iPrint, iRout, iStabO(0:7), ixa, ixb, iya, iyb, iza, izb, iZeta, &
-                     lDCRT, llOper, LmbdT, nDCRT, nOp, nStabO
+integer(kind=iwp) :: ia, ib, iCar, iComp, iDCRT(0:7), ipa, ipb, iPrint, iRout, iStabO(0:7), ixa, ixb, iya, iyb, iza, izb, lDCRT, &
+                     llOper, LmbdT, nDCRT, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
 
@@ -58,24 +58,20 @@ call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 do lDCRT=0,nDCRT-1
   call OA(iDCRT(lDCRT),Ccoor,TC)
 
-  call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),[Zero],0,Array,1)
+  Array(:,:,:) = Zero
 
   ! Compute the value of the angular components associated
   ! to the basis functions centered on the first center.
 
-  call dcopy_(nZeta*3,[One],0,Axyz(1,1,0),1)
+  Axyz(:,:,0) = One
 
   if (la /= 0) then
     do iCar=1,3
 
-      do iZeta=1,nZeta
-        Axyz(iZeta,iCar,1) = TC(iCar)-A(iCar)
-      end do
+      Axyz(:,iCar,1) = TC(iCar)-A(iCar)
 
       do ia=2,la
-        do iZeta=1,nZeta
-          Axyz(iZeta,iCar,ia) = Axyz(iZeta,iCar,1)*Axyz(iZeta,iCar,ia-1)
-        end do
+        Axyz(:,iCar,ia) = Axyz(:,iCar,1)*Axyz(:,iCar,ia-1)
       end do
 
     end do
@@ -84,34 +80,26 @@ do lDCRT=0,nDCRT-1
   ! Compute the value of the angular components associated to
   ! the basis functions centered on the second center.
 
-  call dcopy_(nZeta*3,[One],0,Bxyz(1,1,0),1)
+  Bxyz(:,:,0) = One
 
   ! Modify z-component to carry the the exponential contribution.
 
-  do iZeta=1,nZeta
-    Bxyz(iZeta,3,0) = exp(-Zeta(iZeta)*((TC(1)-P(iZeta,1))**2+(TC(2)-P(iZeta,2))**2+(TC(3)-P(iZeta,3))**2))
-  end do
+  Bxyz(:,3,0) = exp(-Zeta*((TC(1)-P(:,1))**2+(TC(2)-P(:,2))**2+(TC(3)-P(:,3))**2))
 
   if (lb /= 0) then
     do iCar=1,3
 
-      do iZeta=1,nZeta
-        Bxyz(iZeta,iCar,1) = TC(iCar)-RB(iCar)
-      end do
+      Bxyz(:,iCar,1) = TC(iCar)-RB(iCar)
 
       do ib=2,lb
-        do iZeta=1,nZeta
-          Bxyz(iZeta,iCar,ib) = Bxyz(iZeta,iCar,1)*Bxyz(iZeta,iCar,ib-1)
-        end do
+        Bxyz(:,iCar,ib) = Bxyz(:,iCar,1)*Bxyz(:,iCar,ib-1)
       end do
     end do
 
     ! Modify z-components with the exponential contribution
 
     do ib=1,lb
-      do iZeta=1,nZeta
-        Bxyz(iZeta,3,ib) = Bxyz(iZeta,3,ib)*Bxyz(iZeta,3,0)
-      end do
+      Bxyz(:,3,ib) = Bxyz(:,3,ib)*Bxyz(:,3,0)
     end do
   end if
 
@@ -125,10 +113,8 @@ do lDCRT=0,nDCRT-1
         do iyb=lb-ixb,0,-1
           izb = lb-ixb-iyb
           ipb = C_Ind(lb,ixb,izb)
-          do iZeta=1,nZeta
-            Array(iZeta,ipa,ipb) = Array(iZeta,ipa,ipb)+rKappa(iZeta)*Axyz(iZeta,1,ixa)*Axyz(iZeta,2,iya)*Axyz(iZeta,3,iza)* &
-                                   Bxyz(iZeta,1,ixb)*Bxyz(iZeta,2,iyb)*Bxyz(iZeta,3,izb)
-          end do
+          Array(:,ipa,ipb) = Array(:,ipa,ipb)+rKappa*Axyz(:,1,ixa)*Axyz(:,2,iya)*Axyz(:,3,iza)*Bxyz(:,1,ixb)*Bxyz(:,2,iyb)* &
+                             Bxyz(:,3,izb)
         end do
       end do
     end do

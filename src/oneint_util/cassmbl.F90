@@ -31,7 +31,7 @@ complex(kind=wp), intent(out) :: Rnxyz(nZeta*3,0:la,0:lb)
 complex(kind=wp), intent(in) :: Axyz(nZeta*3,nHer,0:la), Bxyz(nZeta*3,nHer,0:lb)
 real(kind=wp), intent(in) :: HerW(nHer)
 #include "print.fh"
-integer(kind=iwp) :: ia, ib, iHer, iPrint, iRout, iZCar, iZeta
+integer(kind=iwp) :: ia, ib, iHer, iPrint, iRout
 character(len=80) :: Label
 
 iRout = 123
@@ -46,13 +46,7 @@ end if
 
 ! Initialize to zero
 
-do ib=0,lb
-  do ia=0,la
-    do iZeta=1,3*nZeta
-      Rnxyz(iZeta,ia,ib) = cZero
-    end do
-  end do
-end do
+Rnxyz(:,:,:) = cZero
 
 do ia=0,la
   do ib=0,lb
@@ -62,15 +56,13 @@ do ia=0,la
     ! at a root, times a weight.
 
     do iHer=1,nHer
-      do iZCar=1,3*nZeta
-        Rnxyz(iZCar,ia,ib) = Rnxyz(iZCar,ia,ib)+Axyz(iZCar,iHer,ia)*Bxyz(iZCar,iHer,ib)*HerW(iHer)
-      end do
+      Rnxyz(:,ia,ib) = Rnxyz(:,ia,ib)+Axyz(:,iHer,ia)*Bxyz(:,iHer,ib)*HerW(iHer)
     end do
 
     if (iPrint >= 99) then
       write(Label,'(A,I2,A,I2,A)') ' In CAssmbl: Rnxyz(',ia,',',ib,')'
-      call CRecPrt(Label,' ',Rnxyz(1,ia,ib),nZeta,3,'R')
-      call CRecPrt(Label,' ',Rnxyz(1,ia,ib),nZeta,3,'I')
+      call CRecPrt(Label,' ',Rnxyz(:,ia,ib),nZeta,3,'R')
+      call CRecPrt(Label,' ',Rnxyz(:,ia,ib),nZeta,3,'I')
     end if
   end do
 end do

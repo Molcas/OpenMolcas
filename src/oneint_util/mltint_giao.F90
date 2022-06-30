@@ -54,23 +54,15 @@ unused_var(iAddPot)
 iRout = 122
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
 if (.not. EQ(A,RB)) then
 
-  ABeq(1) = A(1) == RB(1)
-  ABeq(2) = A(2) == RB(2)
-  ABeq(3) = A(3) == RB(3)
-  RAB(1) = A(1)-RB(1)
-  RAB(2) = A(2)-RB(2)
-  RAB(3) = A(3)-RB(3)
+  ABeq(:) = A == RB
+  RAB(:) = A-RB
   ! switch (only single center overlap matrix...)
-  if (NDDO .and. (.not.(ABeq(1)) .and. ABeq(2) .and. ABeq(3))) then
-    call dcopy_(nZeta*nIC*nTri_Elem1(la)*nTri_Elem1(lb),[Zero],0,rFinal,1)
-    return
-  end if
+  if (NDDO .and. (.not.(ABeq(1)) .and. ABeq(2) .and. ABeq(3))) return
   ! switch
-
   nip = 1
   ipAxyz = nip
   nip = nip+nZeta*3*nHer*(la+1)
@@ -156,7 +148,7 @@ if (iPrint >= 99) then
     do ib=1,(lb+1)*(lb+2)/2
       do iIC=1,nIC
         write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
-        call RecPrt(Label,' ',rFinal(1,ia,ib,iIC),nAlpha,nBeta)
+        call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),nAlpha,nBeta)
       end do
     end do
   end do

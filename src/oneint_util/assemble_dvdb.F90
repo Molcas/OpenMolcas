@@ -31,9 +31,7 @@ real(kind=wp), intent(inout) :: EFInt(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),3)
 integer(kind=iwp) :: iVec, nVec
 real(kind=wp) :: EFInt_x, EFInt_y, EFInt_z, RAB(3)
 
-RAB(1) = A(1)-B(1)
-RAB(2) = A(2)-B(2)
-RAB(3) = A(3)-B(3)
+RAB(:) = A-B
 
 ! Recombine in place!
 

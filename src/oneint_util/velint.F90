@@ -30,7 +30,7 @@ integer(kind=iwp), intent(in) :: na, nb, nZeta
 real(kind=wp), intent(out) :: Vxyz(nZeta,3,0:na,0:nb)
 real(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na,0:nb+1), Beta(nZeta)
 #include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
+integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout
 character(len=80) :: Label
 
 iRout = 160
@@ -43,21 +43,17 @@ do ia=0,na
   do ib=0,nb
     if (ib == 0) then
       do iCar=1,3
-        do iZeta=1,nZeta
-          Vxyz(iZeta,iCar,ia,ib) = -Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
-        end do
+        Vxyz(:,iCar,ia,ib) = -Beta*Two*Sxyz(:,iCar,ia,ib+1)
       end do
     else
       do iCar=1,3
-        do iZeta=1,nZeta
-          Vxyz(iZeta,iCar,ia,ib) = real(ib,kind=wp)*Sxyz(iZeta,iCar,ia,ib-1)-Beta(iZeta)*Two*Sxyz(iZeta,iCar,ia,ib+1)
-        end do
+        Vxyz(:,iCar,ia,ib) = real(ib,kind=wp)*Sxyz(:,iCar,ia,ib-1)-Beta*Two*Sxyz(:,iCar,ia,ib+1)
       end do
     end if
 
     if (iPrint >= 99) then
       write(Label,'(A,I2,A,I2,A)') ' In VelInt: Vxyz(',ia,',',ib,')'
-      call RecPrt(Label,' ',Vxyz(1,1,ia,ib),nZeta,3)
+      call RecPrt(Label,' ',Vxyz(:,:,ia,ib),nZeta,3)
     end if
   end do
 end do

@@ -24,6 +24,7 @@ subroutine WelInt( &
 !             of Lund, Sweden. October '92.                            *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
 implicit none

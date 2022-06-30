@@ -48,15 +48,6 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-interface
-  subroutine Kernel( &
-#                   define _CALLING_
-#                   include "grd_interface.fh"
-                   )
-    import :: wp, iwp
-#   include "grd_interface.fh"
-  end subroutine Kernel
-end interface
 external :: KrnlMm
 integer(kind=iwp), intent(in) :: nGrad, nFD, nComp, lOper(nComp), nOrdOp
 real(kind=wp), intent(out) :: Grad(nGrad)

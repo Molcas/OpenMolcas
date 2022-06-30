@@ -38,42 +38,43 @@ integer(kind=iwp) :: iAng, iCnttp, ip, iShll, memMlt, nac, ncb, nExpi, nH
 nHer = 0
 Mem = 0
 do iCnttp=1,nCnttp
-  if (.not. dbsc(iCnttp)%ECP) cycle
-  do iAng=0,dbsc(iCnttp)%nSRO-1
-    iShll = dbsc(iCnttp)%iSRO+iAng
-    nExpi = Shells(iShll)%nExp
-    if (nExpi == 0) cycle
+  if (dbsc(iCnttp)%ECP) then
+    do iAng=0,dbsc(iCnttp)%nSRO-1
+      iShll = dbsc(iCnttp)%iSRO+iAng
+      nExpi = Shells(iShll)%nExp
+      if (nExpi == 0) cycle
 
-    ip = 0
-    ip = ip+nExpi**2
-    nac = nTri_Elem1(la)*nTri_Elem1(iAng)
-    ip = ip+nExpi*nac
-    ip = ip+3*nExpi
-    ip = ip+nExpi
-    ip = ip+nExpi
-    ip = ip+nExpi
+      ip = 0
+      ip = ip+nExpi**2
+      nac = nTri_Elem1(la)*nTri_Elem1(iAng)
+      ip = ip+nExpi*nac
+      ip = ip+3*nExpi
+      ip = ip+nExpi
+      ip = ip+nExpi
+      ip = ip+nExpi
 
-    call MltMmP(nH,MemMlt,la,iAng,lr)
-    nHer = max(nH,nHer)
-    Mem = max(Mem,ip+nExpi*MemMlt)
-    ip = ip-6*nExpi
+      call MltMmP(nH,MemMlt,la,iAng,lr)
+      nHer = max(nH,nHer)
+      Mem = max(Mem,ip+nExpi*MemMlt)
+      ip = ip-6*nExpi
 
-    ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)
-    ip = ip+nExpi*ncb
-    ip = ip+3*nExpi
-    ip = ip+nExpi
-    ip = ip+nExpi
-    ip = ip+nExpi
+      ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)
+      ip = ip+nExpi*ncb
+      ip = ip+3*nExpi
+      ip = ip+nExpi
+      ip = ip+nExpi
+      ip = ip+nExpi
 
-    call MltMmP(nH,MemMlt,iAng,lb,lr)
-    nHer = max(nH,nHer)
-    Mem = max(Mem,ip+nExpi*MemMlt)
-    ip = ip-6*nExpi
+      call MltMmP(nH,MemMlt,iAng,lb,lr)
+      nHer = max(nH,nHer)
+      Mem = max(Mem,ip+nExpi*MemMlt)
+      ip = ip-6*nExpi
 
-    ip = ip+max(nExpi*nac,ncb*nExpi)
-    Mem = max(Mem,ip)
+      ip = ip+max(nExpi*nac,ncb*nExpi)
+      Mem = max(Mem,ip)
 
-  end do
+    end do
+  end if
 end do
 
 return

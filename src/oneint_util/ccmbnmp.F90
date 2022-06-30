@@ -18,7 +18,7 @@ subroutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,kVector,P)
 !***********************************************************************
 
 use Index_Functions, only: C_Ind, nTri_Elem1
-use Constants, only: One, Four, Onei
+use Constants, only: One, Quart, Onei
 use Definitions, only: wp, iwp
 
 implicit none
@@ -28,7 +28,9 @@ real(kind=wp), intent(in) :: Zeta(nZeta), rKappa(nZeta), kVector(3), P(nZeta,3)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
 integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 complex(kind=wp) :: Temp
-real(kind=wp) :: Fact, k_Dot_P, rTemp
+real(kind=wp) :: Fact, k_Dot_P, kModQ, rTemp
+
+kModQ = Quart*(kVector(1)**2+kVector(2)**2+kVector(3)**2)
 
 do ixa=0,la
   iyaMax = la-ixa
@@ -48,8 +50,7 @@ do ixa=0,la
           do iy=lr-ix,0,-1
             iz = lr-ix-iy
             do iZeta=1,nZeta
-              rTemp = kVector(1)**2+kVector(2)**2+kVector(3)**2
-              rTemp = rTemp/(Four*Zeta(iZeta))
+              rTemp = kModQ/Zeta(iZeta)
               Fact = rKappa(iZeta)*(One/sqrt(Zeta(iZeta)**3))*exp(-rTemp)
               k_Dot_P = kVector(1)*P(iZeta,1)+kVector(2)*P(iZeta,2)+kVector(3)*P(iZeta,3)
               Temp = exp(Onei*k_Dot_P)*Fact*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)*Rnxyz(iZeta,3,iza,izb,iz)

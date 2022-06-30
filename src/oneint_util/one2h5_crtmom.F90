@@ -31,7 +31,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: fileid, nSym, nBas(nSym)
-integer(kind=iwp) :: dsetid, i, iBas, iComp, iOff, iOpt, iRc, iScrOff, iSym, iSyMsk, j, jBas, jOff, jsym, msym, nb, nB1, nB2, nbast
+integer(kind=iwp) :: dsetid, i, iBas, iComp, iOff, iOpt, iRc, iScrOff, iSym, iSyMsk, j, jBas, jOff, jsym, msym, nB1, nB2, nbast
 real(kind=wp) :: mp_orig(3,3)
 character(len=8) :: Label
 real(kind=wp), allocatable :: MLTPL(:,:), Scratch(:)
@@ -39,8 +39,7 @@ character(len=*), parameter :: mltpl1_comp(3) = ['X','Y','Z'], mltpl2_comp(6) = 
 
 nbast = 0
 do iSym=1,nSym
-  nb = nBas(iSym)
-  nbast = nbast+nb
+  nbast = nbast+nBas(iSym)
 end do
 
 mp_orig(:,:) = 0.
@@ -64,7 +63,7 @@ do icomp=1,3
     do jSym=1,iSym
       mSym = Mul(iSym,jSym)
       nB2 = nBas(jSym)
-      if (iand(2**(mSym-1),iSyMsk) /= 0) then
+      if (btest(iSyMsk,mSym-1)) then
         if (iSym == jSym) then
           do j=1,nB2
             jBas = jOff+j
@@ -119,7 +118,7 @@ do icomp=1,6
     do jSym=1,iSym
       mSym = Mul(iSym,jSym)
       nB2 = nBas(jSym)
-      if (iand(2**(mSym-1),iSyMsk) /= 0) then
+      if (btest(iSyMsk,mSym-1)) then
         if (iSym == jSym) then
           do j=1,nB2
             jBas = jOff+j

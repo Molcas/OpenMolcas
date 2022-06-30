@@ -22,7 +22,6 @@ subroutine CCrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,kVector)
 !                                                                      *
 ! Calling    :                                                         *
 !              RecPrt                                                  *
-!              DCopy (ESSL)                                            *
 !                                                                      *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
@@ -40,7 +39,7 @@ integer(kind=iwp), intent(in) :: nZeta, na, nHer
 real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer), kVector(3)
 complex(kind=wp), intent(out) :: Axyz(nZeta,3,nHer,0:na)
 #include "print.fh"
-integer(kind=iwp) :: ia, iCar, iHer, iPrint, iRout, iZeta
+integer(kind=iwp) :: ia, iCar, iHer, iPrint, iRout
 character(len=80) :: Label
 
 iRout = 116
@@ -57,26 +56,16 @@ if (iPrint >= 99) then
   call RecPrt(' In CCrtCmp: P   ',' ',P,nZeta,3)
   call RecPrt(' In CCrtCmp: KVec',' ',kVector,1,3)
 end if
-do iHer=1,nHer
-  do iCar=1,3
-    do iZeta=1,nZeta
-      Axyz(iZeta,iCar,iHer,0) = cOne
-    end do
-  end do
-end do
+Axyz(:,:,:,0) = cOne
 
 if (na /= 0) then
   do iHer=1,nHer
     do iCar=1,3
 
-      do iZeta=1,nZeta
-        Axyz(iZeta,iCar,iHer,1) = cmplx(HerR(iHer)/sqrt(Zeta(iZeta))+P(iZeta,iCar)-A(iCar),kVector(iCar)/(Two*Zeta(iZeta)),kind=wp)
-      end do
+      Axyz(:,iCar,iHer,1) = cmplx(HerR(iHer)/sqrt(Zeta)+P(:,iCar)-A(iCar),kVector(iCar)/(Two*Zeta),kind=wp)
 
       do ia=2,na
-        do iZeta=1,nZeta
-          Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1)*Axyz(iZeta,iCar,iHer,ia-1)
-        end do
+        Axyz(:,iCar,iHer,ia) = Axyz(:,iCar,iHer,1)*Axyz(:,iCar,iHer,ia-1)
       end do
 
     end do

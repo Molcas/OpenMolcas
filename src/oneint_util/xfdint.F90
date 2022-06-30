@@ -56,7 +56,7 @@ unused_var(iAddPot)
 iRout = 151
 iPrint = nPrint(iRout)
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
 call mma_allocate(ZFd,nTri_Elem1(nOrdOp),label='ZFd')
 call mma_allocate(ZRFd,nTri_Elem1(nOrdOp),label='ZRFd')
@@ -70,8 +70,8 @@ do iOrdOp=0,nOrdOp
   iAnga(2) = lb
   iAnga(3) = iOrdOp
   iAnga(4) = 0
-  call dcopy_(3,A,1,Coori(1,1),1)
-  call dcopy_(3,RB,1,Coori(1,2),1)
+  Coori(:,1) = A
+  Coori(:,2) = RB
   mabMin = nTri3_Elem1(max(la,lb)-1)
   mabMax = nTri3_Elem1(la+lb)-1
   if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
@@ -95,9 +95,9 @@ do iOrdOp=0,nOrdOp
   ! Find center to accumulate angular momentum on. (HRR)
 
   if (la >= lb) then
-    call dcopy_(3,A,1,CoorAC(1,1),1)
+    CoorAC(:,1) = A
   else
-    call dcopy_(3,RB,1,CoorAC(1,1),1)
+    CoorAC(:,1) = RB
   end if
 
   ! Loop over centers of the external field.
@@ -167,9 +167,9 @@ do iOrdOp=0,nOrdOp
         end do
       end do
 
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
+      CoorAC(:,2) = TC
+      Coori(:,3) = TC
+      Coori(:,4) = TC
 
       ! Compute integrals with the Rys quadrature.
 

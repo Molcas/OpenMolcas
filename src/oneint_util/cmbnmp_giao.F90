@@ -21,7 +21,7 @@ subroutine CmbnMP_GIAO(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,nB,RAB,C)
 !***********************************************************************
 
 use Index_Functions, only: C_Ind, nTri_Elem1
-use Constants, only: Two, Three, Half
+use Constants, only: Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
@@ -49,16 +49,15 @@ do ixa=0,la
           if (iBy > 3) iBy = iBy-3
           iBz = iBy+1
           if (iBz > 3) iBz = iBz-3
-          call ICopy(6,[0],0,ix_,1)
-          ix_(iBz,1) = 1
-          ix_(iBy,2) = 1
+          ix_(:,:) = 0
+          ix_(iBz,:) = 1
           iComp = 0
           do ix=lr,0,-1
             do iy=lr-ix,0,-1
               iz = lr-ix-iy
               iComp = iComp+1
               do iZeta=1,nZeta
-                Fact = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)
+                Fact = rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
                 temp = Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)*Rnxyz(iZeta,3,iza,izb,iz)
                 tempz = Rnxyz(iZeta,1,ixa,ixb,ix+ix_(1,1))*Rnxyz(iZeta,2,iya,iyb,iy+ix_(2,1))*Rnxyz(iZeta,3,iza,izb,iz+ix_(3,1))
                 tempy = Rnxyz(iZeta,1,ixa,ixb,ix+ix_(1,2))*Rnxyz(iZeta,2,iya,iyb,iy+ix_(2,2))*Rnxyz(iZeta,3,iza,izb,iz+ix_(3,2))

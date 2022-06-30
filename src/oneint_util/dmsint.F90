@@ -66,7 +66,7 @@ end if
 ipArr = nip
 mArr = nZeta*nArr-nip+1
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
 iComp = 1
 llOper = lOper(1)

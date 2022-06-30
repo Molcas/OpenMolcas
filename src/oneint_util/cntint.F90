@@ -25,6 +25,7 @@ subroutine CntInt( &
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -44,7 +45,7 @@ unused_var(iAddPot)
 iRout = 150
 iPrint = nPrint(iRout)
 
-call FZero(rFinal,nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2)*nIC)
+rFinal(:,:,:,:) = Zero
 
 nip = 1
 ipAxyz = nip
@@ -80,7 +81,7 @@ if (iPrint >= 99) then
     do ia=1,nTri_Elem1(la)
       do ib=1,nTri_Elem1(lb)
         write(Label,'(A,I2,A,I2,A)') 'Contact term(',ia,',',ib,')'
-        call RecPrt(Label,' ',rFinal(1,ia,ib,iIC),1,nZeta)
+        call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),1,nZeta)
       end do
     end do
   end do

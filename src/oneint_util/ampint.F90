@@ -34,7 +34,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "int_interface.fh"
 #include "print.fh"
-integer(kind=iwp) :: iAlpha, iComp, iDCRT(0:7), iDum, iOrdOp, ipArr, ipB, ipOff, ipRes, iPrint, ipT, ipTm, ipTmm, ipTp, ipTpp, &
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), iDum, iOrdOp, ipArr, ipB, ipOff, ipRes, iPrint, ipT, ipTm, ipTmm, ipTp, ipTpp, &
                      iRout, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
@@ -75,12 +75,12 @@ end if
 ipArr = nip
 mArr = (nArr*nZeta-(nip-1))/nZeta
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
-ipOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipOff),nAlpha)
-  ipOff = ipOff+1
+ipOff = ipB-1
+do iBeta=1,nBeta
+  Array(ipOff+1:ipOff+nAlpha) = Beta(iBeta)
+  ipOff = ipOff+nAlpha
 end do
 
 llOper = lOper(1)

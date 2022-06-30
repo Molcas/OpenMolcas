@@ -31,18 +31,19 @@ use Center_Info, only: dc
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use PAM2, only: iPAMPrim, kCnttpPAM
 use Index_Functions, only: nTri_Elem1
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 integer(kind=iwp) :: ia, iab, ib, iDCRT(0:7), ikdc, iM2xp, ipab, ipAxyz, ipBxyz, ipK, ipPx, ipPy, ipPz, ipQxyz, ipRes, iPrint, &
-                     ipRxyz, ipScr, ipZ, iRout, iZeta, kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nip, nOp
+                     ipRxyz, ipZ, iRout, iZeta, kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nip, nOp
 real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3)
+real(kind=wp), allocatable :: Scr(:)
 integer(kind=iwp), external :: NrOpr
 
 #include "macros.fh"
@@ -93,7 +94,7 @@ if (iPrint >= 49) then
   write(u6,*) ' In PAM2Int: la,lb,nHer=',la,lb,nHer
 end if
 
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 
 ! Loop over nuclear centers
 
@@ -106,6 +107,7 @@ end if
 
 kCnttp = kCnttpPAM
 
+call mma_allocate(Scr,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,label='Scr')
 do kCnt=1,dbsc(kCnttp)%nCntr
   C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
@@ -115,8 +117,7 @@ do kCnt=1,dbsc(kCnttp)%nCntr
   do lDCRT=0,nDCRT-1
     call OA(iDCRT(lDCRT),C,TC)
 
-    call GetMem(' Scr','ALLO','REAL',ipScr,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
-    call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,[Zero],0,Work(ipScr),1)
+    Scr(:) = Zero
     do iM2xp=1,iPAMPrim
       Gmma = PAMexp(iM2xp,1)
 
@@ -143,17 +144,13 @@ do kCnt=1,dbsc(kCnttp)%nCntr
 
       ! Compute the cartesian values of the basis functions angular part
 
-      ABeq(1) = (A(1) == RB(1)) .and. (A(1) == TC(1))
-      ABeq(2) = (A(2) == RB(2)) .and. (A(2) == TC(2))
-      ABeq(3) = (A(3) == RB(3)) .and. (A(3) == TC(3))
+      ABeq(:) = (A == RB) .and. (A == TC)
       call CrtCmp(Array(ipZ),Array(ipPx),nZeta,A,Array(ipAxyz),la,HerR(iHerR(nHer)),nHer,ABeq)
       call CrtCmp(Array(ipZ),Array(ipPx),nZeta,RB,Array(ipBxyz),lb,HerR(iHerR(nHer)),nHer,ABeq)
 
       ! Compute the contribution from the multipole moment operator
 
-      ABeq(1) = .false.
-      ABeq(2) = .false.
-      ABeq(3) = .false.
+      ABeq(:) = .false.
       call CrtCmp(Array(ipZ),Array(ipPx),nZeta,TC,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 
       ! Compute the cartesian components for the multipole moment
@@ -189,18 +186,18 @@ do kCnt=1,dbsc(kCnttp)%nCntr
       !write(u6,*) ' Cff',PAMexp(iM2xp,2)
       Factor = Fact*PAMexp(iM2xp,2)
       if (iPrint >= 99) write(u6,*) ' Factor=',Factor
-      call DaXpY_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,Factor,Array(ipRes),1,Work(ipScr),1)
+      Scr(:) = Scr+Factor*Array(ipRes:ipRes+size(Scr)-1)
 
     end do
 
     ! Accumulate contributions
 
     nOp = NrOpr(iDCRT(lDCRT))
-    call SymAdO(Work(ipScr),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
-    call GetMem(' Scr','FREE','REAL',ipScr,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
+    call SymAdO(Scr,nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
   end do
 end do
+call mma_deallocate(Scr)
 
 !if (nOrdOp == 1) then
 if (iPrint >= 99) then
@@ -208,7 +205,7 @@ if (iPrint >= 99) then
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' rFinal(ia=',ia,',ib=',ib,')'
-      call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
+      call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
     end do
   end do
 end if

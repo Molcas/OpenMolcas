@@ -37,7 +37,7 @@ implicit none
 #include "int_interface.fh"
 #include "print.fh"
 integer(kind=iwp) :: ia, iAnga(4), ib, iDCRT(0:7), ii, iM1xp, ip, ipAInt, ipIn, ipK, ipPx, ipPy, ipPz, iPrint, ipTmp, ipZ, ipZI, &
-                     iRout, iZeta, k, kCnt, kCnttp, kdc, lDCRT, LmbdT, mabMax, mabMin, mAInt, mArray, nDCRT, nFlop, nMem, nT
+                     iRout, iZeta, k, kCnt, kCnttp, kdc, l, lDCRT, LmbdT, mabMax, mabMin, mAInt, mArray, nDCRT, nFlop, nMem, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 character(len=80) :: Label
 logical(kind=iwp) :: NoSpecial
@@ -78,9 +78,9 @@ mAInt = (mabMax-mabMin+1)
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 
 ! Compute FLOP's and size of work array which HRR will use.
@@ -114,7 +114,7 @@ end if
 ipTmp = ip
 mArray = nArr*nZeta-ip+1
 
-call dcopy_(nZeta*max(k,nMem),[Zero],0,Array(ipAInt),1)
+Array(ipAInt:ipAInt+nZeta*max(k,nMem)-1) = Zero
 
 ! Loop over nuclear centers.
 
@@ -132,18 +132,18 @@ do kCnttp=1,nCnttp
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,A,1,Coora(1,1),1)
-      call dcopy_(3,RB,1,Coora(1,2),1)
-      call dcopy_(6,Coora(1,1),1,Coori(1,1),1)
+      Coora(:,1) = A
+      Coora(:,2) = RB
+      Coori(:,1:2) = Coora(:,1:2)
       if ((.not. EQ(A,RB)) .or. (.not. EQ(A,TC))) then
         Coori(1,1) = Coori(1,1)+One
         !Coora(1,1) = Coora(1,1)+One
       end if
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
-      call dcopy_(3,TC,1,Coora(1,3),1)
-      call dcopy_(3,TC,1,Coora(1,4),1)
+      CoorAC(:,2) = TC
+      Coori(:,3) = TC
+      Coori(:,4) = TC
+      Coora(:,3) = TC
+      Coora(:,4) = TC
 
       do iM1xp=1,dbsc(kCnttp)%nM1
         Gmma = dbsc(kCnttp)%M1xp(iM1xp)
@@ -175,7 +175,8 @@ do kCnttp=1,nCnttp
         ! the center into account.
 
         Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*Fact
-        call DaXpY_(nZeta*mAInt,Factor,Array(ipTmp),1,Array(ipAInt),1)
+        l = nZeta*mAInt
+        Array(ipAInt:ipAInt+l-1) = Array(ipAInt:ipAInt+l-1)+Factor*Array(ipTmp:ipTmp+l-1)
         if (iPrint >= 99) then
           call Recprt(' [a+b,0|A|0] in Array',' ',Array(ipTmp),nZeta,mAInt)
           call RecPrt(' [a+b,0|A|0] in AInt',' ',Array(ipAInt),nZeta,mAInt)
@@ -191,14 +192,14 @@ end do
 call HRR(la,lb,A,RB,Array(ipAInt),nZeta,nMem,ipIn)
 ii = ipAInt+ipIn-1
 ! Move result
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,Array(ii),1,rFinal,1)
+call dcopy_(size(rFinal),Array(ii),1,rFinal,1)
 
 if (iPrint >= 99) then
   write(u6,*) ' Result in M1Int'
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-      call RecPrt(Label,' ',rFinal(1,ia,ib,1),nAlpha,nBeta)
+      call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
     end do
   end do
 end if

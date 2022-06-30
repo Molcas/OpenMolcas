@@ -11,7 +11,6 @@
 
 subroutine Assemble_mGauss(As,Ad,nAs)
 
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -19,9 +18,7 @@ integer(kind=iwp), intent(in) :: nAs
 real(kind=wp), intent(inout) :: As(nAs)
 real(kind=wp), intent(in) :: Ad(nAs,6)
 
-call DaXpY_(nAs,One,Ad(1,1),1,As,1)
-call DaXpY_(nAs,One,Ad(1,4),1,As,1)
-call DaXpY_(nAs,One,Ad(1,6),1,As,1)
+As(:) = As+Ad(:,1)+Ad(:,4)+Ad(:,6)
 
 return
 

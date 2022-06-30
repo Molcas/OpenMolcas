@@ -30,7 +30,7 @@ integer(kind=iwp), intent(in) :: la, lr, lb, nZeta, nHer
 real(kind=wp), intent(out) :: Rnxyz(nZeta*3,0:la,0:lb,0:lr)
 real(kind=wp), intent(in) :: Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), HerW(nHer)
 #include "print.fh"
-integer(kind=iwp) :: ia, ib, iHer, iPrint, ir, iRout, iZCar
+integer(kind=iwp) :: ia, ib, iHer, iPrint, ir, iRout
 character(len=80) :: Label
 
 iRout = 123
@@ -42,7 +42,7 @@ if (iPrint >= 99) then
   call RecPrt(' In Assmbl:Rxyz',' ',Rxyz,nZeta*3,nHer*(lr+1))
 end if
 
-call dcopy_(3*nZeta*(la+1)*(lb+1)*(lr+1),[Zero],0,Rnxyz,1)
+Rnxyz(:,:,:,:) = Zero
 do ia=0,la
   do ib=0,lb
     do ir=0,lr
@@ -52,14 +52,12 @@ do ia=0,la
       ! at a root, times a weight.
 
       do iHer=1,nHer
-        do iZCar=1,3*nZeta
-          Rnxyz(iZCar,ia,ib,ir) = Rnxyz(iZCar,ia,ib,ir)+Axyz(iZCar,iHer,ia)*Rxyz(iZCar,iHer,ir)*Bxyz(iZCar,iHer,ib)*HerW(iHer)
-        end do
+        Rnxyz(:,ia,ib,ir) = Rnxyz(:,ia,ib,ir)+Axyz(:,iHer,ia)*Rxyz(:,iHer,ir)*Bxyz(:,iHer,ib)*HerW(iHer)
       end do
 
       if (iPrint >= 99) then
         write(Label,'(A,I2,A,I2,A,I2,A)') ' In Assmbl: Rnxyz(',ia,',',ib,',',ir,')'
-        call RecPrt(Label,' ',Rnxyz(1,ia,ib,ir),nZeta,3)
+        call RecPrt(Label,' ',Rnxyz(:,ia,ib,ir),nZeta,3)
       end if
     end do
   end do

@@ -31,7 +31,7 @@ integer(kind=iwp), intent(in) :: na, nb, nZeta
 real(kind=wp), intent(out) :: Txyz(nZeta,3,0:na,0:nb)
 real(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na+1,0:nb+1), Alpha(nZeta), Beta(nZeta)
 #include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout, iZeta
+integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout
 character(len=80) :: Label
 
 iRout = 115
@@ -43,45 +43,33 @@ if (iPrint >= 99) then
   do ia=0,na+1
     do ib=0,nb+1
       write(Label,'(A,I2,A,I2,A)') ' In Kntc: Sxyz(',ia,',',ib,')'
-      call RecPrt(Label,' ',Sxyz(1,1,ia,ib),nZeta,3)
+      call RecPrt(Label,' ',Sxyz(:,:,ia,ib),nZeta,3)
     end do
   end do
 end if
 do ia=0,na
   do ib=0,nb
-    if ((ia == 0) .and. (ib == 0)) then
+    if ((ia /= 0) .and. (ib /= 0)) then
       do iCar=1,3
-        do iZeta=1,nZeta
-          Txyz(iZeta,iCar,ia,ib) = Two*Alpha(iZeta)*Beta(iZeta)*Sxyz(iZeta,iCar,ia+1,ib+1)
-        end do
+        Txyz(:,iCar,ia,ib) = Two*Alpha*Beta*Sxyz(:,iCar,ia+1,ib+1)+Half*real(ia*ib,kind=wp)*Sxyz(:,iCar,ia-1,ib-1)- &
+                             Alpha*real(ib,kind=wp)*Sxyz(:,iCar,ia+1,ib-1)-Beta*real(ia,kind=wp)*Sxyz(:,iCar,ia-1,ib+1)
       end do
-    else if (ia == 0) then
+    else if (ia /= 0) then
       do iCar=1,3
-        do iZeta=1,nZeta
-          Txyz(iZeta,iCar,ia,ib) = Two*Alpha(iZeta)*Beta(iZeta)*Sxyz(iZeta,iCar,ia+1,ib+1)- &
-                                   Alpha(iZeta)*real(ib,kind=wp)*Sxyz(iZeta,iCar,ia+1,ib-1)
-        end do
+        Txyz(:,iCar,ia,ib) = Two*Alpha*Beta*Sxyz(:,iCar,ia+1,ib+1)-Beta*real(ia,kind=wp)*Sxyz(:,iCar,ia-1,ib+1)
       end do
-    else if (ib == 0) then
+    else if (ib /= 0) then
       do iCar=1,3
-        do iZeta=1,nZeta
-          Txyz(iZeta,iCar,ia,ib) = Two*Alpha(iZeta)*Beta(iZeta)*Sxyz(iZeta,iCar,ia+1,ib+1)- &
-                                   Beta(iZeta)*real(ia,kind=wp)*Sxyz(iZeta,iCar,ia-1,ib+1)
-        end do
+        Txyz(:,iCar,ia,ib) = Two*Alpha*Beta*Sxyz(:,iCar,ia+1,ib+1)-Alpha*real(ib,kind=wp)*Sxyz(:,iCar,ia+1,ib-1)
       end do
     else
       do iCar=1,3
-        do iZeta=1,nZeta
-          Txyz(iZeta,iCar,ia,ib) = Half*real(ia*ib,kind=wp)*Sxyz(iZeta,iCar,ia-1,ib-1)- &
-                                   Beta(iZeta)*real(ia,kind=wp)*Sxyz(iZeta,iCar,ia-1,ib+1)- &
-                                   Alpha(iZeta)*real(ib,kind=wp)*Sxyz(iZeta,iCar,ia+1,ib-1)+ &
-                                   Two*Alpha(iZeta)*Beta(iZeta)*Sxyz(iZeta,iCar,ia+1,ib+1)
-        end do
+        Txyz(:,iCar,ia,ib) = Two*Alpha*Beta*Sxyz(:,iCar,ia+1,ib+1)
       end do
     end if
     if (iPrint >= 99) then
       write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,')'
-      call RecPrt(Label,' ',Txyz(1,1,ia,ib),nZeta,3)
+      call RecPrt(Label,' ',Txyz(:,:,ia,ib),nZeta,3)
     end if
   end do
 end do
