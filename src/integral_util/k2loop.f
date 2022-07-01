@@ -78,21 +78,27 @@
      &                       nDCRR)
       Integer, Pointer :: iData(:)
       Logical, External :: TF
+#ifdef _WARNING_WORKAROUND_
       Interface
-         SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &                  Eta,EInv,nEta,
-     &                  P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,
-     &                  mabMin,mabMax,mcdMin,mcdMax,Array,nArray,
-     &                  Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
-         Integer iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabMax,
-     &           mcdMin, mcdMax, nArray
-         External Tvalue, ModU2, Cff2D, Rys2D
-         Real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3), rKapab(nZeta),
-     &          Eta(nEta),   EInv(nEta),  Q(lQ,3), rKapcd(nEta),
-     &          CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray)
-         Logical NoSpecial
+        SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,
+     &                 rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,
+     &                 mcdMin,mcdMax,Array,nArray,Tvalue,ModU2,Cff2D,
+     &                 Rys2D,NoSpecial)
+        use Definitions, only: wp, iwp
+        integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP,
+     &                                   lQ, mabMin, mabMax, mcdMin,
+     &                                   mcdMax, nArray
+        real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta),
+     &                               Eta(nEta), EInv(nEta), P(lP,3),
+     &                               Q(lQ,3), rKapab(nZeta),
+     &                               rKapcd(nEta), Coori(3,4),
+     &                               Coora(3,4), CoorAC(3,2)
+        real(kind=wp), intent(inout) :: Array(nArray)
+        external :: Tvalue, ModU2, Cff2D, Rys2D
+        logical(kind=iwp), intent(in) :: NoSpecial
          End Subroutine Rys
       End Interface
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -56,7 +56,7 @@ real(kind=wp), intent(in) :: FactXI, dmpk, dFmat
 integer(kind=iwp) :: i, i1, ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, ISYM, iSyma, iTmp, IVEC2, iVrs, jDen, jK, &
                      jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kOff(8,2), krs, kscreen, kSym, l, &
-                     LFULL, LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, MaxVecPerBatch, mDen, Mmax, mrs, mSh, mTvec, &
+                     LFULL(2), LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, MaxVecPerBatch, mDen, Mmax, mrs, mSh, mTvec, &
                      MUSED, MxBasSh, n1, n2, nBatch, nBs, nMat, nnO, nRS, nT1, nT2, NumCV, numSh, NUMV, NumVT, nVec, nVrs, nOrb(8,2)
 real(kind=wp) :: Fact, fcorr, LKThr, SKsh, tau(2), TCC1, TCC2, tcoul(2), TCR1, TCR2, TCS1, TCS2, TCT1, TCT2, TCX1, TCX2, texch(2), &
                  thrv(2), tmotr(2), Tmp, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), tscrn(2), TWC1, TWC2, &
@@ -376,13 +376,13 @@ do jSym=1,nSym
 
       call mma_maxDBLE(LWORK)
 
-      nVec = min(LWORK/(nRS+mTvec+LFULL),min(nVrs,MaxVecPerBatch))
+      nVec = min((LWORK-LFULL(2))/(nRS+mTvec+LFULL(1)),min(nVrs,MaxVecPerBatch))
 
       if (nVec < 1) then
         write(u6,*) SECNAM//': Insufficient memory for batch'
         write(u6,*) ' LWORK= ',LWORK
         write(u6,*) ' jsym= ',jsym
-        write(u6,*) ' min. mem. need= ',nRS+mTvec+LFULL
+        write(u6,*) ' min. mem. need= ',nRS+mTvec+LFULL(1)
         write(u6,*) ' nRS = ',nRS
         write(u6,*) ' mTvec = ',mTvec
         write(u6,*) ' LFULL = ',LFULL

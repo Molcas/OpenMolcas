@@ -46,7 +46,7 @@ c
 
 
         Write(LF,*)
-        Write(LF,*)'FI+FA in RotOrb bf Unitary transform'
+        Write(LF,*)'FI+FA in RotOrb by Unitary transform'
         Write(LF,*) ' --------------'
         Write(LF,*)
         iOff = 1

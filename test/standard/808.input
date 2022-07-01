@@ -4,7 +4,7 @@
 * Symmetry: C2h
 * Features tested: GUESSORB, SCF, DFT
 * Responsible person: Roland Lindh        
-* Comments: Check the correction to the gradient due to  a moving grid
+* Comments: Check the correction to the gradient due to a moving grid
 *-------------------------------------------------------------------------------
 >> FILE Glycine.xyz
  10

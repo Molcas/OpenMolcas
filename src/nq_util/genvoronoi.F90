@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GenVoronoi(nR_Eff,nNQ,Alpha,rm,iNQ)
+subroutine GenVoronoi(nR_Eff,Alpha,rm,iNQ)
 !***********************************************************************
 !                                                                      *
 !     This version of GenVoronoi computes the radial quadrature points *
@@ -25,8 +25,9 @@ use Constants, only: Zero, One, Three, Five, Seven, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nNQ, nR_Eff(nNQ), iNQ
+integer(kind=iwp), intent(out) :: nR_Eff
 real(kind=wp), intent(inout) :: Alpha(2), rm(2)
+integer(kind=iwp), intent(in) :: iNQ
 integer(kind=iwp) :: iANr, l_Max, mR
 real(kind=wp) :: Dum(2,1), Radius_Max, RBS
 logical(kind=iwp) :: Process
@@ -69,9 +70,9 @@ if (Quadrature == 'MHL') then
   mR = nR-1
   call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
   NQ_Data(iNQ)%R_Quad(:,:) = Zero
-  call GenRadQuad_MHL(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),Alpha(1))
-  call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff(iNQ),Radius_Max)
-  mR = nR_Eff(iNQ)
+  call GenRadQuad_MHL(NQ_Data(iNQ)%R_Quad,nR,nR_Eff,Alpha(1))
+  call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff,Radius_Max)
+  mR = nR_Eff
   NQ_Data(iNQ)%R_max = NQ_Data(iNQ)%R_Quad(1,mR)
 
 else if (Quadrature == 'LOG3') then
@@ -85,9 +86,9 @@ else if (Quadrature == 'LOG3') then
   mR = nR-1
   call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
   NQ_Data(iNQ)%R_Quad(:,:) = Zero
-  call GenRadQuad_MK(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),rm(1),Alpha(1))
-  call Truncate_Grid(NQ_Data(iNQ)%r_Quad,mR,nR_Eff(iNQ),Radius_Max)
-  mR = nR_Eff(iNQ)
+  call GenRadQuad_MK(NQ_Data(iNQ)%R_Quad,nR,nR_Eff,rm(1),Alpha(1))
+  call Truncate_Grid(NQ_Data(iNQ)%r_Quad,mR,nR_Eff,Radius_Max)
+  mR = nR_Eff
   NQ_Data(iNQ)%R_max = NQ_Data(iNQ)%R_Quad(1,mR)
 
 else if (Quadrature == 'BECKE') then
@@ -102,9 +103,9 @@ else if (Quadrature == 'BECKE') then
   mR = nR-1
   call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
   NQ_Data(iNQ)%R_Quad(:,:) = Zero
-  call GenRadQuad_B(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),Alpha(1))
-  call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff(iNQ),Radius_Max)
-  mR = nR_Eff(iNQ)
+  call GenRadQuad_B(NQ_Data(iNQ)%R_Quad,nR,nR_Eff,Alpha(1))
+  call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff,Radius_Max)
+  mR = nR_Eff
   NQ_Data(iNQ)%R_max = NQ_Data(iNQ)%R_Quad(1,mR)
 
 else if (Quadrature == 'TA') then
@@ -191,9 +192,9 @@ else if (Quadrature == 'TA') then
   mR = nR-1
   call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
   NQ_Data(iNQ)%R_Quad(:,:) = Zero
-  call GenRadQuad_TA(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),Alpha(1))
-  call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff(iNQ),Radius_Max)
-  mR = nR_Eff(iNQ)
+  call GenRadQuad_TA(NQ_Data(iNQ)%R_Quad,nR,nR_Eff,Alpha(1))
+  call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff,Radius_Max)
+  mR = nR_Eff
   NQ_Data(iNQ)%R_max = NQ_Data(iNQ)%R_Quad(1,mR)
 
 else if (Quadrature == 'LMG') then
@@ -206,20 +207,20 @@ else if (Quadrature == 'LMG') then
 
   nR = 1 ! Dummy size on the first call.
   Process = .false.
-  call GenRadQuad_PAM(nR_Eff(iNQ),rm,Alpha(1),Process,Dum,nR)
+  call GenRadQuad_PAM(nR_Eff,rm,Alpha(1),Process,Dum,nR)
 
-  nR = nR_Eff(iNQ)
+  nR = nR_Eff
   call mma_allocate(NQ_Data(iNQ)%R_Quad,2,nR,Label='R_Quad')
   NQ_Data(iNQ)%R_Quad(:,:) = Zero
   Process = .true.
-  call GenRadQuad_PAM(nR_Eff(iNQ),rm,Alpha(1),Process,NQ_Data(iNQ)%R_Quad,nR)
+  call GenRadQuad_PAM(nR_Eff,rm,Alpha(1),Process,NQ_Data(iNQ)%R_Quad,nR)
   NQ_Data(iNQ)%R_max = NQ_Data(iNQ)%R_Quad(1,nR)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
 # ifdef _DEBUGPRINT_
   write(u6,*) 'GenRadQuad_PAM ----> GenVoronoi'
-  write(u6,*) 'nR_Eff=',nR_Eff(iNQ)
+  write(u6,*) 'nR_Eff=',nR_Eff
   write(u6,*) 'rm : ',rm(1),rm(2)
   write(u6,*) 'Alpha : ',Alpha(1),Alpha(2)
 # endif
@@ -234,8 +235,8 @@ write(u6,*) ' ******** The radial grid ********'
 write(u6,*)
 write(u6,*) 'Initial number of radial grid points=',nR
 write(u6,*) 'iNQ=',iNQ
-write(u6,*) 'Effective number of radial grid points=',nR_Eff(iNQ)
-do iR=1,nR_Eff(iNQ)
+write(u6,*) 'Effective number of radial grid points=',nR_Eff
+do iR=1,nR_Eff
   write(u6,*) NQ_Data(iNQ)%R_Quad(1,iR),NQ_Data(iNQ)%R_Quad(2,iR)
 end do
 write(u6,*)

@@ -16,7 +16,7 @@ use nq_Info, only: Other_Type
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iDisk
+integer(kind=iwp) :: iDisk, iDum(1)
 
 !                                                                      *
 !***********************************************************************
@@ -39,7 +39,8 @@ iDisk_Grid = 0
 call iDaFile(Lu_Grid,1,G_S,2,iDisk_Grid)
 iDisk = iDisk_Grid
 call iDaFile(Lu_Grid,1,iDisk_Set,2,iDisk_Grid)
-call iDaFile(Lu_Grid,1,[Old_Functional_Type],1,iDisk_Grid)
+iDum(1) = Old_Functional_Type
+call iDaFile(Lu_Grid,1,iDum,1,iDisk_Grid)
 
 iDisk_Set(Final_Grid) = iDisk_Grid
 iDisk_Set(Intermediate) = iDisk_Grid

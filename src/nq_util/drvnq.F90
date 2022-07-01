@@ -49,9 +49,9 @@ logical(kind=iwp), intent(in) :: Do_Grad, Do_TwoEl, IsFT
 logical(kind=iwp), intent(inout) :: Do_MO
 character(len=4), intent(in) :: DFTFOCK
 #include "status.fh"
-integer(kind=iwp) :: i, iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, jIrrep, kAsh, kIrrep, kl_Orb_pairs, lAsh, mAO, mdRho_dr, &
-                     mGrad, nBas(8), nCMO, nD1MO, nDel(8), nGradRho, nLapl, nNQ, nP2, nP2_ontop, nSigma, nTau, NQNAC, NQNACPAR, &
-                     NQNACPR2, nShell, nTmpPUVX
+integer(kind=iwp) :: i, iDum(1), iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, jIrrep, kAsh, kIrrep, kl_Orb_pairs, lAsh, mAO, &
+                     mdRho_dr, mGrad, nBas(8), nCMO, nD1MO, nDel(8), nGradRho, nLapl, nNQ, nP2, nP2_ontop, nSigma, nTau, NQNAC, &
+                     NQNACPAR, NQNACPR2, nShell, nTmpPUVX
 real(kind=wp) :: PThr
 logical(kind=iwp) :: PMode
 integer(kind=iwp), allocatable :: List_Bas(:,:), List_Exp(:), List_P(:), List_s(:,:), Maps2p(:,:)
@@ -268,6 +268,10 @@ select case (Functional_type)
     call WarningMessage(2,'DrvNQ: Invalid Functional_type!')
     call Abend()
     nRho = 0
+    nSigma = 0
+    nGradRho = 0
+    nLapl = 0
+    nTau = 0
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -472,7 +476,8 @@ end if
 iDisk_Grid = 0
 call iDaFile(Lu_Grid,1,G_S,2,iDisk_Grid)
 call iDaFile(Lu_Grid,1,iDisk_Set,2,iDisk_Grid)
-call iDaFile(Lu_Grid,1,[Old_Functional_Type],1,iDisk_Grid)
+iDum(1) = Old_Functional_Type
+call iDaFile(Lu_Grid,1,iDum,1,iDisk_Grid)
 iDisk_Grid = iDisk_Set(iGrid_Set)
 call iDaFile(Lu_Grid,1,GridInfo,2*number_of_subblocks,iDisk_Grid)
 

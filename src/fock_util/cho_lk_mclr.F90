@@ -62,7 +62,7 @@ integer(kind=iwp) :: i, ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,
                      iCase, iE, iij, ijS, ijsym, ik, ikl, iLoc, iml, Inc, ioff, ioffa, iOffAB, ioffb, iOffShb, ipG, irc, ired1, &
                      IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, isymx, iSymy, iTmp, IVEC2, iVrs, jab, jAsh, jaSkip, &
                      jDen, jK, jK_a, jml, jmlmax, JNUM, jOffAB, JRED, JRED1, JRED2, jrs, jS, jsym, jvc, JVEC, k, kaOff(8), kAsh, &
-                     kDen, kMOs, kOff(8), krs, kS, kscreen, kSym, l, l1, lAsh, LFMAX, LFULL, LKsh, LKshp, LREAD, ls, lSh, lSym, &
+                     kDen, kMOs, kOff(8), krs, kS, kscreen, kSym, l, l1, lAsh, LFMAX, LFULL(2), LKsh, LKshp, LREAD, ls, lSh, lSym, &
                      lvec, LWORK, MaxAct, MaxB, MaxRedT, MaxVecPerBatch, Mmax, mrs, mSh, mTvec, mTvec1, MUSED, MxB, MxBasSh, &
                      n1, n2, nA2, NAv, NAw, Nax, Nay, nBatch, nBsa, nChMo(8), nDen, nMat, nMOs, nnA, nnO, nnShl_2, nRS, NumCV, &
                      numSh1, numSh2, NUMV, NumVT, nVec, nVrs
@@ -410,7 +410,7 @@ do jSym=1,nSym
     end if
   end do
 
-  LFMAX = max(3*mTvec1,LFULL) ! re-use memory for the active vec
+  LFMAX = max(3*mTvec1,LFULL(1)) ! re-use memory for the active vec
   mTvec = nDen*max(MxB,1) ! mem for storing half-transformed vec
 
   ! ------------------------------------------------------------------
@@ -467,7 +467,7 @@ do jSym=1,nSym
 
       call mma_maxDBLE(LWORK)
 
-      nVec = min(LWORK/(nRS+mTvec+LFMAX),min(nVrs,MaxVecPerBatch))
+      nVec = min((LWORK-LFULL(2))/(nRS+mTvec+LFMAX),min(nVrs,MaxVecPerBatch))
 
       ! Store nVec to make sure the routine always uses the same
       if (iAChoVec == 1) nVec_ = nVec

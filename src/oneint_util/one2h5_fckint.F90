@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp) :: fileid, nSym, nBas(nSym)
 integer(kind=iwp) :: dsetid, iComp, iOff1, iOff2, iOpt, iRc, iSyLbl, iSym, nb, nbast, nbast1, nbast2
 character(len=8) :: Label
-real(kind=wp), allocatable :: SAO(:), Scr(:,:)
+real(kind=wp), allocatable :: FAO(:), Scr(:,:)
 
 nbast = 0
 nbast1 = 0
@@ -44,27 +44,27 @@ end do
 dsetid = mh5_create_dset_real(fileid,'AO_FOCKINT_MATRIX',1,[NBAST2])
 call mh5_init_attr(dsetid,'DESCRIPTION','Fock matrix of the atomic orbitals, arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
-call mma_allocate(SAO,NBAST1)
+call mma_allocate(FAO,NBAST1)
 iRc = -1
 iOpt = 6
 iComp = 1
 iSyLbl = 1
 Label = 'FckInt  '
-call RdOne(iRc,iOpt,Label,iComp,SAO,iSyLbl)
+call RdOne(iRc,iOpt,Label,iComp,FAO,iSyLbl)
 iOff1 = 0
 iOff2 = 0
 do iSym=1,nSym
   nb = nBas(iSym)
   if (nb > 0) then
     call mma_allocate(Scr,nb,nb,label='Scr')
-    call Square(SAO(1+iOff1),Scr,1,nb,nb)
+    call Square(FAO(1+iOff1),Scr,1,nb,nb)
     call mh5_put_dset(dsetid,Scr,[nb*nb],[iOff2])
     call mma_deallocate(Scr)
   end if
   iOff1 = iOff1+nb*(nb+1)/2
   iOff2 = iOff2+nb**2
 end do
-call mma_deallocate(SAO)
+call mma_deallocate(FAO)
 
 call mh5_close_dset(dsetid)
 

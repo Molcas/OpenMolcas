@@ -54,7 +54,7 @@ contains
 
 subroutine NQ_Info_Dmp()
 
-  use fortran_strings, only: char_array
+  use fortran_strings, only: char_array, str
   use stdalloc, only: mma_allocate, mma_deallocate
 
   integer(kind=iwp) :: i, lcDmp
@@ -188,7 +188,7 @@ subroutine NQ_Info_Dmp()
   i = i+len(Quadrature)
   cDmp(i+1:i+len(MBC)) = char_array(MBC)
   i = i+len(MBC)
-  call Put_cArray('Quad_c',cDmp,lcDmp)
+  call Put_cArray('Quad_c',str(cDmp),lcDmp)
   call mma_deallocate(cDmp)
 
 end subroutine

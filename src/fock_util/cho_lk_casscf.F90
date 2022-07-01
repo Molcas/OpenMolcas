@@ -70,9 +70,9 @@ logical(kind=iwp), intent(in) :: DoActive
 integer(kind=iwp) :: i, ia, iab, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jDen, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,2), &
-                     krs, kscreen, kSym, l, l1, LFMAX, LFULL, LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, MaxVecPerBatch, &
-                     mDen, mrs, mSh, mTvec, mTvec1, mTvec2, MUSED, MxB, MxBasSh, myJRED2, n1, n2, nAt, NAv, NAw, nBatch, nBs, &
-                     nBsa, nBsb, nDen, nIt, nkOrb, nMOs, nnA(8,8), nnO, nRS, NumCV, numSh, NUMV, NumVT, nVec, nVrs
+                     krs, kscreen, kSym, l, l1, LFMAX, LFULL(2), LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, &
+                     MaxVecPerBatch, mDen, mrs, mSh, mTvec, mTvec1, mTvec2, MUSED, MxB, MxBasSh, myJRED2, n1, n2, nAt, NAv, NAw, &
+                     nBatch, nBs, nBsa, nBsb, nDen, nIt, nkOrb, nMOs, nnA(8,8), nnO, nRS, NumCV, numSh, NUMV, NumVT, nVec, nVrs
 real(kind=wp) :: Fact, FactC(2), FactX(2), fcorr, LKThr, SKsh, tau(2), TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCS1, &
                  TCS2, TCT1, TCT2, TCX1, TCX2, texch(2), thrv(2), tintg(2), tmotr(2), Tmp, tread(2), TOTCPU, TOTCPU1, TOTCPU2, &
                  TOTWALL, TOTWALL1, TOTWALL2, tscrn(2), TWC1, TWC2, TWINT1, TWINT2, TWR1, TWR2, TWS1, TWS2, TWT1, TWT2, TWX1, &
@@ -380,7 +380,7 @@ do jSym=1,nSym
   end do
   mTvec = mTvec1+mTvec2
 
-  LFMAX = max(mTvec,LFULL) ! re-use memory for the active vec
+  LFMAX = max(mTvec,LFULL(1)) ! re-use memory for the active vec
   mTvec = max(MxB,1) ! mem for storing half-transformed vec
 
   ! ------------------------------------------------------------------
@@ -434,7 +434,7 @@ do jSym=1,nSym
 
       call mma_maxDBLE(LWORK)
 
-      nVec = min(LWORK/(nRS+mTvec+LFMAX),min(nVrs,MaxVecPerBatch))
+      nVec = min((LWORK-LFULL(2))/(nRS+mTvec+LFMAX),min(nVrs,MaxVecPerBatch))
 
       if (nVec < 1) then
         write(u6,*) SECNAM//': Insufficient memory for batch'

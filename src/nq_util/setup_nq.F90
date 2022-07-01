@@ -235,7 +235,7 @@ do iNQ=1,nNQ
   rm(1) = real(NQ_Data(iNQ)%l_Max,kind=wp)
   rm(2) = Threshold
 
-  call GenVoronoi(nR_Eff,nNQ,Alpha,rm,iNQ)
+  call GenVoronoi(nR_Eff(iNQ),Alpha,rm,iNQ)
 
   if (iReset == 1) then
     nR = nR_tmp

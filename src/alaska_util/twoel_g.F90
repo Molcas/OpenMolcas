@@ -92,11 +92,13 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
     subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
                      Tvalue,ModU2,Cff2D,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
       import :: wp, iwp
-      integer(kind=iwp) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
-      real(kind=wp) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), &
-                       P(lP,3), Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), Array(nArray), PAO(nT,nPAO), Grad(nGrad)
+      integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
+      real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), &
+                                   EInv(nEta), Coori(3,4), Coora(3,4), CoorAC(3,2), PAO(nT,nPAO)
+      real(kind=wp), intent(inout) :: P(lP,3), Q(lQ,3), Grad(nGrad)
+      real(kind=wp), intent(out) :: Array(nArray)
       external :: Tvalue, ModU2, Cff2D
-      logical(kind=iwp) :: IfGrad(3,4)
+      logical(kind=iwp), intent(in) :: IfGrad(3,4)
     end subroutine Rysg1
   end interface
 # endif

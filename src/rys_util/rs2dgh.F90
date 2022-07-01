@@ -1052,7 +1052,7 @@ if (IfG(4)) then
     Index1(3,4) = nz
     Index3(nz,3) = 4
   end if
-  Ind1(nVec+1) = 0
+  Ind1(nVec+1:) = 0
 
   mVec = 0
   if (IfHss(4,1,4,1)) then
@@ -1082,7 +1082,7 @@ if (IfG(4)) then
     Index4(1,mz,3) = 4
     Index4(2,mz,3) = 4
   end if
-  Ind3(mVec+1) = 0
+  Ind3(mVec+1:) = 0
   nvecx = max(nVec,mVec)
 
   if (nVecx /= 0) then
