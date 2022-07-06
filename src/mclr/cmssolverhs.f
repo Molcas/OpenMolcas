@@ -74,9 +74,9 @@
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
       Real*8,DIMENSION(((nRoots-1)*nRoots/2)**2)::AXX
 ****** Assistants
-      Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr
+      Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr,Scr
       Real*8 ThreHess,TwoPi
-      INTEGER NElem,NDim,nSPair,iPair
+      INTEGER NElem,NDim,nSPair,iPair,nScr,INFO
       Logical LiMOExit,lExists
 
       NDim=((nRoots-1)*nRoots/2)
@@ -88,7 +88,10 @@
       CALL mma_allocate(bxScr ,nDim)
       CALL mma_allocate(zXScr ,nDim)
 
-      CALL DiagMat(AXX,EigVal,nDim,Nelem)
+      CALL GetDiagScr(nScr,AXX,EigVal,nDim)
+      CALL mma_allocate(Scr   ,nScr)
+
+      CALL DSYEV_('V','U',nDim,AXX,nDim,EigVal,Scr,nScr,INFO)
 
       CALL DGEMM_('n','n',1,nDim,nDim,1.0d0,bx,1,AXX,nDim,
      &                                0.0d0,bxScr,1)
@@ -142,6 +145,7 @@
       CALL mma_deallocate(EigVal)
       CALL mma_deallocate(bxScr )
       CALL mma_deallocate(zXScr )
+      CALL mma_deallocate(Scr   )
       RETURN
       END SUBROUTINE
 ******************************************************
