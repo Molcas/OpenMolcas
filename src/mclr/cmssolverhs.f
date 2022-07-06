@@ -67,35 +67,81 @@
 #include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
+#include "warnings.h"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
 ****** Input
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
       Real*8,DIMENSION(((nRoots-1)*nRoots/2)**2)::AXX
 ****** Assistants
-      Real*8,DIMENSION(:),Allocatable::Ainv
-      INTEGER NElem,NDim
+      Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr
+      Real*8 ThreHess,TwoPi
+      INTEGER NElem,NDim,nSPair,iPair
+      Logical LiMOExit,lExists
 
       NDim=((nRoots-1)*nRoots/2)
       NElem=NDim**2
-      CALL mma_allocate(Ainv,Nelem)
-      CALL DCopy_(Nelem,AXX,1,Ainv,1)
+      nSPair=nDim
+      TwoPi=2.0d0*Pi
 
-C      write(6,*) 'AXX matrix'
-C      CALL RecPrt(' ',' ',AXX,nDim,nDim)
-      CALL MatInvert(Ainv,nDim)
-C      write(6,*) 'AXX inverse'
-C      CALL RecPrt(' ',' ',Ainv,nDim,nDim)
-C      write(6,*) 'bX'
-C      CALL RecPrt(' ',' ',bX,1,nDim)
+      CALL mma_allocate(EigVal,nDim)
+      CALL mma_allocate(bxScr ,nDim)
+      CALL mma_allocate(zXScr ,nDim)
 
-      CALL DGEMM_('n','n',nDim,1,nDim,-1.0d0,Ainv,nDim,bX,nDim,
-     &0.0d0,zX,nDim)
+      CALL DiagMat(AXX,EigVal,nDim,Nelem)
 
-C      write(6,*) 'zX'
-C      CALL RecPrt(' ',' ',zX,1,nDim)
+      CALL DGEMM_('n','n',1,nDim,nDim,1.0d0,bx,1,AXX,nDim,
+     &                                0.0d0,bxScr,1)
 
-      CALL mma_deallocate(Ainv)
+      CALL qpg_DScalar('ThrCMSHess',lExists)
+      If(lExists) Then
+       CALL Get_DScalar('ThrCMSHess',ThreHess)
+      Else
+       ThreHess=1.0d-10
+      End If
+
+
+      LiMOExit=.false.
+      DO iPair=1,nDim
+       IF(Abs(EigVal(iPair)).gt.ThreHess) Then
+        zxScr(iPair)=-bxScr(iPair)/EigVal(iPair)
+       ELSE
+        zxScr(iPair)=0.0d0
+       END IF
+       IF(Abs(zxScr(iPair)).gt.TwoPi) Then
+        write(6,'(6X,A)')
+     &   'A Lagrange multiplier for Q_a-a part is too big!'
+        write(6,'(6X,A6,1X,ES14.3E3,1X,I5)')
+     &   'Value:',zxScr(iPair),iPair
+        LiMOExit=.true.
+       END IF
+      END DO
+
+      IF(LIMOEXIT) THEN
+        write(6,*)
+        write(6,'(6X,A)')
+     &    'ERROR: LAGRANGE MULITPLIER(S) TOO BIG!'
+        write(6,*)
+        write(6,'(6X,A)')
+     &    'This may come from a linear molecular or a linear'
+        write(6,'(6X,A)')
+     &    'fragment, where the states that are in the plane'
+        write(6,'(6X,A)')
+     &    'that is perpendicular to the linear part are mixed.'
+        write(6,'(6X,A)')
+     &    'CMS-PDFT gradient may fail for this system.'
+        CALL WarningMessage(2,
+     &    'Lagrange Multipliers Too Big for Q_a-a Part!')
+        CALL Quit(_RC_EXIT_EXPECTED_)
+      END IF
+
+      CALL DGEMM_('n','t',    1,nSPair,nSPair,
+     &            1.0d0,zXScr,1,AXX,nSPair,
+     &            0.0d0,zx   ,1)
+
+      CALL mma_deallocate(EigVal)
+      CALL mma_deallocate(bxScr )
+      CALL mma_deallocate(zXScr )
       RETURN
       END SUBROUTINE
 ******************************************************
