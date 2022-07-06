@@ -18,7 +18,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "gugx.fh"
 C
       DIMENSION ISM(NLEV),IDOWN(NVERT,0:3)

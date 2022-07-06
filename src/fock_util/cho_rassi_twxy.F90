@@ -11,7 +11,7 @@
 
 subroutine CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,DoReord)
 
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Data_Structures, only: SBA_Type, twxy_type
 use Constants, only: One
@@ -40,7 +40,7 @@ if (NumV < 1) return
 
 do iSymy=1,nSym
 
-  iSymx = MulD2h(iSymy,JSYM)
+  iSymx = Mul(iSymy,JSYM)
 
   Nxy = nAorb(iSymx)*nAorb(iSymy)
 
@@ -48,7 +48,7 @@ do iSymy=1,nSym
 
     do iSymw=iSymy,nSym ! iSymw >= iSymy (particle symmetry)
 
-      iSymt = MulD2h(iSymw,JSYM)
+      iSymt = Mul(iSymw,JSYM)
 
       Ntw = nAorb(iSymt)*nAorb(iSymw)
 
@@ -80,7 +80,7 @@ if (DoReord) then
 
   do iSymy=1,nSym
 
-    iSymx = MulD2h(iSymy,JSYM)
+    iSymx = Mul(iSymy,JSYM)
 
     Nxy = nAorb(iSymx)*nAorb(iSymy)
 
@@ -88,7 +88,7 @@ if (DoReord) then
 
     do iSymw=iSymy,nSym
 
-      iSymt = MulD2h(iSymw,JSYM)
+      iSymt = Mul(iSymw,JSYM)
 
       Ntw = nAorb(iSymt)*nAorb(iSymw)
 

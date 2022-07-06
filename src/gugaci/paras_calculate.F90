@@ -13,7 +13,7 @@ subroutine paras_calculate()
 
 use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, jb_sys, jroute_sys, ng_sm, nlsm_dbl, nlsm_ext, spin
                          !, n_electron, norb_all, norb_dbl, norb_dz, norb_ext
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -100,7 +100,7 @@ if (jb_sys > 1) jroute_sys = 3
 !    else
 !      nij = ni*nj
 !    end if
-!    ijsm = mul_tab(i,j)
+!    ijsm = Mul(i,j)
 !    iwt_ext(ijsm,3) = iwt_ext(ijsm,3)+nij
 !    iwt_ext(ijsm,4) = iwt_ext(ijsm,4)+nij
 !  end do
@@ -109,9 +109,9 @@ if (jb_sys > 1) jroute_sys = 3
 !
 !do i=1,ng_sm
 !  iwt_dbl(i,1) = 0
-!  iwt_dbl(i,2) = nlsm_dbl(mul_tab(i,jsm_sys))
+!  iwt_dbl(i,2) = nlsm_dbl(Mul(i,jsm_sys))
 !  if (jroute_sys > 1) then
-!    iwt_dbl(i,3) = nlsm_dbl(mul_tab(i,jsm_sys))
+!    iwt_dbl(i,3) = nlsm_dbl(Mul(i,jsm_sys))
 !  end if
 !end do
 !iwt_dbl(ns_sm,1) = 1
@@ -125,7 +125,7 @@ if (jb_sys > 1) jroute_sys = 3
 !    else
 !      nij = ni*nj
 !    end if
-!    ijsm = mul_tab(mul_tab(i,j),ns_sm)
+!    ijsm = Mul(Mul(i,j),ns_sm)
 !    iwt_dbl(ijsm,4) = iwt_dbl(ijsm,4)+nij
 !    if (jroute_sys > 2) then
 !      iwt_dbl(ijsm,5) = iwt_dbl(ijsm,5)+nij
@@ -152,7 +152,7 @@ do ismb=1,ng_sm
     else
       nij = ni*nj
     end if
-    ijsm = mul_tab(isma,ismb)
+    ijsm = Mul(isma,ismb)
     !iwt_sm_sab(ijsm) = iwt_sm_sab(ijsm)+nij
     ! iwt_sm_sab function as a tmp array
     !iwt_sm_ext(isma,ismb) = iwt_sm_sab(ijsm)
@@ -192,7 +192,7 @@ end do
 !    iaend = iesm_ext(isma)
 !    if (isma == ismb) iaend = iaend-1
 !
-!    ismab = mul_tab(isma,ismb)
+!    ismab = Mul(isma,ismb)
 !    iwttmp = iwt_sm_ext(isma,ismb)+iwt_sm_sab(ismab)
 !    do iaorb=iasta,iaend
 !      do iborb=max(iaorb+1,ibsta),ibend
@@ -218,7 +218,7 @@ do ismb=1,ng_sm
     else
       nij = ni*nj
     end if
-    ijsm = mul_tab(isma,ismb)
+    ijsm = Mul(isma,ismb)
     !iwt_sm_dbl(isma,ismb) = iwt_sm_sab(ijsm)
 
     !iasta = ibsm_dbl(isma)
@@ -252,7 +252,7 @@ end do
 !    iasta = ibsm_dbl(isma)
 !    iaend = iesm_dbl(isma)
 !    if (isma == ismb) iaend = iaend-1
-!    ismab = mul_tab(isma,ismb)
+!    ismab = Mul(isma,ismb)
 !    iwttmp = iwt_sm_dbl(isma,ismb)+iwtsmsabtmp(ismab)
 !    do iaorb=iasta,iaend
 !      do iborb=max(iaorb+1,ibsta),ibend
@@ -265,7 +265,7 @@ end do
 !end do
 
 !do ism=1,ng_sm
-!  jsm = mul_tab(ism,ns_sm)
+!  jsm = Mul(ism,ns_sm)
 !  if (ism < jsm) then
 !    itmp = iwt_sm_sab(jsm)
 !    iwt_sm_sab(jsm) = iwt_sm_sab(ism)

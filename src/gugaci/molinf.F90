@@ -203,7 +203,7 @@ subroutine mole_inf_molcas()
 use gugaci_global, only: ibsm_ext, iesm_ext, int_dd_offset, iref_occ, logic_assign_actorb, logic_mr, lsm, lsm_inn, lsmorb, LuDrt, &
                          n_ref, nabc, ng_sm, ngw2, ngw3, ngw4, nlsm_all, nlsm_bas, nlsm_dbl, nlsm_ext, nlsm_frz, noidx, norb_act, &
                          norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin !, logic_mrelcas
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Half
 use Definitions, only: iwp, u6
 
@@ -340,7 +340,7 @@ int_dd_offset(1:8,1:8) = 0
 do im=1,ng_sm
   im_lr_sta = 0
   do iml=1,ng_sm
-    imr = mul_tab(im,iml)
+    imr = Mul(im,iml)
     if (imr > iml) cycle
     int_dd_offset(iml,imr) = im_lr_sta
     int_dd_offset(imr,iml) = im_lr_sta

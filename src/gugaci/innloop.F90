@@ -100,7 +100,7 @@ end subroutine act_space_ploop
 subroutine cloop_in_act()
 
 use gugaci_global, only: logic_br, lsm_inn, norb_dz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -110,7 +110,7 @@ do lrai=norb_dz+1,norb_inn-1
   lmi = lsm_inn(lrai)
   do lraj=lrai+1,norb_inn
     lmj = lsm_inn(lraj)
-    lmij = mul_tab(lmi,lmj)
+    lmij = Mul(lmi,lmj)
     !-------------------------------------------------------------------
     ! line=8 d&r&r--d^r^r
     call head_drr_at_given_orb(mh,lrai)
@@ -126,7 +126,7 @@ do lrai=norb_dz+1,norb_inn-1
     call tail_drl_at_given_orb(mh)
     !write(u6,'(6i6)') 9,mh,lrai,lraj,0,0
     if (mh /= 0) call act_cloop(9,mh,lrai,lraj,0,0)
-    lsmij = mul_tab(lmi,lmj)
+    lsmij = Mul(lmi,lmj)
     !-------------------------------------------------------------------
     if (lsmij == 1) then
       !-----------------------------------------------------------------
@@ -204,10 +204,10 @@ do lrai=norb_dz+1,norb_inn-1
     if (lraj > norb_inn-2) cycle
     do lrak=lraj+1,norb_inn
       lmk = lsm_inn(lrak)
-      lmk = mul_tab(lmij,lmk)
+      lmk = Mul(lmij,lmk)
       do lral=lrak+1,norb_inn
         lml = lsm_inn(lral)
-        lml = mul_tab(lmk,lml)
+        lml = Mul(lmk,lml)
         if (lml /= 1) cycle
         ! line=4  a&r--b&r--b^r--a^r
         call head_ar_at_given_orb(mh,lrai)
@@ -596,7 +596,7 @@ end subroutine act_cloop
 !use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
 !                         norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, &
 !                         w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
-!use Symmetry_Info, only: mul_tab => Mul
+!use Symmetry_Info, only: Mul
 !use Constants, only: Zero, Two, Half
 !use Definitions, only: wp, iwp
 !
@@ -625,9 +625,9 @@ end subroutine act_cloop
 !if (jpad == 1) itypadr = 1
 !if (jpadl == 1) jml = ns_sm
 !if (jpad == 1) jmr = ns_sm
-!jml = mul_tab(jml,ns_sm)
-!jmr = mul_tab(jmr,ns_sm)
-!jmlr = mul_tab(jml,jmr)
+!jml = Mul(jml,ns_sm)
+!jmr = Mul(jmr,ns_sm)
+!jmlr = Mul(jml,jmr)
 !lpok = map_jplr(itypadl,itypadr)
 !if (lpok == 0) return
 !select case (line)
@@ -656,7 +656,7 @@ end subroutine act_cloop
 !          do lrj=lri+1,norb_dz
 !            ! ds(7-3) ar(23)-bl(32)-br(31)-
 !            lmj = lsm_inn(lrj)
-!            lmij = mul_tab(lmi,lmj)
+!            lmij = Mul(lmi,lmj)
 !            if (lmij /= jmr) cycle
 !            do lrd=norb_frz+1,lri-1
 !              iwdr = just(lri,lrj)
@@ -709,7 +709,7 @@ end subroutine act_cloop
 !              call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
 !            end if
 !            ! d1s(9-4) drl(12)-br(31)-
-!            if ((jml == lmd) .and. (jmr == mul_tab(lmd,lmi))) then
+!            if ((jml == lmd) .and. (jmr == Mul(lmd,lmi))) then
 !              iwdr = just(lrd,lri)
 !              iwdl = jud(lrd)
 !              w1ds = w1_d1s(4)
@@ -726,7 +726,7 @@ end subroutine act_cloop
 !          do lrj=lri+1,norb_dz
 !            ! d1s(9-3) ar(13)-bl(32)-br(31)-
 !            lmj = lsm_inn(lrj)
-!            lmij = mul_tab(lmi,lmj)
+!            lmij = Mul(lmi,lmj)
 !            if (lmij /= jmr) cycle
 !            do lrd=norb_frz+1,lri-1
 !              iwdr = just(lri,lrj)
@@ -767,12 +767,12 @@ end subroutine act_cloop
 !          lmi = lsm_inn(lri)
 !          do lrj=lri+1,norb_dz
 !            lmj = lsm_inn(lrj)
-!            lmij = mul_tab(lmi,lmj)
+!            lmij = Mul(lmi,lmj)
 !            if (lmij /= jmr) cycle
 !            iwdr = just(lri,lrj)
 !            do lrd=norb_frz+1,lri-1
 !              lmd = lsm_inn(lrd)
-!              lmd = mul_tab(lmd,1)
+!              lmd = Mul(lmd,1)
 !              if (lmd /= jml) cycle
 !              iwdl = jud(lrd)
 !              vlop0 = w0*w0_dt
@@ -795,12 +795,12 @@ end subroutine act_cloop
 !          lmi = lsm_inn(lri)
 !          do lrj=lri+1,norb_dz
 !            lmj = lsm_inn(lrj)
-!            lmij = mul_tab(lmi,lmj)
+!            lmij = Mul(lmi,lmj)
 !            if (lmij /= jmr) cycle
 !            iwdr = just(lri,lrj)
 !            do lrd=norb_frz+1,lri-1
 !              lmd = lsm_inn(lrd)
-!              lmd = mul_tab(lmd,1)
+!              lmd = Mul(lmd,1)
 !              if (lmd /= jml) cycle
 !              iwdl = jud(lrd)
 !              vlop0 = w0*w0_d1t1
@@ -916,7 +916,7 @@ end subroutine act_cloop
 !          lmi = lsm_inn(lri)
 !          do lrj=lri+1,norb_dz
 !            lmj = lsm_inn(lrj)
-!            lmij = mul_tab(lmi,lmj)
+!            lmij = Mul(lmi,lmj)
 !            if (lmij /= jml) cycle
 !            iwdl = just(lri,lrj)
 !
@@ -1063,7 +1063,7 @@ end subroutine act_cloop
 !          imi = lsm_inn(lri)
 !          do lrj=lri,norb_dz
 !            imj = lsm_inn(lrj)
-!            imij = mul_tab(imi,imj)
+!            imij = Mul(imi,imj)
 !            if (imij /= jml) cycle
 !            iwdl = just(lri,lrj)
 !            vlop1 = w1*w1_tv             !d17 vlop0=0
@@ -1080,7 +1080,7 @@ end subroutine act_cloop
 !          imi = lsm_inn(lri)
 !          do lrj=lri,norb_dz
 !            imj = lsm_inn(lrj)
-!            imij = mul_tab(imi,imj)
+!            imij = Mul(imi,imj)
 !            if (imij /= jml) cycle
 !            iwdl = just(lri,lrj)
 !            vlop1 = w1*w1_t1v             !d18 vlop0=0
@@ -1159,7 +1159,7 @@ end subroutine act_cloop
 !          lmi = lsm_inn(lri)
 !          do lrj=lri+1,norb_dz
 !            lmj = lsm_inn(lrj)
-!            lmij = mul_tab(lmi,lmj)
+!            lmij = Mul(lmi,lmj)
 !            if (lmij /= jml) cycle
 !            w1tv = w1_tv
 !            if (mod(lrj-lri,2) == 0) w1tv = -w1tv
@@ -1178,7 +1178,7 @@ end subroutine act_cloop
 !          lmi = lsm_inn(lri)
 !          do lrj=lri+1,norb_dz
 !            lmj = lsm_inn(lrj)
-!            lmij = mul_tab(lmi,lmj)
+!            lmij = Mul(lmi,lmj)
 !            if (lmij /= jml) cycle
 !            w1tv = w1_t1v
 !            if (mod(lrj-lri,2) == 0) w1tv = -w1tv
@@ -1623,7 +1623,7 @@ end subroutine act_cloop
 subroutine dbl_td_act_comp(lin,lra)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_td, w1
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1640,7 +1640,7 @@ real(kind=wp) :: vlop0, vlop1, w0td1, wl
 ! td(13-5) d&rl(33)c"(22)b^l(23)
 ! td(13-5) d&rl(33)b^l(23)c'(22)
 
-jmlr = mul_tab(jml,jmr)
+jmlr = Mul(jml,jmr)
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
   if (lmi /= jmlr) cycle
@@ -1682,7 +1682,7 @@ end subroutine dbl_td_act_comp
 subroutine dbl_ttdd_act_comp(lin,lra)
 
 use gugaci_global, only: jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_t1d1, w1
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1693,7 +1693,7 @@ real(kind=wp) :: vlop0, vlop1, w0td1, wl
 ! t1d1(15-1)  ar(13)-
 ! t1d1(15-1)  ar(13)-c'(11)-
 
-jmlr = mul_tab(jml,jmr)
+jmlr = Mul(jml,jmr)
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
   if (lmi /= jmlr) cycle
@@ -1814,7 +1814,7 @@ subroutine dbl_sd_act_comp(lin,lra)
 ! sd(6-4) a&r(23)c'(12)-
 
 use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sd, w1
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1822,7 +1822,7 @@ integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl
 
-jmlr = mul_tab(jml,jmr)
+jmlr = Mul(jml,jmr)
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
   if (lmi /= jmlr) cycle
@@ -1894,7 +1894,7 @@ subroutine dbl_sdd_act_comp(lin,lra)
 !sd1(8-4)    ar(23)-c'(11)-
 
 use gugaci_global, only: jb_sys, jml, jmr, jpel, jper, jud, just, jwl, jwr, lrg, lrs, lsm_inn, norb_dz, norb_frz, w0, w0_sd1, w1
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1902,7 +1902,7 @@ integer(kind=iwp), intent(in) :: lin, lra
 integer(kind=iwp) :: iwdl, iwdr, jmlr, lmi, lmk, lri, lrk, ni
 real(kind=wp) :: vlop0, vlop1, w0sd1, w0sd2, w0sd3, w0sd4, wl
 
-jmlr = mul_tab(jml,jmr)
+jmlr = Mul(jml,jmr)
 do lri=norb_frz+1,norb_dz
   lmi = lsm_inn(lri)
   if (lmi /= jmlr) cycle
@@ -2010,7 +2010,7 @@ end subroutine ext_space_loop
 subroutine g_tt_ext_sequence(ism)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, ng_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -2020,7 +2020,7 @@ integer(kind=iwp) :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma
 icano_nnsta = 2
 icnt_base = 0
 do ismd=1,ng_sm
-  ismc = mul_tab(ism,ismd)
+  ismc = Mul(ism,ismd)
   if (ismc > ismd) cycle
   id_sta = ibsm_ext(ismd)
   idsta = id_sta
@@ -2040,7 +2040,7 @@ do ismd=1,ng_sm
       end if
       icano_nnend = icano_nn
       do ismb=1,ismd-1
-        isma = mul_tab(ism,ismb)
+        isma = Mul(ism,ismb)
         if (isma > ismb) cycle
         if (ismc > ismb) then
           call g12_t_diffsym(isma,ismb,ismc)
@@ -2054,7 +2054,7 @@ do ismd=1,ng_sm
         isma = ismd
         call g1112_t_symaaaa(isma,ic,id)
       else
-        isma = mul_tab(ism,ismd)
+        isma = Mul(ism,ismd)
         call g11a11b_t_symaacc(isma,ismd,ic,id)
       end if
       call g36_t_ext(ismc,ic,id)
@@ -2076,7 +2076,7 @@ subroutine dbl_head_act_tail(lpcoe)
 use gugaci_global, only: jb_sys, jml, jmr, jpad, jpadl, jpel, jper, jud, just, jwl, jwr, kk, line, lrg, lrs, lsm_inn, map_jplr, &
                          norb_dz, norb_frz, norb_inn, ns_sm, vint_ci, voint, w0, w0_d1s, w0_d1t1, w0_d1v, w0_ds, w0_dt, w0_dv, &
                          w0_td, w0_vv, w1, w1_d1s, w1_d1t1, w1_ds, w1_dt, w1_t1v, w1_td, w1_tv
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
@@ -2105,9 +2105,9 @@ if (jpadl == 1) itypadl = 1
 if (jpad == 1) itypadr = 1
 if (jpadl == 1) jml = ns_sm
 if (jpad == 1) jmr = ns_sm
-jml = mul_tab(jml,ns_sm)
-jmr = mul_tab(jmr,ns_sm)
-jmlr = mul_tab(jml,jmr)
+jml = Mul(jml,ns_sm)
+jmr = Mul(jmr,ns_sm)
+jmlr = Mul(jml,jmr)
 lpok = map_jplr(itypadl,itypadr)
 if (lpok == 0) return
 select case (line)
@@ -2137,7 +2137,7 @@ select case (line)
           end if
           do lrj=lri+1,norb_dz
             lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
+            lmij = Mul(lmi,lmj)
             if (lmij /= jmr) cycle
             do lrd=norb_frz+1,lri-1
               lmd = lsm_inn(lrd)
@@ -2191,7 +2191,7 @@ select case (line)
               call prodab(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper)
             end if
             ! d1s(9-4) drl(12)-br(31)-
-            if ((jml == lmd) .and. (jmr == mul_tab(lmd,lmi))) then
+            if ((jml == lmd) .and. (jmr == Mul(lmd,lmi))) then
               iwdr = just(lrd,lri)
               iwdl = jud(lrd)
               w1ds = w1_d1s(4)
@@ -2208,7 +2208,7 @@ select case (line)
           do lrj=lri+1,norb_dz
             ! d1s(9-3) ar(13)-bl(32)-br(31)-
             lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
+            lmij = Mul(lmi,lmj)
             if (lmij /= jmr) cycle
             do lrd=norb_frz+1,lri-1
               iwdr = just(lri,lrj)
@@ -2249,7 +2249,7 @@ select case (line)
           lmi = lsm_inn(lri)
           do lrj=lri+1,norb_dz
             lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
+            lmij = Mul(lmi,lmj)
             if (lmij /= jmr) cycle
             iwdr = just(lri,lrj)
             do lrd=norb_frz+1,lri-1
@@ -2276,12 +2276,12 @@ select case (line)
           lmi = lsm_inn(lri)
           do lrj=lri+1,norb_dz
             lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
+            lmij = Mul(lmi,lmj)
             if (lmij /= jmr) cycle
             iwdr = just(lri,lrj)
             do lrd=norb_frz+1,lri-1
               lmd = lsm_inn(lrd)
-              lmd = mul_tab(lmd,1)
+              lmd = Mul(lmd,1)
               if (lmd /= jml) cycle
               iwdl = jud(lrd)
               vlop0 = w0*w0_d1t1
@@ -2413,7 +2413,7 @@ select case (line)
           lmi = lsm_inn(lri)
           do lrj=lri+1,norb_dz
             lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
+            lmij = Mul(lmi,lmj)
             if (lmij /= jml) cycle
             iwdl = just(lri,lrj)
 
@@ -2560,7 +2560,7 @@ select case (line)
           imi = lsm_inn(lri)
           do lrj=lri,norb_dz
             imj = lsm_inn(lrj)
-            imij = mul_tab(imi,imj)
+            imij = Mul(imi,imj)
             if (imij /= jml) cycle
             iwdl = just(lri,lrj)
             vlop1 = w1*w1_tv             !d17 vlop0=0
@@ -2577,7 +2577,7 @@ select case (line)
           imi = lsm_inn(lri)
           do lrj=lri,norb_dz
             imj = lsm_inn(lrj)
-            imij = mul_tab(imi,imj)
+            imij = Mul(imi,imj)
             if (imij /= jml) cycle
             iwdl = just(lri,lrj)
             vlop1 = w1*w1_t1v             !d18 vlop0=0
@@ -2654,7 +2654,7 @@ select case (line)
           lmi = lsm_inn(lri)
           do lrj=lri+1,norb_dz
             lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
+            lmij = Mul(lmi,lmj)
             if (lmij /= jml) cycle
             w1tv = w1_tv
             if (mod(lrj-lri,2) == 0) w1tv = -w1tv
@@ -2673,7 +2673,7 @@ select case (line)
           lmi = lsm_inn(lri)
           do lrj=lri+1,norb_dz
             lmj = lsm_inn(lrj)
-            lmij = mul_tab(lmi,lmj)
+            lmij = Mul(lmi,lmj)
             if (lmij /= jml) cycle
             w1tv = w1_t1v
             if (mod(lrj-lri,2) == 0) w1tv = -w1tv

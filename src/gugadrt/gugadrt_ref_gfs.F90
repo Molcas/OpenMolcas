@@ -12,7 +12,7 @@
 subroutine gugadrt_ref_gfs(nel,ndj,locu,nm)
 
 use gugadrt_global, only: lsm_inn, max_ref, norb_dz, norb_inn, nstart_act, spin
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
@@ -47,14 +47,14 @@ do nes=ne_s,ne_act,2
                   lpsum = l1+l2+l3+l4+l5+l6+l7+l8
                   if (lpsum /= nes) cycle
                   mys = 1
-                  if (mod(l1,2) == 1) mys = mul_tab(mys,1)
-                  if (mod(l2,2) == 1) mys = mul_tab(mys,2)
-                  if (mod(l3,2) == 1) mys = mul_tab(mys,3)
-                  if (mod(l4,2) == 1) mys = mul_tab(mys,4)
-                  if (mod(l5,2) == 1) mys = mul_tab(mys,5)
-                  if (mod(l6,2) == 1) mys = mul_tab(mys,6)
-                  if (mod(l7,2) == 1) mys = mul_tab(mys,7)
-                  if (mod(l8,2) == 1) mys = mul_tab(mys,8)
+                  if (mod(l1,2) == 1) mys = Mul(mys,1)
+                  if (mod(l2,2) == 1) mys = Mul(mys,2)
+                  if (mod(l3,2) == 1) mys = Mul(mys,3)
+                  if (mod(l4,2) == 1) mys = Mul(mys,4)
+                  if (mod(l5,2) == 1) mys = Mul(mys,5)
+                  if (mod(l6,2) == 1) mys = Mul(mys,6)
+                  if (mod(l7,2) == 1) mys = Mul(mys,7)
+                  if (mod(l8,2) == 1) mys = Mul(mys,8)
                   if (mys /= nm) cycle
                   mdj = mdj+1
                   lscu(0,mdj) = lpsum

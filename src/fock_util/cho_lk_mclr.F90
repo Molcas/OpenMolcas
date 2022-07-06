@@ -34,7 +34,7 @@ subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CM
 
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type
@@ -402,7 +402,7 @@ do jSym=1,nSym
   mTvec1 = 0
   MxB = 0
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     Mmax = max(0,nOrb(k))
     if (Mmax > 0) MxB = max(MxB,nBas(l))
     if (DoAct) then
@@ -623,7 +623,7 @@ do jSym=1,nSym
 
         do kSym=1,nSym
 
-          lSym = MulD2h(JSYM,kSym)
+          lSym = Mul(JSYM,kSym)
 
           do jK=1,nOrb(kSym)
 
@@ -1127,7 +1127,7 @@ do jSym=1,nSym
           if (iAChoVec == 2) then
             ioff = 0
             do i=1,nSym
-              k = Muld2h(i,JSYM)
+              k = Mul(i,JSYM)
               lvec = nAsh(k)*nBas(i)*JNUM
               iAdr2 = (JVEC-1)*nAsh(k)*nBas(i)+ioff
               call DDAFILE(LuAChoVec(Jsym),2,Lpq(1)%SB(k)%A3,lvec,iAdr2)
@@ -1145,7 +1145,7 @@ do jSym=1,nSym
           ioff = 0
           if (iAChoVec == 1) then
             do i=1,nSym
-              k = Muld2h(i,JSYM)
+              k = Mul(i,JSYM)
               lvec = nAsh(k)*nBas(i)*JNUM
               iAdr2 = (JVEC-1)*nAsh(k)*nBas(i)+ioff
               call DDAFILE(LuAChoVec(Jsym),1,Lpq(1)%SB(k)%A3,lvec,iAdr2)
@@ -1161,7 +1161,7 @@ do jSym=1,nSym
           ! ----------------------------------------------------------------
           do iSymb=1,nSym
 
-            iSymv = MulD2h(JSYM,iSymb)
+            iSymv = Mul(JSYM,iSymb)
             NAv = nAsh(iSymv)
             NAw = nAsh(iSymb)
 
@@ -1206,7 +1206,7 @@ do jSym=1,nSym
               ! *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
               if (iSymv > iSymb) cycle
               do isymx=1,iSymb
-                iSymy = MulD2h(JSYM,iSymx)
+                iSymy = Mul(JSYM,iSymx)
                 if ((iSymy > iSymx) .or. ((iSymb == isymx) .and. (iSymy > iSymv))) cycle
                 Nax = nAsh(iSymx)
                 Nay = nAsh(iSymy)
@@ -1235,7 +1235,7 @@ do jSym=1,nSym
 
             do iSymb=1,nSym
 
-              iSymv = MulD2h(JSYM,iSymb)
+              iSymv = Mul(JSYM,iSymb)
               NAv = nAsh(iSymv)
               NAw = nAsh(iSymb)
 
@@ -1260,7 +1260,7 @@ do jSym=1,nSym
           ! ----------------------------------------------------------------
           do iSymb=1,nSym
 
-            iSymv = MulD2h(JSYM,iSymb)
+            iSymv = Mul(JSYM,iSymb)
             NAv = nAsh(iSymv)
             NAw = nAsh(iSymb)
 
@@ -1269,7 +1269,7 @@ do jSym=1,nSym
               Lpq(3)%SB(iSymv)%A3(:,:,:) = Zero
 
               do iSymx=1,nSym
-                iSymy = MulD2h(JSYM,iSymx)
+                iSymy = Mul(JSYM,iSymx)
                 Nax = nAsh(iSymx)
                 Nay = nAsh(iSymy)
 
@@ -1302,7 +1302,7 @@ do jSym=1,nSym
           ! Exchange term
           do iSymb=1,nSym
 
-            iSymv = MulD2h(JSYM,iSymb)
+            iSymv = Mul(JSYM,iSymb)
             NAv = nAsh(iSymv)
             NAw = nAsh(iSymb)
 
@@ -1345,7 +1345,7 @@ do jSym=1,nSym
           !MGD what if Naw=0 but not NBas(b)?
           do iSymb=1,nSym
 
-            iSymv = MulD2h(JSYM,iSymb)
+            iSymv = Mul(JSYM,iSymb)
             NAv = nAsh(iSymv)
             NAw = nAsh(iSymb)
 

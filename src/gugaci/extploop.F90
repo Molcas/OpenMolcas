@@ -31,7 +31,7 @@ subroutine lp_drl_ext_TS_calcuvalue(lri,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, logic_g2g4a, ng_sm, norb_number, &
                          value_lpext, vint_ci, voint, w0_plp, w0g2a, w0g36a, w1_plp, w1g14a, w1g2a, w1g36a
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -49,7 +49,7 @@ if (logic_g1415) then
   w1lp = w1_plp*w1g14a
 
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -916,7 +916,7 @@ subroutine lp_drl_ext_ST_calcuvalue(lri,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, logic_g2g4b, ng_sm, norb_number, &
                          value_lpext, vint_ci, voint, w1_plp, w1g14a, w1g36a, w1g4b
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -932,7 +932,7 @@ if (logic_g1415) then
   w1lp = w1_plp*w1g14a
 
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -984,7 +984,7 @@ subroutine lp_drl_ext_TT_calcuvalue(lri,n1415_value,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, ng_sm, norb_number, value_lpext, &
                          vint_ci, voint, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a, w1g36a
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1006,7 +1006,7 @@ if (logic_g1415) then
   w15lp = w015-w115
 
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -1045,7 +1045,7 @@ subroutine lp_drl_sum_TT_calcuvalue(lri,lrj,n1415,nlp_value)
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, ng_sm, norb_dz, norb_number, &
                          value_lpext, vijkk_0sum, vijkk_1sum, vint_ci, voint, w0_plp, w0g14a, w0g15a, w0g36a
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1092,7 +1092,7 @@ if (logic_g1415) then
   w15lp = w015
 
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -1216,7 +1216,7 @@ use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijab, intind_ijcc, intspace_
                          logic_g1415, logic_g2g4a, logic_g2g4b, ng_sm, ngw2, norb_ext, norb_frz, value_lpext, vint_ci, w0_plp, &
                          w0g13a, w0g14a, w0g15a, w0g2a, w0g2b, w0g36a, w0g36b, w0g4a, w0g4b, w1_plp, w1g14a, w1g15a, w1g2a, w1g2b, &
                          w1g36a, w1g36b, w1g4a, w1g4b
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -1230,7 +1230,7 @@ ivalue = 0
 ij = lri-norb_frz+ngw2(lrj-norb_frz)
 intpos = intind_ijcc(ij)
 intspace = intspace_ijcc(ij)
-!lmij = mul_tab(lsm_inn(lri),lsm_inn(lrj))
+!lmij = Mul(lsm_inn(lri),lsm_inn(lrj))
 ! G1415
 if (logic_g1415) then
 
@@ -1247,9 +1247,9 @@ if (logic_g1415) then
   ww1lp = -valuelptmp1*Two
 
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
-    !lmab = mul_tab(isma,ismb)
+    !lmab = Mul(isma,ismb)
     !if (lmab /= lmij) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)

@@ -44,7 +44,7 @@ subroutine CHO_LK_CASSCF(DLT,FLT,MSQ,W_PWXY,FactXI,nFIorb,nAorb,nChM,Ash,DoActiv
 
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
@@ -373,7 +373,7 @@ do jSym=1,nSym
   mTvec2 = 0
   MxB = 0
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     if ((nFIorb(k)+nChM(k)) > 0) MxB = max(MxB,nBas(l))
     mTvec1 = mTvec1+nAorb(k)*nBas(l)
     if (k <= l) mTvec2 = mTvec2+nnA(k,l)
@@ -592,7 +592,7 @@ do jSym=1,nSym
 
           do kSym=1,nSym
 
-            lSym = MulD2h(JSYM,kSym)
+            lSym = Mul(JSYM,kSym)
 
             nkOrb = nFIorb(kSym)*(2-jDen)+nChM(kSym)*(jDen-1)
 
@@ -1037,7 +1037,7 @@ do jSym=1,nSym
           ! ----------------------------------------------------------------
           do iSymb=1,nSym
 
-            iSymv = MulD2h(JSYM,iSymb)
+            iSymv = Mul(JSYM,iSymb)
             NAv = nAorb(iSymv)
             NAw = nAorb(iSymb) ! iSymb=iSymw
 

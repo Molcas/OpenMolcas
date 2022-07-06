@@ -32,7 +32,7 @@ subroutine CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nScreen,dmpk,d
 
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type
@@ -315,7 +315,7 @@ do jSym=1,nSym
   mTvec = 0 ! mem for storing the half-transformed vec
 
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     Mmax = 0
     do jDen=1,nDen
       Mmax = max(Mmax,nForb(k,jDen)+nIorb(k,jDen))
@@ -533,7 +533,7 @@ do jSym=1,nSym
 
           do kSym=1,nSym
 
-            lSym = MulD2h(JSYM,kSym)
+            lSym = Mul(JSYM,kSym)
 
             do jK=1,nOrb(kSym,jDen)
               jK_a = jK+kOff(kSym,jDen)

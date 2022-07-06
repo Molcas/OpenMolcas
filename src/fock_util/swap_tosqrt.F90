@@ -15,7 +15,7 @@
 subroutine swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
 
 use ChoArr, only: iRS2F
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Data_Structures, only: NDSBA_Type
 use Definitions, only: wp, iwp
 
@@ -43,7 +43,7 @@ if (JSYM /= 1) then ! NON TOTAL-SYMMETRIC
     ibg = iRS2F(2,kRab)
 
     iSyma = cho_isao(iag) ! symmetry block
-    iSymb = MulD2h(jSym,iSyma) ! sym(a) > sym(b)
+    iSymb = Mul(jSym,iSyma) ! sym(a) > sym(b)
 
     ias = iag-ibas(iSyma)
     ibs = ibg-ibas(iSymb)

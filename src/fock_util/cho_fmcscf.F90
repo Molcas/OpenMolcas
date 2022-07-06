@@ -40,7 +40,7 @@ subroutine CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,DLT,DoActive,POrb,nChM,W_P
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -128,7 +128,7 @@ do jSym=1,nSym
   ! --- Set up the skipping flags --------
   ! -------------------------------------------------------------
   do i=1,nSym
-    k = Muld2h(i,JSYM)
+    k = Mul(i,JSYM)
     iSkip(i) = min(1,nBas(i)*nBas(k)) ! skip Lik vector
     iSkip(i) = iSkip(i)*(nPorb(i)+nChM(i))
   end do
@@ -146,7 +146,7 @@ do jSym=1,nSym
 
   nAux(:) = nForb(:)+nIorb(:)
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     mTvec1 = mTvec1+nBas(k)*nAux(l)
     mTvec2 = mTvec2+nBas(k)*nChM(l)
     mTvec3 = mTvec3+nBas(k)*nAorb(l)
@@ -321,7 +321,7 @@ do jSym=1,nSym
 
       do iSyma=1,nSym
 
-        iSymk = MulD2h(JSYM,iSyma)
+        iSymk = Mul(JSYM,iSyma)
 
         ! ---------------------------------------------------------------------
         ! *** Compute only the LT part of the InActive exchange matrix ********
@@ -382,7 +382,7 @@ do jSym=1,nSym
         ! ---------------------------------------------------------------------
         do iSyma=1,nSym
 
-          iSymw = MulD2h(JSYM,iSyma)
+          iSymw = Mul(JSYM,iSyma)
 
           NAch = nChM(iSymw)
 
@@ -458,7 +458,7 @@ do jSym=1,nSym
         ! ----------------------------------------------------------------
         do iSymb=1,nSym
 
-          iSymv = MulD2h(JSYM,iSymb)
+          iSymv = Mul(JSYM,iSymb)
           NAv = nAorb(iSymv)
           NAw = nAorb(iSymb) ! iSymb=iSymw
 

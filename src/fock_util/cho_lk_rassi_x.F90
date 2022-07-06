@@ -35,7 +35,7 @@ use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Fock_util_interface, only: cho_lr_MOs
 use Fock_util_global, only: Deco, Estimate, Fake_CMO2, PseudoChoMOs, Update
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
 #ifdef _MOLCAS_MPP_
@@ -337,7 +337,7 @@ do jSym=1,nSym
   mTvec2 = 0
   MxB = 0
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     Mmax = max(0,nIsh(k))
     if (Mmax > 0) MxB = max(MxB,nBas(l))
     mTvec1 = mTvec1+nAsh(k)*nBas(l)
@@ -548,7 +548,7 @@ do jSym=1,nSym
 
         do kSym=1,nSym
 
-          lSym = MulD2h(JSYM,kSym)
+          lSym = Mul(JSYM,kSym)
 
           do jK=1,nIsh(kSym)
 
@@ -1011,7 +1011,7 @@ do jSym=1,nSym
         ! ----------------------------------------------------------------
         do iSymb=1,nSym
 
-          iSymv = MulD2h(JSYM,iSymb)
+          iSymv = Mul(JSYM,iSymb)
           NAv = nAsh(iSymv)
           NAw = nAsh(iSymb) ! iSymb=iSymw
 

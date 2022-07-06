@@ -30,7 +30,7 @@ subroutine CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -99,7 +99,7 @@ do jSym=1,nSym
   mTvec = 0  ! mem for storing the half-transformed vec
 
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     Mmax = 0
     do jDen=1,nDen
       Mmax = max(Mmax,nForb(k,jDen)+nIorb(k,jDen))
@@ -242,7 +242,7 @@ do jSym=1,nSym
         ! -------------------------------------------------------------
         do i=1,nSym
 
-          k = Muld2h(i,JSYM)
+          k = Mul(i,JSYM)
           iSkip(k) = min(1,nBas(i)*(nForb(k,jDen)+nIorb(k,jDen)))
 
         end do
@@ -265,7 +265,7 @@ do jSym=1,nSym
 
         do iSyma=1,nSym
 
-          iSymk = MulD2h(JSYM,iSyma)
+          iSymk = Mul(JSYM,iSyma)
 
           ! ---------------------------------------------------------------------
           ! *** Compute only the LT part of the InActive exchange matrix ********

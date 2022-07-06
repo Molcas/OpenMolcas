@@ -414,7 +414,7 @@ subroutine diagonal_link_ae(mh)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jph, jwh, kk, lsm, ng_sm, nlsm_ext, norb_all, norb_ext, th, thh, v_onevsqtwo, &
                          v_sqthreevsqtwo, v_sqtwo, vdint, voint
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -464,7 +464,7 @@ do ip=1,mh
       wg38 = -vlop0*v_onevsqtwo
       wwg38 = vlop1
       do ima=1,ng_sm
-        imb = mul_tab(ima,imae)
+        imb = Mul(ima,imae)
         if (imb > ima) cycle
         do la=ibsm_ext(ima),iesm_ext(ima)
           lra = norb_all-la+1
@@ -486,7 +486,7 @@ do ip=1,mh
       !zz = '  g14,15  '
       wg14 = -vlop0*v_onevsqtwo
       do ima=1,ng_sm
-        imb = mul_tab(ima,imae)
+        imb = Mul(ima,imae)
         if (imb > ima) cycle
         if (nlsm_ext(ima) == 0) cycle
         if (nlsm_ext(imb) == 0) cycle
@@ -526,7 +526,7 @@ subroutine diagonal_link_ad(mpe,iwa,vlop0,vlop1)
 
 use gugaci_global, only: fg, jb_sys, jpad, jud, just, kk, lsm_inn, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, pt, ptt, &
                          v_onevsqtwo, v_sqtwo, vdint, voint
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
@@ -561,7 +561,7 @@ select case (ityad)
     !jpad = jd(im)
     fqi = -fg
     do lri=norb_frz+1,norb_dz
-      imd = mul_tab(lsm_inn(lri),ns_sm)
+      imd = Mul(lsm_inn(lri),ns_sm)
       if (imd /= imad) cycle
       iwd = jud(lri)
 
@@ -587,10 +587,10 @@ select case (ityad)
     fqi = fg
     iwt = 0
     do lri=norb_frz+1,norb_dz
-      imi = mul_tab(lsm_inn(lri),ns_sm)
+      imi = Mul(lsm_inn(lri),ns_sm)
       do lrj=lri+1,norb_dz
         imj = lsm_inn(lrj)
-        imij = mul_tab(imi,imj)
+        imij = Mul(imi,imj)
         if (imij /= imad) cycle
         iwt = just(lri,lrj)
 
@@ -635,11 +635,11 @@ select case (ityad)
         call prodel(4,wls,mpe,iws,iwa)
       end if
 
-      imi = mul_tab(lsm_inn(lri),ns_sm)
+      imi = Mul(lsm_inn(lri),ns_sm)
       lrjsta = lri+1
       do lrj=lrjsta,norb_dz
         imj = lsm_inn(lrj)
-        imij = mul_tab(imi,imj)
+        imij = Mul(imi,imj)
         if (imij /= imad) cycle
         iws = just(lri,lrj)
         ! s1: d&r&l(1)
@@ -671,10 +671,10 @@ select case (ityad)
     if (jb_sys == 0) return      !any difference when jb_sys=1 and jb_sy
     fqi = fg
     do lri=norb_frz+1,norb_dz
-      imi = mul_tab(lsm_inn(lri),ns_sm)
+      imi = Mul(lsm_inn(lri),ns_sm)
       do lrj=lri+1,norb_dz
         imj = lsm_inn(lrj)
-        imij = mul_tab(imi,imj)
+        imij = Mul(imi,imj)
         if (imij /= imad) cycle
         !iws = iws+1
         iws = just(lrj,lri)
@@ -710,7 +710,7 @@ select case (ityad)
     iwd = 0
 
     do lri=norb_frz+1,norb_dz
-      imd = mul_tab(lsm_inn(lri),ns_sm)
+      imd = Mul(lsm_inn(lri),ns_sm)
       if (imd /= imad) cycle
       iwd = jud(lri)
 
@@ -743,10 +743,10 @@ select case (ityad)
     fqi = fg
     iwt = 0
     do lri=norb_frz+1,norb_dz
-      imi = mul_tab(lsm_inn(lri),ns_sm)
+      imi = Mul(lsm_inn(lri),ns_sm)
       do lrj=lri+1,norb_dz
         imj = lsm_inn(lrj)
-        imij = mul_tab(imi,imj)
+        imij = Mul(imi,imj)
         if (imij /= imad) cycle
         iwt = just(lri,lrj)
 
@@ -783,7 +783,7 @@ subroutine diagonal_link_dae(mh)
 
 use gugaci_global, only: fg, jb_sys, jpad, jud, just, jwh, lsm_inn, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, pt, &
                          ptt, th, thh, v_onevsqtwo, v_sqtwo
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -824,7 +824,7 @@ do ip=1,mh
       fqi = -fg
       lrj = 0
       do lri=norb_frz+1,norb_dz
-        imd = mul_tab(lsm_inn(lri),ns_sm)
+        imd = Mul(lsm_inn(lri),ns_sm)
         if (imd /= imad) cycle
         iwd = jud(lri)
 
@@ -845,10 +845,10 @@ do ip=1,mh
       fqi = fg
       iwt = 0
       do lri=norb_frz+1,norb_dz
-        imi = mul_tab(lsm_inn(lri),ns_sm)
+        imi = Mul(lsm_inn(lri),ns_sm)
         do lrj=lri+1,norb_dz
           imj = lsm_inn(lrj)
-          imij = mul_tab(imi,imj)
+          imij = Mul(imi,imj)
           if (imij /= imad) cycle
           iwt = just(lri,lrj)
 
@@ -881,11 +881,11 @@ do ip=1,mh
           vl0 = fqi*v_sqtwo*vlop0
           call diagonal_call_dae(lri,lrj,iws,iwa,vij0,vij1,vij2,vl0)
         end if
-        imi = mul_tab(lsm_inn(lri),ns_sm)
+        imi = Mul(lsm_inn(lri),ns_sm)
         lrjsta = lri+1
         do lrj=lrjsta,norb_dz
           imj = lsm_inn(lrj)
-          imij = mul_tab(imi,imj)
+          imij = Mul(imi,imj)
           if (imij /= imad) cycle
           iws = just(lri,lrj)
           ! s2: d&r&l(2)
@@ -903,11 +903,11 @@ do ip=1,mh
       if (jb_sys == 0) cycle
       fqi = fg
       do lri=norb_frz+1,norb_dz
-        imi = mul_tab(lsm_inn(lri),ns_sm)
+        imi = Mul(lsm_inn(lri),ns_sm)
         if (imad == ns_sm) lrjsta = lri
         do lrj=lri+1,norb_dz
           imj = lsm_inn(lrj)
-          imij = mul_tab(imi,imj)
+          imij = Mul(imi,imj)
           if (imij /= imad) cycle
           iws = just(lrj,lri)
           ! s1: d&r&l(1)
@@ -927,7 +927,7 @@ do ip=1,mh
       fqi = -fg
       lrj = 0
       do lri=norb_frz+1,norb_dz
-        imd = mul_tab(lsm_inn(lri),ns_sm)
+        imd = Mul(lsm_inn(lri),ns_sm)
         if (imd /= imad) cycle
         iwd = jud(lri)
 
@@ -947,10 +947,10 @@ do ip=1,mh
       fqi = fg               !aa
       iwt = 0
       do lri=norb_frz+1,norb_dz
-        imi = mul_tab(lsm_inn(lri),ns_sm)
+        imi = Mul(lsm_inn(lri),ns_sm)
         do lrj=lri+1,norb_dz
           imj = lsm_inn(lrj)
-          imij = mul_tab(imi,imj)
+          imij = Mul(imi,imj)
           if (imij /= imad) cycle
           iwt = just(lri,lrj)
 
@@ -978,7 +978,7 @@ subroutine diagonal_call_dae(lri,lrj,iwd,iwa,vij0,vij1,vij2,vl0)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, ipae, jpad, ng_sm, norb_all, norb_dz, norb_ext, v_onevsqtwo, v_sqthreevsqtwo, &
                          v_sqtwo, vdint, voint
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
@@ -1032,7 +1032,7 @@ select case (ityae)
   case (2)
     !zz = '  g38,39  '
     do ima=1,ng_sm
-      imb = mul_tab(ima,imae)
+      imb = Mul(ima,imae)
       if (imb > ima) cycle
       do la=ibsm_ext(ima),iesm_ext(ima)
         lra = norb_all-la+1
@@ -1076,7 +1076,7 @@ select case (ityae)
   case (3)
     !zz = '  g14,15  '
     do ima=1,ng_sm
-      imb = mul_tab(ima,imae)
+      imb = Mul(ima,imae)
       if (imb > ima) cycle
       do la=ibsm_ext(ima),iesm_ext(ima)
         lra = norb_all-la+1
@@ -1138,7 +1138,7 @@ end subroutine diagonal_call_dae
 subroutine diagonal_dbl()
 
 use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, norb_dz, norb_frz, ns_sm, nu_ae, vdint, voint
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp
 
@@ -1165,7 +1165,7 @@ do ipae_=1,25
 end do
 !jps = js(1)
 do lr0=norb_frz+1,norb_dz
-  mr0 = mul_tab(lsm_inn(lr0),ns_sm)
+  mr0 = Mul(lsm_inn(lr0),ns_sm)
   iwd = jud(lr0)
   ! d_800
   jpad = 1+mr0
@@ -1210,7 +1210,7 @@ do lr0=norb_frz+1,norb_dz
   wld0 = wld
 
   do lr=lr0+1,norb_dz
-    mr = mul_tab(mr0,lsm_inn(lr))
+    mr = Mul(mr0,lsm_inn(lr))
     jpat = 9+mr
     jpas = 17+mr
     jpat1 = jpat+24
@@ -1269,7 +1269,7 @@ do ipae_=1,25
   end do
 end do
 do lrm=norb_frz+1,norb_dz
-  mrm = mul_tab(lsm_inn(lrm),ns_sm)
+  mrm = Mul(lsm_inn(lrm),ns_sm)
   iws = just(lrm,lrm)
   iwd = jud(lrm)
   jpad = 1+mrm
@@ -1315,9 +1315,9 @@ do lrm=norb_frz+1,norb_dz
 end do
 ! 520
 do lr0=norb_frz+1,norb_dz-1
-  mr0 = mul_tab(lsm_inn(lr0),ns_sm)
+  mr0 = Mul(lsm_inn(lr0),ns_sm)
   do lr=lr0+1,norb_dz
-    mr = mul_tab(mr0,lsm_inn(lr))
+    mr = Mul(mr0,lsm_inn(lr))
     jpat = 9+mr
     jpas = 17+mr
     jpat1 = jpat+24
@@ -1421,7 +1421,7 @@ end subroutine diagonal_dbl
 subroutine diagonal_ext()
 
 use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, norb_all, norb_ext, vdint, voint
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -1471,7 +1471,7 @@ do im=1,8
     do lb=1,la-1
       lrb = norb_all-lb+1
       imb = lsm(lb)
-      mr = mul_tab(ima,imb)
+      mr = Mul(ima,imb)
       if (mr /= im) cycle
       !jps = js(mr)
       !jpt = jt(mr)
@@ -1785,7 +1785,7 @@ end subroutine prodel_pt
 subroutine get_jp(ity,nms,jp,id)
 
 use gugaci_global, only: ns_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1794,7 +1794,7 @@ integer(kind=iwp), intent(out) :: jp
 integer(kind=iwp) :: ms
 
 ms = nms
-if (id == 1) ms = mul_tab(nms,ns_sm)
+if (id == 1) ms = Mul(nms,ns_sm)
 select case (ity)
   case default ! (1)
     jp = 1

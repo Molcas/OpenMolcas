@@ -11,7 +11,7 @@
       REAL*8          SXDAMP
       INTEGER         MAXALTER
       PARAMETER       (MAXALTER=16)
-      INTEGER         NSYM,MUL(mxSym,mxSym),                            &
+      INTEGER         NSYM,                                             &
      &                NBAS(mxSym),NFRO(mxSym),NORB(mxSym),NDEL(mxSym),  &
      &                NISH(mxSym),NASH(mxSym),NSSH(mxSym),              &
      &                NRS1(mxSym),NRS2(mxSym),NRS3(mxSym),nSkipX(MxSym),&
@@ -19,7 +19,7 @@
      &                NACTEL,ISPIN,STSYM,NCONF,NHOLE1,NELEC3,NSEL,      &
      &                NTOTSP,INVEC,NALTER,MALTER(MAXALTER,3),           &
      &                NCRVEC,LCRVEC,NCRPROJ,LCRPROJ
-      COMMON/GENERAL/ SXDAMP,NSYM,MUL,                                  &
+      COMMON/GENERAL/ SXDAMP,NSYM,                                      &
      &                NBAS,NFRO,NORB,NDEL,                              &
      &                NISH,NASH,NSSH,                                   &
      &                NRS1,NRS2,NRS3,nSkipX,                            &
