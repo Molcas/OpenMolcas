@@ -1,6 +1,6 @@
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
-# - options: enable several options
+# - options: enable several extra options
 # - linalg: use a link-time linalg library and ninja
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
@@ -8,9 +8,9 @@
 # - intel13: use Intel 2013 compilers (build on specific runner)
 # - nag: use NAG Fortran compiler and Garble (build on specific runner)
 # - garble: setup with Garble option and gcc compilers
-# - bounds: enable bounds checking (slow)
+# - bounds: enable interprocedural optimization and bounds checking (slow)
 # - debug: build with no optimization (no tests)
-# - qcmaquis: default build with QCMaquis and NEVPT2 support (only qcmaquis tests)
+# - qcmaquis: default build with QCMaquis and NEVPT2 support
 # - mpi: build with Global Arrays, OpenMPI, OpenBLAS
 
 .plain:
