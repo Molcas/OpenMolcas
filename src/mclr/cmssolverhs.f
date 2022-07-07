@@ -76,11 +76,10 @@
 ****** Assistants
       Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr,Scr
       Real*8 ThreHess,TwoPi
-      INTEGER NElem,NDim,nSPair,iPair,nScr,INFO
+      INTEGER NDim,nSPair,iPair,nScr,INFO
       Logical LiMOExit,lExists
 
       NDim=((nRoots-1)*nRoots/2)
-      NElem=NDim**2
       nSPair=nDim
       TwoPi=2.0d0*Pi
 
