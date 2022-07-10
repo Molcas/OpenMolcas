@@ -11,7 +11,7 @@
 
 subroutine CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,W_PWXY,nAorb,JSYM,NUMV,DoTraInt,CMO)
 
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Data_structures, only: DSBA_Type, SBA_Type, twxy_Type
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -42,7 +42,7 @@ if (NumV < 1) return
 
 do iSymy=1,nSym
 
-  iSymx = MulD2h(iSymy,JSYM)
+  iSymx = Mul(iSymy,JSYM)
 
   Nxy = size(ChoV2%SB(iSymx)%A2,1)
 
@@ -50,7 +50,7 @@ do iSymy=1,nSym
 
     do iSyma=1,nSym
 
-      iSymw = MulD2h(iSyma,JSYM)
+      iSymw = Mul(iSyma,JSYM)
 
       Nwa = size(ChoV1%SB(iSymw)%A3,1)*size(ChoV1%SB(iSymw)%A3,2)
 
@@ -85,10 +85,10 @@ if (DoTraInt) then
     iOrb = nOrb(iSymp)
     do iSymw=1,nSym
       jAsh = nAorb(iSymw)
-      ijSym = MulD2h(iSymp,iSymw)
+      ijSym = Mul(iSymp,iSymw)
       do iSymy=1,nSym
         kAsh = nAorb(iSymy)
-        iSymx = MulD2h(ijSym,iSymy)
+        iSymx = Mul(ijSym,iSymy)
         if (iSymx <= iSymy) then
           lAsh = nAorb(iSymx)
           kl_Orb_pairs = kAsh*lAsh+min(0,ijSym-2)*kAsh*(lAsh-1)/2
@@ -104,7 +104,7 @@ if (DoTraInt) then
 
   do iSymy=1,nSym
 
-    iSymx = MulD2h(iSymy,JSYM)
+    iSymx = Mul(iSymy,JSYM)
 
     if (iSymx <= iSymy) then
 
@@ -112,7 +112,7 @@ if (DoTraInt) then
 
       do iSymw=1,nSym
 
-        iSyma = MulD2h(iSymw,JSYM) ! =iSymp
+        iSyma = Mul(iSymw,JSYM) ! =iSymp
 
         Nwa = nAorb(iSymw)*nBas(iSyma)
         Npw = nOrb(iSyma)*nAorb(iSymw)

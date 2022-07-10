@@ -13,7 +13,7 @@ subroutine gugadrt_rcas(id,indd)
 
 use gugadrt_global, only: iseg_downwei, iprint, ja, ja_sys, jb, jb_sys, jc_sys, jd, jj, jm, jroute_sys, js, jt, jv, kk, lsm_inn, &
                           max_innorb, max_node, max_ref, mxnode, n_electron, ng_sm, no, norb_dz, norb_inn, ns_sm, nu_ad
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
@@ -195,7 +195,7 @@ do
     ja(jk) = ja(j)
     jb(jk) = jb(j)-1
     jc(jk) = jc(j)
-    jm(jk) = mul_tab(lsm_inn(kk(j)+1),jm(j))
+    jm(jk) = Mul(lsm_inn(kk(j)+1),jm(j))
     do i=1,8
       ind(i,jk) = ind(i,j)
     end do
@@ -244,7 +244,7 @@ do
       jb(jk) = jb(j)+1
       jc(jk) = jc(j)-1
       !-----------------------------------------------------------------------
-      jm(jk) = mul_tab(lsm_inn(kk(j)+1),jm(j))
+      jm(jk) = Mul(lsm_inn(kk(j)+1),jm(j))
       do i=1,8
         ind(i,jk) = ind(i,j)
       end do

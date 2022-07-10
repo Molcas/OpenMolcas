@@ -32,7 +32,7 @@ do lpb=1,lpblock_dd
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !JMLR = MUL_TAB(JML,JMR)
+  !JMLR = Mul(JML,JMR)
   if (linelp <= 12) then
     call dd_ext_head_in_act()
   else
@@ -49,7 +49,7 @@ subroutine dd_ext_head_in_dbl()
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_sd, w0_ss, w0_td, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -60,7 +60,7 @@ real(kind=wp) :: w0dd1, w0dd2, w0dd3, w0dv1, w0sd1, w0sd2, w0sd3, w0sd4, w0ss15,
 integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
-JMLR = MUL_TAB(JML,JMR)
+JMLR = Mul(JML,JMR)
 LPOK = JPADLR
 select case (LPOK)
   case (1)
@@ -114,7 +114,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           IWDL = JUST(LRI,LRJ)
           IWDR = IWDL
@@ -203,7 +203,7 @@ select case (LPOK)
       LMI = LSM_INN(LRI)
       do LRJ=LRI+1,NORB_DZ
         LMJ = LSM_INN(LRJ)
-        LMIJ = MUL_TAB(LMI,LMJ)
+        LMIJ = Mul(LMI,LMJ)
         if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
         ! ST(2-5) (22)Drl(12)-          ACT -C"-
         IWDL = JUST(LRI,LRJ)
@@ -306,7 +306,7 @@ select case (LPOK)
       ! SD(6-2) C(22)-A&r(13)-
       do LRK=NORB_FRZ+1,LRI-1
         LMK = LSM_INN(LRK)
-        LMKI = MUL_TAB(LMK,LMI)
+        LMKI = Mul(LMK,LMI)
         if ((LMKI == JML) .and. (LMK == JMR)) then
           IWDL = JUST(LRK,LRI)
           IWDR = JUD(LRK)
@@ -326,7 +326,7 @@ select case (LPOK)
       ! SD(6-4) A&r(23)-C'(12)-
       do LRK=LRI+1,NORB_DZ
         LMK = LSM_INN(LRK)
-        LMKI = MUL_TAB(LMK,LMI)
+        LMKI = Mul(LMK,LMI)
         if ((LMKI /= JML) .or. (LMK /= JMR)) cycle
         !......................03_01....................................
         !if (jroute_sys > 1) then
@@ -383,7 +383,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           ! TT(11-2) (22)Drl(22)-
           ! TT(11-2) Drl(22)-C"(22)-
@@ -409,7 +409,7 @@ select case (LPOK)
             if (LRK == LRI) cycle
             if (LRK == LRJ) cycle
             LMK = LSM_INN(LRK)
-            LMKI = MUL_TAB(LMK,LMI)
+            LMKI = Mul(LMK,LMI)
             ! TT(11-3) Drl(33)-C"(22)-C"(22)-
             ! TT(11-3) (22)Drl(33)-C"(22)-
             ! TT(11-3) (22)(22)Drl(33)-
@@ -531,7 +531,7 @@ select case (LPOK)
         do LRK=1,NORB_DZ
           if (LRK == LRI) cycle
           LMK = LSM_INN(LRK)
-          LMKI = MUL_TAB(LMK,LMI)
+          LMKI = Mul(LMK,LMI)
           call Drl_DD_EXT(LRK)
         end do
       end do
@@ -540,7 +540,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if (LMIJ /= JMLR) cycle
           W0DD1 = W0_DD(1)
           W1DD1 = W1_DD(1)
@@ -685,7 +685,7 @@ subroutine ss_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
                          jpadlr, linelp, lpblock_ss, nvalue_space_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -698,7 +698,7 @@ do lpb=1,lpblock_ss
   call read_lp()
   IpaeL = iml+17
   Ipae = imr+17
-  imlr = mul_tab(iml,imr)
+  imlr = Mul(iml,imr)
   nvalue_space_ss = iseg_downwei(9+imlr)
   idownwei_g131415 = iseg_downwei(17+iml)
   !if (imlr == 1) imspace= i ml
@@ -706,7 +706,7 @@ do lpb=1,lpblock_ss
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !JMLR = MUL_TAB(JML,JMR)
+  !JMLR = Mul(JML,JMR)
   if (linelp <= 12) then
     call ss_ext_head_in_act()
   else
@@ -723,7 +723,7 @@ subroutine ss_ext_head_in_dbl()
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -733,7 +733,7 @@ real(kind=wp) :: w0dd1, w0dd2, w0dd3, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w0tt
 integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
-JMLR = MUL_TAB(JML,JMR)
+JMLR = Mul(JML,JMR)
 LPOK = JPADLR
 select case (LPOK)
   case (1)
@@ -786,7 +786,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           IWDL = JUST(LRI,LRJ)
           IWDR = IWDL
@@ -848,7 +848,7 @@ select case (LPOK)
       LMI = LSM_INN(LRI)
       do LRJ=LRI+1,NORB_DZ
         LMJ = LSM_INN(LRJ)
-        LMIJ = MUL_TAB(LMI,LMJ)
+        LMIJ = Mul(LMI,LMJ)
         if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
         ! ST(2-5) (22)Drl(12)-          ACT -C"-
         IWDL = JUST(LRI,LRJ)
@@ -920,7 +920,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           ! TT(11-2) (22)Drl(22)-
           ! TT(11-2) Drl(22)-C"(22)-
@@ -1021,7 +1021,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if (LMIJ /= JMLR) cycle
           W0DD1 = W0_DD(1)
           W1DD1 = W1_DD(1)
@@ -1162,7 +1162,7 @@ subroutine st_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
                          jpadlr, linelp, lpblock_st, nvalue_space_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1175,14 +1175,14 @@ do lpb=1,lpblock_st
   call read_lp()
   IpaeL = iml+17
   Ipae = imr+9
-  imlr = mul_tab(iml,imr)
+  imlr = Mul(iml,imr)
   idownwei_g131415 = iseg_downwei(9+iml)  !(17+iml)???
   nvalue_space_ss = iseg_downwei(9+imlr)
   call logicg_st(iml,imr,4,3)             ! irtype=4(S),3(T)
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !JMLR = MUL_TAB(JML,JMR)
+  !JMLR = Mul(JML,JMR)
   if (linelp <= 12) then
     call st_ext_head_in_act()
   else
@@ -1199,7 +1199,7 @@ subroutine st_ext_head_in_dbl()
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w1_dd, w1_ss, w1_st, w1_tt
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -1209,7 +1209,7 @@ real(kind=wp) :: w0dd1, w0dd2, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w1dd1, w1dd
 integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
-JMLR = MUL_TAB(JML,JMR)
+JMLR = Mul(JML,JMR)
 LPOK = JPADLR
 select case (LPOK)
   case (1)
@@ -1244,7 +1244,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           IWDL = JUST(LRI,LRJ)
           IWDR = IWDL
@@ -1324,7 +1324,7 @@ select case (LPOK)
       LMI = LSM_INN(LRI)
       do LRJ=LRI+1,NORB_DZ
         LMJ = LSM_INN(LRJ)
-        LMIJ = MUL_TAB(LMI,LMJ)
+        LMIJ = Mul(LMI,LMJ)
         if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
         ! ST(2-5) (22)Drl(12)-          ACT -C"-
         IWDL = JUST(LRI,LRJ)
@@ -1413,7 +1413,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           ! TT(11-2) (22)Drl(22)-
           ! TT(11-2) Drl(22)-C"(22)-
@@ -1498,7 +1498,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if (LMIJ /= JMLR) cycle
           W0DD1 = W0_DD(1)
           W1DD1 = W1_DD(1)
@@ -1621,7 +1621,7 @@ subroutine ts_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
                          jpadlr, linelp, lpblock_ts, nvalue_space_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1633,14 +1633,14 @@ do lpb=1,lpblock_ts
   call read_lp()
   IpaeL = iml+9
   Ipae = imr+17
-  imlr = mul_tab(iml,imr)
+  imlr = Mul(iml,imr)
   idownwei_g131415 = iseg_downwei(9+iml)  !(17+iml)???
   nvalue_space_ss = iseg_downwei(9+imlr)
   call logicg_st(iml,imr,3,4)             ! irtype=4(S),3(T)
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !JMLR = MUL_TAB(JML,JMR)
+  !JMLR = Mul(JML,JMR)
   if (linelp <= 12) then
     call ts_ext_head_in_act()
   else
@@ -1657,7 +1657,7 @@ subroutine ts_ext_head_in_dbl()
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w1_dd, w1_ss, w1_st, w1_tt
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -1667,7 +1667,7 @@ real(kind=wp) :: w0dd1, w0dd2, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w1dd1, w1dd
 integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
-JMLR = MUL_TAB(JML,JMR)
+JMLR = Mul(JML,JMR)
 LPOK = JPADLR
 select case (LPOK)
   case (1)
@@ -1702,7 +1702,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           IWDL = JUST(LRI,LRJ)
           IWDR = IWDL
@@ -1781,7 +1781,7 @@ select case (LPOK)
       LMI = LSM_INN(LRI)
       do LRJ=LRI+1,NORB_DZ
         LMJ = LSM_INN(LRJ)
-        LMIJ = MUL_TAB(LMI,LMJ)
+        LMIJ = Mul(LMI,LMJ)
         if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
         ! ST(2-5) (22)Drl(12)-          ACT -C"-
         IWDL = JUST(LRI,LRJ)
@@ -1870,7 +1870,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           ! TT(11-2) (22)Drl(22)-
           ! TT(11-2) Drl(22)-C"(22)-
@@ -1955,7 +1955,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if (LMIJ /= JMLR) cycle
           W0DD1 = W0_DD(1)
           W1DD1 = W1_DD(1)
@@ -2078,7 +2078,7 @@ subroutine tt_drt_ci_new()
 
 use gugaci_global, only: idisk_array, idisk_lp, idownwei_g131415, iml, imr, ipae, ipael, iseg_downwei, jml, jmr, jpad, jpadl, &
                          jpadlr, linelp, lpblock_tt, nvalue_space_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -2092,14 +2092,14 @@ do lpb=1,lpblock_tt
   IpaeL = iml+9
   Ipae = imr+9
   call logicg_st(iml,imr,3,3)      ! irtype=3(T),lptype=5:ArBl-
-  imlr = mul_tab(iml,imr)
+  imlr = Mul(iml,imr)
   !if (imlr == 1) imspace = iml
   nvalue_space_ss = iseg_downwei(9+imlr)
   idownwei_g131415 = iseg_downwei(9+iml)
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !JMLR = MUL_TAB(JML,JMR)
+  !JMLR = Mul(JML,JMR)
   if (linelp <= 12) then
     call tt_ext_head_in_act()
   else
@@ -2116,7 +2116,7 @@ subroutine tt_ext_head_in_dbl()
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dd, w0_dv, w0_ss, w0_tt, w0_vv, w1_dd, w1_ss, w1_st, w1_tt
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -2126,7 +2126,7 @@ real(kind=wp) :: w0dd1, w0dd2, w0dd3, w0dv1, w0ss15, w0ss17, w0ss20, w0tt2, w0tt
 integer(kind=iwp), external :: iwalk_ad
 
 LOGIC_DH = .true.
-JMLR = MUL_TAB(JML,JMR)
+JMLR = Mul(JML,JMR)
 LPOK = JPADLR
 select case (LPOK)
   case (1)
@@ -2183,7 +2183,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           IWDL = JUST(LRI,LRJ)
           IWDR = IWDL
@@ -2259,7 +2259,7 @@ select case (LPOK)
       LMI = LSM_INN(LRI)
       do LRJ=LRI+1,NORB_DZ
         LMJ = LSM_INN(LRJ)
-        LMIJ = MUL_TAB(LMI,LMJ)
+        LMIJ = Mul(LMI,LMJ)
         if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
         ! ST(2-5) (22)Drl(12)-          ACT -C"-
         IWDL = JUST(LRI,LRJ)
@@ -2349,7 +2349,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if ((LMIJ /= JML) .or. (LMIJ /= JMR)) cycle
           ! TT(11-2) (22)Drl(22)-
           ! TT(11-2) Drl(22)-C"(22)-
@@ -2459,7 +2459,7 @@ select case (LPOK)
         LMI = LSM_INN(LRI)
         do LRJ=LRI+1,NORB_DZ
           LMJ = LSM_INN(LRJ)
-          LMIJ = MUL_TAB(LMI,LMJ)
+          LMIJ = Mul(LMI,LMJ)
           if (LMIJ /= JMLR) cycle
           W0DD1 = W0_DD(1)
           W1DD1 = W1_DD(1)
@@ -2603,14 +2603,14 @@ subroutine logicg_st(ilnodesm,irnodesm,iltype,irtype)
 use gugaci_global, only: ism_g1415, ism_g2g4, logic_g13, logic_g1415, logic_g2g4a, logic_g2g4b, logic_g34a, logic_g34b, &
                          logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, lpend35a, lpend35b, lpend36a, &
                          lpend36b, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ilnodesm, irnodesm, iltype, irtype
 integer(kind=iwp) :: iii, ilrsm
 
-ilrsm = mul_tab(ilnodesm,irnodesm)
+ilrsm = Mul(ilnodesm,irnodesm)
 iii = 1      !index to determine lwei rwei iposint and nlinkorb
 ! G2G4a G2G4b G1415 G13
 logic_g36a = .false.

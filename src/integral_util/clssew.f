@@ -15,7 +15,6 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
-      use Her_RW
       use Real_Spherical, only: Sphere_Free
       use EFP_module
       use External_Centers

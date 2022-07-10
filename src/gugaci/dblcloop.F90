@@ -28,7 +28,7 @@ end subroutine dbl_space_loop
 subroutine dbl_space_loop_ijkk_sgezero()
 
 use gugaci_global, only: jb_sys, jud, just, lsm_inn, norb_dz, norb_frz, ns_sm, vint_ci, voint
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
@@ -62,8 +62,8 @@ if (jb_sys > 0) then
     lmi = lsm_inn(lri)
     do lrj=lri+1,norb_dz
       lmj = lsm_inn(lrj)
-      lmij = mul_tab(lmi,lmj)
-      jpds = 17+mul_tab(lmij,ns_sm)
+      lmij = Mul(lmi,lmj)
+      jpds = 17+Mul(lmij,ns_sm)
       iwdl = just(lrj,lri)
       iwdr = just(lri,lrj)
       wl = -vlp_1*voint(lrj,lri)
@@ -77,7 +77,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
   imi = lsm_inn(lri)
   !n2 = ngw2(lri-2)
   do lrj=lri+1,norb_dz
-    mij = mul_tab(imi,lsm_inn(lrj))
+    mij = Mul(imi,lsm_inn(lrj))
     if (mij /= 1) cycle
     ni = mod(lrj-lri,2)
     !=========== down comm for 2 4 =====================================
@@ -147,8 +147,8 @@ do lri=norb_frz+1,norb_dz-1           !frz
     !=========== start comm for 2 4 ====================================
     do lrm=norb_frz+1,norb_dz        !ic=1,norb_act   !frz
       imm = lsm_inn(lrm)
-      im = mul_tab(imm,imi)
-      im = mul_tab(im,ns_sm)
+      im = Mul(imm,imi)
+      im = Mul(im,ns_sm)
       kij = 0
       if (lrm == lrj) kij = 2
       if (lrm == lri) kij = 4
@@ -409,7 +409,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
     list = list3(lri,lrj,lri)
     wl0 = wl0-vl0_2*(voint(lri,lrj)+vint_ci(list))
 
-    im = mul_tab(lsm_inn(lri),ns_sm)
+    im = Mul(lsm_inn(lri),ns_sm)
     jpdd = 1+im
     iwld = jud(lri)
     iwrd = jud(lrj)
@@ -423,8 +423,8 @@ do lri=norb_frz+1,norb_dz-1           !frz
       wls = wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))-vls1*vint_ci(list)
       ! ar(23)-bl(32)-drl(22) ar(13)-bl(31)-drl(11)
       wlt = wl0+(vlt0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))-vlt1*vint_ci(list)
-      im = mul_tab(lsm_inn(lri),lsm_inn(lr))
-      im = mul_tab(im,ns_sm)
+      im = Mul(lsm_inn(lri),lsm_inn(lr))
+      im = Mul(im,ns_sm)
       jpds = 17+im
       jpdt = 9+im
       iwls = just(lri,lr)
@@ -458,8 +458,8 @@ do lri=norb_frz+1,norb_dz-1           !frz
       wls = wl0+(vls0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))-vls1*vint_ci(list)
       ! drl(22)-bl(23)-ar(32)  drl(11)-bl(13)-ar(31)
       wlt = wl0+(vlt0-vl0_2)*(vint_ci(list)-2*vint_ci(list+1))-vlt1*vint_ci(list)
-      im = mul_tab(lsm_inn(lri),lsm_inn(lr))
-      im = mul_tab(im,ns_sm)
+      im = Mul(lsm_inn(lri),lsm_inn(lr))
+      im = Mul(im,ns_sm)
       jpds = 17+im                     !bbs_tmp
       jpdt = 9+im
       iwls = just(lr,lri)
@@ -499,7 +499,7 @@ end subroutine dbl_space_loop_ijkk_sgezero
 subroutine dbl_space_loop_ijkl_sgezero()
 
 use gugaci_global, only: jb_sys, just, lsm_inn, norb_dz, norb_frz, ns_sm, vint_ci
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
@@ -525,9 +525,9 @@ do lrl=norb_frz+1,norb_dz-3
         !list = list4(lri,lrj,lrk,lrl)
         list = list4(lrl,lrk,lrj,lri)
         ni = mod(lrk-lrl+lri-lrj,2)
-        imik = mul_tab(imi,imk)
-        if (imik == mul_tab(imj,iml)) then
-          im = mul_tab(imik,ns_sm)
+        imik = Mul(imi,imk)
+        if (imik == Mul(imj,iml)) then
+          im = Mul(imik,ns_sm)
           jpds = 17+im
           jpdt = 9+im
           jpdt1 = jpdt+24
@@ -583,9 +583,9 @@ do lrl=norb_frz+1,norb_dz-3
             call prodab(1,0,jpdt1,iwlt,iwrt,0,wlt,0)
           end if
         end if
-        imil = mul_tab(imi,iml)
-        if (imil == mul_tab(imj,imk)) then
-          im = mul_tab(imil,ns_sm)
+        imil = Mul(imi,iml)
+        if (imil == Mul(imj,imk)) then
+          im = Mul(imil,ns_sm)
           jpds = 17+im
           jpdt = 9+im
           jpdt1 = jpdt+24
@@ -638,9 +638,9 @@ do lrl=norb_frz+1,norb_dz-3
             call prodab(1,0,jpdt1,iwlt,iwrt,0,wlt,0)
           end if
         end if
-        imij = mul_tab(imi,imj)
-        if (imij == mul_tab(imk,iml)) then
-          im = mul_tab(imij,ns_sm)
+        imij = Mul(imi,imj)
+        if (imij == Mul(imk,iml)) then
+          im = Mul(imij,ns_sm)
           jpds = 17+im
           jpdt = 9+im
           jpdt1 = 24+jpdt

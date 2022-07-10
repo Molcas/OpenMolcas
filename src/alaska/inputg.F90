@@ -40,14 +40,13 @@ integer(kind=iwp), intent(in) :: LuSpool
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "iavec.fh"
 #include "columbus_gamma.fh"
 #include "exterm.fh"
 #include "nac.fh"
 #include "chotime.fh"
-integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iR, iRout, istatus, iSym(3), &
-                     iTR, ix, iy, iz, j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, &
-                     nCnttp_Valence, nDisp, nElem, nGroup, nRoots, nSlct
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &
+                     j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, &
+                     nElem, nGroup, nRoots, nSlct
 real(kind=wp) :: alpha, Fact, ovlp
 logical(kind=iwp) :: TstFnc, ltype, Slct, T_Only, No_Input_OK, Skip
 character(len=80) :: KWord, Key
@@ -834,21 +833,6 @@ if (Slct .and. (.not. Skip)) then
   end do
   write(LuWr,*)
 end if
-
-! Set up the angular index vector
-
-i = 0
-do iR=0,iTabMx
-  do ix=iR,0,-1
-    do iy=iR-ix,0,-1
-      iz = iR-ix-iy
-      i = i+1
-      ixyz(1,i) = ix
-      ixyz(2,i) = iy
-      ixyz(3,i) = iz
-    end do
-  end do
-end do
 
 Onenly = HF_Force
 

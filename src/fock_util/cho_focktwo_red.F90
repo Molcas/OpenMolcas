@@ -62,7 +62,7 @@ subroutine CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ
 !
 !***********************************************************************
 
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Data_Structures, only: Deallocate_DT, DSBA_type, Integer_Pointer, Map_to_SBA, SBA_type
 use stdalloc, only: mma_allocate
@@ -196,7 +196,7 @@ do jSym=1,MaxSym
     ! setup the skipping flags according to # Occupied
     do k=1,nSym
       iSkip(k) = 0
-      l = Muld2h(k,jsym) ! L(kl) returned if nOcc(k or l) /= 0
+      l = Mul(k,jsym) ! L(kl) returned if nOcc(k or l) /= 0
       if (k == l) then
         iSkip(k) = 666 ! always contribute to Coulomb
       else
@@ -218,7 +218,7 @@ do jSym=1,MaxSym
     ! vectors in core (full storage)
     iE = 0
     do iSymq=1,nSym
-      iSymp = muld2h(jSym,iSymq)
+      iSymp = Mul(jSym,iSymq)
       nq = nBas(iSymq)
       np = nBas(iSymp)
       if (nq*np <= 0) cycle
@@ -431,7 +431,7 @@ do jSym=1,MaxSym
 
           do ISYMG=1,NSYM
 
-            ISYMB = MULD2H(ISYMG,JSYM)
+            ISYMB = Mul(ISYMG,JSYM)
 
             if (nBas(iSymb)*nBas(iSymg) <= 0) cycle
 

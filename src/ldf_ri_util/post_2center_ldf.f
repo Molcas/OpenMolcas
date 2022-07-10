@@ -29,7 +29,7 @@
 *             Modified to 2-center ERIs for RI June 2005               *
 ************************************************************************
       use Basis_Info, only: nBas_Aux
-      use Wrj12
+      use Wrj12, only: iOffA, Lu_A, Lu_Q, nChV
       use Gateway_global, only: force_out_of_core
       use RICD_Info, only: Thrshld_CD
       use Symmetry_Info, only: nIrrep

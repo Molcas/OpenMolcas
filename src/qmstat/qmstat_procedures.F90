@@ -22,4 +22,4 @@ contains
 #define _IN_MODULE_
 #include "givemeinfo.F90"
 
-end module
+end module qmstat_procedures

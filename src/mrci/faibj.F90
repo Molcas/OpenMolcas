@@ -106,8 +106,7 @@ do
             IIN = IPOF(MYL+1)-IPOF(MYL)
             if (IIN /= 0) then
               IPF = IPOF(MYL)+1
-              call DYAX(IIN,CPL,AIBJ(IPF),1,F,1)
-              F(1:IIN) = F(1:IIN)+CPLA*ABIJ(IPF:IPF+IIN-1)
+              F(1:IIN) = CPL*AIBJ(IPF:IPF+IIN-1)+CPLA*ABIJ(IPF:IPF+IIN-1)
               if (INDA == INDB) call DCOPY_(NVIR(MYL),[Zero],0,F,NVIR(MYL)+1)
               call DGEMV_('T',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,One,S(INNY),1)
               if (INDA /= INDB) then

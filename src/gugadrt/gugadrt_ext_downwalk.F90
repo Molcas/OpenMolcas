@@ -12,7 +12,7 @@
 subroutine gugadrt_ext_downwalk()
 
 use gugadrt_global, only: iseg_downwei, ng_sm, nlsm_ext, norb_ext, nu_ae
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -30,7 +30,7 @@ iseg_downwei(nu_ae(1)) = 1
 do imi=1,ng_sm
   iseg_downwei(nu_ae(1+imi)) = nlsm_ext(imi)
   do imj=imi,ng_sm
-    imij = mul_tab(imi,imj)
+    imij = Mul(imi,imj)
     if (imij /= 1) then
       iwmij(imij) = iwmij(imij)+nlsm_ext(imi)*nlsm_ext(imj)
       cycle

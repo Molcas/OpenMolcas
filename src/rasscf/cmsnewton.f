@@ -1,4 +1,4 @@
-***********************************************************************
+************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -17,7 +17,8 @@
 
 
       Subroutine CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
-      use CMS, only:CMSNotConverged,CMSThres
+      use CMS, only:CMSNotConverged,CMSThres,NeedMoreStep,
+     &              nPosHess,LargestQaaGrad,NCMSScale
       use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -37,7 +38,7 @@
       INTEGER iStep,nDDg,lRoots2,NAC2,
      &        nSPair,nSPair2,nScr
       Real*8 Qnew,Qold
-      Logical CMSScaled,Saved
+      Logical Saved
 
 *     preparation
       lRoots2=lRoots**2
@@ -68,7 +69,9 @@
       CALL TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
       CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
       CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
-
+      nPosHess=0
+      LargestQaaGrad=0.0d0
+      Qold=Qnew
       CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
       CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
       CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
@@ -99,11 +102,10 @@
        CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
        CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
 
-       CMSScaled=.false.
+       NCMSScale=0
        Saved=.true.
        IF((Qold-Qnew).gt.CMSThreshold) THEN
         If(iStep.gt.ICMSIterMin) Then
-         CMSScaled=.true.
 *        When Onew is less than Qold, scale the rotation matrix
          CALL CMSScaleX(X,R,DeltaR,Qnew,Qold,
      &                  RCopy,GDCopy,DgCopy,
@@ -118,16 +120,20 @@
 
        IF(.not. Saved) THEN
         CMSNotConverged=.true.
-        Exit
+*        Exit
        END IF
-
+*      sanity check
        IF(abs(Qnew-Qold).lt.CMSThreshold) THEN
-        If(iStep.ge.iCMSIterMin) CMSNotConverged=.false.
-        If(CMSScaled) CMSNotConverged=.true.
-        If(.not.CMSNotConverged) write(6,'(4X,A)')'CONVERGENCE REACHED'
-       ELSE
+        CMSNotConverged=.false.
+        If(NeedMoreStep)         CMSNotConverged=.true.
+        If(iStep.lt.iCMSIterMin) CMSNotConverged=.true.
+        If(NCMSScale.gt.0)       CMSNotConverged=.true.
+       END IF
+       IF(CMSNotConverged) THEN
         CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
         CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
+       ELSE
+        write(6,'(4X,A)')'CONVERGENCE REACHED'
        END IF
       END DO
 

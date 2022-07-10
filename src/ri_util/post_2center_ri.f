@@ -28,7 +28,7 @@
 *             Modified to 2-center ERIs for RI June '05                *
 ************************************************************************
       use Basis_Info, only: nBas_Aux
-      use Wrj12
+      use Wrj12, only: Lu_A, Lu_Q, nChV
       use Gateway_global, only: force_out_of_core
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
@@ -114,7 +114,7 @@
       Call mma_allocate(Scr,lScr,Label='Scr')
 *
       Call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,
-     &              LU_A,'GePivot',lScr,Scr,Diag=A_Diag)
+     &              Lu_A,'GePivot',lScr,Scr,Diag=A_Diag)
       ichk=0
       Do iIrrep = 0, nIrrep-1
          nChV(iIrrep)=nDmB(iIrrep)
@@ -132,7 +132,7 @@
       EndIf
 *
       Call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,
-     &                  LU_A,'DoPivot',lScr,Scr)
+     &                  Lu_A,'DoPivot',lScr,Scr)
 *
 *     Note: after the 'DoPivot' call to Sort_mat, the A-matrix is
 *           no longer stored as squared but as upper-triangular
@@ -286,7 +286,7 @@ c         If (iIrrep.eq.0) nB = nB - 1
       Call mma_allocate(Scr,lScr,Label='Scr')
 *
       Call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,
-     &                  LU_Q,'Restore',lScr,Scr)
+     &                  Lu_Q,'Restore',lScr,Scr)
 *
 *     Note: after the 'Restore' call to Sort_mat, the Q-matrix is
 *           no longer stored as upper-triangular but as RECTANGULAR

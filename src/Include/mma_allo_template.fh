@@ -110,9 +110,9 @@
 #endif
 #if _DIMENSIONS_==0
 !       we can't use storage_size(buffer) for an unallocated character(len=:)
-        bufsize = storage_size('a') * ntot / 8
+        bufsize = (storage_size('a') * ntot - 1) / 8 + 1
 #else
-        bufsize = storage_size(buffer) * ntot / 8
+        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
 #endif
         if (bufsize .gt. mma_avail) then
           call mma_oom(label,bufsize,mma_avail)
@@ -221,7 +221,7 @@
      &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1) * (l6(2)-l6(1)+1) *    &
      &         (l7(2)-l7(1)+1)
 #endif
-        bufsize = storage_size(buffer) * ntot / 8
+        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
         if (bufsize .gt. mma_avail) then
           call mma_oom(label,bufsize,mma_avail)
         else
@@ -300,7 +300,7 @@
         ntot = size(buffer)
 #endif
 #ifndef _DATA_NAME_
-        bufsize = storage_size(buffer) * ntot / 8
+        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
 #endif
         if (_MMA_FUNC_(buffer)) then
           if (ntot.gt.0) then

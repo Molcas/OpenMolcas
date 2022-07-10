@@ -23,7 +23,7 @@
 * S Dong, 2018 (added print outs related to scaling)
 ******************************************************************
       use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
-      use nq_Info
+      use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot

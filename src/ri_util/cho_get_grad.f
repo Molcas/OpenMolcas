@@ -128,7 +128,7 @@
       Integer   ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
       Integer   npos(8,3)
-      Integer   nnA(8,8), nInd
+      Integer   nnA(8,8), nInd, nL_Full(2), nLab(2)
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
 
       Real*8    Txy(nTxy),V_k(nV_k,*),Z_p_k(nZ_p_k,*), U_k(*)
@@ -525,7 +525,7 @@
          end do
 
          ! re-use memory for the active vec
-         LFMAX = Max(   nLaq + nLxy,  nL_Full + nRik + nLik + nLab )
+         LFMAX = Max( nLaq + nLxy, nL_Full(1) + nRik + nLik + nLab(1) )
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -601,7 +601,7 @@ c           !set index arrays at iLoc
 
             Call mma_maxDBLE(LWORK)
 
-            nVec = Min(LWORK/(nRS+LFMAX),nVrs)
+            nVec = Min((LWORK-nL_Full(2)-nLab(2))/(nRS+LFMAX),nVrs)
 
             If (nVec.lt.1) Then
                WRITE(6,*) SECNAM//': Insufficient memory for batch'

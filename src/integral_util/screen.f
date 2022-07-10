@@ -23,9 +23,9 @@
 *                                                                      *
 * Object: to prescreen the integrals for Direct SCF                    *
 *                                                                      *
-*   nZeta, nEta : unpartioned length of primitives.                    *
+*   nZeta, nEta : unpartitioned length of primitives.                  *
 *                                                                      *
-*   mZeta, mEta : section length due to partioning. These are usually  *
+*   mZeta, mEta : section length due to partitioning. These are usually*
 *                 equal to nZeta and nEta.                             *
 *                                                                      *
 *   lZeta, lEta : section length after prescreening.                   *
@@ -42,14 +42,16 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-      Real*8 Zeta(mZeta), ZInv(mZeta), KappAB(mZeta), P(nZeta,3),
-     &        Eta(mEta),  EInv(mEta),  KappCD(mEta),  Q(nEta, 3),
-     &       Data1(nZeta*(nDArray-1)), Data2(nEta*(nDArray-1)),
+      Real*8, Intent(out) :: Zeta(mZeta), ZInv(mZeta), KappAB(mZeta),
+     &                       P(nZeta,3), Eta(mEta), EInv(mEta),
+     &                       KappCD(mEta), Q(nEta,3)
+      Real*8 Data1(nZeta*(nDArray-1)), Data2(nEta*(nDArray-1)),
      &       Dij(nZeta), Dkl(nEta)
       Real*8 ZtMax,EtMax,abMax,cdMax,ZtMaxD,EtMaxD,abMaxD,cdMaxD
-      Integer   IndZet(nZeta), IndEta(nEta),
-     &          IndZ(nZeta), IndE(nEta)
+      Integer, Intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
+      Integer IndZ(nZeta), IndE(nEta)
       Logical Prescreen_On_Int_Only
+      ![all the others are intent(in)]
 *
 #include "print.fh"
 #include "real.fh"

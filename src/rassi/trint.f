@@ -114,13 +114,13 @@ C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
 
       NFAO=NBSQ
       Call Allocate_DT(FAO,nBasF,nBasF,nSym)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       IF (.not.DoCholesky) THEN     ! Conventional integrals
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 
          If ( IfTest ) Call dVcPrt('Done',' ',DINAO%A0,NDINAO)
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
@@ -154,13 +154,13 @@ c --- FAO already contains the one-electron part
 #endif
 
          ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO%A0,1)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       Else       ! RI/CD integrals
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 * ------ Initialize Cholesky information
 
          CALL CHO_X_INIT(irc,ChFracMem)
@@ -347,13 +347,13 @@ c ---     and compute the (tu|vx) integrals
             write(6,*)'TrInt: Cho_X_Final returns error code ',irc
             write(6,*)'Try recovery -- continue.'
          endif
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       EndIf
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       If ( IfTest ) Write (6,*) '      Etwo  =',ECORE2
       ECORE=0.5D0*(ECORE1+ECORE2)
       If ( IfTest ) Write (6,*) '      Ecore =',ECORE

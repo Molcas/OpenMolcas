@@ -10,12 +10,9 @@
 !***********************************************************************
 
 #ifdef _CALLING_
-     &         nHer,Mem,la,lb,lr                                        &
-#elif defined (_USE_WP_)
+nHer,Mem,la,lb,lr &
+#else
 integer(kind=iwp), intent(out) :: nHer, Mem
 integer(kind=iwp), intent(in) :: la, lb, lr
-#else
-      Integer nHer,Mem,la,lb,lr
 #endif
-#undef _USE_WP_
 #undef _CALLING_

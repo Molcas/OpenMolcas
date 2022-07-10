@@ -142,7 +142,7 @@ do iTs=1,nTs
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -q_i*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-  call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
+  Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*pack(DAO,.true.)
 
   iuvwx(3) = nStb
   iuvwx(4) = nStb

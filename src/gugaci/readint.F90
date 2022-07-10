@@ -18,7 +18,7 @@ subroutine intrd()
 
 use gugaci_global, only: lsmorb, LuTwoMO, map_orb_order, nlsm_all, nlsm_bas, ng_sm, noidx, voint, vpotnuc
 use file_qininit, only: maxrecord
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -81,7 +81,7 @@ do i=1,ng_sm
   end do
   nidx = nidx+nsmint
 end do
-call readtwoeint_molpro(lutwomo,maxrecord,noffset,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
+call readtwoeint_molpro(lutwomo,maxrecord,noffset,nlsm_all,ng_sm,Mul,map_orb_order,noidx)
 call mma_deallocate(noffset)
 call mma_deallocate(xfock)
 
@@ -217,7 +217,7 @@ end subroutine readtwoeint_molpro
 subroutine intrd_molcas()
 
 use gugaci_global, only: FnOneMO, FnTwoMO, lsmorb, LuOneMO, LuTwoMO, map_orb_order, ng_sm, nlsm_all, nlsm_bas, noidx, voint, vpotnuc
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -283,7 +283,7 @@ end do
 call mma_deallocate(xfock)
 
 call daname(lutwomo,fntwomo)
-call readtwoeint(lutwomo,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
+call readtwoeint(lutwomo,nlsm_all,ng_sm,Mul,map_orb_order,noidx)
 call daclos(lutwomo)
 write(u6,*)
 call mma_deallocate(x)
@@ -623,7 +623,7 @@ end subroutine intrw_mol
 subroutine int_index(numb)
 
 use gugaci_global, only: loij_all, loijk_all, lsm, ncibl_all, ngw2, ngw3, norb_all, norb_number
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -673,11 +673,11 @@ do ld=1,norb_all-3
     lrc = norb_all-lc+1
     msd = lsm(lrd)
     msc = lsm(lrc)
-    mscd = mul_tab(msd,msc)
+    mscd = Mul(msd,msc)
     do lb=lc+1,norb_all-1
       lrb = norb_all-lb+1
       msb = lsm(lrb)
-      msa = mul_tab(mscd,msb)
+      msa = Mul(mscd,msb)
 
       njkl = ld+ngw2(lc)+ngw3(lb)
       loijk_all(njkl) = numb

@@ -15,6 +15,7 @@
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
       USE RASSI_AUX
       USE kVectors
+      USE do_grid, only: Do_Lebedev_Sym
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
 #endif
@@ -51,7 +52,7 @@
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Real*8 wavevector(3), UK(3)
       Real*8 kPhase(2)
-      Real*8, Allocatable :: pol_Vector(:,:)
+      Real*8, Allocatable :: pol_Vector(:,:), Rquad(:,:)
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
@@ -209,11 +210,11 @@ C printing threshold
       If (Do_SK) Then
          nQuad = 1
          nVec=nk_Vector
-         Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
+         Call mma_allocate(Rquad,4,nQuad,label='SK')
          If (.Not.(PRRAW.Or.PRWEIGHT)) kPhase(2) = 0.0D0
       Else
          Call Setup_O()
-         Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
+         Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
          nVec = 1
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
@@ -344,10 +345,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       Do iVec = 1, nVec
 *
          If (Do_SK) Then
-            Work(ipR  )=k_Vector(1,iVec)
-            Work(ipR+1)=k_Vector(2,iVec)
-            Work(ipR+2)=k_Vector(3,iVec)
-            Work(ipR+3)=1.0D0   ! Dummy weight
+            Rquad(1:3,1)=k_Vector(:,iVec)
+            Rquad(4,1)=1.0D0   ! Dummy weight
          End If
 *
       iPrint=0
@@ -474,15 +473,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
-               UK(1)=Work((iQuad-1)*4  +ipR)
-               UK(2)=Work((iQuad-1)*4+1+ipR)
-               UK(3)=Work((iQuad-1)*4+2+ipR)
+               UK(:)=Rquad(1:3,iQuad)
                wavevector(:)=rkNorm*UK(:)
 *
 *              Note that the weights are normalized to integrate to
 *              4*pi over the solid angles.
 *
-               Weight=Work((iQuad-1)*4+3+ipR)
+               Weight=Rquad(4,iQuad)
                If (.Not.Do_SK) Weight = Weight/(4.0D0*PI)
 *
 *              Generate the polarization vector
@@ -882,7 +879,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    End If
                    WRITE(6,'(4x,a,3F10.6)')
      &                  'Direction of the k-vector: ',
-     &                   (Work(ipR+k),k=0,2)
+     &                   Rquad(1:3,1)
                  Else
                    CALL CollapseOutput(1,
      &              'Isotropic transition moment strengths '//
@@ -1051,7 +1048,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       Call mma_deAllocate(TSDMZZ)
       Call mma_deAllocate(WDMZZ)
       If (.NOT.Do_SK) Call Free_O()
-      Call Free_Work(ipR)
+      Call mma_deAllocate(Rquad)
       Call ClsSew()
 
  666  Continue

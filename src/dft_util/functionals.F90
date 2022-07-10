@@ -14,7 +14,7 @@
 module Functionals
 
 use libxc_parameters, only: nFuncs_max
-use nq_Info, only: GGA_Type, LDA_Type, meta_GGA_Type1, meta_GGA_Type2, Other_Type
+use nq_Info, only: Functional_Type, GGA_Type, LDA_Type, meta_GGA_Type1, meta_GGA_Type2, Other_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp, LibxcInt
 
@@ -59,7 +59,6 @@ end function Get_Func_ExFac
 subroutine Get_Funcs(Label)
 
   use libxc_parameters, only: Coeffs, func_id, nFuncs
-  use nq_Info
 
   character(len=*), intent(in) :: Label
 

@@ -28,7 +28,7 @@ use hdf5_utils, only: ijklname, file_id, hdf5_close, hdf5_create, hdf5_exit, hdf
 use motra_global, only: CMO, HOne, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, Kine, nTot2, Ovlp
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero
-use Definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

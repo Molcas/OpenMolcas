@@ -27,7 +27,7 @@ subroutine tosigY(m1,m2,m3,m4,angint,mcombina,ncontl1,ncontl2,ncontl3,ncontl4,ca
 !bs with one or three (sigma_+ and sigma_-)  - combinations
 
 use AMFI_global, only: Lmax
-use Constants, only: Zero, One, speed => cLightAU
+use Constants, only: Zero, One, speed => c_in_au
 use Definitions, only: wp, iwp, u6
 
 implicit none

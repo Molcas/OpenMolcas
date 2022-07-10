@@ -65,7 +65,7 @@
 *                                                                      *
       Subroutine Get_Exc_dft(nh1,Grad,nGrad,DFTFOCK,F_DFT,D_DS,nBT,nD,
      &                       KSDFT)
-      use nq_Info
+      use nq_Info, only: Dens_I, Grad_I, Tau_I
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "debug.fh"

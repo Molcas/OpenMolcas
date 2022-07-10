@@ -136,6 +136,7 @@ C        Write (*,*) 'Drvk2: Memory already allocated:',MemMax
       Else
          Rls=.True.
          Call mma_maxDBLE(MemMax)
+         If (MemMax.gt.1000) MemMax=MemMax-1000
          Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
       End If

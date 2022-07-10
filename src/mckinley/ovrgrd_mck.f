@@ -31,7 +31,7 @@
 *             Modified for respons calculation in May '95  By          *
 *             Anders Bernhardsson                                      *
 ************************************************************************
-      use Her_RW
+      use Her_RW, only: HerR, HerW, iHerR, iHerW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 

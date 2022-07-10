@@ -52,7 +52,7 @@ integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 lpok = jpadlr
-!jmlr = mul_tab(jml,jmr)
+!jmlr = Mul(jml,jmr)
 select case (lpok)
   case default ! (1)
     !===================================================================
@@ -356,7 +356,7 @@ do lpb=1,lpblock_ds
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !jmlr = mul_tab(jml,jmr)
+  !jmlr = Mul(jml,jmr)
   call gsd_determine_extarmode_paras(imr,iml,.true.)
   if (linelp <= 12) then
     call ds_ext_head_in_act()
@@ -381,7 +381,7 @@ integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
 integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
-!jmlr = mul_tab(jml,jmr)
+!jmlr = Mul(jml,jmr)
 lpok = jpadlr
 select case (lpok)
   case default ! (1)
@@ -640,7 +640,7 @@ end subroutine ds_ext_head_in_dbl
 subroutine ds_ext_head_in_act()
 
 use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -650,7 +650,7 @@ logic_dh = .false.
 lri = nlg1
 lrj = nlg2
 intpos = nlg1
-isma = mul_tab(iml,imr)
+isma = Mul(iml,imr)
 select case (linelp)
   case default ! (2)
     ! linelp=2 a&r--d&l^r<-->a^l
@@ -687,7 +687,7 @@ do lpb=1,lpblock_dt
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !jmlr = mul_tab(jml,jmr)
+  !jmlr = Mul(jml,jmr)
   call gsd_determine_extarmode_paras(imr,iml,.false.)
   if (linelp <= 12) then
     call dt_ext_head_in_act()
@@ -712,7 +712,7 @@ integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, jk, lpok, lra, mpl
 integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
-!jmlr = mul_tab(jml,jmr)
+!jmlr = Mul(jml,jmr)
 lpok = jpadlr
 select case (lpok)
   case default ! (1)
@@ -971,7 +971,7 @@ end subroutine dt_ext_head_in_dbl
 subroutine dt_ext_head_in_act()
 
 use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -981,7 +981,7 @@ logic_dh = .false.
 lri = nlg1
 lrj = nlg2
 intpos = nlg1
-isma = mul_tab(iml,imr)
+isma = Mul(iml,imr)
 select case (linelp)
   case default ! (2)
     ! linelp=2 a&r--d&l^r<-->a^l

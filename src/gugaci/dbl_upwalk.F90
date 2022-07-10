@@ -12,7 +12,7 @@
 subroutine dbl_upwalk()
 
 use gugaci_global, only: jpad_upwei, jroute_sys, lsm_inn, mxnode, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ad
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -29,7 +29,7 @@ if (norb_dbl == 1) then
   mxnode = 17+ng_sm
   lri = norb_frz+1
   lsmi = lsm_inn(lri)
-  lsmid = mul_tab(lsmi,ns_sm)
+  lsmid = Mul(lsmi,ns_sm)
   ! for node_v
   nu_ad(1) = 1
   jpad_upwei(1) = 1
@@ -56,13 +56,13 @@ else
   end if
   do lri=norb_frz+1,norb_dz
     lsmi = lsm_inn(lri)
-    lsmid = mul_tab(lsmi,ns_sm)
+    lsmid = Mul(lsmi,ns_sm)
     no_d = lsmid+1
     jpad_upwei(no_d) = jpad_upwei(no_d)+1
     do lrj=lri+1,norb_dz
       lsmj = lsm_inn(lrj)
-      lsmij = mul_tab(lsmi,lsmj)
-      lsmit = mul_tab(lsmij,ns_sm)
+      lsmij = Mul(lsmi,lsmj)
+      lsmit = Mul(lsmij,ns_sm)
       no_t = lsmit+9
       jpad_upwei(no_t) = jpad_upwei(no_t)+1
     end do
@@ -101,7 +101,7 @@ end subroutine dbl_upwalk
 subroutine ext_downwalk()
 
 use gugaci_global, only: iseg_downwei, ng_sm, nlsm_ext, norb_ext, nu_ae
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -120,7 +120,7 @@ iseg_downwei(nu_ae(1)) = 1
 do imi=1,ng_sm
   iseg_downwei(nu_ae(1+imi)) = nlsm_ext(imi)
   do imj=imi,ng_sm
-    imij = mul_tab(imi,imj)
+    imij = Mul(imi,imj)
     if (imij /= 1) then
       iwmij(imij) = iwmij(imij)+nlsm_ext(imi)*nlsm_ext(imj)
       cycle
@@ -180,7 +180,7 @@ end subroutine readdrt
 subroutine dbl_downwalk()
 
 use gugaci_global, only: iseg_downwei, iseg_sta, jud, just, lsm_inn, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -202,7 +202,7 @@ if (norb_dbl == 0) then
       ismj = lsm_inn(lrj)
       do lri=lrj,1,-1
         ismi = lsm_inn(lri)
-        ismij = mul_tab(ismi,ismj)
+        ismij = Mul(ismi,ismj)
         if (ismij /= im) cycle
         just(lri,lrj) = nns
         nns = nns+iseg_downwei(17+im)
@@ -219,16 +219,16 @@ do im=1,ng_sm
   nnd = 0
   nns = 0
   do lri=norb_frz+1,norb_dz
-    ismi = mul_tab(lsm_inn(lri),ns_sm)
+    ismi = Mul(lsm_inn(lri),ns_sm)
     if (ismi /= im) cycle
     jud(lri) = nnd
     nnd = nnd+1
   end do
   do lri=norb_frz+1,norb_dz-1
-    ismi = mul_tab(lsm_inn(lri),ns_sm)
+    ismi = Mul(lsm_inn(lri),ns_sm)
     do lrj=lri+1,norb_dz      !tmp
       ismj = lsm_inn(lrj)
-      ismij = mul_tab(ismi,ismj)
+      ismij = Mul(ismi,ismj)
       if (ismij /= im) cycle
       just(lri,lrj) = nns
       nns = nns+1
@@ -241,10 +241,10 @@ do im=1,ng_sm
     end do
   end if
   do lri=norb_frz+1,norb_dz-1
-    ismi = mul_tab(lsm_inn(lri),ns_sm)
+    ismi = Mul(lsm_inn(lri),ns_sm)
     do lrj=lri+1,norb_dz      !tmp
       ismj = lsm_inn(lrj)
-      ismij = mul_tab(ismi,ismj)
+      ismij = Mul(ismi,ismj)
       if (ismij /= im) cycle
       just(lrj,lri) = nns
       nns = nns+1
@@ -257,7 +257,7 @@ end do
 !  lmi = lsm_inn(i)                                          !to del
 !  do j=norb_frz+1,norb_dz                                   !to del
 !    lmj = lsm_inn(j)                                        !to del
-!    lsml(i,j) = mul_tab(lmi,lmj)                            !to del
+!    lsml(i,j) = Mul(lmi,lmj)                            !to del
 !  end do                                                    !to del
 !end do                                                      !to del
 !write(nf2,*) '   jud ...'                                   !to del

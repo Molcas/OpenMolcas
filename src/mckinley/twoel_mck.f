@@ -159,30 +159,29 @@
 *Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
 #ifdef _WARNING_WORKAROUND_
       Interface
-         SubRoutine Rysg2(iAnga,nRys,nT,
-     &                    Alpha,Beta,Gamma,Delta,
-     &                    Zeta,ZInv,nZeta,Eta,EInv,nEta,
-     &                    P,lP,Q,lQ,Coori,Coora,CoorAC,
-     &                    Array,nArray,
-     &                    Tvalue,ModU2,Cff2D,
-     &                    PAO,nPAO,Hess,nHess,IfGrd,IndGrd,
-     &                    IfHss,IndHss,nOp,iuvwx,IfG,
-     &                    mvec,Index_Out,lGrad,lHess,Tr)
-         Integer iAnga(4), nRys, nT, nZeta, nEta
-         Real*8 Alpha(nZeta), Beta(nZeta), Gamma(nEta), Delta(nEta),
-     &          Zeta(nZeta), ZInv(nZeta), Eta(nEta),   EInv(nEta)
-         Integer lP, lQ
-         Real*8 P(lP,3), Q(lQ,3), CoorAC(3,2), Coora(3,4), Coori(3,4)
-         Integer nArray
-         Real*8  Array(nArray)
-         External Tvalue, ModU2, Cff2D
-         Integer nPAO, nHess
-         Real*8 PAO(nT,nPAO), Hess(nHess)
-         Logical IfGrd(3,4), IfHss(4,3,4,3)
-         Integer IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nOp(4), iuvwx(4)
-         Logical IfG(4), lGrad, lHess, Tr(4)
-         Integer mVec, Index_Out(3,4)
-
+         SubRoutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,
+     &                    nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,
+     &                    CoorAC,Array,nArray,Tvalue,ModU2,Cff2D,PAO,
+     &                    nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,
+     &                    nOp,iuvwx,IfG,mVec,Index_Out,lGrad,lHess,Tr)
+         use Definitions, only: wp, iwp
+         integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta,
+     &                                    nEta, lP, lQ, nArray, nPAO,
+     &                                    nHess, IndGrd(3,4,0:7),
+     &                                    nOp(4), iuvwx(4)
+         real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta),
+     &                                Gmma(nEta), Delta(nEta),
+     &                                Zeta(nZeta), ZInv(nZeta),
+     &                                Eta(nEta), EInv(nEta), P(lP,3),
+     &                                Q(lQ,3), Coori(3,4), Coora(3,4),
+     &                                CoorAC(3,2), PAO(nT,nPAO)
+         real(kind=wp), intent(inout) :: Array(nArray), Hess(nHess)
+         external :: Tvalue, ModU2, Cff2D
+         logical(kind=iwp), intent(inout) :: IfGrd(3,4), IfHss(4,3,4,3),
+     &                                       IfG(4), Tr(4)
+         integer(kind=iwp), intent(inout) :: IndHss(4,3,4,3,0:7)
+         integer(kind=iwp), intent(out) :: mVec, Index_Out(3,4)
+         logical(kind=iwp), intent(in) :: lGrad, lHess
          End SubRoutine Rysg2
 
       End Interface

@@ -876,7 +876,7 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdo
                          jphy, logic_dh, logic_g13, logic_g1415, logic_g2g4b, logic_g34b, logic_g35b, logic_g36b, logic_grad, &
                          lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, value_lpext, value_lpext1, &
                          vplp_w0, vplpnew_w0, w0_plp, w1_plp
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -891,7 +891,7 @@ integer(kind=iwp), external :: iwalk_ad
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
 irsegdownwei = iseg_downwei(ipae)
-imlr = mul_tab(iml,imr)
+imlr = Mul(iml,imr)
 if (imlr == 1) then
   logic_g1415 = .true.
   if (iml == 1) logic_g13 = .true.
@@ -1210,7 +1210,7 @@ use gugaci_global, only: ihy, ihyl, ilsegdownwei, iml, imr, ipae, ipael, irsegdo
                          jphy, logic_dh, logic_g1415, logic_g34b, logic_g35b, logic_g36b, logic_grad, lp_lwei, lp_rwei, &
                          lpnew_lwei, lpnew_rwei, mtype, ndim, nstaval, nvalue, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_plp, &
                          w1_plp
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1221,7 +1221,7 @@ integer(kind=iwp), external :: iwalk_ad
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
 irsegdownwei = iseg_downwei(ipae)
-imlr = mul_tab(iml,imr)
+imlr = Mul(iml,imr)
 if (imlr == 1) then
   logic_g1415 = .true.
   logic_g36b = .true.

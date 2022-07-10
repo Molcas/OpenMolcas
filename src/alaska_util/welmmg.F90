@@ -18,7 +18,6 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
-#define _USE_WP_
 #include "mem_interface.fh"
 integer(kind=iwp) :: i, jsum, k
 

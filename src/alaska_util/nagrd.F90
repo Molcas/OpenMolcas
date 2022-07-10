@@ -151,7 +151,7 @@ do kCnttp=1,nCnttp
           end do
         end do
       else if (Nuclear_Model == Point_Charge) then
-        call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
+        Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*pack(DAO,.true.)
       else
         write(u6,*) 'NaGrd: Fermi type nuclear distribution not implemented yet!'
         call Abend()

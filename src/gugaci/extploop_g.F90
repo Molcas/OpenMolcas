@@ -111,7 +111,7 @@ subroutine lp_drl_ext_ST_calcuvalue_G(lri,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, logic_g2g4b, ng_sm, norb_number, &
                          value_lpext, value_lpext1, w1_plp, w1g14a, w1g36a, w1g4b
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -133,7 +133,7 @@ if (logic_g1415) then
   w1lp = w1lp*Two
 
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -208,7 +208,7 @@ subroutine lp_drl_ext_TT_calcuvalue_G(lri,n1415_value,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, ng_sm, norb_number, value_lpext, &
                          value_lpext1, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a, w1g36a
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -237,7 +237,7 @@ if (logic_g1415) then
   w15lp = w15lp*Two
 
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -293,7 +293,7 @@ subroutine lp_drl_SUM_TT_calcuvalue_G(lri,n1415_value,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, ng_sm, norb_number, value_lpext, &
                          value_lpext1, w0_plp, w0g14a, w0g15a, w0g36a, w1_plp, w1g14a, w1g15a
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -321,7 +321,7 @@ if (logic_g1415) then
   w14lp = w14lp*Two
   w15lp = w15lp*Two
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -373,7 +373,7 @@ subroutine lp_drl_ext_TS_calcuvalue_G(lri,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g1415, logic_g1415, logic_g2g4a, ng_sm, norb_number, &
                          value_lpext, value_lpext1, w1_plp, w1g14a, w1g2a, w1g36a
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -394,7 +394,7 @@ if (logic_g1415) then
 
   w1lp = w1lp*Two
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -476,7 +476,7 @@ use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, ism_g141
                          logic_g2g4b, lsm_inn, ng_sm, norb_ext, norb_number, value_lpext, value_lpext1, w0_plp, w0g13a, w0g14a, &
                          w0g15a, w0g2a, w0g2b, w0g36a, w0g36b, w0g4a, w0g4b, w1_plp, w1g14a, w1g15a, w1g2a, w1g2b, w1g36a, w1g36b, &
                          w1g4a, w1g4b
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -503,7 +503,7 @@ if (logic_g1415) then
   ww1lp = -valuelptmp1*Two
 
   do ismb=1,ng_sm
-    isma = mul_tab(ismb,ism_g1415)
+    isma = Mul(ismb,ism_g1415)
     if (isma > ismb) cycle
     ibsta = ibsm_ext(ismb)
     ibend = iesm_ext(ismb)
@@ -557,7 +557,7 @@ end if
 
 lsmi = lsm_inn(lri)
 lsmj = lsm_inn(lrj)
-lsmij = mul_tab(lsmi,lsmj)
+lsmij = Mul(lsmi,lsmj)
 
 ! G2G4a
 if (logic_g2g4a) then
@@ -575,7 +575,7 @@ if (logic_g2g4a) then
   ww1lp = -valuelptmp1*Two
 
   do lsmb=1,ng_sm
-    lsma = mul_tab(lsmij,lsmb)
+    lsma = Mul(lsmij,lsmb)
     if (lsma > lsmb) cycle
     ibsta = ibsm_ext(lsmb)
     ibend = iesm_ext(lsmb)
@@ -623,7 +623,7 @@ else
     ww1lp = -valuelptmp1*Two
 
     do lsmb=1,ng_sm
-      lsma = mul_tab(lsmij,lsmb)
+      lsma = Mul(lsmij,lsmb)
       if (lsma > lsmb) cycle
       ibsta = ibsm_ext(lsmb)
       ibend = iesm_ext(lsmb)
@@ -665,7 +665,7 @@ valuelptmp1 = w0lp
 w0lp = w0lp-w1lp
 w1lp = -valuelptmp1*Two
 do lsmb=1,ng_sm
-  lsma = mul_tab(lsmij,lsmb)
+  lsma = Mul(lsmij,lsmb)
   if (lsma > lsmb) cycle
   ibsta = ibsm_ext(lsmb)
   ibend = iesm_ext(lsmb)
@@ -695,7 +695,7 @@ valuelptmp1 = w0lp
 w0lp = w0lp-w1lp
 w1lp = -valuelptmp1*Two
 do lsmb=1,ng_sm
-  lsma = mul_tab(lsmij,lsmb)
+  lsma = Mul(lsmij,lsmb)
   if (lsma > lsmb) cycle
   ibsta = ibsm_ext(lsmb)
   ibend = iesm_ext(lsmb)
@@ -725,7 +725,7 @@ subroutine lp10_arbrbr_ext_calcuvalue_G(intentry,isma,nlp_value)
 
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
                          norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -740,10 +740,10 @@ outer: do LRITMP=NORB_FRZ+1,norb_inn-2
   lsmi = lsm_inn(LRITMP)
   do LRJTMP=LRITMP+1,norb_inn-1
     lsmj = lsm_inn(LRJTMP)
-    lsmij = mul_tab(lsmi,lsmj)
+    lsmij = Mul(lsmi,lsmj)
     do LRKTMP=LRJTMP+1,norb_inn
       lsmk = lsm_inn(LRKTMP)
-      if (mul_tab(lsmij,lsmk) /= isma) cycle
+      if (Mul(lsmij,lsmk) /= isma) cycle
       IJK = LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)+NGW3(LRKTMP-NORB_FRZ)
       if (INTIND_IJKA(IJK) == intentry) then
         LRI = LRITMP
@@ -777,7 +777,7 @@ subroutine lp11_arblbr_ext_calcuvalue_G(intentry,isma,nlp_value)
 
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
                          norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: iwp
 
@@ -793,10 +793,10 @@ outer: do LRITMP=NORB_FRZ+1,norb_inn-2
   lsmi = lsm_inn(LRITMP)
   do LRJTMP=LRITMP+1,norb_inn-1
     lsmj = lsm_inn(LRJTMP)
-    lsmij = mul_tab(lsmi,lsmj)
+    lsmij = Mul(lsmi,lsmj)
     do LRKTMP=LRJTMP+1,norb_inn
       lsmk = lsm_inn(LRKTMP)
-      if (mul_tab(lsmij,lsmk) /= isma) cycle
+      if (Mul(lsmij,lsmk) /= isma) cycle
       IJK = LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)+NGW3(LRKTMP-NORB_FRZ)
       if (INTIND_IJKA(IJK) == intentry) then
         LRI = LRITMP
@@ -829,7 +829,7 @@ subroutine lp12_arblbl_ext_calcuvalue_G(intentry,isma,nlp_value)
 
 use gugaci_global, only: ibsm_ext, index_lpext, index_lpext1, intind_ijka, lsm_inn, ngw2, ngw3, nlsm_ext, norb_frz, norb_inn, &
                          norb_number, value_lpext, value_lpext1, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp, w1_sdplp25
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Two
 use Definitions, only: iwp
 
@@ -845,10 +845,10 @@ outer: do LRITMP=NORB_FRZ+1,norb_inn-2
   lsmi = lsm_inn(LRITMP)
   do LRJTMP=LRITMP+1,norb_inn-1
     lsmj = lsm_inn(LRJTMP)
-    lsmij = mul_tab(lsmi,lsmj)
+    lsmij = Mul(lsmi,lsmj)
     do LRKTMP=LRJTMP+1,norb_inn
       lsmk = lsm_inn(LRKTMP)
-      if (mul_tab(lsmij,lsmk) /= isma) cycle
+      if (Mul(lsmij,lsmk) /= isma) cycle
       IJK = LRITMP-NORB_FRZ+NGW2(LRJTMP-NORB_FRZ)+NGW3(LRKTMP-NORB_FRZ)
       if (INTIND_IJKA(IJK) == intentry) then
         LRI = LRITMP
@@ -976,7 +976,7 @@ end subroutine lp9_drlbl_sum_calcuvalue_G
 subroutine gsd_ext_sequence_G(iltype,ilsm,irsm,lri)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iseg_downwei, isegdownwei, m_jc, m_jd, ng_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1003,13 +1003,13 @@ do ic=icsta,icend
   icano_nn = m_jc
   icano_nnend = icano_nn
   do ismb=1,ismnoded-1
-    isma = mul_tab(ismnodes,ismb)
+    isma = Mul(ismnodes,ismb)
     if (isma > ismb) cycle
     call g31_diffsym_G(lri,isma,ismb)
   end do
 
   ismb = ismnoded
-  isma = mul_tab(ismnodes,ismb)
+  isma = Mul(ismnodes,ismb)
   if (isma == ismb) then
     call gsd_samesym_aaa_G(lri,isma)
   else if (isma < ismb) then
@@ -1017,7 +1017,7 @@ do ic=icsta,icend
   end if
 
   do ismb=ismnoded+1,ng_sm
-    isma = mul_tab(ismnodes,ismb)
+    isma = Mul(ismnodes,ismb)
     if (isma > ismb) cycle
     if (ismnoded > isma) then
       call g32a_diffsym_G(lri,isma,ismb)
@@ -1470,7 +1470,7 @@ if (logic_g50) then
     do ira=nlbf,irb-1
       lra = norb_number(ira)
       !lsma = lsm(ira)
-      !lsmba = mul_tab(lsmb,lsma)
+      !lsmba = Mul(lsmb,lsma)
       ivalue = ivalue+1
       call TRANS_IJKL_INTPOS(lra,lri,lrj,lrb,NXO)
       index_lpext(ivalue) = NXO
@@ -1486,7 +1486,7 @@ if (logic_g50) then
     do ira=nlbf,irb-1
       lra = norb_number(ira)
       !lsma = lsm(ira)
-      !lsmba = mul_tab(lsmb,lsma)
+      !lsmba = Mul(lsmb,lsma)
       ivalue = ivalue+1
       call TRANS_IJKL_INTPOS(lra,lrj,lrb,lri,NXO)
       index_lpext(ivalue) = NXO
@@ -1598,7 +1598,7 @@ subroutine lp_arbr_ext_svtv_calcuvalue_G(lri,lrj,nlp_value)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, index_lpext, index_lpext1, logic_g13, lsm_inn, ng_sm, norb_ext, norb_number, &
                          value_lpext, value_lpext1, w0_plp, w0g13a, w0g36a, w1_plp, w1g36a
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1610,7 +1610,7 @@ real(kind=wp) :: valuelptmp1, w0lp, w1lp
 ivalue = 0
 lsmi = lsm_inn(lri)
 lsmj = lsm_inn(lrj)
-lsmij = mul_tab(lsmi,lsmj)
+lsmij = Mul(lsmi,lsmj)
 ! G36a
 w0lp = w0_plp*w0g36a
 w1lp = w1_plp*w1g36a
@@ -1619,7 +1619,7 @@ w0lp = w0lp-w1lp
 w1lp = valuelptmp1+w1lp
 ! ArBr -- B^rA^r =10
 do lsmc=1,ng_sm
-  lsmd = mul_tab(lsmij,lsmc)
+  lsmd = Mul(lsmij,lsmc)
   if (lsmd > lsmc) cycle
   icsta = ibsm_ext(lsmc)
   icend = iesm_ext(lsmc)

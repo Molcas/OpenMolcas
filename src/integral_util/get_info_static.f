@@ -20,14 +20,16 @@
       use Symmetry_Info, only: Symmetry_Info_Get
       use Sizes_of_Seward, only: Size_Get
       use DKH_Info, only: DKH_Info_Get
-      use RICD_Info, only: RICD_Info_Get
       use Gateway_Info, only: Gateway_Info_Get
+      use RICD_Info, only: RICD_Info_Get
+      use NQ_Info, only: NQ_Info_Get
 
       Call Symmetry_Info_Get()
       Call Size_Get()
       Call DKH_Info_Get()
       Call Gateway_Info_Get()
       Call RICD_Info_Get()
+      Call NQ_Info_Get()
 
       Return
       End

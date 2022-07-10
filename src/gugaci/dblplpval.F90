@@ -442,7 +442,7 @@ subroutine SS2_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -454,7 +454,7 @@ integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
-LMIJ = MUL_TAB(LMI,LMJ)
+LMIJ = Mul(LMI,LMJ)
 NK = 0
 if ((JML /= 1) .or. (LMIJ /= JMR)) return
 ! SS(1-2)  Ar(02)-Bl(31)-
@@ -524,7 +524,7 @@ subroutine SS4_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -536,7 +536,7 @@ integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
-LMIJ = MUL_TAB(LMI,LMJ)
+LMIJ = Mul(LMI,LMJ)
 NK = 0
 if ((JMR /= 1) .or. (LMIJ /= JML)) return
 NK = 1
@@ -570,7 +570,7 @@ subroutine SS5_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -589,8 +589,8 @@ call mma_allocate(iwdl,max_innorb,label='iwdl')
 call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=NORB_FRZ+1,LRI-1
   LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
+  LMKI = Mul(LMK,LMI)
+  LMKJ = Mul(LMK,LMJ)
   if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
   NK = NK+1
   IWDL(NK) = JUST(LRK,LRI)
@@ -632,7 +632,7 @@ subroutine SS10_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -651,8 +651,8 @@ call mma_allocate(iwdl,max_innorb,label='iwdl')
 call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=LRI+1,LRJ-1
   LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
+  LMKI = Mul(LMK,LMI)
+  LMKJ = Mul(LMK,LMJ)
   if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
   NK = NK+1
   IWDL(NK) = JUST(LRI,LRK)
@@ -694,7 +694,7 @@ subroutine SS14_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -713,8 +713,8 @@ call mma_allocate(iwdl,max_innorb,label='iwdl')
 call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=LRJ+1,NORB_DZ
   LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
+  LMKI = Mul(LMK,LMI)
+  LMKJ = Mul(LMK,LMJ)
   if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
   NK = NK+1
   IWDL(NK) = JUST(LRI,LRK)
@@ -756,7 +756,7 @@ subroutine TT1_EXT(LRI,LRJ,NK,IGF)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_tt, w1_tt
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -777,8 +777,8 @@ if (IGF == -1) then
   ! TT(11-1) Ar(23)-C'(22)-Bl(32)-
   do LRK=LRI+1,LRJ-1
     LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    LMKJ = MUL_TAB(LMK,LMJ)
+    LMKI = Mul(LMK,LMI)
+    LMKJ = Mul(LMK,LMJ)
     if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
     NK = NK+1
     IWDL(NK) = JUST(LRI,LRK)
@@ -790,8 +790,8 @@ else
   ! TT(11-1) (22)Ar(23)-Bl(32)-
   do LRK=NORB_FRZ+1,LRI-1
     LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    LMKJ = MUL_TAB(LMK,LMJ)
+    LMKI = Mul(LMK,LMI)
+    LMKJ = Mul(LMK,LMJ)
     if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
     NK = NK+1
     IWDL(NK) = JUST(LRK,LRI)
@@ -800,8 +800,8 @@ else
   ! TT(11-1) Ar(23)-Bl(32)-C"(22)-    ACT -C"-
   do LRK=LRJ+1,NORB_DZ
     LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    LMKJ = MUL_TAB(LMK,LMJ)
+    LMKI = Mul(LMK,LMI)
+    LMKJ = Mul(LMK,LMJ)
     if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
     NK = NK+1
     IWDL(NK) = JUST(LRI,LRK)
@@ -843,7 +843,7 @@ subroutine TS1_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          vplp_w0, vplp_w1, vplpnew_w1, w1_ts
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -856,7 +856,7 @@ integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
-LMIJ = MUL_TAB(LMI,LMJ)
+LMIJ = Mul(LMI,LMJ)
 NK = 0
 if ((JMR /= 1) .or. (LMIJ /= JML)) return
 NK = 1
@@ -885,7 +885,7 @@ subroutine TS2_EXT(LRI,LRJ,NK,IGF)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -907,8 +907,8 @@ if (IGF == -1) then
   ! TS(3-2) Ar(23)-C'(22)-Bl(31)-   ACT -C"-
   do LRK=LRI+1,LRJ-1
     LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    LMKJ = MUL_TAB(LMK,LMJ)
+    LMKI = Mul(LMK,LMI)
+    LMKJ = Mul(LMK,LMJ)
     if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
     NK = NK+1
     IWDL(NK) = JUST(LRI,LRK)
@@ -919,8 +919,8 @@ else
   ! TS(3-2) (22)Ar(23)-Bl(31)-
   do LRK=NORB_FRZ+1,LRI-1
     LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    LMKJ = MUL_TAB(LMK,LMJ)
+    LMKI = Mul(LMK,LMI)
+    LMKJ = Mul(LMK,LMJ)
     if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
     NK = NK+1
     IWDL(NK) = JUST(LRK,LRI)
@@ -959,7 +959,7 @@ subroutine TS4_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -980,8 +980,8 @@ call mma_allocate(iwdl,max_innorb,label='iwdl')
 call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=LRJ+1,NORB_DZ
   LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
+  LMKI = Mul(LMK,LMI)
+  LMKJ = Mul(LMK,LMJ)
   if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
   NK = NK+1
   IWDL(NK) = JUST(LRI,LRK)
@@ -1019,7 +1019,7 @@ subroutine ST1_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, &
                          vplp_w0, vplp_w1, vplpnew_w1, w1_st
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -1032,7 +1032,7 @@ integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
-LMIJ = MUL_TAB(LMI,LMJ)
+LMIJ = Mul(LMI,LMJ)
 NK = 0
 if ((JML /= 1) .or. (LMIJ /= JMR)) return
 NK = 1
@@ -1061,7 +1061,7 @@ subroutine ST2_EXT(LRI,LRJ,NK)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -1082,8 +1082,8 @@ call mma_allocate(iwdl,max_innorb,label='iwdl')
 call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=NORB_FRZ+1,LRI-1
   LMK = LSM_INN(LRK)
-  LMKI = MUL_TAB(LMK,LMI)
-  LMKJ = MUL_TAB(LMK,LMJ)
+  LMKI = Mul(LMK,LMI)
+  LMKJ = Mul(LMK,LMJ)
   if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
   NK = NK+1
   IWDL(NK) = JUST(LRK,LRI)
@@ -1122,7 +1122,7 @@ subroutine ST4_EXT(LRI,LRJ,NK,IGF)
 
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -1144,8 +1144,8 @@ if (IGF == -1) then
   ! ST(2-4) Ar(23)-C'(12)-Bl(32)-
   do LRK=LRI+1,LRJ-1
     LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    LMKJ = MUL_TAB(LMK,LMJ)
+    LMKI = Mul(LMK,LMI)
+    LMKJ = Mul(LMK,LMJ)
     if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
     NK = NK+1
     IWDL(NK) = JUST(LRI,LRK)
@@ -1156,8 +1156,8 @@ else
   ! ST(2-4) Ar(23)-Bl(32)-C'(12)-
   do LRK=LRJ+1,NORB_DZ
     LMK = LSM_INN(LRK)
-    LMKI = MUL_TAB(LMK,LMI)
-    LMKJ = MUL_TAB(LMK,LMJ)
+    LMKI = Mul(LMK,LMI)
+    LMKJ = Mul(LMK,LMJ)
     if ((LMKI /= JML) .or. (LMKJ /= JMR)) cycle
     NK = NK+1
     IWDL(NK) = JUST(LRI,LRK)

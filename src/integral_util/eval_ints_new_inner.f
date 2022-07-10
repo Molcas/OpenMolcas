@@ -157,6 +157,7 @@
 *                                                                      *
       If (.NOT.Allocated(Sew_Scr)) Then
          Call mma_MaxDBLE(MemMax)
+         If (MemMax.gt.1000) MemMax=MemMax-1000
          Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
       Else
          MemMax=SIZE(Sew_Scr)
