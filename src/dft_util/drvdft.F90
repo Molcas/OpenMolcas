@@ -34,6 +34,9 @@ logical(kind=iwp) :: Do_MO, Do_TwoEl
 real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:)
 real(kind=wp), external :: Get_ExFac
 real(kind=r8), external :: DDot_
+! Hybrid MC-PDFT Stuff
+Logical(kind=iwp) :: Do_HPDFT
+Real(kind=wp)     :: WF_Ratio,PDFT_Ratio
 
 !                                                                      *
 !***********************************************************************
@@ -138,6 +141,19 @@ F_DFT(:,:) = Zero
 !***********************************************************************
 !                                                                      *
 call Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+IF(DO_GRAD) THEN
+ Do_HPDFT=.false.
+ write(6,*) 'DFT gradient is scaled in a hybrid formulism'
+ CALL qpg_DScalar('R_WF_HMC',Do_HPDFT)
+ If(Do_HPDFT) Then
+  CALL Get_DScalar('R_WF_HMC',WF_Ratio)
+  PDFT_Ratio=1.0d0-WF_Ratio
+  CALL DScal_(nGrad,PDFT_Ratio,Grad,1)
+ End If
+END IF
 !                                                                      *
 !***********************************************************************
 !                                                                      *

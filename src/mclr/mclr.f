@@ -46,6 +46,7 @@
      &                  FIMO, F0SQMO
       use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       use negpre, only: SS
+      use PDFT_Util, only :Do_Hybrid,WF_Ratio,PDFT_Ratio
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.h"
@@ -193,6 +194,15 @@ c      idp=rtoi
 *        Call WfCtl_PCG(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
 *        Call Abend()
       Else if(iMCPD) Then!pdft
+
+        Do_Hybrid=.false.
+        CALL qpg_DScalar('R_WF_HMC',Do_Hybrid)
+        If(Do_Hybrid) Then
+         CALL Get_DScalar('R_WF_HMC',WF_Ratio)
+         PDFT_Ratio=1.0d0-WF_Ratio
+         write(6,*) 'responses computed for hybrid MC-PDFT'
+        End If
+
         if(iMSPD) then
           Call WfCtl_MSPD(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
         else

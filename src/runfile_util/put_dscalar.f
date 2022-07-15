@@ -144,6 +144,7 @@
          RecLab( 35)='DFT exch coeff  '
          RecLab( 36)='DFT corr coeff  '
          RecLab( 37)='Value_l         '
+         RecLab( 38)='R_WF_HMC        '
 *                     1234567890123456
 *
 *        If u go beyond 64: update pg_ds_info.fh and this line!
