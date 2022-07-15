@@ -96,7 +96,7 @@
       Converged(:)=.true.
 *MGD I think this is nice when printed...
       lprint=.true.
-      debug=.true.
+      debug=.false.
       reco=-One
       Lu_50=50
       If (SAVE) CALL DANAME(Lu_50,'RESIDUALS')
@@ -298,7 +298,7 @@
       Call DSCAL_(nconf1*nroots,-2.0d0,W(ipST)%Vec,1)
 
       IF(Do_Hybrid) THEN
-       write(6,*) 'scaling the CI resp. for PDFT part in HMC-PDFT'
+*scaling the CI resp. for PDFT part in HMC-PDFT
        CALL DScal_(nconf1*nroots,PDFT_Ratio,W(ipST)%Vec,1)
       END IF
 
@@ -335,11 +335,11 @@
       Call mma_deallocate(FT99)
       Call mma_deallocate(Temp5)
       IF(Do_Hybrid) THEN
-       write(6,*) 'scaling the orb resp. for PDFT part in HMC-PDFT'
+*scaling the orb resp. for PDFT part in HMC-PDFT
        Call DSCAL_(ndens2,PDFT_Ratio,Temp4,1)
-       write(6,*) 'calculating the orb resp. for WF part in HMC-PDFT'
+*calculating the orb resp. for WF part in HMC-PDFT
        CALL mma_allocate(WForb,nDens2+6,Label='WForb')
-       write(6,*) 'saving Fock matrix for PDFT part in HMC-PDFT'
+*saving Fock matrix for PDFT part in HMC-PDFT
        Call mma_allocate(FOTr,nTri  ,Label='FOTr')
        Call Get_Fock_Occ(FOTr,nTri)
 *      note that the Fock matrix will be overwritten with the wf one
@@ -367,21 +367,21 @@
        Call mma_allocate(FOSq,nDens2,Label='FOSq')
        CALL Get_Fock_Occ(FOsq,nDens2)
 
-       write(6,*) 'scaling fock for wf part'
+*scaling fock for wf part
        CALL DScal_(nTri,WF_Ratio,FOsq,1)
 
-       write(6,*) 'adding fock for pdft part'
+*adding fock for pdft part
        call daxpy_(ntri,pdft_ratio,fotr,1,fosq,1)
 
        CALL mma_allocate(P2PDFT,nG2 ,Label='P2PDFT')
        CALL mma_allocate(P2WF  ,nG2 ,Label='P2WF')
 
        CALL Get_P2MOt(P2PDFT,nG2)
-       write(6,*) 'scaling P2 for pdft part'
+*scaling P2 for pdft part'
        CALL DScal_(nG2,PDFT_Ratio,P2PDFT,1)
 
        CALL Get_P2MO(P2WF,nG2)
-       write(6,*) 'adding P2 for wf part'
+*adding P2 for wf part'
        call daxpy_(ng2,wf_ratio,P2WF,1,P2PDFT,1)
 
        CALL Put_P2MOt(P2PDFT,nG2)
@@ -752,18 +752,9 @@
       Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
       ilen=nconf1*nroots
       iCIDisp(iDisp)=iDis
-      write(6,*) 'Sigma saved in file'
-      CALL RecPrt(' ','(10(ES14.6E2))',
-     &            Sigma,1,nDensC)
-      write(6,*) 'Kappa saved in file'
-      CALL RecPrt(' ','(10(ES14.6E2))',
-     &            Kappa,1,nDensC)
 *
       irc=ipin(ipCIT)
       Call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
-      write(6,*) 'CIT saved in file'
-      CALL RecPrt(' ','(10(ES14.6E2))',
-     &            W(ipCIT)%Vec,nConf1,nRoots)
 *
 **MGD This last call seems unused, so I comment it
 *
@@ -862,7 +853,6 @@
       Call mma_deallocate(Sc1)
       Call mma_deallocate(RMOAA)
 
-      debug=.false.
       if(doDMRG)then  ! yma
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
       end if

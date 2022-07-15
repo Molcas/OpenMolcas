@@ -146,7 +146,7 @@ call Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFO
 !                                                                      *
 IF(DO_GRAD) THEN
  Do_HPDFT=.false.
- write(6,*) 'DFT gradient is scaled in a hybrid formulism'
+ write(6,*) 'DFT gradient is scaled in a hybrid formulism.'
  CALL qpg_DScalar('R_WF_HMC',Do_HPDFT)
  If(Do_HPDFT) Then
   CALL Get_DScalar('R_WF_HMC',WF_Ratio)
