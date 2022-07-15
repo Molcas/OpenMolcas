@@ -508,7 +508,6 @@
          If(Do_Hybrid) Then
           CALL Get_DScalar('R_WF_HMC',WF_Ratio)
           PDFT_Ratio=1.0d0-WF_Ratio
-          write(6,*) 'responses computed for hybrid MC-PDFT'
          End If
 !ANDREW - modify D2: should contain only the correction pieces
          If ( Method.eq.'MCPDFT  ') then
