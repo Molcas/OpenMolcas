@@ -118,9 +118,9 @@
         write(6,'(6X,A)')
      &    'fragment.'
         write(6,'(6X,A)')
-     &    'CMS-PDFT gradient may fail for this system.'
+     &    'CMS-PDFT Lagrange multipliers are not solved.'
         CALL WarningMessage(2,
-     &    'Lagrange Multipliers Too Big for Q_a-a Part!')
+     &    'Residual in Lagrange Multipliers for Qaa Too Big')
         CALL Quit(_RC_EXIT_EXPECTED_)
       END IF
 
