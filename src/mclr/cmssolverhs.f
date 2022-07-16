@@ -78,7 +78,6 @@
       Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr,Scr
       Real*8 TwoPi
       INTEGER NDim,nSPair,iPair,nScr,INFO
-      Logical lExists
 
 
       NDim=((nRoots-1)*nRoots/2)
