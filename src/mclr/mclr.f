@@ -206,7 +206,7 @@ c      idp=rtoi
           if(Do_Hybrid) then
            CALL WarningMessage(2,
      &     'Hybrid MS-PDFT gradient not supported yet')
-           CALL Quit_(_RC_EXIT_EXPECTED_)
+           CALL Quit(_RC_EXIT_EXPECTED_)
           end if
           Call WfCtl_MSPD(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
         else
