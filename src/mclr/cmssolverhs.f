@@ -56,6 +56,7 @@
 ******************************************************
       subroutine SolveforzX(zX,AXX,bX)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use cmslag,   only : ResQaaLag2
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -75,14 +76,14 @@
       Real*8,DIMENSION(((nRoots-1)*nRoots/2)**2)::AXX
 ****** Assistants
       Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr,Scr
-      Real*8 ThreHess,TwoPi
+      Real*8 TwoPi
       INTEGER NDim,nSPair,iPair,nScr,INFO
-      Logical LiMOExit,lExists
+
 
       NDim=((nRoots-1)*nRoots/2)
       nSPair=nDim
       TwoPi=2.0d0*Pi
-
+      ResQaaLag2=0.0d0
       CALL mma_allocate(EigVal,nDim)
       CALL mma_allocate(bxScr ,nDim)
       CALL mma_allocate(zXScr ,nDim)
@@ -95,45 +96,30 @@
       CALL DGEMM_('n','n',1,nDim,nDim,1.0d0,bx,1,AXX,nDim,
      &                                0.0d0,bxScr,1)
 
-      CALL qpg_DScalar('ThrCMSHess',lExists)
-      If(lExists) Then
-       CALL Get_DScalar('ThrCMSHess',ThreHess)
-      Else
-       ThreHess=1.0d-10
-      End If
 
-
-      LiMOExit=.false.
       DO iPair=1,nDim
-       IF(Abs(EigVal(iPair)).gt.ThreHess) Then
-        zxScr(iPair)=-bxScr(iPair)/EigVal(iPair)
-       ELSE
+       zxScr(iPair)=-bxScr(iPair)/EigVal(iPair)
+       IF(Abs(zxScr(iPair)).gt.TwoPi) THEN
         zxScr(iPair)=0.0d0
-       END IF
-       IF(Abs(zxScr(iPair)).gt.TwoPi) Then
-        write(6,'(6X,A)')
-     &   'A Lagrange multiplier for Q_a-a part is too big!'
-        write(6,'(6X,A6,1X,ES14.3E3,1X,I5)')
-     &   'Value:',zxScr(iPair),iPair
-        LiMOExit=.true.
+        ResQaaLag2=ResQaaLag2+bxScr(iPair)**2
        END IF
       END DO
 
-      IF(LIMOEXIT) THEN
+      write(6,'(6X,A27,2X,ES17.9)')
+     & 'Residual in Qaa lagrangian:',SQRT(ResQaaLag2)
+      IF(ResQaaLag2.gt.epsilon**2) THEN
         write(6,*)
         write(6,'(6X,A)')
-     &    'ERROR: LAGRANGE MULITPLIER(S) TOO BIG!'
+     &    'ERROR: RESIDUAL(S) FOR INTERMEDIATE STATE TOO BIG!'
         write(6,*)
         write(6,'(6X,A)')
      &    'This may come from a linear molecular or a linear'
         write(6,'(6X,A)')
-     &    'fragment, where the states that are in the plane'
+     &    'fragment.'
         write(6,'(6X,A)')
-     &    'that is perpendicular to the linear part are mixed.'
-        write(6,'(6X,A)')
-     &    'CMS-PDFT gradient may fail for this system.'
+     &    'CMS-PDFT Lagrange multipliers are not solved.'
         CALL WarningMessage(2,
-     &    'Lagrange Multipliers Too Big for Q_a-a Part!')
+     &    'Residual in Lagrange Multipliers for Qaa Too Big')
         CALL Quit(_RC_EXIT_EXPECTED_)
       END IF
 
