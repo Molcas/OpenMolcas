@@ -18,7 +18,7 @@ use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2,
                    nIsh, Tau_I
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nGrad, iSpin
