@@ -105,8 +105,8 @@
        END IF
       END DO
 
-      write(6,'(6X,A27,2X,ES17.9)')
-     & 'Residual in Qaa lagrangian:',SQRT(ResQaaLag2)
+      write(6,'(6X,A37,2X,ES17.9)')
+     & 'Residual in Qaa Lagrange Multipliers:',SQRT(ResQaaLag2)
       IF(ResQaaLag2.gt.epsilon**2) THEN
         write(6,*)
         write(6,'(6X,A)')

@@ -200,10 +200,14 @@ c      idp=rtoi
         If(Do_Hybrid) Then
          CALL Get_DScalar('R_WF_HMC',WF_Ratio)
          PDFT_Ratio=1.0d0-WF_Ratio
-         write(6,*) 'responses computed for hybrid MC-PDFT'
         End If
 
         if(iMSPD) then
+          if(Do_Hybrid) then
+           CALL WarningMessage(2,
+     &     'Hybrid MS-PDFT gradient not supported yet')
+           CALL Quit_(_RC_EXIT_EXPECTED_)
+          end if
           Call WfCtl_MSPD(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
         else
           Call WfCtl_PDFT(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
