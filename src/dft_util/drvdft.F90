@@ -29,14 +29,11 @@ logical(kind=iwp), intent(in) :: Do_Grad
 character(len=4), intent(in) :: DFTFOCK
 #include "debug.fh"
 integer(kind=iwp) :: i, nD, nFckDim
-real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Fact, Func, Vxc_ref(2)
-logical(kind=iwp) :: Do_MO, Do_TwoEl
+real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Fact, Func, PDFT_Ratio,Vxc_ref(2), WF_Ratio
+logical(kind=iwp) :: Do_HPDFT, Do_MO, Do_TwoEl
 real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:)
 real(kind=wp), external :: Get_ExFac
 real(kind=r8), external :: DDot_
-! Hybrid MC-PDFT Stuff
-Logical(kind=iwp) :: Do_HPDFT
-Real(kind=wp)     :: WF_Ratio,PDFT_Ratio
 
 !                                                                      *
 !***********************************************************************
@@ -146,12 +143,12 @@ call Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFO
 !                                                                      *
 IF(DO_GRAD) THEN
  Do_HPDFT=.false.
- write(6,*) 'DFT gradient is scaled in a hybrid formulism.'
  CALL qpg_DScalar('R_WF_HMC',Do_HPDFT)
  If(Do_HPDFT) Then
+  write(u6,*) 'DFT gradient is scaled in a hybrid formalism.'
   CALL Get_DScalar('R_WF_HMC',WF_Ratio)
-  PDFT_Ratio=1.0d0-WF_Ratio
-  CALL DScal_(nGrad,PDFT_Ratio,Grad,1)
+  PDFT_Ratio = One-WF_Ratio
+  Grad(:) = PDFT_Ratio*Grad
  End If
 END IF
 !                                                                      *
