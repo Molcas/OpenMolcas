@@ -51,7 +51,7 @@ use Fast_IO, only: eFiMFo, isFiM
 use Fast_IO, only: Addr, FSCB, isOpen, LuName, LuNameProf, MBL, MBl_nwa, MBl_wa, MPUnit, Multi_File, MxFile, NProfFiles, Trace
 use Definitions, only: iwp, u6
 #ifndef NO_SPLITTING
-use Fast_IO, only: Max_File_Length
+use Fast_IO, only: Max_File_Length, MaxFileSize, MaxSplitFile
 use Definitions, only: wp
 #endif
 
@@ -66,8 +66,7 @@ character(len=*), parameter :: TheName = 'DaName_Main'
 integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit
 #ifndef NO_SPLITTING
 integer(kind=iwp) :: lName, MFMB
-integer(kind=iwp), external :: StrnLn
-!FIXME AllocDisk is undefined
+integer(kind=iwp), external :: AllocDisk, StrnLn
 #endif
 
 if (Trace) then
