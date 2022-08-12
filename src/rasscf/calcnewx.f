@@ -68,7 +68,7 @@ C      CALL RecPrt(' ','(1X,15(F9.6,1X))',EigVal,1,nSPair)
          nPosHess=nPosHess+1
         END IF
         IF(AbsGrad.gt.LargestQaaGrad)
-     &   LargestQaaGrad=ValGrad
+     &   LargestQaaGrad=AbsGrad
 
         IF(      (AbsGrad.lt.ThreG)
      &      .and.(AbsHess.lt.ThreH)) THEN
