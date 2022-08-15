@@ -92,7 +92,7 @@ Help
 OpenMolcas is a community-supported software and as such it doesn't have an
 official technical support. If you have any problems or questions, you can use
 the [Issues](/../issues) page or the [Molcas
-forum](https://cobalt.itc.univie.ac.at/molcasforum/index.php), and hopefully
+forum](https://molcasforum.univie.ac.at), and hopefully
 some other user or developer will be able to help you.
 
 If you need technical support, you can acquire a [Molcas
@@ -105,7 +105,7 @@ Since OpenMolcas is FOSS, you can download it, modify it and distribute it
 freely (according to the terms of the LGPL). If you would like your
 contributions to be included in the main repository, please contact one of the
 developers, write a message in the
-[forum](https://cobalt.itc.univie.ac.at/molcasforum/index.php) or submit a
+[forum](https://molcasforum.univie.ac.at) or submit a
 [merge
 request](https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html).
 Everyone is welcome to send patches, suggestions and bug reports, but please

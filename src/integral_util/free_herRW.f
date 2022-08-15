@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Free_HerRW()
-      use Her_RW
+      use Her_RW, only: HerR, HerW, iHerR, iHerw
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
       If (Allocated(iHerR)) Call mma_deallocate(iHerR)

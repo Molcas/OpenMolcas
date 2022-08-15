@@ -33,7 +33,6 @@
 #include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "iavec.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "SysDef.fh"
@@ -494,21 +493,6 @@ c      EndIf
       Else If (iCntrl.eq.3) Then
           Write(6,*) 'Svaret aer 48'
       End If
-*
-*     Set up the angular index vector
-*
-      i = 0
-      Do 1000 iR = 0, iTabMx
-         Do 2000 ix = iR, 0, -1
-            Do 3000 iy = iR-ix, 0, -1
-               iz = iR-ix-iy
-               i = i + 1
-               ixyz(1,i) = ix
-               ixyz(2,i) = iy
-               ixyz(3,i) = iz
- 3000       Continue
- 2000    Continue
- 1000 Continue
 *
 *     Set up data for the utilization of the translational
 *     and rotational invariance of the energy.

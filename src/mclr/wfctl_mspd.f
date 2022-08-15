@@ -21,6 +21,7 @@
 ************************************************************************
       use Exp, only: Exp_Close
       use ipPage, only: W
+      use cmslag, only: ResQaaLag2
       Implicit Real*8 (a-h,o-z)
 *
 #include "stdalloc.fh"
@@ -365,7 +366,7 @@
          If (iBreak.eq.1) Then
             If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
          Else If (iBreak.eq.2) Then
-            res=sqrt(resk**2+resci**2)
+            res=sqrt(resk**2+resci**2+ResQaaLag2)
             if (doDMRG) res=sqrt(resk**2)
             If (res.lt.abs(epsilon)) Goto 300
          Else
@@ -380,7 +381,7 @@
 *
          Goto 200
 *
-**********************************************************************
+************************************************************************
 *
  210     Continue
          Write(6,Fmt2//'A,I4,A)')

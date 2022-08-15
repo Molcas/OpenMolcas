@@ -219,6 +219,7 @@ create_release:
     echo "Creating release $TAG"
   release:
     tag_name: ${TAG}
+    tag_message: "verified commit"
     description: "Automatic release from latest master"
     ref: $CI_COMMIT_SHA
   rules:

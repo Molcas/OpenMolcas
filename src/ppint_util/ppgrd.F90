@@ -22,7 +22,7 @@ subroutine PPGrd( &
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper
-use Index_util, only: nTri0Elem
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -57,7 +57,7 @@ unused_var(lOper)
 iRout = 122
 iPrint = nPrint(iRout)
 
-nDAO = nTri0Elem(la)*nTri0Elem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 iIrrep = 0
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -73,14 +73,14 @@ ipRef = 1
 
 ! la+1, lb
 
-nlaplb = max(nTri0Elem(la+1),nTri0Elem(lb))**2
+nlaplb = max(nTri_Elem1(la+1),nTri_Elem1(lb))**2
 iplaplb = ipRef+2*nArray
 nArray = nArray+nlaplb
 
 ! la-1, lb
 
 if (la > 0) then
-  nlamlb = max(nTri0Elem(la-1),nTri0Elem(lb))**2
+  nlamlb = max(nTri_Elem1(la-1),nTri_Elem1(lb))**2
 else
   nlamlb = 0
 end if
@@ -89,14 +89,14 @@ nArray = nArray+nlamlb
 
 ! la, lb+1
 
-nlalbp = max(nTri0Elem(la),nTri0Elem(lb+1))**2
+nlalbp = max(nTri_Elem1(la),nTri_Elem1(lb+1))**2
 iplalbp = ipRef+2*nArray
 nArray = nArray+nlalbp
 
 ! la, lb-1
 
 if (lb > 0) then
-  nlalbm = max(nTri0Elem(la),nTri0Elem(lb-1))**2
+  nlalbm = max(nTri_Elem1(la),nTri_Elem1(lb-1))**2
 else
   nlalbm = 0
 end if
@@ -264,13 +264,13 @@ do iCnttp=1,nCnttp
       end do   ! iBeta
 
       !AOM<
-      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nTri0Elem(la)*nTri0Elem(lb)*mGrad,Fact,rFinal,1)
+      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*mGrad,Fact,rFinal,1)
       !AOM>
       if (iPrint >= 99) then
         write(u6,*) ' Result in PPGrd'
         write(u6,*) JfGrad
-        do ia=1,nTri0Elem(la)
-          do ib=1,nTri0Elem(lb)
+        do ia=1,nTri_Elem1(la)
+          do ib=1,nTri_Elem1(lb)
             do iVec=1,mGrad
               write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
               call RecPrt(Label,' ',rFinal(1,ia,ib,iVec),nAlpha,nBeta)

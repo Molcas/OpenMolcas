@@ -358,7 +358,7 @@ subroutine gsd_determine_extarmode_paras(ismnodes,ismnoded,logic_sd)
 
 use gugaci_global, only: ibsm_ext, ivaluesta_g26, iweista_g25, iweista_g26, iweista_g28, iwt_orb_ext, iwt_sm_s_ext, logic_g25a, &
                          logic_g25b, logic_g26, logic_g28a, nint_g25, nint_g28, nlsm_ext, nwei_g25, nwei_g26, nwei_g28
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -366,7 +366,7 @@ integer(kind=iwp), intent(in) :: ismnodes, ismnoded
 logical(kind=iwp), intent(in) :: logic_sd
 integer(kind=iwp) :: iorbid, iorbisd, ismnodesd, numsmd, numsmsd
 
-ismnodesd = mul_tab(ismnodes,ismnoded)
+ismnodesd = Mul(ismnodes,ismnoded)
 numsmd = nlsm_ext(ismnoded)
 numsmsd = nlsm_ext(ismnodesd)
 iorbid = ibsm_ext(ismnoded)
@@ -436,7 +436,7 @@ subroutine g_ss_ext_sequence(ism,itype)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, m_jc, m_jd, &
                          max_tmpvalue, ng_sm, norb_ext
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -446,7 +446,7 @@ integer(kind=iwp) :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma
 icano_nnsta = 2
 icnt_base = 0
 do ismd=1,ng_sm
-  ismc = mul_tab(ism,ismd)
+  ismc = Mul(ism,ismd)
   if (ismc > ismd) cycle
   id_sta = ibsm_ext(ismd)
   idsta = id_sta
@@ -466,7 +466,7 @@ do ismd=1,ng_sm
       end if
       icano_nnend = icano_nn
       do ismb=1,ismd-1
-        isma = mul_tab(ism,ismb)
+        isma = Mul(ism,ismb)
         if (isma > ismb) cycle
         if (ismc > ismb) then
           call g12_diffsym(isma,ismb,ismc)
@@ -480,7 +480,7 @@ do ismd=1,ng_sm
         isma = ismd
         call g1112_symaaaa(isma,ic,id)
       else
-        isma = mul_tab(ism,ismd)
+        isma = Mul(ism,ismd)
         call g11a11b_symaacc(isma,ismd,ic,id)
       end if
       call g10_ext(ismc,ic,id)
@@ -1223,14 +1223,14 @@ end subroutine external_space_plpmode_value_dt
 !                         logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
 !                         lpend35a, lpend35b, lpend36a, lpend36b, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, lpsta36b, &
 !                         nvalue_space_ss
-!use Symmetry_Info, only: mul_tab => Mul
+!use Symmetry_Info, only: Mul
 !use Definitions, only: iwp
 !
 !implicit none
 !integer(kind=iwp), intent(in) :: ilnodesm, irnodesm, iltype, irtype, lptype
 !integer(kind=iwp) :: iii, ilrsm
 !
-!ilrsm = mul_tab(ilnodesm,irnodesm)
+!ilrsm = Mul(ilnodesm,irnodesm)
 !iii = 1   !index to determine lwei rwei iposint and nlinkorb
 !! G2G4a G2G4b G1415 G13
 !logic_g36a = .false.
@@ -1316,7 +1316,7 @@ end subroutine external_space_plpmode_value_dt
 subroutine do_g36mode(ilrsm,ilnodesm,iii)
 
 use gugaci_global, only: ng_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1325,9 +1325,9 @@ integer(kind=iwp), intent(inout) :: iii
 integer(kind=iwp) :: isma, ismb, ismlink
 
 do ismb=1,ng_sm
-  isma = mul_tab(ismb,ilrsm)
+  isma = Mul(ismb,ilrsm)
   if (isma > ismb) cycle
-  ismlink = mul_tab(isma,ilnodesm)
+  ismlink = Mul(isma,ilnodesm)
   if (ismlink > isma) cycle
   call g36_form(isma,ismb,ismlink,iii)
 end do
@@ -1337,7 +1337,7 @@ end subroutine do_g36mode
 subroutine do_g34mode(ilrsm,ilnodesm,iii)
 
 use gugaci_global, only: ng_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1346,9 +1346,9 @@ integer(kind=iwp), intent(inout) :: iii
 integer(kind=iwp) :: isma, ismb, ismlink
 
 do ismb=1,ng_sm
-  isma = mul_tab(ismb,ilrsm)
+  isma = Mul(ismb,ilrsm)
   if (isma > ismb) cycle
-  ismlink = mul_tab(isma,ilnodesm)
+  ismlink = Mul(isma,ilnodesm)
   if (ismlink < ismb) cycle
   call g34_form(isma,ismb,ismlink,iii)
 end do
@@ -1358,7 +1358,7 @@ end subroutine do_g34mode
 subroutine do_g35mode(ilrsm,ilnodesm,iii)
 
 use gugaci_global, only: ng_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1367,9 +1367,9 @@ integer(kind=iwp), intent(inout) :: iii
 integer(kind=iwp) :: isma, ismb, ismlink
 
 do ismb=1,ng_sm
-  isma = mul_tab(ismb,ilrsm)
+  isma = Mul(ismb,ilrsm)
   if (isma > ismb) cycle
-  ismlink = mul_tab(isma,ilnodesm)
+  ismlink = Mul(isma,ilnodesm)
   if ((ismlink > ismb) .or. (ismlink < isma)) cycle
   call g35_form(isma,ismb,ismlink,iii)
 end do
@@ -1504,7 +1504,7 @@ end subroutine g35_form
 subroutine determine_para_array_for_int1ind()
 
 use gugaci_global, only: ng_sm, ngw2, ngw3, nlsm_ext, norb_ext
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1513,10 +1513,10 @@ integer(kind=iwp) :: isma, ismab, ismabc, ismb, ismc, nintcount, numa, numb, num
 do ismabc=1,ng_sm
   nintcount = 0
   do ismc=1,ng_sm
-    ismab = mul_tab(ismabc,ismc)
+    ismab = Mul(ismabc,ismc)
     numc = nlsm_ext(ismc)
     do ismb=1,ismc
-      isma = mul_tab(ismab,ismb)
+      isma = Mul(ismab,ismb)
       if (isma > ismb) cycle
       numb = nlsm_ext(ismb)
       numa = nlsm_ext(isma)
@@ -1593,7 +1593,7 @@ end subroutine g_dd_ext_sequence_G
 subroutine g_tt_ext_sequence_G(ism)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, m_jc, m_jd, max_tmpvalue, ng_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1603,7 +1603,7 @@ integer(kind=iwp) :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma
 icano_nnsta = 2
 icnt_base = 0
 do ismd=1,ng_sm
-  ismc = mul_tab(ism,ismd)
+  ismc = Mul(ism,ismd)
   if (ismc > ismd) cycle
   id_sta = ibsm_ext(ismd)
   idsta = id_sta
@@ -1623,7 +1623,7 @@ do ismd=1,ng_sm
       end if
       icano_nnend = icano_nn
       do ismb=1,ismd-1
-        isma = mul_tab(ism,ismb)
+        isma = Mul(ism,ismb)
         if (isma > ismb) cycle
         if (ismc > ismb) then
           call g12_t_diffsym_G(isma,ismb,ic,id)
@@ -1637,7 +1637,7 @@ do ismd=1,ng_sm
         isma = ismd
         call g1112_t_symaaaa_G(isma,ic,id)
       else
-        isma = mul_tab(ism,ismd)
+        isma = Mul(ism,ismd)
         call g11a11b_t_symaacc_G(isma,ismd,ic,id)
       end if
       call g36_t_ext_G(ismc,ic,id)
@@ -1655,7 +1655,7 @@ subroutine g_ss_ext_sequence_G(ism,itype)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, m_jc, m_jd, &
                          max_tmpvalue, ng_sm, norb_ext
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1665,7 +1665,7 @@ integer(kind=iwp) :: ic, ic_sta, icano_nn, icend, id, id_sta, idend, idsta, isma
 icano_nnsta = 2
 icnt_base = 0
 do ismd=1,ng_sm
-  ismc = mul_tab(ism,ismd)
+  ismc = Mul(ism,ismd)
   if (ismc > ismd) cycle
   id_sta = ibsm_ext(ismd)
   idsta = id_sta
@@ -1685,7 +1685,7 @@ do ismd=1,ng_sm
       end if
       icano_nnend = icano_nn
       do ismb=1,ismd-1
-        isma = mul_tab(ism,ismb)
+        isma = Mul(ism,ismb)
         if (isma > ismb) cycle
         if (ismc > ismb) then
           call g12_diffsym_G(isma,ismb,ic,id)
@@ -1699,7 +1699,7 @@ do ismd=1,ng_sm
         isma = ismd
         call g1112_symaaaa_G(isma,ic,id)
       else
-        isma = mul_tab(ism,ismd)
+        isma = Mul(ism,ismd)
         call g11a11b_symaacc_G(isma,ismd,ic,id)
       end if
       call g10_ext_G(ismc,ic,id)

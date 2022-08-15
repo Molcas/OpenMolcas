@@ -20,7 +20,7 @@ C
 C
 #include "rasdim.fh"
 #include "rasscf.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
 #include "gugx.fh"

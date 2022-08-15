@@ -11,7 +11,7 @@
 
 subroutine Read_h0(nSize,h0,Restart)
 
-use Definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize

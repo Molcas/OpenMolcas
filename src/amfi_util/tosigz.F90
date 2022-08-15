@@ -26,7 +26,7 @@ subroutine tosigZ(m1,m2,m3,m4,angint,mcombina,ncontl1,ncontl2,ncontl3,ncontl4,ca
 !bs only angular integrals of type 2 (sigma_0) contribute
 
 use AMFI_global, only: Lmax
-use Constants, only: Zero, One, speed => cLightAU
+use Constants, only: Zero, One, speed => c_in_au
 use Definitions, only: wp, iwp, u6
 
 implicit none

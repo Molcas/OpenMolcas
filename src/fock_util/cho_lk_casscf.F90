@@ -44,7 +44,7 @@ subroutine CHO_LK_CASSCF(DLT,FLT,MSQ,W_PWXY,FactXI,nFIorb,nAorb,nChM,Ash,DoActiv
 
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
@@ -70,9 +70,9 @@ logical(kind=iwp), intent(in) :: DoActive
 integer(kind=iwp) :: i, ia, iab, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jDen, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,2), &
-                     krs, kscreen, kSym, l, l1, LFMAX, LFULL, LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, MaxVecPerBatch, &
-                     mDen, mrs, mSh, mTvec, mTvec1, mTvec2, MUSED, MxB, MxBasSh, myJRED2, n1, n2, nAt, NAv, NAw, nBatch, nBs, &
-                     nBsa, nBsb, nDen, nIt, nkOrb, nMOs, nnA(8,8), nnO, nRS, NumCV, numSh, NUMV, NumVT, nVec, nVrs
+                     krs, kscreen, kSym, l, l1, LFMAX, LFULL(2), LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, &
+                     MaxVecPerBatch, mDen, mrs, mSh, mTvec, mTvec1, mTvec2, MUSED, MxB, MxBasSh, myJRED2, n1, n2, nAt, NAv, NAw, &
+                     nBatch, nBs, nBsa, nBsb, nDen, nIt, nkOrb, nMOs, nnA(8,8), nnO, nRS, NumCV, numSh, NUMV, NumVT, nVec, nVrs
 real(kind=wp) :: Fact, FactC(2), FactX(2), fcorr, LKThr, SKsh, tau(2), TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCS1, &
                  TCS2, TCT1, TCT2, TCX1, TCX2, texch(2), thrv(2), tintg(2), tmotr(2), Tmp, tread(2), TOTCPU, TOTCPU1, TOTCPU2, &
                  TOTWALL, TOTWALL1, TOTWALL2, tscrn(2), TWC1, TWC2, TWINT1, TWINT2, TWR1, TWR2, TWS1, TWS2, TWT1, TWT2, TWX1, &
@@ -373,14 +373,14 @@ do jSym=1,nSym
   mTvec2 = 0
   MxB = 0
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     if ((nFIorb(k)+nChM(k)) > 0) MxB = max(MxB,nBas(l))
     mTvec1 = mTvec1+nAorb(k)*nBas(l)
     if (k <= l) mTvec2 = mTvec2+nnA(k,l)
   end do
   mTvec = mTvec1+mTvec2
 
-  LFMAX = max(mTvec,LFULL) ! re-use memory for the active vec
+  LFMAX = max(mTvec,LFULL(1)) ! re-use memory for the active vec
   mTvec = max(MxB,1) ! mem for storing half-transformed vec
 
   ! ------------------------------------------------------------------
@@ -434,7 +434,7 @@ do jSym=1,nSym
 
       call mma_maxDBLE(LWORK)
 
-      nVec = min(LWORK/(nRS+mTvec+LFMAX),min(nVrs,MaxVecPerBatch))
+      nVec = min((LWORK-LFULL(2))/(nRS+mTvec+LFMAX),min(nVrs,MaxVecPerBatch))
 
       if (nVec < 1) then
         write(u6,*) SECNAM//': Insufficient memory for batch'
@@ -592,7 +592,7 @@ do jSym=1,nSym
 
           do kSym=1,nSym
 
-            lSym = MulD2h(JSYM,kSym)
+            lSym = Mul(JSYM,kSym)
 
             nkOrb = nFIorb(kSym)*(2-jDen)+nChM(kSym)*(jDen-1)
 
@@ -1037,7 +1037,7 @@ do jSym=1,nSym
           ! ----------------------------------------------------------------
           do iSymb=1,nSym
 
-            iSymv = MulD2h(JSYM,iSymb)
+            iSymv = Mul(JSYM,iSymb)
             NAv = nAorb(iSymv)
             NAw = nAorb(iSymb) ! iSymb=iSymw
 

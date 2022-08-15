@@ -291,9 +291,9 @@ if (lpso) then
     end if
 
     ! P are stored as
-    !                            _                     _
-    !   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
-    !   P2=sum_i <i|e_pqrs|i>
+    !                              _                     _
+    !   P1 = <i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
+    !   P2 = sum_i <i|e_pqrs|i>
 
     call Get_PLMO(G2(:,2),nG2)
     call Daxpy_(nG2,One,G2(:,2),1,G2(:,1),1)

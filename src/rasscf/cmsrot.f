@@ -1,4 +1,4 @@
-***********************************************************************
+************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -78,9 +78,9 @@ C     Deallocating Memory
       RETURN
       End Subroutine
 
-***********************************************************************
+************************************************************************
 
-***********************************************************************
+************************************************************************
       Subroutine NStateOpt(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
@@ -156,9 +156,9 @@ C     Deallocating Memory
       CALL mma_deallocate(FRot)
       RETURN
       END SUBROUTINE
-***********************************************************************
+************************************************************************
 
-***********************************************************************
+************************************************************************
       Subroutine ThetaOpt(FRot,theta,SumVee,StatePair,NPairs,DDg)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -191,8 +191,8 @@ C      Real*8,DIMENSION(NPairs)::thetanew
       END DO
       RETURN
       END SUBROUTINE
-***********************************************************************
-***********************************************************************
+************************************************************************
+************************************************************************
       SUBROUTINE OptOneAngle(Angle,SumVee,RotMat,DDg,I1,I2,lRoots)
       use stdalloc, only : mma_allocate, mma_deallocate
       real*8 Angle,SumVee
@@ -278,8 +278,8 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 
       RETURN
       END SUBROUTINE
-***********************************************************************
-***********************************************************************
+************************************************************************
+************************************************************************
       Function RMax(A,N)
        INTEGER N,RMax
        Real*8,DIMENSION(N)::A
@@ -291,7 +291,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
        RETURN
       End Function
 
-***********************************************************************
+************************************************************************
       Function CalcNSumVee(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
@@ -316,8 +316,8 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       CALL mma_deallocate(Vee)
       RETURN
       END Function
-***********************************************************************
-***********************************************************************
+************************************************************************
+************************************************************************
       Subroutine Copy2DMat(A,B,NRow,NCol)
       INTEGER NRow,NCol,IRow,ICol
       Real*8,DIMENSION(NRow,NCol)::A,B
@@ -328,8 +328,8 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       END DO
       RETURN
       END SUBROUTINE
-***********************************************************************
-***********************************************************************
+************************************************************************
+************************************************************************
       Subroutine CMSMatRot(Mat,A,I,J,N)
       INTEGER I,J,N
       Real*8 A
@@ -344,8 +344,8 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       END DO
       RETURN
       END SUBROUTINE
-***********************************************************************
-***********************************************************************
+************************************************************************
+************************************************************************
       Subroutine CMSFitTrigonometric(x,y)
       real*8,DIMENSION(4)::x,y
       real*8 s12,s23,c12,c23,d12,d23,k,a,b,c,phi,psi1,psi2,val1,val2
@@ -381,9 +381,9 @@ C       y(4)=val2
 C      write(6,*)a,b,c,x(4),y(4)
       return
       END Subroutine
-***********************************************************************
+************************************************************************
 
-***********************************************************************
+************************************************************************
       Subroutine CalcVee(Vee,RMat,DDg)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -414,8 +414,8 @@ C     & IState,' is ',Vee(IState)
       END DO
       RETURN
       END SUBROUTINE
-***********************************************************************
-***********************************************************************
+************************************************************************
+************************************************************************
       Subroutine GetDDgMat(DDg,GDMat,Gtuvx)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -465,7 +465,7 @@ C     & IState,' is ',Vee(IState)
       END DO
       RETURN
       End Subroutine
-***********************************************************************
+************************************************************************
 
       Subroutine LoadGtuvx(TUVX,Gtuvx)
 * ****************************************************************
@@ -506,7 +506,7 @@ C     & IState,' is ',Vee(IState)
       END DO
       RETURN
       End Subroutine
-***********************************************************************
+************************************************************************
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
@@ -601,7 +601,7 @@ C     & IState,' is ',Vee(IState)
       RETURN
       END SUBROUTINE
 
-***********************************************************************
+************************************************************************
 
       SubRoutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
       use stdalloc, only : mma_allocate, mma_deallocate
@@ -688,7 +688,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       RETURN
       End Subroutine
 
-***********************************************************************
+************************************************************************
       Subroutine SumVeeNew(SV,A,GD,I1,I2,G,V1,V2,Update)
       use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
@@ -851,9 +851,9 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       END IF
       RETURN
       End Subroutine
-***********************************************************************
+************************************************************************
 
-***********************************************************************
+************************************************************************
 
 
       Subroutine ThetaOpt2(R,theta,deltaQ,SPair,NP,GD,Vee,G)
@@ -892,7 +892,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       RETURN
       END SUBROUTINE
 
-***********************************************************************
+************************************************************************
       Function SumArray(A,N)
       INTEGER N,I
       Real*8,DIMENSION(N)::A
@@ -905,7 +905,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       End Function
 
 
-***********************************************************************
+************************************************************************
       Subroutine CalcVee2(Vee,GD,Gtuvx)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -936,7 +936,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       RETURN
       END SUBROUTINE
 
-***********************************************************************
+************************************************************************
       Subroutine RotGDMat(R,GD)
 #include "rasdim.fh"
 #include "rasscf.fh"

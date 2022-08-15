@@ -373,6 +373,7 @@ C   No changing about read in orbital information from INPORB yet.
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        If(Ratio_WF.gt.0.0d0) Then
         Do_Hybrid=.true.
+        CALL Put_DScalar('R_WF_HMC',Ratio_WF)
        End If
        If (DBG) Write(6,*) 'Wave Funtion Ratio in hybrid PDFT',Ratio_WF
        If (dogradmspd.or.dogradpdft) Then

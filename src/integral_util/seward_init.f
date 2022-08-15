@@ -11,7 +11,7 @@
 * Copyright (C) 1990,2020, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
-      Subroutine Seward_Init
+      Subroutine Seward_Init()
 ************************************************************************
 *                                                                      *
 *     Object: to set data which is stored in common blocks             *
@@ -28,29 +28,13 @@
       Logical Reduce_Prt
 #include "pstat.fh"
 #include "print.fh"
-#include "notab.fh"
 #include "status.fh"
 #include "twoswi.fh"
 #include "rmat.fh"
 #include "gam.fh"
 #include "real.fh"
-#include "FMM.fh"
 #include "nac.fh"
-#include "srint.fh"
       Character(LEN=180) Env
-*                                                                      *
-************************************************************************
-*                                                                      *
-C
-C...  Parameters for srint
-C
-      shortrange=.False.
-      isr_simulate=0
-*
-*     Initialize FMM.fh
-*
-      FMM_shortrange = .False.
-      asymptotic_Rys = .False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -104,10 +88,6 @@ C
          Show=.True.
       End If
 *
-*-----NoTab
-*
-      NoTab=.false.
-*
       NDDO=.False.
 *
       k2_Status=InActive
@@ -148,8 +128,6 @@ C
       Call DCR_Init()
 *
       Call Set_Basis_Mode('Valence')
-*
-      Call Mk_TriInd()
 *
       Call CovRadT_Init()
 *

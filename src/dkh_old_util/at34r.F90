@@ -15,7 +15,7 @@ subroutine AT34R(N,ISIZE,CHARGE,SMAT,V,H,EV2,MULT,BU,P,G,EIG,SINV,REVT,AUX,OVE,E
 !        H     RELATIVISTIC KINETIC ENERGY
 !        EV2   PVP INTEGRALS
 
-use DKH_Info, only: CLightAU, IRELMP
+use DKH_Info, only: cLightAU, IRELMP
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -32,7 +32,7 @@ integer(kind=iwp) :: I, IJ, J, K
 real(kind=wp) :: CON, CON2, CR, PREA, RATIO, TV1, TV2, TV3, TV4, VELIT
 
 !call PRMAT(u6,SMAT,N,0,'SMAT    ')
-VELIT = CLightAU
+VELIT = cLightAU
 ISIZE = N*(N+1)/2
 PREA = 1/(VELIT*VELIT)
 CON2 = PREA+PREA

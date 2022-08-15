@@ -160,7 +160,7 @@ end subroutine int_sort
 !subroutine blocks()
 !
 !use gugaci_global, only: ng_sm, nlsm_all
-!use Symmetry_Info, only: mul_tab => Mul
+!use Symmetry_Info, only: Mul
 !use Definitions, only: iwp, u6
 !
 !implicit none
@@ -221,11 +221,11 @@ end subroutine int_sort
 !  do iq=1,iqm-1
 !    if (nlsm_all(iq) == 0) cycle
 !    npq = nlsm_all(ip)*nlsm_all(iq)
-!    ispq = mul_tab(ip,iq)
+!    ispq = Mul(ip,iq)
 !    irm = ip
 !    do ir=1,irm-1
 !      if (nlsm_all(ir) == 0) cycle
-!      ispqr = mul_tab(ispq,ir)
+!      ispqr = Mul(ispq,ir)
 !      ism = ir
 !      if (ip == ir) ism = iq
 !      do is=1,ism-1
@@ -288,7 +288,7 @@ subroutine int_sort_ext(ii)         !_ext_4_3_2
 
 use gugaci_global, only: ibsm_ext, iesm_ext, ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, ip4_abcd_ext_base, jp2, jp3, &
                          ng_sm, nlsm_ext, norb_ext, norb_number, np3_abd_ext, vint_ci, voint
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -369,9 +369,9 @@ do lsmd=1,ng_sm
     icsta = ibsm_ext(lsmc)
     icend = iesm_ext(lsmc)
     if (lsmc == lsmd) idsta = idsta+1
-    lsmcd = mul_tab(lsmc,lsmd)
+    lsmcd = Mul(lsmc,lsmd)
     do lsmb=1,lsmc
-      lsma = mul_tab(lsmb,lsmcd)
+      lsma = Mul(lsmb,lsmcd)
       if (lsma > lsmb) cycle
       ibsta = ibsm_ext(lsmb)
       ibend = iesm_ext(lsmb)
@@ -413,7 +413,7 @@ end subroutine int_sort_ext
 subroutine int_sort_inn_2(ii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, lsm_inn, ng_sm, norb_frz, norb_inn, norb_number, vint_ci
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -428,7 +428,7 @@ do ismab=1,ng_sm
     lsmi = lsm_inn(lri)
     do lrj=lri+1,norb_inn
       lsmj = lsm_inn(lrj)
-      lsmij = mul_tab(lsmi,lsmj)
+      lsmij = Mul(lsmi,lsmj)
       if (ismab /= lsmij) cycle
       call int_ext_2_1(lri,lrj,lsmij,ii)
     end do
@@ -464,7 +464,7 @@ subroutine int_ext_2_1(lri,lrj,lsmij,ii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijab, intind_ijcc, intspace_ijab, intspace_ijcc, ng_sm, ngw2, norb_ext, &
                          norb_frz, norb_number, vint_ci
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -491,7 +491,7 @@ end if
 intind_ijab(ij) = ii
 intspace_ijab(ij) = 0
 do lsmc=1,ng_sm
-  lsmd = mul_tab(lsmij,lsmc)
+  lsmd = Mul(lsmij,lsmc)
   if (lsmd > lsmc) cycle
   icsta = ibsm_ext(lsmc)
   icend = iesm_ext(lsmc)
@@ -523,7 +523,7 @@ end subroutine int_ext_2_1
 subroutine int_sort_inn_3(ii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_ijka, lsm_inn, ngw2, ngw3, norb_frz, norb_inn, norb_number, vint_ci
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -537,10 +537,10 @@ do lri=norb_frz+1,norb_inn-2
   lsmi = lsm_inn(lri)
   do lrj=lri+1,norb_inn-1
     lsmj = lsm_inn(lrj)
-    lsmij = mul_tab(lsmi,lsmj)
+    lsmij = Mul(lsmi,lsmj)
     do lrk=lrj+1,norb_inn
       lsmk = lsm_inn(lrk)
-      lsmd = mul_tab(lsmij,lsmk)
+      lsmd = Mul(lsmij,lsmk)
       ijk = lri-norb_frz+ngw2(lrj-norb_frz)+ngw3(lrk-norb_frz)
       intind_ijka(ijk) = ii
       iasta = ibsm_ext(lsmd)
@@ -565,7 +565,7 @@ subroutine int_ext_3_2_1(lri,lsmi,ii)
 
 use gugaci_global, only: ibsm_ext, iesm_ext, intind_iabc, intind_iaqq, nabc, ng_sm, ngw2, ngw3, norb_ext, norb_inn, norb_number, &
                          vint_ci
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -579,9 +579,9 @@ real(kind=wp), external :: vfutei
 iabc0 = (lri-1)*nabc
 !write(10,*) '     start intind_iabc',ii
 do lsmd=1,ng_sm
-  lsmbc = mul_tab(lsmi,lsmd)
+  lsmbc = Mul(lsmi,lsmd)
   do lsmc=1,lsmd
-    lsmb = mul_tab(lsmbc,lsmc)
+    lsmb = Mul(lsmbc,lsmc)
     if (lsmb > lsmc) cycle
     idsta = ibsm_ext(lsmd)
     idend = iesm_ext(lsmd)
@@ -696,7 +696,7 @@ end function list4
 subroutine int_sort_inn(numb)
 
 use gugaci_global, only: loij, loijk, lsm_inn, ncibl, ngw2, ngw3, norb_inn, vint_ci
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -738,10 +738,10 @@ do ld=1,norb_inn-3
   do lc=ld+1,norb_inn-2
     msd = lsm_inn(ld)
     msc = lsm_inn(lc)
-    mscd = mul_tab(msd,msc)
+    mscd = Mul(msd,msc)
     do lb=lc+1,norb_inn-1
       msb = lsm_inn(lb)
-      msa = mul_tab(mscd,msb)
+      msa = Mul(mscd,msb)
 
       njkl = ld+ngw2(lc)+ngw3(lb)
       loijk(njkl) = numb

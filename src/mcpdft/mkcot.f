@@ -18,7 +18,7 @@ C              THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "output_ras.fh"
 #include "gugx.fh"
 C

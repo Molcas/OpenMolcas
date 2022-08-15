@@ -29,7 +29,7 @@
 *             Modified to reaction field calculations July '92         *
 *             Modified to gradient calculations May '95                *
 ************************************************************************
-      use Her_RW
+      use Her_RW, only: HerR, HerW, iHerR, iHerW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Integer IndGrd(2,3,3,0:7), nOp(2), iStabM(0:nStabM-1)

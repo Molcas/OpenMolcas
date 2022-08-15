@@ -13,6 +13,7 @@
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
      &                      DMAB, mTRA
       use kVectors
+      USE do_grid, only: Do_Lebedev_Sym
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -35,6 +36,7 @@
       INTEGER ICMPLST(MXPROP)
       LOGICAL JOBMATCH,IsAvail(MXPROP),IsAvailSO(MXPROP)
       DIMENSION IDUM(1)
+      REAL*8, ALLOCATABLE :: Rquad(:,:)
 * Analysing and post-processing the input that was read in readin_rassi.
 
 
@@ -1058,9 +1060,9 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
         Else
           nk_Vector = 1
           Call Setup_O()
-          Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
+          Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
+          Call mma_deallocate(Rquad)
           Call Free_O()
-          Call Free_Work(ipR)
         End If
       Else
         nk_Vector = 0

@@ -24,7 +24,7 @@
 *             November '90                                             *
 *             Anders Bernhardsson,1995                                 *
 ************************************************************************
-      use Her_RW
+      use Her_RW, only: HerR, HerW, iHerR, iHerW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 

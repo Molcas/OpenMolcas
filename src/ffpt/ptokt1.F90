@@ -13,7 +13,7 @@ subroutine PtOkt1(Oper,Temp1,Temp2)
 !***********************************************************************
 !                                                                      *
 !     Objective: Construct the perturbation operator of the form       *
-!                <X*R**2>=<XXX>+<XYY>+<XZZ>                            *
+!                <X*R**2> = <XXX>+<XYY>+<XZZ>                          *
 !                                                                      *
 !***********************************************************************
 

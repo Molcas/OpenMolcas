@@ -128,7 +128,7 @@ cnf
 *---- Print numerical quadrature information
       iSpin=1
       if(iUHF.eq.1) iSpin=2
-      If (KSDFT.ne.'SCF'.and.iCase.eq.0) Call Print_NQ_Info(iSpin)
+      If (KSDFT.ne.'SCF'.and.iCase.eq.0) Call Print_NQ_Info()
 *
 *---- Write out last density matrix to output
       If (DeBug) Then

@@ -21,12 +21,11 @@
 ************************************************************************
       Use Iso_C_Binding
       use Real_Spherical
-      use Her_RW
+      use Her_RW, only: nPrp
       use External_Centers
       use Gateway_global, only: Test
       use DKH_Info, only: DKroll
       use Sizes_of_Seward, only: S
-      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
 #include "print.fh"
@@ -36,17 +35,15 @@
       Logical DoRys
 #include "SysDef.fh"
 *
-      Call GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,
-     &                     cQStrt,iQStrt,rQStrt)
+      Call GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,
-     &                           cQStrt,iQStrt,rQStrt)
-      Integer, Target :: cRFStrt,iRFStrt,lRFStrt,cQStrt,iQStrt
-      Real*8, Target :: rRFStrt,rQStrt
-      Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:),p_cQ(:),p_iQ(:)
-      Real*8, Pointer :: p_rRF(:),p_rQ(:)
+      SubRoutine GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
+      Integer, Target :: cRFStrt,iRFStrt,lRFStrt
+      Real*8, Target :: rRFStrt
+      Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:)
+      Real*8, Pointer :: p_rRF(:)
 *
 *     Load the dynamic input area.
 *
@@ -79,24 +76,6 @@
       Call Get_iArray('RFcInfo',p_cRF,Len)
 *
       Nullify(p_lRF,p_rRF,p_iRF,p_cRF)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Numerical integration information and parameters
-*
-      Len = ip_of_Work(rQEnd)-ip_of_Work(rQStrt)+1
-      Call C_F_Pointer(C_Loc(rQStrt),p_rQ,[Len])
-      Call Get_dArray('Quad_r',p_rQ,Len)
-*
-      Len = ip_of_iWork(iQEnd)-ip_of_iWork(iQStrt)+1
-      Call C_F_Pointer(C_Loc(iQStrt),p_iQ,[Len])
-      Call Get_iArray('Quad_i',p_iQ,Len)
-*
-      Len = ip_of_iWork(cQEnd)-ip_of_iWork(cQStrt)+1
-      Call C_F_Pointer(C_Loc(cQStrt),p_cQ,[Len])
-      Call Get_iArray('Quad_c',p_cQ,Len)
-*
-      Nullify(p_rQ,p_iQ,p_cQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *

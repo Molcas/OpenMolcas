@@ -97,7 +97,7 @@
       Subroutine Get_Ecorr_dft(nh1,Grad,nGrad,DFTFOCK,F_DFT,D_DS,
      &                         nBT,nD,KSDFT,Ec_AB)
       use OFembed, only: dFMD, Do_Core
-      use nq_Info
+      use nq_Info, only: Dens_I, Grad_I, Tau_I
       Implicit Real*8 (a-h,o-z)
 
 #include "real.fh"

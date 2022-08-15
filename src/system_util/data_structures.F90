@@ -901,8 +901,8 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 
   type(L_Full_Type), target, intent(out) :: Adam
   integer(kind=iwp) :: nShell, iShp_rs(nShell*(nShell+2)/2), JNUM, JSYM, nSym
-  integer(kind=iwp), intent(out), optional :: Memory
-  integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma, iSymb, LFULL, iS, iE, n1, n2
+  integer(kind=iwp), intent(out), optional :: Memory(2)
+  integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma, iSymb, LFULL, iS, iE, MemSPB, n1, n2
 
   LFULL = 0
   do iaSh=1,nShell
@@ -929,7 +929,9 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
   LFULL = LFULL*JNUM
 
   if (present(Memory)) then
-    Memory = LFULL
+    MemSPB = nSym*nShell*(nShell+1)
+    MemSPB = (MemSPB*storage_size(Adam%SPB)-1)/storage_size(Adam%A0)+1
+    Memory = [LFULL,MemSPB]
     return
   end if
 
@@ -1032,8 +1034,8 @@ subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
 
   type(Lab_Type), target, intent(out) :: Lab
   integer(kind=iwp), intent(in) :: JNUM, nShell, nSym, nBasSh(nSym,nShell), nBas(nSym), nDen
-  integer(kind=iwp), intent(out), optional :: Memory
-  integer(kind=iwp) :: iSym, iDen, Lab_Memory, iE, iS, iSh
+  integer(kind=iwp), intent(out), optional :: Memory(2)
+  integer(kind=iwp) :: iSym, iDen, Lab_Memory, iE, iS, iSh, MemKeep, MemSB
 
   Lab_Memory = 0
   do iSym=1,nSym
@@ -1042,7 +1044,11 @@ subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
   Lab_Memory = Lab_Memory*JNUM*nDen
 
   if (present(Memory)) then
-    Memory = Lab_Memory
+    MemKeep = nShell*nDen
+    MemKeep = (MemKeep*storage_size(Lab%Keep)-1)/storage_size(Lab%A0)+1
+    MemSB = nShell*nSym*nDen
+    MemSB = (MemSB*storage_size(Lab%SB)-1)/storage_size(Lab%A0)+1
+    Memory = [Lab_Memory,MemKeep+MemSB]
     return
   end if
 

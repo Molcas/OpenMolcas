@@ -15,7 +15,7 @@ subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuVal, nShowMOs, nMOs, GRef(*), iType(*), NZ(*), nCoor, nBlocks, nInc

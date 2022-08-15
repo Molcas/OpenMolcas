@@ -74,7 +74,7 @@ end subroutine cidenmat
 !
 !use gugaci_global, only: denm1, denm2, FnOneMO, FnTwoMO, lenintegral, LuCiDen, LuOneMO, LuTwoMO, max_root, ng_sm, nlsm_all, &
 !                         nlsm_bas, ntrabuf, ntratoc
-!use Symmetry_Info, only: mul_tab => Mul
+!use Symmetry_Info, only: Mul
 !use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: Zero, Two, Half
 !use Definitions, only: wp, iwp, u6
@@ -166,10 +166,10 @@ end subroutine cidenmat
 !  nop = norb(nsp)
 !  do nsq=1,nsp
 !    noq = norb(nsq)
-!    nspq = mul_tab(nsp,nsq)
+!    nspq = Mul(nsp,nsq)
 !    do nsr=1,nsp
 !      nor = norb(nsr)
-!      nspqr = mul_tab(nspq,nsr)
+!      nspqr = Mul(nspq,nsr)
 !      nssm = nsr
 !      if (nsr == nsp) nssm = nsq
 !      do nss=1,nssm
@@ -404,7 +404,7 @@ end subroutine matrix_vector_multi_parallel_drt_g
 subroutine ci_density_label_sm(iroot)
 
 use gugaci_global, only: denm1, denm2, dm1tmp, LuCiDen, map_orb_order, max_root, ng_sm, nlsm_all, vector2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
@@ -461,14 +461,14 @@ do im=1,ng_sm
   if (nlsm_all(im) == 0) cycle
   do jm=1,im
     if (nlsm_all(jm) == 0) cycle
-    ijm = mul_tab(im,jm)
+    ijm = Mul(im,jm)
     do km=1,im
       if (nlsm_all(km) == 0) cycle
       le = km
       if (km == im) le = jm
       do lm=1,le
         if (nlsm_all(lm) == 0) cycle
-        klm = mul_tab(km,lm)
+        klm = Mul(km,lm)
         if (ijm /= klm) cycle
         ! ityp 1 (ii|jj) 2 (ii|jj) 3 (ij|ij) 4 (ij|kl)
 

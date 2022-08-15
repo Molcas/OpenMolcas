@@ -12,6 +12,7 @@
       USE RASSI_aux
       USE kVectors
       USE rassi_global_arrays, only: JBNUM
+      USE do_grid, only: Do_Lebedev_Sym
 #ifdef _HDF5_
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
@@ -53,7 +54,7 @@
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
-      Real*8, Allocatable :: pol_Vector(:,:)
+      Real*8, Allocatable :: pol_Vector(:,:), Rquad(:,:)
       Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),SCR(:,:)
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
@@ -2389,15 +2390,15 @@ C                                                                      C
 *
       If (Do_SK) Then
          nQuad=1
-         Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
+         Call mma_Allocate(Rquad,4,nQuad,label='SK')
          nVec = nk_Vector
       Else
          Call Setup_O()
 *        In the spin-free case, oscillator and rotatory strengths for k and -k
 *        are equal, so we compute only half the quadrature points and multiply
 *        the weights by 2
-         Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
-         Call DScal_(nQuad,2.0D0,Work(ipR+3),4)
+         Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
+         Rquad(4,:) = 2.0D0*Rquad(4,:)
          nVec = 1
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
@@ -2515,10 +2516,8 @@ C                                                                      C
 *
       Do iVec = 1, nVec
          If (Do_SK) Then
-            Work(ipR  )=k_Vector(1,iVec)
-            Work(ipR+1)=k_Vector(2,iVec)
-            Work(ipR+2)=k_Vector(3,iVec)
-            Work(ipR+3)=1.0D0   ! Dummy weight
+            Rquad(1:3,1)=k_Vector(:,iVec)
+            Rquad(4,1)=1.0D0   ! Dummy weight
          End If
 *
       iPrint=0
@@ -2570,15 +2569,13 @@ C                                                                      C
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
-               UK(1)=Work((iQuad-1)*4  +ipR)
-               UK(2)=Work((iQuad-1)*4+1+ipR)
-               UK(3)=Work((iQuad-1)*4+2+ipR)
+               UK(:)=Rquad(1:3,iQuad)
                Wavevector(:)=rkNorm*UK(:)
 *
 *              Note that the weights are normalized to integrate to
 *              4*pi over the solid angles.
 *
-               Weight=Work((iQuad-1)*4+3+ipR)
+               Weight=Rquad(4,iQuad)
                If (.Not.Do_SK) Weight=Weight/(4.0D0*PI)
 *
 *              Generate the polarization vector
@@ -3045,7 +3042,7 @@ C                 Why do it when we don't do the L.S-term!
 *     Do some cleanup
 *
       If (.NOT.Do_SK) Call Free_O()
-      Call Free_Work(ipR)
+      Call mma_deAllocate(Rquad)
       Call ClsSew()
 ************************************************************************
 *                                                                      *

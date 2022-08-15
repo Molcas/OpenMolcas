@@ -11,6 +11,7 @@
 
 subroutine Assemble_PPGrd(Fin,nZeta,la,lb,iZeta,Alpha,Beta,A_laplb,A_lamlb,A_lalbp,A_lalbm,JfGrad)
 
+use Index_Functions, only: C_Ind3
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -46,10 +47,10 @@ do ix=la,0,-1
         if (JfGrad(1,1)) then
           i6 = i6+1
           if (ix == 0) then
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Alpha*A_laplb(Ind(iy,iz),Ind(jy,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Alpha*A_laplb(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz))
           else
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Alpha*A_laplb(Ind(iy,iz),Ind(jy,jz))- &
-                                                  real(ix,kind=wp)*A_lamlb(Ind(iy,iz),Ind(jy,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Alpha*A_laplb(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz))- &
+                                                              real(ix,kind=wp)*A_lamlb(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz))
           end if
         end if
         !                                                              *
@@ -60,10 +61,10 @@ do ix=la,0,-1
         if (JfGrad(1,2)) then
           i6 = i6+1
           if (jx == 0) then
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Beta*A_lalbp(Ind(iy,iz),Ind(jy,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Beta*A_lalbp(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz))
           else
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Beta*A_lalbp(Ind(iy,iz),Ind(jy,jz))- &
-                                                  real(jx,kind=wp)*A_lalbm(Ind(iy,iz),Ind(jy,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Beta*A_lalbp(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz))- &
+                                                              real(jx,kind=wp)*A_lalbm(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz))
           end if
         end if
         !                                                              *
@@ -74,10 +75,10 @@ do ix=la,0,-1
         if (JfGrad(2,1)) then
           i6 = i6+1
           if (iy == 0) then
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Alpha*A_laplb(Ind(iy+1,iz),Ind(jy,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Alpha*A_laplb(C_Ind3(ix,iy+1,iz),C_Ind3(jx,jy,jz))
           else
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Alpha*A_laplb(Ind(iy+1,iz),Ind(jy,jz))- &
-                                                  real(iy,kind=wp)*A_lamlb(Ind(iy-1,iz),Ind(jy,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Alpha*A_laplb(C_Ind3(ix,iy+1,iz),C_Ind3(jx,jy,jz))- &
+                                                              real(iy,kind=wp)*A_lamlb(C_Ind3(ix,iy-1,iz),C_Ind3(jx,jy,jz))
           end if
         end if
         !                                                              *
@@ -88,10 +89,10 @@ do ix=la,0,-1
         if (JfGrad(2,2)) then
           i6 = i6+1
           if (jy == 0) then
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Beta*A_lalbp(Ind(iy,iz),Ind(jy+1,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Beta*A_lalbp(C_Ind3(ix,iy,iz),C_Ind3(jx,jy+1,jz))
           else
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Beta*A_lalbp(Ind(iy,iz),Ind(jy+1,jz))- &
-                                                  real(jy,kind=wp)*A_lalbm(Ind(iy,iz),Ind(jy-1,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Beta*A_lalbp(C_Ind3(ix,iy,iz),C_Ind3(jx,jy+1,jz))- &
+                                                              real(jy,kind=wp)*A_lalbm(C_Ind3(ix,iy,iz),C_Ind3(jx,jy-1,jz))
           end if
         end if
         !                                                              *
@@ -102,10 +103,10 @@ do ix=la,0,-1
         if (JfGrad(3,1)) then
           i6 = i6+1
           if (iz == 0) then
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Alpha*A_laplb(Ind(iy,iz+1),Ind(jy,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Alpha*A_laplb(C_Ind3(ix,iy,iz+1),C_Ind3(jx,jy,jz))
           else
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Alpha*A_laplb(Ind(iy,iz+1),Ind(jy,jz))- &
-                                                  real(iz,kind=wp)*A_lamlb(Ind(iy,iz-1),Ind(jy,jz))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Alpha*A_laplb(C_Ind3(ix,iy,iz+1),C_Ind3(jx,jy,jz))- &
+                                                              real(iz,kind=wp)*A_lamlb(C_Ind3(ix,iy,iz-1),C_Ind3(jx,jy,jz))
           end if
         end if
         !                                                              *
@@ -116,10 +117,10 @@ do ix=la,0,-1
         if (JfGrad(3,2)) then
           i6 = i6+1
           if (jz == 0) then
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Beta*A_lalbp(Ind(iy,iz),Ind(jy,jz+1))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Beta*A_lalbp(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz+1))
           else
-            Fin(iZeta,Ind(iy,iz),Ind(jy,jz),i6) = Two*Beta*A_lalbp(Ind(iy,iz),Ind(jy,jz+1))- &
-                                                  real(jz,kind=wp)*A_lalbm(Ind(iy,iz),Ind(jy,jz-1))
+            Fin(iZeta,C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz),i6) = Two*Beta*A_lalbp(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz+1))- &
+                                                              real(jz,kind=wp)*A_lalbm(C_Ind3(ix,iy,iz),C_Ind3(jx,jy,jz-1))
           end if
         end if
         !                                                              *
@@ -134,14 +135,5 @@ end do
 !***********************************************************************
 !                                                                      *
 return
-
-contains
-
-pure function Ind(ly,lz)
-  use Index_util, only: iTri0
-  integer(kind=iwp) :: Ind
-  integer(kind=iwp), intent(in) :: ly, lz
-  Ind = iTri0(ly+lz,lz)
-end function Ind
 
 end subroutine Assemble_PPGrd

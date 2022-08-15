@@ -48,7 +48,7 @@
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
-      use CMS, only: iCMSOpt,CMSGiveOpt
+      use CMS, only: iCMSOpt,CMSGiveOpt,CMSGuessFile
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -59,7 +59,7 @@
 #include "input_ras.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
 #include "casvb.fh"
@@ -863,7 +863,17 @@ C   No changing about read in orbital information from INPORB yet.
          Write(6,*) ' Reading CMS starting rotation matrix from'
          Write(6,*) trim(Line)
        End If
-       IF(.not.(trim(Line).eq.'XMS'))  call fileorb(Line,CMSStartMat)
+       if(.not.(trim(Line).eq.'XMS'))  then
+         CMSGuessFile=trim(Line)
+         CMSStartMat=CMSGuessFile
+         call F_Inquire(trim(CMSStartMat),lExists)
+         if(.not.lExists) then
+           write(LF,'(6X,A,A)') trim(CMSStartMat),
+     &' is not found. Use XMS intermediate states as initial guess.'
+           CMSStartMat='XMS'
+         end if
+C         call fileorb(Line,CMSStartMat)
+       end if
       End If
 *---  Process CMSO command --------------------------------------------*
       If (KeyCMSO.and.(iCMSP.eq.1)) Then

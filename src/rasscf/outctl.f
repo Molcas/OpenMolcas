@@ -330,7 +330,7 @@ C Local print level (if any)
      &                    'in a previous calculation'
          Write(LF,*)
       End If
-      If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Call Print_NQ_Info(iSpin)
+      If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Call Print_NQ_Info()
       Call CollapseOutput(0,'CI expansion specifications:')
 
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_

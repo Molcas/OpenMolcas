@@ -16,7 +16,7 @@ subroutine CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,SvShp,mmShl,iShp_rs,mmS
 
 use ChoArr, only: iBasSh, iRS2F, iShlSO, iSOShl, nDimRS
 use ChoSwp, only: IndRed, IndRSh
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Data_Structures, only: L_Full_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -125,7 +125,7 @@ else
       ibSg = iShlSO(ibg)
 
       iSyma = cho_isao(iag) ! symmetry block
-      iSymb = muld2h(jSym,iSyma) ! iSyma >= iSymb
+      iSymb = Mul(jSym,iSyma) ! iSyma >= iSymb
 
       i1 = 1
       if (iaSh < ibSh) i1 = 2

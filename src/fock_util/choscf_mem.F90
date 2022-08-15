@@ -32,7 +32,7 @@ subroutine CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,lOff1)
 !*****************************************************************
 
 use ChoArr, only: nDimRS
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Data_Structures, only: Integer_Pointer
 use Definitions, only: iwp
 
@@ -82,7 +82,7 @@ do jSym=1,nSym
   Nab = 0
   NSab = 0
   do ksym=1,nSym
-    iSymp = MulD2h(ksym,jSym)
+    iSymp = Mul(ksym,jSym)
     if ((iSymp > ksym) .and. ((Moccmx(iSymp) /= 0) .or. (Moccmx(ksym) /= 0))) then
       Nab = Nab+nBas(ksym)*nBas(iSymp)
       Mabmx(jSym) = max(Mabmx(jSym),max(nBas(ksym)*Moccmx(iSymp),nBas(iSymp)*Moccmx(ksym)))

@@ -27,7 +27,7 @@ do lpb=1,lpblock_dv
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !jmlr = mul_tab(jml,jmr)
+  !jmlr = Mul(jml,jmr)
   call gsd_determine_extarmode_paras(iml,imr,.false.)
   if (linelp <= 12) then
     call dv_ext_head_in_act()
@@ -46,7 +46,7 @@ use gugaci_global, only: iml, intind_ijka, ipae, ipael, jb_sys, jml, jmr, jpad, 
                          lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, nlg1, nlg2, norb_dz, &
                          norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
                          w1_td, w1_tv
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -60,7 +60,7 @@ integer(kind=iwp), external :: iwalk_ad
 logic_dh = .true.
 isma = iml
 lpok = jpadlr
-jmlr = mul_tab(jml,jmr)
+jmlr = Mul(jml,jmr)
 select case (lpok)
   case (1)
     !===================================================================
@@ -199,7 +199,7 @@ select case (lpok)
         lmi = lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj = lsm_inn(lrj)
-          lmij = mul_tab(lmi,lmj)
+          lmij = Mul(lmi,lmj)
           if (lmij /= jml) cycle
 
           if (lmi == jmr) then
@@ -384,7 +384,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jml) cycle
         w0sv2 = w0_sv(2)
         w1sv2 = w1_sv(2)
@@ -460,7 +460,7 @@ select case (lpok)
         lmi = lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj = lsm_inn(lrj)
-          lmij = mul_tab(lmi,lmj)
+          lmij = Mul(lmi,lmj)
           if (lmij /= jml) cycle
           w0td1 = w0_td(1)
           w0td4 = w0_td(4)
@@ -630,7 +630,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri+1,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jml) cycle
 
         w1tv = w1_tv
@@ -903,7 +903,7 @@ do lpb=1,lpblock_sd
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !jmlr = mul_tab(jml,jmr)
+  !jmlr = Mul(jml,jmr)
   call gsd_determine_extarmode_paras(iml,imr,.true.)
   if (linelp <= 12) then
     call sd_ext_head_in_act()
@@ -938,7 +938,7 @@ do lpb=1,lpblock_sd
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !jmlr = mul_tab(jml,jmr)
+  !jmlr = Mul(jml,jmr)
   call gsd_determine_extarmode_paras(iml,imr,.true.)
   if (linelp <= 12) then
     call sd_ext_head_in_act()
@@ -957,7 +957,7 @@ use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jb_sys, jml, jmr, j
                          lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, nlg1, nlg2, norb_dz, &
                          norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
                          w1_td, w1_tv
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -969,8 +969,8 @@ real(kind=wp) :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5,
 integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
-isma = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
+isma = Mul(iml,imr)
+jmlr = Mul(jml,jmr)
 lpok = jpadlr
 select case (lpok)
   case (1)
@@ -1115,7 +1115,7 @@ select case (lpok)
         lmi = lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj = lsm_inn(lrj)
-          lmij = mul_tab(lmi,lmj)
+          lmij = Mul(lmi,lmj)
           if (lmij /= jml) cycle
 
           if (lmi == jmr) then
@@ -1302,7 +1302,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jml) cycle
         w0sv2 = w0_sv(2)
         w1sv2 = w1_sv(2)
@@ -1378,7 +1378,7 @@ select case (lpok)
         lmi = lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj = lsm_inn(lrj)
-          lmij = mul_tab(lmi,lmj)
+          lmij = Mul(lmi,lmj)
           if (lmij /= jml) cycle
           w0td1 = w0_td(1)
           w0td4 = w0_td(4)
@@ -1552,7 +1552,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri+1,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jml) cycle
 
         w1tv = w1_tv
@@ -1773,7 +1773,7 @@ end subroutine sd_ext_head_in_dbl
 subroutine sd_ext_head_in_act()
 
 use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1783,7 +1783,7 @@ logic_dh = .false.
 lri = nlg1
 lrj = nlg2
 intpos = nlg1
-isma = mul_tab(iml,imr)
+isma = Mul(iml,imr)
 
 select case (linelp)
   case default ! (1)
@@ -2093,7 +2093,7 @@ do lpb=1,lpblock_td
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !jmlr = mul_tab(jml,jmr)
+  !jmlr = Mul(jml,jmr)
   call gsd_determine_extarmode_paras(iml,imr,.false.)
   if (linelp <= 12) then
     call td_ext_head_in_act()
@@ -2112,7 +2112,7 @@ use gugaci_global, only: iml, imr, intind_ijka, ipae, ipael, jb_sys, jml, jmr, j
                          lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, ngw2, ngw3, nlg1, nlg2, norb_dz, &
                          norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w0_vv, w1_sd, w1_sv, &
                          w1_td, w1_tv
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -2124,8 +2124,8 @@ real(kind=wp) :: w0, w0sd1, w0sd11, w0sd12, w0sd14, w0sd16, w0sd2, w0sd4, w0sd5,
 integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
-isma = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
+isma = Mul(iml,imr)
+jmlr = Mul(jml,jmr)
 lpok = jpadlr
 select case (lpok)
   case (1)
@@ -2268,7 +2268,7 @@ select case (lpok)
         lmi = lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj = lsm_inn(lrj)
-          lmij = mul_tab(lmi,lmj)
+          lmij = Mul(lmi,lmj)
           if (lmij /= jml) cycle
 
           if (lmi == jmr) then
@@ -2456,7 +2456,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jml) cycle
         w0sv2 = w0_sv(2)
         w1sv2 = w1_sv(2)
@@ -2532,7 +2532,7 @@ select case (lpok)
         lmi = lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj = lsm_inn(lrj)
-          lmij = mul_tab(lmi,lmj)
+          lmij = Mul(lmi,lmj)
           if (lmij /= jml) cycle
           w0td1 = w0_td(1)
           w0td4 = w0_td(4)
@@ -2706,7 +2706,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri+1,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jml) cycle
 
         w1tv = w1_tv
@@ -2926,7 +2926,7 @@ end subroutine td_ext_head_in_dbl
 subroutine td_ext_head_in_act()
 
 use gugaci_global, only: iml, imr, linelp, logic_dh, nlg1, nlg2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -2936,7 +2936,7 @@ logic_dh = .false.
 lri = nlg1
 lrj = nlg2
 intpos = nlg1
-isma = mul_tab(iml,imr)
+isma = Mul(iml,imr)
 
 select case (linelp)
   case default ! (1)
@@ -2965,7 +2965,7 @@ end subroutine td_ext_head_in_act
 subroutine gsd_ext_sequence(iltype,ilsm,irsm,lri)
 
 use gugaci_global, only: ibsm_ext, icano_nnend, icano_nnsta, icnt_base, iesm_ext, iseg_downwei, isegdownwei, m_jc, m_jd, ng_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -2992,13 +2992,13 @@ do ic=icsta,icend
   icano_nn = m_jc
   icano_nnend = icano_nn
   do ismb=1,ismnoded-1
-    isma = mul_tab(ismnodes,ismb)
+    isma = Mul(ismnodes,ismb)
     if (isma > ismb) cycle
     call g31_diffsym(lri,isma,ismb)
   end do
 
   ismb = ismnoded
-  isma = mul_tab(ismnodes,ismb)
+  isma = Mul(ismnodes,ismb)
   if (isma == ismb) then
     call gsd_samesym_aaa(lri,isma)
   else if (isma < ismb) then
@@ -3006,7 +3006,7 @@ do ic=icsta,icend
   end if
 
   do ismb=ismnoded+1,ng_sm
-    isma = mul_tab(ismnodes,ismb)
+    isma = Mul(ismnodes,ismb)
     if (isma > ismb) cycle
     if (ismnoded > isma) then
       call g32a_diffsym(lri,isma,ismb)

@@ -31,7 +31,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use iSD_data
-      use Wrj12
+      use Wrj12, only: SO2Ind
       use k2_arrays, only: Sew_Scr
       use Basis_Info, only: dbsc
       use Gateway_global, only: force_out_of_core, iWROpt

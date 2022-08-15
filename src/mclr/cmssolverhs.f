@@ -56,6 +56,7 @@
 ******************************************************
       subroutine SolveforzX(zX,AXX,bX)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use cmslag,   only : ResQaaLag2
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -67,35 +68,69 @@
 #include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
+#include "warnings.h"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
 ****** Input
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
       Real*8,DIMENSION(((nRoots-1)*nRoots/2)**2)::AXX
 ****** Assistants
-      Real*8,DIMENSION(:),Allocatable::Ainv
-      INTEGER NElem,NDim
+      Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr,Scr
+      Real*8 TwoPi
+      INTEGER NDim,nSPair,iPair,nScr,INFO
+
 
       NDim=((nRoots-1)*nRoots/2)
-      NElem=NDim**2
-      CALL mma_allocate(Ainv,Nelem)
-      CALL DCopy_(Nelem,AXX,1,Ainv,1)
+      nSPair=nDim
+      TwoPi=2.0d0*Pi
+      ResQaaLag2=0.0d0
+      CALL mma_allocate(EigVal,nDim)
+      CALL mma_allocate(bxScr ,nDim)
+      CALL mma_allocate(zXScr ,nDim)
 
-C      write(6,*) 'AXX matrix'
-C      CALL RecPrt(' ',' ',AXX,nDim,nDim)
-      CALL MatInvert(Ainv,nDim)
-C      write(6,*) 'AXX inverse'
-C      CALL RecPrt(' ',' ',Ainv,nDim,nDim)
-C      write(6,*) 'bX'
-C      CALL RecPrt(' ',' ',bX,1,nDim)
+      CALL GetDiagScr(nScr,AXX,EigVal,nDim)
+      CALL mma_allocate(Scr   ,nScr)
 
-      CALL DGEMM_('n','n',nDim,1,nDim,-1.0d0,Ainv,nDim,bX,nDim,
-     &0.0d0,zX,nDim)
+      CALL DSYEV_('V','U',nDim,AXX,nDim,EigVal,Scr,nScr,INFO)
 
-C      write(6,*) 'zX'
-C      CALL RecPrt(' ',' ',zX,1,nDim)
+      CALL DGEMM_('n','n',1,nDim,nDim,1.0d0,bx,1,AXX,nDim,
+     &                                0.0d0,bxScr,1)
 
-      CALL mma_deallocate(Ainv)
+
+      DO iPair=1,nDim
+       zxScr(iPair)=-bxScr(iPair)/EigVal(iPair)
+       IF(Abs(zxScr(iPair)).gt.TwoPi) THEN
+        zxScr(iPair)=0.0d0
+        ResQaaLag2=ResQaaLag2+bxScr(iPair)**2
+       END IF
+      END DO
+
+      write(6,'(6X,A37,2X,ES17.9)')
+     & 'Residual in Qaa Lagrange Multipliers:',SQRT(ResQaaLag2)
+      IF(ResQaaLag2.gt.epsilon**2) THEN
+        write(6,*)
+        write(6,'(6X,A)')
+     &    'ERROR: RESIDUAL(S) FOR INTERMEDIATE STATE TOO BIG!'
+        write(6,*)
+        write(6,'(6X,A)')
+     &    'This may come from a linear molecular or a linear'
+        write(6,'(6X,A)')
+     &    'fragment.'
+        write(6,'(6X,A)')
+     &    'CMS-PDFT Lagrange multipliers are not solved.'
+        CALL WarningMessage(2,
+     &    'Residual in Lagrange Multipliers for Qaa Too Big')
+        CALL Quit(_RC_EXIT_EXPECTED_)
+      END IF
+
+      CALL DGEMM_('n','t',    1,nSPair,nSPair,
+     &            1.0d0,zXScr,1,AXX,nSPair,
+     &            0.0d0,zx   ,1)
+
+      CALL mma_deallocate(EigVal)
+      CALL mma_deallocate(bxScr )
+      CALL mma_deallocate(zXScr )
+      CALL mma_deallocate(Scr   )
       RETURN
       END SUBROUTINE
 ******************************************************

@@ -15,7 +15,6 @@
       use EFP_Module
 #endif
       use OFembed, only: Do_OFemb, OFE_KSDFT
-      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "debug.fh"

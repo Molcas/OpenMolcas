@@ -18,29 +18,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
 *                                                                      *
-*      Alpha : exponents of bra gaussians                              *
-*      nAlpha: number of primitives (exponents) of bra gaussians       *
-*      Beta  : as Alpha but for ket gaussians                          *
-*      nBeta : as nAlpha but for the ket gaussians                     *
-*      Zeta  : sum of exponents (nAlpha x nBeta)                       *
-*      ZInv  : inverse of Zeta                                         *
-*      rKappa: gaussian prefactor for the products of bra and ket      *
-*              gaussians.                                              *
-*      p     : center of new gaussian from the products of bra and ket *
-*              gaussians.                                              *
-*      final : array for computed integrals                            *
-*      nzeta : nalpha x nbeta                                          *
-*      ncomp : number of components in the operator (e.g. dipolmoment  *
-*              operator has three components)                          *
-*      la    : total angular momentum of bra gaussian                  *
-*      lb    : total angular momentum of ket gaussian                  *
-*      a     : center of bra gaussian                                  *
-*      b     : center of ket gaussian                                  *
-*      nrys  : order of rys- or Hermite-Gauss polynomial               *
-*      array : auxiliary memory as requested by ECPMem                 *
-*      narr  : length of array                                         *
-*      ccoor : coordinates of the operator, zero for symmetric oper.   *
-*      nordop: order of the operator                                   *
 ************************************************************************
       use Basis_Info
       use Center_Info
