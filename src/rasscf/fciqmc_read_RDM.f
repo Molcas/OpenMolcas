@@ -28,7 +28,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
       ! wfn_dens, wfn_spindens
-      use rasscf_data, only : NRoots, iAdr15, NAc
+      use rasscf_data, only : NRoots, iAdr15, NAc, NIn
       use general_data, only : nActEl
       ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
@@ -712,37 +712,52 @@
       subroutine dump_active_fockmat(path, F_act)
         use general_data, only: nTot1
         character(len=*), intent(in) :: path
-        real(wp), intent(inout) :: F_act(nTot1)
+        real(wp), intent(inout) :: F_act(nTot1)  ! contains all blocks
         integer :: pq, p, q
-        integer, allocatable :: indices(:,:)
+        integer, allocatable :: index(:), indices(:,:)
+        real(wp), allocatable :: vals(:)
         integer :: file_id, dset_id
 
-        write(u6,'(A)') 'Active space Fockian requested.'
+        write(u6,'(A)') 'act.-act. block of  gen. Fockian requested.'
 
-        call mma_allocate(indices, 2, nTot1)
-        indices(:,:) = 0
+        ! TODO: generalise to RAS/GAS indices
+        ! append to dynamic arrays, reshape afterwards
+        index = [integer ::]
+        vals = [real(wp) ::]
         do pq = 1, nTot1
           call one_el_idx(pq, p, q)
-          indices(1, pq) = p; indices(2, pq) = q
+          ! nIn / nAc = number of inactive / active
+          if (nIn < p .and. p < (nIn + nAc + 1)) then
+            if (nIn < q .and. q < (nIn + nAc + 1)) then
+              if (abs(F_act(pq)) >= 1e-12) then
+                if(iprlev >= debug) then
+                  write(u6,*) 'p,q : ',(p - nIn), (q - nIn), F_act(pq)
+                end if
+                index = [index, (p - nIn)]
+                index = [index, (q - nIn)]
+                vals = [vals, F_act(pq)]
+              end if
+            end if
+          end if
         end do
+        indices = reshape(index, [2, size(vals)])
 
         file_id = mh5_create_file(path)
         dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
-     &    2, [2, nTot1])
+     &    2, [2, size(vals)])
         call mh5_init_attr(dset_id, 'DESCRIPTION',
      &    'Indices i, j of active Fock matrix elements <i| F |j>.')
         call mh5_put_dset(dset_id, indices)
         call mh5_close_dset(dset_id)
 
         dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_VALUES',
-     &    1, [nTot1])
+     &    1, [size(vals)])
         call mh5_init_attr(dset_id, 'DESCRIPTION',
      &    'The active Fock matrix elements <i| F |j>.')
-        call mh5_put_dset(dset_id, F_act)
+        call mh5_put_dset(dset_id, vals)
         call mh5_close_dset(dset_id)
 
         write(u6,'(A)') 'Dumped active space Fockian to "f_act.h5".'
-        call mma_deallocate(indices)
       end subroutine dump_active_fockmat
 #endif
 
