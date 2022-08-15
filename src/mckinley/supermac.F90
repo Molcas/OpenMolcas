@@ -160,28 +160,3 @@
 !                                                                      *
       Return
       End
-      Subroutine Lu2Lu(Filename,LuInput)
-      Character FileName*(*), Line*180
-      Logical Exist
-#include "warnings.h"
-!
-      Call f_inquire(Filename,Exist)
-      If (.Not.Exist) Then
-         Write (6,*) 'SuperMac: Missing ',Filename
-         Call Finish(_RC_INTERNAL_ERROR_)
-      End If
-!
-      LuSpool2 = 77
-      LuSpool2 = IsFreeUnit(LuSpool2)
-      Call Molcas_Open(LuSpool2, Filename)
-!
- 100  Continue
-         Read (LuSpool2,'(A)',End=900) Line
-         Write(LuInput,'(A)') Line
-         Go To 100
- 900  Continue
-!
-      Close(LuSpool2)
-!
-      Return
-      End
