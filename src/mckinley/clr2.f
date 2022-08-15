@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Bernhardsson                                    *
-************************************************************************
-      SubRoutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,
-     &                iaoi,iaoj,naco,ishell,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Bernhardsson                                    *
+!***********************************************************************
+      SubRoutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,                     &
+     &                iaoi,iaoj,naco,ishell,                            &
      &                temp1,temp2,temp3,temp4,temp5,temp6)
-*
+!
       use pso_stuff
       use SOAO_Info, only: iAOtSO
       use Symmetry_Info, only: nIrrep, iOper
@@ -25,8 +25,8 @@
 #include "buffer.fh"
 #include "disp.fh"
 #include "disp2.fh"
-*
-      Real*8 rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,
+!
+      Real*8 rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,                        &
      &       nAco*(1+naco)/2,*)
       real*8 rout(*)
       Real*8 Temp1(ibas,icmp,*)
@@ -50,7 +50,7 @@
        n=n+ldisp(i-1)
       end do
       n=ibas*icmp*jbas*jcmp*nIrrep*nAco*(1+naco)/2*n
-*
+!
       ni=iCmp*iBas
       nj=jCmp*jBas
       ipi=1
@@ -84,33 +84,33 @@
             Do j=0,jirr-1
              ja=ja+nAsh(j)
             End Do
-*
-*           Symmetry of Q matrix
-*
+!
+!           Symmetry of Q matrix
+!
             jis=nropr(ieor(iOper(iIrr),ioper(mIrr)))
-*
+!
             lMax=nAsh(lIrr)
             If (lIrr.eq.kirr) lmax=kash
             Do lAsh=1,lMax
              l=lash+nA(lIrr)
              kl=itri(k,l)
-*
-*            id,iirr,jirr,kA,lA
-*
-             If (nash(jirr).ne.0)
-     &       Call DGEMM_('N','N',
-     &                   ni,nAsh(jIrr),nj,
-     &                   1.0d0,rin(1,iIrr,kl,id),ni,
-     &                   Temp6(ipj+(ja-1)*jcmp*jBas),nj,
+!
+!            id,iirr,jirr,kA,lA
+!
+             If (nash(jirr).ne.0)                                       &
+     &       Call DGEMM_('N','N',                                       &
+     &                   ni,nAsh(jIrr),nj,                              &
+     &                   1.0d0,rin(1,iIrr,kl,id),ni,                    &
+     &                   Temp6(ipj+(ja-1)*jcmp*jBas),nj,                &
      &                   0.0d0,Temp1,ni)
-            If (nash(iirr).ne.0)
-     &       Call DGEMM_('T','N',
-     &                   nash(iIrr),nAsh(jIrr),ni,
-     &                   1.0d0,Temp6(ipi+(ia-1)*icmp*ibas),ni,
-     &                   Temp1,ni,
+            If (nash(iirr).ne.0)                                        &
+     &       Call DGEMM_('T','N',                                       &
+     &                   nash(iIrr),nAsh(jIrr),ni,                      &
+     &                   1.0d0,Temp6(ipi+(ia-1)*icmp*ibas),ni,          &
+     &                   Temp1,ni,                                      &
      &                   0.0d0,Temp2,nash(iirr))
-*
-*
+!
+!
              Do iC=1,iCmp
               Do iB=1,iBas
                Do i=1,nAsh(jis)
@@ -124,13 +124,13 @@
                  if(iij.lt.kl .and. ih.eq.jh) fact=2.0d00
                   If (k.ne.l) FacT=fact*2.0d0
                  rd=G2(itri(iij,kl),1)*fact
-                 Temp4(iB,ic,i)=Temp4(ib,ic,i)+
+                 Temp4(iB,ic,i)=Temp4(ib,ic,i)+                         &
      &                 Temp1(ib,ic,iash)*rd
                 End Do
                End Do
               End Do
              End Do
-*
+!
              ipF=ipDisp3(id)-1+ipp(iirr)
              Do jAsh=1,nAsh(jis)
               Do iC=1,iCmp
@@ -144,21 +144,21 @@
                End If
               End Do
              End DO
-*
+!
              If (iShell(1).ne.ishell(2)) Then
-              If (nash(jirr).ne.0)
-     &        Call DGEMM_('T','N',
-     &                    nj,nAsh(jIrr),ni,
-     &                    1.0d0,rin(1,jIrr,kl,id),ni,
-     &                    Temp6(ipi+(ja-1)*icmp*ibas),ni,
+              If (nash(jirr).ne.0)                                      &
+     &        Call DGEMM_('T','N',                                      &
+     &                    nj,nAsh(jIrr),ni,                             &
+     &                    1.0d0,rin(1,jIrr,kl,id),ni,                   &
+     &                    Temp6(ipi+(ja-1)*icmp*ibas),ni,               &
      &                    0.0d0,Temp3,nj)
-              If (nash(iirr).ne.0)
+              If (nash(iirr).ne.0)                                      &
 
-     &        Call DGEMM_('T','N',nAsh(iirr),nAsh(jirr),nj,
-     &                  One,Temp6(ipj+(ia-1)*jcmp*jBas),nj,
-     &                  Temp3,nj,
+     &        Call DGEMM_('T','N',nAsh(iirr),nAsh(jirr),nj,             &
+     &                  One,Temp6(ipj+(ia-1)*jcmp*jBas),nj,             &
+     &                  Temp3,nj,                                       &
      &                  one,Temp2,nAsh(iirr))
-*
+!
               Do jC=1,jCmp
                Do jB=1,jBas
                 Do i=1,nAsh(jis)
@@ -177,7 +177,7 @@
                 End Do
                End Do
               End Do
-*
+!
               ipf=ipDisp3(id)-1+ipp(iirr)
               Do iAsh=1,nAsh(jis)
                Do jC=1,jCmp
@@ -192,9 +192,9 @@
                End Do
               End DO
              End If
-*
-* Distribute integrals
-*
+!
+! Distribute integrals
+!
              if (iirr.ge.jirr) then
              klt=itri(k,l)
              Do iAsh=1,nash(iirr)

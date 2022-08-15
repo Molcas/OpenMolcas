@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine OpnFls_McKinley()
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep, lIrrep
@@ -76,11 +76,11 @@
          Write (6,'(A,A)') 'MckLbl=',MckLbl
          Call Abend()
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*...  Get the method label
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!...  Get the method label
+!
       Call Get_cArray('Relax Method',Method,8)
       If ( Method.eq.'RHF-SCF ' ) then
          nMethod=SCF
@@ -93,7 +93,7 @@
             Write (6,*)
             Write (6,*) ' Wavefunction type: RASSCF-SA'
             Write (6,*)
-            Write (6,*) ' This option is not allowed when computing'//
+            Write (6,*) ' This option is not allowed when computing'//  &
      &                  ' the Hessian. Use the RHS option!'
             Call Quit_OnUserError()
          End If
@@ -104,6 +104,6 @@
          Write (6,*)
          Call Quit_OnUserError()
       End If
-*
+!
       Return
       End

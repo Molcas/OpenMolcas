@@ -1,56 +1,56 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
-*               1995, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Roland Lindh                                     *
+!               1995, Anders Bernhardsson                              *
+!***********************************************************************
 #define _Old_Code_
 #ifdef _Old_Code_
-      SubRoutine Screen_mck(PAO,Scrtch,mPAO,
-     &                  nZeta,nEta,mZeta,mEta,lZeta,lEta,
-     &                  Zeta,ZInv,P,xA,xB,rKA,
-     &                  Data1,IndZ,ztmx,abmax,zexpmax,
-     &                  nAlpha,nBeta,
-     &                  Eta, EInv,Q,xG,xD,rKC,Data2,IndE,
-     &                  etmx,cdmax,eexpmax,nGamma,nDelta,
-     &                  xpre,
-     &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,
+      SubRoutine Screen_mck(PAO,Scrtch,mPAO,                            &
+     &                  nZeta,nEta,mZeta,mEta,lZeta,lEta,               &
+     &                  Zeta,ZInv,P,xA,xB,rKA,                          &
+     &                  Data1,IndZ,ztmx,abmax,zexpmax,                  &
+     &                  nAlpha,nBeta,                                   &
+     &                  Eta, EInv,Q,xG,xD,rKC,Data2,IndE,               &
+     &                  etmx,cdmax,eexpmax,nGamma,nDelta,               &
+     &                  xpre,                                           &
+     &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,     &
      &                  PreScr,IndZet,IndEta,ldot)
-************************************************************************
-*                                                                      *
-* Object: to prescreen the integral derivatives.                       *
-*                                                                      *
-*   nZeta, nEta : unpartioned length of primitives.                    *
-*                                                                      *
-*   mZeta, mEta : section length due to partioning. These are usually  *
-*                 equal to nZeta and nEta.                             *
-*                                                                      *
-*   lZeta, lEta : section length after prescreening.                   *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             March '92                                                *
-*                                                                      *
-*             April '92 modified for gradient estimate                 *
-*                                                                      *
-*             Anders Bernhardsson 1995                                 *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to prescreen the integral derivatives.                       *
+!                                                                      *
+!   nZeta, nEta : unpartioned length of primitives.                    *
+!                                                                      *
+!   mZeta, mEta : section length due to partioning. These are usually  *
+!                 equal to nZeta and nEta.                             *
+!                                                                      *
+!   lZeta, lEta : section length after prescreening.                   *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             March '92                                                *
+!                                                                      *
+!             April '92 modified for gradient estimate                 *
+!                                                                      *
+!             Anders Bernhardsson 1995                                 *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-      Real*8 PAO(mZeta*mEta*mPAO),Scrtch(mZeta*mEta*(1+mPAO*2)),
-     &       Zeta(nZeta), ZInv(nZeta),  P(nZeta,3),
-     &        Eta(nEta),  EInv(nEta),   Q(nEta, 3),
-     &       xA(nZeta), xB(nZeta), xG(nEta), xD(nEta),
-     &       Data1(nZeta*nDArray),
-     &       Data2(nEta *nDArray),
-     &       rKA(nZeta),rKC(nEta),
+      Real*8 PAO(mZeta*mEta*mPAO),Scrtch(mZeta*mEta*(1+mPAO*2)),        &
+     &       Zeta(nZeta), ZInv(nZeta),  P(nZeta,3),                     &
+     &        Eta(nEta),  EInv(nEta),   Q(nEta, 3),                     &
+     &       xA(nZeta), xB(nZeta), xG(nEta), xD(nEta),                  &
+     &       Data1(nZeta*nDArray),                                      &
+     &       Data2(nEta *nDArray),                                      &
+     &       rKA(nZeta),rKC(nEta),                                      &
      &       xpre(mZeta*mEta)
       Logical PreScr,ldot
       Integer IndEta(nEta),IndZet(nZeta), IndZ(mZeta), IndE(mEta)
@@ -58,32 +58,32 @@
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
-*
+!
 #ifdef _DEBUGPRINT_
       iRout = 180
       iPrint = nPrint(iRout)
-*
+!
       If (iPrint.ge.99) Then
          Call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
          Call RecPrt(' Data2',' ',Data2,nEta ,nDArray)
-         Call RecPrt('2nd order density matrix',' ',
+         Call RecPrt('2nd order density matrix',' ',                    &
      &               PAO,mZeta*mEta,mPAO)
       End If
 #endif
-*
+!
       ip=1
       ipPAO = ip
       ip = ip + mZeta*mEta*mPAO
-*
-*-----Compress all indices except zeta
-*
+!
+!-----Compress all indices except zeta
+!
       ipOAP = ip
       ip = ip + mZeta*mEta*mPAO
-      If (ldot) Call DGetMO(PAO,mZeta,mZeta,mEta*mPAO,
+      If (ldot) Call DGetMO(PAO,mZeta,mZeta,mEta*mPAO,                  &
      &                      Scrtch(ipOAP),mEta*mPAO)
-*
-*-----Prescreen Zeta
-*
+!
+!-----Prescreen Zeta
+!
       lZeta=0
       Call IZero(IndZet,nZeta)
       If (PreScr) Then
@@ -104,7 +104,7 @@
                ZInv(lZeta)  = Data1(ip_ZInv (iZeta,nZeta))
                ip1 = ipOAP + mEta*mPAO*(iZeta-1)
                ip2 = ipPAO + mEta*mPAO*(lZeta-1)
-               If (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,
+               If (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,           &
      &                                        Scrtch(ip2),1)
             End If
          End Do
@@ -123,23 +123,23 @@
             ZInv(lZeta)  = Data1(ip_ZInv (iZeta,nZeta))
             ip1 = ipOAP + mEta*mPAO*(iZeta-1)
             ip2 = ipPAO + mEta*mPAO*(lZeta-1)
-            If (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,
+            If (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,              &
      &                                     Scrtch(ip2),1)
          End Do
       End If
       If (lZeta.eq.0) Go To 999
-*
+!
       If (iphX1.ne.1) Call DScal_(lZeta,-One,P(1,1),1)
       If (iphY1.ne.1) Call DScal_(lZeta,-One,P(1,2),1)
       If (iphZ1.ne.1) Call DScal_(lZeta,-One,P(1,3),1)
-*
-*-----Transpose eta,mPAO,zeta to mPAO,zeta,eta
-*
-      If (lDot) Call DGetMO(Scrtch(ipPAO),mEta,mEta,mPAO*lZeta,
+!
+!-----Transpose eta,mPAO,zeta to mPAO,zeta,eta
+!
+      If (lDot) Call DGetMO(Scrtch(ipPAO),mEta,mEta,mPAO*lZeta,         &
      &                      Scrtch(ipOAP),mPAO*lZeta)
-*
-*-----Prescreen Eta
-*
+!
+!-----Prescreen Eta
+!
       lEta=0
       Call IZero(IndEta,nEta)
       If (PreScr) Then
@@ -160,7 +160,7 @@
                EInv(lEta)  = Data2(ip_ZInv (iEta,nEta))
                ip1 = ipOAP + mPAO*lZeta*(iEta-1)
                ip2 = ipPAO + mPAO*lZeta*(lEta-1)
-               If (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,
+               If (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,          &
      &                                         Scrtch(ip2),1)
             End If
          End Do
@@ -179,23 +179,23 @@
             EInv(lEta)  = Data2(ip_ZInv (iEta,nEta))
             ip1 = ipOAP + mPAO*lZeta*(iEta-1)
             ip2 = ipPAO + mPAO*lZeta*(lEta-1)
-            if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,
+            if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,             &
      &                                      Scrtch(ip2),1)
          End Do
       End If
       If (lEta.eq.0) Go To 999
-*
+!
       If (iphX2.ne.1) Call DScal_(lEta,-One,Q(1,1),1)
       If (iphY2.ne.1) Call DScal_(lEta,-One,Q(1,2),1)
       If (iphZ2.ne.1) Call DScal_(lEta,-One,Q(1,3),1)
-*
-*-----Transpose mPAO,zeta,eta to zeta,eta,mPAO
-*
-      If (ldot) Call DGeTMO(Scrtch(ipPAO),mPAO,mPAO,lZeta*lEta,
+!
+!-----Transpose mPAO,zeta,eta to zeta,eta,mPAO
+!
+      If (ldot) Call DGeTMO(Scrtch(ipPAO),mPAO,mPAO,lZeta*lEta,         &
      &                                          PAO,lZeta*lEta)
-*
+!
  999  Continue
-*
+!
       ij = 0
       Do iEta = 1,lEta
          Et   = Eta(iEta)
@@ -217,11 +217,11 @@
          End Do
       End If
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.39) Call RecPrt(' PAO',' ',
+      If (iPrint.ge.39) Call RecPrt(' PAO',' ',                         &
      &                              PAO,lZeta*lEta,mPAO)
 #endif
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real(ztmx)
          Call Unused_real(zexpmax)
@@ -234,44 +234,44 @@ c Avoid unused argument warnings
       End If
       End
 #else
-      SubRoutine Screen_mck(PAO,Scrtch,mPAO,
-     &                  nZeta,nEta,mZeta,mEta,lZeta,lEta,
-     &                  Zeta,ZInv,P,xA,xB,rKA,
-     &                  Data1,IndZ,ztmx,abmax,zexpmax,
-     &                  nAlpha,nBeta,
-     &                  Eta, EInv,Q,xG,xD,rKC,Data2,IndE,
-     &                  etmx,cdmax,eexpmax,nGamma,nDelta,
-     &                  xpre,
-     &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,
+      SubRoutine Screen_mck(PAO,Scrtch,mPAO,                            &
+     &                  nZeta,nEta,mZeta,mEta,lZeta,lEta,               &
+     &                  Zeta,ZInv,P,xA,xB,rKA,                          &
+     &                  Data1,IndZ,ztmx,abmax,zexpmax,                  &
+     &                  nAlpha,nBeta,                                   &
+     &                  Eta, EInv,Q,xG,xD,rKC,Data2,IndE,               &
+     &                  etmx,cdmax,eexpmax,nGamma,nDelta,               &
+     &                  xpre,                                           &
+     &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,     &
      &                  PreScr,IndZet,IndEta,ldot)
-************************************************************************
-*                                                                      *
-* Object: to prescreen the integral derivatives.                       *
-*                                                                      *
-*   nZeta, nEta : unpartioned length of primitives.                    *
-*                                                                      *
-*   mZeta, mEta : section length due to partioning. These are usually  *
-*                 equal to nZeta and nEta.                             *
-*                                                                      *
-*   lZeta, lEta : section length after prescreening.                   *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             March '92                                                *
-*                                                                      *
-*             April '92 modified for gradient estimate                 *
-*                                                                      *
-*             Anders Bernhardsson 1995                                 *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to prescreen the integral derivatives.                       *
+!                                                                      *
+!   nZeta, nEta : unpartioned length of primitives.                    *
+!                                                                      *
+!   mZeta, mEta : section length due to partioning. These are usually  *
+!                 equal to nZeta and nEta.                             *
+!                                                                      *
+!   lZeta, lEta : section length after prescreening.                   *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             March '92                                                *
+!                                                                      *
+!             April '92 modified for gradient estimate                 *
+!                                                                      *
+!             Anders Bernhardsson 1995                                 *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-      Real*8 PAO(mZeta*mEta*mPAO),Scrtch(mZeta*mEta*(1+mPAO*2)),
-     &       Zeta(nZeta), ZInv(nZeta),  P(nZeta,3),
-     &        Eta(nEta),  EInv(nEta),   Q(nEta, 3),
-     &       xA(nZeta), xB(nZeta), xG(nEta), xD(nEta),
-     &       Data1(nZeta*nDArray),
-     &       Data2(nEta *nDArray),
-     &       rKA(nZeta),rKC(nEta),
+      Real*8 PAO(mZeta*mEta*mPAO),Scrtch(mZeta*mEta*(1+mPAO*2)),        &
+     &       Zeta(nZeta), ZInv(nZeta),  P(nZeta,3),                     &
+     &        Eta(nEta),  EInv(nEta),   Q(nEta, 3),                     &
+     &       xA(nZeta), xB(nZeta), xG(nEta), xD(nEta),                  &
+     &       Data1(nZeta*nDArray),                                      &
+     &       Data2(nEta *nDArray),                                      &
+     &       rKA(nZeta),rKC(nEta),                                      &
      &       xpre(mZeta*mEta)
       Logical PreScr,ldot
       Integer IndEta(nEta),IndZet(nZeta), IndZ(mZeta), IndE(mEta)
@@ -279,32 +279,32 @@ c Avoid unused argument warnings
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
-*
+!
 #ifdef _DEBUGPRINT_
       iRout = 180
       iPrint = nPrint(iRout)
-*
+!
       If (iPrint.ge.99) Then
          Call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
          Call RecPrt(' Data2',' ',Data2,nEta ,nDArray)
-         Call RecPrt('2nd order density matrix',' ',
+         Call RecPrt('2nd order density matrix',' ',                    &
      &               PAO,mZeta*mEta,mPAO)
       End If
 #endif
-*
+!
       ip=1
       ipPAO = ip
       ip = ip + mZeta*mEta*mPAO
-*
-*-----Compress all indices except zeta
-*
+!
+!-----Compress all indices except zeta
+!
       ipOAP = ip
       ip = ip + mZeta*mEta*mPAO
-      If (ldot) Call DGetMO(PAO,mZeta,mZeta,mEta*mPAO,
+      If (ldot) Call DGetMO(PAO,mZeta,mZeta,mEta*mPAO,                  &
      &                      Scrtch(ipOAP),mEta*mPAO)
-*
-*-----Prescreen Zeta
-*
+!
+!-----Prescreen Zeta
+!
       lZeta=0
       If (PreScr) Then
          Do iZeta = 1, mZeta
@@ -323,7 +323,7 @@ c Avoid unused argument warnings
                ZInv(lZeta)  = Data1(ip_ZInv (iZeta,nZeta))
                ip1 = ipOAP + mEta*mPAO*(iZeta-1)
                ip2 = ipOAP + mEta*mPAO*(lZeta-1)
-               If (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,
+               If (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,           &
      &                                        Scrtch(ip2),1)
             End If
          End Do
@@ -341,23 +341,23 @@ c Avoid unused argument warnings
             ZInv(lZeta)  = Data1(ip_ZInv (iZeta,nZeta))
             ip1 = ipOAP + mEta*mPAO*(iZeta-1)
             ip2 = ipOAP + mEta*mPAO*(lZeta-1)
-            If (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,
+            If (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,              &
      &                                     Scrtch(ip2),1)
          End Do
       End If
       If (lZeta.eq.0) Go To 999
-*
+!
       If (iphX1.ne.1) Call DScal_(lZeta,-One,P(1,1),1)
       If (iphY1.ne.1) Call DScal_(lZeta,-One,P(1,2),1)
       If (iphZ1.ne.1) Call DScal_(lZeta,-One,P(1,3),1)
-*
-*-----Transpose eta,mPAO,zeta to mPAO,zeta,eta
-*
-      If (lDot) Call DGetMO(Scrtch(ipOAP),mEta,mEta,mPAO*lZeta,
+!
+!-----Transpose eta,mPAO,zeta to mPAO,zeta,eta
+!
+      If (lDot) Call DGetMO(Scrtch(ipOAP),mEta,mEta,mPAO*lZeta,         &
      &                      Scrtch(ipPAO),mPAO*lZeta)
-*
-*-----Prescreen Eta
-*
+!
+!-----Prescreen Eta
+!
       lEta=0
       If (PreScr) Then
          Do iEta = 1, mEta
@@ -376,7 +376,7 @@ c Avoid unused argument warnings
                EInv(lEta)  = Data2(ip_ZInv (iEta,nEta))
                ip1 = ipPAO + mPAO*lZeta*(iEta-1)
                ip2 = ipPAO + mPAO*lZeta*(lEta-1)
-               If (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,
+               If (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,          &
      &                                         Scrtch(ip2),1)
             End If
          End Do
@@ -394,23 +394,23 @@ c Avoid unused argument warnings
             EInv(lEta)  = Data2(ip_ZInv (iEta,nEta))
             ip1 = ipPAO + mPAO*lZeta*(iEta-1)
             ip2 = ipPAO + mPAO*lZeta*(lEta-1)
-            if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,
+            if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,             &
      &                                      Scrtch(ip2),1)
          End Do
       End If
       If (lEta.eq.0) Go To 999
-*
+!
       If (iphX2.ne.1) Call DScal_(lEta,-One,Q(1,1),1)
       If (iphY2.ne.1) Call DScal_(lEta,-One,Q(1,2),1)
       If (iphZ2.ne.1) Call DScal_(lEta,-One,Q(1,3),1)
-*
-*-----Transpose mPAO,zeta,eta to zeta,eta,mPAO
-*
-      If (ldot) Call DGeTMO(Scrtch(ipPAO),mPAO,mPAO,lZeta*lEta,
+!
+!-----Transpose mPAO,zeta,eta to zeta,eta,mPAO
+!
+      If (ldot) Call DGeTMO(Scrtch(ipPAO),mPAO,mPAO,lZeta*lEta,         &
      &                                          PAO,lZeta*lEta)
-*
+!
  999  Continue
-*
+!
       ij = 0
       Do iEta = 1,lEta
          Et   = Eta(iEta)
@@ -432,11 +432,11 @@ c Avoid unused argument warnings
          End Do
       End If
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.39) Call RecPrt(' PAO',' ',
+      If (iPrint.ge.39) Call RecPrt(' PAO',' ',                         &
      &                              PAO,lZeta*lEta,mPAO)
 #endif
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real(ztmx)
          Call Unused_real(zexpmax)

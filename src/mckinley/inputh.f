@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991,1992, Roland Lindh                                *
-*               1996, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991,1992, Roland Lindh                                *
+!               1996, Anders Bernhardsson                              *
+!***********************************************************************
       SubRoutine Inputh(Run_MCLR)
-************************************************************************
-*                                                                      *
-* Object: input module for the gradient code                           *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             September 1991                                           *
-*                                                                      *
-*             Modified to complement GetInf, January 1992              *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: input module for the gradient code                           *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             September 1991                                           *
+!                                                                      *
+!             Modified to complement GetInf, January 1992              *
+!***********************************************************************
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
@@ -37,7 +37,7 @@
 #include "print.fh"
 #include "SysDef.fh"
       Logical TstFnc, Type, Slct
-c      Logical DoCholesky
+!      Logical DoCholesky
       Character*1 xyz(0:2)
       Character*8 Label,labelop
       Character*32 Label2
@@ -53,12 +53,12 @@ c      Logical DoCholesky
           Character(kind=c_char) :: TimeStamp(*)
         End Subroutine
       End Interface
-*
-c      Call DecideOnCholesky(DoCholesky)
-c      If (DoCholesky) Then
-c       write(6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
-c       call abend()
-c      EndIf
+!
+!      Call DecideOnCholesky(DoCholesky)
+!      If (DoCholesky) Then
+!       write(6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
+!       call abend()
+!      EndIf
 
       iRout=99
       Do i = 1, nRout
@@ -85,9 +85,9 @@ c      EndIf
       Do 109 i = 1, 3*MxAtom
          IndxEq(i) = i
  109  Continue
-*
-*     KeyWord directed input
-*
+!
+!     KeyWord directed input
+!
       LuRd=5
       Call RdNLst(LuRd,'MCKINLEY')
  998  Read(5,'(A72)',END=977,ERR=988) Key
@@ -95,12 +95,12 @@ c      EndIf
       Call UpCase(KWord)
       If (KWord(1:1).eq.'*')    Go To 998
       If (KWord.eq.'')       Go To 998
-*     If (KWord(1:4).eq.'EQUI') Go To 935
-*     If (KWord(1:4).eq.'NOTR') Go To 952
-*     If (KWord(1:4).eq.'NOIN') Go To 953
+!     If (KWord(1:4).eq.'EQUI') Go To 935
+!     If (KWord(1:4).eq.'NOTR') Go To 952
+!     If (KWord(1:4).eq.'NOIN') Go To 953
       If (KWord(1:4).eq.'SHOW') Go To 992
       If (KWord(1:4).eq.'MEM ') Go To 697
-*
+!
       If (KWord(1:4).eq.'CUTO') Go To 942
       If (KWord(1:4).eq.'VERB') Go To 912
       If (KWord(1:4).eq.'NOSC') Go To 965
@@ -122,17 +122,17 @@ c      EndIf
  988  Write (6,*) 'InputH: error reading input file.'
       Write (6,'(A,A)') 'Last command=',KWord
       Call Abend()
-*                                                                      *
-****** MEM  ************************************************************
-*                                                                      *
+!                                                                      *
+!***** MEM  ************************************************************
+!                                                                      *
  697  Read(5,*) nmem
       nmem=nmem*1048576/rtob
       goto 998
-*                                                                      *
-****** PERT ************************************************************
-*                                                                      *
-*     Select which part of the Hessian will be compiuted.
-*
+!                                                                      *
+!***** PERT ************************************************************
+!                                                                      *
+!     Select which part of the Hessian will be compiuted.
+!
 975   Read(5,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 975
       If (KWord.eq.'')    Go To 975
@@ -148,147 +148,147 @@ c      EndIf
       End If
 
       Goto 998
-*                                                                      *
-****** EQUI ************************************************************
-*                                                                      *
-*     Equivalence option
-*
-*935  Continue
-*     lEq=.True.
-*936  Read(5,'(A)',Err=988) KWord
-*     If (KWord(1:1).eq.'*') Go To 936
-*     If (KWord.eq.'')    Go To 936
-*     Read(KWord,*) nGroup
-*     Do 937 iGroup = 1, nGroup
-*938     Read(5,'(A)',Err=988) KWord
-*        If (KWord(1:1).eq.'*') Go To 938
-*        If (KWord.eq.'')    Go To 938
-*        Read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
-*        Do 939 iElem=2,nElem
-*           IndxEq(iTemp(iElem)) = iTemp(1)
-*           Direct(iTemp(iElem)) = .False.
-*939      Continue
-*937   Continue
-*     Go To 998
-*                                                                      *
-****** CUTO ************************************************************
-*                                                                      *
-*     Cuttoff for computing primitive gradients
-*
+!                                                                      *
+!***** EQUI ************************************************************
+!                                                                      *
+!     Equivalence option
+!
+!935  Continue
+!     lEq=.True.
+!936  Read(5,'(A)',Err=988) KWord
+!     If (KWord(1:1).eq.'*') Go To 936
+!     If (KWord.eq.'')    Go To 936
+!     Read(KWord,*) nGroup
+!     Do 937 iGroup = 1, nGroup
+!938     Read(5,'(A)',Err=988) KWord
+!        If (KWord(1:1).eq.'*') Go To 938
+!        If (KWord.eq.'')    Go To 938
+!        Read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
+!        Do 939 iElem=2,nElem
+!           IndxEq(iTemp(iElem)) = iTemp(1)
+!           Direct(iTemp(iElem)) = .False.
+!939      Continue
+!937   Continue
+!     Go To 998
+!                                                                      *
+!***** CUTO ************************************************************
+!                                                                      *
+!     Cuttoff for computing primitive gradients
+!
  942  Read(5,*) Cutint
-*     If (KWord(1:1).eq.'*') Go To 942
-*     If (KWord.eq.'')    Go To 942
-*     Read(KWord,*,Err=988) CutInt
+!     If (KWord(1:1).eq.'*') Go To 942
+!     If (KWord.eq.'')    Go To 942
+!     Read(KWord,*,Err=988) CutInt
       CutInt = Abs(CutInt)
       Go To 998
-*                                                                      *
-****** NOIN ************************************************************
-*                                                                      *
-*     Disable the utilization of translational and
-*     rotational invariance of the energy in the
-*     computation of the molecular gradient.
-*
-*953  TRSymm=.False.
-*     Go To 998
-*                                                                      *
-****** SELE ************************************************************
-*                                                                      *
-*     selection option
-*
+!                                                                      *
+!***** NOIN ************************************************************
+!                                                                      *
+!     Disable the utilization of translational and
+!     rotational invariance of the energy in the
+!     computation of the molecular gradient.
+!
+!953  TRSymm=.False.
+!     Go To 998
+!                                                                      *
+!***** SELE ************************************************************
+!                                                                      *
+!     selection option
+!
  960  Continue
       slct=.true.
       Call lCopy(mxpert,[.false.],0,lPert,1)
-*962  Continue
+!962  Continue
       Read(5,*) nslct
-*     If (KWord(1:1).eq.'*') Go To 962
-*     If (KWord.eq.'')    Go To 962
-*     Read(KWord,*) nSlct
-*
+!     If (KWord(1:1).eq.'*') Go To 962
+!     If (KWord.eq.'')    Go To 962
+!     Read(KWord,*) nSlct
+!
       Read(5,*) (iTemp(iElem),iElem=1,nSlct)
       Do 964 iElem=1,nSlct
          lpert(iTemp(iElem)) = .True.
 964   Continue
       Go To 998
-*                                                                      *
-****** REMO ************************************************************
-*                                                                      *
+!                                                                      *
+!***** REMO ************************************************************
+!                                                                      *
  260  Continue
       Slct=.true.
       Read(5,*) nslct
-*
+!
       Read(5,*) (iTemp(iElem),iElem=1,nSlct)
       Do 264 iElem=1,nSlct
          lpert(iTemp(iElem)) = .false.
 264   Continue
       Go To 998
-*                                                                      *
-****** NOSC ************************************************************
-*                                                                      *
-*     Change default for the prescreening.
-*
+!                                                                      *
+!***** NOSC ************************************************************
+!                                                                      *
+!     Change default for the prescreening.
+!
  965  PreScr  = .False.
       Go To 998
-*                                                                      *
-****** ONEO ************************************************************
-*                                                                      *
-*     Do not compute two electron integrals.
-*
+!                                                                      *
+!***** ONEO ************************************************************
+!                                                                      *
+!     Do not compute two electron integrals.
+!
  990  Onenly = .TRUE.
       Go To 998
-*                                                                      *
-****** TEST ************************************************************
-*                                                                      *
-*     Process only the input.
-*
+!                                                                      *
+!***** TEST ************************************************************
+!                                                                      *
+!     Process only the input.
+!
  991  Test = .TRUE.
       Go To 998
-*                                                                      *
-****** SHOW ************************************************************
-*                                                                      *
-*-----Raise the printlevel to show gradient contributions
-*
+!                                                                      *
+!***** SHOW ************************************************************
+!                                                                      *
+!-----Raise the printlevel to show gradient contributions
+!
  992  Continue
       Show=.true.
       Go To 998
-*                                                                      *
-****** EXTR ************************************************************
-*                                                                      *
-*     Put the program name and the time stamp onto the extract file
-*
+!                                                                      *
+!***** EXTR ************************************************************
+!                                                                      *
+!     Put the program name and the time stamp onto the extract file
+!
 971   Write (6,*) 'InputH: EXTRACT option is redundant and is ignored!'
       Go To 998
-*                                                                      *
-****** VERB ************************************************************
-*                                                                      *
-*     Verbose output
-*
+!                                                                      *
+!***** VERB ************************************************************
+!                                                                      *
+!     Verbose output
+!
  912  nPrint( 1)=6
       nPrint(99)=6
       Go To 998
-*                                                                      *
-****** NONA ************************************************************
-*                                                                      *
-*     Compute the anti-symmetric overlap gradient only.
-*
+!                                                                      *
+!***** NONA ************************************************************
+!                                                                      *
+!     Compute the anti-symmetric overlap gradient only.
+!
 972   Nona=.true.
       Run_MCLR=.False.
       Go To 998
-*                                                                      *
-****** NOMC ************************************************************
-*                                                                      *
-*     Request no automatic run of MCLR
-*
+!                                                                      *
+!***** NOMC ************************************************************
+!                                                                      *
+!     Request no automatic run of MCLR
+!
 973   Run_MCLR=.False.
       Go To 998
-************************************************************************
-*                                                                      *
-*                          End of input section.                       *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!                          End of input section.                       *
+!                                                                      *
+!***********************************************************************
  997  Continue
-*
+!
       iPrint=nPrint(iRout)
-*
+!
       iOpt = 1
       if (onenly) iopt=0
       iRC = -1
@@ -331,9 +331,9 @@ c      EndIf
         Call Abend()
       End If
 
-*     If (lEq)  TRSymm=.False.
-*     If (Slct) TRSymm=.False.
-*
+!     If (lEq)  TRSymm=.False.
+!     If (Slct) TRSymm=.False.
+!
       mDisp = 0
       mdc = 0
       Do 10 iCnttp = 1, nCnttp
@@ -342,33 +342,33 @@ c      EndIf
             mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
  20      Continue
  10   Continue
-*
+!
       Write (6,*)
-      Write (6,'(20X,A,E10.3)')
-     &  ' Threshold for contributions to the gradient or Hessian:',
+      Write (6,'(20X,A,E10.3)')                                         &
+     &  ' Threshold for contributions to the gradient or Hessian:',     &
      &   CutInt
       Write (6,*)
-*
+!
       If (Nona) Then
          Write (6,*)
-         Write (6,'(20X,A)')
-     &   ' McKinley only is computing the antisymmetric gradient '//
+         Write (6,'(20X,A)')                                            &
+     &   ' McKinley only is computing the antisymmetric gradient '//    &
      &   ' of the overlap integrals for the NonAdiabatic Coupling.'
          Write (6,*)
       End If
-*
+!
       If (iCntrl.eq.1) Then
-*
-*
-*     Generate symmetry adapted cartesian displacements
-*
+!
+!
+!     Generate symmetry adapted cartesian displacements
+!
       If (iPrint.ge.6) Then
       Write (6,*)
-      Write (6,'(20X,A)')
+      Write (6,'(20X,A)')                                               &
      &           '********************************************'
-      Write (6,'(20X,A)')
+      Write (6,'(20X,A)')                                               &
      &           '* Symmetry Adapted Cartesian Displacements *'
-      Write (6,'(20X,A)')
+      Write (6,'(20X,A)')                                               &
      &           '********************************************'
       Write (6,*)
       End If
@@ -380,18 +380,18 @@ c      EndIf
       Do 100 iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0
          Type = .True.
-*        Loop over basis function definitions
+!        Loop over basis function definitions
          mdc = 0
          mc = 1
          Do 110 iCnttp = 1, nCnttp
-*           Loop over unique centers associated with this basis set.
+!           Loop over unique centers associated with this basis set.
             Do 120 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
-*              Loop over the cartesian components
+!              Loop over the cartesian components
                Do 130 iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(dc(mdc)%iCoSet,
+                  If ( TstFnc(dc(mdc)%iCoSet,                           &
      &                       iIrrep,iComp,dc(mdc)%nStab) ) Then
                       nDisp = nDisp + 1
                       If (nDisp.gt.mDisp) Then
@@ -403,38 +403,38 @@ c      EndIf
                       If (Type) Then
                          If (iPrint.ge.6) Then
                          Write (6,*)
-                         Write (6,'(10X,A,A)')
-     &                    ' Irreducible representation : ',
+                         Write (6,'(10X,A,A)')                          &
+     &                    ' Irreducible representation : ',             &
      &                      lIrrep(iIrrep)
-                         Write (6,'(10X,2A)')
-     &                      ' Basis function(s) of irrep: ',
+                         Write (6,'(10X,2A)')                           &
+     &                      ' Basis function(s) of irrep: ',            &
      &                       lBsFnc(iIrrep)
                          Write (6,*)
-                         Write (6,'(A)')
+                         Write (6,'(A)')                                &
      &                   ' Basis Label        Type   Center Phase'
                          End If
                          Type = .False.
                       End If
-                      If (iPrint.ge.6)
-     &                Write (6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))')
-     &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),
-     &                      (mc+iCo,iPrmt(
-     &                      NrOpr(dc(mdc)%iCoSet(iCo,0)),iComp)*
-     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),
+                      If (iPrint.ge.6)                                  &
+     &                Write (6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))')    &
+     &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),             &
+     &                      (mc+iCo,iPrmt(                              &
+     &                      NrOpr(dc(mdc)%iCoSet(iCo,0)),iComp)*        &
+     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),&
      &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
-                      Write (ChDisp(nDisp),'(A,1X,A1)')
+                      Write (ChDisp(nDisp),'(A,1X,A1)')                 &
      &                       dc(mdc)%LblCnt,xyz(iCar)
                       ATDisp(ndisp)=icnttp
                       DEGDisp(ndisp)=nIrrep/dc(mdc)%nStab
                   End If
-*
+!
  130           Continue
                mc = mc + nIrrep/dc(mdc)%nStab
  120        Continue
  110     Continue
-*
+!
  100  Continue
-*
+!
       If (nDisp.ne.mDisp) Then
          Write (6,*) 'InputH: nDisp.ne.mDisp'
          Write (6,*) 'nDisp,mDisp=',nDisp,mDisp
@@ -487,16 +487,16 @@ c      EndIf
          Call Abend()
       End If
       Call mma_deallocate(TDisp)
-*
+!
       Else If (iCntrl.eq.2) Then
           Write(6,*) 'Svaret aer 48 '
       Else If (iCntrl.eq.3) Then
           Write(6,*) 'Svaret aer 48'
       End If
-*
-*     Set up data for the utilization of the translational
-*     and rotational invariance of the energy.
-*
+!
+!     Set up data for the utilization of the translational
+!     and rotational invariance of the energy.
+!
       If (TRSymm) Then
          Call Abend()
          iSym(1) = 0
@@ -510,12 +510,12 @@ c      EndIf
    16       Continue
    15    Continue
          nTR = 0
-*--------Translational equations
+!--------Translational equations
          Do 150 i = 1, 3
             If (iSym(i).eq.0) nTR = nTR + 1
  150     Continue
          If (iPrint.ge.99) Write (6,*) ' nTR=',nTR
-*--------Rotational equations
+!--------Rotational equations
          Do 160 i = 1,3
             j = i+1
             If (j.gt.3) j = j-3
@@ -533,44 +533,44 @@ c      EndIf
          Call mma_allocate(Tmp,nTR,nTR,Label='Tmp')
          Call mma_allocate(C,4,lDisp(0),Label='C')
          Call mma_allocate(Car,lDisp(0),Label='Car')
-*
+!
          AM(:,:)=Zero
          C(:,:)=Zero
-*
-*        Generate temporary information of the symmetrical
-*        displacements.
-*
+!
+!        Generate temporary information of the symmetrical
+!        displacements.
+!
         ldsp = 0
          mdc = 0
          iIrrep = 0
          Do 2100 iCnttp = 1, nCnttp
             Do 2200 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
-*              Call RecPrt(' Coordinates',' ',
-*    &                     dbsc(iCnttp)%Coor(1,iCnt),1,3)
+!              Call RecPrt(' Coordinates',' ',
+!    &                     dbsc(iCnttp)%Coor(1,iCnt),1,3)
                Fact = Zero
                iComp = 0
-               If (dbsc(iCnttp)%Coor(1,iCnt).ne.Zero)
+               If (dbsc(iCnttp)%Coor(1,iCnt).ne.Zero)                   &
      &            iComp = iOr(iComp,1)
-               If (dbsc(iCnttp)%Coor(2,iCnt).ne.Zero)
+               If (dbsc(iCnttp)%Coor(2,iCnt).ne.Zero)                   &
      &            iComp = iOr(iComp,2)
-               If (dbsc(iCnttp)%Coor(3,iCnt).ne.Zero)
+               If (dbsc(iCnttp)%Coor(3,iCnt).ne.Zero)                   &
      &            iComp = iOr(iComp,4)
                Do 2250 jIrrep = 0, nIrrep-1
-                  If ( TstFnc(dc(mdc)%iCoSet,
+                  If ( TstFnc(dc(mdc)%iCoSet,                           &
      &                        jIrrep,iComp,dc(mdc)%nStab) ) Then
                      Fact = Fact + One
                   End If
  2250          Continue
                Do 2300 iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(dc(mdc)%iCoSet,
+                  If ( TstFnc(dc(mdc)%iCoSet,                           &
      &                        iIrrep,iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
-*--------------------Transfer the coordinates
-                     call dcopy_(3,dbsc(iCnttp)%Coor(:,iCnt),1,
+!--------------------Transfer the coordinates
+                     call dcopy_(3,dbsc(iCnttp)%Coor(:,iCnt),1,         &
      &                          C(1:3,ldsp),1)
-*--------------------Transfer the multiplicity factor
+!--------------------Transfer the multiplicity factor
                      C(4,ldsp) = Fact
                      Car(ldsp) = iCar + 1
                   End If
@@ -581,9 +581,9 @@ c      EndIf
             Call RecPrt(' Information',' ',C,4,lDisp(0))
             Write (6,*) (Car(i),i=1,lDisp(0))
          End If
-*
-*--------Set up coefficient for the translational equations
-*
+!
+!--------Set up coefficient for the translational equations
+!
          iTR = 0
          Do 1110 i = 1,3
             If (iSym(i).ne.0) Go To 1110
@@ -594,9 +594,9 @@ c      EndIf
                End If
  1120       Continue
  1110    Continue
-*
-*--------Set up coefficient for the rotational invariance
-*
+!
+!--------Set up coefficient for the rotational invariance
+!
          Do 1210 i = 1, 3
             j = i + 1
             If (j.gt.3) j = j - 3
@@ -618,37 +618,37 @@ c      EndIf
                AM(iTR,ldsp) = Fact
  1220       Continue
  1210    Continue
-         If (iPrint.ge.99)
+         If (iPrint.ge.99)                                              &
      &      Call RecPrt(' The A matrix',' ',AM,nTR,lDisp(0))
-*
-*--------Now, transfer the coefficient of those gradients which will
-*        not be computed directly.
-*        The matrix to compute the inverse of is determined via
-*        a Gram-Schmidt procedure.
-*
-*--------Pick up the other vectors
+!
+!--------Now, transfer the coefficient of those gradients which will
+!        not be computed directly.
+!        The matrix to compute the inverse of is determined via
+!        a Gram-Schmidt procedure.
+!
+!--------Pick up the other vectors
          Do 1230 iTR = 1, nTR
-*           Write (*,*) ' Looking for vector #',iTR
+!           Write (*,*) ' Looking for vector #',iTR
             ovlp = Zero
             kTR = 0
-*-----------Check all the remaining vectors
+!-----------Check all the remaining vectors
             Do 1231 ldsp = 1, lDisp(0)
                Do 1235 jTR = 1, iTR-1
                   If (iTemp(jTR).eq.ldsp) Go To 1231
  1235          Continue
-*              Write (*,*) ' Checking vector #', ldsp
+!              Write (*,*) ' Checking vector #', ldsp
                call dcopy_(nTR,AM(:,ldsp),1,Tmp(:,iTR),1)
-*              Call RecPrt(' Vector',' ',Tmp(:,iTR),nTR,1)
-*--------------Gram-Schmidt orthonormalize against accepted vectors
+!              Call RecPrt(' Vector',' ',Tmp(:,iTR),nTR,1)
+!--------------Gram-Schmidt orthonormalize against accepted vectors
                Do 1232 lTR = 1, iTR-1
                   alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
-*                 Write (*,*) ' <x|y> =', alpha
+!                 Write (*,*) ' <x|y> =', alpha
                   Call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
  1232          Continue
-*              Call RecPrt(' Remainings',' ',Tmp(:,iTR),nTR,1)
+!              Call RecPrt(' Remainings',' ',Tmp(:,iTR),nTR,1)
                alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
-*              Write (*,*) ' Remaining overlap =', alpha
-*--------------Check the remaining magnitude of vector after Gram-Schmidt
+!              Write (*,*) ' Remaining overlap =', alpha
+!--------------Check the remaining magnitude of vector after Gram-Schmidt
                If (alpha.gt.ovlp) Then
                   kTR = ldsp
                   ovlp = alpha
@@ -658,8 +658,8 @@ c      EndIf
                Write (6,*) ' No Vector found!'
                Call Abend
             End If
-*           Write (*,*) ' Selecting vector #', kTR
-*-----------Pick up the "best" vector
+!           Write (*,*) ' Selecting vector #', kTR
+!-----------Pick up the "best" vector
             call dcopy_(nTR,AM(:,kTR),1,Tmp(:,iTR),1)
             Do 1233 lTR = 1, iTR-1
                alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
@@ -678,23 +678,23 @@ c      EndIf
             Call RecPrt(' The T matrix',' ',Tmp,nTR,nTR)
             Write (6,*) (iTemp(iTR),iTR=1,nTR)
          End If
-*
-*        Compute the inverse of the T matrix
-*
+!
+!        Compute the inverse of the T matrix
+!
          Call MatInvert(Tmp,nTR)
-         If (IPrint.ge.99)
+         If (IPrint.ge.99)                                              &
      &      Call RecPrt(' The T-1 matrix',' ',Tmp,nTR,nTR)
          Call DScal_(nTR**2,-One,Tmp,1)
-*
-*        Generate the complete matrix
-*
+!
+!        Generate the complete matrix
+!
          Call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
-         Call DGEMM_('N','N',
-     &               nTR,lDisp(0),nTR,
-     &               1.0d0,Tmp,nTR,
-     &               AM,nTR,
+         Call DGEMM_('N','N',                                           &
+     &               nTR,lDisp(0),nTR,                                  &
+     &               1.0d0,Tmp,nTR,                                     &
+     &               AM,nTR,                                            &
      &               0.0d0,Scr,nTR)
-         If (IPrint.ge.99)
+         If (IPrint.ge.99)                                              &
      &      Call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
          Call mma_deallocate(AM)
          Call mma_allocate(AM,lDisp(0),lDisp(0),Label='AM')
@@ -706,10 +706,10 @@ c      EndIf
             ldsp = iTemp(iTR)
             call dcopy_(lDisp(0),Scr(iTR,1),nTR,AM(ldsp,1),lDisp(0))
  1250    Continue
-         If (iPrint.ge.99)
+         If (iPrint.ge.99)                                              &
      &      Call RecPrt('Final A matrix',' ',AM,lDisp(0),lDisp(0))
-*
-*
+!
+!
          Call mma_deallocate(Scr)
          Call mma_deallocate(Car)
          Call mma_deallocate(C)
@@ -718,10 +718,10 @@ c      EndIf
             ldsp = iTemp(iTR)
             LPert(ldsp)=.False.
  1501    Continue
-*
+!
          Write (6,*)
-         Write (6,'(20X,A,A)')
-     &      ' Automatic utilization of translational and',
+         Write (6,'(20X,A,A)')                                          &
+     &      ' Automatic utilization of translational and',              &
      &      ' rotational invariance of the energy is employed.'
          Write (6,*)
          Do 7000 i = 1, lDisp(0)
@@ -732,18 +732,18 @@ c      EndIf
             End If
  7000    Continue
          Write (6,*)
-*
+!
       Else
          nTR = 0
          If (iPrint.ge.6) Then
          Write (6,*)
-         Write (6,'(20X,A,A)')
-     &      ' No automatic utilization of translational and',
+         Write (6,'(20X,A,A)')                                          &
+     &      ' No automatic utilization of translational and',           &
      &      ' rotational invariance of the energy is employed.'
          Write (6,*)
          End If
       End If
-*
+!
       If (Slct) Then
          Write (6,*)
          Write (6,'(20X,A)') ' The Selection option is used'
@@ -757,7 +757,7 @@ c      EndIf
  7100    Continue
          Write (6,*)
       End If
-*
+!
  9876 Continue
       Call Datimx(KWord)
       Call ICopy(nIrrep,[0],0,nFck,1)
@@ -765,7 +765,7 @@ c      EndIf
         If (iIrrep.ne.0) Then
           Do jIrrep=0,nIrrep-1
            kIrrep=NrOpr(iEOR(ioper(jIrrep),ioper(iIrrep)))
-           If (kIrrep.lt.jIrrep)
+           If (kIrrep.lt.jIrrep)                                        &
      &     nFck(iIrrep)=nFck(iIrrep)+nBas(jIrrep)*nBas(kIrrep)
           End Do
         Else
@@ -774,6 +774,6 @@ c      EndIf
            End Do
         End If
       End Do
-*
+!
       Return
       End

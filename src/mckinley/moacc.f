@@ -1,62 +1,62 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Anders Bernhardsson                              *
-************************************************************************
-      SubRoutine MOAcc(AOInt,nint,Temp1,Temp2,Temp3,nTemp,
-     &      MOInt,nMO,ishell,
-     &      Ci,nCi,Cj,nCj,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp,
-     &      iBasa,iCmpa,icar,icnt,indgrd,D,fact,iao,iaost,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Anders Bernhardsson                              *
+!***********************************************************************
+      SubRoutine MOAcc(AOInt,nint,Temp1,Temp2,Temp3,nTemp,              &
+     &      MOInt,nMO,ishell,                                           &
+     &      Ci,nCi,Cj,nCj,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp,             &
+     &      iBasa,iCmpa,icar,icnt,indgrd,D,fact,iao,iaost,              &
      &      Buffer,Tempi,nij,nkl,nbasi,nbasj,icmp,jcmp)
-************************************************************************
-*                                                                      *
-*     Transforms a batch of unsymmetrized integrals to                 *
-*     active integral batches and FM                                   *
-*     All MO combinations are constructed                              *
-*     They will be needed with unsymmetric perurbations                *
-*                                                                      *
-*     Author: Anders Bernhardsson, Dept. of Theoretical Chemistry,     *
-*             University of Lund, Sweden. Januar '96                   *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Transforms a batch of unsymmetrized integrals to                 *
+!     active integral batches and FM                                   *
+!     All MO combinations are constructed                              *
+!     They will be needed with unsymmetric perurbations                *
+!                                                                      *
+!     Author: Anders Bernhardsson, Dept. of Theoretical Chemistry,     *
+!             University of Lund, Sweden. Januar '96                   *
+!***********************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl, iOper
       use Gateway_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "etwas.fh"
-c#include "print.fh"
-      Real*8 AOInt(nkl,nij),MOint(nMO),
-     &       Temp1(nTemp),Temp2(naco,naco),
-     &       Ck(nCk),Cl(nCl),D(*),
-     &       Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,
+!#include "print.fh"
+      Real*8 AOInt(nkl,nij),MOint(nMO),                                 &
+     &       Temp1(nTemp),Temp2(naco,naco),                             &
+     &       Ck(nCk),Cl(nCl),D(*),                                      &
+     &       Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,                   &
      &       nAco*(naco+1)/2,*)
-      Integer moip(0:7),nOp(4),
-     &          ishell(4),iao(4),iAOST(4),
+      Integer moip(0:7),nOp(4),                                         &
+     &          ishell(4),iao(4),iAOST(4),                              &
      &          ibasa(4),icmpa(4),indgrd(3,4,0:7)
       Logical pert(0:7)
       Real*8 Prmt(0:7)
 
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 
-*
-*     Statement Function
-*
+!
+!     Statement Function
+!
       xPrmt(i,j) = Prmt(iAnd(i,j))
-*
+!
       iCB=2**(icar-1)
       rFact=xPrmt(ioper(nOp(icnt)),icb)*fact
-*
+!
       iBas=iBasa(1)
       jBas=iBasa(2)
       kBas=iBasa(3)
       lBas=iBasa(4)
-*
+!
       kCmp=iCmpa(3)
       lCmp=iCmpa(4)
       kk=0
@@ -87,7 +87,7 @@ c#include "print.fh"
        Do jb=1+iaost(2),iaost(2)+jbas
         Do ic=1,icmp
         Do ib=1+iaost(1),iaost(1)+ibas
-*
+!
           ij=ij+1
           vij = DNrm2_(nt,AOInt(1,ij),1)
           If (Abs(vij*rk*rl).lt.cutint) goto 1000
@@ -111,13 +111,13 @@ c#include "print.fh"
             Temp2(kash,lash)=0.0d0
             Do l=1,lbas*lcmp
              il=il+1
-             Temp2(kash,lash)=Temp2(kash,lash)+
+             Temp2(kash,lash)=Temp2(kash,lash)+                         &
      &            Cl(ipc+l)*Temp1(il)
             End Do
            End Do
             ipC=ipC+lBas*lCmp
           End Do
-*
+!
           If (iShell(3).ne.ishell(4)) Then
 
           do iSPert=0,nIrrep-1
@@ -139,9 +139,9 @@ c#include "print.fh"
                 rPj=DBLE(iChTbl(jIrr,nop(2)))
                  iirr=nropr(ieor(iOPER(jirr),irest))
                  rPij=rPj*DBLE(iChTbl(iIrr,nop(1)))*rfact2
-                 buffer(ib,ic,jb,jc,iirr,j,k)=
-     &               buffer(ib,ic,jb,jc,iirr,j,k)+
-     &               rpij*Temp2(kk,ll)+
+                 buffer(ib,ic,jb,jc,iirr,j,k)=                          &
+     &               buffer(ib,ic,jb,jc,iirr,j,k)+                      &
+     &               rpij*Temp2(kk,ll)+                                 &
      &               rpij*Temp2(ll,kk)
                End Do
               End Do
@@ -151,7 +151,7 @@ c#include "print.fh"
           End If
           End Do
           Else
-*
+!
           do iSPert=0,nIrrep-1
           If (pert(isPert)) Then
            rFact2=rFact*DBLE(iChtbl(ispert,nop(icnt)))
@@ -171,8 +171,8 @@ c#include "print.fh"
                 rPj=DBLE(iChTbl(jIrr,nop(2)))
                 iirr=nropr(ieor(iOPER(jirr),irest))
                 rPij=rPj*DBLE(iChTbl(iIrr,nop(1)))*rfact2
-                buffer(ib,ic,jb,jc,iirr,j,k)=
-     &              buffer(ib,ic,jb,jc,iirr,j,k)+
+                buffer(ib,ic,jb,jc,iirr,j,k)=                           &
+     &              buffer(ib,ic,jb,jc,iirr,j,k)+                       &
      &              rpij*Temp2(kk,ll)
                End Do
               End Do
@@ -187,7 +187,7 @@ c#include "print.fh"
         End Do
        End Do
       End Do
-*
+!
       kk=0
       Do kIrrep=0,nIrrep-1
        sfact=DBLE(ichtbl(kirrep,nop(3)))
@@ -210,7 +210,7 @@ c#include "print.fh"
       End Do
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(nint)
          Call Unused_real(Temp3)

@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Roland Lindh                                     *
-*               1993, Per Boussard                                     *
-************************************************************************
-      SubRoutine SroGrd_mck(
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Roland Lindh                                     *
+!               1993, Per Boussard                                     *
+!***********************************************************************
+      SubRoutine SroGrd_mck(                                            &
 #define _CALLING_
 #include "grd_mck_interface.fh"
      &                     )
-************************************************************************
-*                                                                      *
-* Object: kernel routine for the computation of ECP integrals.         *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
-*             Physics, University of Stockholm, Sweden, October '93.   *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: kernel routine for the computation of ECP integrals.         *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
+!             Physics, University of Stockholm, Sweden, October '93.   *
+!***********************************************************************
       use Basis_Info
       use Center_Info
       use Real_Spherical
@@ -34,24 +34,24 @@
 
 #include "grd_mck_interface.fh"
 
-*     Local variables
+!     Local variables
       Real*8 C(3), TC(3)
       Integer iDCRT(0:7), iuvwx(4), mOp(4),index(3,4), JndGrd(3,4,0:7)
       Logical JfGrad(3,4), EQ, DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement function for Cartesian index
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement function for Cartesian index
+!
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iuvwx(1) = iu
       iuvwx(2) = iv
       mOp(1) = nOp(1)
       mOp(2) = nOp(2)
-*
+!
       DiffCnt=(IfGrad(iDCar,1).or.IfGrad(iDCar,2))
 
 #ifdef _DEBUGPRINT_
@@ -61,7 +61,7 @@
       Call RecPrt(' In SROGrd: Alpha',' ',Alpha,nAlpha,1)
       Call RecPrt(' In SROGrd: Beta',' ',Beta,nBeta,1)
       Write (6,*) ' In SROGrd: la,lb=',' ',la,lb
-      Write (6,*) ' In SROGrd: Diffs=',' ',
+      Write (6,*) ' In SROGrd: Diffs=',' ',                             &
      &              IfGrad(iDCar,1),IfGrad(iDCar,2)
       Write (6,*) ' In SROGrd: Center=',' ',iDCNT
 #endif
@@ -76,8 +76,8 @@
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 1965
 
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-*
-            Call DCR(LmbdT,iStabM,nStabM,
+!
+            Call DCR(LmbdT,iStabM,nStabM,                               &
      &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
             iuvwx(3) = dc(kdc+kCnt)%nStab
@@ -101,7 +101,7 @@
                End IF
             End Do
 
-*
+!
             If ((kdc+kCnt).eq.iDCnt) Then
                  Tr(3)=.true.
                  ifg(1)=.true.
@@ -113,7 +113,7 @@
                  End Do
             End If
 
-*
+!
          Do 1967 lDCRT = 0, nDCRT-1
 
             mOp(3) = nropr(iDCRT(lDCRT))
@@ -135,7 +135,7 @@
 #endif
 
                If (nExpi.eq.0) Go To 1966
-*
+!
                ip = 1
 
                ipFin= ip
@@ -155,9 +155,9 @@
 
                call dcopy_(nArr,[Zero],0,Array,1)
 
-               Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),
-     &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),
-     &                     array(ipFA2),jfgrad(1,1),ifhess_dum,
+               Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),          &
+     &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),         &
+     &                     array(ipFA2),jfgrad(1,1),ifhess_dum,         &
 #ifdef _DEBUGPRINT_
      &                     1,.TRUE.)
 #else
@@ -167,11 +167,11 @@
 
 
 
-               call dcopy_(nBeta*nExpi*nElem(lb)*nElem(iAng)*2,
+               call dcopy_(nBeta*nExpi*nElem(lb)*nElem(iAng)*2,         &
      &                    [Zero],0,Array(ipFB1),1)
-               Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),
-     &                    narr-ip+1,Beta,nbeta,Array(ipFB1),
-     &                    array(ipFB2),jfgrad(1,2),ifhess_dum,1,
+               Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),         &
+     &                    narr-ip+1,Beta,nbeta,Array(ipFB1),            &
+     &                    array(ipFB2),jfgrad(1,2),ifhess_dum,1,        &
 #ifdef _DEBUGPRINT_
      &                     .TRUE.)
 #else
@@ -180,16 +180,16 @@
                call RToSph(Array(ipFB1),nBeta,ishll,lb,iAng,2)
 
 
-*
-               call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),
-     &                  Fact,nAlpha,nBeta,Shells(iShll)%Akl,
-     &                  nExpi,la,lb,iang,jfgrad,Array(ipTmp),
+!
+               call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),    &
+     &                  Fact,nAlpha,nBeta,Shells(iShll)%Akl,            &
+     &                  nExpi,la,lb,iang,jfgrad,Array(ipTmp),           &
      &                  .true.,index,mvec,idcar)
 
-*
+!
                nt=nAlpha*nBeta*nElem(lb)*nElem(la)
-               Call SmAdNa(Array(ipFin),nt,Final,
-     &                     mop,loper,JndGrd,iuvwx,JfGrad,index,
+               Call SmAdNa(Array(ipFin),nt,Final,                       &
+     &                     mop,loper,JndGrd,iuvwx,JfGrad,index,         &
      &                     idcar,1.0d0,iFG,tr)
 
  1966       Continue
@@ -198,9 +198,9 @@
  1961    Continue
          kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)

@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Anders Bernhardsson                              *
-*               1991, Roland Lindh                                     *
-************************************************************************
-      SubRoutine NAHss(
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Anders Bernhardsson                              *
+!               1991, Roland Lindh                                     *
+!***********************************************************************
+      SubRoutine NAHss(                                                 &
 #define _CALLING_
 #include "hss_interface.fh"
      &                )
-************************************************************************
-*                                                                      *
-* Object: to compute the gradient of the nuclear attraction integrals. *
-*                                                                      *
-*     Author: Anders Bernhardsson & Roland Lindh,                      *
-*             Dept. of Theoretical Chemistry, University               *
-*             of Lund, SWEDEN.                                         *
-*             October 1991                                             *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: to compute the gradient of the nuclear attraction integrals. *
+!                                                                      *
+!     Author: Anders Bernhardsson & Roland Lindh,                      *
+!             Dept. of Theoretical Chemistry, University               *
+!             of Lund, SWEDEN.                                         *
+!             October 1991                                             *
+!***********************************************************************
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
@@ -35,28 +35,28 @@
 
 #include "hss_interface.fh"
 
-*     Local variables
+!     Local variables
       Integer iDCRT(0:7), Index(3,4)
       Logical EQ,IfG(0:3),Tr(0:3)
-*
-*     Local arrrays
-*
+!
+!     Local arrrays
+!
       Real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
-      Integer iAnga(4), JndGrd(0:2,0:3,0:7),
-     &        JndHss(0:3,0:2,0:3,0:2,0:7),
+      Integer iAnga(4), JndGrd(0:2,0:3,0:7),                            &
+     &        JndHss(0:3,0:2,0:3,0:2,0:7),                              &
      &        mOp(4), iuvwx(4)
       Logical JfHss(0:3,0:2,0:3,0:2),JfGrd(0:2,0:3)
       Logical, External :: TF
-*
+!
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       itri(i1,i2)=MAX(i1,i2)*(MAX(i1,i2)-1)/2+MIN(i1,i2)
-*
+!
 #ifdef _DEBUGPRINT_
       Write (6,*) ' In NAHss: nArr=',nArr
 #endif
-*
+!
       nRys=nHer
-*
+!
       nip = 1
       ipA = nip
       nip = nip + nAlpha*nBeta
@@ -71,7 +71,7 @@
       End If
       ipArr = nip
       nArray = nArr - nip +1
-*
+!
       iIrrep = 0
       iAnga(1) = la
       iAnga(2) = lb
@@ -88,21 +88,21 @@
       iuvwx(2) = dc(ndc)%nStab
       mOp(1) = nOp(1)
       mOp(2) = nOp(2)
-*
+!
       ipAOff = ipA
       Do iBeta = 1, nBeta
          call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
          ipAOff = ipAOff + nAlpha
       End Do
-*
+!
       ipBOff = ipB
       Do iAlpha = 1, nAlpha
          call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
          ipBOff = ipBOff + 1
       End Do
-*
-*     Modify the density matrix with the prefactor
-*
+!
+!     Modify the density matrix with the prefactor
+!
       nDAO = nElem(la) * nElem(lb)
       Do iDAO = 1, nDAO
          Do iZeta = 1, nZeta
@@ -113,9 +113,9 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 #endif
-*
-*-----Loop over nuclear centers
-*
+!
+!-----Loop over nuclear centers
+!
       kdc = 0
       Do kCnttp = 1, nCnttp
          If (kCnttp==iCnttp_Dummy) Go To 111
@@ -123,17 +123,17 @@
          Do kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 
-            Call DCR(LmbdT,iStabM,nStabM,
+            Call DCR(LmbdT,iStabM,nStabM,                               &
      &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) / DBLE(LmbdT)
-*
+!
             Call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
-*
+!
             iuvwx(3) = dc(kdc+kCnt)%nStab
             iuvwx(4) = dc(kdc+kCnt)%nStab
-*
+!
             Do 102 lDCRT = 0, nDCRT-1
-*
+!
                mOp(3) = NrOpr(iDCRT(lDCRT))
                mOp(4) = mOp(3)
                Call OA(iDCRT(lDCRT),C,TC)
@@ -141,40 +141,40 @@
                call dcopy_(3,TC,1,Coori(1,3),1)
                call dcopy_(3,TC,1,Coori(1,4),1)
                If (EQ(A,TC).and.EQ(A,RB)) Goto 102
-*
-*              Initialize JfGrd, JndGrd, JfHss, and JndHss.
-*
+!
+!              Initialize JfGrd, JndGrd, JfHss, and JndHss.
+!
                Call LCopy(12,[.False.],0,JfGrd,1)
                Call ICopy(nSym*4*3,[0],0,JndGrd,1)
                Call LCopy(144,[.False.],0,JfHss,1)
                Call ICopy(nSym*16*9,[0],0,JndHss,1)
-*
-*              Overwrite with information in IfGrd, IndGrd, IfHss,
-*              and IndHss.
+!
+!              Overwrite with information in IfGrd, IndGrd, IfHss,
+!              and IndHss.
 
                Do iAtom = 0, 1
                   Do iCar  = 0, 2
                      JfGrd(iCar,iAtom) = Ifgrd(iCar,iAtom)
                      Do iIrrep=0,nSym-1
-                        JndGrd(iCar,iAtom,iIrrep)=
+                        JndGrd(iCar,iAtom,iIrrep)=                      &
      &                     IndGrd(iCar,iAtom,iIrrep)
                      End Do
                      Do jAtom = 0, 1
                         Do jCar = 0, 2
-                           JfHss(iAtom,iCar,jAtom,jCar) =
+                           JfHss(iAtom,iCar,jAtom,jCar) =               &
      &                       IfHss(iAtom,iCar,jAtom,jCar)
                            Do iIrrep=0,nSym-1
-                              JndHss(iAtom,iCar,jAtom,jCar,iIrrep) =
+                              JndHss(iAtom,iCar,jAtom,jCar,iIrrep) =    &
      &                          IndHss(iAtom,iCar,jAtom,jCar,iIrrep)
                            End Do
                         End Do
                      End Do
                   End Do
                End Do
-*
-*--------------Derivatives with respect to the operator is computed via
-*              the translational invariance.
-*
+!
+!--------------Derivatives with respect to the operator is computed via
+!              the translational invariance.
+!
                nnIrrep=nSym
                If (sIrrep) nnIrrep=1
                Do iIrrep=0,nnIrrep-1
@@ -183,13 +183,13 @@
                      iComp = 2**iCar
                      If (TF(kdc+kCnt,iIrrep,iComp)) Then
                         nDisp = nDisp + 1
-*
-*-----------------------Reset flags for the basis set centers so that we
-*                       will explicitly compute the derivatives with
-*                       respect to those centers. Activate flag for the
-*                       third center so that its derivative will be comp-
-*                       uted by the translational invariance.
-*
+!
+!-----------------------Reset flags for the basis set centers so that we
+!                       will explicitly compute the derivatives with
+!                       respect to those centers. Activate flag for the
+!                       third center so that its derivative will be comp-
+!                       uted by the translational invariance.
+!
                         JndGrd(iCar,0,iIrrep)=Abs(JndGrd(iCar,0,iIrrep))
                         JndGrd(iCar,1,iIrrep)=Abs(JndGrd(iCar,1,iIrrep))
                         JndGrd(iCar,2,iIrrep)=-nDisp
@@ -201,10 +201,10 @@
                      End If
                   End Do
                End Do
-*
-*              The third center is calculated by translational invariance.
-*              This requires the 2nd derivatives on the other centers.
-*
+!
+!              The third center is calculated by translational invariance.
+!              This requires the 2nd derivatives on the other centers.
+!
                Call LCopy(4,[.False.],0,Tr,1)
                Do iCar=0,2
                   Do jAtom=0,2
@@ -215,10 +215,10 @@
                      End If
                      Do jCar=0,iStop
                         Do iIrrep=0,nSym-1
-                           If ((JndGrd(iCar,2,iIrrep).ne.0) .and.
+                           If ((JndGrd(iCar,2,iIrrep).ne.0) .and.       &
      &                         (JndGrd(jCar,jAtom,iIrrep).ne.0)) Then
-                              JndHss(2,iCar,jAtom,jCar,iIrrep)=
-     &                          -itri(Abs(JndGrd(iCar,2,    iIrrep)),
+                              JndHss(2,iCar,jAtom,jCar,iIrrep)=         &
+     &                          -itri(Abs(JndGrd(iCar,2,    iIrrep)),   &
      &                                Abs(JndGrd(jCar,jAtom,iIrrep)))
 
                               Tr(2)=.True.
@@ -241,7 +241,7 @@
                      End Do
                   End Do
                End Do
-*
+!
                IfG(0)=.True.
                IfG(1)=.True.
                IfG(2)=.False.
@@ -268,26 +268,26 @@
                   End If
                End Do
                Call lCopy(12,[.False.],0,jfgrd,1)
-*
+!
                nFinal = 0
-               Call Rysg2(iAnga,nRys,nZeta,
-     &                    Array(ipA),Array(ipB),[One],[One],
-     &                    Zeta,ZInv,nZeta,[One],[One],1,
-     &                    P,nZeta,TC,1,Coori,Coori,CoorAC,
-     &                    Array(ipArr),nArray,
-     &                    TNAI1,Fake,Cff2D,
-     &                    Array(ipDAO),nDAO,Hess,nHess,
-     &                    JfGrd,JndGrd,
-     &                    JfHss,JndHss,mOp,iuvwx,ifg,
+               Call Rysg2(iAnga,nRys,nZeta,                             &
+     &                    Array(ipA),Array(ipB),[One],[One],            &
+     &                    Zeta,ZInv,nZeta,[One],[One],1,                &
+     &                    P,nZeta,TC,1,Coori,Coori,CoorAC,              &
+     &                    Array(ipArr),nArray,                          &
+     &                    TNAI1,Fake,Cff2D,                             &
+     &                    Array(ipDAO),nDAO,Hess,nHess,                 &
+     &                    JfGrd,JndGrd,                                 &
+     &                    JfHss,JndHss,mOp,iuvwx,ifg,                   &
      &                    nFinal,index,.false.,.true.,tr)
-*
+!
  102        Continue
          End Do
  111     kdc = kdc + dbsc(kCnttp)%nCntr
       End Do
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Final)
          Call Unused_real_array(Ccoor)

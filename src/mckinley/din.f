@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Anders Bernhardsson                              *
+!***********************************************************************
       SubRoutine DIN(Dens)
-*
+!
       use Basis_Info, only: nBas
       use pso_stuff
       use Symmetry_Info, only: nIrrep
@@ -21,9 +21,9 @@
 #include "stdalloc.fh"
       Real*8 Dens(nDens)
       Real*8, Allocatable:: Temp2(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nTemp2=0
       Do iIrr=0,nIrrep-1
          nTemp2=Max(nTemp2,nBas(iIrr))
@@ -37,10 +37,10 @@
 
          If (nBas(iIrr)==0) Cycle
 
-         Call DGEMM_('N','T',
-     &               nBas(iIrr),nBas(iIrr),nIsh(iIrr),
-     &               One,CMO(ip,1),nBas(iIrr),
-     &                     CMO(ip,1),nBas(iIrr),
+         Call DGEMM_('N','T',                                           &
+     &               nBas(iIrr),nBas(iIrr),nIsh(iIrr),                  &
+     &               One,CMO(ip,1),nBas(iIrr),                          &
+     &                     CMO(ip,1),nBas(iIrr),                        &
      &               Zero,Temp2,nBas(iIrr))
          Do iBas=1,nBas(iIrr)
             Do jBas=1,iBas-1

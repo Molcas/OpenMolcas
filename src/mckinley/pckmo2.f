@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine PckMO2(COUT,nAcO,icmpi,iBasi,jcmpj,jBasj,iAOi,jAOj)
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
@@ -19,7 +19,7 @@
       Real*8 COUT(*)
       Integer iCmp(4),nBs(4)
       Integer iaoii(4)
-*
+!
       nBs(1)=iBasi
       nBs(2)=jBasj
       iAOii(1)=iAOi
@@ -48,8 +48,8 @@
             ipc=ipc+nBas(iIrrep)**2
          End Do
       End Do
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(nAcO)
       End

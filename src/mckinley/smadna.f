@@ -1,44 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SubRoutine SmAdNa(ArrIn,nb,ArrOut,nop,
-     &                  lOper,IndGrd,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SubRoutine SmAdNa(ArrIn,nb,ArrOut,nop,                            &
+     &                  lOper,IndGrd,                                   &
      &                  iuv,IfGrd,Index,iDCar,rf,IFG,tr)
       use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-c#include "print.fh"
-      Real*8 ArrIn (nb,*),
+!#include "print.fh"
+      Real*8 ArrIn (nb,*),                                              &
      &       ArrOut(nb,*)
-      Integer  lOper,
+      Integer  lOper,                                                   &
      &          IndGrd(3,4,0:nIrrep-1),iuv(3),Index(3,4),nOp(3)
       Logical   IfGrd(3,4),IFG(4),tr(4)
-*
-*     Statement function for Cartesian index
-*
-*
-c     iRout = 200
-c     iPrint = nPrint(iRout)
-*
-*--------Accumulate contributions
-*
+!
+!     Statement function for Cartesian index
+!
+!
+!     iRout = 200
+!     iPrint = nPrint(iRout)
+!
+!--------Accumulate contributions
+!
       iComp=0
       Do 102 iIrrep=0,nIrrep-1
         If (iAnd(lOper,2**iIrrep).ne.0) Then
           iComp=iComp+1
           Do 103 iCn=1,3
-*           If (Index(idCar,iCn).ne.0) Then
-            If ( (Indgrd(idCar,iCn,iIrrep).ne.0) .and.
-     &         ( (index(idcar,icn).gt.0).or.tr(icn)))
+!           If (Index(idCar,iCn).ne.0) Then
+            If ( (Indgrd(idCar,iCn,iIrrep).ne.0) .and.                  &
+     &         ( (index(idcar,icn).gt.0).or.tr(icn)))                   &
      &      Then
-*              Accumulate contribution to the gradient
+!              Accumulate contribution to the gradient
                i1=0
                i2=0
                If (iCn.eq.1) Then
@@ -54,7 +54,7 @@ c     iPrint = nPrint(iRout)
                Else If (iCn.eq.2) Then
                    ps=DBLE(iChTbl(iIrrep,nOp(2)))
                    ps = ps*DBLE( iPrmt( nOp(2), iChBas(1+idCar) ) )
-                   Fact = rf*ps *
+                   Fact = rf*ps *                                       &
      &                    DBLE(iuv(2))/DBLE(nIrrep)
                    If (.not.tr(iCn)) Then
                     i1=Index(idCar,iCn)
@@ -66,7 +66,7 @@ c     iPrint = nPrint(iRout)
                Else
                    ps=DBLE(iChTbl(iIrrep,nOp(3)))
                    ps = ps*DBLE( iPrmt( nOp(3), iChBas(1+idCar) ) )
-                   Fact = rf*ps *
+                   Fact = rf*ps *                                       &
      &                    DBLE(iuv(3))/DBLE(nIrrep)
                    If (.not.tr(iCn)) Then
                     i1=Index(idCar,iCn)
@@ -76,20 +76,20 @@ c     iPrint = nPrint(iRout)
                     Fact=-Fact
                    End If
                End if
-            If (i1.ne.0)
-     &          Call DaXpY_(nb,Fact,
+            If (i1.ne.0)                                                &
+     &          Call DaXpY_(nb,Fact,                                    &
      &                 ArrIn(1,i1),1,ArrOut(1,iComp),1)
-            If (i2.ne.0)
-     &          Call DaXpY_(nb,Fact,
+            If (i2.ne.0)                                                &
+     &          Call DaXpY_(nb,Fact,                                    &
      &                     ArrIn(1,i2),1,ArrOut(1,iComp),1)
            End If
  103  Continue
       End If
  102  Continue
-*
-*     Call GetMem(' Exit SymAdO','LIST','REAL',iDum,iDum)
+!
+!     Call GetMem(' Exit SymAdO','LIST','REAL',iDum,iDum)
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_logical_array(IfGrd)
          Call Unused_logical_array(IFG)
