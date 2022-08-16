@@ -10,18 +10,20 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine m1mm1(nRys,MmNAG,la,lb,lr)
-!
-      Integer iAng(4)
-!
-      iAng(1) = la
-      iAng(2) = lb
-      iAng(3) = 0
-      iAng(4) = 0
-      Call MemRg2(iAng,nRys,MmNAG,1)
-      MmNAG = MmNAG + 10
-!
-      Return
+
+subroutine m1mm1(nRys,MmNAG,la,lb,lr)
+
+integer iAng(4)
+
+iAng(1) = la
+iAng(2) = lb
+iAng(3) = 0
+iAng(4) = 0
+call MemRg2(iAng,nRys,MmNAG,1)
+MmNAG = MmNAG+10
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine m1mm1

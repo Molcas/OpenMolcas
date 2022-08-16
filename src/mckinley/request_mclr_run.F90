@@ -12,40 +12,36 @@
 !               1990, IBM                                              *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-      Subroutine Request_MCLR_Run(Run_MCLR,ireturn,iPrint)
-      Logical Run_MCLR
-      Character*16 StdIn
+
+subroutine Request_MCLR_Run(Run_MCLR,ireturn,iPrint)
+
+logical Run_MCLR
+character*16 StdIn
 #include "warnings.h"
-!
-      If (Run_MCLR) Then
-!
-!        McKinley will automatically generate the input for MCLR
-!        and signal to AUTO (iRC=2) to run the input file Stdin.x.
-!
-         If (iPrint.ge.6) Then
-         Write (6,*)
-         Write (6,*)                                                    &
-     &     ' McKinley requests the MCLR module to be executed!'
-         Write (6,*)
-         End If
-!
-         LuInput=11
-         LuInput=IsFreeUnit(LuInput)
-         Call StdIn_Name(StdIn)
-         Call Molcas_Open(LuInput,StdIn)
-         Write (LuInput,'(A)') ' &MCLR &End'
-         Write (LuInput,'(A)') 'End of Input'
-         Close(LuInput)
-         ireturn=_RC_INVOKED_OTHER_MODULE_
-      Else
-         ireturn=_RC_ALL_IS_WELL_
-      End if
-!
-      Return
-!
-      Write (6,*)
-      Write (6,*) ' Error opening Stdin.x'
-      Write (6,*)
-      Call Quit(_RC_INPUT_EMIL_ERROR_)
-!
-      End
+
+if (Run_MCLR) then
+
+  ! McKinley will automatically generate the input for MCLR
+  ! and signal to AUTO (iRC=2) to run the input file Stdin.x.
+
+  if (iPrint >= 6) then
+    write(6,*)
+    write(6,*) ' McKinley requests the MCLR module to be executed!'
+    write(6,*)
+  end if
+
+  LuInput = 11
+  LuInput = IsFreeUnit(LuInput)
+  call StdIn_Name(StdIn)
+  call Molcas_Open(LuInput,StdIn)
+  write(LuInput,'(A)') ' &MCLR &End'
+  write(LuInput,'(A)') 'End of Input'
+  close(LuInput)
+  ireturn = _RC_INVOKED_OTHER_MODULE_
+else
+  ireturn = _RC_ALL_IS_WELL_
+end if
+
+return
+
+end subroutine Request_MCLR_Run

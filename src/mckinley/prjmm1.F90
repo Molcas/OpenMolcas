@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine PrjMm1(nHer,MmPrjG,la,lb,lr)
+
+subroutine PrjMm1(nHer,MmPrjG,la,lb,lr)
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *
@@ -23,50 +24,52 @@
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-!
-      Use Basis_Info, only: dbsc, nCnttp, Shells
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
-      nOrder = 0
-      ld=1
-      MmPrjG = 0
-      Do 1960 iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%ECP) Go To 1960
-         Do 1966 iAng = 0, dbsc(iCnttp)%nPrj-1
-            iShll = dbsc(iCnttp)%iPrj + iAng
-            nExpi=Shells(iShll)%nExp
-            nBasisi=Shells(iShll)%nBasis
-            If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
-!
-            ip = 0
 
-            nac = nElem(la)*nElem(iAng)
-            ncb = nElem(iAng)*nElem(lb)
+use Basis_Info, only: dbsc, nCnttp, Shells
 
-            ip=ip+6*nelem(la)*nelem(lb) ! final
-            ip=ip+4*nac*nExpi ! FA1
-            ip=ip+4*ncb*nExpi !FB1
-            ip=ip+nExpi* nExpi !Tmp
+! Statement function
+nElem(i) = (i+1)*(i+2)/2
 
-            nHer = (la+1+iAng+1+ld)/2
-            nOrder = Max(nHer,nOrder)
-            iacore=6+3*nHer*(la+1+ld)+3*nHer*(iAng+1)+                  &
-     &           3*nHer*(lr+1)+3*(la+1+ld)*(iAng+1)*(lr+1)+1
+nOrder = 0
+ld = 1
+MmPrjG = 0
+do iCnttp=1,nCnttp
+  if (.not. dbsc(iCnttp)%ECP) Go To 1960
+  do iAng=0,dbsc(iCnttp)%nPrj-1
+    iShll = dbsc(iCnttp)%iPrj+iAng
+    nExpi = Shells(iShll)%nExp
+    nBasisi = Shells(iShll)%nBasis
+    if ((nExpi == 0) .or. (nBasisi == 0)) Go To 1966
 
-            nHer = (lb+1+iAng+1+ld)/2
-            nOrder = Max(nHer,nOrder)
-            icoreb=6+3*nHer*(lb+1+ld)+3*nHer*(iAng+1)+                  &
-     &           3*nHer*(lr+1)+3*(lb+1+ld)*(iAng+1)*(lr+1)+1
+    ip = 0
 
-            icores = MAX(icoreb,iacore)*nExpi
+    nac = nElem(la)*nElem(iAng)
+    ncb = nElem(iAng)*nElem(lb)
 
-            MmPrjG = Max(MmPrjG,ip+icores)
-!
- 1966    Continue
- 1960 Continue
-      nHer = nOrder
-!      !write(*,*) 'mem',MmPrjG
-!
-      Return
-      End
+    ip = ip+6*nelem(la)*nelem(lb) ! final
+    ip = ip+4*nac*nExpi ! FA1
+    ip = ip+4*ncb*nExpi !FB1
+    ip = ip+nExpi*nExpi !Tmp
+
+    nHer = (la+1+iAng+1+ld)/2
+    nOrder = max(nHer,nOrder)
+    iacore = 6+3*nHer*(la+1+ld)+3*nHer*(iAng+1)+3*nHer*(lr+1)+3*(la+1+ld)*(iAng+1)*(lr+1)+1
+
+    nHer = (lb+1+iAng+1+ld)/2
+    nOrder = max(nHer,nOrder)
+    icoreb = 6+3*nHer*(lb+1+ld)+3*nHer*(iAng+1)+3*nHer*(lr+1)+3*(lb+1+ld)*(iAng+1)*(lr+1)+1
+
+    icores = max(icoreb,iacore)*nExpi
+
+    MmPrjG = max(MmPrjG,ip+icores)
+
+1966 continue
+  end do
+1960 continue
+end do
+nHer = nOrder
+!write(6,*) 'mem',MmPrjG
+
+return
+
+end subroutine PrjMm1

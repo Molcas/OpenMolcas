@@ -8,19 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function nMo(mIrr)
-      use Symmetry_Info, only: nIrrep
-      Implicit Integer (a-h,o-z)
+
+integer function nMo(mIrr)
+
+use Symmetry_Info, only: nIrrep
+
+implicit integer(a-h,o-z)
 #include "etwas.fh"
-      nInt=0
-      nA=0
-      Do iS=0,nIrrep-1
-       nA=nA+nAsh(is)
-      End Do
-      NMM=nA*(nA+1)/2
-      nInt=nMM*(nMM+1)/2
-      nMo=nInt
-      Return
+
+nInt = 0
+nA = 0
+do iS=0,nIrrep-1
+  nA = nA+nAsh(is)
+end do
+NMM = nA*(nA+1)/2
+nInt = nMM*(nMM+1)/2
+nMo = nInt
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(mIrr)
-      End
+if (.false.) call Unused_integer(mIrr)
+
+end function nMo

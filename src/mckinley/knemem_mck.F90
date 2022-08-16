@@ -8,18 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Knemem_mck(nHer,MmKnEG,la,lb,lr)
-!
-      nElem(i) = (i+1)*(i+2)/2
-      nHer=((la+1)+(lb+1)+2+1)/2
-      MmKnEG =  3*nHer*(la+3) +                                         &
-     &         3*nHer*(lb+3) +                                          &
-     &         3*nHer +                                                 &
-     &         3*(la+3)*(lb+3) +                                        &
-     &         3*(la+2)*(lb+2) + 1 + 1 +                                &
-     &         nElem(la)*nElem(lb)*3
-!
-      Return
+
+subroutine Knemem_mck(nHer,MmKnEG,la,lb,lr)
+
+nElem(i) = (i+1)*(i+2)/2
+nHer = ((la+1)+(lb+1)+2+1)/2
+MmKnEG = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+3*(la+2)*(lb+2)+1+1+nElem(la)*nElem(lb)*3
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine Knemem_mck

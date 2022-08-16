@@ -11,10 +11,8 @@
 ! Copyright (C) 1990,1992,1994, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,                      &
-     &                    Coef3,n3,m3,Coef4,n4,m4,                      &
-     &                    ACInt,mabcd,Scrtch,nScr,ACOut,                &
-     &                    IndZet,lZeta,IndEta,lEta)
+
+subroutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Scrtch,nScr,ACOut,IndZet,lZeta,IndEta,lEta)
 !***********************************************************************
 !                                                                      *
 ! Object: to transform the integrals from primitives to contracted     *
@@ -28,66 +26,59 @@
 !                                                                      *
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-!
-!---- Cache size
-!
+! Cache size
 #include "lCache.fh"
-      Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),    &
-     &       ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr),                    &
-     &       ACOut(n1*n2*n3*n4,mabcd)
-      Integer IndZet(lZeta), IndEta(lEta)
-!
-      iRout = 18
-      iPrint = nPrint(iRout)
-!     iPrint=99
-!
-      If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,           &
-     &                                m1*m2*m3*m4*mabcd)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,m1*m2,m3*m4*mabcd)
-         Call RecPrt(' Coef1',' ',Coef1,n1,m1)
-         Call RecPrt(' Coef2',' ',Coef2,n2,m2)
-         Call RecPrt(' Coef3',' ',Coef3,n3,m3)
-         Call RecPrt(' Coef4',' ',Coef4,n4,m4)
-         Write (6,*) n1, n2, n3, n4
-      End If
-!
-!---- Reduce for contraction matrix
-      nCache = (3*lCache)/4 - n1*m1 - n2*m2
-      lsize= m1*m2 + m2*n1
-      nVec = m3*m4*mabcd
-      IncVec = Min(Max(1,nCache/lsize),nVec)
-      ipA3=1
-      nA3=nVec*lZeta         ! This is the same for the second set!
-      ipA2=ipA3 + nA3
-!
-      Call TncHlf_h(Coef1,m1,n1,Coef2,m2,n2,iDum,lZeta,nVec,            &
-     &              IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndZet)
-!
-      nCache = (3*lCache)/4 - n3*m3 - n4*m4
-      lsize = m3*m4 + m4*n3
-      nVec = mabcd*lZeta
-      IncVec = Min(Max(1,nCache/lsize),nVec)
-!
-      lZE=lZeta*lEta
-      If (mabcd.ne.1) Then
-         Call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,iDum,lEta,nVec,          &
-     &                 IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
-         Call DGeTMO(ACOut,mabcd,mabcd,lZE,Scrtch,lZE)
-         call dcopy_(mabcd*lZE,Scrtch,1,ACOut,1)
-      Else
-         Call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,iDum,lEta,nVec,          &
-     &                 IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
-      End If
-!
-      If (iPrint.ge.59)                                                 &
-     &  Call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZE)
-      If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(ab|cd)',ACOut,           &
-     &                                lZE*mabcd)
-!
-!     Call GetMem('Tcrtnc','CHECK','REAL',iDum,iDum)
-      Return
-      End
+real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr), ACOut(n1*n2*n3*n4,mabcd)
+integer IndZet(lZeta), IndEta(lEta)
+
+iRout = 18
+iPrint = nPrint(iRout)
+!iPrint = 99
+
+if (iPrint >= 19) call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
+if (iPrint >= 99) then
+  call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,m1*m2,m3*m4*mabcd)
+  call RecPrt(' Coef1',' ',Coef1,n1,m1)
+  call RecPrt(' Coef2',' ',Coef2,n2,m2)
+  call RecPrt(' Coef3',' ',Coef3,n3,m3)
+  call RecPrt(' Coef4',' ',Coef4,n4,m4)
+  write(6,*) n1,n2,n3,n4
+end if
+
+! Reduce for contraction matrix
+nCache = (3*lCache)/4-n1*m1-n2*m2
+lsize = m1*m2+m2*n1
+nVec = m3*m4*mabcd
+IncVec = min(max(1,nCache/lsize),nVec)
+ipA3 = 1
+nA3 = nVec*lZeta ! This is the same for the second set!
+ipA2 = ipA3+nA3
+
+call TncHlf_h(Coef1,m1,n1,Coef2,m2,n2,iDum,lZeta,nVec,IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndZet)
+
+nCache = (3*lCache)/4-n3*m3-n4*m4
+lsize = m3*m4+m4*n3
+nVec = mabcd*lZeta
+IncVec = min(max(1,nCache/lsize),nVec)
+
+lZE = lZeta*lEta
+if (mabcd /= 1) then
+  call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,iDum,lEta,nVec,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
+  call DGeTMO(ACOut,mabcd,mabcd,lZE,Scrtch,lZE)
+  call dcopy_(mabcd*lZE,Scrtch,1,ACOut,1)
+else
+  call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,iDum,lEta,nVec,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
+end if
+
+if (iPrint >= 59) call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZE)
+if (iPrint >= 19) call WrCheck('Tcrtnc:P(ab|cd)',ACOut,lZE*mabcd)
+
+!call GetMem('Tcrtnc','CHECK','REAL',iDum,iDum)
+
+return
+
+end subroutine Tcrtnc_h

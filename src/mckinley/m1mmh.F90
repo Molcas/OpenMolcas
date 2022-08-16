@@ -10,20 +10,21 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine M1MmH(nRys,MmM1H,la,lb,lr)
-!
-      Integer iAng(4)
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-      iAng(1) = la
-      iAng(2) = lb
-      iAng(3) = 0
-      iAng(4) = 0
-      Call MemRg2(iAng,nRys,MmM1H,2)
-      MmM1H = MmM1H + 12 + nElem(la)*nElem(lb)
-!
-      Return
+subroutine M1MmH(nRys,MmM1H,la,lb,lr)
+
+integer iAng(4)
+! Statement function
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+iAng(1) = la
+iAng(2) = lb
+iAng(3) = 0
+iAng(4) = 0
+call MemRg2(iAng,nRys,MmM1H,2)
+MmM1H = MmM1H+12+nElem(la)*nElem(lb)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lr)
-      End
+if (.false.) call Unused_integer(lr)
+
+end subroutine M1MmH

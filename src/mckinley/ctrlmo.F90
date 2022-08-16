@@ -10,18 +10,22 @@
 !                                                                      *
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine CtrlMO(moip,nAcO)
-!
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (a-h,o-z)
+
+subroutine CtrlMO(moip,nAcO)
+
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(a-h,o-z)
 #include "etwas.fh"
-      Integer moip(0:nIrrep-1)
-!
-      iTot=0
-      Do iIrrep=0,nIrrep-1
-         moip(iIrrep)=iTot
-         iTot=iTot+nAsh(iIrrep)
-      End Do
-      nACO=iTot
-      Return
-      End
+integer moip(0:nIrrep-1)
+
+iTot = 0
+do iIrrep=0,nIrrep-1
+  moip(iIrrep) = iTot
+  iTot = iTot+nAsh(iIrrep)
+end do
+nACO = iTot
+
+return
+
+end subroutine CtrlMO

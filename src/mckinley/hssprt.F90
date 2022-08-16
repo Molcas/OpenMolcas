@@ -8,54 +8,57 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine HssPrt(Hess,nHess)
-      use Symmetry_Info, only: nIrrep, lIrrep
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine HssPrt(Hess,nHess)
+
+use Symmetry_Info, only: nIrrep, lIrrep
+
+implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "real.fh"
-      Integer  nDisp(0:7)
-      Character Label*39
-      Real*8     Hess(nHess)
-      Real*8, Allocatable:: Temp(:)
+integer nDisp(0:7)
+character Label*39
+real*8 Hess(nHess)
+real*8, allocatable :: Temp(:)
+! Statement function
+Ind(idisp,jdisp) = idisp*(idisp-1)/2+jdisp
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Statement function
-!
-      Ind(idisp,jdisp)=idisp*(idisp-1)/2+jdisp
+iDisp = 0
+do iIrrep=0,nIrrep-1
+  nDisp(iIrrep) = iDisp
+  iDisp = iDisp+lDisp(iIrrep)
+end do
+
+if (nirrep == 1) then
+  write(Label,100) 'Hessian in Irrep ',lIrrep(0)
+  call TriPrt(Label,' ',Hess,ldisp(0))
+else
+  call mma_allocate(Temp,nHess,Label='Temp')
+  do iIrrep=0,nIrrep-1
+    write(Label,100) 'Hessian in Irrep ',lIrrep(iIrrep)
+    do i=1,lDisp(iirrep)
+      do j=1,i
+        ii = ind(i,j)
+        jj = ind(ndisp(iirrep)+i,ndisp(iirrep)+j)
+        Temp(ii) = Hess(jj)
+      end do
+    end do
+    call TriPrt(Label,' ',Temp,ldisp(iirrep))
+  end do
+  call mma_deallocate(Temp)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
- 100  Format (A,A)
-      iDisp=0
-      Do iIrrep=0,nIrrep-1
-           nDisp(iIrrep)=iDisp
-           iDisp=iDisp+lDisp(iIrrep)
-      End Do
-!
-      If (nirrep.eq.1) Then
-         Write(Label,100) 'Hessian in Irrep ',lIrrep(0)
-         Call TriPrt(Label,' ',Hess,ldisp(0))
-      Else
-         Call mma_allocate(Temp,nHess,Label='Temp')
-         Do iIrrep=0,nIrrep-1
-            Write(Label,100) 'Hessian in Irrep ',lIrrep(iIrrep)
-            Do i=1,lDisp(iirrep)
-               Do j=1,i
-                  ii=ind(i,j)
-                  jj=ind(ndisp(iirrep)+i,ndisp(iirrep)+j)
-                  Temp(ii)=Hess(jj)
-               End Do
-            End Do
-            Call TriPrt(Label,' ',Temp,ldisp(iirrep))
-         End Do
-         Call mma_deallocate(Temp)
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Return
-      End
+
+return
+
+100 format(A,A)
+
+end subroutine HssPrt

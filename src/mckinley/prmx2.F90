@@ -11,54 +11,54 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine PrMx2(Label,iComp,lOper,Result,Mem)
+
+subroutine PrMx2(Label,iComp,lOper,result,Mem)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, Sweden, January '91                  *
 !                                                                      *
 !     Modified by AB 950620                                            *
 !***********************************************************************
-      use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep, iOper
-      Implicit Real*8 (A-H,O-Z)
-!     Local arrays
-      Real*8 Result(Mem)
-      Character Label*(*), Line*80
-      Integer  lOper
-      Logical Type
-!
-         ip1=1
-         Type = .True.
-         Do 30 iIrrep = 0, nIrrep - 1
-            If (nBas(iIrrep).le.0) Go To 30
-            Do 40 jIrrep=0,iIrrep
-             lop=iEor(iOper(iIrrep),iOper(jIrrep))
-               if (lop.ne.loper) Go To 40
-               If (nBas(jIrrep).le.0) Go To 40
-               If (Type) Then
-                  Type = .False.
-                  Write (6,*)
-                  Write (6,*)
-                  Write (6,'(A,A,A,I2)')                                &
-     &      ' SO Integral gradients of the ', Label,' Component ',      &
-     &                     iComp
-               End If
-               Line=''
-               If (iIrrep.eq.jIrrep) Then
-                  Write (Line,'(1X,A,I1)')                              &
-     &            ' Diagonal Symmetry Block ', iIrrep+1
-!                  Call TriPrt(Line,' ',Result(ip1),nBas(iIrrep))
-                  ip1 = ip1 + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-               Else
-                  Write (Line,'(1X,A,I1,A,I1)')                         &
-     &            ' Off-diagonal Symmetry Block ',                      &
-     &            iIrrep+1, ',' , jIrrep+1
-                  Call RecPrt(Line,' ',                                 &
-     &                        Result(ip1),nBas(iIrrep),nBas(jIrrep))
-                  ip1 = ip1 + nBas(iIrrep)*nBas(jIrrep)
-               End If
- 40         Continue
- 30      Continue
-!
-      Return
-      End
+
+use Basis_Info, only: nBas
+use Symmetry_Info, only: nIrrep, iOper
+
+implicit real*8(A-H,O-Z)
+! Local arrays
+real*8 result(Mem)
+character Label*(*), Line*80
+integer lOper
+logical type
+
+ip1 = 1
+type = .true.
+do iIrrep=0,nIrrep-1
+  if (nBas(iIrrep) <= 0) Go To 30
+  do jIrrep=0,iIrrep
+    lop = ieor(iOper(iIrrep),iOper(jIrrep))
+    if (lop /= loper) Go To 40
+    if (nBas(jIrrep) <= 0) Go To 40
+    if (type) then
+      type = .false.
+      write(6,*)
+      write(6,*)
+      write(6,'(A,A,A,I2)') ' SO Integral gradients of the ',Label,' Component ',iComp
+    end if
+    Line = ''
+    if (iIrrep == jIrrep) then
+      write(Line,'(1X,A,I1)') ' Diagonal Symmetry Block ',iIrrep+1
+      !call TriPrt(Line,' ',Result(ip1),nBas(iIrrep))
+      ip1 = ip1+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    else
+      write(Line,'(1X,A,I1,A,I1)') ' Off-diagonal Symmetry Block ',iIrrep+1,',',jIrrep+1
+      call RecPrt(Line,' ',result(ip1),nBas(iIrrep),nBas(jIrrep))
+      ip1 = ip1+nBas(iIrrep)*nBas(jIrrep)
+    end if
+40  continue
+  end do
+30 continue
+end do
+
+return
+
+end subroutine PrMx2

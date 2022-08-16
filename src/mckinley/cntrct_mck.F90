@@ -1,4 +1,4 @@
-!***********************************************************************
+
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -11,12 +11,9 @@
 ! Copyright (C) 1994, Roland Lindh                                     *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine Cntrct_mck(First,                                      &
-     &                  Coef1,n1,m1,Coef2,n2,m2,                        &
-     &                  Coef3,n3,m3,Coef4,n4,m4,                        &
-     &                  g1In,nGr,Array,nArr,                            &
-     &                  xpre,G1Out,ngr1,nt,                             &
-     &                  IndZet,nZeta,lZeta,IndEta,nEta,lEta)
+
+subroutine Cntrct_mck(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,g1In,nGr,Array,nArr,xpre,G1Out,ngr1,nt,IndZet,nZeta, &
+                      lZeta,IndEta,nEta,lEta)
 !***********************************************************************
 !                                                                      *
 ! Object: to transform the integrals from primitives to contracted     *
@@ -30,62 +27,55 @@
 !              calculation of first order derivatives needed for       *
 !              response calculation.                                   *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 !#include "print.fh"
 #include "lCache.fh"
-      Real*8 Coef1(n1,m1),Coef2(n2,m2),Coef3(n3,m3),Coef4(n4,m4),       &
-     &       g1In(nT,nGr),                                              &
-     &       Array(nArr),                                               &
-     &       g1Out(nGr1),xpre(nt)
-      Logical First
-      Integer IndZet(nZeta), IndEta(nEta)
-!
-!     iRout = 18
-!     iPrint = nPrint(iRout)
-!
-!     If (iPrint.ge.99)
-!    &   Call RecPrt(' In Cntrct: ',' ',G1In,nt,nGr)
-!     If (iPrint.ge.59 .and. .not.First)
-!    &   Call RecPrt(' In Cntrct: Partial (a0|c0)',' ',
-!    &               G1Out,nGr,m1*m2*m3*m4)
+real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), g1In(nT,nGr), Array(nArr), g1Out(nGr1), xpre(nt)
+logical First
+integer IndZet(nZeta), IndEta(nEta)
 
-!-----Cache size is 32 k word (real*8)
-!
-      Do iabcdg=1,ngr
-         Do it=1,nt
-           G1In(it,iabcdg)=G1In(it,iabcdg)*xpre(it)
-         End Do
-      End Do
-!
-!-----Reduce for contraction matrix
-      nCache = (3*lCache)/4 - n1*m1 - n2*m2
-      lsize =  n1*n2 + n2*m1
-      nVec = lEta*nGr
-      IncVec = Min(Max(1,nCache/lsize),nVec)
-      ipA3 = 1
-      ipA2 = ipA3 + nVec*m1*m2
-      ip=ipA2 + n2*IncVec*m1
-      If (ip.gt.nArr)       Call Abend
-!
-      Call CntHlf_mck(Coef1,m1,n1,Coef2,m2,n2,nZeta,lZeta,nVec,         &
-     &                .True.,IncVec,G1In,Array(ipA2),Array(ipA3),IndZet)
-!
-      nCache = (3*lCache)/4 - n3*m3 - n4*m4
-      lsize = n3*n4 + n4*m3
-      nVec = nGr*m1*m2
-      IncVec = Min(Max(1,nCache/lsize),nVec)
-      ip=ipA2 + n4*IncVec*m3
-      If (ip.gt.nArr)       Call Abend
-!
-      Call CntHlf_mck(Coef3,m3,n3,Coef4,m4,n4,nEta,lEta,nVec,           &
-     &                First,IncVec,Array(ipA3),Array(ipA2),G1Out,IndEta)
-      First = .False.
-!
-!     If (iPrint.ge.59)
-!    &  Call RecPrt(' In Cntrct:  ',' ',
-!    &              ACOut,labcdG,m1*m2*m3*m4)
-!
-!     Call GetMem('Cntrct','Check','Real',iDum,iDum)
-      Return
-      End
+!iRout = 18
+!iPrint = nPrint(iRout)
+
+!if (iPrint >= 99) call RecPrt(' In Cntrct: ',' ',G1In,nt,nGr)
+!if ((iPrint >= 59) .and. (.not. First)) call RecPrt(' In Cntrct: Partial (a0|c0)',' ',G1Out,nGr,m1*m2*m3*m4)
+
+! Cache size is 32 k word (real*8)
+
+do iabcdg=1,ngr
+  do it=1,nt
+    G1In(it,iabcdg) = G1In(it,iabcdg)*xpre(it)
+  end do
+end do
+
+! Reduce for contraction matrix
+nCache = (3*lCache)/4-n1*m1-n2*m2
+lsize = n1*n2+n2*m1
+nVec = lEta*nGr
+IncVec = min(max(1,nCache/lsize),nVec)
+ipA3 = 1
+ipA2 = ipA3+nVec*m1*m2
+ip = ipA2+n2*IncVec*m1
+if (ip > nArr) call Abend()
+
+call CntHlf_mck(Coef1,m1,n1,Coef2,m2,n2,nZeta,lZeta,nVec,.true.,IncVec,G1In,Array(ipA2),Array(ipA3),IndZet)
+
+nCache = (3*lCache)/4-n3*m3-n4*m4
+lsize = n3*n4+n4*m3
+nVec = nGr*m1*m2
+IncVec = min(max(1,nCache/lsize),nVec)
+ip = ipA2+n4*IncVec*m3
+if (ip > nArr) call Abend()
+
+call CntHlf_mck(Coef3,m3,n3,Coef4,m4,n4,nEta,lEta,nVec,First,IncVec,Array(ipA3),Array(ipA2),G1Out,IndEta)
+First = .false.
+
+!if (iPrint >= 59) call RecPrt(' In Cntrct:  ',' ',ACOut,labcdG,m1*m2*m3*m4)
+
+!call GetMem('Cntrct','Check','Real',iDum,iDum)
+
+return
+
+end subroutine Cntrct_mck

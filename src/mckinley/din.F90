@@ -10,54 +10,54 @@
 !                                                                      *
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine DIN(Dens)
-!
-      use Basis_Info, only: nBas
-      use pso_stuff
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (a-h,o-z)
+
+subroutine DIN(Dens)
+
+use Basis_Info, only: nBas
+use pso_stuff
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "etwas.fh"
 #include "stdalloc.fh"
-      Real*8 Dens(nDens)
-      Real*8, Allocatable:: Temp2(:)
+real*8 Dens(nDens)
+real*8, allocatable :: Temp2(:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nTemp2=0
-      Do iIrr=0,nIrrep-1
-         nTemp2=Max(nTemp2,nBas(iIrr))
-      End Do
+nTemp2 = 0
+do iIrr=0,nIrrep-1
+  nTemp2 = max(nTemp2,nBas(iIrr))
+end do
 
-      Call mma_allocate(Temp2,nTemp2**2,Label='Temp2')
+call mma_allocate(Temp2,nTemp2**2,Label='Temp2')
 
-      ip=1
-      ipD=0
-      Do iIrr=0,nIrrep-1
+ip = 1
+ipD = 0
+do iIrr=0,nIrrep-1
 
-         If (nBas(iIrr)==0) Cycle
+  if (nBas(iIrr) == 0) cycle
 
-         Call DGEMM_('N','T',                                           &
-     &               nBas(iIrr),nBas(iIrr),nIsh(iIrr),                  &
-     &               One,CMO(ip,1),nBas(iIrr),                          &
-     &                     CMO(ip,1),nBas(iIrr),                        &
-     &               Zero,Temp2,nBas(iIrr))
-         Do iBas=1,nBas(iIrr)
-            Do jBas=1,iBas-1
-               ip1=(iBas-1)*nBas(iIrr)+jBas
-               ip2=iBas*(iBas-1)/2+jBas
-               Dens(ipD+ip2)=Temp2(ip1)*Four
-            End Do
-            ip1=(iBas-1)*nBas(iIrr)+iBas
-            ip2=iBas*(iBas+1)/2
-            Dens(ipD+ip2)=Temp2(ip1)*Two
-         End Do
-         ip=ip+nBas(iIrr)**2
-         ipd=ipD+nBas(iIrr)*(nBas(iIrr)+1)/2
+  call DGEMM_('N','T',nBas(iIrr),nBas(iIrr),nIsh(iIrr),One,CMO(ip,1),nBas(iIrr),CMO(ip,1),nBas(iIrr),Zero,Temp2,nBas(iIrr))
+  do iBas=1,nBas(iIrr)
+    do jBas=1,iBas-1
+      ip1 = (iBas-1)*nBas(iIrr)+jBas
+      ip2 = iBas*(iBas-1)/2+jBas
+      Dens(ipD+ip2) = Temp2(ip1)*Four
+    end do
+    ip1 = (iBas-1)*nBas(iIrr)+iBas
+    ip2 = iBas*(iBas+1)/2
+    Dens(ipD+ip2) = Temp2(ip1)*Two
+  end do
+  ip = ip+nBas(iIrr)**2
+  ipd = ipD+nBas(iIrr)*(nBas(iIrr)+1)/2
 
-      End Do
+end do
 
-      Call mma_deallocate(Temp2)
+call mma_deallocate(Temp2)
 
-      Return
-      End
+return
+
+end subroutine DIN

@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1997, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine Drvetc(ngrad)
+
+subroutine Drvetc(ngrad)
 !***********************************************************************
 !                                                                      *
 ! Object: driver for computation of gradients of one-electron matrices.*
@@ -19,78 +20,78 @@
 !             Gradients                                                *
 !             October  97                                              *
 !***********************************************************************
-      use Basis_Info
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-      External ElGrd,elgrddot
-      External ElMem
+
+use Basis_Info
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
+external ElGrd, elgrddot
+external ElMem
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "disp.fh"
-      Character*8 Lbl
-      Real*8 Ccoor(3)
-      Real*8, Allocatable:: D0(:), EG(:), Temp(:)
+character*8 Lbl
+real*8 Ccoor(3)
+real*8, allocatable :: D0(:), EG(:), Temp(:)
 
-      Ccoor(:)=Zero
+Ccoor(:) = Zero
 
-      nDens = 0
-      Do iIrrep = 0, nIrrep - 1
-         nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      End Do
+nDens = 0
+do iIrrep=0,nIrrep-1
+  nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+end do
 
-      Call mma_Allocate(D0,nDens,Label='D0')
-      Call Get_D1ao_Var(D0,nDens)
+call mma_Allocate(D0,nDens,Label='D0')
+call Get_D1ao_Var(D0,nDens)
 
-      Call mma_allocate(EG,3*nGrad,Label='EG')
-      Call Dot1El2(ElGrddot,ElMem,EG,3*nGrad,.true.,CCoor,D0,1)
-      Call mma_deallocate(D0)
+call mma_allocate(EG,3*nGrad,Label='EG')
+call Dot1El2(ElGrddot,ElMem,EG,3*nGrad,.true.,CCoor,D0,1)
+call mma_deallocate(D0)
 
-      EG(:) = -EG(:)
+EG(:) = -EG(:)
 
-      Call mma_allocate(Temp,3*nGrad,Label='Temp')
-      Temp(:)=Zero
+call mma_allocate(Temp,3*nGrad,Label='Temp')
+Temp(:) = Zero
 
-      Call Drvel1(Temp)
+call Drvel1(Temp)
 
-      EG(:) = EG(:) + Temp(:)
+EG(:) = EG(:)+Temp(:)
 
-      Lbl='NUCELGR'
-      idum=1
-      iopt=128
-      irc=3*ngrad
-      Call dWrMCk(irc,iopt,LBL,idum,Temp,idum)
-      If(irc.ne.0) Call SysAbendMsg('drvect',                           &
-     &                           'error during write in dwrmck',' ')
+Lbl = 'NUCELGR'
+idum = 1
+iopt = 128
+irc = 3*ngrad
+call dWrMCk(irc,iopt,LBL,idum,Temp,idum)
+if (irc /= 0) call SysAbendMsg('drvect','error during write in dwrmck',' ')
 
-      idum=1
-      iopt=128
-      irc=3*ngrad
-      Lbl='DOTELGR'
-      Call dWrMCk(irc,iopt,LBL,idum,EG,idum)
-      If (irc.ne.0) Call SysAbendMsg('drvect',                          &
-     &                           'error during write in dwrmck',' ')
-      Call mma_deallocate(EG)
-      Call mma_deallocate(Temp)
+idum = 1
+iopt = 128
+irc = 3*ngrad
+Lbl = 'DOTELGR'
+call dWrMCk(irc,iopt,LBL,idum,EG,idum)
+if (irc /= 0) call SysAbendMsg('drvect','error during write in dwrmck',' ')
+call mma_deallocate(EG)
+call mma_deallocate(Temp)
 
 ! needed in RASSI
-      loper=0
-      Do iCar=1,3
+loper = 0
+do iCar=1,3
 
-         isym=irrfnc(2**(icar-1))      ! nropr(ichbas(1+iCar))
-         Write(Lbl,'(a,i2)') 'ELEC ',iCar
-         idcnt=0
-         Do iCnttp=1,nCnttp
-           Do iCnt=1,dbsc(iCnttp)%nCntr
-             idcnt=idcnt+1
-             Do idCar=1,3
-               Call Cnt1El2(ELGRD,ELMEM,Lbl,idcnt,idcar,loper,          &
-     &                      One,.true.,lbl,0,isym,icar,1)
-             End Do
-           End Do
-         End Do
+  isym = irrfnc(2**(icar-1)) ! nropr(ichbas(1+iCar))
+  write(Lbl,'(a,i2)') 'ELEC ',iCar
+  idcnt = 0
+  do iCnttp=1,nCnttp
+    do iCnt=1,dbsc(iCnttp)%nCntr
+      idcnt = idcnt+1
+      do idCar=1,3
+        call Cnt1El2(ELGRD,ELMEM,Lbl,idcnt,idcar,loper,One,.true.,lbl,0,isym,icar,1)
+      end do
+    end do
+  end do
 
-      End Do
+end do
 
-      Return
-      End
+return
+
+end subroutine Drvetc

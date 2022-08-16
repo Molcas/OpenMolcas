@@ -8,34 +8,40 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Drvel1(Grad)
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-      Logical, External :: TF
-      Real*8 Grad(*)
-      idisp=0
-      do jIrrep=0,nirrep-1
-       Do Jcar=1,3
-        iirrep=irrfnc(2**(jcar-1))
-        If (jirrep.eq.iirrep) Then
-         mdc=0
-         Do  iCnttp = 1, nCnttp
-          ZA = dbsc(iCnttp)%Charge
-          Do  iCnt = 1, dbsc(iCnttp)%nCntr
-           mdc=mdc+1
-           Do iCar=1,3
+
+subroutine Drvel1(Grad)
+
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
+logical, external :: TF
+real*8 Grad(*)
+
+idisp = 0
+do jIrrep=0,nirrep-1
+  do Jcar=1,3
+    iirrep = irrfnc(2**(jcar-1))
+    if (jirrep == iirrep) then
+      mdc = 0
+      do iCnttp=1,nCnttp
+        ZA = dbsc(iCnttp)%Charge
+        do iCnt=1,dbsc(iCnttp)%nCntr
+          mdc = mdc+1
+          do iCar=1,3
             iComp = 2**(iCar-1)
-            If ( TF(mdc,jIrrep,iComp)) Then
-              idisp=idisp+1
-              If (icar.eq.jcar) Grad(idisp)=ZA
-            End If
-           End Do
-          End Do
-         End Do
-        End If
-       End Do
-      End Do
-      Return
-      End
+            if (TF(mdc,jIrrep,iComp)) then
+              idisp = idisp+1
+              if (icar == jcar) Grad(idisp) = ZA
+            end if
+          end do
+        end do
+      end do
+    end if
+  end do
+end do
+
+return
+
+end subroutine Drvel1

@@ -10,150 +10,134 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine SroHss(                                                &
-#define _CALLING_
-#include "hss_interface.fh"
-     &                 )
+
+subroutine SroHss( &
+#                 define _CALLING_
+#                 include "hss_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of ECP integrals.         *
 !                                                                      *
 !***********************************************************************
-      use Basis_Info
-      use Center_Info
-      use Real_Spherical
-      use Symmetry_Info, only: iOper
-      implicit real*8 (a-h,o-z)
+
+use Basis_Info
+use Center_Info
+use Real_Spherical
+use Symmetry_Info, only: iOper
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-
 #include "hss_interface.fh"
+! Local variables
+real*8 C(3), TC(3), Coor(3,4), g2(78)
+integer iDCRT(0:7), iuvwx(4), kOp(4), mop(4), JndGrd(3,4,0:7), jndhss(4,3,4,3,0:7)
+logical jfgrd(3,4), EQ, jfhss(4,3,4,3), ifg(4), tr(4)
+! Statement function
+nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-!     Local variables
-      Real*8 C(3), TC(3), Coor(3,4),  g2(78)
-      Integer iDCRT(0:7), iuvwx(4), kOp(4),mop(4),                      &
-     &        JndGrd(3,4,0:7),jndhss(4,3,4,3,0:7)
-      logical jfgrd(3,4),  EQ, jfhss(4,3,4,3), ifg(4),tr(4)
-!
-      nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-      nRys=nHer
-!
-      iuvwx(1) = dc(mdc)%nStab
-      iuvwx(2) = dc(ndc)%nStab
-      call icopy(2,nop,1,mop,1)
-      kop(1) = ioper(nop(1))
-      kop(2) = ioper(nop(2))
-      call dcopy_(3,A,1,coor(1,1),1)
-      call dcopy_(3,RB,1,coor(1,2),1)
+nRys = nHer
 
-!
-      kdc = 0
-      do 1960 kcnttp = 1, ncnttp
-         if (.not.dbsc(kcnttp)%ECP) Go To 1961
-         if (dbsc(kcnttp)%nSRO.le.0) Go To 1961
-         do 1965 kcnt = 1,dbsc(kCnttp)%nCntr
-            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
-!
-            call dcr(lmbdt,iStabM,nStabM,                               &
-     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-            fact = dble(nstabm) / DBLE(LmbdT)
-!
-            iuvwx(3) = dc(kdc+kCnt)%nStab
-            iuvwx(4) = dc(kdc+kCnt)%nStab
+iuvwx(1) = dc(mdc)%nStab
+iuvwx(2) = dc(ndc)%nStab
+call icopy(2,nop,1,mop,1)
+kop(1) = ioper(nop(1))
+kop(2) = ioper(nop(2))
+call dcopy_(3,A,1,coor(1,1),1)
+call dcopy_(3,RB,1,coor(1,2),1)
 
-!
-         do 1967 ldcrt = 0, ndcRT-1
+kdc = 0
+do kcnttp=1,ncnttp
+  if (.not. dbsc(kcnttp)%ECP) Go To 1961
+  if (dbsc(kcnttp)%nSRO <= 0) Go To 1961
+  do kcnt=1,dbsc(kCnttp)%nCntr
+    C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
+    call dcr(lmbdt,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+    fact = dble(nstabm)/dble(LmbdT)
 
-            kop(3) = idcrt(ldcrT)
-            kop(4) = kop(3)
-            mop(3) = nropr(kop(3))
-            mop(4) = mop(3)
+    iuvwx(3) = dc(kdc+kCnt)%nStab
+    iuvwx(4) = dc(kdc+kCnt)%nStab
 
-            Call OA(iDCRT(lDCRT),C,TC)
-            call dcopy_(3,TC,1,Coor(1,3),1)
+    do ldcrt=0,ndcRT-1
 
-            if (eq(a,rb).and.eq(A,TC)) Go To 1967
-            call nucind(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,        &
-     &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
-            do 1966 iang = 0, dbsc(kCnttp)%nSRO-1
-               ishll = dbsc(kcnttp)%iSRO + iAng
-               nExpi=Shells(iShll)%nExp
-               if (nExpi.eq.0) Go To 1966
-!
-               ip = 1
-               ipfin = ip
-               ip = ip + nzeta*nElem(la)*nElem(lb)*21
-               ipfa1 = ip
-               ip = ip + nalpha*nExpi*nElem(la)*nElem(iAng)*4
-               iptmp = ip
-               ip = ip + nalpha*nExpi
-               ipfa2 = ip
-               ip = ip + nalpha*nExpi*nElem(la)*nElem(iAng)*6
-               ipfb1 = ip
-               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
-               ipfb2 = ip
-               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*6
+      kop(3) = idcrt(ldcrT)
+      kop(4) = kop(3)
+      mop(3) = nropr(kop(3))
+      mop(4) = mop(3)
 
-               call dcopy_(narr,[Zero],0,Array,1)
-!              <a|c>, <a'|c>, <a",c>
-               Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),          &
-     &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),         &
-     &                     array(ipfa2),jfgrd(1,1),jfhss,               &
-     &                     2,.false.)
-!              Transform core orbital to spherical harmonics
-               call LToSph(Array(ipFA1),nAlpha,ishll,la,iAng,4)
-               call LToSph(Array(ipFA2),nAlpha,ishll,la,iAng,6)
+      call OA(iDCRT(lDCRT),C,TC)
+      call dcopy_(3,TC,1,Coor(1,3),1)
 
-!              <c|b>,<c,b'>,<c|b">
-               Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),         &
-     &                    narr-ip+1,Beta,nbeta,Array(ipFB1),            &
-     &                    array(ipfb2),jfgrd(1,2),jfhss,                &
-     &                    2,.false.)
-!              Transform core orbital to spherical harmonics
-               call RToSph(Array(ipFB1),nBeta,ishll,lb,iAng,4)
-               call RToSph(Array(ipFB2),nBeta,ishll,lb,iAng,6)
+      if (eq(a,rb) .and. eq(A,TC)) Go To 1967
+      call nucind(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
+      do iang=0,dbsc(kCnttp)%nSRO-1
+        ishll = dbsc(kcnttp)%iSRO+iAng
+        nExpi = Shells(iShll)%nExp
+        if (nExpi == 0) Go To 1966
 
-!              Construct complete derivatives (contracting core)
-               Call CmbnACB2(Array(ipFa1),Array(ipFa2),Array(ipFb1),    &
-     &                        Array(ipFb2),Array(ipFin),Fact,           &
-     &                        nalpha,nbeta,                             &
-     &                        Shells(iShll)%Akl,nExpi,                  &
-     &                        la,lb,iang,jfhss,Array(ipTmp),.true.)
+        ip = 1
+        ipfin = ip
+        ip = ip+nzeta*nElem(la)*nElem(lb)*21
+        ipfa1 = ip
+        ip = ip+nalpha*nExpi*nElem(la)*nElem(iAng)*4
+        iptmp = ip
+        ip = ip+nalpha*nExpi
+        ipfa2 = ip
+        ip = ip+nalpha*nExpi*nElem(la)*nElem(iAng)*6
+        ipfb1 = ip
+        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*4
+        ipfb2 = ip
+        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*6
 
+        call dcopy_(narr,[Zero],0,Array,1)
+        ! <a|c>, <a'|c>, <a",c>
+        call Acore(iang,la,ishll,nordop,TC,A,Array(ip),narr-ip+1,Alpha,nalpha,Array(ipFA1),array(ipfa2),jfgrd(1,1),jfhss,2,.false.)
+        ! Transform core orbital to spherical harmonics
+        call LToSph(Array(ipFA1),nAlpha,ishll,la,iAng,4)
+        call LToSph(Array(ipFA2),nAlpha,ishll,la,iAng,6)
 
-!              contract density
-               nt=nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-               call dcopy_(78,[Zero],0,g2,1)
-               Call dGeMV_('T',nT,21,                                   &
-     &                    One,Array(ipFin),nT,                          &
-     &                    DAO,1,                                        &
-     &                    Zero,g2,1)
+        ! <c|b>,<c,b'>,<c|b">
+        call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),narr-ip+1,Beta,nbeta,Array(ipFB1),array(ipfb2),jfgrd(1,2),jfhss,2,.false.)
+        ! Transform core orbital to spherical harmonics
+        call RToSph(Array(ipFB1),nBeta,ishll,lb,iAng,4)
+        call RToSph(Array(ipFB2),nBeta,ishll,lb,iAng,6)
 
-!              distribute in hessian
-               Call Distg2(g2,Hess,nHess,JndGrd,                        &
-     &                  JfHss,JndHss,iuvwx,kOp,mop,Tr,IfG)
+        ! Construct complete derivatives (contracting core)
+        call CmbnACB2(Array(ipFa1),Array(ipFa2),Array(ipFb1),Array(ipFb2),Array(ipFin),Fact,nalpha,nbeta,Shells(iShll)%Akl,nExpi, &
+                      la,lb,iang,jfhss,Array(ipTmp),.true.)
 
-!
- 1966       Continue
- 1967    Continue
- 1965    Continue
- 1961    Continue
-         kdc = kdc + dbsc(kCnttp)%nCntr
- 1960    Continue
-         Return
+        ! contract density
+        nt = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
+        call dcopy_(78,[Zero],0,g2,1)
+        call dGeMV_('T',nT,21,One,Array(ipFin),nT,DAO,1,Zero,g2,1)
+
+        ! distribute in hessian
+        call Distg2(g2,Hess,nHess,JndGrd,JfHss,JndHss,iuvwx,kOp,mop,Tr,IfG)
+
+1966    continue
+      end do
+1967  continue
+    end do
+  end do
+1961 continue
+  kdc = kdc+dbsc(kCnttp)%nCntr
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Zeta)
-         Call Unused_real_array(ZInv)
-         Call Unused_real_array(rKappa)
-         Call Unused_real_array(P)
-         Call Unused_real_array(Final)
-         Call Unused_integer(nRys)
-         Call Unused_real_array(Ccoor)
-         Call Unused_integer_array(lOper)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(Zeta)
+  call Unused_real_array(ZInv)
+  call Unused_real_array(rKappa)
+  call Unused_real_array(P)
+  call Unused_real_array(final)
+  call Unused_integer(nRys)
+  call Unused_real_array(Ccoor)
+  call Unused_integer_array(lOper)
+end if
+
+end subroutine SroHss

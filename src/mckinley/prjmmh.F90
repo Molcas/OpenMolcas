@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine prjMmH(nHer,MmprjH,la,lb,lr)
+
+subroutine prjMmH(nHer,MmprjH,la,lb,lr)
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *
@@ -23,48 +24,49 @@
 !  Called from: OneEl                                                  *
 !                                                                      *
 !***********************************************************************
-      use Basis_Info, only: dbsc, nCnttp, Shells
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
-      nOrder = 0
-      nordop=lr
-      ld=2
-      MmprjH = 0
-      Do 1960 iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%ECP) Cycle
-         Do 1966 iAng = 0, dbsc(iCnttp)%nPrj-1
-            iShll = dbsc(iCnttp)%iPrj + iAng
-            nExpi=Shells(iShll)%nExp
-            nBasisi=Shells(iShll)%nBasis
-            If (nExpi.eq.0 .or. nBasisi.eq.0) Cycle
-!
-            ip = 0
-            nac = nElem(la)*nElem(iAng)
-            ncb = nElem(iAng)*nElem(lb)
-            ip = ip + nElem(la)*nElem(lb)*21 ! Final
 
-            ip = ip + nExpi*nExpi ! tmp
+use Basis_Info, only: dbsc, nCnttp, Shells
 
-            ip=ip+10*nac*nExpi ! FA1 & FA2
-            ip=ip+10*ncb*nExpi ! FB1 & FB2
+! Statement function
+nElem(i) = (i+1)*(i+2)/2
 
-            nHer = (la+1+iAng+1+ld)/2
-            nOrder = Max(nHer,nOrder)
-            iacore=6+3*nHer*(la+1+ld)+3*nHer*(iAng+1)+                  &
-     &           3*nHer*(nOrdOp+1)+3*(la+1+ld)*(iAng+1)*(nOrdOp+1)+1
+nOrder = 0
+nordop = lr
+ld = 2
+MmprjH = 0
+do iCnttp=1,nCnttp
+  if (.not. dbsc(iCnttp)%ECP) cycle
+  do iAng=0,dbsc(iCnttp)%nPrj-1
+    iShll = dbsc(iCnttp)%iPrj+iAng
+    nExpi = Shells(iShll)%nExp
+    nBasisi = Shells(iShll)%nBasis
+    if ((nExpi == 0) .or. (nBasisi == 0)) cycle
 
-            nHer = (lb+1+iAng+1+ld)/2
-            nOrder = Max(nHer,nOrder)
-            icoreb=6+3*nHer*(lb+1+ld)+3*nHer*(iAng+1)+                  &
-     &           3*nHer*(nOrdOp+1)+3*(lb+1+ld)*(iAng+1)*(nOrdOp+1)+1
+    ip = 0
+    nac = nElem(la)*nElem(iAng)
+    ncb = nElem(iAng)*nElem(lb)
+    ip = ip+nElem(la)*nElem(lb)*21 ! Final
 
-            icores = MAX(icoreb,iacore)*nExpi
-            MmprjH = Max(MmprjH,ip+icores)
-!
- 1966    Continue
- 1960 Continue
-      nHer = nOrder
-!
-      Return
-      End
+    ip = ip+nExpi*nExpi ! tmp
+
+    ip = ip+10*nac*nExpi ! FA1 & FA2
+    ip = ip+10*ncb*nExpi ! FB1 & FB2
+
+    nHer = (la+1+iAng+1+ld)/2
+    nOrder = max(nHer,nOrder)
+    iacore = 6+3*nHer*(la+1+ld)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(la+1+ld)*(iAng+1)*(nOrdOp+1)+1
+
+    nHer = (lb+1+iAng+1+ld)/2
+    nOrder = max(nHer,nOrder)
+    icoreb = 6+3*nHer*(lb+1+ld)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(lb+1+ld)*(iAng+1)*(nOrdOp+1)+1
+
+    icores = max(icoreb,iacore)*nExpi
+    MmprjH = max(MmprjH,ip+icores)
+
+  end do
+end do
+nHer = nOrder
+
+return
+
+end subroutine prjMmH

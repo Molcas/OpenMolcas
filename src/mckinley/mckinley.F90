@@ -12,7 +12,8 @@
 !               1990, IBM                                              *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-      subroutine McKinley(ireturn)
+
+subroutine McKinley(ireturn)
 !***********************************************************************
 !                                                                      *
 !  Object: Driver for the one and two electron integral second order   *
@@ -30,11 +31,13 @@
 !          Modified to  second order derivatives October '94 -         *
 !          '95                                                         *
 !***********************************************************************
-      use Real_Spherical
-      use Basis_Info
-      use Gateway_global, only: Onenly, Test
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+
+use Real_Spherical
+use Basis_Info
+use Gateway_global, only: Onenly, Test
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -46,97 +49,94 @@
 !pcm_solvent
 #include "rctfld.fh"
 !pcm_solvent end
-!      Parameter (nLines=12)
-      Character*120 Lines
-      Logical DoRys, Run_MCLR
-      Real*8, Allocatable:: Hess(:), Temp(:), GradN(:)
+!parameter (nLines=12)
+character*120 Lines
+logical DoRys, Run_MCLR
+real*8, allocatable :: Hess(:), Temp(:), GradN(:)
 #include "warnings.h"
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Call McKinley_banner()
-      Call CWTime(TCpu1,TWall1)
-      iRout=1
-      call dcopy_(9,[0.0d0],0,CpuStat,1)
+!call McKinley_banner()
+call CWTime(TCpu1,TWall1)
+iRout = 1
+call dcopy_(9,[0.0d0],0,CpuStat,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Print program header
+! Print program header
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!      Lines(1)=_MOLCAS_VERSION_
+!Lines(1) = _MOLCAS_VERSION_
 !#ifdef _DEMO_
-!      Lines(2)='DEMO VERSION'
+!Lines(2) = 'DEMO VERSION'
 !#else
-!      Lines(2)=' '
+!Lines(2) = ' '
 !#endif
-!      Lines(3)=' '
-!      Lines(4)=Vrsn
-!      Lines(5)='A Vectorized Direct Integral Program for derivatives'
-!      Lines(6)='of Cartesian and Spherical Harmonic Gaussians'
-!      Lines(7)='Written by Anders Bernhardsson and Roland Lindh '
-!      Lines(8)='Backtransformation of the 2nd order density matrix '//
-!     &         'from MO to SO by Per-AAke Malmqvist'
-!      Lines(9)='Dept. of Theoretical Chemistry, '//
-!     &          'Chemical Centre, Lund (Sweden)'
-!      Lines(10)=' '
-!      Lines(11)=' '
-!      Lines(12)='Compiled at '//
-!     &           _BUILD_DATE_
-!      lLine=Len(Lines(1))
-!     Call Banner(Lines,nLines,lLine)
+!Lines(3) = ' '
+!Lines(4) = Vrsn
+!Lines(5) = 'A Vectorized Direct Integral Program for derivatives'
+!Lines(6) = 'of Cartesian and Spherical Harmonic Gaussians'
+!Lines(7) = 'Written by Anders Bernhardsson and Roland Lindh '
+!Lines(8) = 'Backtransformation of the 2nd order density matrix from MO to SO by Per-AAke Malmqvist'
+!Lines(9) = 'Dept. of Theoretical Chemistry, Chemical Centre, Lund (Sweden)'
+!Lines(10) = ' '
+!Lines(11) = ' '
+!Lines(12) = 'Compiled at '//_BUILD_DATE_
+!lLine = Len(Lines(1))
+!call Banner(Lines,nLines,lLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Set error conditions
+! Set error conditions
 !
-      !Call XuFlow()
-      !Call ErrSet(209,1,1,2,1,209)
+!call XuFlow()
+!Call ErrSet(209,1,1,2,1,209)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     Check if a numerical procedure will be used
 !
-      Call SuperMac()
+call SuperMac()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-!     Get the input information as Seward dumped on INFO.
-!     Set up some info
-!     Read input
-!
-      nDiff=2
-      DoRys=.True.
-      Call IniSew(DoRys,nDiff)
-!pcm_solvent
+! Get the input information as Seward dumped on INFO.
+! Set up some info
+! Read input
+
+nDiff = 2
+DoRys = .true.
+call IniSew(DoRys,nDiff)
+! pcm_solvent
 ! check if there is a reaction field
-!     write(6,*)'In mckinley PCM',pcm
-      Call Init_RctFld(.False.,iCharge_ref)
-!pcm_solvent end
-      nsAtom=0
-      Do  iCnttp = 1, nCnttp
-            nsAtom=nsAtom+dbsc(iCnttp)%nCntr
-      End Do
-      Call Inputh(Run_MCLR)
-      iPrint=nPrint(iRout)
-      nGrad=0
-      Do i=0,nIrrep-1
-        nGrad=nGrad+lDisp(i)
-      End Do
-      Call OpnFls_Mckinley()
+!write(6,*) 'In mckinley PCM',pcm
+call Init_RctFld(.false.,iCharge_ref)
+! pcm_solvent end
+nsAtom = 0
+do iCnttp=1,nCnttp
+  nsAtom = nsAtom+dbsc(iCnttp)%nCntr
+end do
+call Inputh(Run_MCLR)
+iPrint = nPrint(iRout)
+nGrad = 0
+do i=0,nIrrep-1
+  nGrad = nGrad+lDisp(i)
+end do
+call OpnFls_Mckinley()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Allocate area for hessian etc
-!
-      nHess=nGrad*(nGrad+1)/2
-!
-      Call mma_allocate(Hess,nHess,Label='Hess')
-      Hess(:)=Zero
-      Call mma_allocate(Temp,nHess,Label='Temp')
-      Temp(:)=Zero
+! Allocate area for hessian etc
+
+nHess = nGrad*(nGrad+1)/2
+
+call mma_allocate(Hess,nHess,Label='Hess')
+Hess(:) = Zero
+call mma_allocate(Temp,nHess,Label='Temp')
+Temp(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -145,19 +145,17 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (lHss) Then
-         If (iPrint.ge.6) Then
-         Write(6,*)
-         Write(6,'(A,A,A)')                                             &
-     &    'The 2nd order derivatives of the one-electron',              &
-     &    ' integrals are calculated and contracted with',              &
-     &    ' the one-electron density matrix. '
-         Write(6,*)
-         End If
-         Call Timing(dum1,Time,dum2,dum3)
-         Call Drvh2(Hess,Temp,nHess,show)
-         Call DrvEtc(nGrad)
-      End If
+if (lHss) then
+  if (iPrint >= 6) then
+    write(6,*)
+    write(6,'(A)') 'The 2nd order derivatives of the one-electron integrals are calculated and contracted with the '// &
+                   'one-electron density matrix. '
+    write(6,*)
+  end if
+  call Timing(dum1,Time,dum2,dum3)
+  call Drvh2(Hess,Temp,nHess,show)
+  call DrvEtc(nGrad)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -165,22 +163,21 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (lHss) Then
-         Call DrvN2(Temp,nGrad)
-         If (SHOW) Call HssPrt(Temp,nHess)
-         Call DaXpY_(nHess,One,Temp,1,Hess,1)
-         If (Show) Call HssPrt(Hess,nHess)
-      End If
-      If (lGrd) Then
-          Call mma_allocate(GradN,nGrad,Label='GradN')
-          Call DrvN1_mck(GradN,nGrad)
-          iopt=0
-          irc=-1
-          Call dWrMCK(iRC,iOpt,'NUCGRAD',1,GradN,1)
-          If (irc.ne.0) Call SysAbendMsg('mckinley','Error in writing', &
-     &                                   'Option=NUCGRAD')
-          Call mma_deallocate(GradN)
-      End If
+if (lHss) then
+  call DrvN2(Temp,nGrad)
+  if (SHOW) call HssPrt(Temp,nHess)
+  call DaXpY_(nHess,One,Temp,1,Hess,1)
+  if (Show) call HssPrt(Hess,nHess)
+end if
+if (lGrd) then
+  call mma_allocate(GradN,nGrad,Label='GradN')
+  call DrvN1_mck(GradN,nGrad)
+  iopt = 0
+  irc = -1
+  call dWrMCK(iRC,iOpt,'NUCGRAD',1,GradN,1)
+  if (irc /= 0) call SysAbendMsg('mckinley','Error in writing','Option=NUCGRAD')
+  call mma_deallocate(GradN)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -189,15 +186,13 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (iPrint.ge.6) Then
-      Write(6,*)
-      Write(6,'(A,A)')                                                  &
-     &          'The 1st order derivatives of the one-electron ',       &
-     &          'integrals are calculated and stored on disk'
-      Write(6,*)
-      End If
-      Call Drvh1_mck(nGrad,Nona)
-!
+if (iPrint >= 6) then
+  write(6,*)
+  write(6,'(A)') 'The 1st order derivatives of the one-electron integrals are calculated and stored on disk'
+  write(6,*)
+end if
+call Drvh1_mck(nGrad,Nona)
+!                                                                      *
 !***********************************************************************
 !                                                                      *
 !      Calculate two electron integrals. First order is contracted     *
@@ -207,90 +202,88 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nhess=ngrad*(ngrad+1)/2
-      Call Timing(dum1,Time,dum2,dum3)
-      CPUStat(nOneel)=CPUStat(nOneel)+Time
-      If (.Not.Onenly) Then
-!
-          nIsh(:)=0
-          nAsh(:)=0
-!
-          Call PrepP()
-!
-          iOpt = 0
-          iRC = -1
-          Call iWrMck(iRC,iOpt,'NISH',1,nIsh,iDummer)
-          If (iRC.ne.0) Then
-             Write (6,*) 'Mckinley: Error writing to MckInt!'
-             Call Abend()
-          End If
-          iOpt = 0
-          iRC = -1
-          Call iWrMck(iRC,iOpt,'NASH',1,nAsh,iDummer)
-          If (iRC.ne.0) Then
-             Write (6,*) 'Mckinley: Error writing to MckInt!'
-             Call Abend()
-          End If
-!
-!
+nhess = ngrad*(ngrad+1)/2
+call Timing(dum1,Time,dum2,dum3)
+CPUStat(nOneel) = CPUStat(nOneel)+Time
+if (.not. Onenly) then
 
-          Call Drvg2(Temp,nhess, lGrd,lHss)
-!
-          Call CloseP
-!
-          If (lHss) Then
-             Call GADSum(Temp,nHess)
-             Call DScal_(nHess,Half,Temp,1)
-             If (Show) Call HssPrt(Temp,nHess)
-!
-!----------- Accumulate contribution to the hessian!
-!
-             Call DaXpY_(nhess,One,Temp,1,Hess,1)
-!
-             If (Show) Then
-                Call Banner('Complete static Hessian',1,23)
-                Call HssPrt(Hess,nHess)
-             End If
-             Call WrHDsk(Hess,ngrad)
-          End If
-!
-      End If
+  nIsh(:) = 0
+  nAsh(:) = 0
+
+  call PrepP()
+
+  iOpt = 0
+  iRC = -1
+  call iWrMck(iRC,iOpt,'NISH',1,nIsh,iDummer)
+  if (iRC /= 0) then
+    write(6,*) 'Mckinley: Error writing to MckInt!'
+    call Abend()
+  end if
+  iOpt = 0
+  iRC = -1
+  call iWrMck(iRC,iOpt,'NASH',1,nAsh,iDummer)
+  if (iRC /= 0) then
+    write(6,*) 'Mckinley: Error writing to MckInt!'
+    call Abend()
+  end if
+
+  call Drvg2(Temp,nhess,lGrd,lHss)
+
+  call CloseP()
+
+  if (lHss) then
+    call GADSum(Temp,nHess)
+    call DScal_(nHess,Half,Temp,1)
+    if (Show) call HssPrt(Temp,nHess)
+
+    ! Accumulate contribution to the hessian!
+
+    call DaXpY_(nhess,One,Temp,1,Hess,1)
+
+    if (Show) then
+      call Banner('Complete static Hessian',1,23)
+      call HssPrt(Hess,nHess)
+    end if
+    call WrHDsk(Hess,ngrad)
+  end if
+
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!...  Close 'MCKINT' file
-      iRc=-1
-      iOpt=0
-      Call ClsMck(iRC,iOpt)
-      If ( iRc.ne.0 ) Then
-         Write (6,*) 'McKinley: Error closing MCKINT!'
-         Call Abend()
-      End If
-      Call mma_deallocate(Temp)
-      Call mma_deallocate(Hess)
-!
-      Call ClsSew
+! Close 'MCKINT' file
+iRc = -1
+iOpt = 0
+call ClsMck(iRC,iOpt)
+if (iRc /= 0) then
+  write(6,*) 'McKinley: Error closing MCKINT!'
+  call Abend()
+end if
+call mma_deallocate(Temp)
+call mma_deallocate(Hess)
+
+call ClsSew()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Epilogue
-!
-      Lines='All data is written to disk, and could be accessed '//     &
-     &         'through the MCLR or RASSI program.'
-      lLine=Len(Lines)
-      Call Banner(Lines,1,lLine)
-!
-      Call CWTime(TCpu2,TWall2)
-      Call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
-!
-      Call Timing(Time,dum,dum,dum)
-      CPUStat(nTotal)=Time
-      If (iPrint.ge.6) Call Sttstc
-      If (Test) Then
-         ireturn=_RC_INPUT_ERROR_
-      Else
-         Call Request_MCLR_Run(Run_MCLR,ireturn,iPrint)
-      End If
-!
-      Return
-      End
+! Epilogue
+
+Lines = 'All data is written to disk, and could be accessed through the MCLR or RASSI program.'
+lLine = len(Lines)
+call Banner(Lines,1,lLine)
+
+call CWTime(TCpu2,TWall2)
+call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
+
+call Timing(Time,dum,dum,dum)
+CPUStat(nTotal) = Time
+if (iPrint >= 6) call Sttstc()
+if (Test) then
+  ireturn = _RC_INPUT_ERROR_
+else
+  call Request_MCLR_Run(Run_MCLR,ireturn,iPrint)
+end if
+
+return
+
+end subroutine McKinley

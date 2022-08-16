@@ -12,10 +12,11 @@
 !               1990, IBM                                              *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine OvrGrd_mck(                                            &
-#define _CALLING_
-#include "grd_mck_interface.fh"
-     &                     )
+
+subroutine OvrGrd_mck( &
+#                     define _CALLING_
+#                     include "grd_mck_interface.fh"
+                     )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradients of the overlap matrix               *
@@ -31,121 +32,103 @@
 !             Modified for respons calculation in May '95  By          *
 !             Anders Bernhardsson                                      *
 !***********************************************************************
-      use Her_RW, only: HerR, HerW, iHerR, iHerW
-      Implicit Real*8 (A-H,O-Z)
+
+use Her_RW, only: HerR, HerW, iHerR, iHerW
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-
 #include "grd_mck_interface.fh"
+! Local variables
+logical ABeq(3)
+! Statement function for Cartesian index
+nElem(la) = (la+2)*(la+1)/2
 
-!     Local variables
-      Logical ABeq(3)
-!
-!     Statement function for Cartesian index
-!
-      nElem(la)=(la+2)*(la+1)/2
-!
-      ABeq(1) = A(1).eq.RB(1)
-      ABeq(2) = A(2).eq.RB(2)
-      ABeq(3) = A(3).eq.RB(3)
-!
+ABeq(1) = A(1) == RB(1)
+ABeq(2) = A(2) == RB(2)
+ABeq(3) = A(3) == RB(3)
 
-      nip = 1
-      ipAxyz = nip
-      nip = nip + nZeta*3*nHer*(la+2)
-      ipBxyz = nip
-      nip = nip + nZeta*3*nHer*(lb+2)
-      ipRxyz = nip
-      nip = nip + nZeta*3*nHer*(nOrdOp+1)
-      ipRnxyz = nip
-      nip = nip + nZeta*3*(la+2)*(lb+2)*(nOrdOp+1)
-      ipAlph = nip
-      nip = nip + nZeta
-      ipBeta = nip
-      nip = nip + nZeta
-      ipScrt=nip
-      nip=nip+nElem(la)*nElem(lb)*nZeta*2
+nip = 1
+ipAxyz = nip
+nip = nip+nZeta*3*nHer*(la+2)
+ipBxyz = nip
+nip = nip+nZeta*3*nHer*(lb+2)
+ipRxyz = nip
+nip = nip+nZeta*3*nHer*(nOrdOp+1)
+ipRnxyz = nip
+nip = nip+nZeta*3*(la+2)*(lb+2)*(nOrdOp+1)
+ipAlph = nip
+nip = nip+nZeta
+ipBeta = nip
+nip = nip+nZeta
+ipScrt = nip
+nip = nip+nElem(la)*nElem(lb)*nZeta*2
 
+if (nip-1 > nArr) then
+  write(6,*) 'OvrGrd_Mck: nip-1 > nArr'
+  write(6,*) 'nip,nArr=',nip,nArr
+  call Abend()
+end if
 
-      If (nip-1.gt.nArr) Then
-         Write (6,*) 'OvrGrd_Mck: nip-1.gt.nArr'
-         Write (6,*) 'nip,nArr=',nip,nArr
-         Call Abend()
-      End If
-!
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' IfGrad=',IfGrad
-      Write (6,*) ' IndGrd=',IndGrd
-      Call RecPrt(' In OvrGrd: A',' ',A,1,3)
-      Call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
-      Call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
-      Call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
-      Write (6,*) ' In OvrGrd: la,lb=',la,lb
-#endif
-!
-!     Compute the cartesian values of the basis functions angular part
-!
-      Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),                         &
-     &               la+1,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),                        &
-     &               lb+1,HerR(iHerR(nHer)),nHer,ABeq)
-!
-!     Compute the contribution from the multipole moment operator
-!
-      ABeq(1) = .False.
-      ABeq(2) = .False.
-      ABeq(3) = .False.
-      Call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),                     &
-     &            nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
-!
-!     Compute the cartesian components for the multipole moment
-!     integrals. The integrals are factorized into components.
-!
-       Call Assmbl(Array(ipRnxyz),                                      &
-     &             Array(ipAxyz),la+1,                                  &
-     &             Array(ipRxyz),nOrdOp,                                &
-     &             Array(ipBxyz),lb+1,                                  &
-     &             nZeta,HerW(iHerW(nHer)),nHer)
-!
-!     Combine the cartesian components to the gradient of the one
-!     electron integral and contract with the Fock matrix.
-!
-      ip = ipAlph
-      Do 20 iBeta = 1, nBeta
-         call dcopy_(nAlpha,Alpha,1,Array(ip),1)
-         ip = ip + nAlpha
- 20   Continue
-      ip = ipBeta
-      Do 21 iAlpha = 1, nAlpha
-         call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
-         ip = ip + 1
- 21   Continue
-      Call CmbnS1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,                  &
-     &            rKappa,Array(ipScrt),                                 &
-     &            Array(ipAlph),Array(ipBeta),IfGrad,nOp)
-!
-#ifdef _DEBUGPRINT_
-       Call RecPrt(' Primitive Integrals',' ',                          &
-     &             Array(ipScrt),nZeta,nElem(la)*nElem(lb))
-#endif
-!
-!
-!     Symmetry adopt the gradient operator
-!
-
-      Call SymAdO_mck(Array(ipScrt),nZeta*nElem(la)*nElem(lb),          &
-     &            Final,nrOp,                                           &
-     &            nop,loper,IndGrd,iu,iv,ifgrad,idcar,trans)
-#ifdef _DEBUGPRINT_
-       Call RecPrt(' Primitive Integrals SO',' ',                       &
-     &             Final,nZeta,nElem(la)*nElem(lb)*nrOp)
+write(6,*) ' IfGrad=',IfGrad
+write(6,*) ' IndGrd=',IndGrd
+call RecPrt(' In OvrGrd: A',' ',A,1,3)
+call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
+call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
+write(6,*) ' In OvrGrd: la,lb=',la,lb
 #endif
 
-      Return
+! Compute the cartesian values of the basis functions angular part
+
+call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
+call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)
+
+! Compute the contribution from the multipole moment operator
+
+ABeq(1) = .false.
+ABeq(2) = .false.
+ABeq(3) = .false.
+call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
+
+! Compute the cartesian components for the multipole moment
+! integrals. The integrals are factorized into components.
+
+call Assmbl(Array(ipRnxyz),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,nZeta,HerW(iHerW(nHer)),nHer)
+
+! Combine the cartesian components to the gradient of the one
+! electron integral and contract with the Fock matrix.
+
+ip = ipAlph
+do iBeta=1,nBeta
+  call dcopy_(nAlpha,Alpha,1,Array(ip),1)
+  ip = ip+nAlpha
+end do
+ip = ipBeta
+do iAlpha=1,nAlpha
+  call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
+  ip = ip+1
+end do
+call CmbnS1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Array(ipScrt),Array(ipAlph),Array(ipBeta),IfGrad,nOp)
+
+#ifdef _DEBUGPRINT_
+call RecPrt(' Primitive Integrals',' ',Array(ipScrt),nZeta,nElem(la)*nElem(lb))
+#endif
+
+! Symmetry adopt the gradient operator
+
+call SymAdO_mck(Array(ipScrt),nZeta*nElem(la)*nElem(lb),final,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idcar,trans)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Primitive Integrals SO',' ',final,nZeta,nElem(la)*nElem(lb)*nrOp)
+#endif
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(ZInv)
-         Call Unused_integer(iDCnt)
-         Call Unused_integer_array(iStabM)
-         Call Unused_integer(nStabM)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(ZInv)
+  call Unused_integer(iDCnt)
+  call Unused_integer_array(iStabM)
+  call Unused_integer(nStabM)
+end if
+
+end subroutine OvrGrd_mck

@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Trns3(Win,Wout,na,nb,nvec,nc,Temp)
+
+subroutine Trns3(Win,Wout,na,nb,nvec,nc,Temp)
 !***********************************************************************
 !                                                                      *
 ! Object: utility routine to transform a AO batch in case of redun-    *
@@ -27,28 +28,31 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             June '90                                                 *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 !#include "print.fh"
-      Real*8 Win(na,nb), Wout(nb,na),Temp(na,nb)
-!
-!     iRout = 71
-!     iPrint = nPrint(iRout)
-!     Write (*,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
-!     Call RecPrt(' Win',' ',Win,na,nb)
-      If (nc.eq.1) Then
-         call dcopy_(nvec,Win,1,Wout,1)
-         Return
-      End If
-      If (na.eq.1 .or. nb.eq.1) Then
-         Call Trns2(Win,Wout,nvec,nc)
-      Else
-         Call DGeTMO(Win,na,na,nb,Wout,nb)
-!        Call RecPrt(' After first DGeTMO',' ',Wout,nb,na)
-         Call Trns2(Wout,Temp,nvec,nc)
-!        Call RecPrt(' After Trns2',' ',Temp,nb,na)
-         Call DGeTMO(Temp,nb,nb,na,Wout,na)
-!        Call RecPrt(' After second DGeTMO',' ',Wout,na,nb)
-      End If
-!     Call GetMem(' Exit Trns1','CHECK','REAL',iDum,iDum)
-      Return
-      End
+real*8 Win(na,nb), Wout(nb,na), Temp(na,nb)
+
+!iRout = 71
+!iPrint = nPrint(iRout)
+!write(6,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
+!call RecPrt(' Win',' ',Win,na,nb)
+if (nc == 1) then
+  call dcopy_(nvec,Win,1,Wout,1)
+  return
+end if
+if ((na == 1) .or. (nb == 1)) then
+  call Trns2(Win,Wout,nvec,nc)
+else
+  call DGeTMO(Win,na,na,nb,Wout,nb)
+  !call RecPrt(' After first DGeTMO',' ',Wout,nb,na)
+  call Trns2(Wout,Temp,nvec,nc)
+  !call RecPrt(' After Trns2',' ',Temp,nb,na)
+  call DGeTMO(Temp,nb,nb,na,Wout,na)
+  !call RecPrt(' After second DGeTMO',' ',Wout,na,nb)
+end if
+!call GetMem(' Exit Trns1','CHECK','REAL',iDum,iDum)
+
+return
+
+end subroutine Trns3

@@ -11,10 +11,11 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine KnEGrd_mck(                                            &
-#define _CALLING_
-#include "grd_mck_interface.fh"
-     &                     )
+
+subroutine KnEGrd_mck( &
+#                     define _CALLING_
+#                     include "grd_mck_interface.fh"
+                     )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradient of the kinetic energy integrals      *
@@ -24,120 +25,105 @@
 !             November '90                                             *
 !             Anders Bernhardsson,1995                                 *
 !***********************************************************************
-      use Her_RW, only: HerR, HerW, iHerR, iHerW
-      Implicit Real*8 (A-H,O-Z)
+
+use Her_RW, only: HerR, HerW, iHerR, iHerW
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-
 #include "grd_mck_interface.fh"
+! Local variables
+logical ABeq(3)
+! Statement function for Cartesian index
+nElem(li) = (li+1)*(li+2)/2
 
-!     Local variables
-      Logical ABeq(3)
-!
-!     Statement function for Cartesian index
-!
-      nElem(li)=(li+1)*(li+2)/2
-!
-      ABeq(1) = A(1).eq.RB(1)
-      ABeq(2) = A(2).eq.RB(2)
-      ABeq(3) = A(3).eq.RB(3)
-!
-      nip = 1
-      ipAxyz = nip
-      nip = nip + nZeta*3*nHer*(la+3)
-      ipBxyz = nip
-      nip = nip + nZeta*3*nHer*(lb+3)
-      ipRxyz = nip
-      nip = nip + nZeta*3*nHer*(nOrdOp+1)
-      ipRnxyz = nip
-      nip = nip + nZeta*3*(la+3)*(lb+3)*(nOrdOp+1)
-      ipTxyz = nip
-      nip = nip + nZeta*3*(la+2)*(lb+2)
-      ipA = nip
-      nip = nip + nZeta
-      ipB = nip
-      nip = nip + nZeta
-      ipSc=nip
-      nip=nip+nElem(la)*nElem(lb)*nZeta
-      If (nip-1.gt.nArr) Then
-         Write (6,*) 'KneGrd_Mck: nip-1.gt.nArr'
-         Write (6,*) 'nip,nArr=',nip,nArr
-         Call Abend()
-      End If
-!
+ABeq(1) = A(1) == RB(1)
+ABeq(2) = A(2) == RB(2)
+ABeq(3) = A(3) == RB(3)
+
+nip = 1
+ipAxyz = nip
+nip = nip+nZeta*3*nHer*(la+3)
+ipBxyz = nip
+nip = nip+nZeta*3*nHer*(lb+3)
+ipRxyz = nip
+nip = nip+nZeta*3*nHer*(nOrdOp+1)
+ipRnxyz = nip
+nip = nip+nZeta*3*(la+3)*(lb+3)*(nOrdOp+1)
+ipTxyz = nip
+nip = nip+nZeta*3*(la+2)*(lb+2)
+ipA = nip
+nip = nip+nZeta
+ipB = nip
+nip = nip+nZeta
+ipSc = nip
+nip = nip+nElem(la)*nElem(lb)*nZeta
+if (nip-1 > nArr) then
+  write(6,*) 'KneGrd_Mck: nip-1 > nArr'
+  write(6,*) 'nip,nArr=',nip,nArr
+  call Abend()
+end if
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In KnEGrd: A',' ',A,1,3)
-      Call RecPrt(' In KnEGrd: B',' ',B,1,3)
-      Call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
-      Call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
-      Write (6,*) ' In KnEGrd: la,lb=',la,lb
+call RecPrt(' In KnEGrd: A',' ',A,1,3)
+call RecPrt(' In KnEGrd: B',' ',B,1,3)
+call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
+write(6,*) ' In KnEGrd: la,lb=',la,lb
 #endif
-!
-!     Compute the cartesian values of the basis functions angular part
-!
-      Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),                         &
-     &               la+2,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),                        &
-     &               lb+2,HerR(iHerR(nHer)),nHer,ABeq)
-!
-!     Compute the contribution from the multipole moment operator
-!
-      ABeq(1) = .False.
-      ABeq(2) = .False.
-      ABeq(3) = .False.
-      Call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),                     &
-     &            nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
-!
-!     Compute the cartesian components for the multipole moment
-!     integrals. The integrals are factorized into components.
-!
-       Call Assmbl(Array(ipRnxyz),                                      &
-     &             Array(ipAxyz),la+2,                                  &
-     &             Array(ipRxyz),nOrdOp,                                &
-     &             Array(ipBxyz),lb+2,                                  &
-     &             nZeta,HerW(iHerW(nHer)),nHer)
-!
-!     Compute the cartesian components for the kinetic energy integrals.
-!     The kinetic energy components are linear combinations of overlap
-!     components.
-!
-      ipAOff = ipA
-      Do 200 iBeta = 1, nBeta
-         call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
-         ipAOff = ipAOff + nAlpha
- 200  Continue
-!
-      ipBOff = ipB
-      Do 210 iAlpha = 1, nAlpha
-         call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-         ipBOff = ipBOff + 1
- 210  Continue
-!
-      Call Kntc(Array(ipTxyz),Array(ipRnxyz),la+1,lb+1,                 &
-     &          Array(ipA),Array(ipB),nZeta)
-!
-!     Combine the cartesian components to the gradient of the kinetic
-!     energy integral and trace with the variational density matrix.
-!
 
-      Call CmbnT1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,           &
-     &            Array(ipSc),Array(ipTxyz),                            &
-     &            Array(ipA),Array(ipB),IfGrad)
-!
-      Final(:,:,:,:)=Zero
-!
-!     Symmetry adopt the gradient operator
-!
-      Call SymAdO_mck(Array(ipSc),nZeta*nElem(la)*nElem(lb),            &
-     &                Final,nrOp,                                       &
-     &                nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
+! Compute the cartesian values of the basis functions angular part
 
-!
-      Return
+call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),la+2,HerR(iHerR(nHer)),nHer,ABeq)
+call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),lb+2,HerR(iHerR(nHer)),nHer,ABeq)
+
+! Compute the contribution from the multipole moment operator
+
+ABeq(1) = .false.
+ABeq(2) = .false.
+ABeq(3) = .false.
+call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
+
+! Compute the cartesian components for the multipole moment
+! integrals. The integrals are factorized into components.
+
+call Assmbl(Array(ipRnxyz),Array(ipAxyz),la+2,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+2,nZeta,HerW(iHerW(nHer)),nHer)
+
+! Compute the cartesian components for the kinetic energy integrals.
+! The kinetic energy components are linear combinations of overlap components.
+
+ipAOff = ipA
+do iBeta=1,nBeta
+  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  ipAOff = ipAOff+nAlpha
+end do
+
+ipBOff = ipB
+do iAlpha=1,nAlpha
+  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
+  ipBOff = ipBOff+1
+end do
+
+call Kntc(Array(ipTxyz),Array(ipRnxyz),la+1,lb+1,Array(ipA),Array(ipB),nZeta)
+
+! Combine the cartesian components to the gradient of the kinetic
+! energy integral and trace with the variational density matrix.
+
+call CmbnT1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Array(ipSc),Array(ipTxyz),Array(ipA),Array(ipB),IfGrad)
+
+final(:,:,:,:) = Zero
+
+! Symmetry adopt the gradient operator
+
+call SymAdO_mck(Array(ipSc),nZeta*nElem(la)*nElem(lb),final,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
+
+return
+
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(ZInv)
-         Call Unused_integer(iDCnt)
-         Call Unused_integer_array(iStabM)
-         Call Unused_integer(nStabM)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(ZInv)
+  call Unused_integer(iDCnt)
+  call Unused_integer_array(iStabM)
+  call Unused_integer(nStabM)
+end if
+
+end subroutine KnEGrd_mck

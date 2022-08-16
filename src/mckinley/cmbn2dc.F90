@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE CMBN2DC(RNXYZ,NZETA,LA,LB,ZETA,RKAPPA,                 &
-     &                  FINAL,ALPHA,BETA,IFGRAD)
+
+subroutine CMBN2DC(RNXYZ,NZETA,LA,LB,ZETA,RKAPPA,final,ALPHA,BETA,IFGRAD)
 !***********************************************************************
 !
 ! OBJECT: COMPUTE THE SECOND DERIVATIVE NON-ADIABATIC COUPLING
@@ -25,97 +25,93 @@
 !             SAME PLACE.
 !
 !***********************************************************************
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 FINAL(NZETA,(LA+1)*(LA+2)/2,(LB+1)*(LB+2)/2,1),            &
-     &       ZETA(NZETA), RKAPPA(NZETA), BETA(NZETA),                   &
-     &       RNXYZ(NZETA,3,0:LA+1,0:LB+1), ALPHA(NZETA)
-      LOGICAL IFGRAD(3)
+
+implicit real*8(A-H,O-Z)
+real*8 final(NZETA,(LA+1)*(LA+2)/2,(LB+1)*(LB+2)/2,1), ZETA(NZETA), RKAPPA(NZETA), BETA(NZETA), RNXYZ(NZETA,3,0:LA+1,0:LB+1), &
+       ALPHA(NZETA)
+logical IFGRAD(3)
 ! STATEMENT FUNCTION FOR CARTESIAN INDEX
-      IND(IXYZ,IX,IZ) = (IXYZ-IX)*(IXYZ-IX+1)/2 + IZ + 1
-!
+IND(IXYZ,IX,IZ) = (IXYZ-IX)*(IXYZ-IX+1)/2+IZ+1
+
 ! PREFACTOR FOR THE PRIMITIVE OVERLAP MATRIX
-      DO IZETA=1,NZETA
-        RKAPPA(IZETA)=RKAPPA(IZETA)*(ZETA(IZETA)**(-1.5D0))
-      END DO
+do IZETA=1,NZETA
+  RKAPPA(IZETA) = RKAPPA(IZETA)*(ZETA(IZETA)**(-1.5d0))
+end do
 
 ! LOOP STRUCTURE FOR THE CARTESIAN ANGULAR PARTS
-      DO 10 IXA = 0, LA
-         IYAMAX=LA-IXA
-      DO 11 IXB = 0, LB
-         IYBMAX=LB-IXB
-         DO 20 IYA = 0, IYAMAX
-            IZA = LA-IXA-IYA
-            IPA= IND(LA,IXA,IZA)
-         DO 21 IYB = 0, IYBMAX
-            IZB = LB-IXB-IYB
-            IPB= IND(LB,IXB,IZB)
+do IXA=0,LA
+  IYAMAX = LA-IXA
+  do IXB=0,LB
+    IYBMAX = LB-IXB
+    do IYA=0,IYAMAX
+      IZA = LA-IXA-IYA
+      IPA = IND(LA,IXA,IZA)
+      do IYB=0,IYBMAX
+        IZB = LB-IXB-IYB
+        IPB = IND(LB,IXB,IZB)
 
-! COMBINE 1-DIM PRIMITIVE OVERLAP INTEGRALS
-      IF (IFGRAD(1)) THEN
-! COMPUTE INTEGRALS TYPE <D/DX,D/DX>
-         DO IZETA=1,NZETA
-           DIFFX=4D0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IXA+1,IXB+1)
-           IF(IXB.GT.0) THEN
-             DIFFX=DIFFX-2D0*ALPHA(IZETA)*DBLE(IXB)*                    &
-     &             RNXYZ(IZETA,1,IXA+1,IXB-1)
-             IF(IXA.GT.0) THEN
-               DIFFX=DIFFX+DBLE(IXA*IXB)*RNXYZ(IZETA,1,IXA-1,IXB-1)
-             END IF
-           END IF
-           IF(IXA.GT.0) THEN
-             DIFFX=DIFFX-DBLE(2*IXA)*BETA(IZETA)*                       &
-     &             RNXYZ(IZETA,1,IXA-1,IXB+1)
-           END IF
-           OVLY=RNXYZ(IZETA,2,IYA,IYB)
-           OVLZ=RNXYZ(IZETA,3,IZA,IZB)
-           FINAL(IZETA,IPA,IPB,1)=RKAPPA(IZETA)*DIFFX*OVLY*OVLZ
-         END DO
-      END IF
-      IF (IFGRAD(2)) THEN
-! COMPUTE INTEGRALS TYPE <D/DY,D/DY>
-         DO IZETA=1,NZETA
-           DIFFY=4D0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,2,IYA+1,IYB+1)
-           IF(IYB.GT.0) THEN
-             DIFFY=DIFFY-2D0*ALPHA(IZETA)*DBLE(IYB)*                    &
-     &             RNXYZ(IZETA,2,IYA+1,IYB-1)
-             IF(IYA.GT.0) THEN
-               DIFFY=DIFFY+DBLE(IYA*IYB)*RNXYZ(IZETA,2,IYA-1,IYB-1)
-             END IF
-           END IF
-           IF(IYA.GT.0) THEN
-             DIFFY=DIFFY-DBLE(2*IYA)*BETA(IZETA)*                       &
-     &             RNXYZ(IZETA,1,IYA-1,IYB+1)
-           END IF
-           OVLX=RNXYZ(IZETA,1,IXA,IXB)
-           OVLZ=RNXYZ(IZETA,3,IZA,IZB)
-           FINAL(IZETA,IPA,IPB,1)=RKAPPA(IZETA)*OVLX*DIFFY*OVLZ
-         END DO
-      END IF
-      IF (IFGRAD(1)) THEN
-! COMPUTE INTEGRALS TYPE <D/DZ,D/DZ>
-         DO IZETA=1,NZETA
-           DIFFZ=4D0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IZA+1,IZB+1)
-           IF(IZB.GT.0) THEN
-             DIFFZ=DIFFZ-2D0*ALPHA(IZETA)*DBLE(IZB)*                    &
-     &             RNXYZ(IZETA,1,IZA+1,IZB-1)
-             IF(IZA.GT.0) THEN
-               DIFFZ=DIFFZ+DBLE(IZA*IZB)*RNXYZ(IZETA,1,IZA-1,IZB-1)
-             END IF
-           END IF
-           IF(IZA.GT.0) THEN
-             DIFFZ=DIFFZ-DBLE(2*IZA)*BETA(IZETA)*                       &
-     &             RNXYZ(IZETA,1,IZA-1,IZB+1)
-           END IF
-           OVLX=RNXYZ(IZETA,1,IXA,IXB)
-           OVLY=RNXYZ(IZETA,2,IYA,IYB)
-           FINAL(IZETA,IPA,IPB,1)=RKAPPA(IZETA)*OVLX*OVLY*DIFFZ
-         END DO
-      END IF
+        ! COMBINE 1-DIM PRIMITIVE OVERLAP INTEGRALS
+        if (IFGRAD(1)) then
+          ! COMPUTE INTEGRALS TYPE <D/DX,D/DX>
+          do IZETA=1,NZETA
+            DIFFX = 4d0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IXA+1,IXB+1)
+            if (IXB > 0) then
+              DIFFX = DIFFX-2d0*ALPHA(IZETA)*dble(IXB)*RNXYZ(IZETA,1,IXA+1,IXB-1)
+              if (IXA > 0) then
+                DIFFX = DIFFX+dble(IXA*IXB)*RNXYZ(IZETA,1,IXA-1,IXB-1)
+              end if
+            end if
+            if (IXA > 0) then
+              DIFFX = DIFFX-dble(2*IXA)*BETA(IZETA)*RNXYZ(IZETA,1,IXA-1,IXB+1)
+            end if
+            OVLY = RNXYZ(IZETA,2,IYA,IYB)
+            OVLZ = RNXYZ(IZETA,3,IZA,IZB)
+            final(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*DIFFX*OVLY*OVLZ
+          end do
+        end if
+        if (IFGRAD(2)) then
+          ! COMPUTE INTEGRALS TYPE <D/DY,D/DY>
+          do IZETA=1,NZETA
+            DIFFY = 4d0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,2,IYA+1,IYB+1)
+            if (IYB > 0) then
+              DIFFY = DIFFY-2d0*ALPHA(IZETA)*dble(IYB)*RNXYZ(IZETA,2,IYA+1,IYB-1)
+              if (IYA > 0) then
+                DIFFY = DIFFY+dble(IYA*IYB)*RNXYZ(IZETA,2,IYA-1,IYB-1)
+              end if
+            end if
+            if (IYA > 0) then
+              DIFFY = DIFFY-dble(2*IYA)*BETA(IZETA)*RNXYZ(IZETA,1,IYA-1,IYB+1)
+            end if
+            OVLX = RNXYZ(IZETA,1,IXA,IXB)
+            OVLZ = RNXYZ(IZETA,3,IZA,IZB)
+            final(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*OVLX*DIFFY*OVLZ
+          end do
+        end if
+        if (IFGRAD(1)) then
+          ! COMPUTE INTEGRALS TYPE <D/DZ,D/DZ>
+          do IZETA=1,NZETA
+            DIFFZ = 4d0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IZA+1,IZB+1)
+            if (IZB > 0) then
+              DIFFZ = DIFFZ-2d0*ALPHA(IZETA)*dble(IZB)*RNXYZ(IZETA,1,IZA+1,IZB-1)
+              if (IZA > 0) then
+                DIFFZ = DIFFZ+dble(IZA*IZB)*RNXYZ(IZETA,1,IZA-1,IZB-1)
+              end if
+            end if
+            if (IZA > 0) then
+              DIFFZ = DIFFZ-dble(2*IZA)*BETA(IZETA)*RNXYZ(IZETA,1,IZA-1,IZB+1)
+            end if
+            OVLX = RNXYZ(IZETA,1,IXA,IXB)
+            OVLY = RNXYZ(IZETA,2,IYA,IYB)
+            final(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*OVLX*OVLY*DIFFZ
+          end do
+        end if
 
-! END OF LOOP NEST OVER CARTESIAN ANGULAR COMPONENT
- 21      CONTINUE
- 20      CONTINUE
- 11   CONTINUE
- 10   CONTINUE
-      RETURN
-      END
+        ! END OF LOOP NEST OVER CARTESIAN ANGULAR COMPONENT
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine CMBN2DC

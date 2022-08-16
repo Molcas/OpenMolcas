@@ -11,10 +11,11 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine m1Grd_mck(                                             &
-#define _CALLING_
-#include "grd_mck_interface.fh"
-     &                    )
+
+subroutine m1Grd_mck( &
+#                    define _CALLING_
+#                    include "grd_mck_interface.fh"
+                    )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradient of the nuclear attraction integrals. *
@@ -25,183 +26,174 @@
 !             October 1991                                             *
 !              Anders Bernhardsson 1995                                *
 !***********************************************************************
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-      External TNAI1, Fake, Cff2D
+
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
+external TNAI1, Fake, Cff2D
 #include "Molcas.fh"
 #include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-
 #include "grd_mck_interface.fh"
+! Local variables
+integer iDCRT(0:7), inddum(144*8)
+real*8 C(3), TC(3)
+logical DiffCnt, EQ, Tr(4), ifdum(144)
+real*8 Coori(3,4), CoorAC(3,2)
+integer iAng(4), JndGrd(3,4,0:7), mOp(4), iuvwx(4), kndgrd(3,4,0:7)
+logical JfGrd(3,4), kfgrd(3,4), jfg(4)
+dimension Dum(1)
 
-!     Local variables
-      Integer iDCRT(0:7),inddum(144*8)
-      Real*8 C(3), TC(3)
-      Logical DiffCnt, EQ, Tr(4), ifdum(144)
-      Real*8 Coori(3,4), CoorAC(3,2)
-      Integer iAng(4), JndGrd(3,4,0:7), mOp(4), iuvwx(4),               &
-     &        kndgrd(3,4,0:7)
-      Logical JfGrd(3,4), kfgrd(3,4), jfg(4)
-      Dimension Dum(1)
-!
-!     If (iPrint.ge.99) Then
-!        Write (*,*) ' In NAGrd: nArr=',nArr
-!     End If
-      call icopy(144*nirrep,[0],0,inddum,1)
-      call lcopy(144,[.false.],0,ifdum,1)
-!
-      nRys=nHer
-!
-      nip = 1
-      ipA = nip
-      nip = nip + nAlpha*nBeta
-      ipB = nip
-      nip = nip + nAlpha*nBeta
-      If (nip-1.gt.nArr)                                                &
-     &   Write (6,*) ' nip-1.gt.nArr'
-!
-      iIrrep = 0
-      iAng(1) = la
-      iAng(2) = lb
-      iAng(3) = 0
-      iAng(4) = 0
-!  Dummies
-!
-      call dcopy_(3,A,1,Coori(1,1),1)
-      call dcopy_(3,RB,1,Coori(1,2),1)
-      If (la.ge.lb) Then
-         call dcopy_(3,A,1,CoorAC(1,1),1)
-      Else
-         call dcopy_(3,RB,1,CoorAC(1,1),1)
-      End If
-      iuvwx(1) = iu
-      iuvwx(2) = iv
-      mOp(1) = nOp(1)
-      mOp(2) = nOp(2)
-!
-      ipAOff = ipA
-      Do 200 iBeta = 1, nBeta
-         call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
-         ipAOff = ipAOff + nAlpha
- 200  Continue
-!
-      ipBOff = ipB
-      Do 210 iAlpha = 1, nAlpha
-         call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-         ipBOff = ipBOff + 1
- 210  Continue
-!
-!-----Loop over nuclear centers
-!
-      kdc = 0
-      Do 100 kCnttp = 1, nCnttp
-         If (.Not.dbsc(kCnttp)%ECP) Go To 111
-         If (dbsc(kCnttp)%nM1.eq.0) Go To 111
+!if (iPrint >= 99) then
+!  write(6,*) ' In NAGrd: nArr=',nArr
+!end if
+call icopy(144*nirrep,[0],0,inddum,1)
+call lcopy(144,[.false.],0,ifdum,1)
 
-         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
-            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
-            DiffCnt=(IfGrad(iDCar,1).or.IfGrad(iDCar,2))
-            If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
-!
-            Call DCR(LmbdT,iStabM,nStabM,                               &
-     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-!           Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM*nIrrep) /
-!    &             DBLE(LmbdT*dc(kdc+kCnt)%nStab)
-            Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) /                  &
-     &             DBLE(LmbdT)
-!           If (iPrint.ge.99) Then
-!              Write (*,*) ' Charge=',dbsc(kCnttp)%Charge
-!              write(*,*)   'NZeta=',nzeta
-!              Write(*,*)    'NrOp=',nrop
-!              Write (*,*) ' Fact=',Fact
-!           End If
-            iuvwx(3) = dc(kdc+kCnt)%nStab
-            iuvwx(4) = dc(kdc+kCnt)%nStab
-            Call LCopy(12,[.false.],0,JFgrd,1)
-            Call ICopy(12*nIrrep,[0],0,jndGrd,1)
-            Do iCnt = 1, 2
-              JfGrd(iDCar,iCnt) = IfGrad(iDCar,iCnt)
-            End Do
-            Do ICnt=1,2
-              If (IfGrad(idcar,iCnt)) Then
-                 Do iIrrep=0,nIrrep-1
-                   jndGrd(iDCar,iCnt,iIrrep)=IndGrd(iIrrep)
-                 End Do
-               End IF
-            End Do
-!
-            Tr(1)=.false.
-            Tr(2)=.false.
-            Tr(3)=.false.
-            Tr(4)=.false.
-            If ((kdc+kCnt).eq.iDCnt) Then
-                 Tr(3)=.true.
-                 JfGrd(iDCar,1) = .true.
-                 JfGrd(iDCar,2) = .true.
-                 Do iIrrep=0,nIrrep-1
-                 jndGrd(iDCar,3,iIrrep) = - IndGrd(iIrrep)
-                 End Do
-            End If
-!
-            Do 102 lDCRT = 0, nDCRT-1
-               Call lCopy(12,JfGrd,1,kfGrd,1)
-               Call iCopy(12*nIrrep,JndGrd,1,kndgrd,1)
-               mOp(3) = NrOpr(iDCRT(lDCRT))
-               mOp(4) = mOp(3)
-               Call OA(iDCRT(lDCRT),C,TC)
-               call dcopy_(3,TC,1,CoorAC(1,2),1)
-               call dcopy_(3,TC,1,Coori(1,3),1)
-               call dcopy_(3,TC,1,Coori(1,4),1)
-               If (Eq(A,RB).and.EQ(A,TC)) goto 102
-               If (EQ(A,TC)) Then
-                 kfGrd(iDCar,1) = .false.
-                 Do iIrrep=0,nIrrep-1
-                  kndGrd(iDCar,1,iirrep)=0
-                 End Do
-               End If
-               If (EQ(RB,TC)) Then
-                 kfGrd(iDCar,2) = .false.
-                 Do iIrrep=0,nIrrep-1
-                  kndgrd(iDCar,2,iIrrep)=0
-                 End Do
-               End If
-!
-               If (kfGrd(idcar,1)) Then
-                JFG(1)=.true.
-               Else
-                JFG(1)=.false.
-               End If
-               If (kfGrd(idcar,2)) Then
-                JFG(2)=.true.
-               Else
-                JFG(2)=.false.
-               End If
-               JFG(3)=.false.
-               JFG(4)=.false.
+nRys = nHer
 
+nip = 1
+ipA = nip
+nip = nip+nAlpha*nBeta
+ipB = nip
+nip = nip+nAlpha*nBeta
+if (nip-1 > nArr) write(6,*) ' nip-1 > nArr'
 
-               call M1Kernel(Final,Dum,0,Dum,0,                         &
-     &                   iAng,nRys,nZeta,                               &
-     &                   Array(ipA),Array(ipB),Zeta,ZInv,               &
-     &                   rKappa,P,TC,Coori,Coorac,                      &
-     &                   Array(nip),nArr-nip+1,                         &
-     &                   kfgrd,kndgrd,ifdum,inddum,                     &
-     &                   jfg,tr,mop,iuvwx,                              &
-     &                   kCnttp,fact,loper,idcar)
+iIrrep = 0
+iAng(1) = la
+iAng(2) = lb
+iAng(3) = 0
+iAng(4) = 0
+! Dummies
 
- 102        Continue
- 101     Continue
- 111     kdc = kdc + dbsc(kCnttp)%nCntr
- 100  Continue
-!
-      Return
+call dcopy_(3,A,1,Coori(1,1),1)
+call dcopy_(3,RB,1,Coori(1,2),1)
+if (la >= lb) then
+  call dcopy_(3,A,1,CoorAC(1,1),1)
+else
+  call dcopy_(3,RB,1,CoorAC(1,1),1)
+end if
+iuvwx(1) = iu
+iuvwx(2) = iv
+mOp(1) = nOp(1)
+mOp(2) = nOp(2)
+
+ipAOff = ipA
+do iBeta=1,nBeta
+  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  ipAOff = ipAOff+nAlpha
+end do
+
+ipBOff = ipB
+do iAlpha=1,nAlpha
+  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
+  ipBOff = ipBOff+1
+end do
+
+! Loop over nuclear centers
+
+kdc = 0
+do kCnttp=1,nCnttp
+  if (.not. dbsc(kCnttp)%ECP) Go To 111
+  if (dbsc(kCnttp)%nM1 == 0) Go To 111
+
+  do kCnt=1,dbsc(kCnttp)%nCntr
+    C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+    DiffCnt = (IfGrad(iDCar,1) .or. IfGrad(iDCar,2))
+    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) goto 101
+
+    call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+    !Fact = -dbsc(kCnttp)%Charge*dble(nStabM*nIrrep)/dble(LmbdT*dc(kdc+kCnt)%nStab)
+    Fact = -dbsc(kCnttp)%Charge*dble(nStabM)/dble(LmbdT)
+    !if (iPrint >= 99) then
+    !   write(6,*) ' Charge=',dbsc(kCnttp)%Charge
+    !   write(6,*) 'NZeta=',nzeta
+    !   write(6,*) 'NrOp=',nrop
+    !   write(6,*) ' Fact=',Fact
+    !end if
+    iuvwx(3) = dc(kdc+kCnt)%nStab
+    iuvwx(4) = dc(kdc+kCnt)%nStab
+    call LCopy(12,[.false.],0,JFgrd,1)
+    call ICopy(12*nIrrep,[0],0,jndGrd,1)
+    do iCnt=1,2
+      JfGrd(iDCar,iCnt) = IfGrad(iDCar,iCnt)
+    end do
+    do ICnt=1,2
+      if (IfGrad(idcar,iCnt)) then
+        do iIrrep=0,nIrrep-1
+          jndGrd(iDCar,iCnt,iIrrep) = IndGrd(iIrrep)
+        end do
+      end if
+    end do
+
+    Tr(1) = .false.
+    Tr(2) = .false.
+    Tr(3) = .false.
+    Tr(4) = .false.
+    if ((kdc+kCnt) == iDCnt) then
+      Tr(3) = .true.
+      JfGrd(iDCar,1) = .true.
+      JfGrd(iDCar,2) = .true.
+      do iIrrep=0,nIrrep-1
+        jndGrd(iDCar,3,iIrrep) = -IndGrd(iIrrep)
+      end do
+    end if
+
+    do lDCRT=0,nDCRT-1
+      call lCopy(12,JfGrd,1,kfGrd,1)
+      call iCopy(12*nIrrep,JndGrd,1,kndgrd,1)
+      mOp(3) = NrOpr(iDCRT(lDCRT))
+      mOp(4) = mOp(3)
+      call OA(iDCRT(lDCRT),C,TC)
+      call dcopy_(3,TC,1,CoorAC(1,2),1)
+      call dcopy_(3,TC,1,Coori(1,3),1)
+      call dcopy_(3,TC,1,Coori(1,4),1)
+      if (Eq(A,RB) .and. EQ(A,TC)) goto 102
+      if (EQ(A,TC)) then
+        kfGrd(iDCar,1) = .false.
+        do iIrrep=0,nIrrep-1
+          kndGrd(iDCar,1,iirrep) = 0
+        end do
+      end if
+      if (EQ(RB,TC)) then
+        kfGrd(iDCar,2) = .false.
+        do iIrrep=0,nIrrep-1
+          kndgrd(iDCar,2,iIrrep) = 0
+        end do
+      end if
+
+      if (kfGrd(idcar,1)) then
+        JFG(1) = .true.
+      else
+        JFG(1) = .false.
+      end if
+      if (kfGrd(idcar,2)) then
+        JFG(2) = .true.
+      else
+        JFG(2) = .false.
+      end if
+      JFG(3) = .false.
+      JFG(4) = .false.
+
+      call M1Kernel(final,Dum,0,Dum,0,iAng,nRys,nZeta,Array(ipA),Array(ipB),Zeta,ZInv,rKappa,P,TC,Coori,Coorac,Array(nip), &
+                    nArr-nip+1,kfgrd,kndgrd,ifdum,inddum,jfg,tr,mop,iuvwx,kCnttp,fact,loper,idcar)
+
+102   continue
+    end do
+101 continue
+  end do
+111 kdc = kdc+dbsc(kCnttp)%nCntr
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Ccoor)
-         Call Unused_integer(nOrdOp)
-         Call Unused_logical_array(Trans)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(Ccoor)
+  call Unused_integer(nOrdOp)
+  call Unused_logical_array(Trans)
+end if
+
+end subroutine m1Grd_mck

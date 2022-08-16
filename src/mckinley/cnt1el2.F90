@@ -11,9 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine Cnt1El2(Kernel,KrnlMm,Label,                           &
-     &                   iDCnt,iDCar,loper,rHrmt,DiffOp,                &
-     &                   Lab_Dsk,iadd,isym,kcar,nordop)
+
+subroutine Cnt1El2(Kernel,KrnlMm,Label,iDCnt,iDCar,loper,rHrmt,DiffOp,Lab_Dsk,iadd,isym,kcar,nordop)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the one-electron integrals. The method employed at*
@@ -35,14 +34,16 @@
 !             Anders Bernhardsson , Dept. of Theoretical Chemistry,    *
 !             University  of Lund, SWEDEN.                             *
 !***********************************************************************
-      use Real_Spherical
-      use iSD_data
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep, iOper
-      use Sizes_of_Seward, only:S
-      Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+
+use Real_Spherical
+use iSD_data
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep, iOper
+use Sizes_of_Seward, only: S
+
+implicit real*8(A-H,O-Z)
+external Kernel, KrnlMm
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -50,394 +51,336 @@
 #include "disp2.fh"
 #include "nsd.fh"
 #include "setup.fh"
-! log trans   integer dcent
-      Real*8 A(3), B(3), RB(3),CCoor(3)
-      Character Label*8
-      Integer nOp(2), ip(8),                                            &
-     &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7),       &
-     &          IndGrd(0:7)
-      Logical IfGrd(3,2),EQ,DiffOP,DiffCnt,Trans(2)
-      Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
-      Character(LEN=8) Lab_dsk
-      Real*8, Allocatable:: Zeta(:), ZI(:), PCoor(:,:), Kappa(:),       &
-     &                      Kern(:), Fnl(:), ScrSph(:), SO(:),          &
-     &                      Integrals(:), Scr(:)
-      Logical, External :: TF
-!
-!     Statement function
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-!-----Compute the number of blocks from each component of the operator
-!     and the irreps it will span.
-!
-!
-      Call FZero(CCoor,3)
-      Call iCopy(nIrrep,[0],0,IndGrd,1)
-      loper=0
-      nnIrrep=nIrrep
-      If (sIrrep) nnIrrep=1
-      Do iIrrep=0,nnIrrep-1
-         jIrrep=nropr(ieor(ioper(iIrrep), ioper(isym)))
-         nDisp = IndDsp(iDcnt,iIrrep)
-         Do iCar=1,3
-            iComp = 2**(iCar-1)
-            If ( TF(iDCnt,iIrrep,iComp)) Then
-               ndisp=ndisp+1
-               If (iDCar.eq.icar) Then
-                  loper=loper+2**jIrrep
-                  IndGrd(jIrrep) = nDisp
-               End If
-            End If
-         End Do
-      End Do
-      nIC=0
-      If (loper.eq.0) Return
+real*8 A(3), B(3), RB(3), CCoor(3)
+character Label*8
+integer nOp(2), ip(8), iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7), IndGrd(0:7)
+logical IfGrd(3,2), EQ, DiffOP, DiffCnt, Trans(2)
+integer, parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+character(LEN=8) Lab_dsk
+real*8, allocatable :: Zeta(:), ZI(:), PCoor(:,:), Kappa(:), Kern(:), Fnl(:), ScrSph(:), SO(:), Integrals(:), Scr(:)
+logical, external :: TF
+! Statement function
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-      Call ICopy(nIrrep,[0],0,ip,1)
+! Compute the number of blocks from each component of the operator
+! and the irreps it will span.
 
-      iStart=1
-      Do iIrrep =0,nIrrep-1
-         If (iAnd(2**iIrrep,loper).ne.0) Then
-            LenInt=nFck(iIrrep)
-            nIc=nIC+1
-            ip(NIC)=iStart
-            iStart=iStart+LenInt
-         End If
-      End Do
-      LenInt_Tot=iStart - 1
-      Call mma_allocate(Integrals,LenInt_Tot,Label='Integrals')
-      Integrals(:)=Zero
+call FZero(CCoor,3)
+call iCopy(nIrrep,[0],0,IndGrd,1)
+loper = 0
+nnIrrep = nIrrep
+if (sIrrep) nnIrrep = 1
+do iIrrep=0,nnIrrep-1
+  jIrrep = nropr(ieor(ioper(iIrrep),ioper(isym)))
+  nDisp = IndDsp(iDcnt,iIrrep)
+  do iCar=1,3
+    iComp = 2**(iCar-1)
+    if (TF(iDCnt,iIrrep,iComp)) then
+      ndisp = ndisp+1
+      if (iDCar == icar) then
+        loper = loper+2**jIrrep
+        IndGrd(jIrrep) = nDisp
+      end if
+    end if
+  end do
+end do
+nIC = 0
+if (loper == 0) return
 
+call ICopy(nIrrep,[0],0,ip,1)
 
-      Call SOS(iStabO,nStabO,1)
-!
-!-----Auxiliary memory allocation.
-!
+iStart = 1
+do iIrrep=0,nIrrep-1
+  if (iand(2**iIrrep,loper) /= 0) then
+    LenInt = nFck(iIrrep)
+    nIc = nIC+1
+    ip(NIC) = iStart
+    iStart = iStart+LenInt
+  end if
+end do
+LenInt_Tot = iStart-1
+call mma_allocate(Integrals,LenInt_Tot,Label='Integrals')
+Integrals(:) = Zero
+
+call SOS(iStabO,nStabO,1)
+
+! Auxiliary memory allocation.
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call Set_Basis_Mode('Valence')
-      Call Nr_Shells(nSkal)
-      Call Setup_iSD()
+call Set_Basis_Mode('Valence')
+call Nr_Shells(nSkal)
+call Setup_iSD()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-!-----Double loop over shells.
-!
-      Do iS = 1, nSkal
-         iShll  = iSD( 0,iS)
-         iAng   = iSD( 1,iS)
-         iCmp   = iSD( 2,iS)
-         iBas   = iSD( 3,iS)
-         iPrim  = iSD( 5,iS)
-         iAO    = iSD( 7,iS)
-         mdci   = iSD(10,iS)
-         iShell = iSD(11,iS)
-         iCnttp = iSD(13,iS)
-         iCnt   = iSD(14,iS)
-         A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-!
-         Do jS = 1, iS
-            jShll  = iSD( 0,jS)
-            jAng   = iSD( 1,jS)
-            jCmp   = iSD( 2,jS)
-            jBas   = iSD( 3,jS)
-            jPrim  = iSD( 5,jS)
-            jAO    = iSD( 7,jS)
-            mdcj   = iSD(10,jS)
-            jShell = iSD(11,jS)
-            jCnttp = iSD(13,jS)
-            jCnt   = iSD(14,jS)
-            B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
-!
-!-------Call kernel routine to get memory requirement. Observe, however
-!       that kernels which will use the HRR will allocate that
-!       memory internally.
-!
-        maxi=S%maxPrm(iAng)*S%maxprm(jang)
-        Call mma_allocate(Zeta,maxi,Label='Zeta')
-        Call mma_allocate(ZI,maxi,Label='ZI')
-        Call mma_allocate(Kappa,maxi,Label='Kappa')
-        Call mma_allocate(PCoor,maxi,3,Label='PCoor')
-        Call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
-!
-!       Memory requirements for contraction and Symmetry
-!       adoption of derivatives.
-!
-        lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng) *                      &
-     &           nElem(iAng)*nElem(jAng)*nIrrep
-!
-        MemKrn=Max(MemKer*Maxi,lFinal)
-        Call mma_allocate(Kern,MemKrn,Label='Kern')
-!
-!       Save some memory and use Scrt area for
-!       transformation
-!
-!       Allocate memory for the final integrals all in the
-!       primitive basis.
-!
-        Call mma_allocate(Fnl,lFinal,Label='Fnl')
-!
-!       Scratch area for the transformation to spherical gaussians
-!
-        nScr1=S%MaxBas(iAng)*S%MaxBas(jAng)*nElem(iAng)*nElem(jAng)*nIC
-        Call mma_allocate(ScrSph,nScr1,Label='ScfSph')
-!
-!         At this point we can compute Zeta.
-!         This is now computed in the ij or ji order.
-!
-          Call ZXia(Zeta,ZI,                                            &
-     &              iPrim,jPrim,Shells(iShll)%Exp,                      &
-     &                          Shells(jShll)%Exp)
-!
-            DiffCnt=(mdci.eq.iDCnt).or.(mdcj.eq.iDCnt)
-            If ((.not.DiffCnt).and.(.not.DiffOp)) Goto 131
-            Call lCopy(6,[.false.],0,IfGrd,1)
-            Call lCopy(2,[.false.],0,trans,1)
-            If (mdci.eq.iDCnt) Then
-                IfGrd(idCar,1)=.true.
-            End If
-            If (mdcj.eq.iDCnt) Then
-                IfGrd(idCar,2)=.true.
-            End If
-!
-            If (IfGrd(iDCar,1).and.IfGrd(iDCar,2).and.                  &
-     &          (.not.DiffOp)) Then
-              IfGrd(iDCar,2)=.false.
-              Trans(2)=.true.
-            End If
-            If (Label.eq.'CONNECTI') Trans(2)=.false.
-!
-!           Allocate memory for SO integrals that will be generated by
-!           this batch of AO integrals.
-!
-            nSO=0
-            Do iIrrep=0,nIrrep-1
-                If (iAnd(loper,2**iIrrep).ne.0) Then
-                 iSmLbl=2**iIrrep
-                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-               End If
-            End Do
-!           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
-            If (nSO.eq.0) Go To 131
-            Call mma_allocate(SO,iBas*jBas*nSO,Label='SO')
-            SO(:)=Zero
-!
-!           Find the DCR for A and B
-!
-            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,               &
-     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
-!
-!           Find the stabilizer for A and B
-!
-            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,                   &
-     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,                   &
-     &                 iStabM,nStabM)
-!
-            Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-!
-!           Compute normalization factor
-!
-            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-            Fact = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
-            If (MolWgh.eq.1) Then
-               Fact = Fact * DBLE(nIrrep)**2 / DBLE(iuv)
-            Else If (MolWgh.eq.2) Then
-               Fact = sqrt(DBLE(iuv))*DBLE(nStabO)/DBLE(nIrrep*LmbdT)
-            End If
-!
-!           Loops over symmetry operations acting on the basis.
-!
-            nOp(1) = NrOpr(0)
-            if(jBas.lt.-999999) write(6,*) 'gcc overoptimization',nDCRR
-            Do 140 lDCRR = 0, nDCRR-1
-             Call OA(iDCRR(lDCRR),B,RB)
-             nOp(2) = NrOpr(iDCRR(lDCRR))
-             If (Label.ne.'CONNECTI'                                    &
-     &           .and.EQ(A,RB).and. (.Not.DiffOp)) Go To 140
-!
-!            Compute kappa and P.
-!
-             Call Setup1(Shells(iShll)%Exp,iPrim,                       &
-     &                   Shells(jShll)%Exp,jPrim,                       &
-     &                   A,RB,Kappa,PCoor,ZI)
-!
-!            Compute AO integrals.
-!            for easy implementation of NA integrals.
-!
-             Call Kernel(Shells(iShll)%Exp,iPrim,                       &
-     &                   Shells(jShll)%Exp,jPrim,                       &
-     &                   Zeta,ZI,                                       &
-     &                   Kappa,PCoor,                                   &
-     &                   Fnl,iPrim*jPrim,                               &
-     &                   iAng,jAng,A,RB,nOrder,Kern,                    &
-     &                   MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,          &
-     &                   dc(mdci)%nStab,                                &
-     &                   dc(mdcj)%nStab,nic,idcar,idcnt,                &
-     &                   iStabM,nStabM,trans,kcar,isym)
-!
-!
-!        Transform from primitive to contracted basis functions.
-!        Order of transformation is fixed. It has been shown through
-!        testing that the index order ij,ab will give a performance
-!        that is up to 20% faster than the ab,ij index order.
-!
-!
-!            Transform i,jabx to jabx,I
-             kk=nElem(iAng)*nElem(jAng)*nIC
-             Call DGEMM_('T','N',                                       &
-     &                   jPrim*kk,iBas,iPrim,                           &
-     &                   1.0d0,Fnl,iPrim,                               &
-     &                         Shells(iShll)%pCff,iPrim,                &
-     &                   0.0d0,Kern,jPrim*kk)
-!
-!            Transform j,abxI to abxI,J
-!
-             Call DGEMM_('T','N',                                       &
-     &                   kk*iBas,jBas,jPrim,                            &
-     &                   1.0d0,Kern,jPrim,                              &
-     &                         Shells(jShll)%pCff,jPrim,                &
-     &                   0.0d0,Fnl,kk*iBas)
-!
-!            Transform to spherical gaussians if needed.
-!
-                 kk=nElem(iAng)*nElem(jAng)
-!
-                 If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
-!
-!             Result comes back as IJAB or IJAb
-!
-                   Call CarSph(Fnl,kk,iBas*jBas*nIC,                    &
-     &                         Kern,nScr1,                              &
-     &                    RSph(ipSph(iAng)),iAng,                       &
-     &                    Shells(iShll)%Transf,                         &
-     &                    Shells(iShll)%Prjct,                          &
-     &                    RSph(ipSph(jAng)),jAng,                       &
-     &                    Shells(jShll)%Transf,                         &
-     &                    Shells(jShll)%Prjct,ScrSph,iCmp*jCmp)
-!
-                  Call DGeTmO(ScrSph,nIC,nIC,                           &
-     &                        iBas*jBas*iCmp*jCmp,                      &
-     &                        Kern,iBas*jBas*iCmp*jCmp)
 
-!
-                Else
-!
-!             Transpose abx,IJ back to IJ,abx
-!
-                    Call DGeTmO(Fnl,kk*nIC,kk*nIC,                      &
-     &                   iBas*jBas,Kern,iBas*jBas)
-                End If
-!
-!            At this point accumulate the batch of integrals onto the
-!            final symmetry adapted integrals.
-!
-!               If (iPrint.ge.99) Then
-!                 Call RecPrt (' Accumulated SO integrals, so far...',
-!    &                               ' ',SO,iBas*jBas,nSO)
-!               End If
-!
-!------------Symmetry adapt component by component
-!
-             iSOBlk = 1
-             iIC=1
-             Do iIrrep = 0, nIrrep-1
-                iSmLbl=iAnd(lOper,iTwoj(iIrrep))
-                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-                If (mSO.eq.0) Then
-                   Do jIrrep = 0, nIrrep-1
-                      If (iAnd(iSmLbl,iTwoj(jIrrep)).ne.0) iIC = iIC + 1
-                   End Do
-                Else
-                   Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,              &
-     &                         iShell,jShell,iShll,jShll,iAO,jAO,       &
-     &                         Kern,iBas,jBas,nIC,iIC,                  &
-     &                         SO(iSOBlk),mSO,nOp)
-                   iSOBlk = iSOBlk + mSO*iBas*jBas
-                End If
-             End Do
-!
- 140        Continue
-!
-!           Multiply with factors due to projection operators
-!
-           If (Fact.ne.One) Call DScal_(nSO*iBas*jBas,Fact,SO,1)
-!
-!           Scatter the SO's on to the non-zero blocks of the
-!           lower triangle.
-!
-             iSOBlk=1
-             iIC=0
-             Do  iIrrep = 0, nIrrep-1
-               If (iAnd(lOper,2**iIrrep).ne.0) Then
-                 iSmlbl=2**iIrrep
-                 iiC=iiC+1
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-                 If (nfck(iirrep).ne.0.and.mSO.ne.0)                    &
-     &            Call SOSctt(SO(iSOBlk),iBas,jBas,mSO,                 &
-     &                    Integrals(ip(iIC)),nFck(iIrrep),iSmLbl,       &
-     &                    iCmp,jCmp,iShell,jShell,                      &
-     &                    iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
-                 iSOBlk = iSOBlk + mSO*iBas*jBas
-               End If
-             End Do
-!
-            Call mma_deallocate(SO)
- 131        Continue
-         Call mma_deallocate(pCoor)
-         Call mma_deallocate(Kappa)
-         Call mma_deallocate(ZI)
-         Call mma_deallocate(Zeta)
-         Call mma_deallocate(ScrSph)
-         Call mma_deallocate(Fnl)
-         Call mma_deallocate(Kern)
+! Double loop over shells.
 
-         End Do
-      End Do
+do iS=1,nSkal
+  iShll = iSD(0,iS)
+  iAng = iSD(1,iS)
+  iCmp = iSD(2,iS)
+  iBas = iSD(3,iS)
+  iPrim = iSD(5,iS)
+  iAO = iSD(7,iS)
+  mdci = iSD(10,iS)
+  iShell = iSD(11,iS)
+  iCnttp = iSD(13,iS)
+  iCnt = iSD(14,iS)
+  A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
-      Call Free_iSD()
-!
-!     Compute properties or write integrals to disc and
-!     deallocate core.
-!
-      nDens=0
-      ndenssq=0
-      Do iI=0,nIrrep-1
-         ndenssq=ndenssq+nbas(ii)**2
-         nDens=nDens+nBas(iI)*(nBas(iI)+1)/2
-      End Do
-      nrOp=0
+  do jS=1,iS
+    jShll = iSD(0,jS)
+    jAng = iSD(1,jS)
+    jCmp = iSD(2,jS)
+    jBas = iSD(3,jS)
+    jPrim = iSD(5,jS)
+    jAO = iSD(7,jS)
+    mdcj = iSD(10,jS)
+    jShell = iSD(11,jS)
+    jCnttp = iSD(13,jS)
+    jCnt = iSD(14,jS)
+    B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
-      Call mma_allocate(Scr,ndenssq,Label='Scr')
-      Do 16 iIrrep = 0, nIrrep-1
-         iSmLbl = 2**iIrrep
-         If (iAnd(ismLbl,loper).ne.0) Then
-            nrOp=nrOp+1
-            jdisp=indgrd(iirrep)
-            kOper=2**iIrrep
-!           Write(*,*) koper,isym,jdisp,iirrep
-            If (iadd.ne.0) Then
-               irc=-1
-               iopt=0
-               call drdmck(irc,iOpt,Lab_dsk,jdisp,Scr,koper)
-               If (irc.ne.0) Call SysAbendMsg('cnt1el2',                &
-     &                                 'error during read in rdmck',' ')
-               call daxpy_(nfck(iirrep),one,scr,1,Integrals(ip(nrop)),1)
-            End If
-            irc=-1
-            iopt=0
-!           Write(*,*) Lab_dsk,jdisp,koper
-            call dwrmck(irc,iOpt,Lab_dsk,jdisp,Integrals(ip(nrop)),     &
-     &                  koper)
-            If (irc.ne.0) Call SysAbendMsg('cnt1el2',                   &
-     &                               'error during write in dwrmck',' ')
-         End If
- 16   Continue
-!
-      Call mma_deallocate(Scr)
-      Call mma_deallocate(Integrals)
-!
-      Return
-      End
+    ! Call kernel routine to get memory requirement. Observe, however
+    ! that kernels which will use the HRR will allocate that
+    ! memory internally.
+
+    maxi = S%maxPrm(iAng)*S%maxprm(jang)
+    call mma_allocate(Zeta,maxi,Label='Zeta')
+    call mma_allocate(ZI,maxi,Label='ZI')
+    call mma_allocate(Kappa,maxi,Label='Kappa')
+    call mma_allocate(PCoor,maxi,3,Label='PCoor')
+    call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
+
+    ! Memory requirements for contraction and Symmetry
+    ! adoption of derivatives.
+
+    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nIrrep
+
+    MemKrn = max(MemKer*Maxi,lFinal)
+    call mma_allocate(Kern,MemKrn,Label='Kern')
+
+    ! Save some memory and use Scrt area for transformation
+
+    ! Allocate memory for the final integrals all in the primitive basis.
+
+    call mma_allocate(Fnl,lFinal,Label='Fnl')
+
+    ! Scratch area for the transformation to spherical gaussians
+
+    nScr1 = S%MaxBas(iAng)*S%MaxBas(jAng)*nElem(iAng)*nElem(jAng)*nIC
+    call mma_allocate(ScrSph,nScr1,Label='ScfSph')
+
+    ! At this point we can compute Zeta.
+    ! This is now computed in the ij or ji order.
+
+    call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,Shells(jShll)%Exp)
+
+    DiffCnt = (mdci == iDCnt) .or. (mdcj == iDCnt)
+    if ((.not. DiffCnt) .and. (.not. DiffOp)) goto 131
+    call lCopy(6,[.false.],0,IfGrd,1)
+    call lCopy(2,[.false.],0,trans,1)
+    if (mdci == iDCnt) then
+      IfGrd(idCar,1) = .true.
+    end if
+    if (mdcj == iDCnt) then
+      IfGrd(idCar,2) = .true.
+    end if
+
+    if (IfGrd(iDCar,1) .and. IfGrd(iDCar,2) .and. (.not. DiffOp)) then
+      IfGrd(iDCar,2) = .false.
+      Trans(2) = .true.
+    end if
+    if (Label == 'CONNECTI') Trans(2) = .false.
+
+    ! Allocate memory for SO integrals that will be generated by
+    ! this batch of AO integrals.
+
+    nSO = 0
+    do iIrrep=0,nIrrep-1
+      if (iand(loper,2**iIrrep) /= 0) then
+        iSmLbl = 2**iIrrep
+        nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
+      end if
+    end do
+    !if (iPrint >= 29) write(6,*) ' nSO=',nSO
+    if (nSO == 0) Go To 131
+    call mma_allocate(SO,iBas*jBas*nSO,Label='SO')
+    SO(:) = Zero
+
+    ! Find the DCR for A and B
+
+    call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
+
+    ! Find the stabilizer for A and B
+
+    call Inter(dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iStabM,nStabM)
+
+    call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
+
+    ! Compute normalization factor
+
+    iuv = dc(mdci)%nStab*dc(mdcj)%nStab
+    Fact = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+    if (MolWgh == 1) then
+      Fact = Fact*dble(nIrrep)**2/dble(iuv)
+    else if (MolWgh == 2) then
+      Fact = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+    end if
+
+    ! Loops over symmetry operations acting on the basis.
+
+    nOp(1) = NrOpr(0)
+    if (jBas < -999999) write(6,*) 'gcc overoptimization',nDCRR
+    do lDCRR=0,nDCRR-1
+      call OA(iDCRR(lDCRR),B,RB)
+      nOp(2) = NrOpr(iDCRR(lDCRR))
+      if ((Label /= 'CONNECTI') .and. EQ(A,RB) .and. (.not. DiffOp)) Go To 140
+
+      ! Compute kappa and P.
+
+      call Setup1(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,A,RB,Kappa,PCoor,ZI)
+
+      ! Compute AO integrals.
+      ! for easy implementation of NA integrals.
+
+      call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,PCoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
+                  MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,dc(mdci)%nStab,dc(mdcj)%nStab,nic,idcar,idcnt,iStabM,nStabM,trans,kcar,isym)
+
+      ! Transform from primitive to contracted basis functions.
+      ! Order of transformation is fixed. It has been shown through
+      ! testing that the index order ij,ab will give a performance
+      ! that is up to 20% faster than the ab,ij index order.
+
+      ! Transform i,jabx to jabx,I
+
+      kk = nElem(iAng)*nElem(jAng)*nIC
+      call DGEMM_('T','N',jPrim*kk,iBas,iPrim,1.0d0,Fnl,iPrim,Shells(iShll)%pCff,iPrim,0.0d0,Kern,jPrim*kk)
+
+      ! Transform j,abxI to abxI,J
+
+      call DGEMM_('T','N',kk*iBas,jBas,jPrim,1.0d0,Kern,jPrim,Shells(jShll)%pCff,jPrim,0.0d0,Fnl,kk*iBas)
+
+      ! Transform to spherical gaussians if needed.
+
+      kk = nElem(iAng)*nElem(jAng)
+
+      if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
+
+        ! Result comes back as IJAB or IJAb
+
+        call CarSph(Fnl,kk,iBas*jBas*nIC,Kern,nScr1,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf, &
+                    Shells(iShll)%Prjct,RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,ScrSph,iCmp*jCmp)
+
+        call DGeTmO(ScrSph,nIC,nIC,iBas*jBas*iCmp*jCmp,Kern,iBas*jBas*iCmp*jCmp)
+
+      else
+
+        ! Transpose abx,IJ back to IJ,abx
+
+        call DGeTmO(Fnl,kk*nIC,kk*nIC,iBas*jBas,Kern,iBas*jBas)
+      end if
+
+      ! At this point accumulate the batch of integrals onto the
+      ! final symmetry adapted integrals.
+
+      !if (iPrint >= 99) then
+      !  call RecPrt (' Accumulated SO integrals, so far...',' ',SO,iBas*jBas,nSO)
+      !end if
+
+      ! Symmetry adapt component by component
+
+      iSOBlk = 1
+      iIC = 1
+      do iIrrep=0,nIrrep-1
+        iSmLbl = iand(lOper,iTwoj(iIrrep))
+        mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
+        if (mSO == 0) then
+          do jIrrep=0,nIrrep-1
+            if (iand(iSmLbl,iTwoj(jIrrep)) /= 0) iIC = iIC+1
+          end do
+        else
+          call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,Kern,iBas,jBas,nIC,iIC,SO(iSOBlk),mSO,nOp)
+          iSOBlk = iSOBlk+mSO*iBas*jBas
+        end if
+      end do
+
+140   continue
+    end do
+
+    ! Multiply with factors due to projection operators
+
+    if (Fact /= One) call DScal_(nSO*iBas*jBas,Fact,SO,1)
+
+    ! Scatter the SO's on to the non-zero blocks of the lower triangle.
+
+    iSOBlk = 1
+    iIC = 0
+    do iIrrep=0,nIrrep-1
+      if (iand(lOper,2**iIrrep) /= 0) then
+        iSmlbl = 2**iIrrep
+        iiC = iiC+1
+        mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
+        if ((nfck(iirrep) /= 0) .and. (mSO /= 0)) call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Integrals(ip(iIC)),nFck(iIrrep),iSmLbl, &
+                                                              iCmp,jCmp,iShell,jShell,iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
+        iSOBlk = iSOBlk+mSO*iBas*jBas
+      end if
+    end do
+
+    call mma_deallocate(SO)
+131 continue
+    call mma_deallocate(pCoor)
+    call mma_deallocate(Kappa)
+    call mma_deallocate(ZI)
+    call mma_deallocate(Zeta)
+    call mma_deallocate(ScrSph)
+    call mma_deallocate(Fnl)
+    call mma_deallocate(Kern)
+
+  end do
+end do
+
+call Free_iSD()
+
+! Compute properties or write integrals to disc and deallocate core.
+
+nDens = 0
+ndenssq = 0
+do iI=0,nIrrep-1
+  ndenssq = ndenssq+nbas(ii)**2
+  nDens = nDens+nBas(iI)*(nBas(iI)+1)/2
+end do
+nrOp = 0
+
+call mma_allocate(Scr,ndenssq,Label='Scr')
+do iIrrep=0,nIrrep-1
+  iSmLbl = 2**iIrrep
+  if (iand(ismLbl,loper) /= 0) then
+    nrOp = nrOp+1
+    jdisp = indgrd(iirrep)
+    kOper = 2**iIrrep
+    !write(6,*) koper,isym,jdisp,iirrep
+    if (iadd /= 0) then
+      irc = -1
+      iopt = 0
+      call drdmck(irc,iOpt,Lab_dsk,jdisp,Scr,koper)
+      if (irc /= 0) call SysAbendMsg('cnt1el2','error during read in rdmck',' ')
+      call daxpy_(nfck(iirrep),one,scr,1,Integrals(ip(nrop)),1)
+    end if
+    irc = -1
+    iopt = 0
+    !write(6,*) Lab_dsk,jdisp,koper
+    call dwrmck(irc,iOpt,Lab_dsk,jdisp,Integrals(ip(nrop)),koper)
+    if (irc /= 0) call SysAbendMsg('cnt1el2','error during write in dwrmck',' ')
+  end if
+end do
+
+call mma_deallocate(Scr)
+call mma_deallocate(Integrals)
+
+return
+
+end subroutine Cnt1El2

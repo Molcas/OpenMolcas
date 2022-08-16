@@ -11,10 +11,11 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !               1993, Per Boussard                                     *
 !***********************************************************************
-      SubRoutine PrjGrd_mck(                                            &
-#define _CALLING_
-#include "grd_mck_interface.fh"
-     &                     )
+
+subroutine PrjGrd_mck( &
+#                     define _CALLING_
+#                     include "grd_mck_interface.fh"
+                     )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of ECP integrals.         *
@@ -23,194 +24,172 @@
 !             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 !             Physics, University of Stockholm, Sweden, October 1993.  *
 !***********************************************************************
-      use Basis_Info
-      use Center_Info
-      use Real_Spherical
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+
+use Basis_Info
+use Center_Info
+use Real_Spherical
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "disp.fh"
-
 #include "grd_mck_interface.fh"
+! Local variables
+real*8 C(3), TC(3)
+integer iDCRT(0:7), iuvwx(4), mOp(4), index(3,4), JndGrd(3,4,0:7)
+logical JfGrad(3,4), EQ, DiffCnt, tr(4), ifg(4), ifhess_dum(3,4,3,4)
+real*8 Dum(1)
+! Statement function for Cartesian index
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-!     Local variables
-      Real*8 C(3), TC(3)
-      Integer iDCRT(0:7), iuvwx(4), mOp(4), index(3,4), JndGrd(3,4,0:7)
-      Logical JfGrad(3,4), EQ, DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
-      Real*8 Dum(1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Statement function for Cartesian index
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      iuvwx(1) = iu
-      iuvwx(2) = iv
-      mop(1) = nOp(1)
-      mop(2) = nOp(2)
-      DiffCnt=(IfGrad(iDCar,1).or.IfGrad(iDCar,2))
+iuvwx(1) = iu
+iuvwx(2) = iv
+mop(1) = nOp(1)
+mop(2) = nOp(2)
+DiffCnt = IfGrad(iDCar,1) .or. IfGrad(iDCar,2)
 
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In PrjGrd: A',' ',A,1,3)
-      Call RecPrt(' In PrjGrd: RB',' ',RB,1,3)
-      Call RecPrt(' In PrjGrd: P',' ',P,nZeta,3)
-      Call RecPrt(' In PrjGrd: Alpha',' ',Alpha,nAlpha,1)
-      Call RecPrt(' In PrjGrd: Beta',' ',Beta,nBeta,1)
-      Write (6,*) ' In PrjGrd: la,lb=',' ',la,lb
-      Write (6,*) ' In PrjGrd: Diffs=',' ',                             &
-     &              IfGrad(iDCar,1),IfGrad(iDCar,2)
-      Write (6,*) ' In PrjGrd: Center=',' ',iDCNT
+call RecPrt(' In PrjGrd: A',' ',A,1,3)
+call RecPrt(' In PrjGrd: RB',' ',RB,1,3)
+call RecPrt(' In PrjGrd: P',' ',P,nZeta,3)
+call RecPrt(' In PrjGrd: Alpha',' ',Alpha,nAlpha,1)
+call RecPrt(' In PrjGrd: Beta',' ',Beta,nBeta,1)
+write(6,*) ' In PrjGrd: la,lb=',' ',la,lb
+write(6,*) ' In PrjGrd: Diffs=',' ',IfGrad(iDCar,1),IfGrad(iDCar,2)
+write(6,*) ' In PrjGrd: Center=',' ',iDCNT
 #endif
 
-      kdc = 0
-      Do 1960 kCnttp = 1, nCnttp
-         If (.Not.dbsc(kCnttp)%ECP) Go To 1961
-         If (dbsc(kCnttp)%nSRO.le.0) Go To 1961
+kdc = 0
+do kCnttp=1,nCnttp
+  if (.not. dbsc(kCnttp)%ECP) Go To 1961
+  if (dbsc(kCnttp)%nSRO <= 0) Go To 1961
 
-         Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
-            If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 1965
+  do kCnt=1,dbsc(kCnttp)%nCntr
+    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) goto 1965
 
-            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-!
-            Call DCR(LmbdT,iStabM,nStabM,                               &
-     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-            Fact = DBLE(nStabM) / DBLE(LmbdT)
-            iuvwx(3) = dc(kdc+kCnt)%nStab
-            iuvwx(4) = dc(kdc+kCnt)%nStab
+    C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
-            Call LCopy(12,[.false.],0,JFgrad,1)
-            Call LCopy(4 ,[.false.],0,iFg,1)
-            Call LCopy(4 ,[.false.],0,tr,1)
-            Call ICopy(12*nIrrep,[0],0,jndGrd,1)
-            Do iCnt = 1, 2
-                  JfGrad(iDCar,iCnt) = IfGrad(iDCar,iCnt)
-            End Do
-            Do ICnt=1,2
-               If (ifgrad(idcar,iCnt)) Then
-               ifg(icnt)=.true.
-                 Do iIrrep=0,nIrrep-1
-                   jndGrd(iDCar,iCnt,iIrrep)=IndGrd(iIrrep)
-                 End Do
-               End IF
-            End Do
+    call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+    Fact = dble(nStabM)/dble(LmbdT)
+    iuvwx(3) = dc(kdc+kCnt)%nStab
+    iuvwx(4) = dc(kdc+kCnt)%nStab
 
-!
-            If ((kdc+kCnt).eq.iDCnt) Then
-                ifg(1)=.true.
-                ifg(2)=.true.
-                 Tr(3)=.true.
-                 JfGrad(iDCar,1) = .true.
-                 JfGrad(iDCar,2) = .true.
-                 Do iIrrep=0,nIrrep-1
-                 jndGrd(iDCar,3,iIrrep) = - IndGrd(iIrrep)
-                 End Do
-            End If
+    call LCopy(12,[.false.],0,JFgrad,1)
+    call LCopy(4,[.false.],0,iFg,1)
+    call LCopy(4,[.false.],0,tr,1)
+    call ICopy(12*nIrrep,[0],0,jndGrd,1)
+    do iCnt=1,2
+      JfGrad(iDCar,iCnt) = IfGrad(iDCar,iCnt)
+    end do
+    do ICnt=1,2
+      if (ifgrad(idcar,iCnt)) then
+        ifg(icnt) = .true.
+        do iIrrep=0,nIrrep-1
+          jndGrd(iDCar,iCnt,iIrrep) = IndGrd(iIrrep)
+        end do
+      end if
+    end do
 
-!
-         Do 1967 lDCRT = 0, nDCRT-1
+    if ((kdc+kCnt) == iDCnt) then
+      ifg(1) = .true.
+      ifg(2) = .true.
+      Tr(3) = .true.
+      JfGrad(iDCar,1) = .true.
+      JfGrad(iDCar,2) = .true.
+      do iIrrep=0,nIrrep-1
+        jndGrd(iDCar,3,iIrrep) = -IndGrd(iIrrep)
+      end do
+    end if
 
-            mop(3)=nropr(iDCRT(lDCRT))
-            mop(4)=mop(3)
-            Call OA(iDCRT(lDCRT),C,TC)
+    do lDCRT=0,nDCRT-1
 
-            If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
+      mop(3) = nropr(iDCRT(lDCRT))
+      mop(4) = mop(3)
+      call OA(iDCRT(lDCRT),C,TC)
 
-            Do 1966 iAng = 0, dbsc(kCnttp)%nPrj-1
-               iShll = dbsc(kCnttp)%iPrj + iAng
-               nExpi=Shells(iShll)%nExp
-               nBasisi=Shells(iShll)%nBasis
-#ifdef _DEBUGPRINT_
-               Write (6,*) 'nExp(iShll)=',nExpi
-               Write (6,*) 'nBasisi=',nBasisi
-               Write (6,*) ' iAng=',iAng
-               Call RecPrt('TC',' ',TC,1,3)
-#endif
+      if (EQ(A,RB) .and. EQ(A,TC)) Go To 1967
 
-               If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
-!
-               ip=1
+      do iAng=0,dbsc(kCnttp)%nPrj-1
+        iShll = dbsc(kCnttp)%iPrj+iAng
+        nExpi = Shells(iShll)%nExp
+        nBasisi = Shells(iShll)%nBasis
+#       ifdef _DEBUGPRINT_
+        write(6,*) 'nExp(iShll)=',nExpi
+        write(6,*) 'nBasisi=',nBasisi
+        write(6,*) ' iAng=',iAng
+        call RecPrt('TC',' ',TC,1,3)
+#       endif
 
-               ipFin= ip
-               ip=ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
+        if ((nExpi == 0) .or. (nBasisi == 0)) Go To 1966
 
-               ipFA1 = ip
-               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*4
+        ip = 1
 
-               ipFB1 = ip
-               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
+        ipFin = ip
+        ip = ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
 
-               ipFB2 = ip
-               ipFA2 = ip
-               if (ip.ge.narr) then
-                 write(6,*) 'No mem in prjgrd',ip,narr
-                 call abend()
-                 endif
+        ipFA1 = ip
+        ip = ip+nAlpha*nExpi*nElem(la)*nElem(iAng)*4
 
-               call dcopy_(nArr,[0.0d0],0,Array,1)
+        ipFB1 = ip
+        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*4
 
-!
-#ifdef _DEBUGPRINT_
-               Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),          &
-     &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),         &
-     &                     array(ipFA2),jfgrad(1,1),ifhess_dum,         &
-     &                     1,.TRUE.)
-#else
-               Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),          &
-     &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),         &
-     &                     array(ipFA2),jfgrad(1,1),ifhess_dum,         &
-     &                     1,.FALSE.)
-#endif
-               call LToCore(Array(ipFA1),nalpha,ishll,la,iAng, 4)
+        ipFB2 = ip
+        ipFA2 = ip
+        if (ip >= narr) then
+          write(6,*) 'No mem in prjgrd',ip,narr
+          call abend()
+        end if
 
+        call dcopy_(nArr,[0.0d0],0,Array,1)
 
+#       ifdef _DEBUGPRINT_
+        call Acore(iang,la,ishll,nordop,TC,A,Array(ip),narr-ip+1,Alpha,nalpha,Array(ipFA1),array(ipFA2),jfgrad(1,1),ifhess_dum,1, &
+                   .true.)
+#       else
+        call Acore(iang,la,ishll,nordop,TC,A,Array(ip),narr-ip+1,Alpha,nalpha,Array(ipFA1),array(ipFA2),jfgrad(1,1),ifhess_dum,1, &
+                   .false.)
+#       endif
+        call LToCore(Array(ipFA1),nalpha,ishll,la,iAng,4)
 
-#ifdef _DEBUGPRINT_
-               Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),         &
-     &                    narr-ip+1,Beta,nbeta,Array(ipFB1),            &
-     &                    array(ipFB2),jfgrad(1,2),ifhess_dum,1,        &
-     &                    .TRUE.)
-#else
-               Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),         &
-     &                    narr-ip+1,Beta,nbeta,Array(ipFB1),            &
-     &                    array(ipFB2),jfgrad(1,2),ifhess_dum,1,        &
-     &                    .FALSE.)
-#endif
-               call RToCore(Array(ipFB1),nBeta,ishll,lb,iAng,4)
+#       ifdef _DEBUGPRINT_
+        call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),narr-ip+1,Beta,nbeta,Array(ipFB1),array(ipFB2),jfgrad(1,2),ifhess_dum,1, &
+                   .true.)
+#       else
+        call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),narr-ip+1,Beta,nbeta,Array(ipFB1),array(ipFB2),jfgrad(1,2),ifhess_dum,1, &
+                   .false.)
+#       endif
+        call RToCore(Array(ipFB1),nBeta,ishll,lb,iAng,4)
 
+        call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),Fact,nAlpha,nBeta,Dum,nBasisi,la,lb,iang,jfgrad,Dum,.false.,index, &
+                      mvec,idcar)
 
+        nt = nAlpha*nBeta*nElem(lb)*nElem(la)
+        call SmAdNa(Array(ipFin),nt,final,mop,loper,JndGrd,iuvwx,JfGrad,index,idcar,1.0d0,iFG,tr)
 
-               call  CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),   &
-     &                        Fact,nAlpha,nBeta,Dum,nBasisi,            &
-     &                        la,lb,iang,jfgrad,Dum,.false.,            &
-     &                        index,mvec,idcar)
+1966    continue
+      end do
+1967  continue
+    end do
+1965 continue
+  end do
+1961 continue
+  kdc = kdc+dbsc(kCnttp)%nCntr
+end do
 
-
-               nt=nAlpha*nBeta*nElem(lb)*nElem(la)
-               Call SmAdNa(Array(ipFin),nt,Final,                       &
-     &                     mop,loper,JndGrd,iuvwx,JfGrad,index,         &
-     &                     idcar,1.0d0,iFG,tr)
-
-
- 1966       Continue
- 1967    Continue
- 1965    Continue
- 1961    Continue
-         kdc = kdc + dbsc(kCnttp)%nCntr
- 1960 Continue
-!
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Zeta)
-         Call Unused_real_array(ZInv)
-         Call Unused_real_array(rKappa)
-         Call Unused_real_array(P)
-         Call Unused_integer(nHer)
-         Call Unused_real_array(Ccoor)
-         Call Unused_logical_array(Trans)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(Zeta)
+  call Unused_real_array(ZInv)
+  call Unused_real_array(rKappa)
+  call Unused_real_array(P)
+  call Unused_integer(nHer)
+  call Unused_real_array(Ccoor)
+  call Unused_logical_array(Trans)
+end if
+
+end subroutine PrjGrd_mck

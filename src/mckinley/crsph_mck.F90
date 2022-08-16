@@ -11,8 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine CrSph_mck(Win,nijx,nab,Coeff1,n1,Tr1,Pr1,              &
-     &                  Wout,mab)
+
+subroutine CrSph_mck(Win,nijx,nab,Coeff1,n1,Tr1,Pr1,Wout,mab)
 !***********************************************************************
 !                                                                      *
 !  Object: to transform the one electron integrals from cartesian      *
@@ -27,39 +27,35 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             February '90                                             *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 !#include "print.fh"
-      Real*8 Win(nab*nijx),                                             &
-     &       Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2),                   &
-     &       Wout(mab*nijx)
-      Logical Tr1, Pr1
-!
-!     iRout = 26
-!     iPrint = nPrint(iRout)
-      l1=(n1+1)*(n1+2)/2
-      k1=l1
-      If (Pr1) k1 = 2*n1 + 1
-!
-      If (Tr1) Then
-!
-!        Starting with a,bIJx transforming to bIJx,A
-!
-         Call DGEMM_('T','N',                                           &
-     &               nijx,k1,l1,                                        &
-     &               1.0d0,Win,l1,                                      &
-     &               Coeff1,l1,                                         &
-     &               0.0d0,Wout,nijx)
-!
-      Else
-!
-!        Transpose from ab,IJ,x to b,IJ,x,a
-!
-         Call DGeTmO(Win,l1,l1,nijx,Wout,nijx)
-!
-!        Start transforming b,IJ,x,a to IJ,x,aB
-!
-      End If
-!
-!     Call GetMem('CarSph','CHEC','REAL',iDum,iDum)
-      Return
-      End
+real*8 Win(nab*nijx), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Wout(mab*nijx)
+logical Tr1, Pr1
+
+!iRout = 26
+!iPrint = nPrint(iRout)
+l1 = (n1+1)*(n1+2)/2
+k1 = l1
+if (Pr1) k1 = 2*n1+1
+
+if (Tr1) then
+
+  ! Starting with a,bIJx transforming to bIJx,A
+
+  call DGEMM_('T','N',nijx,k1,l1,1.0d0,Win,l1,Coeff1,l1,0.0d0,Wout,nijx)
+
+else
+
+  ! Transpose from ab,IJ,x to b,IJ,x,a
+
+  call DGeTmO(Win,l1,l1,nijx,Wout,nijx)
+
+  ! Start transforming b,IJ,x,a to IJ,x,aB
+
+end if
+
+!call GetMem('CarSph','CHEC','REAL',iDum,iDum)
+return
+
+end subroutine CrSph_mck

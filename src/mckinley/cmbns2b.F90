@@ -11,128 +11,104 @@
 ! Copyright (C) 1994, Anders Bernhardsson                              *
 !               1994, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine CmbnS2b(Rnxyz,nZeta,la,lb,rKappa,Final,Beta,           &
-     &                  IfHss,ld)
+
+subroutine CmbnS2b(Rnxyz,nZeta,la,lb,rKappa,final,Beta,IfHss,ld)
 !***********************************************************************
 !                                                                      *
 ! Object: compute the 2nd derivative  of the overlap matrix.           *
 !                                                                      *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 !#include "print.fh"
 #include "real.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),            &
-     &       rKappa(nZeta), Beta(nZeta),                                &
-     &       Rnxyz(nZeta,3,0:la,0:lb+ld)
-      Logical IfHss(4,3,4,3)
-      Integer ia(3),ib(3)
-!
-!     Statement function for Cartesian index
-!
-      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-!
-!     Index in the triang. local hessian
-!
-      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-!
-      Do 10 iax = 0, la
-         ia(1)=iax
-         iyaMax=la-ia(1)
-      Do 11 ibx = 0, lb
-         ib(1)=ibx
-         iybMax=lb-ib(1)
-         Do 20 iay = 0, iyaMax
-            ia(2)=iay
-            ia(3) = la-ia(2)-ia(1)
-            ipa= Ind(la,ia(1),ia(3))
-         Do 21 iby = 0, iybMax
-            ib(2)=iby
-          ib(3) = lb-ib(2)-ib(1)
-          ipb= Ind(lb,ib(1),ib(3))
-!
-!
-!           Combine overlap integrals
-!
-!           Integrals like dI/dx1dx1
-!
-          Do 5 iCoor=1,3
-            jCoor=Mod(iCoor,3)+1
-            kCoor=Mod(jCoor,3)+1
-            If (IfHss(2,iCoor,2,iCoor)) Then
-                  Do 30 iZeta = 1, nZeta
-                  Final(iZeta,ipa,ipb,itri(iCoor,iCoor))=rKappa(iZeta)* &
-     &                   ((Two*Beta(iZeta))**2 *                        &
-     &                   Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)+2)*      &
-     &                   Rnxyz(iZeta,jCoor,ia(jCoor),  ib(jCoor))*      &
-     &                   Rnxyz(iZeta,kCoor,ia(kCoor),  ib(kCoor))-      &
-     &                   Two *  Beta(iZeta) *                           &
-     &                   Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))*        &
-     &                   Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))*        &
-     &                   Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-                     If (ib(iCoor).gt.0) Then
-                        Final(iZeta,ipa,ipb,itri(iCoor,iCoor)) =        &
-     &                      Final(iZeta,ipa,ipb,itri(iCoor,iCoor))      &
-     &                      - rKappa(iZeta)*                            &
-     &                      (Four *  Beta(iZeta)* Dble(ib(iCoor)) *     &
-     &                      Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))*     &
-     &                      Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))*     &
-     &                      Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-                     End If
-                     If (ib(iCoor).gt.1) Then
-                        Final(iZeta,ipa,ipb,itri(iCoor,iCoor)) =        &
-     &                      Final(iZeta,ipa,ipb,itri(iCoor,iCoor))      &
-     &                      +rKappa(iZeta)*                             &
-     &                      (Dble(ib(iCoor)*(ib(iCoor)-1))*             &
-     &                      Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)-2)*   &
-     &                      Rnxyz(iZeta,jCoor,ia(jCoor),  ib(jCoor))*   &
-     &                      Rnxyz(iZeta,kCoor,ia(kCoor),  ib(kCoor)))
-                     End If
- 30               Continue
-            End If
- 5       Continue
-!
+real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), rKappa(nZeta), Beta(nZeta), Rnxyz(nZeta,3,0:la,0:lb+ld)
+logical IfHss(4,3,4,3)
+integer ia(3), ib(3)
+! Statement function for Cartesian index
+Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
+! Index in the triang. local hessian
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-!
-!           Integrals like dI/dxdz
-!
-            Do 56 iCoor=2,3
-            Do 52 jCoor=1,iCoor-1
-                 If (IfHss(2,iCoor,2,jCoor)) Then
-                  Do 51 kCoor=1,3
-                    Do 50 iZeta = 1, nZeta
-                     If (kCoor.eq.1) Then
-                        Final(iZeta,ipa,ipb,                            &
-     &                       itri(iCoor,jCoor))= rKappa(iZeta)
-                     End If
-                     If ((kCoor.eq.iCoor).or.(kCoor.eq.jCoor)) Then
-                        rIc=Two*Beta(iZeta)*                            &
-     &                      Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+1)
-!
-                        If (ib(kCoor).gt.0)                             &
-     &                    rIc=rIc-Dble(ib(kCoor))*                      &
-     &                       Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-1)
-!
-                        Final(iZeta,ipa,ipb,                            &
-     &                        itri(iCoor,jCoor))=                       &
-     &                  Final(iZeta,ipa,ipb,                            &
-     &                        itri(iCoor,jCoor))*                       &
-     &                                       rIc
-                     Else
-                        Final(iZeta,ipa,ipb,                            &
-     &                        itri(iCoor,jCoor))=                       &
-     &                  Final(iZeta,ipa,ipb,                            &
-     &                        itri(iCoor,jCoor))*                       &
-     &                                Rnxyz(iZeta,kCoor,ia(kCoor),      &
-     &                                ib(kCoor))
-                     End If
- 50               Continue
- 51             Continue
-                End If
- 52         Continue
- 56         Continue
- 21      Continue
- 20      Continue
- 11   Continue
- 10   Continue
-      Return
-      End
+do iax=0,la
+  ia(1) = iax
+  iyaMax = la-ia(1)
+  do ibx=0,lb
+    ib(1) = ibx
+    iybMax = lb-ib(1)
+    do iay=0,iyaMax
+      ia(2) = iay
+      ia(3) = la-ia(2)-ia(1)
+      ipa = Ind(la,ia(1),ia(3))
+      do iby=0,iybMax
+        ib(2) = iby
+        ib(3) = lb-ib(2)-ib(1)
+        ipb = Ind(lb,ib(1),ib(3))
+
+        ! Combine overlap integrals
+
+        ! Integrals like dI/dx1dx1
+
+        do iCoor=1,3
+          jCoor = mod(iCoor,3)+1
+          kCoor = mod(jCoor,3)+1
+          if (IfHss(2,iCoor,2,iCoor)) then
+            do iZeta=1,nZeta
+              final(iZeta,ipa,ipb,itri(iCoor,iCoor)) = rKappa(iZeta)*((Two*Beta(iZeta))**2* &
+                                                                      Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)+2)* &
+                                                                      Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                                      Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))- &
+                                                                      Two*Beta(iZeta)*Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
+                                                                      Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                                      Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+              if (ib(iCoor) > 0) then
+                final(iZeta,ipa,ipb,itri(iCoor,iCoor)) = final(iZeta,ipa,ipb,itri(iCoor,iCoor))- &
+                                                         rKappa(iZeta)*(Four*Beta(iZeta)*dble(ib(iCoor))* &
+                                                                        Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
+                                                                        Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+              end if
+              if (ib(iCoor) > 1) then
+                final(iZeta,ipa,ipb,itri(iCoor,iCoor)) = final(iZeta,ipa,ipb,itri(iCoor,iCoor))+ &
+                                                         rKappa(iZeta)*(dble(ib(iCoor)*(ib(iCoor)-1))* &
+                                                                        Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)-2)* &
+                                                                        Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+              end if
+            end do
+          end if
+        end do
+
+        ! Integrals like dI/dxdz
+
+        do iCoor=2,3
+          do jCoor=1,iCoor-1
+            if (IfHss(2,iCoor,2,jCoor)) then
+              do kCoor=1,3
+                do iZeta=1,nZeta
+                  if (kCoor == 1) then
+                    final(iZeta,ipa,ipb,itri(iCoor,jCoor)) = rKappa(iZeta)
+                  end if
+                  if ((kCoor == iCoor) .or. (kCoor == jCoor)) then
+                    rIc = Two*Beta(iZeta)*Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+1)
+
+                    if (ib(kCoor) > 0) rIc = rIc-dble(ib(kCoor))*Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-1)
+
+                    final(iZeta,ipa,ipb,itri(iCoor,jCoor)) = final(iZeta,ipa,ipb,itri(iCoor,jCoor))*rIc
+                  else
+                    final(iZeta,ipa,ipb,itri(iCoor,jCoor)) = final(iZeta,ipa,ipb,itri(iCoor,jCoor))* &
+                                                             Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  end if
+                end do
+              end do
+            end if
+          end do
+        end do
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine CmbnS2b

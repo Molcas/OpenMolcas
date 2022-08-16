@@ -8,15 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine mult_sro(A,nA,C,nC,B,nB,Fact,Res,Tmp)
-      Implicit Real*8(a-h,o-z)
-      Real*8 A(*),B(*),C(*),Res(*),Tmp(*)
 
-      Call DGEMM_('N','N', nA,nC,nC,                                    &
-     &           1.0d0,A,nA, C,nC,                                      &
-     &           0.0d0,Tmp,nA)
-      Call DGEMM_('N','N', nA,nB,nC,                                    &
-     &           Fact,Tmp,nA, B,nC,                                     &
-     &           1.0d0,Res,nA)
-      return
-      end
+subroutine mult_sro(A,nA,C,nC,B,nB,Fact,Res,Tmp)
+
+implicit real*8(a-h,o-z)
+real*8 A(*), B(*), C(*), Res(*), Tmp(*)
+
+call DGEMM_('N','N',nA,nC,nC,1.0d0,A,nA,C,nC,0.0d0,Tmp,nA)
+call DGEMM_('N','N',nA,nB,nC,Fact,Tmp,nA,B,nC,1.0d0,Res,nA)
+
+return
+
+end subroutine mult_sro

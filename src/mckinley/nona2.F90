@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2000, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE NONA2(                                                 &
-#define _CALLING_
-#include "grd_mck_interface.fh"
-     &               )
+
+subroutine NONA2( &
+#                define _CALLING_
+#                include "grd_mck_interface.fh"
+                )
 !***********************************************************************
 ! OBJECT: TO COMPUTE THE 2ND DERIVATIVE NONADIABATIC COUPLING
 ! INTEGRALS, OF TYPE
@@ -24,97 +25,85 @@
 !     AFTER PROGRAMMING PATTERN ESTABLISHED BY ROLAND LINDH
 !
 !***********************************************************************
-      use Her_RW, only: HerR, HerW, iHerR, iHerW
-      use Center_Info
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Center_Info
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-
 #include "grd_mck_interface.fh"
-
-!     Local variables
-
-      LOGICAL ABEQ(3)
+! Local variables
+logical ABEQ(3)
+! Statement function
+NELEM(LA) = (LA+2)*(LA+1)/2
 ! The following call parameters are not used:
 ! IDCNT,ISTABM,NSTABM,ZINV
 ! They must still be present, because the call parameter list must
 
-      NELEM(LA)=(LA+2)*(LA+1)/2
-      ABEQ(1) = A(1).EQ.RB(1)
-      ABEQ(2) = A(2).EQ.RB(2)
-      ABEQ(3) = A(3).EQ.RB(3)
+ABEQ(1) = A(1) == RB(1)
+ABEQ(2) = A(2) == RB(2)
+ABEQ(3) = A(3) == RB(3)
 
-      NIP = 1
-      IPAXYZ = NIP
-      NIP = NIP + NZETA*3*NHER*(LA+2)
-      IPBXYZ = NIP
-      NIP = NIP + NZETA*3*NHER*(LB+2)
-      IPRXYZ = NIP
-      NIP = NIP + NZETA*3*NHER*(NORDOP+1)
-      IPRNXYZ = NIP
-      NIP = NIP + NZETA*3*(LA+2)*(LB+2)*(NORDOP+1)
-      IPALPH = NIP
-      NIP = NIP + NZETA
-      IPBETA = NIP
-      NIP = NIP + NZETA
-      IPSCRT=NIP
-      NIP=NIP+NELEM(LA)*NELEM(LB)*NZETA*2
+NIP = 1
+IPAXYZ = NIP
+NIP = NIP+NZETA*3*NHER*(LA+2)
+IPBXYZ = NIP
+NIP = NIP+NZETA*3*NHER*(LB+2)
+IPRXYZ = NIP
+NIP = NIP+NZETA*3*NHER*(NORDOP+1)
+IPRNXYZ = NIP
+NIP = NIP+NZETA*3*(LA+2)*(LB+2)*(NORDOP+1)
+IPALPH = NIP
+NIP = NIP+NZETA
+IPBETA = NIP
+NIP = NIP+NZETA
+IPSCRT = NIP
+NIP = NIP+NELEM(LA)*NELEM(LB)*NZETA*2
 
-
-      IF (NIP-1.GT.NARR) THEN
-        WRITE(6,*)' NONA2: Too small array.'
-        WRITE(6,*)' Submitted array size NARR=',NARR
-        WRITE(6,*)' Needed size at least NIP =',NIP
-        CALL Abend
-      END IF
+if (NIP-1 > NARR) then
+  write(6,*) ' NONA2: Too small array.'
+  write(6,*) ' Submitted array size NARR=',NARR
+  write(6,*) ' Needed size at least NIP =',NIP
+  call Abend()
+end if
 
 ! COMPUTE THE CARTESIAN VALUES OF THE BASIS FUNCTIONS ANGULAR PART
-      CALL CRTCMP(ZETA,P,NZETA,A,ARRAY(IPAXYZ),                         &
-     &               LA+1,HerR(iHerR(NHER)),NHER,ABEQ)
-      CALL CRTCMP(ZETA,P,NZETA,RB,ARRAY(IPBXYZ),                        &
-     &               LB+1,HerR(iHerR(NHER)),NHER,ABEQ)
+call CRTCMP(ZETA,P,NZETA,A,ARRAY(IPAXYZ),LA+1,HerR(iHerR(NHER)),NHER,ABEQ)
+call CRTCMP(ZETA,P,NZETA,RB,ARRAY(IPBXYZ),LB+1,HerR(iHerR(NHER)),NHER,ABEQ)
 
 !PAM: WILL WE NEED THIS??
 ! COMPUTE THE CONTRIBUTION FROM THE MULTIPOLE MOMENT OPERATOR
-      ABEQ(1) = .FALSE.
-      ABEQ(2) = .FALSE.
-      ABEQ(3) = .FALSE.
-      CALL CRTCMP(ZETA,P,NZETA,CCOOR,ARRAY(IPRXYZ),                     &
-     &            NORDOP,HerR(iHerR(NHER)),NHER,ABEQ)
+ABEQ(1) = .false.
+ABEQ(2) = .false.
+ABEQ(3) = .false.
+call CRTCMP(ZETA,P,NZETA,CCOOR,ARRAY(IPRXYZ),NORDOP,HerR(iHerR(NHER)),NHER,ABEQ)
 
 ! COMPUTE THE PRIMITIVE 1-DIMENSIONAL OVERLAP INTEGRALS.
-       CALL ASSMBL(ARRAY(IPRNXYZ),                                      &
-     &             ARRAY(IPAXYZ),LA+1,                                  &
-     &             ARRAY(IPRXYZ),NORDOP,                                &
-     &             ARRAY(IPBXYZ),LB+1,                                  &
-     &             NZETA,HerW(iHerW(NHER)),NHER)
+call ASSMBL(ARRAY(IPRNXYZ),ARRAY(IPAXYZ),LA+1,ARRAY(IPRXYZ),NORDOP,ARRAY(IPBXYZ),LB+1,NZETA,HerW(iHerW(NHER)),NHER)
 
 ! COMBINE THE CARTESIAN COMPONENTS OF THE 2DC MATRIX ELEMENTS
-      IP = IPALPH
-      DO IBETA = 1, NBETA
-         CALL DCOPY_(NALPHA,ALPHA,1,ARRAY(IP),1)
-         IP = IP + NALPHA
-      END DO
-      IP = IPBETA
-      DO IALPHA = 1, NALPHA
-         CALL DCOPY_(NBETA,BETA,1,ARRAY(IP),NALPHA)
-         IP = IP + 1
-      END DO
-      CALL CMBN2DC(ARRAY(IPRNXYZ),NZETA,LA,LB,ZETA,                     &
-     &            RKAPPA,ARRAY(IPSCRT),                                 &
-     &            ARRAY(IPALPH),ARRAY(IPBETA),                          &
-     &            IFGRAD)
+IP = IPALPH
+do IBETA=1,NBETA
+  call DCOPY_(NALPHA,ALPHA,1,ARRAY(IP),1)
+  IP = IP+NALPHA
+end do
+IP = IPBETA
+do IALPHA=1,NALPHA
+  call DCOPY_(NBETA,BETA,1,ARRAY(IP),NALPHA)
+  IP = IP+1
+end do
+call CMBN2DC(ARRAY(IPRNXYZ),NZETA,LA,LB,ZETA,RKAPPA,ARRAY(IPSCRT),ARRAY(IPALPH),ARRAY(IPBETA),IFGRAD)
 
 ! SYMMETRY ADAPT THE 2ND DERIVATIVE COUPLING INTEGRALS
-      CALL SYMADO_MCK(ARRAY(IPSCRT),NZETA*NELEM(LA)*NELEM(LB),          &
-     &            FINAL,NROP,                                           &
-     &            nOP,LOPER,INDGRD,IU,IV,IFGRAD,IDCAR,TRANS)
+call SYMADO_MCK(ARRAY(IPSCRT),NZETA*NELEM(LA)*NELEM(LB),final,NROP,nOP,LOPER,INDGRD,IU,IV,IFGRAD,IDCAR,TRANS)
 
-      RETURN
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-         CALL Unused_real_array(ZINV)
-         CALL Unused_integer(IDCNT)
-         CALL Unused_integer_array(ISTABM)
-         CALL Unused_integer(NSTABM)
-      END IF
-      END
+if (.false.) then
+  call Unused_real_array(ZINV)
+  call Unused_integer(IDCNT)
+  call Unused_integer_array(ISTABM)
+  call Unused_integer(NSTABM)
+end if
+
+end subroutine NONA2

@@ -8,90 +8,80 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine SmAdNa(ArrIn,nb,ArrOut,nop,                            &
-     &                  lOper,IndGrd,                                   &
-     &                  iuv,IfGrd,Index,iDCar,rf,IFG,tr)
-      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine SmAdNa(ArrIn,nb,ArrOut,nop,lOper,IndGrd,iuv,IfGrd,Index,iDCar,rf,IFG,tr)
+
+use Symmetry_Info, only: nIrrep, iChTbl, iChBas
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 !#include "print.fh"
-      Real*8 ArrIn (nb,*),                                              &
-     &       ArrOut(nb,*)
-      Integer  lOper,                                                   &
-     &          IndGrd(3,4,0:nIrrep-1),iuv(3),Index(3,4),nOp(3)
-      Logical   IfGrd(3,4),IFG(4),tr(4)
-!
-!     Statement function for Cartesian index
-!
-!
-!     iRout = 200
-!     iPrint = nPrint(iRout)
-!
-!--------Accumulate contributions
-!
-      iComp=0
-      Do 102 iIrrep=0,nIrrep-1
-        If (iAnd(lOper,2**iIrrep).ne.0) Then
-          iComp=iComp+1
-          Do 103 iCn=1,3
-!           If (Index(idCar,iCn).ne.0) Then
-            If ( (Indgrd(idCar,iCn,iIrrep).ne.0) .and.                  &
-     &         ( (index(idcar,icn).gt.0).or.tr(icn)))                   &
-     &      Then
-!              Accumulate contribution to the gradient
-               i1=0
-               i2=0
-               If (iCn.eq.1) Then
-                   ps = DBLE( iPrmt( nOp(1), iChBas(1+idCar) ) )
-                   Fact = rf*DBLE(iuv(1))/DBLE(nIrrep)
-                   If (.not.tr(iCn)) Then
-                    i1=Index(idCar,iCn)
-                   Else
-                    If (index(idcar,2).gt.0) i1=Index(idCar,2)
-                    If (index(idCar,3).gt.0) i2=Index(idCar,3)
-                    Fact=-Fact
-                   End If
-               Else If (iCn.eq.2) Then
-                   ps=DBLE(iChTbl(iIrrep,nOp(2)))
-                   ps = ps*DBLE( iPrmt( nOp(2), iChBas(1+idCar) ) )
-                   Fact = rf*ps *                                       &
-     &                    DBLE(iuv(2))/DBLE(nIrrep)
-                   If (.not.tr(iCn)) Then
-                    i1=Index(idCar,iCn)
-                   Else
-                    If (index(idcar,1).gt.0) i1=Index(idCar,1)
-                    If (index(idCar,3).gt.0) i2=Index(idCar,3)
-                    Fact=-Fact
-                   End If
-               Else
-                   ps=DBLE(iChTbl(iIrrep,nOp(3)))
-                   ps = ps*DBLE( iPrmt( nOp(3), iChBas(1+idCar) ) )
-                   Fact = rf*ps *                                       &
-     &                    DBLE(iuv(3))/DBLE(nIrrep)
-                   If (.not.tr(iCn)) Then
-                    i1=Index(idCar,iCn)
-                   Else
-                    If (index(idcar,1).gt.0) i1=Index(idCar,1)
-                    If (index(idCar,2).gt.0) i2=Index(idCar,2)
-                    Fact=-Fact
-                   End If
-               End if
-            If (i1.ne.0)                                                &
-     &          Call DaXpY_(nb,Fact,                                    &
-     &                 ArrIn(1,i1),1,ArrOut(1,iComp),1)
-            If (i2.ne.0)                                                &
-     &          Call DaXpY_(nb,Fact,                                    &
-     &                     ArrIn(1,i2),1,ArrOut(1,iComp),1)
-           End If
- 103  Continue
-      End If
- 102  Continue
-!
-!     Call GetMem(' Exit SymAdO','LIST','REAL',iDum,iDum)
-      Return
+real*8 ArrIn(nb,*), ArrOut(nb,*)
+integer lOper, IndGrd(3,4,0:nIrrep-1), iuv(3), index(3,4), nOp(3)
+logical IfGrd(3,4), IFG(4), tr(4)
+
+!iRout = 200
+!iPrint = nPrint(iRout)
+
+! Accumulate contributions
+
+iComp = 0
+do iIrrep=0,nIrrep-1
+  if (iand(lOper,2**iIrrep) /= 0) then
+    iComp = iComp+1
+    do iCn=1,3
+      !if (Index(idCar,iCn) /= 0) then
+      if ((Indgrd(idCar,iCn,iIrrep) /= 0) .and. ((index(idcar,icn) > 0) .or. tr(icn))) then
+        ! Accumulate contribution to the gradient
+        i1 = 0
+        i2 = 0
+        if (iCn == 1) then
+          ps = dble(iPrmt(nOp(1),iChBas(1+idCar)))
+          Fact = rf*dble(iuv(1))/dble(nIrrep)
+          if (.not. tr(iCn)) then
+            i1 = index(idCar,iCn)
+          else
+            if (index(idcar,2) > 0) i1 = index(idCar,2)
+            if (index(idCar,3) > 0) i2 = index(idCar,3)
+            Fact = -Fact
+          end if
+        else if (iCn == 2) then
+          ps = dble(iChTbl(iIrrep,nOp(2)))
+          ps = ps*dble(iPrmt(nOp(2),iChBas(1+idCar)))
+          Fact = rf*ps*dble(iuv(2))/dble(nIrrep)
+          if (.not. tr(iCn)) then
+            i1 = index(idCar,iCn)
+          else
+            if (index(idcar,1) > 0) i1 = index(idCar,1)
+            if (index(idCar,3) > 0) i2 = index(idCar,3)
+            Fact = -Fact
+          end if
+        else
+          ps = dble(iChTbl(iIrrep,nOp(3)))
+          ps = ps*dble(iPrmt(nOp(3),iChBas(1+idCar)))
+          Fact = rf*ps*dble(iuv(3))/dble(nIrrep)
+          if (.not. tr(iCn)) then
+            i1 = index(idCar,iCn)
+          else
+            if (index(idcar,1) > 0) i1 = index(idCar,1)
+            if (index(idCar,2) > 0) i2 = index(idCar,2)
+            Fact = -Fact
+          end if
+        end if
+        if (i1 /= 0) call DaXpY_(nb,Fact,ArrIn(1,i1),1,ArrOut(1,iComp),1)
+        if (i2 /= 0) call DaXpY_(nb,Fact,ArrIn(1,i2),1,ArrOut(1,iComp),1)
+      end if
+    end do
+  end if
+end do
+
+!call GetMem(' Exit SymAdO','LIST','REAL',iDum,iDum)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_logical_array(IfGrd)
-         Call Unused_logical_array(IFG)
-      End If
-      End
+if (.false.) then
+  call Unused_logical_array(IfGrd)
+  call Unused_logical_array(IFG)
+end if
+
+end subroutine SmAdNa

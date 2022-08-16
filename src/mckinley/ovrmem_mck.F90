@@ -8,18 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine OvrMem_mck(nHer,MmMltP,la,lb,lr)
-!
-      nElem(i) = (i+1)*(i+2)/2
 
-!
-      lr=0
-      nHer=(la+lb+lr+3)/2
-      MmMltP = 3*nHer*(la+2) +                                          &
-     &         3*nHer*(lb+2) +                                          &
-     &         3*nHer*(lr+2) +                                          &
-     &         3*(la+2)*(lb+2)*(lr+1)+2 +                               &
-     &         nelem(la)*nelem(lb)*2
-!
-      Return
-      End
+subroutine OvrMem_mck(nHer,MmMltP,la,lb,lr)
+
+! Statement function
+nElem(i) = (i+1)*(i+2)/2
+
+lr = 0
+nHer = (la+lb+lr+3)/2
+MmMltP = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr+2)+3*(la+2)*(lb+2)*(lr+1)+2+nelem(la)*nelem(lb)*2
+
+return
+
+end subroutine OvrMem_mck

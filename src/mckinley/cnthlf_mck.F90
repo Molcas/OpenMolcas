@@ -10,10 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1994, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Cnthlf_mck(Coeff1,nCntr1,nPrm1,                        &
-     &                      Coeff2,nCntr2,nPrm2,                        &
-     &                      nZeta,lZeta,nVec,First,IncVec,A1,A2,A3,     &
-     &                  Indij)
+
+subroutine Cnthlf_mck(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,nZeta,lZeta,nVec,First,IncVec,A1,A2,A3,Indij)
 !***********************************************************************
 !                                                                      *
 ! Object: to do a half transformation. The loop over the two matrix-   *
@@ -24,137 +22,133 @@
 ! Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 !#include "print.fh"
-      Real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2),                &
-     &       A1(lZeta,nVec), A2(nPrm2,IncVec*nCntr1),                   &
-     &       A3(nVec,nCntr1,nCntr2)
-      Integer Indij(nZeta)
-      Logical First, Seg1, Seg2
-!
-!-----Check if the basis set is segmented
-!
-      Seg1=.False.
-      Do iPrm1 = nPrm1, 1, -1
-         Do iCntr1 = nCntr1, 1, -1
-            If (Coeff1(iPrm1,iCntr1).eq.Zero) Then
-               Seg1=.True.
-               Go To 10
-            End If
-         End Do
-      End Do
- 10   Continue
-!
-      Seg2=.False.
-      Do iPrm2 = nPrm2, 1, -1
-         Do iCntr2 = nCntr2, 1, -1
-            If (Coeff2(iPrm2,iCntr2).eq.Zero) Then
-               Seg2=.True.
-               Go To 20
-            End If
-         End Do
-      End Do
- 20   Continue
-!
-!-----Set output matrix to zero
-!
-      If (First) call dcopy_(nVec*nCntr1*nCntr2,[Zero],0,A3,1)
-!
-!-----Loop sectioning
-!
-      Do iiVec = 1, nVec, IncVec
-         mVec = Min(IncVec,nVec-iiVec+1)
-!--------Set intermediate matrix to zero
-         call dcopy_(nPrm2*nCntr1*mVec,[Zero],0,A2,1)
-!
-         If (Seg1) Then
-!
-!-----First quarter transformation
-!
-      Do iPrm1 = 1, nPrm1
-         Do iCntr1 = 1, nCntr1
-!-----------Check for zero due to segmented basis
-            If (Abs(Coeff1(iPrm1,iCntr1)).gt.Zero) Then
-               Do iPrm2 = 1, nPrm2
-                  iZeta = (iPrm2-1)*nPrm1 + iPrm1
-                  jZeta = Indij(iZeta)
-!-----------------Skip due to screening
-                  If (jZeta.gt.0) Then
-                     Do iVec = iiVec, iiVec+mVec-1
-                        ijVec = mVec*(iCntr1-1) + (iVec-iiVec+1)
-                        A2(iPrm2,ijVec) = A2(iPrm2,ijVec) +             &
-     &                    Coeff1(iPrm1,iCntr1)*A1(jZeta,iVec)
-                     End Do
-                  End If
-               End Do
-            End If
-         End Do
-      End Do
-!
-         Else
-!
-!-----First quarter transformation
-!
-      Do iPrm1 = 1, nPrm1
-         Do iCntr1 = 1, nCntr1
-            Do iPrm2 = 1, nPrm2
-               iZeta = (iPrm2-1)*nPrm1 + iPrm1
-               jZeta = Indij(iZeta)
-!--------------Skip due to screening
-               If (jZeta.gt.0) Then
-                  Do iVec = iiVec, iiVec+mVec-1
-                     ijVec = mVec*(iCntr1-1) + (iVec-iiVec+1)
-                     A2(iPrm2,ijVec) = A2(iPrm2,ijVec) +                &
-     &                 Coeff1(iPrm1,iCntr1)*A1(jZeta,iVec)
-                  End Do
-               End If
-            End Do
-         End Do
-      End Do
-!
-         End If
-!
-         If (Seg2) Then
-!
-!-----Second quarter transformation
-!
-      Do iPrm2 = 1, nPrm2
-         Do iCntr2 = 1, nCntr2
-!-----------Check for zero due to segmented basis
-            If (Abs(Coeff2(iPrm2,iCntr2)).gt.Zero) Then
-               Do iCntr1 = 1, nCntr1
-                  Do iVec = iiVec, iiVec+mVec-1
-                     ijVec = mVec*(iCntr1-1) + (iVec-iiVec+1)
-                     A3(iVec,iCntr1,iCntr2) = A3(iVec,iCntr1,iCntr2) +  &
-     &                 Coeff2(iPrm2,iCntr2)*A2(iPrm2,ijVec)
-                  End Do
-               End Do
-            End If
-         End Do
-      End Do
-!
-         Else
-!
-!-----Second quarter transformation
-!
-      Do iPrm2 = 1, nPrm2
-         Do iCntr2 = 1, nCntr2
-            Do iCntr1 = 1, nCntr1
-               Do iVec = iiVec, iiVec+mVec-1
-                  ijVec = mVec*(iCntr1-1) + (iVec-iiVec+1)
-                  A3(iVec,iCntr1,iCntr2) = A3(iVec,iCntr1,iCntr2) +     &
-     &              Coeff2(iPrm2,iCntr2)*A2(iPrm2,ijVec)
-               End Do
-            End Do
-         End Do
-      End Do
-!
-         End If
-!
-!-----End of loop sectioning
-!
-      End Do
-!
-      Return
-      End
+real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(lZeta,nVec), A2(nPrm2,IncVec*nCntr1), A3(nVec,nCntr1,nCntr2)
+integer Indij(nZeta)
+logical First, Seg1, Seg2
+
+! Check if the basis set is segmented
+
+Seg1 = .false.
+do iPrm1=nPrm1,1,-1
+  do iCntr1=nCntr1,1,-1
+    if (Coeff1(iPrm1,iCntr1) == Zero) then
+      Seg1 = .true.
+      Go To 10
+    end if
+  end do
+end do
+10 continue
+
+Seg2 = .false.
+do iPrm2=nPrm2,1,-1
+  do iCntr2=nCntr2,1,-1
+    if (Coeff2(iPrm2,iCntr2) == Zero) then
+      Seg2 = .true.
+      Go To 20
+    end if
+  end do
+end do
+20 continue
+
+! Set output matrix to zero
+
+if (First) call dcopy_(nVec*nCntr1*nCntr2,[Zero],0,A3,1)
+
+! Loop sectioning
+
+do iiVec=1,nVec,IncVec
+  mVec = min(IncVec,nVec-iiVec+1)
+  ! Set intermediate matrix to zero
+  call dcopy_(nPrm2*nCntr1*mVec,[Zero],0,A2,1)
+
+  if (Seg1) then
+
+    ! First quarter transformation
+
+    do iPrm1=1,nPrm1
+      do iCntr1=1,nCntr1
+        ! Check for zero due to segmented basis
+        if (abs(Coeff1(iPrm1,iCntr1)) > Zero) then
+          do iPrm2=1,nPrm2
+            iZeta = (iPrm2-1)*nPrm1+iPrm1
+            jZeta = Indij(iZeta)
+            ! Skip due to screening
+            if (jZeta > 0) then
+              do iVec=iiVec,iiVec+mVec-1
+                ijVec = mVec*(iCntr1-1)+(iVec-iiVec+1)
+                A2(iPrm2,ijVec) = A2(iPrm2,ijVec)+Coeff1(iPrm1,iCntr1)*A1(jZeta,iVec)
+              end do
+            end if
+          end do
+        end if
+      end do
+    end do
+
+  else
+
+    ! First quarter transformation
+
+    do iPrm1=1,nPrm1
+      do iCntr1=1,nCntr1
+        do iPrm2=1,nPrm2
+          iZeta = (iPrm2-1)*nPrm1+iPrm1
+          jZeta = Indij(iZeta)
+          ! Skip due to screening
+          if (jZeta > 0) then
+            do iVec=iiVec,iiVec+mVec-1
+              ijVec = mVec*(iCntr1-1)+(iVec-iiVec+1)
+              A2(iPrm2,ijVec) = A2(iPrm2,ijVec)+Coeff1(iPrm1,iCntr1)*A1(jZeta,iVec)
+            end do
+          end if
+        end do
+      end do
+    end do
+
+  end if
+
+  if (Seg2) then
+
+    ! Second quarter transformation
+
+    do iPrm2=1,nPrm2
+      do iCntr2=1,nCntr2
+        ! Check for zero due to segmented basis
+        if (abs(Coeff2(iPrm2,iCntr2)) > Zero) then
+          do iCntr1=1,nCntr1
+            do iVec=iiVec,iiVec+mVec-1
+              ijVec = mVec*(iCntr1-1)+(iVec-iiVec+1)
+              A3(iVec,iCntr1,iCntr2) = A3(iVec,iCntr1,iCntr2)+Coeff2(iPrm2,iCntr2)*A2(iPrm2,ijVec)
+            end do
+          end do
+        end if
+      end do
+    end do
+
+  else
+
+    ! Second quarter transformation
+
+    do iPrm2=1,nPrm2
+      do iCntr2=1,nCntr2
+        do iCntr1=1,nCntr1
+          do iVec=iiVec,iiVec+mVec-1
+            ijVec = mVec*(iCntr1-1)+(iVec-iiVec+1)
+            A3(iVec,iCntr1,iCntr2) = A3(iVec,iCntr1,iCntr2)+Coeff2(iPrm2,iCntr2)*A2(iPrm2,ijVec)
+          end do
+        end do
+      end do
+    end do
+
+  end if
+
+  ! End of loop sectioning
+
+end do
+
+return
+
+end subroutine Cnthlf_mck
