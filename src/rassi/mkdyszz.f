@@ -17,12 +17,15 @@
 *  BASIS FUNCTION BASE BASE Z,
 *  IN ANALOGUE TO MKTDZZ FOR TRANSITION DENSITY MATRIX.
 *****************************************************************
-
+*  MODIFIED BY BRUNO TENORIO TO ADDRESS SYMMETRY
+*  SEPTEMBER 2020
+*****************************************************************
       SUBROUTINE MKDYSZZ(CMOA,DYSAB,DYSZZ)
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSAB(*),DYSZZ(*)
+      REAL*8 AMP
       DIMENSION CMOA(NCMO)
-      INTEGER IBIO,IZZ,SYMOFF,BIOOFF
+      INTEGER IBIO,IZZ,SYMOFF,BIOOFF,IBIOFF
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
@@ -32,22 +35,35 @@
 C *** Re-express the DO coefficients in biorth basis DYSAB
 C *** into atomic basis DYSZZ with help of CMOA that contains
 C *** biorth orbitals in ZZ basis
-
+ 
       SYMOFF=0
+      IBIOFF=0
+      IZZOFF=0
       DO ISY1=1,NSYM
         NO1=NOSH(ISY1)
+        NA1=NASH(ISY1)
         NB1=NBASF(ISY1)
+        IF(NA1.GT.0) THEN
         DO IBIO=1,NO1
          DO IZZ=1,NB1
           BIOOFF=(IBIO-1)*NB1
-          COEFF=DYSAB(IBIO)*CMOA(SYMOFF+BIOOFF+IZZ)
-          DYSZZ(IZZ)=DYSZZ(IZZ)+COEFF
+          COEFF=DYSAB(IBIO+IBIOFF)*CMOA(SYMOFF+BIOOFF+IZZ)
+          DYSZZ(IZZ+IZZOFF)=DYSZZ(IZZ+IZZOFF)+COEFF
+!          WRITE(6,*)'DYSAB(IBIO)',IBIO+IBIOFF,DYSAB(IBIO+IBIOFF)
+!          WRITE(6,*)'CMOA',SYMOFF+BIOOFF+IZZ,CMOA(SYMOFF+BIOOFF+IZZ)
+          !WRITE(6,*) 'I,DYSZZ(I)',IZZ+IZZOFF,DYSZZ(IZZ+IZZOFF)
          END DO
         END DO
-        SYMOFF=SYMOFF+NO1
+        END IF
+        IZZOFF=NB1+IZZOFF
+        IBIOFF=NO1+IBIOFF
+        SYMOFF=(NO1*NB1)+SYMOFF
       END DO
+
+      !WRITE(6,*) 'Dyson orbitals in AO basis:DYSZZ'
+      !DO IZ=1,NBST
+      !  WRITE(6,*) IZ,DYSZZ(IZ)
+      !END DO
 
       RETURN
       END
-
-
