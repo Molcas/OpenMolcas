@@ -24,6 +24,11 @@
       INTEGER LFSBANN1,LFSBANN2
       INTEGER JSORB,LANN1,LANN2
       LOGICAL IF10,IF01
+
+!      INTEGER NASHT,IORB
+!      REAL*8 GAA,GBB,DYSAMP2
+!      REAL*8,ALLOCATABLE,DIMENSION(:) :: DYSCOF2
+
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "symmul.fh"
@@ -44,6 +49,7 @@ C Nr of active spin-orbitals
 
 C IF10 = Eliminate to the left (state 1)
       IF(IF10) THEN
+       !write(6,*)'Dyson: Eliminate to the left (state 1)'
 
 C Loop over all spin orbitals ISORB:
        DO ISORB=1,NASORB
@@ -73,6 +79,7 @@ C Collect the squared norm of the Dyson orbital
 
 C IF01 = Eliminate to the right (state 2)
       ELSE IF(IF01) THEN
+       !write(6,*)'Dyson: Eliminate to the right (state 2)'
 
 C Loop over all spin orbitals JSORB:
        DO JSORB=1,NASORB
@@ -83,6 +90,7 @@ C Annihilate a single orbital:
          IMODE=-1
          LFSBANN2=FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2)
          NDETS2=IWORK(LFSBANN2+4)
+!BRN ++ 
          CALL GETMEM('ANN2','Allo','Real',LANN2,NDETS2)
          CALL DCOPY_(NDETS2,[0.0D0],0,WORK(LANN2),1)
          CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,IWORK(LFSBANN2),
@@ -110,7 +118,6 @@ C The eventual PES amplitude is given by the squared norm,
 C but for transformation of the D_ij elements we need to remove the
 C square for now
       DYSAMP = SQRT(DYSAMP)
-
       RETURN
 
       END

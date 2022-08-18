@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,IDISK)
+      SUBROUTINE GTDMCTL(PROP, JOB1, JOB2, OVLP, DYSAMPS,
+     &           DYSAMPS2, NZ, IDDET1, IDISK)
 
 #ifdef _DMRG_
       use rassi_global_arrays, only: HAM, SFDYS, LROOT
@@ -47,6 +48,12 @@
       DIMENSION NASHES(8)
       DIMENSION OVLP(NSTATE,NSTATE)
       DIMENSION DYSAMPS(NSTATE,NSTATE)
+      DIMENSION DYSAMPS2(NSTATE,NSTATE)
+      CHARACTER*3 NUM1,NUM2
+      CHARACTER*12 FNMX
+      CHARACTER*16 FNMXU
+      CHARACTER*12 FNMRT
+      CHARACTER*16 FNMRTU
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
@@ -78,7 +85,12 @@ CC    NTO section
       real*8, Allocatable:: TDMZZ(:), TSDMZZ(:), WDMZZ(:)
       real*8, Allocatable:: TDM2(:), TRA1(:), TRA2(:), FMO(:), TUVX(:)
       real*8, Allocatable:: DYSCOF(:), DYSAB(:), DYSZZ(:)
-
+      Integer NRT2M,NRT2MAB,NRT2MZZ,AUGSPIN,NDCHSM
+      Integer ISY,JSY,LSY,NI,NJ,NL,NBI,NBJ,NBL
+      real*8, Allocatable:: RT2M(:),RT2MAB(:), RT2MZZ(:), DYSAB2(:)
+      real*8, Allocatable:: DCHSM(:)
+      real*8 Ei,Ej,Eij,AU2EV
+      logical SDA,AAB,KKV
 #include "SysDef.fh"
 
 #define _TIME_GTDM
@@ -181,6 +193,37 @@ C Nr of active spin-orbitals
       NTDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
 
+! Size of some data sets of reduced-2TDM in terms of active
+! orbitals NASHT:
+      NRT2M=NASHT**3
+! Size of Symmetry blocks
+      ISY12=MUL(LSYM1,LSYM2)
+      NRT2MAB=0
+      DO ISY=1,NSYM
+       NI=NOSH(ISY)
+       !NBI=NBASF(ISY)
+       IF(NI.EQ.0) GOTO 200
+       DO JSY=1,NSYM
+        NJ=NOSH(JSY)
+        !NBJ=NBASF(JSY)
+        IF(NJ.EQ.0) GOTO 300
+        DO LSY=1,NSYM
+         NL=NOSH(LSY)
+         !NBL=NBASF(LSY)
+         IF(NL.EQ.0) GOTO 400
+          IF(MUL(ISY,MUL(JSY,LSY)).EQ.ISY12) THEN
+           NRT2MAB=NRT2MAB+NI*NJ*NL
+          END IF
+400     CONTINUE
+        END DO
+300    CONTINUE
+       END DO
+200   CONTINUE
+      END DO
+! DCH 
+      IF(DCHS) THEN
+       NDCHSM=NASHT**2
+      END IF
 
 ! +++ J. Norell 13/7 - 2018
 C 1D arrays for Dyson orbital coefficients
@@ -735,7 +778,6 @@ C Entry into monitor: Status line
         WRITE(STLNE2,'(A33,I5,A5,I5)')
      &      'Trans. dens. matrices for states ',ISTATE,' and ',JSTATE
         Call StatusLine(STLNE1,STLNE2)
-
 C Read ISTATE wave function from disk
 #ifdef _DMRG_
       if(.not.doDMRG)then
@@ -762,8 +804,8 @@ C it is known to be zero.
 
       SIJ=0.0D0
       DYSAMP=0.0D0
-
 ! +++ J. Norell 12/7 - 2018
+! +++ Modified by Bruno Tenorio, 2020
 C Dyson amplitudes:
 C DYSAMP = D_ij for states i and j
 C DYSCOF = Active orbital coefficents of the DO
@@ -775,9 +817,12 @@ C DYSCOF = Active orbital coefficents of the DO
      &            DYSAMP,DYSCOF)
 
 C Write Dyson orbital coefficients in AO basis to disk.
-        IF (DYSAMP.GT.1.0D-6) THEN
+        !IF (DYSAMP.GT.1.0D-6) THEN
 C In full biorthonormal basis:
          CALL MKDYSAB(DYSCOF,DYSAB)
+C Correct Dyson norms, for a biorth. basis. Add by Bruno
+         DYNORM=0.0D0
+         CALL DYSNORM(CMO2,DYSAB,DYNORM)
 C In AO basis:
          CALL MKDYSZZ(CMO1,DYSAB,DYSZZ)
         IF (DYSO) THEN
@@ -785,11 +830,219 @@ C In AO basis:
           SFDYS(:,ISTATE,JSTATE)=DYSZZ(:)
         END IF
         DYSZZ(:)=0.0D0
-       END IF ! AMP THRS
-      END IF ! IF01 IF10
+       !END IF ! AMP THRS
+      !END IF ! IF01 IF10
+! DYSAMPS2 corresponds to the Dyson norms corrected
+! for a MO biorth. basis
+      DYSAMPS2(ISTATE,JSTATE)=SQRT(DYNORM)
+      DYSAMPS2(JSTATE,ISTATE)=SQRT(DYNORM)
       DYSAMPS(ISTATE,JSTATE)=DYSAMP
       DYSAMPS(JSTATE,ISTATE)=DYSAMP
+      END IF ! IF01 IF10
 ! +++
+C ------------------------------------------------------------
+! This part computes the Auger needed densities. Bruno, 2020
+      IF ((IF21.or.IF12).and.TDYS) THEN
+C ------------------------------------------------------------
+      aab=.false. ! will print all spin components separated
+      KKV=.True. !Spin=1
+      SDA=.true. !SPIN=-1
+      ! Defining the Binding energy Ei-Ej
+      AU2EV=27.2113862459880
+      Ei=HAM(ISTATE,ISTATE)
+      Ej=HAM(JSTATE,JSTATE)
+      Eij=ABS(Ei-Ej)*AU2EV
+C ------------------------------------------------------------
+! Compute K-2V spin density 
+      if (kkv) then
+       AUGSPIN=1 !alpha,alpha,beta
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+       CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,
+     &      ISTATE,JSTATE,AUGSPIN)
+       !WRITE(6,*) 'Computing K-2V r2TDM in CI basis'
+       !'writing the CI Densities: 1-e Dyson, 2-e Dyson (rTDM),
+       ! CMO1 and CMO2'
+       CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+     &                  NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      end if
+C ------------------------------------------------------------
+      if (SDA) then
+       AUGSPIN=-1
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+       CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,
+     &      ISTATE,JSTATE,AUGSPIN)
+       !WRITE(6,*) 'Computing spin-summed 2-e reduced TDM for Auger'
+       !'writing the CI Densities: 1-e Dyson, 2-e Dyson (rTDM),
+       ! CMO1 and CMO2'
+       CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+     &                 NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      !END IF
+      end if
+C ------------------------------------------------------------
+C ------------------------------------------------------------
+! Compute High spin density (beta,beta,beta)
+      if (aab) then
+       AUGSPIN=2 !beta,beta,beta
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+       CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,
+     &      ISTATE,JSTATE,AUGSPIN)
+       !WRITE(6,*) 'Computing High-spin BBB 2rTDM in CI basis'
+       !'writing the CI Densities: 1-e Dyson, 2-e Dyson (rTDM),
+       ! CMO1 and CMO2'
+       CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+     &                  NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      end if
+C ------------------------------------------------------------
+C ------------------------------------------------------------
+! Compute High spin density (alpha,alpha,alpha)
+      if (aab) then
+       AUGSPIN=3 !alpha,alpha,alpha
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+       CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,
+     &      ISTATE,JSTATE,AUGSPIN)
+       !WRITE(6,*) 'Computing High-spin BBB 2rTDM in CI basis'
+       !'writing the CI Densities: 1-e Dyson, 2-e Dyson (rTDM),
+       ! CMO1 and CMO2'
+       CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+     &                  NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      end if
+C ------------------------------------------------------------
+!Compute low spin density (beta,alpha,beta)      
+      if (aab) then
+       AUGSPIN=7 !beta,alpha,beta
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+       CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,
+     &      ISTATE,JSTATE,AUGSPIN)
+       !WRITE(6,*) 'Computing Low-spin BAB r2TDM in CI basis'
+       !'writing the CI Densities: 1-e Dyson, 2-e Dyson (rTDM),
+       ! CMO1 and CMO2'
+       CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+     &                 NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      end if
+C ------------------------------------------------------------
+C ------------------------------------------------------------
+!Compute low spin density (alpha,alpha,beta)      
+      if (aab) then
+       AUGSPIN=4 !alpha,alpha,beta
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+       CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,
+     &      ISTATE,JSTATE,AUGSPIN)
+       !WRITE(6,*) 'Computing Low-spin AAB r2TDM in CI basis'
+       !'writing the CI Densities: 1-e Dyson, 2-e Dyson (rTDM),
+       ! CMO1 and CMO2'
+       CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+     &                 NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      end if
+C ------------------------------------------------------------
+C ------------------------------------------------------------
+! Compute Low spin density (alpha,beta,alpha)
+      if (aab) then
+       AUGSPIN=6 !alpha,beta,alpha
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+       CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,
+     &      ISTATE,JSTATE,AUGSPIN)
+       !WRITE(6,*) 'Computing High-spin ABA r2TDM in CI basis'
+       !'writing the CI Densities: 1-e Dyson, 2-e Dyson (rTDM),
+       ! CMO1 and CMO2'
+       CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+     &                  NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      end if
+C ------------------------------------------------------------
+C ------------------------------------------------------------
+!Compute low spin density (beta,beta,alpha)      
+      if (aab) then
+       AUGSPIN=5 !beta,beta,alpha
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+       CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,
+     &      ISTATE,JSTATE,AUGSPIN)
+       !WRITE(6,*) 'Computing Low-spin BBA r2TDM in CI basis'
+       !'writing the CI Densities: 1-e Dyson, 2-e Dyson (rTDM),
+       ! CMO1 and CMO2'
+       CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+     &                 NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      end if
+C ------------------------------------------------------------
+C ------------------------------------------------------------
+      END IF
+! Computation of DCH shake-up intensities
+      IF ((IF20.or.IF02).and.DCHS) THEN
+      Write(6,*)' '
+      WRITE(6,*) 'Computing overlaps of DCH states'
+      Write(6,*)' '
+      Call mma_allocate(DCHSM,nDCHSM,Label='DCHSM')
+       DCHSM(:)=0.0D0
+      CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF20,IF02,NDCHSM,DCHSM,
+     &      ISTATE,JSTATE)
+      Call mma_deallocate(DCHSM)
+      END IF
+C ------------------------------------------------------------
 
 C General 1-particle transition density matrix:
       IF (IF11) THEN
@@ -1254,6 +1507,5 @@ C             Write density 1-matrices in AO basis to disk.
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for GTDM : ',TCpu2-TCpu1,TWall2-TWall1
 #endif
-
       RETURN
       END

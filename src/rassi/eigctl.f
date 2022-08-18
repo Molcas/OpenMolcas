@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
+      SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,DYSAMPS2,HAM,EIGVEC,ENERGY)
       USE RASSI_aux
       USE kVectors
       USE rassi_global_arrays, only: JBNUM
@@ -40,7 +40,7 @@
       character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
-     &       DYSAMPS(NSTATE,NSTATE)
+     &       DYSAMPS(NSTATE,NSTATE),DYSAMPS2(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
       Logical Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
@@ -561,6 +561,21 @@ c
        END IF
       END IF
 
+      IF(TDYS) THEN
+      WRITE(6,*)
+      WRITE(6,*)
+      WRITE(6,*)'  -----------------------------------------------'
+      WRITE(6,*)
+      WRITE(6,*)'        Kinetic energy of the photoelectron      '
+      WRITE(6,*)'  -----------------------------------------------'
+      DO L=1,NSTATE
+        I=IndexE(L)
+        Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
+     &          ' energy=',27.2114*(ENERGY(I)-ENERGY(1))
+      END DO
+      WRITE(6,*)
+      WRITE(6,*)'  -----------------------------------------------'
+      END IF
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -2290,10 +2305,12 @@ C                                                                      C
 *
 ! +++ J. Norell 12/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
+!+++ Bruno Tenorio, 2020. Added Corrected Dyson norms
+! according to Dysnorm.f subroutine.
        IF (DYSO) THEN
-        DYSTHR=1.0D-5
+        DYSTHR=1.0D-12
         WRITE(6,*)
-        CALL CollapseOutput(1,'Dyson amplitudes '//
+        CALL CollapseOutput(1,'Dyson amplitudes Biorth. corrected'//
      &                        '(spin-free states):')
         WRITE(6,'(3X,A)')     '----------------------------'//
      &                        '-------------------'
@@ -2302,7 +2319,7 @@ C                                                                      C
            WRITE(6,30)
         END IF
         WRITE(6,*) '       From      To        '//
-     &   'BE (eV)       Dyson intensity'
+     &   'BE (eV)           Dyson intensity    '
         WRITE(6,32)
         FMAX=0.0D0
         DO I_=1,NSTATE
@@ -2310,10 +2327,13 @@ C                                                                      C
          DO J_=1,NSTATE
             J=IndexE(J_)
           F=DYSAMPS(I,J)*DYSAMPS(I,J)
+          F2=DYSAMPS2(I,J)*DYSAMPS2(I,J)
+          G2=DYSAMPS2(I,J)
           EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
-          IF (F.GT.0.00001) THEN
+          IF (F.GT.1.0D-36) THEN
            IF (EDIFF.GT.0.0D0) THEN
-            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',
+     &       I,J,EDIFF,F2!,G2
            END IF
           END IF
          END DO ! J

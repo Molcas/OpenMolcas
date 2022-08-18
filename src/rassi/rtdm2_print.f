@@ -57,7 +57,7 @@ C ------------------------------------------------------------
       aab=.false. ! (all the spin components)
       KKV=.True. !Spin=1
       SDA=.true. !SPIN=-1
-      wrtrtdm2=.false.
+      !wrtrtdm2=.false.
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
