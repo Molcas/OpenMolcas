@@ -109,7 +109,8 @@ nDAO = nElem(la)*nElem(lb)
 
 kdc = 0
 do kCnttp=1,nCnttp
-  if (dbsc(kCnttp)%Charge == Zero) Go To 111
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+  if (dbsc(kCnttp)%Charge == Zero) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
@@ -127,7 +128,7 @@ do kCnttp=1,nCnttp
       call dcopy_(3,TC,1,Coora(1,4),1)
       call dcopy_(3,TC,1,Coori(1,3),1)
       call dcopy_(3,TC,1,Coori(1,4),1)
-      if (EQ(A,TC) .and. EQ(A,RB)) goto 102
+      if (EQ(A,TC) .and. EQ(A,RB)) cycle
 
       ! COPY CNTLR MATRICES
 
@@ -250,10 +251,8 @@ do kCnttp=1,nCnttp
       call M1Kernel(final,Hess,nHess,DAO,nDAO,iAnga,nRys,nZeta,Array(ipA),Array(ipB),Zeta,ZInv,rKappa,P,TC,Coori,Coorac, &
                     Array(ipArr),nArray,jfgrd,jndgrd,jfhss,jndhss,ifg,tr,mop,iuvwx,kCnttp,Fact,loper(1),0)
 
-102   continue
     end do
   end do
-111 kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 
 return

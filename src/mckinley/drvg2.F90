@@ -174,13 +174,12 @@ do iAng=0,S%iAngMx
   do iCnttp=1,nCnttp
     iShll = dbsc(iCnttp)%iVal+iAng
     iPrim = Shells(iShll)%nExp
-    if (iPrim == 0) Go To 2900
-    if (Shells(iShll)%nBasis == 0) Go To 2900
+    if (iPrim == 0) cycle
+    if (Shells(iShll)%nBasis == 0) cycle
     iBas = Shells(iShll)%nBasis
     iCmp = (iAng+1)*(iAng+2)/2
     MxBsC = max(MxBsC,iBas*iCmp)
     MxDij = max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
-2900 continue
   end do
 end do
 MxDij = 6*nIrrep*MxDij
@@ -379,527 +378,523 @@ memmax = memmax-iii
 !***********************************************************************
 !                                                                      *
 ! big loop over individual tasks, distributed over individual nodes
-10 continue
+
 ! make reservation of a task on global task list and get task range
 ! in return. Function will be false if no more tasks to execute.
-if (.not. Rsv_Tsk(id_Tsk,ijSh)) Go To 11
-iS = Ind_ij(1,ijSh)
-jS = Ind_ij(2,ijSh)
-call CWTime(TCpu1,TWall1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Outer loops (ij) over angular momenta and centers
-!
-!do iS=1,nSkal
-iShll = iSD(0,iS)
-iAng = iSD(1,iS)
-iCmp = iSD(2,iS)
-iBas = iSD(3,iS)
-iPrim = iSD(5,iS)
-iAO = iSD(7,iS)
-mdci = iSD(10,iS)
-iShell = iSD(11,iS)
-iCnttp = iSD(13,iS)
-iCnt = iSD(14,iS)
-Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
+do while (Rsv_Tsk(id_Tsk,ijSh))
+  iS = Ind_ij(1,ijSh)
+  jS = Ind_ij(2,ijSh)
+  call CWTime(TCpu1,TWall1)
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  ! Outer loops (ij) over angular momenta and centers
+  !
+  !do iS=1,nSkal
+  iShll = iSD(0,iS)
+  iAng = iSD(1,iS)
+  iCmp = iSD(2,iS)
+  iBas = iSD(3,iS)
+  iPrim = iSD(5,iS)
+  iAO = iSD(7,iS)
+  mdci = iSD(10,iS)
+  iShell = iSD(11,iS)
+  iCnttp = iSD(13,iS)
+  iCnt = iSD(14,iS)
+  Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
-iAngV(1) = iAng
-iShllV(1) = iShll
-iCmpV(1) = iCmp
-iShelV(1) = iShell
-iAOV(1) = iAO
+  iAngV(1) = iAng
+  iShllV(1) = iShll
+  iCmpV(1) = iCmp
+  iShelV(1) = iShell
+  iAOV(1) = iAO
 
-!  do jS=1,iS
-jShll = iSD(0,jS)
-jAng = iSD(1,jS)
-jCmp = iSD(2,jS)
-jBas = iSD(3,jS)
-jAO = iSD(7,jS)
-mdcj = iSD(10,jS)
-jShell = iSD(11,jS)
-jCnttp = iSD(13,jS)
-jCnt = iSD(14,jS)
-Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
+  !  do jS=1,iS
+  jShll = iSD(0,jS)
+  jAng = iSD(1,jS)
+  jCmp = iSD(2,jS)
+  jBas = iSD(3,jS)
+  jAO = iSD(7,jS)
+  mdcj = iSD(10,jS)
+  jShell = iSD(11,jS)
+  jCnttp = iSD(13,jS)
+  jCnt = iSD(14,jS)
+  Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
-iAngV(2) = jAng
-iShllV(2) = jShll
-iCmpV(2) = jCmp
-iShelV(2) = jShell
-iAOV(2) = jAO
+  iAngV(2) = jAng
+  iShllV(2) = jShll
+  iCmpV(2) = jCmp
+  iShelV(2) = jShell
+  iAOV(2) = jAO
 
-nHrrab = 0
-do i=0,iAng+1
-  do j=0,jAng+1
-    if (i+j <= iAng+jAng+1) then
-      ijMax = min(iAng,jAng)+1
-      nHrrab = nHrrab+ijMax*2+1
-    end if
-  end do
-end do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Cltrls for MO transformation
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-if ((nMethod == RASSCF) .and. l_Grd) then
-  iMemB = nACO**2*iCmp*iBas*jCmp*jBas*nDisp*nirrep
-  if (iMemB > MemMax) then
-    write(6,*) 'DrvG2: iMemB > MemMax'
-    write(6,*) 'iMemB=',iMemB
-    write(6,*) 'MemMax=',MemMax
-    write(6,*) 'Increase MOLCAS_MEM!'
-    call Abend()
-  end if
-  Sew_Scr(1:iMemb) = Zero
-else
-  iMemb = 0
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-Post_Process = .false.
-do klSh=1,nijS
-  ks = Ind_ij(1,klSh)
-  ls = Ind_ij(2,klSh)
-
-  Aint = TMax(iS,jS)*TMax(kS,lS)
-  !write(6,*) 'is,js,ks,ls=',is,js,ks,ls
-  if (AInt < CutInt) Go To 400
-
-  !do kS=1,nSkal
-  kShll = iSD(0,kS)
-  kAng = iSD(1,kS)
-  kCmp = iSD(2,kS)
-  kAO = iSD(7,kS)
-  mdck = iSD(10,kS)
-  kShell = iSD(11,kS)
-  kCnttp = iSD(13,kS)
-  kCnt = iSD(14,kS)
-  Coor(1:3,3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-
-  iAngV(3) = kAng
-  iShllV(3) = kShll
-  iCmpV(3) = kCmp
-  iShelV(3) = kShell
-  iAOV(3) = kAO
-
-  Shik = iShell == kShell
-
-  !  do lS=1,kS
-  lShll = iSD(0,lS)
-  lAng = iSD(1,lS)
-  lCmp = iSD(2,lS)
-  lAO = iSD(7,lS)
-  mdcl = iSD(10,lS)
-  lShell = iSD(11,lS)
-  lCnttp = iSD(13,lS)
-  lCnt = iSD(14,lS)
-  Coor(1:3,4) = dbsc(lCnttp)%Coor(1:3,lCnt)
-
-  iAngV(4) = lAng
-  iShllV(4) = lShll
-  iCmpV(4) = lCmp
-  iShelV(4) = lShell
-  iAOV(4) = lAO
-
-  nHrrcd = 0
-  do i=0,kAng+1
-    do j=0,lAng+1
-      if (i+j <= kAng+lAng+1) then
-        ijMax = min(kAng,lAng)+1
-        nHrrcd = nHrrcd+ijMax*2+1
+  nHrrab = 0
+  do i=0,iAng+1
+    do j=0,jAng+1
+      if (i+j <= iAng+jAng+1) then
+        ijMax = min(iAng,jAng)+1
+        nHrrab = nHrrab+ijMax*2+1
       end if
     end do
   end do
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! The code is working in such away that the MO needs upper and lower
-  ! triangular parts of ij kl but hessian needs only lower, check if the
-  ! integralbatch is lower or upper!!
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  ! Cltrls for MO transformation
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  if ((nMethod == RASSCF) .and. l_Grd) then
+    iMemB = nACO**2*iCmp*iBas*jCmp*jBas*nDisp*nirrep
+    if (iMemB > MemMax) then
+      write(6,*) 'DrvG2: iMemB > MemMax'
+      write(6,*) 'iMemB=',iMemB
+      write(6,*) 'MemMax=',MemMax
+      write(6,*) 'Increase MOLCAS_MEM!'
+      call Abend()
+    end if
+    Sew_Scr(1:iMemb) = Zero
+  else
+    iMemb = 0
+  end if
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  Post_Process = .false.
+  do klSh=1,nijS
+    ks = Ind_ij(1,klSh)
+    ls = Ind_ij(2,klSh)
 
-  lTri = iTri(iS,jS) >= iTri(kS,lS)
-  if ((.not. lTri) .and. (nMethod /= RASSCF)) goto 400
-  lDot = (lTri .and. l_Hss)
+    Aint = TMax(iS,jS)*TMax(kS,lS)
+    !write(6,*) 'is,js,ks,ls=',is,js,ks,ls
+    if (AInt < CutInt) cycle
 
-  Shjl = jShell == lShell
-  Shijij = Shik .and. Shjl
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  iCmpV(1) = icmp
-  iCmpV(2) = jcmp
-  iCmpV(3) = kcmp
-  iCmpV(4) = lcmp
-  iPrimi = Shells(iShllV(1))%nExp
-  jPrimj = Shells(iShllV(2))%nExp
-  kPrimk = Shells(iShllV(3))%nExp
-  lPriml = Shells(iShllV(4))%nExp
-  iBasi = Shells(iShllV(1))%nBasis
-  jBasj = Shells(iShllV(2))%nBasis
-  kBask = Shells(iShllV(3))%nBasis
-  lBasl = Shells(iShllV(4))%nBasis
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Allocate memory for zeta, eta, kappa, P and Q.
-  ! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
+    !do kS=1,nSkal
+    kShll = iSD(0,kS)
+    kAng = iSD(1,kS)
+    kCmp = iSD(2,kS)
+    kAO = iSD(7,kS)
+    mdck = iSD(10,kS)
+    kShell = iSD(11,kS)
+    kCnttp = iSD(13,kS)
+    kCnt = iSD(14,kS)
+    Coor(1:3,3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
-  nZeta = iPrimi*jPrimj
-  nEta = kPrimk*lPriml
-  MemR = 9*nZeta+9*nEta+nEta*nZeta
-  ipZI = ipZeta+nZeta
-  ipKAB = ipZi+nZeta
-  ipP = ipKAB+nZeta
-  ipxA = ipP+nZeta*3
-  ipxB = ipxA+nZeta
-  ipEta = ipxB+nZeta
-  ipEI = ipEta+nEta
-  ipKCD = ipEI+nEta
-  ipQ = ipKCD+nEta
-  ipxG = ipQ+nEta*3
-  ipxD = ipxG+nEta
-  ipxPre = ipxD+nEta
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  nab = nElem(iAng)*nElem(jAng)
-  ncd = nElem(kAng)*nElem(lAng)
+    iAngV(3) = kAng
+    iShllV(3) = kShll
+    iCmpV(3) = kCmp
+    iShelV(3) = kShell
+    iAOV(3) = kAO
 
-  ijS = iTri(iShell,jShell)
-  klS = iTri(kShell,lShell)
-  ikS = iTri(iShell,kShell)
-  ilS = iTri(iShell,lShell)
-  jkS = iTri(jShell,kShell)
-  jlS = iTri(jShell,lShell)
-  !if (.not. l2DI) then
-  !  nab = 0
-  !  ncd = 0
-  !end if
-  k2ij = Indk2(1,ijS)
-  nDCRR = Indk2(2,ijS)
-  k2kl = Indk2(1,klS)
-  nDCRS = Indk2(2,klS)
+    Shik = iShell == kShell
 
-  if (ltri) then
+    !  do lS=1,kS
+    lShll = iSD(0,lS)
+    lAng = iSD(1,lS)
+    lCmp = iSD(2,lS)
+    lAO = iSD(7,lS)
+    mdcl = iSD(10,lS)
+    lShell = iSD(11,lS)
+    lCnttp = iSD(13,lS)
+    lCnt = iSD(14,lS)
+    Coor(1:3,4) = dbsc(lCnttp)%Coor(1:3,lCnt)
 
-    !------------------------------------------------------------------*
+    iAngV(4) = lAng
+    iShllV(4) = lShll
+    iCmpV(4) = lCmp
+    iShelV(4) = lShell
+    iAOV(4) = lAO
 
-    ! Fix the 1st order density matrix
-
-    ! Pick up pointers to desymmetrized 1st order density matrices.
-    ! Observe that the desymmetrized 1st order density matrices
-    ! follow the contraction index.
-
-    ipTmp = 0
-    ipTmp2 = 0
-    if (lpick) then
-
-      ipDij = ipOffD(1,ijS)
-      mDCRij = ipOffD(2,ijS)
-      nDij = ipOffD(3,ijS)
-
-      ipTmp = ipDijs
-      if (nMethod == RASSCF) then
-        ipDij2 = ipOffDA(1,ijS)
-        ipTmp2 = ipDijs2
-      end if
-
-      if (mDCRij /= 0) then
-        ipDDij = ipTmp
-        ipTmp = ipTmp+nDij*mDCRij
-        if (nMethod == RASSCF) then
-          ipDDij2 = ipTmp2
-          ipTmp2 = ipTmp2+nDij*mDCRij
+    nHrrcd = 0
+    do i=0,kAng+1
+      do j=0,lAng+1
+        if (i+j <= kAng+lAng+1) then
+          ijMax = min(kAng,lAng)+1
+          nHrrcd = nHrrcd+ijMax*2+1
         end if
-      else
-        ipDDij = 0
-      end if
+      end do
+    end do
+    !                                                                    *
+    !*********************************************************************
+    !                                                                    *
+    ! The code is working in such away that the MO needs upper and lower
+    ! triangular parts of ij kl but hessian needs only lower, check if the
+    ! integralbatch is lower or upper!!
 
-      ipDkl = ipOffD(1,klS)
-      if (nMethod == RASSCF) ipDkl2 = ipOffDA(1,klS)
-      mDCRkl = ipOffD(2,klS)
-      nDkl = ipOffD(3,klS)
-      if (mDCRkl /= 0) then
-        ipDDkl = ipTmp
-        ipTmp = ipTmp+nDkl*mDCRkl
+    lTri = iTri(iS,jS) >= iTri(kS,lS)
+    if ((.not. lTri) .and. (nMethod /= RASSCF)) cycle
+    lDot = (lTri .and. l_Hss)
+
+    Shjl = jShell == lShell
+    Shijij = Shik .and. Shjl
+    !                                                                    *
+    !*********************************************************************
+    !                                                                    *
+    iCmpV(1) = icmp
+    iCmpV(2) = jcmp
+    iCmpV(3) = kcmp
+    iCmpV(4) = lcmp
+    iPrimi = Shells(iShllV(1))%nExp
+    jPrimj = Shells(iShllV(2))%nExp
+    kPrimk = Shells(iShllV(3))%nExp
+    lPriml = Shells(iShllV(4))%nExp
+    iBasi = Shells(iShllV(1))%nBasis
+    jBasj = Shells(iShllV(2))%nBasis
+    kBask = Shells(iShllV(3))%nBasis
+    lBasl = Shells(iShllV(4))%nBasis
+    !                                                                    *
+    !*********************************************************************
+    !                                                                    *
+    ! Allocate memory for zeta, eta, kappa, P and Q.
+    ! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
+
+    nZeta = iPrimi*jPrimj
+    nEta = kPrimk*lPriml
+    MemR = 9*nZeta+9*nEta+nEta*nZeta
+    ipZI = ipZeta+nZeta
+    ipKAB = ipZi+nZeta
+    ipP = ipKAB+nZeta
+    ipxA = ipP+nZeta*3
+    ipxB = ipxA+nZeta
+    ipEta = ipxB+nZeta
+    ipEI = ipEta+nEta
+    ipKCD = ipEI+nEta
+    ipQ = ipKCD+nEta
+    ipxG = ipQ+nEta*3
+    ipxD = ipxG+nEta
+    ipxPre = ipxD+nEta
+    !                                                                    *
+    !*********************************************************************
+    !                                                                    *
+    nab = nElem(iAng)*nElem(jAng)
+    ncd = nElem(kAng)*nElem(lAng)
+
+    ijS = iTri(iShell,jShell)
+    klS = iTri(kShell,lShell)
+    ikS = iTri(iShell,kShell)
+    ilS = iTri(iShell,lShell)
+    jkS = iTri(jShell,kShell)
+    jlS = iTri(jShell,lShell)
+    !if (.not. l2DI) then
+    !  nab = 0
+    !  ncd = 0
+    !end if
+    k2ij = Indk2(1,ijS)
+    nDCRR = Indk2(2,ijS)
+    k2kl = Indk2(1,klS)
+    nDCRS = Indk2(2,klS)
+
+    if (ltri) then
+
+      !------------------------------------------------------------------*
+
+      ! Fix the 1st order density matrix
+
+      ! Pick up pointers to desymmetrized 1st order density matrices.
+      ! Observe that the desymmetrized 1st order density matrices
+      ! follow the contraction index.
+
+      ipTmp = 0
+      ipTmp2 = 0
+      if (lpick) then
+
+        ipDij = ipOffD(1,ijS)
+        mDCRij = ipOffD(2,ijS)
+        nDij = ipOffD(3,ijS)
+
+        ipTmp = ipDijs
         if (nMethod == RASSCF) then
-          ipDDkl2 = ipTmp2
-          ipTmp2 = ipTmp2+nDkl*mDCRkl
+          ipDij2 = ipOffDA(1,ijS)
+          ipTmp2 = ipDijs2
         end if
-      else
-        ipDDkl = 0
-      end if
 
-      ipDik = ipOffD(1,ikS)
-      if (nMethod == RASSCF) ipDik2 = ipOffDA(1,ikS)
-      mDCRik = ipOffD(2,ikS)
-      nDik = ipOffD(3,ikS)
-      if (mDCRik /= 0) then
-        ipDDik = ipTmp
-        ipTmp = ipTmp+nDik*mDCRik
-        if (nMethod == RASSCF) then
-          ipDDik2 = ipTmp2
-          ipTmp2 = ipTmp2+nDik*mDCRik
+        if (mDCRij /= 0) then
+          ipDDij = ipTmp
+          ipTmp = ipTmp+nDij*mDCRij
+          if (nMethod == RASSCF) then
+            ipDDij2 = ipTmp2
+            ipTmp2 = ipTmp2+nDij*mDCRij
+          end if
+        else
+          ipDDij = 0
         end if
-      else
-        ipDDik = 0
-      end if
 
-      ipDil = ipOffD(1,ilS)
-      if (nMethod == RASSCF) ipDil2 = ipOffDA(1,ilS)
-      mDCRil = ipOffD(2,ilS)
-      nDil = ipOffD(3,ilS)
-      if (mDCRil /= 0) then
-        ipDDil = ipTmp
-        ipTmp = ipTmp+nDil*mDCRil
-        if (nMethod == RASSCF) then
-          ipDDil2 = ipTmp2
-          ipTmp2 = ipTmp2+nDil*mDCRil
+        ipDkl = ipOffD(1,klS)
+        if (nMethod == RASSCF) ipDkl2 = ipOffDA(1,klS)
+        mDCRkl = ipOffD(2,klS)
+        nDkl = ipOffD(3,klS)
+        if (mDCRkl /= 0) then
+          ipDDkl = ipTmp
+          ipTmp = ipTmp+nDkl*mDCRkl
+          if (nMethod == RASSCF) then
+            ipDDkl2 = ipTmp2
+            ipTmp2 = ipTmp2+nDkl*mDCRkl
+          end if
+        else
+          ipDDkl = 0
         end if
-      else
-        ipDDil = 0
-      end if
 
-      ipDjk = ipOffD(1,jkS)
-      if (nMethod == RASSCF) ipDjk2 = ipOffDA(1,jkS)
-      mDCRjk = ipOffD(2,jkS)
-      nDjk = ipOffD(3,jkS)
-      if (mDCRjk /= 0) then
-        ipDDjk = ipTmp
-        ipTmp = ipTmp+nDjk*mDCRjk
-        if (nMethod == RASSCF) then
-          ipDDjk2 = ipTmp2
-          ipTmp2 = ipTmp2+nDjk*mDCRjk
+        ipDik = ipOffD(1,ikS)
+        if (nMethod == RASSCF) ipDik2 = ipOffDA(1,ikS)
+        mDCRik = ipOffD(2,ikS)
+        nDik = ipOffD(3,ikS)
+        if (mDCRik /= 0) then
+          ipDDik = ipTmp
+          ipTmp = ipTmp+nDik*mDCRik
+          if (nMethod == RASSCF) then
+            ipDDik2 = ipTmp2
+            ipTmp2 = ipTmp2+nDik*mDCRik
+          end if
+        else
+          ipDDik = 0
         end if
-      else
-        ipDDjk = 0
-      end if
 
-      ipDjl = ipOffD(1,jlS)
-      if (nMethod == RASSCF) ipDjl2 = ipOffDA(1,jlS)
-      mDCRjl = ipOffD(2,jlS)
-      nDjl = ipOffD(3,jlS)
-      if (mDCRjl /= 0) then
-        ipDDjl = ipTmp
-        ipTmp = ipTmp+nDjl*mDCRjl
-        if (nMethod == RASSCF) then
-          ipDDjl2 = ipTmp2
-          ipTmp2 = ipTmp2+nDjl*mDCRjl
+        ipDil = ipOffD(1,ilS)
+        if (nMethod == RASSCF) ipDil2 = ipOffDA(1,ilS)
+        mDCRil = ipOffD(2,ilS)
+        nDil = ipOffD(3,ilS)
+        if (mDCRil /= 0) then
+          ipDDil = ipTmp
+          ipTmp = ipTmp+nDil*mDCRil
+          if (nMethod == RASSCF) then
+            ipDDil2 = ipTmp2
+            ipTmp2 = ipTmp2+nDil*mDCRil
+          end if
+        else
+          ipDDil = 0
         end if
-      else
-        ipDDjl = 0
-      end if
 
-    end if  ! if (lpick) then
-  end if  ! if (ltri) then
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Compute total size of the second order density matrix in SO basis.
-  !
-  !--------------------------------------------------------------------*
-  nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAOV(1),iAOV(2),iAOV(3),iAOV(4))
-  ldot2 = ldot
-  if (nSO == 0) ldot2 = .false.
+        ipDjk = ipOffD(1,jkS)
+        if (nMethod == RASSCF) ipDjk2 = ipOffDA(1,jkS)
+        mDCRjk = ipOffD(2,jkS)
+        nDjk = ipOffD(3,jkS)
+        if (mDCRjk /= 0) then
+          ipDDjk = ipTmp
+          ipTmp = ipTmp+nDjk*mDCRjk
+          if (nMethod == RASSCF) then
+            ipDDjk2 = ipTmp2
+            ipTmp2 = ipTmp2+nDjk*mDCRjk
+          end if
+        else
+          ipDDjk = 0
+        end if
 
-  ! Compute memory request for the primitives.
+        ipDjl = ipOffD(1,jlS)
+        if (nMethod == RASSCF) ipDjl2 = ipOffDA(1,jlS)
+        mDCRjl = ipOffD(2,jlS)
+        nDjl = ipOffD(3,jlS)
+        if (mDCRjl /= 0) then
+          ipDDjl = ipTmp
+          ipTmp = ipTmp+nDjl*mDCRjl
+          if (nMethod == RASSCF) then
+            ipDDjl2 = ipTmp2
+            ipTmp2 = ipTmp2+nDjl*mDCRjl
+          end if
+        else
+          ipDDjl = 0
+        end if
 
-  ider = 2
-  if (.not. ldot2) iDer = 1
-  call MemRg2(iAngV,nRys,MemPrm,ider)
-
-  !--------------------------------------------------------------------*
-  !
-  ! Calculate which derivatives should be made.
-  !
-  !--------------------------------------------------------------------*
-
-  call DerCtr(mdci,mdcj,mdck,mdcl,ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,mBatch)
-
-  !--------------------------------------------------------------------*
-  !
-  ! Decide on the partioning of the shells based on the
-  ! available memory and the requested memory.
-  !
-  !--------------------------------------------------------------------*
-
-  call PSOAO2(nSO,MemPrm,MemMax,iAngV,iCmpV,iAOV,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
-              jPrInc,kPrimk,kPrInc,lPriml,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB)
-
-  !--------------------------------------------------------------------*
-  !
-  ! Loop over basis function if we do not have enough of memory to
-  ! calculate them in one step.
-  !
-  !--------------------------------------------------------------------*
-  do iBasAO=1,iBasi,iBsInc
-    iBasn = min(iBsInc,iBasi-iBasAO+1)
-    iAOst(1) = iBasAO-1
-    !------------------------------------------------------------------*
+      end if  ! if (lpick) then
+    end if  ! if (ltri) then
+    !                                                                    *
+    !*********************************************************************
+    !                                                                    *
+    ! Compute total size of the second order density matrix in SO basis.
     !
-    ! Move appropriate portions of the desymmetrized 1st order density matrix.
+    !--------------------------------------------------------------------*
+    nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAOV(1),iAOV(2),iAOV(3),iAOV(4))
+    ldot2 = ldot
+    if (nSO == 0) ldot2 = .false.
+
+    ! Compute memory request for the primitives.
+
+    ider = 2
+    if (.not. ldot2) iDer = 1
+    call MemRg2(iAngV,nRys,MemPrm,ider)
+
+    !--------------------------------------------------------------------*
     !
-    !------------------------------------------------------------------*
-    do jBasAO=1,jBasj,jBsInc
-      jBasn = min(jBsInc,jBasj-jBasAO+1)
-      iAOst(2) = jBasAO-1
-      if (lpick .and. (nDij*mDCRij /= 0)) then
-        call Picky(DeDe(ipDij),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO,iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1, &
-                   DeDe(ipDDij))
-        if (nMethod == RASSCF) call Picky(DeDe2(ipDij2),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO,iBasAO+iBasn-1, &
-                                          jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
-      end if
-      mDij = (iBasn*jBasn+1)*iCmpV(1)*iCmpV(2)+iPrimi*jPrimj+1
-      mDij = min(nDij,mDij)
+    ! Calculate which derivatives should be made.
+    !
+    !--------------------------------------------------------------------*
 
-      do kBasAO=1,kBask,kBsInc
-        kBasn = min(kBsInc,kBask-kBasAO+1)
-        iAOst(3) = kBasAO-1
-        if (lpick .and. (nDik*mDCRik /= 0)) then
-          call Picky(DeDe(ipDik),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO,iBasAO+iBasn-1,kBasAO,kBasAO+kBasn-1, &
-                     DeDe(ipDDik))
-          if (nMethod == RASSCF) call Picky(DeDe2(ipDik2),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO, &
-                                            iBasAO+iBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDik2))
+    call DerCtr(mdci,mdcj,mdck,mdcl,ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,mBatch)
+
+    !--------------------------------------------------------------------*
+    !
+    ! Decide on the partioning of the shells based on the
+    ! available memory and the requested memory.
+    !
+    !--------------------------------------------------------------------*
+
+    call PSOAO2(nSO,MemPrm,MemMax,iAngV,iCmpV,iAOV,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
+                jPrInc,kPrimk,kPrInc,lPriml,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB)
+
+    !--------------------------------------------------------------------*
+    !
+    ! Loop over basis function if we do not have enough of memory to
+    ! calculate them in one step.
+    !
+    !--------------------------------------------------------------------*
+    do iBasAO=1,iBasi,iBsInc
+      iBasn = min(iBsInc,iBasi-iBasAO+1)
+      iAOst(1) = iBasAO-1
+      !------------------------------------------------------------------*
+      !
+      ! Move appropriate portions of the desymmetrized 1st order density matrix.
+      !
+      !------------------------------------------------------------------*
+      do jBasAO=1,jBasj,jBsInc
+        jBasn = min(jBsInc,jBasj-jBasAO+1)
+        iAOst(2) = jBasAO-1
+        if (lpick .and. (nDij*mDCRij /= 0)) then
+          call Picky(DeDe(ipDij),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO,iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1, &
+                     DeDe(ipDDij))
+          if (nMethod == RASSCF) call Picky(DeDe2(ipDij2),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO, &
+                                            iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
         end if
-        mDik = (iBasn*kBasn+1)*iCmpV(1)*iCmpV(3)+iPrimi*kPrimk+1
-        mDik = min(nDik,mDik)
-        if (lpick .and. (nDjk*mDCRjk /= 0)) then
-          call Picky(DeDe(ipDjk),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO,jBasAO+jBasn-1,kBasAO,kBasAO+kBasn-1, &
-                     DeDe(ipDDjk))
-          if (nMethod == RASSCF) call Picky(DeDe2(ipDjk2),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO, &
-                                            jBasAO+jBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDjk2))
-        end if
-        mDjk = (jBasn*kBasn+1)*iCmpV(2)*iCmpV(3)+jPrimj*kPrimk+1
-        mDjk = min(nDjk,mDjk)
+        mDij = (iBasn*jBasn+1)*iCmpV(1)*iCmpV(2)+iPrimi*jPrimj+1
+        mDij = min(nDij,mDij)
 
-        do lBasAO=1,lBasl,lBsInc
-          lBasn = min(lBsInc,lBasl-lBasAO+1)
-          iAOst(4) = lBasAO-1
-          if (lpick .and. (nDkl*mDCRkl /= 0)) then
-            call Picky(DeDe(ipDkl),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO,kBasAO+kBasn-1,lBasAO,lBasAO+lBasn-1, &
-                       DeDe(ipDDkl))
-            if (nMethod == RASSCF) call Picky(DeDe2(ipDkl2),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO, &
-                                              kBasAO+kBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDkl2))
+        do kBasAO=1,kBask,kBsInc
+          kBasn = min(kBsInc,kBask-kBasAO+1)
+          iAOst(3) = kBasAO-1
+          if (lpick .and. (nDik*mDCRik /= 0)) then
+            call Picky(DeDe(ipDik),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO,iBasAO+iBasn-1,kBasAO,kBasAO+kBasn-1, &
+                       DeDe(ipDDik))
+            if (nMethod == RASSCF) call Picky(DeDe2(ipDik2),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO, &
+                                              iBasAO+iBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDik2))
           end if
-          mDkl = (kBasn*lBasn+1)*iCmpV(3)*iCmpV(4)+kPrimk*lPriml+1
-          mDkl = min(nDkl,mDkl)
-          if (lpick .and. (nDil*mDCRil /= 0)) then
-            call Picky(DeDe(ipDil),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO,iBasAO+iBasn-1,lBasAO,lBasAO+lBasn-1, &
-                       DeDe(ipDDil))
-            if (nMethod == RASSCF) call Picky(DeDe2(ipDil2),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO, &
-                                              iBasAO+iBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDil2))
+          mDik = (iBasn*kBasn+1)*iCmpV(1)*iCmpV(3)+iPrimi*kPrimk+1
+          mDik = min(nDik,mDik)
+          if (lpick .and. (nDjk*mDCRjk /= 0)) then
+            call Picky(DeDe(ipDjk),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO,jBasAO+jBasn-1,kBasAO,kBasAO+kBasn-1, &
+                       DeDe(ipDDjk))
+            if (nMethod == RASSCF) call Picky(DeDe2(ipDjk2),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO, &
+                                              jBasAO+jBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDjk2))
           end if
-          mDil = (iBasn*lBasn+1)*iCmpV(1)*iCmpV(4)+iPrimi*lPriml+1
-          mDil = min(nDil,mDil)
-          if (lpick .and. (nDjl*mDCRjl /= 0)) then
-            call Picky(DeDe(ipDjl),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO,jBasAO+jBasn-1,lBasAO,lBasAO+lBasn-1, &
-                       DeDe(ipDDjl))
-            if (nMethod == RASSCF) call Picky(DeDe2(ipDjl2),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO, &
-                                              jBasAO+jBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDjl2))
-          end if
-          mDjl = (jBasn*lBasn+1)*iCmpV(2)*iCmpV(4)+jPrimj*lPriml+1
-          mDjl = min(nDjl,mDjl)
-          if (.not. lpick) then
-            ipddjl2 = 0
-            ipddil2 = 0
-            ipddkl2 = 0
-            ipddij2 = 0
-            ipddik2 = 0
-            ipddjk2 = 0
-          end if
+          mDjk = (jBasn*kBasn+1)*iCmpV(2)*iCmpV(3)+jPrimj*kPrimk+1
+          mDjk = min(nDjk,mDjk)
 
-          !------------------------------------------------------------*
+          do lBasAO=1,lBasl,lBsInc
+            lBasn = min(lBsInc,lBasl-lBasAO+1)
+            iAOst(4) = lBasAO-1
+            if (lpick .and. (nDkl*mDCRkl /= 0)) then
+              call Picky(DeDe(ipDkl),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO,kBasAO+kBasn-1,lBasAO, &
+                         lBasAO+lBasn-1,DeDe(ipDDkl))
+              if (nMethod == RASSCF) call Picky(DeDe2(ipDkl2),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO, &
+                                                kBasAO+kBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDkl2))
+            end if
+            mDkl = (kBasn*lBasn+1)*iCmpV(3)*iCmpV(4)+kPrimk*lPriml+1
+            mDkl = min(nDkl,mDkl)
+            if (lpick .and. (nDil*mDCRil /= 0)) then
+              call Picky(DeDe(ipDil),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO,iBasAO+iBasn-1,lBasAO, &
+                         lBasAO+lBasn-1,DeDe(ipDDil))
+              if (nMethod == RASSCF) call Picky(DeDe2(ipDil2),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO, &
+                                                iBasAO+iBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDil2))
+            end if
+            mDil = (iBasn*lBasn+1)*iCmpV(1)*iCmpV(4)+iPrimi*lPriml+1
+            mDil = min(nDil,mDil)
+            if (lpick .and. (nDjl*mDCRjl /= 0)) then
+              call Picky(DeDe(ipDjl),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO,jBasAO+jBasn-1,lBasAO, &
+                         lBasAO+lBasn-1,DeDe(ipDDjl))
+              if (nMethod == RASSCF) call Picky(DeDe2(ipDjl2),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO, &
+                                                jBasAO+jBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDjl2))
+            end if
+            mDjl = (jBasn*lBasn+1)*iCmpV(2)*iCmpV(4)+jPrimj*lPriml+1
+            mDjl = min(nDjl,mDjl)
+            if (.not. lpick) then
+              ipddjl2 = 0
+              ipddil2 = 0
+              ipddkl2 = 0
+              ipddij2 = 0
+              ipddik2 = 0
+              ipddjk2 = 0
+            end if
 
-          MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
-          ! MO tranformation buffer
-          ipBuffer = ipMem
-          ipMOC = ipBuffer+MEMBUFFER
-          ! Area for the AO integrals
-          ipFin = ipMOC+MemCMO
-          ! Area for 2el density
-          ip_PP = ipFin+MemFin
-          ipMem2 = ip_PP+Mem1  ! Work
-          ipMem3 = ipMem2+Mem2 ! Work
-          ipMemX = ipMem3+Mem3 ! Work
+            !------------------------------------------------------------*
 
-          ! If MO transformation is performed in the standard way
-          ! reserve memory for partial transfromed integrals
+            MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
+            ! MO tranformation buffer
+            ipBuffer = ipMem
+            ipMOC = ipBuffer+MEMBUFFER
+            ! Area for the AO integrals
+            ipFin = ipMOC+MemCMO
+            ! Area for 2el density
+            ip_PP = ipFin+MemFin
+            ipMem2 = ip_PP+Mem1  ! Work
+            ipMem3 = ipMem2+Mem2 ! Work
+            ipMemX = ipMem3+Mem3 ! Work
 
+            ! If MO transformation is performed in the standard way
+            ! reserve memory for partial transfromed integrals
 
-          ! Multilayer
+            ! Multilayer
 
-          ipMem4 = ipMem2+Mem2-Mem4
+            ipMem4 = ipMem2+Mem2-Mem4
 
+            !------------------------------------------------------------*
+            !
+            ! Get the 2nd order density matrix in SO basis.
+            !
+            !------------------------------------------------------------*
 
-          !------------------------------------------------------------*
-          !
-          ! Get the 2nd order density matrix in SO basis.
-          !
-          !------------------------------------------------------------*
+            nijkl = iBasn*jBasn*kBasn*lBasn
+            call Timing(dum,Time,Dum,Dum)
+            if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,nAcO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
+            if (ldot2) call PGet0(iCmpV,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn, &
+                                  iFnc(2)*jBasn,iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+            call Timing(dum,Time,Dum,Dum)
+            CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
 
+            ! Compute gradients of shell quadruplet
 
-          nijkl = iBasn*jBasn*kBasn*lBasn
-          call Timing(dum,Time,Dum,Dum)
-          if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,nAcO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
-          if (ldot2) call PGet0(iCmpV,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn, &
-                                iFnc(2)*jBasn,iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
-          call Timing(dum,Time,Dum,Dum)
-          CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
+            ipD0 = ip_of_Work(D0(1,1))
+            call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nDCRR, &
+                           Data_k2(k2kl),ncd,nDCRS,Pren,Prem,Shells(iShllV(1))%Exp,iPrimi,iPrInc,Shells(iShllV(2))%Exp,jPrimj, &
+                           jPrInc,Shells(iShllV(3))%Exp,kPrimk,kPrInc,Shells(iShllV(4))%Exp,lPriml,lPrInc, &
+                           Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
+                           Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
+                           Mem_DBLE(ipZI),Mem_DBLE(ipP),Mem_DBLE(ipKab),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ), &
+                           Mem_DBLE(ipKcd),nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Mem_DBLE(ipxPre),Hess, &
+                           nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nSO,Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3, &
+                           Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX,Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij, &
+                           DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik),DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil), &
+                           DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk,mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl, &
+                           mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,Mem_INT(ipIndEta), &
+                           Mem_INT(ipIndZet),Int,ipd0,Sew_Scr(ipBuffer),MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
+                           Sew_Scr(ipMOC),MemCMO,new_fock)
+            Post_Process = .true.
 
-          ! Compute gradients of shell quadruplet
+            ! -----------------------------------------------------------*
 
-          ipD0 = ip_of_Work(D0(1,1))
-          call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nDCRR,Data_k2(k2kl), &
-                         ncd,nDCRS,Pren,Prem,Shells(iShllV(1))%Exp,iPrimi,iPrInc,Shells(iShllV(2))%Exp,jPrimj,jPrInc, &
-                         Shells(iShllV(3))%Exp,kPrimk,kPrInc,Shells(iShllV(4))%Exp,lPriml,lPrInc,Shells(iShllV(1))%pCff(1,iBasAO), &
-                         iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn,Shells(iShllV(3))%pCff(1,kBasAO),kBasn, &
-                         Shells(iShllV(4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),Mem_DBLE(ipKab), &
-                         nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),Mem_DBLE(ipKcd),nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB), &
-                         Mem_DBLE(ipxG),Mem_DBLE(ipxD),Mem_DBLE(ipxPre),Hess,nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP), &
-                         nSO,Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX,Shijij, &
-                         DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
-                         DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
-                         mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2), &
-                         Mem2+Mem3+MemX,nTwo2,nFT,Mem_INT(ipIndEta),Mem_INT(ipIndZet),Int,ipd0,Sew_Scr(ipBuffer),MemBuffer,lgrad, &
-                         ldot2,n8,ltri,DTemp,DInAc,moip,nAco,Sew_Scr(ipMOC),MemCMO,new_fock)
-          Post_Process = .true.
-
-          ! -----------------------------------------------------------*
-
+          end do
         end do
       end do
     end do
-  end do
 
-400 continue
-  !  end do ! lS
-  !end do ! kS
-end do ! klS
+    !  end do ! lS
+    !end do ! kS
+  end do ! klS
 
-if ((nMethod == RASSCF) .and. Post_Process) then
-  ip1 = ipMOC
-  ip2 = ip1+iCmp*iBas*naco
-  ip3 = ip2+nAco**2
-  ip4 = ip3+jcmp*jBas*naco
-  ip5 = ip4+iCmp*naco*iBas
-  ip6 = ip5+jcmp*jbas*naco
-  call CLR2(Sew_Scr(ipBuffer),Int,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,ishelV,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
-            Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
-end if
+  if ((nMethod == RASSCF) .and. Post_Process) then
+    ip1 = ipMOC
+    ip2 = ip1+iCmp*iBas*naco
+    ip3 = ip2+nAco**2
+    ip4 = ip3+jcmp*jBas*naco
+    ip5 = ip4+iCmp*naco*iBas
+    ip6 = ip5+jcmp*jbas*naco
+    call CLR2(Sew_Scr(ipBuffer),Int,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,ishelV,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
+              Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
+  end if
 
-!  end do ! jS
-!end do ! iS
+  !  end do ! jS
+  !end do ! iS
 
-call CWTime(TCpu2,TWall2)
-call SavTim(4,TCpu2-TCpu1,TWall2-Twall1)
-call SavStat(1,One,'+')
-call SavStat(2,dble(nijs),'+')
-Go To 10
-11 continue
+  call CWTime(TCpu2,TWall2)
+  call SavTim(4,TCpu2-TCpu1,TWall2-Twall1)
+  call SavStat(1,One,'+')
+  call SavStat(2,dble(nijs),'+')
+end do
 ! End of big task loop
 !                                                                      *
 !***********************************************************************

@@ -194,7 +194,7 @@ do i1=1,iCmp
         else
           i34 = kCmp*(i4-1)+i3
         end if
-        if (Shijij .and. (i34 > i12)) Go To 400
+        if (Shijij .and. (i34 > i12)) cycle
         Qijij = Shijij .and. (i12 == i34)
         iQij = iShij .and. (i1 == i2)
         iQkl = iShkl .and. (i3 == i4)
@@ -218,10 +218,10 @@ do i1=1,iCmp
           if ((iSym(1,iIrrep) /= 0) .and. (iSym(4,iIrrep) /= 0)) mFjk = mFjk+1
           if ((iSym(2,iIrrep) /= 0) .and. (iSym(3,iIrrep) /= 0)) mFil = mFil+1
         end do
-        if (mFij+mFkl+mFik+mFjl+mFil+mFjk == 0) Go To 400
+        if (mFij+mFkl+mFik+mFjl+mFil+mFjk == 0) cycle
 
         vijkl = DNrm2_(iBas*jBas*kBas*lBas,AOInt(1,i1,i2,i3,i4),1)
-        if (vijkl < CutInt) Go To 400
+        if (vijkl < CutInt) cycle
         !***************************************************************
         !                                                              *
         ! Fij = hij + Sum(kl) Dkl {(ij|kl)-1/2(ik|jl)}                 *
@@ -243,58 +243,59 @@ do i1=1,iCmp
         ! Order density matrix in accordance with the integrals        *
         !                                                              *
         !***************************************************************
-        if (mFij == 0) Go To 3203
-        if (iShell(3) < iShell(4)) then
-          vkl = Dkl(kBas*lBas+1,i4,i3)
-        else
-          vkl = Dkl(kBas*lBas+1,i3,i4)
-        end if
+        if (mFij /= 0) then
+          if (iShell(3) < iShell(4)) then
+            vkl = Dkl(kBas*lBas+1,i4,i3)
+          else
+            vkl = Dkl(kBas*lBas+1,i3,i4)
+          end if
 
-        ! Pickup the right column of the density matrix and
-        ! change order if not canonical.
+          ! Pickup the right column of the density matrix and
+          ! change order if not canonical.
 
-        qFctr = One
-        ipFij1 = ((i2-1)*iCmpa(1)+i1-1)*iBas*jBas+ipFij
-        Fac = One
-        if (iQij) Fac = Half
-        D_kl = Two
-        if (iQkl) D_kl = One
-        Fac = Fac*D_kl
-        if (vkl*vijkl*abs(Fac*qFctr*pFctr) < CutInt) Go To 3203
-        if (iShell(3) < iShell(4)) then
-          call DGetMO(Dkl(1,i4,i3),kl1,kl1,kl2,Scrt,kl2)
-          call dGeMV_('N',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Scrt,1,One,FT(ipFij1),1)
-        else
-          call dGeMV_('N',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Dkl(1,i3,i4),1,One,FT(ipFij1),1)
+          qFctr = One
+          ipFij1 = ((i2-1)*iCmpa(1)+i1-1)*iBas*jBas+ipFij
+          Fac = One
+          if (iQij) Fac = Half
+          D_kl = Two
+          if (iQkl) D_kl = One
+          Fac = Fac*D_kl
+          if (vkl*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
+            if (iShell(3) < iShell(4)) then
+              call DGetMO(Dkl(1,i4,i3),kl1,kl1,kl2,Scrt,kl2)
+              call dGeMV_('N',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Scrt,1,One,FT(ipFij1),1)
+            else
+              call dGeMV_('N',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Dkl(1,i3,i4),1,One,FT(ipFij1),1)
+            end if
+            !call RecPrt('Fij',' ',FT(ipFij1),iBas,jBas)
+            lFij = .true.
+          end if
         end if
-        !call RecPrt('Fij',' ',FT(ipFij1),iBas,jBas)
-        lFij = .true.
-3203    continue
-        if (Qijij) Go To 1200
         ! Fkl = Dij * (ij|kl)
-        if (mFkl == 0) Go To 1200
-        if (iShell(1) < iShell(2)) then
-          vij = Dij(iBas*jBas+1,i2,i1)
-        else
-          vij = Dij(iBas*jBas+1,i1,i2)
+        if ((.not. Qijij) .and. (mFkl /= 0)) then
+          if (iShell(1) < iShell(2)) then
+            vij = Dij(iBas*jBas+1,i2,i1)
+          else
+            vij = Dij(iBas*jBas+1,i1,i2)
+          end if
+          qFctr = One
+          ipFkl1 = ((i4-1)*iCmpa(3)+i3-1)*kBas*lBas+ipFkl
+          Fac = One
+          if (iQkl) Fac = Half
+          D_ij = Two
+          if (iQij) D_ij = One
+          Fac = Fac*D_ij
+          if (vij*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
+            if (iShell(1) < iShell(2)) then
+              call DGeTMO(Dij(1,i2,i1),ij1,ij1,ij2,Scrt,ij2)
+              call dGeMV_('T',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Scrt,1,One,FT(ipFkl1),1)
+            else
+              call dGeMV_('T',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Dij(1,i1,i2),1,One,FT(ipFkl1),1)
+            end if
+            !call RecPrt('Fkl',' ',FT(ipFkl1),kBas,lBas)
+            lFkl = .true.
+          end if
         end if
-        qFctr = One
-        ipFkl1 = ((i4-1)*iCmpa(3)+i3-1)*kBas*lBas+ipFkl
-        Fac = One
-        if (iQkl) Fac = Half
-        D_ij = Two
-        if (iQij) D_ij = One
-        Fac = Fac*D_ij
-        if (vij*vijkl*abs(Fac*qFctr*pFctr) < CutInt) Go To 1200
-        if (iShell(1) < iShell(2)) then
-          call DGeTMO(Dij(1,i2,i1),ij1,ij1,ij2,Scrt,ij2)
-          call dGeMV_('T',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Scrt,1,One,FT(ipFkl1),1)
-        else
-          call dGeMV_('T',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Dij(1,i1,i2),1,One,FT(ipFkl1),1)
-        end if
-        !call RecPrt('Fkl',' ',FT(ipFkl1),kBas,lBas)
-        lFkl = .true.
-1200    continue
 
         ! Exchange contributions
 
@@ -308,170 +309,176 @@ do i1=1,iCmp
           write(6,*) 'np,nScrt=',np,nScrt
           call Abend()
         end if
-        if (mFik+mFjl == 0) Go To 1210
-        if ((mFik /= 0) .and. (iShell(2) < iShell(4))) then
-          vjl = Djl(jBas*lBas+1,i4,i2)
-        else if (mFik /= 0) then
-          vjl = Djl(jBas*lBas+1,i2,i4)
-        else
-          vjl = Zero
-        end if
-        if ((mFjl /= 0) .and. (iShell(1) < iShell(3))) then
-          vik = Dik(iBas*kBas+1,i3,i1)
-        else if (mFjl /= 0) then
-          vik = Dik(iBas*kBas+1,i1,i3)
-        else
-          vik = Zero
-        end if
-        if ((vik*vijkl/Four < CutInt) .and. (vjl*vijkl/Four < CutInt)) Go To 1210
-        do j=1,jBas
-          nij = (j-1)*iBas+1
-          do k=1,kBas
-            nik = (k-1)*iBas+1
-            do l=1,lBas
-              nkl = (l-1)*kBas+k
-              njl = (l-1)*jBas+j
-              iOut = (nkl-1)*iBas*jBas+nij
-              iIn = (njl-1)*iBas*kBas+nik
-              call dcopy_(iBas,AOInt(iOut,i1,i2,i3,i4),1,Scrt(iIn),1)
+        if (mFik+mFjl /= 0) then
+          if ((mFik /= 0) .and. (iShell(2) < iShell(4))) then
+            vjl = Djl(jBas*lBas+1,i4,i2)
+          else if (mFik /= 0) then
+            vjl = Djl(jBas*lBas+1,i2,i4)
+          else
+            vjl = Zero
+          end if
+          if ((mFjl /= 0) .and. (iShell(1) < iShell(3))) then
+            vik = Dik(iBas*kBas+1,i3,i1)
+          else if (mFjl /= 0) then
+            vik = Dik(iBas*kBas+1,i1,i3)
+          else
+            vik = Zero
+          end if
+          if ((vik*vijkl/Four >= CutInt) .or. (vjl*vijkl/Four >= CutInt)) then
+            do j=1,jBas
+              nij = (j-1)*iBas+1
+              do k=1,kBas
+                nik = (k-1)*iBas+1
+                do l=1,lBas
+                  nkl = (l-1)*kBas+k
+                  njl = (l-1)*jBas+j
+                  iOut = (nkl-1)*iBas*jBas+nij
+                  iIn = (njl-1)*iBas*kBas+nik
+                  call dcopy_(iBas,AOInt(iOut,i1,i2,i3,i4),1,Scrt(iIn),1)
+                end do
+              end do
             end do
-          end do
-        end do
-        !***************************************************************
-        !                                                              *
-        ! Fik = - 1/4 * Djl * P(jl|ik)                                 *
-        !                                                              *
-        ! P(jl|ik) = (jl|ik) - 1/4(ji|lk) - 1/4(jk|il)                 *
-        !                                                              *
-        ! P(jl|ik) = (jl|ik) - 1/2(ji|lk)                              *
-        !                                                              *
-        ! Change factor if                                             *
-        ! a) asymmetrical P matrix is implied                          *
-        ! b) if the two exchange integrals in the symmetrical          *
-        !    P matrix are identical.                                   *
-        !                                                              *
-        !***************************************************************
-        if (mFik == 0) Go To 2213
-        qFctr = One
-        ipFik1 = ((i3-1)*iCmpa(1)+i1-1)*iBas*kBas+ipFik
-        Fac = -Quart
-        if (iQjl .and. (.not. iQik)) Fac = -Half
-        D_jl = Two
-        if (iQjl) D_jl = One
-        Fac = Fac*D_jl
-        if (vjl*vijkl*abs(Fac*qFctr*pFctr) < CutInt) Go To 2213
-        if (iShell(2) < iShell(4)) then
-          call DGeTMO(Djl(1,i4,i2),jl1,jl1,jl2,Scrt(ipD),jl2)
-          call dGeMV_('N',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Scrt(ipD),1,One,FT(ipFik1),1)
-        else
-          call dGeMV_('N',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Djl(1,i2,i4),1,One,FT(ipFik1),1)
+            !***********************************************************
+            !                                                          *
+            ! Fik = - 1/4 * Djl * P(jl|ik)                             *
+            !                                                          *
+            ! P(jl|ik) = (jl|ik) - 1/4(ji|lk) - 1/4(jk|il)             *
+            !                                                          *
+            ! P(jl|ik) = (jl|ik) - 1/2(ji|lk)                          *
+            !                                                          *
+            ! Change factor if                                         *
+            ! a) asymmetrical P matrix is implied                      *
+            ! b) if the two exchange integrals in the symmetrical      *
+            !    P matrix are identical.                               *
+            !                                                          *
+            !***********************************************************
+            if (mFik /= 0) then
+              qFctr = One
+              ipFik1 = ((i3-1)*iCmpa(1)+i1-1)*iBas*kBas+ipFik
+              Fac = -Quart
+              if (iQjl .and. (.not. iQik)) Fac = -Half
+              D_jl = Two
+              if (iQjl) D_jl = One
+              Fac = Fac*D_jl
+              if (vjl*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
+                if (iShell(2) < iShell(4)) then
+                  call DGeTMO(Djl(1,i4,i2),jl1,jl1,jl2,Scrt(ipD),jl2)
+                  call dGeMV_('N',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Scrt(ipD),1,One,FT(ipFik1),1)
+                else
+                  call dGeMV_('N',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Djl(1,i2,i4),1,One,FT(ipFik1),1)
+                end if
+                !call RecPrt('Fik',' ',FT(ipFik1),iBas,kBas)
+                lFik = .true.
+              end if
+            end if
+            if ((.not. iQij) .or. (.not. iQkl)) then
+              !*********************************************************
+              !                                                        *
+              ! Fjl = - 1/4 * Dik * P(jl|ik)                           *
+              !                                                        *
+              ! P(jl|ik) = (jl|ik) - 1/4(ji|lk) - 1/4(jk|il)           *
+              !                                                        *
+              ! P(jl|ik) = (jl|ik) - 1/2(ji|lk)                        *
+              !                                                        *
+              !*********************************************************
+              if (mFjl /= 0) then
+                qFctr = One
+                ipFjl1 = ((i4-1)*iCmpa(2)+i2-1)*jBas*lBas+ipFjl
+                Fac = -Quart
+                if (iQik .and. (.not. iQjl)) Fac = -Half
+                D_ik = Two
+                if (iQik) D_ik = One
+                Fac = Fac*D_ik
+                if (vik*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
+                  if (iShell(1) < iShell(3)) then
+                    call DGeTMO(Dik(1,i3,i1),ik1,ik1,ik2,Scrt(ipD),ik2)
+                    call dGeMV_('T',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Scrt(ipD),1,One,FT(ipFjl1),1)
+                  else
+                    call dGeMV_('T',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Dik(1,i1,i3),1,One,FT(ipFjl1),1)
+                  end if
+                  !call RecPrt('Fjl',' ',FT(ipFjl1),jBas,lBas)
+                  lFjl = .true.
+                end if
+              end if
+            end if
+          end if
         end if
-        !call RecPrt('Fik',' ',FT(ipFik1),iBas,kBas)
-        lFik = .true.
-2213    continue
-        if (iQij .and. iQkl) Go To 2220
-        !***************************************************************
-        !                                                              *
-        ! Fjl = - 1/4 * Dik * P(jl|ik)                                 *
-        !                                                              *
-        ! P(jl|ik) = (jl|ik) - 1/4(ji|lk) - 1/4(jk|il)                 *
-        !                                                              *
-        ! P(jl|ik) = (jl|ik) - 1/2(ji|lk)                              *
-        !                                                              *
-        !***************************************************************
-        if (mFjl == 0) Go To 1210
-        qFctr = One
-        ipFjl1 = ((i4-1)*iCmpa(2)+i2-1)*jBas*lBas+ipFjl
-        Fac = -Quart
-        if (iQik .and. (.not. iQjl)) Fac = -Half
-        D_ik = Two
-        if (iQik) D_ik = One
-        Fac = Fac*D_ik
-        if (vik*vijkl*abs(Fac*qFctr*pFctr) < CutInt) Go To 1210
-        if (iShell(1) < iShell(3)) then
-          call DGeTMO(Dik(1,i3,i1),ik1,ik1,ik2,Scrt(ipD),ik2)
-          call dGeMV_('T',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Scrt(ipD),1,One,FT(ipFjl1),1)
-        else
-          call dGeMV_('T',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Dik(1,i1,i3),1,One,FT(ipFjl1),1)
-        end if
-        !call RecPrt('Fjl',' ',FT(ipFjl1),jBas,lBas)
-        lFjl = .true.
-1210    continue
 
         ! Change order ijkl to iljk
 
-        if (iQij .or. iQkl) Go To 2220
-        if (mFil+mFjk == 0) Go To 2220
-        if ((mFil /= 0) .and. (iShell(2) < iShell(3))) then
-          vjk = Djk(jBas*kBas+1,i3,i2)
-        else if (mFil /= 0) then
-          vjk = Djk(jBas*kBas+1,i2,i3)
-        else
-          vjk = Zero
-        end if
-        if ((mFjk /= 0) .and. (iShell(1) < iShell(4))) then
-          vil = Dil(iBas*lBas+1,i4,i1)
-        else if (mFjk /= 0) then
-          vil = Dil(iBas*lBas+1,i1,i4)
-        else
-          vil = Zero
-        end if
-        if ((vil*vijkl/Four < CutInt) .and. (vjk*vijkl/Four < CutInt)) Go To 2220
-        i = 1
-        do j=1,jBas
-          nij = (j-1)*iBas+i
-          do k=1,kBas
-            njk = (k-1)*jBas+j
-            do l=1,lBas
-              nkl = (l-1)*kBas+k
-              nil = (l-1)*iBas+i
-              ijkl = (nkl-1)*iBas*jBas+nij
-              iljk = (njk-1)*iBas*lBas+nil
-              call dcopy_(iBas,AOInt(ijkl,i1,i2,i3,i4),1,Scrt(iljk),1)
+        if ((.not. iQij) .and. (.not. iQkl) .and. (mFil+mFjk /= 0)) then
+          if ((mFil /= 0) .and. (iShell(2) < iShell(3))) then
+            vjk = Djk(jBas*kBas+1,i3,i2)
+          else if (mFil /= 0) then
+            vjk = Djk(jBas*kBas+1,i2,i3)
+          else
+            vjk = Zero
+          end if
+          if ((mFjk /= 0) .and. (iShell(1) < iShell(4))) then
+            vil = Dil(iBas*lBas+1,i4,i1)
+          else if (mFjk /= 0) then
+            vil = Dil(iBas*lBas+1,i1,i4)
+          else
+            vil = Zero
+          end if
+          if ((vil*vijkl/Four >= CutInt) .or. (vjk*vijkl/Four >= CutInt)) then
+            i = 1
+            do j=1,jBas
+              nij = (j-1)*iBas+i
+              do k=1,kBas
+                njk = (k-1)*jBas+j
+                do l=1,lBas
+                  nkl = (l-1)*kBas+k
+                  nil = (l-1)*iBas+i
+                  ijkl = (nkl-1)*iBas*jBas+nij
+                  iljk = (njk-1)*iBas*lBas+nil
+                  call dcopy_(iBas,AOInt(ijkl,i1,i2,i3,i4),1,Scrt(iljk),1)
+                end do
+              end do
             end do
-          end do
-        end do
-        ! Fil = - 1/4 * Djk * (ij|kl)
-        if (mFil == 0) Go To 1220
-        qFctr = One
-        ipFil1 = ((i4-1)*iCmpa(1)+i1-1)*iBas*lBas+ipFil
-        Fac = -Quart
-        if (iQjk .and. (.not. iQil)) Fac = -Half
-        D_jk = Two
-        if (iQjk) D_jk = One
-        Fac = Fac*D_jk
-        if (vjk*vijkl*abs(Fac*qFctr*pFctr) < CutInt) Go To 1220
-        if (iShell(2) < iShell(3)) then
-          call DGeTMO(Djk(1,i3,i2),jk1,jk1,jk2,Scrt(ipD),jk2)
-          call dGeMV_('N',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Scrt(ipD),1,One,FT(ipFil1),1)
-        else
-          call dGeMV_('N',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Djk(1,i2,i3),1,One,FT(ipFil1),1)
+            ! Fil = - 1/4 * Djk * (ij|kl)
+            if (mFil /= 0) then
+              qFctr = One
+              ipFil1 = ((i4-1)*iCmpa(1)+i1-1)*iBas*lBas+ipFil
+              Fac = -Quart
+              if (iQjk .and. (.not. iQil)) Fac = -Half
+              D_jk = Two
+              if (iQjk) D_jk = One
+              Fac = Fac*D_jk
+              if (vjk*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
+                if (iShell(2) < iShell(3)) then
+                  call DGeTMO(Djk(1,i3,i2),jk1,jk1,jk2,Scrt(ipD),jk2)
+                  call dGeMV_('N',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Scrt(ipD),1,One,FT(ipFil1),1)
+                else
+                  call dGeMV_('N',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Djk(1,i2,i3),1,One,FT(ipFil1),1)
+                end if
+                !call RecPrt('Fil',' ',FT(ipFil1),iBas,lBas)
+                lFil = .true.
+              end if
+            end if
+            ! Fjk = - 1/4 * Dil * (ij|kl)
+            if ((.not. Qijij) .and. (mFjk /= 0)) then
+              qFctr = One
+              ipFjk1 = ((i3-1)*iCmpa(2)+i2-1)*jBas*kBas+ipFjk
+              Fac = -Quart
+              if (iQil .and. (.not. iQjk)) Fac = -Half
+              D_il = Two
+              if (iQil) D_il = One
+              Fac = Fac*D_il
+              if (vil*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
+                if (iShell(1) < iShell(4)) then
+                  call DGeTMO(Dil(1,i4,i1),il1,il1,il2,Scrt(ipD),il2)
+                  call dGeMV_('T',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Scrt(ipD),1,One,FT(ipFjk1),1)
+                else
+                  call dGeMV_('T',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Dil(1,i1,i4),1,One,FT(ipFjk1),1)
+                end if
+                !call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
+                lFjk = .true.
+              end if
+            end if
+          end if
         end if
-        !call RecPrt('Fil',' ',FT(ipFil1),iBas,lBas)
-        lFil = .true.
-1220    continue
-        if (Qijij) Go To 2220
-        ! Fjk = - 1/4 * Dil * (ij|kl)
-        if (mFjk == 0) Go To 2220
-        qFctr = One
-        ipFjk1 = ((i3-1)*iCmpa(2)+i2-1)*jBas*kBas+ipFjk
-        Fac = -Quart
-        if (iQil .and. (.not. iQjk)) Fac = -Half
-        D_il = Two
-        if (iQil) D_il = One
-        Fac = Fac*D_il
-        if (vil*vijkl*abs(Fac*qFctr*pFctr) < CutInt) Go To 2220
-        if (iShell(1) < iShell(4)) then
-          call DGeTMO(Dil(1,i4,i1),il1,il1,il2,Scrt(ipD),il2)
-          call dGeMV_('T',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Scrt(ipD),1,One,FT(ipFjk1),1)
-        else
-          call dGeMV_('T',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Dil(1,i1,i4),1,One,FT(ipFjk1),1)
-        end if
-        !call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
-        lFjk = .true.
-2220    continue
 
-400     continue
       end do
     end do
   end do
@@ -715,13 +722,13 @@ do i1=1,iCmp
         else
           i34 = kCmp*(i4-1)+i3
         end if
-        if (Shijij .and. (i34 > i12)) Go To 400
+        if (Shijij .and. (i34 > i12)) cycle
         vijkl = 0
         do ijkl=1,mijkl
           vijkl = max(vijkl,abs(AOInt(ijkl,i1,i2,i3,i4)))
         end do
         !vijkl = DNrm2_(iBas*jBas*kBas*lBas,AOInt(1,i1,i2,i3,i4),1)
-        !if (vijkl < CutInt) Go To 400
+        !if (vijkl < CutInt) cycle
 
         Qijij = Shijij .and. (i12 == i34)
         iQij = iShij .and. (i1 == i2)
@@ -900,40 +907,34 @@ do i1=1,iCmp
           write(6,*) 'FckAcc: nScrt too small!'
           call Abend()
         end if
-        Go To(1,2,3,4,5,6,7) iOpt
-        Go To 400
         !                                                              *
         !***************************************************************
         !                                                              *
-1       continue
-        call Fck1(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDij),FT(ipFij1),Fac_ij,Scrt(ipDkl),FT(ipFkl1),Fac_kl,ExFac)
-        Go To 400
-2       continue
-        call Fck2(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDik),FT(ipFik1),Fac_ik,Scrt(ipDjl),FT(ipFjl1),Fac_jl,ExFac)
-        Go To 400
-3       continue
-        call Fck3(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDij),FT(ipFij1),Fac_ij,Scrt(ipDkl),FT(ipFkl1),Fac_kl, &
-                  Scrt(ipDik),FT(ipFik1),Fac_ik,Scrt(ipDjl),FT(ipFjl1),Fac_jl,ExFac)
-        Go To 400
-4       continue
-        call Fck4(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDil),FT(ipFil1),Fac_il,Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
-        Go To 400
-5       continue
-        call Fck5(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDij),FT(ipFij1),Fac_ij,Scrt(ipDkl),FT(ipFkl1),Fac_kl, &
-                  Scrt(ipDil),FT(ipFil1),Fac_il,Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
-        Go To 400
-6       continue
-        call Fck6(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDik),FT(ipFik1),Fac_ik,Scrt(ipDjl),FT(ipFjl1),Fac_jl, &
-                  Scrt(ipDil),FT(ipFil1),Fac_il,Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
-        Go To 400
-7       continue
-        call Fck7(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDij),FT(ipFij1),Fac_ij,Scrt(ipDkl),FT(ipFkl1),Fac_kl, &
-                  Scrt(ipDik),FT(ipFik1),Fac_ik,Scrt(ipDjl),FT(ipFjl1),Fac_jl,Scrt(ipDil),FT(ipFil1),Fac_il,Scrt(ipDjk), &
-                  FT(ipFjk1),Fac_jk,ExFac)
-        Go To 400
+        select case (iOpt)
+          case (1)
+            call Fck1(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDij),FT(ipFij1),Fac_ij,Scrt(ipDkl),FT(ipFkl1),Fac_kl,ExFac)
+          case (2)
+            call Fck2(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDik),FT(ipFik1),Fac_ik,Scrt(ipDjl),FT(ipFjl1),Fac_jl,ExFac)
+          case (3)
+            call Fck3(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDij),FT(ipFij1),Fac_ij,Scrt(ipDkl),FT(ipFkl1),Fac_kl, &
+                      Scrt(ipDik),FT(ipFik1),Fac_ik,Scrt(ipDjl),FT(ipFjl1),Fac_jl,ExFac)
+          case (4)
+            call Fck4(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDil),FT(ipFil1),Fac_il,Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
+          case (5)
+            call Fck5(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDij),FT(ipFij1),Fac_ij,Scrt(ipDkl),FT(ipFkl1),Fac_kl, &
+                      Scrt(ipDil),FT(ipFil1),Fac_il,Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
+          case (6)
+            call Fck6(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDik),FT(ipFik1),Fac_ik,Scrt(ipDjl),FT(ipFjl1),Fac_jl, &
+                      Scrt(ipDil),FT(ipFil1),Fac_il,Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
+          case (7)
+            call Fck7(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,Scrt(ipDij),FT(ipFij1),Fac_ij,Scrt(ipDkl),FT(ipFkl1),Fac_kl, &
+                      Scrt(ipDik),FT(ipFik1),Fac_ik,Scrt(ipDjl),FT(ipFjl1),Fac_jl,Scrt(ipDil),FT(ipFil1),Fac_il,Scrt(ipDjk), &
+                      FT(ipFjk1),Fac_jk,ExFac)
+          case default
+            ! nothing
+        end select
         !***************************************************************
 
-400     continue
       end do
     end do
   end do

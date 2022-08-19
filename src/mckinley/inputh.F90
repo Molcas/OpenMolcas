@@ -29,6 +29,7 @@ use Center_Info
 use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
 use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
+use Definitions, only: iwp
 
 implicit real*8(A-H,O-Z)
 #include "itmax.fh"
@@ -93,202 +94,212 @@ end do
 
 LuRd = 5
 call RdNLst(LuRd,'MCKINLEY')
-998 read(5,'(A72)',end=977,ERR=988) Key
-KWord = Key
-call UpCase(KWord)
-if (KWord(1:1) == '*') Go To 998
-if (KWord == '') Go To 998
-!if (KWord(1:4) == 'EQUI') Go To 935
-!if (KWord(1:4) == 'NOTR') Go To 952
-!if (KWord(1:4) == 'NOIN') Go To 953
-if (KWord(1:4) == 'SHOW') Go To 992
-if (KWord(1:4) == 'MEM ') Go To 697
-!
-if (KWord(1:4) == 'CUTO') Go To 942
-if (KWord(1:4) == 'VERB') Go To 912
-if (KWord(1:4) == 'NOSC') Go To 965
-if (KWord(1:4) == 'ONEO') Go To 990
-if (KWord(1:4) == 'SELE') Go To 960
-if (KWord(1:4) == 'REMO') Go To 260
-if (KWord(1:4) == 'PERT') Go To 975
-if (KWord(1:4) == 'TEST') Go To 991
-if (KWord(1:4) == 'EXTR') Go To 971
-if (KWord(1:4) == 'NONA') Go To 972
-if (KWord(1:4) == 'NOMC') Go To 973
-if (KWord(1:4) == 'END ') Go To 997
-write(6,*) 'InputH: Illegal keyword'
-write(6,'(A,A)') 'KWord=',KWord
-call Abend()
-977 write(6,*) 'InputH: end of input file.'
-write(6,'(A,A)') 'Last command=',KWord
-call Abend()
-988 write(6,*) 'InputH: error reading input file.'
-write(6,'(A,A)') 'Last command=',KWord
-call Abend()
-!                                                                      *
-!***** MEM  ************************************************************
-!                                                                      *
-697 read(5,*) nmem
-nmem = nmem*1048576/rtob
-goto 998
-!                                                                      *
-!***** PERT ************************************************************
-!                                                                      *
-! Select which part of the Hessian will be computed.
+do
+  read(5,'(A72)',iostat=istatus) Key
+  if (istatus < 0) call Error(1)
+  if (istatus > 0) call Error(2)
+  KWord = Key
+  call UpCase(KWord)
+  if (KWord(1:1) == '*') cycle
+  if (KWord == '') cycle
+  select case (KWord(1:4))
+    !case ('EQUI')
+    !  !                                                                *
+    !  !***** EQUI ******************************************************
+    !  !                                                                *
+    !  ! Equivalence option
+    !
+    !  lEq = .true.
+    !  do
+    !    read(5,'(A)',iostat=istatus) KWord
+    !    if (istatus > 0) call Error(2)
+    !    if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
+    !  end do
+    !  read(KWord,*) nGroup
+    !  do iGroup=1,nGroup
+    !    do
+    !      read(5,'(A)',iostat=istatus) KWord
+    !      if (istatus > 0) call Error(2)
+    !      if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
+    !    end do
+    !    read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
+    !    do iElem=2,nElem
+    !      IndxEq(iTemp(iElem)) = iTemp(1)
+    !      Direct(iTemp(iElem)) = .false.
+    !    end do
+    !  end do
 
-975 read(5,'(A)',Err=988) KWord
-if (KWord(1:1) == '*') Go To 975
-if (KWord == '') Go To 975
-call UpCase(KWord)
-if (KWORD(1:4) == 'HESS') then
-  ipert = 2
-else if (KWORD(1:4) == 'GEOM') then
-  ipert = 1
-else
-  write(6,*) 'InputH: Illegal perturbation keyword'
-  write(6,'(A,A)') 'KWord=',KWord
-  call Abend()
-end if
+    !case ('NOIN')
+    !  !                                                                *
+    !  !***** NOIN ******************************************************
+    !  !                                                                *
+    !  ! Disable the utilization of translational and
+    !  ! rotational invariance of the energy in the
+    !  ! computation of the molecular gradient.
+    !
+    !  TRSymm = .false.
 
-goto 998
-!                                                                      *
-!***** EQUI ************************************************************
-!                                                                      *
-! Equivalence option
+    case ('SHOW')
+      !                                                                *
+      !***** SHOW ******************************************************
+      !                                                                *
+      ! Raise the printlevel to show gradient contributions
 
-!935 Continue
-!lEq = .true.
-!936 read(5,'(A)',Err=988) KWord
-!if (KWord(1:1) == '*') Go To 936
-!if (KWord == '') Go To 936
-!read(KWord,*) nGroup
-!do iGroup=1,nGroup
-!  938 read(5,'(A)',Err=988) KWord
-!  if (KWord(1:1) == '*') Go To 938
-!  if (KWord == '') Go To 938
-!  read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
-!  do iElem=2,nElem
-!    IndxEq(iTemp(iElem)) = iTemp(1)
-!    Direct(iTemp(iElem)) = .false.
-!  end do
-!end do
-!Go To 998
-!                                                                      *
-!***** CUTO ************************************************************
-!                                                                      *
-! Cutoff for computing primitive gradients
+      Show = .true.
 
-942 read(5,*) Cutint
-!if (KWord(1:1) == '*') Go To 942
-!if (KWord == '') Go To 942
-!read(KWord,*,Err=988) CutInt
-CutInt = abs(CutInt)
-Go To 998
-!                                                                      *
-!***** NOIN ************************************************************
-!                                                                      *
-! Disable the utilization of translational and
-! rotational invariance of the energy in the
-! computation of the molecular gradient.
+    case ('MEM ')
+      !                                                                *
+      !***** MEM  ******************************************************
+      !                                                                *
+      read(5,*) nmem
+      nmem = nmem*1048576/rtob
 
-!953 TRSymm = .false.
-!Go To 998
-!                                                                      *
-!***** SELE ************************************************************
-!                                                                      *
-! selection option
+    case ('CUTO')
+      !                                                                *
+      !***** CUTO ******************************************************
+      !                                                                *
+      ! Cutoff for computing primitive gradients
 
-960 continue
-slct = .true.
-call lCopy(mxpert,[.false.],0,lPert,1)
-!962  Continue
-read(5,*) nslct
-!if (KWord(1:1) == '*') Go To 962
-!if (KWord == '') Go To 962
-!read(KWord,*) nSlct
+      !do
+      !  read(5,'(A)',iostat=istatus) KWord
+      !  if (istatus > 0) call Error(2)
+      !  if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
+      !end do
+      !read(KWord,*,iostat=istatus) CutInt
+      !if (istatus > 0) call Error(2)
+      read(5,*) Cutint
+      CutInt = abs(CutInt)
 
-read(5,*) (iTemp(iElem),iElem=1,nSlct)
-do iElem=1,nSlct
-  lpert(iTemp(iElem)) = .true.
+    case ('VERB')
+      !                                                                *
+      !***** VERB ******************************************************
+      !                                                                *
+      ! Verbose output
+
+      nPrint(1) = 6
+      nPrint(99) = 6
+
+    case ('NOSC')
+      !                                                                *
+      !***** NOSC ******************************************************
+      !                                                                *
+      ! Change default for the prescreening.
+
+      PreScr = .false.
+
+    case ('ONEO')
+      !                                                                *
+      !***** ONEO ******************************************************
+      !                                                                *
+      ! Do not compute two electron integrals.
+
+      Onenly = .true.
+
+    case ('SELE')
+      !                                                                *
+      !***** SELE ******************************************************
+      !                                                                *
+      ! selection option
+
+      Slct = .true.
+      call lCopy(mxpert,[.false.],0,lPert,1)
+      !do
+      !  read(5,'(A)',iostat=istatus) KWord
+      !  if (istatus > 0) call Error(2)
+      !  if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
+      !end do
+      !read(KWord,*) nSlct
+      read(5,*) nSlct
+
+      read(5,*) (iTemp(iElem),iElem=1,nSlct)
+      do iElem=1,nSlct
+        lpert(iTemp(iElem)) = .true.
+      end do
+
+    case ('REMO')
+      !                                                                *
+      !***** REMO ******************************************************
+      !                                                                *
+      Slct = .true.
+      read(5,*) nSlct
+
+      read(5,*) (iTemp(iElem),iElem=1,nSlct)
+      do iElem=1,nSlct
+        lpert(iTemp(iElem)) = .false.
+      end do
+
+    case ('PERT')
+      !                                                                *
+      !***** PERT ******************************************************
+      !                                                                *
+      ! Select which part of the Hessian will be computed.
+
+      do
+        read(5,'(A)',iostat=istatus) KWord
+        if (istatus > 0) call Error(2)
+        if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
+      end do
+      call UpCase(KWord)
+      if (KWORD(1:4) == 'HESS') then
+        ipert = 2
+      else if (KWORD(1:4) == 'GEOM') then
+        ipert = 1
+      else
+        write(6,*) 'InputH: Illegal perturbation keyword'
+        write(6,'(A,A)') 'KWord=',KWord
+        call Abend()
+      end if
+
+    case ('TEST')
+      !                                                                *
+      !***** TEST ******************************************************
+      !                                                                *
+      ! Process only the input.
+
+      Test = .true.
+
+    case ('EXTR')
+      !                                                                *
+      !***** EXTR ******************************************************
+      !                                                                *
+      ! Put the program name and the time stamp onto the extract file
+
+      write(6,*) 'InputH: EXTRACT option is redundant and is ignored!'
+
+    case ('NONA')
+      !                                                                *
+      !***** NONA ******************************************************
+      !                                                                *
+      ! Compute the anti-symmetric overlap gradient only.
+
+      Nona = .true.
+      Run_MCLR = .false.
+
+    case ('NOMC')
+      !                                                                *
+      !***** NOMC ******************************************************
+      !                                                                *
+      ! Request no automatic run of MCLR
+
+      Run_MCLR = .false.
+
+    case ('END ')
+      !                                                                *
+      !***** END  ******************************************************
+      !                                                                *
+      exit
+
+    case default
+      write(6,*) 'InputH: Illegal keyword'
+      write(6,'(A,A)') 'KWord=',KWord
+      call Abend()
+  end select
 end do
-Go To 998
-!                                                                      *
-!***** REMO ************************************************************
-!                                                                      *
-260 continue
-Slct = .true.
-read(5,*) nslct
-
-read(5,*) (iTemp(iElem),iElem=1,nSlct)
-do iElem=1,nSlct
-  lpert(iTemp(iElem)) = .false.
-end do
-Go To 998
-!                                                                      *
-!***** NOSC ************************************************************
-!                                                                      *
-! Change default for the prescreening.
-
-965 PreScr = .false.
-Go To 998
-!                                                                      *
-!***** ONEO ************************************************************
-!                                                                      *
-! Do not compute two electron integrals.
-
-990 Onenly = .true.
-Go To 998
-!                                                                      *
-!***** TEST ************************************************************
-!                                                                      *
-! Process only the input.
-
-991 Test = .true.
-Go To 998
-!                                                                      *
-!***** SHOW ************************************************************
-!                                                                      *
-! Raise the printlevel to show gradient contributions
-
-992 continue
-Show = .true.
-Go To 998
-!                                                                      *
-!***** EXTR ************************************************************
-!                                                                      *
-! Put the program name and the time stamp onto the extract file
-
-971 write(6,*) 'InputH: EXTRACT option is redundant and is ignored!'
-Go To 998
-!                                                                      *
-!***** VERB ************************************************************
-!                                                                      *
-! Verbose output
-
-912 nPrint(1) = 6
-nPrint(99) = 6
-Go To 998
-!                                                                      *
-!***** NONA ************************************************************
-!                                                                      *
-! Compute the anti-symmetric overlap gradient only.
-
-972 Nona = .true.
-Run_MCLR = .false.
-Go To 998
-!                                                                      *
-!***** NOMC ************************************************************
-!                                                                      *
-! Request no automatic run of MCLR
-
-973 Run_MCLR = .false.
-Go To 998
 !***********************************************************************
 !                                                                      *
 !                          End of input section.                       *
 !                                                                      *
 !***********************************************************************
-997 continue
 
 iPrint = nPrint(iRout)
 
@@ -513,196 +524,193 @@ if (TRSymm) then
   end do
   if (nTR == 0) then
     TRSymm = .false.
-    Go To 9876
-  end if
-  if (iPrint >= 99) write(6,*) ' nTR=',nTR
-  call mma_allocate(AM,nTR,lDisp(0),Label='AM')
-  call mma_allocate(Tmp,nTR,nTR,Label='Tmp')
-  call mma_allocate(C,4,lDisp(0),Label='C')
-  call mma_allocate(Car,lDisp(0),Label='Car')
+  else
+    if (iPrint >= 99) write(6,*) ' nTR=',nTR
+    call mma_allocate(AM,nTR,lDisp(0),Label='AM')
+    call mma_allocate(Tmp,nTR,nTR,Label='Tmp')
+    call mma_allocate(C,4,lDisp(0),Label='C')
+    call mma_allocate(Car,lDisp(0),Label='Car')
 
-  AM(:,:) = Zero
-  C(:,:) = Zero
+    AM(:,:) = Zero
+    C(:,:) = Zero
 
-  ! Generate temporary information of the symmetrical displacements.
+    ! Generate temporary information of the symmetrical displacements.
 
-  ldsp = 0
-  mdc = 0
-  iIrrep = 0
-  do iCnttp=1,nCnttp
-    do iCnt=1,dbsc(iCnttp)%nCntr
-      mdc = mdc+1
-      !call RecPrt(' Coordinates',' ',dbsc(iCnttp)%Coor(1,iCnt),1,3)
-      Fact = Zero
-      iComp = 0
-      if (dbsc(iCnttp)%Coor(1,iCnt) /= Zero) iComp = ior(iComp,1)
-      if (dbsc(iCnttp)%Coor(2,iCnt) /= Zero) iComp = ior(iComp,2)
-      if (dbsc(iCnttp)%Coor(3,iCnt) /= Zero) iComp = ior(iComp,4)
-      do jIrrep=0,nIrrep-1
-        if (TstFnc(dc(mdc)%iCoSet,jIrrep,iComp,dc(mdc)%nStab)) then
-          Fact = Fact+One
-        end if
-      end do
-      do iCar=0,2
-        iComp = 2**iCar
-        if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
-          ldsp = ldsp+1
-          ! Transfer the coordinates
-          call dcopy_(3,dbsc(iCnttp)%Coor(:,iCnt),1,C(1:3,ldsp),1)
-          ! Transfer the multiplicity factor
-          C(4,ldsp) = Fact
-          Car(ldsp) = iCar+1
-        end if
-      end do
-    end do
-  end do
-  if (iPrint >= 99) then
-    call RecPrt(' Information',' ',C,4,lDisp(0))
-    write(6,*) (Car(i),i=1,lDisp(0))
-  end if
-
-  ! Set up coefficient for the translational equations
-
-  iTR = 0
-  do i=1,3
-    if (iSym(i) /= 0) Go To 1110
-    iTR = iTR+1
-    do ldsp=1,lDisp(0)
-      if (Car(ldsp) == i) then
-        AM(iTR,ldsp) = C(4,ldsp)
-      end if
-    end do
-1110 continue
-  end do
-
-  ! Set up coefficient for the rotational invariance
-
-  do i=1,3
-    j = i+1
-    if (j > 3) j = j-3
-    k = i+2
-    if (k > 3) k = k-3
-    ijSym = ieor(iSym(j),iSym(k))
-    if (ijSym /= 0) Go To 1210
-    iTR = iTR+1
-    do ldsp=1,lDisp(0)
-      if (Car(ldsp) == j) then
-        Fact = C(4,ldsp)*C(k,ldsp)
-      else if (Car(ldsp) == k) then
-        Fact = -C(4,ldsp)*C(j,ldsp)
-      else
+    ldsp = 0
+    mdc = 0
+    iIrrep = 0
+    do iCnttp=1,nCnttp
+      do iCnt=1,dbsc(iCnttp)%nCntr
+        mdc = mdc+1
+        !call RecPrt(' Coordinates',' ',dbsc(iCnttp)%Coor(1,iCnt),1,3)
         Fact = Zero
-        write(6,*) 'Inputh: Error'
+        iComp = 0
+        if (dbsc(iCnttp)%Coor(1,iCnt) /= Zero) iComp = ior(iComp,1)
+        if (dbsc(iCnttp)%Coor(2,iCnt) /= Zero) iComp = ior(iComp,2)
+        if (dbsc(iCnttp)%Coor(3,iCnt) /= Zero) iComp = ior(iComp,4)
+        do jIrrep=0,nIrrep-1
+          if (TstFnc(dc(mdc)%iCoSet,jIrrep,iComp,dc(mdc)%nStab)) then
+            Fact = Fact+One
+          end if
+        end do
+        do iCar=0,2
+          iComp = 2**iCar
+          if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
+            ldsp = ldsp+1
+            ! Transfer the coordinates
+            call dcopy_(3,dbsc(iCnttp)%Coor(:,iCnt),1,C(1:3,ldsp),1)
+            ! Transfer the multiplicity factor
+            C(4,ldsp) = Fact
+            Car(ldsp) = iCar+1
+          end if
+        end do
+      end do
+    end do
+    if (iPrint >= 99) then
+      call RecPrt(' Information',' ',C,4,lDisp(0))
+      write(6,*) (Car(i),i=1,lDisp(0))
+    end if
+
+    ! Set up coefficient for the translational equations
+
+    iTR = 0
+    do i=1,3
+      if (iSym(i) /= 0) cycle
+      iTR = iTR+1
+      do ldsp=1,lDisp(0)
+        if (Car(ldsp) == i) then
+          AM(iTR,ldsp) = C(4,ldsp)
+        end if
+      end do
+    end do
+
+    ! Set up coefficient for the rotational invariance
+
+    do i=1,3
+      j = i+1
+      if (j > 3) j = j-3
+      k = i+2
+      if (k > 3) k = k-3
+      ijSym = ieor(iSym(j),iSym(k))
+      if (ijSym /= 0) cycle
+      iTR = iTR+1
+      do ldsp=1,lDisp(0)
+        if (Car(ldsp) == j) then
+          Fact = C(4,ldsp)*C(k,ldsp)
+        else if (Car(ldsp) == k) then
+          Fact = -C(4,ldsp)*C(j,ldsp)
+        else
+          Fact = Zero
+          write(6,*) 'Inputh: Error'
+          call Abend()
+        end if
+        AM(iTR,ldsp) = Fact
+      end do
+    end do
+    if (iPrint >= 99) call RecPrt(' The A matrix',' ',AM,nTR,lDisp(0))
+
+    ! Now, transfer the coefficient of those gradients which will
+    ! not be computed directly.
+    ! The matrix to compute the inverse of is determined via
+    ! a Gram-Schmidt procedure.
+
+    ! Pick up the other vectors
+    do iTR=1,nTR
+      !write(6,*) ' Looking for vector #',iTR
+      ovlp = Zero
+      kTR = 0
+      ! Check all the remaining vectors
+      loop1: do ldsp=1,lDisp(0)
+        do jTR=1,iTR-1
+          if (iTemp(jTR) == ldsp) cycle loop1
+        end do
+        !write(6,*) ' Checking vector #', ldsp
+        call dcopy_(nTR,AM(:,ldsp),1,Tmp(:,iTR),1)
+        !call RecPrt(' Vector',' ',Tmp(:,iTR),nTR,1)
+        ! Gram-Schmidt orthonormalize against accepted vectors
+        do lTR=1,iTR-1
+          alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
+          !write(6,*) ' <x|y> =', alpha
+          call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
+        end do
+        !call RecPrt(' Remainings',' ',Tmp(:,iTR),nTR,1)
+        alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
+        !write(6,*) ' Remaining overlap =', alpha
+        ! Check the remaining magnitude of vector after Gram-Schmidt
+        if (alpha > ovlp) then
+          kTR = ldsp
+          ovlp = alpha
+        end if
+      end do loop1
+      if (kTR == 0) then
+        write(6,*) ' No Vector found!'
         call Abend()
       end if
-      AM(iTR,ldsp) = Fact
-    end do
-1210 continue
-  end do
-  if (iPrint >= 99) call RecPrt(' The A matrix',' ',AM,nTR,lDisp(0))
-
-  ! Now, transfer the coefficient of those gradients which will
-  ! not be computed directly.
-  ! The matrix to compute the inverse of is determined via
-  ! a Gram-Schmidt procedure.
-
-  ! Pick up the other vectors
-  do iTR=1,nTR
-    !write(6,*) ' Looking for vector #',iTR
-    ovlp = Zero
-    kTR = 0
-    ! Check all the remaining vectors
-    do ldsp=1,lDisp(0)
-      do jTR=1,iTR-1
-        if (iTemp(jTR) == ldsp) Go To 1231
-      end do
-      !write(6,*) ' Checking vector #', ldsp
-      call dcopy_(nTR,AM(:,ldsp),1,Tmp(:,iTR),1)
-      !call RecPrt(' Vector',' ',Tmp(:,iTR),nTR,1)
-      ! Gram-Schmidt orthonormalize against accepted vectors
+      !write(6,*) ' Selecting vector #', kTR
+      ! Pick up the "best" vector
+      call dcopy_(nTR,AM(:,kTR),1,Tmp(:,iTR),1)
       do lTR=1,iTR-1
         alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
-        !write(6,*) ' <x|y> =', alpha
         call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
       end do
-      !call RecPrt(' Remainings',' ',Tmp(:,iTR),nTR,1)
       alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
-      !write(6,*) ' Remaining overlap =', alpha
-      ! Check the remaining magnitude of vector after Gram-Schmidt
-      if (alpha > ovlp) then
-        kTR = ldsp
-        ovlp = alpha
+      call DScal_(nTR,One/sqrt(alpha),Tmp(:,iTR),1)
+      iTemp(iTR) = kTR
+    end do
+    do iTR=1,nTR
+      call dcopy_(nTR,AM(:,iTemp(iTR)),1,Tmp(:,iTR),1)
+      AM(:,iTemp(iTR)) = Zero
+    end do
+    if (iPrint >= 99) then
+      call RecPrt(' The A matrix',' ',AM,nTR,lDisp(0))
+      call RecPrt(' The T matrix',' ',Tmp,nTR,nTR)
+      write(6,*) (iTemp(iTR),iTR=1,nTR)
+    end if
+
+    ! Compute the inverse of the T matrix
+
+    call MatInvert(Tmp,nTR)
+    if (IPrint >= 99) call RecPrt(' The T-1 matrix',' ',Tmp,nTR,nTR)
+    call DScal_(nTR**2,-One,Tmp,1)
+
+    ! Generate the complete matrix
+
+    call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
+    call DGEMM_('N','N',nTR,lDisp(0),nTR,1.0d0,Tmp,nTR,AM,nTR,0.0d0,Scr,nTR)
+    if (IPrint >= 99) call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
+    call mma_deallocate(AM)
+    call mma_allocate(AM,lDisp(0),lDisp(0),Label='AM')
+    AM(:,:) = Zero
+    do i=1,lDisp(0)
+      AM(i,i) = One
+    end do
+    do iTR=1,nTR
+      ldsp = iTemp(iTR)
+      call dcopy_(lDisp(0),Scr(iTR,1),nTR,AM(ldsp,1),lDisp(0))
+    end do
+    if (iPrint >= 99) call RecPrt('Final A matrix',' ',AM,lDisp(0),lDisp(0))
+
+    call mma_deallocate(Scr)
+    call mma_deallocate(Car)
+    call mma_deallocate(C)
+    call mma_deallocate(Tmp)
+    do iTR=1,nTR
+      ldsp = iTemp(iTR)
+      LPert(ldsp) = .false.
+    end do
+
+    write(6,*)
+    write(6,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'
+    write(6,*)
+    do i=1,lDisp(0)
+      if (lpert(i)) then
+        write(6,'(25X,A,A)') Chdisp(i),' is independent'
+      else
+        write(6,'(25X,A,A)') Chdisp(i),' is dependent'
       end if
-1231  continue
     end do
-    if (kTR == 0) then
-      write(6,*) ' No Vector found!'
-      call Abend()
-    end if
-    !write(6,*) ' Selecting vector #', kTR
-    ! Pick up the "best" vector
-    call dcopy_(nTR,AM(:,kTR),1,Tmp(:,iTR),1)
-    do lTR=1,iTR-1
-      alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
-      call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
-    end do
-    alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
-    call DScal_(nTR,One/sqrt(alpha),Tmp(:,iTR),1)
-    iTemp(iTR) = kTR
-  end do
-  do iTR=1,nTR
-    call dcopy_(nTR,AM(:,iTemp(iTR)),1,Tmp(:,iTR),1)
-    AM(:,iTemp(iTR)) = Zero
-  end do
-  if (iPrint >= 99) then
-    call RecPrt(' The A matrix',' ',AM,nTR,lDisp(0))
-    call RecPrt(' The T matrix',' ',Tmp,nTR,nTR)
-    write(6,*) (iTemp(iTR),iTR=1,nTR)
+    write(6,*)
   end if
-
-  ! Compute the inverse of the T matrix
-
-  call MatInvert(Tmp,nTR)
-  if (IPrint >= 99) call RecPrt(' The T-1 matrix',' ',Tmp,nTR,nTR)
-  call DScal_(nTR**2,-One,Tmp,1)
-
-  ! Generate the complete matrix
-
-  call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
-  call DGEMM_('N','N',nTR,lDisp(0),nTR,1.0d0,Tmp,nTR,AM,nTR,0.0d0,Scr,nTR)
-  if (IPrint >= 99) call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
-  call mma_deallocate(AM)
-  call mma_allocate(AM,lDisp(0),lDisp(0),Label='AM')
-  AM(:,:) = Zero
-  do i=1,lDisp(0)
-    AM(i,i) = One
-  end do
-  do iTR=1,nTR
-    ldsp = iTemp(iTR)
-    call dcopy_(lDisp(0),Scr(iTR,1),nTR,AM(ldsp,1),lDisp(0))
-  end do
-  if (iPrint >= 99) call RecPrt('Final A matrix',' ',AM,lDisp(0),lDisp(0))
-
-  call mma_deallocate(Scr)
-  call mma_deallocate(Car)
-  call mma_deallocate(C)
-  call mma_deallocate(Tmp)
-  do iTR=1,nTR
-    ldsp = iTemp(iTR)
-    LPert(ldsp) = .false.
-  end do
-
-  write(6,*)
-  write(6,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'
-  write(6,*)
-  do i=1,lDisp(0)
-    if (lpert(i)) then
-      write(6,'(25X,A,A)') Chdisp(i),' is independent'
-    else
-      write(6,'(25X,A,A)') Chdisp(i),' is dependent'
-    end if
-  end do
-  write(6,*)
 
 else
   nTR = 0
@@ -727,7 +735,6 @@ if (Slct) then
   write(6,*)
 end if
 
-9876 continue
 call Datimx(KWord)
 call ICopy(nIrrep,[0],0,nFck,1)
 do iIrrep=0,nIrrep-1
@@ -744,5 +751,22 @@ do iIrrep=0,nIrrep-1
 end do
 
 return
+
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp) :: code
+
+  select case (code)
+    case (1)
+      write(6,*) 'InputH: end of input file.'
+    case (2)
+      write(6,*) 'InputH: error reading input file.'
+  end select
+  write(6,'(A,A)') 'Last command=',KWord
+  call Abend()
+
+end subroutine Error
 
 end subroutine Inputh

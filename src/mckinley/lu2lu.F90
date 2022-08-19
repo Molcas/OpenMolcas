@@ -25,11 +25,11 @@ LuSpool2 = 77
 LuSpool2 = IsFreeUnit(LuSpool2)
 call Molcas_Open(LuSpool2,Filename)
 
-100 continue
-read(LuSpool2,'(A)',end=900) Line
-write(LuInput,'(A)') Line
-Go To 100
-900 continue
+do
+  read(LuSpool2,'(A)',iostat=istatus) Line
+  if (istatus < 0) exit
+  write(LuInput,'(A)') Line
+end do
 
 close(LuSpool2)
 

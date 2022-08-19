@@ -66,11 +66,12 @@ write(6,*) ' In SROGrd: Center=',' ',iDCNT
 kdc = 0
 do kCnttp=1,nCnttp
 
-  if (.not. dbsc(kCnttp)%ECP) Go To 1961
-  if (dbsc(kCnttp)%nSRO <= 0) Go To 1961
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+  if (.not. dbsc(kCnttp)%ECP) cycle
+  if (dbsc(kCnttp)%nSRO <= 0) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
 
-    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) goto 1965
+    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) cycle
 
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
@@ -115,7 +116,7 @@ do kCnttp=1,nCnttp
 
       call OA(iDCRT(lDCRT),C,TC)
 
-      if (EQ(A,RB) .and. EQ(A,TC)) Go To 1967
+      if (EQ(A,RB) .and. EQ(A,TC)) cycle
 
       do iAng=0,dbsc(kCnttp)%nSRO-1
         iShll = dbsc(kCnttp)%iSRO+iAng
@@ -128,7 +129,7 @@ do kCnttp=1,nCnttp
         call RecPrt('TC',' ',TC,1,3)
 #       endif
 
-        if (nExpi == 0) Go To 1966
+        if (nExpi == 0) cycle
 
         ip = 1
 
@@ -174,14 +175,9 @@ do kCnttp=1,nCnttp
         nt = nAlpha*nBeta*nElem(lb)*nElem(la)
         call SmAdNa(Array(ipFin),nt,final,mop,loper,JndGrd,iuvwx,JfGrad,index,idcar,1.0d0,iFG,tr)
 
-1966    continue
       end do
-1967  continue
     end do
-1965 continue
   end do
-1961 continue
-  kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 
 return

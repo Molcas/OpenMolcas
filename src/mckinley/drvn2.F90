@@ -66,16 +66,18 @@ call dcopy_(nHess,[Zero],0,Hess,1)
 mdc = 0
 ! Loop over centers with the same change
 do iCnttp=1,nCnttp
+  if (iCnttp > 1) mdc = mdc+dbsc(iCnttp-1)%nCntr
   ZA = dbsc(iCnttp)%Charge
-  if (ZA == Zero) Go To 101
+  if (ZA == Zero) cycle
   ! Loop over all unique centers of this group
   do iCnt=1,dbsc(iCnttp)%nCntr
     A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
     ndc = 0
     do jCnttp=1,iCnttp
+      if (jCnttp > 1) ndc = ndc+dbsc(jCnttp-1)%nCntr
       ZB = dbsc(jCnttp)%Charge
-      if (ZB == Zero) Go To 201
+      if (ZB == Zero) cycle
       ZAZB = ZA*ZB
       jCntMx = dbsc(jCnttp)%nCntr
       if (iCnttp == jCnttp) jCntMx = iCnt
@@ -97,7 +99,7 @@ do iCnttp=1,nCnttp
           nOp(2) = NrOpr(iDCRR(iR))
           kop(1) = 0
           kop(2) = iDCRR(iR)
-          if (EQ(A,RB)) Go To 301
+          if (EQ(A,RB)) cycle
           r12 = sqrt((A(1)-RB(1))**2+(A(2)-RB(2))**2+(A(3)-RB(3))**2)
 
           ! The factor u/g will ensure that the value of the
@@ -263,16 +265,11 @@ do iCnttp=1,nCnttp
           end do         ! iIrrep
 
           !call triprt(' ',' ',Hess,ldisp(0))
-301       continue
         end do
 
       end do
-201   continue
-      ndc = ndc+dbsc(jCnttp)%nCntr
     end do
   end do
-101 continue
-  mdc = mdc+dbsc(iCnttp)%nCntr
 end do
 !                                                                      *
 !***********************************************************************
@@ -296,7 +293,7 @@ if (PCM) then
   do iTs=1,nTs
     ZA = PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
     NoLoop = ZA == Zero
-    if (NoLoop) Go To 112
+    if (NoLoop) cycle
     ZA = ZA/dble(nIrrep)
     A(1:3) = PCMTess(1:3,iTs)
 
@@ -307,10 +304,11 @@ if (PCM) then
 
     ndc = 0
     do jCnttp=1,nCnttp
+      if (jCnttp > 1) ndc = ndc+dbsc(jCnttp-1)%nCntr
       ZB = dbsc(jCnttp)%Charge
-      if (ZB == Zero) Go To 212
-      if (dbsc(jCnttp)%pChrg) Go To 212
-      if (dbsc(jCnttp)%Frag) Go To 212
+      if (ZB == Zero) cycle
+      if (dbsc(jCnttp)%pChrg) cycle
+      if (dbsc(jCnttp)%Frag) cycle
       ZAZB = ZA*ZB
       do jCnt=1,dbsc(jCnttp)%nCntr
         B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
@@ -443,10 +441,7 @@ if (PCM) then
         end do ! End loop over DCR operators, iR
 
       end do ! End over centers, jCnt
-212   continue
-      ndc = ndc+dbsc(jCnttp)%nCntr
     end do ! End over basis set types, jCnttp
-112 continue
   end do ! End of tiles
   !                                                                    *
   !*********************************************************************
@@ -468,17 +463,18 @@ if (PCM) then
       if (jTs == iTs) Fact = One
       Q_ij = PCMDM(iTs,jTs)
       NoLoop = Q_ij == Zero
-      if (NoLoop) Go To 122
+      if (NoLoop) cycle
       C(1:3) = PCMTess(1:3,jTs)
 
       ! Loop over the basis functions
 
       mdc = 0
       do iCnttp=1,nCnttp
+        if (iCnttp > 1) mdc = mdc+dbsc(iCnttp-1)%nCntr
         ZA = dbsc(iCnttp)%Charge
-        if (ZA == Zero) Go To 222
-        if (dbsc(iCnttp)%pChrg) Go To 222
-        if (dbsc(iCnttp)%Frag) Go To 222
+        if (ZA == Zero) cycle
+        if (dbsc(iCnttp)%pChrg) cycle
+        if (dbsc(iCnttp)%Frag) cycle
 
         do iCnt=1,dbsc(iCnttp)%nCntr
           B(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
@@ -522,10 +518,11 @@ if (PCM) then
 
             ndc = 0
             do jCnttp=1,nCnttp
+              if (jCnttp > 1) ndc = ndc+dbsc(jCnttp-1)%nCntr
               ZB = dbsc(jCnttp)%Charge
-              if (ZB == Zero) Go To 232
-              if (dbsc(jCnttp)%pChrg) Go To 232
-              if (dbsc(jCnttp)%Frag) Go To 232
+              if (ZB == Zero) cycle
+              if (dbsc(jCnttp)%pChrg) cycle
+              if (dbsc(jCnttp)%Frag) cycle
 
               do jCnt=1,dbsc(jCnttp)%nCntr
                 D(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
@@ -669,17 +666,12 @@ if (PCM) then
                 end do ! iS
 
               end do   ! jCnt
-232           continue
-              ndc = ndc+dbsc(jCnttp)%nCntr
             end do     ! jCnttp
 
           end do       ! iR
 
         end do         ! iCnt
-222     continue
-        mdc = mdc+dbsc(iCnttp)%nCntr
       end do           ! jCnttp
-122   continue
     end do             ! jTs
   end do               ! iTs
   !                                                                    *

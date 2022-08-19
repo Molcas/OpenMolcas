@@ -33,11 +33,11 @@ logical type
 ip1 = 1
 type = .true.
 do iIrrep=0,nIrrep-1
-  if (nBas(iIrrep) <= 0) Go To 30
+  if (nBas(iIrrep) <= 0) cycle
   do jIrrep=0,iIrrep
     lop = ieor(iOper(iIrrep),iOper(jIrrep))
-    if (lop /= loper) Go To 40
-    if (nBas(jIrrep) <= 0) Go To 40
+    if (lop /= loper) cycle
+    if (nBas(jIrrep) <= 0) cycle
     if (type) then
       type = .false.
       write(6,*)
@@ -54,9 +54,7 @@ do iIrrep=0,nIrrep-1
       call RecPrt(Line,' ',result(ip1),nBas(iIrrep),nBas(jIrrep))
       ip1 = ip1+nBas(iIrrep)*nBas(jIrrep)
     end if
-40  continue
   end do
-30 continue
 end do
 
 return

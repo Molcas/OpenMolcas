@@ -143,166 +143,164 @@ do ijS=1,nTasks
   ! Find the DCR for A and B
 
   call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
-  if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) Go To 131
+  if (DiffOp .or. (nDCRR /= 1) .or. (.not. EQ(A,B))) then
 
-  ! Find the stabilizer for A and B
+    ! Find the stabilizer for A and B
 
-  call Inter(dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iStabM,nStabM)
+    call Inter(dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iStabM,nStabM)
 
-  ! Generate all possible (left) CoSet
-  ! To the stabilizer of A and B
+    ! Generate all possible (left) CoSet
+    ! To the stabilizer of A and B
 
-  do i=0,nIrrep-1
-    do j=0,nStabM-1
-      iCoM(i,j) = ieor(iOper(i),iStabM(j))
+    do i=0,nIrrep-1
+      do j=0,nStabM-1
+        iCoM(i,j) = ieor(iOper(i),iStabM(j))
+      end do
     end do
-  end do
-  !  Order the Coset so we will have the unique ones first
-  nMax = 1
-  do j=1,nIrrep-1
-    ! Check uniqueness
-    do i=0,nMax-1
+    !  Order the Coset so we will have the unique ones first
+    nMax = 1
+    loop1: do j=1,nIrrep-1
+      ! Check uniqueness
+      do i=0,nMax-1
+        do ielem=0,nStabM-1
+          if (iCoM(i,1) == iCoM(j,ielem)) cycle loop1
+        end do
+      end do
+      ! Move unique CoSet
+      nMax = nMax+1
       do ielem=0,nStabM-1
-        if (iCoM(i,1) == iCoM(j,ielem)) Go To 435
+        iTmp = iCoM(nMax-1,ielem)
+        iCoM(nMax-1,ielem) = iCoM(j,ielem)
+        iCoM(j,ielem) = iTmp
       end do
-    end do
-    ! Move unique CoSet
-    nMax = nMax+1
-    do ielem=0,nStabM-1
-      iTmp = iCoM(nMax-1,ielem)
-      iCoM(nMax-1,ielem) = iCoM(j,ielem)
-      iCoM(j,ielem) = iTmp
-    end do
-    if (nMax == nIrrep/nStabM) Go To 439
-435 continue
-  end do
-439 continue
+      if (nMax == nIrrep/nStabM) exit loop1
+    end do loop1
 
-  ! Allocate memory for the elements of the Fock or 1st order
-  ! denisty matrix which are associated with the current shell pair.
+    ! Allocate memory for the elements of the Fock or 1st order
+    ! denisty matrix which are associated with the current shell pair.
 
-  iSmLbl = 1
-  nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-  if (nSO == 0) Go To 131
-  call mma_allocate(DSOpr,nSO*iPrim*jPrim,Label='DSOpr')
-  DSOpr(:) = Zero
-  call mma_allocate(DSO,nSO*iPrim*jPrim,Label='DSO')
-  DSO(:) = Zero
+    iSmLbl = 1
+    nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
+    if (nSO /= 0) then
+      call mma_allocate(DSOpr,nSO*iPrim*jPrim,Label='DSOpr')
+      DSOpr(:) = Zero
+      call mma_allocate(DSO,nSO*iPrim*jPrim,Label='DSO')
+      DSO(:) = Zero
 
-  ! Gather the elements from 1st order density / Fock matrix.
+      ! Gather the elements from 1st order density / Fock matrix.
 
-  call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+      call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 
-  ! Project the Fock/1st order density matrix in AO
-  ! basis on to the primitive basis.
+      ! Project the Fock/1st order density matrix in AO
+      ! basis on to the primitive basis.
 
-  ! Transform IJ,AB to J,ABi
-  call DGEMM_('T','T',jBas*nSO,iPrim,iBas,1.0d0,DSO,iBas,Shells(iShll)%pCff,iPrim,0.0d0,DSOpr,jBas*nSO)
-  ! Transform J,ABi to AB,ij
-  call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,1.0d0,DSOpr,jBas,Shells(jShll)%pCff,jPrim,0.0d0,DSO,nSO*iPrim)
-  ! Transpose to ij,AB
-  call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,iPrim*jPrim)
-  call mma_deallocate(DSO)
+      ! Transform IJ,AB to J,ABi
+      call DGEMM_('T','T',jBas*nSO,iPrim,iBas,1.0d0,DSO,iBas,Shells(iShll)%pCff,iPrim,0.0d0,DSOpr,jBas*nSO)
+      ! Transform J,ABi to AB,ij
+      call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,1.0d0,DSOpr,jBas,Shells(jShll)%pCff,jPrim,0.0d0,DSO,nSO*iPrim)
+      ! Transpose to ij,AB
+      call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,iPrim*jPrim)
+      call mma_deallocate(DSO)
 
-  ! Loops over symmetry operations.
+      ! Loops over symmetry operations.
 
-  nOp(1) = NrOpr(0)
-  if (jBas < -999999) write(6,*) 'gcc overoptimization',nDCRR
-  do lDCRR=0,nDCRR-1
-    call OA(iDCRR(lDCRR),B,RB)
-    nOp(2) = NrOpr(iDCRR(lDCRR))
-    if (EQ(A,RB) .and. (.not. DiffOp)) Go To 140
+      nOp(1) = NrOpr(0)
+      if (jBas < -999999) write(6,*) 'gcc overoptimization',nDCRR
+      do lDCRR=0,nDCRR-1
+        call OA(iDCRR(lDCRR),B,RB)
+        nOp(2) = NrOpr(iDCRR(lDCRR))
+        if (EQ(A,RB) .and. (.not. DiffOp)) cycle
 
-    lloper = 1
-    call SOS(iStabO,nStabO,llOper)
-    call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
+        lloper = 1
+        call SOS(iStabO,nStabO,llOper)
+        call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
-    ! Compute normalization factor due the DCR symmetrization
-    ! of the two basis functions and the operator.
+        ! Compute normalization factor due the DCR symmetrization
+        ! of the two basis functions and the operator.
 
-    iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-    FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
-    if (MolWgh == 1) then
-      FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
-    else if (MolWgh == 2) then
-      FactNd = sqrt(dble(iuv))*nStabO/dble(nIrrep*LmbdT)
-    end if
+        iuv = dc(mdci)%nStab*dc(mdcj)%nStab
+        FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+        if (MolWgh == 1) then
+          FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
+        else if (MolWgh == 2) then
+          FactNd = sqrt(dble(iuv))*nStabO/dble(nIrrep*LmbdT)
+        end if
 
-    ! Desymmetrize the matrix with which we will contract the trace.
+        ! Desymmetrize the matrix with which we will contract the trace.
 
-    call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DAO,iPrim,jPrim,DSOpr,nSO,nOp,FactNd)
+        call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DAO,iPrim,jPrim,DSOpr,nSO,nOp,FactNd)
 
-    ! Project the spherical harmonic space onto the cartesian space.
+        ! Project the spherical harmonic space onto the cartesian space.
 
-    kk = nElem(iAng)*nElem(jAng)
-    if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
+        kk = nElem(iAng)*nElem(jAng)
+        if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
-      ! ij,AB --> AB,ij
-      call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,iCmp*jCmp,Scrt1,iCmp*jCmp)
-      ! AB,ij --> ij,ab
-      call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
-                  RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
-    end if
+          ! ij,AB --> AB,ij
+          call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,iCmp*jCmp,Scrt1,iCmp*jCmp)
+          ! AB,ij --> ij,ab
+          call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
+                      RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
+        end if
 
-    ! Compute kappa and P.
+        ! Compute kappa and P.
 
-    call Setup1(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,A,RB,Kappa,PCoor,ZI)
+        call Setup1(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,A,RB,Kappa,PCoor,ZI)
 
-    call Icopy(18*nirrep,[0],0,IndGrd,1)
-    kk = 0
-    do jIrrep=0,nirrep-1
-      do Jcar=1,3
-        iirrep = irrfnc(2**(jcar-1))
-        if (iirrep == jirrep) then
-          jj = 0
-          do i=0,jirrep-1
-            jj = ldisp(i)+jj
-          end do
-          nDisp = IndDsp(mdci,jIrrep)-jj
-          do iCar=1,3
-            iComp = 2**(iCar-1)
-            if (TF(mdci,jIrrep,iComp)) then
-              ndisp = ndisp+1
-              IndGrd(1,icar,jcar,jIrrep) = kk+nDisp
+        call Icopy(18*nirrep,[0],0,IndGrd,1)
+        kk = 0
+        do jIrrep=0,nirrep-1
+          do Jcar=1,3
+            iirrep = irrfnc(2**(jcar-1))
+            if (iirrep == jirrep) then
+              jj = 0
+              do i=0,jirrep-1
+                jj = ldisp(i)+jj
+              end do
+              nDisp = IndDsp(mdci,jIrrep)-jj
+              do iCar=1,3
+                iComp = 2**(iCar-1)
+                if (TF(mdci,jIrrep,iComp)) then
+                  ndisp = ndisp+1
+                  IndGrd(1,icar,jcar,jIrrep) = kk+nDisp
+                end if
+              end do
+              kk = kk+ldisp(jirrep)
             end if
           end do
-          kk = kk+ldisp(jirrep)
-        end if
-      end do
-    end do
+        end do
 
-    kk = 0
-    do jIrrep=0,nirrep-1
-      do Jcar=1,3
-        iirrep = irrfnc(2**(jcar-1))
-        if (iirrep == jirrep) then
-          jj = 0
-          do i=0,jirrep-1
-            jj = ldisp(i)+jj
-          end do
-          nDisp = IndDsp(mdcj,jIrrep)-jj
-          do iCar=1,3
-            iComp = 2**(iCar-1)
-            if (TF(mdcj,jIrrep,iComp)) then
-              ndisp = ndisp+1
-              IndGrd(2,icar,jcar,jIrrep) = kk+nDisp
+        kk = 0
+        do jIrrep=0,nirrep-1
+          do Jcar=1,3
+            iirrep = irrfnc(2**(jcar-1))
+            if (iirrep == jirrep) then
+              jj = 0
+              do i=0,jirrep-1
+                jj = ldisp(i)+jj
+              end do
+              nDisp = IndDsp(mdcj,jIrrep)-jj
+              do iCar=1,3
+                iComp = 2**(iCar-1)
+                if (TF(mdcj,jIrrep,iComp)) then
+                  ndisp = ndisp+1
+                  IndGrd(2,icar,jcar,jIrrep) = kk+nDisp
+                end if
+              end do
+              kk = kk+ldisp(jirrep)
             end if
           end do
-          kk = kk+ldisp(jirrep)
-        end if
+        end do
+
+        ! Compute gradients of the primitive integrals and trace the result.
+
+        call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
+                    MemKer,Ccoor,nOrdOp,Hess,indgrd,DAO,mdci,mdcj,nOp,iStabM,nStabM)
+
       end do
-    end do
 
-    ! Compute gradients of the primitive integrals and trace the result.
-
-    call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern,MemKer, &
-                Ccoor,nOrdOp,Hess,indgrd,DAO,mdci,mdcj,nOp,iStabM,nStabM)
-
-140 continue
-  end do
-
-  call mma_deallocate(DSOpr)
-131 continue
+      call mma_deallocate(DSOpr)
+    end if
+  end if
   call mma_deallocate(DAO)
   call mma_deallocate(Scrt2)
   call mma_deallocate(Scrt1)

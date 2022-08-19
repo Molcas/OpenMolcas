@@ -109,12 +109,13 @@ end do
 nb = nZeta*nElem(la)*nElem(lb)
 kdc = 0
 do kCnttp=1,nCnttp
-  if (kCnttp == iCnttp_Dummy) Go To 111
-  if (dbsc(kCnttp)%Charge == Zero) Go To 111
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+  if (kCnttp == iCnttp_Dummy) cycle
+  if (dbsc(kCnttp)%Charge == Zero) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
     DiffCnt = (IfGrad(iDCar,1) .or. IfGrad(iDCar,2))
-    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) goto 101
+    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) cycle
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
     !Fact = -dbsc(kCnttp)%Charge*dble(nStabM*nIrrep)/dble(LmbdT*dc(kdc+kCnt)%nStab)
@@ -164,7 +165,7 @@ do kCnttp=1,nCnttp
       call dcopy_(3,TC,1,Coora(1,4),1)
       call dcopy_(3,TC,1,Coori(1,3),1)
       call dcopy_(3,TC,1,Coori(1,4),1)
-      if (Eq(A,RB) .and. EQ(A,TC)) goto 102
+      if (Eq(A,RB) .and. EQ(A,TC)) cycle
       if (EQ(A,TC)) then
         kfGrd(iDCar,1) = .false.
         do iIrrep=0,nIrrep-1
@@ -208,11 +209,8 @@ do kCnttp=1,nCnttp
 #     endif
       call SmAdNa(Array(nip),nb,final,mop,loper,KndGrd,iuvwx,kfGrd,Index,idcar,Fact,JFG,tr)
       !if (iPrint > 23) call RecPrt('In NaGrd FI',' ',Final,nb,nrOp)
-102   continue
     end do
-101 continue
   end do
-111 kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 
 return

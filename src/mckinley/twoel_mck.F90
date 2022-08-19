@@ -321,7 +321,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         AeqC = EQ(CoorM(1,1),CoorM(1,3))
         ABeqCD = AeqB .and. CeqD .and. AeqC
         ! No contribution to geometric derivatives from one-center integrals
-        if (ABeqCD) Go To 302
+        if (ABeqCD) cycle
 
         ! Find the proper centers to start of with the angular
         ! momentum on. If la == lb there will exist an
@@ -371,11 +371,11 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         do iZeta=1,nZeta_Tot,IncZet
           mZeta = min(IncZet,nZeta_Tot-iZeta+1)
           ! Check that subblock of contraction matrix has non-zero elements.
-          if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) Go To 401
+          if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) cycle
           do iEta=1,nEta_Tot,IncEta
             mEta = min(IncEta,nEta_Tot-iEta+1)
             ! Check that subblock of contraction matrix has non-zero elements.
-            if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Go To 411
+            if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) cycle
             Pren = Pren+dble(mab*mcd*mZeta*mEta)
             !----------------------------------------------------------*
             !
@@ -431,7 +431,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
 
             Prem = Prem+dble(mab*mcd*lZeta*lEta)
             if (lzeta*leta /= 0) no_integrals = .false.
-            if (lZeta*lEta == 0) Go To 411
+            if (lZeta*lEta == 0) cycle
 
             ! Compute integral derivative and accumulate
             ! contribution to the molecular gradient.
@@ -459,14 +459,12 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             call Timing(dum1,Time,dum2,dum3)
             call Cntrct_mck(First,Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Work3, &
                             nGr*mab*mcd,Work3(ip2),nwork3-ip2,xpre,WorkX,nWorkX,lZeta*lEta,IndZet,nZeta,lZeta,IndEta,nEta,lEta)
-411         continue
           end do
-401       continue
         end do
 
         ! Mark which derivatives should be calculated with translation invariance.
 
-        if (nGr == 0) goto 911
+        if (nGr == 0) cycle
         do iCNT=1,4
           if (Tr(iCnt)) then
             do iCar=1,3
@@ -568,9 +566,6 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
                     Djk2,mDjk,nDjk,Djl1,Djl2,mDjl,nDjl,fin,nfin,Temp(ipFT),nFT,Temp(ipS1),nS1,Temp(ipS2),nS2,Temp(ipTemp),nTe, &
                     TwoHam,nTwo2,JndGrd,Index,iao,iaost,iuvwx,ifG,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,coor,nOp,Din,Dan, &
                     new_fock)
-911     continue
-
-302     continue
 
       end do
 

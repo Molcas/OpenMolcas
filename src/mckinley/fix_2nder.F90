@@ -57,7 +57,7 @@ do iCar=1,3
   end do
 end do
 
-!BS goto 4711
+!BS if (.false.) then
 do iCar=1,3
   do jCar=1,icar
     mvec = itri(iCar,jcar)
@@ -81,9 +81,9 @@ do iCar=1,3
     end if
   end do
 end do
-!4711 continue
+!BS end if
 
-!BS goto 4712  ! for testing the different contributions
+!BS if (.false) then ! for testing the different contributions
 do iCar=1,3
   do jCar=1,icar
     mvec = itri(3+icar,3+jcar)
@@ -109,7 +109,7 @@ do iCar=1,3
     end if
   end do
 end do
-!4712 continue
+!BS end if
 
 return
 ! Avoid unused argument warnings

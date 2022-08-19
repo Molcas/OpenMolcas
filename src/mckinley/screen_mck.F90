@@ -114,27 +114,45 @@ else
     if (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
   end do
 end if
-if (lZeta == 0) Go To 999
+if (lZeta /= 0) then
 
-if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
-if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
-if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
+  if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
+  if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
+  if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
 
-! Transpose eta,mPAO,zeta to mPAO,zeta,eta
+  ! Transpose eta,mPAO,zeta to mPAO,zeta,eta
 
-if (lDot) call DGetMO(Scrtch(ipPAO),mEta,mEta,mPAO*lZeta,Scrtch(ipOAP),mPAO*lZeta)
+  if (lDot) call DGetMO(Scrtch(ipPAO),mEta,mEta,mPAO*lZeta,Scrtch(ipOAP),mPAO*lZeta)
 
-! Prescreen Eta
+  ! Prescreen Eta
 
-lEta = 0
-call IZero(IndEta,nEta)
-if (PreScr) then
-  do iEta=1,mEta
-    jEta = IndE(iEta)
-    IndEta(jEta) = -lEta ! To be removed
-    abcd = Data2(ip_ab(iEta,nEta))*abMax
-    if (abs(abcd) >= CutInt) then
+  lEta = 0
+  call IZero(IndEta,nEta)
+  if (PreScr) then
+    do iEta=1,mEta
+      jEta = IndE(iEta)
+      IndEta(jEta) = -lEta ! To be removed
+      abcd = Data2(ip_ab(iEta,nEta))*abMax
+      if (abs(abcd) >= CutInt) then
+        lEta = lEta+1
+        IndEta(jEta) = lEta
+        Eta(lEta) = Data2(ip_Z(iEta,nEta))
+        rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
+        Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
+        Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
+        Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))
+        xG(lEta) = Data2(ip_Alpha(iEta,nEta,1))
+        xD(lEta) = Data2(ip_Beta(iEta,nEta,2))
+        EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
+        ip1 = ipOAP+mPAO*lZeta*(iEta-1)
+        ip2 = ipPAO+mPAO*lZeta*(lEta-1)
+        if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+      end if
+    end do
+  else
+    do iEta=1,mEta
       lEta = lEta+1
+      jEta = IndE(iEta)
       IndEta(jEta) = lEta
       Eta(lEta) = Data2(ip_Z(iEta,nEta))
       rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
@@ -147,37 +165,20 @@ if (PreScr) then
       ip1 = ipOAP+mPAO*lZeta*(iEta-1)
       ip2 = ipPAO+mPAO*lZeta*(lEta-1)
       if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
-    end if
-  end do
-else
-  do iEta=1,mEta
-    lEta = lEta+1
-    jEta = IndE(iEta)
-    IndEta(jEta) = lEta
-    Eta(lEta) = Data2(ip_Z(iEta,nEta))
-    rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
-    Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
-    Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
-    Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))
-    xG(lEta) = Data2(ip_Alpha(iEta,nEta,1))
-    xD(lEta) = Data2(ip_Beta(iEta,nEta,2))
-    EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
-    ip1 = ipOAP+mPAO*lZeta*(iEta-1)
-    ip2 = ipPAO+mPAO*lZeta*(lEta-1)
-    if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
-  end do
+    end do
+  end if
+  if (lEta /= 0) then
+
+    if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
+    if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
+    if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
+
+    ! Transpose mPAO,zeta,eta to zeta,eta,mPAO
+
+    if (ldot) call DGeTMO(Scrtch(ipPAO),mPAO,mPAO,lZeta*lEta,PAO,lZeta*lEta)
+
+  end if
 end if
-if (lEta == 0) Go To 999
-
-if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
-if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
-if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
-
-! Transpose mPAO,zeta,eta to zeta,eta,mPAO
-
-if (ldot) call DGeTMO(Scrtch(ipPAO),mPAO,mPAO,lZeta*lEta,PAO,lZeta*lEta)
-
-999 continue
 
 ij = 0
 do iEta=1,lEta
@@ -316,24 +317,41 @@ else
     if (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
   end do
 end if
-if (lZeta == 0) Go To 999
+if (lZeta /= 0) then
 
-if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
-if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
-if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
+  if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
+  if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
+  if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
 
-! Transpose eta,mPAO,zeta to mPAO,zeta,eta
+  ! Transpose eta,mPAO,zeta to mPAO,zeta,eta
 
-if (lDot) call DGetMO(Scrtch(ipOAP),mEta,mEta,mPAO*lZeta,Scrtch(ipPAO),mPAO*lZeta)
+  if (lDot) call DGetMO(Scrtch(ipOAP),mEta,mEta,mPAO*lZeta,Scrtch(ipPAO),mPAO*lZeta)
 
-! Prescreen Eta
+  ! Prescreen Eta
 
-lEta = 0
-if (PreScr) then
-  do iEta=1,mEta
-    jEta = IndE(iEta)
-    abcd = Data2(ip_ab(jEta,nEta))*abMax
-    if (abs(abcd) >= CutInt) then
+  lEta = 0
+  if (PreScr) then
+    do iEta=1,mEta
+      jEta = IndE(iEta)
+      abcd = Data2(ip_ab(jEta,nEta))*abMax
+      if (abs(abcd) >= CutInt) then
+        lEta = lEta+1
+        IndEta(lEta) = IndE(iEta)
+        Eta(lEta) = Data2(ip_Z(iEta,nEta))
+        rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
+        Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
+        Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
+        Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))
+        xG(lEta) = Data2(ip_Alpha(iEta,nEta,1))
+        xD(lEta) = Data2(ip_Beta(iEta,nEta,2))
+        EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
+        ip1 = ipPAO+mPAO*lZeta*(iEta-1)
+        ip2 = ipPAO+mPAO*lZeta*(lEta-1)
+        if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+      end if
+    end do
+  else
+    do iEta=1,mEta
       lEta = lEta+1
       IndEta(lEta) = IndE(iEta)
       Eta(lEta) = Data2(ip_Z(iEta,nEta))
@@ -347,36 +365,20 @@ if (PreScr) then
       ip1 = ipPAO+mPAO*lZeta*(iEta-1)
       ip2 = ipPAO+mPAO*lZeta*(lEta-1)
       if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
-    end if
-  end do
-else
-  do iEta=1,mEta
-    lEta = lEta+1
-    IndEta(lEta) = IndE(iEta)
-    Eta(lEta) = Data2(ip_Z(iEta,nEta))
-    rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
-    Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
-    Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
-    Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))
-    xG(lEta) = Data2(ip_Alpha(iEta,nEta,1))
-    xD(lEta) = Data2(ip_Beta(iEta,nEta,2))
-    EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
-    ip1 = ipPAO+mPAO*lZeta*(iEta-1)
-    ip2 = ipPAO+mPAO*lZeta*(lEta-1)
-    if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
-  end do
+    end do
+  end if
+  if (lEta /= 0) then
+
+    if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
+    if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
+    if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
+
+    ! Transpose mPAO,zeta,eta to zeta,eta,mPAO
+
+    if (ldot) call DGeTMO(Scrtch(ipPAO),mPAO,mPAO,lZeta*lEta,PAO,lZeta*lEta)
+
+  end if
 end if
-if (lEta == 0) Go To 999
-
-if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
-if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
-if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
-
-! Transpose mPAO,zeta,eta to zeta,eta,mPAO
-
-if (ldot) call DGeTMO(Scrtch(ipPAO),mPAO,mPAO,lZeta*lEta,PAO,lZeta*lEta)
-
-999 continue
 
 ij = 0
 do iEta=1,lEta

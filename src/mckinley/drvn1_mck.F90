@@ -40,16 +40,18 @@ iIrrep = 0
 mdc = 0
 ! Loop over centers with the same change
 do iCnttp=1,nCnttp
+  if (iCnttp > 1) mdc = mdc+dbsc(iCnttp-1)%nCntr
   ZA = dbsc(iCnttp)%Charge
-  if (ZA == Zero) Go To 101
+  if (ZA == Zero) cycle
   ! Loop over all unique centers of this group
   do iCnt=1,dbsc(iCnttp)%nCntr
     A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
     ndc = 0
     do jCnttp=1,iCnttp
+      if (jCnttp > 1) ndc = ndc+dbsc(jCnttp-1)%nCntr
       ZAZB = ZA*dbsc(jCnttp)%Charge
-      if (ZAZB == Zero) Go To 201
+      if (ZAZB == Zero) cycle
       jCntMx = dbsc(jCnttp)%nCntr
       if (iCnttp == jCnttp) jCntMx = iCnt
       do jCnt=1,jCntMx
@@ -67,7 +69,7 @@ do iCnttp=1,nCnttp
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           nOp = NrOpr(iDCRR(iR))
-          if (EQ(A,RB)) Go To 300
+          if (EQ(A,RB)) cycle
           r12 = sqrt((A(1)-RB(1))**2+(A(2)-RB(2))**2+(A(3)-RB(3))**2)
 
           ! The factor u/g will ensure that the value of the
@@ -96,16 +98,11 @@ do iCnttp=1,nCnttp
               end if
             end if
           end do
-300       continue
         end do
 
       end do
-201   continue
-      ndc = ndc+dbsc(jCnttp)%nCntr
     end do
   end do
-101 continue
-  mdc = mdc+dbsc(iCnttp)%nCntr
 end do
 
 return

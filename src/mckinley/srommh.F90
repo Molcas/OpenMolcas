@@ -35,11 +35,11 @@ nordop = lr
 ld = 2
 MmSROH = 0
 do iCnttp=1,nCnttp
-  if (.not. dbsc(iCnttp)%ECP) Go To 1960
+  if (.not. dbsc(iCnttp)%ECP) cycle
   do iAng=0,dbsc(iCnttp)%nSRO-1
     iShll = dbsc(iCnttp)%iSRO+iAng
     nExpi = Shells(iShll)%nExp
-    if (nExpi == 0) Go To 1966
+    if (nExpi == 0) cycle
 
     ip = 0
     nac = nElem(la)*nElem(iAng)
@@ -62,9 +62,7 @@ do iCnttp=1,nCnttp
     icores = max(icoreb,iacore)*nExpi
     MmSROH = max(MmSROH,ip+icores)
 
-1966 continue
   end do
-1960 continue
 end do
 nHer = nOrder
 

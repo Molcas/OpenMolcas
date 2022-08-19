@@ -115,8 +115,9 @@ call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 
 kdc = 0
 do kCnttp=1,nCnttp
-  if (kCnttp == iCnttp_Dummy) Go To 111
-  if (dbsc(kCnttp)%Charge == Zero) Go To 111
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+  if (kCnttp == iCnttp_Dummy) cycle
+  if (dbsc(kCnttp)%Charge == Zero) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
@@ -136,7 +137,7 @@ do kCnttp=1,nCnttp
       call dcopy_(3,TC,1,CoorAC(1,2),1)
       call dcopy_(3,TC,1,Coori(1,3),1)
       call dcopy_(3,TC,1,Coori(1,4),1)
-      if (EQ(A,TC) .and. EQ(A,RB)) goto 102
+      if (EQ(A,TC) .and. EQ(A,RB)) cycle
 
       ! Initialize JfGrd, JndGrd, JfHss, and JndHss.
 
@@ -263,10 +264,8 @@ do kCnttp=1,nCnttp
                  Array(ipArr),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,mOp,iuvwx,ifg,nFinal, &
                  index,.false.,.true.,tr)
 
-102   continue
     end do
   end do
-111 kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 
 return

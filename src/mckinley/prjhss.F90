@@ -57,7 +57,8 @@ call dcopy_(3,RB,1,Coor(1,2),1)
 
 kdc = 0
 do kCnttp=1,nCnttp
-  if (.not. dbsc(kCnttp)%ECP) Go To 1961
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+  if (.not. dbsc(kCnttp)%ECP) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
@@ -75,13 +76,13 @@ do kCnttp=1,nCnttp
       call OA(iDCRT(lDCRT),C,TC)
       call dcopy_(3,TC,1,Coor(1,3),1)
 
-      if (EQ(A,RB) .and. EQ(A,TC)) Go To 1967
+      if (EQ(A,RB) .and. EQ(A,TC)) cycle
       call NucInd(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
       do iAng=0,dbsc(kCnttp)%nPrj-1
         iShll = dbsc(kCnttp)%iPrj+iAng
         nExpi = Shells(iShll)%nExp
         nBasisi = Shells(iShll)%nBasis
-        if ((nExpi == 0) .or. (nBasisi == 0)) Go To 1966
+        if ((nExpi == 0) .or. (nBasisi == 0)) cycle
 
         ip = 1
 
@@ -123,13 +124,9 @@ do kCnttp=1,nCnttp
         ! distribute in hessian
         call Distg2(g2,Hess,nHess,JndGrd,JfHss,JndHss,iuvwx,kOp,mop,Tr,IfG)
 
-1966    continue
       end do !iang
-1967  continue
     end do !DCR
   end do !cnt
-1961 continue !cont
-  kdc = kdc+dbsc(kCnttp)%nCntr
 end do !cnttp
 
 return

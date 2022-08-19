@@ -36,26 +36,24 @@ logical Seg1, Seg2
 ! Check if the basis set is segmented
 
 Seg1 = .false.
-do iPrm1=nPrm1,1,-1
+loop1: do iPrm1=nPrm1,1,-1
   do iCntr1=nCntr1,1,-1
     if (Coeff1(iPrm1,iCntr1) == Zero) then
       Seg1 = .true.
-      Go To 10
+      exit loop1
     end if
   end do
-end do
-10 continue
+end do loop1
 
 Seg2 = .false.
-do iPrm2=nPrm2,1,-1
+loop2: do iPrm2=nPrm2,1,-1
   do iCntr2=nCntr2,1,-1
     if (Coeff2(iPrm2,iCntr2) == Zero) then
       Seg2 = .true.
-      Go To 20
+      exit loop2
     end if
   end do
-end do
-20 continue
+end do loop2
 
 ! Set output matrix to zero
 

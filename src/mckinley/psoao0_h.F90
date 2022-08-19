@@ -76,130 +76,130 @@ lPrInc = lPrim
 iFact = 1
 if (iWropt == 0) iFact = 4/RtoI+3
 
-999 continue
-QjPrim = .false.
-QlPrim = .true.
-QiBas = .false.
-QjBas = .false.
-QkBas = .false.
-QlBas = .false.
-Mem0 = MemMax
-
-! Work1
-! Memory for SO block. If petite list format is used there
-! will be no SO block.
-
-kSOInt = nSO*iBsInc*jBsInc*kBsInc*lBsInc
-Mem1 = iFact*kSOInt
-if (Mem1 == 0) Mem1 = 1
-if (nIrrep == 1) Mem1 = 1+(iFact-1)*iCmp*jCmp*kCmp*lCmp*iBsInc*jBsInc*kBsInc*lBsInc
-if (Mem1+1 > Mem0) then
-  MaxReq = max(MaxReq,Mem1+1-Mem0)
+do
   QjPrim = .false.
-  QlPrim = .false.
+  QlPrim = .true.
   QiBas = .false.
   QjBas = .false.
   QkBas = .false.
-  QlBas = .true.
-  call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-              MaxReq,Fail)
-  if (Fail) then
-    write(6,*) ' Allocation failed for Work1'
-    write(6,*) Mem0,Mem1
-    write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
-    call Quit(_RC_MEMORY_ERROR_)
+  QlBas = .false.
+  Mem0 = MemMax
+
+  ! Work1
+  ! Memory for SO block. If petite list format is used there
+  ! will be no SO block.
+
+  kSOInt = nSO*iBsInc*jBsInc*kBsInc*lBsInc
+  Mem1 = iFact*kSOInt
+  if (Mem1 == 0) Mem1 = 1
+  if (nIrrep == 1) Mem1 = 1+(iFact-1)*iCmp*jCmp*kCmp*lCmp*iBsInc*jBsInc*kBsInc*lBsInc
+  if (Mem1+1 > Mem0) then
+    MaxReq = max(MaxReq,Mem1+1-Mem0)
+    QjPrim = .false.
+    QlPrim = .false.
+    QiBas = .false.
+    QjBas = .false.
+    QkBas = .false.
+    QlBas = .true.
+    call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
+                MaxReq,Fail)
+    if (Fail) then
+      write(6,*) ' Allocation failed for Work1'
+      write(6,*) Mem0,Mem1
+      write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+      call Quit(_RC_MEMORY_ERROR_)
+    end if
+    cycle
   end if
-  Go To 999
-end if
-!write(6,*) ' After Mem1',iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
-Mem0 = Mem0-Mem1-1
+  !write(6,*) ' After Mem1',iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+  Mem0 = Mem0-Mem1-1
 
-! Work2
-! MemPr  : Scratch for Rys
-! MemCon : Scratch for the contraction step
-! MemTr1 : Scratch for the 1st application of the transfer eqn.
-! MemTr2 : Scratch for the 2nd application of the transfer eqn.
+  ! Work2
+  ! MemPr  : Scratch for Rys
+  ! MemCon : Scratch for the contraction step
+  ! MemTr1 : Scratch for the 1st application of the transfer eqn.
+  ! MemTr2 : Scratch for the 2nd application of the transfer eqn.
 
-! Work4 (this is overlayed with Work2 and is placed at the top)
-! MemAux : Auxiliary memory for partial contraction.
+  ! Work4 (this is overlayed with Work2 and is placed at the top)
+  ! MemAux : Auxiliary memory for partial contraction.
 
-! Work5 (this is overlayed with Work2 and is placed at the top)
+  ! Work5 (this is overlayed with Work2 and is placed at the top)
 
-MemPr = MemPrm*iPrInc*jPrInc*kPrInc*lPrInc
-MemCon = mabcd*max(iPrInc*jPrInc*kPrInc*lPrInc,iBsInc*jBsInc*kBsInc*lBsInc)
-if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
-  MemAux = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
-else
-  MemAux = 0
-end if
-MemTr1 = (mabMax-mabMin+1)*nMemcd*iBsInc*jBsInc*kBsInc*lBsInc
-MemTr2 = kCmp*lCmp*nMemab*iBsInc*jBsInc*kBsInc*lBsInc
-Mem2 = max(MemPr+MemAux,MemCon+MemAux,MemTr1,MemTr2)
-if (Mem2+1 > Mem0) then
-  MaxReq = max(MaxReq,Mem2+1-Mem0)
-  call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-              MaxReq,Fail)
-  if (Fail) then
-    write(6,*) ' Allocation failed for Work2'
-    write(6,*) Mem0,Mem2,MemPr+MemAux,MemCon+MemAux,MemTr1,MemTr2
-    write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
-    call Quit(_RC_MEMORY_ERROR_)
+  MemPr = MemPrm*iPrInc*jPrInc*kPrInc*lPrInc
+  MemCon = mabcd*max(iPrInc*jPrInc*kPrInc*lPrInc,iBsInc*jBsInc*kBsInc*lBsInc)
+  if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
+    MemAux = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
+  else
+    MemAux = 0
   end if
-  Go To 999
-end if
-if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
-  Mem4 = MemAux
-else
-  Mem4 = Mem2
-end if
-!write(6,*) ' After Mem2',jPrInc,jBsInc,lPrInc,lBsInc
-Mem0 = Mem0-Mem2-1
+  MemTr1 = (mabMax-mabMin+1)*nMemcd*iBsInc*jBsInc*kBsInc*lBsInc
+  MemTr2 = kCmp*lCmp*nMemab*iBsInc*jBsInc*kBsInc*lBsInc
+  Mem2 = max(MemPr+MemAux,MemCon+MemAux,MemTr1,MemTr2)
+  if (Mem2+1 > Mem0) then
+    MaxReq = max(MaxReq,Mem2+1-Mem0)
+    call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
+                MaxReq,Fail)
+    if (Fail) then
+      write(6,*) ' Allocation failed for Work2'
+      write(6,*) Mem0,Mem2,MemPr+MemAux,MemCon+MemAux,MemTr1,MemTr2
+      write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+      call Quit(_RC_MEMORY_ERROR_)
+    end if
+    cycle
+  end if
+  if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
+    Mem4 = MemAux
+  else
+    Mem4 = Mem2
+  end if
+  !write(6,*) ' After Mem2',jPrInc,jBsInc,lPrInc,lBsInc
+  Mem0 = Mem0-Mem2-1
 
-! Work3
-! MemCon : Scratch for the contraction step, and transpose after the contraction step
-! MemSp1 : Scratch for the 1st transformation from cartesian to spherical harmonics.
-! MemSp2 : Scratch for the 2nd transformation from cartesian to spherical harmonics.
-! MemTr3 : Scratch for transpose in tnsctl
+  ! Work3
+  ! MemCon : Scratch for the contraction step, and transpose after the contraction step
+  ! MemSp1 : Scratch for the 1st transformation from cartesian to spherical harmonics.
+  ! MemSp2 : Scratch for the 2nd transformation from cartesian to spherical harmonics.
+  ! MemTr3 : Scratch for transpose in tnsctl
 
-nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
-lSize = iPrInc*jPrInc+max(jPrInc*iBsInc,iPrInc*jBsInc)
-nVec1 = kPrInc*lPrInc*mabcd
-IncVec = min(max(1,nCache_/lSize),nVec1)
-nA2 = max(jPrInc*iBsInc,iPrInc*jBsInc)*IncVec
-nA3 = iBsInc*jBsInc*nVec1
-MemCon = max(mabcd*iBsInc*jBsInc*kBsInc*lBsInc,nA2+nA3)
+  nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
+  lSize = iPrInc*jPrInc+max(jPrInc*iBsInc,iPrInc*jBsInc)
+  nVec1 = kPrInc*lPrInc*mabcd
+  IncVec = min(max(1,nCache_/lSize),nVec1)
+  nA2 = max(jPrInc*iBsInc,iPrInc*jBsInc)*IncVec
+  nA3 = iBsInc*jBsInc*nVec1
+  MemCon = max(mabcd*iBsInc*jBsInc*kBsInc*lBsInc,nA2+nA3)
 
-nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
-lSize = kPrInc*lPrInc+max(lPrInc*kBsInc,kPrInc*lBsInc)
-nVec2 = iBsInc*jBsInc*mabcd
-IncVec = min(max(1,nCache_/lSize),nVec2)
-nA2 = max(lPrInc*kBsInc,kPrInc*lBsInc)*IncVec
-!nA3 = kBsInc*lBsInc*nVec2
-MemCon = max(MemCon,nA3+nA2)
+  nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
+  lSize = kPrInc*lPrInc+max(lPrInc*kBsInc,kPrInc*lBsInc)
+  nVec2 = iBsInc*jBsInc*mabcd
+  IncVec = min(max(1,nCache_/lSize),nVec2)
+  nA2 = max(lPrInc*kBsInc,kPrInc*lBsInc)*IncVec
+  !nA3 = kBsInc*lBsInc*nVec2
+  MemCon = max(MemCon,nA3+nA2)
 
-!***********************************************************************
+  !*********************************************************************
 
-nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
-lSize = kPrInc*lPrInc+max(lPrInc*kBsInc,kPrInc*lBsInc)
-nVec1 = iPrInc*jPrInc*mabcd
-IncVec = min(max(1,nCache_/lSize),nVec1)
-nA2 = IncVec*max(lPrInc*kBsInc,kPrInc*lBsInc)
-nA3 = kBsInc*lBsInc*nVec1
-MemCon = max(MemCon,nA3+nA2)
+  nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
+  lSize = kPrInc*lPrInc+max(lPrInc*kBsInc,kPrInc*lBsInc)
+  nVec1 = iPrInc*jPrInc*mabcd
+  IncVec = min(max(1,nCache_/lSize),nVec1)
+  nA2 = IncVec*max(lPrInc*kBsInc,kPrInc*lBsInc)
+  nA3 = kBsInc*lBsInc*nVec1
+  MemCon = max(MemCon,nA3+nA2)
 
-nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
-lSize = iPrInc*jPrInc+max(jPrInc*iBsInc,iPrInc*jBsInc)
-nVec2 = kBsInc*lBsInc*mabcd
-IncVec = min(max(1,nCache_/lSize),nVec2)
-nA2 = IncVec*max(jPrInc*iBsInc,iPrInc*jBsInc)
-!nA3 = iBsInc*jBsInc*nVec2
-MemCon = max(MemCon,nA3+nA2)
+  nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
+  lSize = iPrInc*jPrInc+max(jPrInc*iBsInc,iPrInc*jBsInc)
+  nVec2 = kBsInc*lBsInc*mabcd
+  IncVec = min(max(1,nCache_/lSize),nVec2)
+  nA2 = IncVec*max(jPrInc*iBsInc,iPrInc*jBsInc)
+  !nA3 = iBsInc*jBsInc*nVec2
+  MemCon = max(MemCon,nA3+nA2)
 
-MemSp1 = (mabMax-mabMin+1)*lCmp*(lc+1)*(lc+2)/2*iBsInc*jBsInc*kBsInc*lBsInc
-MemSp2 = lCmp*kCmp*jCmp*(la+1)*(la+2)/2*iBsInc*jBsInc*kBsInc*lBsInc
-MemTr3 = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
-Mem3 = max(MemCon,MemSp1,MemSp2,MemTr3)
-if (Mem3+1 > Mem0) then
+  MemSp1 = (mabMax-mabMin+1)*lCmp*(lc+1)*(lc+2)/2*iBsInc*jBsInc*kBsInc*lBsInc
+  MemSp2 = lCmp*kCmp*jCmp*(la+1)*(la+2)/2*iBsInc*jBsInc*kBsInc*lBsInc
+  MemTr3 = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
+  Mem3 = max(MemCon,MemSp1,MemSp2,MemTr3)
+  if (Mem3+1 <= Mem0)  exit
   MaxReq = max(MaxReq,Mem3+1-Mem0)
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
               MaxReq,Fail)
@@ -209,8 +209,7 @@ if (Mem3+1 > Mem0) then
     write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
     call Quit(_RC_MEMORY_ERROR_)
   end if
-  Go To 999
-end if
+end do
 Mem0 = Mem0-Mem3-1
 MinXtr = min(MinXtr,Mem0)
 

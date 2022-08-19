@@ -97,13 +97,14 @@ end do
 
 kdc = 0
 do kCnttp=1,nCnttp
-  if (.not. dbsc(kCnttp)%ECP) Go To 111
-  if (dbsc(kCnttp)%nM1 == 0) Go To 111
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+  if (.not. dbsc(kCnttp)%ECP) cycle
+  if (dbsc(kCnttp)%nM1 == 0) cycle
 
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
     DiffCnt = (IfGrad(iDCar,1) .or. IfGrad(iDCar,2))
-    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) goto 101
+    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) cycle
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
     !Fact = -dbsc(kCnttp)%Charge*dble(nStabM*nIrrep)/dble(LmbdT*dc(kdc+kCnt)%nStab)
@@ -151,7 +152,7 @@ do kCnttp=1,nCnttp
       call dcopy_(3,TC,1,CoorAC(1,2),1)
       call dcopy_(3,TC,1,Coori(1,3),1)
       call dcopy_(3,TC,1,Coori(1,4),1)
-      if (Eq(A,RB) .and. EQ(A,TC)) goto 102
+      if (Eq(A,RB) .and. EQ(A,TC)) cycle
       if (EQ(A,TC)) then
         kfGrd(iDCar,1) = .false.
         do iIrrep=0,nIrrep-1
@@ -181,11 +182,8 @@ do kCnttp=1,nCnttp
       call M1Kernel(final,Dum,0,Dum,0,iAng,nRys,nZeta,Array(ipA),Array(ipB),Zeta,ZInv,rKappa,P,TC,Coori,Coorac,Array(nip), &
                     nArr-nip+1,kfgrd,kndgrd,ifdum,inddum,jfg,tr,mop,iuvwx,kCnttp,fact,loper,idcar)
 
-102   continue
     end do
-101 continue
   end do
-111 kdc = kdc+dbsc(kCnttp)%nCntr
 end do
 
 return

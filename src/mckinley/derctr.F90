@@ -134,10 +134,10 @@ do iAtom=1,4
     ! Check uniqueness
 
     nMax = 1
-    do j=1,nIrrep-1
+    outer: do j=1,nIrrep-1
       do i=0,nMax-1
         do ielem=0,nStabM-1
-          if (iCoM(i,1) == iCoM(j,ielem)) Go To 435
+          if (iCoM(i,1) == iCoM(j,ielem)) cycle outer
         end do
       end do
 
@@ -149,10 +149,8 @@ do iAtom=1,4
         iCoM(nMax-1,ielem) = iCoM(j,ielem)
         iCoM(j,ielem) = iTmp
       end do
-      if (nMax == nIrrep/nStabM) Go To 439
-435   continue
-    end do
-439 continue
+      if (nMax == nIrrep/nStabM) exit outer
+    end do outer
 
     ! Check if the derivative is needed in the present symmetry
 

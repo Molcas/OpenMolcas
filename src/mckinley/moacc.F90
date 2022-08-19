@@ -81,7 +81,7 @@ do jc=1,jcmp
 
         ij = ij+1
         vij = DNrm2_(nt,AOInt(1,ij),1)
-        if (abs(vij*rk*rl) < cutint) goto 1000
+        if (abs(vij*rk*rl) < cutint) cycle
         ipC = 0
         do kAsh=1,nAco
           ipM = (kAsh-1)*lbas*lcmp
@@ -167,7 +167,6 @@ do jc=1,jcmp
             end if
           end do
         end if
-1000    continue
       end do
     end do
   end do
