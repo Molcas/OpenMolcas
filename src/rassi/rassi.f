@@ -53,7 +53,7 @@ C RAS state interaction.
       Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
-     &                      VNAT(:),OCC(:), SOENE(:), DYSAMPS2(:,:)
+     &                      VNAT(:),OCC(:), SOENE(:)
       Integer, Allocatable:: IDDET1(:)
 *                                                                      *
 ************************************************************************
@@ -94,10 +94,6 @@ C GTDMCTL. They are written on unit LUTDM.
 C Needed matrix elements are computed by PROPER.
       Call mma_allocate(OVLP,NSTATE,NSTATE,Label='OVLP')
       Call mma_allocate(DYSAMPS,NSTATE,NSTATE,Label='DYSAMPS')
-! DYSAMPS2 will store the Dyson amplitudes corrected for 
-      ! a biorth. MO basis. See e.g. DYSNORM.f subroutine.
-      ! Bruno Tenorio, 2020
-      Call mma_allocate(DYSAMPS2,NSTATE,NSTATE,Label='DYSAMPS2')
       Call mma_allocate(EigVec,nState,nState,Label='EigVec')
       Call mma_allocate(ENERGY,nState,Label='Energy')
       Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
@@ -124,8 +120,7 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,
-     &                 DYSAMPS2,NZ,IDDET1,IDISK)
+          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,IDISK)
         END DO
       END DO
       Call mma_deallocate(IDDET1)
@@ -170,9 +165,8 @@ C and perhaps GTDMs.
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
-        CALL EIGCTL(PROP,OVLP,DYSAMPS,DYSAMPS2,HAM,EIGVEC,ENERGY)
+        CALL EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       END IF
-
 
 ! +++ J. Creutzberg, J. Norell - 2018
 ! Write the spin-free Dyson orbitals to .DysOrb and .molden
@@ -181,14 +175,11 @@ C Hamiltonian matrix elements, eigenvectors:
 
       IF (DYSEXPORT) THEN
 
-       !CALL WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
-! Bruno Tenorio, 2020. It writes now the new Dyson norms
-! corrected for a biorth. MO basis (DYSAMPS2). 
-! See e.g. DYSNORM.f subroutine.
-       CALL WRITEDYS(DYSAMPS2,SFDYS,NZ,ENERGY)
+C Bruno Tenorio, 2020. It writes now the new Dyson norms
+C See e.g. DYSNORM.f subroutine.
+       CALL WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
       END IF
 ! +++
-
 
 *---------------------------------------------------------------------*
 C Natural orbitals, if requested:
@@ -318,7 +309,6 @@ C Plot SO-Natural Transition Orbitals if requested
  100  CONTINUE
       Call mma_deallocate(Ovlp)
       Call mma_deallocate(DYSAMPS)
-      Call mma_deallocate(DYSAMPS2)
       Call mma_deallocate(HAM)
       Call mma_deallocate(EigVec)
       Call mma_deallocate(Energy)

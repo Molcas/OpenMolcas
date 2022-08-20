@@ -1,4 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+#***********************************************************************
+## This file is part of OpenMolcas.                                     *
+##                                                                      *
+## OpenMolcas is free software; you can redistribute it and/or modify   *
+## it under the terms of the GNU Lesser General Public License, v. 2.1. *
+## OpenMolcas is distributed in the hope that it will be useful, but it *
+## is provided "as is" and without any express or implied warranties.   *
+## For more details see the full text of the license in the file        *
+## LICENSE or in <http://www.gnu.org/licenses/>.                        *
+##                                                                      *
+## Copyright (C) 2020, Bruno Tenorio                                    *
+##***********************************************************************
 import subprocess, time, re, sys, os, h5py
 from os import listdir
 from os.path import isfile, join
@@ -16,58 +28,56 @@ import my_variables as mvr
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-args = inp_par.parseCL()
-
-if args.inp:
-    input_file = args.inp
-
-    file_based,folder_based,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys,\
-    OCA_atom,OCA_center,OCA_line,benergy,totalSymmetry,symmetry,nbasf,nash,nmo,cmotab,tdmtab,ncmo,nbasft,\
-    nasht,nosht,comtaboff,comtbasoff,comtbasoff2,comtcmoff,comtnashoff,cmob,cmoa,tdmab,dyson,\
-    hd5_file,basis_id_hd5,n_elements_desym,n_elements,element_desym,element = mvr.my_variables(input_file)
-
-    da.driver_auger(input_file,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys,\
-    OCA_atom,OCA_line,benergy,totalSymmetry,symmetry,nbasf,cmotab,nbasft,comtaboff,comtbasoff,comtbasoff2,\
-    comtcmoff,cmob,cmoa,nmo,tdmab,dyson,hd5_file,n_elements,n_elements_desym,element,basis_id_hd5) # 
-
-if args.directory:
-    n_files = 0
-    myfiles = []
-    pwd = os.getcwd() #to get the current working directory
-    #print(pwd)
-    #print( __file__)                                        # main.py
-    #print( os.path.realpath(__file__))                      # C:\filepaths\main.py
-    #print( os.path.dirname(os.path.abspath(__file__)) )     # C:\filepaths\
-    folder_exists = os.path.exists('auger_outputs')
-    if folder_exists:
-        subprocess.Popen('rm -r auger_outputs', stdout=subprocess.PIPE, shell=True)
-        time.sleep(2)
-    subprocess.Popen('mkdir auger_outputs', stdout=subprocess.PIPE, shell=True)
-    myfiles = [f for f in listdir(args.directory) if isfile(join(args.directory, f))]
-    n_files = len(myfiles)
-   
-    #os.chdir(args.directory)
-    for j in range(n_files):
-        i=myfiles[j]
-        rscr=args.directory
-        r2TDM=rscr.replace("/", '') # a simple way to deal with inputs '-d folder' or '-d folder/' without crashing
-        input_file = r2TDM+"/"+i    # So I remove '/' if given, and then I add it.
+def main():
+    args = inp_par.parseCL()    
+    if args.inp:
+        input_file = args.inp
 
         file_based,folder_based,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys,\
         OCA_atom,OCA_center,OCA_line,benergy,totalSymmetry,symmetry,nbasf,nash,nmo,cmotab,tdmtab,ncmo,nbasft,\
         nasht,nosht,comtaboff,comtbasoff,comtbasoff2,comtcmoff,comtnashoff,cmob,cmoa,tdmab,dyson,\
         hd5_file,basis_id_hd5,n_elements_desym,n_elements,element_desym,element = mvr.my_variables(input_file)
-	    
-        da.driver_auger(i,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys,\
+    
+        da.driver_auger(input_file,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys,\
         OCA_atom,OCA_line,benergy,totalSymmetry,symmetry,nbasf,cmotab,nbasft,comtaboff,comtbasoff,comtbasoff2,\
-        comtcmoff,cmob,cmoa,nmo,tdmab,dyson,hd5_file,n_elements,n_elements_desym,element,basis_id_hd5) #
+        comtcmoff,cmob,cmoa,nmo,tdmab,dyson,hd5_file,n_elements,n_elements_desym,element,basis_id_hd5) # 
 
-    if args.parse_oca:
-        subprocess.Popen('mv Auger_OCA.* auger_outputs', stdout=subprocess.PIPE, shell=True)
-    elif args.parse_cdys:
-        subprocess.Popen('mv conj.* auger_outputs', stdout=subprocess.PIPE, shell=True)
-        subprocess.Popen('mv direct_dyson.* auger_outputs', stdout=subprocess.PIPE, shell=True)
-        subprocess.Popen('mv r2TM_AO.* auger_outputs', stdout=subprocess.PIPE, shell=True)
+    if args.directory:
+        n_files = 0
+        myfiles = []
+        pwd = os.getcwd() #to get the current working directory
+        folder_exists = os.path.exists('auger_outputs')
+        if folder_exists:
+            subprocess.Popen('rm -r auger_outputs', stdout=subprocess.PIPE, shell=True)
+            time.sleep(2)
+        subprocess.Popen('mkdir auger_outputs', stdout=subprocess.PIPE, shell=True)
+        myfiles = [f for f in listdir(args.directory) if isfile(join(args.directory, f))]
+        n_files = len(myfiles)
 
+        #os.chdir(args.directory)
+        for j in range(n_files):
+            i=myfiles[j]
+            rscr=args.directory
+            r2TDM=rscr.replace("/", '') # a simple way to deal with inputs '-d folder' or '-d folder/' without crashing
+            input_file = r2TDM+"/"+i    # So I remove '/' if given, and then I add it.
+
+            file_based,folder_based,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys,\
+            OCA_atom,OCA_center,OCA_line,benergy,totalSymmetry,symmetry,nbasf,nash,nmo,cmotab,tdmtab,ncmo,nbasft,\
+            nasht,nosht,comtaboff,comtbasoff,comtbasoff2,comtcmoff,comtnashoff,cmob,cmoa,tdmab,dyson,\
+            hd5_file,basis_id_hd5,n_elements_desym,n_elements,element_desym,element = mvr.my_variables(input_file)
+    
+            da.driver_auger(i,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys,\
+            OCA_atom,OCA_line,benergy,totalSymmetry,symmetry,nbasf,cmotab,nbasft,comtaboff,comtbasoff,comtbasoff2,\
+            comtcmoff,cmob,cmoa,nmo,tdmab,dyson,hd5_file,n_elements,n_elements_desym,element,basis_id_hd5) #
+
+        if args.parse_oca:
+            subprocess.Popen('mv Auger_OCA.* auger_outputs', stdout=subprocess.PIPE, shell=True)
+        elif args.parse_cdys:
+            subprocess.Popen('mv conj.* auger_outputs', stdout=subprocess.PIPE, shell=True)
+            subprocess.Popen('mv direct_dyson.* auger_outputs', stdout=subprocess.PIPE, shell=True)
+            subprocess.Popen('mv r2TM_AO.* auger_outputs', stdout=subprocess.PIPE, shell=True)
 # The End!
+
+if __name__ == "__main__":
+    main()
 

@@ -15,28 +15,23 @@
 *  BIORTH. BASIS
 ************************************************************************
       SUBROUTINE DYSNORM(CMOA,DYSCMO,NORM)
+      IMPLICIT NONE
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-
-      integer :: isym, i
-      real*8 NORM,NORMSCR
+      integer :: isym
+      real*8 NORM,NORMSCR,DDOT_
       integer :: nb, nbast, nbast1, nbast2
       real*8, allocatable :: SAO(:),IAO(:),Scr(:),Scr2(:)
       real*8, allocatable :: Dysab(:),Dysab2(:)
-      integer :: iRc, iOpt, iSyLbl
-      character(8) :: Label
+      character(len=8) :: Label
       integer :: iOff1, iOff2
-
-      integer :: dsetid,ist,ista,istcc,istc,ndys
-
+      integer :: iOpt,iSyLbl,iRc
+      integer :: istca,istcb,ist,ista,istcc,istc,ndys
       REAL*8 DYSCMO(*),CMOA(*)
-   
       INTEGER,ALLOCATABLE,DIMENSION(:) :: ISTCMO
       INTEGER,ALLOCATABLE,DIMENSION(:) :: ISTAO
       INTEGER,ALLOCATABLE,DIMENSION(:) :: ISTACC
       Integer no1,nb1,nscr,isy1
-      Integer Istca,Istcb
-      
+      EXTERNAL DDOT_
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
@@ -47,7 +42,6 @@
       ALLOCATE(Istcmo(8))
       ALLOCATE(Istao(8))
       ALLOCATE(Istacc(8))
-      
 C============================================================
       nbast=0
       nbast1=0
@@ -125,7 +119,7 @@ C============================================================
         CALL DGEMM_('T','N', NO1, NO1, NB1, 1.0D0,
      &                 CMOA(ISTCB),NB1, Scr(ISTCB), NB1,
      &         0.0D0, Scr2(ISTC), NO1)
-      
+
 ! Src2 is the M matrix
 ! Proceed to compute norm=Dab*(Dab*M)
 ! Where Dab*M=Dysab2
@@ -144,9 +138,7 @@ C============================================================
         Call mma_deallocate(Scr2)
 15      CONTINUE
       END DO
-      
 
-      !WRITE(6,*)'BRN New Dysnomr',norm
       Call mma_deallocate(IAO)
       call mma_deallocate(DYSAB)
 

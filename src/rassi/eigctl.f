@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,DYSAMPS2,HAM,EIGVEC,ENERGY)
+      SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       USE RASSI_aux
       USE kVectors
       USE rassi_global_arrays, only: JBNUM
@@ -40,7 +40,7 @@
       character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
-     &       DYSAMPS(NSTATE,NSTATE),DYSAMPS2(NSTATE,NSTATE)
+     &       DYSAMPS(NSTATE,NSTATE), DYSAMPS2(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
       Logical Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
@@ -70,7 +70,10 @@
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
 
-
+      ! Bruno, DYSAMPS2 is used for printing out the pure norm of the Dyson
+      ! vectors. DYSAMPS remains basis of the SF eigen-states to the basis of the
+      ! original SF states.
+      DYSAMPS2=DYSAMPS
 
 C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
@@ -598,7 +601,6 @@ C
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
-
 C And the same for the Dyson amplitudes
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
@@ -2308,7 +2310,7 @@ C                                                                      C
 !+++ Bruno Tenorio, 2020. Added Corrected Dyson norms
 ! according to Dysnorm.f subroutine.
        IF (DYSO) THEN
-        DYSTHR=1.0D-12
+        DYSTHR=1.0D-5
         WRITE(6,*)
         CALL CollapseOutput(1,'Dyson amplitudes Biorth. corrected'//
      &                        '(spin-free states):')
@@ -2326,14 +2328,12 @@ C                                                                      C
            I=IndexE(I_)
          DO J_=1,NSTATE
             J=IndexE(J_)
-          F=DYSAMPS(I,J)*DYSAMPS(I,J)
-          F2=DYSAMPS2(I,J)*DYSAMPS2(I,J)
-          G2=DYSAMPS2(I,J)
+          F=DYSAMPS2(I,J)*DYSAMPS2(I,J)
           EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
           IF (F.GT.1.0D-36) THEN
            IF (EDIFF.GT.0.0D0) THEN
             WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',
-     &       I,J,EDIFF,F2!,G2
+     &       I,J,EDIFF,F
            END IF
           END IF
          END DO ! J
