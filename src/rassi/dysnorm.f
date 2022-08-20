@@ -26,7 +26,7 @@
       character(len=8) :: Label
       integer :: iOff1, iOff2
       integer :: iOpt,iSyLbl,iRc
-      integer :: istca,istcb,ist,ista,istcc,istc,ndys
+      integer :: IC,istca,istcb,ist,ista,istcc,istc,ndys
       REAL*8 DYSCMO(*),CMOA(*)
       INTEGER,ALLOCATABLE,DIMENSION(:) :: ISTCMO
       INTEGER,ALLOCATABLE,DIMENSION(:) :: ISTAO
@@ -63,10 +63,10 @@ C============================================================
 
       iRc=-1
       iOpt=6
-      iComp=1
+      IC=1
       iSyLbl=1
       Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,SAO,iSyLbl)
+      Call RdOne(iRc,iOpt,Label,IC,SAO,iSyLbl)
       iOff1 = 0
       iOff2 = 0
       Do iSym = 1,nSym
