@@ -7,48 +7,46 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                    '(5D19.12)'                                       *
+*                                                                      *
 * Copyright (C) 2020, Bruno Tenorio                                    *
 ************************************************************************
-! Print the reduced 2-e TDM in ASCII format.
-! Code adapted from trd_print.f written by P. A. Malmqvist.
+
+C Print the reduced 2-e TDM in ASCII format.
+C Code adapted from trd_print.f written by P. A. Malmqvist.
       SUBROUTINE RTDM2_PRINT(ISTATE, JSTATE, EIJ, NDYSAB, DYSAB,
      &                 NRT2MAB, NRT2M , RT2M , CMO1, CMO2, AUGSPIN)
+
       IMPLICIT REAL*8 (A-H,O-Z)
+
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='RTDM2_PRINT')
 #include "rasdim.fh"
-!#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-!#include "rassiwfn.fh"
 #include "stdalloc.fh"
-! Variables passed
       INTEGER ISTATE, JSTATE, SYM12
       INTEGER NDYSAB,NRT2M,NRT2MAB,AUGSPIN
       Real*8  DYSAB(*), RT2M(*), CMO1(*), CMO2(*)
       Real*8  EIJ
-! -------------------------------------------------------------
-! The spin coupling matrix elements have the following index-code:
-             !SPIN=1 means  K2V (AAB+BBB)
-             !SPIN=-1 means SDA (AAA+BBA)
-             !SPIN=2 means: bbb
-             !SPIN=3 means: aaa
-             !SPIN=4 means: aab
-             !SPIN=5 means: bba
-             !SPIN=6 means: aba
-             !SPIN=7 means: bab
-! Notice, SPIN here has nothing to do with the spin quantum number. It
-! is just a printing code.
+C -------------------------------------------------------------
+C The spin coupling matrix elements have the following index-code:
+C             SPIN=1 means  K2V (AAB+BBB)
+C             SPIN=-1 means SDA (AAA+BBA)
+C             SPIN=2 means: bbb
+C             SPIN=3 means: aaa
+C             SPIN=4 means: aab
+C             SPIN=5 means: bba
+C             SPIN=6 means: aba
+C             SPIN=7 means: bab
+C Notice, SPIN here has nothing to do with the spin quantum number. It
+C is just a printing code.
 C ------------------------------------------------------------
-      !wrtrtdm2=.false.
-      !LOGICAL DO22
-! Other variables
+C Other variables
       CHARACTER*3 NUM1,NUM2
       CHARACTER*16 FNM
       DIMENSION WBUF(5)
@@ -68,17 +66,17 @@ C IOFFO=NR OF OCC ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       DO J=1,NSYM-1
         IOFFO(J+1)=IOFFO(J)+NOSH(J)
       END DO
-! Subroutine starts
+C Subroutine starts
       LU=51
       LU=IsFreeUnit(LU)
       WRITE(NUM1,'(I3.3)') ISTATE
       WRITE(NUM2,'(I3.3)') JSTATE
-!AUGSPIN
+C AUGSPIN
       IF(kkv.and.AUGSPIN.EQ.1) THEN
        FNM='r2TM_K2V_'//NUM1//'_'//NUM2
       ELSE IF(SDA.and.AUGSPIN.EQ.-1) THEN
        FNM='r2TM_SDA_'//NUM1//'_'//NUM2
-! if AAB (all spin) true
+C if AAB (all spin) true
       ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
        FNM='r2TM_BBB_'//NUM1//'_'//NUM2
       ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
@@ -98,7 +96,7 @@ C IOFFO=NR OF OCC ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       WRITE(LU,*)'# Spin Matrix (K-2V) for RAES and NAES'
       ELSE IF(SDA.and.AUGSPIN.EQ.-1) THEN
       WRITE(LU,*)'# Spin matrix SDA for NAES.'
-! if AAB (all spin) true
+C     if AAB (all spin) true
       ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
       WRITE(LU,*)'# Spin BBB 2-el rTDM density matrix.'
       ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
@@ -112,28 +110,25 @@ C IOFFO=NR OF OCC ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
       WRITE(LU,*)'# Spin BAB 2-el rTDM density matrix.'
       END IF
- 
+
       WRITE(LU,*)'# OCA for scattering atom:'
       WRITE(LU,*) OCAN
       DO I=1,OCAN
-       WRITE(LU,*) OCAA(I)
+      WRITE(LU,*) OCAA(I)
       END DO
       WRITE(LU,*)'# Binding energy (eV)'
       WRITE(LU,'(5E19.12)') EIJ
 
       SYM12=MUL(LSYM1,LSYM2)
       WRITE(LU,*)'# Total Symmetry of the WF product (<N-1,N>):'
-      WRITE(LU,*) SYM12      
+      WRITE(LU,*) SYM12
       WRITE(LU,*)'# States:',ISTATE, JSTATE
-      !WRITE(LU,*) ISTATE, JSTATE
       WRITE(LU,*)'# Nr of irreps:',NSYM
       WRITE(LU,*) NSYM
       WRITE(LU,'(A17,8I5)')' # Basis func   :',(NBASF(ISYM),ISYM=1,NSYM)
       WRITE(LU,'(8I5)') (NBASF(ISYM),ISYM=1,NSYM)
       WRITE(LU,'(A17,8I5)')' # Frozen  orb   :',(NFRO(ISYM),ISYM=1,NSYM)
-      !WRITE(LU,'(8I5)') (NFRO(ISYM),ISYM=1,NSYM)
       WRITE(LU,'(A17,8I5)')' # Inactive orb  :',(NISH(ISYM),ISYM=1,NSYM)
-      !WRITE(LU,'(8I5)') (NISH(ISYM),ISYM=1,NSYM)
       WRITE(LU,'(A17,8I5)')' # Active orb    :',(NASH(ISYM),ISYM=1,NSYM)
       WRITE(LU,'(8I5)') (NASH(ISYM),ISYM=1,NSYM)
       WRITE(LU,'(A17,8I5)')' # Total num orb :',(NOSH(ISYM),ISYM=1,NSYM)
@@ -148,7 +143,6 @@ C IOFFO=NR OF OCC ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
           DO i=0,NB-1
           WRITE(LU,'(5E19.12)') CMO1(LPOS+NB*(IO-1)+i)
           END DO
-          !WRITE(LU,'(5E19.12)')(CMO1(LPOS+NB*(IO-1)+i),i=0,NB-1)
         END DO
         LPOS=LPOS+NB*NO
       END DO
@@ -162,13 +156,9 @@ C IOFFO=NR OF OCC ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
           DO i=0,NB-1
           WRITE(LU,'(5E19.12)') CMO2(LPOS+NB*(IO-1)+i)
           END DO
-          !WRITE(LU,'(5E19.12)')(CMO2(LPOS+NB*(IO-1)+i),i=0,NB-1)
         END DO
         LPOS=LPOS+NB*NO
       END DO
-      !SYM12=MUL(LSYM1,LSYM2)
-      !WRITE(LU,*)'# Total Symmetry of the WF product (<N-1,N>):'
-      !WRITE(LU,*) SYM12
 C Write Dyson orbitals in CI basis
       WRITE(LU,*)'# 1-e Dyson orbital for CI coeff. in MO biorth. basis'
       WRITE(LU,*)'# Symmetry Block elements:',NDYSAB
@@ -179,10 +169,9 @@ C Write Dyson orbitals in CI basis
        NII=NISH(ISYI)
        IF(NOI.EQ.0) GOTO 400
        WRITE(LU,'(A10,8I7)')' # sub-Block:',ISYI,NOI
-       !WRITE(LU,'(8I6)') ISYI,NOI
        DO I=1,NOI
          IA=I+IOFFTD
-         ! eliminate small numbers
+C        eliminate small numbers
          IF(ABS(DYSAB(IA)).LT.1.0D-39) THEN
             DYSAB(IA)=0.0D0
          END IF
@@ -192,11 +181,8 @@ C Write Dyson orbitals in CI basis
        NORBSYM=NOI
        IOFFTD=IOFFTD+NORBSYM
       END DO
-C Write reduced 2-e TDM in CI basis      
-      !SYM12=MUL(LSYM1,LSYM2)
+C Write reduced 2-e TDM in CI basis.
       IOFFTD=0
-      !WRITE(LU,*)'# States ',ISTATE,JSTATE,' Overlap:'
-      !WRITE(LU,'(5D19.12)') SIJ
       WRITE(LU,*)'# 2-e reduced TDM for CI coeff. in MO biorth. basis'
       WRITE(LU,*)'# Symmetry Block elements:',NRT2MAB
       WRITE(LU,*) NRT2MAB
@@ -235,18 +221,9 @@ C Write reduced 2-e TDM in CI basis
                LA=IOFFA(ISYL)+L-NIL
                LO=IOFFO(ISYL)+L
                IF((IA.LE.0).or.(JA.LE.0).or.(LA.LE.0)) THEN
-                write(LU,'(I7,I7,I7,E26.12)') IO,JO,LO,0.0D0
-               ELSE  
-                !LL=NIL+L
-                !II JJ LL are positions in RT2MAB
-                !IA JA LA are positions in RT2M
-                !IF(JA.GE.LA) THEN
-                !IPOS is the position in RT2MAB
-                !IPOS=IOFFTD+II+NOI*((LL+NOI*(JJ-1))-1)
-                !KPOS is the position in RT2M
+               write(LU,'(I7,I7,I7,E26.12)') IO,JO,LO,0.0D0
+               ELSE
                 KPOS=IA+NASHT*((LA+NASHT*(JA-1))-1)
-                !RT2MAB(IPOS)=RT2M(KPOS)
-                ! eliminate small numbers
                 IF(ABS(RT2M(KPOS)).LT.1.0D-39) THEN
                  RT2M(KPOS) = 0.0D0
                 END IF
@@ -257,8 +234,6 @@ C Write reduced 2-e TDM in CI basis
              END DO
             END DO
 670         CONTINUE
-            !NORBSYM=NOI*NOJ*NOL
-            !IOFFTD=IOFFTD+NORBSYM
           END IF
 470     CONTINUE
         END DO

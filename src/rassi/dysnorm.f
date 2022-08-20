@@ -15,7 +15,8 @@
 *  BIORTH. BASIS
 ************************************************************************
       SUBROUTINE DYSNORM(CMOA,DYSCMO,NORM)
-      IMPLICIT NONE
+
+      Implicit Integer (A-Z)
 
       integer :: isym
       real*8 NORM,NORMSCR,DDOT_

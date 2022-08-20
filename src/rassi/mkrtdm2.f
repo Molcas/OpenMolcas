@@ -14,7 +14,8 @@
      &                  MAPORB,DET1,DET2,
      &                  IF21,IF12,NRT2M,RT2M,
      &                  ISTATE,JSTATE,SPIN)
-! The spin coupling matrix elements have the following index-code:
+
+C The spin coupling matrix elements have the following index-code:
              !SPIN=1 means  K2V (AAB+BBB)
              !SPIN=-1 means SDA (AAA+BBA)
              !SPIN=2 means: bbb
@@ -23,8 +24,8 @@
              !SPIN=5 means: bba
              !SPIN=6 means: aba
              !SPIN=7 means: bab
-! Notice, SPIN here has nothing to do with the spin quantum number. It
-! is just a printing code.
+C Notice, SPIN here has nothing to do with the spin quantum number. It
+C is just a printing code.
 
       IMPLICIT NONE
       INTEGER SPIN
@@ -36,20 +37,14 @@
       REAL*8 Srt12, Srt13
       REAL*8 GVAL,GAAA,GAAB,GABA,GABB,GBAA,GBAB,GBBA,GBBB
       REAL*8 GVALS, GVALT
-!      !INTEGER LSYM1,MSPOJ1,LSYM2,MSPROJ2,ISYOP,MS2OP
-!      !INTEGER MPLET1,MPLET2, MPLETD
       INTEGER IAJBLA,IAJBLB,IBJALA,IBJALB,IBJAJB
       INTEGER IBJBJB,IAJAJB
       INTEGER IAJALA,IAJALB,IBJBLA,IBJBLB,IAJBJA,IBJBJA
-      INTEGER LORB,JORB,IORB 
+      INTEGER LORB,JORB,IORB
       INTEGER JORBA,JORBB,LORBA,LORBB,IORBA,IORBB
       INTEGER ITABS,JTABS,LTABS,JLTABS,IJLTABS
-!      INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
-!      INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
-!      INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
       INTEGER NASGEM,NSRT2M,ISTATE,JSTATE,SIGNLJ
       LOGICAL IF21,IF12
-      !INTEGER job1,job2,ist,jst
 #include "symmul.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -64,20 +59,12 @@ C Pick out nr of active orbitals from orbital table:
       NASORB=IWORK(LORBTB+3)
       NASHT=NASORB/2
       NASGEM=(NASORB*(NASORB-1))/2
-      !NSRT2M=NASORB*(NASORB*(NASORB-1))/2
       NSRT2M=NASORB**3
       Call mma_allocate(SRT2M,nSRT2M,Label='SRT2M')
       SRT2M(:)=0.0D0
-      !ISYOP   = MUL(LSYM1,LSYM2)
-      !MS2OP   = MSPROJ1-MSPROJ2
-      !MPLETD =  MPLET1 - MPLET2
         CALL SRTDM2(IWORK(LORBTB),ISSTAB,
      &              IFSBTAB1,IFSBTAB2,DET1,DET2,
-     &              IF21,IF12,NSRT2M,SRT2M)
-      !write(6,*)"BRN SRT2M print",nSRT2M
-      !DO I=1,NSRT2M
-      !  write(6,*) "SRT2",I,SRT2M(I)
-      !END DO   
+     &              IF21,IF12,SRT2M)
 C Mapping from active spin-orbital to active orbital in external order.
 C Note that these differ, not just because of the existence of two
 C spin-orbitals for each orbital, but also because the active orbitals
@@ -121,7 +108,6 @@ C For low spin density it'll keep only alpha,beta,alpha.
           IBJALB=IORBB+NASORB*(NASORB*(JORBA-1)+LORBB-1)
           IAJALA=IORBA+NASORB*(NASORB*(JORBA-1)+LORBA-1)
           IBJBLA=IORBB+NASORB*(NASORB*(JORBB-1)+LORBA-1)
-          !The spin function
           IF(SPIN.EQ.1) THEN ! K^1/2,1/2= (AAB+BBB)
            GAAB=SRT2M(IAJALB)
            GBBB=SRT2M(IBJBLB)
@@ -130,7 +116,7 @@ C For low spin density it'll keep only alpha,beta,alpha.
            GBBA=SRT2M(IBJBLA)
            GAAA=SRT2M(IAJALA)
            GVAL=(GAAA+GBBA)
-          ELSE IF(SPIN.EQ.2) THEN 
+          ELSE IF(SPIN.EQ.2) THEN
            GBBB=SRT2M(IBJBLB)
            GVAL=GBBB
           ELSE IF(SPIN.EQ.3) THEN
@@ -150,14 +136,12 @@ C For low spin density it'll keep only alpha,beta,alpha.
            GVAL=GBAB
           END IF
          ELSE IF(JORB.EQ.LORB) THEN
-         !ELSE ! When J=L
           IAJALB=IORBA+NASORB*(NASORB*(JORBA-1)+LORBB-1)
           IAJBLA=IORBA+NASORB*(NASORB*(JORBB-1)+LORBA-1)
           IBJBLB=IORBB+NASORB*(NASORB*(JORBB-1)+LORBB-1)
           IBJALB=IORBB+NASORB*(NASORB*(JORBA-1)+LORBB-1)
           IAJALA=IORBA+NASORB*(NASORB*(JORBA-1)+LORBA-1)
           IBJBLA=IORBB+NASORB*(NASORB*(JORBB-1)+LORBA-1)
-          !The spin function
           IF(SPIN.EQ.1) THEN ! K^1/2,1/2
            GAAB=SRT2M(IAJALB)
            GBBB=SRT2M(IBJBLB)
@@ -166,7 +150,7 @@ C For low spin density it'll keep only alpha,beta,alpha.
            GBBA=SRT2M(IBJBLA)
            GAAA=SRT2M(IAJALA)
            GVAL=(GAAA+GBBA)
-          ELSE IF(SPIN.EQ.2) THEN 
+          ELSE IF(SPIN.EQ.2) THEN
            GBBB=SRT2M(IBJBLB)
            GVAL=GBBB
           ELSE IF(SPIN.EQ.3) THEN
@@ -192,7 +176,6 @@ C For low spin density it'll keep only alpha,beta,alpha.
           IBJALB=IORBB+NASORB*(NASORB*(JORBA-1)+LORBB-1)
           IAJALA=IORBA+NASORB*(NASORB*(JORBA-1)+LORBA-1)
           IBJBLA=IORBB+NASORB*(NASORB*(JORBB-1)+LORBA-1)
-          !The spin function
           IF(SPIN.EQ.1) THEN ! K^1/2,1/2
            GAAB=SRT2M(IAJALB)
            GBBB=SRT2M(IBJBLB)
@@ -201,7 +184,7 @@ C For low spin density it'll keep only alpha,beta,alpha.
            GBBA=SRT2M(IBJBLA)
            GAAA=SRT2M(IAJALA)
            GVAL=(GAAA+GBBA)
-          ELSE IF(SPIN.EQ.2) THEN 
+          ELSE IF(SPIN.EQ.2) THEN
            GBBB=SRT2M(IBJBLB)
            GVAL=GBBB
           ELSE IF(SPIN.EQ.3) THEN
@@ -219,7 +202,7 @@ C For low spin density it'll keep only alpha,beta,alpha.
           ELSE IF(SPIN.EQ.7) THEN
            GBAB=SRT2M(IBJALB)
            GVAL=GBAB
-          END IF         
+          END IF
          END IF
          IJLTABS=ITABS+NASHT*(JLTABS-1)
          RT2M(IJLTABS)=GVAL

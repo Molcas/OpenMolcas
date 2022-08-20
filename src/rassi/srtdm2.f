@@ -11,20 +11,14 @@
 * Copyright (C) 2020, Bruno Tenorio                                    *
 ************************************************************************
       SUBROUTINE SRTDM2(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
-     &                   PSI1,PSI2,IF21,IF12,NSRT2M,SRT2M)
+     &                   PSI1,PSI2,IF21,IF12,SRT2M)
       IMPLICIT NONE
       REAL*8 PSI1(*),PSI2(*),SRT2M(*)
-      !DIMENSION SRT2M(NSRT2M)
-      !REAL*8,ALLOCATABLE,DIMENSION(:) :: SRT2M
       REAL*8 COEFF,OVERLAP_RASSI,OVLP
-      !REAL*8 PRTHR
-      !INTEGER MAPORB(*)
       INTEGER IORBTAB(*),NASORB
-      INTEGER NSRT2M,NASHT
       INTEGER ISSTAB(*)
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
       INTEGER FSBOP,IMODE
-      !INTEGER NDETS1,NDETS2
       INTEGER LFSBANN1,LFSBANN2,LFSBANN3
       INTEGER ISORB,JSORB,LSORB,JLSORB,IJL
       INTEGER LANN1,LANN2,LANN3
@@ -36,15 +30,15 @@
 #include "WrkSpc.fh"
 #include "symmul.fh"
       EXTERNAL OVERLAP_RASSI
+
 C Calculates the 2-electron Dyson matrix between two states with
 C N and N-1 electrons, defined as:
 C IF12 D = < N-1 | anni_left anni_right anni_right | N >, or
 C IF21 D = < N | anni_left anni_left anni_right | N-1 >
 C reduced 2-electron tdm in the space of active spin-orbitals
-      !Nr of active spin-orbitals
+
       NASORB=IORBTAB(4)
-C Nr of active orbital:
-      NASHT=NASORB/2
+
 C IF12 = eliminte one electron to the left: < N-1 | anni_left (PSI1)
 C and then eliminate two to the left (PSI2) anni_right anni_right | N >
       IF(IF12) THEN
@@ -98,22 +92,14 @@ C Annihilate another spin orbital from PSI2, LSORB:
           IF (JSORB.ne.LSORB) THEN
            CALL PRIMSGM(IMODE,LSORB,IORBTAB,ISSTAB,IWORK(LFSBANN3),
      &                   IWORK(LFSBANN2),COEFF,WORK(LANN3),WORK(LANN2))
-!          write(6,*) 'BRN print the WF table WORK(LANN1)'
-!          PRTHR=0.01D0
-!          CALL PRWVF(IORBTAB,ISSTAB,IWORK(LFSBANN1),PRTHR,WORK(LANN1))
-!          write(6,*) 'BRN print the WF table WORK(LANN3)'
-!          CALL PRWVF(IORBTAB,ISSTAB,IWORK(LFSBANN3),PRTHR,WORK(LANN3))
-C Compute the spin transition density matrix element:    
+C Compute the spin transition density matrix element:
            OVLP=OVERLAP_RASSI(IWORK(LFSBANN1),
      &                  IWORK(LFSBANN3),WORK(LANN1),WORK(LANN3))
           ELSE
            OVLP=0.0D0
           END IF
           IJL=ISORB+(NASORB*JLSORB)
-          !SRT2M(IJL)=SRT2M(IJL)+OVLP
           SRT2M(IJL)=OVLP
-! 100      CONTINUE
-         !END DO
           CALL GETMEM('ANN3','Free','Real',LANN3,ND3)
           CALL KILLOBJ(LFSBANN3)
          END DO
@@ -123,15 +109,14 @@ C Compute the spin transition density matrix element:
         CALL GETMEM('ANN1','Free','Real',LANN1,ND1)
         CALL KILLOBJ(LFSBANN1)
        END DO
-!################################################################################
+C ################################################################################
 C IF12 = Eliminate to the right (state 2)
       ELSE IF(IF21) THEN
-       WRITE(6,*) 'Invalid state combination. 
-     &      Please, give PSI1=(N-1) and PSI2=(N) '
+      WRITE(6,*) 'Invalid state combination.
+     &      Please, give PSI1=(N-1) and PSI2=(N)'
       ELSE
-       WRITE(6,*)'Invalid state combination in 2particle DYSON'
-       !WRITE(6,*)'(No such Dyson orbital can exist!)'
+      WRITE(6,*)'Invalid state combination in 2particle DYSON'
       END IF ! IF10 or IF01
-!################################################################################
+C ################################################################################
       RETURN
       END

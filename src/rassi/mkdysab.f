@@ -26,7 +26,7 @@
 
       SUBROUTINE MKDYSAB(DYSCOF,DYSAB)
       IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 DYSCOF(*),DYSAB(*),coeff
+      REAL*8 DYSCOF(*),DYSAB(*)
       !REAL*8,ALLOCATABLE,DIMENSION(:,:) :: GAMMA1
       INTEGER,ALLOCATABLE,DIMENSION(:) :: IOFFA
 
@@ -65,7 +65,6 @@ C CONTRIBUTION FROM INACTIVE ORBITALS:
 C (By definition 0 for Dyson orbitals,
 C but we need to fill out the full vector for easier
 C transformation.)
-!      IF(LSYM1.EQ.LSYM2) THEN
         IOFFTD=0
         DO 50 ISY=1,NSYM
          IF(NISH(ISY).NE.0) THEN
@@ -78,9 +77,7 @@ C transformation.)
           IOFFTD=IOFFTD+NOSH(ISY)
          END IF
 50      CONTINUE
-!      END IF
 C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
-!      ISY12=MUL(LSYM1,LSYM2)
       IOFFTD=0
       ICOFF=1
       DO 120 ISY1=1,NSYM

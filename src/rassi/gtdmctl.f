@@ -47,11 +47,6 @@
       DIMENSION NASHES(8)
       DIMENSION OVLP(NSTATE,NSTATE)
       DIMENSION DYSAMPS(NSTATE,NSTATE)
-      CHARACTER*3 NUM1,NUM2
-      CHARACTER*12 FNMX
-      CHARACTER*16 FNMXU
-      CHARACTER*12 FNMRT
-      CHARACTER*16 FNMRTU
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
@@ -83,9 +78,9 @@ CC    NTO section
       real*8, Allocatable:: TDMZZ(:), TSDMZZ(:), WDMZZ(:)
       real*8, Allocatable:: TDM2(:), TRA1(:), TRA2(:), FMO(:), TUVX(:)
       real*8, Allocatable:: DYSCOF(:), DYSAB(:), DYSZZ(:)
-      Integer NRT2M,NRT2MAB,NRT2MZZ,AUGSPIN,NDCHSM
-      Integer ISY,JSY,LSY,NI,NJ,NL,NBI,NBJ,NBL
-      real*8, Allocatable:: RT2M(:),RT2MAB(:), RT2MZZ(:), DYSAB2(:)
+      Integer NRT2M,NRT2MAB,AUGSPIN,NDCHSM
+      Integer ISY,JSY,LSY,NI,NJ,NL
+      real*8, Allocatable:: RT2M(:),RT2MAB(:)
       real*8, Allocatable:: DCHSM(:)
       real*8 Ei,Ej,Eij,AU2EV
       logical SDA,AAB,KKV
