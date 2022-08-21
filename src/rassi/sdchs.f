@@ -25,7 +25,6 @@
       INTEGER ISORB,JSORB,IJ
       INTEGER LANN1,LANN2
       INTEGER ND1,ND2
-      INTEGER KOINFO
       INTEGER JSMLAB,JSPLAB
       LOGICAL IF20,IF02
 
@@ -45,8 +44,6 @@ C IF02 = eliminte one electron to the right: < N-2 | anni_right
 C anni_right | N >
       IF(IF02) THEN
 
-       KOINFO=19
-
        DO ISORB=1,NASORB
 C Symmetry properties:
         !ISMLAB=IORBTAB(KOINFO+1+8*(ISORB-1))
@@ -63,8 +60,8 @@ C Annihilate a single spin orbital from PSI2, the spin orbital ISORB:
 
         DO JSORB=1,ISORB-1
 C Symmetry properties:
-         JSMLAB=IORBTAB(KOINFO+1+8*(JSORB-1))
-         JSPLAB=IORBTAB(KOINFO+3+8*(JSORB-1))
+         !JSMLAB=IORBTAB(KOINFO+1+8*(JSORB-1))
+         !JSPLAB=IORBTAB(KOINFO+3+8*(JSORB-1))
 C Pair index J,L:
 
          OVLP=0.0D0

@@ -22,7 +22,7 @@
       REAL*8 DCHSM(NDCHSM)
       INTEGER NASHT,NASORB,LORBTB
       REAL*8 GVAL,GAB,GBA
-      INTEGER IAJB,IBJA,IAJA,IBJB
+      INTEGER IAJB,IBJA
       INTEGER JORB,IORB
       INTEGER JORBA,JORBB,IORBA,IORBB
       INTEGER ITABS,JTABS,IJTABS
@@ -63,8 +63,8 @@ C spin orbitals are grouped by subpartition.
 
       IAJB=0      ! dummy initialize
       IBJA=0      ! dummy initialize
-      IAJA=0      ! dummy initialize
-      IBJB=0      ! dummy initialize
+      !IAJA=0      ! dummy initialize
+      !IBJB=0      ! dummy initialize
 
       DO IORB=1,NASHT
        IORBA=2*IORB-1
@@ -78,8 +78,8 @@ C spin orbitals are grouped by subpartition.
         IF(IORB.GT.JORB) THEN
          IAJB=((IORBA-1)*(IORBA-2)/2)+JORBB
          IBJA=((IORBB-1)*(IORBB-2)/2)+JORBA
-         IAJA=((IORBA-1)*(IORBA-2)/2)+JORBA
-         IBJB=((IORBB-1)*(IORBB-2)/2)+JORBB
+         !IAJA=((IORBA-1)*(IORBA-2)/2)+JORBA
+         !IBJB=((IORBB-1)*(IORBB-2)/2)+JORBB
         ELSE IF(JORB.EQ.IORB) THEN
          IAJB=((IORBA-1)*(IORBA-2)/2)+JORBB
          IBJA=((IORBB-1)*(IORBB-2)/2)+JORBA
@@ -93,8 +93,8 @@ C        I,J,DCHSM**2
         ELSE IF(IORB.LT.JORB) THEN
          IBJA=((JORBA-1)*(JORBA-2)/2)+IORBB
          IAJB=((JORBB-1)*(JORBB-2)/2)+IORBA
-         IBJB=((JORBB-1)*(JORBB-2)/2)+IORBB
-         IAJA=((JORBA-1)*(JORBA-2)/2)+IORBA
+         !IBJB=((JORBB-1)*(JORBB-2)/2)+IORBB
+         !IAJA=((JORBA-1)*(JORBA-2)/2)+IORBA
         END IF
         IJTABS=JTABS+NASHT*(ITABS-1)
         DCHSM(IJTABS)=GVAL

@@ -70,9 +70,10 @@
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
 
-      ! Bruno, DYSAMPS2 is used for printing out the pure norm of the Dyson
-      ! vectors. DYSAMPS remains basis of the SF eigen-states to the basis of the
-      ! original SF states.
+      ! Bruno, DYSAMPS2 is used for printing out the pure norm
+      ! of the Dyson vectors.
+      ! DYSAMPS remains basis of the SF eigen-states to the basis
+      ! of the original SF states.
       DYSAMPS2=DYSAMPS
 
 C CONSTANTS:

@@ -23,7 +23,6 @@
       INTEGER ISORB,JSORB,LSORB,JLSORB,IJL
       INTEGER LANN1,LANN2,LANN3
       INTEGER ND1,ND2,ND3
-      INTEGER KOINFO
       LOGICAL IF21,IF12
 #include "SysDef.fh"
 #include "WrkSpc.fh"
@@ -41,7 +40,6 @@ C reduced 2-electron tdm in the space of active spin-orbitals
 C IF12 = eliminte one electron to the left: < N-1 | anni_left (PSI1)
 C and then eliminate two to the left (PSI2) anni_right anni_right | N >
       IF(IF12) THEN
-       KOINFO=19
        DO ISORB=1,NASORB
 C Annihilate a single spin orbital from PSI1 (N-1), ISORB:
         IMODE=-1

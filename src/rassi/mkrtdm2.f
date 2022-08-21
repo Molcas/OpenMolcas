@@ -34,12 +34,12 @@ C is just a printing code.
       REAL*8 RT2M(NRT2M)
       INTEGER NASHT,NASORB,LORBTB
       REAL*8 GVAL,GAAA,GAAB,GABA,GBAB,GBBA,GBBB
-      INTEGER IAJBLA,IAJBLB,IBJALA,IBJALB
+      INTEGER IAJBLA,IBJALB
       INTEGER IAJALA,IAJALB,IBJBLA,IBJBLB
       INTEGER LORB,JORB,IORB
       INTEGER JORBA,JORBB,LORBA,LORBB,IORBA,IORBB
       INTEGER ITABS,JTABS,LTABS,JLTABS,IJLTABS
-      INTEGER NASGEM,NSRT2M
+      INTEGER NSRT2M
       LOGICAL IF21,IF12
 #include "symmul.fh"
 #include "stdalloc.fh"
@@ -56,7 +56,7 @@ C Pick out nr of active orbitals from orbital table:
 
       NASORB=IWORK(LORBTB+3)
       NASHT=NASORB/2
-      NASGEM=(NASORB*(NASORB-1))/2
+      !NASGEM=(NASORB*(NASORB-1))/2
       NSRT2M=NASORB**3
       Call mma_allocate(SRT2M,nSRT2M,Label='SRT2M')
       SRT2M(:)=0.0D0
@@ -73,8 +73,6 @@ C spin orbitals are grouped by subpartition.
       IAJALA=0      ! dummy initialize
       IAJALB=0      ! dummy initialize
       IAJBLA=0      ! dummy initialize
-      IAJBLB=0      ! dummy initialize
-      IBJALA=0      ! dummy initialize
       IBJALB=0      ! dummy initialize
       IBJBLA=0      ! dummy initialize
       IBJBLB=0      ! dummy initialize

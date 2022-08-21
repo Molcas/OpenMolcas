@@ -27,9 +27,7 @@
       SUBROUTINE MKDYSAB(DYSCOF,DYSAB)
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSCOF(*),DYSAB(*)
-      !REAL*8,ALLOCATABLE,DIMENSION(:,:) :: GAMMA1
       INTEGER,ALLOCATABLE,DIMENSION(:) :: IOFFA
-
       REAL*8,ALLOCATABLE,DIMENSION(:) :: DYSCOF2
       REAL*8 GAA,GBB,OVLP
       INTEGER IORB,ISORB
@@ -42,7 +40,6 @@
 
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
 !Alpha and beta contributions are added up here
-      NASORB=NASHT*2
       ALLOCATE(DYSCOF2(NASHT))
       DO IORB=1,NASHT
        ISORB=2*IORB-1
@@ -87,7 +84,6 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
         IF(NA1.EQ.0) GOTO 110
         NI1=NISH(ISY1)
         DO 100 I=1,NA1
-          IA=IOFFA(ISY1)+I
           II=NI1+I
           IPOS=IOFFTD+II
           DYSAB(IPOS)=DYSCOF2(ICOFF)
