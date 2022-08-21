@@ -850,10 +850,9 @@ C evaluate K-2V spin density
        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF21,IF12,NRT2M,RT2M,
-     &      ISTATE,JSTATE,AUGSPIN)
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                  NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       end if
@@ -867,10 +866,9 @@ C evaluate K-2V spin density
        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF21,IF12,NRT2M,RT2M,
-     &      ISTATE,JSTATE,AUGSPIN)
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                 NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+     &                 RT2M,CMO1,CMO2,AUGSPIN)
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       end if
@@ -885,10 +883,9 @@ C evaluate High spin density (beta,beta,beta)
        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF21,IF12,NRT2M,RT2M,
-     &      ISTATE,JSTATE,AUGSPIN)
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                  NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       end if
@@ -904,10 +901,9 @@ C evaluate High spin density (alpha,alpha,alpha)
        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF21,IF12,NRT2M,RT2M,
-     &      ISTATE,JSTATE,AUGSPIN)
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                  NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       end if
@@ -923,10 +919,9 @@ C evaluate low spin density (beta,alpha,beta)
        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF21,IF12,NRT2M,RT2M,
-     &      ISTATE,JSTATE,AUGSPIN)
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                 NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+     &                 RT2M,CMO1,CMO2,AUGSPIN)
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       end if
@@ -942,10 +937,9 @@ C evaluate low spin density (alpha,alpha,beta)
        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF21,IF12,NRT2M,RT2M,
-     &      ISTATE,JSTATE,AUGSPIN)
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                 NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+     &                 RT2M,CMO1,CMO2,AUGSPIN)
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       end if
@@ -961,10 +955,9 @@ C evaluate Low spin density (alpha,beta,alpha)
        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF21,IF12,NRT2M,RT2M,
-     &      ISTATE,JSTATE,AUGSPIN)
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                  NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       end if
@@ -980,10 +973,9 @@ C evaluate low spin density (beta,beta,alpha)
        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF21,IF12,NRT2M,RT2M,
-     &      ISTATE,JSTATE,AUGSPIN)
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                 NRT2M,RT2M,CMO1,CMO2,AUGSPIN)
+     &                 RT2M,CMO1,CMO2,AUGSPIN)
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       end if

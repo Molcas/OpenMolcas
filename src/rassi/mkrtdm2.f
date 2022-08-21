@@ -12,8 +12,7 @@
 ************************************************************************
       SUBROUTINE MKRTDM2(IFSBTAB1,IFSBTAB2,ISSTAB,
      &                  MAPORB,DET1,DET2,
-     &                  IF21,IF12,NRT2M,RT2M,
-     &                  ISTATE,JSTATE,SPIN)
+     &                  IF21,IF12,NRT2M,RT2M,SPIN)
 
 C The spin coupling matrix elements have the following index-code:
              !SPIN=1 means  K2V (AAB+BBB)
@@ -33,22 +32,20 @@ C is just a printing code.
       INTEGER ISSTAB(*),MAPORB(*),NRT2M
       REAL*8 DET1(*),DET2(*)
       REAL*8 RT2M(NRT2M)
-      INTEGER NASHT,NASORB,LORBTB,IP,I
-      REAL*8 Srt12, Srt13
-      REAL*8 GVAL,GAAA,GAAB,GABA,GABB,GBAA,GBAB,GBBA,GBBB
-      REAL*8 GVALS, GVALT
-      INTEGER IAJBLA,IAJBLB,IBJALA,IBJALB,IBJAJB
-      INTEGER IBJBJB,IAJAJB
-      INTEGER IAJALA,IAJALB,IBJBLA,IBJBLB,IAJBJA,IBJBJA
+      INTEGER NASHT,NASORB,LORBTB
+      REAL*8 GVAL,GAAA,GAAB,GABA,GBAB,GBBA,GBBB
+      INTEGER IAJBLA,IAJBLB,IBJALA,IBJALB
+      INTEGER IAJALA,IAJALB,IBJBLA,IBJBLB
       INTEGER LORB,JORB,IORB
       INTEGER JORBA,JORBB,LORBA,LORBB,IORBA,IORBB
       INTEGER ITABS,JTABS,LTABS,JLTABS,IJLTABS
-      INTEGER NASGEM,NSRT2M,ISTATE,JSTATE,SIGNLJ
+      INTEGER NASGEM,NSRT2M
       LOGICAL IF21,IF12
 #include "symmul.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
       Real*8, Allocatable:: SRT2M(:)
+
 C Given two CI expansions, using a biorthonormal set of SD''s,
 C calculate the 2-particle transition density matrix
 C in the biorthonormal active orbital basis.
@@ -56,6 +53,7 @@ C It will build the contribution from high spin (J->beta,L->beta)
 C and low spin (J->beta,L->alpha).
       LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
+
       NASORB=IWORK(LORBTB+3)
       NASHT=NASORB/2
       NASGEM=(NASORB*(NASORB-1))/2
@@ -65,14 +63,13 @@ C Pick out nr of active orbitals from orbital table:
         CALL SRTDM2(IWORK(LORBTB),ISSTAB,
      &              IFSBTAB1,IFSBTAB2,DET1,DET2,
      &              IF21,IF12,SRT2M)
+
 C Mapping from active spin-orbital to active orbital in external order.
 C Note that these differ, not just because of the existence of two
 C spin-orbitals for each orbital, but also because the active orbitals
 C (external order) are grouped by symmetry and then RAS space, but the
 C spin orbitals are grouped by subpartition.
-      IP=0
-      Srt12=1.0D0/Sqrt(2.0D0)
-      Srt13=1.0D0/Sqrt(3.0D0)
+      GVAL=0.0D0
       IAJALA=0      ! dummy initialize
       IAJALB=0      ! dummy initialize
       IAJBLA=0      ! dummy initialize
@@ -81,12 +78,11 @@ C spin orbitals are grouped by subpartition.
       IBJALB=0      ! dummy initialize
       IBJBLA=0      ! dummy initialize
       IBJBLB=0      ! dummy initialize
-      IAJBJA=0      ! dummy initialize for J=L
-      IBJBJA=0      ! dummy initialize for J=L
-      IBJAJB=0      ! dummy initialize for J=L
+
 C For high spin density it will keep only beta,beta,beta.
 C Notice that beta,beta,beta when J=L is zero.
 C For low spin density it'll keep only alpha,beta,alpha.
+
       DO IORB=1,NASHT
        IORBA=2*IORB-1
        IORBB=2*IORB
@@ -101,7 +97,6 @@ C For low spin density it'll keep only alpha,beta,alpha.
          LTABS=MAPORB(LORBA)
          JLTABS=LTABS+NASHT*(JTABS-1)
          IF(JORB.GT.LORB) THEN ! When J>L
-          SIGNLJ=1.0D0
           IAJALB=IORBA+NASORB*(NASORB*(JORBA-1)+LORBB-1)
           IAJBLA=IORBA+NASORB*(NASORB*(JORBB-1)+LORBA-1)
           IBJBLB=IORBB+NASORB*(NASORB*(JORBB-1)+LORBB-1)
@@ -209,6 +204,9 @@ C For low spin density it'll keep only alpha,beta,alpha.
         END DO
        END DO
       END DO
+
       CALL mma_deallocate(SRT2M)
+
       RETURN
+
       END

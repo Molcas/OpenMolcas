@@ -14,7 +14,7 @@
 C Print the reduced 2-e TDM in ASCII format.
 C Code adapted from trd_print.f written by P. A. Malmqvist.
       SUBROUTINE RTDM2_PRINT(ISTATE, JSTATE, EIJ, NDYSAB, DYSAB,
-     &                 NRT2MAB, NRT2M , RT2M , CMO1, CMO2, AUGSPIN)
+     &                 NRT2MAB , RT2M , CMO1, CMO2, AUGSPIN)
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -30,7 +30,7 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
 #include "Struct.fh"
 #include "stdalloc.fh"
       INTEGER ISTATE, JSTATE, SYM12
-      INTEGER NDYSAB,NRT2M,NRT2MAB,AUGSPIN
+      INTEGER NDYSAB,NRT2MAB,AUGSPIN
       Real*8  DYSAB(*), RT2M(*), CMO1(*), CMO2(*)
       Real*8  EIJ
 C -------------------------------------------------------------
@@ -49,7 +49,6 @@ C ------------------------------------------------------------
 C Other variables
       CHARACTER*3 NUM1,NUM2
       CHARACTER*16 FNM
-      DIMENSION WBUF(5)
       DIMENSION IOFFA(8), IOFFO(8)
       logical :: SDA,KKV,AAB
       aab=.false. ! (all the spin components)
@@ -191,19 +190,16 @@ C Write reduced 2-e TDM in CI basis.
        NOI=NOSH(ISYI)
        NAI=NASH(ISYI)
        NII=NISH(ISYI)
-       NBI=NBASF(ISYI)
        IF(NOI.EQ.0) GOTO 270
        DO ISYJ=1,NSYM
         NOJ=NOSH(ISYJ)
         NAJ=NASH(ISYJ)
         NIJ=NISH(ISYJ)
-        NBJ=NBASF(ISYJ)
         IF(NOJ.EQ.0) GOTO 370
         DO ISYL=1,NSYM
          NOL=NOSH(ISYL)
          NAL=NASH(ISYL)
          NIL=NISH(ISYL)
-         NBL=NBASF(ISYL)
          IF(NOL.EQ.0) GOTO 470
           IF(MUL(ISYI,MUL(ISYJ,ISYL)).EQ.SYM12) THEN
             IF(NAI.EQ.0) GOTO 670

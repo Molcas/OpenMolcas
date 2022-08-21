@@ -24,7 +24,6 @@
       INTEGER LANN1,LANN2,LANN3
       INTEGER ND1,ND2,ND3
       INTEGER KOINFO
-      INTEGER ISMLAB,ISPLAB,JSMLAB,JSPLAB,LSMLAB,LSPLAB
       LOGICAL IF21,IF12
 #include "SysDef.fh"
 #include "WrkSpc.fh"
@@ -44,9 +43,6 @@ C and then eliminate two to the left (PSI2) anni_right anni_right | N >
       IF(IF12) THEN
        KOINFO=19
        DO ISORB=1,NASORB
-C Symmetry properties:
-        ISMLAB=IORBTAB(KOINFO+1+8*(ISORB-1))
-        ISPLAB=IORBTAB(KOINFO+3+8*(ISORB-1))
 C Annihilate a single spin orbital from PSI1 (N-1), ISORB:
         IMODE=-1
         LFSBANN1=FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1)
@@ -60,9 +56,6 @@ CTEST       WRITE(*,*)' The ANN1 wave function, with ISORB=',ISORB
 CTEST       PRTHR=0.01D0
 CTEST       CALL PRWVF(IORBTAB,ISSTAB,IWORK(LFSBANN1),PRTHR,WORK(LANN1))
         DO JSORB=1,NASORB
-C Symmetry properties:
-         JSMLAB=IORBTAB(KOINFO+1+8*(JSORB-1))
-         JSPLAB=IORBTAB(KOINFO+3+8*(JSORB-1))
 C Annihilate a single spin orbital from PSI2, the spin orbital JSORB:
          IMODE=-1
          LFSBANN2=FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2)
@@ -76,9 +69,6 @@ CTEST       WRITE(*,*)' The ANN2 wave function, with JSORB=',JSORB
 CTEST       PRTHR=0.01D0
 CTEST       CALL PRWVF(IORBTAB,ISSTAB,IWORK(LFSBANN2),PRTHR,WORK(LANN2))
          DO LSORB=1,NASORB
-C Symmetry properties:
-          LSMLAB=IORBTAB(KOINFO+1+8*(LSORB-1))
-          LSPLAB=IORBTAB(KOINFO+3+8*(LSORB-1))
 C Pair index J,L:
           JLSORB=(NASORB*(JSORB-1))+LSORB-1
           OVLP=0.0D0

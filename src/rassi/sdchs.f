@@ -18,7 +18,6 @@
       REAL*8 PSI1(*),PSI2(*),SDCHSM(*)
       REAL*8 COEFF,OVERLAP_RASSI,OVLP
       INTEGER IORBTAB(*),NASORB
-      INTEGER NASHT
       INTEGER ISSTAB(*)
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
       INTEGER FSBOP,IMODE
@@ -27,7 +26,7 @@
       INTEGER LANN1,LANN2
       INTEGER ND1,ND2
       INTEGER KOINFO
-      INTEGER ISMLAB,ISPLAB,JSMLAB,JSPLAB,LSMLAB,LSPLAB
+      INTEGER JSMLAB,JSPLAB
       LOGICAL IF20,IF02
 
 #include "SysDef.fh"
@@ -42,9 +41,6 @@ C IF20 D = < N | anni_left anni_left  | N-2 >
 C reduced 2-electron tdm in the space of active spin-orbitals
       NASORB=IORBTAB(4)
 
-C Nr of active orbital:
-      NASHT=NASORB/2
-
 C IF02 = eliminte one electron to the right: < N-2 | anni_right
 C anni_right | N >
       IF(IF02) THEN
@@ -53,8 +49,8 @@ C anni_right | N >
 
        DO ISORB=1,NASORB
 C Symmetry properties:
-        ISMLAB=IORBTAB(KOINFO+1+8*(ISORB-1))
-        ISPLAB=IORBTAB(KOINFO+3+8*(ISORB-1))
+        !ISMLAB=IORBTAB(KOINFO+1+8*(ISORB-1))
+        !ISPLAB=IORBTAB(KOINFO+3+8*(ISORB-1))
 C Annihilate a single spin orbital from PSI2, the spin orbital ISORB:
         IMODE=-1
         LFSBANN1=FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB2)
