@@ -25,23 +25,22 @@ subroutine PrjHss( &
 !             Physics, University of Stockholm, Sweden, October 1993.  *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Real_Spherical
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: iOper
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
-#include "disp2.fh"
+implicit none
 #include "hss_interface.fh"
-! Local variables
-real*8 C(3), TC(3), Coor(3,4), g2(78)
-integer iDCRT(0:7), iuvwx(4), kOp(4), mOp(4), JndGrd(3,4,0:7), jndhss(4,3,4,3,0:7)
-logical JfGrd(3,4), EQ, jfhss(4,3,4,3), ifg(4), tr(4)
-dimension Dum(1)
+integer(kind=iwp) :: iAng, iDCRT(0:7), ip, ipFA1, ipFA2, ipFB1, ipFB2, ipFin, iShll, iuvwx(4), JndGrd(3,4,0:7), &
+                     jndhss(4,3,4,3,0:7), kCnt, kCnttp, kdc, kOp(4), lDCRT, LmbdT, mOp(4), nBasisi, nDCRT, nExpi, nRys, nt
+real(kind=wp) :: C(3), Coor(3,4), Dum(1), Fact, g2(78), TC(3)
+logical(kind=iwp) :: ifg(4), JfGrd(3,4), jfhss(4,3,4,3), tr(4)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nRys = nHer
@@ -63,7 +62,7 @@ do kCnttp=1,nCnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
@@ -101,7 +100,7 @@ do kCnttp=1,nCnttp
         ipFB2 = ip
         ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*6
 
-        call dcopy_(nArr,[0.0d0],0,Array,1)
+        call dcopy_(nArr,[Zero],0,Array,1)
         ! <a|c>,<a'|c>,<a"|c>
         call Acore(iang,la,ishll,nordop,TC,A,Array(ip),narr-ip+1,Alpha,nalpha,Array(ipFA1),array(ipfa2),jfgrd(1,1),jfhss,2,.false.)
         ! Transform to core orbital
@@ -118,7 +117,7 @@ do kCnttp=1,nCnttp
 
         ! contract density
         nt = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-        call dcopy_(78,[0.0d0],0,g2,1)
+        call dcopy_(78,[Zero],0,g2,1)
         call dGeMV_('T',nT,21,One,Array(ipFin),nT,DAO,1,Zero,g2,1)
 
         ! distribute in hessian

@@ -27,28 +27,22 @@ subroutine m1Grd_mck( &
 !              Anders Bernhardsson 1995                                *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, Cff2D
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
-#include "disp2.fh"
+implicit none
 #include "grd_mck_interface.fh"
-! Local variables
-integer iDCRT(0:7), inddum(144*8)
-real*8 C(3), TC(3)
-logical DiffCnt, EQ, Tr(4), ifdum(144)
-real*8 Coori(3,4), CoorAC(3,2)
-integer iAng(4), JndGrd(3,4,0:7), mOp(4), iuvwx(4), kndgrd(3,4,0:7)
-logical JfGrd(3,4), kfgrd(3,4), jfg(4)
-dimension Dum(1)
+integer(kind=iwp) :: iAlpha, iAng(4), iBeta, iCnt, iDCRT(0:7), iIrrep, inddum(144*8), ipA, ipAOff, ipB, ipBOff, iuvwx(4), &
+                     JndGrd(3,4,0:7), mOp(4), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, nDCRT, nip, nRys
+logical(kind=iwp) :: DiffCnt, ifdum(144), jfg(4), JfGrd(3,4), kfgrd(3,4), Tr(4)
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Dum(1), Fact, TC(3)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
 
 !if (iPrint >= 99) then
-!  write(6,*) ' In NAGrd: nArr=',nArr
+!  write(u6,*) ' In NAGrd: nArr=',nArr
 !end if
 call icopy(144*nirrep,[0],0,inddum,1)
 call lcopy(144,[.false.],0,ifdum,1)
@@ -60,7 +54,7 @@ ipA = nip
 nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
-if (nip-1 > nArr) write(6,*) ' nip-1 > nArr'
+if (nip-1 > nArr) write(u6,*) ' nip-1 > nArr'
 
 iIrrep = 0
 iAng(1) = la
@@ -107,13 +101,13 @@ do kCnttp=1,nCnttp
     if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) cycle
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    !Fact = -dbsc(kCnttp)%Charge*dble(nStabM*nIrrep)/dble(LmbdT*dc(kdc+kCnt)%nStab)
-    Fact = -dbsc(kCnttp)%Charge*dble(nStabM)/dble(LmbdT)
+    !Fact = -dbsc(kCnttp)%Charge*real(nStabM*nIrrep,kind=wp)/real(LmbdT*dc(kdc+kCnt)%nStab,kind=wp)
+    Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
     !if (iPrint >= 99) then
-    !   write(6,*) ' Charge=',dbsc(kCnttp)%Charge
-    !   write(6,*) 'NZeta=',nzeta
-    !   write(6,*) 'NrOp=',nrop
-    !   write(6,*) ' Fact=',Fact
+    !   write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
+    !   write(u6,*) 'NZeta=',nzeta
+    !   write(u6,*) 'NrOp=',nrop
+    !   write(u6,*) ' Fact=',Fact
     !end if
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
@@ -179,7 +173,7 @@ do kCnttp=1,nCnttp
       JFG(3) = .false.
       JFG(4) = .false.
 
-      call M1Kernel(final,Dum,0,Dum,0,iAng,nRys,nZeta,Array(ipA),Array(ipB),Zeta,ZInv,rKappa,P,TC,Coori,Coorac,Array(nip), &
+      call M1Kernel(rFinal,Dum,0,Dum,0,iAng,nRys,nZeta,Array(ipA),Array(ipB),Zeta,ZInv,rKappa,P,TC,Coori,Coorac,Array(nip), &
                     nArr-nip+1,kfgrd,kndgrd,ifdum,inddum,jfg,tr,mop,iuvwx,kCnttp,fact,loper,idcar)
 
     end do

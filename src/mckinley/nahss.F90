@@ -26,30 +26,32 @@ subroutine NAHss( &
 !             October 1991                                             *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp
+use Center_Info, only: dc
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, Cff2D
+implicit none
+#include "hss_interface.fh"
 #include "Molcas.fh"
-#include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "hss_interface.fh"
-! Local variables
-integer iDCRT(0:7), index(3,4)
-logical EQ, IfG(0:3), Tr(0:3)
-! Local arrrays
-real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
-integer iAnga(4), JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), mOp(4), iuvwx(4)
-logical JfHss(0:3,0:2,0:3,0:2), JfGrd(0:2,0:3)
-logical, external :: TF
+integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDAO, iDCRT(0:7), iIrrep, Indx(3,4), ipA, ipAOff, ipArr, &
+                     ipB, ipBOff, ipDAO, iStop, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), &
+                     kCar, kCent, kCnt, kCnttp, kdc, lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, &
+                     nnIrrep, nRys
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3)
+logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ, TF
+external :: TNAI1, Fake, Cff2D
 ! Statement functions
+integer(kind=iwp) :: nElem, ixyz, itri, i1, i2
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 itri(i1,i2) = max(i1,i2)*(max(i1,i2)-1)/2+min(i1,i2)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In NAHss: nArr=',nArr
+write(u6,*) ' In NAHss: nArr=',nArr
 #endif
 
 nRys = nHer
@@ -62,8 +64,8 @@ nip = nip+nAlpha*nBeta
 ipDAO = nip
 nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)
 if (nip-1 > nArr) then
-  write(6,*) 'NAHss: nip-1 > nArr'
-  write(6,*) 'nip,nArr=',nip,nArr
+  write(u6,*) 'NAHss: nip-1 > nArr'
+  write(u6,*) 'nip,nArr=',nip,nArr
   call Abend()
 end if
 ipArr = nip
@@ -122,7 +124,7 @@ do kCnttp=1,nCnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = -dbsc(kCnttp)%Charge*dble(nStabM)/dble(LmbdT)
+    Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
     call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
 
@@ -242,7 +244,7 @@ do kCnttp=1,nCnttp
           do iCar=0,2
             jfGrd(iCar,iCent) = .false.
             do kCar=0,2
-              do KCent=0,3
+              do kCent=0,3
                 jfHss(iCent,iCar,kCent,kCar) = .false.
                 jfHss(kCent,kCar,iCent,iCar) = .false.
                 do iIrrep=0,nSym-1
@@ -262,7 +264,7 @@ do kCnttp=1,nCnttp
       nFinal = 0
       call Rysg2(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
                  Array(ipArr),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,mOp,iuvwx,ifg,nFinal, &
-                 index,.false.,.true.,tr)
+                 Indx,.false.,.true.,tr)
 
     end do
   end do

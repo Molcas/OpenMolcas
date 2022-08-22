@@ -11,14 +11,19 @@
 
 subroutine PckInt_mck(abab,nZeta,nab,ab,Zeta)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 abab(nZeta,nab,nab), ab(nZeta), Zeta(nZeta)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, nab
+real(kind=wp) :: abab(nZeta,nab,nab), ab(nZeta), Zeta(nZeta)
+integer(kind=iwp) :: iab, iZeta
+real(kind=wp) :: xMax, xTest
 
 ! Integrals
 
 do iZeta=1,nZeta
-  xMax = 0.0d0
+  xMax = Zero
   do iab=1,nab
     xTest = abs(abab(iZeta,iab,iab))
     if (xTest > xMax) then

@@ -21,19 +21,20 @@ subroutine Drvetc(ngrad)
 !             October  97                                              *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-external ElGrd, elgrddot
-external ElMem
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "disp.fh"
-character*8 Lbl
-real*8 Ccoor(3)
-real*8, allocatable :: D0(:), EG(:), Temp(:)
+implicit none
+integer(kind=iwp) :: ngrad
+integer(kind=iwp) :: iCar, iCnt, iCnttp, idCar, idcnt, idum, iIrrep, iopt, irc, isym, loper, nDens
+real(kind=wp) :: Ccoor(3)
+character(len=8) :: Lbl
+real(kind=wp), allocatable :: D0(:), EG(:), Temp(:)
+integer(kind=iwp), external :: irrfnc
+external :: ElGrd, elgrddot, ElMem
 
 Ccoor(:) = Zero
 

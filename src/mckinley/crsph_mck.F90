@@ -28,10 +28,14 @@ subroutine CrSph_mck(Win,nijx,nab,Coeff1,n1,Tr1,Pr1,Wout,mab)
 !             February '90                                             *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-!#include "print.fh"
-real*8 Win(nab*nijx), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Wout(mab*nijx)
-logical Tr1, Pr1
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nijx, nab, n1, mab
+real(kind=wp) :: Win(nab*nijx), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Wout(mab*nijx)
+logical(kind=iwp) :: Tr1, Pr1
+integer(kind=iwp) :: k1, l1
 
 !iRout = 26
 !iPrint = nPrint(iRout)
@@ -43,7 +47,7 @@ if (Tr1) then
 
   ! Starting with a,bIJx transforming to bIJx,A
 
-  call DGEMM_('T','N',nijx,k1,l1,1.0d0,Win,l1,Coeff1,l1,0.0d0,Wout,nijx)
+  call DGEMM_('T','N',nijx,k1,l1,One,Win,l1,Coeff1,l1,Zero,Wout,nijx)
 
 else
 

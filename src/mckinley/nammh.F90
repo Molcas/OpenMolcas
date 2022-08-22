@@ -13,8 +13,13 @@
 
 subroutine NAMmh(nRys,MmNAG,la,lb,lr)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nRys, MmNAG, la, lb, lr
 integer iAng(4)
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iAng(1) = la

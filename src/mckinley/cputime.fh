@@ -8,6 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      Integer nOneel, nTwoel, nTwoDens, nIntegrals, nScreen, nTrans,    &
+     &        nFckack, nMOTrans, nTotal
       Parameter ( nOneel    = 1 )
       Parameter ( nTwoel    = 2 )
       Parameter ( nTwoDens  = 3 )

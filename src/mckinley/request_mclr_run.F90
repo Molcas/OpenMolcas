@@ -15,9 +15,15 @@
 
 subroutine Request_MCLR_Run(Run_MCLR,ireturn,iPrint)
 
-logical Run_MCLR
-character*16 StdIn
+use Definitions, only: iwp, u6
+
+implicit none
+logical(kind=iwp) :: Run_MCLR
+integer(kind=iwp) :: ireturn, iPrint
 #include "warnings.h"
+integer(kind=iwp) :: LuInput
+character(len=16) :: StdIn
+integer(kind=iwp), external :: IsFreeUnit
 
 if (Run_MCLR) then
 
@@ -25,13 +31,12 @@ if (Run_MCLR) then
   ! and signal to AUTO (iRC=2) to run the input file Stdin.x.
 
   if (iPrint >= 6) then
-    write(6,*)
-    write(6,*) ' McKinley requests the MCLR module to be executed!'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' McKinley requests the MCLR module to be executed!'
+    write(u6,*)
   end if
 
-  LuInput = 11
-  LuInput = IsFreeUnit(LuInput)
+  LuInput = IsFreeUnit(11)
   call StdIn_Name(StdIn)
   call Molcas_Open(LuInput,StdIn)
   write(LuInput,'(A)') ' &MCLR &End'

@@ -11,6 +11,11 @@
 
 subroutine OvrMmH(nHer,MmOvrH,la,lb,lr)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nHer, MmOvrH, la, lb, lr
+
 nHer = (la+lb+1+4)/2
 MmOvrH = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+2
 

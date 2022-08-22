@@ -24,6 +24,7 @@
 !                      True if it exist enough of memory.
 !
 !
+           Integer nFinMax
            Parameter ( nFinMax  = 3*MxAtom  )
            Integer mGr,Mem_Fock_MO,                                     &
      &     ipdisp2(nFinMAx),ipDisp(nFinMax),ipMO(nFinMax,2),            &

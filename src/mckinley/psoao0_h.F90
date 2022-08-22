@@ -36,17 +36,20 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas
 
 use Gateway_global, only: iWROpt
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp, u6, RtoI
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+implicit none
+integer(kind=iwp) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, iBsInc, jBas, jBsInc, kBas, kBsInc, lBas, &
+                     lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, lPrim, lPrInc, ipMem1, ipMem2, ipMem3, ipMem4, ipMend, &
+                     Mem1, Mem2, Mem3, Mem4, Mend
 #include "lCache.fh"
 #include "pstat.fh"
 #include "warnings.h"
-integer iAnga(4), iCmpa(4)
-logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-#include "SysDef.fh"
+integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &
+                     Mem0, MemAux, MemCon, MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2
+logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 ! Statement function to compute canonical index
+integer(kind=iwp) :: nabSz, ixyz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 !iQ = 1
@@ -104,14 +107,14 @@ do
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 MaxReq,Fail)
     if (Fail) then
-      write(6,*) ' Allocation failed for Work1'
-      write(6,*) Mem0,Mem1
-      write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+      write(u6,*) ' Allocation failed for Work1'
+      write(u6,*) Mem0,Mem1
+      write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
       call Quit(_RC_MEMORY_ERROR_)
     end if
     cycle
   end if
-  !write(6,*) ' After Mem1',iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+  !write(u6,*) ' After Mem1',iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
   Mem0 = Mem0-Mem1-1
 
   ! Work2
@@ -140,9 +143,9 @@ do
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 MaxReq,Fail)
     if (Fail) then
-      write(6,*) ' Allocation failed for Work2'
-      write(6,*) Mem0,Mem2,MemPr+MemAux,MemCon+MemAux,MemTr1,MemTr2
-      write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+      write(u6,*) ' Allocation failed for Work2'
+      write(u6,*) Mem0,Mem2,MemPr+MemAux,MemCon+MemAux,MemTr1,MemTr2
+      write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
       call Quit(_RC_MEMORY_ERROR_)
     end if
     cycle
@@ -152,7 +155,7 @@ do
   else
     Mem4 = Mem2
   end if
-  !write(6,*) ' After Mem2',jPrInc,jBsInc,lPrInc,lBsInc
+  !write(u6,*) ' After Mem2',jPrInc,jBsInc,lPrInc,lBsInc
   Mem0 = Mem0-Mem2-1
 
   ! Work3
@@ -204,9 +207,9 @@ do
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
               MaxReq,Fail)
   if (Fail) then
-    write(6,*) ' Allocation failed for Work3'
-    write(6,*) Mem0,Mem3,MemCon,MemSp1,MemSp2
-    write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+    write(u6,*) ' Allocation failed for Work3'
+    write(u6,*) Mem0,Mem3,MemCon,MemSp1,MemSp2
+    write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
     call Quit(_RC_MEMORY_ERROR_)
   end if
 end do
@@ -218,14 +221,14 @@ ipMem3 = ipMem2+Mem2
 ipMem4 = ipMem2+Mem2-Mem4
 Mend = 0
 
-r1 = r1+dble(iBsInc)/dble(iBas)
-r2 = r2+dble(jBsInc)/dble(jBas)
-r3 = r3+dble(kBsInc)/dble(kBas)
-r4 = r4+dble(lBsInc)/dble(lBas)
-q1 = q1+dble(iPrInc)/dble(iPrim)
-q2 = q2+dble(jPrInc)/dble(jPrim)
-q3 = q3+dble(kPrInc)/dble(kPrim)
-q4 = q4+dble(lPrInc)/dble(lPrim)
+r1 = r1+real(iBsInc,kind=wp)/real(iBas,kind=wp)
+r2 = r2+real(jBsInc,kind=wp)/real(jBas,kind=wp)
+r3 = r3+real(kBsInc,kind=wp)/real(kBas,kind=wp)
+r4 = r4+real(lBsInc,kind=wp)/real(lBas,kind=wp)
+q1 = q1+real(iPrInc,kind=wp)/real(iPrim,kind=wp)
+q2 = q2+real(jPrInc,kind=wp)/real(jPrim,kind=wp)
+q3 = q3+real(kPrInc,kind=wp)/real(kPrim,kind=wp)
+q4 = q4+real(lPrInc,kind=wp)/real(lPrim,kind=wp)
 
 return
 ! Avoid unused argument warnings

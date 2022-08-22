@@ -11,7 +11,12 @@
 
 subroutine CtlDns(iDCRR,iDCRS,iDCRT,jOp)
 
-integer jop(6)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iDCRR, iDCRS, iDCRT, jOp(6)
+integer(kind=iwp) :: iR, iRT, iRTS, iS, iT, iTS
+integer(kind=iwp), external :: NrOpr
 
 ! Djl. Some care has to be taken here. Assume that there
 ! are two operators, T and S which generates the center

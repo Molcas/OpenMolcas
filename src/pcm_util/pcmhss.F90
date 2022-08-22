@@ -35,7 +35,6 @@ use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "hss_interface.fh"
 integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, idx(3,4), ipA, ipAOff, ipB, ipBOff, ipDAO, &
                      iPrint, iRout, iStb(0:7), iTs, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), &

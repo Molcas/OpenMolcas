@@ -14,10 +14,12 @@
 subroutine CtrlMO(moip,nAcO)
 
 use Symmetry_Info, only: nIrrep
+use Definitions, only: Iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "etwas.fh"
-integer moip(0:nIrrep-1)
+integer(kind=iwp) :: moip(0:nIrrep-1), nAcO
+integer(kind=iwp) :: iIrrep, iTot
 
 iTot = 0
 do iIrrep=0,nIrrep-1

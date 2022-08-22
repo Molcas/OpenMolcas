@@ -10,10 +10,16 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+
 subroutine M1MmH(nRys,MmM1H,la,lb,lr)
 
-integer iAng(4)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nRys, MmM1H, la, lb, lr
+integer(kind=iwp) :: iAng(4)
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iAng(1) = la

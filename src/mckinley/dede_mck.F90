@@ -12,10 +12,13 @@
 subroutine DeDe_Mck(FD,nFD,ipOffD,nOffD,DDen,lDDen,mDeDe,mIndij)
 
 use k2_arrays, only: MaxDe
+use Definitions, only: wp, iwp
 
-real*8 FD(nFD), DDen(lDDen)
-integer ipOffD(nOffD)
-logical Special_NoSym, DFT_Storage
+implicit none
+integer(kind=iwp) :: nFD, nOffD, ipOffD(nOffD), lDDen, mDeDe, mIndij
+real(kind=wp) :: FD(nFD), DDen(lDDen)
+integer(kind=iwp) :: ipD00, ipDeDe, nr_of_Densities
+logical(kind=iwp) :: DFT_Storage, Special_NoSym
 
 Special_NoSym = .false.
 DFT_Storage = .false.

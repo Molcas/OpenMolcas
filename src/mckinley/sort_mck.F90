@@ -21,20 +21,22 @@ subroutine Sort_mck(A,B,iBas,jBas,kBas,lBas,iCmp,jCmp,kCmp,lCmp,iBasO,jBasO,kBas
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
-use Symmetry_Info, only: nIrrep, iOper, iChBas
+use Symmetry_Info, only: iChBas, iOper, nIrrep
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-!#include "print.fh"
-integer nop(4), iAng(4), indgrd(3,4,0:nirrep-1), indgrd2(3,4,0:nirrep-1), ishll(4)
-real*8 A(iBas*jBas*kBas*lBas, iCmp,jCmp,kCmp,lCmp,nVec)
-real*8 B(kBasO*kcmpO,lBasO,lcmpO, iBasO,iCmpO,jBasO,jCmpO*nvec)
-real*8 prmt(0:7)
-real*8 C(*)
+implicit none
+integer(kind=iwp) :: iBas, jBas, kBas, lBas, iCmp, jCmp, kCmp, lCmp, iBasO, jBasO, kBasO, lBasO, iCmpO, jCmpO, kCmpO, lCmpO, nVec, &
+                     nop(4), iAng(4), indgrd(3,4,0:nirrep-1), indgrd2(3,4,0:nirrep-1), ishll(4)
+real(kind=wp) :: A(iBas*jBas*kBas*lBas,iCmp,jCmp,kCmp,lCmp,nVec), B(kBasO*kcmpO,lBasO,lcmpO,iBasO,iCmpO,jBasO,jCmpO*nvec), C(*)
+integer(kind=iwp) :: iB, iC, ichbs, ii, ijkl, iVec, jB, jC, jChBs, jj, kB, kC, kChBs, kk, lB, lC, lChBs, ll
+real(kind=wp) :: PrA, pRb, Prmt(0:7), pTc, pTSd, qFctr, rp
 data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 ! Statement Function
+real(kind=wp) :: xPrmt
+integer(kind=iwp) :: i, j, iOff, ixyz
 xPrmt(i,j) = Prmt(iand(i,j))
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
@@ -43,7 +45,7 @@ jj = iOff(iAng(2))
 kk = iOff(iAng(3))
 ll = iOff(iAng(4))
 
-rp = 1.0d0
+rp = One
 do iVec=1,nVec
   do iC=1,iCmp
     ichbs = ichbas(ii+ic)

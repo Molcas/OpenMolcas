@@ -22,7 +22,7 @@ subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv
 !                                                                      *
 ! Object: to prescreen the integral derivatives.                       *
 !                                                                      *
-!   nZeta, nEta : unpartioned length of primitives.                    *
+!   nZeta, nEta : unpartitioned length of primitives.                  *
 !                                                                      *
 !   mZeta, mEta : section length due to partioning. These are usually  *
 !                 equal to nZeta and nEta.                             *
@@ -38,17 +38,26 @@ subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv
 !             Anders Bernhardsson 1995                                 *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "ndarray.fh"
-real*8 PAO(mZeta*mEta*mPAO), Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), &
-       Q(nEta,3), xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), Data1(nZeta*nDArray), Data2(nEta*nDArray), rKA(nZeta), rKC(nEta), &
-       xpre(mZeta*mEta)
-logical PreScr, ldot
-integer IndEta(nEta), IndZet(nZeta), IndZ(mZeta), IndE(mEta)
-#include "real.fh"
+integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, IndZ(mZeta), nAlpha, nBeta, IndE(mEta), nGamma, nDelta, iphX1, &
+                     iphY1, iphZ1, iphX2, iphY2, iphZ2, IndZet(nZeta), IndEta(nEta)
+real(kind=wp) :: PAO(mZeta*mEta*mPAO), Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
+                 rKA(nZeta), Data1(nZeta*nDArray), ztmx, abmax, zexpmax, Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), &
+                 rKC(nEta), Data2(nEta*nDArray), etmx, cdmax, eexpmax, xpre(mZeta*mEta), CutInt
+logical(kind=iwp) :: PreScr, ldot
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
+integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZE, iZeta, jEta, jPAO, jZeta
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iPrint, iRout
+#endif
+real(kind=wp) :: abcd, Et, rKAB, rKCD, Zt
+integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
 
 #ifdef _DEBUGPRINT_
 iRout = 180
@@ -188,7 +197,7 @@ do iEta=1,lEta
     Zt = Zeta(iZeta)
     rKAB = rkA(iZeta)
     ij = ij+1
-    xpre(ij) = rKAB*rKCD*sqrt(1.0d0/(Zt+Et))
+    xpre(ij) = rKAB*rKCD*sqrt(One/(Zt+Et))
   end do
 end do
 if (ldot) then
@@ -228,7 +237,7 @@ subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv
 !                                                                      *
 ! Object: to prescreen the integral derivatives.                       *
 !                                                                      *
-!   nZeta, nEta : unpartioned length of primitives.                    *
+!   nZeta, nEta : unpartitioned length of primitives.                  *
 !                                                                      *
 !   mZeta, mEta : section length due to partioning. These are usually  *
 !                 equal to nZeta and nEta.                             *
@@ -244,17 +253,26 @@ subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv
 !             Anders Bernhardsson 1995                                 *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "ndarray.fh"
-real*8 PAO(mZeta*mEta*mPAO), Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), &
-       Q(nEta,3), xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), Data1(nZeta*nDArray), Data2(nEta*nDArray), rKA(nZeta), rKC(nEta), &
-       xpre(mZeta*mEta)
-logical PreScr, ldot
-integer IndEta(nEta), IndZet(nZeta), IndZ(mZeta), IndE(mEta)
-#include "real.fh"
+integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, IndZ(mZeta), nAlpha, nBeta, IndE(mEta), nGamma, nDelta, iphX1, &
+                     iphY1, iphZ1, iphX2, iphY2, iphZ2, IndZet(nZeta), IndEta(nEta)
+real(kind=wp) :: PAO(mZeta*mEta*mPAO), Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
+                 rKA(nZeta), Data1(nZeta*nDArray), ztmx, abmax, zexpmax, Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), &
+                 rKC(nEta), Data2(nEta*nDArray), etmx, cdmax, eexpmax, xpre(mZeta*mEta), CutInt
+logical(kind=iwp) :: PreScr, ldot
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
+integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZE, iZeta, jEta, jPAO, jZeta
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iPrint, iRout
+#endif
+real(kind=wp) :: abcd, Et, rKAB, rKCD, Zt
+integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
 
 #ifdef _DEBUGPRINT_
 iRout = 180
@@ -388,7 +406,7 @@ do iEta=1,lEta
     Zt = Zeta(iZeta)
     rKAB = rkA(iZeta)
     ij = ij+1
-    xpre(ij) = rKAB*rKCD*sqrt(1.0d0/(Zt+Et))
+    xpre(ij) = rKAB*rKCD*sqrt(One/(Zt+Et))
   end do
 end do
 if (ldot) then

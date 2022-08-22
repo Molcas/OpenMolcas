@@ -24,33 +24,34 @@ subroutine Inputh(Run_MCLR)
 !             Modified to complement GetInf, January 1992              *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
+use Basis_Info, only: dbsc, nBas, nCnttp
+use Center_Info, only: dc
+use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep
 use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
-use Definitions, only: iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u5, u6, r8, RtoB
 
-implicit real*8(A-H,O-Z)
-#include "itmax.fh"
+implicit none
+logical(kind=iwp) :: Run_MCLR
 #include "Molcas.fh"
-#include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "stdalloc.fh"
 #include "print.fh"
-#include "SysDef.fh"
-logical TstFnc, type, Slct
-!logical DoCholesky
-character*1 xyz(0:2)
-character*8 Label, labelop
-character*32 Label2
-logical Run_MCLR
-character*80 KWord, Key
-integer iSym(3), iTemp(3*MxAtom)
-integer, allocatable :: ATDisp(:), DEGDisp(:), TDisp(:), Car(:)
-real*8, allocatable :: AM(:,:), Tmp(:,:), C(:,:), Scr(:,:)
-data xyz/'x','y','z'/
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idum, iDummer, iElem, iIrrep, ijSym, iOpt, ipert, iprint, iRC, iRout, &
+                     istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nDisp, nSlct
+real(kind=wp) :: alpha, Fact, ovlp
+logical(kind=iwp) :: ltype, Slct !, DoCholesky
+character(len=80) :: Key, KWord
+character(len=32) :: Label2
+character(len=8) :: Label, labelop
+integer(kind=iwp), allocatable :: ATDisp(:), Car(:), DEGDisp(:), iTemp(:), TDisp(:)
+real(kind=wp), allocatable :: AM(:,:), C(:,:), Scr(:,:), Tmp(:,:)
+character, parameter :: xyz(0:2) = ['x','y','z']
+integer(kind=iwp), external :: iPrmt, NrOpr
+real(kind=r8), external :: DDot_
+logical(kind=iwp), external :: TstFnc
 interface
   subroutine datimx(TimeStamp) bind(C,name='datimx_')
     use, intrinsic :: iso_c_binding, only: c_char
@@ -60,7 +61,7 @@ end interface
 
 !call DecideOnCholesky(DoCholesky)
 !if (DoCholesky) then
-!  write(6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
+!  write(u6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
 !  call abend()
 !end if
 
@@ -80,7 +81,7 @@ lGrd = .true.
 lHss = .true.
 Nona = .false.
 Run_MCLR = .true.
-CutInt = 1.0D-07
+CutInt = 1.0e-7_wp
 ipert = 2
 iCntrl = 1
 call lCopy(mxpert,[.true.],0,lPert,1)
@@ -92,10 +93,10 @@ end do
 
 ! KeyWord directed input
 
-LuRd = 5
+LuRd = u5
 call RdNLst(LuRd,'MCKINLEY')
 do
-  read(5,'(A72)',iostat=istatus) Key
+  read(u5,'(A72)',iostat=istatus) Key
   if (istatus < 0) call Error(1)
   if (istatus > 0) call Error(2)
   KWord = Key
@@ -111,14 +112,14 @@ do
     !
     !  lEq = .true.
     !  do
-    !    read(5,'(A)',iostat=istatus) KWord
+    !    read(u5,'(A)',iostat=istatus) KWord
     !    if (istatus > 0) call Error(2)
     !    if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
     !  end do
     !  read(KWord,*) nGroup
     !  do iGroup=1,nGroup
     !    do
-    !      read(5,'(A)',iostat=istatus) KWord
+    !      read(u5,'(A)',iostat=istatus) KWord
     !      if (istatus > 0) call Error(2)
     !      if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
     !    end do
@@ -151,8 +152,8 @@ do
       !                                                                *
       !***** MEM  ******************************************************
       !                                                                *
-      read(5,*) nmem
-      nmem = nmem*1048576/rtob
+      read(u5,*) nmem
+      nmem = nmem*1048576/RtoB
 
     case ('CUTO')
       !                                                                *
@@ -161,13 +162,13 @@ do
       ! Cutoff for computing primitive gradients
 
       !do
-      !  read(5,'(A)',iostat=istatus) KWord
+      !  read(u5,'(A)',iostat=istatus) KWord
       !  if (istatus > 0) call Error(2)
       !  if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
       !end do
       !read(KWord,*,iostat=istatus) CutInt
       !if (istatus > 0) call Error(2)
-      read(5,*) Cutint
+      read(u5,*) Cutint
       CutInt = abs(CutInt)
 
     case ('VERB')
@@ -204,29 +205,33 @@ do
       Slct = .true.
       call lCopy(mxpert,[.false.],0,lPert,1)
       !do
-      !  read(5,'(A)',iostat=istatus) KWord
+      !  read(u5,'(A)',iostat=istatus) KWord
       !  if (istatus > 0) call Error(2)
       !  if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
       !end do
       !read(KWord,*) nSlct
-      read(5,*) nSlct
+      read(u5,*) nSlct
 
-      read(5,*) (iTemp(iElem),iElem=1,nSlct)
+      call mma_allocate(iTemp,nSlct,label='iTemp')
+      read(u5,*) (iTemp(iElem),iElem=1,nSlct)
       do iElem=1,nSlct
         lpert(iTemp(iElem)) = .true.
       end do
+      call mma_deallocate(iTemp)
 
     case ('REMO')
       !                                                                *
       !***** REMO ******************************************************
       !                                                                *
       Slct = .true.
-      read(5,*) nSlct
+      read(u5,*) nSlct
 
-      read(5,*) (iTemp(iElem),iElem=1,nSlct)
+      call mma_allocate(iTemp,nSlct,label='iTemp')
+      read(u5,*) (iTemp(iElem),iElem=1,nSlct)
       do iElem=1,nSlct
         lpert(iTemp(iElem)) = .false.
       end do
+      call mma_deallocate(iTemp)
 
     case ('PERT')
       !                                                                *
@@ -235,7 +240,7 @@ do
       ! Select which part of the Hessian will be computed.
 
       do
-        read(5,'(A)',iostat=istatus) KWord
+        read(u5,'(A)',iostat=istatus) KWord
         if (istatus > 0) call Error(2)
         if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
       end do
@@ -245,8 +250,8 @@ do
       else if (KWORD(1:4) == 'GEOM') then
         ipert = 1
       else
-        write(6,*) 'InputH: Illegal perturbation keyword'
-        write(6,'(A,A)') 'KWord=',KWord
+        write(u6,*) 'InputH: Illegal perturbation keyword'
+        write(u6,'(A,A)') 'KWord=',KWord
         call Abend()
       end if
 
@@ -264,7 +269,7 @@ do
       !                                                                *
       ! Put the program name and the time stamp onto the extract file
 
-      write(6,*) 'InputH: EXTRACT option is redundant and is ignored!'
+      write(u6,*) 'InputH: EXTRACT option is redundant and is ignored!'
 
     case ('NONA')
       !                                                                *
@@ -290,8 +295,8 @@ do
       exit
 
     case default
-      write(6,*) 'InputH: Illegal keyword'
-      write(6,'(A,A)') 'KWord=',KWord
+      write(u6,*) 'InputH: Illegal keyword'
+      write(u6,'(A,A)') 'KWord=',KWord
       call Abend()
   end select
 end do
@@ -309,7 +314,7 @@ iRC = -1
 Lu_Mck = 35
 call OpnMck(irc,iOpt,'MCKINT',Lu_Mck)
 if (iRC /= 0) then
-  write(6,*) 'InputH: Error opening MCKINT'
+  write(u6,*) 'InputH: Error opening MCKINT'
   call Abend()
 end if
 if (ipert == 1) then
@@ -329,19 +334,19 @@ else if (ipert == 3) then
   LabelOp = 'PERT    '
   Label2 = 'Magnetic'
   call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
-  write(6,*) 'InputH: Illegal perturbation option'
-  write(6,*) 'iPert=',iPert
+  write(u6,*) 'InputH: Illegal perturbation option'
+  write(u6,*) 'iPert=',iPert
   call Abend()
 else if (ipert == 4) then
   LabelOp = 'PERT    '
   Label2 = 'Relativistic'
   call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
-  write(6,*) 'InputH: Illegal perturbation option'
-  write(6,*) 'iPert=',iPert
+  write(u6,*) 'InputH: Illegal perturbation option'
+  write(u6,*) 'iPert=',iPert
   call Abend()
 else
-  write(6,*) 'InputH: Illegal perturbation option'
-  write(6,*) 'iPert=',iPert
+  write(u6,*) 'InputH: Illegal perturbation option'
+  write(u6,*) 'iPert=',iPert
   call Abend()
 end if
 
@@ -357,15 +362,15 @@ do iCnttp=1,nCnttp
   end do
 end do
 
-write(6,*)
-write(6,'(20X,A,E10.3)') ' Threshold for contributions to the gradient or Hessian:',CutInt
-write(6,*)
+write(u6,*)
+write(u6,'(20X,A,E10.3)') ' Threshold for contributions to the gradient or Hessian:',CutInt
+write(u6,*)
 
 if (Nona) then
-  write(6,*)
-  write(6,'(20X,A)') ' McKinley only is computing the antisymmetric gradient of the overlap integrals for the NonAdiabatic '// &
+  write(u6,*)
+  write(u6,'(20X,A)') ' McKinley only is computing the antisymmetric gradient of the overlap integrals for the NonAdiabatic '// &
                      'Coupling.'
-  write(6,*)
+  write(u6,*)
 end if
 
 if (iCntrl == 1) then
@@ -373,11 +378,11 @@ if (iCntrl == 1) then
   ! Generate symmetry adapted cartesian displacements
 
   if (iPrint >= 6) then
-    write(6,*)
-    write(6,'(20X,A)') '********************************************'
-    write(6,'(20X,A)') '* Symmetry Adapted Cartesian Displacements *'
-    write(6,'(20X,A)') '********************************************'
-    write(6,*)
+    write(u6,*)
+    write(u6,'(20X,A)') '********************************************'
+    write(u6,'(20X,A)') '* Symmetry Adapted Cartesian Displacements *'
+    write(u6,'(20X,A)') '********************************************'
+    write(u6,*)
   end if
   call ICopy(MxAtom*8,[0],0,IndDsp,1)
   call ICopy(MxAtom*3,[0],0,InxDsp,1)
@@ -386,7 +391,7 @@ if (iCntrl == 1) then
   nDisp = 0
   do iIrrep=0,nIrrep-1
     lDisp(iIrrep) = 0
-    type = .true.
+    ltype = .true.
     ! Loop over basis function definitions
     mdc = 0
     mc = 1
@@ -401,26 +406,26 @@ if (iCntrl == 1) then
           if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
             nDisp = nDisp+1
             if (nDisp > mDisp) then
-              write(6,*) 'nDisp > mDisp'
+              write(u6,*) 'nDisp > mDisp'
               call Abend()
             end if
             if (iIrrep == 0) InxDsp(mdc,iCar+1) = nDisp
             lDisp(iIrrep) = lDisp(iIrrep)+1
-            if (type) then
+            if (ltype) then
               if (iPrint >= 6) then
-                write(6,*)
-                write(6,'(10X,A,A)') ' Irreducible representation : ',lIrrep(iIrrep)
-                write(6,'(10X,2A)') ' Basis function(s) of irrep: ',lBsFnc(iIrrep)
-                write(6,*)
-                write(6,'(A)') ' Basis Label        Type   Center Phase'
+                write(u6,*)
+                write(u6,'(10X,A,A)') ' Irreducible representation : ',lIrrep(iIrrep)
+                write(u6,'(10X,2A)') ' Basis function(s) of irrep: ',lBsFnc(iIrrep)
+                write(u6,*)
+                write(u6,'(A)') ' Basis Label        Type   Center Phase'
               end if
-              type = .false.
+              ltype = .false.
             end if
             if (iPrint >= 6) &
-              write(6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))') nDisp,dc(mdc)%LblCnt,xyz(iCar), &
-                                                            (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)), &
-                                                             iComp)*iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))), &
-                                                             iCo=0,nIrrep/dc(mdc)%nStab-1)
+              write(u6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))') nDisp,dc(mdc)%LblCnt,xyz(iCar), &
+                                                             (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)), &
+                                                              iComp)*iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))), &
+                                                              iCo=0,nIrrep/dc(mdc)%nStab-1)
             write(ChDisp(nDisp),'(A,1X,A1)') dc(mdc)%LblCnt,xyz(iCar)
             ATDisp(ndisp) = icnttp
             DEGDisp(ndisp) = nIrrep/dc(mdc)%nStab
@@ -434,8 +439,8 @@ if (iCntrl == 1) then
   end do
 
   if (nDisp /= mDisp) then
-    write(6,*) 'InputH: nDisp /= mDisp'
-    write(6,*) 'nDisp,mDisp=',nDisp,mDisp
+    write(u6,*) 'InputH: nDisp /= mDisp'
+    write(u6,*) 'nDisp,mDisp=',nDisp,mDisp
     call Abend()
   end if
   if (sIrrep) then
@@ -451,8 +456,8 @@ if (iCntrl == 1) then
   labelOp = 'ndisp   '
   call iWrMck(iRC,iOpt,labelop,1,[ndisp],iDummer)
   if (iRC /= 0) then
-    write(6,*) 'InputH: Error writing to MCKINT'
-    write(6,'(A,A)') 'labelOp=',labelOp
+    write(u6,*) 'InputH: Error writing to MCKINT'
+    write(u6,'(A,A)') 'labelOp=',labelOp
     call Abend()
   end if
   LABEL = 'DEGDISP'
@@ -460,8 +465,8 @@ if (iCntrl == 1) then
   iOpt = 0
   call iWrMck(iRC,iOpt,Label,idum,DEGDISP,idum)
   if (iRC /= 0) then
-    write(6,*) 'InputH: Error writing to MCKINT'
-    write(6,'(A,A)') 'LABEL=',LABEL
+    write(u6,*) 'InputH: Error writing to MCKINT'
+    write(u6,'(A,A)') 'LABEL=',LABEL
     call Abend()
   end if
   call mma_deallocate(DEGDisp)
@@ -470,8 +475,8 @@ if (iCntrl == 1) then
   iOpt = 0
   call iWrMck(iRC,iOpt,Label,idum,ATDisp,idum)
   if (iRC /= 0) then
-    write(6,*) 'InputH: Error writing to MCKINT'
-    write(6,'(A,A)') 'LABEL=',LABEL
+    write(u6,*) 'InputH: Error writing to MCKINT'
+    write(u6,'(A,A)') 'LABEL=',LABEL
     call Abend()
   end if
   call mma_deallocate(ATDisp)
@@ -480,16 +485,16 @@ if (iCntrl == 1) then
   iOpt = 0
   call iWrMck(iRC,iOpt,Label,idum,TDisp,idum)
   if (iRC /= 0) then
-    write(6,*) 'InputH: Error writing to MCKINT'
-    write(6,'(A,A)') 'LABEL=',LABEL
+    write(u6,*) 'InputH: Error writing to MCKINT'
+    write(u6,'(A,A)') 'LABEL=',LABEL
     call Abend()
   end if
   call mma_deallocate(TDisp)
 
 else if (iCntrl == 2) then
-  write(6,*) 'Svaret aer 48 '
+  write(u6,*) 'Svaret aer 48 '
 else if (iCntrl == 3) then
-  write(6,*) 'Svaret aer 48'
+  write(u6,*) 'Svaret aer 48'
 end if
 
 ! Set up data for the utilization of the translational
@@ -512,7 +517,7 @@ if (TRSymm) then
   do i=1,3
     if (iSym(i) == 0) nTR = nTR+1
   end do
-  if (iPrint >= 99) write(6,*) ' nTR=',nTR
+  if (iPrint >= 99) write(u6,*) ' nTR=',nTR
   ! Rotational equations
   do i=1,3
     j = i+1
@@ -525,7 +530,7 @@ if (TRSymm) then
   if (nTR == 0) then
     TRSymm = .false.
   else
-    if (iPrint >= 99) write(6,*) ' nTR=',nTR
+    if (iPrint >= 99) write(u6,*) ' nTR=',nTR
     call mma_allocate(AM,nTR,lDisp(0),Label='AM')
     call mma_allocate(Tmp,nTR,nTR,Label='Tmp')
     call mma_allocate(C,4,lDisp(0),Label='C')
@@ -568,7 +573,7 @@ if (TRSymm) then
     end do
     if (iPrint >= 99) then
       call RecPrt(' Information',' ',C,4,lDisp(0))
-      write(6,*) (Car(i),i=1,lDisp(0))
+      write(u6,*) (Car(i),i=1,lDisp(0))
     end if
 
     ! Set up coefficient for the translational equations
@@ -601,7 +606,7 @@ if (TRSymm) then
           Fact = -C(4,ldsp)*C(j,ldsp)
         else
           Fact = Zero
-          write(6,*) 'Inputh: Error'
+          write(u6,*) 'Inputh: Error'
           call Abend()
         end if
         AM(iTR,ldsp) = Fact
@@ -616,7 +621,7 @@ if (TRSymm) then
 
     ! Pick up the other vectors
     do iTR=1,nTR
-      !write(6,*) ' Looking for vector #',iTR
+      !write(u6,*) ' Looking for vector #',iTR
       ovlp = Zero
       kTR = 0
       ! Check all the remaining vectors
@@ -624,18 +629,18 @@ if (TRSymm) then
         do jTR=1,iTR-1
           if (iTemp(jTR) == ldsp) cycle loop1
         end do
-        !write(6,*) ' Checking vector #', ldsp
+        !write(u6,*) ' Checking vector #', ldsp
         call dcopy_(nTR,AM(:,ldsp),1,Tmp(:,iTR),1)
         !call RecPrt(' Vector',' ',Tmp(:,iTR),nTR,1)
         ! Gram-Schmidt orthonormalize against accepted vectors
         do lTR=1,iTR-1
           alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
-          !write(6,*) ' <x|y> =', alpha
+          !write(u6,*) ' <x|y> =', alpha
           call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
         end do
         !call RecPrt(' Remainings',' ',Tmp(:,iTR),nTR,1)
         alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
-        !write(6,*) ' Remaining overlap =', alpha
+        !write(u6,*) ' Remaining overlap =', alpha
         ! Check the remaining magnitude of vector after Gram-Schmidt
         if (alpha > ovlp) then
           kTR = ldsp
@@ -643,10 +648,10 @@ if (TRSymm) then
         end if
       end do loop1
       if (kTR == 0) then
-        write(6,*) ' No Vector found!'
+        write(u6,*) ' No Vector found!'
         call Abend()
       end if
-      !write(6,*) ' Selecting vector #', kTR
+      !write(u6,*) ' Selecting vector #', kTR
       ! Pick up the "best" vector
       call dcopy_(nTR,AM(:,kTR),1,Tmp(:,iTR),1)
       do lTR=1,iTR-1
@@ -664,7 +669,7 @@ if (TRSymm) then
     if (iPrint >= 99) then
       call RecPrt(' The A matrix',' ',AM,nTR,lDisp(0))
       call RecPrt(' The T matrix',' ',Tmp,nTR,nTR)
-      write(6,*) (iTemp(iTR),iTR=1,nTR)
+      write(u6,*) (iTemp(iTR),iTR=1,nTR)
     end if
 
     ! Compute the inverse of the T matrix
@@ -676,7 +681,7 @@ if (TRSymm) then
     ! Generate the complete matrix
 
     call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
-    call DGEMM_('N','N',nTR,lDisp(0),nTR,1.0d0,Tmp,nTR,AM,nTR,0.0d0,Scr,nTR)
+    call DGEMM_('N','N',nTR,lDisp(0),nTR,One,Tmp,nTR,AM,nTR,Zero,Scr,nTR)
     if (IPrint >= 99) call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
     call mma_deallocate(AM)
     call mma_allocate(AM,lDisp(0),lDisp(0),Label='AM')
@@ -699,40 +704,40 @@ if (TRSymm) then
       LPert(ldsp) = .false.
     end do
 
-    write(6,*)
-    write(6,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'
-    write(6,*)
+    write(u6,*)
+    write(u6,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'
+    write(u6,*)
     do i=1,lDisp(0)
       if (lpert(i)) then
-        write(6,'(25X,A,A)') Chdisp(i),' is independent'
+        write(u6,'(25X,A,A)') Chdisp(i),' is independent'
       else
-        write(6,'(25X,A,A)') Chdisp(i),' is dependent'
+        write(u6,'(25X,A,A)') Chdisp(i),' is dependent'
       end if
     end do
-    write(6,*)
+    write(u6,*)
   end if
 
 else
   nTR = 0
   if (iPrint >= 6) then
-    write(6,*)
-    write(6,'(20X,A)') ' No automatic utilization of translational and rotational invariance of the energy is employed.'
-    write(6,*)
+    write(u6,*)
+    write(u6,'(20X,A)') ' No automatic utilization of translational and rotational invariance of the energy is employed.'
+    write(u6,*)
   end if
 end if
 
 if (Slct) then
-  write(6,*)
-  write(6,'(20X,A)') ' The Selection option is used'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(20X,A)') ' The Selection option is used'
+  write(u6,*)
   do i=1,lDisp(0)
     if (lpert(i)) then
-      write(6,'(25X,A,A)') Chdisp(i),' is computed'
+      write(u6,'(25X,A,A)') Chdisp(i),' is computed'
     else
-      write(6,'(25X,A,A)') Chdisp(i),' is set to zero'
+      write(u6,'(25X,A,A)') Chdisp(i),' is set to zero'
     end if
   end do
-  write(6,*)
+  write(u6,*)
 end if
 
 call Datimx(KWord)
@@ -760,11 +765,11 @@ subroutine Error(code)
 
   select case (code)
     case (1)
-      write(6,*) 'InputH: end of input file.'
+      write(u6,*) 'InputH: end of input file.'
     case (2)
-      write(6,*) 'InputH: error reading input file.'
+      write(u6,*) 'InputH: error reading input file.'
   end select
-  write(6,'(A,A)') 'Last command=',KWord
+  write(u6,'(A,A)') 'Last command=',KWord
   call Abend()
 
 end subroutine Error

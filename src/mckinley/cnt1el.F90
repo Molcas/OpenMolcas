@@ -35,44 +35,40 @@ subroutine Cnt1El(Kernel,KrnlMm,Label,iDCnt,iDCar,loper,rHrmt,DiffOp,dens,Lab_Ds
 !             University  of Lund, SWEDEN.                             *
 !***********************************************************************
 
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
+use Real_Spherical, only: ipSph, RSph
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, MolWgh, nBas, Shells
+use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
-!external Kernel, KrnlMm
-external KrnlMm
+implicit none
+external :: Kernel, KrnlMm
+character(len=8) :: Label, Lab_Dsk
+integer(kind=iwp) :: iDCnt, iDCar, loper, iadd
+real(kind=wp) :: rHrmt, dens(*)
+logical(kind=iwp) :: DiffOp
 #include "Molcas.fh"
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "nsd.fh"
-#include "setup.fh"
-real*8 A(3), B(3), RB(3), CCoor(3), dens(*)
-character Label*8
-integer nOp(2), ip(8), iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7), IndGrd(0:7)
-logical IfGrd(3,2), EQ, DiffOP, DiffCnt, Trans(2)
-integer, parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
-character(LEN=8) Lab_dsk
-real*8, allocatable :: Integrals(:), Zeta(:), ZI(:), Kappa(:), PCoor(:,:), Fnl(:), Kern(:), ScrSph(:), SO(:), Scr(:)
-logical, external :: TF
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Kernel( &
-#                   define _CALLING_
-#                   include "grd_mck_interface.fh"
-                   )
-#   include "grd_mck_interface.fh"
-  end subroutine Kernel
-end interface
+integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iI, iIC, iIrrep, IndGrd(0:7), iopt, &
+                     ip(8), iPrim, irc, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iStabO(0:7), iStart, iuv, jAng, jAO, jBas, &
+                     jCmp, jCnt, jCnttp, jdisp, jIrrep, jPrim, jS, jShell, jShll, kk, kOper, lDCRR, LenInt, LenInt_Tot, lFinal, &
+                     LmbdR, LmbdT, maxi, mdci, mdcj, mDens, MemKer, MemKrn, mSO, nDCRR, nDCRT, nDens, nDenssq, nDisp, nIC, &
+                     nnIrrep, nOp(2), nOrder, nOrdOp, nrOp, nScr1, nSkal, nSO, nStabM, nStabO
+real(kind=wp) :: A(3), B(3), CCoor(3), Fact, RB(3)
+logical(kind=iwp) :: IfGrd(3,2), DiffCnt, Trans(2)
+real(kind=wp), allocatable :: Fnl(:), Integrals(:), Kappa(:), Kern(:), PCoor(:,:), Scr(:), ScrSph(:), SO(:), Zeta(:), ZI(:)
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+integer(kind=iwp), external :: MemSO1, NrOpr
+real(kind=r8), external :: DDot_
+logical(kind=iwp), external :: EQ, TF
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
@@ -198,7 +194,7 @@ do iS=1,nSkal
     call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
 
     ! Memory requirements for contraction and Symmetry
-    ! adoption of derivatives.
+    ! adaption of derivatives.
 
     lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nIrrep
 
@@ -253,7 +249,7 @@ do iS=1,nSkal
         end if
       end do
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 29) write(6,*) ' nSO=',nSO
+      if (iPrint >= 29) write(u6,*) ' nSO=',nSO
 #     endif
       if (nSO /= 0) then
         call mma_Allocate(SO,nSO*iBas*jBas,Label='SO')
@@ -272,17 +268,17 @@ do iS=1,nSkal
         ! Compute normalization factor
 
         iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-        Fact = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+        Fact = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
         if (MolWgh == 1) then
-          Fact = Fact*dble(nIrrep)**2/dble(iuv)
+          Fact = Fact*real(nIrrep,kind=wp)**2/real(iuv,kind=wp)
         else if (MolWgh == 2) then
-          Fact = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+          Fact = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
         end if
 
         ! Loops over symmetry operations acting on the basis.
 
         nOp(1) = NrOpr(0)
-        if (jBas < -999999) write(6,*) 'gcc overoptimization',nDCRR
+        if (jBas < -999999) write(u6,*) 'gcc overoptimization',nDCRR
         do lDCRR=0,nDCRR-1
           call OA(iDCRR(lDCRR),B,RB)
           nOp(2) = NrOpr(iDCRR(lDCRR))
@@ -295,7 +291,7 @@ do iS=1,nSkal
           ! Compute AO integrals.
           ! for easy implementation of NA integrals.
 
-          call dcopy_(lFinal,[0.0d0],0,Fnl,1)
+          call dcopy_(lFinal,[Zero],0,Fnl,1)
           call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,PCoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
                       Kern,MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,loper,dc(mdci)%nStab,dc(mdcj)%nStab,nic,idcar,idcnt,iStabM,nStabM, &
                       trans,nIrrep)
@@ -307,11 +303,11 @@ do iS=1,nSkal
 
           ! Transform i,jabx to jabx,I
           kk = nElem(iAng)*nElem(jAng)*nIC
-          call DGEMM_('T','N',jPrim*kk,iBas,iPrim,1.0d0,Fnl,iPrim,Shells(iShll)%pCff,iPrim,0.0d0,Kern,jPrim*kk)
+          call DGEMM_('T','N',jPrim*kk,iBas,iPrim,One,Fnl,iPrim,Shells(iShll)%pCff,iPrim,Zero,Kern,jPrim*kk)
 
           ! Transform j,abxI to abxI,J
 
-          call DGEMM_('T','N',kk*iBas,jBas,jPrim,1.0d0,Kern,jPrim,Shells(jShll)%pCff,jPrim,0.0d0,Fnl,kk*iBas)
+          call DGEMM_('T','N',kk*iBas,jBas,jPrim,One,Kern,jPrim,Shells(jShll)%pCff,jPrim,Zero,Fnl,kk*iBas)
 
           ! Transform to spherical gaussians if needed.
 
@@ -412,13 +408,13 @@ do iIrrep=0,nIrrep-1
     jdisp = indgrd(iIrrep)
     kOper = 2**iIrrep
     if (show .and. (iIrrep == 0)) then
-      write(6,*) Label,': ',ddot_(nDens,Dens,1,Integrals(ip(nrop)),1)
-      write(6,*) 'oper: ',ddot_(nDens,Integrals(ip(nrop)),1,Integrals(ip(nrop)),1)
-      write(6,*) 'Dens: ',ddot_(nDens,Dens,1,Dens,1)
+      write(u6,*) Label,': ',ddot_(nDens,Dens,1,Integrals(ip(nrop)),1)
+      write(u6,*) 'oper: ',ddot_(nDens,Integrals(ip(nrop)),1,Integrals(ip(nrop)),1)
+      write(u6,*) 'Dens: ',ddot_(nDens,Dens,1,Dens,1)
     else if (show) then
       mDens = nFck(iIrrep)
-      write(6,*) Label
-      write(6,'(A,G20.10)') 'oper: ',ddot_(mDens,Integrals(ip(nrop)),1,Integrals(ip(nrop)),1)
+      write(u6,*) Label
+      write(u6,'(A,G20.10)') 'oper: ',ddot_(mDens,Integrals(ip(nrop)),1,Integrals(ip(nrop)),1)
     end if
 
     if (iadd /= 0) then
@@ -431,7 +427,7 @@ do iIrrep=0,nIrrep-1
     irc = -1
     iopt = 0
 #   ifdef _DEBUGPRINT_
-    write(6,'(2A,2I8)') 'Lab_dsk,jdisp,koper',Lab_dsk,jdisp,koper
+    write(u6,'(2A,2I8)') 'Lab_dsk,jdisp,koper',Lab_dsk,jdisp,koper
 #   endif
     call dWrMck(irc,iOpt,Lab_dsk,jdisp,Integrals(ip(nrop)),koper)
     if (irc /= 0) call SysAbendMsg('cnt1el','error during write in dwrmck',' ')

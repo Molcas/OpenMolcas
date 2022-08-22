@@ -21,22 +21,22 @@ subroutine SroHss( &
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Real_Spherical
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: iOper
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
-#include "disp2.fh"
+implicit none
 #include "hss_interface.fh"
-! Local variables
-real*8 C(3), TC(3), Coor(3,4), g2(78)
-integer iDCRT(0:7), iuvwx(4), kOp(4), mop(4), JndGrd(3,4,0:7), jndhss(4,3,4,3,0:7)
-logical jfgrd(3,4), EQ, jfhss(4,3,4,3), ifg(4), tr(4)
+integer(kind=iwp) :: iang, iDCRT(0:7), ip, ipfa1, ipfa2, ipfb1, ipfb2, ipfin, iptmp, ishll, iuvwx(4), JndGrd(3,4,0:7), &
+                     jndhss(4,3,4,3,0:7), kcnt, kCnttp, kdc, kOp(4), ldcrt, lmbdt, mop(4), nDCRT, nExpi, nRys, nt
+real(kind=wp) :: C(3), Coor(3,4), fact, g2(78), TC(3)
+logical(kind=iwp) :: ifg(4), jfgrd(3,4), jfhss(4,3,4,3), tr(4)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
 ! Statement function
+integer(kind=iwp) :: nelem, ixyz
 nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nRys = nHer
@@ -58,7 +58,7 @@ do kCnttp=1,ncnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     call dcr(lmbdt,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    fact = dble(nstabm)/dble(LmbdT)
+    fact = real(nstabm,kind=wp)/real(LmbdT,kind=wp)
 
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab

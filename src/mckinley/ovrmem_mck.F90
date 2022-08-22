@@ -11,7 +11,12 @@
 
 subroutine OvrMem_mck(nHer,MmMltP,la,lb,lr)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nHer, MmMltP, la, lb, lr
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 lr = 0

@@ -12,23 +12,24 @@
 subroutine OpnFls_McKinley()
 
 use Basis_Info, only: nBas
-use Symmetry_Info, only: nIrrep, lIrrep
+use Symmetry_Info, only: lIrrep, nIrrep
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "Molcas.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "etwas.fh"
-character*8 Method, MckLbl
-character*288 Header
+integer(kind=iwp) :: i, iDummer, iGo, iOpt, iRC, ngrad
+character(len=288) :: Header
+character(len=8) :: MckLbl, Method
 
 iOpt = 1
 iRC = -1
 MckLbl = 'Title'
 call cWrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
 if (iRC /= 0) then
-  write(6,*) 'OpnFls: Error writing to MCKINT'
-  write(6,'(A,A)') 'MckLbl=',MckLbl
+  write(u6,*) 'OpnFls: Error writing to MCKINT'
+  write(u6,'(A,A)') 'MckLbl=',MckLbl
   call Abend()
 end if
 iOpt = 1
@@ -36,8 +37,8 @@ iRC = -1
 MckLbl = 'nSym'
 call iWrMck(iRC,iOpt,MckLbl,1,[nIrrep],iDummer)
 if (iRC /= 0) then
-  write(6,*) 'OpnFls: Error writing to MCKINT'
-  write(6,'(A,A)') 'MckLbl=',MckLbl
+  write(u6,*) 'OpnFls: Error writing to MCKINT'
+  write(u6,'(A,A)') 'MckLbl=',MckLbl
   call Abend()
 end if
 iOpt = 0
@@ -45,8 +46,8 @@ iRC = -1
 MckLbl = 'nBas'
 call iWrMck(iRC,iOpt,MckLbl,1,nBas,iDummer)
 if (iRC /= 0) then
-  write(6,*) 'OpnFls: Error writing to MCKINT'
-  write(6,'(A,A)') 'MckLbl=',MckLbl
+  write(u6,*) 'OpnFls: Error writing to MCKINT'
+  write(u6,'(A,A)') 'MckLbl=',MckLbl
   call Abend()
 end if
 iOpt = 0
@@ -54,8 +55,8 @@ iRC = -1
 MckLbl = 'SymOp'
 call cWrMck(iRC,iOpt,MckLbl,1,lirrep(0),iDummer)
 if (iRC /= 0) then
-  write(6,*) 'OpnFls: Error writing to MCKINT'
-  write(6,'(A,A)') 'MckLbl=',MckLbl
+  write(u6,*) 'OpnFls: Error writing to MCKINT'
+  write(u6,'(A,A)') 'MckLbl=',MckLbl
   call Abend()
 end if
 iOpt = 0
@@ -63,8 +64,8 @@ iRC = -1
 MckLbl = 'ldisp'
 call iWrMck(iRC,iOpt,MckLbl,1,ldisp,iDummer)
 if (iRC /= 0) then
-  write(6,*) 'OpnFls: Error writing to MCKINT'
-  write(6,'(A,A)') 'MckLbl=',MckLbl
+  write(u6,*) 'OpnFls: Error writing to MCKINT'
+  write(u6,'(A,A)') 'MckLbl=',MckLbl
   call Abend()
 end if
 ngrad = 0
@@ -76,8 +77,8 @@ iRC = -1
 MckLbl = 'chdisp'
 call cWrMck(iRC,iOpt,MckLbl,1,chdisp(1),iDummer)
 if (iRC /= 0) then
-  write(6,*) 'OpnFls: Error writing to MCKINT'
-  write(6,'(A,A)') 'MckLbl=',MckLbl
+  write(u6,*) 'OpnFls: Error writing to MCKINT'
+  write(u6,'(A,A)') 'MckLbl=',MckLbl
   call Abend()
 end if
 !                                                                      *
@@ -94,17 +95,17 @@ else if (Method == 'CASSCFSA') then
   nMethod = RASSCF
   call Get_iScalar('SA ready',iGo)
   if (lHss .and. (iGo /= 2)) then
-    write(6,*)
-    write(6,*) ' Wavefunction type: RASSCF-SA'
-    write(6,*)
-    write(6,*) ' This option is not allowed when computing the Hessian. Use the RHS option!'
+    write(u6,*)
+    write(u6,*) ' Wavefunction type: RASSCF-SA'
+    write(u6,*)
+    write(u6,*) ' This option is not allowed when computing the Hessian. Use the RHS option!'
     call Quit_OnUserError()
   end if
 else
-  write(6,*) ' OpnFls: Wavefunction type:',Method
-  write(6,*) '         Illegal type of wave function!'
-  write(6,*) '         McKinley can not continue'
-  write(6,*)
+  write(u6,*) ' OpnFls: Wavefunction type:',Method
+  write(u6,*) '         Illegal type of wave function!'
+  write(u6,*) '         McKinley can not continue'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 

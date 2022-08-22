@@ -13,15 +13,16 @@ subroutine PckMO2(COUT,nAcO,icmpi,iBasi,jcmpj,jBasj,iAOi,jAOj)
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use pso_stuff
+use pso_stuff, only: CMO
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: COUT(*)
+integer(kind=iwp) :: nAcO, icmpi, iBasi, jcmpj, jBasj, iAOi, jAOj
 #include "etwas.fh"
-#include "real.fh"
-real*8 COUT(*)
-integer iCmp(4), nBs(4)
-integer iaoii(4)
+integer(kind=iwp) :: i1, iaoii(4), iAsh, iCmp(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
 
 nBs(1) = iBasi
 nBs(2) = jBasj
@@ -43,7 +44,7 @@ do iCnt=1,2
           ip1 = ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iso
           call dcopy_(nBs(iCnt),CMO(ip1,1),1,COUT(ip2),1)
         else
-          call dcopy_(nBs(iCnt),[0.0d0],0,COUT(ip2),1)
+          call dcopy_(nBs(iCnt),[Zero],0,COUT(ip2),1)
         end if
         ip2 = ip2+nBs(iCnt)
       end do

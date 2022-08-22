@@ -9,24 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine m1kernel(final,Hess,nHess,DAO,nDAO,iAng,nRys,nZeta,Alpha,Beta,Zeta,ZInv,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd, &
+subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nRys,nZeta,Alpha,Beta,Zeta,ZInv,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd, &
                     indgrd,ifhss,indhss,ifg,tr,nop,iuvwx,kCnttp,fact,loper,idcar)
 
-use Real_Spherical
-use Basis_Info
+use Basis_Info, only: dbsc
 use Symmetry_Info, only: nIrrep
+use Constants, only: One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, Cff2D
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
-integer iAng(4), nop(4), iuvwx(4)
-real*8 Alpha(nZeta), Beta(nZeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,*), TC(3), Coor(3,4), Array(nArray), final(*), &
-       CoorAC(3,2), coori(3,4), Hess(*), DAO(nzeta,*)
-logical ifg(4), tr(4), ifgrd(3,4), ifhss(3,4,3,4), eq, jfgrd(3,4), jfg(4), lGrad, lHess, jfhss(3,4,3,4)
-integer indgrd(3,4,0:7), index(3,4), indhss(3,4,3,4,8), jndgrd(3,4,0:7), jndhss(3,4,3,4,8)
+implicit none
+integer(kind=iwp) :: nHess, nDAO, iAng(4), nRys, nZeta, nArray, indgrd(3,4,0:7), indhss(3,4,3,4,8), nop(4), iuvwx(4), kCnttp, &
+                     loper, idcar
+real(kind=wp) :: rFinal(*), Hess(*), DAO(nZeta,*), Alpha(nZeta), Beta(nZeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,*), &
+                 TC(3), Coor(3,4), CoorAC(3,2), Array(nArray), fact
+logical(kind=iwp) :: ifgrd(3,4), ifhss(3,4,3,4), ifg(4), tr(4)
+integer(kind=iwp) :: iDAO, iElem, iM1xp, indi, Indx(3,4), ip, ipDAO, ipDAOt, ipK, ipPx, ipPy, ipPz, ipZ, ipZI, iZeta, &
+                     jndgrd(3,4,0:7), jndhss(3,4,3,4,8), nb, nGr
+real(kind=wp) :: coori(3,4), Fac, FactECP, Gmma, PTC2, tfac, Tmp0, Tmp1
+logical(kind=iwp) :: jfg(4), jfgrd(3,4), jfhss(3,4,3,4), lGrad, lHess
+logical(kind=iwp), external :: EQ
+external :: Cff2D, Fake, TNAI1
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 lGrad = idcar /= 0
@@ -52,22 +56,22 @@ ip = ip+nZeta
 ipDAO = ip
 ip = ip+nDAO*nZeta
 if (ip >= narray) then
-  write(6,*) 'Out of memory in m1kernel (',narray,',',ip,')'
+  write(u6,*) 'Out of memory in m1kernel (',narray,',',ip,')'
   call Abend()
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'nM1=',dbsc(kCnttp)%nM1,'kCnttp=',kCnttp
+write(u6,*) 'nM1=',dbsc(kCnttp)%nM1,'kCnttp=',kCnttp
 #endif
 
 do iM1xp=1,dbsc(kCnttp)%nM1
-  Gamma = dbsc(kCnttp)%M1xp(iM1xp)
+  Gmma = dbsc(kCnttp)%M1xp(iM1xp)
   FactECP = dbsc(kCnttp)%M1cf(iM1xp)*Fact
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Fact=',FactECP,Fact
-  write(6,*) 'im1xp=',iM1xp
-  write(6,*) 'Gamma=',Gamma
+  write(u6,*) 'Fact=',FactECP,Fact
+  write(u6,*) 'im1xp=',iM1xp
+  write(u6,*) 'Gamma=',Gmma
 # endif
 
   ! Modify the original basis. Observe that
@@ -76,14 +80,14 @@ do iM1xp=1,dbsc(kCnttp)%nM1
 
   do iZeta=1,nZeta
     PTC2 = (P(iZeta,1)-TC(1))**2+(P(iZeta,2)-TC(2))**2+(P(iZeta,3)-TC(3))**2
-    Tmp0 = Zeta(iZeta)+Gamma
-    Tmp1 = exp(-Zeta(iZeta)*Gamma*PTC2/Tmp0)
+    Tmp0 = Zeta(iZeta)+Gmma
+    Tmp1 = exp(-Zeta(iZeta)*Gmma*PTC2/Tmp0)
     Array(ipK+iZeta-1) = rKappa(iZeta)*Tmp1
     Array(ipZ+iZeta-1) = Tmp0
     Array(ipZI+iZeta-1) = One/Tmp0
-    Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gamma*TC(1))/Tmp0
-    Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gamma*TC(2))/Tmp0
-    Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gamma*TC(3))/Tmp0
+    Array(ipPx+iZeta-1) = (Zeta(iZeta)*P(iZeta,1)+Gmma*TC(1))/Tmp0
+    Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
+    Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
   end do
 
   do iDAO=1,nDAO
@@ -106,7 +110,7 @@ do iM1xp=1,dbsc(kCnttp)%nM1
 
   call Rysg2(iAng,nRys,nZeta,Alpha,Beta,[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx),nZeta,TC,1,Coori,Coor, &
              CoorAC,Array(ip),nArray-ip+1,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Hess,nhess,jfGrd,jndGrd,jfHss,jndHss,nOp,iuvwx,jfg, &
-             nGr,Index,lgrad,lhess,tr)
+             nGr,Indx,lgrad,lhess,tr)
   if (lGrad) then
     nb = nzeta*nElem(iAng(1))*nElem(iAng(2))
     do iElem=1,nElem(iAng(1))*nElem(iAng(2))*ngr
@@ -117,7 +121,7 @@ do iM1xp=1,dbsc(kCnttp)%nM1
       end do
     end do
 
-    call SmAdNa(Array(ip),nb,final,nop(1:3),loper,jndGrd,iuvwx(1:3),jfGrd,Index,idcar,One,jFG,tr)
+    call SmAdNa(Array(ip),nb,rFinal,nop(1:3),loper,jndGrd,iuvwx(1:3),jfGrd,Indx,idcar,One,jFG,tr)
   end if
 
 end do

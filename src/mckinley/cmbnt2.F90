@@ -12,22 +12,29 @@
 !               1994, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CmbnT2(Rnxyz,nZeta,la,lb,Zeta,rKappa,final,Alpha,Beta,Hess,nHess,DAO,IfHss,IndHss,indgrd,iu,iv,nOp)
+subroutine CmbnT2(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,Hess,nHess,DAO,IfHss,IndHss,indgrd,iu,iv,nOp)
 !***********************************************************************
 !                                                                      *
-! Object: compute the 2nd derivative  of the overlap matrix.           *
+! Object: compute the 2nd derivative of the overlap matrix.            *
 !                                                                      *
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChTbl
+use Constants, only: One, Two, Four, Six, Half, OneHalf
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), Zeta(nZeta), rKappa(nZeta), Beta(nZeta), Rnxyz(nZeta,3,0:la+2,0:lb+2), &
-       Alpha(nZeta), Hess(nHess), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
-logical IfHss(0:1,0:2,0:1,0:2)
-integer IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), istab(0:1), nOp(2), ia(3), ib(3), indgrd(0:2,0:1,0:nirrep-1)
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, nHess, IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), indgrd(0:2,0:1,0:nirrep-1), iu, iv, nOp(2)
+real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), &
+                 Alpha(nZeta), Beta(nZeta), Hess(nHess), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+logical(kind=iwp) :: IfHss(0:1,0:2,0:1,0:2)
+integer(kind=iwp) :: ia(3), iax, iay, ib(3), ibx, iby, iCar, ich, iCnt, iCoor, iHess, iIrrep, iMax, ipa, ipb, istab(0:1), iyaMax, &
+                     iybMax, iZeta, jCar, jCnt, jCoor, kCoor, nDAO
+real(kind=wp) :: Fact, oj, ps
+integer(kind=iwp), external :: iPrmt
+real(kind=r8), external :: DDot_
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz, ix, iz, I, itot, i1, i2
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 ! Index in the lower triang. local hessian i1 row i2 column
 ! itot*0  added to avoid compiler warning
@@ -39,9 +46,8 @@ iStab(1) = iv
 !iPrint = nPrint(iRout)
 !call GetMem(' Enter CmbnT2','LIST','REAL',iDum,iDum)
 
-exp32 = -Three/Two
 do iZeta=1,nZeta
-  rKappa(iZeta) = half*rKappa(iZeta)*Zeta(iZeta)**exp32
+  rKappa(iZeta) = Half*rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
 end do
 !if (iPrint >= 99) then
 !  call RecPrt(' In CmbnT2: Zeta  ',' ',Zeta,1,nZeta)
@@ -73,84 +79,23 @@ do iax=0,la
           kCoor = mod(jCoor,3)+1
           if (IfHss(0,iCoor-1,0,iCoor-1)) then
             do iZeta=1,nZeta
-              final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rKappa(iZeta)* &
-                                                      ((Two*Alpha(iZeta))**2* &
-                                                       ((Two*Beta(iZeta))**2* &
-                                                        (Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor)+2)* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)+2)* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
-                                                        Six*Beta(iZeta)* &
-                                                        Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
-                                                        Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))- &
-                                                       Two*Alpha(iZeta)* &
-                                                       ((Two*Beta(iZeta))**2* &
-                                                        (Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)+2)* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)+2)* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
-                                                        Six*Beta(iZeta)* &
-                                                        Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
-                                                        Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))))
-              if (lb > 0) then
-                final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
-                                                        ((Two*Alpha(iZeta))**2*Four*Beta(iZeta)*dble(lb)* &
+              rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rKappa(iZeta)* &
+                                                       ((Two*Alpha(iZeta))**2* &
+                                                        ((Two*Beta(iZeta))**2* &
+                                                         (Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor)+2)* &
+                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
+                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)+2)* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
+                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
+                                                         Six*Beta(iZeta)* &
                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))- &
-                                                         Two*Alpha(iZeta)*(Four*Beta(iZeta))*dble(lb)* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-              end if
-              if (ib(icoor) > 1) then
-                final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
-                                                        ((Two*Alpha(iZeta))**2*dble(ib(icoor)*(ib(icoor)-1))* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor)-2)* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))- &
-                                                         Two*Alpha(iZeta)*dble(ib(icoor)*(ib(icoor)-1))* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)-2)* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-              end if
-              if (ib(jcoor) > 1) then
-                final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
-                                                        ((Two*Alpha(iZeta))**2*dble(ib(jcoor)*(ib(jcoor)-1))* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)-2)* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))- &
-                                                         Two*Alpha(iZeta)*dble(ib(jcoor)*(ib(jcoor)-1))* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)-2)* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-              end if
-              if (ib(kcoor) > 1) then
-                final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
-                                                        ((Two*Alpha(iZeta))**2*dble(ib(kcoor)*(ib(kcoor)-1))* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)- &
-                                                         Two*Alpha(iZeta)*dble(ib(kcoor)*(ib(kcoor)-1))* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2))
-              end if
-              if (ia(iCoor) > 0) then
-                final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
-                                                        Four*Alpha(iZeta)*dble(ia(iCoor))* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))- &
+                                                        Two*Alpha(iZeta)* &
                                                         ((Two*Beta(iZeta))**2* &
                                                          (Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)+2)* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
@@ -164,80 +109,146 @@ do iax=0,la
                                                          Six*Beta(iZeta)* &
                                                          Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-                if (lb > 0) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
-                                                          Four*Beta(iZeta)*dble(lb)*Four*Alpha(iZeta)*dble(ia(iCoor))* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))))
+              if (lb > 0) then
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
+                                                         ((Two*Alpha(iZeta))**2*Four*Beta(iZeta)*real(lb,kind=wp)* &
+                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
+                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))- &
+                                                          Two*Alpha(iZeta)*(Four*Beta(iZeta))*real(lb,kind=wp)* &
                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
-                end if
-                if (ib(iCoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
-                                                          dble(ib(icoor)*(ib(icoor)-1))*Four*Alpha(iZeta)*dble(ia(iCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+              end if
+              if (ib(icoor) > 1) then
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
+                                                         ((Two*Alpha(iZeta))**2*real(ib(icoor)*(ib(icoor)-1),kind=wp)* &
+                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor)-2)* &
+                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))- &
+                                                          Two*Alpha(iZeta)*real(ib(icoor)*(ib(icoor)-1),kind=wp)* &
                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)-2)* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
-                end if
-                if (ib(jCoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
-                                                          dble(ib(jcoor)*(ib(jcoor)-1))*Four*Alpha(iZeta)*dble(ia(iCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+              end if
+              if (ib(jcoor) > 1) then
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
+                                                         ((Two*Alpha(iZeta))**2*real(ib(jcoor)*(ib(jcoor)-1),kind=wp)* &
+                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
+                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)-2)* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))- &
+                                                          Two*Alpha(iZeta)*real(ib(jcoor)*(ib(jcoor)-1),kind=wp)* &
                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)-2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
-                end if
-                if (ib(kCoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
-                                                          dble(ib(kcoor)*(ib(kcoor)-1))*Four*Alpha(iZeta)*dble(ia(iCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+              end if
+              if (ib(kcoor) > 1) then
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
+                                                         ((Two*Alpha(iZeta))**2*real(ib(kcoor)*(ib(kcoor)-1),kind=wp)* &
+                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
+                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)- &
+                                                          Two*Alpha(iZeta)*real(ib(kcoor)*(ib(kcoor)-1),kind=wp)* &
                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2))
+              end if
+              if (ia(iCoor) > 0) then
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
+                                                         Four*Alpha(iZeta)*real(ia(iCoor),kind=wp)* &
+                                                         ((Two*Beta(iZeta))**2* &
+                                                          (Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)+2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)+2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
+                                                          Six*Beta(iZeta)* &
+                                                          Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
+                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+                if (lb > 0) then
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
+                                                           Four*Beta(iZeta)*real(lb,kind=wp)* &
+                                                           Four*Alpha(iZeta)*real(ia(iCoor),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                end if
+                if (ib(iCoor) > 1) then
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
+                                                           real(ib(icoor)*(ib(icoor)-1),kind=wp)* &
+                                                           Four*Alpha(iZeta)*real(ia(iCoor),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor)-2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                end if
+                if (ib(jCoor) > 1) then
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
+                                                           real(ib(jcoor)*(ib(jcoor)-1),kind=wp)* &
+                                                           Four*Alpha(iZeta)*real(ia(iCoor),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)-2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                end if
+                if (ib(kCoor) > 1) then
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
+                                                           real(ib(kcoor)*(ib(kcoor)-1),kind=wp)* &
+                                                           Four*Alpha(iZeta)*real(ia(iCoor),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
                 end if
               end if
               if (ia(iCoor) > 1) then
-                final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
-                                                        dble(ia(iCoor)*(ia(iCoor)-1))* &
-                                                        ((Two*Beta(iZeta))**2* &
-                                                         (Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor)+2)* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
+                                                         real(ia(iCoor)*(ia(iCoor)-1),kind=wp)* &
+                                                         ((Two*Beta(iZeta))**2* &
+                                                          (Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor)+2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)+2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
+                                                          Six*Beta(iZeta)* &
                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)+2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
-                                                         Six*Beta(iZeta)* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
                 if (lb > 0) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
-                                                          dble(ia(iCoor)*(ia(iCoor)-1))*Four*Beta(iZeta)*dble(lb)* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))-rKappa(iZeta)* &
+                                                           real(ia(iCoor)*(ia(iCoor)-1),kind=wp)* &
+                                                           Four*Beta(iZeta)*real(lb,kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(iCoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
-                                                          dble(ia(iCoor)*(ia(iCoor)-1)*ib(iCoor)*(ib(iCoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor)-2)* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
+                                                           real(ia(iCoor)*(ia(iCoor)-1)*ib(iCoor)*(ib(iCoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor)-2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(jCoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
-                                                          dble(ia(iCoor)*(ia(iCoor)-1)*ib(jCoor)*(ib(jCoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)-2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
+                                                           real(ia(iCoor)*(ia(iCoor)-1)*ib(jCoor)*(ib(jCoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor)-2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(kCoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
-                                                          dble(ia(iCoor)*(ia(iCoor)-1)*ib(kCoor)*(ib(kCoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,iCoor))+rKappa(iZeta)* &
+                                                           real(ia(iCoor)*(ia(iCoor)-1)*ib(kCoor)*(ib(kCoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
                 end if
               end if
             end do
@@ -254,186 +265,187 @@ do iax=0,la
           iCoor = iMax
           if (IfHss(0,iCoor-1,0,jCoor-1)) then
             do iZeta=1,nZeta
-              final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rKappa(iZeta)* &
-                                                      (Two*Alpha(iZeta))**2* &
-                                                      ((Two*Beta(iZeta))**2* &
-                                                       (Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor)+2)* &
-                                                        Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+              rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rKappa(iZeta)* &
+                                                       (Two*Alpha(iZeta))**2* &
+                                                       ((Two*Beta(iZeta))**2* &
+                                                        (Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor)+2)* &
+                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor)+2)* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
+                                                        Six*Beta(iZeta)* &
                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                        Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor)+2)* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                        Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
-                                                       Six*Beta(iZeta)* &
-                                                       Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                       Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                       Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
               if (lb > 0) then
-                final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                        (Two*Alpha(iZeta))**2*Four*Beta(iZeta)*dble(lb)* &
-                                                        Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                        Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                         (Two*Alpha(iZeta))**2*Four*Beta(iZeta)*real(lb,kind=wp)* &
+                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
               end if
               if (ib(icoor) > 1) then
-                final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                        (Two*Alpha(iZeta))**2*dble(ib(icoor)*(ib(icoor)-1))* &
-                                                        Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor)-2)* &
-                                                        Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                         (Two*Alpha(iZeta))**2*real(ib(icoor)*(ib(icoor)-1),kind=wp)* &
+                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor)-2)* &
+                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
               end if
               if (ib(jcoor) > 1) then
-                final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                        (Two*Alpha(iZeta))**2*dble(ib(jcoor)*(ib(jcoor)-1))* &
-                                                        Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                        Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor)-2)* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                         (Two*Alpha(iZeta))**2*real(ib(jcoor)*(ib(jcoor)-1),kind=wp)* &
+                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor)-2)* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
               end if
               if (ib(kcoor) > 1) then
-                final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                        (Two*Alpha(iZeta))**2*dble(ib(kcoor)*(ib(kcoor)-1))* &
-                                                        Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                        Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                        Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                         (Two*Alpha(iZeta))**2*real(ib(kcoor)*(ib(kcoor)-1),kind=wp)* &
+                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
               end if
               if (ia(icoor) > 0) then
-                final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                        dble(ia(icoor))*Two*Alpha(iZeta)* &
-                                                        ((Two*Beta(iZeta))**2* &
-                                                         (Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor)+2)* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                         real(ia(icoor),kind=wp)*Two*Alpha(iZeta)* &
+                                                         ((Two*Beta(iZeta))**2* &
+                                                          (Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor)+2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor)+2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
+                                                          Six*Beta(iZeta)* &
                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor)+2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
-                                                         Six*Beta(iZeta)* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
                 if (lb > 0) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                          Two*Alpha(iZeta)*dble(ia(iCoor))*Four*Beta(iZeta)*dble(lb)* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                           Two*Alpha(iZeta)*real(ia(iCoor))*Four*Beta(iZeta)*real(lb,kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(icoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                          Two*Alpha(iZeta)*dble(ia(iCoor)*ib(icoor)*(ib(icoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor)-2)* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                           Two*Alpha(iZeta)*real(ia(iCoor)*ib(icoor)*(ib(icoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor)-2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(jcoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                          Two*Alpha(iZeta)*dble(ia(iCoor)*ib(jcoor)*(ib(jcoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor)-2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                           Two*Alpha(iZeta)*real(ia(iCoor)*ib(jcoor)*(ib(jcoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor)-2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(kcoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                          Two*Alpha(iZeta)*dble(ia(iCoor)*ib(kcoor)*(ib(kcoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                           Two*Alpha(iZeta)*real(ia(iCoor)*ib(kcoor)*(ib(kcoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)+1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
                 end if
               end if
               if (ia(jcoor) > 0) then
-                final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                        dble(ia(jcoor))*Two*Alpha(iZeta)* &
-                                                        ((Two*Beta(iZeta))**2* &
-                                                         (Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor)+2)* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                         real(ia(jcoor),kind=wp)*Two*Alpha(iZeta)* &
+                                                         ((Two*Beta(iZeta))**2* &
+                                                          (Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor)+2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor)+2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
+                                                          Six*Beta(iZeta)* &
                                                           Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor)+2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
-                                                         Six*Beta(iZeta)* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
                 if (lb > 0) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                          Two*Alpha(iZeta)*dble(ia(jCoor))*Four*Beta(iZeta)*dble(lb)* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                           Two*Alpha(iZeta)*real(ia(jCoor))*Four*Beta(iZeta)*real(lb,kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(icoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                          Two*Alpha(iZeta)*dble(ia(jCoor)*ib(icoor)*(ib(icoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor)-2)* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                           Two*Alpha(iZeta)*real(ia(jCoor)*ib(icoor)*(ib(icoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor)-2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(jcoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                          Two*Alpha(iZeta)*dble(ia(jCoor)*ib(jcoor)*(ib(jcoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor)-2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                           Two*Alpha(iZeta)*real(ia(jCoor)*ib(jcoor)*(ib(jcoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor)-2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(kcoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                          Two*Alpha(iZeta)*dble(ia(jCoor))*dble(ib(kcoor)*(ib(kcoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                           Two*Alpha(iZeta)* &
+                                                           real(ia(jCoor),kind=wp)*real(ib(kcoor)*(ib(kcoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)+1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
                 end if
               end if
               if ((ia(iCoor) > 0) .and. (ia(jCoor) > 0)) then
-                final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                        dble(ia(iCoor)*ia(jCoor))* &
-                                                        ((Two*Beta(iZeta))**2* &
-                                                         (Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor)+2)* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                         real(ia(iCoor)*ia(jCoor),kind=wp)* &
+                                                         ((Two*Beta(iZeta))**2* &
+                                                          (Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor)+2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor)+2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
+                                                          Six*Beta(iZeta)* &
                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor)+2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))+ &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)+2))- &
-                                                         Six*Beta(iZeta)* &
-                                                         Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                         Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
+                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
                 if (lb > 0) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
-                                                          dble(ia(iCoor)*ia(jCoor))*Four*Beta(iZeta)*dble(lb)* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))-rKappa(iZeta)* &
+                                                           real(ia(iCoor)*ia(jCoor),kind=wp)*Four*Beta(iZeta)*real(lb,kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(icoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                          dble(ia(iCoor)*ia(jCoor)*ib(icoor)*(ib(icoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor)-2)* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                           real(ia(iCoor)*ia(jCoor)*ib(icoor)*(ib(icoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor)-2)* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(jcoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                          dble(ia(iCoor)*ia(jCoor)*ib(jcoor)*(ib(jcoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor)-2)* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                           real(ia(iCoor)*ia(jCoor)*ib(jcoor)*(ib(jcoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor)-2)* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
                 end if
                 if (ib(kcoor) > 1) then
-                  final(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = final(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
-                                                          dble(ia(iCoor)*ia(jCoor)*ib(kcoor)*(ib(kcoor)-1))* &
-                                                          Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
-                                                          Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
-                                                          Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
+                  rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor)) = rFinal(iZeta,ipa,ipb,I(6,iCoor,jCoor))+rKappa(iZeta)* &
+                                                           real(ia(iCoor)*ia(jCoor)*ib(kcoor)*(ib(kcoor)-1),kind=wp)* &
+                                                           Rnxyz(iZeta,iCoor,ia(iCoor)-1,ib(iCoor))* &
+                                                           Rnxyz(iZeta,jCoor,ia(jCoor)-1,ib(jCoor))* &
+                                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)-2)
                 end if
               end if
 
@@ -449,7 +461,7 @@ end do
 
 nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
 !if (iPrint >= 99) then
-!  call RecPrt(' S(1)',' ',Final,nDAO,21)
+!  call RecPrt(' S(1)',' ',rFinal,nDAO,21)
 !  call RecPrt('   D ',' ',DAO,nDAO,1)
 !end if
 do iIrrep=0,nIrrep-1
@@ -467,11 +479,11 @@ do iIrrep=0,nIrrep-1
 
             ! Get the character of the operator in the present irrep
 
-            ps = dble(iChTbl(iIrrep,nOp(2))**(iCnt+jCnt))
+            ps = real(iChTbl(iIrrep,nOp(2))**(iCnt+jCnt),kind=wp)
 
             ! Get the transf. character of the diff. operator
 
-            ps = ps*dble(iPrmt(nOp(2),iCh))
+            ps = ps*real(iPrmt(nOp(2),iCh),kind=wp)
 
             ! If the over triangular diff. are needed multiply by two instead
 
@@ -479,14 +491,14 @@ do iIrrep=0,nIrrep-1
               ps = ps*Two
             end if
             iHess = abs(IndHss(iCnt,iCar-1,jCnt,jCar-1,iIrrep))
-            Fact = dble(iStab(iCnt)*iStab(jCnt))/dble(nIrrep**2)
+            Fact = real(iStab(iCnt)*iStab(jCnt),kind=wp)/real(nIrrep**2,kind=wp)
             Fact = Fact*ps
             if (IndHss(iCnt,iCar-1,jCnt,jCar-1,iIrrep) > 0) then
-              oj = DDot_(nDAO,DAO,1,final(1,1,1,I(6,iCar,jCar)),1)
+              oj = DDot_(nDAO,DAO,1,rFinal(1,1,1,I(6,iCar,jCar)),1)
               Hess(iHess) = Hess(iHess)+Fact*oj
             else
-              Fact = Fact*dble((-1)**(icnt+jcnt))
-              oj = DDot_(nDAO,DAO,1,final(1,1,1,I(6,max(iCar,jCar),min(iCar,jCar))),1)
+              Fact = Fact*(-One)**(icnt+jcnt)
+              oj = DDot_(nDAO,DAO,1,rFinal(1,1,1,I(6,max(iCar,jCar),min(iCar,jCar))),1)
               Hess(iHess) = Hess(iHess)+Fact*oj
             end if
           end if

@@ -13,15 +13,16 @@ subroutine PickMO(COUT,nOut,nAcO,icmp,iBasi,iBasn,jBasj,jBasn,kBask,kBasn,lBasl,
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use pso_stuff
+use pso_stuff, only: CMO
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nOut, nAcO, iCmp(4), iBasi, iBasn, jBasj, jBasn, kBask, kBasn, lBasl, lBasn, iAOii(4)
+real(kind=wp) :: COUT(nOut)
 #include "etwas.fh"
-#include "real.fh"
-real*8 COUT(nOut)
-integer iCmp(4), iBas(4), nBs(4)
-integer iAOii(4)
+integer(kind=iwp) :: i1, iAsh, iBas(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
 
 iBas(1) = iBasi
 iBas(2) = jBasj
@@ -45,7 +46,7 @@ do iCnt=3,4
           ip1 = ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iSO
           call dcopy_(nBs(iCnt),CMO(ip1,1),1,COUT(ip2),1)
         else
-          call dcopy_(nBs(iCnt),[0.0d0],0,COUT(ip2),1)
+          call dcopy_(nBs(iCnt),[Zero],0,COUT(ip2),1)
         end if
         ip2 = ip2+nBs(iCnt)
       end do

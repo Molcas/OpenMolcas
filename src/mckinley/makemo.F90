@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine MakeMO(AOInt,Temp,nTemp,nInt,MOInt,nMOInt,iCmp,iCmpa,ibasi,jbasj,kbask,lbasl,nGr,index,moip,naco,nop,indgrd,ishll, &
+subroutine MakeMO(AOInt,Temp,nTemp,n_Int,MOInt,nMOInt,iCmp,iCmpa,ibasi,jbasj,kbask,lbasl,nGr,Indx,moip,naco,nop,indgrd,ishll, &
                   ishell,rmoin,nmoin,iuvwx,iao,iaost,buffer,ianga,c)
 ! this is the driver for the two index transformation
 ! it is not very efficent, but on the other hand it
@@ -21,15 +21,18 @@ subroutine MakeMO(AOInt,Temp,nTemp,nInt,MOInt,nMOInt,iCmp,iCmpa,ibasi,jbasj,kbas
 
 use Basis_Info, only: Shells
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nTemp, n_Int, nMOInt, icmp(4), iCmpa(4), ibasi, jbasj, kbask, lbasl, nGr, Indx(3,4), moip(0:7), naco, nop(4), &
+                     indgrd(3,4,0:nirrep-1), ishll(4), ishell(4), nmoin, iuvwx(4), iao(4), iAOST(4), ianga(4)
+real(kind=wp) :: AOInt(n_Int), Temp(nTemp), MOInt(nMOInt), rmoin(nmoin), buffer(*), C(12)
 #include "Molcas.fh"
-#include "real.fh"
 #include "buffer.fh"
-logical pert(0:7), lc
-integer iCmpa(4), index(3,4), ipPert(0:7), icmp(4), ibas(4), indgrd2(3,4,0:7), indgrd(3,4,0:nirrep-1), moip(0:7), nop(4), &
-        ishell(4), iuvwx(4), iao(4), iAOST(4), ianga(4), ishll(4)
-real*8 Temp(nTemp), AOInt(nInt), rmoin(nmoin), MOInt(nMOInt), C(12), buffer(*)
+integer(kind=iwp) :: ibas(4), iCar, iCent, iCnt, iGr, ii, iIrrep, iMax, indgrd2(3,4,0:7), ip, ip0, ip1, ip2, ip3, ip5, ipc, ipci, &
+                     ipcj, ipck, ipcl, ipD, ipFin, ipPert(0:7), mSum, nabcd, nCi, nCj, nCk, nCl, nij, nijkl, nInt2, nkl, nScrtch
+logical(kind=iwp) :: lc, pert(0:7)
 
 iMax = 0
 mSum = 0
@@ -60,28 +63,28 @@ ip = ip+nScrtch
 ip5 = ip
 ip = ip+iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)*iBas(1)*iBas(2)*iBas(3)*iBas(4)
 if (ip-1 > nTemp) then
-  write(6,*) 'MakeMO: ip-1 > nTemp'
-  write(6,*) 'ip,nTemp=',ip,nTemp
+  write(u6,*) 'MakeMO: ip-1 > nTemp'
+  write(u6,*) 'ip,nTemp=',ip,nTemp
   call Abend()
 end if
 !ip = 2
-!Temp(ip-1) = 0.0d0
+!Temp(ip-1) = Zero
 !ip0 = ip
 !ip = ip+nGr*nijkl*nabcd+1
-!Temp(ip-1) = 0.0d0
+!Temp(ip-1) = Zero
 !ip1 = ip
 !nScrtch = imax**4+1
 !ip = ip+nScrtch
-!Temp(ip-1) = 0.0d0
+!Temp(ip-1) = Zero
 !ip2 = ip
 !ip = ip+nScrtch
-!Temp(ip-1) = 0.0d0
+!Temp(ip-1) = Zero
 !ip3 = ip
 !ip = ip+nScrtch
-!Temp(ip-1) = 0.0d0
+!Temp(ip-1) = Zero
 !ip5 = ip
 !ip = ip+iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)*iBas(1)*iBas(2)*iBas(3)*iBas(4)+1
-!Temp(ip-1) = 0.0d0
+!Temp(ip-1) = Zero
 
 ipc = 1
 ipD = ipc
@@ -100,8 +103,8 @@ ipc = ipc+nCl
 nij = iCmp(1)*iBas(1)*iBas(2)*iCmp(2)
 nkl = iCmp(3)*iBas(3)*iBas(4)*iCmp(4)
 if (ipc-1 /= nMoIn) then
-  write(6,*) 'MakeMO: ipc-1 /= nMoIn'
-  write(6,*) 'ipc,nMoIn=',ipc,nMoIn
+  write(u6,*) 'MakeMO: ipc-1 /= nMoIn'
+  write(u6,*) 'ipc,nMoIn=',ipc,nMoIn
   call Abend()
 end if
 
@@ -122,18 +125,18 @@ do iCent=1,4
       if (IndGrd(iCar,icent,iirrep) /= 0) lC = .true.
     end do
     if (lc) then
-      if (index(iCar,iCent) > 0) then
+      if (Indx(iCar,iCent) > 0) then
 
-        iGr = index(icar,icent)
+        iGr = Indx(icar,icent)
         call MOAcc(Temp(ip0+(iGr-1)*nijkl*nabcd),nINT2,Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,MOInt,nMOINt,ishell,rmoin(ipCi),nCi, &
                    rmoin(ipCj),nCj,rmoin(ipCk),nCk,rmoin(ipCl),nCl,Moip,nACO,pert,nOp,ibas,icmpa,iCar,icent,indgrd,rmoin(ipD), &
-                   dble(iuvwx(iCent))/dble(nIrrep),iao,iaost,buffer,Temp(ip2),nij,nkl,Shells(ishll(1))%nBasis, &
+                   real(iuvwx(iCent),kind=wp)/real(nIrrep,kind=wp),iao,iaost,buffer,Temp(ip2),nij,nkl,Shells(ishll(1))%nBasis, &
                    Shells(ishll(2))%nBasis,icmpa(1),icmpa(2))
 
-      else if (index(iCar,iCent) < 0) then
+      else if (Indx(iCar,iCent) < 0) then
         call dcopy_(nabcd*nijkl,[Zero],0,Temp(ip5),1)
         do iCnt=1,4
-          iGr = index(iCar,iCnt)
+          iGr = Indx(iCar,iCnt)
           if (iGr > 0) then
             ipFin = (iGr-1)*nijkl*nabcd+ip0
             do ii=1,nabcd*nijkl
@@ -143,7 +146,7 @@ do iCent=1,4
         end do
         call MOAcc(Temp(ip5),nInt2,Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,MOInt,nMOINt,ishell,rmoin(ipCi),nCi,rmoin(ipCj),nCj, &
                    rmoin(ipCk),nCk,rmoin(ipCl),nCl,moip,nACO,pert,nOp,ibas,icmpa,iCar,icent,indgrd,rMoin(ipD), &
-                   dble(iuvwx(iCent))/dble(nIrrep),iao,iaost,buffer,Temp(ip2),nij,nkl,Shells(ishll(1))%nBasis, &
+                   real(iuvwx(iCent),kind=wp)/real(nIrrep,kind=wp),iao,iaost,buffer,Temp(ip2),nij,nkl,Shells(ishll(1))%nBasis, &
                    Shells(ishll(2))%nBasis,icmpa(1),icmpa(2))
 
       end if

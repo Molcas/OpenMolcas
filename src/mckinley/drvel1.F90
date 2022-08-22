@@ -14,14 +14,18 @@ subroutine Drvel1(Grad)
 use Basis_Info
 use Center_Info
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-logical, external :: TF
-real*8 Grad(*)
+implicit none
+real(kind=wp) :: Grad(*)
+integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, idisp, iirrep, jCar, jIrrep, mdc
+real(kind=wp) :: ZA
+integer(kind=iwp), external :: irrfnc
+logical(kind=iwp), external :: TF
 
 idisp = 0
 do jIrrep=0,nirrep-1
-  do Jcar=1,3
+  do jCar=1,3
     iirrep = irrfnc(2**(jcar-1))
     if (jirrep == iirrep) then
       mdc = 0

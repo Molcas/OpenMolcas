@@ -11,7 +11,7 @@
 ! Copyright (C) 2000, Per Ake Malmqvist                                *
 !***********************************************************************
 
-subroutine CMBN2DC(RNXYZ,NZETA,LA,LB,ZETA,RKAPPA,final,ALPHA,BETA,IFGRAD)
+subroutine CMBN2DC(RNXYZ,NZETA,LA,LB,ZETA,RKAPPA,RFINAL,ALPHA,BETA,IFGRAD)
 !***********************************************************************
 !
 ! OBJECT: COMPUTE THE SECOND DERIVATIVE NON-ADIABATIC COUPLING
@@ -26,16 +26,23 @@ subroutine CMBN2DC(RNXYZ,NZETA,LA,LB,ZETA,RKAPPA,final,ALPHA,BETA,IFGRAD)
 !
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 final(NZETA,(LA+1)*(LA+2)/2,(LB+1)*(LB+2)/2,1), ZETA(NZETA), RKAPPA(NZETA), BETA(NZETA), RNXYZ(NZETA,3,0:LA+1,0:LB+1), &
-       ALPHA(NZETA)
-logical IFGRAD(3)
+use Constants, only: Two, Four, OneHalf
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NZETA, LA, LB
+real(kind=wp) :: RNXYZ(NZETA,3,0:LA+1,0:LB+1), ZETA(NZETA), RKAPPA(NZETA), RFINAL(NZETA,(LA+1)*(LA+2)/2,(LB+1)*(LB+2)/2,1), &
+                 ALPHA(NZETA), BETA(NZETA)
+logical(kind=iwp) :: IFGRAD(3)
+integer(kind=iwp) :: IPA, IPB, IXA, IXB, IYA, IYAMAX, IYB, IYBMAX, IZA, IZB, IZETA
+real(kind=wp) :: DIFFX, DIFFY, DIFFZ, OVLX, OVLY, OVLZ
 ! STATEMENT FUNCTION FOR CARTESIAN INDEX
+integer(kind=iwp) :: IND, IXYZ, IX, IZ
 IND(IXYZ,IX,IZ) = (IXYZ-IX)*(IXYZ-IX+1)/2+IZ+1
 
 ! PREFACTOR FOR THE PRIMITIVE OVERLAP MATRIX
 do IZETA=1,NZETA
-  RKAPPA(IZETA) = RKAPPA(IZETA)*(ZETA(IZETA)**(-1.5d0))
+  RKAPPA(IZETA) = RKAPPA(IZETA)*(ZETA(IZETA)**(-OneHalf))
 end do
 
 ! LOOP STRUCTURE FOR THE CARTESIAN ANGULAR PARTS
@@ -54,55 +61,55 @@ do IXA=0,LA
         if (IFGRAD(1)) then
           ! COMPUTE INTEGRALS TYPE <D/DX,D/DX>
           do IZETA=1,NZETA
-            DIFFX = 4d0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IXA+1,IXB+1)
+            DIFFX = Four*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IXA+1,IXB+1)
             if (IXB > 0) then
-              DIFFX = DIFFX-2d0*ALPHA(IZETA)*dble(IXB)*RNXYZ(IZETA,1,IXA+1,IXB-1)
+              DIFFX = DIFFX-Two*ALPHA(IZETA)*real(IXB,kind=wp)*RNXYZ(IZETA,1,IXA+1,IXB-1)
               if (IXA > 0) then
-                DIFFX = DIFFX+dble(IXA*IXB)*RNXYZ(IZETA,1,IXA-1,IXB-1)
+                DIFFX = DIFFX+real(IXA*IXB,kind=wp)*RNXYZ(IZETA,1,IXA-1,IXB-1)
               end if
             end if
             if (IXA > 0) then
-              DIFFX = DIFFX-dble(2*IXA)*BETA(IZETA)*RNXYZ(IZETA,1,IXA-1,IXB+1)
+              DIFFX = DIFFX-real(2*IXA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IXA-1,IXB+1)
             end if
             OVLY = RNXYZ(IZETA,2,IYA,IYB)
             OVLZ = RNXYZ(IZETA,3,IZA,IZB)
-            final(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*DIFFX*OVLY*OVLZ
+            RFINAL(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*DIFFX*OVLY*OVLZ
           end do
         end if
         if (IFGRAD(2)) then
           ! COMPUTE INTEGRALS TYPE <D/DY,D/DY>
           do IZETA=1,NZETA
-            DIFFY = 4d0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,2,IYA+1,IYB+1)
+            DIFFY = Four*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,2,IYA+1,IYB+1)
             if (IYB > 0) then
-              DIFFY = DIFFY-2d0*ALPHA(IZETA)*dble(IYB)*RNXYZ(IZETA,2,IYA+1,IYB-1)
+              DIFFY = DIFFY-Two*ALPHA(IZETA)*real(IYB,kind=wp)*RNXYZ(IZETA,2,IYA+1,IYB-1)
               if (IYA > 0) then
-                DIFFY = DIFFY+dble(IYA*IYB)*RNXYZ(IZETA,2,IYA-1,IYB-1)
+                DIFFY = DIFFY+real(IYA*IYB,kind=wp)*RNXYZ(IZETA,2,IYA-1,IYB-1)
               end if
             end if
             if (IYA > 0) then
-              DIFFY = DIFFY-dble(2*IYA)*BETA(IZETA)*RNXYZ(IZETA,1,IYA-1,IYB+1)
+              DIFFY = DIFFY-real(2*IYA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IYA-1,IYB+1)
             end if
             OVLX = RNXYZ(IZETA,1,IXA,IXB)
             OVLZ = RNXYZ(IZETA,3,IZA,IZB)
-            final(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*OVLX*DIFFY*OVLZ
+            RFINAL(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*OVLX*DIFFY*OVLZ
           end do
         end if
         if (IFGRAD(1)) then
           ! COMPUTE INTEGRALS TYPE <D/DZ,D/DZ>
           do IZETA=1,NZETA
-            DIFFZ = 4d0*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IZA+1,IZB+1)
+            DIFFZ = Four*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IZA+1,IZB+1)
             if (IZB > 0) then
-              DIFFZ = DIFFZ-2d0*ALPHA(IZETA)*dble(IZB)*RNXYZ(IZETA,1,IZA+1,IZB-1)
+              DIFFZ = DIFFZ-Two*ALPHA(IZETA)*real(IZB,kind=wp)*RNXYZ(IZETA,1,IZA+1,IZB-1)
               if (IZA > 0) then
-                DIFFZ = DIFFZ+dble(IZA*IZB)*RNXYZ(IZETA,1,IZA-1,IZB-1)
+                DIFFZ = DIFFZ+real(IZA*IZB,kind=wp)*RNXYZ(IZETA,1,IZA-1,IZB-1)
               end if
             end if
             if (IZA > 0) then
-              DIFFZ = DIFFZ-dble(2*IZA)*BETA(IZETA)*RNXYZ(IZETA,1,IZA-1,IZB+1)
+              DIFFZ = DIFFZ-real(2*IZA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IZA-1,IZB+1)
             end if
             OVLX = RNXYZ(IZETA,1,IXA,IXB)
             OVLY = RNXYZ(IZETA,2,IYA,IYB)
-            final(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*OVLX*OVLY*DIFFZ
+            RFINAL(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*OVLX*OVLY*DIFFZ
           end do
         end if
 

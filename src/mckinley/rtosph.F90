@@ -24,15 +24,19 @@ subroutine RToSph(F,nBeta,ishll,lb,iAng,nveccb)
 ! @parameter Number of derivatives
 !***********************************************************************
 
-use Real_Spherical
+use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: Shells
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-dimension F(*)
-real*8, allocatable :: Tmp1(:), Tmp2(:)
+implicit none
+real(kind=wp) :: F(*)
+integer(kind=iwp) :: nBeta, ishll, lb, iAng, nveccb
+integer(kind=iwp) :: ncb, nExpi
+real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !***********************************************************************

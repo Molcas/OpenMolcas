@@ -11,45 +11,53 @@
 
 subroutine Sttstc()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "cputime.fh"
-character*50 NamFld(nTotal+1)
-character*60 Fmt
-data NamFld /'1) Calculation of one electron integrals        :','2) Calculation of two electron integrals        :', &
-             '     a) Decontraction of two electron density   :','     b) Integral evalution  2nd derivatives    :', &
-             '     c) Screening                               :','     d) Transfromation of integrals             :', &
-             '     e) Direct Fock matrix generation           :','     f) Direct MO transformation                :', &
-             '3)  Control and input                           :','   T O T A L                                    :'/
+integer(kind=iwp) :: iFld
+real(kind=wp) :: Diverse, TotCpu
+character(len=*), parameter :: NamFld(nTotal+1) = ['1) Calculation of one electron integrals        :', &
+                                                   '2) Calculation of two electron integrals        :', &
+                                                   '     a) Decontraction of two electron density   :', &
+                                                   '     b) Integral evalution 2nd derivatives      :', &
+                                                   '     c) Screening                               :', &
+                                                   '     d) Transformation of integrals             :', &
+                                                   '     e) Direct Fock matrix generation           :', &
+                                                   '     f) Direct MO transformation                :', &
+                                                   '3)  Control and input                           :', &
+                                                   '   T O T A L                                    :']
 
 ! Write out timing informations
-Fmt = '(2x,A)'
-write(6,*)
+write(u6,*)
 call CollapseOutput(1,'Statistics and timing')
-write(6,'(3X,A)') '---------------------'
-write(6,*)
-write(6,Fmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-write(6,Fmt) '   Part of the program                              CPU    fraction'
-write(6,Fmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-if (CPUStat(nTotal) > 0.01d0) then
+write(u6,'(3X,A)') '---------------------'
+write(u6,*)
+write(u6,100) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+write(u6,100) '   Part of the program                              CPU    fraction'
+write(u6,100) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+if (CPUStat(nTotal) > 0.01_wp) then
   TotCpu = CPUStat(nTotal)
 else
-  TotCpu = 0.01d0
+  TotCpu = 0.01_wp
 end if
-!TotCpu = max(0.01,CPUStat(nTotal))
+!TotCpu = max(0.01_wp,CPUStat(nTotal))
 CPUStat(nTwoel) = CPUStat(nIntegrals)+CPUStat(nScreen)+CPUStat(nTrans)+CPUStat(nTwoDens)+CPUStat(nFckAck)+CPUStat(nMOTrans)
 Diverse = CPUStat(nTotal)-CPUStat(nTwoEl)-CPUStat(nOneel)
 
 do iFld=1,nTotal-1
-  write(6,'(2x,A45,2f10.2)') NamFld(iFld),CPUStat(iFld),CPUStat(iFld)/TotCpu
+  write(u6,'(2x,A45,2f10.2)') NamFld(iFld),CPUStat(iFld),CPUStat(iFld)/TotCpu
 end do
-write(6,'(2x,A45,2f10.2)') NamFld(nTotal),diverse,diverse/TotCpu
+write(u6,'(2x,A45,2f10.2)') NamFld(nTotal),diverse,diverse/TotCpu
 
-write(6,*)
-write(6,'(2x,A45,2F10.2)') NamFld(nTotal+1),TotCpu
-write(6,Fmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+write(u6,*)
+write(u6,'(2x,A45,2F10.2)') NamFld(nTotal+1),TotCpu
+write(u6,100) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 call CollapseOutput(0,'Statistics and timing')
-write(6,*)
+write(u6,*)
 
 return
+
+100 format (2x,a)
 
 end subroutine Sttstc

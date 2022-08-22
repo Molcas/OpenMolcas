@@ -11,7 +11,12 @@
 
 subroutine elmem(nHer,MmOvrG,la,lb,lr)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nHer, MmOvrG, la, lb, lr
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nHer = (la+lb+lr+3)/2

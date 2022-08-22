@@ -27,36 +27,32 @@ subroutine NAGrd_mck( &
 !              Anders Bernhardsson 1995                                *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external TNAI1, Fake, Cff2D
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
-#include "disp2.fh"
+implicit none
 #include "grd_mck_interface.fh"
-! Local variables
-integer iDCRT(0:7), index(3,4)
-real*8 C(3), TC(3)
-logical DiffCnt, EQ, Tr(4)
-real*8 Coora(3,4), Coori(3,4), CoorAC(3,2)
-integer iAnga(4), JndGrd(3,4,0:7), mOp(4), iuvwx(4), JndHss(4,3,4,3,0:7), kndgrd(3,4,0:7)
-logical JfGrd(3,4), kfgrd(3,4), jfg(4), JfHss(4,3,4,3)
-integer, parameter :: nPAO = 1
-real*8 :: PAO(nPAO) ! Dummy array
-integer, parameter :: nHess = 1
-real*8 :: Hess(nHess) ! Dummy array
+integer(kind=iwp), parameter :: nHess = 1, nPAO = 1 ! Hess, PAO: Dummy arrays
+integer(kind=iwp) :: iAlpha, iAnga(4), iBeta, iCnt, iDCRT(0:7), iElem, iIrrep, indi, Indx(3,4), ipA, ipAOff, ipB, ipBOff, &
+                     iuvwx(4), iZeta, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, &
+                     mOp(4), nArray, nb, nDCRT, nGr, nip, nRys
+real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Hess(nHess), PAO(nPAO), TC(3), tfac
+logical(kind=iwp) :: DiffCnt, jfg(4), JfGrd(3,4), JfHss(4,3,4,3), kfgrd(3,4), Tr(4)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+external :: Cff2D, Fake, TNAI1
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !iRout = 150
 !iPrint = nPrint(iRout)
 
 !if (iPrint >= 99) then
-!  write(6,*) ' In NAGrd: nArr=',nArr
+!  write(u6,*) ' In NAGrd: nArr=',nArr
 !end if
 
 nRys = nHer
@@ -66,7 +62,7 @@ ipA = nip
 nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
-if (nip-1 > nArr) write(6,*) ' nip-1 > nArr'
+if (nip-1 > nArr) write(u6,*) ' nip-1 > nArr'
 nArray = nArr-nip+1
 
 iIrrep = 0
@@ -118,13 +114,13 @@ do kCnttp=1,nCnttp
     if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) cycle
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    !Fact = -dbsc(kCnttp)%Charge*dble(nStabM*nIrrep)/dble(LmbdT*dc(kdc+kCnt)%nStab)
-    Fact = -dbsc(kCnttp)%Charge*dble(nStabM)/dble(LmbdT)
+    !Fact = -dbsc(kCnttp)%Charge*real(nStabM*nIrrep,kind=wp)/real(LmbdT*dc(kdc+kCnt)%nStab,kind=wp)
+    Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
     !if (iPrint >= 99) then
-    !  write(6,*) ' Charge=',dbsc(kCnttp)%Charge
-    !  Write(6,*) 'NZeta=',nzeta
-    !  write(6,*) 'NrOp=',nrop
-    !  write(6,*) ' Fact=',Fact
+    !  write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
+    !  Write(u6,*) 'NZeta=',nzeta
+    !  write(u6,*) 'NrOp=',nrop
+    !  write(u6,*) ' Fact=',Fact
     !end if
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
@@ -192,7 +188,7 @@ do kCnttp=1,nCnttp
       JFG(3) = .false.
       JFG(4) = .false.
       call Rysg2(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coora,CoorAC, &
-                 Array(nip),nArray,TNAI1,Fake,Cff2D,PAO,nPAO,Hess,nHess,kfGrd,kndGrd,JfHss,JndHss,mOp,iuvwx,Jfg,nGr,Index,.true., &
+                 Array(nip),nArray,TNAI1,Fake,Cff2D,PAO,nPAO,Hess,nHess,kfGrd,kndGrd,JfHss,JndHss,mOp,iuvwx,Jfg,nGr,Indx,.true., &
                  .false.,tr)
 
       do iElem=1,nElem(la)*nElem(lb)*ngr
@@ -205,10 +201,10 @@ do kCnttp=1,nCnttp
 
 #     ifdef _DEBUGPRINT_
       call RecPrt('In NaGrd PI',' ',Array(nip),nb,3)
-      call RecPrt('In NaGrd PI',' ',final,nb,nrOp)
+      call RecPrt('In NaGrd PI',' ',rFinal,nb,nrOp)
 #     endif
-      call SmAdNa(Array(nip),nb,final,mop,loper,KndGrd,iuvwx,kfGrd,Index,idcar,Fact,JFG,tr)
-      !if (iPrint > 23) call RecPrt('In NaGrd FI',' ',Final,nb,nrOp)
+      call SmAdNa(Array(nip),nb,rFinal,mop,loper,KndGrd,iuvwx,kfGrd,Indx,idcar,Fact,JFG,tr)
+      !if (iPrint > 23) call RecPrt('In NaGrd FI',' ',rFinal,nb,nrOp)
     end do
   end do
 end do

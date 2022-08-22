@@ -9,16 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SmAdNa(ArrIn,nb,ArrOut,nop,lOper,IndGrd,iuv,IfGrd,Index,iDCar,rf,IFG,tr)
+subroutine SmAdNa(ArrIn,nb,ArrOut,nop,lOper,IndGrd,iuv,IfGrd,Indx,iDCar,rf,IFG,tr)
 
-use Symmetry_Info, only: nIrrep, iChTbl, iChBas
+use Symmetry_Info, only: iChBas, iChTbl, nIrrep
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-!#include "print.fh"
-real*8 ArrIn(nb,*), ArrOut(nb,*)
-integer lOper, IndGrd(3,4,0:nIrrep-1), iuv(3), index(3,4), nOp(3)
-logical IfGrd(3,4), IFG(4), tr(4)
+implicit none
+integer(kind=iwp) :: nb, nOp(3), lOper, IndGrd(3,4,0:nIrrep-1), iuv(3), Indx(3,4), iDCar
+real(kind=wp) :: ArrIn(nb,*), ArrOut(nb,*), rf
+logical(kind=iwp) :: IfGrd(3,4), IFG(4), tr(4)
+integer(kind=iwp) :: i1, i2, iCn, iComp, iIrrep
+real(kind=wp) :: Fact, ps
+integer(kind=iwp), external :: iPrmt
 
 !iRout = 200
 !iPrint = nPrint(iRout)
@@ -30,41 +32,41 @@ do iIrrep=0,nIrrep-1
   if (iand(lOper,2**iIrrep) /= 0) then
     iComp = iComp+1
     do iCn=1,3
-      !if (Index(idCar,iCn) /= 0) then
-      if ((Indgrd(idCar,iCn,iIrrep) /= 0) .and. ((index(idcar,icn) > 0) .or. tr(icn))) then
+      !if (Indx(idCar,iCn) /= 0) then
+      if ((Indgrd(idCar,iCn,iIrrep) /= 0) .and. ((Indx(idcar,icn) > 0) .or. tr(icn))) then
         ! Accumulate contribution to the gradient
         i1 = 0
         i2 = 0
         if (iCn == 1) then
-          ps = dble(iPrmt(nOp(1),iChBas(1+idCar)))
-          Fact = rf*dble(iuv(1))/dble(nIrrep)
+          ps = real(iPrmt(nOp(1),iChBas(1+idCar)),kind=wp)
+          Fact = rf*real(iuv(1),kind=wp)/real(nIrrep,kind=wp)
           if (.not. tr(iCn)) then
-            i1 = index(idCar,iCn)
+            i1 = Indx(idCar,iCn)
           else
-            if (index(idcar,2) > 0) i1 = index(idCar,2)
-            if (index(idCar,3) > 0) i2 = index(idCar,3)
+            if (Indx(idcar,2) > 0) i1 = Indx(idCar,2)
+            if (Indx(idCar,3) > 0) i2 = Indx(idCar,3)
             Fact = -Fact
           end if
         else if (iCn == 2) then
-          ps = dble(iChTbl(iIrrep,nOp(2)))
-          ps = ps*dble(iPrmt(nOp(2),iChBas(1+idCar)))
-          Fact = rf*ps*dble(iuv(2))/dble(nIrrep)
+          ps = real(iChTbl(iIrrep,nOp(2)),kind=wp)
+          ps = ps*real(iPrmt(nOp(2),iChBas(1+idCar)),kind=wp)
+          Fact = rf*ps*real(iuv(2),kind=wp)/real(nIrrep,kind=wp)
           if (.not. tr(iCn)) then
-            i1 = index(idCar,iCn)
+            i1 = Indx(idCar,iCn)
           else
-            if (index(idcar,1) > 0) i1 = index(idCar,1)
-            if (index(idCar,3) > 0) i2 = index(idCar,3)
+            if (Indx(idcar,1) > 0) i1 = Indx(idCar,1)
+            if (Indx(idCar,3) > 0) i2 = Indx(idCar,3)
             Fact = -Fact
           end if
         else
-          ps = dble(iChTbl(iIrrep,nOp(3)))
-          ps = ps*dble(iPrmt(nOp(3),iChBas(1+idCar)))
-          Fact = rf*ps*dble(iuv(3))/dble(nIrrep)
+          ps = real(iChTbl(iIrrep,nOp(3)),kind=wp)
+          ps = ps*real(iPrmt(nOp(3),iChBas(1+idCar)),kind=wp)
+          Fact = rf*ps*real(iuv(3),kind=wp)/real(nIrrep,kind=wp)
           if (.not. tr(iCn)) then
-            i1 = index(idCar,iCn)
+            i1 = Indx(idCar,iCn)
           else
-            if (index(idcar,1) > 0) i1 = index(idCar,1)
-            if (index(idCar,2) > 0) i2 = index(idCar,2)
+            if (Indx(idcar,1) > 0) i1 = Indx(idCar,1)
+            if (Indx(idCar,2) > 0) i2 = Indx(idCar,2)
             Fact = -Fact
           end if
         end if

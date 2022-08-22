@@ -13,7 +13,11 @@
 
 subroutine NAMem_mck(nRys,MmNAG,la,lb,lr)
 
-integer iAng(4)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nRys, MmNAG, la, lb, lr
+integer(kind=iwp) :: iAng(4)
 
 iAng(1) = la
 iAng(2) = lb

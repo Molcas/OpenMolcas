@@ -22,19 +22,22 @@ subroutine DrvN1_mck(Grad,nGrad)
 !             October 1991                                             *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChBas
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad(nGrad)
 #include "Molcas.fh"
-#include "print.fh"
-#include "real.fh"
 #include "disp.fh"
-#include "disp2.fh"
-real*8 A(3), B(3), RB(3), Grad(nGrad)
-integer iDCRR(0:7)
-logical EQ, TstFnc
+integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iDCRR(0:7), igu, igv, iIrrep, iR, jCnt, jCntMx, jCnttp, LmbdR, mdc, ndc, nDCRR, &
+                     nDisp, nOp
+real(kind=wp) :: A(3), B(3), Fact, PreFct, ps, r12, RB(3), ZA, ZAZB
+integer(kind=iwp), external :: iPrmt, NrOpr
+logical(kind=iwp), external :: EQ, TstFnc
 
 iIrrep = 0
 mdc = 0
@@ -65,7 +68,7 @@ do iCnttp=1,nCnttp
 
         call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
 
-        PreFct = Fact*ZAZB*dble(nIrrep)/dble(LmbdR)
+        PreFct = Fact*ZAZB*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           nOp = NrOpr(iDCRR(iR))
@@ -82,7 +85,7 @@ do iCnttp=1,nCnttp
             iComp = 2**iCar
             if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
               nDisp = nDisp+1
-              if (.true.) Grad(nDisp) = Grad(nDisp)-One/dble(igu)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
+              if (.true.) Grad(nDisp) = Grad(nDisp)-One/real(igu,kind=wp)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
             end if
           end do
 
@@ -93,8 +96,8 @@ do iCnttp=1,nCnttp
             if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
               nDisp = nDisp+1
               if (.true.) then
-                ps = dble(iPrmt(nOp,iChBas(2+iCar)))
-                Grad(nDisp) = Grad(nDisp)+ps*One/dble(igv)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
+                ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
+                Grad(nDisp) = Grad(nDisp)+ps*One/real(igv,kind=wp)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
               end if
             end if
           end do

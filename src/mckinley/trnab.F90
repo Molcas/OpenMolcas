@@ -11,9 +11,12 @@
 
 subroutine Trnab(Win,Wout,nvec,na,nb)
 
-implicit real*8(A-H,O-Z)
-!#include "print.fh"
-real*8 Win(na,nb,nVec), Wout(na,nb,nvec)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nvec, na, nb
+real(kind=wp) :: Win(na,nb,nVec), Wout(na,nb,nvec)
+integer(kind=iwp) :: iVec
 
 do iVec=1,nVec
   call DGeTmo(Win(1,1,ivec),na,na,nb,Wout(1,1,ivec),nb)

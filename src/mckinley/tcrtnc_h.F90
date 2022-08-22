@@ -27,13 +27,15 @@ subroutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n1, m1, n2, m2, n3, m3, n4, m4, mabcd, nScr, lZeta, IndZet(lZeta), lEta, IndEta(lEta)
+real(kind=wp) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr), &
+                 ACOut(n1*n2*n3*n4,mabcd)
 #include "print.fh"
-! Cache size
 #include "lCache.fh"
-real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr), ACOut(n1*n2*n3*n4,mabcd)
-integer IndZet(lZeta), IndEta(lEta)
+integer(kind=iwp) :: iDum, IncVec, ipA2, ipA3, iPrint, iRout, lsize, lZE, nA3, nCache, nVec
 
 iRout = 18
 iPrint = nPrint(iRout)
@@ -46,7 +48,7 @@ if (iPrint >= 99) then
   call RecPrt(' Coef2',' ',Coef2,n2,m2)
   call RecPrt(' Coef3',' ',Coef3,n3,m3)
   call RecPrt(' Coef4',' ',Coef4,n4,m4)
-  write(6,*) n1,n2,n3,n4
+  write(u6,*) n1,n2,n3,n4
 end if
 
 ! Reduce for contraction matrix

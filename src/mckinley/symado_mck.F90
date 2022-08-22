@@ -11,13 +11,16 @@
 
 subroutine SymAdO_mck(ArrIn,nB,ArrOut,nrOp,nop,lOper,IndGrd,iu,iv,ifgrd,idCar,trans)
 
-use Symmetry_Info, only: nIrrep, iChTbl, iChBas
+use Symmetry_Info, only: iChBas, iChTbl, nIrrep
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 ArrIn(nB,2), ArrOut(nB,nrOp)
-integer IndGrd(0:7), nop(2)
-logical IfGrd(3,2), trans(2)
+implicit none
+integer(kind=iwp) :: nB, nrOp, nop(2), lOper, IndGrd(0:7), iu, iv, idCar
+real(kind=wp) :: ArrIn(nB,2), ArrOut(nB,nrOp)
+logical(kind=iwp) :: IfGrd(3,2), trans(2)
+integer(kind=iwp) :: iCn, iIrrep, n
+real(kind=wp) :: Fact, ps
+integer(kind=iwp), external :: iPrmt
 
 ! Accumulate contributions
 
@@ -31,15 +34,15 @@ do iIrrep=0,nIrrep-1
         ! Accumulate contribution to the gradient
 
         if (iCn == 1) then
-          ps = dble(iPrmt(nOp(1),iChBas(1+idCar)))
-          Fact = dble(iu)/dble(nIrrep)
+          ps = real(iPrmt(nOp(1),iChBas(1+idCar)),kind=wp)
+          Fact = real(iu,kind=wp)/real(nIrrep,kind=wp)
           if (trans(1)) then
             Fact = -Fact
           end if
         else
-          ps = dble(iChTbl(iIrrep,nOp(2)))
-          ps = ps*dble(iPrmt(nOp(2),iChBas(1+idCar)))
-          Fact = ps*dble(iv)/dble(nIrrep)
+          ps = real(iChTbl(iIrrep,nOp(2)),kind=wp)
+          ps = ps*real(iPrmt(nOp(2),iChBas(1+idCar)),kind=wp)
+          Fact = ps*real(iv,kind=wp)/real(nIrrep,kind=wp)
           if (trans(2)) then
             Fact = -Fact
           end if

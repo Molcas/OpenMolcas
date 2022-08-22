@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LToSph(F,nalpha,ishll,la,iAng,nvecac)
+subroutine LToSph(F,nAlpha,iShll,la,iAng,nVecAC)
 !***********************************************************************
 !
 !   Transform <A|core> from Cartesian components to Sperical harmonics
@@ -21,21 +21,25 @@ subroutine LToSph(F,nalpha,ishll,la,iAng,nvecac)
 ! @parameter F  The cartesian components of <A|core>(in)
 !               The spherical components of <A|core>(out)
 ! @parameter nAlpha Number of exponents
-! @parameter ishll Shell number for ECP
+! @parameter iShll Shell number for ECP
 ! @parameter la angular momenta LS
 ! @parameter iAng angular momenta core
-! @parameter Number of derivatives
+! @parameter nVecAC Number of derivatives
 !***********************************************************************
 
-use Basis_Info
-use Real_Spherical
+use Real_Spherical, only: ipSph, RSph
+use Basis_Info, only: Shells
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 F(*)
-real*8, allocatable :: Tmp1(:), Tmp2(:)
+implicit none
+real(kind=wp) :: F(*)
+integer(kind=iwp) :: nAlpha, iShll, la, iAng, nVecAC
+integer(kind=iwp) :: nac, nExpi
+real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 !Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !***********************************************************************

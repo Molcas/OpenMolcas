@@ -29,20 +29,24 @@ subroutine Drvh2(Hess,Temp,nHess,show)
 !             October '91                                              *
 !***********************************************************************
 
-use Basis_Info, only: nCnttp, dbsc, nBas
+use Basis_Info, only: dbsc, nCnttp, nBas
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external NaHss, OvrHss, KneHss, PrjHss, SROHss, M1Hss, PCMHss
-external NaMmH, OvrMmH, KneMmH, PrjMMH, sroMMH, M1MMH, PCMMMH
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: nHess
+real(kind=wp) :: Hess(nHess), Temp(nHess)
+logical(kind=iwp) :: show
 #include "rctfld.fh"
-character Label*80
-real*8 Hess(nHess), Temp(nHess)
-logical DiffOp, show, lECP
-real*8, allocatable :: Fock(:), D0(:), Coor(:,:)
-integer, allocatable :: lOper(:)
+integer(kind=iwp) :: i, iIrrep, nComp, nDens, nFock
+real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
+character(len=80) :: Label
+logical(kind=iwp) :: DiffOp, lECP
+integer(kind=iwp), allocatable :: lOper(:)
+real(kind=wp), allocatable :: Coor(:,:), D0(:), Fock(:)
+external :: KneHss, KneMmH, M1Hss, M1MMH, NaHss, NaMmH, OvrHss, OvrMmH, PCMHss, PCMMMH, PrjHss, PrjMMH, SROHss, sroMMH
 
 !                                                                      *
 !***********************************************************************
@@ -89,7 +93,7 @@ DiffOp = .false.
 Temp(:) = Zero
 Label = ' The Renormalization Contribution'
 call Dot1El(OvrHss,OvrMmH,Temp,nHess,DiffOp,Coor,Fock,nFock,lOper,nComp,Label)
-if (show) write(6,*) label
+if (show) write(u6,*) label
 if (show) call HssPrt(Hess,nHess)
 Hess(:) = Hess(:)-Temp(:)
 
@@ -104,7 +108,7 @@ DiffOp = .false.
 Temp(:) = Zero
 Label = ' The Kinetic Energy Contribution'
 call Dot1El(KneHss,KneMmH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
-if (show) write(6,*) label
+if (show) write(u6,*) label
 if (show) call HssPrt(Temp,nHess)
 Hess(:) = Hess(:)-Temp(:)
 
@@ -119,7 +123,7 @@ DiffOp = .true.
 Label = ' The Nuclear Attraction Contribution'
 Temp(:) = Zero
 call Dot1El(NAHss,NAMmH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
-if (show) write(6,*) label
+if (show) write(u6,*) label
 if (show) call HssPrt(Temp,nHess)
 Hess(:) = Hess(:)+Temp(:)
 
@@ -139,7 +143,7 @@ if (lECP) then
   Label = ' The Projection (ECP) Contribution'
   Temp(:) = Zero
   call Dot1El(PrjHss,PRJMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
-  if (show) write(6,*) label
+  if (show) write(u6,*) label
   if (show) call HssPrt(Temp,nHess)
   Hess(:) = Hess(:)+Temp(:)
 
@@ -147,7 +151,7 @@ if (lECP) then
   Label = ' The Spec. Res. (ECP) Contribution'
   Temp(:) = Zero
   call Dot1El(SROHss,SROMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
-  if (show) write(6,*) Label,'first part '
+  if (show) write(u6,*) Label,'first part '
   if (show) call HssPrt(Temp,nHess)
   Hess(:) = Hess(:)+Temp(:)
 
@@ -155,7 +159,7 @@ if (lECP) then
   Label = ' The M1 (ECP) Contribution'
   Temp(:) = Zero
   call Dot1El(m1Hss,m1MMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
-  if (show) write(6,*) Label,'second part '
+  if (show) write(u6,*) Label,'second part '
   if (show) call HssPrt(Temp,nHess)
   Hess(:) = Hess(:)+Temp(:)
 end if
@@ -172,7 +176,7 @@ if (PCM) then
   Label = ' The PCM Contribution'
   Temp(:) = Zero
   call Dot1El(PCMHss,PCMMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
-  if (show) write(6,*) label
+  if (show) write(u6,*) label
   if (show) call HssPrt(Temp,nHess)
   Hess(:) = Hess(:)+Temp(:)
 end if

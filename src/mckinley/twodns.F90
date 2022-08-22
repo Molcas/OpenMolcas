@@ -14,18 +14,19 @@
 subroutine TwoDns(ianga,iCmp,shijij,ishll,ishell,iAO,nop,iBasi,jBasj,kBask,lBasl,Aux,nAux,Work2,nWork2,Work3,nWork3,work4,nWork4, &
                   PSO,nPSO,Fact)
 
-use Basis_Info
-use Real_Spherical
+use Basis_Info, only: Shells
+use Real_Spherical, only: ipSph, RSph
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
-#include "disp2.fh"
-logical Shijij
-integer nOp(4), iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4)
-real*8 PSO(nPSO), Aux(nAux), Work2(nWork2), Work3(nWork3), Work4(nWork4)
+implicit none
+integer(kind=iwp) :: iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), nOp(4), iBasi, jBasj, kBask, lBasl, nAux, nWork2, nWork3, &
+                     nWork4, nPSO
+logical(kind=iwp) :: Shijij
+real(kind=wp) :: Aux(nAux), Work2(nWork2), Work3(nWork3), Work4(nWork4), PSO(nPSO), Fact
+integer(kind=iwp) :: iCmpa, ijklab, iShlla, jCmpb, jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lShlld, mab, mcd, nijkl
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nijkl = iBasi*jBasj*kBask*lBasl

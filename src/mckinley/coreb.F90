@@ -29,23 +29,23 @@ subroutine coreB(iang,lb,ishll,nordop,TC,RB,Array,narr,Beta,nbeta,fb1,fb2,jfgrad
 ! @parameter ld Order of derivatives
 ! @parameter debug guess
 
-use Basis_Info
+use Basis_Info, only: Shells
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use Real_Spherical
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
-logical ABeq(3), jfgrad(3), jfhess(4,3,4,3), debug
-real*8 TC(3), RB(3), Array(*), fb1(*), fb2(*), beta(*)
+implicit none
+integer(kind=iwp) :: iang, lb, ishll, nordop, narr, nbeta, ld
+real(kind=wp) :: TC(3), RB(3), Array(*), Beta(*), fb1(*), fb2(*)
+logical(kind=iwp) :: jfgrad(3), jfhess(4,3,4,3), debug
+integer(kind=iwp) :: i, iGamma, ip, ipB, ipBxyz, ipCxyz, ipK2, ipP2, ipQ1, ipRxyz, ipV, ipZ2, ipZI2, iStrt, n, nExpi, nHer, nVecCB
+logical(kind=iwp) :: ABeq(3)
+real(kind=r8), external :: DNrm2_
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nExpi = Shells(iShll)%nExp
-if (debug) then
-  write(6,*) 'Shell: ',ishll,' nBeta:',nbeta,' nExp:',nExpi,'Angular',lb,iang
-end if
+if (debug) write(u6,*) 'Shell: ',ishll,' nBeta:',nbeta,' nExp:',nExpi,'Angular',lb,iang
 
 ip = 1
 ipP2 = ip
@@ -57,7 +57,7 @@ ip = ip+nExpi*nBeta
 ipZI2 = ip
 ip = ip+nExpi*nBeta
 if (ip-1 > nArr) then
-  write(6,*) '  ip-1 > nArr*nZeta(2) in bcore (',ip,',',narr,')'
+  write(u6,*) '  ip-1 > nArr*nZeta(2) in bcore (',ip,',',narr,')'
   call Abend()
 end if
 
@@ -80,13 +80,13 @@ ip = ip+nBeta*nExpi*3*(iAng+1)*(lb+1+ld)*(nOrdOp+1)
 ipB = ip
 ip = ip+nBeta*nExpi
 if (ip-1 > nArr) then
-  write(6,*) '  ip-1 > nArr*nZeta(2b) in PrjGrd'
+  write(u6,*) '  ip-1 > nArr*nZeta(2b) in PrjGrd'
   call Abend()
 end if
 ABeq(1) = TC(1) == RB(1)
 ABeq(2) = TC(2) == RB(2)
 ABeq(3) = TC(3) == RB(3)
-if (debug) write(6,*) 'shll=',ishll,' nExp=',nExpi,' nBeta=',nBeta
+if (debug) write(u6,*) 'shll=',ishll,' nExp=',nExpi,' nBeta=',nBeta
 call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,TC,Array(ipCxyz),iAng,HerR(iHerR(nHer)),nHer,ABeq)
 call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,RB,Array(ipBxyz),lb+ld,HerR(iHerR(nHer)),nHer,ABeq)
 ABeq(1) = .false.
@@ -94,11 +94,11 @@ ABeq(2) = .false.
 ABeq(3) = .false.
 call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,TC,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 if (debug) then
-  write(6,*) ' nbeta  = ',nbeta,' nExp(',ishll,')=',nExpi,' nHer=',nHer,' lb=',lb,' iAng=',iAng,' nOrdOp=',nOrdOp
+  write(u6,*) ' nbeta  = ',nbeta,' nExp(',ishll,')=',nExpi,' nHer=',nHer,' lb=',lb,' iAng=',iAng,' nOrdOp=',nOrdOp
 
-  write(6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
-  write(6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(lb+2),Array(ipBxyz),1)
-  write(6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+  write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
+  write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(lb+2),Array(ipBxyz),1)
+  write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
 end if
 
 call Assmbl(Array(ipQ1),Array(ipCxyz),iAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+ld,nExpi*nBeta,HerW(iHerW(nHer)),nHer)
@@ -108,14 +108,14 @@ do iGamma=1,nExpi
   iStrt = iStrt+1
 end do
 if (debug) then
-  write(6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
+  write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
 end if
 
 call rKappa_Zeta(Array(ipK2),Array(ipZ2),nExpi*nBeta)
 call CmbnCB(Array(ipQ1),nExpi*nBeta,iAng,lb,Array(ipK2),FB1,Array(ipB),JfGrad,ld,nVecCB)
 if (debug) then
-  write(6,*) ' Array(ipQ1)=',DNrm2_(nExpi*nBeta*3*(lb+1+ld+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
-  write(6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
+  write(u6,*) ' Array(ipQ1)=',DNrm2_(nExpi*nBeta*3*(lb+1+ld+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
+  write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
 end if
 if (ld >= 2) then
   call CmbnS2b(Array(ipQ1),nBeta*nExpi,iang,lb,Array(ipK2),FB2,Array(ipB),jfHess,ld)
@@ -123,9 +123,9 @@ if (ld >= 2) then
     do i=1,6
       ipV = 1
       n = nBeta*nExpi*nElem(lb)*nElem(iAng)
-      write(6,*) n,nBeta,nExpi,nElem(lb),nElem(iAng)
+      write(u6,*) n,nBeta,nExpi,nElem(lb),nElem(iAng)
 
-      write(6,*) 'CmbnB2(',n,')=',DNrm2_(n,FB2(ipV),1)
+      write(u6,*) 'CmbnB2(',n,')=',DNrm2_(n,FB2(ipV),1)
       ipV = ipV+n
     end do
   end if

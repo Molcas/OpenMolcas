@@ -13,32 +13,33 @@
 
 subroutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,iaoi,iaoj,naco,ishell,temp1,temp2,temp3,temp4,temp5,temp6)
 
-use pso_stuff
+use pso_stuff, only: G2
 use SOAO_Info, only: iAOtSO
-use Symmetry_Info, only: nIrrep, iOper
+use Symmetry_Info, only: iOper, nIrrep
 use Basis_Info, only: nBas
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: ibas, icmp, jbas, jcmp, iaoi, iaoj, naco, ishell(4)
+real(kind=wp) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,naco*(1+naco)/2,*), rOut(*), Temp1(ibas,icmp,*), Temp2(*), Temp3(jbas,jcmp,*), &
+                 Temp4(ibas,icmp,nACO), Temp5(jbas,jcmp,nACO), Temp6(*)
 #include "Molcas.fh"
-#include "real.fh"
 #include "etwas.fh"
 #include "buffer.fh"
 #include "disp.fh"
-#include "disp2.fh"
-real*8 rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,nAco*(1+naco)/2,*)
-real*8 rout(*)
-real*8 Temp1(ibas,icmp,*)
-real*8 Temp2(*)
-real*8 Temp4(ibas,icmp,nACO)
-real*8 Temp5(jbas,jcmp,nACO)
-real*8 Temp3(jbas,jcmp,*), Temp6(*)
-integer ishell(4), na(0:7), ipp(0:7)
+integer(kind=iwp) :: ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, ipp(0:7), &
+                     iS, iSO, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, lsl, lSO, &
+                     mIrr, n, na(0:7), ni, nj, nnA
+real(kind=wp) :: fact, rd
+integer(kind=iwp), external :: NrOpr
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-call dcopy_(Naco**4,[0.0d0],0,Temp2,1)
-call dcopy_(nACO*ICMP*IBAS,[0.0d0],0,Temp4,1)
-call dcopy_(nACO*JCMP*JBAS,[0.0d0],0,Temp5,1)
+call dcopy_(Naco**4,[Zero],0,Temp2,1)
+call dcopy_(nACO*ICMP*IBAS,[Zero],0,Temp4,1)
+call dcopy_(nACO*JCMP*JBAS,[Zero],0,Temp5,1)
 nnA = 0
 do iS=0,nIrrep-1
   nA(iS) = nNA
@@ -96,22 +97,22 @@ do mIrr=0,nIrrep-1
               ! id,iirr,jirr,kA,lA
 
               if (nash(jirr) /= 0) &
-                call DGEMM_('N','N',ni,nAsh(jIrr),nj,1.0d0,rin(1,iIrr,kl,id),ni,Temp6(ipj+(ja-1)*jcmp*jBas),nj,0.0d0,Temp1,ni)
+                call DGEMM_('N','N',ni,nAsh(jIrr),nj,One,rin(1,iIrr,kl,id),ni,Temp6(ipj+(ja-1)*jcmp*jBas),nj,Zero,Temp1,ni)
               if (nash(iirr) /= 0) &
-                call DGEMM_('T','N',nash(iIrr),nAsh(jIrr),ni,1.0d0,Temp6(ipi+(ia-1)*icmp*ibas),ni,Temp1,ni,0.0d0,Temp2,nash(iirr))
+                call DGEMM_('T','N',nash(iIrr),nAsh(jIrr),ni,One,Temp6(ipi+(ia-1)*icmp*ibas),ni,Temp1,ni,Zero,Temp2,nash(iirr))
 
               do iC=1,iCmp
                 do iB=1,iBas
                   do i=1,nAsh(jis)
                     ih = i+na(jis)
-                    Temp4(iB,ic,i) = 0.0d0
+                    Temp4(iB,ic,i) = Zero
                     do iAsh=1,nAsh(jirr)
                       jh = iash+na(jirr)
-                      fact = 1.0d00
+                      fact = One
                       iij = itri(ih,jh)
-                      if ((iij >= kl) .and. (k == l)) fact = 2.0d00
-                      if ((iij < kl) .and. (ih == jh)) fact = 2.0d00
-                      if (k /= l) FacT = fact*2.0d0
+                      if ((iij >= kl) .and. (k == l)) fact = Two
+                      if ((iij < kl) .and. (ih == jh)) fact = Two
+                      if (k /= l) FacT = fact*Two
                       rd = G2(itri(iij,kl),1)*fact
                       Temp4(iB,ic,i) = Temp4(ib,ic,i)+Temp1(ib,ic,iash)*rd
                     end do
@@ -135,7 +136,7 @@ do mIrr=0,nIrrep-1
 
               if (iShell(1) /= ishell(2)) then
                 if (nash(jirr) /= 0) &
-                  call DGEMM_('T','N',nj,nAsh(jIrr),ni,1.0d0,rin(1,jIrr,kl,id),ni,Temp6(ipi+(ja-1)*icmp*ibas),ni,0.0d0,Temp3,nj)
+                  call DGEMM_('T','N',nj,nAsh(jIrr),ni,One,rin(1,jIrr,kl,id),ni,Temp6(ipi+(ja-1)*icmp*ibas),ni,Zero,Temp3,nj)
                 if (nash(iirr) /= 0) &
                   call DGEMM_('T','N',nAsh(iirr),nAsh(jirr),nj,One,Temp6(ipj+(ia-1)*jcmp*jBas),nj,Temp3,nj,One,Temp2,nAsh(iirr))
 
@@ -143,14 +144,14 @@ do mIrr=0,nIrrep-1
                   do jB=1,jBas
                     do i=1,nAsh(jis)
                       ih = i+na(jis)
-                      Temp5(jB,jc,i) = 0.0d0
+                      Temp5(jB,jc,i) = Zero
                       do iAsh=1,nAsh(jirr)
                         jh = iash+na(jirr)
-                        fact = 1.0d00
+                        fact = One
                         iij = itri(ih,jh)
-                        if ((iij >= kl) .and. (k == l)) fact = 2.0d00
-                        if ((iij < kl) .and. (ih == jh)) fact = 2.0d00
-                        if (k /= l) FacT = fact*2.0d0
+                        if ((iij >= kl) .and. (k == l)) fact = Two
+                        if ((iij < kl) .and. (ih == jh)) fact = Two
+                        if (k /= l) FacT = fact*Two
                         rd = G2(itri(iij,kl),1)*fact
                         Temp5(jB,jc,i) = Temp5(jb,jc,i)+Temp3(jb,jc,iash)*rd
                       end do

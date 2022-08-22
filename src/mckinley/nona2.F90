@@ -27,18 +27,15 @@ subroutine NONA2( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use Center_Info
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
 #include "grd_mck_interface.fh"
-! Local variables
-logical ABEQ(3)
+integer(kind=iwp) :: IALPHA, IBETA, IP, IPALPH, IPAXYZ, IPBETA, IPBXYZ, IPRNXYZ, IPRXYZ, IPSCRT, NIP
+logical(kind=iwp) :: ABEQ(3)
 ! Statement function
-NELEM(LA) = (LA+2)*(LA+1)/2
-! The following call parameters are not used:
-! IDCNT,ISTABM,NSTABM,ZINV
-! They must still be present, because the call parameter list must
+integer(kind=iwp) :: NELEM, L
+NELEM(L) = (L+2)*(L+1)/2
 
 ABEQ(1) = A(1) == RB(1)
 ABEQ(2) = A(2) == RB(2)
@@ -61,9 +58,9 @@ IPSCRT = NIP
 NIP = NIP+NELEM(LA)*NELEM(LB)*NZETA*2
 
 if (NIP-1 > NARR) then
-  write(6,*) ' NONA2: Too small array.'
-  write(6,*) ' Submitted array size NARR=',NARR
-  write(6,*) ' Needed size at least NIP =',NIP
+  write(u6,*) ' NONA2: Too small array.'
+  write(u6,*) ' Submitted array size NARR=',NARR
+  write(u6,*) ' Needed size at least NIP =',NIP
   call Abend()
 end if
 
@@ -95,7 +92,7 @@ end do
 call CMBN2DC(ARRAY(IPRNXYZ),NZETA,LA,LB,ZETA,RKAPPA,ARRAY(IPSCRT),ARRAY(IPALPH),ARRAY(IPBETA),IFGRAD)
 
 ! SYMMETRY ADAPT THE 2ND DERIVATIVE COUPLING INTEGRALS
-call SYMADO_MCK(ARRAY(IPSCRT),NZETA*NELEM(LA)*NELEM(LB),final,NROP,nOP,LOPER,INDGRD,IU,IV,IFGRAD,IDCAR,TRANS)
+call SYMADO_MCK(ARRAY(IPSCRT),NZETA*NELEM(LA)*NELEM(LB),rFinal,NROP,nOP,LOPER,INDGRD,IU,IV,IFGRAD,IDCAR,TRANS)
 
 return
 ! Avoid unused argument warnings

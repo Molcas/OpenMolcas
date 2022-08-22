@@ -26,8 +26,13 @@ subroutine prjMmH(nHer,MmprjH,la,lb,lr)
 !***********************************************************************
 
 use Basis_Info, only: dbsc, nCnttp, Shells
+use Definitions, only: iwp
 
+implicit none
+integer(kind=iwp) :: nHer, MmprjH, la, lb, lr
+integer(kind=iwp) :: iacore, iAng, iCnttp, icoreb, icores, ip, iShll, ld, nac, nBasisi, ncb, nExpi, nOrder, nordop
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nOrder = 0

@@ -13,23 +13,31 @@
 
 subroutine DerCtr(mdci,mdcj,mdck,mdcl,ldot,JfGrd,IndGrd,JfHss,IndHss,JfG,mbatch)
 
-use Center_Info
+!#define _OLD_CODE_
+#ifdef _OLD_CODE_
+use Center_Info, only: dc
+use Symmetry_Info, only: iOper
+#endif
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: mdci, mdcj, mdck, mdcl, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), mbatch
+logical(kind=iwp) :: ldot, JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
 #include "Molcas.fh"
 #include "disp.fh"
 #include "disp2.fh"
-logical JfHss(4,3,4,3), IfHss(4,3,4,3), JfGrd(3,4), IfGrd(3,4), IfG(4), JfG(4), ldot
-integer IndHss(4,3,4,3,0:7), JndHss(4,3,4,3,0:7), IndGrd(3,4,0:7), JndGrd(3,4,0:7)
-logical, external :: TF
-!define _OLD_CODE_
+integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, iSh, istop, jAtom, jCar, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
+                     nDisp, nnIrrep
+logical(kind=iwp) :: IfG(4), IfGrd(3,4), IfHss(4,3,4,3)
 #ifdef _OLD_CODE_
-integer iCo(4), iCom(0:7,0:7), iStabM(0:7), idcrr(0:7)
-logical chck
-logical, external :: TstFnc
+integer(kind=iwp) :: i, iCo(4), iCom(0:7,0:7), idcrr(0:7), ielem, iStabM(0:7), iTmp, j, jOper, LmbdR, nDCRR, nCoM, nMax, nStabM
+logical(kind=iwp) :: chck
+logical(kind=iwp), external :: TstFnc
 #endif
+logical(kind=iwp), external :: TF
 ! Statement function
+integer(kind=iwp) :: Ind, i1, i2
 Ind(i1,i2) = i1*(i1-1)/2+i2
 
 nnIrrep = nIrrep

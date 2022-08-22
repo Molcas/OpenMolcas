@@ -14,7 +14,7 @@
 #define _USE_OLD_CODE_
 #ifdef _USE_OLD_CODE_
 
-subroutine FckAcc_mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Scrt,nScrt,iAO,iAOst,iBas,jBas, &
+subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Scrt,nScrt,iAO,iAOst,iBas,jBas, &
                       kBas,lBas,Dij,ij1,ij2,ij3,ij4,Dkl,kl1,kl2,kl3,kl4,Dik,ik1,ik2,ik3,ik4,Dil,il1,il2,il3,il4,Djk,jk1,jk2,jk3, &
                       jk4,Djl,jl1,jl2,jl3,jl4,FT,nFT,tfact,iCar,iCent,pert,indgrd,ipdisp)
 !***********************************************************************
@@ -42,56 +42,63 @@ subroutine FckAcc_mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOI
 !             of Lund, Sweden. February '93                            *
 !***********************************************************************
 
-use Basis_Info
-use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
+use Basis_Info, only: Shells
+use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Gateway_Info, only: CutInt
+use Constants, only: Zero, One, Two, Four, Half, Quart
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), iAOst(4), iBas, &
+                     jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, jk1, jk2, &
+                     jk3, jk4, jl1, jl2, jl3, jl4, nFT, iCar, iCent, indgrd(3,4,0:nirrep-1), ipdisp(*)
+logical(kind=iwp) :: Shijij, Pert(0:nIrrep-1)
+real(kind=wp) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
+                 Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), FT(nFT), tfact
 #include "disp2.fh"
-real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), FT(nFT), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
-       Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4)
-!logical Qij, Qkl
-logical Shij, Shkl, Shijij, Qijij, iShij, iShkl, iQij, iQkl, iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl, lFij, lFkl, lFik, &
-        lFjl, lFil, lFjk
-integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4), iAO(4), iAOst(4), iCmpa(4)
-logical Pert(0:nIrrep-1)
-integer indgrd(3,4,0:nirrep-1), ipdisp(*)
-! Local Arrays
-integer iSym(4,0:7), iTwoj(0:7)
-real*8 Prmt(0:7)
-data iTwoj/1,2,4,8,16,32,64,128/
+integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIn, iIrrep, ijkl, iljk, iOut, ip, ipD, ipFij, ipFij1, ipFik, &
+                     ipFik1, ipFil, ipFil1, ipFjk, ipFjk1, ipFjl, ipFjl1, ipFkl, ipFkl1, iSym(4,0:7), jChBs, jCmpMx, jj, k, kChBs, &
+                     kk, kOp2(4), l, lChBs, lCmpMx, ll, mFij, mFik, mFil, mFjk, mFjl, mFkl, nFij, nFik, nFil, nFjk, nFjl, nFkl, &
+                     nij, nik, nil, njk, njl, nkl, nnIrrep, np
+real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, Fac, Fact, pEa, pFctr, pRb, Prmt(0:7), pTc, pTSd, qFctr, rCh, vij, vijkl, &
+                 vik, vil, vjk, vjl, vkl
+logical(kind=iwp) :: iQij, iQik, iQil, iQjk, iQjl, iQkl, iShij, iShik, iShil, iShjk, iShjl, iShkl, lFij, lFik, lFil, lFjk, lFjl, &
+                     lFkl, Qijij, Shij, Shkl
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
+real(kind=r8), external :: DNrm2_
 ! Statement Function
+integer(kind=iwp) :: iOff, ixyz, i, j
+real(kind=wp) :: xPrmt
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 xPrmt(i,j) = Prmt(iand(i,j))
 
 !iprint = 0
 
-!write(6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
+!write(u6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
 !if (iPrint >= 49) then
 !  if ((DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1) > Zero) .or. (DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0) > Zero)) then
 !    call RecPrt('Dik','(5G20.10)',Dik,ik1*ik2+1,ik3*ik4)
-!    write(6,'(A,2G20.10)') &
+!    write(u6,'(A,2G20.10)') &
 !      ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
 !  end if
 !end if
 !if (iPrint >= 99) then
 !  call RecPrt('FckAcc:AOInt','(5G20.10)',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
-!  write(6,'(A,G20.10)') 'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
-!  write(6,'(A,G20.10)') 'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
-!  write(6,'(A,G20.10)') 'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
-!  write(6,'(A,G20.10)') 'Dil=',XDot(Dil,il1,il2,il3,il4)
-!  write(6,'(A,G20.10)') 'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
-!  write(6,'(A,G20.10)') 'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
+!  write(u6,'(A,G20.10)') 'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
+!  write(u6,'(A,G20.10)') 'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
+!  write(u6,'(A,G20.10)') 'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
+!  write(u6,'(A,G20.10)') 'Dil=',XDot(Dil,il1,il2,il3,il4)
+!  write(u6,'(A,G20.10)') 'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
+!  write(u6,'(A,G20.10)') 'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
 !end if
 
-!write(6,'(A,8L1)') 'Pert=',Pert
+!write(u6,'(A,8L1)') 'Pert=',Pert
 if (iBas*jBas*kBas*lBas > nScrt) then
-  write(6,*) 'FckAcc_McK: iBas*jBas*kBas*lBas > nScrt'
-  write(6,*) 'iBas,jBas,kBas,lBas,nScrt=',iBas,jBas,kBas,lBas,nScrt
+  write(u6,*) 'FckAcc_McK: iBas*jBas*kBas*lBas > nScrt'
+  write(u6,*) 'iBas,jBas,kBas,lBas,nScrt=',iBas,jBas,kBas,lBas,nScrt
   call Abend()
 end if
 ii = iOff(iAng(1))
@@ -305,8 +312,8 @@ do i1=1,iCmp
         ipD = 1+iBas*jBas*kBas*lBas
         np = ipD-1+max(iBas*lBas,jBas*lBas,iBas*kBas,jBas*kBas)
         if (np > nScrt) then
-          write(6,*) 'FckAcc_McK: np > nScrt'
-          write(6,*) 'np,nScrt=',np,nScrt
+          write(u6,*) 'FckAcc_McK: np > nScrt'
+          write(u6,*) 'np,nScrt=',np,nScrt
           call Abend()
         end if
         if (mFik+mFjl /= 0) then
@@ -484,38 +491,38 @@ do i1=1,iCmp
   end do
 end do
 
-!write(6,*) ' Fij'
+!write(u6,*) ' Fij'
 nnIrrep = nIrrep
 if (sIrrep) nnIrrep = 1
 do iIrrep=0,nnIrrep-1
-  !write(6,'(I2,L1)') iIrrep,pert(iIrrep)
+  !write(u6,'(I2,L1)') iIrrep,pert(iIrrep)
   if (pert(iIrrep)) then
     ip = ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
-    rCh = xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*dble(iChTbl(iIrrep,kOp(iCent)))
+    rCh = xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*real(iChTbl(iIrrep,kOp(iCent)),kind=wp)
     Fact = tfact*rCh
-    !write(6,*) 'Level ij'
+    !write(u6,*) 'Level ij'
     if (lFij) call FckDst(TwoHam(ip),ndens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),kOp2(1),kOp2(2),iIrrep,iShij,iAO(1),iAO(2), &
                           iAOst(1),iAOst(2),fact)
-    !write(6,*) 'Level kl'
+    !write(u6,*) 'Level kl'
     if (lFkl) call FckDst(TwoHam(ip),ndens,FT(ipFkl),kBas,lBas,iCmpa(3),iCmpa(4),kOp2(3),kOp2(4),iIrrep,iShkl,iAO(3),iAO(4), &
                           iAOst(3),iAOst(4),fact)
-    !write(6,*) 'Level ik'
+    !write(u6,*) 'Level ik'
     if (lFik) call FckDst(TwoHam(ip),ndens,FT(ipFik),iBas,kBas,iCmpa(1),iCmpa(3),kOp2(1),kOp2(3),iIrrep,iShik,iAO(1),iAO(3), &
                           iAOst(1),iAOst(3),fact)
-    !write(6,*) 'Level jl'
+    !write(u6,*) 'Level jl'
     if (lFjl) call FckDst(TwoHam(ip),ndens,FT(ipFjl),jBas,lBas,iCmpa(2),iCmpa(4),kOp2(2),kOp2(4),iIrrep,iShjl,iAO(2),iAO(4), &
                           iAOst(2),iAOst(4),fact)
-    !write(6,*) 'Level il'
+    !write(u6,*) 'Level il'
     if (lFil) call FckDst(TwoHam(ip),ndens,FT(ipFil),iBas,lBas,iCmpa(1),iCmpa(4),kOp2(1),kOp2(4),iIrrep,iShil,iAO(1),iAO(4), &
                           iAOst(1),iAOst(4),fact)
-    !write(6,*) 'Level jk'
+    !write(u6,*) 'Level jk'
     if (lFjk) call FckDst(TwoHam(ip),ndens,FT(ipFjk),jBas,kBas,iCmpa(2),iCmpa(3),kOp2(2),kOp2(3),iIrrep,iShjk,iAO(2),iAO(3), &
                           iAOst(2),iAOst(3),fact)
     !if (DDot_(3468,TwoHam,1,TwoHam,1) > Zero) then
-    !  if (Abs(DDot_(3468,TwoHam,1,One,0)) > 1.0D-16) then
-    !    write(6,'(A,G20.6,G20.7)') 'TwoHam=',DDot_(3468,TwoHam,1,TwoHam,1),DDot_(3468,TwoHam,1,One,0)
+    !  if (Abs(DDot_(3468,TwoHam,1,One,0)) > 1.0e-16_wp) then
+    !    write(u6,'(A,G20.6,G20.7)') 'TwoHam=',DDot_(3468,TwoHam,1,TwoHam,1),DDot_(3468,TwoHam,1,One,0)
     !  else
-    !    write(6,'(A,G20.6)') 'TwoHam=',DDot_(3468,TwoHam,1,TwoHam,1)
+    !    write(u6,'(A,G20.6)') 'TwoHam=',DDot_(3468,TwoHam,1,TwoHam,1)
     !  end if
     !  call FZero(TwoHam,3468)
     !end if
@@ -558,53 +565,57 @@ subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOI
 !     Modified July '98 in Tokyo by R. Lindh                           *
 !***********************************************************************
 
-use Basis_Info
-use Symmetry_Info, only: nIrrep, iChTbl, iChBas
+use Basis_Info, only: Shells
+use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
-use Gateway_Info, only: ThrInt, CutInt
+use Gateway_Info, only: ThrInt !, CutInt
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), iAOst(4), iBas, &
+                     jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, jk1, jk2, &
+                     jk3, jk4, jl1, jl2, jl3, jl4, nFT, iCar, iCent, indgrd(3,4,0:nirrep-1), ipdisp(*)
+logical(kind=iwp) :: Shijij, Pert(0:nIrrep-1)
+real(kind=wp) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
+                 Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), FT(nFT), tfact
 #include "disp2.fh"
-#include "print.fh"
-real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), FT(nFT), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
-       Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4)
-logical Shijij, Qijij, iShij, iShkl, iQij, iQkl, iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl, lFij, lFkl, lFik, lFjl, lFil, &
-        lFjk
-integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4), iAO(4), iAOst(4), iCmpa(4)
-logical Pert(0:nIrrep-1)
-integer indgrd(3,4,0:nirrep-1), ipdisp(*)
-!Local Arrays
-integer iSym(4)
-real*8 Prmt(0:7)
-!character*72 Label
+integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIrrep, ijkl, iOpt, ip, ipDij, ipDik, ipDil, ipDjk, ipDjl, &
+                     ipDkl, ipFij, ipFij1, ipFik, ipFik1, ipFil, ipFil1, ipFjk, ipFjk1, ipFjl, ipFjl1, ipFkl, ipFkl1, iSym(4), ix, &
+                     jChBs, jCmpMx, jj, kChBs, kk, kOp2(4), lChBs, lCmpMx, ll, loc1, loc2, mijkl, nFij, nFik, nFil, nFjk, nFjl, &
+                     nFkl, nnIrrep
+real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, ExFac, Fac_ij, Fac_ik, Fac_il, Fac_jk, Fac_jl, Fac_kl, Fact, pEa, pFctr, pRb, &
+                 Prmt(0:7), pTc, pTSd, rCh, vij, vijkl, vik, vil, vjk, vjl, vkl
+logical(kind=iwp) :: iQij, iQik, iQil, iQjk, iQjl, iQkl, iShij, iShik, iShil, iShjk, iShjl, iShkl, lFij, lFik, lFil, lFjk, lFjl, &
+                     lFkl, Qijij
 data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 ! Statement Function
+integer(kind=iwp) :: iOff, ixyz, i, j
+real(kind=wp) :: xPrmt
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 xPrmt(i,j) = Prmt(iand(i,j))
-!iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 !iRout = 38
 !iPrint = nPrint(iRout)
 !
 !if (iPrint >= 49) then
-!   write(6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
+!   write(u6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
 !end if
 !if (iPrint >= 99) then
 !   call RecPrt('FckAcc:AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
-!   write(6,*) 'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
-!   write(6,*) 'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
-!   write(6,*) 'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
-!   write(6,*) 'Dil=',XDot(Dil,il1,il2,il3,il4)
-!   write(6,*) 'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
-!   write(6,*) 'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
+!   write(u6,*) 'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
+!   write(u6,*) 'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
+!   write(u6,*) 'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
+!   write(u6,*) 'Dil=',XDot(Dil,il1,il2,il3,il4)
+!   write(u6,*) 'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
+!   write(u6,*) 'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
 !end if
 
 ExFac = One
-ThrInt = 0.0d0
+ThrInt = Zero
 if (iBas*jBas*kBas*lBas > nScrt) then
-  write(6,*) 'FckAcc: nScrt too small!'
+  write(u6,*) 'FckAcc: nScrt too small!'
   call Abend()
 end if
 ii = iOff(iAng(1))
@@ -773,15 +784,15 @@ do i1=1,iCmp
         Fac_jk = Fac_jk*D_il
         Fac_il = Fac_il*D_jk
 
-        !write(6,*)
-        !write(6,*) 'iShell(1),iShell(2),i1,i2=',iShell(1),iShell(2),i1,i2
-        !write(6,*) 'Dij=',Dij(1,i1,i2)
-        !write(6,*) 'Fac_ij,iQij=',Fac_ij,iQij
-        !write(6,*)
-        !write(6,*) 'iShell(3),iShell(4),i3,i4=',iShell(3),iShell(4),i3,i4
-        !write(6,*) 'Dkl=',Dkl(1,i3,i4)
-        !write(6,*) 'Fac_kl,iQkl=',Fac_kl,iQkl
-        !write(6,*)
+        !write(u6,*)
+        !write(u6,*) 'iShell(1),iShell(2),i1,i2=',iShell(1),iShell(2),i1,i2
+        !write(u6,*) 'Dij=',Dij(1,i1,i2)
+        !write(u6,*) 'Fac_ij,iQij=',Fac_ij,iQij
+        !write(u6,*)
+        !write(u6,*) 'iShell(3),iShell(4),i3,i4=',iShell(3),iShell(4),i3,i4
+        !write(u6,*) 'Dkl=',Dkl(1,i3,i4)
+        !write(u6,*) 'Fac_kl,iQkl=',Fac_kl,iQkl
+        !write(u6,*)
         if (Qijij) then
           Fac_kl = Zero
           Fac_jk = Zero
@@ -809,7 +820,7 @@ do i1=1,iCmp
             call DGetMO(Dkl(1,i4,i3),kl1,kl1,kl2,Scrt(ipDkl),kl2)
           else
             vkl = Dkl(kBas*lBas+1,i3,i4)
-            loc1 = (ixLoc(Dkl(1,i3,i4))-ixLoc(Scrt))
+            loc1 = (ixLoc(Dkl(1,i3,i4))-ixLoc(Scrt(1)))
             loc2 = (ixLoc(Scrt(2))-ixLoc(Scrt(1)))
             ipDkl = 1+loc1/loc2
           end if
@@ -821,7 +832,7 @@ do i1=1,iCmp
             call DGeTMO(Dij(1,i2,i1),ij1,ij1,ij2,Scrt(ipDij),ij2)
           else
             vij = Dij(iBas*jBas+1,i1,i2)
-            loc1 = (ixLoc(Dij(1,i1,i2))-ixLoc(Scrt))
+            loc1 = (ixLoc(Dij(1,i1,i2))-ixLoc(Scrt(1)))
             loc2 = (ixLoc(Scrt(2))-ixLoc(Scrt(1)))
             ipDij = 1+loc1/loc2
           end if
@@ -844,7 +855,7 @@ do i1=1,iCmp
             call DGeTMO(Djl(1,i4,i2),jl1,jl1,jl2,Scrt(ipDjl),jl2)
           else
             vjl = Djl(jBas*lBas+1,i2,i4)
-            loc1 = (ixLoc(Djl(1,i2,i4))-ixLoc(Scrt))
+            loc1 = (ixLoc(Djl(1,i2,i4))-ixLoc(Scrt(1)))
             loc2 = (ixLoc(Scrt(2))-ixLoc(Scrt(1)))
             ipDjl = 1+loc1/loc2
           end if
@@ -856,7 +867,7 @@ do i1=1,iCmp
             call DGeTMO(Dik(1,i3,i1),ik1,ik1,ik2,Scrt(ipDik),ik2)
           else
             vik = Dik(iBas*kBas+1,i1,i3)
-            loc1 = (ixLoc(Dik(1,i1,i3))-ixLoc(Scrt))
+            loc1 = (ixLoc(Dik(1,i1,i3))-ixLoc(Scrt(1)))
             loc2 = (ixLoc(Scrt(2))-ixLoc(Scrt(1)))
             ipDik = 1+loc1/loc2
           end if
@@ -879,7 +890,7 @@ do i1=1,iCmp
             call DGeTMO(Djk(1,i3,i2),jk1,jk1,jk2,Scrt(ipDjk),jk2)
           else
             vjk = Djk(jBas*kBas+1,i2,i3)
-            loc1 = (ixLoc(Djk(1,i2,i3))-ixLoc(Scrt))
+            loc1 = (ixLoc(Djk(1,i2,i3))-ixLoc(Scrt(1)))
             loc2 = (ixLoc(Scrt(2))-ixLoc(Scrt(1)))
             ipDjk = 1+loc1/loc2
           end if
@@ -891,7 +902,7 @@ do i1=1,iCmp
             call DGeTMO(Dil(1,i4,i1),il1,il1,il2,Scrt(ipDil),il2)
           else
             vil = Dil(iBas*lBas+1,i1,i4)
-            loc1 = (ixLoc(Dil(1,i1,i4))-ixLoc(Scrt))
+            loc1 = (ixLoc(Dil(1,i1,i4))-ixLoc(Scrt(1)))
             loc2 = (ixLoc(Scrt(2))-ixLoc(Scrt(1)))
             ipDil = 1+loc1/loc2
           end if
@@ -904,7 +915,7 @@ do i1=1,iCmp
           end if
         end if
         if (ip-1 > nScrt) then
-          write(6,*) 'FckAcc: nScrt too small!'
+          write(u6,*) 'FckAcc: nScrt too small!'
           call Abend()
         end if
         !                                                              *
@@ -946,24 +957,24 @@ do iIrrep=0,nnIrrep-1
 
   if (pert(iIrrep)) then
     ip = ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
-    rCh = xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*dble(iChTbl(iIrrep,kOp(iCent)))
+    rCh = xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*real(iChTbl(iIrrep,kOp(iCent)),kind=wp)
     Fact = tfact*rCh
-    !write(6,*) 'Level ij'
+    !write(u6,*) 'Level ij'
     if (lFij) call FckDst(TwoHam(ip),ndens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),kOp2(1),kOp2(2),iIrrep,iShij,iAO(1),iAO(2), &
                           iAOst(1),iAOst(2),fact)
-    !write(6,*) 'Level kl'
+    !write(u6,*) 'Level kl'
     if (lFkl) call FckDst(TwoHam(ip),ndens,FT(ipFkl),kBas,lBas,iCmpa(3),iCmpa(4),kOp2(3),kOp2(4),iIrrep,iShkl,iAO(3),iAO(4), &
                           iAOst(3),iAOst(4),fact)
-    !write(6,*) 'Level ik'
+    !write(u6,*) 'Level ik'
     if (lFik) call FckDst(TwoHam(ip),ndens,FT(ipFik),iBas,kBas,iCmpa(1),iCmpa(3),kOp2(1),kOp2(3),iIrrep,iShik,iAO(1),iAO(3), &
                           iAOst(1),iAOst(3),fact)
-    !write(6,*) 'Level jl'
+    !write(u6,*) 'Level jl'
     if (lFjl) call FckDst(TwoHam(ip),ndens,FT(ipFjl),jBas,lBas,iCmpa(2),iCmpa(4),kOp2(2),kOp2(4),iIrrep,iShjl,iAO(2),iAO(4), &
                           iAOst(2),iAOst(4),fact)
-    !write(6,*) 'Level il'
+    !write(u6,*) 'Level il'
     if (lFil) call FckDst(TwoHam(ip),ndens,FT(ipFil),iBas,lBas,iCmpa(1),iCmpa(4),kOp2(1),kOp2(4),iIrrep,iShil,iAO(1),iAO(4), &
                           iAOst(1),iAOst(4),fact)
-    !write(6,*) 'Level jk'
+    !write(u6,*) 'Level jk'
     if (lFjk) call FckDst(TwoHam(ip),ndens,FT(ipFjk),jBas,kBas,iCmpa(2),iCmpa(3),kOp2(2),kOp2(3),iIrrep,iShjk,iAO(2),iAO(3), &
                           iAOst(2),iAOst(3),fact)
   end if
@@ -971,6 +982,6 @@ end do
 
 return
 
-end subroutine FckAcc_mck
+end subroutine FckAcc_Mck
 
 #endif

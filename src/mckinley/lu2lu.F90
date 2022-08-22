@@ -11,13 +11,20 @@
 
 subroutine Lu2Lu(Filename,LuInput)
 
-character FileName*(*), Line*180
-logical Exist
-#include "warnings.h"
+use Definitions, only: iwp, u6
 
-call f_inquire(Filename,Exist)
-if (.not. Exist) then
-  write(6,*) 'SuperMac: Missing ',Filename
+implicit none
+character(len=*) :: FileName
+integer(kind=iwp) :: LuInput
+#include "warnings.h"
+integer(kind=iwp) :: istatus, LuSpool2
+character(len=180) :: Line
+logical(kind=iwp) :: Exists
+integer(kind=iwp), external :: IsFreeUnit
+
+call f_inquire(Filename,Exists)
+if (.not. Exists) then
+  write(u6,*) 'SuperMac: Missing ',Filename
   call Finish(_RC_INTERNAL_ERROR_)
 end if
 

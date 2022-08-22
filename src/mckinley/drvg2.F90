@@ -30,42 +30,56 @@ subroutine Drvg2(Hess,nhess,l_Grd,l_Hss)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
-use Real_Spherical
-use k2_setup
-use iSD_data
-use k2_arrays
-use pso_stuff
-use Basis_Info
-use Symmetry_Info, only: nIrrep, iOper
+use iSD_data, only: iSD
+use k2_setup, only: Data_k2, Indk2, nIndk2
+use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, ipZeta, MemR, MxDij, Mem_INT, Mem_DBLE, ndede, nFT, Sew_Scr
+use pso_stuff, only: D0, nDens
+use Basis_Info, only: dbsc, nBas, nCnttp, Shells
+use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Rsv_Tsk
+implicit none
+integer(kind=iwp) :: nhess
+real(kind=wp) :: Hess(*)
+logical(kind=iwp) :: l_Grd, l_Hss
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "buffer.fh"
 #include "etwas.fh"
 #include "cputime.fh"
-#include "nsd.fh"
 #include "setup.fh"
-! Local arrays
-real*8, allocatable :: DeDe2(:)
-integer, allocatable :: ipOffDA(:,:)
-real*8 Coor(3,4), Hess(*)
-integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4), iAOV(4), iAOst(4), JndGrd(3,4,0:7), iFnc(4), JndHss(4,3,4,3,0:7)
-logical Shik, Shjl, Shijij, JfGrd(3,4), lpick, JfHss(4,3,4,3), JfG(4), ltri, ldot, Rsv_Tsk, l_Hss, l_Grd, lGrad, n8, ldot2, &
-        new_fock, Post_Process
-integer moip(0:7)
+integer(kind=iwp) :: iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, id, &
+                     id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, ip1, &
+                     ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipD0, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
+                     ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
+                     ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipEI, ipEta, ipFin, ipIndEta, ipIndZet, ipKAB, ipKCD, ipMem, ipMem2, &
+                     ipMem3, ipMem4, ipMemX, ipMOC, ipP, ipQ, iPrim, iPrimi, iPrInc, ipTmp, ipTmp2, ipxA, ipxB, ipxD, ipxG, &
+                     ipxPre, ipZI, iS, iShell, iShelV(4), iShll, iShllV(4), jAng, jAO, jBas, jBasAO, jBasj, jBasn, jBsInc, jCmp, &
+                     jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, js, jShell, jShll, &
+                     k2ij, k2kl, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, kPrInc, &
+                     ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, lShell, &
+                     lShll, mBatch, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
+                     mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
+                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nab, nAco, nb, ncd, nDCRR, nDCRS, nDij, nDik, nDil, &
+                     ndisp, nDjk, nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nPairs, nQuad, nRys, nSkal, nSO, nTwo, &
+                     nTwo2,  nZeta
+real(kind=wp) :: A_int, dum, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
+logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
+                     Shik, Shjl
 #ifdef _DEBUGPRINT_
-character*40 format
+character(len=40) :: frmt
 #endif
-real*8, allocatable :: TMax(:,:), int(:), DTemp(:), DInAc(:)
-integer, allocatable :: Ind_ij(:,:)
+integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
+real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
+integer(kind=iwp), external :: ip_of_Work, MemSO2_P, nMO, NrOpr
+logical(kind=iwp), external :: Rsv_Tsk
 ! Statement functions
+integer(kind=iwp) :: nElem, ixyz, iTri, i, j
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
@@ -201,34 +215,34 @@ if (lGrad) then
   ! MO integrals and allocate it.
 
   nIndij = S%nShlls*(S%nShlls+1)/2
-  nInt = 0
+  n_Int = 0
   jDisp = 0
   do iIrrep=0,nIrrep-1
     do iDisp=1,lDisp(iIrrep)
       jDisp = jDisp+1
-      ipDisp(jDisp) = nInt+1
+      ipDisp(jDisp) = n_Int+1
       do jIrr=0,nIrrep-1
         kIrr = nrOpr(ieor(iOper(iIrrep),iOper(jIrr)))
         if (jIrr == kIrr) then
-          nInt = nInt+nBas(jIrr)*(nBas(jIrr)+1)/2
+          n_Int = n_Int+nBas(jIrr)*(nBas(jIrr)+1)/2
         else if (kIrr < jIrr) then
-          nInt = nInt+nBas(jIrr)*nBas(kIrr)
+          n_Int = n_Int+nBas(jIrr)*nBas(kIrr)
         end if
       end do
 
       if (nMethod == RASSCF) then
-        ipMO(jDisp,1) = nInt+1
-        nInt = nInt+nMO(iIrrep)
-        ipdisp2(jdisp) = nInt+1
+        ipMO(jDisp,1) = n_Int+1
+        n_Int = n_Int+nMO(iIrrep)
+        ipdisp2(jdisp) = n_Int+1
         do jIrr=0,nIrrep-1
           kIrr = nrOpr(ieor(iOper(iIrrep),iOper(jIrr)))
           if (jIrr == jIrr) then
-            nInt = nInt+nBas(jIrr)*(nBas(jIrr)+1)/2
+            n_Int = n_Int+nBas(jIrr)*(nBas(jIrr)+1)/2
           else if (kIrr < jIrr) then
-            nInt = nInt+nBas(jIrr)*nBas(kIrr)
+            n_Int = n_Int+nBas(jIrr)*nBas(kIrr)
           end if
         end do
-        ipMO(jDisp,2) = nInt+1-ipMO(jDisp,1)
+        ipMO(jDisp,2) = n_Int+1-ipMO(jDisp,1)
       end if
 
     end do
@@ -238,21 +252,21 @@ if (lGrad) then
     do iIrrep=0,nIrrep-1
       do iDisp=1,lDisp(iIrrep)
         jDisp = jDisp+1
-        ipdisp3(jdisp) = nInt+1
+        ipdisp3(jdisp) = n_Int+1
         do iS=0,nirrep-1
           js = nrOpr(ieor(iOper(is),iOper(iIrrep)))
-          nInt = nInt+nBas(iS)*nAsh(jS)
+          n_Int = n_Int+nBas(iS)*nAsh(jS)
         end do
       end do
     end do
   end if
-  call mma_allocate(Int,nInt,Label='Int')
+  call mma_allocate(iInt,n_Int,Label='iInt')
   nTwo = 0
   do iIrrep=0,nIrrep-1
     nTwo = max(nTwo,nFck(iIrrep))
   end do
   if (Int_Direct) then
-    nTwo2 = nInt
+    nTwo2 = n_Int
   else
     nTwo2 = nTwo
   end if
@@ -263,7 +277,7 @@ if (lGrad) then
   ! Observe that the desymmetrized 1st order density matrices are canonical,
   ! i.e. the relative order of the indices are canonically ordered.
 
-  int(:) = Zero
+  iInt(:) = Zero
   call mma_allocate(DTemp,nDens,Label='DTemp')
   DTemp(:) = Zero
   call mma_allocate(DInAc,nDens,Label='DInAc')
@@ -313,8 +327,8 @@ if (lGrad) then
       call DeDe_mck(DInAc,nFck(0),ipOffDA,nIndij,DeDe2,mmDeDe,mDeDe,mIndij)
 
       if (mDeDe /= nDeDe) then
-        write(6,*) 'DrvG2: mDeDe /= nDeDe'
-        write(6,*) 'mDeDe,nDeDe=',mDeDe,nDeDe
+        write(u6,*) 'DrvG2: mDeDe /= nDeDe'
+        write(u6,*) 'mDeDe,nDeDe=',mDeDe,nDeDe
         call Abend()
       end if
     end if
@@ -446,10 +460,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   if ((nMethod == RASSCF) .and. l_Grd) then
     iMemB = nACO**2*iCmp*iBas*jCmp*jBas*nDisp*nirrep
     if (iMemB > MemMax) then
-      write(6,*) 'DrvG2: iMemB > MemMax'
-      write(6,*) 'iMemB=',iMemB
-      write(6,*) 'MemMax=',MemMax
-      write(6,*) 'Increase MOLCAS_MEM!'
+      write(u6,*) 'DrvG2: iMemB > MemMax'
+      write(u6,*) 'iMemB=',iMemB
+      write(u6,*) 'MemMax=',MemMax
+      write(u6,*) 'Increase MOLCAS_MEM!'
       call Abend()
     end if
     Sew_Scr(1:iMemb) = Zero
@@ -464,9 +478,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ks = Ind_ij(1,klSh)
     ls = Ind_ij(2,klSh)
 
-    Aint = TMax(iS,jS)*TMax(kS,lS)
-    !write(6,*) 'is,js,ks,ls=',is,js,ks,ls
-    if (AInt < CutInt) cycle
+    A_int = TMax(iS,jS)*TMax(kS,lS)
+    !write(u6,*) 'is,js,ks,ls=',is,js,ks,ls
+    if (A_Int < CutInt) cycle
 
     !do kS=1,nSkal
     kShll = iSD(0,kS)
@@ -861,7 +875,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                            DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik),DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil), &
                            DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk,mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl, &
                            mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,Mem_INT(ipIndEta), &
-                           Mem_INT(ipIndZet),Int,ipd0,Sew_Scr(ipBuffer),MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
+                           Mem_INT(ipIndZet),iInt,ipd0,Sew_Scr(ipBuffer),MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                            Sew_Scr(ipMOC),MemCMO,new_fock)
             Post_Process = .true.
 
@@ -883,7 +897,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ip4 = ip3+jcmp*jBas*naco
     ip5 = ip4+iCmp*naco*iBas
     ip6 = ip5+jcmp*jbas*naco
-    call CLR2(Sew_Scr(ipBuffer),Int,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,ishelV,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
+    call CLR2(Sew_Scr(ipBuffer),iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,ishelV,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
               Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
   end if
 
@@ -909,11 +923,11 @@ if (New_Fock) then
     do iD=1,ldisp(is)
       idd = idd+1
       ip = ipDisp(idd)
-      call DScal_(nDens,Half,int(ip),1)
+      call DScal_(nDens,Half,iInt(ip),1)
       ij = ip-1
       do i=1,nBas(0)
         ij = ij+i
-        int(ij) = Two*int(ij)
+        iInt(ij) = Two*iInt(ij)
       end do
     end do
   end do
@@ -923,11 +937,11 @@ if (New_Fock) then
       do iD=1,ldisp(is)
         idd = idd+1
         ip = ipDisp2(idd)
-        call DScal_(nDens,Half,int(ip),1)
+        call DScal_(nDens,Half,iInt(ip),1)
         ij = ip-1
         do i=1,nBas(0)
           ij = ij+i
-          int(ij) = Two*int(ij)
+          iInt(ij) = Two*iInt(ij)
         end do
       end do
     end do
@@ -937,20 +951,20 @@ end if
 #ifdef _DEBUGPRINT_
 call GADSum_SCAL(Pren)
 call GADSum_SCAL(Prem)
-write(format,'(A,I2,A,I2,A)') '(A,F',3+int(log10(Pren)),'.0,A,F',3+int(log10(Prem)),'.0,A)'
-write(6,format) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
+write(frmt,'(A,I2,A,I2,A)') '(A,F',3+iInt(log10(Pren)),'.0,A,F',3+iInt(log10(Prem)),'.0,A)'
+write(u6,frmt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
 #endif
 call mma_deallocate(Sew_Scr)
 call Free_Tsk(id_Tsk)
 
 ! YIPPIEEEE Finished OK fill it UP!!
 
-call GADSum(Int,nInt)
+call GADSum(iInt,n_Int)
 jDisp = 0
 do iIrr=0,nIrrep-1
   do iDisk=1,lDisp(iIrr)
     jDisp = jDisp+1
-    call WrDisk(Int,nInt,jdisp,iIrr)
+    call WrDisk(iInt,n_Int,jdisp,iIrr)
   end do
 end do
 
@@ -972,7 +986,7 @@ call mma_deallocate(Mem_INT)
 
 call mma_deallocate(DInAc)
 call mma_deallocate(DTemp)
-call mma_deallocate(Int)
+call mma_deallocate(iInt)
 
 call mma_deallocate(Aux)
 

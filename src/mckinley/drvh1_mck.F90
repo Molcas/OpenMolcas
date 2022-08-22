@@ -24,18 +24,22 @@ subroutine Drvh1_mck(nGrad,Nona)
 !             May 95                                                   *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-external OvrGrd_mck, KneGrd_mck, nagrd_mck, prjgrd_mck, m1grd_mck, srogrd_mck, nona2
-external OvrMem_mck, KneMem_mck, namem_mck, prjmm1, m1mm1, na2mem, sromm1
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: nGrad
+logical(kind=iwp) :: Nona
 #include "print.fh"
-character*8 Label
-logical Nona, lECP
-real*8, allocatable :: Fock(:), D0(:)
+integer(kind=iwp) :: i, iCnt, iCnttp, idCar, idcnt, iIrrep, loper, nDens, nFock
+character(len=8) :: Label
+logical(kind=iwp) :: lECP
+real(kind=wp), allocatable :: D0(:), Fock(:)
+external :: KneGrd_mck, KneMem_mck, m1grd_mck, m1mm1, na2mem, nagrd_mck, namem_mck, nona2, OvrGrd_mck, OvrMem_mck, prjgrd_mck, &
+            prjmm1, srogrd_mck, sromm1
 
 if (show) then
   nFock = 0

@@ -11,22 +11,21 @@
 
 subroutine NucInd(coor,kdc,ifgrd,ifhss,indgrd,indhss,jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
 
-use Real_Spherical
-use Center_Info
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+real(kind=wp) :: Coor(3,4)
+integer(kind=iwp) :: kdc, IndGrd(0:2,0:1,0:(nIrrep-1)), IndHss(0:1,0:2,0:1,0:2,0:(nIrrep-1)), JndGrd(0:2,0:3,0:(nIrrep-1)), &
+                     JndHss(0:3,0:2,0:3,0:2,0:(nIrrep-1))
+logical(kind=iwp) :: IfGrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3), IfG(0:3)
 #include "Molcas.fh"
-#include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-real*8 Coor(3,4)
-integer IndGrd(0:2,0:1,0:(nIrrep-1)), IndHss(0:1,0:2,0:1,0:2,0:(nIrrep-1))
-logical IfHss(0:1,0:2,0:1,0:2), IfGrd(0:2,0:1), IfG(0:3), Tr(0:3)
-integer JndGrd(0:2,0:3,0:(nIrrep-1)), JndHss(0:3,0:2,0:3,0:2,0:(nIrrep-1))
-logical JfHss(0:3,0:2,0:3,0:2), JfGrd(0:2,0:3), EQ
-logical, external :: TF
+integer(kind=iwp) :: iAtom, iCar, iCent, iComp, iIrrep, iStop, jAtom, jCar, kCar, kCent, Maxi, Mini, nDisp, nnIrrep
+logical(kind=iwp), external :: EQ, TF
 ! Statement functions
+integer(kind=iwp) :: IX, i1, i2
 IX(i1,i2) = i1*(i1-1)/2+i2
 
 !                                                                      *
@@ -134,7 +133,7 @@ do iCent=0,1
     do iCar=0,2
       jfGrd(iCar,iCent) = .false.
       do kCar=0,2
-        do KCent=0,3
+        do kCent=0,3
           jfHss(iCent,iCar,kCent,kCar) = .false.
           jfHss(kCent,kCar,iCent,iCar) = .false.
           do iIrrep=0,nIrrep-1

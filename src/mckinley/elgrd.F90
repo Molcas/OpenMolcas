@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine ElGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,ifgrad,IndGrd,nop, &
+subroutine ElGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,ifgrad,IndGrd,nOp, &
                  iu,iv,nrOp,iDcar,iDCnt,iStabM,nStabM,trans,kcar,ksym)
 !***********************************************************************
 !                                                                      *
@@ -28,15 +28,20 @@ subroutine ElGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,la,lb,A,
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-integer IndGrd(2,3,3,0:7), nOp(2), iStabM(0:nStabM-1)
-real*8 Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Array(nZeta*nArr), Ccoor(3), &
-       final(*)
-!real*8 rout(*), DAO(nZeta,(la+1)*(la+1)/2,(lb+1)*(lb+2)/2)
-logical ABeq(3), ifgrad(3,2), trans(3,2)
-!  Statement function for Cartesian index
+implicit none
+integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), nOp(2), iu, iv, nrOp, iDcar, iDCnt, &
+                     nStabM, iStabM(0:nStabM-1), kcar, ksym
+real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), rFinal(*), A(3), B(3), &
+                 Array(nZeta*nArr), Ccoor(3)
+logical(kind=iwp) :: ifgrad(3,2), trans(3,2)
+integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, &
+                     ipTemp3, iZeta, ncomp, nip
+logical(kind=iwp) :: ABeq(3)
+! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 iprint = 0
@@ -66,9 +71,9 @@ nip = nip+nZeta
 ipFinal = nip
 nip = nip+nzeta*nElem(la)*nElem(lb)*4*6
 if (nip-1 > nArr*nZeta) then
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
   call ErrTra()
-  write(6,*) ' Abend in RFGrd'
+  write(u6,*) ' Abend in RFGrd'
   call Abend()
 end if
 
@@ -110,12 +115,12 @@ call Cmbnel(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),ncomp,A
             Array(ipBeta),iu,iv,nOp,ifgrad,kcar)
 
 !?
-call dcopy_(nElem(la)*nElem(lb)*nZeta*NrOp,[Zero],0,final,1)
+call dcopy_(nElem(la)*nElem(lb)*nZeta*NrOp,[Zero],0,rFinal,1)
 
 ! Symmetry adapt the gradient operator
 
-call SymAdO_mck2(Array(ipFinal),nZeta*nElem(la)*nElem(lb),final,nrOp,nop,IndGrd,ksym,iu,iv,ifgrad,idcar,trans)
-if (iPrint >= 49) call RecPrt(' Primitive Integrals SO',' ',final,nZeta,nElem(la)*nElem(lb)*nrOp)
+call SymAdO_mck2(Array(ipFinal),nZeta*nElem(la)*nElem(lb),rFinal,nrOp,nop,IndGrd,ksym,iu,iv,ifgrad,idcar,trans)
+if (iPrint >= 49) call RecPrt(' Primitive Integrals SO',' ',rFinal,nZeta,nElem(la)*nElem(lb)*nrOp)
 
 !call Getmem('EXOG','CHECK','REAL',ipdum,ipdum)
 

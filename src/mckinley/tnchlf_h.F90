@@ -26,12 +26,14 @@ subroutine Tnchlf_h(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,mZeta,lZeta,nVec,Inc
 !             Modified to decontraction May 1996, by R. Lindh          *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "print.fh"
-real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(nCntr1,nCntr2,nVec), A2(nCntr2,IncVec*nPrm1), A3(nVec,lZeta)
-integer Indij(lZeta)
-logical Seg1, Seg2
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nCntr1, nPrm1, nCntr2, nPrm2, mZeta, lZeta, nVec, IncVec, Indij(lZeta)
+real(kind=wp) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(nCntr1,nCntr2,nVec), A2(nCntr2,IncVec*nPrm1), A3(nVec,lZeta)
+integer(kind=iwp) :: iCntr1, iCntr2, iiVec, ijVec, iPrm1, iPrm2, iVec, iZeta, mVec
+logical(kind=iwp) :: Seg1, Seg2
 
 ! Check if the basis set is segmented
 

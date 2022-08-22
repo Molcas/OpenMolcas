@@ -9,19 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine WrHDsk(Hess,ngrad)
+subroutine WrHDsk(Hess,nGrad)
 
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Hess(nGrad*(nGrad+1)/2)
 #include "Molcas.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
-#include "disp2.fh"
-#include "real.fh"
-real*8 Hess(nGrad*(nGrad+1)/2)
-character*8 Label
-real*8, allocatable :: Temp(:), HStat(:), EVec(:), EVal(:)
+integer(kind=iwp) :: i, idum, iG, iG1, iG2, iGrad1, iGrad2, iIrrep, iOpt, ip_Acc, iRc, mH, nH
+character(len=8) :: Label
+real(kind=wp), allocatable :: EVal(:), EVec(:), HStat(:), Temp(:)
 
 call mma_allocate(Temp,nGrad**2,Label='Temp')
 nH = 0
@@ -85,8 +87,8 @@ iOpt = 0
 Label = 'StatHess'
 call dWrMck(iRC,iOpt,Label,idum,Temp,idum)
 if (iRc /= 0) then
-  write(6,*) 'WrHDsk: Error writing to MCKINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'WrHDsk: Error writing to MCKINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 call mma_deallocate(HStat)

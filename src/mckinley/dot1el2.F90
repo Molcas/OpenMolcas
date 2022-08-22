@@ -36,27 +36,35 @@ subroutine Dot1El2(Kernel,KrnlMm,Hess,nGrad,DiffOp,CCoor,FD,nordop)
 !             Modified for Hessians by AB   Dec '94                    *
 !***********************************************************************
 
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
-use Symmetry_Info, only: nIrrep, iOper
+use Real_Spherical, only: ipSph, RSph
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, MolWgh, Shells
+use Center_Info, only: dc
+use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Kernel, KrnlMm
+implicit none
+external :: Kernel, KrnlMm
+integer(kind=iwp) :: nGrad, nordop
+real(kind=wp) :: Hess(nGrad), CCoor(3), FD(*)
+logical(kind=iwp) :: DiffOp
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
-#include "nsd.fh"
-#include "setup.fh"
-real*8 A(3), B(3), Ccoor(3), FD(*), RB(3), Hess(nGrad)
-integer iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iCoM(0:7,0:7), nOp(2), iStabO(0:7), IndGrd(2,3,3,0:7)
-logical AeqB, EQ, DiffOp
-real*8, allocatable :: Zeta(:), ZI(:), Kappa(:), PCoor(:,:), Kern(:), Scrt1(:), Scrt2(:), DAO(:), DSOpr(:), DSO(:)
-logical, external :: TF
+integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iDCRR(0:7), iDCRT(0:7), ielem, iirrep, &
+                     ijS, IndGrd(2,3,3,0:7), iPrim, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iTmp, iuv, j, jAng, jAO, &
+                     jBas, jCar, jCmp, jCnt, jCnttp, jIrrep, jj, jPrim, jS, jShell, jShll, kk, lDCRR, lloper, LmbdR, LmbdT, mdci, &
+                     mdcj, MemKer, MemKrn, nDAO, nDCRR, nDCRT, nDisp, nMax, nOp(2), nOrder, nScrt1, nScrt2, nSkal, nSO, nStabM, &
+                     nStabO, nTasks
+real(kind=wp) :: A(3), B(3), FactNd, RB(3)
+logical(kind=iwp) :: AeqB
+real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Kern(:), PCoor(:,:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
+integer(kind=iwp), external :: irrfnc, MemSO1, n2Tri, NrOpr
+logical(kind=iwp), external :: EQ, TF
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 call dcopy_(nGrad,[Zero],0,Hess,1)
@@ -195,9 +203,9 @@ do ijS=1,nTasks
       ! basis on to the primitive basis.
 
       ! Transform IJ,AB to J,ABi
-      call DGEMM_('T','T',jBas*nSO,iPrim,iBas,1.0d0,DSO,iBas,Shells(iShll)%pCff,iPrim,0.0d0,DSOpr,jBas*nSO)
+      call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,DSO,iBas,Shells(iShll)%pCff,iPrim,Zero,DSOpr,jBas*nSO)
       ! Transform J,ABi to AB,ij
-      call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,1.0d0,DSOpr,jBas,Shells(jShll)%pCff,jPrim,0.0d0,DSO,nSO*iPrim)
+      call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,One,DSOpr,jBas,Shells(jShll)%pCff,jPrim,Zero,DSO,nSO*iPrim)
       ! Transpose to ij,AB
       call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,iPrim*jPrim)
       call mma_deallocate(DSO)
@@ -205,7 +213,7 @@ do ijS=1,nTasks
       ! Loops over symmetry operations.
 
       nOp(1) = NrOpr(0)
-      if (jBas < -999999) write(6,*) 'gcc overoptimization',nDCRR
+      if (jBas < -999999) write(u6,*) 'gcc overoptimization',nDCRR
       do lDCRR=0,nDCRR-1
         call OA(iDCRR(lDCRR),B,RB)
         nOp(2) = NrOpr(iDCRR(lDCRR))
@@ -219,11 +227,11 @@ do ijS=1,nTasks
         ! of the two basis functions and the operator.
 
         iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-        FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+        FactNd = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
         if (MolWgh == 1) then
-          FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
+          FactNd = FactNd*real(nIrrep,kind=wp)**2/real(iuv,kind=wp)
         else if (MolWgh == 2) then
-          FactNd = sqrt(dble(iuv))*nStabO/dble(nIrrep*LmbdT)
+          FactNd = sqrt(real(iuv,kind=wp))*nStabO/real(nIrrep*LmbdT,kind=wp)
         end if
 
         ! Desymmetrize the matrix with which we will contract the trace.
@@ -238,7 +246,7 @@ do ijS=1,nTasks
           ! ij,AB --> AB,ij
           call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,iCmp*jCmp,Scrt1,iCmp*jCmp)
           ! AB,ij --> ij,ab
-          call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
+          call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScrt2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
                       RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
         end if
 
@@ -249,7 +257,7 @@ do ijS=1,nTasks
         call Icopy(18*nirrep,[0],0,IndGrd,1)
         kk = 0
         do jIrrep=0,nirrep-1
-          do Jcar=1,3
+          do jCar=1,3
             iirrep = irrfnc(2**(jcar-1))
             if (iirrep == jirrep) then
               jj = 0
@@ -271,7 +279,7 @@ do ijS=1,nTasks
 
         kk = 0
         do jIrrep=0,nirrep-1
-          do Jcar=1,3
+          do jCar=1,3
             iirrep = irrfnc(2**(jcar-1))
             if (iirrep == jirrep) then
               jj = 0

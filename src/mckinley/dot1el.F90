@@ -36,43 +36,39 @@ subroutine Dot1El(Kernel,KrnlMm,Hess,nHess,DiffOp,CCoor,FD,nFD,lOper,nComp,Label
 !             Modified for multipole moments November '90              *
 !***********************************************************************
 
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
-use Symmetry_Info, only: nIrrep, iOper
+use Real_Spherical, only: ipSph, RSph
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, MolWgh, Shells
+use Center_Info, only: dc
+use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-!external Kernel, KrnlMm
-external KrnlMm
+implicit none
+external :: Kernel, KrnlMm
+integer(kind=iwp) :: nHess, nFD, nComp, lOper(nComp)
+real(kind=wp) :: Hess(nHess), CCoor(3,nComp), FD(nFD)
+logical(kind=iwp) :: DiffOp
+character(len=80) :: Label
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "nsd.fh"
-#include "setup.fh"
-real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD), RB(3), Hess(nHess)
-character Label*80
-!character ChOper(0:7)*3
-integer iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iCoM(0:7,0:7), IndHss(0:1,0:2,0:1,0:2,0:7), nOp(2), iStabO(0:7), lOper(nComp), &
-        IndGrd(0:2,0:1,0:7)
-logical AeqB, EQ, DiffOp, IfHss(0:1,0:2,0:1,0:2), Chck, ifgrd(0:2,0:1)
-real*8, allocatable :: Zeta(:), ZI(:), Kappa(:), PCoor(:,:), Kern(:), Fnl(:), Scrt1(:), Scrt2(:), DAO(:), DSOpr(:), DSO(:)
-logical, external :: TF, TstFnc
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Kernel( &
-#                   define _CALLING_
-#                   include "hss_interface.fh"
-                   )
-#   include "hss_interface.fh"
-  end subroutine Kernel
-end interface
+integer(kind=iwp) :: i, iAng, iAO, iAtom, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iComp1, iComp2, iDCRR(0:7), &
+                     iDCRT(0:7), ielem, iIrrep, ijS, IndGrd(0:2,0:1,0:7), IndHss(0:1,0:2,0:1,0:2,0:7), iPrim, iS, iShell, iShll, &
+                     iSmLbl, iStabM(0:7), iStabO(0:7), iStop, iTmp, iuv, j, jAng, jAO, jAtom, jBas, jCar, jCmp, jCnt, jCnttp, &
+                     jPrim, jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDAO, nDCRR, &
+                     nDCRT, nDisp1, nDisp2, nMax, nnIrrep, nOp(2), nOrder, nOrdOp, nScrt1, nScrt2, nSkal, nSO, nStabM, nStabO, &
+                     nTasks
+real(kind=wp) :: A(3), B(3), FactNd, RB(3)
+logical(kind=iwp) :: AeqB, Chck, ifgrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2)
+!character(len=3) :: ChOper(0:7)
+real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Fnl(:), Kappa(:), Kern(:), PCoor(:,:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
+integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
+logical(kind=iwp), external :: EQ, TF, TstFnc
 ! Statement functions
+integer(kind=iwp) :: nElem, ixyz, itri, i1, i2
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 itri(i1,i2) = max(i1,i2)*(max(i1,i2)-1)/2+min(i1,i2)
 
@@ -130,10 +126,10 @@ do ijS=1,nTasks
   jCnttp = iSD(13,jS)
   jCnt = iSD(14,jS)
   B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
-  !write(6,*) 'iShll,iAng,iCmp,iBas,iPrim,iAO,ixyz,mdci,iShell'
-  !write(6,*) (iSD(i,iS),i=0,11)
-  !write(6,*) 'jShll,jAng,jCmp,jBas,jPrim,jAO,jxyz,mdcj,jShell'
-  !write(6,*) (iSD(i,jS),i=0,11)
+  !write(u6,*) 'iShll,iAng,iCmp,iBas,iPrim,iAO,ixyz,mdci,iShell'
+  !write(u6,*) (iSD(i,iS),i=0,11)
+  !write(u6,*) 'jShll,jAng,jCmp,jBas,jPrim,jAO,jxyz,mdcj,jShell'
+  !write(u6,*) (iSD(i,jS),i=0,11)
 
   ! Call kernel routine to get memory requirement.
 
@@ -171,7 +167,7 @@ do ijS=1,nTasks
 
   call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
   if (DiffOp .or. (nDCRR /= 1) .or. (.not. EQ(A,B))) then
-    !if (iPrint >= 49) write(6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+    !if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 
     ! Find the stabilizer for A and B
 
@@ -335,13 +331,13 @@ do ijS=1,nTasks
       ! Loops over symmetry operations.
 
       nOp(1) = NrOpr(0)
-      if (jBas < -999999) write(6,*) 'gcc overoptimization',nDCRR
+      if (jBas < -999999) write(u6,*) 'gcc overoptimization',nDCRR
       do lDCRR=0,nDCRR-1
         call OA(iDCRR(lDCRR),B,RB)
         nOp(2) = NrOpr(iDCRR(lDCRR))
         if (EQ(A,RB) .and. (.not. DiffOp)) cycle
 
-        !if (iPrint >= 49) write(6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
+        !if (iPrint >= 49) write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
         !end if
 
         llOper = lOper(1)
@@ -355,14 +351,14 @@ do ijS=1,nTasks
         ! of the two basis functions and the operator.
 
         iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-        FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+        FactNd = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
         if (MolWgh == 1) then
-          FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
+          FactNd = FactNd*real(nIrrep,kind=wp)**2/real(iuv,kind=wp)
         else if (MolWgh == 2) then
-          FactNd = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+          FactNd = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
         end if
 
-        !if (iPrint >= 49) write(6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
+        !if (iPrint >= 49) write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
 
         ! Desymmetrize the matrix with which we will contract the trace.
 
@@ -376,7 +372,7 @@ do ijS=1,nTasks
           ! ij,AB --> AB,ij
           call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,iCmp*jCmp,Scrt1,iCmp*jCmp)
           ! AB,ij --> ij,ab
-          call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
+          call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScrt2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
                       RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
         end if
         !if (iPrint >= 99) call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
@@ -387,14 +383,14 @@ do ijS=1,nTasks
 
         ! Compute gradients of the primitive integrals and trace the result.
 
-        !BS write(6,*) 'Call the  Kernel'
+        !BS write(u6,*) 'Call the  Kernel'
 
         call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
                     Kern,MemKer*iPrim*jPrim,Ccoor,nOrdOp,Hess,nHess,IfHss,IndHss,ifgrd,indgrd,DAO,mdci,mdcj,nOp,lOper,nComp, &
                     iStabM,nStabM,nIrrep)
 
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'Hess after Kernel call in dot1el '
+        write(u6,*) 'Hess after Kernel call in dot1el '
         call HssPrt(Hess,nHess)
 #       endif
 

@@ -14,17 +14,20 @@
 subroutine DAN(Dens)
 
 use Basis_Info, only: nBas
-use pso_stuff
+use pso_stuff, only: CMO, G1, nDens
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) Dens(nDens)
 #include "etwas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 Dens(nDens)
-integer na(0:7), ipcm(0:7)
-real*8, allocatable :: Temp1(:), Temp2(:), Temp3(:)
+integer(kind=iwp) :: iB, iBas, iiB, ijB, ip1, ip2, ipCC, ipcm(0:7), ipD, iS, jB, jBas, jjB, na(0:7), ndenssq, nnA
+real(kind=wp) :: Fact
+real(kind=wp), allocatable :: Temp1(:), Temp2(:), Temp3(:)
 ! Statement function
+integer(kind=iwp) :: itri, i, j
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ipD = 0
@@ -56,15 +59,15 @@ do iS=0,nIrrep-1
       end do
     end do
 
-    call DGEMM_('N','N',nBas(is),nBas(is),nBas(is),1.0d0,CMO(ipCM(iS),1),nBas(is),Temp1,nBas(is),0.0d0,Temp3,nBas(is))
-    call DGEMM_('N','T',nBas(is),nBas(is),nBas(is),1.0d0,Temp3,nBas(is),CMO(ipCM(is),1),nBas(is),0.0d0,Temp2,nBas(is))
+    call DGEMM_('N','N',nBas(is),nBas(is),nBas(is),One,CMO(ipCM(iS),1),nBas(is),Temp1,nBas(is),Zero,Temp3,nBas(is))
+    call DGEMM_('N','T',nBas(is),nBas(is),nBas(is),One,Temp3,nBas(is),CMO(ipCM(is),1),nBas(is),Zero,Temp2,nBas(is))
 
     do iBas=1,nBas(iS)
       do jBas=1,iBas
         ip1 = (iBas-1)*nBas(iS)+jBas
         ip2 = iTri(iBas,jBas)
-        Fact = 2.0d0
-        if (iBas == jBas) Fact = 1.0d0
+        Fact = Two
+        if (iBas == jBas) Fact = One
         Dens(ipD+ip2) = Temp2(ip1)*Fact
       end do
     end do

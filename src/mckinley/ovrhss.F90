@@ -26,13 +26,13 @@ subroutine Ovrhss( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use Center_Info
+use Center_Info, only: dc
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
 #include "hss_interface.fh"
-! Local variables
-logical ABeq(3)
+integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, nip
+logical(kind=iwp) :: ABeq(3)
 
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
@@ -52,19 +52,19 @@ nip = nip+nZeta
 ipBeta = nip
 nip = nip+nZeta
 if (nip-1 > nArr) then
-  write(6,*) 'OvrHss: nip-1 > nArr'
-  write(6,*) 'nip,nArr=',nip,nArr
+  write(u6,*) 'OvrHss: nip-1 > nArr'
+  write(u6,*) 'nip,nArr=',nip,nArr
   call Abend()
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' IfHss=',IfHss
-write(6,*) ' IndHss=',IndHss
+write(u6,*) ' IfHss=',IfHss
+write(u6,*) ' IndHss=',IndHss
 call RecPrt(' In OvrHss: A',' ',A,1,3)
 call RecPrt(' In OvrHss: RB',' ',RB,1,3)
 call RecPrt(' In OvrHss: Ccoor',' ',Ccoor,1,3)
 call RecPrt(' In OvrHss: P',' ',P,nZeta,3)
-write(6,*) ' In OvrHss: la,lb=',la,lb
+write(u6,*) ' In OvrHss: la,lb=',la,lb
 #endif
 
 ! Compute the cartesian values of the basis functions angular part

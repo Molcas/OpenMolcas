@@ -14,15 +14,17 @@
 subroutine DIN(Dens)
 
 use Basis_Info, only: nBas
-use pso_stuff
+use pso_stuff, only: CMO, nDens
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
+real(kind=wp) :: Dens(nDens)
 #include "etwas.fh"
-#include "stdalloc.fh"
-real*8 Dens(nDens)
-real*8, allocatable :: Temp2(:)
+integer(kind=iwp) :: iBas, iIrr, ip, ip1, ip2, ipD, jBas, nTemp2
+real(kind=wp), allocatable :: Temp2(:)
 
 !                                                                      *
 !***********************************************************************

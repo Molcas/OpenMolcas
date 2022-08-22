@@ -29,18 +29,19 @@ subroutine Acore(iang,la,ishll,nordop,TC,A,Array,narr,Alpha,nalpha,fa1,fa2,jfgra
 ! @parameter ld Order of derivatives
 ! @parameter debug guess
 
-use Basis_Info
+use Basis_Info, only: Shells
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use Real_Spherical
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "print.fh"
-#include "disp.fh"
-logical ABeq(3), jfgrad(3), jfhess(4,3,4,3), debug
-real*8 TC(3), A(3), Array(*), fa1(*), fa2(*), alpha(*)
+implicit none
+integer(kind=iwp) :: iang, la, ishll, nordop, narr, nalpha, ld
+real(kind=wp) :: TC(3), A(3), Array(*), Alpha(*), fa1(*), fa2(*)
+logical(kind=iwp) :: jfgrad(3), jfhess(4,3,4,3), debug
+integer(kind=iwp) :: i, iGamma, ip, ipA, ipAxyz, ipCxyz, ipK1, ipP1, ipQ1, ipRxyz, ipV, ipZ1, ipZI1, iStrt, n, nExpi, nHer, nVecAC
+logical(kind=iwp) :: ABeq(3)
+real(kind=r8), external :: DNrm2_
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nExpi = Shells(iShll)%nExp
@@ -54,7 +55,7 @@ ip = ip+nAlpha*nExpi
 ipZI1 = ip
 ip = ip+nAlpha*nExpi
 if (ip-1 > nArr) then
-  write(6,*) ' ip-1 > nArr in acore  (',ip,',',narr,')'
+  write(u6,*) ' ip-1 > nArr in acore  (',ip,',',narr,')'
   call Abend()
 end if
 
@@ -77,7 +78,7 @@ ip = ip+nAlpha*nExpi*3*(la+1+ld)*(iAng+1)*(nOrdOp+1)
 ipA = ip
 ip = ip+nAlpha*nExpi
 if (ip-1 > nArr) then
-  write(6,*) '  ip-1 > nArr (1b) in acore (',ip,',',narr,')','Order',ld,Shells(ishll)%nExp,nalpha
+  write(u6,*) '  ip-1 > nArr (1b) in acore (',ip,',',narr,')','Order',ld,Shells(ishll)%nExp,nalpha
   call Abend()
 end if
 ABeq(1) = A(1) == TC(1)
@@ -90,11 +91,11 @@ ABeq(2) = .false.
 ABeq(3) = .false.
 call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,A,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 if (debug) then
-  write(6,*) ' nAlpha = ',nAlpha,' nExp(',ishll,')=',nExpi,' nHer=',nHer,' la=',la,' iAng=',iAng,' nOrdOp=',nOrdOp
+  write(u6,*) ' nAlpha = ',nAlpha,' nExp(',ishll,')=',nExpi,' nHer=',nHer,' la=',la,' iAng=',iAng,' nOrdOp=',nOrdOp
 
-  write(6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(la+ld+1),Array(ipAxyz),1)
-  write(6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
-  write(6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+  write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(la+ld+1),Array(ipAxyz),1)
+  write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
+  write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
 end if
 
 call Assmbl(Array(ipQ1),Array(ipAxyz),la+ld,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*nExpi,HerW(iHerW(nHer)),nHer)
@@ -104,19 +105,19 @@ do iGamma=1,nExpi
   iStrt = iStrt+nAlpha
 end do
 if (debug) then
-  write(6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
+  write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
 end if
 
 call rKappa_Zeta(Array(ipK1),Array(ipZ1),nExpi*nAlpha)
 call CmbnAC(Array(ipQ1),nAlpha*nExpi,la,iAng,Array(ipK1),FA1,Array(ipA),JfGrad,ld,nVecAC)
 if (debug) then
-  write(6,*) 'nVecAC',nvecac
-  write(6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*nExpi*3*(la+ld+1)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
-  write(6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
+  write(u6,*) 'nVecAC',nvecac
+  write(u6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*nExpi*3*(la+ld+1)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
+  write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
   do i=1,nvecac
     ipV = 1
     n = nAlpha*nExpi*nElem(la)*nElem(iAng)
-    write(6,*) 'Cmbn(',i,')=',DNrm2_(n,FA1(ipV),1)
+    write(u6,*) 'Cmbn(',i,')=',DNrm2_(n,FA1(ipV),1)
     ipV = ipV+n
   end do
 end if
@@ -127,7 +128,7 @@ if (ld >= 2) then
     do i=1,6
       ipV = 1
       n = nAlpha*nExpi*nElem(la)*nElem(iAng)
-      write(6,*) 'Cmbn2(',i,')=',DNrm2_(n,FA2(ipV),1)
+      write(u6,*) 'Cmbn2(',i,')=',DNrm2_(n,FA2(ipV),1)
       ipV = ipV+n
     end do
   end if

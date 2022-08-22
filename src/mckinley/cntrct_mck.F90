@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Cntrct_mck(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,g1In,nGr,Array,nArr,xpre,G1Out,ngr1,nt,IndZet,nZeta, &
+subroutine Cntrct_mck(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,g1In,nGr,Array,nArr,xpre,g1Out,ngr1,nt,IndZet,nZeta, &
                       lZeta,IndEta,nEta,lEta)
 !***********************************************************************
 !                                                                      *
@@ -28,13 +28,14 @@ subroutine Cntrct_mck(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,g1In
 !              response calculation.                                   *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-!#include "print.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+logical(kind=iwp) :: First
+integer(kind=iwp) :: n1, m1, n2, m2, n3, m3, n4, m4, nGr, nArr, ngr1, nt, nZeta, IndZet(nZeta), lZeta, nEta, IndEta(nEta), lEta
+real(kind=wp) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), g1In(nT,nGr), Array(nArr), xpre(nt), g1Out(nGr1)
 #include "lCache.fh"
-real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), g1In(nT,nGr), Array(nArr), g1Out(nGr1), xpre(nt)
-logical First
-integer IndZet(nZeta), IndEta(nEta)
+integer(kind=iwp) :: iabcdg, IncVec, ip, ipA2, ipA3, it, lsize, nCache, nVec
 
 !iRout = 18
 !iPrint = nPrint(iRout)

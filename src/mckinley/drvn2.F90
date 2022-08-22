@@ -26,25 +26,36 @@ subroutine DrvN2(Hess,nGrad)
 !             September 1995                                           *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use PCM_arrays
-use Symmetry_Info, only: nIrrep, iChTbl
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess
+use Symmetry_Info, only: iChTbl, nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Four, Six, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Hess(nGrad*(nGrad+1)/2)
 #include "Molcas.fh"
-#include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "stdalloc.fh"
 #include "rctfld.fh"
-real*8 A(3), B(3), RB(3), Hess(nGrad*(nGrad+1)/2), prmt(0:7), C(3), D(3), SD(3)
-integer iDCRR(0:7), IndGrd(3,2,0:7), ii(2), iStb(0:7), iDCRS(0:7), IndHss(2,3,2,3,0:7), nop(2), kop(2)
-logical EQ, NoLoop
+integer(kind=iwp) :: iAtom, iCar, iCent, iCh1, iCh2, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRS(0:7), ii(2), iIrrep, iM1xp, iM2xp, &
+                     Indx, IndGrd(3,2,0:7), IndHss(2,3,2,3,0:7), iR, iS, iStb(0:7), iTs, jAtom, jCar, jCar_Max, jCent, jCnt, &
+                     jCntMx, jCnttp, jTs, kop(2), LmbdR, LmbdS, mdc, nAtoms, ndc, nDCRR, nDCRS, nDisp1, nDisp2, nHess, nnIrrep, &
+                     nop(2), nPCMHss, nStb
+real(kind=wp) :: A(3), B(3), C(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, Cnt2M1, Cnt2M2, D(3), d2f_dr2, d2r_dAidAj, ddfab, &
+                 df_dr, df_dr_AB, df_dr_CD, dfab, dfcd, dr_dAi, dr_dAj, dr_dB, dr_dD, fab, Fact, fcd, g, Gmma, PreFct, PreFct_AB, &
+                 PreFct_CD, prmt(0:7), ps, Q_ij, r12, r12_AB, r12_CD, RB(3), SD(3), ZA, ZB, ZAZB
+logical(kind=iwp) :: NoLoop
+real(kind=wp), allocatable :: Der1(:), DerDM(:), Pcmhss(:), Temp(:)
 data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-real*8, allocatable :: Pcmhss(:), Der1(:), DerDM(:), Temp(:)
-logical, external :: TF
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ, TF
 ! Statement Function
+integer(kind=iwp) :: i, j, iTri, i1, i2
+real(kind=wp) :: xPrmt
 xPrmt(i,j) = Prmt(iand(i,j))
 iTri(i1,i2) = max(i1,i2)*(max(i1,i2)-1)/2+min(i1,i2)
 
@@ -92,7 +103,7 @@ do iCnttp=1,nCnttp
 
         call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
 
-        PreFct = Fact*ZAZB*dble(nIrrep)/dble(LmbdR)
+        PreFct = Fact*ZAZB*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           nOp(1) = NrOpr(0)
@@ -116,11 +127,11 @@ do iCnttp=1,nCnttp
             Cnt1M1 = Zero
             Cnt2M1 = Zero
             do iM1xp=1,dbsc(iCnttp)%nM1
-              Gamma = dbsc(iCnttp)%M1xp(iM1xp)
+              Gmma = dbsc(iCnttp)%M1xp(iM1xp)
               CffM1 = dbsc(iCnttp)%M1cf(iM1xp)
-              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-              Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
-              Cnt2M1 = Cnt2M1+Gamma**2*(CffM1*exp(-Gamma*r12**2))
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gmma*r12**2))
+              Cnt1M1 = Cnt1M1+Gmma*(CffM1*exp(-Gmma*r12**2))
+              Cnt2M1 = Cnt2M1+Gmma**2*(CffM1*exp(-Gmma*r12**2))
             end do
             fab = fab+Cnt0M1
             dfab = dfab-Two*r12*Cnt1M1
@@ -130,11 +141,11 @@ do iCnttp=1,nCnttp
             Cnt1M2 = Zero
             Cnt2M2 = Zero
             do iM2xp=1,dbsc(iCnttp)%nM2
-              Gamma = dbsc(iCnttp)%M2xp(iM2xp)
+              Gmma = dbsc(iCnttp)%M2xp(iM2xp)
               CffM2 = dbsc(iCnttp)%M2cf(iM2xp)
-              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-              Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
-              Cnt2M2 = Cnt2M2+Gamma**2*(CffM2*exp(-Gamma*r12**2))
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gmma*r12**2))
+              Cnt1M2 = Cnt1M2+Gmma*(CffM2*exp(-Gmma*r12**2))
+              Cnt2M2 = Cnt2M2+Gmma**2*(CffM2*exp(-Gmma*r12**2))
             end do
             fab = fab+r12*Cnt0M2
             dfab = dfab+Cnt0M2-Two*r12**2*Cnt1M2
@@ -146,11 +157,11 @@ do iCnttp=1,nCnttp
             Cnt1M1 = Zero
             Cnt2M1 = Zero
             do iM1xp=1,dbsc(jCnttp)%nM1
-              Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+              Gmma = dbsc(jCnttp)%M1xp(iM1xp)
               CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-              Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
-              Cnt2M1 = Cnt2M1+Gamma**2*(CffM1*exp(-Gamma*r12**2))
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gmma*r12**2))
+              Cnt1M1 = Cnt1M1+Gmma*(CffM1*exp(-Gmma*r12**2))
+              Cnt2M1 = Cnt2M1+Gmma**2*(CffM1*exp(-Gmma*r12**2))
             end do
             fab = fab+Cnt0M1
             dfab = dfab-Two*r12*Cnt1M1
@@ -160,11 +171,11 @@ do iCnttp=1,nCnttp
             Cnt1M2 = Zero
             Cnt2M2 = Zero
             do iM2xp=1,dbsc(jCnttp)%nM2
-              Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+              Gmma = dbsc(jCnttp)%M2xp(iM2xp)
               CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-              Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
-              Cnt2M2 = Cnt2M2+Gamma**2*(CffM2*exp(-Gamma*r12**2))
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gmma*r12**2))
+              Cnt1M2 = Cnt1M2+Gmma*(CffM2*exp(-Gmma*r12**2))
+              Cnt2M2 = Cnt2M2+Gmma**2*(CffM2*exp(-Gmma*r12**2))
             end do
             fab = fab+r12*Cnt0M2
             dfab = dfab+Cnt0M2-Two*r12**2*Cnt1M2
@@ -239,8 +250,9 @@ do iCnttp=1,nCnttp
                   do jCar=1,jCar_Max
                     iCh1 = 2**(iCar-1)
                     iCh2 = 2**(jCar-1)
-                    g = dble(iChTbl(iIrrep,nOp(icent)))*xPrmt(kOp(icent),iCh1)*dble(ii(icent))/dble(nIrrep)
-                    g = g*dble(iChTbl(iIrrep,nOp(jcent)))*xPrmt(kOp(jcent),iCh2)*dble(ii(jcent))/dble(nIrrep)
+                    g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*xPrmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/real(nIrrep,kind=wp)
+                    g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*xPrmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/ &
+                        real(nIrrep,kind=wp)
                     g = g*(-One)**(icent+jcent)
                     if ((iCent /= jCent) .and. (iCar == jCar) .and. &
                         (abs(indgrd(iCar,iCent,iIrrep)) == abs(indgrd(jCar,jCent,iIrrep)))) then
@@ -249,14 +261,14 @@ do iCnttp=1,nCnttp
                       ps = One
                     end if
 
-                    Index = indHss(iCent,iCar,jCent,jCar,iIrrep)
-                    if (index /= 0) then
+                    Indx = indHss(iCent,iCar,jCent,jCar,iIrrep)
+                    if (Indx /= 0) then
                       dr_dAi = (A(iCar)-RB(iCar))/r12
                       dr_dAj = (A(jCar)-RB(jCar))/r12
                       d2r_dAidAj = -(A(iCar)-RB(iCar))*dr_dAj
                       if (iCar == jCar) d2r_dAidAj = d2r_dAidAj+r12
                       d2r_dAidAj = d2r_dAidAj/r12**2
-                      Hess(Index) = Hess(index)+g*PreFct*ps*(d2r_dAidAj*df_dr+dr_dAi*dr_dAj*d2f_dr2)
+                      Hess(Indx) = Hess(Indx)+g*PreFct*ps*(d2r_dAidAj*df_dr+dr_dAi*dr_dAj*d2f_dr2)
                     end if
                   end do ! jCar
                 end do   ! iCar
@@ -294,7 +306,7 @@ if (PCM) then
     ZA = PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
     NoLoop = ZA == Zero
     if (NoLoop) cycle
-    ZA = ZA/dble(nIrrep)
+    ZA = ZA/real(nIrrep,kind=wp)
     A(1:3) = PCMTess(1:3,iTs)
 
     ! Tile only stabilized by the unit operator
@@ -317,7 +329,7 @@ if (PCM) then
 
         call DCR(LmbdR,iStb,nStb,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
 
-        PreFct = ZAZB*dble(nIrrep)/dble(LmbdR)
+        PreFct = ZAZB*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           nOp(1) = NrOpr(0)
@@ -337,11 +349,11 @@ if (PCM) then
             Cnt1M1 = Zero
             Cnt2M1 = Zero
             do iM1xp=1,dbsc(jCnttp)%nM1
-              Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+              Gmma = dbsc(jCnttp)%M1xp(iM1xp)
               CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-              Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
-              Cnt2M1 = Cnt2M1+Gamma**2*(CffM1*exp(-Gamma*r12**2))
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gmma*r12**2))
+              Cnt1M1 = Cnt1M1+Gmma*(CffM1*exp(-Gmma*r12**2))
+              Cnt2M1 = Cnt2M1+Gmma**2*(CffM1*exp(-Gmma*r12**2))
             end do
             fab = fab+Cnt0M1
             dfab = dfab-Two*r12*Cnt1M1
@@ -351,11 +363,11 @@ if (PCM) then
             Cnt1M2 = Zero
             Cnt2M2 = Zero
             do iM2xp=1,dbsc(jCnttp)%nM2
-              Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+              Gmma = dbsc(jCnttp)%M2xp(iM2xp)
               CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-              Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
-              Cnt2M2 = Cnt2M2+Gamma**2*(CffM2*exp(-Gamma*r12**2))
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gmma*r12**2))
+              Cnt1M2 = Cnt1M2+Gmma*(CffM2*exp(-Gmma*r12**2))
+              Cnt2M2 = Cnt2M2+Gmma**2*(CffM2*exp(-Gmma*r12**2))
             end do
             fab = fab+r12*Cnt0M2
             dfab = dfab+Cnt0M2-Two*r12**2*Cnt1M2
@@ -419,18 +431,18 @@ if (PCM) then
               do jCar=1,jCar_Max
                 iCh1 = 2**(iCar-1)
                 iCh2 = 2**(jCar-1)
-                g = dble(iChTbl(iIrrep,nOp(icent)))*xPrmt(kOp(icent),iCh1)*dble(ii(icent))/dble(nIrrep)
-                g = g*dble(iChTbl(iIrrep,nOp(jcent)))*xPrmt(kOp(jcent),iCh2)*dble(ii(jcent))/dble(nIrrep)
+                g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*xPrmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/real(nIrrep,kind=wp)
+                g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*xPrmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/real(nIrrep,kind=wp)
                 g = g*(-One)**(icent+jcent)
 
-                Index = indHss(iCent,iCar,jCent,jCar,iIrrep)
-                if (Index /= 0) then
+                Indx = indHss(iCent,iCar,jCent,jCar,iIrrep)
+                if (Indx /= 0) then
                   dr_dAi = (A(iCar)-RB(iCar))/r12
                   dr_dAj = (A(jCar)-RB(jCar))/r12
                   d2r_dAidAj = -(A(iCar)-RB(iCar))*dr_dAj
                   if (iCar == jCar) d2r_dAidAj = d2r_dAidAj+r12
                   d2r_dAidAj = d2r_dAidAj/r12**2
-                  Hess(Index) = Hess(Index)+g*PreFct*(d2r_dAidAj*df_dr+dr_dAi*dr_dAj*d2f_dr2)
+                  Hess(Indx) = Hess(Indx)+g*PreFct*(d2r_dAidAj*df_dr+dr_dAi*dr_dAj*d2f_dr2)
                 end if
               end do ! jCar
             end do   ! iCar
@@ -483,7 +495,7 @@ if (PCM) then
 
           call DCR(LmbdR,iStb,nStb,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,iDCRR,nDCRR)
 
-          PreFct_AB = dble(nIrrep)/dble(LmbdR)
+          PreFct_AB = real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
           do iR=0,nDCRR-1
             call OA(iDCRR(iR),B,RB)
             nOp(1) = NrOpr(iDCRR(iR))
@@ -495,10 +507,10 @@ if (PCM) then
               Cnt0M1 = Zero
               Cnt1M1 = Zero
               do iM1xp=1,dbsc(iCnttp)%nM1
-                Gamma = dbsc(iCnttp)%M1xp(iM1xp)
+                Gmma = dbsc(iCnttp)%M1xp(iM1xp)
                 CffM1 = dbsc(iCnttp)%M1cf(iM1xp)
-                Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12_AB**2))
-                Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12_AB**2))
+                Cnt0M1 = Cnt0M1+(CffM1*exp(-Gmma*r12_AB**2))
+                Cnt1M1 = Cnt1M1+Gmma*(CffM1*exp(-Gmma*r12_AB**2))
               end do
               fab = fab+Cnt0M1
               dfab = dfab-Two*r12_AB*Cnt1M1
@@ -506,10 +518,10 @@ if (PCM) then
               Cnt0M2 = Zero
               Cnt1M2 = Zero
               do iM2xp=1,dbsc(iCnttp)%nM2
-                Gamma = dbsc(iCnttp)%M2xp(iM2xp)
+                Gmma = dbsc(iCnttp)%M2xp(iM2xp)
                 CffM2 = dbsc(iCnttp)%M2cf(iM2xp)
-                Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12_AB**2))
-                Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12_AB**2))
+                Cnt0M2 = Cnt0M2+(CffM2*exp(-Gmma*r12_AB**2))
+                Cnt1M2 = Cnt1M2+Gmma*(CffM2*exp(-Gmma*r12_AB**2))
               end do
               fab = fab+r12_AB*Cnt0M2
               dfab = dfab+Cnt0M2-Two*r12_AB**2*Cnt1M2
@@ -531,7 +543,7 @@ if (PCM) then
 
                 call DCR(LmbdS,iStb,nStb,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRS,nDCRS)
 
-                PreFct_CD = dble(nIrrep)/dble(LmbdS)
+                PreFct_CD = real(nIrrep,kind=wp)/real(LmbdS,kind=wp)
                 do iS=0,nDCRS-1
                   call OA(iDCRS(iS),D,SD)
                   nOp(2) = NrOpr(iDCRS(iS))
@@ -544,10 +556,10 @@ if (PCM) then
                     Cnt0M1 = Zero
                     Cnt1M1 = Zero
                     do iM1xp=1,dbsc(jCnttp)%nM1
-                      Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                      Gmma = dbsc(jCnttp)%M1xp(iM1xp)
                       CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-                      Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12_CD**2))
-                      Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12_CD**2))
+                      Cnt0M1 = Cnt0M1+(CffM1*exp(-Gmma*r12_CD**2))
+                      Cnt1M1 = Cnt1M1+Gmma*(CffM1*exp(-Gmma*r12_CD**2))
                     end do
                     fcd = fcd+Cnt0M1
                     dfcd = dfcd-Two*r12_CD*Cnt1M1
@@ -555,10 +567,10 @@ if (PCM) then
                     Cnt0M2 = Zero
                     Cnt1M2 = Zero
                     do iM2xp=1,dbsc(jCnttp)%nM2
-                      Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                      Gmma = dbsc(jCnttp)%M2xp(iM2xp)
                       CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-                      Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12_CD**2))
-                      Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12_CD**2))
+                      Cnt0M2 = Cnt0M2+(CffM2*exp(-Gmma*r12_CD**2))
+                      Cnt1M2 = Cnt1M2+Gmma*(CffM2*exp(-Gmma*r12_CD**2))
                     end do
                     fcd = fcd+r12_CD*Cnt0M2
                     dfcd = dfcd+Cnt0M2-Two*r12_CD**2*Cnt1M2
@@ -638,8 +650,10 @@ if (PCM) then
                           do jCar=1,jCar_Max
                             iCh1 = 2**(iCar-1)
                             iCh2 = 2**(jCar-1)
-                            g = dble(iChTbl(iIrrep,nOp(icent)))*xPrmt(kOp(icent),iCh1)*dble(ii(icent))/dble(nIrrep)
-                            g = g*dble(iChTbl(iIrrep,nOp(jcent)))*xPrmt(kOp(jcent),iCh2)*dble(ii(jcent))/dble(nIrrep)
+                            g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*xPrmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/ &
+                                real(nIrrep,kind=wp)
+                            g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*xPrmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/ &
+                                real(nIrrep,kind=wp)
                             g = g*(-One)**(icent+jcent)
 
                             if ((iCent /= jCent) .and. (iCar == jCar) .and. &
@@ -649,11 +663,11 @@ if (PCM) then
                               ps = One
                             end if
 
-                            Index = IndHss(iCent,iCar,jCent,jCar,iIrrep)
-                            if (Index /= 0) then
+                            Indx = IndHss(iCent,iCar,jCent,jCar,iIrrep)
+                            if (Indx /= 0) then
                               dr_dB = -(A(iCar)-RB(iCar))/r12_AB
                               dr_dD = -(C(jCar)-SD(jCar))/r12_CD
-                              Hess(Index) = Hess(Index)+Fact*g*ps*ZA*ZA*Q_ij*PreFct_AB*dr_dB*df_dr_AB*PreFct_CD*dr_dD*df_dr_CD
+                              Hess(Indx) = Hess(Indx)+Fact*g*ps*ZA*ZA*Q_ij*PreFct_AB*dr_dB*df_dr_AB*PreFct_CD*dr_dD*df_dr_CD
                             end if
                           end do ! jCar
                         end do   ! iCar

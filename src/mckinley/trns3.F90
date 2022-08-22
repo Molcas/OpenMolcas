@@ -29,13 +29,15 @@ subroutine Trns3(Win,Wout,na,nb,nvec,nc,Temp)
 !             June '90                                                 *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-!#include "print.fh"
-real*8 Win(na,nb), Wout(nb,na), Temp(na,nb)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: na, nb, nvec, nc
+real(kind=wp) :: Win(na,nb), Wout(nb,na), Temp(na,nb)
 
 !iRout = 71
 !iPrint = nPrint(iRout)
-!write(6,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
+!write(u6,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
 !call RecPrt(' Win',' ',Win,na,nb)
 if (nc == 1) then
   call dcopy_(nvec,Win,1,Wout,1)

@@ -11,11 +11,16 @@
 
 subroutine Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,coorm,nirrep,indgrd,indhss)
 
-implicit integer(a-z)
-logical jfhss(4,3,4,3), jfgrd(3,4), tr(4), ifg(4), eq, alike
-integer jndgrd(3,4,0:nirrep-1), jndhss(4,3,4,3,0:nirrep-1)
-integer indgrd(3,4,0:nirrep-1), indhss(4,3,4,3,0:nirrep-1)
-real*8 Coorm(3,4)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nirrep, jndgrd(3,4,0:nirrep-1), jndhss(4,3,4,3,0:nirrep-1), indgrd(3,4,0:nirrep-1), indhss(4,3,4,3,0:nirrep-1)
+logical(kind=iwp) :: ifg(4), jfgrd(3,4), jfhss(4,3,4,3), tr(4)
+real(kind=wp) :: Coorm(3,4)
+integer(kind=iwp) :: iCent, iiC, iiCar, iiCent, iMax, iMin, iStop, jCar, jCent, jjC, jjCar, jjCent, kCar, kCent, kkCar, lCar, &
+                     lCent, llCar, mIrrep
+logical(kind=iwp) :: alike
+logical(kind=iwp), external :: EQ
 
 Alike = .false.
 if (IfG(1) .and. IfG(2) .and. IfG(3) .and. IfG(4)) then

@@ -74,24 +74,26 @@ subroutine PSOAO2(nSO,MemPrm,MemM,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,k
 !|      |               |       |integrals      |               |          |
 !---------------------------------------------------------------------------
 
-!use Gateway_global, only: force_part_c, force_part_p
-use Gateway_global, only: force_part_p
+use Gateway_global, only: force_part_p !, force_part_c
 use SOAO_Info, only: iAOtSO
-use pso_stuff
+use pso_stuff, only: lPSO
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: nSO, MemPrm, MemM, iAnga(4), iCmpa(4), iAO(4), iFnc(4), iBas, iBsInc, jBas, jBsInc, kBas, kBsInc, lBas, &
+                     lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, lPrim, lPrInc, nAco, Mem1, Mem2, Mem3, Mem4, MemX, &
+                     MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer, iMemB
 #include "pstat.fh"
-#include "disp.fh"
 #include "disp2.fh"
-#include "buffer.fh"
-integer iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4), iAO(4), iFnc(4)
-logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-integer iMemB
+integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, mabcd, Mem0, MemAux, &
+                     MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, nijkl, nMax, nMaxC, &
+                     nPam(4,0:7), nTmp1, nTmp2
+logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
+integer(kind=iwp), external :: MemTra
 ! Statement function to compute canonical index
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 !iRout = 10
@@ -160,8 +162,8 @@ do
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 MaxReq,Fail)
     if (Fail) then
-      write(6,*) 'PSOAO2: memory partitioning failed!'
-      write(6,*) '        Restart with more memory!'
+      write(u6,*) 'PSOAO2: memory partitioning failed!'
+      write(u6,*) '        Restart with more memory!'
       call Abend()
     end if
     cycle
@@ -229,8 +231,8 @@ do
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 MaxReq,Fail)
     if (Fail) then
-      write(6,*) 'PSOAO2: memory partitioning failed!'
-      write(6,*) '        Restart with more memory!'
+      write(u6,*) 'PSOAO2: memory partitioning failed!'
+      write(u6,*) '        Restart with more memory!'
       call Abend()
     end if
     cycle
@@ -260,7 +262,7 @@ do
     MemFck = MemFck+2*nMaxC
     nMax = max(iCmp*iBsInc,jCmp*jBsInc,kCmp*kBsInc,lcmp*lBsInc)
     nMax = max(nMax,nMaxC)
-    memMO = 3*nMax**4+10*nabcd*nijkl
+    MemMO = 3*nMax**4+10*nabcd*nijkl
   else
     MemMo = 0
   end if
@@ -296,8 +298,8 @@ do
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 MaxReq,Fail)
     if (Fail) then
-      write(6,*) 'PSOAO2: memory partitioning failed!'
-      write(6,*) '        Restart with more memory!'
+      write(u6,*) 'PSOAO2: memory partitioning failed!'
+      write(u6,*) '        Restart with more memory!'
       call Abend()
     end if
     cycle
@@ -312,8 +314,8 @@ do
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 MaxReq,Fail)
     if (Fail) then
-      write(6,*) 'PSOAO2: memory partitioning failed!'
-      write(6,*) '        Restart with more memory!'
+      write(u6,*) 'PSOAO2: memory partitioning failed!'
+      write(u6,*) '        Restart with more memory!'
       call Abend()
     end if
     cycle
@@ -347,8 +349,8 @@ do
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
               MaxReq,Fail)
   if (Fail) then
-    write(6,*) 'PSOAO2: memory partitioning failed!'
-    write(6,*) '        Restart with more memory!'
+    write(u6,*) 'PSOAO2: memory partitioning failed!'
+    write(u6,*) '        Restart with more memory!'
     call Abend()
   end if
 end do

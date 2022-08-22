@@ -25,21 +25,25 @@ subroutine SroGrd_mck( &
 !             Physics, University of Stockholm, Sweden, October '93.   *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Real_Spherical
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
+implicit none
 #include "grd_mck_interface.fh"
-! Local variables
-real*8 C(3), TC(3)
-integer iDCRT(0:7), iuvwx(4), mOp(4), index(3,4), JndGrd(3,4,0:7)
-logical JfGrad(3,4), EQ, DiffCnt, tr(4), ifg(4), ifhess_dum(3,4,3,4)
+integer(kind=iwp) :: iAng, iCnt, iDCRT(0:7), iIrrep, Indx(3,4), ip, ipFA1, ipFA2, ipFB1, ipFB2, ipFin, ipTmp, iShll, iuvwx(4), &
+                     JndGrd(3,4,0:7), kCnt, kCnttp, kdc, lDCRT, LmbdT, mOp(4), mvec, nDCRT, nExpi, nt
+real(kind=wp) :: C(3), Fact, TC(3)
+logical(kind=iwp) :: DiffCnt, ifg(4), ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
@@ -58,9 +62,9 @@ call RecPrt(' In SROGrd: RB',' ',RB,1,3)
 call RecPrt(' In SROGrd: P',' ',P,nZeta,3)
 call RecPrt(' In SROGrd: Alpha',' ',Alpha,nAlpha,1)
 call RecPrt(' In SROGrd: Beta',' ',Beta,nBeta,1)
-write(6,*) ' In SROGrd: la,lb=',' ',la,lb
-write(6,*) ' In SROGrd: Diffs=',' ',IfGrad(iDCar,1),IfGrad(iDCar,2)
-write(6,*) ' In SROGrd: Center=',' ',iDCNT
+write(u6,*) ' In SROGrd: la,lb=',' ',la,lb
+write(u6,*) ' In SROGrd: Diffs=',' ',IfGrad(iDCar,1),IfGrad(iDCar,2)
+write(u6,*) ' In SROGrd: Center=',' ',iDCNT
 #endif
 
 kdc = 0
@@ -76,7 +80,7 @@ do kCnttp=1,nCnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
 
@@ -123,9 +127,9 @@ do kCnttp=1,nCnttp
         nExpi = Shells(iShll)%nExp
 #       ifdef _DEBUGPRINT_
         nBasisi = Shells(iShll)%nBasis
-        write(6,*) 'nExpi=',nExpi
-        write(6,*) 'nBasis(iShll)=',nBasisi
-        write(6,*) ' iAng=',iAng
+        write(u6,*) 'nExpi=',nExpi
+        write(u6,*) 'nBasis(iShll)=',nBasisi
+        write(u6,*) ' iAng=',iAng
         call RecPrt('TC',' ',TC,1,3)
 #       endif
 
@@ -170,10 +174,10 @@ do kCnttp=1,nCnttp
         call RToSph(Array(ipFB1),nBeta,ishll,lb,iAng,2)
 
         call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),Fact,nAlpha,nBeta,Shells(iShll)%Akl,nExpi,la,lb,iang,jfgrad, &
-                      Array(ipTmp),.true.,index,mvec,idcar)
+                      Array(ipTmp),.true.,Indx,mvec,idcar)
 
         nt = nAlpha*nBeta*nElem(lb)*nElem(la)
-        call SmAdNa(Array(ipFin),nt,final,mop,loper,JndGrd,iuvwx,JfGrad,index,idcar,1.0d0,iFG,tr)
+        call SmAdNa(Array(ipFin),nt,rFinal,mop,loper,JndGrd,iuvwx,JfGrad,Indx,idcar,One,iFG,tr)
 
       end do
     end do

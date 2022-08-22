@@ -11,11 +11,15 @@
 
 subroutine mult_sro(A,nA,C,nC,B,nB,Fact,Res,Tmp)
 
-implicit real*8(a-h,o-z)
-real*8 A(*), B(*), C(*), Res(*), Tmp(*)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-call DGEMM_('N','N',nA,nC,nC,1.0d0,A,nA,C,nC,0.0d0,Tmp,nA)
-call DGEMM_('N','N',nA,nB,nC,Fact,Tmp,nA,B,nC,1.0d0,Res,nA)
+implicit none
+integer(kind=iwp) :: nA, nC, nB
+real(kind=wp) :: A(*), C(*), B(*), Fact, Res(*), Tmp(*)
+
+call DGEMM_('N','N',nA,nC,nC,One,A,nA,C,nC,Zero,Tmp,nA)
+call DGEMM_('N','N',nA,nB,nC,Fact,Tmp,nA,B,nC,One,Res,nA)
 
 return
 

@@ -23,20 +23,21 @@ subroutine MkFck(iAnga,iCmpa,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iA
 !     Author:  Anders Bernhardsson 1995                                *
 !***********************************************************************
 
-use Real_Spherical
 use Symmetry_Info, only: nIrrep
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "disp.fh"
-#include "disp2.fh"
+use Definitions, only: wp, iwp
 
-real*8 Dij(mDij,nDij), Dkl(mDkl,nDkl), Dik(mDik,nDik), Dil(mDil,nDil), Djk(mDjk,nDjk), Djl(mDjl,nDjl), FckTmp(nFT), AOInt(nAO), &
-       TwoHam(nFock), Scrtch1(nS1), Scrtch2(nS2)
-integer iCmp(4), nOp(4), iAnga(4), iShll(4), iShell(4), jOp(6), iCmpa(4), iAO(4), iAOst(4), indgrd(3,4,0:7), ipdisp(*)
-logical Shijij, pert(0:7)
+implicit none
+integer(kind=iwp) :: iAnga(4), iCmpa(4), iCmp(4), iShll(4), iShell(4), iBasi, jBasj, kBask, lBasl, iAO(4), iAOst(4), nOp(4), &
+                     jOp(6), mDij, nDij, ij1, ij2, ij3, ij4, mDkl, nDkl, kl1, kl2, kl3, kl4, mDik, nDik, ik1, ik2, ik3, ik4, mDil, &
+                     nDil, il1, il2, il3, il4, mDjk, nDjk, jk1, jk2, jk3, jk4, mDjl, nDjl, jl1, jl2, jl3, jl4, nAO, nFock, nS1, &
+                     nS2, iDCRR, iDCRS, iDCRT, nFT, iuvwx, iCent, iCar, indgrd(3,4,0:7), ipdisp(*)
+logical(kind=iwp) :: Shijij, pert(0:7)
+real(kind=wp) :: Dij(mDij,nDij), Dkl(mDkl,nDkl), Dik(mDik,nDik), Dil(mDil,nDil), Djk(mDjk,nDjk), Djl(mDjl,nDjl), AOInt(nAO), &
+                 TwoHam(nFock), Scrtch1(nS1), Scrtch2(nS2), FckTmp(nFT)
+integer(kind=iwp) :: nijkl
+real(kind=wp) :: Fact
 
-! Just the make a nice interface
+! Just to make a nice interface
 
 !iRout = 12
 !iPrint = nPrint(iRout)
@@ -44,7 +45,7 @@ nijkl = iBasi*jBasj*kBask*lBasl
 
 ! Accumulate contributions directly to the symmetry adapted Fock matrix.
 
-Fact = dble(iuvwx)/dble(nIrrep)
+Fact = real(iuvwx,kind=wp)/real(nIrrep,kind=wp)
 
 call FckAcc_mck(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,nOp,nijkl,AOInt,TwoHam,nFock,Scrtch2,nS2,iAO,iAOst, &
                 iBasi,jBasj,kBask,lBasl,Dij(1,jOp(1)),ij1,ij2,ij3,ij4,Dkl(1,jOp(2)),kl1,kl2,kl3,kl4,Dik(1,jOp(3)),ik1,ik2,ik3,ik4, &

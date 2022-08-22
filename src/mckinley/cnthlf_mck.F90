@@ -23,12 +23,15 @@ subroutine Cnthlf_mck(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,nZeta,lZeta,nVec,F
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-!#include "print.fh"
-real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(lZeta,nVec), A2(nPrm2,IncVec*nCntr1), A3(nVec,nCntr1,nCntr2)
-integer Indij(nZeta)
-logical First, Seg1, Seg2
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nCntr1, nPrm1, nCntr2, nPrm2, nZeta, lZeta, nVec, IncVec, Indij(nZeta)
+real(kind=wp) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(lZeta,nVec), A2(nPrm2,IncVec*nCntr1), A3(nVec,nCntr1,nCntr2)
+logical(kind=iwp) :: First
+integer(kind=iwp) :: iCntr1, iCntr2, iiVec, ijVec, iPrm1, iPrm2, iVec, iZeta, jZeta, mVec
+logical(kind=iwp) :: Seg1, Seg2
 
 ! Check if the basis set is segmented
 

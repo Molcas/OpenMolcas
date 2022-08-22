@@ -28,15 +28,20 @@ subroutine SchInt_mck(CoorM,iAnga,iCmp,nAlpha,nBeta,nMemab,Zeta,ZInv,rKapab,P,nZ
 !              for estimates of the gradient.                          *
 !***********************************************************************
 
-use Real_Spherical
-implicit real*8(A-H,O-Z)
-!external TERISq, ModU2, Cff2Dq
-external TERIS, ModU2, Cff2DS, rys2d
-#include "real.fh"
-real*8 CoorM(3,4), CoorAC(3,2), Zeta(nZeta), ZInv(nZeta), rKapab(nZeta), P(nZeta,3), Q(3), Work2(nWork2), Work3(nWork3)
-integer iAnga(4), iCmp(4)
-logical EQ, NoSpecial
+use Real_Spherical, only: ipSph, RSph
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iAnga(4), iCmp(4), nAlpha, nBeta, nMemab, nZeta, nWork2, nWork3
+real(kind=wp) :: CoorM(3,4), Zeta(nZeta), ZInv(nZeta), rKapab(nZeta), P(nZeta,3), Work2(nWork2), Work3(nWork3)
+integer(kind=iwp) :: ijklcd, ipIn, la, lb, mabMax, mabMin, mcdMax, mcdMin, mZeta, nijkla, nT
+real(kind=wp) :: CoorAC(3,2), Q(3)
+logical(kind=iwp) :: NoSpecial
+logical(kind=iwp), external :: EQ
+external :: TERIS, ModU2, Cff2DS, rys2d
 ! Statement function to compute canonical index
+integer(kind=iwp) :: nabSz, ixyz, nElem, i
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 nElem(i) = (i+1)*(i+2)/2
 

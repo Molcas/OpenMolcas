@@ -27,13 +27,15 @@ subroutine KnEGrd_mck( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
 #include "grd_mck_interface.fh"
-! Local variables
-logical ABeq(3)
+integer(kind=iwp) :: iAlpha, iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipRnxyz, ipRxyz, ipSc, ipTxyz, nip
+logical(kind=iwp) :: ABeq(3)
 ! Statement function for Cartesian index
+integer(kind=iwp) :: nElem, li
 nElem(li) = (li+1)*(li+2)/2
 
 ABeq(1) = A(1) == RB(1)
@@ -58,8 +60,8 @@ nip = nip+nZeta
 ipSc = nip
 nip = nip+nElem(la)*nElem(lb)*nZeta
 if (nip-1 > nArr) then
-  write(6,*) 'KneGrd_Mck: nip-1 > nArr'
-  write(6,*) 'nip,nArr=',nip,nArr
+  write(u6,*) 'KneGrd_Mck: nip-1 > nArr'
+  write(u6,*) 'nip,nArr=',nip,nArr
   call Abend()
 end if
 
@@ -68,7 +70,7 @@ call RecPrt(' In KnEGrd: A',' ',A,1,3)
 call RecPrt(' In KnEGrd: B',' ',B,1,3)
 call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
 call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
-write(6,*) ' In KnEGrd: la,lb=',la,lb
+write(u6,*) ' In KnEGrd: la,lb=',la,lb
 #endif
 
 ! Compute the cartesian values of the basis functions angular part
@@ -110,11 +112,11 @@ call Kntc(Array(ipTxyz),Array(ipRnxyz),la+1,lb+1,Array(ipA),Array(ipB),nZeta)
 
 call CmbnT1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Array(ipSc),Array(ipTxyz),Array(ipA),Array(ipB),IfGrad)
 
-final(:,:,:,:) = Zero
+rFinal(:,:,:,:) = Zero
 
-! Symmetry adopt the gradient operator
+! Symmetry adapt the gradient operator
 
-call SymAdO_mck(Array(ipSc),nZeta*nElem(la)*nElem(lb),final,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
+call SymAdO_mck(Array(ipSc),nZeta*nElem(la)*nElem(lb),rFinal,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
 
 return
 

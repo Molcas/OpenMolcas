@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine PrMx2(Label,iComp,lOper,result,Mem)
+subroutine PrMx2(Label,iComp,lOper,Rslt,Mem)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, Sweden, January '91                  *
@@ -22,36 +22,38 @@ subroutine PrMx2(Label,iComp,lOper,result,Mem)
 
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep, iOper
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Local arrays
-real*8 result(Mem)
-character Label*(*), Line*80
-integer lOper
-logical type
+implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: iComp, lOper, Mem
+real(kind=wp) :: Rslt(Mem)
+integer(kind=iwp) :: iIrrep, ip1, jIrrep, lop
+character(len=80) :: Line
+logical(kind=iwp) :: ltype
 
 ip1 = 1
-type = .true.
+ltype = .true.
 do iIrrep=0,nIrrep-1
   if (nBas(iIrrep) <= 0) cycle
   do jIrrep=0,iIrrep
     lop = ieor(iOper(iIrrep),iOper(jIrrep))
     if (lop /= loper) cycle
     if (nBas(jIrrep) <= 0) cycle
-    if (type) then
-      type = .false.
-      write(6,*)
-      write(6,*)
-      write(6,'(A,A,A,I2)') ' SO Integral gradients of the ',Label,' Component ',iComp
+    if (ltype) then
+      ltype = .false.
+      write(u6,*)
+      write(u6,*)
+      write(u6,'(A,A,A,I2)') ' SO Integral gradients of the ',Label,' Component ',iComp
     end if
     Line = ''
     if (iIrrep == jIrrep) then
       write(Line,'(1X,A,I1)') ' Diagonal Symmetry Block ',iIrrep+1
-      !call TriPrt(Line,' ',Result(ip1),nBas(iIrrep))
+      !call TriPrt(Line,' ',Rslt(ip1),nBas(iIrrep))
       ip1 = ip1+nBas(iIrrep)*(nBas(iIrrep)+1)/2
     else
       write(Line,'(1X,A,I1,A,I1)') ' Off-diagonal Symmetry Block ',iIrrep+1,',',jIrrep+1
-      call RecPrt(Line,' ',result(ip1),nBas(iIrrep),nBas(jIrrep))
+      call RecPrt(Line,' ',Rslt(ip1),nBas(iIrrep),nBas(jIrrep))
       ip1 = ip1+nBas(iIrrep)*nBas(jIrrep)
     end if
   end do

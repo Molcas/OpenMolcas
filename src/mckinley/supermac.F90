@@ -11,14 +11,18 @@
 
 subroutine SuperMac()
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-integer, allocatable :: Scr1(:)
-character(LEN=8) Method
-character(LEN=16) StdIn
-logical Do_Cholesky, Do_ESPF, Numerical, Found
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
+
+implicit none
 #include "warnings.h"
 #include "temperatures.fh"
+integer(kind=iwp) :: i, iDNG, iErr, irlxroot, iSigma, LuInput, nData, nXF
+character(len=16) :: StdIn
+character(len=8) :: Method
+logical(kind=iwp) :: Do_Cholesky, Do_ESPF, Numerical, Found
+integer(kind=iwp), allocatable :: Scr1(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 call Get_cArray('Relax Method',Method,8)
 
@@ -69,8 +73,7 @@ Scr1(3) = -99
 Scr1(4) = 0
 call Put_iArray('Slapaf Info 1',Scr1,7)
 call mma_deallocate(Scr1)
-LuInput = 11
-LuInput = IsFreeUnit(LuInput)
+LuInput = IsFreeUnit(11)
 call StdIn_Name(StdIn)
 call Molcas_open(LuInput,StdIn)
 !                                                                      *

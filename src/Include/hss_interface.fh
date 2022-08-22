@@ -29,7 +29,7 @@
 ! lb    : total angular momentum of ket gaussian                       *
 ! A     : center of bra gaussian                                       *
 ! B     : center of ket gaussian                                       *
-! nHer: order of Rys- or Hermite-Gauss polynomial                      *
+! nHer  : order of Rys- or Hermite-Gauss polynomial                    *
 ! Array : Auxiliary memory as requested by ECPMem                      *
 ! nArr  : length of Array                                              *
 ! Ccoor : coordinates of the operator, zero for symmetric oper.        *
@@ -37,12 +37,9 @@
 !***********************************************************************
 
 #ifdef _CALLING_
-     &         Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,              &
-     &         Final,nZeta,la,lb,A,RB,nHer,                             &
-     &         Array,nArr,Ccoor,nOrdOp,Hess,nHess,                      &
-     &         IfHss,IndHss,IfGrd,IndGrd,DAO,mdc,ndc,nOp,lOper,nComp,   &
-     &         iStabM,nStabM,nSym                                       &
-#elif defined (_USE_WP_)
+Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Final,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,Hess,nHess,IfHss,IndHss,IfGrd, &
+IndGrd,DAO,mdc,ndc,nOp,lOper,nComp,iStabM,nStabM,nSym &
+#else
 ! TODO: unknown intents, probably all "in", except Final, Hess
 integer(kind=iwp), intent(inout) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nHess, nSym, &
                                     IndHss(0:1,0:2,0:1,0:2,0:nSym-1), IndGrd(0:2,0:1,0:nSym-1), mdc, ndc, nOp(2), nComp, nStabM, &
@@ -51,27 +48,5 @@ real(kind=wp), intent(inout) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZ
                                 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nArr), Ccoor(3), &
                                 Hess(nHess), DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
 logical(kind=iwp), intent(inout) :: IfHss(0:1,0:2,0:1,0:2),IfGrd(0:2,0:1)
-#else
-      Real*8 Alpha(nAlpha), Beta(nBeta)
-      Integer nAlpha, nBeta
-      Real*8 Zeta(nZeta), ZInv(nZeta)
-      Real*8 rKappa(nZeta), P(nZeta,3)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
-      Integer la, lb, nHer
-      Real*8 A(3), RB(3)
-      Real*8 Array(nArr)
-      Integer nArr
-      Real*8 Ccoor(3)
-      Real*8 Hess(nHess)
-      Integer nHess
-      Logical IfHss(0:1,0:2,0:1,0:2)
-      Integer IndHss(0:1,0:2,0:1,0:2,0:nSym-1)
-      Integer nSym
-      Logical Ifgrd(0:2,0:1)
-      Integer indgrd(0:2,0:1,0:nSym-1)
-      Real*8 DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer mdc, ndc, nOp(2), lOper(nComp)
-      Integer nComp
-      Integer iStabM(0:nStabM-1)
 #endif
 #undef _CALLING_

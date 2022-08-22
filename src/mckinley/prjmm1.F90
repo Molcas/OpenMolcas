@@ -26,8 +26,13 @@ subroutine PrjMm1(nHer,MmPrjG,la,lb,lr)
 !***********************************************************************
 
 use Basis_Info, only: dbsc, nCnttp, Shells
+use Definitions, only: iwp
 
+implicit none
+integer(kind=iwp) :: nHer, MmPrjG, la, lb, lr
+integer(kind=iwp) :: iacore, iAng, iCnttp, icoreb, icores, ip, iShll, ld, nac, nBasisi, ncb, nExpi, nOrder
 ! Statement function
+integer(kind=iwp) :: nElem, i
 nElem(i) = (i+1)*(i+2)/2
 
 nOrder = 0
@@ -66,7 +71,7 @@ do iCnttp=1,nCnttp
   end do
 end do
 nHer = nOrder
-!write(6,*) 'mem',MmPrjG
+!write(u6,*) 'mem',MmPrjG
 
 return
 

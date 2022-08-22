@@ -11,19 +11,20 @@
 
 subroutine HssPrt(Hess,nHess)
 
-use Symmetry_Info, only: nIrrep, lIrrep
+use Symmetry_Info, only: lIrrep, nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nHess
+real(kind=wp) :: Hess(nHess)
 #include "Molcas.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
-#include "disp2.fh"
-#include "real.fh"
-integer nDisp(0:7)
-character Label*39
-real*8 Hess(nHess)
-real*8, allocatable :: Temp(:)
+integer(kind=iwp) :: i, ii, iIrrep, j, jj, nDisp(0:7)
+character(len=39) :: Label
+real(kind=wp), allocatable :: Temp(:)
 ! Statement function
+integer(kind=iwp) :: Ind, idisp, jdisp
 Ind(idisp,jdisp) = idisp*(idisp-1)/2+jdisp
 
 !                                                                      *

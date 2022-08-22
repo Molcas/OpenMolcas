@@ -27,27 +27,29 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !              Modified 1995 for 2nd derivatives by AB                 *
 !***********************************************************************
 
-use k2_setup
-use k2_arrays
-use iSD_data
-use Basis_Info
-use Symmetry_Info, only: nIrrep, iOper
+use k2_setup, only: Data_k2, Indk2, nk2
+use k2_arrays, only: DoGrad_, DoHess_
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, Shells
+use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
+implicit none
+integer(kind=iwp) :: mdede
+logical(kind=iwp) :: New_Fock
 #include "ndarray.fh"
-#include "real.fh"
-#include "disp.fh"
-#include "disp2.fh"
-#include "stdalloc.fh"
-#include "nsd.fh"
-#include "setup.fh"
-real*8 Coor(3,2)
-integer iDCRR(0:7), iShllV(2), iAngV(4), iCmpV(4)
-logical New_fock
-real*8, allocatable :: Data_k2_local(:), Con(:), Wrk(:)
+integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
+                     iShllV(2), ipM001, ipM002, ipM003, ipM004, ipM00d, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, &
+                     jAO, jBas, jBasj, jBsInc, jCmp, jCnt, jCnttp, jpk2, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, &
+                     kPrimk, kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, Maxk2, MaxMem, mdci, mdcj, &
+                     MemPrm, MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, nZeta
+real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
+real(kind=wp), allocatable :: Con(:), Data_k2_local(:), Wrk(:)
+integer(kind=iwp), external :: MemSO1
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
@@ -165,9 +167,9 @@ do iS=1,nSkal
     call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iAngV,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc, &
                   jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipM001,ipM002,ipM003,ipM004,ipM00d,M001,M002,M003,M004,M00d)
     if ((iBasi /= iBsInc) .or. (jBasj /= jBsInc)) then
-      write(6,*) 'Drvk2: (iBasi /= iBsInc) .or. (jBasj /= jBsInc)'
-      write(6,*) 'iBasi,iBsInc=',iBasi,iBsInc
-      write(6,*) 'jBasj,jBsInc=',jBasj,jBsInc
+      write(u6,*) 'Drvk2: (iBasi /= iBsInc) .or. (jBasj /= jBsInc)'
+      write(u6,*) 'iBasi,iBsInc=',iBasi,iBsInc
+      write(u6,*) 'jBasj,jBsInc=',jBasj,jBsInc
       call Abend()
     end if
 
@@ -220,10 +222,10 @@ call mma_deallocate(Data_k2_local)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,'(20X,A)') ' *** The k2 entities have been precomputed ***'
-write(6,'(I7,A,I7,A)') mk2,' blocks of k2 data were computed and',nk2,' Word(*8) of memory is used for storage.'
-write(6,'(A)') ' The prescreening is based on the integral estimates.'
+write(u6,*)
+write(u6,'(20X,A)') ' *** The k2 entities have been precomputed ***'
+write(u6,'(I7,A,I7,A)') mk2,' blocks of k2 data were computed and',nk2,' Word(*8) of memory is used for storage.'
+write(u6,'(A)') ' The prescreening is based on the integral estimates.'
 #endif
 
 call CWTime(TCpu2,TWall2)

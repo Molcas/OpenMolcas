@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LToCore(F,nalpha,ishll,la,iAng,nvecac)
+subroutine LToCore(F,nAlpha,iShll,la,iAng,nvecac)
 !******************************************************************************
 !
 ! Transformation kernel to atomic orbials in normalized spherical harmonics
@@ -20,17 +20,21 @@ subroutine LToCore(F,nalpha,ishll,la,iAng,nvecac)
 ! @parameter ishll Shell number for ECP
 ! @parameter la angular momenta LS
 ! @parameter iAng angular momenta core
-! @parameter Number of derivatives
+! @parameter nVecAC Number of derivatives
 
-use Real_Spherical
-use Basis_Info
+use Real_Spherical, only: ipSph, RSph
+use Basis_Info, only: Shells
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 F(*)
-real*8, allocatable :: Tmp1(:), Tmp2(:)
+implicit none
+real(kind=wp) :: F(*)
+integer(kind=iwp) :: nAlpha, iShll, la, iAng, nVecAC
+integer(kind=iwp) :: iBk, n, nac, nBasisi, nExpi
+real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nac = nelem(la)*nelem(iang)

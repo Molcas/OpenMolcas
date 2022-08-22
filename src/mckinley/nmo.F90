@@ -9,21 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nMo(mIrr)
+function nMo(mIrr)
 
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
-implicit integer(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nMo
+integer(kind=iwp) :: mIrr
 #include "etwas.fh"
+integer(kind=iwp) :: iS, nA, n_Int, NMM
 
-nInt = 0
+n_Int = 0
 nA = 0
 do iS=0,nIrrep-1
   nA = nA+nAsh(is)
 end do
 NMM = nA*(nA+1)/2
-nInt = nMM*(nMM+1)/2
-nMo = nInt
+n_Int = nMM*(nMM+1)/2
+nMo = n_Int
 
 return
 ! Avoid unused argument warnings

@@ -26,29 +26,30 @@ subroutine M1Hss( &
 !             October 1991                                             *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+#include "hss_interface.fh"
 #include "Molcas.fh"
-#include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "hss_interface.fh"
-!Local variables
-integer iDCRT(0:7)
-real*8 C(3), TC(3)
-logical EQ, IfG(0:3), Tr(0:3)
-real*8 Coora(3,4), Coori(3,4), CoorAC(3,2)
-integer iAnga(4), JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), mOp(4), iuvwx(4)
-logical JfHss(0:3,0:2,0:3,0:2), JfGrd(0:2,0:3)
-logical, external :: TF
+integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDCRT(0:7), iIrrep, ipA, ipAOff, ipArr, ipB, ipBOff, &
+                     iStop, iuvwx(4), jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCar, kCent, kCnt, kCnttp, &
+                     kdc, lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nip, nnIrrep, nRys
+real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, TC(3)
+logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ, TF
 ! Statement functions
+integer(kind=iwp) :: nElem, ixyz, IX, i1, i2
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 IX(i1,i2) = i1*(i1-1)/2+i2
 
 !if (iPrint >= 99) then
-!  write(6,*) ' In M1Hss: nArr=',nArr
+!  write(u6,*) ' In M1Hss: nArr=',nArr
 !end if
 
 nRys = nHer
@@ -149,7 +150,7 @@ do kCnttp=1,nCnttp
         end do
       end do
 
-      Fact = -dbsc(kCnttp)%Charge*dble(nStabM)/dble(LmbdT)
+      Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
       !call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
       iuvwx(3) = dc(kdc+kCnt)%nStab
       iuvwx(4) = dc(kdc+kCnt)%nStab
@@ -231,7 +232,7 @@ do kCnttp=1,nCnttp
           do iCar=0,2
             jfGrd(iCar,iCent) = .false.
             do kCar=0,2
-              do KCent=0,3
+              do kCent=0,3
                 jfHss(iCent,iCar,kCent,kCar) = .false.
                 jfHss(kCent,kCar,iCent,iCar) = .false.
                 do iIrrep=0,nSym-1

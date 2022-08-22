@@ -34,14 +34,15 @@ subroutine OvrGrd_mck( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
 #include "grd_mck_interface.fh"
-! Local variables
-logical ABeq(3)
+integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, ipScrt, nip
+logical(kind=iwp) :: ABeq(3)
 ! Statement function for Cartesian index
-nElem(la) = (la+2)*(la+1)/2
+integer(kind=iwp) :: nElem, l
+nElem(l) = (l+2)*(l+1)/2
 
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
@@ -64,19 +65,19 @@ ipScrt = nip
 nip = nip+nElem(la)*nElem(lb)*nZeta*2
 
 if (nip-1 > nArr) then
-  write(6,*) 'OvrGrd_Mck: nip-1 > nArr'
-  write(6,*) 'nip,nArr=',nip,nArr
+  write(u6,*) 'OvrGrd_Mck: nip-1 > nArr'
+  write(u6,*) 'nip,nArr=',nip,nArr
   call Abend()
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' IfGrad=',IfGrad
-write(6,*) ' IndGrd=',IndGrd
+write(u6,*) ' IfGrad=',IfGrad
+write(u6,*) ' IndGrd=',IndGrd
 call RecPrt(' In OvrGrd: A',' ',A,1,3)
 call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
 call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
 call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
-write(6,*) ' In OvrGrd: la,lb=',la,lb
+write(u6,*) ' In OvrGrd: la,lb=',la,lb
 #endif
 
 ! Compute the cartesian values of the basis functions angular part
@@ -115,11 +116,11 @@ call CmbnS1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Array(ipScrt),Array(ipAlp
 call RecPrt(' Primitive Integrals',' ',Array(ipScrt),nZeta,nElem(la)*nElem(lb))
 #endif
 
-! Symmetry adopt the gradient operator
+! Symmetry adapt the gradient operator
 
-call SymAdO_mck(Array(ipScrt),nZeta*nElem(la)*nElem(lb),final,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idcar,trans)
+call SymAdO_mck(Array(ipScrt),nZeta*nElem(la)*nElem(lb),rFinal,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idcar,trans)
 #ifdef _DEBUGPRINT_
-call RecPrt(' Primitive Integrals SO',' ',final,nZeta,nElem(la)*nElem(lb)*nrOp)
+call RecPrt(' Primitive Integrals SO',' ',rFinal,nZeta,nElem(la)*nElem(lb)*nrOp)
 #endif
 
 return

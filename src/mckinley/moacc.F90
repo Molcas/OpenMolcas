@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine MOAcc(AOInt,nint,Temp1,Temp2,Temp3,nTemp,MOInt,nMO,ishell,Ci,nCi,Cj,nCj,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp,iBasa,iCmpa, &
+subroutine MOAcc(AOInt,n_int,Temp1,Temp2,Temp3,nTemp,MOInt,nMO,ishell,Ci,nCi,Cj,nCj,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp,iBasa,iCmpa, &
                  icar,icnt,indgrd,D,fact,iao,iaost,Buffer,Tempi,nij,nkl,nbasi,nbasj,icmp,jcmp)
 !***********************************************************************
 !                                                                      *
@@ -24,20 +24,27 @@ subroutine MOAcc(AOInt,nint,Temp1,Temp2,Temp3,nTemp,MOInt,nMO,ishell,Ci,nCi,Cj,n
 !             University of Lund, Sweden. Januar '96                   *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iChTbl, iOper
+use Symmetry_Info, only: iChTbl, iOper, nIrrep
 use Gateway_Info, only: CutInt
+use Constants, only: Zero
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: n_int, nTemp, nMO, ishell(4), nCI, nCj, nCk, nCl, moip(0:7), nACO, nOp(4), ibasa(4), icmpa(4), icar, icnt, &
+                     indgrd(3,4,0:7), iao(4), iAOST(4), nij, nkl, nbasi, nbasj, icmp, jcmp
+real(kind=wp) :: AOInt(nkl,nij), Temp1(nTemp), Temp2(naco,naco), Temp3, MOint(nMO), Ci, Cj, Ck(nCk), Cl(nCl), D(*), fact, &
+                 Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,naco*(naco+1)/2,*), Tempi
+logical(kind=iwp) :: pert(0:7)
 #include "etwas.fh"
-!#include "print.fh"
-real*8 AOInt(nkl,nij), MOint(nMO), Temp1(nTemp), Temp2(naco,naco), Ck(nCk), Cl(nCl), D(*), &
-       Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1, nAco*(naco+1)/2,*)
-integer moip(0:7), nOp(4), ishell(4), iao(4), iAOST(4), ibasa(4), icmpa(4), indgrd(3,4,0:7)
-logical pert(0:7)
-real*8 Prmt(0:7)
+integer(kind=iwp) :: ib, iBas, ic, iCB, iirr, ij, il, ipC, ipM, irest, iSPert, jb, jBas, jc, jIrr, k, kAsh, kBas, kCmp, kIrr, &
+                     kIrrep, kk, kMax, l, lAsh, lBas, lCmp, lIrr, ll, nt
+real(kind=wp) :: Prmt(0:7), rFact, rFact2, rk, rl, rPij, rPj, sfact, vij
 data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
+integer(kind=iwp), external :: NrOpr
+real(kind=r8), external :: DNrm2_
 ! Statement Function
+real(kind=wp) :: xPrmt
+integer(kind=iwp) :: i, j
 xPrmt(i,j) = Prmt(iand(i,j))
 
 iCB = 2**(icar-1)
@@ -52,7 +59,7 @@ kCmp = iCmpa(3)
 lCmp = iCmpa(4)
 kk = 0
 do kIrrep=0,nIrrep-1
-  sfact = dble(ichtbl(kirrep,nop(3)))
+  sfact = real(ichtbl(kirrep,nop(3)),kind=wp)
   do kAsh=1,nAsh(kIrrep)
     do k=1,kcmp*kbas
       kk = kk+1
@@ -62,7 +69,7 @@ do kIrrep=0,nIrrep-1
 end do
 kk = 0
 do kIrrep=0,nIrrep-1
-  sfact = dble(ichtbl(kirrep,nop(4)))
+  sfact = real(ichtbl(kirrep,nop(4)),kind=wp)
   do kAsh=1,nAsh(kIrrep)
     do k=1,lcmp*lbas
       kk = kk+1
@@ -87,7 +94,7 @@ do jc=1,jcmp
           ipM = (kAsh-1)*lbas*lcmp
           il = 0
           do i=1,lbas*lcmp
-            Temp1(i+ipM) = 0.0d0
+            Temp1(i+ipM) = Zero
             do k=1,kCmp*kBas
               il = il+1
               Temp1(i+ipM) = Temp1(ipm+i)+Ck(k+ipc)*AOINT(il,ij)
@@ -99,7 +106,7 @@ do jc=1,jcmp
         do lAsh=1,naco
           il = 0
           do kash=1,naco
-            Temp2(kash,lash) = 0.0d0
+            Temp2(kash,lash) = Zero
             do l=1,lbas*lcmp
               il = il+1
               Temp2(kash,lash) = Temp2(kash,lash)+Cl(ipc+l)*Temp1(il)
@@ -112,7 +119,7 @@ do jc=1,jcmp
 
           do iSPert=0,nIrrep-1
             if (pert(isPert)) then
-              rFact2 = rFact*dble(iChtbl(ispert,nop(icnt)))
+              rFact2 = rFact*real(iChtbl(ispert,nop(icnt)),kind=wp)
               k = abs(indgrd(icar,icnt,ispert))
               j = 0
               do lIrr=0,nIrrep-1
@@ -126,9 +133,9 @@ do jc=1,jcmp
                       ll = lash+moip(lirr)
                       j = j+1
                       do jIrr=0,nIrrep-1
-                        rPj = dble(iChTbl(jIrr,nop(2)))
+                        rPj = real(iChTbl(jIrr,nop(2)),kind=wp)
                         iirr = nropr(ieor(iOPER(jirr),irest))
-                        rPij = rPj*dble(iChTbl(iIrr,nop(1)))*rfact2
+                        rPij = rPj*real(iChTbl(iIrr,nop(1)),kind=wp)*rfact2
                         buffer(ib,ic,jb,jc,iirr,j,k) = buffer(ib,ic,jb,jc,iirr,j,k)+rpij*Temp2(kk,ll)+rpij*Temp2(ll,kk)
                       end do
                     end do
@@ -141,7 +148,7 @@ do jc=1,jcmp
 
           do iSPert=0,nIrrep-1
             if (pert(isPert)) then
-              rFact2 = rFact*dble(iChtbl(ispert,nop(icnt)))
+              rFact2 = rFact*real(iChtbl(ispert,nop(icnt)),kind=wp)
               k = abs(indgrd(icar,icnt,ispert))
               j = 0
               do lIrr=0,nIrrep-1
@@ -155,9 +162,9 @@ do jc=1,jcmp
                       ll = lash+moip(lirr)
                       j = j+1
                       do jIrr=0,nIrrep-1
-                        rPj = dble(iChTbl(jIrr,nop(2)))
+                        rPj = real(iChTbl(jIrr,nop(2)),kind=wp)
                         iirr = nropr(ieor(iOPER(jirr),irest))
-                        rPij = rPj*dble(iChTbl(iIrr,nop(1)))*rfact2
+                        rPij = rPj*real(iChTbl(iIrr,nop(1)),kind=wp)*rfact2
                         buffer(ib,ic,jb,jc,iirr,j,k) = buffer(ib,ic,jb,jc,iirr,j,k)+rpij*Temp2(kk,ll)
                       end do
                     end do
@@ -174,7 +181,7 @@ end do
 
 kk = 0
 do kIrrep=0,nIrrep-1
-  sfact = dble(ichtbl(kirrep,nop(3)))
+  sfact = real(ichtbl(kirrep,nop(3)),kind=wp)
   do kAsh=1,nAsh(kIrrep)
     do k=1,kcmp*kbas
       kk = kk+1
@@ -184,7 +191,7 @@ do kIrrep=0,nIrrep-1
 end do
 kk = 0
 do kIrrep=0,nIrrep-1
-  sfact = dble(ichtbl(kirrep,nop(4)))
+  sfact = real(ichtbl(kirrep,nop(4)),kind=wp)
   do kAsh=1,nAsh(kIrrep)
     do k=1,lcmp*lbas
       kk = kk+1
@@ -196,7 +203,7 @@ end do
 return
 ! Avoid unused argument warnings
 if (.false.) then
-  call Unused_integer(nint)
+  call Unused_integer(n_int)
   call Unused_real(Temp3)
   call Unused_real_array(MOInt)
   call Unused_real(Ci)

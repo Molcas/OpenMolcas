@@ -9,29 +9,34 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Fix_2nder(Fa1,Fa2,Fb1,Fb2,final,nalpha,nbeta,ishll,la,lb,iang,jfhess,nfun,fact)
+subroutine Fix_2nder(Fa1,Fa2,Fb1,Fb2,rFinal,nalpha,nbeta,ishll,la,lb,iang,jfhess,nfun,fact)
 ! Fa1 includes  (  grad   < a | c > , < a | c >  )
 ! Fb1 includes  (  grad   < c | b > , < c | b >  )
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-!BS logical jfhess(3,3,2,2)  ! now same dimensions as in prjhss.f
-logical jfhess(3,3,4,4)
-real*8 FA1((2*iAng+1)*((la+1)*(la+2)/2)*nAlpha*nFun*4), FA2((2*iAng+1)*((la+1)*(la+2)/2)*nAlpha*nFun*6), &
-       FB1((2*iAng+1)*((lb+1)*(lb+2)/2)*nBeta*nFun*4), FB2((2*iAng+1)*((lb+1)*(lb+2)/2)*nBeta*nFun*6), &
-       final(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,21)
-!BS  final(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nalpha, nbeta, ishll, la, lb, iang, nfun
+real(kind=wp) :: FA1((2*iAng+1)*((la+1)*(la+2)/2)*nAlpha*nFun*4), FA2((2*iAng+1)*((la+1)*(la+2)/2)*nAlpha*nFun*6), &
+                 FB1((2*iAng+1)*((lb+1)*(lb+2)/2)*nBeta*nFun*4), FB2((2*iAng+1)*((lb+1)*(lb+2)/2)*nBeta*nFun*6), &
+                 rFinal(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,21), fact
+!BS              rFinal(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
+logical(kind=iwp) :: jfhess(3,3,4,4)
+!BS                  jfhess(3,3,2,2)  ! now same dimensions as in prjhss.f
+integer(kind=iwp) :: ia, iaC, ib, iC, iCar, iCb, ipaC, ipCb, ipFA1a, ipFB1a, jCar, mVec
 ! Statement functions
+integer(kind=iwp) :: nElem, ixyz, iTri, i, j
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! OK NOW EVERYTHING SHOULD BE MERGED TOGETHER
 
-!BS write(6,*) 'nFun ',nfun
-!BS write(6,*) 'FA1 ',FA1
-!BS write(6,*) 'FA2 ',FA2
-!BS write(6,*) 'FB1 ',FB1
-!BS write(6,*) 'FB2 ',FB2
+!BS write(u6,*) 'nFun ',nfun
+!BS write(u6,*) 'FA1 ',FA1
+!BS write(u6,*) 'FA2 ',FA2
+!BS write(u6,*) 'FB1 ',FB1
+!BS write(u6,*) 'FB2 ',FB2
 do iCar=1,3
   do jCar=1,3
     mvec = itri(iCar+3,jcar)
@@ -48,7 +53,7 @@ do iCar=1,3
             iCb = (ib-1)*(2*iAng+1)+iC
             ipCb = (iCb-1)*nFun*nBeta+ipFB1a
 
-            call DGEMM_('N','N',nAlpha,nBeta,nFun,Fact,FA1(ipaC),nAlpha,FB1(ipCb),nFun,One,final(1,ia,ib,mVec),nAlpha)
+            call DGEMM_('N','N',nAlpha,nBeta,nFun,Fact,FA1(ipaC),nAlpha,FB1(ipCb),nFun,One,rFinal(1,ia,ib,mVec),nAlpha)
 
           end do
         end do
@@ -73,7 +78,7 @@ do iCar=1,3
             iCb = (ib-1)*(2*iAng+1)+iC
             ipCb = (iCb-1)*nFun*nBeta+1
 
-            call DGEMM_('N','N',nAlpha,nBeta,nFun,Fact,FA2(ipaC),nAlpha,FB1(ipCb),nFun,One,final(1,ia,ib,mVec),nAlpha)
+            call DGEMM_('N','N',nAlpha,nBeta,nFun,Fact,FA2(ipaC),nAlpha,FB1(ipCb),nFun,One,rFinal(1,ia,ib,mVec),nAlpha)
 
           end do
         end do
@@ -101,7 +106,7 @@ do iCar=1,3
             iCb = (ib-1)*(2*iAng+1)+iC
             ipCb = (iCb-1)*nFun*nBeta+ipFB1a
 
-            call DGEMM_('N','N',nAlpha,nBeta,nFun,Fact,FA1(ipaC),nAlpha,FB2(ipCb),nFun,One,final(1,ia,ib,mVec),nAlpha)
+            call DGEMM_('N','N',nAlpha,nBeta,nFun,Fact,FA1(ipaC),nAlpha,FB2(ipCb),nFun,One,rFinal(1,ia,ib,mVec),nAlpha)
 
           end do
         end do

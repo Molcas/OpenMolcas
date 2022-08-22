@@ -16,32 +16,39 @@ subroutine WrDisk(rIn,nrIn,jDisp,iIrrep)
 ! see this mess before that I apologize
 
 use Basis_Info, only: nBas
-use pso_stuff
-use Symmetry_Info, only: nIrrep, iOper
+use pso_stuff, only: CMO, G1
+use Symmetry_Info, only: iOper, nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nrIn, jDisp, iIrrep
+real(kind=wp) :: rIn(nrIn)
 #include "Molcas.fh"
 #include "buffer.fh"
 #include "etwas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "disp.fh"
 #include "disp2.fh"
 #include "print.fh"
-real*8 rIn(nrIn)
-character*8 Label
-integer ip(0:7), ip2(0:7), nA(0:7), ipCM(0:7)
-real*8, allocatable :: Act(:), InAct(:), Out(:), TempX(:), TempY(:)
+integer(kind=iwp) :: iii, iopt, ip(0:7), ip2(0:7), ipCC, ipCM(0:7), ipIn1, ipOut, irc, jAsh, jIrrep, kAsh, kIrrep, nA(0:7), nin, &
+                     nIn2, nna, nt
+real(kind=wp) :: rDe
+character(len=8) :: Label
+real(kind=wp), allocatable :: Act(:), InAct(:), rOut(:), TempX(:), TempY(:)
+integer(kind=iwp), external :: NrOpr
+real(kind=r8), external :: DDot_
 ! Statement function
+integer(kind=iwp) :: itri, i, j
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (Show) then
-  write(6,*)
-  write(6,*) '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  write(6,*)
-  write(6,*) 'jDisp=',jDisp
+  write(u6,*)
+  write(u6,*) '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  write(u6,*)
+  write(u6,*) 'jDisp=',jDisp
 end if
 nin = 0
 nIn2 = 0
@@ -64,7 +71,7 @@ do jIrrep=0,nIrrep-1
   ipCC = ipCC+nBas(jIrrep)**2
 # ifdef __INTEL_COMPILER
   ! To avoid error in intel optimization -O3
-  if (.false.) write(6,*) ip(jIrrep)
+  if (.false.) write(u6,*) ip(jIrrep)
 # endif
 end do
 !                                                                      *
@@ -74,8 +81,8 @@ call mma_allocate(Act,nIn2,Label='Act')
 Act(:) = Zero
 call mma_allocate(InAct,nIn2,Label='InAct')
 InAct(:) = Zero
-call mma_allocate(Out,nIn2,Label='Out')
-Out(:) = Zero
+call mma_allocate(rOut,nIn2,Label='rOut')
+rOut(:) = Zero
 call mma_allocate(TempX,nIn2,Label='TempX')
 call mma_allocate(TempY,nIn2,Label='TempY')
 !                                                                      *
@@ -84,9 +91,9 @@ call mma_allocate(TempY,nIn2,Label='TempY')
 ! Fock1
 
 if (Show) then
-  write(6,*)
-  write(6,*) 'Fock1'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Fock1'
+  write(u6,*)
 end if
 do jIrrep=0,nIrrep-1
   kIrrep = NrOpr(ieor(iOper(jIrrep),iOper(iIrrep)))
@@ -97,13 +104,13 @@ do jIrrep=0,nIrrep-1
       call DGEMM_('T','N',nBas(jIrrep),nBas(kirrep),nBas(jIrrep),One,CMO(ipCM(jIrrep),1),nBas(jIrrep),TempY,nBas(jIrrep),Zero, &
                   Act(1+ip2(kIrrep)),nBas(jIrrep))
       if (Show) then
-        write(6,*)
-        write(6,*) 'ipDisp(jDisp),ip(jIrrep)=',ipDisp(jDisp),ip(jIrrep)
+        write(u6,*)
+        write(u6,*) 'ipDisp(jDisp),ip(jIrrep)=',ipDisp(jDisp),ip(jIrrep)
         call RecPrt('ipDisp',' ',rIn(ipDisp(jDisp)+ip(jIrrep)),nBas(jIrrep),nBas(kIrrep))
-        write(6,'(A,G20.10)') 'ipDisp:',DDot_(nBas(jIrrep)*nBas(kIrrep),rIn(ipDisp(jDisp)+ip(jIrrep)),1, &
-                              rIn(ipDisp(jDisp)+ip(jIrrep)),1)
-        write(6,'(A,G20.10)') 'ipCM(kIrrep):',DDot_(nBas(kIrrep)*nBas(kIrrep),CMO(ipCM(kIrrep),1),1,CMO(ipCM(kIrrep),1),1)
-        write(6,'(A,G20.10)') 'ipCM(jIrrep):',DDot_(nBas(jIrrep)*nBas(jIrrep),CMO(ipCM(jIrrep),1),1,CMO(ipCM(jIrrep),1),1)
+        write(u6,'(A,G20.10)') 'ipDisp:',DDot_(nBas(jIrrep)*nBas(kIrrep),rIn(ipDisp(jDisp)+ip(jIrrep)),1, &
+                               rIn(ipDisp(jDisp)+ip(jIrrep)),1)
+        write(u6,'(A,G20.10)') 'ipCM(kIrrep):',DDot_(nBas(kIrrep)*nBas(kIrrep),CMO(ipCM(kIrrep),1),1,CMO(ipCM(kIrrep),1),1)
+        write(u6,'(A,G20.10)') 'ipCM(jIrrep):',DDot_(nBas(jIrrep)*nBas(jIrrep),CMO(ipCM(jIrrep),1),1,CMO(ipCM(jIrrep),1),1)
       end if
       call DGetMO(Act(1+ip2(kIrrep)),Nbas(jIrrep),nbas(jIrrep),nBas(kIrrep),Act(1+ip2(jIrrep)),nBas(kIrrep))
     else if (kIrrep == jIrrep) then
@@ -114,8 +121,8 @@ do jIrrep=0,nIrrep-1
                   Act(1+ip2(jIrrep)),nBas(jIrrep))
     end if
     if (Show) then
-      write(6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
-      write(6,'(A,G20.10)') 'Act:',DDot_(nIn2,Act,1,Act,1)
+      write(u6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
+      write(u6,'(A,G20.10)') 'Act:',DDot_(nIn2,Act,1,Act,1)
     end if
   end if
 end do
@@ -128,9 +135,9 @@ if (nMethod == RASSCF) then
   ! Fock2
 
   if (Show) then
-    write(6,*)
-    write(6,*) 'Fock2'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'Fock2'
+    write(u6,*)
   end if
   do jIrrep=0,nIrrep-1
     kIrrep = NrOpr(ieor(iOper(jIrrep),iOper(iIrrep)))
@@ -149,8 +156,8 @@ if (nMethod == RASSCF) then
         call DGetMO(InAct(1+ip2(kIrrep)),Nbas(jIrrep),nBas(jIrrep),nBas(kIrrep),InAct(1+ip2(jIrrep)),nBas(kIrrep))
       end if
       if (Show) then
-        write(6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
-        write(6,'(A,G20.10)') 'InAct:',DDot_(nIn2,InAct,1,InAct,1)
+        write(u6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
+        write(u6,'(A,G20.10)') 'InAct:',DDot_(nIn2,InAct,1,InAct,1)
       end if
     end if
   end do
@@ -160,17 +167,17 @@ if (nMethod == RASSCF) then
   ! Fock Tot
 
   if (Show) then
-    write(6,*)
-    write(6,*) 'Fock Tot'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'Fock Tot'
+    write(u6,*)
   end if
   iii = 0
   do jIrrep=0,nIrrep-1
     kIrrep = NrOpr(ieor(iOper(jIrrep),iOper(iIrrep)))
 
     if (nBas(jIrrep)*nIsh(kIrrep) > 0) then
-      call DaXpY_(nIsh(kIrrep)*nBas(jIrrep),2.0d0,Act(1+ip2(kIrrep)),1,Out(1+ip2(kIrrep)),1)
-      call DaXpY_(nIsh(kIrrep)*nBas(jIrrep),2.0d0,InAct(1+ip2(kIrrep)),1,Out(1+ip2(kIrrep)),1)
+      call DaXpY_(nIsh(kIrrep)*nBas(jIrrep),Two,Act(1+ip2(kIrrep)),1,rOut(1+ip2(kIrrep)),1)
+      call DaXpY_(nIsh(kIrrep)*nBas(jIrrep),Two,InAct(1+ip2(kIrrep)),1,rOut(1+ip2(kIrrep)),1)
     end if
 
     if (nBas(jIrrep) > 0) then
@@ -179,7 +186,7 @@ if (nMethod == RASSCF) then
           rDe = G1(iTri(nA(kIrrep)+jAsh,nA(kIrrep)+kAsh),1)
           ipOut = 1+ip2(kIrrep)+nIsh(kIrrep)*nBas(jIrrep)+nBas(jIrrep)*(kAsh-1)
           ipIn1 = 1+ip2(kIrrep)+nBas(jIrrep)*(jAsh-1+nIsh(kIrrep))
-          call DaXpY_(nBas(jIrrep),rde,InAct(ipIn1),1,Out(ipOut),1)
+          call DaXpY_(nBas(jIrrep),rde,InAct(ipIn1),1,rOut(ipOut),1)
         end do
       end do
     end if
@@ -187,37 +194,37 @@ if (nMethod == RASSCF) then
     if (nBas(jIrrep)*nAsh(kIrrep) > 0) then
       ipOut = 1+ip2(kIrrep)+nIsh(kIrrep)*nBas(jIrrep)
       if (Show) then
-        write(6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
-        write(6,'(A,G20.10)') 'ipDisp3:',DDot_(nBas(jIrrep)*nAsh(kIrrep),rin(ipDisp3(jDisp)+iii),1,rin(ipDisp3(jDisp)+iii),1)
+        write(u6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
+        write(u6,'(A,G20.10)') 'ipDisp3:',DDot_(nBas(jIrrep)*nAsh(kIrrep),rin(ipDisp3(jDisp)+iii),1,rin(ipDisp3(jDisp)+iii),1)
       end if
       call DGEMM_('T','N',nBas(jIrrep),nAsh(kIrrep),nBas(jIrrep),One,CMO(ipCM(jIrrep),1),nBas(jIrrep),rin(ipDisp3(jDisp)+iii), &
                   nBas(jIrrep),Zero,TempY,nBas(jIrrep))
-      call DaXpY_(nAsh(kIrrep)*nBas(jIrrep),One,TempY,1,Out(ipOut),1)
+      call DaXpY_(nAsh(kIrrep)*nBas(jIrrep),One,TempY,1,rOut(ipOut),1)
       iii = iii+nBas(jIrrep)*nAsh(kIrrep)
     end if
 #   ifdef __INTEL_COMPILER
-    if (.false.) write(6,*) kIrrep,iii
+    if (.false.) write(u6,*) kIrrep,iii
 #   endif
     if (Show) then
-      write(6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
-      write(6,'(A,G20.10)') 'Out:',DDot_(nIn2,Out,1,Out,1)
+      write(u6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
+      write(u6,'(A,G20.10)') 'rOut:',DDot_(nIn2,rOut,1,rOut,1)
     end if
   end do
-  if (Show) write(6,*)
+  if (Show) write(u6,*)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   irc = -1
   iopt = 0
   Label = 'TOTAL'
-  call dWrMck(irc,iopt,Label,jdisp,Out,2**iIrrep)
+  call dWrMck(irc,iopt,Label,jdisp,rOut,2**iIrrep)
   if (iRc /= 0) then
-    write(6,*) 'WrDisk: Error writing to MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'WrDisk: Error writing to MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   if (Show) then
-    write(6,'(A,G20.10)') 'TOTAL:',DDot_(nIn2,Out,1,Out,1)
+    write(u6,'(A,G20.10)') 'TOTAL:',DDot_(nIn2,rOut,1,rOut,1)
   end if
 
   irc = -1
@@ -225,13 +232,13 @@ if (nMethod == RASSCF) then
   Label = 'INACTIVE'
   call dWrMck(irc,iopt,Label,jdisp,InAct,2**iIrrep)
   if (iRc /= 0) then
-    write(6,*) 'WrDisk: Error writing to MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'WrDisk: Error writing to MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   if (Show) then
-    write(6,'(A,G20.10)') 'INACTIVE:',DDot_(nIn2,InAct,1,InAct,1)
-    write(6,*)
+    write(u6,'(A,G20.10)') 'INACTIVE:',DDot_(nIn2,InAct,1,InAct,1)
+    write(u6,*)
   end if
 
   irc = -1
@@ -241,8 +248,8 @@ if (nMethod == RASSCF) then
   nt = nt*(nt+1)/2
   call dWrMck(irc,iopt,Label,jdisp,rIn(ipMO(jdisp,1)),2**iIrrep)
   if (iRc /= 0) then
-    write(6,*) 'WrDisk: Error writing to MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'WrDisk: Error writing to MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   !                                                                    *
@@ -258,12 +265,12 @@ else
   Label = 'TOTAL'
   call dWrMck(irc,iopt,Label,jdisp,Act,2**iIrrep)
   if (iRc /= 0) then
-    write(6,*) 'WrDisk: Error writing to MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'WrDisk: Error writing to MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   if (Show) then
-    write(6,'(A,G20.10)') 'TOTAL:',DDot_(nIn2,Act,1,Act,1)
+    write(u6,'(A,G20.10)') 'TOTAL:',DDot_(nIn2,Act,1,Act,1)
   end if
 
 end if
@@ -272,7 +279,7 @@ end if
 !                                                                      *
 call mma_deallocate(TempY)
 call mma_deallocate(TempX)
-call mma_deallocate(Out)
+call mma_deallocate(rOut)
 call mma_deallocate(InAct)
 call mma_deallocate(Act)
 !                                                                      *

@@ -11,7 +11,7 @@
 ! Copyright (C) 2004, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine CmbnACB2(Fa1,Fa2,Fb1,Fb2,final,Fact,nalpha,nbeta,C,nC,la,lb,iang,jfhess,Tmp,lsro)
+subroutine CmbnACB2(Fa1,Fa2,Fb1,Fb2,rFinal,Fact,nalpha,nbeta,C,nC,la,lb,iang,jfhess,Tmp,lsro)
 !******************************************************************************
 !
 ! Merges the second derivatives of ECP projection/SRO  integrals
@@ -23,7 +23,7 @@ subroutine CmbnACB2(Fa1,Fa2,Fb1,Fb2,final,Fact,nalpha,nbeta,C,nC,la,lb,iang,jfhe
 ! @parameter FA2    The second derivative of Left side
 ! @parameter FB1    The first derivative of Right side . Includes no derivative
 ! @parameter FB2    The second derivative of Right side
-! @parameter Final  Result added up to (out)
+! @parameter rFinal Result added up to (out)
 ! @parameter Fact   Factor the reult is multiplied with bef. added up
 ! @parameter C      Coefficients for SRO
 ! @parameter nAlpha Number of exponents LS
@@ -39,13 +39,18 @@ subroutine CmbnACB2(Fa1,Fa2,Fb1,Fb2,final,Fact,nalpha,nbeta,C,nC,la,lb,iang,jfhe
 !
 !******************************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-logical jfhess(4,3,4,3), lsro
-real*8 FA1(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), FA2(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), &
-       FB1(nC,nBeta,(2*iang+1),(lb+1)*(lb+2)/2,*), FB2(nC,nBeta,(2*iang+1),(lb+1)*(lb+2)/2,*), Tmp(*), c(*), &
-       final(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,21)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nalpha, nbeta, nC, la, lb, iang
+real(kind=wp) :: FA1(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), FA2(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), &
+                 FB1(nC,nBeta,(2*iang+1),(lb+1)*(lb+2)/2,*), FB2(nC,nBeta,(2*iang+1),(lb+1)*(lb+2)/2,*), &
+                 rFinal(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,21), Fact, c(*), Tmp(*)
+logical(kind=iwp) :: jfhess(4,3,4,3), lsro
+integer(kind=iwp) :: ia, ib, iC, iCar, jCar, mvec, mvecB
 ! Statement functions
+integer(kind=iwp) :: nElem, ixyz, iTri, i, j
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
@@ -63,10 +68,10 @@ do iCar=1,3
           do iC=1,(2*iAng+1)
 
             if (lsro) then
-              call mult_sro(FA1(1,1,ia,ic,icar+1),nAlpha,C,nC,FB1(1,1,ic,ib,jcar+1),nBeta,Fact,final(1,ia,ib,mVec),Tmp)
+              call mult_sro(FA1(1,1,ia,ic,icar+1),nAlpha,C,nC,FB1(1,1,ic,ib,jcar+1),nBeta,Fact,rFinal(1,ia,ib,mVec),Tmp)
             else
               call DGEMM_('N','N',nAlpha,nBeta,nC,Fact,FA1(1,1,ia,ic,icar+1),nAlpha,FB1(1,1,ic,ib,jcar+1),nC,One, &
-                          final(1,ia,ib,mVec),nAlpha)
+                          rFinal(1,ia,ib,mVec),nAlpha)
             end if
           end do
         end do
@@ -86,9 +91,9 @@ do iCar=1,3
         do ia=1,nElem(la)
           do iC=1,(2*iAng+1)
             if (lsro) then
-              call mult_sro(FA2(1,1,ia,ic,mvec),nAlpha,C,nC,FB1(1,1,ic,ib,1),nBeta,Fact,final(1,ia,ib,mVec),Tmp)
+              call mult_sro(FA2(1,1,ia,ic,mvec),nAlpha,C,nC,FB1(1,1,ic,ib,1),nBeta,Fact,rFinal(1,ia,ib,mVec),Tmp)
             else
-              call DGEMM_('N','N',nAlpha,nBeta,nC,Fact,FA2(1,1,ia,ic,mvec),nAlpha,FB1(1,1,ic,ib,1),nC,One,final(1,ia,ib,mVec), &
+              call DGEMM_('N','N',nAlpha,nBeta,nC,Fact,FA2(1,1,ia,ic,mvec),nAlpha,FB1(1,1,ic,ib,1),nC,One,rFinal(1,ia,ib,mVec), &
                           nAlpha)
             end if
           end do
@@ -112,9 +117,9 @@ do iCar=1,3
 
           do iC=1,(2*iAng+1)
             if (lsro) then
-              call mult_sro(FA1(1,1,ia,ic,1),nAlpha,C,nC,FB2(1,1,ic,ib,mvecb),nBeta,Fact,final(1,ia,ib,mVec),Tmp)
+              call mult_sro(FA1(1,1,ia,ic,1),nAlpha,C,nC,FB2(1,1,ic,ib,mvecb),nBeta,Fact,rFinal(1,ia,ib,mVec),Tmp)
             else
-              call DGEMM_('N','N',nAlpha,nBeta,nC,Fact,FA1(1,1,ia,ic,1),nAlpha,FB2(1,1,ic,ib,mvecb),nC,One,final(1,ia,ib,mVec), &
+              call DGEMM_('N','N',nAlpha,nBeta,nC,Fact,FA1(1,1,ia,ic,1),nAlpha,FB2(1,1,ic,ib,mvecb),nC,One,rFinal(1,ia,ib,mVec), &
                           nAlpha)
             end if
           end do

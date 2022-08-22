@@ -32,28 +32,29 @@ subroutine McKinley(ireturn)
 !          '95                                                         *
 !***********************************************************************
 
-use Real_Spherical
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp
 use Gateway_global, only: Onenly, Test
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: ireturn
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "cputime.fh"
 #include "print.fh"
 #include "etwas.fh"
-!pcm_solvent
 #include "rctfld.fh"
-!pcm_solvent end
-!parameter (nLines=12)
-character*120 Lines
-logical DoRys, Run_MCLR
-real*8, allocatable :: Hess(:), Temp(:), GradN(:)
 #include "warnings.h"
+integer(kind=iwp) :: i, iCnttp, iDummer, iopt, iPrint, irc, iRout, lLine, nDiff, nGrad, nHess, nsAtom
+real(kind=wp) :: dum1, dum2, dum3, TCpu1, TCpu2, Time, TWall1, TWall2
+character(len=120) :: Lines
+logical(kind=iwp) :: DoRys, Run_MCLR
+real(kind=wp), allocatable :: GradN(:), Hess(:), Temp(:)
+!integer(kind=iwp), parameter :: nLines = 12
 
 !                                                                      *
 !***********************************************************************
@@ -61,7 +62,7 @@ real*8, allocatable :: Hess(:), Temp(:), GradN(:)
 !call McKinley_banner()
 call CWTime(TCpu1,TWall1)
 iRout = 1
-call dcopy_(9,[0.0d0],0,CpuStat,1)
+call dcopy_(9,[Zero],0,CpuStat,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -112,7 +113,7 @@ DoRys = .true.
 call IniSew(DoRys,nDiff)
 ! pcm_solvent
 ! check if there is a reaction field
-!write(6,*) 'In mckinley PCM',pcm
+!write(u6,*) 'In mckinley PCM',pcm
 call Init_RctFld(.false.,iCharge_ref)
 ! pcm_solvent end
 nsAtom = 0
@@ -147,10 +148,10 @@ Temp(:) = Zero
 !                                                                      *
 if (lHss) then
   if (iPrint >= 6) then
-    write(6,*)
-    write(6,'(A)') 'The 2nd order derivatives of the one-electron integrals are calculated and contracted with the '// &
-                   'one-electron density matrix. '
-    write(6,*)
+    write(u6,*)
+    write(u6,'(A)') 'The 2nd order derivatives of the one-electron integrals are calculated and contracted with the '// &
+                    'one-electron density matrix. '
+    write(u6,*)
   end if
   call Timing(dum1,Time,dum2,dum3)
   call Drvh2(Hess,Temp,nHess,show)
@@ -187,9 +188,9 @@ end if
 !***********************************************************************
 !                                                                      *
 if (iPrint >= 6) then
-  write(6,*)
-  write(6,'(A)') 'The 1st order derivatives of the one-electron integrals are calculated and stored on disk'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A)') 'The 1st order derivatives of the one-electron integrals are calculated and stored on disk'
+  write(u6,*)
 end if
 call Drvh1_mck(nGrad,Nona)
 !                                                                      *
@@ -216,14 +217,14 @@ if (.not. Onenly) then
   iRC = -1
   call iWrMck(iRC,iOpt,'NISH',1,nIsh,iDummer)
   if (iRC /= 0) then
-    write(6,*) 'Mckinley: Error writing to MckInt!'
+    write(u6,*) 'Mckinley: Error writing to MckInt!'
     call Abend()
   end if
   iOpt = 0
   iRC = -1
   call iWrMck(iRC,iOpt,'NASH',1,nAsh,iDummer)
   if (iRC /= 0) then
-    write(6,*) 'Mckinley: Error writing to MckInt!'
+    write(u6,*) 'Mckinley: Error writing to MckInt!'
     call Abend()
   end if
 
@@ -256,7 +257,7 @@ iRc = -1
 iOpt = 0
 call ClsMck(iRC,iOpt)
 if (iRc /= 0) then
-  write(6,*) 'McKinley: Error closing MCKINT!'
+  write(u6,*) 'McKinley: Error closing MCKINT!'
   call Abend()
 end if
 call mma_deallocate(Temp)
@@ -275,7 +276,7 @@ call Banner(Lines,1,lLine)
 call CWTime(TCpu2,TWall2)
 call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
 
-call Timing(Time,dum,dum,dum)
+call Timing(Time,dum1,dum2,dum3)
 CPUStat(nTotal) = Time
 if (iPrint >= 6) call Sttstc()
 if (Test) then
