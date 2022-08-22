@@ -51,21 +51,21 @@
       Write (6,*) 'Sqrt(gg)=',Sqrt(DDot_(nInter,g,1,g,1))
 #endif
 
-!     Make sure that the step restriction is not too loose.
       gg=Sqrt(DDot_(nInter,g,1,g,1))
 
-      gg=Min(1.0D0,gg)
+!     Make sure that the step restriction is not too loose.
+!     gg=Min(1.0D0,gg)
 
-!     Mae sure that the step restriction is not too tight.
-      gg=Max(gg,2.0D-1)
+!     Make sure that the step restriction is not too tight.
+!     gg=Max(gg,2.0D-1)
 
       StepMax=StepMax_Seed*gg
-#ifdef _DEBUGPRINT_
-      Write (6,*) 'StepMax=',StepMax
-#endif
 
 *     Make sure that step restriction is not too tight.
-      If (StepMax<1.0D-1) StepMax=1.0D-1
+!     If (StepMax<1.0D-1) StepMax=1.0D-1
+!#ifdef _DEBUGPRINT_
+      Write (6,*) 'StepMax=',StepMax
+!#endif
 
 #ifdef _DEBUGPRINT_
 *     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
@@ -124,8 +124,9 @@
      &       'Davidson procedure did not converge','')
          End If
 #endif
-*        Write (6,*) 'Val(:)=',Val(:)
-*        Write (6,*) 'Vec(:,1)=',Vec(:,1)
+!        Write (6,*) 'Val(:)=',Val(:)
+!        Write (6,*) 'Vec(:,1)=',Vec(:,1)
+!        Write (6,*) 'Vec(nInter+1,1)=',Vec(nInter+1,1)
 
 *        Select a root with a negative value close to the current point
 

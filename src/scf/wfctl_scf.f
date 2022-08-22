@@ -137,6 +137,7 @@
       Parameter (E2VTolerance=-1.0d-8)
 
 *---  Define local variables
+      Real*8 ::  StepMax=0.100D0
       Logical QNR1st,FstItr
       Character Meth*(*), Meth_*10
       Character*72 Note
@@ -393,14 +394,14 @@
 *                    gets some decent to work with.
 *
          If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
-     &             .AND. ABS(EDiff).lt.1.0D-1)) Then
+     &             .AND. EDiff.lt.1.0D-1)) Then
 *
 *           Reset kOptim such that the extraploation scheme is not
 *           corrupted by iterations with too high energies. Those can
 *           not be used in the scheme.
 *
             If (iOpt.eq.0) kOptim=2
-            iOpt=1
+            iOpt=Max(1,iOpt)
             Iter_DIIS = Iter_DIIS + 1
          End If
 *
@@ -414,7 +415,8 @@
 *                    we are firmly in the NR region.
 *
          If (iOpt.ge.2 .OR.
-     &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
+     &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2
+     &       .AND. EDiff<Zero))
      &      Then
             If (RSRFO.or.RGEK) Then
                If (RSRFO) Then
@@ -1034,10 +1036,10 @@
          EmConv=.False.
 *
 *---------------
-         If(iOpt.eq.2) Then
-            iOpt = 1        ! True if step is QNR
-            QNR1st=.TRUE.
-         End If
+*        If(iOpt.eq.2) Then
+*           iOpt = 1        ! True if step is QNR
+*           QNR1st=.TRUE.
+*        End If
          iterso=0
          If(Reset_Thresh) Call Reset_Thresholds
          If(KSDFT.ne.'SCF') Then

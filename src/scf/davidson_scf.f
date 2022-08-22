@@ -83,7 +83,7 @@
                 Vec(i)=1.0D0
                 Call SOrUpV(Vec(:),HDiag,m,HM(:,i),'GRAD','BFGS')
              End Do
-             Call RecPrt('HM',' ',HM,m,m)
+*            Call RecPrt('HM',' ',HM,m,m)
 
              Call mma_allocate(EVal,m*(m+1)/2,Label='EVal')
              Call mma_allocate(EVec,m*m,Label='EVec')
@@ -104,10 +104,10 @@
              Call NIDiag_new(EVal,EVec,m,m)
              Call Jacord(EVal,EVec,m,m)
 
-             Do i = 1, m
-                ij=i*(i+1)/2
-                Write (6,*) 'Eval0(ij)=',EVal(ij)
-             End Do
+*            Do i = 1, m
+*               ij=i*(i+1)/2
+*               Write (6,*) 'Eval0(ij)=',EVal(ij)
+*            End Do
 
              Call mma_deallocate(EVal)
              Call mma_deallocate(EVec)
@@ -142,7 +142,8 @@
 
              Do i = 1, n
                 ij=i*(i+1)/2
-                Write (6,*) 'Eval(ij)=',EVal(ij)
+                If (EVal(ij)<Zero)
+     &          Write (6,*) 'Eval(ij)=',EVal(ij)
              End Do
 
              Call mma_deallocate(EVal)

@@ -29,14 +29,14 @@
 *
       Select case(iOpt)
 
-      Case (2,3)
+      Case (2,3,4)
          Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &                CMO   ,nBB,Ovrlp,CMO)
       Case (1)
          Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &                Lowdin,nBB,Ovrlp,CMO)
       Case Default
-         Write (6,*) 'Illegal iOpt Value:',iOpt
+         Write (6,*) 'GrdClc: Illegal iOpt Value:',iOpt
          Call abend()
       End Select
 *
