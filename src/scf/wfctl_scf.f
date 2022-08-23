@@ -1036,10 +1036,10 @@
          EmConv=.False.
 *
 *---------------
-*        If(iOpt.eq.2) Then
-*           iOpt = 1        ! True if step is QNR
-*           QNR1st=.TRUE.
-*        End If
+         If(iOpt.eq.2) Then
+            iOpt = 1        ! True if step is QNR
+            QNR1st=.TRUE.
+         End If
          iterso=0
          If(Reset_Thresh) Call Reset_Thresholds
          If(KSDFT.ne.'SCF') Then
