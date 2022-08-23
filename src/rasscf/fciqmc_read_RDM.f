@@ -32,7 +32,7 @@
       use general_data, only : nActEl
       ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
-     &                           one_el_idx_flatten
+     &                           one_el_idx_flatten, two_el_idx
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
 
@@ -569,13 +569,13 @@
       ! and output.
       call cleanMat(DMAT)
 
-      IF(IPRLEV >= DEBUG) THEN
+      if (iprlev >= debug) then
           norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
           call triprt('D_alpha in neci2molcas',' ',D_alpha,norb)
           call triprt('D_beta  in neci2molcas',' ',D_beta ,norb)
           call triprt('DMAT in neci2molcas',' ',DMAT,norb)
           call triprt('DSPN in neci2molcas',' ',DSPN,norb)
-      END IF
+      end if
       Return
       end subroutine read_single_neci_RDM
 
@@ -594,6 +594,7 @@
 
 #ifdef _HDF5_
       subroutine expand_1rdm(dmat, decompressed_dmat)
+        ! TODO: has this code been tested?
         ! Decompresses DMAT from subroutine read_neci_RDM from a
         ! linearised vector with symmetry into the full, redundant, 1RDM
         ! matrix.
@@ -642,6 +643,8 @@
         hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
         len4index(:) = 0
         call mh5_get_dset_dims(hdf5_dset, len4index)
+        ! always close a data set after usage to avoid state bugs
+        call mh5_close_dset(hdf5_dset)
         call mma_allocate(indices, 4, len4index(2))
         call mma_allocate(values, len4index(2))
         indices(:,:) = 0
@@ -653,8 +656,8 @@
 
         rdm2_temp(:,:,:,:) = 0.0_wp
         do i = 1, len4index(2)
-          p = indices(1, i) + 1; q = indices(2, i) + 1
-          r = indices(3, i) + 1; s = indices(4, i) + 1
+          p = indices(1, i); r = indices(2, i)
+          q = indices(3, i); s = indices(4, i)
           rdm2_temp(p, q, r, s) = values(i)
           rdm2_temp(q, p, s, r) = values(i)  ! symmetry
           rdm2_temp(r, s, p, q) = values(i)
@@ -663,62 +666,75 @@
         call mma_deallocate(indices)
         call mma_deallocate(values)
 
-        do s = 1, nAc
-          do r = 1, nAc
-            do q = 1, nAc
-              do p = 1, nAc
-              if (r == s) n_kl = 1
-              if (r > s)  n_kl = 2
-              pqrs = two_el_idx_flatten(p, q, r, s)
-              psmat(pqrs) = 0.5_wp * n_kl * (rdm2_temp(p, q, r, s) +
-     &              rdm2_temp(q, p, r, s)) / 2
-              pamat(pqrs) = 0.5_wp * n_kl * (rdm2_temp(p, q, r, s) -
-     &              rdm2_temp(q, p, r, s)) / 2
-              end do
-            end do
-          end do
+        dmat(:) = 0.0_wp
+        psmat(:) = 0.0_wp
+        pamat(:) = 0.0_wp
+        do pqrs = 1, size(psmat, dim=1)
+          call two_el_idx(pqrs, p, q, r, s)
+          if (r == s) n_kl = 1
+          if (r > s)  n_kl = 2
+          psmat(pqrs) = 0.5_wp * n_kl
+     &        * (rdm2_temp(p, q, r, s) + rdm2_temp(q, p, r, s))/2
+          pamat(pqrs) = -0.5_wp * n_kl
+     &        * (rdm2_temp(p, q, r, s) - rdm2_temp(q, p, r, s))/2
         end do
 
-        do i = 1, nAc
-          do q = 1, nAc
-            do p = 1, nAc
-              pq = one_el_idx_flatten(p, q)
-              dmat(pq) = dmat(pq) + rdm2_temp(p, q, i, i)
-            end do
+        do pq = 1, size(dmat, dim=1)
+          call one_el_idx(pq, p, q)
+          do r = 1, nActEl
+            dmat(pq) = dmat(pq) + rdm2_temp(p, q, r, r)
           end do
         end do
         dmat(:) = dmat(:) / (nActEl - 1)
 
-        ! spin density from 1RDM and 2RDM:
+        ! if (iprlev >= debug) then
+        !   do p = 1, size(psmat)
+        !       write(u6,*) 'index PSMAT:', p, psmat(p)
+        !   end do
+        !   do p = 1, size(pamat)
+        !       write(u6,*) 'index PAMAT:', p, pamat(p)
+        !   end do
+        !   do p = 1, size(dmat)
+        !       write(u6,*) 'index DMAT:', p, dmat(p)
+        !   end do
+        ! end if
+        call cleanMat(dmat)  ! cleanse non-PSD elements
+        call triprt('DMAT in neci2molcas after cleansing',' ', dmat, 6)
+
+        ! spin-polarisation density from 1RDM and 2RDM:
         ! 10.1080/00268976.2022.2091049
-        do q = 1, nAc
-          do p = 1, nAc
-            pq = one_el_idx_flatten(p, q)
-            rdm2_intermed = 0.0_wp
-            do i = 1, nAc
-              ! index order differs from paper, because NECI 2RDMs are
-              ! < E_pq E_rs > not < e_pqrs >
-              rdm2_intermed = rdm2_intermed
-     &            + (1 / (ispin + 1)) * rdm2_temp(p, q, i, i)
-            end do
-              dspn(pq) = dspn(pq) +
-     &          (2 - 0.5_wp * nActEl)/(ispin + 1) - rdm2_intermed
-              dspn(pq) = (lowms / ispin) * dspn(pq)
-          end do
-        end do
+        dspn(:) = 0.0_wp
+        ! TODO: test this block of code
+        ! do q = 1, nAc
+        !   do p = 1, nAc
+        !     pq = one_el_idx_flatten(p, q)
+        !     rdm2_intermed = 0.0_wp
+        !     do i = 1, nAc
+        !       ! index order differs from paper, because NECI 2RDMs are
+        !       ! < E_pq E_rs > not < e_pqrs >
+        !       rdm2_intermed = rdm2_intermed
+        ! &            + (1 / (ispin + 1)) * rdm2_temp(p, q, i, i)
+        !     end do
+        !       dspn(pq) = dspn(pq) +
+        ! &          (2 - 0.5_wp * nActEl)/(ispin + 1) - rdm2_intermed
+        !       dspn(pq) = (lowms / ispin) * dspn(pq)
+        !   end do
+        ! end do
       end subroutine read_hdf5_denmats
 
 
       subroutine dump_active_fockmat(path, F_act)
         use general_data, only: nTot1
+#include "output_ras.fh"
         character(len=*), intent(in) :: path
         real(wp), intent(inout) :: F_act(nTot1)  ! contains all blocks
         integer :: pq, p, q
         integer, allocatable :: index(:), indices(:,:)
         real(wp), allocatable :: vals(:)
-        integer :: file_id, dset_id
+        integer :: file_id, dset_id, iprlev
 
         write(u6,'(A)') 'act.-act. block of  gen. Fockian requested.'
+        iprlev = iprloc(1)
 
         ! TODO: generalise to RAS/GAS indices
         ! append to dynamic arrays, reshape afterwards
