@@ -26,6 +26,7 @@ subroutine NONA2( &
 !
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Definitions, only: wp, iwp, u6
 
@@ -33,9 +34,6 @@ implicit none
 #include "grd_mck_interface.fh"
 integer(kind=iwp) :: IALPHA, IBETA, IP, IPALPH, IPAXYZ, IPBETA, IPBXYZ, IPRNXYZ, IPRXYZ, IPSCRT, NIP
 logical(kind=iwp) :: ABEQ(3)
-! Statement function
-integer(kind=iwp) :: NELEM, L
-NELEM(L) = (L+2)*(L+1)/2
 
 ABEQ(1) = A(1) == RB(1)
 ABEQ(2) = A(2) == RB(2)
@@ -55,7 +53,7 @@ NIP = NIP+NZETA
 IPBETA = NIP
 NIP = NIP+NZETA
 IPSCRT = NIP
-NIP = NIP+NELEM(LA)*NELEM(LB)*NZETA*2
+NIP = NIP+nTri_Elem1(LA)*nTri_Elem1(LB)*NZETA*2
 
 if (NIP-1 > NARR) then
   write(u6,*) ' NONA2: Too small array.'
@@ -92,7 +90,7 @@ end do
 call CMBN2DC(ARRAY(IPRNXYZ),NZETA,LA,LB,ZETA,RKAPPA,ARRAY(IPSCRT),ARRAY(IPALPH),ARRAY(IPBETA),IFGRAD)
 
 ! SYMMETRY ADAPT THE 2ND DERIVATIVE COUPLING INTEGRALS
-call SYMADO_MCK(ARRAY(IPSCRT),NZETA*NELEM(LA)*NELEM(LB),rFinal,NROP,nOP,LOPER,INDGRD,IU,IV,IFGRAD,IDCAR,TRANS)
+call SYMADO_MCK(ARRAY(IPSCRT),NZETA*nTri_Elem1(LA)*nTri_Elem1(LB),rFinal,NROP,nOP,LOPER,INDGRD,IU,IV,IFGRAD,IDCAR,TRANS)
 
 return
 ! Avoid unused argument warnings

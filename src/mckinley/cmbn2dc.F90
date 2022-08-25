@@ -26,6 +26,7 @@ subroutine CMBN2DC(RNXYZ,NZETA,LA,LB,ZETA,RKAPPA,RFINAL,ALPHA,BETA,IFGRAD)
 !
 !***********************************************************************
 
+use Index_Functions, only: C_Ind
 use Constants, only: Two, Four, OneHalf
 use Definitions, only: wp, iwp
 
@@ -36,9 +37,6 @@ real(kind=wp) :: RNXYZ(NZETA,3,0:LA+1,0:LB+1), ZETA(NZETA), RKAPPA(NZETA), RFINA
 logical(kind=iwp) :: IFGRAD(3)
 integer(kind=iwp) :: IPA, IPB, IXA, IXB, IYA, IYAMAX, IYB, IYBMAX, IZA, IZB, IZETA
 real(kind=wp) :: DIFFX, DIFFY, DIFFZ, OVLX, OVLY, OVLZ
-! STATEMENT FUNCTION FOR CARTESIAN INDEX
-integer(kind=iwp) :: IND, IXYZ, IX, IZ
-IND(IXYZ,IX,IZ) = (IXYZ-IX)*(IXYZ-IX+1)/2+IZ+1
 
 ! PREFACTOR FOR THE PRIMITIVE OVERLAP MATRIX
 do IZETA=1,NZETA
@@ -52,10 +50,10 @@ do IXA=0,LA
     IYBMAX = LB-IXB
     do IYA=0,IYAMAX
       IZA = LA-IXA-IYA
-      IPA = IND(LA,IXA,IZA)
+      IPA = C_Ind(LA,IXA,IZA)
       do IYB=0,IYBMAX
         IZB = LB-IXB-IYB
-        IPB = IND(LB,IXB,IZB)
+        IPB = C_Ind(LB,IXB,IZB)
 
         ! COMBINE 1-DIM PRIMITIVE OVERLAP INTEGRALS
         if (IFGRAD(1)) then

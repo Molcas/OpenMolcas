@@ -34,6 +34,7 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas
 !             March '90                                                *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1
 use Gateway_global, only: iWROpt
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp, u6, RtoI
@@ -48,9 +49,6 @@ integer(kind=iwp) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), iCmpa(4), iB
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &
                      Mem0, MemAux, MemCon, MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
-! Statement function to compute canonical index
-integer(kind=iwp) :: nabSz, ixyz
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 !iQ = 1
 la = iAnga(1)
@@ -62,10 +60,10 @@ jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
 iTotal = iTotal+1
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
-mcdMin = nabSz(max(lc,ld)-1)+1
-mcdMax = nabSz(lc+ld)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
+mcdMin = nTri3_Elem1(max(lc,ld)-1)
+mcdMax = nTri3_Elem1(lc+ld)-1
 mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 
 iBsInc = iBas

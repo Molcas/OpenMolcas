@@ -25,15 +25,13 @@ subroutine PrjMm1(nHer,MmPrjG,la,lb,lr)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nHer, MmPrjG, la, lb, lr
 integer(kind=iwp) :: iacore, iAng, iCnttp, icoreb, icores, ip, iShll, ld, nac, nBasisi, ncb, nExpi, nOrder
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 nOrder = 0
 ld = 1
@@ -48,10 +46,10 @@ do iCnttp=1,nCnttp
 
     ip = 0
 
-    nac = nElem(la)*nElem(iAng)
-    ncb = nElem(iAng)*nElem(lb)
+    nac = nTri_Elem1(la)*nTri_Elem1(iAng)
+    ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)
 
-    ip = ip+6*nelem(la)*nelem(lb) ! final
+    ip = ip+6*nTri_Elem1(la)*nTri_Elem1(lb) ! final
     ip = ip+4*nac*nExpi ! FA1
     ip = ip+4*ncb*nExpi !FB1
     ip = ip+nExpi*nExpi !Tmp

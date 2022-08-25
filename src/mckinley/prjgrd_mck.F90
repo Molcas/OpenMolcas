@@ -25,6 +25,7 @@ subroutine PrjGrd_mck( &
 !             Physics, University of Stockholm, Sweden, October 1993.  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
@@ -39,9 +40,6 @@ real(kind=wp) C(3), Dum(1), Fact, TC(3)
 logical(kind=iwp) :: DiffCnt, ifg(4), ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
 !***********************************************************************
@@ -133,10 +131,10 @@ do kCnttp=1,nCnttp
         ip = ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
 
         ipFA1 = ip
-        ip = ip+nAlpha*nExpi*nElem(la)*nElem(iAng)*4
+        ip = ip+nAlpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)*4
 
         ipFB1 = ip
-        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*4
+        ip = ip+nExpi*nBeta*nTri_Elem1(iAng)*nTri_Elem1(lb)*4
 
         ipFB2 = ip
         ipFA2 = ip
@@ -168,7 +166,7 @@ do kCnttp=1,nCnttp
         call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),Fact,nAlpha,nBeta,Dum,nBasisi,la,lb,iang,jfgrad,Dum,.false.,Indx, &
                       mvec,idcar)
 
-        nt = nAlpha*nBeta*nElem(lb)*nElem(la)
+        nt = nAlpha*nBeta*nTri_Elem1(lb)*nTri_Elem1(la)
         call SmAdNa(Array(ipFin),nt,rFinal,mop,loper,JndGrd,iuvwx,JfGrad,Indx,idcar,One,iFG,tr)
 
       end do

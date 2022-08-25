@@ -19,6 +19,7 @@ subroutine CmbnS2b(Rnxyz,nZeta,la,lb,rKappa,rFinal,Beta,IfHss,ld)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind, iTri
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp
 
@@ -28,11 +29,6 @@ real(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb+ld), rKappa(nZeta), rFinal(nZeta,(la+1)
 logical(kind=iwp) :: IfHss(4,3,4,3)
 integer(kind=iwp) :: ia(3), iax, iay, ib(3), ibx, iby, iCoor, ipa, ipb, iyaMax, iybMax, iZeta, jCoor, kCoor
 real(kind=wp) :: rIc
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz, iTri, i, j
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-! Index in the triang. local hessian
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 do iax=0,la
   ia(1) = iax
@@ -43,11 +39,11 @@ do iax=0,la
     do iay=0,iyaMax
       ia(2) = iay
       ia(3) = la-ia(2)-ia(1)
-      ipa = Ind(la,ia(1),ia(3))
+      ipa = C_Ind(la,ia(1),ia(3))
       do iby=0,iybMax
         ib(2) = iby
         ib(3) = lb-ib(2)-ib(1)
-        ipb = Ind(lb,ib(1),ib(3))
+        ipb = C_Ind(lb,ib(1),ib(3))
 
         ! Combine overlap integrals
 

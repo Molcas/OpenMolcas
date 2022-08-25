@@ -13,6 +13,7 @@ subroutine Fix_2nder(Fa1,Fa2,Fb1,Fb2,rFinal,nalpha,nbeta,ishll,la,lb,iang,jfhess
 ! Fa1 includes  (  grad   < a | c > , < a | c >  )
 ! Fb1 includes  (  grad   < c | b > , < c | b >  )
 
+use Index_Functions, only: iTri, nTri_Elem1
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -25,10 +26,6 @@ real(kind=wp) :: FA1((2*iAng+1)*((la+1)*(la+2)/2)*nAlpha*nFun*4), FA2((2*iAng+1)
 logical(kind=iwp) :: jfhess(3,3,4,4)
 !BS                  jfhess(3,3,2,2)  ! now same dimensions as in prjhss.f
 integer(kind=iwp) :: ia, iaC, ib, iC, iCar, iCb, ipaC, ipCb, ipFA1a, ipFB1a, jCar, mVec
-! Statement functions
-integer(kind=iwp) :: nElem, ixyz, iTri, i, j
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! OK NOW EVERYTHING SHOULD BE MERGED TOGETHER
 
@@ -41,14 +38,14 @@ do iCar=1,3
   do jCar=1,3
     mvec = itri(iCar+3,jcar)
     if (jfHess(iCar,jcar,2,1)) then
-      ipFA1a = 1+iCar*nAlpha*nFun*nElem(la)*(2*iAng+1)
-      ipFB1a = 1+jcar*nFun*nBeta*(2*iAng+1)*nElem(lb)
+      ipFA1a = 1+iCar*nAlpha*nFun*nTri_Elem1(la)*(2*iAng+1)
+      ipFB1a = 1+jcar*nFun*nBeta*(2*iAng+1)*nTri_Elem1(lb)
 
-      do ib=1,nElem(lb)
-        do ia=1,nElem(la)
+      do ib=1,nTri_Elem1(lb)
+        do ia=1,nTri_Elem1(la)
 
           do iC=1,(2*iAng+1)
-            iaC = (iC-1)*nElem(la)+ia
+            iaC = (iC-1)*nTri_Elem1(la)+ia
             ipaC = (iaC-1)*nAlpha*nFun+ipFA1a
             iCb = (ib-1)*(2*iAng+1)+iC
             ipCb = (iCb-1)*nFun*nBeta+ipFB1a
@@ -67,13 +64,13 @@ do iCar=1,3
   do jCar=1,icar
     mvec = itri(iCar,jcar)
     if (jfHess(iCar,jcar,1,1)) then
-      ipFA1a = 1+(itri(iCar,jCar)-1)*nAlpha*nFun*nElem(la)*(2*iAng+1)
+      ipFA1a = 1+(itri(iCar,jCar)-1)*nAlpha*nFun*nTri_Elem1(la)*(2*iAng+1)
 
-      do ib=1,nElem(lb)
-        do ia=1,nElem(la)
+      do ib=1,nTri_Elem1(lb)
+        do ia=1,nTri_Elem1(la)
 
           do iC=1,(2*iAng+1)
-            iaC = (iC-1)*nElem(la)+ia
+            iaC = (iC-1)*nTri_Elem1(la)+ia
             ipaC = (iaC-1)*nAlpha*nFun+ipFA1a
             iCb = (ib-1)*(2*iAng+1)+iC
             ipCb = (iCb-1)*nFun*nBeta+1
@@ -93,15 +90,15 @@ do iCar=1,3
   do jCar=1,icar
     mvec = itri(3+icar,3+jcar)
     if (jfHess(iCar,jcar,2,2)) then
-      ipFB1a = 1+(itri(icar,jcar)-1)*nBeta*nFun*nElem(lb)*(2*iAng+1)
-      !BS nAlpha*nFun*nElem(la)*(2*iAng+1)
+      ipFB1a = 1+(itri(icar,jcar)-1)*nBeta*nFun*nTri_Elem1(lb)*(2*iAng+1)
+      !BS nAlpha*nFun*nTri_Elem1(la)*(2*iAng+1)
       !BS looks much better ....  (Oh Anders ...)
 
-      do ib=1,nElem(lb)
-        do ia=1,nElem(la)
+      do ib=1,nTri_Elem1(lb)
+        do ia=1,nTri_Elem1(la)
 
           do iC=1,(2*iAng+1)
-            iaC = (iC-1)*nElem(la)+ia
+            iaC = (iC-1)*nTri_Elem1(la)+ia
             ipaC = (iaC-1)*nAlpha*nFun+1
             iCb = (ib-1)*(2*iAng+1)+iC
             ipCb = (iCb-1)*nFun*nBeta+ipFB1a

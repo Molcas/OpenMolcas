@@ -25,6 +25,7 @@ subroutine SroGrd_mck( &
 !             Physics, University of Stockholm, Sweden, October '93.   *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
@@ -42,9 +43,6 @@ real(kind=wp) :: C(3), Fact, TC(3)
 logical(kind=iwp) :: DiffCnt, ifg(4), ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
 !***********************************************************************
@@ -144,11 +142,11 @@ do kCnttp=1,nCnttp
         ip = ip+max(nBeta,nAlpha)*nExpi
 
         ipFA1 = ip
-        ip = ip+nAlpha*nExpi*nElem(la)*nElem(iAng)*2
+        ip = ip+nAlpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)*2
         ipFA2 = ip ! Not in use for 1st derivative
 
         ipFB1 = ip
-        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*2
+        ip = ip+nExpi*nBeta*nTri_Elem1(iAng)*nTri_Elem1(lb)*2
 
         ipFB2 = ip ! Not in use for 1st derivatives
 
@@ -163,7 +161,7 @@ do kCnttp=1,nCnttp
 #endif
         call LToSph(Array(ipFA1),nalpha,ishll,la,iAng,2)
 
-        call dcopy_(nBeta*nExpi*nElem(lb)*nElem(iAng)*2,[Zero],0,Array(ipFB1),1)
+        call dcopy_(nBeta*nExpi*nTri_Elem1(lb)*nTri_Elem1(iAng)*2,[Zero],0,Array(ipFB1),1)
 #ifdef _DEBUGPRINT_
         call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),narr-ip+1,Beta,nbeta,Array(ipFB1),array(ipFB2),jfgrad(1,2),ifhess_dum,1, &
                    .true.)
@@ -176,7 +174,7 @@ do kCnttp=1,nCnttp
         call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),Fact,nAlpha,nBeta,Shells(iShll)%Akl,nExpi,la,lb,iang,jfgrad, &
                       Array(ipTmp),.true.,Indx,mvec,idcar)
 
-        nt = nAlpha*nBeta*nElem(lb)*nElem(la)
+        nt = nAlpha*nBeta*nTri_Elem1(lb)*nTri_Elem1(la)
         call SmAdNa(Array(ipFin),nt,rFinal,mop,loper,JndGrd,iuvwx,JfGrad,Indx,idcar,One,iFG,tr)
 
       end do

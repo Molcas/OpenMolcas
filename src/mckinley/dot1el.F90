@@ -36,6 +36,7 @@ subroutine Dot1El(Kernel,KrnlMm,Hess,nHess,DiffOp,CCoor,FD,nFD,lOper,nComp,Label
 !             Modified for multipole moments November '90              *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
@@ -67,10 +68,6 @@ logical(kind=iwp) :: AeqB, Chck, ifgrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Fnl(:), Kappa(:), Kern(:), PCoor(:,:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 logical(kind=iwp), external :: EQ, TF, TstFnc
-! Statement functions
-integer(kind=iwp) :: nElem, ixyz, itri, i1, i2
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-itri(i1,i2) = max(i1,i2)*(max(i1,i2)-1)/2+min(i1,i2)
 
 call dcopy_(nHess,[Zero],0,Hess,1)
 
@@ -140,20 +137,20 @@ do ijS=1,nTasks
 
   ! Allocate memory for the final integrals, all in the primitive basis.
 
-  lFinal = 21*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+  lFinal = 21*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   call mma_allocate(Fnl,lFinal,Label='Fnl')
 
   ! Scratch area for contraction step
 
-  nScrt1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+  nScrt1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   call mma_allocate(Scrt1,nScrt1,Label='Scrt1')
 
   ! Scratch area for the transformation to spherical gaussians
 
-  nScrt2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+  nScrt2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   call mma_allocate(Scrt2,nScrt2,Label='Scrt2')
 
-  nDAO = iPrim*jPrim*nElem(iAng)*nElem(jAng)
+  nDAO = iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   call mma_allocate(DAO,nDAO,Label='DAO')
 
   ! At this point we can compute Zeta.
@@ -366,7 +363,7 @@ do ijS=1,nTasks
 
         ! Project the spherical harmonic space onto the cartesian space.
 
-        kk = nElem(iAng)*nElem(jAng)
+        kk = nTri_Elem1(iAng)*nTri_Elem1(jAng)
         if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
           ! ij,AB --> AB,ij

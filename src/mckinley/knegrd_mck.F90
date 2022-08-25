@@ -26,6 +26,7 @@ subroutine KnEGrd_mck( &
 !             Anders Bernhardsson,1995                                 *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -34,9 +35,6 @@ implicit none
 #include "grd_mck_interface.fh"
 integer(kind=iwp) :: iAlpha, iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipRnxyz, ipRxyz, ipSc, ipTxyz, nip
 logical(kind=iwp) :: ABeq(3)
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, li
-nElem(li) = (li+1)*(li+2)/2
 
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
@@ -58,7 +56,7 @@ nip = nip+nZeta
 ipB = nip
 nip = nip+nZeta
 ipSc = nip
-nip = nip+nElem(la)*nElem(lb)*nZeta
+nip = nip+nTri_Elem1(la)*nTri_Elem1(lb)*nZeta
 if (nip-1 > nArr) then
   write(u6,*) 'KneGrd_Mck: nip-1 > nArr'
   write(u6,*) 'nip,nArr=',nip,nArr
@@ -116,7 +114,7 @@ rFinal(:,:,:,:) = Zero
 
 ! Symmetry adapt the gradient operator
 
-call SymAdO_mck(Array(ipSc),nZeta*nElem(la)*nElem(lb),rFinal,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
+call SymAdO_mck(Array(ipSc),nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
 
 return
 

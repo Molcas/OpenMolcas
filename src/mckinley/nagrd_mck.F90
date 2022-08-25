@@ -27,6 +27,7 @@ subroutine NAGrd_mck( &
 !              Anders Bernhardsson 1995                                *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
@@ -44,9 +45,6 @@ logical(kind=iwp) :: DiffCnt, jfg(4), JfGrd(3,4), JfHss(4,3,4,3), kfgrd(3,4), Tr
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 external :: Cff2D, Fake, TNAI1
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !iRout = 150
 !iPrint = nPrint(iRout)
@@ -102,7 +100,7 @@ end do
 
 ! Loop over nuclear centers
 
-nb = nZeta*nElem(la)*nElem(lb)
+nb = nZeta*nTri_Elem1(la)*nTri_Elem1(lb)
 kdc = 0
 do kCnttp=1,nCnttp
   if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
@@ -191,7 +189,7 @@ do kCnttp=1,nCnttp
                  Array(nip),nArray,TNAI1,Fake,Cff2D,PAO,nPAO,Hess,nHess,kfGrd,kndGrd,JfHss,JndHss,mOp,iuvwx,Jfg,nGr,Indx,.true., &
                  .false.,tr)
 
-      do iElem=1,nElem(la)*nElem(lb)*ngr
+      do iElem=1,nTri_Elem1(la)*nTri_Elem1(lb)*ngr
         do iZeta=1,nZeta
           tfac = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
           indi = (iElem-1)*nZeta+iZeta

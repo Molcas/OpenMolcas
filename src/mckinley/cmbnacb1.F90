@@ -38,6 +38,7 @@ subroutine CmbnACB1(FA1,FB1,rFinal,Fact,nAlpha,nBeta,C,nC,la,lb,iang,ifgrad,tmp,
 !
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -47,12 +48,9 @@ real(kind=wp) :: FA1(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), FB1(nC,nBeta,(2*ia
                  rFinal(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,21), Fact, C(*), Tmp(*)
 logical(kind=iwp) :: ifgrad(3,4), lsro
 integer(kind=iwp) :: ia, ib, iC, iCent, iFa, iFb, nZeta
-! Statement function
-integer(kind=iwp) :: nelem, ixyz
-nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nZeta = nAlpha*nBeta
-call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,rFinal,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*6,[Zero],0,rFinal,1)
 call iCopy(12,[0],0,indx,1)
 
 mVec = 0
@@ -69,8 +67,8 @@ do iCent=1,2
       iFb = 2
     end if
 
-    do ib=1,nElem(lb)
-      do ia=1,nElem(la)
+    do ib=1,nTri_Elem1(lb)
+      do ia=1,nTri_Elem1(la)
 
         do iC=1,(2*iAng+1)
           if (lsro) then

@@ -28,6 +28,7 @@ subroutine SchInt_mck(CoorM,iAnga,iCmp,nAlpha,nBeta,nMemab,Zeta,ZInv,rKapab,P,nZ
 !              for estimates of the gradient.                          *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -40,10 +41,6 @@ real(kind=wp) :: CoorAC(3,2), Q(3)
 logical(kind=iwp) :: NoSpecial
 logical(kind=iwp), external :: EQ
 external :: TERIS, ModU2, Cff2DS, rys2d
-! Statement function to compute canonical index
-integer(kind=iwp) :: nabSz, ixyz, nElem, i
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
-nElem(i) = (i+1)*(i+2)/2
 
 call dcopy_(3,[One],0,Q,1)
 la = iAnga(1)
@@ -54,9 +51,9 @@ lb = iAnga(2)
 
 ! Compute actual size of [a0|c0] block
 
-mabMin = nabSz(max(la,lb)-1)+1
-if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nabSz(la+lb-1)+1
-mabMax = nabSz(la+lb)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nTri3_Elem1(la+lb-1)
+mabMax = nTri3_Elem1(la+lb)-1
 mcdMin = mabmin
 mcdMax = mabMax
 
@@ -92,18 +89,18 @@ call HRR(la,lb,CoorM(1,1),CoorM(1,2),Work2,nijkla,nMemab,ipIn)
 ! will also put the integrals in the right position for the
 ! transfer equation.
 
-call CrSph1(Work2(ipIn),nijkla,Work3,nWork3,RSph(ipSph(la)),nElem(la),nElem(la),.false.,.false.,RSph(ipSph(lb)),nElem(lb), &
-            nElem(lb),.false.,.false.,Work2,nElem(la)*nElem(lb))
+call CrSph1(Work2(ipIn),nijkla,Work3,nWork3,RSph(ipSph(la)),nTri_Elem1(la),nTri_Elem1(la),.false.,.false.,RSph(ipSph(lb)), &
+            nTri_Elem1(lb),nTri_Elem1(lb),.false.,.false.,Work2,nTri_Elem1(la)*nTri_Elem1(lb))
 
 ! Apply transfer equation to generate [ab|CD], CDIJKL,a,b
 
-ijklcd = nElem(la)*nElem(lb)*mZeta
+ijklcd = nTri_Elem1(la)*nTri_Elem1(lb)*mZeta
 call HRR(la,lb,CoorM(1,1),CoorM(1,2),Work2,ijklcd,nMemab,ipIn)
 
 ! Transform to spherical gaussians [AB|CD], IJKL,ABCD
 
-call CrSph2(Work2(ipIn),mZeta,nElem(la)*nElem(lb),Work3,nWork3,RSph(ipSph(la)),nElem(la),nElem(la),.false.,.false., &
-            RSph(ipSph(lb)),nElem(lb),nElem(lb),.false.,.false.,Work2,nElem(la)*nElem(lb))
+call CrSph2(Work2(ipIn),mZeta,nTri_Elem1(la)*nTri_Elem1(lb),Work3,nWork3,RSph(ipSph(la)),nTri_Elem1(la),nTri_Elem1(la),.false., &
+            .false.,RSph(ipSph(lb)),nTri_Elem1(lb),nTri_Elem1(lb),.false.,.false.,Work2,nTri_Elem1(la)*nTri_Elem1(lb))
 
 return
 ! Avoid unused argument warnings

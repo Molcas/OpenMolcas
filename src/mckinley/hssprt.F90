@@ -11,6 +11,7 @@
 
 subroutine HssPrt(Hess,nHess)
 
+use Index_Functions, only: iTri
 use Symmetry_Info, only: lIrrep, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -20,12 +21,9 @@ integer(kind=iwp) :: nHess
 real(kind=wp) :: Hess(nHess)
 #include "Molcas.fh"
 #include "disp.fh"
-integer(kind=iwp) :: i, ii, iIrrep, j, jj, nDisp(0:7)
+integer(kind=iwp) :: i, iDisp, ii, iIrrep, j, jj, nDisp(0:7)
 character(len=39) :: Label
 real(kind=wp), allocatable :: Temp(:)
-! Statement function
-integer(kind=iwp) :: Ind, idisp, jdisp
-Ind(idisp,jdisp) = idisp*(idisp-1)/2+jdisp
 
 !                                                                      *
 !***********************************************************************
@@ -45,8 +43,8 @@ else
     write(Label,100) 'Hessian in Irrep ',lIrrep(iIrrep)
     do i=1,lDisp(iirrep)
       do j=1,i
-        ii = ind(i,j)
-        jj = ind(ndisp(iirrep)+i,ndisp(iirrep)+j)
+        ii = iTri(i,j)
+        jj = iTri(ndisp(iirrep)+i,ndisp(iirrep)+j)
         Temp(ii) = Hess(jj)
       end do
     end do

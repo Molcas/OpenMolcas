@@ -42,8 +42,9 @@ subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOI
 !             of Lund, Sweden. February '93                            *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
-use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep
+use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Gateway_Info, only: CutInt
@@ -58,22 +59,16 @@ logical(kind=iwp) :: Shijij, Pert(0:nIrrep-1)
 real(kind=wp) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
                  Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), FT(nFT), tfact
 #include "disp2.fh"
-integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIn, iIrrep, ijkl, iljk, iOut, ip, ipD, ipFij, ipFij1, ipFik, &
-                     ipFik1, ipFil, ipFil1, ipFjk, ipFjk1, ipFjl, ipFjl1, ipFkl, ipFkl1, iSym(4,0:7), jChBs, jCmpMx, jj, k, kChBs, &
-                     kk, kOp2(4), l, lChBs, lCmpMx, ll, mFij, mFik, mFil, mFjk, mFjl, mFkl, nFij, nFik, nFil, nFjk, nFjl, nFkl, &
-                     nij, nik, nil, njk, njl, nkl, nnIrrep, np
-real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, Fac, Fact, pEa, pFctr, pRb, Prmt(0:7), pTc, pTSd, qFctr, rCh, vij, vijkl, &
-                 vik, vil, vjk, vjl, vkl
+integer(kind=iwp) :: i, i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIn, iIrrep, ijkl, iljk, iOut, ip, ipD, ipFij, ipFij1, &
+                     ipFik, ipFik1, ipFil, ipFil1, ipFjk, ipFjk1, ipFjl, ipFjl1, ipFkl, ipFkl1, iSym(4,0:7), j, jChBs, jCmpMx, jj, &
+                     k, kChBs, kk, kOp2(4), l, lChBs, lCmpMx, ll, mFij, mFik, mFil, mFjk, mFjl, mFkl, nFij, nFik, nFil, nFjk, &
+                     nFjl, nFkl, nij, nik, nil, njk, njl, nkl, nnIrrep, np
+real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, Fac, Fact, pEa, pFctr, pRb, pTc, pTSd, qFctr, rCh, vij, vijkl, vik, vil, vjk, &
+                 vjl, vkl
 logical(kind=iwp) :: iQij, iQik, iQil, iQjk, iQjl, iQkl, iShij, iShik, iShil, iShjk, iShjl, iShkl, lFij, lFik, lFil, lFjk, lFjl, &
                      lFkl, Qijij, Shij, Shkl
 integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
-data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 real(kind=r8), external :: DNrm2_
-! Statement Function
-integer(kind=iwp) :: iOff, ixyz, i, j
-real(kind=wp) :: xPrmt
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
-xPrmt(i,j) = Prmt(iand(i,j))
 
 !iprint = 0
 
@@ -101,10 +96,10 @@ if (iBas*jBas*kBas*lBas > nScrt) then
   write(u6,*) 'iBas,jBas,kBas,lBas,nScrt=',iBas,jBas,kBas,lBas,nScrt
   call Abend()
 end if
-ii = iOff(iAng(1))
-jj = iOff(iAng(2))
-kk = iOff(iAng(3))
-ll = iOff(iAng(4))
+ii = nTri3_Elem(iAng(1))
+jj = nTri3_Elem(iAng(2))
+kk = nTri3_Elem(iAng(3))
+ll = nTri3_Elem(iAng(4))
 kOp2(1) = iOper(kOp(1))
 kOp2(2) = iOper(kOp(2))
 kOp2(3) = iOper(kOp(3))
@@ -162,7 +157,7 @@ do i1=1,iCmp
   if (Shij) jCmpMx = i1
   iChBs = iChBas(ii+i1)
   if (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
-  pEa = xPrmt(iOper(kOp(1)),iChBs)
+  pEa = Prmt(iOper(kOp(1)),iChBs)
   do i2=1,jCmpMx
     do j=0,nIrrep-1
       iSym(2,j) = 0
@@ -170,7 +165,7 @@ do i1=1,iCmp
     end do
     jChBs = iChBas(jj+i2)
     if (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
-    pRb = xPrmt(iOper(kOp(2)),jChBs)
+    pRb = Prmt(iOper(kOp(2)),jChBs)
     !Qij = i1 == i2
     if (iShell(2) > iShell(1)) then
       i12 = jCmp*(i1-1)+i2
@@ -186,7 +181,7 @@ do i1=1,iCmp
       if (Shkl) lCmpMx = i3
       kChBs = iChBas(kk+i3)
       if (Shells(iShll(3))%Transf) kChBs = iChBas(iSphCr(kk+i3))
-      pTc = xPrmt(iOper(kOp(3)),kChBs)
+      pTc = Prmt(iOper(kOp(3)),kChBs)
       do i4=1,lCmpMx
         do j=0,nIrrep-1
           iSym(4,j) = 0
@@ -195,7 +190,7 @@ do i1=1,iCmp
         !Qkl = i3 == i4
         lChBs = iChBas(ll+i4)
         if (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+i4))
-        pTSd = xPrmt(iOper(kOp(4)),lChBs)
+        pTSd = Prmt(iOper(kOp(4)),lChBs)
         if (iShell(4) > iShell(3)) then
           i34 = lCmp*(i3-1)+i4
         else
@@ -498,7 +493,7 @@ do iIrrep=0,nnIrrep-1
   !write(u6,'(I2,L1)') iIrrep,pert(iIrrep)
   if (pert(iIrrep)) then
     ip = ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
-    rCh = xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*real(iChTbl(iIrrep,kOp(iCent)),kind=wp)
+    rCh = Prmt(iOper(kOp(iCent)),iChBas(1+iCar))*real(iChTbl(iIrrep,kOp(iCent)),kind=wp)
     Fact = tfact*rCh
     !write(u6,*) 'Level ij'
     if (lFij) call FckDst(TwoHam(ip),ndens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),kOp2(1),kOp2(2),iIrrep,iShij,iAO(1),iAO(2), &
@@ -565,8 +560,9 @@ subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOI
 !     Modified July '98 in Tokyo by R. Lindh                           *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
-use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep
+use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Gateway_Info, only: ThrInt !, CutInt
@@ -586,15 +582,9 @@ integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIrrep, ijkl
                      jChBs, jCmpMx, jj, kChBs, kk, kOp2(4), lChBs, lCmpMx, ll, loc1, loc2, mijkl, nFij, nFik, nFil, nFjk, nFjl, &
                      nFkl, nnIrrep
 real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, ExFac, Fac_ij, Fac_ik, Fac_il, Fac_jk, Fac_jl, Fac_kl, Fact, pEa, pFctr, pRb, &
-                 Prmt(0:7), pTc, pTSd, rCh, vij, vijkl, vik, vil, vjk, vjl, vkl
+                 pTc, pTSd, rCh, vij, vijkl, vik, vil, vjk, vjl, vkl
 logical(kind=iwp) :: iQij, iQik, iQil, iQjk, iQjl, iQkl, iShij, iShik, iShil, iShjk, iShjl, iShkl, lFij, lFik, lFil, lFjk, lFjl, &
                      lFkl, Qijij
-data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-! Statement Function
-integer(kind=iwp) :: iOff, ixyz, i, j
-real(kind=wp) :: xPrmt
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
-xPrmt(i,j) = Prmt(iand(i,j))
 
 !iRout = 38
 !iPrint = nPrint(iRout)
@@ -618,10 +608,10 @@ if (iBas*jBas*kBas*lBas > nScrt) then
   write(u6,*) 'FckAcc: nScrt too small!'
   call Abend()
 end if
-ii = iOff(iAng(1))
-jj = iOff(iAng(2))
-kk = iOff(iAng(3))
-ll = iOff(iAng(4))
+ii = nTri3_Elem(iAng(1))
+jj = nTri3_Elem(iAng(2))
+kk = nTri3_Elem(iAng(3))
+ll = nTri3_Elem(iAng(4))
 
 kOp2(1) = iOper(kOp(1))
 kOp2(2) = iOper(kOp(2))
@@ -693,7 +683,7 @@ do i1=1,iCmp
   if (iShij) jCmpMx = i1
   iChBs = iChBas(ii+i1)
   if (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
-  pEa = xPrmt(iOper(kOp(1)),iChBs)
+  pEa = Prmt(iOper(kOp(1)),iChBs)
   do i2=1,jCmpMx
     ix = 0
     do j=0,nIrrep-1
@@ -702,7 +692,7 @@ do i1=1,iCmp
     iSym(2) = ix
     jChBs = iChBas(jj+i2)
     if (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
-    pRb = xPrmt(iOper(kOp(2)),jChBs)
+    pRb = Prmt(iOper(kOp(2)),jChBs)
     if (iShell(2) > iShell(1)) then
       i12 = jCmp*(i1-1)+i2
     else
@@ -718,7 +708,7 @@ do i1=1,iCmp
       if (iShkl) lCmpMx = i3
       kChBs = iChBas(kk+i3)
       if (Shells(iShll(3))%Transf) kChBs = iChBas(iSphCr(kk+i3))
-      pTc = xPrmt(iOper(kOp(3)),kChBs)
+      pTc = Prmt(iOper(kOp(3)),kChBs)
       do i4=1,lCmpMx
         ix = 0
         do j=0,nIrrep-1
@@ -727,7 +717,7 @@ do i1=1,iCmp
         iSym(4) = ix
         lChBs = iChBas(ll+i4)
         if (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+i4))
-        pTSd = xPrmt(iOper(kOp(4)),lChBs)
+        pTSd = Prmt(iOper(kOp(4)),lChBs)
         if (iShell(4) > iShell(3)) then
           i34 = lCmp*(i3-1)+i4
         else
@@ -957,7 +947,7 @@ do iIrrep=0,nnIrrep-1
 
   if (pert(iIrrep)) then
     ip = ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
-    rCh = xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*real(iChTbl(iIrrep,kOp(iCent)),kind=wp)
+    rCh = Prmt(iOper(kOp(iCent)),iChBas(1+iCar))*real(iChTbl(iIrrep,kOp(iCent)),kind=wp)
     Fact = tfact*rCh
     !write(u6,*) 'Level ij'
     if (lFij) call FckDst(TwoHam(ip),ndens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),kOp2(1),kOp2(2),iIrrep,iShij,iAO(1),iAO(2), &

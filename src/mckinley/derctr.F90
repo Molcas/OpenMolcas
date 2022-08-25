@@ -14,11 +14,12 @@
 subroutine DerCtr(mdci,mdcj,mdck,mdcl,ldot,JfGrd,IndGrd,JfHss,IndHss,JfG,mbatch)
 
 !#define _OLD_CODE_
+use Index_Functions, only: iTri
+use Symmetry_Info, only: nIrrep
 #ifdef _OLD_CODE_
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper
 #endif
-use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp
 
 implicit none
@@ -30,15 +31,12 @@ logical(kind=iwp) :: ldot, JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
 integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, iSh, istop, jAtom, jCar, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
                      nDisp, nnIrrep
 logical(kind=iwp) :: IfG(4), IfGrd(3,4), IfHss(4,3,4,3)
+logical(kind=iwp), external :: TF
 #ifdef _OLD_CODE_
 integer(kind=iwp) :: i, iCo(4), iCom(0:7,0:7), idcrr(0:7), ielem, iStabM(0:7), iTmp, j, jOper, LmbdR, nDCRR, nCoM, nMax, nStabM
 logical(kind=iwp) :: chck
 logical(kind=iwp), external :: TstFnc
 #endif
-logical(kind=iwp), external :: TF
-! Statement function
-integer(kind=iwp) :: Ind, i1, i2
-Ind(i1,i2) = i1*(i1-1)/2+i2
 
 nnIrrep = nIrrep
 call lCopy(12,[.false.],0,ifgrd,1)
@@ -190,8 +188,7 @@ do iAtom=1,4
         do jCar=1,istop
           IfHss(iAtom,iCar,jAtom,jCar) = .true.
           if ((jndGrd(iCar,iAtom,iIrrep) > 0) .and. (jndGrd(jCar,jAtom,iIrrep) > 0)) then
-            IndHss(iAtom,iCar,jAtom,jCar,iIrrep) = Ind(max(JndGrd(iCar,iAtom,iIrrep),jndGrd(jCar,jAtom,iIrrep)), &
-                                                       min(jndGrd(iCar,iAtom,iIrrep),jndGrd(jCar,jAtom,iIrrep)))
+            IndHss(iAtom,iCar,jAtom,jCar,iIrrep) = iTri(JndGrd(iCar,iAtom,iIrrep),JndGrd(jCar,jAtom,iIrrep))
           else
             IndHss(iAtom,iCar,jAtom,jCar,iIrrep) = 0
           end if

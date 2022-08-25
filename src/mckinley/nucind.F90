@@ -11,6 +11,7 @@
 
 subroutine NucInd(coor,kdc,ifgrd,ifhss,indgrd,indhss,jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
 
+use Index_Functions, only: iTri
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
@@ -24,9 +25,6 @@ logical(kind=iwp) :: IfGrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2), JfGrd(0:2,0:3), JfH
 #include "disp2.fh"
 integer(kind=iwp) :: iAtom, iCar, iCent, iComp, iIrrep, iStop, jAtom, jCar, kCar, kCent, Maxi, Mini, nDisp, nnIrrep
 logical(kind=iwp), external :: EQ, TF
-! Statement functions
-integer(kind=iwp) :: IX, i1, i2
-IX(i1,i2) = i1*(i1-1)/2+i2
 
 !                                                                      *
 !***********************************************************************
@@ -99,8 +97,7 @@ do iCar=0,2
     do jCar=0,iStop
       do iIrrep=0,nIrrep-1
         if ((JndGrd(iCar,2,iIrrep) /= 0) .and. (JndGrd(jCar,jAtom,iIrrep) /= 0)) then
-          JndHss(2,iCar,jAtom,jCar,iIrrep) = -IX(max(abs(JndGrd(iCar,2,iIrrep)),abs(JndGrd(jCar,jAtom,iIrrep))), &
-                                                 min(abs(JndGrd(iCar,2,iIrrep)),abs(JndGrd(jCar,jAtom,iIrrep))))
+          JndHss(2,iCar,jAtom,jCar,iIrrep) = -iTri(abs(JndGrd(iCar,2,iIrrep)),abs(JndGrd(jCar,jAtom,iIrrep)))
 
           Tr(2) = .true.
           if (jAtom == 2) then

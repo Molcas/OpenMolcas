@@ -27,6 +27,7 @@ subroutine ElGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A
 !             Modified to gradient calculations May '95                *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -40,9 +41,6 @@ logical(kind=iwp) :: ifgrad(3,2), trans(3,2)
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, &
                      ipTemp3, iZeta, ncomp, nip
 logical(kind=iwp) :: ABeq(3)
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 iprint = 0
 ABeq(1) = A(1) == B(1)
@@ -69,7 +67,7 @@ nip = nip+nZeta
 ipBeta = nip
 nip = nip+nZeta
 ipFinal = nip
-nip = nip+nzeta*nElem(la)*nElem(lb)*4*6
+nip = nip+nzeta*nTri_Elem1(la)*nTri_Elem1(lb)*4*6
 if (nip-1 > nArr*nZeta) then
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
   call ErrTra()
@@ -115,12 +113,12 @@ call Cmbnel(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),ncomp,A
             Array(ipBeta),iu,iv,nOp,ifgrad,kcar)
 
 !?
-call dcopy_(nElem(la)*nElem(lb)*nZeta*NrOp,[Zero],0,rFinal,1)
+call dcopy_(nTri_Elem1(la)*nTri_Elem1(lb)*nZeta*NrOp,[Zero],0,rFinal,1)
 
 ! Symmetry adapt the gradient operator
 
-call SymAdO_mck2(Array(ipFinal),nZeta*nElem(la)*nElem(lb),rFinal,nrOp,nop,IndGrd,ksym,iu,iv,ifgrad,idcar,trans)
-if (iPrint >= 49) call RecPrt(' Primitive Integrals SO',' ',rFinal,nZeta,nElem(la)*nElem(lb)*nrOp)
+call SymAdO_mck2(Array(ipFinal),nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal,nrOp,nop,IndGrd,ksym,iu,iv,ifgrad,idcar,trans)
+if (iPrint >= 49) call RecPrt(' Primitive Integrals SO',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nrOp)
 
 !call Getmem('EXOG','CHECK','REAL',ipdum,ipdum)
 

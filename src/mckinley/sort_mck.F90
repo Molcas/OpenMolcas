@@ -21,9 +21,10 @@ subroutine Sort_mck(A,B,iBas,jBas,kBas,lBas,iCmp,jCmp,kCmp,lCmp,iBasO,jBasO,kBas
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
-use Symmetry_Info, only: iChBas, iOper, nIrrep
+use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -32,37 +33,31 @@ integer(kind=iwp) :: iBas, jBas, kBas, lBas, iCmp, jCmp, kCmp, lCmp, iBasO, jBas
                      nop(4), iAng(4), indgrd(3,4,0:nirrep-1), indgrd2(3,4,0:nirrep-1), ishll(4)
 real(kind=wp) :: A(iBas*jBas*kBas*lBas,iCmp,jCmp,kCmp,lCmp,nVec), B(kBasO*kcmpO,lBasO,lcmpO,iBasO,iCmpO,jBasO,jCmpO*nvec), C(*)
 integer(kind=iwp) :: iB, iC, ichbs, ii, ijkl, iVec, jB, jC, jChBs, jj, kB, kC, kChBs, kk, lB, lC, lChBs, ll
-real(kind=wp) :: PrA, pRb, Prmt(0:7), pTc, pTSd, qFctr, rp
-data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-! Statement Function
-real(kind=wp) :: xPrmt
-integer(kind=iwp) :: i, j, iOff, ixyz
-xPrmt(i,j) = Prmt(iand(i,j))
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
+real(kind=wp) :: PrA, pRb, pTc, pTSd, qFctr, rp
 
-ii = iOff(iAng(1))
-jj = iOff(iAng(2))
-kk = iOff(iAng(3))
-ll = iOff(iAng(4))
+ii = nTri3_Elem(iAng(1))
+jj = nTri3_Elem(iAng(2))
+kk = nTri3_Elem(iAng(3))
+ll = nTri3_Elem(iAng(4))
 
 rp = One
 do iVec=1,nVec
   do iC=1,iCmp
     ichbs = ichbas(ii+ic)
     if (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+ic))
-    PrA = xPrmt(iOper(nOp(1)),iChBs)
+    PrA = Prmt(iOper(nOp(1)),iChBs)
     do jC=1,jCmp
       jChBs = iChBas(jj+jc)
       if (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+jc))
-      pRb = xPrmt(iOper(nOp(2)),jChBs)
+      pRb = Prmt(iOper(nOp(2)),jChBs)
       do kC=1,kCmp
         kChBs = iChBas(kk+kc)
         if (Shells(iShll(3))%Transf) kChBs = iChBas(iSphCr(kk+kc))
-        pTc = xPrmt(iOper(nOp(3)),kChBs)
+        pTc = Prmt(iOper(nOp(3)),kChBs)
         do lC=1,lCmp
           lChBs = iChBas(ll+lC)
           if (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+lc))
-          pTSd = xPrmt(iOper(nOp(4)),lChBs)
+          pTSd = Prmt(iOper(nOp(4)),lChBs)
           qFctr = pTSd*pTc*pRb*pRa*rp
           !*EAW 970930
 

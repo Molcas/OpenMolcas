@@ -24,6 +24,7 @@ subroutine RToCore(F,nBeta,ishll,lb,iAng,nveccb)
 ! @parameter nveccb Number of derivatives
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: Shells
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -35,12 +36,9 @@ real(kind=wp) :: F(*)
 integer(kind=iwp) :: nBeta, ishll, lb, iAng, nveccb
 integer(kind=iwp) :: nBasisi, ncb, nExpi
 real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !***********************************************************************
-ncb = nelem(lb)*nelem(iang)
+ncb = nTri_Elem1(lb)*nTri_Elem1(iang)
 nExpi = Shells(iShll)%nExp
 nBasisi = Shells(iShll)%nBasis
 call mma_allocate(TMP1,nExpi*ncb*nVecCB*nBeta,Label='Tmp1')
@@ -58,12 +56,12 @@ call DgeTMo(Tmp1,nBeta,nBeta,ncb*nVecCB*nBasisi,Tmp2,ncb*nVecCB*nBasisi)
 
 ! 3) bKj,C = c,bKj * c,C
 
-call DGEMM_('T','N',nElem(lb)*nVecCB*nBasisi*nBeta,(2*iAng+1),nElem(iAng),One,Tmp2,nElem(iAng),RSph(ipSph(iAng)),nElem(iAng),Zero, &
-            Tmp1,nElem(lb)*nVecCB*nBasisi*nBeta)
+call DGEMM_('T','N',nTri_Elem1(lb)*nVecCB*nBasisi*nBeta,(2*iAng+1),nTri_Elem1(iAng),One,Tmp2,nTri_Elem1(iAng),RSph(ipSph(iAng)), &
+            nTri_Elem1(iAng),Zero,Tmp1,nTri_Elem1(lb)*nVecCB*nBasisi*nBeta)
 
 ! 4) b,KjC -> KjC,b
 
-call DgeTMo(Tmp1,nElem(lb)*nVecCB,nElem(lb)*nVecCB,nBasisi*nBeta*(2*iAng+1),F,nBasisi*nBeta*(2*iAng+1))
+call DgeTMo(Tmp1,nTri_Elem1(lb)*nVecCB,nTri_Elem1(lb)*nVecCB,nBasisi*nBeta*(2*iAng+1),F,nBasisi*nBeta*(2*iAng+1))
 
 call mma_deallocate(Tmp2)
 call mma_deallocate(Tmp1)

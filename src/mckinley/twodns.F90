@@ -14,6 +14,7 @@
 subroutine TwoDns(ianga,iCmp,shijij,ishll,ishell,iAO,nop,iBasi,jBasj,kBask,lBasl,Aux,nAux,Work2,nWork2,Work3,nWork3,work4,nWork4, &
                   PSO,nPSO,Fact)
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: Shells
 use Real_Spherical, only: ipSph, RSph
 use Constants, only: One
@@ -25,9 +26,6 @@ integer(kind=iwp) :: iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), nOp(4), iBa
 logical(kind=iwp) :: Shijij
 real(kind=wp) :: Aux(nAux), Work2(nWork2), Work3(nWork3), Work4(nWork4), PSO(nPSO), Fact
 integer(kind=iwp) :: iCmpa, ijklab, iShlla, jCmpb, jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lShlld, mab, mcd, nijkl
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 nijkl = iBasi*jBasj*kBask*lBasl
 iShlla = iShll(1)
@@ -42,8 +40,8 @@ iCmpa = iCmp(1)
 jCmpb = iCmp(2)
 kCmpc = iCmp(3)
 lCmpd = iCmp(4)
-mab = nElem(la)*nElem(lb)
-mcd = nElem(lc)*nElem(ld)
+mab = nTri_Elem1(la)*nTri_Elem1(lb)
+mcd = nTri_Elem1(lc)*nTri_Elem1(ld)
 
 !----------------------------------------------------------------------*
 !
@@ -65,11 +63,11 @@ if (Fact /= One) call DScal_(nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),Fact,Work2,1)
 
 ijklab = nijkl*iCmp(1)*iCmp(2)
 ! Work2->Work2  (Work3:Scratch)
-call SphCr1(Work2,ijklab,Work3,nWork3,RSph(ipSph(lc)),nElem(lc),kCmpc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct,RSph(ipSph(ld)), &
-            nElem(ld),lCmpd,Shells(lShlld)%Transf,Shells(lShlld)%Prjct,Work2,mcd)
+call SphCr1(Work2,ijklab,Work3,nWork3,RSph(ipSph(lc)),nTri_Elem1(lc),kCmpc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct, &
+            RSph(ipSph(ld)),nTri_Elem1(ld),lCmpd,Shells(lShlld)%Transf,Shells(lShlld)%Prjct,Work2,mcd)
 ! Work2->Work4  (Work3:Scratch)
-call SphCr2(Work2,nijkl,mcd,Work3,nWork3,RSph(ipSph(la)),nElem(la),iCmpa,Shells(iShlla)%Transf,Shells(iShlla)%Prjct, &
-            RSph(ipSph(lb)),nElem(lb),jCmpb,Shells(jShllb)%Transf,Shells(jShllb)%Prjct,Work4,mab)
+call SphCr2(Work2,nijkl,mcd,Work3,nWork3,RSph(ipSph(la)),nTri_Elem1(la),iCmpa,Shells(iShlla)%Transf,Shells(iShlla)%Prjct, &
+            RSph(ipSph(lb)),nTri_Elem1(lb),jCmpb,Shells(jShllb)%Transf,Shells(jShllb)%Prjct,Work4,mab)
 
 !----------------------------------------------------------------------*
 

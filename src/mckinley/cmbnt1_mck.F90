@@ -22,6 +22,7 @@ subroutine CmbnT1_mck(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Txyz,Alpha,Beta,IfGra
 !             October '91                                              *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind
 use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
@@ -32,9 +33,6 @@ real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFina
 logical(kind=iwp) :: IfGrad(3,2)
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
 real(kind=wp) :: xa, xb, ya, yb, za, zb
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 !iRout = 134
 !iPrint = nPrint(iRout)
@@ -50,10 +48,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         ! Combine integrals
 

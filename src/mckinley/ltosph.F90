@@ -27,6 +27,7 @@ subroutine LToSph(F,nAlpha,iShll,la,iAng,nVecAC)
 ! @parameter nVecAC Number of derivatives
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: Shells
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -38,28 +39,25 @@ real(kind=wp) :: F(*)
 integer(kind=iwp) :: nAlpha, iShll, la, iAng, nVecAC
 integer(kind=iwp) :: nac, nExpi
 real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
-!Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !***********************************************************************
 
 nExpi = Shells(iShll)%nExp
-nac = nelem(la)*nelem(iang)
+nac = nTri_Elem1(la)*nTri_Elem1(iang)
 call mma_allocate(Tmp1,nExpi*nac*nVecAC*nalpha,Label='Tmp1')
 call mma_allocate(Tmp2,nExpi*nac*nVecAC*nalpha,Label='Tmp2')
 
-call DgeTMo(F,nAlpha*nExpi*nElem(la),nAlpha*nExpi*nElem(la),nElem(iAng)*nVecAC,Tmp1,nElem(iAng)*nVecAC)
+call DgeTMo(F,nAlpha*nExpi*nTri_Elem1(la),nAlpha*nExpi*nTri_Elem1(la),nTri_Elem1(iAng)*nVecAC,Tmp1,nTri_Elem1(iAng)*nVecAC)
 
 ! 2) xika,C = c,xika * c,C
 
-call DGEMM_('T','N',nVecAC*nAlpha*nExpi*nElem(la),(2*iAng+1),nElem(iAng),One,Tmp1,nElem(iAng),RSph(ipSph(iAng)),nElem(iAng),Zero, &
-            Tmp2,nVecAC*nAlpha*nExpi*nElem(la))
+call DGEMM_('T','N',nVecAC*nAlpha*nExpi*nTri_Elem1(la),(2*iAng+1),nTri_Elem1(iAng),One,Tmp1,nTri_Elem1(iAng),RSph(ipSph(iAng)), &
+            nTri_Elem1(iAng),Zero,Tmp2,nVecAC*nAlpha*nExpi*nTri_Elem1(la))
 
 ! 3) x,ikaC -> ikaC,x
 
-call DGetMo(Tmp2,nVecAC,nVecAC,nAlpha*nExpi*nElem(la)*(2*iAng+1),Tmp1,nAlpha*nExpi*nElem(la)*(2*iAng+1))
-call dcopy_(nVecAC*nAlpha*nExpi*nElem(la)*(2*iAng+1),Tmp1,1,F,1)
+call DGetMo(Tmp2,nVecAC,nVecAC,nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1),Tmp1,nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1))
+call dcopy_(nVecAC*nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1),Tmp1,1,F,1)
 
 call mma_deallocate(Tmp2)
 call mma_deallocate(Tmp1)

@@ -29,6 +29,7 @@ subroutine coreB(iang,lb,ishll,nordop,TC,RB,Array,narr,Beta,nbeta,fb1,fb2,jfgrad
 ! @parameter ld Order of derivatives
 ! @parameter debug guess
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: Shells
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Definitions, only: wp, iwp, u6, r8
@@ -40,9 +41,6 @@ logical(kind=iwp) :: jfgrad(3), jfhess(4,3,4,3), debug
 integer(kind=iwp) :: i, iGamma, ip, ipB, ipBxyz, ipCxyz, ipK2, ipP2, ipQ1, ipRxyz, ipV, ipZ2, ipZI2, iStrt, n, nExpi, nHer, nVecCB
 logical(kind=iwp) :: ABeq(3)
 real(kind=r8), external :: DNrm2_
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nExpi = Shells(iShll)%nExp
 if (debug) write(u6,*) 'Shell: ',ishll,' nBeta:',nbeta,' nExp:',nExpi,'Angular',lb,iang
@@ -122,8 +120,8 @@ if (ld >= 2) then
   if (debug) then
     do i=1,6
       ipV = 1
-      n = nBeta*nExpi*nElem(lb)*nElem(iAng)
-      write(u6,*) n,nBeta,nExpi,nElem(lb),nElem(iAng)
+      n = nBeta*nExpi*nTri_Elem1(lb)*nTri_Elem1(iAng)
+      write(u6,*) n,nBeta,nExpi,nTri_Elem1(lb),nTri_Elem1(iAng)
 
       write(u6,*) 'CmbnB2(',n,')=',DNrm2_(n,FB2(ipV),1)
       ipV = ipV+n

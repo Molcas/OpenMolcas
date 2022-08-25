@@ -26,6 +26,7 @@ subroutine NAHss( &
 !             October 1991                                             *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp
 use Center_Info, only: dc
 use Constants, only: Zero, One, Two, Pi
@@ -45,10 +46,6 @@ logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, TF
 external :: TNAI1, Fake, Cff2D
-! Statement functions
-integer(kind=iwp) :: nElem, ixyz, itri, i1, i2
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-itri(i1,i2) = max(i1,i2)*(max(i1,i2)-1)/2+min(i1,i2)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In NAHss: nArr=',nArr
@@ -62,7 +59,7 @@ nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)
+nip = nip+nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)
 if (nip-1 > nArr) then
   write(u6,*) 'NAHss: nip-1 > nArr'
   write(u6,*) 'nip,nArr=',nip,nArr
@@ -102,7 +99,7 @@ end do
 
 ! Modify the density matrix with the prefactor
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 do iDAO=1,nDAO
   do iZeta=1,nZeta
     Fact = Two*rkappa(iZeta)*Pi/Zeta(iZeta)

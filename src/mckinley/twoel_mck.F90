@@ -76,6 +76,7 @@ subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,
 !***********************************************************************
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
@@ -113,9 +114,6 @@ logical(kind=iwp) :: ABeq, ABeqCD, AeqB, AeqC, CDeq, CeqD, first, JfGrd(3,4), Jf
 integer(kind=iwp), external :: ip_abMax, ip_IndZ, ip_Z, ip_ZetaM, ip_ZtMax, NrOpr
 logical(kind=iwp), external :: EQ, lEmpty
 external :: TERI1, ModU2, Cff2D
-! Statement function to compute canonical index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 !                                                                      *
 !***********************************************************************
@@ -178,8 +176,8 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
   LmbdT = 0
   nijkl = iBasi*jBasj*kBask*lBasl
   nabcd = iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)
-  mab = nElem(la)*nElem(lb)
-  mcd = nElem(lc)*nElem(ld)
+  mab = nTri_Elem1(la)*nTri_Elem1(lb)
+  mcd = nTri_Elem1(lc)*nTri_Elem1(ld)
 
   ! Scratch space for Fock Matrix construction
 
@@ -497,7 +495,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         !
         !--------------------------------------------------------------*
 
-        niag = nijkl*nElem(lb)*mcd*nGr
+        niag = nijkl*nTri_Elem1(lb)*mcd*nGr
         call CrSph_mck(WorkX,niag,(la+1)*(la+2)/2,RSph(ipSph(la)),la,Shells(iShlla)%Transf,Shells(iShlla)%Prjct,Work3,iCmpa)
         nw3 = niag*iCmpa
         ip2 = 1+nw3
@@ -522,7 +520,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         !
         !--------------------------------------------------------------*
 
-        niag = nijkl*nGr*nElem(ld)*iCmpa*jCmpb
+        niag = nijkl*nGr*nTri_Elem1(ld)*iCmpa*jCmpb
         call CrSph_mck(Work3(ip2),niag,(lc+1)*(lc+2)/2,RSph(ipSph(lc)),lc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct,Work3,kCmpc)
         if (niag*kCmpc > nw3) then
           write(u6,*) 'niag*kCmpc > nw3'

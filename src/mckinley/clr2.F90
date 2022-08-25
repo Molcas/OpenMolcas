@@ -13,6 +13,7 @@
 
 subroutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,iaoi,iaoj,naco,ishell,temp1,temp2,temp3,temp4,temp5,temp6)
 
+use Index_Functions, only: iTri
 use pso_stuff, only: G2
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: iOper, nIrrep
@@ -28,14 +29,11 @@ real(kind=wp) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,naco*(1+naco)/2,*), rOut(*),
 #include "etwas.fh"
 #include "buffer.fh"
 #include "disp.fh"
-integer(kind=iwp) :: ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, ipp(0:7), &
-                     iS, iSO, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, lsl, lSO, &
-                     mIrr, n, na(0:7), ni, nj, nnA
+integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, &
+                     ipp(0:7), iS, iSO, j, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, &
+                     lsl, lSO, mIrr, n, na(0:7), ni, nj, nnA
 real(kind=wp) :: fact, rd
 integer(kind=iwp), external :: NrOpr
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 call dcopy_(Naco**4,[Zero],0,Temp2,1)
 call dcopy_(nACO*ICMP*IBAS,[Zero],0,Temp4,1)

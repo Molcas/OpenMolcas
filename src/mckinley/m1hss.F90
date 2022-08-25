@@ -26,6 +26,7 @@ subroutine M1Hss( &
 !             October 1991                                             *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Constants, only: Zero
@@ -43,10 +44,6 @@ real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, TC(3)
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, TF
-! Statement functions
-integer(kind=iwp) :: nElem, ixyz, IX, i1, i2
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-IX(i1,i2) = i1*(i1-1)/2+i2
 
 !if (iPrint >= 99) then
 !  write(u6,*) ' In M1Hss: nArr=',nArr
@@ -95,7 +92,7 @@ end do
 
 ! Modify the density matrix with the prefactor
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 !do iDAO=1,nDAO
 !  do iZeta=1,nZeta
 !    Fact = Two*rkappa(iZeta)*Pi*ZInv(iZeta)
@@ -198,8 +195,7 @@ do kCnttp=1,nCnttp
           do jCar=0,iStop
             do iIrrep=0,nSym-1
               if ((JndGrd(iCar,2,iIrrep) /= 0) .and. (JndGrd(jCar,jAtom,iIrrep) /= 0)) then
-                JndHss(2,iCar,jAtom,jCar,iIrrep) = -IX(max(abs(JndGrd(iCar,2,iIrrep)),abs(JndGrd(jCar,jAtom,iIrrep))), &
-                                                       min(abs(JndGrd(iCar,2,iIrrep)),abs(JndGrd(jCar,jAtom,iIrrep))))
+                JndHss(2,iCar,jAtom,jCar,iIrrep) = -iTri(abs(JndGrd(iCar,2,iIrrep)),abs(JndGrd(jCar,jAtom,iIrrep)))
 
                 Tr(2) = .true.
                 if (jAtom == 2) then

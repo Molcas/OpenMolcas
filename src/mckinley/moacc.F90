@@ -24,7 +24,7 @@ subroutine MOAcc(AOInt,n_int,Temp1,Temp2,Temp3,nTemp,MOInt,nMO,ishell,Ci,nCi,Cj,
 !             University of Lund, Sweden. Januar '96                   *
 !***********************************************************************
 
-use Symmetry_Info, only: iChTbl, iOper, nIrrep
+use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
 use Gateway_Info, only: CutInt
 use Constants, only: Zero
 use Definitions, only: wp, iwp, r8
@@ -36,19 +36,14 @@ real(kind=wp) :: AOInt(nkl,nij), Temp1(nTemp), Temp2(naco,naco), Temp3, MOint(nM
                  Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,naco*(naco+1)/2,*), Tempi
 logical(kind=iwp) :: pert(0:7)
 #include "etwas.fh"
-integer(kind=iwp) :: ib, iBas, ic, iCB, iirr, ij, il, ipC, ipM, irest, iSPert, jb, jBas, jc, jIrr, k, kAsh, kBas, kCmp, kIrr, &
-                     kIrrep, kk, kMax, l, lAsh, lBas, lCmp, lIrr, ll, nt
-real(kind=wp) :: Prmt(0:7), rFact, rFact2, rk, rl, rPij, rPj, sfact, vij
-data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
+integer(kind=iwp) :: i, ib, iBas, ic, iCB, iirr, ij, il, ipC, ipM, irest, iSPert, j, jb, jBas, jc, jIrr, k, kAsh, kBas, kCmp, &
+                     kIrr, kIrrep, kk, kMax, l, lAsh, lBas, lCmp, lIrr, ll, nt
+real(kind=wp) :: rFact, rFact2, rk, rl, rPij, rPj, sfact, vij
 integer(kind=iwp), external :: NrOpr
 real(kind=r8), external :: DNrm2_
-! Statement Function
-real(kind=wp) :: xPrmt
-integer(kind=iwp) :: i, j
-xPrmt(i,j) = Prmt(iand(i,j))
 
 iCB = 2**(icar-1)
-rFact = xPrmt(ioper(nOp(icnt)),icb)*fact
+rFact = Prmt(ioper(nOp(icnt)),icb)*fact
 
 iBas = iBasa(1)
 jBas = iBasa(2)

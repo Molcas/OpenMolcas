@@ -25,6 +25,7 @@ subroutine PrjHss( &
 !             Physics, University of Stockholm, Sweden, October 1993.  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper
@@ -39,9 +40,6 @@ real(kind=wp) :: C(3), Coor(3,4), Dum(1), Fact, g2(78), TC(3)
 logical(kind=iwp) :: ifg(4), JfGrd(3,4), jfhss(4,3,4,3), tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nRys = nHer
 
@@ -86,19 +84,19 @@ do kCnttp=1,nCnttp
         ip = 1
 
         ipFin = ip
-        ip = ip+nZeta*nElem(la)*nElem(lb)*21
+        ip = ip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*21
 
         ipFA1 = ip
-        ip = ip+nAlpha*nExpi*nElem(la)*nElem(iAng)*4
+        ip = ip+nAlpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)*4
 
         ipFA2 = ip
-        ip = ip+nAlpha*nExpi*nElem(la)*nElem(iAng)*6
+        ip = ip+nAlpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)*6
 
         ipFB1 = ip
-        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*4
+        ip = ip+nExpi*nBeta*nTri_Elem1(iAng)*nTri_Elem1(lb)*4
 
         ipFB2 = ip
-        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*6
+        ip = ip+nExpi*nBeta*nTri_Elem1(iAng)*nTri_Elem1(lb)*6
 
         call dcopy_(nArr,[Zero],0,Array,1)
         ! <a|c>,<a'|c>,<a"|c>

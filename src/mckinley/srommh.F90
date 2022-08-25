@@ -25,15 +25,13 @@ subroutine sroMmH(nHer,MmSROH,la,lb,lr)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nHer, MmSROH, la, lb, lr
 integer(kind=iwp) :: iacore, iAng, iCnttp, icoreb, icores, ip, iShll, ld, nac, ncb, nExpi, nOrder, nordop
-! Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 nOrder = 0
 nordop = lr
@@ -47,9 +45,9 @@ do iCnttp=1,nCnttp
     if (nExpi == 0) cycle
 
     ip = 0
-    nac = nElem(la)*nElem(iAng)
-    ncb = nElem(iAng)*nElem(lb)
-    ip = ip+nElem(la)*nElem(lb)*21 ! Final
+    nac = nTri_Elem1(la)*nTri_Elem1(iAng)
+    ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)
+    ip = ip+nTri_Elem1(la)*nTri_Elem1(lb)*21 ! Final
 
     ip = ip+nExpi*nExpi ! tmp
 

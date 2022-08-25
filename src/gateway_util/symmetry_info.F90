@@ -30,9 +30,17 @@ integer(kind=iwp), parameter :: Mul(8,8) = reshape([1,2,3,4,5,6,7,8, &
                                                     5,6,7,8,1,2,3,4, &
                                                     6,5,8,7,2,1,4,3, &
                                                     7,8,5,6,3,4,1,2, &
-                                                    8,7,6,5,4,3,2,1],[8,8])
+                                                    8,7,6,5,4,3,2,1],[8,8]), &
+                                Prmt(0:7,0:7) = reshape([1, 1, 1, 1, 1, 1, 1, 1, &
+                                                         1,-1, 1,-1, 1,-1, 1,-1, &
+                                                         1, 1,-1,-1, 1, 1,-1,-1, &
+                                                         1,-1,-1, 1, 1,-1,-1, 1, &
+                                                         1, 1, 1, 1,-1,-1,-1,-1, &
+                                                         1,-1, 1,-1,-1, 1,-1, 1, &
+                                                         1, 1,-1,-1,-1,-1, 1, 1, &
+                                                         1,-1,-1, 1,-1, 1, 1,-1],[8,8])
 
-public :: iChBas, iChCar, iChTbl, iOper, iSkip, lBsFnc, lIrrep, Mul, nIrrep, SymLab, Symmetry_Info_Dmp, Symmetry_Info_Free, &
+public :: iChBas, iChCar, iChTbl, iOper, iSkip, lBsFnc, lIrrep, Mul, nIrrep, Prmt, SymLab, Symmetry_Info_Dmp, Symmetry_Info_Free, &
           Symmetry_Info_Get, Symmetry_Info_Set, Symmetry_Info_Setup, VarR, VarT
 
 !***********************************************************************

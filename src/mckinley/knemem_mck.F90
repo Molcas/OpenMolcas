@@ -11,16 +11,14 @@
 
 subroutine Knemem_mck(nHer,MmKnEG,la,lb,lr)
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nHer, MmKnEG, la, lb, lr
-!Statement function
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 nHer = ((la+1)+(lb+1)+2+1)/2
-MmKnEG = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+3*(la+2)*(lb+2)+1+1+nElem(la)*nElem(lb)*3
+MmKnEG = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+3*(la+2)*(lb+2)+1+1+nTri_Elem1(la)*nTri_Elem1(lb)*3
 
 return
 ! Avoid unused argument warnings

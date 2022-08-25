@@ -39,6 +39,7 @@ subroutine CmbnACB2(Fa1,Fa2,Fb1,Fb2,rFinal,Fact,nalpha,nbeta,C,nC,la,lb,iang,jfh
 !
 !******************************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem1
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -49,10 +50,6 @@ real(kind=wp) :: FA1(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), FA2(nAlpha,nC,(la+
                  rFinal(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,21), Fact, c(*), Tmp(*)
 logical(kind=iwp) :: jfhess(4,3,4,3), lsro
 integer(kind=iwp) :: ia, ib, iC, iCar, jCar, mvec, mvecB
-! Statement functions
-integer(kind=iwp) :: nElem, ixyz, iTri, i, j
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -63,8 +60,8 @@ do iCar=1,3
   do jCar=1,3
     mvec = itri(iCar+3,jcar)
     if (jfHess(2,iCar,1,jcar)) then
-      do ib=1,nElem(lb)
-        do ia=1,nElem(la)
+      do ib=1,nTri_Elem1(lb)
+        do ia=1,nTri_Elem1(la)
           do iC=1,(2*iAng+1)
 
             if (lsro) then
@@ -87,8 +84,8 @@ do iCar=1,3
   do jCar=1,icar
     mvec = itri(iCar,jcar)
     if (jfHess(1,iCar,1,jcar)) then
-      do ib=1,nElem(lb)
-        do ia=1,nElem(la)
+      do ib=1,nTri_Elem1(lb)
+        do ia=1,nTri_Elem1(la)
           do iC=1,(2*iAng+1)
             if (lsro) then
               call mult_sro(FA2(1,1,ia,ic,mvec),nAlpha,C,nC,FB1(1,1,ic,ib,1),nBeta,Fact,rFinal(1,ia,ib,mVec),Tmp)
@@ -112,8 +109,8 @@ do iCar=1,3
     mvecB = itri(icar,jcar)
     if (jfHess(2,iCar,2,jcar)) then
 
-      do ib=1,nElem(lb)
-        do ia=1,nElem(la)
+      do ib=1,nTri_Elem1(lb)
+        do ia=1,nTri_Elem1(la)
 
           do iC=1,(2*iAng+1)
             if (lsro) then

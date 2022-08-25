@@ -15,6 +15,7 @@ subroutine WrDisk(rIn,nrIn,jDisp,iIrrep)
 ! and MO for RASSCF, this will hopefully be changed, but if you
 ! see this mess before that I apologize
 
+use Index_Functions, only: iTri
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, G1
 use Symmetry_Info, only: iOper, nIrrep
@@ -37,9 +38,6 @@ character(len=8) :: Label
 real(kind=wp), allocatable :: Act(:), InAct(:), rOut(:), TempX(:), TempY(:)
 integer(kind=iwp), external :: NrOpr
 real(kind=r8), external :: DDot_
-! Statement function
-integer(kind=iwp) :: itri, i, j
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

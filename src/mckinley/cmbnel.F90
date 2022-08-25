@@ -25,6 +25,7 @@ subroutine CmbnEl(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha,
 !             by Anders Bernhardsson                                   *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind, nTri3_Elem
 use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
@@ -33,12 +34,8 @@ integer(kind=iwp) :: nZeta, la, lb, lr, nComp, iStb, jStb, nOp(2), kcar
 real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,2), &
                  Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta)
 logical(kind=iwp) :: Ifgrad(3,2)
-integer(kind=iwp) :: iComp, ipa, ipb, ir, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 real(kind=wp) :: xa, xb, ya, yb, za, zb
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz, ix, iz, iOff
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 do iZeta=1,nZeta
   Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
@@ -52,10 +49,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         ! Combine multipole moment integrals
 
@@ -76,7 +73,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)-1
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
                 if (iComp == kcar) then
                   do iZeta=1,nZeta
                     rFinal(iZeta,ipa,ipb,1) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
@@ -103,7 +100,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)-1
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
                 if (iComp == kcar) then
                   do iZeta=1,nZeta
                     rFinal(iZeta,ipa,ipb,2) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
@@ -130,7 +127,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)-1
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
                 if (iComp == kcar) then
                   do iZeta=1,nZeta
                     rFinal(iZeta,ipa,ipb,1) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
@@ -157,7 +154,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)-1
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
                 if (iComp == kcar) then
                   do iZeta=1,nZeta
                     rFinal(iZeta,ipa,ipb,2) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
@@ -176,7 +173,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)-1
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
                 if (iComp == kcar) then
                   if (iza > 0) then
                     za = -iza
@@ -203,7 +200,7 @@ do ixa=0,la
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
-                iComp = Ind(ir,ix,iz)+iOff(ir)-1
+                iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
                 if (iComp == kcar) then
                   if (izb > 0) then
                     zb = -izb

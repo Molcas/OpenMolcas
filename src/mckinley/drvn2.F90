@@ -26,10 +26,11 @@ subroutine DrvN2(Hess,nGrad)
 !             September 1995                                           *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess
-use Symmetry_Info, only: iChTbl, nIrrep
+use Symmetry_Info, only: iChTbl, nIrrep, Prmt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Six, Half
 use Definitions, only: wp, iwp
@@ -47,17 +48,11 @@ integer(kind=iwp) :: iAtom, iCar, iCent, iCh1, iCh2, iCnt, iCnttp, iComp, iDCRR(
                      nop(2), nPCMHss, nStb
 real(kind=wp) :: A(3), B(3), C(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, Cnt2M1, Cnt2M2, D(3), d2f_dr2, d2r_dAidAj, ddfab, &
                  df_dr, df_dr_AB, df_dr_CD, dfab, dfcd, dr_dAi, dr_dAj, dr_dB, dr_dD, fab, Fact, fcd, g, Gmma, PreFct, PreFct_AB, &
-                 PreFct_CD, prmt(0:7), ps, Q_ij, r12, r12_AB, r12_CD, RB(3), SD(3), ZA, ZB, ZAZB
+                 PreFct_CD, ps, Q_ij, r12, r12_AB, r12_CD, RB(3), SD(3), ZA, ZB, ZAZB
 logical(kind=iwp) :: NoLoop
 real(kind=wp), allocatable :: Der1(:), DerDM(:), Pcmhss(:), Temp(:)
-data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, TF
-! Statement Function
-integer(kind=iwp) :: i, j, iTri, i1, i2
-real(kind=wp) :: xPrmt
-xPrmt(i,j) = Prmt(iand(i,j))
-iTri(i1,i2) = max(i1,i2)*(max(i1,i2)-1)/2+min(i1,i2)
 
 !                                                                      *
 !***********************************************************************
@@ -250,8 +245,8 @@ do iCnttp=1,nCnttp
                   do jCar=1,jCar_Max
                     iCh1 = 2**(iCar-1)
                     iCh2 = 2**(jCar-1)
-                    g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*xPrmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/real(nIrrep,kind=wp)
-                    g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*xPrmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/ &
+                    g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*Prmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/real(nIrrep,kind=wp)
+                    g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*Prmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/ &
                         real(nIrrep,kind=wp)
                     g = g*(-One)**(icent+jcent)
                     if ((iCent /= jCent) .and. (iCar == jCar) .and. &
@@ -431,8 +426,8 @@ if (PCM) then
               do jCar=1,jCar_Max
                 iCh1 = 2**(iCar-1)
                 iCh2 = 2**(jCar-1)
-                g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*xPrmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/real(nIrrep,kind=wp)
-                g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*xPrmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/real(nIrrep,kind=wp)
+                g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*Prmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/real(nIrrep,kind=wp)
+                g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*Prmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/real(nIrrep,kind=wp)
                 g = g*(-One)**(icent+jcent)
 
                 Indx = indHss(iCent,iCar,jCent,jCar,iIrrep)
@@ -650,9 +645,9 @@ if (PCM) then
                           do jCar=1,jCar_Max
                             iCh1 = 2**(iCar-1)
                             iCh2 = 2**(jCar-1)
-                            g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*xPrmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/ &
+                            g = real(iChTbl(iIrrep,nOp(icent)),kind=wp)*Prmt(kOp(icent),iCh1)*real(ii(icent),kind=wp)/ &
                                 real(nIrrep,kind=wp)
-                            g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*xPrmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/ &
+                            g = g*real(iChTbl(iIrrep,nOp(jcent)),kind=wp)*Prmt(kOp(jcent),iCh2)*real(ii(jcent),kind=wp)/ &
                                 real(nIrrep,kind=wp)
                             g = g*(-One)**(icent+jcent)
 

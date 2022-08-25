@@ -30,6 +30,7 @@ subroutine Drvg2(Hess,nhess,l_Grd,l_Hss)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem1
 use iSD_data, only: iSD
 use k2_setup, only: Data_k2, Indk2, nIndk2
 use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, ipZeta, MemR, MxDij, Mem_INT, Mem_DBLE, ndede, nFT, Sew_Scr
@@ -53,21 +54,21 @@ logical(kind=iwp) :: l_Grd, l_Hss
 #include "etwas.fh"
 #include "cputime.fh"
 #include "setup.fh"
-integer(kind=iwp) :: iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, id, &
-                     id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, ip1, &
-                     ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipD0, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
-                     ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
-                     ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipEI, ipEta, ipFin, ipIndEta, ipIndZet, ipKAB, ipKCD, ipMem, ipMem2, &
-                     ipMem3, ipMem4, ipMemX, ipMOC, ipP, ipQ, iPrim, iPrimi, iPrInc, ipTmp, ipTmp2, ipxA, ipxB, ipxD, ipxG, &
-                     ipxPre, ipZI, iS, iShell, iShelV(4), iShll, iShllV(4), jAng, jAO, jBas, jBasAO, jBasj, jBasn, jBsInc, jCmp, &
-                     jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, js, jShell, jShll, &
-                     k2ij, k2kl, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, kPrInc, &
-                     ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, lShell, &
-                     lShll, mBatch, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
-                     mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
-                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nab, nAco, nb, ncd, nDCRR, nDCRS, nDij, nDik, nDil, &
-                     ndisp, nDjk, nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nPairs, nQuad, nRys, nSkal, nSO, nTwo, &
-                     nTwo2,  nZeta
+integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
+                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, &
+                     ip1,ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipD0, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, &
+                     ipDDjk, ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, &
+                     ipDjk, ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipEI, ipEta, ipFin, ipIndEta, ipIndZet, ipKAB, ipKCD, ipMem, &
+                     ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, ipP, ipQ, iPrim, iPrimi, iPrInc, ipTmp, ipTmp2, ipxA, ipxB, ipxD, &
+                     ipxG, ipxPre, ipZI, iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jAO, jBas, jBasAO, jBasj, jBasn, &
+                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, js, &
+                     jShell, jShll, k2ij, k2kl, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, &
+                     kPrimk, kPrInc, ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, &
+                     lPrInc, ls, lShell, lShll, mBatch, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, &
+                     mDeDe, mDij, mDik, mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, &
+                     MemFin, MemMax, MemPrm, MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nab, nAco, nb, ncd, nDCRR, &
+                     nDCRS, nDij, nDik, nDil, ndisp, nDjk, nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nPairs, nQuad, &
+                     nRys, nSkal, nSO, nTwo, nTwo2,  nZeta
 real(kind=wp) :: A_int, dum, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
@@ -78,10 +79,6 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: ip_of_Work, MemSO2_P, nMO, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
-! Statement functions
-integer(kind=iwp) :: nElem, ixyz, iTri, i, j
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -579,8 +576,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !                                                                    *
     !*********************************************************************
     !                                                                    *
-    nab = nElem(iAng)*nElem(jAng)
-    ncd = nElem(kAng)*nElem(lAng)
+    nab = nTri_Elem1(iAng)*nTri_Elem1(jAng)
+    ncd = nTri_Elem1(kAng)*nTri_Elem1(lAng)
 
     ijS = iTri(iShell,jShell)
     klS = iTri(kShell,lShell)

@@ -22,19 +22,14 @@
 *             October '91                                              *
 ************************************************************************
       Use Basis_Info
-      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
+      use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO), Prmt(0:7)
+      Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO)
       Integer nOp(2)
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-*
-*     Statement Function
-*
-      xPrmt(i,j) = Prmt(iAnd(i,j))
 *
       iRout = 133
       iPrint = nPrint(iRout)
@@ -53,7 +48,7 @@
             If (iAOtSO(iAO+i1,j1)<0) Cycle
             iChBs = iChBas(ii+i1)
             If (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
-            pa = xPrmt(iOper(nOp(1)),iChBs)
+            pa = Prmt(iOper(nOp(1)),iChBs)
 *
             Do 300 j2 = 0, j1
                j12 = iEor(j1,j2)
@@ -73,7 +68,7 @@
 *
 *-----------------Parity factor due to symmetry operations applied to
 *                 angular part of the basis function.
-                  FactNs = pa * xPrmt(iOper(nOp(2)),jChBs)
+                  FactNs = pa * Prmt(iOper(nOp(2)),jChBs)
                   Call DaXpY_(iBas*jBas,Deg*Xa*Xb*FactNs,
      &                       DSO(1,lSO),1,
      &                       DAO(1,i1,i2),1)

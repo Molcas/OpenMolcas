@@ -27,6 +27,7 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !              Modified 1995 for 2nd derivatives by AB                 *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use k2_setup, only: Data_k2, Indk2, nk2
 use k2_arrays, only: DoGrad_, DoHess_
 use iSD_data, only: iSD
@@ -48,9 +49,6 @@ integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), i
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Data_k2_local(:), Wrk(:)
 integer(kind=iwp), external :: MemSO1
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
 !***********************************************************************
@@ -79,7 +77,7 @@ call mma_allocate(Con,S%m2Max,Label='Con')
 !                                                                      *
 MemTmp = 0
 do iAng=0,S%iAngMx
-  MemTmp = max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
+  MemTmp = max(MemTmp,(S%MaxPrm(iAng)*nTri_Elem1(iAng))**2)
 end do
 !                                                                      *
 !***********************************************************************
@@ -127,7 +125,7 @@ do iS=1,nSkal
     ! Compute FLOP's for the transfer equation.
 
     call mHrr(iAng,jAng,nHrrab,nMemab)
-    ijCmp = nElem(iAng)*nElem(jAng)
+    ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
 
     iPrimi = iPrim
     jPrimj = jPrim

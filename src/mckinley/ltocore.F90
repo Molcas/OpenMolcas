@@ -22,6 +22,7 @@ subroutine LToCore(F,nAlpha,iShll,la,iAng,nvecac)
 ! @parameter iAng angular momenta core
 ! @parameter nVecAC Number of derivatives
 
+use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: Shells
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -33,11 +34,8 @@ real(kind=wp) :: F(*)
 integer(kind=iwp) :: nAlpha, iShll, la, iAng, nVecAC
 integer(kind=iwp) :: iBk, n, nac, nBasisi, nExpi
 real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-nac = nelem(la)*nelem(iang)
+nac = nTri_Elem1(la)*nTri_Elem1(iang)
 nExpi = Shells(iShll)%nExp
 nBasisi = Shells(iShll)%nBasis
 call mma_allocate(Tmp1,nExpi*nac*nVecAC*nalpha,Label='Tmp1')
@@ -60,14 +58,14 @@ end do
 
 ! 4) a,ciK -> ciKa
 
-call DgeTMo(Tmp1,nElem(la),nElem(la),nElem(iAng)*nVecAC*nAlpha*nBasisi,Tmp2,nElem(iAng)*nVecAC*nAlpha*nBasisi)
+call DgeTMo(Tmp1,nTri_Elem1(la),nTri_Elem1(la),nTri_Elem1(iAng)*nVecAC*nAlpha*nBasisi,Tmp2,nTri_Elem1(iAng)*nVecAC*nAlpha*nBasisi)
 
 ! 5) iKa,C = c,iKa * c,C
 
-call DGEMM_('T','N',nVecAC*nAlpha*nBasisi*nElem(la),(2*iAng+1),nElem(iAng),One,Tmp2,nElem(iAng),RSph(ipSph(iAng)),nElem(iAng), &
-            Zero,Tmp1,nVecAC*nAlpha*nBasisi*nElem(la))
+call DGEMM_('T','N',nVecAC*nAlpha*nBasisi*nTri_Elem1(la),(2*iAng+1),nTri_Elem1(iAng),One,Tmp2,nTri_Elem1(iAng),RSph(ipSph(iAng)), &
+            nTri_Elem1(iAng),Zero,Tmp1,nVecAC*nAlpha*nBasisi*nTri_Elem1(la))
 
-call DgeTMo(Tmp1,nVecAC,nVecAC,nAlpha*nBasisi*nElem(la)*(2*iAng+1),F,nAlpha*nBasisi*nElem(la)*(2*iAng+1))
+call DgeTMo(Tmp1,nVecAC,nVecAC,nAlpha*nBasisi*nTri_Elem1(la)*(2*iAng+1),F,nAlpha*nBasisi*nTri_Elem1(la)*(2*iAng+1))
 
 call mma_deallocate(Tmp2)
 call mma_deallocate(Tmp1)

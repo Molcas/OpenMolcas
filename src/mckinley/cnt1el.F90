@@ -35,6 +35,7 @@ subroutine Cnt1El(Kernel,KrnlMm,Label,iDCnt,iDCar,loper,rHrmt,DiffOp,dens,Lab_Ds
 !             University  of Lund, SWEDEN.                             *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, nBas, Shells
@@ -67,9 +68,6 @@ integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 integer(kind=iwp), external :: MemSO1, NrOpr
 real(kind=r8), external :: DDot_
 logical(kind=iwp), external :: EQ, TF
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
 !***********************************************************************
@@ -196,7 +194,7 @@ do iS=1,nSkal
     ! Memory requirements for contraction and Symmetry
     ! adaption of derivatives.
 
-    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nIrrep
+    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIrrep
 
     MemKrn = max(MemKer*Maxi,lFinal)
     call mma_Allocate(Kern,MemKrn,Label='Kern')
@@ -209,7 +207,7 @@ do iS=1,nSkal
 
     ! Scratch area for the transformation to spherical gaussians
 
-    nScr1 = S%MaxBas(iAng)*S%MaxBas(jAng)*nElem(iAng)*nElem(jAng)*nIC
+    nScr1 = S%MaxBas(iAng)*S%MaxBas(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIC
     call mma_allocate(ScrSph,nScr1,Label='ScrSph')
 
     ! At this point we can compute Zeta.
@@ -302,7 +300,7 @@ do iS=1,nSkal
           ! that is up to 20% faster than the ab,ij index order.
 
           ! Transform i,jabx to jabx,I
-          kk = nElem(iAng)*nElem(jAng)*nIC
+          kk = nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIC
           call DGEMM_('T','N',jPrim*kk,iBas,iPrim,One,Fnl,iPrim,Shells(iShll)%pCff,iPrim,Zero,Kern,jPrim*kk)
 
           ! Transform j,abxI to abxI,J
@@ -311,7 +309,7 @@ do iS=1,nSkal
 
           ! Transform to spherical gaussians if needed.
 
-          kk = nElem(iAng)*nElem(jAng)
+          kk = nTri_Elem1(iAng)*nTri_Elem1(jAng)
 
           if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 

@@ -13,21 +13,19 @@
 
 subroutine M1MmH(nRys,MmM1H,la,lb,lr)
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nRys, MmM1H, la, lb, lr
 integer(kind=iwp) :: iAng(4)
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
 iAng(4) = 0
 call MemRg2(iAng,nRys,MmM1H,2)
-MmM1H = MmM1H+12+nElem(la)*nElem(lb)
+MmM1H = MmM1H+12+nTri_Elem1(la)*nTri_Elem1(lb)
 
 return
 ! Avoid unused argument warnings

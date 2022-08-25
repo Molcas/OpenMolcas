@@ -13,6 +13,7 @@
 
 subroutine DAN(Dens)
 
+use Index_Functions, only: iTri
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, G1, nDens
 use Symmetry_Info, only: nIrrep
@@ -23,12 +24,9 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) Dens(nDens)
 #include "etwas.fh"
-integer(kind=iwp) :: iB, iBas, iiB, ijB, ip1, ip2, ipCC, ipcm(0:7), ipD, iS, jB, jBas, jjB, na(0:7), ndenssq, nnA
+integer(kind=iwp) :: i, iB, iBas, iiB, ijB, ip1, ip2, ipCC, ipcm(0:7), ipD, iS, jB, jBas, jjB, na(0:7), ndenssq, nnA
 real(kind=wp) :: Fact
 real(kind=wp), allocatable :: Temp1(:), Temp2(:), Temp3(:)
-! Statement function
-integer(kind=iwp) :: itri, i, j
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ipD = 0
 nnA = 0

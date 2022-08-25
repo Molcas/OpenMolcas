@@ -12,6 +12,7 @@
 subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nRys,nZeta,Alpha,Beta,Zeta,ZInv,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd, &
                     indgrd,ifhss,indhss,ifg,tr,nop,iuvwx,kCnttp,fact,loper,idcar)
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc
 use Symmetry_Info, only: nIrrep
 use Constants, only: One, Two, Pi
@@ -29,9 +30,6 @@ real(kind=wp) :: coori(3,4), Fac, FactECP, Gmma, PTC2, tfac, Tmp0, Tmp1
 logical(kind=iwp) :: jfg(4), jfgrd(3,4), jfhss(3,4,3,4), lGrad, lHess
 logical(kind=iwp), external :: EQ
 external :: Cff2D, Fake, TNAI1
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 lGrad = idcar /= 0
 lHess = nHess /= 0
@@ -112,8 +110,8 @@ do iM1xp=1,dbsc(kCnttp)%nM1
              CoorAC,Array(ip),nArray-ip+1,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Hess,nhess,jfGrd,jndGrd,jfHss,jndHss,nOp,iuvwx,jfg, &
              nGr,Indx,lgrad,lhess,tr)
   if (lGrad) then
-    nb = nzeta*nElem(iAng(1))*nElem(iAng(2))
-    do iElem=1,nElem(iAng(1))*nElem(iAng(2))*ngr
+    nb = nzeta*nTri_Elem1(iAng(1))*nTri_Elem1(iAng(2))
+    do iElem=1,nTri_Elem1(iAng(1))*nTri_Elem1(iAng(2))*ngr
       do iZeta=1,nZeta
         tfac = Two*PI*Array(ipK+iZeta-1)*Array(ipZI-1+iZeta)
         indi = (iElem-1)*nZeta+iZeta

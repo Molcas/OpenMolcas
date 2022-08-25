@@ -27,6 +27,7 @@ subroutine ElGrddot(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,nZeta,la,lb,A,B,n
 !             Modified to gradient calculations May '95                *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Center_Info, only: dc
 use Constants, only: Half
@@ -40,9 +41,6 @@ real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZ
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, &
                      iZeta, ncomp, nip
 logical(kind=iwp) :: ABeq(3)
-! Statement function for Cartesian index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 ABeq(1) = A(1) == B(1)
 ABeq(2) = A(2) == B(2)
@@ -68,7 +66,7 @@ nip = nip+nZeta
 ipBeta = nip
 nip = nip+nZeta
 ipFinal = nip
-nip = nip+nzeta*nElem(la)*nElem(lb)*4*6
+nip = nip+nzeta*nTri_Elem1(la)*nTri_Elem1(lb)*4*6
 if (nip-1 > nArr*nZeta) then
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
   call ErrTra()

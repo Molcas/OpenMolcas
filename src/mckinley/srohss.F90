@@ -21,6 +21,7 @@ subroutine SroHss( &
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper
@@ -35,9 +36,6 @@ real(kind=wp) :: C(3), Coor(3,4), fact, g2(78), TC(3)
 logical(kind=iwp) :: ifg(4), jfgrd(3,4), jfhss(4,3,4,3), tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-! Statement function
-integer(kind=iwp) :: nelem, ixyz
-nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nRys = nHer
 
@@ -82,17 +80,17 @@ do kCnttp=1,ncnttp
 
         ip = 1
         ipfin = ip
-        ip = ip+nzeta*nElem(la)*nElem(lb)*21
+        ip = ip+nzeta*nTri_Elem1(la)*nTri_Elem1(lb)*21
         ipfa1 = ip
-        ip = ip+nalpha*nExpi*nElem(la)*nElem(iAng)*4
+        ip = ip+nalpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)*4
         iptmp = ip
         ip = ip+nalpha*nExpi
         ipfa2 = ip
-        ip = ip+nalpha*nExpi*nElem(la)*nElem(iAng)*6
+        ip = ip+nalpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)*6
         ipfb1 = ip
-        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*4
+        ip = ip+nExpi*nBeta*nTri_Elem1(iAng)*nTri_Elem1(lb)*4
         ipfb2 = ip
-        ip = ip+nExpi*nBeta*nElem(iAng)*nElem(lb)*6
+        ip = ip+nExpi*nBeta*nTri_Elem1(iAng)*nTri_Elem1(lb)*6
 
         call dcopy_(narr,[Zero],0,Array,1)
         ! <a|c>, <a'|c>, <a",c>

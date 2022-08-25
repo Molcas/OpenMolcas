@@ -29,6 +29,7 @@ subroutine Acore(iang,la,ishll,nordop,TC,A,Array,narr,Alpha,nalpha,fa1,fa2,jfgra
 ! @parameter ld Order of derivatives
 ! @parameter debug guess
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: Shells
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Definitions, only: wp, iwp, u6, r8
@@ -40,9 +41,6 @@ logical(kind=iwp) :: jfgrad(3), jfhess(4,3,4,3), debug
 integer(kind=iwp) :: i, iGamma, ip, ipA, ipAxyz, ipCxyz, ipK1, ipP1, ipQ1, ipRxyz, ipV, ipZ1, ipZI1, iStrt, n, nExpi, nHer, nVecAC
 logical(kind=iwp) :: ABeq(3)
 real(kind=r8), external :: DNrm2_
-! Statement function
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 nExpi = Shells(iShll)%nExp
 ip = 1
@@ -116,7 +114,7 @@ if (debug) then
   write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
   do i=1,nvecac
     ipV = 1
-    n = nAlpha*nExpi*nElem(la)*nElem(iAng)
+    n = nAlpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)
     write(u6,*) 'Cmbn(',i,')=',DNrm2_(n,FA1(ipV),1)
     ipV = ipV+n
   end do
@@ -127,7 +125,7 @@ if (ld >= 2) then
   if (debug) then
     do i=1,6
       ipV = 1
-      n = nAlpha*nExpi*nElem(la)*nElem(iAng)
+      n = nAlpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)
       write(u6,*) 'Cmbn2(',i,')=',DNrm2_(n,FA2(ipV),1)
       ipV = ipV+n
     end do

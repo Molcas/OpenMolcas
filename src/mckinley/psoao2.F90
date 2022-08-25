@@ -74,6 +74,7 @@ subroutine PSOAO2(nSO,MemPrm,MemM,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,k
 !|      |               |       |integrals      |               |          |
 !---------------------------------------------------------------------------
 
+use Index_Functions, only: nTri_Elem1
 use Gateway_global, only: force_part_p !, force_part_c
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: lPSO
@@ -92,9 +93,6 @@ integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOIn
                      nPam(4,0:7), nTmp1, nTmp2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
-! Statement function to compute canonical index
-integer(kind=iwp) :: nElem, i
-nElem(i) = (i+1)*(i+2)/2
 
 !iRout = 10
 !iPrint = nPrint(iRout)
@@ -107,7 +105,7 @@ jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
 iTotal = iTotal+1
-mabcd = nElem(la)*nElem(lb)*nElem(lc)*nElem(ld)
+mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
 
 !if (force_part_c) then
