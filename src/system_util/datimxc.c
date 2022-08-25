@@ -42,18 +42,18 @@
 #include "molcastype.h"
 
 #ifdef _CAPITALS_
-#define datimx DATIMX
+#define datimxc DATIMXC
 #else
 #ifndef ADD_
-#define datimx datimx_
+#define datimxc datimxc_
 #endif
 #endif
 
 
-void datimx(char *TimeStamp)
+void datimxc(char *TimeStamp)
 {
 #ifdef _WIN32_
-strcpy(TimeStamp,"Once upon a time...");
+  strcpy(TimeStamp,"Once upon a time...");
 #else
   static int CTIME_RES_LENGTH = 24;
   char *ptr;
@@ -61,7 +61,7 @@ strcpy(TimeStamp,"Once upon a time...");
   struct timeval t;
   struct timezone tz;
   if ( gettimeofday(&t,&tz) != 0 ) {
-    printf(" *** Error in procedure datimx: %s\n",strerror(errno));
+    printf(" *** Error in procedure datimxc: %s\n",strerror(errno));
     exit(20);
   } else {
     x=(time_t)t.tv_sec;

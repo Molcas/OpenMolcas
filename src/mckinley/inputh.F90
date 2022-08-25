@@ -52,12 +52,6 @@ character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt, NrOpr
 real(kind=r8), external :: DDot_
 logical(kind=iwp), external :: TstFnc
-interface
-  subroutine datimx(TimeStamp) bind(C,name='datimx_')
-    use, intrinsic :: iso_c_binding, only: c_char
-    character(kind=c_char) :: TimeStamp(*)
-  end subroutine
-end interface
 
 !call DecideOnCholesky(DoCholesky)
 !if (DoCholesky) then
@@ -509,7 +503,7 @@ if (TRSymm) then
     j = i
     if (i == 3) j = 4
     do k=1,3
-      if (iand(iOper(j),2**(k-1)) /= 0) iSym(k) = 2**(k-1)
+      if (btest(iOper(j),k-1)) iSym(k) = 2**(k-1)
     end do
   end do
   nTR = 0
@@ -550,9 +544,9 @@ if (TRSymm) then
         !call RecPrt(' Coordinates',' ',dbsc(iCnttp)%Coor(1,iCnt),1,3)
         Fact = Zero
         iComp = 0
-        if (dbsc(iCnttp)%Coor(1,iCnt) /= Zero) iComp = ior(iComp,1)
-        if (dbsc(iCnttp)%Coor(2,iCnt) /= Zero) iComp = ior(iComp,2)
-        if (dbsc(iCnttp)%Coor(3,iCnt) /= Zero) iComp = ior(iComp,4)
+        if (dbsc(iCnttp)%Coor(1,iCnt) /= Zero) iComp = ibset(iComp,0)
+        if (dbsc(iCnttp)%Coor(2,iCnt) /= Zero) iComp = ibset(iComp,1)
+        if (dbsc(iCnttp)%Coor(3,iCnt) /= Zero) iComp = ibset(iComp,2)
         do jIrrep=0,nIrrep-1
           if (TstFnc(dc(mdc)%iCoSet,jIrrep,iComp,dc(mdc)%nStab)) then
             Fact = Fact+One

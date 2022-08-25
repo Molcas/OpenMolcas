@@ -111,8 +111,6 @@ ncomp = 4
 call Cmbneldot(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),ncomp,Array(ipTemp1),Array(ipTemp2),Array(ipAlph), &
                Array(ipBeta),DAO,dc(mdc)%nStab,dc(ndc)%nStab,nOp,rout,indgrd)
 
-!call GetMem(' Exit RFGrd','LIST','REAL',iDum,iDum)
-
 return
 ! Avoid unused argument warnings
 if (.false.) then

@@ -79,8 +79,6 @@ end if
 if (iPrint >= 59) call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZE)
 if (iPrint >= 19) call WrCheck('Tcrtnc:P(ab|cd)',ACOut,lZE*mabcd)
 
-!call GetMem('Tcrtnc','CHECK','REAL',iDum,iDum)
-
 return
 
 end subroutine Tcrtnc_h

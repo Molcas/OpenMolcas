@@ -53,7 +53,6 @@ else
   call DGeTMO(Temp,nb,nb,na,Wout,na)
   !call RecPrt(' After second DGeTMO',' ',Wout,na,nb)
 end if
-!call GetMem(' Exit Trns1','CHECK','REAL',iDum,iDum)
 
 return
 

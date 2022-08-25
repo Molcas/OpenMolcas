@@ -120,8 +120,6 @@ call dcopy_(nTri_Elem1(la)*nTri_Elem1(lb)*nZeta*NrOp,[Zero],0,rFinal,1)
 call SymAdO_mck2(Array(ipFinal),nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal,nrOp,nop,IndGrd,ksym,iu,iv,ifgrad,idcar,trans)
 if (iPrint >= 49) call RecPrt(' Primitive Integrals SO',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nrOp)
 
-!call Getmem('EXOG','CHECK','REAL',ipdum,ipdum)
-
 return
 ! Avoid unused argument warnings
 if (.false.) then

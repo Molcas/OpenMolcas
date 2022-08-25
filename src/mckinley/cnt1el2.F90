@@ -63,7 +63,6 @@ integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7
 real(kind=wp) :: A(3), B(3), CCoor(3), Fact, RB(3)
 logical(kind=iwp) :: DiffCnt, IfGrd(3,2), Trans(2)
 real(kind=wp), allocatable :: Fnl(:), Integrals(:), Kappa(:), Kern(:), PCoor(:,:), Scr(:), ScrSph(:), SO(:), Zeta(:), ZI(:)
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 integer(kind=iwp), external :: MemSO1, NrOpr
 logical(kind=iwp), external :: EQ, TF
 
@@ -96,7 +95,7 @@ call ICopy(nIrrep,[0],0,ip,1)
 
 iStart = 1
 do iIrrep=0,nIrrep-1
-  if (iand(2**iIrrep,loper) /= 0) then
+  if (btest(loper,iIrrep)) then
     LenInt = nFck(iIrrep)
     nIc = nIC+1
     ip(NIC) = iStart
@@ -206,7 +205,7 @@ do iS=1,nSkal
 
       nSO = 0
       do iIrrep=0,nIrrep-1
-        if (iand(loper,2**iIrrep) /= 0) then
+        if (btest(loper,iIrrep)) then
           iSmLbl = 2**iIrrep
           nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
         end if
@@ -302,11 +301,11 @@ do iS=1,nSkal
           iSOBlk = 1
           iIC = 1
           do iIrrep=0,nIrrep-1
-            iSmLbl = iand(lOper,iTwoj(iIrrep))
+            iSmLbl = iand(lOper,2**iIrrep)
             mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             if (mSO == 0) then
               do jIrrep=0,nIrrep-1
-                if (iand(iSmLbl,iTwoj(jIrrep)) /= 0) iIC = iIC+1
+                if (btest(iSmLbl,jIrrep)) iIC = iIC+1
               end do
             else
               call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,Kern,iBas,jBas,nIC,iIC,SO(iSOBlk),mSO,nOp)
@@ -325,7 +324,7 @@ do iS=1,nSkal
         iSOBlk = 1
         iIC = 0
         do iIrrep=0,nIrrep-1
-          if (iand(lOper,2**iIrrep) /= 0) then
+          if (btest(lOper,iIrrep)) then
             iSmlbl = 2**iIrrep
             iiC = iiC+1
             mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
@@ -363,8 +362,7 @@ nrOp = 0
 
 call mma_allocate(Scr,ndenssq,Label='Scr')
 do iIrrep=0,nIrrep-1
-  iSmLbl = 2**iIrrep
-  if (iand(ismLbl,loper) /= 0) then
+  if (btest(loper,iIrrep)) then
     nrOp = nrOp+1
     jdisp = indgrd(iirrep)
     kOper = 2**iIrrep

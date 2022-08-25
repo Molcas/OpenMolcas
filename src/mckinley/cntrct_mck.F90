@@ -75,8 +75,6 @@ First = .false.
 
 !if (iPrint >= 59) call RecPrt(' In Cntrct:  ',' ',ACOut,labcdG,m1*m2*m3*m4)
 
-!call GetMem('Cntrct','Check','Real',iDum,iDum)
-
 return
 
 end subroutine Cntrct_mck

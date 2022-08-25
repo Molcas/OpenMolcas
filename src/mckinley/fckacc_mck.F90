@@ -67,7 +67,6 @@ real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, Fac, Fact, pEa, pFctr, pRb,
                  vjl, vkl
 logical(kind=iwp) :: iQij, iQik, iQil, iQjk, iQjl, iQkl, iShij, iShik, iShil, iShjk, iShjl, iShkl, lFij, lFik, lFil, lFjk, lFjl, &
                      lFkl, Qijij, Shij, Shkl
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 real(kind=r8), external :: DNrm2_
 
 !iprint = 0
@@ -151,7 +150,7 @@ iShjl = iShell(2) == iShell(4)
 do i1=1,iCmp
   do j=0,nIrrep-1
     iSym(1,j) = 0
-    if (iAOtSO(iAO(1)+i1,j) > 0) iSym(1,j) = iTwoj(j)
+    if (iAOtSO(iAO(1)+i1,j) > 0) iSym(1,j) = 2**j
   end do
   jCmpMx = jCmp
   if (Shij) jCmpMx = i1
@@ -161,7 +160,7 @@ do i1=1,iCmp
   do i2=1,jCmpMx
     do j=0,nIrrep-1
       iSym(2,j) = 0
-      if (iAOtSO(iAO(2)+i2,j) > 0) iSym(2,j) = iTwoj(j)
+      if (iAOtSO(iAO(2)+i2,j) > 0) iSym(2,j) = 2**j
     end do
     jChBs = iChBas(jj+i2)
     if (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
@@ -175,7 +174,7 @@ do i1=1,iCmp
     do i3=1,kCmp
       do j=0,nIrrep-1
         iSym(3,j) = 0
-        if (iAOtSO(iAO(3)+i3,j) > 0) iSym(3,j) = iTwoj(j)
+        if (iAOtSO(iAO(3)+i3,j) > 0) iSym(3,j) = 2**j
       end do
       lCmpMx = lCmp
       if (Shkl) lCmpMx = i3
@@ -185,7 +184,7 @@ do i1=1,iCmp
       do i4=1,lCmpMx
         do j=0,nIrrep-1
           iSym(4,j) = 0
-          if (iAOtSO(iAO(4)+i4,j) > 0) iSym(4,j) = iTwoj(j)
+          if (iAOtSO(iAO(4)+i4,j) > 0) iSym(4,j) = 2**j
         end do
         !Qkl = i3 == i4
         lChBs = iChBas(ll+i4)
@@ -676,7 +675,7 @@ mijkl = iBas*jBas*kBas*lBas
 do i1=1,iCmp
   ix = 0
   do j=0,nIrrep-1
-    if (iAOtSO(iAO(1)+i1,j) > 0) ix = ior(ix,2**j)
+    if (iAOtSO(iAO(1)+i1,j) > 0) ix = ibset(ix,j)
   end do
   iSym(1) = ix
   jCmpMx = jCmp
@@ -687,7 +686,7 @@ do i1=1,iCmp
   do i2=1,jCmpMx
     ix = 0
     do j=0,nIrrep-1
-      if (iAOtSO(iAO(2)+i2,j) > 0) ix = ior(ix,2**j)
+      if (iAOtSO(iAO(2)+i2,j) > 0) ix = ibset(ix,j)
     end do
     iSym(2) = ix
     jChBs = iChBas(jj+i2)
@@ -701,7 +700,7 @@ do i1=1,iCmp
     do i3=1,kCmp
       ix = 0
       do j=0,nIrrep-1
-        if (iAOtSO(iAO(3)+i3,j) > 0) ix = ior(ix,2**j)
+        if (iAOtSO(iAO(3)+i3,j) > 0) ix = ibset(ix,j)
       end do
       iSym(3) = ix
       lCmpMx = lCmp
@@ -712,7 +711,7 @@ do i1=1,iCmp
       do i4=1,lCmpMx
         ix = 0
         do j=0,nIrrep-1
-          if (iAOtSO(iAO(4)+i4,j) > 0) ix = ior(ix,2**j)
+          if (iAOtSO(iAO(4)+i4,j) > 0) ix = ibset(ix,j)
         end do
         iSym(4) = ix
         lChBs = iChBas(ll+i4)

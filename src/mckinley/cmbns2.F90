@@ -40,7 +40,6 @@ real(kind=r8), external :: DDot_
 !iPrint = nPrint(iRout)
 iStb(0) = iu
 iStb(1) = iv
-!call GetMem(' Enter CmbnS2','LIST','REAL',iDum,iDum)
 
 do iZeta=1,nZeta
   rKappa(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
@@ -188,8 +187,6 @@ do iIrrep=0,nIrrep-1
     end do
   end do
 end do
-
-!call GetMem(' Exit CmbnS2','LIST','REAL',iDum,iDum)
 
 return
 ! Avoid unused argument warnings

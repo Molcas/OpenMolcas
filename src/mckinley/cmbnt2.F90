@@ -39,7 +39,6 @@ real(kind=r8), external :: DDot_
 iStab(0) = iu
 iStab(1) = iv
 !iPrint = nPrint(iRout)
-!call GetMem(' Enter CmbnT2','LIST','REAL',iDum,iDum)
 
 do iZeta=1,nZeta
   rKappa(iZeta) = Half*rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)

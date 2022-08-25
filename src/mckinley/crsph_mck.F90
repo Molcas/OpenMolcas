@@ -59,7 +59,6 @@ else
 
 end if
 
-!call GetMem('CarSph','CHEC','REAL',iDum,iDum)
 return
 
 end subroutine CrSph_mck

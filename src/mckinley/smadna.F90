@@ -29,7 +29,7 @@ integer(kind=iwp), external :: iPrmt
 
 iComp = 0
 do iIrrep=0,nIrrep-1
-  if (iand(lOper,2**iIrrep) /= 0) then
+  if (btest(lOper,iIrrep)) then
     iComp = iComp+1
     do iCn=1,3
       !if (Indx(idCar,iCn) /= 0) then
@@ -76,8 +76,6 @@ do iIrrep=0,nIrrep-1
     end do
   end if
 end do
-
-!call GetMem(' Exit SymAdO','LIST','REAL',iDum,iDum)
 
 return
 ! Avoid unused argument warnings

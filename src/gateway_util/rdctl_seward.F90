@@ -133,12 +133,6 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
 integer(kind=iwp), external :: iCFrst, iChAtm, IsFreeUnit
 real(kind=wp), external :: NucExp, rMass, rMassx
 character(len=180), external :: Get_Ln
-interface
-  subroutine datimx(TimeStamp) bind(C,name='datimx_')
-    use, intrinsic :: iso_c_binding, only: c_char
-    character(kind=c_char) :: TimeStamp(*)
-  end subroutine
-end interface
 
 !                                                                      *
 !***********************************************************************

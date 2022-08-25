@@ -41,7 +41,6 @@ real(kind=wp) :: xa, xb, ya, yb, za, zb
 
 !iRout = 134
 !iPrint = nPrint(iRout)
-!call GetMem(' Enter CmbnS1_mck','LIST','REAL',iDum,iDum)
 
 !ii = la*(la+1)*(la+2)/6
 !jj = lb*(lb+1)*(lb+2)/6
@@ -170,9 +169,7 @@ do ixa=0,la
   end do
 end do
 
-!call GetMem(' Exit CmbnS1_mck','LIST','REAL',iDum,iDum)
 return
-
 ! Avoid unused argument warnings
 if (.false.) then
   call Unused_integer_array(nOp)
