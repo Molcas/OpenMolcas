@@ -156,10 +156,10 @@ do iTs=1,nTs
 
     ! Initialize JfGrd, JndGrd, JfHss, and JndHss.
 
-    call LCopy(12,[.false.],0,JfGrd,1)
-    call ICopy(nSym*4*3,[0],0,JndGrd,1)
-    call LCopy(144,[.false.],0,JfHss,1)
-    call ICopy(nSym*16*9,[0],0,JndHss,1)
+    JfGrd(:,:) = .false.
+    JndGrd(:,:,0:nSym-1) = 0
+    JfHss(:,:,:,:) = .false.
+    JndHss(:,:,:,:,0:nSym-1) = 0
 
     ! Overwrite with information in IfGrd, IndGrd, IfHss,
     ! and IndHss. This sets up the info for the first two
@@ -191,13 +191,9 @@ do iTs=1,nTs
     ! This requires the 2nd derivatives on the other centers.
     ! Note: We want no such thing!
 
-    call LCopy(4,[.false.],0,Tr,1)
-
-    IfG(0) = .true.
-    IfG(1) = .true.
-    IfG(2) = .false.
-    IfG(3) = .false.
-    call LCopy(12,[.false.],0,JfGrd,1)
+    Tr(:) = .false.
+    IfG(:) = [.true.,.true.,.false.,.false.]
+    JfGrd(:,:) = .false.
 
     ! Compute integrals with the Rys quadrature.
 

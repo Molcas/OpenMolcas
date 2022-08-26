@@ -131,7 +131,7 @@ end if
 !                                                                      *
 ! Close ONEINT and re-open ONEREL
 
-call iCopy(8,nBas,1,nBas_Cont,1)
+nBas_Cont(:) = nBas
 
 nSym = nIrrep
 iOpt = 0

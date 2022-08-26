@@ -39,12 +39,12 @@ implicit none
 #include "grd_interface.fh"
 #include "print.fh"
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
-integer(kind=iwp) :: iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4), i, j, ia, ib, iAng, iBas, iRout, iPrint, nSkal, iCar, iCent, &
-                     iCnttp, iCurCenter, iCurCnttp, iCurMdc, iGamma, iLoc, ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF2, &
-                     ipF1a, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, &
-                     iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, iStemp, iStrt, iVec, jAng, jBas, jCnttp, jPrim, jS, jSbasis, &
-                     jShll, jSize, jSlocal, ld, lDCRT, LmbdT, mdci, mGrad, mVec, mVecAC, mVecCB, nac, ncb, nDAO, nDCRT, n_Her, &
-                     maxDensSize, nVecAC, nVecCB, iCnt, jCnt
+integer(kind=iwp) :: i, ia, iAng, ib, iBas, iCar, iCent, iCnt, iCnttp, iCurCenter, iCurCnttp, iCurMdc, iDCRT(0:7), iGamma, iLoc, &
+                     ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, &
+                     iPrint, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iRout, iS, iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, &
+                     iStemp, iStrt, iuvwx(4), iVec, jAng, jBas, jCnt, jCnttp, JndGrd(3,4), jPrim, jS, jSbasis, jShll, jSize, &
+                     jSlocal, ld, lDCRT, LmbdT, lOp(4), maxDensSize, mdci, mGrad, mVec, mVecAC, mVecCB, n_Her, nac, ncb, nDAO, &
+                     nDCRT, nSkal, nVecAC, nVecCB
 logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EQ, EnergyWeight
 character(len=80) :: Label
 real(kind=r8), external :: DNrm2_
@@ -154,22 +154,12 @@ do iS=1,nSkal
   ! extra derivative stuff
   iuvwx(3) = dc(mdci)%nStab
   iuvwx(4) = dc(mdci)%nStab
-  call ICopy(6,IndGrd,1,JndGrd,1)
-  do i=1,3
-    do j=1,2
-      JfGrad(i,j) = IfGrad(i,j)
-    end do
-  end do
+  JndGrd(:,1:2) = IndGrd
+  JfGrad(:,1:2) = IfGrad
 
-  do iCar=0,2
-    JfGrad(iCar+1,3) = .false.
-    ! always equivalent of pChrg's
-    JndGrd(iCar+1,3) = 0
-  end do
-  call ICopy(3,[0],0,JndGrd(1,4),1)
-  JfGrad(1,4) = .false.
-  JfGrad(2,4) = .false.
-  JfGrad(3,4) = .false.
+  JfGrad(:,3:4) = .false.
+  ! always equivalent of pChrg's
+  JndGrd(:,3:4) = 0
   mGrad = 0
   do iCar=1,3
     do i=1,2

@@ -290,7 +290,7 @@ KeepBasis = ' '
 ! period
 lthCell = 0
 Cell_l = .false.
-call izero(ispread,3)
+ispread(:) = 0
 VCell(:,:) = Zero
 ! Set local DF variables (dummy)
 call LDF_SetInc()
@@ -3905,7 +3905,7 @@ subroutine ProcessBasis()
 
   call UpCase(BSLbl)
   iDummy_basis = 0
-  call ICopy(4,BasisTypes,1,BasisTypes_save,1)
+  BasisTypes_save(:) = BasisTypes
   if ((BSLbl(1:2) == 'X.') .and. (index(BSLbl,'INLINE') == 0) .and. (index(BSLbl,'RYDBERG') == 0)) then
     BSLbl = 'X.ANO-RCC.'
     do i=11,80
@@ -3956,7 +3956,7 @@ subroutine ProcessBasis()
   Do_GuessOrb = Do_GuessOrb .and. (dbsc(nCnttp)%AtmNr <= 96)
 # endif
 
-  if (iDummy_Basis == 1) call ICopy(4,BasisTypes_Save,1,BasisTypes,1)
+  if (iDummy_Basis == 1) BasisTypes(:) = BasisTypes_save
   if (itype == 0) then
     if ((BasisTypes(3) == 1) .or. (BasisTypes(3) == 2) .or. (BasisTypes(3) == 14)) iType = BasisTypes(3)
   else

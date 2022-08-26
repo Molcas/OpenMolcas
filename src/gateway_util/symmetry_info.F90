@@ -371,7 +371,7 @@ end subroutine Symmetry_Info_Set
 !***********************************************************************
 !***********************************************************************
 
-subroutine ChTab(iOper,nIrrep,iChTbl)
+subroutine ChTab(iOper,nIrrep,outChTbl)
   !*********************************************************************
   !                                                                    *
   ! Object: to generate the character table of a point group within    *
@@ -385,7 +385,7 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
   use Definitions, only: u6
 
   integer(kind=iwp), intent(in) :: nIrrep, iOper(nIrrep)
-  integer(kind=iwp), intent(out) :: iChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
+  integer(kind=iwp), intent(out) :: outChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
   integer(kind=iwp) :: i, i1, ia, ib, iCh, iFnc, iIrrep, iRot, iSigma = 1, iSub, iTest(8), ix, iy, iz, j, jIrrep, jx, jy, jz
   logical(kind=iwp) :: Inv, Rot, SymX, SymY, SymZ
   character(len=80) :: Tmp
@@ -440,7 +440,7 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
     write(u6,*) 'nIrrep=',nIrrep
     call Abend()
   end if
-  ichTbl(:,:) = 0
+  outChTbl(:,:) = 0
 
   ! Go through the functions x, y, and z, and the dyadic functions.
 
@@ -494,7 +494,7 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
     end if
     if (lBsFnc(jIrrep-1)(1:1) == ' ') then
       lBsFnc(jIrrep-1) = Tmp
-      call ICopy(nIrrep,iTest,1,iChTbl(jIrrep,1),8)
+      outChTbl(jIrrep,1:nIrrep) = iTest(1:nIrrep)
     else
       lBsFnc(jIrrep-1) = trim(lBsFnc(jIrrep-1))//', '//trim(Tmp)
     end if
@@ -509,7 +509,7 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
       ! If the character of an rotation in an irreps is -1 then
       ! the irreps is assigned the character B, otherwise A.
 
-      if (((iOper(i) == 3) .or. (iOper(i) == 5) .or. (iOper(i) == 6)) .and. (iChTbl(iIrrep,i) == -1)) lIrrep(iIrrep-1) = 'b'
+      if (((iOper(i) == 3) .or. (iOper(i) == 5) .or. (iOper(i) == 6)) .and. (outChTbl(iIrrep,i) == -1)) lIrrep(iIrrep-1) = 'b'
 
     end do
   end do
@@ -550,12 +550,12 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
         write(Tmp,'(I1)') iRot
         if (ia > 1) then
           do j=1,nIrrep
-            if ((lIrrep(j-1)(1:1) == 'a') .and. (iChTbl(j,i) == 1)) lIrrep(j-1) = lIrrep(j-1)(1:1)//Tmp(1:1)
+            if ((lIrrep(j-1)(1:1) == 'a') .and. (outChTbl(j,i) == 1)) lIrrep(j-1) = lIrrep(j-1)(1:1)//Tmp(1:1)
           end do
         end if
         if (ib > 1) then
           do j=1,nIrrep
-            if ((lIrrep(j-1)(1:1) == 'b') .and. (iChTbl(j,i) == 1)) lIrrep(j-1) = lIrrep(j-1)(1:1)//Tmp(1:1)
+            if ((lIrrep(j-1)(1:1) == 'b') .and. (outChTbl(j,i) == 1)) lIrrep(j-1) = lIrrep(j-1)(1:1)//Tmp(1:1)
           end do
         end if
       end if
@@ -576,7 +576,7 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
         iRot = i
     end do
     do i=1,nIrrep
-      if (iChTbl(i,iRot) == 1) then
+      if (outChTbl(i,iRot) == 1) then
         j = 1
       else
         j = 2
@@ -608,9 +608,9 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
           ! see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101827
           i1 = min(i1,len(lIrrep))
 #         endif
-          if (iChTbl(iIrrep,i) == 1) then
+          if (outChTbl(iIrrep,i) == 1) then
             lIrrep(iIrrep-1)(i1:i1) = 'g'
-          else if (iChTbl(iIrrep,i) == -1) then
+          else if (outChTbl(iIrrep,i) == -1) then
             lIrrep(iIrrep-1)(i1:i1) = 'u'
           end if
         end if

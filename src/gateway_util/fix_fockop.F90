@@ -434,7 +434,7 @@ do iCnttp=1,mCnttp
   ! the shells of iCnttp (mCnttp might be larger!)
 
   Try_Again = .true.
-  call ICopy(1+iTabMx,[0],0,List_Add,1)
+  List_Add(:) = 0
 
   Do_Cycle = .true.
   do while (Do_Cycle)

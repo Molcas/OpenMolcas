@@ -85,7 +85,7 @@ call SOS(iStabO,nStabO,llOper)
 ! Will just store the unique elements, i.e. low triangular blocks
 ! and lower triangular elements in the diagonal blocks.
 
-call ICopy(nComp,[-1],0,ip,1)
+ip(:) = -1
 LenTot = 0
 do iComp=1,nComp
   LenInt = n2Tri(lOper(iComp))
