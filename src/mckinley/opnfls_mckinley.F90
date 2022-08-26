@@ -11,6 +11,7 @@
 
 subroutine OpnFls_McKinley()
 
+use McKinley_global, only: lHss, nMethod, RASSCF, SCF
 use Basis_Info, only: nBas
 use Symmetry_Info, only: lIrrep, nIrrep
 use Definitions, only: iwp, u6
@@ -18,7 +19,6 @@ use Definitions, only: iwp, u6
 implicit none
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
 integer(kind=iwp) :: i, iDummer, iGo, iOpt, iRC, ngrad
 character(len=288) :: Header
 character(len=8) :: MckLbl, Method

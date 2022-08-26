@@ -74,6 +74,7 @@ subroutine PSOAO2(nSO,MemPrm,MemM,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,k
 !|      |               |       |integrals      |               |          |
 !---------------------------------------------------------------------------
 
+use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: nTri_Elem1
 use Gateway_global, only: force_part_p !, force_part_c
 use SOAO_Info, only: iAOtSO
@@ -87,7 +88,6 @@ integer(kind=iwp) :: nSO, MemPrm, MemM, iAnga(4), iCmpa(4), iAO(4), iFnc(4), iBa
                      lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, lPrim, lPrInc, nAco, Mem1, Mem2, Mem3, Mem4, MemX, &
                      MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer, iMemB
 #include "pstat.fh"
-#include "disp2.fh"
 integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, mabcd, Mem0, MemAux, &
                      MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, nijkl, nMax, nMaxC, &
                      nPam(4,0:7), nTmp1, nTmp2

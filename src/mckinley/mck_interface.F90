@@ -8,30 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1991, Roland Lindh                                     *
+! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine NAMem_mck( &
-#                    define _CALLING_
-#                    include "grdmem_mck_interface.fh"
-                    )
-
-use Definitions, only: iwp
+module mck_interface
 
 implicit none
-#include "grdmem_mck_interface.fh"
-integer(kind=iwp) :: iAng(4)
+private
 
-#include "macros.fh"
-unused_var(lr)
+abstract interface
+  subroutine grd_mck_kernel( &
+#                           define _CALLING_
+#                           include "grd_mck_interface.fh"
+                           )
+    use Definitions, only: wp, iwp
+#   include "grd_mck_interface.fh"
+  end subroutine grd_mck_kernel
 
-iAng(1) = la
-iAng(2) = lb
-iAng(3) = 0
-iAng(4) = 0
-call MemRg2(iAng,nHer,Mem,1)
-Mem = Mem+2
+  subroutine grd_mck_mem( &
+#                        define _CALLING_
+#                        include "grdmem_mck_interface.fh"
+                        )
+    use Definitions, only: iwp
+#   include "grdmem_mck_interface.fh"
+  end subroutine grd_mck_mem
+end interface
 
-return
+public :: grd_mck_kernel, grd_mck_mem
 
-end subroutine NAMem_mck
+end module mck_interface

@@ -29,6 +29,7 @@ subroutine ClrBuf(idcrr,idcrs,idcrt,ngr,Shijij,iAnga,iCmp,iCmpa,iShll,iShell,jSh
 !               University of Lund, Sweden, June '95                   *
 !***********************************************************************
 
+use McKinley_global, only: CPUStat, ipDisp, ipDisp2, nFckAcc, nMethod, nMOTrans, RASSCF
 use pso_stuff, only: ndens
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero, One
@@ -44,10 +45,6 @@ real(kind=wp) :: Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), Dkl2(mDkl,nD
                  Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), &
                  rFinal(nFinal), FckTmp(nFT), Scrtch1(nS1), Scrtch2(nS2), Temp(nTemp), TwoHam(nTwo), rmoin(nMOIN), buffer(*), &
                  din(*), dan(*)
-#include "Molcas.fh"
-#include "disp2.fh"
-#include "buffer.fh"
-#include "cputime.fh"
 integer(kind=iwp) :: iCar, iCent, iCnt, iGr, ii, iIrrep, ij1, ij2, ij3, ij4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, ip, ipFin, &
                      jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, jOp(6), kl1, kl2, kl3, kl4, nabcd, nao, nijkl
 logical(kind=iwp) :: pert(0:7)
@@ -160,12 +157,12 @@ if (ltri) then
           call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3,ij4,Dkl1, &
                      mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk,nDjk,jk1, &
                      jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,rFinal(ipFin),nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert, &
-                     iuvwx(iCent),iCent,iCar,indgrd,ipdisp)
+                     iuvwx(iCent),iCent,iCar,indgrd,ipDisp)
           if (nMethod == RASSCF) call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij2,mDij, &
                                             nDij,ij1,ij2,ij3,ij4,Dkl2,mDkl,nDkl,kl1,kl2,kl3,kl4,Dik2,mDik,nDik,ik1,ik2,ik3,ik4, &
                                             Dil2,mDil,nDil,il1,il2,il3,il4,Djk2,mDjk,nDjk,jk1,jk2,jk3,jk4,Djl2,mDjl,nDjl,jl1,jl2, &
                                             jl3,jl4,rFinal(ipFin),nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx(iCent),iCent, &
-                                            iCar,indgrd,ipdisp2)
+                                            iCar,indgrd,ipDisp2)
 
         else
           ip = ipDisp(abs(indgrd(iCar,iCent,0)))
@@ -194,12 +191,12 @@ if (ltri) then
           call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3,ij4,Dkl1, &
                      mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk,nDjk,jk1, &
                      jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,Temp,nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx(iCent), &
-                     icent,iCar,indgrd,ipdisp)
+                     icent,iCar,indgrd,ipDisp)
           if (nMethod == RASSCF) call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij2,mDij, &
                                             nDij,ij1,ij2,ij3,ij4,Dkl2,mDkl,nDkl,kl1,kl2,kl3,kl4,Dik2,mDik,nDik,ik1,ik2,ik3,ik4, &
                                             Dil2,mDil,nDil,il1,il2,il3,il4,Djk2,mDjk,nDjk,jk1,jk2,jk3,jk4,Djl2,mDjl,nDjl,jl1,jl2, &
                                             jl3,jl4,Temp,nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx(iCent),icent,iCar, &
-                                            indgrd,ipdisp2)
+                                            indgrd,ipDisp2)
 
         else
           ip = ipDisp(abs(indgrd(iCar,iCent,0)))
@@ -216,7 +213,7 @@ if (ltri) then
     end do
   end do
   call Timing(dum1,Time,dum2,dum3)
-  CPUStat(nFckAck) = CPUStat(nFckAck)+Time
+  CPUStat(nFckAcc) = CPUStat(nFckAcc)+Time
 end if
 
 if (n8 .and. (nmethod == RASSCF)) call MakeMO(rFinal,Scrtch1,nTempTot,nFinal,iCmp,iCmpa,iBasi,jbasj,kbask,lbasl,nGr,Indx,moip, &

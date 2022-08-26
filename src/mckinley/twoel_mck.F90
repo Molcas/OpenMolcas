@@ -75,6 +75,7 @@ subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,
 !***********************************************************************
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use McKinley_global, only: CPUStat, nIntegrals, nScreen, nTrans, nTwoDens, PreScr
 use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
@@ -101,8 +102,6 @@ real(kind=wp) :: Coor(3,4), Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDA
                  Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Fin(nfin), &
                  Temp(nTemp), TwoHam(nTwo2), Buffer(nBuffer), Dan(*), Din(*), rMOIN(nMOIN)
 logical(kind=iwp) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), Shijij, lgrad, ldot, n8, ltri, new_fock
-#include "disp2.fh"
-#include "cputime.fh"
 integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, IncEta, IncZet, Indx(3,4), ip, ip2, ipFT, ipS1, ipS2, &
                      ipTemp, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), ix2, iy2, iz2, jCmpb, JndGrd(3,4,0:7), &
                      JndHss(4,3,4,3,0:7), jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, &

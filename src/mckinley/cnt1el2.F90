@@ -35,6 +35,7 @@ subroutine Cnt1El2(Kernel,KrnlMm,Label,iDCnt,iDCar,loper,rHrmt,DiffOp,Lab_Dsk,ia
 !             University  of Lund, SWEDEN.                             *
 !***********************************************************************
 
+use McKinley_global, only: nFck, sIrrep
 use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
@@ -54,7 +55,6 @@ real(kind=wp) :: rHrmt
 logical(kind=iwp) :: DiffOp
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
 integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iI, iIC, iIrrep, IndGrd(0:7), iopt, &
                      ip(8), iPrim, irc, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iStabO(0:7), iStart, iuv, jAng, jAO, jBas, &
                      jCmp, jCnt, jCnttp, jdisp, jIrrep, jPrim, jS, jShell, jShll, kk, kOper, lDCRR, LenInt, LenInt_Tot, lFinal, &

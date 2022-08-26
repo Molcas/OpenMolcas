@@ -26,6 +26,7 @@ subroutine DrvN2(Hess,nGrad)
 !             September 1995                                           *
 !***********************************************************************
 
+use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
@@ -40,7 +41,6 @@ integer(kind=iwp) :: nGrad
 real(kind=wp) :: Hess(nGrad*(nGrad+1)/2)
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
 #include "rctfld.fh"
 integer(kind=iwp) :: iAtom, iCar, iCent, iCh1, iCh2, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRS(0:7), ii(2), iIrrep, iM1xp, iM2xp, &
                      Indx, IndGrd(3,2,0:7), IndHss(2,3,2,3,0:7), iR, iS, iStb(0:7), iTs, jAtom, jCar, jCar_Max, jCent, jCnt, &

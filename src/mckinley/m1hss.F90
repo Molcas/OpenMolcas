@@ -26,6 +26,7 @@ subroutine M1Hss( &
 !             October 1991                                             *
 !***********************************************************************
 
+use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
@@ -36,7 +37,6 @@ implicit none
 #include "hss_interface.fh"
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
 integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDCRT(0:7), iIrrep, ipA, ipAOff, ipArr, ipB, ipBOff, &
                      iStop, iuvwx(4), jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCar, kCent, kCnt, kCnttp, &
                      kdc, lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nip, nnIrrep, nRys

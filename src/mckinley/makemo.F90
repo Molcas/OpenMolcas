@@ -19,6 +19,7 @@ subroutine MakeMO(AOInt,Temp,nTemp,n_Int,iCmp,iCmpa,ibasi,jbasj,kbask,lbasl,nGr,
 ! CPU time, if someone notice something else I will
 ! rewrite it, in the mean time, dont worry.
 
+use McKinley_global, only: ipMO
 use Basis_Info, only: Shells
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero
@@ -28,8 +29,6 @@ implicit none
 integer(kind=iwp) :: nTemp, n_Int, icmp(4), iCmpa(4), ibasi, jbasj, kbask, lbasl, nGr, Indx(3,4), moip(0:7), naco, nop(4), &
                      indgrd(3,4,0:nirrep-1), ishll(4), ishell(4), nmoin, iuvwx(4), iAOST(4), ianga(4)
 real(kind=wp) :: AOInt(n_Int), Temp(nTemp), rmoin(nmoin), buffer(*)
-#include "Molcas.fh"
-#include "buffer.fh"
 integer(kind=iwp) :: ibas(4), iCar, iCent, iCnt, iGr, ii, iIrrep, iMax, ip, ip0, ip1, ip2, ip5, ipc, ipck, ipcl, ipFin, &
                      ipPert(0:7), mSum, nabcd, nCk, nCl, nij, nijkl, nkl, nScrtch
 logical(kind=iwp) :: lc, pert(0:7)
@@ -116,7 +115,7 @@ do iCent=1,4
     lc = .false.
     do iIrrep=0,nIrrep-1
       if (indgrd(icar,icent,iIrrep) /= 0) then
-        ipPert(iIrrep) = ipMO(abs(indgrd(iCar,iCent,iIrrep)),1)
+        ipPert(iIrrep) = ipMO(abs(indgrd(iCar,iCent,iIrrep)))
         pert(iIrrep) = .true.
       end if
       if (IndGrd(iCar,icent,iirrep) /= 0) lC = .true.

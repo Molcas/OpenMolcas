@@ -9,17 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine NA2Mem(nHer,MmMltP,la,lb,lr)
+subroutine NA2Mem( &
+#                 define _CALLING_
+#                 include "grdmem_mck_interface.fh"
+                 )
 
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nHer, MmMltP, la, lb, lr
+#include "grdmem_mck_interface.fh"
 
 lr = 0
 nHer = (la+lb+lr+3)/2
-MmMltP = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr+2)+3*(la+2)*(lb+2)*(lr+1)+2+nTri_Elem1(la)*nTri_Elem1(lb)*2
+Mem = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr+2)+3*(la+2)*(lb+2)*(lr+1)+2+nTri_Elem1(la)*nTri_Elem1(lb)*2
 
 return
 

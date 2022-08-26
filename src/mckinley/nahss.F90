@@ -26,6 +26,7 @@ subroutine NAHss( &
 !             October 1991                                             *
 !***********************************************************************
 
+use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp
 use Center_Info, only: dc
@@ -36,7 +37,6 @@ implicit none
 #include "hss_interface.fh"
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
 integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDAO, iDCRT(0:7), iIrrep, Indx(3,4), ipA, ipAOff, ipArr, &
                      ipB, ipBOff, ipDAO, iStop, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), &
                      kCar, kCent, kCnt, kCnttp, kdc, lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, &

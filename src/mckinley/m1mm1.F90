@@ -11,12 +11,15 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine m1mm1(nRys,MmNAG,la,lb,lr)
+subroutine m1mm1( &
+#                define _CALLING_
+#                include "grdmem_mck_interface.fh"
+                )
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nRys, MmNAG, la, lb, lr
+#include "grdmem_mck_interface.fh"
 integer(kind=iwp) :: iAng(4)
 
 #include "macros.fh"
@@ -26,8 +29,8 @@ iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
 iAng(4) = 0
-call MemRg2(iAng,nRys,MmNAG,1)
-MmNAG = MmNAG+10
+call MemRg2(iAng,nHer,Mem,1)
+Mem = Mem+10
 
 return
 

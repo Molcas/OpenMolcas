@@ -15,6 +15,7 @@ subroutine WrDisk(rIn,nrIn,jDisp,iIrrep)
 ! and MO for RASSCF, this will hopefully be changed, but if you
 ! see this mess before that I apologize
 
+use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nMethod, RASSCF
 use Index_Functions, only: iTri
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, G1
@@ -26,10 +27,7 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 integer(kind=iwp) :: nrIn, jDisp, iIrrep
 real(kind=wp) :: rIn(nrIn)
-#include "Molcas.fh"
-#include "buffer.fh"
 #include "etwas.fh"
-#include "disp2.fh"
 #include "print.fh"
 integer(kind=iwp) :: iii, iopt, ip(0:7), ip2(0:7), ipCC, ipCM(0:7), ipIn1, ipOut, irc, jAsh, jIrrep, kAsh, kIrrep, nA(0:7), nin, &
                      nIn2, nna, nt
@@ -244,7 +242,7 @@ if (nMethod == RASSCF) then
   Label = 'MOPERT'
   nt = nna*(nna+1)/2
   nt = nt*(nt+1)/2
-  call dWrMck(irc,iopt,Label,jdisp,rIn(ipMO(jdisp,1)),2**iIrrep)
+  call dWrMck(irc,iopt,Label,jdisp,rIn(ipMO(jdisp)),2**iIrrep)
   if (iRc /= 0) then
     write(u6,*) 'WrDisk: Error writing to MCKINT'
     write(u6,'(A,A)') 'Label=',Label

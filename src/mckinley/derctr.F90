@@ -14,6 +14,7 @@
 subroutine DerCtr(mdci,mdcj,mdck,mdcl,ldot,JfGrd,IndGrd,JfHss,IndHss,JfG)
 
 !#define _OLD_CODE_
+use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri
 use Symmetry_Info, only: nIrrep
 #ifdef _OLD_CODE_
@@ -27,7 +28,6 @@ integer(kind=iwp) :: mdci, mdcj, mdck, mdcl, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7
 logical(kind=iwp) :: ldot, JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
 integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, iSh, istop, jAtom, jCar, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
                      nDisp, nnIrrep
 logical(kind=iwp) :: IfG(4), IfGrd(3,4), IfHss(4,3,4,3)

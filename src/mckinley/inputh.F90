@@ -24,6 +24,7 @@ subroutine Inputh(Run_MCLR)
 !             Modified to complement GetInf, January 1992              *
 !***********************************************************************
 
+use McKinley_global, only: lGrd, lHss, nFck, Nona, PreScr, sIrrep
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep
@@ -31,22 +32,22 @@ use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u5, u6, r8, RtoB
+use Definitions, only: wp, iwp, u5, u6, r8
 
 implicit none
 logical(kind=iwp) :: Run_MCLR
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idum, iDummer, iElem, iIrrep, ijSym, iOpt, ipert, iprint, iRC, iRout, &
                      istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nDisp, nSlct
 real(kind=wp) :: alpha, Fact, ovlp
-logical(kind=iwp) :: ltype, Slct !, DoCholesky
+logical(kind=iwp) :: defPert, ltype, Slct !, DoCholesky
 character(len=80) :: Key, KWord
 character(len=32) :: Label2
 character(len=8) :: Label, labelop
 integer(kind=iwp), allocatable :: ATDisp(:), Car(:), DEGDisp(:), iTemp(:), TDisp(:)
+logical(kind=iwp), allocatable :: lPert(:)
 real(kind=wp), allocatable :: AM(:,:), C(:,:), Scr(:,:), Tmp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt, NrOpr
@@ -65,7 +66,6 @@ do i=1,nRout
 end do
 show = .false.
 Onenly = .false.
-nmem = 0
 Test = .false.
 TRSymm = .false.
 lEq = .false.
@@ -77,8 +77,9 @@ Nona = .false.
 Run_MCLR = .true.
 CutInt = 1.0e-7_wp
 ipert = 2
-iCntrl = 1
-call lCopy(mxpert,[.true.],0,lPert,1)
+defPert = .true.
+call mma_allocate(lPert,0,label='lPert')
+lPert(:) = defPert
 sIrrep = .false.
 iprint = 0
 do i=1,3*MxAtom
@@ -142,13 +143,6 @@ do
 
       Show = .true.
 
-    case ('MEM ')
-      !                                                                *
-      !***** MEM  ******************************************************
-      !                                                                *
-      read(u5,*) nmem
-      nmem = nmem*1048576/RtoB
-
     case ('CUTO')
       !                                                                *
       !***** CUTO ******************************************************
@@ -197,7 +191,8 @@ do
       ! selection option
 
       Slct = .true.
-      call lCopy(mxpert,[.false.],0,lPert,1)
+      defPert = .false.
+      lPert(:) = defPert
       !do
       !  read(u5,'(A)',iostat=istatus) KWord
       !  if (istatus > 0) call Error(2)
@@ -209,7 +204,8 @@ do
       call mma_allocate(iTemp,nSlct,label='iTemp')
       read(u5,*) (iTemp(iElem),iElem=1,nSlct)
       do iElem=1,nSlct
-        lpert(iTemp(iElem)) = .true.
+        call extend_lPert(iTemp(iElem))
+        lPert(iTemp(iElem)) = .true.
       end do
       call mma_deallocate(iTemp)
 
@@ -223,7 +219,8 @@ do
       call mma_allocate(iTemp,nSlct,label='iTemp')
       read(u5,*) (iTemp(iElem),iElem=1,nSlct)
       do iElem=1,nSlct
-        lpert(iTemp(iElem)) = .false.
+        call extend_lPert(iTemp(iElem))
+        lPert(iTemp(iElem)) = .false.
       end do
       call mma_deallocate(iTemp)
 
@@ -318,12 +315,10 @@ if (ipert == 1) then
   iopt = 0
   call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
   sIrrep = .true.
-  iCntrl = 1
 else if (ipert == 2) then
   Label2 = 'Hessian'
   LabelOp = 'PERT    '
   call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
-  iCntrl = 1
 else if (ipert == 3) then
   LabelOp = 'PERT    '
   Label2 = 'Magnetic'
@@ -367,129 +362,121 @@ if (Nona) then
   write(u6,*)
 end if
 
-if (iCntrl == 1) then
+! Generate symmetry adapted cartesian displacements
 
-  ! Generate symmetry adapted cartesian displacements
-
-  if (iPrint >= 6) then
-    write(u6,*)
-    write(u6,'(20X,A)') '********************************************'
-    write(u6,'(20X,A)') '* Symmetry Adapted Cartesian Displacements *'
-    write(u6,'(20X,A)') '********************************************'
-    write(u6,*)
-  end if
-  call ICopy(MxAtom*8,[0],0,IndDsp,1)
-  call ICopy(MxAtom*3,[0],0,InxDsp,1)
-  call mma_allocate(ATDisp,mDisp,Label='ATDisp')
-  call mma_allocate(DEGDisp,mDisp,Label='DEGDisp')
-  nDisp = 0
-  do iIrrep=0,nIrrep-1
-    lDisp(iIrrep) = 0
-    ltype = .true.
-    ! Loop over basis function definitions
-    mdc = 0
-    mc = 1
-    do iCnttp=1,nCnttp
-      ! Loop over unique centers associated with this basis set.
-      do iCnt=1,dbsc(iCnttp)%nCntr
-        mdc = mdc+1
-        IndDsp(mdc,iIrrep) = nDisp
-        ! Loop over the cartesian components
-        do iCar=0,2
-          iComp = 2**iCar
-          if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
-            nDisp = nDisp+1
-            if (nDisp > mDisp) then
-              write(u6,*) 'nDisp > mDisp'
-              call Abend()
-            end if
-            if (iIrrep == 0) InxDsp(mdc,iCar+1) = nDisp
-            lDisp(iIrrep) = lDisp(iIrrep)+1
-            if (ltype) then
-              if (iPrint >= 6) then
-                write(u6,*)
-                write(u6,'(10X,A,A)') ' Irreducible representation : ',lIrrep(iIrrep)
-                write(u6,'(10X,2A)') ' Basis function(s) of irrep: ',lBsFnc(iIrrep)
-                write(u6,*)
-                write(u6,'(A)') ' Basis Label        Type   Center Phase'
-              end if
-              ltype = .false.
-            end if
-            if (iPrint >= 6) &
-              write(u6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))') nDisp,dc(mdc)%LblCnt,xyz(iCar), &
-                                                             (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)), &
-                                                              iComp)*iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))), &
-                                                              iCo=0,nIrrep/dc(mdc)%nStab-1)
-            write(ChDisp(nDisp),'(A,1X,A1)') dc(mdc)%LblCnt,xyz(iCar)
-            ATDisp(ndisp) = icnttp
-            DEGDisp(ndisp) = nIrrep/dc(mdc)%nStab
+if (iPrint >= 6) then
+  write(u6,*)
+  write(u6,'(20X,A)') '********************************************'
+  write(u6,'(20X,A)') '* Symmetry Adapted Cartesian Displacements *'
+  write(u6,'(20X,A)') '********************************************'
+  write(u6,*)
+end if
+call ICopy(MxAtom*8,[0],0,IndDsp,1)
+call ICopy(MxAtom*3,[0],0,InxDsp,1)
+call mma_allocate(ATDisp,mDisp,Label='ATDisp')
+call mma_allocate(DEGDisp,mDisp,Label='DEGDisp')
+nDisp = 0
+do iIrrep=0,nIrrep-1
+  lDisp(iIrrep) = 0
+  ltype = .true.
+  ! Loop over basis function definitions
+  mdc = 0
+  mc = 1
+  do iCnttp=1,nCnttp
+    ! Loop over unique centers associated with this basis set.
+    do iCnt=1,dbsc(iCnttp)%nCntr
+      mdc = mdc+1
+      IndDsp(mdc,iIrrep) = nDisp
+      ! Loop over the cartesian components
+      do iCar=0,2
+        iComp = 2**iCar
+        if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
+          nDisp = nDisp+1
+          if (nDisp > mDisp) then
+            write(u6,*) 'nDisp > mDisp'
+            call Abend()
           end if
+          if (iIrrep == 0) InxDsp(mdc,iCar+1) = nDisp
+          lDisp(iIrrep) = lDisp(iIrrep)+1
+          if (ltype) then
+            if (iPrint >= 6) then
+              write(u6,*)
+              write(u6,'(10X,A,A)') ' Irreducible representation : ',lIrrep(iIrrep)
+              write(u6,'(10X,2A)') ' Basis function(s) of irrep: ',lBsFnc(iIrrep)
+              write(u6,*)
+              write(u6,'(A)') ' Basis Label        Type   Center Phase'
+            end if
+            ltype = .false.
+          end if
+          if (iPrint >= 6) &
+            write(u6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))') nDisp,dc(mdc)%LblCnt,xyz(iCar), &
+                                                           (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)), &
+                                                            iComp)*iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))), &
+                                                            iCo=0,nIrrep/dc(mdc)%nStab-1)
+          write(ChDisp(nDisp),'(A,1X,A1)') dc(mdc)%LblCnt,xyz(iCar)
+          ATDisp(ndisp) = icnttp
+          DEGDisp(ndisp) = nIrrep/dc(mdc)%nStab
+        end if
 
-        end do
-        mc = mc+nIrrep/dc(mdc)%nStab
       end do
+      mc = mc+nIrrep/dc(mdc)%nStab
     end do
-
   end do
 
-  if (nDisp /= mDisp) then
-    write(u6,*) 'InputH: nDisp /= mDisp'
-    write(u6,*) 'nDisp,mDisp=',nDisp,mDisp
-    call Abend()
-  end if
-  if (sIrrep) then
-    ndisp = ldisp(0)
-    do i=1,nIrrep-1
-      lDisp(i) = 0
-    end do
-  end if
-  call mma_allocate(TDisp,nDisp,Label='TDisp')
-  TDisp(:) = 30
-  iOpt = 0
-  iRC = -1
-  labelOp = 'ndisp   '
-  call iWrMck(iRC,iOpt,labelop,1,[ndisp],iDummer)
-  if (iRC /= 0) then
-    write(u6,*) 'InputH: Error writing to MCKINT'
-    write(u6,'(A,A)') 'labelOp=',labelOp
-    call Abend()
-  end if
-  LABEL = 'DEGDISP'
-  iRc = -1
-  iOpt = 0
-  call iWrMck(iRC,iOpt,Label,idum,DEGDISP,idum)
-  if (iRC /= 0) then
-    write(u6,*) 'InputH: Error writing to MCKINT'
-    write(u6,'(A,A)') 'LABEL=',LABEL
-    call Abend()
-  end if
-  call mma_deallocate(DEGDisp)
-  LABEL = 'NRCTDISP'
-  iRc = -1
-  iOpt = 0
-  call iWrMck(iRC,iOpt,Label,idum,ATDisp,idum)
-  if (iRC /= 0) then
-    write(u6,*) 'InputH: Error writing to MCKINT'
-    write(u6,'(A,A)') 'LABEL=',LABEL
-    call Abend()
-  end if
-  call mma_deallocate(ATDisp)
-  LABEL = 'TDISP'
-  iRc = -1
-  iOpt = 0
-  call iWrMck(iRC,iOpt,Label,idum,TDisp,idum)
-  if (iRC /= 0) then
-    write(u6,*) 'InputH: Error writing to MCKINT'
-    write(u6,'(A,A)') 'LABEL=',LABEL
-    call Abend()
-  end if
-  call mma_deallocate(TDisp)
+end do
 
-else if (iCntrl == 2) then
-  write(u6,*) 'Svaret aer 48 '
-else if (iCntrl == 3) then
-  write(u6,*) 'Svaret aer 48'
+if (nDisp /= mDisp) then
+  write(u6,*) 'InputH: nDisp /= mDisp'
+  write(u6,*) 'nDisp,mDisp=',nDisp,mDisp
+  call Abend()
 end if
+if (sIrrep) then
+  ndisp = ldisp(0)
+  do i=1,nIrrep-1
+    lDisp(i) = 0
+  end do
+end if
+call mma_allocate(TDisp,nDisp,Label='TDisp')
+TDisp(:) = 30
+iOpt = 0
+iRC = -1
+labelOp = 'ndisp   '
+call iWrMck(iRC,iOpt,labelop,1,[ndisp],iDummer)
+if (iRC /= 0) then
+  write(u6,*) 'InputH: Error writing to MCKINT'
+  write(u6,'(A,A)') 'labelOp=',labelOp
+  call Abend()
+end if
+LABEL = 'DEGDISP'
+iRc = -1
+iOpt = 0
+call iWrMck(iRC,iOpt,Label,idum,DEGDISP,idum)
+if (iRC /= 0) then
+  write(u6,*) 'InputH: Error writing to MCKINT'
+  write(u6,'(A,A)') 'LABEL=',LABEL
+  call Abend()
+end if
+call mma_deallocate(DEGDisp)
+LABEL = 'NRCTDISP'
+iRc = -1
+iOpt = 0
+call iWrMck(iRC,iOpt,Label,idum,ATDisp,idum)
+if (iRC /= 0) then
+  write(u6,*) 'InputH: Error writing to MCKINT'
+  write(u6,'(A,A)') 'LABEL=',LABEL
+  call Abend()
+end if
+call mma_deallocate(ATDisp)
+LABEL = 'TDISP'
+iRc = -1
+iOpt = 0
+call iWrMck(iRC,iOpt,Label,idum,TDisp,idum)
+if (iRC /= 0) then
+  write(u6,*) 'InputH: Error writing to MCKINT'
+  write(u6,'(A,A)') 'LABEL=',LABEL
+  call Abend()
+end if
+call mma_deallocate(TDisp)
 
 ! Set up data for the utilization of the translational
 ! and rotational invariance of the energy.
@@ -695,14 +682,16 @@ if (TRSymm) then
     call mma_deallocate(Tmp)
     do iTR=1,nTR
       ldsp = iTemp(iTR)
-      LPert(ldsp) = .false.
+      call extend_lPert(ldsp)
+      lPert(ldsp) = .false.
     end do
 
     write(u6,*)
     write(u6,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'
     write(u6,*)
+    call extend_lPert(lDisp(0))
     do i=1,lDisp(0)
-      if (lpert(i)) then
+      if (lPert(i)) then
         write(u6,'(25X,A,A)') Chdisp(i),' is independent'
       else
         write(u6,'(25X,A,A)') Chdisp(i),' is dependent'
@@ -724,8 +713,9 @@ if (Slct) then
   write(u6,*)
   write(u6,'(20X,A)') ' The Selection option is used'
   write(u6,*)
+  call extend_lPert(lDisp(0))
   do i=1,lDisp(0)
-    if (lpert(i)) then
+    if (lPert(i)) then
       write(u6,'(25X,A,A)') Chdisp(i),' is computed'
     else
       write(u6,'(25X,A,A)') Chdisp(i),' is set to zero'
@@ -749,13 +739,32 @@ do iIrrep=0,nIrrep-1
   end if
 end do
 
+call mma_deallocate(lPert)
+
 return
 
 contains
 
+subroutine Extend_lPert(n)
+
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp) :: m
+  logical(kind=iwp), allocatable :: Temp(:)
+
+  m = size(lPert)
+  if (n > m) then
+    call mma_allocate(Temp,n,label='lPert')
+    Temp(:m) = lPert
+    Temp(m+1:) = defPert
+    call mma_deallocate(lPert)
+    call move_alloc(Temp,lPert)
+  end if
+
+end subroutine Extend_lPert
+
 subroutine Error(code)
 
-  integer(kind=iwp) :: code
+  integer(kind=iwp), intent(in) :: code
 
   select case (code)
     case (1)

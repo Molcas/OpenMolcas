@@ -30,6 +30,7 @@ subroutine Drvg2(Hess,nhess,l_Grd,l_Hss)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
+use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri
 use iSD_data, only: iSD
 use k2_setup, only: Data_k2, Indk2, nIndk2
@@ -49,10 +50,7 @@ real(kind=wp) :: Hess(*)
 logical(kind=iwp) :: l_Grd, l_Hss
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
-#include "buffer.fh"
 #include "etwas.fh"
-#include "cputime.fh"
 #include "setup.fh"
 integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, &
@@ -74,6 +72,7 @@ logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpi
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
+logical(kind=iwp), parameter :: Int_Direct = .true.
 integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
@@ -141,7 +140,6 @@ do iS=0,nIrrep-1
   naco = naco+nAsh(is)
 end do
 n8 = .true.
-Int_Direct = .true.
 
 call dcopy_(nHess,[Zero],0,Hess,1)
 !                                                                      *
@@ -213,6 +211,13 @@ if (lGrad) then
   nMO = naco*(naco+1)/2
   nMO = nMO*(nMO+1)/2
 
+  call mma_allocate(ipDisp,nDisp,label='ipDisp')
+  if (nMethod == RASSCF) then
+    call mma_allocate(ipMO,nDisp,label='ipMO')
+    call mma_allocate(ipDisp2,nDisp,label='ipDisp2')
+    call mma_allocate(ipDisp3,nDisp,label='ipDisp3')
+  end if
+
   nIndij = S%nShlls*(S%nShlls+1)/2
   n_Int = 0
   jDisp = 0
@@ -230,9 +235,9 @@ if (lGrad) then
       end do
 
       if (nMethod == RASSCF) then
-        ipMO(jDisp,1) = n_Int+1
+        ipMO(jDisp) = n_Int+1
         n_Int = n_Int+nMO
-        ipdisp2(jdisp) = n_Int+1
+        ipDisp2(jDisp) = n_Int+1
         do jIrr=0,nIrrep-1
           kIrr = nrOpr(ieor(iOper(iIrrep),iOper(jIrr)))
           if (jIrr == jIrr) then
@@ -241,7 +246,6 @@ if (lGrad) then
             n_Int = n_Int+nBas(jIrr)*nBas(kIrr)
           end if
         end do
-        ipMO(jDisp,2) = n_Int+1-ipMO(jDisp,1)
       end if
 
     end do
@@ -251,7 +255,7 @@ if (lGrad) then
     do iIrrep=0,nIrrep-1
       do iDisp=1,lDisp(iIrrep)
         jDisp = jDisp+1
-        ipdisp3(jdisp) = n_Int+1
+        ipDisp3(jDisp) = n_Int+1
         do iS=0,nirrep-1
           js = nrOpr(ieor(iOper(is),iOper(iIrrep)))
           n_Int = n_Int+nBas(iS)*nAsh(jS)
@@ -953,7 +957,7 @@ jDisp = 0
 do iIrr=0,nIrrep-1
   do iDisk=1,lDisp(iIrr)
     jDisp = jDisp+1
-    call WrDisk(iInt,n_Int,jdisp,iIrr)
+    call WrDisk(iInt,n_Int,jDisp,iIrr)
   end do
 end do
 
@@ -983,6 +987,11 @@ call mma_deallocate(Aux)
 
 call mma_deallocate(IndK2)
 call mma_deallocate(Data_k2)
+
+if (allocated(ipDisp)) call mma_deallocate(ipDisp)
+if (allocated(ipDisp2)) call mma_deallocate(ipDisp2)
+if (allocated(ipDisp3)) call mma_deallocate(ipDisp3)
+if (allocated(ipMO)) call mma_deallocate(ipMO)
 
 return
 

@@ -9,23 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Knemem_mck( &
-#                     define _CALLING_
-#                     include "grdmem_mck_interface.fh"
-                     )
+module McKinley_global
 
-use Index_Functions, only: nTri_Elem1
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-#include "grdmem_mck_interface.fh"
+private
 
-#include "macros.fh"
-unused_var(lr)
+integer(kind=iwp), parameter :: SCF = 1, RASSCF = 2, &
+                                nOneel = 1, nTwoel = 2, nTwoDens = 3, nIntegrals = 4, nScreen = 5, nTrans = 6, nFckAcc = 7, &
+                                nMOTrans = 8, nTotal = 9
+integer(kind=iwp) :: nFck(0:7), nMethod
+real(kind=wp) :: CPUStat(nTotal)
+logical(kind=iwp) :: lGrd, lHss, Nona, PreScr, sIrrep
+integer(kind=iwp), allocatable :: ipDisp(:), ipDisp2(:), ipDisp3(:), ipMO(:)
 
-nHer = ((la+1)+(lb+1)+2+1)/2
-Mem = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+3*(la+2)*(lb+2)+1+1+nTri_Elem1(la)*nTri_Elem1(lb)*3
+public :: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, lGrd, lHss, nFck, nFckAcc, nIntegrals, nMethod, nMOTrans, Nona, nOneel, &
+          nScreen, nTotal, nTrans, nTwoDens, nTwoel, PreScr, RASSCF, SCF, sIrrep
 
-return
-
-end subroutine Knemem_mck
+end module McKinley_global

@@ -8,16 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer nOneel, nTwoel, nTwoDens, nIntegrals, nScreen, nTrans,    &
-     &        nFckack, nMOTrans, nTotal
-      Parameter ( nOneel    = 1 )
-      Parameter ( nTwoel    = 2 )
-      Parameter ( nTwoDens  = 3 )
-      Parameter ( nIntegrals= 4 )
-      Parameter ( nScreen   = 5 )
-      Parameter ( nTrans    = 6 )
-      Parameter ( nFckack   = 7 )
-      Parameter ( nMOTrans  = 8 )
-      Parameter ( nTotal    = 9 )
-      Real*8 cpustat(nTotal)
-      Common /ccputime/cpustat
+
+#ifdef _CALLING_
+nHer,Mem,la,lb,lr &
+#else
+integer(kind=iwp) :: nHer, Mem, la, lb, lr
+#endif
+#undef _CALLING_

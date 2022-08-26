@@ -11,10 +11,10 @@
 
 subroutine Sttstc()
 
+use McKinley_global, only: CPUStat, nFckAcc, nIntegrals, nMOTrans, nOneel, nScreen, nTotal, nTrans, nTwoDens, nTwoel
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "cputime.fh"
 integer(kind=iwp) :: iFld
 real(kind=wp) :: Diverse, TotCpu
 character(len=*), parameter :: NamFld(nTotal+1) = ['1) Calculation of one electron integrals        :', &
@@ -42,7 +42,7 @@ else
   TotCpu = 0.01_wp
 end if
 !TotCpu = max(0.01_wp,CPUStat(nTotal))
-CPUStat(nTwoel) = CPUStat(nIntegrals)+CPUStat(nScreen)+CPUStat(nTrans)+CPUStat(nTwoDens)+CPUStat(nFckAck)+CPUStat(nMOTrans)
+CPUStat(nTwoel) = CPUStat(nIntegrals)+CPUStat(nScreen)+CPUStat(nTrans)+CPUStat(nTwoDens)+CPUStat(nFckAcc)+CPUStat(nMOTrans)
 Diverse = CPUStat(nTotal)-CPUStat(nTwoEl)-CPUStat(nOneel)
 
 do iFld=1,nTotal-1

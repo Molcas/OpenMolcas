@@ -83,7 +83,7 @@ if (ldot) call DGetMO(PAO,mZeta,mZeta,mEta*mPAO,Scrtch(ipOAP),mEta*mPAO)
 ! Prescreen Zeta
 
 lZeta = 0
-call IZero(IndZet,nZeta)
+IndZet(:) = 0
 if (PreScr) then
   do iZeta=1,mZeta
     jZeta = IndZ(iZeta)
@@ -136,7 +136,7 @@ if (lZeta /= 0) then
   ! Prescreen Eta
 
   lEta = 0
-  call IZero(IndEta,nEta)
+  IndEta(:) = 0
   if (PreScr) then
     do iEta=1,mEta
       jEta = IndE(iEta)

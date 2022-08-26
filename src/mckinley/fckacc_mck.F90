@@ -43,6 +43,7 @@ subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOI
 !             of Lund, Sweden. February '93                            *
 !***********************************************************************
 
+use McKinley_global, only: sIrrep
 use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
@@ -59,7 +60,6 @@ integer(kind=iwp) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4
 logical(kind=iwp) :: Shijij, Pert(0:nIrrep-1)
 real(kind=wp) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
                  Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), FT(nFT), tfact
-#include "disp2.fh"
 integer(kind=iwp) :: i, i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIn, iIrrep, ijkl, iljk, iOut, ip, ipD, ipFij, ipFij1, &
                      ipFik, ipFik1, ipFil, ipFil1, ipFjk, ipFjk1, ipFjl, ipFjl1, ipFkl, ipFkl1, iSym(4,0:7), j, jChBs, jCmpMx, jj, &
                      k, kChBs, kk, kOp2(4), l, lChBs, lCmpMx, ll, mFij, mFik, mFil, mFjk, mFjl, mFkl, nFij, nFik, nFil, nFjk, &
@@ -555,6 +555,7 @@ return
 !     Modified July '98 in Tokyo by R. Lindh                           *
 !***********************************************************************
 
+use McKinley_global, only: sIrrep
 use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
@@ -571,10 +572,9 @@ integer(kind=iwp) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4
 logical(kind=iwp) :: Shijij, Pert(0:nIrrep-1)
 real(kind=wp) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
                  Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), FT(nFT), tfact
-#include "disp2.fh"
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIrrep, ijkl, iOpt, ip, ipDij, ipDik, ipDil, ipDjk, ipDjl, &
                      ipDkl, ipFij, ipFij1, ipFik, ipFik1, ipFil, ipFil1, ipFjk, ipFjk1, ipFjl, ipFjl1, ipFkl, ipFkl1, iSym(4), ix, &
-                     jChBs, jCmpMx, jj, kChBs, kk, kOp2(4), lChBs, lCmpMx, ll, loc1, loc2, mijkl, nFij, nFik, nFil, nFjk, nFjl, &
+                     j, jChBs, jCmpMx, jj, kChBs, kk, kOp2(4), lChBs, lCmpMx, ll, loc1, loc2, mijkl, nFij, nFik, nFil, nFjk, nFjl, &
                      nFkl, nnIrrep
 real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, ExFac, Fac_ij, Fac_ik, Fac_il, Fac_jk, Fac_jl, Fac_kl, Fact, pEa, pFctr, pRb, &
                  pTc, pTSd, rCh, vij, vijkl, vik, vil, vjk, vjl, vkl

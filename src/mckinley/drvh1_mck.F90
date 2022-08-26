@@ -24,6 +24,7 @@ subroutine Drvh1_mck(Nona)
 !             May 95                                                   *
 !***********************************************************************
 
+use mck_interface, only: grd_mck_kernel, grd_mck_mem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -37,8 +38,8 @@ integer(kind=iwp) :: i, iCnt, iCnttp, idCar, idcnt, iIrrep, loper, nDens, nFock
 character(len=8) :: Label
 logical(kind=iwp) :: lECP
 real(kind=wp), allocatable :: D0(:), Fock(:)
-external :: KneGrd_mck, KneMem_mck, m1grd_mck, m1mm1, na2mem, nagrd_mck, namem_mck, nona2, OvrGrd_mck, OvrMem_mck, prjgrd_mck, &
-            prjmm1, srogrd_mck, sromm1
+procedure(grd_mck_kernel) :: KneGrd_mck, m1grd_mck, nagrd_mck, nona2, OvrGrd_mck, prjgrd_mck, srogrd_mck
+procedure(grd_mck_mem) :: KneMem_mck, m1mm1, na2mem, namem_mck, OvrMem_mck, prjmm1, sromm1
 
 if (show) then
   nFock = 0

@@ -32,6 +32,7 @@ subroutine McKinley(ireturn)
 !          '95                                                         *
 !***********************************************************************
 
+use McKinley_global, only: CPUStat, lGrd, lHss, Nona, nOneel, nTotal
 use Basis_Info, only: dbsc, nCnttp
 use Gateway_global, only: Onenly, Test
 use Symmetry_Info, only: nIrrep
@@ -43,8 +44,6 @@ implicit none
 integer(kind=iwp) :: ireturn
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
-#include "cputime.fh"
 #include "print.fh"
 #include "etwas.fh"
 #include "rctfld.fh"

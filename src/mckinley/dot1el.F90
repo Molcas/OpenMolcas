@@ -36,6 +36,7 @@ subroutine Dot1El(Kernel,KrnlMm,Hess,nHess,DiffOp,CCoor,FD,nFD,lOper,nComp)
 !             Modified for multipole moments November '90              *
 !***********************************************************************
 
+use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
@@ -54,7 +55,6 @@ real(kind=wp) :: Hess(nHess), CCoor(3,nComp), FD(nFD)
 logical(kind=iwp) :: DiffOp
 #include "Molcas.fh"
 #include "disp.fh"
-#include "disp2.fh"
 integer(kind=iwp) :: i, iAng, iAO, iAtom, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iComp1, iComp2, iDCRR(0:7), &
                      iDCRT(0:7), ielem, iIrrep, ijS, IndGrd(0:2,0:1,0:7), IndHss(0:1,0:2,0:1,0:2,0:7), iPrim, iS, iShell, iShll, &
                      iSmLbl, iStabM(0:7), iStabO(0:7), iStop, iTmp, iuv, j, jAng, jAO, jAtom, jBas, jCar, jCmp, jCnt, jCnttp, &

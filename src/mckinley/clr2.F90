@@ -13,6 +13,7 @@
 
 subroutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,iaoi,iaoj,naco,ishell,temp1,temp2,temp3,temp4,temp5,temp6)
 
+use McKinley_global, only: ipDisp3, ipMO
 use Index_Functions, only: iTri
 use pso_stuff, only: G2
 use SOAO_Info, only: iAOtSO
@@ -27,7 +28,6 @@ real(kind=wp) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,naco*(1+naco)/2,*), rOut(*),
                  Temp4(ibas,icmp,nACO), Temp5(jbas,jcmp,nACO), Temp6(*)
 #include "Molcas.fh"
 #include "etwas.fh"
-#include "buffer.fh"
 #include "disp.fh"
 integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, &
                      ipp(0:7), iS, iSO, j, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, &
@@ -183,7 +183,7 @@ do mIrr=0,nIrrep-1
                     if (ij1 >= ij2) then
                       ij12 = itri(ij1,ij2)
                       if (ij12 <= klt) then
-                        ipM = ipMO(iD,1)+iTri(ij12,klt)-1
+                        ipM = ipMO(iD)+iTri(ij12,klt)-1
                         ipm2 = iash+(jash-1)*nash(iirr)
                         rOut(ipm) = rout(ipm)+Temp2(ipm2)
                       end if
