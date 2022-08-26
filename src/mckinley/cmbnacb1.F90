@@ -43,15 +43,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAlpha, nbeta, nC, la, lb, iang, indx(3,4), mvec, idcar
-real(kind=wp) :: FA1(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), FB1(nC,nBeta,(2*iang+1),(lb+1)*(lb+2)/2,*), &
-                 rFinal(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,21), Fact, C(*), Tmp(*)
+integer(kind=iwp) :: nAlpha, nBeta, nC, la, lb, iang, indx(3,4), mvec, idcar
+real(kind=wp) :: FA1(nAlpha,nC,nTri_Elem1(la),2*iang+1,*), FB1(nC,nBeta,2*iang+1,nTri_Elem1(lb),*), &
+                 rFinal(nAlpha*nBeta,nTri_Elem1(la),nTri_Elem1(lb),21), Fact, C(*), Tmp(*)
 logical(kind=iwp) :: ifgrad(3,4), lsro
-integer(kind=iwp) :: ia, ib, iC, iCent, iFa, iFb, nZeta
+integer(kind=iwp) :: ia, ib, iC, iCent, iFa, iFb
 
-nZeta = nAlpha*nBeta
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*6,[Zero],0,rFinal,1)
-call iCopy(12,[0],0,indx,1)
+rFinal(:,:,:,1:6) = Zero
+indx(:,:) = 0
 
 mVec = 0
 do iCent=1,2

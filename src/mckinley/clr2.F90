@@ -14,7 +14,7 @@
 subroutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,iaoi,iaoj,naco,ishell,temp1,temp2,temp3,temp4,temp5,temp6)
 
 use McKinley_global, only: ipDisp3, ipMO
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use pso_stuff, only: G2
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: iOper, nIrrep
@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ibas, icmp, jbas, jcmp, iaoi, iaoj, naco, ishell(4)
-real(kind=wp) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,naco*(1+naco)/2,*), rOut(*), Temp1(ibas,icmp,*), Temp2(*), Temp3(jbas,jcmp,*), &
+real(kind=wp) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,nTri_Elem(naco),*), rOut(*), Temp1(ibas,icmp,*), Temp2(*), Temp3(jbas,jcmp,*), &
                  Temp4(ibas,icmp,nACO), Temp5(jbas,jcmp,nACO), Temp6(*)
 #include "Molcas.fh"
 #include "etwas.fh"
@@ -35,9 +35,9 @@ integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, i
 real(kind=wp) :: fact, rd
 integer(kind=iwp), external :: NrOpr
 
-call dcopy_(Naco**4,[Zero],0,Temp2,1)
-call dcopy_(nACO*ICMP*IBAS,[Zero],0,Temp4,1)
-call dcopy_(nACO*JCMP*JBAS,[Zero],0,Temp5,1)
+Temp2(1:Naco**4) = Zero
+Temp4(:,:,:) = Zero
+Temp5(:,:,:) = Zero
 nnA = 0
 do iS=0,nIrrep-1
   nA(iS) = nNA
@@ -47,8 +47,8 @@ n = 0
 do i=1,nirrep
   n = n+ldisp(i-1)
 end do
-n = ibas*icmp*jbas*jcmp*nIrrep*nAco*(1+naco)/2*n
-!
+n = ibas*icmp*jbas*jcmp*nIrrep*nTri_Elem(nAco)*n
+
 ni = iCmp*iBas
 nj = jCmp*jBas
 ipi = 1

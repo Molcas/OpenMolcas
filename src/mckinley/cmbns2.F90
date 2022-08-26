@@ -19,15 +19,15 @@ subroutine CmbnS2(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Hess,nHess,DAO,IfHs
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind, iTri
+use Index_Functions, only: C_Ind, iTri, nTri_Elem1
 use Symmetry_Info, only: iChTbl, nIrrep
 use Constants, only: Two, Four, OneHalf
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: nZeta, la, lb, nHess, IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), indgrd(0:2,0:1,0:nirrep-1), iu, iv, nOp(2)
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), &
-                 Alpha(nZeta), Hess(nHess), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6), &
+                 Alpha(nZeta), Hess(nHess), DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
 logical(kind=iwp) :: IfHss(0:1,0:2,0:1,0:2)
 integer(kind=iwp) :: i, ia(3), iax, iay, ib(3), ibx, iby, iCar, iCh, iCnt, iCoor, iHess, iIrrep, ipa, ipb, istb(0:1), iStop, &
                      iyaMax, iybMax, iZeta, jCar, jCnt, jCoor, kCoor, nDAO
@@ -130,7 +130,7 @@ do iax=0,la
 end do
 
 ! Trace the Hessian integrals
-nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
+nDAO = nZeta*nTri_Elem1(la)*nTri_Elem1(lb)
 !if (iPrint >= 99) then
 !  call RecPrt(' S(1)',' ',rFinal,nDAO,21)
 !  call RecPrt('   D ','(6f12.6)',DAO(1,1,1),nDAO,1)

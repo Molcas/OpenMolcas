@@ -37,8 +37,8 @@ integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), rFinal(*), A(3), B(3), &
                  Array(nZeta*nArr), Ccoor(3)
 logical(kind=iwp) :: ifgrad(3,2), trans(3,2)
-integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, &
-                     ipTemp3, iZeta, nip
+integer(kind=iwp) :: iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, &
+                     iZeta, nip
 logical(kind=iwp) :: ABeq(3)
 
 iprint = 0
@@ -99,19 +99,19 @@ call vAssmbl(Array(ipRnxyz),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipBxyz
 
 ip = ipAlph
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ip),1)
+  Array(ip:ip+nAlpha-1) = Alpha
   ip = ip+nAlpha
 end do
 ip = ipBeta
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
-  ip = ip+1
+do iBeta=1,nBeta
+  Array(ip:ip+nAlpha-1) = Beta(iBeta)
+  ip = ip+nAlpha
 end do
 call Cmbnel(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),Array(ipTemp1),Array(ipTemp2),Array(ipAlph), &
             Array(ipBeta),ifgrad,kcar)
 
 !?
-call dcopy_(nTri_Elem1(la)*nTri_Elem1(lb)*nZeta*NrOp,[Zero],0,rFinal,1)
+rFinal(1:nTri_Elem1(la)*nTri_Elem1(lb)*nZeta*NrOp) = Zero
 
 ! Symmetry adapt the gradient operator
 

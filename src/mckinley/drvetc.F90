@@ -21,6 +21,7 @@ subroutine Drvetc(ngrad)
 !             October  97                                              *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -40,7 +41,7 @@ Ccoor(:) = Zero
 
 nDens = 0
 do iIrrep=0,nIrrep-1
-  nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  nDens = nDens+nTri_Elem(nBas(iIrrep))
 end do
 
 call mma_Allocate(D0,nDens,Label='D0')

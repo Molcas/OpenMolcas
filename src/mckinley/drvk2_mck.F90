@@ -27,7 +27,7 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !              Modified 1995 for 2nd derivatives by AB                 *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: iTri, nTri_Elem1
 use k2_setup, only: Data_k2, Indk2, nk2
 use k2_arrays, only: DoGrad_, DoHess_
 use iSD_data, only: iSD
@@ -103,7 +103,7 @@ do iS=1,nSkal
 
   iAngV(1) = iAng
   iShllV(1) = iShll
-  iCmpV(1) = (iAng+1)*(iAng+2)/2
+  iCmpV(1) = nTri_Elem1(iAng)
 
   do jS=1,iS
     jShll = iSD(0,jS)
@@ -120,7 +120,7 @@ do iS=1,nSkal
 
     iAngV(2) = jAng
     iShllV(2) = jShll
-    iCmpV(2) = (jAng+1)*(jAng+2)/2
+    iCmpV(2) = nTri_Elem1(jAng)
 
     ! Compute FLOP's for the transfer equation.
 
@@ -143,14 +143,10 @@ do iS=1,nSkal
 
     call ConMax(Con,iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
-    call ICopy(2,iAngV,1,iAngV(3),1)
-    call ICopy(2,iCmpV,1,iCmpV(3),1)
+    iAngV(3:4) = iAngV(1:2)
+    iCmpV(3:4) = iCmpV(1:2)
 
-    if (iShell >= jShell) then
-      ijShll = iShell*(iShell-1)/2+jShell
-    else
-      ijShll = jShell*(jShell-1)/2+iShell
-    end if
+    ijShll = iTri(iShell,jShell)
 
     nSO = 1
 
@@ -213,9 +209,7 @@ call mma_deallocate(Con)
 !                                                                      *
 ! Resize the memory to the actual size
 
-call mma_allocate(Data_k2,nk2)
-call dCopy_(nk2,Data_k2_local,1,Data_k2,1)
-call mma_deallocate(Data_k2_local)
+call move_alloc(Data_k2_local,Data_k2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

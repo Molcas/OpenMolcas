@@ -19,13 +19,13 @@ subroutine CmbnS2b(Rnxyz,nZeta,la,lb,rKappa,rFinal,Beta,IfHss,ld)
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind, iTri
+use Index_Functions, only: C_Ind, iTri, nTri_Elem1
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nZeta, la, lb, ld
-real(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb+ld), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), Beta(nZeta)
+real(kind=wp) :: Rnxyz(nZeta,3,0:la,0:lb+ld), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6), Beta(nZeta)
 logical(kind=iwp) :: IfHss(4,3,4,3)
 integer(kind=iwp) :: ia(3), iax, iay, ib(3), ibx, iby, iCoor, ipa, ipb, iyaMax, iybMax, iZeta, jCoor, kCoor
 real(kind=wp) :: rIc

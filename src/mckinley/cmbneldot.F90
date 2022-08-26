@@ -25,7 +25,7 @@ subroutine CmbnEldot(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alp
 !             by Anders Bernhardsson                                   *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind, nTri3_Elem
+use Index_Functions, only: C_Ind, nTri3_Elem, nTri_Elem1
 use Symmetry_Info, only: iChBas, iChTbl, nIrrep
 use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp, r8
@@ -33,8 +33,8 @@ use Definitions, only: wp, iwp, r8
 implicit none
 integer(kind=iwp) :: nZeta, la, lb, lr, nComp, iStb, jStb, nOp(2), indgrd(2,3,3,0:7)
 real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), &
-                 rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6), Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta), &
-                 DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), rout(*)
+                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,6), Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta), &
+                 DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb)), rout(*)
 integer(kind=iwp) :: i1, iCar, iCnt, iComp, ihess, iIrrep, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, &
                      iZeta, jCar, nDAO
 real(kind=wp) :: Fct, ps, rtemp, xa, xb, ya, yb, za, zb
@@ -204,7 +204,7 @@ do ixa=0,la
   end do
 end do
 
-nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
+nDAO = nZeta*nTri_Elem1(la)*nTri_Elem1(lb)
 do iIrrep=0,nIrrep-1
   do iCnt=1,2
     do iCar=1,3

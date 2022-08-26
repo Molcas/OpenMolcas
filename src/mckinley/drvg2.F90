@@ -31,7 +31,7 @@ subroutine Drvg2(Hess,nhess,l_Grd,l_Hss)
 !***********************************************************************
 
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD
 use k2_setup, only: Data_k2, Indk2, nIndk2
 use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, ipZeta, MemR, MxDij, Mem_INT, Mem_DBLE, ndede, nFT, Sew_Scr
@@ -141,7 +141,7 @@ do iS=0,nIrrep-1
 end do
 n8 = .true.
 
-call dcopy_(nHess,[Zero],0,Hess,1)
+Hess(1:nHess) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -156,7 +156,7 @@ lgrad = l_Grd
 lpick = lgrad .and. (.not. New_Fock)
 Pren = Zero
 Prem = Zero
-nIndK2 = S%nShlls*(S%nShlls+1)/2
+nIndK2 = nTri_Elem(S%nShlls)
 call mma_allocate(IndK2,2,nIndk2)
 call Drvk2_mck(ndede,new_Fock)
 
@@ -185,7 +185,7 @@ do iAng=0,S%iAngMx
     if (iPrim == 0) cycle
     if (Shells(iShll)%nBasis == 0) cycle
     iBas = Shells(iShll)%nBasis
-    iCmp = (iAng+1)*(iAng+2)/2
+    iCmp = nTri_Elem1(iAng)
     MxBsC = max(MxBsC,iBas*iCmp)
     MxDij = max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
   end do
@@ -208,8 +208,7 @@ if (lGrad) then
   ! Calculate the size of memory needed for storing fock matrices and
   ! MO integrals and allocate it.
 
-  nMO = naco*(naco+1)/2
-  nMO = nMO*(nMO+1)/2
+  nMO = nTri_Elem(nTri_Elem(naco))
 
   call mma_allocate(ipDisp,nDisp,label='ipDisp')
   if (nMethod == RASSCF) then
@@ -218,7 +217,7 @@ if (lGrad) then
     call mma_allocate(ipDisp3,nDisp,label='ipDisp3')
   end if
 
-  nIndij = S%nShlls*(S%nShlls+1)/2
+  nIndij = nTri_Elem(S%nShlls)
   n_Int = 0
   jDisp = 0
   do iIrrep=0,nIrrep-1
@@ -228,7 +227,7 @@ if (lGrad) then
       do jIrr=0,nIrrep-1
         kIrr = nrOpr(ieor(iOper(iIrrep),iOper(jIrr)))
         if (jIrr == kIrr) then
-          n_Int = n_Int+nBas(jIrr)*(nBas(jIrr)+1)/2
+          n_Int = n_Int+nTri_Elem(nBas(jIrr))
         else if (kIrr < jIrr) then
           n_Int = n_Int+nBas(jIrr)*nBas(kIrr)
         end if
@@ -241,7 +240,7 @@ if (lGrad) then
         do jIrr=0,nIrrep-1
           kIrr = nrOpr(ieor(iOper(iIrrep),iOper(jIrr)))
           if (jIrr == jIrr) then
-            n_Int = n_Int+nBas(jIrr)*(nBas(jIrr)+1)/2
+            n_Int = n_Int+nTri_Elem(nBas(jIrr))
           else if (kIrr < jIrr) then
             n_Int = n_Int+nBas(jIrr)*nBas(kIrr)
           end if
@@ -288,7 +287,7 @@ if (lGrad) then
   if (New_Fock) then
     if (nmethod /= RASSCF) then
       call Get_D1ao_Var(DTemp,nDens)
-      call DScal_(nDens,Half,DTemp,1)
+      DTemp(:) = Half*DTemp
       ij = 0
       do i=1,nBas(0)
         ij = ij+i
@@ -296,14 +295,14 @@ if (lGrad) then
       end do
     else
       call Din(DInAc)
-      call DScal_(nDens,Half,DInAc,1)
+      DInAc(:) = Half*DInAc
       ij = 0
       do i=1,nBas(0)
         ij = ij+i
         DInAc(ij) = Two*DInAc(ij)
       end do
       call Dan(DTemp)
-      call DScal_(nDens,Half,DTemp,1)
+      DTemp(:) = Half*DTemp
       ij = 0
       do i=1,nBas(0)
         ij = ij+i
@@ -351,8 +350,8 @@ call Set_Basis_Mode('Valence')
 call Nr_Shells(nSkal)
 call Setup_iSD()
 
-nPairs = nSkal*(nSkal+1)/2
-nQuad = nPairs*(nPairs+1)/2
+nPairs = nTri_Elem(nSkal)
+nQuad = nTri_Elem(nPairs)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -371,7 +370,7 @@ end do
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(Ind_ij,2,nSkal*(nSkal+1)/2,Label='Ind_ij')
+call mma_allocate(Ind_ij,2,nPairs,Label='Ind_ij')
 nijS = 0
 do iS=1,nSkal
   do jS=1,iS
@@ -916,7 +915,7 @@ if (New_Fock) then
     do iD=1,ldisp(is)
       idd = idd+1
       ip = ipDisp(idd)
-      call DScal_(nDens,Half,iInt(ip),1)
+      iInt(ip:ip+nDens-1) = Half*iInt(ip:ip+nDens-1)
       ij = ip-1
       do i=1,nBas(0)
         ij = ij+i
@@ -930,7 +929,7 @@ if (New_Fock) then
       do iD=1,ldisp(is)
         idd = idd+1
         ip = ipDisp2(idd)
-        call DScal_(nDens,Half,iInt(ip),1)
+        iInt(ip:ip+nDens-1) = Half*iInt(ip:ip+nDens-1)
         ij = ip-1
         do i=1,nBas(0)
           ij = ij+i

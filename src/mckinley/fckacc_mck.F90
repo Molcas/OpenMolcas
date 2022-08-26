@@ -133,7 +133,7 @@ nFil = iBas*lBas*iCmpa(1)*iCmpa(4)
 ipFjk = ipFil+nFil
 nFjk = jBas*kBas*iCmpa(2)*iCmpa(3)
 
-call dcopy_(nFij+nFkl+nFik+nFjl+nFil+nFjk,[Zero],0,FT(ipFij),1)
+FT(ipFij:ipFjk+nFjk-1) = Zero
 
 ! Quadruple loop over elements of the basis functions angular
 ! description. Loops are reduced to just produce unique SO integrals
@@ -336,7 +336,7 @@ do i1=1,iCmp
                   njl = (l-1)*jBas+j
                   iOut = (nkl-1)*iBas*jBas+nij
                   iIn = (njl-1)*iBas*kBas+nik
-                  call dcopy_(iBas,AOInt(iOut,i1,i2,i3,i4),1,Scrt(iIn),1)
+                  Scrt(iIn:iIn+iBas-1) = AOInt(iOut:iOut+iBas-1,i1,i2,i3,i4)
                 end do
               end do
             end do
@@ -434,7 +434,7 @@ do i1=1,iCmp
                   nil = (l-1)*iBas+i
                   ijkl = (nkl-1)*iBas*jBas+nij
                   iljk = (njk-1)*iBas*lBas+nil
-                  call dcopy_(iBas,AOInt(ijkl,i1,i2,i3,i4),1,Scrt(iljk),1)
+                  Scrt(iljk:iljk+iBas-1) = AOInt(ijkl:ijkl+iBas-1,i1,i2,i3,i4)
                 end do
               end do
             end do
@@ -519,7 +519,7 @@ do iIrrep=0,nnIrrep-1
     !  else
     !    write(u6,'(A,G20.6)') 'TwoHam=',DDot_(3468,TwoHam,1,TwoHam,1)
     !  end if
-    !  call FZero(TwoHam,3468)
+    !  TwoHam(1:3468) = Zero
     !end if
   end if
 end do
@@ -641,7 +641,7 @@ nFil = iBas*lBas*iCmpa(1)*iCmpa(4)
 ipFjk = ipFil+nFil
 nFjk = jBas*kBas*iCmpa(2)*iCmpa(3)
 
-call dcopy_(nFij+nFkl+nFik+nFjl+nFil+nFjk,Zero,0,FT(ipFij),1)
+FT(ipFij:ipFjk+nFjk-1) = Zero
 
 ipDij = 1
 ipDkl = 1

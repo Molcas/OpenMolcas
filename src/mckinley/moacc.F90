@@ -24,6 +24,7 @@ subroutine MOAcc(AOInt,Temp1,Temp2,nTemp,ishell,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp
 !             University of Lund, Sweden. Januar '96                   *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
 use Gateway_Info, only: CutInt
 use Constants, only: Zero
@@ -33,7 +34,7 @@ implicit none
 integer(kind=iwp) :: nTemp, ishell(4), nCk, nCl, moip(0:7), nACO, nOp(4), ibasa(4), icmpa(4), icar, icnt, indgrd(3,4,0:7), &
                      iAOST(4), nij, nkl, nbasi, nbasj, icmp, jcmp
 real(kind=wp) :: AOInt(nkl,nij), Temp1(nTemp), Temp2(naco,naco), Ck(nCk), Cl(nCl), fact, &
-                 Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,naco*(naco+1)/2,*)
+                 Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,nTri_Elem(naco),*)
 logical(kind=iwp) :: pert(0:7)
 #include "etwas.fh"
 integer(kind=iwp) :: i, ib, iBas, ic, iCB, iirr, ij, il, ipC, ipM, irest, iSPert, j, jb, jBas, jc, jIrr, k, kAsh, kBas, kCmp, &

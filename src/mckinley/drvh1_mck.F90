@@ -25,6 +25,7 @@ subroutine Drvh1_mck(Nona)
 !***********************************************************************
 
 use mck_interface, only: grd_mck_kernel, grd_mck_mem
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -45,8 +46,8 @@ if (show) then
   nFock = 0
   nDens = 0
   do iIrrep=0,nIrrep-1
-    nFock = nFock+nBas(iIrrep)*(nBas(iIrrep)+1)/2
-    nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    nFock = nFock+nTri_Elem(nBas(iIrrep))
+    nDens = nDens+nTri_Elem(nBas(iIrrep))
   end do
 
   ! Read the variational 1st order density matrix

@@ -39,7 +39,7 @@ logical(kind=iwp), external :: TstFnc
 #endif
 
 nnIrrep = nIrrep
-call lCopy(12,[.false.],0,ifgrd,1)
+IfGrd(:,:) = .false.
 if (sIrrep) nnIrrep = 1
 
 do iIrrep=0,nnIrrep-1
@@ -108,10 +108,10 @@ iCo(2) = mdcj
 iCo(3) = mdck
 iCo(4) = mdcl
 #endif
-call iCopy(144*nirrep,[0],0,IndHss,1)
-call iCopy(144*nirrep,[0],0,jndHss,1)
-call lCopy(144,[.false.],0,IfHss,1)
-call lCopy(144,[.false.],0,JfHss,1)
+IndHss(:,:,:,:,0:nirrep-1) = 0
+JndHss(:,:,:,:,0:nirrep-1) = 0
+IfHss(:,:,:,:) = .false.
+JfHss(:,:,:,:) = .false.
 if (.not. ldot) return
 
 do iAtom=1,4
@@ -200,7 +200,7 @@ end do
 
 ! Scramble the control array for the hessian
 
-call LCopy(4,[.true.],0,Ifg,1)
+IfG(:) = .true.
 do iAtom=1,4
   JfG(iAtom) = IfG(iAtom)
   do jAtom=1,iAtom

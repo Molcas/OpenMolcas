@@ -39,7 +39,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_mck_interface.fh"
-integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, ipScrt, nip
+integer(kind=iwp) :: iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, ipScrt, nip
 logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
@@ -107,13 +107,13 @@ call Assmbl(Array(ipRnxyz),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipBxyz)
 
 ip = ipAlph
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ip),1)
+  Array(ip:ip+nAlpha-1) = Alpha
   ip = ip+nAlpha
 end do
 ip = ipBeta
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
-  ip = ip+1
+do iBeta=1,nBeta
+  Array(ip:ip+nAlpha-1) = Beta(iBeta)
+  ip = ip+nAlpha
 end do
 call CmbnS1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Array(ipScrt),Array(ipAlph),Array(ipBeta),IfGrad)
 

@@ -38,9 +38,9 @@ use Definitions, only: u6
 implicit none
 #include "grd_mck_interface.fh"
 integer(kind=iwp) :: iAng, iCnt, iDCRT(0:7), iIrrep, Indx(3,4), ip, ipFA1, ipFA2, ipFB1, ipFB2, ipFin, ipTmp, iShll, iuvwx(4), &
-                     JndGrd(3,4,0:7), kCnt, kCnttp, kdc, lDCRT, LmbdT, mOp(4), mvec, nDCRT, nExpi, nt
+                     JndGrd(3,4,0:7), kCnt, kCnttp, kdc, lDCRT, LmbdT, mOp(4), mvec, n, nDCRT, nExpi, nt
 real(kind=wp) :: C(3), Fact, TC(3)
-logical(kind=iwp) :: DiffCnt, ifg(4), ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
+logical(kind=iwp) :: DiffCnt, ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 
@@ -90,10 +90,9 @@ do kCnttp=1,nCnttp
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
 
-    call LCopy(12,[.false.],0,JFgrad,1)
-    call LCopy(4,[.false.],0,tr,1)
-    call LCopy(4,[.false.],0,ifg,1)
-    call ICopy(12*nIrrep,[0],0,jndGrd,1)
+    JfGrad(:,:) = .false.
+    tr(:) = .false.
+    JndGrd(:,:,0:nIrrep-1) = 0
 
     do iCnt=1,2
       JfGrad(iDCar,iCnt) = IfGrad(iDCar,iCnt)
@@ -101,7 +100,6 @@ do kCnttp=1,nCnttp
 
     do ICnt=1,2
       if (ifgrad(idcar,iCnt)) then
-        ifg(icnt) = .true.
         do iIrrep=0,nIrrep-1
           jndGrd(iDCar,iCnt,iIrrep) = IndGrd(iIrrep)
         end do
@@ -110,8 +108,6 @@ do kCnttp=1,nCnttp
 
     if ((kdc+kCnt) == iDCnt) then
       Tr(3) = .true.
-      ifg(1) = .true.
-      ifg(2) = .true.
       JfGrad(iDCar,1) = .true.
       JfGrad(iDCar,2) = .true.
       do iIrrep=0,nIrrep-1
@@ -144,7 +140,7 @@ do kCnttp=1,nCnttp
         ip = 1
 
         ipFin = ip
-        ip = ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
+        ip = ip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*6
 
         ipTmp = ip
         ip = ip+max(nBeta,nAlpha)*nExpi
@@ -158,7 +154,7 @@ do kCnttp=1,nCnttp
 
         ipFB2 = ip ! Not in use for 1st derivatives
 
-        call dcopy_(nArr,[Zero],0,Array,1)
+        Array(:) = Zero
 
 #ifdef _DEBUGPRINT_
         call Acore(iang,la,ishll,nordop,TC,A,Array(ip),narr-ip+1,Alpha,nalpha,Array(ipFA1),array(ipFA2),jfgrad(1,1),ifhess_dum,1, &
@@ -169,7 +165,8 @@ do kCnttp=1,nCnttp
 #endif
         call LToSph(Array(ipFA1),nalpha,ishll,la,iAng,2)
 
-        call dcopy_(nBeta*nExpi*nTri_Elem1(lb)*nTri_Elem1(iAng)*2,[Zero],0,Array(ipFB1),1)
+        n = nBeta*nExpi*nTri_Elem1(lb)*nTri_Elem1(iAng)*2
+        Array(ipFB1:ipFB1+n-1) = Zero
 #ifdef _DEBUGPRINT_
         call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),narr-ip+1,Beta,nbeta,Array(ipFB1),array(ipFB2),jfgrad(1,2),ifhess_dum,1, &
                    .true.)

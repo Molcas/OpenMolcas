@@ -45,8 +45,8 @@ integer(kind=iwp), intent(inout) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nO
                                     IndHss(0:1,0:2,0:1,0:2,0:nSym-1), IndGrd(0:2,0:1,0:nSym-1), mdc, ndc, nOp(2), nComp, nStabM, &
                                     lOper(nComp), iStabM(0:nStabM-1)
 real(kind=wp), intent(inout) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                                rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nArr), Ccoor(3), &
-                                Hess(nHess), DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
+                                rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6), A(3), RB(3), Array(nArr), Ccoor(3), Hess(nHess), &
+                                DAO(nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
 logical(kind=iwp), intent(inout) :: IfHss(0:1,0:2,0:1,0:2),IfGrd(0:2,0:1)
 #endif
 #undef _CALLING_

@@ -37,9 +37,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_mck_interface.fh"
 integer(kind=iwp), parameter :: nHess = 1, nPAO = 1 ! Hess, PAO: Dummy arrays
-integer(kind=iwp) :: iAlpha, iAnga(4), iBeta, iCnt, iDCRT(0:7), iElem, iIrrep, indi, Indx(3,4), ipA, ipAOff, ipB, ipBOff, &
-                     iuvwx(4), iZeta, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, &
-                     mOp(4), nArray, nb, nDCRT, nGr, nip, nRys
+integer(kind=iwp) :: iAnga(4), iBeta, iCnt, iDCRT(0:7), iElem, iIrrep, indi, Indx(3,4), ipA, ipAOff, ipB, ipBOff, iuvwx(4), iZeta, &
+                     JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, mOp(4), nArray, nb, &
+                     nDCRT, nGr, nip, nRys
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Hess(nHess), PAO(nPAO), TC(3), tfac
 logical(kind=iwp) :: DiffCnt, jfg(4), JfGrd(3,4), JfHss(4,3,4,3), kfgrd(3,4), Tr(4)
 integer(kind=iwp), external :: NrOpr
@@ -74,17 +74,17 @@ iAnga(2) = lb
 iAnga(3) = 0
 iAnga(4) = 0
 ! Dummies
-call ICopy(144*nIrrep,[0],0,JndHss,1)
-call LCopy(144,[.false.],0,jfHss,1)
+JndHss(:,:,:,:,0:nIrrep-1) = 0
+JfHss(:,:,:,:) = .false.
 
-call dcopy_(3,A,1,Coora(1,1),1)
-call dcopy_(3,RB,1,Coora(1,2),1)
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coora(:,1) = A
+Coora(:,2) = RB
+Coori(:,1) = A
+Coori(:,2) = RB
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 iuvwx(1) = iu
 iuvwx(2) = iv
@@ -93,14 +93,14 @@ mOp(2) = nOp(2)
 
 ipAOff = ipA
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  Array(ipAOff:ipAOff+nAlpha-1) = Alpha
   ipAOff = ipAOff+nAlpha
 end do
 
 ipBOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-  ipBOff = ipBOff+1
+do iBeta=1,nBeta
+  Array(ipBOff:ipBOff+nAlpha-1) = Beta(iBeta)
+  ipBOff = ipBOff+nAlpha
 end do
 
 ! Loop over nuclear centers
@@ -127,8 +127,8 @@ do kCnttp=1,nCnttp
     !end if
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
-    call LCopy(12,[.false.],0,JFgrd,1)
-    call ICopy(12*nIrrep,[0],0,jndGrd,1)
+    JndGrd(:,:,0:nIrrep-1) = 0
+    JfGrd(:,:) = .false.
     do iCnt=1,2
       JfGrd(iDCar,iCnt) = IfGrad(iDCar,iCnt)
     end do
@@ -154,16 +154,16 @@ do kCnttp=1,nCnttp
     end if
 
     do lDCRT=0,nDCRT-1
-      call lCopy(12,JfGrd,1,kfGrd,1)
-      call iCopy(12*nIrrep,JndGrd,1,kndgrd,1)
+      kndgrd(:,:,0:nIrrep-1) = JndGrd(:,:,0:nIrrep-1)
+      kfgrd(:,:) = JfGrd(:,:)
       mOp(3) = NrOpr(iDCRT(lDCRT))
       mOp(4) = mOp(3)
       call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coora(1,3),1)
-      call dcopy_(3,TC,1,Coora(1,4),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
+      CoorAC(:,2) = TC
+      Coora(:,3) = TC
+      Coora(:,4) = TC
+      Coori(:,3) = TC
+      Coori(:,4) = TC
       if (Eq(A,RB) .and. EQ(A,TC)) cycle
       if (EQ(A,TC)) then
         kfGrd(iDCar,1) = .false.

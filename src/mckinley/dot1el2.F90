@@ -36,7 +36,7 @@ subroutine Dot1El2(Kernel,KrnlMm,Hess,nGrad,DiffOp,CCoor,FD,nordop)
 !             Modified for Hessians by AB   Dec '94                    *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
@@ -65,7 +65,7 @@ real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Kern(:), PCoor
 integer(kind=iwp), external :: irrfnc, MemSO1, n2Tri, NrOpr
 logical(kind=iwp), external :: EQ, TF
 
-call dcopy_(nGrad,[Zero],0,Hess,1)
+Hess(:) = Zero
 
 ! Auxiliary memory allocation.
 
@@ -84,7 +84,7 @@ call Setup_iSD()
 !                                                                      *
 ! Double loop over shells.
 
-nTasks = nSkal*(nSkal+1)/2
+nTasks = nTri_Elem(nSkal)
 iS = 0
 jS = 0
 do ijS=1,nTasks
@@ -252,7 +252,7 @@ do ijS=1,nTasks
 
         call Setup1(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,A,RB,Kappa,PCoor,ZI)
 
-        call Icopy(18*nirrep,[0],0,IndGrd,1)
+        IndGrd(:,:,:,0:nirrep-1) = 0
         kk = 0
         do jIrrep=0,nirrep-1
           do jCar=1,3

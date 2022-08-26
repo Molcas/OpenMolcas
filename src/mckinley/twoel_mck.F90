@@ -105,8 +105,8 @@ logical(kind=iwp) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), Shijij, lgrad, ldot, n8
 integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, IncEta, IncZet, Indx(3,4), ip, ip2, ipFT, ipS1, ipS2, &
                      ipTemp, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), ix2, iy2, iz2, jCmpb, JndGrd(3,4,0:7), &
                      JndHss(4,3,4,3,0:7), jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, &
-                     lShlld, lStabM, lStabN, lZeta, mab, mcd, mEta, mZeta, nabcd, nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nijkl, &
-                     nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
+                     lShlld, lStabM, lStabN, lZeta, mab, mcd, mEta, mZeta, n, nabcd, nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, &
+                     nijkl, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeq, ABeqCD, AeqB, AeqC, CDeq, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, no_integrals, Tr(4)
 integer(kind=iwp), external :: ip_abMax, ip_IndZ, ip_Z, NrOpr
@@ -279,7 +279,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
   !*********************************************************************
   !                                                                    *
   nOp(1) = NrOpr(0)
-  call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
+  CoorM(:,1) = Coor(:,1)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -299,7 +299,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
     !*******************************************************************
     !                                                                  *
     do lDCRS=0,nDCRS-1
-      call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
+      Coorm(:,3) = Coor(:,3)
       call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
       CeqD = EQ(Coor(1,3),CoorM(1,4))
       !                                                                *
@@ -330,14 +330,14 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         ! the order as defined by the basis functions types.
 
         if (iAngV(1) >= iAngV(2)) then
-          call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
+          CoorAC(:,1) = CoorM(:,1)
         else
-          call dcopy_(3,CoorM(1,2),1,CoorAC(1,1),1)
+          CoorAC(:,1) = CoorM(:,2)
         end if
         if (iAngV(3) >= iAngV(4)) then
-          call dcopy_(3,CoorM(1,3),1,CoorAC(1,2),1)
+          CoorAC(:,2) = CoorM(:,3)
         else
-          call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
+          CoorAC(:,2) = CoorM(:,4)
         end if
 
         ! Calculate the desymmetrized two-electron density matrix in cartesian AO base.
@@ -386,19 +386,21 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             ! OBS DETTA SKALL FLYTTAS UT UR INRE LOOPEN
             !
             !----------------------------------------------------------*
-            call LCopy(144,IfHss,1,JfHss,1)
-            call LCopy(12,IfGrd,1,JfGrd,1)
-            call LCopy(4,[.true.],0,ifg,1)
-            call LCopy(4,[.false.],0,Tr,1)
-            call ICopy(144*nIrrep,IndHss,1,JndHss,1)
-            call ICopy(12*nIrrep,IndGrd,1,JndGrd,1)
+            JfHss(:,:,:,:) = IfHss
+            JfGrd(:,:) = IfGrd
+            ifg(:) = .true.
+            Tr(:) = .false.
+            JndHss(:,:,:,:,0:nIrrep-1) = IndHss(:,:,:,:,0:nIrrep-1)
+            JndGrd(:,:,0:nIrrep-1) = IndGrd(:,:,0:nIrrep-1)
 
             ! Delete one center that should be calculated with translation invariance
 
             call Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,coorm,nirrep,indgrd,indhss)
 
-            if (.not. ldot) call LCopy(144,[.false.],0,JfHss,1)
-            if (.not. ldot) call iCopy(144*8,[0],0,JndHss,1)
+            if (.not. ldot) then
+              JfHss(:,:,:,:) =.false.
+              JndHss(:,:,:,:,:) = 0
+            end if
             !----------------------------------------------------------*
             !     PRE PRESCREENING                                     *
             !----------------------------------------------------------*
@@ -483,7 +485,10 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
           factNd = sqrt(u*v*w*x)/real(nirrep*lmbdt,kind=wp)
         end if
 
-        if (FactNd /= One) call DScal_(nGr*mab*mcd*nijkl,FactNd,WorkX,1)
+        if (FactNd /= One) then
+          n = nGr*mab*mcd*nijkl
+          WorkX(1:n) = FactNd*WorkX(1:n)
+        end if
 
         !--------------------------------------------------------------*
         !
@@ -492,7 +497,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         !--------------------------------------------------------------*
 
         niag = nijkl*nTri_Elem1(lb)*mcd*nGr
-        call CrSph_mck(WorkX,niag,(la+1)*(la+2)/2,RSph(ipSph(la)),la,Shells(iShlla)%Transf,Shells(iShlla)%Prjct,Work3,iCmpa)
+        call CrSph_mck(WorkX,niag,nTri_Elem1(la),RSph(ipSph(la)),la,Shells(iShlla)%Transf,Shells(iShlla)%Prjct,Work3,iCmpa)
         nw3 = niag*iCmpa
         ip2 = 1+nw3
 
@@ -508,7 +513,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
           write(u6,*) '1: nw3+nw3_2 > nWork3'
           call Abend()
         end if
-        call CrSph_mck(Work3,niag,(lb+1)*(lb+2)/2,RSph(ipSph(lb)),lb,Shells(jShllb)%Transf,Shells(jShllb)%Prjct,Work3(ip2),jCmpb)
+        call CrSph_mck(Work3,niag,nTri_Elem1(lb),RSph(ipSph(lb)),lb,Shells(jShllb)%Transf,Shells(jShllb)%Prjct,Work3(ip2),jCmpb)
 
         !--------------------------------------------------------------*
         !
@@ -517,7 +522,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         !--------------------------------------------------------------*
 
         niag = nijkl*nGr*nTri_Elem1(ld)*iCmpa*jCmpb
-        call CrSph_mck(Work3(ip2),niag,(lc+1)*(lc+2)/2,RSph(ipSph(lc)),lc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct,Work3,kCmpc)
+        call CrSph_mck(Work3(ip2),niag,nTri_Elem1(lc),RSph(ipSph(lc)),lc,Shells(kShllc)%Transf,Shells(kShllc)%Prjct,Work3,kCmpc)
         if (niag*kCmpc > nw3) then
           write(u6,*) 'niag*kCmpc > nw3'
           call Abend()
@@ -537,7 +542,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
           write(u6,*) '2: nw3+nw3_2 > nWork3'
           call Abend()
         end if
-        call CrSph_mck(Work3,niag,(ld+1)*(ld+2)/2,RSph(ipSph(ld)),ld,Shells(lShlld)%Transf,Shells(lShlld)%Prjct,Work3(ip2),lCmpd)
+        call CrSph_mck(Work3,niag,nTri_Elem1(ld),RSph(ipSph(ld)),ld,Shells(lShlld)%Transf,Shells(lShlld)%Prjct,Work3(ip2),lCmpd)
 
         !--------------------------------------------------------------*
         !

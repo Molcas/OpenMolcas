@@ -113,8 +113,8 @@ end if
 if (.not. Alike) then
   IfG(4) = .false.
   Tr(4) = .true.
-  call lCopy(12,[.true.],0,JFGRD,1)
-  !call lCopy(144,[.true.],0,JFHss,1)
+  JfGrd(:,:) = .true.
+  !JfHss(:,:,:,:) = .true.
   do iiC=1,4
     do jjC=1,iiC
       do iiCar=1,3

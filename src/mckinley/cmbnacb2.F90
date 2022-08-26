@@ -45,9 +45,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nalpha, nbeta, nC, la, lb, iang
-real(kind=wp) :: FA1(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), FA2(nAlpha,nC,(la+1)*(la+2)/2,(2*iang+1),*), &
-                 FB1(nC,nBeta,(2*iang+1),(lb+1)*(lb+2)/2,*), FB2(nC,nBeta,(2*iang+1),(lb+1)*(lb+2)/2,*), &
-                 rFinal(nAlpha*nbeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,21), Fact, c(*), Tmp(*)
+real(kind=wp) :: FA1(nAlpha,nC,nTri_Elem1(la),2*iang+1,*), FA2(nAlpha,nC,nTri_Elem1(la),2*iang+1,*), &
+                 FB1(nC,nBeta,2*iang+1,nTri_Elem1(lb),*), FB2(nC,nBeta,2*iang+1,nTri_Elem1(lb),*), &
+                 rFinal(nAlpha*nbeta,nTri_Elem1(la),nTri_Elem1(lb),21), Fact, c(*), Tmp(*)
 logical(kind=iwp) :: jfhess(4,3,4,3), lsro
 integer(kind=iwp) :: ia, ib, iC, iCar, jCar, mvec, mvecB
 

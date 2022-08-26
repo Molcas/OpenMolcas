@@ -33,11 +33,12 @@ subroutine McKinley(ireturn)
 !***********************************************************************
 
 use McKinley_global, only: CPUStat, lGrd, lHss, Nona, nOneel, nTotal
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nCnttp
 use Gateway_global, only: Onenly, Test
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -61,7 +62,7 @@ real(kind=wp), allocatable :: GradN(:), Hess(:), Temp(:)
 !call McKinley_banner()
 call CWTime(TCpu1,TWall1)
 iRout = 1
-call dcopy_(9,[Zero],0,CpuStat,1)
+CpuStat(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -131,7 +132,7 @@ call OpnFls_Mckinley()
 !                                                                      *
 ! Allocate area for hessian etc
 
-nHess = nGrad*(nGrad+1)/2
+nHess = nTri_Elem(nGrad)
 
 call mma_allocate(Hess,nHess,Label='Hess')
 Hess(:) = Zero
@@ -166,7 +167,7 @@ end if
 if (lHss) then
   call DrvN2(Temp,nGrad)
   if (SHOW) call HssPrt(Temp,nHess)
-  call DaXpY_(nHess,One,Temp,1,Hess,1)
+  Hess(:) = Hess+Temp
   if (Show) call HssPrt(Hess,nHess)
 end if
 if (lGrd) then
@@ -202,7 +203,7 @@ call Drvh1_mck(Nona)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nhess = ngrad*(ngrad+1)/2
+nhess = nTri_Elem(ngrad)
 call Timing(dum1,Time,dum2,dum3)
 CPUStat(nOneel) = CPUStat(nOneel)+Time
 if (.not. Onenly) then
@@ -233,12 +234,12 @@ if (.not. Onenly) then
 
   if (lHss) then
     call GADSum(Temp,nHess)
-    call DScal_(nHess,Half,Temp,1)
+    Temp(:) = Half*Temp
     if (Show) call HssPrt(Temp,nHess)
 
     ! Accumulate contribution to the hessian!
 
-    call DaXpY_(nhess,One,Temp,1,Hess,1)
+    Hess(:) = Hess+Temp
 
     if (Show) then
       call Banner('Complete static Hessian',1,23)

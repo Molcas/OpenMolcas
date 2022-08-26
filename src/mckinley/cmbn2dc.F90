@@ -26,13 +26,13 @@ subroutine CMBN2DC(RNXYZ,NZETA,LA,LB,ZETA,RKAPPA,RFINAL,ALPHA,BETA,IFGRAD)
 !
 !***********************************************************************
 
-use Index_Functions, only: C_Ind
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Four, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NZETA, LA, LB
-real(kind=wp) :: RNXYZ(NZETA,3,0:LA+1,0:LB+1), ZETA(NZETA), RKAPPA(NZETA), RFINAL(NZETA,(LA+1)*(LA+2)/2,(LB+1)*(LB+2)/2,1), &
+real(kind=wp) :: RNXYZ(NZETA,3,0:LA+1,0:LB+1), ZETA(NZETA), RKAPPA(NZETA), RFINAL(NZETA,nTri_Elem1(LA),nTri_Elem1(LB),1), &
                  ALPHA(NZETA), BETA(NZETA)
 logical(kind=iwp) :: IFGRAD(3)
 integer(kind=iwp) :: IPA, IPB, IXA, IXB, IYA, IYAMAX, IYB, IYBMAX, IZA, IZB, IZETA

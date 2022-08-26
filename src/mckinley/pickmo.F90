@@ -44,9 +44,9 @@ do iCnt=3,4
         iSO = iAOtSO(iAOii(iCnt)+i1,iIrrep)+iBas(iCnt)-1
         if (iSO > 0) then
           ip1 = ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iSO
-          call dcopy_(nBs(iCnt),CMO(ip1,1),1,COUT(ip2),1)
+          COUT(ip2:ip2+nBs(iCnt)-1) = CMO(ip1:ip1+nBs(iCnt)-1,1)
         else
-          call dcopy_(nBs(iCnt),[Zero],0,COUT(ip2),1)
+          COUT(ip2:ip2+nBs(iCnt)-1) = Zero
         end if
         ip2 = ip2+nBs(iCnt)
       end do

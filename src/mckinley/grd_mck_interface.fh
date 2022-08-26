@@ -17,7 +17,7 @@ nrOp,iDCar,iDCnt,iStabM,nStabM,Trans,nSym &
 integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nSym, IndGrd(0:nSym-1), nOp(2), lOper, iu, iv, nrOp, iDCar, &
                      iDCnt, nStabM, iStabM(0:nStabM-1)
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                 rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nrOp), A(3), RB(3), Array(nArr), Ccoor(3)
+                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nrOp), A(3), RB(3), Array(nArr), Ccoor(3)
 logical(kind=iwp) :: IfGrad(3,2), Trans(2)
 #endif
 #undef _CALLING_

@@ -25,13 +25,13 @@ subroutine CmbnEl(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,Fact,Temp,Alpha,Beta,i
 !             by Anders Bernhardsson                                   *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind, nTri3_Elem
+use Index_Functions, only: C_Ind, nTri3_Elem, nTri_Elem1
 use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nZeta, la, lb, lr, kcar
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,2), &
+real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),2), &
                  Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta)
 logical(kind=iwp) :: Ifgrad(3,2)
 integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta

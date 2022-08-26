@@ -25,13 +25,14 @@ subroutine Knehss( &
 !     Author: Anders Bernhardsson, 1995                                *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Center_Info, only: dc
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "hss_interface.fh"
-integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, nip
+integer(kind=iwp) :: iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, nip
 logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
@@ -98,13 +99,13 @@ call Assmbl(Array(ipRnxyz),Array(ipAxyz),la+2,Array(ipRxyz),nOrdOp,Array(ipBxyz)
 
 ip = ipAlph
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ip),1)
+  Array(ip:ip+nAlpha-1) = Alpha
   ip = ip+nAlpha
 end do
 ip = ipBeta
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
-  ip = ip+1
+do iBeta=1,nBeta
+  Array(ip:ip+nAlpha-1) = Beta(iBeta)
+  ip = ip+nAlpha
 end do
 
 call CmbnT2(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,rFinal,Array(ipAlph),Array(ipBeta),Hess,nHess,DAO,IfHss,IndHss,indgrd, &

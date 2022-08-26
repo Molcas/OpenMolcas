@@ -38,7 +38,7 @@ implicit none
 integer(kind=iwp) :: iang, lb, ishll, nordop, narr, nbeta, ld
 real(kind=wp) :: TC(3), RB(3), Array(*), Beta(*), fb1(*), fb2(*)
 logical(kind=iwp) :: jfgrad(3), jfhess(4,3,4,3), debug
-integer(kind=iwp) :: i, iGamma, ip, ipB, ipBxyz, ipCxyz, ipK2, ipP2, ipQ1, ipRxyz, ipV, ipZ2, ipZI2, iStrt, n, nExpi, nHer, nVecCB
+integer(kind=iwp) :: i, iBeta, ip, ipB, ipBxyz, ipCxyz, ipK2, ipP2, ipQ1, ipRxyz, ipV, ipZ2, ipZI2, iStrt, n, nExpi, nHer, nVecCB
 logical(kind=iwp) :: ABeq(3)
 real(kind=r8), external :: DNrm2_
 
@@ -101,9 +101,9 @@ end if
 
 call Assmbl(Array(ipQ1),Array(ipCxyz),iAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+ld,nExpi*nBeta,HerW(iHerW(nHer)),nHer)
 iStrt = ipB
-do iGamma=1,nExpi
-  call dcopy_(nBeta,Beta,1,Array(iStrt),nExpi)
-  iStrt = iStrt+1
+do iBeta=1,nBeta
+  Array(iStrt:iStrt+nExpi-1) = Beta(iBeta)
+  iStrt = iStrt+nExpi
 end do
 if (debug) then
   write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)

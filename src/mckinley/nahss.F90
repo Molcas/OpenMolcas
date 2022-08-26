@@ -37,10 +37,10 @@ implicit none
 #include "hss_interface.fh"
 #include "Molcas.fh"
 #include "disp.fh"
-integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDAO, iDCRT(0:7), iIrrep, Indx(3,4), ipA, ipAOff, ipArr, &
-                     ipB, ipBOff, ipDAO, iStop, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), &
-                     kCar, kCent, kCnt, kCnttp, kdc, lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, &
-                     nnIrrep, nRys
+integer(kind=iwp) :: iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDAO, iDCRT(0:7), iIrrep, Indx(3,4), ipA, ipAOff, ipArr, ipB, &
+                     ipBOff, ipDAO, iStop, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCar, &
+                     kCent, kCnt, kCnttp, kdc, lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, nnIrrep, &
+                     nRys
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3)
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 integer(kind=iwp), external :: NrOpr
@@ -79,12 +79,12 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = 0
 iAnga(4) = 0
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A
+Coori(:,2) = RB
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -93,14 +93,14 @@ mOp(2) = nOp(2)
 
 ipAOff = ipA
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  Array(ipAOff:ipAOff+nAlpha-1) = Alpha
   ipAOff = ipAOff+nAlpha
 end do
 
 ipBOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-  ipBOff = ipBOff+1
+do iBeta=1,nBeta
+  Array(ipBOff:ipBOff+nAlpha-1) = Beta(iBeta)
+  ipBOff = ipBOff+nAlpha
 end do
 
 ! Modify the density matrix with the prefactor
@@ -129,7 +129,7 @@ do kCnttp=1,nCnttp
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
     Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-    call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
+    Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*reshape(DAO(:,1:nDAO),[nZeta*nDAO])
 
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
@@ -139,17 +139,17 @@ do kCnttp=1,nCnttp
       mOp(3) = NrOpr(iDCRT(lDCRT))
       mOp(4) = mOp(3)
       call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
+      CoorAC(:,2) = TC
+      Coori(:,3) = TC
+      Coori(:,4) = TC
       if (EQ(A,TC) .and. EQ(A,RB)) cycle
 
       ! Initialize JfGrd, JndGrd, JfHss, and JndHss.
 
-      call LCopy(12,[.false.],0,JfGrd,1)
-      call ICopy(nSym*4*3,[0],0,JndGrd,1)
-      call LCopy(144,[.false.],0,JfHss,1)
-      call ICopy(nSym*16*9,[0],0,JndHss,1)
+      JfGrd(:,:) = .false.
+      JndGrd(:,:,0:nSym-1) = 0
+      JfHss(:,:,:,:) = .false.
+      JndHss(:,:,:,:,0:nSym-1) = 0
 
       ! Overwrite with information in IfGrd, IndGrd, IfHss, and IndHss.
 
@@ -203,7 +203,7 @@ do kCnttp=1,nCnttp
       ! The third center is calculated by translational invariance.
       ! This requires the 2nd derivatives on the other centers.
 
-      call LCopy(4,[.false.],0,Tr,1)
+      Tr(:) = .false.
       do iCar=0,2
         do jAtom=0,2
           if (jAtom == 2) then
@@ -262,7 +262,7 @@ do kCnttp=1,nCnttp
           end do
         end if
       end do
-      call lCopy(12,[.false.],0,jfgrd,1)
+      JfGrd(:,:) = .false.
 
       nFinal = 0
       call Rysg2(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &

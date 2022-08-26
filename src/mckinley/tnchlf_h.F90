@@ -59,14 +59,14 @@ end do loop2
 
 ! Set output matrix to zero
 
-call FZero(A3,nVec*lZeta)
+A3(:,:) = Zero
 
 ! Loop sectioning
 
 do iiVec=1,nVec,IncVec
   mVec = min(IncVec,nVec-iiVec+1)
   ! Set intermediate matrix to zero
-  call dcopy_(nCntr2*mVec*nPrm1,[Zero],0,A2,1)
+  A2(:,1:mVec*nPrm1) = Zero
 
   if (Seg1) then
 

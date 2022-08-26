@@ -37,10 +37,10 @@ implicit none
 #include "hss_interface.fh"
 #include "Molcas.fh"
 #include "disp.fh"
-integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDCRT(0:7), iIrrep, ipA, ipAOff, ipArr, ipB, ipBOff, &
-                     iStop, iuvwx(4), jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCar, kCent, kCnt, kCnttp, &
-                     kdc, lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nip, nnIrrep, nRys
-real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, TC(3)
+integer(kind=iwp) :: iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDCRT(0:7), iIrrep, ipA, ipAOff, ipArr, ipB, ipBOff, iStop, &
+                     iuvwx(4), jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCar, kCent, kCnt, kCnttp, kdc, &
+                     lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nip, nnIrrep, nRys
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3)
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, TF
@@ -69,14 +69,12 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = 0
 iAnga(4) = 0
-call dcopy_(3,A,1,Coora(1,1),1)
-call dcopy_(3,RB,1,Coora(1,2),1)
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A
+Coori(:,2) = RB
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -85,14 +83,14 @@ mOp(2) = nOp(2)
 
 ipAOff = ipA
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  Array(ipAOff:ipAOff+nAlpha) = Alpha
   ipAOff = ipAOff+nAlpha
 end do
 
 ipBOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-  ipBOff = ipBOff+1
+do iBeta=1,nBeta
+  Array(ipBOff:ipBOff+nAlpha) = Beta(iBeta)
+  ipBOff = ipBOff+nAlpha
 end do
 
 ! Modify the density matrix with the prefactor
@@ -118,19 +116,17 @@ do kCnttp=1,nCnttp
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
     do lDCRT=0,nDCRT-1
-      call ICopy(nSym*16*9,[0],0,JndHss,1)
-      call iCopy(nSym*4*3,[0],0,JndGrd,1)
-      call LCopy(144,[.false.],0,jfHss,1)
-      call LCopy(4,[.false.],0,Tr,1)
-      call LCopy(12,[.false.],0,jfGrd,1)
+      JndHss(:,:,:,:,0:nSym-1) = 0
+      JndGrd(:,:,0:nSym-1) = 0
+      JfHss(:,:,:,:) = .false.
+      JfGrd(:,:) = .false.
+      Tr(:) = .false.
       mOp(3) = NrOpr(iDCRT(lDCRT))
       mOp(4) = mOp(3)
       call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coora(1,3),1)
-      call dcopy_(3,TC,1,Coora(1,4),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
+      CoorAC(:,2) = TC
+      Coori(:,3) = TC
+      Coori(:,4) = TC
       if (EQ(A,TC) .and. EQ(A,RB)) cycle
 
       ! COPY CNTLR MATRICES
@@ -153,7 +149,7 @@ do kCnttp=1,nCnttp
       end do
 
       Fact = -dbsc(kCnttp)%Charge*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
-      !call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
+      !Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*reshape(DAO(:,1:nDAO),[nZeta*nDAO])
       iuvwx(3) = dc(kdc+kCnt)%nStab
       iuvwx(4) = dc(kdc+kCnt)%nStab
 
@@ -248,9 +244,9 @@ do kCnttp=1,nCnttp
           end do
         end if
       end do
-      call lCopy(12,[.false.],0,jfgrd,1)
+      JfGrd(:,:) = .false.
 
-      call M1Kernel(rFinal,Hess,nHess,DAO,nDAO,iAnga,nRys,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,Coorac,Array(ipArr), &
+      call M1Kernel(rFinal,Hess,nHess,DAO,nDAO,iAnga,nRys,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,CoorAC,Array(ipArr), &
                     nArray,jfgrd,jndgrd,jfhss,jndhss,ifg,tr,mop,iuvwx,kCnttp,Fact,loper(1),0)
 
     end do

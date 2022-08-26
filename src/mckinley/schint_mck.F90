@@ -42,7 +42,7 @@ logical(kind=iwp) :: NoSpecial
 logical(kind=iwp), external :: EQ
 external :: TERIS, ModU2, Cff2DS, rys2d
 
-call dcopy_(3,[One],0,Q,1)
+Q(:) = One
 la = iAnga(1)
 lb = iAnga(2)
 
@@ -64,11 +64,11 @@ mcdMax = mabMax
 ! the order as defined by the basis functions types.
 
 if (iAnga(1) >= iAnga(2)) then
-  call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
-  call dcopy_(3,CoorM(1,3),1,CoorAC(1,2),1)
+  CoorAC(:,1) = CoorM(:,1)
+  CoorAC(:,2) = CoorM(:,3)
 else
-  call dcopy_(3,CoorM(1,2),1,CoorAC(1,1),1)
-  call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
+  CoorAC(:,1) = CoorM(:,2)
+  CoorAC(:,2) = CoorM(:,4)
 end if
 
 mZeta = nAlpha*nBeta

@@ -25,7 +25,7 @@ integer(kind=iwp) :: iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), nOp(4), iBa
                      nWork4, nPSO
 logical(kind=iwp) :: Shijij
 real(kind=wp) :: Aux(nAux), Work2(nWork2), Work3(nWork3), Work4(nWork4), PSO(nPSO), Fact
-integer(kind=iwp) :: iCmpa, ijklab, iShlla, jCmpb, jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lShlld, mab, mcd, nijkl
+integer(kind=iwp) :: iCmpa, ijklab, iShlla, jCmpb, jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lShlld, mab, mcd, n, nijkl
 
 nijkl = iBasi*jBasj*kBask*lBasl
 iShlla = iShll(1)
@@ -56,7 +56,10 @@ mcd = nTri_Elem1(lc)*nTri_Elem1(ld)
 
 call DesymP(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,nOp,nijkl,Aux,nAux,Work2,PSO,nPSO)
 
-if (Fact /= One) call DScal_(nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),Fact,Work2,1)
+if (Fact /= One) then
+  n = nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)
+  Work2(1:n) = Fact*Work2(1:n)
+end if
 
 ! Backtransform 2nd order density matrix from spherical
 ! harmonic gaussians to cartesian gaussians.

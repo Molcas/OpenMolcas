@@ -28,18 +28,19 @@ subroutine CrSph_mck(Win,nijx,nab,Coeff1,n1,Tr1,Pr1,Wout,mab)
 !             February '90                                             *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nijx, nab, n1, mab
-real(kind=wp) :: Win(nab*nijx), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Wout(mab*nijx)
+real(kind=wp) :: Win(nab*nijx), Coeff1(nTri_Elem1(n1),nTri_Elem1(n1)), Wout(mab*nijx)
 logical(kind=iwp) :: Tr1, Pr1
 integer(kind=iwp) :: k1, l1
 
 !iRout = 26
 !iPrint = nPrint(iRout)
-l1 = (n1+1)*(n1+2)/2
+l1 = nTri_Elem1(n1)
 k1 = l1
 if (Pr1) k1 = 2*n1+1
 

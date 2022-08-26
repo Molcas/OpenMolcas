@@ -57,14 +57,14 @@ end do loop2
 
 ! Set output matrix to zero
 
-if (First) call dcopy_(nVec*nCntr1*nCntr2,[Zero],0,A3,1)
+if (First) A3(:,:,:) = Zero
 
 ! Loop sectioning
 
 do iiVec=1,nVec,IncVec
   mVec = min(IncVec,nVec-iiVec+1)
   ! Set intermediate matrix to zero
-  call dcopy_(nPrm2*nCntr1*mVec,[Zero],0,A2,1)
+  A2(:,1:nCntr1*mVec) = Zero
 
   if (Seg1) then
 

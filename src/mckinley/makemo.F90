@@ -19,7 +19,6 @@ subroutine MakeMO(AOInt,Temp,nTemp,n_Int,iCmp,iCmpa,ibasi,jbasj,kbask,lbasl,nGr,
 ! CPU time, if someone notice something else I will
 ! rewrite it, in the mean time, dont worry.
 
-use McKinley_global, only: ipMO
 use Basis_Info, only: Shells
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero
@@ -29,8 +28,8 @@ implicit none
 integer(kind=iwp) :: nTemp, n_Int, icmp(4), iCmpa(4), ibasi, jbasj, kbask, lbasl, nGr, Indx(3,4), moip(0:7), naco, nop(4), &
                      indgrd(3,4,0:nirrep-1), ishll(4), ishell(4), nmoin, iuvwx(4), iAOST(4), ianga(4)
 real(kind=wp) :: AOInt(n_Int), Temp(nTemp), rmoin(nmoin), buffer(*)
-integer(kind=iwp) :: ibas(4), iCar, iCent, iCnt, iGr, ii, iIrrep, iMax, ip, ip0, ip1, ip2, ip5, ipc, ipck, ipcl, ipFin, &
-                     ipPert(0:7), mSum, nabcd, nCk, nCl, nij, nijkl, nkl, nScrtch
+integer(kind=iwp) :: ibas(4), iCar, iCent, iCnt, iGr, ii, iIrrep, iMax, ip, ip0, ip1, ip2, ip5, ipc, ipck, ipcl, ipFin, mSum, &
+                     nabcd, nCk, nCl, nij, nijkl, nkl, nScrtch
 logical(kind=iwp) :: lc, pert(0:7)
 
 iMax = 0
@@ -110,12 +109,10 @@ call Sort_mck(AOInt,Temp(ip0),iBas(1),iBas(2),iBas(3),iBas(4),iCmp(1),iCmp(2),iC
 do iCent=1,4
   lc = .false.
   do iCar=1,3
-    call ICopy(nIrrep,[0],0,ipPert,1)
-    call lCopy(nIrrep,[.false.],0,pert,1)
+    pert(0:nIrrep-1) = .false.
     lc = .false.
     do iIrrep=0,nIrrep-1
       if (indgrd(icar,icent,iIrrep) /= 0) then
-        ipPert(iIrrep) = ipMO(abs(indgrd(iCar,iCent,iIrrep)))
         pert(iIrrep) = .true.
       end if
       if (IndGrd(iCar,icent,iirrep) /= 0) lC = .true.
@@ -129,7 +126,7 @@ do iCent=1,4
                    Shells(ishll(1))%nBasis,Shells(ishll(2))%nBasis,icmpa(1),icmpa(2))
 
       else if (Indx(iCar,iCent) < 0) then
-        call dcopy_(nabcd*nijkl,[Zero],0,Temp(ip5),1)
+        Temp(ip5:ip5+nabcd*nijkl-1) = Zero
         do iCnt=1,4
           iGr = Indx(iCar,iCnt)
           if (iGr > 0) then

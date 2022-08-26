@@ -29,6 +29,7 @@ subroutine Drvh2(Hess,Temp,nHess,show)
 !             October '91                                              *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nCnttp, nBas
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -61,8 +62,8 @@ call StatusLine(' McKinley:',' Computing 1-electron 2rd order derivatives')
 nFock = 0
 nDens = 0
 do iIrrep=0,nIrrep-1
-  nFock = nFock+nBas(iIrrep)*(nBas(iIrrep)+1)/2
-  nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  nFock = nFock+nTri_Elem(nBas(iIrrep))
+  nDens = nDens+nTri_Elem(nBas(iIrrep))
 end do
 
 ! Read the variational 1st order density matrix

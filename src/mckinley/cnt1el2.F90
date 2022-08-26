@@ -36,7 +36,7 @@ subroutine Cnt1El2(Kernel,KrnlMm,Label,iDCnt,iDCar,loper,rHrmt,DiffOp,Lab_Dsk,ia
 !***********************************************************************
 
 use McKinley_global, only: nFck, sIrrep
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, nBas, Shells
@@ -69,8 +69,8 @@ logical(kind=iwp), external :: EQ, TF
 ! Compute the number of blocks from each component of the operator
 ! and the irreps it will span.
 
-call FZero(CCoor,3)
-call iCopy(nIrrep,[0],0,IndGrd,1)
+CCoor(:) = Zero
+IndGrd(0:nIrrep-1) = 0
 loper = 0
 nnIrrep = nIrrep
 if (sIrrep) nnIrrep = 1
@@ -91,7 +91,7 @@ end do
 nIC = 0
 if (loper == 0) return
 
-call ICopy(nIrrep,[0],0,ip,1)
+ip(1:nIrrep) = 0
 
 iStart = 1
 do iIrrep=0,nIrrep-1
@@ -185,8 +185,8 @@ do iS=1,nSkal
 
     DiffCnt = (mdci == iDCnt) .or. (mdcj == iDCnt)
     if (DiffCnt .or. DiffOp) then
-      call lCopy(6,[.false.],0,IfGrd,1)
-      call lCopy(2,[.false.],0,trans,1)
+      IfGrd(:,:) = .false.
+      trans(:) = .false.
       if (mdci == iDCnt) then
         IfGrd(idCar,1) = .true.
       end if
@@ -316,7 +316,7 @@ do iS=1,nSkal
 
         ! Multiply with factors due to projection operators
 
-        if (Fact /= One) call DScal_(nSO*iBas*jBas,Fact,SO,1)
+        if (Fact /= One) SO(:) = Fact*SO
 
         ! Scatter the SO's on to the non-zero blocks of the lower triangle.
 
@@ -355,7 +355,7 @@ nDens = 0
 ndenssq = 0
 do iI=0,nIrrep-1
   ndenssq = ndenssq+nbas(ii)**2
-  nDens = nDens+nBas(iI)*(nBas(iI)+1)/2
+  nDens = nDens+nTri_Elem(nBas(iI))
 end do
 nrOp = 0
 
@@ -371,7 +371,7 @@ do iIrrep=0,nIrrep-1
       iopt = 0
       call drdmck(irc,iOpt,Lab_dsk,jdisp,Scr,koper)
       if (irc /= 0) call SysAbendMsg('cnt1el2','error during read in rdmck',' ')
-      call daxpy_(nfck(iirrep),one,scr,1,Integrals(ip(nrop)),1)
+      Integrals(ip(nrop):ip(nrop)+nfck(iIrrep)-1) = Integrals(ip(nrop):ip(nrop)+nfck(iIrrep)-1)+Scr(1:nfck(iIrrep))
     end if
     irc = -1
     iopt = 0

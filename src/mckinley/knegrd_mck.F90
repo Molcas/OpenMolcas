@@ -33,7 +33,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_mck_interface.fh"
-integer(kind=iwp) :: iAlpha, iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipRnxyz, ipRxyz, ipSc, ipTxyz, nip
+integer(kind=iwp) :: iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipRnxyz, ipRxyz, ipSc, ipTxyz, nip
 logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
@@ -100,14 +100,14 @@ call Assmbl(Array(ipRnxyz),Array(ipAxyz),la+2,Array(ipRxyz),nOrdOp,Array(ipBxyz)
 
 ipAOff = ipA
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  Array(ipAOff:ipAOff+nAlpha-1) = Alpha
   ipAOff = ipAOff+nAlpha
 end do
 
 ipBOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-  ipBOff = ipBOff+1
+do iBeta=1,nBeta
+  Array(ipBOff:ipBOff+nAlpha-1) = Beta(iBeta)
+  ipBOff = ipBOff+nAlpha
 end do
 
 call Kntc(Array(ipTxyz),Array(ipRnxyz),la+1,lb+1,Array(ipA),Array(ipB),nZeta)

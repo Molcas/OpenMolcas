@@ -34,7 +34,7 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas
 !             March '90                                                *
 !***********************************************************************
 
-use Index_Functions, only: nTri3_Elem1
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Gateway_global, only: iWROpt
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp, u6, RtoI
@@ -196,8 +196,8 @@ do
   !nA3 = iBsInc*jBsInc*nVec2
   MemCon = max(MemCon,nA3+nA2)
 
-  MemSp1 = (mabMax-mabMin+1)*lCmp*(lc+1)*(lc+2)/2*iBsInc*jBsInc*kBsInc*lBsInc
-  MemSp2 = lCmp*kCmp*jCmp*(la+1)*(la+2)/2*iBsInc*jBsInc*kBsInc*lBsInc
+  MemSp1 = (mabMax-mabMin+1)*lCmp*nTri_Elem1(lc)*iBsInc*jBsInc*kBsInc*lBsInc
+  MemSp2 = lCmp*kCmp*jCmp*nTri_Elem1(la)*iBsInc*jBsInc*kBsInc*lBsInc
   MemTr3 = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
   Mem3 = max(MemCon,MemSp1,MemSp2,MemTr3)
   if (Mem3+1 <= Mem0)  exit

@@ -19,13 +19,13 @@ use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nHess, nDAO, iAng(4), nRys, nZeta, nArray, indgrd(3,4,0:7), indhss(3,4,3,4,8), nop(4), iuvwx(4), kCnttp, &
+integer(kind=iwp) :: nHess, nDAO, iAng(4), nRys, nZeta, nArray, indgrd(3,4,0:7), indhss(3,4,3,4,0:7), nop(4), iuvwx(4), kCnttp, &
                      loper, idcar
 real(kind=wp) :: rFinal(*), Hess(*), DAO(nZeta,*), Alpha(nZeta), Beta(nZeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,*), TC(3), &
                  Coor(3,4), CoorAC(3,2), Array(nArray), fact
 logical(kind=iwp) :: ifgrd(3,4), ifhss(3,4,3,4), ifg(4), tr(4)
 integer(kind=iwp) :: iDAO, iElem, iM1xp, indi, Indx(3,4), ip, ipDAO, ipDAOt, ipK, ipPx, ipPy, ipPz, ipZ, ipZI, iZeta, &
-                     jndgrd(3,4,0:7), jndhss(3,4,3,4,8), nb, nGr
+                     jndgrd(3,4,0:7), jndhss(3,4,3,4,0:7), nb, nGr
 real(kind=wp) :: coori(3,4), Fac, FactECP, Gmma, PTC2, tfac, Tmp0, Tmp1
 logical(kind=iwp) :: jfg(4), jfgrd(3,4), jfhss(3,4,3,4), lGrad, lHess
 logical(kind=iwp), external :: EQ
@@ -33,7 +33,7 @@ external :: Cff2D, Fake, TNAI1
 
 lGrad = idcar /= 0
 lHess = nHess /= 0
-call dcopy_(12,coor,1,coori,1)
+coori(:,:) = coor
 if ((.not. EQ(coor(1,1),coor(1,2))) .or. (.not. EQ(coor(1,1),coor(1,3)))) then
   Coori(1,1) = Coori(1,1)+One
 end if
@@ -98,13 +98,13 @@ do iM1xp=1,dbsc(kCnttp)%nM1
 
   ! Compute integrals with the Rys quadrature.
 
-  call lcopy(4,ifg,1,jfg,1)
+  jfg(:) = ifg
 
-  call lcopy(12,ifgrd,1,jfgrd,1)
-  call lcopy(12*12,ifhss,1,jfhss,1)
+  jfgrd(:,:) = ifgrd
+  jfhss(:,:,:,:) = ifhss
 
-  call icopy(12*nirrep,indgrd,1,jndgrd,1)
-  call icopy(12*12*nirrep,indhss,1,jndhss,1)
+  jndgrd(:,:,0:nirrep-1) = indgrd(:,:,0:nirrep-1)
+  jndhss(:,:,:,:,0:nirrep-1) = indhss(:,:,:,:,0:nirrep-1)
 
   call Rysg2(iAng,nRys,nZeta,Alpha,Beta,[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx),nZeta,TC,1,Coori,Coor, &
              CoorAC,Array(ip),nArray-ip+1,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Hess,nhess,jfGrd,jndGrd,jfHss,jndHss,nOp,iuvwx,jfg, &

@@ -37,7 +37,7 @@ subroutine Dot1El(Kernel,KrnlMm,Hess,nHess,DiffOp,CCoor,FD,nFD,lOper,nComp)
 !***********************************************************************
 
 use McKinley_global, only: sIrrep
-use Index_Functions, only: iTri, nTri_Elem1
+use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
@@ -68,7 +68,7 @@ real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Fnl(:), Kappa(:), Kern(:
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 logical(kind=iwp), external :: EQ, TF, TstFnc
 
-call dcopy_(nHess,[Zero],0,Hess,1)
+Hess(:) = Zero
 
 ! Auxiliary memory allocation.
 
@@ -87,7 +87,7 @@ call Setup_iSD()
 !                                                                      *
 ! Double loop over shells.
 
-nTasks = nSkal*(nSkal+1)/2
+nTasks = nTri_Elem(nSkal)
 iS = 0
 jS = 0
 do ijS=1,nTasks
@@ -195,7 +195,7 @@ do ijS=1,nTasks
       end do
       if (nMax == nIrrep/nStabM) exit loop1
     end do loop1
-    call LCopy(36,[.false.],0,IfHss,1)
+    IfHss(:,:,:,:) = .false.
     do iAtom=0,1
       do iCar=0,2
         do jAtom=0,iAtom
@@ -214,8 +214,8 @@ do ijS=1,nTasks
         end do
       end do
     end do
-    call ICopy(nirrep*36,[0],0,Indhss(0,0,0,0,0),1)
-    call ICopy(nirrep*6,[0],0,indgrd,1)
+    IndHss(:,:,:,:,0:nirrep-1) = 0
+    IndGrd(:,:,0:nirrep-1) = 0
 
     ! Determine which displacement in all IR's, each center is associated with.
 

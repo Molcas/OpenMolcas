@@ -22,13 +22,13 @@ subroutine CmbnT1_mck(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Txyz,Alpha,Beta,IfGra
 !             October '91                                              *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,1), &
+real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),1), &
                  Txyz(nZeta,3,0:la+1,0:lb+1), Alpha(nZeta), Beta(nZeta)
 logical(kind=iwp) :: IfGrad(3,2)
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
@@ -37,8 +37,8 @@ real(kind=wp) :: xa, xb, ya, yb, za, zb
 !iRout = 134
 !iPrint = nPrint(iRout)
 
-!ii = la*(la+1)*(la+2)/6
-!jj = lb*(lb+1)*(lb+2)/6
+!ii = nTri3_Elem(la)
+!jj = nTri3_Elem(lb)
 do iZeta=1,nZeta
   rKappa(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
 end do

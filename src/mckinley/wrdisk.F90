@@ -16,7 +16,7 @@ subroutine WrDisk(rIn,nrIn,jDisp,iIrrep)
 ! see this mess before that I apologize
 
 use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nMethod, RASSCF
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, G1
 use Symmetry_Info, only: iOper, nIrrep
@@ -30,8 +30,9 @@ real(kind=wp) :: rIn(nrIn)
 #include "etwas.fh"
 #include "print.fh"
 integer(kind=iwp) :: iii, iopt, ip(0:7), ip2(0:7), ipCC, ipCM(0:7), ipIn1, ipOut, irc, jAsh, jIrrep, kAsh, kIrrep, nA(0:7), nin, &
-                     nIn2, nna, nt
+                     nIn2, nna
 real(kind=wp) :: rDe
+integer(kind=iwp) :: n
 character(len=8) :: Label
 real(kind=wp), allocatable :: Act(:), InAct(:), rOut(:), TempX(:), TempY(:)
 integer(kind=iwp), external :: NrOpr
@@ -57,7 +58,7 @@ do jIrrep=0,nIrrep-1
     nIn = nIN+nBas(kIrrep)*nBas(jIrrep)
   else if (kIrrep == jIrrep) then
     ip(jIrrep) = nIn
-    nIn = nIN+nBas(kIrrep)*(1+nBas(jIrrep))/2
+    nIn = nIN+nTri_Elem(nBas(kIrrep))
   end if
   ip2(kIrrep) = nIn2
   nIn2 = nIn2+nBas(kIrrep)*nBas(jIrrep)
@@ -172,8 +173,9 @@ if (nMethod == RASSCF) then
     kIrrep = NrOpr(ieor(iOper(jIrrep),iOper(iIrrep)))
 
     if (nBas(jIrrep)*nIsh(kIrrep) > 0) then
-      call DaXpY_(nIsh(kIrrep)*nBas(jIrrep),Two,Act(1+ip2(kIrrep)),1,rOut(1+ip2(kIrrep)),1)
-      call DaXpY_(nIsh(kIrrep)*nBas(jIrrep),Two,InAct(1+ip2(kIrrep)),1,rOut(1+ip2(kIrrep)),1)
+      n = nIsh(kIrrep)*nBas(jIrrep)
+      rOut(ip2(kIrrep)+1:ip2(kIrrep)+n) = rOut(ip2(kIrrep)+1:ip2(kIrrep)+n)+ &
+                                          Two*(Act(ip2(kIrrep)+1:ip2(kIrrep)+n)+InAct(ip2(kIrrep)+1:ip2(kIrrep)+n))
     end if
 
     if (nBas(jIrrep) > 0) then
@@ -182,7 +184,7 @@ if (nMethod == RASSCF) then
           rDe = G1(iTri(nA(kIrrep)+jAsh,nA(kIrrep)+kAsh),1)
           ipOut = 1+ip2(kIrrep)+nIsh(kIrrep)*nBas(jIrrep)+nBas(jIrrep)*(kAsh-1)
           ipIn1 = 1+ip2(kIrrep)+nBas(jIrrep)*(jAsh-1+nIsh(kIrrep))
-          call DaXpY_(nBas(jIrrep),rde,InAct(ipIn1),1,rOut(ipOut),1)
+          rOut(ipOut:ipOut+nBas(jIrrep)-1) = rOut(ipOut:ipOut+nBas(jIrrep)-1)+rde*InAct(ipIn1:ipIn1+nBas(jIrrep)-1)
         end do
       end do
     end if
@@ -195,7 +197,8 @@ if (nMethod == RASSCF) then
       end if
       call DGEMM_('T','N',nBas(jIrrep),nAsh(kIrrep),nBas(jIrrep),One,CMO(ipCM(jIrrep),1),nBas(jIrrep),rin(ipDisp3(jDisp)+iii), &
                   nBas(jIrrep),Zero,TempY,nBas(jIrrep))
-      call DaXpY_(nAsh(kIrrep)*nBas(jIrrep),One,TempY,1,rOut(ipOut),1)
+      n = nAsh(kIrrep)*nBas(jIrrep)
+      rOut(ipOut:ipOut+n-1) = rOut(ipOut:ipOut+n-1)+TempY(1:n)
       iii = iii+nBas(jIrrep)*nAsh(kIrrep)
     end if
 #   ifdef __INTEL_COMPILER
@@ -240,8 +243,6 @@ if (nMethod == RASSCF) then
   irc = -1
   iopt = 0
   Label = 'MOPERT'
-  nt = nna*(nna+1)/2
-  nt = nt*(nt+1)/2
   call dWrMck(irc,iopt,Label,jdisp,rIn(ipMO(jdisp)),2**iIrrep)
   if (iRc /= 0) then
     write(u6,*) 'WrDisk: Error writing to MCKINT'

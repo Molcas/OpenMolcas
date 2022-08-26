@@ -70,8 +70,8 @@ do iIrrep=0,nIrrep-1
             Fact = -Fact
           end if
         end if
-        if (i1 /= 0) call DaXpY_(nb,Fact,ArrIn(1,i1),1,ArrOut(1,iComp),1)
-        if (i2 /= 0) call DaXpY_(nb,Fact,ArrIn(1,i2),1,ArrOut(1,iComp),1)
+        if (i1 /= 0) ArrOut(:,iComp) = ArrOut(:,iComp)+Fact*ArrIn(:,i1)
+        if (i2 /= 0) ArrOut(:,iComp) = ArrOut(:,iComp)+Fact*ArrIn(:,i2)
       end if
     end do
   end if

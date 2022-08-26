@@ -11,6 +11,7 @@
 
 subroutine WrHDsk(Hess,nGrad)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -18,12 +19,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nGrad
-real(kind=wp) :: Hess(nGrad*(nGrad+1)/2)
+real(kind=wp) :: Hess(nTri_Elem(nGrad))
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: i, idum, iG, iG1, iG2, iGrad1, iGrad2, iIrrep, iOpt, ip_Acc, iRc, mH, nH
 character(len=8) :: Label
-real(kind=wp), allocatable :: EVal(:), EVec(:), HStat(:), Temp(:)
+real(kind=wp), allocatable :: EVal(:), EVec(:,:), HStat(:), Temp(:)
 
 call mma_allocate(Temp,nGrad**2,Label='Temp')
 nH = 0
@@ -44,7 +45,7 @@ do iIrrep=0,nIrrep-1
   do iG1=iGrad1,iGrad2
     do iG2=iGrad1,iG1
       iG = iG+1
-      Temp(iG) = Hess(iG1*(iG1-1)/2+IG2)
+      Temp(iG) = Hess(iTri(iG1,iG2))
     end do
   end do
   !                                                                    *
@@ -53,11 +54,11 @@ do iIrrep=0,nIrrep-1
   ! Diagonalize and keep eigenvalues for check facility
 
   mH = lDisp(iIrrep)
-  call mma_allocate(EVal,mH*(mH+1)/2,Label='EVal')
-  call mma_allocate(EVec,mH*mH,Label='EVec')
+  call mma_allocate(EVal,nTri_Elem(mH),Label='EVal')
+  call mma_allocate(EVec,mH,mH,Label='EVec')
 
-  call dcopy_(mH*(mH+1)/2,Temp,1,EVal,1)
-  call dcopy_(mH*mH,[Zero],0,EVec,1)
+  EVal(:) = Temp(1:nTri_Elem(mH))
+  EVec(:,:) = Zero
   call dcopy_(mH,[One],0,EVec,mH+1)
 
   ! Compute eigenvalues and eigenvectors
@@ -66,7 +67,7 @@ do iIrrep=0,nIrrep-1
   call Jacord(EVal,EVec,mH,mH)
 
   do i=1,mH
-    HStat(ip_Acc) = EVal(i*(i+1)/2)
+    HStat(ip_Acc) = EVal(nTri_Elem(i))
     ip_Acc = ip_Acc+1
   end do
 

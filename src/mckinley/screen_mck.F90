@@ -102,7 +102,7 @@ if (PreScr) then
       ZInv(lZeta) = Data1(ip_ZInv(iZeta,nZeta))
       ip1 = ipOAP+mEta*mPAO*(iZeta-1)
       ip2 = ipPAO+mEta*mPAO*(lZeta-1)
-      if (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+      if (lDot) Scrtch(ip2:ip2+mEta*mPAO-1) = Scrtch(ip1:ip1+mEta*mPAO-1)
     end if
   end do
 else
@@ -120,14 +120,14 @@ else
     ZInv(lZeta) = Data1(ip_ZInv(iZeta,nZeta))
     ip1 = ipOAP+mEta*mPAO*(iZeta-1)
     ip2 = ipPAO+mEta*mPAO*(lZeta-1)
-    if (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+    if (lDot) Scrtch(ip2:ip2+mEta*mPAO-1) = Scrtch(ip1:ip1+mEta*mPAO-1)
   end do
 end if
 if (lZeta /= 0) then
 
-  if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
-  if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
-  if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
+  if (iphX1 /= 1) P(1:lZeta,1) = -P(1:lZeta,1)
+  if (iphY1 /= 1) P(1:lZeta,2) = -P(1:lZeta,2)
+  if (iphZ1 /= 1) P(1:lZeta,3) = -P(1:lZeta,3)
 
   ! Transpose eta,mPAO,zeta to mPAO,zeta,eta
 
@@ -155,7 +155,7 @@ if (lZeta /= 0) then
         EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
         ip1 = ipOAP+mPAO*lZeta*(iEta-1)
         ip2 = ipPAO+mPAO*lZeta*(lEta-1)
-        if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+        if (ldot) Scrtch(ip2:ip2+lZeta*mPAO-1) = Scrtch(ip1:ip1+lZeta*mPAO-1)
       end if
     end do
   else
@@ -173,14 +173,14 @@ if (lZeta /= 0) then
       EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
       ip1 = ipOAP+mPAO*lZeta*(iEta-1)
       ip2 = ipPAO+mPAO*lZeta*(lEta-1)
-      if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+      if (ldot) Scrtch(ip2:ip2+lZeta*mPAO-1) = Scrtch(ip1:ip1+lZeta*mPAO-1)
     end do
   end if
   if (lEta /= 0) then
 
-    if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
-    if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
-    if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
+    if (iphX2 /= 1) Q(1:lEta,1) = -Q(1:lEta,1)
+    if (iphY2 /= 1) Q(1:lEta,2) = -Q(1:lEta,2)
+    if (iphZ2 /= 1) Q(1:lEta,3) = -Q(1:lEta,3)
 
     ! Transpose mPAO,zeta,eta to zeta,eta,mPAO
 
@@ -299,7 +299,7 @@ if (PreScr) then
       ZInv(lZeta) = Data1(ip_ZInv(iZeta,nZeta))
       ip1 = ipOAP+mEta*mPAO*(iZeta-1)
       ip2 = ipOAP+mEta*mPAO*(lZeta-1)
-      if (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+      if (lDot) Scrtch(ip2:ip2+mEta*mPAO-1) = Scrtch(ip1:ip1+mEta*mPAO-1)
     end if
   end do
 else
@@ -316,14 +316,14 @@ else
     ZInv(lZeta) = Data1(ip_ZInv(iZeta,nZeta))
     ip1 = ipOAP+mEta*mPAO*(iZeta-1)
     ip2 = ipOAP+mEta*mPAO*(lZeta-1)
-    if (lDot) call dcopy_(mEta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+    if (lDot) Scrtch(ip2:ip2+mEta*mPAO-1) = Scrtch(ip1:ip1+mEta*mPAO-1)
   end do
 end if
 if (lZeta /= 0) then
 
-  if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
-  if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
-  if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
+  if (iphX1 /= 1) P(1:lZeta,1) = -P(1:lZeta,1)
+  if (iphY1 /= 1) P(1:lZeta,2) = -P(1:lZeta,2)
+  if (iphZ1 /= 1) P(1:lZeta,3) = -P(1:lZeta,3)
 
   ! Transpose eta,mPAO,zeta to mPAO,zeta,eta
 
@@ -349,7 +349,7 @@ if (lZeta /= 0) then
         EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
         ip1 = ipPAO+mPAO*lZeta*(iEta-1)
         ip2 = ipPAO+mPAO*lZeta*(lEta-1)
-        if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+        if (ldot) Scrtch(ip2:ip2+lZeta*mPAO-1) = Scrtch(ip1:ip1+lZeta*mPAO-1)
       end if
     end do
   else
@@ -366,14 +366,14 @@ if (lZeta /= 0) then
       EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
       ip1 = ipPAO+mPAO*lZeta*(iEta-1)
       ip2 = ipPAO+mPAO*lZeta*(lEta-1)
-      if (ldot) call dcopy_(lZeta*mPAO,Scrtch(ip1),1,Scrtch(ip2),1)
+      if (ldot) Scrtch(ip2:ip2+lZeta*mPAO-1) = Scrtch(ip1:ip1+lZeta*mPAO-1)
     end do
   end if
   if (lEta /= 0) then
 
-    if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
-    if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
-    if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
+    if (iphX2 /= 1) Q(1:lEta,1) = -Q(1:lEta,1)
+    if (iphY2 /= 1) Q(1:lEta,2) = -Q(1:lEta,2)
+    if (iphZ2 /= 1) Q(1:lEta,3) = -Q(1:lEta,3)
 
     ! Transpose mPAO,zeta,eta to zeta,eta,mPAO
 

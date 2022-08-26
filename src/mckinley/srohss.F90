@@ -51,11 +51,11 @@ nRys = nHer
 
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
-call icopy(2,nop,1,mop,1)
+mop(1:2) = nOp
 kop(1) = ioper(nop(1))
 kop(2) = ioper(nop(2))
-call dcopy_(3,A,1,coor(1,1),1)
-call dcopy_(3,RB,1,coor(1,2),1)
+coor(:,1) = A
+coor(:,2) = RB
 
 kdc = 0
 do kCnttp=1,ncnttp
@@ -79,7 +79,7 @@ do kCnttp=1,ncnttp
       mop(4) = mop(3)
 
       call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,TC,1,Coor(1,3),1)
+      Coor(:,3) = TC
 
       if (eq(a,rb) .and. eq(A,TC)) cycle
       call nucind(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
@@ -102,7 +102,7 @@ do kCnttp=1,ncnttp
         ipfb2 = ip
         ip = ip+nExpi*nBeta*nTri_Elem1(iAng)*nTri_Elem1(lb)*6
 
-        call dcopy_(narr,[Zero],0,Array,1)
+        Array(:) = Zero
         ! <a|c>, <a'|c>, <a",c>
         call Acore(iang,la,ishll,nordop,TC,A,Array(ip),narr-ip+1,Alpha,nalpha,Array(ipFA1),array(ipfa2),jfgrd(1,1),jfhss,2,.false.)
         ! Transform core orbital to spherical harmonics
@@ -120,8 +120,8 @@ do kCnttp=1,ncnttp
                       la,lb,iang,jfhss,Array(ipTmp),.true.)
 
         ! contract density
-        nt = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-        call dcopy_(78,[Zero],0,g2,1)
+        nt = nZeta*nTri_Elem1(la)*nTri_Elem1(lb)
+        g2(:) = Zero
         call dGeMV_('T',nT,21,One,Array(ipFin),nT,DAO,1,Zero,g2,1)
 
         ! distribute in hessian

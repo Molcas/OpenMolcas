@@ -99,7 +99,7 @@ end if
 call Assmbl(Array(ipQ1),Array(ipAxyz),la+ld,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*nExpi,HerW(iHerW(nHer)),nHer)
 iStrt = ipA
 do iGamma=1,nExpi
-  call dcopy_(nAlpha,Alpha,1,Array(iStrt),1)
+  Array(iStrt:iStrt+nAlpha-1) = Alpha(1:nAlpha)
   iStrt = iStrt+nAlpha
 end do
 if (debug) then

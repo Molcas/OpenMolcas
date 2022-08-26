@@ -18,8 +18,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Coor(3,4)
-integer(kind=iwp) :: kdc, IndGrd(0:2,0:1,0:(nIrrep-1)), IndHss(0:1,0:2,0:1,0:2,0:(nIrrep-1)), JndGrd(0:2,0:3,0:(nIrrep-1)), &
-                     JndHss(0:3,0:2,0:3,0:2,0:(nIrrep-1))
+integer(kind=iwp) :: kdc, IndGrd(0:2,0:1,0:nIrrep-1), IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), JndGrd(0:2,0:3,0:nIrrep-1), &
+                     JndHss(0:3,0:2,0:3,0:2,0:nIrrep-1)
 logical(kind=iwp) :: IfGrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3), IfG(0:3)
 #include "Molcas.fh"
 #include "disp.fh"
@@ -29,11 +29,11 @@ logical(kind=iwp), external :: EQ, TF
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call ICopy(nIrrep*16*9,[0],0,JndHss,1)
-call iCopy(nIrrep*4*3,[0],0,JndGrd,1)
-call LCopy(144,[.false.],0,jfHss,1)
-call LCopy(4,[.false.],0,Tr,1)
-call LCopy(12,[.false.],0,jfGrd,1)
+JndHss(:,:,:,:,:) = 0
+JndGrd(:,:,:) = 0
+JfHss(:,:,:,:) = .false.
+JfGrd(:,:) = .false.
+Tr(:) = .false.
 
 ! COPY CNTLR MATRIXES
 

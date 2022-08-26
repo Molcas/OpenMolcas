@@ -13,6 +13,7 @@
 
 subroutine DIN(Dens)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, nDens
 use Symmetry_Info, only: nIrrep
@@ -46,15 +47,15 @@ do iIrr=0,nIrrep-1
   do iBas=1,nBas(iIrr)
     do jBas=1,iBas-1
       ip1 = (iBas-1)*nBas(iIrr)+jBas
-      ip2 = iBas*(iBas-1)/2+jBas
+      ip2 = iTri(iBas,jBas)
       Dens(ipD+ip2) = Temp2(ip1)*Four
     end do
     ip1 = (iBas-1)*nBas(iIrr)+iBas
-    ip2 = iBas*(iBas+1)/2
+    ip2 = nTri_Elem(iBas)
     Dens(ipD+ip2) = Temp2(ip1)*Two
   end do
   ip = ip+nBas(iIrr)**2
-  ipd = ipD+nBas(iIrr)*(nBas(iIrr)+1)/2
+  ipd = ipD+nTri_Elem(nBas(iIrr))
 
 end do
 

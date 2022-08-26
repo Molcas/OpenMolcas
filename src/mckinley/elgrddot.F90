@@ -35,9 +35,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer (kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), mdc, ndc, nOp(2)
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Array(nZeta*nArr), Ccoor(3), &
-                 rout(*), DAO(nZeta,(la+1)*(la+1)/2,(lb+1)*(lb+2)/2)
-integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, &
-                     iZeta, ncomp, nip
+                 rout(*), DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
+integer(kind=iwp) :: iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, iZeta, &
+                     ncomp, nip
 logical(kind=iwp) :: ABeq(3)
 
 ABeq(1) = A(1) == B(1)
@@ -97,13 +97,13 @@ call vAssmbl(Array(ipRnxyz),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipBxyz
 
 ip = ipAlph
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ip),1)
+  Array(ip:ip+nAlpha-1) = Alpha
   ip = ip+nAlpha
 end do
 ip = ipBeta
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
-  ip = ip+1
+do iBeta=1,nBeta
+  Array(ip:ip+nAlpha-1) = Beta(iBeta)
+  ip = ip+nAlpha
 end do
 ncomp = 4
 call Cmbneldot(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),ncomp,Array(ipTemp1),Array(ipTemp2),Array(ipAlph), &

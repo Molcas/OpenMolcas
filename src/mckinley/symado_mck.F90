@@ -47,7 +47,7 @@ do iIrrep=0,nIrrep-1
             Fact = -Fact
           end if
         end if
-        call DaXpY_(nB,Fact,ArrIn(1,1),1,ArrOut(1,n),1)
+        ArrOut(:,n) = ArrOut(:,n)+Fact*ArrIn(:,1)
       end if
     end do
   end if

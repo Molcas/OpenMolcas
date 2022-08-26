@@ -29,6 +29,7 @@ subroutine PCMHss( &
 !             R. Lindh.                                                *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
 use Constants, only: Zero, One, Two, Pi

@@ -142,7 +142,7 @@ if (ltri) then
 
   do iCent=1,4
     do iCar=1,3
-      call lCopy(8,[.false.],0,pert,1)
+      pert(:) = .false.
 
       ! To which irreps does this derivative contribute?
 
@@ -176,7 +176,7 @@ if (ltri) then
         end if
 
       else if (Indx(iCar,iCent) < 0) then
-        call dcopy_(nabcd*nijkl,[Zero],0,Temp,1)
+        Temp(1:nabcd*nijkl) = Zero
         do iCnt=1,4
           iGr = Indx(iCar,iCnt)
           if (iGr > 0) then

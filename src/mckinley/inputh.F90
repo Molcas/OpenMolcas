@@ -25,6 +25,7 @@ subroutine Inputh(Run_MCLR)
 !***********************************************************************
 
 use McKinley_global, only: lGrd, lHss, nFck, Nona, PreScr, sIrrep
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep
@@ -371,8 +372,8 @@ if (iPrint >= 6) then
   write(u6,'(20X,A)') '********************************************'
   write(u6,*)
 end if
-call ICopy(MxAtom*8,[0],0,IndDsp,1)
-call ICopy(MxAtom*3,[0],0,InxDsp,1)
+IndDsp(:,:) = 0
+InxDsp(:,:) = 0
 call mma_allocate(ATDisp,mDisp,Label='ATDisp')
 call mma_allocate(DEGDisp,mDisp,Label='DEGDisp')
 nDisp = 0
@@ -544,7 +545,7 @@ if (TRSymm) then
           if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
             ldsp = ldsp+1
             ! Transfer the coordinates
-            call dcopy_(3,dbsc(iCnttp)%Coor(:,iCnt),1,C(1:3,ldsp),1)
+            C(1:3,ldsp) = dbsc(iCnttp)%Coor(:,iCnt)
             ! Transfer the multiplicity factor
             C(4,ldsp) = Fact
             Car(ldsp) = iCar+1
@@ -611,13 +612,13 @@ if (TRSymm) then
           if (iTemp(jTR) == ldsp) cycle loop1
         end do
         !write(u6,*) ' Checking vector #', ldsp
-        call dcopy_(nTR,AM(:,ldsp),1,Tmp(:,iTR),1)
+        Tmp(:,iTR) = AM(:,ldsp)
         !call RecPrt(' Vector',' ',Tmp(:,iTR),nTR,1)
         ! Gram-Schmidt orthonormalize against accepted vectors
         do lTR=1,iTR-1
           alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
           !write(u6,*) ' <x|y> =', alpha
-          call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
+          Tmp(:,iTR) = Tmp(:,iTR)-alpha*Tmp(:,lTR)
         end do
         !call RecPrt(' Remainings',' ',Tmp(:,iTR),nTR,1)
         alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
@@ -634,17 +635,17 @@ if (TRSymm) then
       end if
       !write(u6,*) ' Selecting vector #', kTR
       ! Pick up the "best" vector
-      call dcopy_(nTR,AM(:,kTR),1,Tmp(:,iTR),1)
+      Tmp(:,iTR) = AM(:,kTR)
       do lTR=1,iTR-1
         alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
-        call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
+        Tmp(:,iTR) = Tmp(:,iTR)-alpha*Tmp(:,lTR)
       end do
       alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
-      call DScal_(nTR,One/sqrt(alpha),Tmp(:,iTR),1)
+      Tmp(:,iTR) = Tmp(:,iTR)/sqrt(alpha)
       iTemp(iTR) = kTR
     end do
     do iTR=1,nTR
-      call dcopy_(nTR,AM(:,iTemp(iTR)),1,Tmp(:,iTR),1)
+      Tmp(:,iTR) = AM(:,iTemp(iTR))
       AM(:,iTemp(iTR)) = Zero
     end do
     if (iPrint >= 99) then
@@ -657,7 +658,7 @@ if (TRSymm) then
 
     call MatInvert(Tmp,nTR)
     if (IPrint >= 99) call RecPrt(' The T-1 matrix',' ',Tmp,nTR,nTR)
-    call DScal_(nTR**2,-One,Tmp,1)
+    Tmp(:,:) = -Tmp
 
     ! Generate the complete matrix
 
@@ -672,7 +673,7 @@ if (TRSymm) then
     end do
     do iTR=1,nTR
       ldsp = iTemp(iTR)
-      call dcopy_(lDisp(0),Scr(iTR,1),nTR,AM(ldsp,1),lDisp(0))
+      AM(ldsp,:) = Scr(iTR,1:lDisp(0))
     end do
     if (iPrint >= 99) call RecPrt('Final A matrix',' ',AM,lDisp(0),lDisp(0))
 
@@ -725,7 +726,7 @@ if (Slct) then
 end if
 
 call Datimx(KWord)
-call ICopy(nIrrep,[0],0,nFck,1)
+nFck(0:nIrrep-1) = 0
 do iIrrep=0,nIrrep-1
   if (iIrrep /= 0) then
     do jIrrep=0,nIrrep-1
@@ -734,7 +735,7 @@ do iIrrep=0,nIrrep-1
     end do
   else
     do jIrrep=0,nIrrep-1
-      nFck(0) = nFck(0)+nBas(jIrrep)*(nBas(jIrrep)+1)/2
+      nFck(0) = nFck(0)+nTri_Elem(nBas(jIrrep))
     end do
   end if
 end do

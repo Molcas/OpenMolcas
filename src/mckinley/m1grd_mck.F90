@@ -27,6 +27,7 @@ subroutine m1Grd_mck( &
 !              Anders Bernhardsson 1995                                *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
@@ -34,9 +35,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_mck_interface.fh"
-integer(kind=iwp) :: iAlpha, iAng(4), iBeta, iCnt, iDCRT(0:7), iIrrep, inddum(144*8), ipA, ipAOff, ipB, ipBOff, iuvwx(4), &
+integer(kind=iwp) :: iAng(4), iBeta, iCnt, iDCRT(0:7), iIrrep, inddum(3,4,3,4,8), ipA, ipAOff, ipB, ipBOff, iuvwx(4), &
                      JndGrd(3,4,0:7), mOp(4), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, nDCRT, nip, nRys
-logical(kind=iwp) :: DiffCnt, ifdum(144), jfg(4), JfGrd(3,4), kfgrd(3,4), Tr(4)
+logical(kind=iwp) :: DiffCnt, ifdum(3,4,3,4), jfg(4), JfGrd(3,4), kfgrd(3,4), Tr(4)
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Dum(1), Fact, TC(3)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
@@ -50,8 +51,8 @@ unused_var(Trans)
 !if (iPrint >= 99) then
 !  write(u6,*) ' In NAGrd: nArr=',nArr
 !end if
-call icopy(144*nirrep,[0],0,inddum,1)
-call lcopy(144,[.false.],0,ifdum,1)
+inddum(:,:,:,:,:) = 0
+ifdum(:,:,:,:) = .false.
 
 nRys = nHer
 
@@ -69,12 +70,12 @@ iAng(3) = 0
 iAng(4) = 0
 ! Dummies
 
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A
+Coori(:,2) = RB
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 iuvwx(1) = iu
 iuvwx(2) = iv
@@ -83,14 +84,14 @@ mOp(2) = nOp(2)
 
 ipAOff = ipA
 do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  Array(ipAOff:ipAOff+nAlpha-1) = Alpha
   ipAOff = ipAOff+nAlpha
 end do
 
 ipBOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-  ipBOff = ipBOff+1
+do iBeta=1,nBeta
+  Array(ipBOff:ipBOff+nAlpha-1) = Beta(iBeta)
+  ipBOff = ipBOff+nAlpha
 end do
 
 ! Loop over nuclear centers
@@ -117,8 +118,8 @@ do kCnttp=1,nCnttp
     !end if
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
-    call LCopy(12,[.false.],0,JFgrd,1)
-    call ICopy(12*nIrrep,[0],0,jndGrd,1)
+    JfGrd(:,:) = .false.
+    JndGrd(:,:,0:nIrrep-1) = 0
     do iCnt=1,2
       JfGrd(iDCar,iCnt) = IfGrad(iDCar,iCnt)
     end do
@@ -144,14 +145,14 @@ do kCnttp=1,nCnttp
     end if
 
     do lDCRT=0,nDCRT-1
-      call lCopy(12,JfGrd,1,kfGrd,1)
-      call iCopy(12*nIrrep,JndGrd,1,kndgrd,1)
+      kfGrd(:,:) = JfGrd
+      kndgrd(:,:,0:nIrrep-1) = JndGrd(:,:,0:nIrrep-1)
       mOp(3) = NrOpr(iDCRT(lDCRT))
       mOp(4) = mOp(3)
       call OA(iDCRT(lDCRT),C,TC)
-      call dcopy_(3,TC,1,CoorAC(1,2),1)
-      call dcopy_(3,TC,1,Coori(1,3),1)
-      call dcopy_(3,TC,1,Coori(1,4),1)
+      CoorAC(:,2) = TC
+      Coori(:,3) = TC
+      Coori(:,4) = TC
       if (Eq(A,RB) .and. EQ(A,TC)) cycle
       if (EQ(A,TC)) then
         kfGrd(iDCar,1) = .false.

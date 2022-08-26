@@ -21,6 +21,7 @@ abstract interface
 #                           define _CALLING_
 #                           include "grd_mck_interface.fh"
                            )
+    use Index_Functions, only: nTri_Elem1
     use Definitions, only: wp, iwp
 #   include "grd_mck_interface.fh"
   end subroutine grd_mck_kernel

@@ -27,7 +27,7 @@ subroutine DrvN2(Hess,nGrad)
 !***********************************************************************
 
 use McKinley_global, only: sIrrep
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess
@@ -38,14 +38,14 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nGrad
-real(kind=wp) :: Hess(nGrad*(nGrad+1)/2)
+real(kind=wp) :: Hess(nTri_Elem(nGrad))
 #include "Molcas.fh"
 #include "disp.fh"
 #include "rctfld.fh"
 integer(kind=iwp) :: iAtom, iCar, iCent, iCh1, iCh2, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRS(0:7), ii(2), iIrrep, iM1xp, iM2xp, &
                      Indx, IndGrd(3,2,0:7), IndHss(2,3,2,3,0:7), iR, iS, iStb(0:7), iTs, jAtom, jCar, jCar_Max, jCent, jCnt, &
-                     jCntMx, jCnttp, jTs, kop(2), LmbdR, LmbdS, mdc, nAtoms, ndc, nDCRR, nDCRS, nDisp1, nDisp2, nHess, nnIrrep, &
-                     nop(2), nPCMHss, nStb
+                     jCntMx, jCnttp, jTs, kop(2), LmbdR, LmbdS, mdc, nAtoms, ndc, nDCRR, nDCRS, nDisp1, nDisp2, nnIrrep, nop(2), &
+                     nPCMHss, nStb
 real(kind=wp) :: A(3), B(3), C(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, Cnt2M1, Cnt2M2, D(3), d2f_dr2, d2r_dAidAj, ddfab, &
                  df_dr, df_dr_AB, df_dr_CD, dfab, dfcd, dr_dAi, dr_dAj, dr_dB, dr_dD, fab, Fact, fcd, g, Gmma, PreFct, PreFct_AB, &
                  PreFct_CD, ps, Q_ij, r12, r12_AB, r12_CD, RB(3), SD(3), ZA, ZB, ZAZB
@@ -66,8 +66,7 @@ logical(kind=iwp), external :: EQ, TF
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nHess = nGrad*(nGrad+1)/2
-call dcopy_(nHess,[Zero],0,Hess,1)
+Hess(:) = Zero
 
 mdc = 0
 ! Loop over centers with the same change
@@ -180,8 +179,8 @@ do iCnttp=1,nCnttp
           df_dr = (dfab*r12-fab)/r12**2
           d2f_dr2 = ((ddfab*r12)*r12**2-(dfab*r12-fab)*Two*r12)/r12**4
 
-          call ICopy(nirrep*36,[0],0,Indhss,1)
-          call ICopy(nirrep*6,[0],0,indgrd,1)
+          IndHss(:,:,:,:,0:nirrep-1) = 0
+          IndGrd(:,:,0:nirrep-1) = 0
 
           ! Determine which displacement in all IR's, each center is associated with
 
@@ -372,8 +371,8 @@ if (PCM) then
           df_dr = (dfab*r12-fab)/r12**2
           d2f_dr2 = ((ddfab*r12)*r12**2-(dfab*r12-fab)*Two*r12)/r12**4
 
-          call ICopy(nirrep*36,[0],0,Indhss,1)
-          call ICopy(nirrep*6,[0],0,indgrd,1)
+          IndHss(:,:,:,:,0:nirrep-1) = 0
+          IndGrd(:,:,0:nirrep-1) = 0
 
           ! Determine which displacement in all IRs, each center is associated with
 
@@ -572,8 +571,8 @@ if (PCM) then
                   end if
                   df_dr_CD = (dfcd*r12_CD-fcd)/r12_CD**2
 
-                  call ICopy(nirrep*36,[0],0,Indhss,1)
-                  call ICopy(nirrep*6,[0],0,indgrd,1)
+                  IndHss(:,:,:,:,0:nirrep-1) = 0
+                  IndGrd(:,:,0:nirrep-1) = 0
 
                   ! Determine which displacement in all IR's, each center is associated with
 

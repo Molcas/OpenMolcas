@@ -72,7 +72,7 @@ subroutine k2Loop_mck_internal(rData)
   do lDCRR=0,nDCRR-1
 
     call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
-    call dcopy_(6,CoorM(1,1),1,CoorM(1,3),1)
+    CoorM(:,3:4) = CoorM(:,1:2)
 
     ! Compute Zeta, P and kappa.
 

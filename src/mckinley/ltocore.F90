@@ -48,12 +48,13 @@ call DgeTMo(F,nAlpha,nAlpha,n,Tmp1,n)
 
 ! 2) aciK =  k,aci * k,K (Contract over core orbital)
 
-call DGEMM_('T','N',nac*nVecAC*nAlpha,nBasisi,nExpi,One,Tmp1,nExpi,Shells(iShll)%pCff,nExpi,Zero,Tmp2,nac*nVecAC*nAlpha)
+n = nac*nVecAC*nAlpha
+call DGEMM_('T','N',n,nBasisi,nExpi,One,Tmp1,nExpi,Shells(iShll)%pCff,nExpi,Zero,Tmp2,n)
 
 ! 3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 
 do iBk=1,nBasisi
-  call DYaX(nac*nVecAC*nAlpha,Shells(iShll)%Bk(iBk),Tmp2((iBk-1)*nac*nVecAC*nAlpha+1),1,Tmp1((iBk-1)*nac*nVecAC*nAlpha+1),1)
+  Tmp1((iBk-1)*n+1:iBk*n) = Shells(iShll)%Bk(iBk)*Tmp2((iBk-1)*n+1:iBk*n)
 end do
 
 ! 4) a,ciK -> ciKa

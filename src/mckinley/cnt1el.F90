@@ -36,7 +36,7 @@ subroutine Cnt1El(Kernel,KrnlMm,Label,iDCnt,iDCar,loper,rHrmt,DiffOp,dens,Lab_Ds
 !***********************************************************************
 
 use McKinley_global, only: nFck, sIrrep
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, nBas, Shells
@@ -84,7 +84,7 @@ logical(kind=iwp), external :: EQ, TF
 ! earlier center/irrep. Thus it is an offset.
 
 nOrdOp = 0
-call iCopy(nIrrep,[0],0,IndGrd,1)
+IndGrd(0:nIrrep-1) = 0
 loper = 0
 #ifdef _DEBUGPRINT_
 iprint = 99
@@ -119,7 +119,7 @@ if (loper == 0) return
 ! Allocate one integral array for each of these irreps.
 ! The address is kept in array IP().
 nIC = 0
-call ICopy(nIrrep,[0],0,ip,1)
+ip(1:nIrrep) = 0
 
 iStart = 1
 do iIrrep=0,nIrrep-1
@@ -216,11 +216,11 @@ do iS=1,nSkal
 
     DiffCnt = (mdci == iDCnt) .or. (mdcj == iDCnt)
     if (DiffCnt .or. DiffOp) then
-      call lCopy(6,[.false.],0,IfGrd,1)
+      IfGrd(:,:) = .false.
       ! trans(iCnt) is true means there will be a sign shift in the SYMADO
       ! routine for the contribution to the integral from the
       ! differentiation wrt center iCnt
-      call lCopy(2,[.false.],0,trans,1)
+      trans(:) = .false.
       if (mdci == iDCnt) then
         IfGrd(idCar,1) = .true.
       end if
@@ -288,7 +288,7 @@ do iS=1,nSkal
           ! Compute AO integrals.
           ! for easy implementation of NA integrals.
 
-          call dcopy_(lFinal,[Zero],0,Fnl,1)
+          Fnl(:) = Zero
           call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,PCoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
                       Kern,MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,loper,dc(mdci)%nStab,dc(mdcj)%nStab,nic,idcar,idcnt,iStabM,nStabM, &
                       trans,nIrrep)
@@ -356,7 +356,7 @@ do iS=1,nSkal
 
         ! Multiply with factors due to projection operators
 
-        if (Fact /= One) call DScal_(nSO*iBas*jBas,Fact,SO,1)
+        if (Fact /= One) SO(:) = Fact*SO
 
         ! Scatter the SO's on to the non-zero blocks of the lower triangle.
 
@@ -393,7 +393,7 @@ nDens = 0
 nDenssq = 0
 do iI=0,nIrrep-1
   nDenssq = nDenssq+nBas(ii)**2+nBas(ii)
-  nDens = nDens+nBas(iI)*(nBas(iI)+1)/2
+  nDens = nDens+nTri_Elem(nBas(iI))
 end do
 nrOp = 0
 
@@ -418,7 +418,7 @@ do iIrrep=0,nIrrep-1
       iopt = 0
       call dRdMck(irc,iOpt,Lab_dsk,jdisp,Scr,koper)
       if (irc /= 0) call SysAbendMsg('cnt1el','error during read in rdmck',' ')
-      call DaXpY_(nfck(iIrrep),one,Scr,1,Integrals(ip(nrop)),1)
+      Integrals(ip(nrop):ip(nrop)+nfck(iIrrep)-1) = Integrals(ip(nrop):ip(nrop)+nfck(iIrrep)-1)+Scr(1:nfck(iIrrep))
     end if
     irc = -1
     iopt = 0

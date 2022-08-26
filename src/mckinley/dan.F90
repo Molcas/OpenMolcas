@@ -13,7 +13,7 @@
 
 subroutine DAN(Dens)
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, G1, nDens
 use Symmetry_Info, only: nIrrep
@@ -69,7 +69,7 @@ do iS=0,nIrrep-1
         Dens(ipD+ip2) = Temp2(ip1)*Fact
       end do
     end do
-    ipD = ipD+nBas(is)*(nBas(is)+1)/2
+    ipD = ipD+nTri_Elem(nBas(is))
   end if
 end do
 
