@@ -41,6 +41,14 @@ logical(kind=iwp) :: DiffCnt, ifg(4), ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(P)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(Trans)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -167,7 +175,7 @@ do kCnttp=1,nCnttp
                       mvec,idcar)
 
         nt = nAlpha*nBeta*nTri_Elem1(lb)*nTri_Elem1(la)
-        call SmAdNa(Array(ipFin),nt,rFinal,mop,loper,JndGrd,iuvwx,JfGrad,Indx,idcar,One,iFG,tr)
+        call SmAdNa(Array(ipFin),nt,rFinal,mop,loper,JndGrd,iuvwx,Indx,idcar,One,tr)
 
       end do
     end do
@@ -175,15 +183,5 @@ do kCnttp=1,nCnttp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_real_array(P)
-  call Unused_integer(nHer)
-  call Unused_real_array(Ccoor)
-  call Unused_logical_array(Trans)
-end if
 
 end subroutine PrjGrd_mck

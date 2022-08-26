@@ -42,6 +42,13 @@ implicit none
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, ipScrt, nip
 logical(kind=iwp) :: ABeq(3)
 
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(lOper)
+unused_var(iDCnt)
+unused_var(iStabM)
+unused_var(nStabM)
+
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
 ABeq(3) = A(3) == RB(3)
@@ -108,7 +115,7 @@ do iAlpha=1,nAlpha
   call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
   ip = ip+1
 end do
-call CmbnS1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Array(ipScrt),Array(ipAlph),Array(ipBeta),IfGrad,nOp)
+call CmbnS1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Array(ipScrt),Array(ipAlph),Array(ipBeta),IfGrad)
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' Primitive Integrals',' ',Array(ipScrt),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
@@ -116,18 +123,11 @@ call RecPrt(' Primitive Integrals',' ',Array(ipScrt),nZeta,nTri_Elem1(la)*nTri_E
 
 ! Symmetry adapt the gradient operator
 
-call SymAdO_mck(Array(ipScrt),nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idcar,trans)
+call SymAdO_mck(Array(ipScrt),nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal,nrOp,nop,IndGrd,iu,iv,ifgrad,idcar,trans)
 #ifdef _DEBUGPRINT_
 call RecPrt(' Primitive Integrals SO',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nrOp)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer(iDCnt)
-  call Unused_integer_array(iStabM)
-  call Unused_integer(nStabM)
-end if
 
 end subroutine OvrGrd_mck

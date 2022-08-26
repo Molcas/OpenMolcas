@@ -13,7 +13,7 @@
 !***********************************************************************
 
 subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc, &
-                    jPrim,jPrInc,kPrim,kPrInc,lPrim,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,ipMend,Mem1,Mem2,Mem3,Mem4,Mend)
+                    jPrim,jPrInc,kPrim,kPrInc,lPrim,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,Mem1,Mem2,Mem3,Mem4,Mend)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -41,8 +41,8 @@ use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, iBsInc, jBas, jBsInc, kBas, kBsInc, lBas, &
-                     lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, lPrim, lPrInc, ipMem1, ipMem2, ipMem3, ipMem4, ipMend, &
-                     Mem1, Mem2, Mem3, Mem4, Mend
+                     lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, lPrim, lPrInc, ipMem1, ipMem2, ipMem3, ipMem4, Mem1, &
+                     Mem2, Mem3, Mem4, Mend
 #include "lCache.fh"
 #include "pstat.fh"
 #include "warnings.h"
@@ -229,7 +229,5 @@ q3 = q3+real(kPrInc,kind=wp)/real(kPrim,kind=wp)
 q4 = q4+real(lPrInc,kind=wp)/real(lPrim,kind=wp)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ipMend)
 
 end subroutine PSOAO0_h

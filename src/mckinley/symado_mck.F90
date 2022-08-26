@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SymAdO_mck(ArrIn,nB,ArrOut,nrOp,nop,lOper,IndGrd,iu,iv,ifgrd,idCar,trans)
+subroutine SymAdO_mck(ArrIn,nB,ArrOut,nrOp,nop,IndGrd,iu,iv,ifgrd,idCar,trans)
 
 use Symmetry_Info, only: iChBas, iChTbl, nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nB, nrOp, nop(2), lOper, IndGrd(0:7), iu, iv, idCar
+integer(kind=iwp) :: nB, nrOp, nop(2), IndGrd(0:7), iu, iv, idCar
 real(kind=wp) :: ArrIn(nB,2), ArrOut(nB,nrOp)
 logical(kind=iwp) :: IfGrd(3,2), trans(2)
 integer(kind=iwp) :: iCn, iIrrep, n
@@ -54,7 +54,5 @@ do iIrrep=0,nIrrep-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lOper)
 
 end subroutine SymAdO_mck

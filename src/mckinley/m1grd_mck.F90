@@ -41,6 +41,12 @@ real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Dum(1), Fact, TC(3)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(Trans)
+
 !if (iPrint >= 99) then
 !  write(u6,*) ' In NAGrd: nArr=',nArr
 !end if
@@ -173,19 +179,13 @@ do kCnttp=1,nCnttp
       JFG(3) = .false.
       JFG(4) = .false.
 
-      call M1Kernel(rFinal,Dum,0,Dum,0,iAng,nRys,nZeta,Array(ipA),Array(ipB),Zeta,ZInv,rKappa,P,TC,Coori,Coorac,Array(nip), &
-                    nArr-nip+1,kfgrd,kndgrd,ifdum,inddum,jfg,tr,mop,iuvwx,kCnttp,fact,loper,idcar)
+      call M1Kernel(rFinal,Dum,0,Dum,0,iAng,nRys,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,Coorac,Array(nip),nArr-nip+1, &
+                    kfgrd,kndgrd,ifdum,inddum,jfg,tr,mop,iuvwx,kCnttp,fact,loper,idcar)
 
     end do
   end do
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_logical_array(Trans)
-end if
 
 end subroutine m1Grd_mck

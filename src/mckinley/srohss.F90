@@ -37,6 +37,16 @@ logical(kind=iwp) :: ifg(4), jfgrd(3,4), jfhss(4,3,4,3), tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(P)
+unused_var(rFinal)
+unused_var(nRys)
+unused_var(Ccoor)
+unused_var(lOper)
+
 nRys = nHer
 
 iuvwx(1) = dc(mdc)%nStab
@@ -123,16 +133,5 @@ do kCnttp=1,ncnttp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_real_array(P)
-  call Unused_real_array(final)
-  call Unused_integer(nRys)
-  call Unused_real_array(Ccoor)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine SroHss

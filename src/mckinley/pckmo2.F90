@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PckMO2(COUT,nAcO,icmpi,iBasi,jcmpj,jBasj,iAOi,jAOj)
+subroutine PckMO2(COUT,icmpi,iBasi,jcmpj,jBasj,iAOi,jAOj)
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: COUT(*)
-integer(kind=iwp) :: nAcO, icmpi, iBasi, jcmpj, jBasj, iAOi, jAOj
+integer(kind=iwp) :: icmpi, iBasi, jcmpj, jBasj, iAOi, jAOj
 #include "etwas.fh"
 integer(kind=iwp) :: i1, iaoii(4), iAsh, iCmp(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
 
@@ -54,7 +54,5 @@ do iCnt=1,2
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nAcO)
 
 end subroutine PckMO2

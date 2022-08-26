@@ -47,6 +47,12 @@ integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, TF
 external :: TNAI1, Fake, Cff2D
 
+#include "macros.fh"
+unused_var(rFinal)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(lOper)
+
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In NAHss: nArr=',nArr
 #endif
@@ -268,12 +274,5 @@ do kCnttp=1,nCnttp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(final)
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(lOper)
-end if
 
 end subroutine NAHss

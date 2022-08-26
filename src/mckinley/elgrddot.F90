@@ -12,8 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine ElGrddot(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,rout,IndGrd,DAO,mdc, &
-                    ndc,nOp,iStabM,nStabM)
+subroutine ElGrddot(Alpha,nAlpha,Beta,nBeta,Zeta,rKappa,P,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,rout,IndGrd,DAO,mdc,ndc,nOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the multipole moments integrals with the          *
@@ -34,10 +33,9 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer (kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), mdc, ndc, nOp(2), nStabM, &
-                      iStabM(0:nStabM-1)
-real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Array(nZeta*nArr), &
-                 Ccoor(3), rout(*), DAO(nZeta,(la+1)*(la+1)/2,(lb+1)*(lb+2)/2)
+integer (kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), mdc, ndc, nOp(2)
+real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Array(nZeta*nArr), Ccoor(3), &
+                 rout(*), DAO(nZeta,(la+1)*(la+1)/2,(lb+1)*(lb+2)/2)
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, &
                      iZeta, ncomp, nip
 logical(kind=iwp) :: ABeq(3)
@@ -112,10 +110,5 @@ call Cmbneldot(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),ncom
                Array(ipBeta),DAO,dc(mdc)%nStab,dc(ndc)%nStab,nOp,rout,indgrd)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer_array(iStabM)
-end if
 
 end subroutine ElGrddot

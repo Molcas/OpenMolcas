@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nRys,nZeta,Alpha,Beta,Zeta,ZInv,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd, &
-                    indgrd,ifhss,indhss,ifg,tr,nop,iuvwx,kCnttp,fact,loper,idcar)
+subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nRys,nZeta,Alpha,Beta,Zeta,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd,indgrd, &
+                    ifhss,indhss,ifg,tr,nop,iuvwx,kCnttp,fact,loper,idcar)
 
 use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc
@@ -21,8 +21,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nHess, nDAO, iAng(4), nRys, nZeta, nArray, indgrd(3,4,0:7), indhss(3,4,3,4,8), nop(4), iuvwx(4), kCnttp, &
                      loper, idcar
-real(kind=wp) :: rFinal(*), Hess(*), DAO(nZeta,*), Alpha(nZeta), Beta(nZeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,*), &
-                 TC(3), Coor(3,4), CoorAC(3,2), Array(nArray), fact
+real(kind=wp) :: rFinal(*), Hess(*), DAO(nZeta,*), Alpha(nZeta), Beta(nZeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,*), TC(3), &
+                 Coor(3,4), CoorAC(3,2), Array(nArray), fact
 logical(kind=iwp) :: ifgrd(3,4), ifhss(3,4,3,4), ifg(4), tr(4)
 integer(kind=iwp) :: iDAO, iElem, iM1xp, indi, Indx(3,4), ip, ipDAO, ipDAOt, ipK, ipPx, ipPy, ipPz, ipZ, ipZI, iZeta, &
                      jndgrd(3,4,0:7), jndhss(3,4,3,4,8), nb, nGr
@@ -119,13 +119,11 @@ do iM1xp=1,dbsc(kCnttp)%nM1
       end do
     end do
 
-    call SmAdNa(Array(ip),nb,rFinal,nop(1:3),loper,jndGrd,iuvwx(1:3),jfGrd,Indx,idcar,One,jFG,tr)
+    call SmAdNa(Array(ip),nb,rFinal,nop(1:3),loper,jndGrd,iuvwx(1:3),Indx,idcar,One,tr)
   end if
 
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(ZInv)
 
 end subroutine m1kernel

@@ -251,9 +251,8 @@ do iS=1,nSkal
           ! Compute AO integrals.
           ! for easy implementation of NA integrals.
 
-          call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,PCoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
-                      Kern,MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,dc(mdci)%nStab,dc(mdcj)%nStab,nic,idcar,idcnt,iStabM,nStabM,trans, &
-                      kcar,isym)
+          call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,Kappa,PCoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
+                      MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,dc(mdci)%nStab,dc(mdcj)%nStab,nic,idcar,trans,kcar,isym)
 
           ! Transform from primitive to contracted basis functions.
           ! Order of transformation is fixed. It has been shown through

@@ -12,13 +12,12 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,nRys,Data1,nab,nData1,Data2,ncd,nData2,Pren,Prem, &
-                     Alpha,nAlpha,iPrInc,Beta,nBeta,jPrInc,Gmma,nGamma,kPrInc,Delta,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj, &
-                     Coeff3,kBask,Coeff4,lBasl,Zeta,ZInv,P,rKab,nZeta,Eta,EInv,Q,rKcd,nEta,xA,xB,xG,xD,xPre,Hess,nHess,IfGrd, &
-                     IndGrd,IfHss,IndHss,IfG,PSO,nPSO,Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX,Shijij,Dij1, &
-                     Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2, &
-                     mDjl,nDjl,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,IndZet,IndEta,TwoHam,ipdens,Buffer,nBuffer,lgrad,ldot,n8,ltri, &
-                     Dan,Din,moip,naco,rMOIN,nMOIN,new_fock)
+subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,nRys,Data1,nData1,Data2,nData2,Pren,Prem,nAlpha, &
+                     nBeta,jPrInc,nGamma,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,Zeta,ZInv,P,rKab,nZeta, &
+                     Eta,EInv,Q,rKcd,nEta,xA,xB,xG,xD,xPre,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO,Work2,nWork2,Work3, &
+                     nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX,Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik, &
+                     Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2,mDjl,nDjl,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,IndZet, &
+                     IndEta,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din,moip,naco,rMOIN,nMOIN,new_fock)
 !***********************************************************************
 !                                                                      *
 !     Input:                                                           *
@@ -88,13 +87,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nab, nData1, ncd, &
-                     nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, &
+integer(kind=iwp) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
+                     nData2, nAlpha, nBeta, jPrInc, nGamma, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, &
                      nEta, nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, nDij, &
                      mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, nFt, &
-                     IndZet(nAlpha*nBeta), IndEta(nGamma*nDelta), ipdens, nBuffer, moip(0:7), naco, nMOIN
-real(kind=wp) :: Coor(3,4), Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2), Pren, Prem, Alpha(nAlpha), &
-                 Beta(nBeta), Gmma(nGamma), Delta(nDelta), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
+                     IndZet(nAlpha*nBeta), IndEta(nGamma*nDelta), nBuffer, moip(0:7), naco, nMOIN
+real(kind=wp) :: Coor(3,4), Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2), Pren, Prem, &
+                 Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
                  Coeff4(nDelta,lBasl), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), rKab(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), &
                  rKcd(nEta), xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), xpre(nGamma*nDelta*nAlpha*nBeta), Hess(nHess), &
                  PSO(iBasi*jBasj*kBask*lBasl,nPSO), Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), WorkX(nWorkX), &
@@ -111,7 +110,7 @@ integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, IncEta, 
                      nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeq, ABeqCD, AeqB, AeqC, CDeq, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, no_integrals, Tr(4)
-integer(kind=iwp), external :: ip_abMax, ip_IndZ, ip_Z, ip_ZetaM, ip_ZtMax, NrOpr
+integer(kind=iwp), external :: ip_abMax, ip_IndZ, ip_Z, NrOpr
 logical(kind=iwp), external :: EQ, lEmpty
 external :: TERI1, ModU2, Cff2D
 
@@ -423,11 +422,9 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             ! Work3 Scratch
             call Timing(dum1,Time,dum2,dum3)
             call Screen_mck(Work2,Work3,mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKab, &
-                            Data1(ip_Z(iZeta,nZeta),lDCR1),iData1(iZeta:iZeta+mZeta-1),Data1(ip_ZtMax(nZeta),ldcr1), &
-                            Data1(ip_abMax(nZeta),ldcr1),Data1(ip_ZetaM(nZeta),ldcr1),nAlpha,nBeta,Eta,EInv,Q,xG,xD,rKcd, &
-                            Data2(ip_Z(iEta,nEta),lDCR2),iData2(iEta:iEta+mEta-1),Data2(ip_ZtMax(nEta),ldcr2), &
-                            Data2(ip_abMax(nEta),ldcr2),Data2(ip_ZetaM(nEta),ldcr2),nGamma,nDelta,xpre,1,1,1,ix2,iy2,iz2,CutInt, &
-                            PreScr,IndZet,IndEta,ldot2)
+                            Data1(ip_Z(iZeta,nZeta),lDCR1),iData1(iZeta:iZeta+mZeta-1),Data1(ip_abMax(nZeta),ldcr1),Eta,EInv,Q,xG, &
+                            xD,rKcd,Data2(ip_Z(iEta,nEta),lDCR2),iData2(iEta:iEta+mEta-1),Data2(ip_abMax(nEta),ldcr2),xpre,1,1,1, &
+                            ix2,iy2,iz2,CutInt,PreScr,IndZet,IndEta,ldot2)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nScreen) = CPUStat(nScreen)+Time
 
@@ -563,11 +560,10 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         !
         !--------------------------------------------------------------*
 
-        call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,iStb,jStb,kStb,lStb,Shijij,iAngV,iCmpi,iCmp,iShll,iShell,iShell, &
-                    iBasi,jBasj,kBask,lBasl,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1, &
-                    Djk2,mDjk,nDjk,Djl1,Djl2,mDjl,nDjl,fin,nfin,Temp(ipFT),nFT,Temp(ipS1),nS1,Temp(ipS2),nS2,Temp(ipTemp),nTe, &
-                    TwoHam,nTwo2,JndGrd,Indx,iao,iaost,iuvwx,ifG,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,coor,nOp,Din,Dan, &
-                    new_fock)
+        call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,Shijij,iAngV,iCmpi,iCmp,iShll,iShell,iShell,iBasi,jBasj,kBask, &
+                    lBasl,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk, &
+                    Djl1,Djl2,mDjl,nDjl,fin,nfin,Temp(ipFT),nFT,Temp(ipS1),nS1,Temp(ipS2),nS2,Temp(ipTemp),nTe,TwoHam,nTwo2, &
+                    JndGrd,Indx,iao,iaost,iuvwx,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,nOp,Din,Dan,new_fock)
 
       end do
 
@@ -579,18 +575,6 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
   !                                                                    *
 
   return
-  ! Avoid unused argument warnings
-  if (.false.) then
-    call Unused_integer(nab)
-    call Unused_integer(ncd)
-    call Unused_real_array(Alpha)
-    call Unused_integer(iPrInc)
-    call Unused_real_array(Beta)
-    call Unused_real_array(Gmma)
-    call Unused_integer(kPrInc)
-    call Unused_real_array(Delta)
-    call Unused_integer(ipdens)
-  end if
 
 end subroutine Twoel_Mck_Internal
 

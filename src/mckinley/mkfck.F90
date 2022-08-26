@@ -11,9 +11,9 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine MkFck(iAnga,iCmpa,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nOp,jOp,Dij,mDij,nDij,ij1,ij2,ij3,ij4,Dkl, &
+subroutine MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nOp,jOp,Dij,mDij,nDij,ij1,ij2,ij3,ij4,Dkl, &
                  mDkl,nDkl,kl1,kl2,kl3,kl4,Dik,mDik,nDik,ik1,ik2,ik3,ik4,Dil,mDil,nDil,il1,il2,il3,il4,Djk,mDjk,nDjk,jk1,jk2,jk3, &
-                 jk4,Djl,mDjl,nDjl,jl1,jl2,jl3,jl4,AOInt,nAO,TwoHam,nFock,Scrtch1,nS1,Scrtch2,nS2,iDCRR,iDCRS,iDCRT,FckTmp,nFT, &
+                 jk4,Djl,mDjl,nDjl,jl1,jl2,jl3,jl4,AOInt,nAO,TwoHam,nFock,Scrtch2,nS2,FckTmp,nFT, &
                  pert,iuvwx,iCent,iCar,indgrd,ipDisp)
 !***********************************************************************
 !                                                                      *
@@ -27,13 +27,13 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAnga(4), iCmpa(4), iCmp(4), iShll(4), iShell(4), iBasi, jBasj, kBask, lBasl, iAO(4), iAOst(4), nOp(4), &
-                     jOp(6), mDij, nDij, ij1, ij2, ij3, ij4, mDkl, nDkl, kl1, kl2, kl3, kl4, mDik, nDik, ik1, ik2, ik3, ik4, mDil, &
-                     nDil, il1, il2, il3, il4, mDjk, nDjk, jk1, jk2, jk3, jk4, mDjl, nDjl, jl1, jl2, jl3, jl4, nAO, nFock, nS1, &
-                     nS2, iDCRR, iDCRS, iDCRT, nFT, iuvwx, iCent, iCar, indgrd(3,4,0:7), ipdisp(*)
+integer(kind=iwp) :: iAnga(4), iCmp(4), iShll(4), iShell(4), iBasi, jBasj, kBask, lBasl, iAO(4), iAOst(4), nOp(4), jOp(6), mDij, &
+                     nDij, ij1, ij2, ij3, ij4, mDkl, nDkl, kl1, kl2, kl3, kl4, mDik, nDik, ik1, ik2, ik3, ik4, mDil, nDil, il1, &
+                     il2, il3, il4, mDjk, nDjk, jk1, jk2, jk3, jk4, mDjl, nDjl, jl1, jl2, jl3, jl4, nAO, nFock, nS2, nFT, iuvwx, &
+                     iCent, iCar, indgrd(3,4,0:7), ipdisp(*)
 logical(kind=iwp) :: Shijij, pert(0:7)
 real(kind=wp) :: Dij(mDij,nDij), Dkl(mDkl,nDkl), Dik(mDik,nDik), Dil(mDil,nDil), Djk(mDjk,nDjk), Djl(mDjl,nDjl), AOInt(nAO), &
-                 TwoHam(nFock), Scrtch1(nS1), Scrtch2(nS2), FckTmp(nFT)
+                 TwoHam(nFock), Scrtch2(nS2), FckTmp(nFT)
 integer(kind=iwp) :: nijkl
 real(kind=wp) :: Fact
 
@@ -53,13 +53,5 @@ call FckAcc_mck(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,nOp,ni
                 iCent,pert,indgrd,ipdisp)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(iCmpa)
-  call Unused_real_array(Scrtch1)
-  call Unused_integer(iDCRR)
-  call Unused_integer(iDCRS)
-  call Unused_integer(iDCRT)
-end if
 
 end subroutine MkFck

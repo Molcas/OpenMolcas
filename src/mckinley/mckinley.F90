@@ -192,7 +192,7 @@ if (iPrint >= 6) then
   write(u6,'(A)') 'The 1st order derivatives of the one-electron integrals are calculated and stored on disk'
   write(u6,*)
 end if
-call Drvh1_mck(nGrad,Nona)
+call Drvh1_mck(Nona)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

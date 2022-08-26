@@ -30,11 +30,11 @@ subroutine Drvg2(Hess,nhess,l_Grd,l_Hss)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
-use Index_Functions, only: iTri, nTri_Elem1
+use Index_Functions, only: iTri
 use iSD_data, only: iSD
 use k2_setup, only: Data_k2, Indk2, nIndk2
 use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, ipZeta, MemR, MxDij, Mem_INT, Mem_DBLE, ndede, nFT, Sew_Scr
-use pso_stuff, only: D0, nDens
+use pso_stuff, only: nDens
 use Basis_Info, only: dbsc, nBas, nCnttp, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
@@ -56,19 +56,18 @@ logical(kind=iwp) :: l_Grd, l_Hss
 #include "setup.fh"
 integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, &
-                     ip1,ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipD0, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, &
-                     ipDDjk, ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, &
-                     ipDjk, ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipEI, ipEta, ipFin, ipIndEta, ipIndZet, ipKAB, ipKCD, ipMem, &
-                     ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, ipP, ipQ, iPrim, iPrimi, iPrInc, ipTmp, ipTmp2, ipxA, ipxB, ipxD, &
-                     ipxG, ipxPre, ipZI, iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jAO, jBas, jBasAO, jBasj, jBasn, &
-                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, js, &
-                     jShell, jShll, k2ij, k2kl, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, &
-                     kPrimk, kPrInc, ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, &
-                     lPrInc, ls, lShell, lShll, mBatch, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, &
-                     mDeDe, mDij, mDik, mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, &
-                     MemFin, MemMax, MemPrm, MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nab, nAco, nb, ncd, nDCRR, &
-                     nDCRS, nDij, nDik, nDil, ndisp, nDjk, nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nPairs, nQuad, &
-                     nRys, nSkal, nSO, nTwo, nTwo2,  nZeta
+                     ip1,ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
+                     ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
+                     ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipEI, ipEta, ipFin, ipIndEta, ipIndZet, ipKAB, ipKCD, ipMem, ipMem2, &
+                     ipMem3, ipMem4, ipMemX, ipMOC, ipP, ipQ, iPrim, iPrimi, iPrInc, ipTmp, ipTmp2, ipxA, ipxB, ipxD, ipxG, &
+                     ipxPre, ipZI, iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jAO, jBas, jBasAO, jBasj, jBasn, jBsInc, &
+                     jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, js, jShell, &
+                     jShll, k2ij, k2kl, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, &
+                     kPrInc, ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, &
+                     lShell, lShll, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
+                     mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
+                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
+                     nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, nZeta
 real(kind=wp) :: A_int, dum, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
@@ -77,7 +76,7 @@ character(len=40) :: frmt
 #endif
 integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
-integer(kind=iwp), external :: ip_of_Work, MemSO2_P, nMO, NrOpr
+integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
 
 !                                                                      *
@@ -211,6 +210,9 @@ if (lGrad) then
   ! Calculate the size of memory needed for storing fock matrices and
   ! MO integrals and allocate it.
 
+  nMO = naco*(naco+1)/2
+  nMO = nMO*(nMO+1)/2
+
   nIndij = S%nShlls*(S%nShlls+1)/2
   n_Int = 0
   jDisp = 0
@@ -229,7 +231,7 @@ if (lGrad) then
 
       if (nMethod == RASSCF) then
         ipMO(jDisp,1) = n_Int+1
-        n_Int = n_Int+nMO(iIrrep)
+        n_Int = n_Int+nMO
         ipdisp2(jdisp) = n_Int+1
         do jIrr=0,nIrrep-1
           kIrr = nrOpr(ieor(iOper(iIrrep),iOper(jIrr)))
@@ -396,9 +398,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   iS = Ind_ij(1,ijSh)
   jS = Ind_ij(2,ijSh)
   call CWTime(TCpu1,TWall1)
-  !                                                                      *
-  !***********************************************************************
-  !                                                                      *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
   ! Outer loops (ij) over angular momenta and centers
   !
   !do iS=1,nSkal
@@ -447,13 +449,13 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
       end if
     end do
   end do
-  !                                                                      *
-  !***********************************************************************
-  !                                                                      *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
   ! Cltrls for MO transformation
-  !                                                                      *
-  !***********************************************************************
-  !                                                                      *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
   if ((nMethod == RASSCF) .and. l_Grd) then
     iMemB = nACO**2*iCmp*iBas*jCmp*jBas*nDisp*nirrep
     if (iMemB > MemMax) then
@@ -467,9 +469,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   else
     iMemb = 0
   end if
-  !                                                                      *
-  !***********************************************************************
-  !                                                                      *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
   Post_Process = .false.
   do klSh=1,nijS
     ks = Ind_ij(1,klSh)
@@ -524,9 +526,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         end if
       end do
     end do
-    !                                                                    *
-    !*********************************************************************
-    !                                                                    *
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
     ! The code is working in such away that the MO needs upper and lower
     ! triangular parts of ij kl but hessian needs only lower, check if the
     ! integralbatch is lower or upper!!
@@ -537,9 +539,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     Shjl = jShell == lShell
     Shijij = Shik .and. Shjl
-    !                                                                    *
-    !*********************************************************************
-    !                                                                    *
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
     iCmpV(1) = icmp
     iCmpV(2) = jcmp
     iCmpV(3) = kcmp
@@ -552,9 +554,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     jBasj = Shells(iShllV(2))%nBasis
     kBask = Shells(iShllV(3))%nBasis
     lBasl = Shells(iShllV(4))%nBasis
-    !                                                                    *
-    !*********************************************************************
-    !                                                                    *
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
     ! Allocate memory for zeta, eta, kappa, P and Q.
     ! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
 
@@ -573,22 +575,15 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ipxG = ipQ+nEta*3
     ipxD = ipxG+nEta
     ipxPre = ipxD+nEta
-    !                                                                    *
-    !*********************************************************************
-    !                                                                    *
-    nab = nTri_Elem1(iAng)*nTri_Elem1(jAng)
-    ncd = nTri_Elem1(kAng)*nTri_Elem1(lAng)
-
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
     ijS = iTri(iShell,jShell)
     klS = iTri(kShell,lShell)
     ikS = iTri(iShell,kShell)
     ilS = iTri(iShell,lShell)
     jkS = iTri(jShell,kShell)
     jlS = iTri(jShell,lShell)
-    !if (.not. l2DI) then
-    !  nab = 0
-    !  ncd = 0
-    !end if
     k2ij = Indk2(1,ijS)
     nDCRR = Indk2(2,ijS)
     k2kl = Indk2(1,klS)
@@ -596,7 +591,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     if (ltri) then
 
-      !------------------------------------------------------------------*
+      !----------------------------------------------------------------*
 
       ! Fix the 1st order density matrix
 
@@ -706,12 +701,12 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
       end if  ! if (lpick) then
     end if  ! if (ltri) then
-    !                                                                    *
-    !*********************************************************************
-    !                                                                    *
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
     ! Compute total size of the second order density matrix in SO basis.
     !
-    !--------------------------------------------------------------------*
+    !------------------------------------------------------------------*
     nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAOV(1),iAOV(2),iAOV(3),iAOV(4))
     ldot2 = ldot
     if (nSO == 0) ldot2 = .false.
@@ -722,38 +717,38 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     if (.not. ldot2) iDer = 1
     call MemRg2(iAngV,nRys,MemPrm,ider)
 
-    !--------------------------------------------------------------------*
+    !------------------------------------------------------------------*
     !
     ! Calculate which derivatives should be made.
     !
-    !--------------------------------------------------------------------*
+    !------------------------------------------------------------------*
 
-    call DerCtr(mdci,mdcj,mdck,mdcl,ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,mBatch)
+    call DerCtr(mdci,mdcj,mdck,mdcl,ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG)
 
-    !--------------------------------------------------------------------*
+    !------------------------------------------------------------------*
     !
     ! Decide on the partioning of the shells based on the
     ! available memory and the requested memory.
     !
-    !--------------------------------------------------------------------*
+    !------------------------------------------------------------------*
 
     call PSOAO2(nSO,MemPrm,MemMax,iAngV,iCmpV,iAOV,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
                 jPrInc,kPrimk,kPrInc,lPriml,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB)
 
-    !--------------------------------------------------------------------*
+    !------------------------------------------------------------------*
     !
     ! Loop over basis function if we do not have enough of memory to
     ! calculate them in one step.
     !
-    !--------------------------------------------------------------------*
+    !------------------------------------------------------------------*
     do iBasAO=1,iBasi,iBsInc
       iBasn = min(iBsInc,iBasi-iBasAO+1)
       iAOst(1) = iBasAO-1
-      !------------------------------------------------------------------*
+      !----------------------------------------------------------------*
       !
       ! Move appropriate portions of the desymmetrized 1st order density matrix.
       !
-      !------------------------------------------------------------------*
+      !----------------------------------------------------------------*
       do jBasAO=1,jBasj,jBsInc
         jBasn = min(jBsInc,jBasj-jBasAO+1)
         iAOst(2) = jBasAO-1
@@ -822,7 +817,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
               ipddjk2 = 0
             end if
 
-            !------------------------------------------------------------*
+            !----------------------------------------------------------*
 
             MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
             ! MO tranformation buffer
@@ -843,15 +838,15 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ipMem4 = ipMem2+Mem2-Mem4
 
-            !------------------------------------------------------------*
+            !----------------------------------------------------------*
             !
             ! Get the 2nd order density matrix in SO basis.
             !
-            !------------------------------------------------------------*
+            !----------------------------------------------------------*
 
             nijkl = iBasn*jBasn*kBasn*lBasn
             call Timing(dum,Time,Dum,Dum)
-            if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,nAcO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
+            if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
             if (ldot2) call PGet0(iCmpV,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn, &
                                   iFnc(2)*jBasn,iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
             call Timing(dum,Time,Dum,Dum)
@@ -859,24 +854,21 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            ipD0 = ip_of_Work(D0(1,1))
-            call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nDCRR, &
-                           Data_k2(k2kl),ncd,nDCRS,Pren,Prem,Shells(iShllV(1))%Exp,iPrimi,iPrInc,Shells(iShllV(2))%Exp,jPrimj, &
-                           jPrInc,Shells(iShllV(3))%Exp,kPrimk,kPrInc,Shells(iShllV(4))%Exp,lPriml,lPrInc, &
-                           Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
-                           Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
-                           Mem_DBLE(ipZI),Mem_DBLE(ipP),Mem_DBLE(ipKab),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ), &
-                           Mem_DBLE(ipKcd),nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Mem_DBLE(ipxPre),Hess, &
-                           nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nSO,Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3, &
-                           Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX,Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij, &
-                           DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik),DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil), &
-                           DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk,mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl, &
-                           mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,Mem_INT(ipIndEta), &
-                           Mem_INT(ipIndZet),iInt,ipd0,Sew_Scr(ipBuffer),MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
-                           Sew_Scr(ipMOC),MemCMO,new_fock)
+            call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nDCRR,Data_k2(k2kl), &
+                           nDCRS,Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc,Shells(iShllV(1))%pCff(1,iBasAO),iBasn, &
+                           Shells(iShllV(2))%pCff(1,jBasAO),jBasn,Shells(iShllV(3))%pCff(1,kBasAO),kBasn, &
+                           Shells(iShllV(4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),Mem_DBLE(ipKab), &
+                           nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),Mem_DBLE(ipKcd),nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB), &
+                           Mem_DBLE(ipxG),Mem_DBLE(ipxD),Mem_DBLE(ipxPre),Hess,nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP), &
+                           nSO,Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
+                           Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
+                           DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
+                           mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2), &
+                           Mem2+Mem3+MemX,nTwo2,nFT,Mem_INT(ipIndEta),Mem_INT(ipIndZet),iInt,Sew_Scr(ipBuffer),MemBuffer,lgrad, &
+                           ldot2,n8,ltri,DTemp,DInAc,moip,nAco,Sew_Scr(ipMOC),MemCMO,new_fock)
             Post_Process = .true.
 
-            ! -----------------------------------------------------------*
+            !----------------------------------------------------------*
 
           end do
         end do

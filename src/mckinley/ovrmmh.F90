@@ -16,11 +16,12 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: nHer, MmOvrH, la, lb, lr
 
+#include "macros.fh"
+unused_var(lr)
+
 nHer = (la+lb+1+4)/2
 MmOvrH = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+2
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine OvrMmH

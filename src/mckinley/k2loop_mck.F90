@@ -13,8 +13,8 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,rData,ijCmp,Alpha,nAlpha,Beta,nBeta,Coeff1,iBasn,Coeff2,jBasn,nMemab,Con,Wk002, &
-                      m002,Wk003,m003,Wk004,m004,iStb,jStb)
+subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,rData,ijCmp,Alpha,nAlpha,Beta,nBeta,Coeff1,iBasn,Coeff2,jBasn,nMemab,Wk002, &
+                      m002,Wk003,m003,iStb,jStb)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute zeta, kappa, and P.                               *
@@ -39,9 +39,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: iAnga(4), iCmpa(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003, m004, iStb, jStb
+integer(kind=iwp) :: iAnga(4), iCmpa(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003, iStb, jStb
 real(kind=wp) :: Coor(3,2), rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), &
-                 Coeff2(nBeta,jBasn), Con(nAlpha*nBeta), Wk002(m002), Wk003(m003), Wk004(m004)
+                 Coeff2(nBeta,jBasn), Wk002(m002), Wk003(m003)
 integer(kind=iwp) :: mStb(2), nZeta
 real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
 integer(kind=iwp), external :: ip_ab, ip_abMax, ip_Alpha, ip_Beta, ip_EstI, ip_IndZ, ip_Kappa, ip_PCoor, ip_Z, ip_ZetaM, ip_ZInv, &
@@ -49,12 +49,6 @@ integer(kind=iwp), external :: ip_ab, ip_abMax, ip_Alpha, ip_Beta, ip_EstI, ip_I
 real(kind=wp), external :: EstI
 
 call k2Loop_mck_internal(rData)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Con)
-  call Unused_real_array(Wk004)
-end if
 
 ! This is to allow type punning without an explicit interface
 contains
@@ -88,10 +82,10 @@ subroutine k2Loop_mck_internal(rData)
                 rData(ip_Beta(1,nZeta,2),lDCRR+1),iData)
     nullify(iData)
 
-    call SchInt_mck(CoorM,iAnga,iCmpa,nAlpha,nBeta,nMemab,rData(ip_Z(1,nZeta),lDCRR+1),rData(ip_ZInv(1,nZeta),lDCRR+1), &
+    call SchInt_mck(CoorM,iAnga,nAlpha,nBeta,nMemab,rData(ip_Z(1,nZeta),lDCRR+1),rData(ip_ZInv(1,nZeta),lDCRR+1), &
                     rData(ip_Kappa(1,nZeta),lDCRR+1),rData(ip_PCoor(1,nZeta),lDCRR+1),nZeta,Wk002,m002,Wk003,m003)
 
-    call PckInt_mck(Wk002,nZeta,ijCmp,rData(ip_ab(1,nZeta),lDCRR+1),rData(ip_Z(1,nZeta),lDCRR+1))
+    call PckInt_mck(Wk002,nZeta,ijCmp,rData(ip_ab(1,nZeta),lDCRR+1))
     !                                                                  *
     !*******************************************************************
     !                                                                  *

@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PckInt_mck(abab,nZeta,nab,ab,Zeta)
+subroutine PckInt_mck(abab,nZeta,nab,ab)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nZeta, nab
-real(kind=wp) :: abab(nZeta,nab,nab), ab(nZeta), Zeta(nZeta)
+real(kind=wp) :: abab(nZeta,nab,nab), ab(nZeta)
 integer(kind=iwp) :: iab, iZeta
 real(kind=wp) :: xMax, xTest
 
@@ -34,7 +34,5 @@ do iZeta=1,nZeta
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Zeta)
 
 end subroutine PckInt_mck

@@ -46,6 +46,11 @@ integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 external :: Cff2D, Fake, TNAI1
 
+#include "macros.fh"
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(Trans)
+
 !iRout = 150
 !iPrint = nPrint(iRout)
 
@@ -201,18 +206,12 @@ do kCnttp=1,nCnttp
       call RecPrt('In NaGrd PI',' ',Array(nip),nb,3)
       call RecPrt('In NaGrd PI',' ',rFinal,nb,nrOp)
 #     endif
-      call SmAdNa(Array(nip),nb,rFinal,mop,loper,KndGrd,iuvwx,kfGrd,Indx,idcar,Fact,JFG,tr)
+      call SmAdNa(Array(nip),nb,rFinal,mop,loper,KndGrd,iuvwx,Indx,idcar,Fact,tr)
       !if (iPrint > 23) call RecPrt('In NaGrd FI',' ',rFinal,nb,nrOp)
     end do
   end do
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-  call Unused_logical_array(Trans)
-end if
 
 end subroutine NAGrd_mck

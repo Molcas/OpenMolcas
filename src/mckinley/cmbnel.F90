@@ -12,7 +12,7 @@
 !               1997, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine CmbnEl(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha,Beta,iStb,jStb,nOp,ifgrad,kcar)
+subroutine CmbnEl(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,Fact,Temp,Alpha,Beta,ifgrad,kcar)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute gradient integrals for SC Reaction Fields         *
@@ -30,7 +30,7 @@ use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, lr, nComp, iStb, jStb, nOp(2), kcar
+integer(kind=iwp) :: nZeta, la, lb, lr, kcar
 real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,2), &
                  Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta)
 logical(kind=iwp) :: Ifgrad(3,2)
@@ -225,12 +225,5 @@ do ixa=0,la
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nComp)
-  call Unused_integer(iStb)
-  call Unused_integer(jStb)
-  call Unused_integer_array(nOp)
-end if
 
 end subroutine CmbnEl

@@ -46,7 +46,7 @@ character(len=80) :: Label
 logical(kind=iwp) :: DiffOp, lECP
 integer(kind=iwp), allocatable :: lOper(:)
 real(kind=wp), allocatable :: Coor(:,:), D0(:), Fock(:)
-external :: KneHss, KneMmH, M1Hss, M1MMH, NaHss, NaMmH, OvrHss, OvrMmH, PCMHss, PCMMMH, PrjHss, PrjMMH, SROHss, sroMMH
+external :: KneHss, KneMmH, M1Hss, m1MMH, NaHss, NaMmH, OvrHss, OvrMmH, PCMHss, PCMMMH, PrjHss, PrjMMH, SROHss, sroMMH
 
 !                                                                      *
 !***********************************************************************
@@ -92,7 +92,7 @@ lOper(:) = 1
 DiffOp = .false.
 Temp(:) = Zero
 Label = ' The Renormalization Contribution'
-call Dot1El(OvrHss,OvrMmH,Temp,nHess,DiffOp,Coor,Fock,nFock,lOper,nComp,Label)
+call Dot1El(OvrHss,OvrMmH,Temp,nHess,DiffOp,Coor,Fock,nFock,lOper,nComp)
 if (show) write(u6,*) label
 if (show) call HssPrt(Hess,nHess)
 Hess(:) = Hess(:)-Temp(:)
@@ -107,7 +107,7 @@ Hess(:) = Hess(:)-Temp(:)
 DiffOp = .false.
 Temp(:) = Zero
 Label = ' The Kinetic Energy Contribution'
-call Dot1El(KneHss,KneMmH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
+call Dot1El(KneHss,KneMmH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp)
 if (show) write(u6,*) label
 if (show) call HssPrt(Temp,nHess)
 Hess(:) = Hess(:)-Temp(:)
@@ -122,7 +122,7 @@ Hess(:) = Hess(:)-Temp(:)
 DiffOp = .true.
 Label = ' The Nuclear Attraction Contribution'
 Temp(:) = Zero
-call Dot1El(NAHss,NAMmH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
+call Dot1El(NAHss,NAMmH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp)
 if (show) write(u6,*) label
 if (show) call HssPrt(Temp,nHess)
 Hess(:) = Hess(:)+Temp(:)
@@ -142,7 +142,7 @@ if (lECP) then
   DiffOp = .true.
   Label = ' The Projection (ECP) Contribution'
   Temp(:) = Zero
-  call Dot1El(PrjHss,PRJMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
+  call Dot1El(PrjHss,PRJMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp)
   if (show) write(u6,*) label
   if (show) call HssPrt(Temp,nHess)
   Hess(:) = Hess(:)+Temp(:)
@@ -150,7 +150,7 @@ if (lECP) then
   DiffOp = .true.
   Label = ' The Spec. Res. (ECP) Contribution'
   Temp(:) = Zero
-  call Dot1El(SROHss,SROMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
+  call Dot1El(SROHss,SROMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp)
   if (show) write(u6,*) Label,'first part '
   if (show) call HssPrt(Temp,nHess)
   Hess(:) = Hess(:)+Temp(:)
@@ -158,7 +158,7 @@ if (lECP) then
   DiffOp = .true.
   Label = ' The M1 (ECP) Contribution'
   Temp(:) = Zero
-  call Dot1El(m1Hss,m1MMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
+  call Dot1El(m1Hss,m1MMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp)
   if (show) write(u6,*) Label,'second part '
   if (show) call HssPrt(Temp,nHess)
   Hess(:) = Hess(:)+Temp(:)
@@ -175,7 +175,7 @@ if (PCM) then
   DiffOp = .true.
   Label = ' The PCM Contribution'
   Temp(:) = Zero
-  call Dot1El(PCMHss,PCMMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp,Label)
+  call Dot1El(PCMHss,PCMMMH,Temp,nHess,DiffOp,Coor,D0,nFock,lOper,nComp)
   if (show) write(u6,*) label
   if (show) call HssPrt(Temp,nHess)
   Hess(:) = Hess(:)+Temp(:)

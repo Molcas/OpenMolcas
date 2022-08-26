@@ -17,11 +17,12 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: nHer, MmKnEG, la, lb, lr
 
+#include "macros.fh"
+unused_var(lr)
+
 nHer = ((la+1)+(lb+1)+2+1)/2
 MmKnEG = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+3*(la+2)*(lb+2)+1+1+nTri_Elem1(la)*nTri_Elem1(lb)*3
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine Knemem_mck

@@ -45,6 +45,11 @@ logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, TF
 
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+
 !if (iPrint >= 99) then
 !  write(u6,*) ' In M1Hss: nArr=',nArr
 !end if
@@ -245,18 +250,13 @@ do kCnttp=1,nCnttp
       end do
       call lCopy(12,[.false.],0,jfgrd,1)
 
-      call M1Kernel(final,Hess,nHess,DAO,nDAO,iAnga,nRys,nZeta,Array(ipA),Array(ipB),Zeta,ZInv,rKappa,P,TC,Coori,Coorac, &
-                    Array(ipArr),nArray,jfgrd,jndgrd,jfhss,jndhss,ifg,tr,mop,iuvwx,kCnttp,Fact,loper(1),0)
+      call M1Kernel(rFinal,Hess,nHess,DAO,nDAO,iAnga,nRys,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,Coorac,Array(ipArr), &
+                    nArray,jfgrd,jndgrd,jfhss,jndhss,ifg,tr,mop,iuvwx,kCnttp,Fact,loper(1),0)
 
     end do
   end do
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Ccoor)
-  call Unused_integer(nOrdOp)
-end if
 
 end subroutine M1Hss

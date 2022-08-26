@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine DerCtr(mdci,mdcj,mdck,mdcl,ldot,JfGrd,IndGrd,JfHss,IndHss,JfG,mbatch)
+subroutine DerCtr(mdci,mdcj,mdck,mdcl,ldot,JfGrd,IndGrd,JfHss,IndHss,JfG)
 
 !#define _OLD_CODE_
 use Index_Functions, only: iTri
@@ -23,7 +23,7 @@ use Symmetry_Info, only: iOper
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mdci, mdcj, mdck, mdcl, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), mbatch
+integer(kind=iwp) :: mdci, mdcj, mdck, mdcl, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7)
 logical(kind=iwp) :: ldot, JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
 #include "Molcas.fh"
 #include "disp.fh"
@@ -239,7 +239,5 @@ end if
 !----------------------------------------------------------------------*
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(mbatch)
 
 end subroutine DerCtr

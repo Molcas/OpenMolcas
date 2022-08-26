@@ -35,6 +35,13 @@ implicit none
 integer(kind=iwp) :: IALPHA, IBETA, IP, IPALPH, IPAXYZ, IPBETA, IPBXYZ, IPRNXYZ, IPRXYZ, IPSCRT, NIP
 logical(kind=iwp) :: ABEQ(3)
 
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(lOper)
+unused_var(iDCnt)
+unused_var(iStabM)
+unused_var(nStabM)
+
 ABEQ(1) = A(1) == RB(1)
 ABEQ(2) = A(2) == RB(2)
 ABEQ(3) = A(3) == RB(3)
@@ -90,15 +97,8 @@ end do
 call CMBN2DC(ARRAY(IPRNXYZ),NZETA,LA,LB,ZETA,RKAPPA,ARRAY(IPSCRT),ARRAY(IPALPH),ARRAY(IPBETA),IFGRAD)
 
 ! SYMMETRY ADAPT THE 2ND DERIVATIVE COUPLING INTEGRALS
-call SYMADO_MCK(ARRAY(IPSCRT),NZETA*nTri_Elem1(LA)*nTri_Elem1(LB),rFinal,NROP,nOP,LOPER,INDGRD,IU,IV,IFGRAD,IDCAR,TRANS)
+call SYMADO_MCK(ARRAY(IPSCRT),NZETA*nTri_Elem1(LA)*nTri_Elem1(LB),rFinal,NROP,nOP,INDGRD,IU,IV,IFGRAD,IDCAR,TRANS)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZINV)
-  call Unused_integer(IDCNT)
-  call Unused_integer_array(ISTABM)
-  call Unused_integer(NSTABM)
-end if
 
 end subroutine NONA2

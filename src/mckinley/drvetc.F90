@@ -34,7 +34,7 @@ real(kind=wp) :: Ccoor(3)
 character(len=8) :: Lbl
 real(kind=wp), allocatable :: D0(:), EG(:), Temp(:)
 integer(kind=iwp), external :: irrfnc
-external :: ElGrd, elgrddot, ElMem
+external :: ElGrd, ElGrddot, ElMem
 
 Ccoor(:) = Zero
 

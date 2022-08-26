@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Drvh1_mck(nGrad,Nona)
+subroutine Drvh1_mck(Nona)
 !***********************************************************************
 !                                                                      *
 ! Object: driver for computation of gradients of one-electron matrices.*
@@ -31,7 +31,6 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGrad
 logical(kind=iwp) :: Nona
 #include "print.fh"
 integer(kind=iwp) :: i, iCnt, iCnttp, idCar, idcnt, iIrrep, loper, nDens, nFock
@@ -183,7 +182,5 @@ call mma_deallocate(Fock)
 !                                                                      *
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nGrad)
 
 end subroutine Drvh1_mck

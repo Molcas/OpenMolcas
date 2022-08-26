@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine SchInt_mck(CoorM,iAnga,iCmp,nAlpha,nBeta,nMemab,Zeta,ZInv,rKapab,P,nZeta,Work2,nWork2,Work3,nWork3)
+subroutine SchInt_mck(CoorM,iAnga,nAlpha,nBeta,nMemab,Zeta,ZInv,rKapab,P,nZeta,Work2,nWork2,Work3,nWork3)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
@@ -34,7 +34,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAnga(4), iCmp(4), nAlpha, nBeta, nMemab, nZeta, nWork2, nWork3
+integer(kind=iwp) :: iAnga(4), nAlpha, nBeta, nMemab, nZeta, nWork2, nWork3
 real(kind=wp) :: CoorM(3,4), Zeta(nZeta), ZInv(nZeta), rKapab(nZeta), P(nZeta,3), Work2(nWork2), Work3(nWork3)
 integer(kind=iwp) :: ijklcd, ipIn, la, lb, mabMax, mabMin, mcdMax, mcdMin, mZeta, nijkla, nT
 real(kind=wp) :: CoorAC(3,2), Q(3)
@@ -103,7 +103,5 @@ call CrSph2(Work2(ipIn),mZeta,nTri_Elem1(la)*nTri_Elem1(lb),Work3,nWork3,RSph(ip
             .false.,RSph(ipSph(lb)),nTri_Elem1(lb),nTri_Elem1(lb),.false.,.false.,Work2,nTri_Elem1(la)*nTri_Elem1(lb))
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(iCmp)
 
 end subroutine SchInt_mck

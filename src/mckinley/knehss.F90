@@ -34,6 +34,12 @@ implicit none
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, nip
 logical(kind=iwp) :: ABeq(3)
 
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(lOper)
+unused_var(ifgrd)
+unused_var(iStabM)
+
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
 ABeq(3) = A(3) == RB(3)
@@ -101,17 +107,9 @@ do iAlpha=1,nAlpha
   ip = ip+1
 end do
 
-call CmbnT2(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,final,Array(ipAlph),Array(ipBeta),Hess,nHess,DAO,IfHss,IndHss,indgrd, &
+call CmbnT2(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,rFinal,Array(ipAlph),Array(ipBeta),Hess,nHess,DAO,IfHss,IndHss,indgrd, &
             dc(mdc)%nStab,dc(ndc)%nStab,nOp)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer_array(lOper)
-  call Unused_logical_array(ifgrd)
-  call Unused_integer_array(iStabM)
-  call Unused_integer(nStabM)
-end if
 
 end subroutine Knehss

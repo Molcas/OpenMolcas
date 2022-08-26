@@ -36,6 +36,13 @@ implicit none
 integer(kind=iwp) :: iAlpha, iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipRnxyz, ipRxyz, ipSc, ipTxyz, nip
 logical(kind=iwp) :: ABeq(3)
 
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(iDCnt)
+unused_var(lOper)
+unused_var(iStabM)
+unused_var(nStabM)
+
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)
 ABeq(3) = A(3) == RB(3)
@@ -114,16 +121,8 @@ rFinal(:,:,:,:) = Zero
 
 ! Symmetry adapt the gradient operator
 
-call SymAdO_mck(Array(ipSc),nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal,nrOp,nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
+call SymAdO_mck(Array(ipSc),nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal,nrOp,nop,IndGrd,iu,iv,ifgrad,idCar,trans)
 
 return
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer(iDCnt)
-  call Unused_integer_array(iStabM)
-  call Unused_integer(nStabM)
-end if
 
 end subroutine KnEGrd_mck

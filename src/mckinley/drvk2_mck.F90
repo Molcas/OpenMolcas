@@ -42,10 +42,10 @@ integer(kind=iwp) :: mdede
 logical(kind=iwp) :: New_Fock
 #include "ndarray.fh"
 integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
-                     iShllV(2), ipM001, ipM002, ipM003, ipM004, ipM00d, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, &
-                     jAO, jBas, jBasj, jBsInc, jCmp, jCnt, jCnttp, jpk2, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, &
-                     kPrimk, kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, Maxk2, MaxMem, mdci, mdcj, &
-                     MemPrm, MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, nZeta
+                     iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, jBas, &
+                     jBasj, jBsInc, jCmp, jCnt, jCnttp, jpk2, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
+                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, Maxk2, MaxMem, mdci, mdcj, MemPrm, &
+                     MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, nZeta
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Data_k2_local(:), Wrk(:)
 integer(kind=iwp), external :: MemSO1
@@ -163,7 +163,7 @@ do iS=1,nSkal
     ! the available memory and the requested memory.
 
     call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iAngV,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc, &
-                  jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipM001,ipM002,ipM003,ipM004,ipM00d,M001,M002,M003,M004,M00d)
+                  jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipM001,ipM002,ipM003,ipM004,M001,M002,M003,M004,M00d)
     if ((iBasi /= iBsInc) .or. (jBasj /= jBsInc)) then
       write(u6,*) 'Drvk2: (iBasi /= iBsInc) .or. (jBasj /= jBsInc)'
       write(u6,*) 'iBasi,iBsInc=',iBasi,iBsInc
@@ -182,8 +182,8 @@ do iS=1,nSkal
     ! for the symmetry unique centers A and B.
 
     call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,Data_k2_local(jpk2),ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp, &
-                    jPrimj,Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Con,Wrk(ipM002),M002,Wrk(ipM003),M003, &
-                    Wrk(ipM004),M004,mdci,mdcj)
+                    jPrimj,Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003,mdci, &
+                    mdcj)
 
     Indk2(1,ijShll) = jpk2
     Indk2(2,ijShll) = nDCRR

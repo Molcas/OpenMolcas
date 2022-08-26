@@ -11,8 +11,8 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine MOAcc(AOInt,n_int,Temp1,Temp2,Temp3,nTemp,MOInt,nMO,ishell,Ci,nCi,Cj,nCj,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp,iBasa,iCmpa, &
-                 icar,icnt,indgrd,D,fact,iao,iaost,Buffer,Tempi,nij,nkl,nbasi,nbasj,icmp,jcmp)
+subroutine MOAcc(AOInt,Temp1,Temp2,nTemp,ishell,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp,iBasa,iCmpa,icar,icnt,indgrd,fact,iaost,Buffer, &
+                 nij,nkl,nbasi,nbasj,icmp,jcmp)
 !***********************************************************************
 !                                                                      *
 !     Transforms a batch of unsymmetrized integrals to                 *
@@ -30,10 +30,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: n_int, nTemp, nMO, ishell(4), nCI, nCj, nCk, nCl, moip(0:7), nACO, nOp(4), ibasa(4), icmpa(4), icar, icnt, &
-                     indgrd(3,4,0:7), iao(4), iAOST(4), nij, nkl, nbasi, nbasj, icmp, jcmp
-real(kind=wp) :: AOInt(nkl,nij), Temp1(nTemp), Temp2(naco,naco), Temp3, MOint(nMO), Ci, Cj, Ck(nCk), Cl(nCl), D(*), fact, &
-                 Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,naco*(naco+1)/2,*), Tempi
+integer(kind=iwp) :: nTemp, ishell(4), nCk, nCl, moip(0:7), nACO, nOp(4), ibasa(4), icmpa(4), icar, icnt, indgrd(3,4,0:7), &
+                     iAOST(4), nij, nkl, nbasi, nbasj, icmp, jcmp
+real(kind=wp) :: AOInt(nkl,nij), Temp1(nTemp), Temp2(naco,naco), Ck(nCk), Cl(nCl), fact, &
+                 Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,naco*(naco+1)/2,*)
 logical(kind=iwp) :: pert(0:7)
 #include "etwas.fh"
 integer(kind=iwp) :: i, ib, iBas, ic, iCB, iirr, ij, il, ipC, ipM, irest, iSPert, j, jb, jBas, jc, jIrr, k, kAsh, kBas, kCmp, &
@@ -196,18 +196,5 @@ do kIrrep=0,nIrrep-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(n_int)
-  call Unused_real(Temp3)
-  call Unused_real_array(MOInt)
-  call Unused_real(Ci)
-  call Unused_integer(nCi)
-  call Unused_real(Cj)
-  call Unused_integer(nCj)
-  call Unused_real_array(D)
-  call Unused_integer_array(iao)
-  call Unused_real(Tempi)
-end if
 
 end subroutine MOAcc

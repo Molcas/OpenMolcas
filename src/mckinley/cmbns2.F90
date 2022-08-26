@@ -12,7 +12,7 @@
 !               1994, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CmbnS2(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,Hess,nHess,DAO,IfHss,IndHss,indgrd,iu,iv,nOp)
+subroutine CmbnS2(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Hess,nHess,DAO,IfHss,IndHss,indgrd,iu,iv,nOp)
 !***********************************************************************
 !                                                                      *
 ! Object: compute the 2nd derivative of the overlap matrix.            *
@@ -27,7 +27,7 @@ use Definitions, only: wp, iwp, r8
 implicit none
 integer(kind=iwp) :: nZeta, la, lb, nHess, IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), indgrd(0:2,0:1,0:nirrep-1), iu, iv, nOp(2)
 real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), &
-                 Alpha(nZeta), Beta(nZeta), Hess(nHess), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+                 Alpha(nZeta), Hess(nHess), DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
 logical(kind=iwp) :: IfHss(0:1,0:2,0:1,0:2)
 integer(kind=iwp) :: i, ia(3), iax, iay, ib(3), ibx, iby, iCar, iCh, iCnt, iCoor, iHess, iIrrep, ipa, ipb, istb(0:1), iStop, &
                      iyaMax, iybMax, iZeta, jCar, jCnt, jCoor, kCoor, nDAO
@@ -48,7 +48,6 @@ end do
 !  call RecPrt(' In CmbnS2: Zeta  ',' ',Zeta,1,nZeta)
 !  call RecPrt(' In CmbnS2: rKappa',' ',rKappa,1,nZeta)
 !  call RecPrt(' In CmbnS2: Alpha ',' ',Alpha,1,nZeta)
-!  call RecPrt(' In CmbnS2: Beta  ',' ',Beta,1,nZeta)
 !end if
 do iax=0,la
   ia(1) = iax
@@ -189,7 +188,5 @@ do iIrrep=0,nIrrep-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Beta)
 
 end subroutine CmbnS2

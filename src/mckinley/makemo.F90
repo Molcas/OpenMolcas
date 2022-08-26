@@ -11,8 +11,8 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine MakeMO(AOInt,Temp,nTemp,n_Int,MOInt,nMOInt,iCmp,iCmpa,ibasi,jbasj,kbask,lbasl,nGr,Indx,moip,naco,nop,indgrd,ishll, &
-                  ishell,rmoin,nmoin,iuvwx,iao,iaost,buffer,ianga,c)
+subroutine MakeMO(AOInt,Temp,nTemp,n_Int,iCmp,iCmpa,ibasi,jbasj,kbask,lbasl,nGr,Indx,moip,naco,nop,indgrd,ishll, &
+                  ishell,rmoin,nmoin,iuvwx,iaost,buffer,ianga)
 ! this is the driver for the two index transformation
 ! it is not very efficent, but on the other hand it
 ! usually to take more than a few percent of the total
@@ -25,13 +25,13 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nTemp, n_Int, nMOInt, icmp(4), iCmpa(4), ibasi, jbasj, kbask, lbasl, nGr, Indx(3,4), moip(0:7), naco, nop(4), &
-                     indgrd(3,4,0:nirrep-1), ishll(4), ishell(4), nmoin, iuvwx(4), iao(4), iAOST(4), ianga(4)
-real(kind=wp) :: AOInt(n_Int), Temp(nTemp), MOInt(nMOInt), rmoin(nmoin), buffer(*), C(12)
+integer(kind=iwp) :: nTemp, n_Int, icmp(4), iCmpa(4), ibasi, jbasj, kbask, lbasl, nGr, Indx(3,4), moip(0:7), naco, nop(4), &
+                     indgrd(3,4,0:nirrep-1), ishll(4), ishell(4), nmoin, iuvwx(4), iAOST(4), ianga(4)
+real(kind=wp) :: AOInt(n_Int), Temp(nTemp), rmoin(nmoin), buffer(*)
 #include "Molcas.fh"
 #include "buffer.fh"
-integer(kind=iwp) :: ibas(4), iCar, iCent, iCnt, iGr, ii, iIrrep, iMax, indgrd2(3,4,0:7), ip, ip0, ip1, ip2, ip3, ip5, ipc, ipci, &
-                     ipcj, ipck, ipcl, ipD, ipFin, ipPert(0:7), mSum, nabcd, nCi, nCj, nCk, nCl, nij, nijkl, nInt2, nkl, nScrtch
+integer(kind=iwp) :: ibas(4), iCar, iCent, iCnt, iGr, ii, iIrrep, iMax, ip, ip0, ip1, ip2, ip5, ipc, ipck, ipcl, ipFin, &
+                     ipPert(0:7), mSum, nabcd, nCk, nCl, nij, nijkl, nkl, nScrtch
 logical(kind=iwp) :: lc, pert(0:7)
 
 iMax = 0
@@ -48,8 +48,6 @@ do ii=1,4
 end do
 imax = max(iMax,nAco)
 
-nInt2 = nabcd*nijkl
-
 ip = 1
 ip0 = ip
 ip = ip+nGr*nijkl*nabcd
@@ -58,8 +56,7 @@ nScrtch = imax**4
 ip = ip+nScrtch
 ip2 = ip
 ip = ip+nScrtch
-ip3 = ip
-ip = ip+nScrtch
+ip = ip+nScrtch ! some unused memory here?
 ip5 = ip
 ip = ip+iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)*iBas(1)*iBas(2)*iBas(3)*iBas(4)
 if (ip-1 > nTemp) then
@@ -87,12 +84,12 @@ end if
 !Temp(ip-1) = Zero
 
 ipc = 1
-ipD = ipc
+!ipD = ipc
 !nD = nACO**4
 !ipC = ipC+nd
-ipci = ipc
+!ipci = ipc
 !nCi = iBas(1)*iCmp(1)*nACO
-ipcj = ipc
+!ipcj = ipc
 !nCj = iBas(2)*iCmp(2)*nACO
 ipck = ipc
 nCk = iBas(3)*iCmp(3)*nACO
@@ -109,7 +106,7 @@ if (ipc-1 /= nMoIn) then
 end if
 
 call Sort_mck(AOInt,Temp(ip0),iBas(1),iBas(2),iBas(3),iBas(4),iCmp(1),iCmp(2),iCmp(3),iCmp(4),iBas(1),iBas(2),iBas(3),iBas(4), &
-              iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),nGr,nop,ianga,indgrd,indgrd2,ishll,C)
+              iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),nGr,nop,ianga,ishll)
 
 do iCent=1,4
   lc = .false.
@@ -128,10 +125,9 @@ do iCent=1,4
       if (Indx(iCar,iCent) > 0) then
 
         iGr = Indx(icar,icent)
-        call MOAcc(Temp(ip0+(iGr-1)*nijkl*nabcd),nINT2,Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,MOInt,nMOINt,ishell,rmoin(ipCi),nCi, &
-                   rmoin(ipCj),nCj,rmoin(ipCk),nCk,rmoin(ipCl),nCl,Moip,nACO,pert,nOp,ibas,icmpa,iCar,icent,indgrd,rmoin(ipD), &
-                   real(iuvwx(iCent),kind=wp)/real(nIrrep,kind=wp),iao,iaost,buffer,Temp(ip2),nij,nkl,Shells(ishll(1))%nBasis, &
-                   Shells(ishll(2))%nBasis,icmpa(1),icmpa(2))
+        call MOAcc(Temp(ip0+(iGr-1)*nijkl*nabcd),Temp(ip1),Temp(ip2),nScrtch,ishell,rmoin(ipCk),nCk,rmoin(ipCl),nCl,Moip,nACO, &
+                   pert,nOp,ibas,icmpa,iCar,icent,indgrd,real(iuvwx(iCent),kind=wp)/real(nIrrep,kind=wp),iaost,buffer,nij,nkl, &
+                   Shells(ishll(1))%nBasis,Shells(ishll(2))%nBasis,icmpa(1),icmpa(2))
 
       else if (Indx(iCar,iCent) < 0) then
         call dcopy_(nabcd*nijkl,[Zero],0,Temp(ip5),1)
@@ -144,9 +140,8 @@ do iCent=1,4
             end do
           end if
         end do
-        call MOAcc(Temp(ip5),nInt2,Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,MOInt,nMOINt,ishell,rmoin(ipCi),nCi,rmoin(ipCj),nCj, &
-                   rmoin(ipCk),nCk,rmoin(ipCl),nCl,moip,nACO,pert,nOp,ibas,icmpa,iCar,icent,indgrd,rMoin(ipD), &
-                   real(iuvwx(iCent),kind=wp)/real(nIrrep,kind=wp),iao,iaost,buffer,Temp(ip2),nij,nkl,Shells(ishll(1))%nBasis, &
+        call MOAcc(Temp(ip5),Temp(ip1),Temp(ip2),nScrtch,ishell,rmoin(ipCk),nCk,rmoin(ipCl),nCl,moip,nACO,pert,nOp,ibas,icmpa, &
+                   iCar,icent,indgrd,real(iuvwx(iCent),kind=wp)/real(nIrrep,kind=wp),iaost,buffer,nij,nkl,Shells(ishll(1))%nBasis, &
                    Shells(ishll(2))%nBasis,icmpa(1),icmpa(2))
 
       end if

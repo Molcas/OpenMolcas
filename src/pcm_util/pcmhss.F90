@@ -48,7 +48,7 @@ external :: Fake, TNAI1, XCff2D
 #include "rctfld.fh"
 
 #include "macros.fh"
-unused_var(Final)
+unused_var(rFinal)
 unused_var(nHer)
 unused_var(Ccoor)
 unused_var(lOper)

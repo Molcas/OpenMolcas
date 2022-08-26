@@ -35,7 +35,7 @@ real(kind=wp) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), ACInt(m
                  ACOut(n1*n2*n3*n4,mabcd)
 #include "print.fh"
 #include "lCache.fh"
-integer(kind=iwp) :: iDum, IncVec, ipA2, ipA3, iPrint, iRout, lsize, lZE, nA3, nCache, nVec
+integer(kind=iwp) :: IncVec, ipA2, ipA3, iPrint, iRout, lsize, lZE, nA3, nCache, nVec
 
 iRout = 18
 iPrint = nPrint(iRout)
@@ -60,7 +60,7 @@ ipA3 = 1
 nA3 = nVec*lZeta ! This is the same for the second set!
 ipA2 = ipA3+nA3
 
-call TncHlf_h(Coef1,m1,n1,Coef2,m2,n2,iDum,lZeta,nVec,IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndZet)
+call TncHlf_h(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndZet)
 
 nCache = (3*lCache)/4-n3*m3-n4*m4
 lsize = m3*m4+m4*n3
@@ -69,11 +69,11 @@ IncVec = min(max(1,nCache/lsize),nVec)
 
 lZE = lZeta*lEta
 if (mabcd /= 1) then
-  call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,iDum,lEta,nVec,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
+  call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
   call DGeTMO(ACOut,mabcd,mabcd,lZE,Scrtch,lZE)
   call dcopy_(mabcd*lZE,Scrtch,1,ACOut,1)
 else
-  call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,iDum,lEta,nVec,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
+  call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
 end if
 
 if (iPrint >= 59) call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZE)

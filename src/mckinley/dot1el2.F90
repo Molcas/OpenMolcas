@@ -299,8 +299,8 @@ do ijS=1,nTasks
 
         ! Compute gradients of the primitive integrals and trace the result.
 
-        call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
-                    MemKer,Ccoor,nOrdOp,Hess,indgrd,DAO,mdci,mdcj,nOp,iStabM,nStabM)
+        call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,Kappa,Pcoor,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
+                    MemKer,Ccoor,nOrdOp,Hess,indgrd,DAO,mdci,mdcj,nOp)
 
       end do
 

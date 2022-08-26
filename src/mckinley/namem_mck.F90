@@ -19,6 +19,9 @@ implicit none
 integer(kind=iwp) :: nRys, MmNAG, la, lb, lr
 integer(kind=iwp) :: iAng(4)
 
+#include "macros.fh"
+unused_var(lr)
+
 iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
@@ -27,7 +30,5 @@ call MemRg2(iAng,nRys,MmNAG,1)
 MmNAG = MmNAG+2
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(lr)
 
 end subroutine NAMem_mck

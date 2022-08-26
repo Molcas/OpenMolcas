@@ -11,10 +11,10 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine ClrBuf(idcrr,idcrs,idcrt,ngr,istb,jstb,kstb,lstb,Shijij,iAnga,iCmp,iCmpa,iShll,iShell,jShell,iBasi,jBasj,kBask,lBasl, &
-                  Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2, &
-                  mDjl,nDjl,rFinal,nFinal,FckTmp,nFT,Scrtch1,nS1,Scrtch2,nS2,Temp,nTemp,TwoHam,nTwo,IndGrd,Indx,iAO,iAOst,iuvwx, &
-                  IfG,n8,ltri,moip,nAcO,rmoin,nmoin,ntemptot,Buffer,c,nop,din,dan,new_fock)
+subroutine ClrBuf(idcrr,idcrs,idcrt,ngr,Shijij,iAnga,iCmp,iCmpa,iShll,iShell,jShell,iBasi,jBasj,kBask,lBasl,Dij1,Dij2,mDij,nDij, &
+                  Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2,mDjl,nDjl,rFinal, &
+                  nFinal,FckTmp,nFT,Scrtch1,nS1,Scrtch2,nS2,Temp,nTemp,TwoHam,nTwo,IndGrd,Indx,iAO,iAOst,iuvwx,n8,ltri,moip,nAcO, &
+                  rmoin,nmoin,ntemptot,Buffer,nop,din,dan,new_fock)
 !***********************************************************************
 !                                                                      *
 !       Called from: Twoel                                             *
@@ -35,15 +35,15 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idcrr, idcrs, idcrt, ngr, istb, jstb, kstb, lstb, iAnga(4), iCmp(4), icmpa(4), iShll(4), iShell(4), &
+integer(kind=iwp) :: idcrr, idcrs, idcrt, ngr,                         iAnga(4), iCmp(4), icmpa(4), iShll(4), iShell(4), &
                      jShell(4), iBasi, jBasj, kBask, lBasl, mDij, nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, &
                      nDjl, nFinal, nFT, nS1, nS2, nTemp, nTwo, IndGrd(3,4,0:7), Indx(3,4), iAO(4), iAOst(4), iuvwx(4), moip(0:7), &
                      nAcO, nmoin, ntemptot, nop(4)
-logical(kind=iwp) :: Shijij, IfG(4), n8, ltri, new_fock
+logical(kind=iwp) :: Shijij, n8, ltri, new_fock
 real(kind=wp) :: Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), &
                  Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), &
                  rFinal(nFinal), FckTmp(nFT), Scrtch1(nS1), Scrtch2(nS2), Temp(nTemp), TwoHam(nTwo), rmoin(nMOIN), buffer(*), &
-                 c(12), din(*), dan(*)
+                 din(*), dan(*)
 #include "Molcas.fh"
 #include "disp2.fh"
 #include "buffer.fh"
@@ -157,15 +157,15 @@ if (ltri) then
         iGr = Indx(iCar,iCent)-1
         ipFin = 1+iGr*nijkl*nabcd
         if (.not. new_fock) then
-          call MkFck(iAnga,iCmpa,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3, &
-                     ij4,Dkl1,mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk, &
-                     nDjk,jk1,jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,rFinal(ipFin),nAO,TwoHam,nTwo,Scrtch1,nS1,Scrtch2,nS2, &
-                     iDCRR,iDCRS,iDCRT,FckTmp,nFT,pert,iuvwx(iCent),iCent,iCar,indgrd,ipdisp)
-          if (nMethod == RASSCF) call MkFck(iAnga,iCmpa,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij2, &
-                                            mDij,nDij,ij1,ij2,ij3,ij4,Dkl2,mDkl,nDkl,kl1,kl2,kl3,kl4,Dik2,mDik,nDik,ik1,ik2,ik3, &
-                                            ik4,Dil2,mDil,nDil,il1,il2,il3,il4,Djk2,mDjk,nDjk,jk1,jk2,jk3,jk4,Djl2,mDjl,nDjl,jl1, &
-                                            jl2,jl3,jl4,rFinal(ipFin),nAO,TwoHam,nTwo,Scrtch1,nS1,Scrtch2,nS2,iDCRR,iDCRS,iDCRT, &
-                                            FckTmp,nFT,pert,iuvwx(iCent),iCent,iCar,indgrd,ipdisp2)
+          call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3,ij4,Dkl1, &
+                     mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk,nDjk,jk1, &
+                     jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,rFinal(ipFin),nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert, &
+                     iuvwx(iCent),iCent,iCar,indgrd,ipdisp)
+          if (nMethod == RASSCF) call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij2,mDij, &
+                                            nDij,ij1,ij2,ij3,ij4,Dkl2,mDkl,nDkl,kl1,kl2,kl3,kl4,Dik2,mDik,nDik,ik1,ik2,ik3,ik4, &
+                                            Dil2,mDil,nDil,il1,il2,il3,il4,Djk2,mDjk,nDjk,jk1,jk2,jk3,jk4,Djl2,mDjl,nDjl,jl1,jl2, &
+                                            jl3,jl4,rFinal(ipFin),nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx(iCent),iCent, &
+                                            iCar,indgrd,ipdisp2)
 
         else
           ip = ipDisp(abs(indgrd(iCar,iCent,0)))
@@ -191,15 +191,15 @@ if (ltri) then
         end do
 
         if (.not. new_fock) then
-          call MkFck(iAnga,iCmpa,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3, &
-                     ij4,Dkl1,mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk, &
-                     nDjk,jk1,jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,Temp,nAO,TwoHam,nTwo,Scrtch1,nS1,Scrtch2,nS2,iDCRR,iDCRS, &
-                     iDCRT,FckTmp,nFT,pert,iuvwx(iCent),icent,iCar,indgrd,ipdisp)
-          if (nMethod == RASSCF) call MkFck(iAnga,iCmpa,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij2, &
-                                            mDij,nDij,ij1,ij2,ij3,ij4,Dkl2,mDkl,nDkl,kl1,kl2,kl3,kl4,Dik2,mDik,nDik,ik1,ik2,ik3, &
-                                            ik4,Dil2,mDil,nDil,il1,il2,il3,il4,Djk2,mDjk,nDjk,jk1,jk2,jk3,jk4,Djl2,mDjl,nDjl,jl1, &
-                                            jl2,jl3,jl4,Temp,nAO,TwoHam,nTwo,Scrtch1,nS1,Scrtch2,nS2,iDCRR,iDCRS,iDCRT,FckTmp,nFT, &
-                                            pert,iuvwx(iCent),icent,iCar,indgrd,ipdisp2)
+          call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3,ij4,Dkl1, &
+                     mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk,nDjk,jk1, &
+                     jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,Temp,nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx(iCent), &
+                     icent,iCar,indgrd,ipdisp)
+          if (nMethod == RASSCF) call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij2,mDij, &
+                                            nDij,ij1,ij2,ij3,ij4,Dkl2,mDkl,nDkl,kl1,kl2,kl3,kl4,Dik2,mDik,nDik,ik1,ik2,ik3,ik4, &
+                                            Dil2,mDil,nDil,il1,il2,il3,il4,Djk2,mDjk,nDjk,jk1,jk2,jk3,jk4,Djl2,mDjl,nDjl,jl1,jl2, &
+                                            jl3,jl4,Temp,nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx(iCent),icent,iCar, &
+                                            indgrd,ipdisp2)
 
         else
           ip = ipDisp(abs(indgrd(iCar,iCent,0)))
@@ -219,20 +219,12 @@ if (ltri) then
   CPUStat(nFckAck) = CPUStat(nFckAck)+Time
 end if
 
-if (n8 .and. (nmethod == RASSCF)) call MakeMO(rFinal,Scrtch1,nTempTot,nFinal,TwoHam,nTwo,iCmp,iCmpa,iBasi,jbasj,kbask,lbasl,nGr, &
-                                              Indx,moip,naco,nop,indgrd,ishll,ishell,rmoin,nMOIN,iuvwx,iao,iaost,Buffer,ianga,c)
+if (n8 .and. (nmethod == RASSCF)) call MakeMO(rFinal,Scrtch1,nTempTot,nFinal,iCmp,iCmpa,iBasi,jbasj,kbask,lbasl,nGr,Indx,moip, &
+                                              naco,nop,indgrd,ishll,ishell,rmoin,nMOIN,iuvwx,iaost,Buffer,ianga)
 
 call Timing(dum1,Time,dum2,dum3)
 CPUStat(nMOTrans) = CPUStat(nMOTrans)+Time
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(istb)
-  call Unused_integer(jstb)
-  call Unused_integer(kstb)
-  call Unused_integer(lstb)
-  call Unused_logical_array(IfG)
-end if
 
 end subroutine ClrBuf

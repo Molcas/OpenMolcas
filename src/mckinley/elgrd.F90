@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine ElGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,ifgrad,IndGrd,nOp, &
-                 iu,iv,nrOp,iDcar,iDCnt,iStabM,nStabM,trans,kcar,ksym)
+subroutine ElGrd(Alpha,nAlpha,Beta,nBeta,Zeta,rKappa,P,rFinal,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,ifgrad,IndGrd,nOp,iu, &
+                 iv,nrOp,iDcar,trans,kcar,ksym)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the multipole moments integrals with the          *
@@ -33,13 +33,12 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), nOp(2), iu, iv, nrOp, iDcar, iDCnt, &
-                     nStabM, iStabM(0:nStabM-1), kcar, ksym
-real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), rFinal(*), A(3), B(3), &
+integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), nOp(2), iu, iv, nrOp, iDcar, kcar, ksym
+real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), rFinal(*), A(3), B(3), &
                  Array(nZeta*nArr), Ccoor(3)
 logical(kind=iwp) :: ifgrad(3,2), trans(3,2)
 integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, &
-                     ipTemp3, iZeta, ncomp, nip
+                     ipTemp3, iZeta, nip
 logical(kind=iwp) :: ABeq(3)
 
 iprint = 0
@@ -108,9 +107,8 @@ do iAlpha=1,nAlpha
   call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
   ip = ip+1
 end do
-ncomp = 4
-call Cmbnel(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),ncomp,Array(ipTemp1),Array(ipTemp2),Array(ipAlph), &
-            Array(ipBeta),iu,iv,nOp,ifgrad,kcar)
+call Cmbnel(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),Array(ipTemp1),Array(ipTemp2),Array(ipAlph), &
+            Array(ipBeta),ifgrad,kcar)
 
 !?
 call dcopy_(nTri_Elem1(la)*nTri_Elem1(lb)*nZeta*NrOp,[Zero],0,rFinal,1)
@@ -121,11 +119,5 @@ call SymAdO_mck2(Array(ipFinal),nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal,nrOp,
 if (iPrint >= 49) call RecPrt(' Primitive Integrals SO',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nrOp)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(ZInv)
-  call Unused_integer(iDCnt)
-  call Unused_integer_array(iStabM)
-end if
 
 end subroutine ElGrd

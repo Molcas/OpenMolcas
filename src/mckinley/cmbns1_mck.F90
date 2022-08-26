@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine CmbnS1_mck(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,IfGrad,nOp)
+subroutine CmbnS1_mck(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,IfGrad)
 !***********************************************************************
 !                                                                      *
 ! Object: compute the gradient of the overlap matrix.                  *
@@ -32,7 +32,7 @@ use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, nOp(2)
+integer(kind=iwp) :: nZeta, la, lb
 real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,1), &
                  Alpha(nZeta), Beta(nZeta)
 logical(kind=iwp) :: IfGrad(3,2)
@@ -170,9 +170,5 @@ do ixa=0,la
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(nOp)
-end if
 
 end subroutine CmbnS1_mck

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PickMO(COUT,nOut,nAcO,icmp,iBasi,iBasn,jBasj,jBasn,kBask,kBasn,lBasl,lBasn,iaoii)
+subroutine PickMO(COUT,nOut,icmp,iBasi,iBasn,jBasj,jBasn,kBask,kBasn,lBasl,lBasn,iaoii)
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
@@ -19,7 +19,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nOut, nAcO, iCmp(4), iBasi, iBasn, jBasj, jBasn, kBask, kBasn, lBasl, lBasn, iAOii(4)
+integer(kind=iwp) :: nOut, iCmp(4), iBasi, iBasn, jBasj, jBasn, kBask, kBasn, lBasl, lBasn, iAOii(4)
 real(kind=wp) :: COUT(nOut)
 #include "etwas.fh"
 integer(kind=iwp) :: i1, iAsh, iBas(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
@@ -56,7 +56,5 @@ do iCnt=3,4
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nAcO)
 
 end subroutine PickMO

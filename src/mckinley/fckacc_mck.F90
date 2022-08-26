@@ -11,12 +11,13 @@
 ! Copyright (C) 1993,1998, Roland Lindh                                *
 !***********************************************************************
 
-#define _USE_OLD_CODE_
-#ifdef _USE_OLD_CODE_
-
 subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Scrt,nScrt,iAO,iAOst,iBas,jBas, &
                       kBas,lBas,Dij,ij1,ij2,ij3,ij4,Dkl,kl1,kl2,kl3,kl4,Dik,ik1,ik2,ik3,ik4,Dil,il1,il2,il3,il4,Djk,jk1,jk2,jk3, &
                       jk4,Djl,jl1,jl2,jl3,jl4,FT,nFT,tfact,iCar,iCent,pert,indgrd,ipdisp)
+
+#define _USE_OLD_CODE_
+#ifdef _USE_OLD_CODE_
+
 !***********************************************************************
 !                                                                      *
 !  Object: to accumulate contributions from the AO integrals directly  *
@@ -525,13 +526,8 @@ end do
 
 return
 
-end subroutine FckAcc_Mck
-
 #else
 
-subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Scrt,nScrt,iAO,iAOst,iBas,jBas, &
-                      kBas,lBas,Dij,ij1,ij2,ij3,ij4,Dkl,kl1,kl2,kl3,kl4,Dik,ik1,ik2,ik3,ik4,Dil,il1,il2,il3,il4,Djk,jk1,jk2,jk3, &
-                      jk4,Djl,jl1,jl2,jl3,jl4,FT,nFT,tfact,iCar,iCent,pert,indgrd,ipdisp)
 !***********************************************************************
 !                                                                      *
 !  Object: to accumulate contributions from the AO integrals directly  *
@@ -971,6 +967,6 @@ end do
 
 return
 
-end subroutine FckAcc_Mck
-
 #endif
+
+end subroutine FckAcc_Mck

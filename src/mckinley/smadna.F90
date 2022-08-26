@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SmAdNa(ArrIn,nb,ArrOut,nop,lOper,IndGrd,iuv,IfGrd,Indx,iDCar,rf,IFG,tr)
+subroutine SmAdNa(ArrIn,nb,ArrOut,nop,lOper,IndGrd,iuv,Indx,iDCar,rf,tr)
 
 use Symmetry_Info, only: iChBas, iChTbl, nIrrep
 use Definitions, only: wp, iwp
@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nb, nOp(3), lOper, IndGrd(3,4,0:nIrrep-1), iuv(3), Indx(3,4), iDCar
 real(kind=wp) :: ArrIn(nb,*), ArrOut(nb,*), rf
-logical(kind=iwp) :: IfGrd(3,4), IFG(4), tr(4)
+logical(kind=iwp) :: tr(4)
 integer(kind=iwp) :: i1, i2, iCn, iComp, iIrrep
 real(kind=wp) :: Fact, ps
 integer(kind=iwp), external :: iPrmt
@@ -78,10 +78,5 @@ do iIrrep=0,nIrrep-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical_array(IfGrd)
-  call Unused_logical_array(IFG)
-end if
 
 end subroutine SmAdNa

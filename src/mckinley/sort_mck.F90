@@ -11,8 +11,7 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Sort_mck(A,B,iBas,jBas,kBas,lBas,iCmp,jCmp,kCmp,lCmp,iBasO,jBasO,kBasO,lBasO,iCmpO,jCmpO,kCmpO,lCmpO,nVec,nop,iAng, &
-                    indgrd,indgrd2,ishll,C)
+subroutine Sort_mck(A,B,iBas,jBas,kBas,lBas,iCmp,jCmp,kCmp,lCmp,iBasO,jBasO,kBasO,lBasO,iCmpO,jCmpO,kCmpO,lCmpO,nVec,nop,iAng,ishll)
 !***********************************************************************
 !                                                                      *
 !     This subroutine is a stupid solution on a easy problem, but it   *
@@ -24,14 +23,14 @@ subroutine Sort_mck(A,B,iBas,jBas,kBas,lBas,iCmp,jCmp,kCmp,lCmp,iBasO,jBasO,kBas
 use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
-use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
+use Symmetry_Info, only: iChBas, iOper, Prmt
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iBas, jBas, kBas, lBas, iCmp, jCmp, kCmp, lCmp, iBasO, jBasO, kBasO, lBasO, iCmpO, jCmpO, kCmpO, lCmpO, nVec, &
-                     nop(4), iAng(4), indgrd(3,4,0:nirrep-1), indgrd2(3,4,0:nirrep-1), ishll(4)
-real(kind=wp) :: A(iBas*jBas*kBas*lBas,iCmp,jCmp,kCmp,lCmp,nVec), B(kBasO*kcmpO,lBasO,lcmpO,iBasO,iCmpO,jBasO,jCmpO*nvec), C(*)
+                     nop(4), iAng(4), ishll(4)
+real(kind=wp) :: A(iBas*jBas*kBas*lBas,iCmp,jCmp,kCmp,lCmp,nVec), B(kBasO*kcmpO,lBasO,lcmpO,iBasO,iCmpO,jBasO,jCmpO*nvec)
 integer(kind=iwp) :: iB, iC, ichbs, ii, ijkl, iVec, jB, jC, jChBs, jj, kB, kC, kChBs, kk, lB, lC, lChBs, ll
 real(kind=wp) :: PrA, pRb, pTc, pTSd, qFctr, rp
 
@@ -92,11 +91,5 @@ do iVec=1,nVec
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(indgrd)
-  call Unused_integer_array(indgrd2)
-  call Unused_real_array(C)
-end if
 
 end subroutine Sort_mck

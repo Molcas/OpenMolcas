@@ -12,12 +12,12 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
+subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA,Data1,IndZ,abmax,Eta,EInv,Q,xG,xD, &
+                      rKC,Data2,IndE,cdmax,xpre,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
+
 #define _Old_Code_
 #ifdef _Old_Code_
 
-subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA,Data1,IndZ,ztmx,abmax,zexpmax,nAlpha, &
-                      nBeta,Eta,EInv,Q,xG,xD,rKC,Data2,IndE,etmx,cdmax,eexpmax,nGamma,nDelta,xpre,iphX1,iphY1,iphZ1,iphX2,iphY2, &
-                      iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
 !***********************************************************************
 !                                                                      *
 ! Object: to prescreen the integral derivatives.                       *
@@ -43,11 +43,11 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, IndZ(mZeta), nAlpha, nBeta, IndE(mEta), nGamma, nDelta, iphX1, &
-                     iphY1, iphZ1, iphX2, iphY2, iphZ2, IndZet(nZeta), IndEta(nEta)
+integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, &
+                     iphZ2, IndZet(nZeta), IndEta(nEta)
 real(kind=wp) :: PAO(mZeta*mEta*mPAO), Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
-                 rKA(nZeta), Data1(nZeta*nDArray), ztmx, abmax, zexpmax, Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), &
-                 rKC(nEta), Data2(nEta*nDArray), etmx, cdmax, eexpmax, xpre(mZeta*mEta), CutInt
+                 rKA(nZeta), Data1(nZeta*nDArray), abmax, Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), &
+                 Data2(nEta*nDArray), cdmax, xpre(mZeta*mEta), CutInt
 logical(kind=iwp) :: PreScr, ldot
 #ifdef _DEBUGPRINT_
 #include "print.fh"
@@ -214,25 +214,9 @@ if (iPrint >= 39) call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(ztmx)
-  call Unused_real(zexpmax)
-  call Unused_integer(nAlpha)
-  call Unused_integer(nBeta)
-  call Unused_real(etmx)
-  call Unused_real(eexpmax)
-  call Unused_integer(nGamma)
-  call Unused_integer(nDelta)
-end if
-
-end subroutine Screen_mck
 
 #else
 
-subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA,Data1,IndZ,ztmx,abmax,zexpmax,nAlpha, &
-                      nBeta,Eta,EInv,Q,xG,xD,rKC,Data2,IndE,etmx,cdmax,eexpmax,nGamma,nDelta,xpre,iphX1,iphY1,iphZ1,iphX2,iphY2, &
-                      iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
 !***********************************************************************
 !                                                                      *
 ! Object: to prescreen the integral derivatives.                       *
@@ -258,11 +242,11 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, IndZ(mZeta), nAlpha, nBeta, IndE(mEta), nGamma, nDelta, iphX1, &
-                     iphY1, iphZ1, iphX2, iphY2, iphZ2, IndZet(nZeta), IndEta(nEta)
+integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, &
+                     iphZ2, IndZet(nZeta), IndEta(nEta)
 real(kind=wp) :: PAO(mZeta*mEta*mPAO), Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
-                 rKA(nZeta), Data1(nZeta*nDArray), ztmx, abmax, zexpmax, Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), &
-                 rKC(nEta), Data2(nEta*nDArray), etmx, cdmax, eexpmax, xpre(mZeta*mEta), CutInt
+                 rKA(nZeta), Data1(nZeta*nDArray), abmax, Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), &
+                 Data2(nEta*nDArray), cdmax, xpre(mZeta*mEta), CutInt
 logical(kind=iwp) :: PreScr, ldot
 #ifdef _DEBUGPRINT_
 #include "print.fh"
@@ -423,18 +407,7 @@ if (iPrint >= 39) call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(ztmx)
-  call Unused_real(zexpmax)
-  call Unused_integer(nAlpha)
-  call Unused_integer(nBeta)
-  call Unused_real(etmx)
-  call Unused_real(eexpmax)
-  call Unused_integer(nGamma)
-  call Unused_integer(nDelta)
-end if
-
-end subroutine Screen_mck
 
 #endif
+
+end subroutine Screen_mck

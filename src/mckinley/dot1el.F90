@@ -13,7 +13,7 @@
 !               1994, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Dot1El(Kernel,KrnlMm,Hess,nHess,DiffOp,CCoor,FD,nFD,lOper,nComp,Label)
+subroutine Dot1El(Kernel,KrnlMm,Hess,nHess,DiffOp,CCoor,FD,nFD,lOper,nComp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute gradients of the one electron integrals.          *
@@ -52,7 +52,6 @@ external :: Kernel, KrnlMm
 integer(kind=iwp) :: nHess, nFD, nComp, lOper(nComp)
 real(kind=wp) :: Hess(nHess), CCoor(3,nComp), FD(nFD)
 logical(kind=iwp) :: DiffOp
-character(len=80) :: Label
 #include "Molcas.fh"
 #include "disp.fh"
 #include "disp2.fh"
@@ -414,7 +413,5 @@ call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_character(Label)
 
 end subroutine Dot1El
