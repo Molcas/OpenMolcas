@@ -252,7 +252,7 @@ nlist_s = ilist_s
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
-if (nList_s*nList_p == 0) then 
+if (nList_s*nList_p == 0) then
   if(allocated(InBox)) call mma_deallocate(InBox)
   return
 end if
