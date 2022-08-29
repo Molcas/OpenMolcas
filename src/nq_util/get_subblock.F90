@@ -149,7 +149,7 @@ do iNQ=1,nNQ
 end do
 nlist_p = ilist_p
 if (nlist_p == 0) then
-  if(allocated(InBox)) call mma_deallocate(InBox)
+  call mma_deallocate(InBox)
   return
 end if
 #ifdef _DEBUGPRINT_
@@ -253,7 +253,7 @@ nlist_s = ilist_s
 write(u6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
 if (nList_s*nList_p == 0) then
-  if(allocated(InBox)) call mma_deallocate(InBox)
+  call mma_deallocate(InBox)
   return
 end if
 !                                                                      *
