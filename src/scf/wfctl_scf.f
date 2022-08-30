@@ -415,8 +415,7 @@
 *                    we are firmly in the NR region.
 *
          If (iOpt.ge.2 .OR.
-     &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2
-     &       .AND. EDiff<Zero))
+     &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
      &      Then
             If (RSRFO.or.RGEK) Then
                If (RSRFO) Then
