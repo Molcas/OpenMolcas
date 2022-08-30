@@ -37,8 +37,7 @@ integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,
 real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), rFinal(*), A(3), B(3), &
                  Array(nZeta*nArr), Ccoor(3)
 logical(kind=iwp) :: ifgrad(3,2), trans(3,2)
-integer(kind=iwp) :: iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, &
-                     iZeta, nip
+integer(kind=iwp) :: iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, nip
 logical(kind=iwp) :: ABeq(3)
 
 iprint = 0
@@ -76,9 +75,7 @@ end if
 
 ! Compute the cartesian values of the basis functions angular part
 
-do iZeta=1,nZeta
-  Array(ipTemp1-1+iZeta) = Zeta(iZeta)**(-Half)
-end do
+Array(ipTemp1:ipTemp1+nZeta-1) = Zeta**(-Half)
 
 call vCrtCmp(Array(ipTemp1),P,nZeta,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
 call vCrtCmp(Array(ipTemp1),P,nZeta,B,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)

@@ -34,12 +34,10 @@ integer(kind=iwp) :: nZeta, la, lb, lr, kcar
 real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),2), &
                  Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta)
 logical(kind=iwp) :: Ifgrad(3,2)
-integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
+integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb
 real(kind=wp) :: xa, xb, ya, yb, za, zb
 
-do iZeta=1,nZeta
-  Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
-end do
+Fact(:) = rKappa*Zeta**(-OneHalf)
 
 ! Loop over angular components of the basis set
 
@@ -60,25 +58,16 @@ do ixa=0,la
           do ix=0,lr
             do iy=0,lr-ix
               if (ixa > 0) then
-                xa = -ixa
-                do iZeta=1,nZeta
-                  Temp(iZeta) = Fact(iZeta)*(Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb,ix)+xa*Rnxyz(iZeta,1,ixa-1,ixb,ix))* &
-                                Rnxyz(iZeta,2,iya,iyb,iy)
-                end do
+                xa = -real(ixa,kind=wp)
+                Temp(:) = Fact(:)*(Two*Alpha(:)*Rnxyz(:,1,ixa+1,ixb,ix)+xa*Rnxyz(:,1,ixa-1,ixb,ix))*Rnxyz(:,2,iya,iyb,iy)
               else
-                do iZeta=1,nZeta
-                  Temp(iZeta) = Fact(iZeta)*Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)
-                end do
+                Temp(:) = Fact(:)*Two*Alpha(:)*Rnxyz(:,1,ixa+1,ixb,ix)*Rnxyz(:,2,iya,iyb,iy)
               end if
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
                 iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
-                if (iComp == kcar) then
-                  do iZeta=1,nZeta
-                    rFinal(iZeta,ipa,ipb,1) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
-                  end do
-                end if
+                if (iComp == kcar) rFinal(:,ipa,ipb,1) = Temp(:)*Rnxyz(:,3,iza,izb,iz)
               end do
             end do
           end do
@@ -87,25 +76,16 @@ do ixa=0,la
           do ix=0,lr
             do iy=0,lr-ix
               if (ixb > 0) then
-                xb = -ixb
-                do iZeta=1,nZeta
-                  Temp(iZeta) = Fact(iZeta)*(Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1,ix)+xb*Rnxyz(iZeta,1,ixa,ixb-1,ix))* &
-                                Rnxyz(iZeta,2,iya,iyb,iy)
-                end do
+                xb = -real(ixb,kind=wp)
+                Temp(:) = Fact(:)*(Two*Beta(:)*Rnxyz(:,1,ixa,ixb+1,ix)+xb*Rnxyz(:,1,ixa,ixb-1,ix))*Rnxyz(:,2,iya,iyb,iy)
               else
-                do iZeta=1,nZeta
-                  Temp(iZeta) = Fact(iZeta)*Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1,ix)*Rnxyz(iZeta,2,iya,iyb,iy)
-                end do
+                Temp(:) = Fact(:)*Two*Beta(:)*Rnxyz(:,1,ixa,ixb+1,ix)*Rnxyz(:,2,iya,iyb,iy)
               end if
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
                 iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
-                if (iComp == kcar) then
-                  do iZeta=1,nZeta
-                    rFinal(iZeta,ipa,ipb,2) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
-                  end do
-                end if
+                if (iComp == kcar) rFinal(:,ipa,ipb,2) = Temp(:)*Rnxyz(:,3,iza,izb,iz)
               end do
             end do
           end do
@@ -114,25 +94,16 @@ do ixa=0,la
           do ix=0,lr
             do iy=0,lr-ix
               if (iya > 0) then
-                ya = -iya
-                do iZeta=1,nZeta
-                  Temp(iZeta) = Fact(iZeta)*Rnxyz(iZeta,1,ixa,ixb,ix)*(Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb,iy)+ &
-                                ya*Rnxyz(iZeta,2,iya-1,iyb,iy))
-                end do
+                ya = -real(iya,kind=wp)
+                Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*(Two*Alpha(:)*Rnxyz(:,2,iya+1,iyb,iy)+ya*Rnxyz(:,2,iya-1,iyb,iy))
               else
-                do iZeta=1,nZeta
-                  Temp(iZeta) = Fact(iZeta)*Rnxyz(iZeta,1,ixa,ixb,ix)*Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb,iy)
-                end do
+                Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*Two*Alpha(:)*Rnxyz(:,2,iya+1,iyb,iy)
               end if
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
                 iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
-                if (iComp == kcar) then
-                  do iZeta=1,nZeta
-                    rFinal(iZeta,ipa,ipb,1) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
-                  end do
-                end if
+                if (iComp == kcar) rFinal(:,ipa,ipb,1) = Temp(:)*Rnxyz(:,3,iza,izb,iz)
               end do
             end do
           end do
@@ -141,25 +112,16 @@ do ixa=0,la
           do ix=0,lr
             do iy=0,lr-ix
               if (iyb > 0) then
-                yb = -iyb
-                do iZeta=1,nZeta
-                  Temp(iZeta) = Fact(iZeta)*Rnxyz(iZeta,1,ixa,ixb,ix)*(Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1,iy)+ &
-                                yb*Rnxyz(iZeta,2,iya,iyb-1,iy))
-                end do
+                yb = -real(iyb,kind=wp)
+                Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*(Two*Beta(:)*Rnxyz(:,2,iya,iyb+1,iy)+yb*Rnxyz(:,2,iya,iyb-1,iy))
               else
-                do iZeta=1,nZeta
-                  Temp(iZeta) = Fact(iZeta)*Rnxyz(iZeta,1,ixa,ixb,ix)*Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1,iy)
-                end do
+                Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*Two*Beta(:)*Rnxyz(:,2,iya,iyb+1,iy)
               end if
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
                 iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
-                if (iComp == kcar) then
-                  do iZeta=1,nZeta
-                    rFinal(iZeta,ipa,ipb,2) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
-                  end do
-                end if
+                if (iComp == kcar) rFinal(:,ipa,ipb,2) = Temp(:)*Rnxyz(:,3,iza,izb,iz)
               end do
             end do
           end do
@@ -167,24 +129,17 @@ do ixa=0,la
         if (ifgrad(3,1)) then
           do ix=0,lr
             do iy=0,lr-ix
-              do iZeta=1,nZeta
-                Temp(iZeta) = Fact(iZeta)*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)
-              end do
+              Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*Rnxyz(:,2,iya,iyb,iy)
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
                 iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
                 if (iComp == kcar) then
                   if (iza > 0) then
-                    za = -iza
-                    do iZeta=1,nZeta
-                      rFinal(iZeta,ipa,ipb,1) = Temp(iZeta)*(Two*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb,iz)+ &
-                                                za*Rnxyz(iZeta,3,iza-1,izb,iz))
-                    end do
+                    za = -real(iza,kind=wp)
+                    rFinal(:,ipa,ipb,1) = Temp(:)*(Two*Alpha(:)*Rnxyz(:,3,iza+1,izb,iz)+za*Rnxyz(:,3,iza-1,izb,iz))
                   else
-                    do iZeta=1,nZeta
-                      rFinal(iZeta,ipa,ipb,1) = Temp(iZeta)*Two*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb,iz)
-                    end do
+                    rFinal(:,ipa,ipb,1) = Temp(:)*Two*Alpha(:)*Rnxyz(:,3,iza+1,izb,iz)
                   end if
                 end if
               end do
@@ -194,24 +149,17 @@ do ixa=0,la
         if (ifgrad(3,2)) then
           do ix=0,lr
             do iy=0,lr-ix
-              do iZeta=1,nZeta
-                Temp(iZeta) = Fact(iZeta)*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)
-              end do
+              Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*Rnxyz(:,2,iya,iyb,iy)
 
               do ir=ix+iy,lr
                 iz = ir-ix-iy
                 iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)-1
                 if (iComp == kcar) then
                   if (izb > 0) then
-                    zb = -izb
-                    do iZeta=1,nZeta
-                      rFinal(iZeta,ipa,ipb,2) = Temp(iZeta)*(Two*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1,iz)+ &
-                                                zb*Rnxyz(iZeta,3,iza,izb-1,iz))
-                    end do
+                    zb = -real(izb,kind=wp)
+                    rFinal(:,ipa,ipb,2) = Temp(:)*(Two*Beta(:)*Rnxyz(:,3,iza,izb+1,iz)+zb*Rnxyz(:,3,iza,izb-1,iz))
                   else
-                    do iZeta=1,nZeta
-                      rFinal(iZeta,ipa,ipb,2) = Temp(iZeta)*Two*Beta(iZeta)*Rnxyz(iZeta,3,iza,izb+1,iz)
-                    end do
+                    rFinal(:,ipa,ipb,2) = Temp(:)*Two*Beta(:)*Rnxyz(:,3,iza,izb+1,iz)
                   end if
                 end if
               end do

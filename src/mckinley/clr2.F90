@@ -41,11 +41,11 @@ Temp5(:,:,:) = Zero
 nnA = 0
 do iS=0,nIrrep-1
   nA(iS) = nNA
-  nna = nna+nAsh(is)
+  nnA = nnA+nAsh(is)
 end do
 n = 0
-do i=1,nirrep
-  n = n+ldisp(i-1)
+do i=0,nIrrep-1
+  n = n+ldisp(i)
 end do
 n = ibas*icmp*jbas*jcmp*nIrrep*nTri_Elem(nAco)*n
 
@@ -78,7 +78,7 @@ do mIrr=0,nIrrep-1
             kls = ieor(iOper(kIrr),iOper(lIrr))
             jIrr = nropr(ieor(ieor(iOper(iIrr),iOper(mIrr)),kls))
             ja = 1
-            do j=0,jirr-1
+            do j=0,jIrr-1
               ja = ja+nAsh(j)
             end do
 

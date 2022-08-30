@@ -62,7 +62,7 @@ do iCar=1,3
     if (jfHess(2,iCar,1,jcar)) then
       do ib=1,nTri_Elem1(lb)
         do ia=1,nTri_Elem1(la)
-          do iC=1,(2*iAng+1)
+          do iC=1,2*iAng+1
 
             if (lsro) then
               call mult_sro(FA1(1,1,ia,ic,icar+1),nAlpha,C,nC,FB1(1,1,ic,ib,jcar+1),nBeta,Fact,rFinal(1,ia,ib,mVec),Tmp)
@@ -86,7 +86,7 @@ do iCar=1,3
     if (jfHess(1,iCar,1,jcar)) then
       do ib=1,nTri_Elem1(lb)
         do ia=1,nTri_Elem1(la)
-          do iC=1,(2*iAng+1)
+          do iC=1,2*iAng+1
             if (lsro) then
               call mult_sro(FA2(1,1,ia,ic,mvec),nAlpha,C,nC,FB1(1,1,ic,ib,1),nBeta,Fact,rFinal(1,ia,ib,mVec),Tmp)
             else
@@ -112,7 +112,7 @@ do iCar=1,3
       do ib=1,nTri_Elem1(lb)
         do ia=1,nTri_Elem1(la)
 
-          do iC=1,(2*iAng+1)
+          do iC=1,2*iAng+1
             if (lsro) then
               call mult_sro(FA1(1,1,ia,ic,1),nAlpha,C,nC,FB2(1,1,ic,ib,mvecb),nBeta,Fact,rFinal(1,ia,ib,mVec),Tmp)
             else

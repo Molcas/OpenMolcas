@@ -32,7 +32,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nCntr1, nPrm1, nCntr2, nPrm2, lZeta, nVec, IncVec, Indij(lZeta)
 real(kind=wp) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(nCntr1,nCntr2,nVec), A2(nCntr2,IncVec*nPrm1), A3(nVec,lZeta)
-integer(kind=iwp) :: iCntr1, iCntr2, iiVec, ijVec, iPrm1, iPrm2, iVec, iZeta, mVec
+integer(kind=iwp) :: iCntr1, iCntr2, iiVec, ijVec, iPrm1, iPrm2, iZeta, mVec
 logical(kind=iwp) :: Seg1, Seg2
 
 ! Check if the basis set is segmented
@@ -73,14 +73,12 @@ do iiVec=1,nVec,IncVec
     ! First quarter transformation
 
     do iPrm1=1,nPrm1
+      ijVec = mVec*(iPrm1-1)+1
       do iCntr1=1,nCntr1
         ! Check for zero due to segmented basis
         if (abs(Coeff1(iPrm1,iCntr1)) > Zero) then
           do iCntr2=1,nCntr2
-            do iVec=iiVec,iiVec+mVec-1
-              ijVec = mVec*(iPrm1-1)+(iVec-iiVec+1)
-              A2(iCntr2,ijVec) = A2(iCntr2,ijVec)+Coeff1(iPrm1,iCntr1)*A1(iCntr1,iCntr2,iVec)
-            end do
+            A2(iCntr2,ijVec:ijVec+mVec-1) = A2(iCntr2,ijVec:ijVec+mVec-1)+Coeff1(iPrm1,iCntr1)*A1(iCntr1,iCntr2,iiVec:iiVec+mVec-1)
           end do
         end if
       end do
@@ -91,12 +89,10 @@ do iiVec=1,nVec,IncVec
     ! First quarter transformation
 
     do iPrm1=1,nPrm1
+      ijVec = mVec*(iPrm1-1)+1
       do iCntr1=1,nCntr1
         do iCntr2=1,nCntr2
-          do iVec=iiVec,iiVec+mVec-1
-            ijVec = mVec*(iPrm1-1)+(iVec-iiVec+1)
-            A2(iCntr2,ijVec) = A2(iCntr2,ijVec)+Coeff1(iPrm1,iCntr1)*A1(iCntr1,iCntr2,iVec)
-          end do
+          A2(iCntr2,ijVec:ijVec+mVec-1) = A2(iCntr2,ijVec:ijVec+mVec-1)+Coeff1(iPrm1,iCntr1)*A1(iCntr1,iCntr2,iiVec:iiVec+mVec-1)
         end do
       end do
     end do
@@ -113,10 +109,8 @@ do iiVec=1,nVec,IncVec
         iPrm1 = Indij(iZeta)-(iPrm2-1)*nPrm1
         ! Check for zero due to segmented basis
         if (abs(Coeff2(iPrm2,iCntr2)) > Zero) then
-          do iVec=iiVec,iiVec+mVec-1
-            ijVec = mVec*(iPrm1-1)+(iVec-iiVec+1)
-            A3(iVec,iZeta) = A3(iVec,iZeta)+Coeff2(iPrm2,iCntr2)*A2(iCntr2,ijVec)
-          end do
+          ijVec = mVec*(iPrm1-1)+1
+          A3(iiVec:iiVec+mVec-1,iZeta) = A3(iiVec:iiVec+mVec-1,iZeta)+Coeff2(iPrm2,iCntr2)*A2(iCntr2,ijVec:ijVec+mVec-1)
         end if
       end do
     end do
@@ -129,10 +123,8 @@ do iiVec=1,nVec,IncVec
       do iZeta=1,lZeta
         iPrm2 = (Indij(iZeta)-1)/nPrm1+1
         iPrm1 = Indij(iZeta)-(iPrm2-1)*nPrm1
-        do iVec=iiVec,iiVec+mVec-1
-          ijVec = mVec*(iPrm1-1)+(iVec-iiVec+1)
-          A3(iVec,iZeta) = A3(iVec,iZeta)+Coeff2(iPrm2,iCntr2)*A2(iCntr2,ijVec)
-        end do
+        ijVec = mVec*(iPrm1-1)+1
+        A3(iiVec:iiVec+mVec-1,iZeta) = A3(iiVec:iiVec+mVec-1,iZeta)+Coeff2(iPrm2,iCntr2)*A2(iCntr2,ijVec:ijVec+mVec-1)
       end do
     end do
 

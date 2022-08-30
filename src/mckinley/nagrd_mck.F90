@@ -37,10 +37,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_mck_interface.fh"
 integer(kind=iwp), parameter :: nHess = 1, nPAO = 1 ! Hess, PAO: Dummy arrays
-integer(kind=iwp) :: iAnga(4), iBeta, iCnt, iDCRT(0:7), iElem, iIrrep, indi, Indx(3,4), ipA, ipAOff, ipB, ipBOff, iuvwx(4), iZeta, &
+integer(kind=iwp) :: iAnga(4), iBeta, iCnt, iDCRT(0:7), iElem, indi, Indx(3,4), ipA, ipAOff, ipB, ipBOff, iuvwx(4), &
                      JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, mOp(4), nArray, nb, &
                      nDCRT, nGr, nip, nRys
-real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Hess(nHess), PAO(nPAO), TC(3), tfac
+real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Hess(nHess), PAO(nPAO), TC(3)
 logical(kind=iwp) :: DiffCnt, jfg(4), JfGrd(3,4), JfHss(4,3,4,3), kfgrd(3,4), Tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
@@ -68,7 +68,6 @@ nip = nip+nAlpha*nBeta
 if (nip-1 > nArr) write(u6,*) ' nip-1 > nArr'
 nArray = nArr-nip+1
 
-iIrrep = 0
 iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = 0
@@ -129,15 +128,9 @@ do kCnttp=1,nCnttp
     iuvwx(4) = dc(kdc+kCnt)%nStab
     JndGrd(:,:,0:nIrrep-1) = 0
     JfGrd(:,:) = .false.
-    do iCnt=1,2
-      JfGrd(iDCar,iCnt) = IfGrad(iDCar,iCnt)
-    end do
+    JfGrd(iDCar,1:2) = IfGrad(iDCar,1:2)
     do ICnt=1,2
-      if (IfGrad(idcar,iCnt)) then
-        do iIrrep=0,nIrrep-1
-          jndGrd(iDCar,iCnt,iIrrep) = IndGrd(iIrrep)
-        end do
-      end if
+      if (IfGrad(idcar,iCnt)) JndGrd(iDCar,iCnt,0:nIrrep-1) = IndGrd(0:nIrrep-1)
     end do
 
     Tr(1) = .false.
@@ -146,11 +139,8 @@ do kCnttp=1,nCnttp
     Tr(4) = .false.
     if ((kdc+kCnt) == iDCnt) then
       Tr(3) = .true.
-      JfGrd(iDCar,1) = .true.
-      JfGrd(iDCar,2) = .true.
-      do iIrrep=0,nIrrep-1
-        jndGrd(iDCar,3,iIrrep) = -IndGrd(iIrrep)
-      end do
+      JfGrd(iDCar,1:2) = .true.
+      JndGrd(iDCar,3,0:nIrrep-1) = -IndGrd(0:nIrrep-1)
     end if
 
     do lDCRT=0,nDCRT-1
@@ -167,15 +157,11 @@ do kCnttp=1,nCnttp
       if (Eq(A,RB) .and. EQ(A,TC)) cycle
       if (EQ(A,TC)) then
         kfGrd(iDCar,1) = .false.
-        do iIrrep=0,nIrrep-1
-          kndGrd(iDCar,1,iirrep) = 0
-        end do
+        kndGrd(iDCar,1,0:nIrrep-1) = 0
       end if
       if (EQ(RB,TC)) then
         kfGrd(iDCar,2) = .false.
-        do iIrrep=0,nIrrep-1
-          kndgrd(iDCar,2,iIrrep) = 0
-        end do
+        kndgrd(iDCar,2,0:nIrrep-1) = 0
       end if
 
       if (kfGrd(idcar,1)) then
@@ -195,11 +181,8 @@ do kCnttp=1,nCnttp
                  .false.,tr)
 
       do iElem=1,nTri_Elem1(la)*nTri_Elem1(lb)*ngr
-        do iZeta=1,nZeta
-          tfac = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
-          indi = (iElem-1)*nZeta+iZeta
-          Array(nip+indi-1) = tfac*Array(nip+indi-1)
-        end do
+        indi = nip+(iElem-1)*nZeta
+        Array(indi:indi+nZeta-1) = Two*rKappa(:)*Pi*ZInv(:)*Array(indi:indi+nZeta-1)
       end do
 
 #     ifdef _DEBUGPRINT_

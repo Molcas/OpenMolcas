@@ -85,7 +85,7 @@ do iCnttp=1,nCnttp
             iComp = 2**iCar
             if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
               nDisp = nDisp+1
-              if (.true.) Grad(nDisp) = Grad(nDisp)-One/real(igu,kind=wp)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
+              Grad(nDisp) = Grad(nDisp)-One/real(igu,kind=wp)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
             end if
           end do
 
@@ -95,10 +95,8 @@ do iCnttp=1,nCnttp
             iComp = 2**iCar
             if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
               nDisp = nDisp+1
-              if (.true.) then
-                ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
-                Grad(nDisp) = Grad(nDisp)+ps*One/real(igv,kind=wp)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
-              end if
+              ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
+              Grad(nDisp) = Grad(nDisp)+ps*One/real(igv,kind=wp)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
             end if
           end do
         end do

@@ -56,22 +56,14 @@ lCmp = iCmpa(4)
 kk = 0
 do kIrrep=0,nIrrep-1
   sfact = real(ichtbl(kirrep,nop(3)),kind=wp)
-  do kAsh=1,nAsh(kIrrep)
-    do k=1,kcmp*kbas
-      kk = kk+1
-      Ck(kk) = Ck(kk)*sFact
-    end do
-  end do
+  Ck(kk+1:kk+nAsh(kIrrep)*kcmp*kbas) = Ck(kk+1:kk+nAsh(kIrrep)*kcmp*kbas)*sFact
+  kk = kk+nAsh(kIrrep)*kcmp*kbas
 end do
 kk = 0
 do kIrrep=0,nIrrep-1
   sfact = real(ichtbl(kirrep,nop(4)),kind=wp)
-  do kAsh=1,nAsh(kIrrep)
-    do k=1,lcmp*lbas
-      kk = kk+1
-      Cl(kk) = Cl(kk)*sFact
-    end do
-  end do
+  Cl(kk+1:kk+nAsh(kIrrep)*lcmp*lbas) = Cl(kk+1:kk+nAsh(kIrrep)*lcmp*lbas)*sFact
+  kk = kk+nAsh(kIrrep)*lcmp*lbas
 end do
 rk = DNrm2_(nck,ck,1)
 rl = DNrm2_(ncl,cl,1)
@@ -89,23 +81,23 @@ do jc=1,jcmp
         do kAsh=1,nAco
           ipM = (kAsh-1)*lbas*lcmp
           il = 0
+          Temp1(ipM+1:ipM+lbas*lcmp) = Zero
           do i=1,lbas*lcmp
-            Temp1(i+ipM) = Zero
             do k=1,kCmp*kBas
               il = il+1
-              Temp1(i+ipM) = Temp1(ipm+i)+Ck(k+ipc)*AOINT(il,ij)
+              Temp1(ipM+i) = Temp1(ipM+i)+Ck(ipC+k)*AOINT(il,ij)
             end do
           end do
           ipC = ipC+kBas*kCmp
         end do
         ipC = 0
+        Temp2(:,:) = Zero
         do lAsh=1,naco
           il = 0
           do kash=1,naco
-            Temp2(kash,lash) = Zero
             do l=1,lbas*lcmp
               il = il+1
-              Temp2(kash,lash) = Temp2(kash,lash)+Cl(ipc+l)*Temp1(il)
+              Temp2(kash,lash) = Temp2(kash,lash)+Cl(ipC+l)*Temp1(il)
             end do
           end do
           ipC = ipC+lBas*lCmp
@@ -178,22 +170,14 @@ end do
 kk = 0
 do kIrrep=0,nIrrep-1
   sfact = real(ichtbl(kirrep,nop(3)),kind=wp)
-  do kAsh=1,nAsh(kIrrep)
-    do k=1,kcmp*kbas
-      kk = kk+1
-      Ck(kk) = Ck(kk)*sFact
-    end do
-  end do
+  Ck(kk+1:kk+nAsh(kIrrep)*kcmp*kbas) = Ck(kk+1:kk+nAsh(kIrrep)*kcmp*kbas)*sFact
+  kk = kk+nAsh(kIrrep)*kcmp*kbas
 end do
 kk = 0
 do kIrrep=0,nIrrep-1
   sfact = real(ichtbl(kirrep,nop(4)),kind=wp)
-  do kAsh=1,nAsh(kIrrep)
-    do k=1,lcmp*lbas
-      kk = kk+1
-      Cl(kk) = Cl(kk)*sFact
-    end do
-  end do
+  Cl(kk+1:kk+nAsh(kIrrep)*lcmp*lbas) = Cl(kk+1:kk+nAsh(kIrrep)*lcmp*lbas)*sFact
+  kk = kk+nAsh(kIrrep)*lcmp*lbas
 end do
 
 return

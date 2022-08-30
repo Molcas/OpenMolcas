@@ -17,8 +17,7 @@ implicit none
 integer(kind=iwp) :: nirrep, jndgrd(3,4,0:nirrep-1), jndhss(4,3,4,3,0:nirrep-1), indgrd(3,4,0:nirrep-1), indhss(4,3,4,3,0:nirrep-1)
 logical(kind=iwp) :: ifg(4), jfgrd(3,4), jfhss(4,3,4,3), tr(4)
 real(kind=wp) :: Coorm(3,4)
-integer(kind=iwp) :: iCent, iiC, iiCar, iiCent, iMax, iMin, iStop, jCar, jCent, jjC, jjCar, jjCent, kCar, kCent, kkCar, lCar, &
-                     lCent, llCar, mIrrep
+integer(kind=iwp) :: iCent, iiC, iiCar, iiCent, iMax, iMin, iStop, jCent, jjC, jjCent, kCar, kCent, kkCar, lCar, lCent
 logical(kind=iwp) :: alike
 logical(kind=iwp), external :: EQ
 
@@ -31,21 +30,11 @@ if (IfG(1) .and. IfG(2) .and. IfG(3) .and. IfG(4)) then
           do kCent=1,4
             iMax = max(jCent,kCent)
             iMin = min(jCent,kCent)
-            do kCar=1,3
-              do lCar=1,3
-                do mIrrep=0,nIrrep-1
-                  JndHss(iMax,kCar,iMin,lCar,mIrrep) = 0
-                end do
-                JfHss(iMax,kCar,iMin,lCar) = .false.
-              end do
-            end do
+            JndHss(iMax,:,iMin,:,0:nIrrep-1) = 0
+            JfHss(iMax,:,iMin,:) = .false.
           end do
-          do jCar=1,3
-            do mIrrep=0,nIrrep-1
-              JndGrd(jCar,jCent,mIrrep) = 0
-            end do
-            jfGrd(jCar,jCent) = .false.
-          end do
+          JndGrd(:,jCent,0:nIrrep-1) = 0
+          JfGrd(:,jCent) = .false.
           IfG(jCent) = .false.
           if (.not. Alike) then
             IfG(iCent) = .false.
@@ -61,11 +50,9 @@ if (IfG(1) .and. IfG(2) .and. IfG(3) .and. IfG(4)) then
                   else
                     iStop = 3
                   end if
+                  JndHss(iMax,kCar,iMin,1:iStop,0:nIrrep-1) = -IndHss(iMax,kCar,iMin,1:iStop,0:nIrrep-1)
+                  JfHss(iMax,kCar,iMin,1:iStop) = .false.
                   do lCar=1,iStop
-                    do mIrrep=0,nIrrep-1
-                      JndHss(iMax,kCar,iMin,lCar,mIrrep) = -IndHss(iMax,kCar,iMin,lCar,mIrrep)
-                    end do
-                    JfHss(iMax,kCar,iMin,lCar) = .false.
 
                     ! Set the derivatives that are needed for the translation
                     ! invariance calculations.
@@ -80,27 +67,19 @@ if (IfG(1) .and. IfG(2) .and. IfG(3) .and. IfG(4)) then
                               else
                                 iStop = 3
                               end if
-                              do llCar=1,iStop
-                                JfHss(iiCent,kkCar,jjCent,llCar) = .true.
-                              end do
+                              JfHss(iiCent,kkCar,jjCent,1:iStop) = .true.
                             end do
                           end if
                         end do ! icent
-                        do kkCar=1,3
-                          JfGrd(kkCar,iiCent) = .true.
-                        end do
+                        JfGrd(:,iiCent) = .true.
                       end if
                     end do
                   end do
                 end do
               end if
             end do
-            do jCar=1,3
-              do mIrrep=0,nIrrep-1
-                JndGrd(jCar,iCent,mIrrep) = -IndGrd(jCar,iCent,mIrrep)
-              end do
-              JfGrd(jCar,iCent) = .false.
-            end do
+            JndGrd(:,iCent,0:nIrrep-1) = -IndGrd(:,iCent,0:nIrrep-1)
+            JfGrd(:,iCent) = .false.
           end if
         end if
       end do
@@ -118,34 +97,30 @@ if (.not. Alike) then
   do iiC=1,4
     do jjC=1,iiC
       do iiCar=1,3
-        iStop = 3
-        if (iic == jjc) iStop = iiCar
-        do jjCar=1,iStop
-          JfHss(iiC,iiCar,jjc,jjCar) = .true.
-        end do
+        if (iic == jjc) then
+          iStop = iiCar
+        else
+          iStop = 3
+        end if
+        JfHss(iiC,iiCar,jjc,1:iStop) = .true.
       end do
     end do
   end do
 
   do kCar=1,3
     do lCent=1,4
-      iStop = 3
-      if (lCent == 4) iStop = kCar
-      do lCar=1,iStop
-        do mIrrep=0,nirrep-1
-          JndHss(4,kCar,lCent,lCar,mIrrep) = -IndHss(4,kCar,lCent,lCar,mIrrep)
-        end do
-        JfHss(4,kCar,lCent,lCar) = .false.
-      end do
+      if (lCent == 4) then
+        iStop = kCar
+      else
+        iStop = 3
+      end if
+      JndHss(4,kCar,lCent,1:iStop,nIrrep-1) = -IndHss(4,kCar,lCent,1:iStop,nIrrep-1)
+      JfHss(4,kCar,lCent,1:iStop) = .false.
     end do
   end do
 
-  do lCar=1,3
-    do mIrrep=0,nirrep-1
-      Jndgrd(lCar,4,mIrrep) = -IndGrd(lCar,4,mIrrep)
-    end do
-    jfgrd(lCar,4) = .false.
-  end do
+  Jndgrd(:,4,nIrrep-1) = -IndGrd(:,4,nIrrep-1)
+  JfGrd(:,4) = .false.
 
 end if
 

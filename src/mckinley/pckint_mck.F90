@@ -26,9 +26,7 @@ do iZeta=1,nZeta
   xMax = Zero
   do iab=1,nab
     xTest = abs(abab(iZeta,iab,iab))
-    if (xTest > xMax) then
-      xMax = xTest
-    end if
+    if (xTest > xMax) xMax = xTest
   end do
   ab(iZeta) = sqrt(xMax)
 end do

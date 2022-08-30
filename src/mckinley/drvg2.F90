@@ -899,7 +899,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   call CWTime(TCpu2,TWall2)
   call SavTim(4,TCpu2-TCpu1,TWall2-Twall1)
   call SavStat(1,One,'+')
-  call SavStat(2,dble(nijs),'+')
+  call SavStat(2,real(nijs,kind=wp),'+')
 end do
 ! End of big task loop
 !                                                                      *

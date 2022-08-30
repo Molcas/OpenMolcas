@@ -36,7 +36,7 @@ integer(kind=iwp) :: nZeta, la, lb
 real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),1), &
                  Alpha(nZeta), Beta(nZeta)
 logical(kind=iwp) :: IfGrad(3,2)
-integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb
 real(kind=wp) :: xa, xb, ya, yb, za, zb
 
 !iRout = 134
@@ -44,9 +44,7 @@ real(kind=wp) :: xa, xb, ya, yb, za, zb
 
 !ii = nTri3_Elem(la)
 !jj = nTri3_Elem(lb)
-do iZeta=1,nZeta
-  rKappa(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
-end do
+rKappa(:) = rKappa*Zeta**(-OneHalf)
 !if (iPrint >= 99) then
 !  call RecPrt(' In CmbnS1_mck: Zeta  ',' ',Zeta,1,nZeta)
 !  call RecPrt(' In CmbnS1_mck: rKappa',' ',rKappa,1,nZeta)
@@ -70,97 +68,67 @@ do ixa=0,la
         if (IfGrad(1,1)) then
           if (ixa > 0) then
             xa = real(-ixa,kind=wp)
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*(Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)+xa*Rnxyz(iZeta,1,ixa-1,ixb))* &
-                                        Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)* &
+            rFinal(:,ipa,ipb,1) = rKappa(:)* &
+                                  (Two*Alpha(:)*Rnxyz(:,1,ixa+1,ixb)+xa*Rnxyz(:,1,ixa-1,ixb))*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
           else
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)*Rnxyz(iZeta,2,iya,iyb)* &
-                                        Rnxyz(iZeta,3,iza,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)*Two*Alpha(:)*Rnxyz(:,1,ixa+1,ixb)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
+            rFinal(:,ipa,ipb,1) = rKappa(:)*Two*Alpha(:)*Rnxyz(:,1,ixa+1,ixb)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
           end if
         end if
         if (IfGrad(1,2)) then
           if (ixb > 0) then
             xb = real(-ixb,kind=wp)
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*(Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)+xb*Rnxyz(iZeta,1,ixa,ixb-1))* &
-                                        Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)* &
+            rFinal(:,ipa,ipb,1) = rKappa(:)* &
+                                  (Two*Beta(:)*Rnxyz(:,1,ixa,ixb+1)+xb*Rnxyz(:,1,ixa,ixb-1))*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
           else
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)*Rnxyz(iZeta,2,iya,iyb)* &
-                                        Rnxyz(iZeta,3,iza,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)*Two*Beta(:)*Rnxyz(:,1,ixa,ixb+1)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
+            rFinal(:,ipa,ipb,1) = rKappa(:)*Two*Beta(:)*Rnxyz(:,1,ixa,ixb+1)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
           end if
         end if
         if (IfGrad(2,1)) then
           if (iya > 0) then
             ya = real(-iya,kind=wp)
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*(Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)+ &
-                                        ya*Rnxyz(iZeta,2,iya-1,iyb))*Rnxyz(iZeta,3,iza,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)* &
+            rFinal(:,ipa,ipb,1) = rKappa(:)* &
+                                  Rnxyz(:,1,ixa,ixb)*(Two*Alpha(:)*Rnxyz(:,2,iya+1,iyb)+ya*Rnxyz(:,2,iya-1,iyb))*Rnxyz(:,3,iza,izb)
           else
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)* &
-                                        Rnxyz(iZeta,3,iza,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)*Rnxyz(:,1,ixa,ixb)*Two*Alpha(:)*Rnxyz(:,2,iya+1,iyb)*Rnxyz(:,3,iza,izb)
+            rFinal(:,ipa,ipb,1) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*Two*Alpha(:)*Rnxyz(:,2,iya+1,iyb)*Rnxyz(:,3,iza,izb)
           end if
         end if
         if (IfGrad(2,2)) then
           if (iyb > 0) then
             yb = real(-iyb,kind=wp)
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*(Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)+ &
-                                        yb*Rnxyz(iZeta,2,iya,iyb-1))*Rnxyz(iZeta,3,iza,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)* &
+            rFinal(:,ipa,ipb,1) = rKappa(:)* &
+                                  Rnxyz(:,1,ixa,ixb)*(Two*Beta(:)*Rnxyz(:,2,iya,iyb+1)+yb*Rnxyz(:,2,iya,iyb-1))*Rnxyz(:,3,iza,izb)
           else
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)* &
-                                        Rnxyz(iZeta,3,iza,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)*Rnxyz(:,1,ixa,ixb)*Two*Beta(:)*Rnxyz(:,2,iya,iyb+1)*Rnxyz(:,3,iza,izb)
+            rFinal(:,ipa,ipb,1) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*Two*Beta(:)*Rnxyz(:,2,iya,iyb+1)*Rnxyz(:,3,iza,izb)
           end if
         end if
         if (IfGrad(3,1)) then
           if (iza > 0) then
             za = real(-iza,kind=wp)
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*(Two*Alpha(iZeta)* &
-                                        Rnxyz(iZeta,3,iza+1,izb)+za*Rnxyz(iZeta,3,iza-1,izb))
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)* &
+            rFinal(:,ipa,ipb,1) = rKappa(:)* &
+                                  Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*(Two*Alpha(:)*Rnxyz(:,3,iza+1,izb)+za*Rnxyz(:,3,iza-1,izb))
           else
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Two*Alpha(iZeta)* &
-                                        Rnxyz(iZeta,3,iza+1,izb)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)*Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*Two*Alpha(:)*Rnxyz(:,3,iza+1,izb)
+            rFinal(:,ipa,ipb,1) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*Two*Alpha(:)*Rnxyz(:,3,iza+1,izb)
           end if
         end if
         if (IfGrad(3,2)) then
           if (izb > 0) then
             zb = real(-izb,kind=wp)
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*(Two*Beta(iZeta)* &
-                                        Rnxyz(iZeta,3,iza,izb+1)+zb*Rnxyz(iZeta,3,iza,izb-1))
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)* &
+            rFinal(:,ipa,ipb,1) = rKappa(:)* &
+                                  Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*(Two*Beta(:)*Rnxyz(:,3,iza,izb+1)+zb*Rnxyz(:,3,iza,izb-1))
           else
-            do iZeta=1,nZeta
-              !rFinal(iZeta,ipa,ipb,1) = papb*rKappa(iZeta)*
-              rFinal(iZeta,ipa,ipb,1) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Two*Beta(iZeta)* &
-                                        Rnxyz(iZeta,3,iza,izb+1)
-            end do
+            !rFinal(:,ipa,ipb,1) = papb*rKappa(:)**Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*Two*Beta(:)*Rnxyz(:,3,iza,izb+1)
+            rFinal(:,ipa,ipb,1) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*Two*Beta(:)*Rnxyz(:,3,iza,izb+1)
           end if
         end if
 

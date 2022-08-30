@@ -30,8 +30,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: iBas, jBas, kBas, lBas, iCmp, jCmp, kCmp, lCmp, iBasO, jBasO, kBasO, lBasO, iCmpO, jCmpO, kCmpO, lCmpO, nVec, &
                      nop(4), iAng(4), ishll(4)
-real(kind=wp) :: A(iBas*jBas*kBas*lBas,iCmp,jCmp,kCmp,lCmp,nVec), B(kBasO*kcmpO,lBasO,lcmpO,iBasO,iCmpO,jBasO,jCmpO*nvec)
-integer(kind=iwp) :: iB, iC, ichbs, ii, ijkl, iVec, jB, jC, jChBs, jj, kB, kC, kChBs, kk, lB, lC, lChBs, ll
+real(kind=wp) :: A(iBas*jBas*kBas*lBas,iCmp,jCmp,kCmp,lCmp,nVec), B(kBasO*kCmpO,lBasO,lCmpO,iBasO,iCmpO,jBasO,jCmpO*nvec)
+integer(kind=iwp) :: iC, ichbs, ii, ijkl, iVec, jB, jC, jChBs, jj, kB, kC, kChBs, kk, lB, lC, lChBs, ll
 real(kind=wp) :: PrA, pRb, pTc, pTSd, qFctr, rp
 
 ii = nTri3_Elem(iAng(1))
@@ -64,10 +64,8 @@ do iVec=1,nVec
 
           !do iB=1,iBas
           !  do jB=1,jBas
-          !    do kB=1,kBas
-          !      do lB=1,lBas
-          !        B(kB,kC,lB,lC,iB,iC,jB,jC,iVec) = qfctr*A(iB,jB,kB,lB,iC,jC,kC,lC,iVec)
-          !      end do
+          !    do lB=1,lBas
+          !      B(1:kBas,kC,lB,lC,iB,iC,jB,jC,iVec) = qfctr*A(iB,jB,1:kBas,lB,iC,jC,kC,lC,iVec)
           !    end do
           !  end do
           !end do
@@ -75,10 +73,8 @@ do iVec=1,nVec
           do lB=1,lBas
             do kB=1,kBas
               do jB=1,jBas
-                do iB=1,iBas
-                  ijkl = ijkl+1
-                  B(kB+(kC-1)*kbaso,lB,lC,iB,iC,jB,jC+(iVec-1)*jcmpO) = qfctr*A(ijkl,iC,jC,kC,lC,iVec)
-                end do
+                B(kB+(kC-1)*kBasO,lB,lC,1:iBas,iC,jB,jC+(iVec-1)*jCmpO) = qfctr*A(ijkl+1:ijkl+iBas,iC,jC,kC,lC,iVec)
+                ijkl = ijkl+iBas
               end do
             end do
           end do

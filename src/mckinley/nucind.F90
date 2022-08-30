@@ -23,7 +23,7 @@ integer(kind=iwp) :: kdc, IndGrd(0:2,0:1,0:nIrrep-1), IndHss(0:1,0:2,0:1,0:2,0:n
 logical(kind=iwp) :: IfGrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3), IfG(0:3)
 #include "Molcas.fh"
 #include "disp.fh"
-integer(kind=iwp) :: iAtom, iCar, iCent, iComp, iIrrep, iStop, jAtom, jCar, kCar, kCent, Maxi, Mini, nDisp, nnIrrep
+integer(kind=iwp) :: iCar, iCent, iComp, iIrrep, iStop, jAtom, jCar, Maxi, Mini, nDisp, nnIrrep
 logical(kind=iwp), external :: EQ, TF
 
 !                                                                      *
@@ -37,22 +37,10 @@ Tr(:) = .false.
 
 ! COPY CNTLR MATRIXES
 
-do iAtom=0,1
-  do iCar=0,2
-    JfGrd(iCar,iAtom) = Ifgrd(iCar,iAtom)
-    do iIrrep=0,nIrrep-1
-      JndGrd(iCar,iAtom,iIrrep) = IndGrd(iCar,iAtom,iIrrep)
-    end do
-    do jAtom=0,1
-      do jCar=0,2
-        JfHss(iAtom,iCar,jAtom,jCar) = IfHss(iAtom,iCar,jAtom,jCar)
-        do iIrrep=0,nIrrep-1
-          JndHss(iAtom,iCar,jAtom,jCar,iIrrep) = IndHss(iAtom,iCar,jAtom,jCar,iIrrep)
-        end do ! iirrep
-      end do !jCar
-    end do ! jAtom
-  end do !iCar
-end do !iAtom
+JfGrd(:,0:1) = Ifgrd(:,0:1)
+JndGrd(:,0:1,0:nIrrep-1) = IndGrd(:,0:1,0:nIrrep-1)
+JfHss(0:1,:,0:1,:) = IfHss(0:1,:,0:1,:)
+JndHss(0:1,:,0:1,:,0:nIrrep-1) = IndHss(0:1,:,0:1,:,0:nIrrep-1)
 
 ! Derivatives with respect to the operator is computed via the translational invariance.
 
@@ -71,11 +59,9 @@ do iIrrep=0,nnIrrep-1
       ! third center so that its derivative will be computed
       ! by the translational invariance.
 
-      JndGrd(iCar,0,iIrrep) = abs(JndGrd(iCar,0,iIrrep))
-      JndGrd(iCar,1,iIrrep) = abs(JndGrd(iCar,1,iIrrep))
+      JndGrd(iCar,0:1,iIrrep) = abs(JndGrd(iCar,0:1,iIrrep))
       JndGrd(iCar,2,iIrrep) = -nDisp
-      JfGrd(iCar,0) = .true.
-      JfGrd(iCar,1) = .true.
+      JfGrd(iCar,0:1) = .true.
       JfGrd(iCar,2) = .false.
     else
       JndGrd(iCar,2,iIrrep) = 0
@@ -120,29 +106,17 @@ do iCar=0,2
   end do ! jAtom
 end do ! iCar
 
-IfG(0) = .true.
-IfG(1) = .true.
-IfG(2) = .false.
-IfG(3) = .false.
+IfG(0:1) = .true.
+IfG(2:3) = .false.
 do iCent=0,1
   if (EQ(Coor(1,iCent+1),Coor(1,3))) then
     IfG(iCent) = .false.
-    do iCar=0,2
-      jfGrd(iCar,iCent) = .false.
-      do kCar=0,2
-        do kCent=0,3
-          jfHss(iCent,iCar,kCent,kCar) = .false.
-          jfHss(kCent,kCar,iCent,iCar) = .false.
-          do iIrrep=0,nIrrep-1
-            jndHss(iCent,iCar,kCent,kCar,iIrrep) = 0
-            jndHss(kCent,kCar,iCent,iCar,iIrrep) = 0
-          end do !iIrrep
-        end do ! kcent
-      end do !kCar
-      do iIrrep=0,nIrrep-1
-        jndGrd(iCar,iCent,iIrrep) = 0
-      end do !iIrrep
-    end do !ICat
+    JfGrd(:,iCent) = .false.
+    JfHss(iCent,:,:,:) = .false.
+    JfHss(:,:,iCent,:) = .false.
+    JndGrd(:,iCent,0:nIrrep-1) = 0
+    JndHss(iCent,:,:,:,0:nIrrep-1) = 0
+    JndHss(:,:,iCent,:,0:nIrrep-1) = 0
   end if ! uf eq
 end do !icent
 

@@ -147,7 +147,7 @@ if (ltri) then
       ! To which irreps does this derivative contribute?
 
       do iIrrep=0,nIrrep-1
-        if (indgrd(iCar,iCent,iirrep) /= 0) pert(iIrrep) = .true.
+        if (indgrd(iCar,iCent,iIrrep) /= 0) pert(iIrrep) = .true.
       end do
 
       if (Indx(iCar,iCent) > 0) then

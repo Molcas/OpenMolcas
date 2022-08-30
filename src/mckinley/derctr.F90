@@ -28,12 +28,11 @@ integer(kind=iwp) :: mdci, mdcj, mdck, mdcl, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7
 logical(kind=iwp) :: ldot, JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
 #include "Molcas.fh"
 #include "disp.fh"
-integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, iSh, istop, jAtom, jCar, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
-                     nDisp, nnIrrep
+integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, istop, jAtom, jCar, JndGrd(3,4,0:7), nDisp, nnIrrep
 logical(kind=iwp) :: IfG(4), IfGrd(3,4), IfHss(4,3,4,3)
 logical(kind=iwp), external :: TF
 #ifdef _OLD_CODE_
-integer(kind=iwp) :: i, iCo(4), iCom(0:7,0:7), idcrr(0:7), ielem, iStabM(0:7), iTmp, j, jOper, LmbdR, nDCRR, nCoM, nMax, nStabM
+integer(kind=iwp) :: i, iCo(4), iCom(0:7,0:7), idcrr(0:7), ielem, iStabM(0:7), iTmp(0:7), j, jOper, LmbdR, nDCRR, nCoM, nMax, nStabM
 logical(kind=iwp) :: chck
 logical(kind=iwp), external :: TstFnc
 #endif
@@ -94,14 +93,8 @@ do iIrrep=0,nnIrrep-1
     end if
   end do
 end do
-do iIrrep=0,nnIrrep-1
-  do iCar=1,3
-    do iSh=1,4
-      JndGrd(iCar,iSh,iIrrep) = IndGrd(iCar,iSh,iIrrep)
-      JfGrd(iCar,iSh) = IfGrd(iCar,iSh)
-    end do
-  end do
-end do
+JndGrd(:,:,0:nnIrrep-1) = IndGrd(:,:,0:nnIrrep-1)
+JfGrd(:,:) = IfGrd(:,:)
 #ifdef _OLD_CODE_
 iCo(1) = mdci
 iCo(2) = mdcj
@@ -109,7 +102,6 @@ iCo(3) = mdck
 iCo(4) = mdcl
 #endif
 IndHss(:,:,:,:,0:nirrep-1) = 0
-JndHss(:,:,:,:,0:nirrep-1) = 0
 IfHss(:,:,:,:) = .false.
 JfHss(:,:,:,:) = .false.
 if (.not. ldot) return
@@ -130,10 +122,8 @@ do iAtom=1,4
     ! Generate all possible (left) CoSet
     ! To the stabilizer of A and B
 
-    do iIrrep=0,nIrrep-1
-      do jOper=0,nStabM-1
-        iCoM(iIrrep,jOper) = ieor(iOper(iIrrep),iStabM(jOper))
-      end do
+    do jOper=0,nStabM-1
+      iCoM(0:nIrrep-1,jOper) = ieor(iOper(0:nIrrep-1),iStabM(jOper))
     end do
 
     ! Order the Coset so we will have the unique ones first
@@ -150,11 +140,9 @@ do iAtom=1,4
       ! Move unique CoSet
 
       nMax = nMax+1
-      do ielem=0,nStabM-1
-        iTmp = iCoM(nMax-1,ielem)
-        iCoM(nMax-1,ielem) = iCoM(j,ielem)
-        iCoM(j,ielem) = iTmp
-      end do
+      iTmp(0:nStabM-1) = iCoM(nMax-1,0:nStabM-1)
+      iCoM(nMax-1,0:nStabM-1) = iCoM(j,0:nStabM-1)
+      iCoM(j,0:nStabM-1) = iTmp(0:nStabM-1)
       if (nMax == nIrrep/nStabM) exit outer
     end do outer
 
@@ -181,11 +169,11 @@ do iAtom=1,4
     do iIrrep=0,nnIrrep-1
       do iCar=1,3
         if (iAtom == jAtom) then
-          istop = iCar
+          iStop = iCar
         else
           iStop = 3
         end if
-        do jCar=1,istop
+        do jCar=1,iStop
           IfHss(iAtom,iCar,jAtom,jCar) = .true.
           if ((jndGrd(iCar,iAtom,iIrrep) > 0) .and. (jndGrd(jCar,jAtom,iIrrep) > 0)) then
             IndHss(iAtom,iCar,jAtom,jCar,iIrrep) = iTri(JndGrd(iCar,iAtom,iIrrep),JndGrd(jCar,jAtom,iIrrep))
@@ -210,13 +198,11 @@ do iAtom=1,4
       else
         iStop = 3
       end if
-      do jCar=1,iStop
-        if (iAtom >= jAtom) then
-          JfHss(iAtom,iCar,jAtom,jCar) = IfHss(iAtom,iCar,jAtom,jCar)
-        else if (iAtom < jAtom) then
-          JfHss(iAtom,iCar,jAtom,jCar) = IfHss(jAtom,jCar,iAtom,iCar)
-        end if
-      end do
+      if (iAtom >= jAtom) then
+        JfHss(iAtom,iCar,jAtom,1:iStop) = IfHss(iAtom,iCar,jAtom,1:iStop)
+      else if (iAtom < jAtom) then
+        JfHss(iAtom,iCar,jAtom,1:iStop) = IfHss(jAtom,1:iStop,iAtom,iCar)
+      end if
     end do
   end do
 end do

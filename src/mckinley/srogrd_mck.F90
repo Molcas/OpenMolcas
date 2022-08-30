@@ -37,7 +37,7 @@ use Definitions, only: u6
 
 implicit none
 #include "grd_mck_interface.fh"
-integer(kind=iwp) :: iAng, iCnt, iDCRT(0:7), iIrrep, Indx(3,4), ip, ipFA1, ipFA2, ipFB1, ipFB2, ipFin, ipTmp, iShll, iuvwx(4), &
+integer(kind=iwp) :: iAng, iCnt, iDCRT(0:7), Indx(3,4), ip, ipFA1, ipFA2, ipFB1, ipFB2, ipFin, ipTmp, iShll, iuvwx(4), &
                      JndGrd(3,4,0:7), kCnt, kCnttp, kdc, lDCRT, LmbdT, mOp(4), mvec, n, nDCRT, nExpi, nt
 real(kind=wp) :: C(3), Fact, TC(3)
 logical(kind=iwp) :: DiffCnt, ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
@@ -94,25 +94,16 @@ do kCnttp=1,nCnttp
     tr(:) = .false.
     JndGrd(:,:,0:nIrrep-1) = 0
 
-    do iCnt=1,2
-      JfGrad(iDCar,iCnt) = IfGrad(iDCar,iCnt)
-    end do
+    JfGrad(iDCar,1:2) = IfGrad(iDCar,1:2)
 
     do ICnt=1,2
-      if (ifgrad(idcar,iCnt)) then
-        do iIrrep=0,nIrrep-1
-          jndGrd(iDCar,iCnt,iIrrep) = IndGrd(iIrrep)
-        end do
-      end if
+      if (IfGrad(iDCar,iCnt)) JndGrd(iDCar,iCnt,0:nIrrep-1) = IndGrd(0:nIrrep-1)
     end do
 
     if ((kdc+kCnt) == iDCnt) then
       Tr(3) = .true.
-      JfGrad(iDCar,1) = .true.
-      JfGrad(iDCar,2) = .true.
-      do iIrrep=0,nIrrep-1
-        jndGrd(iDCar,3,iIrrep) = -IndGrd(iIrrep)
-      end do
+      JfGrad(iDCar,1:2) = .true.
+      JndGrd(iDCar,3,0:nIrrep-1) = -IndGrd(0:nIrrep-1)
     end if
 
     do lDCRT=0,nDCRT-1

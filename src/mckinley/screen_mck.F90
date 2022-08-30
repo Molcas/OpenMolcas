@@ -52,11 +52,11 @@ logical(kind=iwp) :: PreScr, ldot
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
-integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZE, iZeta, jEta, jPAO, jZeta
+integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZeta, jEta, jPAO, jZeta
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPrint, iRout
 #endif
-real(kind=wp) :: abcd, Et, rKAB, rKCD, Zt
+real(kind=wp) :: abcd
 integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
 
 #ifdef _DEBUGPRINT_
@@ -191,22 +191,14 @@ end if
 
 ij = 0
 do iEta=1,lEta
-  Et = Eta(iEta)
-  rKCD = rkC(iEta)
-  do iZeta=1,lZeta
-    Zt = Zeta(iZeta)
-    rKAB = rkA(iZeta)
-    ij = ij+1
-    xpre(ij) = rKAB*rKCD*sqrt(One/(Zt+Et))
-  end do
+  xpre(ij+1:ij+lZeta) = rKA(1:lZeta)*rKC(iEta)*sqrt(One/(Zeta(1:lZeta)+Eta(iEta)))
+  ij = ij+lZeta
 end do
 if (ldot) then
   jPAO = 0
   do iPAO=1,mPAO
-    do iZE=0,lZeta*lEta-1
-      jPAO = jPAO+1
-      PAO(jPAO) = xpre(iZE+1)*PAO(jPAO)
-    end do
+    PAO(jPAO+1:jPAO+lZeta*lEta) = xpre(1:lZeta*lEta)*PAO(jPAO+1:jPAO+lZeta*lEta)
+    jPAO = jPAO+lZeta*lEta
   end do
 end if
 #ifdef _DEBUGPRINT_
@@ -251,11 +243,11 @@ logical(kind=iwp) :: PreScr, ldot
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
-integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZE, iZeta, jEta, jPAO, jZeta
+integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZeta, jEta, jPAO, jZeta
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPrint, iRout
 #endif
-real(kind=wp) :: abcd, Et, rKAB, rKCD, Zt
+real(kind=wp) :: abcd
 integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
 
 #ifdef _DEBUGPRINT_
@@ -384,22 +376,14 @@ end if
 
 ij = 0
 do iEta=1,lEta
-  Et = Eta(iEta)
-  rKCD = rkC(iEta)
-  do iZeta=1,lZeta
-    Zt = Zeta(iZeta)
-    rKAB = rkA(iZeta)
-    ij = ij+1
-    xpre(ij) = rKAB*rKCD*sqrt(One/(Zt+Et))
-  end do
+  xpre(ij+1:ij+lZeta) = rKA(1:lZeta)*rKC(iEta)*sqrt(One/(Zeta(1:lZeta)+Eta(iEta)))
+  ij = ij+lZeta
 end do
 if (ldot) then
   jPAO = 0
   do iPAO=1,mPAO
-    do iZE=0,lZeta*lEta-1
-      jPAO = jPAO+1
-      PAO(jPAO) = xpre(iZE+1)*PAO(jPAO)
-    end do
+    PAO(jPAO+1:jPAO+lZeta*lEta) = xpre(1:lZeta*lEta)*PAO(jPAO+1:jPAO+lZeta*lEta)
+    jPAO = jPAO+lZeta*lEta
   end do
 end if
 #ifdef _DEBUGPRINT_

@@ -35,7 +35,7 @@ logical(kind=iwp) :: First
 integer(kind=iwp) :: n1, m1, n2, m2, n3, m3, n4, m4, nGr, nArr, ngr1, nt, nZeta, IndZet(nZeta), lZeta, nEta, IndEta(nEta), lEta
 real(kind=wp) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), g1In(nT,nGr), Array(nArr), xpre(nt), g1Out(nGr1)
 #include "lCache.fh"
-integer(kind=iwp) :: iabcdg, IncVec, ip, ipA2, ipA3, it, lsize, nCache, nVec
+integer(kind=iwp) :: iabcdg, IncVec, ip, ipA2, ipA3, lsize, nCache, nVec
 
 !iRout = 18
 !iPrint = nPrint(iRout)
@@ -46,9 +46,7 @@ integer(kind=iwp) :: iabcdg, IncVec, ip, ipA2, ipA3, it, lsize, nCache, nVec
 ! Cache size is 32 k word (real*8)
 
 do iabcdg=1,ngr
-  do it=1,nt
-    G1In(it,iabcdg) = G1In(it,iabcdg)*xpre(it)
-  end do
+  G1In(:,iabcdg) = G1In(:,iabcdg)*xpre(:)
 end do
 
 ! Reduce for contraction matrix

@@ -35,8 +35,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_mck_interface.fh"
-integer(kind=iwp) :: iAng(4), iBeta, iCnt, iDCRT(0:7), iIrrep, inddum(3,4,3,4,8), ipA, ipAOff, ipB, ipBOff, iuvwx(4), &
-                     JndGrd(3,4,0:7), mOp(4), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, nDCRT, nip, nRys
+integer(kind=iwp) :: iAng(4), iBeta, iCnt, iDCRT(0:7), inddum(3,4,3,4,8), ipA, ipAOff, ipB, ipBOff, iuvwx(4), JndGrd(3,4,0:7), &
+                     mOp(4), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, nDCRT, nip, nRys
 logical(kind=iwp) :: DiffCnt, ifdum(3,4,3,4), jfg(4), JfGrd(3,4), kfgrd(3,4), Tr(4)
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Dum(1), Fact, TC(3)
 integer(kind=iwp), external :: NrOpr
@@ -63,7 +63,6 @@ ipB = nip
 nip = nip+nAlpha*nBeta
 if (nip-1 > nArr) write(u6,*) ' nip-1 > nArr'
 
-iIrrep = 0
 iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
@@ -120,15 +119,9 @@ do kCnttp=1,nCnttp
     iuvwx(4) = dc(kdc+kCnt)%nStab
     JfGrd(:,:) = .false.
     JndGrd(:,:,0:nIrrep-1) = 0
-    do iCnt=1,2
-      JfGrd(iDCar,iCnt) = IfGrad(iDCar,iCnt)
-    end do
+    JfGrd(iDCar,1:2) = IfGrad(iDCar,1:2)
     do ICnt=1,2
-      if (IfGrad(idcar,iCnt)) then
-        do iIrrep=0,nIrrep-1
-          jndGrd(iDCar,iCnt,iIrrep) = IndGrd(iIrrep)
-        end do
-      end if
+      if (IfGrad(iDCar,iCnt)) JndGrd(iDCar,iCnt,0:nIrrep-1) = IndGrd(0:nIrrep-1)
     end do
 
     Tr(1) = .false.
@@ -137,11 +130,8 @@ do kCnttp=1,nCnttp
     Tr(4) = .false.
     if ((kdc+kCnt) == iDCnt) then
       Tr(3) = .true.
-      JfGrd(iDCar,1) = .true.
-      JfGrd(iDCar,2) = .true.
-      do iIrrep=0,nIrrep-1
-        jndGrd(iDCar,3,iIrrep) = -IndGrd(iIrrep)
-      end do
+      JfGrd(iDCar,1:2) = .true.
+      JndGrd(iDCar,3,0:nIrrep-1) = -IndGrd(0:nIrrep-1)
     end if
 
     do lDCRT=0,nDCRT-1
@@ -156,15 +146,11 @@ do kCnttp=1,nCnttp
       if (Eq(A,RB) .and. EQ(A,TC)) cycle
       if (EQ(A,TC)) then
         kfGrd(iDCar,1) = .false.
-        do iIrrep=0,nIrrep-1
-          kndGrd(iDCar,1,iirrep) = 0
-        end do
+        kndGrd(iDCar,1,0:nIrrep-1) = 0
       end if
       if (EQ(RB,TC)) then
         kfGrd(iDCar,2) = .false.
-        do iIrrep=0,nIrrep-1
-          kndgrd(iDCar,2,iIrrep) = 0
-        end do
+        kndGrd(iDCar,2,0:nIrrep-1) = 0
       end if
 
       if (kfGrd(idcar,1)) then

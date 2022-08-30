@@ -26,7 +26,7 @@ real(kind=wp) :: rFinal(*), Hess(*), DAO(nZeta,*), Alpha(nZeta), Beta(nZeta), Ze
 logical(kind=iwp) :: ifgrd(3,4), ifhss(3,4,3,4), ifg(4), tr(4)
 integer(kind=iwp) :: iDAO, iElem, iM1xp, indi, Indx(3,4), ip, ipDAO, ipDAOt, ipK, ipPx, ipPy, ipPz, ipZ, ipZI, iZeta, &
                      jndgrd(3,4,0:7), jndhss(3,4,3,4,0:7), nb, nGr
-real(kind=wp) :: coori(3,4), Fac, FactECP, Gmma, PTC2, tfac, Tmp0, Tmp1
+real(kind=wp) :: coori(3,4), FactECP, Gmma, PTC2, Tmp0, Tmp1
 logical(kind=iwp) :: jfg(4), jfgrd(3,4), jfhss(3,4,3,4), lGrad, lHess
 logical(kind=iwp), external :: EQ
 external :: Cff2D, Fake, TNAI1
@@ -89,11 +89,8 @@ do iM1xp=1,dbsc(kCnttp)%nM1
   end do
 
   do iDAO=1,nDAO
-    do iZeta=1,nZeta
-      Fac = FactECP*Array(ipK+iZeta-1)*Array(ipZI+iZeta-1)*Two*Pi
-      ipDAOt = nZeta*(iDAO-1)+iZeta-1+ipDAO
-      Array(ipDAOt) = Fac*DAO(iZeta,iDAO)
-    end do
+    ipDAOt = ipDAO+nZeta*(iDAO-1)
+    Array(ipDAOt:ipDAOt+nZeta-1) = FactECP*Array(ipK:ipK+nZeta-1)*Array(ipZI:ipZI+nZeta-1)*Two*Pi*DAO(:,iDAO)
   end do
 
   ! Compute integrals with the Rys quadrature.
@@ -112,11 +109,8 @@ do iM1xp=1,dbsc(kCnttp)%nM1
   if (lGrad) then
     nb = nzeta*nTri_Elem1(iAng(1))*nTri_Elem1(iAng(2))
     do iElem=1,nTri_Elem1(iAng(1))*nTri_Elem1(iAng(2))*ngr
-      do iZeta=1,nZeta
-        tfac = Two*PI*Array(ipK+iZeta-1)*Array(ipZI-1+iZeta)
-        indi = (iElem-1)*nZeta+iZeta
-        Array(ip+indi-1) = FactECP*tfac*Array(ip+indi-1)
-      end do
+      indi = ip+(iElem-1)*nZeta
+      Array(indi:indi+nZeta-1) = FactECP*Two*PI*Array(ipK:ipK+nZeta-1)*Array(ipZI:ipZI+nZeta-1)*Array(indi:indi+nZeta-1)
     end do
 
     call SmAdNa(Array(ip),nb,rFinal,nop(1:3),loper,jndGrd,iuvwx(1:3),Indx,idcar,One,tr)

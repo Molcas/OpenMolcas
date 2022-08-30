@@ -37,10 +37,9 @@ implicit none
 #include "hss_interface.fh"
 #include "Molcas.fh"
 #include "disp.fh"
-integer(kind=iwp) :: iAnga(4), iAtom, iBeta, iCar, iCent, iComp, iDAO, iDCRT(0:7), iIrrep, Indx(3,4), ipA, ipAOff, ipArr, ipB, &
-                     ipBOff, ipDAO, iStop, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCar, &
-                     kCent, kCnt, kCnttp, kdc, lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, nnIrrep, &
-                     nRys
+integer(kind=iwp) :: iAnga(4), iBeta, iCar, iCent, iComp, iDAO, iDCRT(0:7), iIrrep, Indx(3,4), ipA, ipAOff, ipArr, ipB, ipBOff, &
+                     ipDAO, iStop, iuvwx(4), jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCnt, kCnttp, kdc, &
+                     lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, nnIrrep, nRys
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3)
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 integer(kind=iwp), external :: NrOpr
@@ -107,10 +106,7 @@ end do
 
 nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 do iDAO=1,nDAO
-  do iZeta=1,nZeta
-    Fact = Two*rkappa(iZeta)*Pi/Zeta(iZeta)
-    DAO(iZeta,iDAO) = Fact*DAO(iZeta,iDAO)
-  end do
+  DAO(:,iDAO) = Two*rKappa(:)*Pi/Zeta(:)*DAO(:,iDAO)
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('DAO',' ',DAO,nZeta,nDAO)
@@ -153,22 +149,10 @@ do kCnttp=1,nCnttp
 
       ! Overwrite with information in IfGrd, IndGrd, IfHss, and IndHss.
 
-      do iAtom=0,1
-        do iCar=0,2
-          JfGrd(iCar,iAtom) = Ifgrd(iCar,iAtom)
-          do iIrrep=0,nSym-1
-            JndGrd(iCar,iAtom,iIrrep) = IndGrd(iCar,iAtom,iIrrep)
-          end do
-          do jAtom=0,1
-            do jCar=0,2
-              JfHss(iAtom,iCar,jAtom,jCar) = IfHss(iAtom,iCar,jAtom,jCar)
-              do iIrrep=0,nSym-1
-                JndHss(iAtom,iCar,jAtom,jCar,iIrrep) = IndHss(iAtom,iCar,jAtom,jCar,iIrrep)
-              end do
-            end do
-          end do
-        end do
-      end do
+      JfGrd(0:2,0:1) = Ifgrd(0:2,0:1)
+      JndGrd(0:2,0:1,0:nSym-1) = IndGrd(0:2,0:1,0:nSym-1)
+      JfHss(0:1,0:2,0:1,0:2) = IfHss(0:1,0:2,0:1,0:2)
+      JndHss(0:1,0:2,0:1,0:2,0:nSym-1) = IndHss(0:1,0:2,0:1,0:2,0:nSym-1)
 
       ! Derivatives with respect to the operator is computed via
       ! the translational invariance.
@@ -188,11 +172,9 @@ do kCnttp=1,nCnttp
             ! third center so that its derivative will be computed
             ! by the translational invariance.
 
-            JndGrd(iCar,0,iIrrep) = abs(JndGrd(iCar,0,iIrrep))
-            JndGrd(iCar,1,iIrrep) = abs(JndGrd(iCar,1,iIrrep))
+            JndGrd(iCar,0:1,iIrrep) = abs(JndGrd(iCar,0:1,iIrrep))
             JndGrd(iCar,2,iIrrep) = -nDisp
-            JfGrd(iCar,0) = .true.
-            JfGrd(iCar,1) = .true.
+            JfGrd(iCar,0:1) = .true.
             JfGrd(iCar,2) = .false.
           else
             JndGrd(iCar,2,iIrrep) = 0
@@ -244,22 +226,12 @@ do kCnttp=1,nCnttp
       do iCent=0,1
         if (EQ(Coori(1,iCent+1),Coori(1,3))) then
           IfG(iCent) = .false.
-          do iCar=0,2
-            jfGrd(iCar,iCent) = .false.
-            do kCar=0,2
-              do kCent=0,3
-                jfHss(iCent,iCar,kCent,kCar) = .false.
-                jfHss(kCent,kCar,iCent,iCar) = .false.
-                do iIrrep=0,nSym-1
-                  jndHss(iCent,iCar,kCent,kCar,iIrrep) = 0
-                  jndHss(kCent,kCar,iCent,iCar,iIrrep) = 0
-                end do
-              end do
-            end do
-            do iIrrep=0,nSym-1
-              jndGrd(iCar,iCent,iIrrep) = 0
-            end do
-          end do
+          JfGrd(:,iCent) = .false.
+          JfHss(iCent,:,:,:) = .false.
+          JfHss(:,:,iCent,:) = .false.
+          JndGrd(:,iCent,0:nSym-1) = 0
+          JndHss(iCent,:,:,:,0:nSym-1) = 0
+          JndHss(:,:,iCent,:,0:nSym-1) = 0
         end if
       end do
       JfGrd(:,:) = .false.

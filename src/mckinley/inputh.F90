@@ -62,9 +62,7 @@ logical(kind=iwp), external :: TstFnc
 !end if
 
 iRout = 99
-do i=1,nRout
-  nPrint(i) = 5
-end do
+nPrint(:) = 5
 show = .false.
 Onenly = .false.
 Test = .false.
@@ -433,9 +431,7 @@ if (nDisp /= mDisp) then
 end if
 if (sIrrep) then
   ndisp = ldisp(0)
-  do i=1,nIrrep-1
-    lDisp(i) = 0
-  end do
+  lDisp(1:nIrrep-1) = 0
 end if
 call mma_allocate(TDisp,nDisp,Label='TDisp')
 TDisp(:) = 30
@@ -565,9 +561,7 @@ if (TRSymm) then
       if (iSym(i) /= 0) cycle
       iTR = iTR+1
       do ldsp=1,lDisp(0)
-        if (Car(ldsp) == i) then
-          AM(iTR,ldsp) = C(4,ldsp)
-        end if
+        if (Car(ldsp) == i) AM(iTR,ldsp) = C(4,ldsp)
       end do
     end do
 

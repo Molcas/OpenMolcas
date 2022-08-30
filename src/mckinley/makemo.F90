@@ -29,13 +29,14 @@ integer(kind=iwp) :: nTemp, n_Int, icmp(4), iCmpa(4), ibasi, jbasj, kbask, lbasl
                      indgrd(3,4,0:nirrep-1), ishll(4), ishell(4), nmoin, iuvwx(4), iAOST(4), ianga(4)
 real(kind=wp) :: AOInt(n_Int), Temp(nTemp), rmoin(nmoin), buffer(*)
 integer(kind=iwp) :: ibas(4), iCar, iCent, iCnt, iGr, ii, iIrrep, iMax, ip, ip0, ip1, ip2, ip5, ipc, ipck, ipcl, ipFin, mSum, &
-                     nabcd, nCk, nCl, nij, nijkl, nkl, nScrtch
+                     nabcd, nCk, nCl, nij, nijkl, nkl, nScrtch, ntot
 logical(kind=iwp) :: lc, pert(0:7)
 
 iMax = 0
 mSum = 0
 nabcd = iBasi*jBasj*kBask*lBasl
 nijkl = icmp(1)*icmp(2)*icmp(3)*icmp(4)
+ntot = nabcd*nijkl
 iBas(1) = iBasi
 iBas(2) = jBasj
 iBas(3) = kBask
@@ -48,7 +49,7 @@ imax = max(iMax,nAco)
 
 ip = 1
 ip0 = ip
-ip = ip+nGr*nijkl*nabcd
+ip = ip+nGr*ntot
 ip1 = ip
 nScrtch = imax**4
 ip = ip+nScrtch
@@ -65,7 +66,7 @@ end if
 !ip = 2
 !Temp(ip-1) = Zero
 !ip0 = ip
-!ip = ip+nGr*nijkl*nabcd+1
+!ip = ip+nGr*ntot+1
 !Temp(ip-1) = Zero
 !ip1 = ip
 !nScrtch = imax**4+1
@@ -110,30 +111,26 @@ do iCent=1,4
   lc = .false.
   do iCar=1,3
     pert(0:nIrrep-1) = .false.
-    lc = .false.
+    lC = .false.
     do iIrrep=0,nIrrep-1
-      if (indgrd(icar,icent,iIrrep) /= 0) then
-        pert(iIrrep) = .true.
-      end if
-      if (IndGrd(iCar,icent,iirrep) /= 0) lC = .true.
+      if (IndGrd(iCar,iCent,iIrrep) /= 0) pert(iIrrep) = .true.
+      if (IndGrd(iCar,iCent,iIrrep) /= 0) lC = .true.
     end do
     if (lc) then
       if (Indx(iCar,iCent) > 0) then
 
         iGr = Indx(icar,icent)
-        call MOAcc(Temp(ip0+(iGr-1)*nijkl*nabcd),Temp(ip1),Temp(ip2),nScrtch,ishell,rmoin(ipCk),nCk,rmoin(ipCl),nCl,Moip,nACO, &
-                   pert,nOp,ibas,icmpa,iCar,icent,indgrd,real(iuvwx(iCent),kind=wp)/real(nIrrep,kind=wp),iaost,buffer,nij,nkl, &
+        call MOAcc(Temp(ip0+(iGr-1)*ntot),Temp(ip1),Temp(ip2),nScrtch,ishell,rmoin(ipCk),nCk,rmoin(ipCl),nCl,Moip,nACO,pert,nOp, &
+                   ibas,icmpa,iCar,icent,indgrd,real(iuvwx(iCent),kind=wp)/real(nIrrep,kind=wp),iaost,buffer,nij,nkl, &
                    Shells(ishll(1))%nBasis,Shells(ishll(2))%nBasis,icmpa(1),icmpa(2))
 
       else if (Indx(iCar,iCent) < 0) then
-        Temp(ip5:ip5+nabcd*nijkl-1) = Zero
+        Temp(ip5:ip5+ntot-1) = Zero
         do iCnt=1,4
           iGr = Indx(iCar,iCnt)
           if (iGr > 0) then
-            ipFin = (iGr-1)*nijkl*nabcd+ip0
-            do ii=1,nabcd*nijkl
-              Temp(ip5+ii-1) = Temp(ip5+ii-1)-Temp(ipFin-1+ii)
-            end do
+            ipFin = (iGr-1)*ntot+ip0
+            Temp(ip5:ip5+ntot-1) = Temp(ip5:ip5+ntot-1)-Temp(ipFin:ipFin+ntot-1)
           end if
         end do
         call MOAcc(Temp(ip5),Temp(ip1),Temp(ip2),nScrtch,ishell,rmoin(ipCk),nCk,rmoin(ipCl),nCl,moip,nACO,pert,nOp,ibas,icmpa, &

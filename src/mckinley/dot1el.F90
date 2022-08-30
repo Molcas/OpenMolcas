@@ -57,7 +57,7 @@ logical(kind=iwp) :: DiffOp
 #include "disp.fh"
 integer(kind=iwp) :: i, iAng, iAO, iAtom, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iComp1, iComp2, iDCRR(0:7), &
                      iDCRT(0:7), ielem, iIrrep, ijS, IndGrd(0:2,0:1,0:7), IndHss(0:1,0:2,0:1,0:2,0:7), iPrim, iS, iShell, iShll, &
-                     iSmLbl, iStabM(0:7), iStabO(0:7), iStop, iTmp, iuv, j, jAng, jAO, jAtom, jBas, jCar, jCmp, jCnt, jCnttp, &
+                     iSmLbl, iStabM(0:7), iStabO(0:7), iStop, iTmp(0:7), iuv, j, jAng, jAO, jAtom, jBas, jCar, jCmp, jCnt, jCnttp, &
                      jPrim, jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDAO, nDCRR, &
                      nDCRT, nDisp1, nDisp2, nMax, nnIrrep, nOp(2), nOrder, nOrdOp, nScrt1, nScrt2, nSkal, nSO, nStabM, nStabO, &
                      nTasks
@@ -110,7 +110,7 @@ do ijS=1,nTasks
   iCnt = iSD(14,iS)
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
-  !do jS=1,iS
+  !  do jS=1,iS
   jShll = iSD(0,jS)
   jAng = iSD(1,jS)
   jCmp = iSD(2,jS)
@@ -172,10 +172,8 @@ do ijS=1,nTasks
     ! Generate all possible (left) CoSet
     ! To the stabilizer of A and B
 
-    do i=0,nIrrep-1
-      do j=0,nStabM-1
-        iCoM(i,j) = ieor(iOper(i),iStabM(j))
-      end do
+    do j=0,nStabM-1
+      iCoM(0:nIrrep-1,j) = ieor(iOper(0:nIrrep-1),iStabM(j))
     end do
     ! Order the Coset so we will have the unique ones first
     nMax = 1
@@ -188,11 +186,9 @@ do ijS=1,nTasks
       end do
       ! Move unique CoSet
       nMax = nMax+1
-      do ielem=0,nStabM-1
-        iTmp = iCoM(nMax-1,ielem)
-        iCoM(nMax-1,ielem) = iCoM(j,ielem)
-        iCoM(j,ielem) = iTmp
-      end do
+      iTmp(0:nStabM-1) = iCoM(nMax-1,0:nStabM-1)
+      iCoM(nMax-1,0:nStabM-1) = iCoM(j,0:nStabM-1)
+      iCoM(j,0:nStabM-1) = iTmp(0:nStabM-1)
       if (nMax == nIrrep/nStabM) exit loop1
     end do loop1
     IfHss(:,:,:,:) = .false.
@@ -281,9 +277,7 @@ do ijS=1,nTasks
           do jCar=0,iStop
             if (IfHss(0,iCar,0,jCar) .or. IfHss(0,jCar,0,iCar)) then
               IfHss(iAtom,iCar,jAtom,jCar) = .false.
-              do iIrrep=0,nIrrep-1
-                IndHss(iAtom,iCar,jAtom,jCar,iIrrep) = -IndHss(iAtom,iCar,jAtom,jCar,iIrrep)
-              end do
+              IndHss(iAtom,iCar,jAtom,jCar,0:nIrrep-1) = -IndHss(iAtom,iCar,jAtom,jCar,0:nIrrep-1)
             end if
           end do
         end do

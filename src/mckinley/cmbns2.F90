@@ -21,7 +21,7 @@ subroutine CmbnS2(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Hess,nHess,DAO,IfHs
 
 use Index_Functions, only: C_Ind, iTri, nTri_Elem1
 use Symmetry_Info, only: iChTbl, nIrrep
-use Constants, only: Two, Four, OneHalf
+use Constants, only: One, Two, Four, OneHalf
 use Definitions, only: wp, iwp, r8
 
 implicit none
@@ -30,8 +30,8 @@ real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFina
                  Alpha(nZeta), Hess(nHess), DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
 logical(kind=iwp) :: IfHss(0:1,0:2,0:1,0:2)
 integer(kind=iwp) :: i, ia(3), iax, iay, ib(3), ibx, iby, iCar, iCh, iCnt, iCoor, iHess, iIrrep, ipa, ipb, istb(0:1), iStop, &
-                     iyaMax, iybMax, iZeta, jCar, jCnt, jCoor, kCoor, nDAO
-real(kind=wp) :: Fact, ps, rIc, rtemp
+                     iyaMax, iybMax, jCar, jCnt, jCoor, kCoor, nDAO
+real(kind=wp) :: Fact, ps, rtemp
 integer(kind=iwp), external :: iPrmt
 real(kind=r8), external :: DDot_
 
@@ -41,9 +41,7 @@ real(kind=r8), external :: DDot_
 iStb(0) = iu
 iStb(1) = iv
 
-do iZeta=1,nZeta
-  rKappa(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-OneHalf)
-end do
+rKappa(:) = rKappa*Zeta**(-OneHalf)
 !if (iPrint >= 99) then
 !  call RecPrt(' In CmbnS2: Zeta  ',' ',Zeta,1,nZeta)
 !  call RecPrt(' In CmbnS2: rKappa',' ',rKappa,1,nZeta)
@@ -73,29 +71,23 @@ do iax=0,la
           kCoor = mod(jCoor,3)+1
           i = iTri(iCoor,iCoor)
           if (IfHss(0,iCoor-1,0,iCoor-1)) then
-            do iZeta=1,nZeta
-              rFinal(iZeta,ipa,ipb,i) = rKappa(iZeta)* &
-                                        ((Two*Alpha(iZeta))**2*Rnxyz(iZeta,iCoor,ia(iCoor)+2,ib(iCoor))* &
-                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))- &
-                                         Two*Alpha(iZeta)*Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
-                                         Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                         Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-              if (ia(iCoor) > 0) then
-                rFinal(iZeta,ipa,ipb,i) = rFinal(iZeta,ipa,ipb,i)-rKappa(iZeta)* &
-                                          (Four*Alpha(iZeta)*real(ia(iCoor),kind=wp)* &
-                                           Rnxyz(iZeta,iCoor,ia(iCoor),ib(iCoor))* &
-                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-              end if
-              if (ia(iCoor) > 1) then
-                rFinal(iZeta,ipa,ipb,i) = rFinal(iZeta,ipa,ipb,i)+rKappa(iZeta)* &
-                                          (real(ia(iCoor)*(ia(iCoor)-1),kind=wp)* &
-                                           Rnxyz(iZeta,iCoor,ia(iCoor)-2,ib(iCoor))* &
-                                           Rnxyz(iZeta,jCoor,ia(jCoor),ib(jCoor))* &
-                                           Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor)))
-              end if
-            end do
+            rFinal(:,ipa,ipb,i) = rKappa(:)* &
+                                  ((Two*Alpha(:))**2*Rnxyz(:,iCoor,ia(iCoor)+2,ib(iCoor))* &
+                                                     Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
+                                                     Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))- &
+                                   Two*Alpha(:)*Rnxyz(:,iCoor,ia(iCoor),ib(iCoor))* &
+                                                Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
+                                                Rnxyz(:,kCoor,ia(kCoor),ib(kCoor)))
+            if (ia(iCoor) > 0) &
+              rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)-rKappa(:)*Four*Alpha(:)*real(ia(iCoor),kind=wp)* &
+                                    Rnxyz(:,iCoor,ia(iCoor),ib(iCoor))* &
+                                    Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
+                                    Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))
+            if (ia(iCoor) > 1) &
+              rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)+rKappa(:)*real(ia(iCoor)*(ia(iCoor)-1),kind=wp)* &
+                                    Rnxyz(:,iCoor,ia(iCoor)-2,ib(iCoor))* &
+                                    Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
+                                    Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))
           end if
         end do
 
@@ -105,21 +97,19 @@ do iax=0,la
           do jCoor=1,iCoor-1
             i = iTri(iCoor,jCoor)
             if (IfHss(0,iCoor-1,0,jCoor-1)) then
+              rFinal(:,ipa,ipb,i) = rKappa
               do kCoor=1,3
-                do iZeta=1,nZeta
-                  if (kCoor == 1) then
-                    rFinal(iZeta,ipa,ipb,i) = rKappa(iZeta)
-                  end if
-                  if ((kCoor == iCoor) .or. (kCoor == jCoor)) then
-                    rIc = Two*Alpha(iZeta)*Rnxyz(iZeta,kCoor,ia(kCoor)+1,ib(kCoor))
-
-                    if (ia(kCoor) > 0) rIc = rIc-dble(ia(kCoor))*Rnxyz(iZeta,kCoor,ia(kCoor)-1,ib(kCoor))
-
-                    rFinal(iZeta,ipa,ipb,i) = rFinal(iZeta,ipa,ipb,i)*rIc
+                if ((kCoor == iCoor) .or. (kCoor == jCoor)) then
+                  if (ia(kCoor) > 0) then
+                    rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)* &
+                                          (Two*Alpha(:)*Rnxyz(:,kCoor,ia(kCoor)+1,ib(kCoor))- &
+                                           real(ia(kCoor),kind=wp)*Rnxyz(:,kCoor,ia(kCoor)-1,ib(kCoor)))
                   else
-                    rFinal(iZeta,ipa,ipb,i) = rFinal(iZeta,ipa,ipb,i)*Rnxyz(iZeta,kCoor,ia(kCoor),ib(kCoor))
+                    rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)*Two*Alpha(:)*Rnxyz(:,kCoor,ia(kCoor)+1,ib(kCoor))
                   end if
-                end do
+                else
+                  rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)*Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))
+                end if
               end do
             end if
           end do
@@ -156,28 +146,27 @@ do iIrrep=0,nIrrep-1
 
             ! Get the character of the operator in the present irrep
 
-            ps = dble(iChTbl(iIrrep,nOp(2))**(iCnt+jCnt))
+            ps = real(iChTbl(iIrrep,nOp(2))**(iCnt+jCnt),kind=wp)
 
             ! Get the transf. character of the diff. operator
 
-            ps = ps*dble(iPrmt(nOp(2),iCh))
+            ps = ps*real(iPrmt(nOp(2),iCh),kind=wp)
 
             ! If the over triangular diff. are needed  multiply by two instead
             ! Because of that x2x1 y2y1 z2z1 just appear ones in the (1,2)
             ! "subhessian".
 
-            if ((iCnt /= jCnt) .and. (iCar == jCar) .and. (abs(indgrd(iCar-1,iCnt,iIrrep)) == abs(indgrd(jCar-1,jCnt,iIrrep)))) then
-              ps = ps*Two
-            end if
+            if ((iCnt /= jCnt) .and. (iCar == jCar) .and. &
+                (abs(indgrd(iCar-1,iCnt,iIrrep)) == abs(indgrd(jCar-1,jCnt,iIrrep)))) ps = ps*Two
             iHess = abs(IndHss(iCnt,iCar-1,jCnt,jCar-1,iIrrep))
-            Fact = dble(iStb(iCnt)*iStb(jCnt))/dble(nIrrep**2)
+            Fact = real(iStb(iCnt)*iStb(jCnt),kind=wp)/real(nIrrep**2,kind=wp)
             Fact = Fact*ps
             if (IndHss(iCnt,iCar-1,jCnt,jCar-1,iIrrep) > 0) then
-              rtemp = DDot_(nDAO,DAO,1,rFinal(1,1,1,i),1)
+              rtemp = DDot_(nDAO,DAO,1,rFinal(:,:,:,i),1)
               Hess(iHess) = Hess(iHess)+Fact*rtemp
             else
-              Fact = Fact*dble((-1)**(icnt+jcnt))
-              rtemp = DDot_(nDAO,DAO,1,rFinal(1,1,1,i),1)
+              Fact = Fact*(-One)**(iCnt+jCnt)
+              rtemp = DDot_(nDAO,DAO,1,rFinal(:,:,:,i),1)
               Hess(iHess) = Hess(iHess)+Fact*rtemp
             end if
           end if

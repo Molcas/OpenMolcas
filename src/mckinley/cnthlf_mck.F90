@@ -30,7 +30,7 @@ implicit none
 integer(kind=iwp) :: nCntr1, nPrm1, nCntr2, nPrm2, nZeta, lZeta, nVec, IncVec, Indij(nZeta)
 real(kind=wp) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(lZeta,nVec), A2(nPrm2,IncVec*nCntr1), A3(nVec,nCntr1,nCntr2)
 logical(kind=iwp) :: First
-integer(kind=iwp) :: iCntr1, iCntr2, iiVec, ijVec, iPrm1, iPrm2, iVec, iZeta, jZeta, mVec
+integer(kind=iwp) :: iCntr1, iCntr2, iiVec, ijVec, iPrm1, iPrm2, iZeta, jZeta, mVec
 logical(kind=iwp) :: Seg1, Seg2
 
 ! Check if the basis set is segmented
@@ -72,6 +72,7 @@ do iiVec=1,nVec,IncVec
 
     do iPrm1=1,nPrm1
       do iCntr1=1,nCntr1
+        ijVec = mVec*(iCntr1-1)+1
         ! Check for zero due to segmented basis
         if (abs(Coeff1(iPrm1,iCntr1)) > Zero) then
           do iPrm2=1,nPrm2
@@ -79,10 +80,7 @@ do iiVec=1,nVec,IncVec
             jZeta = Indij(iZeta)
             ! Skip due to screening
             if (jZeta > 0) then
-              do iVec=iiVec,iiVec+mVec-1
-                ijVec = mVec*(iCntr1-1)+(iVec-iiVec+1)
-                A2(iPrm2,ijVec) = A2(iPrm2,ijVec)+Coeff1(iPrm1,iCntr1)*A1(jZeta,iVec)
-              end do
+              A2(iPrm2,ijVec:ijVec+mVec-1) = A2(iPrm2,ijVec:ijVec+mVec-1)+Coeff1(iPrm1,iCntr1)*A1(jZeta,iiVec:iiVec+mVec-1)
             end if
           end do
         end if
@@ -95,15 +93,13 @@ do iiVec=1,nVec,IncVec
 
     do iPrm1=1,nPrm1
       do iCntr1=1,nCntr1
+        ijVec = mVec*(iCntr1-1)+1
         do iPrm2=1,nPrm2
           iZeta = (iPrm2-1)*nPrm1+iPrm1
           jZeta = Indij(iZeta)
           ! Skip due to screening
           if (jZeta > 0) then
-            do iVec=iiVec,iiVec+mVec-1
-              ijVec = mVec*(iCntr1-1)+(iVec-iiVec+1)
-              A2(iPrm2,ijVec) = A2(iPrm2,ijVec)+Coeff1(iPrm1,iCntr1)*A1(jZeta,iVec)
-            end do
+            A2(iPrm2,ijVec:ijVec+mVec-1) = A2(iPrm2,ijVec:ijVec+mVec-1)+Coeff1(iPrm1,iCntr1)*A1(jZeta,iiVec:iiVec+mVec-1)
           end if
         end do
       end do
@@ -120,10 +116,9 @@ do iiVec=1,nVec,IncVec
         ! Check for zero due to segmented basis
         if (abs(Coeff2(iPrm2,iCntr2)) > Zero) then
           do iCntr1=1,nCntr1
-            do iVec=iiVec,iiVec+mVec-1
-              ijVec = mVec*(iCntr1-1)+(iVec-iiVec+1)
-              A3(iVec,iCntr1,iCntr2) = A3(iVec,iCntr1,iCntr2)+Coeff2(iPrm2,iCntr2)*A2(iPrm2,ijVec)
-            end do
+            ijVec = mVec*(iCntr1-1)+1
+            A3(iiVec:iiVec+mVec-1,iCntr1,iCntr2) = A3(iiVec:iiVec+mVec-1,iCntr1,iCntr2)+ &
+                                                   Coeff2(iPrm2,iCntr2)*A2(iPrm2,ijVec:ijVec+mVec-1)
           end do
         end if
       end do
@@ -136,10 +131,9 @@ do iiVec=1,nVec,IncVec
     do iPrm2=1,nPrm2
       do iCntr2=1,nCntr2
         do iCntr1=1,nCntr1
-          do iVec=iiVec,iiVec+mVec-1
-            ijVec = mVec*(iCntr1-1)+(iVec-iiVec+1)
-            A3(iVec,iCntr1,iCntr2) = A3(iVec,iCntr1,iCntr2)+Coeff2(iPrm2,iCntr2)*A2(iPrm2,ijVec)
-          end do
+          ijVec = mVec*(iCntr1-1)+1
+          A3(iiVec:iiVec+mVec-1,iCntr1,iCntr2) = A3(iiVec:iiVec+mVec-1,iCntr1,iCntr2)+ &
+                                                 Coeff2(iPrm2,iCntr2)*A2(iPrm2,ijVec:ijVec+mVec-1)
         end do
       end do
     end do

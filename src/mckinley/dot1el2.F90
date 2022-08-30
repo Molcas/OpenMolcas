@@ -55,10 +55,10 @@ logical(kind=iwp) :: DiffOp
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iDCRR(0:7), iDCRT(0:7), ielem, iirrep, &
-                     ijS, IndGrd(2,3,3,0:7), iPrim, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iTmp, iuv, j, jAng, jAO, &
-                     jBas, jCar, jCmp, jCnt, jCnttp, jIrrep, jj, jPrim, jS, jShell, jShll, kk, lDCRR, lloper, LmbdR, LmbdT, mdci, &
-                     mdcj, MemKer, MemKrn, nDAO, nDCRR, nDCRT, nDisp, nMax, nOp(2), nOrder, nScrt1, nScrt2, nSkal, nSO, nStabM, &
-                     nStabO, nTasks
+                     ijS, IndGrd(2,3,3,0:7), iPrim, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iTmp(0:7), iuv, j, jAng, &
+                     jAO, jBas, jCar, jCmp, jCnt, jCnttp, jIrrep, jj, jPrim, jS, jShell, jShll, kk, lDCRR, lloper, LmbdR, LmbdT, &
+                     mdci, mdcj, MemKer, MemKrn, nDAO, nDCRR, nDCRT, nDisp, nMax, nOp(2), nOrder, nScrt1, nScrt2, nSkal, nSO, &
+                     nStabM, nStabO, nTasks
 real(kind=wp) :: A(3), B(3), FactNd, RB(3)
 logical(kind=iwp) :: AeqB
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Kern(:), PCoor(:,:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
@@ -158,10 +158,8 @@ do ijS=1,nTasks
     ! Generate all possible (left) CoSet
     ! To the stabilizer of A and B
 
-    do i=0,nIrrep-1
-      do j=0,nStabM-1
-        iCoM(i,j) = ieor(iOper(i),iStabM(j))
-      end do
+    do j=0,nStabM-1
+      iCoM(0:nIrrep-1,j) = ieor(iOper(0:nIrrep-1),iStabM(j))
     end do
     !  Order the Coset so we will have the unique ones first
     nMax = 1
@@ -174,11 +172,9 @@ do ijS=1,nTasks
       end do
       ! Move unique CoSet
       nMax = nMax+1
-      do ielem=0,nStabM-1
-        iTmp = iCoM(nMax-1,ielem)
-        iCoM(nMax-1,ielem) = iCoM(j,ielem)
-        iCoM(j,ielem) = iTmp
-      end do
+      iTmp(0:nStabM-1) = iCoM(nMax-1,0:nStabM-1)
+      iCoM(nMax-1,0:nStabM-1) = iCoM(j,0:nStabM-1)
+      iCoM(j,0:nStabM-1) = iTmp(0:nStabM-1)
       if (nMax == nIrrep/nStabM) exit loop1
     end do loop1
 
