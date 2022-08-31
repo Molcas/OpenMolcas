@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine Acore(iang,la,ishll,nordop,TC,A,Array,narr,Alpha,nalpha,fa1,fa2,jfgrad,jfhess,ld,debug)
-!  Calculates <A'|core> and <A"|core>
+! Calculates <A'|core> and <A"|core>
 !
 ! @parameter iang Angular momenta for core
 ! @parameter la Angular momenta for bra
@@ -24,8 +24,8 @@ subroutine Acore(iang,la,ishll,nordop,TC,A,Array,narr,Alpha,nalpha,fa1,fa2,jfgra
 ! @parameter nalpha number of exponents
 ! @parameter FA1 First derivatives (out)
 ! @parameter FA2 2nd derivatives (out)
-! @parameter jfgrad true for all 1-deriavtives that are needed
-! @parameter jfhess true for all 2-deriavtives that are needed
+! @parameter jfgrad true for all 1-derivatives that are needed
+! @parameter jfhess true for all 2-derivatives that are needed
 ! @parameter ld Order of derivatives
 ! @parameter debug guess
 
@@ -34,10 +34,14 @@ use Basis_Info, only: Shells
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iang, la, ishll, nordop, narr, nalpha, ld
-real(kind=wp) :: TC(3), A(3), Array(*), Alpha(*), fa1(*), fa2(*)
-logical(kind=iwp) :: jfgrad(3), jfhess(4,3,4,3), debug
+integer(kind=iwp), intent(in) :: iang, la, ishll, nordop, narr, nalpha, ld
+real(kind=wp), intent(in) :: TC(3), A(3), Alpha(nAlpha)
+real(kind=wp), intent(_OUT_) :: Array(*), fa1(*)
+real(kind=wp), intent(inout) :: fa2(*)
+logical(kind=iwp), intent(in) :: jfgrad(3), jfhess(4,3,4,3), debug
 integer(kind=iwp) :: i, iGamma, ip, ipA, ipAxyz, ipCxyz, ipK1, ipP1, ipQ1, ipRxyz, ipV, ipZ1, ipZI1, iStrt, n, nExpi, nHer, nVecAC
 logical(kind=iwp) :: ABeq(3)
 real(kind=r8), external :: DNrm2_
@@ -99,7 +103,7 @@ end if
 call Assmbl(Array(ipQ1),Array(ipAxyz),la+ld,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*nExpi,HerW(iHerW(nHer)),nHer)
 iStrt = ipA
 do iGamma=1,nExpi
-  Array(iStrt:iStrt+nAlpha-1) = Alpha(1:nAlpha)
+  Array(iStrt:iStrt+nAlpha-1) = Alpha
   iStrt = iStrt+nAlpha
 end do
 if (debug) then

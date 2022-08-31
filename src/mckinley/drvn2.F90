@@ -37,8 +37,8 @@ use Constants, only: Zero, One, Two, Three, Four, Six, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGrad
-real(kind=wp) :: Hess(nTri_Elem(nGrad))
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(out) :: Hess(nTri_Elem(nGrad))
 #include "Molcas.fh"
 #include "disp.fh"
 #include "rctfld.fh"

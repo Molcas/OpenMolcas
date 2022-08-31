@@ -31,11 +31,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nTemp, ishell(4), nCk, nCl, moip(0:7), nACO, nOp(4), ibasa(4), icmpa(4), icar, icnt, indgrd(3,4,0:7), &
-                     iAOST(4), nij, nkl, nbasi, nbasj, icmp, jcmp
-real(kind=wp) :: AOInt(nkl,nij), Temp1(nTemp), Temp2(naco,naco), Ck(nCk), Cl(nCl), fact, &
-                 Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,nTri_Elem(naco),*)
-logical(kind=iwp) :: pert(0:7)
+integer(kind=iwp), intent(in) :: nTemp, ishell(4), nCk, nCl, moip(0:7), nACO, nOp(4), ibasa(4), icmpa(4), icar, icnt, &
+                                 indgrd(3,4,0:7), iAOST(4), nij, nkl, nbasi, nbasj, icmp, jcmp
+real(kind=wp), intent(in) :: AOInt(nkl,nij), fact
+real(kind=wp), intent(out) :: Temp1(nTemp), Temp2(naco,naco)
+real(kind=wp), intent(inout) :: Ck(nCk), Cl(nCl), Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,nTri_Elem(naco),*)
+logical(kind=iwp), intent(in) :: pert(0:7)
 #include "etwas.fh"
 integer(kind=iwp) :: i, ib, iBas, ic, iCB, iirr, ij, il, ipC, ipM, irest, iSPert, j, jb, jBas, jc, jIrr, k, kAsh, kBas, kCmp, &
                      kIrr, kIrrep, kk, kMax, l, lAsh, lBas, lCmp, lIrr, ll, nt
@@ -78,10 +79,10 @@ do jc=1,jcmp
         vij = DNrm2_(nt,AOInt(1,ij),1)
         if (abs(vij*rk*rl) < cutint) cycle
         ipC = 0
+        Temp1(1:nAco*lbas*lcmp) = Zero
         do kAsh=1,nAco
           ipM = (kAsh-1)*lbas*lcmp
           il = 0
-          Temp1(ipM+1:ipM+lbas*lcmp) = Zero
           do i=1,lbas*lcmp
             do k=1,kCmp*kBas
               il = il+1

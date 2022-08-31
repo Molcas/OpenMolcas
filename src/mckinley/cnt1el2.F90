@@ -36,6 +36,7 @@ subroutine Cnt1El2(Kernel,KrnlMm,Label,iDCnt,iDCar,loper,rHrmt,DiffOp,Lab_Dsk,ia
 !***********************************************************************
 
 use McKinley_global, only: nFck, sIrrep
+use mck_interface, only: mck_mem, oneel_mck_kernel
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
@@ -48,11 +49,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-external :: Kernel, KrnlMm
-character(len=8) :: Label, Lab_Dsk
-integer(kind=iwp) :: iDCnt, iDCar, loper, iadd, isym, kcar, nordop
-real(kind=wp) :: rHrmt
-logical(kind=iwp) :: DiffOp
+procedure(oneel_mck_kernel) :: Kernel
+procedure(mck_mem) :: KrnlMm
+character(len=8), intent(in) :: Label, Lab_Dsk
+integer(kind=iwp), intent(in) :: iDCnt, iDCar, iadd, isym, kcar, nordop
+integer(kind=iwp), intent(out) :: loper
+real(kind=wp), intent(in) :: rHrmt
+logical(kind=iwp), intent(in) :: DiffOp
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iI, iIC, iIrrep, IndGrd(0:7), iopt, &
@@ -62,6 +65,7 @@ integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7
                      nOp(2), nOrder, nrOp, nScr1, nSkal, nSO, nStabM, nStabO
 real(kind=wp) :: A(3), B(3), CCoor(3), Fact, RB(3)
 logical(kind=iwp) :: DiffCnt, IfGrd(3,2), Trans(2)
+character(len=8) :: LabDsk
 real(kind=wp), allocatable :: Fnl(:), Integrals(:), Kappa(:), Kern(:), PCoor(:,:), Scr(:), ScrSph(:), SO(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, NrOpr
 logical(kind=iwp), external :: EQ, TF
@@ -69,6 +73,7 @@ logical(kind=iwp), external :: EQ, TF
 ! Compute the number of blocks from each component of the operator
 ! and the irreps it will span.
 
+LabDsk = Lab_Dsk
 CCoor(:) = Zero
 IndGrd(0:nIrrep-1) = 0
 loper = 0
@@ -369,14 +374,14 @@ do iIrrep=0,nIrrep-1
     if (iadd /= 0) then
       irc = -1
       iopt = 0
-      call drdmck(irc,iOpt,Lab_dsk,jdisp,Scr,koper)
+      call drdmck(irc,iOpt,LabDsk,jdisp,Scr,koper)
       if (irc /= 0) call SysAbendMsg('cnt1el2','error during read in rdmck',' ')
       Integrals(ip(nrop):ip(nrop)+nfck(iIrrep)-1) = Integrals(ip(nrop):ip(nrop)+nfck(iIrrep)-1)+Scr(1:nfck(iIrrep))
     end if
     irc = -1
     iopt = 0
-    !write(u6,*) Lab_dsk,jdisp,koper
-    call dwrmck(irc,iOpt,Lab_dsk,jdisp,Integrals(ip(nrop)),koper)
+    !write(u6,*) LabDsk,jdisp,koper
+    call dwrmck(irc,iOpt,LabDsk,jdisp,Integrals(ip(nrop)),koper)
     if (irc /= 0) call SysAbendMsg('cnt1el2','error during write in dwrmck',' ')
   end if
 end do

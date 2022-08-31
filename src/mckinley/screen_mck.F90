@@ -43,12 +43,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, &
-                     iphZ2, IndZet(nZeta), IndEta(nEta)
-real(kind=wp) :: PAO(mZeta*mEta*mPAO), Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
-                 rKA(nZeta), Data1(nZeta*nDArray), abmax, Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), &
-                 Data2(nEta*nDArray), cdmax, xpre(mZeta*mEta), CutInt
-logical(kind=iwp) :: PreScr, ldot
+integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2
+real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
+real(kind=wp), intent(out) :: Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
+                              rKA(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), xpre(mZeta*mEta)
+integer(kind=iwp), intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
+real(kind=wp), intent(in) :: Data1(nZeta*nDArray), abmax, Data2(nEta*nDArray), cdmax, CutInt
+logical(kind=iwp), intent(in) :: PreScr, ldot
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
@@ -102,7 +103,7 @@ if (PreScr) then
       ZInv(lZeta) = Data1(ip_ZInv(iZeta,nZeta))
       ip1 = ipOAP+mEta*mPAO*(iZeta-1)
       ip2 = ipPAO+mEta*mPAO*(lZeta-1)
-      if (lDot) Scrtch(ip2:ip2+mEta*mPAO-1) = Scrtch(ip1:ip1+mEta*mPAO-1)
+      if (ldot) Scrtch(ip2:ip2+mEta*mPAO-1) = Scrtch(ip1:ip1+mEta*mPAO-1)
     end if
   end do
 else
@@ -120,7 +121,7 @@ else
     ZInv(lZeta) = Data1(ip_ZInv(iZeta,nZeta))
     ip1 = ipOAP+mEta*mPAO*(iZeta-1)
     ip2 = ipPAO+mEta*mPAO*(lZeta-1)
-    if (lDot) Scrtch(ip2:ip2+mEta*mPAO-1) = Scrtch(ip1:ip1+mEta*mPAO-1)
+    if (ldot) Scrtch(ip2:ip2+mEta*mPAO-1) = Scrtch(ip1:ip1+mEta*mPAO-1)
   end do
 end if
 if (lZeta /= 0) then
@@ -131,7 +132,7 @@ if (lZeta /= 0) then
 
   ! Transpose eta,mPAO,zeta to mPAO,zeta,eta
 
-  if (lDot) call DGetMO(Scrtch(ipPAO),mEta,mEta,mPAO*lZeta,Scrtch(ipOAP),mPAO*lZeta)
+  if (ldot) call DGetMO(Scrtch(ipPAO),mEta,mEta,mPAO*lZeta,Scrtch(ipOAP),mPAO*lZeta)
 
   ! Prescreen Eta
 
@@ -234,12 +235,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: mPAO, nZeta, nEta, mZeta, mEta, lZeta, lEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, &
-                     iphZ2, IndZet(nZeta), IndEta(nEta)
-real(kind=wp) :: PAO(mZeta*mEta*mPAO), Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
-                 rKA(nZeta), Data1(nZeta*nDArray), abmax, Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), &
-                 Data2(nEta*nDArray), cdmax, xpre(mZeta*mEta), CutInt
-logical(kind=iwp) :: PreScr, ldot
+integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2
+real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
+real(kind=wp), intent(out) :: Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
+                              rKA(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), xpre(mZeta*mEta)
+integer(kind=iwp), intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
+real(kind=wp), intent(in) :: Data1(nZeta*nDArray), abmax, Data2(nEta*nDArray), cdmax, CutInt
+logical(kind=iwp), intent(in) :: PreScr, ldot
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif

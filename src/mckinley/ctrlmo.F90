@@ -18,7 +18,7 @@ use Definitions, only: Iwp
 
 implicit none
 #include "etwas.fh"
-integer(kind=iwp) :: moip(0:nIrrep-1), nAcO
+integer(kind=iwp), intent(out) :: moip(0:nIrrep-1), nAcO
 integer(kind=iwp) :: iIrrep, iTot
 
 iTot = 0

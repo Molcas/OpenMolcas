@@ -13,7 +13,7 @@
 
 subroutine DIN(Dens)
 
-use Index_Functions, only: iTri, nTri_Elem
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, nDens
 use Symmetry_Info, only: nIrrep
@@ -22,9 +22,9 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Dens(nDens)
+real(kind=wp), intent(out) :: Dens(nDens)
 #include "etwas.fh"
-integer(kind=iwp) :: iBas, iIrr, ip, ip1, ip2, ipD, jBas, nTemp2
+integer(kind=iwp) :: iBas, iIrr, ip, ip1, ip2, ipD, nTemp2
 real(kind=wp), allocatable :: Temp2(:)
 
 !                                                                      *
@@ -44,18 +44,16 @@ do iIrr=0,nIrrep-1
   if (nBas(iIrr) == 0) cycle
 
   call DGEMM_('N','T',nBas(iIrr),nBas(iIrr),nIsh(iIrr),One,CMO(ip,1),nBas(iIrr),CMO(ip,1),nBas(iIrr),Zero,Temp2,nBas(iIrr))
+  ip1 = 0
+  ip2 = ipD
   do iBas=1,nBas(iIrr)
-    do jBas=1,iBas-1
-      ip1 = (iBas-1)*nBas(iIrr)+jBas
-      ip2 = iTri(iBas,jBas)
-      Dens(ipD+ip2) = Temp2(ip1)*Four
-    end do
-    ip1 = (iBas-1)*nBas(iIrr)+iBas
-    ip2 = nTri_Elem(iBas)
-    Dens(ipD+ip2) = Temp2(ip1)*Two
+    Dens(ip2+1:ip2+iBas-1) = Four*Temp2(ip1+1:ip1+iBas-1)
+    Dens(ip2+iBas) = Two*Temp2(ip1+iBas)
+    ip1 = ip1+nBas(iIrr)
+    ip2 = ip2+iBas
   end do
   ip = ip+nBas(iIrr)**2
-  ipd = ipD+nTri_Elem(nBas(iIrr))
+  ipD = ipD+nTri_Elem(nBas(iIrr))
 
 end do
 

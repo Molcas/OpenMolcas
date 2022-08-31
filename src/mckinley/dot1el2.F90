@@ -36,6 +36,7 @@ subroutine Dot1El2(Kernel,KrnlMm,Hess,nGrad,DiffOp,CCoor,FD,nordop)
 !             Modified for Hessians by AB   Dec '94                    *
 !***********************************************************************
 
+use mck_interface, only: mck_mem, oneeldot_mck_kernel
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
@@ -48,10 +49,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-external :: Kernel, KrnlMm
-integer(kind=iwp) :: nGrad, nordop
-real(kind=wp) :: Hess(nGrad), CCoor(3), FD(*)
-logical(kind=iwp) :: DiffOp
+procedure(oneeldot_mck_kernel) :: Kernel
+procedure(mck_mem) :: KrnlMm
+integer(kind=iwp), intent(in) :: nGrad, nordop
+real(kind=wp), intent(out) :: Hess(nGrad)
+logical(kind=iwp), intent(in) :: DiffOp
+real(kind=wp), intent(in) :: CCoor(3), FD(*)
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iDCRR(0:7), iDCRT(0:7), ielem, iirrep, &

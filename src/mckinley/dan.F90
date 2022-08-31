@@ -22,10 +22,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) Dens(nDens)
+real(kind=wp), intent(out) :: Dens(nDens)
 #include "etwas.fh"
-integer(kind=iwp) :: i, iB, iBas, iiB, ijB, ip1, ip2, ipCC, ipcm(0:7), ipD, iS, jB, jBas, jjB, na(0:7), ndenssq, nnA
-real(kind=wp) :: Fact
+integer(kind=iwp) :: i, iB, iBas, iiB, ijB, ip1, ip2, ipCC, ipcm(0:7), ipD, iS, jB, jjB, na(0:7), ndenssq, nnA
 real(kind=wp), allocatable :: Temp1(:), Temp2(:), Temp3(:)
 
 ipD = 0
@@ -60,14 +59,13 @@ do iS=0,nIrrep-1
     call DGEMM_('N','N',nBas(is),nBas(is),nBas(is),One,CMO(ipCM(iS),1),nBas(is),Temp1,nBas(is),Zero,Temp3,nBas(is))
     call DGEMM_('N','T',nBas(is),nBas(is),nBas(is),One,Temp3,nBas(is),CMO(ipCM(is),1),nBas(is),Zero,Temp2,nBas(is))
 
+    ip1 = 0
+    ip2 = ipD
     do iBas=1,nBas(iS)
-      do jBas=1,iBas
-        ip1 = (iBas-1)*nBas(iS)+jBas
-        ip2 = iTri(iBas,jBas)
-        Fact = Two
-        if (iBas == jBas) Fact = One
-        Dens(ipD+ip2) = Temp2(ip1)*Fact
-      end do
+      Dens(ip2+1:ip2+iBas-1) = Two*Temp2(ip1+1:ip1+iBas-1)
+      Dens(ip2+iBas) = Temp2(ip1+iBas)
+      ip2 = ip2+iBas
+      ip1 = ip1+nBas(iS)
     end do
     ipD = ipD+nTri_Elem(nBas(is))
   end if

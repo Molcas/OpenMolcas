@@ -18,9 +18,11 @@ use Symmetry_Info, only: nIrrep
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nOut, iCmp(4), iBasi, iBasn, jBasj, jBasn, kBask, kBasn, lBasl, lBasn, iAOii(4)
-real(kind=wp) :: COUT(nOut)
+integer(kind=iwp), intent(in) :: nOut, iCmp(4), iBasi, iBasn, jBasj, jBasn, kBask, kBasn, lBasl, lBasn, iAOii(4)
+real(kind=wp), intent(_OUT_) :: COUT(nOut)
 #include "etwas.fh"
 integer(kind=iwp) :: i1, iAsh, iBas(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
 

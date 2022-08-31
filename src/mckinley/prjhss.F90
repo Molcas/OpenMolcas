@@ -35,7 +35,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "hss_interface.fh"
 integer(kind=iwp) :: iAng, iDCRT(0:7), ip, ipFA1, ipFA2, ipFB1, ipFB2, ipFin, iShll, iuvwx(4), JndGrd(3,4,0:7), &
-                     jndhss(4,3,4,3,0:7), kCnt, kCnttp, kdc, kOp(4), lDCRT, LmbdT, mOp(4), nBasisi, nDCRT, nExpi, nRys, nt
+                     jndhss(4,3,4,3,0:7), kCnt, kCnttp, kdc, kOp(4), lDCRT, LmbdT, mOp(4), nBasisi, nDCRT, nExpi, nt
 real(kind=wp) :: C(3), Coor(3,4), Dum(1), Fact, g2(78), TC(3)
 logical(kind=iwp) :: ifg(4), JfGrd(3,4), jfhss(4,3,4,3), tr(4)
 integer(kind=iwp), external :: NrOpr
@@ -47,11 +47,9 @@ unused_var(ZInv)
 unused_var(rKappa)
 unused_var(P)
 unused_var(rFinal)
-unused_var(nRys)
+unused_var(nHer)
 unused_var(Ccoor)
 unused_var(lOper)
-
-nRys = nHer
 
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab

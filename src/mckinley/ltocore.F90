@@ -30,8 +30,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: F(*)
-integer(kind=iwp) :: nAlpha, iShll, la, iAng, nVecAC
+real(kind=wp), intent(inout) :: F(*)
+integer(kind=iwp), intent(in) :: nAlpha, iShll, la, iAng, nVecAC
 integer(kind=iwp) :: iBk, n, nac, nBasisi, nExpi
 real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 

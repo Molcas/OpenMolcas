@@ -11,7 +11,10 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine sroMmH(nHer,MmSROH,la,lb,lr)
+subroutine sroMmH( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 !  Object: to compute the number of real*8 the kernel routine will     *
@@ -30,13 +33,13 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nHer, MmSROH, la, lb, lr
+#include "mem_interface.fh"
 integer(kind=iwp) :: iacore, iAng, iCnttp, icoreb, icores, ip, iShll, ld, nac, ncb, nExpi, nOrder, nordop
 
 nOrder = 0
 nordop = lr
 ld = 2
-MmSROH = 0
+Mem = 0
 do iCnttp=1,nCnttp
   if (.not. dbsc(iCnttp)%ECP) cycle
   do iAng=0,dbsc(iCnttp)%nSRO-1
@@ -63,7 +66,7 @@ do iCnttp=1,nCnttp
     icoreb = 6+3*nHer*(lb+1+ld)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(lb+1+ld)*(iAng+1)*(nOrdOp+1)+1
 
     icores = max(icoreb,iacore)*nExpi
-    MmSROH = max(MmSROH,ip+icores)
+    Mem = max(Mem,ip+icores)
 
   end do
 end do

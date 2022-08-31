@@ -11,10 +11,9 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nOp,jOp,Dij,mDij,nDij,ij1,ij2,ij3,ij4,Dkl, &
-                 mDkl,nDkl,kl1,kl2,kl3,kl4,Dik,mDik,nDik,ik1,ik2,ik3,ik4,Dil,mDil,nDil,il1,il2,il3,il4,Djk,mDjk,nDjk,jk1,jk2,jk3, &
-                 jk4,Djl,mDjl,nDjl,jl1,jl2,jl3,jl4,AOInt,nAO,TwoHam,nFock,Scrtch2,nS2,FckTmp,nFT, &
-                 pert,iuvwx,iCent,iCar,indgrd,ipDisp)
+subroutine MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nOp,jOp,Dij,mDij,nDij,ij1,ij2,ij3,ij4,Dkl,mDkl, &
+                 nDkl,kl1,kl2,kl3,kl4,Dik,mDik,nDik,ik1,ik2,ik3,ik4,Dil,mDil,nDil,il1,il2,il3,il4,Djk,mDjk,nDjk,jk1,jk2,jk3,jk4, &
+                 Djl,mDjl,nDjl,jl1,jl2,jl3,jl4,AOInt,nAO,TwoHam,nFock,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx,iCent,iCar,indgrd,ipDisp)
 !***********************************************************************
 !                                                                      *
 ! Object: Driver for the generation of the two electron contribution   *
@@ -27,13 +26,15 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAnga(4), iCmp(4), iShll(4), iShell(4), iBasi, jBasj, kBask, lBasl, iAO(4), iAOst(4), nOp(4), jOp(6), mDij, &
-                     nDij, ij1, ij2, ij3, ij4, mDkl, nDkl, kl1, kl2, kl3, kl4, mDik, nDik, ik1, ik2, ik3, ik4, mDil, nDil, il1, &
-                     il2, il3, il4, mDjk, nDjk, jk1, jk2, jk3, jk4, mDjl, nDjl, jl1, jl2, jl3, jl4, nAO, nFock, nS2, nFT, iuvwx, &
-                     iCent, iCar, indgrd(3,4,0:7), ipdisp(*)
-logical(kind=iwp) :: Shijij, pert(0:7)
-real(kind=wp) :: Dij(mDij,nDij), Dkl(mDkl,nDkl), Dik(mDik,nDik), Dil(mDil,nDil), Djk(mDjk,nDjk), Djl(mDjl,nDjl), AOInt(nAO), &
-                 TwoHam(nFock), Scrtch2(nS2), FckTmp(nFT)
+integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShll(4), iShell(4), iBasi, jBasj, kBask, lBasl, iAO(4), iAOst(4), nOp(4), &
+                                 jOp(6), mDij, nDij, ij1, ij2, ij3, ij4, mDkl, nDkl, kl1, kl2, kl3, kl4, mDik, nDik, ik1, ik2, &
+                                 ik3, ik4, mDil, nDil, il1, il2, il3, il4, mDjk, nDjk, jk1, jk2, jk3, jk4, mDjl, nDjl, jl1, jl2, &
+                                 jl3, jl4, nAO, nFock, nS2, nFT, iuvwx, iCent, iCar, indgrd(3,4,0:7), ipdisp(*)
+logical(kind=iwp), intent(in) :: Shijij, pert(0:7)
+real(kind=wp), intent(in) :: Dij(mDij,nDij), Dkl(mDkl,nDkl), Dik(mDik,nDik), Dil(mDil,nDil), Djk(mDjk,nDjk), Djl(mDjl,nDjl), &
+                             AOInt(nAO)
+real(kind=wp), intent(inout) :: TwoHam(nFock)
+real(kind=wp), intent(out) :: Scrtch2(nS2), FckTmp(nFT)
 integer(kind=iwp) :: nijkl
 real(kind=wp) :: Fact
 

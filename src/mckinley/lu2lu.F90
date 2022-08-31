@@ -14,8 +14,8 @@ subroutine Lu2Lu(Filename,LuInput)
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: FileName
-integer(kind=iwp) :: LuInput
+character(len=*), intent(in) :: FileName
+integer(kind=iwp), intent(in) :: LuInput
 #include "warnings.h"
 integer(kind=iwp) :: istatus, LuSpool2
 character(len=180) :: Line

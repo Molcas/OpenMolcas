@@ -12,8 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine ElGrd(Alpha,nAlpha,Beta,nBeta,Zeta,rKappa,P,rFinal,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,ifgrad,IndGrd,nOp,iu, &
-                 iv,nrOp,iDcar,trans,kcar,ksym)
+subroutine ElGrd( &
+#                define _CALLING_
+#                include "1el_mck_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the multipole moments integrals with the          *
@@ -33,10 +35,7 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), nOp(2), iu, iv, nrOp, iDcar, kcar, ksym
-real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), rFinal(*), A(3), B(3), &
-                 Array(nZeta*nArr), Ccoor(3)
-logical(kind=iwp) :: ifgrad(3,2), trans(3,2)
+#include "1el_mck_interface.fh"
 integer(kind=iwp) :: iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, nip
 logical(kind=iwp) :: ABeq(3)
 

@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, nab
-real(kind=wp) :: abab(nZeta,nab,nab), ab(nZeta)
+integer(kind=iwp), intent(in) :: nZeta, nab
+real(kind=wp), intent(in) :: abab(nZeta,nab,nab)
+real(kind=wp), intent(out) :: ab(nZeta)
 integer(kind=iwp) :: iab, iZeta
 real(kind=wp) :: xMax, xTest
 

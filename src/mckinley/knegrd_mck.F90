@@ -38,8 +38,8 @@ logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
 unused_var(ZInv)
-unused_var(iDCnt)
 unused_var(lOper)
+unused_var(iDCnt)
 unused_var(iStabM)
 unused_var(nStabM)
 

@@ -13,7 +13,7 @@
 
 subroutine SroMm1( &
 #                 define _CALLING_
-#                 include "grdmem_mck_interface.fh"
+#                 include "mem_interface.fh"
                  )
 !***********************************************************************
 !                                                                      *
@@ -33,7 +33,7 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Definitions, only: iwp
 
 implicit none
-#include "grdmem_mck_interface.fh"
+#include "mem_interface.fh"
 integer(kind=iwp) :: iacore, iAng, iCnttp, icoreb, icores, ip, iShll, ld, nac, ncb, nExpi, nOrder
 
 nOrder = 0

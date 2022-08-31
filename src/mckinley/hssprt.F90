@@ -17,8 +17,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nHess
-real(kind=wp) :: Hess(nHess)
+integer(kind=iwp), intent(in) :: nHess
+real(kind=wp), intent(in) :: Hess(nHess)
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: i, iDisp, ii, iIrrep, j, jj, nDisp(0:7)

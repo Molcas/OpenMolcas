@@ -34,14 +34,17 @@ subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,rData,ijCmp,Alpha,nAlpha,Beta
 !             By Anders Bernhardsson                                   *
 !***********************************************************************
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: iAnga(4), iCmpa(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003, iStb, jStb
-real(kind=wp) :: Coor(3,2), rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), &
-                 Coeff2(nBeta,jBasn), Wk002(m002), Wk003(m003)
+integer(kind=iwp), intent(in) :: iAnga(4), iCmpa(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003, &
+                                 iStb, jStb
+real(kind=wp), intent(in) :: Coor(3,2), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn)
+real(kind=wp), intent(out) :: rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR), Wk002(m002)
+real(kind=wp), intent(inout) :: Wk003(m003)
 integer(kind=iwp) :: mStb(2), nZeta
 real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
 integer(kind=iwp), external :: ip_ab, ip_abMax, ip_Alpha, ip_Beta, ip_EstI, ip_IndZ, ip_Kappa, ip_PCoor, ip_Z, ip_ZetaM, ip_ZInv, &
@@ -54,8 +57,6 @@ call k2Loop_mck_internal(rData)
 contains
 
 subroutine k2Loop_mck_internal(rData)
-
-  use iso_c_binding
 
   real(kind=wp), target :: rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR)
   integer(kind=iwp), pointer :: iData(:)
@@ -93,7 +94,7 @@ subroutine k2Loop_mck_internal(rData)
 
     call c_f_pointer(c_loc(rData(ip_IndZ(1,nZeta),lDCRR+1)),iData,[nAlpha*nBeta+1])
     rData(ip_EstI(nZeta),lDCRR+1) = EstI(rData(ip_Z(1,nZeta),lDCRR+1),rData(ip_Kappa(1,nZeta),lDCRR+1),nAlpha,nBeta,Coeff1,iBasn, &
-                                        Coeff2,jBasn,rData(ip_ab(1,nZeta),lDCRR+1),iCmpa(1)*iCmpa(2),Wk002,m002,iData)
+                                         Coeff2,jBasn,rData(ip_ab(1,nZeta),lDCRR+1),iCmpa(1)*iCmpa(2),Wk002,m002,iData)
     !                                                                  *
     !*******************************************************************
     !                                                                  *

@@ -18,8 +18,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nGrad
-real(kind=wp) :: Hess(nTri_Elem(nGrad))
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(in) :: Hess(nTri_Elem(nGrad))
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: i, idum, iG, iG1, iG2, iGrad1, iGrad2, iIrrep, iOpt, ip_Acc, iRc, mH, nH

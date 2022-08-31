@@ -16,8 +16,10 @@ use Center_Info
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Grad(*)
+real(kind=wp), intent(_OUT_) :: Grad(*)
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, idisp, iirrep, jCar, jIrrep, mdc
 real(kind=wp) :: ZA
 integer(kind=iwp), external :: irrfnc

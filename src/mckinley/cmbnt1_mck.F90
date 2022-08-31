@@ -27,10 +27,10 @@ use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),1), &
-                 Txyz(nZeta,3,0:la+1,0:lb+1), Alpha(nZeta), Beta(nZeta)
-logical(kind=iwp) :: IfGrad(3,2)
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), Txyz(nZeta,3,0:la+1,0:lb+1), Alpha(nZeta), Beta(nZeta)
+real(kind=wp), intent(inout) :: rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),1)
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb
 real(kind=wp) :: xa, xb, ya, yb, za, zb
 
@@ -63,10 +63,9 @@ do ixa=0,la
                                              (Two*Rnxyz(:,1,ixa+1,ixb)*Alpha(:)+xa*Rnxyz(:,1,ixa-1,ixb))* &
                                              Rnxyz(:,2,iya,iyb)*Txyz(:,3,iza,izb))
           else
-            rFinal(:,ipa,ipb,1) = rKappa(:)*Two*Alpha(:)* &
-                                  (Txyz(:,1,ixa+1,ixb)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)+ &
-                                   Rnxyz(:,1,ixa+1,ixb)*Txyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)+ &
-                                   Rnxyz(:,1,ixa+1,ixb)*Rnxyz(:,2,iya,iyb)*Txyz(:,3,iza,izb))
+            rFinal(:,ipa,ipb,1) = rKappa(:)*Two*Alpha(:)*(Txyz(:,1,ixa+1,ixb)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)+ &
+                                                          Rnxyz(:,1,ixa+1,ixb)*Txyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)+ &
+                                                          Rnxyz(:,1,ixa+1,ixb)*Rnxyz(:,2,iya,iyb)*Txyz(:,3,iza,izb))
           end if
         end if
         if (IfGrad(1,2)) then
@@ -79,10 +78,9 @@ do ixa=0,la
                                              (Two*Rnxyz(:,1,ixa,ixb+1)*Beta(:)+xb*Rnxyz(:,1,ixa,ixb-1))* &
                                              Rnxyz(:,2,iya,iyb)*Txyz(:,3,iza,izb))
           else
-            rFinal(:,ipa,ipb,1) = rKappa(:)*Two*Beta(:)* &
-                                  (Txyz(:,1,ixa,ixb+1)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)+ &
-                                   Rnxyz(:,1,ixa,ixb+1)*Txyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)+ &
-                                   Rnxyz(:,1,ixa,ixb+1)*Rnxyz(:,2,iya,iyb)*Txyz(:,3,iza,izb))
+            rFinal(:,ipa,ipb,1) = rKappa(:)*Two*Beta(:)*(Txyz(:,1,ixa,ixb+1)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)+ &
+                                                         Rnxyz(:,1,ixa,ixb+1)*Txyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)+ &
+                                                         Rnxyz(:,1,ixa,ixb+1)*Rnxyz(:,2,iya,iyb)*Txyz(:,3,iza,izb))
           end if
         end if
         if (IfGrad(2,1)) then

@@ -26,15 +26,41 @@ abstract interface
 #   include "grd_mck_interface.fh"
   end subroutine grd_mck_kernel
 
-  subroutine grd_mck_mem( &
-#                        define _CALLING_
-#                        include "grdmem_mck_interface.fh"
-                        )
+  subroutine hss_kernel( &
+#                       define _CALLING_
+#                       include "hss_interface.fh"
+                       )
+    use Index_Functions, only: nTri_Elem1
+    use Definitions, only: wp, iwp
+#   include "hss_interface.fh"
+  end subroutine hss_kernel
+
+  subroutine oneel_mck_kernel( &
+#                             define _CALLING_
+#                             include "1el_mck_interface.fh"
+                             )
+    use Definitions, only: wp, iwp
+#   include "1el_mck_interface.fh"
+  end subroutine oneel_mck_kernel
+
+  subroutine oneeldot_mck_kernel( &
+#                                define _CALLING_
+#                                include "1eldot_mck_interface.fh"
+                                )
+    use Index_Functions, only: nTri_Elem1
+    use Definitions, only: wp, iwp
+#   include "1eldot_mck_interface.fh"
+  end subroutine oneeldot_mck_kernel
+
+  subroutine mck_mem( &
+#                    define _CALLING_
+#                    include "mem_interface.fh"
+                    )
     use Definitions, only: iwp
-#   include "grdmem_mck_interface.fh"
-  end subroutine grd_mck_mem
+#   include "mem_interface.fh"
+  end subroutine mck_mem
 end interface
 
-public :: grd_mck_kernel, grd_mck_mem
+public :: grd_mck_kernel, hss_kernel, mck_mem, oneel_mck_kernel, oneeldot_mck_kernel
 
 end module mck_interface

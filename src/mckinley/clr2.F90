@@ -22,10 +22,14 @@ use Basis_Info, only: nBas
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ibas, icmp, jbas, jcmp, iaoi, iaoj, naco, ishell(4)
-real(kind=wp) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,nTri_Elem(naco),*), rOut(*), Temp1(ibas,icmp,*), Temp2(*), Temp3(jbas,jcmp,*), &
-                 Temp4(ibas,icmp,nACO), Temp5(jbas,jcmp,nACO), Temp6(*)
+integer(kind=iwp), intent(in) :: ibas, icmp, jbas, jcmp, iaoi, iaoj, naco, ishell(4)
+real(kind=wp), intent(in) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,nTri_Elem(naco),*)
+real(kind=wp), intent(inout) :: rOut(*)
+real(kind=wp), intent(_OUT_) :: Temp1(ibas,icmp,*), Temp2(*), Temp3(jbas,jcmp,*), Temp6(*)
+real(kind=wp), intent(out) :: Temp4(ibas,icmp,nACO), Temp5(jbas,jcmp,nACO)
 #include "Molcas.fh"
 #include "etwas.fh"
 #include "disp.fh"
@@ -95,7 +99,7 @@ do mIrr=0,nIrrep-1
               ! id,iirr,jirr,kA,lA
 
               if (nash(jirr) /= 0) &
-                call DGEMM_('N','N',ni,nAsh(jIrr),nj,One,rin(1,iIrr,kl,id),ni,Temp6(ipj+(ja-1)*jcmp*jBas),nj,Zero,Temp1,ni)
+                call DGEMM_('N','N',ni,nAsh(jIrr),nj,One,rIn(:,iIrr,kl,id),ni,Temp6(ipj+(ja-1)*jcmp*jBas),nj,Zero,Temp1,ni)
               if (nash(iirr) /= 0) &
                 call DGEMM_('T','N',nash(iIrr),nAsh(jIrr),ni,One,Temp6(ipi+(ia-1)*icmp*ibas),ni,Temp1,ni,Zero,Temp2,nash(iirr))
 
@@ -126,15 +130,15 @@ do mIrr=0,nIrrep-1
                     do iB=1,iBas
                       lsl = lSO+ib-1
                       ipFKL = ipF+(jAsh-1)*nBas(iIrr)+lsl
-                      rout(ipFKL) = rout(ipFKL)+Temp4(ib,ic,jash)
+                      rOut(ipFKL) = rOut(ipFKL)+Temp4(ib,ic,jash)
                     end do
                   end if
                 end do
               end do
 
-              if (iShell(1) /= ishell(2)) then
+              if (iShell(1) /= iShell(2)) then
                 if (nash(jirr) /= 0) &
-                  call DGEMM_('T','N',nj,nAsh(jIrr),ni,One,rin(1,jIrr,kl,id),ni,Temp6(ipi+(ja-1)*icmp*ibas),ni,Zero,Temp3,nj)
+                  call DGEMM_('T','N',nj,nAsh(jIrr),ni,One,rIn(:,jIrr,kl,id),ni,Temp6(ipi+(ja-1)*icmp*ibas),ni,Zero,Temp3,nj)
                 if (nash(iirr) /= 0) &
                   call DGEMM_('T','N',nAsh(iirr),nAsh(jirr),nj,One,Temp6(ipj+(ia-1)*jcmp*jBas),nj,Temp3,nj,One,Temp2,nAsh(iirr))
 
@@ -165,7 +169,7 @@ do mIrr=0,nIrrep-1
                       do jB=1,jBas
                         i = iSO+jb-1
                         ipFKL = ipF+(iAsh-1)*nBas(iIrr)+i
-                        rout(ipFKL) = rout(ipFKL)+Temp5(jb,jc,iash)
+                        rOut(ipFKL) = rOut(ipFKL)+Temp5(jb,jc,iash)
                       end do
                     end if
                   end do
@@ -185,7 +189,7 @@ do mIrr=0,nIrrep-1
                       if (ij12 <= klt) then
                         ipM = ipMO(iD)+iTri(ij12,klt)-1
                         ipm2 = iash+(jash-1)*nash(iirr)
-                        rOut(ipm) = rout(ipm)+Temp2(ipm2)
+                        rOut(ipm) = rOut(ipm)+Temp2(ipm2)
                       end if
                     end if
                   end do

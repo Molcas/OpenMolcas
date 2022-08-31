@@ -15,8 +15,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nA, nC, nB
-real(kind=wp) :: A(*), C(*), B(*), Fact, Res(*), Tmp(*)
+integer(kind=iwp), intent(in) :: nA, nC, nB
+real(kind=wp), intent(in) :: A(nA,nC), C(nC,nC), B(nC,nB), Fact
+real(kind=wp), intent(inout) :: Res(nA,nB)
+real(kind=wp), intent(out) :: Tmp(nA,nC)
 
 call DGEMM_('N','N',nA,nC,nC,One,A,nA,C,nC,Zero,Tmp,nA)
 call DGEMM_('N','N',nA,nB,nC,Fact,Tmp,nA,B,nC,One,Res,nA)

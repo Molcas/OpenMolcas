@@ -9,18 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine OvrMmH(nHer,MmOvrH,la,lb,lr)
+subroutine OvrMmH( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nHer, MmOvrH, la, lb, lr
+#include "mem_interface.fh"
 
 #include "macros.fh"
 unused_var(lr)
 
 nHer = (la+lb+1+4)/2
-MmOvrH = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+2
+Mem = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+2
 
 return
 

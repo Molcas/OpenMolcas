@@ -14,13 +14,13 @@
 subroutine CmbnACB1(FA1,FB1,rFinal,Fact,nAlpha,nBeta,C,nC,la,lb,iang,ifgrad,tmp,lsro,indx,mvec,idcar)
 !***********************************************************************
 !
-! Merges the first derivatives of ECP projection/SRO  integrals
+! Merges the first derivatives of ECP projection/SRO integrals
 ! for derivatives of components
 !
 !***********************************************************************
 !
-! @parameter FA1    The first derivative of Left side , Includes no deriavtive (input)
-! @parameter FB1    The first derivative of Right side . Includes no derivative (input)
+! @parameter FA1    The first derivative of Left side. Includes no deriavtive (input)
+! @parameter FB1    The first derivative of Right side. Includes no derivative (input)
 ! @parameter rFinal Result added up to (out)
 ! @parameter Fact   Factor the reult is multiplied with bef. added up (input)
 ! @parameter C      Coefficients for SRO (input)
@@ -43,10 +43,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAlpha, nBeta, nC, la, lb, iang, indx(3,4), mvec, idcar
-real(kind=wp) :: FA1(nAlpha,nC,nTri_Elem1(la),2*iang+1,*), FB1(nC,nBeta,2*iang+1,nTri_Elem1(lb),*), &
-                 rFinal(nAlpha*nBeta,nTri_Elem1(la),nTri_Elem1(lb),21), Fact, C(*), Tmp(*)
-logical(kind=iwp) :: ifgrad(3,4), lsro
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nC, la, lb, iang, idcar
+logical(kind=iwp), intent(in) :: ifgrad(3,4), lsro
+real(kind=wp), intent(in) :: FA1(nAlpha,nC,nTri_Elem1(la),2*iang+1,2), FB1(nC,nBeta,2*iang+1,nTri_Elem1(lb),2), Fact, &
+                             C(nC,merge(nC,0,lsro))
+real(kind=wp), intent(out) :: rFinal(nAlpha*nBeta,nTri_Elem1(la),nTri_Elem1(lb),6), Tmp(nAlpha,merge(nC,0,lsro))
+integer(kind=iwp), intent(out) :: indx(3,4), mvec
 integer(kind=iwp) :: ia, ib, iC, iCent, iFa, iFb
 
 rFinal(:,:,:,1:6) = Zero
@@ -69,12 +71,11 @@ do iCent=1,2
     do ib=1,nTri_Elem1(lb)
       do ia=1,nTri_Elem1(la)
 
-        do iC=1,(2*iAng+1)
+        do iC=1,2*iAng+1
           if (lsro) then
-            call DGEMM_('N','N',nAlpha,nC,nC,One,FA1(1,1,ia,ic,iFa),nAlpha,C,nC,Zero,Tmp,nAlpha)
-            call DGEMM_('N','N',nAlpha,nBeta,nC,Fact,Tmp,nAlpha,FB1(1,1,ic,ib,iFb),nC,One,rFinal(1,ia,ib,mvec),nAlpha)
+            call mult_sro(FA1(:,:,ia,ic,iFa),nAlpha,C,nC,FB1(:,:,ic,ib,iFb),nBeta,Fact,rFinal(:,ia,ib,mvec),Tmp)
           else
-            call DGEMM_('N','N',nAlpha,nBeta,nC,Fact,Fa1(1,1,ia,ic,iFa),nAlpha,Fb1(1,1,ic,ib,iFb),nC,One,rFinal(1,ia,ib,mvec), &
+            call DGEMM_('N','N',nAlpha,nBeta,nC,Fact,FA1(:,:,ia,ic,iFa),nAlpha,FB1(:,:,ic,ib,iFb),nC,One,rFinal(:,ia,ib,mvec), &
                         nAlpha)
           end if
 

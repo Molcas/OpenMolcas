@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine coreB(iang,lb,ishll,nordop,TC,RB,Array,narr,Beta,nbeta,fb1,fb2,jfgrad,jfhess,ld,debug)
+subroutine coreB(iang,lb,ishll,nordop,TC,RB,Array,narr,Beta,nBeta,fb1,fb2,jfgrad,jfhess,ld,debug)
 !  Calculates <core|B'> and <core|B">
 !
 ! @parameter iang Angular momenta for core
@@ -21,11 +21,11 @@ subroutine coreB(iang,lb,ishll,nordop,TC,RB,Array,narr,Beta,nbeta,fb1,fb2,jfgrad
 ! @parameter Array Scratch
 ! @parameter narr size for scratch
 ! @parameter Beta Ket exponents
-! @parameter nbeta number of exponents
+! @parameter nBeta number of exponents
 ! @parameter FB1 First derivatives (out)
 ! @parameter FB2 2nd derivatives (out)
-! @parameter jfgrad true for all 1-deriavtives that are needed
-! @parameter jfhess true for all 2-deriavtives that are needed
+! @parameter jfgrad true for all 1-derivatives that are needed
+! @parameter jfhess true for all 2-derivatives that are needed
 ! @parameter ld Order of derivatives
 ! @parameter debug guess
 
@@ -34,16 +34,20 @@ use Basis_Info, only: Shells
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iang, lb, ishll, nordop, narr, nbeta, ld
-real(kind=wp) :: TC(3), RB(3), Array(*), Beta(*), fb1(*), fb2(*)
-logical(kind=iwp) :: jfgrad(3), jfhess(4,3,4,3), debug
+integer(kind=iwp), intent(in) :: iang, lb, ishll, nordop, narr, nBeta, ld
+real(kind=wp), intent(in) :: TC(3), RB(3), Beta(nBeta)
+real(kind=wp), intent(inout) :: Array(*), fb2(*)
+real(kind=wp), intent(_OUT_) :: fb1(*)
+logical(kind=iwp), intent(in) :: jfgrad(3), jfhess(4,3,4,3), debug
 integer(kind=iwp) :: i, iBeta, ip, ipB, ipBxyz, ipCxyz, ipK2, ipP2, ipQ1, ipRxyz, ipV, ipZ2, ipZI2, iStrt, n, nExpi, nHer, nVecCB
 logical(kind=iwp) :: ABeq(3)
 real(kind=r8), external :: DNrm2_
 
 nExpi = Shells(iShll)%nExp
-if (debug) write(u6,*) 'Shell: ',ishll,' nBeta:',nbeta,' nExp:',nExpi,'Angular',lb,iang
+if (debug) write(u6,*) 'Shell: ',ishll,' nBeta:',nBeta,' nExp:',nExpi,'Angular',lb,iang
 
 ip = 1
 ipP2 = ip
@@ -92,7 +96,7 @@ ABeq(2) = .false.
 ABeq(3) = .false.
 call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,TC,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 if (debug) then
-  write(u6,*) ' nbeta  = ',nbeta,' nExp(',ishll,')=',nExpi,' nHer=',nHer,' lb=',lb,' iAng=',iAng,' nOrdOp=',nOrdOp
+  write(u6,*) ' nBeta  = ',nBeta,' nExp(',ishll,')=',nExpi,' nHer=',nHer,' lb=',lb,' iAng=',iAng,' nOrdOp=',nOrdOp
 
   write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
   write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(lb+2),Array(ipBxyz),1)

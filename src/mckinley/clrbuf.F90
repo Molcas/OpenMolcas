@@ -36,15 +36,16 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idcrr, idcrs, idcrt, ngr,                         iAnga(4), iCmp(4), icmpa(4), iShll(4), iShell(4), &
-                     jShell(4), iBasi, jBasj, kBask, lBasl, mDij, nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, &
-                     nDjl, nFinal, nFT, nS1, nS2, nTemp, nTwo, IndGrd(3,4,0:7), Indx(3,4), iAO(4), iAOst(4), iuvwx(4), moip(0:7), &
-                     nAcO, nmoin, ntemptot, nop(4)
-logical(kind=iwp) :: Shijij, n8, ltri, new_fock
-real(kind=wp) :: Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), &
-                 Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), &
-                 rFinal(nFinal), FckTmp(nFT), Scrtch1(nS1), Scrtch2(nS2), Temp(nTemp), TwoHam(nTwo), rmoin(nMOIN), buffer(*), &
-                 din(*), dan(*)
+integer(kind=iwp), intent(in) :: idcrr, idcrs, idcrt, ngr, iAnga(4), iCmp(4), icmpa(4), iShll(4), iShell(4), jShell(4), iBasi, &
+                                 jBasj, kBask, lBasl, mDij, nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, &
+                                 nFinal, nFT, nS1, nS2, nTemp, nTwo, IndGrd(3,4,0:7), Indx(3,4), iAO(4), iAOst(4), iuvwx(4), &
+                                 moip(0:7), nAcO, nmoin, ntemptot, nop(4)
+logical(kind=iwp), intent(in) :: Shijij, n8, ltri, new_fock
+real(kind=wp), intent(in) :: Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), &
+                             Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), &
+                             rFinal(nFinal), din(*), dan(*)
+real(kind=wp), intent(out) :: FckTmp(nFT), Scrtch1(nS1), Scrtch2(nS2), Temp(nTemp)
+real(kind=wp), intent(inout) :: TwoHam(nTwo), rmoin(nMOIN), buffer(*)
 integer(kind=iwp) :: iCar, iCent, iCnt, iGr, ii, iIrrep, ij1, ij2, ij3, ij4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, ip, ipFin, &
                      jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, jOp(6), kl1, kl2, kl3, kl4, nabcd, nao, nijkl
 logical(kind=iwp) :: pert(0:7)
@@ -216,7 +217,7 @@ if (ltri) then
   CPUStat(nFckAcc) = CPUStat(nFckAcc)+Time
 end if
 
-if (n8 .and. (nmethod == RASSCF)) call MakeMO(rFinal,Scrtch1,nTempTot,nFinal,iCmp,iCmpa,iBasi,jbasj,kbask,lbasl,nGr,Indx,moip, &
+if (n8 .and. (nmethod == RASSCF)) call MakeMO(rFinal,Scrtch1,nTempTot,nFinal,iCmp,iCmpa,iBasi,jBasj,kBask,lBasl,nGr,Indx,moip, &
                                               naco,nop,indgrd,ishll,ishell,rmoin,nMOIN,iuvwx,iaost,Buffer,ianga)
 
 call Timing(dum1,Time,dum2,dum3)

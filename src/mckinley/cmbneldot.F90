@@ -12,7 +12,7 @@
 !               1997, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine CmbnEldot(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha,Beta,DAO,iStb,jStb,nOp,rout,indgrd)
+subroutine CmbnEldot(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha,Beta,DAO,iStb,jStb,nOp,rOut,indgrd)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute gradient integrals for SC Reaction Fields         *
@@ -21,7 +21,7 @@ subroutine CmbnEldot(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alp
 !             University of Lund, SWEDEN                               *
 !             Modified for reaction field calculations July '92        *
 !             Modified for gradient calculations May '95               *
-!             Modified for trans. prob.   calculations Oct '97         *
+!             Modified for trans. prob. calculations Oct '97           *
 !             by Anders Bernhardsson                                   *
 !***********************************************************************
 
@@ -31,10 +31,11 @@ use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, lr, nComp, iStb, jStb, nOp(2), indgrd(2,3,3,0:7)
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), &
-                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,6), Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta), &
-                 DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb)), rout(*)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp, iStb, jStb, nOp(2), indgrd(2,3,3,0:7)
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), Alpha(nZeta), Beta(nZeta), &
+                             DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,6), Fact(nZeta), Temp(nZeta)
+real(kind=wp), intent(inout) :: rOut(*)
 integer(kind=iwp) :: i1, iCar, iCnt, iComp, ihess, iIrrep, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, &
                      jCar, nDAO
 real(kind=wp) :: Fct, ps, rtemp, xa, xb, ya, yb, za, zb
@@ -180,8 +181,8 @@ do iIrrep=0,nIrrep-1
 
         if (IndGrd(iCnt,iCar,jCar,iIrrep) /= 0) then
           ihess = indgrd(icnt,icar,jcar,iirrep)
-          rtemp = DDot_(nDAO,DAO,1,rFinal(1,1,1,icomp,i1),1)
-          rout(iHess) = rOut(iHess)+Fct*rtemp
+          rtemp = DDot_(nDAO,DAO,1,rFinal(:,:,:,icomp,i1),1)
+          rOut(iHess) = rOut(iHess)+Fct*rtemp
         end if
 
       end do

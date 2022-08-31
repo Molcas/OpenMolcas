@@ -14,7 +14,8 @@ subroutine CtlDns(iDCRR,iDCRS,iDCRT,jOp)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iDCRR, iDCRS, iDCRT, jOp(6)
+integer(kind=iwp), intent(in) :: iDCRR, iDCRS, iDCRT
+integer(kind=iwp), intent(out) :: jOp(6)
 integer(kind=iwp) :: iR, iRT, iRTS, iS, iT, iTS
 integer(kind=iwp), external :: NrOpr
 

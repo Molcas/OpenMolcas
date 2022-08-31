@@ -37,9 +37,10 @@ logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
 unused_var(ZInv)
-unused_var(lOper)
 unused_var(ifgrd)
+unused_var(lOper)
 unused_var(iStabM)
+unused_var(nStabM)
 
 ABeq(1) = A(1) == RB(1)
 ABeq(2) = A(2) == RB(2)

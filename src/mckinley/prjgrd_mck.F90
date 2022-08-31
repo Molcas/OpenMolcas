@@ -61,7 +61,7 @@ DiffCnt = IfGrad(iDCar,1) .or. IfGrad(iDCar,2)
 #ifdef _DEBUGPRINT_
 call RecPrt(' In PrjGrd: A',' ',A,1,3)
 call RecPrt(' In PrjGrd: RB',' ',RB,1,3)
-call RecPrt(' In PrjGrd: P',' ',P,nZeta,3)
+!call RecPrt(' In PrjGrd: P',' ',P,nZeta,3)
 call RecPrt(' In PrjGrd: Alpha',' ',Alpha,nAlpha,1)
 call RecPrt(' In PrjGrd: Beta',' ',Beta,nBeta,1)
 write(u6,*) ' In PrjGrd: la,lb=',' ',la,lb

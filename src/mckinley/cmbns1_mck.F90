@@ -32,10 +32,11 @@ use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),1), &
-                 Alpha(nZeta), Beta(nZeta)
-logical(kind=iwp) :: IfGrad(3,2)
+integer(kind=iwp), intent(in) :: nZeta, la, lb
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), Alpha(nZeta), Beta(nZeta)
+real(kind=wp), intent(inout) :: rKappa(nZeta)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),1)
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb
 real(kind=wp) :: xa, xb, ya, yb, za, zb
 

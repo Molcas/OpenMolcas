@@ -24,7 +24,7 @@ subroutine Drvh1_mck(Nona)
 !             May 95                                                   *
 !***********************************************************************
 
-use mck_interface, only: grd_mck_kernel, grd_mck_mem
+use mck_interface, only: grd_mck_kernel, mck_mem
 use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
@@ -33,14 +33,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: Nona
+logical(kind=iwp), intent(in) :: Nona
 #include "print.fh"
 integer(kind=iwp) :: i, iCnt, iCnttp, idCar, idcnt, iIrrep, loper, nDens, nFock
 character(len=8) :: Label
 logical(kind=iwp) :: lECP
 real(kind=wp), allocatable :: D0(:), Fock(:)
-procedure(grd_mck_kernel) :: KneGrd_mck, m1grd_mck, nagrd_mck, nona2, OvrGrd_mck, prjgrd_mck, srogrd_mck
-procedure(grd_mck_mem) :: KneMem_mck, m1mm1, na2mem, namem_mck, OvrMem_mck, prjmm1, sromm1
+procedure(grd_mck_kernel) :: KneGrd_mck, m1grd_mck, nagrd_mck, nonatwo, OvrGrd_mck, prjgrd_mck, srogrd_mck
+procedure(mck_mem) :: KneMem_mck, m1mm1, na2mem, namem_mck, OvrMem_mck, prjmm1, sromm1
 
 if (show) then
   nFock = 0
@@ -72,7 +72,7 @@ if (Nona) then
   !     Antisymmetric gradient of Overlap matrix                       *
   !                                                                    *
   !*********************************************************************
-  Label = 'OVRGRDA '
+  Label = 'OVRGRDA'
   idcnt = 0
   do iCnttp=1,nCnttp
     do iCnt=1,dbsc(iCnttp)%nCntr
@@ -87,13 +87,13 @@ if (Nona) then
   !     Non-adiabatic second derivative integrals                      *
   !                                                                    *
   !*********************************************************************
-  Label = 'NONA2   '
+  Label = 'NONA2'
   idcnt = 0
   do iCnttp=1,nCnttp
     do iCnt=1,dbsc(iCnttp)%nCntr
       idcnt = idcnt+1
       do idCar=1,3
-        call Cnt1El(NONA2,NA2Mem,Label,idcnt,idcar,loper,One,.false.,Fock,'NONA2   ',0)
+        call Cnt1El(NONATWO,NA2Mem,Label,idcnt,idcar,loper,One,.false.,Fock,'NONA2   ',0)
       end do
     end do
   end do
@@ -105,7 +105,7 @@ end if
 !     Gradient of Overlap matrix                                       *
 !                                                                      *
 !***********************************************************************
-Label = 'OVRGRD  '
+Label = 'OVRGRD'
 idcnt = 0
 do iCnttp=1,nCnttp
   do iCnt=1,dbsc(iCnttp)%nCntr
@@ -121,7 +121,7 @@ end do
 !     Gradient of Kinetic operator                                     *
 !                                                                      *
 !***********************************************************************
-Label = 'KNEGRD  '
+Label = 'KNEGRD'
 idcnt = 0
 do iCnttp=1,nCnttp
   do iCnt=1,dbsc(iCnttp)%nCntr
@@ -137,7 +137,7 @@ end do
 !     Gradient of Nuclear attraction Operator                          *
 !                                                                      *
 !***********************************************************************
-Label = 'NAGRD   '
+Label = 'NAGRD'
 idcnt = 0
 do iCnttp=1,nCnttp
   do iCnt=1,dbsc(iCnttp)%nCntr
@@ -164,11 +164,11 @@ if (lecp) then
     do iCnt=1,dbsc(iCnttp)%nCntr
       idcnt = idcnt+1
       do idCar=1,3
-        Label = 'PRJGRD  '
+        Label = 'PRJGRD'
         call Cnt1El(Prjgrd_mck,PrjMm1,Label,idcnt,idcar,loper,One,.true.,D0,'ONEGRD  ',1)
-        Label = 'M1GRD  '
+        Label = 'M1GRD'
         call Cnt1El(m1grd_mck,m1Mm1,Label,idcnt,idcar,loper,One,.true.,D0,'ONEGRD  ',1)
-        Label = 'SROGRD  '
+        Label = 'SROGRD'
         call Cnt1El(Srogrd_mck,sroMm1,Label,idcnt,idcar,loper,One,.true.,D0,'ONEGRD  ',1)
       end do
     end do

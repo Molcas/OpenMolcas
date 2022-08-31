@@ -11,14 +11,14 @@
 
 subroutine Knemem_mck( &
 #                     define _CALLING_
-#                     include "grdmem_mck_interface.fh"
+#                     include "mem_interface.fh"
                      )
 
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
-#include "grdmem_mck_interface.fh"
+#include "mem_interface.fh"
 
 #include "macros.fh"
 unused_var(lr)

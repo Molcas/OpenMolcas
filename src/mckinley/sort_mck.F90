@@ -28,9 +28,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iBas, jBas, kBas, lBas, iCmp, jCmp, kCmp, lCmp, iBasO, jBasO, kBasO, lBasO, iCmpO, jCmpO, kCmpO, lCmpO, nVec, &
-                     nop(4), iAng(4), ishll(4)
-real(kind=wp) :: A(iBas*jBas*kBas*lBas,iCmp,jCmp,kCmp,lCmp,nVec), B(kBasO*kCmpO,lBasO,lCmpO,iBasO,iCmpO,jBasO,jCmpO*nvec)
+integer(kind=iwp), intent(in) :: iBas, jBas, kBas, lBas, iCmp, jCmp, kCmp, lCmp, iBasO, jBasO, kBasO, lBasO, iCmpO, jCmpO, kCmpO, &
+                                 lCmpO, nVec, nop(4), iAng(4), ishll(4)
+real(kind=wp), intent(in) :: A(iBas*jBas*kBas*lBas,iCmp,jCmp,kCmp,lCmp,nVec)
+real(kind=wp), intent(out) :: B(kBasO*kCmpO,lBasO,lCmpO,iBasO,iCmpO,jBasO,jCmpO*nvec)
 integer(kind=iwp) :: iC, ichbs, ii, ijkl, iVec, jB, jC, jChBs, jj, kB, kC, kChBs, kk, lB, lC, lChBs, ll
 real(kind=wp) :: PrA, pRb, pTc, pTSd, qFctr, rp
 

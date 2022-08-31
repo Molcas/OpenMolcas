@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoDns(ianga,iCmp,shijij,ishll,ishell,iAO,nop,iBasi,jBasj,kBask,lBasl,Aux,nAux,Work2,nWork2,Work3,nWork3,work4,nWork4, &
+subroutine TwoDns(ianga,iCmp,shijij,ishll,ishell,iAO,nop,iBasi,jBasj,kBask,lBasl,Aux,nAux,Work2,nWork2,Work3,nWork3,Work4,nWork4, &
                   PSO,nPSO,Fact)
 
 use Index_Functions, only: nTri_Elem1
@@ -21,10 +21,11 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), nOp(4), iBasi, jBasj, kBask, lBasl, nAux, nWork2, nWork3, &
-                     nWork4, nPSO
-logical(kind=iwp) :: Shijij
-real(kind=wp) :: Aux(nAux), Work2(nWork2), Work3(nWork3), Work4(nWork4), PSO(nPSO), Fact
+integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), nOp(4), iBasi, jBasj, kBask, lBasl, nAux, nWork2, &
+                                 nWork3, nWork4, nPSO
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(out) :: Aux(nAux), Work2(nWork2), Work3(nWork3), Work4(nWork4)
+real(kind=wp), intent(in) :: PSO(nPSO), Fact
 integer(kind=iwp) :: iCmpa, ijklab, iShlla, jCmpb, jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lShlld, mab, mcd, n, nijkl
 
 nijkl = iBasi*jBasj*kBask*lBasl

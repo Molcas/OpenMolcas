@@ -9,18 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine KnEMmH(nHer,MmKnEH,la,lb,lr)
+subroutine KnEMmH( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nHer, MmKnEH, la, lb, lr
+#include "mem_interface.fh"
 
 #include "macros.fh"
 unused_var(lr)
 
 nHer = (la+1+lb+1+6)/2
-MmKnEH = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+3*(la+3)*(la+3)+3*(la+3)*(lb+3)+1+1
+Mem = 3*nHer*(la+3)+3*nHer*(lb+3)+3*nHer+3*(la+3)*(lb+3)+3*(la+3)*(la+3)+3*(la+3)*(lb+3)+1+1
 
 return
 

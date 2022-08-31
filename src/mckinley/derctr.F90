@@ -24,8 +24,10 @@ use Symmetry_Info, only: iOper
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mdci, mdcj, mdck, mdcl, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7)
-logical(kind=iwp) :: ldot, JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
+integer(kind=iwp), intent(in) :: mdci, mdcj, mdck, mdcl
+logical(kind=iwp), intent(in) :: ldot
+logical(kind=iwp), intent(out) :: JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
+integer(kind=iwp), intent(out) :: IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7)
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, istop, jAtom, jCar, JndGrd(3,4,0:7), nDisp, nnIrrep
@@ -164,7 +166,7 @@ do iAtom=1,4
     end do
 #   endif
 
-   ! Calculate the index for the derivative
+    ! Calculate the index for the derivative
 
     do iIrrep=0,nnIrrep-1
       do iCar=1,3
@@ -209,10 +211,10 @@ end do
 if (sIrrep) then
   do ii=1,4
     do ic1=1,3
-      if (indgrd(ic1,ii,0) == 0) jfgrd(ic1,ii) = .false.
+      if (IndGrd(ic1,ii,0) == 0) JfGrd(ic1,ii) = .false.
       do ij=1,4
         do ic2=1,3
-          if (Indhss(ii,ic1,ij,ic2,0) == 0) JfHss(ii,ic1,ij,ic2) = .false.
+          if (IndHss(ii,ic1,ij,ic2,0) == 0) JfHss(ii,ic1,ij,ic2) = .false.
         end do
       end do
     end do

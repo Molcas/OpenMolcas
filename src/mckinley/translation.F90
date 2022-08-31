@@ -14,9 +14,10 @@ subroutine Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,coorm,nirrep,indgrd,indh
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nirrep, jndgrd(3,4,0:nirrep-1), jndhss(4,3,4,3,0:nirrep-1), indgrd(3,4,0:nirrep-1), indhss(4,3,4,3,0:nirrep-1)
-logical(kind=iwp) :: ifg(4), jfgrd(3,4), jfhss(4,3,4,3), tr(4)
-real(kind=wp) :: Coorm(3,4)
+logical(kind=iwp), intent(inout) :: ifg(4), jfgrd(3,4), jfhss(4,3,4,3), tr(4)
+integer(kind=iwp), intent(in) :: nirrep, indgrd(3,4,0:nirrep-1), indhss(4,3,4,3,0:nirrep-1)
+integer(kind=iwp), intent(inout) :: jndgrd(3,4,0:nirrep-1), jndhss(4,3,4,3,0:nirrep-1)
+real(kind=wp), intent(in) :: Coorm(3,4)
 integer(kind=iwp) :: iCent, iiC, iiCar, iiCent, iMax, iMin, iStop, jCent, jjC, jjCent, kCar, kCent, kkCar, lCar, lCent
 logical(kind=iwp) :: alike
 logical(kind=iwp), external :: EQ

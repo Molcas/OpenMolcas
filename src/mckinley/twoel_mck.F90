@@ -88,20 +88,23 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ndarray.fh"
-integer(kind=iwp) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
-                     nData2, nAlpha, nBeta, jPrInc, nGamma, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, &
-                     nEta, nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, nDij, &
-                     mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, nFt, &
-                     IndZet(nAlpha*nBeta), IndEta(nGamma*nDelta), nBuffer, moip(0:7), naco, nMOIN
-real(kind=wp) :: Coor(3,4), Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2), Pren, Prem, &
-                 Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
-                 Coeff4(nDelta,lBasl), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), rKab(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), &
-                 rKcd(nEta), xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), xpre(nGamma*nDelta*nAlpha*nBeta), Hess(nHess), &
-                 PSO(iBasi*jBasj*kBask*lBasl,nPSO), Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), WorkX(nWorkX), &
-                 Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), &
-                 Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Fin(nfin), &
-                 Temp(nTemp), TwoHam(nTwo2), Buffer(nBuffer), Dan(*), Din(*), rMOIN(nMOIN)
-logical(kind=iwp) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), Shijij, lgrad, ldot, n8, ltri, new_fock
+integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
+                                 nData2, nAlpha, nBeta, jPrInc, nGamma, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, nEta, &
+                                 nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
+                                 nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
+                                 nFt, nBuffer, moip(0:7), naco, nMOIN
+real(kind=wp), intent(in) :: Coor(3,4), Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2), &
+                             Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
+                             PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
+                             Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), &
+                             Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Dan(*), Din(*)
+real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
+real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), rKab(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), rKcd(nEta), &
+                              xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), xpre(nGamma*nDelta*nAlpha*nBeta), Work2(nWork2), &
+                              Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
+logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), Shijij, lgrad, ldot, n8, ltri, new_fock
+logical(kind=iwp), intent(out) :: IfG(4)
+integer(kind=iwp), intent(out) :: IndZet(nAlpha*nBeta), IndEta(nGamma*nDelta)
 integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, IncEta, IncZet, Indx(3,4), ip, ip2, ipFT, ipS1, ipS2, &
                      ipTemp, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), ix2, iy2, iz2, jCmpb, JndGrd(3,4,0:7), &
                      JndHss(4,3,4,3,0:7), jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, &
@@ -196,6 +199,10 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
     write(u6,*) 'ip,nTemp=',ip,nTemp
     call Abend()
   end if
+# ifdef _WARNING_WORKAROUND_
+  ! Avoid some warnings about unset output arguments
+  Temp(nTemp) = One
+# endif
 
   iuvwx(1) = dc(iStb)%nStab
   iuvwx(2) = dc(jStb)%nStab
@@ -344,7 +351,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
 
         call Timing(dum1,Time,dum2,dum3)
         if (ldot2) call TwoDns(iAngV,iCmp,shijij,ishll,ishell,iAO,nOp,iBasi,jBasj,kBask,lBasl,Aux,nAux,Work2,nWork2,Work3,nWork3, &
-                               work4,nWork4,PSO,nPSO,Fact)
+                               Work4,nWork4,PSO,nPSO,Fact)
 
         call Timing(dum1,Time,dum2,dum3)
         CpuStat(nTwoDens) = CpuStat(nTwoDens)+Time
@@ -398,7 +405,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             call Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,coorm,nirrep,indgrd,indhss)
 
             if (.not. ldot) then
-              JfHss(:,:,:,:) =.false.
+              JfHss(:,:,:,:) = .false.
               JndHss(:,:,:,:,:) = 0
             end if
             !----------------------------------------------------------*
@@ -452,7 +459,7 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             ! ->    Work3_2
             !----------------------------------------------------------*
             !
-            ! Transform integrals ta AO base
+            ! Transform integrals to AO base
             !
             !----------------------------------------------------------*
             ip2 = nGr*mab*mcd*lZeta*lEta+1

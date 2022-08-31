@@ -31,10 +31,11 @@ use Constants, only: Two, Four, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NZETA, LA, LB
-real(kind=wp) :: RNXYZ(NZETA,3,0:LA+1,0:LB+1), ZETA(NZETA), RKAPPA(NZETA), RFINAL(NZETA,nTri_Elem1(LA),nTri_Elem1(LB),1), &
-                 ALPHA(NZETA), BETA(NZETA)
-logical(kind=iwp) :: IFGRAD(3)
+integer(kind=iwp), intent(in) :: NZETA, LA, LB
+real(kind=wp), intent(in) :: RNXYZ(NZETA,3,0:LA+1,0:LB+1), ZETA(NZETA), ALPHA(NZETA), BETA(NZETA)
+real(kind=wp), intent(inout) :: RKAPPA(NZETA)
+real(kind=wp), intent(out) :: RFINAL(NZETA,nTri_Elem1(LA),nTri_Elem1(LB),1)
+logical(kind=iwp), intent(in) :: IFGRAD(3)
 integer(kind=iwp) :: IPA, IPB, IXA, IXB, IYA, IYAMAX, IYB, IYBMAX, IZA, IZB, IZETA
 real(kind=wp) :: DIFFX, DIFFY, DIFFZ, OVLX, OVLY, OVLZ
 
@@ -60,13 +61,9 @@ do IXA=0,LA
             DIFFX = Four*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IXA+1,IXB+1)
             if (IXB > 0) then
               DIFFX = DIFFX-Two*ALPHA(IZETA)*real(IXB,kind=wp)*RNXYZ(IZETA,1,IXA+1,IXB-1)
-              if (IXA > 0) then
-                DIFFX = DIFFX+real(IXA*IXB,kind=wp)*RNXYZ(IZETA,1,IXA-1,IXB-1)
-              end if
+              if (IXA > 0) DIFFX = DIFFX+real(IXA*IXB,kind=wp)*RNXYZ(IZETA,1,IXA-1,IXB-1)
             end if
-            if (IXA > 0) then
-              DIFFX = DIFFX-real(2*IXA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IXA-1,IXB+1)
-            end if
+            if (IXA > 0) DIFFX = DIFFX-real(2*IXA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IXA-1,IXB+1)
             OVLY = RNXYZ(IZETA,2,IYA,IYB)
             OVLZ = RNXYZ(IZETA,3,IZA,IZB)
             RFINAL(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*DIFFX*OVLY*OVLZ
@@ -78,31 +75,23 @@ do IXA=0,LA
             DIFFY = Four*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,2,IYA+1,IYB+1)
             if (IYB > 0) then
               DIFFY = DIFFY-Two*ALPHA(IZETA)*real(IYB,kind=wp)*RNXYZ(IZETA,2,IYA+1,IYB-1)
-              if (IYA > 0) then
-                DIFFY = DIFFY+real(IYA*IYB,kind=wp)*RNXYZ(IZETA,2,IYA-1,IYB-1)
-              end if
+              if (IYA > 0) DIFFY = DIFFY+real(IYA*IYB,kind=wp)*RNXYZ(IZETA,2,IYA-1,IYB-1)
             end if
-            if (IYA > 0) then
-              DIFFY = DIFFY-real(2*IYA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IYA-1,IYB+1)
-            end if
+            if (IYA > 0) DIFFY = DIFFY-real(2*IYA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IYA-1,IYB+1)
             OVLX = RNXYZ(IZETA,1,IXA,IXB)
             OVLZ = RNXYZ(IZETA,3,IZA,IZB)
             RFINAL(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*OVLX*DIFFY*OVLZ
           end do
         end if
-        if (IFGRAD(1)) then
+        if (IFGRAD(3)) then
           ! COMPUTE INTEGRALS TYPE <D/DZ,D/DZ>
           do IZETA=1,NZETA
             DIFFZ = Four*ALPHA(IZETA)*BETA(IZETA)*RNXYZ(IZETA,1,IZA+1,IZB+1)
             if (IZB > 0) then
               DIFFZ = DIFFZ-Two*ALPHA(IZETA)*real(IZB,kind=wp)*RNXYZ(IZETA,1,IZA+1,IZB-1)
-              if (IZA > 0) then
-                DIFFZ = DIFFZ+real(IZA*IZB,kind=wp)*RNXYZ(IZETA,1,IZA-1,IZB-1)
-              end if
+              if (IZA > 0) DIFFZ = DIFFZ+real(IZA*IZB,kind=wp)*RNXYZ(IZETA,1,IZA-1,IZB-1)
             end if
-            if (IZA > 0) then
-              DIFFZ = DIFFZ-real(2*IZA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IZA-1,IZB+1)
-            end if
+            if (IZA > 0) DIFFZ = DIFFZ-real(2*IZA,kind=wp)*BETA(IZETA)*RNXYZ(IZETA,1,IZA-1,IZB+1)
             OVLX = RNXYZ(IZETA,1,IXA,IXB)
             OVLY = RNXYZ(IZETA,2,IYA,IYB)
             RFINAL(IZETA,IPA,IPB,1) = RKAPPA(IZETA)*OVLX*OVLY*DIFFZ

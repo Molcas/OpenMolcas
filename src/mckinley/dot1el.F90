@@ -37,6 +37,7 @@ subroutine Dot1El(Kernel,KrnlMm,Hess,nHess,DiffOp,CCoor,FD,nFD,lOper,nComp)
 !***********************************************************************
 
 use McKinley_global, only: sIrrep
+use mck_interface, only: hss_kernel, mck_mem
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
@@ -49,10 +50,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-external :: Kernel, KrnlMm
-integer(kind=iwp) :: nHess, nFD, nComp, lOper(nComp)
-real(kind=wp) :: Hess(nHess), CCoor(3,nComp), FD(nFD)
-logical(kind=iwp) :: DiffOp
+procedure(hss_kernel) :: Kernel
+procedure(mck_mem) :: KrnlMm
+integer(kind=iwp), intent(in) :: nHess, nFD, nComp, lOper(nComp)
+real(kind=wp), intent(out) :: Hess(nHess)
+logical(kind=iwp), intent(in) :: DiffOp
+real(kind=wp), intent(in) :: CCoor(3,nComp), FD(nFD)
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: i, iAng, iAO, iAtom, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iComp1, iComp2, iDCRR(0:7), &
@@ -157,7 +160,6 @@ do ijS=1,nTasks
   call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,Shells(jShll)%Exp)
 
   AeqB = iS == jS
-
 
   ! Find the DCR for A and B
 
@@ -373,7 +375,7 @@ do ijS=1,nTasks
 
         ! Compute gradients of the primitive integrals and trace the result.
 
-        !BS write(u6,*) 'Call the  Kernel'
+        !BS write(u6,*) 'Call the Kernel'
 
         call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
                     Kern,MemKer*iPrim*jPrim,Ccoor,nOrdOp,Hess,nHess,IfHss,IndHss,ifgrd,indgrd,DAO,mdci,mdcj,nOp,lOper,nComp, &

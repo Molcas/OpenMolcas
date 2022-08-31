@@ -15,8 +15,10 @@ use k2_arrays, only: MaxDe
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nFD, nOffD, ipOffD(nOffD), lDDen, mDeDe, mIndij
-real(kind=wp) :: FD(nFD), DDen(lDDen)
+integer(kind=iwp), intent(in) :: nFD, nOffD, lDDen
+real(kind=wp), intent(in) :: FD(nFD)
+integer(kind=iwp), intent(out) :: ipOffD(3,nOffD), mDeDe, mIndij
+real(kind=wp), intent(out) :: DDen(lDDen)
 integer(kind=iwp) :: ipD00, ipDeDe, nr_of_Densities
 logical(kind=iwp) :: DFT_Storage, Special_NoSym
 

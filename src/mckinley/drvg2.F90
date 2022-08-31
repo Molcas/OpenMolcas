@@ -12,7 +12,7 @@
 !               1995,1996, Anders Bernhardsson                         *
 !***********************************************************************
 
-subroutine Drvg2(Hess,nhess,l_Grd,l_Hss)
+subroutine Drvg2(Hess,nHess,l_Grd,l_Hss)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals. The four outermost loops *
@@ -45,16 +45,16 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nhess
-real(kind=wp) :: Hess(*)
-logical(kind=iwp) :: l_Grd, l_Hss
+integer(kind=iwp), intent(in) :: nHess
+real(kind=wp), intent(out) :: Hess(nHess)
+logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 #include "Molcas.fh"
 #include "disp.fh"
 #include "etwas.fh"
 #include "setup.fh"
 integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, &
-                     ip1,ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
+                     ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipEI, ipEta, ipFin, ipIndEta, ipIndZet, ipKAB, ipKCD, ipMem, ipMem2, &
                      ipMem3, ipMem4, ipMemX, ipMOC, ipP, ipQ, iPrim, iPrimi, iPrInc, ipTmp, ipTmp2, ipxA, ipxB, ipxD, ipxG, &
@@ -141,7 +141,7 @@ do iS=0,nIrrep-1
 end do
 n8 = .true.
 
-Hess(1:nHess) = Zero
+Hess(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -862,7 +862,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                            Shells(iShllV(2))%pCff(1,jBasAO),jBasn,Shells(iShllV(3))%pCff(1,kBasAO),kBasn, &
                            Shells(iShllV(4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),Mem_DBLE(ipKab), &
                            nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),Mem_DBLE(ipKcd),nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB), &
-                           Mem_DBLE(ipxG),Mem_DBLE(ipxD),Mem_DBLE(ipxPre),Hess,nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP), &
+                           Mem_DBLE(ipxG),Mem_DBLE(ipxD),Mem_DBLE(ipxPre),Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP), &
                            nSO,Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &

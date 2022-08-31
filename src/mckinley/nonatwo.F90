@@ -11,10 +11,10 @@
 ! Copyright (C) 2000, Per Ake Malmqvist                                *
 !***********************************************************************
 
-subroutine NONA2( &
-#                define _CALLING_
-#                include "grd_mck_interface.fh"
-                )
+subroutine NONATWO( &
+#                  define _CALLING_
+#                  include "grd_mck_interface.fh"
+                  )
 !***********************************************************************
 ! OBJECT: TO COMPUTE THE 2ND DERIVATIVE NONADIABATIC COUPLING
 ! INTEGRALS, OF TYPE
@@ -63,7 +63,7 @@ IPSCRT = NIP
 NIP = NIP+nTri_Elem1(LA)*nTri_Elem1(LB)*NZETA*2
 
 if (NIP-1 > NARR) then
-  write(u6,*) ' NONA2: Too small array.'
+  write(u6,*) ' NONATWO: Too small array.'
   write(u6,*) ' Submitted array size NARR=',NARR
   write(u6,*) ' Needed size at least NIP =',NIP
   call Abend()
@@ -101,4 +101,4 @@ call SYMADO_MCK(ARRAY(IPSCRT),NZETA*nTri_Elem1(LA)*nTri_Elem1(LB),rFinal,NROP,nO
 
 return
 
-end subroutine NONA2
+end subroutine NONATWO

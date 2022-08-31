@@ -11,7 +11,7 @@
 ! Copyright (C) 1997, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Drvetc(ngrad)
+subroutine Drvetc(nGrad)
 !***********************************************************************
 !                                                                      *
 ! Object: driver for computation of gradients of one-electron matrices.*
@@ -29,7 +29,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ngrad
+integer(kind=iwp), intent(in) :: nGrad
 integer(kind=iwp) :: iCar, iCnt, iCnttp, idCar, idcnt, idum, iIrrep, iopt, irc, isym, loper, nDens
 real(kind=wp) :: Ccoor(3)
 character(len=8) :: Lbl
@@ -63,13 +63,13 @@ EG(:) = EG(:)+Temp(:)
 Lbl = 'NUCELGR'
 idum = 1
 iopt = 128
-irc = 3*ngrad
+irc = 3*nGrad
 call dWrMCk(irc,iopt,LBL,idum,Temp,idum)
 if (irc /= 0) call SysAbendMsg('drvect','error during write in dwrmck',' ')
 
 idum = 1
 iopt = 128
-irc = 3*ngrad
+irc = 3*nGrad
 Lbl = 'DOTELGR'
 call dWrMCk(irc,iopt,LBL,idum,EG,idum)
 if (irc /= 0) call SysAbendMsg('drvect','error during write in dwrmck',' ')

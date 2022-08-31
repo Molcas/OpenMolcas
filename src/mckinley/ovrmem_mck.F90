@@ -11,18 +11,22 @@
 
 subroutine OvrMem_mck( &
 #                     define _CALLING_
-#                     include "grdmem_mck_interface.fh"
+#                     include "mem_interface.fh"
                      )
 
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
-#include "grdmem_mck_interface.fh"
+#include "mem_interface.fh"
+integer(kind=iwp) :: lr_
 
-lr = 0
-nHer = (la+lb+lr+3)/2
-Mem = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr+2)+3*(la+2)*(lb+2)*(lr+1)+2+nTri_Elem1(la)*nTri_Elem1(lb)*2
+#include "macros.fh"
+unused_var(lr)
+
+lr_ = 0
+nHer = (la+lb+lr_+3)/2
+Mem = 3*nHer*(la+2)+3*nHer*(lb+2)+3*nHer*(lr_+2)+3*(la+2)*(lb+2)*(lr_+1)+2+nTri_Elem1(la)*nTri_Elem1(lb)*2
 
 return
 

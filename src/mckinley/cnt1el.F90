@@ -36,6 +36,7 @@ subroutine Cnt1El(Kernel,KrnlMm,Label,iDCnt,iDCar,loper,rHrmt,DiffOp,dens,Lab_Ds
 !***********************************************************************
 
 use McKinley_global, only: nFck, sIrrep
+use mck_interface, only: grd_mck_kernel, mck_mem
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
@@ -48,11 +49,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-external :: Kernel, KrnlMm
-character(len=8) :: Label, Lab_Dsk
-integer(kind=iwp) :: iDCnt, iDCar, loper, iadd
-real(kind=wp) :: rHrmt, dens(*)
-logical(kind=iwp) :: DiffOp
+procedure(grd_mck_kernel) :: Kernel
+procedure(mck_mem) :: KrnlMm
+character(len=8), intent(in) :: Label, Lab_Dsk
+integer(kind=iwp), intent(in) :: iDCnt, iDCar, iadd
+integer(kind=iwp), intent(out) :: loper
+real(kind=wp), intent(in) :: rHrmt, dens(*)
+logical(kind=iwp), intent(in) :: DiffOp
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -63,6 +66,7 @@ integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7
                      nnIrrep, nOp(2), nOrder, nOrdOp, nrOp, nScr1, nSkal, nSO, nStabM, nStabO
 real(kind=wp) :: A(3), B(3), CCoor(3), Fact, RB(3)
 logical(kind=iwp) :: IfGrd(3,2), DiffCnt, Trans(2)
+character(len=8) :: LabDsk
 real(kind=wp), allocatable :: Fnl(:), Integrals(:), Kappa(:), Kern(:), PCoor(:,:), Scr(:), ScrSph(:), SO(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, NrOpr
 real(kind=r8), external :: DDot_
@@ -83,6 +87,7 @@ logical(kind=iwp), external :: EQ, TF
 ! INDDSP(IDCNT,IIRREP) is the number of displacements in
 ! earlier center/irrep. Thus it is an offset.
 
+LabDsk = Lab_Dsk
 nOrdOp = 0
 IndGrd(0:nIrrep-1) = 0
 loper = 0
@@ -416,16 +421,16 @@ do iIrrep=0,nIrrep-1
     if (iadd /= 0) then
       irc = -1
       iopt = 0
-      call dRdMck(irc,iOpt,Lab_dsk,jdisp,Scr,koper)
+      call dRdMck(irc,iOpt,LabDsk,jdisp,Scr,koper)
       if (irc /= 0) call SysAbendMsg('cnt1el','error during read in rdmck',' ')
       Integrals(ip(nrop):ip(nrop)+nfck(iIrrep)-1) = Integrals(ip(nrop):ip(nrop)+nfck(iIrrep)-1)+Scr(1:nfck(iIrrep))
     end if
     irc = -1
     iopt = 0
 #   ifdef _DEBUGPRINT_
-    write(u6,'(2A,2I8)') 'Lab_dsk,jdisp,koper',Lab_dsk,jdisp,koper
+    write(u6,'(2A,2I8)') 'LabDsk,jdisp,koper',LabDsk,jdisp,koper
 #   endif
-    call dWrMck(irc,iOpt,Lab_dsk,jdisp,Integrals(ip(nrop)),koper)
+    call dWrMck(irc,iOpt,LabDsk,jdisp,Integrals(ip(nrop)),koper)
     if (irc /= 0) call SysAbendMsg('cnt1el','error during write in dwrmck',' ')
   end if
 end do

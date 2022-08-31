@@ -54,12 +54,15 @@ use Constants, only: Zero, One, Two, Four, Half, Quart
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), iAOst(4), iBas, &
-                     jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, jk1, jk2, &
-                     jk3, jk4, jl1, jl2, jl3, jl4, nFT, iCar, iCent, indgrd(3,4,0:nirrep-1), ipdisp(*)
-logical(kind=iwp) :: Shijij, Pert(0:nIrrep-1)
-real(kind=wp) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
-                 Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), FT(nFT), tfact
+integer(kind=iwp), intent(in) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), &
+                                 iAOst(4), iBas, jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, &
+                                 il1, il2, il3, il4, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, nFT, iCar, iCent, &
+                                 indgrd(3,4,0:nirrep-1), ipdisp(*)
+logical(kind=iwp), intent(in) :: Shijij, Pert(0:nIrrep-1)
+real(kind=wp), intent(in) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
+                             Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), tfact
+real(kind=wp), intent(inout) :: TwoHam(nDens)
+real(kind=wp), intent(out) :: Scrt(nScrt), FT(nFT)
 integer(kind=iwp) :: i, i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIn, iIrrep, ijkl, iljk, iOut, ip, ipD, ipFij, ipFij1, &
                      ipFik, ipFik1, ipFil, ipFil1, ipFjk, ipFjk1, ipFjl, ipFjl1, ipFkl, ipFkl1, iSym(4,0:7), j, jChBs, jCmpMx, jj, &
                      k, kChBs, kk, kOp2(4), l, lChBs, lCmpMx, ll, mFij, mFik, mFil, mFjk, mFjl, mFkl, nFij, nFik, nFil, nFjk, &
@@ -222,7 +225,7 @@ do i1=1,iCmp
         end do
         if (mFij+mFkl+mFik+mFjl+mFil+mFjk == 0) cycle
 
-        vijkl = DNrm2_(iBas*jBas*kBas*lBas,AOInt(1,i1,i2,i3,i4),1)
+        vijkl = DNrm2_(iBas*jBas*kBas*lBas,AOInt(:,i1,i2,i3,i4),1)
         if (vijkl < CutInt) cycle
         !***************************************************************
         !                                                              *
@@ -264,10 +267,10 @@ do i1=1,iCmp
           Fac = Fac*D_kl
           if (vkl*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
             if (iShell(3) < iShell(4)) then
-              call DGetMO(Dkl(1,i4,i3),kl1,kl1,kl2,Scrt,kl2)
-              call dGeMV_('N',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Scrt,1,One,FT(ipFij1),1)
+              call DGetMO(Dkl(:,i4,i3),kl1,kl1,kl2,Scrt,kl2)
+              call dGeMV_('N',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(:,i1,i2,i3,i4),iBas*jBas,Scrt,1,One,FT(ipFij1),1)
             else
-              call dGeMV_('N',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Dkl(1,i3,i4),1,One,FT(ipFij1),1)
+              call dGeMV_('N',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(:,i1,i2,i3,i4),iBas*jBas,Dkl(:,i3,i4),1,One,FT(ipFij1),1)
             end if
             !call RecPrt('Fij',' ',FT(ipFij1),iBas,jBas)
             lFij = .true.
@@ -289,10 +292,10 @@ do i1=1,iCmp
           Fac = Fac*D_ij
           if (vij*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
             if (iShell(1) < iShell(2)) then
-              call DGeTMO(Dij(1,i2,i1),ij1,ij1,ij2,Scrt,ij2)
-              call dGeMV_('T',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Scrt,1,One,FT(ipFkl1),1)
+              call DGeTMO(Dij(:,i2,i1),ij1,ij1,ij2,Scrt,ij2)
+              call dGeMV_('T',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(:,i1,i2,i3,i4),iBas*jBas,Scrt,1,One,FT(ipFkl1),1)
             else
-              call dGeMV_('T',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(1,i1,i2,i3,i4),iBas*jBas,Dij(1,i1,i2),1,One,FT(ipFkl1),1)
+              call dGeMV_('T',iBas*jBas,kBas*lBas,Fac*qFctr*pFctr,AOInt(:,i1,i2,i3,i4),iBas*jBas,Dij(:,i1,i2),1,One,FT(ipFkl1),1)
             end if
             !call RecPrt('Fkl',' ',FT(ipFkl1),kBas,lBas)
             lFkl = .true.
@@ -364,10 +367,10 @@ do i1=1,iCmp
               Fac = Fac*D_jl
               if (vjl*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
                 if (iShell(2) < iShell(4)) then
-                  call DGeTMO(Djl(1,i4,i2),jl1,jl1,jl2,Scrt(ipD),jl2)
+                  call DGeTMO(Djl(:,i4,i2),jl1,jl1,jl2,Scrt(ipD),jl2)
                   call dGeMV_('N',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Scrt(ipD),1,One,FT(ipFik1),1)
                 else
-                  call dGeMV_('N',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Djl(1,i2,i4),1,One,FT(ipFik1),1)
+                  call dGeMV_('N',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Djl(:,i2,i4),1,One,FT(ipFik1),1)
                 end if
                 !call RecPrt('Fik',' ',FT(ipFik1),iBas,kBas)
                 lFik = .true.
@@ -393,10 +396,10 @@ do i1=1,iCmp
                 Fac = Fac*D_ik
                 if (vik*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
                   if (iShell(1) < iShell(3)) then
-                    call DGeTMO(Dik(1,i3,i1),ik1,ik1,ik2,Scrt(ipD),ik2)
+                    call DGeTMO(Dik(:,i3,i1),ik1,ik1,ik2,Scrt(ipD),ik2)
                     call dGeMV_('T',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Scrt(ipD),1,One,FT(ipFjl1),1)
                   else
-                    call dGeMV_('T',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Dik(1,i1,i3),1,One,FT(ipFjl1),1)
+                    call dGeMV_('T',iBas*kBas,jBas*lBas,Fac*qFctr*pFctr,Scrt,iBas*kBas,Dik(:,i1,i3),1,One,FT(ipFjl1),1)
                   end if
                   !call RecPrt('Fjl',' ',FT(ipFjl1),jBas,lBas)
                   lFjl = .true.
@@ -449,10 +452,10 @@ do i1=1,iCmp
               Fac = Fac*D_jk
               if (vjk*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
                 if (iShell(2) < iShell(3)) then
-                  call DGeTMO(Djk(1,i3,i2),jk1,jk1,jk2,Scrt(ipD),jk2)
+                  call DGeTMO(Djk(:,i3,i2),jk1,jk1,jk2,Scrt(ipD),jk2)
                   call dGeMV_('N',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Scrt(ipD),1,One,FT(ipFil1),1)
                 else
-                  call dGeMV_('N',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Djk(1,i2,i3),1,One,FT(ipFil1),1)
+                  call dGeMV_('N',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Djk(:,i2,i3),1,One,FT(ipFil1),1)
                 end if
                 !call RecPrt('Fil',' ',FT(ipFil1),iBas,lBas)
                 lFil = .true.
@@ -469,10 +472,10 @@ do i1=1,iCmp
               Fac = Fac*D_il
               if (vil*vijkl*abs(Fac*qFctr*pFctr) >= CutInt) then
                 if (iShell(1) < iShell(4)) then
-                  call DGeTMO(Dil(1,i4,i1),il1,il1,il2,Scrt(ipD),il2)
+                  call DGeTMO(Dil(:,i4,i1),il1,il1,il2,Scrt(ipD),il2)
                   call dGeMV_('T',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Scrt(ipD),1,One,FT(ipFjk1),1)
                 else
-                  call dGeMV_('T',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Dil(1,i1,i4),1,One,FT(ipFjk1),1)
+                  call dGeMV_('T',iBas*lBas,jBas*kBas,Fac*qFctr*pFctr,Scrt,iBas*lBas,Dil(:,i1,i4),1,One,FT(ipFjk1),1)
                 end if
                 !call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
                 lFjk = .true.
@@ -566,12 +569,15 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), iAOst(4), iBas, &
-                     jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, jk1, jk2, &
-                     jk3, jk4, jl1, jl2, jl3, jl4, nFT, iCar, iCent, indgrd(3,4,0:nirrep-1), ipdisp(*)
-logical(kind=iwp) :: Shijij, Pert(0:nIrrep-1)
-real(kind=wp) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens), Scrt(nScrt), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
-                 Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), FT(nFT), tfact
+integer(kind=iwp), intent(in) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), &
+                                 iAOst(4), iBas, jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, &
+                                 il1, il2, il3, il4, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, nFT, iCar, iCent, &
+                                 indgrd(3,4,0:nirrep-1), ipdisp(*)
+logical(kind=iwp), intent(in) :: Shijij, Pert(0:nIrrep-1)
+real(kind=wp), intent(in) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), &
+                             Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4), tfact
+real(kind=wp), intent(inout) :: TwoHam(nDens)
+real(kind=wp), intent(out) :: Scrt(nScrt), FT(nFT)
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, iCmpa(4), ii, iIrrep, ijkl, iOpt, ip, ipDij, ipDik, ipDil, ipDjk, ipDjl, &
                      ipDkl, ipFij, ipFij1, ipFik, ipFik1, ipFil, ipFil1, ipFjk, ipFjk1, ipFjl, ipFjl1, ipFkl, ipFkl1, iSym(4), ix, &
                      j, jChBs, jCmpMx, jj, kChBs, kk, kOp2(4), lChBs, lCmpMx, ll, loc1, loc2, mijkl, nFij, nFik, nFil, nFjk, nFjl, &

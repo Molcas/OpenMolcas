@@ -15,9 +15,10 @@ use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nB, nrOp, nop(2), IndGrd(0:nIrrep-1), ksym, iu, iv, idCar
-real(kind=wp) :: ArrIn(nB,2), ArrOut(nB,nrOp)
-logical(kind=iwp) :: IfGrd(3,2), trans(2)
+integer(kind=iwp), intent(in) :: nB, nrOp, nop(2), IndGrd(0:nIrrep-1), ksym, iu, iv, idCar
+real(kind=wp), intent(in) :: ArrIn(nB,2)
+real(kind=wp), intent(inout) :: ArrOut(nB,nrOp)
+logical(kind=iwp), intent(in) :: IfGrd(3,2), trans(2)
 integer(kind=iwp) :: iCn, iirrep, jIrrep, n
 real(kind=wp) :: Fact, ps
 integer(kind=iwp), external :: iPrmt, NrOpr

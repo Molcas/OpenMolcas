@@ -25,8 +25,8 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: nrIn, jDisp, iIrrep
-real(kind=wp) :: rIn(nrIn)
+integer(kind=iwp), intent(in) :: nrIn, jDisp, iIrrep
+real(kind=wp), intent(in) :: rIn(nrIn)
 #include "etwas.fh"
 #include "print.fh"
 integer(kind=iwp) :: iii, iopt, ip(0:7), ip2(0:7), ipCC, ipCM(0:7), ipIn1, ipOut, irc, jAsh, jIrrep, kAsh, kIrrep, nA(0:7), nin, &
@@ -104,8 +104,8 @@ do jIrrep=0,nIrrep-1
         write(u6,*)
         write(u6,*) 'ipDisp(jDisp),ip(jIrrep)=',ipDisp(jDisp),ip(jIrrep)
         call RecPrt('ipDisp',' ',rIn(ipDisp(jDisp)+ip(jIrrep)),nBas(jIrrep),nBas(kIrrep))
-        write(u6,'(A,G20.10)') 'ipDisp:',DDot_(nBas(jIrrep)*nBas(kIrrep),rIn(ipDisp(jDisp)+ip(jIrrep)),1, &
-                               rIn(ipDisp(jDisp)+ip(jIrrep)),1)
+        write(u6,'(A,G20.10)') 'ipDisp:', &
+                               DDot_(nBas(jIrrep)*nBas(kIrrep),rIn(ipDisp(jDisp)+ip(jIrrep)),1,rIn(ipDisp(jDisp)+ip(jIrrep)),1)
         write(u6,'(A,G20.10)') 'ipCM(kIrrep):',DDot_(nBas(kIrrep)*nBas(kIrrep),CMO(ipCM(kIrrep),1),1,CMO(ipCM(kIrrep),1),1)
         write(u6,'(A,G20.10)') 'ipCM(jIrrep):',DDot_(nBas(jIrrep)*nBas(jIrrep),CMO(ipCM(jIrrep),1),1,CMO(ipCM(jIrrep),1),1)
       end if
@@ -146,7 +146,7 @@ if (nMethod == RASSCF) then
         call DGEMM_('T','N',nBas(jIrrep),nBas(kirrep),nBas(jIrrep),One,CMO(ipCM(jIrrep),1),nBas(jIrrep),TempY,nBas(jIrrep),Zero, &
                     InAct(1+ip2(jIrrep)),nBas(jIrrep))
       else if (kirrep < jirrep) then
-        call DGEMM_('N','N',nBas(jIrrep),nBas(kIrrep),nBas(kIrrep),One,rin(ipDisp2(jDisp)+ip(jIrrep)),nBas(jIrrep), &
+        call DGEMM_('N','N',nBas(jIrrep),nBas(kIrrep),nBas(kIrrep),One,rIn(ipDisp2(jDisp)+ip(jIrrep)),nBas(jIrrep), &
                     CMO(ipCM(kIrrep),1),nBas(kIrrep),Zero,TempY,nBas(jIrrep))
         call DGEMM_('T','N',nBas(jIrrep),nBas(kirrep),nBas(jIrrep),One,CMO(ipCM(jIrrep),1),nBas(jIrrep),TempY,nBas(jIrrep),Zero, &
                     InAct(1+ip2(kIrrep)),nBas(jIrrep))
@@ -193,9 +193,9 @@ if (nMethod == RASSCF) then
       ipOut = 1+ip2(kIrrep)+nIsh(kIrrep)*nBas(jIrrep)
       if (Show) then
         write(u6,*) 'jIrrep,kIrrep=',jIrrep,kIrrep
-        write(u6,'(A,G20.10)') 'ipDisp3:',DDot_(nBas(jIrrep)*nAsh(kIrrep),rin(ipDisp3(jDisp)+iii),1,rin(ipDisp3(jDisp)+iii),1)
+        write(u6,'(A,G20.10)') 'ipDisp3:',DDot_(nBas(jIrrep)*nAsh(kIrrep),rIn(ipDisp3(jDisp)+iii),1,rIn(ipDisp3(jDisp)+iii),1)
       end if
-      call DGEMM_('T','N',nBas(jIrrep),nAsh(kIrrep),nBas(jIrrep),One,CMO(ipCM(jIrrep),1),nBas(jIrrep),rin(ipDisp3(jDisp)+iii), &
+      call DGEMM_('T','N',nBas(jIrrep),nAsh(kIrrep),nBas(jIrrep),One,CMO(ipCM(jIrrep),1),nBas(jIrrep),rIn(ipDisp3(jDisp)+iii), &
                   nBas(jIrrep),Zero,TempY,nBas(jIrrep))
       n = nAsh(kIrrep)*nBas(jIrrep)
       rOut(ipOut:ipOut+n-1) = rOut(ipOut:ipOut+n-1)+TempY(1:n)

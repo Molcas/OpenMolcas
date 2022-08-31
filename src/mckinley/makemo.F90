@@ -25,9 +25,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nTemp, n_Int, icmp(4), iCmpa(4), ibasi, jbasj, kbask, lbasl, nGr, Indx(3,4), moip(0:7), naco, nop(4), &
-                     indgrd(3,4,0:nirrep-1), ishll(4), ishell(4), nmoin, iuvwx(4), iAOST(4), ianga(4)
-real(kind=wp) :: AOInt(n_Int), Temp(nTemp), rmoin(nmoin), buffer(*)
+integer(kind=iwp), intent(in) :: nTemp, n_Int, icmp(4), iCmpa(4), ibasi, jbasj, kbask, lbasl, nGr, Indx(3,4), moip(0:7), naco, &
+                                 nop(4), indgrd(3,4,0:nirrep-1), ishll(4), ishell(4), nmoin, iuvwx(4), iAOST(4), ianga(4)
+real(kind=wp), intent(in) :: AOInt(n_Int)
+real(kind=wp), intent(out) :: Temp(nTemp)
+real(kind=wp), intent(inout) :: rmoin(nmoin), buffer(*)
 integer(kind=iwp) :: ibas(4), iCar, iCent, iCnt, iGr, ii, iIrrep, iMax, ip, ip0, ip1, ip2, ip5, ipc, ipck, ipcl, ipFin, mSum, &
                      nabcd, nCk, nCl, nij, nijkl, nkl, nScrtch, ntot
 logical(kind=iwp) :: lc, pert(0:7)

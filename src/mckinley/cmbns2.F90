@@ -25,10 +25,12 @@ use Constants, only: One, Two, Four, OneHalf
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, nHess, IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), indgrd(0:2,0:1,0:nirrep-1), iu, iv, nOp(2)
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6), &
-                 Alpha(nZeta), Hess(nHess), DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
-logical(kind=iwp) :: IfHss(0:1,0:2,0:1,0:2)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, nHess, IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), indgrd(0:2,0:1,0:nirrep-1), iu, iv, &
+                                 nOp(2)
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), Alpha(nZeta), DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
+real(kind=wp), intent(inout) :: rKappa(nZeta), Hess(nHess)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),6)
+logical(kind=iwp), intent(in) :: IfHss(0:1,0:2,0:1,0:2)
 integer(kind=iwp) :: i, ia(3), iax, iay, ib(3), ibx, iby, iCar, iCh, iCnt, iCoor, iHess, iIrrep, ipa, ipb, istb(0:1), iStop, &
                      iyaMax, iybMax, jCar, jCnt, jCoor, kCoor, nDAO
 real(kind=wp) :: Fact, ps, rtemp
@@ -71,23 +73,20 @@ do iax=0,la
           kCoor = mod(jCoor,3)+1
           i = iTri(iCoor,iCoor)
           if (IfHss(0,iCoor-1,0,iCoor-1)) then
-            rFinal(:,ipa,ipb,i) = rKappa(:)* &
-                                  ((Two*Alpha(:))**2*Rnxyz(:,iCoor,ia(iCoor)+2,ib(iCoor))* &
+            rFinal(:,ipa,ipb,i) = rKappa(:)*((Two*Alpha(:))**2*Rnxyz(:,iCoor,ia(iCoor)+2,ib(iCoor))* &
+                                                               Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
+                                                               Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))- &
+                                             Two*Alpha(:)*Rnxyz(:,iCoor,ia(iCoor),ib(iCoor))* &
+                                                          Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
+                                                          Rnxyz(:,kCoor,ia(kCoor),ib(kCoor)))
+            if (ia(iCoor) > 0) rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)-rKappa(:)*Four*Alpha(:)*real(ia(iCoor),kind=wp)* &
+                                                     Rnxyz(:,iCoor,ia(iCoor),ib(iCoor))* &
                                                      Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
-                                                     Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))- &
-                                   Two*Alpha(:)*Rnxyz(:,iCoor,ia(iCoor),ib(iCoor))* &
-                                                Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
-                                                Rnxyz(:,kCoor,ia(kCoor),ib(kCoor)))
-            if (ia(iCoor) > 0) &
-              rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)-rKappa(:)*Four*Alpha(:)*real(ia(iCoor),kind=wp)* &
-                                    Rnxyz(:,iCoor,ia(iCoor),ib(iCoor))* &
-                                    Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
-                                    Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))
-            if (ia(iCoor) > 1) &
-              rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)+rKappa(:)*real(ia(iCoor)*(ia(iCoor)-1),kind=wp)* &
-                                    Rnxyz(:,iCoor,ia(iCoor)-2,ib(iCoor))* &
-                                    Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
-                                    Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))
+                                                     Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))
+            if (ia(iCoor) > 1) rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)+rKappa(:)*real(ia(iCoor)*(ia(iCoor)-1),kind=wp)* &
+                                                     Rnxyz(:,iCoor,ia(iCoor)-2,ib(iCoor))* &
+                                                     Rnxyz(:,jCoor,ia(jCoor),ib(jCoor))* &
+                                                     Rnxyz(:,kCoor,ia(kCoor),ib(kCoor))
           end if
         end do
 
@@ -101,9 +100,8 @@ do iax=0,la
               do kCoor=1,3
                 if ((kCoor == iCoor) .or. (kCoor == jCoor)) then
                   if (ia(kCoor) > 0) then
-                    rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)* &
-                                          (Two*Alpha(:)*Rnxyz(:,kCoor,ia(kCoor)+1,ib(kCoor))- &
-                                           real(ia(kCoor),kind=wp)*Rnxyz(:,kCoor,ia(kCoor)-1,ib(kCoor)))
+                    rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)*(Two*Alpha(:)*Rnxyz(:,kCoor,ia(kCoor)+1,ib(kCoor))- &
+                                                               real(ia(kCoor),kind=wp)*Rnxyz(:,kCoor,ia(kCoor)-1,ib(kCoor)))
                   else
                     rFinal(:,ipa,ipb,i) = rFinal(:,ipa,ipb,i)*Two*Alpha(:)*Rnxyz(:,kCoor,ia(kCoor)+1,ib(kCoor))
                   end if

@@ -42,7 +42,7 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"

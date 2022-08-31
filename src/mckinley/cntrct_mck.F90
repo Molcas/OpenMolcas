@@ -31,9 +31,11 @@ subroutine Cntrct_mck(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,g1In
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: First
-integer(kind=iwp) :: n1, m1, n2, m2, n3, m3, n4, m4, nGr, nArr, ngr1, nt, nZeta, IndZet(nZeta), lZeta, nEta, IndEta(nEta), lEta
-real(kind=wp) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), g1In(nT,nGr), Array(nArr), xpre(nt), g1Out(nGr1)
+logical(kind=iwp), intent(inout) :: First
+integer(kind=iwp), intent(in) :: n1, m1, n2, m2, n3, m3, n4, m4, nGr, nArr, ngr1, nt, nZeta, IndZet(nZeta), lZeta, nEta, &
+                                 IndEta(nEta), lEta
+real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), xpre(nt)
+real(kind=wp), intent(inout) :: g1In(nT,nGr), Array(nArr), g1Out(nGr1)
 #include "lCache.fh"
 integer(kind=iwp) :: iabcdg, IncVec, ip, ipA2, ipA3, lsize, nCache, nVec
 

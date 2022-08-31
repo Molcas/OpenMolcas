@@ -12,7 +12,7 @@
 !               1997, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine CmbnEl(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,Fact,Temp,Alpha,Beta,ifgrad,kcar)
+subroutine CmbnEl(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,Fact,Temp,Alpha,Beta,IfGrad,kcar)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute gradient integrals for SC Reaction Fields         *
@@ -21,7 +21,7 @@ subroutine CmbnEl(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,Fact,Temp,Alpha,Beta,i
 !             University of Lund, SWEDEN                               *
 !             Modified for reaction field calculations July '92        *
 !             Modified for gradient calculations May '95               *
-!             Modified for trans. prob.   calculations Oct '97         *
+!             Modified for trans. prob. calculations Oct '97           *
 !             by Anders Bernhardsson                                   *
 !***********************************************************************
 
@@ -30,10 +30,10 @@ use Constants, only: Two, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, lr, kcar
-real(kind=wp) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),2), &
-                 Fact(nZeta), Temp(nZeta), Alpha(nZeta), Beta(nZeta)
-logical(kind=iwp) :: Ifgrad(3,2)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, kcar
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKappa(nZeta), Alpha(nZeta), Beta(nZeta)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),2), Fact(nZeta), Temp(nZeta)
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
 integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb
 real(kind=wp) :: xa, xb, ya, yb, za, zb
 
@@ -54,7 +54,7 @@ do ixa=0,la
 
         ! Combine multipole moment integrals
 
-        if (ifgrad(1,1)) then
+        if (IfGrad(1,1)) then
           do ix=0,lr
             do iy=0,lr-ix
               if (ixa > 0) then
@@ -72,7 +72,7 @@ do ixa=0,la
             end do
           end do
         end if
-        if (ifgrad(1,2)) then
+        if (IfGrad(1,2)) then
           do ix=0,lr
             do iy=0,lr-ix
               if (ixb > 0) then
@@ -90,7 +90,7 @@ do ixa=0,la
             end do
           end do
         end if
-        if (ifgrad(2,1)) then
+        if (IfGrad(2,1)) then
           do ix=0,lr
             do iy=0,lr-ix
               if (iya > 0) then
@@ -108,7 +108,7 @@ do ixa=0,la
             end do
           end do
         end if
-        if (ifgrad(2,2)) then
+        if (IfGrad(2,2)) then
           do ix=0,lr
             do iy=0,lr-ix
               if (iyb > 0) then
@@ -126,7 +126,7 @@ do ixa=0,la
             end do
           end do
         end if
-        if (ifgrad(3,1)) then
+        if (IfGrad(3,1)) then
           do ix=0,lr
             do iy=0,lr-ix
               Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*Rnxyz(:,2,iya,iyb,iy)
@@ -146,7 +146,7 @@ do ixa=0,la
             end do
           end do
         end if
-        if (ifgrad(3,2)) then
+        if (IfGrad(3,2)) then
           do ix=0,lr
             do iy=0,lr-ix
               Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*Rnxyz(:,2,iya,iyb,iy)

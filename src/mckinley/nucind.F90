@@ -17,10 +17,11 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Coor(3,4)
-integer(kind=iwp) :: kdc, IndGrd(0:2,0:1,0:nIrrep-1), IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), JndGrd(0:2,0:3,0:nIrrep-1), &
-                     JndHss(0:3,0:2,0:3,0:2,0:nIrrep-1)
-logical(kind=iwp) :: IfGrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3), IfG(0:3)
+real(kind=wp), intent(in) :: Coor(3,4)
+integer(kind=iwp), intent(in) :: kdc, IndGrd(0:2,0:1,0:nIrrep-1), IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1)
+logical(kind=iwp), intent(in) :: IfGrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2)
+logical(kind=iwp), intent(out) :: JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3), IfG(0:3)
+integer(kind=iwp), intent(out) :: JndGrd(0:2,0:3,0:nIrrep-1), JndHss(0:3,0:2,0:3,0:2,0:nIrrep-1)
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: iCar, iCent, iComp, iIrrep, iStop, jAtom, jCar, Maxi, Mini, nDisp, nnIrrep
@@ -71,7 +72,6 @@ end do
 
 ! The third center is calculated by translation invariance
 ! This requires the 2nd derivatives on the other centers.
-
 
 do iCar=0,2
   do jAtom=0,2

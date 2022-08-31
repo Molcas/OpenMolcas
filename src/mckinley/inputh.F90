@@ -36,7 +36,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6, r8
 
 implicit none
-logical(kind=iwp) :: Run_MCLR
+logical(kind=iwp), intent(out) :: Run_MCLR
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
@@ -357,7 +357,7 @@ write(u6,*)
 if (Nona) then
   write(u6,*)
   write(u6,'(20X,A)') ' McKinley only is computing the antisymmetric gradient of the overlap integrals for the NonAdiabatic '// &
-                     'Coupling.'
+                      'Coupling.'
   write(u6,*)
 end if
 
@@ -409,8 +409,8 @@ do iIrrep=0,nIrrep-1
           end if
           if (iPrint >= 6) &
             write(u6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))') nDisp,dc(mdc)%LblCnt,xyz(iCar), &
-                                                           (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)), &
-                                                            iComp)*iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))), &
+                                                           (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iComp)* &
+                                                                   iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))), &
                                                             iCo=0,nIrrep/dc(mdc)%nStab-1)
           write(ChDisp(nDisp),'(A,1X,A1)') dc(mdc)%LblCnt,xyz(iCar)
           ATDisp(ndisp) = icnttp

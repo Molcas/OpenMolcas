@@ -37,9 +37,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nHess
-real(kind=wp) :: Hess(nHess), Temp(nHess)
-logical(kind=iwp) :: show
+integer(kind=iwp), intent(in) :: nHess
+real(kind=wp), intent(inout) :: Hess(nHess)
+real(kind=wp), intent(out) :: Temp(nHess)
+logical(kind=iwp), intent(in) :: show
 #include "rctfld.fh"
 integer(kind=iwp) :: i, iIrrep, nComp, nDens, nFock
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
@@ -95,7 +96,7 @@ Temp(:) = Zero
 Label = ' The Renormalization Contribution'
 call Dot1El(OvrHss,OvrMmH,Temp,nHess,DiffOp,Coor,Fock,nFock,lOper,nComp)
 if (show) write(u6,*) label
-if (show) call HssPrt(Hess,nHess)
+if (show) call HssPrt(Temp,nHess)
 Hess(:) = Hess(:)-Temp(:)
 
 !***********************************************************************

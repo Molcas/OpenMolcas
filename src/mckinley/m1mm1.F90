@@ -13,13 +13,13 @@
 
 subroutine m1mm1( &
 #                define _CALLING_
-#                include "grdmem_mck_interface.fh"
+#                include "mem_interface.fh"
                 )
 
 use Definitions, only: iwp
 
 implicit none
-#include "grdmem_mck_interface.fh"
+#include "mem_interface.fh"
 integer(kind=iwp) :: iAng(4)
 
 #include "macros.fh"

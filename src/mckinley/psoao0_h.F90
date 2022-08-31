@@ -40,9 +40,10 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-integer(kind=iwp) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, iBsInc, jBas, jBsInc, kBas, kBsInc, lBas, &
-                     lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, lPrim, lPrInc, ipMem1, ipMem2, ipMem3, ipMem4, Mem1, &
-                     Mem2, Mem3, Mem4, Mend
+integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, &
+                                 kPrim, lPrim, ipMem1
+integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
+                                  Mem2, Mem3, Mem4, Mend
 #include "lCache.fh"
 #include "pstat.fh"
 #include "warnings.h"
@@ -200,7 +201,7 @@ do
   MemSp2 = lCmp*kCmp*jCmp*nTri_Elem1(la)*iBsInc*jBsInc*kBsInc*lBsInc
   MemTr3 = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
   Mem3 = max(MemCon,MemSp1,MemSp2,MemTr3)
-  if (Mem3+1 <= Mem0)  exit
+  if (Mem3+1 <= Mem0) exit
   MaxReq = max(MaxReq,Mem3+1-Mem0)
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
               MaxReq,Fail)

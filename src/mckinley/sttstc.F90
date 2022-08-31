@@ -58,6 +58,6 @@ write(u6,*)
 
 return
 
-100 format (2x,a)
+100 format(2x,a)
 
 end subroutine Sttstc

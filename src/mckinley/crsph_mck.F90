@@ -32,10 +32,13 @@ use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nijx, nab, n1, mab
-real(kind=wp) :: Win(nab*nijx), Coeff1(nTri_Elem1(n1),nTri_Elem1(n1)), Wout(mab*nijx)
-logical(kind=iwp) :: Tr1, Pr1
+integer(kind=iwp), intent(in) :: nijx, nab, n1, mab
+real(kind=wp), intent(in) :: Win(nab*nijx), Coeff1(nTri_Elem1(n1),nTri_Elem1(n1))
+real(kind=wp), intent(_OUT_) :: Wout(mab*nijx)
+logical(kind=iwp), intent(in) :: Tr1, Pr1
 integer(kind=iwp) :: k1, l1
 
 !iRout = 26

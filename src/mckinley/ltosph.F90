@@ -35,9 +35,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: F(*)
-integer(kind=iwp) :: nAlpha, iShll, la, iAng, nVecAC
-integer(kind=iwp) :: n, nac, nExpi
+real(kind=wp), intent(inout) :: F(*)
+integer(kind=iwp), intent(in) :: nAlpha, iShll, la, iAng, nVecAC
+integer(kind=iwp) :: nac, nExpi
 real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 
 !***********************************************************************
@@ -56,9 +56,7 @@ call DGEMM_('T','N',nVecAC*nAlpha*nExpi*nTri_Elem1(la),(2*iAng+1),nTri_Elem1(iAn
 
 ! 3) x,ikaC -> ikaC,x
 
-call DGetMo(Tmp2,nVecAC,nVecAC,nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1),Tmp1,nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1))
-n = nVecAC*nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1)
-F(1:n) = Tmp1(1:n)
+call DGetMo(Tmp2,nVecAC,nVecAC,nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1),F,nAlpha*nExpi*nTri_Elem1(la)*(2*iAng+1))
 
 call mma_deallocate(Tmp2)
 call mma_deallocate(Tmp1)

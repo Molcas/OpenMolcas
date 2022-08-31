@@ -18,8 +18,9 @@ subroutine Request_MCLR_Run(Run_MCLR,ireturn,iPrint)
 use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) :: Run_MCLR
-integer(kind=iwp) :: ireturn, iPrint
+logical(kind=iwp), intent(in) :: Run_MCLR
+integer(kind=iwp), intent(out) :: ireturn
+integer(kind=iwp), intent(in) :: iPrint
 #include "warnings.h"
 integer(kind=iwp) :: LuInput
 character(len=16) :: StdIn

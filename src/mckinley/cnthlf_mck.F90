@@ -27,9 +27,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nCntr1, nPrm1, nCntr2, nPrm2, nZeta, lZeta, nVec, IncVec, Indij(nZeta)
-real(kind=wp) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(lZeta,nVec), A2(nPrm2,IncVec*nCntr1), A3(nVec,nCntr1,nCntr2)
-logical(kind=iwp) :: First
+integer(kind=iwp), intent(in) :: nCntr1, nPrm1, nCntr2, nPrm2, nZeta, lZeta, nVec, IncVec, Indij(nZeta)
+real(kind=wp), intent(in) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(lZeta,nVec)
+logical(kind=iwp), intent(in) :: First
+real(kind=wp), intent(out) :: A2(nPrm2,IncVec*nCntr1)
+real(kind=wp), intent(inout) :: A3(nVec,nCntr1,nCntr2)
 integer(kind=iwp) :: iCntr1, iCntr2, iiVec, ijVec, iPrm1, iPrm2, iZeta, jZeta, mVec
 logical(kind=iwp) :: Seg1, Seg2
 

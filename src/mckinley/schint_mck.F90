@@ -34,8 +34,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iAnga(4), nAlpha, nBeta, nMemab, nZeta, nWork2, nWork3
-real(kind=wp) :: CoorM(3,4), Zeta(nZeta), ZInv(nZeta), rKapab(nZeta), P(nZeta,3), Work2(nWork2), Work3(nWork3)
+integer(kind=iwp), intent(in) :: iAnga(4), nAlpha, nBeta, nMemab, nZeta, nWork2, nWork3
+real(kind=wp), intent(in) :: CoorM(3,4), Zeta(nZeta), ZInv(nZeta), rKapab(nZeta), P(nZeta,3)
+real(kind=wp), intent(inout) :: Work3(nWork3)
+real(kind=wp), intent(out) :: Work2(nWork2)
 integer(kind=iwp) :: ijklcd, ipIn, la, lb, mabMax, mabMin, mcdMax, mcdMin, mZeta, nijkla, nT
 real(kind=wp) :: CoorAC(3,2), Q(3)
 logical(kind=iwp) :: NoSpecial
