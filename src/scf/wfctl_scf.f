@@ -139,6 +139,7 @@
 *---  Define local variables
       Real*8 ::  StepMax=0.100D0
       Logical QNR1st,FstItr
+      Logical :: Converged=.False.
       Character Meth*(*), Meth_*10
       Character*72 Note
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
@@ -216,6 +217,7 @@
       iterso=0        ! number of second order steps.
       kOptim=1
       Iter_no_Diis=2
+      Converged=.False.
 *                                                                      *
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
@@ -330,7 +332,7 @@
 *                                                                      *
 *======================================================================*
 *                                                                      *
-      Do 100 iter_ = iterSt+1, iterSt+nIter(nIterP)
+      Do iter_ = iterSt+1, iterSt+nIter(nIterP)
          iter = iter_
          IterX=IterX+1
          WarnCfg=.false.
@@ -867,6 +869,27 @@
          TCP2=seconds()
          CpuItr = TCP2 - TCP1
          Call PrIte(iOpt.ge.2,CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
+*
+*----------------------------------------------------------------------*
+         Call Scf_Mcontrol(iter)
+*----------------------------------------------------------------------*
+*
+*------- Check that two-electron energy is positive.
+*        The LDF integrals may not be positive definite, leading to
+*        negative eigenvalues of the ERI matrix - i.e. attractive forces
+*        between the electrons! When that occurs the SCF iterations
+*        still might find a valid SCF solution, but it will obviously be
+*        unphysical and we might as well just stop here.
+*
+         If (Neg2_Action.ne.'CONT') Then
+            If (E2V.lt.E2VTolerance) Then
+               Call WarningMessage(2,
+     &                        'WfCtl_SCF: negative two-electron energy')
+               Write(6,'(A,1P,D25.10)') 'Two-electron energy E2V=',E2V
+               Call xFlush(6)
+               If (Neg2_Action.eq.'STOP') Call Abend()
+            End If
+         End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -896,7 +919,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EDiff
+         If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EThr
          If (iter.ne.1             .AND.
      &       (Abs(EDiff).le.EThr)  .AND.
      &       (Abs(FMOMax).le.FThr) .AND.
@@ -913,30 +936,42 @@
                EmConv=.False.
             End If
 *
-*           If calculation with two different sets of parameters rest
+*           If calculation with two different sets of parameters reset
 *           the convergence parameters to default values. This is
 *           possibly used for direct SCF and DFT.
-*           See "99 Continue" below.
 *
-            If (Reset) Go To 99
+            If (Reset) Then
+*                                                                      *
+*-------       Reset thresholds for direct SCF procedure
+*
+               Reset=.False.
+               EmConv=.False.
+*
+*---------------
+               If(iOpt.eq.2) Then
+                  iOpt = 1        ! True if step is QNR
+                  QNR1st=.TRUE.
+               End If
+               iterso=0
+               If(Reset_Thresh) Call Reset_Thresholds()
+               If(KSDFT.ne.'SCF') Then
+                  If (.Not.One_Grid) Then
+                     iterX=0
+                     Call Reset_NQ_grid()
+*                    Call PrBeg(Meth_)
+                  End If
+                  If ( iOpt.eq.0 ) kOptim=1
+               End If
+               Cycle
+            End If
 *
 *           Here if we converged!
 *
-            If (jPrint.ge.2) Then
-               If (EmConv) Then
-                  Write (6,*)
-                  Write (6,'(6X,A)')
-     &                  'No convergence, optimization aborted'
-               Else
-                  Write (6,*)
-                  Write (6,'(6X,A,I3,A)')' Convergence after',
-     &                      iter, ' Macro Iterations'
-               End If
-            End If
 *
 *           Branch out of the iterative loop! Done!!!
 *
-            GoTo 101
+            Converged=.True.
+            Exit
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -999,108 +1034,69 @@
 *
 *---------- Now when nOcc is known compute standard sizes of arrays.
 *
-            Call Setup
+            Call Setup()
 *
          End If
-*
-*----------------------------------------------------------------------*
-         Call Scf_Mcontrol(iter)
-*----------------------------------------------------------------------*
-*
-*------- Check that two-electron energy is positive.
-*        The LDF integrals may not be positive definite, leading to
-*        negative eigenvalues of the ERI matrix - i.e. attractive forces
-*        between the electrons! When that occurs the SCF iterations
-*        still might find a valid SCF solution, but it will obviously be
-*        unphysical and we might as well just stop here.
-*
-         If (Neg2_Action.ne.'CONT') Then
-            If (E2V.lt.E2VTolerance) Then
-               Call WarningMessage(2,
-     &                        'WfCtl_SCF: negative two-electron energy')
-               Write(6,'(A,1P,D25.10)') 'Two-electron energy E2V=',E2V
-               Call xFlush(6)
-               If (Neg2_Action.eq.'STOP') Call Abend()
-            End If
-         End If
-*----------------------------------------------------------------------*
-         Go To 100  ! Skip the reset section.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*------- Reset thresholds for direct SCF procedure
-*
-  99     Continue
-         Reset=.False.
-         EmConv=.False.
-*
-*---------------
-         If(iOpt.eq.2) Then
-            iOpt = 1        ! True if step is QNR
-            QNR1st=.TRUE.
-         End If
-         iterso=0
-         If(Reset_Thresh) Call Reset_Thresholds
-         If(KSDFT.ne.'SCF') Then
-            If (.Not.One_Grid) Then
-               iterX=0
-               Call Reset_NQ_grid()
-*              Call PrBeg(Meth_)
-            End If
-            If ( iOpt.eq.0 ) kOptim=1
-         End If
-*
 *                                                                      *
 *======================================================================*
+*                                                                      *
 *                                                                      *
 *     End of iteration loop
 *
- 100  Continue ! iter_
+      End Do ! iter_
 *                                                                      *
 *======================================================================*
 *                                                                      *
-#ifdef _MSYM_
-      If (MSYMON) Then
-         Call fmsym_release_context(msym_ctx)
-      End If
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Here if we didn't converge or if this was a forced one iteration
-*     calculation.
-*
-      iter=iter-1
-      If(nIter(nIterP).gt.1) Then
-         If (jPrint.ge.1) Then
-            Write(6,*)
-            Write(6,'(6X,A,I3,A)')
-     &              ' No convergence after',iter,' Iterations'
-         End If
-         iTerm = _RC_NOT_CONVERGED_
-      Else
+
+      If (.NOT.Converged) Then
+
          If (jPrint.ge.2) Then
-            Write(6,*)
-            Write(6,'(6X,A)') ' Single iteration finished!'
+            If (EmConv) Then
+               Write (6,*)
+               Write (6,'(6X,A)')
+     &               'No convergence, optimization aborted'
+            Else
+               Write (6,*)
+               Write (6,'(6X,A,I3,A)')' Convergence after',
+     &                   iter, ' Macro Iterations'
+            End If
          End If
-      End If
+
+      Else
+
+!        Here if we didn't converge or if this was a forced one
+!        iteration  calculation.
+
+         iter=iter-1
+         If(nIter(nIterP).gt.1) Then
+            If (jPrint.ge.1) Then
+               Write(6,*)
+               Write(6,'(6X,A,I3,A)')
+     &              ' No convergence after',iter,' Iterations'
+            End If
+            iTerm = _RC_NOT_CONVERGED_
+         Else
+            If (jPrint.ge.2) Then
+               Write(6,*)
+               Write(6,'(6X,A)') ' Single iteration finished!'
+            End If
+         End If
 *
-      If (jPrint.ge.2) Then
-         Write(6,*)
-      End If
+         If (jPrint.ge.2) Write(6,*)
 *
-      If(Reset) Then
-         If(DSCF.and.KSDFT.eq.'SCF') Call Reset_Thresholds
-         If(KSDFT.ne.'SCF'.and..Not.One_Grid) then
-           Call Reset_NQ_grid()
-         endif
+         If(Reset) Then
+            If(DSCF.and.KSDFT.eq.'SCF') Call Reset_Thresholds()
+            If(KSDFT.ne.'SCF'.and..Not.One_Grid) then
+              Call Reset_NQ_grid()
+            End If
+         End If
+
       End If
 *
 ***********************************************************
 *                      S   T   O   P                      *
 ***********************************************************
 *
-  101 Continue
       If (jPrint.ge.2) Then
          Call CollapseOutput(0,'Convergence information')
          Write(6,*)
@@ -1117,7 +1113,7 @@
       Call Add_Info('SCF_ITER',[DBLE(Iter)],1,8)
 c     Call Scf_XML(0)
 *
-      Call KiLLs
+      Call KiLLs()
 *
 *     If the orbitals are generated with orbital rotations in
 *     RotMOs we need to generate the canonical orbitals.
@@ -1174,8 +1170,18 @@ c     Call Scf_XML(0)
       End If
 *                                                                      *
 *----------------------------------------------------------------------*
+*                                                                      *
+#ifdef _MSYM_
+      If (MSYMON) Then
+         Call fmsym_release_context(msym_ctx)
+      End If
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Exit                                                             *
-*----------------------------------------------------------------------*
+*                                                                      *
+************************************************************************
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
