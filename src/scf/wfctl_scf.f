@@ -1048,7 +1048,7 @@
 *======================================================================*
 *                                                                      *
 
-      If (.NOT.Converged) Then
+      If (Converged) Then
 
          If (jPrint.ge.2) Then
             If (EmConv) Then
