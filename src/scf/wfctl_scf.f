@@ -23,7 +23,6 @@
 #include "mxdm.fh"
       Logical FstItr
       Character(LEN=*) Meth
-      Character(LEN=256) wfctl_version
 *
       nD = iUHF + 1
 *                                                                      *
@@ -40,26 +39,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetEnvF('MOLCAS_SCF',wfctl_version)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Select Case(WfCtl_Version(1:3))
-
-      Case ('NEW')
-         Call WfCtl_SCF_New     (iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
-     &                           Dens,Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,
-     &                           CInter,EOrb,OccNo,Vxc,TrM,nBT,
-     &                           nDens,nD,nTr,nBB,nCI,nnB
-     &                          )
-
-      Case Default
-         Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
-     &                           Dens,Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,
-     &                           CInter,EOrb,OccNo,Vxc,TrM,nBT,
-     &                           nDens,nD,nTr,nBB,nCI,nnB
-     &                          )
-      End Select
+      Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
+     &                        Dens,Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,
+     &                        CInter,EOrb,OccNo,Vxc,TrM,nBT,
+     &                        nDens,nD,nTr,nBB,nCI,nnB
+     &                       )
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -377,24 +361,24 @@
          Else
             EDiff = EneV-EnVold
          End If
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*        Optimization section
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*        Test if this is a DIIS extrapolation iteration, alternatively
-*        the the iteration is a DIIS interpolation iteration. The former
-*        is activated if the DMOMax is lower than the threshold
-*        after a specific number of iteration, or if the condition
-*        has already been achived.
-*
-*        2017-02-03: add energy criterion to make sure that the DIIS
-*                    gets some decent to work with.
-*
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!        Select on the fly the current optimization method
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!        Test if this is a DIIS extrapolation iteration, alternatively
+!        the the iteration is a DIIS interpolation iteration. The former
+!        is activated if the DMOMax is lower than the threshold
+!        after a specific number of iteration, or if the condition
+!        has already been achived.
+!
+!        2017-02-03: add energy criterion to make sure that the DIIS
+!                    gets some decent to work with.
+!
          If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
      &             .AND. EDiff.lt.1.0D-1)) Then
 *
@@ -728,9 +712,8 @@
             Else If (idKeep.eq.1) Then
                kOptim = 2
             Else
-               kOptim = kOptim + 1
+               kOptim = Min(MxOptm,kOptim + 1)
             End If
-            If (kOptim.gt.MxOptm) kOptim = MxOptm
          End If
 *                                                                      *
 ************************************************************************
@@ -741,49 +724,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*---     Save the new orbitals in case the SCF program aborts
-
-         iTrM = 1
-         iCMO = 1
-         Do iSym = 1, nSym
-            nBs = nBas(iSym)
-            nOr = nOrb(iSym)
-            lth = nBs*nOr
-            Do iD = 1, nD
-               Call DCopy_(lth,CMO(iCMO,iD),1,TrM(iTrM,iD),1)
-               Call FZero(TrM(iTrm+nBs*nOr,iD),nBs*(nBs-nOr))
-            End Do
-            iTrM = iTrM + nBs*nBs
-            iCMO = iCMO + nBs*nOr
-         End Do
-*
-         If(iUHF.eq.0) Then
-            OrbName='SCFORB'
-            Note='*  intermediate SCF orbitals'
-
-            Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
-     &                  TrM(1,1), Dummy,OccNo(1,1), Dummy,
-     &                  Dummy,Dummy, iDummy,Note,2)
-            Call Put_darray('SCF orbitals',TrM(1,1),nBB)
-            Call Put_darray('OrbE',Eorb(1,1),nnB)
-            If(.not.Aufb) Then
-               Call Put_iarray('SCF nOcc',nOcc(1,1),nSym)
-            End If
-         Else
-            OrbName='UHFORB'
-            Note='*  intermediate UHF orbitals'
-            Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
-     &                  TrM(1,1), TrM(1,2),OccNo(1,1),OccNo(1,2),
-     &                  Dummy,Dummy, iDummy,Note,3)
-            Call Put_darray('SCF orbitals',   TrM(1,1),nBB)
-            Call Put_darray('SCF orbitals_ab',TrM(1,2),nBB)
-            Call Put_darray('OrbE',   Eorb(1,1),nnB)
-            Call Put_darray('OrbE_ab',Eorb(1,2),nnB)
-            If(.not.Aufb) Then
-               Call Put_iarray('SCF nOcc',   nOcc(1,1),nSym)
-               Call Put_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
-            End If
-         End If
+         Call Save_Orbitals()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -941,32 +882,11 @@
 *           possibly used for direct SCF and DFT.
 *
             If (Reset) Then
-*                                                                      *
-*-------       Reset thresholds for direct SCF procedure
-*
-               Reset=.False.
-               EmConv=.False.
-*
-*---------------
-               If(iOpt.eq.2) Then
-                  iOpt = 1        ! True if step is QNR
-                  QNR1st=.TRUE.
-               End If
-               iterso=0
-               If(Reset_Thresh) Call Reset_Thresholds()
-               If(KSDFT.ne.'SCF') Then
-                  If (.Not.One_Grid) Then
-                     iterX=0
-                     Call Reset_NQ_grid()
-*                    Call PrBeg(Meth_)
-                  End If
-                  If ( iOpt.eq.0 ) kOptim=1
-               End If
+               Call Reset_some_stuff()
                Cycle
             End If
 *
 *           Here if we converged!
-*
 *
 *           Branch out of the iterative loop! Done!!!
 *
@@ -1187,5 +1107,85 @@ c     Call Scf_XML(0)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       TimFld( 2) = TimFld( 2) + (TCpu2 - TCpu1)
 
-      Return
-      End
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Contains
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Subroutine Save_Orbitals()
+*---  Save the new orbitals in case the SCF program aborts
+
+      iTrM = 1
+      iCMO = 1
+      Do iSym = 1, nSym
+         nBs = nBas(iSym)
+         nOr = nOrb(iSym)
+         lth = nBs*nOr
+         Do iD = 1, nD
+            Call DCopy_(lth,CMO(iCMO,iD),1,TrM(iTrM,iD),1)
+            Call FZero(TrM(iTrm+nBs*nOr,iD),nBs*(nBs-nOr))
+         End Do
+         iTrM = iTrM + nBs*nBs
+         iCMO = iCMO + nBs*nOr
+      End Do
+*
+      If(iUHF.eq.0) Then
+         OrbName='SCFORB'
+         Note='*  intermediate SCF orbitals'
+
+         Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
+     &               TrM(1,1), Dummy,OccNo(1,1), Dummy,
+     &               Dummy,Dummy, iDummy,Note,2)
+         Call Put_darray('SCF orbitals',TrM(1,1),nBB)
+         Call Put_darray('OrbE',Eorb(1,1),nnB)
+         If(.not.Aufb) Then
+            Call Put_iarray('SCF nOcc',nOcc(1,1),nSym)
+         End If
+      Else
+         OrbName='UHFORB'
+         Note='*  intermediate UHF orbitals'
+         Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
+     &               TrM(1,1), TrM(1,2),OccNo(1,1),OccNo(1,2),
+     &               Dummy,Dummy, iDummy,Note,3)
+         Call Put_darray('SCF orbitals',   TrM(1,1),nBB)
+         Call Put_darray('SCF orbitals_ab',TrM(1,2),nBB)
+         Call Put_darray('OrbE',   Eorb(1,1),nnB)
+         Call Put_darray('OrbE_ab',Eorb(1,2),nnB)
+         If(.not.Aufb) Then
+            Call Put_iarray('SCF nOcc',   nOcc(1,1),nSym)
+            Call Put_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
+         End If
+      End If
+      End Subroutine Save_Orbitals
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Subroutine Reset_some_Stuff()
+*                                                                      *
+*-------       Reset thresholds for direct SCF procedure
+*
+               Reset=.False.
+               EmConv=.False.
+*
+*---------------
+               If(iOpt.eq.2) Then
+                  iOpt = 1        ! True if step is QNR
+                  QNR1st=.TRUE.
+               End If
+               iterso=0
+               If(Reset_Thresh) Call Reset_Thresholds()
+               If(KSDFT.ne.'SCF') Then
+                  If (.Not.One_Grid) Then
+                     iterX=0
+                     Call Reset_NQ_grid()
+*                    Call PrBeg(Meth_)
+                  End If
+                  If ( iOpt.eq.0 ) kOptim=1
+               End If
+      End Subroutine Reset_some_Stuff
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End SubRoutine WfCtl_SCF_Internal
