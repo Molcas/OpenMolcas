@@ -1,0 +1,41 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SubRoutine TermCho_RI(irc,nVec_RI,l_nVec_RI)
+      Implicit None
+      Integer irc, l_nVec_RI
+      Integer nVec_RI(l_nVec_RI) ! #RI vectors per irrep on this node
+
+      irc = 0
+
+!     Save number of vectors and other info on runfile.
+!     -------------------------------------------------
+
+      Call Cho_Final(.False.)
+      Call Cho_RI_Final(irc,nVec_RI,l_nVec_RI)
+      If (irc .ne. 0) Return
+
+!     Close storage files.
+!     --------------------
+
+      Call Cho_P_OpenVR(2)
+
+!     Deallocate index arrays.
+!     ------------------------
+
+      Call Cho_X_Dealloc(irc)
+      If (irc .ne. 0) Return
+
+!     More deallocations.
+!     -------------------
+
+      Call Cho_RI_XFree()
+
+      End

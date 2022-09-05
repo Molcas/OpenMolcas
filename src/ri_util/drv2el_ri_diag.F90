@@ -69,11 +69,3 @@
 !                                                                      *
       Return
       End
-      SubRoutine Cho_x_setab(iS,jS)
-#include "cholesky.fh"
-!
-      SHA=iS
-      SHB=jS
-!
-      Return
-      End

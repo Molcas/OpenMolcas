@@ -58,24 +58,3 @@
 !
       Return
       End
-#if defined (_MOLCAS_MPP_)
-      SubRoutine Cho_RI_SetInfVec_5(iVec_Global,iVec_Local,J_s,J_e,iSym)
-!
-!     Set mapping from local to global vector index (needed in parallel
-!     RI gradient code).
-!
-      use ChoSwp, only: InfVec
-      Implicit None
-      Integer iVec_Global, iVec_Local, J_s, J_e, iSym
-#include "cholesky.fh"
-
-      Integer iOff, nVec, iVec
-
-      iOff = iVec_Global + J_s - 2
-      nVec = J_e - J_s + 1
-      Do iVec = 1,nVec
-         InfVec(iVec_Local-1+iVec,5,iSym) = iOff + iVec
-      End Do
-
-      End
-#endif

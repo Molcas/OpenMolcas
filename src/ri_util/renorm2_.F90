@@ -10,19 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2008, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine ReNorm2(iCnttp)
-      use Wrj12, only: iOffA
-!
-      Call ICopy(4*8,[0],0,iOffA,1)
-      Do ire_do = 1, 2
-!
-         Call ReNorm2_Internal(iCnttp)
-!
-      End Do
-!
-      Return
-      End
-      Subroutine ReNorm2_Internal(iCnttp)
+      Subroutine ReNorm2_(iCnttp)
 !***********************************************************************
 !                                                                      *
 !    Objective: Orthonormalize parts of the auxiliary basis set.       *
