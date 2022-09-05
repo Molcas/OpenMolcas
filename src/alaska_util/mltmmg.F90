@@ -17,7 +17,6 @@ subroutine MltMmG( &
 use Definitions, only: iwp
 
 implicit none
-#define _USE_WP_
 #include "mem_interface.fh"
 
 nHer = (la+lb+lr+3)/2

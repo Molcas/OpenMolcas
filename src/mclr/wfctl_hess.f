@@ -72,9 +72,9 @@
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:)
       Integer, Allocatable:: List(:,:)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       Interface
       SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
      &                   Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)

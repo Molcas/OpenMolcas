@@ -20,4 +20,3 @@
       Real*8, Parameter:: SqrtP2=0.8862269254527579D0
       Real*8, Parameter:: TwoP34=0.2519794355383808D0
       Real*8, Parameter:: TwoP54=5.914967172795612D0
-      Real*8, Parameter:: One2C2=0.2662567690426443D-04

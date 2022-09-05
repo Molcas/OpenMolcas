@@ -20,6 +20,7 @@ set (sources
      get_denergy.F90
      get_exfac.F90
      ksdft_info.F90
+     libxc_parameters.F90
      ndsd_ts.F90
      nucatt.F90
      ofembed.F90

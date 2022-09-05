@@ -1,4 +1,4 @@
-***********************************************************************
+************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -245,16 +245,6 @@ C       End If
       End Subroutine
 
 
-      Subroutine GetDiagScr(nScr,Mat,EigVal,nDim)
-      INTEGER nScr,nDim,INFO
-      Real*8 Mat(nDim**2)
-      Real*8 EigVal(nDim)
-      Real*8 Scr(2)
-
-      CALL DSYEV_('V','U',nDim,Mat,nDim,EigVal,Scr,-1,INFO)
-      NScr=INT(Scr(1))
-      RETURN
-      End Subroutine
 
 
 

@@ -17,7 +17,6 @@ subroutine OvrMmG( &
 use Definitions, only: iwp
 
 implicit none
-#define _USE_WP_
 #include "mem_interface.fh"
 
 #include "macros.fh"

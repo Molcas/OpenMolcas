@@ -233,7 +233,7 @@ end subroutine config_act
 subroutine config_dbl()
 
 use gugaci_global, only: ipae, iw_downwei, jb_sys, jpad, jud, just, lsm_inn, norb_dbl, norb_dz, norb_frz, ns_sm, nu_ae
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -254,7 +254,7 @@ do ipae_=1,25
 end do
 !jps = js(1)
 do lr0=norb_frz+1,norb_dz
-  mr0 = mul_tab(lsm_inn(lr0),ns_sm)
+  mr0 = Mul(lsm_inn(lr0),ns_sm)
   iwd = jud(lr0)
   jpad = 1+mr0
   jpad1 = jpad+24
@@ -300,7 +300,7 @@ do lr0=norb_frz+1,norb_dz
   !wld0 = wld
 
   do lr=lr0+1,norb_dz
-    mr = mul_tab(mr0,lsm_inn(lr))
+    mr = Mul(mr0,lsm_inn(lr))
     jpat = 9+mr
     jpas = 17+mr
     jpat1 = jpat+24
@@ -349,7 +349,7 @@ end subroutine config_dbl
 subroutine config_ext()
 
 use gugaci_global, only: ibsm_ext, iesm_ext, ipae, lsm, norb_ext
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -397,7 +397,7 @@ do im=1,8
     do lb=1,la-1
       !lrbi = norb_all-lb+1
       imb = lsm(lb)
-      mr = mul_tab(ima,imb)
+      mr = Mul(ima,imb)
       if (mr /= im) cycle
       !jps = js(mr)
       !jpt = jt(mr)

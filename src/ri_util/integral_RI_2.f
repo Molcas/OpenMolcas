@@ -14,7 +14,7 @@
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
      &                         TInt,nTInt,itOffs,nSym)
-      use Wrj12
+      use Wrj12, only: iOffA, SO2Ind
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl

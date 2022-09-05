@@ -57,7 +57,7 @@
 #include "input_ras.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
 #include "casvb.fh"

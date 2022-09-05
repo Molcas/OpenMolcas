@@ -30,7 +30,7 @@ subroutine Tra_Ctl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !                                                                      *
 !***********************************************************************
 
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -77,10 +77,10 @@ do iSym=1,nSym
   iOrb = nOrb(iSym)
   do jSym=1,nSym
     jAsh = nAsh(jSym)
-    ijSym = MulD2h(iSym,jSym)
+    ijSym = Mul(iSym,jSym)
     do kSym=1,nSym
       kAsh = nAsh(kSym)
-      lSym = MulD2h(ijSym,kSym)
+      lSym = Mul(ijSym,kSym)
       if (lSym <= kSym) then
         lAsh = nAsh(lSym)
         kl_Orb_pairs = kAsh*lAsh
@@ -115,7 +115,7 @@ do iSym=1,nSym
     jFro = nFro(jSym)
     jIsh = nIsh(jSym)
     jAsh = nAsh(jSym)
-    ijSym = MulD2h(iSym,jSym)
+    ijSym = Mul(iSym,jSym)
     kSymMax = nSym
     if (.not. lSquare) kSymMax = iSym
     do kSym=1,kSymMax
@@ -124,7 +124,7 @@ do iSym=1,nSym
       kFro = nFro(kSym)
       kIsh = nIsh(kSym)
       kAsh = nAsh(kSym)
-      lSym = MulD2h(ijSym,kSym)
+      lSym = Mul(ijSym,kSym)
       if (lSym <= kSym) then
         lBas = nBas(lSym)
         lOrb = nOrb(lSym)

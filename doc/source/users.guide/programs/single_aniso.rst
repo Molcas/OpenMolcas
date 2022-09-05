@@ -671,7 +671,7 @@ Optional general keywords to control the input
   values, namely :math:`a`, :math:`b`, :math:`c`, :math:`\alpha`, :math:`\beta`, and :math:`\gamma`, defining the
   crystal lattice. On the second line, the program will read the Cartesian coordinates
   of the magnetic center. The computed values in the output correspond to the
-  crystallographic position of three "dummy atoms" located on the corresponding anisotropy axes, at the distance of 1 ångstrom from the metal site. ::
+  crystallographic position of three "dummy atoms" located on the corresponding anisotropy axes, at the distance of 1 ångström from the metal site. ::
 
     ABCC
     20.17   19.83   18.76    90  120.32  90

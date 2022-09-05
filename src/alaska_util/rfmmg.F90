@@ -17,7 +17,6 @@ subroutine RFMmG( &
 use Definitions, only: iwp
 
 implicit none
-#define _USE_WP_
 #include "mem_interface.fh"
 
 nHer = (la+lb+lr+1+2)/2

@@ -1,6 +1,6 @@
 * Molecule: C2H4
-* Basis: C1
-* Symmetry: C2V
+* Basis:    3-21G 
+* Symmetry: C1
 * Features tested: CMS-PDFT calculation
 * Responsible person: Jie J. Bao, 2022
 * Comments:
@@ -41,7 +41,6 @@ CIROOT=3 3 1
 CMSI
 CMSO=Newton
 CMTH=1.0d-10
-CMSS=blabla
 
 &MCPDFT
 KSDFT=T:PBE

@@ -492,13 +492,13 @@ subroutine lp_head_in_act_1()      !for dv,td,sd
 
 use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, &
                          norb_dz, norb_frz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lsmi, lsmij, lsmj, lsmk, mh
 
-imlr = mul_tab(iml,imr)
+imlr = Mul(iml,imr)
 do lra=norb_dz+1,norb_inn
   lma = lsm_inn(lra)
   if (lma /= imlr) cycle
@@ -523,8 +523,8 @@ do lrai=norb_dz+1,norb_inn
   lsmi = lsm_inn(lrai)
   do lraj=lrai+1,norb_inn
     lsmj = lsm_inn(lraj)
-    lsmij = mul_tab(lsmi,lsmj)
-    lmk = mul_tab(lsmij,imlr)
+    lsmij = Mul(lsmi,lsmj)
+    lmk = Mul(lsmij,imlr)
     do lrak=lraj+1,norb_inn
       lsmk = lsm_inn(lrak)
       if (lmk /= lsmk) cycle
@@ -625,13 +625,13 @@ subroutine lp_head_in_act_2()      !for vd,dt,ds
 
 use gugaci_global, only: iml, imr, intind_ijka, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, &
                          norb_dz, norb_frz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ijk, imlr, intpos, lma, lmai, lmk, lra, lrai, lraj, lrak, lrd, lsmi, lsmij, lsmj, lsmk, mh
 
-imlr = mul_tab(iml,imr)
+imlr = Mul(iml,imr)
 
 do lra=norb_dz+1,norb_inn
   lma = lsm_inn(lra)
@@ -667,8 +667,8 @@ do lrai=norb_dz+1,norb_inn
   lsmi = lsm_inn(lrai)
   do lraj=lrai+1,norb_inn
     lsmj = lsm_inn(lraj)
-    lsmij = mul_tab(lsmi,lsmj)
-    lmk = mul_tab(lsmij,imlr)
+    lsmij = Mul(lsmi,lsmj)
+    lmk = Mul(lsmij,imlr)
     do lrak=lraj+1,norb_inn
       lsmk = lsm_inn(lrak)
       if (lmk /= lsmk) cycle
@@ -731,14 +731,14 @@ end subroutine lp_head_in_act_2
 subroutine lp_head_in_act_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
 use gugaci_global, only: iml, imr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ide
 integer(kind=iwp) :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
 
-imlr = mul_tab(iml,imr)
+imlr = Mul(iml,imr)
 
 do lra=norb_dz+1,norb_inn
   ! line=9 d&r&l-
@@ -753,7 +753,7 @@ do lrai=norb_dz+1,norb_inn
   lsmi = lsm_inn(lrai)
   do lraj=lrai+1,norb_inn
     lsmj = lsm_inn(lraj)
-    lsmij = mul_tab(lsmi,lsmj)
+    lsmij = Mul(lsmi,lsmj)
     if (lsmij /= imlr) cycle
     ! line=5 a&r-b&l-
     call head_ar_at_given_orb(mh,lrai)
@@ -782,13 +782,13 @@ end subroutine lp_head_in_act_3
 subroutine lp_head_in_act_4()
 
 use gugaci_global, only: iml, imr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, nlg1, nlg2, norb_dz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: imlr, lra, lrai, lraj, lsmi, lsmij, lsmj, mh
 
-imlr = mul_tab(iml,imr)
+imlr = Mul(iml,imr)
 
 do lra=norb_dz+1,norb_inn
   ! line=8 d&rr-
@@ -812,7 +812,7 @@ do lrai=norb_dz+1,norb_inn
   lsmi = lsm_inn(lrai)
   do lraj=lrai+1,norb_inn
     lsmj = lsm_inn(lraj)
-    lsmij = mul_tab(lsmi,lsmj)
+    lsmij = Mul(lsmi,lsmj)
     if (lsmij /= imlr) cycle
     call head_ar_at_given_orb(mh,lrai)
     call link_c1_to_given_orb(mh,lrai+1,lraj-1)
@@ -841,15 +841,15 @@ end subroutine lp_head_in_act_4
 subroutine lp_head_in_dbl_1()      !for dv,sd,td
 
 use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, ngw2, ngw3, norb_dz, norb_frz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 
-imlr = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
-lsmact = mul_tab(imlr,jmlr)
+imlr = Mul(iml,imr)
+jmlr = Mul(jml,jmr)
+lsmact = Mul(imlr,jmlr)
 lsta = norb_dz+1
 lend = norb_inn
 
@@ -920,7 +920,7 @@ do lrai=norb_dz+1,norb_inn-1
   lsmi = lsm_inn(lrai)
   do lraj=lrai+1,norb_inn
     lsmj = lsm_inn(lraj)
-    lsmij = mul_tab(lsmi,lsmj)
+    lsmij = Mul(lsmi,lsmj)
     if (lsmij /= lsmact) cycle
     jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
 
@@ -957,16 +957,16 @@ end subroutine lp_head_in_dbl_1
 !
 !use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
 !                         norb_frz, norb_inn
-!use Symmetry_Info, only: mul_tab => Mul
+!use Symmetry_Info, only: Mul
 !use Definitions, only: iwp
 !
 !implicit none
 !integer(kind=iwp) :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 !logical(kind=iwp) :: do_15, do_16
 !
-!imlr = mul_tab(iml,imr)
-!jmlr = mul_tab(jml,jmr)
-!lsmact = mul_tab(imlr,jmlr)
+!imlr = Mul(iml,imr)
+!jmlr = Mul(jml,jmr)
+!lsmact = Mul(imlr,jmlr)
 !lsta = norb_dz+1
 !lend = norb_inn
 !
@@ -995,7 +995,7 @@ end subroutine lp_head_in_dbl_1
 !        lsmi = lsm_inn(lrai)
 !        do lraj=lrai+1,norb_inn
 !          lsmj = lsm_inn(lraj)
-!          lsmij = mul_tab(lsmi,lsmj)
+!          lsmij = Mul(lsmi,lsmj)
 !          if (lsmij /= lsmact) cycle
 !          jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
 !
@@ -1125,15 +1125,15 @@ subroutine lp_head_in_dbl_2()      !for vd,dt,ds
 
 use gugaci_global, only: iml, imr, jml, jmr, linelp, log_prod, logic_br, lpblock, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
                          norb_frz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 
-imlr = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
-lsmact = mul_tab(imlr,jmlr)
+imlr = Mul(iml,imr)
+jmlr = Mul(jml,jmr)
+lsmact = Mul(imlr,jmlr)
 lsta = norb_dz+1
 lend = norb_inn
 
@@ -1225,7 +1225,7 @@ do lrai=norb_dz+1,norb_inn-1
   lsmi = lsm_inn(lrai)
   do lraj=lrai+1,norb_inn
     lsmj = lsm_inn(lraj)
-    lsmij = mul_tab(lsmi,lsmj)
+    lsmij = Mul(lsmi,lsmj)
     if (lsmij /= lsmact) cycle
     jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
 
@@ -1259,16 +1259,16 @@ end subroutine lp_head_in_dbl_2
 !
 !use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, ngw2, ngw3, nlg1, nlg2, norb_dz, &
 !                         norb_frz, norb_inn
-!use Symmetry_Info, only: mul_tab => Mul
+!use Symmetry_Info, only: Mul
 !use Definitions, only: iwp
 !
 !implicit none
 !integer(kind=iwp) :: imlr, jk, jmlr, lend, lra, lrai, lraj, lsma, lsmact, lsmi, lsmij, lsmj, lsta, mh
 !logical(kind=iwp) :: do_16
 !
-!imlr = mul_tab(iml,imr)
-!jmlr = mul_tab(jml,jmr)
-!lsmact = mul_tab(imlr,jmlr)
+!imlr = Mul(iml,imr)
+!jmlr = Mul(jml,jmr)
+!lsmact = Mul(imlr,jmlr)
 !lsta = norb_dz+1
 !lend = norb_inn
 !
@@ -1295,7 +1295,7 @@ end subroutine lp_head_in_dbl_2
 !      lsmi = lsm_inn(lrai)
 !      do lraj=lrai+1,norb_inn
 !        lsmj = lsm_inn(lraj)
-!        lsmij = mul_tab(lsmi,lsmj)
+!        lsmij = Mul(lsmi,lsmj)
 !        if (lsmij /= lsmact) cycle
 !        jk = ngw2(lrai-norb_frz)+ngw3(lraj-norb_frz)
 !
@@ -1387,16 +1387,16 @@ end subroutine lp_head_in_dbl_2
 subroutine lp_head_in_dbl_3(ide)      !for ide=0:dd,tt,ide=1:ss,id
 
 use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ide
 integer(kind=iwp) :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 
-imlr = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
-lsmact = mul_tab(imlr,jmlr)
+imlr = Mul(iml,imr)
+jmlr = Mul(jml,jmr)
+lsmact = Mul(imlr,jmlr)
 lsta = norb_dz+1
 lend = norb_inn
 
@@ -1453,15 +1453,15 @@ end subroutine lp_head_in_dbl_3
 subroutine lp_head_in_dbl_4()
 
 use gugaci_global, only: iml, imr, jml, jmr, logic_br, lpblock, lsm_inn, norb_dz, norb_inn
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 
-imlr = mul_tab(iml,imr)
-jmlr = mul_tab(jml,jmr)
-lsmact = mul_tab(imlr,jmlr)
+imlr = Mul(iml,imr)
+jmlr = Mul(jml,jmr)
+lsmact = Mul(imlr,jmlr)
 lsta = norb_dz+1
 lend = norb_inn
 
@@ -1510,16 +1510,16 @@ end subroutine lp_head_in_dbl_4
 !subroutine lp_head_in_dbl_4_mrpt2()
 !
 !use gugaci_global, only: iml, imr, jml, jmr, jpadlr, jpadlrel, linelp, logic_br, lsm_inn, mhlp, nlg1, nlg2, norb_dz, norb_inn
-!use Symmetry_Info, only: mul_tab => Mul
+!use Symmetry_Info, only: Mul
 !use Definitions, only: iwp
 !
 !implicit none
 !integer(kind=iwp) :: imlr, jmlr, lend, lra, lsma, lsmact, lsta, mh
 !logical(kind=iwp) :: do_15
 !
-!imlr = mul_tab(iml,imr)
-!jmlr = mul_tab(jml,jmr)
-!lsmact = mul_tab(imlr,jmlr)
+!imlr = Mul(iml,imr)
+!jmlr = Mul(jml,jmr)
+!lsmact = Mul(imlr,jmlr)
 !lsta = norb_dz+1
 !lend = norb_inn
 !
@@ -1595,7 +1595,7 @@ end subroutine lp_head_in_dbl_4
 !use gugaci_global, only: ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, jphyl, linelp, lp_count, lpnew_coe, lpnew_head, lpnew_lwei, &
 !                         lpnew_rwei, mhlp, mhsum, mtype, nlg1, nlg2, norb_dz, norb_inn, ns_sm, nstaval, nvalue, vplpnew_w0, &
 !                         vplpnew_w1
-!use Symmetry_Info, only: mul_tab => Mul
+!use Symmetry_Info, only: Mul
 !use Definitions, only: iwp
 !
 !implicit none
@@ -1613,8 +1613,8 @@ end subroutine lp_head_in_dbl_4
 !  lp_count(line) = lp_count(line)-1
 !end if
 !!=======================================================================
-!jpml = mul_tab(jml,ns_sm)
-!jpmr = mul_tab(jmr,ns_sm)
+!jpml = Mul(jml,ns_sm)
+!jpmr = Mul(jmr,ns_sm)
 !write(20,'(2x,10i8)') line,iml,imr,jpml,jpmr,jpadlr,mtype,mh,lg1,lg2
 !write(20,'(7f12.6)') vplpnew_w0(1:mtype)
 !write(20,'(7f12.6)') vplpnew_w1(1:mtype)
@@ -1646,7 +1646,7 @@ subroutine save_lp(line,mh,lg1,lg2)
 use gugaci_global, only: idisk_lp, ihy, ihyl, iml, imr, jml, jmr, jpadlr, jphy, jphyl, lp_count, lpnew_coe, lpnew_head, &
                          lpnew_lwei, lpnew_rwei, LuLoop, mhlpmax, mhsum, mtype, norb_dz, norb_inn, ns_sm, nstaval, nvalue, &
                          vplpnew_w0, vplpnew_w1
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -1662,8 +1662,8 @@ if (((line == 14) .or. (line == 15) .or. (line == 16)) .and. (lg2 == 1)) then
 end if
 info = 0
 !=======================================================================
-!jpml = mul_tab(jml,ns_sm)
-!jpmr = mul_tab(jmr,ns_sm)
+!jpml = Mul(jml,ns_sm)
+!jpmr = Mul(jmr,ns_sm)
 !write(200,'(2x,10i8)') line,iml,imr,jpml,jpmr,jpadlr,mtype,mh,lg1,lg2
 !write(200,*) vplpnew_w0(1:mtype)
 !write(200,*) vplpnew_w1(1:mtype)
@@ -1672,8 +1672,8 @@ info = 0
 !write(200,*) lpnew_lwei(1:mh)
 !write(200,*) lpnew_rwei(1:mh)
 !=======================================================================
-jpml = mul_tab(jml,ns_sm)
-jpmr = mul_tab(jmr,ns_sm)
+jpml = Mul(jml,ns_sm)
+jpmr = Mul(jmr,ns_sm)
 info(1) = line
 info(2) = iml
 info(3) = imr
@@ -1857,13 +1857,13 @@ end subroutine value_sort_ploop
 subroutine ext_head_in_act()
 
 use gugaci_global, only: ipaety, jml, jmr, logic_dh, ns_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 
 implicit none
 
 logic_dh = .false.
-jml = mul_tab(jml,ns_sm)
-jmr = mul_tab(jmr,ns_sm)
+jml = Mul(jml,ns_sm)
+jmr = Mul(jmr,ns_sm)
 select case (ipaety)
   case default ! (10)
     call sv_ext_head_in_act()
@@ -1875,8 +1875,8 @@ select case (ipaety)
     call vd_ext_head_in_act()
   case (1:9,11:16,18:22,24:25)
 end select
-jml = mul_tab(jml,ns_sm)
-jmr = mul_tab(jmr,ns_sm)
+jml = Mul(jml,ns_sm)
+jmr = Mul(jmr,ns_sm)
 
 return
 
@@ -1885,13 +1885,13 @@ end subroutine ext_head_in_act
 subroutine ext_head_in_dbl()
 
 use gugaci_global, only: ipaety, jml, jmr, logic_dh, ns_sm
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 
 implicit none
 
 logic_dh = .true.
-jml = mul_tab(jml,ns_sm)
-jmr = mul_tab(jmr,ns_sm)
+jml = Mul(jml,ns_sm)
+jmr = Mul(jmr,ns_sm)
 select case (ipaety)
   case default ! (10)
     call sv_ext_head_in_dbl()
@@ -1903,8 +1903,8 @@ select case (ipaety)
     call vd_ext_head_in_dbl()
   case (1:9,11:16,18:22,24:25)
 end select
-jml = mul_tab(jml,ns_sm)
-jmr = mul_tab(jmr,ns_sm)
+jml = Mul(jml,ns_sm)
+jmr = Mul(jmr,ns_sm)
 
 return
 

@@ -29,7 +29,7 @@
 ************************************************************************
       use Basis_Info, only: nBas_Aux
       use iSD_data
-      use Wrj12
+      use Wrj12, only: iOffA, Lu_A, SO2Ind
       use Index_arrays, only: iSO2Sh, nShBF
       use Gateway_Info, only: CutInt
       use RICD_Info, only: LDF

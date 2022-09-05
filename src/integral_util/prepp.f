@@ -52,6 +52,9 @@
       Real*8 CoefX,CoefR
       Character Fmt*60
       Real*8, Allocatable:: D1ao(:), D1AV(:), Tmp(:,:)
+*     hybrid MC-PDFT things
+      Logical Do_Hybrid
+      Real*8  WF_Ratio,PDFT_Ratio
 *
 *...  Prologue
 
@@ -515,8 +518,14 @@ C           End If
 *
            Call Get_DLAO(D0(:,4),nDens)
 
+*        Getting conditions for hybrid MC-PDFT
+         Do_Hybrid=.false.
+         CALL qpg_DScalar('R_WF_HMC',Do_Hybrid)
+         If(Do_Hybrid) Then
+          CALL Get_DScalar('R_WF_HMC',WF_Ratio)
+          PDFT_Ratio=1.0d0-WF_Ratio
+         End If
 !ANDREW - modify D2: should contain only the correction pieces
-
          If ( Method.eq.'MCPDFT  ') then
 !Get the D_theta piece
             Call mma_allocate(D1ao,nDens)
@@ -543,6 +552,15 @@ C           End If
             D0(:,5)=Zero
             call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
             call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
+
+          if(do_hybrid) then
+*           add back the wave function parts that are subtracted
+*           this might be inefficient, but should have a clear logic
+            call daxpy_(ndens,Half*WF_Ratio,D0(1,1),1,D0(1,2),1)
+            call daxpy_(ndens,WF_Ratio,D1ao,1,D0(1,2),1)
+*           scale the pdft part
+            call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
+          end if
             Call mma_deallocate(D1ao)
           else If (Method.eq.'MSPDFT  ') Then
             Call Get_DArray('MSPDFTD5        ',D0(1,5),nDens)

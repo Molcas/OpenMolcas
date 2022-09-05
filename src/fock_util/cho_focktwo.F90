@@ -59,7 +59,7 @@ subroutine CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DS
 !
 !***********************************************************************
 
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Lunit
 use Data_Structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, SBA_Type
@@ -142,7 +142,7 @@ do jSym=1,MaxSym
   LUnit(:) = -1
   do ksym=1,nSym
     if (nBas(ksym) /= 0) then
-      iSymp = MulD2h(ksym,jSym)
+      iSymp = Mul(ksym,jSym)
       if (iSymp >= ksym) then
         lu = 7
         lu = isfreeunit(lu)
@@ -207,7 +207,7 @@ do jSym=1,MaxSym
     ! setup the skipping flags according to # of Occupied
     do k=1,nSym
       iSkip(k) = 0
-      l = Muld2h(k,jsym) ! L(kl) returned if nOcc(k or l) /= 0
+      l = Mul(k,jsym) ! L(kl) returned if nOcc(k or l) /= 0
       if (k == l) then
         iSkip(k) = 666 ! always contribute to Coulomb
       else
@@ -230,7 +230,7 @@ do jSym=1,MaxSym
     iE = 0
     do ksym=1,nSym
 
-      iSymp = MulD2h(ksym,jSym)
+      iSymp = Mul(ksym,jSym)
 
       iS = iE+1
 
@@ -260,7 +260,7 @@ do jSym=1,MaxSym
     end do ! ends the loop over symmetries
 
     do kSym=1,nSym
-      iSymp = MulD2h(ksym,jSym)
+      iSymp = Mul(ksym,jSym)
       if (.not. associated(Wab%SB(iSymp)%A2)) cycle
       NumB = size(Wab%SB(iSymp)%A2,1)
       call RdChoVec(Wab%SB(iSymp)%A2,NumB,NumV,iVec,Lunit(iSymp))
@@ -439,7 +439,7 @@ do jSym=1,MaxSym
       jE = iE
       do ISYMS=1,NSYM
 
-        ISYMQ = MULD2H(ISYMS,JSYM)
+        ISYMQ = Mul(ISYMS,JSYM)
 
         if (nBas(iSyms)*nBas(iSymq) <= 0) cycle
 
@@ -478,7 +478,7 @@ do jSym=1,MaxSym
 
           do ISYMG=1,NSYM
 
-            ISYMB = MULD2H(ISYMG,JSYM)
+            ISYMB = Mul(ISYMG,JSYM)
 
             if (nBas(iSymb)*nBas(iSymg) /= 0) then
 

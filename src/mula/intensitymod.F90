@@ -59,7 +59,7 @@ subroutine Intensity(IntensityMat,TermMat,ipow,var,Tdip_x,Tdip_y,trfName,U1,U2,C
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nPolyTerm, nvar, ipow(nPolyTerm,nvar), m_max, n_max, max_dip, l_n_plot, l_m_plot, &

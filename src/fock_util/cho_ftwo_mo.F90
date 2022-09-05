@@ -56,7 +56,7 @@ subroutine CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,
 !
 !***********************************************************************
 
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, DensityCheck, Lunit
 use Data_Structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, SBA_Type
@@ -166,7 +166,7 @@ do jSym=1,MaxSym
   ! Open Files
   do ksym=1,nSym
     if (nBas(ksym) /= 0) then
-      iSymp = MulD2h(ksym,jSym)
+      iSymp = Mul(ksym,jSym)
       if (iSymp >= ksym) then
         Lunit(iSymp) = 7
         write(Fname,'(A4,I1,I1)') BaseNm,iSymp,ksym
@@ -230,7 +230,7 @@ do jSym=1,MaxSym
     !setup the skipping flags according to # of Occupied
     do k=1,nSym
       iSkip(k) = 0
-      l = Muld2h(k,jsym) ! L(kl) returned if nOcc(k or l) /= 0
+      l = Mul(k,jsym) ! L(kl) returned if nOcc(k or l) /= 0
       if (k == l) then
         iSkip(k) = 666 ! always contribute to Coulomb
       else
@@ -253,7 +253,7 @@ do jSym=1,MaxSym
     iE = 0
     do ksym=1,nSym
 
-      iSymp = MulD2h(ksym,jSym)
+      iSymp = Mul(ksym,jSym)
 
       nk = nBas(kSym)
       np = nBas(iSymp)
@@ -282,7 +282,7 @@ do jSym=1,MaxSym
     end do ! ends the loop over symmetries
 
     do kSym=1,nSym
-      iSymp = MulD2h(ksym,jSym)
+      iSymp = Mul(ksym,jSym)
       if (.not. associated(Wab%SB(iSymp)%A2)) cycle
       NumB = size(Wab%SB(iSymp)%A2,1)
       call RdChoVec(Wab%SB(iSymp)%A2,NumB,NumV,iVec,Lunit(iSymp))
@@ -469,7 +469,7 @@ do jSym=1,MaxSym
       jE = iE
       do ISYMS=1,NSYM
 
-        ISYMQ = MULD2H(ISYMS,JSYM)
+        ISYMQ = Mul(ISYMS,JSYM)
 
         ns = nBas(iSyms)
         nq = nBas(iSymq)
@@ -515,7 +515,7 @@ do jSym=1,MaxSym
 
           do ISYMG=1,NSYM
 
-            ISYMB = MULD2H(ISYMG,JSYM)
+            ISYMB = Mul(ISYMG,JSYM)
 
             nb = nBas(iSymb)
             ng = nBas(iSymg)

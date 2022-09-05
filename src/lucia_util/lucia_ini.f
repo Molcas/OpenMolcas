@@ -267,12 +267,12 @@ C ==============
 C  Set defaults
 C ==============
 *
-**********************************************************************
-*                                                                    *
-* Part 2 : Insert defaults for missing optional keywords             *
-*          and print error messages for missing mandatory keywords   *
-*                                                                    *
-**********************************************************************
+************************************************************************
+*                                                                      *
+* Part 2 : Insert defaults for missing optional keywords               *
+*          and print error messages for missing mandatory keywords     *
+*                                                                      *
+************************************************************************
 *
       NMISS = 0
 *

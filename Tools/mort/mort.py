@@ -131,7 +131,7 @@ def cartesian_shell_rotation(l, R):
   return Rot
 
 # Compute the rotation matrix for the functions in a spherical harmonics shell
-# of angular momentum l, given the real-space rotation matrix R (implict).
+# of angular momentum l, given the real-space rotation matrix R (implicit).
 # Uses the recursive algorithm of Ivanic and Ruedenberg (doi:10.1021/jp953350u, doi:10.1021/jp9833350),
 # which is valid for l > 1.
 # Note that this builds the inverse/transpose, so indexing may look reversed.

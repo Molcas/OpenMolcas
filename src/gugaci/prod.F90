@@ -177,7 +177,7 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -213,7 +213,7 @@ do irot=1,mcroot
     nn0 = iplprwei+iwt_sm_s_ext
     mm = mm0
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -246,7 +246,7 @@ do irot=1,mcroot
     nn0 = iplplwei+iwt_sm_s_ext
     mm = mm0
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -382,7 +382,7 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, value_lpext, vector1, vector2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -418,7 +418,7 @@ do irot=1,mcroot
     nn0 = iplprwei+iwt_sm_s_ext
     mm = mm0
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -452,7 +452,7 @@ do irot=1,mcroot
     nn0 = iplplwei+iwt_sm_s_ext
     mm = mm0
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -779,7 +779,7 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -816,7 +816,7 @@ do irot=1,mcroot
     nn0 = iplprwei+iwt_sm_s_ext
     mm = mm0            !severe_error
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -850,7 +850,7 @@ do irot=1,mcroot
     nn0 = iplplwei+iwt_sm_s_ext
     mm = mm0             !severe_error
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -992,7 +992,7 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, value_lpext, vector1, vector2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1029,7 +1029,7 @@ do irot=1,mcroot
     nn0 = iplprwei+iwt_sm_s_ext
     mm = mm0            !severe_error
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -1063,7 +1063,7 @@ do irot=1,mcroot
     nn0 = iplplwei+iwt_sm_s_ext
     mm = mm0             !severe_error
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -1206,7 +1206,7 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, nvalue_space_ss, value_lpext, vector1, vector2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1244,7 +1244,7 @@ do irot=1,mcroot
     nn0 = iplprwei+iwt_sm_s_ext
     mm = mm0            !severe_error
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -1278,7 +1278,7 @@ do irot=1,mcroot
     nn0 = iplplwei+iwt_sm_s_ext
     mm = mm0             !severe_error
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -1425,7 +1425,7 @@ use gugaci_global, only: ibsm_ext, idownwei_g131415, iesm_ext, indx, ism_g2g4, i
                          logic_g2g4b, logic_g34a, logic_g34b, logic_g35a, logic_g35b, logic_g36a, logic_g36b, lpend34a, lpend34b, &
                          lpend35a, lpend35b, lpend36a, lpend36b, lpext_wei, lpsta34a, lpsta34b, lpsta35a, lpsta35b, lpsta36a, &
                          lpsta36b, mcroot, ng_sm, value_lpext, vector1, vector2
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1462,7 +1462,7 @@ do irot=1,mcroot
     nn0 = iplprwei+iwt_sm_s_ext
     mm = mm0            !severe_error
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)
@@ -1495,7 +1495,7 @@ do irot=1,mcroot
     nn0 = iplplwei+iwt_sm_s_ext
     mm = mm0             !severe_error
     do ismb=1,ng_sm
-      isma = mul_tab(ismb,ism_g2g4)
+      isma = Mul(ismb,ism_g2g4)
       if (isma > ismb) cycle
       ibsta = ibsm_ext(ismb)
       ibend = iesm_ext(ismb)

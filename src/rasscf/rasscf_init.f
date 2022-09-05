@@ -33,7 +33,7 @@
 #include "output_ras.fh"
 #include "rasscf.fh"
 #include "casvb.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"

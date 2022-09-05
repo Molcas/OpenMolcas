@@ -31,7 +31,7 @@ do lpb=1,lpblock_tv
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !jmlr = mul_tab(jml,jmr)
+  !jmlr = Mul(jml,jmr)
   if (linelp <= 12) then
     call tv_ext_head_in_act()
   else
@@ -48,7 +48,7 @@ subroutine tv_ext_head_in_dbl()
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w1_sv, w1_tv
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -59,7 +59,7 @@ integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 lpok = jpadlr
-jmlr = mul_tab(jml,jmr)
+jmlr = Mul(jml,jmr)
 select case (lpok)
   case (6)
     !===================================================================
@@ -155,7 +155,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jmlr) cycle
         !---------------------------------------------------------------
         w0sv2 = w0_sv(2)
@@ -255,7 +255,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri+1,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jmlr) cycle
         !---------------------------------------------------------------
         iwdl = just(lri,lrj)
@@ -378,7 +378,7 @@ do lpb=1,lpblock_sv
   call get_jpty(jpadlr,jptyl,jptyr)
   call get_jp(jptyl,jml,jpadl,1)
   call get_jp(jptyr,jmr,jpad,1)
-  !jmlr = mul_tab(jml,jmr)
+  !jmlr = Mul(jml,jmr)
   if (linelp <= 12) then
     call sv_ext_head_in_act()
   else
@@ -395,7 +395,7 @@ subroutine sv_ext_head_in_dbl()
 use gugaci_global, only: ipae, ipael, jb_sys, jml, jmr, jpad, jpadl, jpadlr, jud, just, linelp, logic_dh, lp_lwei, lp_rwei, &
                          lpnew_lwei, lpnew_rwei, lsm_inn, mhlp, mtype, nlg1, nlg2, norb_dz, norb_frz, vplp_w0, vplp_w1, &
                          vplpnew_w0, vplpnew_w1, w0_dv, w0_sd, w0_sv, w0_td, w1_sv, w1_tv
-use Symmetry_Info, only: mul_tab => Mul
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -406,7 +406,7 @@ integer(kind=iwp), external :: iwalk_ad
 
 logic_dh = .true.
 lpok = jpadlr
-jmlr = mul_tab(jml,jmr)
+jmlr = Mul(jml,jmr)
 select case (lpok)
   case (6)
     !===================================================================
@@ -502,7 +502,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jmlr) cycle
         !---------------------------------------------------------------
         w0sv2 = w0_sv(2)
@@ -602,7 +602,7 @@ select case (lpok)
       lmi = lsm_inn(lri)
       do lrj=lri+1,norb_dz
         lmj = lsm_inn(lrj)
-        lmij = mul_tab(lmi,lmj)
+        lmij = Mul(lmi,lmj)
         if (lmij /= jmlr) cycle
         !---------------------------------------------------------------
         iwdl = just(lri,lrj)

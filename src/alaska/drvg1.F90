@@ -289,6 +289,7 @@ end if
 !***********************************************************************
 !                                                                      *
 call mma_MaxDBLE(MemMax)
+if (MemMax > 1000) MemMax=MemMax-1000
 call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 ipMem1 = 1
 ijS = 0

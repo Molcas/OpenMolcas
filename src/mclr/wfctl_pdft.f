@@ -25,6 +25,7 @@
 ************************************************************************
       use Exp, Only: Exp_Close
       use ipPage, only: W
+      use PDFT_Util, only: Do_Hybrid, WF_Ratio,PDFT_Ratio
       Implicit Real*8 (a-h,o-z)
 *
 #include "stdalloc.fh"
@@ -61,6 +62,7 @@
      &                      FT99(:), Temp5(:)
       Real*8, Allocatable:: lmroots(:), lmroots_new(:), Kap_New(:),
      &                      Kap_New_Temp(:)
+      Real*8, Allocatable:: WFOrb(:),P2WF(:),P2PDFT(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -295,6 +297,11 @@
 
       Call DSCAL_(nconf1*nroots,-2.0d0,W(ipST)%Vec,1)
 
+      IF(Do_Hybrid) THEN
+*scaling the CI resp. for PDFT part in HMC-PDFT
+       CALL DScal_(nconf1*nroots,PDFT_Ratio,W(ipST)%Vec,1)
+      END IF
+
       if (debug) then
       write(6,*) 'RHS CI part:'
       do iS=1,nconf1*nroots
@@ -327,25 +334,76 @@
 
       Call mma_deallocate(FT99)
       Call mma_deallocate(Temp5)
+      IF(Do_Hybrid) THEN
+*scaling the orb resp. for PDFT part in HMC-PDFT
+       Call DSCAL_(ndens2,PDFT_Ratio,Temp4,1)
+*calculating the orb resp. for WF part in HMC-PDFT
+       CALL mma_allocate(WForb,nDens2+6,Label='WForb')
+*saving Fock matrix for PDFT part in HMC-PDFT
+       Call mma_allocate(FOTr,nTri  ,Label='FOTr')
+       Call Get_Fock_Occ(FOTr,nTri)
+*      note that the Fock matrix will be overwritten with the wf one
+*      ini rhs_sa
+       CALL rhs_sa(WForb)
+       CALL dAXpY_(nDens2,WF_Ratio,WForb,1,Temp4,1)
+       call mma_deallocate(WForb)
+      END IF
+
       if (debug) then
       write(6,*) 'RHS orb part:'
       do iS=1,nDens2
         write(6,*) Temp4(iS)
       end do
       end if
+
+
 !Also, along with this RHS stuff, the Fock_occ array already stored on
 !the runfile needs to be replaced - switch triangular storage to square
 !storage:
 !
-      Call mma_allocate(FOSq,nDens2,Label='FOSq')
-      Call mma_allocate(FOTr,nTri  ,Label='FOTr')
-      FOSq(:)=Zero
-      Call Get_Fock_Occ(FOTr,nTri)
-      Call dcopy_(nTri,FOtr,1,FOSq,1)
-      Call Put_Fock_Occ(FOSq,ndens2)
+      IF(Do_Hybrid) THEN
+       ng1=(ntash+1)*ntash/2
+       ng2=(ng1+1)*ng1/2
+       Call mma_allocate(FOSq,nDens2,Label='FOSq')
+       CALL Get_Fock_Occ(FOsq,nDens2)
 
-      Call mma_deallocate(FOSq)
-      Call mma_deallocate(FOTr)
+*scaling fock for wf part
+       CALL DScal_(nTri,WF_Ratio,FOsq,1)
+
+*adding fock for pdft part
+       call daxpy_(ntri,pdft_ratio,fotr,1,fosq,1)
+
+       CALL mma_allocate(P2PDFT,nG2 ,Label='P2PDFT')
+       CALL mma_allocate(P2WF  ,nG2 ,Label='P2WF')
+
+       CALL Get_P2MOt(P2PDFT,nG2)
+*scaling P2 for pdft part'
+       CALL DScal_(nG2,PDFT_Ratio,P2PDFT,1)
+
+       CALL Get_P2MO(P2WF,nG2)
+*adding P2 for wf part'
+       call daxpy_(ng2,wf_ratio,P2WF,1,P2PDFT,1)
+
+       CALL Put_P2MOt(P2PDFT,nG2)
+
+       Call Put_Fock_Occ(FOSq,ndens2)
+
+       Call mma_deallocate(FOSq)
+       Call mma_deallocate(FOTr)
+       Call mma_deallocate(P2PDFT)
+       Call mma_deallocate(P2WF)
+
+      ELSE
+       Call mma_allocate(FOSq,nDens2,Label='FOSq')
+       Call mma_allocate(FOTr,nTri  ,Label='FOTr')
+       FOSq(:)=Zero
+       Call Get_Fock_Occ(FOTr,nTri)
+       Call dcopy_(nTri,FOtr,1,FOSq,1)
+       Call Put_Fock_Occ(FOSq,ndens2)
+
+       Call mma_deallocate(FOSq)
+       Call mma_deallocate(FOTr)
+      END IF
 
 
 !This seems to calculate the RHS, at least for the orbital part.
@@ -449,7 +507,7 @@
      &              1,Zero,lmroots,1)
 *
        if (debug) then
-          write(6,*) 'lmroots_ips1 thisshould be -lmroots'
+          write(6,*) 'lmroots_ips1 this should be -lmroots'
           Call recprt('lmroots',' ',lmroots,1,nroots)
        end if
 * Initializing some of the elements of the PCG
@@ -651,7 +709,7 @@
 *
          Goto 200
 *
-**********************************************************************
+************************************************************************
 *
  210     Continue
          Write(6,Fmt2//'A,I4,A)')

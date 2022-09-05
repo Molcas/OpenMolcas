@@ -1219,7 +1219,7 @@ within that symmetry type. However, for clarity, it also is prefixed by the lett
 "Fr", "In", "Ac", "Se" or "De" for frozen (uncorrelated), inactive, active,
 secondary, and deleted orbitals. In the wave operator, the only possible orbital
 labels are "In" and "Se".
-The active superindex is given in formulae as :math:`\mu`, :math:`\nu`, etc so it is
+The active superindex is given in formulae as :math:`\mu`, :math:`\nu`, etc. so it is
 given a prefix "Mu".
 
 Most of the cases are further subdivided into a plus and a minus linear combination

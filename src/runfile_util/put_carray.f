@@ -130,6 +130,7 @@ cvv      Character*(*) Data(nData)
          RecLab( 26)='SymmetryCInfo   '
          RecLab( 27)='SewardXTitle    '
          RecLab( 28)='Align_Weights   '
+         RecLab( 29)='Quad_c          '
 *                     1234567890123456
          Call cWrRun('cArray labels',RecLab,16*nTocCA)
          Call iWrRun('cArray indices',RecIdx,nTocCA)

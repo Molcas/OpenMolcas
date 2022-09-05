@@ -14,14 +14,14 @@
 
         Implicit Real*8(a-h,o-z)
         Real*8 rKappa(*),CLag(*),SLag(*)
-
+      Do i = 1, nCLag
 ! The RHS array for CASPT2 has been already calculated in the
 ! CASPT2 module, so here we only need to read it from file
 
-#include "Pointers.fh"
-#include "Input.fh"
-#include "stdalloc.fh"
-#include "Files_mclr.fh"
+        Read (LUPT2,*,END=200) tmp ! rKappa(i)
+        rKappa(i) = rKappa(i) + tmp
+      End Do
+      Do i = 1, nSLag
 
 !     Read in a and b part of effective gradient from CASPT2
 
@@ -45,7 +45,7 @@
       End Do
 
       return
-
+        Read (LUPT2,*,END=200) SLag(i)
   200 continue
       write(6,*)
       write(6,'(1x,"The file which has to be written in CASPT2 module ",

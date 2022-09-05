@@ -16,7 +16,7 @@ subroutine ABBoth(iLA,iLB,dMulA,dKappa,Rho,RhoA,RhoB,Rinv,lTooSmall,Colle)
 
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, Two
-use Definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 ! Maximum multipole implemented
 #define _MxM_ 2

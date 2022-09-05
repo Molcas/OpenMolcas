@@ -33,7 +33,7 @@ subroutine CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FSQ,TUVX)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Symmetry_Info, only: MulD2h => Mul
+use Symmetry_Info, only: Mul
 use Fock_util_global, only: Fake_CMO2
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -106,7 +106,7 @@ do jSym=1,nSym
   mTvec = 0  ! mem for storing the half-transformed vec
   mTTvec = 0  ! mem for Lvb,J and Lvw,J
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     mTvec = mTvec+nDen*nBas(l)*nIsh(k)
     mTTvec = mTTvec+(nBas(l)+nAsh(l))*nAsh(k)
   end do
@@ -246,7 +246,7 @@ do jSym=1,nSym
       ! ---------------------------------------------------------
       do i=1,nSym
 
-        k = Muld2h(i,JSYM)
+        k = Mul(i,JSYM)
         iSkip(k) = min(1,nIsh(k)*NBAS(i))
 
       end do
@@ -270,7 +270,7 @@ do jSym=1,nSym
 
       do iSyma=1,nSym
 
-        iSymk = MulD2h(JSYM,iSyma)
+        iSymk = Mul(JSYM,iSyma)
 
         ! ---------------------------------------------------------------------
         ! *** Compute the InActive exchange matrix
@@ -313,7 +313,7 @@ do jSym=1,nSym
       ! ---------------------------------------------------------
       do i=1,nSym
 
-        k = Muld2h(i,JSYM)
+        k = Mul(i,JSYM)
         iSkip(k) = min(1,NBAS(i)*nAsh(k))
 
       end do
@@ -333,7 +333,7 @@ do jSym=1,nSym
       ! ----------------------------------------------------------------
       do iSymb=1,nSym
 
-        iSymv = MulD2h(JSYM,iSymb)
+        iSymv = Mul(JSYM,iSymb)
         NAv = nAsh(iSymv)
         NAw = nAsh(iSymb) ! iSymb=iSymw
 

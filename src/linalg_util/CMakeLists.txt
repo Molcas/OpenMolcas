@@ -25,7 +25,6 @@ set (sources
      fzero.F90
      idmin.F90
      ilasrt.F90
-     index_util.F90
      izero.F90
      linalg_mod.F90
      matinvert.F90
@@ -40,7 +39,6 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      blockdiagonal_matrices.F90
-     index_util.F90
      linalg_mod.F90
 )
 

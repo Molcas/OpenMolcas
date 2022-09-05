@@ -13,7 +13,7 @@ subroutine BSSint()
 
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: Mul, nIrrep
-use DKH_Info, only: CLightAU
+use DKH_Info, only: cLightAU
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
@@ -145,7 +145,7 @@ do L=1,nSym
   nBasMax = max(nBasMax,n)
 end do
 
-VELIT = CLightAU
+VELIT = cLightAU
 
 call Allocate_DT(Kin,nBas,nBas,nSym,aCase='TRI',label='Kin')
 call Allocate_DT(SS,nBas,nBas,nSym,aCase='TRI',label='SS')
