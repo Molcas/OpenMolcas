@@ -41,6 +41,7 @@
       Logical      Idem
       Real*8, Dimension(:,:), Allocatable:: OccVec, EpsVec
       Dimension Dummy(1),iDummy(1)
+#define _DEBUGPRINT_
 *----------------------------------------------------------------------*
 * Setup                                                                *
 *----------------------------------------------------------------------*
@@ -106,21 +107,23 @@
             Call dScal_(nVec*nD,0.5d0,OccVec,1)
          End If
       End If
-*     If(iUHF.eq.0) Then
-*        Write(6,*) 'Orbital energies'
-*        Write(6,'(10f12.6)') (Work(ipEpsa-1+i),i=1,nVec)
-*        Write(6,*) 'Occupation numbers'
-*        Write(6,'(10f12.6)') (Work(ipOcca-1+i),i=1,nVec)
-*     Else
-*        Write(6,*) 'Alpha orbital energies'
-*        Write(6,'(10f12.6)') (Work(ipEpsa-1+i),i=1,nVec)
-*        Write(6,*) 'Alpha occupation numbers'
-*        Write(6,'(10f12.6)') (Work(ipOcca-1+i),i=1,nVec)
-*        Write(6,*) 'Beta orbital energies'
-*        Write(6,'(10f12.6)') (Work(ipEpsb-1+i),i=1,nVec)
-*        Write(6,*) 'Beta occupation numbers'
-*        Write(6,'(10f12.6)') (Work(ipOccb-1+i),i=1,nVec)
-*     End If
+#ifdef _DEBUGPRINT_
+      If(iUHF.eq.0) Then
+         Write(6,*) 'Orbital energies'
+         Write(6,'(10f12.6)') (EpsVec(i,1),i=1,nVec)
+         Write(6,*) 'Occupation numbers'
+         Write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+      Else
+         Write(6,*) 'Alpha orbital energies'
+         Write(6,'(10f12.6)') (EpsVec(i,1),i=1,nVec)
+         Write(6,*) 'Alpha occupation numbers'
+         Write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+         Write(6,*) 'Beta orbital energies'
+         Write(6,'(10f12.6)') (EpsVec(i,2),i=1,nVec)
+         Write(6,*) 'Beta occupation numbers'
+         Write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
+      End If
+#endif
 *----------------------------------------------------------------------*
 * What are the charges                                                 *
 *----------------------------------------------------------------------*
@@ -140,18 +143,20 @@
             qb=qb+OccVec(i,2)
          End Do
       End If
-*     If(iUHF.eq.0) Then
-*        Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
-*        Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
-*        Write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
-*        Write(6,'(a,f12.6)') 'Electron count     ',qa
-*     Else
-*        Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
-*        Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
-*        Write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
-*        Write(6,'(a,f12.6)') 'Alpha count        ',qa
-*        Write(6,'(a,f12.6)') 'Beta count         ',qb
-*     End If
+#ifdef _DEBUGPRINT_
+      If(iUHF.eq.0) Then
+         Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
+         Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
+         Write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
+         Write(6,'(a,f12.6)') 'Electron count     ',qa
+      Else
+         Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
+         Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
+         Write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
+         Write(6,'(a,f12.6)') 'Alpha count        ',qa
+         Write(6,'(a,f12.6)') 'Beta count         ',qb
+      End If
+#endif
 *----------------------------------------------------------------------*
 * Is it the same charge.                                               *
 *----------------------------------------------------------------------*

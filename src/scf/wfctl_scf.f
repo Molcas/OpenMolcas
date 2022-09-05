@@ -712,7 +712,7 @@
             Else If (idKeep.eq.1) Then
                kOptim = 2
             Else
-               kOptim = Min(MxOptm,kOptim + 1)
+               kOptim = Min(kOptim_Max,kOptim + 1)
             End If
          End If
 *                                                                      *

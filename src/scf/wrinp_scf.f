@@ -405,6 +405,7 @@ c           Call Abend()
       If (Diis) Then
          Write(6,FmtR) 'Threshold at which DIIS is turned on',
      &                 DiisTh
+         Write(6,FmtI) 'Maximum depth in the DIIS procedure',kOptim_Max
          Write(6,FmtR) 'Threshold at which QNR/C2DIIS is turned on',
      &                 QNRTh
          Write(6,FmtR) 'Threshold for Norm(delta) (QNR/C2DIIS)',

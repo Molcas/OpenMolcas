@@ -364,6 +364,7 @@
       If (Line(1:4).eq.'MSYM') Go To 8904
       If (Line(1:4).eq.'ITDI') Go To 8905
       If (Line(1:4).eq.'FCKA') Go To 8906
+      If (Line(1:4).eq.'DEPT') Go To 8907
 *
       If (Line(1:4).eq.'FALC') Go To 30000
 *
@@ -1490,6 +1491,18 @@ c        Call FindErrorLine()
          FckAuf=.False.
       End If
       GoTo 1000
+*>>>>>>>>>>>>> DEPTH  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 8907 Continue
+      Line=Get_Ln(LuSpool)
+      Call Get_I(1,kOptim_Max)
+      If (kOptim_Max>MxOptm) Then
+         Write (6,*) 'kOptim_Max>MxOptm'
+         Write (6,*) 'kOptim_Max=',kOptim_Max
+         Write (6,*) 'MxOptm=',MxOptm
+         Write (6,*) 'Modify mxdm.fh and recompile!'
+         Call Abend()
+      End If
+      GoTo 1000
 *>>>>>>>>>>>>> FALC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 30000 Continue
       Falcon = .True.
@@ -1530,15 +1543,15 @@ c        Call FindErrorLine()
 * Check start orbital priority list
 *
       If(.not.OccSet .and. .not.FermSet) Then
-*        Write(6,*) 'rdinp: Checking OCCU/FERM'
+         Write(6,*) 'rdinp: Checking OCCU/FERM'
          Call VecFind(OccSet,FermSet,CharSet,SpinSet)
          If(OccSet .and. .not.FermSet) Then
-*           Write(6,*) 'Using OCCU'
+            Write(6,*) 'Using OCCU'
             Aufb=.false.
             Teee=.false.
             Cho_Aufb=.false.
          Else If(FermSet .and. .not.OccSet) Then
-*           Write(6,*) 'Using FERM'
+            Write(6,*) 'Using FERM'
             Aufb=.true.
             Teee=.true.
             Cho_Aufb=.true.
