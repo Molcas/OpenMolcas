@@ -55,7 +55,7 @@
 ************************************************************************
 *                                                                      *
       Return
-      End
+      End Subroutine WFCtl_SCF
       SubRoutine WfCtl_SCF_Internal(
      &                      iTerm,Meth,FstItr,SIntTh,
      &                      OneHam,TwoHam,Dens,Ovrlp,Fock,
@@ -135,6 +135,7 @@
 #endif
       Dimension Dummy(1),iDummy(7,8)
       External DNRM2_
+      Integer iSym
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -1115,6 +1116,7 @@ c     Call Scf_XML(0)
 ************************************************************************
 *                                                                      *
       Subroutine Save_Orbitals()
+      Integer iSym
 *---  Save the new orbitals in case the SCF program aborts
 
       iTrM = 1
