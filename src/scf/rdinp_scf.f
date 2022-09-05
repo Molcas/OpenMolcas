@@ -1543,15 +1543,15 @@ c        Call FindErrorLine()
 * Check start orbital priority list
 *
       If(.not.OccSet .and. .not.FermSet) Then
-         Write(6,*) 'rdinp: Checking OCCU/FERM'
+*        Write(6,*) 'rdinp: Checking OCCU/FERM'
          Call VecFind(OccSet,FermSet,CharSet,SpinSet)
          If(OccSet .and. .not.FermSet) Then
-            Write(6,*) 'Using OCCU'
+*           Write(6,*) 'Using OCCU'
             Aufb=.false.
             Teee=.false.
             Cho_Aufb=.false.
          Else If(FermSet .and. .not.OccSet) Then
-            Write(6,*) 'Using FERM'
+*           Write(6,*) 'Using FERM'
             Aufb=.true.
             Teee=.true.
             Cho_Aufb=.true.

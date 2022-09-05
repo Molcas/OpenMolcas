@@ -41,7 +41,7 @@
       Logical      Idem
       Real*8, Dimension(:,:), Allocatable:: OccVec, EpsVec
       Dimension Dummy(1),iDummy(1)
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *----------------------------------------------------------------------*
 * Setup                                                                *
 *----------------------------------------------------------------------*
