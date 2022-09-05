@@ -101,7 +101,7 @@
       timings=.false.
       UHFSet=.false.
       Nscreen = 10    ! default screening interval (# of red sets)
-      dmpk = 0.1d0   ! default damping of the screening threshold
+      dmpk = 0.045d0   ! default damping of the screening threshold
       Estimate=.false.
       Update=.true.
 #if defined (_MOLCAS_MPP_)
@@ -1494,7 +1494,7 @@ c        Call FindErrorLine()
 *>>>>>>>>>>>>> DEPTH  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  8907 Continue
       Line=Get_Ln(LuSpool)
-      Call Get_I(1,kOptim_Max)
+      Call Get_I1(1,kOptim_Max)
       If (kOptim_Max>MxOptm) Then
          Write (6,*) 'kOptim_Max>MxOptm'
          Write (6,*) 'kOptim_Max=',kOptim_Max

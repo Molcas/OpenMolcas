@@ -71,7 +71,7 @@
          DensityCheck=.false.
          timings=.false.
          NSCREEN = 10    ! default screening interval (# of red sets)
-         dmpk = 0.1d0   ! default damping of the screening threshold
+         dmpk = 0.045d0   ! default damping of the screening threshold
          Estimate = .false.
          Update = .true.
          goto 999  !return flag
@@ -84,11 +84,11 @@
          DensityCheck=.false.
          timings=.false.
          NSCREEN = 10
-         dmpk = 0.1d0
+         dmpk = 0.045d0
          Estimate = .false.
          Update = .true.
 
-         dmpk_dfl = 0.1d0
+         dmpk_dfl = dmpk
 ************************************************************************
 *                                                                      *
       iPrint=5
