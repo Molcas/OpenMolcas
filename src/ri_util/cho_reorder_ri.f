@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
       use ChoArr, only: iRS2F
       Implicit Real*8 (a-h,o-z)
@@ -28,12 +28,12 @@
          Call SysAbendMsg('Cho_Reorder_RI','Input argument error!',' ')
       End If
       If (nnShl .ne. nnShl_Tot) Then
-         Call SysAbendMsg('Cho_Reorder_RI','Screening is not allowed!',
+         Call SysAbendMsg('Cho_Reorder_RI','Screening is not allowed!', &
      &                    '(nnShl.ne.nnShl_Tot)')
       End If
 
-C     Set mapping from global address to reduced set.
-C     -----------------------------------------------
+!     Set mapping from global address to reduced set.
+!     -----------------------------------------------
 
       liF2RS = nBasT*(nBasT+1)/2
       Call mma_allocate(iF2RS,liF2RS,Label='iF2RS')
@@ -46,8 +46,8 @@ C     -----------------------------------------------
          iF2RS(nab) = iRS
       End Do
 
-C     Reorder.
-C     --------
+!     Reorder.
+!     --------
 
       lScr = lVec
       Call mma_allocate(Scr,lScr,Label='Scr')
@@ -68,7 +68,7 @@ C     --------
                      iRS = iF2RS(nab)
 #if defined (_DEBUGPRINT_)
                      If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
-                        Call SysAbendMsg('Cho_Reorder_RI',
+                        Call SysAbendMsg('Cho_Reorder_RI',              &
      &                                   'Index out of bounds',' ')
                      End If
 #endif
@@ -85,7 +85,7 @@ C     --------
                      iRS = iF2RS(nab)
 #if defined (_DEBUGPRINT_)
                      If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
-                        Call SysAbendMsg('Cho_Reorder_RI',
+                        Call SysAbendMsg('Cho_Reorder_RI',              &
      &                                   'Index out of bounds',' ')
                      End If
 #endif

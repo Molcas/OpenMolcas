@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine RI_XDiag(Diag,nDiag)
-C
-C     Thomas Bondo Pedersen, Jan. 2007.
-C
-C     Purpose: compute exact integral diagonal.
-C
+!
+!     Thomas Bondo Pedersen, Jan. 2007.
+!
+!     Purpose: compute exact integral diagonal.
+!
       use ChoArr, only: iSP2F, nBstSh
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
       Implicit None
@@ -37,31 +37,31 @@ C
 
       Integer i
 
-C     Allocate memory.
-C     ----------------
+!     Allocate memory.
+!     ----------------
 
       Call Init_Tsk(ID,nnShl)
 
       Call mma_allocate(Scr,Mx2Sh,Label='Scr')
       Call mma_maxDBLE(l_SewMem)
 
-C     Initialize diagonal array.
-C     --------------------------
+!     Initialize diagonal array.
+!     --------------------------
 
       Call fZero(Diag,nnBstRT(1))
 
-C     Parallel loop over shell pairs in first red. set.
-C     -------------------------------------------------
+!     Parallel loop over shell pairs in first red. set.
+!     -------------------------------------------------
 
       Do While (Rsv_Tsk(ID,iSAB))
 
-C        Get shells.
-C        -----------
+!        Get shells.
+!        -----------
 
          Call Cho_InvPck(iSP2F(iSAB),iShlA,iShlB,.True.)
 
-C        Compute (AB|AB).
-C        ----------------
+!        Compute (AB|AB).
+!        ----------------
 
          If (iShlA .eq. iShlB) Then
             NumAB = nBstSh(iShlA)*(nBstSh(iShlA)+1)/2
@@ -72,8 +72,8 @@ C        ----------------
          ShB = iShlB
          Call Cho_MCA_DiagInt(iShlA,iShlB,Scr,NumAB)
 
-C        Extract diagonal elements.
-C        --------------------------
+!        Extract diagonal elements.
+!        --------------------------
 
          Do iSym = 1,nSym
             i1 = iiBstR(iSym,1) + iiBstRSh(iSym,iSAB,1) + 1
@@ -86,13 +86,13 @@ C        --------------------------
       End Do
       Call Free_Tsk(ID)
 
-C     Sync diagonal.
-C     --------------
+!     Sync diagonal.
+!     --------------
 
       Call GAdGOP(Diag,nnBstRT(1),'+')
 
-C     Deallocate memory.
-C     ------------------
+!     Deallocate memory.
+!     ------------------
 
       Call xRlsMem_Ints()
       Call mma_deallocate(Scr)

@@ -1,54 +1,54 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Compute_V12(V,V12,nDim)
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
       Real*8 V(nDim,nDim), V12(nDim,nDim)
 
       Real*8, Allocatable :: Vec(:), VTri(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       Call mma_allocate(Vec,nDim**2,Label='Vec')
       Call mma_allocate(VTri,nDim*(nDim+1)/2,Label='VTri')
-*
+!
       Call Compute_V12_(V,V12,VTri,Vec,nDim)
-*
+!
       Call mma_deallocate(VTri)
       Call mma_deallocate(Vec)
-*
+!
       Return
       End
       SubRoutine Compute_V12_(V,V12,VTri,Vec,nDim)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 V(nDim,nDim), V12(nDim,nDim), VTri(nDim*(nDim+1)/2),
+      Real*8 V(nDim,nDim), V12(nDim,nDim), VTri(nDim*(nDim+1)/2),       &
      &       Vec(nDim,nDim)
-*
+!
       Call FZero(Vec,nDim**2)
       call dcopy_(nDim,[One],0,Vec,nDim+1)
-*
+!
       Do i = 1, nDim
          Do j = 1, i
             VTri(i*(i-1)/2+j) = V(i,j)
          End Do
       End Do
-*
+!
       Call JACOB(VTri,Vec,nDim,nDim)
-*
+!
       Call FZero(V12,nDim**2)
       Do i = 1, nDim
 #ifdef _DEBUGPRINT_
@@ -62,17 +62,17 @@
             V12(i,i)=One/tmp
          End If
       End Do
-*
-      Call DGEMM_('N','T',
-     &            nDim,nDim,nDim,
-     &            1.0d0,V12,nDim,
-     &            Vec,nDim,
+!
+      Call DGEMM_('N','T',                                              &
+     &            nDim,nDim,nDim,                                       &
+     &            1.0d0,V12,nDim,                                       &
+     &            Vec,nDim,                                             &
      &            0.0d0,V,nDim)
-      Call DGEMM_('N','N',
-     &            nDim,nDim,nDim,
-     &            1.0d0,Vec,nDim,
-     &            V,nDim,
+      Call DGEMM_('N','N',                                              &
+     &            nDim,nDim,nDim,                                       &
+     &            1.0d0,Vec,nDim,                                       &
+     &            V,nDim,                                               &
      &            0.0d0,V12,nDim)
-*
+!
       Return
       End

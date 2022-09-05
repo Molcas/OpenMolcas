@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine RICD_Helper(Do_nacCD_Basis,nTest,iAngMin_,iAngMax_,
-     &                       jAngMin_,jAngMax_,nBS,iAng,jAng,list,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine RICD_Helper(Do_nacCD_Basis,nTest,iAngMin_,iAngMax_,    &
+     &                       jAngMin_,jAngMax_,nBS,iAng,jAng,list,      &
      &                       nBS_Max)
       Implicit Real*8 (a-h,o-z)
       Logical Do_nacCD_Basis
-      Integer iAngMin_(0:nBS_Max-1),
+      Integer iAngMin_(0:nBS_Max-1),                                    &
      &        iAngMax_(0:nBS_Max-1)
       Parameter (iTabMx=15)
-      Integer jAngMin_(0:nBS_Max-1,0:nBS_Max-1),
+      Integer jAngMin_(0:nBS_Max-1,0:nBS_Max-1),                        &
      &        jAngMax_(0:nBS_Max-1,0:nBS_Max-1)
       Integer list(2,0:((nTest+1)*(nTest+2))/2,0:nTest*2)
       Integer list2(0:nTest**2)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       if(.Not.Do_nacCD_Basis) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          nBS=(nTest+2)/2
          Do iBS=0, nBS-1
             iAngMin_(iBS)=iBS
             iAngMax_(iBS)=nTest-iBS
             Do iAng=0, iAngMax_(iBS)
                jAngMax_(iBS,iAng)=Min(iAng,iAngMin_(iBS))
-               If (iAng.eq.iAngMax_(iBS))
+               If (iAng.eq.iAngMax_(iBS))                               &
      &             jAngMax_(iBS,iAng)=iAngMax_(iBS)
                If (iAng.lt.iAngMin_(iBS)) jAngMax_(iBS,iAng)=0
                jAngMin_(iBS,iAng)=iAngMin_(iBS)
@@ -44,13 +44,13 @@
                End Do
             End Do
          End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Else
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
             nBS=1
             iPair=0
             Do iBS=0, nBS-1
@@ -77,8 +77,8 @@
             End Do             ! iAng
          End Do                ! iBS
       End if
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
-      SUBROUTINE SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
+      SUBROUTINE SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,           &
      &                        lScr,Scr,Diag)
-************************************************************************
-*
-*     Author:  F. Aquilante
-*
-************************************************************************
+!***********************************************************************
+!
+!     Author:  F. Aquilante
+!
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
       Integer irc, nSym, lScr
       Integer iD_A(*), nDim(nSym), nVec(nSym), lu_A0(nSym)
@@ -24,27 +24,27 @@
       Character*7 mode
       Character Name_A*6
       Real*8, Optional ::  Diag(*)
-*
-C     Write (6,*) 'Mode=',Mode
+!
+!     Write (6,*) 'Mode=',Mode
       irc=0
       If (mode.eq.'GePivot') Then  ! returns iD_A
          If (.NOT.Present(Diag)) Call Abend()
          is=1
-*19112013VVP: The threshold changed from 1.d-14 to 1.d-12
+!19112013VVP: The threshold changed from 1.d-14 to 1.d-12
         Thr=1.0D-12
-*The original threshold:
-*        Thr=1.0D-14
+!The original threshold:
+!        Thr=1.0D-14
          Do iSym=1,nSym
             If (nDim(iSym)==0) Cycle
             lu_A=7
             Write(Name_A,'(A4,I2.2)') 'ZMAT',iSym-1
             Call DaName_MF_WA(lu_A,Name_A)
-C           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
-            Call get_pivot_idx(Diag(is),nDim(iSym),nVec(iSym),
-     &                         lu_A0(iSym),lu_A,
+!           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
+            Call get_pivot_idx(Diag(is),nDim(iSym),nVec(iSym),          &
+     &                         lu_A0(iSym),lu_A,                        &
      &                         iD_A(is),Scr,lScr,Thr)
             Call DaEras(lu_A) ! we do not need it
-C           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
+!           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
             is=is+nDim(iSym)
          End Do
       ElseIf (mode.eq.'DoPivot') Then ! store full-pivoted UT A-matrix
@@ -54,7 +54,7 @@ C           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
             lu_A=7
             Write(Name_A,'(A4,I2.2)') 'AMAT',iSym-1
             Call DaName_MF_WA(lu_A,Name_A)
-            Call Pivot_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,
+            Call Pivot_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,      &
      &                     iD_A(is),Scr,lScr)
             Call DaEras(lu_A0(iSym))
             lu_A0(iSym)=lu_A
@@ -69,7 +69,7 @@ C           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
             lu_A=7
             Write(Name_A,'(A4,I2.2)') 'QVEC',iSym-1
             Call DaName_MF_WA(lu_A,Name_A)
-            Call Restore_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,
+            Call Restore_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,    &
      &                       iD_A(is),Scr,lScr,.false.)
             Call DaEras(lu_A0(iSym))
             lu_A0(iSym)=lu_A
