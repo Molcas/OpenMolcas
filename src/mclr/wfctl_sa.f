@@ -51,6 +51,13 @@
      &                      Sc1(:), Sc2(:), Fancy(:),
      &                      SLag(:), wrk(:)
 *
+      interface
+        subroutine RHS_NAC(Fock,SLag)
+          Real*8 Fock(*)
+          real*8, optional :: SLag(*)
+        end subroutine
+      end interface
+
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
