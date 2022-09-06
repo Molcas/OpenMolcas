@@ -8,62 +8,63 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Square_A(Lu,nB,MaxMem_,Force_out_of_Core)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Square_A(Lu,nB,MaxMem_,Force_out_of_Core)
+
+implicit real*8(a-h,o-z)
 #include "stdalloc.fh"
-      Logical Force_out_of_Core
+logical Force_out_of_Core
+real*8, allocatable :: Buf(:,:)
 
-      Real*8, Allocatable :: Buf(:,:)
-!
-      If (nB.eq.0) Return
-      MaxMem=MaxMem_
-      nMem=nB**2
-      If (Force_Out_of_Core) MaxMem=nMem/3
-!
-      If (nMem.le.MaxMem) Then
-!
-!        In-core case
-!
-         Call mma_allocate(Buf,nMem,1,Label='Buf')
-         iAddr=0
-         Call dDaFile(Lu,2,Buf(:,1),nMem,iAddr)
-         Call In_place_Square(Buf(:,1),nB)
-         iAddr=0
-         Call dDaFile(Lu,1,Buf(:,1),nMem,iAddr)
+if (nB == 0) return
+MaxMem = MaxMem_
+nMem = nB**2
+if (Force_Out_of_Core) MaxMem = nMem/3
 
-      Else
-!
-!        Out-of-core case
-!
-         nBuff=MaxMem/2
-         Call mma_allocate(Buf,nBuff,2,Label='Buf')
-!
-         Inc = nBuff/nB
-         iAddr1=0
-         Do iB = 1, nB, Inc
-            mB=Min(Inc,nB-iB+1)
-            iAddrs=iAddr1
-            Call dDaFile(Lu,2,Buf(:,1),nB*mB,iAddr1)
-!
-            iAddr2=iAddr1
-            Do jB = iB, nB, Inc
-               kB=Min(Inc,nB-jB+1)
-!
-               If (jB.eq.iB) Then
-                  Call In_place_Diag(Buf(:,1),nB,iB,iB+mB-1)
-               Else
-                  Call dDaFile(Lu,2,Buf(:,2),nB*kB,iAddr2)
-                  Call Off_Diagonal(Buf(:,1),nB,iB,iB+mB-1,             &
-     &                              Buf(:,2),   jB,jB+kB-1)
-               End If
-            End Do
-!
-            iAddr1=iAddrs
-            Call dDaFile(Lu,1,Buf(:,1),nB*mB,iAddr1)
-!
-         End Do
-      End If
-      Call mma_deallocate(Buf)
+if (nMem <= MaxMem) then
 
-      Return
-      End
+  ! In-core case
+
+  call mma_allocate(Buf,nMem,1,Label='Buf')
+  iAddr = 0
+  call dDaFile(Lu,2,Buf(:,1),nMem,iAddr)
+  call In_place_Square(Buf(:,1),nB)
+  iAddr = 0
+  call dDaFile(Lu,1,Buf(:,1),nMem,iAddr)
+
+else
+
+  ! Out-of-core case
+
+  nBuff = MaxMem/2
+  call mma_allocate(Buf,nBuff,2,Label='Buf')
+
+  Inc = nBuff/nB
+  iAddr1 = 0
+  do iB=1,nB,Inc
+    mB = min(Inc,nB-iB+1)
+    iAddrs = iAddr1
+    call dDaFile(Lu,2,Buf(:,1),nB*mB,iAddr1)
+
+    iAddr2 = iAddr1
+    do jB=iB,nB,Inc
+      kB = min(Inc,nB-jB+1)
+
+      if (jB == iB) then
+        call In_place_Diag(Buf(:,1),nB,iB,iB+mB-1)
+      else
+        call dDaFile(Lu,2,Buf(:,2),nB*kB,iAddr2)
+        call Off_Diagonal(Buf(:,1),nB,iB,iB+mB-1,Buf(:,2),jB,jB+kB-1)
+      end if
+    end do
+
+    iAddr1 = iAddrs
+    call dDaFile(Lu,1,Buf(:,1),nB*mB,iAddr1)
+
+  end do
+end if
+call mma_deallocate(Buf)
+
+return
+
+end subroutine Square_A

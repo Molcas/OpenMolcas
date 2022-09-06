@@ -9,11 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      INTEGER FUNCTION mn2K(iab,lSym)
-      use pso_stuff
-      Integer  iab, lSym
+integer function mn2K(iab,lSym)
 
-      lab = iOff_ij2K(lSym) + iab
-      mn2K = ij2K(lab)
+use pso_stuff
 
-      End
+integer iab, lSym
+
+lab = iOff_ij2K(lSym)+iab
+mn2K = ij2K(lab)
+
+end function mn2K

@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_x_setab(iS,jS)
+
+subroutine Cho_x_setab(iS,jS)
+
 #include "cholesky.fh"
-!
-      SHA=iS
-      SHB=jS
-!
-      Return
-      End
+
+SHA = iS
+SHB = jS
+
+return
+
+end subroutine Cho_x_setab

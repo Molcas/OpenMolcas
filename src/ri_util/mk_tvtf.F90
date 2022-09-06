@@ -8,70 +8,64 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Mk_tVtF(TInt,nTheta_All,tVtF,nTheta,List2,mData,       &
-     &                   iPrm,nPrm,                                     &
-     &                  iAng,jAng,nk,nl,Indkl,nkl,                      &
-     &                  nTheta_Full,                                    &
-     &                   iAL,nA,nB)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 TInt(nTheta_All,nTheta_All), tVtF(nTheta,nTheta_Full)
-      Integer List2(mData,nTheta_All), Indkl(nkl), iPrm(nPrm),          &
-     &        iAL(nA,nB)
-!
+
+subroutine Mk_tVtF(TInt,nTheta_All,tVtF,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,nl,Indkl,nkl,nTheta_Full,iAL,nA,nB)
+
+implicit real*8(a-h,o-z)
+real*8 TInt(nTheta_All,nTheta_All), tVtF(nTheta,nTheta_Full)
+integer List2(mData,nTheta_All), Indkl(nkl), iPrm(nPrm), iAL(nA,nB)
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('TInt',' ',TInt,nTheta_all,nTheta_all)
-      Call iVcPrt('Indkl',' ',Indkl,nkl)
+call RecPrt('TInt',' ',TInt,nTheta_all,nTheta_all)
+call iVcPrt('Indkl',' ',Indkl,nkl)
 #endif
-      Call FZero(tVtF,nTheta*nTheta_Full)
-      iA=iAng+1
-      jA=jAng+1
-      Do iTheta_All = 1, nTheta_All
-         kComp= List2(3,iTheta_All)
-         lComp= List2(4,iTheta_All)
-         ik=    List2(5,iTheta_All)
-         il=    List2(6,iTheta_All)
-         If (iAng.eq.jAng) Then
-            iTheta_Full = ik*(ik-1)/2+il
-         Else
-            iTheta_Full = (il-1)*nk + ik
-         End If
-         If (                                                           &
-     &       iPrm(iTheta_Full).eq.1                                     &
-!    &       .and. iAL(kComp,lComp).eq.1
-     &       .and. kComp.eq.iA .and. lComp.eq.jA                        &
-     &      ) Then
-            iTheta=Indkl(iTheta_Full)
-!
-            Do jTheta_All = 1, nTheta_All
-               mComp= List2(3,jTheta_All)
-               nComp= List2(4,jTheta_All)
-!              If (iAL(mComp,nComp).eq.1) Then
-               If (mComp.eq.iA.and.nComp.eq.jA) Then
-                  jk=List2(5,jTheta_All)
-                  jl=List2(6,jTheta_All)
-                  If (iAng.eq.jAng) Then
-                     jTheta_Full = jk*(jk-1)/2+jl
-                  Else
-                     jTheta_Full = (jl-1)*nk + jk
-                  End If
-!
-                  tVtF(iTheta,jTheta_Full)=tVtF(iTheta,jTheta_Full)     &
-!    &                                 +Abs(TInt(iTheta_All,jTheta_All))
-     &                                 +    TInt(iTheta_All,jTheta_All)
-!
-               End If
-            End Do
-!
-         End If
-      End Do
+call FZero(tVtF,nTheta*nTheta_Full)
+iA = iAng+1
+jA = jAng+1
+do iTheta_All=1,nTheta_All
+  kComp = List2(3,iTheta_All)
+  lComp = List2(4,iTheta_All)
+  ik = List2(5,iTheta_All)
+  il = List2(6,iTheta_All)
+  if (iAng == jAng) then
+    iTheta_Full = ik*(ik-1)/2+il
+  else
+    iTheta_Full = (il-1)*nk+ik
+  end if
+  !if ((iPrm(iTheta_Full) == 1) .and. (iAL(kComp,lComp) == 1) .and. (kComp == iA) .and. (lComp == jA)) then
+  if ((iPrm(iTheta_Full) == 1) .and. (kComp == iA) .and. (lComp == jA)) then
+    iTheta = Indkl(iTheta_Full)
+
+    do jTheta_All=1,nTheta_All
+      mComp = List2(3,jTheta_All)
+      nComp = List2(4,jTheta_All)
+      !if (iAL(mComp,nComp) == 1) then
+      if ((mComp == iA) .and. (nComp == jA)) then
+        jk = List2(5,jTheta_All)
+        jl = List2(6,jTheta_All)
+        if (iAng == jAng) then
+          jTheta_Full = jk*(jk-1)/2+jl
+        else
+          jTheta_Full = (jl-1)*nk+jk
+        end if
+
+        tVtF(iTheta,jTheta_Full) = tVtF(iTheta,jTheta_Full)+TInt(iTheta_All,jTheta_All)
+        !tVtF(iTheta,jTheta_Full) = tVtF(iTheta,jTheta_Full)+abs(TInt(iTheta_All,jTheta_All))
+
+      end if
+    end do
+
+  end if
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
+call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
 #endif
-!
-      Return
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nl)
-         Call Unused_integer_array(iAL)
-      End If
-      End
+if (.false.) then
+  call Unused_integer(nl)
+  call Unused_integer_array(iAL)
+end if
+
+end subroutine Mk_tVtF

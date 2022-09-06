@@ -11,9 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,        &
-     &                    iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,     &
-     &                    TInt,nTInt,mTInt,iTOff,iOffij,iOffkl)
+
+subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,TInt,nTInt,mTInt,iTOff,iOffij, &
+                    iOffkl)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -27,118 +27,116 @@
 !          May '90                                                     *
 !                                                                      *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      Implicit Real*8 (A-H,O-Z)
+
+use SOAO_Info, only: iAOtSO
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-!
-      Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt,mTInt)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
-      Logical Shijij
+real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt,mTInt)
+integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
+logical Shijij
 #include "ibas_ricd.fh"
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
-      r2=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-      Write (6,*) ' Sum=',r1
-      Write (6,*) ' Dot=',r2
-      Call RecPrt(' In PLF_RICD: AOInt',' ',                            &
-     &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
+r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
+write(6,*) ' Sum=',r1
+write(6,*) ' Dot=',r2
+call RecPrt(' In PLF_RICD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
-!
-!     quadruple loop over elements of the basis functions angular
-!     description. loops are reduced to just produce unique SO integrals
-!     observe that we will walk through the memory in AOint in a
-!     sequential way.
-!
-      iAOsti=iAOst(1)
-      iAOstj=iAOst(2)
-      iAOstk=iAOst(3)
-      iAOstl=iAOst(4)
-!     Write (6,*) 'iAOsti,iAOstj,iAOstk,iAOstl=',
-!    &             iAOsti,iAOstj,iAOstk,iAOstl
-      iAOi=iAO(1)
-      iAOj=iAO(2)
-      iAOk=iAO(3)
-      iAOl=iAO(4)
-!     Write (6,*) 'iAOs=',iAO
-!     Write (6,*) 'kOps=',kOp
-!     Write (6,*) 'iTOff,iOffij,iOffkl=',iTOff,iOffij,iOffkl
-!     Write (*,*) 'iBas,jBas,kBas,lBas=',iBas,jBas,kBas,lBas
-!
-!     The writing of the integrals here are shell blocked.
-!
-      Do i1 = 1, iCmp
-         iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
-         Do i2 = 1, jCmp
-            iSOs(2)=iAOtSO(iAOj+i2,kOp(2))+iAOstj
-            Do i3 = 1, kCmp
-               iSOs(3)=iAOtSO(iAOk+i3,kOp(3))+iAOstk
-               Do i4 = 1, lCmp
-                  iSOs(4)=iAOtSO(iAOl+i4,kOp(4))+iAOstl
-!
-                iSO =iSOs(1)
-                jSO =iSOs(2)
-                kSO =iSOs(3)
-                lSO =iSOs(4)
-!
-!               Write (6,*)
-!               Write (6,*) 'i1,i2,i3,i4,iSOs=',i1,i2,i3,i4,iSOs
-!               Write (6,*) 'iBas,jBas,kBas,lBas=',iBas,jBas,kBas,lBas
-!
-                nijkl = 0
-                Do lSOl = lSO, lSO+lBas-1
-                   Do kSOk = kSO, kSO+kBas-1
-                      If (iAO(3).eq.iAO(4)) Then
-                         iSOkl=iTri(kSOk,lSOl) + iOffkl
-                      Else
-                         iSOkl=(kSOk-1)*lCmp*lBas_+ lSOl + iOffkl
-                      End If
-                      Do jSOj = jSO, jSO+jBas-1
-                         Do iSOi = iSO, iSO+iBas-1
-                            nijkl = nijkl + 1
-                            AInt=AOint(nijkl,i1,i2,i3,i4)
-                            If (iAO(1).eq.iAO(2)) Then
-                               iSOij=iTri(iSOi,jSOj) + iOffij
-                            Else
-                               iSOij=(iSOi-1)*jCmp*jBas_+ jSOj + iOffij
-                            End If
-!
-!                           Write (6,*) 'iSOij,iSOkl,AInt=',
-!    &                                   iSOij,iSOkl,AInt
-                            ijSOij=Max(iSOij,iSOkl)-iTOff
-                            klSOkl=Min(iSOij,iSOkl)
-                            TInt(klSOkl,ijSOij)= AInt
-!
-                         End Do
-                      End Do
-                   End Do
-                End Do
-!
-               End Do
-            End Do
-         End Do
-      End Do
+
+! quadruple loop over elements of the basis functions angular
+! description. loops are reduced to just produce unique SO integrals
+! observe that we will walk through the memory in AOint in a
+! sequential way.
+
+iAOsti = iAOst(1)
+iAOstj = iAOst(2)
+iAOstk = iAOst(3)
+iAOstl = iAOst(4)
+!write(6,*) 'iAOsti,iAOstj,iAOstk,iAOstl=',iAOsti,iAOstj,iAOstk,iAOstl
+iAOi = iAO(1)
+iAOj = iAO(2)
+iAOk = iAO(3)
+iAOl = iAO(4)
+!write(6,*) 'iAOs=',iAO
+!write(6,*) 'kOps=',kOp
+!write(6,*) 'iTOff,iOffij,iOffkl=',iTOff,iOffij,iOffkl
+!write(6,*) 'iBas,jBas,kBas,lBas=',iBas,jBas,kBas,lBas
+
+! The writing of the integrals here are shell blocked.
+
+do i1=1,iCmp
+  iSOs(1) = iAOtSO(iAOi+i1,kOp(1))+iAOsti
+  do i2=1,jCmp
+    iSOs(2) = iAOtSO(iAOj+i2,kOp(2))+iAOstj
+    do i3=1,kCmp
+      iSOs(3) = iAOtSO(iAOk+i3,kOp(3))+iAOstk
+      do i4=1,lCmp
+        iSOs(4) = iAOtSO(iAOl+i4,kOp(4))+iAOstl
+
+        iSO = iSOs(1)
+        jSO = iSOs(2)
+        kSO = iSOs(3)
+        lSO = iSOs(4)
+
+        !write(6,*)
+        !write(6,*) 'i1,i2,i3,i4,iSOs=',i1,i2,i3,i4,iSOs
+        !write(6,*) 'iBas,jBas,kBas,lBas=',iBas,jBas,kBas,lBas
+
+        nijkl = 0
+        do lSOl=lSO,lSO+lBas-1
+          do kSOk=kSO,kSO+kBas-1
+            if (iAO(3) == iAO(4)) then
+              iSOkl = iTri(kSOk,lSOl)+iOffkl
+            else
+              iSOkl = (kSOk-1)*lCmp*lBas_+lSOl+iOffkl
+            end if
+            do jSOj=jSO,jSO+jBas-1
+              do iSOi=iSO,iSO+iBas-1
+                nijkl = nijkl+1
+                AInt = AOint(nijkl,i1,i2,i3,i4)
+                if (iAO(1) == iAO(2)) then
+                  iSOij = iTri(iSOi,jSOj)+iOffij
+                else
+                  iSOij = (iSOi-1)*jCmp*jBas_+jSOj+iOffij
+                end if
+
+                !write(6,*) 'iSOij,iSOkl,AInt=',iSOij,iSOkl,AInt
+                ijSOij = max(iSOij,iSOkl)-iTOff
+                klSOkl = min(iSOij,iSOkl)
+                TInt(klSOkl,ijSOij) = AInt
+
+              end do
+            end do
+          end do
+        end do
+
+      end do
+    end do
+  end do
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      Call RecPrt('TInt','(45G8.2)',TInt,nTInt,mTInt)
+call RecPrt('TInt','(45G8.2)',TInt,nTInt,mTInt)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(iShell)
-         Call Unused_logical(Shijij)
-      End If
-      End
+if (.false.) then
+  call Unused_integer_array(iShell)
+  call Unused_logical(Shijij)
+end if
+
+end subroutine PLF_RICD

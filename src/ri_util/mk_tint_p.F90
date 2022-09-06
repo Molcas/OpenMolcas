@@ -8,77 +8,67 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Mk_TInt_P(TInt_p,nTInt_p,                              &
-     &                     TP,nTP,                                      &
-     &                     iAL,nCompA,nCompB,                           &
-     &                     List2_p,nList2_p,                            &
-     &                     mData,iAng,jAng,npk,npl,                     &
-     &                     List_TP)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 TInt_p(nTInt_p,nTInt_p), TP(nTP,nTP)
-      Integer iAL(nCompA,nCompB), List2_p(mData,nList2_p),              &
-     &        List_TP(2,nTP)
-!
-      iA=iAng+1
-      jA=jAng+1
-      Call FZero(TP,nTP**2)
-      Do iList2_p = 1, nList2_p
-         kAng= List2_p(1,iList2_p)
-         lAng= List2_p(2,iList2_p)
-         kComp=List2_p(3,iList2_p)
-         lComp=List2_p(4,iList2_p)
-!        Write (6,*) 'kComp,lComp=',kComp,lComp
-         If (                                                           &
-     &       kAng.eq.iAng .and. lAng.eq.jAng                            &
-!    &       .and. iAL(kComp,lComp).eq.1
-     &       .and. kComp.eq.iA .and. lComp.eq.jA                        &
-     &      ) Then
-!
-            k=List2_p(5,iList2_p)
-            l=List2_p(6,iList2_p)
-            If (iAng.eq.jAng) Then
-               iTP = k*(k-1)/2 + l
-            Else
-               iTP = (l-1)*npk + k
-            End If
-            List_TP(1,iTP)=k
-            List_TP(2,iTP)=l
-!
-            Do jList2_p = 1, nList2_p
-               mAng= List2_p(1,jList2_p)
-               nAng= List2_p(2,jList2_p)
-               mComp=List2_p(3,jList2_p)
-               nComp=List2_p(4,jList2_p)
-!              Write (6,*) 'mComp,nComp=',mComp,nComp
-               If (                                                     &
-     &             mAng.eq.iAng .and. nAng.eq.jAng                      &
-!    &             .and. iAL(mComp,nComp).eq.1
-     &             .and. mComp.eq.iA .and. nComp.eq.jA                  &
-     &            ) Then
-!
-                  m=List2_p(5,jList2_p)
-                  n=List2_p(6,jList2_p)
-                  If (iAng.eq.jAng) Then
-                     jTP = m*(m-1)/2 + n
-                  Else
-                     jTP = (n-1)*npk + m
-                  End If
-!
-                  TP(iTP,jTP) = TP(iTP,jTP)                             &
-     &                        +     TInt_P(iList2_p,jList2_p)
-!    &                        + Abs(TInt_P(iList2_p,jList2_p))
-!
-               End If
-!
-            End Do
-!
-         End If
-      End Do
-!
-      Return
+
+subroutine Mk_TInt_P(TInt_p,nTInt_p,TP,nTP,iAL,nCompA,nCompB,List2_p,nList2_p,mData,iAng,jAng,npk,npl,List_TP)
+
+implicit real*8(a-h,o-z)
+real*8 TInt_p(nTInt_p,nTInt_p), TP(nTP,nTP)
+integer iAL(nCompA,nCompB), List2_p(mData,nList2_p), List_TP(2,nTP)
+
+iA = iAng+1
+jA = jAng+1
+call FZero(TP,nTP**2)
+do iList2_p=1,nList2_p
+  kAng = List2_p(1,iList2_p)
+  lAng = List2_p(2,iList2_p)
+  kComp = List2_p(3,iList2_p)
+  lComp = List2_p(4,iList2_p)
+  !write(6,*) 'kComp,lComp=',kComp,lComp
+  !if ((kAng == iAng) .and. (iAL(kComp,lComp) == 1) .and. (lAng == jAng) .and. (kComp == iA) .and. (lComp == jA)) then
+  if ((kAng == iAng) .and. (lAng == jAng) .and. (kComp == iA) .and. (lComp == jA)) then
+
+    k = List2_p(5,iList2_p)
+    l = List2_p(6,iList2_p)
+    if (iAng == jAng) then
+      iTP = k*(k-1)/2+l
+    else
+      iTP = (l-1)*npk+k
+    end if
+    List_TP(1,iTP) = k
+    List_TP(2,iTP) = l
+
+    do jList2_p=1,nList2_p
+      mAng = List2_p(1,jList2_p)
+      nAng = List2_p(2,jList2_p)
+      mComp = List2_p(3,jList2_p)
+      nComp = List2_p(4,jList2_p)
+      !write(6,*) 'mComp,nComp=',mComp,nComp
+      !if ((mAng == iAng) .and. (iAL(mComp,nComp) == 1) .and. (nAng == jAng) .and. (mComp == iA) .and. (nComp == jA)) then
+      if ((mAng == iAng) .and. (nAng == jAng) .and. (mComp == iA) .and. (nComp == jA)) then
+
+        m = List2_p(5,jList2_p)
+        n = List2_p(6,jList2_p)
+        if (iAng == jAng) then
+          jTP = m*(m-1)/2+n
+        else
+          jTP = (n-1)*npk+m
+        end if
+
+        TP(iTP,jTP) = TP(iTP,jTP)+TInt_P(iList2_p,jList2_p)
+        !TP(iTP,jTP) = TP(iTP,jTP)+abs(TInt_P(iList2_p,jList2_p))
+
+      end if
+
+    end do
+
+  end if
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(iAL)
-         Call Unused_integer(npl)
-      End If
-      End
+if (.false.) then
+  call Unused_integer_array(iAL)
+  call Unused_integer(npl)
+end if
+
+end subroutine Mk_TInt_P

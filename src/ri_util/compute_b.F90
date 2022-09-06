@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2010, Jonas Bostrom                                    *
 !***********************************************************************
-      Real*8 Function Compute_B(irc,kSOk,lSOl,jAOj,nBasFnc,iOpt)
+
+real*8 function Compute_B(irc,kSOk,lSOl,jAOj,nBasFnc,iOpt)
 !*****************************************************************
 !                                                                *
 !     Author Jonas Bostrom, June 2010                            *
@@ -18,17 +19,18 @@
 !     Purpose: To do part of MP2 gradient.                       *
 !                                                                *
 !*****************************************************************
-      use ExTerm, only: BMP2
-      Implicit Real*8 (a-h,o-z)
-      Integer irc,kSOk,lSOl,jAOj,nBasFnc,iOpt
+
+use ExTerm, only: BMP2
+
+implicit real*8(a-h,o-z)
+integer irc, kSOk, lSOl, jAOj, nBasFnc, iOpt
 #include "exterm.fh"
 
+B_mp2 = 0.0d0
+iOff1 = (jAOj)*nBasFnc*nBasFnc+(kSOk-1)*nBasFnc+lSOl
+iOff2 = (jAOj)*nBasFnc*nBasFnc+(lSOl-1)*nBasFnc+kSOk
+B_mp2 = B_mp2+(Bmp2(iOff1,iOpt)+Bmp2(iOff2,iOpt))/2.0d0
+Compute_B = B_mp2
+irc = 0
 
-      B_mp2 = 0.0d0
-      iOff1 = (jAOj)*nBasFnc*nBasFnc + (kSOk-1)*nBasFnc + lSOl
-      iOff2 = (jAOj)*nBasFnc*nBasFnc + (lSOl-1)*nBasFnc + kSOk
-      B_mp2 = B_mp2 + (Bmp2(iOff1,iOpt)+Bmp2(iOff2,iOpt))/2.0d0
-      Compute_B = B_mp2
-      irc=0
-
-      End
+end function Compute_B

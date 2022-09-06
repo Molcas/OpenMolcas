@@ -8,15 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Off_Diagonal(B1,nB,iB1s,iB1e,B2,iB2s,iB2e)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 B1(nB,iB1s:iB1e), B2(nB,iB2s:iB2e)
-!
-      Do j = iB2s, iB2e
-         Do i = iB1s, iB1e
-            B1(j,i)=B2(i,j)
-         End Do
-      End Do
-!
-      Return
-      End
+
+subroutine Off_Diagonal(B1,nB,iB1s,iB1e,B2,iB2s,iB2e)
+
+implicit real*8(a-h,o-z)
+real*8 B1(nB,iB1s:iB1e), B2(nB,iB2s:iB2e)
+
+do j=iB2s,iB2e
+  do i=iB1s,iB1e
+    B1(j,i) = B2(i,j)
+  end do
+end do
+
+return
+
+end subroutine Off_Diagonal

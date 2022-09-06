@@ -10,15 +10,18 @@
 !                                                                      *
 ! Copyright (C) 2008, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine ReNorm2(iCnttp)
-      use Wrj12, only: iOffA
-!
-      Call ICopy(4*8,[0],0,iOffA,1)
-      Do ire_do = 1, 2
-!
-         Call ReNorm2_(iCnttp)
-!
-      End Do
-!
-      Return
-      End
+
+subroutine ReNorm2(iCnttp)
+
+use Wrj12, only: iOffA
+
+call ICopy(4*8,[0],0,iOffA,1)
+do ire_do=1,2
+
+  call ReNorm2_Inner(iCnttp)
+
+end do
+
+return
+
+end subroutine ReNorm2

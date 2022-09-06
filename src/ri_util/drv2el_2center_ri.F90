@@ -11,7 +11,8 @@
 ! Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
+
+subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals.                          *
@@ -27,15 +28,17 @@
 !             Modified driver. Jan. '98                                *
 !             Modified to 2-center ERIs for RI June '05                *
 !***********************************************************************
-      use Basis_Info, only: nBas_Aux
-      use iSD_data
-      use Wrj12, only: iOffA, Lu_A, SO2Ind
-      use Index_arrays, only: iSO2Sh, nShBF
-      use Gateway_Info, only: CutInt
-      use RICD_Info, only: LDF
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-      External Integral_RI_2
+
+use Basis_Info, only: nBas_Aux
+use iSD_data
+use Wrj12, only: iOffA, Lu_A, SO2Ind
+use Index_arrays, only: iSO2Sh, nShBF
+use Gateway_Info, only: CutInt
+use RICD_Info, only: LDF
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
+external Integral_RI_2
 #include "Molcas.fh"
 #include "setup.fh"
 #include "print.fh"
@@ -44,13 +47,13 @@
 #include "nsd.fh"
 #define _no_nShs_
 #include "iTOffs.fh"
-      Integer iAddr_AQ(0:7), kCol_Irrep(0:7)
-      Logical Verbose, Indexation, FreeK2, DoGrad, DoFock
-      Character Name_Q*6
-      Real*8, Allocatable :: A_Diag(:)
-      Integer, Allocatable:: SO2C(:)
+integer iAddr_AQ(0:7), kCol_Irrep(0:7)
+logical Verbose, Indexation, FreeK2, DoGrad, DoFock
+character Name_Q*6
+real*8, allocatable :: A_Diag(:)
+integer, allocatable :: SO2C(:)
+real*8, allocatable :: Tmp(:,:), TMax(:), TInt(:)
 
-      Real*8, Allocatable :: Tmp(:,:), TMax(:), TInt(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -58,209 +61,205 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call StatusLine(' Seward:',' Computing 2-center RI integrals')
+call StatusLine(' Seward:',' Computing 2-center RI integrals')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Handle only the auxiliary basis set
-!
-      Call Set_Basis_Mode('Auxiliary')
-      Call SetUp_iSD()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Initialize for 2-electron integral evaluation.
-!
-      DoGrad=.False.
-      DoFock=.False.
-      Indexation = .True.
-      Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-!
-      Call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
-      Call Mk_iSO2Ind(iSO2Sh,SO2Ind,nSOs,nSkal)
-!
-       nSO_Aux=nSOs-1
-      If (LDF) Then
-         Call mma_allocate(SO2C,nSO_Aux,Label='SO2C')
-         MaxCntr=0
-         Do i = 1, nSO_Aux
-            iSh = iSO2Sh(i)
-            iCenter=iSD(10,iSh)
-            MaxCntr=Max(MaxCntr,iCenter)
-            SO2C(i)=iCenter
-         End Do
-      Else
-         MaxCntr=0
-      End If
-!
-      nBfn2 = 0
-      nBfnTot=0
-      Do iIrrep = 0, nIrrep-1
-         iTOffs(iIrrep+1) = nBfn2
-!
-         lJ=nBas_Aux(iIrrep)
-         If (iIrrep.eq.0) lJ=lJ-1
-         nBfn2 = nBfn2 + lJ**2
-         nBfnTot=nBfnTot+lJ
-      End Do
-      nA_Diag=nBfnTot
-      Call mma_allocate(A_Diag,nA_Diag,Label='A_Diag')
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---  Compute entities for prescreening at shell level
-!
-      Call mma_allocate(TMax,nSkal,Label='TMax')
-      Call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
-      Call Shell_MxSchwz(nSkal,Tmp)
+! Handle only the auxiliary basis set
 
-!     Call RecPrt('Tmp',' ',Tmp,nSkal,nSkal)
+call Set_Basis_Mode('Auxiliary')
+call SetUp_iSD()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Initialize for 2-electron integral evaluation.
 
-      TMax(:)=Tmp(:,nSkal)
-      Call mma_deallocate(Tmp)
-      TMax_all=Zero
-      Do iS = 1, nSkal
-         TMax_all=Max(TMax_all,TMax(iS))
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Preallocate some core for Seward!
-!
-      Call mma_maxDBLE(MemSew)
-      MemLow=Min(MemSew/2,1024*128)
-      MemSew=Max(MemSew/10,MemLow)
-      Call xSetMem_Ints(MemSew)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Temporary buffer for computed integrals, compute the largest
-!     required buffer size and set up iOffA.
-!
-      nTInt=0
-      Do jS = 1, nSkal-1
-         nTInt = Max( nTInt,                                            &
-     &                  nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,           &
-     &                         .True.) )
-      End Do
-      Call mma_allocate(TInt,nTInt,Label='TInt')
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      Call CWTime(TCpu1,TWall1)
-!
-!     Open files for the A-vectors, set iAddr_AQ, kCol_iIrrep and
-!     iOffA(3,iIrrep).
-!
-      nBfnTot=0
-      Do iIrrep = 0, nIrrep-1
-         iOffA(3,iIrrep)=nBfnTot
-         mB=nBas_Aux(iIrrep)
-         If (iIrrep.eq.0) mB = mB - 1
-         nBfnTot=nBfnTot+mB
-!
-         iSeed=63+iIrrep
-         Lu_A(iIrrep)=IsFreeUnit(iSeed)
-         Write(Name_Q,'(A4,I2.2)') 'AVEC',iIrrep
-         If (mB.ne.0) Call DaName_MF_WA(Lu_A(iIrrep),Name_Q)
-!
-         iAddr_AQ(iIrrep)=0
-         kCol_Irrep(iIrrep)=0
-      End Do
-!
-      iS = nSkal
-      kS = nSkal
-!
-      Do jS = 1, nSkal-1
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!        Initialize the buffer
-!
-         nTInt_=nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,.True.)
-         TInt(1:nTInt_)=Zero
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!        First compute the A matrix
-!
-         Do lS = 1, jS
-!
-            Aint=TMax(jS)*TMax(lS)
-            If (AInt.lt.CutInt) Go To 14
-            Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
- 14         Continue
-!
-!           Use a time slot to save the number of tasks and shell
-!           quadrupltes process by an individual node
-            Call SavStat(1,One,'+')
-            Call SavStat(2,One,'+')
-!
-         End Do ! lS
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!        Write the A-vectors to disk
-!
-         Do iIrrep = 0, nIrrep-1
-            mB = iOffA(2,iIrrep)           ! # of bf of shell jS
-            If (mB.ne.0) Then
-!
-               ip_A_n = 1 + iOffA(1,iIrrep)
-               iAddr=iAddr_AQ(iIrrep) ! Disk address
-!
-               nB = nBas_Aux(iIrrep)
-               If (iIrrep.eq.0) nB = nB - 1 ! subtract dummy af
-               Do kCol = 1+kCol_Irrep(iIrrep), mB+kCol_Irrep(iIrrep)
-!
-!                 Write the A-vector to file
-!
-                  Call dDaFile(Lu_A(iIrrep),1,TInt(ip_A_n),kCol,iAddr)
+DoGrad = .false.
+DoFock = .false.
+Indexation = .true.
+call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 
-                  ipAs_Diag=1+iOffA(3,iIrrep)+kCol-1
-                  A_Diag(ipAs_Diag)=TInt(ip_A_n+kCol-1)
-                  nZero=nB-kCol
-                  If (nZero.ne.0) Call dDaFile(Lu_A(iIrrep),0,          &
-     &                                         TInt(ip_A_n),            &
-     &                                         nZero,iAddr)
-!
-                  ip_A_n = ip_A_n + kCol
-               End Do
-!
-               kCol_Irrep(iIrrep)=kCol_Irrep(iIrrep)+mB
-               iAddr_AQ(iIrrep)=iAddr
-            End If
-!
-         End Do ! iIrrep
+call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
+call Mk_iSO2Ind(iSO2Sh,SO2Ind,nSOs,nSkal)
+
+nSO_Aux = nSOs-1
+if (LDF) then
+  call mma_allocate(SO2C,nSO_Aux,Label='SO2C')
+  MaxCntr = 0
+  do i=1,nSO_Aux
+    iSh = iSO2Sh(i)
+    iCenter = iSD(10,iSh)
+    MaxCntr = max(MaxCntr,iCenter)
+    SO2C(i) = iCenter
+  end do
+else
+  MaxCntr = 0
+end if
+
+nBfn2 = 0
+nBfnTot = 0
+do iIrrep=0,nIrrep-1
+  iTOffs(iIrrep+1) = nBfn2
+
+  lJ = nBas_Aux(iIrrep)
+  if (iIrrep == 0) lJ = lJ-1
+  nBfn2 = nBfn2+lJ**2
+  nBfnTot = nBfnTot+lJ
+end do
+nA_Diag = nBfnTot
+call mma_allocate(A_Diag,nA_Diag,Label='A_Diag')
 !                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute entities for prescreening at shell level
+
+call mma_allocate(TMax,nSkal,Label='TMax')
+call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
+call Shell_MxSchwz(nSkal,Tmp)
+
+!call RecPrt('Tmp',' ',Tmp,nSkal,nSkal)
+
+TMax(:) = Tmp(:,nSkal)
+call mma_deallocate(Tmp)
+TMax_all = Zero
+do iS=1,nSkal
+  TMax_all = max(TMax_all,TMax(iS))
+end do
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Preallocate some core for Seward!
+
+call mma_maxDBLE(MemSew)
+MemLow = min(MemSew/2,1024*128)
+MemSew = max(MemSew/10,MemLow)
+call xSetMem_Ints(MemSew)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Temporary buffer for computed integrals, compute the largest
+! required buffer size and set up iOffA.
+
+nTInt = 0
+do jS=1,nSkal-1
+  nTInt = max(nTInt,nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,.true.))
+end do
+call mma_allocate(TInt,nTInt,Label='TInt')
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+call CWTime(TCpu1,TWall1)
+
+! Open files for the A-vectors, set iAddr_AQ, kCol_iIrrep and iOffA(3,iIrrep).
+
+nBfnTot = 0
+do iIrrep=0,nIrrep-1
+  iOffA(3,iIrrep) = nBfnTot
+  mB = nBas_Aux(iIrrep)
+  if (iIrrep == 0) mB = mB-1
+  nBfnTot = nBfnTot+mB
+
+  iSeed = 63+iIrrep
+  Lu_A(iIrrep) = IsFreeUnit(iSeed)
+  write(Name_Q,'(A4,I2.2)') 'AVEC',iIrrep
+  if (mB /= 0) call DaName_MF_WA(Lu_A(iIrrep),Name_Q)
+
+  iAddr_AQ(iIrrep) = 0
+  kCol_Irrep(iIrrep) = 0
+end do
+
+iS = nSkal
+kS = nSkal
+
+do jS=1,nSkal-1
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  ! Initialize the buffer
+
+  nTInt_ = nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,.true.)
+  TInt(1:nTInt_) = Zero
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  ! First compute the A matrix
+
+  do lS=1,jS
+
+    Aint = TMax(jS)*TMax(lS)
+    if (AInt < CutInt) Go To 14
+    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
+14  continue
+
+    ! Use a time slot to save the number of tasks and shell
+    ! quadruplets processed by an individual node
+    call SavStat(1,One,'+')
+    call SavStat(2,One,'+')
+
+  end do ! lS
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  ! Write the A-vectors to disk
+
+  do iIrrep=0,nIrrep-1
+    mB = iOffA(2,iIrrep)   ! # of bf of shell jS
+    if (mB /= 0) then
+
+      ip_A_n = 1+iOffA(1,iIrrep)
+      iAddr = iAddr_AQ(iIrrep) ! Disk address
+
+      nB = nBas_Aux(iIrrep)
+      if (iIrrep == 0) nB = nB-1 ! subtract dummy af
+      do kCol=1+kCol_Irrep(iIrrep),mB+kCol_Irrep(iIrrep)
+
+        ! Write the A-vector to file
+
+        call dDaFile(Lu_A(iIrrep),1,TInt(ip_A_n),kCol,iAddr)
+
+        ipAs_Diag = 1+iOffA(3,iIrrep)+kCol-1
+        A_Diag(ipAs_Diag) = TInt(ip_A_n+kCol-1)
+        nZero = nB-kCol
+        if (nZero /= 0) call dDaFile(Lu_A(iIrrep),0,TInt(ip_A_n),nZero,iAddr)
+
+        ip_A_n = ip_A_n+kCol
+      end do
+
+      kCol_Irrep(iIrrep) = kCol_Irrep(iIrrep)+mB
+      iAddr_AQ(iIrrep) = iAddr
+    end if
+
+  end do ! iIrrep
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  !                                                                    *
+end do   ! jS
 !----------------------------------------------------------------------*
 !                                                                      *
-      End Do    ! jS
-!----------------------------------------------------------------------*
-!                                                                      *
-!     Release the Seward core memory, the buffer, etc.
+! Release the Seward core memory, the buffer, etc.
 !
-      Call Free_iSD()
-      Call xRlsMem_Ints
-      Call mma_deallocate(TInt)
-      Call mma_deallocate(TMax)
-      Call mma_deallocate(SO2Ind)
+call Free_iSD()
+call xRlsMem_Ints()
+call mma_deallocate(TInt)
+call mma_deallocate(TMax)
+call mma_deallocate(SO2Ind)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Terminate integral environment.
-!
-      Verbose = .False.
-      FreeK2=.True.
-      Call Term_Ints(Verbose,FreeK2)
+! Terminate integral environment.
+
+Verbose = .false.
+FreeK2 = .true.
+call Term_Ints(Verbose,FreeK2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call CWTime(TCpu2,TWall2)
-      Call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
+call CWTime(TCpu2,TWall2)
+call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Drv2El_2Center_RI

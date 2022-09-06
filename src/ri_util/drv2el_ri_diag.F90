@@ -11,7 +11,8 @@
 ! Copyright (C) 1990,1991,1993,1998, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Drv2El_RI_Diag(ThrAO,TInt,nTInt)
+
+subroutine Drv2El_RI_Diag(ThrAO,TInt,nTInt)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals.                          *
@@ -26,46 +27,50 @@
 !             small basis sets and large molecules. Sept. '93          *
 !             Modified driver. Jan. '98                                *
 !***********************************************************************
-      use SOAO_Info, only: iOffSO
-      use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep
-      use j12, only: nSkal_Valence
-      Implicit Real*8 (A-H,O-Z)
-      External Integral_WrOut
-      Real*8  TInt(nTInt)
-      Logical Verbose, Indexation, FreeK2, DoFock, DoGrad
+
+use SOAO_Info, only: iOffSO
+use Basis_Info, only: nBas
+use Symmetry_Info, only: nIrrep
+use j12, only: nSkal_Valence
+
+implicit real*8(A-H,O-Z)
+external Integral_WrOut
+real*8 TInt(nTInt)
+logical Verbose, Indexation, FreeK2, DoFock, DoGrad
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Initialize for 2-electron integral evaluation. Do not generate
-!     tables for indexation.
-!
-      DoFock=.False.
-      DoGrad=.False.
-      Indexation = .False.
-      Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-      nSkal_Valence=nSkal
+! Initialize for 2-electron integral evaluation. Do not generate
+! tables for indexation.
+
+DoFock = .false.
+DoGrad = .false.
+Indexation = .false.
+call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
+nSkal_Valence = nSkal
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Update iOffSO and call the Cholesky code which does this.
-!
-      nAcc=0
-      Do iIrrep = 0, nIrrep-1
-         iOffSO(iIrrep) = nAcc
-         nAcc = nAcc + nBas(iIrrep)
-      End Do
-      Call RI_XDiag(TInt,nTInt)
+! Update iOffSO and call the Cholesky code which does this.
+
+nAcc = 0
+do iIrrep=0,nIrrep-1
+  iOffSO(iIrrep) = nAcc
+  nAcc = nAcc+nBas(iIrrep)
+end do
+call RI_XDiag(TInt,nTInt)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Terminate integral environment.
-!
-      Verbose = .False.
-      FreeK2=.True.
-      Call Term_Ints(Verbose,FreeK2)
+! Terminate integral environment.
+
+Verbose = .false.
+FreeK2 = .true.
+call Term_Ints(Verbose,FreeK2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Drv2El_RI_Diag

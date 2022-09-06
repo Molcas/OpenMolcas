@@ -8,19 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!
-!
-      SUBROUTINE DecideonCholesky(DoCholesky)
 
-      Implicit Real*8 (a-h,o-z)
-      Logical DoCholesky
+subroutine DecideonCholesky(DoCholesky)
 
+implicit real*8(a-h,o-z)
+logical DoCholesky
 
-      Call Get_iScalar('System BitSwitch',iOption)
-!
-!  this is a logical variable (logical function)
-      DoCholesky=Iand(iOption,512).Eq.512
-!
-      Return
-      End
+call Get_iScalar('System BitSwitch',iOption)
+
+! this is a logical variable (logical function)
+DoCholesky = iand(iOption,512) == 512
+
+return
+
+end subroutine DecideonCholesky

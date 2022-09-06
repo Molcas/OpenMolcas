@@ -8,18 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_RI_Final(irc,nVec_RI,l_nVec_RI)
-      Implicit None
-      Integer irc, l_nVec_RI
-      Integer nVec_RI(l_nVec_RI)
+
+subroutine Cho_RI_Final(irc,nVec_RI,l_nVec_RI)
+
+implicit none
+integer irc, l_nVec_RI
+integer nVec_RI(l_nVec_RI)
 #include "cholesky.fh"
 
-      If (l_nVec_RI .lt. nSym) Then
-         irc = 1
-         Return
-      Else
-         irc = 0
-         Call Put_iArray('nVec_RI',nVec_RI,nSym)
-      End If
+if (l_nVec_RI < nSym) then
+  irc = 1
+  return
+else
+  irc = 0
+  call Put_iArray('nVec_RI',nVec_RI,nSym)
+end if
 
-      End
+end subroutine Cho_RI_Final

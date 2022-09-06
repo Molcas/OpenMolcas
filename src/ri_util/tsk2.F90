@@ -8,7 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Tsk2
-Integer :: iRsv,iOpt,nTask
-Integer, Allocatable :: TskList(:)
-End Module Tsk2
+
+module Tsk2
+
+integer :: iRsv, iOpt, nTask
+integer, allocatable :: TskList(:)
+
+end module Tsk2

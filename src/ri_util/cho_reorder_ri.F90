@@ -8,97 +8,96 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
-      use ChoArr, only: iRS2F
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Vec(lVec,nVec)
+
+subroutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
+
+use ChoArr, only: iRS2F
+
+implicit real*8(a-h,o-z)
+real*8 Vec(lVec,nVec)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"
+real*8, allocatable :: Scr(:)
+integer, allocatable :: iF2RS(:)
+! Statement functions
+MulD2h(i,j) = ieor(i-1,j-1)+1
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-      Real*8, Allocatable :: Scr(:)
-      Integer, Allocatable :: iF2RS(:)
+if (nVec < 1) return
+if (lVec < 1) return
+if ((lVec /= nnBstR(iSym,1)) .or. (nVec > NumCho(iSym))) then
+  call SysAbendMsg('Cho_Reorder_RI','Input argument error!',' ')
+end if
+if (nnShl /= nnShl_Tot) then
+  call SysAbendMsg('Cho_Reorder_RI','Screening is not allowed!','(nnShl /= nnShl_Tot)')
+end if
 
-      MulD2h(i,j)=iEor(i-1,j-1)+1
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
+! Set mapping from global address to reduced set.
+! -----------------------------------------------
 
-      If (nVec .lt. 1) Return
-      If (lVec .lt. 1) Return
-      If (lVec.ne.nnBstR(iSym,1) .or. nVec.gt.NumCho(iSym)) Then
-         Call SysAbendMsg('Cho_Reorder_RI','Input argument error!',' ')
-      End If
-      If (nnShl .ne. nnShl_Tot) Then
-         Call SysAbendMsg('Cho_Reorder_RI','Screening is not allowed!', &
-     &                    '(nnShl.ne.nnShl_Tot)')
-      End If
+liF2RS = nBasT*(nBasT+1)/2
+call mma_allocate(iF2RS,liF2RS,Label='iF2RS')
+iF2RS(:) = 0
+do iRS=1,nnBstR(iSym,1)
+  iRS_tot = iiBstR(iSym,1)+iRS
+  na = iRS2F(1,iRS_tot)
+  nb = iRS2F(2,iRS_tot)
+  nab = iTri(na,nb)
+  iF2RS(nab) = iRS
+end do
 
-!     Set mapping from global address to reduced set.
-!     -----------------------------------------------
+! Reorder.
+! --------
 
-      liF2RS = nBasT*(nBasT+1)/2
-      Call mma_allocate(iF2RS,liF2RS,Label='iF2RS')
-      iF2RS(:)=0
-      Do iRS = 1,nnBstR(iSym,1)
-         iRS_tot = iiBstR(iSym,1) + iRS
-         na = iRS2F(1,iRS_tot)
-         nb = iRS2F(2,iRS_tot)
-         nab = iTri(na,nb)
-         iF2RS(nab) = iRS
-      End Do
+lScr = lVec
+call mma_allocate(Scr,lScr,Label='Scr')
+do iVec=1,nVec
 
-!     Reorder.
-!     --------
+  Scr(:) = Vec(:,iVec)
+  kFrom = 0
+  do iSymb=1,nSym
 
-      lScr = lVec
-      Call mma_allocate(Scr,lScr,Label='Scr')
-      Do iVec = 1,nVec
+    iSyma = MulD2h(iSymb,iSym)
 
-         Scr(:)=Vec(:,iVec)
-         kFrom = 0
-         Do iSymb = 1,nSym
+    if (iSyma > iSymb) then
+      do ib=1,nBas(iSymb)
+        nb = iBas(iSymb)+ib
+        do ia=1,nBas(iSyma)
+          na = iBas(iSyma)+ia
+          nab = iTri(na,nb)
+          iRS = iF2RS(nab)
+#         ifdef _DEBUGPRINT_
+          if ((iRS < 1) .or. (iRS > nnBstR(iSym,1))) then
+            call SysAbendMsg('Cho_Reorder_RI','Index out of bounds',' ')
+          end if
+#         endif
+          kFrom = kFrom+1
+          Vec(iRS,iVec) = Scr(kFrom)
+        end do
+      end do
+    else if (iSyma == iSymb) then
+      do ia=1,nBas(iSyma)
+        na = iBas(iSyma)+ia
+        do ib=1,ia
+          nb = iBas(iSymb)+ib
+          nab = iTri(na,nb)
+          iRS = iF2RS(nab)
+#         ifdef _DEBUGPRINT_
+          if ((iRS < 1) .or. (iRS > nnBstR(iSym,1))) then
+            call SysAbendMsg('Cho_Reorder_RI','Index out of bounds',' ')
+          end if
+#         endif
+          kFrom = kFrom+1
+          Vec(iRS,iVec) = Scr(kFrom)
+        end do
+      end do
+    end if
 
-            iSyma = MulD2h(iSymb,iSym)
+  end do
 
-            If (iSyma .gt. iSymb) Then
-               Do ib = 1,nBas(iSymb)
-                  nb = iBas(iSymb) + ib
-                  Do ia = 1,nBas(iSyma)
-                     na = iBas(iSyma) + ia
-                     nab = iTri(na,nb)
-                     iRS = iF2RS(nab)
-#if defined (_DEBUGPRINT_)
-                     If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
-                        Call SysAbendMsg('Cho_Reorder_RI',              &
-     &                                   'Index out of bounds',' ')
-                     End If
-#endif
-                     kFrom = kFrom + 1
-                     Vec(iRS,iVec) = Scr(kFrom)
-                  End Do
-               End Do
-            Else If (iSyma .eq. iSymb) Then
-               Do ia = 1,nBas(iSyma)
-                  na = iBas(iSyma) + ia
-                  Do ib = 1,ia
-                     nb = iBas(iSymb) + ib
-                     nab = iTri(na,nb)
-                     iRS = iF2RS(nab)
-#if defined (_DEBUGPRINT_)
-                     If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
-                        Call SysAbendMsg('Cho_Reorder_RI',              &
-     &                                   'Index out of bounds',' ')
-                     End If
-#endif
-                     kFrom = kFrom + 1
-                     Vec(iRS,iVec) = Scr(kFrom)
-                  End Do
-               End Do
-            End If
+end do
+call mma_deallocate(Scr)
+call mma_deallocate(iF2RS)
 
-         End Do
-
-      End Do
-      Call mma_deallocate(Scr)
-      Call mma_deallocate(iF2RS)
-
-      End
+end subroutine Cho_Reorder_RI

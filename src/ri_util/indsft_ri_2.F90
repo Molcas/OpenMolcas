@@ -11,10 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine IndSft_RI_2(iCmp,iShell,iBas,jBas,kBas,lBas,           &
-     &                       Shijij, iAO, iAOst, ijkl,SOint,nSOint,     &
-     &                       iSOSym,nSOs,TInt,nTInt,iOff,               &
-     &                       iSO2Ind,iOffA)
+
+subroutine IndSft_RI_2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOint,nSOint,iSOSym,nSOs,TInt,nTInt,iOff,iSO2Ind,iOffA)
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
 !                                                                      *
@@ -26,151 +24,152 @@
 !          april '90                                                   *
 !                                                                      *
 !***********************************************************************
-      use Basis_Info, only: nBas
-      use SOAO_Info, only: iAOtSO
-      use Symmetry_Info, only: nIrrep
-      use sort_data, only: nSkip
-      Implicit Real*8 (A-H,O-Z)
+
+use Basis_Info, only: nBas
+use SOAO_Info, only: iAOtSO
+use Symmetry_Info, only: nIrrep
+use sort_data, only: nSkip
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-!
-      Real*8 SOint(ijkl,nSOint), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), iOffA(4,0:7),                 &
-     &        iAOst(4), iSOSym(2,nSOs), iSO2Ind(nSOs)
-      Integer iOff(0:7)
-      Logical Shijij, qijij
-!     local array
-      Integer jSym(0:7), lSym(0:7)
+real*8 SOint(ijkl,nSOint), TInt(nTInt)
+integer iCmp(4), iShell(4), iAO(4), iOffA(4,0:7), iAOst(4), iSOSym(2,nSOs), iSO2Ind(nSOs)
+integer iOff(0:7)
+logical Shijij, qijij
+! local array
+integer jSym(0:7), lSym(0:7)
 #ifdef _DEBUGPRINT_
-      Data tr1,tr2/0.0d0,0.0d0/
-      Save tr1,tr2
+data tr1,tr2/0.0d0,0.0d0/
+save tr1, tr2
 #endif
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      k12=0
-      k34=0
+k12 = 0
+k34 = 0
 #ifdef _DEBUGPRINT_
-      irout = 39
-      iprint = nprint(irout)
-      If (iPrint.ge.49) Then
-         r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
-         r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
-         tr1=tr1+r1
-         tr2=tr2+r2
-         Write (6,*) ' Sum=',r1,tr1
-         Write (6,*) ' Dot=',r2,tr2
-         Call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
-      End If
+irout = 39
+iprint = nprint(irout)
+if (iPrint >= 49) then
+  r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
+  r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
+  tr1 = tr1+r1
+  tr2 = tr2+r2
+  write(6,*) ' Sum=',r1,tr1
+  write(6,*) ' Dot=',r2,tr2
+  call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
+end if
 #endif
-      memSO2 = 0
-!
-!
-!     quadruple loop over elements of the basis functions angular
-!     description. loops are reduced to just produce unique SO integrals
-!     observe that we will walk through the memory in AOint in a
-!     sequential way.
-!
-      i1 = 1
-      i3 = 1
-      j1 = 0
-      j3 = 0
-      Do i2 = 1, iCmp(2)
-         Do 201 j = 0, nIrrep-1
-            ix = 0
-            If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
-            jSym(j) = ix
-201      Continue
-         If (iShell(2).gt.iShell(1)) then
-            i12 = iCmp(2)*(i1-1) + i2
-         else
-            i12 = iCmp(1)*(i2-1) + i1
-         End If
-         Do 400 i4 = 1, iCmp(4)
-            Do 401 j = 0, nIrrep-1
-               ix = 0
-               If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
-               lSym(j) = ix
-401         Continue
-            If (iShell(4).gt.iShell(3)) then
-               i34 = iCmp(4)*(i3-1) + i4
-            else
-               i34 = iCmp(3)*(i4-1) + i3
-            End If
-            If (Shijij .and. i34.gt.i12) go to 400
-            qijij = Shijij .and. i12.eq.i34
-!           Write (6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
-!
-!      loop over Irreps which are spanned by the basis function.
-!      again, the loop structure is restricted to ensure unique
-!      integrals.
-!
-             Do 210 j2 = 0, nIrrep-1
-                If (jSym(j2).eq.0) go to 210
-                j12 = ieor(j1,j2)
-                If (qijij) then
-                   If (iShell(1).gt.iShell(2)) then
-                       k12 = nIrrep*j1 + j2+1
-                   else
-                       k12 = nIrrep*j2 + j1+1
-                   End If
-                End If
-!
-                iOffA_= iOffA(1,j2)
-                iOffB_= iOffA(3,j2)
-                If (j2.ne.0) iOffB_=iOffB_+1
-                mm_ = iOffA(4,j2)
-                nn  = mm_ - iOffA(2,j2)
-                mx  = nn*(nn+1)/2
-!
-                j4 = ieor(j12,j3)
-                If (lSym(j4).eq.0) go to 210
-                If (qijij) then
-                   If (iShell(3).gt.iShell(4)) then
-                      k34 = nIrrep*j3 + j4+1
-                   else
-                      k34 = nIrrep*j4 + j3+1
-                   End If
-                   If (k34.gt.k12) go to 210
-                End If
-!
-                memSO2 = memSO2 + 1
-                If ( (nSkip(j2+1)+nSkip(j4+1) ).ne.0 ) GoTo 210
-!
-!               Compute absolute starting SO index
-                jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)
-                lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
-!
-                nijkl = 0
-                Do lSOl = lSO, lSO+lBas-1
-                   Do jSOj = jSO, jSO+jBas-1
-                      nijkl = nijkl + 1
-                      AInt=SOint(nijkl,memSO2)
-                      iSO = jSOj-nBas(j2)
-                      kSO = lSOl-nBas(j4)
-!
-                      iSO = iSO2Ind(iSO+iOffB_) + nn
-                      ij= iTri(iSO,kSO) - mx + iOffA_
-                      TInt(ij)=AInt
-!
-                   End Do
-                End Do
-!
-210       Continue
-!
-400      Continue
-      End Do
-!
-      Return
+memSO2 = 0
+
+! quadruple loop over elements of the basis functions angular
+! description. loops are reduced to just produce unique SO integrals
+! observe that we will walk through the memory in AOint in a
+! sequential way.
+
+i1 = 1
+i3 = 1
+j1 = 0
+j3 = 0
+do i2=1,iCmp(2)
+  do j=0,nIrrep-1
+    ix = 0
+    if (iAOtSO(iAO(2)+i2,j) > 0) ix = 2**j
+    jSym(j) = ix
+  end do
+  if (iShell(2) > iShell(1)) then
+    i12 = iCmp(2)*(i1-1)+i2
+  else
+    i12 = iCmp(1)*(i2-1)+i1
+  end if
+  do i4=1,iCmp(4)
+    do j=0,nIrrep-1
+      ix = 0
+      if (iAOtSO(iAO(4)+i4,j) > 0) ix = 2**j
+      lSym(j) = ix
+    end do
+    if (iShell(4) > iShell(3)) then
+      i34 = iCmp(4)*(i3-1)+i4
+    else
+      i34 = iCmp(3)*(i4-1)+i3
+    end if
+    if (Shijij .and. (i34 > i12)) go to 400
+    qijij = Shijij .and. (i12 == i34)
+    !write(6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
+
+    ! loop over Irreps which are spanned by the basis function.
+    ! again, the loop structure is restricted to ensure unique
+    ! integrals.
+
+    do j2=0,nIrrep-1
+      if (jSym(j2) == 0) go to 210
+      j12 = ieor(j1,j2)
+      if (qijij) then
+        if (iShell(1) > iShell(2)) then
+          k12 = nIrrep*j1+j2+1
+        else
+          k12 = nIrrep*j2+j1+1
+        end if
+      end if
+
+      iOffA_ = iOffA(1,j2)
+      iOffB_ = iOffA(3,j2)
+      if (j2 /= 0) iOffB_ = iOffB_+1
+      mm_ = iOffA(4,j2)
+      nn = mm_-iOffA(2,j2)
+      mx = nn*(nn+1)/2
+
+      j4 = ieor(j12,j3)
+      if (lSym(j4) == 0) go to 210
+      if (qijij) then
+        if (iShell(3) > iShell(4)) then
+          k34 = nIrrep*j3+j4+1
+        else
+          k34 = nIrrep*j4+j3+1
+        end if
+        if (k34 > k12) go to 210
+      end if
+
+      memSO2 = memSO2+1
+      if ((nSkip(j2+1)+nSkip(j4+1)) /= 0) goto 210
+
+      ! Compute absolute starting SO index
+      jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)
+      lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
+
+      nijkl = 0
+      do lSOl=lSO,lSO+lBas-1
+        do jSOj=jSO,jSO+jBas-1
+          nijkl = nijkl+1
+          AInt = SOint(nijkl,memSO2)
+          iSO = jSOj-nBas(j2)
+          kSO = lSOl-nBas(j4)
+
+          iSO = iSO2Ind(iSO+iOffB_)+nn
+          ij = iTri(iSO,kSO)-mx+iOffA_
+          TInt(ij) = AInt
+
+        end do
+      end do
+
+210   continue
+    end do
+
+400 continue
+  end do
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iBas)
-         Call Unused_integer(kBas)
-         Call Unused_integer_array(iSOSym)
-         Call Unused_integer_array(iOff)
-      End If
-      End
+if (.false.) then
+  call Unused_integer(iBas)
+  call Unused_integer(kBas)
+  call Unused_integer_array(iSOSym)
+  call Unused_integer_array(iOff)
+end if
+
+end subroutine IndSft_RI_2

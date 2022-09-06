@@ -10,23 +10,21 @@
 !                                                                      *
 ! Copyright (C) 2007,2008, Roland Lindh                                *
 !***********************************************************************
-      Subroutine Mk_AngList(iAL,nCompA,nCompB,                          &
-     &                      iD_c,nD_c,                                  &
-     &                      List2,nList2,mData,                         &
-     &                      iAng,jAng)
-      Integer iAL(nCompA,nCompB), iD_c(nD_c),                           &
-     &        List2(mData,nList2)
-!
-      Call IZero(iAL,nCompA*nCompB)
-      Do jD_c = 1, nD_c
-         ijSO=iD_c(jD_c)
-         If (List2(1,ijSO).eq.iAng .and.                                &
-     &       List2(2,ijSO).eq.jAng ) Then
-            iA = List2(3,ijSO)
-            iB = List2(4,ijSO)
-            iAL(iA,iB) = 1
-         End If
-      End Do
-!
-      Return
-      End
+
+subroutine Mk_AngList(iAL,nCompA,nCompB,iD_c,nD_c,List2,nList2,mData,iAng,jAng)
+
+integer iAL(nCompA,nCompB), iD_c(nD_c), List2(mData,nList2)
+
+call IZero(iAL,nCompA*nCompB)
+do jD_c=1,nD_c
+  ijSO = iD_c(jD_c)
+  if ((List2(1,ijSO) == iAng) .and. (List2(2,ijSO) == jAng)) then
+    iA = List2(3,ijSO)
+    iB = List2(4,ijSO)
+    iAL(iA,iB) = 1
+  end if
+end do
+
+return
+
+end subroutine Mk_AngList

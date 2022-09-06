@@ -8,10 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Chunk_Mod
+
+module Chunk_Mod
+
 #ifdef _MOLCAS_MPP_
-  Integer :: ip_Chunk=0
-  Integer, Allocatable :: iMap(:)
+integer :: ip_Chunk = 0
+integer, allocatable :: iMap(:)
 #endif
-Real*8, Allocatable :: Chunk(:)
-End Module Chunk_Mod
+real*8, allocatable :: Chunk(:)
+
+end module Chunk_Mod

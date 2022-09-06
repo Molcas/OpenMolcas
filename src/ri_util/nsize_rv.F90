@@ -8,81 +8,82 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function nSize_Rv(kS,lS,nShBf,nShell,nIrrep,iOff,         &
-     &                          nVec)
+
+integer function nSize_Rv(kS,lS,nShBf,nShell,nIrrep,iOff,nVec)
 !***********************************************************************
 !                                                                      *
 !     Compute the size of Rv(nu,mu,K) and the offsets to the           *
 !     different symmetry blocks.                                       *
 !                                                                      *
 !***********************************************************************
-      Integer nShBf(0:nIrrep-1,nShell), iOff(0:nIrrep-1),               &
-     &        nVec(0:nIrrep-1)
-!
-      nSize_Rv=0
-!
-      If (nIrrep.eq.1) Then
+
+integer nShBf(0:nIrrep-1,nShell), iOff(0:nIrrep-1), nVec(0:nIrrep-1)
+
+nSize_Rv = 0
+
+if (nIrrep == 1) then
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  iOff(0) = 0
+  if (kS /= lS) then
+    nK = nShBf(0,kS)
+    nL = nShBf(0,lS)
+    nKL = nK*nL
+  else
+    nK = nShBf(0,kS)
+    nKL = nK*(nK+1)/2
+  end if
+
+  nJ = nVec(0)
+  nSize_Rv = nJ*nkl
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  call IZero(iOff,nIrrep)
+  do klIrrep=0,nIrrep-1
+    iOff(klIrrep) = nSize_Rv
+
+    nKL = 0
+    if (kS /= lS) then
+      do kIrrep=0,nIrrep-1
+        nK = nShBf(kIrrep,kS)
+        lIrrep = ieor(klIrrep,kIrrep)
+        nL = nShBf(lIrrep,lS)
+        nKL = nKL+nK*nL
+      end do
+    else
+      do kIrrep=0,nIrrep-1
+        nK = nShBf(kIrrep,kS)
+        lIrrep = ieor(klIrrep,kIrrep)
+        nL = nShBf(lIrrep,lS)
+
+        if (kIrrep > lIrrep) then
+          nKL = nKL+nK*nL
+        else if (kIrrep == lIrrep) then
+          nKL = nKL+nK*(nK+1)/2
+        else
+          nKL = nKL+0
+        end if
+
+      end do
+    end if
+
+    nJ = nVec(klIrrep)
+    nSize_Rv = nSize_Rv+nJ*nKL
+
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         iOff(0)=0
-         If (kS.ne.lS) Then
-            nK = nShBf(0,kS)
-            nL = nShBf(0,lS)
-            nKL = nK*nL
-         Else
-            nK = nShBf(0,kS)
-            nKL = nK*(nK+1)/2
-         End If
-!
-         nJ = nVec(0)
-         nSize_Rv = nJ*nkl
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         Call IZero(iOff,nIrrep)
-         Do klIrrep = 0, nIrrep-1
-            iOff(klIrrep) = nSize_Rv
-!
-            nKL = 0
-            If (kS.ne.lS) Then
-               Do kIrrep = 0, nIrrep-1
-                  nK = nShBf(kIrrep,kS)
-                  lIrrep = iEor(klIrrep,kIrrep)
-                  nL = nShBf(lIrrep,lS)
-                  nKL = nKL + nK*nL
-               End Do
-            Else
-               Do kIrrep = 0, nIrrep-1
-                  nK = nShBf(kIrrep,kS)
-                  lIrrep = iEor(klIrrep,kIrrep)
-                  nL = nShBf(lIrrep,lS)
-!
-                  If (kIrrep.gt.lIrrep) Then
-                     nKL = nKL + nK*nL
-                  Else If (kIrrep.eq.lIrrep) Then
-                     nKL = nKL + nK*(nK+1)/2
-                  Else
-                     nKL = nKL + 0
-                  End If
-!
-               End Do
-            End If
-!
-            nJ = nVec(klIrrep)
-            nSize_Rv = nSize_Rv + nJ*nKL
-!
-         End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Return
-      End
+return
+
+end function nSize_Rv

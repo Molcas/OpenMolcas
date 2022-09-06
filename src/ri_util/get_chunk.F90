@@ -8,53 +8,57 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_Chunk(LenVec,NumVec_,iChoVec,iSym,iVec_Global)
-      use Chunk_Mod
+
+subroutine Get_Chunk(LenVec,NumVec_,iChoVec,iSym,iVec_Global)
+
+use Chunk_Mod
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: MyRank, Is_Real_Par
+use Para_Info, only: MyRank, Is_Real_Par
 #endif
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
 #endif
-!
+
 #ifdef _MOLCAS_MPP_
-      If (Is_Real_Par()) Then
-         Call GA_Sync()
-         Call Cho_RI_SwapVecUnit(iSym)
-!
-!        Get the subrange and check that we are within range.
-!
-         J_s=iMap(1+MyRank)
-         If (J_s.gt.NumVec_) Go To 999
-         J_e=iMap(1+MyRank+1)-1
-         J_e=Min(J_e,NumVec_)
-         nJ=J_e-J_s+1
-         If (nJ.gt.0) Then
-            MuNu_s=1
-            MuNu_e=LenVec
-            Call GA_Access(ip_Chunk,MuNu_s,MuNu_e,J_s,J_e,Index,ld)
-!           Call RecPrt('Dbl_Mb(Index)',' ',Dbl_Mb(Index),LenVec,nJ)
-            Call Cho_PutVec(DBL_MB(Index),LenVec,nJ,iChoVec+1,iSym)
-            Call Cho_RI_SetInfVec_5(iVec_Global,iChoVec+1,J_s,J_e,iSym)
-            Call GA_Release(ip_Chunk,MuNu_s,MuNu_e,J_s,J_e)
-            iChoVec = iChoVec + nJ
-         End If
-  999    Continue
-         Call Cho_RI_SwapVecUnit(iSym)
-      Else
-         Call Cho_PutVec(Chunk,LenVec,NumVec_,iChoVec+1,iSym)
-         iChoVec = iChoVec + NumVec_
-      End If
-!
+if (Is_Real_Par()) then
+  call GA_Sync()
+  call Cho_RI_SwapVecUnit(iSym)
+
+  ! Get the subrange and check that we are within range.
+
+  J_s = iMap(1+MyRank)
+  if (J_s > NumVec_) Go To 999
+  J_e = iMap(1+MyRank+1)-1
+  J_e = min(J_e,NumVec_)
+  nJ = J_e-J_s+1
+  if (nJ > 0) then
+    MuNu_s = 1
+    MuNu_e = LenVec
+    call GA_Access(ip_Chunk,MuNu_s,MuNu_e,J_s,J_e,Index,ld)
+    !call RecPrt('Dbl_Mb(Index)',' ',Dbl_Mb(Index),LenVec,nJ)
+    call Cho_PutVec(DBL_MB(Index),LenVec,nJ,iChoVec+1,iSym)
+    call Cho_RI_SetInfVec_5(iVec_Global,iChoVec+1,J_s,J_e,iSym)
+    call GA_Release(ip_Chunk,MuNu_s,MuNu_e,J_s,J_e)
+    iChoVec = iChoVec+nJ
+  end if
+999 continue
+  call Cho_RI_SwapVecUnit(iSym)
+else
+  call Cho_PutVec(Chunk,LenVec,NumVec_,iChoVec+1,iSym)
+  iChoVec = iChoVec+NumVec_
+end if
+
 #else
-      Call Cho_PutVec(Chunk,LenVec,NumVec_,iChoVec+1,iSym)
-      iChoVec = iChoVec + NumVec_
+call Cho_PutVec(Chunk,LenVec,NumVec_,iChoVec+1,iSym)
+iChoVec = iChoVec+NumVec_
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iVec_Global)
-      End If
+if (.false.) then
+  call Unused_integer(iVec_Global)
+end if
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine Get_Chunk

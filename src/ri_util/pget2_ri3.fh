@@ -8,38 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      mijkl=0
-      Do lAOl = 0, lBas-1
-         lSOl = lSO + lAOl
-!
-         Do kAOk = 0, kBas-1
-            kSOk = kSO + kAOk
-!
-            Do jAOj = 0, jBas-1
-               jSOj = jSO + jAOj - nBas(j2)
-               mijkl = mijkl + 1
-!
-               temp=0.0d0
-#ifdef _COULOMB_
-               Indk=Max(kSOk,lSOl)
-               Indl=kSOk+lSOl-Indk
-               iPntkl=iPntSO(j3,j4,lOper,nbas)
-               Indkl=iPntkl+(Indk-1)*Indk/2+Indl
-!
-               temp=temp+V_k(jSOj,1)*DSO(Indkl,1)*Coulfac
+
+! Template used in PGet2_RI3
+#if !(defined(_COULOMB_) || defined(_EXCHANGE_) || defined(_ACTIVE_))
+  ! This should be an error at compile time!
+  'At least one of _COULOMB_, _EXCHANGE_, _ACTIVE_ should be defined'
 #endif
-!
-#ifdef _EXCHANGE_
-               temp = temp - ExFac*Half*BklK(mijkl)
-#endif
-!
-#ifdef _ACTIVE_
-               temp=temp+Thpkl(mijkl)
-#endif
-!
-               PMax=Max(PMax,Abs(Temp))
-               PSO(mijkl,MemSO2) =  Fac * temp
-!
-            End Do
-         End Do
-      End Do
+
+mijkl = 0
+do lAOl=0,lBas-1
+  lSOl = lSO+lAOl
+
+  do kAOk=0,kBas-1
+    kSOk = kSO+kAOk
+
+    do jAOj=0,jBas-1
+      jSOj = jSO+jAOj-nBas(j2)
+      mijkl = mijkl+1
+
+#     ifdef _COULOMB_
+      Indk = max(kSOk,lSOl)
+      Indl = min(kSOk,lSOl)
+      Indkl = iPntSO(j3,j4,lOper,nBas)+Indk*(Indk-1)/2+Indl
+#     endif
+
+      temp = (&
+#            ifdef _COULOMB_
+             CoulFac*V_k(jSOj,1)*DSO(Indkl,1) &
+#            endif
+#            ifdef _EXCHANGE_
+             -ExFac*Half*BklK(mijkl) &
+#            endif
+#            ifdef _ACTIVE_
+             +Thpkl(mijkl) &
+#            endif
+             )
+
+      PMax = max(PMax,abs(temp))
+      PSO(mijkl,MemSO2) = Fac*temp
+
+    end do
+  end do
+end do

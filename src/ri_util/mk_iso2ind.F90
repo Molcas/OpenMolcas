@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Mk_iSO2Ind(iSO2Sh,iSO2Ind,nSO,nShell)
-#include "stdalloc.fh"
-      Integer iSO2Sh(nSO), iSO2Ind(nSO)
-!
-      Integer, Allocatable :: nTemp(:)
 
-      Call mma_allocate(nTemp,nShell,Label='nTemp')
-      Call Mk_iSO2Ind_(iSO2Sh,iSO2Ind,nSO,nTemp,nShell)
-      Call mma_deallocate(nTemp)
-!
-      Return
-      End
+subroutine Mk_iSO2Ind(iSO2Sh,iSO2Ind,nSO,nShell)
+
+#include "stdalloc.fh"
+integer iSO2Sh(nSO), iSO2Ind(nSO)
+integer, allocatable :: nTemp(:)
+
+call mma_allocate(nTemp,nShell,Label='nTemp')
+call Mk_iSO2Ind_Inner(iSO2Sh,iSO2Ind,nSO,nTemp,nShell)
+call mma_deallocate(nTemp)
+
+return
+
+end subroutine Mk_iSO2Ind

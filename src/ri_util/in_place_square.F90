@@ -8,18 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine In_place_Square(Buff,nBuff)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Buff(nBuff,nBuff)
-!
-!     Call RecPrt('Buff',' ',Buff,nBuff,nBuff)
-      Do j = 1, nBuff
-         Do i = 1, j-1
-            Buff(j,i)=Buff(i,j)
-         End Do
-      End Do
-!     Call RecPrt('Buff',' ',Buff,nBuff,nBuff)
-!     Write (6,'(10F10.3)') (Buff(i,i),i=1,nBuff)
-!
-      Return
-      End
+
+subroutine In_place_Square(Buff,nBuff)
+
+implicit real*8(a-h,o-z)
+real*8 Buff(nBuff,nBuff)
+
+!call RecPrt('Buff',' ',Buff,nBuff,nBuff)
+do j=1,nBuff
+  do i=1,j-1
+    Buff(j,i) = Buff(i,j)
+  end do
+end do
+!call RecPrt('Buff',' ',Buff,nBuff,nBuff)
+!write(6,'(10F10.3)') (Buff(i,i),i=1,nBuff)
+
+return
+
+end subroutine In_place_Square

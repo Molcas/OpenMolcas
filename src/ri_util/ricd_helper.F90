@@ -8,77 +8,76 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RICD_Helper(Do_nacCD_Basis,nTest,iAngMin_,iAngMax_,    &
-     &                       jAngMin_,jAngMax_,nBS,iAng,jAng,list,      &
-     &                       nBS_Max)
-      Implicit Real*8 (a-h,o-z)
-      Logical Do_nacCD_Basis
-      Integer iAngMin_(0:nBS_Max-1),                                    &
-     &        iAngMax_(0:nBS_Max-1)
-      Parameter (iTabMx=15)
-      Integer jAngMin_(0:nBS_Max-1,0:nBS_Max-1),                        &
-     &        jAngMax_(0:nBS_Max-1,0:nBS_Max-1)
-      Integer list(2,0:((nTest+1)*(nTest+2))/2,0:nTest*2)
-      Integer list2(0:nTest**2)
+
+subroutine RICD_Helper(Do_nacCD_Basis,nTest,iAngMin_,iAngMax_,jAngMin_,jAngMax_,nBS,iAng,jAng,list,nBS_Max)
+
+implicit real*8(a-h,o-z)
+logical Do_nacCD_Basis
+integer iAngMin_(0:nBS_Max-1), iAngMax_(0:nBS_Max-1)
+parameter(iTabMx=15)
+integer jAngMin_(0:nBS_Max-1,0:nBS_Max-1), jAngMax_(0:nBS_Max-1,0:nBS_Max-1)
+integer list(2,0:((nTest+1)*(nTest+2))/2,0:nTest*2)
+integer list2(0:nTest**2)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      if(.Not.Do_nacCD_Basis) Then
+if (.not. Do_nacCD_Basis) then
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  nBS = (nTest+2)/2
+  do iBS=0,nBS-1
+    iAngMin_(iBS) = iBS
+    iAngMax_(iBS) = nTest-iBS
+    do iAng=0,iAngMax_(iBS)
+      jAngMax_(iBS,iAng) = min(iAng,iAngMin_(iBS))
+      if (iAng == iAngMax_(iBS)) jAngMax_(iBS,iAng) = iAngMax_(iBS)
+      if (iAng < iAngMin_(iBS)) jAngMax_(iBS,iAng) = 0
+      jAngMin_(iBS,iAng) = iAngMin_(iBS)
+      if (iAng <= iAngMin_(iBS)) jAngMin_(iBS,iAng) = 0
+      do jAng=jAngMin_(iBS,iAng),jAngMax_(iBS,iAng)
+        list(1,0,iAng) = iAng
+        list(2,0,iAng) = jAng
+      end do
+    end do
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  nBS = 1
+  iPair = 0
+  do iBS=0,nBS-1
+    iAngMax_(iBS) = nTest*2
+    do iAng=iAngMin_(iBS),iAngMax_(iBS)
+      jAngMax_(iBS,iAng) = 0
+      jAngMin_(iBS,iAng) = 0
+      do jAng=jAngMin_(iBS,iAng),jAngMax_(iBS,iAng)
+        list2(iAng) = 0
+        do k=0,nTest
+          do l=0,k
+            do m=iAng,0,-2
+              n = k-l
+              if ((n == m) .and. (k+l >= iAng)) then
+                iPair = list2(iAng)
+                list(1,iPair,iAng) = l
+                list(2,iPair,iAng) = k
+                list2(iAng) = list2(iAng)+1
+              end if
+            end do ! m
+          end do   ! l
+        end do     ! k
+      end do       ! jAng
+    end do         ! iAng
+  end do           ! iBS
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         nBS=(nTest+2)/2
-         Do iBS=0, nBS-1
-            iAngMin_(iBS)=iBS
-            iAngMax_(iBS)=nTest-iBS
-            Do iAng=0, iAngMax_(iBS)
-               jAngMax_(iBS,iAng)=Min(iAng,iAngMin_(iBS))
-               If (iAng.eq.iAngMax_(iBS))                               &
-     &             jAngMax_(iBS,iAng)=iAngMax_(iBS)
-               If (iAng.lt.iAngMin_(iBS)) jAngMax_(iBS,iAng)=0
-               jAngMin_(iBS,iAng)=iAngMin_(iBS)
-               If (iAng.le.iAngMin_(iBS)) jAngMin_(iBS,iAng)=0
-               Do jAng=jAngMin_(iBS,iAng), jAngMax_(iBS,iAng)
-                  list(1,0,iAng)=iAng
-                  list(2,0,iAng)=jAng
-               End Do
-            End Do
-         End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-            nBS=1
-            iPair=0
-            Do iBS=0, nBS-1
-            iAngMax_(iBS)=nTest*2
-            Do iAng=iAngMin_(iBS), iAngMax_(iBS)
-               jAngMax_(iBS,iAng)=0
-               jAngMin_(iBS,iAng)=0
-               Do jAng=jAngMin_(iBS,iAng), jAngMax_(iBS,iAng)
-                  list2(iAng)=0
-                  Do k=0, nTest
-                     Do l=0, k
-                        Do m=iAng,0,-2
-                           n=k-l
-                           If ((n.eq.m).and.((k+l).ge.iAng)) Then
-                              iPair=list2(iAng)
-                              list(1,iPair,iAng)=l
-                              list(2,iPair,iAng)=k
-                              list2(iAng)=list2(iAng)+1
-                           End If
-                        End Do ! m
-                     End Do    ! l
-                  End Do       ! k
-              End Do           ! jAng
-            End Do             ! iAng
-         End Do                ! iBS
-      End if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Return
-      End
+return
+
+end subroutine RICD_Helper

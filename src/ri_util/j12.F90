@@ -8,10 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module j12
-      Integer :: nSO, nSkal_Valence, klS
-      Integer, Allocatable :: SOShl(:), ShlSO(:)
-      Integer, Allocatable :: nBasSh(:,:)
-      Integer, Allocatable :: iSSOff(:,:,:)
-      Integer, Allocatable :: iShij(:,:)
-      End Module j12
+
+module j12
+
+integer :: nSO, nSkal_Valence, klS
+integer, allocatable :: SOShl(:), ShlSO(:)
+integer, allocatable :: nBasSh(:,:)
+integer, allocatable :: iSSOff(:,:,:)
+integer, allocatable :: iShij(:,:)
+
+end module j12

@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_RI_XFree()
-      use ChoArr, only: MySP
-      Implicit None
+
+subroutine Cho_RI_XFree()
+
+use ChoArr, only: MySP
+
+implicit none
 #include "stdalloc.fh"
 
-      If (Allocated(MySP)) Call mma_deallocate(MySP)
+if (allocated(MySP)) call mma_deallocate(MySP)
 
-      End
+end subroutine Cho_RI_XFree

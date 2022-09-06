@@ -8,21 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Free_Tsk2(id)
-      use Tsk2
+
+subroutine Free_Tsk2(id)
+
+use Tsk2
+
 #include "stdalloc.fh"
-!
-      If (iOpt.eq.0) Then
-         Call Free_Tsk(id)
-      Else If (iOpt.eq.1) Then
-         Call mma_deallocate(TskList)
-         nTask=0
-      Else
-         Call WarningMessage(2,'Error in Free_Tsk2')
-         Write (6,*) 'Free_Tsk2: illegal iOpt value!'
-         Call Abend()
-      End If
-      iOpt=-1
-!
-      Return
-      End
+
+if (iOpt == 0) then
+  call Free_Tsk(id)
+else if (iOpt == 1) then
+  call mma_deallocate(TskList)
+  nTask = 0
+else
+  call WarningMessage(2,'Error in Free_Tsk2')
+  write(6,*) 'Free_Tsk2: illegal iOpt value!'
+  call Abend()
+end if
+iOpt = -1
+
+return
+
+end subroutine Free_Tsk2

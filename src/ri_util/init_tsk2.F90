@@ -8,25 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Init_Tsk2(id,mTask,jOpt,List)
-      use Tsk2
+
+subroutine Init_Tsk2(id,mTask,jOpt,List)
+
+use Tsk2
+
 #include "stdalloc.fh"
-      Integer List(*)  ! either nTask or 0 long
-!
-      nTask=mTask
-      iOpt=jOpt
-      If (iOpt.eq.0) Then
-         Call Init_Tsk(id,nTask)
-      Else If (iOpt.eq.1) Then
-         Call mma_allocate(TskList,nTask,Label='TskList')
-         TskList(1:nTask) = List(1:nTask)
-         id = 0
-         iRsv=1
-      Else
-         Call WarningMessage(2,'Error in Init_Tsk2')
-         Write (6,*) 'Init_Tsk2: illegal iOpt value!'
-         Call Abend()
-      End If
-!
-      Return
-      End
+integer List(*)  ! either nTask or 0 long
+
+nTask = mTask
+iOpt = jOpt
+if (iOpt == 0) then
+  call Init_Tsk(id,nTask)
+else if (iOpt == 1) then
+  call mma_allocate(TskList,nTask,Label='TskList')
+  TskList(1:nTask) = List(1:nTask)
+  id = 0
+  iRsv = 1
+else
+  call WarningMessage(2,'Error in Init_Tsk2')
+  write(6,*) 'Init_Tsk2: illegal iOpt value!'
+  call Abend()
+end if
+
+return
+
+end subroutine Init_Tsk2

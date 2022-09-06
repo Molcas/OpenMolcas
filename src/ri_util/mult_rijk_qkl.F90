@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) Jonas Bostrom                                          *
 !***********************************************************************
-      Subroutine Mult_RijK_QKL(iSO,nBas_aux,nIrrep)
+
+subroutine Mult_RijK_QKL(iSO,nBas_aux,nIrrep)
 !*************************************************************************
 !     Author: Jonas Bostrom
 !
@@ -23,14 +24,16 @@
 !            nBas_aux : number of aux bsfs in each irrep.
 !            nIrrep : number of irreps.
 !*************************************************************************
-      use pso_stuff
-      use Para_Info, Only: Is_Real_Par
-      use ChoSwp, only: InfVec
-      Implicit Real*8 (a-h,o-z)
-      Integer nBas_Aux(1:nIrrep), nVec(1:nIrrep)
-      Character  Fname*6, Fname2*6, Name_Q*6
-      Character(LEN=50) CFmt
-      Character(LEN=13), Parameter :: SECNAM = 'MULT_RIJK_QKL'
+
+use pso_stuff
+use Para_Info, only: Is_Real_Par
+use ChoSwp, only: InfVec
+
+implicit real*8(a-h,o-z)
+integer nBas_Aux(1:nIrrep), nVec(1:nIrrep)
+character Fname*6, Fname2*6, Name_Q*6
+character(LEN=50) CFmt
+character(LEN=13), parameter :: SECNAM = 'MULT_RIJK_QKL'
 #include "real.fh"
 #include "cholesky.fh"
 #include "stdalloc.fh"
@@ -40,227 +43,211 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-!
 #include "chotime.fh"
+real*8, allocatable :: QVector(:)
+real*8, allocatable :: RVector(:)
+real*8, allocatable :: CVector(:)
+! Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 
-      Real*8, Allocatable:: QVector(:)
-      Real*8, Allocatable:: RVector(:)
-      Real*8, Allocatable:: CVector(:)
-!
-!************************
-!     Define some indices
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-!************************
+call CWTime(TotCPU1,TotWall1)
 
-      CALL CWTime(TotCPU1,TotWall1)
+do i=1,nIrrep
+  nVec(i) = NumCho(i)
+end do
+call GAIGOP(nVec,nIrrep,'+')
 
-      Do i = 1, nIrrep
-         nVec(i) = NumCho(i)
-      End Do
-      Call GAIGOP(nVec,nIrrep,'+')
+nTotCho = 0
+MaxCho = 0
+MaxLocCho = 0
+do jSym=1,nIrrep
+  nTotCho = nTotCho+nVec(jSym)
+  MaxCho = max(MaxCho,nVec(jSym))
+  MaxLocCho = max(MaxLocCho,NumCho(jSym))
+  do iSym=1,nIrrep
+    iAdrCVec(jSym,iSym,iSO) = 0
+  end do
+end do
 
-      nTotCho = 0
-      MaxCho = 0
-      MaxLocCho = 0
-      Do jSym = 1, nIrrep
-         nTotCho = nTotCho + nVec(jSym)
-         MaxCho = Max(MaxCho,nVec(jSym))
-         MaxLocCho= Max(MaxLocCho,NumCho(jSym))
-         Do iSym = 1, nIrrep
-            iAdrCVec(jSym,iSym,iSO) = 0
-         End Do
-      End Do
+! Loop over the first cholesky symmetry
 
+do jSym=1,nIrrep
 
-!     Loop over the first cholesky symmetry
-!
-      Do jSym = 1, nIrrep
-!
-!**      Check so the symmetry contains vectors
-!-------------------------------------------------
-         NumCV = NumCho(jSym)
-         NumAux = nBas_Aux(jSym)
-         If(jSym.eq.1) NumAux = NumAux - 1
-!     Save the number of auxiliary basis functions to be
-!     accessed later
-         NumAuxVec(jSym) = NumAux
+  ! Check so the symmetry contains vectors
+  !---------------------------------------
+  NumCV = NumCho(jSym)
+  NumAux = nBas_Aux(jSym)
+  if (jSym == 1) NumAux = NumAux-1
+  ! Save the number of auxiliary basis functions to be accessed later
+  NumAuxVec(jSym) = NumAux
 
+  call GAIGOP_SCAL(NumCV,'max')
+  if (NumCV < 1) goto 1000
 
-         Call GAIGOP_SCAL(NumCV,'max')
-         If(NumCV .lt. 1) goto 1000
-!
-         nTotFIorb = 0
-         MaxMOprod = 0
-         MaxMOprodR = 0
-         Do iSym = 1, nIrrep
-            kSym = MulD2h(JSym,iSym)
+  nTotFIorb = 0
+  MaxMOprod = 0
+  MaxMOprodR = 0
+  do iSym=1,nIrrep
+    kSym = MulD2h(JSym,iSym)
 
-            nTotFIorb=nTotFIorb + nIJ1(iSym,kSym,iSO)
-            MaxMOprod = Max(MaxMOprod,nIJ1(iSym,kSym,iSO))
-            MaxMOProdR = Max(MaxMOprodR,nIJR(iSym,kSym,iSO))
-         End Do
-!
-         Call mma_maxDBLE(MemMax)
-         nJvec1 = (MemMax-NumAux*MaxMOprod)/(MaxMOprod + NumAux)
-         If(nJvec1.lt.1) Then
-            Write(6,*) 'Too little memory in:',SECNAM
-            Call Abend
-         End If
-         nJvec1 = min(nJvec1,NumCho(jSym))
-         nJbat = NumCho(jSym)/nJvec1
-         iRest = mod(NumCho(jSym),nJvec1)
-         If(iRest.ne.0) Then
-            nJbat = nJbat+1
-            nJvecLast = iRest
-         Else
-            nJvecLast = nJvec1
-         End If
-!
-         If(Is_Real_Par()) Then
-            iFirstCho = InfVec(1,5,jSym)
-         Else
-            iFirstCho = 1
-         End If
-!
-         l_QVector = nJVec1*NumAux
-         l_RVector = MaxMOprod*nJVec1
-         l_CVector = MaxMOprodR*NumAux
-!
-         Call mma_allocate(QVector,l_QVector,Label='QVector')
-         Call mma_allocate(RVector,l_RVector,Label='RVector')
-         Call mma_allocate(CVector,l_CVector,Label='CVector')
-!
+    nTotFIorb = nTotFIorb+nIJ1(iSym,kSym,iSO)
+    MaxMOprod = max(MaxMOprod,nIJ1(iSym,kSym,iSO))
+    MaxMOProdR = max(MaxMOprodR,nIJR(iSym,kSym,iSO))
+  end do
 
-         iSeed2 = 8
-         LuCVec = IsFreeUnit(iSeed2)
-         If (iSO.eq.1) Then
-            Write(Fname2,'(A4,I1,I1)') 'CVEA',jSym
-         ElseIf (iSO.eq.2) Then
-            Write(Fname2,'(A4,I1,I1)') 'CVEB',jSym
-         EndIf
-         Call DANAME_MF_WA(LuCVec,Fname2)
-         iAdrC = 0
-!
-!**   Get Q Vectors from Disk
-!----------------------------------
-      Do iSym = 1, nIrrep
-         lSym = MulD2h(iSym,jSym)
-!
-         If(nIJ1(iSym,lSym,iSO).lt.1) Go To 2000
-         CVector(:)=Zero
+  call mma_maxDBLE(MemMax)
+  nJvec1 = (MemMax-NumAux*MaxMOprod)/(MaxMOprod+NumAux)
+  if (nJvec1 < 1) then
+    write(6,*) 'Too little memory in:',SECNAM
+    call Abend()
+  end if
+  nJvec1 = min(nJvec1,NumCho(jSym))
+  nJbat = NumCho(jSym)/nJvec1
+  iRest = mod(NumCho(jSym),nJvec1)
+  if (iRest /= 0) then
+    nJbat = nJbat+1
+    nJvecLast = iRest
+  else
+    nJvecLast = nJvec1
+  end if
 
-         Do iJBat = 1, nJBat
-            If(iJBat.eq.nJBat) Then
-               njVec = nJVecLast
-            Else
-               nJvec = nJvec1
-            End If
-!
-            iSeed=55+jSym-1
-            Lu_Q=IsFreeUnit(iSeed)
-            Write(Name_Q,'(A4,I2.2)') 'QVEC',jSym-1
-            Call DaName_MF_WA(Lu_Q,Name_Q)
-            l_Q = nJvec*NumAux
-            iAdrQ=(iFirstCho-1)*NumAux + (iJBat-1)*nJVec*NumAux
-            Call dDaFile(Lu_Q,2,Qvector,l_Q,iAdrQ)
+  if (Is_Real_Par()) then
+    iFirstCho = InfVec(1,5,jSym)
+  else
+    iFirstCho = 1
+  end if
 
-#ifdef _DEBUGPRINT_
-            Call RecPrt('Q-vectors',' ',QVector,nJVec,NumAux)
-#endif
-!
-!
-            iSeed=7
-            LuRVec = IsFreeUnit(iSeed)
-            If (iSO.eq.1) Then
-               Write(Fname,'(A4,I1,I1)') 'CHTA',iSym,lSym
-            ElseIf (iSO.eq.2) Then
-               Write(Fname,'(A4,I1,I1)') 'CHTB',iSym,lSym
-            EndIf
-            Call DANAME_MF_WA(LuRVec,Fname)
-!
-!**         Loop over all cholesky vectors on all nodes
-!------------------------------------------------------
+  l_QVector = nJVec1*NumAux
+  l_RVector = MaxMOprod*nJVec1
+  l_CVector = MaxMOprodR*NumAux
 
-!
-!                 Get R-Vectors from disk
-!-------------------------------------------
+  call mma_allocate(QVector,l_QVector,Label='QVector')
+  call mma_allocate(RVector,l_RVector,Label='RVector')
+  call mma_allocate(CVector,l_CVector,Label='CVector')
 
-            iAdrR = nIJ1(iSym,lSym,iSO)*nJVec1*(iJBat-1)
-            l_RVec = nJvec * nIJ1(iSym,lSym,iSO)
-            Call dDaFile(LuRVec,2,RVector,l_RVec,iAdrR)
+  iSeed2 = 8
+  LuCVec = IsFreeUnit(iSeed2)
+  if (iSO == 1) then
+    write(Fname2,'(A4,I1,I1)') 'CVEA',jSym
+  else if (iSO == 2) then
+    write(Fname2,'(A4,I1,I1)') 'CVEB',jSym
+  end if
+  call DANAME_MF_WA(LuCVec,Fname2)
+  iAdrC = 0
 
-            Call dGemm_('N','T',nIJ1(iSym,lSym,iSO),NumAux,nJVec,       &
-     &                  1.0d0,RVector,nIJ1(iSym,lSym,iSO),              &
-     &                        QVector,NumAux,                           &
-     &                  0.0d0,CVector,nIJ1(iSym,lSym,iSO))
-         End Do
+  ! Get Q Vectors from Disk
+  !------------------------
+  do iSym=1,nIrrep
+    lSym = MulD2h(iSym,jSym)
 
+    if (nIJ1(iSym,lSym,iSO) < 1) Go To 2000
+    CVector(:) = Zero
 
+    do iJBat=1,nJBat
+      if (iJBat == nJBat) then
+        njVec = nJVecLast
+      else
+        nJvec = nJvec1
+      end if
 
-#ifdef _DEBUGPRINT_
-         Write (6,*) 'jSym=',jSym
-         Call RecPrt('R-Vectors',' ',RVector,nIJ1(iSym,lSym,iSO),NumAux)
-         Call RecPrt('C-Vectors',' ',CVector,nIJ1(iSym,lSym,iSO),NumAux)
-#endif
-         If ((.not.lSA).and.(iSym.eq.lSym)) Then
-            Do iAux = 1, NumAux
-               index = -1
-               Do i = 1, nChOrb(iSym-1,iSO)
-                  index = index+i
-                  index2 = index + (iAux-1)*nIJ1(iSym,lSym,iSO)
-                  CVector(1+index2) = CVector(1+index2)/sqrt(2.0d0)
-               End Do
-            End Do
-         End If
+      iSeed = 55+jSym-1
+      Lu_Q = IsFreeUnit(iSeed)
+      write(Name_Q,'(A4,I2.2)') 'QVEC',jSym-1
+      call DaName_MF_WA(Lu_Q,Name_Q)
+      l_Q = nJvec*NumAux
+      iAdrQ = (iFirstCho-1)*NumAux+(iJBat-1)*nJVec*NumAux
+      call dDaFile(Lu_Q,2,Qvector,l_Q,iAdrQ)
 
-         Call DaClos(Lu_Q)
-         Call DACLOS(LuRVec)
-!
- 2000    Continue
-!
-         Call GADGOP(CVector,l_CVector,'+')
-         iAdrCVec(jSym,iSym,iSO) = iAdrC
-         Call dDaFile(LuCVec,1,CVector,nIJ1(iSym,lSym,iSO)*NumAux,iAdrC)
-         If(nIJ1(iSym,lSym,iSO) .lt. nIJR(iSym,lSym,iSO)) Then
-            iAdrC = iAdrC +                                             &
-     &          (nIJR(iSym,lSym,iSO)-nIJ1(iSym,lSym,iSO))*NumAux
-         End If
+#     ifdef _DEBUGPRINT_
+      call RecPrt('Q-vectors',' ',QVector,nJVec,NumAux)
+#     endif
 
-         End Do !iSym
-!
-         Call mma_deallocate(CVector)
-         Call mma_deallocate(RVector)
-         Call mma_deallocate(QVector)
-!
-         Call DACLOS(LuCVec)
- 1000    Continue
+      iSeed = 7
+      LuRVec = IsFreeUnit(iSeed)
+      if (iSO == 1) then
+        write(Fname,'(A4,I1,I1)') 'CHTA',iSym,lSym
+      else if (iSO == 2) then
+        write(Fname,'(A4,I1,I1)') 'CHTB',iSym,lSym
+      end if
+      call DANAME_MF_WA(LuRVec,Fname)
 
-      End Do  ! jSym
-!
-      CALL CWTime(TotCPU2,TotWall2)
-      TotCPU = TotCPU2 - TotCPU1
-      TotWall= TotWall2 - TotWall1
+      ! Loop over all cholesky vectors on all nodes
+      !--------------------------------------------
+
+      ! Get R-Vectors from disk
+      !------------------------
+
+      iAdrR = nIJ1(iSym,lSym,iSO)*nJVec1*(iJBat-1)
+      l_RVec = nJvec*nIJ1(iSym,lSym,iSO)
+      call dDaFile(LuRVec,2,RVector,l_RVec,iAdrR)
+
+      call dGemm_('N','T',nIJ1(iSym,lSym,iSO),NumAux,nJVec,1.0d0,RVector,nIJ1(iSym,lSym,iSO),QVector,NumAux,0.0d0,CVector, &
+                  nIJ1(iSym,lSym,iSO))
+    end do
+
+#   ifdef _DEBUGPRINT_
+    write(6,*) 'jSym=',jSym
+    call RecPrt('R-Vectors',' ',RVector,nIJ1(iSym,lSym,iSO),NumAux)
+    call RecPrt('C-Vectors',' ',CVector,nIJ1(iSym,lSym,iSO),NumAux)
+#   endif
+    if ((.not. lSA) .and. (iSym == lSym)) then
+      do iAux=1,NumAux
+        index = -1
+        do i=1,nChOrb(iSym-1,iSO)
+          index = index+i
+          index2 = index+(iAux-1)*nIJ1(iSym,lSym,iSO)
+          CVector(1+index2) = CVector(1+index2)/sqrt(2.0d0)
+        end do
+      end do
+    end if
+
+    call DaClos(Lu_Q)
+    call DACLOS(LuRVec)
+
+2000 continue
+
+    call GADGOP(CVector,l_CVector,'+')
+    iAdrCVec(jSym,iSym,iSO) = iAdrC
+    call dDaFile(LuCVec,1,CVector,nIJ1(iSym,lSym,iSO)*NumAux,iAdrC)
+    if (nIJ1(iSym,lSym,iSO) < nIJR(iSym,lSym,iSO)) then
+      iAdrC = iAdrC+(nIJR(iSym,lSym,iSO)-nIJ1(iSym,lSym,iSO))*NumAux
+    end if
+
+  end do !iSym
+
+  call mma_deallocate(CVector)
+  call mma_deallocate(RVector)
+  call mma_deallocate(QVector)
+
+  call DACLOS(LuCVec)
+1000 continue
+
+end do  ! jSym
+
+call CWTime(TotCPU2,TotWall2)
+TotCPU = TotCPU2-TotCPU1
+TotWall = TotWall2-TotWall1
 #ifdef _CD_TIMING_
-      rMult_CPU = TOTCPU
-      rMult_Wall = TOTWALL
+rMult_CPU = TOTCPU
+rMult_Wall = TOTWALL
 #endif
-!
-      If(timings)then
 
-      CFmt='(2x,A)'
-      Write(6,*)
-      Write(6,CFmt)'Cholesky Gradients timing from '//SECNAM
-      Write(6,CFmt)'----------------------------------------'
-      Write(6,*)
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,CFmt)'                                CPU       WALL   '
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
-     &                           //'         ',TOTCPU,TOTWALL
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,*)
+if (timings) then
 
-      endif
+  CFmt = '(2x,A)'
+  write(6,*)
+  write(6,CFmt) 'Cholesky Gradients timing from '//SECNAM
+  write(6,CFmt) '----------------------------------------'
+  write(6,*)
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,CFmt) '                                CPU       WALL   '
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,*)
 
-      Return
-      End
+end if
+
+return
+
+end subroutine Mult_RijK_QKL

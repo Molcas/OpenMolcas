@@ -10,77 +10,75 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,           &
-     &                        lScr,Scr,Diag)
+
+subroutine SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,Diag)
 !***********************************************************************
 !
 !     Author:  F. Aquilante
 !
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
-      Integer irc, nSym, lScr
-      Integer iD_A(*), nDim(nSym), nVec(nSym), lu_A0(nSym)
-      Real*8  Scr(lScr)
-      Character*7 mode
-      Character Name_A*6
-      Real*8, Optional ::  Diag(*)
-!
-!     Write (6,*) 'Mode=',Mode
-      irc=0
-      If (mode.eq.'GePivot') Then  ! returns iD_A
-         If (.NOT.Present(Diag)) Call Abend()
-         is=1
-!19112013VVP: The threshold changed from 1.d-14 to 1.d-12
-        Thr=1.0D-12
-!The original threshold:
-!        Thr=1.0D-14
-         Do iSym=1,nSym
-            If (nDim(iSym)==0) Cycle
-            lu_A=7
-            Write(Name_A,'(A4,I2.2)') 'ZMAT',iSym-1
-            Call DaName_MF_WA(lu_A,Name_A)
-!           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
-            Call get_pivot_idx(Diag(is),nDim(iSym),nVec(iSym),          &
-     &                         lu_A0(iSym),lu_A,                        &
-     &                         iD_A(is),Scr,lScr,Thr)
-            Call DaEras(lu_A) ! we do not need it
-!           Call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
-            is=is+nDim(iSym)
-         End Do
-      ElseIf (mode.eq.'DoPivot') Then ! store full-pivoted UT A-matrix
-         is=1
-         Do iSym=1,nSym
-            If (nVec(iSym).eq.0) Go To 82
-            lu_A=7
-            Write(Name_A,'(A4,I2.2)') 'AMAT',iSym-1
-            Call DaName_MF_WA(lu_A,Name_A)
-            Call Pivot_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,      &
-     &                     iD_A(is),Scr,lScr)
-            Call DaEras(lu_A0(iSym))
-            lu_A0(iSym)=lu_A
- 82         Continue
-            is=is+nDim(iSym)
-         End Do
 
-      ElseIf (mode.eq.'Restore') Then !store squared Q-mat (col. piv.)
-         is=1
-         Do iSym=1,nSym
-            If (nVec(iSym).eq.0) Go To 83
-            lu_A=7
-            Write(Name_A,'(A4,I2.2)') 'QVEC',iSym-1
-            Call DaName_MF_WA(lu_A,Name_A)
-            Call Restore_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,    &
-     &                       iD_A(is),Scr,lScr,.false.)
-            Call DaEras(lu_A0(iSym))
-            lu_A0(iSym)=lu_A
- 83         Continue
-            is=is+nDim(iSym)
-         End Do
+implicit real*8(a-h,o-z)
+integer irc, nSym, lScr
+integer iD_A(*), nDim(nSym), nVec(nSym), lu_A0(nSym)
+real*8 Scr(lScr)
+character*7 mode
+character Name_A*6
+real*8, optional :: Diag(*)
 
-      Else
-        write(6,*)' SORT_mat: invalid mode! '
-        irc=66
-      EndIf
+!write(6,*) 'Mode=',Mode
+irc = 0
+if (mode == 'GePivot') then  ! returns iD_A
+  if (.not. present(Diag)) call Abend()
+  is = 1
+  ! 19112013VVP: The threshold changed from 1.d-14 to 1.d-12
+  Thr = 1.0D-12
+  ! The original threshold:
+  !Thr = 1.0D-14
+  do iSym=1,nSym
+    if (nDim(iSym) == 0) cycle
+    lu_A = 7
+    write(Name_A,'(A4,I2.2)') 'ZMAT',iSym-1
+    call DaName_MF_WA(lu_A,Name_A)
+    !call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
+    call get_pivot_idx(Diag(is),nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,iD_A(is),Scr,lScr,Thr)
+    call DaEras(lu_A) ! we do not need it
+    !call RecPrt('Diag',' ',Diag(iS),1,nDim(iSym))
+    is = is+nDim(iSym)
+  end do
+else if (mode == 'DoPivot') then ! store full-pivoted UT A-matrix
+  is = 1
+  do iSym=1,nSym
+    if (nVec(iSym) == 0) Go To 82
+    lu_A = 7
+    write(Name_A,'(A4,I2.2)') 'AMAT',iSym-1
+    call DaName_MF_WA(lu_A,Name_A)
+    call Pivot_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,iD_A(is),Scr,lScr)
+    call DaEras(lu_A0(iSym))
+    lu_A0(iSym) = lu_A
+82  continue
+    is = is+nDim(iSym)
+  end do
 
-      Return
-      End
+else if (mode == 'Restore') then !store squared Q-mat (col. piv.)
+  is = 1
+  do iSym=1,nSym
+    if (nVec(iSym) == 0) Go To 83
+    lu_A = 7
+    write(Name_A,'(A4,I2.2)') 'QVEC',iSym-1
+    call DaName_MF_WA(lu_A,Name_A)
+    call Restore_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,iD_A(is),Scr,lScr,.false.)
+    call DaEras(lu_A0(iSym))
+    lu_A0(iSym) = lu_A
+83  continue
+    is = is+nDim(iSym)
+  end do
+
+else
+  write(6,*) ' SORT_mat: invalid mode! '
+  irc = 66
+end if
+
+return
+
+end subroutine SORT_mat

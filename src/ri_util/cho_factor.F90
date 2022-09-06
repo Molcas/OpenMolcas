@@ -56,165 +56,166 @@
 !> @param[in]     thr    threshold for linear dependence
 !> @param[out]    lindep integer indicating detected linear dependence (= ``1`` iff found lin dep, else = ``0``)
 !***********************************************************************
-      SUBROUTINE CHO_FACTOR(Diag,A_k,iD_A,kCol,nRow,Zm,nMem,lu_Z,Scr,   &
-     &                      lScr,thr,lindep)
 
-      Implicit Real*8 (a-h,o-z)
-      Integer iD_A(*), kCol, nRow, nMem, lu_Z, lScr, lindep
-      Real*8  Diag(*), A_k(*), Zm(nRow,*), Scr(*)
+subroutine CHO_FACTOR(Diag,A_k,iD_A,kCol,nRow,Zm,nMem,lu_Z,Scr,lScr,thr,lindep)
+
+implicit real*8(a-h,o-z)
+integer iD_A(*), kCol, nRow, nMem, lu_Z, lScr, lindep
+real*8 Diag(*), A_k(*), Zm(nRow,*), Scr(*)
 #include "warnings.h"
-      Parameter ( one = 1.0d0, zero = 0.0d0 , thr_neg=-1.0d-8)
+parameter(one=1.0d0,zero=0.0d0,thr_neg=-1.0d-8)
 
 !***********************************************************************
 
-      If (thr .lt. zero) Then
-         Call WarningMessage(2,'Error in Cho_Factor')
-         write(6,*)'thr must be .ge. zero'
-         Call Quit(_RC_CHO_LOG_)
-      EndIf
+if (thr < zero) then
+  call WarningMessage(2,'Error in Cho_Factor')
+  write(6,*) 'thr must be >= zero'
+  call Quit(_RC_CHO_LOG_)
+end if
 
-      lindep = 0
-      Dmax = Diag(iD_A(kCol)) ! pivoting done by the calling routine
-      xfac = one/sqrt(Abs(Dmax))
+lindep = 0
+Dmax = Diag(iD_A(kCol)) ! pivoting done by the calling routine
+xfac = one/sqrt(abs(Dmax))
 
-      If (kCol .le. nMem) Then
+if (kCol <= nMem) then
 
-         If (Dmax.ge.thr) Then
-!
-!  Compute elements of the k-th Cholesky vector
-! -------------------------------------------------------
-!     Z(i,k) = A(i,k) - sum_j  Z(k,j)*Z(i,j)
-! -------------------------------------------------------
-            Do j=1,kCol-1
+  if (Dmax >= thr) then
 
-               fac = -Zm(iD_A(kCol),j)
-               Call dAXPY_(nRow,fac,Zm(1,j),1,A_k(1),1)
+    ! Compute elements of the k-th Cholesky vector
+    !---------------------------------------------
+    !    Z(i,k) = A(i,k) - sum_j  Z(k,j)*Z(i,j)
+    !---------------------------------------------
+    do j=1,kCol-1
 
-            End Do
+      fac = -Zm(iD_A(kCol),j)
+      call dAXPY_(nRow,fac,Zm(1,j),1,A_k(1),1)
 
-!-tbp: use thr_neg as threshold for too negative diagonal
-!      It should not depend on the decomposition threshold!
-!        ElseIf (Dmax.gt.zero .or. -Dmax.le.1.0d1*thr) Then
-         ElseIf (Dmax.gt.thr_neg) Then
+    end do
 
-            lindep = 1
-            Call Fzero(A_k(1),nRow)
-            Return
+    !-tbp: use thr_neg as threshold for too negative diagonal
+    !      It should not depend on the decomposition threshold!
+  !else if ((Dmax > Zero) .or. (-Dmax <= 1.0d1*thr)) then
+  else if (Dmax > thr_neg) then
 
-         Else
+    lindep = 1
+    call Fzero(A_k(1),nRow)
+    return
 
-            Call WarningMessage(2,'Error in Cho_Factor')
-            write(6,*)'CHO_FACTOR: too-negative diagonal.'
-            write(6,*)'CHO_FACTOR: current largest Diag = ',Dmax
-            Call Quit(_RC_CHO_RUN_)
+  else
 
-         EndIf
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else   ! the first nMem columns of Z are in memory
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+    call WarningMessage(2,'Error in Cho_Factor')
+    write(6,*) 'CHO_FACTOR: too-negative diagonal.'
+    write(6,*) 'CHO_FACTOR: current largest Diag = ',Dmax
+    call Quit(_RC_CHO_RUN_)
 
-         If (lScr .lt. nRow) Then
-            Call WarningMessage(2,'Error in Cho_Factor')
-            write(6,*)'lScr must be .ge. nRow'
-            Call Quit(_RC_CHO_LOG_)
-         EndIf
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else  ! the first nMem columns of Z are in memory
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
 
-         If (Dmax.ge.thr) Then
-!
-!  Compute elements of the k-th Cholesky vector (in-core contrib.)
-! -----------------------------------------------------------------
-!     Z(i,k) = A(i,k) - sum_j  Z(k,j)*Z(i,j)
-! -----------------------------------------------------------------
-            Do j=1,nMem
+  if (lScr < nRow) then
+    call WarningMessage(2,'Error in Cho_Factor')
+    write(6,*) 'lScr must be >= nRow'
+    call Quit(_RC_CHO_LOG_)
+  end if
 
-               fac = -Zm(iD_A(kCol),j)
-               Call dAXPY_(nRow,fac,Zm(1,j),1,A_k(1),1)
+  if (Dmax >= thr) then
 
-            End Do
-!
-!  Batch for the out-of-core previous vectors
-!--------------------------------------------
-            kstep = lScr/nRow
+    ! Compute elements of the k-th Cholesky vector (in-core contrib.)
+    !----------------------------------------------------------------
+    !    Z(i,k) = A(i,k) - sum_j  Z(k,j)*Z(i,j)
+    !----------------------------------------------------------------
+    do j=1,nMem
 
-            Do kdone=nMem+1,kCol-1,kStep
+      fac = -Zm(iD_A(kCol),j)
+      call dAXPY_(nRow,fac,Zm(1,j),1,A_k(1),1)
 
-               lZdone = nRow*(kdone-1)
-               lZrem = nRow*(kCol-kdone)
-               lZread = Min(LZrem,nRow*kStep)
+    end do
 
-               Call ddafile(lu_Z,2,Scr(1),lZread,lZdone) ! read
-!
-!  Compute elements of the k-th Cholesky vector (out-of-core contrib.)
-! --------------------------------------------------------------------
-!     Z(i,k) = A(i,k) - sum_j  Z(k,j)*Z(i,j)
-! --------------------------------------------------------------------
-               Do j=1,lZread/nRow
-                  kj = nRow*(j-1)
-                  fac = -Scr(kj+iD_A(kCol))
-                  Call dAXPY_(nRow,fac,Scr(1+kj),1,A_k(1),1)
-               End Do
+    ! Batch for the out-of-core previous vectors
+    !-------------------------------------------
+    kstep = lScr/nRow
 
-            End Do
+    do kdone=nMem+1,kCol-1,kStep
 
-!-tbp: use thr_neg as threshold for too negative diagonal
-!      It should not depend on the decomposition threshold!
-!-tbp    ElseIf (Dmax.gt.zero .or. -Dmax.le.1.0d1*thr) Then
-         ElseIf (Dmax.gt.thr_neg) Then
+      lZdone = nRow*(kdone-1)
+      lZrem = nRow*(kCol-kdone)
+      lZread = min(LZrem,nRow*kStep)
 
-            lindep = 1
-            Call Fzero(A_k(1),nRow)
-            Return
+      call ddafile(lu_Z,2,Scr(1),lZread,lZdone) ! read
 
-         Else
+      ! Compute elements of the k-th Cholesky vector (out-of-core contrib.)
+      !--------------------------------------------------------------------
+      !    Z(i,k) = A(i,k) - sum_j  Z(k,j)*Z(i,j)
+      !--------------------------------------------------------------------
+      do j=1,lZread/nRow
+        kj = nRow*(j-1)
+        fac = -Scr(kj+iD_A(kCol))
+        call dAXPY_(nRow,fac,Scr(1+kj),1,A_k(1),1)
+      end do
 
-            Call WarningMessage(2,'Error in Cho_Factor')
-            write(6,*)'CHO_FACTOR: too-negative diagonal.'
-            write(6,*)'CHO_FACTOR: current largest Diag = ',Dmax
-            Call Quit(_RC_CHO_RUN_)
+    end do
 
-         EndIf
+    !-tbp: use thr_neg as threshold for too negative diagonal
+    !      It should not depend on the decomposition threshold!
+  !else if ((Dmax > Zero) .or. (-Dmax <= 1.0d1*thr)) then
+  else if (Dmax > thr_neg) then
 
-      EndIf
-!
-      A_k(iD_A(kCol)) = Dmax
-!
+    lindep = 1
+    call Fzero(A_k(1),nRow)
+    return
+
+  else
+
+    call WarningMessage(2,'Error in Cho_Factor')
+    write(6,*) 'CHO_FACTOR: too-negative diagonal.'
+    write(6,*) 'CHO_FACTOR: current largest Diag = ',Dmax
+    call Quit(_RC_CHO_RUN_)
+
+  end if
+
+end if
+
+A_k(iD_A(kCol)) = Dmax
+
 ! Scaling of the vector elements :  Z(i,k) = Z(i,k)/Z(k,k)
 ! --------------------------------------------------------
-      call dscal_(nRow,xfac,A_k(1),1)
+call dscal_(nRow,xfac,A_k(1),1)
 !
 !  Explicit zeroing of the previously treated elements
 ! ----------------------------------------------------
-      Do i=1,kCol-1
-         A_k(iD_A(i)) = zero
-      End Do
-!
-!  Update diagonal elements of the A matrix
-!  ----------------------------------------------------
-!     A(i,i) = A(i,i) - Z(i,k)^2    ( i > k )
-!  ----------------------------------------------------
-      Do i=1,nRow
-         Diag(i) = Diag(i) - A_k(i)**2
-      End Do
-      Diag(iD_A(kCol)) = zero ! explicit zeroing of the treated diagonal
+do i=1,kCol-1
+  A_k(iD_A(i)) = zero
+end do
+
+! Update diagonal elements of the A matrix
+!------------------------------------------
+!   A(i,i) = A(i,i) - Z(i,k)^2    ( i > k )
+!------------------------------------------
+do i=1,nRow
+  Diag(i) = Diag(i)-A_k(i)**2
+end do
+Diag(iD_A(kCol)) = zero ! explicit zeroing of the treated diagonal
 
 !-tbp: zero negative diagonal elements
 !      Stop if too negative!
-      Do i = 1,nRow
-         If (Diag(i).lt.zero) Then
-            If (Diag(i).le.thr_neg) Then
-               Call WarningMessage(2,'Error in Cho_Factor')
-               write(6,*)'CHO_FACTOR: too negative diagonal.'
-               write(6,*)'CHO_FACTOR: i,Diag(i)= ',i,Diag(i)
-               Call Quit(_RC_CHO_RUN_)
-            Else
-               Diag(i)=zero
-            End If
-         End If
-      End Do
+do i=1,nRow
+  if (Diag(i) < zero) then
+    if (Diag(i) <= thr_neg) then
+      call WarningMessage(2,'Error in Cho_Factor')
+      write(6,*) 'CHO_FACTOR: too negative diagonal.'
+      write(6,*) 'CHO_FACTOR: i,Diag(i)= ',i,Diag(i)
+      call Quit(_RC_CHO_RUN_)
+    else
+      Diag(i) = zero
+    end if
+  end if
+end do
 
-      Return
-      End
+return
+
+end subroutine CHO_FACTOR

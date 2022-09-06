@@ -8,48 +8,53 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_Chunk(MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu,LenVec)
-      Use Chunk_Mod
+
+subroutine Put_Chunk(MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu,LenVec)
+
+use Chunk_Mod
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Rv(nMuNu,(j_e-j_s+1))
+
+implicit real*8(A-H,O-Z)
+real*8 Rv(nMuNu,(j_e-j_s+1))
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _MOLCAS_MPP_
-!
-      NumVec_ = j_e - j_s + 1
-      If (NumVec_ .gt. 0) Then
-         If (Is_Real_Par()) Then
-            Call GA_Put(ip_Chunk,MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu)
-         Else
-            mMuNu=MuNu_s-1
-            jp_ChoVec=1+mMuNu
-            Do jVec = 1, NumVec_
-               call dcopy_(nMuNu,Rv(1,jVec),1,Chunk(jp_ChoVec),1)
-               jp_ChoVec = jp_ChoVec + LenVec
-            End Do
-         End If
-      End If
-!
+
+NumVec_ = j_e-j_s+1
+if (NumVec_ > 0) then
+  if (Is_Real_Par()) then
+    call GA_Put(ip_Chunk,MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu)
+  else
+    mMuNu = MuNu_s-1
+    jp_ChoVec = 1+mMuNu
+    do jVec=1,NumVec_
+      call dcopy_(nMuNu,Rv(1,jVec),1,Chunk(jp_ChoVec),1)
+      jp_ChoVec = jp_ChoVec+LenVec
+    end do
+  end if
+end if
+
 #else
-!
-      mMuNu=MuNu_s-1
-      NumVec_ = j_e - j_s + 1
-!
-      jp_ChoVec=1+mMuNu
-      Do jVec = 1, NumVec_
-         call dcopy_(nMuNu,Rv(1,jVec),1,Chunk(jp_ChoVec),1)
-         jp_ChoVec = jp_ChoVec + LenVec
-      End Do
-!
+
+mMuNu = MuNu_s-1
+NumVec_ = j_e-j_s+1
+
+jp_ChoVec = 1+mMuNu
+do jVec=1,NumVec_
+  call dcopy_(nMuNu,Rv(1,jVec),1,Chunk(jp_ChoVec),1)
+  jp_ChoVec = jp_ChoVec+LenVec
+end do
+
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(MuNu_e)
+if (.false.) call Unused_integer(MuNu_e)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Put_Chunk

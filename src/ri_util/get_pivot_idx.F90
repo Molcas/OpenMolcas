@@ -10,122 +10,120 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE get_pivot_idx(Diag,n,m,lu_A0,lu_A,iD_A,Scr,lScr,Thr)
+
+subroutine get_pivot_idx(Diag,n,m,lu_A0,lu_A,iD_A,Scr,lScr,Thr)
 !***********************************************************************
 !
 !     Author:  F. Aquilante
 !
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
-      Integer n, m, lu_A0, lu_A, iD_A(n), lScr
-      Real*8  Diag(*), Scr(lScr)
+
+implicit real*8(a-h,o-z)
+integer n, m, lu_A0, lu_A, iD_A(n), lScr
+real*8 Diag(*), Scr(lScr)
 #include "stdalloc.fh"
 #include "warnings.h"
-
-      Integer, Allocatable :: list(:)
+integer, allocatable :: list(:)
 #ifdef _DEBUGPRINT_
+
 !-tbp: check diagonal for negative entries
-      n_NegInpDiag=0
-      d_NegInpDiag=0.0d0
-      do i=1,n
-         if (Diag(i).lt.0.0d0) then
-            n_NegInpDiag=n_NegInpDiag+1
-            if (Diag(i).lt.d_NegInpDiag) then
-               d_NegInpDiag=Diag(i)
-            end if
-         end if
-      end do
-      write(6,'(A,I10,A,I10)')                                          &
-     &'GET_PIVOT_IDX: number of negative input diagonals:',n_NegInpDiag,&
-     & ' out of ',n
-      if (n_NegInpDiag.gt.0) then
-         write(6,'(A,1P,D12.4)')                                        &
-     &   'GET_PIVOT_IDX: most negative diagonal:          ',d_NegInpDiag
-      end if
+n_NegInpDiag = 0
+d_NegInpDiag = 0.0d0
+do i=1,n
+  if (Diag(i) < 0.0d0) then
+    n_NegInpDiag = n_NegInpDiag+1
+    if (Diag(i) < d_NegInpDiag) then
+      d_NegInpDiag = Diag(i)
+    end if
+  end if
+end do
+write(6,'(A,I10,A,I10)') 'GET_PIVOT_IDX: number of negative input diagonals:',n_NegInpDiag,' out of ',n
+if (n_NegInpDiag > 0) then
+  write(6,'(A,1P,D12.4)') 'GET_PIVOT_IDX: most negative diagonal:          ',d_NegInpDiag
+end if
 #endif
-!
-!
-      Acc=Min(1.0D-12,thr*1.0D-2)
-      Call mma_Allocate(List,n,Label='List')
-      Do i=1,n
-         list(i)=i
-      End Do
-!
-      lmax=lScr-2*n
-      If (lmax .lt. n) Then
-         Call WarningMessage(2,'Error in Get_Pivot_idx')
-         write(6,*) ' Get_Pivot_idx: too little scratch space!! '
-         Call Quit(_RC_CHO_LOG_)
-      Endif
-!
-      nMem_Col = Min(lmax/n,n)
-!
-      kAddr=0
-      is=1+n
-      ij = n*nMem_Col
-      ks=is+ij
-      kScr=lScr-n-ij
-!
-      m=0
-      Do kCol = 1,n
-!
-         iD_Col=0
-         XMax=0.0D0
-         Do i=1,n
-            If (Abs(Diag(i)).gt.xMax+Acc) Then
-               iD_Col=i
-               xMax=Abs(Diag(i))
-            End If
-         End Do
-         If (iD_Col.lt.0 .or. iD_Col.gt.n) Then
-            Write(6,*) 'Get_Pivot_id: Index of Max Diag out of bounds!'
-            Write(6,*) 'iD_Col = ',iD_Col
-            Call Abend()
-         ElseIf (iD_Col.eq.0) Then
-            Go To 100
-         End If
-         iD_A(kCol) = iD_Col ! set the mapping
-!
-         js=n*(kCol-1)+is ! overlay A and Z
-         If (kCol.gt.nMem_Col) js=1
-!
-         kAddr=n*(iD_Col-1)
-         Call dDaFile(lu_A0,2,Scr(js),n,kAddr)
-!
-         Call CHO_FACTOR(Diag,Scr(js),iD_A,kCol,n,Scr(is),nMem_Col,lu_A,&
-     &                   Scr(ks),kScr,thr,lindep)
-!
-         If (lindep.ne.0) Goto 100
-!
-         list(iD_Col)=0
-         m=m+1
-!
-         iAddr=n*(kCol-1)
-         If (kCol.gt.nMem_Col) Call dDaFile(lu_A,1,Scr(1),n,iAddr)
-!
-      End Do
-!
-100   Continue
-      iAddr=0
-      Call dDaFile(lu_A,1,Scr(is),ij,iAddr)
-!
-      If (m.lt.n) Then
-         istart=1
-         Do k=m+1,n
-            Do i=istart,n
-               if (list(i).ne.0) Then
-                  iD_A(k)=i
-                  istart=i+1
-                  goto 200
-               endif
-            End Do
-200         Continue
-         End Do
-      ElseIf (m.gt.n) Then
-         Write(6,*) 'Get_Pivot_id: m > n is not possible!'
-         Call Abend()
-      EndIf
-      Call mma_deallocate(List)
-!
-      Return
-      End
+
+Acc = min(1.0D-12,thr*1.0D-2)
+call mma_Allocate(List,n,Label='List')
+do i=1,n
+  list(i) = i
+end do
+
+lmax = lScr-2*n
+if (lmax < n) then
+  call WarningMessage(2,'Error in Get_Pivot_idx')
+  write(6,*) ' Get_Pivot_idx: too little scratch space!! '
+  call Quit(_RC_CHO_LOG_)
+end if
+
+nMem_Col = min(lmax/n,n)
+
+kAddr = 0
+is = 1+n
+ij = n*nMem_Col
+ks = is+ij
+kScr = lScr-n-ij
+
+m = 0
+do kCol=1,n
+
+  iD_Col = 0
+  XMax = 0.0d0
+  do i=1,n
+    if (abs(Diag(i)) > xMax+Acc) then
+      iD_Col = i
+      xMax = abs(Diag(i))
+    end if
+  end do
+  if ((iD_Col < 0) .or. (iD_Col > n)) then
+    write(6,*) 'Get_Pivot_id: Index of Max Diag out of bounds!'
+    write(6,*) 'iD_Col = ',iD_Col
+    call Abend()
+  else if (iD_Col == 0) then
+    Go To 100
+  end if
+  iD_A(kCol) = iD_Col ! set the mapping
+
+  js = n*(kCol-1)+is ! overlay A and Z
+  if (kCol > nMem_Col) js = 1
+
+  kAddr = n*(iD_Col-1)
+  call dDaFile(lu_A0,2,Scr(js),n,kAddr)
+
+  call CHO_FACTOR(Diag,Scr(js),iD_A,kCol,n,Scr(is),nMem_Col,lu_A,Scr(ks),kScr,thr,lindep)
+
+  if (lindep /= 0) goto 100
+
+  list(iD_Col) = 0
+  m = m+1
+
+  iAddr = n*(kCol-1)
+  if (kCol > nMem_Col) call dDaFile(lu_A,1,Scr(1),n,iAddr)
+
+end do
+
+100 continue
+iAddr = 0
+call dDaFile(lu_A,1,Scr(is),ij,iAddr)
+
+if (m < n) then
+  istart = 1
+  do k=m+1,n
+    do i=istart,n
+      if (list(i) /= 0) then
+        iD_A(k) = i
+        istart = i+1
+        goto 200
+      end if
+    end do
+200 continue
+  end do
+else if (m > n) then
+  write(6,*) 'Get_Pivot_id: m > n is not possible!'
+  call Abend()
+end if
+call mma_deallocate(List)
+
+return
+
+end subroutine get_pivot_idx

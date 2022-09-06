@@ -8,60 +8,61 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_maxDG(SDG,nnSkal,MxBasSh)
+
+subroutine Get_maxDG(SDG,nnSkal,MxBasSh)
 !***********************************************************************
 !     Compute Sqrt(Abs( (mu,nu|mu,nu) ) )                              *
 !     Make a list of the largest such element for each shell-pair      *
 !     Store in SDG.                                                    *
 !***********************************************************************
-      use ChoArr, only: iSOShl, iRS2F
-      Implicit Real*8 (a-h,o-z)
-      Integer nnSkal, MxBasSh
-      Real*8 SDG(nnSkal)
+
+use ChoArr, only: iSOShl, iRS2F
+
+implicit real*8(a-h,o-z)
+integer nnSkal, MxBasSh
+real*8 SDG(nnSkal)
 #include "real.fh"
 #include "cholesky.fh"
 #include "stdalloc.fh"
-      Real*8, Allocatable :: Diag(:)
+real*8, allocatable :: Diag(:)
+! Statement functions
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Statement functions
-!
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      SDG(:)=Zero
-!
-      iLoc=1 ! point to 1st reduced set in index arrays
-      Call mma_allocate(Diag,NNBSTRT(iLoc),Label='Diag')
-!
-!     Read the diagonal of the integrals, (mu,nu|mu,nu)
-!
-      CALL CHO_IODIAG(DIAG,2)
-!
-      Do jSym=1,nSym
-!
-         Do jRab=1,nnBstR(jSym,iLoc)
-!
-            kRab = iiBstr(jSym,iLoc) + jRab ! already in 1st red set
-!
-            iag   = iRS2F(1,kRab)  !global address
-            ibg   = iRS2F(2,kRab)
-!
-            iaSh = iSOShl(iag) ! shell to which it belongs
-            ibSh = iSOShl(ibg)
-!
-            iabSh= iTri(iaSh,ibSh)
-!
-            SDG(iabSh)= Max(SDG(iabSh),sqrt(abs(Diag(kRab))))
-!
-         End Do  ! jRab loop
-      End Do
-!
-      Call mma_deallocate(Diag)
-!
-      MxBasSh = MxOrSh
-!
-      Return
-      End
+SDG(:) = Zero
+
+iLoc = 1 ! point to 1st reduced set in index arrays
+call mma_allocate(Diag,NNBSTRT(iLoc),Label='Diag')
+
+! Read the diagonal of the integrals, (mu,nu|mu,nu)
+
+call CHO_IODIAG(DIAG,2)
+
+do jSym=1,nSym
+
+  do jRab=1,nnBstR(jSym,iLoc)
+
+    kRab = iiBstr(jSym,iLoc)+jRab ! already in 1st red set
+
+    iag = iRS2F(1,kRab)  !global address
+    ibg = iRS2F(2,kRab)
+
+    iaSh = iSOShl(iag) ! shell to which it belongs
+    ibSh = iSOShl(ibg)
+
+    iabSh = iTri(iaSh,ibSh)
+
+    SDG(iabSh) = max(SDG(iabSh),sqrt(abs(Diag(kRab))))
+
+  end do  ! jRab loop
+end do
+
+call mma_deallocate(Diag)
+
+MxBasSh = MxOrSh
+
+return
+
+end subroutine Get_maxDG

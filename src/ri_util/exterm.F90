@@ -8,30 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module exterm
+
+module exterm
+
 use Data_Structures, only: DSBA_type
-Private
-Public :: CijK, VJ, CilK, BklK
-Public :: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-Public :: Yij
 
-Public :: A, AMP2, BMP2
-Public :: iMP2prpt, nAuxVe
-Public :: LuAVector, LuBVector
+private
 
-Public :: CMOi, DMLT
+public :: CijK, VJ, CilK, BklK
+public :: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
+public :: Yij
+public :: A, AMP2, BMP2
+public :: iMP2prpt, nAuxVe
+public :: LuAVector, LuBVector
+public :: CMOi, DMLT
 
-Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
-Integer, Allocatable:: Ymnij(:)
-Integer ipYmnij(5), nYmnij(8,5), iOff_Ymnij(8,5)
-Real*8, Allocatable, Target:: Yij(:,:,:)
-Real*8, Allocatable:: A(:)
+real*8, allocatable, target :: CijK(:), VJ(:), CilK(:), BklK(:)
+integer, allocatable :: Ymnij(:)
+integer ipYmnij(5), nYmnij(8,5), iOff_Ymnij(8,5)
+real*8, allocatable, target :: Yij(:,:,:)
+real*8, allocatable :: A(:)
+! Cholesky Mp2-gradients
+real*8, allocatable :: AMP2(:,:)
+real*8, allocatable :: BMP2(:,:)
+integer :: iMP2prpt, nAuxVe
+integer :: LuAVector(2), LuBVector(2)
+type(DSBA_Type), target :: CMOi(5), DMLT(5)
 
-!  Cholesky Mp2-gradients
-Real*8, Allocatable:: AMP2(:,:)
-Real*8, Allocatable:: BMP2(:,:)
-Integer :: iMP2prpt, nAuxVe
-Integer :: LuAVector(2), LuBVector(2)
-
-Type (DSBA_Type), Target :: CMOi(5), DMLT(5)
-End Module exterm
+end module exterm

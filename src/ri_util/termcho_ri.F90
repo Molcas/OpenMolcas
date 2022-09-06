@@ -8,34 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine TermCho_RI(irc,nVec_RI,l_nVec_RI)
-      Implicit None
-      Integer irc, l_nVec_RI
-      Integer nVec_RI(l_nVec_RI) ! #RI vectors per irrep on this node
 
-      irc = 0
+subroutine TermCho_RI(irc,nVec_RI,l_nVec_RI)
 
-!     Save number of vectors and other info on runfile.
-!     -------------------------------------------------
+implicit none
+integer irc, l_nVec_RI
+integer nVec_RI(l_nVec_RI) ! #RI vectors per irrep on this node
 
-      Call Cho_Final(.False.)
-      Call Cho_RI_Final(irc,nVec_RI,l_nVec_RI)
-      If (irc .ne. 0) Return
+irc = 0
 
-!     Close storage files.
-!     --------------------
+! Save number of vectors and other info on runfile.
+! -------------------------------------------------
 
-      Call Cho_P_OpenVR(2)
+call Cho_Final(.false.)
+call Cho_RI_Final(irc,nVec_RI,l_nVec_RI)
+if (irc /= 0) return
 
-!     Deallocate index arrays.
-!     ------------------------
+! Close storage files.
+! --------------------
 
-      Call Cho_X_Dealloc(irc)
-      If (irc .ne. 0) Return
+call Cho_P_OpenVR(2)
 
-!     More deallocations.
-!     -------------------
+! Deallocate index arrays.
+! ------------------------
 
-      Call Cho_RI_XFree()
+call Cho_X_Dealloc(irc)
+if (irc /= 0) return
 
-      End
+! More deallocations.
+! -------------------
+
+call Cho_RI_XFree()
+
+end subroutine TermCho_RI

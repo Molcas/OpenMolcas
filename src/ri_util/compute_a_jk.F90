@@ -10,32 +10,33 @@
 !                                                                      *
 ! Copyright (C) Jonas Bostrom                                          *
 !***********************************************************************
-      Subroutine Compute_A_jk_mp2(iSO,jVec,kVec,Ajk,fac_ij,fac_kl,      &
-     &                        nVec,iOpt)
-!*************************************************************************
-!     Author: J Bostrom
+
+subroutine Compute_A_jk_mp2(iSO,jVec,kVec,Ajk,fac_ij,fac_kl,nVec,iOpt)
+!***********************************************************************
+!   Author: J Bostrom
 !
-!     Purpose: Loading A-matrix for mp2 from disk
+!   Purpose: Loading A-matrix for mp2 from disk
 !
-!*************************************************************************
-      use ExTerm, only: iMP2prpt, LuAVector
-      Implicit Real*8 (a-h,o-z)
+!***********************************************************************
+
+use ExTerm, only: iMP2prpt, LuAVector
+implicit real*8(a-h,o-z)
 #include "exterm.fh"
-      Real*8  :: Ajk, Fac_ij, Fac_kl, dum(1)
+real*8 :: Ajk, Fac_ij, Fac_kl, dum(1)
+character*16 SECNAM
+parameter(SECNAM='Compute_A_jk_mp2')
 
-      Character*16 SECNAM
-      Parameter (SECNAM = 'Compute_A_jk_mp2')
+Ajk = 0.0d0
+if (imp2prpt == 2) then
+  lTot = 1
+  iAdrA = nVec*(kVec-1)+jVec
+  call dDaFile(LuAVector(iOpt),2,dum,lTot,iAdrA)
+  Ajk_mp2 = dum(1)
+  Ajk = Ajk+(Ajk_mp2*Fac_kl*Fac_ij)
+end if
 
-      Ajk = 0.0d0
-      If(imp2prpt .eq. 2) Then
-         lTot = 1
-         iAdrA = nVec*(kVec-1) + jVec
-         Call dDaFile(LuAVector(iOpt),2,dum,lTot,iAdrA)
-         Ajk_mp2=dum(1)
-         Ajk = Ajk + (Ajk_mp2*Fac_kl*Fac_ij)
-      End If
-
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iSO)
-      End
+if (.false.) call Unused_integer(iSO)
+
+end subroutine Compute_A_jk_mp2

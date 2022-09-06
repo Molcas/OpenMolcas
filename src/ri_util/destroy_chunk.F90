@@ -8,21 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Destroy_Chunk()
-      use Chunk_Mod
+
+subroutine Destroy_Chunk()
+
+use Chunk_Mod
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
 #include "stdalloc.fh"
+
 #ifdef _MOLCAS_MPP_
-      If (Is_Real_Par()) Then
-         Call GA_Destroy(ip_Chunk)
-         Call mma_deallocate(iMap)
-      Else
-         Call mma_deallocate(Chunk)
-      End If
+if (Is_Real_Par()) then
+  call GA_Destroy(ip_Chunk)
+  call mma_deallocate(iMap)
+else
+  call mma_deallocate(Chunk)
+end if
 #else
-      Call mma_deallocate(Chunk)
+call mma_deallocate(Chunk)
 #endif
-      Return
-      End
+
+return
+
+end subroutine Destroy_Chunk

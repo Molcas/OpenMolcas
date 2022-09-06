@@ -8,26 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Mk_Indkl(Indkl_OnOff,Indkl,nkl)
-      Implicit Real*8 (a-h,o-z)
-      Integer Indkl_OnOff(nkl), Indkl(nkl)
-!
+
+subroutine Mk_Indkl(Indkl_OnOff,Indkl,nkl)
+
+implicit real*8(a-h,o-z)
+integer Indkl_OnOff(nkl), Indkl(nkl)
+
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call iVcPrt('Mk_Indkl: Indkl_OnOff',' ',Indkl_OnOff,nkl)
+call iVcPrt('Mk_Indkl: Indkl_OnOff',' ',Indkl_OnOff,nkl)
 #endif
-      ikl = 0
-      Do jkl = 1, nkl
-         If (Indkl_OnOff(jkl).eq.1) Then
-            ikl = ikl + 1
-            Indkl(jkl)=ikl
-         Else
-            Indkl(jkl)=0
-         End If
-      End Do
+ikl = 0
+do jkl=1,nkl
+  if (Indkl_OnOff(jkl) == 1) then
+    ikl = ikl+1
+    Indkl(jkl) = ikl
+  else
+    Indkl(jkl) = 0
+  end if
+end do
 #ifdef _DEBUGPRINT_
-      Call iVcPrt('Mk_Indkl: Indkl',' ',Indkl,nkl)
+call iVcPrt('Mk_Indkl: Indkl',' ',Indkl,nkl)
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine Mk_Indkl

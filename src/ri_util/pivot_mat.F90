@@ -10,57 +10,60 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE Pivot_mat(n,m,lu_A0,lu_A,iD_A,Scr,lScr)
+
+subroutine Pivot_mat(n,m,lu_A0,lu_A,iD_A,Scr,lScr)
 !***********************************************************************
-!
-!     Author:  F. Aquilante
-!
+!                                                                      *
+!     Author:  F. Aquilante                                            *
+!                                                                      *
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
-      Integer n, m, lu_A0, lu_A, iD_A(n), lScr
-      Real*8  Scr(lScr)
+
+implicit real*8(a-h,o-z)
+integer n, m, lu_A0, lu_A, iD_A(n), lScr
+real*8 Scr(lScr)
 #include "warnings.h"
 
-      lmax=lScr-n
-      If (lmax .lt. n) Then
-         Call WarningMessage(2,'Error in Pivot_mat')
-         write(6,*) ' Pivot_mat: too little scratch space !!'
-         Call Quit(_RC_CHO_LOG_)
-      Endif
-!
-      nMem_Col = m
-      mNeed = nMem_Col*(nMem_Col+1)/2
-      Do while (mNeed .gt. lmax)
-         mNeed = mNeed - nMem_Col
-         nMem_Col = nMem_Col - 1
-      End Do
-!
-      iScr=n
-      Do kCol=1,nMem_Col
-         jCol=iD_A(kCol)
-         iAddr=n*(jCol-1)
-         Call dDaFile(lu_A0,2,Scr(1),n,iAddr)
-         Do i=1,kCol
-            iCol=iD_A(i)
-            iScr=iScr+1
-            Scr(iScr)=Scr(iCol)
-         End Do
-      End Do
-      kAddr=0
-      ij=nMem_Col*(nMem_Col+1)/2
-      Call dDaFile(lu_A,1,Scr(n+1),ij,kAddr)
-!
-      Do kCol=nMem_Col+1,m
-         jCol=iD_A(kCol)
-         iAddr=n*(jCol-1)
-         Call dDaFile(lu_A0,2,Scr(1),n,iAddr)
-         Do i=1,kCol
-            iCol=iD_A(i)
-            iScr=n+i
-            Scr(iScr)=Scr(iCol)
-         End Do
-         Call dDaFile(lu_A,1,Scr(n+1),kCol,kAddr)
-      End Do
-!
-      Return
-      End
+lmax = lScr-n
+if (lmax < n) then
+  call WarningMessage(2,'Error in Pivot_mat')
+  write(6,*) ' Pivot_mat: too little scratch space !!'
+  call Quit(_RC_CHO_LOG_)
+end if
+
+nMem_Col = m
+mNeed = nMem_Col*(nMem_Col+1)/2
+do while (mNeed > lmax)
+  mNeed = mNeed-nMem_Col
+  nMem_Col = nMem_Col-1
+end do
+
+iScr = n
+do kCol=1,nMem_Col
+  jCol = iD_A(kCol)
+  iAddr = n*(jCol-1)
+  call dDaFile(lu_A0,2,Scr(1),n,iAddr)
+  do i=1,kCol
+    iCol = iD_A(i)
+    iScr = iScr+1
+    Scr(iScr) = Scr(iCol)
+  end do
+end do
+kAddr = 0
+ij = nMem_Col*(nMem_Col+1)/2
+call dDaFile(lu_A,1,Scr(n+1),ij,kAddr)
+
+do kCol=nMem_Col+1,m
+  jCol = iD_A(kCol)
+  iAddr = n*(jCol-1)
+  call dDaFile(lu_A0,2,Scr(1),n,iAddr)
+  do i=1,kCol
+    iCol = iD_A(i)
+    iScr = n+i
+    Scr(iScr) = Scr(iCol)
+  end do
+  call dDaFile(lu_A,1,Scr(n+1),kCol,kAddr)
+end do
+
+return
+
+end subroutine Pivot_mat

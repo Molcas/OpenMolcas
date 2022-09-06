@@ -8,22 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!     Integer Function Set_CHO_ADRVEC(ii)
-      Function Set_CHO_ADRVEC(ii)
+
+function Set_CHO_ADRVEC(ii)
+
 #include "cholesky.fh"
-      Integer Set_CHO_ADRVEC
-!
-      Set_CHO_ADRVEC=0
-      If (ii.lt.0) Then
-         Set_CHO_ADRVEC=CHO_ADRVEC
-      Else If (ii.eq.1.or.ii.eq.2) Then
-         CHO_ADRVEC=ii
-         Set_CHO_ADRVEC=CHO_ADRVEC
-      Else
-         Call WarningMessage(2,'Set_CHO_ADRVEC: Illegal option')
-         Write (6,*) 'ii=',ii
-         Call Abend()
-      End if
-!
-      Return
-      End
+integer Set_CHO_ADRVEC
+
+Set_CHO_ADRVEC = 0
+if (ii < 0) then
+  Set_CHO_ADRVEC = CHO_ADRVEC
+else if ((ii == 1) .or. (ii == 2)) then
+  CHO_ADRVEC = ii
+  Set_CHO_ADRVEC = CHO_ADRVEC
+else
+  call WarningMessage(2,'Set_CHO_ADRVEC: Illegal option')
+  write(6,*) 'ii=',ii
+  call Abend()
+end if
+
+return
+
+end function Set_CHO_ADRVEC

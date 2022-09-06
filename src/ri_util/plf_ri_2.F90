@@ -11,9 +11,8 @@
 ! Copyright (C) 1990,2005, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine PLF_RI_2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,        &
-     &                    iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,     &
-     &                    TInt,nTInt,iSO2Ind,iOffA,nSOs)
+
+subroutine PLF_RI_2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,TInt,nTInt,iSO2Ind,iOffA,nSOs)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -28,87 +27,86 @@
 !          Modified to 2-center RI June '05                            *
 !                                                                      *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use Basis_Info, only: nBas
-      Implicit Real*8 (A-H,O-Z)
+
+use SOAO_Info, only: iAOtSO
+use Basis_Info, only: nBas
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-!
-      Real*8 AOint(ijkl,jCmp,lCmp), TInt(nTInt)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4),                      &
-     &        iSO2Ind(nSOs), iOffA(4)
-      Logical Shijij
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+real*8 AOint(ijkl,jCmp,lCmp), TInt(nTInt)
+integer iShell(4), iAO(4), kOp(4), iAOst(4), iSO2Ind(nSOs), iOffA(4)
+logical Shijij
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      irout = 109
-      iPrint = nPrint(irout)
-      iPrint=99
-      If (iPrint.ge.49) Then
-         r1=DDot_(ijkl*jCmp*lCmp,AOInt,1,[One],0)
-         r2=DDot_(ijkl*jCmp*lCmp,AOInt,1,AOInt,1)
-         Write (6,*) ' Sum=',r1
-         Write (6,*) ' Dot=',r2
-      End If
-      If (iPrint.ge.99) Call RecPrt(' In Plf_RI_2: AOInt',' ',          &
-     &                              AOInt,ijkl,jCmp*lCmp)
+irout = 109
+iPrint = nPrint(irout)
+iPrint = 99
+if (iPrint >= 49) then
+  r1 = DDot_(ijkl*jCmp*lCmp,AOInt,1,[One],0)
+  r2 = DDot_(ijkl*jCmp*lCmp,AOInt,1,AOInt,1)
+  write(6,*) ' Sum=',r1
+  write(6,*) ' Dot=',r2
+end if
+if (iPrint >= 99) call RecPrt(' In Plf_RI_2: AOInt',' ',AOInt,ijkl,jCmp*lCmp)
 #endif
-!
-      iAOstj=iAOst(2)
-      iAOstl=iAOst(4)
-      iAOj=iAO(2)
-      iAOl=iAO(4)
-      iOff = nBas(0)
-      iOffA_ = iOffA(1)
-      mm_= iOffA(4)
-      nn = mm_ - iOffA(2)
-      mx = nn*(nn+1)/2
-!
+
+iAOstj = iAOst(2)
+iAOstl = iAOst(4)
+iAOj = iAO(2)
+iAOl = iAO(4)
+iOff = nBas(0)
+iOffA_ = iOffA(1)
+mm_ = iOffA(4)
+nn = mm_-iOffA(2)
+mx = nn*(nn+1)/2
+
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'nn,mx=',nn,mx
-      Write (6,*) 'iOff=',nn,mx
-      Write (6,*) 'lBas,jBas=',lBas,jBas
-      Write (6,*) 'lCmp,jCmp=',lCmp,jCmp
+write(6,*) 'nn,mx=',nn,mx
+write(6,*) 'iOff=',nn,mx
+write(6,*) 'lBas,jBas=',lBas,jBas
+write(6,*) 'lCmp,jCmp=',lCmp,jCmp
 #endif
-!
-      Do i2 = 1, jCmp
-         jSO=iAOtSO(iAOj+i2,kOp(2))+iAOstj
-         Do i4 = 1, lCmp
-            lSO=iAOtSO(iAOl+i4,kOp(4))+iAOstl
-!
-            nijkl = 0
-            Do lSOl = lSO, lSO+lBas-1
-               kSO = lSOl - iOff
-!
-               Do jSOj = jSO, jSO+jBas-1
-!
-                  iSO = jSOj - iOff
-                  nijkl = nijkl + 1
-                  AInt=AOint(nijkl,i2,i4)
-!
-                  iSO = iSO2Ind(iSO) + nn
-                  ij = iTri(iSO,kSO) - mx + iOffA_
-                  TInt(ij)=AInt
-!
-               End Do
-            End Do
-!
-         End Do
-      End Do
-!
+
+do i2=1,jCmp
+  jSO = iAOtSO(iAOj+i2,kOp(2))+iAOstj
+  do i4=1,lCmp
+    lSO = iAOtSO(iAOl+i4,kOp(4))+iAOstl
+
+    nijkl = 0
+    do lSOl=lSO,lSO+lBas-1
+      kSO = lSOl-iOff
+
+      do jSOj=jSO,jSO+jBas-1
+
+        iSO = jSOj-iOff
+        nijkl = nijkl+1
+        AInt = AOint(nijkl,i2,i4)
+
+        iSO = iSO2Ind(iSO)+nn
+        ij = iTri(iSO,kSO)-mx+iOffA_
+        TInt(ij) = AInt
+
+      end do
+    end do
+
+  end do
+end do
+
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Then
-         Call Unused_integer(iCmp)
-         Call Unused_integer(kCmp)
-         Call Unused_integer_array(iShell)
-         Call Unused_logical(Shijij)
-         Call Unused_integer(iBas)
-         Call Unused_integer(kBas)
-      End If
+if (.false.) then
+  call Unused_integer(iCmp)
+  call Unused_integer(kCmp)
+  call Unused_integer_array(iShell)
+  call Unused_logical(Shijij)
+  call Unused_integer(iBas)
+  call Unused_integer(kBas)
+end if
 #endif
-      End
+
+end subroutine PLF_RI_2

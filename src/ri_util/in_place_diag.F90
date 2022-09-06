@@ -8,17 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine In_place_Diag(Buff,nBuff,iBs,iBe)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Buff(nBuff,iBs:iBe)
-!
-!     Call RecPrt('Buff',' ',Buff,nBuff,iBe-iBs+1)
-      Do j = iBs, iBe
-         Do i = iBs, j-1
-            Buff(j,i)=Buff(i,j)
-         End Do
-      End Do
-!     Call RecPrt('Buff',' ',Buff,nBuff,iBe-iBs+1)
-!
-      Return
-      End
+
+subroutine In_place_Diag(Buff,nBuff,iBs,iBe)
+
+implicit real*8(a-h,o-z)
+real*8 Buff(nBuff,iBs:iBe)
+
+!call RecPrt('Buff',' ',Buff,nBuff,iBe-iBs+1)
+do j=iBs,iBe
+  do i=iBs,j-1
+    Buff(j,i) = Buff(i,j)
+  end do
+end do
+!call RecPrt('Buff',' ',Buff,nBuff,iBe-iBs+1)
+
+return
+
+end subroutine In_place_Diag

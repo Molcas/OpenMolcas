@@ -8,99 +8,98 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Create_Chunk(LenVec,NumVec,IncVec)
-      use Chunk_mod
+
+subroutine Create_Chunk(LenVec,NumVec,IncVec)
+
+use Chunk_mod
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
+use Para_Info, only: MyRank, nProcs, Is_Real_Par
 #endif
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "stdalloc.fh"
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
-      External  ga_create_irreg
-      Logical   ga_create_irreg, ok
-      Integer myMap(2)
+external ga_create_irreg
+logical ga_create_irreg, ok
+integer myMap(2)
+#endif
 
+#ifdef _MOLCAS_MPP_
+if (NumVec <= 0) then
+  call WarningMessage(2,'Create_Chunk: Failure NumVec <= 0')
+  write(6,*) 'NumVec=',NumVec
+  call Abend()
+end if
 
-!
-      If (NumVec.le.0) Then
-         Call WarningMessage(2,'Create_Chunk: Failure NumVec.le.0')
-         Write (6,*) 'NumVec=',NumVec
-         Call Abend()
-      End If
+if (Is_Real_Par()) then
+  call mma_allocate(iMap,nProcs+1,Label='iMap')
+  iMap(:) = 0
 
-      If (Is_Real_Par()) Then
-         Call mma_allocate(iMap,nProcs+1,Label='iMap')
-         iMap(:)=0
-!
-         FullSize=DBLE(LenVec*NumVec)
-         Call mma_maxDBLE(MaxMem)
-         iMap(1+MyRank) = MaxMem
-         Call GAIGOP(iMap,nProcs,'+')
-         TotalMemory=0.0D0
-         itmp=iMap(1)
-!
-!        Find the smallest possible memory allocation!
-!
-         Do i = 1, nProcs-1
-            itmp = Min(itmp,iMap(1+i))
-         End Do
-         TotalMemory=DBLE(itmp)*DBLE(nProcs)
-!
-!        Compute the number of vectors to handle at the time
-!
-         If (TotalMemory.gt.FullSize) Then
-!
-            IncVec = NumVec
-!
-         Else
-!
-            IncVec = INT ( DBLE(NumVec) *(TotalMemory/FullSize))
-!
-         End If
-         If (IncVec.le.0) Then
-            Call WarningMessage(2,                                      &
-     &                  'Create_Chunk: Failure IncVec.le.0')
-            Write (6,*) 'FullSize=',FullSize
-            Write (6,*) 'NumVec=',NumVec
-            Write (6,*) 'LenVec=',LenVec
-            Write (6,*) 'TotalMemory=',TotalMemory
-            Write (6,*) 'Local size of memory'
-            Write (6,*) (iMap(i),i=1,nProcs)
-            Write (6,*) 'iTmp=',iTmp
-            Call Abend()
-         End If
-!
-!        Compute the number of vectors per node, This also defines
-!        the Map array.
-!
-         iNode0=0
-         iStart = 1
-         Do iNode = 0, nProcs-1
-            If (iStart.eq.1) iNode0=iNode
-            iMap(1+iNode) = iStart
-            iStart = iStart + Max((IncVec+iNode)/nProcs,1)
-         End Do
-         iMap(1+nProcs)=iStart
-         IncVec0=iStart
-!
-!        Call Put_iArray('DistVec',iMap,nProcs+1)
-!
-         nBlocks=nProcs-iNode0
-         myMap(1)=1
-         Ok = GA_Create_Irreg(mt_dbl,LenVec,IncVec0,'Chunk',            &
-     &                        myMap,1,                                  &
-     &                        iMap(1+iNode0),nBlocks,ip_Chunk)
-         If (.Not. Ok) Then
-            Call WarningMessage(2,'Error in GA_Create_Irreg')
-            Call Abend()
-         End If
-      Else
-         Call mma_maxDBLE(MaxMem)
-         IncVec=Min(NumVec,MaxMem/LenVec)
-         Call mma_allocate(Chunk,LenVec*IncVec,Label='Chunk')
-      End If
-!
+  FullSize = dble(LenVec*NumVec)
+  call mma_maxDBLE(MaxMem)
+  iMap(1+MyRank) = MaxMem
+  call GAIGOP(iMap,nProcs,'+')
+  TotalMemory = 0.0d0
+  itmp = iMap(1)
+
+  ! Find the smallest possible memory allocation!
+
+  do i=1,nProcs-1
+    itmp = min(itmp,iMap(1+i))
+  end do
+  TotalMemory = dble(itmp)*dble(nProcs)
+
+  ! Compute the number of vectors to handle at the time
+
+  if (TotalMemory > FullSize) then
+
+    IncVec = NumVec
+
+  else
+
+    IncVec = int(dble(NumVec)*(TotalMemory/FullSize))
+
+  end if
+  if (IncVec <= 0) then
+    call WarningMessage(2,'Create_Chunk: Failure IncVec <= 0')
+    write(6,*) 'FullSize=',FullSize
+    write(6,*) 'NumVec=',NumVec
+    write(6,*) 'LenVec=',LenVec
+    write(6,*) 'TotalMemory=',TotalMemory
+    write(6,*) 'Local size of memory'
+    write(6,*) (iMap(i),i=1,nProcs)
+    write(6,*) 'iTmp=',iTmp
+    call Abend()
+  end if
+
+  ! Compute the number of vectors per node, This also defines the Map array.
+
+  iNode0 = 0
+  iStart = 1
+  do iNode=0,nProcs-1
+    if (iStart == 1) iNode0 = iNode
+    iMap(1+iNode) = iStart
+    iStart = iStart+max((IncVec+iNode)/nProcs,1)
+  end do
+  iMap(1+nProcs) = iStart
+  IncVec0 = iStart
+
+  !call Put_iArray('DistVec',iMap,nProcs+1)
+
+  nBlocks = nProcs-iNode0
+  myMap(1) = 1
+  Ok = GA_Create_Irreg(mt_dbl,LenVec,IncVec0,'Chunk',myMap,1,iMap(1+iNode0),nBlocks,ip_Chunk)
+  if (.not. Ok) then
+    call WarningMessage(2,'Error in GA_Create_Irreg')
+    call Abend()
+  end if
+else
+  call mma_maxDBLE(MaxMem)
+  IncVec = min(NumVec,MaxMem/LenVec)
+  call mma_allocate(Chunk,LenVec*IncVec,Label='Chunk')
+end if
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -108,10 +107,12 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_maxDBLE(MaxMem)
-      IncVec=Min(NumVec,MaxMem/LenVec)
-      Call mma_allocate(Chunk,LenVec*IncVec,Label='Chunk')
-!
+call mma_maxDBLE(MaxMem)
+IncVec = min(NumVec,MaxMem/LenVec)
+call mma_allocate(Chunk,LenVec*IncVec,Label='Chunk')
+
 #endif
-      Return
-      End
+
+return
+
+end subroutine Create_Chunk

@@ -10,51 +10,55 @@
 !                                                                      *
 ! Copyright (C) 2007,2008, Roland Lindh                                *
 !***********************************************************************
-      Subroutine Remove_High_Exponents(iD,nD,List2,mData,nTheta_All)
-      Use Basis_Info, only: Shells
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Remove_High_Exponents(iD,nD,List2,mData,nTheta_All)
 !***********************************************************************
 !                                                                      *
 !     Experimental code to be used with care.                          *
 !                                                                      *
 !***********************************************************************
-      Integer iD(nD), List2(mData,nTheta_All)
-      Logical Skip
-!
-      Call iVcPrt('Remove_High_Exponents: iD',' ',iD,nD)
-      mD = nD
-      i = 1
- 100  Continue
-         iTheta_All=iD(i)
-         Skip=.False.
-         kAng  = List2(1,iTheta_All)
-         lAng  = List2(2,iTheta_All)
-         k     = List2(5,iTheta_All)
-         l     = List2(6,iTheta_All)
-         kShll = List2(7,iTheta_All)
-         lShll = List2(8,iTheta_All)
-         If (kAng.eq.lAng) Then
-            l     = List2(6,iTheta_All)
-            Skip = (k.eq.1.and.l.eq.1).and.Shells(kShll)%nExp.ne.1
-         Else
-            Skip=l.eq.1.and.Shells(lShll)%nExp.ne.1
-         End If
-         If (Skip) Then
-            If (mD.eq.i) Then
-               mD = mD -1
-               Go To 200
-            End If
-            Do j = i+1, mD
-               iD(j-1) = iD(j)
-            End Do
-            mD = mD -1
-            Go To 100
-         End If
-         i = i + 1
-         If (i.le.mD) Go To 100
- 200  Continue
-      nD = mD
-      Call iVcPrt('Remove_High_Exponents: iD',' ',iD,nD)
-!
-      Return
-      End
+
+use Basis_Info, only: Shells
+
+implicit real*8(a-h,o-z)
+integer iD(nD), List2(mData,nTheta_All)
+logical Skip
+
+call iVcPrt('Remove_High_Exponents: iD',' ',iD,nD)
+mD = nD
+i = 1
+100 continue
+iTheta_All = iD(i)
+Skip = .false.
+kAng = List2(1,iTheta_All)
+lAng = List2(2,iTheta_All)
+k = List2(5,iTheta_All)
+l = List2(6,iTheta_All)
+kShll = List2(7,iTheta_All)
+lShll = List2(8,iTheta_All)
+if (kAng == lAng) then
+  l = List2(6,iTheta_All)
+  Skip = ((k == 1) .and. (l == 1)) .and. (Shells(kShll)%nExp /= 1)
+else
+  Skip = (l == 1) .and. (Shells(lShll)%nExp /= 1)
+end if
+if (Skip) then
+  if (mD == i) then
+    mD = mD-1
+    Go To 200
+  end if
+  do j=i+1,mD
+    iD(j-1) = iD(j)
+  end do
+  mD = mD-1
+  Go To 100
+end if
+i = i+1
+if (i <= mD) Go To 100
+200 continue
+nD = mD
+call iVcPrt('Remove_High_Exponents: iD',' ',iD,nD)
+
+return
+
+end subroutine Remove_High_Exponents

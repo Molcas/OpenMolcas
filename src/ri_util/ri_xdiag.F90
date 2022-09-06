@@ -10,91 +10,88 @@
 !                                                                      *
 ! Copyright (C) 2007, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine RI_XDiag(Diag,nDiag)
+
+subroutine RI_XDiag(Diag,nDiag)
+! Thomas Bondo Pedersen, Jan. 2007.
 !
-!     Thomas Bondo Pedersen, Jan. 2007.
-!
-!     Purpose: compute exact integral diagonal.
-!
-      use ChoArr, only: iSP2F, nBstSh
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
-      Implicit None
-      Integer nDiag
-      Real*8  Diag(nDiag)
+! Purpose: compute exact integral diagonal.
+
+use ChoArr, only: iSP2F, nBstSh
+use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+
+implicit none
+integer nDiag
+real*8 Diag(nDiag)
 #include "cholesky.fh"
 #include "stdalloc.fh"
+real*8, allocatable :: Scr(:)
+integer l_SewMem
+integer ID
+integer iSAB, iShlA, iShlB
+integer NumAB
+integer iSym, i1, i2
+logical Rsv_Tsk
+external Rsv_Tsk
+integer i
 
-      Real*8, Allocatable :: Scr(:)
+! Allocate memory.
+! ----------------
 
-      Integer l_SewMem
-      Integer ID
-      Integer iSAB, iShlA, iShlB
-      Integer NumAB
-      Integer iSym, i1, i2
+call Init_Tsk(ID,nnShl)
 
-      Logical  Rsv_Tsk
-      External Rsv_Tsk
+call mma_allocate(Scr,Mx2Sh,Label='Scr')
+call mma_maxDBLE(l_SewMem)
 
-      Integer i
+! Initialize diagonal array.
+! --------------------------
 
-!     Allocate memory.
-!     ----------------
+call fZero(Diag,nnBstRT(1))
 
-      Call Init_Tsk(ID,nnShl)
+! Parallel loop over shell pairs in first red. set.
+! -------------------------------------------------
 
-      Call mma_allocate(Scr,Mx2Sh,Label='Scr')
-      Call mma_maxDBLE(l_SewMem)
+do while (Rsv_Tsk(ID,iSAB))
 
-!     Initialize diagonal array.
-!     --------------------------
+  ! Get shells.
+  ! -----------
 
-      Call fZero(Diag,nnBstRT(1))
+  call Cho_InvPck(iSP2F(iSAB),iShlA,iShlB,.true.)
 
-!     Parallel loop over shell pairs in first red. set.
-!     -------------------------------------------------
+  ! Compute (AB|AB).
+  ! ----------------
 
-      Do While (Rsv_Tsk(ID,iSAB))
+  if (iShlA == iShlB) then
+    NumAB = nBstSh(iShlA)*(nBstSh(iShlA)+1)/2
+  else
+    NumAB = nBstSh(iShlA)*nBstSh(iShlB)
+  end if
+  ShA = iShlA
+  ShB = iShlB
+  call Cho_MCA_DiagInt(iShlA,iShlB,Scr,NumAB)
 
-!        Get shells.
-!        -----------
+  ! Extract diagonal elements.
+  ! --------------------------
 
-         Call Cho_InvPck(iSP2F(iSAB),iShlA,iShlB,.True.)
+  do iSym=1,nSym
+    i1 = iiBstR(iSym,1)+iiBstRSh(iSym,iSAB,1)+1
+    i2 = i1+nnBstRSh(iSym,iSAB,1)-1
+    do i=i1,i2
+      Diag(i) = Scr(IndRed(i,1))
+    end do
+  end do
 
-!        Compute (AB|AB).
-!        ----------------
+end do
+call Free_Tsk(ID)
 
-         If (iShlA .eq. iShlB) Then
-            NumAB = nBstSh(iShlA)*(nBstSh(iShlA)+1)/2
-         Else
-            NumAB = nBstSh(iShlA)*nBstSh(iShlB)
-         End If
-         ShA = iShlA
-         ShB = iShlB
-         Call Cho_MCA_DiagInt(iShlA,iShlB,Scr,NumAB)
+! Sync diagonal.
+! --------------
 
-!        Extract diagonal elements.
-!        --------------------------
+call GAdGOP(Diag,nnBstRT(1),'+')
 
-         Do iSym = 1,nSym
-            i1 = iiBstR(iSym,1) + iiBstRSh(iSym,iSAB,1) + 1
-            i2 = i1 + nnBstRSh(iSym,iSAB,1) - 1
-            Do i = i1,i2
-               Diag(i) = Scr(IndRed(i,1))
-            End Do
-         End Do
+! Deallocate memory.
+! ------------------
 
-      End Do
-      Call Free_Tsk(ID)
+call xRlsMem_Ints()
+call mma_deallocate(Scr)
 
-!     Sync diagonal.
-!     --------------
-
-      Call GAdGOP(Diag,nnBstRT(1),'+')
-
-!     Deallocate memory.
-!     ------------------
-
-      Call xRlsMem_Ints()
-      Call mma_deallocate(Scr)
-
-      End
+end subroutine RI_XDiag

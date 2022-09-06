@@ -29,146 +29,149 @@
 !> @param[in] iShij    Index vector of shell pairs
 !> @param[in] nShij    Number of shell pairs
 !***********************************************************************
-      SubRoutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
-      Use Para_Info, Only: Is_Real_Par
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: InfRed, InfVec
-      Implicit None
-      Integer nSkal, nIrrep, nShij
-      Integer nVec_Aux(0:nIrrep-1)
-      Integer iTOffs(3,nIrrep)
-      Integer iShij(2,nShij)
+
+subroutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
+
+use Para_Info, only: Is_Real_Par
+use ChoArr, only: iSP2F
+use ChoSwp, only: InfRed, InfVec
+
+implicit none
+integer nSkal, nIrrep, nShij
+integer nVec_Aux(0:nIrrep-1)
+integer iTOffs(3,nIrrep)
+integer iShij(2,nShij)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "stdalloc.fh"
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
 #include "choglob.fh"
 #endif
+logical SetDefaultsOnly, Skip_PreScreen, Alloc_Bkm
+integer iDummy, LuOut, iSym, iVec, ijS
+integer iTri, i, j
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
-      Logical SetDefaultsOnly, Skip_PreScreen, Alloc_Bkm
-      Integer iDummy, LuOut, iSym, iVec, ijS
-      Integer iTri, i, j
+! Set defaults for those parameters that can normally be changed
+! through user input to the Cholesky decomposition.
+! --------------------------------------------------------------
 
-      iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
+SetDefaultsOnly = .true.
+iDummy = -1
+LuOut = 6
+call Cho_Inp(SetDefaultsOnly,iDummy,LuOut)
 
-!     Set defaults for those parameters that can normally be changed
-!     through user input to the Cholesky decomposition.
-!     -----------------------------------------------------------------
+! Reset Cholesky Threshold for RI
+! -------------------------------
+call Get_thrc_RI(ThrCom)
 
-      SetDefaultsOnly = .True.
-      iDummy = -1
-      LuOut = 6
-      Call Cho_Inp(SetDefaultsOnly,iDummy,LuOut)
+! Reset parallel config.
+! ----------------------
 
-!     Reset Cholesky Threshold for RI
-!     -------------------------------
-      Call Get_thrc_RI(ThrCom)
+CHO_FAKE_PAR = .false.
+call Cho_ParConf(CHO_FAKE_PAR)
 
-!     Reset parallel config.
-!     ----------------------
+! Set run mode to "external" (should be irrelevant for RI).
+! ---------------------------------------------------------
 
-      CHO_FAKE_PAR = .False.
-      Call Cho_ParConf(CHO_FAKE_PAR)
+RUN_MODE = RUN_EXTERNAL
 
-!     Set run mode to "external" (should be irrelevant for RI).
-!     ---------------------------------------------------------
+! Silence the Cholesky routines.
+! ------------------------------
 
-      RUN_MODE = RUN_EXTERNAL
+iPrint = 0
 
-!     Silence the Cholesky routines.
-!     ------------------------------
+! Set number of shells (excl. aux. basis) in cholesky.fh
+! ------------------------------------------------------
 
-      iPrint = 0
+nShell = nSkal
 
-!     Set number of shells (excl. aux. basis) in cholesky.fh
-!     -------------------------------------------------------
+! To avoid unnecessary allocations of shell-pair-to-reduced-set
+! maps, set decomposition algorithm to 1 ("one-step") and the Seward
+! interface to "1" (full shell quadruple storage). Both values are,
+! obviously, irrelevant for RI. In parallel runs, use default values
+! to avoid warnings being printed in Cho_P_Check.
+! ------------------------------------------------------------------
 
-      nShell = nSkal
+if (Is_Real_Par()) then
+  Cho_DecAlg = 4
+  IfcSew = 2
+else
+  Cho_DecAlg = 1
+  IfcSew = 1
+end if
 
-!     To avoid unnecessary allocations of shell-pair-to-reduced-set
-!     maps, set decomposition algorithm to 1 ("one-step") and the Seward
-!     interface to "1" (full shell quadruple storage). Both values are,
-!     obviously, irrelevant for RI. In parallel runs, use default values
-!     to avoid warnings being printed in Cho_P_Check.
-!     ------------------------------------------------------------------
+! Change MaxRed to 1 (all vectors have identical dimension, namely
+! full => only 1 reduced set).
+! ----------------------------------------------------------------
 
-      If (Is_Real_Par()) Then
-         Cho_DecAlg = 4
-         IfcSew = 2
-      Else
-         Cho_DecAlg = 1
-         IfcSew = 1
-      End If
+MaxRed = 1
 
-!     Change MaxRed to 1 (all vectors have identical dimension, namely
-!     full => only 1 reduced set).
-!     ----------------------------------------------------------------
+! Set MaxVec to the largest number of vectors (= number of linearly
+! independent auxiliary basis functions). In this way we avoid
+! allocating more memory for InfVec than needed.
+! -----------------------------------------------------------------
 
-      MaxRed = 1
+MaxVec = nVec_Aux(0)
+do iSym=1,nIrrep-1
+  MaxVec = max(MaxVec,nVec_Aux(iSym))
+end do
 
-!     Set MaxVec to the largest number of vectors (= number of linearly
-!     independent auxiliary basis functions). In this way we avoid
-!     allocating more memory for InfVec than needed.
-!     ------------------------------------------------------------------
+! Other initializations. Most importantly, allocate InfRed and
+! InfVec arrays (defined in choswp.f90).
+! We skip diagonal prescreening, as it has already been done.
+! Instead, allocate and set the mapping from reduced to full shell
+! pairs here.
+! ----------------------------------------------------------------
 
-      MaxVec = nVec_Aux(0)
-      Do iSym = 1,nIrrep-1
-         MaxVec = max(MaxVec,nVec_Aux(iSym))
-      End Do
+nnShl = nShij
+call mma_allocate(iSP2F,nnShl,Label='iSP2F')
+do ijS=1,nnShl
+  iSP2F(ijS) = iTri(iShij(1,ijS),iShij(2,ijS))
+end do
+Skip_PreScreen = .true.
+Alloc_Bkm = .false.
+call Cho_Init(Skip_PreScreen,Alloc_Bkm)
 
-!     Other initializations. Most importantly, allocate InfRed and
-!     InfVec arrays (defined in choswp.f90).
-!     We skip diagonal prescreening, as it has already been done.
-!     Instead, allocate and set the mapping from reduced to full shell
-!     pairs here.
-!     ----------------------------------------------------------------
+! Set number of vectors equal to the number of lin. indep. auxiliary
+! basis functions.
+! ------------------------------------------------------------------
 
-      nnShl = nShij
-      Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
-      Do ijS = 1,nnShl
-         iSP2F(ijS) = iTri(iShij(1,ijS),iShij(2,ijS))
-      End Do
-      Skip_PreScreen = .True.
-      Alloc_Bkm = .False.
-      Call Cho_Init(Skip_PreScreen,Alloc_Bkm)
-
-!     Set number of vectors equal to the number of lin. indep. auxiliary
-!     basis functions.
-!     ------------------------------------------------------------------
-
-      Do iSym = 1,nSym
-         NumCho(iSym) = nVec_Aux(iSym-1)
-      End Do
-#if defined (_MOLCAS_MPP_)
-      If (Is_Real_Par()) Then
-         Call iCopy(nSym,NumCho,1,NumCho_G,1)
-         Call iZero(myNumCho,nSym)
-      End If
+do iSym=1,nSym
+  NumCho(iSym) = nVec_Aux(iSym-1)
+end do
+#ifdef _MOLCAS_MPP_
+if (Is_Real_Par()) then
+  call iCopy(nSym,NumCho,1,NumCho_G,1)
+  call iZero(myNumCho,nSym)
+end if
 #endif
 
-!     Do allocations that are normally done during or after the
-!     computation of the diagonal (since the dimension of the 1st
-!     reduced set is unknown until the screened diagonal is known).
-!     -------------------------------------------------------------
+! Do allocations that are normally done during or after the
+! computation of the diagonal (since the dimension of the 1st
+! reduced set is unknown until the screened diagonal is known).
+! -------------------------------------------------------------
 
-      Call IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
+call IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
 
-!     Set start disk addresses.
-!     -------------------------
+! Set start disk addresses.
+! -------------------------
 
-      XnPass = 0 ! it should be zeroed in Cho_Inp, but just in case.
-      Call Cho_SetAddr(InfRed,InfVec,MaxRed,MaxVec,SIZE(InfVec,2),nSym)
+XnPass = 0 ! it should be zeroed in Cho_Inp, but just in case.
+call Cho_SetAddr(InfRed,InfVec,MaxRed,MaxVec,size(InfVec,2),nSym)
 
-!     Set vector info.
-!     Parent diagonal is set equal to the vector number, parent pass
-!     (i.e. reduced set) to 1.
-!     --------------------------------------------------------------
+! Set vector info.
+! Parent diagonal is set equal to the vector number, parent pass
+! (i.e. reduced set) to 1.
+! --------------------------------------------------------------
 
-      Do iSym = 1,nSym
-         Do iVec = 1,NumCho(iSym)
-            Call Cho_SetVecInf(iVec,iSym,iVec,1,1)
-         End Do
-      End Do
-!
-      Return
-      End
+do iSym=1,nSym
+  do iVec=1,NumCho(iSym)
+    call Cho_SetVecInf(iVec,iSym,iVec,1,1)
+  end do
+end do
+
+return
+
+end subroutine IniCho_RI

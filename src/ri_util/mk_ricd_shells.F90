@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2007,2008, Roland Lindh                                *
 !***********************************************************************
-      Subroutine Mk_RICD_Shells()
+
+subroutine Mk_RICD_Shells()
 !***********************************************************************
 !                                                                      *
 !    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -29,18 +30,19 @@
 !             Songjiang District, Shanghai, China, 23-27 Sept. 2008.   *
 !                                                                      *
 !***********************************************************************
-      use Real_Spherical
-      use Basis_Info
-      use Sizes_of_Seward, only: S
-      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Do_nacCD_Basis, &
-     &                     Thrshld_CD
-      Implicit Real*8 (A-H,O-Z)
+
+use Real_Spherical
+use Basis_Info
+use Sizes_of_Seward, only: S
+use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Do_nacCD_Basis, Thrshld_CD
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
 #include "status.fh"
 #include "stdalloc.fh"
-      Logical DoRys, Save_Logical, W2L
+logical DoRys, Save_Logical, W2L
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -49,132 +51,129 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-       iPrint=49
-!      iPrint=99
+iPrint = 49
+!iPrint = 99
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-      Call StatusLine('Gateway:',                                       &
-     &                ' Generating aCD or acCD auxiliary basis set')
+
+call StatusLine('Gateway:',' Generating aCD or acCD auxiliary basis set')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Preamble: Compute kOffAO  and lOffAO
-!
-      Call Setup_OffAO()
-!
-!     Set up transformation matrix from Cartesian to real spherical
-!     harmonics.
-!
-      Call Sphere(S%iAngMx)
-!
-!     Setup of tables for coefficients for the Rys roots and weights.
-!
-      nDiff=0
-      If (S%iAngMx.eq.0) nDiff=2
-      DoRys=.True.
-      Call SetUp_RW(DoRys,nDiff)
-!
-      mCnttp=nCnttp
+! Preamble: Compute kOffAO  and lOffAO
+
+call Setup_OffAO()
+
+! Set up transformation matrix from Cartesian to real spherical harmonics.
+
+call Sphere(S%iAngMx)
+
+! Setup of tables for coefficients for the Rys roots and weights.
+
+nDiff = 0
+if (S%iAngMx == 0) nDiff = 2
+DoRys = .true.
+call SetUp_RW(DoRys,nDiff)
+
+mCnttp = nCnttp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Add the DUMMY SHELL!
-!
-      Call Mk_Dummy_Shell()
+! Add the DUMMY SHELL!
+
+call Mk_Dummy_Shell()
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!     Loop now over all unique valence basis sets and generate the
-!     corresponding aCD auxiliary basis sets. Note that there are two
-!     different types of aCD auxiliary basis sets, aCD and acCD.
-!
-      Do 1100 iCnttp = 1, mCnttp
-         If (dbsc(iCnttp)%Frag.or.dbsc(iCnttp)%nVal.eq.0) goto 1100
-#ifdef _DEBUGPRINT_
-         If (iPrint.ge.99)                                              &
-     &   Write (6,*) 'Generating auxiliary basis set for valence basis' &
-     &             //':',iCnttp
-#endif
+! Loop now over all unique valence basis sets and generate the
+! corresponding aCD auxiliary basis sets. Note that there are two
+! different types of aCD auxiliary basis sets, aCD and acCD.
+
+do iCnttp=1,mCnttp
+  if (dbsc(iCnttp)%Frag .or. (dbsc(iCnttp)%nVal == 0)) goto 1100
+# ifdef _DEBUGPRINT_
+  if (iPrint >= 99) write(6,*) 'Generating auxiliary basis set for valence basis:',iCnttp
+# endif
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Procrastinate the printing of the RICD basis set to library
+  ! until the last unique valence basis set is processed.
+
+  W2L = .true.
+  do jCnttp=iCnttp+1,mCnttp
+    if (dbsc(iCnttp)%Bsl_old == dbsc(jCnttp)%Bsl_old) then
+      W2L = .false.
+      exit
+    end if
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  if (Do_nacCD_Basis) then
+    Do_acCD_Basis = .false.
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! nacCD section
+
+    ! Create first a virgin aCD auxiliary basis set
+
+    Thrshld_CD_Save = Thrshld_CD
+    Thrshld_CD = Zero
+    Save_Logical = Skip_High_AC
+    Skip_High_AC = .false.
+
+    kCnttp = nCnttp
+    call Mk_aCD_acCD_Shells(iCnttp,W2L)
+    lCnttp = nCnttp
+
+    ! Now let us use the aCD auxiliary basis set to generate the
+    ! nacCD auxiliary basis set.
+
+    Thrshld_CD = Thrshld_CD_Save
+    Skip_High_AC = Save_Logical
+    call Mk_nacCD_Shells(kCnttp,lCnttp)
+
+    ! Remove the temporary aCD auxiliary basis set
+
+    do jCnttp=kCnttp+1,lCnttp
+      call rm_AuxShell(jCnttp)
+    end do
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  else
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! aCD and acCD section
+
+    call Mk_aCD_acCD_Shells(iCnttp,W2L)
+
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+1100 continue ! iCnttp
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!        Procrastinate the printing of the RICD basis set to library
-!        until the last unique valence basis set is processed.
-!
-         W2L=.True.
-         Do jCnttp = iCnttp+1, mCnttp
-            If (dbsc(iCnttp)%Bsl_old.eq.dbsc(jCnttp)%Bsl_old) Then
-               W2L=.False.
-               Exit
-            End If
-         End Do
+call Set_Basis_Mode('Valence')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         If (Do_nacCD_Basis) Then
-            Do_acCD_Basis=.False.
+! Cleanup the mess!
+
+call CloseR()
+call Sphere_Free()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!           nacCD section
-!
-!           Creat first a virgin aCD auxiliary basis set
-!
-            Thrshld_CD_Save = Thrshld_CD
-            Thrshld_CD = Zero
-            Save_Logical = Skip_High_AC
-            Skip_High_AC = .False.
-!
-            kCnttp = nCnttp
-            Call Mk_aCD_acCD_Shells(iCnttp,W2L)
-            lCnttp = nCnttp
-!
-!           Now let us use the aCD auxiliary basis set to generate the
-!           nacCD auxiliary basis set.
-!
-            Thrshld_CD = Thrshld_CD_Save
-            Skip_High_AC = Save_Logical
-            Call Mk_nacCD_Shells(kCnttp,lCnttp)
-!
-!           Remove the temporary aCD auxiliary basis set
-!
-            Do jCnttp = kCnttp+1, lCnttp
-               Call rm_AuxShell(jCnttp)
-            End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        aCD and acCD section
-!
-!
-            Call Mk_aCD_acCD_Shells(iCnttp,W2L)
-!
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
- 1100 Continue ! iCnttp
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call Set_Basis_Mode('Valence')
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Cleanup the mess!
-!
-      Call CloseR()
-      Call Sphere_Free()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Return
-      End
+return
+
+end subroutine Mk_RICD_Shells

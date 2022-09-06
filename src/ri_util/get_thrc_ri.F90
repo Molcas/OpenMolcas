@@ -10,11 +10,15 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      Subroutine Get_thrc_RI(Thr_CD)
-      use RICD_Info, only: Thrshld_CD
-      Real*8 Thr_CD
 
-      Thr_CD = Thrshld_CD
+subroutine Get_thrc_RI(Thr_CD)
 
-      Return
-      End
+use RICD_Info, only: Thrshld_CD
+
+real*8 Thr_CD
+
+Thr_CD = Thrshld_CD
+
+return
+
+end subroutine Get_thrc_RI

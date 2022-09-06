@@ -10,87 +10,84 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
-      use ChoArr, only: iRS2F, nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh
-      use ChoSwp, only:   IndRSh,   IndRSh_Hidden
-      use ChoSwp, only:   IndRed,   IndRed_Hidden
-      Implicit None
-      Integer nIrrep, nShij
+
+subroutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
+
+use ChoArr, only: iRS2F, nDimRS
+use ChoSwp, only: nnBstRSh, iiBstRSh
+use ChoSwp, only: IndRSh, IndRSh_Hidden
+use ChoSwp, only: IndRed, IndRed_Hidden
+
+implicit none
+integer nIrrep, nShij
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"
+logical DoDummy
+integer iiBst(8), nnBst(8), iTOffs(3,nIrrep), iShij(2,nShij)
+integer iSym, iCount, nnBstT
+integer i
 
-      Logical DoDummy
+! Define max. dimensions and offsets of the symmetry blocks of the
+! integrals matrix.
+! ----------------------------------------------------------------
 
-      Integer iiBst(8), nnBst(8), iTOffs(3,nIrrep), iShij(2,nShij)
-      Integer iSym, iCount, nnBstT
+iCount = 0
+do iSym=1,nSym
+  iiBst(iSym) = iCount
+  nnBst(iSym) = iTOffs(3,iSym)
+  iCount = iCount+nnBst(iSym)
+end do
 
-      Integer i
+! Set dimensions of reduced sets equal to full dimension.
+! -------------------------------------------------------
 
-!     Define max. dimensions and offsets of the symmetry blocks of the
-!     integrals matrix.
-!     ----------------------------------------------------------------
+do i=1,3
+  nnBstT = 0
+  do iSym=1,nSym
+    iiBstR(iSym,i) = iiBst(iSym)
+    nnBstR(iSym,i) = nnBst(iSym)
+    nnBstT = nnBstT+nnBstR(iSym,i)
+  end do
+  nnBstRT(i) = nnBstT
+end do
+mmBstRT = nnBstRT(1)
 
-      iCount = 0
-      Do iSym = 1,nSym
-         iiBst(iSym) = iCount
-         nnBst(iSym) = iTOffs(3,iSym)
-         iCount = iCount + nnBst(iSym)
-      End Do
+! Allocate index arrays for reduced sets: IndRed and IndRsh.
+! ----------------------------------------------------------
 
-!     Set dimensions of reduced sets equal to full dimension.
-!     -------------------------------------------------------
+call mma_allocate(IndRed_Hidden,nnBstRT(1),3,Label='IndRed_Hidden')
+IndRed => IndRed_Hidden
+call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
+IndRSh => IndRSh_Hidden
 
-      Do i = 1,3
-         nnBstT=0
-         Do iSym = 1,nSym
-            iiBstR(iSym,i) = iiBst(iSym)
-            nnBstR(iSym,i) = nnBst(iSym)
-            nnBstT=nnBstT+nnBstR(iSym,i)
-         End Do
-         nnBstRT(i) = nnBstT
-      End Do
-      mmBstRT = nnBstRT(1)
+! Allocate iScr array used by reading routines.
+! ---------------------------------------------
 
-!     Allocate index arrays for reduced sets: IndRed and IndRsh.
-!     ----------------------------------------------------------
+DoDummy = .false.
+call Cho_Allo_iScr(DoDummy)
 
-      Call mma_allocate(IndRed_Hidden,nnBstRT(1),3,                     &
-     &                  Label='IndRed_Hidden')
-      IndRed => IndRed_Hidden
-      Call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
-      IndRSh => IndRSh_Hidden
+! Initialize reduced set dimensions used for reading vectors.
+! (Note: here they are all the same - there is one reduced sets!)
+! ---------------------------------------------------------------
 
-!     Allocate iScr array used by reading routines.
-!     ---------------------------------------------
+do i=1,MaxRed
+  do iSym=1,nSym
+    nDimRS(iSym,i) = nnBstR(iSym,1)
+  end do
+end do
 
-      DoDummy = .False.
-      Call Cho_Allo_iScr(DoDummy)
+! Allocate and set mapping array from 1st reduced set to full storage.
+! --------------------------------------------------------------------
 
-!     Initialize reduced set dimensions used for reading vectors.
-!     (Note: here they are all the same - there is one reduced sets!)
-!     ---------------------------------------------------------------
+call mma_allocate(iRS2F,2,nnBstRT(1),Label='iRS2F')
 
-      Do i = 1,MaxRed
-         Do iSym = 1,nSym
-            nDimRS(iSym,i) = nnBstR(iSym,1)
-         End Do
-      End Do
+! Set index arrays corresponding to full storage:
+! iiBstRSh, nnBstRSh, IndRed, IndRSh, and iRS2F.
+! -----------------------------------------------
 
-!     Allocate and set mapping array from 1st reduced set to full
-!     storage.
-!     -----------------------------------------------------------
+call SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,nSym,nnShl,nnBstRT(1),3,2,iShij,nShij)
 
-      Call mma_allocate(iRS2F,2,nnBstRT(1),Label='iRS2F')
+return
 
-!     Set index arrays corresponding to full storage:
-!     iiBstRSh, nnBstRSh, IndRed, IndRSh, and iRS2F.
-!     -----------------------------------------------
-
-      Call SetChoIndx_RI(iiBstRSh,nnBstRSh,                             &
-     &                   IndRed,IndRsh,iRS2F,                           &
-     &                   nSym,nnShl,nnBstRT(1),3,2,iShij,nShij)
-
-      Return
-      End
+end subroutine IniCho_RI_Xtras

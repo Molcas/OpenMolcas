@@ -8,104 +8,105 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Effective_CD_Pairs(ij2,nij_Eff)
-      use Basis_Info
-      use Symmetry_Info, only: nIrrep
-      use ChoArr, only: iSOShl
-      Implicit Real*8 (a-h,o-z)
-      Integer, Allocatable:: ij2(:,:)
+
+subroutine Effective_CD_Pairs(ij2,nij_Eff)
+
+use Basis_Info
+use Symmetry_Info, only: nIrrep
+use ChoArr, only: iSOShl
+
+implicit real*8(a-h,o-z)
+integer, allocatable :: ij2(:,:)
 #include "cholesky.fh"
 #include "stdalloc.fh"
+integer, allocatable :: SO_ab(:), ij3(:)
 
-      Integer, Allocatable :: SO_ab(:), ij3(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Compute the max number of auxiliary shells in case of CD. Hence
-!     we do not have any explicit auxiliary basis set!
-!
-      nSkal_Valence=0
-      Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%Aux) Then
-            Do iAng = 0, dbsc(iCnttp)%nVal-1
-               iShll = dbsc(iCnttp)%iVal + iAng
-               If (.Not.Shells(iShll)%Aux) Then
-                  nSkal_Valence = nSkal_Valence + dbsc(iCnttp)%nCntr
-               End If
-            End Do
-         End If
-      End Do
-!
-!     Max number of pairs
-!
-      nij=nSkal_Valence*(nSkal_Valence+1)/2
-      Call mma_allocate(ij3,nij,Label='ij3')
-      ij3(:)=0
-!     Write (*,*) 'nij3=',nij
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      nAux_Tot=0
-      nVal_Tot=0
-      Do iIrrep = 0, nIrrep-1
-         nAux_Tot=nAux_Tot+nBas_Aux(iIrrep)
-         nVal_Tot=nVal_Tot+nBas(iIrrep)
-      End Do
+! Compute the max number of auxiliary shells in case of CD.
+! Hence we do not have any explicit auxiliary basis set!
 
-      Call mma_allocate(SO_ab,2*nAux_Tot,Label='SO_ab')
-      SO_ab(:)=0
-!
-      iOff = 1
-      jOff = 0
-      nSym=nIrrep
-      Do iSym = 1, nSym
-         iIrrep=iSym-1
-         Call CHO_X_GET_PARDIAG(iSym,SO_ab(iOff))
-!
-         Call Get_Auxiliary_Shells(SO_ab(iOff),nBas_Aux(iIrrep),        &
-     &                             jOff,iSOShl,nVal_Tot,ij3,nij)
-!
-         jOff = jOff + nBas_Aux(iIrrep)
-         iOff = iOff + 2*nBas_Aux(iIrrep)
-      End Do
-      Call mma_deallocate(SO_ab)
+nSkal_Valence = 0
+do iCnttp=1,nCnttp
+  if (.not. dbsc(iCnttp)%Aux) then
+    do iAng=0,dbsc(iCnttp)%nVal-1
+      iShll = dbsc(iCnttp)%iVal+iAng
+      if (.not. Shells(iShll)%Aux) then
+        nSkal_Valence = nSkal_Valence+dbsc(iCnttp)%nCntr
+      end if
+    end do
+  end if
+end do
+
+! Max number of pairs
+
+nij = nSkal_Valence*(nSkal_Valence+1)/2
+call mma_allocate(ij3,nij,Label='ij3')
+ij3(:) = 0
+!write(6,*) 'nij3=',nij
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nij_Eff=0
-      Do i = 1, nij
-         nij_Eff = nij_Eff + ij3(i)
-      End Do
-!     Write (6,*) 'nij_Eff=',nij_Eff
-      If (nij_Eff.gt.nij) Then
-         Call WarningMessage(2,                                         &
-     &               'Effective_CD_Pairs: nij_Eff.gt.nij')
-         Call Abend()
-      End If
-!
-      Call mma_allocate(ij2,2,nij_Eff,Label='ij2')
-      ij = 0
-      ij_Eff = 0
-      Do i = 1, nSkal_Valence
-         Do j = 1, i
-            ij = ij + 1
-!           Write (6,*) 'i,j,ij=',i,j,ij
-            If (ij3(ij).eq.1) Then
-               ij_Eff = ij_Eff + 1
-!              Write (*,*) 'ij_Eff=',ij_Eff
-               ij2(1,ij_Eff) = i
-               ij2(2,ij_Eff) = j
-            End If
-         End Do
-      End Do
-      If (ij_Eff.ne.nij_Eff) Then
-         Call WarningMessage(2,                                         &
-     &               'Effective_CD_Pairs: ij_Eff.ne.nij_Eff')
-         Call Abend()
-      End If
-      Call mma_deallocate(ij3)
+nAux_Tot = 0
+nVal_Tot = 0
+do iIrrep=0,nIrrep-1
+  nAux_Tot = nAux_Tot+nBas_Aux(iIrrep)
+  nVal_Tot = nVal_Tot+nBas(iIrrep)
+end do
+
+call mma_allocate(SO_ab,2*nAux_Tot,Label='SO_ab')
+SO_ab(:) = 0
+
+iOff = 1
+jOff = 0
+nSym = nIrrep
+do iSym=1,nSym
+  iIrrep = iSym-1
+  call CHO_X_GET_PARDIAG(iSym,SO_ab(iOff))
+
+  call Get_Auxiliary_Shells(SO_ab(iOff),nBas_Aux(iIrrep),jOff,iSOShl,nVal_Tot,ij3,nij)
+
+  jOff = jOff+nBas_Aux(iIrrep)
+  iOff = iOff+2*nBas_Aux(iIrrep)
+end do
+call mma_deallocate(SO_ab)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+nij_Eff = 0
+do i=1,nij
+  nij_Eff = nij_Eff+ij3(i)
+end do
+!write(6,*) 'nij_Eff=',nij_Eff
+if (nij_Eff > nij) then
+  call WarningMessage(2,'Effective_CD_Pairs: nij_Eff > nij')
+  call Abend()
+end if
+
+call mma_allocate(ij2,2,nij_Eff,Label='ij2')
+ij = 0
+ij_Eff = 0
+do i=1,nSkal_Valence
+  do j=1,i
+    ij = ij+1
+    !write (6,*) 'i,j,ij=',i,j,ij
+    if (ij3(ij) == 1) then
+      ij_Eff = ij_Eff+1
+      !write(6,*) 'ij_Eff=',ij_Eff
+      ij2(1,ij_Eff) = i
+      ij2(2,ij_Eff) = j
+    end if
+  end do
+end do
+if (ij_Eff /= nij_Eff) then
+  call WarningMessage(2,'Effective_CD_Pairs: ij_Eff /= nij_Eff')
+  call Abend()
+end if
+call mma_deallocate(ij3)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine Effective_CD_Pairs
