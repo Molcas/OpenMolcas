@@ -50,7 +50,7 @@ do iSym=1,nSym
       exit
     end if
   end if
-  iD_vir(jD:jD+nBas(iSym)) = 0
+  iD_vir(jD:jD+nBas(iSym)-1) = 0
   if (nSsh(iSym) > 0) then
     nOcc = nFro(iSym)+nIsh(iSym)+nAsh(iSym)
     call GetDens_Localisation(Dens,C%SB(iSym)%A2,nBas(iSym),nOcc)
