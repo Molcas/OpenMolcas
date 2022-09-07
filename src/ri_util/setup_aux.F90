@@ -11,17 +11,19 @@
 
 subroutine Setup_Aux(nIrrep,nBas,nShell,nShell_Aux,nSO,TMax,CutOff,nij_Shell,nBas_Aux,nChV,iTOffs)
 
-use iSD_data
+use iSD_data, only: iSD
 use SOAO_Info, only: iSOInf
-use j12, only: ShlSO, SOShl, nBasSh, iSSOff, iShij
+use j12, only: iShij, iSSOff, nBasSh, ShlSO, SOShl
+use stdalloc, only: mma_allocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "setup.fh"
-#include "nsd.fh"
-integer nBas(0:nIrrep-1), nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1), iTOffs(3,0:nIrrep-1)
-real*8 TMax(nShell,nShell)
+implicit none
+integer(kind=iwp) :: nIrrep, nBas(0:nIrrep-1), nShell, nShell_Aux, nSO, nij_Shell, nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1), &
+                     iTOffs(3,0:nIrrep-1)
+real(kind=wp) :: TMax(nShell,nShell), CutOff
+integer(kind=iwp) :: iAng, iCnt, iCnttp, iIrrep, ij_Shell, iSkal, iSO, jAng, jCnt, jCnttp, jSkal, nSO_Aux
+real(kind=wp) :: TMax_ij
 
 !                                                                      *
 !***********************************************************************
@@ -31,10 +33,10 @@ real*8 TMax(nShell,nShell)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'Setup_Aux:nIrrep:   ',nIrrep
-write(6,*) 'Setup_Aux:nBas:     ',nBas
-write(6,*) 'Setup_Aux:nBas_Aux: ',nBas_Aux
-write(6,*) 'Setup_Aux:nChV:     ',nChV
+write(u6,*) 'Setup_Aux:nIrrep:   ',nIrrep
+write(u6,*) 'Setup_Aux:nBas:     ',nBas
+write(u6,*) 'Setup_Aux:nBas_Aux: ',nBas_Aux
+write(u6,*) 'Setup_Aux:nChV:     ',nChV
 #endif
 !                                                                      *
 !***********************************************************************
@@ -56,7 +58,7 @@ do iSO=1,nSO+nSO_Aux
   iCnttp = iSOInf(1,iSO)
   iCnt = iSOInf(2,iSO)
   iAng = iSOInf(3,iSO)
-  !write(6,*) 'iCnttp,iCnt,iAng=',iCnttp,iCnt,iAng
+  !write(u6,*) 'iCnttp,iCnt,iAng=',iCnttp,iCnt,iAng
 
   ! Find the Shell from which this basis function is derived.
 
@@ -66,7 +68,7 @@ do iSO=1,nSO+nSO_Aux
     jAng = iSD(1,iSkal)
     if ((jCnttp == iCnttp) .and. (jCnt == iCnt) .and. (jAng == iAng)) then
       SOShl(iSO) = iSkal
-      !write(6,*) 'Found in shell=',iSkal
+      !write(u6,*) 'Found in shell=',iSkal
       exit
     end if
   end do
@@ -102,7 +104,7 @@ do iSkal=1,nShell
       iShij(1,ij_Shell) = iSkal
       iShij(2,ij_Shell) = jSkal
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'ij_Shell,iSkal,jSkal=',ij_Shell,iSkal,jSkal
+      write(u6,*) 'ij_Shell,iSkal,jSkal=',ij_Shell,iSkal,jSkal
 #     endif
     end if
   end do
@@ -119,10 +121,10 @@ call Setup_Aux_Inner(SOShl,nSO+nSO_Aux,ShlSO,nBasSh,nShell+nShell_Aux,nIrrep,nBa
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'nij_Shell=',nij_Shell
-write(6,*)
+write(u6,*) 'nij_Shell=',nij_Shell
+write(u6,*)
 do ij_Shell=1,nij_Shell
-  write(6,*) iShij(1,ij_Shell),iShij(2,ij_Shell)
+  write(u6,*) iShij(1,ij_Shell),iShij(2,ij_Shell)
 end do
 #endif
 !                                                                      *

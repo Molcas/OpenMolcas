@@ -18,15 +18,18 @@ subroutine Pivot_mat(n,m,lu_A0,lu_A,iD_A,Scr,lScr)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer n, m, lu_A0, lu_A, iD_A(n), lScr
-real*8 Scr(lScr)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, m, lu_A0, lu_A, iD_A(n), lScr
+real(kind=wp) :: Scr(lScr)
 #include "warnings.h"
+integer(kind=iwp) :: i, iAddr, iCol, ij, iScr, jCol, kAddr, kCol, lmax, mNeed, nMem_Col
 
 lmax = lScr-n
 if (lmax < n) then
   call WarningMessage(2,'Error in Pivot_mat')
-  write(6,*) ' Pivot_mat: too little scratch space !!'
+  write(u6,*) ' Pivot_mat: too little scratch space !!'
   call Quit(_RC_CHO_LOG_)
 end if
 

@@ -13,21 +13,25 @@
 
 subroutine Restore_mat(n,m,lu_A0,lu_A,iD_A,Scr,lScr,Add0s)
 !***********************************************************************
-!
-!     Author:  F. Aquilante
-!
+!                                                                      *
+!     Author:  F. Aquilante                                            *
+!                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer n, m, lu_A0, lu_A, iD_A(n), lScr
-real*8 Scr(lScr)
-logical Add0s
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, m, lu_A0, lu_A, iD_A(n), lScr
+real(kind=wp) :: Scr(lScr)
+logical(kind=iwp) :: Add0s
 #include "warnings.h"
+integer(kind=iwp) :: i, iAddr, iCol, ij, iOff, iScr, jCol, kAddr, kCol, lmax, mNeed, nMem_Col
 
 lmax = lScr-n
 if (lmax < n) then
   call WarningMessage(2,'Error in Restore_mat')
-  write(6,*) ' Restore_mat: too little scratch space!! '
+  write(u6,*) ' Restore_mat: too little scratch space!! '
   call Quit(_RC_CHO_LOG_)
 end if
 
@@ -53,7 +57,7 @@ do kCol=1,nMem_Col
   do i=kCol+1,n
     iCol = iD_A(i)
     iScr = ij+iCol
-    Scr(iScr) = 0.0d0
+    Scr(iScr) = Zero
   end do
   iAddr = n*(kCol-1)
   call dDaFile(lu_A,1,Scr(ij+1),n,iAddr)
@@ -71,7 +75,7 @@ do kCol=nMem_Col+1,m
   do i=kCol+1,n
     iCol = iD_A(i)
     iScr = n+iCol
-    Scr(iScr) = 0.0d0
+    Scr(iScr) = Zero
   end do
   iAddr = n*(kCol-1)
   call dDaFile(lu_A,1,Scr(n+1),n,iAddr)

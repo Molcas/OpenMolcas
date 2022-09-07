@@ -26,7 +26,7 @@ implicit none
 private
 
 public :: Alloc1DArray_Type, Alloc2DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, Integer_Pointer, L_Full_Type, &
-          Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+          Lab_Type, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
 ! temporary subroutines for interface with old code
 public :: Map_to_DSBA, Map_to_SBA, Map_to_twxy
 

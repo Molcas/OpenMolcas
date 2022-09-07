@@ -11,30 +11,32 @@
 
 subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
 
-use pso_stuff
+use pso_stuff, only: AOrb, CMO, D0, lPSO, lSA, n_Txy, nDens, nnP, npos, nV_k, nZ_p_k, Txy, U_k, V_k, Z_p_k
 use Basis_Info, only: nBas, nBas_Aux
 use Gateway_global, only: force_out_of_core
-use RICD_Info, only: Do_RI, Cholesky
+use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use ExTerm, only: iMP2prpt, DMLT
+use ExTerm, only: DMLT, iMP2prpt
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer ipVk(nProc), ipZpk(nProc)
-integer, optional :: ipUk(nProc)
-#include "stdalloc.fh"
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: nProc, ipVk(nProc), ipZpk(nProc), myProc
+integer(kind=iwp), optional :: ipUk(nProc)
 #include "cholesky.fh"
 #include "etwas.fh"
 #include "exterm.fh"
-type(DSBA_Type) DSQ, ChM(5), DLT2
-logical DoExchange, DoCAS, Estimate, Update
-integer nIOrb(0:7), nV_l(0:7), nV_t(0:7)
-integer nU_l(0:7), nU_t(0:7)
-integer ipTxy(0:7,0:7,2), jp_V_k
 #include "chotime.fh"
-character*8 Method
-real*8, allocatable :: TmpD(:), Zv(:), Qv(:), Scr(:)
+integer(kind=iwp) :: i, iADens, iAvec, iBas, iCount, iIrrep, ij, iOff, iOff2, iOffDSQ, ipTxy(0:7,0:7,2), irc, irun, iSO, isym, j, &
+                     jBas, jCount, jIrrep, jp_U_k, jp_V_k, jp_Z_p_k, jrun, k, kIrrep, kOff1, l, mAO, MemMax, NChVMx, nIOrb(0:7), &
+                     nnAorb, nQMax, nQv, nQvMax, nSA, nU_l(0:7), nU_ls, nU_t(0:7), nV_l(0:7), nV_ls, nV_t(0:7)
+real(kind=wp) :: Cho_thrs, tmp
+logical(kind=iwp) :: DoCAS, DoExchange, Estimate, Update
+character(len=8) :: Method
+type(DSBA_Type) :: ChM(5), DLT2, DSQ
+real(kind=wp), allocatable :: Qv(:), Scr(:), TmpD(:), Zv(:)
 
 !                                                                      *
 !***********************************************************************
@@ -55,7 +57,7 @@ end if
 
 if (iMp2prpt == 2) then
   if (.not. present(ipUk)) then
-    write(6,*) 'No ipUk input present!'
+    write(u6,*) 'No ipUk input present!'
     call Abend()
   end if
   nU_ls = 0
@@ -159,7 +161,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
   !DoExchange = Exfac /= Zero
 
   call Get_cArray('Relax Method',Method,8)
-  if (Method == 'MCPDFT ') exfac = 1.0d0
+  if (Method == 'MCPDFT ') exfac = One
   DoExchange = Exfac /= Zero
 
   if (DoExchange .or. DoCAS) then
@@ -188,10 +190,10 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
       end if
 
       do i=0,nIrrep-1
-        call CD_InCore(DSQ%SB(i+1)%A2,nBas(i),ChM(j)%SB(i+1)%A2,nBas(i),nChOrb(i,j),1.0d-12,irc)
+        call CD_InCore(DSQ%SB(i+1)%A2,nBas(i),ChM(j)%SB(i+1)%A2,nBas(i),nChOrb(i,j),1.0e-12_wp,irc)
       end do
       if (irc /= 0) then
-        write(6,*) 'Compute_AuxVec: failed to get Cholesky MOs !'
+        write(u6,*) 'Compute_AuxVec: failed to get Cholesky MOs !'
         call Abend()
       end if
     end do
@@ -240,7 +242,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
             end do
           end do
 
-          Cho_thrs = 1.0d-12
+          Cho_thrs = 1.0e-12_wp
 
           l = 0
           do j=1,nBas(isym)

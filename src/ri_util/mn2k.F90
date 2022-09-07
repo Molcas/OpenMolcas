@@ -9,11 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function mn2K(iab,lSym)
+function mn2K(iab,lSym)
 
-use pso_stuff
+use pso_stuff, only: ij2K, iOff_ij2K
+use Definitions, only: iwp
 
-integer iab, lSym
+implicit none
+integer(kind=iwp) :: mn2K
+integer(kind=iwp) :: iab, lSym
+integer(kind=iwp) :: lab
 
 lab = iOff_ij2K(lSym)+iab
 mn2K = ij2K(lab)

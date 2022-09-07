@@ -11,14 +11,19 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-integer function irAmax(n,a,inc)
+function irAmax(n,a,inc)
 ! Finds the index of element having max. absolute value.
 !
 ! Author:  F. Aquilante
 
-implicit real*8(a-h,o-z)
-real*8 a(*)
-integer n, inc
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: irAmax
+integer(kind=iwp) :: n, inc
+real(kind=wp) :: a(*)
+integer(kind=iwp) :: i, ix
+real(kind=wp) :: smax
 
 iramax = 0
 if ((n < 1) .or. (inc <= 0)) return

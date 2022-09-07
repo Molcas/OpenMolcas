@@ -11,15 +11,20 @@
 
 subroutine CD_AInv_Inner(n,m,ADiag,iADiag,Lu_A,Lu_Q,Thr_CD)
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-#include "real.fh"
-real*8 ADiag(n)
-integer iADiag(n)
-logical Out_of_Core
-real*8, allocatable :: Scr(:), Z(:), X(:)
-real*8, allocatable, target :: Qm(:), Am(:), Q_k(:), A_k(:)
-real*8, pointer :: Q_l(:) => null(), A_l(:) => null()
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, m, iADiag(n), Lu_A, Lu_Q
+real(kind=wp) :: ADiag(n), Thr_CD
+integer(kind=iwp) :: iAddr, iAddr_, iOff, kCol, kQm, lAm, LinDep, lQm, lScr, Lu_Z, MaxMem, MaxMem2, mb, mQm, nAm, nB, nBfn2, &
+                     nBfnTot, nDim, nMem, nQm, nQm_full, nScr, nVec, nXZ
+real(kind=wp) :: a, b, Thr, ThrQ
+logical(kind=iwp) :: Out_of_Core
+real(kind=wp), allocatable :: Scr(:), Z(:), X(:)
+real(kind=wp), allocatable, target :: Qm(:), Am(:), Q_k(:), A_k(:)
+real(kind=wp), pointer :: Q_l(:), A_l(:)
 
 nScr = 3*n
 call mma_maxDBLE(MaxMem)
@@ -28,16 +33,16 @@ call mma_allocate(Scr,lScr,Label='Scr')
 
 nDim = n
 
-Thr = Thr_CD*1.0D-1
+Thr = Thr_CD*0.1_wp
 Lu_Z = 7
 call DaName_MF_WA(Lu_Z,'ZMAT09')
 call Get_Pivot_idx(ADiag,nDim,nVec,Lu_A,Lu_Z,iADiag,Scr,lScr,Thr)
 m = nVec
 if (nDim /= nVec) then
-  write(6,*)
-  write(6,*) 'Detected lin. dep. in the auxiliary basis'
-  write(6,'(A,I6)') ' # of aux. bfns before lin. dep. removal: ',nDim
-  write(6,'(A,I6)') ' # of aux. bfns after  lin. dep. removal: ',nVec
+  write(u6,*)
+  write(u6,*) 'Detected lin. dep. in the auxiliary basis'
+  write(u6,'(A,I6)') ' # of aux. bfns before lin. dep. removal: ',nDim
+  write(u6,'(A,I6)') ' # of aux. bfns after  lin. dep. removal: ',nVec
 end if
 
 call Pivot_Mat(nDim,nVec,Lu_A,Lu_Z,iADiag,Scr,lScr)
@@ -48,7 +53,7 @@ call mma_deallocate(Scr)
 !     A-vectors are now on disk. Go ahead and compute the Q-vectors!
 !***********************************************************************
 
-ThrQ = Thr_CD*1.0D-1 ! Threshold for Inv_Cho_Factor
+ThrQ = Thr_CD*0.1_wp ! Threshold for Inv_Cho_Factor
 
 nB = nVec
 if (nB /= 0) then
@@ -62,15 +67,15 @@ if (nB /= 0) then
   if (Out_Of_Core) then
     mQm = (nQm*MaxMem-5*nXZ)/(2*nQm_full)
     a = One
-    b = -Two*dble(mQm)
-    mB = int(-a/Two+sqrt((a/Two)**2-b))
+    b = -Two*real(mQm,kind=wp)
+    mB = int(-a*Half+sqrt((a*Half)**2-b))
     kQm = mB*(mB+1)/2
     if (kQm > mQm) then
       call WarningMessage(2,'Error in CD_AInv_Inner')
-      write(6,*) 'kQm > mQm!'
-      write(6,*) 'MaxMem=',MaxMem
-      write(6,*) 'nQm,mQm,kQm=',nQm,mQm,kQm
-      write(6,*) 'nB,mB=',nB,mB
+      write(u6,*) 'kQm > mQm!'
+      write(u6,*) 'MaxMem=',MaxMem
+      write(u6,*) 'nQm,mQm,kQm=',nQm,mQm,kQm
+      write(u6,*) 'nB,mB=',nB,mB
       call Abend()
     end if
   else
@@ -83,7 +88,7 @@ if (nB /= 0) then
 
   if (lQm < 1) then
     call WarningMessage(2,'Error in CD_AInv_Inner')
-    write(6,*) 'lQm < 1'
+    write(u6,*) 'lQm < 1'
     call Abend()
   end if
 
@@ -134,7 +139,7 @@ if (nB /= 0) then
 
     if (LinDep /= 0) then
       call WarningMessage(2,'Error in CD_AInv_Inner')
-      write(6,*) 'Inv_Cho_Factor found linear dependence!'
+      write(u6,*) 'Inv_Cho_Factor found linear dependence!'
       call Abend()
     end if
 

@@ -81,19 +81,22 @@ subroutine INV_CHO_FACTOR(A_k,kCol,Am,Qm,nMem,lu_A,lu_Q,Scr,lScr,Z,X,thr,Q_k,lin
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs, Is_Real_Par
 #endif
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
-integer kCol, nMem, lu_A, lu_Q, lScr, lindep
-real*8 A_k(*), Am(*), Qm(*), Scr(*), Z(*), X(*), Q_k(*)
-real*8 thr
+implicit none
+real(kind=wp) :: A_k(*), Am(*), Qm(*), Scr(*), Z(*), X(*), thr, Q_k(*)
+integer(kind=iwp) :: kCol, nMem, lu_A, lu_Q, lScr, lindep
 #include "warnings.h"
-parameter(two=2.0d0,one=1.0d0,zero=0.0d0)
-parameter(thr_neg=-1.0d-8)
+integer(kind=iwp) :: i, IJ, j, jp, kdone, kread, kstart, lQcol, lQdone, lQdone_, lQread
+real(kind=wp) :: sprev, xnorm
+real(kind=wp), parameter :: thr_neg = -1.0e-8_wp
+real(kind=r8), external :: ddot_
 
 !***********************************************************************
 if (thr < zero) then
   call WarningMessage(2,'Error in Inv_Cho_Factor')
-  write(6,*) 'thr must be >= zero'
+  write(u6,*) 'thr must be >= zero'
   call Quit(_RC_CHO_LOG_)
 end if
 
@@ -138,11 +141,11 @@ if (kCol <= nMem) then
     end do
     call GAdGOp(Q_k,kCol-1,'+')
   else
-    call DAXPY_(kCol-1,-1.0d0,Z,1,Q_k,1)
+    call DAXPY_(kCol-1,-One,Z,1,Q_k,1)
     call DTPMV('U','N','N',kCol-1,Qm,Q_k,1)
   end if
 # else
-  call DAXPY_(kCol-1,-1.0d0,Z,1,Q_k,1)
+  call DAXPY_(kCol-1,-One,Z,1,Q_k,1)
   call DTPMV('U','N','N',kCol-1,Qm,Q_k,1)
 # endif
   Q_k(kCol) = one
@@ -168,7 +171,7 @@ if (kCol <= nMem) then
     call dscal_(kCol,xnorm,Q_k(1),1)
 
     !-tbp: use fixed criterion for too negative diagonal
-    !else if ((xnorm > zero) .or. (-xnorm <= 1.0d1*thr)) then
+    !else if ((xnorm > zero) .or. (-xnorm <= Ten*thr)) then
   else if (xnorm > thr_neg) then
 
     lindep = 1
@@ -177,8 +180,8 @@ if (kCol <= nMem) then
   else
 
     call WarningMessage(2,'Error in Inv_Cho_Factor')
-    write(6,*) 'INV_CHO_FACTOR: too-negative value for norm(Q_k).'
-    write(6,*) 'INV_CHO_FACTOR: xnorm = ',xnorm
+    write(u6,*) 'INV_CHO_FACTOR: too-negative value for norm(Q_k).'
+    write(u6,*) 'INV_CHO_FACTOR: xnorm = ',xnorm
     call Quit(_RC_CHO_RUN_)
 
   end if
@@ -193,7 +196,7 @@ else   ! the first nMem columns of Q are in memory
 
   if (lScr < kCol-1) then
     call WarningMessage(2,'Error in Inv_Cho_Factor')
-    write(6,*) 'lScr must be >= kCol-1'
+    write(u6,*) 'lScr must be >= kCol-1'
     call Quit(_RC_CHO_LOG_)
   end if
 
@@ -310,7 +313,7 @@ else   ! the first nMem columns of Q are in memory
     call dscal_(kCol,xnorm,Q_k(1),1)
 
     !-tbp: use fixed criterion for too negative diagonal
-    !else if ((xnorm > zero) .or. (-xnorm <= 1.0d1*thr)) then
+    !else if ((xnorm > zero) .or. (-xnorm <= Ten*thr)) then
   else if (xnorm > thr_neg) then
 
     lindep = 1
@@ -319,8 +322,8 @@ else   ! the first nMem columns of Q are in memory
   else
 
     call WarningMessage(2,'Error in Inv_Cho_Factor')
-    write(6,*) 'INV_CHO_FACTOR: too-negative value for norm(Q_k).'
-    write(6,*) 'INV_CHO_FACTOR: xnorm = ',xnorm
+    write(u6,*) 'INV_CHO_FACTOR: too-negative value for norm(Q_k).'
+    write(u6,*) 'INV_CHO_FACTOR: xnorm = ',xnorm
     call Quit(_RC_CHO_RUN_)
 
   end if

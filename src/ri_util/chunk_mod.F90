@@ -11,10 +11,23 @@
 
 module Chunk_Mod
 
+use Definitions, only: wp
 #ifdef _MOLCAS_MPP_
-integer :: ip_Chunk = 0
-integer, allocatable :: iMap(:)
+use Definitions, only: iwp
 #endif
-real*8, allocatable :: Chunk(:)
+
+implicit none
+private
+
+real(kind=wp), allocatable :: Chunk(:)
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: ip_Chunk = 0
+integer(kind=iwp), allocatable :: iMap(:)
+#endif
+
+public :: Chunk
+#ifdef _MOLCAS_MPP_
+public :: iMap, ip_Chunk
+#endif
 
 end module Chunk_Mod

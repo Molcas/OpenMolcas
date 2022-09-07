@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nSize_3C(kS,lS,nShBf,nShell,nIrrep,iOff,nBas_Aux)
+function nSize_3C(kS,lS,nShBf,nShell,nIrrep,iOff,nBas_Aux)
 !***********************************************************************
 !                                                                      *
 !     Compute the size of ({nu,mu}|K) and the offsets to the           *
@@ -17,7 +17,12 @@ integer function nSize_3C(kS,lS,nShBf,nShell,nIrrep,iOff,nBas_Aux)
 !                                                                      *
 !***********************************************************************
 
-integer nShBf(0:nIrrep-1,nShell), iOff(3,0:nIrrep-1), nBas_Aux(0:nIrrep-1)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nSize_3C
+integer(kind=iwp) :: kS, lS, nShell, nIrrep, nShBf(0:nIrrep-1,nShell), iOff(3,0:nIrrep-1), nBas_Aux(0:nIrrep-1)
+integer(kind=iwp) :: kIrrep, klIrrep, lIrrep, nJ, nK, nKL, nL
 
 nSize_3C = 0
 

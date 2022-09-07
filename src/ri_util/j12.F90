@@ -11,10 +11,14 @@
 
 module j12
 
-integer :: nSO, nSkal_Valence, klS
-integer, allocatable :: SOShl(:), ShlSO(:)
-integer, allocatable :: nBasSh(:,:)
-integer, allocatable :: iSSOff(:,:,:)
-integer, allocatable :: iShij(:,:)
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: nSO, nSkal_Valence, klS
+integer(kind=iwp), allocatable :: iShij(:,:), iSSOff(:,:,:), nBasSh(:,:), ShlSO(:), SOShl(:)
+
+public :: iShij, iSSOff, klS, nBasSh, nSkal_Valence, nSO, ShlSO, SOShl
 
 end module j12

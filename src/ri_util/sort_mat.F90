@@ -13,28 +13,28 @@
 
 subroutine SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,Diag)
 !***********************************************************************
-!
-!     Author:  F. Aquilante
-!
+!                                                                      *
+!     Author:  F. Aquilante                                            *
+!                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer irc, nSym, lScr
-integer iD_A(*), nDim(nSym), nVec(nSym), lu_A0(nSym)
-real*8 Scr(lScr)
-character*7 mode
-character Name_A*6
-real*8, optional :: Diag(*)
+use Definitions, only: wp, iwp, u6
 
-!write(6,*) 'Mode=',Mode
+implicit none
+integer(kind=iwp) :: irc, nSym, nDim(nSym), nVec(nSym), iD_A(*), lu_A0(nSym), lScr
+character(len=7) :: mode
+real(kind=wp) :: Scr(lScr)
+real(kind=wp), optional :: Diag(*)
+integer(kind=iwp) :: is, iSym, lu_A
+! 19112013VVP: The threshold changed from 1.0e-14_wp to 1.0e-12_wp
+real(kind=wp), parameter :: Thr = 1.0e-12_wp
+character(len=6) :: Name_A
+
+!write(u6,*) 'Mode=',Mode
 irc = 0
 if (mode == 'GePivot') then  ! returns iD_A
   if (.not. present(Diag)) call Abend()
   is = 1
-  ! 19112013VVP: The threshold changed from 1.d-14 to 1.d-12
-  Thr = 1.0D-12
-  ! The original threshold:
-  !Thr = 1.0D-14
   do iSym=1,nSym
     if (nDim(iSym) == 0) cycle
     lu_A = 7
@@ -75,7 +75,7 @@ else if (mode == 'Restore') then !store squared Q-mat (col. piv.)
   end do
 
 else
-  write(6,*) ' SORT_mat: invalid mode! '
+  write(u6,*) ' SORT_mat: invalid mode! '
   irc = 66
 end if
 

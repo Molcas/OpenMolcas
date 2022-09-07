@@ -11,9 +11,13 @@
 
 subroutine Mk_TInt_P(TInt_p,nTInt_p,TP,nTP,iAL,nCompA,nCompB,List2_p,nList2_p,mData,iAng,jAng,npk,npl,List_TP)
 
-implicit real*8(a-h,o-z)
-real*8 TInt_p(nTInt_p,nTInt_p), TP(nTP,nTP)
-integer iAL(nCompA,nCompB), List2_p(mData,nList2_p), List_TP(2,nTP)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nTInt_p, nTP, nCompA, nCompB, iAL(nCompA,nCompB), nList2_p, mData, List2_p(mData,nList2_p), iAng, jAng, npk, &
+                     npl, List_TP(2,nTP)
+real(kind=wp) :: TInt_p(nTInt_p,nTInt_p), TP(nTP,nTP)
+integer(kind=iwp) :: iA, iList2_p, iTP, jA, jList2_p, jTP, k, kAng, kComp, l, lAng, lComp, m, mAng, mComp, n, nAng, nComp
 
 iA = iAng+1
 jA = jAng+1
@@ -23,7 +27,7 @@ do iList2_p=1,nList2_p
   lAng = List2_p(2,iList2_p)
   kComp = List2_p(3,iList2_p)
   lComp = List2_p(4,iList2_p)
-  !write(6,*) 'kComp,lComp=',kComp,lComp
+  !write(u6,*) 'kComp,lComp=',kComp,lComp
   !if ((kAng == iAng) .and. (iAL(kComp,lComp) == 1) .and. (lAng == jAng) .and. (kComp == iA) .and. (lComp == jA)) then
   if ((kAng == iAng) .and. (lAng == jAng) .and. (kComp == iA) .and. (lComp == jA)) then
 
@@ -42,7 +46,7 @@ do iList2_p=1,nList2_p
       nAng = List2_p(2,jList2_p)
       mComp = List2_p(3,jList2_p)
       nComp = List2_p(4,jList2_p)
-      !write(6,*) 'mComp,nComp=',mComp,nComp
+      !write(u6,*) 'mComp,nComp=',mComp,nComp
       !if ((mAng == iAng) .and. (iAL(mComp,nComp) == 1) .and. (nAng == jAng) .and. (mComp == iA) .and. (nComp == jA)) then
       if ((mAng == iAng) .and. (nAng == jAng) .and. (mComp == iA) .and. (nComp == jA)) then
 

@@ -16,7 +16,11 @@ subroutine Mk_nacCD_Shells(kCnttp,lCnttp)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: kCnttp, lCnttp
+
 !***********************************************************************
 !                                                                      *
 !     Produce product basis                                            *

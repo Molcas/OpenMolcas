@@ -8,5 +8,5 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer nAB, ipLocal_A, ISO2LO(2,MaxBfn+MaxBfn_Aux)
+      Integer nAB, ipLocal_A, nSO_Aux, ISO2LO(2,MaxBfn+MaxBfn_Aux)
       Common /lRI/ nAB, ipLocal_A, nSO_Aux, ISO2LO

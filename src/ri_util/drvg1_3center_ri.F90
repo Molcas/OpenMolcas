@@ -16,7 +16,7 @@ subroutine Drvg1_3Center_RI(Grad,Temp,nGrad,ij3,nij_Eff)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals. The four outermost loops *
-!          will controll the type of the two-electron integral, eg.    *
+!          will control the type of the two-electron integral, eg.     *
 !          (ss|ss), (sd|pp), etc. The next four loops will generate    *
 !          list of symmetry distinct centers that do have basis func-  *
 !          tions of the requested type.                                *
@@ -50,45 +50,60 @@ use ExTerm, only: CijK, CilK, BklK, VJ
 use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
 use ExTerm, only: Yij, BMP2, iMP2prpt, CMOi, DMLT
 use Data_Structures, only: Deallocate_DT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-logical, external :: Rsv_Tsk2
+implicit none
+integer(kind=iwp) :: nGrad, nij_Eff
+real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+integer(kind=iwp), allocatable :: ij3(:,:)
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "cholesky.fh"
 #include "setup.fh"
 #include "exterm.fh"
+#include "bdshell.fh"
+#include "chotime.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "bdshell.fh"
-integer nGrad, nij_Eff
-real*8 Grad(nGrad), Temp(nGrad)
-integer, allocatable :: ij3(:,:)
-! Local arrays
-real*8 Coor(3,4)
-integer iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), nAct(0:7)
-logical EQ, Shijij, AeqB, CeqD, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Found, FreeK2, Verbose
-character format*72, Method*8, KSDFT*80
-character*50 CFmt
-character(LEN=16), parameter :: SECNAM = 'drvg1_3center_ri'
-integer, external :: Cho_irange
-integer iSD4(0:nSD,4)
-save MemPrm
-logical FlipFlop
-#include "chotime.fh"
+integer(kind=iwp) :: iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ii, &
+                     iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, &
+                     iPrem, iPren, iPrimi, iPrInc, iPrint, ipxA, ipxB, ipxD, ipxG, ipZI, iRout, iS, iS_, iSD4(0:nSD,4), ish, &
+                     iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, jAng, jb, jBasAO, jBasj, jBasn, jBsInc, jjQ, JndGrd(3,4), &
+                     jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, kBask, kBasn, kBsInc, kBtch, klS, klS_, &
+                     kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, &
+                     lPrInc, lS, maxnAct, maxnnP, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, mj, MumOrb, &
+                     MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, &
+                     nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nQuad, nRys, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, &
+                     nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
+real(kind=wp) :: A_int, A_int_ij, A_int_kl, Coor(3,4), Dm_ij, ExFac, PMax, Prem, Pren, PZmnij, SDGmn, ThrAO, TMax_all, TotCPU, &
+                 TotWall, XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, Xik, Xil, Xjk, Xjl
+#ifdef _CD_TIMING_
+real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
+#endif
+character(len=80) :: KSDFT
+character(len=72) :: frmt
+character(len=50) :: CFmt
+character(len=8) :: Method
+integer(kind=iwp), save :: MemPrm
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, FreeK2, Indexation, JfGrad(3,4), No_Batch, Shijij, &
+                     Verbose
 real*8, allocatable :: MaxDens(:), SDG(:), Thhalf(:)
 integer, allocatable :: Shij(:,:), Shij2(:,:), LBList(:)
 real*8, allocatable :: CVec2(:,:,:), CVec(:,:)
 real*8, allocatable :: Xmi(:,:,:,:)
 real*8, allocatable :: Tmp(:,:), TMax_Valence(:,:), TMax_Auxiliary(:)
+character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
+integer(kind=iwp), external :: Cho_irange
+real(kind=wp), external :: Get_ExFac
+logical(kind=iwp), external :: Rsv_Tsk2
 ! Statement functions
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 !                                                                      *
@@ -97,10 +112,10 @@ iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 iRout = 9
 iPrint = nPrint(iRout)
 #ifdef _CD_TIMING_
-Twoel3_CPU = 0.0d0
-Twoel3_Wall = 0.0d0
-Pget3_CPU = 0.0d0
-Pget3_Wall = 0.0d0
+Twoel3_CPU = Zero
+Twoel3_Wall = Zero
+Pget3_CPU = Zero
+Pget3_Wall = Zero
 #endif
 iFnc(1) = 0
 iFnc(2) = 0
@@ -111,14 +126,14 @@ call dcopy_(nGrad,[Zero],0,Temp,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-xfk = 1.0D-3 ! changing this parameter tunes LK-type screening thr
-!xfk = 1.0D-12 ! Debugging
-!xfk = 0.0D-12 ! Debugging
+xfk = 1.0e-3_wp  ! changing this parameter tunes LK-type screening thr
+!xfk = 1.0e-12_wp ! Debugging
+!xfk = Zero       ! Debugging
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call Get_dScalar('Cholesky Threshold',ThrCom)
-ThrCom = max(ThrCom,1.0d-6) ! not to sacrify efficiency too much
+ThrCom = max(ThrCom,1.0e-6_wp) ! not to sacrify efficiency too much
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -251,13 +266,13 @@ do iS=1,nSkal_Valence
     ijQ = iS*(iS-1)/2+jS
     XDm_ij = MaxDens(ijQ)
     XDm_max = max(XDm_ij,XDm_ii,XDm_jj)
-    Aint_ij = TMax_Valence(iS,jS)
-    if (TMax_All*Aint_ij >= CutInt) then
+    A_int_ij = TMax_Valence(iS,jS)
+    if (TMax_All*A_int_ij >= CutInt) then
 
       ! FAQ: more aggressive screening to discard shprs formed
       !      by AOs contributing mainly to the virtual MO space.
 
-      if (Aint_ij*XDm_max >= CutInt) then
+      if (A_int_ij*XDm_max >= CutInt) then
         nSkal2 = nSkal2+1
         Shij(1,nSkal2) = iS
         Shij(2,nSkal2) = jS
@@ -308,7 +323,7 @@ if (DoCholExch) then
       MxChVInShl = max(MxChVInShl,iSD(3,i))
     end do
   else
-    write(6,*) 'Not implemented for Cholesky yet!'
+    write(u6,*) 'Not implemented for Cholesky yet!'
     call Abend()
   end if
 
@@ -547,7 +562,7 @@ do while (Rsv_Tsk2(id,klS))
   kS = Shij(1,klS)
   lS = Shij(2,klS)
 
-  AInt_kl = TMax_Valence(kS,lS)
+  A_Int_kl = TMax_Valence(kS,lS)
 
   klS_ = iTri(kS,lS)
   !                                                                    *
@@ -629,12 +644,12 @@ do while (Rsv_Tsk2(id,klS))
     jS = Shij2(2,ijS)
 
     if (Do_RI) then
-      Aint = AInt_kl*TMax_Auxiliary(jS-nSkal_Valence)
+      A_int = A_Int_kl*TMax_Auxiliary(jS-nSkal_Valence)
     else
-      Aint = AInt_kl*TMax_Valence(iS,jS)
+      A_int = A_Int_kl*TMax_Valence(iS,jS)
     end if
-    if (AInt < CutInt) cycle
-    if (iPrint >= 15) write(6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+    if (A_Int < CutInt) cycle
+    if (iPrint >= 15) write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -725,7 +740,7 @@ do while (Rsv_Tsk2(id,klS))
             Pget3_CPU = Pget3_CPU+Pget0CPU2-Pget0CPU1
             Pget3_Wall = Pget3_Wall+Pget0WALL2-Pget0WALL1
 #           endif
-            if (AInt*PMax < CutInt) cycle
+            if (A_Int*PMax < CutInt) cycle
 
             ! Compute gradients of shell quadruplet
 
@@ -766,20 +781,20 @@ if (Timings) then
   TotCPU = tbvec(1)+tavec(1)
   TotWall = tbvec(2)+tavec(2)
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky Gradients timing from A and B vectors:'
-  write(6,CFmt) '-----------------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) '                                CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky Gradients timing from A and B vectors:'
+  write(u6,CFmt) '-----------------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) '                                CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'Density (2-center):                        ',tavec(1),tavec(2)
-  write(6,'(2x,A26,2f10.2)') 'Density (3-center):                        ',tbvec(1),tbvec(2)
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                      ',TotCPU,TotWall
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'Density (2-center):                        ',tavec(1),tavec(2)
+  write(u6,'(2x,A26,2f10.2)') 'Density (3-center):                        ',tbvec(1),tbvec(2)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                      ',TotCPU,TotWall
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 timings = timings_default
@@ -827,11 +842,11 @@ call Term_Ints(Verbose,FreeK2)
 !                                                                      *
 call Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
 
-iPren = 3+max(1,int(log10(Pren+0.001D+00)))
-iPrem = 3+max(1,int(log10(Prem+0.001D+00)))
-write(format,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
+iPren = 3+max(1,int(log10(Pren+0.001_wp)))
+iPrem = 3+max(1,int(log10(Prem+0.001_wp)))
+write(frmt,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
 if (iPrint >= 6) then
-  write(6,format) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
+  write(u6,frmt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
 end if
 
 call Free_iSD()

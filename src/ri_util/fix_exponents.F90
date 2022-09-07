@@ -9,67 +9,68 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Fix_Exponents(nP,mP,nC,Exp,CoeffC,CoeffP)
+subroutine Fix_Exponents(nP,mP,nC,Expn,CoeffC,CoeffP)
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-real*8, allocatable :: exp(:), CoeffC(:,:,:), CoeffP(:,:,:)
-real*8, allocatable :: Scr(:,:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-!#define _DEBUGPRINT_
+implicit none
+integer(kind=iwp) :: nP, mP, nC
+real(kind=wp), allocatable :: Expn(:), CoeffC(:,:,:), CoeffP(:,:,:)
+integer(kind=iwp) :: iSkip
+real(kind=wp) :: Temp, Thr_Skip
+real(kind=wp), allocatable :: Scr1(:), Scr2(:,:,:)
+
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-call RecPrt('Fix_Exponents: Exp',' ',Exp,1,nP)
-call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),nP,nC)
-call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(1,1,2),nP,nC)
-call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(1,1,1),nP,nP)
-call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(1,1,2),nP,nP)
+call RecPrt('Fix_Exponents: Expn',' ',Expn,1,nP)
+call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(:,:,1),nP,nC)
+call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(:,:,2),nP,nC)
+call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(:,:,1),nP,nP)
+call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(:,:,2),nP,nP)
 #endif
 
 mP = nP
 call Fix_Exp()
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'After Fix_Exp'
-call RecPrt('Fix_Exponents: Exp',' ',Exp,1,nP)
-call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),nP,nC)
-call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(1,1,2),nP,nC)
-call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(1,1,1),nP,nP)
-call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(1,1,2),nP,nP)
+write(u6,*) 'After Fix_Exp'
+call RecPrt('Fix_Exponents: Expn',' ',Expn,1,nP)
+call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(:,:,1),nP,nC)
+call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(:,:,2),nP,nC)
+call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(:,:,1),nP,nP)
+call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(:,:,2),nP,nP)
 #endif
 
 ! Reallocate arrays if the number of primitives is reduced.
 
 if (mP /= nP) then
-  call mma_allocate(Scr,mP,1,1,Label='Scr')
-  Scr(1:mP,1,1) = exp(1:mP)
-  call mma_deallocate(Exp)
-  call mma_allocate(Exp,mP,Label='Exp')
-  exp(:) = Scr(:,1,1)
-  call mma_deallocate(Scr)
+  call mma_allocate(Scr1,mP,Label='Expn')
+  Scr1(:) = Expn(1:mP)
+  call mma_deallocate(Expn)
+  call move_alloc(Scr1,Expn)
 
-  call mma_allocate(Scr,mP,nC,2,Label='Scr')
-  Scr(1:mP,1:nC,:) = CoeffC(1:mP,1:nC,:)
+  call mma_allocate(Scr2,mP,nC,2,Label='CoeffC')
+  Scr2(:,:,:) = CoeffC(1:mP,1:nC,:)
   call mma_deallocate(CoeffC)
-  call mma_allocate(CoeffC,mP,nC,2,Label='CoeffC')
-  CoeffC(:,:,:) = Scr(:,:,:)
-  call mma_deallocate(Scr)
+  call move_alloc(Scr2,CoeffC)
 
-  call mma_allocate(Scr,mP,mP,2,Label='Scr')
-  Scr(1:mP,1:mP,:) = CoeffP(1:mP,1:mP,:)
+  call mma_allocate(Scr2,mP,mP,2,Label='CoeffP')
+  Scr2(:,:,:) = CoeffP(1:mP,1:mP,:)
   call mma_deallocate(CoeffP)
-  call mma_allocate(CoeffP,mP,mP,2,Label='CoeffP')
-  CoeffP(:,:,:) = Scr(:,:,:)
-  call mma_deallocate(Scr)
-end if
+  call move_alloc(Scr2,CoeffP)
 
-#ifdef _DEBUGPRINT_
-write(6,*) 'After Reallocation'
-call RecPrt('Fix_Exponents: Exp',' ',Exp,1,mP)
-call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),mP,nC)
-call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(1,1,2),mP,nC)
-call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(1,1,1),mP,mP)
-call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(1,1,2),mP,mP)
-#endif
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'After Reallocation'
+  call RecPrt('Fix_Exponents: Expn',' ',Expn,1,mP)
+  call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(:,:,1),mP,nC)
+  call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(:,:,2),mP,nC)
+  call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(:,:,1),mP,mP)
+  call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(:,:,2),mP,mP)
+else
+  write(u6,*) 'No Reallocation'
+# endif
+end if
 
 return
 !                                                                      *
@@ -81,10 +82,12 @@ contains
 !                                                                      *
 subroutine Fix_Exp()
 
+  integer(kind=iwp) :: i, iC, iP, jP
+
   ! First, put the exponents with all coefficients less than the
   ! threshold, Thr_Skip, at the end.
 
-  Thr_Skip = 1.0D-13
+  Thr_Skip = 1.0e-13_wp
   do iP=nP,1,-1
 
     iSkip = 1
@@ -94,9 +97,9 @@ subroutine Fix_Exp()
 
     if (iSkip == 1) then
       if (iP < mP) then
-        Temp = exp(iP)
-        exp(iP) = exp(mP)
-        exp(mP) = Temp
+        Temp = Expn(iP)
+        Expn(iP) = Expn(mP)
+        Expn(mP) = Temp
         do i=1,2
           Temp = CoeffP(iP,iP,i)
           CoeffP(iP,iP,i) = CoeffP(mP,mP,i)
@@ -117,10 +120,10 @@ subroutine Fix_Exp()
 
   do iP=1,mP-1
     do jP=iP+1,mP
-      if (exp(jP) > exp(ip)) then
-        Temp = exp(iP)
-        exp(iP) = exp(jP)
-        exp(jP) = Temp
+      if (Expn(jP) > Expn(ip)) then
+        Temp = Expn(iP)
+        Expn(iP) = Expn(jP)
+        Expn(jP) = Temp
         do i=1,2
           Temp = CoeffP(iP,iP,i)
           CoeffP(iP,iP,i) = CoeffP(jP,jP,i)

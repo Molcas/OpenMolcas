@@ -13,37 +13,42 @@
 
 subroutine get_pivot_idx(Diag,n,m,lu_A0,lu_A,iD_A,Scr,lScr,Thr)
 !***********************************************************************
-!
-!     Author:  F. Aquilante
-!
+!                                                                      *
+!     Author:  F. Aquilante                                            *
+!                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer n, m, lu_A0, lu_A, iD_A(n), lScr
-real*8 Diag(*), Scr(lScr)
-#include "stdalloc.fh"
-#include "warnings.h"
-integer, allocatable :: list(:)
-#ifdef _DEBUGPRINT_
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
+implicit none
+integer(kind=iwp) :: n, m, lu_A0, lu_A, iD_A(n), lScr
+real(kind=wp) :: Diag(*), Scr(lScr), Thr
+#include "warnings.h"
+integer(kind=iwp) :: i, iAddr, iD_Col, ij, is, istart, js, k, kAddr, kCol, ks, kScr, lindep, lmax, nMem_Col
+real(kind=wp) :: Acc, XMax
+integer(kind=iwp), allocatable :: list(:)
+
+#ifdef _DEBUGPRINT_
 !-tbp: check diagonal for negative entries
 n_NegInpDiag = 0
-d_NegInpDiag = 0.0d0
+d_NegInpDiag = Zero
 do i=1,n
-  if (Diag(i) < 0.0d0) then
+  if (Diag(i) < Zero) then
     n_NegInpDiag = n_NegInpDiag+1
     if (Diag(i) < d_NegInpDiag) then
       d_NegInpDiag = Diag(i)
     end if
   end if
 end do
-write(6,'(A,I10,A,I10)') 'GET_PIVOT_IDX: number of negative input diagonals:',n_NegInpDiag,' out of ',n
+write(u6,'(A,I10,A,I10)') 'GET_PIVOT_IDX: number of negative input diagonals:',n_NegInpDiag,' out of ',n
 if (n_NegInpDiag > 0) then
-  write(6,'(A,1P,D12.4)') 'GET_PIVOT_IDX: most negative diagonal:          ',d_NegInpDiag
+  write(u6,'(A,1P,D12.4)') 'GET_PIVOT_IDX: most negative diagonal:          ',d_NegInpDiag
 end if
 #endif
 
-Acc = min(1.0D-12,thr*1.0D-2)
+Acc = min(1.0e-12_wp,thr*1.0e-2_wp)
 call mma_Allocate(List,n,Label='List')
 do i=1,n
   list(i) = i
@@ -52,7 +57,7 @@ end do
 lmax = lScr-2*n
 if (lmax < n) then
   call WarningMessage(2,'Error in Get_Pivot_idx')
-  write(6,*) ' Get_Pivot_idx: too little scratch space!! '
+  write(u6,*) ' Get_Pivot_idx: too little scratch space!! '
   call Quit(_RC_CHO_LOG_)
 end if
 
@@ -68,7 +73,7 @@ m = 0
 do kCol=1,n
 
   iD_Col = 0
-  XMax = 0.0d0
+  XMax = Zero
   do i=1,n
     if (abs(Diag(i)) > xMax+Acc) then
       iD_Col = i
@@ -76,8 +81,8 @@ do kCol=1,n
     end if
   end do
   if ((iD_Col < 0) .or. (iD_Col > n)) then
-    write(6,*) 'Get_Pivot_id: Index of Max Diag out of bounds!'
-    write(6,*) 'iD_Col = ',iD_Col
+    write(u6,*) 'Get_Pivot_id: Index of Max Diag out of bounds!'
+    write(u6,*) 'iD_Col = ',iD_Col
     call Abend()
   else if (iD_Col == 0) then
     exit
@@ -117,7 +122,7 @@ if (m < n) then
     end do
   end do
 else if (m > n) then
-  write(6,*) 'Get_Pivot_id: m > n is not possible!'
+  write(u6,*) 'Get_Pivot_id: m > n is not possible!'
   call Abend()
 end if
 call mma_deallocate(List)

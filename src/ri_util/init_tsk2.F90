@@ -11,10 +11,12 @@
 
 subroutine Init_Tsk2(id,mTask,jOpt,List)
 
-use Tsk2
+use Tsk2, only: TskList, iOpt, iRsv, nTask
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp, u6
 
-#include "stdalloc.fh"
-integer List(*)  ! either nTask or 0 long
+implicit none
+integer(kind=iwp) :: id, mTask, jOpt, List(*)  ! either nTask or 0 long
 
 nTask = mTask
 iOpt = jOpt
@@ -27,7 +29,7 @@ else if (iOpt == 1) then
   iRsv = 1
 else
   call WarningMessage(2,'Error in Init_Tsk2')
-  write(6,*) 'Init_Tsk2: illegal iOpt value!'
+  write(u6,*) 'Init_Tsk2: illegal iOpt value!'
   call Abend()
 end if
 

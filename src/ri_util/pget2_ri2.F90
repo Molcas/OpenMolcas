@@ -16,9 +16,9 @@ subroutine PGet2_RI2(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,Ex
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density matrix.                 *
 !                                                                      *
-!          The indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          The indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
@@ -29,20 +29,22 @@ subroutine PGet2_RI2(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,Ex
 
 use Basis_Info, only: nBas, nBas_Aux
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: nnp, lPSO, lsa, DMdiag
+use pso_stuff, only: DMdiag, lPSO, lSA, nnP
 use Symmetry_Info, only: nIrrep
-use ExTerm, only: CijK, iMP2prpt, A
+use ExTerm, only: A, CijK, iMP2prpt
+use Constants, only: Zero, One, Half, Quart
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_K, nSA, nZ_p_k
+logical(kind=iwp) :: Shijij
+real(kind=wp) :: PSO(nijkl,nPSO), ExFac, CoulFac, PMax, V_K(mV_K,nSA), Z_p_K(nZ_p_k,*)
 #include "exterm.fh"
-real*8 PSO(nijkl,nPSO), V_K(mV_K,nSA), Z_p_K(nZ_p_k,*)
-integer iCmp(4), iAO(4), iAOst(4)
-logical Shijij, Found
-! Local Array
-integer jSym(0:7), lSym(0:7)
-integer CumnnP(0:7), CumnnP2(0:7)
-real*8, pointer :: CiKj(:) => null(), CiKl(:) => null(), V2(:) => null()
+integer(kind=iwp) :: CumnnP(0:7), CumnnP2(0:7), i, i2, i4, iAdrJ, iAdrL, iE, iS, iSO, iSym, iUHF, j, j2, j4, jAOj, jp, jpSOj, &
+                     jpSOl, js, jSO, jSOj, jSym(0:7), kSym, lAOl, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, nB, nik, njSym, nlSym
+real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fact, temp, temp2, Wall, Wall1, Wall2
+logical(kind=iwp) :: Found
+real(kind=wp), pointer :: CiKj(:), CiKl(:), V2(:)
 
 !                                                                      *
 !***********************************************************************
@@ -82,7 +84,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Fac = One/Four
+Fac = Quart
 MemSO2 = 0
 !                                                                      *
 !***********************************************************************
@@ -227,7 +229,7 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
 
             Fact = One
             if (iSym /= kSym) Fact = Half
-            call DGEMM_('T','N',jBas,lBas,nik,Fact,CikJ,nik,V2,nik,1.0d0,A,jBas)
+            call DGEMM_('T','N',jBas,lBas,nik,Fact,CikJ,nik,V2,nik,One,A,jBas)
 
           end do
 
@@ -270,7 +272,7 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 1)) then
   !                                                                    *
   ! Hybrid UDFT and UHF
 
-  write(6,*) 'Pget2_RI2: UDFT/UHF not implemented yet.'
+  write(u6,*) 'Pget2_RI2: UDFT/UHF not implemented yet.'
   call Abend()
   !                                                                    *
   !*********************************************************************
@@ -345,7 +347,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
 
             Fact = One
             if (iSym /= kSym) Fact = Half
-            call DGEMM_('T','N',jBas,lBas,nik,Fact,CikJ,nik,V2,nik,1.0d0,A,jBas)
+            call DGEMM_('T','N',jBas,lBas,nik,Fact,CikJ,nik,V2,nik,One,A,jBas)
 
           end do
 
@@ -368,11 +370,11 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
               ! Exchange contribution
               temp = temp-ExFac*A(mijkl)
 
-              temp2 = 0.0d0
+              temp2 = Zero
               jpSOj = CumnnP2(j2)+(jSOj-1)*nnP(j2)
               jpSOl = CumnnP2(j2)+(lSOl-1)*nnP(j2)
               do jp=1,nnP(j2)
-                temp2 = temp2+sign(1.0d0,DMdiag(CumnnP(j2)+jp,1))*Z_p_K(jpSOj+jp,1)*Z_p_K(jpSOl+jp,1)
+                temp2 = temp2+sign(One,DMdiag(CumnnP(j2)+jp,1))*Z_p_K(jpSOj+jp,1)*Z_p_K(jpSOl+jp,1)
               end do
               temp = temp+temp2
 
@@ -396,7 +398,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
   !                                                                    *
   ! SA-CASSCF
 
-  write(6,*) 'Pget2_ri2: SA-CASSCF not implemented yet'
+  write(u6,*) 'Pget2_ri2: SA-CASSCF not implemented yet'
   call Abend()
 
   do i2=1,iCmp(2)
@@ -463,7 +465,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
             Fact = One
             if (iSym /= kSym) Fact = Half
-            call DGEMM_('T','N',jBas,lBas,nik,Fact,CiKJ,nik,V2,nik,1.0d0,A,jBas)
+            call DGEMM_('T','N',jBas,lBas,nik,Fact,CiKJ,nik,V2,nik,One,A,jBas)
 
           end do
 
@@ -506,7 +508,7 @@ else
   !                                                                    *
   ! MP2
 
-  write(6,*) 'Pget2_ri2: MP2 not implemented yet'
+  write(u6,*) 'Pget2_ri2: MP2 not implemented yet'
   call Abend()
 
   do i2=1,iCmp(2)
@@ -573,7 +575,7 @@ else
 
             Fact = One
             if (iSym /= kSym) Fact = Half
-            call DGEMM_('T','N',jBas,lBas,nik,Fact,CiKj,nik,V2,nik,1.0d0,A,jBas)
+            call DGEMM_('T','N',jBas,lBas,nik,Fact,CiKj,nik,V2,nik,One,A,jBas)
 
           end do
 
@@ -618,8 +620,8 @@ V2 => null()
 !***********************************************************************
 !                                                                      *
 if (nPSO /= MemSO2) then
-  write(6,*) ' PGet2: nPSO /= MemSO2'
-  write(6,*) nPSO,MemSO2
+  write(u6,*) ' PGet2: nPSO /= MemSO2'
+  write(u6,*) nPSO,MemSO2
   call Abend()
 end if
 

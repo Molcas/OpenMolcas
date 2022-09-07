@@ -13,7 +13,11 @@ subroutine Mk_iSO2Ind_Inner(iSO2Sh,iSO2Ind,nSO,nTemp,nShell)
 
 use Basis_Info, only: nBas_Aux
 use Symmetry_Info, only: nIrrep
-integer iSO2Sh(nSO), iSO2Ind(nSO), nTemp(nShell)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nSO, iSO2Sh(nSO), iSO2Ind(nSO), nShell, nTemp(nShell)
+integer(kind=iwp) :: iB, iIrrep, Ind, iSh, iSO
 
 iSO = 0
 do iIrrep=0,nIrrep-1
@@ -24,7 +28,7 @@ do iIrrep=0,nIrrep-1
     iSh = iSO2Sh(iSO)
     nTemp(iSh) = nTemp(iSh)+1
     Ind = nTemp(iSh)
-    !write(6,*) 'iSO,iSh,Ind=',iSO,iSh,Ind
+    !write(u6,*) 'iSO,iSh,Ind=',iSO,iSh,Ind
     iSO2Ind(iSO) = Ind
   end do
 

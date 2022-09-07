@@ -12,12 +12,15 @@
 subroutine OFembed_dmat(Dens,nDens)
 
 use OFembed, only: Do_OFemb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Dens(nDens)
-#include "stdalloc.fh"
-character*16 NamRfil
-real*8, allocatable :: D_Var(:)
+implicit none
+integer(kind=iwp) :: nDens
+real(kind=wp) :: Dens(nDens)
+character(len=16) :: NamRfil
+real(kind=wp), allocatable :: D_Var(:)
 
 if (.not. Do_OFemb) return
 

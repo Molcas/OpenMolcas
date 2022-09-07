@@ -14,19 +14,15 @@
 subroutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
 
 use ChoArr, only: iRS2F, nDimRS
-use ChoSwp, only: nnBstRSh, iiBstRSh
-use ChoSwp, only: IndRSh, IndRSh_Hidden
-use ChoSwp, only: IndRed, IndRed_Hidden
+use ChoSwp, only: iiBstRSh, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, nnBstRSh
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-integer nIrrep, nShij
+integer(kind=iwp) :: nIrrep, iTOffs(3,nIrrep), nShij, iShij(2,nShij)
 #include "cholesky.fh"
-#include "choorb.fh"
-#include "stdalloc.fh"
-logical DoDummy
-integer iiBst(8), nnBst(8), iTOffs(3,nIrrep), iShij(2,nShij)
-integer iSym, iCount, nnBstT
-integer i
+integer(kind=iwp) :: i, iCount, iiBst(8), iSym, nnBst(8), nnBstT
+logical(kind=iwp) :: DoDummy
 
 ! Define max. dimensions and offsets of the symmetry blocks of the
 ! integrals matrix.

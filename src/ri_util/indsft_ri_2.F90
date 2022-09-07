@@ -16,9 +16,9 @@ subroutine IndSft_RI_2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOi
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
 !                                                                      *
-!          the indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          the indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
 !          april '90                                                   *
@@ -29,21 +29,22 @@ use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: nIrrep
 use sort_data, only: nSkip
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 SOint(ijkl,nSOint), TInt(nTInt)
-integer iCmp(4), iShell(4), iAO(4), iOffA(4,0:7), iAOst(4), iSOSym(2,nSOs), iSO2Ind(nSOs)
-integer iOff(0:7)
-logical Shijij, qijij
-! local array
-integer jSym(0:7), lSym(0:7)
+implicit none
+integer(kind=iwp) :: iCmp(4), iShell(4), iBas, jbas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, iSOSym(2,nSOs), nTInt, &
+                     iOff(0:7), iSO2Ind(nSOs), iOffA(4,0:7)
+logical(kind=iwp) :: Shijij
+real(kind=wp) :: SOint(ijkl,nSOint), TInt(nTInt)
+integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, ij, iOffA_, iOffB_, iSO, ix, j1, j12, j2, j3, j4, jSO, jSOj, jSym(0:7), k12, k34, &
+                     kSO, lSO, lSOl, lSym(0:7), memSO2, mm_, mx, nijkl, nn
+real(kind=wp) :: A_Int
 #ifdef _DEBUGPRINT_
-data tr1,tr2/0.0d0,0.0d0/
-save tr1, tr2
+real(kind=wp) :: tr1 = Zero, tr2 = Zero
 #endif
+logical(kind=iwp) :: qijij
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -59,8 +60,8 @@ if (iPrint >= 49) then
   r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
   tr1 = tr1+r1
   tr2 = tr2+r2
-  write(6,*) ' Sum=',r1,tr1
-  write(6,*) ' Dot=',r2,tr2
+  write(u6,*) ' Sum=',r1,tr1
+  write(u6,*) ' Dot=',r2,tr2
   call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
 end if
 #endif
@@ -99,7 +100,7 @@ do i2=1,iCmp(2)
     end if
     if (Shijij .and. (i34 > i12)) cycle
     qijij = Shijij .and. (i12 == i34)
-    !write(6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
+    !write(u6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 
     ! loop over Irreps which are spanned by the basis function.
     ! again, the loop structure is restricted to ensure unique
@@ -145,13 +146,13 @@ do i2=1,iCmp(2)
       do lSOl=lSO,lSO+lBas-1
         do jSOj=jSO,jSO+jBas-1
           nijkl = nijkl+1
-          AInt = SOint(nijkl,memSO2)
+          A_Int = SOint(nijkl,memSO2)
           iSO = jSOj-nBas(j2)
           kSO = lSOl-nBas(j4)
 
           iSO = iSO2Ind(iSO+iOffB_)+nn
           ij = iTri(iSO,kSO)-mx+iOffA_
-          TInt(ij) = AInt
+          TInt(ij) = A_Int
 
         end do
       end do

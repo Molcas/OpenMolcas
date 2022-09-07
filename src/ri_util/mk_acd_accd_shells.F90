@@ -22,48 +22,60 @@ subroutine Mk_aCD_acCD_Shells(iCnttp,W2L)
 !                                                                      *
 !***********************************************************************
 
-use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Init, SOAO_Info_Free
-use Basis_Info
+use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
+use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Integral_RICD
-#include "itmax.fh"
+implicit none
+integer(kind=iwp) :: iCnttp
+logical(kind=iwp) :: W2L
 #include "Molcas.fh"
-#include "SysDef.fh"
-#include "real.fh"
+#include "itmax.fh"
 #include "print.fh"
-#include "status.fh"
-#include "stdalloc.fh"
-integer, allocatable :: iList2_c(:,:), iList2_p(:,:), iD_c(:), Con(:), ConR(:,:), Prm(:), Indkl_p(:), AL(:), LTP(:,:), iD_p(:), &
-                        Indkl(:)
-real*8, allocatable :: Wg(:), Vec(:), Scr(:), TP(:), tVt(:), Q(:), A(:), Z(:), tVp(:), tVtF(:), C(:), Temp(:), QTmp(:), Tmp(:)
-real*8, allocatable :: TInt_c(:), TInt_p(:), ADiag(:)
-real*8 :: Dummy(1) = [0.0d0]
+integer(kind=iwp) :: iAng, iAngMax, iAngMin, iAO, iBS, iCho_c, iCho_p, iCmp, iCntrc, iDum, iExp_k, iExp_l, ijS, ijS_req, ijSO, &
+                     ijT, ik, ikl, il, Indx, iOff, iOff_Ak, iOff_Qk, ip_Exp, iRC, iSeed, iShell, iShll, iShll_, iSO, iSph, &
+                     istatus, iTheta, iTheta_full, iVal, iZ, jAng, jAngMax, jAngMin, jCho_p, jCnttp, jkl, jp_Exp, jp_Exp_Max, &
+                     jShll, jShll_, jTheta, jTheta_full, kAng, kC, Keep_All, Keep_Shell, kShll, lAng, lC, LinDep, lScr, lShll, &
+                     Lu_A, Lu_B, Lu_lib, mData, mdc, mPrim, mSOInf, n, nAB, nBS, nCmp, nCmpi, nCmpj, nCnt, nCntrc, nCntrc_Max, &
+                     nCnttp_Start, nCompA, nCompB, nExpi, nExpk, nExpl, nk, nl, nn, nPhi, nPhi_All, npi, npj, npk, npl, nPrim, &
+                     nPrim_Max, nSO, nSO_p, nTest, nTheta, nTheta_All, nTheta_Full, nTInt_c, nTInt_p, nTri, NumCho_c, NumCho_p
+real(kind=wp) :: Coeff_, Coeff_k, Coeff_kk, Coeff_kl, Coeff_l, Coeff_lk, Coeff_ll, Dummy(1), Exp_i, Exp_j, Fact, Thr_aCD, ThrAO, &
+                 Thrs, Thrshld_CD_p
+integer(kind=iwp), allocatable :: AL(:), Con(:), ConR(:,:), iD_c(:), iD_p(:), iList2_c(:,:), iList2_p(:,:), Indkl(:), Indkl_p(:), &
+                                  LTP(:,:), Prm(:)
+real(kind=wp), allocatable :: A(:), ADiag(:), C(:), Q(:), QTmp(:), Scr(:), Temp(:), TInt_c(:), TInt_p(:), Tmp(:), TP(:), tVp(:), &
+                              tVt(:), tVtF(:), Vec(:), Wg(:), Z(:)
 #ifdef _DEBUGPRINT_
-real*8, allocatable :: H(:), U(:), tVtInv(:)
+real(kind=wp), allocatable :: H(:), tVtInv(:), U(:)
 #endif
-logical Hit, Found, Diagonal, Keep_Basis, In_Core, W2L
-character*80 BSLbl, Label
-character*80 atom, type, author, basis, CGTO, Aux
+logical(kind=iwp) :: Diagonal, Found, Hit, In_Core, Keep_Basis
+character(len=80) :: atom, author, Aux, basis, BSLbl, btype, CGTO, Label
+integer(kind=iwp), external :: IsFreeUnit
+external :: Integral_RICD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-  subroutine Drv2El_Atomic_NoSym(Integral_RICD,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
-    external Integral_RICD
-    real*8 ThrAO
-    integer iCnttp, jCnttp, nTInt, Lu_A, ijS_req, Keep_Shell
-    logical In_Core
-    real*8, allocatable :: TInt(:), ADiag(:)
+  subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
+    import :: wp, iwp
+    external :: Integral_WrOut
+    real(kind=wp) :: ThrAO
+    integer(kind=iwp) :: iCnttp, jCnttp, nTInt, LuA, ijS_req, Keep_Shell
+    real(kind=wp), allocatable :: TInt(:), ADiag(:)
+    logical(kind=iwp) :: In_Core
   end subroutine
-  subroutine Fix_Exponents(nP,mP,nC,Exp,CoeffC,CoeffP)
-    integer nP, mP, nC
-    real*8, allocatable :: exp(:), CoeffC(:,:,:), CoeffP(:,:,:)
+  subroutine Fix_Exponents(nP,mP,nC,Expn,CoeffC,CoeffP)
+    import :: wp, iwp
+    integer(kind=iwp) :: nP, mP, nC
+    real(kind=wp), allocatable :: Expn(:), CoeffC(:,:,:), CoeffP(:,:,:)
   end subroutine Fix_Exponents
 end interface
 ! Statement Function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -139,7 +151,7 @@ Label = dbsc(iCnttp)%Bsl_old
 Hit = .true.
 call Decode(Label,atom,1,Hit)
 Hit = .true.
-call Decode(Label,type,2,Hit)
+call Decode(Label,btype,2,Hit)
 Hit = .true.
 call Decode(Label,author,3,Hit)
 Hit = .true.
@@ -155,11 +167,11 @@ Label = ' '
 Label(1:n+1) = atom(1:n)//'.'
 nn = n+1
 
-n = index(type,' ')-1
+n = index(btype,' ')-1
 if (Do_acCD_Basis) then
-  Label(nn+1:nn+n+23) = type(1:n)//'....acCD-aux-basis.'
+  Label(nn+1:nn+n+23) = btype(1:n)//'....acCD-aux-basis.'
 else
-  Label(nn+1:nn+n+22) = type(1:n)//'....aCD-aux-basis.'
+  Label(nn+1:nn+n+22) = btype(1:n)//'....aCD-aux-basis.'
 end if
 
 Indx = index(Label,' ')
@@ -205,9 +217,9 @@ do iAng=0,nTest
   do iCmp=1,nCmp
     iAO = iAO+1
     if (iAO > nSOInf) then
-      write(6,*) 'mk_acd_accd_shells: iAO>nSOInf (1)'
-      write(6,*) 'iAO=',iAO
-      write(6,*) 'nSOInf=',nSOInf
+      write(u6,*) 'mk_acd_accd_shells: iAO>nSOInf (1)'
+      write(u6,*) 'iAO=',iAO
+      write(u6,*) 'nSOInf=',nSOInf
       call Abend()
     end if
     iAOtSO(iAO,0) = iSO+1
@@ -226,7 +238,7 @@ call Mk_List2(iList2_c,nPhi_All,mData,nSO,iCnttp,nTest,0)
 !                                                                      *
 ! If the full product basis is used no need for decomposition!
 
-if (Thr_aCD == 0.0d0) then
+if (Thr_aCD == Zero) then
   nTInt_c = nPhi_All
   call mma_allocate(iD_c,nTInt_c,label='iD_c')
   do i=1,nTInt_c
@@ -254,7 +266,7 @@ else
   ! all purpose aCD/acCD auxiliary basis sets.
 
   call mma_allocate(Wg,nTInt_c,label='Wg')
-  call dcopy_(nTInt_c,[1.0d0],0,Wg,1)
+  call dcopy_(nTInt_c,[One],0,Wg,1)
 
   if (In_Core) then
 #   ifdef _DEBUGPRINT_
@@ -266,7 +278,7 @@ else
 
     if (iRC /= 0) then
       call WarningMessage(2,'Error in Mk_RICD_Shells')
-      write(6,*) 'Mk_aCD_Shells: CD_InCore_p(c) failed!'
+      write(u6,*) 'Mk_aCD_Shells: CD_InCore_p(c) failed!'
       call Abend()
     end if
 #   ifdef _DEBUGPRINT_
@@ -300,13 +312,13 @@ end if
 
 if (NumCho_c < 1) then
   call WarningMessage(2,'Error in Mk_RICD_Shells')
-  write(6,*) 'Mk_aCD_Shells: NumCho_c < 1 is illegal!'
+  write(u6,*) 'Mk_aCD_Shells: NumCho_c < 1 is illegal!'
   call Abend()
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Thr_aCD:',Thr_aCD
-write(6,*) 'NumCho_c:',NumCho_c
+write(u6,*) ' Thr_aCD:',Thr_aCD
+write(u6,*) 'NumCho_c:',NumCho_c
 call iVcPrt('iD_c',' ',iD_c,NumCho_c)
 #endif
 !                                                                      *
@@ -327,7 +339,7 @@ if (Do_acCD_Basis) then
     do iCmp=1,nCmp
       iAO = iAO+1
       if (iAO > nSOInf) then
-        write(6,*) 'mk_acd_accd_shells: iAO>nSOInf (2)'
+        write(u6,*) 'mk_acd_accd_shells: iAO>nSOInf (2)'
         call Abend()
       end if
       iAOtSO(iAO,0) = iSO+1
@@ -366,7 +378,7 @@ do iBS=0,nBS-1
 
   if (nCnttp > Mxdbsc) then
     call WarningMessage(2,'Error in Mk_RICD_Shells')
-    write(6,*) 'Mk_RICD_Shells: Increase Mxdbsc'
+    write(u6,*) 'Mk_RICD_Shells: Increase Mxdbsc'
     call Abend()
   end if
 
@@ -399,14 +411,14 @@ do iBS=0,nBS-1
 
       iShll = iShll+1
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'iAng,jAng=',iAng,jAng
-      write(6,*) 'iAngMax=',iAngMax
+      write(u6,*)
+      write(u6,*) 'iAng,jAng=',iAng,jAng
+      write(u6,*) 'iAngMax=',iAngMax
 #     endif
       if (iShll > MxShll) then
         call WarningMessage(2,'Error in Mk_RICD_Shells')
-        write(6,*) 'Mk_RICD_Shells: iShll > MxShll'
-        write(6,*) 'iShll,MxShll=',iShll,MxShll
+        write(u6,*) 'Mk_RICD_Shells: iShll > MxShll'
+        write(u6,*) 'iShll,MxShll=',iShll,MxShll
         call Abend()
       end if
       Diagonal = iAng == jAng
@@ -434,7 +446,7 @@ do iBS=0,nBS-1
       Found = Found .and. (jAng >= iAngMin) .and. (iAng >= iAngMin) .and. (iAng+jAng <= Keep_Shell)
       Keep_Basis = Found .or. Keep_Basis
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Found,kShll,lShll=',Found,kShll,lShll
+      write(u6,*) 'Found,kShll,lShll=',Found,kShll,lShll
 #     endif
       !                                                                *
       !*****************************************************************
@@ -477,7 +489,7 @@ do iBS=0,nBS-1
 
         if (.not. In_Core) then
           call WarningMessage(2,'Error in Mk_RICD_Shells')
-          write(6,*) 'Out-of-core acCD not implemented!'
+          write(u6,*) 'Out-of-core acCD not implemented!'
           call Abend()
         end if
 #       ifdef _DEBUGPRINT_
@@ -514,7 +526,7 @@ do iBS=0,nBS-1
           nCntrc_Max = nk*nl
         end if
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'nCntrc_Max=',nCntrc_Max
+        write(u6,*) 'nCntrc_Max=',nCntrc_Max
 #       endif
         call mma_allocate(Con,nCntrc_Max,label='Con')
         call mma_allocate(ConR,2,nCntrc_Max,label='ConR')
@@ -546,20 +558,20 @@ do iBS=0,nBS-1
               Con(ikl) = 1
               ConR(1,nCntrc) = ik
 #             ifdef _DEBUGPRINT_
-              write(6,*) 'iCho_c,  ijSO=',iCho_c+1,ijSO
+              write(u6,*) 'iCho_c,  ijSO=',iCho_c+1,ijSO
 #             endif
               ConR(2,nCntrc) = il
             end if
           end if
         end do    !  iCho_c
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'nCntrc=',nCntrc
+        write(u6,*) 'nCntrc=',nCntrc
         call iVcPrt('Con',' ',Con,nCntrc_Max)
         call iVcPrt('ConR',' ',ConR,2*nCntrc)
-        write(6,*)
-        write(6,*) 'ConR'
-        write(6,'(30I3)') (ConR(1,i),i=1,nCntrc)
-        write(6,'(30I3)') (ConR(2,i),i=1,nCntrc)
+        write(u6,*)
+        write(u6,*) 'ConR'
+        write(u6,'(30I3)') (ConR(1,i),i=1,nCntrc)
+        write(u6,'(30I3)') (ConR(2,i),i=1,nCntrc)
 #       endif
 
       else
@@ -599,7 +611,7 @@ do iBS=0,nBS-1
             nPrim_Max = npk*npl
           end if
 #         ifdef _DEBUGPRINT_
-          write(6,*) 'nPrim_Max:',nPrim_Max
+          write(u6,*) 'nPrim_Max:',nPrim_Max
 #         endif
           call mma_allocate(Prm,nPrim_Max,label='Prm')
           call IZero(Prm,nPrim_Max)
@@ -631,35 +643,35 @@ do iBS=0,nBS-1
           call mma_allocate(iD_p,nPrim_Max,label='iD_p')
           call mma_allocate(Vec,nPrim_Max**2,label='Vec')
 
-          Thrshld_CD_p = Thr_aCD*2.0D-1
+          Thrshld_CD_p = Thr_aCD*0.2_wp
           do
             call CD_InCore_p(TP,nPrim_Max,Vec,nPrim_Max,iD_p,NumCho_p,Thrshld_CD_p,iRC)
             if (NumCho_p < 1) then
               call WarningMessage(2,'Error in Mk_RICD_Shells')
-              write(6,*) 'Mk_aCD_Shells: NumCho_p < 1 is illegal!'
-              write(6,*) 'iAng,jAng=',iAng,jAng
-              write(6,*) 'nPrim_Max=',nPrim_Max
-              write(6,*) 'NumCho_p=',NumCho_p
-              write(6,*) 'iRC=',iRC
+              write(u6,*) 'Mk_aCD_Shells: NumCho_p < 1 is illegal!'
+              write(u6,*) 'iAng,jAng=',iAng,jAng
+              write(u6,*) 'nPrim_Max=',nPrim_Max
+              write(u6,*) 'NumCho_p=',NumCho_p
+              write(u6,*) 'iRC=',iRC
               call Abend()
             end if
 
 #           ifdef _DEBUGPRINT_
-            write(6,*) 'Thrshld_CD_p:',Thrshld_CD_p
-            write(6,*) 'NumCho_p    :',NumCho_p
+            write(u6,*) 'Thrshld_CD_p:',Thrshld_CD_p
+            write(u6,*) 'NumCho_p    :',NumCho_p
             call iVcPrt('iD_p',' ',iD_p,NumCho_p)
             call RecPrt('Vec',' ',Vec,nPrim_Max,NumCho_p)
 #           endif
             if (NumCho_p >= nCntrc) exit
-            write(6,*) 'W a r n i n g!'
-            write(6,*) 'Fewer primitive functions than contracted functions!'
-            write(6,*) 'NumCho_p=',NumCho_p
-            write(6,*) '  nCntrc=',nCntrc
-            Thrshld_CD_p = Thrshld_CD_p*0.5
-            if (Thrshld_CD_p <= 1.0D-14) then
+            write(u6,*) 'W a r n i n g!'
+            write(u6,*) 'Fewer primitive functions than contracted functions!'
+            write(u6,*) 'NumCho_p=',NumCho_p
+            write(u6,*) '  nCntrc=',nCntrc
+            Thrshld_CD_p = Thrshld_CD_p*Half
+            if (Thrshld_CD_p <= 1.0e-14_wp) then
               call WarningMessage(2,'Error in Mk_RICD_Shells')
-              write(6,*) 'Thrshld_CD_p is too low!'
-              write(6,*) 'iAng, jAng:',iAng,jAng
+              write(u6,*) 'Thrshld_CD_p is too low!'
+              write(u6,*) 'iAng, jAng:',iAng,jAng
               call Abend()
             end if
             call Mk_TInt_P(TInt_p,nTheta_All,TP,nPrim_Max,AL,nCompA,nCompB,iList2_p,nTheta_All,2*mData,iAng,jAng,npk,npl,LTP)
@@ -676,7 +688,7 @@ do iBS=0,nBS-1
           Shells(iShll)%nExp = nPrim
 
 #         ifdef _DEBUGPRINT_
-          write(6,*) 'nPrim=',nPrim
+          write(u6,*) 'nPrim=',nPrim
           call iVcPrt('Prm',' ',Prm,nPrim_Max)
 #         endif
           call mma_allocate(Indkl_p,nPrim_Max,label='Indkl_p')
@@ -727,7 +739,7 @@ do iBS=0,nBS-1
 
           if (iOff /= nPrim) then
             call WarningMessage(2,'Error in Mk_RICD_Shells')
-            write(6,*) 'Mk_aCD_Shell: iOff /= iEnd'
+            write(u6,*) 'Mk_aCD_Shell: iOff /= iEnd'
             call Abend()
           end if
 
@@ -760,11 +772,11 @@ do iBS=0,nBS-1
       S%MaxPrm(lAng) = max(S%MaxPrm(lAng),nPrim)
 
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'iShll=',iShll
-      write(6,*) 'nPrim,nCntrc=',nPrim,nCntrc
-      write(6,*) 'lAng=',lAng
-      write(6,*) 'S%MaxPrm(lAng)=',S%MaxPrm(lAng)
+      write(u6,*)
+      write(u6,*) 'iShll=',iShll
+      write(u6,*) 'nPrim,nCntrc=',nPrim,nCntrc
+      write(u6,*) 'lAng=',lAng
+      write(u6,*) 'S%MaxPrm(lAng)=',S%MaxPrm(lAng)
 #     endif
 
       Shells(iShll)%nBasis_c = nCntrc
@@ -818,9 +830,9 @@ do iBS=0,nBS-1
                       nCompB)
 
 #         ifdef _DEBUGPRINT_
-          write(6,*)
-          write(6,*) 'tVt(Diag)'
-          write(6,*) (tVt(i),i=1,nTheta**2,nTheta+1)
+          write(u6,*)
+          write(u6,*) 'tVt(Diag)'
+          write(u6,*) (tVt(i),i=1,nTheta**2,nTheta+1)
           call RecPrt('tVt',' ',tVt,nTheta,nTheta)
           call iVcPrt('iD_p',' ',iD_p,NumCho_p)
 #         endif
@@ -863,9 +875,9 @@ do iBS=0,nBS-1
 #         ifdef _DEBUGPRINT_
           call mma_allocate(tVtInv,nTheta**2,label='tVtInv')
           iSing = 0
-          Det = 0.0d0
+          Det = Zero
           call MInv(tVt,tVtInv,iSing,Det,nTheta)
-          write(6,*) 'iSing,Det=',iSing,Det
+          write(u6,*) 'iSing,Det=',iSing,Det
 #         endif
           call mma_deallocate(tVt)
 
@@ -873,12 +885,12 @@ do iBS=0,nBS-1
             iOff_Ak = (iTheta-1)*iTheta/2+1
             iOff_Qk = (iTheta-1)*iTheta/2+1
             Thrs = Thrshld_CD_p
-            !Thrs = 1.0D-12
+            !Thrs = 1.0e-12_wp
             call Inv_Cho_Factor(A(iOff_Ak),iTheta,A,Q,iTheta,iDum,iDum,Dummy,0,Z,Dummy,Thrs,Q(iOff_Qk),LinDep)
             if (LinDep == 1) then
               call WarningMessage(2,'Error in Mk_RICD_Shells')
-              write(6,*) 'Mk_aCD_Shells: linear dependence found in tVt!'
-              write(6,*) 'Found for vector:',iTheta
+              write(u6,*) 'Mk_aCD_Shells: linear dependence found in tVt!'
+              write(u6,*) 'Found for vector:',iTheta
               call Abend()
             end if
           end do
@@ -917,7 +929,7 @@ do iBS=0,nBS-1
 
           ! Generate the (theta'|V|phi') matrix.
 
-          call DGEMM_('N','N',nTheta,nPhi,nTheta_Full,1.0d0,tVtF,nTheta,C,nTheta_Full,0.0d0,tVp,nTheta)
+          call DGEMM_('N','N',nTheta,nPhi,nTheta_Full,One,tVtF,nTheta,C,nTheta_Full,Zero,tVp,nTheta)
           call mma_deallocate(tVtF)
 #         ifdef _DEBUGPRINT_
           call RecPrt('tVp',' ',tVp,nTheta,nPhi)
@@ -961,14 +973,14 @@ do iBS=0,nBS-1
 #         endif
           ! Q(T) tVp
           call mma_allocate(Scr,nTheta*nPhi,label='Scr')
-          Scr(:) = 0.0d0
-          call DGEMM_('T','N',nTheta,nPhi,nTheta,1.0d0,QTmp,nTheta,tVp,nTheta,0.0d0,Scr,nTheta)
+          Scr(:) = Zero
+          call DGEMM_('T','N',nTheta,nPhi,nTheta,One,QTmp,nTheta,tVp,nTheta,Zero,Scr,nTheta)
           ! QQ(T) tVp
-          call DGEMM_('N','N',nTheta,nPhi,nTheta,1.0d0,QTmp,nTheta,Scr,nTheta,0.0d0,Shells(iShll)%Cff_c(1,1,1),nTheta)
+          call DGEMM_('N','N',nTheta,nPhi,nTheta,One,QTmp,nTheta,Scr,nTheta,Zero,Shells(iShll)%Cff_c(1,1,1),nTheta)
 #         ifdef _DEBUGPRINT_
           call RecPrt('SLIM coeffcients',' ',Shells(iShll)%Cff_c(1,1,1),nTheta,nPhi)
-          Scr(:) = 0.0d0
-          call DGEMM_('N','N',nTheta,nPhi,nTheta,1.0d0,tVtInv,nTheta,tVp,nTheta,0.0d0,Scr,nTheta)
+          Scr(:) = Zero
+          call DGEMM_('N','N',nTheta,nPhi,nTheta,One,tVtInv,nTheta,tVp,nTheta,Zero,Scr,nTheta)
           call RecPrt('SLIM coeffcients2',' ',Scr,nTheta,nPhi)
           call mma_deallocate(tVtInv)
 #         endif
@@ -1020,7 +1032,7 @@ do iBS=0,nBS-1
             kC = ConR(1,iCntrc)
             lC = ConR(2,iCntrc)
 #           ifdef _DEBUGPRINT_
-            write(6,*) 'kC,lC=',kC,lC
+            write(u6,*) 'kC,lC=',kC,lC
 #           endif
             !                                                          *
             !***********************************************************
@@ -1151,10 +1163,10 @@ do iBS=0,nBS-1
   !                                                                    *
   if (Keep_Basis) then
     if (Show .and. (nPrint(2) >= 6)) then
-      write(6,*)
-      write(6,*)
-      write(6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
-      write(6,'(1X,A)') 'On-the-fly basis set generation'
+      write(u6,*)
+      write(u6,*)
+      write(u6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
+      write(u6,'(1X,A)') 'On-the-fly basis set generation'
     end if
 
     ! Transfer the coordinate information
@@ -1243,12 +1255,12 @@ if (W2L) then
 
       ! Write out the exponents
 
-      write(Lu_lib,'( 5(1X,D20.13))') (Shells(iShll_)%exp(i),i=1,nExpi)
+      write(Lu_lib,'(5(1X,D20.13))') (Shells(iShll_)%exp(i),i=1,nExpi)
 
       ! Write out the contraction coefficients
 
       do i=1,nExpi
-        write(Lu_lib,'( 5(1X,D20.13))') (Shells(iShll_)%Cff_c(i,j,1),j=1,Shells(iShll_)%nBasis)
+        write(Lu_lib,'(5(1X,D20.13))') (Shells(iShll_)%Cff_c(i,j,1),j=1,Shells(iShll_)%nBasis)
       end do
 
     end do

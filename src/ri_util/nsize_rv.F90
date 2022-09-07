@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nSize_Rv(kS,lS,nShBf,nShell,nIrrep,iOff,nVec)
+function nSize_Rv(kS,lS,nShBf,nShell,nIrrep,iOff,nVec)
 !***********************************************************************
 !                                                                      *
 !     Compute the size of Rv(nu,mu,K) and the offsets to the           *
@@ -17,7 +17,12 @@ integer function nSize_Rv(kS,lS,nShBf,nShell,nIrrep,iOff,nVec)
 !                                                                      *
 !***********************************************************************
 
-integer nShBf(0:nIrrep-1,nShell), iOff(0:nIrrep-1), nVec(0:nIrrep-1)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nSize_Rv
+integer(kind=iwp) :: kS, lS, nShell, nIrrep, nShBf(0:nIrrep-1,nShell), iOff(0:nIrrep-1), nVec(0:nIrrep-1)
+integer(kind=iwp) :: kIrrep, klIrrep, lIrrep, nJ, nK, nKL, nL
 
 nSize_Rv = 0
 

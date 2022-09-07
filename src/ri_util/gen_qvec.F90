@@ -11,40 +11,36 @@
 
 subroutine Gen_QVec(nIrrep,nBas_Aux)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-integer nBas_Aux(0:nIrrep-1), Lu_Q(0:7), Lu_A(0:7)
-logical Out_Of_Core
-character*6 Name_Q
-real*8, allocatable, target :: Mem(:)
-real*8, pointer :: A_l(:) => null(), Q_l(:) => null()
-real*8, pointer :: A_k(:) => null(), Q_k(:) => null()
-real*8, pointer :: Am(:) => null(), Qm(:) => null()
-integer, allocatable :: iDiag(:)
-real*8, allocatable :: Scr(:), X(:), Z(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nIrrep, nBas_Aux(0:nIrrep-1)
+integer(kind=iwp) :: iAddr, iAddr_, iE, iIrrep, ik, iOff, irc, iS, iSeed, k, kCol, kQm, LinDep, lQm, lScr, Lu_A(0:7), Lu_Q(0:7), &
+                     MaxMem, MaxMem2, mB, Mem_Max, mQm, nA_Diag, nB, nBfn2, nQ_k, nQm
+real(kind=wp) :: a, b, ThrQ
+logical(kind=iwp) :: Out_Of_Core
+character(len=6) :: Name_Q
+integer(kind=iwp), allocatable :: iDiag(:)
+real(kind=wp), allocatable :: Scr(:), X(:), Z(:)
+real(kind=wp), allocatable, target :: Mem(:)
+real(kind=wp), pointer :: A_k(:), A_l(:), Am(:), Q_k(:), Q_l(:), Qm(:)
+integer(kind=iwp), external :: IsFreeUnit
 interface
   subroutine SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,Diag)
-    integer irc
-    integer nSym
-    integer nDim(nSym)
-    integer nVec(nSym)
-    integer iD_A(*)
-    integer lu_A0(nSym)
-    character(LEN=7) mode
-    integer lScr
-    real*8 Scr(lScr)
-    real*8, optional :: Diag(*)
+    import :: wp, iwp
+    integer(kind=iwp) :: irc, nSym, nDim(nSym), nVec(nSym), iD_A(*), lu_A0(nSym), lScr
+    character(len=7) :: mode
+    real(kind=wp) :: Scr(lScr)
+    real(kind=wp), optional :: Diag(*)
   end subroutine SORT_mat
 end interface
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-ThrQ = 1.0D-14 ! Threshold for Inv_Cho_Factor
+ThrQ = 1.0e-14_wp ! Threshold for Inv_Cho_Factor
 
 mB = 0
 nA_Diag = 0
@@ -72,6 +68,7 @@ call mma_allocate(Scr,lScr,Label='Scr')
 call mma_maxDBLE(Mem_Max)
 call mma_allocate(Mem,Mem_Max,Label='Mem')
 
+nullify(A_k,Q_k)
 do iIrrep=0,nIrrep-1
   nB = nBas_Aux(iIrrep)
   nQm = nB*(nB+1)/2
@@ -81,15 +78,15 @@ do iIrrep=0,nIrrep-1
     MaxMem = Mem_Max-2*nB
     mQm = MaxMem/2
     a = One
-    b = -Two*dble(mQm)
-    mB = int(-a/Two+sqrt((a/Two)**2-b))
+    b = -Two*real(mQm,kind=wp)
+    mB = int(-a*Half+sqrt((a*Half)**2-b))
     kQm = mB*(mB+1)/2
     if (kQm > mQm) then
       call WarningMessage(2,'Error in Gen_QVec')
-      write(6,*) 'kQm > mQm!'
-      write(6,*) 'MaxMem=',MaxMem
-      write(6,*) 'nQm,mQm,kQm=',nQm,mQm,kQm
-      write(6,*) 'nB,mB=',nB,mB
+      write(u6,*) 'kQm > mQm!'
+      write(u6,*) 'MaxMem=',MaxMem
+      write(u6,*) 'nQm,mQm,kQm=',nQm,mQm,kQm
+      write(u6,*) 'nB,mB=',nB,mB
       call Abend()
     end if
     iE = 2*kQm
@@ -118,7 +115,7 @@ do iIrrep=0,nIrrep-1
       iOff = (kCol-1)*kCol/2
       A_l(1:) => Am(1+iOff:)
     else
-      A_l(1:) => A_k(1:)
+      A_l(1:) => A_k(1:mB)
     end if
 
     iAddr_ = iAddr
@@ -128,7 +125,7 @@ do iIrrep=0,nIrrep-1
       call dDaFile(Lu_A(iIrrep),2,A_l,kCol,iAddr_)
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'kCol=',kCol
+    write(u6,*) 'kCol=',kCol
     call TriPrt('Am',' ',Am,mB)
     call RecPrt('Al',' ',A_l,1,kCol)
 #   endif
@@ -137,7 +134,7 @@ do iIrrep=0,nIrrep-1
       iOff = (kCol-1)*kCol/2
       Q_l(1:) => Qm(1+iOff:)
     else
-      Q_l(1:) => Q_k(1:)
+      Q_l(1:) => Q_k(1:mB)
     end if
 
     LinDep = 2
@@ -145,7 +142,7 @@ do iIrrep=0,nIrrep-1
 
     if (LinDep /= 0) then
       call WarningMessage(2,'Error in Gen_QVec')
-      write(6,*) 'Inv_Cho_Factor found linear dependence!'
+      write(u6,*) 'Inv_Cho_Factor found linear dependence!'
       call Abend()
     end if
 #   ifdef _DEBUGPRINT_

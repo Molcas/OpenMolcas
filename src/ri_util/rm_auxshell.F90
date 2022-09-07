@@ -17,10 +17,11 @@ subroutine rm_AuxShell(iCnttp)
 !***********************************************************************
 
 use Basis_Info, only: dbsc, Shells
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: iCnttp
+integer(kind=iwp) :: iShll, k
 
 !                                                                      *
 !***********************************************************************

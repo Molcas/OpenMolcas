@@ -17,9 +17,9 @@ subroutine PGet2_RI3(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,DS
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density matrix.                 *
 !                                                                      *
-!          The indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          The indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
@@ -29,25 +29,28 @@ subroutine PGet2_RI3(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,DS
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: lPSO, nnp, Thpkl, AOrb
+use pso_stuff, only: AOrb, lPSO, nnP, Thpkl
 use Basis_Info, only: nBas, nBas_Aux
 use Symmetry_Info, only: nIrrep
-use ExTerm, only: CijK, CilK, BklK
-use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-use ExTerm, only: Yij, CMOi
+use ExTerm, only: BklK, CijK, CilK, CMOi, iOff_Ymnij, ipYmnij, nYmnij, Yij, Ymnij
+use Constants, only: Zero, One, Half, Quart
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, mV_k, nSA, nAct(0:7)
+real(kind=wp) :: PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), ExFac, CoulFac, PMax, V_k(mV_k,nSA), Zpk(*)
+logical(kind=iwp) :: Shijij
 #include "exterm.fh"
-real*8 PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA), Zpk(*)
-integer iCmp(4), iAO(4), iAOst(4)
-logical Shijij
-!Local Array
-integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
-integer nCumnnP(0:7), nCumnnP2(0:7)
-real*8, pointer :: Xki(:) => null()
-real*8, pointer :: Xli(:) => null()
+integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indk, Indkl, Indl, iSO, iThpkl, iVec, j, j2, j23, j3, j4, &
+                     jAOj, jC, jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), lAct, &
+                     lAOl, lCVec, lda, lmo, lOper, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, n2j, nCumnnP(0:7), nCumnnP2(0:7), nJ, &
+                     njSym, nk, nkSym, nl, nlSym, ntmp
+real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, temp, tmp, Wall, Wall1, Wall2
+real(kind=wp), pointer :: Xki(:), Xli(:)
+integer(kind=iwp), external :: iPntSO
+real(kind=r8), external :: ddot_
 ! Statement function
+integer(kind=iwp) :: kYmnij, l
 kYmnij(l) = Ymnij(ipYmnij(1)-1+l)
 
 !                                                                      *
@@ -57,24 +60,24 @@ kYmnij(l) = Ymnij(ipYmnij(1)-1+l)
 iComp = 1
 call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,1,D0)
 call RecPrt('V_K',' ',V_K,1,mV_K)
-write(6,*)
-write(6,*) 'Distribution of Ymnij'
+write(u6,*)
+write(u6,*) 'Distribution of Ymnij'
 do iSym=1,nIrrep
   if (nYmnij(iSym,1) > 0) then
-    write(6,*) 'iSym=',iSym
+    write(u6,*) 'iSym=',iSym
     do i=iOff_Ymnij(iSym,1)+1,iOff_Ymnij(iSym,1)+nYmnij(iSym,1)
-      write(6,*) 'kYmnij=',kYmnij(i)
+      write(u6,*) 'kYmnij=',kYmnij(i)
     end do
   end if
 end do
-write(6,*) 'jbas,kbas,lbas=',jBas,kBas,lBas
+write(u6,*) 'jbas,kbas,lbas=',jBas,kBas,lBas
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call CWTime(Cpu1,Wall1)
 
-Fac = One/Four
+Fac = Quart
 lOper = 1
 PMax = Zero
 iSO = 1
@@ -272,11 +275,11 @@ do i2=1,iCmp(2)
 
               ! E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 
-              call dGEMM_('T','N',nl*jBas,kBas,nk,1.0d0,CijK,nk,Xki,nk,0.0d0,CilK,nl*jBas)
+              call dGEMM_('T','N',nl*jBas,kBas,nk,One,CijK,nk,Xki,nk,Zero,CilK,nl*jBas)
 
               ! B(Km,n) = Sum_j E(j, Km)' * X(j,n)
 
-              call dGEMM_('T','N',jBas*kBas,lBas,nl,1.0d0,CilK,nl,Xli,nl,0.0d0,BklK,jBas*kBas)
+              call dGEMM_('T','N',jBas*kBas,lBas,nl,One,CilK,nl,Xli,nl,Zero,BklK,jBas*kBas)
 
             end if
             !                                                          *
@@ -312,14 +315,14 @@ do i2=1,iCmp(2)
                         end do
                       else
                         if (j3 < j4) then
-                          call dGeMV_('N',nAct(j3),nAct(j4),1.0d0,Zpk(jp+1),nAct(j3),AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,0.0d0,CilK,1)
+                          call dGeMV_('N',nAct(j3),nAct(j4),One,Zpk(jp+1),nAct(j3),AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,Zero,CilK,1)
                         else
-                          call dGeMV_('T',nAct(j4),nAct(j3),1.0d0,Zpk(jp+1),nAct(j4),AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,0.0d0,CilK,1)
+                          call dGeMV_('T',nAct(j4),nAct(j3),One,Zpk(jp+1),nAct(j4),AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,Zero,CilK,1)
                         end if
                       end if
 
                       iThpkl = jAOj+lAOl*kBas*jBas+1
-                      call dGeMV_('T',nAct(j3),kBas,1.0d0,AOrb(iMO2)%SB(j3+1)%A2(:,kSO),nAct(j3),Cilk,1,1.0d0,Thpkl(iThpkl),jBas)
+                      call dGeMV_('T',nAct(j3),kBas,One,AOrb(iMO2)%SB(j3+1)%A2(:,kSO),nAct(j3),Cilk,1,One,Thpkl(iThpkl),jBas)
 
                     end do
                   end do
@@ -399,8 +402,8 @@ do i2=1,iCmp(2)
   end do
 end do
 if (nPSO /= MemSO2) then
-  write(6,*) ' PGET_RI3: nPSO /= MemSO2'
-  write(6,*) nPSO,MemSO2
+  write(u6,*) ' PGET_RI3: nPSO /= MemSO2'
+  write(u6,*) nPSO,MemSO2
   call Abend()
 end if
 

@@ -19,10 +19,15 @@ subroutine Mult_Zp_Qv_s(Zp,nZp,Qv,nQv,Rv,n_Rv,nVec,nMuNu,nI,nIrrep,QMode)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-real*8 Zp(nZp), Qv(nQv), Rv(n_Rv)
-integer nVec(0:nIrrep-1), nMuNu(0:nIrrep-1), nI(0:nIrrep-1)
-character QMode*1, Name_Q*6
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZp, nQv, n_Rv, nIrrep, nVec(0:nIrrep-1), nMuNu(0:nIrrep-1), nI(0:nIrrep-1)
+real(kind=wp) :: Zp(nZp), Qv(nQv), Rv(n_Rv)
+character :: QMode
+integer(kind=iwp) :: iAddr, iIrrep, iOffA, iOffA2, iOffR, iOffR2, iSeed, lQv, lstepA, lstepR, Lu_Q, mQv, nI_, nK, nMuNu_
+character(len=6) :: Name_Q
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************

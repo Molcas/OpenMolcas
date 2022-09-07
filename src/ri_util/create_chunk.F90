@@ -11,24 +11,31 @@
 
 subroutine Create_Chunk(LenVec,NumVec,IncVec)
 
-use Chunk_mod
+use Chunk_mod, only: Chunk
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
+use Chunk_mod, only: iMap, ip_Chunk
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
+use Constants, only: Zero
+use Definitions, only: wp, u6
 #endif
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: LenVec, NumVec, IncVec
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
-external ga_create_irreg
-logical ga_create_irreg, ok
-integer myMap(2)
+integer(kind=iwp) :: i, IncVec0, iNode, iNode0, iStart, itmp, myMap(2), nBlocks
+real(kind=wp) :: FullSize, TotalMemory
+logical(kind=iwp) :: ok
+logical(kind=iwp), external :: ga_create_irreg
 #endif
+integer(kind=iwp) :: MaxMem
 
 #ifdef _MOLCAS_MPP_
 if (NumVec <= 0) then
   call WarningMessage(2,'Create_Chunk: Failure NumVec <= 0')
-  write(6,*) 'NumVec=',NumVec
+  write(u6,*) 'NumVec=',NumVec
   call Abend()
 end if
 
@@ -36,11 +43,11 @@ if (Is_Real_Par()) then
   call mma_allocate(iMap,nProcs+1,Label='iMap')
   iMap(:) = 0
 
-  FullSize = dble(LenVec*NumVec)
+  FullSize = real(LenVec*NumVec,kind=wp)
   call mma_maxDBLE(MaxMem)
   iMap(1+MyRank) = MaxMem
   call GAIGOP(iMap,nProcs,'+')
-  TotalMemory = 0.0d0
+  TotalMemory = Zero
   itmp = iMap(1)
 
   ! Find the smallest possible memory allocation!
@@ -48,7 +55,7 @@ if (Is_Real_Par()) then
   do i=1,nProcs-1
     itmp = min(itmp,iMap(1+i))
   end do
-  TotalMemory = dble(itmp)*dble(nProcs)
+  TotalMemory = real(itmp,kind=wp)*real(nProcs,kind=wp)
 
   ! Compute the number of vectors to handle at the time
 
@@ -58,18 +65,18 @@ if (Is_Real_Par()) then
 
   else
 
-    IncVec = int(dble(NumVec)*(TotalMemory/FullSize))
+    IncVec = int(real(NumVec,kind=wp)*(TotalMemory/FullSize))
 
   end if
   if (IncVec <= 0) then
     call WarningMessage(2,'Create_Chunk: Failure IncVec <= 0')
-    write(6,*) 'FullSize=',FullSize
-    write(6,*) 'NumVec=',NumVec
-    write(6,*) 'LenVec=',LenVec
-    write(6,*) 'TotalMemory=',TotalMemory
-    write(6,*) 'Local size of memory'
-    write(6,*) (iMap(i),i=1,nProcs)
-    write(6,*) 'iTmp=',iTmp
+    write(u6,*) 'FullSize=',FullSize
+    write(u6,*) 'NumVec=',NumVec
+    write(u6,*) 'LenVec=',LenVec
+    write(u6,*) 'TotalMemory=',TotalMemory
+    write(u6,*) 'Local size of memory'
+    write(u6,*) (iMap(i),i=1,nProcs)
+    write(u6,*) 'iTmp=',iTmp
     call Abend()
   end if
 

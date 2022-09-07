@@ -11,15 +11,24 @@
 
 subroutine CD_AInv(A,n,AInV,Thr_CD)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 A(n,n), AInv(n,n)
-real*8, allocatable :: ADiag(:), QVec(:,:)
-integer, allocatable :: iADiag(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 #ifdef _ACCURACY_
-real*8, allocatable :: Tmp(:,:), Tmp2(:,:)
+use Constants, only: Zero
 #endif
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: A(n,n), AInv(n,n), Thr_CD
+integer(kind=iwp) :: iDisk, Lu_A, Lu_Q, m
+real(kind=wp) :: Zerp
+integer(kind=iwp), allocatable :: iADiag(:)
+real(kind=wp), allocatable :: ADiag(:), QVec(:,:)
+#ifdef _ACCURACY_
+real(kind=wp), allocatable :: Tmp(:,:), Tmp2(:,:)
+#endif
+integer(kind=iwp), external :: IsFreeUnit
 
 call mma_allocate(ADiag,n,Label='ADiag')
 call mma_allocate(iADiag,n,Label='iADiag')

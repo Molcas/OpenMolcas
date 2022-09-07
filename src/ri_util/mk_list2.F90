@@ -12,11 +12,15 @@
 subroutine Mk_List2(List2,nTheta_All,mData,nSO_Tot,iCnttp,nTest,ijS_req)
 
 use Basis_Info, only: dbsc, Shells
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-#include "stdalloc.fh"
-integer List2(2*mData,nTheta_All)
-logical Only_DB
-integer, allocatable :: iList(:,:)
+implicit none
+integer(kind=iwp) :: nTheta_All, mData, List2(2*mData,nTheta_All), nSO_Tot, iCnttp, nTest, ijS_req
+integer(kind=iwp) :: iAng, iAng_, iCmp, iCmp_, iCont, iCont_, iiSO, ijS, ijSO, iShll, iShll_, iSO, iSO_, jAng, jAng_, jCmp_, &
+                     jCont_, jjSO, jShll, jShll_, jSO, jSO_Max, mCmp, mSO, nCmp, nCont, nSO
+logical(kind=iwp) :: Only_DB
+integer(kind=iwp), allocatable :: iList(:,:)
 
 call mma_allocate(iList,mData,nSO_Tot,Label='iList')
 
@@ -43,11 +47,11 @@ do iAng=0,nTest
       iList(4,iSO_) = iShll
     end do
   end do
-  !write(6,*) 'iSO_=',iSO_
+  !write(u6,*) 'iSO_=',iSO_
 
   jjSO = 0
   do jAng=0,iAng
-    !write(6,*) 'iAng,jAng=',iAng,jAng
+    !write(u6,*) 'iAng,jAng=',iAng,jAng
     jShll = dbsc(iCnttp)%iVal+jAng
     mCmp = (jAng+1)*(jAng+2)/2
     if (Shells(jShll)%Prjct) mCmp = 2*jAng+1
@@ -72,7 +76,7 @@ do iAng=0,nTest
           jCont_ = iList(3,jSO)
           jShll_ = iList(4,jSO)
 
-          !write(6,*) 'iSO,jSO,ijSO=',iSO,jSO,ijSO
+          !write(u6,*) 'iSO,jSO,ijSO=',iSO,jSO,ijSO
           List2(1,ijSO) = iAng_
           List2(2,ijSO) = jAng_
           List2(3,ijSO) = iCmp_
@@ -94,10 +98,10 @@ end do           ! iAng
 
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*) 'List2'
-write(6,*) '  iAng,  jAng,  iCmp,  jCmp, iCont, jCont, iShll, jShll'
+write(u6,*) 'List2'
+write(u6,*) '  iAng,  jAng,  iCmp,  jCmp, iCont, jCont, iShll, jShll'
 do ijSO=1,nTheta_All
-  write(6,'(8I7)') (List2(i,ijSO),i=1,8)
+  write(u6,'(8I7)') (List2(i,ijSO),i=1,8)
 end do
 #endif
 

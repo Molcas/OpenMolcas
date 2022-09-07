@@ -11,9 +11,13 @@
 
 subroutine Mk_tVtF(TInt,nTheta_All,tVtF,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,nl,Indkl,nkl,nTheta_Full,iAL,nA,nB)
 
-implicit real*8(a-h,o-z)
-real*8 TInt(nTheta_All,nTheta_All), tVtF(nTheta,nTheta_Full)
-integer List2(mData,nTheta_All), Indkl(nkl), iPrm(nPrm), iAL(nA,nB)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nTheta_All, nTheta, mData, List2(mData,nTheta_All), nPrm, iPrm(nPrm), iAng, jAng, nk, nl, nkl, Indkl(nkl), &
+                     nTheta_Full, nA, nB, iAL(nA,nB)
+real(kind=wp) :: TInt(nTheta_All,nTheta_All), tVtF(nTheta,nTheta_Full)
+integer(kind=iwp) :: iA, ik, il, iTheta, iTheta_All, iTheta_Full, jA, jk, jl, jTheta_All, jTheta_Full, kComp, lComp, mComp, nComp
 
 #ifdef _DEBUGPRINT_
 call RecPrt('TInt',' ',TInt,nTheta_all,nTheta_all)

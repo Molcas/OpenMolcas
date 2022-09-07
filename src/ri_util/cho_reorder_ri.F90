@@ -12,15 +12,19 @@
 subroutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
 
 use ChoArr, only: iRS2F
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Vec(lVec,nVec)
+implicit none
+integer(kind=iwp) :: lVec, nVec, iSym
+real(kind=wp) :: Vec(lVec,nVec)
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Scr(:)
-integer, allocatable :: iF2RS(:)
+integer(kind=iwp) :: ia, ib, iRS, iRS_tot, iSyma, iSymb, iVec, kFrom, liF2RS, lScr, na, nab, nb
+integer(kind=iwp), allocatable :: iF2RS(:)
+real(kind=wp), allocatable :: Scr(:)
 ! Statement functions
+integer(kind=iwp) :: MulD2h, i, j, iTri
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 

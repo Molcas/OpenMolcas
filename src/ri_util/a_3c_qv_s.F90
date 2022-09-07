@@ -13,22 +13,26 @@
 
 subroutine A_3C_Qv_s(A_3C,Qv,Rv,nMuNu,nI,nK,QMode)
 !***********************************************************************
-!
-!     Author:  F. Aquilante
-!
+!                                                                      *
+!     Author:  F. Aquilante                                            *
+!                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-real*8 A_3C(nMuNu,*), Qv(nI,nK), Rv(nMuNu,*)
-character*1 QMode
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nMuNu, nI, nK
+real(kind=wp) :: A_3C(nMuNu,*), Qv(nI,nK), Rv(nMuNu,*)
+character :: QMode
 
 if (QMode == 'N') then
 
-  call DGEMM_('N','N',nMuNu,nK,nI,1.0d0,A_3C,nMuNu,Qv,nI,0.0d0,Rv,nMuNu)
+  call DGEMM_('N','N',nMuNu,nK,nI,One,A_3C,nMuNu,Qv,nI,Zero,Rv,nMuNu)
 
 else if (QMode == 'T') then
 
-  call DGEMM_('N','T',nMuNu,nI,nK,1.0d0,A_3C,nMuNu,Qv,nI,1.0d0,Rv,nMuNu)  ! note that Rv is accumulated
+  call DGEMM_('N','T',nMuNu,nI,nK,One,A_3C,nMuNu,Qv,nI,One,Rv,nMuNu)  ! note that Rv is accumulated
 
 else
 

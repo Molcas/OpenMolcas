@@ -29,24 +29,28 @@ subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_
 !***********************************************************************
 
 use Basis_Info, only: nBas
-use iSD_data
+use iSD_data, only: iSD
 use Wrj12, only: SO2Ind
 use k2_arrays, only: Sew_Scr
 use Basis_Info, only: dbsc
 use Gateway_global, only: force_out_of_core, iWROpt
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-external Integral_WrOut
-#include "nsd.fh"
+implicit none
+external :: Integral_WrOut
+real(kind=wp) :: ThrAO
+integer(kind=iwp) :: iCnttp, jCnttp, nTInt, LuA, ijS_req, Keep_Shell
+real(kind=wp), allocatable :: TInt(:), ADiag(:)
+logical(kind=iwp) :: In_Core
 #include "setup.fh"
-#include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "iTOffs.fh"
-real*8, allocatable :: TInt(:), ADiag(:)
-integer, allocatable :: IJInd(:,:)
-logical Verbose, Indexation, FreeK2, DoGrad, DoFock, In_Core, Out_of_Core, Only_DB, Do_RI_Basis, Do_ERIs
+integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, iWROpt_Save, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, &
+                     MemLow, MemSew, MemT, mTInt, mTInt2, nBfn, nBfn_i, nBfn_j, nBfn_k, nBfn_l, nij, nIrrep_Save, nSkal, nTInt2
+logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, FreeK2, Indexation, Only_DB, Out_of_Core, Verbose
+integer(kind=iwp), allocatable :: IJInd(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -67,7 +71,7 @@ if (Do_RI_Basis .and. (ijS_req == 0)) then
   call WarningMessage(2,'Do_RI_Basis .and. (ijS_req == 0)')
   call Abend()
 end if
-!write(6,*) 'Do_RI_Basis=',Do_RI_Basis
+!write(u6,*) 'Do_RI_Basis=',Do_RI_Basis
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -103,7 +107,7 @@ else
     end do
   end do
 end if
-!write(6,*) 'nij=',nij
+!write(u6,*) 'nij=',nij
 !                                                                      *
 !***********************************************************************
 !                                                                      *

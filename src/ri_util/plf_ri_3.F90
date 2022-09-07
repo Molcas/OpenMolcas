@@ -18,9 +18,9 @@ subroutine PLF_RI_3(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
 !                                                                      *
-!          the indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          the indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !                                                                      *
 !  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
@@ -30,15 +30,18 @@ subroutine PLF_RI_3(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 AOint(ijkl,jCmp,kCmp,lCmp), TInt(nTInt)
-integer iSOShl(nSO), iShlSO(nSO), nBasSh(0:nSym-1,nShell)
-integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4), iOff(3)
-logical Shijij, Shkl
+implicit none
+integer(kind=iwp) :: ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, iOff(3), &
+                     nSO, iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff
+logical(kind=iwp) :: Shijij
+real(kind=wp) :: AOint(ijkl,jCmp,kCmp,lCmp), TInt(nTInt)
+integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iOff1, iShC, iSOs(4), jSOj, kl, kl_B, kSOk, lCmp_Max, lSOl, n3C, nC, nijkl
+real(kind=wp) :: A_Int
+logical(kind=iwp) :: Shkl
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -52,7 +55,7 @@ Shkl = iShell(3) == iShell(4)
 iOff1 = nBas(0)
 n3C = iOff(3)
 if (iShell(4) > iShell(3)) then
-  write(6,*) 'iShell(4) > iShell(3)'
+  write(u6,*) 'iShell(4) > iShell(3)'
   call Abend()
 end if
 
@@ -85,10 +88,10 @@ do i2=1,jCmp
               nijkl = nijkl+1
               if (lSOl > kSOk) cycle
               iAux = jSOj-iOff1
-              AInt = AOint(nijkl,i2,i3,i4)
+              A_Int = AOint(nijkl,i2,i3,i4)
 
               kl_B = (iAux-1)*n3C+kl
-              TInt(kl_B) = AInt
+              TInt(kl_B) = A_Int
 
             end do
           end do
@@ -118,10 +121,10 @@ do i2=1,jCmp
             do jSOj=iSOs(2),iSOs(2)+jBas-1
               iAux = jSOj-iOff1
               nijkl = nijkl+1
-              AInt = AOint(nijkl,i2,i3,i4)
+              A_Int = AOint(nijkl,i2,i3,i4)
 
               kl_B = (iAux-1)*n3C+kl
-              TInt(kl_B) = AInt
+              TInt(kl_B) = A_Int
 
             end do
           end do

@@ -11,10 +11,14 @@
 
 subroutine Square_A(Lu,nB,MaxMem_,Force_out_of_Core)
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-logical Force_out_of_Core
-real*8, allocatable :: Buf(:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: Lu, nB, MaxMem_
+logical(kind=iwp) :: Force_out_of_Core
+integer(kind=iwp) :: iAddr, iAddr1, iAddr2, iAddrs, iB, Inc, jB, kB, MaxMem, mB, nBuff, nMem
+real(kind=wp), allocatable :: Buf(:,:)
 
 if (nB == 0) return
 MaxMem = MaxMem_

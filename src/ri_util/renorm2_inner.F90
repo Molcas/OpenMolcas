@@ -27,34 +27,33 @@ subroutine ReNorm2_Inner(iCnttp)
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO, nSOInf
-use Real_Spherical
-use Basis_Info
+use Real_Spherical, only: Sphere
+use Basis_Info, only: dbsc, iCnttp_Dummy, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Thrshld_CD
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Integral_RI_2
+implicit none
+integer(kind=iwp) :: iCnttp
 #include "itmax.fh"
-#include "SysDef.fh"
-#include "real.fh"
-#include "print.fh"
-#include "status.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: TInt_c(:), TInt_d(:), Tmp(:), QVec(:)
-real*8, allocatable :: Not_Used(:)
-logical In_Core
-real*8, allocatable :: ADiag(:)
-integer, allocatable :: iADiag(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+integer(kind=iwp) :: i, iAng, iAO, iBas, iCase, iCmp, iDisk, ij, ijF, ijS, ijS_req, ijT, iSeed, iShll, iShll_, iSO, j, jBas, jCmp, &
+                     jiS, Keep_Shell, Lu_A, Lu_Q, m, nBasisi, nCmp, nExpi, nSO, nTest, nTInt_c
+real(kind=wp) :: Thr_CB, ThrAO
+logical(kind=iwp) :: In_Core
+integer(kind=iwp), allocatable :: iADiag(:)
+real(kind=wp), allocatable :: ADiag(:), Not_Used(:), QVec(:), TInt_c(:), TInt_d(:), Tmp(:)
+integer(kind=iwp), external :: IsFreeUnit
+external :: Integral_RI_2
 interface
-  subroutine Drv2El_Atomic_NoSym(Integral_RI_2,ThrAO,iCnttp,jCnttp,TInt_c,nTInt_c,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
-    external Integral_RI_2
-    real*8 ThrAO
-    integer iCnttp, jCnttp, nTInt_c, Lu_A, ijS_req, Keep_Shell
-    real*8, allocatable :: TInt_c(:), ADiag(:)
-    logical In_Core
+  subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
+    import :: wp, iwp
+    external :: Integral_WrOut
+    real(kind=wp) :: ThrAO
+    integer(kind=iwp) :: iCnttp, jCnttp, nTInt, LuA, ijS_req, Keep_Shell
+    real(kind=wp), allocatable :: TInt(:), ADiag(:)
+    logical(kind=iwp) :: In_Core
   end subroutine
 end interface
 
@@ -78,7 +77,7 @@ call Sphere(S%iAngMx)
 
 call Flip_Flop(.false.) ! Contracted mode.
 
-Thr_CB = max(1.0D-14,Thrshld_CD*1.0D-10)
+Thr_CB = max(1.0e-14_wp,Thrshld_CD*1.0e-10_wp)
 ThrAO = Zero
 
 !do iCnttp = 1, nCnttp
@@ -108,9 +107,9 @@ do iAng=0,nTest
   do iCmp=1,nCmp
     iAO = iAO+1
     if (iAO > nSOInf) then
-      write(6,*) 'renorm2_inner: iAO>nSOInf'
-      write(6,*) 'iAO=',iAO
-      write(6,*) 'nSOInf=',nSOInf
+      write(u6,*) 'renorm2_inner: iAO>nSOInf'
+      write(u6,*) 'iAO=',iAO
+      write(u6,*) 'nSOInf=',nSOInf
       call Abend()
     end if
     iAOtSO(iAO,0) = iSO+1
@@ -139,7 +138,7 @@ do iAng=0,nTest
 
   if (.not. In_Core) then
     call WarningMessage(2,'Error in ReNorm')
-    write(6,*) 'Out-of-core acCD not implemented!'
+    write(u6,*) 'Out-of-core acCD not implemented!'
     call Abend()
   end if
 
@@ -219,7 +218,7 @@ do iAng=0,nTest
 #   ifdef _DEBUGPRINT_
     call RecPrt('Coeff(old)',' ',Shells(iShll)%Cff_c(1,1,iCase),nExpi,nBasisi)
 #   endif
-    call DGEMM_('N','N',nExpi,nBasisi,nBasisi,1.0d0,Tmp,nExpi,QVec,nBasisi,0.0d0,Shells(iShll)%Cff_c(1,1,iCase),nExpi)
+    call DGEMM_('N','N',nExpi,nBasisi,nBasisi,One,Tmp,nExpi,QVec,nBasisi,Zero,Shells(iShll)%Cff_c(1,1,iCase),nExpi)
 #   ifdef _DEBUGPRINT_
     call RecPrt('Coeff(new)',' ',Shells(iShll)%Cff_c(1,1,iCase),nExpi,nBasisi)
 #   endif

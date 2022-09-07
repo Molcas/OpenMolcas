@@ -19,17 +19,16 @@ subroutine compute_txy(DM1,nDM,Txy,nTxy,nAuxVec,nIrrep,Diag,DMTmp,nAct)
 !                                                                      *
 !***********************************************************************
 
-use pso_stuff, only: lsa, G2, nnP
+use pso_stuff, only: G2, lsa, nnP
+use Constants, only: One, Two, Quart
+use Definitions, only: wp, iwp
 
 implicit none
-#include "real.fh"
-integer nTxy, nAct(0:7), nCumAct(0:7), nCumAct2(0:7)
-integer nDM, i, j, icol, iline
-integer ista, iend, jsta, jend, ksta, kend, lsta, lend, isym, jsym, ksym, lsym, klsym, it, iu, iv, ix, itu, ivx, ituvx, ituvx2, &
-        nvx, itx, itv, iuv, iux, nkl, Txy_sta, Txy_sta2
-integer nAuxVec, iVec, nIrrep
-real*8 Fac, Fac2, tmp
-real*8 DM1(nDM,nAuxVec), Txy(nTxy,nAuxVec), Diag(nDM,nAuxVec), DMtmp(nDM*(nDM+1)/2)
+integer(kind=iwp) :: nDM, nTxy, nAuxVec, nIrrep, nAct(0:7)
+real(kind=wp) :: DM1(nDM,nAuxVec), Txy(nTxy,nAuxVec), Diag(nDM,nAuxVec), DMtmp(nDM*(nDM+1)/2)
+integer(kind=iwp) :: i, icol, iend, iline, ista, isym, it, itu, ituvx, ituvx2, itv, itx, iu, iuv, iux, iv, iVec, ivx, ix, j, jend, &
+                     jsta, jsym, kend, klsym, ksta, ksym, lend, lsta, lsym, nCumAct(0:7), nCumAct2(0:7), nkl, nvx, Txy_sta, Txy_sta2
+real(kind=wp) :: Fac, Fac2, tmp
 
 nCumAct(0) = 0
 do i=1,nIrrep-1

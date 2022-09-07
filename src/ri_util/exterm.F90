@@ -12,27 +12,18 @@
 module exterm
 
 use Data_Structures, only: DSBA_type
+use Definitions, only: wp, iwp
 
+implicit none
 private
 
-public :: CijK, VJ, CilK, BklK
-public :: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-public :: Yij
-public :: A, AMP2, BMP2
-public :: iMP2prpt, nAuxVe
-public :: LuAVector, LuBVector
-public :: CMOi, DMLT
-
-real*8, allocatable, target :: CijK(:), VJ(:), CilK(:), BklK(:)
-integer, allocatable :: Ymnij(:)
-integer ipYmnij(5), nYmnij(8,5), iOff_Ymnij(8,5)
-real*8, allocatable, target :: Yij(:,:,:)
-real*8, allocatable :: A(:)
-! Cholesky Mp2-gradients
-real*8, allocatable :: AMP2(:,:)
-real*8, allocatable :: BMP2(:,:)
-integer :: iMP2prpt, nAuxVe
-integer :: LuAVector(2), LuBVector(2)
+integer(kind=iwp) :: iMP2prpt, iOff_Ymnij(8,5), ipYmnij(5), LuAVector(2), LuBVector(2), nAuxVe, nYmnij(8,5)
 type(DSBA_Type), target :: CMOi(5), DMLT(5)
+integer(kind=iwp), allocatable :: Ymnij(:)
+real(kind=wp), allocatable :: A(:), AMP2(:,:), BMP2(:,:)
+real(kind=wp), allocatable, target :: BklK(:), CijK(:), CilK(:), VJ(:), Yij(:,:,:)
+
+public :: A, AMP2, BklK, BMP2, CijK, CilK, CMOi, DMLT, iMP2prpt, iOff_Ymnij, ipYmnij, LuAVector, LuBVector, nAuxVe, nYmnij, VJ, &
+          Yij, Ymnij
 
 end module exterm

@@ -11,33 +11,37 @@
 
 subroutine Get_Auxiliary_Shells(iSO,nSO,jOff,iSO2Shl,nSO2Shl,iPair,nPair)
 
-integer iSO(2,nSO), iSO2Shl(nSO2Shl), iPair(nPair)
+use Definitions, only: iwp
 
-!write(6,*) 'iSO'
-!write(6,*) '==='
+implicit none
+integer(kind=iwp) :: nSO, iSO(2,nSO), jOff, nSO2Shl, iSO2Shl(nSO2Shl), nPair, iPair(nPair)
+integer(kind=iwp) :: i, k, kl, kSh, l, lSh
+
+!write(u6,*) 'iSO'
+!write(u6,*) '==='
 !do i=1,nSO
-!  write(6,*) iSO(1,i),iSO(2,i)
+!  write(u6,*) iSO(1,i),iSO(2,i)
 !end do
 
-!write(6,*) 'iSO2Shl'
-!write(6,*) '======='
+!write(u6,*) 'iSO2Shl'
+!write(u6,*) '======='
 !do i=1,nSO2Shl
-!  write(6,*) i,iSO2Shl(i)
+!  write(u6,*) i,iSO2Shl(i)
 !end do
 do i=1,nSO
   k = iSO(1,i)+jOff
   l = iSO(2,i)+jOff
   kSh = iSO2Shl(k)
   lSh = iSO2Shl(l)
-  !write(6,*) 'k,kSh=',k,kSh
-  !write(6,*) 'l,lSh=',k,lSh
+  !write(u6,*) 'k,kSh=',k,kSh
+  !write(u6,*) 'l,lSh=',k,lSh
   kl = max(kSh,lSh)*(max(kSh,lSh)-1)/2+min(kSh,lSh)
   iPair(kl) = 1
 end do
-!write(6,*) 'iPairs'
-!write(6,*) '======'
+!write(u6,*) 'iPairs'
+!write(u6,*) '======'
 !do i=1,nPair
-!  write(6,*) iPair(i)
+!  write(u6,*) iPair(i)
 !end do
 
 return

@@ -69,7 +69,7 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 !         nScreen : See e.g. LK-screening docum. in SCF                *
 !                   or CASSCF read-input routines. Default = 10        *
 !                                                                      *
-!         dmpK : damping for the LK-screening threshold. Def: 1.0d0    *
+!         dmpK : damping for the LK-screening threshold. Def: 1.0      *
 !                                                                      *
 !         Estimate : logical for LK-screening. Default: .false.        *
 !                                                                      *
@@ -98,70 +98,67 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 !***********************************************************************
 
 use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: nnBstRSh, InfVec, IndRed
-use Data_Structures, only: DSBA_Type, SBA_Type
-use Data_Structures, only: NDSBA_Type
-use Data_Structures, only: L_Full_Type
-use Data_Structures, only: Allocate_DT, Deallocate_DT, Lab_Type
+use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, V2
 use ExTerm, only: VJ, iMP2prpt, CMOi
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
-type(NDSBA_Type) DiaH
+implicit none
+integer(kind=iwp) :: irc, nDen, nTxy, ipTxy(8,8,2), nChOrb_(8,5), nAorb(8), nV_k, nZ_p_k, nnP(8), npos(8,3)
 type(DSBA_Type) DLT(5), DLT2, MSQ(nDen), AOrb(*)
-type(SBA_Type) Laq(1), Lxy
-type(L_Full_Type) L_Full
-type(Lab_Type) Lab
-logical DoExchange, DoCAS, lSA
-logical DoScreen, Estimate, Update, BatchWarn
-integer nDen, nChOrb_(8,5), nAorb(8), nnP(8), nIt(5)
-integer ipTxy(8,8,2)
-integer kOff(8,5), LuRVec(8,3)
-integer npos(8,3)
-integer nnA(8,8), nInd, nL_Full(2), nLab(2)
-real*8 tread(2), tcoul(2), tmotr(2), tscrn(2), tcasg(2), tmotr2(2)
-real*8 Txy(nTxy), V_k(nV_k,*), Z_p_k(nZ_p_k,*), U_k(*)
-character*6 Fname
-character*50 CFmt
-character(LEN=12), parameter :: SECNAM = 'CHO_GET_GRAD'
-#include "chotime.fh"
-#include "real.fh"
-logical, parameter :: DoRead = .false.
-real*8, parameter :: xone = -One
-#include "itmax.fh"
+real(kind=wp) :: Txy(nTxy), V_k(nV_k,*), U_k(*), Z_p_k(nZ_p_k,*)
+logical(kind=iwp) :: DoExchange, lSA, DoCAS, Estimate, Update
 #include "Molcas.fh"
+#include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 #include "exterm.fh"
+#include "print.fh"
+#include "bdshell.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "print.fh"
-#include "bdshell.fh"
-logical add
-character mode
-real*8, allocatable :: Lrs(:,:), Drs(:,:), Diag(:), AbsC(:), SvShp(:,:), MLk(:), Ylk(:,:), Drs2(:,:)
-real*8, allocatable, target :: Yik(:)
-real*8, pointer :: pYik(:,:) => null()
-integer, allocatable :: kOffSh(:,:), iShp_rs(:), Indx(:,:), Indik(:,:)
-real*8, allocatable, target :: Aux(:)
-real*8, pointer :: Lik(:,:), Rik(:)
+integer(kind=iwp) :: iAdr, iaSh, iAvec, iBatch, ibcount, ibs, ibs_a, ibSh, iE, ij, ik, iLoc, iml, iMO1, iMO2, iMOleft, iMOright, &
+                     ioff, iOffShb, iOffZp, iPrint, ipZp, ir, ired1, IREDC, iRout, iS, iSeed, ish, iShp, iSSa, iStart, iSwap, &
+                     iSwap_lxy, ISYM, iSym1, iSym2, iSyma, iSymb, iSymv, iSymx, iSymy, it, itk, iTmp, iTxy, IVEC2, iVrs, jDen, &
+                     jGam, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,5), krs, &
+                     kscreen, kSym, l, l1, LFMAX, LKsh, LREAD, lSym, LuRVec(8,3), LWORK, MaxB, MaxRedT, mDen, mrs, MUSED, n1, n2, &
+                     nAv, NAw, nBatch, nI2t, nIJMax, Nik, nInd, nIt(5), nItmx, nL_Full(2), nLab(2), nLaq, nLik, nLxy, nLxy0, nMat, &
+                     nMOs, nnA(8,8), npos2, nQo, nQoT, nRik, nRS, NumCV, numSh, NUMV, NumVT, nVec, nVrs
 #ifdef _MOLCAS_MPP_
-real*8, allocatable :: DiagJ(:)
+integer(kind=iwp) :: myJRED1, NNBSTMX, ntv0
 #endif
-type V2
-  real*8, pointer :: A2(:,:) => null()
-end type V2
-type Special
-  real*8, allocatable :: A0(:)
-  type(V2) :: Den(5)
-end type Special
-type(Special), target :: SumClk
+real(kind=wp) :: SkSh, tau, tcasg(2), TCC1, TCC2, tcoul(2), TCR1, TCR2, TCS1, TCS2, TCT1, TCT2, TCX1, TCX2, temp, thrv, tmotr(2), &
+                 tmotr2(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), tscrn(2), TWC1, TWC2, TWR1, TWR2, &
+                 TWS1, TWS2, TWT1, TWT2, TWX1, TWX2, xtau, xTmp, YMax, YshMax
+logical(kind=iwp) :: add, BatchWarn, DoScreen
+character(len=50) :: CFmt
+character(len=6) :: Fname
+character :: mode
+type(L_Full_Type) :: L_Full
+type(Lab_Type) :: Lab
+type(NDSBA_Type) :: DiaH
+type(SBA_Type) :: Laq(1), Lxy
+type(V2) :: SumClk(5)
+integer(kind=iwp), allocatable :: Indik(:,:), Indx(:,:), iShp_rs(:), kOffSh(:,:)
+real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:,:), Drs2(:,:), Lrs(:,:), MLk(:), SvShp(:,:), Ylk(:,:)
+#ifdef _MOLCAS_MPP_
+real(kind=wp), allocatable :: DiagJ(:)
+#endif
+real(kind=wp), allocatable, target :: Aux(:), Aux0(:), Yik(:)
+real(kind=wp), pointer :: Lik(:,:), pYik(:,:), Rik(:)
+logical(kind=iwp), parameter :: DoRead = .false.
+character(len=*), parameter :: SECNAM = 'CHO_GET_GRAD'
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=r8), external :: ddot_
 ! Statement functions
+integer(kind=iwp) :: MulD2h, i, j, iTri
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
@@ -215,8 +212,8 @@ end do
 
 ! Initialize pointers to avoid compiler warnings
 
-thrv = 0.0d0
-xtau = 0.0d0
+thrv = Zero
+xtau = Zero
 
 ! Construct iBDsh for later use
 
@@ -243,18 +240,18 @@ if (DoExchange) then
 
   call Get_dScalar('Cholesky Threshold',ThrCom)
 
-  tau = (ThrCom/dble(max(1,nItmx)))*dmpK
+  tau = (ThrCom/real(max(1,nItmx),kind=wp))*dmpK
 
   MaxRedT = MaxRed
   call GAIGOP_SCAL(MaxRedT,'+')
 
-  if (Estimate) tau = tau/dble(MaxRedT)
+  if (Estimate) tau = tau/real(MaxRedT,kind=wp)
   xtau = sqrt(tau)
 
   NumVT = NumChT
   call GAIGOP_SCAL(NumVT,'+')
   ! Vector MO transformation screening thresholds
-  thrv = (sqrt(ThrCom/dble(max(1,nItmx)*NumVT)))*dmpK
+  thrv = (sqrt(ThrCom/real(max(1,nItmx)*NumVT,kind=wp)))*dmpK
 
 # ifdef _MOLCAS_MPP_
   if (Is_Real_Par() .and. Update) then
@@ -290,12 +287,12 @@ if (DoExchange) then
   call mma_allocate(MLk,nShell,Label='MLk')
 
   ! list of S:= sum_l abs(C(l)[k])
-  call mma_allocate(SumClk%A0,nShell*nI2t,Label='SumClk%A0')
+  call mma_allocate(Aux0,nShell*nI2t,Label='Aux0')
   iE = 0
   do i=1,nDen
     iS = iE+1
     iE = iE+nShell*nIt(i)
-    SumClk%Den(i)%A2(1:nShell,1:nIt(i)) => SumClk%A0(iS:iE)
+    SumClk(i)%A(1:nShell,1:nIt(i)) => Aux0(iS:iE)
   end do
 
   ! Indx and Indik must be stored for each density, symmetry, etc.
@@ -357,7 +354,7 @@ if (DoExchange) then
             SKsh = SKsh+MSQ(jDen)%SB(kSym)%A2(ik,jK)**2
           end do
 
-          SumClk%Den(jDen)%A2(iaSh,jK_a) = SkSh
+          SumClk(jDen)%A(iaSh,jK_a) = SkSh
 
         end do
       end do
@@ -534,14 +531,14 @@ do jSym=1,nSym
     if (nVrs /= 0) then  ! some vector in that (jred,jsym)
 
       if (nVrs < 0) then
-        write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+        write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
         call Abend()
       end if
 
       ! set index arrays at iLoc
       call Cho_X_SetRed(irc,iLoc,JRED)
       if (irc /= 0) then
-        write(6,*) SECNAM,': cho_X_setred non-zero return code. rc= ',irc
+        write(u6,*) SECNAM,': cho_X_setred non-zero return code. rc= ',irc
         call Abend()
       end if
 
@@ -562,20 +559,20 @@ do jSym=1,nSym
       nVec = min((LWORK-nL_Full(2)-nLab(2))/(nRS+LFMAX),nVrs)
 
       if (nVec < 1) then
-        write(6,*) SECNAM//': Insufficient memory for batch'
-        write(6,*) ' LWORK= ',LWORK
-        write(6,*) ' min. mem. need= ',nRS+LFMAX
-        write(6,*) ' jsym= ',jsym
-        write(6,*) ' nRS = ',nRS
-        write(6,*) ' LFMAX = ',LFMAX
-        write(6,*)
-        write(6,*) ' nL_Full = ',nL_Full
-        write(6,*) ' nRik = ',nRik
-        write(6,*) ' nLik = ',nLik
-        write(6,*) ' nLab = ',nLab
-        write(6,*)
-        write(6,*) ' nLaq = ',nLaq
-        write(6,*) ' nLxy = ',nLxy
+        write(u6,*) SECNAM//': Insufficient memory for batch'
+        write(u6,*) ' LWORK= ',LWORK
+        write(u6,*) ' min. mem. need= ',nRS+LFMAX
+        write(u6,*) ' jsym= ',jsym
+        write(u6,*) ' nRS = ',nRS
+        write(u6,*) ' LFMAX = ',LFMAX
+        write(u6,*)
+        write(u6,*) ' nL_Full = ',nL_Full
+        write(u6,*) ' nRik = ',nRik
+        write(u6,*) ' nLik = ',nLik
+        write(u6,*) ' nLab = ',nLab
+        write(u6,*)
+        write(u6,*) ' nLaq = ',nLaq
+        write(u6,*) ' nLxy = ',nLxy
         irc = 33
         call Abend()
         nBatch = -9999  ! dummy assignment
@@ -606,11 +603,11 @@ do jSym=1,nSym
 
       if (BatchWarn .and. (nBatch > 1)) then
         if (iPrint >= 6) then
-          write(6,'(20A3)') ('---',I=1,20)
-          write(6,*) ' Batch procedure used. Increase memory if possible!'
-          write(6,'(20A3)') ('---',I=1,20)
-          write(6,*)
-          call XFlush(6)
+          write(u6,'(20A3)') ('---',I=1,20)
+          write(u6,*) ' Batch procedure used. Increase memory if possible!'
+          write(u6,'(20A3)') ('---',I=1,20)
+          write(u6,*)
+          call XFlush(u6)
         end if
         BatchWarn = .false.
       end if
@@ -994,7 +991,7 @@ do jSym=1,nSym
                     if (iShp_rs(iShp) <= 0) cycle
 
                     if ((nnBstRSh(JSym,iShp_rs(iShp),iLoc)*nBasSh(lSym,iaSh)*nBasSh(kSym,ibSh) > 0) .and. &
-                        (sqrt(abs(SumClk%Den(iMOleft)%A2(ibSh,jK_a)*SvShp(iShp_rs(iShp),1))) >= thrv)) then
+                        (sqrt(abs(SumClk(iMOleft)%A(ibSh,jK_a)*SvShp(iShp_rs(iShp),1))) >= thrv)) then
 
                       ibcount = ibcount+1
 
@@ -1317,7 +1314,7 @@ do jSym=1,nSym
                         temp = Zero
                         do k=0,nAOrb(iSymx)-1
                           do l=0,k
-                            temp = temp+0.5d0*Txy(ioff+k*(k+1)/2+l)*(Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+ &
+                            temp = temp+Half*Txy(ioff+k*(k+1)/2+l)*(Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+ &
                                    Lxy%SB(iSymx)%A2(k+1+nAOrb(iSymx)*l,j))
                           end do
                         end do
@@ -1383,7 +1380,7 @@ do jSym=1,nSym
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par() .and. Update .and. DoScreen) then
         call GaDsum(DiagJ,nnBSTR(JSYM,1))
-        call Daxpy_(nnBSTR(JSYM,1),xone,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
+        call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
         call Fzero(DiagJ,nnBSTR(JSYM,1))
       end if
       ! Need to activate the screening to setup the contributing shell
@@ -1443,9 +1440,9 @@ if (DoExchange) then
   call mma_deallocate(Indik)
   call mma_deallocate(Indx)
   do i=1,nDen
-    SumClk%Den(i)%A2 => null()
+    SumClk(i)%A => null()
   end do
-  call mma_deallocate(SumClk%A0)
+  call mma_deallocate(Aux0)
   call mma_deallocate(MLk)
   call mma_deallocate(Yik)
   call mma_deallocate(Ylk)
@@ -1469,24 +1466,24 @@ ChoGet_Wall = TOTWALL
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky Gradients timing from '//SECNAM
-  write(6,CFmt) '----------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) '                                CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky Gradients timing from '//SECNAM
+  write(u6,CFmt) '----------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) '                                CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'COULOMB CONTRIB.                          ',tcoul(1),tcoul(2)
-  write(6,'(2x,A26,2f10.2)') 'SCREENING OVERHEAD                        ',tscrn(1),tscrn(2)
-  write(6,'(2x,A26,2f10.2)') 'INACT MO-TRANSFORM VECTORS                ',tmotr(1),tmotr(2)
-  write(6,'(2x,A26,2f10.2)') 'INACT MO-TRANSFORM VECTORS 2              ',tmotr2(1),tmotr2(2)
-  write(6,'(2x,A26,2f10.2)') 'ACTIVE CONTRIB.                           ',tcasg(1),tcasg(2)
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'COULOMB CONTRIB.                          ',tcoul(1),tcoul(2)
+  write(u6,'(2x,A26,2f10.2)') 'SCREENING OVERHEAD                        ',tscrn(1),tscrn(2)
+  write(u6,'(2x,A26,2f10.2)') 'INACT MO-TRANSFORM VECTORS                ',tmotr(1),tmotr(2)
+  write(u6,'(2x,A26,2f10.2)') 'INACT MO-TRANSFORM VECTORS 2              ',tmotr2(1),tmotr2(2)
+  write(u6,'(2x,A26,2f10.2)') 'ACTIVE CONTRIB.                           ',tcasg(1),tcasg(2)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 

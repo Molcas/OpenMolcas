@@ -17,9 +17,9 @@ subroutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density.                        *
 !                                                                      *
-!          The indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          The indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
@@ -31,14 +31,20 @@ subroutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector, CMOi
+use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, iMP2prpt, LuBVector
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, mV_k
+real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k), U_k(mV_k)
+logical(kind=iwp) :: Shijij
 #include "exterm.fh"
-real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k), U_k(mV_k), DSO_Var(nDSO)
-integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-logical Shijij
+integer(kind=iwp) :: i, i1, i2, i3, i4, iAdr, iAOi, ijVec, indexB, Indi, Indij, Indj, Indk, Indkl, Indl, iPAO, irc, iSO, iSOi, &
+                     jAOj, jSO, jSOj, jSym, kAOk, kSO, kSOk, kSym, lAOl, lBVec, lSO, lSOl, lSym, nijkl, nKBas, nLBas, NumOrb
+real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, temp, tempJ, tempK, Wall, Wall1, Wall2
+integer(kind=iwp), external :: mn2K
+real(kind=wp), external :: Compute_B
 
 !                                                                      *
 !***********************************************************************
@@ -57,7 +63,7 @@ call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
 
 call CWTime(Cpu1,Wall1)
 
-Fac = One/Two
+Fac = Half
 PMax = Zero
 iPAO = 0
 jSym = 1
@@ -84,9 +90,9 @@ if ((ExFac /= Zero) .and. (NumOrb > 0) .and. (iMP2prpt /= 2)) then
           Indi = max(iSOi,jSOj)
           Indj = iSOi+jSOj-Indi
           if (Indi == Indj) then
-            Fac_ij = 1.0d0
+            Fac_ij = One
           else
-            Fac_ij = 0.5d0
+            Fac_ij = Half
           end if
           Indij = (Indi-1)*Indi/2+Indj
           ijVec = mn2K(Indij,1)
@@ -95,9 +101,9 @@ if ((ExFac /= Zero) .and. (NumOrb > 0) .and. (iMP2prpt /= 2)) then
             iAdr = nIJR(kSym,lSym,1)*(ijVec-1)+iAdrCVec(jSym,kSym,1)
             call dDaFile(LuCVector(jSym,1),2,CijK,nIJR(kSym,lSym,1),iAdr)
 
-            call dGEMM_('T','N',NumOrb,nKBas,NumOrb,1.0d0,CijK,NumOrb,CMOi(1)%SB(1)%A2(:,kSO),NumOrb,0.0d0,CilK,max(1,NumOrb))
+            call dGEMM_('T','N',NumOrb,nKBas,NumOrb,One,CijK,NumOrb,CMOi(1)%SB(1)%A2(:,kSO),NumOrb,Zero,CilK,max(1,NumOrb))
 
-            call dGEMM_('T','N',nKBas,nLBas,NumOrb,1.0d0,CilK,NumOrb,CMOi(1)%SB(1)%A2(:,lSO),NumOrb,0.0d0,BklK,max(1,nKBas))
+            call dGEMM_('T','N',nKBas,nLBas,NumOrb,One,CilK,NumOrb,CMOi(1)%SB(1)%A2(:,lSO),NumOrb,Zero,BklK,max(1,nKBas))
           end if
 
           do i3=1,iCmp(3)
@@ -121,7 +127,7 @@ if ((ExFac /= Zero) .and. (NumOrb > 0) .and. (iMP2prpt /= 2)) then
                   if (ijVec /= 0) then
                     tempK = BklK(indexB)
                   else
-                    tempK = 0.0d0
+                    tempK = Zero
                   end if
 
                   temp = temp-tempK*ExFac*Half*fac_ij
@@ -156,9 +162,9 @@ else if ((iMP2prpt == 2) .and. (NumOrb > 0)) then
           Indi = max(iSOi,jSOj)
           Indj = iSOi+jSOj-Indi
           if (Indi == Indj) then
-            Fac_ij = 1.0d0
+            Fac_ij = One
           else
-            Fac_ij = 0.5d0
+            Fac_ij = Half
           end if
           Indij = (Indi-1)*Indi/2+Indj
           ijVec = mn2K(Indij,1)
@@ -166,9 +172,9 @@ else if ((iMP2prpt == 2) .and. (NumOrb > 0)) then
             iAdr = nIJR(kSym,lSym,1)*(ijVec-1)+iAdrCVec(jSym,kSym,1)
             call dDaFile(LuCVector(jSym,1),2,CijK,nIJR(kSym,lSym,1),iAdr)
 
-            call dGEMM_('T','N',NumOrb,nKBas,NumOrb,1.0d0,CijK,NumOrb,CMOi(1)%SB(1)%A2(:,kSO),NumOrb,0.0d0,CilK,max(1,NumOrb))
+            call dGEMM_('T','N',NumOrb,nKBas,NumOrb,One,CijK,NumOrb,CMOi(1)%SB(1)%A2(:,kSO),NumOrb,Zero,CilK,max(1,NumOrb))
 
-            call dGEMM_('T','N',nKBas,nLBas,NumOrb,1.0d0,CilK,NumOrb,CMOi(1)%SB(1)%A2(:,lSO),NumOrb,0.0d0,BklK,max(1,nKBas))
+            call dGEMM_('T','N',nKBas,nLBas,NumOrb,One,CilK,NumOrb,CMOi(1)%SB(1)%A2(:,lSO),NumOrb,Zero,BklK,max(1,nKBas))
             lBVec = nBas(0)*nBas(0)
             do i=1,2
               iAdr = 1+nBas(0)*nBas(0)*(ijVec-1)
@@ -198,7 +204,7 @@ else if ((iMP2prpt == 2) .and. (NumOrb > 0)) then
                   if (ijVec /= 0) then
                     tempK = BklK(indexB)
                   else
-                    tempK = 0.0d0
+                    tempK = Zero
                   end if
                   temp = temp+U_k(indij)*DSO(indkl)*CoulFac
                   temp = temp+V_k(indij)*(DSO_Var(indkl)-DSO(indkl))*CoulFac
@@ -267,7 +273,7 @@ else
   end do
 end if
 if (iPAO /= nPAO) then
-  write(6,*) ' Error in PGet1_CD3!'
+  write(u6,*) ' Error in PGet1_CD3!'
   call Abend()
 end if
 

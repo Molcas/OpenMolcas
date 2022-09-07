@@ -11,8 +11,12 @@
 
 subroutine In_place_Square(Buff,nBuff)
 
-implicit real*8(a-h,o-z)
-real*8 Buff(nBuff,nBuff)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nBuff
+real(kind=wp) :: Buff(nBuff,nBuff)
+integer(kind=iwp) :: i, j
 
 !call RecPrt('Buff',' ',Buff,nBuff,nBuff)
 do j=1,nBuff
@@ -21,7 +25,7 @@ do j=1,nBuff
   end do
 end do
 !call RecPrt('Buff',' ',Buff,nBuff,nBuff)
-!write(6,'(10F10.3)') (Buff(i,i),i=1,nBuff)
+!write(u6,'(10F10.3)') (Buff(i,i),i=1,nBuff)
 
 return
 

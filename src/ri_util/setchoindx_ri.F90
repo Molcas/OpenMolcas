@@ -14,17 +14,16 @@
 subroutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,I_nSym,I_nnShl,I_mmBstRT,I_3,I_2,iShij,nShij)
 
 use ChoArr, only: iSP2F, iBasSh, nBasSh, nBstSh
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer iiBstRSh(I_nSym,I_nnShl,I_3), nnBstRSh(I_nSym,I_nnShl,I_3)
-integer IndRed(I_mmBstRT,I_3), IndRsh(I_mmBstRT)
-integer iRS2F(I_2,I_mmBstRT), iShij(2,nShij)
-#include "choorb.fh"
+implicit none
+integer(kind=iwp) :: I_nSym, I_nnShl, I_3, iiBstRSh(I_nSym,I_nnShl,I_3), nnBstRSh(I_nSym,I_nnShl,I_3), I_mmBstRT, &
+                     IndRed(I_mmBstRT,I_3), IndRsh(I_mmBstRT), I_2, iRS2F(I_2,I_mmBstRT), nShij, iShij(2,nShij)
 #include "cholesky.fh"
-integer Cho_iSAOSh
-external Cho_iSAOSh
-integer iRS(8)
+integer(kind=iwp) :: ia, iaa, iab, ib, ibb, iCount, iRS(8), iSh_ij, iShla, iShlab, iShlb, iSym, iSyma, iSymb, jRS, jRS1, jRS2, nErr
+integer(kind=iwp), external :: Cho_iSAOSh
 ! Statement functions
+integer(kind=iwp) :: MulD2h, i, j, iTri
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
@@ -42,7 +41,7 @@ do iSh_ij=1,nShij
   iShla = iShij(1,iSh_ij)
   iShlb = iShij(2,iSh_ij)
   iShlab = iTri(iShla,iShlb)
-  !write(6,*) 'iSh_ij,iShlab,iShla,iShlb=',iSh_ij,iShlab,iShla,iShlb
+  !write(u6,*) 'iSh_ij,iShlab,iShla,iShlb=',iSh_ij,iShlab,iShla,iShlb
   if (iShlab /= iSP2F(iSh_ij)) call SysAbendMsg('SetChoIndx_RI','SP2F setup error',' ')
 
   if (iShla > iShlb) then

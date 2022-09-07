@@ -11,8 +11,12 @@
 
 function Set_CHO_ADRVEC(ii)
 
+use Definitions, only: iwp, u6
+
+implicit none
 #include "cholesky.fh"
-integer Set_CHO_ADRVEC
+integer(kind=iwp) :: Set_CHO_ADRVEC
+integer(kind=iwp) :: ii
 
 Set_CHO_ADRVEC = 0
 if (ii < 0) then
@@ -22,7 +26,7 @@ else if ((ii == 1) .or. (ii == 2)) then
   Set_CHO_ADRVEC = CHO_ADRVEC
 else
   call WarningMessage(2,'Set_CHO_ADRVEC: Illegal option')
-  write(6,*) 'ii=',ii
+  write(u6,*) 'ii=',ii
   call Abend()
 end if
 

@@ -13,22 +13,27 @@
 
 subroutine get_pivot_idx_w(Diag,Wg,n,m,lu_A0,lu_A,iD_A,Scr,lScr,Thr)
 !***********************************************************************
-!
-!     Author:  F. Aquilante
-!
-!       Note:  this routine differs from Get_pivot_idx because here
-!              the pivoting/convergence is decided based on weighted
-!              diagonals
+!                                                                      *
+!     Author:  F. Aquilante                                            *
+!                                                                      *
+!       Note:  this routine differs from Get_pivot_idx because here    *
+!              the pivoting/convergence is decided based on weighted   *
+!              diagonals                                               *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer n, m, lu_A0, lu_A, iD_A(n), lScr
-real*8 Diag(*), Wg(*), Scr(lScr)
-#include "stdalloc.fh"
-#include "warnings.h"
-integer, allocatable :: List(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-Acc = min(1.0D-12,thr*1.0D-2)
+implicit none
+integer(kind=iwp) :: n, m, lu_A0, lu_A, iD_A(n), lScr
+real(kind=wp) :: Diag(*), Wg(*), Scr(lScr), Thr
+#include "warnings.h"
+integer(kind=iwp) :: i, iAddr, iD_Col, ij, is, istart, js, k, kAddr, kCol, ks, kScr, lindep, lmax, nMem_Col
+real(kind=wp) :: Acc, XMax
+integer(kind=iwp), allocatable :: List(:)
+
+Acc = min(1.0e-12_wp,thr*1.0e-2_wp)
 call mma_allocate(List,n,Label='List')
 do i=1,n
   List(i) = i
@@ -37,7 +42,7 @@ end do
 lmax = lScr-2*n
 if (lmax < n) then
   call WarningMessage(2,'Error in Get_Pivot_idx_w')
-  write(6,*) ' Get_Pivot_idx_w: too little scratch space!! '
+  write(u6,*) ' Get_Pivot_idx_w: too little scratch space!! '
   call Quit(_RC_CHO_LOG_)
 end if
 
@@ -53,7 +58,7 @@ m = 0
 do kCol=1,n
 
   iD_Col = 0
-  XMax = 0.0d0
+  XMax = Zero
   do i=1,n
     if (abs(Diag(i)*Wg(i)) > xMax+Acc) then
       iD_Col = i
@@ -61,8 +66,8 @@ do kCol=1,n
     end if
   end do
   if ((iD_Col < 0) .or. (iD_Col > n)) then
-    write(6,*) 'Get_Pivot_idx_w: Index of MaxDiag out of bounds!'
-    write(6,*) 'iD_Col = ',iD_Col
+    write(u6,*) 'Get_Pivot_idx_w: Index of MaxDiag out of bounds!'
+    write(u6,*) 'iD_Col = ',iD_Col
     call Abend()
   else if (iD_Col == 0) then
     exit
@@ -102,7 +107,7 @@ if (m < n) then
     end do
   end do
 else if (m > n) then
-  write(6,*) 'Get_Pivot_idx_w: m > n is not possible!'
+  write(u6,*) 'Get_Pivot_idx_w: m > n is not possible!'
   call Abend()
 end if
 call mma_deallocate(List)

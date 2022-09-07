@@ -9,12 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function Rsv_Tsk2(id,kls)
+function Rsv_Tsk2(id,kls)
 
-use Tsk2
+use Tsk2, only: iOpt, iRsv, nTask, TskList
+use Definitions, only: iwp, u6
 
-#include "stdalloc.fh"
-logical, external :: Rsv_Tsk
+implicit none
+logical(kind=iwp) :: Rsv_Tsk2
+integer(kind=iwp) :: id, kls
+logical(kind=iwp), external :: Rsv_Tsk
 
 if (iOpt == 0) then
   Rsv_Tsk2 = Rsv_Tsk(id,kls)
@@ -31,7 +34,7 @@ else if (iOpt == 1) then
 else
   Rsv_Tsk2 = .false.
   call WarningMessage(2,'Error in Rsv_Tsk2')
-  write(6,*) 'Rsv_Tsk2: illegal iOpt value!'
+  write(u6,*) 'Rsv_Tsk2: illegal iOpt value!'
   call Abend()
 end if
 

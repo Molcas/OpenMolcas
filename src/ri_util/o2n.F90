@@ -11,8 +11,13 @@
 
 subroutine O2N(AA,AB,BB,Temp,nA,nB,Error)
 
-implicit real*8(a-h,o-z)
-real*8 AA(nA,nA), AB(nA,nB), BB(nB,nB), Temp(nA,nB)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: nA, nB
+real(kind=wp) :: AA(nA,nA), AB(nA,nB), BB(nB,nB), Temp(nA,nB), Error
+real(kind=r8), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -20,8 +25,8 @@ real*8 AA(nA,nA), AB(nA,nB), BB(nB,nB), Temp(nA,nB)
 ! (1) Project the new basis on to the old space and compute the
 !     matrix elements.
 
-call DGEMM_('N','N',nA,nB,nA,1.0d0,AA,nA,AB,nA,0.0d0,Temp,nA)
-call DGEMM_('T','N',nB,nB,nA,1.0d0,AB,nA,Temp,nA,0.0d0,BB,nB)
+call DGEMM_('N','N',nA,nB,nA,One,AA,nA,AB,nA,Zero,Temp,nA)
+call DGEMM_('T','N',nB,nB,nA,One,AB,nA,Temp,nA,Zero,BB,nB)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

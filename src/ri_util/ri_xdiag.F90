@@ -17,22 +17,17 @@ subroutine RI_XDiag(Diag,nDiag)
 ! Purpose: compute exact integral diagonal.
 
 use ChoArr, only: iSP2F, nBstSh
-use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDiag
-real*8 Diag(nDiag)
+integer(kind=iwp) :: nDiag
+real(kind=wp) :: Diag(nDiag)
 #include "cholesky.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Scr(:)
-integer l_SewMem
-integer ID
-integer iSAB, iShlA, iShlB
-integer NumAB
-integer iSym, i1, i2
-logical Rsv_Tsk
-external Rsv_Tsk
-integer i
+integer(kind=iwp) :: i, i1, i2, ID, iSAB, iShlA, iShlB, iSym, l_SewMem, NumAB
+real(kind=wp), allocatable :: Scr(:)
+logical(kind=iwp), external :: Rsv_Tsk
 
 ! Allocate memory.
 ! ----------------

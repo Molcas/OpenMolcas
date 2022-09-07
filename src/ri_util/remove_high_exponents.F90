@@ -19,10 +19,12 @@ subroutine Remove_High_Exponents(iD,nD,List2,mData,nTheta_All)
 !***********************************************************************
 
 use Basis_Info, only: Shells
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer iD(nD), List2(mData,nTheta_All)
-logical Skip
+implicit none
+integer(kind=iwp) :: nD, iD(nD), mData, nTheta_All, List2(mData,nTheta_All)
+integer(kind=iwp) :: i, iTheta_All, j, k, kAng, kShll, l, lAng, lShll, mD
+logical(kind=iwp) :: Skip
 
 call iVcPrt('Remove_High_Exponents: iD',' ',iD,nD)
 mD = nD

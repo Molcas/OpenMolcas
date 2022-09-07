@@ -19,9 +19,9 @@ subroutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 !                                                                      *
 !          (Only for use with C1 point group symmetry)                 *
 !                                                                      *
-!          The indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          The indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
@@ -34,18 +34,21 @@ subroutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
-use ExTerm, only: CijK, AMP2, iMP2prpt, nAuxVe, LuAVector, A
+use pso_stuff, only: DMdiag, lPSO, lSA, nnP, nPos
+use ExTerm, only: A, AMP2, CijK, iMP2prpt, LuAVector, nAuxVe
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), mV_K, nSA
+real(kind=wp) :: PAO(ijkl,nPAO), ExFac, CoulFac, PMax, V_K(mV_K,nSA), U_K(mV_K), Z_p_K(nnP(0),mV_K,*)
+logical(kind=iwp) :: Shijij
 #include "exterm.fh"
-real*8 PAO(ijkl,nPAO), V_K(mV_K,nSA), U_K(mV_K), Z_p_K(nnP(0),mV_K,*)
-integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-logical Shijij, Found
-real*8, pointer :: V2(:) => null()
-real*8, pointer :: CiKj(:,:) => null()
-real*8, pointer :: CiKl(:) => null()
+logical(kind=iwp) :: Found
+integer(kind=iwp) :: i, i2, i4, iAdrA, iAdrJ, iAdrL, iE, iOffA, iPAO, iS, iSO, iSO2, iSym, iUHF, j, jAOj, jik, jil, jp, jSO, jSOj, &
+                     jSym, k, kl, kSym, l, lAOl, lSO, lSOl, lSym, lTot, n, nijkl, nik, nik1, nik2
+real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Factor, temp, temp2, tempJ_mp2, tempK_mp2, tmp, Wall, Wall1, Wall2
+real(kind=wp), pointer :: CiKj(:,:), CiKl(:), V2(:)
 
 !                                                                      *
 !***********************************************************************
@@ -67,7 +70,7 @@ call CWTime(Cpu1,Wall1)
 
 if (min(lBas,jBas) == 0) return
 
-Fac = One/Four
+Fac = Quart
 PMax = Zero
 iPAO = 0
 iOffA = nBas(0)
@@ -168,7 +171,7 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
       end if
 
       A(1:jBas*lBas) = Zero
-      call DGEMM_('T','N',jBas,lBas,nik,1.0d0,CiKj,nik,V2,nik,0.0d0,A,jBas)
+      call DGEMM_('T','N',jBas,lBas,nik,One,CiKj,nik,V2,nik,Zero,A,jBas)
 
       do lAOl=0,lBas-1
         lSOl = lSO+lAOl-iOffA
@@ -246,8 +249,8 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 1)) then
           V2(1:) => CiKj(1:,iSO)
         end if
 
-        call DGEMM_('T','N',jBas,lBas,nik,1.0d0,CikJ(:,iSO),nik,V2,nik,Factor,A,jBas)
-        Factor = 1.0d0
+        call DGEMM_('T','N',jBas,lBas,nik,One,CikJ(:,iSO),nik,V2,nik,Factor,A,jBas)
+        Factor = One
       end do
 
       do lAOl=0,lBas-1
@@ -257,7 +260,7 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 1)) then
           nijkl = nijkl+1
 
           temp = CoulFac*V_K(jSOj,1)*V_K(lSOl,1)
-          temp = temp-2.0d0*ExFac*A(nijkl)
+          temp = temp-Two*ExFac*A(nijkl)
 
           PMax = max(PMax,abs(temp))
           PAO(nijkl,iPAO) = Fac*temp
@@ -314,7 +317,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
       end if
 
       A(1:jBas*lBas) = Zero
-      call DGEMM_('T','N',jBas,lBas,nik,1.0d0,CiKj(:,1),nik,V2,nik,0.0d0,A,jBas)
+      call DGEMM_('T','N',jBas,lBas,nik,One,CiKj(:,1),nik,V2,nik,Zero,A,jBas)
 
       do lAOl=0,lBas-1
         lSOl = lSO+lAOl-iOffA
@@ -326,9 +329,9 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
           temp = temp-ExFac*A(nijkl)
 
           ! Active space contribution
-          temp2 = 0.0d0
+          temp2 = Zero
           do jp=1,nnP(0)
-            temp2 = temp2+sign(1.0d0,DMdiag(jp,1))*Z_p_K(jp,jSOj,1)*Z_p_K(jp,lSOl,1)
+            temp2 = temp2+sign(One,DMdiag(jp,1))*Z_p_K(jp,jSOj,1)*Z_p_K(jp,lSOl,1)
           end do
           temp = temp+temp2
 
@@ -408,7 +411,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
         do l=1,lBas
           do k=1,jBas
 
-            tmp = 0.0d0
+            tmp = Zero
 
             do i=1,nChOrb(0,iSO)
               do j=1,nChOrb(0,iSO2)
@@ -428,7 +431,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
           end do
         end do
-        Factor = 1.0d0
+        Factor = One
 
       end do
 
@@ -443,10 +446,10 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
           temp = temp-ExFac*A(nijkl)
 
           ! Active space contribution
-          temp2 = 0.0d0
+          temp2 = Zero
           do jp=1,nnP(0)
-            temp2 = temp2+sign(1.0d0,DMdiag(jp,1))*Z_p_K(jp,jSOj,1)*Z_p_K(jp,lSOl,1)+ &
-                    sign(2.0d0,DMdiag(jp,2))*(Z_p_K(jp,jSOj,2)*Z_p_K(jp,lSOl,3)+Z_p_K(jp,jSOj,3)*Z_p_K(jp,lSOl,2))
+            temp2 = temp2+sign(One,DMdiag(jp,1))*Z_p_K(jp,jSOj,1)*Z_p_K(jp,lSOl,1)+ &
+                    sign(Two,DMdiag(jp,2))*(Z_p_K(jp,jSOj,2)*Z_p_K(jp,lSOl,3)+Z_p_K(jp,jSOj,3)*Z_p_K(jp,lSOl,2))
           end do
           temp = temp+temp2
 
@@ -501,7 +504,7 @@ else
       end if
 
       A(1:jBas*lBas) = Zero
-      call DGEMM_('T','N',jBas,lBas,nik,1.0d0,CiKj(:,1),nik,V2,nik,0.0d0,A,jBas)
+      call DGEMM_('T','N',jBas,lBas,nik,One,CiKj(:,1),nik,V2,nik,Zero,A,jBas)
 
       do lAOl=0,lBas-1
         lSOl = lSO+lAOl-iOffA
@@ -547,7 +550,7 @@ V2 => null()
 !***********************************************************************
 !                                                                      *
 if (iPAO /= nPAO) then
-  write(6,*) ' Error in PGet1_RI2!'
+  write(u6,*) ' Error in PGet1_RI2!'
   call Abend()
 end if
 

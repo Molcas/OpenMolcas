@@ -16,9 +16,9 @@ subroutine PGet2_CD2(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,Ex
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density matrix.                 *
 !                                                                      *
-!          The indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          The indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
@@ -31,14 +31,18 @@ subroutine PGet2_CD2(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,Ex
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 PSO(nijkl,nPSO), V_K(mV_K)
-integer iCmp(4), iAO(4), iAOst(4)
-logical Shijij
-! Local Array
-integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
+implicit none
+integer(kind=iwp) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_k
+logical(kind=iwp) :: Shijij
+real(kind=wp) :: PSO(nijkl,nPSO), ExFac, CoulFac, PMax, V_K(mV_K)
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Indi, Indij, Indj, Indk, Indkl, Indl, iPntij, iPntkl, is, iSO, iSOi, iSym(0:7), j, j1, &
+                     j12, j123, j2, j3, j4, jAOj, js, jSO, jSOj, jSym(0:7), kAOk, ks, kSO, kSOk, kSym(0:7), lAOl, lOper, ls, lSO, &
+                     lSOl, lSym(0:7), MemSO2, mijkl, niSym, njSym, nkSym, nlSym
+real(kind=wp) :: Fac, temp
+integer(kind=iwp), external :: iPntSO
 
 !                                                                      *
 !***********************************************************************
@@ -178,8 +182,8 @@ do i1=1,iCmp(1)
   end do
 end do
 if (nPSO /= MemSO2) then
-  write(6,*) ' PGet2_CD2: nPSO /= MemSO2'
-  write(6,*) nPSO,MemSO2
+  write(u6,*) ' PGet2_CD2: nPSO /= MemSO2'
+  write(u6,*) nPSO,MemSO2
   call Abend()
 end if
 

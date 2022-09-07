@@ -14,13 +14,14 @@ subroutine Cho_RI_PutInfo(iPass,iRed)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer iPass, iRed
+integer(kind=iwp) :: iPass, iRed
 #include "cholesky.fh"
 #include "choglob.fh"
-logical doSwap
-integer iTmp
+integer(kind=iwp) :: iTmp
+logical(kind=iwp) :: doSwap
 
 #ifdef _MOLCAS_MPP_
 doSwap = (nProcs > 1) .and. Is_Real_Par()

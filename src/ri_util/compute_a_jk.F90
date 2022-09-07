@@ -13,20 +13,25 @@
 
 subroutine Compute_A_jk_mp2(iSO,jVec,kVec,Ajk,fac_ij,fac_kl,nVec,iOpt)
 !***********************************************************************
-!   Author: J Bostrom
-!
-!   Purpose: Loading A-matrix for mp2 from disk
-!
+!   Author: J Bostrom                                                  *
+!                                                                      *
+!   Purpose: Loading A-matrix for mp2 from disk                        *
+!                                                                      *
 !***********************************************************************
 
 use ExTerm, only: iMP2prpt, LuAVector
-implicit real*8(a-h,o-z)
-#include "exterm.fh"
-real*8 :: Ajk, Fac_ij, Fac_kl, dum(1)
-character*16 SECNAM
-parameter(SECNAM='Compute_A_jk_mp2')
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-Ajk = 0.0d0
+implicit none
+integer(kind=iwp) :: iSO, jVec, kVec, nVec, iOpt
+real(kind=wp) :: Ajk, Fac_ij, Fac_kl
+#include "exterm.fh"
+integer(kind=iwp) :: iAdrA, lTot
+real(kind=wp) :: Ajk_mp2, dum(1)
+character(len=*), parameter :: SECNAM = 'Compute_A_jk_mp2'
+
+Ajk = Zero
 if (imp2prpt == 2) then
   lTot = 1
   iAdrA = nVec*(kVec-1)+jVec

@@ -11,11 +11,16 @@
 
 subroutine Mult_Vk_Qv_s(V_k,nV_k,Qv,nQv,V_kQ,nV_kQ,nBas_Aux,nVec,nIrrep,QMode)
 
-implicit real*8(a-h,o-z)
-real*8 Qv(nQv), V_k(nV_k), V_kQ(nV_kQ)
-integer nBas_Aux(0:nIrrep-1), nVec(0:nIrrep-1)
-logical Out_of_Core
-character QMode*1, Name_Q*6
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nV_k, nQv, nV_kQ, nIrrep, nBas_Aux(0:nIrrep-1), nVec(0:nIrrep-1)
+real(kind=wp) ::  V_k(nV_k), Qv(nQv), V_kQ(nV_kQ)
+character :: QMode
+integer(kind=iwp) :: iAddr, iIrrep, iOffA, iOffB, iSeed, kp_V_k, lQv, lstepA, lstepB, Lu_Q, mQv, nI, nJ, nK, nMuNu
+logical(kind=iwp) :: Out_of_Core
+character(len=6) :: Name_Q
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************

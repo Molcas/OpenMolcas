@@ -11,11 +11,12 @@
 
 subroutine Destroy_Chunk()
 
-use Chunk_Mod
+use Chunk_Mod, only: Chunk
 #ifdef _MOLCAS_MPP_
+use Chunk_Mod, only: iMap, ip_Chunk
 use Para_Info, only: Is_Real_Par
 #endif
-#include "stdalloc.fh"
+use stdalloc, only: mma_deallocate
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then

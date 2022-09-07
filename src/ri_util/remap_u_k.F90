@@ -11,9 +11,13 @@
 
 subroutine ReMap_U_k(U_k,nU_k,U_k_New,nU_k_New,iSO_ab)
 
-implicit real*8(A-H,O-Z)
-real*8 U_k(nU_k), U_k_New(nU_k_New)
-integer iSO_ab(2,nU_k)
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nU_k, nU_k_New, iSO_ab(2,nU_k)
+real(kind=wp) :: U_k(nU_k), U_k_New(nU_k_New)
+integer(kind=iwp) :: i, ij, j, k
 
 do k=1,nU_k
   i = iSO_ab(1,k)
@@ -22,7 +26,7 @@ do k=1,nU_k
   if (i == j) then
     U_k_New(ij) = U_k(k)
   else
-    U_k_New(ij) = 0.5d0*U_k(k)
+    U_k_New(ij) = Half*U_k(k)
   end if
 end do
 

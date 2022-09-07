@@ -33,35 +33,29 @@ use Basis_Info, only: nBas_Aux
 use Wrj12, only: Lu_A, Lu_Q, nChV
 use Gateway_global, only: force_out_of_core
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "setup.fh"
-#include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: A_Diag(:)
-integer nDmA(0:7), nDmB(0:7)
-logical Out_of_Core
-character Name_Q*6
-real*8, allocatable :: Scr(:), X(:), Z(:)
-integer, allocatable :: iDiag(:)
-real*8, allocatable, target :: Am(:), Qm(:), A_k(:), Q_k(:)
-real*8, pointer :: A_l(:) => null(), Q_l(:) => null()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+implicit none
+real(kind=wp), allocatable :: A_Diag(:)
+integer(kind=iwp) :: i, iAddr, iAddr_, ichk, iIrrep, iOff, irc, iSeed, kCol, kQm, lAm, LinDep, lJ, lQm, lScr, MaxMem, MaxMem2, mB, &
+                     mQm, nA_Diag, nAm, nB, nBfn2, nBfnTot, nDmA(0:7), nDmB(0:7), nMem, nQm, nQm_full, nScr, nXZ
+real(kind=wp) :: a, b, ThrQ
+logical(kind=iwp) :: Out_of_Core
+character(len=6) :: Name_Q
+integer(kind=iwp), allocatable :: iDiag(:)
+real(kind=wp), allocatable :: Scr(:), X(:), Z(:)
+real(kind=wp), allocatable, target :: A_k(:), Am(:), Q_k(:), Qm(:)
+real(kind=wp), pointer :: A_l(:), Q_l(:)
+integer(kind=iwp), external :: IsFreeUnit
 interface
   subroutine SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,Diag)
-    integer irc
-    integer nSym
-    integer nDim(nSym)
-    integer nVec(nSym)
-    integer iD_A(*)
-    integer lu_A0(nSym)
-    character(LEN=7) mode
-    integer lScr
-    real*8 Scr(lScr)
-    real*8, optional :: Diag(*)
+    import :: wp, iwp
+    integer(kind=iwp) :: irc, nSym, nDim(nSym), nVec(nSym), iD_A(*), lu_A0(nSym), lScr
+    character(len=7) :: mode
+    real(kind=wp) :: Scr(lScr)
+    real(kind=wp), optional :: Diag(*)
   end subroutine SORT_mat
 end interface
 
@@ -118,12 +112,12 @@ do iIrrep=0,nIrrep-1
   ichk = ichk+min(1,nDmA(iIrrep)-nDmB(iIrrep))
 end do
 if (ichk /= 0) then
-  write(6,*)
-  write(6,*) 'Post_2Center_RI'
-  write(6,*) 'Detected lin. dependences in the auxiliary basis.'
-  write(6,'(A,8I6)') ' # of AuxBas before l. d. removal: ',(nDmA(i),i=0,nIrrep-1)
-  write(6,'(A,8I6)') ' # of AuxBas after  l. d. removal: ',(nDmB(i),i=0,nIrrep-1)
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Post_2Center_RI'
+  write(u6,*) 'Detected lin. dependences in the auxiliary basis.'
+  write(u6,'(A,8I6)') ' # of AuxBas before l. d. removal: ',(nDmA(i),i=0,nIrrep-1)
+  write(u6,'(A,8I6)') ' # of AuxBas after  l. d. removal: ',(nDmB(i),i=0,nIrrep-1)
+  write(u6,*)
 end if
 
 call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,Lu_A,'DoPivot',lScr,Scr)
@@ -138,7 +132,7 @@ call mma_deallocate(A_Diag)
 !     A-vectors are now on disk. Go ahead and compute the Q-vectors!
 !***********************************************************************
 
-ThrQ = 1.0d-14 ! Threshold for Inv_Cho_Factor
+ThrQ = 1.0e-14_wp ! Threshold for Inv_Cho_Factor
 
 do iIrrep=0,nIrrep-1
   !nB = nBas_Aux(iIrrep)
@@ -156,15 +150,15 @@ do iIrrep=0,nIrrep-1
   if (Out_Of_Core) then
     mQm = (nQm*MaxMem-5*nXZ)/(2*nQm_full)
     a = One
-    b = -Two*dble(mQm)
-    mB = int(-a/Two+sqrt((a/Two)**2-b))
+    b = -Two*real(mQm,kind=wp)
+    mB = int(-a*Half+sqrt((a*Half)**2-b))
     kQm = mB*(mB+1)/2
     if (kQm > mQm) then
       call WarningMessage(2,'Error in Post_2Center_RI')
-      write(6,*) 'kQm > mQm!'
-      write(6,*) 'MaxMem=',MaxMem
-      write(6,*) 'nQm,mQm,kQm=',nQm,mQm,kQm
-      write(6,*) 'nB,mB=',nB,mB
+      write(u6,*) 'kQm > mQm!'
+      write(u6,*) 'MaxMem=',MaxMem
+      write(u6,*) 'nQm,mQm,kQm=',nQm,mQm,kQm
+      write(u6,*) 'nB,mB=',nB,mB
       call Abend()
     end if
   else
@@ -177,7 +171,7 @@ do iIrrep=0,nIrrep-1
 
   if (lQm < 1) then
     call WarningMessage(2,'Error in Post_2Center_RI')
-    write(6,*) 'lQm < 1'
+    write(u6,*) 'lQm < 1'
     call Abend()
   end if
 
@@ -233,7 +227,7 @@ do iIrrep=0,nIrrep-1
 
     if (LinDep /= 0) then
       call WarningMessage(2,'Error in Post_2Center_RI')
-      write(6,*) 'Inv_Cho_Factor found linear dependence!'
+      write(u6,*) 'Inv_Cho_Factor found linear dependence!'
       call Abend()
     end if
 

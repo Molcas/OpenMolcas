@@ -11,9 +11,14 @@
 
 subroutine Mk_tVt(TInt,nTheta_All,tVt,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,nl,Indkl,nkl,iAL,nA,nB)
 
-implicit real*8(a-h,o-z)
-real*8 TInt(nTheta_All,nTheta_All), tVt(nTheta,nTheta)
-integer List2(mData,nTheta_All), iPrm(nPrm), Indkl(nkl), iAL(nA,nB)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nTheta_All, nTheta, mData, List2(mData,nTheta_All), nPrm, iPrm(nPrm), iAng, jAng, nk, nl, nkl, Indkl(nkl), &
+                     nA, nB, iAL(nA,nB)
+real(kind=wp) :: TInt(nTheta_All,nTheta_All), tVt(nTheta,nTheta)
+integer(kind=iwp) :: iA, ik, il, im, in_, iTheta, iTheta_All, iTheta_Full, jA, jTheta, jTheta_All, jTheta_Full, kComp, lComp, &
+                     mComp, nComp
 
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -43,11 +48,11 @@ do iTheta_All=1,nTheta_All
       mComp = List2(3,jTheta_All)
       nComp = List2(4,jTheta_All)
       im = List2(5,jTheta_All)
-      in = List2(6,jTheta_All)
+      in_ = List2(6,jTheta_All)
       if (iAng == jAng) then
-        jTheta_Full = im*(im-1)/2+in
+        jTheta_Full = im*(im-1)/2+in_
       else
-        jTheta_Full = (in-1)*nk+im
+        jTheta_Full = (in_-1)*nk+im
       end if
       !if ((iAL(mComp,nComp) == 1) .and. (mComp == iA) .and. (nComp == jA) .and. (iPrm(jTheta_Full) == 1)) then
       if ((mComp == iA) .and. (nComp == jA) .and. (iPrm(jTheta_Full) == 1)) then

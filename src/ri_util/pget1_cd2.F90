@@ -17,9 +17,9 @@ subroutine PGet1_CD2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density.                        *
 !                                                                      *
-!          The indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          The indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
@@ -33,15 +33,20 @@ subroutine PGet1_CD2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 
 use SOAO_Info, only: iAOtSO
 use ExTerm, only: CijK, iMP2prpt, nAuxVe
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), mV_k, nnP1
+real(kind=wp) :: PAO(ijkl,nPAO), ExFac, CoulFac, PMax, V_k(mV_k), U_K(mV_K), Z_p_K(nnP1,mV_K)
+logical(kind=iwp) :: Shijij
 #include "exterm.fh"
-real*8 PAO(ijkl,nPAO), V_k(mV_k), U_K(mV_K), Z_p_K(nnP1,mV_K), Fac_ij, Fac_kl
-integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-logical Shijij
-external mn2K
-real*8, pointer :: CiKj(:,:) => null(), V2(:) => null()
+integer(kind=iwp) :: i1, i2, i3, i4, iAdrJ, iAdrL, iAOi, iE, ijVec, Indi, Indij, Indj, Indk, Indkl, Indl, iPAO, iS, iSO, iSOi, &
+                     iSym, jAOj, jp, jSO, jSOj, jSym, kAOk, klVec, kSO, kSOk, lAOl, lSO, lSOl, lSym, nijkl, NumIK
+real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, Fac_kl, temp, tempJ_mp2, tempK, tempK_mp2, Wall, Wall1, Wall2
+real(kind=wp), pointer :: CiKj(:,:), V2(:)
+integer(kind=iwp), external :: mn2K
+real(kind=r8), external :: dDot_
 
 !                                                                      *
 !***********************************************************************
@@ -181,14 +186,14 @@ else if (iMP2prpt /= 2) then
 
                   if ((ijVec /= 0) .and. (klVec /= 0)) then
                     if (Indi == Indj) then
-                      Fac_ij = 1.0d0
+                      Fac_ij = One
                     else
-                      Fac_ij = 0.5d0
+                      Fac_ij = Half
                     end if
                     if (Indk == Indl) then
-                      Fac_kl = 1.0d0
+                      Fac_kl = One
                     else
-                      Fac_kl = 0.5d0
+                      Fac_kl = Half
                     end if
 
                     ! Exchange contribution
@@ -267,14 +272,14 @@ else
 
                   if ((ijVec /= 0) .and. (klVec /= 0)) then
                     if (Indi == Indj) then
-                      Fac_ij = 1.0d0
+                      Fac_ij = One
                     else
-                      Fac_ij = 0.5d0
+                      Fac_ij = Half
                     end if
                     if (Indk == Indl) then
-                      Fac_kl = 1.0d0
+                      Fac_kl = One
                     else
-                      Fac_kl = 0.5d0
+                      Fac_kl = Half
                     end if
 
                     ! MP2 contribution
@@ -283,7 +288,7 @@ else
 
                     ! Exchange contribution
 
-                    tempK = 2.0d0*Fac_ij*Fac_kl*dDot_(NumIK,CiKj(:,1),1,V2,1)
+                    tempK = Two*Fac_ij*Fac_kl*dDot_(NumIK,CiKj(:,1),1,V2,1)
                     call compute_A_jk_Mp2(1,ijVec,klVec,tempK_mp2,fac_ij,fac_kl,nAuxVe,1)
 
                     tempK = tempK+tempK_mp2
@@ -312,7 +317,7 @@ CiKj => null()
 V2 => null()
 
 if (iPAO /= nPAO) then
-  write(6,*) ' Error in PGet1_CD2!'
+  write(u6,*) ' Error in PGet1_CD2!'
   call Abend()
 end if
 

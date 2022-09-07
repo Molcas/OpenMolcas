@@ -35,44 +35,47 @@ subroutine Drv2El_3Center_RI(Integral_WrOut,ThrAO)
 !             Modified to out-of-core version Feb '07                  *
 !***********************************************************************
 
-use iSD_data
-use Wrj12, only: Lu_Q, nChV
+use iSD_data, only: iSD
+use Wrj12, only: nChV, Lu_Q
 use Basis_Info, only: dbsc, nBas, nBas_Aux
 use Gateway_global, only: force_out_of_core
 use Gateway_Info, only: CutInt
 use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
-use j12
+use j12, only: iShij, iSSOff, klS, nBasSh, nSkal_Valence, nSO, ShlSO, SOShl
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Integral_WrOut, Rsv_Tsk
+implicit none
+external :: Integral_WrOut
+real(kind=wp) :: ThrAO
 #include "Molcas.fh"
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "lRI.fh"
-#include "setup.fh"
-#include "nsd.fh"
 #include "iTOffs.fh"
-character Name_R*6
-integer iOff_3C(3,0:7), Lu_R(0:7), iAddr_R(0:7), iMax_R(2,0:7), iTtmp(0:7), NoChoVec(0:7), iOff_Rv(0:7)
-logical Verbose, Indexation, FreeK2, DoGrad, DoFock, Out_of_Core, Rsv_Tsk, Reduce_Prt, Skip
-external Reduce_Prt
-real*8, allocatable :: A_Diag(:), Local_A(:,:)
-integer, allocatable :: SO2C(:), AB(:,:)
-real*8, allocatable :: Tmp(:,:), TMax_Auxiliary(:), TMax_Valence(:,:)
-integer, allocatable :: TmpList(:), iRv(:), LBList(:)
-integer, allocatable :: Addr(:), NuMu(:,:)
-real*8, allocatable :: Arr_3C(:), Rv(:), Qv(:), Diag(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iAdr_AB, iCase, iCenter, iChoVec, id, iIrrep, iLB, iLO, iMax_R(2,0:7), IncVec, &
+                     iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSO_Aux, iSym, &
+                     iTask, iTtmp(0:7), iVec, j_e, j_s, jCenter, jS, jS_, kCenter, kCnttp, klCenter, klS_, kQv, kS, lCenter, &
+                     lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_AB, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, mMuNu, mQv, &
+                     MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nCase, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
+                     nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
+real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all, TW0, TW1, TWall1, Twall2
+character(len=6) :: Name_R
+logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Out_of_Core, Skip, Verbose
+
+integer(kind=iwp), allocatable :: AB(:,:), Addr(:), iRv(:), LBList(:), NuMu(:,:), SO2C(:), TmpList(:)
+real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Local_A(:,:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
+                              Tmp(:,:)
+integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
+logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 interface
   subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
-    real*8 ThrAO
-    real*8, allocatable :: A_Diag(:)
-    integer, allocatable :: SO2C(:)
-    integer nSO_Aux, MaxCntr
+    import :: wp, iwp
+    real(kind=wp) :: ThrAO
+    real(kind=wp), allocatable :: A_Diag(:)
+    integer(kind=iwp) :: nSO_Aux, MaxCntr
+    integer(kind=iwp), allocatable :: SO2C(:)
   end subroutine Drv2El_2Center_RI
   subroutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,SO2C,nSO_Aux)
     real*8, allocatable :: A_Diag(:), Local_A(:,:)
@@ -80,7 +83,8 @@ interface
     integer MaxCntr, Lu_AB, nSO_Aux
   end subroutine Post_2Center_LDF
   subroutine Post_2Center_RI(A_Diag)
-    real*8, allocatable :: A_Diag(:)
+    import :: wp
+    real(kind=wp), allocatable :: A_Diag(:)
   end subroutine Post_2Center_RI
 end interface
 
@@ -148,9 +152,9 @@ call Set_Basis_Mode('Auxiliary')
 call Nr_Shells(nSkal_Auxiliary)
 
 if (iPrint >= 6) then
-  write(6,'(A)') ' 2-center integrals:'
+  write(u6,'(A)') ' 2-center integrals:'
   call CWTime(TC1,TW1)
-  write(6,'(A,F8.2,A,/,A,F8.2,A)') '      CPU time :',TC1-TC0,' sec.','      Wall time:',TW1-TW0,' sec.'
+  write(u6,'(A,F8.2,A,/,A,F8.2,A)') '      CPU time :',TC1-TC0,' sec.','      Wall time:',TW1-TW0,' sec.'
 end if
 !                                                                      *
 !***********************************************************************
@@ -328,7 +332,7 @@ klS = 0
 iTask = 0
 !do klS=1,nSkal2
 do while (Rsv_Tsk(id,klS))
-  !write(6,*) 'Processing shell-pair:',klS
+  !write(u6,*) 'Processing shell-pair:',klS
   iTask = iTask+1
 
   iRv(iTask) = klS
@@ -346,7 +350,7 @@ do while (Rsv_Tsk(id,klS))
 
     kCenter = iSD(10,kS)
     lCenter = iSD(10,lS)
-    !write(6,*) 'kCenter, lCenter=',kCenter, lCenter
+    !write(u6,*) 'kCenter, lCenter=',kCenter, lCenter
     klCenter = kCenter*(kCenter-1)/2+lCenter
     iAdr_AB = AB(1,klCenter)
     nAB = AB(2,klCenter)
@@ -369,10 +373,10 @@ do while (Rsv_Tsk(id,klS))
       end if
       do iSO_Aux=1,nSO_Aux
         iCenter = SO2C(iSO_Aux)
-        !write(6,*) 'iCenter=',iCenter
+        !write(u6,*) 'iCenter=',iCenter
         if (iCenter == jCenter) then
           iLO = iLO+1
-          !write(6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
+          !write(u6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
           iSO2LO(1,iSO_Aux) = iLO
           iSO2LO(2,iLO) = iSO_Aux
         end if
@@ -380,8 +384,8 @@ do while (Rsv_Tsk(id,klS))
     end do
   end if
 
-  Aint_kl = TMax_Valence(kS,lS)
-  if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) Aint_kl = 0.0d0
+  A_int_kl = TMax_Valence(kS,lS)
+  if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) A_int_kl = Zero
 
   nRv = nSize_Rv(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_Rv,nChV)
   n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
@@ -393,24 +397,24 @@ do while (Rsv_Tsk(id,klS))
   ! Loop over the auxiliary basis set
 
   do jS=nSkal_Valence+1,nSkal-1
-    !write(6,*) 'jS,kS,lS=',jS,kS,lS
+    !write(u6,*) 'jS,kS,lS=',jS,kS,lS
     Skip = .false.
     if (LDF) then
       jCenter = iSD(10,jS)
       if ((jCenter /= kCenter) .and. (jCenter /= lCenter)) Skip = .true.
-      !write(6,*) 'jCenter=',jCenter
+      !write(u6,*) 'jCenter=',jCenter
     end if
 
     if (.not. Skip) then
-      Aint = Aint_kl*TMax_Auxiliary(jS-nSkal_Valence)
+      A_int = A_int_kl*TMax_Auxiliary(jS-nSkal_Valence)
 
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-      write(6,*) 'AInt,CutInt=',AInt,CutInt
-      write(6,*)
+      write(u6,*)
+      write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+      write(u6,*) 'A_Int,CutInt=',A_Int,CutInt
+      write(u6,*)
 #     endif
-      if (AInt >= CutInt) call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C,Integral_WrOut)
+      if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C,Integral_WrOut)
     end if
 
     ! Use a time slot to save the number of tasks and shell
@@ -436,7 +440,7 @@ do while (Rsv_Tsk(id,klS))
   do iIrrep=0,nIrrep-1
     ip_R = 1+iOff_Rv(iIrrep)
     nRv = iOff_3C(1,iIrrep)*nChV(iIrrep)
-    !write(6,*) 'iAddr_R(iIrrep)=',iAddr_R(iIrrep)
+    !write(u6,*) 'iAddr_R(iIrrep)=',iAddr_R(iIrrep)
     if (nRv > 0) then
       call dDaFile(Lu_R(iIrrep),1,Rv(ip_R),nRv,iAddr_R(iIrrep))
     end if
@@ -527,9 +531,9 @@ do iIrrep=0,nIrrep-1
 end do
 
 if (iPrint >= 6) then
-  write(6,'(A)') ' 3-center integrals:'
+  write(u6,'(A)') ' 3-center integrals:'
   call CWTime(TC0,TW0)
-  write(6,'(A,F8.2,A,/,A,F8.2,A)') '      CPU time :',TC0-TC1,' sec.','      Wall time:',TW0-TW1,' sec.'
+  write(u6,'(A,F8.2,A,/,A,F8.2,A)') '      CPU time :',TC0-TC1,' sec.','      Wall time:',TW0-TW1,' sec.'
 end if
 !                                                                      *
 !***********************************************************************
@@ -692,9 +696,9 @@ FreeK2 = .true.
 call Term_Ints(Verbose,FreeK2)
 !
 if (iPrint >= 6) then
-  write(6,'(A)') ' Block-transpose:'
+  write(u6,'(A)') ' Block-transpose:'
   call CWTime(TC1,TW1)
-  write(6,'(A,F8.2,A,/,A,F8.2,A)') '      CPU time :',TC1-TC0,' sec.','      Wall time:',TW1-TW0,' sec.'
+  write(u6,'(A,F8.2,A,/,A,F8.2,A)') '      CPU time :',TC1-TC0,' sec.','      Wall time:',TW1-TW0,' sec.'
 end if
 !                                                                      *
 !***********************************************************************
@@ -722,9 +726,9 @@ call Cho_IODiag(Diag,1)
 call mma_deallocate(Diag)
 
 if (iPrint >= 6) then
-  write(6,*) 'Diagonal vector:'
+  write(u6,*) 'Diagonal vector:'
   call CWTime(TC0,TW0)
-  write(6,'(A,F8.2,A,/,A,F8.2,A)') '      CPU time :',TC0-TC1,' sec.','      Wall time:',TW0-TW1,' sec.'
+  write(u6,'(A,F8.2,A,/,A,F8.2,A)') '      CPU time :',TC0-TC1,' sec.','      Wall time:',TW0-TW1,' sec.'
 end if
 !                                                                      *
 !***********************************************************************
@@ -734,7 +738,7 @@ end if
 irc = 0
 call TermCho_RI(irc,NoChoVec,8)
 if (irc /= 0) then
-  write(6,*) 'TermCho_RI returned ',irc
+  write(u6,*) 'TermCho_RI returned ',irc
   call SysAbendMsg('Drv2El_3Center_RI','Cholesky termination failed!',' ')
 end if
 !                                                                      *

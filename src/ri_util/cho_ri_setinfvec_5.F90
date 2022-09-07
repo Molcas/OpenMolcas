@@ -13,15 +13,15 @@
 #ifdef _MOLCAS_MPP_
 
 subroutine Cho_RI_SetInfVec_5(iVec_Global,iVec_Local,J_s,J_e,iSym)
-! Set mapping from local to global vector index (needed in parallel
-! RI gradient code).
+! Set mapping from local to global vector index
+! (needed in parallel RI gradient code).
 
 use ChoSwp, only: InfVec
+use Definitions, only: iwp
 
 implicit none
-integer iVec_Global, iVec_Local, J_s, J_e, iSym
-#include "cholesky.fh"
-integer iOff, nVec, iVec
+integer(kind=iwp) :: iVec_Global, iVec_Local, J_s, J_e, iSym
+integer(kind=iwp) :: iOff, nVec, iVec
 
 iOff = iVec_Global+J_s-2
 nVec = J_e-J_s+1

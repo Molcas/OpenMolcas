@@ -11,9 +11,13 @@
 
 subroutine Fix_Coeff(nPrim,nCntrc,Coeff_c,Coeff_p,Mode)
 
-implicit real*8(a-h,o-z)
-real*8 Coeff_c(nPrim,nCntrc), Coeff_p(nPrim,nPrim)
-character Mode*1
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nPrim, nCntrc
+real(kind=wp) :: Coeff_c(nPrim,nCntrc), Coeff_p(nPrim,nPrim)
+character :: Mode
+integer(kind=iwp) :: iC, iP
 
 ! Put in the normalization constant for the product basis function.
 

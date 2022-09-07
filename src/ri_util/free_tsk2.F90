@@ -11,9 +11,12 @@
 
 subroutine Free_Tsk2(id)
 
-use Tsk2
+use Tsk2, only: iOpt, nTask, TskList
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp, u6
 
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: id
 
 if (iOpt == 0) then
   call Free_Tsk(id)
@@ -22,7 +25,7 @@ else if (iOpt == 1) then
   nTask = 0
 else
   call WarningMessage(2,'Error in Free_Tsk2')
-  write(6,*) 'Free_Tsk2: illegal iOpt value!'
+  write(u6,*) 'Free_Tsk2: illegal iOpt value!'
   call Abend()
 end if
 iOpt = -1

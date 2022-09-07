@@ -30,28 +30,31 @@ subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 !***********************************************************************
 
 use Basis_Info, only: nBas_Aux
-use iSD_data
+use iSD_data, only: iSD
 use Wrj12, only: iOffA, Lu_A, SO2Ind
 use Index_arrays, only: iSO2Sh, nShBF
 use Gateway_Info, only: CutInt
 use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-external Integral_RI_2
-#include "Molcas.fh"
+implicit none
+real(kind=wp) :: ThrAO
+real(kind=wp), allocatable :: A_Diag(:)
+integer(kind=iwp) :: nSO_Aux, MaxCntr
+integer(kind=iwp), allocatable :: SO2C(:)
 #include "setup.fh"
-#include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "nsd.fh"
 #include "iTOffs.fh"
-integer iAddr_AQ(0:7), kCol_Irrep(0:7)
-logical Verbose, Indexation, FreeK2, DoGrad, DoFock
-character Name_Q*6
-real*8, allocatable :: A_Diag(:)
-integer, allocatable :: SO2C(:)
-real*8, allocatable :: Tmp(:,:), TMax(:), TInt(:)
+integer(kind=iwp) :: i, iAddr, iAddr_AQ(0:7), iCenter, iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, iSh, jS, kCol, kCol_Irrep(0:7), kS, &
+                     lJ, lS, mB, MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
+real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
+logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Verbose
+character(len=6) :: Name_Q
+real(kind=wp), allocatable :: TInt(:), TMax(:), Tmp(:,:)
+integer(kind=iwp), external :: IsFreeUnit, nMemAm
+external :: Integral_RI_2
 
 !                                                                      *
 !***********************************************************************
@@ -186,8 +189,8 @@ do jS=1,nSkal-1
 
   do lS=1,jS
 
-    Aint = TMax(jS)*TMax(lS)
-    if (AInt >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
+    A_int = TMax(jS)*TMax(lS)
+    if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
 
     ! Use a time slot to save the number of tasks and shell
     ! quadruplets processed by an individual node

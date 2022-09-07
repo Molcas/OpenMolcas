@@ -11,9 +11,12 @@
 
 subroutine Mk_iSO2Ind(iSO2Sh,iSO2Ind,nSO,nShell)
 
-#include "stdalloc.fh"
-integer iSO2Sh(nSO), iSO2Ind(nSO)
-integer, allocatable :: nTemp(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nSO, iSO2Sh(nSO), iSO2Ind(nSO), nShell
+integer(kind=iwp), allocatable :: nTemp(:)
 
 call mma_allocate(nTemp,nShell,Label='nTemp')
 call Mk_iSO2Ind_Inner(iSO2Sh,iSO2Ind,nSO,nTemp,nShell)

@@ -23,57 +23,64 @@ subroutine Drvg1_RI(Grad,Temp,nGrad)
 !***********************************************************************
 
 use Basis_Info, only: nBas, nBas_Aux
-use pso_stuff
-use RICD_Info, only: Do_RI, Cholesky
+use pso_stuff, only: AOrb, Case_2C, Case_3C, DMdiag, G1, ij2K, iOff_ij2K, lPSO, lSA, m_Txy, n_ij2K, n_Txy, nG1, nnP, nV_k, nZ_p_k, &
+                     Txy, U_k, V_k, Z_p_k
+use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
 use ExTerm, only: iMP2prpt, LuAVector, LuBVector
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad(nGrad), Temp(nGrad)
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
-#include "real.fh"
 #include "exterm.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-real*8 Grad(nGrad), Temp(nGrad)
-character*6 Fname
-character*7 Fname2
-character*8 Method
-logical Found
-integer nAct(0:7)
-real*8, allocatable :: V_k_new(:,:), U_k_new(:)
-integer, allocatable :: iZk(:), iVk(:), iUk(:)
-real*8, allocatable :: DMTmp(:), Tmp(:)
-integer, allocatable :: SO_ab(:), ij2(:,:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+integer(kind=iwp) :: i, iADens, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, iUHF, j, jStart, jSym, jtmp, &
+                     kStart, kTmp, m_ij2K, mAO, nAct(0:7), nAux_Tot, nij_Eff, ntmp, nV_k_New, nZ_p_k_New, nZ_p_l
+real(kind=wp) :: BufFrac, TCpu1, TCpu2, TWall1, TWall2
+#ifdef _CD_TIMING_
+real(kind=wp) :: Total_Dens_CPU, Total_Dens_Wall, Total_Der_CPU, Total_Der_CPU2, Total_Der_Wall, Total_Der_Wall2
+#endif
+logical(kind=iwp) :: Found
+character(len=8) :: Method
+character(len=7) :: Fname2
+character(len=6) :: Fname
+integer(kind=iwp), allocatable :: ij2(:,:), iUk(:), iVk(:), iZk(:), SO_ab(:)
+real(kind=wp), allocatable :: DMTmp(:), Tmp(:), U_k_new(:), V_k_new(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 interface
   subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
-    integer nProc, myProc
-    integer ipVk(nProc), ipZpk(nProc)
-    integer, optional :: ipUk(nProc)
+    import :: iwp
+    integer(kind=iwp) :: nProc, ipVk(nProc), ipZpk(nProc), myProc
+    integer(kind=iwp), optional :: ipUk(nProc)
   end subroutine Compute_AuxVec
   subroutine Effective_CD_Pairs(ij2,nij_Eff)
-    integer, allocatable :: ij2(:,:)
-    integer nij_Eff
+    import :: iwp
+    integer(kind=iwp) :: nij_Eff
+    integer(kind=iwp), allocatable :: ij2(:,:)
   end subroutine Effective_CD_Pairs
   subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
-    integer nGrad, nij_Eff
-    real*8 Grad(nGrad), Temp(nGrad)
-    integer, allocatable :: ij2(:,:)
+    import :: wp, iwp
+    integer(kind=iwp) :: nGrad, nij_Eff
+    real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+    integer(kind=iwp), allocatable :: ij2(:,:)
   end subroutine Drvg1_2Center_RI
   subroutine Drvg1_3Center_RI(Grad,Temp,nGrad,ij3,nij_Eff)
-    integer nGrad, nij_Eff
-    real*8 Grad(nGrad), Temp(nGrad)
-    integer, allocatable :: ij3(:,:)
+    import :: wp, iwp
+    integer(kind=iwp) :: nGrad, nij_Eff
+    real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+    integer(kind=iwp), allocatable :: ij3(:,:)
   end subroutine Drvg1_3Center_RI
 end interface
 
@@ -98,7 +105,7 @@ call mma_allocate(Tmp,nGrad,Label='Tmp')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-BufFrac = 0.1d0
+BufFrac = 0.1_wp
 call Cho_X_Init(irc,BufFrac)
 if (irc /= 0) then
   call WarningMessage(2,' Drvg1_RI: Cho_X_Init failed')
@@ -123,14 +130,14 @@ if (Cholesky .and. (.not. Do_RI)) then
 
   if (nIrrep /= 1) then
     call WarningMessage(2,'Error in Drvg1_RI')
-    write(6,*) ' CD gradients with symmetry is not implemented yet!'
+    write(u6,*) ' CD gradients with symmetry is not implemented yet!'
     call Abend()
   end if
 
   call Cho_X_CalculateGMat(irc)
   if (iRC /= 0) then
     call WarningMessage(2,'Error in Drvg1_RI')
-    write(6,*) 'Failure during G matrix construction'
+    write(u6,*) 'Failure during G matrix construction'
     call Abend()
   end if
 
@@ -388,8 +395,8 @@ if (DoCholExch) then
   end do
   ! Initialize timings
   do i=1,2
-    tavec(i) = 0.0d0
-    tbvec(i) = 0.0d0
+    tavec(i) = Zero
+    tbvec(i) = Zero
   end do
 end if
 if (imp2prpt == 2) then
@@ -482,25 +489,25 @@ call SavTim(6,TCpu2-TCpu1,TWall2-TWall1)
 #ifdef _CD_TIMING_
 Drvg1_CPU = TCpu2-TCpu1
 Drvg1_Wall = TWall2-TWall1
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Cho_get_grad:'
-write(6,*) 'Wall/CPU',ChoGet_Wall,ChoGet_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Mult_Rijk_Qkl:'
-write(6,*) 'Wall/CPU',rMult_Wall,rMult_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Prepp:'
-write(6,*) 'Wall/CPU',Prepp_Wall,Prepp_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Pget_ri2:'
-write(6,*) 'Wall/CPU',Pget2_Wall,Pget2_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Pget_ri3:'
-write(6,*) 'Wall/CPU',Pget3_Wall,Pget3_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Drvg1_ri:'
-write(6,*) 'Wall/CPU',Drvg1_Wall,Drvg1_CPU
-write(6,*) '-------------------------'
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Cho_get_grad:'
+write(u6,*) 'Wall/CPU',ChoGet_Wall,ChoGet_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Mult_Rijk_Qkl:'
+write(u6,*) 'Wall/CPU',rMult_Wall,rMult_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Prepp:'
+write(u6,*) 'Wall/CPU',Prepp_Wall,Prepp_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Pget_ri2:'
+write(u6,*) 'Wall/CPU',Pget2_Wall,Pget2_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Pget_ri3:'
+write(u6,*) 'Wall/CPU',Pget3_Wall,Pget3_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Drvg1_ri:'
+write(u6,*) 'Wall/CPU',Drvg1_Wall,Drvg1_CPU
+write(u6,*) '-------------------------'
 Total_Dens_Wall = ChoGet_Wall+rMult_Wall+Prepp_Wall+Pget2_Wall+Pget3_Wall
 Total_Dens_CPU = ChoGet_CPU+rMult_CPU+Prepp_CPU+Pget2_CPU+Pget3_CPU
 Total_Der_Wall = Drvg1_Wall-Total_Dens_Wall
@@ -508,21 +515,21 @@ Total_Der_CPU = Drvg1_CPU-Total_Dens_CPU
 Total_Der_Wall2 = TwoEl2_Wall+TwoEl3_Wall
 Total_Der_CPU2 = TwoEl2_CPU+TwoEl3_CPU
 
-write(6,*) 'Total Time for Density:'
-write(6,*) 'Wall/CPU',Total_Dens_Wall,Total_Dens_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Total TIme for 2-center Derivatives:'
-write(6,*) 'Wall/CPU',Twoel2_Wall,Twoel2_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Total TIme for 3-center Derivatives:'
-write(6,*) 'Wall/CPU',Twoel3_Wall,Twoel3_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Total Time for Derivatives:'
-write(6,*) 'Wall/CPU',Total_Der_Wall2,Total_Der_CPU2
-write(6,*) '-------------------------'
-write(6,*) 'Derivative check:'
-write(6,*) 'Wall/CPU',Total_Der_Wall,Total_Der_CPU
-write(6,*) '-------------------------'
+write(u6,*) 'Total Time for Density:'
+write(u6,*) 'Wall/CPU',Total_Dens_Wall,Total_Dens_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Total TIme for 2-center Derivatives:'
+write(u6,*) 'Wall/CPU',Twoel2_Wall,Twoel2_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Total TIme for 3-center Derivatives:'
+write(u6,*) 'Wall/CPU',Twoel3_Wall,Twoel3_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Total Time for Derivatives:'
+write(u6,*) 'Wall/CPU',Total_Der_Wall2,Total_Der_CPU2
+write(u6,*) '-------------------------'
+write(u6,*) 'Derivative check:'
+write(u6,*) 'Wall/CPU',Total_Der_Wall,Total_Der_CPU
+write(u6,*) '-------------------------'
 #endif
 
 return

@@ -14,6 +14,11 @@
 subroutine ReNorm2(iCnttp)
 
 use Wrj12, only: iOffA
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iCnttp
+integer(kind=iwp) :: ire_do
 
 call ICopy(4*8,[0],0,iOffA,1)
 do ire_do=1,2

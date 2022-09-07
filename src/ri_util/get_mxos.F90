@@ -13,13 +13,12 @@ subroutine Get_mXOs(kOrb,XO,locc,nSkal,nIrrep,nOcc)
 
 use ChoArr, only: nBasSh
 use ExTerm, only: CMOi
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer kOrb, nOcc(nIrrep), nSkal
-real*8 XO(locc,nSkal,nIrrep)
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "exterm.fh"
+implicit none
+integer(kind=iwp) :: kOrb, locc, nSkal, nIrrep, nOcc(nIrrep)
+real(kind=wp) :: XO(locc,nSkal,nIrrep)
+integer(kind=iwp) :: ib, iOff, iok, ir, isk, kb
 
 !                                                                      *
 !***********************************************************************
@@ -41,7 +40,7 @@ do ir=1,nIrrep
 
     ! Loop over all basis functions of this shell in this irrep.
 
-    !write (6,*) 'isk,nBasSh(ir,isk)=',isk,nBasSh(ir,isk)
+    !write (u6,*) 'isk,nBasSh(ir,isk)=',isk,nBasSh(ir,isk)
 
     do ib=1,nBasSh(ir,isk)
       kb = iOff+ib ! relative SO index in this irrepp
@@ -49,8 +48,8 @@ do ir=1,nIrrep
       ! Loop over all the occupied MOs and pick up the largest coefficient for shell isk
 
       do iok=1,nOcc(ir)
-        !write(6,*) 'iok,kb=',iok,kb
-        !write(6,*) 'CMOi(kOrb)%SB(ir)%A2(iok,kb)',CMOi(kOrb)%SB(ir)%A2(iok,kb)
+        !write(u6,*) 'iok,kb=',iok,kb
+        !write(u6,*) 'CMOi(kOrb)%SB(ir)%A2(iok,kb)',CMOi(kOrb)%SB(ir)%A2(iok,kb)
         XO(iok,isk,ir) = max(XO(iok,isk,ir),abs(CMOi(kOrb)%SB(ir)%A2(iok,kb)))
       end do
     end do

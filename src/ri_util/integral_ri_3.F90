@@ -16,12 +16,14 @@ subroutine Integral_RI_3(iCmp,iShell,MapOrg,iBas,jBas,kBas,lBas,kOp,Shijij,IJeqK
 !                    else  integral order within symblk: ijkl
 
 use RICD_Info, only: LDF
-use j12
+use j12, only: iSSOff, nBasSh, klS, nSkal_Valence, nSO, SOShl, ShlSO
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-real*8 AOInt(*), SOInt(*), TInt(nTInt)
-integer iCmp(4), iShell(4), iAO(4), iAOst(4), kOp(4), iSOSym(2,nSOs), itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
-logical Shijij, IJeqKL
+implicit none
+integer(kind=iwp) :: iCmp(4), iShell(4), MapOrg(4), iBas, jBas, kBas, lBas, kOp(4), iAO(4), iAOst(4), ijkl, nSOint, nSOs, &
+                     iSOSym(2,nSOs), nSkal, nTInt, nSym, itOffs(0:nSym-1,0:nSym-1,0:nSym-1)
+logical(kind=iwp) :: Shijij, IJeqKL
+real(kind=wp) :: AOInt(*), SOInt(*), TInt(nTInt)
 
 !                                                                      *
 !***********************************************************************

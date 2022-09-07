@@ -11,7 +11,14 @@
 
 module Tsk2
 
-integer :: iRsv, iOpt, nTask
-integer, allocatable :: TskList(:)
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: iOpt, iRsv, nTask
+integer(kind=iwp), allocatable :: TskList(:)
+
+public :: iOpt, iRsv, nTask, TskList
 
 end module Tsk2

@@ -11,8 +11,11 @@
 
 subroutine DecideonCholesky(DoCholesky)
 
-implicit real*8(a-h,o-z)
-logical DoCholesky
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: DoCholesky
+integer(kind=iwp) :: iOption
 
 call Get_iScalar('System BitSwitch',iOption)
 

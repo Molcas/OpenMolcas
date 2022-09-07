@@ -12,22 +12,22 @@
 subroutine Reord_Vk(ip_V_k,nProcs,myProc,nV_k,nV_t,nA,jSym,Array)
 
 use ChoSwp, only: InfVec
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nProcs, myProc, nV_k(*), nV_t(*), nA(*), jSym
-integer ip_V_k(nProcs)
-real*8 Array(*)
-#include "cholesky.fh"
-#include "stdalloc.fh"
-integer ik, ifr, ito, nAV_t, jOff, kOff, iSym
-real*8, allocatable :: Scr(:)
+integer(kind=iwp) :: nProcs, ip_V_k(nProcs), myProc, nV_k(*), nV_t(*), nA(*), jSym
+real(kind=wp) :: Array(*)
+integer(kind=iwp) :: ifr, ik, iSym, ito, jOff, kOff, nAV_t
+real(kind=wp), allocatable :: Scr(:)
 
 nAV_t = 0
 do iSym=1,jSym
   nAV_t = nAV_t+nA(iSym)*nV_t(iSym)
 end do
 call mma_allocate(Scr,nAV_t,Label='Scr')
-Scr(:) = 0.0d0
+Scr(:) = Zero
 
 ! On input Array first blocked over the processes
 !    pointer to the block is ip_V_K(i)

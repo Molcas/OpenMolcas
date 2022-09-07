@@ -11,9 +11,14 @@
 
 subroutine Setup_Aux_Inner(iSOShl,nSO,iShlSO,nBasSh,nShell,nIrrep,nBas,iSSOff,nij_Shell,iShij,nBas_Aux,nChV,iTOffs)
 
-implicit real*8(a-h,o-z)
-integer iSOShl(nSO), iShlSO(nSO), nBasSh(0:nIrrep-1,nShell), nBas(0:nIrrep-1), nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1), &
-        iSSOff(0:nIrrep-1,0:nIrrep-1,nij_Shell), iShij(2,nij_Shell), iTOffs(3,0:nIrrep-1), iTtmp(0:7)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nSO, iSOShl(nSO), iShlSO(nSO), nShell, nIrrep, nBasSh(0:nIrrep-1,nShell), nBas(0:nIrrep-1), nij_Shell, &
+                     iSSOff(0:nIrrep-1,0:nIrrep-1,nij_Shell), iShij(2,nij_Shell), nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1), &
+                     iTOffs(3,0:nIrrep-1)
+integer(kind=iwp) :: iAcc, iBas, iIrrep, ijIrrep, ijShell, iOff_V12, iShell, iSO, iSO_Shl, iTtmp(0:7), jIrrep, jShell, nA, nab, &
+                     nAux, nB, nI
 
 !                                                                      *
 !***********************************************************************
@@ -128,17 +133,17 @@ do ijShell=1,nij_Shell
   !                                                                    *
 end do
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'iSSOff'
-write(6,*)
+write(u6,*)
+write(u6,*) 'iSSOff'
+write(u6,*)
 do ijShell=1,nij_Shell
   iShell = iShij(1,ijShell)
   jShell = iShij(2,ijShell)
-  write(6,*)
-  write(6,*) 'iShell,jShell=',iShell,jShell
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'iShell,jShell=',iShell,jShell
+  write(u6,*)
   do i=0,nIrrep-1
-    write(6,'(8I4)') (iSSOff(i,j,ijShell),j=0,nIrrep-1)
+    write(u6,'(8I4)') (iSSOff(i,j,ijShell),j=0,nIrrep-1)
   end do
 end do
 #endif
@@ -160,35 +165,35 @@ end do
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' iSO, iShlSO(iSO), relative index in irrep'
+write(u6,*)
+write(u6,*) ' iSO, iShlSO(iSO), relative index in irrep'
 do jSO=1,iSO
-  write(6,*) jSO,iShlSO(jSO)
+  write(u6,*) jSO,iShlSO(jSO)
 end do
 
-write(6,*)
-write(6,*) ' iShell: number of basis functions in each irrep'
+write(u6,*)
+write(u6,*) ' iShell: number of basis functions in each irrep'
 do iShell=1,nShell
-  write(6,*) iShell,':',(nBasSh(iIrrep,iShell),iIrrep=0,nIrrep-1)
+  write(u6,*) iShell,':',(nBasSh(iIrrep,iShell),iIrrep=0,nIrrep-1)
 end do
-write(6,*)
-write(6,*) 'iSSOff'
-write(6,*)
+write(u6,*)
+write(u6,*) 'iSSOff'
+write(u6,*)
 do ijShell=1,nij_Shell
   iShell = iShij(1,ijShell)
   jShell = iShij(2,ijShell)
-  write(6,*)
-  write(6,*) 'iShell,jShell=',iShell,jShell
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'iShell,jShell=',iShell,jShell
+  write(u6,*)
   do i=0,nIrrep-1
-    write(6,'(8I4)') (iSSOff(i,j,ijShell),j=0,nIrrep-1)
+    write(u6,'(8I4)') (iSSOff(i,j,ijShell),j=0,nIrrep-1)
   end do
 end do
-write(6,*)
-write(6,*) 'iTOffs'
-write(6,*)
+write(u6,*)
+write(u6,*) 'iTOffs'
+write(u6,*)
 do i=0,nIrrep-1
-  write(6,*) (iTOffs(j,i),j=1,3)
+  write(u6,*) (iTOffs(j,i),j=1,3)
 end do
 #endif
 !                                                                      *

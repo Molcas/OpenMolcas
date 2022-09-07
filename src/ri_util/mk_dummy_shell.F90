@@ -19,16 +19,16 @@ subroutine Mk_Dummy_Shell()
 ! 2008 R. Lindh, Dept. of Theor. Chem., Univ. of Lund, Sweden          *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, iCnttp_Dummy, Max_Shells, nCnttp, Shells
+use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
+use stdalloc, only: mma_allocate
+use Constants, only: Zero, One
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Integral_RICD, Integral_RI_2
+implicit none
 #include "Molcas.fh"
-#include "SysDef.fh"
-#include "real.fh"
-#include "stdalloc.fh"
+integer(kind=iwp) :: iShll, mdc, nCnt, nCntrc, nPrim
 
 !                                                                      *
 !***********************************************************************
@@ -95,7 +95,7 @@ Max_Shells = S%Mx_Shll
 S%Mx_mdc = mdc
 
 if (iCnttp_Dummy /= 0) then
-  write(6,*) 'Mk_dummy_shell: iCnttp_Dummy'
+  write(u6,*) 'Mk_dummy_shell: iCnttp_Dummy'
   call Abend()
 end if
 iCnttp_Dummy = nCnttp

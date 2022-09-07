@@ -19,21 +19,22 @@ subroutine Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
 !
 !*************************************************************************
 
-use ExTerm, only: nAuxVe, A
+use ExTerm, only: A, nAuxVe
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
 #include "cholesky.fh"
-#include "stdalloc.fh"
-#include "exterm.fh"
-integer nBas_Aux(1:nIrrep), nBas(1:nIrrep)
-integer nLRb(8)
-character*6 Name_Q, Name
-integer Lu_B(4), Lu_A(2), iAdrA_in(8), iAdrA_Out(8)
-character*15 SECNAM
-parameter(SECNAM='Mult_with_Q_MP2')
-real*8, allocatable :: QVec(:), A_t(:), A_ht(:)
-real*8, allocatable :: B_t(:)
-#include "chotime.fh"
+integer(kind=iwp) :: i, iA_in, iA_Out, iAdr, iAdrA, iAdrA_in(8), iAdrA_Out(8), iAdrQ, iOffQ1, iOpt, ip_B, iSeed, iSym, iType, &
+                     jSym, jVec, kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, l_Q, lTot, Lu_A(2), Lu_B(4), Lu_Q, MaxMem, nBas2, nLR, &
+                     nLRb(8), NumAux, NumCV, NumVecJ, NumVecK, nVec
+real(kind=wp) :: Fac, TotCPU1, TotWall1
+character(len=6) :: FName, Name_Q
+character(len=*), parameter :: SECNAM = 'Mult_with_Q_MP2'
+real(kind=wp), allocatable :: A_ht(:), A_t(:), B_t(:), QVec(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -43,15 +44,15 @@ call CWTime(TotCPU1,TotWall1)
 do i=1,2
   iSeed = 7
   Lu_A(i) = IsFreeUnit(iSeed)
-  write(Name,'(A5,I1)') 'AMP2V',i
-  call DaName_MF_WA(Lu_A(i),Name)
+  write(FName,'(A5,I1)') 'AMP2V',i
+  call DaName_MF_WA(Lu_A(i),FName)
 end do
 
 do i=1,4
   iSeed = 7
   Lu_B(i) = IsFreeUnit(iSeed)
-  write(Name,'(A5,I1)') 'BMP2V',i
-  call DaName_MF_WA(Lu_B(i),Name)
+  write(FName,'(A5,I1)') 'BMP2V',i
+  call DaName_MF_WA(Lu_B(i),FName)
 end do
 !                                                                      *
 !***********************************************************************
@@ -113,23 +114,23 @@ do iSym=1,nSym
     iAdrA = iAdrA_in(iSym)
     call dDaFile(Lu_A(iType),iOpt,A_t,l_A_t,iAdrA)
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Q-vectors'
+    write(u6,*) 'Q-vectors'
     do i=1,l_Q
-      write(6,*) QVec(i)
+      write(u6,*) QVec(i)
     end do
 
-    write(6,*) 'A-vectors'
+    write(u6,*) 'A-vectors'
     do i=1,l_A
-      write(6,*) A_t(i)
+      write(u6,*) A_t(i)
     end do
 #   endif
 
     ! Make first halftransformation to cholesky-base
     ! ----------------------------------------------
 
-    call dGemm_('N','N',NumAux,NumCV,NumCV,1.0d0,QVec,NumAux,A_t,NumCV,0.0d0,A_ht,NumAux)
+    call dGemm_('N','N',NumAux,NumCV,NumCV,One,QVec,NumAux,A_t,NumCV,Zero,A_ht,NumAux)
 
-    call dGemm_('N','T',NumAux,NumAux,NumCV,1.0d0,A_ht,NumAux,QVec,NumAux,0.0d0,A,NumAux)
+    call dGemm_('N','T',NumAux,NumAux,NumCV,One,A_ht,NumAux,QVec,NumAux,Zero,A,NumAux)
 
     ! Put transformed A-vectors back on disk
 
@@ -174,10 +175,10 @@ do iSym=1,nSym
         iAdr = 1+nLRb(iSym)*(jVec-1)
         call dDaFile(Lu_B(iType),iOpt,B_t,lTot,iAdr)
 
-        Fac = 0.0d0
-        if (jVec /= 1) Fac = 1.0d0
+        Fac = Zero
+        if (jVec /= 1) Fac = One
         iOffQ1 = kVec+NumAux*(jVec-1)
-        call dGemm_('N','T',nBas2,NumVecK,NumVecJ,1.0d0,B_t,nBas2,QVec(iOffQ1),NumAux,Fac,B_t(ip_B),nBas2)
+        call dGemm_('N','T',nBas2,NumVecK,NumVecJ,One,B_t,nBas2,QVec(iOffQ1),NumAux,Fac,B_t(ip_B),nBas2)
       end do
 
       iOpt = 1

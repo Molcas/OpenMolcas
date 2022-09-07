@@ -11,10 +11,13 @@
 
 subroutine contract_Zpk_Tpxy(Zpk,nZpk,Txy,nTxy,Scrt,nScrt,Diag,nDiag,nnP,nBas_Aux,nAdens,nAvec,nAct,nIrrep)
 
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
 implicit none
-integer nZpk, nTxy, nScrt, nDiag, nIrrep, nnP(0:nIrrep-1), nBas_Aux(0:nIrrep-1), nact(0:nIrrep-1), nAdens, nAvec, i, j, k, l, &
-        nCumnnP, nCumnnP2, nCumnnP3, ip, jp, kp, iSym, jSym, kSym, iDen
-real*8 Zpk(nZpk,nAVec), Txy(nTxy,nAdens), Scrt(nScrt), Diag(nDiag,nADens)
+integer(kind=iwp) :: nZpk, nTxy, nScrt, nDiag, nIrrep, nnP(0:nIrrep-1), nBas_Aux(0:nIrrep-1), nAdens, nAvec, nAct(0:nIrrep-1)
+real(kind=wp) :: Zpk(nZpk,nAVec), Txy(nTxy,nAdens), Scrt(nScrt), Diag(nDiag,nADens)
+integer(kind=iwp) :: i, iDen, ip, iSym, j, jp, jSym, k, kp, kSym, l, nCumnnP, nCumnnP2, nCumnnP3
 
 !***********************************************************************
 
@@ -29,10 +32,10 @@ do l=1,nAVec
     do i=1,nBas_Aux(iSym)
       ip = nCumnnP2+(i-1)*nnP(iSym)
       do j=1,nnP(iSym)
-        Scrt(j) = 0.0d0
+        Scrt(j) = Zero
         do k=1,nnP(iSym)
           kp = nCumnnP3+(k-1)*nnP(iSym)
-          Scrt(j) = Scrt(j)+sign(1.0d0,Diag(nCumnnP+k,iDen))*Zpk(k+ip,l)*Txy(j+kp,iDen)
+          Scrt(j) = Scrt(j)+sign(One,Diag(nCumnnP+k,iDen))*Zpk(k+ip,l)*Txy(j+kp,iDen)
         end do
       end do
       do j=1,nnP(iSym)
@@ -49,12 +52,12 @@ do l=1,nAVec
             if (kSym == jSym) then
               jp = ip+j*(j-1)/2
               do k=1,j-1
-                Zpk(jp+k,l) = Zpk(jp+k,l)/2.0d0
+                Zpk(jp+k,l) = Zpk(jp+k,l)*Half
               end do
             else
               jp = ip+(j-1)*nAct(kSym)
               do k=1,nAct(kSym)
-                Zpk(jp+k,l) = Zpk(jp+k,l)/2.0d0
+                Zpk(jp+k,l) = Zpk(jp+k,l)*Half
               end do
             end if
           end do

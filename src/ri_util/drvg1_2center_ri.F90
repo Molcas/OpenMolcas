@@ -33,24 +33,25 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !             Modified for 2-center RI gradients, January '07          *
 !***********************************************************************
 
-use k2_setup
-use iSD_data
-use pso_stuff
-use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
-use Basis_Info
+use k2_setup, only: Data_k2
+use iSD_data, only: iSD
+use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
+use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
 use Symmetry_Info, only: nIrrep
-use Para_Info, only: nProcs, King
-use ExTerm, only: CijK, AMP2, iMP2prpt, A
+use Para_Info, only: King, nProcs
+use ExTerm, only: A, AMP2, CijK, iMP2prpt
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Eight, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Rsv_Tsk
-#include "itmax.fh"
+implicit none
+integer(kind=iwp) :: nGrad, nij_Eff
+real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+integer(kind=iwp), allocatable :: ij2(:,:)
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -60,18 +61,23 @@ external Rsv_Tsk
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-integer nGrad, nij_Eff
-real*8 Grad(nGrad), Temp(nGrad)
-integer, allocatable :: ij2(:,:)
-! Local arrays
-real*8 Coor(3,4)
-integer iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
-logical EQ, Shijij, AeqB, CeqD, DoGrad, DoFock, Indexation, FreeK2, Verbose, JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk
-character format*72
-integer iSD4(0:nSD,4)
-save MemPrm
-real*8, allocatable :: TMax2(:,:), TMax1(:), Tmp(:,:)
-integer, allocatable :: Shij(:,:)
+integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ij, ijkla, &
+                     ijMax, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipxA, ipXB, ipXD, &
+                     ipxG, ipZI, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, &
+                     jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, &
+                     kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mBtch, &
+                     mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHMcd, &
+                     nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, nRys, nSkal, nSO, nTMax, nZeta
+real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
+#ifdef _CD_TIMING_
+real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
+#endif
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FreeK2, Indexation, JfGrad(3,4), No_Batch, Shijij, Verbose
+character(len=72) :: frmt
+integer(kind=iwp), save :: MemPrm
+integer(kind=iwp), allocatable :: Shij(:,:)
+real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
+logical(kind=iwp), external :: Rsv_Tsk
 
 !                                                                      *
 !***********************************************************************
@@ -79,10 +85,10 @@ integer, allocatable :: Shij(:,:)
 iRout = 9
 iPrint = nPrint(iRout)
 #ifdef _CD_TIMING_
-Twoel2_CPU = 0.0d0
-Twoel2_Wall = 0.0d0
-Pget2_CPU = 0.0d0
-Pget2_Wall = 0.0d0
+Twoel2_CPU = Zero
+Twoel2_Wall = Zero
+Pget2_CPU = Zero
+Pget2_Wall = Zero
 #endif
 
 iFnc(1) = 0
@@ -173,7 +179,7 @@ if (DoCholExch) then
       MxChVInShl = max(MxChVInShl,iSD(3,i))
     end do
   else
-    write(6,*) 'Not Implemented for Cholesky yet!'
+    write(u6,*) 'Not Implemented for Cholesky yet!'
     call Abend()
   end if
 
@@ -292,20 +298,20 @@ do while (Rsv_Tsk(id,jlS))
 
   ! Now do a quadruple loop over shells
 
-  jS_ = int((One+sqrt(Eight*dble(jlS)-Three))/Two)
+  jS_ = int((One+sqrt(Eight*real(jlS,kind=wp)-Three))*Half)
   iS = Shij(1,jS_)
   jS = Shij(2,jS_)
-  lS_ = int(dble(jlS)-dble(jS_)*(dble(jS_)-One)/Two)
+  lS_ = int(real(jlS,kind=wp)-real(jS_,kind=wp)*(real(jS_,kind=wp)-One)*Half)
   kS = Shij(1,lS_)
   lS = Shij(2,lS_)
   call CWTime(TCpu1,TWall1)
 
   if (Do_RI) then
-    Aint = TMax1(jS)*TMax1(lS)
+    A_int = TMax1(jS)*TMax1(lS)
   else
-    Aint = TMax2(iS,jS)*TMax2(kS,lS)
+    A_int = TMax2(iS,jS)*TMax2(kS,lS)
   end if
-  if (AInt < CutInt) cycle
+  if (A_Int < CutInt) cycle
   !if ((is == 3) .and. (js == 3) .and. (ks == 1) .and. (ls == 1)) then
   !  iPrint = 15
   !  nPrint(39) = 15
@@ -313,7 +319,7 @@ do while (Rsv_Tsk(id,jlS))
   !  iPrint = nPrint(iRout)
   !  nPrint(39) = 5
   !end if
-  if (iPrint >= 15) write(6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+  if (iPrint >= 15) write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -402,7 +408,7 @@ do while (Rsv_Tsk(id,jlS))
           Pget2_CPU = Pget2_CPU+Pget0CPU2-Pget0CPU1
           Pget2_Wall = Pget2_Wall+Pget0WALL2-Pget0WALL1
 #         endif
-          if (AInt*PMax < CutInt) cycle
+          if (A_Int*PMax < CutInt) cycle
 
           ! Compute gradients of shell quadruplet
 
@@ -454,11 +460,11 @@ call Term_Ints(Verbose,FreeK2)
 !                                                                      *
 call Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
 
-iPren = 3+max(1,int(log10(Pren+0.001D+00)))
-iPrem = 3+max(1,int(log10(Prem+0.001D+00)))
-write(format,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
+iPren = 3+max(1,int(log10(Pren+0.001_wp)))
+iPrem = 3+max(1,int(log10(Prem+0.001_wp)))
+write(frmt,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
 if (iPrint >= 6) then
-  write(6,format) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
+  write(u6,frmt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
 end if
 !                                                                      *
 !***********************************************************************

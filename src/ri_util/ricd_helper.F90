@@ -11,13 +11,14 @@
 
 subroutine RICD_Helper(Do_nacCD_Basis,nTest,iAngMin_,iAngMax_,jAngMin_,jAngMax_,nBS,iAng,jAng,list,nBS_Max)
 
-implicit real*8(a-h,o-z)
-logical Do_nacCD_Basis
-integer iAngMin_(0:nBS_Max-1), iAngMax_(0:nBS_Max-1)
-parameter(iTabMx=15)
-integer jAngMin_(0:nBS_Max-1,0:nBS_Max-1), jAngMax_(0:nBS_Max-1,0:nBS_Max-1)
-integer list(2,0:((nTest+1)*(nTest+2))/2,0:nTest*2)
-integer list2(0:nTest**2)
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: Do_nacCD_Basis
+integer(kind=iwp) :: nTest, nBS_Max, iAngMin_(0:nBS_Max-1), iAngMax_(0:nBS_Max-1), jAngMin_(0:nBS_Max-1,0:nBS_Max-1), &
+                     jAngMax_(0:nBS_Max-1,0:nBS_Max-1), nBS, iAng, jAng, &
+                     list(2,0:((nTest+1)*(nTest+2))/2,0:nTest*2)
+integer(kind=iwp) :: iBS, iPair, k, l, list2(0:nTest**2), m, n !IFG
 
 !                                                                      *
 !***********************************************************************

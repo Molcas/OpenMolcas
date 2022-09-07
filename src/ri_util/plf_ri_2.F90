@@ -17,9 +17,9 @@ subroutine PLF_RI_2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
 !                                                                      *
-!          the indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          the indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !                                                                      *
 !  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
@@ -30,14 +30,17 @@ subroutine PLF_RI_2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,
 
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 AOint(ijkl,jCmp,lCmp), TInt(nTInt)
-integer iShell(4), iAO(4), kOp(4), iAOst(4), iSO2Ind(nSOs), iOffA(4)
-logical Shijij
+implicit none
+integer(kind=iwp) :: ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, nSOs, &
+                     iSO2Ind(nSOs), iOffA(4)
+real(kind=wp) :: AOint(ijkl,jCmp,lCmp), TInt(nTInt)
+logical(kind=iwp) :: Shijij
+integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, kSO, lSO, lSOl, mm_, mx, nijkl, nn
+real(kind=wp) :: A_Int
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -50,8 +53,8 @@ iPrint = 99
 if (iPrint >= 49) then
   r1 = DDot_(ijkl*jCmp*lCmp,AOInt,1,[One],0)
   r2 = DDot_(ijkl*jCmp*lCmp,AOInt,1,AOInt,1)
-  write(6,*) ' Sum=',r1
-  write(6,*) ' Dot=',r2
+  write(u6,*) ' Sum=',r1
+  write(u6,*) ' Dot=',r2
 end if
 if (iPrint >= 99) call RecPrt(' In Plf_RI_2: AOInt',' ',AOInt,ijkl,jCmp*lCmp)
 #endif
@@ -67,10 +70,10 @@ nn = mm_-iOffA(2)
 mx = nn*(nn+1)/2
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'nn,mx=',nn,mx
-write(6,*) 'iOff=',nn,mx
-write(6,*) 'lBas,jBas=',lBas,jBas
-write(6,*) 'lCmp,jCmp=',lCmp,jCmp
+write(u6,*) 'nn,mx=',nn,mx
+write(u6,*) 'iOff=',nn,mx
+write(u6,*) 'lBas,jBas=',lBas,jBas
+write(u6,*) 'lCmp,jCmp=',lCmp,jCmp
 #endif
 
 do i2=1,jCmp
@@ -86,11 +89,11 @@ do i2=1,jCmp
 
         iSO = jSOj-iOff
         nijkl = nijkl+1
-        AInt = AOint(nijkl,i2,i4)
+        A_Int = AOint(nijkl,i2,i4)
 
         iSO = iSO2Ind(iSO)+nn
         ij = iTri(iSO,kSO)-mx+iOffA_
-        TInt(ij) = AInt
+        TInt(ij) = A_Int
 
       end do
     end do

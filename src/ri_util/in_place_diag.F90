@@ -11,8 +11,12 @@
 
 subroutine In_place_Diag(Buff,nBuff,iBs,iBe)
 
-implicit real*8(a-h,o-z)
-real*8 Buff(nBuff,iBs:iBe)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nBuff, iBs, iBe
+real(kind=wp) :: Buff(nBuff,iBs:iBe)
+integer(kind=iwp) :: i, j
 
 !call RecPrt('Buff',' ',Buff,nBuff,iBe-iBs+1)
 do j=iBs,iBe

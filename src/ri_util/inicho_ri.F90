@@ -35,22 +35,20 @@ subroutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
 use Para_Info, only: Is_Real_Par
 use ChoArr, only: iSP2F
 use ChoSwp, only: InfRed, InfVec
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp, u6
 
 implicit none
-integer nSkal, nIrrep, nShij
-integer nVec_Aux(0:nIrrep-1)
-integer iTOffs(3,nIrrep)
-integer iShij(2,nShij)
+integer(kind=iwp) :: nSkal, nIrrep, nVec_Aux(0:nIrrep-1), iTOffs(3,nIrrep), nShij, iShij(2,nShij)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 #ifdef _MOLCAS_MPP_
 #include "choglob.fh"
 #endif
-logical SetDefaultsOnly, Skip_PreScreen, Alloc_Bkm
-integer iDummy, LuOut, iSym, iVec, ijS
-integer iTri, i, j
+integer(kind=iwp) :: iDummy, ijS, iSym, iVec, LuOut
+logical(kind=iwp) :: Alloc_Bkm, SetDefaultsOnly, Skip_PreScreen
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! Set defaults for those parameters that can normally be changed
@@ -59,7 +57,7 @@ iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 SetDefaultsOnly = .true.
 iDummy = -1
-LuOut = 6
+LuOut = u6
 call Cho_Inp(SetDefaultsOnly,iDummy,LuOut)
 
 ! Reset Cholesky Threshold for RI

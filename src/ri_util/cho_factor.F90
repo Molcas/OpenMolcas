@@ -59,17 +59,22 @@
 
 subroutine CHO_FACTOR(Diag,A_k,iD_A,kCol,nRow,Zm,nMem,lu_Z,Scr,lScr,thr,lindep)
 
-implicit real*8(a-h,o-z)
-integer iD_A(*), kCol, nRow, nMem, lu_Z, lScr, lindep
-real*8 Diag(*), A_k(*), Zm(nRow,*), Scr(*)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iD_A(*), kCol, nRow, nMem, lu_Z, lScr, lindep
+real(kind=wp) :: Diag(*), A_k(*), Zm(nRow,*), Scr(*), thr
 #include "warnings.h"
-parameter(one=1.0d0,zero=0.0d0,thr_neg=-1.0d-8)
+integer(kind=iwp) :: i, j, kdone, kj, kstep, lZdone, lZread, lZrem
+real(kind=wp) :: Dmax, fac, xfac
+real(kind=wp), parameter :: thr_neg = -1.0e-8_wp
 
 !***********************************************************************
 
 if (thr < zero) then
   call WarningMessage(2,'Error in Cho_Factor')
-  write(6,*) 'thr must be >= zero'
+  write(u6,*) 'thr must be >= zero'
   call Quit(_RC_CHO_LOG_)
 end if
 
@@ -94,7 +99,7 @@ if (kCol <= nMem) then
 
     !-tbp: use thr_neg as threshold for too negative diagonal
     !      It should not depend on the decomposition threshold!
-  !else if ((Dmax > Zero) .or. (-Dmax <= 1.0d1*thr)) then
+  !else if ((Dmax > Zero) .or. (-Dmax <= Ten*thr)) then
   else if (Dmax > thr_neg) then
 
     lindep = 1
@@ -104,8 +109,8 @@ if (kCol <= nMem) then
   else
 
     call WarningMessage(2,'Error in Cho_Factor')
-    write(6,*) 'CHO_FACTOR: too-negative diagonal.'
-    write(6,*) 'CHO_FACTOR: current largest Diag = ',Dmax
+    write(u6,*) 'CHO_FACTOR: too-negative diagonal.'
+    write(u6,*) 'CHO_FACTOR: current largest Diag = ',Dmax
     call Quit(_RC_CHO_RUN_)
 
   end if
@@ -119,7 +124,7 @@ else  ! the first nMem columns of Z are in memory
 
   if (lScr < nRow) then
     call WarningMessage(2,'Error in Cho_Factor')
-    write(6,*) 'lScr must be >= nRow'
+    write(u6,*) 'lScr must be >= nRow'
     call Quit(_RC_CHO_LOG_)
   end if
 
@@ -162,7 +167,7 @@ else  ! the first nMem columns of Z are in memory
 
     !-tbp: use thr_neg as threshold for too negative diagonal
     !      It should not depend on the decomposition threshold!
-  !else if ((Dmax > Zero) .or. (-Dmax <= 1.0d1*thr)) then
+  !else if ((Dmax > Zero) .or. (-Dmax <= Ten*thr)) then
   else if (Dmax > thr_neg) then
 
     lindep = 1
@@ -172,8 +177,8 @@ else  ! the first nMem columns of Z are in memory
   else
 
     call WarningMessage(2,'Error in Cho_Factor')
-    write(6,*) 'CHO_FACTOR: too-negative diagonal.'
-    write(6,*) 'CHO_FACTOR: current largest Diag = ',Dmax
+    write(u6,*) 'CHO_FACTOR: too-negative diagonal.'
+    write(u6,*) 'CHO_FACTOR: current largest Diag = ',Dmax
     call Quit(_RC_CHO_RUN_)
 
   end if
@@ -207,8 +212,8 @@ do i=1,nRow
   if (Diag(i) < zero) then
     if (Diag(i) <= thr_neg) then
       call WarningMessage(2,'Error in Cho_Factor')
-      write(6,*) 'CHO_FACTOR: too negative diagonal.'
-      write(6,*) 'CHO_FACTOR: i,Diag(i)= ',i,Diag(i)
+      write(u6,*) 'CHO_FACTOR: too negative diagonal.'
+      write(u6,*) 'CHO_FACTOR: i,Diag(i)= ',i,Diag(i)
       call Quit(_RC_CHO_RUN_)
     else
       Diag(i) = zero

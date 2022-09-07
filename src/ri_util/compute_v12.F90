@@ -11,10 +11,13 @@
 
 subroutine Compute_V12(V,V12,nDim)
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
-real*8 V(nDim,nDim), V12(nDim,nDim)
-real*8, allocatable :: Vec(:), VTri(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDim
+real(kind=wp) :: V(nDim,nDim), V12(nDim,nDim)
+real(kind=wp), allocatable :: Vec(:), VTri(:)
 
 call mma_allocate(Vec,nDim**2,Label='Vec')
 call mma_allocate(VTri,nDim*(nDim+1)/2,Label='VTri')

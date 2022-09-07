@@ -11,15 +11,18 @@
 
 subroutine Effective_CD_Pairs(ij2,nij_Eff)
 
-use Basis_Info
+use Basis_Info, only: dbsc, nBas, nBas_Aux, nCnttp, Shells
 use Symmetry_Info, only: nIrrep
 use ChoArr, only: iSOShl
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer, allocatable :: ij2(:,:)
+implicit none
+integer(kind=iwp) :: nij_Eff
+integer(kind=iwp), allocatable :: ij2(:,:)
 #include "cholesky.fh"
-#include "stdalloc.fh"
-integer, allocatable :: SO_ab(:), ij3(:)
+integer(kind=iwp) :: i, iAng, iCnttp, iIrrep, ij, ij_Eff, iOff, iShll, iSym, j, jOff, nAux_Tot, nij, nSkal_Valence, nVal_Tot
+integer(kind=iwp), allocatable :: ij3(:), SO_ab(:)
 
 !                                                                      *
 !***********************************************************************
@@ -44,7 +47,7 @@ end do
 nij = nSkal_Valence*(nSkal_Valence+1)/2
 call mma_allocate(ij3,nij,Label='ij3')
 ij3(:) = 0
-!write(6,*) 'nij3=',nij
+!write(u6,*) 'nij3=',nij
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -78,7 +81,7 @@ nij_Eff = 0
 do i=1,nij
   nij_Eff = nij_Eff+ij3(i)
 end do
-!write(6,*) 'nij_Eff=',nij_Eff
+!write(u6,*) 'nij_Eff=',nij_Eff
 if (nij_Eff > nij) then
   call WarningMessage(2,'Effective_CD_Pairs: nij_Eff > nij')
   call Abend()
@@ -90,10 +93,10 @@ ij_Eff = 0
 do i=1,nSkal_Valence
   do j=1,i
     ij = ij+1
-    !write (6,*) 'i,j,ij=',i,j,ij
+    !write (u6,*) 'i,j,ij=',i,j,ij
     if (ij3(ij) == 1) then
       ij_Eff = ij_Eff+1
-      !write(6,*) 'ij_Eff=',ij_Eff
+      !write(u6,*) 'ij_Eff=',ij_Eff
       ij2(1,ij_Eff) = i
       ij2(2,ij_Eff) = j
     end if

@@ -11,9 +11,12 @@
 
 subroutine TermCho_RI(irc,nVec_RI,l_nVec_RI)
 
+use ChoArr, only: MySP
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
+
 implicit none
-integer irc, l_nVec_RI
-integer nVec_RI(l_nVec_RI) ! #RI vectors per irrep on this node
+integer(kind=iwp) :: irc, l_nVec_RI, nVec_RI(l_nVec_RI) ! #RI vectors per irrep on this node
 
 irc = 0
 
@@ -38,6 +41,6 @@ if (irc /= 0) return
 ! More deallocations.
 ! -------------------
 
-call Cho_RI_XFree()
+if (allocated(MySP)) call mma_deallocate(MySP)
 
 end subroutine TermCho_RI

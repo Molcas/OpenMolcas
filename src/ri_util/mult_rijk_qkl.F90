@@ -25,29 +25,33 @@ subroutine Mult_RijK_QKL(iSO,nBas_aux,nIrrep)
 !            nIrrep : number of irreps.
 !*************************************************************************
 
-use pso_stuff
+use pso_stuff, only: lSA
 use Para_Info, only: Is_Real_Par
 use ChoSwp, only: InfVec
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer nBas_Aux(1:nIrrep), nVec(1:nIrrep)
-character Fname*6, Fname2*6, Name_Q*6
-character(LEN=50) CFmt
-character(LEN=13), parameter :: SECNAM = 'MULT_RIJK_QKL'
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: iSO, nIrrep, nBas_Aux(1:nIrrep)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 #include "exterm.fh"
-!#define _DEBUGPRINT_
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
 #include "chotime.fh"
-real*8, allocatable :: QVector(:)
-real*8, allocatable :: RVector(:)
-real*8, allocatable :: CVector(:)
+integer(kind=iwp) :: iAdrC, iAdrQ, iAdrR, iAux, iFirstCho, iJBat, indx, indx2, iRest, iSeed, iSeed2, iSym, jSym, kSym, l_CVector, &
+                     l_Q, l_QVector, l_RVec, l_RVector, lSym, Lu_Q, LuCVec, LuRVec, MaxCho, MaxLocCho, MaxMOprod, MaxMOProdR, &
+                     MemMax, nJbat, njVec, nJvec1, nJvecLast, nTotCho, nTotFIorb, NumAux, NumCV, nVec(1:nIrrep)
+real(kind=wp) :: TotCPU, TotCPU1, TotCPU2, TotWall, TotWall1, TotWall2
+character(len=50) :: CFmt
+character(len=6) :: Fname, Fname2, Name_Q
+real(kind=wp), allocatable :: CVector(:), QVector(:), RVector(:)
+character(len=*), parameter :: SECNAM = 'MULT_RIJK_QKL'
+integer(kind=iwp), external :: IsFreeUnit
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 call CWTime(TotCPU1,TotWall1)
@@ -98,7 +102,7 @@ do jSym=1,nIrrep
   call mma_maxDBLE(MemMax)
   nJvec1 = (MemMax-NumAux*MaxMOprod)/(MaxMOprod+NumAux)
   if (nJvec1 < 1) then
-    write(6,*) 'Too little memory in:',SECNAM
+    write(u6,*) 'Too little memory in:',SECNAM
     call Abend()
   end if
   nJvec1 = min(nJvec1,NumCho(jSym))
@@ -181,22 +185,22 @@ do jSym=1,nIrrep
         l_RVec = nJvec*nIJ1(iSym,lSym,iSO)
         call dDaFile(LuRVec,2,RVector,l_RVec,iAdrR)
 
-        call dGemm_('N','T',nIJ1(iSym,lSym,iSO),NumAux,nJVec,1.0d0,RVector,nIJ1(iSym,lSym,iSO),QVector,NumAux,0.0d0,CVector, &
+        call dGemm_('N','T',nIJ1(iSym,lSym,iSO),NumAux,nJVec,One,RVector,nIJ1(iSym,lSym,iSO),QVector,NumAux,Zero,CVector, &
                     nIJ1(iSym,lSym,iSO))
       end do
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'jSym=',jSym
+      write(u6,*) 'jSym=',jSym
       call RecPrt('R-Vectors',' ',RVector,nIJ1(iSym,lSym,iSO),NumAux)
       call RecPrt('C-Vectors',' ',CVector,nIJ1(iSym,lSym,iSO),NumAux)
 #     endif
       if ((.not. lSA) .and. (iSym == lSym)) then
         do iAux=1,NumAux
-          index = -1
+          indx = -1
           do i=1,nChOrb(iSym-1,iSO)
-            index = index+i
-            index2 = index+(iAux-1)*nIJ1(iSym,lSym,iSO)
-            CVector(1+index2) = CVector(1+index2)/sqrt(2.0d0)
+            indx = indx+i
+            indx2 = indx+(iAux-1)*nIJ1(iSym,lSym,iSO)
+            CVector(1+indx2) = CVector(1+indx2)/sqrt(Two)
           end do
         end do
       end if
@@ -234,16 +238,16 @@ rMult_Wall = TOTWALL
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky Gradients timing from '//SECNAM
-  write(6,CFmt) '----------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) '                                CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky Gradients timing from '//SECNAM
+  write(u6,CFmt) '----------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) '                                CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 

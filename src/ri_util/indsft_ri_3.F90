@@ -17,9 +17,9 @@ subroutine IndSft_RI_3(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOi
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
 !                                                                      *
-!          the indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          the indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
 !          april '90                                                   *
@@ -30,17 +30,20 @@ use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: nIrrep
 use sort_data, only: nSkip
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 SOint(ijkl,nSOint), TInt(nTInt)
-integer iSOShl(nSO), iShlSO(nSO), nBasSh(0:nSym-1,nShell), iSSOff(0:nIrrep-1,0:nIrrep-1)
-integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs), jOffSO(0:7)
-logical Shijij, Shkl, qkl
-! local array
-integer jSym(0:7), kSym(0:7), lSym(0:7), iOff(3,0:7)
+implicit none
+integer(kind=iwp) :: iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, iSOSym(2,nSOs), nTInt, &
+                     iOff(3,0:7), nSO, iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), &
+                     iSSOff(0:nIrrep-1,0:nIrrep-1)
+logical(kind=iwp) :: Shijij
+real(kind=wp) :: SOint(ijkl,nSOint), TInt(nTInt)
+integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iIrrep, iOff_L, iShC, iShD, ix, j1, j12, j2, j3, j4, jOffSO(0:7), jSO, jSOj, &
+                     jSym(0:7), kl, kl_B, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, mm, n3C, nC, nD, nijkl
+real(kind=wp) :: A_Int
+logical(kind=iwp) :: qkl, Shkl
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -64,7 +67,7 @@ memSO2 = 0
 Shkl = iShell(3) == iShell(4)
 if (iShell(4) > iShell(3)) then
   call WarningMessage(2,'Error in IndSft_RI_3')
-  write(6,*) 'iShell(4) > iShell(3)'
+  write(u6,*) 'iShell(4) > iShell(3)'
   call Abend()
 end if
 
@@ -157,18 +160,18 @@ do i2=1,iCmp(2)
               do jSOj=jSO,jSO+jBas-1
                 iAux = jSOj
                 nijkl = nijkl+1
-                AInt = SOint(nijkl,memSO2)
+                A_Int = SOint(nijkl,memSO2)
                 !                                                      *
                 !*******************************************************
                 !                                                      *
                 if (j12 == 0) then
                   if (kSOk >= lSOl) then
                     kl_B = (iAux-1)*n3C+kl+iOff_L
-                    TInt(kl_B) = AInt
+                    TInt(kl_B) = A_Int
                   end if
                 else
                   kl_B = (iAux-1)*n3C+kl+iOff_L
-                  TInt(kl_B) = AInt
+                  TInt(kl_B) = A_Int
                 end if
                 !                                                      *
                 !*******************************************************

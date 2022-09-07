@@ -32,11 +32,13 @@ use SOAO_Info, only: iOffSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use j12, only: nSkal_Valence
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-external Integral_WrOut
-real*8 TInt(nTInt)
-logical Verbose, Indexation, FreeK2, DoFock, DoGrad
+implicit none
+integer(kind=iwp) :: nTInt
+real(kind=wp) :: ThrAO, TInt(nTInt)
+integer(kind=iwp) :: iIrrep, nAcc, nSkal
+logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Verbose
 
 !                                                                      *
 !***********************************************************************

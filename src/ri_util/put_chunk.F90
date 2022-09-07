@@ -11,50 +11,48 @@
 
 subroutine Put_Chunk(MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu,LenVec)
 
-use Chunk_Mod
+use Chunk_Mod, only: Chunk
 #ifdef _MOLCAS_MPP_
+use Chunk_Mod, only: ip_Chunk
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-real*8 Rv(nMuNu,(j_e-j_s+1))
+implicit none
+integer(kind=iwp) :: MuNu_s, MuNu_e, j_s, j_e, nMuNu, LenVec
+real(kind=wp) :: Rv(nMuNu,(j_e-j_s+1))
+integer(kind=iwp) :: jp_ChoVec, jVec, mMuNu, NumVec_
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-#ifdef _MOLCAS_MPP_
 
 NumVec_ = j_e-j_s+1
+
+#ifdef _MOLCAS_MPP_
 if (NumVec_ > 0) then
   if (Is_Real_Par()) then
     call GA_Put(ip_Chunk,MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu)
   else
+#endif
     mMuNu = MuNu_s-1
     jp_ChoVec = 1+mMuNu
     do jVec=1,NumVec_
       call dcopy_(nMuNu,Rv(1,jVec),1,Chunk(jp_ChoVec),1)
       jp_ChoVec = jp_ChoVec+LenVec
     end do
+#ifdef _MOLCAS_MPP_
   end if
 end if
-
-#else
-
-mMuNu = MuNu_s-1
-NumVec_ = j_e-j_s+1
-
-jp_ChoVec = 1+mMuNu
-do jVec=1,NumVec_
-  call dcopy_(nMuNu,Rv(1,jVec),1,Chunk(jp_ChoVec),1)
-  jp_ChoVec = jp_ChoVec+LenVec
-end do
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(MuNu_e)
 #endif
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 return
+#ifndef _MOLCAS_MPP_
+! Avoid unused argument warnings
+if (.false.) call Unused_integer(MuNu_e)
+#endif
 
 end subroutine Put_Chunk

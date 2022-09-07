@@ -9,10 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nMemAm(nShBF,nIrrep,nS,jS,iOffA,Out_of_Core)
+function nMemAm(nShBF,nIrrep,nS,jS,iOffA,Out_of_Core)
 
-integer nShBf(0:nIrrep-1,nS), iOffA(4,0:nIrrep-1)
-logical Out_of_Core
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nMemAm
+integer(kind=iwp) :: nIrrep, nS, nShBf(0:nIrrep-1,nS), jS, iOffA(4,0:nIrrep-1)
+logical(kind=iwp) :: Out_of_Core
+integer(kind=iwp) :: iIrrep, lS, ni, nj, nl, nn
 
 if (Out_Of_Core) then
 

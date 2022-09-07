@@ -14,8 +14,10 @@
 subroutine Get_thrc_RI(Thr_CD)
 
 use RICD_Info, only: Thrshld_CD
+use Definitions, only: wp
 
-real*8 Thr_CD
+implicit none
+real(kind=wp) :: Thr_CD
 
 Thr_CD = Thrshld_CD
 

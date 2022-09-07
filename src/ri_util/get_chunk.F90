@@ -11,14 +11,18 @@
 
 subroutine Get_Chunk(LenVec,NumVec_,iChoVec,iSym,iVec_Global)
 
-use Chunk_Mod
+use Chunk_Mod, only: Chunk
 #ifdef _MOLCAS_MPP_
+use Chunk_Mod, only: iMap, ip_Chunk
 use Para_Info, only: MyRank, Is_Real_Par
 #endif
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: LenVec, NumVec_, iChoVec, iSym, iVec_Global
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
+integer(kind=iwp) :: Indx, J_e, J_s, ld, MuNu_e, MuNu_s, nJ
 #endif
 
 #ifdef _MOLCAS_MPP_
@@ -36,9 +40,9 @@ if (Is_Real_Par()) then
     if (nJ > 0) then
       MuNu_s = 1
       MuNu_e = LenVec
-      call GA_Access(ip_Chunk,MuNu_s,MuNu_e,J_s,J_e,Index,ld)
-      !call RecPrt('Dbl_Mb(Index)',' ',Dbl_Mb(Index),LenVec,nJ)
-      call Cho_PutVec(DBL_MB(Index),LenVec,nJ,iChoVec+1,iSym)
+      call GA_Access(ip_Chunk,MuNu_s,MuNu_e,J_s,J_e,Indx,ld)
+      !call RecPrt('Dbl_Mb(Indx)',' ',Dbl_Mb(Indx),LenVec,nJ)
+      call Cho_PutVec(DBL_MB(Indx),LenVec,nJ,iChoVec+1,iSym)
       call Cho_RI_SetInfVec_5(iVec_Global,iChoVec+1,J_s,J_e,iSym)
       call GA_Release(ip_Chunk,MuNu_s,MuNu_e,J_s,J_e)
       iChoVec = iChoVec+nJ
@@ -46,19 +50,19 @@ if (Is_Real_Par()) then
   end if
   call Cho_RI_SwapVecUnit(iSym)
 else
+#endif
   call Cho_PutVec(Chunk,LenVec,NumVec_,iChoVec+1,iSym)
   iChoVec = iChoVec+NumVec_
+#ifdef _MOLCAS_MPP_
 end if
+#endif
 
-#else
-call Cho_PutVec(Chunk,LenVec,NumVec_,iChoVec+1,iSym)
-iChoVec = iChoVec+NumVec_
+return
+#ifndef _MOLCAS_MPP_
 ! Avoid unused argument warnings
 if (.false.) then
   call Unused_integer(iVec_Global)
 end if
 #endif
-
-return
 
 end subroutine Get_Chunk

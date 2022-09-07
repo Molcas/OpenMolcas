@@ -11,8 +11,11 @@
 
 subroutine Mk_Indkl(Indkl_OnOff,Indkl,nkl)
 
-implicit real*8(a-h,o-z)
-integer Indkl_OnOff(nkl), Indkl(nkl)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nkl, Indkl_OnOff(nkl), Indkl(nkl)
+integer(kind=iwp) :: ikl, jkl
 
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_

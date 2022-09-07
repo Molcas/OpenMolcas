@@ -31,18 +31,18 @@ subroutine Mk_RICD_Shells()
 !                                                                      *
 !***********************************************************************
 
-use Real_Spherical
-use Basis_Info
+use Real_Spherical, only: Sphere, Sphere_Free
+use Basis_Info, only: dbsc, nCnttp
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Do_nacCD_Basis, Thrshld_CD
+use RICD_Info, only: Do_acCD_Basis, Do_nacCD_Basis, Skip_High_AC, Thrshld_CD
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-#include "real.fh"
-#include "print.fh"
-#include "status.fh"
-#include "stdalloc.fh"
-logical DoRys, Save_Logical, W2L
+implicit none
+integer(kind=iwp) :: iCnttp, jCnttp, kCnttp, lCnttp, mCnttp, nDiff
+real(kind=wp) :: Thrshld_CD_Save
+logical(kind=iwp) :: DoRys, Save_Logical, W2L
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -95,7 +95,7 @@ call Mk_Dummy_Shell()
 do iCnttp=1,mCnttp
   if (dbsc(iCnttp)%Frag .or. (dbsc(iCnttp)%nVal == 0)) cycle
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 99) write(6,*) 'Generating auxiliary basis set for valence basis:',iCnttp
+  if (iPrint >= 99) write(u6,*) 'Generating auxiliary basis set for valence basis:',iCnttp
 # endif
   !                                                                    *
   !*********************************************************************
@@ -147,10 +147,10 @@ do iCnttp=1,mCnttp
     !*******************************************************************
     !                                                                  *
   else
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! aCD and acCD section
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! aCD and acCD section
 
     call Mk_aCD_acCD_Shells(iCnttp,W2L)
 

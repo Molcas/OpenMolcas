@@ -12,16 +12,19 @@
 subroutine Integral_RICD(iCmp,iShell,MapOrg,iBas,jBas,kBas,lBas,kOp,Shijij,IJeqKL,iAO,iAOst,ijkl,AOInt,SOInt,nSOint,iSOSym,nSkal, &
                          nSOs,TInt,nTInt,iTOffs,nSym)
 
-implicit real*8(A-H,O-Z)
-real*8 AOInt(*), SOInt(*), TInt(nTInt)
-integer iCmp(4), iShell(4), iAO(4), iAOst(4), kOp(4), iSOSym(2,nSOs), iTOffs(0:7,0:7,0:7), MapOrg(4)
-logical Shijij, IJeqKL
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iCmp(4), iShell(4), MapOrg(4), iBas, jBas, kBas, lBas, kOp(4), iAO(4), iAOst(4), ijkl, nSOint, &
+                     nSOs, iSOSym(2,nSOs), nSkal, nTInt, nSym, iTOffs(0:7,0:7,0:7)
+logical(kind=iwp) :: Shijij, IJeqKL
+real(kind=wp) :: AOInt(*), SOInt(*), TInt(nTInt)
 
 if (nSym == 1) then
   call PLF_RICD(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,Shijij .and. IJeqKL,iBas,jBas,kBas,lBas,kOp,TInt, &
                 iTOffs(1,0,0),iTOffs(2,0,0),iTOffs(0,0,0),iTOffs(3,0,0),iTOffs(4,0,0))
 else
-  write(6,*) 'Integral_RICD: fatal error!'
+  write(u6,*) 'Integral_RICD: fatal error!'
   call Abend()
 end if
 

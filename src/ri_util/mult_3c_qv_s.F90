@@ -19,11 +19,14 @@ subroutine Mult_3C_Qv_s(A_3C,nA_3C,Qv,nQv,Rv,n_Rv,nVec,iOff_3C,nIrrep,Out_of_Cor
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-real*8 A_3C(nA_3C), Qv(nQv), Rv(n_Rv)
-integer iOff_3C(3,0:nIrrep-1), nVec(0:7), Lu_Q(0:nIrrep-1)
-logical Out_of_Core
-character*1 QMode
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nA_3C, nQv, n_Rv, nVec(0:7), nIrrep, iOff_3C(3,0:nIrrep-1), Lu_Q(0:nIrrep-1)
+real(kind=wp) :: A_3C(nA_3C), Qv(nQv), Rv(n_Rv)
+integer(kind=iwp) :: iAddr, iIrrep, iOffA, iOffA2, iOffQ, iOffR, iOffR2, lQv, lstepA, lstepR, mQv, nI, nK, nMuNu
+logical(kind=iwp) :: Out_of_Core
+character :: QMode
 
 !                                                                      *
 !***********************************************************************

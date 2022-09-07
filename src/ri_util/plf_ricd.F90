@@ -18,9 +18,9 @@ subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
 !                                                                      *
-!          the indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          the indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !                                                                      *
 !  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
@@ -29,15 +29,19 @@ subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt,mTInt)
-integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
-logical Shijij
+implicit none
+integer(kind=iwp) :: ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, mTInt, &
+                     iTOff, iOffij, iOffkl
+real(kind=wp) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt,mTInt)
+logical(kind=iwp) :: Shijij
 #include "ibas_ricd.fh"
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, ijSOij, iSO, iSOi, iSOij, iSOkl, &
+                     iSOs(4), jSO, jSOj, klSOkl, kSO, kSOk, lSO, lSOl, nijkl
+real(kind=wp) :: A_Int
 ! Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -47,8 +51,8 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 #ifdef _DEBUGPRINT_
 r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
 r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-write(6,*) ' Sum=',r1
-write(6,*) ' Dot=',r2
+write(u6,*) ' Sum=',r1
+write(u6,*) ' Dot=',r2
 call RecPrt(' In PLF_RICD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 
@@ -61,15 +65,15 @@ iAOsti = iAOst(1)
 iAOstj = iAOst(2)
 iAOstk = iAOst(3)
 iAOstl = iAOst(4)
-!write(6,*) 'iAOsti,iAOstj,iAOstk,iAOstl=',iAOsti,iAOstj,iAOstk,iAOstl
+!write(u6,*) 'iAOsti,iAOstj,iAOstk,iAOstl=',iAOsti,iAOstj,iAOstk,iAOstl
 iAOi = iAO(1)
 iAOj = iAO(2)
 iAOk = iAO(3)
 iAOl = iAO(4)
-!write(6,*) 'iAOs=',iAO
-!write(6,*) 'kOps=',kOp
-!write(6,*) 'iTOff,iOffij,iOffkl=',iTOff,iOffij,iOffkl
-!write(6,*) 'iBas,jBas,kBas,lBas=',iBas,jBas,kBas,lBas
+!write(u6,*) 'iAOs=',iAO
+!write(u6,*) 'kOps=',kOp
+!write(u6,*) 'iTOff,iOffij,iOffkl=',iTOff,iOffij,iOffkl
+!write(u6,*) 'iBas,jBas,kBas,lBas=',iBas,jBas,kBas,lBas
 
 ! The writing of the integrals here are shell blocked.
 
@@ -87,9 +91,9 @@ do i1=1,iCmp
         kSO = iSOs(3)
         lSO = iSOs(4)
 
-        !write(6,*)
-        !write(6,*) 'i1,i2,i3,i4,iSOs=',i1,i2,i3,i4,iSOs
-        !write(6,*) 'iBas,jBas,kBas,lBas=',iBas,jBas,kBas,lBas
+        !write(u6,*)
+        !write(u6,*) 'i1,i2,i3,i4,iSOs=',i1,i2,i3,i4,iSOs
+        !write(u6,*) 'iBas,jBas,kBas,lBas=',iBas,jBas,kBas,lBas
 
         nijkl = 0
         do lSOl=lSO,lSO+lBas-1
@@ -102,17 +106,17 @@ do i1=1,iCmp
             do jSOj=jSO,jSO+jBas-1
               do iSOi=iSO,iSO+iBas-1
                 nijkl = nijkl+1
-                AInt = AOint(nijkl,i1,i2,i3,i4)
+                A_Int = AOint(nijkl,i1,i2,i3,i4)
                 if (iAO(1) == iAO(2)) then
                   iSOij = iTri(iSOi,jSOj)+iOffij
                 else
                   iSOij = (iSOi-1)*jCmp*jBas_+jSOj+iOffij
                 end if
 
-                !write(6,*) 'iSOij,iSOkl,AInt=',iSOij,iSOkl,AInt
+                !write(u6,*) 'iSOij,iSOkl,A_Int=',iSOij,iSOkl,A_Int
                 ijSOij = max(iSOij,iSOkl)-iTOff
                 klSOkl = min(iSOij,iSOkl)
-                TInt(klSOkl,ijSOij) = AInt
+                TInt(klSOkl,ijSOij) = A_Int
 
               end do
             end do

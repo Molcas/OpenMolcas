@@ -17,9 +17,9 @@ subroutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density.                        *
 !                                                                      *
-!          The indices has been scrambled before calling this routine. *
-!          Hence we must take special care in order to regain the can- *
-!          onical order.                                               *
+!          The indices have been scrambled before calling this routine.*
+!          Hence we must take special care in order to regain the      *
+!          canonical order.                                            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
@@ -30,43 +30,33 @@ subroutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: lPSO, lsa, Thpkl, AOrb
-use ExTerm, only: CijK, CilK, BklK, BMP2, iMP2prpt, LuBVector
-use ExTerm, only: Ymnij, ipYmnij, nYmnij, CMOi
+use pso_stuff, only: AOrb, lPSO, lSA, Thpkl
+use Data_Structures, only: V1
+use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, iMP2prpt, ipYmnij, LuBVector, nYmnij, Yij, Ymnij
 #ifdef _DEBUGPRINT_
 use ExTerm, only: iOff_Ymnij
 #endif
-use ExTerm, only: Yij
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, mV_k, nnP1, nSA, nAct(0:7)
+real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k,nSA), U_k(mV_k), &
+                 ZpK(nnP1,mV_K,*)
+logical(kind=iwp) :: Shijij
 #include "exterm.fh"
-real*8 PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA), U_k(mV_k), DSO_Var(nDSO), ZpK(nnP1,mV_K,*)
-integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-integer nj(4), jSkip(4), NumOrb(4), nAct(0:7)
-logical Shijij, Found
-real*8, pointer :: Xli(:) => null(), Xki(:) => null()
-type V1
-  real*8, pointer :: A1(:) => null()
-end type V1
-type(V1) :: Xli2(2), Xki2(2)
-type(V1) :: Xli3(2), Xki3(2)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine DCOPY_(N,X,INCX,Y,INCY)
-    integer N, INCX, INCY
-    real*8 X(*), Y(*)
-  end subroutine DCOPY_
-  subroutine DGEMV_(TRANSA,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
-    character*1 TRANSA
-    integer M, N, LDA, INCX, INCY
-    real*8 ALPHA, BETA
-    real*8 A(LDA,*), X(*), Y(*)
-  end subroutine DGEMV_
-end interface
+integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ijBas, ijk, ik, ik1, ik2, il, il1, il2, ileft, imo, iMO1, iMO2, iMOleft, iMOright, &
+                     indexB, Indk, Indkl, Indl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, &
+                     jSkip(4), jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, lAct, lAOl, lBVec, lCVec, lda, lda1, &
+                     lda2, lSO, lSOl, lSym, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
+real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, fact, Factor, temp, tmp, Wall, Wall1, Wall2
+logical(kind=iwp) :: Found
+real(kind=wp), pointer :: Xki(:), Xli(:)
+type(V1) :: Xki2(2), Xki3(2), Xli2(2), Xli3(2)
+real(kind=wp), external :: Compute_B
+real(kind=r8), external :: dDot_
 ! Statement function
+integer(kind=iwp) :: kYmnij, l, iDen
 kYmnij(l,iDen) = Ymnij(ipYmnij(iDen)-1+l)
 
 !                                                                      *
@@ -75,16 +65,16 @@ kYmnij(l,iDen) = Ymnij(ipYmnij(iDen)-1+l)
 #ifdef _DEBUGPRINT_
 iComp = 1
 call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-write(6,*)
-write(6,*) 'Distribution of Ymnij'
+write(u6,*)
+write(u6,*) 'Distribution of Ymnij'
 iSym = 1
 if (nYmnij(iSym,1) > 0) then
-  write(6,*) 'iSym=',iSym
+  write(u6,*) 'iSym=',iSym
   do i=iOff_Ymnij(iSym,1)+1,iOff_Ymnij(iSym,1)+nYmnij(iSym,1)
-    write(6,*) 'kYmnij=',kYmnij(i,1)
+    write(u6,*) 'kYmnij=',kYmnij(i,1)
   end do
 end if
-write(6,*) 'jbas,kbas,lbas=',jBas,kBas,lBas
+write(u6,*) 'jbas,kbas,lbas=',jBas,kBas,lBas
 #endif
 !                                                                      *
 !***********************************************************************
@@ -95,7 +85,7 @@ write(6,*) 'jbas,kbas,lbas=',jBas,kBas,lBas
 call CWTime(Cpu1,Wall1)
 
 iOff1 = nBas(0)
-Fac = One/Four
+Fac = Quart
 PMax = Zero
 iPAO = 0
 
@@ -224,11 +214,11 @@ if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPS
 
     ! E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 
-    call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),1.0d0,CijK,nj(1),Xki,nj(1),0.0d0,CilK,nj(1)*jBas)
+    call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),One,CijK,nj(1),Xki,nj(1),Zero,CilK,nj(1)*jBas)
 
     ! B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 
-    call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),1.0d0,CilK,nj(1),Xli,nj(1),0.0d0,BklK,jBas*nKBas)
+    call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),One,CilK,nj(1),Xli,nj(1),Zero,BklK,jBas*nKBas)
 
     do i3=1,iCmp(3)
       kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
@@ -296,8 +286,8 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
       lda = size(CMOi(iSO)%SB(1)%A2,1)
       ik = 1+lda*(kSO-1)
       il = 1+lda*(lSO-1)
-      Xki2(iSO)%A1(1:) => CMOi(iSO)%SB(1)%A1(ik:)
-      Xli2(iSO)%A1(1:) => CMOi(iSO)%SB(1)%A1(il:)
+      Xki2(iSO)%A(1:) => CMOi(iSO)%SB(1)%A1(ik:)
+      Xli2(iSO)%A(1:) => CMOi(iSO)%SB(1)%A1(il:)
 
       ! Collect the X_mu,i which survived the prescreening.
       ! Replace the pointers above, i.e. Xki, Xli.
@@ -312,17 +302,17 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
 
           ! Pick up X_mu,i for all mu's that belong to shell k
 
-          call dcopy_(nKBas,Xki2(iSO)%A1(kmo:),NumOrb(iSO),Yij(imo,1,iSO),nj(iSO))
+          call dcopy_(nKBas,Xki2(iSO)%A(kmo:),NumOrb(iSO),Yij(imo,1,iSO),nj(iSO))
 
           ! Pick up X_mu,i for all mu's that belong to shell l
 
-          call dcopy_(nLBas,Xli2(iSO)%A1(kmo:),NumOrb(iSO),Yij(imo,2,iSO),nj(iSO))
+          call dcopy_(nLBas,Xli2(iSO)%A(kmo:),NumOrb(iSO),Yij(imo,2,iSO),nj(iSO))
 
           imo = imo+1
         end do
         ! Reset pointers!
-        Xki2(iSO)%A1(1:nj(iSO)*nKBas) => Yij(1:nj(iSO)*nKBas,1,iSO)
-        Xli2(iSO)%A1(1:nj(iSO)*nLBas) => Yij(1:nj(iSO)*nLBas,2,iSO)
+        Xki2(iSO)%A(1:nj(iSO)*nKBas) => Yij(1:nj(iSO)*nKBas,1,iSO)
+        Xli2(iSO)%A(1:nj(iSO)*nLBas) => Yij(1:nj(iSO)*nLBas,2,iSO)
       else if (nj(iSO) > NumOrb(iSO)) then
         call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
         call Abend()
@@ -334,7 +324,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
     jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
     jSO_off = jSO-iOff1
 
-    Factor = 0.0d0
+    Factor = Zero
 
     do iSO=1,2
       if ((nIJR(kSym,lSym,iSO) /= 0) .and. (nj(iSO) /= 0)) then
@@ -367,12 +357,12 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
 
         ! E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 
-        call dGEMM_('T','N',nj(iSO)*jBas,nKBas,nj(iSO),1.0d0,CijK,nj(iSO),Xki2(iSO)%A1,nj(iSO),0.0d0,CilK,nj(iSO)*jBas)
+        call dGEMM_('T','N',nj(iSO)*jBas,nKBas,nj(iSO),One,CijK,nj(iSO),Xki2(iSO)%A,nj(iSO),Zero,CilK,nj(iSO)*jBas)
 
         ! B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 
-        call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iSO),1.0d0,CilK,nj(iSO),Xli2(iSO)%A1,nj(iSO),Factor,BklK,jBas*nKBas)
-        Factor = 1.0d0
+        call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iSO),One,CilK,nj(iSO),Xli2(iSO)%A,nj(iSO),Factor,BklK,jBas*nKBas)
+        Factor = One
       end if
     end do
 
@@ -416,8 +406,8 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
     end do
   end do
   do iSO=1,2
-    Xki2(iSO)%A1 => null()
-    Xli2(iSO)%A1 => null()
+    Xki2(iSO)%A => null()
+    Xli2(iSO)%A => null()
   end do
   !                                                                    *
   !*********************************************************************
@@ -506,11 +496,11 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
 
       ! E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 
-      call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),1.0d0,CijK,nj(1),Xki,nj(1),0.0d0,CilK,nj(1)*jBas)
+      call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),One,CijK,nj(1),Xki,nj(1),Zero,CilK,nj(1)*jBas)
 
       ! B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 
-      call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),1.0d0,CilK,nj(1),Xli,nj(1),0.0d0,BklK,jBas*nKBas)
+      call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),One,CilK,nj(1),Xli,nj(1),Zero,BklK,jBas*nKBas)
 
     else
       BklK(1:jBas*nKBas*nLBas) = Zero
@@ -538,7 +528,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
             iThpkl = jAOj+(i3-1)*kBas*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas+1
             lda = size(AOrb(1)%SB(1)%A2,1)
             ik = 1+lda*(kSO-1)
-            call dGeMV_('T',nAct(kSym-1),kBas,1.0d0,AOrb(1)%SB(1)%A1(ik:),nAct(kSym-1),Cilk,1,0.0d0,Thpkl(iThpkl),jBas)
+            call dGeMV_('T',nAct(kSym-1),kBas,One,AOrb(1)%SB(1)%A1(ik:),nAct(kSym-1),Cilk,1,Zero,Thpkl(iThpkl),jBas)
           end do
         end do
       end do
@@ -622,10 +612,10 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
       il1 = 1+lda1*(lSO-1)
       il2 = 1+lda2*(lSO-1)
 
-      Xki2(iSO)%A1(1:) => CMOi(iSO+2)%SB(1)%A1(ik2:)
-      Xki3(iSO)%A1(1:) => CMOi(iSO)%SB(1)%A1(ik1:)
-      Xli2(iSO)%A1(1:) => CMOi(iSO)%SB(1)%A1(il1:)
-      Xli3(iSO)%A1(1:) => CMOi(iSO+2)%SB(1)%A1(il2:)
+      Xki2(iSO)%A(1:) => CMOi(iSO+2)%SB(1)%A1(ik2:)
+      Xki3(iSO)%A(1:) => CMOi(iSO)%SB(1)%A1(ik1:)
+      Xli2(iSO)%A(1:) => CMOi(iSO)%SB(1)%A1(il1:)
+      Xli3(iSO)%A(1:) => CMOi(iSO+2)%SB(1)%A1(il2:)
 
       ! Collect the X_mu,i which survived the prescreening.
       ! Replace the pointers above, i.e. Xki, Xli.
@@ -640,16 +630,16 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
           ! Pick up X_mu,i for all mu's that belong to shell k
 
-          call dcopy_(nKBas,Xki2(iSO)%A1(kmo:),NumOrb(iMOright),Yij(imo,1,iMOright),nj(iMOright))
+          call dcopy_(nKBas,Xki2(iSO)%A(kmo:),NumOrb(iMOright),Yij(imo,1,iMOright),nj(iMOright))
 
-          call dcopy_(nLBas,Xli3(iSO)%A1(kmo:),NumOrb(iMOright),Yij(imo,2,iMOright),nj(iMOright))
+          call dcopy_(nLBas,Xli3(iSO)%A(kmo:),NumOrb(iMOright),Yij(imo,2,iMOright),nj(iMOright))
 
           imo = imo+1
         end do
         ! Reset pointers!
         nk = nj(iMOright)
-        Xki2(iSO)%A1(1:nk*nKBas) => Yij(1:nk*nKBas,1,iMOright)
-        Xli3(iSO)%A1(1:nk*nLBas) => Yij(1:nk*nLBas,2,iMOright)
+        Xki2(iSO)%A(1:nk*nKBas) => Yij(1:nk*nKBas,1,iMOright)
+        Xli3(iSO)%A(1:nk*nLBas) => Yij(1:nk*nLBas,2,iMOright)
       else if (nj(iMOright) > NumOrb(iMOright)) then
         call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
         call Abend()
@@ -663,14 +653,14 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
           ! Pick up X_mu,i for all mu's that belong to shell l
 
-          call dcopy_(nLBas,Xli2(iSO)%A1(kmo:),NumOrb(iMOleft),Yij(imo,2,iMOleft),nj(iMOleft))
+          call dcopy_(nLBas,Xli2(iSO)%A(kmo:),NumOrb(iMOleft),Yij(imo,2,iMOleft),nj(iMOleft))
 
-          call dcopy_(nKBas,Xki3(iSO)%A1(kmo:),NumOrb(iMOleft),Yij(imo,1,iMOleft),nj(iMOleft))
+          call dcopy_(nKBas,Xki3(iSO)%A(kmo:),NumOrb(iMOleft),Yij(imo,1,iMOleft),nj(iMOleft))
           imo = imo+1
         end do
         nk = nj(iMOleft)
-        Xli2(iSO)%A1(1:nk*nLBas) => Yij(1:nk*nLBas,2,iMOleft)
-        Xki3(iSO)%A1(1:nk*nKBas) => Yij(1:nk*nKBas,1,iMOleft)
+        Xli2(iSO)%A(1:nk*nLBas) => Yij(1:nk*nLBas,2,iMOleft)
+        Xki3(iSO)%A(1:nk*nKBas) => Yij(1:nk*nKBas,1,iMOleft)
       else if (nj(iMOleft) > NumOrb(iMOleft)) then
         call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
         call Abend()
@@ -683,7 +673,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
     jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
     jSO_off = jSO-iOff1
 
-    Factor = 0.0d0
+    Factor = Zero
 
     do iSO=1,2
       iMOleft = iSO
@@ -719,13 +709,13 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
         ! E(jK,m) = Sum_i C(i,jK)' * X(i,m)
 
-        call dGEMM_('T','N',nj(iMOleft)*jBas,nKBas,nj(iMOright),1.0d0,CijK,nj(iMOright),Xki2(iSO)%A1,nj(iMOright),0.0d0,CilK, &
+        call dGEMM_('T','N',nj(iMOleft)*jBas,nKBas,nj(iMOright),One,CijK,nj(iMOright),Xki2(iSO)%A,nj(iMOright),Zero,CilK, &
                     nj(iMOleft)*jBas)
 
         ! B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 
-        call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOleft),1.0d0,CilK,nj(iMOleft),Xli2(iSO)%A1,nj(iMOleft),Factor,BklK,jBas*nKBas)
-        Factor = 1.0d0
+        call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOleft),One,CilK,nj(iMOleft),Xli2(iSO)%A,nj(iMOleft),Factor,BklK,jBas*nKBas)
+        Factor = One
 
         ! Add transpose
 
@@ -749,12 +739,12 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
         ! E(iK,m) = Sum_j C(j,iK)' * X(j,m)
 
-        call dGEMM_('T','N',nj(iMOright)*jBas,nKBas,nj(iMOleft),1.0d0,CilK,nj(iMOleft),Xki3(iSO)%A1,nj(iMOleft),0.0d0,CijK, &
+        call dGEMM_('T','N',nj(iMOright)*jBas,nKBas,nj(iMOleft),One,CilK,nj(iMOleft),Xki3(iSO)%A,nj(iMOleft),Zero,CijK, &
                     nj(iMOright)*jBas)
 
         ! B(Km,n) = Sum_j E(i,Km)' * X(i,n)
 
-        call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOright),1.0d0,CijK,nj(iMOright),Xli3(iSO)%A1,nj(iMOright),Factor,BklK,jBas*nKBas)
+        call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOright),One,CijK,nj(iMOright),Xli3(iSO)%A,nj(iMOright),Factor,BklK,jBas*nKBas)
       end if
     end do
 
@@ -765,9 +755,9 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
       iMO1 = 1
       iMO2 = 1
       iVec_ = iVec
-      fact = 1.0d0
+      fact = One
       if (iVec == 2) iMO2 = 2
-      if (iVec == 3) fact = 2.0d0
+      if (iVec == 3) fact = Two
       if (iVec == 4) then
         iMO1 = 2
         iVec_ = 2
@@ -793,7 +783,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
               iThpkl = jAOj+(i3-1)*kBas*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas+1
               lda = size(AOrb(iMO2)%SB(1)%A2,1)
               ik = 1+lda*(kSO-1)
-              call dGeMV_('T',nAct(kSym-1),kBas,fact,AOrb(iMO2)%SB(1)%A1(ik:),nAct(kSym-1),Cilk,1,1.0d0,Thpkl(iThpkl),jBas)
+              call dGeMV_('T',nAct(kSym-1),kBas,fact,AOrb(iMO2)%SB(1)%A1(ik:),nAct(kSym-1),Cilk,1,One,Thpkl(iThpkl),jBas)
             end do
           end do
         end do
@@ -847,10 +837,10 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
     end do
   end do
   do iSO=1,2
-    Xki2(iSO)%A1 => null()
-    Xki3(iSO)%A1 => null()
-    Xli2(iSO)%A1 => null()
-    Xli3(iSO)%A1 => null()
+    Xki2(iSO)%A => null()
+    Xki3(iSO)%A => null()
+    Xli2(iSO)%A => null()
+    Xli3(iSO)%A => null()
   end do
   !                                                                    *
   !*********************************************************************
@@ -913,11 +903,11 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt == 2)) then
 
     ! C(jK,m) = sum_i C(i,jK)' * X(i,m)
 
-    call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),1.0d0,CijK,nj(1),Xki,nj(1),0.0d0,CilK,nj(1)*jBas)
+    call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),One,CijK,nj(1),Xki,nj(1),Zero,CilK,nj(1)*jBas)
 
     ! B(Km,n) = sum_j C(j,Km)' * X(j,n)
 
-    call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),1.0d0,CilK,nj(1),Xli,nj(1),0.0d0,BklK,jBas*nKBas)
+    call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),One,CilK,nj(1),Xli,nj(1),Zero,BklK,jBas*nKBas)
 
     lBVec = nBas(0)*nBas(0)*jBas
     do i=1,2
@@ -1003,7 +993,7 @@ else
               ! Coulomb contribution: V_k(j)*D(kl)
 
               temp = CoulFac*V_k(jSOj,1)*DSO(Indkl,1)
-              !temp = 0.0D0
+              !temp = Zero
 
               PMax = max(PMax,abs(temp))
               PAO(nijkl,iPAO) = Fac*temp
@@ -1025,7 +1015,7 @@ end if
 ExFac = ExFac_
 
 if (iPAO /= nPAO) then
-  write(6,*) ' Error in PGet1_RI3!'
+  write(u6,*) ' Error in PGet1_RI3!'
   call Abend()
 end if
 !                                                                      *
@@ -1034,7 +1024,7 @@ end if
 #ifdef _DEBUGPRINT_
 call RecPrt(' In PGet1_RI3:PAO ',' ',PAO,ijkl,nPAO)
 do i=1,ijkl
-  write(6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
+  write(u6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
 end do
 #endif
 !                                                                      *

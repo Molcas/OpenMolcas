@@ -24,32 +24,29 @@ subroutine Mk_RI_Shells(LuRd)
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: iRI_Type
 use Gateway_Info, only: UnNorm
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: LuRd
 #include "Molcas.fh"
-#include "stdalloc.fh"
-#include "real.fh"
 #include "print.fh"
-logical Hit, IfTest
-character*13 DefNm
-character*180 Ref(2), BSLB
-character*80 BSLbl
-character*80 atom, type, author, basis, CGTO, Aux
-character*80 atomb
-character*256 Basis_lib, Fname
-character*180, allocatable :: STDINP(:) !CGGn
-character*180 Line, Get_Ln
-external Get_Ln
-integer StrnLn
-external StrnLn
 #include "getlnqoe.fh"
-character*180 Get_Ln_Quit
-integer BasisTypes(4)
-data DefNm/'basis_library'/
+integer(kind=iwp) :: BasisTypes(4), i, iAng, ib, iCnttp, iEnd, iEnds, Ierr, iLast3, Indx, iPrint, iRout, iSh, iShll, iSph, iStrt, &
+                     j, jShll, lAng, lSTDINP, Lu_lib, mCnttp, mdc, n, nCnt, nCntrc, nn, nPrim, nSet
+logical(kind=iwp) :: Hit, IfTest
+character(len=256) :: Basis_lib, Fname
+character(len=180) :: BSLB, Line, Ref(2)
+character(len=80) :: atom, atomb, author, Aux, basis, BSLbl, btype, CGTO
+character(len=180), allocatable :: STDINP(:) !CGGn
+integer(kind=iwp), external :: IsFreeUnit, StrnLn
+character(len=180), external :: Get_Ln, Get_Ln_Quit
+character(len=*), parameter :: DefNm = 'basis_library'
 
 !                                                                      *
 !***********************************************************************
@@ -65,10 +62,7 @@ IfTest = .false.
 
 ! Add the auxiliary basis set
 
-BasisTypes(1) = 0
-BasisTypes(2) = 0
-BasisTypes(3) = 0
-BasisTypes(4) = 0
+BasisTypes(:) = 0
 iShll = S%Mx_Shll-1
 lSTDINP = 0
 mCnttp = nCnttp
@@ -94,14 +88,14 @@ if (iRI_Type == 5) then
 
     Hit = .true.
     call Decode(dbsc(iCnttp)%Bsl_old,atom,1,Hit)
-    type = ' '
+    btype = ' '
     Author = ' '
     basis = ' '
     CGTO = ' '
     Aux = ' '
     if (IfTest) then
-      write(6,*) 'Bsl_Old=',dbsc(iCnttp)%Bsl_old
-      write(6,*) 'Atom=',Atom
+      write(u6,*) 'Bsl_Old=',dbsc(iCnttp)%Bsl_old
+      write(u6,*) 'Atom=',Atom
     end if
 
     Indx = index(dbsc(iCnttp)%Bsl_old,' ')
@@ -114,7 +108,7 @@ if (iRI_Type == 5) then
 
     ! Loop over the basis set library to find the correct label
 
-    if (IfTest) write(6,*) ' Locate basis set label in library'
+    if (IfTest) write(u6,*) ' Locate basis set label in library'
     do
       BSLB = Get_Ln_Quit(Lu_lib,0)
       if (Quit_On_Error) then
@@ -125,7 +119,7 @@ if (iRI_Type == 5) then
 
       call UpCase(BSLB)
       if (BSLB(1:1) /= '/') cycle
-      if (IfTest) write(6,*) 'BSLB=',BSLB
+      if (IfTest) write(u6,*) 'BSLB=',BSLB
       n = index(BSLB,' ')
       do i=n,80
         BSLB(i:i) = '.'
@@ -134,7 +128,7 @@ if (iRI_Type == 5) then
       call Decode(BSLB(2:80),atomb,1,Hit)
       if (atomb == atom) exit
     end do
-    if (IfTest) write(6,*) 'atomb=',atomb
+    if (IfTest) write(u6,*) 'atomb=',atomb
 
     ! Now we should have found the correct basis set label!
 
@@ -143,12 +137,12 @@ if (iRI_Type == 5) then
     do while (nSet /= 0)
       Line = Get_Ln(Lu_lib)
       if (IfTest) then
-        write(6,*) 'nSet=',nSet
-        write(6,*) 'Line=',Line
+        write(u6,*) 'nSet=',nSet
+        write(u6,*) 'Line=',Line
       end if
       call Get_I1(2,lAng)
       if (nSet == -1) call Get_I1(3,nSet)
-      if (IfTest) write(6,*) 'lAng,nSet=',lAng,nSet
+      if (IfTest) write(u6,*) 'lAng,nSet=',lAng,nSet
 
       Line = Get_Ln(Lu_lib)
       Line = Get_Ln(Lu_lib)
@@ -156,14 +150,14 @@ if (iRI_Type == 5) then
       nCnttp = nCnttp+1
       if (nCnttp > Mxdbsc) then
         call WarningMessage(2,'Error in Mk_RI_Shells')
-        write(6,*) 'Mk_RI_Shells: Increase Mxdbsc'
+        write(u6,*) 'Mk_RI_Shells: Increase Mxdbsc'
         call Abend()
       end if
       if (Show .and. (iPrint >= 6)) then
-        write(6,*)
-        write(6,*)
-        write(6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLb
-        write(6,'(1X,A)') 'Basis set is read from the workdir.'
+        write(u6,*)
+        write(u6,*)
+        write(u6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLb
+        write(u6,'(1X,A)') 'Basis set is read from the workdir.'
       end if
 
       dbsc(nCnttp)%Bsl = BSLB(2:80)
@@ -179,10 +173,10 @@ if (iRI_Type == 5) then
         call Get_I1(2,nCntrc)
         call Get_I1(3,iSph)
         if (IfTest) then
-          write(6,*) 'iAng=',iAng
-          write(6,*) 'nPrim=',nPrim
-          write(6,*) 'nCntrc=',nCntrc
-          write(6,*) 'iSph=',iSph
+          write(u6,*) 'iAng=',iAng
+          write(u6,*) 'nPrim=',nPrim
+          write(u6,*) 'nCntrc=',nCntrc
+          write(u6,*) 'iSph=',iSph
         end if
 
         ! Read Gaussian exponents
@@ -192,13 +186,13 @@ if (iRI_Type == 5) then
         Shells(iShll)%nBasis_C = nCntrc
         iEnd = iStrt-1
         if (nPrim > 0) then
-          if (IfTest) write(6,*) ' Read gaussian exponents'
+          if (IfTest) write(u6,*) ' Read gaussian exponents'
           call Read_v(Lu_lib,Shells(iShll)%Exp,1,nPrim,1,Ierr)
           if (Ierr /= 0) then
             call WarningMessage(2,'GetBS: Error while reading the exponents')
             call Quit_OnUserError()
           end if
-          if (IfTest) write(6,*) ' Done with exponents'
+          if (IfTest) write(u6,*) ' Done with exponents'
           if ((iPrint >= 99) .or. IfTest) call RecPrt(' Exponents',' ',Shells(iShll)%Exp,nPrim,1)
         end if
         iStrt = iEnd+1
@@ -215,11 +209,11 @@ if (iRI_Type == 5) then
         ! Read contraction coefficients
         ! Observe that the matrix will have nPrim rows and
         ! nCntrc columns
-        if (IfTest) write(6,*) ' Read coefficients'
+        if (IfTest) write(u6,*) ' Read coefficients'
 
         ! Read in coeffs. in GC format, as the standard case
 
-        if (IfTest) write(6,*) ' Standard case'
+        if (IfTest) write(u6,*) ' Standard case'
         if (nPrim*nCntrc > 0) then
           Shells(iShll)%Cff_c(:,:,:) = Zero
 
@@ -303,7 +297,7 @@ else
 
     if (nCnttp > Mxdbsc) then
       call WarningMessage(2,'Error in Mk_RI_Shells')
-      write(6,*) 'Mk_RI_Shells: Increase Mxdbsc'
+      write(u6,*) 'Mk_RI_Shells: Increase Mxdbsc'
       call Abend()
     end if
 
@@ -315,7 +309,7 @@ else
     Hit = .true.
     call Decode(dbsc(nCnttp)%Bsl,atom,1,Hit)
     Hit = .true.
-    call Decode(dbsc(nCnttp)%Bsl,type,2,Hit)
+    call Decode(dbsc(nCnttp)%Bsl,btype,2,Hit)
     Hit = .true.
     call Decode(dbsc(nCnttp)%Bsl,author,3,Hit)
     Hit = .true.
@@ -330,8 +324,8 @@ else
     dbsc(nCnttp)%Bsl(1:n+1) = atom(1:n)//'.'
     nn = n+1
 
-    n = index(type,' ')-1
-    dbsc(nCnttp)%Bsl(nn+1:nn+n+5) = type(1:n)//'.....'
+    n = index(btype,' ')-1
+    dbsc(nCnttp)%Bsl(nn+1:nn+n+5) = btype(1:n)//'.....'
 
     ! Modify basis set library correctly
 
@@ -350,8 +344,8 @@ else
         Fname = Basis_lib(1:ib)//'/basis_library/c_Basis'
       else
         call WarningMessage(2,'Error in Mk_RI_Shells')
-        write(6,*) 'Wrong iRI_Type!'
-        write(6,*) 'iRI_Type=',iRI_Type
+        write(u6,*) 'Wrong iRI_Type!'
+        write(u6,*) 'iRI_Type=',iRI_Type
         call Abend()
       end if
     else
@@ -363,17 +357,17 @@ else
         Fname = DefNm//'/c_Basis'
       else
         call WarningMessage(2,'Error in Mk_RI_Shells')
-        write(6,*) 'Wrong iRI_Type!'
-        write(6,*) 'iRI_Type=',iRI_Type
+        write(u6,*) 'Wrong iRI_Type!'
+        write(u6,*) 'iRI_Type=',iRI_Type
         call Abend()
       end if
     end if
 
     if (Show .and. (iPrint >= 6)) then
-      write(6,*)
-      write(6,*)
-      write(6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
-      write(6,'(1X,A,A)') 'Basis set is read from library:',Fname(1:index(Fname,' '))
+      write(u6,*)
+      write(u6,*)
+      write(u6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
+      write(u6,'(1X,A,A)') 'Basis set is read from library:',Fname(1:index(Fname,' '))
     end if
 
     jShll = iShll
@@ -384,11 +378,11 @@ else
     dbsc(nCnttp)%Charge = Zero
 
     if (Show .and. (iPrint >= 6) .and. (Ref(1) /= '') .and. (Ref(2) /= '')) then
-      write(6,'(1x,a)') 'Basis Set Reference(s):'
-      if (Ref(1) /= '') write(6,'(5x,a)') trim(Ref(1))
-      if (Ref(2) /= '') write(6,'(5x,a)') trim(Ref(2))
-      write(6,*)
-      write(6,*)
+      write(u6,'(1x,a)') 'Basis Set Reference(s):'
+      if (Ref(1) /= '') write(u6,'(5x,a)') trim(Ref(1))
+      if (Ref(2) /= '') write(u6,'(5x,a)') trim(Ref(2))
+      write(u6,*)
+      write(u6,*)
     end if
     dbsc(nCnttp)%ECP = dbsc(nCnttp)%nPrj+dbsc(nCnttp)%nSRO+dbsc(nCnttp)%nSOC+dbsc(nCnttp)%nPP+dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2 /= 0
 
