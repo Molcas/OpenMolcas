@@ -67,10 +67,9 @@ do iSO=1,nSO+nSO_Aux
     if ((jCnttp == iCnttp) .and. (jCnt == iCnt) .and. (jAng == iAng)) then
       SOShl(iSO) = iSkal
       !write(6,*) 'Found in shell=',iSkal
-      Go To 99
+      exit
     end if
   end do
-99 continue
 end do
 !call iVcPrt('SOShl',' ',SOShl,nSO+nSO_Aux)
 !                                                                      *

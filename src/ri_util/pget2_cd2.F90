@@ -105,7 +105,7 @@ do i1=1,iCmp(1)
               j123 = ieor(j12,j3)
               do ls=0,nlSym-1
                 j4 = lSym(ls)
-                if (j123 /= j4) Go To 410
+                if (j123 /= j4) cycle
 
                 MemSO2 = MemSO2+1
 
@@ -120,7 +120,7 @@ do i1=1,iCmp(1)
                   ! matrix will be identical to zero for a SCF type wave
                   ! function.
                   call dcopy_(nijkl,[Zero],0,PSO(1,MemSO2),1)
-                  Go To 310
+                  exit
                 end if
 
                 mijkl = 0
@@ -168,9 +168,7 @@ do i1=1,iCmp(1)
                   end do
                 end do
 
-410             continue
               end do
-310           continue
             end do
           end do
         end do

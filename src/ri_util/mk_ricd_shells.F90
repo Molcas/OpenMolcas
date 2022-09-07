@@ -93,7 +93,7 @@ call Mk_Dummy_Shell()
 ! different types of aCD auxiliary basis sets, aCD and acCD.
 
 do iCnttp=1,mCnttp
-  if (dbsc(iCnttp)%Frag .or. (dbsc(iCnttp)%nVal == 0)) goto 1100
+  if (dbsc(iCnttp)%Frag .or. (dbsc(iCnttp)%nVal == 0)) cycle
 # ifdef _DEBUGPRINT_
   if (iPrint >= 99) write(6,*) 'Generating auxiliary basis set for valence basis:',iCnttp
 # endif
@@ -158,7 +158,6 @@ do iCnttp=1,mCnttp
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-1100 continue ! iCnttp
 end do
 !                                                                      *
 !***********************************************************************

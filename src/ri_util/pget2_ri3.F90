@@ -79,7 +79,7 @@ lOper = 1
 PMax = Zero
 iSO = 1
 call FZero(PSO,nijkl*nPSO)
-!
+
 if (lPSO) then
   nCumnnP(0) = 0
   nBas_Aux(0) = nBas_Aux(0)-1
@@ -123,7 +123,7 @@ do i2=1,iCmp(2)
         end if
       end do
 
-!------Loop over irreps which are spanned by the basis function.
+      ! Loop over irreps which are spanned by the basis function.
 
       do js=0,njSym-1
         j2 = jSym(js)
@@ -188,7 +188,7 @@ do i2=1,iCmp(2)
 
           do ls=0,nlSym-1
             j4 = lSym(ls)
-            if (j23 /= j4) Go To 410
+            if (j23 /= j4) cycle
             nl = nYmnij(j4+1,1)
             lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)
 
@@ -286,45 +286,45 @@ do i2=1,iCmp(2)
 
             if (lPSO) then
               call dzero(Thpkl,jBas*kBas*lBas)
-              if (nAct(j3)*nAct(j4) == 0) Go to 21
-              do iVec=1,nAVec
-                iMO1 = 1
-                iMO2 = 1
-                if (iVec == 2) iMO2 = 2
-                if (iVec == 4) then
-                  iMO1 = 2
-                end if
+              if (nAct(j3)*nAct(j4) /= 0) then
+                do iVec=1,nAVec
+                  iMO1 = 1
+                  iMO2 = 1
+                  if (iVec == 2) iMO2 = 2
+                  if (iVec == 4) then
+                    iMO1 = 2
+                  end if
 
-                do jAOj=0,jBas-1
-                  jSOj = jSO+jAOj-nBas(j2)
-                  jp = nCumnnP(j2)+(jSOj-1)*nnP(j2)+nCumnnP2(j3)
-                  do lAOl=0,lBas-1
-                    lSOl = lSO+lAOl
+                  do jAOj=0,jBas-1
+                    jSOj = jSO+jAOj-nBas(j2)
+                    jp = nCumnnP(j2)+(jSOj-1)*nnP(j2)+nCumnnP2(j3)
+                    do lAOl=0,lBas-1
+                      lSOl = lSO+lAOl
 
-                    if (j3 == j4) then
-                      do kAct=1,nAct(j3)
-                        ! Zpk(*,iVec)
-                        tmp = ddot_(kAct,Zpk(jp+kAct*(kAct-1)/2+1),1,AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1)
-                        do lAct=kAct+1,nAct(j4)
-                          tmp = tmp+Zpk(jp+lAct*(lAct-1)/2+kAct)*AOrb(iMO1)%SB(j4+1)%A2(lAct,lSOl)
+                      if (j3 == j4) then
+                        do kAct=1,nAct(j3)
+                          ! Zpk(*,iVec)
+                          tmp = ddot_(kAct,Zpk(jp+kAct*(kAct-1)/2+1),1,AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1)
+                          do lAct=kAct+1,nAct(j4)
+                            tmp = tmp+Zpk(jp+lAct*(lAct-1)/2+kAct)*AOrb(iMO1)%SB(j4+1)%A2(lAct,lSOl)
+                          end do
+                          Cilk(kAct) = tmp
                         end do
-                        Cilk(kAct) = tmp
-                      end do
-                    else
-                      if (j3 < j4) then
-                        call dGeMV_('N',nAct(j3),nAct(j4),1.0d0,Zpk(jp+1),nAct(j3),AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,0.0d0,CilK,1)
                       else
-                        call dGeMV_('T',nAct(j4),nAct(j3),1.0d0,Zpk(jp+1),nAct(j4),AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,0.0d0,CilK,1)
+                        if (j3 < j4) then
+                          call dGeMV_('N',nAct(j3),nAct(j4),1.0d0,Zpk(jp+1),nAct(j3),AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,0.0d0,CilK,1)
+                        else
+                          call dGeMV_('T',nAct(j4),nAct(j3),1.0d0,Zpk(jp+1),nAct(j4),AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1,0.0d0,CilK,1)
+                        end if
                       end if
-                    end if
 
-                    iThpkl = jAOj+lAOl*kBas*jBas+1
-                    call dGeMV_('T',nAct(j3),kBas,1.0d0,AOrb(iMO2)%SB(j3+1)%A2(:,kSO),nAct(j3),Cilk,1,1.0d0,Thpkl(iThpkl),jBas)
+                      iThpkl = jAOj+lAOl*kBas*jBas+1
+                      call dGeMV_('T',nAct(j3),kBas,1.0d0,AOrb(iMO2)%SB(j3+1)%A2(:,kSO),nAct(j3),Cilk,1,1.0d0,Thpkl(iThpkl),jBas)
 
+                    end do
                   end do
                 end do
-              end do
-21            continue
+              end if
             end if
 
             !                                                          *
@@ -389,7 +389,6 @@ do i2=1,iCmp(2)
 
             ExFac = ExFac_
 
-410         continue
           end do
           Xki => null()
           Xli => null()

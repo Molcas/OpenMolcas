@@ -43,7 +43,6 @@ external Integral_WrOut
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#define _no_nShs_
 #include "iTOffs.fh"
 real*8, allocatable :: TInt(:), ADiag(:)
 integer, allocatable :: IJInd(:,:)

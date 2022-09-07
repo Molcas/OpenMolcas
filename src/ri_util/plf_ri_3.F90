@@ -83,14 +83,12 @@ do i2=1,jCmp
 
             do jSOj=iSOs(2),iSOs(2)+jBas-1
               nijkl = nijkl+1
-              if (lSOl > kSOk) Go To 99
+              if (lSOl > kSOk) cycle
               iAux = jSOj-iOff1
               AInt = AOint(nijkl,i2,i3,i4)
 
               kl_B = (iAux-1)*n3C+kl
               TInt(kl_B) = AInt
-
-99            continue
 
             end do
           end do

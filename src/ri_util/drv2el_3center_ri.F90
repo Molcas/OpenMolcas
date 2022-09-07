@@ -53,11 +53,10 @@ external Integral_WrOut, Rsv_Tsk
 #include "lRI.fh"
 #include "setup.fh"
 #include "nsd.fh"
-#define _no_nShs_
 #include "iTOffs.fh"
 character Name_R*6
 integer iOff_3C(3,0:7), Lu_R(0:7), iAddr_R(0:7), iMax_R(2,0:7), iTtmp(0:7), NoChoVec(0:7), iOff_Rv(0:7)
-logical Verbose, Indexation, FreeK2, DoGrad, DoFock, Out_of_Core, Rsv_Tsk, Reduce_Prt
+logical Verbose, Indexation, FreeK2, DoGrad, DoFock, Out_of_Core, Rsv_Tsk, Reduce_Prt, Skip
 external Reduce_Prt
 real*8, allocatable :: A_Diag(:), Local_A(:,:)
 integer, allocatable :: SO2C(:), AB(:,:)
@@ -328,127 +327,126 @@ call Init_Tsk(id,nSkal2)
 klS = 0
 iTask = 0
 !do klS=1,nSkal2
-100 continue
-if (.not. Rsv_Tsk(id,klS)) Go To 200
-!write(6,*) 'Processing shell-pair:',klS
-iTask = iTask+1
+do while (Rsv_Tsk(id,klS))
+  !write(6,*) 'Processing shell-pair:',klS
+  iTask = iTask+1
 
-iRv(iTask) = klS
-kS = iShij(1,klS)
-lS = iShij(2,klS)
+  iRv(iTask) = klS
+  kS = iShij(1,klS)
+  lS = iShij(2,klS)
 
-! Logic to avoid integrals with mixed muonic and electronic basis.
+  ! Logic to avoid integrals with mixed muonic and electronic basis.
 
-kCnttp = iSD(13,kS)
-lCnttp = iSD(13,lS)
+  kCnttp = iSD(13,kS)
+  lCnttp = iSD(13,lS)
 
-if (LDF) then
-
-  ! Pick up the corresponding (K|L)^{-1} block
-
-  kCenter = iSD(10,kS)
-  lCenter = iSD(10,lS)
-  !write(6,*) 'kCenter, lCenter=',kCenter, lCenter
-  klCenter = kCenter*(kCenter-1)/2+lCenter
-  iAdr_AB = AB(1,klCenter)
-  nAB = AB(2,klCenter)
-  call dDaFile(Lu_AB,2,Local_A(:,2),nAB**2,iAdr_AB)
-  !call RecPrt('A^-1',' ',Local_A,nAB,nAB)
-
-  ! Now I need some lookup tables to be used below. I need to
-  ! go from SO index to lO index and from a given lO index
-  ! back to the SO index.
-
-  call IZero(ISO2LO,2*(MaxBfn+MaxBfn_Aux))
-  iLO = 0
-  nCase = 1
-  if (kCenter /= lCenter) nCase = 2
-  do iCase=1,nCase
-    if (iCase == 1) then
-      jCenter = kCenter
-    else
-      jCenter = lCenter
-    end if
-    do iSO_Aux=1,nSO_Aux
-      iCenter = SO2C(iSO_Aux)
-      !write(6,*) 'iCenter=',iCenter
-      if (iCenter == jCenter) then
-        iLO = iLO+1
-        !write(6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
-        iSO2LO(1,iSO_Aux) = iLO
-        iSO2LO(2,iLO) = iSO_Aux
-      end if
-    end do
-  end do
-end if
-
-Aint_kl = TMax_Valence(kS,lS)
-if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) Aint_kl = 0.0d0
-
-nRv = nSize_Rv(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_Rv,nChV)
-n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
-Arr_3C(1:n3C) = Zero
-Rv(1:nRv) = Zero
-
-call ICopy(nIrrep,iOff_3C,3,iTOffs(3),3)
-
-! Loop over the auxiliary basis set
-
-do jS=nSkal_Valence+1,nSkal-1
-  !write(6,*) 'jS,kS,lS=',jS,kS,lS
   if (LDF) then
-    jCenter = iSD(10,jS)
-    if ((jCenter /= kCenter) .and. (jCenter /= lCenter)) Go To 14
-    !write(6,*) 'jCenter=',jCenter
+
+    ! Pick up the corresponding (K|L)^{-1} block
+
+    kCenter = iSD(10,kS)
+    lCenter = iSD(10,lS)
+    !write(6,*) 'kCenter, lCenter=',kCenter, lCenter
+    klCenter = kCenter*(kCenter-1)/2+lCenter
+    iAdr_AB = AB(1,klCenter)
+    nAB = AB(2,klCenter)
+    call dDaFile(Lu_AB,2,Local_A(:,2),nAB**2,iAdr_AB)
+    !call RecPrt('A^-1',' ',Local_A,nAB,nAB)
+
+    ! Now I need some lookup tables to be used below. I need to
+    ! go from SO index to lO index and from a given lO index
+    ! back to the SO index.
+
+    call IZero(ISO2LO,2*(MaxBfn+MaxBfn_Aux))
+    iLO = 0
+    nCase = 1
+    if (kCenter /= lCenter) nCase = 2
+    do iCase=1,nCase
+      if (iCase == 1) then
+        jCenter = kCenter
+      else
+        jCenter = lCenter
+      end if
+      do iSO_Aux=1,nSO_Aux
+        iCenter = SO2C(iSO_Aux)
+        !write(6,*) 'iCenter=',iCenter
+        if (iCenter == jCenter) then
+          iLO = iLO+1
+          !write(6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
+          iSO2LO(1,iSO_Aux) = iLO
+          iSO2LO(2,iLO) = iSO_Aux
+        end if
+      end do
+    end do
   end if
 
-  Aint = Aint_kl*TMax_Auxiliary(jS-nSkal_Valence)
+  Aint_kl = TMax_Valence(kS,lS)
+  if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) Aint_kl = 0.0d0
 
-# ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-  write(6,*) 'AInt,CutInt=',AInt,CutInt
-  write(6,*)
-# endif
-  if (AInt < CutInt) Go To 14
-  call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C,Integral_WrOut)
-14 continue
+  nRv = nSize_Rv(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_Rv,nChV)
+  n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
+  Arr_3C(1:n3C) = Zero
+  Rv(1:nRv) = Zero
 
-  ! Use a time slot to save the number of tasks and shell
-  ! quadruplets processed by an individual node
-  call SavStat(1,One,'+')
-  call SavStat(2,One,'+')
+  call ICopy(nIrrep,iOff_3C,3,iTOffs(3),3)
 
-end do    ! jS
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Multiply the 3-center integrals with the Q-vectors
+  ! Loop over the auxiliary basis set
 
-! Compute HQ
+  do jS=nSkal_Valence+1,nSkal-1
+    !write(6,*) 'jS,kS,lS=',jS,kS,lS
+    Skip = .false.
+    if (LDF) then
+      jCenter = iSD(10,jS)
+      if ((jCenter /= kCenter) .and. (jCenter /= lCenter)) Skip = .true.
+      !write(6,*) 'jCenter=',jCenter
+    end if
 
-call Mult_3C_Qv_S(Arr_3C,n3C,Qv,nQv,Rv,nRv,nChV,iOff_3C,nIrrep,Out_of_Core,Lu_Q,'N')
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Write the R-vectors to disk. These will be retrieved and sort
-! afterwards in step 3.
+    if (.not. Skip) then
+      Aint = Aint_kl*TMax_Auxiliary(jS-nSkal_Valence)
 
-do iIrrep=0,nIrrep-1
-  ip_R = 1+iOff_Rv(iIrrep)
-  nRv = iOff_3C(1,iIrrep)*nChV(iIrrep)
-  !write(6,*) 'iAddr_R(iIrrep)=',iAddr_R(iIrrep)
-  if (nRv > 0) then
-    call dDaFile(Lu_R(iIrrep),1,Rv(ip_R),nRv,iAddr_R(iIrrep))
-  end if
+#     ifdef _DEBUGPRINT_
+      write(6,*)
+      write(6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+      write(6,*) 'AInt,CutInt=',AInt,CutInt
+      write(6,*)
+#     endif
+      if (AInt >= CutInt) call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C,Integral_WrOut)
+    end if
+
+    ! Use a time slot to save the number of tasks and shell
+    ! quadruplets processed by an individual node
+    call SavStat(1,One,'+')
+    call SavStat(2,One,'+')
+
+  end do    ! jS
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Multiply the 3-center integrals with the Q-vectors
+
+  ! Compute HQ
+
+  call Mult_3C_Qv_S(Arr_3C,n3C,Qv,nQv,Rv,nRv,nChV,iOff_3C,nIrrep,Out_of_Core,Lu_Q,'N')
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Write the R-vectors to disk. These will be retrieved and sort
+  ! afterwards in step 3.
+
+  do iIrrep=0,nIrrep-1
+    ip_R = 1+iOff_Rv(iIrrep)
+    nRv = iOff_3C(1,iIrrep)*nChV(iIrrep)
+    !write(6,*) 'iAddr_R(iIrrep)=',iAddr_R(iIrrep)
+    if (nRv > 0) then
+      call dDaFile(Lu_R(iIrrep),1,Rv(ip_R),nRv,iAddr_R(iIrrep))
+    end if
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  !end do    ! klS
+
 end do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!end do    ! klS
-
-Go To 100
-200 continue
 nTask = iTask
 
 ! Restore iTOffs(3,*)
@@ -575,103 +573,101 @@ do iIrrep=0,nIrrep-1
 
   nB_Aux = nBas_Aux(iIrrep)
   if (iIrrep == 0) nB_Aux = nB_Aux-1
-  if (nB_Aux == 0) Go To 998
+  if (nB_Aux /= 0) then
 
-  iSym = iIrrep+1
+    iSym = iIrrep+1
 
-  ! NumVec: is no longer equal to the # of auxiliary functions
+    ! NumVec: is no longer equal to the # of auxiliary functions
 
-  NumVec = iTOffs(3*iIrrep+1)
-  if (NumVec == 0) Go To 999
+    NumVec = iTOffs(3*iIrrep+1)
+    if (NumVec /= 0) then
 
-  Addr(1) = 0
-  do i=2,nTask  ! init the addr for reading vectors
-    klS_ = iRv(i-1)
-    kS = iShij(1,klS_)
-    lS = iShij(2,klS_)
-    n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
-    nMuNu = iOff_3C(1,iIrrep)
-    Addr(i) = Addr(i-1)+nMuNu*NumVec
-  end do
+      Addr(1) = 0
+      do i=2,nTask  ! init the addr for reading vectors
+        klS_ = iRv(i-1)
+        kS = iShij(1,klS_)
+        lS = iShij(2,klS_)
+        n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
+        nMuNu = iOff_3C(1,iIrrep)
+        Addr(i) = Addr(i-1)+nMuNu*NumVec
+      end do
 
-  LenVec_Red = iMax_R(1,iIrrep)
-  n_Rv = NumVec*LenVec_Red
-  call mma_allocate(Rv,n_Rv,Label='Rv')
+      LenVec_Red = iMax_R(1,iIrrep)
+      n_Rv = NumVec*LenVec_Red
+      call mma_allocate(Rv,n_Rv,Label='Rv')
 
-  ! LenVec: # of valence Gaussian products in this irrep
+      ! LenVec: # of valence Gaussian products in this irrep
 
-  LenVec = iMax_R(2,iIrrep)
-  call Create_Chunk(LenVec,NumVec,IncVec)
+      LenVec = iMax_R(2,iIrrep)
+      call Create_Chunk(LenVec,NumVec,IncVec)
 
-  do iVec=1,NumVec,IncVec
-    NumVec_ = min(NumVec-iVec+1,IncVec)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Read now the R-vectors for a fixed shell-pair and
-    ! irrep, but for all auxiliary functions.
+      do iVec=1,NumVec,IncVec
+        NumVec_ = min(NumVec-iVec+1,IncVec)
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        ! Read now the R-vectors for a fixed shell-pair and
+        ! irrep, but for all auxiliary functions.
 
-    mMuNu = 0
-    do klS_=1,nSkal2
-      kS = iShij(1,klS_)
-      lS = iShij(2,klS_)
-      n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
-      nMuNu = iOff_3C(1,iIrrep)
-      m3C = nMuNu*NumVec_
+        mMuNu = 0
+        do klS_=1,nSkal2
+          kS = iShij(1,klS_)
+          lS = iShij(2,klS_)
+          n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
+          nMuNu = iOff_3C(1,iIrrep)
+          m3C = nMuNu*NumVec_
 
-      if (m3C <= 0) Go To 555
+          if (m3C > 0) then
+            MuNu_s = mMuNu+1
+            MuNu_e = mMuNu+nMuNu
 
-      MuNu_s = mMuNu+1
-      MuNu_e = mMuNu+nMuNu
+            NuMu(1,klS_) = MuNu_s
+            NuMu(2,klS_) = MuNu_e
+          end if
 
-      NuMu(1,klS_) = MuNu_s
-      NuMu(2,klS_) = MuNu_e
+          mMuNu = mMuNu+nMuNu
+        end do
 
-555   continue
-      mMuNu = mMuNu+nMuNu
-    end do
+        do i=1,nTask
+          klS_ = iRv(i)
+          kS = iShij(1,klS_)
+          lS = iShij(2,klS_)
 
-    do i=1,nTask
-      klS_ = iRv(i)
-      kS = iShij(1,klS_)
-      lS = iShij(2,klS_)
+          n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
+          nMuNu = iOff_3C(1,iIrrep)
+          m3C = nMuNu*NumVec_
 
-      n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
-      nMuNu = iOff_3C(1,iIrrep)
-      m3C = nMuNu*NumVec_
+          if (m3C <= 0) cycle
 
-      if (m3C <= 0) Go To 666
+          call dDaFile(Lu_R(iIrrep),2,Rv,m3C,Addr(i))
 
-      call dDaFile(Lu_R(iIrrep),2,Rv,m3C,Addr(i))
+          ! Copy the appropriate section into the RI vectors in Cholesky format.
 
-      ! Copy the appropriate section into the RI vectors in Cholesky format.
+          MuNu_s = NuMu(1,klS_)
+          MuNu_e = NuMu(2,klS_)
+          j_s = 1
+          j_e = NumVec_
+          call Put_Chunk(MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu,LenVec)
 
-      MuNu_s = NuMu(1,klS_)
-      MuNu_e = NuMu(2,klS_)
-      j_s = 1
-      j_e = NumVec_
-      call Put_Chunk(MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu,LenVec)
+        end do
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        ! Now transfer the RI vectors to disk
 
-666   continue
-    end do
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Now transfer the RI vectors to disk
+        call Get_Chunk(LenVec,NumVec_,iChoVec,iSym,iVec)
 
-    call Get_Chunk(LenVec,NumVec_,iChoVec,iSym,iVec)
+      end do   ! iVec = 1, NumVec, IncVec
 
-  end do   ! iVec = 1, NumVec, IncVec
+      call Destroy_Chunk()
+      call mma_deallocate(Rv)
 
-  call Destroy_Chunk()
-  call mma_deallocate(Rv)
+    end if
 
-999 continue
+    ! Let go of the R-vectors for good!
 
-  ! Let go of the R-vectors for good!
-
-  call DaClos(Lu_R(iIrrep))
-998 continue
+    call DaClos(Lu_R(iIrrep))
+  end if
   NoChoVec(iIrrep) = iChoVec
 
 end do    ! iIrrep

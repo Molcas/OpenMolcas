@@ -144,7 +144,7 @@ do iIrrep=0,nIrrep-1
   !nB = nBas_Aux(iIrrep)
   !if (iIrrep == 0) nB = nB-1
   nB = nDmB(iIrrep)
-  if (nB == 0) Go To 777
+  if (nB == 0) cycle
   nQm = nB*(nB+1)/2
 
   nXZ = nB
@@ -261,7 +261,6 @@ do iIrrep=0,nIrrep-1
   call mma_deallocate(Z)
   call mma_deallocate(Scr)
   call DaClos(Lu_A(iIrrep))
-777 continue
 end do ! iIrrep
 !                                                                      *
 !----------------------------------------------------------------------*

@@ -365,7 +365,7 @@ if (DoCholExch) then
   nK = NumAuxVec(kSym)
 
   do iSO=1,nKVec
-    if (lSA) Go to 15
+    if (lSA) cycle
     do iSym=1,nSym
       jSym = iSym
       !jSym = ieor(kSym-1,jSym-1)+1
@@ -404,7 +404,6 @@ if (DoCholExch) then
       call mma_deallocate(CVec2)
       call mma_deallocate(CVec)
     end do
-15  continue
   end do
   !                                                                    *
   !--------------------------------------------------------------------*
@@ -543,229 +542,220 @@ ipMem1 = 1
 !***********************************************************************
 !                                                                      *
 !do klS=1,nSkal2
-10 continue
-if (.not. Rsv_Tsk2(id,klS)) Go To 11
+do while (Rsv_Tsk2(id,klS))
 
-kS = Shij(1,klS)
-lS = Shij(2,klS)
+  kS = Shij(1,klS)
+  lS = Shij(2,klS)
 
-AInt_kl = TMax_Valence(kS,lS)
+  AInt_kl = TMax_Valence(kS,lS)
 
-klS_ = iTri(kS,lS)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Prescreening stuff for exchange
+  klS_ = iTri(kS,lS)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Prescreening stuff for exchange
 
-if (DoCholExch) then
+  if (DoCholExch) then
 
-  ! For the shell-pair, (kS,lS), pick up the largest element
-  ! Sqrt(Abs(  (kappa,lambda|kappa,lambda) ))
+    ! For the shell-pair, (kS,lS), pick up the largest element
+    ! Sqrt(Abs(  (kappa,lambda|kappa,lambda) ))
 
-  SDGmn = SDG(klS_)
+    SDGmn = SDG(klS_)
 
-  ! Loop over the MO basis, jb and ib and approximate Y_ij (Eq. 18)
+    ! Loop over the MO basis, jb and ib and approximate Y_ij (Eq. 18)
 
-  do iSO=1,nKVec
-    FlipFlop = .true.
-    iMOleft = iSO
-    iMOright = iSO
-    if (lSA) iMOright = iSO+2
-20  continue
-    nj = 0
-    do jSym=1,nSym
+    do iSO=1,nKVec
+      FlipFlop = .true.
+      iMOleft = iSO
+      iMOright = iSO
+      if (lSA) iMOright = iSO+2
+      do
+        nj = 0
+        do jSym=1,nSym
 
-      mj = 0
-      do jb=1,nChOrb(jSym-1,iMOleft)
-        Xjk = Xmi(jb,kS,jSym,iMOleft)
-        Xjl = Xmi(jb,lS,jSym,iMOleft)
+          mj = 0
+          do jb=1,nChOrb(jSym-1,iMOleft)
+            Xjk = Xmi(jb,kS,jSym,iMOleft)
+            Xjl = Xmi(jb,lS,jSym,iMOleft)
 
-        jSym_s = jSym
-        if ((ks /= ls) .or. (iMOright /= iMOleft)) jSym_s = 1
-        do iSym=jsym_s,nSym
-          NumOrb_i = nChOrb(iSym-1,iMOright)
-          if ((iSym == jSym) .and. (ks == ls) .and. (iMOright == iMOleft)) NumOrb_i = jb
+            jSym_s = jSym
+            if ((ks /= ls) .or. (iMOright /= iMOleft)) jSym_s = 1
+            loop1: do iSym=jsym_s,nSym
+              NumOrb_i = nChOrb(iSym-1,iMOright)
+              if ((iSym == jSym) .and. (ks == ls) .and. (iMOright == iMOleft)) NumOrb_i = jb
 
-          do ib=NumOrb_i,1,-1
-            Xik = Xmi(ib,kS,iSym,iMOright)
-            Xil = Xmi(ib,lS,iSym,iMOright)
+              do ib=NumOrb_i,1,-1
+                Xik = Xmi(ib,kS,iSym,iMOright)
+                Xil = Xmi(ib,lS,iSym,iMOright)
 
-            ! Yij[mn] = (1+Pij) Xim * (mn|mn)^1/2 * Xjn
+                ! Yij[mn] = (1+Pij) Xim * (mn|mn)^1/2 * Xjn
 
-            PZmnij = (Xik*Xjl+Xil*Xjk)*SDGmn
+                PZmnij = (Xik*Xjl+Xil*Xjk)*SDGmn
 
-            ! If larger than the threshold put j in the list and exit the loop.
+                ! If larger than the threshold put j in the list and exit the loop.
 
-            if (PZmnij >= xfk*ThrCom) then
-              ! orbital in the list
-              Ymnij(ipYmnij(iMOleft)+mj+nj) = jb
-              mj = mj+1
-              Go To 666
-            end if
-          end do ! ib
-        end do    ! iSym
-666     continue
+                if (PZmnij >= xfk*ThrCom) then
+                  ! orbital in the list
+                  Ymnij(ipYmnij(iMOleft)+mj+nj) = jb
+                  mj = mj+1
+                  exit loop1
+                end if
+              end do     ! ib
+            end do loop1 ! iSym
+          end do
+
+          ! The first element is to keep track on how many elements that were saved.
+
+          ! nOrbs in the list ==> dim(ij)=nOrbs**2
+          nYmnij(jSym,iMOleft) = mj
+          iOff_Ymnij(jSym,iMOleft) = nj
+          nj = nj+mj
+
+        end do ! jSym
+        if (.not. (lSA .and. FlipFlop)) exit
+        FlipFlop = .false.
+        itmp = iMOleft
+        iMOleft = iMOright
+        iMOright = itmp
       end do
+    end do
 
-      ! The first element is to keep track on how many elements that were saved.
-
-      ! nOrbs in the list ==> dim(ij)=nOrbs**2
-      nYmnij(jSym,iMOleft) = mj
-      iOff_Ymnij(jSym,iMOleft) = nj
-      nj = nj+mj
-
-    end do ! jSym
-    if (lSA .and. FlipFlop) then
-      FlipFlop = .false.
-      itmp = iMOleft
-      iMOleft = iMOright
-      iMOright = itmp
-      Go To 20
-    end if
-  end do
-
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-do ijS=1,nij
-  iS = Shij2(1,ijS)
-  jS = Shij2(2,ijS)
-
-  if (Do_RI) then
-    Aint = AInt_kl*TMax_Auxiliary(jS-nSkal_Valence)
-  else
-    Aint = AInt_kl*TMax_Valence(iS,jS)
   end if
-  if (AInt < CutInt) Go To 14
-  if (iPrint >= 15) write(6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-  call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
-  if (No_batch) Go To 140
+  do ijS=1,nij
+    iS = Shij2(1,ijS)
+    jS = Shij2(2,ijS)
 
-  call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
-  !
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  !--------> Memory Managment <--------
-  !
-  ! Compute memory request for the primitives, i.e.
-  ! how much memory is needed up to the transfer equation.
+    if (Do_RI) then
+      Aint = AInt_kl*TMax_Auxiliary(jS-nSkal_Valence)
+    else
+      Aint = AInt_kl*TMax_Valence(iS,jS)
+    end if
+    if (AInt < CutInt) cycle
+    if (iPrint >= 15) write(6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
+    call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
+    if (No_batch) cycle
 
-  call MemRys_g(iSD4,nSD,nRys,MemPrm)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
-  ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
-  if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) Go To 140
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Decide on the partioning of the shells based on the
-  ! available memory and the requested memory.
+    call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+    !
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    !--------> Memory Managment <--------
+    !
+    ! Compute memory request for the primitives, i.e.
+    ! how much memory is needed up to the transfer equation.
 
-  ! Now check if all blocks can be computed and stored at once.
+    call MemRys_g(iSD4,nSD,nRys,MemPrm)
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
+    ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
+    if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) cycle
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Decide on the partioning of the shells based on the
+    ! available memory and the requested memory.
 
-  call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,iFnc, &
-              MemPSO)
-  iBasi = iSD4(3,1)
-  jBasj = iSD4(3,2)
-  kBask = iSD4(3,3)
-  lBasl = iSD4(3,4)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl,AeqB, &
-                  CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Scramble arrays (follow angular index)
-  !
-  do iCar=1,3
-    do iSh=1,4
-      JndGrd(iCar,iSh) = iSD4(15+iCar,iSh)
-      if ((iSh == 1) .and. Do_RI) then
-        JfGrad(iCar,iSh) = .false.
-        JndGrd(iCar,iSh) = 0
-      else if (iand(iSD4(15,iSh),2**(iCar-1)) == 2**(iCar-1)) then
-        JfGrad(iCar,iSh) = .true.
-      else
-        JfGrad(iCar,iSh) = .false.
-      end if
-    end do
-  end do
+    ! Now check if all blocks can be computed and stored at once.
 
-  do iBasAO=1,iBasi,iBsInc
-    iBasn = min(iBsInc,iBasi-iBasAO+1)
-    iAOst(1) = iBasAO-1
-    do jBasAO=1,jBasj,jBsInc
-      jBasn = min(jBsInc,jBasj-jBasAO+1)
-      iAOst(2) = jBasAO-1
-
-      do kBasAO=1,kBask,kBsInc
-        kBasn = min(kBsInc,kBask-kBasAO+1)
-        iAOst(3) = kBasAO-1
-        do lBasAO=1,lBasl,lBsInc
-          lBasn = min(lBsInc,lBasl-lBasAO+1)
-          iAOst(4) = lBasAO-1
-
-          ! Get the 2nd order density matrix in SO basis.
-
-          nijkl = iBasn*jBasn*kBasn*lBasn
-#         ifdef _CD_TIMING_
-          call CWTIME(Pget0CPU1,Pget0WALL1)
-#         endif
-          call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
-                     iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
-#         ifdef _CD_TIMING_
-          call CWTIME(Pget0CPU2,Pget0WALL2)
-          Pget3_CPU = Pget3_CPU+Pget0CPU2-Pget0CPU1
-          Pget3_Wall = Pget3_Wall+Pget0WALL2-Pget0WALL1
-#         endif
-          if (AInt*PMax < CutInt) then
-            Go To 430
-          end if
-
-          ! Compute gradients of shell quadruplet
-
-#         ifdef _CD_TIMING_
-          call CWTIME(TwoelCPU1,TwoelWall1)
-#         endif
-          call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR,Data_k2(k2kl), &
-                       ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
-                       Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
-                       Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
-                       Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,Mem_DBLE(ipxA), &
-                       Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2), &
-                       Mem2,Aux,nAux,Shijij)
-#         ifdef _CD_TIMING_
-          call CWTIME(TwoelCPU2,TwoelWall2)
-          Twoel3_CPU = Twoel3_CPU+TwoelCPU2-TwoelCPU1
-          Twoel3_Wall = Twoel3_Wall+TwoelWall2-TwoelWall1
-#         endif
-
-          if (iPrint >= 15) call PrGrad(' In Drvg1_3Center_RI: Grad',Temp,nGrad,ChDisp)
-
-430       continue
-        end do
+    call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,iFnc, &
+                MemPSO)
+    iBasi = iSD4(3,1)
+    jBasj = iSD4(3,2)
+    kBask = iSD4(3,3)
+    lBasl = iSD4(3,4)
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl,AeqB, &
+                    CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd, &
+                    nIrrep)
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Scramble arrays (follow angular index)
+    !
+    do iCar=1,3
+      do iSh=1,4
+        JndGrd(iCar,iSh) = iSD4(15+iCar,iSh)
+        if ((iSh == 1) .and. Do_RI) then
+          JfGrad(iCar,iSh) = .false.
+          JndGrd(iCar,iSh) = 0
+        else if (iand(iSD4(15,iSh),2**(iCar-1)) == 2**(iCar-1)) then
+          JfGrad(iCar,iSh) = .true.
+        else
+          JfGrad(iCar,iSh) = .false.
+        end if
       end do
-
     end do
+
+    do iBasAO=1,iBasi,iBsInc
+      iBasn = min(iBsInc,iBasi-iBasAO+1)
+      iAOst(1) = iBasAO-1
+      do jBasAO=1,jBasj,jBsInc
+        jBasn = min(jBsInc,jBasj-jBasAO+1)
+        iAOst(2) = jBasAO-1
+
+        do kBasAO=1,kBask,kBsInc
+          kBasn = min(kBsInc,kBask-kBasAO+1)
+          iAOst(3) = kBasAO-1
+          do lBasAO=1,lBasl,lBsInc
+            lBasn = min(lBsInc,lBasl-lBasAO+1)
+            iAOst(4) = lBasAO-1
+
+            ! Get the 2nd order density matrix in SO basis.
+
+            nijkl = iBasn*jBasn*kBasn*lBasn
+#           ifdef _CD_TIMING_
+            call CWTIME(Pget0CPU1,Pget0WALL1)
+#           endif
+            call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+                       iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+#           ifdef _CD_TIMING_
+            call CWTIME(Pget0CPU2,Pget0WALL2)
+            Pget3_CPU = Pget3_CPU+Pget0CPU2-Pget0CPU1
+            Pget3_Wall = Pget3_Wall+Pget0WALL2-Pget0WALL1
+#           endif
+            if (AInt*PMax < CutInt) cycle
+
+            ! Compute gradients of shell quadruplet
+
+#           ifdef _CD_TIMING_
+            call CWTIME(TwoelCPU1,TwoelWall1)
+#           endif
+            call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR,Data_k2(k2kl), &
+                         ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+                         Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
+                         Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
+                         Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,Mem_DBLE(ipxA), &
+                         Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
+                         Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
+#           ifdef _CD_TIMING_
+            call CWTIME(TwoelCPU2,TwoelWall2)
+            Twoel3_CPU = Twoel3_CPU+TwoelCPU2-TwoelCPU1
+            Twoel3_Wall = Twoel3_Wall+TwoelWall2-TwoelWall1
+#           endif
+
+            if (iPrint >= 15) call PrGrad(' In Drvg1_3Center_RI: Grad',Temp,nGrad,ChDisp)
+
+          end do
+        end do
+
+      end do
+    end do
+
   end do
 
-140 continue
-
-14 continue
 end do
-
-Go To 10
-11 continue
 ! End of big task loop
 !                                                                      *
 !***********************************************************************

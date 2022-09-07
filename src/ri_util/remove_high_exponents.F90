@@ -27,35 +27,35 @@ logical Skip
 call iVcPrt('Remove_High_Exponents: iD',' ',iD,nD)
 mD = nD
 i = 1
-100 continue
-iTheta_All = iD(i)
-Skip = .false.
-kAng = List2(1,iTheta_All)
-lAng = List2(2,iTheta_All)
-k = List2(5,iTheta_All)
-l = List2(6,iTheta_All)
-kShll = List2(7,iTheta_All)
-lShll = List2(8,iTheta_All)
-if (kAng == lAng) then
+do
+  iTheta_All = iD(i)
+  Skip = .false.
+  kAng = List2(1,iTheta_All)
+  lAng = List2(2,iTheta_All)
+  k = List2(5,iTheta_All)
   l = List2(6,iTheta_All)
-  Skip = ((k == 1) .and. (l == 1)) .and. (Shells(kShll)%nExp /= 1)
-else
-  Skip = (l == 1) .and. (Shells(lShll)%nExp /= 1)
-end if
-if (Skip) then
-  if (mD == i) then
-    mD = mD-1
-    Go To 200
+  kShll = List2(7,iTheta_All)
+  lShll = List2(8,iTheta_All)
+  if (kAng == lAng) then
+    l = List2(6,iTheta_All)
+    Skip = ((k == 1) .and. (l == 1)) .and. (Shells(kShll)%nExp /= 1)
+  else
+    Skip = (l == 1) .and. (Shells(lShll)%nExp /= 1)
   end if
-  do j=i+1,mD
-    iD(j-1) = iD(j)
-  end do
-  mD = mD-1
-  Go To 100
-end if
-i = i+1
-if (i <= mD) Go To 100
-200 continue
+  if (Skip) then
+    if (mD == i) then
+      mD = mD-1
+      exit
+    end if
+    do j=i+1,mD
+      iD(j-1) = iD(j)
+    end do
+    mD = mD-1
+    cycle
+  end if
+  i = i+1
+  if (i > mD) exit
+end do
 nD = mD
 call iVcPrt('Remove_High_Exponents: iD',' ',iD,nD)
 

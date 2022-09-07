@@ -49,28 +49,28 @@ if (mode == 'GePivot') then  ! returns iD_A
 else if (mode == 'DoPivot') then ! store full-pivoted UT A-matrix
   is = 1
   do iSym=1,nSym
-    if (nVec(iSym) == 0) Go To 82
-    lu_A = 7
-    write(Name_A,'(A4,I2.2)') 'AMAT',iSym-1
-    call DaName_MF_WA(lu_A,Name_A)
-    call Pivot_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,iD_A(is),Scr,lScr)
-    call DaEras(lu_A0(iSym))
-    lu_A0(iSym) = lu_A
-82  continue
+    if (nVec(iSym) /= 0) then
+      lu_A = 7
+      write(Name_A,'(A4,I2.2)') 'AMAT',iSym-1
+      call DaName_MF_WA(lu_A,Name_A)
+      call Pivot_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,iD_A(is),Scr,lScr)
+      call DaEras(lu_A0(iSym))
+      lu_A0(iSym) = lu_A
+    end if
     is = is+nDim(iSym)
   end do
 
 else if (mode == 'Restore') then !store squared Q-mat (col. piv.)
   is = 1
   do iSym=1,nSym
-    if (nVec(iSym) == 0) Go To 83
-    lu_A = 7
-    write(Name_A,'(A4,I2.2)') 'QVEC',iSym-1
-    call DaName_MF_WA(lu_A,Name_A)
-    call Restore_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,iD_A(is),Scr,lScr,.false.)
-    call DaEras(lu_A0(iSym))
-    lu_A0(iSym) = lu_A
-83  continue
+    if (nVec(iSym) /= 0) then
+      lu_A = 7
+      write(Name_A,'(A4,I2.2)') 'QVEC',iSym-1
+      call DaName_MF_WA(lu_A,Name_A)
+      call Restore_mat(nDim(iSym),nVec(iSym),lu_A0(iSym),lu_A,iD_A(is),Scr,lScr,.false.)
+      call DaEras(lu_A0(iSym))
+      lu_A0(iSym) = lu_A
+    end if
     is = is+nDim(iSym)
   end do
 

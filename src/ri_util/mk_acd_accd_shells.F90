@@ -233,71 +233,70 @@ if (Thr_aCD == 0.0d0) then
     iD_c(i) = i
   end do
   NumCho_c = nTInt_c
-  Go To 1881
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Generate atomic two-electron integrals to decompose.
+else
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Generate atomic two-electron integrals to decompose.
 
-ijS_req = 0
-call Drv2El_Atomic_NoSym(Integral_RICD,ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Let us now decompose and retrieve the most important
-! contracted products, indicies stored in iD_c
+  ijS_req = 0
+  call Drv2El_Atomic_NoSym(Integral_RICD,ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Let us now decompose and retrieve the most important
+  ! contracted products, indicies stored in iD_c
 
-call mma_allocate(iD_c,nTInt_c,label='iD_c')
+  call mma_allocate(iD_c,nTInt_c,label='iD_c')
 
-! Temporary code for weights to be used in a MS-aCD/acCD
-! scheme. Currently set to unit giving the convential
-! all purpose aCD/acCD auxiliary basis sets.
+  ! Temporary code for weights to be used in a MS-aCD/acCD
+  ! scheme. Currently set to unit giving the convential
+  ! all purpose aCD/acCD auxiliary basis sets.
 
-call mma_allocate(Wg,nTInt_c,label='Wg')
-call dcopy_(nTInt_c,[1.0d0],0,Wg,1)
+  call mma_allocate(Wg,nTInt_c,label='Wg')
+  call dcopy_(nTInt_c,[1.0d0],0,Wg,1)
 
-if (In_Core) then
-# ifdef _DEBUGPRINT_
-  call RecPrt('TInt_c',' ',TInt_c,nTInt_c,nTInt_c)
-# endif
-  call mma_allocate(Vec,nTInt_c**2,label='Vec')
+  if (In_Core) then
+#   ifdef _DEBUGPRINT_
+    call RecPrt('TInt_c',' ',TInt_c,nTInt_c,nTInt_c)
+#   endif
+    call mma_allocate(Vec,nTInt_c**2,label='Vec')
 
-  call CD_InCore_p_w(TInt_c,nTInt_c,Wg,Vec,nTInt_c,iD_c,NumCho_c,Thr_aCD,iRC)
+    call CD_InCore_p_w(TInt_c,nTInt_c,Wg,Vec,nTInt_c,iD_c,NumCho_c,Thr_aCD,iRC)
 
-  if (iRC /= 0) then
-    call WarningMessage(2,'Error in Mk_RICD_Shells')
-    write(6,*) 'Mk_aCD_Shells: CD_InCore_p(c) failed!'
-    call Abend()
+    if (iRC /= 0) then
+      call WarningMessage(2,'Error in Mk_RICD_Shells')
+      write(6,*) 'Mk_aCD_Shells: CD_InCore_p(c) failed!'
+      call Abend()
+    end if
+#   ifdef _DEBUGPRINT_
+    call RecPrt('Vec',' ',Vec,nTInt_c,NumCho_c)
+#   endif
+    call mma_deallocate(TInt_c)
+    call mma_deallocate(Vec)
+
+  else    ! out-of-core part
+
+    call mma_maxDBLE(lScr)
+    lScr = min(lScr-2*nTInt_c,nTInt_c**2+3*nTInt_c)
+    call mma_Allocate(Scr,lScr,label='Scr')
+
+    iSeed = Lu_A+1
+    Lu_B = IsFreeUnit(iSeed)
+    call DaName_MF_WA(Lu_B,'AVEC1')
+
+    call Get_Pivot_idx_w(ADiag,Wg,nTInt_c,NumCho_c,Lu_A,Lu_B,iD_c,Scr,lScr,Thr_aCD)
+
+    call mma_deallocate(Scr)
+    call mma_deallocate(ADiag)
+    call DaEras(Lu_B)
+    call DaEras(Lu_A)
+
   end if
-# ifdef _DEBUGPRINT_
-  call RecPrt('Vec',' ',Vec,nTInt_c,NumCho_c)
-# endif
-  call mma_deallocate(TInt_c)
-  call mma_deallocate(Vec)
 
-else    ! out-of-core part
-
-  call mma_maxDBLE(lScr)
-  lScr = min(lScr-2*nTInt_c,nTInt_c**2+3*nTInt_c)
-  call mma_Allocate(Scr,lScr,label='Scr')
-
-  iSeed = Lu_A+1
-  Lu_B = IsFreeUnit(iSeed)
-  call DaName_MF_WA(Lu_B,'AVEC1')
-
-  call Get_Pivot_idx_w(ADiag,Wg,nTInt_c,NumCho_c,Lu_A,Lu_B,iD_c,Scr,lScr,Thr_aCD)
-
-  call mma_deallocate(Scr)
-  call mma_deallocate(ADiag)
-  call DaEras(Lu_B)
-  call DaEras(Lu_A)
+  call mma_deallocate(Wg)
 
 end if
-
-call mma_deallocate(Wg)
-
-1881 continue
 
 if (NumCho_c < 1) then
   call WarningMessage(2,'Error in Mk_RICD_Shells')
@@ -633,25 +632,25 @@ do iBS=0,nBS-1
           call mma_allocate(Vec,nPrim_Max**2,label='Vec')
 
           Thrshld_CD_p = Thr_aCD*2.0D-1
-3377      continue
-          call CD_InCore_p(TP,nPrim_Max,Vec,nPrim_Max,iD_p,NumCho_p,Thrshld_CD_p,iRC)
-          if (NumCho_p < 1) then
-            call WarningMessage(2,'Error in Mk_RICD_Shells')
-            write(6,*) 'Mk_aCD_Shells: NumCho_p < 1 is illegal!'
-            write(6,*) 'iAng,jAng=',iAng,jAng
-            write(6,*) 'nPrim_Max=',nPrim_Max
-            write(6,*) 'NumCho_p=',NumCho_p
-            write(6,*) 'iRC=',iRC
-            call Abend()
-          end if
+          do
+            call CD_InCore_p(TP,nPrim_Max,Vec,nPrim_Max,iD_p,NumCho_p,Thrshld_CD_p,iRC)
+            if (NumCho_p < 1) then
+              call WarningMessage(2,'Error in Mk_RICD_Shells')
+              write(6,*) 'Mk_aCD_Shells: NumCho_p < 1 is illegal!'
+              write(6,*) 'iAng,jAng=',iAng,jAng
+              write(6,*) 'nPrim_Max=',nPrim_Max
+              write(6,*) 'NumCho_p=',NumCho_p
+              write(6,*) 'iRC=',iRC
+              call Abend()
+            end if
 
-#         ifdef _DEBUGPRINT_
-          write(6,*) 'Thrshld_CD_p:',Thrshld_CD_p
-          write(6,*) 'NumCho_p    :',NumCho_p
-          call iVcPrt('iD_p',' ',iD_p,NumCho_p)
-          call RecPrt('Vec',' ',Vec,nPrim_Max,NumCho_p)
-#         endif
-          if (NumCho_p < nCntrc) then
+#           ifdef _DEBUGPRINT_
+            write(6,*) 'Thrshld_CD_p:',Thrshld_CD_p
+            write(6,*) 'NumCho_p    :',NumCho_p
+            call iVcPrt('iD_p',' ',iD_p,NumCho_p)
+            call RecPrt('Vec',' ',Vec,nPrim_Max,NumCho_p)
+#           endif
+            if (NumCho_p >= nCntrc) exit
             write(6,*) 'W a r n i n g!'
             write(6,*) 'Fewer primitive functions than contracted functions!'
             write(6,*) 'NumCho_p=',NumCho_p
@@ -664,8 +663,7 @@ do iBS=0,nBS-1
               call Abend()
             end if
             call Mk_TInt_P(TInt_p,nTheta_All,TP,nPrim_Max,AL,nCompA,nCompB,iList2_p,nTheta_All,2*mData,iAng,jAng,npk,npl,LTP)
-            Go To 3377
-          end if
+          end do
           call mma_deallocate(TP)
           call mma_deallocate(Vec)
 
@@ -1212,10 +1210,10 @@ if (W2L) then
   Lu_lib = IsFreeUnit(Lu_lib)
   call molcas_open(Lu_lib,'RICDLIB')
   rewind(Lu_lib)
-  do ! For ever
-    read(Lu_lib,*,end=777)
+  istatus = 0
+  do while (istatus == 0)
+    read(Lu_lib,*,iostat=istatus)
   end do
-777 continue
   backspace(Lu_lib)
 
   do jCnttp=nCnttp_start+1,nCnttp

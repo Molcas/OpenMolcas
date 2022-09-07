@@ -96,26 +96,26 @@ do i2=1,iCmp(2)
       ! integrals.
 
       do j2=0,nIrrep-1
-        if (jSym(j2) == 0) go to 210
+        if (jSym(j2) == 0) cycle
         j12 = ieor(j1,j2)
 
         do j3=0,nIrrep-1
-          if (kSym(j3) == 0) go to 310
+          if (kSym(j3) == 0) cycle
           j4 = ieor(j12,j3)
-          if (lSym(j4) == 0) go to 310
-          if (Shkl .and. qkl .and. (j4 > j3)) go to 310
+          if (lSym(j4) == 0) cycle
+          if (Shkl .and. qkl .and. (j4 > j3)) cycle
 
           memSO2 = memSO2+1
-          if ((nSkip(j2+1)+nSkip(j3+1)+nSkip(j4+1)) /= 0) goto 310
+          if ((nSkip(j2+1)+nSkip(j3+1)+nSkip(j4+1)) /= 0) cycle
           !                                                            *
           !*************************************************************
           !                                                            *
           ! Number of auxiliary basis functions in this symmetry block.
           mm = iOff(1,j12)
-          if (mm == 0) Go To 310
+          if (mm == 0) cycle
           ! Effective number of valence basis products in this symmetry block.
           n3C = iOff(3,j12)
-          if (n3C == 0) Go To 310
+          if (n3C == 0) cycle
           ! Offset to the symmetry block of this shell pair.
           iOff_L = iSSOff(j3,j4)
           !                                                            *
@@ -177,9 +177,7 @@ do i2=1,iCmp(2)
             end do
           end do
 
-310       continue
         end do
-210     continue
       end do
 
     end do

@@ -106,12 +106,12 @@ if (ExFac == Zero) then
                   ! Active space contribution (any factor?)
                   ijVec = mn2K(Indij,1)
                   klVec = mn2K(Indkl,1)
-                  if ((ijVec == 0) .or. (klVec == 0)) goto 11
-                  do jp=1,nnP1
-                    temp = temp+Z_p_K(jp,ijVec)*Z_p_K(jp,klVec)
-                  end do
+                  if ((ijVec /= 0) .and. (klVec /= 0)) then
+                    do jp=1,nnP1
+                      temp = temp+Z_p_K(jp,ijVec)*Z_p_K(jp,klVec)
+                    end do
+                  end if
 
-11                continue
                   PMax = max(PMax,abs(temp))
                   PAO(nijkl,iPAO) = Fac*temp
 
@@ -179,27 +179,27 @@ else if (iMP2prpt /= 2) then
 
                   temp = V_k(Indij)*V_k(Indkl)*CoulFac
 
-                  if ((ijVec == 0) .or. (klVec == 0)) goto 22
-                  if (Indi == Indj) then
-                    Fac_ij = 1.0d0
-                  else
-                    Fac_ij = 0.5d0
+                  if ((ijVec /= 0) .and. (klVec /= 0)) then
+                    if (Indi == Indj) then
+                      Fac_ij = 1.0d0
+                    else
+                      Fac_ij = 0.5d0
+                    end if
+                    if (Indk == Indl) then
+                      Fac_kl = 1.0d0
+                    else
+                      Fac_kl = 0.5d0
+                    end if
+
+                    ! Exchange contribution
+
+                    temp = temp-ExFac*Fac_ij*Fac_kl*dDot_(NumIK,CiKJ(:,1),1,V2,1)
+                    ! Active space contribution (any factor?)
+                    do jp=1,nnP1
+                      temp = temp+Z_p_K(jp,ijVec)*Z_p_K(jp,klVec)
+                    end do
                   end if
-                  if (Indk == Indl) then
-                    Fac_kl = 1.0d0
-                  else
-                    Fac_kl = 0.5d0
-                  end if
 
-                  ! Exchange contribution
-
-                  temp = temp-ExFac*Fac_ij*Fac_kl*dDot_(NumIK,CiKJ(:,1),1,V2,1)
-                  ! Active space contribution (any factor?)
-                  do jp=1,nnP1
-                    temp = temp+Z_p_K(jp,ijVec)*Z_p_K(jp,klVec)
-                  end do
-
-22                continue
                   PMax = max(PMax,abs(temp))
                   PAO(nijkl,iPAO) = Fac*temp
 
@@ -265,36 +265,36 @@ else
 
                   temp = V_k(Indij)*V_k(Indkl)*CoulFac+V_K(Indij)*U_K(Indkl)*CoulFac+U_K(Indij)*V_K(Indkl)*CoulFac
 
-                  if ((ijVec == 0) .or. (klVec == 0)) goto 33
-                  if (Indi == Indj) then
-                    Fac_ij = 1.0d0
-                  else
-                    Fac_ij = 0.5d0
+                  if ((ijVec /= 0) .and. (klVec /= 0)) then
+                    if (Indi == Indj) then
+                      Fac_ij = 1.0d0
+                    else
+                      Fac_ij = 0.5d0
+                    end if
+                    if (Indk == Indl) then
+                      Fac_kl = 1.0d0
+                    else
+                      Fac_kl = 0.5d0
+                    end if
+
+                    ! MP2 contribution
+                    call Compute_A_jk_Mp2(1,ijVec,klVec,tempJ_mp2,Fac_ij,Fac_kl,nAuxVe,2)
+                    temp = temp+tempJ_mp2*CoulFac
+
+                    ! Exchange contribution
+
+                    tempK = 2.0d0*Fac_ij*Fac_kl*dDot_(NumIK,CiKj(:,1),1,V2,1)
+                    call compute_A_jk_Mp2(1,ijVec,klVec,tempK_mp2,fac_ij,fac_kl,nAuxVe,1)
+
+                    tempK = tempK+tempK_mp2
+
+                    temp = temp-ExFac*tempK*Half
+                    ! Active space contribution (any factor?)
+                    do jp=1,nnP1
+                      temp = temp+Z_p_K(jp,ijVec)*Z_p_K(jp,klVec)
+                    end do
                   end if
-                  if (Indk == Indl) then
-                    Fac_kl = 1.0d0
-                  else
-                    Fac_kl = 0.5d0
-                  end if
 
-                  ! MP2 contribution
-                  call Compute_A_jk_Mp2(1,ijVec,klVec,tempJ_mp2,Fac_ij,Fac_kl,nAuxVe,2)
-                  temp = temp+tempJ_mp2*CoulFac
-
-                  ! Exchange contribution
-
-                  tempK = 2.0d0*Fac_ij*Fac_kl*dDot_(NumIK,CiKj(:,1),1,V2,1)
-                  call compute_A_jk_Mp2(1,ijVec,klVec,tempK_mp2,fac_ij,fac_kl,nAuxVe,1)
-
-                  tempK = tempK+tempK_mp2
-
-                  temp = temp-ExFac*tempK*Half
-                  ! Active space contribution (any factor?)
-                  do jp=1,nnP1
-                    temp = temp+Z_p_K(jp,ijVec)*Z_p_K(jp,klVec)
-                  end do
-
-33                continue
                   PMax = max(PMax,abs(temp))
                   PAO(nijkl,iPAO) = Fac*temp
 

@@ -52,7 +52,7 @@ do iVec=1,nAuxVec
       lend = nCumAct(lsym)+nAct(lSym)
 
       ksym = ieor(lsym,klsym)
-      if (ksym > lsym) Go To 100
+      if (ksym > lsym) cycle
       ksta = nCumAct(ksym)+1
       kend = nCumAct(ksym)+nAct(ksym)
       if (kSym == lSym) then
@@ -68,7 +68,7 @@ do iVec=1,nAuxVec
         jend = nCumAct(jsym)+nAct(jSym)
 
         isym = ieor(jsym,klsym)
-        if (isym > jsym) Go To 101
+        if (isym > jsym) cycle
         ista = nCumAct(iSym)+1
         iend = nCumAct(iSym)+nAct(iSym)
 
@@ -87,7 +87,7 @@ do iVec=1,nAuxVec
               if (iSym == jSym) iend = iu
               do it=ista,iend
                 itu = max(iu,it)*(max(iu,it)-1)/2+min(iu,it)
-                if (itu > ivx) Go to 102
+                if (itu > ivx) cycle
                 itx = max(ix,it)*(max(ix,it)-1)/2+min(ix,it)
                 itv = max(iv,it)*(max(iv,it)-1)/2+min(iv,it)
                 ituvx = max(ivx,itu)*(max(ivx,itu)-1)/2+min(itu,ivx)
@@ -108,17 +108,13 @@ do iVec=1,nAuxVec
                   if (iSym == lSym) DMTmp(ituvx2) = DMTmp(ituvx2)+Fac*(Quart*DM1(itx,iVec)*DM1(iuv,iVec))
                 end if
 
-102             continue
-
               end do
             end do
           end do
         end do
 
-101     continue
       end do
       nkl = nkl+nvx
-100   continue
     end do
 
     !*******************************************************************

@@ -42,7 +42,7 @@ do iIrrep=0,nIrrep-1
   nI_ = nI(iIrrep)
   if (iIrrep == 0) nI_ = nI_-1
   nMuNu_ = nMuNu(iIrrep)
-  if ((nMuNu_ <= 0) .or. (nI_ <= 0)) Go To 999
+  if ((nMuNu_ <= 0) .or. (nI_ <= 0)) cycle
 
   iSeed = 55+iIrrep
   Lu_Q = IsFreeUnit(iSeed)
@@ -68,7 +68,6 @@ do iIrrep=0,nIrrep-1
   iOffA = iOffA+nMuNu_*nI_
   iOffR = iOffR+nMuNu_*nVec(iIrrep)
   call DaClos(Lu_Q)
-999 continue
 end do
 
 return

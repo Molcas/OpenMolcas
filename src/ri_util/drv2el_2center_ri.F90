@@ -45,7 +45,6 @@ external Integral_RI_2
 #include "real.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
-#define _no_nShs_
 #include "iTOffs.fh"
 integer iAddr_AQ(0:7), kCol_Irrep(0:7)
 logical Verbose, Indexation, FreeK2, DoGrad, DoFock
@@ -188,9 +187,7 @@ do jS=1,nSkal-1
   do lS=1,jS
 
     Aint = TMax(jS)*TMax(lS)
-    if (AInt < CutInt) Go To 14
-    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
-14  continue
+    if (AInt >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
 
     ! Use a time slot to save the number of tasks and shell
     ! quadruplets processed by an individual node

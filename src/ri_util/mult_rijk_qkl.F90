@@ -82,7 +82,7 @@ do jSym=1,nIrrep
   NumAuxVec(jSym) = NumAux
 
   call GAIGOP_SCAL(NumCV,'max')
-  if (NumCV < 1) goto 1000
+  if (NumCV < 1) cycle
 
   nTotFIorb = 0
   MaxMOprod = 0
@@ -140,71 +140,71 @@ do jSym=1,nIrrep
   do iSym=1,nIrrep
     lSym = MulD2h(iSym,jSym)
 
-    if (nIJ1(iSym,lSym,iSO) < 1) Go To 2000
-    CVector(:) = Zero
+    if (nIJ1(iSym,lSym,iSO) >= 1) then
+      CVector(:) = Zero
 
-    do iJBat=1,nJBat
-      if (iJBat == nJBat) then
-        njVec = nJVecLast
-      else
-        nJvec = nJvec1
-      end if
+      do iJBat=1,nJBat
+        if (iJBat == nJBat) then
+          njVec = nJVecLast
+        else
+          nJvec = nJvec1
+        end if
 
-      iSeed = 55+jSym-1
-      Lu_Q = IsFreeUnit(iSeed)
-      write(Name_Q,'(A4,I2.2)') 'QVEC',jSym-1
-      call DaName_MF_WA(Lu_Q,Name_Q)
-      l_Q = nJvec*NumAux
-      iAdrQ = (iFirstCho-1)*NumAux+(iJBat-1)*nJVec*NumAux
-      call dDaFile(Lu_Q,2,Qvector,l_Q,iAdrQ)
+        iSeed = 55+jSym-1
+        Lu_Q = IsFreeUnit(iSeed)
+        write(Name_Q,'(A4,I2.2)') 'QVEC',jSym-1
+        call DaName_MF_WA(Lu_Q,Name_Q)
+        l_Q = nJvec*NumAux
+        iAdrQ = (iFirstCho-1)*NumAux+(iJBat-1)*nJVec*NumAux
+        call dDaFile(Lu_Q,2,Qvector,l_Q,iAdrQ)
+
+#       ifdef _DEBUGPRINT_
+        call RecPrt('Q-vectors',' ',QVector,nJVec,NumAux)
+#       endif
+
+        iSeed = 7
+        LuRVec = IsFreeUnit(iSeed)
+        if (iSO == 1) then
+          write(Fname,'(A4,I1,I1)') 'CHTA',iSym,lSym
+        else if (iSO == 2) then
+          write(Fname,'(A4,I1,I1)') 'CHTB',iSym,lSym
+        end if
+        call DANAME_MF_WA(LuRVec,Fname)
+
+        ! Loop over all cholesky vectors on all nodes
+        !--------------------------------------------
+
+        ! Get R-Vectors from disk
+        !------------------------
+
+        iAdrR = nIJ1(iSym,lSym,iSO)*nJVec1*(iJBat-1)
+        l_RVec = nJvec*nIJ1(iSym,lSym,iSO)
+        call dDaFile(LuRVec,2,RVector,l_RVec,iAdrR)
+
+        call dGemm_('N','T',nIJ1(iSym,lSym,iSO),NumAux,nJVec,1.0d0,RVector,nIJ1(iSym,lSym,iSO),QVector,NumAux,0.0d0,CVector, &
+                    nIJ1(iSym,lSym,iSO))
+      end do
 
 #     ifdef _DEBUGPRINT_
-      call RecPrt('Q-vectors',' ',QVector,nJVec,NumAux)
+      write(6,*) 'jSym=',jSym
+      call RecPrt('R-Vectors',' ',RVector,nIJ1(iSym,lSym,iSO),NumAux)
+      call RecPrt('C-Vectors',' ',CVector,nIJ1(iSym,lSym,iSO),NumAux)
 #     endif
-
-      iSeed = 7
-      LuRVec = IsFreeUnit(iSeed)
-      if (iSO == 1) then
-        write(Fname,'(A4,I1,I1)') 'CHTA',iSym,lSym
-      else if (iSO == 2) then
-        write(Fname,'(A4,I1,I1)') 'CHTB',iSym,lSym
-      end if
-      call DANAME_MF_WA(LuRVec,Fname)
-
-      ! Loop over all cholesky vectors on all nodes
-      !--------------------------------------------
-
-      ! Get R-Vectors from disk
-      !------------------------
-
-      iAdrR = nIJ1(iSym,lSym,iSO)*nJVec1*(iJBat-1)
-      l_RVec = nJvec*nIJ1(iSym,lSym,iSO)
-      call dDaFile(LuRVec,2,RVector,l_RVec,iAdrR)
-
-      call dGemm_('N','T',nIJ1(iSym,lSym,iSO),NumAux,nJVec,1.0d0,RVector,nIJ1(iSym,lSym,iSO),QVector,NumAux,0.0d0,CVector, &
-                  nIJ1(iSym,lSym,iSO))
-    end do
-
-#   ifdef _DEBUGPRINT_
-    write(6,*) 'jSym=',jSym
-    call RecPrt('R-Vectors',' ',RVector,nIJ1(iSym,lSym,iSO),NumAux)
-    call RecPrt('C-Vectors',' ',CVector,nIJ1(iSym,lSym,iSO),NumAux)
-#   endif
-    if ((.not. lSA) .and. (iSym == lSym)) then
-      do iAux=1,NumAux
-        index = -1
-        do i=1,nChOrb(iSym-1,iSO)
-          index = index+i
-          index2 = index+(iAux-1)*nIJ1(iSym,lSym,iSO)
-          CVector(1+index2) = CVector(1+index2)/sqrt(2.0d0)
+      if ((.not. lSA) .and. (iSym == lSym)) then
+        do iAux=1,NumAux
+          index = -1
+          do i=1,nChOrb(iSym-1,iSO)
+            index = index+i
+            index2 = index+(iAux-1)*nIJ1(iSym,lSym,iSO)
+            CVector(1+index2) = CVector(1+index2)/sqrt(2.0d0)
+          end do
         end do
-      end do
+      end if
+
+      call DaClos(Lu_Q)
+      call DACLOS(LuRVec)
+
     end if
-
-    call DaClos(Lu_Q)
-    call DACLOS(LuRVec)
-
-2000 continue
 
     call GADGOP(CVector,l_CVector,'+')
     iAdrCVec(jSym,iSym,iSO) = iAdrC
@@ -220,7 +220,6 @@ do jSym=1,nIrrep
   call mma_deallocate(QVector)
 
   call DACLOS(LuCVec)
-1000 continue
 
 end do  ! jSym
 

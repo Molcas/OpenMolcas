@@ -46,7 +46,7 @@ if (Out_of_Core) then
   do iIrrep=0,nIrrep-1
     nI = iOff_3C(2,iIrrep)
     nMuNu = iOff_3C(1,iIrrep)
-    if ((nMuNu <= 0) .or. (nI <= 0)) Go To 999
+    if ((nMuNu <= 0) .or. (nI <= 0)) cycle
 
     iOffR2 = iOffR
     iOffA2 = iOffA
@@ -66,7 +66,6 @@ if (Out_of_Core) then
 
     iOffA = iOffA+nMuNu*nI
     iOffR = iOffR+nMuNu*nVec(iIrrep)
-999 continue
   end do
   !                                                                    *
   !*********************************************************************
@@ -79,10 +78,7 @@ else  ! In-Core
   do iIrrep=0,nIrrep-1
     nI = iOff_3C(2,iIrrep)
     nMuNu = iOff_3C(1,iIrrep)
-    if ((nMuNu <= 0) .or. (nI <= 0)) Go To 998
-
-    call A_3C_Qv_s(A_3C(iOffA),Qv(iOffQ),Rv(iOffR),nMuNu,nI,nVec(iIrrep),QMode)
-998 continue
+    if ((nMuNu > 0) .and. (nI > 0)) call A_3C_Qv_s(A_3C(iOffA),Qv(iOffQ),Rv(iOffR),nMuNu,nI,nVec(iIrrep),QMode)
     iOffA = iOffA+nMuNu*nI
     iOffR = iOffR+nMuNu*nVec(iIrrep)
     iOffQ = iOffQ+nI*nVec(iIrrep)

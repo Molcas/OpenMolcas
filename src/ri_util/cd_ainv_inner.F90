@@ -51,117 +51,117 @@ call mma_deallocate(Scr)
 ThrQ = Thr_CD*1.0D-1 ! Threshold for Inv_Cho_Factor
 
 nB = nVec
-if (nB == 0) Go To 777
-nQm = nB*(nB+1)/2
+if (nB /= 0) then
+  nQm = nB*(nB+1)/2
 
-nXZ = nB
-nQm_full = nB*(nB+1)/2
+  nXZ = nB
+  nQm_full = nB*(nB+1)/2
 
-Out_of_Core = 2*nQm_full+5*nXZ > MaxMem
+  Out_of_Core = 2*nQm_full+5*nXZ > MaxMem
 
-if (Out_Of_Core) then
-  mQm = (nQm*MaxMem-5*nXZ)/(2*nQm_full)
-  a = One
-  b = -Two*dble(mQm)
-  mB = int(-a/Two+sqrt((a/Two)**2-b))
-  kQm = mB*(mB+1)/2
-  if (kQm > mQm) then
-    call WarningMessage(2,'Error in CD_AInv_Inner')
-    write(6,*) 'kQm > mQm!'
-    write(6,*) 'MaxMem=',MaxMem
-    write(6,*) 'nQm,mQm,kQm=',nQm,mQm,kQm
-    write(6,*) 'nB,mB=',nB,mB
-    call Abend()
-  end if
-else
-  mB = nB
-  kQm = nQm
-end if
-
-lQm = kQm
-lAm = lQm
-
-if (lQm < 1) then
-  call WarningMessage(2,'Error in CD_AInv_Inner')
-  write(6,*) 'lQm < 1'
-  call Abend()
-end if
-
-! Some of memory for scratch arrays for Inv_Cho_Factor
-! Allocate memory for the A- and Q-vectors and initialize.
-
-lScr = nXZ
-call mma_allocate(Scr,lScr,Label='Scr')
-call mma_allocate(Qm,lQm,Label='Qm')
-call mma_allocate(Am,lAm,Label='Am')
-call mma_allocate(A_k,nXZ,Label='A_k')
-call mma_allocate(Q_k,nXZ,Label='Q_k')
-call mma_allocate(X,nXZ,Label='X')
-call mma_allocate(Z,nXZ,Label='Z')
-
-Am(:) = Zero
-Qm(:) = Zero
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-! Process the A_ks to generate Q_ks.
-
-iAddr = 0
-nMem = mB
-do kCol=1,nB
-
-  iAddr_ = iAddr
-  if (kCol <= nMem) then
-    iOff = (kCol-1)*kCol/2
-    ! Point to A_k in Am
-    A_l(1:kCol) => Am(iOff+1:iOff+kCol)
-    if (kCol == 1) then
-      nAm = nMem*(nMem+1)/2
-      call dDaFile(Lu_Z,2,Am,nAm,iAddr_)
+  if (Out_Of_Core) then
+    mQm = (nQm*MaxMem-5*nXZ)/(2*nQm_full)
+    a = One
+    b = -Two*dble(mQm)
+    mB = int(-a/Two+sqrt((a/Two)**2-b))
+    kQm = mB*(mB+1)/2
+    if (kQm > mQm) then
+      call WarningMessage(2,'Error in CD_AInv_Inner')
+      write(6,*) 'kQm > mQm!'
+      write(6,*) 'MaxMem=',MaxMem
+      write(6,*) 'nQm,mQm,kQm=',nQm,mQm,kQm
+      write(6,*) 'nB,mB=',nB,mB
+      call Abend()
     end if
-    ! Point to Q_k in Qm
-    Q_l(1:kCol) => Qm(iOff+1:iOff+kCol)
-  else if (kCol > nMem) then
-    ! Use special scratch for A_k
-    A_l(1:kCol) => A_k(1:kCol)
-    call dDaFile(Lu_Z,2,A_l,kCol,iAddr_)
-    ! Use special scratch for Q_k
-    Q_l(1:kCol) => Q_k(1:kCol)
+  else
+    mB = nB
+    kQm = nQm
   end if
 
-  LinDep = 2
-  call Inv_Cho_Factor(A_l,kCol,Am,Qm,nMem,Lu_Z,Lu_Q,Scr,lScr,Z,X,ThrQ,Q_l,LinDep)
+  lQm = kQm
+  lAm = lQm
 
-  if (LinDep /= 0) then
+  if (lQm < 1) then
     call WarningMessage(2,'Error in CD_AInv_Inner')
-    write(6,*) 'Inv_Cho_Factor found linear dependence!'
+    write(6,*) 'lQm < 1'
     call Abend()
   end if
 
-  ! Write the new A/Q-vector to file
+  ! Some of memory for scratch arrays for Inv_Cho_Factor
+  ! Allocate memory for the A- and Q-vectors and initialize.
 
-  iAddr_ = iAddr
-  if (kCol == nMem) then
-    nQm = kCol*(kCol+1)/2
-    call dDaFile(Lu_Q,1,Qm,nQm,iAddr)
-    call dDaFile(Lu_Z,1,Am,nQm,iAddr_)
-  else if (kCol > nMem) then
-    call dDaFile(Lu_Q,1,Q_l,kCol,iAddr)
-    call dDaFile(Lu_Z,1,A_l,kCol,iAddr_)
-  end if
+  lScr = nXZ
+  call mma_allocate(Scr,lScr,Label='Scr')
+  call mma_allocate(Qm,lQm,Label='Qm')
+  call mma_allocate(Am,lAm,Label='Am')
+  call mma_allocate(A_k,nXZ,Label='A_k')
+  call mma_allocate(Q_k,nXZ,Label='Q_k')
+  call mma_allocate(X,nXZ,Label='X')
+  call mma_allocate(Z,nXZ,Label='Z')
 
-end do
+  Am(:) = Zero
+  Qm(:) = Zero
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  ! Process the A_ks to generate Q_ks.
 
-Q_l => null()
-A_l => null()
-call mma_deallocate(X)
-call mma_deallocate(Z)
-call mma_deallocate(Q_k)
-call mma_deallocate(A_k)
-call mma_deallocate(Am)
-call mma_deallocate(Qm)
-call mma_deallocate(Scr)
-777 continue
+  iAddr = 0
+  nMem = mB
+  do kCol=1,nB
+
+    iAddr_ = iAddr
+    if (kCol <= nMem) then
+      iOff = (kCol-1)*kCol/2
+      ! Point to A_k in Am
+      A_l(1:kCol) => Am(iOff+1:iOff+kCol)
+      if (kCol == 1) then
+        nAm = nMem*(nMem+1)/2
+        call dDaFile(Lu_Z,2,Am,nAm,iAddr_)
+      end if
+      ! Point to Q_k in Qm
+      Q_l(1:kCol) => Qm(iOff+1:iOff+kCol)
+    else if (kCol > nMem) then
+      ! Use special scratch for A_k
+      A_l(1:kCol) => A_k(1:kCol)
+      call dDaFile(Lu_Z,2,A_l,kCol,iAddr_)
+      ! Use special scratch for Q_k
+      Q_l(1:kCol) => Q_k(1:kCol)
+    end if
+
+    LinDep = 2
+    call Inv_Cho_Factor(A_l,kCol,Am,Qm,nMem,Lu_Z,Lu_Q,Scr,lScr,Z,X,ThrQ,Q_l,LinDep)
+
+    if (LinDep /= 0) then
+      call WarningMessage(2,'Error in CD_AInv_Inner')
+      write(6,*) 'Inv_Cho_Factor found linear dependence!'
+      call Abend()
+    end if
+
+    ! Write the new A/Q-vector to file
+
+    iAddr_ = iAddr
+    if (kCol == nMem) then
+      nQm = kCol*(kCol+1)/2
+      call dDaFile(Lu_Q,1,Qm,nQm,iAddr)
+      call dDaFile(Lu_Z,1,Am,nQm,iAddr_)
+    else if (kCol > nMem) then
+      call dDaFile(Lu_Q,1,Q_l,kCol,iAddr)
+      call dDaFile(Lu_Z,1,A_l,kCol,iAddr_)
+    end if
+
+  end do
+
+  Q_l => null()
+  A_l => null()
+  call mma_deallocate(X)
+  call mma_deallocate(Z)
+  call mma_deallocate(Q_k)
+  call mma_deallocate(A_k)
+  call mma_deallocate(Am)
+  call mma_deallocate(Qm)
+  call mma_deallocate(Scr)
+end if
 call DaEras(Lu_Z)
 !                                                                      *
 !----------------------------------------------------------------------*

@@ -97,7 +97,7 @@ do i2=1,iCmp(2)
     else
       i34 = iCmp(3)*(i4-1)+i3
     end if
-    if (Shijij .and. (i34 > i12)) go to 400
+    if (Shijij .and. (i34 > i12)) cycle
     qijij = Shijij .and. (i12 == i34)
     !write(6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 
@@ -106,7 +106,7 @@ do i2=1,iCmp(2)
     ! integrals.
 
     do j2=0,nIrrep-1
-      if (jSym(j2) == 0) go to 210
+      if (jSym(j2) == 0) cycle
       j12 = ieor(j1,j2)
       if (qijij) then
         if (iShell(1) > iShell(2)) then
@@ -124,18 +124,18 @@ do i2=1,iCmp(2)
       mx = nn*(nn+1)/2
 
       j4 = ieor(j12,j3)
-      if (lSym(j4) == 0) go to 210
+      if (lSym(j4) == 0) cycle
       if (qijij) then
         if (iShell(3) > iShell(4)) then
           k34 = nIrrep*j3+j4+1
         else
           k34 = nIrrep*j4+j3+1
         end if
-        if (k34 > k12) go to 210
+        if (k34 > k12) cycle
       end if
 
       memSO2 = memSO2+1
-      if ((nSkip(j2+1)+nSkip(j4+1)) /= 0) goto 210
+      if ((nSkip(j2+1)+nSkip(j4+1)) /= 0) cycle
 
       ! Compute absolute starting SO index
       jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)
@@ -156,10 +156,8 @@ do i2=1,iCmp(2)
         end do
       end do
 
-210   continue
     end do
 
-400 continue
   end do
 end do
 

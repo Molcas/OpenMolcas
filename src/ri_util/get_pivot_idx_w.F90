@@ -65,7 +65,7 @@ do kCol=1,n
     write(6,*) 'iD_Col = ',iD_Col
     call Abend()
   else if (iD_Col == 0) then
-    Go To 100
+    exit
   end if
   iD_A(kCol) = iD_Col ! set the mapping
 
@@ -77,7 +77,7 @@ do kCol=1,n
 
   call CHO_FACTOR(Diag,Scr(js),iD_A,kCol,n,Scr(is),nMem_Col,lu_A,Scr(ks),kScr,thr,lindep)
 
-  if (lindep /= 0) goto 100
+  if (lindep /= 0) exit
 
   list(iD_Col) = 0
   m = m+1
@@ -87,7 +87,6 @@ do kCol=1,n
 
 end do
 
-100 continue
 iAddr = 0
 call dDaFile(lu_A,1,Scr(is),ij,iAddr)
 
@@ -98,10 +97,9 @@ if (m < n) then
       if (list(i) /= 0) then
         iD_A(k) = i
         istart = i+1
-        goto 200
+        exit
       end if
     end do
-200 continue
   end do
 else if (m > n) then
   write(6,*) 'Get_Pivot_idx_w: m > n is not possible!'

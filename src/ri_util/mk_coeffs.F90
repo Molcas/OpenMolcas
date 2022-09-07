@@ -40,7 +40,7 @@ do iCho=1,NumCho
     if (iAng == jAng) then
       iPhi_Full = iTri(ik,il)
       iPhi = Indkl(iPhi_Full)
-      if (iPhi == 0) Go To 101
+      if (iPhi == 0) cycle
       do iPrimA=1,nPrimA
         do iPrimB=1,iPrimA
           Cff = (CoeffA(iPrimA,ik)*CoeffB(iPrimB,il)+CoeffA(iPrimA,il)*CoeffB(iPrimB,ik))/ &
@@ -53,7 +53,7 @@ do iCho=1,NumCho
     else
       iPhi_Full = (il-1)*nk+ik
       iPhi = Indkl(iPhi_Full)
-      if (iPhi == 0) Go To 101
+      if (iPhi == 0) cycle
       do iPrimA=1,nPrimA
         do iPrimB=1,nPrimB
           Cff = CoeffA(iPrimA,ik)*CoeffB(iPrimB,il)/(CoeffAP(iPrimA,iPrimA)*CoeffBP(iPrimB,iPrimB))
@@ -62,7 +62,6 @@ do iCho=1,NumCho
         end do
       end do
     end if
-101 continue
 
   end if
 end do

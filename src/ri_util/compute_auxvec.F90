@@ -306,7 +306,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
       else if (iIrrep == jIrrep) then
         nnAorb = nAsh(iIrrep)*(nAsh(iIrrep)+1)/2
       else
-        Go To 100
+        cycle
       end if
       ipTxy(iIrrep,jIrrep,1) = 1+iOff2+iOff
       ipTxy(jIrrep,iIrrep,1) = ipTxy(iIrrep,jIrrep,1)
@@ -315,7 +315,6 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
         ipTxy(jIrrep,iIrrep,2) = ipTxy(iIrrep,jIrrep,2)
       end if
       iOff2 = iOff2+nnAorb
-100   continue
     end do
     iOff = iOff+iOff2*nnP(kIrrep)
     mAO = mAO+nBas(kIrrep)*nASh(kIrrep)

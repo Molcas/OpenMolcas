@@ -24,30 +24,36 @@ iramax = 0
 if ((n < 1) .or. (inc <= 0)) return
 iramax = 1
 if (n == 1) return
-if (inc == 1) go to 20
 
-! code for increment not equal to 1
+if (inc /= 1) then
 
-ix = 1
-smax = abs(a(1))
-ix = ix+inc
-do i=2,n
-  if (abs(a(ix)) <= smax) go to 5
-  iramax = i
-  smax = abs(a(ix))
-5 ix = ix+inc
-end do
-return
+  ! code for increment not equal to 1
 
-! code for increment equal to 1
+  ix = 1
+  smax = abs(a(1))
+  ix = ix+inc
+  do i=2,n
+    if (abs(a(ix)) > smax) then
+      iramax = i
+      smax = abs(a(ix))
+    end if
+    ix = ix+inc
+  end do
 
-20 smax = abs(a(1))
-do i=2,n
-  if (abs(a(i)) <= smax) go to 30
-  iramax = i
-  smax = abs(a(i))
-30 continue
-end do
+else
+
+  ! code for increment equal to 1
+
+  smax = abs(a(1))
+  do i=2,n
+    if (abs(a(i)) > smax) then
+      iramax = i
+      smax = abs(a(i))
+    end if
+  end do
+
+end if
+
 return
 
 end function irAmax
