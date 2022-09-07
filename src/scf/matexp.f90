@@ -33,16 +33,6 @@
 !> @param[in,out] U        U matrix is replaced by its exponential
 !***********************************************************************
 
-integer*16 function factorial(n)
-  implicit none
-  integer, intent(in) :: n
-  integer :: i
-  factorial = 1
-  do i=n,2,-1
-    factorial = factorial*i
-  end do
-end function factorial
-
 subroutine matexp(N,No,U)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -55,11 +45,10 @@ integer(kind=iwp), intent(in) :: N, No
 real(kind=wp), intent(inout)  :: U(N,N)
 
 integer(kind=iwp)  :: Nv
-integer(kind=iwp)   :: count, i
-integer*16  :: factorial
+integer(kind=iwp)  :: count, i
 
 real(kind=wp), Parameter :: thrsh = 1.0D-16
-real(kind=wp) :: ithrsh, ithrshoo, ithrshvv, ithrshvo
+real(kind=wp) :: ithrsh, ithrshoo, ithrshvv, ithrshvo, factor
 
 real(kind=wp), allocatable :: Uoo(:,:), xUoo(:,:), Koo(:,:)
 real(kind=wp), allocatable :: Uvv(:,:), xUvv(:,:), Kvv(:,:)
@@ -91,6 +80,7 @@ U(:,:)= 0.
 
 count=1
 ithrsh=2.0E-16
+factor=1
 
 ! Initialization
 ! Taylor expansion terms to n=1
@@ -125,12 +115,15 @@ do while (thrsh < ithrsh)
   if (mod(count,2)==0) then
     call dgemm_('T','N',No,No,Nv,One,-theta,Nv,Kvo,Nv,Zero,Koo,No)
     call dgemm_('N','T',Nv,Nv,No,One,Kvo,Nv,-theta,Nv,Zero,Kvv,Nv)
-    Uoo(:,:) = Uoo + One/factorial(count) * Koo
-    Uvv(:,:) = Uvv + One/factorial(count) * Kvv
+    factor = factor*count
+    Uoo(:,:) = Uoo + One/factor * Koo
+    Uvv(:,:) = Uvv + One/factor * Kvv
+
 
   else
     call dgemm_('N','N',Nv,No,No,One,theta,Nv,Koo,No,Zero,Kvo,Nv)
-    Uvo(:,:) = Uvo + One/factorial(count) * Kvo
+    factor = factor*count
+    Uvo(:,:) = Uvo + One/factor * Kvo
 
     ithrshoo = maxval(abs(Uoo-xUoo)/abs(Uoo))
     ithrshvv = maxval(abs(Uvv-xUvv)/abs(Uvv))
