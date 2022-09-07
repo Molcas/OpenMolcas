@@ -18,7 +18,7 @@ subroutine Screen_g(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P
 !                                                                      *
 ! Object: to prescreen the integral derivatives.                       *
 !                                                                      *
-!   nZeta, nEta : unpartioned length of primitives.                    *
+!   nZeta, nEta : unpartitioned length of primitives.                  *
 !                                                                      *
 !   mZeta, mEta : section length due to partioning. These are usually  *
 !                 equal to nZeta and nEta.                             *

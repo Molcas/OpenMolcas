@@ -30,7 +30,7 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
 integer(kind=iwp) :: i, ia, iAlpha, ib, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), iExp, iIrrep, iOff, iplalbm, iplalbp, iplamlb, &
-                     iplaplb, ipRef, iPrint, iRout, iSh, iStrt, iuvwx(4), iVec, iZeta, j, JndGrd(3,4), kCnt, kdc, kSh, kShEnd, &
+                     iplaplb, ipRef, iPrint, iRout, iSh, iStrt, iuvwx(4), iVec, iZeta, JndGrd(3,4), kCnt, kdc, kSh, kShEnd, &
                      kShStr, lcr(kcrs), lDCRT, LmbdT, lOp(4), mGrad, nArray, ncr(imax), ncrr, nDAO, nDCRT, nDisp, &
                      nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), nlalbm, nlalbp, nlamlb, nlaplb, npot, nPP_S
 real(kind=wp) :: C(3), ccr(imax), Fact, TC(3), zcr(imax)
@@ -176,12 +176,8 @@ do iCnttp=1,nCnttp
 
     iuvwx(3) = dc(kdc+kCnt)%nStab
     iuvwx(4) = dc(kdc+kCnt)%nStab
-    call ICopy(6,IndGrd,1,JndGrd,1)
-    do i=1,3
-      do j=1,2
-        JfGrad(i,j) = IfGrad(i,j)
-      end do
-    end do
+    JndGrd(:,1:2) = IndGrd
+    JfGrad(:,1:2) = IfGrad
 
     nDisp = IndDsp(kdc+kCnt,iIrrep)
     do iCar=0,2
@@ -202,10 +198,8 @@ do iCnttp=1,nCnttp
         JndGrd(iCar+1,3) = 0
       end if
     end do
-    call ICopy(3,[0],0,JndGrd(1,4),1)
-    JfGrad(1,4) = .false.
-    JfGrad(2,4) = .false.
-    JfGrad(3,4) = .false.
+    JndGrd(:,4) = 0
+    JfGrad(:,4) = .false.
     mGrad = 0
     do iCar=1,3
       do i=1,2

@@ -36,8 +36,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
-                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
-                     nDiff, nip, nStb, nT
+                     iStb(0:7), iTs, iuvwx(4), iZeta, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDiff, &
+                     nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: NoLoop, JfGrad(3,4)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
@@ -151,24 +151,14 @@ do iTs=1,1
   end if
   iuvwx(3) = nStb
   iuvwx(4) = nStb
-  call ICopy(6,IndGrd,1,JndGrd,1)
-  do i=1,3
-    do j=1,2
-      JfGrad(i,j) = IfGrad(i,j)
-    end do
-  end do
+  JndGrd(:,1:2) = IndGrd
+  JfGrad(:,1:2) = IfGrad
 
   ! No derivatives with respect to the third or fourth center.
   ! The positions of the points in the external field are frozen.
 
-  call ICopy(3,[0],0,JndGrd(1,3),1)
-  JfGrad(1,3) = .false.
-  JfGrad(2,3) = .false.
-  JfGrad(3,3) = .false.
-  call ICopy(3,[0],0,JndGrd(1,4),1)
-  JfGrad(1,4) = .false.
-  JfGrad(2,4) = .false.
-  JfGrad(3,4) = .false.
+  JndGrd(:,3:4) = 0
+  JfGrad(:,3:4) = .false.
   mGrad = 0
   do iCar=1,3
     do i=1,2

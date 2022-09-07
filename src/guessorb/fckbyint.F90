@@ -285,7 +285,7 @@ dummy: if (.true.) then
           tmp1 = Zero
           do kBas=1,nB
             ik = ijS+(iBas-1)*nB+kBas-1
-            tmp1 = tmp1+abs(CMO(ik)*dble(kBas))
+            tmp1 = tmp1+abs(CMO(ik)*real(kBas,kind=wp))
           end do
           do jBas=iBas+1,nB-nD
             ej = Eps(ijL+jBas-1)
@@ -293,7 +293,7 @@ dummy: if (.true.) then
               tmp2 = Zero
               do kBas=1,nB
                 jk = ijS+(jBas-1)*nB+kBas-1
-                tmp2 = tmp2+abs(CMO(jk)*dble(kBas))
+                tmp2 = tmp2+abs(CMO(jk)*real(kBas,kind=wp))
               end do
               if (tmp2 > tmp1) then
                 tmp = tmp2

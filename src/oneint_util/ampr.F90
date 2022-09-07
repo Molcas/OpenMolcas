@@ -161,19 +161,19 @@ do ixa=la,0,-1
           end if
           Rslt(iZeta,ipa,ipb,kxx) = Term1+Term2+Term3+Term4
           !------------------
-          Term1 = Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kzz)-Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz),kzz)+ &
+          Term1 = Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kzz)-Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+2,iy,iz),kzz)+ &
                   Two*B*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kzz)
-          Term2 = -Two*Bz2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz-1),kzx)-Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz+1),kzx)+ &
-                  Eight*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz+1),kzx)
+          Term2 = -Two*Bz2*Tab0(iZeta,ipa,C_Ind3(ix+1,iy,iz-1),kzx)-Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix-1,iy,iz+1),kzx)+ &
+                  Eight*B2*Tabpp(iZeta,ipa,C_Ind3(ix+1,iy,iz+1),kzx)
           Term3 = Two*Bz2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kxx)-Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz+2),kxx)+ &
                   Two*B*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kxx)
-          Term4 = -Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy,iz+1),kz)-Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy,iz),kx)
+          Term4 = -Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy,iz+1),kz)-Two*B*Tabp(iZeta,ipa,C_Ind3(ix+1,iy,iz),kx)
           if (lb >= 1) then
             Term4 = Term4+real(iz,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy,iz-1),kz)+ &
-                    real(ix,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy,iz),kx)
+                    real(ix,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix-1,iy,iz),kx)
             if (lb >= 2) then
-              Term1 = Term1-real(ix*(ix-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz),kzz)
-              Term2 = Term2+real(2*iz*ix,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz-1),kzx)
+              Term1 = Term1-real(ix*(ix-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-2,iy,iz),kzz)
+              Term2 = Term2+real(2*iz*ix,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-1,iy,iz-1),kzx)
               Term3 = Term3-real(iz*(iz-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz-2),kxx)
             end if
           end if
@@ -181,18 +181,18 @@ do ixa=la,0,-1
           !------------------
           Term1 = Two*By2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kxx)-Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+2,iz),kxx)+ &
                   Two*B*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kxx)
-          Term2 = -Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy+1,iz),kxy)-Two*By2*Tab0(iZeta,ipa,C_Ind3(ix,iy-1,iz),kxy)+ &
-                  Eight*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+1,iz),kxy)
-          Term3 = Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kyy)-Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz),kyy)+ &
+          Term2 = -Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix-1,iy+1,iz),kxy)-Two*By2*Tab0(iZeta,ipa,C_Ind3(ix+1,iy-1,iz),kxy)+ &
+                  Eight*B2*Tabpp(iZeta,ipa,C_Ind3(ix+1,iy+1,iz),kxy)
+          Term3 = Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kyy)-Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+2,iy,iz),kyy)+ &
                   Two*B*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kyy)
-          Term4 = -Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy,iz),kx)-Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy+1,iz),ky)
+          Term4 = -Two*B*Tabp(iZeta,ipa,C_Ind3(ix+1,iy,iz),kx)-Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy+1,iz),ky)
           if (lb >= 1) then
-            Term4 = Term4+real(ix,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy,iz),kx)+ &
+            Term4 = Term4+real(ix,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix-1,iy,iz),kx)+ &
                     real(iy,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy-1,iz),ky)
             if (lb >= 2) then
               Term1 = Term1-real(iy*(iy-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-2,iz),kxx)
-              Term2 = Term2+real(2*ix*iy,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-1,iz),kxy)
-              Term3 = Term3-real(ix*(ix-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz),kyy)
+              Term2 = Term2+real(2*ix*iy,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-1,iy-1,iz),kxy)
+              Term3 = Term3-real(ix*(ix-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-2,iy,iz),kyy)
             end if
           end if
           Rslt(iZeta,ipa,ipb,kzz) = Term1+Term2+Term3+Term4
@@ -201,46 +201,46 @@ do ixa=la,0,-1
           ! With Term5, (Lx*Ly) obtains. With Term6, (Ly*Lx).
           ! We want the hermitian average.
           !------------------ (Lx,Ly)
-          Term1 = Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz+1),kyz)+Bz2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz-1),kyz)- &
-                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz+1),kyz)
+          Term1 = Bx2*Tab0(iZeta,ipa,C_Ind3(ix-1,iy,iz+1),kyz)+Bz2*Tab0(iZeta,ipa,C_Ind3(ix+1,iy,iz-1),kyz)- &
+                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+1,iy,iz+1),kyz)
           Term2 = -Two*Bz2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kxy)+Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz+2),kxy)- &
                   Two*B*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kxy)
-          Term3 = -Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy+1,iz),kzz)-By2*Tab0(iZeta,ipa,C_Ind3(ix,iy-1,iz),kzz)+ &
-                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+1,iz),kzz)
+          Term3 = -Bx2*Tab0(iZeta,ipa,C_Ind3(ix-1,iy+1,iz),kzz)-By2*Tab0(iZeta,ipa,C_Ind3(ix+1,iy-1,iz),kzz)+ &
+                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+1,iy+1,iz),kzz)
           Term4 = By2*Tab0(iZeta,ipa,C_Ind3(ix,iy-1,iz+1),kxz)+Bz2*Tab0(iZeta,ipa,C_Ind3(ix,iy+1,iz-1),kxz)- &
                   Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+1,iz+1),kxz)
-          Term5 = Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy,iz),ky)
+          Term5 = Two*B*Tabp(iZeta,ipa,C_Ind3(ix+1,iy,iz),ky)
           Term6 = Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy+1,iz),kx)
           if (lb >= 1) then
-            Term5 = Term5-real(ix,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy,iz),ky)
+            Term5 = Term5-real(ix,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix-1,iy,iz),ky)
             Term6 = Term6-real(iy,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy-1,iz),kx)
             if (lb >= 2) then
-              Term1 = Term1-real(ix*iz,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz-1),kyz)
+              Term1 = Term1-real(ix*iz,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-1,iy,iz-1),kyz)
               Term2 = Term2+real(iz*(iz-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz-2),kxy)
-              Term3 = Term3+real(ix*iy,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-1,iz),kzz)
+              Term3 = Term3+real(ix*iy,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-1,iy-1,iz),kzz)
               Term4 = Term4-real(iy*iz,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-1,iz-1),kxz)
             end if
           end if
           Rslt(iZeta,ipa,ipb,kxy) = Term1+Term2+Term3+Term4+Half*(Term5+Term6)
           ! (Ly,Lz)
-          Term1 = By2*Tab0(iZeta,ipa,C_Ind3(ix,iy-1,iz),kzx)+Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy+1,iz),kzx)- &
-                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+1,iz),kzx)
-          Term2 = -Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kyz)+Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz),kyz)- &
+          Term1 = By2*Tab0(iZeta,ipa,C_Ind3(ix+1,iy-1,iz),kzx)+Bx2*Tab0(iZeta,ipa,C_Ind3(ix-1,iy+1,iz),kzx)- &
+                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+1,iy+1,iz),kzx)
+          Term2 = -Two*Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kyz)+Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+2,iy,iz),kyz)- &
                   Two*B*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kyz)
           Term3 = -By2*Tab0(iZeta,ipa,C_Ind3(ix,iy-1,iz+1),kxx)-Bz2*Tab0(iZeta,ipa,C_Ind3(ix,iy+1,iz-1),kxx)+ &
                   Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+1,iz+1),kxx)
-          Term4 = Bz2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz-1),kyx)+Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz+1),kyx)- &
-                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz+1),kyx)
+          Term4 = Bz2*Tab0(iZeta,ipa,C_Ind3(ix+1,iy,iz-1),kyx)+Bx2*Tab0(iZeta,ipa,C_Ind3(ix-1,iy,iz+1),kyx)- &
+                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+1,iy,iz+1),kyx)
           Term5 = Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy+1,iz),kz)
           Term6 = Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy,iz+1),ky)
           if (lb >= 1) then
             Term5 = Term5-real(iy,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy-1,iz),kz)
             Term6 = Term6-real(iz,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy,iz-1),ky)
             if (lb >= 2) then
-              Term1 = Term1-real(iy*ix,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-1,iz),kzx)
-              Term2 = Term2+real(ix*(ix-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz),kyz)
+              Term1 = Term1-real(iy*ix,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-1,iy-1,iz),kzx)
+              Term2 = Term2+real(ix*(ix-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-2,iy,iz),kyz)
               Term3 = Term3+real(iy*iz,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-1,iz-1),kxx)
-              Term4 = Term4-real(iz*ix,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz-1),kyx)
+              Term4 = Term4-real(iz*ix,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-1,iy,iz-1),kyx)
             end if
           end if
           Rslt(iZeta,ipa,ipb,kyz) = Term1+Term2+Term3+Term4+Half*(Term5+Term6)
@@ -249,20 +249,20 @@ do ixa=la,0,-1
                   Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+1,iz+1),kxy)
           Term2 = -Two*By2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kzx)+Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+2,iz),kzx)- &
                   Two*B*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz),kzx)
-          Term3 = -Bz2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz-1),kyy)-Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy,iz+1),kyy)+ &
-                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy,iz+1),kyy)
-          Term4 = Bx2*Tab0(iZeta,ipa,C_Ind3(ix,iy+1,iz),kzy)+By2*Tab0(iZeta,ipa,C_Ind3(ix,iy-1,iz),kzy)- &
-                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix,iy+1,iz),kzy)
+          Term3 = -Bz2*Tab0(iZeta,ipa,C_Ind3(ix+1,iy,iz-1),kyy)-Bx2*Tab0(iZeta,ipa,C_Ind3(ix-1,iy,iz+1),kyy)+ &
+                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+1,iy,iz+1),kyy)
+          Term4 = Bx2*Tab0(iZeta,ipa,C_Ind3(ix-1,iy+1,iz),kzy)+By2*Tab0(iZeta,ipa,C_Ind3(ix+1,iy-1,iz),kzy)- &
+                  Four*B2*Tabpp(iZeta,ipa,C_Ind3(ix+1,iy+1,iz),kzy)
           Term5 = Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy,iz+1),kx)
-          Term6 = Two*B*Tabp(iZeta,ipa,C_Ind3(ix,iy,iz),kz)
+          Term6 = Two*B*Tabp(iZeta,ipa,C_Ind3(ix+1,iy,iz),kz)
           if (lb >= 1) then
             Term5 = Term5-real(iz,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy,iz-1),kx)
-            Term6 = Term6-real(ix,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix,iy,iz),kz)
+            Term6 = Term6-real(ix,kind=wp)*Tabm(iZeta,ipa,C_Ind3(ix-1,iy,iz),kz)
             if (lb >= 2) then
               Term1 = Term1-real(iz*iy,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-1,iz-1),kxy)
               Term2 = Term2+real(iy*(iy-1),kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-2,iz),kzx)
-              Term3 = Term3+real(iz*ix,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy,iz-1),kyy)
-              Term4 = Term4-real(ix*iy,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix,iy-1,iz),kzy)
+              Term3 = Term3+real(iz*ix,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-1,iy,iz-1),kyy)
+              Term4 = Term4-real(ix*iy,kind=wp)*Tabmm(iZeta,ipa,C_Ind3(ix-1,iy-1,iz),kzy)
             end if
           end if
           Rslt(iZeta,ipa,ipb,kxz) = Term1+Term2+Term3+Term4+Half*(Term5+Term6)

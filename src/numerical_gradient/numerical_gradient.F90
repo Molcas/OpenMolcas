@@ -316,7 +316,7 @@ else
     iChxyz = iChAtm(Coor(:,i))
     call Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
 
-    call IZero(iDispXYZ,3)
+    iDispXYZ(:) = 0
     do j=0,nStab-1
       if (btest(jStab(j),0)) then
         iDispXYZ(1) = iDispXYZ(1)-1
@@ -337,7 +337,7 @@ else
 
     ! If this is a MM atom, do not make displacements
 
-    if (DoTinker .and. (IsMM(i) == 1)) call IZero(iDispXYZ,3)
+    if (DoTinker .and. (IsMM(i) == 1)) iDispXYZ(:) = 0
     DispX = iDispXYZ(1) /= 0
     DispY = iDispXYZ(2) /= 0
     DispZ = iDispXYZ(3) /= 0
