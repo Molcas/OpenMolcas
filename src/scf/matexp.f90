@@ -47,7 +47,7 @@ real(kind=wp), intent(inout)  :: U(N,N)
 integer(kind=iwp)  :: Nv
 integer(kind=iwp)  :: count, i
 
-real(kind=wp), Parameter :: thrsh = 1.0D-16
+real(kind=wp), parameter :: thrsh = 1.0D-20
 real(kind=wp) :: ithrsh, ithrshoo, ithrshvv, ithrshvo, factor
 
 real(kind=wp), allocatable :: Uoo(:,:), xUoo(:,:), Koo(:,:)
@@ -119,15 +119,14 @@ do while (thrsh < ithrsh)
     Uoo(:,:) = Uoo + One/factor * Koo
     Uvv(:,:) = Uvv + One/factor * Kvv
 
-
   else
     call dgemm_('N','N',Nv,No,No,One,theta,Nv,Koo,No,Zero,Kvo,Nv)
     factor = factor*count
     Uvo(:,:) = Uvo + One/factor * Kvo
 
-    ithrshoo = maxval(abs(Uoo-xUoo)/abs(Uoo))
-    ithrshvv = maxval(abs(Uvv-xUvv)/abs(Uvv))
-    ithrshvo = maxval(abs(Uvo-xUvo)/abs(Uvo))
+    ithrshoo = maxval(abs(Uoo-xUoo))
+    ithrshvv = maxval(abs(Uvv-xUvv))
+    ithrshvo = maxval(abs(Uvo-xUvo))
     ithrsh   = max(ithrshoo, ithrshvv, ithrshvo)
 
     xUoo(:,:) = Uoo
