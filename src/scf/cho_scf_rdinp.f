@@ -16,6 +16,7 @@
 *
 ************************************************************************
       Use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
+      Use CHoSCF
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -25,7 +26,6 @@
       character*13 SECNAM
       parameter (SECNAM = 'CHO_SCF_RDINP')
 *
-#include "choscf.fh"
 #include "chotime.fh"
 #include "chopar.fh"
 

@@ -45,6 +45,7 @@
 ************************************************************************
       use OFembed, only: Do_OFemb
       use InfSCF
+      use ChoSCF
       Implicit Real*8 (a-h,o-z)
       External EFP_On
 #include "real.fh"
@@ -57,8 +58,6 @@
       Real*8 XCf(nXCf,nD), E_DFT(nE_DFT), Vxc(nDT,nD,NumDT)
       Real*8 Fock(nDT,nD)
       Logical FstItr, NoCoul
-*
-#include "choscf.fh"
 *
       Logical Found, EFP_On
 *

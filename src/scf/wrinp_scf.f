@@ -39,6 +39,7 @@
       Use KSDFT_Info, only: CoefR, CoefX
       Use InfSO
       use InfSCF
+      use ChoSCF, only: dmpk
 *
       Implicit Real*8 (a-h,o-z)
 *
@@ -302,12 +303,14 @@ c           Call Abend()
                  if (Iand(iDoRI,1024).Eq.1024) then
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: RI/DF'
                     endif
                  else
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-Cholesky'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: Cholesky'
                     endif

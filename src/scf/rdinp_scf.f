@@ -46,6 +46,7 @@
 *
       use SpinAV, only: Do_SpinAV
       use InfSCF
+      use ChoSCF
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
@@ -70,7 +71,6 @@
       character Method*8
       Logical TDen_UsrDef
 
-#include "choscf.fh"
 #include "chotime.fh"
 #include "choauf.fh"
 

@@ -473,6 +473,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use SpinAV
       use InfSCF
+      use ChoSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -480,7 +481,6 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Integer nBDT
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
-#include "choscf.fh"
       Integer nForb(8,2), nIorb(8,2)
       Real*8, Dimension(:,:), Allocatable:: Dm
       Real*8 E2act(1)

@@ -27,7 +27,7 @@
       Parameter (MxBS    = MxBas*MxSym)
       Parameter (MxAtms  =    mxatom  )
       Parameter (MxIter  =         400)
-      Parameter (MxOptm  =           5)
+      Parameter (MxOptm  =          20)
       Parameter (MxKeep  =      MxIter)
       Parameter (MxDDsk  =      MxKeep)
 !      Parameter (MxTit   =          10)
