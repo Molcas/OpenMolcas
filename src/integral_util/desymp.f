@@ -38,7 +38,7 @@
 *             matrix, January '92.                                     *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
+      use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
@@ -49,12 +49,6 @@
       Integer iAng(4), iShell(4), kOp(4), iShll(4), iAO(4)
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Real*8 Prmt(0:7)
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-*
-*     Statement Function
-*
-      xPrmt(i,j) = Prmt(iAnd(i,j))
 *
 #ifdef _DEBUGPRINT_
       iRout = 38
@@ -96,7 +90,7 @@
       Do 100 i1 = 1, iCmp
          iChBs = iChBas(ii+i1)
          If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
-         pa = xPrmt(iOper(kOp(1)),iChBs)
+         pa = Prmt(iOper(kOp(1)),iChBs)
          niSym=0
          Do 101 j = 0, nIrrep-1
             If (iAOtSO(iAO(1)+i1,j)>0) Then
@@ -107,7 +101,7 @@
          Do 200 i2 = 1, jCmp
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
-            pb = xPrmt(iOper(kOp(2)),jChBs)
+            pb = Prmt(iOper(kOp(2)),jChBs)
             njSym=0
             Do 201 j = 0, nIrrep-1
                If (iAOtSO(iAO(2)+i2,j)>0) Then
@@ -119,7 +113,7 @@
                kChBs = iChBas(kk+i3)
                If (Shells(iShll(3))%Transf)
      &            kChBs = iChBas(iSphCr(kk+i3))
-               pc = xPrmt(iOper(kOp(3)),kChBs)
+               pc = Prmt(iOper(kOp(3)),kChBs)
                nkSym=0
                Do 301 j = 0, nIrrep-1
                   If (iAOtSO(iAO(3)+i3,j)>0) Then
@@ -133,7 +127,7 @@
      &               lChBs = iChBas(iSphCr(ll+i4))
 *-----------------Parity factor due to symmetry operations applied to the
 *                 angular part of the basis functions.
-                  FactNs = pa*pb*pc * xPrmt(iOper(kOp(4)),lChBs)
+                  FactNs = pa*pb*pc * Prmt(iOper(kOp(4)),lChBs)
                   nlSym=0
                   Do 401 j = 0, nIrrep-1
                      If (iAOtSO(iAO(4)+i4,j)>0) Then

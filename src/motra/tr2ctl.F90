@@ -41,7 +41,7 @@ call SETTIM()
 
 call DANAME_MF(LUTWOMO,FNTWOMO)
 IAD13 = 0
-call iCopy(nTraToc,[0],0,iTraToc,1)
+iTraToc(:) = 0
 call iDAFILE(LUTWOMO,1,iTraToc,nTraToc,IAD13)
 
 ! Initiate unit LUTWOAO (two-electron integrals in AO basis)

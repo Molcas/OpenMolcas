@@ -47,7 +47,7 @@ call Get_iArray('nFro',nFro(0),mIrrep)
 call Get_iArray('nIsh',nIsh(0),mIrrep)
 call qpg_iArray('nAsh',F_nAsh,nOrbA)
 if ((.not. F_nAsh) .or. (nOrbA == 0)) then
-  call Izero(nAsh(0),mIrrep)
+  nAsh(0:mIrrep-1) = 0
 else
   call Get_iArray('nAsh',nAsh(0),mIrrep)
 end if

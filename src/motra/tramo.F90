@@ -43,9 +43,9 @@ real(kind=wp), allocatable :: tmpbuf(:)
 
 ! Set some constants
 
-call ICopy(mOVX,[-1],0,iDsk(1,1),3)
-call ICopy(mOVX,[0],0,iDsk(2,1),3)
-call ICopy(mOVX,[1],0,iDsk(3,1),3)
+iDsk(1,:) = -1
+iDsk(2,:) = 0
+iDsk(3,:) = 1
 
 #ifdef _HDF5_QCM_
 if (ihdf5 == 1) then

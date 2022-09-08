@@ -106,8 +106,8 @@ end do
 mval(2) = 1
 mval(3) = -1
 mval(4) = 0
-call ICopy(MxAO,[-99],0,iCent,1)
-call ICopy(MxAO,[-99],0,lnAng,1)
+iCent(:) = -99
+lnAng(:) = -99
 !write(u6,'(20i4)') (lval(i),i=1,k)
 !write(u6,*) ' lval',k
 !write(u6,'(20i4)') (mval(i),i=1,k)
@@ -115,8 +115,8 @@ call ICopy(MxAO,[-99],0,lnAng,1)
 call mma_allocate(nCore_Sh,[0,iTabMx],label='nCore_Sh')
 call mma_allocate(List,[0,iTabMx],label='List')
 call mma_allocate(List_AE,[0,iTabMx],label='List_AE')
-call ICopy(1+iTabMx,[0],0,List,1)
-call ICopy(1+iTabMx,[0],0,List_AE,1)
+List(:) = 0
+List_AE(:) = 0
 
 isymunit = isfreeunit(58)
 call molcas_open(isymunit,'SYMINFO')
@@ -139,7 +139,7 @@ S%nDim = 0
 iAO = 0
 lSkip = .false.
 
-call ICopy(8,[0],0,nFCore,1)
+nFCore(:) = 0
 
 call mma_Allocate(iCI,iBas,label='iCI')        ! Stuff for LoProp
 call mma_Allocate(jCI,iBas,label='jCI')        ! Stuff for LocalDKH/X2C/BSS
@@ -177,8 +177,8 @@ if (nIrrep /= 1) then
 
   call mma_allocate(Index1,5*iBas,label='Index1')
   call mma_allocate(Index2,5*iBas,label='Index2')
-  call ICopy(5*iBas,[0],0,Index1,1)
-  call ICopy(5*iBas,[0],0,Index2,1)
+  Index1(:) = 0
+  Index2(:) = 0
   iCounter = 0
   jCounter = 0
   call mma_Allocate(SM,iBas,iBas,label='SM')
@@ -241,14 +241,14 @@ if (nIrrep /= 1) then
 
           ! No core to freeze!
 
-          call ICopy(lMax+1,[0],0,nCore_Sh,1)
+          nCore_Sh(0:lMax) = 0
         else
 
           ! Non-ECP case
 
           ! Pick up the number of occupied orbitals in each shell type.
 
-          call ICopy(1+iTabMx,List_AE,1,List,1)
+          List(:) = List_AE
 
           ! Pick up which orbitals should be frozen as default.
 
@@ -569,9 +569,9 @@ else
       call OrbType(dbsc(iCnttp)%AtmNr,List_AE,31)
       if (kECP) then
         call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
-        call ICopy(lmax+1,[0],0,nCore_Sh,1)
+        nCore_Sh(0:lmax) = 0
       else
-        call ICopy(1+iTabMx,List_AE,1,List,1)
+        List(:) = List_AE
         if (dbsc(iCnttp)%Charge /= Zero) then
           call Freeze_Default(dbsc(iCnttp)%AtmNr,nCore_Sh,lMax)
         else

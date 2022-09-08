@@ -20,7 +20,8 @@ set (sources
      constants.F90
      cwtime.F90
      data_structures.F90
-     datimx.c
+     datimx.F90
+     datimxc.c
      definitions.F90
      filesystem.F90
      finish.F90

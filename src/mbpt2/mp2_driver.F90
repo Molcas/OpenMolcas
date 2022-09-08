@@ -49,8 +49,7 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, itmp, iTol, iTst, iType, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), &
-                     nIsh(8), nOccT
+integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, iTol, iTst, iType, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), nIsh(8), nOccT
 real(kind=wp) :: E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
 logical(kind=iwp) :: Conventional, IsDirect, Exists, Ready
 character(len=8) :: Method, Method1
@@ -277,15 +276,13 @@ else ! conventional (possibly with Cholesky)
     do i=1,8
       nIsh(i) = nOrb(i)+nDel(i)
     end do
-    itmp = 0
-    call ICopy(8,[itmp],0,nFro_tra,1)
-    call ICopy(8,[itmp],0,nDel_tra,1)
+    nFro_tra(:) = 0
+    nDel_tra(:) = 0
   else
-    call ICopy(8,nOcc,1,nIsh,1)
+    nIsh(:) = nOcc
   end if
 
-  itmp = 0
-  call ICopy(8,[itmp],0,nAsh,1)
+  nAsh(:) = 0
   if (.not. DoDens) then
     ! PAM Jan 2013: Set correct nOrb:
     do i=1,8

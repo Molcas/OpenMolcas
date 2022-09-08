@@ -105,7 +105,7 @@ end if
 
 kdc = 0
 do kCnttp=1,nCnttp
-  if (kCnttp /= 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
 
   ! Change nuclear charge if this is a relativistic ECP-case. This
   ! is used for the DKH transformation (see dkh_util/dkrelint_dp)!

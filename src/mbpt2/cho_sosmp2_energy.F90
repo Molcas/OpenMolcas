@@ -41,7 +41,7 @@ real(kind=r8), external :: ddot_
 irc = 0
 
 iTyp = 2
-call iCopy(nSym,nMP2Vec,1,nEnrVec,1)
+nEnrVec(:) = nMP2Vec
 
 ! Initialize SOS-MP2 energy correction.
 ! -------------------------------------

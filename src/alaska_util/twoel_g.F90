@@ -382,7 +382,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
         if (mGrad == 0) cycle
 
         ! Find the proper centers to start of with the angular
-        ! momentum on. If la == lb there will excist an
+        ! momentum on. If la == lb there will exist an
         ! ambiguity to which center that angular momentum should
         ! be accumulated on. In that case we will use A and C of
         ! the order as defined by the basis functions types.
