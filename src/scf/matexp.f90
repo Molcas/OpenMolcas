@@ -124,9 +124,9 @@ do while (thrsh < ithrsh)
     factor = factor*count
     Uvo(:,:) = Uvo + One/factor * Kvo
 
-    ithrshoo = maxval(abs(Uoo-xUoo))
-    ithrshvv = maxval(abs(Uvv-xUvv))
-    ithrshvo = maxval(abs(Uvo-xUvo))
+    ithrshoo = maxval(abs(Uoo-xUoo)/(abs(Uoo)+thrsh))
+    ithrshvv = maxval(abs(Uvv-xUvv)/(abs(Uvv)+thrsh))
+    ithrshvo = maxval(abs(Uvo-xUvo)/(abs(Uvo)+thrsh))
     ithrsh   = max(ithrshoo, ithrshvv, ithrshvo)
 
     xUoo(:,:) = Uoo
