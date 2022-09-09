@@ -192,7 +192,7 @@
          mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 *
 *        Find the proper centers to start of with the angular
-*        momentum on. If la.eq.lb there will excist an
+*        momentum on. If la.eq.lb there will exist an
 *        ambiguity to which center that angular momentum should
 *        be accumulated on. In that case we will use A and C of
 *        the order as defined by the basis functions types.

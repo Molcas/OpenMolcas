@@ -17,7 +17,7 @@ implicit none
 integer(kind=iwp), intent(in) :: N
 integer(kind=iwp), intent(out) :: B(N)
 
-call ICOPY(N,[0],0,B,1)
+B(:) = 0
 
 return
 

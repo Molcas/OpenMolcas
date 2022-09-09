@@ -130,7 +130,7 @@ end if
 ! --------------------------------------------------
 
 nSym_Sav = nSym
-call iCopy(nSym,NumCho,1,nMP2Vec,1)
+nMP2Vec(1:nSym) = NumCho(1:nSym)
 
 call Cho_X_Final(irc)
 if (irc /= 0) then
@@ -141,7 +141,7 @@ end if
 
 LuPri = u6
 nSym = nSym_Sav
-call iCopy(nSym,nMP2Vec,1,NumCho,1)
+NumCho(1:nSym) = nMP2Vec(1:nSym)
 
 ! Decompose M(ai,bj) = (ai|bj)^2 .
 ! Set number of vectors to be used in energy calculation.

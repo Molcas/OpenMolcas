@@ -97,9 +97,8 @@ rFinal(:,:,:,:) = Zero
 ! Loop over nuclear centers
 
 kdc = 0
-if (nCnttp > 0) kdc = -dbsc(1)%nCntr ! to make sure we start at 0
 do kCnttp=1,nCnttp
-  kdc = kdc+dbsc(kCnttp)%nCntr
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
   if (.not. dbsc(kCnttp)%ECP) cycle
   if (dbsc(kCnttp)%nM2 == 0) cycle
 

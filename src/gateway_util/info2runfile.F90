@@ -49,7 +49,7 @@ character(len=LenIn), allocatable :: xLblCnt(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call ICopy(8,[0],0,nDel,1)
+nDel(:) = 0
 call Put_iArray('nFro',nDel,nIrrep) ! put to 0
 call qpg_iArray('nDel',Found,nData)
 if (.not. Found) then

@@ -132,7 +132,7 @@ if (iPrint >= 10) then
   end do
 end if
 
-call iCopy(8,nBas,1,nBas_Cont,1)
+nBas_Cont(:) = nBas
 nSym = nIrrep
 !                                                                      *
 !***********************************************************************
@@ -164,7 +164,7 @@ call OneBas('PRIM')
 !***********************************************************************
 !                                                                      *
 call Get_iArray('nBas_Prim',nBas,nSym)
-call iCopy(8,nBas,1,nBas_prim,1)
+nBas_prim(:) = nBas
 if (iPrint >= 10) then
   write(u6,'(a,8i5)') ' Symmetries          ',nSym
   write(u6,'(a,8i5)') ' Primitive basis fcns',(nBas(i),i=0,nSym-1)
@@ -660,7 +660,7 @@ call lesw(SS,iSizec,1,1400,0)
 call daxpy_(iSizec,-One,SS,1,H,1)
 call writem(H,iSizec+2,1,1410,0,'POT')
 ! reset contracted basis size
-call iCopy(8,nBas_Cont,1,nBas,1)
+nBas(:) = nBas_Cont
 call mma_deallocate(iK)
 call mma_deallocate(SS)
 call mma_deallocate(V)

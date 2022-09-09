@@ -98,6 +98,7 @@ c
          End If
       Else
         iWork(ip2) = 2**nirrep-1
+        iWork(ip3) = 0
         Call OneEl(PotInt,NAMem,Label,iWork(ip1),iWork(ip2),ncmp,
      &             Ccoor,nOrdOp,work(ipnuc),rHrmt,iWork(ip3),
      &             dummy,1,opnuc,iopadr,1,1,
