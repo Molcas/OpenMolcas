@@ -30,7 +30,7 @@
 
       Implicit None
 
-#define  qnext
+!#define  qnext
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
