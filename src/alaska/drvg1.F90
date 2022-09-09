@@ -641,7 +641,6 @@ end subroutine Drvg1
                               iOffAO,nBasT,nOcc, &
                               CMOPT2,WRK1,WRK2,G_Toc)
 
-      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 
 #include "nsd.fh"

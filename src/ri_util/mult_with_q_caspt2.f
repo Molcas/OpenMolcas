@@ -72,7 +72,6 @@ C        write (*,*) "nBas2 = ", nBas2
          NumCV = NumCho(iSym)
          NumAux = nBas_Aux(iSym)-1
          If (SubAux) NumAux = nBas_Aux(iSym)-1
-         nAuxVe = NumAux
 *
 *     Get Q-vectors from disk
 *     -----------------------

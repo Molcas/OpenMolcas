@@ -177,6 +177,7 @@
       Implicit Real*8 (A-H,O-Z)
       ! integer opout
       Real*8, Allocatable:: CIL(:), CIR(:)
+      integer :: i,j
 
 !     At present, Molcas accepts equally-weighted MCSCF reference,
 !     so all SLag values are employed in the following computation.
