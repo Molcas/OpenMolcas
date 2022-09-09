@@ -11,6 +11,7 @@
 
 subroutine Mk_tVt(TInt,nTheta_All,tVt,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,Indkl,nkl)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -34,7 +35,7 @@ do iTheta_All=1,nTheta_All
   ik = List2(5,iTheta_All)
   il = List2(6,iTheta_All)
   if (iAng == jAng) then
-    iTheta_Full = ik*(ik-1)/2+il
+    iTheta_Full = nTri_Elem(ik-1)+il
   else
     iTheta_Full = (il-1)*nk+ik
   end if
@@ -48,7 +49,7 @@ do iTheta_All=1,nTheta_All
       im = List2(5,jTheta_All)
       in_ = List2(6,jTheta_All)
       if (iAng == jAng) then
-        jTheta_Full = im*(im-1)/2+in_
+        jTheta_Full = nTri_Elem(im-1)+in_
       else
         jTheta_Full = (in_-1)*nk+im
       end if

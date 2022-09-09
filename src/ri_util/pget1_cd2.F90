@@ -31,18 +31,18 @@ subroutine PGet1_CD2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,ExFac,
 !             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use pso_stuff, only: ij2K, iOff_ij2K
 use SOAO_Info, only: iAOtSO
-use ExTerm, only: CijK, iMP2prpt, nAuxVe
+use RI_glob, only: CijK, iAdrCVec, iMP2prpt, LuCVector, nAuxVe, nIJ1, tavec
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), mV_k, nnP1
 real(kind=wp) :: PAO(ijkl,nPAO), ExFac, CoulFac, PMax, V_k(mV_k), U_K(mV_K), Z_p_K(nnP1,mV_K)
-#include "exterm.fh"
-integer(kind=iwp) :: i1, i2, i3, i4, iAdrJ, iAdrL, iAOi, iE, ijVec, Indi, Indij, Indj, Indk, Indkl, Indl, iPAO, iS, iSO, iSOi, &
-                     iSym, jAOj, jp, jSO, jSOj, jSym, kAOk, klVec, kSO, kSOk, lAOl, lSO, lSOl, lSym, nijkl, NumIK
+integer(kind=iwp) :: i1, i2, i3, i4, iAdrJ, iAdrL, iAOi, iE, ijVec, Indij, Indkl, iPAO, iS, iSO, iSOi, iSym, jAOj, jp, jSO, jSOj, &
+                     jSym, kAOk, klVec, kSO, kSOk, lAOl, lSO, lSOl, lSym, nijkl, NumIK
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, Fac_kl, temp, tempJ_mp2, tempK, tempK_mp2, Wall, Wall1, Wall2
 real(kind=wp), pointer :: CiKj(:,:), V2(:)
 real(kind=r8), external :: dDot_
@@ -100,12 +100,8 @@ if (ExFac == Zero) then
 
                   ! V_k(ij)*V_k(kl)
 
-                  Indi = max(iSOi,jSOj)
-                  Indj = iSOi+jSOj-Indi
-                  Indk = max(kSOk,lSOl)
-                  Indl = kSOk+lSOl-Indk
-                  Indij = (Indi-1)*Indi/2+Indj
-                  Indkl = (Indk-1)*Indk/2+Indl
+                  Indij = iTri(iSOi,jSOj)
+                  Indkl = iTri(kSOk,lSOl)
                   temp = V_k(Indij)*V_k(Indkl)*CoulFac
                   ! Active space contribution (any factor?)
                   ijVec = ij2K(iOff_ij2K(1)+Indij)
@@ -152,9 +148,7 @@ else if (iMP2prpt /= 2) then
             lSOl = lSO+lAOl
             do kAOk=0,kBas-1
               kSOk = kSO+kAOk
-              Indk = max(kSOk,lSOl)
-              Indl = kSOk+lSOl-Indk
-              Indkl = (Indk-1)*Indk/2+Indl
+              Indkl = iTri(kSOk,lSOl)
               klVec = ij2K(iOff_ij2K(1)+Indkl)
 
               if (klvec /= 0) then
@@ -168,9 +162,7 @@ else if (iMP2prpt /= 2) then
                   iSOi = iSO+iAOi
                   nijkl = nijkl+1
 
-                  Indi = max(iSOi,jSOj)
-                  Indj = iSOi+jSOj-Indi
-                  Indij = (Indi-1)*Indi/2+Indj
+                  Indij = iTri(iSOi,jSOj)
                   ijVec = ij2K(iOff_ij2K(1)+Indij)
 
                   if ((ijVec /= klVec) .and. (ijvec /= 0)) then
@@ -184,12 +176,12 @@ else if (iMP2prpt /= 2) then
                   temp = V_k(Indij)*V_k(Indkl)*CoulFac
 
                   if ((ijVec /= 0) .and. (klVec /= 0)) then
-                    if (Indi == Indj) then
+                    if (iSOi == jSOj) then
                       Fac_ij = One
                     else
                       Fac_ij = Half
                     end if
-                    if (Indk == Indl) then
+                    if (kSOk == lSOl) then
                       Fac_kl = One
                     else
                       Fac_kl = Half
@@ -239,9 +231,7 @@ else
             lSOl = lSO+lAOl
             do kAOk=0,kBas-1
               kSOk = kSO+kAOk
-              Indk = max(kSOk,lSOl)
-              Indl = kSOk+lSOl-Indk
-              Indkl = (Indk-1)*Indk/2+Indl
+              Indkl = iTri(kSOk,lSOl)
               klVec = ij2K(iOff_ij2K(1)+Indkl)
               if (klvec /= 0) then
                 iAdrL = NumIK*(klVec-1)+iAdrCVec(jSym,iSym,iSO)
@@ -254,9 +244,7 @@ else
                   iSOi = iSO+iAOi
                   nijkl = nijkl+1
 
-                  Indi = max(iSOi,jSOj)
-                  Indj = iSOi+jSOj-Indi
-                  Indij = (Indi-1)*Indi/2+Indj
+                  Indij = iTri(iSOi,jSOj)
                   ijVec = ij2K(iOff_ij2K(1)+Indij)
 
                   if ((ijVec /= klVec) .and. (ijvec /= 0)) then
@@ -270,12 +258,12 @@ else
                   temp = V_k(Indij)*V_k(Indkl)*CoulFac+V_K(Indij)*U_K(Indkl)*CoulFac+U_K(Indij)*V_K(Indkl)*CoulFac
 
                   if ((ijVec /= 0) .and. (klVec /= 0)) then
-                    if (Indi == Indj) then
+                    if (iSOi == jSOj) then
                       Fac_ij = One
                     else
                       Fac_ij = Half
                     end if
-                    if (Indk == Indl) then
+                    if (kSOk == lSOl) then
                       Fac_kl = One
                     else
                       Fac_kl = Half

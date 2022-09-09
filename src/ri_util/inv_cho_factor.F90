@@ -78,6 +78,7 @@
 
 subroutine INV_CHO_FACTOR(A_k,kCol,Am,Qm,nMem,lu_A,lu_Q,Scr,lScr,Z,X,thr,Q_k,lindep)
 
+use Index_Functions, only: iTri, nTri_Elem
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs, Is_Real_Par
 #endif
@@ -136,7 +137,7 @@ if (kCol <= nMem) then
     ! simple, I've just used a series of DAXPY's on each column of the
     ! triangular matrix, this should be sufficient (for now).
     do J=1+MYRANK,KCOL-1,NPROCS
-      IJ = (J*(J-1))/2+1
+      IJ = iTri(J,1)
       call DAXPY_(J,-Z(J),Qm(IJ),1,Q_k,1)
     end do
     call GAdGOp(Q_k,kCol-1,'+')
@@ -213,10 +214,10 @@ else   ! the first nMem columns of Q are in memory
   ! Batch for the out-of-core previous vectors
   ! ------------------------------------------
   kdone = nMem
-  lQcol = (kCol-1)*kCol/2 ! length up to kCol-1
+  lQcol = nTri_Elem(kCol-1) ! length up to kCol-1
   do while (kdone < kCol-1)
 
-    lQdone = kdone*(kdone+1)/2
+    lQdone = nTri_Elem(kdone)
     lQdone_ = lQdone
     lQread = lQcol-lQdone
 
@@ -240,7 +241,7 @@ else   ! the first nMem columns of Q are in memory
       sprev = zero
       kstart = max(i,kdone+1) ! ((j >= i) .and. j_out_of_core)
       do j=kstart,kread
-        ij = j*(j-1)/2+i-lQdone
+        ij = iTri(j,i)-lQdone
         sprev = sprev+Z(j)*Scr(ij)
       end do
       X(i) = X(i)+sprev
@@ -256,7 +257,7 @@ else   ! the first nMem columns of Q are in memory
   do i=1,kCol-1
     sprev = X(i) ! out-of-core contrib.
     do j=i,nMem
-      ij = j*(j-1)/2+i
+      ij = iTri(j,i)
       sprev = sprev+Z(j)*Qm(ij)
     end do
     Q_k(i) = -sprev
@@ -273,10 +274,10 @@ else   ! the first nMem columns of Q are in memory
   ! Batch for the out-of-core previous vectors
   ! ------------------------------------------
   kdone = nMem
-  lQcol = (kCol-1)*kCol/2 ! length up to kCol-1
+  lQcol = nTri_Elem(kCol-1) ! length up to kCol-1
   do while (kdone < kCol-1)
 
-    lQdone = kdone*(kdone+1)/2
+    lQdone = nTri_Elem(kdone)
     lQread = lQcol-lQdone
 
     kread = kCol-1

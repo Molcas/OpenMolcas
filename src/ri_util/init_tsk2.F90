@@ -11,7 +11,7 @@
 
 subroutine Init_Tsk2(id,mTask,jOpt,List)
 
-use Tsk2, only: TskList, iOpt, iRsv, nTask
+use RI_glob, only: TskList, iOpt, iRsv, nTask
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 

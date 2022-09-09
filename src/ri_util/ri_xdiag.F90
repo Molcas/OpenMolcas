@@ -16,6 +16,7 @@ subroutine RI_XDiag(Diag,nDiag)
 !
 ! Purpose: compute exact integral diagonal.
 
+use Index_Functions, only: nTri_Elem
 use ChoArr, only: iSP2F, nBstSh
 use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -56,7 +57,7 @@ do while (Rsv_Tsk(ID,iSAB))
   ! ----------------
 
   if (iShlA == iShlB) then
-    NumAB = nBstSh(iShlA)*(nBstSh(iShlA)+1)/2
+    NumAB = nTri_Elem(nBstSh(iShlA))
   else
     NumAB = nBstSh(iShlA)*nBstSh(iShlB)
   end if

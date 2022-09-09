@@ -11,6 +11,7 @@
 
 subroutine ReMap_V_k(iSym,V_k,nV_k,V_k_New,nV_k_New,iSO_ab,ij2K,m_ij2K)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
@@ -23,7 +24,7 @@ if (iSym == 1) then
   do k=1,nV_k
     i = iSO_ab(1,k)
     j = iSO_ab(2,k)
-    ij = i*(i-1)/2+j
+    ij = nTri_Elem(i-1)+j
     if (i == j) then
       V_k_New(ij) = V_k(k)
     else
@@ -39,7 +40,7 @@ else
   do k=1,nV_k
     i = iSO_ab(1,k)
     j = iSO_ab(2,k)
-    ij = i*(i-1)/2+j
+    ij = nTri_Elem(i-1)+j
     ij2K(ij) = k
   end do
 end if

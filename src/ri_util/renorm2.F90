@@ -13,7 +13,7 @@
 
 subroutine ReNorm2(iCnttp)
 
-use Wrj12, only: iOffA
+use RI_glob, only: iOffA
 use Definitions, only: iwp
 
 implicit none

@@ -11,9 +11,9 @@
 
 subroutine Create_Chunk(LenVec,NumVec,IncVec)
 
-use Chunk_mod, only: Chunk
+use RI_glob, only: Chunk
 #ifdef _MOLCAS_MPP_
-use Chunk_mod, only: iMap, ip_Chunk
+use RI_glob, only: iMap, ip_Chunk
 use Para_Info, only: Is_Real_Par, MyRank, nProcs
 use Constants, only: Zero
 use Definitions, only: wp, u6

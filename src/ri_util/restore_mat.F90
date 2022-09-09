@@ -18,6 +18,7 @@ subroutine Restore_mat(n,m,lu_A0,lu_A,iD_A,Scr,lScr,Add0s)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -36,14 +37,14 @@ if (lmax < n) then
 end if
 
 nMem_Col = m
-mNeed = nMem_Col*(nMem_Col+1)/2
+mNeed = nTri_Elem(nMem_Col)
 do while (mNeed > lmax)
   mNeed = mNeed-nMem_Col
   nMem_Col = nMem_Col-1
 end do
 
 kAddr = 0
-ij = nMem_Col*(nMem_Col+1)/2
+ij = nTri_Elem(nMem_Col)
 call dDaFile(lu_A0,2,Scr(1),ij,kAddr)
 
 iOff = 0

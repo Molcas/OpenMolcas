@@ -11,13 +11,14 @@
 
 subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
 
+use Index_Functions, only: nTri_Elem
 use pso_stuff, only: AOrb, CMO, D0, lPSO, lSA, n_Txy, nDens, nnP, npos, nV_k, nZ_p_k, Txy, U_k, V_k, Z_p_k
 use Basis_Info, only: nBas, nBas_Aux
 use Gateway_global, only: force_out_of_core
 use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: Mul, nIrrep
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use ExTerm, only: DMLT, iMP2prpt
+use RI_glob, only: DMLT, DoCholExch, iMP2prpt, nAdens, nAvec, nChOrb, nJdens, nKdens, nKvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -27,7 +28,6 @@ integer(kind=iwp) :: nProc, ipVk(nProc), ipZpk(nProc), myProc
 integer(kind=iwp), optional :: ipUk(nProc)
 #include "cholesky.fh"
 #include "etwas.fh"
-#include "exterm.fh"
 #include "chotime.fh"
 integer(kind=iwp) :: i, iADens, iAvec, iBas, iCount, iIrrep, ij, iOff, iOff2, iOffDSQ, ipTxy(0:7,0:7,2), irc, irun, iSO, isym, j, &
                      jBas, jCount, jIrrep, jp_U_k, jp_V_k, jp_Z_p_k, jrun, k, kIrrep, kOff1, l, mAO, MemMax, NChVMx, nIOrb(0:7), &
@@ -226,9 +226,9 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
           ! First sort eigenvectors and eigenvalues
 
           do j=1,nBas(isym)
-            irun = iOffDSQ+j*(j+1)/2
+            irun = iOffDSQ+nTri_Elem(j)
             do k=j,nBas(isym)
-              jrun = iOffDSQ+k*(k+1)/2
+              jrun = iOffDSQ+nTri_Elem(k)
               if (TmpD(irun) < TmpD(jrun)) then
                 tmp = TmpD(irun)
                 TmpD(irun) = TmpD(jrun)
@@ -246,9 +246,9 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
 
           l = 0
           do j=1,nBas(isym)
-            if (TmpD(iOffDSQ+j*(j+1)/2) > Cho_thrs) then
+            if (TmpD(iOffDSQ+nTri_Elem(j)) > Cho_thrs) then
               l = l+1
-              tmp = sqrt(TmpD(iOffDSQ+j*(j+1)/2))
+              tmp = sqrt(TmpD(iOffDSQ+nTri_Elem(j)))
               do k=1,nBas(isym)
                 ChM(i)%SB(iSym+1)%A2(k,l) = ChM(i)%SB(iSym+1)%A2(k,j)*tmp
               end do
@@ -257,11 +257,11 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
           npos(isym,i-2) = l
 
           do j=1,nBas(isym)
-            if (-TmpD(iOffDSQ+j*(j+1)/2) > Cho_thrs) then
+            if (-TmpD(iOffDSQ+nTri_Elem(j)) > Cho_thrs) then
               l = l+1
               irun = (l-1)*nBas(isym)
               jrun = (j-1)*nBas(isym)
-              tmp = sqrt(-TmpD(iOffDSQ+j*(j+1)/2))
+              tmp = sqrt(-TmpD(iOffDSQ+nTri_Elem(j)))
               do k=1,nBas(isym)
                 ChM(i)%SB(iSym+1)%A2(k,l) = ChM(i)%SB(iSym+1)%A2(k,j)*tmp
               end do
@@ -269,7 +269,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
           end do
           nChOrb(isym,i) = l
 
-          iOffDSQ = iOffDSQ+nBas(isym)*(nBas(isym)+1)/2
+          iOffDSQ = iOffDSQ+nTri_Elem(nBas(isym))
         end do
 
       end do
@@ -306,7 +306,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
       if (iIrrep < jIrrep) then
         nnAorb = nASh(iIrrep)*nAsh(jIrrep)
       else if (iIrrep == jIrrep) then
-        nnAorb = nAsh(iIrrep)*(nAsh(iIrrep)+1)/2
+        nnAorb = nTri_Elem(nAsh(iIrrep))
       else
         cycle
       end if

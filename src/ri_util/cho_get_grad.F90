@@ -97,12 +97,12 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, V2
-use ExTerm, only: VJ, iMP2prpt, CMOi
+use RI_glob, only: CMOi, dmpK, iBDsh, iMP2prpt, nAdens, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen, VJ
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
@@ -119,9 +119,7 @@ logical(kind=iwp) :: DoExchange, lSA, DoCAS, Estimate, Update
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "exterm.fh"
 #include "print.fh"
-#include "bdshell.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -216,6 +214,7 @@ xtau = Zero
 
 ! Construct iBDsh for later use
 
+call mma_allocate(iBDsh,nShell*nSym,label='iBDsh')
 do iSyma=1,nSym
   LKsh = 0
   do iaSh=1,nShell
@@ -792,7 +791,7 @@ do jSym=1,nSym
               Nik = nChOrb_(kSym,iMOleft)*nChOrb_(lSym,iMOright)
               nIJR(kSym,lSym,jDen) = Nik
               nIJ1(kSym,lSym,jDen) = Nik
-              if ((JSYM == 1) .and. (iMOleft == iMOright)) Nik = nChOrb_(kSym,iMOleft)*(nChOrb_(kSym,iMOleft)+1)/2
+              if ((JSYM == 1) .and. (iMOleft == iMOright)) Nik = nTri_Elem(nChOrb_(kSym,iMOleft))
               nIJ1(kSym,lSym,jDen) = Nik
 
               if (Nik == 0) cycle
@@ -1087,7 +1086,7 @@ do jSym=1,nSym
                   ! Copy LJi[k] in the standard ordered matrix Lik,J
 
                   if ((jSym == 1) .and. (iMOright == iMOleft)) then
-                    itk = it*(it-1)/2+jK
+                    itk = nTri_Elem(it-1)+jK
                   else
                     itk = nChOrb_(lSym,iMOright)*(jK-1)+it
                   end if
@@ -1134,9 +1133,9 @@ do jSym=1,nSym
 
           ! ************  END EXCHANGE CONTRIBUTION  ****************
 
-          ! Diagonals updating. It only makes sense if Nscreen > 0
+          ! Diagonals updating. It only makes sense if nScreen > 0
 
-          if (Update .and. (Nscreen > 0)) then
+          if (Update .and. (nScreen > 0)) then
 
             call CWTIME(TCS1,TWS1)
             !-------------------------------------------------------------
@@ -1315,7 +1314,7 @@ do jSym=1,nSym
                         temp = Zero
                         do k=0,nAOrb(iSymx)-1
                           do l=0,k
-                            temp = temp+Half*Txy(ioff+k*(k+1)/2+l)*(Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+ &
+                            temp = temp+Half*Txy(ioff+iTri(k+1,l))*(Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+ &
                                    Lxy%SB(iSymx)%A2(k+1+nAOrb(iSymx)*l,j))
                           end do
                         end do
@@ -1367,7 +1366,7 @@ do jSym=1,nSym
     end if
 
     ! Screening control section
-    DoScreen = kscreen == Nscreen
+    DoScreen = kscreen == nScreen
 
     if (.not. DoScreen) then
       kscreen = kscreen+1
@@ -1387,7 +1386,7 @@ do jSym=1,nSym
       ! have performed screening in the meanwhile
       if (Is_Real_Par() .and. (.not. DoScreen) .and. (nVrs == 0)) then
         ntv0 = ntv0+1
-        DoScreen = ((JRED < myJRED1) .or. (ntv0 >= Nscreen))
+        DoScreen = ((JRED < myJRED1) .or. (ntv0 >= nScreen))
         if (DoScreen) ntv0 = 0
       end if
 #     endif
@@ -1428,8 +1427,7 @@ if (DoExchange) then
       end do
     end do
   end do
-  ljkVec = 2*nIJMax
-  call mma_allocate(VJ,ljkVec,Label='VJ')
+  call mma_allocate(VJ,2*nIJMax,Label='VJ')
 end if
 
 call mma_deallocate(iShp_rs)

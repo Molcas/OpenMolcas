@@ -17,7 +17,7 @@ subroutine Integral_RI_2( &
 ! if IntOrd_jikl == .true. integral order within symblk: jikl
 !                   else  integral order within symblk: ijkl
 
-use Wrj12, only: iOffA, SO2Ind
+use RI_glob, only: iOffA, SO2Ind
 use Definitions, only: wp, iwp
 
 implicit none

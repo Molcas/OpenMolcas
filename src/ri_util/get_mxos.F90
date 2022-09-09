@@ -12,7 +12,7 @@
 subroutine Get_mXOs(kOrb,XO,locc,nSkal,nIrrep,nOcc)
 
 use ChoArr, only: nBasSh
-use ExTerm, only: CMOi
+use RI_glob, only: CMOi
 use Definitions, only: wp, iwp
 
 implicit none

@@ -17,6 +17,7 @@ function nSize_Rv(kS,lS,nShBf,nShell,nIrrep,iOff,nVec)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
@@ -38,7 +39,7 @@ if (nIrrep == 1) then
     nKL = nK*nL
   else
     nK = nShBf(0,kS)
-    nKL = nK*(nK+1)/2
+    nKL = nTri_Elem(nK)
   end if
 
   nJ = nVec(0)
@@ -71,9 +72,7 @@ else
         if (kIrrep > lIrrep) then
           nKL = nKL+nK*nL
         else if (kIrrep == lIrrep) then
-          nKL = nKL+nK*(nK+1)/2
-        else
-          nKL = nKL+0
+          nKL = nKL+nTri_Elem(nK)
         end if
 
       end do

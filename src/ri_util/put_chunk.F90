@@ -11,9 +11,9 @@
 
 subroutine Put_Chunk(MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu,LenVec)
 
-use Chunk_Mod, only: Chunk
+use RI_glob, only: Chunk
 #ifdef _MOLCAS_MPP_
-use Chunk_Mod, only: ip_Chunk
+use RI_glob, only: ip_Chunk
 use Para_Info, only: Is_Real_Par
 #endif
 use Definitions, only: wp, iwp

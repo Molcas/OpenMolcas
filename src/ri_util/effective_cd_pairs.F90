@@ -11,6 +11,7 @@
 
 subroutine Effective_CD_Pairs(ij2,nij_Eff)
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nBas_Aux, nCnttp, Shells
 use Symmetry_Info, only: nIrrep
 use ChoArr, only: iSOShl
@@ -44,7 +45,7 @@ end do
 
 ! Max number of pairs
 
-nij = nSkal_Valence*(nSkal_Valence+1)/2
+nij = nTri_Elem(nSkal_Valence)
 call mma_allocate(ij3,nij,Label='ij3')
 ij3(:) = 0
 !write(u6,*) 'nij3=',nij

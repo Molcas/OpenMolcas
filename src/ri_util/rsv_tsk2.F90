@@ -11,7 +11,7 @@
 
 function Rsv_Tsk2(id,kls)
 
-use Tsk2, only: iOpt, iRsv, nTask, TskList
+use RI_glob, only: iOpt, iRsv, nTask, TskList
 use Definitions, only: iwp, u6
 
 implicit none

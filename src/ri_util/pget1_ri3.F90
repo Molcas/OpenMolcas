@@ -28,14 +28,16 @@ subroutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,jBas,kBas,lBas,kOp,DSO,DSO_Var
 !             Modified for 3-center RI gradients, March 2007           *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: AOrb, lPSO, lSA, Thpkl
 use Data_Structures, only: V1
-use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, iMP2prpt, LuBVector, nYmnij, Yij, Ymnij
+use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, LuCVector, nChOrb, nIJR, nKdens, nYmnij, tbvec, &
+                   Yij, Ymnij
 #ifdef _DEBUGPRINT_
-use ExTerm, only: iOff_Ymnij
+use RI_glob, only: iOff_Ymnij
 #endif
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6, r8
@@ -43,11 +45,10 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nDSO, mV_k, nnP1, nSA, nAct(0:7)
 real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO,nSA), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k,nSA), U_k(mV_k), ZpK(nnP1,mV_K,*)
-#include "exterm.fh"
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ijBas, ijk, ik, ik1, ik2, il, il1, il2, ileft, imo, iMO1, iMO2, iMOleft, iMOright, &
-                     indexB, Indk, Indkl, Indl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, &
-                     jSkip(4), jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, lAct, lAOl, lBVec, lCVec, lda, lda1, &
-                     lda2, lSO, lSOl, lSym, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
+                     indexB, Indkl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, jSkip(4), &
+                     jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, lAct, lAOl, lBVec, lCVec, lda, lda1, lda2, &
+                     lSO, lSOl, lSym, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, fact, Factor, temp, tmp, Wall, Wall1, Wall2
 logical(kind=iwp) :: Found
 real(kind=wp), pointer :: Xki(:), Xli(:)
@@ -230,9 +231,7 @@ if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPS
             kSOk = kSO+kAOk
 
             indexB = (kAOk+(i3-1)*kBas)*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas
-            Indk = max(kSOk,lSOl)
-            Indl = kSOk+lSOl-Indk
-            Indkl = (Indk-1)*Indk/2+Indl
+            Indkl = iTri(kSOk,lSOl)
 
             do jAOj=0,jBas-1
               jSOj = jSO+jAOj-iOff1
@@ -375,9 +374,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
             kSOk = kSO+kAOk
 
             indexB = (kAOk+(i3-1)*kBas)*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas
-            Indk = max(kSOk,lSOl)
-            Indl = kSOk+lSOl-Indk
-            Indkl = (Indk-1)*Indk/2+Indl
+            Indkl = iTri(kSOk,lSOl)
 
             do jAOj=0,jBas-1
               jSOj = jSO+jAOj-iOff1
@@ -509,10 +506,10 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
         do lAOl=0,lBas-1
           lSOl = lSO+lAOl
           do kAct=1,nAct(kSym-1)
-            tmp = ddot_(kact,Zpk(kAct*(kAct-1)/2+1,jSOj,1),1,AOrb(1)%SB(1)%A2(:,lSOl),1)
+            tmp = ddot_(kact,Zpk(iTri(kAct,1),jSOj,1),1,AOrb(1)%SB(1)%A2(:,lSOl),1)
 
             do lAct=kAct+1,nAct(lSym-1)
-              tmp = tmp+Zpk(lAct*(lAct-1)/2+kAct,jSOj,1)*AOrb(1)%SB(1)%A2(lAct,lSOl)
+              tmp = tmp+Zpk(iTri(lAct,kAct),jSOj,1)*AOrb(1)%SB(1)%A2(lAct,lSOl)
             end do
             CilK(kAct) = tmp
           end do
@@ -543,9 +540,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
 
             iThpkl = (kAOk+(i3-1)*kBas)*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas
             indexB = iThpkl
-            Indk = max(kSOk,lSOl)
-            Indl = kSOk+lSOl-Indk
-            Indkl = (Indk-1)*Indk/2+Indl
+            Indkl = iTri(kSOk,lSOl)
 
             do jAOj=0,jBas-1
               jSOj = jSO+jAOj-iOff1
@@ -764,9 +759,9 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
             !lSOl = lSO+lAOl-1
             lSOl = lSO+lAOl
             do kAct=1,nAct(kSym-1)
-              tmp = ddot_(kact,Zpk(kAct*(kAct-1)/2+1,jSOj,iVec_),1,AOrb(iMO1)%SB(1)%A2(:,lSOl),1)
+              tmp = ddot_(kact,Zpk(iTri(kAct,1),jSOj,iVec_),1,AOrb(iMO1)%SB(1)%A2(:,lSOl),1)
               do lAct=kAct+1,nAct(lSym-1)
-                tmp = tmp+Zpk(lAct*(lAct-1)/2+kAct,jSOj,iVec_)*AOrb(iMO1)%SB(1)%A2(lAct,lSOl)
+                tmp = tmp+Zpk(iTri(lAct,kAct),jSOj,iVec_)*AOrb(iMO1)%SB(1)%A2(lAct,lSOl)
               end do
               CilK(kAct) = tmp
             end do
@@ -798,9 +793,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
             iThpkl = (kAOk+(i3-1)*kBas)*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas
             indexB = iThpkl
-            Indk = max(kSOk,lSOl)
-            Indl = kSOk+lSOl-Indk
-            Indkl = (Indk-1)*Indk/2+Indl
+            Indkl = iTri(kSOk,lSOl)
 
             do jAOj=0,jBas-1
               jSOj = jSO+jAOj-iOff1
@@ -919,9 +912,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt == 2)) then
             kSOk = kSO+kAOk
 
             indexB = (kAOk+(i3-1)*kBas)*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas
-            Indk = max(kSOk,lSOl)
-            Indl = kSOk+lSOl-Indk
-            Indkl = (Indk-1)*Indk/2+Indl
+            Indkl = iTri(kSOk,lSOl)
 
             do jAOj=0,jBas-1
               jSOj = jSO+jAOj-iOff1
@@ -971,9 +962,7 @@ else
           do kAOk=0,kBas-1
             kSOk = kSO+kAOk
 
-            Indk = max(kSOk,lSOl)
-            Indl = kSOk+lSOl-Indk
-            Indkl = (Indk-1)*Indk/2+Indl
+            Indkl = iTri(kSOk,lSOl)
 
             do jAOj=0,jBas-1
               jSOj = jSO+jAOj-iOff1

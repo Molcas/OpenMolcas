@@ -33,8 +33,9 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !             Modified for 2-center RI gradients, January '07          *
 !***********************************************************************
 
-use k2_setup, only: Data_k2
+use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD
+use k2_setup, only: Data_k2
 use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
@@ -42,7 +43,7 @@ use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: King, nProcs
-use ExTerm, only: A, AMP2, CijK, iMP2prpt
+use RI_glob, only: A, AMP2, CijK, DoCholExch, iMP2prpt, MxChVInShl, nIJR, nKvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
@@ -56,7 +57,6 @@ integer(kind=iwp), allocatable :: ij2(:,:)
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "exterm.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -119,8 +119,8 @@ DoGrad = .true.
 ThrAO = Zero
 call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 mSkal = nSkal
-nPairs = nSkal*(nSkal+1)/2
-nQuad = nPairs*(nPairs+1)/2
+nPairs = nTri_Elem(nSkal)
+nQuad = nTri_Elem(nPairs)
 Pren = Zero
 Prem = Zero
 !                                                                      *
@@ -217,7 +217,7 @@ end if
 ! Create list of non-vanishing pairs
 
 if (Do_RI) then
-  mij = (nSkal-1)
+  mij = nSkal-1
   call mma_allocate(Shij,2,mij,Label='Shij')
   nij = 0
   do iS=1,nSkal-1
@@ -265,7 +265,7 @@ end do
 ! For a parallel implementation the iterations over shell-pairs
 ! are parallelized.
 
-call Init_Tsk(id,nij*(nij+1)/2)
+call Init_Tsk(id,nTri_Elem(nij))
 !                                                                      *
 !***********************************************************************
 !                                                                      *

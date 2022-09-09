@@ -50,7 +50,7 @@ do iCho=1,NumCho
           Cff = (CoeffA(iPrimA,ik)*CoeffB(iPrimB,il)+CoeffA(iPrimA,il)*CoeffB(iPrimB,ik))/ &
                 (CoeffAP(iPrimA,iPrimA)*CoeffBP(iPrimB,iPrimB))
           if (iPrimA == iPrimB) Cff = Half*Cff
-          iTheta_Full = iPrimA*(iPrimA-1)/2+iPrimB
+          iTheta_Full = iTri(iPrimA,iPrimB)
           Coeff(iTheta_Full,iPhi) = Cff
         end do
       end do

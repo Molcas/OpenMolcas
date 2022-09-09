@@ -27,9 +27,7 @@ do lAOl=0,lBas-1
       mijkl = mijkl+1
 
 #     ifdef _COULOMB_
-      Indk = max(kSOk,lSOl)
-      Indl = min(kSOk,lSOl)
-      Indkl = iPntSO(j3,j4,lOper,nBas)+Indk*(Indk-1)/2+Indl
+      Indkl = iPntSO(j3,j4,lOper,nBas)+iTri(kSOk,lSOl)
 #     endif
 
       temp = (&

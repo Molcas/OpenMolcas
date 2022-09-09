@@ -20,7 +20,7 @@ function Compute_B(irc,kSOk,lSOl,jAOj,nBasFnc,iOpt)
 !                                                                      *
 !***********************************************************************
 
-use ExTerm, only: BMP2
+use RI_glob, only: BMP2
 use Constants, only: Half
 use Definitions, only: wp, iwp
 

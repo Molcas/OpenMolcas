@@ -11,7 +11,7 @@
 
 subroutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use ChoArr, only: iRS2F
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -38,7 +38,7 @@ end if
 ! Set mapping from global address to reduced set.
 ! -----------------------------------------------
 
-liF2RS = nBasT*(nBasT+1)/2
+liF2RS = nTri_Elem(nBasT)
 call mma_allocate(iF2RS,liF2RS,Label='iF2RS')
 iF2RS(:) = 0
 do iRS=1,nnBstR(iSym,1)

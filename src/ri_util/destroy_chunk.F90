@@ -11,9 +11,9 @@
 
 subroutine Destroy_Chunk()
 
-use Chunk_Mod, only: Chunk
+use RI_glob, only: Chunk
 #ifdef _MOLCAS_MPP_
-use Chunk_Mod, only: iMap, ip_Chunk
+use RI_glob, only: iMap, ip_Chunk
 use Para_Info, only: Is_Real_Par
 #endif
 use stdalloc, only: mma_deallocate

@@ -25,7 +25,7 @@ subroutine IndSft_RI_2(iCmp,iShell,jBas,lBas,Shijij,iAO,iAOst,ijkl,SOint,nSOint,
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: Mul, nIrrep
@@ -119,7 +119,7 @@ do i2=1,iCmp(2)
       if (j2 /= 0) iOffB_ = iOffB_+1
       mm_ = iOffA(4,j2)
       nn = mm_-iOffA(2,j2)
-      mx = nn*(nn+1)/2
+      mx = nTri_Elem(nn)
 
       j4 = Mul(j12+1,j3+1)-1
       if (lSym(j4) == 0) cycle

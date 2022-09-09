@@ -19,6 +19,7 @@ subroutine compute_txy(DM1,nDM,Txy,nTxy,nAuxVec,nIrrep,Diag,DMTmp,nAct)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use pso_stuff, only: G2, lsa, nnP
 use Constants, only: One, Two, Quart
@@ -26,7 +27,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nDM, nTxy, nAuxVec, nIrrep, nAct(0:7)
-real(kind=wp) :: DM1(nDM,nAuxVec), Txy(nTxy,nAuxVec), Diag(nDM,nAuxVec), DMtmp(nDM*(nDM+1)/2)
+real(kind=wp) :: DM1(nDM,nAuxVec), Txy(nTxy,nAuxVec), Diag(nDM,nAuxVec), DMtmp(nTri_Elem(nDM))
 integer(kind=iwp) :: i, icol, iend, iline, ista, isym, it, itu, ituvx, ituvx2, itv, itx, iu, iuv, iux, iv, iVec, ivx, ix, j, jend, &
                      jsta, jsym, kend, klsym, ksta, ksym, lend, lsta, lsym, nCumAct(0:7), nCumAct2(0:7), nkl, nvx, Txy_sta, Txy_sta2
 real(kind=wp) :: Fac, Fac2, tmp
@@ -56,7 +57,7 @@ do iVec=1,nAuxVec
       ksta = nCumAct(ksym)+1
       kend = nCumAct(ksym)+nAct(ksym)
       if (kSym == lSym) then
-        nvx = nAct(lSym)*(nAct(lSym)+1)/2
+        nvx = nTri_Elem(nAct(lSym))
       else
         nvx = nAct(lSym)*nAct(ksym)
       end if
@@ -77,22 +78,22 @@ do iVec=1,nAuxVec
         do ix=lsta,lend
           if (kSym == lSym) kend = ix
           do iv=ksta,kend
-            ivx = max(ix,iv)*(max(ix,iv)-1)/2+min(ix,iv)
+            ivx = iTri(ix,iv)
             if (jSym == lSym) jend = ix
             iline = iline+1
             icol = nCumAct2(jSym)
             do iu=jsta,jend
-              iux = max(ix,iu)*(max(ix,iu)-1)/2+min(ix,iu)
-              iuv = max(iu,iv)*(max(iu,iv)-1)/2+min(iu,iv)
+              iux = iTri(ix,iu)
+              iuv = iTri(iu,iv)
               if (iSym == jSym) iend = iu
               do it=ista,iend
-                itu = max(iu,it)*(max(iu,it)-1)/2+min(iu,it)
+                itu = iTri(iu,it)
                 if (itu > ivx) cycle
-                itx = max(ix,it)*(max(ix,it)-1)/2+min(ix,it)
-                itv = max(iv,it)*(max(iv,it)-1)/2+min(iv,it)
-                ituvx = max(ivx,itu)*(max(ivx,itu)-1)/2+min(itu,ivx)
+                itx = iTri(ix,it)
+                itv = iTri(iv,it)
+                ituvx = iTri(ivx,itu)
                 icol = icol+1
-                ituvx2 = iline*(iline-1)/2+icol
+                ituvx2 = nTri_Elem(iline-1)+icol
 
                 Fac = One
                 if (ix /= iv) Fac = Two*Fac
@@ -133,8 +134,8 @@ do iVec=1,nAuxVec
     ! Multiply by Sqrt[eigenvalue]
 
     do i=1,nkl
-      Diag(i+Txy_sta-1,iVec) = DMTmp(i*(i+1)/2)
-      tmp = sqrt(abs(DMTmp(i*(i+1)/2)))
+      Diag(i+Txy_sta-1,iVec) = DMTmp(nTri_Elem(i))
+      tmp = sqrt(abs(DMTmp(nTri_Elem(i))))
       do j=1,nkl
         Txy(Txy_sta2+(i-1)*nkl+j-1,iVec) = Txy(Txy_sta2+(i-1)*nkl+j-1,iVec)*tmp
       end do

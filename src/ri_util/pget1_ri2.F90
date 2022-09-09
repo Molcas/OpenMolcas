@@ -36,14 +36,13 @@ use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: DMdiag, lPSO, lSA, nnP, nPos
-use ExTerm, only: A, AMP2, CijK, iMP2prpt, LuAVector, nAuxVe
+use RI_glob, only: A, AMP2, CijK, iAdrCVec, iMP2prpt, LuAVector, LuCVector, nAuxVe, nChOrb, nIJ1, nKvec, tavec
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, lBas, kOp(4), mV_K, nSA
 real(kind=wp) :: PAO(ijkl,nPAO), ExFac, CoulFac, PMax, V_K(mV_K,nSA), U_K(mV_K), Z_p_K(nnP(0),mV_K,*)
-#include "exterm.fh"
 logical(kind=iwp) :: Found
 integer(kind=iwp) :: i, i2, i4, iAdrA, iAdrJ, iAdrL, iE, iOffA, iPAO, iS, iSO, iSO2, iSym, iUHF, j, jAOj, jik, jil, jp, jSO, jSOj, &
                      jSym, k, kl, kSym, l, lAOl, lSO, lSOl, lSym, lTot, n, nijkl, nik, nik1, nik2

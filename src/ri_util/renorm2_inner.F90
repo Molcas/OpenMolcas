@@ -26,6 +26,7 @@ subroutine ReNorm2_Inner(iCnttp)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use SOAO_Info, only: iAOtSO, nSOInf
 use Real_Spherical, only: Sphere
 use Basis_Info, only: dbsc, iCnttp_Dummy, Shells
@@ -100,7 +101,7 @@ iSO = 0
 nSO = 0
 do iAng=0,nTest
   iShll_ = dbsc(iCnttp)%iVal+iAng
-  nCmp = (iAng+1)*(iAng+2)/2
+  nCmp = nTri_Elem1(iAng)
   if (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
   iSO = 0
   if (Shells(iShll_)%nBasis_C*Shells(iShll_)%nExp == 0) cycle
@@ -126,7 +127,7 @@ do iAng=0,nTest
   nBasisi = Shells(iShll)%nBasis
   if (nExpi*nBasisi == 0) cycle
 
-  nCmp = (iAng+1)*(iAng+2)/2
+  nCmp = nTri_Elem1(iAng)
   if (Shells(iShll)%Prjct) nCmp = 2*iAng+1
 
   ijS_req = ijS_req+1

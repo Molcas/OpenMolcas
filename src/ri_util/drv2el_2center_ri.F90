@@ -31,7 +31,7 @@ subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 
 use Basis_Info, only: nBas_Aux
 use iSD_data, only: iSD
-use Wrj12, only: iOffA, Lu_A, SO2Ind
+use RI_glob, only: iOffA, Lu_A, SO2Ind
 use Index_arrays, only: iSO2Sh, nShBF
 use Gateway_Info, only: CutInt
 use RICD_Info, only: LDF

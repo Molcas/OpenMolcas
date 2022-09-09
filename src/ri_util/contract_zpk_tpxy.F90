@@ -11,6 +11,7 @@
 
 subroutine contract_Zpk_Tpxy(Zpk,nZpk,Txy,nTxy,Scrt,nScrt,Diag,nDiag,nnP,nBas_Aux,nAdens,nAvec,nAct,nIrrep)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -51,7 +52,7 @@ do l=1,nAVec
         if (kSym <= jSym) then
           do j=1,nAct(jSym)
             if (kSym == jSym) then
-              jp = ip+j*(j-1)/2
+              jp = ip+nTri_Elem(j-1)
               do k=1,j-1
                 Zpk(jp+k,l) = Zpk(jp+k,l)*Half
               end do
@@ -63,7 +64,7 @@ do l=1,nAVec
             end if
           end do
           if (kSym == jSym) then
-            ip = ip+nAct(jSym)*(nAct(jSym)+1)/2
+            ip = ip+nTri_Elem(nAct(jSym))
           else
             ip = ip+nAct(jSym)*nAct(kSym)
           end if

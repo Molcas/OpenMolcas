@@ -11,6 +11,7 @@
 
 subroutine Get_Auxiliary_Shells(iSO,nSO,jOff,iSO2Shl,nSO2Shl,iPair,nPair)
 
+use Index_Functions, only: iTri
 use Definitions, only: iwp
 
 implicit none
@@ -35,7 +36,7 @@ do i=1,nSO
   lSh = iSO2Shl(l)
   !write(u6,*) 'k,kSh=',k,kSh
   !write(u6,*) 'l,lSh=',k,lSh
-  kl = max(kSh,lSh)*(max(kSh,lSh)-1)/2+min(kSh,lSh)
+  kl = iTri(kSh,lSh)
   iPair(kl) = 1
 end do
 !write(u6,*) 'iPairs'

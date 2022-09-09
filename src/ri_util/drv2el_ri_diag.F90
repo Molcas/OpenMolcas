@@ -31,7 +31,7 @@ subroutine Drv2El_RI_Diag(ThrAO,TInt,nTInt)
 use SOAO_Info, only: iOffSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
-use j12, only: nSkal_Valence
+use RI_glob, only: nSkal_Valence
 use Definitions, only: wp, iwp
 
 implicit none

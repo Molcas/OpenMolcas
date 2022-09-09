@@ -35,14 +35,14 @@ subroutine Drv2El_3Center_RI(Integral_WrOut,ThrAO)
 !             Modified to out-of-core version Feb '07                  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD
-use Wrj12, only: nChV, Lu_Q
 use Basis_Info, only: dbsc, nBas, nBas_Aux
 use Gateway_global, only: force_out_of_core
 use Gateway_Info, only: CutInt
 use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
-use j12, only: iShij, iSSOff, klS, nBasSh, nSkal_Valence, nSO, ShlSO, SOShl
+use RI_glob, only: iShij, iSSOff, klS, Lu_Q, nBasSh, nChV, nSkal_Valence, nSO, ShlSO, SOShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -351,7 +351,7 @@ do while (Rsv_Tsk(id,klS))
     kCenter = iSD(10,kS)
     lCenter = iSD(10,lS)
     !write(u6,*) 'kCenter, lCenter=',kCenter, lCenter
-    klCenter = kCenter*(kCenter-1)/2+lCenter
+    klCenter = nTri_Elem(kCenter-1)+lCenter
     iAdr_AB = AB(1,klCenter)
     nAB = AB(2,klCenter)
     call dDaFile(Lu_AB,2,Local_A(:,2),nAB**2,iAdr_AB)
@@ -713,7 +713,7 @@ nDiag = 0
 do iIrrep=0,nIrrep-1
   nDiag = nDiag+nBas(iIrrep)
 end do
-nDiag = nDiag*(nDiag+1)/2
+nDiag = nTri_Elem(nDiag)
 call mma_allocate(Diag,nDiag,Label='Diag')
 Diag(:) = Zero
 

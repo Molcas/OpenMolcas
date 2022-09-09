@@ -11,6 +11,7 @@
 
 function nMemAm(nShBF,nIrrep,nS,jS,iOffA,Out_of_Core)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp
 
 implicit none
@@ -38,7 +39,7 @@ if (Out_Of_Core) then
     iOffA(4,iIrrep) = nl
     ! Update nMemAm with the sise of this subblock.
     nn = nl-nj
-    nMemAm = nMemAm+nl*(nl+1)/2-nn*(nn+1)/2
+    nMemAm = nMemAm+nTri_Elem(nl)-nTri_Elem(nn)
   end do
 else
 
@@ -53,7 +54,7 @@ else
     end do
     nl = ni+nj
     ! Offset to where this block starts
-    iOffA(1,iIrrep) = nMemAm+ni*(ni+1)/2
+    iOffA(1,iIrrep) = nMemAm+nTri_Elem(ni)
     ! # of basis functions for the jSs shell
     iOffA(2,iIrrep) = nj
     iOffA(4,iIrrep) = nl
@@ -61,7 +62,7 @@ else
     do lS=jS+1,nS
       nl = nl+nShBf(iIrrep,lS)
     end do
-    nMemAm = nMemAm+nl*(nl+1)/2
+    nMemAm = nMemAm+nTri_Elem(nl)
   end do
 end if
 

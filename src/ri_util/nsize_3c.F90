@@ -17,6 +17,7 @@ function nSize_3C(kS,lS,nShBf,nShell,nIrrep,iOff,nBas_Aux)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
@@ -38,7 +39,7 @@ if (nIrrep == 1) then
     nKL = nK*nL
   else
     nK = nShBf(0,kS)
-    nKL = nK*(nK+1)/2
+    nKL = nTri_Elem(nK)
   end if
   iOff(1,0) = nKL
 
@@ -73,9 +74,7 @@ else
         if (kIrrep > lIrrep) then
           nKL = nKL+nK*nL
         else if (kIrrep == lIrrep) then
-          nKL = nKL+nK*(nK+1)/2
-        else
-          nKL = nKL+0
+          nKL = nKL+nTri_ELem(nK)
         end if
 
       end do

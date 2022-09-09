@@ -25,6 +25,7 @@ subroutine Mult_RijK_QKL(iSO,nBas_aux,nIrrep)
 !            nIrrep : number of irreps.
 !*************************************************************************
 
+use RI_glob, only: iAdrCVec, nChOrb, nIJ1, nIJR, NumAuxVec
 use Symmetry_Info, only: Mul
 use pso_stuff, only: lSA
 use Para_Info, only: Is_Real_Par
@@ -36,7 +37,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: iSO, nIrrep, nBas_Aux(1:nIrrep)
 #include "cholesky.fh"
-#include "exterm.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

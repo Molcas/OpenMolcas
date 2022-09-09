@@ -11,6 +11,7 @@
 
 subroutine Gen_QVec(nIrrep,nBas_Aux)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -71,7 +72,7 @@ call mma_allocate(Mem,Mem_Max,Label='Mem')
 nullify(A_k,Q_k)
 do iIrrep=0,nIrrep-1
   nB = nBas_Aux(iIrrep)
-  nQm = nB*(nB+1)/2
+  nQm = nTri_Elem(nB)
 
   Out_Of_Core = 2*nQm > Mem_Max
   if (Out_Of_Core) then
@@ -80,7 +81,7 @@ do iIrrep=0,nIrrep-1
     a = One
     b = -Two*real(mQm,kind=wp)
     mB = int(-a*Half+sqrt((a*Half)**2-b))
-    kQm = mB*(mB+1)/2
+    kQm = nTri_Elem(mB)
     if (kQm > mQm) then
       call WarningMessage(2,'Error in Gen_QVec')
       write(u6,*) 'kQm > mQm!'
@@ -112,7 +113,7 @@ do iIrrep=0,nIrrep-1
   do kCol=1,nB
 
     if (kCol <= mB) then
-      iOff = (kCol-1)*kCol/2
+      iOff = nTri_Elem(kCol-1)
       A_l(1:) => Am(1+iOff:)
     else
       A_l(1:) => A_k(1:mB)
@@ -131,7 +132,7 @@ do iIrrep=0,nIrrep-1
 #   endif
 
     if (kCol <= mB) then
-      iOff = (kCol-1)*kCol/2
+      iOff = nTri_Elem(kCol-1)
       Q_l(1:) => Qm(1+iOff:)
     else
       Q_l(1:) => Q_k(1:mB)
@@ -154,7 +155,7 @@ do iIrrep=0,nIrrep-1
 
     iAddr_ = iAddr
     if (kCol == mB) then
-      lQm = kCol*(kCol+1)/2
+      lQm = nTri_Elem(kCol)
       call dDaFile(Lu_Q(iIrrep),1,Qm,lQm,iAddr)
       call dDaFile(Lu_A(iIrrep),1,Am,lQm,iAddr_)
     else if (kCol > mB) then

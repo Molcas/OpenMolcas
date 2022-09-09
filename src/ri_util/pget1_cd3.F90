@@ -28,19 +28,19 @@ subroutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,DS
 !             R. Lindh                                                 *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use pso_stuff, only: ij2K, iOff_ij2K
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, iMP2prpt, LuBVector
+use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, LuCVector, nChOrb, nIJR, tbvec
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, mV_k
 real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k), U_k(mV_k)
-#include "exterm.fh"
-integer(kind=iwp) :: i, i1, i2, i3, i4, iAdr, iAOi, ijVec, indexB, Indi, Indij, Indj, Indk, Indkl, Indl, iPAO, irc, iSO, iSOi, &
-                     jAOj, jSO, jSOj, jSym, kAOk, kSO, kSOk, kSym, lAOl, lBVec, lSO, lSOl, lSym, nijkl, nKBas, nLBas, NumOrb
+integer(kind=iwp) :: i, i1, i2, i3, i4, iAdr, iAOi, ijVec, indexB, Indij, Indkl, iPAO, irc, iSO, iSOi, jAOj, jSO, jSOj, jSym, &
+                     kAOk, kSO, kSOk, kSym, lAOl, lBVec, lSO, lSOl, lSym, nijkl, nKBas, nLBas, NumOrb
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, temp, tempJ, tempK, Wall, Wall1, Wall2
 real(kind=wp), external :: Compute_B
 
@@ -85,14 +85,12 @@ if ((ExFac /= Zero) .and. (NumOrb > 0) .and. (iMP2prpt /= 2)) then
         jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
         do jAOj=0,jBas-1
           jSOj = jSO+jAOj
-          Indi = max(iSOi,jSOj)
-          Indj = iSOi+jSOj-Indi
-          if (Indi == Indj) then
+          if (iSOi == jSOj) then
             Fac_ij = One
           else
             Fac_ij = Half
           end if
-          Indij = (Indi-1)*Indi/2+Indj
+          Indij = iTri(iSOi,jSOj)
           ijVec = ij2K(iOff_ij2K(1)+Indij)
 
           if (ijVec /= 0) then
@@ -118,9 +116,7 @@ if ((ExFac /= Zero) .and. (NumOrb > 0) .and. (iMP2prpt /= 2)) then
                   indexB = 1+(kAOk+(i3-1)*kBas)+(lAOl+(i4-1)*lBas)*nKBas
                   nijkl = iAOi+jAOj*iBas+kAOk*iBas*jBas+lAOl*iBas*jBas*kBas+1
 
-                  Indk = max(kSOk,lSOl)
-                  Indl = kSOk+lSOl-Indk
-                  Indkl = (Indk-1)*Indk/2+Indl
+                  Indkl = iTri(kSOk,lSOl)
                   temp = V_k(Indij)*DSO(Indkl)*coulfac
                   if (ijVec /= 0) then
                     tempK = BklK(indexB)
@@ -157,14 +153,12 @@ else if ((iMP2prpt == 2) .and. (NumOrb > 0)) then
         jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
         do jAOj=0,jBas-1
           jSOj = jSO+jAOj
-          Indi = max(iSOi,jSOj)
-          Indj = iSOi+jSOj-Indi
-          if (Indi == Indj) then
+          if (iSOi == jSOj) then
             Fac_ij = One
           else
             Fac_ij = Half
           end if
-          Indij = (Indi-1)*Indi/2+Indj
+          Indij = iTri(iSOi,jSOj)
           ijVec = ij2K(iOff_ij2K(1)+Indij)
           if (ijVec /= 0) then
             iAdr = nIJR(kSym,lSym,1)*(ijVec-1)+iAdrCVec(jSym,kSym,1)
@@ -194,9 +188,7 @@ else if ((iMP2prpt == 2) .and. (NumOrb > 0)) then
                   indexB = 1+(kAOk+(i3-1)*kBas)+(lAOl+(i4-1)*lBas)*nKBas
                   nijkl = iAOi+jAOj*iBas+kAOk*iBas*jBas+lAOl*iBas*jBas*kBas+1
 
-                  Indk = max(kSOk,lSOl)
-                  Indl = kSOk+lSOl-Indk
-                  Indkl = (Indk-1)*Indk/2+Indl
+                  Indkl = iTri(kSOk,lSOl)
                   temp = V_k(Indij)*DSO(Indkl)*coulfac
 
                   if (ijVec /= 0) then
@@ -242,9 +234,7 @@ else
             lSOl = lSO+lAOl
             do kAOk=0,kBas-1
               kSOk = kSO+kAOk
-              Indk = max(kSOk,lSOl)
-              Indl = kSOk+lSOl-Indk
-              Indkl = (Indk-1)*Indk/2+Indl
+              Indkl = iTri(kSOk,lSOl)
               do jAOj=0,jBas-1
                 jSOj = jSO+jAOj
                 do iAOi=0,iBas-1
@@ -253,9 +243,7 @@ else
 
                   ! V_k(ij)*D(kl)
 
-                  Indi = max(iSOi,jSOj)
-                  Indj = iSOi+jSOj-Indi
-                  Indij = (Indi-1)*Indi/2+Indj
+                  Indij = iTri(iSOi,jSOj)
 
                   temp = V_k(Indij)*DSO(Indkl)*coulfac
 

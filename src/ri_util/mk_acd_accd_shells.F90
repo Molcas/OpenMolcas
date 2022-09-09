@@ -22,7 +22,7 @@ subroutine Mk_aCD_acCD_Shells(iCnttp,W2L)
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
 use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
@@ -181,7 +181,7 @@ BSLbl(1:Indx-1) = Label(1:Indx-1)
 mSOInf = 0
 
 do iAng=0,2*nTest
-  nCmp = (iAng+1)*(iAng+2)/2
+  nCmp = nTri_Elem1(iAng)
   mSOInf = mSOInf+nCmp
 end do
 call SOAO_Info_Init(mSOInf,1)
@@ -205,7 +205,7 @@ iSO = 0
 nSO = 0
 do iAng=0,nTest
   iShll_ = dbsc(iCnttp)%iVal+iAng
-  nCmp = (iAng+1)*(iAng+2)/2
+  nCmp = nTri_Elem1(iAng)
   if (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
   iSO = 0
   if (Shells(iShll_)%nBasis_C*Shells(iShll_)%nExp == 0) cycle
@@ -225,7 +225,7 @@ end do
 
 ! Generate list
 
-nPhi_All = nSO*(nSO+1)/2
+nPhi_All = nTri_Elem(nSO)
 call mma_allocate(iList2_c,mData*2,nPhi_All,label='iList2_c')
 call Mk_List2(iList2_c,nPhi_All,mData,nSO,iCnttp,nTest,0)
 !                                                                      *
@@ -328,7 +328,7 @@ if (Do_acCD_Basis) then
   nSO_p = 0
   do iAng=0,nTest
     iShll_ = dbsc(iCnttp)%iVal+iAng
-    nCmp = (iAng+1)*(iAng+2)/2
+    nCmp = nTri_Elem1(iAng)
     if (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
     iSO = 0
     do iCmp=1,nCmp
@@ -459,20 +459,20 @@ do iBS=0,nBS-1
         ! Generate list
 
         npi = Shells(iShll_)%nExp
-        nCmpi = (iAng+1)*(iAng+2)/2
+        nCmpi = nTri_Elem1(iAng)
         if (Shells(iShll_)%Prjct) nCmpi = 2*iAng+1
         npj = Shells(jShll_)%nExp
-        nCmpj = (jAng+1)*(jAng+2)/2
+        nCmpj = nTri_Elem1(jAng)
         if (Shells(jShll_)%Prjct) nCmpj = 2*jAng+1
         if (iAng == jAng) then
-          nTheta_All = npi*nCmpi*(npi*nCmpi+1)/2
+          nTheta_All = nTri_Elem(npi*nCmpi)
         else
           nTheta_All = npi*nCmpi*npj*nCmpj
         end if
 
         call mma_allocate(iList2_p,2*mData,nTheta_all,label='iList2_p')
 
-        ijS_Req = (iAng+1)*iAng/2+jAng+1
+        ijS_Req = iTri(iAng+1,jAng+1)
 
         call Mk_List2(iList2_p,nTheta_All,mData,nSO_p,iCnttp,nTest,ijS_Req)
         !                                                              *
@@ -516,7 +516,7 @@ do iBS=0,nBS-1
         nk = Shells(kShll)%nBasis_C
         nl = Shells(lShll)%nBasis_C
         if (Diagonal) then
-          nCntrc_Max = nk*(nk+1)/2
+          nCntrc_Max = nTri_Elem(nk)
         else
           nCntrc_Max = nk*nl
         end if
@@ -601,7 +601,7 @@ do iBS=0,nBS-1
           npk = Shells(kShll)%nExp
           npl = Shells(lShll)%nExp
           if (Diagonal) then
-            nPrim_Max = npk*(npk+1)/2
+            nPrim_Max = nTri_Elem(npk)
           else
             nPrim_Max = npk*npl
           end if
@@ -708,7 +708,7 @@ do iBS=0,nBS-1
           nExpk = Shells(kShll)%nExp
           nExpl = Shells(lShll)%nExp
           if (Diagonal) then
-            nPrim = nExpk*(nExpk+1)/2
+            nPrim = nTri_Elem(nExpk)
           else
             nPrim = nExpk*nExpl
           end if
@@ -804,7 +804,7 @@ do iBS=0,nBS-1
           nExpk = Shells(kShll)%nExp
           nExpl = Shells(lShll)%nExp
           if (iAng == jAng) then
-            nTheta_Full = nExpk*(nExpk+1)/2
+            nTheta_Full = nTri_Elem(nExpk)
           else
             nTheta_Full = nExpk*nExpl
           end if
@@ -829,7 +829,7 @@ do iBS=0,nBS-1
           ! Let's do a Cholesky decomposition with pivoting
           ! according to the previous CD.
 
-          nTri = nTheta*(nTheta+1)/2
+          nTri = nTri_Elem(nTheta)
           call mma_allocate(Q,nTri,label='Q')
           call mma_allocate(A,nTri,label='A')
           call mma_allocate(Z,nTheta,label='Z')
@@ -839,7 +839,7 @@ do iBS=0,nBS-1
             do jCho_p=1,iCho_p
               jTheta_full = iD_p(jCho_p)
               jTheta = Indkl_p(jTheta_full)
-              ijT = iCho_p*(iCho_p-1)/2+jCho_p
+              ijT = iTri(iCho_p,jCho_p)
               ijS = (jTheta-1)*nTheta+iTheta
               A(ijT) = tVt(ijS)
             end do
@@ -869,8 +869,8 @@ do iBS=0,nBS-1
           call mma_deallocate(tVt)
 
           do iTheta=1,nTheta
-            iOff_Ak = (iTheta-1)*iTheta/2+1
-            iOff_Qk = (iTheta-1)*iTheta/2+1
+            iOff_Ak = nTri_Elem(iTheta-1)+1
+            iOff_Qk = nTri_Elem(iTheta-1)+1
             Thrs = Thrshld_CD_p
             !Thrs = 1.0e-12_wp
             call Inv_Cho_Factor(A(iOff_Ak),iTheta,A,Q,iTheta,iDum,iDum,Dummy,0,Z,Dummy,Thrs,Q(iOff_Qk),LinDep)
@@ -931,7 +931,7 @@ do iBS=0,nBS-1
           call FZero(Temp,nTheta**2)
           do iTheta=1,nTheta
             do jTheta=1,iTheta
-              ijT = iTheta*(iTheta-1)/2+jTheta
+              ijT = iTri(iTheta,jTheta)
               ijS = (iTheta-1)*nTheta+jTheta
               Temp(ijS) = Q(ijT)
             end do

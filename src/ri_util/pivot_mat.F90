@@ -18,6 +18,7 @@ subroutine Pivot_mat(n,m,lu_A0,lu_A,iD_A,Scr,lScr)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -34,7 +35,7 @@ if (lmax < n) then
 end if
 
 nMem_Col = m
-mNeed = nMem_Col*(nMem_Col+1)/2
+mNeed = nTri_Elem(nMem_Col)
 do while (mNeed > lmax)
   mNeed = mNeed-nMem_Col
   nMem_Col = nMem_Col-1
@@ -52,7 +53,7 @@ do kCol=1,nMem_Col
   end do
 end do
 kAddr = 0
-ij = nMem_Col*(nMem_Col+1)/2
+ij = nTri_Elem(nMem_Col)
 call dDaFile(lu_A,1,Scr(n+1),ij,kAddr)
 
 do kCol=nMem_Col+1,m

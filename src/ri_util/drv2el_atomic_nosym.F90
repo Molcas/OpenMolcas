@@ -28,11 +28,11 @@ subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_
 !             Modified driver. Jan. '98                                *
 !***********************************************************************
 
-use Basis_Info, only: nBas
+use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
-use Wrj12, only: SO2Ind
+use RI_glob, only: SO2Ind
 use k2_arrays, only: Sew_Scr
-use Basis_Info, only: dbsc
+use Basis_Info, only: dbsc, nBas
 use Gateway_global, only: force_out_of_core, iWROpt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -87,7 +87,7 @@ call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 ! Create list of pairs
 
-call mma_allocate(IJInd,2,nSkal*(nSkal+1)/2,Label='IJInd')
+call mma_allocate(IJInd,2,nTri_Elem(nSkal),Label='IJInd')
 nij = 0
 nBfn = 0
 if (Do_RI_Basis) then
@@ -157,12 +157,12 @@ if (Only_DB) then
     do iS=1,nSkal
       nBfn_i = iSD(2,iS)*iSD(3,iS)
       do jS=1,iS-1
-        ijS = iS*(iS-1)/2+jS
+        ijS = iTri(iS,jS)
         nBfn_j = iSD(2,jS)*iSD(3,jS)
         if (ijS == ijS_req) nTInt = nBfn_i*nBfn_j
       end do
-      ijS = iS*(iS+1)/2
-      if (ijS == ijS_req) nTInt = nBfn_i*(nBfn_i+1)/2
+      ijS = iTri(iS,iS)
+      if (ijS == ijS_req) nTInt = nTri_Elem(nBfn_i)
     end do
   end if
   mTInt = nTInt
@@ -182,7 +182,7 @@ else
 
   ! All blocks
 
-  nTInt = nBas(0)*(nBas(0)+1)/2
+  nTInt = nTri_Elem(nBas(0))
   mTInt = nTInt
   nTInt2 = nTInt**2
   In_Core = nTInt2 <= MemT
@@ -202,7 +202,7 @@ else
         nBfn_j = iSD(2,jS)*iSD(3,jS)
         mTInt = max(mTInt,nBfn_i*nBfn_j)
       end do
-      mTInt = max(mTInt,nBfn_i*(nBfn_i+1)/2)
+      mTInt = max(mTInt,nTri_Elem(nBfn_i))
     end do
     nTInt2 = mTInt*nTInt
 
@@ -249,7 +249,7 @@ do ijS=1,nij
 
   if (Out_of_Core) then
     if (iS == jS) then
-      mTInt = nBfn_i*(nBfn_i+1)/2
+      mTInt = nTri_Elem(nBfn_i)
     else
       mTInt = nBfn_i*nBfn_j
     end if
@@ -283,7 +283,7 @@ do ijS=1,nij
 
     if (.not. Only_DB) then
       if (kS == lS) then
-        iTOffs(5) = iTOffs(5)+nBfn_k*(nBfn_k+1)/2
+        iTOffs(5) = iTOffs(5)+nTri_Elem(nBfn_k)
       else
         iTOffs(5) = iTOffs(5)+nBfn_k*nBfn_l
       end if
@@ -302,7 +302,7 @@ do ijS=1,nij
 
   if (.not. Only_DB) then
     if (iS == jS) then
-      iTOffs(4) = iTOffs(4)+nBfn_i*(nBfn_i+1)/2
+      iTOffs(4) = iTOffs(4)+nTri_Elem(nBfn_i)
     else
       iTOffs(4) = iTOffs(4)+nBfn_i*nBfn_j
     end if
@@ -346,7 +346,7 @@ if (In_Core .and. (.not. Do_RI_Basis)) then
 
 else if (.not. Do_RI_Basis) then
 
-  nij = nBas(0)*(nBas(0)+1)/2
+  nij = nTri_Elem(nBas(0))
   call mma_MaxDBLE(MaxMem)
   call Square_A(LuA,nij,MaxMem,Force_Out_of_Core)
 

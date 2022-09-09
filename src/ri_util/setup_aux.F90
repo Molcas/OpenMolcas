@@ -13,7 +13,7 @@ subroutine Setup_Aux(nIrrep,nBas,nShell,nShell_Aux,nSO,TMax,CutOff,nij_Shell,nBa
 
 use iSD_data, only: iSD
 use SOAO_Info, only: iSOInf
-use j12, only: iShij, iSSOff, nBasSh, ShlSO, SOShl
+use RI_glob, only: iShij, iSSOff, nBasSh, ShlSO, SOShl
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

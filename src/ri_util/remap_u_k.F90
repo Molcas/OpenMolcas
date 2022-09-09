@@ -11,6 +11,7 @@
 
 subroutine ReMap_U_k(U_k,nU_k,U_k_New,nU_k_New,iSO_ab)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
@@ -22,7 +23,7 @@ integer(kind=iwp) :: i, ij, j, k
 do k=1,nU_k
   i = iSO_ab(1,k)
   j = iSO_ab(2,k)
-  ij = i*(i-1)/2+j
+  ij = nTri_Elem(i-1)+j
   if (i == j) then
     U_k_New(ij) = U_k(k)
   else

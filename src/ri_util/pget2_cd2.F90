@@ -28,6 +28,7 @@ subroutine PGet2_CD2(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,CoulFac,P
 !             R. Lindh                                                 *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: Mul, nIrrep
@@ -37,9 +38,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_k
 real(kind=wp) :: PSO(nijkl,nPSO), CoulFac, PMax, V_K(mV_K)
-integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Indi, Indij, Indj, Indk, Indkl, Indl, iPntij, iPntkl, is, iSO, iSOi, iSym(0:7), j, j1, &
-                     j12, j123, j2, j3, j4, jAOj, js, jSO, jSOj, jSym(0:7), kAOk, ks, kSO, kSOk, kSym(0:7), lAOl, lOper, ls, lSO, &
-                     lSOl, lSym(0:7), MemSO2, mijkl, niSym, njSym, nkSym, nlSym
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Indij, Indkl, iPntij, iPntkl, is, iSO, iSOi, iSym(0:7), j, j1, j12, j123, j2, j3, j4, &
+                     jAOj, js, jSO, jSOj, jSym(0:7), kAOk, ks, kSO, kSOk, kSym(0:7), lAOl, lOper, ls, lSO, lSOl, lSym(0:7), &
+                     MemSO2, mijkl, niSym, njSym, nkSym, nlSym
 real(kind=wp) :: Fac, temp
 integer(kind=iwp), external :: iPntSO
 
@@ -140,14 +141,10 @@ do i1=1,iCmp(1)
                         ! Contribution V_k(ij)*V_k(kl) to P(ijkl)
                         if (j1 == j2) then
                           ! j3 == j4 also
-                          Indi = max(iSOi,jSOj)
-                          Indj = iSOi+jSOj-Indi
-                          Indk = max(kSOk,lSOl)
-                          Indl = kSOk+lSOl-Indk
                           iPntij = iPntSO(j1,j2,lOper,nbas)
                           iPntkl = iPntSO(j3,j4,lOper,nbas)
-                          Indij = iPntij+(Indi-1)*Indi/2+Indj
-                          Indkl = iPntkl+(Indk-1)*Indk/2+Indl
+                          Indij = iPntij+iTri(iSOi,jSOj)
+                          Indkl = iPntkl+iTri(kSOk,lSOl)
                           temp = V_k(Indij)*V_k(Indkl)*Coulfac
                         else
                           temp = Zero

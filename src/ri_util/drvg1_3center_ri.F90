@@ -37,17 +37,19 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij3,nij_Eff)
 !             Modified for 3-center RI gradients, March '07            *
 !***********************************************************************
 
-use Index_Functions, only: iTri
-use k2_setup, only: Data_k2
+use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
 use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k
+use k2_setup, only: Data_k2
 use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
 use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
 use Symmetry_Info, only: nIrrep
-use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, DMLT, iMP2prpt, iOff_Ymnij, nYmnij, VJ, Yij, Ymnij
+use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, DMLT, DoCholExch, iAdrCVec, iBDsh, iMP2prpt, iOff_Ymnij, LuCVector, MxChVInShl, &
+                   nAdens, nAvec, nChOrb, nIJ1, nIJR, nJdens, nKdens, nKvec, NumAuxVec, nYmnij, tavec, tbvec, Timings_default, VJ, &
+                   Yij, Ymnij
 use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -63,8 +65,6 @@ integer(kind=iwp), allocatable :: ij3(:,:)
 #include "nsd.fh"
 #include "cholesky.fh"
 #include "setup.fh"
-#include "exterm.fh"
-#include "bdshell.fh"
 #include "chotime.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
@@ -156,8 +156,8 @@ ThrAO = Zero
 call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 nSkal_Valence = nSkal-nSkal_Auxiliary
 mSkal = nSkal
-nPairs = nSkal*(nSkal+1)/2
-nQuad = nPairs*(nPairs+1)/2
+nPairs = nTri_Elem(nSkal)
+nQuad = nTri_Elem(nPairs)
 Pren = Zero
 Prem = Zero
 !                                                                      *
@@ -222,7 +222,7 @@ end do
 
 ! Calculate maximum density value for each shellpair
 
-lMaxDens = nSkal_Valence*(nSkal_Valence+1)/2
+lMaxDens = nTri_Elem(nSkal_Valence)
 call mma_allocate(MaxDens,lMaxDens,Label='MaxDens')
 MaxDens(:) = Zero
 
@@ -232,16 +232,17 @@ do iSym=0,nSym-1
     jsh = Cho_Irange(j,iBDsh(kS),nSkal_Valence,.true.)
     do i=1,j
       ish = Cho_Irange(i,iBDsh(kS),nSkal_Valence,.true.)
-      ijS = jsh*(jsh-1)/2+ish
+      ijS = nTri_Elem(jsh-1)+ish
       do iSO=1,nJDens
         if (.not. DMLT(iSO)%Active) cycle
-        ij = j*(j-1)/2+i
+        ij = iTri(j,i)
         Dm_ij = abs(DMLT(iSO)%SB(iSym+1)%A1(ij))
         MaxDens(ijS) = max(MaxDens(ijS),Dm_ij)
       end do
     end do
   end do
 end do
+call mma_deallocate(iBDsh)
 
 do i=1,5
   if (DMLT(i)%Active) call Deallocate_DT(DMLT(i))
@@ -251,15 +252,15 @@ end do
 
 ! 1) For the valence basis set
 
-call mma_allocate(Shij,2,nSkal_Valence*(nSkal_Valence+1)/2,Label='Shij')
+call mma_allocate(Shij,2,nTri_Elem(nSkal_Valence),Label='Shij')
 nSkal2 = 0
 do iS=1,nSkal_Valence
-  iiQ = iS*(iS+1)/2
+  iiQ = nTri_Elem(iS)
   XDm_ii = MaxDens(iiQ)
   do jS=1,iS
-    jjQ = jS*(jS+1)/2
+    jjQ = nTri_Elem(jS)
     XDm_jj = MaxDens(jjQ)
-    ijQ = iS*(iS-1)/2+jS
+    ijQ = iTri(iS,jS)
     XDm_ij = MaxDens(ijQ)
     XDm_max = max(XDm_ij,XDm_ii,XDm_jj)
     A_int_ij = TMax_Valence(iS,jS)
@@ -395,11 +396,11 @@ if (DoCholExch) then
 
         do i=1,ni
           do j=1,i-1
-            ij = j+i*(i-1)/2
+            ij = iTri(i,j)
             CVec2(i,j,KAux) = CVec(ij,KAux)
             CVec2(j,i,KAux) = CVec(ij,KAux)
           end do
-          ii = i*(i+1)/2
+          ii = iTri(i,i)
           CVec2(i,i,KAux) = CVec(ii,KAux)*sqrt(Two)
         end do
 
@@ -443,7 +444,7 @@ if (DoCholExch) then
   ! Make a list for each shell-pair over the largest element
   ! SQRT(ABS( (mu,nu|mu,nu) ))
 
-  nnSkal = nSkal_valence*(nSkal_valence+1)/2
+  nnSkal = nTri_Elem(nSkal_valence)
   call mma_allocate(SDG,nnSkal,Label='SDG')
   call get_maxDG(SDG,nnSkal,MxBasSh)
 

@@ -28,7 +28,7 @@ subroutine PLF_RI_2(AOint,ijkl,jCmp,lCmp,iAO,iAOst,jBas,lBas,kOp,TInt,nTInt,iSO2
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Definitions, only: wp, iwp
@@ -63,7 +63,7 @@ iOff = nBas(0)
 iOffA_ = iOffA(1)
 mm_ = iOffA(4)
 nn = mm_-iOffA(2)
-mx = nn*(nn+1)/2
+mx = nTri_Elem(nn)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nn,mx=',nn,mx

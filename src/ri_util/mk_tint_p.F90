@@ -11,6 +11,7 @@
 
 subroutine Mk_TInt_P(TInt_p,nTInt_p,TP,nTP,List2_p,nList2_p,mData,iAng,jAng,npk,List_TP)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -33,7 +34,7 @@ do iList2_p=1,nList2_p
     k = List2_p(5,iList2_p)
     l = List2_p(6,iList2_p)
     if (iAng == jAng) then
-      iTP = k*(k-1)/2+l
+      iTP = nTri_Elem(k-1)+l
     else
       iTP = (l-1)*npk+k
     end if
@@ -52,7 +53,7 @@ do iList2_p=1,nList2_p
         m = List2_p(5,jList2_p)
         n = List2_p(6,jList2_p)
         if (iAng == jAng) then
-          jTP = m*(m-1)/2+n
+          jTP = nTri_Elem(m-1)+n
         else
           jTP = (n-1)*npk+m
         end if

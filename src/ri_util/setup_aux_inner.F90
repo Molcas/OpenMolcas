@@ -11,6 +11,7 @@
 
 subroutine Setup_Aux_Inner(iSOShl,nSO,iShlSO,nBasSh,nShell,nIrrep,nBas,iSSOff,nij_Shell,iShij,nBas_Aux,nChV,iTOffs)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
@@ -105,7 +106,7 @@ do ijShell=1,nij_Shell
         iSSOff(iIrrep,jIrrep,ijShell) = iTtmp(ijIrrep)
         iSSOff(jIrrep,iIrrep,ijShell) = iTtmp(ijIrrep)
         nab = na*nb
-        if (iIrrep == jIrrep) nab = na*(na+1)/2
+        if (iIrrep == jIrrep) nab = nTri_Elem(na)
         iTtmp(ijIrrep) = iTtmp(ijIrrep)+nab
       end do
     end do

@@ -29,8 +29,9 @@ subroutine Post_2Center_RI(A_Diag)
 !             Modified to 2-center ERIs for RI June '05                *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas_Aux
-use Wrj12, only: Lu_A, Lu_Q, nChV
+use RI_glob, only: Lu_A, Lu_Q, nChV
 use Gateway_global, only: force_out_of_core
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -139,10 +140,10 @@ do iIrrep=0,nIrrep-1
   !if (iIrrep == 0) nB = nB-1
   nB = nDmB(iIrrep)
   if (nB == 0) cycle
-  nQm = nB*(nB+1)/2
+  nQm = nTri_Elem(nB)
 
   nXZ = nB
-  nQm_full = nB*(nB+1)/2
+  nQm_full = nTri_Elem(nB)
 
   if (Force_Out_of_Core) MaxMem = (8*(2*nQm_full+5*nXZ))/10
   Out_of_Core = 2*nQm_full+5*nXZ > MaxMem
@@ -152,7 +153,7 @@ do iIrrep=0,nIrrep-1
     a = One
     b = -Two*real(mQm,kind=wp)
     mB = int(-a*Half+sqrt((a*Half)**2-b))
-    kQm = mB*(mB+1)/2
+    kQm = nTri_Elem(mB)
     if (kQm > mQm) then
       call WarningMessage(2,'Error in Post_2Center_RI')
       write(u6,*) 'kQm > mQm!'
@@ -206,10 +207,10 @@ do iIrrep=0,nIrrep-1
     iAddr_ = iAddr
     if (kCol <= nMem) then
       ! Point to A_k in Am
-      iOff = (kCol-1)*kCol/2
+      iOff = nTri_Elem(kCol-1)
       A_l(1:kCol) => Am(iOff+1:iOff+kCol)
       if (kCol == 1) then
-        nAm = nMem*(nMem+1)/2
+        nAm = nTri_Elem(nMem)
         call dDaFile(Lu_A(iIrrep),2,Am,nAm,iAddr_)
       end if
       ! Point to Q_k in Qm
@@ -235,7 +236,7 @@ do iIrrep=0,nIrrep-1
 
     iAddr_ = iAddr
     if (kCol == nMem) then
-      nQm = kCol*(kCol+1)/2
+      nQm = nTri_Elem(kCol)
       call dDaFile(Lu_Q(iIrrep),1,Qm,nQm,iAddr)
       call dDaFile(Lu_A(iIrrep),1,Am,nQm,iAddr_)
     else if (kCol > nMem) then

@@ -11,6 +11,7 @@
 
 subroutine Compute_V12(V,V12,nDim)
 
+use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -23,14 +24,14 @@ real(kind=wp) :: tmp
 real(kind=wp), allocatable :: Vec(:,:), VTri(:)
 
 call mma_allocate(Vec,nDim,nDim,Label='Vec')
-call mma_allocate(VTri,nDim*(nDim+1)/2,Label='VTri')
+call mma_allocate(VTri,nTri_Elem(nDim),Label='VTri')
 
 call FZero(Vec,nDim**2)
 call dcopy_(nDim,[One],0,Vec,nDim+1)
 
 do i=1,nDim
   do j=1,i
-    VTri(i*(i-1)/2+j) = V(i,j)
+    VTri(iTri(i,j)) = V(i,j)
   end do
 end do
 
@@ -39,10 +40,10 @@ call JACOB(VTri,Vec,nDim,nDim)
 call FZero(V12,nDim**2)
 do i=1,nDim
 # ifdef _DEBUGPRINT_
-  tmp = VTri(i*(i+1)/2)
+  tmp = VTri(iTri(i,i))
   write(u6,*) 'i,tmp=',i,tmp
 # endif
-  tmp = sqrt(VTri(i*(i+1)/2))
+  tmp = sqrt(VTri(iTri(i,i)))
   if (tmp < 1.0e-90_wp) then
     V12(i,i) = 1.0e90_wp
   else

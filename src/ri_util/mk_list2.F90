@@ -11,6 +11,7 @@
 
 subroutine Mk_List2(List2,nTheta_All,mData,nSO_Tot,iCnttp,nTest,ijS_req)
 
+use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, Shells
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
@@ -34,7 +35,7 @@ iiSO = 0
 iSO_ = 0
 do iAng=0,nTest
   iShll = dbsc(iCnttp)%iVal+iAng
-  nCmp = (iAng+1)*(iAng+2)/2
+  nCmp = nTri_Elem1(iAng)
   if (Shells(iShll)%Prjct) nCmp = 2*iAng+1
   nSO = nCmp*Shells(iShll)%nBasis
   do iCmp=1,nCmp
@@ -53,12 +54,12 @@ do iAng=0,nTest
   do jAng=0,iAng
     !write(u6,*) 'iAng,jAng=',iAng,jAng
     jShll = dbsc(iCnttp)%iVal+jAng
-    mCmp = (jAng+1)*(jAng+2)/2
+    mCmp = nTri_Elem1(jAng)
     if (Shells(jShll)%Prjct) mCmp = 2*jAng+1
 
     mSO = mCmp*Shells(jShll)%nBasis
 
-    ijS = (iAng+1)*iAng/2+jAng+1
+    ijS = iTri(iAng+1,jAng+1)
 
     if ((.not. Only_DB) .or. (ijS == ijS_req)) then
       do iSO=iiSO+1,iiSO+nSO

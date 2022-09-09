@@ -11,6 +11,7 @@
 
 subroutine CD_AInv_Inner(n,m,ADiag,iADiag,Lu_A,Lu_Q,Thr_CD)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -57,10 +58,10 @@ ThrQ = Thr_CD*0.1_wp ! Threshold for Inv_Cho_Factor
 
 nB = nVec
 if (nB /= 0) then
-  nQm = nB*(nB+1)/2
+  nQm = nTri_Elem(nB)
 
   nXZ = nB
-  nQm_full = nB*(nB+1)/2
+  nQm_full = nTri_Elem(nB)
 
   Out_of_Core = 2*nQm_full+5*nXZ > MaxMem
 
@@ -69,7 +70,7 @@ if (nB /= 0) then
     a = One
     b = -Two*real(mQm,kind=wp)
     mB = int(-a*Half+sqrt((a*Half)**2-b))
-    kQm = mB*(mB+1)/2
+    kQm = nTri_Elem(mB)
     if (kQm > mQm) then
       call WarningMessage(2,'Error in CD_AInv_Inner')
       write(u6,*) 'kQm > mQm!'
@@ -117,11 +118,11 @@ if (nB /= 0) then
 
     iAddr_ = iAddr
     if (kCol <= nMem) then
-      iOff = (kCol-1)*kCol/2
+      iOff = nTri_Elem(kCol-1)
       ! Point to A_k in Am
       A_l(1:kCol) => Am(iOff+1:iOff+kCol)
       if (kCol == 1) then
-        nAm = nMem*(nMem+1)/2
+        nAm = nTri_Elem(nMem)
         call dDaFile(Lu_Z,2,Am,nAm,iAddr_)
       end if
       ! Point to Q_k in Qm
@@ -147,7 +148,7 @@ if (nB /= 0) then
 
     iAddr_ = iAddr
     if (kCol == nMem) then
-      nQm = kCol*(kCol+1)/2
+      nQm = nTri_Elem(kCol)
       call dDaFile(Lu_Q,1,Qm,nQm,iAddr)
       call dDaFile(Lu_Z,1,Am,nQm,iAddr_)
     else if (kCol > nMem) then

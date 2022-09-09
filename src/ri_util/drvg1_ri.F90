@@ -22,6 +22,7 @@ subroutine Drvg1_RI(Grad,Temp,nGrad)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas, nBas_Aux
 use pso_stuff, only: AOrb, Case_2C, Case_3C, DMdiag, G1, ij2K, iOff_ij2K, lPSO, lSA, m_Txy, n_ij2K, n_Txy, nG1, nnP, nV_k, nZ_p_k, &
                      Txy, U_k, V_k, Z_p_k
@@ -29,7 +30,7 @@ use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: Mul, nIrrep
 use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
-use ExTerm, only: iMP2prpt, LuAVector, LuBVector
+use RI_glob, only: DoCholExch, iMP2prpt, LuAVector, LuBVector, LuCVector, nAdens, nAvec, nJdens, nKdens, nKvec, tavec, tbvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -41,7 +42,6 @@ real(kind=wp) :: Grad(nGrad), Temp(nGrad)
 #include "disp.fh"
 #include "print.fh"
 #include "cholesky.fh"
-#include "exterm.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -204,7 +204,7 @@ if (lPSO) then
       if (iSym > jSym) then
         ntmp = ntmp+nAct(iSym)*nAct(jSym)
       else if (iSym == jSym) then
-        ntmp = ntmp+nAct(iSym)*(nAct(iSym)+1)/2
+        ntmp = ntmp+nTri_Elem(nAct(iSym))
       end if
     end do
     n_Txy = n_Txy+ntmp**2
@@ -213,7 +213,7 @@ if (lPSO) then
   m_Txy = nAdens
   call mma_allocate(Txy,n_Txy,nAdens,Label='Txy')
   call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
-  call mma_allocate(DMtmp,nG1*(nG1+1)/2,Label='DMtmp')
+  call mma_allocate(DMtmp,nTri_Elem(nG1),Label='DMtmp')
   call iZero(nnP,nIrrep)
   call Compute_txy(G1(1,1),nG1,Txy,n_Txy,nAdens,nIrrep,DMdiag,DMtmp,nAct)
   call mma_deallocate(DMtmp)
@@ -227,10 +227,10 @@ nZ_p_l = 0
 nZ_p_k_New = 0
 do i=0,nIrrep-1
   iOff_ij2K(i+1) = n_ij2K
-  n_ij2K = n_ij2K+nBas(i)*(nBas(i)+1)/2
+  n_ij2K = n_ij2K+nTri_Elem(nBas(i))
   nZ_p_k = nZ_p_k+nnP(i)*nBas_Aux(i)  ! Global size
   nZ_p_l = nZ_p_l+nnP(i)*NumCho(i+1)  ! Local size
-  nZ_p_k_New = nZ_p_k_New+nnP(i)*nBas(i)*(nBas(i)+1)/2
+  nZ_p_k_New = nZ_p_k_New+nnP(i)*nTri_Elem(nBas(i))
 end do
 if (Do_RI) nZ_p_k = nZ_p_k-nnP(0)
 
@@ -326,7 +326,7 @@ if (Cholesky .and. (.not. Do_RI)) then
 
   call mma_allocate(ij2K,n_ij2K,Label='ij2K')
   ij2K(:) = 0
-  nV_k_New = nBas(0)*(nBas(0)+1)/2
+  nV_k_New = nTri_Elem(nBas(0))
   call mma_allocate(V_k_new,nV_k_New,nJdens,Label='V_k_new')
   V_k_new(:,:) = Zero
 
@@ -344,7 +344,7 @@ if (Cholesky .and. (.not. Do_RI)) then
     if ((iSym == 1) .and. (iMp2prpt == 2)) then
       call ReMap_U_k(U_k,nV_k,U_k_New,nV_k_New,SO_ab)
     end if
-    m_ij2K = nBas(iSym-1)*(nBas(iSym-1)+1)/2
+    m_ij2K = nTri_Elem(nBas(iSym-1))
     do i=0,nJDens-1
       call ReMap_V_k(iSym,V_k(1,1+i),nV_k,V_k_new(1,1+i),nV_k_New,SO_ab(iOff),ij2K(iOff_ij2K(iSym)+1),m_ij2K)
     end do
@@ -393,12 +393,10 @@ if (DoCholExch) then
       call DANAME_MF_WA(LuCVector(jSym,i),Fname)
     end do
   end do
-  ! Initialize timings
-  do i=1,2
-    tavec(i) = Zero
-    tbvec(i) = Zero
-  end do
 end if
+!Initialize timings
+tavec(:) = Zero
+tbvec(:) = Zero
 if (imp2prpt == 2) then
   do i=1,2
     iSeed = 8+nSym

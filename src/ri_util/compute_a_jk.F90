@@ -19,14 +19,13 @@ subroutine Compute_A_jk_mp2(jVec,kVec,Ajk,fac_ij,fac_kl,nVec,iOpt)
 !                                                                      *
 !***********************************************************************
 
-use ExTerm, only: iMP2prpt, LuAVector
+use RI_glob, only: iMP2prpt, LuAVector
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: jVec, kVec, nVec, iOpt
 real(kind=wp) :: Ajk, Fac_ij, Fac_kl
-#include "exterm.fh"
 integer(kind=iwp) :: iAdrA, lTot
 real(kind=wp) :: Ajk_mp2, dum(1)
 character(len=*), parameter :: SECNAM = 'Compute_A_jk_mp2'

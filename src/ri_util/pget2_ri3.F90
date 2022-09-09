@@ -27,22 +27,22 @@ subroutine PGet2_RI3(iCmp,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,nDSO,ExFac
 !             Modified for 3-center RI gradients, March 2007           *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: AOrb, lPSO, nnP, Thpkl
 use Basis_Info, only: nBas, nBas_Aux
 use Symmetry_Info, only: Mul, nIrrep
-use ExTerm, only: BklK, CijK, CilK, CMOi, iOff_Ymnij, nYmnij, Yij, Ymnij
+use RI_glob, only: BklK, CijK, CilK, CMOi, iAdrCVec, iOff_Ymnij, LuCVector, nAvec, nChOrb, nIJR, nYmnij, tbvec, Yij, Ymnij
 use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: iCmp(4), jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, mV_k, nSA, nAct(0:7)
 real(kind=wp) :: PSO(nijkl,nPSO), DSO(nDSO,nSA), ExFac, CoulFac, PMax, V_k(mV_k,nSA), Zpk(*)
-#include "exterm.fh"
-integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indk, Indkl, Indl, iSO, iThpkl, iVec, j, j2, j23, j3, j4, &
-                     jAOj, jC, jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), l, lAct, &
-                     lAOl, lCVec, lda, lmo, lOper, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, n2j, nCumnnP(0:7), nCumnnP2(0:7), nJ, &
-                     njSym, nk, nkSym, nl, nlSym, ntmp
+integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indkl, iSO, iThpkl, iVec, j, j2, j23, j3, j4, jAOj, jC, &
+                     jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), l, lAct, lAOl, &
+                     lCVec, lda, lmo, lOper, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, n2j, nCumnnP(0:7), nCumnnP2(0:7), nJ, njSym, &
+                     nk, nkSym, nl, nlSym, ntmp
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, temp, tmp, Wall, Wall1, Wall2
 real(kind=wp), pointer :: Xki(:), Xli(:)
 integer(kind=iwp), external :: iPntSO
@@ -133,7 +133,7 @@ do i2=1,iCmp(2)
           do j4=0,nIrrep-1
             j3 = Mul(j4+1,j2+1)-1
             if (j3 <= j4) nCumnnP2(j3) = ntmp
-            if (j3 == j4) ntmp = ntmp+nAct(j3)*(nAct(j3)+1)/2
+            if (j3 == j4) ntmp = ntmp+nTri_Elem(nAct(j3))
             if (j3 < j4) ntmp = ntmp+nAct(j3)*nAct(j4)
           end do
           do j4=0,nIrrep-1
@@ -302,9 +302,9 @@ do i2=1,iCmp(2)
                       if (j3 == j4) then
                         do kAct=1,nAct(j3)
                           ! Zpk(*,iVec)
-                          tmp = ddot_(kAct,Zpk(jp+kAct*(kAct-1)/2+1),1,AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1)
+                          tmp = ddot_(kAct,Zpk(jp+iTri(kAct,1)),1,AOrb(iMO1)%SB(j4+1)%A2(:,lSOl),1)
                           do lAct=kAct+1,nAct(j4)
-                            tmp = tmp+Zpk(jp+lAct*(lAct-1)/2+kAct)*AOrb(iMO1)%SB(j4+1)%A2(lAct,lSOl)
+                            tmp = tmp+Zpk(jp+iTri(lAct,kAct))*AOrb(iMO1)%SB(j4+1)%A2(lAct,lSOl)
                           end do
                           Cilk(kAct) = tmp
                         end do

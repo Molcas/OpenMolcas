@@ -20,7 +20,7 @@ subroutine Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
 !*************************************************************************
 
 use Symmetry_Info, only: Mul
-use ExTerm, only: A, nAuxVe
+use RI_glob, only: A, nAuxVe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
