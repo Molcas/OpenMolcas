@@ -11,7 +11,6 @@
 >export MOLCAS_REDUCE_PRT=NO
 >export MOLCAS_NOCHECK=MLTPL
 
-
 >COPY velocity.xyz  $Project.velocity.xyz
 >COPY C3H6N.xyz .
 &GATEWAY
@@ -20,7 +19,7 @@ BASIS= 3-21G
 GROUP= nosym
 NoCD
 
-> EXPORT MOLCAS_MAXITER=3
+> EXPORT MOLCAS_MAXITER=1
 > DOWHILE
 
 &SEWARD
@@ -39,54 +38,6 @@ VELO= 1
 THERMO= 2
 > END DO
 
-* Check that we can resume the dynamics
->> EXPORT MOLCAS_NOCHECK=POTNUC
->> IF ($HAVE_HDF5 == 0)
-  >COPY $Project.RunFile RunOld
-  &GATEWAY
-  COORD=C3H6N.xyz
-  BASIS= 3-21G
-  GROUP= nosym
-  NoCD
-  >COPY RunOld $Project.RunFile
->> ENDIF
->> IF ($HAVE_HDF5 == 1)
-  >COPY $Project.dyn.h5 restart.h5
-  &GATEWAY
-  COORD=restart.h5
-  BASIS= 3-21G
-  GROUP= nosym
-  NoCD
->> ENDIF
-
-> EXPORT MOLCAS_MAXITER=2
-> DOWHILE
-
-&SEWARD
-
-&SCF
-Charge= 1
->> COPY $Project.ScfOrb INPORB
-
-&ALASKA
-CutOff= 1.0D-8
-
->> IF ($HAVE_HDF5 == 0)
-  &DYNAMIX
-  VelVer
-  DT= 10.0
-  VELO= 1
-  THERMO= 2
->> ENDIF
->> IF ($HAVE_HDF5 == 1)
-  &DYNAMIX
-  VelVer
-  DT= 10.0
-  VELO= 1
-  THERMO= 2
-  H5RESTART=restart.h5
->> ENDIF
-> END DO
 
 ****
 
