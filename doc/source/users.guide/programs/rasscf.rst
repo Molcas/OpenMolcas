@@ -940,6 +940,19 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`H5DM`
+  Read HDF5 RDMs instead of ASCII from NECI or M7 in the
+  stochastic-CASSCF interface. This keyword will become mandatory
+  for the stochastic-CASPT2 interface.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="H5DM" LEVEL="BASIC" APPEAR="HDF5-RDMS" KIND="SINGLE">
+              %%Keyword: H5DM <BASIC>
+              <HELP>
+              Read HDF5 RDMs instead of ASCII from NECI or M7 in the
+              stochastic-CASSCF interface.
+              </HELP>
+              </KEYWORD>
+
 :kword:`SSCR`
   Computes the orbital resolved spin--spin correlation function between at most
   two different ranges of orbitals. For physically meaningful results prior
