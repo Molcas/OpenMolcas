@@ -30,7 +30,7 @@ subroutine PGet2_CD2(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,CoulFac,P
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -101,11 +101,11 @@ do i1=1,iCmp(1)
 
           do js=0,njSym-1
             j2 = jSym(js)
-            j12 = ieor(j1,j2)
+            j12 = Mul(j1+1,j2+1)-1
 
             do ks=0,nkSym-1
               j3 = kSym(ks)
-              j123 = ieor(j12,j3)
+              j123 = Mul(j12+1,j3+1)-1
               do ls=0,nlSym-1
                 j4 = lSym(ls)
                 if (j123 /= j4) cycle

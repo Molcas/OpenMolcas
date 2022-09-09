@@ -32,6 +32,7 @@ subroutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,jBas,lBas,kOp,ExFac,CoulFac,PM
 !             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: DMdiag, lPSO, lSA, nnP, nPos
@@ -132,7 +133,7 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
   jSym = 1
   kSym = jSym
   iSym = 1
-  lSym = ieor(jSym-1,iSym-1)+1
+  lSym = Mul(jSym,iSym)
 
   nik = nIJ1(iSym,kSym,iSO)
 
@@ -199,7 +200,7 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 1)) then
   jSym = 1
   kSym = jSym
   iSym = 1
-  lSym = ieor(jSym-1,iSym-1)+1
+  lSym = Mul(jSym,iSym)
   nik1 = nIJ1(iSym,kSym,1)
   nik2 = nIJ1(iSym,kSym,2)
   nik = max(nik1,nik2)
@@ -281,7 +282,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
   jSym = 1
   kSym = jSym
   iSym = 1
-  lSym = ieor(jSym-1,iSym-1)+1
+  lSym = Mul(jSym,iSym)
 
   nik = nIJ1(iSym,kSym,iSO)
   iS = 1
@@ -352,7 +353,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
   jSym = 1
   kSym = jSym
   iSym = 1
-  lSym = ieor(jSym-1,iSym-1)+1
+  lSym = Mul(jSym,iSym)
 
   nik1 = nIJ1(iSym,kSym,1)
   nik2 = nIJ1(iSym,kSym,2)
@@ -472,7 +473,7 @@ else
   jSym = 1
   kSym = jSym
   iSym = 1
-  lSym = ieor(jSym-1,iSym-1)+1
+  lSym = Mul(jSym,iSym)
 
   nik = nIJ1(iSym,lSym,iSO)
 

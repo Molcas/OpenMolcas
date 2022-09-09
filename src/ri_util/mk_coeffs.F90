@@ -12,6 +12,7 @@
 subroutine Mk_Coeffs(CoeffA,nPrimA,nConA,CoeffB,nPrimB,nConB,Coeff,nTheta_Full,nPhi,iD,NumCho,List2,mData,nPhi_All,Indkl,nkl,nk, &
                      iAng,jAng,CoeffAP,CoeffBP)
 
+use Index_Functions, only: iTri
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
@@ -21,9 +22,6 @@ integer(kind=iwp) :: nPrimA, nConA, nPrimB, nConB, nTheta_Full, nPhi, NumCho, iD
 real(kind=wp) :: CoeffA(nPrimA,nConA), CoeffB(nPrimB,nConB), Coeff(nTheta_Full,nPhi), CoeffAP(nPrimA,nPrimA), CoeffBP(nPrimB,nPrimB)
 integer(kind=iwp) :: iCho, ik, il, iPhi, iPhi_All, iPhi_Full, iPrimA, iPrimB, iTheta_Full
 real(kind=wp) :: Cff
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

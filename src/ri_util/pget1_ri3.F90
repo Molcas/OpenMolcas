@@ -28,11 +28,12 @@ subroutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,jBas,kBas,lBas,kOp,DSO,DSO_Var
 !             Modified for 3-center RI gradients, March 2007           *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: AOrb, lPSO, lSA, Thpkl
 use Data_Structures, only: V1
-use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, iMP2prpt, ipYmnij, LuBVector, nYmnij, Yij, Ymnij
+use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, iMP2prpt, LuBVector, nYmnij, Yij, Ymnij
 #ifdef _DEBUGPRINT_
 use ExTerm, only: iOff_Ymnij
 #endif
@@ -53,9 +54,6 @@ real(kind=wp), pointer :: Xki(:), Xli(:)
 type(V1) :: Xki2(2), Xki3(2), Xli2(2), Xli3(2)
 real(kind=wp), external :: Compute_B
 real(kind=r8), external :: dDot_
-! Statement function
-integer(kind=iwp) :: kYmnij, l, iDen
-kYmnij(l,iDen) = Ymnij(ipYmnij(iDen)-1+l)
 
 !                                                                      *
 !***********************************************************************
@@ -69,7 +67,7 @@ iSym = 1
 if (nYmnij(iSym,1) > 0) then
   write(u6,*) 'iSym=',iSym
   do i=iOff_Ymnij(iSym,1)+1,iOff_Ymnij(iSym,1)+nYmnij(iSym,1)
-    write(u6,*) 'kYmnij=',kYmnij(i,1)
+    write(u6,*) 'Ymnij=',Ymnij(1)%A(i)
   end do
 end if
 write(u6,*) 'jbas,kbas,lbas=',jBas,kBas,lBas
@@ -89,7 +87,7 @@ iPAO = 0
 
 jSym = 1
 kSym = 1
-lSym = ieor(jSym-1,kSym-1)+1
+lSym = Mul(jSym,kSym)
 NumOrb(1) = nChOrb(kSym-1,1)
 
 call Qpg_iScalar('SCF mode',Found)
@@ -160,7 +158,7 @@ if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPS
 
     imo = 1
     do k=1,nj(1)
-      kmo = kYmnij(k,1) ! CD-MO index
+      kmo = Ymnij(1)%A(k) ! CD-MO index
 
       ! Pick up X_mu,i for all mu's that belong to shell k
 
@@ -196,9 +194,9 @@ if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPS
     if ((nj(1) <= NumOrb(1)) .and. (jSkip(1) == 0)) then
       ij = 1
       do j=1,nj(1)
-        jmo = kYmnij(j,1)
+        jmo = Ymnij(1)%A(j)
         do i=1,nj(1)
-          imo = kYmnij(i,1)
+          imo = Ymnij(1)%A(i)
           jC = imo+NumOrb(1)*(jmo-1)
           call dcopy_(jBas,CijK(jC),NumOrb(1)**2,CilK(ij),nj(1)**2)
           ij = ij+1
@@ -295,7 +293,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
 
         imo = 1
         do k=1,nj(iSO)
-          kmo = kYmnij(k,iSO) ! CD-MO index
+          kmo = Ymnij(iSO)%A(k) ! CD-MO index
 
           ! Pick up X_mu,i for all mu's that belong to shell k
 
@@ -338,9 +336,9 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
         if ((nj(iSO) <= NumOrb(iSO)) .and. (jSkip(iSO) == 0)) then
           ij = 1
           do j=1,nj(iSO)
-            jmo = kYmnij(j,iSO)
+            jmo = Ymnij(iSO)%A(j)
             do i=1,nj(iSO)
-              imo = kYmnij(i,iSO)
+              imo = Ymnij(iSO)%A(i)
               jC = imo+NumOrb(iSO)*(jmo-1)
               call dcopy_(jBas,CijK(jC),NumOrb(iSO)**2,Cilk(ij),nj(iSO)**2)
               ij = ij+1
@@ -439,7 +437,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
 
     imo = 1
     do k=1,nj(1)
-      kmo = kYmnij(k,1) ! CD-MO index
+      kmo = Ymnij(1)%A(k)
 
       ! Pick up X_mu,i for all mu's that belong to shell k
 
@@ -476,9 +474,9 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
       if ((nj(1) <= NumOrb(1)) .and. (jSkip(1) == 0)) then
         ij = 1
         do j=1,nj(1)
-          jmo = kYmnij(j,1)
+          jmo = Ymnij(1)%A(j)
           do i=1,nj(1)
-            imo = kYmnij(i,1)
+            imo = Ymnij(1)%A(i)
             jC = imo+NumOrb(1)*(jmo-1)
             call dcopy_(jBas,CijK(jC),NumOrb(1)**2,CilK(ij),nj(1)**2)
             ij = ij+1
@@ -621,7 +619,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
         imo = 1
         do k=1,nj(iMOright)
-          kmo = kYmnij(k,iMOright) ! CD-MO index
+          kmo = Ymnij(iMOright)%A(k) ! CD-MO index
 
           ! Pick up X_mu,i for all mu's that belong to shell k
 
@@ -644,7 +642,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
         imo = 1
         do k=1,nj(iMOleft)
-          kmo = kYmnij(k,iMOleft) ! CD-MO index
+          kmo = Ymnij(iMOleft)%A(k) ! CD-MO index
 
           ! Pick up X_mu,i for all mu's that belong to shell l
 
@@ -688,9 +686,9 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
         if ((nj(iMOright) <= NumOrb(iMOright)) .or. (nj(iMOleft) <= NumOrb(iMOleft))) then
           ij = 1
           do j=1,nj(iMOleft)
-            jmo = kYmnij(j,iMOleft)
+            jmo = Ymnij(iMOleft)%A(j)
             do i=1,nj(iMOright)
-              imo = kYmnij(i,iMOright)
+              imo = Ymnij(iMOright)%A(i)
               jC = imo+NumOrb(iMOright)*(jmo-1)
               call dcopy_(jBas,CijK(jC),NumOrb(iMOright)*NumOrb(iMOleft),CilK(ij),nj(iMOright)*nj(iMOleft))
               ij = ij+1
@@ -858,7 +856,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt == 2)) then
   if ((nj(1) <= NumOrb(1)) .and. (jSkip(1) == 0)) then
     imo = 1
     do k=1,nj(1)
-      kmo = kYmnij(k,1)
+      kmo = Ymnij(1)%A(k)
       call dcopy_(nKBas,Xki(kmo:),NumOrb(1),Yij(imo,1,1),nj(1))
       call dcopy_(nLBas,Xli(kmo:),NumOrb(1),Yij(imo,2,1),nj(1))
       imo = imo+1
@@ -881,9 +879,9 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt == 2)) then
     if ((nj(1) <= NumOrb(1)) .and. (jSkip(1) == 0)) then
       ij = 1
       do j=1,nj(1)
-        jmo = kYmnij(j,1)
+        jmo = Ymnij(1)%A(j)
         do i=1,nj(1)
-          imo = kYmnij(i,1)
+          imo = Ymnij(1)%A(i)
           jC = imo+NumOrb(1)*(jmo-1)
           call dcopy_(jBas,CijK(jC),NumOrb(1)**2,CilK(ij),nj(1)**2)
           ij = ij+1

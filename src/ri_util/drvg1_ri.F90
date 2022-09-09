@@ -26,7 +26,7 @@ use Basis_Info, only: nBas, nBas_Aux
 use pso_stuff, only: AOrb, Case_2C, Case_3C, DMdiag, G1, ij2K, iOff_ij2K, lPSO, lSA, m_Txy, n_ij2K, n_Txy, nG1, nnP, nV_k, nZ_p_k, &
                      Txy, U_k, V_k, Z_p_k
 use RICD_Info, only: Cholesky, Do_RI
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
 use ExTerm, only: iMP2prpt, LuAVector, LuBVector
@@ -200,7 +200,7 @@ if (lPSO) then
   do ijsym=0,nIrrep-1
     ntmp = 0
     do jSym=0,nIrrep-1
-      isym = ieor(jSym,ijsym)
+      isym = Mul(jSym+1,ijsym+1)-1
       if (iSym > jSym) then
         ntmp = ntmp+nAct(iSym)*nAct(jSym)
       else if (iSym == jSym) then

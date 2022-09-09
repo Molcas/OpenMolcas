@@ -17,6 +17,7 @@ function nSize_3C(kS,lS,nShBf,nShell,nIrrep,iOff,nBas_Aux)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -59,14 +60,14 @@ else
     if (kS /= lS) then
       do kIrrep=0,nIrrep-1
         nK = nShBf(kIrrep,kS)
-        lIrrep = ieor(klIrrep,kIrrep)
+        lIrrep = Mul(klIrrep+1,kIrrep+1)-1
         nL = nShBf(lIrrep,lS)
         nKL = nKL+nK*nL
       end do
     else
       do kIrrep=0,nIrrep-1
         nK = nShBf(kIrrep,kS)
-        lIrrep = ieor(klIrrep,kIrrep)
+        lIrrep = Mul(klIrrep+1,kIrrep+1)-1
         nL = nShBf(lIrrep,lS)
 
         if (kIrrep > lIrrep) then

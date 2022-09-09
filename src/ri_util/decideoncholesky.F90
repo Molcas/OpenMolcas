@@ -20,7 +20,7 @@ integer(kind=iwp) :: iOption
 call Get_iScalar('System BitSwitch',iOption)
 
 ! this is a logical variable (logical function)
-DoCholesky = iand(iOption,512) == 512
+DoCholesky = btest(iOption,9)
 
 return
 

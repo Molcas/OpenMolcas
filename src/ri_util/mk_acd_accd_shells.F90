@@ -22,6 +22,7 @@ subroutine Mk_aCD_acCD_Shells(iCnttp,W2L)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
 use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
@@ -36,9 +37,9 @@ logical(kind=iwp) :: W2L
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "print.fh"
-integer(kind=iwp) :: iAng, iAngMax, iAngMin, iAO, iBS, iCho_c, iCho_p, iCmp, iCntrc, iDum, iExp_k, iExp_l, ijS, ijS_req, ijSO, &
+integer(kind=iwp) :: i, iAng, iAngMax, iAngMin, iAO, iBS, iCho_c, iCho_p, iCmp, iCntrc, iDum, iExp_k, iExp_l, ijS, ijS_req, ijSO, &
                      ijT, ik, ikl, il, Indx, iOff, iOff_Ak, iOff_Qk, ip_Exp, iRC, iSeed, iShell, iShll, iShll_, iSO, iSph, &
-                     istatus, iTheta, iTheta_full, iVal, iZ, jAng, jAngMax, jAngMin, jCho_p, jCnttp, jkl, jp_Exp, jp_Exp_Max, &
+                     istatus, iTheta, iTheta_full, iVal, iZ, j, jAng, jAngMax, jAngMin, jCho_p, jCnttp, jkl, jp_Exp, jp_Exp_Max, &
                      jShll, jShll_, jTheta, jTheta_full, kAng, kC, Keep_All, Keep_Shell, kShll, lAng, lC, LinDep, lScr, lShll, &
                      Lu_A, Lu_B, Lu_lib, mData, mdc, mPrim, mSOInf, n, nBS, nCmp, nCmpi, nCmpj, nCnt, nCntrc, nCntrc_Max, &
                      nCnttp_Start, nExpi, nExpk, nExpl, nk, nl, nn, nPhi, nPhi_All, npi, npj, npk, npl, nPrim, nPrim_Max, nSO, &
@@ -56,9 +57,6 @@ logical(kind=iwp) :: Diagonal, Found, Hit, In_Core, Keep_Basis
 character(len=80) :: atom, author, Aux, basis, BSLbl, btype, CGTO, Label
 integer(kind=iwp), external :: IsFreeUnit
 external :: Integral_RICD
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 interface
   subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
     import :: wp, iwp
@@ -74,9 +72,6 @@ interface
     real(kind=wp), allocatable :: Expn(:), CoeffC(:,:,:), CoeffP(:,:,:)
   end subroutine Fix_Exponents
 end interface
-! Statement Function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

@@ -30,8 +30,8 @@ subroutine PGet2_RI3(iCmp,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,nDSO,ExFac
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: AOrb, lPSO, nnP, Thpkl
 use Basis_Info, only: nBas, nBas_Aux
-use Symmetry_Info, only: nIrrep
-use ExTerm, only: BklK, CijK, CilK, CMOi, iOff_Ymnij, ipYmnij, nYmnij, Yij, Ymnij
+use Symmetry_Info, only: Mul, nIrrep
+use ExTerm, only: BklK, CijK, CilK, CMOi, iOff_Ymnij, nYmnij, Yij, Ymnij
 use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6, r8
 
@@ -40,16 +40,13 @@ integer(kind=iwp) :: iCmp(4), jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, n
 real(kind=wp) :: PSO(nijkl,nPSO), DSO(nDSO,nSA), ExFac, CoulFac, PMax, V_k(mV_k,nSA), Zpk(*)
 #include "exterm.fh"
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indk, Indkl, Indl, iSO, iThpkl, iVec, j, j2, j23, j3, j4, &
-                     jAOj, jC, jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), lAct, &
+                     jAOj, jC, jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), l, lAct, &
                      lAOl, lCVec, lda, lmo, lOper, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, n2j, nCumnnP(0:7), nCumnnP2(0:7), nJ, &
                      njSym, nk, nkSym, nl, nlSym, ntmp
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, temp, tmp, Wall, Wall1, Wall2
 real(kind=wp), pointer :: Xki(:), Xli(:)
 integer(kind=iwp), external :: iPntSO
 real(kind=r8), external :: ddot_
-! Statement function
-integer(kind=iwp) :: kYmnij, l
-kYmnij(l) = Ymnij(ipYmnij(1)-1+l)
 
 !                                                                      *
 !***********************************************************************
@@ -64,7 +61,7 @@ do iSym=1,nIrrep
   if (nYmnij(iSym,1) > 0) then
     write(u6,*) 'iSym=',iSym
     do i=iOff_Ymnij(iSym,1)+1,iOff_Ymnij(iSym,1)+nYmnij(iSym,1)
-      write(u6,*) 'kYmnij=',kYmnij(i)
+      write(u6,*) 'Ymnij=',Ymnij(1)%A(i)
     end do
   end if
 end do
@@ -134,20 +131,20 @@ do i2=1,iCmp(2)
         if (lPSO) then
           ntmp = 0
           do j4=0,nIrrep-1
-            j3 = ieor(j4,j2)
+            j3 = Mul(j4+1,j2+1)-1
             if (j3 <= j4) nCumnnP2(j3) = ntmp
             if (j3 == j4) ntmp = ntmp+nAct(j3)*(nAct(j3)+1)/2
             if (j3 < j4) ntmp = ntmp+nAct(j3)*nAct(j4)
           end do
           do j4=0,nIrrep-1
-            j3 = ieor(j4,j2)
+            j3 = Mul(j4+1,j2+1)-1
             if (j3 > j4) nCumnnP2(j3) = nCumnnP2(j4)
           end do
         end if
 
         do ks=0,nkSym-1
           j3 = kSym(ks)
-          j23 = ieor(j2,j3)
+          j23 = Mul(j2+1,j3+1)-1
           nk = nYmnij(j3+1,1)
           kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)
 
@@ -169,7 +166,7 @@ do i2=1,iCmp(2)
 
             imo = 1
             do k=1,nk
-              kmo = kYmnij(k+iOff_Ymnij(j3+1,1))
+              kmo = Ymnij(1)%A(k+iOff_Ymnij(j3+1,1))
 
               call dcopy_(kBas,Xki(kmo:),nChOrb(j3,iSO),Yij(imo,1,1),nk)
 
@@ -202,7 +199,7 @@ do i2=1,iCmp(2)
               Xli(1:) => CMOi(1)%SB(j4+1)%A1(il:)
               imo = 1
               do l=1,nl
-                lmo = kYmnij(l+iOff_Ymnij(j4+1,1))
+                lmo = Ymnij(1)%A(l+iOff_Ymnij(j4+1,1))
 
                 call dcopy_(lBas,Xli(lmo:),nChOrb(j4,iSO),Yij(imo,2,1),nl)
 
@@ -248,9 +245,9 @@ do i2=1,iCmp(2)
               if (nk*nl < nChOrb(j3,iSO)*nChOrb(j4,iSO)) then
                 ij = 1
                 do j=1,nl
-                  jmo = kYmnij(j+iOff_Ymnij(j4+1,1))
+                  jmo = Ymnij(1)%A(j+iOff_Ymnij(j4+1,1))
                   do i=1,nk
-                    imo = kYmnij(i+iOff_Ymnij(j3+1,1))
+                    imo = Ymnij(1)%A(i+iOff_Ymnij(j3+1,1))
 
                     jC = imo+nChOrb(j3,iSO)*(jmo-1)
 

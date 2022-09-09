@@ -373,7 +373,7 @@ do while (Rsv_Tsk(id,jlS))
       JndGrd(iCar,iSh) = iSD4(15+iCar,iSh)
       if (((iSh == 1) .or. (iSh == 3)) .and. Do_RI) then
         JfGrad(iCar,iSh) = .false.
-      else if (iand(iSD4(15,iSh),2**(iCar-1)) == 2**(iCar-1)) then
+      else if (btest(iSD4(15,iSh),iCar-1)) then
         JfGrad(iCar,iSh) = .true.
       else
         JfGrad(iCar,iSh) = .false.

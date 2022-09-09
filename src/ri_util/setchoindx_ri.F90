@@ -13,6 +13,8 @@
 
 subroutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,I_nSym,I_nnShl,I_mmBstRT,I_3,I_2,iShij,nShij)
 
+use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use ChoArr, only: iSP2F, iBasSh, nBasSh, nBstSh
 use Definitions, only: iwp
 
@@ -20,12 +22,9 @@ implicit none
 integer(kind=iwp) :: I_nSym, I_nnShl, I_3, iiBstRSh(I_nSym,I_nnShl,I_3), nnBstRSh(I_nSym,I_nnShl,I_3), I_mmBstRT, &
                      IndRed(I_mmBstRT,I_3), IndRsh(I_mmBstRT), I_2, iRS2F(I_2,I_mmBstRT), nShij, iShij(2,nShij)
 #include "cholesky.fh"
-integer(kind=iwp) :: ia, iaa, iab, ib, ibb, iCount, iRS(8), iSh_ij, iShla, iShlab, iShlb, iSym, iSyma, iSymb, jRS, jRS1, jRS2, nErr
+integer(kind=iwp) :: i, ia, iaa, iab, ib, ibb, iCount, iRS(8), iSh_ij, iShla, iShlab, iShlb, iSym, iSyma, iSymb, jRS, jRS1, jRS2, &
+                     nErr
 integer(kind=iwp), external :: Cho_iSAOSh
-! Statement functions
-integer(kind=iwp) :: MulD2h, i, j, iTri
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! nnBstRSh(iSym,iSh_ij,1) = #elements in compound sym. iSym of
 !                           shell-pair ab in 1st reduced set.
@@ -52,7 +51,7 @@ do iSh_ij=1,nShij
       do ibb=1,nBasSh(iSymb,iShlb)
         ib = iBasSh(iSymb,iShlb)+ibb
         do iSyma=1,nSym
-          iSym = MulD2h(iSyma,iSymb)
+          iSym = Mul(iSyma,iSymb)
           do iaa=1,nBasSh(iSyma,iShla)
             ia = iBasSh(iSyma,iShla)+iaa
             iab = nBstSh(iShla)*(ib-1)+ia
@@ -74,7 +73,7 @@ do iSh_ij=1,nShij
       do ib=1,ia
         iab = iTri(ia,ib)
         iSymb = Cho_iSAOSh(ib,iShlb)
-        iSym = MulD2h(iSyma,iSymb)
+        iSym = Mul(iSyma,iSymb)
         nnBstRSh(iSym,iSh_ij,1) = nnBstRSh(iSym,iSh_ij,1)+1
         iRS(iSym) = iRS(iSym)+1
         IndRSh(iRS(iSym)) = iShlab

@@ -11,6 +11,8 @@
 
 subroutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
 
+use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use ChoArr, only: iRS2F
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -23,10 +25,6 @@ real(kind=wp) :: Vec(lVec,nVec)
 integer(kind=iwp) :: ia, ib, iRS, iRS_tot, iSyma, iSymb, iVec, kFrom, liF2RS, lScr, na, nab, nb
 integer(kind=iwp), allocatable :: iF2RS(:)
 real(kind=wp), allocatable :: Scr(:)
-! Statement functions
-integer(kind=iwp) :: MulD2h, i, j, iTri
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 if (nVec < 1) return
 if (lVec < 1) return
@@ -62,7 +60,7 @@ do iVec=1,nVec
   kFrom = 0
   do iSymb=1,nSym
 
-    iSyma = MulD2h(iSymb,iSym)
+    iSyma = Mul(iSymb,iSym)
 
     if (iSyma > iSymb) then
       do ib=1,nBas(iSymb)

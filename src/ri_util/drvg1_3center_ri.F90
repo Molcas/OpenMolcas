@@ -37,18 +37,17 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij3,nij_Eff)
 !             Modified for 3-center RI gradients, March '07            *
 !***********************************************************************
 
-use k2_setup
-use iSD_data
-use pso_stuff
-use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
-use Basis_Info
+use Index_Functions, only: iTri
+use k2_setup, only: Data_k2
+use iSD_data, only: iSD
+use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k
+use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
+use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
 use Symmetry_Info, only: nIrrep
-use ExTerm, only: CijK, CilK, BklK, VJ
-use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
-use ExTerm, only: Yij, BMP2, iMP2prpt, CMOi, DMLT
+use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, DMLT, iMP2prpt, iOff_Ymnij, nYmnij, VJ, Yij, Ymnij
 use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -71,16 +70,16 @@ integer(kind=iwp), allocatable :: ij3(:,:)
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-integer(kind=iwp) :: iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ii, &
-                     iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, &
+integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), &
+                     ii, iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, &
                      iPrem, iPren, iPrimi, iPrInc, iPrint, ipxA, ipxB, ipxD, ipxG, ipZI, iRout, iS, iS_, iSD4(0:nSD,4), ish, &
-                     iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, jAng, jb, jBasAO, jBasj, jBasn, jBsInc, jjQ, JndGrd(3,4), &
-                     jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, kBask, kBasn, kBsInc, kBtch, klS, klS_, &
-                     kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, &
-                     lPrInc, lS, maxnAct, maxnnP, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, mj, MumOrb, &
-                     MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, &
-                     nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nQuad, nRys, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, &
-                     nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
+                     iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, jBasj, jBasn, jBsInc, jjQ, &
+                     JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, kBask, kBasn, kBsInc, &
+                     kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, lBsInc, lCijK, lCilK, &
+                     lMaxDens, lPriml, lPrInc, lS, maxnAct, maxnnP, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, &
+                     mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, &
+                     nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nPrev, nQuad, nRys, nSkal, nSkal2, nSkal2_, &
+                     nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
 real(kind=wp) :: A_int, A_int_ij, A_int_kl, Coor(3,4), Dm_ij, ExFac, PMax, Prem, Pren, PZmnij, SDGmn, ThrAO, TMax_all, TotCPU, &
                  TotWall, XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, Xik, Xil, Xjk, Xjl
 #ifdef _CD_TIMING_
@@ -102,9 +101,6 @@ character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Rsv_Tsk2
-! Statement functions
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 !                                                                      *
 !***********************************************************************
@@ -383,7 +379,7 @@ if (DoCholExch) then
     if (lSA) cycle
     do iSym=1,nSym
       jSym = iSym
-      !jSym = ieor(kSym-1,jSym-1)+1
+      !jSym = Mul(kSym,jSym)
 
       ! Read a whole block of C_ij^K
 
@@ -427,22 +423,21 @@ if (DoCholExch) then
 
   MumOrb = 0
   NumOrb = 0
+  nPrev = 0
   do iSO=1,nKDens
     do jSym=1,nSym
       NumOrb = NumOrb+nChOrb(jSym-1,iSO)
       MumOrb = max(MumOrb,nChOrb(jSym-1,iSO))
     end do
-    if (iSO < nKDens) ipYmnij(iSO+1) = NumOrb
+    call mma_allocate(Ymnij(iSO)%A,NumOrb-nPrev,label='Ymnij%A')
+    nPrev = NumOrb
   end do
 
   ! Scratch store the index of the MOs which finds the estimate
   ! according to Eq. 18 to be larger than the threshold.
 
-  call mma_allocate(Ymnij,NumOrb,Label='Ymnij')
-  Ymnij(:) = 0
-  ipYmnij(1) = 1
-  do i=2,nKDens
-    ipYmnij(i) = ipYmnij(1)+ipYmnij(i)
+  do i=1,nKDens
+    Ymnij(i)%A(:) = 0
   end do
 
   ! Make a list for each shell-pair over the largest element
@@ -611,8 +606,8 @@ do while (Rsv_Tsk2(id,klS))
 
                 if (PZmnij >= xfk*ThrCom) then
                   ! orbital in the list
-                  Ymnij(ipYmnij(iMOleft)+mj+nj) = jb
                   mj = mj+1
+                  Ymnij(iMOleft)%A(mj+nj) = jb
                   exit loop1
                 end if
               end do     ! ib
@@ -705,7 +700,7 @@ do while (Rsv_Tsk2(id,klS))
         if ((iSh == 1) .and. Do_RI) then
           JfGrad(iCar,iSh) = .false.
           JndGrd(iCar,iSh) = 0
-        else if (iand(iSD4(15,iSh),2**(iCar-1)) == 2**(iCar-1)) then
+        else if (btest(iSD4(15,iSh),iCar-1)) then
           JfGrad(iCar,iSh) = .true.
         else
           JfGrad(iCar,iSh) = .false.
@@ -811,7 +806,9 @@ if (DoCholExch) then
   call mma_deallocate(Xmi)
   call mma_deallocate(Yij)
   call mma_deallocate(SDG)
-  call mma_deallocate(Ymnij)
+  do i=1,nKDens
+    call mma_deallocate(Ymnij(i)%A)
+  end do
 end if
 if (allocated(CijK)) call mma_deallocate(CijK)
 if (allocated(CilK)) call mma_deallocate(CilK)

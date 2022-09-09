@@ -19,6 +19,7 @@ subroutine compute_txy(DM1,nDM,Txy,nTxy,nAuxVec,nIrrep,Diag,DMTmp,nAct)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use pso_stuff, only: G2, lsa, nnP
 use Constants, only: One, Two, Quart
 use Definitions, only: wp, iwp
@@ -50,7 +51,7 @@ do iVec=1,nAuxVec
       lsta = nCumAct(lsym)+1
       lend = nCumAct(lsym)+nAct(lSym)
 
-      ksym = ieor(lsym,klsym)
+      ksym = Mul(lsym+1,klsym+1)-1
       if (ksym > lsym) cycle
       ksta = nCumAct(ksym)+1
       kend = nCumAct(ksym)+nAct(ksym)
@@ -66,7 +67,7 @@ do iVec=1,nAuxVec
         jsta = nCumAct(jsym)+1
         jend = nCumAct(jsym)+nAct(jSym)
 
-        isym = ieor(jsym,klsym)
+        isym = Mul(jsym+1,klsym+1)-1
         if (isym > jsym) cycle
         ista = nCumAct(iSym)+1
         iend = nCumAct(iSym)+nAct(iSym)

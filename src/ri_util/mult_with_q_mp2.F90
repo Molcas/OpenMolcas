@@ -19,6 +19,7 @@ subroutine Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
 !
 !*************************************************************************
 
+use Symmetry_Info, only: Mul
 use ExTerm, only: A, nAuxVe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -64,7 +65,7 @@ do iSym=1,nSym
   NumAux = nBas_Aux(iSym)-1
   nLR = 0
   do jSym=1,nSym
-    kSym = ieor(iSym-1,jSym-1)+1
+    kSym = Mul(iSym,jSym)
     nLR = nLR+nBas(jSym)*nBas(kSym)
   end do
   nLRb(iSym) = nLR

@@ -27,6 +27,7 @@ subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Definitions, only: wp, iwp
 
@@ -38,9 +39,6 @@ real(kind=wp) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt,mTInt)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, ijSOij, iSO, iSOi, iSOij, iSOkl, &
                      iSOs(4), jSO, jSOj, klSOkl, kSO, kSOk, lSO, lSOl, nijkl
 real(kind=wp) :: A_Int
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

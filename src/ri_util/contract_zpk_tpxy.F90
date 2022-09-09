@@ -11,6 +11,7 @@
 
 subroutine contract_Zpk_Tpxy(Zpk,nZpk,Txy,nTxy,Scrt,nScrt,Diag,nDiag,nnP,nBas_Aux,nAdens,nAvec,nAct,nIrrep)
 
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
@@ -46,7 +47,7 @@ do l=1,nAVec
     do i=1,nBas_Aux(iSym)
       ip = nCumnnP2+(i-1)*nnP(iSym)
       do jSym=0,nIrrep-1
-        kSym = ieor(jsym,isym)
+        kSym = Mul(jsym+1,isym+1)-1
         if (kSym <= jSym) then
           do j=1,nAct(jSym)
             if (kSym == jSym) then

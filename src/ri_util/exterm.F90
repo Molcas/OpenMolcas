@@ -11,19 +11,18 @@
 
 module exterm
 
-use Data_Structures, only: DSBA_type
+use Data_Structures, only: Alloc1DiArray_Type, DSBA_Type
 use Definitions, only: wp, iwp
 
 implicit none
 private
 
-integer(kind=iwp) :: iMP2prpt, iOff_Ymnij(8,5), ipYmnij(5), LuAVector(2), LuBVector(2), nAuxVe, nYmnij(8,5)
+integer(kind=iwp) :: iMP2prpt, iOff_Ymnij(8,5), LuAVector(2), LuBVector(2), nAuxVe, nYmnij(8,5)
+type(Alloc1DiArray_Type) :: Ymnij(5)
 type(DSBA_Type), target :: CMOi(5), DMLT(5)
-integer(kind=iwp), allocatable :: Ymnij(:)
 real(kind=wp), allocatable :: A(:), AMP2(:,:), BMP2(:,:)
 real(kind=wp), allocatable, target :: BklK(:), CijK(:), CilK(:), VJ(:), Yij(:,:,:)
 
-public :: A, AMP2, BklK, BMP2, CijK, CilK, CMOi, DMLT, iMP2prpt, iOff_Ymnij, ipYmnij, LuAVector, LuBVector, nAuxVe, nYmnij, VJ, &
-          Yij, Ymnij
+public :: A, AMP2, BklK, BMP2, CijK, CilK, CMOi, DMLT, iMP2prpt, iOff_Ymnij, LuAVector, LuBVector, nAuxVe, nYmnij, VJ, Yij, Ymnij
 
 end module exterm

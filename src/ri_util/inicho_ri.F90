@@ -32,6 +32,7 @@
 
 subroutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
 
+use Index_Functions, only: iTri
 use RICD_Info, only: Thrshld_CD
 use Para_Info, only: Is_Real_Par
 use ChoArr, only: iSP2F
@@ -48,9 +49,6 @@ integer(kind=iwp) :: nSkal, nIrrep, nVec_Aux(0:nIrrep-1), iTOffs(3,nIrrep), nShi
 #endif
 integer(kind=iwp) :: iDummy, ijS, iSym, iVec, LuOut
 logical(kind=iwp) :: Alloc_Bkm, SetDefaultsOnly, Skip_PreScreen
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 ! Set defaults for those parameters that can normally be changed
 ! through user input to the Cholesky decomposition.

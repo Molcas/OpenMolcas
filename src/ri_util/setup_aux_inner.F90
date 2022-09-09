@@ -11,6 +11,7 @@
 
 subroutine Setup_Aux_Inner(iSOShl,nSO,iShlSO,nBasSh,nShell,nIrrep,nBas,iSSOff,nij_Shell,iShij,nBas_Aux,nChV,iTOffs)
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -85,7 +86,7 @@ do ijShell=1,nij_Shell
       do iIrrep=0,nIrrep-1
         nA = nBasSh(iIrrep,iShell)
 
-        ijIrrep = ieor(iIrrep,jIrrep)
+        ijIrrep = Mul(iIrrep+1,jIrrep+1)-1
         iSSOff(iIrrep,jIrrep,ijShell) = iTtmp(ijIrrep)
         nab = na*nb
         iTtmp(ijIrrep) = iTtmp(ijIrrep)+nab
@@ -100,7 +101,7 @@ do ijShell=1,nij_Shell
       do jIrrep=0,iIrrep
         nB = nBasSh(jIrrep,jShell)
 
-        ijIrrep = ieor(iIrrep,jIrrep)
+        ijIrrep = Mul(iIrrep+1,jIrrep+1)-1
         iSSOff(iIrrep,jIrrep,ijShell) = iTtmp(ijIrrep)
         iSSOff(jIrrep,iIrrep,ijShell) = iTtmp(ijIrrep)
         nab = na*nb
@@ -121,7 +122,7 @@ do ijShell=1,nij_Shell
   iAcc = 0
   do ijIrrep=0,nIrrep-1
     do iIrrep=0,nIrrep-1
-      jIrrep = ieor(ijIrrep,iIrrep)
+      jIrrep = Mul(ijIrrep+1,iIrrep+1)-1
       iSSOff(iIrrep,jIrrep,ijShell) = iSSOff(iIrrep,jIrrep,ijShell)+iAcc
     end do
     nI = nBas_Aux(ijIrrep)

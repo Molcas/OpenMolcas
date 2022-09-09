@@ -97,6 +97,8 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, V2
@@ -124,10 +126,10 @@ logical(kind=iwp) :: DoExchange, lSA, DoCAS, Estimate, Update
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-integer(kind=iwp) :: iAdr, iaSh, iAvec, iBatch, ibcount, ibs, ibs_a, ibSh, iE, ij, ik, iLoc, iml, iMO1, iMO2, iMOleft, iMOright, &
-                     ioff, iOffShb, iOffZp, iPrint, ipZp, ir, ired1, IREDC, iRout, iS, iSeed, ish, iShp, iSSa, iStart, iSwap, &
-                     iSwap_lxy, ISYM, iSym1, iSym2, iSyma, iSymb, iSymv, iSymx, iSymy, it, itk, iTmp, iTxy, IVEC2, iVrs, jDen, &
-                     jGam, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,5), krs, &
+integer(kind=iwp) :: i, iAdr, iaSh, iAvec, iBatch, ibcount, ibs, ibs_a, ibSh, iE, ij, ik, iLoc, iml, iMO1, iMO2, iMOleft, &
+                     iMOright, ioff, iOffShb, iOffZp, iPrint, ipZp, ir, ired1, IREDC, iRout, iS, iSeed, ish, iShp, iSSa, iStart, &
+                     iSwap, iSwap_lxy, ISYM, iSym1, iSym2, iSyma, iSymb, iSymv, iSymx, iSymy, it, itk, iTmp, iTxy, IVEC2, iVrs, j, &
+                     jDen, jGam, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,5), krs, &
                      kscreen, kSym, l, l1, LFMAX, LKsh, LREAD, lSym, LuRVec(8,3), LWORK, MaxB, MaxRedT, mDen, mrs, MUSED, n1, n2, &
                      nAv, NAw, nBatch, nI2t, nIJMax, Nik, nInd, nIt(5), nItmx, nL_Full(2), nLab(2), nLaq, nLik, nLxy, nLxy0, nMat, &
                      nMOs, nnA(8,8), npos2, nQo, nQoT, nRik, nRS, NumCV, numSh, NUMV, NumVT, nVec, nVrs
@@ -157,10 +159,6 @@ logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_GET_GRAD'
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=r8), external :: ddot_
-! Statement functions
-integer(kind=iwp) :: MulD2h, i, j, iTri
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 !                                                                      *
 !***********************************************************************
@@ -168,6 +166,7 @@ iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !     General Initialization                                           *
 !                                                                      *
 !***********************************************************************
+!                                                                      *
 
 iRout = 9
 iPrint = nPrint(iRout)
@@ -397,6 +396,7 @@ end if
 
 call Mk_iShp_rs(iShp_rs,nShell)
 
+!                                                                      *
 !***********************************************************************
 !                                                                      *
 !     BIG LOOP OVER VECTORS SYMMETRY                                   *
@@ -423,7 +423,7 @@ do jSym=1,nSym
   if (DoExchange) then
     iSeed = 7
     do i=1,nSym
-      k = muld2h(jSym,i)
+      k = Mul(jSym,i)
       LuRVec(i,1) = IsFreeUnit(iSeed)
       write(Fname,'(A4,I1,I1)') 'CHTA',i,k
       call DANAME_MF_WA(LuRVec(i,1),Fname)
@@ -476,7 +476,7 @@ do jSym=1,nSym
   nLik = 0
   nRik = 0
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     do jDen=1,nDen
       nRik = max(nRik,nChOrb_(l,jDen)*nChOrb_(k,jDen))
       if (nChOrb_(k,jDen) > 0) then
@@ -490,6 +490,7 @@ do jSym=1,nSym
   !                                                                    *
   !*********************************************************************
   !*********************************************************************
+!                                                                      *
 
   iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -787,7 +788,7 @@ do jSym=1,nSym
 
             do kSym=1,nSym
 
-              lSym = MulD2h(JSYM,kSym)
+              lSym = Mul(JSYM,kSym)
               Nik = nChOrb_(kSym,iMOleft)*nChOrb_(lSym,iMOright)
               nIJR(kSym,lSym,jDen) = Nik
               nIJ1(kSym,lSym,jDen) = Nik
@@ -816,9 +817,9 @@ do jSym=1,nSym
 
                 if (DoScreen .and. (iBatch == 1)) then
                   call CWTIME(TCS1,TWS1)
-                  !-------------------------------------------------------
+                  !-----------------------------------------------------
                   ! Setup the screening
-                  !-------------------------------------------------------
+                  !-----------------------------------------------------
 
                   do ik=1,nBas(kSym)
                     AbsC(ik) = abs(MSQ(iMOleft)%SB(kSym)%A2(ik,jK))
@@ -954,7 +955,7 @@ do jSym=1,nSym
                   call CWTIME(TCS2,TWS2)
                   tscrn(1) = tscrn(1)+(TCS2-TCS1)
                   tscrn(2) = tscrn(2)+(TWS2-TWS1)
-                  !-------------------------------------------------------
+                  !-----------------------------------------------------
                 end if  ! Screening setup
 
                 call CWTIME(TCT1,TWT1)
@@ -1256,7 +1257,7 @@ do jSym=1,nSym
 
               do iSymb=1,nSym
 
-                iSymv = MulD2h(JSYM,iSymb)
+                iSymv = Mul(JSYM,iSymb)
                 NAv = nAorb(iSymv)
                 NAw = nAorb(iSymb) ! iSymb=iSymw
 
@@ -1290,7 +1291,7 @@ do jSym=1,nSym
               iAvec = iMO1+iTxy-1
               do iSymy=1,nSym
 
-                iSymx = MulD2h(iSymy,JSYM)
+                iSymx = Mul(iSymy,JSYM)
 
                 if ((iSymx <= iSymy) .and. (nnA(iSymx,iSymy) /= 0)) then
 
@@ -1344,16 +1345,14 @@ do jSym=1,nSym
 
         end if  ! DoCAS
 
-        !***************************************************************
-        !***************************************************************
-        !**                                                           **
-        !**    Epilogue                                               **
-        !**                                                           **
-        !***************************************************************
-        !***************************************************************
-        !                                                              *
       end do  ! end batch loop
       !                                                                *
+      !*****************************************************************
+      !*****************************************************************
+      !**                                                             **
+      !**    Epilogue                                                 **
+      !**                                                             **
+      !*****************************************************************
       !*****************************************************************
       !                                                                *
 

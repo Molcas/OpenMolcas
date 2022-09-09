@@ -25,8 +25,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-public :: Alloc1DArray_Type, Alloc2DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, Integer_Pointer, L_Full_Type, &
-          Lab_Type, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
+public :: Alloc1DiArray_Type, Alloc1DArray_Type, Alloc2DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, &
+          Integer_Pointer, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
 ! temporary subroutines for interface with old code
 public :: Map_to_DSBA, Map_to_SBA, Map_to_twxy
 
@@ -129,6 +129,10 @@ end type Alloc1DArray_Type
 type Alloc2DArray_Type
   real(kind=wp), allocatable :: A(:,:)
 end type Alloc2DArray_Type
+
+type Alloc1DiArray_Type
+  integer(kind=iwp), allocatable :: A(:)
+end type Alloc1DiArray_Type
 
 ! Allocate/deallocate data types
 interface Allocate_DT

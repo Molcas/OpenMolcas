@@ -16,6 +16,7 @@ subroutine Get_maxDG(SDG,nnSkal,MxBasSh)
 !     Store in SDG.                                                    *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use ChoArr, only: iRS2F, iSOShl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -27,9 +28,6 @@ real(kind=wp) :: SDG(nnSkal)
 #include "cholesky.fh"
 integer(kind=iwp) :: iabSh, iag, iaSh, ibg, ibSh, iLoc, jRab, jSym, kRab
 real(kind=wp), allocatable :: Diag(:)
-! Statement functions
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 !                                                                      *
 !***********************************************************************

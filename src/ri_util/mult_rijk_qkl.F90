@@ -25,6 +25,7 @@ subroutine Mult_RijK_QKL(iSO,nBas_aux,nIrrep)
 !            nIrrep : number of irreps.
 !*************************************************************************
 
+use Symmetry_Info, only: Mul
 use pso_stuff, only: lSA
 use Para_Info, only: Is_Real_Par
 use ChoSwp, only: InfVec
@@ -41,18 +42,15 @@ integer(kind=iwp) :: iSO, nIrrep, nBas_Aux(1:nIrrep)
 #include "temptime.fh"
 #endif
 #include "chotime.fh"
-integer(kind=iwp) :: iAdrC, iAdrQ, iAdrR, iAux, iFirstCho, iJBat, indx, indx2, iRest, iSeed, iSeed2, iSym, jSym, kSym, l_CVector, &
-                     l_Q, l_QVector, l_RVec, l_RVector, lSym, Lu_Q, LuCVec, LuRVec, MaxCho, MaxLocCho, MaxMOprod, MaxMOProdR, &
-                     MemMax, nJbat, njVec, nJvec1, nJvecLast, nTotCho, nTotFIorb, NumAux, NumCV, nVec(1:nIrrep)
+integer(kind=iwp) :: i, iAdrC, iAdrQ, iAdrR, iAux, iFirstCho, iJBat, indx, indx2, iRest, iSeed, iSeed2, iSym, jSym, kSym, &
+                     l_CVector, l_Q, l_QVector, l_RVec, l_RVector, lSym, Lu_Q, LuCVec, LuRVec, MaxCho, MaxLocCho, MaxMOprod, &
+                     MaxMOProdR, MemMax, nJbat, njVec, nJvec1, nJvecLast, nTotCho, nTotFIorb, NumAux, NumCV, nVec(1:nIrrep)
 real(kind=wp) :: TotCPU, TotCPU1, TotCPU2, TotWall, TotWall1, TotWall2
 character(len=50) :: CFmt
 character(len=6) :: Fname, Fname2, Name_Q
 real(kind=wp), allocatable :: CVector(:), QVector(:), RVector(:)
 character(len=*), parameter :: SECNAM = 'MULT_RIJK_QKL'
 integer(kind=iwp), external :: IsFreeUnit
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 call CWTime(TotCPU1,TotWall1)
 
@@ -92,7 +90,7 @@ do jSym=1,nIrrep
   MaxMOprod = 0
   MaxMOprodR = 0
   do iSym=1,nIrrep
-    kSym = MulD2h(JSym,iSym)
+    kSym = Mul(JSym,iSym)
 
     nTotFIorb = nTotFIorb+nIJ1(iSym,kSym,iSO)
     MaxMOprod = max(MaxMOprod,nIJ1(iSym,kSym,iSO))
@@ -142,7 +140,7 @@ do jSym=1,nIrrep
   ! Get Q Vectors from Disk
   !------------------------
   do iSym=1,nIrrep
-    lSym = MulD2h(iSym,jSym)
+    lSym = Mul(iSym,jSym)
 
     if (nIJ1(iSym,lSym,iSO) >= 1) then
       CVector(:) = Zero

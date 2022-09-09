@@ -15,7 +15,7 @@ use pso_stuff, only: AOrb, CMO, D0, lPSO, lSA, n_Txy, nDens, nnP, npos, nV_k, nZ
 use Basis_Info, only: nBas, nBas_Aux
 use Gateway_global, only: force_out_of_core
 use RICD_Info, only: Cholesky, Do_RI
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use ExTerm, only: DMLT, iMP2prpt
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -302,7 +302,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
   do kIrrep=0,nIrrep-1 ! compound symmetry
     iOff2 = 0
     do jIrrep=0,nIrrep-1
-      iIrrep = ieor(jIrrep,kIrrep)
+      iIrrep = Mul(jIrrep+1,kIrrep+1)-1
       if (iIrrep < jIrrep) then
         nnAorb = nASh(iIrrep)*nAsh(jIrrep)
       else if (iIrrep == jIrrep) then

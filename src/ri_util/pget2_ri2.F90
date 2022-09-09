@@ -30,7 +30,7 @@ subroutine PGet2_RI2(iCmp,jBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,ExFac,CoulFac,PMax,
 use Basis_Info, only: nBas, nBas_Aux
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: DMdiag, lPSO, lSA, nnP
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use ExTerm, only: A, CijK, iMP2prpt
 use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6
@@ -200,7 +200,7 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
           A(1:jBas*lBas) = Zero
 
           do iSym=1,nIrrep
-            kSym = ieor(j2,iSym-1)+1
+            kSym = Mul(j2+1,iSym)
             nik = nIJ1(iSym,kSym,iSO)
 
             if (nik == 0) cycle
@@ -318,7 +318,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
           A(1:jBas*lBas) = Zero
 
           do iSym=1,nIrrep
-            kSym = ieor(j2,iSym-1)+1
+            kSym = Mul(j2+1,iSym)
             nik = nIJ1(iSym,kSym,iSO)
 
             if (nik == 0) cycle
@@ -436,7 +436,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
           A(1:jBas*lBas) = Zero
 
           do iSym=1,nIrrep
-            kSym = ieor(j2,iSym-1)+1
+            kSym = Mul(j2+1,iSym)
             nik = nIJ1(iSym,kSym,iSO)
 
             if (nik == 0) cycle
@@ -546,7 +546,7 @@ else
           A(1:jBas*lBas) = Zero
 
           do iSym=1,nIrrep
-            kSym = ieor(j2,iSym-1)+1
+            kSym = Mul(j2+1,iSym)
             nik = nIJ1(iSym,kSym,iSO)
 
             if (nik == 0) cycle

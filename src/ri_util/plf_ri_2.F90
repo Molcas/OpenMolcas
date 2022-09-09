@@ -28,6 +28,7 @@ subroutine PLF_RI_2(AOint,ijkl,jCmp,lCmp,iAO,iAOst,jBas,lBas,kOp,TInt,nTInt,iSO2
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Definitions, only: wp, iwp
@@ -37,9 +38,6 @@ integer(kind=iwp) :: ijkl, jCmp, lCmp, iAO(4), iAOst(4), jBas, lBas, kOp(4), nTI
 real(kind=wp) :: AOint(ijkl,jCmp,lCmp), TInt(nTInt)
 integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, kSO, lSO, lSOl, mm_, mx, nijkl, nn
 real(kind=wp) :: A_Int
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

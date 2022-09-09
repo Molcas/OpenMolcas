@@ -26,9 +26,10 @@ subroutine IndSft_RI_3(iCmp,iShell,jBas,kBas,lBas,iAO,iAOst,ijkl,SOint,nSOint,TI
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use sort_data, only: nSkip
 use Definitions, only: wp, iwp, u6
 
@@ -36,13 +37,10 @@ implicit none
 integer(kind=iwp) :: iCmp(4), iShell(4), jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nTInt, iOff(3,0:7), nSO, iShlSO(nSO), &
                      nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff(0:nIrrep-1,0:nIrrep-1)
 real(kind=wp) :: SOint(ijkl,nSOint), TInt(nTInt)
-integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iIrrep, iOff_L, iShC, iShD, ix, j1, j12, j2, j3, j4, jOffSO(0:7), jSO, jSOj, &
+integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iIrrep, iOff_L, iShC, iShD, ix, j, j1, j12, j2, j3, j4, jOffSO(0:7), jSO, jSOj, &
                      jSym(0:7), kl, kl_B, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, mm, n3C, nC, nD, nijkl
 real(kind=wp) :: A_Int
 logical(kind=iwp) :: qkl, Shkl
-! Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -98,11 +96,11 @@ do i2=1,iCmp(2)
 
       do j2=0,nIrrep-1
         if (jSym(j2) == 0) cycle
-        j12 = ieor(j1,j2)
+        j12 = Mul(j1+1,j2+1)-1
 
         do j3=0,nIrrep-1
           if (kSym(j3) == 0) cycle
-          j4 = ieor(j12,j3)
+          j4 = Mul(j12+1,j3+1)-1
           if (lSym(j4) == 0) cycle
           if (Shkl .and. qkl .and. (j4 > j3)) cycle
 
