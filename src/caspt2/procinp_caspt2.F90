@@ -592,7 +592,7 @@ subroutine ProcInp_Caspt2
     IFSSDM = .true.
   End If
 
-  ! for the time being only allow analytic gradients either with
+  ! only allow analytic gradients either with
   ! nstate = nroots or with sadref
   if (ifgrdt.and.(nState.ne.nRoots).and.(.not.ifsadref)) then
     call warningMessage(2,'Analytic gradients available only if'// &
@@ -600,11 +600,20 @@ subroutine ProcInp_Caspt2
                           ' the CASPT2 calculation.')
     call quit_onUserError
   end if
-  ! for the time being only allow RMS analytic gradients with
+
+  ! only allow RMS analytic gradients with
   ! XMS + DWMS + DWtype keywords and not RMUL
   if (ifgrdt.and.ifrms) then
     call warningMessage(2,'Use XMUL & DWMS = -1 & DWTY = 1 for'//  &
                           ' RMS-CASPT2 analytic gradients.')
+    call quit_onUserError
+  end if
+
+  ! MS-type analytic gradients available only
+  ! with density fitting or Cholesky decomposition
+  if (ifgrdt.and.ifMSCoup.and..not.ifChol) then
+    call warningMessage(2,'MS-type analytic gradients available only '//  &
+                          'with density fitting or Cholesky decomposition.')
     call quit_onUserError
   end if
 

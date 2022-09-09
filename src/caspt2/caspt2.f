@@ -129,6 +129,11 @@ C
       U0(:,:)=0.0D0
       call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
 *
+* Some preparations for gradient calculation
+      IF (IFGRDT) Then
+        CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
+        CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
+      End If
 *======================================================================*
 * Put the CASSCF energies on the diagonal of Heff, i.e. form the
 * first-order corrected effective Hamiltonian:
@@ -157,19 +162,6 @@ C
         iStpGrd = 1
         GOTO 1000
       END IF
-C
-      !! Some preparations for gradient calculation
-      IF (IFGRDT) Then
-        CALL GrdIni
-        CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
-        CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
-        IF (IFMSCOUP.AND.nFroT.ne.0.and..NOT.IfChol) Then
-          write(6,*) "At present, gradient with MS-type CASPT2 can be"
-          write(6,*) "performed with density-fitting or Cholesky"
-          write(6,*) "decomposition"
-          call abend()
-        End If
-      End If
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
 * states according to the XMS prescription in xdwinit

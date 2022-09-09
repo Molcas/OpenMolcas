@@ -144,6 +144,11 @@ C Initialize sizes, offsets etc used in equation solver.
       CALL GETMEM('TORB','ALLO','REAL',LTORB,NTORB)
       CALL GETMEM('TAT','ALLO','REAL',LTAT,NTAT)
 
+! initialize quantities for gradient calculation
+      If (IFGRDT) Then
+        CALL GrdIni
+      End If
+
       END
 
       SUBROUTINE PT2CLS
