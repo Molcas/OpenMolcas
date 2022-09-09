@@ -52,9 +52,16 @@
      &                      SLag(:), wrk(:)
 *
       interface
-        subroutine RHS_NAC(Fock,SLag)
+        subroutine RHS_NAC(Fock,SLag_pt2)
           Real*8 Fock(*)
-          real*8, optional :: SLag(*)
+          real*8, optional :: SLag_pt2(*)
+        end subroutine
+      end interface
+
+      interface
+        subroutine rhs_sa(Fock,SLag_pt2)
+          Real*8 Fock(*)
+          real*8, optional :: SLag_pt2(*)
         end subroutine
       end interface
 

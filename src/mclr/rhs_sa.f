@@ -24,7 +24,8 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 
-       Real*8 Fock(*),SLag(*)
+       Real*8 Fock(*)
+       real*8, optional :: SLag(*)
        Dimension rdum(1)
        Real*8, Allocatable:: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
 *                                                                      *
