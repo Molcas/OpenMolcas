@@ -9,6 +9,7 @@
 >> ENDIF
 
 >export MOLCAS_REDUCE_PRT=NO
+>export MOLCAS_NOCHECK=MLTPL
 
 
 >COPY velocity.xyz  $Project.velocity.xyz
