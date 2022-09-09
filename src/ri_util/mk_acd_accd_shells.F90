@@ -40,12 +40,12 @@ integer(kind=iwp) :: iAng, iAngMax, iAngMin, iAO, iBS, iCho_c, iCho_p, iCmp, iCn
                      ijT, ik, ikl, il, Indx, iOff, iOff_Ak, iOff_Qk, ip_Exp, iRC, iSeed, iShell, iShll, iShll_, iSO, iSph, &
                      istatus, iTheta, iTheta_full, iVal, iZ, jAng, jAngMax, jAngMin, jCho_p, jCnttp, jkl, jp_Exp, jp_Exp_Max, &
                      jShll, jShll_, jTheta, jTheta_full, kAng, kC, Keep_All, Keep_Shell, kShll, lAng, lC, LinDep, lScr, lShll, &
-                     Lu_A, Lu_B, Lu_lib, mData, mdc, mPrim, mSOInf, n, nAB, nBS, nCmp, nCmpi, nCmpj, nCnt, nCntrc, nCntrc_Max, &
-                     nCnttp_Start, nCompA, nCompB, nExpi, nExpk, nExpl, nk, nl, nn, nPhi, nPhi_All, npi, npj, npk, npl, nPrim, &
-                     nPrim_Max, nSO, nSO_p, nTest, nTheta, nTheta_All, nTheta_Full, nTInt_c, nTInt_p, nTri, NumCho_c, NumCho_p
+                     Lu_A, Lu_B, Lu_lib, mData, mdc, mPrim, mSOInf, n, nBS, nCmp, nCmpi, nCmpj, nCnt, nCntrc, nCntrc_Max, &
+                     nCnttp_Start, nExpi, nExpk, nExpl, nk, nl, nn, nPhi, nPhi_All, npi, npj, npk, npl, nPrim, nPrim_Max, nSO, &
+                     nSO_p, nTest, nTheta, nTheta_All, nTheta_Full, nTInt_c, nTInt_p, nTri, NumCho_c, NumCho_p
 real(kind=wp) :: Coeff_, Coeff_k, Coeff_kk, Coeff_kl, Coeff_l, Coeff_lk, Coeff_ll, Dummy(1), Exp_i, Exp_j, Fact, Thr_aCD, ThrAO, &
                  Thrs, Thrshld_CD_p
-integer(kind=iwp), allocatable :: AL(:), Con(:), ConR(:,:), iD_c(:), iD_p(:), iList2_c(:,:), iList2_p(:,:), Indkl(:), Indkl_p(:), &
+integer(kind=iwp), allocatable :: Con(:), ConR(:,:), iD_c(:), iD_p(:), iList2_c(:,:), iList2_p(:,:), Indkl(:), Indkl_p(:), &
                                   LTP(:,:), Prm(:)
 real(kind=wp), allocatable :: A(:), ADiag(:), C(:), Q(:), QTmp(:), Scr(:), Temp(:), TInt_c(:), TInt_p(:), Tmp(:), TP(:), tVp(:), &
                               tVt(:), tVtF(:), Vec(:), Wg(:), Z(:)
@@ -620,18 +620,11 @@ do iBS=0,nBS-1
           ! corresponding to this shell pair. We sum over
           ! the angular parts identical to those of the contracted.
 
-          nCompA = (iAng+1)*(iAng+2)/2
-          nCompB = (jAng+1)*(jAng+2)/2
-          nAB = nCompA*nCompB
-          call mma_allocate(AL,nAB,label='AL')
-
           ! First make a list from the contracted which angular products to include.
-
-          call Mk_AngList(AL,nCompA,nCompB,iD_c,NumCho_c,iList2_c,nPhi_All,2*mData,iAng,jAng)
 
           call mma_allocate(TP,nPrim_Max**2,label='TP')
           call mma_allocate(LTP,2,nPrim_Max,label='LTP')
-          call Mk_TInt_P(TInt_p,nTheta_All,TP,nPrim_Max,AL,nCompA,nCompB,iList2_p,nTheta_All,2*mData,iAng,jAng,npk,npl,LTP)
+          call Mk_TInt_P(TInt_p,nTheta_All,TP,nPrim_Max,iList2_p,nTheta_All,2*mData,iAng,jAng,npk,LTP)
 
 #         ifdef _DEBUGPRINT_
           call RecPrt('TIntP','(5G20.10)',TP,nPrim_Max,nPrim_Max)
@@ -674,7 +667,7 @@ do iBS=0,nBS-1
               write(u6,*) 'iAng, jAng:',iAng,jAng
               call Abend()
             end if
-            call Mk_TInt_P(TInt_p,nTheta_All,TP,nPrim_Max,AL,nCompA,nCompB,iList2_p,nTheta_All,2*mData,iAng,jAng,npk,npl,LTP)
+            call Mk_TInt_P(TInt_p,nTheta_All,TP,nPrim_Max,iList2_p,nTheta_All,2*mData,iAng,jAng,npk,LTP)
           end do
           call mma_deallocate(TP)
           call mma_deallocate(Vec)
@@ -826,8 +819,7 @@ do iBS=0,nBS-1
           ! SLIM primitive product basis.
 
           call mma_allocate(tVt,nTheta**2,label='tVt')
-          call Mk_tVt(TInt_p,nTInt_p,tVt,nTheta,iList2_p,2*mData,Prm,nPrim_Max,iAng,jAng,nExpk,nExpl,Indkl_p,nPrim_Max,AL,nCompA, &
-                      nCompB)
+          call Mk_tVt(TInt_p,nTInt_p,tVt,nTheta,iList2_p,2*mData,Prm,nPrim_Max,iAng,jAng,nExpk,Indkl_p,nPrim_Max)
 
 #         ifdef _DEBUGPRINT_
           write(u6,*)
@@ -904,9 +896,7 @@ do iBS=0,nBS-1
 
           call mma_allocate(tVp,nTheta*nPhi,label='tVp')
           call mma_allocate(tVtF,nTheta*nTheta_Full,label='tVtF')
-          call Mk_tVtF(TInt_p,nTInt_p,tVtF,nTheta,iList2_p,2*mData,Prm,nPrim_Max,iAng,jAng,nExpk,nExpl,Indkl_p,nPrim_Max, &
-                       nTheta_Full,AL,nCompA,nCompB)
-          call mma_deallocate(AL)
+          call Mk_tVtF(TInt_p,nTInt_p,tVtF,nTheta,iList2_p,2*mData,Prm,nPrim_Max,iAng,jAng,nExpk,Indkl_p,nPrim_Max,nTheta_Full)
 #         ifdef _DEBUGPRINT_
           call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
 #         endif
@@ -920,8 +910,7 @@ do iBS=0,nBS-1
           call mma_allocate(C,nTheta_Full*nPhi,label='C')
           call Mk_Coeffs(Shells(kShll)%Cff_c(1,1,1),nExpk,Shells(kShll)%nBasis_C,Shells(lShll)%Cff_c(1,1,1),nExpl, &
                          Shells(lShll)%nBasis_C,C,nTheta_Full,nPhi,iD_c,NumCho_c,iList2_c,2*mData,nPhi_All,Indkl,nCntrc_Max, &
-                         Shells(kShll)%nBasis_C,Shells(lShll)%nBasis_C,iAng,jAng,Shells(kShll)%Cff_p(1,1,1), &
-                         Shells(lShll)%Cff_p(1,1,1))
+                         Shells(kShll)%nBasis_C,iAng,jAng,Shells(kShll)%Cff_p(1,1,1),Shells(lShll)%Cff_p(1,1,1))
           call mma_deallocate(Indkl)
 #         ifdef _DEBUGPRINT_
           call RecPrt('C',' ',C,nTheta_Full,nPhi)

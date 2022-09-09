@@ -11,8 +11,7 @@
 ! Copyright (C) 1992,2007, Roland Lindh                                *
 !***********************************************************************
 
-subroutine PGet2_RI3(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,DSO,DSSO,nDSO,ExFac,CoulFac,PMax,V_k,mV_k,ZpK,nSA, &
-                     nAct)
+subroutine PGet2_RI3(iCmp,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,nDSO,ExFac,CoulFac,PMax,V_k,mV_k,ZpK,nSA,nAct)
 !***********************************************************************
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density matrix.                 *
@@ -37,9 +36,8 @@ use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, mV_k, nSA, nAct(0:7)
-real(kind=wp) :: PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), ExFac, CoulFac, PMax, V_k(mV_k,nSA), Zpk(*)
-logical(kind=iwp) :: Shijij
+integer(kind=iwp) :: iCmp(4), jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, mV_k, nSA, nAct(0:7)
+real(kind=wp) :: PSO(nijkl,nPSO), DSO(nDSO,nSA), ExFac, CoulFac, PMax, V_k(mV_k,nSA), Zpk(*)
 #include "exterm.fh"
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indk, Indkl, Indl, iSO, iThpkl, iVec, j, j2, j23, j3, j4, &
                      jAOj, jC, jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), lAct, &
@@ -186,7 +184,7 @@ do i2=1,iCmp(2)
             Xki(1:) => CMOi(1)%SB(j3+1)%A1(ik:)
             !call RecPrt('X(i,mu)R',' ',Xki,nk,kBas)
           else
-            Xki => null()
+            nullify(Xki)
           end if
 
           do ls=0,nlSym-1
@@ -219,7 +217,7 @@ do i2=1,iCmp(2)
               Xli(1:) => CMOi(1)%SB(j4+1)%A1(il:)
               !call RecPrt('X(j,nu)R',' ',Xli,nl,lBas)
             else
-              Xli => null()
+              nullify(Xli)
             end if
 
             MemSO2 = MemSO2+1
@@ -393,8 +391,7 @@ do i2=1,iCmp(2)
             ExFac = ExFac_
 
           end do
-          Xki => null()
-          Xli => null()
+          nullify(Xki,Xli)
         end do
       end do
 
@@ -418,11 +415,5 @@ tbvec(1) = tbvec(1)+Cpu
 tbvec(2) = tbvec(2)+Wall
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iBas)
-  call Unused_logical(Shijij)
-  call Unused_real_array(DSSO)
-end if
 
 end subroutine PGet2_RI3

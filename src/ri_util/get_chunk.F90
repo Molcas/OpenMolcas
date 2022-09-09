@@ -25,6 +25,11 @@ integer(kind=iwp) :: LenVec, NumVec_, iChoVec, iSym, iVec_Global
 integer(kind=iwp) :: Indx, J_e, J_s, ld, MuNu_e, MuNu_s, nJ
 #endif
 
+#ifndef _MOLCAS_MPP_
+#include "macros.fh"
+unused_var(iVec_Global)
+#endif
+
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
   call GA_Sync()
@@ -58,11 +63,5 @@ end if
 #endif
 
 return
-#ifndef _MOLCAS_MPP_
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iVec_Global)
-end if
-#endif
 
 end subroutine Get_Chunk

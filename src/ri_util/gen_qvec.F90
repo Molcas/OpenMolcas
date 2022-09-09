@@ -167,12 +167,7 @@ do iIrrep=0,nIrrep-1
   call DaClos(Lu_A(iIrrep))
 end do      ! iIrrep
 
-A_l => null()
-Q_l => null()
-A_k => null()
-Q_k => null()
-Am => null()
-Qm => null()
+nullify(A_l,Q_l,A_k,Q_k,Am,Qm)
 call mma_deallocate(Mem)
 call mma_deallocate(Scr)
 call mma_deallocate(X)

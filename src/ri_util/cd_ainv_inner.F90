@@ -157,8 +157,7 @@ if (nB /= 0) then
 
   end do
 
-  Q_l => null()
-  A_l => null()
+  nullify(Q_l,A_l)
   call mma_deallocate(X)
   call mma_deallocate(Z)
   call mma_deallocate(Q_k)

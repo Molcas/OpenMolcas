@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PLF_RI_3(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,TInt,nTInt,iOff,iShlSO,nBasSh, &
-                    iSOShl,nSO,nShell,nSym,iSSOff)
+subroutine PLF_RI_3(AOint,ijkl,jCmp,kCmp,lCmp,iShell,iAO,iAOst,jBas,kBas,lBas,kOp,TInt,nTInt,iOff,iShlSO,nBasSh,iSOShl,nSO,nShell, &
+                    nSym,iSSOff)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -33,9 +33,8 @@ use SOAO_Info, only: iAOtSO
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, iOff(3), &
-                     nSO, iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff
-logical(kind=iwp) :: Shijij
+integer(kind=iwp) :: ijkl, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nTInt, iOff(3), nSO, &
+                     iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff
 real(kind=wp) :: AOint(ijkl,jCmp,kCmp,lCmp), TInt(nTInt)
 integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iOff1, iShC, iSOs(4), jSOj, kl, kl_B, kSOk, lCmp_Max, lSOl, n3C, nC, nijkl
 real(kind=wp) :: A_Int
@@ -143,11 +142,5 @@ end do
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iCmp)
-  call Unused_logical(Shijij)
-  call Unused_integer(iBas)
-end if
 
 end subroutine PLF_RI_3

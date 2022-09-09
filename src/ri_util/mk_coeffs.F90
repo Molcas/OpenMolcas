@@ -10,14 +10,14 @@
 !***********************************************************************
 
 subroutine Mk_Coeffs(CoeffA,nPrimA,nConA,CoeffB,nPrimB,nConB,Coeff,nTheta_Full,nPhi,iD,NumCho,List2,mData,nPhi_All,Indkl,nkl,nk, &
-                     nl,iAng,jAng,CoeffAP,CoeffBP)
+                     iAng,jAng,CoeffAP,CoeffBP)
 
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nPrimA, nConA, nPrimB, nConB, nTheta_Full, nPhi, NumCho, iD(NumCho), mData, nPhi_All, List2(mData,nPhi_All), &
-                     nkl, Indkl(nkl), nk, nl, iAng, jAng
+                     nkl, Indkl(nkl), nk, iAng, jAng
 real(kind=wp) :: CoeffA(nPrimA,nConA), CoeffB(nPrimB,nConB), Coeff(nTheta_Full,nPhi), CoeffAP(nPrimA,nPrimA), CoeffBP(nPrimB,nPrimB)
 integer(kind=iwp) :: iCho, ik, il, iPhi, iPhi_All, iPhi_Full, iPrimA, iPrimB, iTheta_Full
 real(kind=wp) :: Cff
@@ -76,7 +76,5 @@ call RecPrt('Coeff',' ',Coeff,nTheta_Full,nPhi)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nl)
 
 end subroutine Mk_Coeffs

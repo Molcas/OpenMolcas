@@ -12,17 +12,46 @@
 subroutine Compute_V12(V,V12,nDim)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nDim
 real(kind=wp) :: V(nDim,nDim), V12(nDim,nDim)
-real(kind=wp), allocatable :: Vec(:), VTri(:)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: tmp
+real(kind=wp), allocatable :: Vec(:,:), VTri(:)
 
-call mma_allocate(Vec,nDim**2,Label='Vec')
+call mma_allocate(Vec,nDim,nDim,Label='Vec')
 call mma_allocate(VTri,nDim*(nDim+1)/2,Label='VTri')
 
-call Compute_V12_Inner(V,V12,VTri,Vec,nDim)
+call FZero(Vec,nDim**2)
+call dcopy_(nDim,[One],0,Vec,nDim+1)
+
+do i=1,nDim
+  do j=1,i
+    VTri(i*(i-1)/2+j) = V(i,j)
+  end do
+end do
+
+call JACOB(VTri,Vec,nDim,nDim)
+
+call FZero(V12,nDim**2)
+do i=1,nDim
+# ifdef _DEBUGPRINT_
+  tmp = VTri(i*(i+1)/2)
+  write(u6,*) 'i,tmp=',i,tmp
+# endif
+  tmp = sqrt(VTri(i*(i+1)/2))
+  if (tmp < 1.0e-90_wp) then
+    V12(i,i) = 1.0e90_wp
+  else
+    V12(i,i) = One/tmp
+  end if
+end do
+
+call DGEMM_('N','T',nDim,nDim,nDim,One,V12,nDim,Vec,nDim,Zero,V,nDim)
+call DGEMM_('N','N',nDim,nDim,nDim,One,Vec,nDim,V,nDim,Zero,V12,nDim)
 
 call mma_deallocate(VTri)
 call mma_deallocate(Vec)

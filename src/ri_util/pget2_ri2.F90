@@ -11,7 +11,7 @@
 ! Copyright (C) 1992,2007, Roland Lindh                                *
 !***********************************************************************
 
-subroutine PGet2_RI2(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,ExFac,CoulFac,PMax,V_K,mV_K,Z_p_K,nSA,nZ_p_k)
+subroutine PGet2_RI2(iCmp,jBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,ExFac,CoulFac,PMax,V_K,mV_K,Z_p_K,nSA,nZ_p_k)
 !***********************************************************************
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density matrix.                 *
@@ -36,8 +36,7 @@ use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_K, nSA, nZ_p_k
-logical(kind=iwp) :: Shijij
+integer(kind=iwp) :: iCmp(4), jBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_K, nSA, nZ_p_k
 real(kind=wp) :: PSO(nijkl,nPSO), ExFac, CoulFac, PMax, V_K(mV_K,nSA), Z_p_K(nZ_p_k,*)
 #include "exterm.fh"
 integer(kind=iwp) :: CumnnP(0:7), CumnnP2(0:7), i, i2, i4, iAdrJ, iAdrL, iE, iS, iSO, iSym, iUHF, j, j2, j4, jAOj, jp, jpSOj, &
@@ -613,9 +612,7 @@ else
   !*********************************************************************
   !                                                                    *
 end if
-CiKj => null()
-CiKl => null()
-V2 => null()
+nullify(CiKj,CiKl,V2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -636,11 +633,5 @@ tavec(1) = tavec(1)+Cpu
 tavec(2) = tavec(2)+Wall
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iBas)
-  call Unused_integer(kBas)
-  call Unused_logical(Shijij)
-end if
 
 end subroutine PGet2_RI2

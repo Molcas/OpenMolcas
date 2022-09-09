@@ -34,14 +34,11 @@ subroutine Mk_RICD_Shells()
 use Real_Spherical, only: Sphere, Sphere_Free
 use Basis_Info, only: dbsc, nCnttp
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_acCD_Basis, Do_nacCD_Basis, Skip_High_AC, Thrshld_CD
-use Constants, only: Zero
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iCnttp, jCnttp, kCnttp, lCnttp, mCnttp, nDiff
-real(kind=wp) :: Thrshld_CD_Save
-logical(kind=iwp) :: DoRys, Save_Logical, W2L
+integer(kind=iwp) :: iCnttp, jCnttp, mCnttp, nDiff
+logical(kind=iwp) :: DoRys, W2L
 
 !                                                                      *
 !***********************************************************************
@@ -113,48 +110,9 @@ do iCnttp=1,mCnttp
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  if (Do_nacCD_Basis) then
-    Do_acCD_Basis = .false.
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! nacCD section
+  ! aCD and acCD section
 
-    ! Create first a virgin aCD auxiliary basis set
-
-    Thrshld_CD_Save = Thrshld_CD
-    Thrshld_CD = Zero
-    Save_Logical = Skip_High_AC
-    Skip_High_AC = .false.
-
-    kCnttp = nCnttp
-    call Mk_aCD_acCD_Shells(iCnttp,W2L)
-    lCnttp = nCnttp
-
-    ! Now let us use the aCD auxiliary basis set to generate the
-    ! nacCD auxiliary basis set.
-
-    Thrshld_CD = Thrshld_CD_Save
-    Skip_High_AC = Save_Logical
-    call Mk_nacCD_Shells(kCnttp,lCnttp)
-
-    ! Remove the temporary aCD auxiliary basis set
-
-    do jCnttp=kCnttp+1,lCnttp
-      call rm_AuxShell(jCnttp)
-    end do
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-  else
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! aCD and acCD section
-
-    call Mk_aCD_acCD_Shells(iCnttp,W2L)
-
-  end if
+  call Mk_aCD_acCD_Shells(iCnttp,W2L)
   !                                                                    *
   !*********************************************************************
   !                                                                    *

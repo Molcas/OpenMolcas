@@ -9,13 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Mk_TInt_P(TInt_p,nTInt_p,TP,nTP,iAL,nCompA,nCompB,List2_p,nList2_p,mData,iAng,jAng,npk,npl,List_TP)
+subroutine Mk_TInt_P(TInt_p,nTInt_p,TP,nTP,List2_p,nList2_p,mData,iAng,jAng,npk,List_TP)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTInt_p, nTP, nCompA, nCompB, iAL(nCompA,nCompB), nList2_p, mData, List2_p(mData,nList2_p), iAng, jAng, npk, &
-                     npl, List_TP(2,nTP)
+integer(kind=iwp) :: nTInt_p, nTP, nList2_p, mData, List2_p(mData,nList2_p), iAng, jAng, npk, List_TP(2,nTP)
 real(kind=wp) :: TInt_p(nTInt_p,nTInt_p), TP(nTP,nTP)
 integer(kind=iwp) :: iA, iList2_p, iTP, jA, jList2_p, jTP, k, kAng, kComp, l, lAng, lComp, m, mAng, mComp, n, nAng, nComp
 
@@ -69,10 +68,5 @@ do iList2_p=1,nList2_p
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(iAL)
-  call Unused_integer(npl)
-end if
 
 end subroutine Mk_TInt_P

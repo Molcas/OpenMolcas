@@ -11,7 +11,7 @@
 ! Copyright (C) Jonas Bostrom                                          *
 !***********************************************************************
 
-subroutine Compute_A_jk_mp2(iSO,jVec,kVec,Ajk,fac_ij,fac_kl,nVec,iOpt)
+subroutine Compute_A_jk_mp2(jVec,kVec,Ajk,fac_ij,fac_kl,nVec,iOpt)
 !***********************************************************************
 !   Author: J Bostrom                                                  *
 !                                                                      *
@@ -24,7 +24,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iSO, jVec, kVec, nVec, iOpt
+integer(kind=iwp) :: jVec, kVec, nVec, iOpt
 real(kind=wp) :: Ajk, Fac_ij, Fac_kl
 #include "exterm.fh"
 integer(kind=iwp) :: iAdrA, lTot
@@ -41,7 +41,5 @@ if (imp2prpt == 2) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iSO)
 
 end subroutine Compute_A_jk_mp2

@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Mk_tVtF(TInt,nTheta_All,tVtF,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,nl,Indkl,nkl,nTheta_Full,iAL,nA,nB)
+subroutine Mk_tVtF(TInt,nTheta_All,tVtF,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,Indkl,nkl,nTheta_Full)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTheta_All, nTheta, mData, List2(mData,nTheta_All), nPrm, iPrm(nPrm), iAng, jAng, nk, nl, nkl, Indkl(nkl), &
-                     nTheta_Full, nA, nB, iAL(nA,nB)
+integer(kind=iwp) :: nTheta_All, nTheta, mData, List2(mData,nTheta_All), nPrm, iPrm(nPrm), iAng, jAng, nk, nkl, Indkl(nkl), &
+                     nTheta_Full
 real(kind=wp) :: TInt(nTheta_All,nTheta_All), tVtF(nTheta,nTheta_Full)
 integer(kind=iwp) :: iA, ik, il, iTheta, iTheta_All, iTheta_Full, jA, jk, jl, jTheta_All, jTheta_Full, kComp, lComp, mComp, nComp
 
@@ -66,10 +66,5 @@ call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nl)
-  call Unused_integer_array(iAL)
-end if
 
 end subroutine Mk_tVtF

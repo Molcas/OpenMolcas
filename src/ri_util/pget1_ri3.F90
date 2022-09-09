@@ -11,8 +11,8 @@
 ! Copyright (C) 1992,2007, Roland Lindh                                *
 !***********************************************************************
 
-subroutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_K,U_K, &
-                     mV_k,ZpK,nnP1,nSA,nAct)
+subroutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,jBas,kBas,lBas,kOp,DSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_K,U_K,mV_k,ZpK,nnP1, &
+                     nSA,nAct)
 !***********************************************************************
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density.                        *
@@ -40,10 +40,8 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, mV_k, nnP1, nSA, nAct(0:7)
-real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k,nSA), U_k(mV_k), &
-                 ZpK(nnP1,mV_K,*)
-logical(kind=iwp) :: Shijij
+integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nDSO, mV_k, nnP1, nSA, nAct(0:7)
+real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO,nSA), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k,nSA), U_k(mV_k), ZpK(nnP1,mV_K,*)
 #include "exterm.fh"
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ijBas, ijk, ik, ik1, ik2, il, il1, il2, ileft, imo, iMO1, iMO2, iMOleft, iMOright, &
                      indexB, Indk, Indkl, Indl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, &
@@ -259,8 +257,7 @@ if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPS
       end do
     end do
   end do
-  Xki => null()
-  Xli => null()
+  nullify(Xki,Xli)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -406,8 +403,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
     end do
   end do
   do iSO=1,2
-    Xki2(iSO)%A => null()
-    Xli2(iSO)%A => null()
+    nullify(Xki2(iSO)%A,Xli2(iSO)%A)
   end do
   !                                                                    *
   !*********************************************************************
@@ -579,8 +575,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
       end do
     end do
   end do
-  Xki => null()
-  Xli => null()
+  nullify(Xki,Xli)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -837,10 +832,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
     end do
   end do
   do iSO=1,2
-    Xki2(iSO)%A => null()
-    Xki3(iSO)%A => null()
-    Xli2(iSO)%A => null()
-    Xli3(iSO)%A => null()
+    nullify(Xki2(iSO)%A,Xki3(iSO)%A,Xli2(iSO)%A,Xli3(iSO)%A)
   end do
   !                                                                    *
   !*********************************************************************
@@ -956,8 +948,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt == 2)) then
       end do
     end do
   end do
-  Xki => null()
-  Xli => null()
+  nullify(Xki,Xli)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -1037,11 +1028,5 @@ tbvec(1) = tbvec(1)+Cpu
 tbvec(2) = tbvec(2)+Wall
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(Shijij)
-  call Unused_integer(iBas)
-  call Unused_real_array(DSSO)
-end if
 
 end subroutine PGet1_RI3

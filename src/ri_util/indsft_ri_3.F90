@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine IndSft_RI_3(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOint,nSOint,iSOSym,nSOs,TInt,nTInt,iOff,iShlSO, &
-                       nBasSh,iSOShl,nSO,nShell,nSym,iSSOff)
+subroutine IndSft_RI_3(iCmp,iShell,jBas,kBas,lBas,iAO,iAOst,ijkl,SOint,nSOint,TInt,nTInt,iOff,iShlSO,nBasSh,iSOShl,nSO, &
+                       nShell,nSym,iSSOff)
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
 !                                                                      *
@@ -33,10 +33,8 @@ use sort_data, only: nSkip
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, iSOSym(2,nSOs), nTInt, &
-                     iOff(3,0:7), nSO, iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), &
-                     iSSOff(0:nIrrep-1,0:nIrrep-1)
-logical(kind=iwp) :: Shijij
+integer(kind=iwp) :: iCmp(4), iShell(4), jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nTInt, iOff(3,0:7), nSO, iShlSO(nSO), &
+                     nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff(0:nIrrep-1,0:nIrrep-1)
 real(kind=wp) :: SOint(ijkl,nSOint), TInt(nTInt)
 integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iIrrep, iOff_L, iShC, iShD, ix, j1, j12, j2, j3, j4, jOffSO(0:7), jSO, jSOj, &
                      jSym(0:7), kl, kl_B, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, mm, n3C, nC, nD, nijkl
@@ -188,11 +186,5 @@ do i2=1,iCmp(2)
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iBas)
-  call Unused_logical(Shijij)
-  call Unused_integer_array(iSOSym)
-end if
 
 end subroutine IndSft_RI_3

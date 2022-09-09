@@ -11,7 +11,7 @@
 ! Copyright (C) 1992,2007, Roland Lindh                                *
 !***********************************************************************
 
-subroutine PGet2_CD3(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,DSO,DSSO,nDSO,ExFac,CoulFac,PMax,V_k,mV_k)
+subroutine PGet2_CD3(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,nDSO,CoulFac,PMax,V_k,mV_k)
 !***********************************************************************
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density matrix.                 *
@@ -36,8 +36,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, mV_k
-logical(kind=iwp) :: Shijij
-real(kind=wp) :: PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO), ExFac, CoulFac, PMax, V_k(mV_k)
+real(kind=wp) :: PSO(nijkl,nPSO), DSO(nDSO), CoulFac, PMax, V_k(mV_k)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Indi, Indij, Indj, Indk, Indkl, Indl, iPntij, iPntkl, is, iSO, iSOi, iSym(0:7), j, j1, &
                      j12, j123, j2, j3, j4, jAOj, js, jSO, jSOj, jSym(0:7), kAOk, ks, kSO, kSOk, kSym(0:7), lAOl, lOper, ls, lSO, &
                      lSOl, lSym(0:7), MemSO2, mijkl, niSym, njSym, nkSym, nlSym
@@ -194,11 +193,5 @@ call RecPrt(' In PGet2_CD3:PSO ',' ',PSO,nijkl,nPSO)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(Shijij)
-  call Unused_real_array(DSSO)
-  call Unused_real(ExFac)
-end if
 
 end subroutine PGet2_CD3

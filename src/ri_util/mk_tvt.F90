@@ -9,13 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Mk_tVt(TInt,nTheta_All,tVt,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,nl,Indkl,nkl,iAL,nA,nB)
+subroutine Mk_tVt(TInt,nTheta_All,tVt,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,Indkl,nkl)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTheta_All, nTheta, mData, List2(mData,nTheta_All), nPrm, iPrm(nPrm), iAng, jAng, nk, nl, nkl, Indkl(nkl), &
-                     nA, nB, iAL(nA,nB)
+integer(kind=iwp) :: nTheta_All, nTheta, mData, List2(mData,nTheta_All), nPrm, iPrm(nPrm), iAng, jAng, nk, nkl, Indkl(nkl)
 real(kind=wp) :: TInt(nTheta_All,nTheta_All), tVt(nTheta,nTheta)
 integer(kind=iwp) :: iA, ik, il, im, in_, iTheta, iTheta_All, iTheta_Full, jA, jTheta, jTheta_All, jTheta_Full, kComp, lComp, &
                      mComp, nComp
@@ -25,7 +24,6 @@ integer(kind=iwp) :: iA, ik, il, im, in_, iTheta, iTheta_All, iTheta_Full, jA, j
 call RecPrt('Mk_tVt: TInt',' ',TInt,nTheta_All,nTheta_All)
 call iVcPrt('iPrm',' ',iPrm,nPrm)
 call iVcPrt('Indkl',' ',Indkl,nkl)
-call iVcPrt('iAL',' ',iAL,nA*nB)
 #endif
 call FZero(tVt,nTheta**2)
 iA = iAng+1
@@ -69,13 +67,8 @@ end do
 
 #ifdef _DEBUGPRINT_
 call RecPrt('tVt',' ',tVt,nTheta,nTheta)
-#else
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(iAL)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nl)
 
 end subroutine Mk_tVt

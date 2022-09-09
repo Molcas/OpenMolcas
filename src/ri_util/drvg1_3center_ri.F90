@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Drvg1_3Center_RI(Grad,Temp,nGrad,ij3,nij_Eff)
+subroutine Drvg1_3Center_RI(Temp,nGrad,ij3,nij_Eff)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals. The four outermost loops *
@@ -56,7 +56,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nGrad, nij_Eff
-real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+real(kind=wp) :: Temp(nGrad)
 integer(kind=iwp), allocatable :: ij3(:,:)
 #include "Molcas.fh"
 #include "print.fh"
@@ -760,7 +760,7 @@ do while (Rsv_Tsk2(id,klS))
             Twoel3_Wall = Twoel3_Wall+TwoelWall2-TwoelWall1
 #           endif
 
-            if (iPrint >= 15) call PrGrad(' In Drvg1_3Center_RI: Grad',Temp,nGrad,ChDisp)
+            if (iPrint >= 15) call PrGrad(' In Drvg1_3Center_RI: Temp',Temp,nGrad,ChDisp)
 
           end do
         end do
@@ -854,7 +854,5 @@ call Free_iSD()
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Grad)
 
 end subroutine Drvg1_3Center_RI

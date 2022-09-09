@@ -23,6 +23,11 @@ integer(kind=iwp) :: MuNu_s, MuNu_e, j_s, j_e, nMuNu, LenVec
 real(kind=wp) :: Rv(nMuNu,(j_e-j_s+1))
 integer(kind=iwp) :: jp_ChoVec, jVec, mMuNu, NumVec_
 
+#ifndef _MOLCAS_MPP_
+#include "macros.fh"
+unused_var(MuNu_e)
+#endif
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -50,9 +55,5 @@ end if
 !***********************************************************************
 !                                                                      *
 return
-#ifndef _MOLCAS_MPP_
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(MuNu_e)
-#endif
 
 end subroutine Put_Chunk

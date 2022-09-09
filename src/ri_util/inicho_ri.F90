@@ -32,6 +32,7 @@
 
 subroutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
 
+use RICD_Info, only: Thrshld_CD
 use Para_Info, only: Is_Real_Par
 use ChoArr, only: iSP2F
 use ChoSwp, only: InfRed, InfVec
@@ -62,7 +63,7 @@ call Cho_Inp(SetDefaultsOnly,iDummy,LuOut)
 
 ! Reset Cholesky Threshold for RI
 ! -------------------------------
-call Get_thrc_RI(ThrCom)
+ThrCom = Thrshld_CD
 
 ! Reset parallel config.
 ! ----------------------

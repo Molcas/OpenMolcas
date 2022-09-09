@@ -12,8 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,TInt,nTInt,mTInt,iTOff,iOffij, &
-                    iOffkl)
+subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,TInt,nTInt,mTInt,iTOff,iOffij,iOffkl)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -32,10 +31,9 @@ use SOAO_Info, only: iAOtSO
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, mTInt, &
-                     iTOff, iOffij, iOffkl
+integer(kind=iwp) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, mTInt, iTOff, iOffij, &
+                     iOffkl
 real(kind=wp) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt,mTInt)
-logical(kind=iwp) :: Shijij
 #include "ibas_ricd.fh"
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, ijSOij, iSO, iSOi, iSOij, iSOkl, &
                      iSOs(4), jSO, jSOj, klSOkl, kSO, kSOk, lSO, lSOl, nijkl
@@ -137,10 +135,5 @@ call RecPrt('TInt','(45G8.2)',TInt,nTInt,mTInt)
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(iShell)
-  call Unused_logical(Shijij)
-end if
 
 end subroutine PLF_RICD

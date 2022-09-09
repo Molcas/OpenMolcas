@@ -245,8 +245,7 @@ do iIrrep=0,nIrrep-1
 
   end do
 
-  Q_l => null()
-  A_l => null()
+  nullify(Q_l,A_l)
   call mma_deallocate(Q_k)
   call mma_deallocate(A_k)
   call mma_deallocate(Qm)

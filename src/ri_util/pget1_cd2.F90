@@ -12,7 +12,7 @@
 !               2009, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine PGet1_CD2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,ExFac,CoulFac,PMax,V_k,U_k,mV_k,Z_p_K,nnP1)
+subroutine PGet1_CD2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,ExFac,CoulFac,PMax,V_k,U_k,mV_k,Z_p_K,nnP1)
 !***********************************************************************
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density.                        *
@@ -31,6 +31,7 @@ subroutine PGet1_CD2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 !             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 !***********************************************************************
 
+use pso_stuff, only: ij2K, iOff_ij2K
 use SOAO_Info, only: iAOtSO
 use ExTerm, only: CijK, iMP2prpt, nAuxVe
 use Constants, only: Zero, One, Two, Half
@@ -39,13 +40,11 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), mV_k, nnP1
 real(kind=wp) :: PAO(ijkl,nPAO), ExFac, CoulFac, PMax, V_k(mV_k), U_K(mV_K), Z_p_K(nnP1,mV_K)
-logical(kind=iwp) :: Shijij
 #include "exterm.fh"
 integer(kind=iwp) :: i1, i2, i3, i4, iAdrJ, iAdrL, iAOi, iE, ijVec, Indi, Indij, Indj, Indk, Indkl, Indl, iPAO, iS, iSO, iSOi, &
                      iSym, jAOj, jp, jSO, jSOj, jSym, kAOk, klVec, kSO, kSOk, lAOl, lSO, lSOl, lSym, nijkl, NumIK
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, Fac_kl, temp, tempJ_mp2, tempK, tempK_mp2, Wall, Wall1, Wall2
 real(kind=wp), pointer :: CiKj(:,:), V2(:)
-integer(kind=iwp), external :: mn2K
 real(kind=r8), external :: dDot_
 
 !                                                                      *
@@ -109,8 +108,8 @@ if (ExFac == Zero) then
                   Indkl = (Indk-1)*Indk/2+Indl
                   temp = V_k(Indij)*V_k(Indkl)*CoulFac
                   ! Active space contribution (any factor?)
-                  ijVec = mn2K(Indij,1)
-                  klVec = mn2K(Indkl,1)
+                  ijVec = ij2K(iOff_ij2K(1)+Indij)
+                  klVec = ij2K(iOff_ij2K(1)+Indkl)
                   if ((ijVec /= 0) .and. (klVec /= 0)) then
                     do jp=1,nnP1
                       temp = temp+Z_p_K(jp,ijVec)*Z_p_K(jp,klVec)
@@ -156,7 +155,7 @@ else if (iMP2prpt /= 2) then
               Indk = max(kSOk,lSOl)
               Indl = kSOk+lSOl-Indk
               Indkl = (Indk-1)*Indk/2+Indl
-              klVec = mn2K(Indkl,1)
+              klVec = ij2K(iOff_ij2K(1)+Indkl)
 
               if (klvec /= 0) then
                 iAdrL = NumIK*(klVec-1)+iAdrCVec(jSym,iSym,iSO)
@@ -172,7 +171,7 @@ else if (iMP2prpt /= 2) then
                   Indi = max(iSOi,jSOj)
                   Indj = iSOi+jSOj-Indi
                   Indij = (Indi-1)*Indi/2+Indj
-                  ijVec = mn2K(Indij,1)
+                  ijVec = ij2K(iOff_ij2K(1)+Indij)
 
                   if ((ijVec /= klVec) .and. (ijvec /= 0)) then
                     iAdrJ = NumIK*(ijVec-1)+iAdrCVec(jSym,iSym,iSO)
@@ -243,7 +242,7 @@ else
               Indk = max(kSOk,lSOl)
               Indl = kSOk+lSOl-Indk
               Indkl = (Indk-1)*Indk/2+Indl
-              klVec = mn2K(Indkl,1)
+              klVec = ij2K(iOff_ij2K(1)+Indkl)
               if (klvec /= 0) then
                 iAdrL = NumIK*(klVec-1)+iAdrCVec(jSym,iSym,iSO)
                 call dDaFile(LuCVector(jSym,iSO),2,CiKj(:,1),NumIK,iAdrL)
@@ -258,7 +257,7 @@ else
                   Indi = max(iSOi,jSOj)
                   Indj = iSOi+jSOj-Indi
                   Indij = (Indi-1)*Indi/2+Indj
-                  ijVec = mn2K(Indij,1)
+                  ijVec = ij2K(iOff_ij2K(1)+Indij)
 
                   if ((ijVec /= klVec) .and. (ijvec /= 0)) then
                     iAdrJ = NumIK*(ijVec-1)+iAdrCVec(jSym,iSym,iSO)
@@ -283,13 +282,13 @@ else
                     end if
 
                     ! MP2 contribution
-                    call Compute_A_jk_Mp2(1,ijVec,klVec,tempJ_mp2,Fac_ij,Fac_kl,nAuxVe,2)
+                    call Compute_A_jk_Mp2(ijVec,klVec,tempJ_mp2,Fac_ij,Fac_kl,nAuxVe,2)
                     temp = temp+tempJ_mp2*CoulFac
 
                     ! Exchange contribution
 
                     tempK = Two*Fac_ij*Fac_kl*dDot_(NumIK,CiKj(:,1),1,V2,1)
-                    call compute_A_jk_Mp2(1,ijVec,klVec,tempK_mp2,fac_ij,fac_kl,nAuxVe,1)
+                    call compute_A_jk_Mp2(ijVec,klVec,tempK_mp2,fac_ij,fac_kl,nAuxVe,1)
 
                     tempK = tempK+tempK_mp2
 
@@ -313,8 +312,7 @@ else
   end do
 end if
 
-CiKj => null()
-V2 => null()
+nullify(CiKj,V2)
 
 if (iPAO /= nPAO) then
   write(u6,*) ' Error in PGet1_CD2!'
@@ -332,9 +330,5 @@ tavec(1) = tavec(1)+Cpu
 tavec(2) = tavec(2)+Wall
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(Shijij)
-end if
 
 end subroutine PGet1_CD2

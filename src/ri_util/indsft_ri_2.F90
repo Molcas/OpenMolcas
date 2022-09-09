@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine IndSft_RI_2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOint,nSOint,iSOSym,nSOs,TInt,nTInt,iOff,iSO2Ind,iOffA)
+subroutine IndSft_RI_2(iCmp,iShell,jBas,lBas,Shijij,iAO,iAOst,ijkl,SOint,nSOint,nSOs,TInt,nTInt,iSO2Ind,iOffA)
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
 !                                                                      *
@@ -32,8 +32,7 @@ use sort_data, only: nSkip
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCmp(4), iShell(4), iBas, jbas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, iSOSym(2,nSOs), nTInt, &
-                     iOff(0:7), iSO2Ind(nSOs), iOffA(4,0:7)
+integer(kind=iwp) :: iCmp(4), iShell(4), jBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, nTInt, iSO2Ind(nSOs), iOffA(4,0:7)
 logical(kind=iwp) :: Shijij
 real(kind=wp) :: SOint(ijkl,nSOint), TInt(nTInt)
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, ij, iOffA_, iOffB_, iSO, ix, j1, j12, j2, j3, j4, jSO, jSOj, jSym(0:7), k12, k34, &
@@ -163,12 +162,5 @@ do i2=1,iCmp(2)
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iBas)
-  call Unused_integer(kBas)
-  call Unused_integer_array(iSOSym)
-  call Unused_integer_array(iOff)
-end if
 
 end subroutine IndSft_RI_2

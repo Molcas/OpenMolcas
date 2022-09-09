@@ -11,8 +11,7 @@
 ! Copyright (C) 1992,2007, Roland Lindh                                *
 !***********************************************************************
 
-subroutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_k,U_k, &
-                     mV_k)
+subroutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_k,U_k,mV_k)
 !***********************************************************************
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density.                        *
@@ -29,6 +28,7 @@ subroutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp
 !             R. Lindh                                                 *
 !***********************************************************************
 
+use pso_stuff, only: ij2K, iOff_ij2K
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use ExTerm, only: BklK, BMP2, CijK, CilK, CMOi, iMP2prpt, LuBVector
@@ -37,13 +37,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, mV_k
-real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k), U_k(mV_k)
-logical(kind=iwp) :: Shijij
+real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k), U_k(mV_k)
 #include "exterm.fh"
 integer(kind=iwp) :: i, i1, i2, i3, i4, iAdr, iAOi, ijVec, indexB, Indi, Indij, Indj, Indk, Indkl, Indl, iPAO, irc, iSO, iSOi, &
                      jAOj, jSO, jSOj, jSym, kAOk, kSO, kSOk, kSym, lAOl, lBVec, lSO, lSOl, lSym, nijkl, nKBas, nLBas, NumOrb
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, temp, tempJ, tempK, Wall, Wall1, Wall2
-integer(kind=iwp), external :: mn2K
 real(kind=wp), external :: Compute_B
 
 !                                                                      *
@@ -95,7 +93,7 @@ if ((ExFac /= Zero) .and. (NumOrb > 0) .and. (iMP2prpt /= 2)) then
             Fac_ij = Half
           end if
           Indij = (Indi-1)*Indi/2+Indj
-          ijVec = mn2K(Indij,1)
+          ijVec = ij2K(iOff_ij2K(1)+Indij)
 
           if (ijVec /= 0) then
             iAdr = nIJR(kSym,lSym,1)*(ijVec-1)+iAdrCVec(jSym,kSym,1)
@@ -167,7 +165,7 @@ else if ((iMP2prpt == 2) .and. (NumOrb > 0)) then
             Fac_ij = Half
           end if
           Indij = (Indi-1)*Indi/2+Indj
-          ijVec = mn2K(Indij,1)
+          ijVec = ij2K(iOff_ij2K(1)+Indij)
           if (ijVec /= 0) then
             iAdr = nIJR(kSym,lSym,1)*(ijVec-1)+iAdrCVec(jSym,kSym,1)
             call dDaFile(LuCVector(jSym,1),2,CijK,nIJR(kSym,lSym,1),iAdr)
@@ -288,10 +286,5 @@ tbvec(1) = tbvec(1)+Cpu
 tbvec(2) = tbvec(2)+Wall
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(Shijij)
-  call Unused_real_array(DSSO)
-end if
 
 end subroutine PGet1_CD3

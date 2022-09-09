@@ -87,8 +87,8 @@
             If (Case_2C) Then
                If (Do_RI) Then
                   Call PGet1_RI2(PSO,ijkl,nPSO,iCmp,
-     &                           iAO,iAOst,Shijij,
-     &                           iBas,jBas,kBas,lBas,kOp,
+     &                           iAO,iAOst,
+     &                           jBas,lBas,kOp,
      &                           ExFac,CoulFac,PMax,
      &                           V_K,U_K,nV_K,
      &                           Z_p_k,nSA)
@@ -100,9 +100,9 @@
             Else If (Case_3C) Then
                If (Do_RI) Then
                   Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,
-     &                           iAO,iAOst,Shijij,
-     &                           iBas,jBas,kBas,lBas,kOp,D0,
-     &                           DS,DVar,nDens,
+     &                           iAO,iAOst,
+     &                           jBas,kBas,lBas,kOp,D0,
+     &                           DVar,nDens,
      &                           ExFac,CoulFac,PMax,
      &                           V_K,U_K,nV_K,
      &                           Z_p_k,nnP(0),nSA,nAsh)
@@ -124,8 +124,8 @@
             If (Case_2C) Then
                If (Do_RI) Then
                   Call PGet2_RI2(iCmp,
-     &                           iBas,jBas,kBas,lBas,
-     &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
+     &                           jBas,lBas,
+     &                           iAO, iAOst, ijkl, PSO, nPSO,
      &                           ExFac,CoulFac,
      &                           PMax,V_K,nV_K,
      &                           Z_p_k,nSA,nZ_p_k)
@@ -137,9 +137,9 @@
             Else If (Case_3C) Then
                If (Do_RI) Then
                   Call PGet2_RI3(iCmp,
-     &                           iBas,jBas,kBas,lBas,
-     &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                           D0,DS,nDens,ExFac,
+     &                           jBas,kBas,lBas,
+     &                           iAO, iAOst, ijkl, PSO, nPSO,
+     &                           D0,nDens,ExFac,
      &                           CoulFac,PMax,V_K,nV_K,
      &                           Z_p_k,nSA,nAsh)
 
@@ -212,14 +212,14 @@
                If (Case_2C) Then
                   If (Do_RI) Then
                      Call PGet1_RI2(PSO,ijkl,nPSO,iCmp,
-     &                              iAO,iAOst,Shijij,
-     &                              iBas,jBas,kBas,lBas,kOp,
+     &                              iAO,iAOst,
+     &                              jBas,lBas,kOp,
      &                              ExFac,CoulFac,PMax,
      &                              V_K,U_K,nV_K,
      &                              Z_p_k, nSA)
                   Else
                      Call PGet1_CD2(PSO,ijkl,nPSO,iCmp,
-     &                              iAO,iAOst,Shijij,
+     &                              iAO,iAOst,
      &                              iBas,jBas,kBas,lBas,kOp,
      &                              ExFac,CoulFac,PMax,
      &                              V_K,U_K,nV_K,
@@ -228,17 +228,17 @@
                Else If (Case_3C) Then
                   If (Do_RI) Then
                      Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,
-     &                              iAO,iAOst,Shijij,
-     &                              iBas,jBas,kBas,lBas,kOp,D0,
-     &                              DS,DVar,nDens,
+     &                              iAO,iAOst,
+     &                              jBas,kBas,lBas,kOp,D0,
+     &                              DVar,nDens,
      &                              ExFac,CoulFac,PMax,
      &                              V_K,U_K,nV_K,
      &                              Z_p_k,nnP(0),nSA,nAsh)
                   Else
                      Call PGet1_CD3(PSO,ijkl,nPSO,iCmp,
-     &                              iAO,iAOst,Shijij,
+     &                              iAO,iAOst,
      &                              iBas,jBas,kBas,lBas,kOp,D0,
-     &                              DS,DVar,nDens,
+     &                              DVar,nDens,
      &                              ExFac,CoulFac,PMax,
      &                              V_K,U_K,nV_K)
                   End If
@@ -275,31 +275,31 @@
                   If (Do_RI) Then
 
                      Call PGet2_RI2(iCmp,
-     &                              iBas,jBas,kBas,lBas,
-     &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
+     &                              jBas,lBas,
+     &                              iAO, iAOst, ijkl, PSO, nPSO,
      &                              ExFac,CoulFac,
      &                              PMax,V_K,nV_K,
      &                              Z_p_k, nSA,nZ_p_k)
                   Else
                      Call PGet2_CD2(iCmp,
      &                              iBas,jBas,kBas,lBas,
-     &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                              ExFac,CoulFac,
+     &                              iAO, iAOst, ijkl, PSO, nPSO,
+     &                              CoulFac,
      &                              PMax,V_K,nV_K)
                   End If
                Else If (Case_3C) Then
                   If (Do_RI) Then
                      Call PGet2_RI3(iCmp,
-     &                              iBas,jBas,kBas,lBas,
-     &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                              D0,DS,nDens,ExFac,
+     &                              jBas,kBas,lBas,
+     &                              iAO, iAOst, ijkl, PSO, nPSO,
+     &                              D0,nDens,ExFac,
      &                              CoulFac,PMax,V_K,nV_K,
      &                              Z_p_k,nSA,nAsh)
                   Else
                      Call PGet2_CD3(iCmp,
      &                              iBas,jBas,kBas,lBas,
-     &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                              D0,DS,nDens,ExFac,
+     &                              iAO, iAOst, ijkl, PSO, nPSO,
+     &                              D0,nDens,
      &                              CoulFac,PMax,V_K,nV_K)
                   End If
 *

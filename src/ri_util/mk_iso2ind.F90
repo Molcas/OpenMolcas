@@ -11,15 +11,34 @@
 
 subroutine Mk_iSO2Ind(iSO2Sh,iSO2Ind,nSO,nShell)
 
+use Basis_Info, only: nBas_Aux
+use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nSO, iSO2Sh(nSO), iSO2Ind(nSO), nShell
+integer(kind=iwp) :: iB, iIrrep, Ind, iSh, iSO
 integer(kind=iwp), allocatable :: nTemp(:)
 
 call mma_allocate(nTemp,nShell,Label='nTemp')
-call Mk_iSO2Ind_Inner(iSO2Sh,iSO2Ind,nSO,nTemp,nShell)
+
+iSO = 0
+do iIrrep=0,nIrrep-1
+
+  call IZero(nTemp,nShell)
+  do iB=1,nBas_Aux(iIrrep)
+    iSO = iSO+1
+    iSh = iSO2Sh(iSO)
+    nTemp(iSh) = nTemp(iSh)+1
+    Ind = nTemp(iSh)
+    !write(u6,*) 'iSO,iSh,Ind=',iSO,iSh,Ind
+    iSO2Ind(iSO) = Ind
+  end do
+
+end do
+!call iVcPrt('iSO2Ind','(10I5)',iSO2Ind,nSO)
+
 call mma_deallocate(nTemp)
 
 return

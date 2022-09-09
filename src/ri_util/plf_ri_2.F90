@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PLF_RI_2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,TInt,nTInt,iSO2Ind,iOffA,nSOs)
+subroutine PLF_RI_2(AOint,ijkl,jCmp,lCmp,iAO,iAOst,jBas,lBas,kOp,TInt,nTInt,iSO2Ind,iOffA,nSOs)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -33,10 +33,8 @@ use Basis_Info, only: nBas
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, nSOs, &
-                     iSO2Ind(nSOs), iOffA(4)
+integer(kind=iwp) :: ijkl, jCmp, lCmp, iAO(4), iAOst(4), jBas, lBas, kOp(4), nTInt, nSOs, iSO2Ind(nSOs), iOffA(4)
 real(kind=wp) :: AOint(ijkl,jCmp,lCmp), TInt(nTInt)
-logical(kind=iwp) :: Shijij
 integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, kSO, lSO, lSOl, mm_, mx, nijkl, nn
 real(kind=wp) :: A_Int
 ! Statement function
@@ -100,16 +98,5 @@ do i2=1,jCmp
 
   end do
 end do
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) then
-  call Unused_integer(iCmp)
-  call Unused_integer(kCmp)
-  call Unused_integer_array(iShell)
-  call Unused_logical(Shijij)
-  call Unused_integer(iBas)
-  call Unused_integer(kBas)
-end if
-#endif
 
 end subroutine PLF_RI_2

@@ -76,10 +76,10 @@ interface
     real(kind=wp) :: Grad(nGrad), Temp(nGrad)
     integer(kind=iwp), allocatable :: ij2(:,:)
   end subroutine Drvg1_2Center_RI
-  subroutine Drvg1_3Center_RI(Grad,Temp,nGrad,ij3,nij_Eff)
+  subroutine Drvg1_3Center_RI(Temp,nGrad,ij3,nij_Eff)
     import :: wp, iwp
     integer(kind=iwp) :: nGrad, nij_Eff
-    real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+    real(kind=wp) :: Temp(nGrad)
     integer(kind=iwp), allocatable :: ij3(:,:)
   end subroutine Drvg1_3Center_RI
 end interface
@@ -430,7 +430,7 @@ Case_2C = .false.
 ! Compute contributions due to the "3-center" two-electron integrals
 
 Case_3C = .true.
-call Drvg1_3center_RI(Temp,Tmp,nGrad,ij2,nij_Eff)
+call Drvg1_3center_RI(Tmp,nGrad,ij2,nij_Eff)
 call GADGOP(Tmp,nGrad,'+')
 if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 3-center term',Tmp,nGrad,ChDisp)
 call DaXpY_(nGrad,Two,Tmp,1,Temp,1)

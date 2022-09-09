@@ -1118,7 +1118,7 @@ do jSym=1,nSym
 
             end do   ! loop over MOs symmetry
 
-            pYik => null()
+            nullify(pYik)
 
           end do   ! loop over densities
 
@@ -1440,7 +1440,7 @@ if (DoExchange) then
   call mma_deallocate(Indik)
   call mma_deallocate(Indx)
   do i=1,nDen
-    SumClk(i)%A => null()
+    nullify(SumClk(i)%A)
   end do
   call mma_deallocate(Aux0)
   call mma_deallocate(MLk)

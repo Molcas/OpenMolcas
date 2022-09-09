@@ -12,7 +12,7 @@
 !               2009, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,ExFac,CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA)
+subroutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,jBas,lBas,kOp,ExFac,CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA)
 !***********************************************************************
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
 !          function from the 1st order density.                        *
@@ -40,9 +40,8 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), mV_K, nSA
+integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, lBas, kOp(4), mV_K, nSA
 real(kind=wp) :: PAO(ijkl,nPAO), ExFac, CoulFac, PMax, V_K(mV_K,nSA), U_K(mV_K), Z_p_K(nnP(0),mV_K,*)
-logical(kind=iwp) :: Shijij
 #include "exterm.fh"
 logical(kind=iwp) :: Found
 integer(kind=iwp) :: i, i2, i4, iAdrA, iAdrJ, iAdrL, iE, iOffA, iPAO, iS, iSO, iSO2, iSym, iUHF, j, jAOj, jik, jil, jp, jSO, jSOj, &
@@ -543,9 +542,7 @@ else
   !                                                                    *
 end if
 
-CiKj => null()
-CiKl => null()
-V2 => null()
+nullify(CiKj,CiKl,V2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -564,11 +561,5 @@ tavec(1) = tavec(1)+Cpu
 tavec(2) = tavec(2)+Wall
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(Shijij)
-  call Unused_integer(iBas)
-  call Unused_integer(kBas)
-end if
 
 end subroutine PGet1_RI2
