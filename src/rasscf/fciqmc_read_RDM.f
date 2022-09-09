@@ -631,7 +631,7 @@
             pq = one_el_idx_flatten(p, p)
             trace = trace + dspn(pq)
           end do
-          write(u6,*), 'trace DSPN: ', trace
+          write(u6,*) 'trace DSPN: ', trace
         end if
       end function
 
