@@ -2083,7 +2083,9 @@ C orbitals accordingly
         end if
 *----------------------------------------------------------------------------------------
         if (KeyH5DM) then
+#ifdef _WARNING_WORKAROUND_
             tHDF5_RDMs = .true.
+#endif
             if(DBG) write(6, *) 'RDMs will be read from HDF5 files'
             if (.not. KeyNECI) then
               call WarningMessage(2, 'HDF5 RDMs require NECI keyword!')

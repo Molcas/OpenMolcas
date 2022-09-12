@@ -19,16 +19,14 @@
       use mh5, only: mh5_open_file_r, mh5_close_file, mh5_put_dset,
      &               mh5_open_group, mh5_close_group,
      &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
-     &               mh5_get_dset_dims, mh5_exists_dset,
-     &               mh5_create_file, mh5_create_dset_int,
-     &               mh5_create_dset_real, mh5_init_attr
+     &               mh5_get_dset_dims
 #endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
       ! wfn_dens, wfn_spindens
-      use rasscf_data, only : NRoots, iAdr15, NAc, NIn
+      use rasscf_data, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
       ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
@@ -595,9 +593,9 @@
       function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
         ! Implementation following the Columbus paper:
         ! 10.1080/00268976.2022.2091049
-        ! Simplest assumption S = m_s, since m_s = 0 not useful; this wave
-        ! function has no spin polarisation density (unless S^2 symmetry
-        ! is broken which will not happen with the UGA).
+        ! Simplest assumption S = m_s, since m_s = 0 not useful; this
+        ! wave function has no spin polarisation density (unless S^2
+        ! symmetry is broken which will not happen with the UGA).
         use general_data, only: ispin
 #include "output_ras.fh"
         real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
@@ -609,13 +607,17 @@
         S = (real(ispin, wp) - 1)/2
         AcEl = real(nActEl, wp)
 
+        n = 1
         do q = 1, nAc
           do p = 1, nAc
             pq = one_el_idx_flatten(p, q)
             intermed = 0.0_wp
             do k = 1, nAc
-              if (q == k) n = 1
-              if (q < k)  n = 2
+              if (q == k) then
+                n = 1
+              else if (q < k) then
+                n = 2
+              end if
               pqrs = two_el_idx_flatten(p, k, q, k)
               ! the sign on the PAMAT is flipped compared to my
               ! Python implementation?
@@ -627,6 +629,7 @@
 
         iprlev = iprloc(1)
         if (iprlev >= debug) then
+          trace = 0.0_wp
           do p = 1, nAc
             pq = one_el_idx_flatten(p, p)
             trace = trace + dspn(pq)
@@ -713,6 +716,7 @@
         dspn(:) = 0.0_wp
         psmat(:) = 0.0_wp
         pamat(:) = 0.0_wp
+        n_kl = 1
         do pqrs = 1, size(psmat, dim=1)
           call two_el_idx(pqrs, p, q, r, s)
           if (r == s) n_kl = 1
