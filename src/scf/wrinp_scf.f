@@ -362,6 +362,7 @@ c           Call Abend()
                  if (Iand(iDoRI,1024).Eq.1024) then
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF USCF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: RI/DF USCF'
                     endif
@@ -369,6 +370,7 @@ c           Call Abend()
                     if (LKon) then
                        Write(6,'(6X,A)')
      &                               'SCF Algorithm: LK-Cholesky USCF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: Cholesky USCF'
                     endif

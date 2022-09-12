@@ -295,9 +295,6 @@
       DltNrm=0.0D0
       DMOold=Zero
       FMOold=Zero
-      nEconv = 0
-      nDconv = 0
-      nFconv = 0
 
       If(MSYMON) Then
 #ifdef _MSYM_
@@ -735,31 +732,7 @@
          If(iter.eq.1) Then
             DMOold = DMOmax
             FMOold = FMOmax
-            nEconv = 0
-            nDconv = 0
-            nFconv = 0
          Else
-            If(Abs(Ediff).le.10.0d0*Ethr) Then
-               nEconv=nEconv+1
-            Else
-               nEconv=0
-            End If
-            If(Abs(DMOmax-DMOold).le.1.0d-6) Then
-               nDconv=nDconv+1
-            Else
-               nDconv=0
-            End If
-            If(Abs(FMOmax-FMOold).le.1.0d-6) Then
-               nFconv=nFconv+1
-            Else
-               nFconv=0
-            End If
-            If(nEconv.gt.9 .and. nDconv.gt.9 .and. nFconv.gt.9) Then
-               Emconv=.true.
-               WarnSlow=.true.
-            End If
-*           Write(6,'(a,3i5)') 'nEconv, nDconv, nFconv:',
-*    &                          nEconv,nDconv,nFconv
             DMOold = DMOmax
             FMOold = FMOmax
          End If
@@ -854,10 +827,6 @@
 !        1) step is a Quasi NR step, and
 !        2) DltNrm.le.DltNth
 !
-!        or
-!
-!        EmConv is true.
-!
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -868,14 +837,12 @@
      &       (((Abs(DMOMax).le.DThr).AND.(iOpt.lt.2))
      &       .OR.
      &       ((DltNrm.le.DltNTh).AND.iOpt.ge.2))
-     &       .OR.EmConv
      &      ) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
             If(Aufb) Then
                WarnPocc=.true.
-               EmConv=.False.
             End If
 *
 *           If calculation with two different sets of parameters reset
@@ -972,15 +939,9 @@
       If (Converged) Then
 
          If (jPrint.ge.2) Then
-            If (EmConv) Then
-               Write (6,*)
-               Write (6,'(6X,A)')
-     &               'No convergence, optimization aborted'
-            Else
-               Write (6,*)
-               Write (6,'(6X,A,I3,A)')' Convergence after',
-     &                   iter, ' Macro Iterations'
-            End If
+            Write (6,*)
+            Write (6,'(6X,A,I3,A)')' Convergence after',
+     &                iter, ' Macro Iterations'
          End If
 
       Else
@@ -1169,7 +1130,6 @@ c     Call Scf_XML(0)
 *-------       Reset thresholds for direct SCF procedure
 *
                Reset=.False.
-               EmConv=.False.
 *
 *---------------
                If(iOpt.eq.2) Then
