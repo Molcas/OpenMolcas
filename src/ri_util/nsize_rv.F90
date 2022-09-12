@@ -27,12 +27,12 @@ integer(kind=iwp) :: kS, lS, nShell, nIrrep, nShBf(0:nIrrep-1,nShell), iOff(0:nI
 integer(kind=iwp) :: kIrrep, klIrrep, lIrrep, nJ, nK, nKL, nL
 
 nSize_Rv = 0
+iOff(:) = 0
 
 if (nIrrep == 1) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  iOff(0) = 0
   if (kS /= lS) then
     nK = nShBf(0,kS)
     nL = nShBf(0,lS)
@@ -51,7 +51,6 @@ else
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call IZero(iOff,nIrrep)
   do klIrrep=0,nIrrep-1
     iOff(klIrrep) = nSize_Rv
 

@@ -26,7 +26,7 @@ call mma_allocate(nTemp,nShell,Label='nTemp')
 iSO = 0
 do iIrrep=0,nIrrep-1
 
-  call IZero(nTemp,nShell)
+  nTemp(:) = 0
   do iB=1,nBas_Aux(iIrrep)
     iSO = iSO+1
     iSh = iSO2Sh(iSO)

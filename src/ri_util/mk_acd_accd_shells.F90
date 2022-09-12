@@ -261,7 +261,7 @@ else
   ! all purpose aCD/acCD auxiliary basis sets.
 
   call mma_allocate(Wg,nTInt_c,label='Wg')
-  call dcopy_(nTInt_c,[One],0,Wg,1)
+  Wg(:) = One
 
   if (In_Core) then
 #   ifdef _DEBUGPRINT_
@@ -525,8 +525,8 @@ do iBS=0,nBS-1
 #       endif
         call mma_allocate(Con,nCntrc_Max,label='Con')
         call mma_allocate(ConR,2,nCntrc_Max,label='ConR')
-        call IZero(Con,nCntrc_Max)
-        call IZero(ConR,2*nCntrc_Max)
+        Con(:) = 0
+        ConR(:,:) = 0
         nCntrc = 0
         do iCho_c=1,NumCho_c
           ijSO = iD_c(iCho_c)
@@ -609,7 +609,7 @@ do iBS=0,nBS-1
           write(u6,*) 'nPrim_Max:',nPrim_Max
 #         endif
           call mma_allocate(Prm,nPrim_Max,label='Prm')
-          call IZero(Prm,nPrim_Max)
+          Prm(:) = 0
 
           ! Pick up the diagonal elements from TInt_p
           ! corresponding to this shell pair. We sum over
@@ -689,9 +689,9 @@ do iBS=0,nBS-1
             iTheta = iD_p(iCho_p)
             ik = LTP(1,iTheta)
             il = LTP(2,iTheta)
-            Exp_i = Shells(kShll)%exp(ik)
-            Exp_j = Shells(lShll)%exp(il)
-            Shells(iShll)%exp(iCho_p) = Exp_i+Exp_j
+            Exp_i = Shells(kShll)%Exp(ik)
+            Exp_j = Shells(lShll)%Exp(il)
+            Shells(iShll)%Exp(iCho_p) = Exp_i+Exp_j
           end do
 #         ifdef _DEBUGPRINT_
           call RecPrt('SLIM Exponents',' ',Shells(iShll)%Exp,1,nPrim)
@@ -721,7 +721,7 @@ do iBS=0,nBS-1
             if (Diagonal) jp_Exp_Max = ip_Exp
             do jp_Exp=1,jp_Exp_Max
               iOff = iOff+1
-              Shells(iShll)%exp(iOff) = Shells(kShll)%exp(ip_Exp)+Shells(lShll)%exp(jp_Exp)
+              Shells(iShll)%Exp(iOff) = Shells(kShll)%Exp(ip_Exp)+Shells(lShll)%Exp(jp_Exp)
             end do
           end do
 
@@ -849,8 +849,8 @@ do iBS=0,nBS-1
 
           call mma_allocate(H,nTri,label='H')
           call mma_allocate(U,nTri,label='U')
-          call dcopy_(nTri,A,1,H,1)
-          call FZero(U,nTheta**2)
+          H(:) = A
+          U(1:nTheta**2) = Zero
           call dcopy_(nTheta,[One],0,U,nTheta+1)
           call Jacob(H,U,nTheta,nTheta)
           call TriPrt('H','(10G20.10)',H,nTheta)
@@ -928,7 +928,7 @@ do iBS=0,nBS-1
           ! To simplify life I will put the Q matrix into square storage.
 
           call mma_Allocate(Temp,nTheta**2,label='Temp')
-          call FZero(Temp,nTheta**2)
+          Temp(:) = Zero
           do iTheta=1,nTheta
             do jTheta=1,iTheta
               ijT = iTri(iTheta,jTheta)
@@ -973,7 +973,7 @@ do iBS=0,nBS-1
           ! Now reorder the coefficients to the CD order of the exponents.
 
           call mma_allocate(Tmp,nTheta*nPhi,label='Tmp')
-          call dcopy_(nTheta*nPhi,Shells(iShll)%Cff_c(1,1,1),1,Tmp,1)
+          call dcopy_(nTheta*nPhi,Shells(iShll)%Cff_c(:,:,1),1,Tmp,1)
           do iCho_p=1,NumCho_p
             iTheta_full = iD_p(iCho_p)
             iTheta = Indkl_p(iTheta_full)
@@ -989,7 +989,7 @@ do iBS=0,nBS-1
             ik = LTP(1,iTheta)
             il = LTP(2,iTheta)
             Fact = Shells(kShll)%Cff_p(ik,ik,1)*Shells(lShll)%Cff_p(il,il,1)
-            call DScal_(nPhi,Fact,Shells(iShll)%Cff_c(iCho_p,1,1),nTheta)
+            Shells(iShll)%Cff_c(iCho_p,:,1) = Fact*Shells(iShll)%Cff_c(iCho_p,:,1)
           end do
           call mma_deallocate(LTP)
 
@@ -998,7 +998,7 @@ do iBS=0,nBS-1
           call mma_deallocate(Scr)
           call mma_deallocate(QTmp)
 #         ifdef _DEBUGPRINT_
-          call RecPrt('SLIM coeffcients',' ',Shells(iShll)%Cff_c(1,1,1),nTheta,nPhi)
+          call RecPrt('SLIM coeffcients',' ',Shells(iShll)%Cff_c(:,:,1),nTheta,nPhi)
 #         endif
           !                                                            *
           !*************************************************************
@@ -1239,7 +1239,7 @@ if (W2L) then
 
       ! Write out the exponents
 
-      write(Lu_lib,'(5(1X,D20.13))') (Shells(iShll_)%exp(i),i=1,nExpi)
+      write(Lu_lib,'(5(1X,D20.13))') (Shells(iShll_)%Exp(i),i=1,nExpi)
 
       ! Write out the contraction coefficients
 

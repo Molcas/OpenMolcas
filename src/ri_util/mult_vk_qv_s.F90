@@ -11,6 +11,7 @@
 
 subroutine Mult_Vk_Qv_s(V_k,nV_k,Qv,nQv,V_kQ,nV_kQ,nBas_Aux,nVec,nIrrep,QMode)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -30,7 +31,7 @@ kp_V_k = 1
 lstepA = 0
 lstepB = 1
 if (Qmode == 'T') then
-  call FZero(V_kQ,nV_kQ)
+  V_kQ(:) = Zero
   lstepA = 1
   lstepB = 0
 end if

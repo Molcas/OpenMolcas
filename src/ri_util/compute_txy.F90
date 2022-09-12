@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nDM, nTxy, nAuxVec, nIrrep, nAct(0:7)
 real(kind=wp) :: DM1(nDM,nAuxVec), Txy(nTxy,nAuxVec), Diag(nDM,nAuxVec), DMtmp(nTri_Elem(nDM))
-integer(kind=iwp) :: i, icol, iend, iline, ista, isym, it, itu, ituvx, ituvx2, itv, itx, iu, iuv, iux, iv, iVec, ivx, ix, j, jend, &
+integer(kind=iwp) :: i, icol, iend, iline, ista, isym, it, itu, ituvx, ituvx2, itv, itx, iu, iuv, iux, iv, iVec, ivx, ix, jend, &
                      jsta, jsym, kend, klsym, ksta, ksym, lend, lsta, lsym, nCumAct(0:7), nCumAct2(0:7), nkl, nvx, Txy_sta, Txy_sta2
 real(kind=wp) :: Fac, Fac2, tmp
 
@@ -136,9 +136,7 @@ do iVec=1,nAuxVec
     do i=1,nkl
       Diag(i+Txy_sta-1,iVec) = DMTmp(nTri_Elem(i))
       tmp = sqrt(abs(DMTmp(nTri_Elem(i))))
-      do j=1,nkl
-        Txy(Txy_sta2+(i-1)*nkl+j-1,iVec) = Txy(Txy_sta2+(i-1)*nkl+j-1,iVec)*tmp
-      end do
+      Txy(Txy_sta2+(i-1)*nkl:Txy_sta2+i*nkl-1,iVec) = tmp*Txy(Txy_sta2+(i-1)*nkl:Txy_sta2+i*nkl-1,iVec)
     end do
 
     ! Since there is no screening yet

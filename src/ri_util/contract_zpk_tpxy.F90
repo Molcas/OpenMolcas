@@ -40,9 +40,7 @@ do l=1,nAVec
           Scrt(j) = Scrt(j)+sign(One,Diag(nCumnnP+k,iDen))*Zpk(k+ip,l)*Txy(j+kp,iDen)
         end do
       end do
-      do j=1,nnP(iSym)
-        Zpk(j+ip,l) = Scrt(j)
-      end do
+      Zpk(ip+1:ip+nnP(iSym),l) = Scrt(1:nnP(iSym))
     end do
     ! Now correct for the 2 factor
     do i=1,nBas_Aux(iSym)
@@ -53,14 +51,10 @@ do l=1,nAVec
           do j=1,nAct(jSym)
             if (kSym == jSym) then
               jp = ip+nTri_Elem(j-1)
-              do k=1,j-1
-                Zpk(jp+k,l) = Zpk(jp+k,l)*Half
-              end do
+              Zpk(jp+1:jp+j-1,l) = Half*Zpk(jp+1:jp+j-1,l)
             else
               jp = ip+(j-1)*nAct(kSym)
-              do k=1,nAct(kSym)
-                Zpk(jp+k,l) = Zpk(jp+k,l)*Half
-              end do
+              Zpk(jp+1:jp+nAct(kSym),l) = Half*Zpk(jp+1:jp+nAct(kSym),l)
             end if
           end do
           if (kSym == jSym) then

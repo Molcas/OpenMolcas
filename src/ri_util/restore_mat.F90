@@ -86,8 +86,8 @@ end do
 if (Add0s) then
   do kCol=m+1,n   ! linearly dependent cols
     iAddr = n*(kCol-1)
-    call FZero(Scr,n)
-    call dDaFile(lu_A,1,Scr(1),n,iAddr)
+    Scr(1:n) = Zero
+    call dDaFile(lu_A,1,Scr,n,iAddr)
   end do
 end if
 

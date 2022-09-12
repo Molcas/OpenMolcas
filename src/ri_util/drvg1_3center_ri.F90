@@ -71,7 +71,7 @@ integer(kind=iwp), allocatable :: ij3(:,:)
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), &
-                     ii, iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, &
+                     iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, &
                      iPrem, iPren, iPrimi, iPrInc, iPrint, ipxA, ipxB, ipxD, ipxG, ipZI, iRout, iS, iS_, iSD4(0:nSD,4), ish, &
                      iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, jBasj, jBasn, jBsInc, jjQ, &
                      JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, kBask, kBasn, kBsInc, &
@@ -113,12 +113,9 @@ Twoel3_Wall = Zero
 Pget3_CPU = Zero
 Pget3_Wall = Zero
 #endif
-iFnc(1) = 0
-iFnc(2) = 0
-iFnc(3) = 0
-iFnc(4) = 0
+iFnc(:) = 0
 PMax = Zero
-call dcopy_(nGrad,[Zero],0,Temp,1)
+Temp(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -394,14 +391,15 @@ if (DoCholExch) then
 
       do KAux=1,nK
 
+        ij = 0
         do i=1,ni
           do j=1,i-1
-            ij = iTri(i,j)
+            ij = ij+1
             CVec2(i,j,KAux) = CVec(ij,KAux)
             CVec2(j,i,KAux) = CVec(ij,KAux)
           end do
-          ii = iTri(i,i)
-          CVec2(i,i,KAux) = CVec(ii,KAux)*sqrt(Two)
+          ij = ij+1
+          CVec2(i,i,KAux) = CVec(ij,KAux)*sqrt(Two)
         end do
 
       end do

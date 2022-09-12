@@ -63,7 +63,6 @@ integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iAdr_AB, iCase, iCenter, iChoVec, i
 real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all, TW0, TW1, TWall1, Twall2
 character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Out_of_Core, Skip, Verbose
-
 integer(kind=iwp), allocatable :: AB(:,:), Addr(:), iRv(:), LBList(:), NuMu(:,:), SO2C(:), TmpList(:)
 real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Local_A(:,:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:)
@@ -249,7 +248,7 @@ call xSetMem_Ints(MemSew)
 
 n3CMax = 0
 nRvMax = 0
-call IZero(iMax_R,2*nIrrep)
+iMax_R(:,0:nIrrep-1) = 0
 do klS_=1,nSkal2
   kS = iShij(1,klS_)
   lS = iShij(2,klS_)
@@ -257,10 +256,8 @@ do klS_=1,nSkal2
   nRvMax = max(nRvMax,nRv)
   n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
   n3CMax = max(n3CMax,n3C)
-  do iIrrep=0,nIrrep-1
-    iMax_R(1,iIrrep) = max(iMax_R(1,iIrrep),iOff_3C(1,iIrrep))
-    iMax_R(2,iIrrep) = iMax_R(2,iIrrep)+iOff_3C(1,iIrrep)
-  end do
+  iMax_R(1,0:nIrrep-1) = max(iMax_R(1,0:nIrrep-1),iOff_3C(1,0:nIrrep-1))
+  iMax_R(2,0:nIrrep-1) = iMax_R(2,0:nIrrep-1)+iOff_3C(1,0:nIrrep-1)
 end do
 
 call mma_allocate(Arr_3C,n3CMax,Label='Arr_3C')
@@ -324,7 +321,7 @@ kCenter = 0  ! dummy initialize
 lCenter = 0  ! dummy initialize
 iS = nSkal ! point to dummy shell
 ! Save this field for the time being!
-call ICopy(nIrrep,iTOffs(3),3,iTtmp,1)
+iTtmp(0:nIrrep-1) = iTOffs(3:3*nIrrep:3)
 
 call Init_Tsk(id,nSkal2)
 
@@ -361,7 +358,7 @@ do while (Rsv_Tsk(id,klS))
     ! go from SO index to lO index and from a given lO index
     ! back to the SO index.
 
-    call IZero(ISO2LO,2*(MaxBfn+MaxBfn_Aux))
+    ISO2LO(:,:) = 0
     iLO = 0
     nCase = 1
     if (kCenter /= lCenter) nCase = 2
@@ -392,7 +389,7 @@ do while (Rsv_Tsk(id,klS))
   Arr_3C(1:n3C) = Zero
   Rv(1:nRv) = Zero
 
-  call ICopy(nIrrep,iOff_3C,3,iTOffs(3),3)
+  iTOffs(3:3*nIrrep:3) = iOff_3C(1,0:nIrrep-1)
 
   ! Loop over the auxiliary basis set
 
@@ -441,9 +438,7 @@ do while (Rsv_Tsk(id,klS))
     ip_R = 1+iOff_Rv(iIrrep)
     nRv = iOff_3C(1,iIrrep)*nChV(iIrrep)
     !write(u6,*) 'iAddr_R(iIrrep)=',iAddr_R(iIrrep)
-    if (nRv > 0) then
-      call dDaFile(Lu_R(iIrrep),1,Rv(ip_R),nRv,iAddr_R(iIrrep))
-    end if
+    if (nRv > 0) call dDaFile(Lu_R(iIrrep),1,Rv(ip_R),nRv,iAddr_R(iIrrep))
   end do
   !                                                                    *
   !*********************************************************************
@@ -454,7 +449,7 @@ end do
 nTask = iTask
 
 ! Restore iTOffs(3,*)
-call ICopy(nIrrep,iTtmp,1,iTOffs(3),3)
+iTOffs(3:3*nIrrep:3) = iTtmp(0:nIrrep-1)
 
 call CWTime(TCpu2,TWall2)
 call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)

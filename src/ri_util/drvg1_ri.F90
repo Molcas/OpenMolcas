@@ -32,7 +32,7 @@ use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
 use RI_glob, only: DoCholExch, iMP2prpt, LuAVector, LuBVector, LuCVector, nAdens, nAvec, nJdens, nKdens, nKvec, tavec, tbvec
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -100,7 +100,7 @@ iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call FZero(Temp,nGrad)
+Temp(:) = Zero
 call mma_allocate(Tmp,nGrad,Label='Tmp')
 !                                                                      *
 !***********************************************************************
@@ -154,7 +154,7 @@ if (Cholesky .and. (.not. Do_RI)) then
   !      it is, in general, rectangular as lin. dep. may occur
   !      among its columns).
 
-  call ICopy(nIrrep,NumCho,1,nBas_Aux,1)
+  nBas_Aux(0:nIrrep-1) = NumCho(1:nIrrep)
   call GAIGOP(nBas_Aux,nIrrep,'+')
   call Gen_QVec(nIrrep,nBas_Aux)
 
@@ -214,7 +214,7 @@ if (lPSO) then
   call mma_allocate(Txy,n_Txy,nAdens,Label='Txy')
   call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
   call mma_allocate(DMtmp,nTri_Elem(nG1),Label='DMtmp')
-  call iZero(nnP,nIrrep)
+  nnP(0:nIrrep-1) = 0
   call Compute_txy(G1(1,1),nG1,Txy,n_Txy,nAdens,nIrrep,DMdiag,DMtmp,nAct)
   call mma_deallocate(DMtmp)
 else
@@ -418,9 +418,8 @@ Case_2C = .true.
 call Drvg1_2center_RI(Temp,Tmp,nGrad,ij2,nij_Eff)
 call GADGOP(Tmp,nGrad,'+')
 if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 2-center term',Tmp,nGrad,ChDisp)
-call DaXpY_(nGrad,One,Temp,1,Grad,1) ! Move any 1-el contr.
-call dcopy_(nGrad,Tmp,1,Temp,1)
-call DScal_(nGrad,-One,Temp,1)
+Grad(:) = Grad+Temp ! Move any 1-el contr.
+Temp(:) = -Tmp
 Case_2C = .false.
 !                                                                      *
 !***********************************************************************
@@ -431,7 +430,7 @@ Case_3C = .true.
 call Drvg1_3center_RI(Tmp,nGrad,ij2,nij_Eff)
 call GADGOP(Tmp,nGrad,'+')
 if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 3-center term',Tmp,nGrad,ChDisp)
-call DaXpY_(nGrad,Two,Tmp,1,Temp,1)
+Temp(:) = Temp+Two*Tmp
 Case_3C = .false.
 if (allocated(Txy)) call mma_deallocate(Txy)
 if (allocated(DMdiag)) call mma_deallocate(DMdiag)

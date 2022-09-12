@@ -20,6 +20,7 @@ use Index_Functions, only: nTri_Elem
 use ChoArr, only: iSP2F, nBstSh
 use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -41,7 +42,7 @@ call mma_maxDBLE(l_SewMem)
 ! Initialize diagonal array.
 ! --------------------------
 
-call fZero(Diag,nnBstRT(1))
+Diag(1:nnBstRT(1)) = Zero
 
 ! Parallel loop over shell pairs in first red. set.
 ! -------------------------------------------------

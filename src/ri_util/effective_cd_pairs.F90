@@ -36,9 +36,7 @@ do iCnttp=1,nCnttp
   if (.not. dbsc(iCnttp)%Aux) then
     do iAng=0,dbsc(iCnttp)%nVal-1
       iShll = dbsc(iCnttp)%iVal+iAng
-      if (.not. Shells(iShll)%Aux) then
-        nSkal_Valence = nSkal_Valence+dbsc(iCnttp)%nCntr
-      end if
+      if (.not. Shells(iShll)%Aux) nSkal_Valence = nSkal_Valence+dbsc(iCnttp)%nCntr
     end do
   end if
 end do

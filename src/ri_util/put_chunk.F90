@@ -43,7 +43,7 @@ if (NumVec_ > 0) then
     mMuNu = MuNu_s-1
     jp_ChoVec = 1+mMuNu
     do jVec=1,NumVec_
-      call dcopy_(nMuNu,Rv(1,jVec),1,Chunk(jp_ChoVec),1)
+      Chunk(jp_ChoVec:jp_ChoVec+nMuNu-1) = Rv(:,jVec)
       jp_ChoVec = jp_ChoVec+LenVec
     end do
 #ifdef _MOLCAS_MPP_

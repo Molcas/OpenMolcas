@@ -30,8 +30,8 @@ integer(kind=iwp), optional :: ipUk(nProc)
 #include "etwas.fh"
 #include "chotime.fh"
 integer(kind=iwp) :: i, iADens, iAvec, iBas, iCount, iIrrep, ij, iOff, iOff2, iOffDSQ, ipTxy(0:7,0:7,2), irc, irun, iSO, isym, j, &
-                     jBas, jCount, jIrrep, jp_U_k, jp_V_k, jp_Z_p_k, jrun, k, kIrrep, kOff1, l, mAO, MemMax, NChVMx, nIOrb(0:7), &
-                     nnAorb, nQMax, nQv, nQvMax, nSA, nU_l(0:7), nU_ls, nU_t(0:7), nV_l(0:7), nV_ls, nV_t(0:7)
+                     jCount, jIrrep, jp_U_k, jp_V_k, jp_Z_p_k, jrun, k, kIrrep, kOff1, l, mAO, MemMax, NChVMx, nIOrb(0:7), nnAorb, &
+                     nQMax, nQv, nQvMax, nSA, nU_l(0:7), nU_ls, nU_t(0:7), nV_l(0:7), nV_ls, nV_t(0:7)
 real(kind=wp) :: Cho_thrs, tmp
 logical(kind=iwp) :: DoCAS, DoExchange, Estimate, Update
 character(len=8) :: Method
@@ -43,11 +43,11 @@ real(kind=wp), allocatable :: Qv(:), Scr(:), TmpD(:), Zv(:)
 !                                                                      *
 DoExchange = Exfac /= Zero
 
+nV_l(0:nIrrep-1) = NumCho(1:nIrrep) ! local # of vecs in parallel run
+nV_t(0:nIrrep-1) = NumCho(1:nIrrep)
 nV_ls = 0
 do i=0,nIrrep-1
-  nV_l(i) = NumCho(i+1) ! local # of vecs in parallel run
   nV_ls = nV_ls+nV_l(i)
-  nV_t(i) = nV_l(i)
 end do
 call GAIGOP(nV_t,nIrrep,'+') ! total # of vecs
 if (nV_t(0) == 0) then
@@ -60,11 +60,11 @@ if (iMp2prpt == 2) then
     write(u6,*) 'No ipUk input present!'
     call Abend()
   end if
+  nU_l(0:nIrrep-1) = NumCho(1:nIrrep) ! local # of vecs in parallel run
+  nU_t(0:nIrrep-1) = NumCho(1:nIrrep)
   nU_ls = 0
   do i=0,nIrrep-1
-    nU_l(i) = NumCho(i+1) ! local # of vecs in parallel run
     nU_ls = nU_ls+nU_l(i)
-    nU_t(i) = nU_l(i)
   end do
   call GAIGOP(nU_t,nIrrep,'+') ! total # of vecs
   if (nU_t(0) == 0) then
@@ -78,9 +78,8 @@ nQMax = 0
 do i=0,nIrrep-1
   NChVMx = max(NChVMx,nV_t(i))
   nQMax = max(nQMax,nBas_Aux(i))
-  nChOrb(i,1) = 0
-  nChOrb(i,2) = 0
 end do
+nChOrb(0:nIrrep-1,1:2) = 0
 nQvMax = nQMax*NChVMx
 call mma_allocate(Scr,nQMax)
 
@@ -114,15 +113,12 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
       end do
       ! Refold some density matrices
       do iIrrep=0,nIrrep-1
-        ij = 0
-        do iBas=1,nBas(iIrrep)
-          do jBas=1,iBas-1
-            ij = ij+1
-            DMLT(1)%SB(iIrrep+1)%A1(ij) = Two*DMLT(1)%SB(iIrrep+1)%A1(ij)
-            DMLT(3)%SB(iIrrep+1)%A1(ij) = Two*DMLT(3)%SB(iIrrep+1)%A1(ij)
-            DMLT(5)%SB(iIrrep+1)%A1(ij) = Two*DMLT(5)%SB(iIrrep+1)%A1(ij)
-          end do
-          ij = ij+1
+        ij = 1
+        do iBas=2,nBas(iIrrep)
+          DMLT(1)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(1)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+          DMLT(3)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(3)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+          DMLT(5)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(5)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+          ij = ij+iBas
         end do
       end do
     else
@@ -138,9 +134,8 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
     call Allocate_DT(DMLT(2),nBas,nBas,nSym,aCase='TRI')
     ! spin-density matrix
     call Get_D1SAO_Var(DMLT(2)%A0,nDens)
-    call daxpy_(nDens,-One,DMLT(1)%A0,1,DMLT(2)%A0,1)
-    call dscal_(nDens,-Half,DMLT(2)%A0,1) ! beta DMAT
-    call daxpy_(nDens,-One,DMLT(2)%A0,1,DMLT(1)%A0,1) ! alpha DMAT
+    DMLT(2)%A0(:) = Half*(DMLT(1)%A0-DMLT(2)%A0) ! beta DMAT
+    DMLT(1)%A0(:) = DMLT(1)%A0-DMLT(2)%A0 ! alpha DMAT
   else if ((nKdens > 4) .or. (nKdens < 1)) then
     call WarningMessage(2,'Compute_AuxVec: invalid nKdens!!')
     call Abend()
@@ -148,7 +143,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
   if (iMp2prpt == 2) then
     call Allocate_DT(DLT2,nBas,nBas,nSym,aCase='TRI')
     call Get_D1AO_Var(DLT2%A0,nDens)
-    call daxpy_(nDens,-One,DMLT(1)%A0,1,DLT2%A0,1)
+    DLT2%A0(:) = DLT2%A0-DMLT(1)%A0
   else
   end if
   !*********************************************************************
@@ -180,9 +175,9 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
     do j=1,nKvec
       if (lSA) then
         if (j == 1) then
-          call dcopy_(nDens,DMLT(1)%A0,1,TmpD,1)
+          TmpD(:) = DMLT(1)%A0
         else if (j == 2) then
-          call dcopy_(nDens,DMLT(3)%A0,1,TmpD,1)
+          TmpD(:) = DMLT(3)%A0
         end if
         call UnFold(TmpD,nDens,DSQ%A0,size(DSQ%A0),nIrrep,nBas)
       else
@@ -209,9 +204,9 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
         ! Get the appropriate density matrix
 
         if (i == 3) then
-          call dcopy_(nDens,DMLT(2)%A0,1,TmpD,1)
+          TmpD(:) = DMLT(2)%A0
         else if (i == 4) then
-          call dcopy_(nDens,DMLT(4)%A0,1,TmpD,1)
+          TmpD(:) = DMLT(4)%A0
         end if
 
         ! And eigenvalue-decompose it
@@ -249,9 +244,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
             if (TmpD(iOffDSQ+nTri_Elem(j)) > Cho_thrs) then
               l = l+1
               tmp = sqrt(TmpD(iOffDSQ+nTri_Elem(j)))
-              do k=1,nBas(isym)
-                ChM(i)%SB(iSym+1)%A2(k,l) = ChM(i)%SB(iSym+1)%A2(k,j)*tmp
-              end do
+              ChM(i)%SB(iSym+1)%A2(:,l) = tmp*ChM(i)%SB(iSym+1)%A2(:,j)
             end if
           end do
           npos(isym,i-2) = l
@@ -262,9 +255,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
               irun = (l-1)*nBas(isym)
               jrun = (j-1)*nBas(isym)
               tmp = sqrt(-TmpD(iOffDSQ+nTri_Elem(j)))
-              do k=1,nBas(isym)
-                ChM(i)%SB(iSym+1)%A2(k,l) = ChM(i)%SB(iSym+1)%A2(k,j)*tmp
-              end do
+              ChM(i)%SB(iSym+1)%A2(:,l) = tmp*ChM(i)%SB(iSym+1)%A2(:,j)
             end if
           end do
           nChOrb(isym,i) = l
@@ -277,14 +268,11 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
       ! Refold the other DM
 
       do iIrrep=0,nIrrep-1
-        ij = 0
-        do iBas=1,nBas(iIrrep)
-          do jBas=1,iBas-1
-            ij = ij+1
-            DMLT(2)%SB(iIrrep+1)%A1(ij) = Two*DMLT(2)%SB(iIrrep+1)%A1(ij)
-            DMLT(4)%SB(iIrrep+1)%A1(ij) = Two*DMLT(4)%SB(iIrrep+1)%A1(ij)
-          end do
-          ij = ij+1
+        ij = 1
+        do iBas=2,nBas(iIrrep)
+           DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+           DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+           ij = ij+iBas
         end do
       end do
     end if
@@ -348,9 +336,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
 
   end do ! iIrrep
 
-  if (nKdens == 2) then ! for Coulomb term
-    call daxpy_(nDens,One,DMLT(2)%A0,1,DMLT(1)%A0,1)
-  end if
+  if (nKdens == 2) DMLT(1)%A0(:) = DMLT(1)%A0+DMLT(2)%A0 ! for Coulomb term
 
   ! Add the density of the environment in a OFE calculation (Coulomb)
 
@@ -406,16 +392,16 @@ call mma_allocate(Qv,nQv,Label='Qv')
 
 ! Coulomb
 
-do i=0,nJdens-1
-  call Mult_Vk_Qv_s(V_k(ipVk(1),1+i),nV_t(0),Qv,nQv,Scr,nQMax,nBas_Aux,nV_t(0),nIrrep,'T')
-  call dcopy_(nV_k,Scr,1,V_k(ipVk(1),1+i),1)
+do i=1,nJdens
+  call Mult_Vk_Qv_s(V_k(ipVk(1),i),nV_t(0),Qv,nQv,Scr,nQMax,nBas_Aux,nV_t(0),nIrrep,'T')
+  V_k(ipVk(1):ipVk(1)+nV_k-1,i) = Scr(1:nV_k)
 end do
 
 ! MP2
 
 if (iMp2prpt == 2) then
   call Mult_Vk_Qv_s(U_k(ipUk(1)),nU_t(0),Qv,nQv,Scr,nQMax,nBas_Aux,nU_t(0),nIrrep,'T')
-  call dcopy_(nV_k,Scr,1,U_k(ipUk(1)),1)
+  U_k(ipUk(1):ipUk(1)+nV_k-1) = Scr(1:nV_k)
 end if
 
 ! Active term
@@ -429,7 +415,7 @@ if (DoCAS) then ! reorder Zp_k
 
     call Mult_Zp_Qv_s(Z_p_k(ipZpk(1),iAvec),nZ_p_k,Qv,nQv,Zv,nZ_p_k,nV_t,nnP,nBas_Aux,nIrrep,'T')
 
-    call dcopy_(nZ_p_k,Zv,1,Z_p_k(ipZpk(1),iAvec),1)
+    Z_p_k(ipZpk(1):ipZpk(1)+nZ_p_k-1,iAvec) = Zv
   end do
   call mma_deallocate(Zv)
 end if

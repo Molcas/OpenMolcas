@@ -44,7 +44,7 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCase, iCmp, iDisk, ij, ijF, ijS, ijS_r
 real(kind=wp) :: Thr_CB, ThrAO
 logical(kind=iwp) :: In_Core
 integer(kind=iwp), allocatable :: iADiag(:)
-real(kind=wp), allocatable :: ADiag(:), Not_Used(:), QVec(:), TInt_c(:), TInt_d(:), Tmp(:)
+real(kind=wp), allocatable :: ADiag(:), Not_Used(:), QVec(:,:), TInt_c(:), TInt_d(:), Tmp(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 external :: Integral_RI_2
 interface
@@ -203,9 +203,9 @@ do iAng=0,nTest
 
   ! Transform the contraction coefficients according to the Cholesky vectors.
 
-  call mma_allocate(Tmp,nBasisi*nExpi,Label='Tmp')
-  call mma_allocate(QVec,nBasisi**2,Label='QVec')
-  QVec(:) = Zero
+  call mma_allocate(Tmp,nExpi,nBasisi,Label='Tmp')
+  call mma_allocate(QVec,nBasisi,nBasisi,Label='QVec')
+  QVec(:,:) = Zero
 
   iDisk = 0
   call dDaFile(Lu_Q,2,QVec,nBasisi*m,iDisk)
@@ -215,13 +215,13 @@ do iAng=0,nTest
 # endif
 
   do iCase=1,2
-    call dcopy_(nExpi*nBasisi,Shells(iShll)%Cff_c(1,1,iCase),1,Tmp,1)
+    Tmp(:,:) = Shells(iShll)%Cff_c(:,:,iCase)
 #   ifdef _DEBUGPRINT_
-    call RecPrt('Coeff(old)',' ',Shells(iShll)%Cff_c(1,1,iCase),nExpi,nBasisi)
+    call RecPrt('Coeff(old)',' ',Shells(iShll)%Cff_c(:,:,iCase),nExpi,nBasisi)
 #   endif
-    call DGEMM_('N','N',nExpi,nBasisi,nBasisi,One,Tmp,nExpi,QVec,nBasisi,Zero,Shells(iShll)%Cff_c(1,1,iCase),nExpi)
+    call DGEMM_('N','N',nExpi,nBasisi,nBasisi,One,Tmp,nExpi,QVec,nBasisi,Zero,Shells(iShll)%Cff_c(:,:,iCase),nExpi)
 #   ifdef _DEBUGPRINT_
-    call RecPrt('Coeff(new)',' ',Shells(iShll)%Cff_c(1,1,iCase),nExpi,nBasisi)
+    call RecPrt('Coeff(new)',' ',Shells(iShll)%Cff_c(:,:,iCase),nExpi,nBasisi)
 #   endif
   end do
 

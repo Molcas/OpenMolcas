@@ -19,6 +19,7 @@ subroutine Mult_Zp_Qv_s(Zp,nZp,Qv,nQv,Rv,n_Rv,nVec,nMuNu,nI,nIrrep,QMode)
 !                                                                      *
 !***********************************************************************
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -35,7 +36,7 @@ integer(kind=iwp), external :: IsFreeUnit
 lstepA = 0
 lstepR = 1
 if (Qmode == 'T') then
-  call FZero(Rv,n_Rv)
+  Rv(:) = Zero
   lstepA = 1
   lstepR = 0
 end if

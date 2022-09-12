@@ -17,21 +17,17 @@ implicit none
 integer(kind=iwp) :: nPrim, nCntrc
 real(kind=wp) :: Coeff_c(nPrim,nCntrc), Coeff_p(nPrim,nPrim)
 character :: Mode
-integer(kind=iwp) :: iC, iP
+integer(kind=iwp) :: iP
 
 ! Put in the normalization constant for the product basis function.
 
 if (Mode == 'F') then
-  do iC=1,nCntrc
-    do iP=1,nPrim
-      Coeff_c(iP,iC) = Coeff_c(iP,iC)/Coeff_p(iP,iP)
-    end do
+  do iP=1,nPrim
+    Coeff_c(iP,:) = Coeff_c(iP,:)/Coeff_p(iP,iP)
   end do
 else
-  do iC=1,nCntrc
-    do iP=1,nPrim
-      Coeff_c(iP,iC) = Coeff_c(iP,iC)*Coeff_p(iP,iP)
-    end do
+  do iP=1,nPrim
+    Coeff_c(iP,:) = Coeff_c(iP,:)*Coeff_p(iP,iP)
   end do
 end if
 

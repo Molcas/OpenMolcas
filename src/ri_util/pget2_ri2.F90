@@ -59,7 +59,7 @@ call CWTime(Cpu1,Wall1)
 PMax = Zero
 iSO = 1
 
-call FZero(PSO,nijkl*nPSO)
+PSO(:,:) = Zero
 
 if (lPSO) then
   CumnnP(0) = 0

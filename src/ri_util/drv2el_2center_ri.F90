@@ -47,8 +47,8 @@ integer(kind=iwp) :: nSO_Aux, MaxCntr
 integer(kind=iwp), allocatable :: SO2C(:)
 #include "setup.fh"
 #include "iTOffs.fh"
-integer(kind=iwp) :: i, iAddr, iAddr_AQ(0:7), iCenter, iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, iSh, jS, kCol, kCol_Irrep(0:7), kS, &
-                     lJ, lS, mB, MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
+integer(kind=iwp) :: i, iAddr, iAddr_AQ(0:7), iCenter, iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, &
+                     lS, mB, MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
 real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Verbose
 character(len=6) :: Name_Q
@@ -89,8 +89,7 @@ if (LDF) then
   call mma_allocate(SO2C,nSO_Aux,Label='SO2C')
   MaxCntr = 0
   do i=1,nSO_Aux
-    iSh = iSO2Sh(i)
-    iCenter = iSD(10,iSh)
+    iCenter = iSD(10,iSO2Sh(i))
     MaxCntr = max(MaxCntr,iCenter)
     SO2C(i) = iCenter
   end do

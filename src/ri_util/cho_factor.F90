@@ -93,7 +93,7 @@ if (kCol <= nMem) then
     do j=1,kCol-1
 
       fac = -Zm(iD_A(kCol),j)
-      call dAXPY_(nRow,fac,Zm(1,j),1,A_k(1),1)
+      A_k(1:nRow) = A_k(1:nRow)+fac*Zm(:,j)
 
     end do
 
@@ -103,7 +103,7 @@ if (kCol <= nMem) then
   else if (Dmax > thr_neg) then
 
     lindep = 1
-    call Fzero(A_k(1),nRow)
+    A_k(1:nRow) = Zero
     return
 
   else
@@ -137,7 +137,7 @@ else  ! the first nMem columns of Z are in memory
     do j=1,nMem
 
       fac = -Zm(iD_A(kCol),j)
-      call dAXPY_(nRow,fac,Zm(1,j),1,A_k(1),1)
+      A_k(1:nRow) = A_k(1:nRow)+fac*Zm(:,j)
 
     end do
 
@@ -160,7 +160,7 @@ else  ! the first nMem columns of Z are in memory
       do j=1,lZread/nRow
         kj = nRow*(j-1)
         fac = -Scr(kj+iD_A(kCol))
-        call dAXPY_(nRow,fac,Scr(1+kj),1,A_k(1),1)
+        A_k(1:nRow) = A_k(1:nRow)+fac*Scr(kj+1:kj+nRow)
       end do
 
     end do
@@ -171,7 +171,7 @@ else  ! the first nMem columns of Z are in memory
   else if (Dmax > thr_neg) then
 
     lindep = 1
-    call Fzero(A_k(1),nRow)
+    A_k(1:nRow) = Zero
     return
 
   else
@@ -189,8 +189,8 @@ A_k(iD_A(kCol)) = Dmax
 
 ! Scaling of the vector elements :  Z(i,k) = Z(i,k)/Z(k,k)
 ! --------------------------------------------------------
-call dscal_(nRow,xfac,A_k(1),1)
-!
+A_k(1:nRow) = xfac*A_k(1:nRow)
+
 !  Explicit zeroing of the previously treated elements
 ! ----------------------------------------------------
 do i=1,kCol-1
@@ -201,9 +201,7 @@ end do
 !------------------------------------------
 !   A(i,i) = A(i,i) - Z(i,k)^2    ( i > k )
 !------------------------------------------
-do i=1,nRow
-  Diag(i) = Diag(i)-A_k(i)**2
-end do
+Diag(1:nRow) = Diag(1:nRow)-A_k(1:nRow)**2
 Diag(iD_A(kCol)) = zero ! explicit zeroing of the treated diagonal
 
 !-tbp: zero negative diagonal elements

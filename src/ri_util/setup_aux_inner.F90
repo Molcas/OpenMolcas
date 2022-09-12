@@ -63,8 +63,8 @@ end do
 !
 ! Initialize
 
-call ICopy(3*nIrrep,[0],0,iTOffs,1)
-call iCopy(nij_Shell*nIrrep**2,[0],0,iSSOff,1)
+iTOffs(:,:) = 0
+iSSOff(:,:,:) = 0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -76,7 +76,7 @@ call iCopy(nij_Shell*nIrrep**2,[0],0,iSSOff,1)
 do ijShell=1,nij_Shell
   iShell = iShij(1,ijShell)
   jShell = iShij(2,ijShell)
-  call ICopy(nIrrep,[0],0,iTtmp,1)
+  iTtmp(0:nIrrep-1) = 0
   !                                                                    *
   !*********************************************************************
   !                                                                    *

@@ -68,9 +68,7 @@ call Cho_Allo_iScr(DoDummy)
 ! ---------------------------------------------------------------
 
 do i=1,MaxRed
-  do iSym=1,nSym
-    nDimRS(iSym,i) = nnBstR(iSym,1)
-  end do
+  nDimRS(1:nSym,i) = nnBstR(1:nSym,1)
 end do
 
 ! Allocate and set mapping array from 1st reduced set to full storage.
@@ -82,7 +80,7 @@ call mma_allocate(iRS2F,2,nnBstRT(1),Label='iRS2F')
 ! iiBstRSh, nnBstRSh, IndRed, IndRSh, and iRS2F.
 ! -----------------------------------------------
 
-call SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,nSym,nnShl,nnBstRT(1),3,2,iShij,nShij)
+call SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,nSym,nnShl,nnBstRT(1),iShij,nShij)
 
 return
 

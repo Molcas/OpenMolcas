@@ -696,7 +696,7 @@ do jSym=1,nSym
           !*************************************************************
           if (Estimate) then
 
-            call Fzero(Diag(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
+            Diag(iiBstR(jSym,1)+1:iiBstR(jSym,1)+NNBSTR(jSym,1)) = Zero
 
             do krs=1,nRS
 
@@ -820,9 +820,7 @@ do jSym=1,nSym
                   ! Setup the screening
                   !-----------------------------------------------------
 
-                  do ik=1,nBas(kSym)
-                    AbsC(ik) = abs(MSQ(iMOleft)%SB(kSym)%A2(ik,jK))
-                  end do
+                  AbsC(1:nBas(kSym)) = abs(MSQ(iMOleft)%SB(kSym)%A2(:,jK))
 
                   if (lSym >= kSym) then
 
@@ -858,9 +856,7 @@ do jSym=1,nSym
                   nQo = 0
                   do i=iStart,nChOrb_(lSym,iMOright)
 
-                    do ik=1,nBas(lSym)
-                      AbsC(ik) = abs(MSQ(iMOright)%SB(lSym)%A2(ik,i))
-                    end do
+                    AbsC(1:nBas(lSym)) = abs(MSQ(iMOright)%SB(lSym)%A2(:,i))
 
                     pYik(i,jK_a) = ddot_(nBas(lSym),AbsC,1,Ylk,1)
 
@@ -1378,8 +1374,9 @@ do jSym=1,nSym
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par() .and. Update .and. DoScreen) then
         call GaDsum(DiagJ,nnBSTR(JSYM,1))
-        call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
-        call Fzero(DiagJ,nnBSTR(JSYM,1))
+        Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+nnBstR(JSYM,1)) = Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+nnBstR(JSYM,1))- &
+                                                               DiagJ(1:nnBSTR(JSYM,1))
+        DiagJ(1:nnBSTR(JSYM,1)) = Zero
       end if
       ! Need to activate the screening to setup the contributing shell
       ! indices the first time the loop is entered .OR. whenever other nodes

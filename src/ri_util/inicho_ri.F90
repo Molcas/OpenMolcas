@@ -135,13 +135,11 @@ call Cho_Init(Skip_PreScreen,Alloc_Bkm)
 ! basis functions.
 ! ------------------------------------------------------------------
 
-do iSym=1,nSym
-  NumCho(iSym) = nVec_Aux(iSym-1)
-end do
+NumCho(1:nSym) = nVec_Aux(0:nSym-1)
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
-  call iCopy(nSym,NumCho,1,NumCho_G,1)
-  call iZero(myNumCho,nSym)
+  NumCho_g(1:nSym) = NumCho(1:nSym)
+  myNumCho(1:nSym) = 0
 end if
 #endif
 

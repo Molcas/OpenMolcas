@@ -47,7 +47,7 @@ do iSym=1,jSym
 
     ifr = ip_V_k(myProc)+jOff+nA(iSym)*(ik-1)
     ito = 1+kOff+nA(iSym)*(InfVec(ik,5,iSym)-1)
-    call dcopy_(nA(iSym),Array(ifr),1,Scr(ito),1)
+    Scr(ito:ito+nA(iSym)-1) = Array(ifr:ifr+nA(iSym)-1)
 
   end do
   jOff = jOff+nA(iSym)*nV_k(iSym)
@@ -55,7 +55,7 @@ do iSym=1,jSym
 end do
 
 ! Copy Scr => Array
-call dcopy_(nAV_t,Scr,1,Array(ip_V_k(1)),1)
+Array(ip_V_k(1):ip_V_k(1)+nAV_t-1) = Scr(1:nAV_t)
 
 ! Make a global add to get the contributions from all nodes.
 

@@ -54,9 +54,7 @@ integer(kind=iwp), external :: IsFreeUnit
 
 call CWTime(TotCPU1,TotWall1)
 
-do i=1,nIrrep
-  nVec(i) = NumCho(i)
-end do
+nVec(1:nIrrep) = NumCho(1:nIrrep)
 call GAIGOP(nVec,nIrrep,'+')
 
 nTotCho = 0
@@ -66,10 +64,8 @@ do jSym=1,nIrrep
   nTotCho = nTotCho+nVec(jSym)
   MaxCho = max(MaxCho,nVec(jSym))
   MaxLocCho = max(MaxLocCho,NumCho(jSym))
-  do iSym=1,nIrrep
-    iAdrCVec(jSym,iSym,iSO) = 0
-  end do
 end do
+iAdrCVec(1:nIrrep,1:nIrrep,iSO) = 0
 
 ! Loop over the first cholesky symmetry
 

@@ -59,7 +59,7 @@ Shells(iShll)%nExp = nPrim
 Shells(iShll)%nBasis = nCntrc
 Shells(iShll)%nBasis_c = nCntrc
 ! Exponent
-Shells(iShll)%exp(1) = Zero
+Shells(iShll)%Exp(1) = Zero
 ! Coefficients
 call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,Label='Cff_c')
 call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,Label='pCff')

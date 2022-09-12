@@ -125,7 +125,7 @@ do i1=1,iCmp(1)
                   ! all irreps are different and the 2nd order density
                   ! matrix will be identical to zero for a SCF type wave
                   ! function.
-                  call dcopy_(nijkl,[Zero],0,PSO(1,MemSO2),1)
+                  PSO(:,MemSO2) = Zero
                   exit
                 end if
 

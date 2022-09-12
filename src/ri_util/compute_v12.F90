@@ -26,7 +26,7 @@ real(kind=wp), allocatable :: Vec(:,:), VTri(:)
 call mma_allocate(Vec,nDim,nDim,Label='Vec')
 call mma_allocate(VTri,nTri_Elem(nDim),Label='VTri')
 
-call FZero(Vec,nDim**2)
+Vec(:,:) = Zero
 call dcopy_(nDim,[One],0,Vec,nDim+1)
 
 do i=1,nDim
@@ -37,7 +37,7 @@ end do
 
 call JACOB(VTri,Vec,nDim,nDim)
 
-call FZero(V12,nDim**2)
+V12(:,:)= Zero
 do i=1,nDim
 # ifdef _DEBUGPRINT_
   tmp = VTri(iTri(i,i))

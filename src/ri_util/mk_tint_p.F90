@@ -12,6 +12,7 @@
 subroutine Mk_TInt_P(TInt_p,nTInt_p,TP,nTP,List2_p,nList2_p,mData,iAng,jAng,npk,List_TP)
 
 use Index_Functions, only: nTri_Elem
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,7 +22,7 @@ integer(kind=iwp) :: iA, iList2_p, iTP, jA, jList2_p, jTP, k, kAng, kComp, l, lA
 
 iA = iAng+1
 jA = jAng+1
-call FZero(TP,nTP**2)
+TP(:,:) = Zero
 do iList2_p=1,nList2_p
   kAng = List2_p(1,iList2_p)
   lAng = List2_p(2,iList2_p)

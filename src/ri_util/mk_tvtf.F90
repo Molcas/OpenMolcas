@@ -12,6 +12,7 @@
 subroutine Mk_tVtF(TInt,nTheta_All,tVtF,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,Indkl,nkl,nTheta_Full)
 
 use Index_Functions, only: nTri_Elem
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -24,7 +25,7 @@ integer(kind=iwp) :: iA, ik, il, iTheta, iTheta_All, iTheta_Full, jA, jk, jl, jT
 call RecPrt('TInt',' ',TInt,nTheta_all,nTheta_all)
 call iVcPrt('Indkl',' ',Indkl,nkl)
 #endif
-call FZero(tVtF,nTheta*nTheta_Full)
+tVtF(:,:) = Zero
 iA = iAng+1
 jA = jAng+1
 do iTheta_All=1,nTheta_All

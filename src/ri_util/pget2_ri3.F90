@@ -76,7 +76,7 @@ Fac = Quart
 lOper = 1
 PMax = Zero
 iSO = 1
-call FZero(PSO,nijkl*nPSO)
+PSO(:,:) = Zero
 
 if (lPSO) then
   nCumnnP(0) = 0
@@ -283,7 +283,7 @@ do i2=1,iCmp(2)
             ! Active term (CASSCF and SA-CASSCF)
 
             if (lPSO) then
-              call dzero(Thpkl,jBas*kBas*lBas)
+              Thpkl(1:jBas*kBas*lBas) = Zero
               if (nAct(j3)*nAct(j4) /= 0) then
                 do iVec=1,nAVec
                   iMO1 = 1

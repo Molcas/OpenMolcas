@@ -129,7 +129,7 @@ if (kCol <= nMem) then
   ! and divide the blocks over the processes, using either DTPMV or DGEMV
   ! on the blocks (depending if it is a diagonal or off-diagonal block).
 
-  call FZero(Q_k,kCol-1)
+  Q_k(1:kCol-1) = Zero
 # ifdef _MOLCAS_MPP_
   if (is_real_par() .and. (kCol >= 500)) then
     ! SVC: the best way would probably be to chop up the triangular matrix
@@ -138,15 +138,15 @@ if (kCol <= nMem) then
     ! triangular matrix, this should be sufficient (for now).
     do J=1+MYRANK,KCOL-1,NPROCS
       IJ = iTri(J,1)
-      call DAXPY_(J,-Z(J),Qm(IJ),1,Q_k,1)
+      Q_k(1:J) = Q_k(1:J)-Z(J)*Qm(IJ:IJ+J-1)
     end do
     call GAdGOp(Q_k,kCol-1,'+')
   else
-    call DAXPY_(kCol-1,-One,Z,1,Q_k,1)
+    Q_k(1:kCol-1) = Q_k(1:kCol-1)-Z(1:kCol-1)
     call DTPMV('U','N','N',kCol-1,Qm,Q_k,1)
   end if
 # else
-  call DAXPY_(kCol-1,-One,Z,1,Q_k,1)
+  Q_k(1:kCol-1) = Q_k(1:kCol-1)-Z(1:kCol-1)
   call DTPMV('U','N','N',kCol-1,Qm,Q_k,1)
 # endif
   Q_k(kCol) = one
@@ -154,7 +154,7 @@ if (kCol <= nMem) then
   ! Normalize k-th vector :   ||Q_k|| = Q_k^T * A * Q_k
   ! ---------------------------------------------------
 
-  call dscal_(kCol-1,two,A_k(1),1) ! packing of A_k
+  A_k(1:kCol-1) = Two*A_k(1:kCol-1) ! packing of A_k
 
   Z(kCol) = ddot_(kCol,A_k(1),1,Q_k(1),1) !contrib fr k-th col of A
 
@@ -169,14 +169,14 @@ if (kCol <= nMem) then
   if (xnorm >= thr) then
 
     xnorm = one/sqrt(xnorm)
-    call dscal_(kCol,xnorm,Q_k(1),1)
+    Q_k(1:kCol) = xnorm*Q_k(1:kCol)
 
     !-tbp: use fixed criterion for too negative diagonal
     !else if ((xnorm > zero) .or. (-xnorm <= Ten*thr)) then
   else if (xnorm > thr_neg) then
 
     lindep = 1
-    call Fzero(Q_k(1),kCol)
+    Q_k(1:kCol) = Zero
 
   else
 
@@ -201,7 +201,7 @@ else   ! the first nMem columns of Q are in memory
     call Quit(_RC_CHO_LOG_)
   end if
 
-  call FZero(X(1),kCol-1)
+  X(1:kCol-1) = Zero
 
   ! Compute scalar product of A_k with in-core previous vectors
   ! -----------------------------------------------------------
@@ -267,7 +267,7 @@ else   ! the first nMem columns of Q are in memory
   ! Normalize k-th vector :   ||Q_k|| = Q_k^T * A * Q_k
   ! ---------------------------------------------------
 
-  call dscal_(kCol-1,two,A_k(1),1) ! packing of A_k
+  A_k(1:kCol-1) = Two*A_k(1:kCol-1) ! packing of A_k
 
   Z(kCol) = ddot_(kCol,A_k(1),1,Q_k(1),1) !contrib fr k-th col of A
 
@@ -311,14 +311,14 @@ else   ! the first nMem columns of Q are in memory
   if (xnorm >= thr) then
 
     xnorm = one/sqrt(xnorm)
-    call dscal_(kCol,xnorm,Q_k(1),1)
+    Q_k(1:kCol) = xnorm*Q_k(1:kCol)
 
     !-tbp: use fixed criterion for too negative diagonal
     !else if ((xnorm > zero) .or. (-xnorm <= Ten*thr)) then
   else if (xnorm > thr_neg) then
 
     lindep = 1
-    call Fzero(Q_k(1),kCol)
+    Q_k(1:kCol) = Zero
 
   else
 

@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,I_nSym,I_nnShl,I_mmBstRT,I_3,I_2,iShij,nShij)
+subroutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,I_nSym,I_nnShl,I_mmBstRT,iShij,nShij)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
@@ -19,8 +19,8 @@ use ChoArr, only: iSP2F, iBasSh, nBasSh, nBstSh
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: I_nSym, I_nnShl, I_3, iiBstRSh(I_nSym,I_nnShl,I_3), nnBstRSh(I_nSym,I_nnShl,I_3), I_mmBstRT, &
-                     IndRed(I_mmBstRT,I_3), IndRsh(I_mmBstRT), I_2, iRS2F(I_2,I_mmBstRT), nShij, iShij(2,nShij)
+integer(kind=iwp) :: I_nSym, I_nnShl, iiBstRSh(I_nSym,I_nnShl,3), nnBstRSh(I_nSym,I_nnShl,3), I_mmBstRT, IndRed(I_mmBstRT,3), &
+                     IndRsh(I_mmBstRT), iRS2F(2,I_mmBstRT), nShij, iShij(2,nShij)
 #include "cholesky.fh"
 integer(kind=iwp) :: i, ia, iaa, iab, ib, ibb, iCount, iRS(8), iSh_ij, iShla, iShlab, iShlb, iSym, iSyma, iSymb, jRS, jRS1, jRS2, &
                      nErr
@@ -34,8 +34,8 @@ integer(kind=iwp), external :: Cho_iSAOSh
 !                jRS of first reduced set.
 ! ------------------------------------------------------------------
 
-call iCopy(nSym*nnShl,[0],0,nnBstRSh(1,1,1),1)
-call iCopy(nSym,iiBstR(1,1),1,iRS,1)
+nnBstRSh(:,:,1) = 0
+iRS(1:nSym) = iiBstR(1:nSym,1)
 do iSh_ij=1,nShij
   iShla = iShij(1,iSh_ij)
   iShlb = iShij(2,iSh_ij)
@@ -101,9 +101,7 @@ if (nErr /= 0) then
   call SysAbendMsg('SetChoIndx_RI','Setup error','iCount vs. nnBstR')
 end if
 do iSym=1,nSym
-  if ((iRS(iSym)-iiBstR(iSym,1)) /= nnBstR(iSym,1)) then
-    nErr = nErr+1
-  end if
+  if ((iRS(iSym)-iiBstR(iSym,1)) /= nnBstR(iSym,1)) nErr = nErr+1
 end do
 if (nErr /= 0) then
   call SysAbendMsg('SetChoIndx_RI','Setup error','ShP RS1 count')
@@ -129,9 +127,7 @@ do iSym=1,nSym
     jRS1 = iiBstR(iSym,1)+iiBstRSh(iSym,iSh_ij,1)+1
     jRS2 = jRS1+nnBstRSh(iSym,iSh_ij,1)-1
     do jRS=jRS1,jRS2
-      if (IndRSh(jRS) /= iSP2F(iSh_ij)) then
-        nErr = nErr+1
-      end if
+      if (IndRSh(jRS) /= iSP2F(iSh_ij)) nErr = nErr+1
     end do
   end do
 end do
@@ -147,8 +143,8 @@ do i=2,3
   do jRS=1,nnBstRT(1)
     IndRed(jRS,i) = jRS
   end do
-  call iCopy(nSym*nnShl,iiBstRSh(1,1,1),1,iiBstRSh(1,1,i),1)
-  call iCopy(nSym*nnShl,nnBstRSh(1,1,1),1,nnBstRSh(1,1,i),1)
+  iiBstRSh(:,:,i) = iiBstRSh(:,:,1)
+  nnBstRSh(:,:,i) = nnBstRSh(:,:,1)
 end do
 
 call Cho_RStoF(iRS2F,2,nnBstRT(1),1)

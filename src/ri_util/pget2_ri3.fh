@@ -32,7 +32,7 @@ do lAOl=0,lBas-1
 
       temp = (&
 #            ifdef _COULOMB_
-             CoulFac*V_k(jSOj,1)*DSO(Indkl,1) &
+             +CoulFac*V_k(jSOj,1)*DSO(Indkl,1) &
 #            endif
 #            ifdef _EXCHANGE_
              -ExFac*Half*BklK(mijkl) &

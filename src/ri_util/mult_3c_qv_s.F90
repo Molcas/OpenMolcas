@@ -19,6 +19,7 @@ subroutine Mult_3C_Qv_s(A_3C,nA_3C,Qv,nQv,Rv,n_Rv,nVec,iOff_3C,nIrrep,Out_of_Cor
 !                                                                      *
 !***********************************************************************
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -34,7 +35,7 @@ character :: QMode
 lstepA = 0
 lstepR = 1
 if (Qmode == 'T') then
-  call FZero(Rv,n_Rv)
+  Rv(:) = Zero
   lstepA = 1
   lstepR = 0
 end if

@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp) :: iCnttp
 integer(kind=iwp) :: ire_do
 
-call ICopy(4*8,[0],0,iOffA,1)
+iOffA(:,:) = 0
 do ire_do=1,2
 
   call ReNorm2_Inner(iCnttp)

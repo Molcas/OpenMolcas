@@ -12,6 +12,7 @@
 subroutine Mk_tVt(TInt,nTheta_All,tVt,nTheta,List2,mData,iPrm,nPrm,iAng,jAng,nk,Indkl,nkl)
 
 use Index_Functions, only: nTri_Elem
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -26,7 +27,7 @@ call RecPrt('Mk_tVt: TInt',' ',TInt,nTheta_All,nTheta_All)
 call iVcPrt('iPrm',' ',iPrm,nPrm)
 call iVcPrt('Indkl',' ',Indkl,nkl)
 #endif
-call FZero(tVt,nTheta**2)
+tVt(:,:) = Zero
 iA = iAng+1
 jA = jAng+1
 do iTheta_All=1,nTheta_All

@@ -275,7 +275,7 @@ if ((nProcs > 1) .and. King()) then
   if (Do_RI) call Free_iSD()
   call Drvh1(Grad,Temp,nGrad)
   !if (nPrint(1) >= 15) call PrGrad(' Gradient excluding two-electron contribution',Grad,lDisp(0),ChDisp)
-  call dcopy_(nGrad,[Zero],0,Temp,1)
+  Temp(:) = Zero
   if (Do_RI) then
     call Set_Basis_Mode('Auxiliary')
     call Setup_iSD()

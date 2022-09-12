@@ -738,7 +738,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
     ! Active term
 
-    call dzero(Thpkl,jBas*nKBas*nLBas)
+    Thpkl(1:jBas*nKBas*nLBas) = Zero
     do iVec=1,4
       iMO1 = 1
       iMO2 = 1

@@ -36,6 +36,7 @@ use Basis_Info, only: dbsc, nBas
 use Gateway_global, only: force_out_of_core, iWROpt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -214,7 +215,7 @@ else
     call DaName_MF_WA(LuA,'AVEC0')
 
     call mma_allocate(ADiag,nTInt,label='ADiag')
-    call FZero(ADiag,nTInt)
+    ADiag(:) = Zero
 
   else
 
@@ -231,7 +232,7 @@ end if
 iTOffs(2) = nTInt  ! # of rows in TInt
 iTOffs(3) = mTInt  ! # of colums in TInt
 call mma_allocate(TInt,nTInt2,label='TInt')
-if (In_Core) call FZero(TInt,nTInt2)
+if (In_Core) TInt(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -254,7 +255,7 @@ do ijS=1,nij
       mTInt = nBfn_i*nBfn_j
     end if
     mTInt2 = mTInt*nTInt
-    call FZero(TInt,mTInt2)
+    TInt(1:mTInt2) = Zero
     iTOffs(1) = iTOff
     iTOffs(3) = mTInt
   end if

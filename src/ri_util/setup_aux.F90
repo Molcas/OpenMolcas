@@ -89,9 +89,7 @@ end do
 nij_Shell = 0
 do iSkal=1,nShell
   do jSkal=1,iSkal
-    if (TMax(iSkal,jSkal)*TMax_ij >= CutOff) then
-      nij_Shell = nij_Shell+1
-    end if
+    if (TMax(iSkal,jSkal)*TMax_ij >= CutOff) nij_Shell = nij_Shell+1
   end do
 end do
 call mma_allocate(iShij,2,nij_Shell,Label='iShij')

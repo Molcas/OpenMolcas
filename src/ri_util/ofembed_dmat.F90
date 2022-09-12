@@ -13,7 +13,6 @@ subroutine OFembed_dmat(Dens,nDens)
 
 use OFembed, only: Do_OFemb
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,7 +28,7 @@ call NameRun('AUXRFIL')   ! switch RUNFILE name
 
 call mma_allocate(D_var,nDens,Label='D_var')
 call get_dArray('D1aoVar',D_var,nDens)
-call daxpy_(nDens,One,D_var,1,Dens,1)
+Dens(:) = Dens-D_var
 call mma_deallocate(D_Var)
 
 call NameRun(NamRfil)   ! switch back to old RUNFILE name

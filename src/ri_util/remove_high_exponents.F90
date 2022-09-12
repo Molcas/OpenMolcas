@@ -23,7 +23,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nD, iD(nD), mData, nTheta_All, List2(mData,nTheta_All)
-integer(kind=iwp) :: i, iTheta_All, j, k, kAng, kShll, l, lAng, lShll, mD
+integer(kind=iwp) :: i, iTheta_All, k, kAng, kShll, l, lAng, lShll, mD
 logical(kind=iwp) :: Skip
 
 call iVcPrt('Remove_High_Exponents: iD',' ',iD,nD)
@@ -49,9 +49,7 @@ do
       mD = mD-1
       exit
     end if
-    do j=i+1,mD
-      iD(j-1) = iD(j)
-    end do
+    iD(i:mD-1) = iD(i+1:mD)
     mD = mD-1
     cycle
   end if
