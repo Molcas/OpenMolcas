@@ -61,7 +61,7 @@ module fciqmc_interface
 
       proceed_found = .false.
       call getcwd_(WorkDir, err)
-      write(u6, '(a)') 'Waiting for 3RDM and contracted Fock matrix.'
+      write(u6, '(a)') 'Waiting for the 3RDM and contracted Fock matrix.'
       write(u6, '(a)') 'Copy the file "fciqmc.caspt2.' // str(mstate(jState)) // &
         &'.h5" from M7 or NECI into the run directory:'
       write(u6, '(a)') trim(WorkDir)
