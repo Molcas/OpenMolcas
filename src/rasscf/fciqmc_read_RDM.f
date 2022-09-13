@@ -25,10 +25,8 @@
       use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
-      ! wfn_dens, wfn_spindens
       use rasscf_data, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
-      ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
      &                           one_el_idx_flatten, two_el_idx
       use CI_solver_util, only: CleanMat, RDM_to_runfile
@@ -40,10 +38,9 @@
 #include "raswfn.fh"
 #include "intent.fh"
 
-
       private
-      public :: read_neci_RDM, cleanup, tHDF5_RDMs
-      logical, save :: tHDF5_RDMs = .false.
+      public :: read_neci_RDM, cleanup, tHDF5_RDMs, MCM7
+      logical, save :: tHDF5_RDMs = .false., MCM7 = .false.
 
       contains
 
@@ -628,6 +625,8 @@
           end do
         end do
 
+        if (ispin == 1) dspn(:) = dspn(:) * 0
+
         iprlev = iprloc(1)
         if (iprlev >= debug) then
           trace = 0.0_wp
@@ -682,12 +681,20 @@
         logical :: tExist
         integer :: iprlev
 
-        call f_Inquire('fciqmc.rdms.' //str(iroot)// '.h5', tExist)
-        call verify_(tExist, 'fciqmc.rdms.' // str(iroot)
-     &              // '.h5 does not exist.')
-        hdf5_file = mh5_open_file_r('fciqmc.rdms.' // str(iroot)
-     &                             // '.h5')
-        hdf5_group = mh5_open_group(hdf5_file, 'archive/rdms/2200')
+        if (MCM7) then
+          ! currently no multi-root functionality
+          call f_Inquire('M7.h5', tExist)
+          call verify_(tExist, 'M7.h5 does not exist.')
+          hdf5_file = mh5_open_file_r('M7.h5')
+          hdf5_group = mh5_open_group(hdf5_file, 'archive/rdms/sf_2200')
+        else
+          call f_Inquire('fciqmc.rdms.' //str(iroot)// '.h5', tExist)
+          call verify_(tExist, 'fciqmc.rdms.' // str(iroot)
+     &                // '.h5 does not exist.')
+          hdf5_file = mh5_open_file_r('fciqmc.rdms.' // str(iroot)
+     &                               // '.h5')
+          hdf5_group = mh5_open_group(hdf5_file, 'archive/rdms/2200')
+        end if
         hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
         len4index(:) = 0
         call mh5_get_dset_dims(hdf5_dset, len4index)
@@ -703,10 +710,15 @@
 
         rdm2_temp(:,:,:,:) = 0.0_wp
         do i = 1, len4index(2)
-          p = indices(1, i); r = indices(2, i)
-          q = indices(3, i); s = indices(4, i)
+          if (MCM7) then
+            s = indices(1, i) + 1; p = indices(2, i) + 1
+            r = indices(3, i) + 1; q = indices(4, i) + 1
+          else
+            p = indices(1, i); r = indices(2, i)
+            q = indices(3, i); s = indices(4, i)
+          end if
           rdm2_temp(p, q, r, s) = values(i)
-          rdm2_temp(q, p, s, r) = values(i)  ! symmetry
+          rdm2_temp(q, p, s, r) = values(i)
           rdm2_temp(r, s, p, q) = values(i)
           rdm2_temp(s, r, q, p) = values(i)
         end do
@@ -750,7 +762,7 @@
               write(u6,*) 'PAMAT:', p, pamat(p)
           end do
           call triprt('DMAT ',' ', dmat, 6)
-          call triprt('DSPN ',' ', dmat, 6)
+          call triprt('DSPN ',' ', dspn, 6)
         end if
 
       end subroutine read_hdf5_denmats

@@ -940,6 +940,19 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`MCM7`
+  Read HDF5 RDMs from M7 in the stochastic-CASSCF interface. For technical
+  reasons, the RDM formatting between NECI and M7 is different. This keyword
+  will become mandatory for the stochastic-CASPT2 interface. Currently, M7
+  only supports single root calculations.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MCM7" LEVEL="BASIC" APPEAR="FCIQMC-M7" KIND="SINGLE">
+              %%Keyword: MCM7 <BASIC>
+              <HELP>
+              This keyword must be used when a RDM from M7 is read.
+              </HELP>
+              </KEYWORD>
+
 :kword:`H5DM`
   Read HDF5 RDMs instead of ASCII from NECI or M7 in the
   stochastic-CASSCF interface. This keyword will become mandatory
