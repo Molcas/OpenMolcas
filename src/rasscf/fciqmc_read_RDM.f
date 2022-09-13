@@ -132,7 +132,8 @@
 #ifdef _WARNING_WORKAROUND_
 ! build:garble does not recognise decompressed_dmat/dspn
 #ifdef _HDF5_
-                          ! final iteration load decompressed 1PDMs in HDF5 file.
+                          ! final iteration load decompressed 1PDMs in
+                          ! HDF5 file.
                           call expand_1rdm(temp_DMAT, decompressed_DMAT)
                           call mh5_put_dset(wfn_dens,
      &                                      decompressed_DMAT,
@@ -460,7 +461,7 @@
         if (r == s .and. p /= r) D_beta(pq) = D_beta(pq) + RDMval
       end do
 
-        ! Copy D_beta to D_alpha and clean D_beta again for further use:
+      ! Copy D_beta to D_alpha and clean D_beta again for further use:
       if (.not. switch) then
         D_alpha(:) = D_beta(:) + D_alpha(:)
         D_beta(:) = 0.0d0

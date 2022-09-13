@@ -31,6 +31,7 @@
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
+      use fciqmc_read_RDM, only: tHDF5_RDMs
       use CC_CI_mod, only: Do_CC_CI
       use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
@@ -42,7 +43,6 @@
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
-      use fciqmc_read_RDM, only: tHDF5_RDMs
 #endif
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
@@ -2083,9 +2083,7 @@ C orbitals accordingly
         end if
 *----------------------------------------------------------------------------------------
         if (KeyH5DM) then
-#ifdef _WARNING_WORKAROUND_
             tHDF5_RDMs = .true.
-#endif
             if(DBG) write(6, *) 'RDMs will be read from HDF5 files'
             if (.not. KeyNECI) then
               call WarningMessage(2, 'HDF5 RDMs require NECI keyword!')
