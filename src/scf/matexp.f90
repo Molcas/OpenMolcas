@@ -8,9 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Ignacio Fdez. Galvan                             *
+! Copyright (C) 2022, Danjo De Chavez                                  *
 !***********************************************************************
-!  Exp_Schur
+!  matexp
 !
 !> @brief  Compute the exponential of the U matrix
 !> @author Danjo De Chavez (2022)
@@ -23,7 +23,7 @@
 !> @note
 !> Some equations in the reference are wrong.
 !>
-!> @reference
+!> @reference (\cite Sei2022-JCTC-18-4164)
 !> Q-Next: A Fast, Parallel, and Diagonalization-Free Alternative to DIIS
 !> Christorpher Seidl and Giuseppe M. J. Barca
 !> JCTC, 2022, 18, 4164-4176
@@ -74,37 +74,39 @@ call mma_allocate(xUoo,No,No,label='xUoo')
 call mma_allocate(xUvv,Nv,Nv,label='xUvv')
 call mma_allocate(xUvo,Nv,No,label='xUvo')
 
-theta(:,:)  = U(No+1:N,:No)
+theta(:,:) = U(No+1:N,:No)
 
-U(:,:)= 0.
+U(:,:) = Zero
 
-count=1
-ithrsh=2.0E-16
-factor=1
+count  = 1
+factor = One
+
+ithrsh = 2.0E-16_wp
 
 ! Initialization
 ! Taylor expansion terms to n=1
 
-Uov(:,:)=0.
-Uvo(:,:)=0.
+Uov(:,:) = Zero
+Uvo(:,:) = Zero
 
-Uoo(:,:)=0.
+Uoo(:,:) = Zero
 
-xUoo(:,:)=0.
-xUvv(:,:)=0.
-xUvo(:,:)=0.
+xUoo(:,:) = Zero
+xUvv(:,:) = Zero
+xUvo(:,:) = Zero
 
 do i=1,No
-  Uoo(i,i) = 1
+  Uoo(i,i) = One
 end do
 
-Uvv(:,:)=0.
+Uvv(:,:) = Zero
+
 do i=1,Nv
-  Uvv(i,i) = 1
+  Uvv(i,i) = One
 end do
 
-Kvo(:,:)=theta
-Uvo(:,:)=theta
+Kvo(:,:) = theta
+Uvo(:,:) = theta
 
 ! Main Loop
 ! Taylor expansion terms from n=2 to convergence
@@ -116,13 +118,13 @@ do while (thrsh < ithrsh)
     call dgemm_('T','N',No,No,Nv,One,-theta,Nv,Kvo,Nv,Zero,Koo,No)
     call dgemm_('N','T',Nv,Nv,No,One,Kvo,Nv,-theta,Nv,Zero,Kvv,Nv)
     factor = factor*count
-    Uoo(:,:) = Uoo + One/factor * Koo
-    Uvv(:,:) = Uvv + One/factor * Kvv
+    Uoo(:,:) = Uoo + Koo/factor
+    Uvv(:,:) = Uvv + Kvv/factor
 
   else
     call dgemm_('N','N',Nv,No,No,One,theta,Nv,Koo,No,Zero,Kvo,Nv)
     factor = factor*count
-    Uvo(:,:) = Uvo + One/factor * Kvo
+    Uvo(:,:) = Uvo + Kvo/factor
 
     ithrshoo = maxval(abs(Uoo-xUoo)/(abs(Uoo)+thrsh))
     ithrshvv = maxval(abs(Uvv-xUvv)/(abs(Uvv)+thrsh))
@@ -142,7 +144,6 @@ U(:No,:No)       = Uoo
 U(No+1:N,:No)    = Uvo
 U(:No,No+1:N)    = Uov
 U(No+1:N,No+1:N) = Uvv
-
 
 call mma_deallocate(Koo)
 call mma_deallocate(Kvv)

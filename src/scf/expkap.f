@@ -27,18 +27,18 @@
 !***********************************************************************
 
       SubRoutine ExpKap(kapOV,U,mynOcc)
-
+*
       Implicit None
 
 #define  qnext
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-
-!     Declaration subroutine parameters
+*
+*     Declaration subroutine parameters
       Real*8 kapOV(nOV),U(nOFS)
       Integer mynOcc(8)
-
+*
       Integer iKap,iSym,iU,j,jU,mOcc,mOrb,mVir
       Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3
 
@@ -49,7 +49,7 @@
       Real*8, Parameter :: Thrs = 1.0D-14
 
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-
+*
       iU = 1
       iKap = 1
       U(:) = Zero
@@ -77,11 +77,11 @@
 
         iU = iU+mOrb**2
       End Do
-
+*
       Do j=1,nOFS
         If (abs(U(j)).lt.Thrs) U(j) = Zero
       End do
-
+*
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld(10) = TimFld(10) + (Cpu2 - Cpu1)
 
