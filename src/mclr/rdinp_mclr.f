@@ -83,7 +83,7 @@
       FANCY_PRECONDITIONER=.true.
       save=.false.
       isotop=.true.
-      Call lCopy(mxAtm*3+3,[.true.],0,lCalc,1)
+      lCalc(:) = .true.
       Do i=1,nDisp
        DspVec(i)=i
       End Do

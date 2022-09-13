@@ -50,7 +50,7 @@
       use Basis_Info
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
-      use Symmetry_Info, only: nIrrep, iOper, iChBas
+      use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
       use Gateway_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -79,16 +79,13 @@
      &        iAO(4), iAOst(4), iCmpa(4)
 *     Local Arrays
       Integer iSym(4)
-      Real*8 Prmt(0:7)
 c     Character*72 Label
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement Function
 *
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
-      xPrmt(i,j) = Prmt(iAnd(i,j))
 c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -192,7 +189,7 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
          If (iShij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
          If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
-         pEa = xPrmt(iOper(kOp(1)),iChBs)
+         pEa = Prmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
             ix = 0
             Do j = 0, nIrrep-1
@@ -201,7 +198,7 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
             iSym(2)=ix
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
-            pRb = xPrmt(iOper(kOp(2)),jChBs)
+            pRb = Prmt(iOper(kOp(2)),jChBs)
             If (iShell(2).gt.iShell(1)) Then
                i12 = jCmp*(i1-1) + i2
             Else
@@ -218,7 +215,7 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
                kChBs = iChBas(kk+i3)
                If (Shells(iShll(3))%Transf)
      &            kChBs = iChBas(iSphCr(kk+i3))
-               pTc = xPrmt(iOper(kOp(3)),kChBs)
+               pTc = Prmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
                   ix = 0
                   Do j = 0, nIrrep-1
@@ -228,7 +225,7 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
                   lChBs = iChBas(ll+i4)
                   If (Shells(iShll(4))%Transf)
      &               lChBs = iChBas(iSphCr(ll+i4))
-                  pTSd= xPrmt(iOper(kOp(4)),lChBs)
+                  pTSd= Prmt(iOper(kOp(4)),lChBs)
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
                   Else

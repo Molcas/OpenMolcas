@@ -34,9 +34,8 @@ istabm(0) = 0
 nstabm = 1
 
 kdc = 0
-if (nCnttp > 0) kdc = -dbsc(1)%nCntr ! to make sure we start at 0
 do kCnttp=1,nCnttp
-  kdc = kdc+dbsc(kCnttp)%nCntr
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
   if (dbsc(kCnttp)%Charge == Zero) cycle
 
   do kCnt=1,dbsc(kCnttp)%nCntr

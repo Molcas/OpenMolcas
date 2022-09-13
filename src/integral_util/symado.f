@@ -10,20 +10,17 @@
 ************************************************************************
       SubRoutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,
      &                  lOper,iChO,Factor)
-      use Symmetry_Info, only: nIrrep, iChTbl, iOper
+      use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 ArrIn (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Prmt(0:7)
+     &       ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
       Integer iDCRT ,iTwoj(0:7), lOper(nComp), iChO(nComp)
       Data iTwoj/1,2,4,8,16,32,64,128/
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      xPrmt(i,j) = Prmt(iAnd(i,j))
 *
 C     nA = (la+1)*(la+2)/2
 C     nB = (lb+1)*(lb+2)/2
@@ -33,7 +30,7 @@ C     Call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
 *
       iIC = 0
       Do 103 iComp = 1, nComp
-         pO = xPrmt(iOper(iDCRT),iChO(iComp))
+         pO = Prmt(iOper(iDCRT),iChO(iComp))
          Do 104 iIrrep = 0, nIrrep-1
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).eq.0) Go To 104
             iIC = iIC + 1

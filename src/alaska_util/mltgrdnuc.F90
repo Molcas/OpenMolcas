@@ -35,32 +35,31 @@ do ixop=0,nOrdOp
     if (ff == Zero) cycle
     kdc = 0
     do kCnttp=1,nCnttp
-      if (dbsc(kCnttp)%Charge /= Zero) then
-        do kCnt=1,dbsc(kCnttp)%nCntr
-          C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-          ndc = kdc+kCnt
-          Fact = -dbsc(kCnttp)%Charge*ff
-          nDisp = IndDsp(ndc,iIrrep)
-          do iCar=0,2
-            iComp = 2**iCar
-            if (TF(ndc,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%pChrg)) then
-              nDisp = nDisp+1
-              if (Direct(nDisp)) then
-                XGrad = Zero
-                if (iCar == 0) then
-                  if (ixop > 0) XGrad = Fact*real(ixop,kind=wp)*C(1)**(ixop-1)*C(2)**iyop*C(3)**izop
-                else if (iCar == 1) then
-                  if (iyop > 0) XGrad = Fact*real(iyop,kind=wp)*C(1)**ixop*C(2)**(iyop-1)*C(3)**izop
-                else
-                  if (izop > 0) XGrad = Fact*real(izop,kind=wp)*C(1)**ixop*C(2)**iyop*C(3)**(izop-1)
-                end if
-                Grad(nDisp) = Grad(nDisp)+XGrad
+      if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+      if (dbsc(kCnttp)%Charge == Zero) cycle
+      do kCnt=1,dbsc(kCnttp)%nCntr
+        C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+        ndc = kdc+kCnt
+        Fact = -dbsc(kCnttp)%Charge*ff
+        nDisp = IndDsp(ndc,iIrrep)
+        do iCar=0,2
+          iComp = 2**iCar
+          if (TF(ndc,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%pChrg)) then
+            nDisp = nDisp+1
+            if (Direct(nDisp)) then
+              XGrad = Zero
+              if (iCar == 0) then
+                if (ixop > 0) XGrad = Fact*real(ixop,kind=wp)*C(1)**(ixop-1)*C(2)**iyop*C(3)**izop
+              else if (iCar == 1) then
+                if (iyop > 0) XGrad = Fact*real(iyop,kind=wp)*C(1)**ixop*C(2)**(iyop-1)*C(3)**izop
+              else
+                if (izop > 0) XGrad = Fact*real(izop,kind=wp)*C(1)**ixop*C(2)**iyop*C(3)**(izop-1)
               end if
+              Grad(nDisp) = Grad(nDisp)+XGrad
             end if
-          end do
+          end if
         end do
-      end if
-      kdc = kdc+dbsc(kCnttp)%nCntr
+      end do
     end do
   end do
 end do

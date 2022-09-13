@@ -15,12 +15,6 @@
       Character Line*72
       Integer*8 hours,minutes,seconds,days
       Character*100, External :: Get_ProgName
-      Interface
-        Subroutine datimx(TimeStamp) Bind(C,name='datimx_')
-          Use, Intrinsic :: iso_c_binding, Only: c_char
-          Character(kind=c_char) :: TimeStamp(*)
-        End Subroutine
-      End Interface
 *
 *     Externally defined seed
       Call getenvf('MOLCAS_RANDOM_SEED',Line)

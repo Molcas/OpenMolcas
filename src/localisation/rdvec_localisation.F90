@@ -111,7 +111,7 @@ end do
 k1 = 1
 k2 = 1
 do iSym=1,nSym
-  call iCopy(nOrb(iSym),Ind_(k1),1,IndT(k2),1)
+  IndT(k2:k2+nOrb(iSym)-1) = Ind_(k1:k1+nOrb(iSym)-1)
   do i=nOrb(iSym),nBas(iSym)-1
     IndT(k2+i) = 7
   end do

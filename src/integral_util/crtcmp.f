@@ -25,7 +25,7 @@
       Integer, Intent(In):: nZeta, nHer, na
       Integer iHer, iCar, ia
       Real*8, Intent(In)::  Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer)
-      Real*8, Intent(InOut):: Axyz(nZeta,3,nHer,0:na)
+      Real*8, Intent(Out):: Axyz(nZeta,3,nHer,0:na)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Character*80 Label
