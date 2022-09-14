@@ -27,18 +27,18 @@
 *                                                                      *
 *     iOpt    : SCF optimization scheme
 *
-      Select case(iOpt)
+*     Select case(iOpt)
 
-      Case (2,3,4)
+*     Case (2,3,4)
          Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &                CMO   ,nBB,Ovrlp,CMO)
-      Case (1)
-         Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
-     &                Lowdin,nBB,Ovrlp,CMO)
-      Case Default
-         Write (6,*) 'GrdClc: Illegal iOpt Value:',iOpt
-         Call abend()
-      End Select
+*     Case (1)
+*        Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
+*    &                Lowdin,nBB,Ovrlp,CMO)
+*     Case Default
+*        Write (6,*) 'GrdClc: Illegal iOpt Value:',iOpt
+*        Call abend()
+*     End Select
 *
       Return
       End
@@ -89,7 +89,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *
 *--- Allocate memory for gradients and gradient contributions
       Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')

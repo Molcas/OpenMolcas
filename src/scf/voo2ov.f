@@ -25,10 +25,11 @@
       End Interface
 
       iEnd = 0
+      v2(:)=0.0D0
       Do iD = 1, nD
          iSt = iEnd + 1
          iEnd = iEnd + kOV(iD)
-         Call vOO2OV_internal(v1(:,iD),nOO,v2(iSt:iEnd),nOV,iD)
+         Call vOO2OV_internal(v1(:,iD),nOO,v2(iSt:iEnd),kOV(iD),iD)
       End Do
 
       End SubRoutine vOO2OV
@@ -82,32 +83,36 @@
 *
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-         Write (6,*) 'n1,n2,nOO,nOV=',n1,n2,nOO,nOV
-         iOff = 1
-         Do iSym = 1, nSym
-            If (n1.eq.nOO) Then
-               nO = nOrb(iSym)
-               Call RecPrt('vOO2OV: v1',' ',v1(ioff),nO,nO)
-               iOff = iOff + nO**2
-            Else If (n1.eq.nOV) Then
-               nO = Max(nOcc(iSym,1),nOcc(iSym,2))-nFro(iSym)
-               nV = nOrb(iSym)-Min(nOcc(iSym,1),nOcc(iSym,2))-nFro(iSym)
-               Call RecPrt('vOO2OV: v1',' ',v1(ioff),nO,nV)
-               iOff = iOff + nO*nV
-            End If
-         End Do
+      Write (6,*) 'n1,n2,nOO,kOV(:)=',n1,n2,nOO,kOV(:)
+      iOff = 1
+      Do iSym = 1, nSym
+         If (n1.eq.nOO) Then
+            nO = nOrb(iSym)
+            Call RecPrt('vOO2OV: v1',' ',v1(ioff),nO,nO)
+            iOff = iOff + nO**2
+         Else If (n1.eq.kOV(iD)) Then
+            nO = nOcc(iSym,iD)-nFro(iSym)
+            nV = nOrb(iSym)-nOcc(iSym,iD)-nFro(iSym)
+            Call RecPrt('vOO2OV: v1',' ',v1(ioff),nO,nV)
+            iOff = iOff + nO*nV
+         End If
+      End Do
 #endif
          ioffs=0
          ivoffs=1
          Do iSym=1,nSym
+! range for occupied non-frozen orbitals
             nii1=nFro(iSym)+1
             nii2=nOcc(iSym,iD)
+! range for virtual orbitals
             nia1=nOcc(iSym,iD)+1
             nia2=nOrb(iSym)
+! size of the full block
             nv1=nia2**2
+! size of the virtual-occupied block
             nv2=(nia2-nia1+1)*(nii2-nii1+1)
 *
-            If ((n1.eq.nOO).and.(n2.eq.nOV)) Then
+            If ((n1.eq.nOO).and.(n2.eq.kOV(iD))) Then
 *
 *           compress
 *
@@ -140,7 +145,7 @@
                End Do
 #endif
 *
-            Else If ((n1.eq.nOV).and.(n2.eq.nOO)) Then
+            Else If ((n1.eq.kOV(iD)).and.(n2.eq.nOO)) Then
 *
 *           decompress
 *
@@ -174,16 +179,16 @@
          End Do
 *
 #ifdef _DEBUGPRINT_
-         Write (6,*) 'n1,n2,nOO,nOV=',n1,n2,nOO,nOV
+         Write (6,*) 'n1,n2,nOO,kOV=',n1,n2,nOO,kOV(:)
          iOff = 1
          Do iSym = 1, nSym
             If (n2.eq.nOO) Then
                nO = nOrb(iSym)
                Call RecPrt('vOO2OV: v2',' ',v2(ioff),nO,nO)
                iOff = iOff + nO**2
-            Else If (n2.eq.nOV) Then
-               nO = Max(nOcc(iSym,1),nOcc(iSym,2))-nFro(iSym)
-               nV = nOrb(iSym)-Min(nOcc(iSym,1),nOcc(iSym,2))-nFro(iSym)
+            Else If (n2.eq.kOV(iD)) Then
+               nO = nOcc(iSym,iD)-nFro(iSym)
+               nV = nOrb(iSym)-nOcc(iSym,iD)-nFro(iSym)
                Call RecPrt('vOO2OV: v2',' ',v2(ioff),nO,nV)
                iOff = iOff + nO*nV
             End If

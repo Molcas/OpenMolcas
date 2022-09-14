@@ -42,7 +42,7 @@
 *
       If (QNRstp) Then
 *
-*       we eventually need one more vector
+*       for qNR step compute delta = - H^{-1}g
 *
         Call mma_allocate(Grad,lvec,Label='Grad')
         Call iVPtr(Grad,lvec,inode)
@@ -50,6 +50,8 @@
         Call mma_deallocate(Grad)
 *
       Else
+*
+*       Pick up the gradient
 *
         Call iVPtr(ErrVec,lvec,inode)
 *

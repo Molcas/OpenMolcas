@@ -66,7 +66,7 @@
 *
 *----------------------------------------------------------------------*
 *     Start
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call NrmClc(O,nOTSD   ,'EGrad','O')
       Call NrmClc(S,nOTSD   ,'EGrad','S')
@@ -74,6 +74,10 @@
       Call NrmClc(T,nOTSD*nD,'EGrad','T')
       Call NrmClc(V,nOTSD*nD,'EGrad','V')
       Call NrmClc(C,nC   *nD,'EGrad','C')
+      Do iD = 1, nD
+         nOr = nOrb(1)
+         Call RecPrt('EGrad: C',' ',C(1,iD),nOr,nOr)
+      End Do ! iD
 #endif
 *----------------------------------------------------------------------*
 *
@@ -232,7 +236,10 @@
       Call DScal_(nG*nD,2.0D0,G,1)
 *
 #ifdef _DEBUGPRINT_
-*     Call RecPrt('EGrad: G',' ',G,nG,nD)
+      Do iD = 1, nD
+         nOr = nOrb(1)
+         Call RecPrt('EGrad: G',' ',G(1,iD),nOr,nOr)
+      End Do ! iD
 #endif
 *
 *----------------------------------------------------------------------*

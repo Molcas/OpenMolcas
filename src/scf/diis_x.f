@@ -44,6 +44,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+*#define _DEBUGPRINT_
       use InfSO
       use InfSCF
       use SCF_arrays, only: HDiag
@@ -127,9 +128,11 @@
 *
 *---- Compute norms, <e_i|e_j>
 *
+#ifdef _DEBUGPRINT_
+      If (QNRStp) Call RecPrt('HDiag',' ',HDiag,1,Size(HDiag))
+#endif
       Do i=1,kOptim
          Call ErrV(mOV,Ind(i),QNRstp,Err1,HDiag)
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
          Call NrmClc(Err1,mOV,'Diis  ','Err1  ')
 #endif
