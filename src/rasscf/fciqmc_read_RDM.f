@@ -782,10 +782,7 @@
         real(wp), allocatable :: vals(:)
         integer :: file_id, dset_id, iprlev
 
-        write(u6,'(A)') 'act.-act. block of  gen. Fockian requested.'
         iprlev = iprloc(1)
-
-        ! append to dynamic arrays, reshape afterwards
         index = [integer ::]
         vals = [real(wp) ::]
         do pq = 1, nTot1
@@ -795,7 +792,7 @@
             if (nIn < q .and. q < (nIn + nAc + 1)) then
               if (abs(F_act(pq)) >= 1e-12) then
                 if(iprlev >= debug) then
-                  write(u6,*) 'p,q : ',(p - nIn), (q - nIn), F_act(pq)
+                  write(u6,*) 'p, q : ',(p - nIn), (q - nIn), F_act(pq)
                 end if
                 index = [index, (p - nIn)]
                 index = [index, (q - nIn)]
@@ -821,7 +818,6 @@
         call mh5_put_dset(dset_id, vals)
         call mh5_close_dset(dset_id)
 
-        write(u6,'(A)') 'Dumped active space Fockian to "f_act.h5".'
       end subroutine dump_active_fockmat
 #endif
 

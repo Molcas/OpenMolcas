@@ -1256,6 +1256,7 @@ c      Call rasscf_xml(Iter)
 *
 * SX-section
 *
+
       Call Timing(Swatch,Swatch,Gucci_1,Swatch)
 
        If ( IPRLEV.ge.DEBUG ) then
@@ -1270,11 +1271,14 @@ c      Call rasscf_xml(Iter)
       CALL SXCTL(WORK(LCMO),WORK(LOCCN),
      &           WORK(LDMAT),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LFA),WORK(LD1A),THMAX,IFINAL)
+
 #ifdef _HDF5_
       if (tPrepStochCASPT2 .and. ifinal /= 0) then
-        call dump_active_fockmat('f_act.h5', WORK(LFA))
+        call dump_active_fockmat('fockdump.h5', WORK(LFA))
+        write(6,*) 'Written generalised Fock active-active block.'
       end if
 #endif
+
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,*)
        Write(LF,*) ' FI+FA in RASSCF after SXCTL'
@@ -1713,6 +1717,28 @@ c Clean-close as much as you can the CASDFT stuff...
        Write(IterFile,'(15X,A)') 'RASSCF iteration: Final'
 *
       Call Timing(Swatch,Swatch,Zenith_1,Swatch)
+
+#ifdef _HDF5_
+      if (tPrepStochCASPT2) then
+        call mma_allocate(orbital_E, nTot)
+        call mma_allocate(folded_Fock, nAcPar)
+        call transform(iter,
+     &                 CMO=work(LCMO : LCMO + nTot2 - 1),
+     &                 DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                 D1I_AO=work(lD1I : lD1I + nTot2 - 1),
+     &                 D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                 D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                 F_IN=work(lFI : lFI + nTot1 - 1),
+     &                 orbital_E=orbital_E,
+     &                 folded_Fock=folded_Fock)
+        call make_fcidumps('fcidump_cano', 'h5dump_cano',
+     &    orbital_E, folded_Fock,
+     &    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1), core_energy=EMY)
+        call mma_deallocate(orbital_E)
+        call mma_deallocate(folded_Fock)
+        write(6,*) 'Written FCIDUMP in pseudo-canonical basis.'
+      end if
+#endif
 
       if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,

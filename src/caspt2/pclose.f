@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PCLOSE
+      use fciqmc_interface, only: DoFCIQMC
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 C  PER-AAKE MALMQUIST 92-12-07
@@ -28,6 +29,7 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
 #include "pt2_guga.fh"
 
       IF(DoCumulant) RETURN
+      IF(DoFCIQMC) RETURN
       IF(NACTEL.EQ.0) RETURN
       IF(ISCF.NE.0) RETURN
       CALL GETMEM('MVL','FREE','INTEG',LMVL,NMVL)

@@ -703,6 +703,66 @@ C  only for the G1 and G2 replicate arrays
           END DO
       end if
 
+      call recprt('G1 in CASPT2', ' ', g1, 6, 6)
+      call recprt('F1 in CASPT2', ' ', f1, 6, 6)
+
+      do iT = 1, 6
+        write(6,'(a,i8,f25.18)') 'EPSA', iT, EPSA(iT)
+      end do
+
+      do iT = 1, 6
+        do iU = 1, 6
+          do iY = 1, 6
+            do iZ = 1, 6
+              if (abs(g2(iT,iU,iY,iZ)) < 1e-9) then
+                write(6,'(a,4i8,f25.18)') "2RDM  ", iT,iU,iY,iZ,
+     &                                    0.00000000
+              else
+                write(6,'(a,4i8,f25.18)') "2RDM  ", iT,iU,iY,iZ,
+     &                                  g2(iT,iU,iY,iZ)
+              end if
+            end do
+          end do
+        end do
+      end do
+
+      do iT = 1, 6
+        do iU = 1, 6
+          do iY = 1, 6
+            do iZ = 1, 6
+              if (abs(f2(iT,iU,iY,iZ)) < 1e-9) then
+                write(6,'(a,4i8,f25.18)') "F.3RDM", iT,iU,iY,iZ,
+     &                                   0.00000000
+              else
+                write(6,'(a,4i8,f25.18)') "F.3RDM", iT,iU,iY,iZ,
+     &                                   f2(iT,iU,iY,iZ)
+              end if
+            end do
+          end do
+        end do
+      end do
+
+      do iG3=1,NG3
+        iT=idxG3(1,iG3); iU=idxG3(2,iG3); iV=idxG3(3,iG3)
+        iX=idxG3(4,iG3); iY=idxG3(5,iG3); iZ=idxG3(6,iG3)
+        if (abs(g3(iG3)) < 1e-9) then
+          write(6,'(a,6i8,f25.18)') "3RDM  ",iT,iU,iV,iX,iY,iZ,
+     &                              0.00000000
+        else
+          write(6,'(a,6i8,f25.18)')"3RDM  ",iT,iU,iV,iX,iY,iZ, g3(iG3)
+        end if
+      end do
+
+      do iG3=1,NG3
+        iT=idxG3(1,iG3); iU=idxG3(2,iG3); iV=idxG3(3,iG3)
+        iX=idxG3(4,iG3); iY=idxG3(5,iG3); iZ=idxG3(6,iG3)
+        if (abs(f3(iG3)) < 1e-9) then
+          write(6,'(a,6i8,f25.18)') "F.4RDM", iT,iU,iV,iX,iY,iZ,
+     &                              0.00000000
+        else
+          write(6,'(a,6i8,f25.18)') "F.4RDM",iT,iU,iV,iX,iY,iZ, f3(iG3)
+        end if
+      end do
 
       IF(iPrGlb.GE.DEBUG) THEN
 CSVC: if running parallel, G3/F3 are spread over processes,
