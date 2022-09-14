@@ -15,6 +15,7 @@
       USE SUPERINDEX
       USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
+      use fciqmc_interface, only: DoFCIQMC
       use output_caspt2, only:iPrGlb,terse,usual,verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
@@ -168,7 +169,12 @@ C
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
 * calculation: MS, XMS, DW or XDW.
-      call rdminit
+      if (.not. DoFCIQMC) then
+        ! transition density matrices cannot be sampled with FCIQMC as
+        ! of October 2022. These are however required to express the
+        ! Fock matrix in the basis of (rotated) states in (X)MS-CASPT2.
+        call rdminit
+      end if
 
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number
@@ -188,7 +194,6 @@ C
        END IF
 
        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-! TODO: Understand this
        CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0)
        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
        CPUGIN=CPTF10-CPTF0
@@ -203,7 +208,6 @@ C
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-! TODO: Understand this
          CALL STINI
          CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
          CPUSIN=CPTF11-CPTF0
@@ -219,7 +223,6 @@ C
          Write(STLNE2,'(A27,I3)')'Solve CASPT2 eqs for state ',
      &                               MSTATE(JSTATE)
          Call StatusLine('CASPT2:',TRIM(STLNE2))
-! TODO: Understand this
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():
@@ -268,6 +271,7 @@ C     Orbitals, properties:
          CPUPRP=CPTF13-CPTF12
          TIOPRP=TIOTF13-TIOTF12
 
+        if (.not. DoFCIQMC) then
 C     Gradients.
 C     Note: Quantities computed in gradients section can also
 C     be used efficiently for computing Multi-State HEFF.
@@ -330,6 +334,7 @@ C     transition density matrices.
            CPUINT=0.0D0
            TIOINT=0.0D0
          END IF
+        end if
 
         IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
@@ -361,7 +366,9 @@ C     transition density matrices.
           WRITE(6,'(A,2F14.2)')'    - sigma routines    ',CPUSGM,TIOSGM
           WRITE(6,'(A,2F14.2)')'  - array collection    ',CPUSER,TIOSER
           WRITE(6,'(A,2F14.2)')'  Properties            ',CPUPRP,TIOPRP
+          if (.not. DoFCIQMC) then ! MS-CASPT2 currently not possible
           WRITE(6,'(A,2F14.2)')'  Gradient/MS coupling  ',CPUGRD,TIOGRD
+          end if
           WRITE(6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
           WRITE(6,*)
         END IF
@@ -415,44 +422,46 @@ C End of long loop over groups
        WRITE(6,*)
       END IF
 
-      IF(NLYROOT.NE.0) IFMSCOUP=.FALSE.
-      IF(IFMSCOUP) THEN
-        Call StatusLine('CASPT2:','Effective Hamiltonian')
-        CALL MLTCTL(HEFF,UEFF,U0)
+      if (.not. doFCIQMC) then
+        IF(NLYROOT.NE.0) IFMSCOUP=.FALSE.
+        IF(IFMSCOUP) THEN
+          Call StatusLine('CASPT2:','Effective Hamiltonian')
+          CALL MLTCTL(HEFF,UEFF,U0)
 
-        IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
-         WRITE(6,*)' Relative (X)MS-CASPT2 energies:'
-         WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
-     &     'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
-         DO I=1,NSTATE
-          RELAU = ENERGY(I)-ENERGY(1)
-          RELEV = RELAU * CONV_AU_TO_EV_
-          RELCM = RELAU * CONV_AU_TO_CM1_
-          RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
-          WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
-     &     I, RELAU, RELEV, RELCM, RELKJ
-         END DO
-         WRITE(6,*)
+          IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
+           WRITE(6,*)' Relative (X)MS-CASPT2 energies:'
+           WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
+     &       'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
+           DO I=1,NSTATE
+            RELAU = ENERGY(I)-ENERGY(1)
+            RELEV = RELAU * CONV_AU_TO_EV_
+            RELCM = RELAU * CONV_AU_TO_CM1_
+            RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
+            WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
+     &       I, RELAU, RELEV, RELCM, RELKJ
+           END DO
+           WRITE(6,*)
+          END IF
         END IF
-      END IF
 
 * Back-transform the effective Hamiltonian and the transformation matrix
 * to the basis of original CASSCF states
-      CALL Backtransform(Heff,Ueff,U0)
+        CALL Backtransform(Heff,Ueff,U0)
 
 * create a JobMix file
 * (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
-      CALL CREIPH_CASPT2(Heff,Ueff,U0)
+        CALL CREIPH_CASPT2(Heff,Ueff,U0)
 
 * Store the PT2 energy and effective Hamiltonian on the wavefunction file
-      CALL PT2WFN_ESTORE(HEFF)
+        CALL PT2WFN_ESTORE(HEFF)
 
 * Store rotated states if XMUL + NOMUL
-      IF (IFXMS.AND.(.NOT.IFMSCOUP)) CALL PT2WFN_DATA
+        IF (IFXMS.AND.(.NOT.IFMSCOUP)) CALL PT2WFN_DATA
 
 * store information on runfile for geometry optimizations
-      Call Put_iScalar('NumGradRoot',iRlxRoot)
-      Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
+        Call Put_iScalar('NumGradRoot',iRlxRoot)
+        Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
+      end if
 
 9000  CONTINUE
 
