@@ -16,8 +16,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTheta_All, nTheta, mData, List2(mData,nTheta_All), nPrm, iPrm(nPrm), iAng, jAng, nk, nkl, Indkl(nkl)
-real(kind=wp) :: TInt(nTheta_All,nTheta_All), tVt(nTheta,nTheta)
+integer(kind=iwp), intent(in) :: nTheta_All, nTheta, mData, List2(mData,nTheta_All), nPrm, iPrm(nPrm), iAng, jAng, nk, nkl, &
+                                 Indkl(nkl)
+real(kind=wp), intent(in) :: TInt(nTheta_All,nTheta_All)
+real(kind=wp), intent(out) :: tVt(nTheta,nTheta)
 integer(kind=iwp) :: iA, ik, il, im, in_, iTheta, iTheta_All, iTheta_Full, jA, jTheta, jTheta_All, jTheta_Full, kComp, lComp, &
                      mComp, nComp
 

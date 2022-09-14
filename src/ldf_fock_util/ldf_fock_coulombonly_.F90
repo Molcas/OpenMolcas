@@ -50,7 +50,7 @@ nAtom = LDF_nAtom()
 ! Set up prescreening info
 l_VNrm = nAtom+NumberOfAtomPairs
 call mma_allocate(VNrm,l_VNrm,label='VNrm')
-call Cho_dZero(VNrm,l_VNrm)
+VNrm(:) = Zero
 do iD=1,nD
   ip = (nAtom+NumberOfAtomPairs)*(iD-1)
   do AB=1,nAtom+NumberOfAtomPairs
@@ -59,7 +59,7 @@ do iD=1,nD
 end do
 l_DNrm = NumberOfAtomPairs
 call mma_allocate(DNrm,l_DNrm,label='DNrm')
-call Cho_dZero(DNrm,l_DNrm)
+DNrm(:) = Zero
 do iD=1,nD
   ip = NumberOfAtomPairs*(iD-1)
   do AB=1,NumberOfAtomPairs
@@ -105,7 +105,7 @@ if (tau(2) > Zero) then
     end if
   end do
 else
-  call Cho_dZero(tauW,l_tauW)
+  tauW(:) = Zero
 end if
 
 ! Allocate and initialize W intermediates

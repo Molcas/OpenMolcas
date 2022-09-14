@@ -18,8 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lVec, nVec, iSym
-real(kind=wp) :: Vec(lVec,nVec)
+integer(kind=iwp), intent(in) :: lVec, nVec, iSym
+real(kind=wp), intent(inout) :: Vec(lVec,nVec)
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: ia, ib, iRS, iRS_tot, iSyma, iSymb, iVec, kFrom, liF2RS, lScr, na, nab, nb

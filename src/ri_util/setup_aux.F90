@@ -19,9 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nIrrep, nBas(0:nIrrep-1), nShell, nShell_Aux, nSO, nij_Shell, nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1), &
-                     iTOffs(3,0:nIrrep-1)
-real(kind=wp) :: TMax(nShell,nShell), CutOff
+integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nShell, nShell_Aux, nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1)
+integer(kind=iwp), intent(out) :: nSO, nij_Shell, iTOffs(3,0:nIrrep-1)
+real(kind=wp), intent(in) :: TMax(nShell,nShell), CutOff
 integer(kind=iwp) :: iAng, iCnt, iCnttp, iIrrep, ij_Shell, iSkal, iSO, jAng, jCnt, jCnttp, jSkal, nSO_Aux
 real(kind=wp) :: TMax_ij
 

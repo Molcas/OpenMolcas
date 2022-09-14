@@ -36,8 +36,9 @@ use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCmp(4), jBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_K, nSA, nZ_p_k
-real(kind=wp) :: PSO(nijkl,nPSO), ExFac, CoulFac, PMax, V_K(mV_K,nSA), Z_p_K(nZ_p_k,*)
+integer(kind=iwp), intent(in) :: iCmp(4), jBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_K, nSA, nZ_p_k
+real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
+real(kind=wp), intent(in) :: ExFac, CoulFac, V_K(mV_K,nSA), Z_p_K(nZ_p_k,*)
 integer(kind=iwp) :: CumnnP(0:7), CumnnP2(0:7), i, i2, i4, iAdrJ, iAdrL, iE, iS, iSO, iSym, iUHF, j, j2, j4, jAOj, jp, jpSOj, &
                      jpSOl, js, jSO, jSOj, jSym(0:7), kSym, lAOl, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, nB, nik, njSym, nlSym
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fact, temp, temp2, Wall, Wall1, Wall2
@@ -137,7 +138,7 @@ if (ExFac == Zero) then
               ! Coulomb contribution
               if (j2 == 0) then
                 ! j4 == 0 also
-                temp = V_K(jSOj,1)*V_K(lSOl,1)*Coulfac
+                temp = V_K(jSOj,1)*V_K(lSOl,1)*CoulFac
                 !temp = Zero
               else
                 temp = Zero
@@ -241,7 +242,7 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
               ! Coulomb contribution
               if (j2 == 0) then
                 ! j4 == 0 also
-                temp = V_K(jSOj,1)*V_K(lSOl,1)*Coulfac
+                temp = V_K(jSOj,1)*V_K(lSOl,1)*CoulFac
                 !temp = Zero
               else
                 temp = Zero
@@ -359,7 +360,7 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
               ! Coulomb contribution
               if (j2 == 0) then
                 ! j4 == 0 also
-                temp = V_K(jSOj,1)*V_K(lSOl,1)*Coulfac
+                temp = V_K(jSOj,1)*V_K(lSOl,1)*CoulFac
                 !temp = Zero
               else
                 temp = Zero
@@ -587,7 +588,7 @@ else
               ! Coulomb contribution
               if (j2 == 0) then
                 ! j4 == 0 also
-                temp = V_K(jSOj,1)*V_K(lSOl,1)*Coulfac
+                temp = V_K(jSOj,1)*V_K(lSOl,1)*CoulFac
                 !temp = Zero
               else
                 temp = Zero

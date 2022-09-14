@@ -47,8 +47,8 @@ integer(kind=iwp) :: iPrint, iRout
 
 #include "macros.fh"
 unused_var(ZInv)
-unused_var(lOper)
 unused_var(iStabM)
+unused_var(nStabM)
 
 !                                                                      *
 !***********************************************************************

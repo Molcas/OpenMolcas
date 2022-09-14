@@ -47,7 +47,6 @@ logical(kind=iwp), external :: TF
 
 #include "macros.fh"
 unused_var(ZInv)
-unused_var(lOper)
 
 iRout = 122
 iPrint = nPrint(iRout)

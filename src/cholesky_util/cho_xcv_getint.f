@@ -52,7 +52,7 @@ C
       End If
 
       ! Calculate integrals
-      Call Cho_dZero(xInt,n)
+      Call FZero(xInt,n)
       Do iSP=1,l_ListSP
          Do iCD=1,l_ListCD
             Call Cho_MCA_CalcInt_4(xInt,n,ListCD(iCD),ListSP(iSP))

@@ -36,6 +36,7 @@ subroutine Drv2El_3Center_RI(Integral_WrOut,ThrAO)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use RI_procedures, only: Drv2El_2Center_RI
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, nBas, nBas_Aux
 use Gateway_global, only: force_out_of_core
@@ -49,7 +50,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 external :: Integral_WrOut
-real(kind=wp) :: ThrAO
+real(kind=wp), intent(in) :: ThrAO
 #include "Molcas.fh"
 #include "print.fh"
 #include "lRI.fh"
@@ -69,22 +70,12 @@ real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Local_A(:,:), Qv(:)
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
 logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 interface
-  subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
-    import :: wp, iwp
-    real(kind=wp) :: ThrAO
-    real(kind=wp), allocatable :: A_Diag(:)
-    integer(kind=iwp) :: nSO_Aux, MaxCntr
-    integer(kind=iwp), allocatable :: SO2C(:)
-  end subroutine Drv2El_2Center_RI
   subroutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,SO2C,nSO_Aux)
-    real*8, allocatable :: A_Diag(:), Local_A(:,:)
+    real*8 :: A_Diag(*)
+    real*8, allocatable :: Local_A(:,:)
     integer, allocatable :: SO2C(:), AB(:,:)
     integer MaxCntr, Lu_AB, nSO_Aux
   end subroutine Post_2Center_LDF
-  subroutine Post_2Center_RI(A_Diag)
-    import :: wp
-    real(kind=wp), allocatable :: A_Diag(:)
-  end subroutine Post_2Center_RI
 end interface
 
 !                                                                      *
@@ -146,6 +137,8 @@ else
   call Post_2Center_RI(A_Diag)
 
 end if
+
+call mma_deallocate(A_Diag)
 
 call Set_Basis_Mode('Auxiliary')
 call Nr_Shells(nSkal_Auxiliary)

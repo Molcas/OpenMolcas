@@ -76,9 +76,7 @@ doNorm = .true.
 #ifdef _MOLCAS_MPP_
 ! Init norm array
 if ((nProcs > 1) .and. Is_Real_Par()) then
-  if (doNorm) then
-    call Cho_dZero(CNorm,4*NumberOfAtomPairs)
-  end if
+  if (doNorm) CNorm(:) = Zero
 end if
 #endif
 

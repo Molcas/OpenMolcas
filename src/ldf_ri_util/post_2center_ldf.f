@@ -41,7 +41,8 @@
 #include "nsd.fh"
       Character Name_Q*6
       Integer nQvec(0:7)
-      Real*8, Allocatable :: A_Diag(:), Local_A(:,:)
+      Real*8 :: A_Diag(*)
+      Real*8, Allocatable :: Local_A(:,:)
       Integer, Allocatable :: SO2C(:), AB(:,:)
 
       Real*8, Allocatable :: Scr(:)
@@ -272,7 +273,6 @@ C    &                     Local_A(:,2),nlO,nlO)
 *                                                                      *
       Call mma_deallocate(Scr)
       Call mma_deallocate(iDiag)
-      Call mma_deallocate(A_Diag)
       Call mma_deallocate(SO2lO)
 *                                                                      *
 ************************************************************************

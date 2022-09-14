@@ -24,19 +24,19 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: jVec, kVec, nVec, iOpt
-real(kind=wp) :: Ajk, Fac_ij, Fac_kl
-integer(kind=iwp) :: iAdrA, lTot
-real(kind=wp) :: Ajk_mp2, dum(1)
+integer(kind=iwp), intent(in) :: jVec, kVec, nVec, iOpt
+real(kind=wp), intent(out) :: Ajk
+real(kind=wp), intent(in) :: Fac_ij, Fac_kl
+integer(kind=iwp) :: iAdrA
+real(kind=wp) :: Ajk_mp2(1)
 character(len=*), parameter :: SECNAM = 'Compute_A_jk_mp2'
 
-Ajk = Zero
-if (imp2prpt == 2) then
-  lTot = 1
+if (iMP2prpt == 2) then
   iAdrA = nVec*(kVec-1)+jVec
-  call dDaFile(LuAVector(iOpt),2,dum,lTot,iAdrA)
-  Ajk_mp2 = dum(1)
-  Ajk = Ajk+(Ajk_mp2*Fac_kl*Fac_ij)
+  call dDaFile(LuAVector(iOpt),2,Ajk_mp2,1,iAdrA)
+  Ajk = Ajk_mp2(1)*Fac_kl*Fac_ij
+else
+  Ajk = Zero
 end if
 
 return

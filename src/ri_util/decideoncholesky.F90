@@ -14,7 +14,7 @@ subroutine DecideonCholesky(DoCholesky)
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: DoCholesky
+logical(kind=iwp), intent(out) :: DoCholesky
 integer(kind=iwp) :: iOption
 
 call Get_iScalar('System BitSwitch',iOption)

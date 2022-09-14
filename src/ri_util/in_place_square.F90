@@ -14,8 +14,8 @@ subroutine In_place_Square(Buff,nBuff)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBuff
-real(kind=wp) :: Buff(nBuff,nBuff)
+integer(kind=iwp), intent(in) :: nBuff
+real(kind=wp), intent(inout) :: Buff(nBuff,nBuff)
 integer(kind=iwp) :: i, j
 
 !call RecPrt('Buff',' ',Buff,nBuff,nBuff)

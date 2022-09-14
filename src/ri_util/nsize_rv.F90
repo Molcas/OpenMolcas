@@ -23,7 +23,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nSize_Rv
-integer(kind=iwp) :: kS, lS, nShell, nIrrep, nShBf(0:nIrrep-1,nShell), iOff(0:nIrrep-1), nVec(0:nIrrep-1)
+integer(kind=iwp), intent(in) :: kS, lS, nShell, nIrrep, nShBf(0:nIrrep-1,nShell), nVec(0:nIrrep-1)
+integer(kind=iwp), intent(out) :: iOff(0:nIrrep-1)
 integer(kind=iwp) :: kIrrep, klIrrep, lIrrep, nJ, nK, nKL, nL
 
 nSize_Rv = 0

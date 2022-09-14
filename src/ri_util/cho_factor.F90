@@ -51,7 +51,7 @@
 !> @param[in]     Zm     in-core matrix whose columns are the Cholesky vectors
 !> @param[in]     nMem   max number of columns of \p Zm kept in core
 !> @param[in]     lu_Z   file unit where the \f$ Z \f$-matrix is stored
-!> @param[in]     Scr    scratch space used for reading out-of-core columns of \p Zm
+!> @param[out]    Scr    scratch space used for reading out-of-core columns of \p Zm
 !> @param[in]     lScr   size of the scratch space (&ge; \p nRow or ``0`` iff in-core)
 !> @param[in]     thr    threshold for linear dependence
 !> @param[out]    lindep integer indicating detected linear dependence (= ``1`` iff found lin dep, else = ``0``)
@@ -62,9 +62,14 @@ subroutine CHO_FACTOR(Diag,A_k,iD_A,kCol,nRow,Zm,nMem,lu_Z,Scr,lScr,thr,lindep)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iD_A(*), kCol, nRow, nMem, lu_Z, lScr, lindep
-real(kind=wp) :: Diag(*), A_k(*), Zm(nRow,*), Scr(*), thr
+real(kind=wp), intent(inout) :: Diag(*), A_k(*)
+integer(kind=iwp), intent(in) :: iD_A(*), kCol, nRow, nMem, lu_Z, lScr
+real(kind=wp), intent(in) :: Zm(nRow,*), thr
+real(kind=wp), intent(_OUT_) :: Scr(*)
+integer(kind=iwp), intent(out) :: lindep
 #include "warnings.h"
 integer(kind=iwp) :: i, j, kdone, kj, kstep, lZdone, lZread, lZrem
 real(kind=wp) :: Dmax, fac, xfac
@@ -151,7 +156,7 @@ else  ! the first nMem columns of Z are in memory
       lZrem = nRow*(kCol-kdone)
       lZread = min(LZrem,nRow*kStep)
 
-      call ddafile(lu_Z,2,Scr(1),lZread,lZdone) ! read
+      call ddafile(lu_Z,2,Scr,lZread,lZdone) ! read
 
       ! Compute elements of the k-th Cholesky vector (out-of-core contrib.)
       !--------------------------------------------------------------------

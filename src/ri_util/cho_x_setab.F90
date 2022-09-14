@@ -14,7 +14,7 @@ subroutine Cho_x_setab(iS,jS)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iS, jS
+integer(kind=iwp), intent(in) :: iS, jS
 #include "cholesky.fh"
 
 SHA = iS

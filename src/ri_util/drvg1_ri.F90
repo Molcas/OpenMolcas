@@ -23,6 +23,7 @@ subroutine Drvg1_RI(Grad,Temp,nGrad)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use RI_procedures, only: Effective_CD_Pairs
 use Basis_Info, only: nBas, nBas_Aux
 use pso_stuff, only: AOrb, Case_2C, Case_3C, DMdiag, G1, ij2K, iOff_ij2K, lPSO, lSA, m_Txy, n_ij2K, n_Txy, nG1, nnP, nV_k, nZ_p_k, &
                      Txy, U_k, V_k, Z_p_k
@@ -36,8 +37,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nGrad
-real(kind=wp) :: Grad(nGrad), Temp(nGrad)
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
@@ -46,8 +48,8 @@ real(kind=wp) :: Grad(nGrad), Temp(nGrad)
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-integer(kind=iwp) :: i, iADens, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, iUHF, j, jStart, jSym, jtmp, &
-                     kStart, kTmp, m_ij2K, mAO, nAct(0:7), nAux_Tot, nij_Eff, ntmp, nV_k_New, nZ_p_k_New, nZ_p_l
+integer(kind=iwp) :: i, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, iUHF, j, jStart, jSym, jtmp, kStart, &
+                     kTmp, m_ij2K, mAO, nAct(0:7), nAux_Tot, nij_Eff, ntmp, nV_k_New, nVec, nZ_p_k_New, nZ_p_l
 real(kind=wp) :: BufFrac, TCpu1, TCpu2, TWall1, TWall2
 #ifdef _CD_TIMING_
 real(kind=wp) :: Total_Dens_CPU, Total_Dens_Wall, Total_Der_CPU, Total_Der_CPU2, Total_Der_Wall, Total_Der_Wall2
@@ -56,33 +58,9 @@ logical(kind=iwp) :: Found
 character(len=8) :: Method
 character(len=7) :: Fname2
 character(len=6) :: Fname
-integer(kind=iwp), allocatable :: ij2(:,:), iUk(:), iVk(:), iZk(:), SO_ab(:)
+integer(kind=iwp), allocatable :: ij2(:,:), iVk(:,:), iZk(:), SO_ab(:)
 real(kind=wp), allocatable :: DMTmp(:), Tmp(:), U_k_new(:), V_k_new(:,:)
 integer(kind=iwp), external :: IsFreeUnit
-interface
-  subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
-    import :: iwp
-    integer(kind=iwp) :: nProc, ipVk(nProc), ipZpk(nProc), myProc
-    integer(kind=iwp), optional :: ipUk(nProc)
-  end subroutine Compute_AuxVec
-  subroutine Effective_CD_Pairs(ij2,nij_Eff)
-    import :: iwp
-    integer(kind=iwp) :: nij_Eff
-    integer(kind=iwp), allocatable :: ij2(:,:)
-  end subroutine Effective_CD_Pairs
-  subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
-    import :: wp, iwp
-    integer(kind=iwp) :: nGrad, nij_Eff
-    real(kind=wp) :: Grad(nGrad), Temp(nGrad)
-    integer(kind=iwp), allocatable :: ij2(:,:)
-  end subroutine Drvg1_2Center_RI
-  subroutine Drvg1_3Center_RI(Temp,nGrad,ij3,nij_Eff)
-    import :: wp, iwp
-    integer(kind=iwp) :: nGrad, nij_Eff
-    real(kind=wp) :: Temp(nGrad)
-    integer(kind=iwp), allocatable :: ij3(:,:)
-  end subroutine Drvg1_3Center_RI
-end interface
 
 !                                                                      *
 !***********************************************************************
@@ -259,9 +237,11 @@ end do
 call mma_allocate(V_K,nV_k,nJdens,Label='V_k')
 V_k(:,:) = Zero
 if (iMp2prpt == 2) then
+  nVec = 2
   call mma_allocate(U_K,nV_k,Label='U_k')
   U_k(:) = Zero
 else
+  nVec = 1
   call mma_allocate(U_K,1,Label='U_k')
 end if
 !                ~
@@ -271,15 +251,15 @@ end if
 
 ! Note: the above two points apply to Z_p_k as well (active space)
 
-call mma_allocate(iVk,[0,nProcs-1],Label='iVk')
+call mma_allocate(iVk,[0,nProcs-1],[1,nVec],Label='iVk')
 call mma_allocate(iZk,[0,nProcs-1],Label='iZk')
-iVk(:) = 0
+iVk(:,:) = 0
 iZk(:) = 0
-!iVk(myRank) = NumCho(1)*nJdens
-iVk(myRank) = NumCho(1)
+!iVk(myRank,1) = NumCho(1)*nJdens
+iVk(myRank,1) = NumCho(1)
 !iZk(myRank) = nZ_p_l*nAvec  ! store the local size of Zk
 iZk(myRank) = nZ_p_l         ! store the local size of Zk
-call GAIGOP(iVk,nProcs,'+')
+call GAIGOP(iVk(:,1),nProcs,'+')
 call GAIGOP(iZk,nProcs,'+')  ! distribute to all nodes
 
 ! Compute the starting position in the global sense for each node.
@@ -287,8 +267,8 @@ call GAIGOP(iZk,nProcs,'+')  ! distribute to all nodes
 iStart = 1
 jStart = 1
 do j=0,nProcs-1  ! Loop over all nodes
-  itmp = iVk(j)
-  iVk(j) = iStart
+  itmp = iVk(j,1)
+  iVk(j,1) = iStart
   iStart = iStart+itmp
 
   jtmp = iZk(j)
@@ -297,24 +277,19 @@ do j=0,nProcs-1  ! Loop over all nodes
 end do
 
 if (iMp2prpt == 2) then
-  call mma_allocate(iUk,[0,nProcs-1],Label='iUk')
-  iUk(:) = 0
-  iUk(myRank) = NumCho(1)
-  call GAIGOP(iUk,nProcs,'+')
+  iVk(myRank,2) = NumCho(1)
+  call GAIGOP(iVk(:,2),nProcs,'+')
   kStart = 1
   do j=0,nProcs-1
-    kTmp = iUk(j)
-    iUk(j) = kStart
+    kTmp = iVk(j,2)
+    iVk(j,2) = kStart
     kStart = kStart+kTmp
   end do
-
-  call Compute_AuxVec(iVk,iZk,myRank+1,nProcs,ipUk=iUk)
-
-else
-
-  call Compute_AuxVec(iVk,iZk,myRank+1,nProcs)
-
 end if
+
+call Compute_AuxVec(iVk,iZk,myRank+1,nProcs,nVec)
+call mma_deallocate(iVk)
+call mma_deallocate(iZk)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -374,6 +349,7 @@ if (Cholesky .and. (.not. Do_RI)) then
   call Effective_CD_Pairs(ij2,nij_Eff)
 else
   nij_Eff = 0
+  call mma_allocate(ij2,2,0,Label='ij2')
 end if
 !                                                                      *
 !***********************************************************************
@@ -434,12 +410,7 @@ Temp(:) = Temp+Two*Tmp
 Case_3C = .false.
 if (allocated(Txy)) call mma_deallocate(Txy)
 if (allocated(DMdiag)) call mma_deallocate(DMdiag)
-if (allocated(AOrb)) then
-  do iADens=1,nADens
-    call Deallocate_DT(AOrb(iADens))
-  end do
-  deallocate(AOrb)
-end if
+if (allocated(AOrb)) call Deallocate_DT(AOrb)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -457,15 +428,12 @@ if (iMp2prpt == 2) then
   end do
 end if
 
+call mma_deallocate(ij2)
 if (Cholesky .and. (.not. Do_RI)) then
-  call mma_deallocate(ij2)
   call mma_deallocate(ij2K)
 end if
 call CloseP()
-call mma_deallocate(iZk)
-call mma_deallocate(iVk)
 
-if (allocated(iUk)) call mma_deallocate(iUk)
 if (allocated(Z_p_k)) call mma_deallocate(Z_p_k)
 if (allocated(V_k)) call mma_deallocate(V_k)
 if (allocated(U_k)) call mma_deallocate(U_k)

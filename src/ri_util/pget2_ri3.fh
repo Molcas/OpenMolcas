@@ -35,7 +35,7 @@ do lAOl=0,lBas-1
              +CoulFac*V_k(jSOj,1)*DSO(Indkl,1) &
 #            endif
 #            ifdef _EXCHANGE_
-             -ExFac*Half*BklK(mijkl) &
+             -ExFac_*Half*BklK(mijkl) &
 #            endif
 #            ifdef _ACTIVE_
              +Thpkl(mijkl) &

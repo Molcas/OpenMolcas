@@ -41,8 +41,9 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, lBas, kOp(4), mV_K, nSA
-real(kind=wp) :: PAO(ijkl,nPAO), ExFac, CoulFac, PMax, V_K(mV_K,nSA), U_K(mV_K), Z_p_K(nnP(0),mV_K,*)
+integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, lBas, kOp(4), mV_K, nSA
+real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
+real(kind=wp), intent(in) :: ExFac, CoulFac, V_K(mV_K,nSA), U_K(mV_K), Z_p_K(nnP(0),mV_K,*)
 logical(kind=iwp) :: Found
 integer(kind=iwp) :: i, i2, i4, iAdrA, iAdrJ, iAdrL, iE, iOffA, iPAO, iS, iSO, iSO2, iSym, iUHF, j, jAOj, jik, jil, jp, jSO, jSOj, &
                      jSym, k, kl, kSym, l, lAOl, lSO, lSOl, lSym, lTot, n, nijkl, nik, nik1, nik2

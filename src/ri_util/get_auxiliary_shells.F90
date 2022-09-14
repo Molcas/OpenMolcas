@@ -14,8 +14,11 @@ subroutine Get_Auxiliary_Shells(iSO,nSO,jOff,iSO2Shl,nSO2Shl,iPair,nPair)
 use Index_Functions, only: iTri
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nSO, iSO(2,nSO), jOff, nSO2Shl, iSO2Shl(nSO2Shl), nPair, iPair(nPair)
+integer(kind=iwp), intent(in) :: nSO, iSO(2,nSO), jOff, nSO2Shl, iSO2Shl(nSO2Shl), nPair
+integer(kind=iwp), intent(_OUT_) :: iPair(nPair)
 integer(kind=iwp) :: i, k, kl, kSh, l, lSh
 
 !write(u6,*) 'iSO'

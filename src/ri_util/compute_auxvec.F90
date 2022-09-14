@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
+subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,nVec)
 
 use Index_Functions, only: nTri_Elem
 use pso_stuff, only: AOrb, CMO, D0, lPSO, lSA, n_Txy, nDens, nnP, npos, nV_k, nZ_p_k, Txy, U_k, V_k, Z_p_k
@@ -24,8 +24,7 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nProc, ipVk(nProc), ipZpk(nProc), myProc
-integer(kind=iwp), optional :: ipUk(nProc)
+integer(kind=iwp), intent(in) :: nProc, nVec, ipVk(nProc,nVec), ipZpk(nProc), myProc
 #include "cholesky.fh"
 #include "etwas.fh"
 #include "chotime.fh"
@@ -56,8 +55,8 @@ if (nV_t(0) == 0) then
 end if
 
 if (iMp2prpt == 2) then
-  if (.not. present(ipUk)) then
-    write(u6,*) 'No ipUk input present!'
+  if (nVec < 2) then
+    write(u6,*) 'nVec < 2, no ipUk input present!'
     call Abend()
   end if
   nU_l(0:nIrrep-1) = NumCho(1:nIrrep) ! local # of vecs in parallel run
@@ -87,11 +86,11 @@ DoCAS = lPSO
 
 if (nV_ls >= 1) then ! can be = 0 in a parallel run
 
-  jp_V_k = ipVk(myProc)
+  jp_V_k = ipVk(myProc,1)
   jp_Z_p_k = ipZpk(myProc)
   jp_U_k = 1
   if (iMp2prpt == 2) then
-    jp_U_k = ipUk(myProc)
+    jp_U_k = ipVk(myProc,2)
   end if
   !*********************************************************************
   !                                                                    *
@@ -310,10 +309,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
     mAO = mAO+nBas(kIrrep)*nASh(kIrrep)
   end do
 
-  allocate(AOrb(nADens))
-  do iADens=1,nADens
-    call Allocate_DT(AOrb(iADens),nAsh,nBas,nIrrep)
-  end do
+  call Allocate_DT(AOrb,nADens,nAsh,nBas,nIrrep,label='AOrb')
 
   ! Reordering of the active MOs :  C(a,v) ---> C(v,a)
 
@@ -369,7 +365,7 @@ end if ! no vectors on this node
 ! the "node storage" to the Q-vector storage
 if (nProc > 1) then
   do i=1,size(V_K,2)
-    call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1,V_k(:,i))
+    call Reord_Vk(ipVk(:,1),nProc,myProc,nV_l,nV_t,[1],1,V_k(:,i))
   end do
 end if
 !***********************************************************************
@@ -393,15 +389,15 @@ call mma_allocate(Qv,nQv,Label='Qv')
 ! Coulomb
 
 do i=1,nJdens
-  call Mult_Vk_Qv_s(V_k(ipVk(1),i),nV_t(0),Qv,nQv,Scr,nQMax,nBas_Aux,nV_t(0),nIrrep,'T')
-  V_k(ipVk(1):ipVk(1)+nV_k-1,i) = Scr(1:nV_k)
+  call Mult_Vk_Qv_s(V_k(ipVk(1,1),i),nV_t(0),Qv,nQv,Scr,nQMax,nBas_Aux,nV_t(0),nIrrep,'T')
+  V_k(ipVk(1,1):ipVk(1,1)+nV_k-1,i) = Scr(1:nV_k)
 end do
 
 ! MP2
 
 if (iMp2prpt == 2) then
-  call Mult_Vk_Qv_s(U_k(ipUk(1)),nU_t(0),Qv,nQv,Scr,nQMax,nBas_Aux,nU_t(0),nIrrep,'T')
-  U_k(ipUk(1):ipUk(1)+nV_k-1) = Scr(1:nV_k)
+  call Mult_Vk_Qv_s(U_k(ipVk(1,2)),nU_t(0),Qv,nQv,Scr,nQMax,nBas_Aux,nU_t(0),nIrrep,'T')
+  U_k(ipVk(1,2):ipVk(1,2)+nV_k-1) = Scr(1:nV_k)
 end if
 
 ! Active term
@@ -411,7 +407,7 @@ if (DoCAS) then ! reorder Zp_k
   call mma_allocate(Zv,nZ_p_k,Label='Zv')
 
   do iAvec=1,nAvec
-    if (nProc > 1) call Reord_Vk(ipZpk(1),nProc,myProc,nV_l,nV_t,nnP,nIrrep,Z_p_k(:,iAVec))
+    if (nProc > 1) call Reord_Vk(ipZpk,nProc,myProc,nV_l,nV_t,nnP,nIrrep,Z_p_k(:,iAVec))
 
     call Mult_Zp_Qv_s(Z_p_k(ipZpk(1),iAvec),nZ_p_k,Qv,nQv,Zv,nZ_p_k,nV_t,nnP,nBas_Aux,nIrrep,'T')
 

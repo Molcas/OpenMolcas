@@ -16,8 +16,9 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nU_k, nU_k_New, iSO_ab(2,nU_k)
-real(kind=wp) :: U_k(nU_k), U_k_New(nU_k_New)
+integer(kind=iwp), intent(in) :: nU_k, nU_k_New, iSO_ab(2,nU_k)
+real(kind=wp), intent(in) :: U_k(nU_k)
+real(kind=wp), intent(out) :: U_k_New(nU_k_New)
 integer(kind=iwp) :: i, ij, j, k
 
 do k=1,nU_k

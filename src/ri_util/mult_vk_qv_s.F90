@@ -15,9 +15,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nV_k, nQv, nV_kQ, nIrrep, nBas_Aux(0:nIrrep-1), nVec(0:nIrrep-1)
-real(kind=wp) ::  V_k(nV_k), Qv(nQv), V_kQ(nV_kQ)
-character :: QMode
+integer(kind=iwp), intent(in) :: nV_k, nQv, nV_kQ, nIrrep, nBas_Aux(0:nIrrep-1), nVec(0:nIrrep-1)
+real(kind=wp), intent(in) :: V_k(nV_k)
+real(kind=wp), intent(out) :: Qv(nQv), V_kQ(nV_kQ)
+character, intent(in) :: QMode
 integer(kind=iwp) :: iAddr, iIrrep, iOffA, iOffB, iSeed, kp_V_k, lQv, lstepA, lstepB, Lu_Q, mQv, nI, nJ, nK, nMuNu
 logical(kind=iwp) :: Out_of_Core
 character(len=6) :: Name_Q

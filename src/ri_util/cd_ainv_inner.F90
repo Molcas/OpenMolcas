@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CD_AInv_Inner(n,m,ADiag,iADiag,Lu_A,Lu_Q,Thr_CD)
+subroutine CD_AInv_Inner(n,m,ADiag,Lu_A,Lu_Q,Thr_CD)
 
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -17,12 +17,16 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, m, iADiag(n), Lu_A, Lu_Q
-real(kind=wp) :: ADiag(n), Thr_CD
+integer(kind=iwp), intent(in) :: n, Lu_A
+integer(kind=iwp), intent(out) :: m
+real(kind=wp), intent(inout) :: ADiag(n)
+integer(kind=iwp), intent(inout) :: Lu_Q
+real(kind=wp), intent(in) :: Thr_CD
 integer(kind=iwp) :: iAddr, iAddr_, iOff, kCol, kQm, lAm, LinDep, lQm, lScr, Lu_Z, MaxMem, MaxMem2, mb, mQm, nAm, nB, nBfn2, &
                      nBfnTot, nDim, nMem, nQm, nQm_full, nScr, nVec, nXZ
 real(kind=wp) :: a, b, Thr, ThrQ
 logical(kind=iwp) :: Out_of_Core
+integer(kind=iwp), allocatable :: iADiag(:)
 real(kind=wp), allocatable :: Scr(:), Z(:), X(:)
 real(kind=wp), allocatable, target :: Qm(:), Am(:), Q_k(:), A_k(:)
 real(kind=wp), pointer :: Q_l(:), A_l(:)
@@ -31,6 +35,7 @@ nScr = 3*n
 call mma_maxDBLE(MaxMem)
 lScr = min(MaxMem,nScr)
 call mma_allocate(Scr,lScr,Label='Scr')
+call mma_allocate(iADiag,n,Label='iADiag')
 
 nDim = n
 
@@ -190,6 +195,7 @@ Lu_Q = Lu_A
 !        is set to .true.). The column index is still pivoted.
 
 call mma_deallocate(Scr)
+call mma_deallocate(iADiag)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************

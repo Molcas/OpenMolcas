@@ -17,9 +17,10 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nPrimA, nConA, nPrimB, nConB, nTheta_Full, nPhi, NumCho, iD(NumCho), mData, nPhi_All, List2(mData,nPhi_All), &
-                     nkl, Indkl(nkl), nk, iAng, jAng
-real(kind=wp) :: CoeffA(nPrimA,nConA), CoeffB(nPrimB,nConB), Coeff(nTheta_Full,nPhi), CoeffAP(nPrimA,nPrimA), CoeffBP(nPrimB,nPrimB)
+integer(kind=iwp), intent(in) :: nPrimA, nConA, nPrimB, nConB, nTheta_Full, nPhi, NumCho, iD(NumCho), mData, nPhi_All, &
+                                 List2(mData,nPhi_All), nkl, Indkl(nkl), nk, iAng, jAng
+real(kind=wp), intent(in) :: CoeffA(nPrimA,nConA), CoeffB(nPrimB,nConB), CoeffAP(nPrimA,nPrimA), CoeffBP(nPrimB,nPrimB)
+real(kind=wp), intent(out) :: Coeff(nTheta_Full,nPhi)
 integer(kind=iwp) :: iCho, ik, il, iPhi, iPhi_All, iPhi_Full, iPrimA, iPrimB, iTheta_Full
 real(kind=wp) :: Cff
 
@@ -60,9 +61,8 @@ do iCho=1,NumCho
       if (iPhi == 0) cycle
       do iPrimA=1,nPrimA
         do iPrimB=1,nPrimB
-          Cff = CoeffA(iPrimA,ik)*CoeffB(iPrimB,il)/(CoeffAP(iPrimA,iPrimA)*CoeffBP(iPrimB,iPrimB))
           iTheta_Full = (iPrimB-1)*nPrimA+iPrimA
-          Coeff(iTheta_Full,iPhi) = Cff
+          Coeff(iTheta_Full,iPhi) = CoeffA(iPrimA,ik)*CoeffB(iPrimB,il)/(CoeffAP(iPrimA,iPrimA)*CoeffBP(iPrimB,iPrimB))
         end do
       end do
     end if

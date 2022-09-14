@@ -16,8 +16,9 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nMemAm
-integer(kind=iwp) :: nIrrep, nS, nShBf(0:nIrrep-1,nS), jS, iOffA(4,0:nIrrep-1)
-logical(kind=iwp) :: Out_of_Core
+integer(kind=iwp),intent(in) :: nIrrep, nS, nShBf(0:nIrrep-1,nS), jS
+integer(kind=iwp),intent(out) :: iOffA(4,0:nIrrep-1)
+logical(kind=iwp),intent(in) :: Out_of_Core
 integer(kind=iwp) :: iIrrep, lS, ni, nj, nl, nn
 
 if (Out_Of_Core) then

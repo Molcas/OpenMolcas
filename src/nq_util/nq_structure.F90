@@ -109,8 +109,8 @@ end subroutine Close_NQ_Data
 ! Define nqd_cptr2loff, nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim, nqdata_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(NQ_data_t)
-#  define _FUNC_NAME_ nqd_cptr2loff
 #  define _NO_GARBLE_
+#  define _FUNC_NAME_ nqd_cptr2loff
 #  include "cptr2loff_template.fh"
 #  undef _FUNC_NAME_
 #  define _SUBR_NAME_ nqdata_mma

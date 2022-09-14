@@ -35,8 +35,9 @@ use RI_glob, only: nSkal_Valence
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTInt
-real(kind=wp) :: ThrAO, TInt(nTInt)
+real(kind=wp), intent(in) :: ThrAO
+integer(kind=iwp), intent(in) :: nTInt
+real(kind=wp), intent(out) :: TInt(nTInt)
 integer(kind=iwp) :: iIrrep, nAcc, nSkal
 logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Verbose
 

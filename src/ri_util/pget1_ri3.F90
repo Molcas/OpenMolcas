@@ -43,8 +43,9 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nDSO, mV_k, nnP1, nSA, nAct(0:7)
-real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO,nSA), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k,nSA), U_k(mV_k), ZpK(nnP1,mV_K,*)
+integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nDSO, mV_k, nnP1, nSA, nAct(0:7)
+real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
+real(kind=wp), intent(in) :: DSO(nDSO,nSA), DSO_Var(nDSO), ExFac, CoulFac, V_k(mV_k,nSA), U_k(mV_k), ZpK(nnP1,mV_K,*)
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ijBas, ijk, ik, ik1, ik2, il, il1, il2, ileft, imo, iMO1, iMO2, iMOleft, iMOright, &
                      indexB, Indkl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, jSkip(4), &
                      jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, lAct, lAOl, lBVec, lCVec, lda, lda1, lda2, &
@@ -101,7 +102,7 @@ end if
 ! Test if we have any exchange contribution of significance
 
 ExFac_ = ExFac
-if (ExFac /= 0) then
+if (ExFac_ /= 0) then
 
   ! Pick up the number of MOs which passed the threshold test.
 
@@ -123,12 +124,12 @@ if (ExFac /= 0) then
 
     nj2 = nj2+nj(iSO)
   end do
-  if ((nj2 == 0) .and. (.not. lPSO)) ExFac = Zero
+  if ((nj2 == 0) .and. (.not. lPSO)) ExFac_ = Zero
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
+if ((ExFac_ /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -244,7 +245,7 @@ if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPS
 
               ! Exchange contribution: B(K,m,n)
 
-              temp = temp-ExFac*Half*BklK(indexB)
+              temp = temp-ExFac_*Half*BklK(indexB)
 
               PMax = max(PMax,abs(temp))
               PAO(nijkl,iPAO) = Fac*temp
@@ -258,7 +259,7 @@ if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPS
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 1)) then
+else if ((ExFac_ /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 1)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -387,7 +388,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
 
               ! Exchange contribution: B(K,m,n)
 
-              temp = temp-ExFac*BklK(indexB)
+              temp = temp-ExFac_*BklK(indexB)
 
               PMax = max(PMax,abs(temp))
               PAO(nijkl,iPAO) = Fac*temp
@@ -403,7 +404,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. (.not
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
+else if ((ExFac_ /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO .and. (.not. LSA)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -554,7 +555,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
 
               ! Exchange contribution: B(K,m,n)
 
-              temp = temp-ExFac*Half*Bklk(indexB)
+              temp = temp-ExFac_*Half*Bklk(indexB)
 
               ! Active space contribution: Sum_p Z(p,K)*Th(p,m,n)
 
@@ -572,7 +573,7 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt /= 2) .and. lPSO 
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
+else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -808,7 +809,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
               ! Exchange contribution: B(K,m,n)
 
-              temp = temp-Factor*ExFac*Half*BklK(indexB)
+              temp = temp-Factor*ExFac_*Half*BklK(indexB)
 
               ! Active space contribution: Sum_p Z(p,K)*Th(p,m,n)
 
@@ -828,7 +829,7 @@ else if ((ExFac /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt == 2)) then
+else if ((ExFac_ /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt == 2)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -926,8 +927,8 @@ else if ((ExFac /= Zero) .and. (NumOrb(1) > 0) .and. (iMP2prpt == 2)) then
 
               ! Exchange contribution: B(K,m,n)
 
-              temp = temp-ExFac*Half*(BklK(indexB)+Compute_B(irc,kSOk,lSOl,jAOj,iOff1,1))
-              !temp = temp-ExFac*Half*Compute_B(irc,kSOk,lSOl,jAOj,iOff1,1)
+              temp = temp-ExFac_*Half*(BklK(indexB)+Compute_B(irc,kSOk,lSOl,jAOj,iOff1,1))
+              !temp = temp-ExFac_*Half*Compute_B(irc,kSOk,lSOl,jAOj,iOff1,1)
 
               PMax = max(PMax,abs(temp))
               PAO(nijkl,iPAO) = Fac*temp
@@ -988,9 +989,6 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Reset ExFac always.
-
-ExFac = ExFac_
 
 if (iPAO /= nPAO) then
   write(u6,*) ' Error in PGet1_RI3!'

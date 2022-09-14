@@ -22,12 +22,13 @@ subroutine compute_txy(DM1,nDM,Txy,nTxy,nAuxVec,nIrrep,Diag,DMTmp,nAct)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use pso_stuff, only: G2, lsa, nnP
-use Constants, only: One, Two, Quart
+use Constants, only: Zero, One, Two, Quart
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDM, nTxy, nAuxVec, nIrrep, nAct(0:7)
-real(kind=wp) :: DM1(nDM,nAuxVec), Txy(nTxy,nAuxVec), Diag(nDM,nAuxVec), DMtmp(nTri_Elem(nDM))
+integer(kind=iwp), intent(in) :: nDM, nTxy, nAuxVec, nIrrep, nAct(0:7)
+real(kind=wp), intent(in) :: DM1(nDM,nAuxVec)
+real(kind=wp), intent(out) :: Txy(nTxy,nAuxVec), Diag(nDM,nAuxVec), DMtmp(nTri_Elem(nDM))
 integer(kind=iwp) :: i, icol, iend, iline, ista, isym, it, itu, ituvx, ituvx2, itv, itx, iu, iuv, iux, iv, iVec, ivx, ix, jend, &
                      jsta, jsym, kend, klsym, ksta, ksym, lend, lsta, lsym, nCumAct(0:7), nCumAct2(0:7), nkl, nvx, Txy_sta, Txy_sta2
 real(kind=wp) :: Fac, Fac2, tmp
@@ -126,7 +127,7 @@ do iVec=1,nAuxVec
 
     ! Diagonalize G2
 
-    call Cho_DZero(Txy(Txy_sta2,iVec),nkl**2)
+    Txy(Txy_sta2:Txy_sta2+nkl**2-1,iVec) = Zero
     call dcopy_(nkl,[One],0,Txy(Txy_sta2,iVec),nkl+1)
 
     call NIdiag(DMTmp,Txy(Txy_sta2,iVec),nkl,nkl)

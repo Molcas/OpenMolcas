@@ -14,7 +14,8 @@ subroutine Mk_Indkl(Indkl_OnOff,Indkl,nkl)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nkl, Indkl_OnOff(nkl), Indkl(nkl)
+integer(kind=iwp), intent(in) :: nkl, Indkl_OnOff(nkl)
+integer(kind=iwp), intent(out) :: Indkl(nkl)
 integer(kind=iwp) :: ikl, jkl
 
 !define _DEBUGPRINT_

@@ -41,7 +41,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSkal, nIrrep, nVec_Aux(0:nIrrep-1), iTOffs(3,nIrrep), nShij, iShij(2,nShij)
+integer(kind=iwp), intent(in) :: nSkal, nIrrep, nVec_Aux(0:nIrrep-1), iTOffs(3,nIrrep), nShij, iShij(2,nShij)
 #include "cholesky.fh"
 #include "choprint.fh"
 #ifdef _MOLCAS_MPP_

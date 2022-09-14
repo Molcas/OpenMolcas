@@ -40,10 +40,10 @@ integer(kind=iwp) :: i, iAlpha, iBeta, ik, iOff, ip, ip0m, ip0p, ip1, ip2, ip3, 
 #include "macros.fh"
 unused_var(ZInv)
 unused_var(nHer)
-unused_var(Ccoor)
+unused_var(Ccoor(1))
 unused_var(nOrdOp)
-unused_var(lOper)
 unused_var(iStabM)
+unused_var(nStabM)
 
 iRout = 122
 iPrint = nPrint(iRout)

@@ -15,9 +15,13 @@ use Index_Functions, only: nTri_Elem
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iSym, nV_k, nV_k_New, iSO_ab(2,nV_k), m_ij2K, ij2K(m_ij2K)
-real(kind=wp) :: V_k(nV_k), V_k_New(nV_k_New)
+integer(kind=iwp), intent(in) :: iSym, nV_k, nV_k_New, iSO_ab(2,nV_k), m_ij2K
+real(kind=wp), intent(in) :: V_k(nV_k)
+real(kind=wp), intent(_OUT_) :: V_k_New(nV_k_New)
+integer(kind=iwp), intent(out) :: ij2K(m_ij2K)
 integer(kind=iwp) :: i, ij, j, k
 
 if (iSym == 1) then

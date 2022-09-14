@@ -35,7 +35,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iSO, nIrrep, nBas_Aux(1:nIrrep)
+integer(kind=iwp), intent(in) :: iSO, nIrrep, nBas_Aux(1:nIrrep)
 #include "cholesky.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_

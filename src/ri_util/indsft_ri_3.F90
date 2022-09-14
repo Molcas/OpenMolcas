@@ -34,12 +34,12 @@ use sort_data, only: nSkip
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCmp(4), iShell(4), jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nTInt, iOff(3,0:7), nSO, iShlSO(nSO), &
-                     nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff(0:nIrrep-1,0:nIrrep-1)
-real(kind=wp) :: SOint(ijkl,nSOint), TInt(nTInt)
+integer(kind=iwp), intent(in) :: iCmp(4), iShell(4), jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nTInt, iOff(3,0:7), nSO, &
+                                 iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff(0:nIrrep-1,0:nIrrep-1)
+real(kind=wp), intent(in) :: SOint(ijkl,nSOint)
+real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iIrrep, iOff_L, iShC, iShD, ix, j, j1, j12, j2, j3, j4, jOffSO(0:7), jSO, jSOj, &
                      jSym(0:7), kl, kl_B, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, mm, n3C, nC, nD, nijkl
-real(kind=wp) :: A_Int
 logical(kind=iwp) :: qkl, Shkl
 
 !                                                                      *
@@ -156,18 +156,12 @@ do i2=1,iCmp(2)
               do jSOj=jSO,jSO+jBas-1
                 iAux = jSOj
                 nijkl = nijkl+1
-                A_Int = SOint(nijkl,memSO2)
                 !                                                      *
                 !*******************************************************
                 !                                                      *
-                if (j12 == 0) then
-                  if (kSOk >= lSOl) then
-                    kl_B = (iAux-1)*n3C+kl+iOff_L
-                    TInt(kl_B) = A_Int
-                  end if
-                else
+                if ((j12 /= 0) .or. (kSOk >= lSOl)) then
                   kl_B = (iAux-1)*n3C+kl+iOff_L
-                  TInt(kl_B) = A_Int
+                  TInt(kl_B) = SOint(nijkl,memSO2)
                 end if
                 !                                                      *
                 !*******************************************************

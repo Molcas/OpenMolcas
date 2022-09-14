@@ -94,7 +94,7 @@ C
       End If
 
       ! Initialize integral array
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
 
       ! Allocate and set index array to shell rows and cols of integrals
       l_iAB=nShell_A*nShell_B
@@ -174,7 +174,7 @@ C
                   iShell=iWork(ipA+iS)
                   nij=nBasSh(iShell)*nBasSh(jShell)
                   nijkl=nij*nkl
-                  Call Cho_dZero(Work(ip_SQ),nijkl)
+                  Call FZero(Work(ip_SQ),nijkl)
                   SHA=iShell
                   SHB=jShell
                   SHC=kShell

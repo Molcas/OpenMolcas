@@ -22,9 +22,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nMuNu, nI, nK
-real(kind=wp) :: A_3C(nMuNu,*), Qv(nI,nK), Rv(nMuNu,*)
-character :: QMode
+integer(kind=iwp), intent(in) :: nMuNu, nI, nK
+real(kind=wp), intent(in) :: A_3C(nMuNu,*), Qv(nI,nK)
+real(kind=wp), intent(inout) :: Rv(nMuNu,*)
+character, intent(in) :: QMode
 
 if (QMode == 'N') then
 

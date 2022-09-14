@@ -36,8 +36,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_k
-real(kind=wp) :: PSO(nijkl,nPSO), CoulFac, PMax, V_K(mV_K)
+integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_k
+real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
+real(kind=wp), intent(in) :: CoulFac, V_K(mV_K)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Indij, Indkl, iPntij, iPntkl, is, iSO, iSOi, iSym(0:7), j, j1, j12, j123, j2, j3, j4, &
                      jAOj, js, jSO, jSOj, jSym(0:7), kAOk, ks, kSO, kSOk, kSym(0:7), lAOl, lOper, ls, lSO, lSOl, lSym(0:7), &
                      MemSO2, mijkl, niSym, njSym, nkSym, nlSym
@@ -145,7 +146,7 @@ do i1=1,iCmp(1)
                           iPntkl = iPntSO(j3,j4,lOper,nbas)
                           Indij = iPntij+iTri(iSOi,jSOj)
                           Indkl = iPntkl+iTri(kSOk,lSOl)
-                          temp = V_k(Indij)*V_k(Indkl)*Coulfac
+                          temp = V_k(Indij)*V_k(Indkl)*CoulFac
                         else
                           temp = Zero
                         end if

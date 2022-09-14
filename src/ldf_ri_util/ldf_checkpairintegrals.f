@@ -556,7 +556,7 @@ C
                      SHB=jShell
                      SHC=kShell
                      SHD=lShell
-                     Call Cho_dZero(Work(ip_Int),nij*nkl)
+                     Call FZero(Work(ip_Int),nij*nkl)
                      Call Eval_IJKL(iShell,jShell,kShell,lShell,
      &                              Work(ip_Int),l_Int,
      &                              Int_LDF_SQ)

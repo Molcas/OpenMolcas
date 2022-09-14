@@ -16,8 +16,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDens
-real(kind=wp) :: Dens(nDens)
+integer(kind=iwp), intent(in) :: nDens
+real(kind=wp), intent(inout) :: Dens(nDens)
 character(len=16) :: NamRfil
 real(kind=wp), allocatable :: D_Var(:)
 

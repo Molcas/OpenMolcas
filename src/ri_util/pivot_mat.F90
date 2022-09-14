@@ -22,8 +22,8 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, m, lu_A0, lu_A, iD_A(n), lScr
-real(kind=wp) :: Scr(lScr)
+integer(kind=iwp), intent(in) :: n, m, lu_A0, lu_A, iD_A(n), lScr
+real(kind=wp), intent(out) :: Scr(lScr)
 #include "warnings.h"
 integer(kind=iwp) :: i, iAddr, iCol, ij, iScr, jCol, kAddr, kCol, lmax, mNeed, nMem_Col
 
@@ -45,7 +45,7 @@ iScr = n
 do kCol=1,nMem_Col
   jCol = iD_A(kCol)
   iAddr = n*(jCol-1)
-  call dDaFile(lu_A0,2,Scr(1),n,iAddr)
+  call dDaFile(lu_A0,2,Scr,n,iAddr)
   do i=1,kCol
     iCol = iD_A(i)
     iScr = iScr+1
@@ -59,7 +59,7 @@ call dDaFile(lu_A,1,Scr(n+1),ij,kAddr)
 do kCol=nMem_Col+1,m
   jCol = iD_A(kCol)
   iAddr = n*(jCol-1)
-  call dDaFile(lu_A0,2,Scr(1),n,iAddr)
+  call dDaFile(lu_A0,2,Scr,n,iAddr)
   do i=1,kCol
     iCol = iD_A(i)
     iScr = n+i

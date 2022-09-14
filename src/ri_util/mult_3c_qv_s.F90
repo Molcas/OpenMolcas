@@ -23,11 +23,13 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nA_3C, nQv, n_Rv, nVec(0:7), nIrrep, iOff_3C(3,0:nIrrep-1), Lu_Q(0:nIrrep-1)
-real(kind=wp) :: A_3C(nA_3C), Qv(nQv), Rv(n_Rv)
+integer(kind=iwp), intent(in) :: nA_3C, nQv, n_Rv, nVec(0:7), nIrrep, iOff_3C(3,0:nIrrep-1), Lu_Q(0:nIrrep-1)
+real(kind=wp), intent(in) :: A_3C(nA_3C)
+real(kind=wp), intent(inout) :: Qv(nQv)
+real(kind=wp), intent(out) :: Rv(n_Rv)
+logical(kind=iwp), intent(in) :: Out_of_Core
+character, intent(in) :: QMode
 integer(kind=iwp) :: iAddr, iIrrep, iOffA, iOffA2, iOffQ, iOffR, iOffR2, lQv, lstepA, lstepR, mQv, nI, nK, nMuNu
-logical(kind=iwp) :: Out_of_Core
-character :: QMode
 
 !                                                                      *
 !***********************************************************************

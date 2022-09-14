@@ -124,7 +124,7 @@ C
       End Do
 
       ! Compute integrals
-      Call Cho_dZero(Work(ip_Int),l_Int)
+      Call FZero(Work(ip_Int),l_Int)
       If (Mode.eq.0) Then ! exact integrals
          Do AB=1,NumberOfAtomPairs
             nAB=LDF_nBas_Atom(AP_Atoms(1,AB))

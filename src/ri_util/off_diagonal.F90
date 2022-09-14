@@ -13,9 +13,12 @@ subroutine Off_Diagonal(B1,nB,iB1s,iB1e,B2,iB2s,iB2e)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nB, iB1s, iB1e, iB2s, iB2e
-real(kind=wp) :: B1(nB,iB1s:iB1e), B2(nB,iB2s:iB2e)
+integer(kind=iwp), intent(in) :: nB, iB1s, iB1e, iB2s, iB2e
+real(kind=wp), intent(_OUT_) :: B1(nB,iB1s:iB1e)
+real(kind=wp), intent(in) :: B2(nB,iB2s:iB2e)
 integer(kind=iwp) :: i, j
 
 do j=iB2s,iB2e

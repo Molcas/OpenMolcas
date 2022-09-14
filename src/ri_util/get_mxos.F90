@@ -17,8 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: kOrb, locc, nSkal, nIrrep, nOcc(nIrrep)
-real(kind=wp) :: XO(locc,nSkal,nIrrep)
+integer(kind=iwp), intent(in) :: kOrb, locc, nSkal, nIrrep, nOcc(nIrrep)
+real(kind=wp), intent(out) :: XO(locc,nSkal,nIrrep)
 integer(kind=iwp) :: ib, iOff, iok, ir, isk, kb
 
 !                                                                      *

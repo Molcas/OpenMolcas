@@ -52,9 +52,9 @@ integer(kind=iwp) :: iPrint, iRout
 
 #include "macros.fh"
 unused_var(rFinal)
-unused_var(Ccoor)
+unused_var(Ccoor(1))
 unused_var(nOrdOp)
-unused_var(lOper)
+unused_var(nComp)
 
 #ifdef _DEBUGPRINT_
 iRout = 150

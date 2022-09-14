@@ -17,7 +17,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSO, iSO2Sh(nSO), iSO2Ind(nSO), nShell
+integer(kind=iwp), intent(in) :: nSO, iSO2Sh(nSO), nShell
+integer(kind=iwp), intent(out) :: iSO2Ind(nSO)
 integer(kind=iwp) :: iB, iIrrep, Ind, iSh, iSO
 integer(kind=iwp), allocatable :: nTemp(:)
 

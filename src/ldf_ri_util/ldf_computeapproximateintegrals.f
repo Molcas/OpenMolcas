@@ -129,7 +129,7 @@ C
       End If
 
       ! If integrals are not to be updated, initialize
-      If (.not.Add) Call Cho_dZero(xInt,l_xInt)
+      If (.not.Add) Call FZero(xInt,l_xInt)
 
       ! Separate codes for different integral representations
       If (Mode.eq.1 .or. Mode.eq.3) Then

@@ -15,8 +15,8 @@ use Basis_Info, only: Shells
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nTheta_All, mData, List2(mData,nTheta_All)
-real(kind=wp) :: TInt(nTheta_All,nTheta_All)
+integer(kind=iwp), intent(in) :: nTheta_All, mData, List2(mData,nTheta_All)
+real(kind=wp), intent(inout) :: TInt(nTheta_All,nTheta_All)
 integer(kind=iwp) :: iShll, iTheta_All, jShll, jTheta_All, kShll, lShll, nConti, nContj, nContk, nContl, nPrimi, nPrimj, nPrimk, &
                      nPriml
 real(kind=wp) :: Coeff_i, Coeff_j, Coeff_k, Coeff_l

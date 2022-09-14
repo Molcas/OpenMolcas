@@ -19,7 +19,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nIrrep, iTOffs(3,nIrrep), nShij, iShij(2,nShij)
+integer(kind=iwp), intent(in) :: nIrrep, iTOffs(3,nIrrep), nShij, iShij(2,nShij)
 #include "cholesky.fh"
 integer(kind=iwp) :: i, iCount, iiBst(8), iSym, nnBst(8), nnBstT
 logical(kind=iwp) :: DoDummy

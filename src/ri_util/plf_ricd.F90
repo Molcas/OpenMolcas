@@ -31,14 +31,16 @@ use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, mTInt, iTOff, iOffij, &
-                     iOffkl
-real(kind=wp) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt,mTInt)
+integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, mTInt, &
+                                 iTOff, iOffij, iOffkl
+real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
+real(kind=wp), intent(_OUT_) :: TInt(nTInt,mTInt)
 #include "ibas_ricd.fh"
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, ijSOij, iSO, iSOi, iSOij, iSOkl, &
                      iSOs(4), jSO, jSOj, klSOkl, kSO, kSOk, lSO, lSOl, nijkl
-real(kind=wp) :: A_Int
 
 !                                                                      *
 !***********************************************************************
@@ -102,17 +104,16 @@ do i1=1,iCmp
             do jSOj=jSO,jSO+jBas-1
               do iSOi=iSO,iSO+iBas-1
                 nijkl = nijkl+1
-                A_Int = AOint(nijkl,i1,i2,i3,i4)
                 if (iAO(1) == iAO(2)) then
                   iSOij = iTri(iSOi,jSOj)+iOffij
                 else
                   iSOij = (iSOi-1)*jCmp*jBas_+jSOj+iOffij
                 end if
 
-                !write(u6,*) 'iSOij,iSOkl,A_Int=',iSOij,iSOkl,A_Int
+                !write(u6,*) 'iSOij,iSOkl,AOint=',iSOij,iSOkl,AOint(nijkl,i1,i2,i3,i4)
                 ijSOij = max(iSOij,iSOkl)-iTOff
                 klSOkl = min(iSOij,iSOkl)
-                TInt(klSOkl,ijSOij) = A_Int
+                TInt(klSOkl,ijSOij) = AOint(nijkl,i1,i2,i3,i4)
 
               end do
             end do

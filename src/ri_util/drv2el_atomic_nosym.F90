@@ -12,6 +12,9 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifdef _IN_MODULE_
+
 subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
 !***********************************************************************
 !                                                                      *
@@ -41,10 +44,11 @@ use Definitions, only: wp, iwp
 
 implicit none
 external :: Integral_WrOut
-real(kind=wp) :: ThrAO
-integer(kind=iwp) :: iCnttp, jCnttp, nTInt, LuA, ijS_req, Keep_Shell
-real(kind=wp), allocatable :: TInt(:), ADiag(:)
-logical(kind=iwp) :: In_Core
+real(kind=wp), intent(in) :: ThrAO
+integer(kind=iwp), intent(in) :: iCnttp, jCnttp, ijS_req, Keep_Shell
+real(kind=wp), allocatable, intent(out) :: TInt(:), ADiag(:)
+integer(kind=iwp), intent(out) :: nTInt, LuA
+logical(kind=iwp), intent(out) :: In_Core
 #include "setup.fh"
 #include "iTOffs.fh"
 integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, iWROpt_Save, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, &
@@ -364,3 +368,5 @@ iWROpt = iWROpt_Save
 return
 
 end subroutine Drv2El_Atomic_NoSym
+
+#endif

@@ -17,10 +17,10 @@ use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nIrrep, nBas_Aux(0:nIrrep-1)
+integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(0:nIrrep-1)
 integer(kind=iwp) :: iAddr, iAddr_, iE, iIrrep, ik, iOff, irc, iS, iSeed, k, kCol, kQm, LinDep, lQm, lScr, Lu_A(0:7), Lu_Q(0:7), &
-                     MaxMem, MaxMem2, mB, Mem_Max, mQm, nA_Diag, nB, nBfn2, nQ_k, nQm
-real(kind=wp) :: a, b, ThrQ
+                     MaxMem, MaxMem2, mB, Mem_Max, mQm, nA_Diag, nB, nBfn2, nQ_k, nQm, nBas_Copy(0:7)
+real(kind=wp) :: a, b, dum(1), ThrQ
 logical(kind=iwp) :: Out_Of_Core
 character(len=6) :: Name_Q
 integer(kind=iwp), allocatable :: iDiag(:)
@@ -28,15 +28,6 @@ real(kind=wp), allocatable :: Scr(:), X(:), Z(:)
 real(kind=wp), allocatable, target :: Mem(:)
 real(kind=wp), pointer :: A_k(:), A_l(:), Am(:), Q_k(:), Q_l(:), Qm(:)
 integer(kind=iwp), external :: IsFreeUnit
-interface
-  subroutine SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,Diag)
-    import :: wp, iwp
-    integer(kind=iwp) :: irc, nSym, nDim(nSym), nVec(nSym), iD_A(*), lu_A0(nSym), lScr
-    character(len=7) :: mode
-    real(kind=wp) :: Scr(lScr)
-    real(kind=wp), optional :: Diag(*)
-  end subroutine SORT_mat
-end interface
 
 !                                                                      *
 !***********************************************************************
@@ -188,7 +179,8 @@ call mma_maxDBLE(MaxMem2)
 lScr = min(MaxMem2,nBfn2)
 call mma_allocate(Scr,lScr,Label='Scr')
 
-call SORT_Mat(irc,nBas_Aux,nBas_Aux,iDiag,nIrrep,Lu_Q,'Restore',lScr,Scr)
+nBas_Copy(0:nIrrep-1) = nBas_Aux
+call SORT_Mat(irc,nBas_Aux,nBas_Copy,iDiag,nIrrep,Lu_Q,'Restore',lScr,Scr,dum)
 
 ! Note: after the 'Restore' call to Sort_mat, the Q-matrix is
 !       no longer stored as upper-triangular but as squared

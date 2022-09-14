@@ -15,8 +15,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nA, nB
-real(kind=wp) :: AA(nA,nA), AB(nA,nB), BB(nB,nB), Temp(nA,nB), Error
+integer(kind=iwp), intent(in) :: nA, nB
+real(kind=wp), intent(in) :: AA(nA,nA), AB(nA,nB)
+real(kind=wp), intent(out) :: BB(nB,nB), Temp(nA,nB), Error
 real(kind=r8), external :: DDot_
 
 !                                                                      *

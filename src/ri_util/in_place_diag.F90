@@ -14,8 +14,8 @@ subroutine In_place_Diag(Buff,nBuff,iBs,iBe)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBuff, iBs, iBe
-real(kind=wp) :: Buff(nBuff,iBs:iBe)
+integer(kind=iwp), intent(in) :: nBuff, iBs, iBe
+real(kind=wp), intent(inout) :: Buff(nBuff,iBs:iBe)
 integer(kind=iwp) :: i, j
 
 !call RecPrt('Buff',' ',Buff,nBuff,iBe-iBs+1)

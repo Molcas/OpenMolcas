@@ -17,8 +17,11 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZpk, nTxy, nScrt, nDiag, nIrrep, nnP(0:nIrrep-1), nBas_Aux(0:nIrrep-1), nAdens, nAvec, nAct(0:nIrrep-1)
-real(kind=wp) :: Zpk(nZpk,nAVec), Txy(nTxy,nAdens), Scrt(nScrt), Diag(nDiag,nADens)
+integer(kind=iwp), intent(in) :: nZpk, nTxy, nScrt, nDiag, nIrrep, nnP(0:nIrrep-1), nBas_Aux(0:nIrrep-1), nAdens, nAvec, &
+                                 nAct(0:nIrrep-1)
+real(kind=wp), intent(inout) :: Zpk(nZpk,nAVec)
+real(kind=wp), intent(in) :: Txy(nTxy,nAdens), Diag(nDiag,nADens)
+real(kind=wp), intent(out) :: Scrt(nScrt)
 integer(kind=iwp) :: i, iDen, ip, iSym, j, jp, jSym, k, kp, kSym, l, nCumnnP, nCumnnP2, nCumnnP3
 
 !***********************************************************************

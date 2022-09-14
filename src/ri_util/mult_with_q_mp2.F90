@@ -26,7 +26,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
+integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
 #include "cholesky.fh"
 integer(kind=iwp) :: i, iA_in, iA_Out, iAdr, iAdrA, iAdrA_in(8), iAdrA_Out(8), iAdrQ, iOffQ1, iOpt, ip_B, iSeed, iSym, iType, &
                      jSym, jVec, kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, l_Q, lTot, Lu_A(2), Lu_B(4), Lu_Q, MaxMem, nBas2, nLR, &

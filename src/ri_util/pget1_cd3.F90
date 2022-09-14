@@ -37,8 +37,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, mV_k
-real(kind=wp) :: PAO(ijkl,nPAO), DSO(nDSO), DSO_Var(nDSO), ExFac, CoulFac, PMax, V_k(mV_k), U_k(mV_k)
+integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, mV_k
+real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
+real(kind=wp), intent(in) :: DSO(nDSO), DSO_Var(nDSO), ExFac, CoulFac, V_k(mV_k), U_k(mV_k)
 integer(kind=iwp) :: i, i1, i2, i3, i4, iAdr, iAOi, ijVec, indexB, Indij, Indkl, iPAO, irc, iSO, iSOi, jAOj, jSO, jSOj, jSym, &
                      kAOk, kSO, kSOk, kSym, lAOl, lBVec, lSO, lSOl, lSym, nijkl, nKBas, nLBas, NumOrb
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, temp, tempJ, tempK, Wall, Wall1, Wall2
@@ -117,7 +118,7 @@ if ((ExFac /= Zero) .and. (NumOrb > 0) .and. (iMP2prpt /= 2)) then
                   nijkl = iAOi+jAOj*iBas+kAOk*iBas*jBas+lAOl*iBas*jBas*kBas+1
 
                   Indkl = iTri(kSOk,lSOl)
-                  temp = V_k(Indij)*DSO(Indkl)*coulfac
+                  temp = V_k(Indij)*DSO(Indkl)*CoulFac
                   if (ijVec /= 0) then
                     tempK = BklK(indexB)
                   else
@@ -189,7 +190,7 @@ else if ((iMP2prpt == 2) .and. (NumOrb > 0)) then
                   nijkl = iAOi+jAOj*iBas+kAOk*iBas*jBas+lAOl*iBas*jBas*kBas+1
 
                   Indkl = iTri(kSOk,lSOl)
-                  temp = V_k(Indij)*DSO(Indkl)*coulfac
+                  temp = V_k(Indij)*DSO(Indkl)*CoulFac
 
                   if (ijVec /= 0) then
                     tempK = BklK(indexB)

@@ -55,8 +55,8 @@ external :: Cff2D, Fake, TNAI1
 
 #include "macros.fh"
 unused_var(rFinal)
-unused_var(Ccoor)
-unused_var(lOper)
+unused_var(Ccoor(1))
+unused_var(nComp)
 
 iRout = 151
 iPrint = nPrint(iRout)

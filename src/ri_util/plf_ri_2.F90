@@ -33,11 +33,13 @@ use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ijkl, jCmp, lCmp, iAO(4), iAOst(4), jBas, lBas, kOp(4), nTInt, nSOs, iSO2Ind(nSOs), iOffA(4)
-real(kind=wp) :: AOint(ijkl,jCmp,lCmp), TInt(nTInt)
+integer(kind=iwp), intent(in) :: ijkl, jCmp, lCmp, iAO(4), iAOst(4), jBas, lBas, kOp(4), nTInt, nSOs, iSO2Ind(nSOs), iOffA(4)
+real(kind=wp), intent(in) :: AOint(ijkl,jCmp,lCmp)
+real(kind=wp), intent(_OUT_) :: TInt(nTInt)
 integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, kSO, lSO, lSOl, mm_, mx, nijkl, nn
-real(kind=wp) :: A_Int
 
 !                                                                      *
 !***********************************************************************
@@ -85,11 +87,10 @@ do i2=1,jCmp
 
         iSO = jSOj-iOff
         nijkl = nijkl+1
-        A_Int = AOint(nijkl,i2,i4)
 
         iSO = iSO2Ind(iSO)+nn
         ij = iTri(iSO,kSO)-mx+iOffA_
-        TInt(ij) = A_Int
+        TInt(ij) = AOint(nijkl,i2,i4)
 
       end do
     end do

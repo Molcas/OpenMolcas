@@ -23,8 +23,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, m, lu_A0, lu_A, iD_A(n), lScr
-real(kind=wp) :: Diag(*), Scr(lScr), Thr
+real(kind=wp), intent(inout) :: Diag(*)
+integer(kind=iwp), intent(in) :: n, lu_A0, lu_A, lScr
+integer(kind=iwp), intent(out) :: m, iD_A(n)
+real(kind=wp), intent(out) :: Scr(lScr)
+real(kind=wp), intent(in) :: Thr
 #include "warnings.h"
 integer(kind=iwp) :: i, iAddr, iD_Col, ij, is, istart, js, k, kAddr, kCol, ks, kScr, lindep, lmax, nMem_Col
 real(kind=wp) :: Acc, XMax
@@ -103,7 +106,7 @@ do kCol=1,n
   m = m+1
 
   iAddr = n*(kCol-1)
-  if (kCol > nMem_Col) call dDaFile(lu_A,1,Scr(1),n,iAddr)
+  if (kCol > nMem_Col) call dDaFile(lu_A,1,Scr,n,iAddr)
 
 end do
 

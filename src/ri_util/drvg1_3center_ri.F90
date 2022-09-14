@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Drvg1_3Center_RI(Temp,nGrad,ij3,nij_Eff)
+subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals. The four outermost loops *
@@ -56,9 +56,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nGrad, nij_Eff
-real(kind=wp) :: Temp(nGrad)
-integer(kind=iwp), allocatable :: ij3(:,:)
+integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -294,8 +293,8 @@ else
   call mma_allocate(Shij2,2,mij,Label='Shij2')
   nij = 0
   do ij=1,nij_Eff
-    iS = ij3(1,ij)
-    jS = ij3(2,ij)
+    iS = ij2(1,ij)
+    jS = ij2(2,ij)
     if (TMax_All*TMax_Valence(iS,jS) >= CutInt) then
       nij = nij+1
       Shij2(1,nij) = iS

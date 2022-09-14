@@ -34,7 +34,7 @@ C
 
       If (Job .eq. 0) Then
 
-         Call Cho_dZero(CME_Time,2*2)
+         Call FZero(CME_Time,2*2)
 
          Write(6,'(/,4X,A,/,4X,A)')
      &   'Evaluation of MP2 energy correction',

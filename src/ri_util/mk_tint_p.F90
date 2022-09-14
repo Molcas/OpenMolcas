@@ -16,8 +16,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTInt_p, nTP, nList2_p, mData, List2_p(mData,nList2_p), iAng, jAng, npk, List_TP(2,nTP)
-real(kind=wp) :: TInt_p(nTInt_p,nTInt_p), TP(nTP,nTP)
+integer(kind=iwp), intent(in) :: nTInt_p, nTP, nList2_p, mData, List2_p(mData,nList2_p), iAng, jAng, npk
+real(kind=wp), intent(in) :: TInt_p(nTInt_p,nTInt_p)
+real(kind=wp), intent(out) :: TP(nTP,nTP)
+integer(kind=iwp), intent(out) :: List_TP(2,nTP)
 integer(kind=iwp) :: iA, iList2_p, iTP, jA, jList2_p, jTP, k, kAng, kComp, l, lAng, lComp, m, mAng, mComp, n, nAng, nComp
 
 iA = iAng+1

@@ -58,7 +58,7 @@ C
       i2CList(i,j)=iWork(ip_2CList-1+l_2CList_1*(j-1)+i)
 
       ! Init integral array
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
 
       ! Set dummy shell
       dShell=nShell_Valence+nShell_Auxiliary+1

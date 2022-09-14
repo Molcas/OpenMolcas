@@ -33,12 +33,14 @@ use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ijkl, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nTInt, iOff(3), nSO, &
-                     iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff
-real(kind=wp) :: AOint(ijkl,jCmp,kCmp,lCmp), TInt(nTInt)
+integer(kind=iwp), intent(in) :: ijkl, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nTInt, iOff(3), &
+                                 nSO, iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff
+real(kind=wp), intent(in) :: AOint(ijkl,jCmp,kCmp,lCmp)
+real(kind=wp), intent(_OUT_) :: TInt(nTInt)
 integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iOff1, iShC, iSOs(4), jSOj, kl, kl_B, kSOk, lCmp_Max, lSOl, n3C, nC, nijkl
-real(kind=wp) :: A_Int
 logical(kind=iwp) :: Shkl
 
 !                                                                      *
@@ -85,10 +87,9 @@ do i2=1,jCmp
               nijkl = nijkl+1
               if (lSOl > kSOk) cycle
               iAux = jSOj-iOff1
-              A_Int = AOint(nijkl,i2,i3,i4)
 
               kl_B = (iAux-1)*n3C+kl
-              TInt(kl_B) = A_Int
+              TInt(kl_B) = AOint(nijkl,i2,i3,i4)
 
             end do
           end do
@@ -118,10 +119,9 @@ do i2=1,jCmp
             do jSOj=iSOs(2),iSOs(2)+jBas-1
               iAux = jSOj-iOff1
               nijkl = nijkl+1
-              A_Int = AOint(nijkl,i2,i3,i4)
 
               kl_B = (iAux-1)*n3C+kl
-              TInt(kl_B) = A_Int
+              TInt(kl_B) = AOint(nijkl,i2,i3,i4)
 
             end do
           end do

@@ -13,17 +13,17 @@ subroutine CD_AInv(A,n,AInV,Thr_CD)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
-#ifdef _ACCURACY_
 use Constants, only: Zero
-#endif
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: A(n,n), AInv(n,n), Thr_CD
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(_IN_) :: A(n,n)
+real(kind=wp), intent(out) :: AInv(n,n)
+real(kind=wp), intent(in) :: Thr_CD
 integer(kind=iwp) :: iDisk, Lu_A, Lu_Q, m
-real(kind=wp) :: Zerp
-integer(kind=iwp), allocatable :: iADiag(:)
 real(kind=wp), allocatable :: ADiag(:), QVec(:,:)
 #ifdef _ACCURACY_
 real(kind=wp), allocatable :: Tmp(:,:), Tmp2(:,:)
@@ -31,7 +31,6 @@ real(kind=wp), allocatable :: Tmp(:,:), Tmp2(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 
 call mma_allocate(ADiag,n,Label='ADiag')
-call mma_allocate(iADiag,n,Label='iADiag')
 
 Lu_A = IsFreeUnit(77)
 call DaName_MF_WA(Lu_A,'AMat09')
@@ -46,10 +45,9 @@ call DaName_MF_WA(Lu_Q,'QMat09')
 
 call dcopy_(n,A,n+1,ADiag,1)
 
-call CD_AInv_Inner(n,m,ADiag,iADiag,Lu_A,Lu_Q,Thr_CD)
+call CD_AInv_Inner(n,m,ADiag,Lu_A,Lu_Q,Thr_CD)
 
 call mma_deallocate(ADiag)
-call mma_deallocate(iADiag)
 
 call mma_allocate(QVec,n,m,Label='QVec')
 
@@ -57,7 +55,7 @@ iDisk = 0
 call dDaFile(Lu_Q,2,QVec,n*m,iDisk)
 
 !call RecPrt('QVec','(6G20.10)',QVec,n,m)
-call DGEMM_('N','T',n,n,m,One,QVec,n,QVec,n,Zerp,AInv,n)
+call DGEMM_('N','T',n,n,m,One,QVec,n,QVec,n,Zero,AInv,n)
 !call RecPrt('AInv',' ',AInv,n,n)
 call DaEras(Lu_Q)
 call mma_deallocate(QVec)

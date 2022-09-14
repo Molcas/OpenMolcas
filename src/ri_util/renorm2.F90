@@ -17,7 +17,7 @@ use RI_glob, only: iOffA
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iCnttp
+integer(kind=iwp), intent(in) :: iCnttp
 integer(kind=iwp) :: ire_do
 
 iOffA(:,:) = 0

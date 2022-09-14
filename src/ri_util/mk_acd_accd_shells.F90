@@ -23,6 +23,7 @@ subroutine Mk_aCD_acCD_Shells(iCnttp,W2L)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
+use RI_procedures, only: Drv2El_Atomic_NoSym, Fix_Exponents
 use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
 use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
@@ -32,8 +33,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCnttp
-logical(kind=iwp) :: W2L
+integer(kind=iwp), intent(in) :: iCnttp
+logical(kind=iwp), intent(in) :: W2L
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "print.fh"
@@ -57,21 +58,6 @@ logical(kind=iwp) :: Diagonal, Found, Hit, In_Core, Keep_Basis
 character(len=80) :: atom, author, Aux, basis, BSLbl, btype, CGTO, Label
 integer(kind=iwp), external :: IsFreeUnit
 external :: Integral_RICD
-interface
-  subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
-    import :: wp, iwp
-    external :: Integral_WrOut
-    real(kind=wp) :: ThrAO
-    integer(kind=iwp) :: iCnttp, jCnttp, nTInt, LuA, ijS_req, Keep_Shell
-    real(kind=wp), allocatable :: TInt(:), ADiag(:)
-    logical(kind=iwp) :: In_Core
-  end subroutine
-  subroutine Fix_Exponents(nP,mP,nC,Expn,CoeffC,CoeffP)
-    import :: wp, iwp
-    integer(kind=iwp) :: nP, mP, nC
-    real(kind=wp), allocatable :: Expn(:), CoeffC(:,:,:), CoeffP(:,:,:)
-  end subroutine Fix_Exponents
-end interface
 
 !                                                                      *
 !***********************************************************************

@@ -86,7 +86,7 @@ C
       ! Compute G matrix
       nRow_G=M
       l_G=M*M
-      Call Cho_dZero(G,l_G)
+      Call FZero(G,l_G)
       dShell=nShell_Valence+nShell_Auxiliary+1
       SHA=dShell
       SHC=dShell

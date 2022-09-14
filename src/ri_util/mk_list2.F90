@@ -17,7 +17,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nTheta_All, mData, List2(2*mData,nTheta_All), nSO_Tot, iCnttp, nTest, ijS_req
+integer(kind=iwp), intent(in) :: nTheta_All, mData, nSO_Tot, iCnttp, nTest, ijS_req
+integer(kind=iwp), intent(out) :: List2(2*mData,nTheta_All)
 integer(kind=iwp) :: iAng, iAng_, iCmp, iCmp_, iCont, iCont_, iiSO, ijS, ijSO, iShll, iShll_, iSO, iSO_, jAng, jAng_, jCmp_, &
                      jCont_, jjSO, jShll, jShll_, jSO, jSO_Max, mCmp, mSO, nCmp, nCont, nSO
 logical(kind=iwp) :: Only_DB

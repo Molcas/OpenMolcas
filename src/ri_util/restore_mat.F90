@@ -23,8 +23,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, m, lu_A0, lu_A, iD_A(n), lScr
-real(kind=wp) :: Scr(lScr)
+integer(kind=iwp), intent(in) :: n, m, lu_A0, lu_A, iD_A(n), lScr
+real(kind=wp), intent(out) :: Scr(lScr)
 logical(kind=iwp) :: Add0s
 #include "warnings.h"
 integer(kind=iwp) :: i, iAddr, iCol, ij, iOff, iScr, jCol, kAddr, kCol, lmax, mNeed, nMem_Col
@@ -45,7 +45,7 @@ end do
 
 kAddr = 0
 ij = nTri_Elem(nMem_Col)
-call dDaFile(lu_A0,2,Scr(1),ij,kAddr)
+call dDaFile(lu_A0,2,Scr,ij,kAddr)
 
 iOff = 0
 do kCol=1,nMem_Col
@@ -67,7 +67,7 @@ do kCol=1,nMem_Col
 end do
 
 do kCol=nMem_Col+1,m
-  call dDaFile(lu_A0,2,Scr(1),kCol,kAddr)
+  call dDaFile(lu_A0,2,Scr,kCol,kAddr)
   do i=1,kCol
     iCol = iD_A(i)
     iScr = n+iCol

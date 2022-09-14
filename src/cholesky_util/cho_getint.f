@@ -48,7 +48,7 @@ c     END IF
 C     Initializations.
 C     ----------------
 
-      CALL CHO_IZERO(NQUAL,NSYM)
+      CALL IZERO(NQUAL,NSYM)
       ICOUNT = 0
       IF (MXSHPR .GT. 0) THEN
          MCOUNT = MIN(NPOTSH,MXSHPR)

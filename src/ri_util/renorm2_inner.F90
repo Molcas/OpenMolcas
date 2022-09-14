@@ -27,6 +27,7 @@ subroutine ReNorm2_Inner(iCnttp)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
+use RI_procedures, only: Drv2El_Atomic_NoSym
 use SOAO_Info, only: iAOtSO, nSOInf
 use Real_Spherical, only: Sphere
 use Basis_Info, only: dbsc, iCnttp_Dummy, Shells
@@ -37,26 +38,15 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iCnttp
+integer(kind=iwp), intent(in) :: iCnttp
 #include "itmax.fh"
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCase, iCmp, iDisk, ij, ijF, ijS, ijS_req, ijT, iSeed, iShll, iShll_, iSO, j, jBas, jCmp, &
                      jiS, Keep_Shell, Lu_A, Lu_Q, m, nBasisi, nCmp, nExpi, nSO, nTest, nTInt_c
 real(kind=wp) :: Thr_CB, ThrAO
 logical(kind=iwp) :: In_Core
-integer(kind=iwp), allocatable :: iADiag(:)
 real(kind=wp), allocatable :: ADiag(:), Not_Used(:), QVec(:,:), TInt_c(:), TInt_d(:), Tmp(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 external :: Integral_RI_2
-interface
-  subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
-    import :: wp, iwp
-    external :: Integral_WrOut
-    real(kind=wp) :: ThrAO
-    integer(kind=iwp) :: iCnttp, jCnttp, nTInt, LuA, ijS_req, Keep_Shell
-    real(kind=wp), allocatable :: TInt(:), ADiag(:)
-    logical(kind=iwp) :: In_Core
-  end subroutine
-end interface
 
 !                                                                      *
 !***********************************************************************
@@ -180,7 +170,6 @@ do iAng=0,nTest
 # endif
 
   call mma_allocate(ADiag,nBasisi,Label=' ADiag')
-  call mma_allocate(iADiag,nBasisi,Label='iADiag')
 
   iSeed = 77
   Lu_A = IsFreeUnit(iSeed)
@@ -195,9 +184,8 @@ do iAng=0,nTest
 
   call dcopy_(nBasisi,TInt_d,nBasisi+1,ADiag,1)
 
-  call CD_AInv_Inner(nBasisi,m,ADiag,iADiag,Lu_A,Lu_Q,Thr_CB)
+  call CD_AInv_Inner(nBasisi,m,ADiag,Lu_A,Lu_Q,Thr_CB)
 
-  call mma_deallocate(iADiag)
   call mma_deallocate(ADiag)
   call mma_deallocate(TInt_d)
 

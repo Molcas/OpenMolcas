@@ -20,11 +20,16 @@ subroutine SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,Diag)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nSym, nDim(nSym), nVec(nSym), iD_A(*), lu_A0(nSym), lScr
-character(len=7) :: mode
-real(kind=wp) :: Scr(lScr)
-real(kind=wp), optional :: Diag(*)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nSym, nDim(nSym), lScr
+integer(kind=iwp), intent(inout) :: nVec(nSym), lu_A0(nSym)
+integer(kind=iwp), intent(_OUT_) :: iD_A(*)
+character(len=7), intent(in) :: mode
+real(kind=wp), intent(out) :: Scr(lScr)
+real(kind=wp), intent(inout) :: Diag(*)
 integer(kind=iwp) :: is, iSym, lu_A
 ! 19112013VVP: The threshold changed from 1.0e-14_wp to 1.0e-12_wp
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
@@ -33,7 +38,6 @@ character(len=6) :: Name_A
 !write(u6,*) 'Mode=',Mode
 irc = 0
 if (mode == 'GePivot') then  ! returns iD_A
-  if (.not. present(Diag)) call Abend()
   is = 1
   do iSym=1,nSym
     if (nDim(iSym) == 0) cycle

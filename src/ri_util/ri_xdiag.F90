@@ -23,9 +23,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nDiag
-real(kind=wp) :: Diag(nDiag)
+integer(kind=iwp), intent(in) :: nDiag
+real(kind=wp), intent(_OUT_) :: Diag(nDiag)
 #include "cholesky.fh"
 integer(kind=iwp) :: i, i1, i2, ID, iSAB, iShlA, iShlB, iSym, l_SewMem, NumAB
 real(kind=wp), allocatable :: Scr(:)

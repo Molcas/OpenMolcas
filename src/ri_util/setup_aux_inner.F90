@@ -16,9 +16,10 @@ use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSO, iSOShl(nSO), iShlSO(nSO), nShell, nIrrep, nBasSh(0:nIrrep-1,nShell), nBas(0:nIrrep-1), nij_Shell, &
-                     iSSOff(0:nIrrep-1,0:nIrrep-1,nij_Shell), iShij(2,nij_Shell), nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1), &
-                     iTOffs(3,0:nIrrep-1)
+integer(kind=iwp), intent(in) :: nSO, iSOShl(nSO), nShell, nIrrep, nBas(0:nIrrep-1), nij_Shell, iShij(2,nij_Shell), &
+                                 nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1)
+integer(kind=iwp), intent(out) :: iShlSO(nSO), nBasSh(0:nIrrep-1,nShell), iSSOff(0:nIrrep-1,0:nIrrep-1,nij_Shell), &
+                                  iTOffs(3,0:nIrrep-1)
 integer(kind=iwp) :: iAcc, iBas, iIrrep, ijIrrep, ijShell, iOff_V12, iShell, iSO, iSO_Shl, iTtmp(0:7), jIrrep, jShell, nA, nab, &
                      nAux, nB, nI
 

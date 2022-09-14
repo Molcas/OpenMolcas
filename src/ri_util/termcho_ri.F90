@@ -16,7 +16,8 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, l_nVec_RI, nVec_RI(l_nVec_RI) ! #RI vectors per irrep on this node
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: l_nVec_RI, nVec_RI(l_nVec_RI) ! #RI vectors per irrep on this node
 
 irc = 0
 

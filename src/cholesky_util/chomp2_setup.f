@@ -155,8 +155,8 @@ C     --------------------------------
             End Do
          End Do
       Else
-         Call Cho_iZero(nMatab,8)
-         Call Cho_iZero(iMatab,64)
+         Call iZero(nMatab,8)
+         Call iZero(iMatab,64)
       End If
 
 C     If batching over occuped orbitals is forced by user, there better

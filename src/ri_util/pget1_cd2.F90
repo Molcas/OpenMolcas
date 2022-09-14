@@ -39,8 +39,9 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), mV_k, nnP1
-real(kind=wp) :: PAO(ijkl,nPAO), ExFac, CoulFac, PMax, V_k(mV_k), U_K(mV_K), Z_p_K(nnP1,mV_K)
+integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), mV_k, nnP1
+real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
+real(kind=wp), intent(in) :: ExFac, CoulFac, V_k(mV_k), U_K(mV_K), Z_p_K(nnP1,mV_K)
 integer(kind=iwp) :: i1, i2, i3, i4, iAdrJ, iAdrL, iAOi, iE, ijVec, Indij, Indkl, iPAO, iS, iSO, iSOi, iSym, jAOj, jp, jSO, jSOj, &
                      jSym, kAOk, klVec, kSO, kSOk, lAOl, lSO, lSOl, lSym, nijkl, NumIK
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, Fac_kl, temp, tempJ_mp2, tempK, tempK_mp2, Wall, Wall1, Wall2

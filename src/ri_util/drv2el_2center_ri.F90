@@ -12,6 +12,9 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifdef _IN_MODULE_
+
 subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 !***********************************************************************
 !                                                                      *
@@ -41,10 +44,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ThrAO
-real(kind=wp), allocatable :: A_Diag(:)
-integer(kind=iwp) :: nSO_Aux, MaxCntr
-integer(kind=iwp), allocatable :: SO2C(:)
+real(kind=wp), intent(in) :: ThrAO
+real(kind=wp), allocatable, intent(out) :: A_Diag(:)
+integer(kind=iwp), intent(out) :: nSO_Aux, MaxCntr
+integer(kind=iwp), allocatable, intent(out) :: SO2C(:)
 #include "setup.fh"
 #include "iTOffs.fh"
 integer(kind=iwp) :: i, iAddr, iAddr_AQ(0:7), iCenter, iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, &
@@ -262,3 +265,5 @@ call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 return
 
 end subroutine Drv2El_2Center_RI
+
+#endif

@@ -84,7 +84,7 @@ k1 = 1
 k2 = 1
 do iSym=1,nSym
   call dCopy_(nBas(iSym)*nOrb(iSym),CMO_(k1),1,CMO(k2),1)
-  call Cho_dZero(CMO(k2+nBas(iSym)*nOrb(iSym)),nBas(iSym)*(nBas(iSym)-nOrb(iSym)))
+  call FZero(CMO(k2+nBas(iSym)*nOrb(iSym)),nBas(iSym)*(nBas(iSym)-nOrb(iSym)))
   k1 = k1+nBas(iSym)*nOrb(iSym)
   k2 = k2+nBas(iSym)*nBas(iSym)
 end do
@@ -93,7 +93,7 @@ k1 = 1
 k2 = 1
 do iSym=1,nSym
   call dCopy_(nOrb(iSym),Occ_(k1),1,Occ(k2),1)
-  call Cho_dZero(Occ(k2+nOrb(iSym)),nBas(iSym)-nOrb(iSym))
+  call FZero(Occ(k2+nOrb(iSym)),nBas(iSym)-nOrb(iSym))
   k1 = k1+nOrb(iSym)
   k2 = k2+nBas(iSym)
 end do

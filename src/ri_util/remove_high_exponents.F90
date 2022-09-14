@@ -22,7 +22,8 @@ use Basis_Info, only: Shells
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nD, iD(nD), mData, nTheta_All, List2(mData,nTheta_All)
+integer(kind=iwp), intent(inout) :: nD, iD(nD)
+integer(kind=iwp), intent(in) :: mData, nTheta_All, List2(mData,nTheta_All)
 integer(kind=iwp) :: i, iTheta_All, k, kAng, kShll, l, lAng, lShll, mD
 logical(kind=iwp) :: Skip
 

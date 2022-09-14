@@ -45,7 +45,7 @@ C
      &              nT1AOT(iSyScr)
          Call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
       Else
-         Call Cho_dZero(Scr,nT1AOT(iSyScr))
+         Call FZero(Scr,nT1AOT(iSyScr))
       End If
 
 C     First half-transformation step:

@@ -99,7 +99,7 @@ C              Reorder.
 C              --------
 
                KCHO2 = KREAD
-               CALL CHO_IZERO(IOFF,64)
+               CALL IZERO(IOFF,64)
                ICOUNT = KCHO2 - 1
                DO ISYMB = 1,NSYM
                   ISYMA = MULD2H(ISYMB,ISYM)
@@ -110,7 +110,7 @@ C              --------
                   END IF
                END DO
 
-               CALL CHO_DZERO(WRK(KCHO2),NNBST(ISYM)*NUMV)
+               CALL FZERO(WRK(KCHO2),NNBST(ISYM)*NUMV)
                DO IVEC = 1,NUMV
                   KOFF1 = KCHO1 + NNBSTR(ISYM,2)*(IVEC - 1) - 1
                   DO IRS = 1,NNBSTR(ISYM,2)

@@ -37,8 +37,9 @@ use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: iCmp(4), jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, mV_k, nSA, nAct(0:7)
-real(kind=wp) :: PSO(nijkl,nPSO), DSO(nDSO,nSA), ExFac, CoulFac, PMax, V_k(mV_k,nSA), Zpk(*)
+integer(kind=iwp), intent(in) :: iCmp(4), jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, mV_k, nSA, nAct(0:7)
+real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
+real(kind=wp), intent(in) :: DSO(nDSO,nSA), ExFac, CoulFac, V_k(mV_k,nSA), Zpk(*)
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indkl, iSO, iThpkl, iVec, j, j2, j23, j3, j4, jAOj, jC, &
                      jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), l, lAct, lAOl, &
                      lCVec, lda, lmo, lOper, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, n2j, nCumnnP(0:7), nCumnnP2(0:7), nJ, njSym, &
@@ -223,13 +224,13 @@ do i2=1,iCmp(2)
             jSO_off = jSO-nBas(j2)
 
             ExFac_ = ExFac
-            if (nJ*nk*nl == 0) ExFac = Zero
+            if (nJ*nk*nl == 0) ExFac_ = Zero
             !                                                          *
             !***********************************************************
             !                                                          *
             ! Read a block of C_kl^J and transform it to AO basis.
 
-            if (ExFac /= Zero) then
+            if (ExFac_ /= Zero) then
 
               ! Read C(i,j,J) for a fix i2 value
 
@@ -328,7 +329,7 @@ do i2=1,iCmp(2)
             !                                                          *
             !***********************************************************
             !                                                          *
-            if (ExFac /= Zero) then
+            if (ExFac_ /= Zero) then
             !                                                          *
             !***********************************************************
             !                                                          *
@@ -361,7 +362,7 @@ do i2=1,iCmp(2)
               !                                                        *
               !*********************************************************
               !                                                        *
-            else if ((ExFac == Zero) .and. (j3 == j4)) then
+            else if ((ExFac_ == Zero) .and. (j3 == j4)) then
               !                                                        *
               !*********************************************************
               !                                                        *
@@ -384,8 +385,6 @@ do i2=1,iCmp(2)
             !                                                          *
             !***********************************************************
             !                                                          *
-
-            ExFac = ExFac_
 
           end do
           nullify(Xki,Xli)

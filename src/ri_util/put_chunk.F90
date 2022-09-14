@@ -19,8 +19,8 @@ use Para_Info, only: Is_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: MuNu_s, MuNu_e, j_s, j_e, nMuNu, LenVec
-real(kind=wp) :: Rv(nMuNu,(j_e-j_s+1))
+integer(kind=iwp), intent(in) :: MuNu_s, MuNu_e, j_s, j_e, nMuNu, LenVec
+real(kind=wp), intent(inout) :: Rv(nMuNu,j_e-j_s+1)
 integer(kind=iwp) :: jp_ChoVec, jVec, mMuNu, NumVec_
 
 #ifndef _MOLCAS_MPP_

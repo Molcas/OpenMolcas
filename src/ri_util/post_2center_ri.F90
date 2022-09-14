@@ -39,10 +39,10 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), allocatable :: A_Diag(:)
+real(kind=wp), intent(inout) :: A_Diag(*)
 integer(kind=iwp) :: i, iAddr, iAddr_, ichk, iIrrep, iOff, irc, iSeed, kCol, kQm, lAm, LinDep, lJ, lQm, lScr, MaxMem, MaxMem2, mB, &
                      mQm, nA_Diag, nAm, nB, nBfn2, nBfnTot, nDmA(0:7), nDmB(0:7), nMem, nQm, nQm_full, nScr, nXZ
-real(kind=wp) :: a, b, ThrQ
+real(kind=wp) :: a, b, dum(1), ThrQ
 logical(kind=iwp) :: Out_of_Core
 character(len=6) :: Name_Q
 integer(kind=iwp), allocatable :: iDiag(:)
@@ -50,15 +50,6 @@ real(kind=wp), allocatable :: Scr(:), X(:), Z(:)
 real(kind=wp), allocatable, target :: A_k(:), Am(:), Q_k(:), Qm(:)
 real(kind=wp), pointer :: A_l(:), Q_l(:)
 integer(kind=iwp), external :: IsFreeUnit
-interface
-  subroutine SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,Diag)
-    import :: wp, iwp
-    integer(kind=iwp) :: irc, nSym, nDim(nSym), nVec(nSym), iD_A(*), lu_A0(nSym), lScr
-    character(len=7) :: mode
-    real(kind=wp) :: Scr(lScr)
-    real(kind=wp), optional :: Diag(*)
-  end subroutine SORT_mat
-end interface
 
 !                                                                      *
 !***********************************************************************
@@ -106,7 +97,7 @@ if (Force_Out_of_Core) MaxMem2 = 3*nBfnTot
 lScr = max(MaxMem2-(nScr/3),nScr)
 call mma_allocate(Scr,lScr,Label='Scr')
 
-call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,Lu_A,'GePivot',lScr,Scr,Diag=A_Diag)
+call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,Lu_A,'GePivot',lScr,Scr,A_Diag)
 ichk = 0
 do iIrrep=0,nIrrep-1
   nChV(iIrrep) = nDmB(iIrrep)
@@ -121,13 +112,12 @@ if (ichk /= 0) then
   write(u6,*)
 end if
 
-call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,Lu_A,'DoPivot',lScr,Scr)
+call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,Lu_A,'DoPivot',lScr,Scr,dum)
 
 ! Note: after the 'DoPivot' call to Sort_mat, the A-matrix is
 !       no longer stored as squared but as upper-triangular
 
 call mma_deallocate(Scr)
-call mma_deallocate(A_Diag)
 
 !***********************************************************************
 !     A-vectors are now on disk. Go ahead and compute the Q-vectors!
@@ -267,7 +257,7 @@ if (Force_Out_of_Core) MaxMem2 = 2*nBfnTot
 lScr = min(MaxMem2,max(nBfn2,2*nBfnTot))
 call mma_allocate(Scr,lScr,Label='Scr')
 
-call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,Lu_Q,'Restore',lScr,Scr)
+call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,Lu_Q,'Restore',lScr,Scr,dum)
 
 ! Note: after the 'Restore' call to Sort_mat, the Q-matrix is
 !       no longer stored as upper-triangular but as RECTANGULAR

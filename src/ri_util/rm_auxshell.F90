@@ -20,7 +20,7 @@ use Basis_Info, only: dbsc, Shells
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iCnttp
+integer(kind=iwp), intent(in) :: iCnttp
 integer(kind=iwp) :: iShll, k
 
 !                                                                      *

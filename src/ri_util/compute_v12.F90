@@ -17,8 +17,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim
-real(kind=wp) :: V(nDim,nDim), V12(nDim,nDim)
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(inout) :: V(nDim,nDim)
+real(kind=wp), intent(out) :: V12(nDim,nDim)
 integer(kind=iwp) :: i, j
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: Vec(:,:), VTri(:)

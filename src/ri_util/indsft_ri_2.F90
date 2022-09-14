@@ -33,12 +33,13 @@ use sort_data, only: nSkip
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCmp(4), iShell(4), jBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, nTInt, iSO2Ind(nSOs), iOffA(4,0:7)
-logical(kind=iwp) :: Shijij
-real(kind=wp) :: SOint(ijkl,nSOint), TInt(nTInt)
+integer(kind=iwp), intent(in) :: iCmp(4), iShell(4), jBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, nTInt, iSO2Ind(nSOs), &
+                                 iOffA(4,0:7)
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(in) :: SOint(ijkl,nSOint)
+real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, ij, iOffA_, iOffB_, iSO, ix, j, j1, j12, j2, j3, j4, jSO, jSOj, jSym(0:7), k12, &
                      k34, kSO, lSO, lSOl, lSym(0:7), memSO2, mm_, mx, nijkl, nn
-real(kind=wp) :: A_Int
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: tr1 = Zero, tr2 = Zero
 #endif
@@ -143,13 +144,12 @@ do i2=1,iCmp(2)
       do lSOl=lSO,lSO+lBas-1
         do jSOj=jSO,jSO+jBas-1
           nijkl = nijkl+1
-          A_Int = SOint(nijkl,memSO2)
           iSO = jSOj-nBas(j2)
           kSO = lSOl-nBas(j4)
 
           iSO = iSO2Ind(iSO+iOffB_)+nn
           ij = iTri(iSO,kSO)-mx+iOffA_
-          TInt(ij) = A_Int
+          TInt(ij) = SOint(nijkl,memSO2)
 
         end do
       end do

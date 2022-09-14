@@ -110,11 +110,16 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nDen, nTxy, ipTxy(8,8,2), nChOrb_(8,5), nAorb(8), nV_k, nZ_p_k, nnP(8), npos(8,3)
-type(DSBA_Type) DLT(5), DLT2, MSQ(nDen), AOrb(*)
-real(kind=wp) :: Txy(nTxy), V_k(nV_k,*), U_k(*), Z_p_k(nZ_p_k,*)
-logical(kind=iwp) :: DoExchange, lSA, DoCAS, Estimate, Update
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nDen, nTxy, ipTxy(8,8,2), nChOrb_(8,5), nAorb(8), nV_k, nZ_p_k, nnP(8), npos(8,3)
+type(DSBA_Type), intent(in) :: DLT(5), DLT2, MSQ(nDen), AOrb(*)
+real(kind=wp), intent(in) :: Txy(nTxy)
+logical(kind=iwp), intent(in) :: DoExchange, lSA, DoCAS, Estimate, Update
+real(kind=wp), intent(_OUT_) :: V_k(nV_k,*), U_k(*)
+real(kind=wp), intent(inout) :: Z_p_k(nZ_p_k,*)
 #include "Molcas.fh"
 #include "chotime.fh"
 #include "cholesky.fh"

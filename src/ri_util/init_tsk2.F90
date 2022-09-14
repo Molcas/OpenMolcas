@@ -16,7 +16,8 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: id, mTask, jOpt, List(*)  ! either nTask or 0 long
+integer(kind=iwp), intent(out) :: id
+integer(kind=iwp), intent(in) :: mTask, jOpt, List(*)  ! either nTask or 0 long
 
 nTask = mTask
 iOpt = jOpt

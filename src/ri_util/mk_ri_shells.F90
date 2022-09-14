@@ -33,7 +33,7 @@ use Constants, only: Zero, One
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: LuRd
+integer(kind=iwp), intent(in) :: LuRd
 #include "Molcas.fh"
 #include "print.fh"
 #include "getlnqoe.fh"

@@ -206,7 +206,7 @@ C           -------------
 
          Else
 
-            Call Cho_dZero(Err(1,iSym),4)
+            Call FZero(Err(1,iSym),4)
 
          End If
 

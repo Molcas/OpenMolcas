@@ -36,13 +36,13 @@ C
       Do iAtom=1,nAtom
          l=LDF_nBasAux_Atom(iAtom)
          ip=iWork(ip0+iAtom)
-         Call Cho_dZero(Work(ip),l)
+         Call FZero(Work(ip),l)
       End Do
       ip0=ip0+nAtom
       Do iAtomPair=1,NumberOfAtomPairs
          l=AP_2CFunctions(1,iAtomPair)
          ip=iWork(ip0+iAtomPair)
-         Call Cho_dZero(Work(ip),l)
+         Call FZero(Work(ip),l)
       End Do
 
       End

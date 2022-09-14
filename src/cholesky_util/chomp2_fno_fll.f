@@ -86,7 +86,7 @@ C     ------------------------------
       If (ChoAlg.eq.2 .and. MP2_small) Then ! level 3 BLAS algorithm
 
          kMabij = kXaibj ! rename pointer
-         Call Cho_dZero(Wrk(kMabij),LnT2am) ! initialize
+         Call FZero(Wrk(kMabij),LnT2am) ! initialize
 
 C        Loop over Cholesky symmetries.
 C        ------------------------------
@@ -277,7 +277,7 @@ C              -------------------------------------
       ElseIf (ChoAlg .eq. 2) Then ! level 3 BLAS algorithm
 
          kMabij = kXaibj ! rename pointer
-         Call Cho_dZero(Wrk(kMabij),LnT2am) ! initialize
+         Call FZero(Wrk(kMabij),LnT2am) ! initialize
 
 C        Loop over Cholesky symmetries.
 C        ------------------------------

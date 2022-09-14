@@ -17,7 +17,7 @@ use Para_Info, only: nProcs, Is_Real_Par
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iSym
+integer(kind=iwp), intent(in) :: iSym
 #include "cholesky.fh"
 #include "choglob.fh"
 integer(kind=iwp) :: iTmp

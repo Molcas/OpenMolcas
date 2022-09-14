@@ -22,7 +22,8 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LenVec, NumVec, IncVec
+integer(kind=iwp), intent(in) :: LenVec, NumVec
+integer(kind=iwp), intent(out) :: IncVec
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
 integer(kind=iwp) :: i, IncVec0, iNode, iNode0, iStart, itmp, myMap(2), nBlocks

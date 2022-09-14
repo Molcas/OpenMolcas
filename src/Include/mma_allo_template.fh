@@ -350,6 +350,7 @@
 #undef _DN_
 #undef _MMA_ATTR_
 #undef _MMA_FUNC_
+#undef _KEY_
 #undef _ALLO_NAME_
 #undef _ALLO_NAME_LIM_
 #undef _FREE_NAME_

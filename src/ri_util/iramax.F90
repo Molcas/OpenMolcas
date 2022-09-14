@@ -20,8 +20,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: irAmax
-integer(kind=iwp) :: n, inc
-real(kind=wp) :: a(*)
+integer(kind=iwp), intent(in) :: n, inc
+real(kind=wp), intent(in) :: a(*)
 integer(kind=iwp) :: i, ix
 real(kind=wp) :: smax
 

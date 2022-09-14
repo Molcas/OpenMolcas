@@ -17,8 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nProcs, ip_V_k(nProcs), myProc, nV_k(*), nV_t(*), nA(*), jSym
-real(kind=wp) :: Array(*)
+integer(kind=iwp), intent(in) :: nProcs, ip_V_k(nProcs), myProc, jSym, nV_k(jSym), nV_t(jSym), nA(jSym)
+real(kind=wp), intent(inout) :: Array(*)
 integer(kind=iwp) :: ifr, ik, iSym, ito, jOff, kOff, nAV_t
 real(kind=wp), allocatable :: Scr(:)
 

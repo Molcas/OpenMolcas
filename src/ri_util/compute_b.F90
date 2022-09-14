@@ -26,7 +26,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Compute_B
-integer(kind=iwp) :: irc, kSOk, lSOl, jAOj, nBasFnc, iOpt
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: kSOk, lSOl, jAOj, nBasFnc, iOpt
 integer(kind=iwp) :: iOff1, iOff2
 
 iOff1 = jAOj*nBasFnc*nBasFnc+(kSOk-1)*nBasFnc+lSOl

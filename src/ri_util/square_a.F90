@@ -15,8 +15,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lu, nB, MaxMem_
-logical(kind=iwp) :: Force_out_of_Core
+integer(kind=iwp), intent(in) :: Lu, nB, MaxMem_
+logical(kind=iwp), intent(in) :: Force_out_of_Core
 integer(kind=iwp) :: iAddr, iAddr1, iAddr2, iAddrs, iB, Inc, jB, kB, MaxMem, mB, nBuff, nMem
 real(kind=wp), allocatable :: Buf(:,:)
 

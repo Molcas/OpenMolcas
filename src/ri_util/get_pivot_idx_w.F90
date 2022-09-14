@@ -26,8 +26,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, m, lu_A0, lu_A, iD_A(n), lScr
-real(kind=wp) :: Diag(*), Wg(*), Scr(lScr), Thr
+real(kind=wp), intent(inout) :: Diag(*)
+real(kind=wp), intent(in) :: Wg(*), Thr
+integer(kind=iwp), intent(in) :: n, lu_A0, lu_A, lScr
+integer(kind=iwp), intent(out) :: m, iD_A(n)
+real(kind=wp), intent(out) :: Scr(lScr)
 #include "warnings.h"
 integer(kind=iwp) :: i, iAddr, iD_Col, ij, is, istart, js, k, kAddr, kCol, ks, kScr, lindep, lmax, nMem_Col
 real(kind=wp) :: Acc, XMax

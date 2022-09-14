@@ -85,9 +85,14 @@ use Para_Info, only: MyRank, nProcs, Is_Real_Par
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: A_k(*), Am(*), Qm(*), Scr(*), Z(*), X(*), thr, Q_k(*)
-integer(kind=iwp) :: kCol, nMem, lu_A, lu_Q, lScr, lindep
+real(kind=wp), intent(inout) :: A_k(*)
+integer(kind=iwp), intent(in) :: kCol, nMem, lu_A, lu_Q, lScr
+real(kind=wp), intent(in) :: Am(*), Qm(*), thr
+real(kind=wp), intent(_OUT_) :: Scr(*), Z(*), X(*), Q_k(*)
+integer(kind=iwp), intent(out) :: lindep
 #include "warnings.h"
 integer(kind=iwp) :: i, IJ, j, jp, kdone, kread, kstart, lQcol, lQdone, lQdone_, lQread
 real(kind=wp) :: sprev, xnorm
@@ -142,12 +147,11 @@ if (kCol <= nMem) then
     end do
     call GAdGOp(Q_k,kCol-1,'+')
   else
+# endif
     Q_k(1:kCol-1) = Q_k(1:kCol-1)-Z(1:kCol-1)
     call DTPMV('U','N','N',kCol-1,Qm,Q_k,1)
+# ifdef _MOLCAS_MPP_
   end if
-# else
-  Q_k(1:kCol-1) = Q_k(1:kCol-1)-Z(1:kCol-1)
-  call DTPMV('U','N','N',kCol-1,Qm,Q_k,1)
 # endif
   Q_k(kCol) = one
 
@@ -227,11 +231,11 @@ else   ! the first nMem columns of Q are in memory
       kread = kread-1
     end do
 
-    call ddafile(lu_Q,2,Scr(1),lQread,lQdone_) ! read
+    call ddafile(lu_Q,2,Scr,lQread,lQdone_) ! read
 
     jp = 1
     do j=kdone+1,kread
-      Z(j) = ddot_(j,A_k(1),1,Scr(jp),1)
+      Z(j) = ddot_(j,A_k,1,Scr(jp),1)
       jp = jp+j
     end do
 
@@ -288,11 +292,11 @@ else   ! the first nMem columns of Q are in memory
 
     ! Out-of-core intermediate to be used for the normalization factor
     ! ----------------------------------------------------------------
-    call ddafile(lu_A,2,Scr(1),lQread,lQdone) ! read
+    call ddafile(lu_A,2,Scr,lQread,lQdone) ! read
 
     jp = 1
     do j=kdone+1,kread
-      Z(j) = ddot_(j,Q_k(1),1,Scr(jp),1)
+      Z(j) = ddot_(j,Q_k,1,Scr(jp),1)
       jp = jp+j
     end do
 

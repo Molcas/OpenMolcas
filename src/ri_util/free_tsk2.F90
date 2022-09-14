@@ -16,7 +16,7 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: id
+integer(kind=iwp), intent(in) :: id
 
 if (iOpt == 0) then
   call Free_Tsk(id)

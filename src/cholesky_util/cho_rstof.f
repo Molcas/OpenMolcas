@@ -39,7 +39,7 @@ C
       IF (LRDIM .NE. MMBSTRT) THEN
          CALL CHO_QUIT('Dimension error [2] in '//SECNAM,104)
       END IF
-      CALL CHO_IZERO(IRS2F,N*MMBSTRT)
+      CALL IZERO(IRS2F,N*MMBSTRT)
 
       DO ISYMA = 1,NSYM
          IF (NBAS(ISYMA) .GT. 0) THEN

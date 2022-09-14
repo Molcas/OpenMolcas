@@ -49,9 +49,9 @@ use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nGrad, nij_Eff
-real(kind=wp) :: Grad(nGrad), Temp(nGrad)
-integer(kind=iwp), allocatable :: ij2(:,:)
+integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
