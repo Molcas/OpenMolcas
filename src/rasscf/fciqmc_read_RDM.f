@@ -19,27 +19,16 @@
       use mh5, only: mh5_open_file_r, mh5_close_file, mh5_put_dset,
      &               mh5_open_group, mh5_close_group,
      &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
-<<<<<<< HEAD
-     &               mh5_get_dset_dims, mh5_exists_dset,
-     &               mh5_create_file, mh5_create_dset_int,
-     &               mh5_create_dset_real, mh5_init_attr
-=======
-     &               mh5_get_dset_dims
->>>>>>> master
+     &               mh5_get_dset_dims, mh5_create_file,
+     &               mh5_create_dset_int, mh5_create_dset_real,
+     &               mh5_init_attr
 #endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
-<<<<<<< HEAD
-      ! wfn_dens, wfn_spindens
-      use rasscf_data, only : NRoots, iAdr15, NAc, NIn
+      use rasscf_data, only : NRoots, iAdr15, NAc, nIn
       use general_data, only : nActEl
-      ! Note that two_el_idx_flatten has also out parameters.
-=======
-      use rasscf_data, only : NRoots, iAdr15, NAc
-      use general_data, only : nActEl
->>>>>>> master
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
      &                           one_el_idx_flatten, two_el_idx
       use CI_solver_util, only: CleanMat, RDM_to_runfile
