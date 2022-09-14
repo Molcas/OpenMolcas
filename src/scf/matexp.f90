@@ -17,16 +17,11 @@
 !>
 !> @details
 !> Computes the exponential of an antisymmetric real matrix U through
-!> a modified Taylor expansion of the K matrix. This takes advantage of
-!> the subblocks and trend in the powers of K matrix.
+!> a modified Taylor expansion of the K matrix. This takes advantage of the
+!> subblocks and trend in the powers of K matrix. \cite Sei2022-JCTC-18-4164
 !>
-!> @note
+!> \note
 !> Some equations in the reference are wrong.
-!>
-!> @reference (\cite Sei2022-JCTC-18-4164)
-!> Q-Next: A Fast, Parallel, and Diagonalization-Free Alternative to DIIS
-!> Christorpher Seidl and Giuseppe M. J. Barca
-!> JCTC, 2022, 18, 4164-4176
 !>
 !> @param[in]     N        Size of the square matrix
 !> @param[in]     No       Number of Occupied Orbitals

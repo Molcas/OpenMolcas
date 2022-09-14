@@ -74,7 +74,7 @@ Aron Cohen
 David L. Cooper  
 Maurizio Cossi  
 Joel Creutzberg  
-Oleh Danyliv
+Oleh Danyliv  
 Danjo De Chavez  
 Mickaël G. Delcey  
 Ajitha Devarajan  
