@@ -11,9 +11,9 @@
 * Copyright (C) 1992, Martin Schuetz                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine vOO2OV(v1,nOO,v2,mOV,nD,nOV,kOV)
+      SubRoutine vOO2OV(v1,nOO,v2,mOV,nD,kOV)
       Implicit None
-      Integer nOO, mOV, nD, iSt, iEnd, iD, nOV
+      Integer nOO, mOV, nD, iSt, iEnd, iD
       Integer kOV(nD)
       Real*8 v1(nOO,nD), v2(mOV)
 

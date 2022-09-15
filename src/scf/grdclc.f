@@ -123,7 +123,7 @@
 *
          End If
 *
-         Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,nOV,kOV)
+         Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,kOV)
 *
 *------- Write Gradient to linked list
 *
