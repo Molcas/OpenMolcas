@@ -139,19 +139,6 @@
       End Do
 #endif
 *
-*---- Perform Lowdin orthonormalization
-*
-      nD = iUHF+1
-      Call mma_allocate(Lowdin,nBB,nD,Label='Lowdin')
-      Call FZero(Lowdin,nBB*nD)
-      ioff=1
-      Do iSym=1,nSym
-         Call dCopy_(nBas(iSym),[One],0,Lowdin(ioff,1),nBas(iSym)+1)
-         ioff=ioff+nBas(iSym)*nBas(iSym)
-      End Do
-      Call xxLowdin(Ovrlp,Lowdin(1,1),nBas,nSym)
-      If (nD.eq.2) Call DCopy_(nBB,Lowdin(1,1),1,Lowdin(1,2),1)
-*
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*

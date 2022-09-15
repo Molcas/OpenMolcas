@@ -61,7 +61,6 @@
       Call mma_deallocate(CMO)
       Call mma_deallocate(TrM)
 *
-      Call mma_deallocate(Lowdin)
       Call mma_deallocate(Ovrlp)
       Call mma_deallocate(OneHam)
       Call mma_deallocate(HDiag)

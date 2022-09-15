@@ -13,12 +13,11 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GrdClc(FstItr,iOpt)
+      SubRoutine GrdClc(FstItr)
       use SCF_Arrays
       use InfSCF
       Implicit Real*8 (a-h,o-z)
       Logical FstItr
-      Integer   iOpt
 #include "real.fh"
 *
       nD = iUHF + 1
@@ -27,18 +26,8 @@
 *                                                                      *
 *     iOpt    : SCF optimization scheme
 *
-*     Select case(iOpt)
-
-*     Case (2,3,4)
-         Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
+      Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &                CMO   ,nBB,Ovrlp,CMO)
-*     Case (1)
-*        Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
-*    &                Lowdin,nBB,Ovrlp,CMO)
-*     Case Default
-*        Write (6,*) 'GrdClc: Illegal iOpt Value:',iOpt
-*        Call abend()
-*     End Select
 *
       Return
       End
