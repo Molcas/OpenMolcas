@@ -31,6 +31,8 @@
       use InfSCF
 *
       Implicit None
+
+#define  qnext
 #include "real.fh"
 *
 *     declaration subroutine parameters
@@ -39,28 +41,41 @@
       Integer mynOcc(8)
 *
       Integer iKap,iSym,iU,j,jU,mOcc,mOrb,mVir
-      Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3,theta
+      Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3
+
+#ifndef qnext
+      Real*8 theta
+#endif
+
       Real*8, Parameter :: Thrs = 1.0D-14
-*
+
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *
       iU = 1
       iKap = 1
       U(:) = Zero
+
       Do iSym=1,nSym
         mOrb = nOrb(iSym)-nFro(iSym)
         mOcc = mynOcc(iSym)-nFro(iSym)
         mVir = mOrb-mOcc
+
         If (mVir*mOcc == 0) Cycle
-        ! Put the non-zero values in the occ-vir offdiagonal block
+
         jU = iU+mOcc
+
         Do j=1,mOcc
           U(jU:jU+mVir-1) = kapOV(iKap:iKap+mVir-1)
           iKap = iKap+mVir
           jU = jU+mOrb
         End Do
-        ! Compute the exponential
-        Call Exp_Schur(mOrb,U(iU),theta)
+
+#ifdef  qnext
+        Call matexp(mOrb,mOcc,U(iU:iU+mOrb**2))
+#else
+        Call Exp_Schur(mOrb,U(iU:iU+mOrb**2),theta)
+#endif
+
         iU = iU+mOrb**2
       End Do
 *
@@ -70,5 +85,6 @@
 *
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld(10) = TimFld(10) + (Cpu2 - Cpu1)
+
       Return
       End

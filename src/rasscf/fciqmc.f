@@ -38,11 +38,12 @@
       use CI_solver_util, only: wait_and_read
 
       use generic_CI, only: CI_solver_t
-      use fciqmc_read_RDM, only: read_neci_RDM
+      use fciqmc_read_RDM, only: read_neci_RDM, tHDF5_RDMs,
+     &    MCM7
       use definitions, only: u6
 
       implicit none
-      save  ! preserves values when modules go out of scope, legacy.
+      save
       private
       public :: DoNECI, DoEmbdNECI, fciqmc_solver_t, tGUGA_in
 
@@ -321,6 +322,14 @@
         if (tGUGA) then
           write(u6,'(4x, A)') 'cp PSMAT.* PAMAT.* DMAT.* '//
      &          trim(WorkDir)
+        else if (tHDF5_RDMs) then
+          if (MCM7) then
+          write(u6,'(4x, a)')
+     &    'copy your M7.h5 file into '//trim(WorkDir)
+          else
+          write(u6,'(4x, a)')
+     &    'copy your fciqmc.rdms.{iroot}.h5 file into '//trim(WorkDir)
+          end if
         else
           write(u6,'(4x, A)')
      &      'cp TwoRDM_* '//trim(WorkDir)

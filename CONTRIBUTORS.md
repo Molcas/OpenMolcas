@@ -75,6 +75,7 @@ David L. Cooper
 Maurizio Cossi  
 Joel Creutzberg  
 Oleh Danyliv  
+Danjo De Chavez  
 Mickaël G. Delcey  
 Ajitha Devarajan  
 Luca De Vico  
