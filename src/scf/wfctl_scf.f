@@ -1062,6 +1062,7 @@ c     Call Scf_XML(0)
 *                                                                      *
       Subroutine Save_Orbitals()
       Integer iSym
+*
 *---  Save the new orbitals in case the SCF program aborts
 
       iTrM = 1

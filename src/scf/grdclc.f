@@ -27,12 +27,12 @@
 *     iOpt    : SCF optimization scheme
 *
       Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
-     &                CMO   ,nBB,Ovrlp,CMO)
+     &             nBB,Ovrlp,CMO)
 *
       Return
       End
       SubRoutine GrdClc_(FstItr,Dens,TwoHam,Vxc,mBT,mDens,nD,OneHam,
-     &                   OCMO,mBB,Ovrlp,CMO)
+     &                   mBB,Ovrlp,CMO)
 ************************************************************************
 *                                                                      *
 *     purpose: Compute gradients and write on disk.                    *
@@ -69,7 +69,7 @@
 #include "file.fh"
 *
       Real*8 Dens(mBT,nD,mDens), TwoHam(mBT,nD,mDens), CMO(mBB,nD),
-     &       OneHam(mBT), OCMO(mBB,nD), Ovrlp(mBT), Vxc(mBT,nD,mDens)
+     &       OneHam(mBT), Ovrlp(mBT), Vxc(mBT,nD,mDens)
       Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
       Logical FstItr
@@ -113,13 +113,14 @@
            Call RWDTG(-jDT,AuxT,nBT*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
            Call RWDTG(-jDT,AuxV,nBT*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
 *
-            Call EGrad(OneHam,AuxT,AuxV,Ovrlp,AuxD,nBT,OCMO,nBO,
+            Call EGrad(OneHam,AuxT,AuxV,Ovrlp,AuxD,nBT,CMO,nBO,
      &                 GrdOO,nOO,nD,CMO)
 *
          Else
 *
             Call EGrad(OneHam,TwoHam(1,1,jDT),Vxc(1,1,jDT),Ovrlp,
-     &                 Dens(1,1,jDT),nBT,OCMO,nBO,GrdOO,nOO,nD,CMO)
+     &                 Dens(1,1,jDT),nBT,CMO,nBO,
+     &                 GrdOO,nOO,nD,CMO)
 *
          End If
 *
@@ -131,10 +132,10 @@
 *
 #ifdef _DEBUGPRINT_
          Write (6,*) 'GrdClc: Put Gradient iteration:',iDT+iter0
-         Write (6,*) 'iOpt=',iOpt
+         Write (6,*) 'iOpt,mOV=',iOpt,mOV
          Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
          Call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
-         Call RecPrt('GrdClc: g(i)',' ',GrdOV,1,mOV)
+*        Call RecPrt('GrdClc: g(i)',' ',GrdOV,1,mOV)
 #endif
       End Do
 *

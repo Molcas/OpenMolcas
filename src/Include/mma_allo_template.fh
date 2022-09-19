@@ -90,6 +90,7 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
+          If (Present(Label)) Write (6,*) 'Label=',Label
           call mma_double_allo()
         end if
         call mma_maxbytes(mma_avail)
@@ -201,6 +202,7 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
+          If (Present(Label)) Write (6,*) 'Label=',Label
           call mma_double_allo()
         end if
         call mma_maxbytes(mma_avail)

@@ -46,8 +46,8 @@
       Do i = 1, lth
          S = S + Vec(i)*DBLE(i)
       End Do
-      Write(6,'(5A,3E24.16)')' Norm of ',MatNam,' in ',SubNam,' = ',
-     &                        R,Q,S
+      Write(6,'(5A,3E24.16,I8)')' Norm of ',MatNam,' in ',SubNam,' = ',
+     &                        R,Q,S, lth
 *
       Return
       End

@@ -35,7 +35,7 @@
 *
 *     local vars
       Integer inode
-      Real*8, Dimension(:), Allocatable:: Grad
+      Real*8, Allocatable:: Grad(:)
 *
       Call GetNod(ivec,LLGrad,inode)
       If (inode.eq.0) GoTo 555

@@ -129,18 +129,20 @@
 *---- Compute norms, <e_i|e_j>
 *
 #ifdef _DEBUGPRINT_
+      Write (6,*) 'kOV(:)=',kOV
+      Write (6,*) 'mOV   =',mOV
       If (QNRStp) Call RecPrt('HDiag',' ',HDiag,1,Size(HDiag))
 #endif
       Do i=1,kOptim
          Call ErrV(mOV,Ind(i),QNRstp,Err1,HDiag)
 #ifdef _DEBUGPRINT_
-         Call NrmClc(Err1,mOV,'Diis  ','Err1  ')
+         Call NrmClc(Err1,mOV,'Diis  ','Err(i) ')
 #endif
          Do j=1,i-1
 
             Call ErrV(mOV,Ind(j),QNRstp,Err2,HDiag)
 #ifdef _DEBUGPRINT_
-            Call NrmClc(Err2,mOV,'Diis  ','Err2  ')
+            Call NrmClc(Err2,mOV,'Diis  ','Err(j)  ')
 #endif
             Bij(i,j) = DBLE(nD)*DDot_(mOV,Err1,1,Err2,1)
             Bij(j,i) = Bij(i,j)

@@ -171,6 +171,15 @@ C     Integer iDskPt,len
 *     allocate new node
       lLList=lLList+1
       iPtr2=lLList
+      If (iPtr2.gt.Maxnodes) Then
+         Write (6,*) 'PutVec: iPtr2.gt.Maxnodes'
+         Call Abend()
+      End If
+      If (Allocated(SCF_V(iPtr2)%A)) Then
+         Write (6,*) 'Node already allocated'
+         Write (6,*) 'iPtr2=',iPtr2
+         Call Abend()
+      End If
       Call mma_allocate(SCF_V(iPtr2)%A,lVec,Label='LVec')
       nLList(iPtr2,0)=iroot
       nLList(iPtr2,1)=iPtr2
@@ -557,6 +566,16 @@ C     Integer iDskPt,len
       Do While ((incore.gt.0).AND.(MaxMem-NoAllo.ge.lvec).AND.
      &          (iPtr2.gt.0))
         lDskPt=nLList(iPtr2,1)
+
+         If (iPtr2.gt.Maxnodes) Then
+            Write (6,*) 'iPtr2.gt.Maxnodes, restoring'
+            Call Abend()
+        End If
+        If (Allocated(SCF_V(iPtr2)%A)) Then
+           Write (6,*) 'Node already allocated while restoring'
+           Write (6,*) 'iPtr2=',iPtr2
+           Call Abend()
+        End If
         Call mma_Allocate(SCF_V(iPtr2)%A,lvec,Label='LVec')
         Call dDaFile(LUnit,2,SCF_V(iPtr2)%A,lvec,lDskPt)
         nLList(iPtr2,1)=iPtr2

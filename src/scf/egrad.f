@@ -83,8 +83,8 @@
 *
 *---- Allocate memory for modified fock matrix
       Call mma_allocate(FckM,nBT,nD,Label='FckM')
-      Call FZero(FckM,nBT*nD)
-      Call FZero(G,nG*nD)
+      FckM(:,:)=Zero
+      G(:,:)=Zero
 *
 *---- Allocate memory for auxiliary matrices
       Call mma_allocate(Aux1,MaxBas**2,Label='Aux1')
