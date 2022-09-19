@@ -1,43 +1,43 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
         subroutine cht3(ireturn)
-c
-c main driver for (T)
-c
+!
+! main driver for (T)
+!
         implicit none
-c
+!
 #include "cht3_casy.fh"
 #include "cht3_ccsd1.fh"
 #include "files.fh"
 #include "cht3_reord.fh"
 #include "WrkSpc.fh"
         integer ireturn
-c DIRCC
-cmp!        include 'memvir_inc'
+! DIRCC
+!mp!        include 'memvir_inc'
 #include "ccsd_t3compat.fh"
-c
+!
         integer wrksize
         integer maxspace
-c
+!
         integer isize
         integer iOE,ioeh,ioep
-c       integer itmp,iW2,il1_1,ioff
-c
+!       integer itmp,iW2,il1_1,ioff
+!
         integer i,nOrbE,nBas(8),nOrb(8)
         character*24 Label
         logical Found
-cmp
-cmp
-cmp
-c       vynuluj hodiny
+!mp
+!mp
+!mp
+!       vynuluj hodiny
         Call CWTime(TCpu,TWall)
         TCpu0=TCpu
         TWall0=TWall
@@ -45,54 +45,54 @@ c       vynuluj hodiny
         TCpu_l=TCpu
         TWall_l=TWall
         TWall_l=TWall
-cmp
-c.0        read input
-c
+!mp
+!.0        read input
+!
         call IniReord_t3 (NvGrp,wrksize)
-c
-c.0.1        generate name convention for blocked integrals and T2 files
-c
+!
+!.0.1        generate name convention for blocked integrals and T2 files
+!
         call DefParReord_t3 (NvGrp,maxdim)
         if (printkey.ge.10) then
-           write (6,*) 'Maxdim of virtual segment from CCSD = ',
+           write (6,*) 'Maxdim of virtual segment from CCSD = ',        &
      & maxdim
         end if
-c
-c.0.2        def commons for DIRCC
-c
+!
+!.0.2        def commons for DIRCC
+!
         call defcommon (nfr,no,nv)
-c
-c.2.2   regenerate integrals from the Cholesky vectors (L1) L1(m,I ,A'')
-c
-c.2.2.1 (vo|vo) for testing purpose
-c
-c        isize=nc*no*nv
-c!        write (6,*) 'size for l1_1 ',isize
-c!        write (6,*) 'size for l1_2 ',isize
-c        Call GetMem('cht3_l1_1','Allo','Real',il1_1,isize)
-c        Call GetMem('cht3_itmp','Allo','Real',itmp,isize)
-c        isize=nv*nv*no*no
-c!        write (6,*) 'size for W2 ',isize
-c        Call GetMem('cht3_W2','Allo','Real',iW2,isize)
-c        call gen_vvoo(Work(iW2),Work(il1_1),Work(itmp))
-c
-c.2.2.2 get orbital energies
+!
+!.2.2   regenerate integrals from the Cholesky vectors (L1) L1(m,I ,A'')
+!
+!.2.2.1 (vo|vo) for testing purpose
+!
+!        isize=nc*no*nv
+!!        write (6,*) 'size for l1_1 ',isize
+!!        write (6,*) 'size for l1_2 ',isize
+!        Call GetMem('cht3_l1_1','Allo','Real',il1_1,isize)
+!        Call GetMem('cht3_itmp','Allo','Real',itmp,isize)
+!        isize=nv*nv*no*no
+!!        write (6,*) 'size for W2 ',isize
+!        Call GetMem('cht3_W2','Allo','Real',iW2,isize)
+!        call gen_vvoo(Work(iW2),Work(il1_1),Work(itmp))
+!
+!.2.2.2 get orbital energies
 
-c
-c*      Get Oorital energies
-c
+!
+!*      Get Oorital energies
+!
         call Get_iArray('nBas',nBas,1)
         call Get_iArray('nOrb',nOrb,1)
 
         isize=nBas(1)
 
         if (printkey.ge.10) then
-           write (6,*) 'Allocating memory for (tmp) OE files',
+           write (6,*) 'Allocating memory for (tmp) OE files',          &
      &                  isize
         end if
 
         call GetMem('cht3_oe','Allo','Real',iOE,isize)
-c
+!
         Label='OrbE'
         Call qpg_dArray(Label,Found,nOrbE)
         if (nOrbE.ne.nBas(1)) then
@@ -106,83 +106,83 @@ c
         write (6,*) 'norbe = ',norbe
         end if
         call Get_dArray(Label,Work(iOE),nOrbE)
-c
-c        write out the orbital energies
-c
+!
+!        write out the orbital energies
+!
         if (printkey.ge.10) then
            write (6,*)
            write (6,*) 'Orbital energies for nfr+no+nv'
            write (6,*)
            do i=1,nfr+no+nv
-           write (6,'(A,2x,i5,2x,f18.10)') 'Orbital Energy ',
+           write (6,'(A,2x,i5,2x,f18.10)') 'Orbital Energy ',           &
      &                                     i,Work(iOE+i-1)
            end do
         end if
 
-c2.2.3        make OEH, OEP
-c
+!2.2.3        make OEH, OEP
+!
         isize=2*no
          call GetMem('cht3_oeh','Allo','Real',ioeh,isize)
         isize=2*nv
          call GetMem('cht3_oeh','Allo','Real',ioep,isize)
-c
-        call generate_juzekOE (Work(ioe+nfr),
+!
+        call generate_juzekOE (Work(ioe+nfr),                           &
      & Work(ioeh),Work(ioep),no,nv)
-c
-c.2.3   Checkpoint. Calculate MP2 energy
-c
-c        call calc_MP2 (Work(iW2),Work(iOE+nfr),no,nv)
-c        call abend()
-c
-c.3        start (T) calculation
-c
+!
+!.2.3   Checkpoint. Calculate MP2 energy
+!
+!        call calc_MP2 (Work(iW2),Work(iOE+nfr),no,nv)
+!        call abend()
+!
+!.3        start (T) calculation
+!
         call GetMem('(T)','Max','Real',maxspace,maxspace)
-c
+!
         write (6,*)
-        write (6,'(A,i13,A,f9.1,A,f5.1,A)')
-     & ' Memory available for (T) calc = ',
-     & (maxspace-1),' in r*8 Words',
-     & ((maxspace-1)*8.0d0)/(1024*1024),' Mb',
+        write (6,'(A,i13,A,f9.1,A,f5.1,A)')                             &
+     & ' Memory available for (T) calc = ',                             &
+     & (maxspace-1),' in r*8 Words',                                    &
+     & ((maxspace-1)*8.0d0)/(1024*1024),' Mb',                          &
      & ((maxspace-1)*8.0d0)/(1024*1024*1024),' Gb'
-c
-cmp        call GetMem('t3_ampl_bti','Allo','Real',ioff,1)
-cmp        ioff=ioff+1
-cmp!        write (6,*) 'ioe   = ',ioe
-cmp!        write (6,*) 'ioeh  = ',ioeh
-cmp!        write (6,*) 'ioep  = ',ioep
-cmp        write (6,*) 'ioff volny  = ',ioff
-cmp!        kvir1=ioff+1
-cmp!        kvir2=kvir1+(maxspace-1)-1
-c
-c toto sa da vyhodit a nahradit iba natvrdo definovanim kvir
-cmp        call adapt_mem(Work(1),Work(ioff),(maxspace-1),
-cmp     & kvir1,kvir2)
-c
-c!        call alloc_vm(WORK, maxspace, KVIR1, KVIR2)
-c
-cmp        write (6,*) ' kvir1 = ',kvir1
-cmp        write (6,*) ' kvir2 = ',kvir2
-c
-cmp        call T3AMPL_BTI(Work(ioff),Work(ioeh),Work(ioep))
+!
+!mp        call GetMem('t3_ampl_bti','Allo','Real',ioff,1)
+!mp        ioff=ioff+1
+!mp!        write (6,*) 'ioe   = ',ioe
+!mp!        write (6,*) 'ioeh  = ',ioeh
+!mp!        write (6,*) 'ioep  = ',ioep
+!mp        write (6,*) 'ioff volny  = ',ioff
+!mp!        kvir1=ioff+1
+!mp!        kvir2=kvir1+(maxspace-1)-1
+!
+! toto sa da vyhodit a nahradit iba natvrdo definovanim kvir
+!mp        call adapt_mem(Work(1),Work(ioff),(maxspace-1),
+!mp     & kvir1,kvir2)
+!
+!!        call alloc_vm(WORK, maxspace, KVIR1, KVIR2)
+!
+!mp        write (6,*) ' kvir1 = ',kvir1
+!mp        write (6,*) ' kvir2 = ',kvir2
+!
+!mp        call T3AMPL_BTI(Work(ioff),Work(ioeh),Work(ioep))
 
         call T3AMPL_BTI(Work(ioeh),Work(ioep))
-c
-c.2.4        Free the unnecessary memory
-c
-cmp        isize=nfr+no+nv
-cmp        isize=nOrb(1)
+!
+!.2.4        Free the unnecessary memory
+!
+!mp        isize=nfr+no+nv
+!mp        isize=nOrb(1)
         isize=nBas(1)
         call GetMem('cht3_oeh','Free','Real',iOE,isize)
-c
+!
         isize=2*no
          call GetMem('cht3_oeh','Free','Real',ioeh,isize)
         isize=2*nv
          call GetMem('cht3_oeh','Free','Real',ioep,isize)
-cmp        ioff=ioff-1
-cmp        call GetMem('t3_ampl_bti','Free','Real',ioff,1)
+!mp        ioff=ioff-1
+!mp        call GetMem('t3_ampl_bti','Free','Real',ioff,1)
 
-c!        call GetMem('t3_ampl_bti','Free','Real',ioff,maxspace)
-c
+!!        call GetMem('t3_ampl_bti','Free','Real',ioff,maxspace)
+!
         !Call EndGlb
 
         ireturn = 0

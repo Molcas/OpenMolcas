@@ -1,43 +1,43 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
         subroutine DefParReord_t3 (NaGrpR,maxdim)
 
-c
-c       This routine do:
-c       define parameters in cht3_reord.fh using NaGrpR,maxdim
-c
-c       I/O parameter description:
-c       NxGrpR   - # of groups in a (=b) set (I)
-c       maxdim   - # maximal dimension of a (=b) Groups(O)
-c
+!
+!       This routine do:
+!       define parameters in cht3_reord.fh using NaGrpR,maxdim
+!
+!       I/O parameter description:
+!       NxGrpR   - # of groups in a (=b) set (I)
+!       maxdim   - # maximal dimension of a (=b) Groups(O)
+!
         implicit none
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "files.fh"
-c
+!
         integer NaGrpR,maxdim
-c
-c       help variables
-c
+!
+!       help variables
+!
         real*8 rdim
         integer i,j
         integer Up(1:MaxGrp),Low(1:MaxGrp)
-c
-c
-c1      define parameters of Groups of a set
-c
+!
+!
+!1      define parameters of Groups of a set
+!
         rdim=1.0d0*nv/(1.0d0*NaGrpR)
-c
+!
         do i=1,NaGrpR
-c
+!
            if (i.eq.1) then
              Up(i)=int(rdim*i)
              Low(i)=1
@@ -48,24 +48,24 @@ c
              Up(i)=int(rdim*i)
              Low(i)=Up(i-1)+1
            end if
-c
+!
            DimGrpaR(i)=(Up(i)-Low(i))+1
-c
+!
         end do
-c
-c
-c2      find maximal dimensions of a'
-c
+!
+!
+!2      find maximal dimensions of a'
+!
         maxdim=DimGrpaR(1)
         do i=1,NaGrpR
           if (DimGrpaR(i).gt.maxdim) then
           maxdim=DimGrpaR(i)
           end if
         end do
-c
-c
-c3.1    def L2Name, T2Name, I2Name,I3Name
-c
+!
+!
+!3.1    def L2Name, T2Name, I2Name,I3Name
+!
         do i=1,MaxGrp
         do j=1,MaxGrp
           call DefParReordHlp1(i,j,'L2',L2Name(i,j))
@@ -74,18 +74,18 @@ c
           call DefParReordHlp1(i,j,'I3',I3Name(i,j))
         end do
         end do
-c
-c3.2    def L1Name,I1Name
-c
+!
+!3.2    def L1Name,I1Name
+!
         do i=1,MaxGrp
           call DefParReordHlp2 (i,'L1vc',L1Name(i))
           call DefParReordHlp2 (i,'I1in',I1Name(i))
         end do
-c
-c3.3    def L0Name,I0Name
-c
+!
+!3.3    def L0Name,I0Name
+!
         L0Name='L0vctr'
         I0Name='I0intg'
-c
+!
         return
         end

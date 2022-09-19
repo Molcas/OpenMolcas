@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
         subroutine IniReord_t3(NaGrp,wrksize)
-c
-c       nacitanie vsupu a inicializacia premnennych
-c       a tlac primitivnej hlavicky pre Reord procesz
-c
+!
+!       nacitanie vsupu a inicializacia premnennych
+!       a tlac primitivnej hlavicky pre Reord procesz
+!
 #ifdef _MOLCAS_MPP_
         use Para_Info, only: MyRank, nProcs
 #endif
         implicit none
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
-cmp
+!mp
 #include "cholesky.fh"
 #include "ccsd_t3compat.fh"
-cmp
-c
+!mp
+!
         integer NaGrp
         integer wrksize
-cmp!
+!mp!
         integer nOrb(8),nOcc(8)
         integer ndelvirt
 
         integer LuSpool
         character*80 LINE
-cmp
+!mp
         integer rc
         real*8 FracMem
         character*3 msg
@@ -40,31 +40,31 @@ cmp
 #ifdef _MOLCAS_MPP_
         integer jal1, jal2
 #endif
-cmp
+!mp
 
-c setup defaults
+! setup defaults
 
         Call Get_iArray('nOrb',nOrb,1)
         Call Get_iArray('nIsh',nOcc,1)
 
-c
+!
         no = nOcc(1)
         nv = nOrb(1) - nOcc(1)
-c
+!
         FracMem=0.0d0
         Call Cho_X_init(rc,FracMem) ! initialize cholesky info
-c
-c       take local # of Cholesky Vectors on this node
+!
+!       take local # of Cholesky Vectors on this node
 #ifdef _MOLCAS_MPP_
-c
+!
         do jal1=0,Nprocs-1
           NChLoc(jal1)=0
         end do
-c
+!
         NChLoc(MyRank)=NumCho(1)
 
         call gaigop (NChLoc(0),NProcs,'+')
-c
+!
         jal2=0
         do jal1=0,NProcs-1
           jal2=jal2+NChLoc(jal1)
@@ -81,12 +81,12 @@ c
         LunAux = 13
         mhkey = 1
         generkey = 1
-cmp!        NaGrp = 1
+!mp!        NaGrp = 1
         Call get_iScalar('CHCCLarge',NaGrp)
         restkey = 0
         printkey = 1
 
-c t3 specific keywords
+! t3 specific keywords
 
         gen_files   = .True.
         run_triples = .True.
@@ -94,9 +94,9 @@ c t3 specific keywords
         t3_stopa    = -1
         t3_startb   = -1
         t3_stopb    = -1
-c
-cmp!    read input file
-c
+!
+!mp!    read input file
+!
       LuSpool = 17
       Call SpoolInp(LuSpool)
       Rewind(LuSpool)
@@ -106,7 +106,7 @@ c
  6     Read(LuSpool,'(A80)') LINE
        IF(LINE(1:1).EQ.'*') GOTO 6
        CALL UPCASE(LINE)
-c
+!
        IF (LINE(1:4).EQ.'TITL') THEN
        Read(LuSpool,*)
 
@@ -114,7 +114,7 @@ c
        Read(LuSpool,*) nfr
              if ((nfr.lt.0).or.(nfr.ge.no)) then
                write (6,*)
-               write (6,*) 'Ilegal value for FROZen keyword : ',
+               write (6,*) 'Ilegal value for FROZen keyword : ',        &
      &                      nfr
                call abend()
              end if
@@ -124,31 +124,31 @@ c
        Read(LuSpool,*) ndelvirt
              if ((ndelvirt.lt.0).or.(ndelvirt.ge.nv)) then
                write (6,*)
-               write (6,*) 'Ilegal value for DELEted keyword : ',
+               write (6,*) 'Ilegal value for DELEted keyword : ',       &
      &                      ndelvirt
                call abend()
              end if
              nv = nv - ndelvirt
 
-cmp!       ELSE IF (LINE(1:4).EQ.'LARG') THEN ! LARGegroup
-cmp!       Read(LuSpool,*) NaGrp
-cmp!        if ((NaGrp.lt.1).or.(NaGrp.gt.32)) then
-cmp!         write (6,*)
-cmp!         write (6,*) 'Ilegal value for LARGegroup keyword : ',
-cmp!     &                NaGrp
-cmp!         write (6,*) 'Large segmentation must be -le 32'
-cmp!         call abend()
-cmp!        end if
+!mp!       ELSE IF (LINE(1:4).EQ.'LARG') THEN ! LARGegroup
+!mp!       Read(LuSpool,*) NaGrp
+!mp!        if ((NaGrp.lt.1).or.(NaGrp.gt.32)) then
+!mp!         write (6,*)
+!mp!         write (6,*) 'Ilegal value for LARGegroup keyword : ',
+!mp!     &                NaGrp
+!mp!         write (6,*) 'Large segmentation must be -le 32'
+!mp!         call abend()
+!mp!        end if
 
-cmp!       ELSE IF (LINE(1:4).EQ.'LUNA') THEN  ... toto sa nikdy nevyuzivalo
-cmp!       Read(LuSpool,*) LunAux
+!mp!       ELSE IF (LINE(1:4).EQ.'LUNA') THEN  ... toto sa nikdy nevyuzivalo
+!mp!       Read(LuSpool,*) LunAux
 
        ELSE IF (LINE(1:4).EQ.'MHKE') THEN ! MHKEy
        Read(LuSpool,*) mhkey
            if ((mhkey.lt.0).or.(mhkey.gt.2)) then
               mhkey=1
               write(6,*)
-              write(6,*) ' Warning!!! ',
+              write(6,*) ' Warning!!! ',                                &
      &                   ' MHKEy out of range, changed to 1'
            end if
 
@@ -161,11 +161,11 @@ cmp!       Read(LuSpool,*) LunAux
 
        ELSE IF (LINE(1:4).EQ.'PRIN') THEN ! PRINtkey
        Read(LuSpool,*) printkey
-          if (((printkey.lt.0).or.(printkey.gt.10)).or.
+          if (((printkey.lt.0).or.(printkey.gt.10)).or.                 &
      & ((printkey.gt.2).and.(printkey.lt.10))) then
 
             write (6,*)
-            write (6,*) 'Ilegal value of the PRINtkey keyword: ',
+            write (6,*) 'Ilegal value of the PRINtkey keyword: ',       &
      &                   printkey
             write (6,*) ' Use: 1  (Minimal) '
             write (6,*) '      2  (Minimal + Timings)'
@@ -205,63 +205,63 @@ cmp!       Read(LuSpool,*) LunAux
 
        Call Close_LuSpool(LuSpool)
 
-c! take care of the cholesky vectors segmentation
-c! to lead to < 100 blocks
+!! take care of the cholesky vectors segmentation
+!! to lead to < 100 blocks
 
-cmp checks
+!mp checks
         if (t3_starta.gt.t3_stopa) then
           write (6,*) 'Mismatch in input : '
           write (6,*) 'T3_STARTA = ',t3_starta
           write (6,*) 'T3_STOPA = ',t3_stopa
           call abend()
         end if
-c
+!
         if (t3_startb.gt.t3_stopb) then
           write (6,*) 'Mismatch in input : '
           write (6,*) 'T3_STARTB = ',t3_startb
           write (6,*) 'T3_STOPB = ',t3_stopb
           call abend()
         end if
-c
+!
         if ((t3_starta.lt.0).and.(t3_stopa.gt.0)) then
           write (6,*) 'Mismatch in input : '
           write (6,*) 'T3_STARTA = ',t3_starta
           write (6,*) 'T3_STOPA = ',t3_stopa
           call abend()
         end if
-c
+!
         if ((t3_startb.lt.0).and.(t3_stopb.gt.0)) then
           write (6,*) 'Mismatch in input : '
           write (6,*) 'T3_STARTB = ',t3_startb
           write (6,*) 'T3_STOPB = ',t3_stopb
           call abend()
         end if
-c
-cmp!        if ((t3_starta.gt.0).and.(t3_startb.lt.0)) then
-cmp!          write (6,*) 'This restart combination not implemented'
-cmp!          write (6,*) 'T3_STARTA = ',t3_starta
-cmp!          write (6,*) 'T3_STARTB = ',t3_startb
-cmp!          call abend
-cmp!        end if
-c
-c2      tlac hlavicky
+!
+!mp!        if ((t3_starta.gt.0).and.(t3_startb.lt.0)) then
+!mp!          write (6,*) 'This restart combination not implemented'
+!mp!          write (6,*) 'T3_STARTA = ',t3_starta
+!mp!          write (6,*) 'T3_STARTB = ',t3_startb
+!mp!          call abend
+!mp!        end if
+!
+!2      tlac hlavicky
         write (6,*)
         write (6,*) '    Cholesky Based Closed-Shell (T) code'
         write (6,*)
       write (6,*) '--------------------------------------------------'
 
-        write (6,'(A,i9)') ' Frozen Orbitals                   : ',
+        write (6,'(A,i9)') ' Frozen Orbitals                   : ',     &
      & nfr
-        write (6,'(A,i9)') ' Occupied Orbitals                 : ',
+        write (6,'(A,i9)') ' Occupied Orbitals                 : ',     &
      & no
-        write (6,'(A,i9)') ' Virtual Orbitals                  : ',
+        write (6,'(A,i9)') ' Virtual Orbitals                  : ',     &
      & nv
-        write (6,'(A,i9)') ' Total number of Cholesky Vectors  : ',
+        write (6,'(A,i9)') ' Total number of Cholesky Vectors  : ',     &
      & nc
 
       write (6,*) '--------------------------------------------------'
 
-        write (6,'(A,i9)') ' Large Virtual Segmentation        : ',
+        write (6,'(A,i9)') ' Large Virtual Segmentation        : ',     &
      & NaGrp
 
       write (6,*) '--------------------------------------------------'
@@ -269,13 +269,13 @@ c2      tlac hlavicky
         msg = 'No'
         if (gen_files) msg = 'Yes'
 
-        write (6,'(A,A5)') ' Generate Triples Scratch Files?        : ',
+        write (6,'(A,A5)') ' Generate Triples Scratch Files?        : ',&
      & msg
 
         msg = 'No'
         if (.not.run_triples) msg = 'Yes'
 
-        write (6,'(A,A5)') ' Stop after Scratch Files generation?   : ',
+        write (6,'(A,A5)') ' Stop after Scratch Files generation?   : ',&
      & msg
 
       write (6,*) '--------------------------------------------------'
@@ -283,40 +283,40 @@ c2      tlac hlavicky
         if (t3_starta.eq.-1) then
           write (6,'(A,i4)') ' Calculating full loop A                '
         else
-           write (6,'(A,i4)')
+           write (6,'(A,i4)')                                           &
      & ' VO index triplet to start with in loop A : ',t3_starta
-           write (6,'(A,i4)')
+           write (6,'(A,i4)')                                           &
      & ' VO index triplet to stop  at   in loop A : ',t3_stopa
         end if
 
         if (t3_starta.eq.-1) then
           write (6,'(A,i4)') ' Calculating full loop B                '
         else
-           write (6,'(A,i4)')
+           write (6,'(A,i4)')                                           &
      & ' VO index triplet to start with in loop B : ',t3_startb
-           write (6,'(A,i4)')
+           write (6,'(A,i4)')                                           &
      & ' VO index triplet to stop  at   in loop B : ',t3_stopb
         end if
 
       write (6,*) '--------------------------------------------------'
 
-        write (6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',
+        write (6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',     &
      & LunAux
-        write (6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',
+        write (6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',     &
      & mhkey
 
         msg = 'No'
         if (restkey.eq.1) msg = 'Yes'
 
-        write (6,'(A,A10)') ' Start from RstFil ?               : ',
+        write (6,'(A,A10)') ' Start from RstFil ?               : ',    &
      & msg
-        write (6,'(A,i9)') ' Print level                       : ',
+        write (6,'(A,i9)') ' Print level                       : ',     &
      & printkey
 
       write (6,*) '--------------------------------------------------'
         write (6,*)
-c
+!
         return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
         if (.false.) call Unused_integer(wrksize)
         end
