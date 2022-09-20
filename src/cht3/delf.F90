@@ -8,16 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Subroutine DELF(FNAM,INUM1,INUM2)
-       Implicit None
-       Integer I,inum1,inum2
-       character FNAM*6,FN*8
-       FN(1:6)=FNAM
-       do I=inum1,inum2
-       write(fn(7:8),'(I2.2)')I
-!       write(6,*)'File ',FN,' to be deleted'
-       call Molcas_Open(8,fn)
-       close(8,status='DELETE')
-       enddo
-       return
-       end
+
+subroutine DELF(FNAM,INUM1,INUM2)
+
+implicit none
+integer I, inum1, inum2
+character FNAM*6, FN*8
+
+FN(1:6) = FNAM
+do I=inum1,inum2
+  write(fn(7:8),'(I2.2)') I
+  !write(6,*) 'File ',FN,' to be deleted'
+  call Molcas_Open(8,fn)
+  close(8,status='DELETE')
+end do
+
+return
+
+end subroutine DELF

@@ -8,75 +8,69 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine my_block (vblock,vblock_my)
-!
+
+subroutine my_block(vblock,vblock_my)
 ! this subroutine calculates maximum overlap between juzek's
 ! vblock segmentation and palo's dimgrp
-!
-        implicit none
-!
+
+implicit none
 #include "cht3_ccsd1.fh"
 #include "ccsd_t3compat.fh"
 #include "cht3_reord.fh"
-!
-        integer i,j,i_tmp,i_f,i_l,poss
-        integer vblock,vblock_my,vblock_my_tmp
-        logical found
-!
-        vblock_my=0
-        i_l=0
-        i_f=0
-!
-        do i=1,nv,vblock
-!
-! - find initial possition of the i-th juzek's block
-!
-          poss=0
-          found=.false.
-        do j=1,NvGrp
-          poss=poss+DimGrpaR(j)
-          if ((i.le.poss).and.(.not.found)) then
-            i_f=j
-            found=.true.
-!mp        write (6,'(A,3(i5,x))') 'i,i_f,poss     = ',
-!mp     & i,i_f,poss
-          end if
-        end do
-!
-        if ((i+vblock-1).le.nv) then
-          i_tmp=i+vblock-1
-        else
-          i_tmp=nv
-        end if
-!mp        write (6,'(A,2(i5,x))') 'i,i_tmp        = ',
-!mp     & i,i_tmp
-!
-! - find terminal possition of the i-th juzek's block
-!
-          poss=0
-          found=.false.
-        do j=1,NvGrp
-          poss=poss+DimGrpaR(j)
-          if ((i_tmp.le.poss).and.(.not.found)) then
-            i_l=j
-            found=.true.
-!mp        write (6,'(A,3(i5,x))') 'i_tmp,i_l,poss = ',
-!mp     & i_tmp,i_l,poss
-          end if
-        end do
-!
-        vblock_my_tmp=0
-        do j=i_f,i_l
-        vblock_my_tmp=vblock_my_tmp+DimGrpaR(j)
-        end do
-!
-        if (vblock_my_tmp.gt.vblock_my)                                 &
-     & vblock_my=vblock_my_tmp
-!
-!mp        write (6,'(A,2(i5,x))') 'vblock_my_tmp, vblock_my',
-!mp     & vblock_my_tmp, vblock_my
-!mp        write (6,*)
-        end do
-!
-        return
-        end
+integer i, j, i_tmp, i_f, i_l, poss
+integer vblock, vblock_my, vblock_my_tmp
+logical found
+
+vblock_my = 0
+i_l = 0
+i_f = 0
+
+do i=1,nv,vblock
+
+  ! - find initial possition of the i-th juzek's block
+
+  poss = 0
+  found = .false.
+  do j=1,NvGrp
+    poss = poss+DimGrpaR(j)
+    if ((i <= poss) .and. (.not. found)) then
+      i_f = j
+      found = .true.
+      !mp write(6,'(A,3(i5,x))') 'i,i_f,poss     = ',i,i_f,poss
+    end if
+  end do
+
+  if ((i+vblock-1) <= nv) then
+    i_tmp = i+vblock-1
+  else
+    i_tmp = nv
+  end if
+  !mp write (6,'(A,2(i5,x))') 'i,i_tmp        = ',i,i_tmp
+
+  ! - find terminal possition of the i-th juzek's block
+
+  poss = 0
+  found = .false.
+  do j=1,NvGrp
+    poss = poss+DimGrpaR(j)
+    if ((i_tmp <= poss) .and. (.not. found)) then
+      i_l = j
+      found = .true.
+      !mp write(6,'(A,3(i5,x))') 'i_tmp,i_l,poss = ',i_tmp,i_l,poss
+    end if
+  end do
+
+  vblock_my_tmp = 0
+  do j=i_f,i_l
+    vblock_my_tmp = vblock_my_tmp+DimGrpaR(j)
+  end do
+
+  if (vblock_my_tmp > vblock_my) vblock_my = vblock_my_tmp
+
+  !mp write(6,'(A,2(i5,x))') 'vblock_my_tmp, vblock_my',vblock_my_tmp,vblock_my
+  !mp write(6,*)
+end do
+
+return
+
+end subroutine my_block

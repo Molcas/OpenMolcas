@@ -395,7 +395,7 @@ C     Write (Lu,*) iOptC
 *     Introduce supersymmetry
 *     Input format
 *     nsg                (number of super groups)
-*     Reapeat nsg times
+*     Repeat nsg times
 *     nmem, (ind.., i = 1, nmem)
 *
  911  Char=Get_Ln(LuRd)

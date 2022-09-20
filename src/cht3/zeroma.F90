@@ -8,15 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ZEROMA(W,I1,I2)
-      implicit none
-      integer I1,I2, I
-      REAL*8 ZERO,W
-      PARAMETER (ZERO=0.D0)
-      DIMENSION W(*)
-      IF(I2.LT.I1)RETURN
-      DO I=I1,I2
-         W(I)=ZERO
-      ENDDO
-      RETURN
-      END
+
+subroutine ZEROMA(W,I1,I2)
+
+implicit none
+integer I1, I2, I
+real*8 ZERO, W
+parameter(ZERO=0.d0)
+dimension W(*)
+
+if (I2 < I1) return
+do I=I1,I2
+  W(I) = ZERO
+end do
+
+return
+
+end subroutine ZEROMA

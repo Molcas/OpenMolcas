@@ -8,26 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine grow_l2(A,B,nc,nv,dima,dimb,lasta,lastb)
+
+subroutine grow_l2(A,B,nc,nv,dima,dimb,lasta,lastb)
+! this routine does:
 !
-! this routine do :
-!
-! grow A(A,B,m) from the blocked cholesky vectors
-! B(a',b',m)
-!
-        implicit none
-        integer i1,i2,i3,dima,dimb,nc,nv
-        integer lasta,lastb
-        real*8 A(nv,nv,nc),B(dima,dimb,nc)
-!
-        do i3=1,nc
-        do i1=1,dima
-        do i2=1,dimb
-        A(lasta+i1,lastb+i2,i3)=B(i1,i2,i3)
-        A(lastb+i2,lasta+i1,i3)=B(i1,i2,i3)
-        end do
-        end do
-        end do
-!
-        return
-        end
+! grow A(A,B,m) from the blocked cholesky vectors B(a',b',m)
+
+implicit none
+integer i1, i2, i3, dima, dimb, nc, nv
+integer lasta, lastb
+real*8 A(nv,nv,nc), B(dima,dimb,nc)
+
+do i3=1,nc
+  do i1=1,dima
+    do i2=1,dimb
+      A(lasta+i1,lastb+i2,i3) = B(i1,i2,i3)
+      A(lastb+i2,lasta+i1,i3) = B(i1,i2,i3)
+    end do
+  end do
+end do
+
+return
+
+end subroutine grow_l2

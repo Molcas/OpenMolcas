@@ -8,32 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine generate_juzekOE (oe,oeh,oep,no,nv)
+
+subroutine generate_juzekOE(oe,oeh,oep,no,nv)
+! this routine does:
 !
-! this routine do :
+! modifies standard oe record to one used by DIRCC
 !
-! modifies standar oe record to one used by DIRCC
+! oeh = ( oe_occ(alpha) ... oe_occ(beta) )   (alpha=beta for this implementation)
 !
-! oeh = ( oe_occ(alpha) ... oe_occ(beta) )   (alpha=beta for this
-!                                             implementation)
-!
-! oep = ( oe_virt(alpha) ... oe_virt(beta) ) (alpha=beta for this
-!                                             implementation)
-        implicit none
-        integer i,no,nv
-!
-        real*8 oe(*),oeh(*),oep(*)
-!
-!
-        do i=1,no
-        oeh(i)=oe(i)
-        oeh(i+no)=oe(i)
-        end do
-!
-        do i=1,nv
-        oep(i)=oe(no+i)
-        oep(i+nv)=oe(no+i)
-        end do
-!
-        return
-        end
+! oep = ( oe_virt(alpha) ... oe_virt(beta) ) (alpha=beta for this implementation)
+
+implicit none
+integer i, no, nv
+real*8 oe(*), oeh(*), oep(*)
+
+do i=1,no
+  oeh(i) = oe(i)
+  oeh(i+no) = oe(i)
+end do
+
+do i=1,nv
+  oep(i) = oe(no+i)
+  oep(i+nv) = oe(no+i)
+end do
+
+return
+
+end subroutine generate_juzekOE

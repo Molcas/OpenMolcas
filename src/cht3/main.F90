@@ -8,16 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        program main
+
+program Main
+
 #ifdef _FPE_TRAP_
-        Use, Intrinsic :: IEEE_Exceptions
+use, intrinsic :: ieee_exceptions
 #endif
-        implicit real*8 (a-h,o-z)
+implicit real*8(a-h,o-z)
 #ifdef _FPE_TRAP_
-        Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
 #endif
 
-        Call Start('cht3')
-        Call cht3(ireturn)
-        Call Finish(ireturn)
-        end
+call Start('cht3')
+call cht3(ireturn)
+call Finish(ireturn)
+
+end program Main

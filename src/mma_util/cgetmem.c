@@ -23,7 +23,7 @@
 /*    history: Initial revision                                               */
 /*                                                                            */
 /******************************************************************************/
-#ifdef  _DEBUGPRINT_MEM_
+#ifdef _DEBUGPRINT_MEM_
 #define _MEMORY_TRACE_
 #endif
 #ifdef  _CYGWIN_

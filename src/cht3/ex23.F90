@@ -8,26 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Map3_123_t3 (A,B,d1,d2,d3)
-!
-!       this routine do:
-!       map B(132) <- A(123)
-!
-        implicit none
-        integer d1,d2,d3
-        real*8 A(1:d1,1:d2,1:d3)
-        real*8 B(1:d1,1:d2,1:d3)
-!
-!       help variables
-        integer i1,i2,i3
-!
-        do i3=1,d3
-        do i2=1,d2
-        do i1=1,d1
-        b(i1,i2,i3)=a(i1,i2,i3)
-        end do
-        end do
-        end do
-!
-        return
-        end
+
+subroutine EX23(Y,X,I1,I2,J1,J2)
+
+implicit none
+integer I1, I2, J1, J2, I, J, IJ, L
+real*8 Y, X, ONE
+parameter(ONE=1.d0)
+dimension Y(I1,I2,J1,J2), X(*)
+
+IJ = 1
+do J=1,J2
+  do L=1,I2
+    do I=1,J1
+      call DCOPY_(I1,Y(1,L,I,J),1,X(IJ),1)
+      IJ = IJ+I1
+    end do
+  end do
+end do
+
+return
+
+end subroutine EX23

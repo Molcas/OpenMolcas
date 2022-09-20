@@ -8,19 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine check_mat(mat,dima,dimb)
-!
-        implicit none
-        integer dima,dimb,i,j
-        real*8 mat(dima,dimb)
-!
-        do i=1,dima
-        do j=1,dimb
-        if (abs(mat(i,j)).gt.10000) then
-          write (6,*) 'i,j,mat(i,j) ',i,j,mat(i,j)
-        end if
-        end do
-        end do
-!
-        return
-        end
+
+subroutine check_mat(mat,dima,dimb)
+
+implicit none
+integer dima, dimb, i, j
+real*8 mat(dima,dimb)
+
+do i=1,dima
+  do j=1,dimb
+    if (abs(mat(i,j)) > 10000) then
+      write(6,*) 'i,j,mat(i,j) ',i,j,mat(i,j)
+    end if
+  end do
+end do
+
+return
+
+end subroutine check_mat
