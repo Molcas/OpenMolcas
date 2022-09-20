@@ -32,7 +32,7 @@ save ka, kb, kc, la, lb, lc, t3a, t3b, voa, vob, voc, mi, mij, iasblock, iuhf, n
 N = noab(isp)+nuab(isp)
 enx = 0.d0
 scored = .true.
-!mp !!!if (lastcall) goto 321
+!mp !!!if (.not. lastcall) then
 !mp write(6,*) 'NOAB,NNOAB,NUAB,NNUAB,ICH'
 !mp write(6,*) NOAB,NNOAB,NUAB,NNUAB,ICH
 !mp !!!if (energ(isp) == 0.d0) then
@@ -126,7 +126,7 @@ end if   ! cases
 energ(isp) = energ(isp)+enx
 !mp write(6,'(A,i5,x,3(i3,1x),f21.19)') 'Tsk, nga, ngb, ngc, inc = ',jjj,nga,ngb,ngc,enx
 !mp
-!321 continue
+!mp !!!end if  ! lastcall
 !mp write(6,*)
 !mp write(6,*) 'deallocating arrays in t3loopa'
 !mp write(6,*)

@@ -40,7 +40,7 @@ N = noab(isp)+nuab(isp)
 
 !mp
 scored = .true.
-!mp !!!if (lastcall) goto 321
+!mp !!!if (.not. lastcall) then
 !mp
 enx = 0.d0
 !mpn write(6,*) 'Bef isp, energ(isp), enx = ',isp,energ(isp),enx
@@ -169,7 +169,7 @@ end if   ! cases
 !mpn write(6,*) 'isp, energ(isp), enx = ',isp,energ(isp),enx
 energ(isp) = energ(isp)+enx
 !mp !!!write(6,'(A,i5,x,3(i5,2x),f21.19)') 'Tsk, nga, ngb, ngc, inc = ',jjj,nga,ngb,ngc,enx
-!321 continue
+!mp !!!end if  ! lastcall
 !mp write(6,*)
 !mp write(6,*) 'deallocating arrays in t3loob'
 !mp write(6,*)

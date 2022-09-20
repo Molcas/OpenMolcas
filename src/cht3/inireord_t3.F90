@@ -90,102 +90,107 @@ t3_stopb = -1
 LuSpool = 17
 call SpoolInp(LuSpool)
 rewind(LuSpool)
-5 read(LuSpool,'(A80)') LINE
-call UPCASE(LINE)
-if (index(LINE,'&CHT3') == 0) goto 5
-6 read(LuSpool,'(A80)') LINE
-if (LINE(1:1) == '*') goto 6
-call UPCASE(LINE)
-!
-if (LINE(1:4) == 'TITL') then
-  read(LuSpool,*)
+do
+  read(LuSpool,'(A80)') LINE
+  call UPCASE(LINE)
+  if (index(LINE,'&CHT3') /= 0) exit
+end do
+do
+  read(LuSpool,'(A80)') LINE
+  if (LINE(1:1) == '*') cycle
+  call UPCASE(LINE)
 
-else if (LINE(1:4) == 'FROZ') then ! FROZen
-  read(LuSpool,*) nfr
-  if ((nfr < 0) .or. (nfr >= no)) then
-    write(6,*)
-    write(6,*) 'Ilegal value for FROZen keyword : ',nfr
-    call abend()
-  end if
-  no = no-nfr
+  select case (LINE(1:4))
 
-else if (LINE(1:4) == 'DELE') then ! DELEted
-  read(LuSpool,*) ndelvirt
-  if ((ndelvirt < 0) .or. (ndelvirt >= nv)) then
-    write(6,*)
-    write(6,*) 'Ilegal value for DELEted keyword : ',ndelvirt
-    call abend()
-  end if
-  nv = nv-ndelvirt
+    case ('TITL')
+      read(LuSpool,*)
 
-  !mp !else if (LINE(1:4) == 'LARG') then ! LARGegroup
-  !mp !  read(LuSpool,*) NaGrp
-  !mp !  if ((NaGrp < 1) .or. (NaGrp > 32)) then
-  !mp !    write(6,*)
-  !mp !    write(6,*) 'Ilegal value for LARGegroup keyword : ',NaGrp
-  !mp !    write(6,*) 'Large segmentation must be <= 32'
-  !mp !    call abend()
-  !mp !  end if
+    case ('FROZ') ! FROZen
+      read(LuSpool,*) nfr
+      if ((nfr < 0) .or. (nfr >= no)) then
+        write(6,*)
+        write(6,*) 'Ilegal value for FROZen keyword : ',nfr
+        call abend()
+      end if
+      no = no-nfr
 
-  !mp !else if (LINE(1:4) == 'LUNA') then  !... toto sa nikdy nevyuzivalo
-  !mp !  read(LuSpool,*) LunAux
+    case ('DELE') ! DELEted
+      read(LuSpool,*) ndelvirt
+      if ((ndelvirt < 0) .or. (ndelvirt >= nv)) then
+        write(6,*)
+        write(6,*) 'Ilegal value for DELEted keyword : ',ndelvirt
+        call abend()
+      end if
+      nv = nv-ndelvirt
 
-else if (LINE(1:4) == 'MHKE') then ! MHKEy
-  read(LuSpool,*) mhkey
-  if ((mhkey < 0) .or. (mhkey > 2)) then
-    mhkey = 1
-    write(6,*)
-    write(6,*) ' Warning!!! ',' MHKEy out of range, changed to 1'
-  end if
+    !mp !case ('LARG') ! LARGegroup
+    !mp !  read(LuSpool,*) NaGrp
+    !mp !  if ((NaGrp < 1) .or. (NaGrp > 32)) then
+    !mp !    write(6,*)
+    !mp !    write(6,*) 'Ilegal value for LARGegroup keyword : ',NaGrp
+    !mp !    write(6,*) 'Large segmentation must be <= 32'
+    !mp !    call abend()
+    !mp !  end if
 
-else if (LINE(1:4) == 'REST') then ! RESTart
-  restkey = 1
-  write(6,*)
-  write(6,*) 'RESTart option is temporary disabled'
-  write(6,*) 'No Restart possible (... yet).'
-  call abend()
+    !mp !case ('LUNA') !... toto sa nikdy nevyuzivalo
+    !mp !  read(LuSpool,*) LunAux
 
-else if (LINE(1:4) == 'PRIN') then ! PRINtkey
-  read(LuSpool,*) printkey
-  if (((printkey < 0) .or. (printkey > 10)) .or. ((printkey > 2) .and. (printkey < 10))) then
+    case ('MHKE') ! MHKEy
+      read(LuSpool,*) mhkey
+      if ((mhkey < 0) .or. (mhkey > 2)) then
+        mhkey = 1
+        write(6,*)
+        write(6,*) ' Warning!!! ',' MHKEy out of range, changed to 1'
+      end if
 
-    write(6,*)
-    write(6,*) 'Ilegal value of the PRINtkey keyword: ',printkey
-    write(6,*) ' Use: 1  (Minimal) '
-    write(6,*) '      2  (Minimal + Timings)'
-    write(6,*) '      10 (Debug) '
-    call abend()
-  end if
+    case ('REST') ! RESTart
+      restkey = 1
+      write(6,*)
+      write(6,*) 'RESTart option is temporary disabled'
+      write(6,*) 'No Restart possible (... yet).'
+      call abend()
 
-else if (LINE(1:4) == 'NOGE') then ! NOGEnerate
-  gen_files = .false.
+    case ('PRIN') ! PRINtkey
+      read(LuSpool,*) printkey
+      if (((printkey < 0) .or. (printkey > 10)) .or. ((printkey > 2) .and. (printkey < 10))) then
 
-else if (LINE(1:4) == 'NOTR') then ! NOTRiples
-  run_triples = .false.
+        write(6,*)
+        write(6,*) 'Ilegal value of the PRINtkey keyword: ',printkey
+        write(6,*) ' Use: 1  (Minimal) '
+        write(6,*) '      2  (Minimal + Timings)'
+        write(6,*) '      10 (Debug) '
+        call abend()
+      end if
 
-else if (LINE(1:4) == 'ALOO') then ! ALOOp
-  read(LuSpool,*) t3_starta,t3_stopa
-  if ((t3_starta < -1) .or. (t3_stopa < -1)) then
-    write(6,*) 'ALOOp values can be either: '
-    write(6,*) '-1 : indicating normal run, or'
-    write(6,*) 'positive numbers!'
-    call abend()
-  end if
+    case ('NOGE') ! NOGEnerate
+      gen_files = .false.
 
-else if (LINE(1:4) == 'BLOO') then ! BLOOp
-  read(LuSpool,*) t3_startb,t3_stopb
-  if ((t3_startb < -1) .or. (t3_stopb < -1)) then
-    write(6,*) 'BLOOp values can be either: '
-    write(6,*) '-1 : indicating normal run, or'
-    write(6,*) 'positive numbers!'
-    call abend()
-  end if
+    case ('NOTR') ! NOTRiples
+      run_triples = .false.
 
-else if (LINE(1:4) == 'END ') then
-  goto 7
-end if
-goto 6
-7 continue
+    case ('ALOO') ! ALOOp
+      read(LuSpool,*) t3_starta,t3_stopa
+      if ((t3_starta < -1) .or. (t3_stopa < -1)) then
+        write(6,*) 'ALOOp values can be either: '
+        write(6,*) '-1 : indicating normal run, or'
+        write(6,*) 'positive numbers!'
+        call abend()
+      end if
+
+    case ('BLOO') ! BLOOp
+      read(LuSpool,*) t3_startb,t3_stopb
+      if ((t3_startb < -1) .or. (t3_stopb < -1)) then
+        write(6,*) 'BLOOp values can be either: '
+        write(6,*) '-1 : indicating normal run, or'
+        write(6,*) 'positive numbers!'
+        call abend()
+      end if
+
+    case ('END ')
+      exit
+
+  end select
+end do
 
 call Close_LuSpool(LuSpool)
 

@@ -44,7 +44,7 @@ real*8 OEH(*), OEP(*), ddot_, ccsdt, ccsdt4, energ(4), tccsd, times(10), times_p
 character FN*6
 logical ifvo
 integer la, t1a, t1b
-logical lastcall, scored
+logical lastcall, scored, skip
 !integer maxspace
 integer nla, nlb
 real*8 enx1
@@ -300,135 +300,132 @@ do isp=1,1+iuhf
     write(6,*)
     write(6,*) 'Skipping t3loopa on user request '
     write(6,*)
-    goto 494
-  end if
-
-  i = 0
-  do nga=1,nuga
-    do ngb=1,nga
-      do ngc=1,ngb
-        i = i+1
-      end do
-    end do
-  end do
-
-  if (t3_starta < 0) then
-    call GetMem('Imy_tsk','Allo','Inte',imy_tsk,3*i)
   else
-    call GetMem('Imy_tsk','Allo','Inte',imy_tsk,(t3_stopa-t3_starta+1)*3)
-  end if
 
-  if (t3_starta < 0) then
     i = 0
     do nga=1,nuga
       do ngb=1,nga
         do ngc=1,ngb
           i = i+1
-          iWork(imy_tsk-3+3*i) = nga
-          iWork(imy_tsk-3+3*i+1) = ngb
-          iWork(imy_tsk-3+3*i+2) = ngc
         end do
       end do
     end do
-  else
-    i = 0
-    do nga=1,nuga
-      do ngb=1,nga
-        do ngc=1,ngb
-          i = i+1
 
-          if ((i >= t3_starta) .and. (i <= t3_stopa)) then
-            iWork(imy_tsk-3+3*(i-t3_starta+1)) = nga
-            iWork(imy_tsk-3+3*(i-t3_starta+1)+1) = ngb
-            iWork(imy_tsk-3+3*(i-t3_starta+1)+2) = ngc
-          end if
+    if (t3_starta < 0) then
+      call GetMem('Imy_tsk','Allo','Inte',imy_tsk,3*i)
+    else
+      call GetMem('Imy_tsk','Allo','Inte',imy_tsk,(t3_stopa-t3_starta+1)*3)
+    end if
 
+    if (t3_starta < 0) then
+      i = 0
+      do nga=1,nuga
+        do ngb=1,nga
+          do ngc=1,ngb
+            i = i+1
+            iWork(imy_tsk-3+3*i) = nga
+            iWork(imy_tsk-3+3*i+1) = ngb
+            iWork(imy_tsk-3+3*i+2) = ngc
+          end do
         end do
       end do
+    else
+      i = 0
+      do nga=1,nuga
+        do ngb=1,nga
+          do ngc=1,ngb
+            i = i+1
+
+            if ((i >= t3_starta) .and. (i <= t3_stopa)) then
+              iWork(imy_tsk-3+3*(i-t3_starta+1)) = nga
+              iWork(imy_tsk-3+3*(i-t3_starta+1)+1) = ngb
+              iWork(imy_tsk-3+3*(i-t3_starta+1)+2) = ngc
+            end if
+
+          end do
+        end do
+      end do
+    end if
+
+    if (t3_starta > 0) then ! for correct deallocation
+      i = t3_stopa-t3_starta+1
+    end if
+
+    write(6,*)
+    write(6,*) '# of tasks to be parallelized in t3loop a = ',i
+    id = 666
+    lastcall = .false.
+    scored = .false.
+    call init_tsk(id,i)
+    do while (rsv_tsk(id,j))
+
+      nga = iWork(imy_tsk-3+3*j)
+      ngb = iWork(imy_tsk-3+3*j+1)
+      ngc = iWork(imy_tsk-3+3*j+2)
+
+      !mp
+      !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
+      !mp write(6,*) 'maxspace before ',maxspace
+      !mp
+      call t3loopa(oeh(noab(1)*(isp-1)+1),oep(nuab(1)*(isp-1)+1),Work(t1a+noab(1)*nuab(1)*(isp-1)), &
+                   Work(t1b+noab(1)*nuab(1)*(isp-1)),nga,ngb,ngc,vblock,energ,isp,LU,ifvo,lastcall,scored,j,enx1)
+      !mp
+      ! update 5th order terms
+
+      !mp call vadd(Work(t1a),1,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1,noab(1)*nuab(1))
+
+      call daxpy_((noab(1)*nuab(1)),1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
+      ccsdt = 2.d0*ddot_(noab(1)*nuab(1),Work(la),1,Work(t1a),1)
+      call daxpy_((noab(1)*nuab(1)),-1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
+
+      !mp
+      call CWTime(TCpu,TWall)
+      !mp
+      if (t3_starta < 0) then
+        write(6,'(A,i5,1x,3(i3,1x),2(f21.19,1x),2(f8.1,A,1x))') 'Tsk, nga, ngb, ngc, inc = ',j,nga,ngb,ngc,2.0d0*enx1,ccsdt, &
+                                                                TCpu-TCpu_l,' CPU [s]',TWall-TWall_l,' Wall [s]'
+      else
+        write(6,'(A,i5,1x,3(i3,1x),2(f21.19,1x),2(f8.1,A,1x))') 'Tsk, nga, ngb, ngc, inc = ',j+t3_starta-1,nga,ngb,ngc,2.0d0*enx1, &
+                                                                ccsdt,TCpu-TCpu_l,' CPU [s]',TWall-TWall_l,' Wall [s]'
+      end if
+
+      TCpu_l = TCpu
+      TWall_l = TWall
+      !mp
+      !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
+      !mp write(6,*) 'maxspace after ',maxspace
+      !mp
+
     end do
-  end if
-
-  if (t3_starta > 0) then ! for correct deallocation
-    i = t3_stopa-t3_starta+1
-  end if
-
-  write(6,*)
-  write(6,*) '# of tasks to be parallelized in t3loop a = ',i
-  id = 666
-  lastcall = .false.
-  scored = .false.
-  call init_tsk(id,i)
-98 if (.not. rsv_tsk(id,j)) goto 99
-
-  nga = iWork(imy_tsk-3+3*j)
-  ngb = iWork(imy_tsk-3+3*j+1)
-  ngc = iWork(imy_tsk-3+3*j+2)
-
-  !mp
-  !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
-  !mp write(6,*) 'maxspace before ',maxspace
-  !mp
-  call t3loopa(oeh(noab(1)*(isp-1)+1),oep(nuab(1)*(isp-1)+1),Work(t1a+noab(1)*nuab(1)*(isp-1)),Work(t1b+noab(1)*nuab(1)*(isp-1)), &
-               nga,ngb,ngc,vblock,energ,isp,LU,ifvo,lastcall,scored,j,enx1)
-  !mp
-  ! update 5th order terms
-
-
-  !mp call vadd(Work(t1a),1,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1,noab(1)*nuab(1))
-
-  call daxpy_((noab(1)*nuab(1)),1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
-  ccsdt = 2.d0*ddot_(noab(1)*nuab(1),Work(la),1,Work(t1a),1)
-  call daxpy_((noab(1)*nuab(1)),-1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
-
-  !mp
-  call CWTime(TCpu,TWall)
-  !mp
-  if (t3_starta < 0) then
-    write(6,'(A,i5,1x,3(i3,1x),2(f21.19,1x),2(f8.1,A,1x))') 'Tsk, nga, ngb, ngc, inc = ',j,nga,ngb,ngc,2.0d0*enx1,ccsdt, &
-                                                            TCpu-TCpu_l,' CPU [s]',TWall-TWall_l,' Wall [s]'
-  else
-    write(6,'(A,i5,1x,3(i3,1x),2(f21.19,1x),2(f8.1,A,1x))') 'Tsk, nga, ngb, ngc, inc = ',j+t3_starta-1,nga,ngb,ngc,2.0d0*enx1, &
-                                                            ccsdt,TCpu-TCpu_l,' CPU [s]',TWall-TWall_l,' Wall [s]'
-  end if
-
-  TCpu_l = TCpu
-  TWall_l = TWall
-  !mp
-  !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
-  !mp write(6,*) 'maxspace after ',maxspace
-  !mp
-
-  goto 98
-99 continue
-  write(6,*) 't3loopa finished'
-  write(6,*)
-  call Free_tsk(id)
-  call GetMem('Imy_tsk','Free','Inte',imy_tsk,3*i)
-
-  !mp !call gettim(cpu1,wall1)            ! dorob timingy !!!!!!
-  call CWTime(TCpu,TWall)
-  times(isp) = times(isp)+TCpu-cpu0_aaa
-  times(isp+4) = times(isp+4)+TWall-wall0_aaa
-
-  write(6,'(1X,5A,D12.4,A,D12.4,A)') 'Spin case ',ich(isp),ich(isp),ich(isp),' done:',TCpu-cpu0_aaa,' CPU [s]',TWall-wall0_aaa, &
-                                     ' Wall [s]'
-  call xflush(6)
-  !mp
-  call CWTime(TCpu,TWall)
-
-  if (printkey > 1) then
+    write(6,*) 't3loopa finished'
     write(6,*)
-    write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-    write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-    write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-    write(6,*)
+    call Free_tsk(id)
+    call GetMem('Imy_tsk','Free','Inte',imy_tsk,3*i)
+
+    !mp !call gettim(cpu1,wall1)            ! dorob timingy !!!!!!
+    call CWTime(TCpu,TWall)
+    times(isp) = times(isp)+TCpu-cpu0_aaa
+    times(isp+4) = times(isp+4)+TWall-wall0_aaa
+
+    write(6,'(1X,5A,D12.4,A,D12.4,A)') 'Spin case ',ich(isp),ich(isp),ich(isp),' done:',TCpu-cpu0_aaa,' CPU [s]',TWall-wall0_aaa, &
+                                       ' Wall [s]'
+    call xflush(6)
+    !mp
+    call CWTime(TCpu,TWall)
+
+    if (printkey > 1) then
+      write(6,*)
+      write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+      write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+      write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
+      write(6,*)
+    end if
+
+    TCpu_l = TCpu
+    TWall_l = TWall
+    !mp
+
   end if
-
-  TCpu_l = TCpu
-  TWall_l = TWall
-  !mp
-
-494 continue
 
   !mp
   cpu0_aab = TCpu
@@ -439,7 +436,10 @@ do isp=1,1+iuhf
     write(6,*)
     write(6,*) 'Skipping t3loopb on user request '
     write(6,*)
-    goto 495
+    skip = .true.
+    exit
+  else
+    skip = .false.
   end if
 
   ! alpha-alpha-beta or beta-beta-alpha only UHF
@@ -517,45 +517,44 @@ do isp=1,1+iuhf
   lastcall = .false.
   scored = .false.
   call init_tsk(id,i)
-198 if (.not. rsv_tsk(id,j)) goto 199
+  do while (rsv_tsk(id,j))
 
-  nga = iWork(imy_tsk-3+3*j)
-  ngb = iWork(imy_tsk-3+3*j+1)
-  ngc = iWork(imy_tsk-3+3*j+2)
-  !mp write(6,'(A,4(i5,2x))') 'Tsk, nga, ngb, ngc = ',j,nga,ngb,ngc
+    nga = iWork(imy_tsk-3+3*j)
+    ngb = iWork(imy_tsk-3+3*j+1)
+    ngc = iWork(imy_tsk-3+3*j+2)
+    !mp write(6,'(A,4(i5,2x))') 'Tsk, nga, ngb, ngc = ',j,nga,ngb,ngc
 
-  !mp
-  !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
-  !mp write(6,*) 'maxspace before ',maxspace
-  !mp
-  call t3loopb(oeh,oep,Work(t1a),Work(t1b),nga,ngb,ngc,vblock,energ(3),isp,LU,ifvo,lastcall,scored,j,enx1)
+    !mp
+    !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
+    !mp write(6,*) 'maxspace before ',maxspace
+    !mp
+    call t3loopb(oeh,oep,Work(t1a),Work(t1b),nga,ngb,ngc,vblock,energ(3),isp,LU,ifvo,lastcall,scored,j,enx1)
 
-  !mp??? call vadd(Work(t1a),1,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1,noab(1)*nuab(1))
-  call daxpy_((noab(1)*nuab(1)),1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
-  ccsdt = 2.d0*ddot_(noab(1)*nuab(1),Work(la),1,Work(t1a),1)
-  call daxpy_((noab(1)*nuab(1)),-1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
+    !mp??? call vadd(Work(t1a),1,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1,noab(1)*nuab(1))
+    call daxpy_((noab(1)*nuab(1)),1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
+    ccsdt = 2.d0*ddot_(noab(1)*nuab(1),Work(la),1,Work(t1a),1)
+    call daxpy_((noab(1)*nuab(1)),-1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
 
-  !mp
-  call CWTime(TCpu,TWall)
-  !mp
-  if (t3_startb < 0) then
-    write(6,'(A,i5,1x,3(i3,1x),2(f21.19,1x),2(f8.1,A,1x))') 'Tsk, nga, ngb, ngc, inc = ',j,nga,ngb,ngc,2.0d0*enx1,ccsdt, &
-                                                            TCpu-TCpu_l,' CPU [s]',TWall-TWall_l,' Wall [s]'
-  else
-    write(6,'(A,i5,1x,3(i3,1x),2(f21.19,1x),2(f8.1,A,1x))') 'Tsk, nga, ngb, ngc, inc = ',j+t3_startb-1,nga,ngb,ngc,2.0d0*enx1, &
-                                                            ccsdt,TCpu-TCpu_l,' CPU [s]',TWall-TWall_l,' Wall [s]'
-  end if
+    !mp
+    call CWTime(TCpu,TWall)
+    !mp
+    if (t3_startb < 0) then
+      write(6,'(A,i5,1x,3(i3,1x),2(f21.19,1x),2(f8.1,A,1x))') 'Tsk, nga, ngb, ngc, inc = ',j,nga,ngb,ngc,2.0d0*enx1,ccsdt, &
+                                                              TCpu-TCpu_l,' CPU [s]',TWall-TWall_l,' Wall [s]'
+    else
+      write(6,'(A,i5,1x,3(i3,1x),2(f21.19,1x),2(f8.1,A,1x))') 'Tsk, nga, ngb, ngc, inc = ',j+t3_startb-1,nga,ngb,ngc,2.0d0*enx1, &
+                                                              ccsdt,TCpu-TCpu_l,' CPU [s]',TWall-TWall_l,' Wall [s]'
+    end if
 
-  TCpu_l = TCpu
-  TWall_l = TWall
+    TCpu_l = TCpu
+    TWall_l = TWall
 
-  !mp
-  !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
-  !mp write(6,*) 'maxspace before ',maxspace
-  !mp
+    !mp
+    !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
+    !mp write(6,*) 'maxspace before ',maxspace
+    !mp
 
-  goto 198
-199 continue
+  end do
   write(6,*) 't3loopb finished'
   write(6,*)
   call Free_tsk(id)
@@ -578,22 +577,22 @@ do isp=1,1+iuhf
   close(LU(1))
   close(LU(2))
 end do        ! isp
-!mp !!call gettim(cpu0,wall0) ! urob timingy!
-!mp
-call CWTime(TCpu,TWall)
+if (.not. skip) then
+  !mp !!call gettim(cpu0,wall0) ! urob timingy!
+  !mp
+  call CWTime(TCpu,TWall)
 
-if (printkey > 1) then
-  write(6,*)
-  write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-  write(6,*)
+  if (printkey > 1) then
+    write(6,*)
+    write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+    write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+    write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
+    write(6,*)
+  end if
+  TCpu_l = TCpu
+  TWall_l = TWall
+  !mp
 end if
-TCpu_l = TCpu
-TWall_l = TWall
-!mp
-
-495 continue
 
 do i=1,10
   times_parr(i) = times(i)
@@ -770,27 +769,27 @@ else
   timerel = totcpu/totwal
 end if
 write(6,'(1x,a,2f13.3,a,f6.3)') 'total   cpu & wall',totcpu,totwal,' (min);   cpu/wall=',timerel
-if (nprocs <= 1) goto 2000
 
-! Parallel timing
-totcpu = times_parr(9)
-totwal = times_parr(10)
-times(9) = times_parr(9)
-do i=1,4
-  totcpu = totcpu+times_parr(i)
-  totwal = totwal+times_parr(4+i)
-end do
-if (totwal <= 0.0d0) then
-  timerel = 1.0d0
-else
-  timerel = totcpu/totwal
+if (nprocs > 1) then
+  ! Parallel timing
+  totcpu = times_parr(9)
+  totwal = times_parr(10)
+  times(9) = times_parr(9)
+  do i=1,4
+    totcpu = totcpu+times_parr(i)
+    totwal = totwal+times_parr(4+i)
+  end do
+  if (totwal <= 0.0d0) then
+    timerel = 1.0d0
+  else
+    timerel = totcpu/totwal
+  end if
+  write(6,*)
+  write(6,*) 'Aggregate parallel timings:'
+  write(6,'(1x,a,2f13.3,a,f6.3)') 'total   cpu & wall',totcpu,totwal,' (min);   cpu/wall=',timerel
 end if
-write(6,*)
-write(6,*) 'Aggregate parallel timings:'
-write(6,'(1x,a,2f13.3,a,f6.3)') 'total   cpu & wall',totcpu,totwal,' (min);   cpu/wall=',timerel
 
 ! Return
-2000 continue
 !mp call w_debug(.false.,.false.,'Triply done')
 !? nprocs = nprocs0
 
