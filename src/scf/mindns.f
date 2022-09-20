@@ -25,7 +25,7 @@
 *                                                                      *
 *     called from: DMat, OptClc                                        *
 *                                                                      *
-*     calls to: RWDTG, Gauss                                           *
+*     calls to: RWDTG                                                  *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *

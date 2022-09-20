@@ -245,7 +245,7 @@
       Subroutine StlLst(LLink)
       use LnkLst, only: nLList
       Implicit Real*8 (a-h,o-z)
-      return
+*     return
        Write (6,*)
        Write (6,*) '*********** Status of Linked List *************'
        Write (6,*)

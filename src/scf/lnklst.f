@@ -111,11 +111,9 @@
 *     NoAllo is the amount of memory (in DWords) one wants to keep
 *     for other purposes.
 *     opcode is a 4 character string:
-*     'APND' -append nevertheless to list, if same iterat is found
-*             on head node
 *     'NOOP' -no operation, if same iterat is found on head node
-*     'OVWR' -overwrite vector, if same iterat is found on head node
-*             if lvec is different from lvec stored on node, old
+*     'OVWR' -overwrite vector, if same iterat is found in any node
+*             If lvec is different from lvec stored on node, old
 *             vector is not overwritten and iWork(LList) is set to
 *             ErrCode 1
 *
@@ -143,12 +141,41 @@ C     Integer iDskPt,len
 *     clear ErrCode
       nLList(iLList,0)=0
 *     read listhead
-      iroot=nLList(iLList,1)
+      iroot =nLList(iLList,1)
       lislen=nLList(iLList,2)
 
+#define _NEW_CODE_
+#ifdef _NEW_CODE_
+      Select Case(opcode)
+
+      Case('NOOP')
+
+         If ((iroot.gt.0).AND.(nLList(iroot,4).eq.iterat)) Return
+
+      Case('OVWR')
+         Do While ((iroot>0))
+            If (nLList(iroot,3).ne.lvec) Then
+* Set error code: inconsistency in vector lengths
+               nLList(iLList,0)=1
+             Else If (nLList(iroot,4)==iterat) Then
+               SCF_V(iroot)%A(1:lVec)=vec(1:lVec)
+               Return
+            End If
+            iroot=nLList(iroot,0)
+         End Do
+
+      Case default
+
+*         opcode unknown
+          Write (6,*) 'PutVec: opcode unknown'
+          Write (6,'(A,A)') 'opcode=',opcode
+          Call Abend()
+
+      End Select
+#else
       If ((iroot.gt.0).AND.(nLList(iroot,4).eq.iterat)) Then
         If (opcode.eq.'NOOP') Then
-*         that's all, folks
+!         that's all, folks
           Return
         Else If (opcode.eq.'OVWR') Then
           If (nLList(iroot,3).ne.lvec) Then
@@ -158,16 +185,19 @@ C     Integer iDskPt,len
             SCF_V(iroot)%A(1:lVec)=vec(1:lVec)
           End If
           Return
-        Else If (opcode.ne.'APND') Then
+        Else
 *         opcode unknown
           Write (6,*) 'PutVec: opcode unknown'
           Write (6,'(A,A)') 'opcode=',opcode
           Call Abend()
         End If
       End If
+#endif
+
+      iroot =nLList(iLList,1)
 *     check if there is still enough memory to store vec
       Call mma_maxDBLE(MaxMem)
-*     let's allocate some memory
+!     let's allocate some memory
 *     allocate new node
       lLList=lLList+1
       iPtr2=lLList

@@ -26,7 +26,6 @@
 *                                                                      *
 *     called from: WfCtl                                               *
 *                                                                      *
-*     calls to: GrdClc, Gauss, OptClc                                  *
 *               uses SubRoutines and Functions from Module lnklst.f    *
 *               -linked list implementation to store series of vectors *
 *                                                                      *

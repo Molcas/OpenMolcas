@@ -32,7 +32,7 @@
 *   TrDP    : Traces of dD(i)*dP(j) of size (nTr,nTr)                  *
 *   TrDD    : Traces of dD(i)*dD(j) of size (nTr,nTr)                  *
 *                                                                      *
-* called from: Interp, OptClc                                          *
+* called from: OptClc                                                  *
 *                                                                      *
 * calls to: RWDTG                                                      *
 *                                                                      *
