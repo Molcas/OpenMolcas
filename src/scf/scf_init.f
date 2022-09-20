@@ -150,7 +150,6 @@ C     FThr   =  0.5d-6
       iDisk(:,1)=-1
       MapDns(:)=0
       FrstDs = .True.
-      FrstDa = .True.
       PreSch = .False.
       MiniDn = .True.
       WrOutD = .False.

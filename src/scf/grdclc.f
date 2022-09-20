@@ -24,15 +24,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     iOpt    : SCF optimization scheme
-*
       Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
-     &             nBB,Ovrlp,CMO)
+     &             nBB,Ovrlp,CMO, CMO_Ref)
 *
       Return
       End
       SubRoutine GrdClc_(FstItr,Dens,TwoHam,Vxc,mBT,mDens,nD,OneHam,
-     &                   mBB,Ovrlp,CMO)
+     &                   mBB,Ovrlp,CMO, CMO_Ref)
 ************************************************************************
 *                                                                      *
 *     purpose: Compute gradients and write on disk.                    *
@@ -69,7 +67,8 @@
 #include "file.fh"
 *
       Real*8 Dens(mBT,nD,mDens), TwoHam(mBT,nD,mDens), CMO(mBB,nD),
-     &       OneHam(mBT), Ovrlp(mBT), Vxc(mBT,nD,mDens)
+     &       OneHam(mBT), Ovrlp(mBT), Vxc(mBT,nD,mDens),
+     &       CMO_Ref(mBB,nD)
       Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
       Logical FstItr
@@ -91,9 +90,10 @@
 
 *--- Find the beginning of the loop
       If (FstItr) Then
-         LpStrt = 1
+         LpStrt = iter_ref
          kOptim_=iter
          FstItr=.False.
+         CMO_Ref(:,:)=CMO(:,:)
       Else
          LpStrt = kOptim
          kOptim_= kOptim
@@ -113,14 +113,14 @@
            Call RWDTG(-jDT,AuxT,nBT*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
            Call RWDTG(-jDT,AuxV,nBT*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
 *
-            Call EGrad(OneHam,AuxT,AuxV,Ovrlp,AuxD,nBT,CMO,nBO,
-     &                 GrdOO,nOO,nD,CMO)
+            Call EGrad(OneHam,AuxT,AuxV,Ovrlp,AuxD,nBT,CMO_Ref,nBO,
+     &                 GrdOO,nOO,nD,CMO_Ref)
 *
          Else
 *
             Call EGrad(OneHam,TwoHam(1,1,jDT),Vxc(1,1,jDT),Ovrlp,
-     &                 Dens(1,1,jDT),nBT,CMO,nBO,
-     &                 GrdOO,nOO,nD,CMO)
+     &                 Dens(1,1,jDT),nBT,CMO_Ref,nBO,
+     &                 GrdOO,nOO,nD,CMO_Ref)
 *
          End If
 *

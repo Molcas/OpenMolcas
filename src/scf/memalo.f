@@ -55,6 +55,7 @@
       nD=(iUHF+1)
       Call mma_allocate(TrM,nBB,nD,Label='TrM')
       Call mma_allocate(CMO,nBB,nD,Label='CMO')
+      Call mma_allocate(CMO_Ref,nBB,nD,Label='CMO_Ref')
 *
       Call mma_allocate(Fock,nBT,nD,Label='Fock')
       Call FZero(Fock,nBT*nD)

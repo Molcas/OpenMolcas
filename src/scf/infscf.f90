@@ -173,7 +173,7 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
         MaxOrO,nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,      &
         nOFT,nDisc,nCore,iPrForm,MaxFlip,iterprlv,                      &
         UHF_Size,nSkip(MxSym),iAu_ab,LstVec(nStOpt),                    &
-        iDummy_run, iTer2run
+        iDummy_run, iTer2run, iter_ref
 
       Character(LEN=LENIN8), Allocatable::  Name(:)
       Character(LEN=LENIN ), Allocatable::  Atom(:)
@@ -219,7 +219,6 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
 ! Allocate logical variables                                       *
 !----------------------------------------------------------------------*
 ! FrstDs     - T   = Optimization by Diis is done for the first time   *
-! FrstDa     - T   = Optimization by Damp is done for the first time   *
 ! DSCF       - T   = Perform direct SCF (see Subroutine OpnFls)        *
 ! DoCholesky - T   = Perform Cholesky SCF                              *
 ! DoLDF      - T   = Use Local DF fitting coefficients to construct    *
@@ -252,7 +251,7 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
 ! Falcon     - T   = Fock matrix is stored in Runfile                  *
 ! RSRFO      - F   = Use RS-RFO instead of DIIS extrapolation          *
 !----------------------------------------------------------------------*
-Logical FrstDs,FrstDa,DSCF,lRel,                                        &
+Logical FrstDs,DSCF,lRel,                                               &
         PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,Teee,            &
         Damping,Diis,One_Grid,DoCholesky,DDnOFF,Two_Thresholds,         &
         PmTime,EmConv,WarnCfg,DoHLgap,AddFragments,WarnPocc,            &

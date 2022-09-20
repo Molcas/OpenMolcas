@@ -58,6 +58,7 @@
       Call mma_deallocate(EOrb)
       Call mma_deallocate(OccNo)
       Call mma_deallocate(Fock)
+      Call mma_deallocate(CMO_ref)
       Call mma_deallocate(CMO)
       Call mma_deallocate(TrM)
 *
