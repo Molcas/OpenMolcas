@@ -41,7 +41,7 @@ C     Analysis.
 C     ---------
 
       NBIN = MIN(LBIN,MBIN)
-      CALL CHO_IZERO(ICOUNT,NBIN)
+      CALL IZERO(ICOUNT,NBIN)
       NLOW = 0
       NZER = 0
       NNEG = 0

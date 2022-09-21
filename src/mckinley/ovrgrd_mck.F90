@@ -78,11 +78,11 @@ end if
 #ifdef _DEBUGPRINT_
 write(u6,*) ' IfGrad=',IfGrad
 write(u6,*) ' IndGrd=',IndGrd
-call RecPrt(' In OvrGrd: A',' ',A,1,3)
-call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
-call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
-call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
-write(u6,*) ' In OvrGrd: la,lb=',la,lb
+call RecPrt(' In OvrGrd_McK: A',' ',A,1,3)
+call RecPrt(' In OvrGrd_McK: RB',' ',RB,1,3)
+call RecPrt(' In OvrGrd_McK: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In OvrGrd_McK: P',' ',P,nZeta,3)
+write(u6,*) ' In OvrGrd_McK: la,lb=',la,lb
 #endif
 
 ! Compute the cartesian values of the basis functions angular part

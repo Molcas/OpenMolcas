@@ -30,7 +30,7 @@ C ----------------------------------------------
          If (nQSP .gt. 1) Then
             Call Cho_Quit('Oops! Bug detected in '//SecNam,103)
          End If
-         Call Cho_dZero(MQ,l_MQ)
+         Call FZero(MQ,l_MQ)
          Call Cho_p_QualSwp()
          Call Cho_GetMQ(MQ,l_MQ,LstQSP,nQSP)
          Call Cho_p_QualSwp()

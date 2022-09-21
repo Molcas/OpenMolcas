@@ -207,9 +207,7 @@ else
   l = nBas**2
 end if
 if (.not. Add) then
-  do iD=1,nD
-    call Cho_dZero(F((iD-1)*l+1),l)
-  end do
+  F(1:nD*l) = Zero
 end if
 
 ! Allocate and set blocked density matrices (atom pair blocks)

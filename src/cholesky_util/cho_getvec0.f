@@ -42,7 +42,7 @@ C
 C     Initialize output array.
 C     ------------------------
 
-      CALL CHO_DZERO(CHOVEC,LENVEC*NUMVEC)
+      CALL FZERO(CHOVEC,LENVEC*NUMVEC)
 
 C     Read reduced set index arrays for first vector.
 C     -----------------------------------------------
@@ -110,7 +110,7 @@ C-tbp: replaced above code to make use of buffer through cho_vecrd.
      &                     IRED,' dim.: ',NNBSTR(ISYM,3)
          END IF
 
-         CALL CHO_DZERO(SCR(KRED1),NNBSTR(ISYM,1))
+         CALL FZERO(SCR(KRED1),NNBSTR(ISYM,1))
          IF (IRED .GT. 1) THEN
             DO JAB = 1,NNBSTR(ISYM,3)   ! sort into rs1 ordering
                KAB = IIBSTR(ISYM,3)  + JAB

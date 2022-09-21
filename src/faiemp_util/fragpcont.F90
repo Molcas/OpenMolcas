@@ -12,7 +12,7 @@
 !               2016, Liviu Ungur                                      *
 !***********************************************************************
 
-subroutine FragpCont(F1,mi,mK,ma,mC,F2,mL,mj,mD,mb,W,Fin,Factor)
+subroutine FragpCont(F1,mi,mK,ma,mC,F2,mL,mj,mD,mb,W,rFinal,Factor)
 !***********************************************************************
 !                                                                      *
 ! Object: Specialized contraction of 3 4D matrices.                    *
@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 integer(kind=iwp), intent(in) :: mi, mK, ma, mC, mL, mj, mD, mb
 real(kind=wp), intent(in) :: F1(mi,mK,ma,mC), F2(mL,mj,mD,mb), W(mK,mC,mL,mD), Factor
-real(kind=wp), intent(inout) :: Fin(mi,mj,ma,mb)
+real(kind=wp), intent(inout) :: rFinal(mi,mj,ma,mb)
 ! local variables
 integer(kind=iwp) :: ib, ia, ij, ii, iC, iK, iD, iL, j1, j2, j12
 real(kind=wp) :: xt, xt2, WW1(mK*mC*mL*mD), F12(mK*mC*mL*mD)
@@ -86,11 +86,11 @@ if (DBG) then
   end do
 end if !DBG
 
-!write(u6,*) 'norm of FINAL in fragpcont',dnrm2_(mi*mj*ma*mb,Fin(1:mi,1:mj,1:ma,1:mb),1)
+!write(u6,*) 'norm of FINAL in fragpcont',dnrm2_(mi*mj*ma*mb,rFinal(1:mi,1:mj,1:ma,1:mb),1)
 !T = F1*W
 !call DGEMM_('T','N',iBas*nElem(la)*nAlpha,iSize,nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)),nElem(iAng),Zero, &
 !            Array(ipF1),nAlpha*iBas*nElem(la))
-!Fin = T*F2
+!rFinal = T*F2
 !call DGEMM_('T','N',iBas*nElem(la)*nAlpha,iSize,nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)),nElem(iAng),Zero, &
 !            Array(ipF1),nAlpha*iBas*nElem(la))
 !write(u6,*) 'factor=',factor
@@ -133,7 +133,7 @@ do ib=1,mb
         !
         !call daxpy_(n,a,x,incx,y,incy)
 
-        Fin(ii,ij,ia,ib) = Fin(ii,ij,ia,ib)+Factor*xt
+        rFinal(ii,ij,ia,ib) = rFinal(ii,ij,ia,ib)+Factor*xt
 
       end do !ii
     end do !ij

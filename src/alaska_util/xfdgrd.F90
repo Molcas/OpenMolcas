@@ -34,7 +34,7 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7), iDum, iFd, ii, iOrdOp, ipA, ipAOff, ipB, ipBOff, &
                      ipDAO, iPrint, iRout, iStb(0:7), iuvwx(4), iZeta, j, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, lOp(4), &
-                     mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nip, nRys, nStb, nT
+                     mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3)
 logical(kind=iwp) :: JfGrad(3,4), NoLoop
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
@@ -44,15 +44,13 @@ external :: Fake, TNAI1, XCff2D
 
 #include "macros.fh"
 unused_var(rFinal)
-unused_var(nRys)
-unused_var(Ccoor)
+unused_var(nHer)
+unused_var(Ccoor(1))
 unused_var(nOrdOp)
-unused_var(lOper)
+unused_var(nComp)
 
 iRout = 151
 iPrint = nPrint(iRout)
-
-nRys = nHer
 
 ! Modify the density matrix with the prefactor
 

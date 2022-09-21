@@ -103,7 +103,7 @@ C           ------------------------------------------------------
 C           Initialize integral array.
 C           --------------------------
 
-            CALL CHO_DZERO(WRK(KINT),LENint)
+            CALL FZERO(WRK(KINT),LENint)
 
 C           Set up batch over Cholesky vectors.
 C           -----------------------------------

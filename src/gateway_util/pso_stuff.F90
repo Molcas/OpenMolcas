@@ -17,20 +17,16 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer(kind=iwp) :: iD0Lbl, iOff_ij2K(8), kCMO, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nDens, nG1, nG2, nnP(0:7), &
-                     npos(0:7,3), nSOs1, nV_K, nZ_p_k
+integer(kind=iwp) :: iD0Lbl, iOff_ij2K(8), kCMO, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nG1, &
+                     nG2, nnP(0:7), npos(0:7,3), nSOs1, nV_K, nZ_p_k
 logical(kind=iwp) :: lPSO, lsa, Case_3C, Case_2C, Case_mp2
 integer(kind=iwp), allocatable :: ij2K(:)
-real(wp), allocatable :: CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:,:), G1(:,:), G2(:,:), Thpkl(:), Txy(:,:), U_k(:), &
-                         V_k(:,:), Z_p_k(:,:)
+real(wp), allocatable :: A_PT2(:,:), B_PT2(:,:,:), CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:,:), G1(:,:), G2(:,:), &
+                         Thpkl(:), Txy(:,:), U_k(:), V_k(:,:), Z_p_k(:,:)
 type(DSBA_Type), allocatable, target :: AOrb(:)
 
-! DF-CASPT2
-real(kind=wp), allocatable :: A_PT2(:,:), B_PT2(:,:,:)
-integer(kind=iwp) :: nBasT, nBasA, nBasASQ
+public :: A_PT2, AOrb, B_PT2, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, &
+          lPSO, lsa, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nG1, nG2, nnP, npos, nSOs1, nV_K, &
+          nZ_p_k, Thpkl, Txy, U_k, V_k, Z_p_k
 
-public :: AOrb, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, lPSO, lsa, &
-          m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nDens, nG1, nG2, nnP, npos, nSOs1, nV_K, nZ_p_k, Thpkl, Txy, U_k, V_k, &
-          Z_p_k, A_PT2, B_PT2, nBasT, nBasA, nBasASQ
-
-End Module PSO_Stuff
+end module PSO_Stuff

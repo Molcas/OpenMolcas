@@ -59,14 +59,14 @@ mop(2) = nOp(2)
 DiffCnt = IfGrad(iDCar,1) .or. IfGrad(iDCar,2)
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' In PrjGrd: A',' ',A,1,3)
-call RecPrt(' In PrjGrd: RB',' ',RB,1,3)
-!call RecPrt(' In PrjGrd: P',' ',P,nZeta,3)
-call RecPrt(' In PrjGrd: Alpha',' ',Alpha,nAlpha,1)
-call RecPrt(' In PrjGrd: Beta',' ',Beta,nBeta,1)
-write(u6,*) ' In PrjGrd: la,lb=',' ',la,lb
-write(u6,*) ' In PrjGrd: Diffs=',' ',IfGrad(iDCar,1),IfGrad(iDCar,2)
-write(u6,*) ' In PrjGrd: Center=',' ',iDCNT
+call RecPrt(' In PrjGrd_McK: A',' ',A,1,3)
+call RecPrt(' In PrjGrd_McK: RB',' ',RB,1,3)
+!call RecPrt(' In PrjGrd_McK: P',' ',P,nZeta,3)
+call RecPrt(' In PrjGrd_McK: Alpha',' ',Alpha,nAlpha,1)
+call RecPrt(' In PrjGrd_McK: Beta',' ',Beta,nBeta,1)
+write(u6,*) ' In PrjGrd_McK: la,lb=',' ',la,lb
+write(u6,*) ' In PrjGrd_McK: Diffs=',' ',IfGrad(iDCar,1),IfGrad(iDCar,2)
+write(u6,*) ' In PrjGrd_McK: Center=',' ',iDCNT
 #endif
 
 kdc = 0
@@ -134,7 +134,7 @@ do kCnttp=1,nCnttp
         ipFB2 = ip
         ipFA2 = ip
         if (ip >= narr) then
-          write(u6,*) 'No mem in prjgrd',ip,narr
+          write(u6,*) 'No mem in PrjGrd_McK',ip,narr
           call abend()
         end if
 

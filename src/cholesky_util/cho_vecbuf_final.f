@@ -22,10 +22,10 @@ C
       If (Allocated(CHVBUF)) Call mma_deallocate(CHVBUF)
       If (Allocated(CHVBFI)) Call mma_deallocate(CHVBFI)
 
-      Call Cho_iZero(ip_ChVBuf_Sym,nSym)
-      Call Cho_iZero(l_ChVBuf_Sym,nSym)
-      Call Cho_iZero(ip_ChVBFI_Sym,nSym)
-      Call Cho_iZero(l_ChVBFI_Sym,nSym)
-      Call Cho_iZero(nVec_in_Buf,nSym)
+      Call iZero(ip_ChVBuf_Sym,nSym)
+      Call iZero(l_ChVBuf_Sym,nSym)
+      Call iZero(ip_ChVBFI_Sym,nSym)
+      Call iZero(l_ChVBFI_Sym,nSym)
+      Call iZero(nVec_in_Buf,nSym)
 
       End

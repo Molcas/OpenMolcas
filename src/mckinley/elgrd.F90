@@ -68,7 +68,7 @@ nip = nip+nzeta*nTri_Elem1(la)*nTri_Elem1(lb)*4*6
 if (nip-1 > nArr*nZeta) then
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
   call ErrTra()
-  write(u6,*) ' Abend in RFGrd'
+  write(u6,*) ' Abend in ElGrd'
   call Abend()
 end if
 

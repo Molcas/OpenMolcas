@@ -120,7 +120,7 @@ C
          ! Compute integrals
          Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
          Call xSetMem_Ints(l_SewWrk)
-         Call Cho_dZero(Work(ip_Int),l_Int)
+         Call FZero(Work(ip_Int),l_Int)
          Do klS=1,l_2CList_2
             SHC=L2C(1,klS)
             SHD=L2C(2,klS)

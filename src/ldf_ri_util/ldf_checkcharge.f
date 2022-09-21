@@ -83,7 +83,7 @@ C
       If (doPrint) Then
          l_dQ=NumberOfAtomPairs
          Call GetMem('dQ','Allo','Real',ip_dQ,l_dQ)
-         Call Cho_dZero(Work(ip_dQ),l_dQ)
+         Call FZero(Work(ip_dQ),l_dQ)
       End If
       Call GetMem('Coeff','Allo','Real',ip_C,l_Cmax)
       Call LDF_AllocateBlockMatrix('Den',ip_DBlocks)

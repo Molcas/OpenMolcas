@@ -144,8 +144,8 @@ do iShell=1,nShell
   call OrdExpD2C(mExp,Shells(iShll)%Exp,nCntrc,Shells(iShll)%pCff)
 
   ! Get the extreme exponents for the active shell.
-  A_low = Shells(iShll)%exp(1)
-  A_high = Shells(iShll)%exp(mExp)
+  A_low = Shells(iShll)%Exp(1)
+  A_high = Shells(iShll)%Exp(mExp)
 
   iCnttp = iSD(13,iShell)
   iCnt = iSD(14,iShell)
@@ -326,7 +326,7 @@ do iNQ=1,nNQ
             iNQ_ = Maps2p(iShell,iSym)
             !write(u6,*) 'iNQ_,iNQ=',iNQ_,iNQ
             if (iNQ_ == iNQ) then
-              ValExp = Shells(iShll)%exp(NrExp)
+              ValExp = Shells(iShll)%Exp(NrExp)
               iSet = 1
             end if
           end do

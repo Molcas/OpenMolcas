@@ -80,8 +80,8 @@ if (Method == 'MBPT2   ') then
     write(u6,*) '   Correct the input and restart the calculation!'
     call Abend()
   end if
-Else If (Method .eq. 'CASPT2') Then
-  Call Get_iScalar('mp2prpt',iMp2Prpt)
+else if (Method == 'CASPT2') then
+  call Get_iScalar('mp2prpt',iMp2Prpt)
 end if
 
 Do_Numerical_Cholesky = Do_Cholesky .or. Do_DF
@@ -124,10 +124,9 @@ if (Method == 'DMRGSCFS') then
   call Get_iScalar('SA ready',iGo)
 end if
 
-if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'GASSCFSA') .or. &
-    ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. &
-    ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
-     (Method == 'CCSDT') .or. (Method == 'EXTERNAL')) then
+if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'GASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
+    ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
+    (Method == 'CCSDT') .or. (Method == 'EXTERNAL')) then
   if (isNAC) then
     call Store_Not_Grad(0,NACstates(1),NACstates(2))
     call WarningMessage(2,'Numerical nonadiabatic coupling not implemented')
@@ -183,8 +182,8 @@ else if (Do_Cholesky .and. (Method == 'MBPT2') .and. (nProcs > 1)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. &
-        ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. (Method == 'CASPT2  ')) then
+else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
+         (Method == 'CASPT2  ')) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *

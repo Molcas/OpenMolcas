@@ -72,7 +72,7 @@ include:
   # Configurations defined in an external file
   - "/.gitlab-ci_configs.yml"
   # Jobs for building the documentation
-  #  - "/doc/.gitlab-ci.yml"
+  - "/doc/.gitlab-ci.yml"
 
 # Define templates for "sub-jobs"
 # - install-key: install the SSH key to access private repositories
@@ -208,23 +208,24 @@ include:
 
 # A release job to be scheduled
 
-#create_release:
-#  stage: deploy
-#  image: registry.gitlab.com/gitlab-org/release-cli
-#  needs:
-#    # Note: the doc job defines and exports TAG
-#    - job: doc
-#      artifacts: true
-#  script: |
-#    echo "Creating release $TAG"
-#  release:
-#    tag_name: ${TAG}
-#    tag_message: "verified commit"
-#    description: "Automatic release from latest master"
-#    ref: $CI_COMMIT_SHA
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
-#      when: on_success
+create_release:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/release-cli
+  needs:
+    # Note: the doc job defines and exports TAG
+    - job: doc
+      artifacts: true
+  script: |
+    echo "Creating release $TAG"
+  release:
+    tag_name: ${TAG}
+    tag_message: "verified commit"
+    description: "Automatic release from latest master"
+    ref: $CI_COMMIT_SHA
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
+      when: on_success
+
 # A special job for running checks on the code
 
 checks:
@@ -339,7 +340,7 @@ test:options:
   <<: *run-tests
   needs:
     - build:options
-#   - tinker
+    - tinker
   parallel: 2
 
 build:linalg:
@@ -350,7 +351,7 @@ test:linalg:
   <<: *run-tests
   needs:
     - build:linalg
-#   - tinker
+    - tinker
   parallel: 2
 
 build:pgi:

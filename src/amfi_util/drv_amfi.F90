@@ -244,8 +244,8 @@ do
         if (IfTest) write(u6,*) 'iShll=',iShll
         write(Lu_AMFI,*) nExp_x,nBas_x
         if (IfTest) write(u6,*) nExp_x,nBas_x
-        write(Lu_AMFI,*) (Shells(iShll)%exp(iExp_x),iExp_x=1,nExp_x)
-        if (IfTest) write(u6,*) (Shells(iShll)%exp(iExp_x),iExp_x=1,nExp_x)
+        write(Lu_AMFI,*) (Shells(iShll)%Exp(iExp_x),iExp_x=1,nExp_x)
+        if (IfTest) write(u6,*) (Shells(iShll)%Exp(iExp_x),iExp_x=1,nExp_x)
         do iExp_x=1,nExp_x
           write(Lu_AMFI,*) (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),iCff_x=1,nBas_x)
           if (IfTest) write(u6,*) (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),iCff_x=1,nBas_x)

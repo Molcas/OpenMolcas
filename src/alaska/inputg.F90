@@ -29,6 +29,7 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
 use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
+use RI_glob, only: Timings_default
 use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -41,7 +42,6 @@ integer(kind=iwp), intent(in) :: LuSpool
 #include "print.fh"
 #include "disp.fh"
 #include "columbus_gamma.fh"
-#include "exterm.fh"
 #include "nac.fh"
 #include "chotime.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &

@@ -194,7 +194,7 @@ C
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       kShell=nShell_Valence+nShell_Auxiliary+1
       SHC=kShell
       If (A.eq.B) Then
@@ -422,7 +422,7 @@ C
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       Do klS=1,l_2CList_2
          kShell=i2CList(1,klS)
          lShell=i2CList(2,klS)

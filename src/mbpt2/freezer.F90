@@ -37,7 +37,7 @@ else if (nSym == 1) then
   nFro1(1) = nFre
   return
 else
-  call Cho_iZero(nFro1,nSym)
+  call iZero(nFro1,nSym)
 end if
 
 ! Set up array of active occupied orbital energies.

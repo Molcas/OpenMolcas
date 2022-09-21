@@ -54,7 +54,7 @@ C     Zeros are returned if the element AB is not qualified.
 C     -------------------------------------------------------
 
       iShP2Q(:,1:NumAB)=0
-      Call Cho_iZero(nAB,nSym)
+      Call iZero(nAB,nSym)
 
       Do iSym = 1,nSym
          Do iQ = 1,nQual(iSym)

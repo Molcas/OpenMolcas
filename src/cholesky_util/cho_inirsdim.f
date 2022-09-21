@@ -30,6 +30,6 @@ C
       END IF
 
       NUM   = NSYM*(MAXRED - NSET)
-      CALL CHO_IZERO(nDimRS(1,NSET+1),NUM)
+      CALL IZERO(nDimRS(1,NSET+1),NUM)
 
       END

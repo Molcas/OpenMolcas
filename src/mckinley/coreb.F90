@@ -82,7 +82,7 @@ ip = ip+nBeta*nExpi*3*(iAng+1)*(lb+1+ld)*(nOrdOp+1)
 ipB = ip
 ip = ip+nBeta*nExpi
 if (ip-1 > nArr) then
-  write(u6,*) '  ip-1 > nArr*nZeta(2b) in PrjGrd'
+  write(u6,*) '  ip-1 > nArr*nZeta(2b) in coreB'
   call Abend()
 end if
 ABeq(1) = TC(1) == RB(1)

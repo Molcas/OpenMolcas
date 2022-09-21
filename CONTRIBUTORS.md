@@ -75,6 +75,7 @@ David L. Cooper
 Maurizio Cossi  
 Joel Creutzberg  
 Oleh Danyliv  
+Danjo De Chavez  
 Mickaël G. Delcey  
 Ajitha Devarajan  
 Luca De Vico  
@@ -132,6 +133,7 @@ Thomas Müller
 Takahito Nakajima  
 Naoki Nakatani  
 Pavel Neogrády  
+Yoshio Nishimoto  
 Jesper Norell  
 Anders Öhrn  
 Jeppe Olsen  

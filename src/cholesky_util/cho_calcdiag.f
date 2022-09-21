@@ -74,7 +74,7 @@ C     ------------------------------------------
 C     Initialize abs. max. diag. array.
 C     ---------------------------------
 
-      CALL CHO_DZERO(DIAMAX,NSYM)
+      CALL FZERO(DIAMAX,NSYM)
 
 C     Allocate array for storing 10 most negative diagonals
 C     (there should be none, of course, but they do show up)

@@ -79,7 +79,7 @@ C
             Call LDF_Quit(1)
          End If
          ! Init integral array
-         Call Cho_dZero(xInt,l_xInt)
+         Call FZero(xInt,l_xInt)
          ! Set indices
          Call LDF_SetIndx_JK_2P(AB,CD)
          ! Allocate Seward memory
