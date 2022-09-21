@@ -40,8 +40,8 @@
 ************************************************************************
 *                                                                      *
       Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
-     &                        Dens,Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,
-     &                        CInter,EOrb,OccNo,Vxc,TrM,nBT,
+     &                        Dens,Ovrlp,TrDh,TrDP,TrDD,
+     &                        CInter,OccNo,Vxc,TrM,nBT,
      &                        nDens,nD,nTr,nBB,nCI,nnB
      &                       )
 *                                                                      *
@@ -58,8 +58,8 @@
       End Subroutine WFCtl_SCF
       SubRoutine WfCtl_SCF_Internal(
      &                      iTerm,Meth,FstItr,SIntTh,
-     &                      OneHam,TwoHam,Dens,Ovrlp,Fock,
-     &                      TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,
+     &                      OneHam,TwoHam,Dens,Ovrlp,
+     &                      TrDh,TrDP,TrDD,CInter,OccNo,
      &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB
      &                             )
 ************************************************************************
@@ -96,16 +96,16 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO
-      use SCF_Arrays, only: HDiag
+      use SCF_Arrays, only: HDiag, EOrb, CMO, Fock
       use InfSCF
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
       Real*8 OneHam(mBT), TwoHam(mBT,nD,mDens), Dens(mBT,nD,mDens),
-     &       Ovrlp(mBT), Fock(mBT,nD), TrDD(nTr*nTr,nD),
-     &       TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD), CMO(mBB,nD),
+     &       Ovrlp(mBT), TrDD(nTr*nTr,nD),
+     &       TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD),
      &       CInter(nCI,nD), Vxc(mBT,nD,mDens), TrM(mBB,nD),
-     &       EOrb(mmB,nD), OccNo(mmB,nD)
+     &       OccNo(mmB,nD)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
@@ -339,7 +339,7 @@
 *                                                                      *
 *        Do Aufbau procedure, if active...
 *
-         If (Aufb) Call Aufbau(EOrb,mmB,nAufb,OccNo,mmb,iAufOK,nD)
+         If (Aufb) Call Aufbau(nAufb,OccNo,mmB,iAufOK,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -425,9 +425,9 @@
                Call PutVec(Xn,mOV,iter,'NOOP',LLx)
                Call mma_deallocate(Xn)
 *
-*---           compute initial inverse Hessian H (diag)
+*---           compute initial diagonal Hessian, Hdiag
 *
-               Call SOIniH(EOrb,nnO,HDiag,mOV,nD)
+               Call SOIniH()
                AccCon(8:8)='H'
             Else
                AccCon(8:8)=' '

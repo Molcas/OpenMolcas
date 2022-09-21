@@ -12,20 +12,15 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 *               2017, Roland Lindh                                     *
+*               2022, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine SOiniH(EOrb,nEOrb,HDiag,nH,nD)
+      SubRoutine SOiniH()
 ************************************************************************
 *                                                                      *
-*     purpose: generate initial inverse Hessian (diagonal) from        *
+*     purpose: generate initial Hessian (diagonal) from                *
 *              orbital energies (for second order update)              *
 *                                                                      *
-*     output:                                                          *
-*       HDiag   : inverse of initial, diagonal Hessian                 *
-*                                                                      *
 *     called from: WfCtl                                               *
-*                                                                      *
-*     calls to: DOne                                                   *
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -39,14 +34,12 @@
 ************************************************************************
       use Orb_Type
       use InfSCF
+      use SCF_Arrays, only: EOrb, HDiag
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 *
-*     declaration subroutine parameters
-      Integer nEOrb,nH, nD
-      Real*8 EOrb(nEOrb,nD),HDiag(nH)
-*
 *     declaration local variables
+      Integer nEOrb,nH, nD
       Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
 *
 *----------------------------------------------------------------------*
@@ -57,6 +50,9 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
+      nEOrb=Size(EOrb,1)
+      nD   =Size(EOrb,2)
+      nH   =Size(HDiag)
       HDiag(:)=1.0D+99
 *
 *#define _DEBUGPRINT_

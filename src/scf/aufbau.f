@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Aufbau(EOr,nEOr,nAuf,Occup,nOccup,iOK,nD)
+      SubRoutine Aufbau(nAuf,Occup,nOccup,iOK,nD)
 ************************************************************************
 *                                                                      *
 *     purpose: sets the orbital occupation numbers in the different    *
@@ -19,7 +19,6 @@
 *              different irrep blocks. The lowest orbitals then are    *
 *              occupied...                                             *
 *     input:                                                           *
-*       EOr(nEOr)     : orbital energies                               *
 *       nAuf          : # (doubly) occupied orbitals                   *
 *                                                                      *
 *     output:                                                          *
@@ -41,19 +40,21 @@
 *                                                                      *
 ************************************************************************
       Use InfSCF
+      Use SCF_Arrays, only: EOrb
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "Molcas.fh"
 *
 *     declaration subroutine parameters
-      Real*8 EOr(nEOr,nD), Occup(nOccup,nD)
+      Real*8 Occup(nOccup,nD)
       Integer nAuf(2)
 *
 *     declaration of local variables...
       Integer, Dimension(:,:), Allocatable:: Map, Irp
       Real*8 Sum_el(2)
       Integer nOrb_AS(2), mOrb_AS(2)
+      Integer nEOr
 *
 *     These uccupation number vectors are used to determine if we have
 *     convergence.
@@ -61,8 +62,10 @@
       Integer, Save :: kOccAuf=-1
       Integer, Save :: nOccAuf(MxSym,2,2)
 *
-      Call mma_allocate(Map,nEOr,nD,Label='Map')
-      Call mma_allocate(Irp,nEOr,nD,Label='Irp')
+      nEOrb = Size(EOrb,1)
+
+      Call mma_allocate(Map,nEOrb,nD,Label='Map')
+      Call mma_allocate(Irp,nEOrb,nD,Label='Irp')
 *----------------------------------------------------------------------*
 * Initialize convergence detection                                     *
 *----------------------------------------------------------------------*
@@ -90,8 +93,8 @@
       Do iOrbAS = 1, nOrbAS-1
          Do jOrbAS = nOrbAS-1, iOrbAS, -1
             Do iD = 1, nD
-               If (EOr(Map(  jOrbAS,iD),iD).gt.
-     &             EOr(Map(1+jOrbAS,iD),iD))
+               If (EOrb(Map(  jOrbAS,iD),iD).gt.
+     &             EOrb(Map(1+jOrbAS,iD),iD))
      &           Call Swap_Seward(Map(  jOrbAS,iD),
      &                            Map(1+jOrbAS,iD))
             End Do
@@ -108,7 +111,7 @@
          UHF_occ=3.0d0-UHF_Size
          mD = 2/nD
          Do iD = 1, nD
-            eferm=FermiPop(EOr(1,iD),Occup(1,iD),nOrbAS,RTemp,
+            eferm=FermiPop(EOrb(1,iD),Occup(1,iD),nOrbAS,RTemp,
      &                     nAuf(iD)*mD,UHF_occ)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
