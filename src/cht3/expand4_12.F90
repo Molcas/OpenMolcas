@@ -14,9 +14,12 @@ subroutine expand4_12(AA,BB,d1,d2,d3)
 !
 ! A(ab,i,j) -> A(a,b,i,j)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer d1, d2, d3, a, b, i, j, ab
-real*8 AA(d1*(d1+1)/2,d2,d3), BB(d1,d1,d2,d3)
+integer(kind=iwp) :: d1, d2, d3
+real(kind=wp) :: AA(d1*(d1+1)/2,d2,d3), BB(d1,d1,d2,d3)
+integer(kind=iwp) :: a, ab, b, i, j
 
 ab = 0
 do a=1,d1

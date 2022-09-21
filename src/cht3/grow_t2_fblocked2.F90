@@ -11,19 +11,17 @@
 
 subroutine grow_t2_fblocked2(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2)
 
-implicit none
-integer a, b, dima, dimb, no, i, j
-!integer ij
-integer lasta, lastb
-integer length1, length2
-!mp real*8 t2(nv,nv,no,no)
-real*8 t2(length1,length2,no,no)
-real*8 tmp(dima,dimb,no,no)
+use Definitions, only: wp, iwp
 
-!mp write(6,*) 'lasta+dima, length1 ',lasta+dima,length1
-!mp write(6,*) 'lastb+dimb, length2 ',lastb+dimb,length2
-!mp write(6,*) 'lasta, lastb ',lasta,lastb
-!mp write(6,*) 'dima, dimb ',dima,dimb
+implicit none
+integer(kind=iwp) :: dima, dimb, no, lasta, lastb, length1, length2
+real(kind=wp) :: t2(length1,length2,no,no), tmp(dima,dimb,no,no)
+integer(kind=iwp) :: a, b, i, j
+
+!mp write(u6,*) 'lasta+dima, length1 ',lasta+dima,length1
+!mp write(u6,*) 'lastb+dimb, length2 ',lastb+dimb,length2
+!mp write(u6,*) 'lasta, lastb ',lasta,lastb
+!mp write(u6,*) 'dima, dimb ',dima,dimb
 
 !mp ij = 0
 !mp do i=2,no
@@ -34,7 +32,7 @@ do i=1,no
     do b=1,dima
       do a=1,dimb
 
-        !mp t2(lasta+a,lastb+b,ij) = tmp(b,a,j,i)+(-1.0d0*tmp(b,a,i,j))
+        !mp t2(lasta+a,lastb+b,ij) = tmp(b,a,j,i)-tmp(b,a,i,j)
         t2(lasta+a,lastb+b,i,j) = tmp(b,a,j,i)
 
       end do

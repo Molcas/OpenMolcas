@@ -12,22 +12,19 @@
 subroutine t3_bt_aac(nug,ka,kc,la,lc,adim,cdim,N,noab,nnoab,lu,iasblock,nga,ngc,oeh,oepa,oepc,enx,voa,voc,t1aa,t1ba,t1ac,t1bc,t3a, &
                      t3b,ifvo)
 
-implicit none
-real*8 one, zero, sumt3
-logical ifvo
-parameter(one=1.d0,zero=0.d0)
-integer nadim, adim, noab, i, j, k, nga, iasblock(3), lu(2), N
-integer ias, nga_offset, ngc_offset, nug_offset, jk, ij, ik, ncdim, cdim
-integer a, b, c, ab, nug, nnoab, ngc, iasci, iasai !, kaka
-real*8 dena, denb, denc, xx, yy
-real*8 ka(adim*(adim-1)/2,n,*), kc(adim*cdim,n,*), la(N*adim,nnoab), lc(N*cdim,nnoab)
-!!real*8 lb(N,adim,nnoab),lc(N,adim,nnoab)
-real*8 t3a(cdim,*), t3b(cdim,adim,*), t1ac(noab,*), t1bc(noab,*)
-real*8 voa(adim*(adim-1)/2,*), voc(adim*cdim,*)
-real*8 t1aa(noab,*), t1ba(noab,*), enx, oeh(noab), oepa(adim), den
-real*8 oepc(cdim)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-sumt3 = 0.d0
+implicit none
+integer(kind=iwp) :: nug, adim, cdim, N, noab, nnoab, lu(2), iasblock(3), nga, ngc
+real(kind=wp) :: ka(adim*(adim-1)/2,n,*), kc(adim*cdim,n,*), la(N*adim,nnoab), lc(N*cdim,nnoab), oeh(noab), oepa(adim), &
+                 oepc(cdim), enx, voa(adim*(adim-1)/2,*), voc(adim*cdim,*), t1aa(noab,*), t1ba(noab,*), t1ac(noab,*), &
+                 t1bc(noab,*), t3a(cdim,*), t3b(cdim,adim,*)
+logical(kind=iwp) :: ifvo
+integer(kind=iwp) :: a, ab, b, c, i, ias, iasai, iasci, ij, ik, j, jk, k, nadim, ncdim, nga_offset, ngc_offset, nug_offset
+real(kind=wp) :: den, dena, denb, denc, sumt3, xx, yy
+
+sumt3 = Zero
 if (adim == 1) return
 nadim = adim*(adim-1)/2
 ncdim = adim*cdim
@@ -60,7 +57,7 @@ do i=3,noab
     do k=1,j-1
       jk = jk+1
       ik = ik+1
-      !!write(6,'(9I5)') i,j,k,iasai,iasaj,iasak,iasci,iascj,iasck
+      !!write(u6,'(9I5)') i,j,k,iasai,iasaj,iasak,iasci,iascj,iasck
       ! K_ab^ir x L_rc^jk
       call DGEMM_('T','T',cdim,nadim,N,one,lc(1,jk),N,ka(1,1,i),nadim,zero,t3a,cdim)
       ! K_ab^kr x L_rc^ij
@@ -78,8 +75,8 @@ do i=3,noab
       do a=2,adim
         do b=1,a-1
           ab = ab+1
-          call daxpy_(cdim,-1.d0,t3b(1,a,b),1,t3a(1,ab),1)
-          call daxpy_(cdim,1.d0,t3b(1,b,a),1,t3a(1,ab),1)
+          call daxpy_(cdim,-One,t3b(1,a,b),1,t3a(1,ab),1)
+          call daxpy_(cdim,One,t3b(1,b,a),1,t3a(1,ab),1)
         end do
       end do
       den = oeh(i)+oeh(j)+oeh(k)
@@ -101,8 +98,8 @@ do i=3,noab
             enx = enx+yy*xx
             !!t3a(ab,1) = yy
             t3a(c,ab) = yy
-            !!write(6,*) ab,t3a(ab,1)
-            !!write(6,*) kaka,t3a(c,ab)
+            !!write(u6,*) ab,t3a(ab,1)
+            !!write(u6,*) kaka,t3a(c,ab)
           end do
         end do
       end do

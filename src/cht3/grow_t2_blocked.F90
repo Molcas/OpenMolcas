@@ -11,19 +11,17 @@
 
 subroutine grow_t2_blocked(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2,sym,switch)
 
-implicit none
-integer a, b, dima, dimb, no, i, j
-integer lasta, lastb
-integer length1, length2
-!mp real*8 t2(nv,nv,no,no)
-real*8 t2(length1,length2,no,no)
-real*8 tmp(dima,dimb,no,no)
-logical sym
-logical switch
+use Definitions, only: wp, iwp
 
-!mp write(6,*) 'grow_t2neq dima , dimb  ',dima,dimb
-!mp write(6,*) 'grow_t2neq lasta, lastb ',lasta,lastb
-!mp write(6,*) 'grow_t2neq no           ',no
+implicit none
+integer(kind=iwp) :: dima, dimb, no, lasta, lastb, length1, length2
+real(kind=wp) :: t2(length1,length2,no,no), tmp(dima,dimb,no,no)
+logical(kind=iwp) :: sym, switch
+integer(kind=iwp) :: a, b, i, j
+
+!mp write(u6,*) 'grow_t2neq dima , dimb  ',dima,dimb
+!mp write(u6,*) 'grow_t2neq lasta, lastb ',lasta,lastb
+!mp write(u6,*) 'grow_t2neq no           ',no
 
 !mp if (lasta == lastb) then
 !? if (grpa == grpb) then
@@ -31,8 +29,8 @@ logical switch
 !?     do i=1,no
 !?       do a=1,dima
 !?         do b=1,a
-!?           t2(lasta+a,lastb+b,i,j) = 1.0d0*tmp(a,b,i,j)
-!?           if (a /= b) t2(lastb+b,lasta+a,j,i) = 1.0d0*tmp(a,b,i,j)
+!?           t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
+!?           if (a /= b) t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
 !?         end do
 !?       end do
 !?     end do
@@ -45,16 +43,14 @@ do j=1,no
     do b=1,dimb
       do a=1,dima
         if (.not. switch) then
-          t2(lasta+a,lastb+b,i,j) = 1.0d0*tmp(a,b,i,j)
+          t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
         else
-          !mp !t2(lasta+a,lastb+b,i,j) = 1.0d0*tmp(a,b,j,i)
-          t2(lasta+a,lastb+b,i,j) = 1.0d0*tmp(a,b,i,j)
+          !mp !t2(lasta+a,lastb+b,i,j) = tmp(a,b,j,i)
+          t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
         end if
-        !mpn t2(lastb+b,lasta+a,j,i) = 1.0d0*tmp(a,b,i,j)
+        !mpn t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
 
-        if (sym) then
-          t2(lastb+b,lasta+a,j,i) = 1.0d0*tmp(a,b,i,j)
-        end if
+        if (sym) t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
 
       end do
     end do

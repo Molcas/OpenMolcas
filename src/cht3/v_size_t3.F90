@@ -11,14 +11,13 @@
 
 subroutine v_size_t3(vblock,nprocs,krem,printkey)
 
+use Constants, only: One, Three
+use Definitions, only: iwp, u6
+
 implicit none
-integer krem, N
-integer t3_size_a, t3_size
-integer isp, vblock, maxnu
-integer nuga, nugc, vblock_isp(2), nprocs, rest
-integer printkey, tmp
+integer(kind=iwp) :: vblock, nprocs, krem, printkey
 #include "uhf.fh"
-#include "ioind.fh"
+integer(kind=iwp) :: isp, maxnu, N, nuga, nugc, rest, t3_size, t3_size_a, tmp, vblock_isp(2)
 
 ! number of elementary subprocesses: nugc*nuga*(nuga+1)/2
 !                                   + nuga*nugc*(nugc+1)/2
@@ -30,7 +29,7 @@ vblock_isp(1) = maxnu/nprocs
 
 !mp
 tmp = 1
-if (maxnu >= 100) tmp = int((2*nprocs)**(1.0d0/3.0d0))
+if (maxnu >= 100) tmp = int((2*nprocs)**(One/Three))
 
 do while ((tmp*(tmp*(tmp+1))/2) < nprocs)
   tmp = tmp+1
@@ -55,7 +54,7 @@ do isp=1,2
   ! this is a first entry - initialization (makes no harm if repeated)
   do while (krem < t3_size)
     vblock = vblock-1
-    !!write(6,*) 'whiblock',vblock,krem,t3_size
+    !!write(u6,*) 'whiblock',vblock,krem,t3_size
     t3_size = 0
     nuga = nuab(isp)/vblock
     if ((nuga*vblock) < nuab(isp)) nuga = nuga+1
@@ -210,13 +209,11 @@ do isp=1,2
   t3_size = t3_size+N*vblock+1
   if (isp == 1) t3_size_a = t3_size
 end do
-write(6,*)
-write(6,'(2x,A,I5)') 'Virtual orbitals will be treated in blocks of:',vblock
-if (printkey >= 10) then
-  write(6,'(2x,A,I11,A,I11,A)') 'Memory requirement:',max(t3_size,t3_size_a),' Words;    remaining:',krem-max(t3_size,t3_size_a), &
-                                ' Words'
-end if
-call xflush(6)
+write(u6,*)
+write(u6,'(2x,A,I5)') 'Virtual orbitals will be treated in blocks of:',vblock
+if (printkey >= 10) write(u6,'(2x,A,I11,A,I11,A)') 'Memory requirement:',max(t3_size,t3_size_a),' Words;    remaining:', &
+                                                   krem-max(t3_size,t3_size_a),' Words'
+call xflush(u6)
 
 return
 

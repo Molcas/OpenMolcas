@@ -18,9 +18,12 @@ subroutine generate_juzekOE(oe,oeh,oep,no,nv)
 !
 ! oep = ( oe_virt(alpha) ... oe_virt(beta) ) (alpha=beta for this implementation)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer i, no, nv
-real*8 oe(*), oeh(*), oep(*)
+integer(kind=iwp) :: no, nv
+real(kind=wp) :: oe(no+nv), oeh(2*no), oep(2*nv)
+integer(kind=iwp) :: i
 
 do i=1,no
   oeh(i) = oe(i)

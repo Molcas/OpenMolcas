@@ -18,22 +18,23 @@ subroutine gen_oovo(w,l0,l1,tmp)
 !       L0(m,IJ)    L0vctr  I>=J
 !       L1(m,I ,A') L1vcxx xx - Group of A'
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: w(*), l0(*), l1(*), tmp(*)
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "files.fh"
 #include "ccsd_t3compat.fh"
-real*8 tmp(*), l0(*), l1(*), w(*)
-integer a, dima, length, last
-integer a_tmp
+integer(kind=iwp) :: a, a_tmp, dima, last, length
 
 !1 read tmp(m,IJ)
 
 length = nc*(no*(no+1))/2
 
-!mp !write(6,'(A,A6)') 'L0vcrt ','L0vcrt'
-!mp !write(6,*) 'length = ',length
-!mp !write(6,*) 'file size (ifort) = ',8+8*length
+!mp !write(u6,'(A,A6)') 'L0vcrt ','L0vcrt'
+!mp !write(u6,*) 'length = ',length
+!mp !write(u6,*) 'file size (ifort) = ',8+8*length
 
 call GetX_t3(tmp,length,LunAux,'L0vctr',1,1)
 
@@ -49,14 +50,14 @@ do a=1,NvGrp
 
   !4 read tmp(m,I,A')
 
-  !mp !write(6,'(A,i3,2x,A6)') 'a,L1Name(a) ',a,L1Name(a)
+  !mp !write(u6,'(A,i3,2x,A6)') 'a,L1Name(a) ',a,L1Name(a)
 
   !mp@@ if (a == NvGrp) dima = nv-((NvGrp-1)*dima)
 
-  !mp !write(6,*) 'dima = ',dima
+  !mp !write(u6,*) 'dima = ',dima
   length = nc*no*dima
-  !mp !write(6,*) 'length = ',length
-  !mp !write(6,*) 'file size (ifort) = ',8+8*length
+  !mp !write(u6,*) 'length = ',length
+  !mp !write(u6,*) 'file size (ifort) = ',8+8*length
 
   call GetX_t3(tmp,length,LunAux,L1Name(a),1,1)
 

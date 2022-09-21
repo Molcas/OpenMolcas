@@ -14,25 +14,24 @@ subroutine grow_w3(w3,AA,nv,d2,dima,dimb,dimc,lasta,lastb,lastc)
 !
 ! add the block contribution AA(a',b',c') to w3(a>=b,c)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer a, b, c, dima, dimb, dimc, lasta, lastb, lastc, ab, nv
-integer a_point, b_point
-integer d2
-real*8 w3(nv*(nv+1)/2,d2)
-real*8 AA(dima,dimb,dimc)
-integer a_old, b_old
+integer(kind=iwp) :: nv, d2, dima, dimb, dimc, lasta, lastb, lastc
+real(kind=wp) :: w3(nv*(nv+1)/2,d2), AA(dima,dimb,dimc)
+integer(kind=iwp) :: a, a_old, a_point, ab, b, b_old, b_point, c
 
 if ((dima == 0) .or. (dimb == 0)) then
-  write(6,*) 'dima, dimb = ',dima,dimb
-  write(6,*) 'zle je'
+  write(u6,*) 'dima, dimb = ',dima,dimb
+  write(u6,*) 'zle je'
   call abend()
 end if
 
 a_point = 0
 b_point = 0
 ab = 0
-!mp write(6,'(A,3(i5))') 'lasta, lastb, lastc = ',lasta,lastb,lastc
-!mp write(6,'(A,2(i5))') 'dima, dimb          = ',dima,dimb
+!mp write(u6,'(A,3(i5))') 'lasta, lastb, lastc = ',lasta,lastb,lastc
+!mp write(u6,'(A,2(i5))') 'dima, dimb          = ',dima,dimb
 
 a_old = 0
 b_old = 0
@@ -50,14 +49,14 @@ do a=1,nv
 
       if ((b >= max(1,lastb+1)) .and. (b <= min(a,lastb+dimb))) then
 
-        !write(6,*) 'b, b_old = ',b,b_old
+        !write(u6,*) 'b, b_old = ',b,b_old
         if ((b /= b_old) .or. (b == max(1,lastb+1))) then
-          !write(6,*) 'wft'
+          !write(u6,*) 'wft'
           b_point = b_point+1
           b_old = b
         end if
 
-        !mp if (lastc == 0) write(6,'(A,5(i5))') 'ab, a, b, a_point, b_point = ',ab,a,b,a_point,b_point
+        !mp if (lastc == 0) write(u6,'(A,5(i5))') 'ab, a, b, a_point, b_point = ',ab,a,b,a_point,b_point
         do c=1,dimc
           w3(ab,lastc+c) = AA(a_point,b_point,c)
         end do

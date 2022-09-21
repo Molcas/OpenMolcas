@@ -18,22 +18,20 @@ subroutine gather_t2(t2,t2_tmp,tmp)
 ! cycle through T2XY files and gather them into on T2 array
 ! T2(nv_beta,nv_alpha,no_beta,no_alpha)
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: t2(*), t2_tmp(*), tmp(*)
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "files.fh"
 #include "ccsd_t3compat.fh"
-integer a, b, dima, dimb
-!mp integer length
-integer length
-integer lasta, lastb
-real*8 t2(*), tmp(*), t2_tmp(*)
-integer a_tmp, b_tmp
+integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 
-!mp write(6,*)
-!mp write(6,*) '------ DimGrpaR ------'
-!mp write(6,'(8(i5,2x))') (DimGrpaR(a_tmp),a_tmp=1,NvGrp)
-!mp write(6,*)
+!mp write(u6,*)
+!mp write(u6,*) '------ DimGrpaR ------'
+!mp write(u6,'(8(i5,2x))') (DimGrpaR(a_tmp),a_tmp=1,NvGrp)
+!mp write(u6,*)
 
 do a=1,NvGrp
   do b=1,a
@@ -42,7 +40,7 @@ do a=1,NvGrp
     dima = DimGrpaR(a)
     dimb = DimGrpaR(b)
 
-    !mp write(6,'(A,i3,i3,2x,A6)') 'a,b,T2Name(a,b) ',a,b,T2Name(a,b)
+    !mp write(u6,'(A,i3,i3,2x,A6)') 'a,b,T2Name(a,b) ',a,b,T2Name(a,b)
 
     if (a == b) then  ! a=b
       ! open the pertinent file
@@ -50,11 +48,11 @@ do a=1,NvGrp
       !mp@@ if (a == NvGrp) dima = nv-((NvGrp-1)*dima)
       dimb = dima
 
-      !mp write(6,*) 'dima = ',dima
+      !mp write(u6,*) 'dima = ',dima
       length = (dima*(dima+1)*no*no)/2
-      !mp write(6,*) 'length = ',length
-      !mp !write(6,*) 'file size (g77) = ',16+length*8
-      !mp write(6,*) 'file size (ifort) = ',8+length*8
+      !mp write(u6,*) 'length = ',length
+      !mp !write(u6,*) 'file size (g77) = ',16+length*8
+      !mp write(u6,*) 'file size (ifort) = ',8+length*8
 
       call GetX_t3(tmp,length,LunAux,T2Name(a,b),1,1)
 
@@ -64,12 +62,12 @@ do a=1,NvGrp
       !mp@@ if (a == NvGrp) dima = nv-((NvGrp-1)*dima)
       !mp@@ if (b == NvGrp) dimb = nv-((NvGrp-1)*dimb)
 
-      !mp write(6,*) 'dima = ',dima
-      !mp write(6,*) 'dimb = ',dimb
+      !mp write(u6,*) 'dima = ',dima
+      !mp write(u6,*) 'dimb = ',dimb
       length = dima*dimb*no*no
-      !mp write(6,*) 'length = ',length
-      !mp !write(6,*) 'file size (g77) = ',16+length*8
-      !mp write(6,*) 'file size (ifort) = ',8+length*8
+      !mp write(u6,*) 'length = ',length
+      !mp !write(u6,*) 'file size (g77) = ',16+length*8
+      !mp write(u6,*) 'file size (ifort) = ',8+length*8
 
       call GetX_t3(tmp,length,LunAux,T2Name(a,b),1,1)
 
@@ -95,7 +93,7 @@ do a=1,NvGrp
     end if
     !mp@@
 
-    !mp write(6,'(A,2(i5,2x),2(i3,x))') 'lasta, lastb, a, b = ',lasta,lastb,a,b
+    !mp write(u6,'(A,2(i5,2x),2(i3,x))') 'lasta, lastb, a, b = ',lasta,lastb,a,b
 
     if (a == b) then ! expand and map
       ! expand and map l2_1 (a',b',m) <- tmp (m,ab')

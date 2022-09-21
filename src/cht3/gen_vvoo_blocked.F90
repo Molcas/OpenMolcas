@@ -21,17 +21,17 @@ subroutine gen_vvoo_blocked(w,l1,tmp,l2,length1,length2,ngaf,ngal,ngbf,ngbl)
 !
 !       L1(m,I,A')
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: w(*), l1(*), tmp(*), l2(*)
+integer(kind=iwp) :: length1, length2, ngaf, ngal, ngbf, ngbl
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "files.fh"
 #include "ccsd_t3compat.fh"
-real*8 tmp(*), l1(*), w(*), l2(*)
-integer a, b, dima, dimb, length, lasta, lastb
-integer a_tmp, b_tmp
-integer ngaf, ngal, ngbf, ngbl
-integer length1, length2
-logical sym
+integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
+logical(kind=iwp) :: sym
 
 sym = .false.
 
@@ -85,14 +85,14 @@ do a=ngaf,ngal
 
     !8 grow w(A',B',I,J) <- tmp(A',I,B',J)
 
-    !mp write(6,'(A,6(i4,x))') 'BB1 dima, dimb, lasta, lastb ',dima,dimb,lasta,lastb,a,b
+    !mp write(u6,'(A,6(i4,x))') 'BB1 dima, dimb, lasta, lastb ',dima,dimb,lasta,lastb,a,b
     call grow_vvoo_blocked(w,tmp,no,dima,dimb,lasta,lastb,length1,length2,sym)
 
     !? if (a /= b) then
     !?
     !?   call Map4_3412_t3 (tmp,l2,dima,no,dimb,no)
     !?
-    !?   !write (6,'(A,4(i4,x))') 'BB2 dima, dimb, lasta, lastb ',dimb,dima,lastb,lasta
+    !?   !write(u6,'(A,4(i4,x))') 'BB2 dima, dimb, lasta, lastb ',dimb,dima,lastb,lasta
     !?   call grow_vvoo_blocked(w,l2,no,nv,dimb,dima,lastb,lasta,length1,length2,a,b)
     !?
     !? end if

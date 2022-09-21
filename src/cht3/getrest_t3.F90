@@ -14,18 +14,19 @@ subroutine GetRest_t3(t1,t1_tmp,E2old)
 !                2) E1old,E2old,niter
 ! from RstFil file
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
+real(kind=wp) :: t1(*), t1_tmp(*), E2old
 #include "cht3_ccsd1.fh"
 #include "ccsd_t3compat.fh"
-real*8 E1old, E2old
-real*8 t1(*), t1_tmp(*)
-! help variables
-integer length, i
+integer(kind=iwp) :: i, length
+real(kind=wp) :: E1old
 
 !open(unit=LunAux,File='RstFil',form='unformatted')
 call MOLCAS_BinaryOpen_Vanilla(LunAux,'RstFil')
 length = nv*no
-!mp write(6,*) 'no, nv, length = ',no,nv,length
+!mp write(u6,*) 'no, nv, length = ',no,nv,length
 read(LunAux) t1(1:length)
 
 call Map2_21_t3(t1,t1_tmp,nv,no)
@@ -37,9 +38,7 @@ end do
 
 read(LunAux) E1old,E2old,i
 
-if (printkey > 1) then
-  write(6,'(A,2(f15.12,1x))') 'Results from CCSD : E1, E2 ',E1old,E2old
-end if
+if (printkey > 1) write(u6,'(A,2(f15.12,1x))') 'Results from CCSD : E1, E2 ',E1old,E2old
 
 close(LunAux)
 

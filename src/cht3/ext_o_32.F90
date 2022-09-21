@@ -14,9 +14,12 @@ subroutine ext_o_32(A,B,nc,no,dima,occ_ind)
 !
 ! extract B (m,a')_i <- A (m,i,a')
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer i1, i2, occ_ind, dima, nc, no
-real*8 A(nc,no,dima), B(nc,dima)
+integer(kind=iwp) :: nc, no, dima, occ_ind
+real(kind=wp) :: A(nc,no,dima), B(nc,dima)
+integer(kind=iwp) :: i1, i2
 
 do i2=1,dima
   do i1=1,nc

@@ -12,26 +12,22 @@
 subroutine t3_bta_abc(nuga,nugc,kab,kcb,kca,kac,kbc,kc,la,lb,lxa,lxb,lxc,mi,mij,adim,bdim,cdim,N,noab_a,noab_b,lu,iasblock,nga, &
                       ngb,ngc,oehi,oehk,oepa,oepb,oepc,enx,vab,vcb,vca,t1aa,t1ba,t1ab,t1bb,t1ac,t1bc,t3a,t3b,ifvo)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-!integer imm
-real*8 one, zero, den, dena, denb, denc, enx, xx, yy
-!real*8 sumt3
-parameter(one=1.d0,zero=0.d0)
-integer nadim, adim, ncdim, cdim, bdim, nbdim, i, j, k, iasblock(5), lu(6), N
-integer noab_a, noab_b, nuga, nno_a, nnoab, nugc, ngab_offset, ngca_offset, ngac_offset, nuga_offset, nugc_offset, ngcb_offset, &
-        ngbc_offset
-integer ias, jk, ij, ik, kj, ki, nga, ngb, ngc, a, b, c, ab, ba
-integer iasabi, iascai, iasack, iascbi, iasbck
-real*8 kab(adim*bdim,N,*), kcb(cdim*bdim,N,*), kca(cdim*adim,N,*), kac(cdim*adim,N), kbc(cdim*bdim,N), kc(*), lxb(N*bdim,*)
-real*8 la(N*adim,*), lb(N*bdim,*), lxa(N*adim,*), lxc(N*cdim,*), t3a(*), t3b(*), vab(adim*bdim,*), vca(adim*cdim,*), &
-       vcb(bdim*cdim,*)
-real*8 mi(adim*bdim*cdim,*), mij(*)
-real*8 t1aa(noab_a,*), t1ba(noab_a,*), t1ac(noab_b,*), t1bc(noab_b,*), t1ab(noab_a,*), t1bb(noab_a,*)
-real*8 oehi(*), oehk(*), oepa(*), oepb(*), oepc(*)
-logical ifvo
+integer(kind=iwp) :: nuga, nugc, adim, bdim, cdim,N, noab_a, noab_b, lu(6), iasblock(5), nga, ngb, ngc
+real(kind=wp) :: kab(adim*bdim,N,*), kcb(cdim*bdim,N,*), kca(cdim*adim,N,*), kac(cdim*adim,N), kbc(cdim*bdim,N), kc(*), &
+                 la(N*adim,*), lb(N*bdim,*), lxa(N*adim,*), lxb(N*bdim,*), lxc(N*cdim,*), mi(adim*bdim*cdim,*), mij(*), oehi(*), &
+                 oehk(*), oepa(*), oepb(*), oepc(*), enx, vab(adim*bdim,*), vcb(bdim*cdim,*), vca(adim*cdim,*), t1aa(noab_a,*), &
+                 t1ba(noab_a,*), t1ab(noab_a,*), t1bb(noab_a,*), t1ac(noab_b,*), t1bc(noab_b,*), t3a(*), t3b(*)
+logical(kind=iwp) :: ifvo
+integer(kind=iwp) :: a, ab, b, ba, c, i, ias, iasabi, iasack, iasbck, iascai, iascbi, ij, ik, j, jk, k, ki, kj, nadim, nbdim, &
+                     ncdim, ngab_offset, ngac_offset, ngbc_offset, ngca_offset, ngcb_offset, nno_a, nnoab, nuga_offset, nugc_offset
+real(kind=wp) :: den, dena, denb, denc, xx, yy
 
 ! iasblock(1) > ka,kb,kc   iasblock(2) > la,lb iasblock(3) > lxa,lxc,lxb
-!!sumt3 = 0.d0
+!!sumt3 = Zero
 nno_a = noab_a*(noab_a-1)/2
 nnoab = noab_a*noab_b
 nadim = adim*bdim
@@ -76,7 +72,7 @@ do i=1,noab_a
   iascai = (i-1)*nugc_offset+ngca_offset
   call multi_readir(kca(1,1,i),N*ncdim,lu(3),iascai)
   !mp
-  !mp write(6,*) 'ze tak teraz ju dam',i
+  !mp write(u6,*) 'ze tak teraz ju dam',i
   !mp call check_mat(kca(1,1,i),1,N*ncdim)
   !mp
 end do
@@ -101,8 +97,8 @@ do k=1,noab_b
     call DGEMM_('N','N',nbdim,adim,N,one,kcb(1,1,i),nbdim,lxa(1,ki),N,one,mi(1,i),nbdim)
     !mp
     !mp do imm=0,adim*nbdim-1
-    !mp   if (abs(mi(1+imm,i)) > 10000.0d0) then
-    !mp     write (6,*) 'uz mi dojebane 2',imm+1,i,mi(1+imm,i)
+    !mp   if (abs(mi(1+imm,i)) > 1.0e5_wp) then
+    !mp     write(u6,*) 'uz mi dojebane 2',imm+1,i,mi(1+imm,i)
     !mp     stop
     !mp   end if
     !mp end do
@@ -115,7 +111,7 @@ do k=1,noab_b
     do a=1,adim
       ba = (a-1)*cdim+1
       do b=1,bdim
-        call daxpy_(cdim,-1.d0,t3b(ba),1,mi(ab,i),1)
+        call daxpy_(cdim,-One,t3b(ba),1,mi(ab,i),1)
         ab = ab+cdim
         ba = ba+ncdim
       end do
@@ -144,13 +140,13 @@ do k=1,noab_b
       do c=1,cdim
         ba = (c-1)*nadim+1
         do b=1,bdim
-          call daxpy_(adim,1.d0,t3a(ab),1,t3b(ba),bdim)
+          call daxpy_(adim,One,t3a(ab),1,t3b(ba),bdim)
           ba = ba+1
           ab = ab+adim
         end do
       end do
       ! t3b  bac
-      call transm(t3b,t3a,nadim,cdim)
+      call map2_21_t3(t3b,t3a,nadim,cdim)
       ! cba in t3a
       ! K_ab^ir x L_rc^jk  -K_ab^jr x L_rc^ik
       call vsub(kab(1,1,j),1,kab(1,1,i),1,kc,1,N*nadim)
@@ -183,7 +179,7 @@ do k=1,noab_b
       do a=1,adim
         ba = (a-1)*cdim+1
         do b=1,bdim
-          call daxpy_(cdim,-1.d0,t3b(ba),1,t3a(ab),1)
+          call daxpy_(cdim,-One,t3b(ba),1,t3a(ab),1)
           ab = ab+cdim
           ba = ba+ncdim
         end do
@@ -199,8 +195,8 @@ do k=1,noab_b
       !mp   end do
       !mp end do
 
-      call daxpy_(nadim*cdim,-1.d0,mi(1,i),1,t3a,1)
-      call daxpy_(nadim*cdim,1.d0,mi(1,j),1,t3a,1)
+      call daxpy_(nadim*cdim,-One,mi(1,i),1,t3a,1)
+      call daxpy_(nadim*cdim,One,mi(1,j),1,t3a,1)
       den = oehi(i)+oehi(j)+oehk(k)
       ab = 0
       do a=1,adim
@@ -212,21 +208,19 @@ do k=1,noab_b
             denc = denb-oepc(c)
             ab = ab+1
             !mp if ((i == 14) .and. (j == 1) .and. (k == 1)) then
-            !mp   write(6,'(A,3(i5,x),3(f18.10,x))') 'a,b,c, oepa(a), oepb(b), oepc(c)',a,b,c,oepa(a),oepb(b),oepc(c)
-            !mp   write(6,*) 'denc = ',denc
-            !mp   write(6,*) 'ab, t3a(ab) ',ab,t3a(ab)
+            !mp   write(u6,'(A,3(i5,x),3(f18.10,x))') 'a,b,c, oepa(a), oepb(b), oepc(c)',a,b,c,oepa(a),oepb(b),oepc(c)
+            !mp   write(u6,*) 'denc = ',denc
+            !mp   write(u6,*) 'ab, t3a(ab) ',ab,t3a(ab)
             !mp end if
             xx = t3a(ab)
             yy = xx/denc
             !!sumt3 = sumt3+xx
             enx = enx+yy*xx
-            !mp if ((i == 14) .and. (j == 1) .and. (k == 1)) then
-            !mp   write(6,'(A,3(f18.10,x))') 'xx,yy,enx = ',xx,yy,enx
-            !mp end if
+            !mp if ((i == 14) .and. (j == 1) .and. (k == 1)) write(u6,'(A,3(f18.10,x))') 'xx,yy,enx = ',xx,yy,enx
             t3a(ab) = yy
           end do
         end do
-        call transm(t3a(ba),t3b(ba),cdim,bdim)
+        call map2_21_t3(t3a(ba),t3b(ba),cdim,bdim)
       end do
       call DGEMM_('N','T',1,cdim,nadim,one,vab(1,ij),1,t3a,cdim,one,t1ac(k,1),noab_b)
       call DGEMM_('N','N',1,adim,nbdim,-one,vcb(1,kj),1,t3a,nbdim,one,t1aa(i,1),noab_a)
@@ -240,7 +234,7 @@ do k=1,noab_b
         call DGEMM_('N','T',1,bdim,ncdim,one,kca(1,k,i),1,t3b,bdim,one,t1bb(j,1),noab_a)
         call DGEMM_('N','T',1,bdim,ncdim,-one,kca(1,k,j),1,t3b,bdim,one,t1bb(i,1),noab_a)
       end if
-      !mp write(6,'(3(i5,x),f18.10)') i,j,k,enx
+      !mp write(u6,'(3(i5,x),f18.10)') i,j,k,enx
     end do !j
   end do !i
 end do !k

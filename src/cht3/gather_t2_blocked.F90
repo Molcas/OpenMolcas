@@ -13,33 +13,28 @@ subroutine gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2,t2_tmp,tmp,s
 ! length1 = length of the 1st VO index (=< vblock)
 ! length2 = length of the 2nd VO index (=< vblock)
 
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: length1, length2, ngaf, ngal, ngbf, ngbl
 #include "cht3_ccsd1.fh"
+#include "ccsd_t3compat.fh"
+real(kind=wp) :: t2(length1*length2*no*no), t2_tmp(maxdim*maxdim*no*no), tmp(maxdim*maxdim*no*no)
+logical(kind=iwp) :: switch
 #include "cht3_reord.fh"
 #include "files.fh"
-#include "ccsd_t3compat.fh"
-integer ngaf, ngal, ngbf, ngbl
-integer a, b, dima, dimb
-!mp integer length
-integer length
-integer lasta, lastb
-integer length1, length2
-real*8 t2(length1*length2*no*no)
-real*8 tmp(maxdim*maxdim*no*no)
-real*8 t2_tmp(maxdim*maxdim*no*no)
-integer a_tmp, b_tmp
-logical sym
-logical switch
+integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
+logical(kind=iwp) :: sym
 
 sym = .false.
 
 !mp if (ngaf == ngbf) sym = .true.
 if ((ngaf == ngbf) .and. (ngal == ngbl)) sym = .true.
 
-!mp write(6,*)
-!mp write(6,*) '------ DimGrpaR ------'
-!mp write(6,'(8(i5,2x))') (DimGrpaR(a_tmp),a_tmp=1,NvGrp)
-!mp write(6,*)
+!mp write(u6,*)
+!mp write(u6,*) '------ DimGrpaR ------'
+!mp write(u6,'(8(i5,2x))') (DimGrpaR(a_tmp),a_tmp=1,NvGrp)
+!mp write(u6,*)
 
 do a=ngaf,ngal
   do b=ngbf,min0(a,ngbl)
@@ -69,7 +64,7 @@ do a=ngaf,ngal
       end do
     end if
 
-    !mp write(6,'(A,2(i5,2x),2(i3,x))') 'lasta, lastb, a, b = ',lasta,lastb,a,b
+    !mp write(u6,'(A,2(i5,2x),2(i3,x))') 'lasta, lastb, a, b = ',lasta,lastb,a,b
 
     if (a == b) then ! expand and map
       call expand4_12(tmp,t2_tmp,dima,no,no)

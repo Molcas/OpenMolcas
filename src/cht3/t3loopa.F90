@@ -13,32 +13,30 @@ subroutine t3loopa(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,e
 !mp subroutine t3loopa(oeh,oep,t1a,t1b,g,nga,ngb,ngc,vblock,energ,
 ! implemented integer offsets, PV, 16 may 2004.
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-#include "ndisk.fh"
+real(kind=wp) :: oeh(*), oep(*), t1a(*), t1b(*), energ(*), enx
+integer(kind=iwp) :: nga, ngb, ngc, vblock, isp, LU(*)
+logical(kind=iwp) :: ifvo, scored
 #include "WrkSpc.fh"
-!mp real*8 g(*), energ(*), oeh(*), oep(*), enx, t1a(*), t1b(*)
-real*8 energ(*), oeh(*), oep(*), enx, t1a(*), t1b(*)
-integer nug
-integer isp, vblock, n, lu(*), nga, ngb, ngc, adim, bdim, cdim
-integer iasblock(3), aset, bset, cset
-logical ifvo, scored
-integer IUHF
+#include "ndisk.fh"
 #include "uhf.fh"
-#include "ioind.fh"
-integer ka, kb, kc, la, lb, lc, t3a, t3b, voa, vob, voc, mi, mij
-save ka, kb, kc, la, lb, lc, t3a, t3b, voa, vob, voc, mi, mij, iasblock, iuhf, nug
+integer(kind=iwp) :: adim, aset, bdim, bset, cdim, cset, iasblock(3), IUHF, ka, la, lb, lc, mi, mij, n, nug, t3a, t3b, voa, vob, voc
+integer(kind=iwp), save :: kb, kc
 
 N = noab(isp)+nuab(isp)
-enx = 0.d0
+enx = Zero
 scored = .true.
 !mp !!!if (.not. lastcall) then
-!mp write(6,*) 'NOAB,NNOAB,NUAB,NNUAB,ICH'
-!mp write(6,*) NOAB,NNOAB,NUAB,NNUAB,ICH
-!mp !!!if (energ(isp) == 0.d0) then
+!mp write(u6,*) 'NOAB,NNOAB,NUAB,NNUAB,ICH'
+!mp write(u6,*) NOAB,NNOAB,NUAB,NNUAB,ICH
+!mp !!!if (energ(isp) == Zero) then
 ! this is a first entry - initialization (makes no harm if repeated)
 nug = nuab(isp)/vblock
 if ((nug*vblock) < nuab(isp)) nug = nug+1
-!mp write(6,*) 'first,nug,vblock',nug,vblock,iopt(76)
+!mp write(u6,*) 'first,nug,vblock',nug,vblock,iopt(76)
 IUHF = isp
 !!if (IOPT(76) == 0) IUHF = 3
 iasblock(1) = vblock*vblock*N/nblock
@@ -53,9 +51,9 @@ if ((iasblock(3)*nblock) < (nnoab(iuhf)*vblock*vblock)) iasblock(3) = iasblock(3
 !mp call w_alloc(ka,noab(isp)*vblock*vblock*n,'kaT3loopa')
 call GetMem('loopa_ka','Allo','Real',ka,noab(isp)*vblock*vblock*n)
 if (nug /= 1) then
-!mp call w_alloc(kb,noab(isp)*vblock*vblock*n,'kbT3loopa')
+  !mp call w_alloc(kb,noab(isp)*vblock*vblock*n,'kbT3loopa')
   call GetMem('loopa_kb','Allo','Real',kb,noab(isp)*vblock*vblock*n)
-!mp call w_alloc(kc,noab(isp)*vblock*vblock*n,'kcT3loopa')
+  !mp call w_alloc(kc,noab(isp)*vblock*vblock*n,'kcT3loopa')
   call GetMem('loopa_kc','Allo','Real',kc,noab(isp)*vblock*vblock*n)
 end if
 !mp call w_alloc(la,nnoab(IUHF)*vblock*n,'laT3loopa')
@@ -123,12 +121,12 @@ else
                  Work(t3a),Work(t3b),ifvo)
 end if   ! cases
 energ(isp) = energ(isp)+enx
-!mp write(6,'(A,3(i3,1x),f21.19)') 'nga, ngb, ngc, inc = ',nga,ngb,ngc,enx
+!mp write(u6,'(A,3(i3,1x),f21.19)') 'nga, ngb, ngc, inc = ',nga,ngb,ngc,enx
 !mp
 !mp !!!end if  ! lastcall
-!mp write(6,*)
-!mp write(6,*) 'deallocating arrays in t3loopa'
-!mp write(6,*)
+!mp write(u6,*)
+!mp write(u6,*) 'deallocating arrays in t3loopa'
+!mp write(u6,*)
 call GetMem('loopa_mij','Free','Real',mij,1)
 call GetMem('loopa_mi','Free','Real',mi,1)
 call GetMem('loopa_voc','Free','Real',voc,vblock*vblock*nnoab(IUHF))

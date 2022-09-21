@@ -11,8 +11,11 @@
 
 subroutine check_loops(nv,vblock,nla,nlb)
 
-integer nv, vblock, nla, nlb
-integer nuga, nga, ngb, ngc
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nv, vblock, nla, nlb
+integer(kind=iwp) :: nga, ngb, ngc, nuga
 
 nuga = nv/vblock
 !mp! pridavok

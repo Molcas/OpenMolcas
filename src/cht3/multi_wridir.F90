@@ -9,20 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine WRIDIR(G,IDIMENS,IFILE,IAS)
+subroutine multi_wridir(G,lg,ifile,ias,last)
+! See multi_readir
+!
+! PV/LAOG, 22 may 2003.
+
+use Definitions, only: wp, iwp
 
 implicit none
-integer IDIMENS, IFILE, IAS
-real*8 G(IDIMENS)
+integer(kind=iwp) :: lg, ifile, ias, last
+real(kind=wp) :: G(lg)
+#include "ndisk.fh"
+#include "ioind.fh"
+integer(kind=iwp) :: iloc, irest, k, kas
 
-write(IFILE,rec=IAS) G
+iloc = 1
+irest = lg
+kas = ias
+
+do while (irest > 0)
+  k = min(irest,nblock)
+  if (kas <= iopt(27)) then
+    write(ifile,rec=kas) G(iloc:iloc+k-1)
+  else
+    write(ifile+1,rec=kas-iopt(27)) G(iloc:iloc+k-1)
+  end if
+  iloc = iloc+k
+  irest = irest-k
+  kas = kas+1
+end do
+last = kas-1
 
 return
 
-entry READIR(G,IDIMENS,IFILE,IAS)
-
-read(IFILE,rec=IAS) G
-
-return
-
-end subroutine WRIDIR
+end subroutine multi_wridir

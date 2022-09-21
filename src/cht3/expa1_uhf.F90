@@ -14,10 +14,13 @@ subroutine EXPA1_UHF(ARR1,IDM,LI,NSP,ARR2)
 !
 ! LI*(LI+1)/2
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 ARR1, ARR2
-integer IDM, LI, NSP, IJ, I, J, K
-dimension ARR1(*), ARR2(LI,LI,*)
+integer(kind=iwp) :: IDM, LI, NSP
+real(kind=wp) :: ARR1(*), ARR2(LI,LI,*)
+integer(kind=iwp) :: I, IJ, J, K
 
 if (NSP > 0) then
   IJ = 1
@@ -31,9 +34,9 @@ if (NSP > 0) then
 else
   IJ = 1
   do K=1,IDM
-    ARR2(1,1,K) = 0.d0
+    ARR2(1,1,K) = Zero
     do I=2,LI
-      ARR2(I,I,K) = 0.d0
+      ARR2(I,I,K) = Zero
       call DCOPY_(I-1,ARR1(IJ),1,ARR2(I,1,K),LI)
       do J=1,I-1
         ARR2(J,I,K) = -ARR1(IJ)

@@ -11,11 +11,12 @@
 
 subroutine EX23(Y,X,I1,I2,J1,J2)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer I1, I2, J1, J2, I, J, IJ, L
-real*8 Y, X, ONE
-parameter(ONE=1.d0)
-dimension Y(I1,I2,J1,J2), X(*)
+integer(kind=iwp) :: I1, I2, J1, J2
+real(kind=wp) :: Y(I1,I2,J1,J2), X(*)
+integer(kind=iwp) :: I, IJ, J, L
 
 IJ = 1
 do J=1,J2

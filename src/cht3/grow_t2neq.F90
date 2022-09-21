@@ -15,24 +15,25 @@ subroutine grow_t2neq(t2,tmp,dima,dimb,nv,no,lasta,lastb)
 ! grow amplitude file t2(a,b,i,j) by the segment in tmp
 ! for case sa != sb
 
-implicit none
-integer a, b, dima, dimb, nv, no, i, j
-integer lasta, lastb
-real*8 t2(nv,nv,no,no)
-real*8 tmp(dima,dimb,no,no)
+use Definitions, only: wp, iwp
 
-!mp write(6,*) 'grow_t2neq dima , dimb  ',dima,dimb
-!mp write(6,*) 'grow_t2neq lasta, lastb ',lasta,lastb
-!mp write(6,*) 'grow_t2neq no           ',no
+implicit none
+integer(kind=iwp) :: dima, dimb, nv, no, lasta, lastb
+real(kind=wp) :: t2(nv,nv,no,no), tmp(dima,dimb,no,no)
+integer(kind=iwp) :: a, b, i, j
+
+!mp write(u6,*) 'grow_t2neq dima , dimb  ',dima,dimb
+!mp write(u6,*) 'grow_t2neq lasta, lastb ',lasta,lastb
+!mp write(u6,*) 'grow_t2neq no           ',no
 
 !? if (lasta == lastb) then
 !?   do j=1,no
 !?     do i=1,no
 !?       do a=1,dima
 !?         do b=1,a
-!?           t2(lasta+a,lastb+b,i,j) = 1.0d0*tmp(a,b,i,j)
-!?cmp        if (a /= b) t2(lastb+b,lasta+a,j,i) = -1.0d0*tmp(a,b,j,i)
-!?           if (a /= b) t2(lastb+b,lasta+a,j,i) = 1.0d0*tmp(a,b,i,j)
+!?           t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
+!?cmp        if (a /= b) t2(lastb+b,lasta+a,j,i) = -tmp(a,b,j,i)
+!?           if (a /= b) t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
 !?         end do
 !?       end do
 !?     end do
@@ -44,9 +45,9 @@ do j=1,no
   do i=1,no
     do b=1,dimb
       do a=1,dima
-        t2(lasta+a,lastb+b,i,j) = 1.0d0*tmp(a,b,i,j)
-        !mp t2(lastb+b,lasta+a,j,i) = -1.0d0*tmp(b,a,j,i)
-        t2(lastb+b,lasta+a,j,i) = 1.0d0*tmp(a,b,i,j)
+        t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
+        !mp t2(lastb+b,lasta+a,j,i) = -tmp(b,a,j,i)
+        t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
       end do
     end do
   end do

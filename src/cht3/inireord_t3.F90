@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine IniReord_t3(NaGrp)
 ! nacitanie vsupu a inicializacia premnennych
 ! a tlac primitivnej hlavicky pre Reord procesz
@@ -15,22 +16,22 @@ subroutine IniReord_t3(NaGrp)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs
 #endif
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
 implicit none
+integer(kind=iwp) :: NaGrp
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "cholesky.fh"
 #include "ccsd_t3compat.fh"
-integer NaGrp
-integer nOrb(8), nOcc(8)
-integer ndelvirt
-integer LuSpool
-character*80 LINE
-integer rc
-real*8 FracMem
-character*3 msg
+integer(kind=iwp) :: LuSpool, ndelvirt, nOcc(8), nOrb(8), rc
 #ifdef _MOLCAS_MPP_
-integer jal1, jal2
+integer(kind=iwp) :: jal1, jal2
 #endif
+real(kind=wp) FracMem
+character(len=80) :: LINE
+character(len=3) :: msg
 
 ! setup defaults
 
@@ -40,7 +41,7 @@ call Get_iArray('nIsh',nOcc,1)
 no = nOcc(1)
 nv = nOrb(1)-nOcc(1)
 
-FracMem = 0.0d0
+FracMem = Zero
 call Cho_X_init(rc,FracMem) ! initialize cholesky info
 
 ! take local # of Cholesky Vectors on this node
@@ -107,8 +108,8 @@ do
     case ('FROZ') ! FROZen
       read(LuSpool,*) nfr
       if ((nfr < 0) .or. (nfr >= no)) then
-        write(6,*)
-        write(6,*) 'Ilegal value for FROZen keyword : ',nfr
+        write(u6,*)
+        write(u6,*) 'Ilegal value for FROZen keyword : ',nfr
         call abend()
       end if
       no = no-nfr
@@ -116,8 +117,8 @@ do
     case ('DELE') ! DELEted
       read(LuSpool,*) ndelvirt
       if ((ndelvirt < 0) .or. (ndelvirt >= nv)) then
-        write(6,*)
-        write(6,*) 'Ilegal value for DELEted keyword : ',ndelvirt
+        write(u6,*)
+        write(u6,*) 'Ilegal value for DELEted keyword : ',ndelvirt
         call abend()
       end if
       nv = nv-ndelvirt
@@ -125,9 +126,9 @@ do
     !mp !case ('LARG') ! LARGegroup
     !mp !  read(LuSpool,*) NaGrp
     !mp !  if ((NaGrp < 1) .or. (NaGrp > 32)) then
-    !mp !    write(6,*)
-    !mp !    write(6,*) 'Ilegal value for LARGegroup keyword : ',NaGrp
-    !mp !    write(6,*) 'Large segmentation must be <= 32'
+    !mp !    write(u6,*)
+    !mp !    write(u6,*) 'Ilegal value for LARGegroup keyword : ',NaGrp
+    !mp !    write(u6,*) 'Large segmentation must be <= 32'
     !mp !    call abend()
     !mp !  end if
 
@@ -138,26 +139,26 @@ do
       read(LuSpool,*) mhkey
       if ((mhkey < 0) .or. (mhkey > 2)) then
         mhkey = 1
-        write(6,*)
-        write(6,*) ' Warning!!! ',' MHKEy out of range, changed to 1'
+        write(u6,*)
+        write(u6,*) ' Warning!!! ',' MHKEy out of range, changed to 1'
       end if
 
     case ('REST') ! RESTart
       restkey = 1
-      write(6,*)
-      write(6,*) 'RESTart option is temporary disabled'
-      write(6,*) 'No Restart possible (... yet).'
+      write(u6,*)
+      write(u6,*) 'RESTart option is temporary disabled'
+      write(u6,*) 'No Restart possible (... yet).'
       call abend()
 
     case ('PRIN') ! PRINtkey
       read(LuSpool,*) printkey
       if (((printkey < 0) .or. (printkey > 10)) .or. ((printkey > 2) .and. (printkey < 10))) then
 
-        write(6,*)
-        write(6,*) 'Ilegal value of the PRINtkey keyword: ',printkey
-        write(6,*) ' Use: 1  (Minimal) '
-        write(6,*) '      2  (Minimal + Timings)'
-        write(6,*) '      10 (Debug) '
+        write(u6,*)
+        write(u6,*) 'Ilegal value of the PRINtkey keyword: ',printkey
+        write(u6,*) ' Use: 1  (Minimal) '
+        write(u6,*) '      2  (Minimal + Timings)'
+        write(u6,*) '      10 (Debug) '
         call abend()
       end if
 
@@ -170,18 +171,18 @@ do
     case ('ALOO') ! ALOOp
       read(LuSpool,*) t3_starta,t3_stopa
       if ((t3_starta < -1) .or. (t3_stopa < -1)) then
-        write(6,*) 'ALOOp values can be either: '
-        write(6,*) '-1 : indicating normal run, or'
-        write(6,*) 'positive numbers!'
+        write(u6,*) 'ALOOp values can be either: '
+        write(u6,*) '-1 : indicating normal run, or'
+        write(u6,*) 'positive numbers!'
         call abend()
       end if
 
     case ('BLOO') ! BLOOp
       read(LuSpool,*) t3_startb,t3_stopb
       if ((t3_startb < -1) .or. (t3_stopb < -1)) then
-        write(6,*) 'BLOOp values can be either: '
-        write(6,*) '-1 : indicating normal run, or'
-        write(6,*) 'positive numbers!'
+        write(u6,*) 'BLOOp values can be either: '
+        write(u6,*) '-1 : indicating normal run, or'
+        write(u6,*) 'positive numbers!'
         call abend()
       end if
 
@@ -198,96 +199,96 @@ call Close_LuSpool(LuSpool)
 
 !mp checks
 if (t3_starta > t3_stopa) then
-  write(6,*) 'Mismatch in input : '
-  write(6,*) 'T3_STARTA = ',t3_starta
-  write(6,*) 'T3_STOPA = ',t3_stopa
+  write(u6,*) 'Mismatch in input : '
+  write(u6,*) 'T3_STARTA = ',t3_starta
+  write(u6,*) 'T3_STOPA = ',t3_stopa
   call abend()
 end if
 
 if (t3_startb > t3_stopb) then
-  write(6,*) 'Mismatch in input : '
-  write(6,*) 'T3_STARTB = ',t3_startb
-  write(6,*) 'T3_STOPB = ',t3_stopb
+  write(u6,*) 'Mismatch in input : '
+  write(u6,*) 'T3_STARTB = ',t3_startb
+  write(u6,*) 'T3_STOPB = ',t3_stopb
   call abend()
 end if
 
 if ((t3_starta < 0) .and. (t3_stopa > 0)) then
-  write(6,*) 'Mismatch in input : '
-  write(6,*) 'T3_STARTA = ',t3_starta
-  write(6,*) 'T3_STOPA = ',t3_stopa
+  write(u6,*) 'Mismatch in input : '
+  write(u6,*) 'T3_STARTA = ',t3_starta
+  write(u6,*) 'T3_STOPA = ',t3_stopa
   call abend()
 end if
 
 if ((t3_startb < 0) .and. (t3_stopb > 0)) then
-  write(6,*) 'Mismatch in input : '
-  write(6,*) 'T3_STARTB = ',t3_startb
-  write(6,*) 'T3_STOPB = ',t3_stopb
+  write(u6,*) 'Mismatch in input : '
+  write(u6,*) 'T3_STARTB = ',t3_startb
+  write(u6,*) 'T3_STOPB = ',t3_stopb
   call abend()
 end if
 
 !mp !if ((t3_starta < 0) .and. (t3_startb < 0)) then
-!mp !  write(6,*) 'This restart combination not implemented'
-!mp !  write(6,*) 'T3_STARTA = ',t3_starta
-!mp !  write(6,*) 'T3_STARTB = ',t3_startb
+!mp !  write(u6,*) 'This restart combination not implemented'
+!mp !  write(u6,*) 'T3_STARTA = ',t3_starta
+!mp !  write(u6,*) 'T3_STARTB = ',t3_startb
 !mp !  call abend()
 !mp !end if
 
 !2 tlac hlavicky
-write(6,*)
-write(6,*) '    Cholesky Based Closed-Shell (T) code'
-write(6,*)
-write(6,*) '--------------------------------------------------'
+write(u6,*)
+write(u6,*) '    Cholesky Based Closed-Shell (T) code'
+write(u6,*)
+write(u6,*) '--------------------------------------------------'
 
-write(6,'(A,i9)') ' Frozen Orbitals                   : ',nfr
-write(6,'(A,i9)') ' Occupied Orbitals                 : ',no
-write(6,'(A,i9)') ' Virtual Orbitals                  : ',nv
-write(6,'(A,i9)') ' Total number of Cholesky Vectors  : ',nc
+write(u6,'(A,i9)') ' Frozen Orbitals                   : ',nfr
+write(u6,'(A,i9)') ' Occupied Orbitals                 : ',no
+write(u6,'(A,i9)') ' Virtual Orbitals                  : ',nv
+write(u6,'(A,i9)') ' Total number of Cholesky Vectors  : ',nc
 
-write(6,*) '--------------------------------------------------'
+write(u6,*) '--------------------------------------------------'
 
-write(6,'(A,i9)') ' Large Virtual Segmentation        : ',NaGrp
+write(u6,'(A,i9)') ' Large Virtual Segmentation        : ',NaGrp
 
-write(6,*) '--------------------------------------------------'
+write(u6,*) '--------------------------------------------------'
 
 msg = 'No'
 if (gen_files) msg = 'Yes'
 
-write(6,'(A,A5)') ' Generate Triples Scratch Files?        : ',msg
+write(u6,'(A,A5)') ' Generate Triples Scratch Files?        : ',msg
 
 msg = 'No'
 if (.not. run_triples) msg = 'Yes'
 
-write(6,'(A,A5)') ' Stop after Scratch Files generation?   : ',msg
+write(u6,'(A,A5)') ' Stop after Scratch Files generation?   : ',msg
 
-write(6,*) '--------------------------------------------------'
+write(u6,*) '--------------------------------------------------'
 
 if (t3_starta == -1) then
-  write(6,'(A,i4)') ' Calculating full loop A                '
+  write(u6,'(A,i4)') ' Calculating full loop A                '
 else
-  write(6,'(A,i4)') ' VO index triplet to start with in loop A : ',t3_starta
-  write(6,'(A,i4)') ' VO index triplet to stop  at   in loop A : ',t3_stopa
+  write(u6,'(A,i4)') ' VO index triplet to start with in loop A : ',t3_starta
+  write(u6,'(A,i4)') ' VO index triplet to stop  at   in loop A : ',t3_stopa
 end if
 
 if (t3_starta == -1) then
-  write(6,'(A,i4)') ' Calculating full loop B                '
+  write(u6,'(A,i4)') ' Calculating full loop B                '
 else
-  write(6,'(A,i4)') ' VO index triplet to start with in loop B : ',t3_startb
-  write(6,'(A,i4)') ' VO index triplet to stop  at   in loop B : ',t3_stopb
+  write(u6,'(A,i4)') ' VO index triplet to start with in loop B : ',t3_startb
+  write(u6,'(A,i4)') ' VO index triplet to stop  at   in loop B : ',t3_stopb
 end if
 
-write(6,*) '--------------------------------------------------'
+write(u6,*) '--------------------------------------------------'
 
-write(6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',LunAux
-write(6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',mhkey
+write(u6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',LunAux
+write(u6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',mhkey
 
 msg = 'No'
 if (restkey == 1) msg = 'Yes'
 
-write(6,'(A,A10)') ' Start from RstFil ?               : ',msg
-write(6,'(A,i9)') ' Print level                       : ',printkey
+write(u6,'(A,A10)') ' Start from RstFil ?               : ',msg
+write(u6,'(A,i9)') ' Print level                       : ',printkey
 
-write(6,*) '--------------------------------------------------'
-write(6,*)
+write(u6,*) '--------------------------------------------------'
+write(u6,*)
 
 return
 

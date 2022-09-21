@@ -13,21 +13,19 @@ subroutine t3loopb(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,e
 !mp subroutine t3loopb(oeh,oep,t1a,t1b,g,nga,ngb,ngc,vblock,energ,
 ! implemented integer offsets, PV, 16 may 2004.
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-#include "ndisk.fh"
+real(kind=wp) :: oeh(*), oep(*), t1a(*), t1b(*), energ(*), enx
+integer(kind=iwp) :: nga, ngb, ngc, vblock, isp, lu(6)
+logical(kind=iwp) :: ifvo, scored
 #include "WrkSpc.fh"
-!mp real*8 g(*), energ(*), oeh(*), oep(*), enx, t1a(*), t1b(*)
-real*8 energ(*), oeh(*), oep(*), enx, t1a(*), t1b(*)
-logical ifvo, scored
-integer isp, vblock, n, lu(6), nga, ngb, ngc, adim, bdim, cdim
-integer en_offset_ah, en_offset_bh, en_offset_ap, en_offset_bp
-integer t1_offset_a, t1_offset_b
-integer nuga, nugc
-integer iasblock(5), aset, bset, cset
+#include "ndisk.fh"
 #include "uhf.fh"
-#include "ioind.fh"
-integer kab, kca, kcb, kac, kbc, kc, la, lb, lxa, lxb, lxc, t3a, t3b, vab, vbc, vac, mij, mi
-!mp save kab, kca, kcb, kac, kbc, kc, la, lb, lxa, lxb, lxc, t3a, t3b, vab, vbc, vac, mij, mi, iasblock, nuga, nugc
+integer(kind=iwp) :: adim, aset, bdim, bset, cdim, cset, en_offset_ah, en_offset_ap, en_offset_bh, en_offset_bp, iasblock(5), kab, &
+                     kac, kbc, kc, kca, kcb, la, lb, lxa, lxb, lxc, mi, mij, n, nuga, nugc, t1_offset_a, t1_offset_b, t3a, t3b, &
+                     vab, vac, vbc
 
 en_offset_ah = (isp-1)*noab(1)
 en_offset_bh = (2-isp)*noab(1)
@@ -41,16 +39,16 @@ N = noab(isp)+nuab(isp)
 scored = .true.
 !mp !!!if (.not. lastcall) then
 !mp
-enx = 0.d0
-!mpn write(6,*) 'Bef isp, energ(isp), enx = ',isp,energ(isp),enx
-!mp !!!if (energ(isp) == 0.d0) then
+enx = Zero
+!mpn write(u6,*) 'Bef isp, energ(isp), enx = ',isp,energ(isp),enx
+!mp !!!if (energ(isp) == Zero) then
 ! this is a first entry - initialization (makes no harm if repeated)
 nuga = nuab(isp)/vblock
 if ((nuga*vblock) < nuab(isp)) nuga = nuga+1
-!!write(6,*) 'first,nuga,vblock',nuga,vblock
+!!write(u6,*) 'first,nuga,vblock',nuga,vblock
 nugc = nuab(3-isp)/vblock
 if ((nugc*vblock) < nuab(3-isp)) nugc = nugc+1
-!!write(6,*) 'first,nugc,vblock',nugc,vblock
+!!write(u6,*) 'first,nugc,vblock',nugc,vblock
 
 iasblock(1) = vblock*vblock*N/nblock
 if ((iasblock(1)*nblock) < (vblock*vblock*N)) iasblock(1) = iasblock(1)+1
@@ -91,9 +89,9 @@ call GetMem('loopb_kc','Allo','Real',kc,vblock*vblock*n)
 call GetMem('loopb_la','Allo','Real',la,nnoab(isp)*vblock*n)
 !mp call w_alloc(lxa,nnoab(3)*vblock*n,'lbaT3loopb')
 call GetMem('loopb_lxa','Allo','Real',lxa,nnoab(3)*vblock*n)
-!mpn write(6,*) 'check lxa'
-!mpn write(6,*) 'nnoab(1), (2), (3) = ',nnoab(1),nnoab(2),nnoab(3)
-!mpn write(6,*) 'nnuab(1), (2), (3) = ',nnuab(1),nnuab(2),nnuab(3)
+!mpn write(u6,*) 'check lxa'
+!mpn write(u6,*) 'nnoab(1), (2), (3) = ',nnoab(1),nnoab(2),nnoab(3)
+!mpn write(u6,*) 'nnuab(1), (2), (3) = ',nnuab(1),nnuab(2),nnuab(3)
 if (nuga /= 1) then
   !mp call w_alloc(lb,nnoab(isp)*vblock*n,'lbT3loopb')
   call GetMem('loopb_lb','Allo','Real',lb,nnoab(isp)*vblock*n)
@@ -120,9 +118,9 @@ end if
 !mp call w_alloc(mi,noab(isp)*vblock**3,'miT3loopb')
 call GetMem('loopb_mi','Allo','Real',mi,noab(isp)*vblock**3)
 !mp
-!mpn write(6,*) 'mi check = ',noab(isp)*vblock**3
-!mpn write(6,*) 'nnoab(1), (2), (3) = ',nnoab(1),nnoab(2),nnoab(3)
-!mpn write(6,*) 'nnuab(1), (2), (3) = ',nnuab(1),nnuab(2),nnuab(3)
+!mpn write(u6,*) 'mi check = ',noab(isp)*vblock**3
+!mpn write(u6,*) 'nnoab(1), (2), (3) = ',nnoab(1),nnoab(2),nnoab(3)
+!mpn write(u6,*) 'nnuab(1), (2), (3) = ',nnuab(1),nnuab(2),nnuab(3)
 !mp
 !mp call w_alloc(mij,N*vblock,'mijT3loopb')
 call GetMem('loopb_mij','Allo','Real',mij,N*vblock)
@@ -139,7 +137,7 @@ cdim = min(vblock,nuab(3-isp)-cset)
 
 if (nga == ngb) then
 
-  !mpn write(6,*) 'ide call t3_bta_aac'
+  !mpn write(u6,*) 'ide call t3_bta_aac'
   !mp call t3_bta_aac(nuga,nugc,g(kab),g(kca),g(kac),g(kc),g(la),g(lxa),g(lxc),g(mi),g(mij),adim,cdim,N,noab(isp),nuab(isp), &
   !mp                 noab(3-isp),nuab(3-isp),lu,iasblock,nga,ngc,oeh(en_offset_ah+1),oeh(en_offset_bh+1), &
   !mp                 oep(aset+en_offset_ap+1),oep(cset+en_offset_bp+1),enx,g(vab),g(vac),t1a(noab(isp)*aset+t1_offset_a+1), &
@@ -151,7 +149,7 @@ if (nga == ngb) then
                   t1b(noab(isp)*aset+t1_offset_a+1),t1a(noab(3-isp)*cset+t1_offset_b+1),t1b(noab(3-isp)*cset+t1_offset_b+1), &
                   Work(t3a),Work(t3b),ifvo)
 else
-  !mpn write(6,*) 'ide call t3_bta_abc'
+  !mpn write(u6,*) 'ide call t3_bta_abc'
   !mp call t3_bta_abc(nuga,nugc,g(kab),g(kcb),g(kca),g(kac),g(kbc),g(kc),g(la),g(lb),g(lxa),g(lxb),g(lxc),g(mi),g(mij),adim,bdim, &
   !mp                 cdim,N,noab(isp),nuab(isp),noab(3-isp),nuab(3-isp),lu,iasblock,nga,ngb,ngc,oeh(en_offset_ah+1), &
   !mp                 oeh(en_offset_bh+1),oep(aset+en_offset_ap+1),oep(bset+en_offset_ap+1),oep(cset+en_offset_bp+1),enx,g(vab), &
@@ -165,13 +163,13 @@ else
                   t1a(noab(isp)*bset+t1_offset_a+1),t1b(noab(isp)*bset+t1_offset_a+1),t1a(noab(3-isp)*cset+t1_offset_b+1), &
                   t1b(noab(3-isp)*cset+t1_offset_b+1),Work(t3a),Work(t3b),ifvo)
 end if   ! cases
-!mpn write(6,*) 'isp, energ(isp), enx = ',isp,energ(isp),enx
+!mpn write(u6,*) 'isp, energ(isp), enx = ',isp,energ(isp),enx
 energ(isp) = energ(isp)+enx
-!mp !!!write(6,'(A,3(i5,2x),f21.19)') 'nga, ngb, ngc, inc = ',nga,ngb,ngc,enx
+!mp !!!write(u6,'(A,3(i5,2x),f21.19)') 'nga, ngb, ngc, inc = ',nga,ngb,ngc,enx
 !mp !!!end if  ! lastcall
-!mp write(6,*)
-!mp write(6,*) 'deallocating arrays in t3loob'
-!mp write(6,*)
+!mp write(u6,*)
+!mp write(u6,*) 'deallocating arrays in t3loob'
+!mp write(u6,*)
 !mp
 call GetMem('loopb_mij','Free','Real',mij,N*vblock)
 call GetMem('loopb_mi','Free','Real',mi,noab(isp)*vblock**3)

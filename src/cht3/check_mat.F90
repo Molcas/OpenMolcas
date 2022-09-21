@@ -11,15 +11,16 @@
 
 subroutine check_mat(mat,dima,dimb)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer dima, dimb, i, j
-real*8 mat(dima,dimb)
+integer(kind=iwp) :: dima, dimb
+real(kind=wp) :: mat(dima,dimb)
+integer(kind=iwp) :: i, j
 
 do i=1,dima
   do j=1,dimb
-    if (abs(mat(i,j)) > 10000) then
-      write(6,*) 'i,j,mat(i,j) ',i,j,mat(i,j)
-    end if
+    if (abs(mat(i,j)) > 1.0e5_wp) write(u6,*) 'i,j,mat(i,j) ',i,j,mat(i,j)
   end do
 end do
 

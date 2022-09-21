@@ -21,14 +21,15 @@ subroutine gen_vvoo(w,l1,tmp,l2)
 !
 !       L1(m,I,A')
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: w(*), l1(*), tmp(*), l2(*)
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "files.fh"
 #include "ccsd_t3compat.fh"
-real*8 tmp(*), l1(*), w(*), l2(*)
-integer a, b, dima, dimb, length, lasta, lastb
-integer a_tmp, b_tmp
+integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 
 do a=1,NvGrp
 
@@ -76,14 +77,14 @@ do a=1,NvGrp
       end do
     end if
 
-    !write (6,'(A,4(i4,x))') 'BB1 dima, dimb, lasta, lastb ',dima,dimb,lasta,lastb
+    !write(u6,'(A,4(i4,x))') 'BB1 dima, dimb, lasta, lastb ',dima,dimb,lasta,lastb
     call grow_vvoo(w,tmp,no,nv,dima,dimb,lasta,lastb)
 
     if (a /= b) then
 
       call Map4_3412_t3(tmp,l2,dima,no,dimb,no)
 
-      !write (6,'(A,4(i4,x))') 'BB2 dima, dimb, lasta, lastb ',dimb,dima,lastb,lasta
+      !write(u6,'(A,4(i4,x))') 'BB2 dima, dimb, lasta, lastb ',dimb,dima,lastb,lasta
       call grow_vvoo(w,l2,no,nv,dimb,dima,lastb,lasta)
 
     end if

@@ -14,15 +14,12 @@ subroutine defcommon(nfr,no,nv)
 !
 ! define commons needed in DIRCC routines
 
+use Definitions, only: iwp
+
 implicit none
-integer nfr, nv, no
-!mp !integer me, nprocs
+integer(kind=iwp) :: nfr, no, nv
 #include "uhf.fh"
 #include "param_cht3.fh"
-!mp !common /my_mpi_world_com/ me, nprocs
-!mp !#include 'task_info_inc'
-!mp !#include 'ws_conn_inc'
-!logical llmpi
 #include "ioind.fh"
 
 ! ----  UHF -----

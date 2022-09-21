@@ -14,17 +14,17 @@ subroutine grow_vvoo_blocked(AA,BB,no,dima,dimb,lasta,lastb,length1,length2,sym)
 !
 ! grow A(1324)/(vvoo) from the blocked cholesky vectors B(1234)/(vovo)
 
-implicit none
-integer i1, i2, i3, i4, dima, dimb, no
-integer lasta, lastb
-integer length1, length2
-real*8 AA(length1,length2,no,no)
-real*8 BB(dima,no,dimb,no)
-logical sym
+use Definitions, only: wp, iwp
 
-!mp write(6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb
-!mp write(6,'(A,2(i9,x))') 'chk_a ',lasta+dima,length1
-!mp write(6,'(A,2(i9,x))') 'chk_b ',lastb+dimb,length2
+implicit none
+integer(kind=iwp) :: no, dima, dimb, lasta, lastb, length1, length2
+real(kind=wp) :: AA(length1,length2,no,no), BB(dima,no,dimb,no)
+logical(kind=iwp) :: sym
+integer(kind=iwp) :: i1, i2, i3, i4
+
+!mp write(u6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb
+!mp write(u6,'(A,2(i9,x))') 'chk_a ',lasta+dima,length1
+!mp write(u6,'(A,2(i9,x))') 'chk_b ',lastb+dimb,length2
 
 do i4=1,no
   do i3=1,no

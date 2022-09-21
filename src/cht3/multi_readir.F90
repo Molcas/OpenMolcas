@@ -31,11 +31,14 @@ subroutine multi_readir(G,lg,ifile,ias)
 !
 ! PV/LAOG, 22 may 2003.
 
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: lg, ifile, ias
+real(kind=wp) :: G(lg)
 #include "ndisk.fh"
-integer lg, ifile, ias, iloc, irest, kas, k, last
 #include "ioind.fh"
-real*8 G(lg)
+integer(kind=iwp) :: iloc, irest, k, kas
 
 iloc = 1
 irest = lg
@@ -44,35 +47,13 @@ kas = ias
 do while (irest > 0)
   k = min(irest,nblock)
   if (kas <= iopt(27)) then
-    call readir(G(iloc),k,ifile,kas)
+    read(ifile,rec=kas) G(iloc:iloc+k-1)
   else
-    call readir(G(iloc),k,ifile+1,kas-iopt(27))
+    read(ifile+1,rec=kas-iopt(27)) G(iloc:iloc+k-1)
   end if
   iloc = iloc+k
   irest = irest-k
   kas = kas+1
 end do
-return
-
-entry multi_wridir(G,lg,ifile,ias,last)
-
-iloc = 1
-irest = lg
-kas = ias
-
-do while (irest > 0)
-  k = min(irest,nblock)
-  if (kas <= iopt(27)) then
-    call wridir(G(iloc),k,ifile,kas)
-  else
-    call wridir(G(iloc),k,ifile+1,kas-iopt(27))
-  end if
-  iloc = iloc+k
-  irest = irest-k
-  kas = kas+1
-end do
-last = kas-1
-
-return
 
 end subroutine multi_readir

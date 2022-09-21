@@ -14,12 +14,14 @@ subroutine grow_vvoo(A,B,no,nv,dima,dimb,lasta,lastb)
 !
 ! grow A(1324)/(vvoo) from the blocked cholesky vectors B(1234)/(vovo)
 
-implicit none
-integer i1, i2, i3, i4, dima, dimb, no, nv
-integer lasta, lastb
-real*8 A(nv,nv,no,no), B(dima,no,dimb,no)
+use Definitions, only: wp, iwp
 
-!!write(6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb
+implicit none
+integer(kind=iwp) :: no, nv, dima, dimb, lasta, lastb
+real(kind=wp) :: A(nv,nv,no,no), B(dima,no,dimb,no)
+integer(kind=iwp) :: i1, i2, i3, i4
+
+!!write(u6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb
 
 do i4=1,no
   do i3=1,no

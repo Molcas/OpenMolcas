@@ -23,17 +23,16 @@ subroutine gen_vvvo(occ_ind,w3,l1_1,l2_1,tmp)
 !       L2(m,A'B')  L2xxyy xx - Group of A', A'>=B'
 !                          yy - Group of B'
 
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: occ_ind
 #include "cht3_ccsd1.fh"
+real(kind=wp) :: w3(nv*(nv+1)/2,nv), l1_1(*), l2_1(*), tmp(*)
 #include "cht3_reord.fh"
 #include "files.fh"
 #include "ccsd_t3compat.fh"
-integer a, b, c, dima, dimb, dimc, occ_ind
-integer length
-integer lasta, lastb, lastc
-real*8 w3(nv*(nv+1)/2,nv)
-real*8 tmp(*), l1_1(*), l2_1(*)
-integer a_tmp, b_tmp, c_tmp
+integer(kind=iwp) :: a, a_tmp, b, b_tmp, c, c_tmp, dima, dimb, dimc, lasta, lastb, lastc, length
 
 ! algoritmus je dobry ak maxdim > no
 ! inak treba vymenit citanie L1 za L2
@@ -61,12 +60,12 @@ do a=1,NvGrp
       !mp@ if (a == NvGrp) dima = nv-((NvGrp-1)*dima)
       dima = DimGrpaR(a)
 
-      !mp !write(6,*) 'dima = ',dima
+      !mp !write(u6,*) 'dima = ',dima
       dimb = dima
       length = (dima*(dima+1)*nc)/2
-      !mp !write(6,*) 'length L2Name(a,b) = ',L2Name(a,b),length
-      !mp !write(6,*) 'file size (g77) = ',16+length*8
-      !mp !write(6,*) 'file size L2Name(a,b) (ifort) = ',L2Name(a,b),8+length*8
+      !mp !write(u6,*) 'length L2Name(a,b) = ',L2Name(a,b),length
+      !mp !write(u6,*) 'file size (g77) = ',16+length*8
+      !mp !write(u6,*) 'file size L2Name(a,b) (ifort) = ',L2Name(a,b),8+length*8
 
       call GetX_t3(tmp,length,LunAux,L2Name(a,b),1,1)
 
@@ -80,11 +79,11 @@ do a=1,NvGrp
       dima = DimGrpaR(a)
       dimb = DimGrpaR(b)
 
-      !mp !write(6,*) 'dima, dimb = ',dima,dimb
+      !mp !write(u6,*) 'dima, dimb = ',dima,dimb
       length = dima*dimb*nc
-      !mp !write(6,*) 'length L2Name(a,b) = ',L2Name(a,b),length
-      !mp !write(6,*) 'file size (g77) = ',16+length*8
-      !mp !write(6,*) 'file size L2Name(a,b) (ifort) = ',L2Name(a,b),8+length*8
+      !mp !write(u6,*) 'length L2Name(a,b) = ',L2Name(a,b),length
+      !mp !write(u6,*) 'file size (g77) = ',16+length*8
+      !mp !write(u6,*) 'file size L2Name(a,b) (ifort) = ',L2Name(a,b),8+length*8
 
       call GetX_t3(tmp,length,LunAux,L2Name(a,b),1,1)
     end if
@@ -108,10 +107,10 @@ do a=1,NvGrp
       !mp@@ if (c == NvGrp) dimc = nv-((NvGrp-1)*dimc)
       dimc = DimGrpaR(c)
 
-      !mp !write(6,*) 'dimc = ',dimc
+      !mp !write(u6,*) 'dimc = ',dimc
       length = nc*no*dimc
-      !mp !write(6,*) 'length L1Name(c) = ',L1Name(c),length
-      !mp !write(6,*) 'file size L1Name(c) (ifort) = ',L1Name(c),8+8*length
+      !mp !write(u6,*) 'length L1Name(c) = ',L1Name(c),length
+      !mp !write(u6,*) 'file size L1Name(c) (ifort) = ',L1Name(c),8+8*length
 
       call GetX_t3(tmp,length,LunAux,L1Name(c),1,1)
 
@@ -155,7 +154,7 @@ do a=1,NvGrp
         end do
       end if
 
-      !mp !write(6,'(A,3(i4),2x,3(i4))') 'lasta, lastb, lastc = ',lasta,lastb,lastc,a,b,c
+      !mp !write(u6,'(A,3(i4),2x,3(i4))') 'lasta, lastb, lastc = ',lasta,lastb,lastc,a,b,c
 
       ! sme v gen_vvvo
       call grow_w3(w3,tmp,nv,nv,dima,dimb,dimc,lasta,lastb,lastc)

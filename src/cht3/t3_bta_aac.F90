@@ -12,19 +12,19 @@
 subroutine t3_bta_aac(nuga,nugc,kab,kca,kac,kc,la,lxa,lxc,mi,mij,adim,cdim,N,noab_a,noab_b,lu,iasblock,nga,ngc,oehi,oehk,oepa, &
                       oepc,enx,vab,vca,t1aa,t1ba,t1ac,t1bc,t3a,t3b,ifvo)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 one, zero, den, dena, denb, denc, enx, xx, yy
-parameter(one=1.d0,zero=0.d0)
-integer nadim, adim, ncdim, cdim, i, j, k, iasblock(5), lu(6), N
-integer noab_a, noab_b, nuga, nno_a, nnoab, nugc, ngab_offset, ngca_offset, ngac_offset, nuga_offset, nugc_offset
-integer ias, jk, ij, ik, kj, ki, nga, ngc, a, b, c, ab, abb, bab
-integer iasabi, iascai, iasack
-real*8 kca(adim*cdim,N,*), kac(adim*cdim,N,*), kab(adim*(adim-1)/2,N,*), kc(*), la(N*adim,*), lxa(N*adim,*), lxc(N*cdim,*)
-real*8 t3a(*), t3b(*)
-real*8 mi(cdim*adim*(adim-1)/2,*), mij(*), vab(adim*(adim-1)/2,*), vca(adim*cdim,*)
-real*8 t1aa(noab_a,*), t1ba(noab_a,*), t1ac(noab_b,*), t1bc(noab_b,*)
-real*8 oehi(*), oehk(*), oepa(*), oepc(*)
-logical ifvo
+integer(kind=iwp) :: nuga, nugc, adim, cdim, N, noab_a, noab_b, lu(6), iasblock(5), nga, ngc
+real(kind=wp) :: kab(adim*(adim-1)/2,N,*), kca(adim*cdim,N,*), kac(adim*cdim,N,*), kc(*), la(N*adim,*), lxa(N*adim,*), &
+                 lxc(N*cdim,*), mi(cdim*adim*(adim-1)/2,*), mij(*), oehi(*), oehk(*), oepa(*), oepc(*), enx, &
+                 vab(adim*(adim-1)/2,*), vca(adim*cdim,*), t1aa(noab_a,*), t1ba(noab_a,*), t1ac(noab_b,*), t1bc(noab_b,*), t3a(*), &
+                 t3b(*)
+logical(kind=iwp) :: ifvo
+integer(kind=iwp) :: a, ab, abb, b, bab, c, i, ias, iasabi, iasack, iascai, ij, ik, j, jk, k, ki, kj, nadim, ncdim, ngab_offset, &
+                     ngac_offset, ngca_offset, nno_a, nnoab, nuga_offset, nugc_offset
+real(kind=wp) :: den, dena, denb, denc, xx, yy
 
 ! iasblock(1) > ka,kb,kc   iasblock(2) > la,lb iasblock(3) > lxa,lxc,lxb
 if (adim == 1) return
@@ -75,8 +75,8 @@ do k=1,noab_b
       abb = (a-1)*cdim+1
       bab = (a-1)*ncdim+1
       do b=1,a-1
-        call daxpy_(cdim,-1.d0,t3b(abb),1,mi(ab,i),1)
-        call daxpy_(cdim,1.d0,t3b(bab),1,mi(ab,i),1)
+        call daxpy_(cdim,-One,t3b(abb),1,mi(ab,i),1)
+        call daxpy_(cdim,One,t3b(bab),1,mi(ab,i),1)
         ab = ab+cdim
         abb = abb+ncdim
         bab = bab+cdim
@@ -101,7 +101,7 @@ do k=1,noab_b
       ! transpose the first two inicesd
       ab = 1
       do a=1,adim
-        call transm(t3a(ab),t3b(ab),adim,cdim)
+        call map2_21_t3(t3a(ab),t3b(ab),adim,cdim)
         ab = ab+ncdim
       end do
       ! K_ab^ir x L_rc^jk -K_ab^jr x L_rc^ik
@@ -126,16 +126,16 @@ do k=1,noab_b
         abb = (a-1)*cdim+1
         bab = (a-1)*ncdim+1
         do b=1,a-1
-          call daxpy_(cdim,-1.d0,t3b(abb),1,t3a(ab),1)
-          call daxpy_(cdim,1.d0,t3b(bab),1,t3a(ab),1)
+          call daxpy_(cdim,-One,t3b(abb),1,t3a(ab),1)
+          call daxpy_(cdim,One,t3b(bab),1,t3a(ab),1)
           ab = ab+cdim
           abb = abb+ncdim
           bab = bab+cdim
         end do
       end do
 
-      call daxpy_(nadim*cdim,-1.d0,mi(1,i),1,t3a,1)
-      call daxpy_(nadim*cdim,1.d0,mi(1,j),1,t3a,1)
+      call daxpy_(nadim*cdim,-One,mi(1,i),1,t3a,1)
+      call daxpy_(nadim*cdim,One,mi(1,j),1,t3a,1)
       den = oehi(i)+oehi(j)+oehk(k)
       ab = 0
       do a=2,adim

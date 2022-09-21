@@ -12,8 +12,12 @@
 subroutine VADD(VEC1,IST1,VEC2,IST2,VEC3,IST3,NS)
 !R8   1
 
-implicit real*8(A-H,O-Z)
-dimension VEC1(*), VEC2(*), VEC3(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VEC1(*), VEC2(*), VEC3(*)
+integer(kind=iwp) :: IST1, IST2, IST3, NS
+integer(kind=iwp) :: I, IS1, IS2, IS3
 
 if ((IST1 == 1) .and. (IST2 == 1) .and. (IST3 == 1)) then
   do I=1,NS

@@ -12,23 +12,21 @@
 subroutine t3_bt_abc(nug,ka,kb,kc,la,lb,lc,adim,bdim,cdim,N,noab,nnoab,lu,iasblock,nga,ngb,ngc,oeh,oepa,oepb,oepc,enx,voa,vob,voc, &
                      t1aa,t1ba,t1ab,t1bb,t1ac,t1bc,t3a,t3b,ifvo)
 
-implicit none
-real*8 one, zero, ddot_, enx, den, dena, denb, denc
-parameter(one=1.d0,zero=0.d0)
-logical ifvo
-integer nadim, adim, bdim, nbdim, cdim, ncdim, noab, i, j, k
-integer nga, ngb, ngc, N, iasblock(3), lu(2), jk, ij, ik, ac, ca, a, b, c
-integer ias, iasai, iasbi, iasci
-!integer iasaj, iasak, iascj, iasck
-integer nga_offset, ngb_offset, ngc_offset, nug_offset, nug, nnoab
-real*8 ka(adim*bdim,N,*), kb(bdim*cdim,N,*), kc(adim*cdim,N,*)
-real*8 la(N*adim,nnoab), lb(N*bdim,nnoab), lc(N*cdim,nnoab)
-real*8 t1aa(noab,*), t1ba(noab,*), t1ab(noab,*), t1bb(noab,*)
-real*8 t1ac(noab,*), t1bc(noab,*)
-real*8 voa(adim*bdim,*), vob(bdim*cdim,*), voc(adim*cdim,*)
-real*8 oeh(noab), oepa(adim), oepb(bdim), oepc(cdim), t3a(*), t3b(*)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
 
-!!write(6,*) 'enter_abc enx,nga,ngb,ngc',nga,ngb,ngc,enx
+implicit none
+integer(kind=iwp) :: nug, adim, bdim, cdim, N, noab, nnoab, lu(2), iasblock(3), nga, ngb, ngc
+real(kind=wp) :: ka(adim*bdim,N,*), kb(bdim*cdim,N,*), kc(adim*cdim,N,*), la(N*adim,nnoab), lb(N*bdim,nnoab), lc(N*cdim,nnoab), &
+                 oeh(noab), oepa(adim), oepb(bdim), oepc(cdim), enx, voa(adim*bdim,*), vob(bdim*cdim,*), voc(adim*cdim,*), &
+                 t1aa(noab,*), t1ba(noab,*), t1ab(noab,*), t1bb(noab,*), t1ac(noab,*), t1bc(noab,*), t3a(*), t3b(*)
+logical(kind=iwp) :: ifvo
+integer(kind=iwp) :: a, ac, b, c, ca, i, ias, iasai, iasbi, iasci, ij, ik, j, jk, k, nadim, nbdim, ncdim, nga_offset, ngb_offset, &
+                     ngc_offset, nug_offset
+real(kind=wp) :: den, dena, denb, denc
+real(kind=r8), external :: ddot_
+
+!!write(u6,*) 'enter_abc enx,nga,ngb,ngc',nga,ngb,ngc,enx
 nadim = adim*bdim
 nbdim = bdim*cdim
 ncdim = adim*cdim
@@ -89,7 +87,7 @@ do i=3,noab
         do c=1,cdim
           ac = ac+bdim
           ca = ca+nadim
-          call daxpy_(bdim,1.d0,t3a(ca),1,t3b(ac),1)
+          call daxpy_(bdim,One,t3a(ca),1,t3b(ac),1)
         end do
       end do
       ! K_cb^ir x L_ra^jk   ! in the matrix as b,c,a
@@ -103,7 +101,7 @@ do i=3,noab
       do a=1,adim
         ca = (a-1)*nbdim+1
         do c=1,cdim
-          call daxpy_(bdim,1.d0,t3a(ca),cdim,t3b(ac),1)
+          call daxpy_(bdim,One,t3a(ca),cdim,t3b(ac),1)
           ac = ac+bdim
           ca = ca+1
         end do
@@ -141,7 +139,7 @@ do i=3,noab
         call DGEMM_('N','T',1,bdim,ncdim,one,kc(1,i,k),1,t3b,bdim,one,t1bb(j,1),noab)
       end if
       ! part 3 acb in t3b
-      call transm(t3a,t3b,bdim,ncdim)
+      call map2_21_t3(t3a,t3b,bdim,ncdim)
       call DGEMM_('N','T',1,adim,nbdim,one,vob(1,ij),1,t3b,adim,one,t1aa(k,1),noab)
       call DGEMM_('N','T',1,adim,nbdim,one,vob(1,jk),1,t3b,adim,one,t1aa(i,1),noab)
       call DGEMM_('N','T',1,adim,nbdim,-one,vob(1,ik),1,t3b,adim,one,t1aa(j,1),noab)

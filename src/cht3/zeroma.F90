@@ -11,15 +11,17 @@
 
 subroutine ZEROMA(W,I1,I2)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-integer I1, I2, I
-real*8 ZERO, W
-parameter(ZERO=0.d0)
-dimension W(*)
+real(kind=wp) :: W(*)
+integer(kind=iwp) :: I1, I2
+integer(kind=iwp) :: I
 
 if (I2 < I1) return
 do I=I1,I2
-  W(I) = ZERO
+  W(I) = Zero
 end do
 
 return

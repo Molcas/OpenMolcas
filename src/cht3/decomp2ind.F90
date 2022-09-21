@@ -11,26 +11,30 @@
 
 subroutine decomp2ind(W,IDM,no,NF)
 
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 W, DD
-integer IDM, no, IJ, I, IJO, II, K, L, KL, LK, NF, J, JIO
-dimension W(IDM,*)
+integer(kind=iwp) :: IDM, no, NF
+real(kind=wp) :: W(IDM,*)
+integer(kind=iwp) :: IJ, I, IJO, II, K, L, KL, LK, J, JIO
+real(kind=wp) :: DD
 
 !mp if (LLtrace) then
-!mp   write(6,*) 'Entering DECOMP2IND'
-!mp   call xflush(6)
+!mp   write(u6,*) 'Entering DECOMP2IND'
+!mp   call xflush(u6)
 !mp endif
 
 ! symmetrizes the upper index
 
-!write(6,*) 'decomp2ind:',IDM,no,NF
+!write(u6,*) 'decomp2ind:',IDM,no,NF
 do I=1,no
   II = I*(I+1)/2
   do K=2,NF
     do L=1,K-1
       KL = (K-1)*NF+L
       LK = (L-1)*NF+K
-      DD = 0.5d0*(W(KL,II)+W(LK,II))
+      DD = Half*(W(KL,II)+W(LK,II))
       W(KL,II) = DD
       W(LK,II) = DD
     end do
@@ -50,13 +54,13 @@ do I=2,no
   do J=1,I-1
     IJO = (I-1)*no+J
     JIO = (J-1)*no+I
-    call transm(W(1,IJO),W(1,JIO),NF,NF)
+    call map2_21_t3(W(1,IJO),W(1,JIO),NF,NF)
   end do
 end do
 !stop
 !mp if (LLtrace) then
-!mp   write(6,*) 'Leaving DECOMP2IND'
-!mp   call xflush(6)
+!mp   write(u6,*) 'Leaving DECOMP2IND'
+!mp   call xflush(u6)
 !mp end if
 
 end subroutine decomp2ind

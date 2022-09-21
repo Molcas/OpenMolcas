@@ -14,12 +14,14 @@ subroutine grow_l1(l1,tmp,dima,nc,no,nv,last)
 !
 ! grow Cholesky vectors L1(m,i,a) by the segment in tmp
 
-implicit none
-integer a, dima, nc, nv, no, i, m, last
-real*8 l1(nc,no,nv)
-real*8 tmp(nc,no,dima)
+use Definitions, only: wp, iwp
 
-!mp write(6,*) 'grow_l1i ',dima
+implicit none
+integer(kind=iwp) :: dima, nc, no, nv, last
+real(kind=wp) :: l1(nc,no,nv), tmp(nc,no,dima)
+integer(kind=iwp) :: a, i, m
+
+!mp write(u6,*) 'grow_l1i ',dima
 
 do a=1,dima
   do i=1,no

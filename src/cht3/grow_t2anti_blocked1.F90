@@ -8,21 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine grow_t2anti_blocked1(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer a, b, dima, dimb, no, i, j, ij
-integer lasta, lastb
-integer length1, length2
-!mp real*8 t2(nv,nv,no,no)
-real*8 t2(length1,length2,(no-1)*no/2)
-real*8 tmp(dima,dimb,no,no)
+integer(kind=iwp) :: dima, dimb, no, lasta, lastb, length1, length2
+real(kind=wp) :: t2(length1,length2,(no-1)*no/2), tmp(dima,dimb,no,no)
+integer(kind=iwp) :: a, b, i, ij, j
 
-!mp write(6,*) 'lasta+dima, length1 ',lasta+dima,length1
-!mp write(6,*) 'lastb+dimb, length2 ',lastb+dimb,length2
+!mp write(u6,*) 'lasta+dima, length1 ',lasta+dima,length1
+!mp write(u6,*) 'lastb+dimb, length2 ',lastb+dimb,length2
 
-!mp write(6,'(A,2(i10,x),i3)') 'length1, length2, no ',length1,length2,no
-!mp write(6,'(A,4(i3,x))') 'dima, dimb, lasta, lastb',dima,dimb,lasta,lastb
+!mp write(u6,'(A,2(i10,x),i3)') 'length1, length2, no ',length1,length2,no
+!mp write(u6,'(A,4(i3,x))') 'dima, dimb, lasta, lastb',dima,dimb,lasta,lastb
 
 ij = 0
 do i=2,no
@@ -31,7 +31,7 @@ do i=2,no
     do b=1,dimb
       do a=1,dima
 
-        t2(lasta+a,lastb+b,ij) = tmp(a,b,i,j)+(-1.0d0*tmp(a,b,j,i))
+        t2(lasta+a,lastb+b,ij) = tmp(a,b,i,j)-tmp(a,b,j,i)
 
       end do
     end do

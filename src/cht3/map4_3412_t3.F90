@@ -13,18 +13,18 @@ subroutine Map4_3412_t3(A,B,d1,d2,d3,d4)
 ! this routine does:
 ! map B(3412) <- A(1234)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer d1, d2, d3, d4
-real*8 A(d1,d2,d3,d4)
-real*8 B(d3,d4,d1,d2)
-! help variables
-integer i1, i2, i3, i4
+integer(kind=iwp) :: d1, d2, d3, d4
+real(kind=wp) :: A(d1,d2,d3,d4), B(d3,d4,d1,d2)
+integer(kind=iwp) :: i1, i2, i3, i4
 
 do i2=1,d2
   do i1=1,d1
     do i4=1,d4
       do i3=1,d3
-        b(i3,i4,i1,i2) = a(i1,i2,i3,i4)
+        B(i3,i4,i1,i2) = A(i1,i2,i3,i4)
       end do
     end do
   end do

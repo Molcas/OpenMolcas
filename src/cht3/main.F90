@@ -12,15 +12,20 @@
 program Main
 
 #ifdef _FPE_TRAP_
-use, intrinsic :: ieee_exceptions
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
 #endif
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
+
 #ifdef _FPE_TRAP_
-call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
 call Start('cht3')
-call cht3(ireturn)
-call Finish(ireturn)
+call cht3(rc)
+call Finish(rc)
 
 end program Main

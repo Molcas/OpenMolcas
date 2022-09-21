@@ -13,13 +13,15 @@ subroutine my_block(vblock,vblock_my)
 ! this subroutine calculates maximum overlap between juzek's
 ! vblock segmentation and palo's dimgrp
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: vblock, vblock_my
 #include "cht3_ccsd1.fh"
 #include "ccsd_t3compat.fh"
 #include "cht3_reord.fh"
-integer i, j, i_tmp, i_f, i_l, poss
-integer vblock, vblock_my, vblock_my_tmp
-logical found
+integer(kind=iwp) :: i, i_f, i_l, i_tmp, j, poss, vblock_my_tmp
+logical(kind=iwp) :: found
 
 vblock_my = 0
 i_l = 0
@@ -36,7 +38,7 @@ do i=1,nv,vblock
     if ((i <= poss) .and. (.not. found)) then
       i_f = j
       found = .true.
-      !mp write(6,'(A,3(i5,x))') 'i,i_f,poss     = ',i,i_f,poss
+      !mp write(u6,'(A,3(i5,x))') 'i,i_f,poss     = ',i,i_f,poss
     end if
   end do
 
@@ -45,7 +47,7 @@ do i=1,nv,vblock
   else
     i_tmp = nv
   end if
-  !mp write (6,'(A,2(i5,x))') 'i,i_tmp        = ',i,i_tmp
+  !mp write(u6,'(A,2(i5,x))') 'i,i_tmp        = ',i,i_tmp
 
   ! - find terminal possition of the i-th juzek's block
 
@@ -56,7 +58,7 @@ do i=1,nv,vblock
     if ((i_tmp <= poss) .and. (.not. found)) then
       i_l = j
       found = .true.
-      !mp write(6,'(A,3(i5,x))') 'i_tmp,i_l,poss = ',i_tmp,i_l,poss
+      !mp write(u6,'(A,3(i5,x))') 'i_tmp,i_l,poss = ',i_tmp,i_l,poss
     end if
   end do
 
@@ -67,8 +69,8 @@ do i=1,nv,vblock
 
   if (vblock_my_tmp > vblock_my) vblock_my = vblock_my_tmp
 
-  !mp write(6,'(A,2(i5,x))') 'vblock_my_tmp, vblock_my',vblock_my_tmp,vblock_my
-  !mp write(6,*)
+  !mp write(u6,'(A,2(i5,x))') 'vblock_my_tmp, vblock_my',vblock_my_tmp,vblock_my
+  !mp write(u6,*)
 end do
 
 return

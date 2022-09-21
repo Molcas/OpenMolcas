@@ -12,21 +12,19 @@
 subroutine t3_bt_acc(nug,ka,kc,la,lc,adim,cdim,N,noab,nnoab,lu,iasblock,nga,ngc,oeh,oepa,oepc,enx,voa,voc,t1aa,t1ba,t1ac,t1bc,t3a, &
                      t3b,ifvo)
 
-implicit none
-real*8 one, zero, sumt3
-parameter(one=1.d0,zero=0.d0)
-logical ifvo
-integer nadim, adim, noab, i, j, k, nga, iasblock(3), lu(2), N
-integer ias, nga_offset, ngc_offset, nug_offset, jk, ij, ik, ncdim, cdim
-integer a, b, c, bc, abc, nug, nnoab, ngc, iasci, iasai
-real*8 ka(adim*cdim,N,*), kc(cdim*(cdim-1)/2,N,*)
-real*8 t3a(cdim,cdim,*), t3b(*), t1ac(noab,*), t1bc(noab,*)
-real*8 lc(N*cdim,nnoab), la(N*adim,nnoab)
-real*8 voa(adim*cdim,*), voc(cdim*(cdim-1)/2,*)
-real*8 t1aa(noab,*), t1ba(noab,*), enx, oeh(noab), oepa(adim)
-real*8 oepc(cdim), den, dena, denb, denc, xx, yy
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-sumt3 = 0.d0
+implicit none
+integer(kind=iwp) :: nug, adim, cdim, N, noab, nnoab, lu(2), iasblock(3), nga, ngc
+real(kind=wp) :: ka(adim*cdim,N,*), kc(cdim*(cdim-1)/2,N,*), la(N*adim,nnoab), lc(N*cdim,nnoab), oeh(noab), oepa(adim), &
+                 oepc(cdim), enx, voa(adim*cdim,*), voc(cdim*(cdim-1)/2,*), t1aa(noab,*), t1ba(noab,*), t1ac(noab,*), &
+                 t1bc(noab,*), t3a(cdim,cdim,*), t3b(*)
+logical(kind=iwp) :: ifvo
+integer(kind=iwp) :: a, abc, b, bc, c, i, ias, iasai, iasci, ij, ik, j, jk, k, nadim, ncdim, nga_offset, ngc_offset, nug_offset
+real(kind=wp) :: den, dena, denb, denc, sumt3, xx, yy
+
+sumt3 = Zero
 if (cdim == 1) return
 ncdim = cdim*(cdim-1)/2
 nadim = adim*cdim

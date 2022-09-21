@@ -11,8 +11,12 @@
 
 subroutine VNEG_CHT3(VEC1,IST1,VEC2,IST2,NS)
 
-implicit real*8(A-H,O-Z)
-dimension VEC1(*), VEC2(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VEC1(*), VEC2(*)
+integer(kind=iwp) :: IST1, IST2, NS
+integer(kind=iwp) :: I, IS1, IS2
 
 if ((IST1 == 1) .and. (IST2 == 1)) then
   do I=1,NS

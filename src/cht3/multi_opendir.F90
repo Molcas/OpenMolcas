@@ -16,15 +16,18 @@ subroutine multi_opendir(FNAM,iunit)
 !
 ! PV/LAOG, 22 may 2003.
 
+use Definitions, only: iwp, u6
+
 implicit none
-character FNAM*(*)
-integer iunit, iost
+character(len=*) :: FNAM
+integer(kind=iwp) :: iunit
 #include "ndisk.fh"
-logical is_error
+integer(kind=iwp) :: iost
+logical(kind=iwp) is_error
 
 !open(unit=iunit,file=FNAM,access='direct',form='unformatted',status='unknown',recl=nblock*8)
 call MOLCAS_Open_Ext2(iUnit,FNam,'direct','unformatted',iost,.true.,nblock*8,'unknown',is_error)
-if ((iost > 0) .or. is_error) write(6,*) 'Multi_OpenDir: Error opening file!'
+if ((iost > 0) .or. is_error) write(u6,*) 'Multi_OpenDir: Error opening file!'
 
 return
 

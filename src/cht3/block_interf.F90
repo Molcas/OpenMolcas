@@ -25,59 +25,59 @@ subroutine block_interf(ind1f,ind1l,ind2f,ind2l,b1f,b1l,nind_b1f,nind_b1l,b2f,b2
 ! nind_b1l  - # of VOs in b1f before ind1
 ! nind_b2l  - # of VOs in b2f before ind2
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: ind1f, ind1l, ind2f, ind2l, b1f, b1l, nind_b1f, nind_b1l, b2f, b2l, nind_b2f, nind_b2l
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "ccsd_t3compat.fh"
-integer i, sum
-integer ind1f, ind1l, ind2f, ind2l
-integer b1f, b2f, b1l, b2l
-integer nind_b1f, nind_b2f, nind_b1l, nind_b2l
-logical found1, found2, found3, found4
+integer(kind=iwp) :: i, isum
+logical(kind=iwp) :: found1, found2, found3, found4
 
 ! set b1f, b2f, b1l, b2l
 
-sum = 0
+isum = 0
 found1 = .false.
 found2 = .false.
 found3 = .false.
 found4 = .false.
 
 do i=1,NvGrp
-  sum = sum+DimGrpaR(i)
+  isum = isum+DimGrpaR(i)
 
-  if ((ind1f <= sum) .and. (.not. found1)) then
+  if ((ind1f <= isum) .and. (.not. found1)) then
     b1f = i
     found1 = .true.
   end if
 
-  if ((ind1l <= sum) .and. (.not. found2)) then
+  if ((ind1l <= isum) .and. (.not. found2)) then
     b1l = i
     found2 = .true.
   end if
 
-  if ((ind2f <= sum) .and. (.not. found3)) then
+  if ((ind2f <= isum) .and. (.not. found3)) then
     b2f = i
     found3 = .true.
   end if
 
-  if ((ind2l <= sum) .and. (.not. found4)) then
+  if ((ind2l <= isum) .and. (.not. found4)) then
     b2l = i
     found4 = .true.
   end if
 
 end do
 
-!mp write(6,*) 'b1f, b1l, b2f, b2l ',b1f,b1l,b2f,b2l
+!mp write(u6,*) 'b1f, b1l, b2f, b2l ',b1f,b1l,b2f,b2l
 
 ! set nind_b1f, nind_b1l
 
 if (b1f > 1) then
-  sum = 0
+  isum = 0
   do i=1,b1f-1
-    sum = sum+DimGrpaR(i)
+    isum = isum+DimGrpaR(i)
   end do
-  nind_b1f = sum
+  nind_b1f = isum
 else
   nind_b1f = 0
 end if
@@ -86,11 +86,11 @@ nind_b1l = ind1f-nind_b1f-1
 ! set nind_b1f, nind_b1l
 
 if (b2f > 1) then
-  sum = 0
+  isum = 0
   do i=1,b2f-1
-    sum = sum+DimGrpaR(i)
+    isum = isum+DimGrpaR(i)
   end do
-  nind_b2f = sum
+  nind_b2f = isum
 else
   nind_b2f = 0
 end if

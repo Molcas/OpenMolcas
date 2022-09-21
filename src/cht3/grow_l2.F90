@@ -14,10 +14,12 @@ subroutine grow_l2(A,B,nc,nv,dima,dimb,lasta,lastb)
 !
 ! grow A(A,B,m) from the blocked cholesky vectors B(a',b',m)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer i1, i2, i3, dima, dimb, nc, nv
-integer lasta, lastb
-real*8 A(nv,nv,nc), B(dima,dimb,nc)
+integer(kind=iwp) :: nc, nv, dima, dimb, lasta, lastb
+real(kind=wp) :: A(nv,nv,nc), B(dima,dimb,nc)
+integer(kind=iwp) :: i1, i2, i3
 
 do i3=1,nc
   do i1=1,dima

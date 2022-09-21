@@ -17,25 +17,22 @@ subroutine gather_t2anti_blocked(length1,length2,ngbf,ngbl,t2,t2_tmp,tmp)
 !
 ! T2 = t2(a,b,j<i) - t2(b,a,j<i) finaly : <a,b,(i<j) >  ;  a in nv, b in vblock
 
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: length1, length2, ngbf, ngbl
+real(kind=wp) :: t2(*), t2_tmp(*), tmp(*)
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "files.fh"
 #include "ccsd_t3compat.fh"
-integer ngbf, ngbl
-integer a, b, dima, dimb
-integer length
-integer lasta, lastb
-integer length1, length2
-real*8 t2(*), tmp(*), t2_tmp(*)
-integer a_tmp, b_tmp
-logical switch
-integer aa, bb
+integer(kind=iwp) ::a, a_tmp, aa, b, b_tmp, bb, dima, dimb, lasta, lastb, length
+logical(kind=iwp) :: switch
 
-!mp write(6,*)
-!mp write(6,*) '------ DimGrpaR ------'
-!mp write(6,'(8(i5,2x))') (DimGrpaR(a_tmp),a_tmp=1,NvGrp)
-!mp write(6,*)
+!mp write(u6,*)
+!mp write(u6,*) '------ DimGrpaR ------'
+!mp write(u6,'(8(i5,2x))') (DimGrpaR(a_tmp),a_tmp=1,NvGrp)
+!mp write(u6,*)
 
 do a=1,NvGrp
   do b=ngbf,ngbl
@@ -75,7 +72,7 @@ do a=1,NvGrp
       end do
     end if
 
-    !mp write(6,'(A,2(i5,2x),L,2(i3,x))') 'lasta, lastb, switch, a, b = ',lasta,lastb,switch,a,b
+    !mp write(u6,'(A,2(i5,2x),L,2(i3,x))') 'lasta, lastb, switch, a, b = ',lasta,lastb,switch,a,b
 
     if (aa == bb) then ! expand tmp
       call expand4_12(tmp,t2_tmp,dima,no,no)

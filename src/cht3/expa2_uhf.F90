@@ -12,10 +12,12 @@
 subroutine EXPA2_UHF(ARR1,IDM,LI,NSP,ARR2)
 ! THIS SUBROUTINE EXPANDS THE SECOND INDEX OF A MATRIX ARR1
 
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 ARR1, ARR2
-integer IDM, LI, NSP, IJ, I, J
-dimension ARR1(IDM,*), ARR2(IDM,LI,*)
+integer(kind=iwp) :: IDM, LI, NSP
+real(kind=wp) :: ARR1(IDM,*), ARR2(IDM,LI,*)
+integer(kind=iwp) :: I, IJ, J
 
 IJ = 0
 call ZEROMA(ARR2(1,1,1),1,IDM)

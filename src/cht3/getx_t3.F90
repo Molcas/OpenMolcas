@@ -19,10 +19,12 @@ subroutine GetX_t3(X,length,Lun,LunName,keyopen,keyclose)
 ! 3) keyclose = 0 - nothing
 !               1 - close Lun file
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer length, Lun, keyopen, keyclose
-real*8 X(*)
-character*6 LunName
+real(kind=wp) :: X(*)
+integer(kind=iwp) :: length, Lun, keyopen, keyclose
+character(len=6) :: LunName
 
 !1
 if (keyopen == 1) then

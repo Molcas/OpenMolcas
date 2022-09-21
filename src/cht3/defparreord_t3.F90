@@ -17,19 +17,19 @@ subroutine DefParReord_t3(NaGrpR,maxdim)
 ! NxGrpR   - # of groups in a (=b) set (I)
 ! maxdim   - # maximal dimension of a (=b) Groups(O)
 
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: NaGrpR, maxdim
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 #include "files.fh"
-integer NaGrpR, maxdim
-! help variables
-real*8 rdim
-integer i, j
-integer Up(MaxGrp), Low(MaxGrp)
+integer i, j, Low(MaxGrp), Up(MaxGrp)
+real(kind=wp) :: rdim
 
 !1 define parameters of Groups of a set
 
-rdim = 1.0d0*nv/(1.0d0*NaGrpR)
+rdim = real(nv,kind=wp)/real(NaGrpR,kind=wp)
 
 do i=1,NaGrpR
 
@@ -61,18 +61,18 @@ end do
 
 do i=1,MaxGrp
   do j=1,MaxGrp
-    call DefParReordHlp1(i,j,'L2',L2Name(i,j))
-    call DefParReordHlp1(i,j,'T2',T2Name(i,j))
-    call DefParReordHlp1(i,j,'I2',I2Name(i,j))
-    call DefParReordHlp1(i,j,'I3',I3Name(i,j))
+    write(L2Name(i,j),'(A2,I0.2,I0.2)') 'L2',i,j
+    write(T2Name(i,j),'(A2,I0.2,I0.2)') 'T2',i,j
+    write(I2Name(i,j),'(A2,I0.2,I0.2)') 'I2',i,j
+    write(I3Name(i,j),'(A2,I0.2,I0.2)') 'I3',i,j
   end do
 end do
 
 !3.2 def L1Name,I1Name
 
 do i=1,MaxGrp
-  call DefParReordHlp2(i,'L1vc',L1Name(i))
-  call DefParReordHlp2(i,'I1in',I1Name(i))
+  write(L1Name(i),'(A4,I0.2)') 'L1vc',i
+  write(I1Name(i),'(A4,I0.2)') 'I1in',i
 end do
 
 !3.3 def L0Name,I0Name

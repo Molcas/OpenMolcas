@@ -11,10 +11,12 @@
 
 subroutine VSUB(VEC1,IST1,VEC2,IST2,VEC3,IST3,NS)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer IST1, IST2, IST3, NS, I, IS1, IS2, IS3
-real*8 VEC1, VEC2, VEC3
-dimension VEC1(*), VEC2(*), VEC3(*)
+real(kind=wp) :: VEC1(*), VEC2(*), VEC3(*)
+integer(kind=iwp) :: IST1, IST2, IST3, NS
+integer(kind=iwp) :: I, IS1, IS2, IS3
 
 if ((IST1 == 1) .and. (IST2 == 1) .and. (IST3 == 1)) then
   do I=1,NS

@@ -11,24 +11,19 @@
 
 subroutine t3_bt_aaa(nug,ka,la,adim,N,noab,nnoab,lu,iasblock,nga,oeh,oep,enx,voa,t1a,t1b,t3a,t3b,ifvo)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 one, zero
-parameter(one=1.d0,zero=0.d0)
-integer a, b, c, aa, ab, bc, ac
-real*8 XX, YY, enx, den, dena, denb, denc
-integer ndim, adim, noab, i, j, k, nga, iasblock(3), lu(2), N
-integer ias, nga_offset, nug_offset, jk, ij, ik, nug, nnoab
-logical ifvo
-real*8 ka(adim*(adim-1)/2,N,*)
-real*8 la(N*adim,nnoab)
-!!real*8 lb(N,adim,nnoab), lc(N,adim,nnoab)
-real*8 t3a(adim*(adim-1)/2,adim), t3b(adim*(adim-1)/2,adim)
-!!real*8 mi(adim*(adim-1)/2,adim,noab), mij(*)
-real*8 voa(adim*(adim-1)/2,nnoab)
-real*8 t1a(noab,*), t1b(noab,*), oeh(noab), oep(adim)
+integer(kind=iwp) :: nug, adim, N, noab, nnoab, lu(2), iasblock(3), nga
+real(kind=wp) :: ka(adim*(adim-1)/2,N,*), la(N*adim,nnoab), oeh(noab), oep(adim), enx, voa(adim*(adim-1)/2,nnoab), t1a(noab,*), &
+                 t1b(noab,*), t3a(adim*(adim-1)/2,adim), t3b(adim*(adim-1)/2,adim)
+logical(kind=iwp) :: ifvo
+integer(kind=iwp) :: a, aa, ab, ac, b, bc, c, i, ias, ij, ik, j, jk, k, ndim, nga_offset, nug_offset
+real(kind=wp) :: den, dena, denb, denc, XX, YY
 
 if (adim == 1) return
-!mp write(6,*) 'enter_aaa enx,nga,',nga,enx
+!mp write(u6,*) 'enter_aaa enx,nga,',nga,enx
 ndim = adim*(adim-1)/2
 call zeroma(t3b,1,ndim*adim)
 nug_offset = iasblock(1)*nug*(nug+1)/2
