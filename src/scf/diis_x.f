@@ -46,7 +46,6 @@
 *#define _DEBUGPRINT_
       use InfSO
       use InfSCF
-      use SCF_arrays, only: HDiag
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
@@ -130,16 +129,15 @@
 #ifdef _DEBUGPRINT_
       Write (6,*) 'kOV(:)=',kOV
       Write (6,*) 'mOV   =',mOV
-      If (QNRStp) Call RecPrt('HDiag',' ',HDiag,1,Size(HDiag))
 #endif
       Do i=1,kOptim
-         Call ErrV(mOV,Ind(i),QNRstp,Err1,HDiag)
+         Call ErrV(mOV,Ind(i),QNRstp,Err1)
 #ifdef _DEBUGPRINT_
          Call NrmClc(Err1,mOV,'Diis  ','Err(i) ')
 #endif
          Do j=1,i-1
 
-            Call ErrV(mOV,Ind(j),QNRstp,Err2,HDiag)
+            Call ErrV(mOV,Ind(j),QNRstp,Err2)
 #ifdef _DEBUGPRINT_
             Call NrmClc(Err2,mOV,'Diis  ','Err(j)  ')
 #endif

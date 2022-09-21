@@ -11,7 +11,7 @@
 * Copyright (C) Martin Schuetz                                         *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      Subroutine ErrV(lvec,ivec,QNRstp,ErrVec,HDiag)
+      Subroutine ErrV(lvec,ivec,QNRstp,ErrVec)
 ************************************************************************
 *                                                                      *
 *     computes error vector for DIIS, in 1st order case, this          *
@@ -23,10 +23,11 @@
 ************************************************************************
       use InfSCF
       use LnkLst, only: LLGrad
+      use SCF_Arrays, only: HDiag
       Implicit Real*8 (a-h,o-z)
 *
-      Real*8 HDiag(lVec), ErrVec(lVec)
       Integer lvec
+      Real*8 ErrVec(lVec)
       Logical QNRstp
 *
 #include "real.fh"
@@ -38,7 +39,11 @@
       Real*8, Allocatable:: Grad(:)
 *
       Call GetNod(ivec,LLGrad,inode)
-      If (inode.eq.0) GoTo 555
+      If (inode.eq.0) Then
+*        Hmmm, no entry found in LList, that's strange
+         Write (6,*) 'ErrV: no entry found in LList!'
+         Call Abend()
+      End If
 *
       If (QNRstp) Then
 *
@@ -59,9 +64,4 @@
 *
       Return
 *
-*-----Error handling
-*
-*     Hmmm, no entry found in LList, that's strange
- 555  Write (6,*) 'ErrV: no entry found in LList!'
-      Call Abend()
       End
