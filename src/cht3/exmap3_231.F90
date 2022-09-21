@@ -16,8 +16,8 @@ subroutine exMap3_231(A,B,d1,d2)
 
 implicit none
 integer d1, d2, i1, i2, i3, i23
-real*8 A(1:d1,1:(d2*(d2+1))/2)
-real*8 B(1:d2,1:d2,1:d1)
+real*8 A(d1,d2*(d2+1)/2)
+real*8 B(d2,d2,d1)
 
 i23 = 0
 do i2=1,d2

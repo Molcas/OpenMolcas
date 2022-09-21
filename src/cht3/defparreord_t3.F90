@@ -25,7 +25,7 @@ integer NaGrpR, maxdim
 ! help variables
 real*8 rdim
 integer i, j
-integer Up(1:MaxGrp), Low(1:MaxGrp)
+integer Up(MaxGrp), Low(MaxGrp)
 
 !1 define parameters of Groups of a set
 

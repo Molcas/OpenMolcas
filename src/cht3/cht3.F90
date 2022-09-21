@@ -22,7 +22,6 @@ integer ireturn
 ! DIRCC
 !mp #include 'memvir_inc'
 #include "ccsd_t3compat.fh"
-integer wrksize
 integer maxspace
 integer isize
 integer iOE, ioeh, ioep
@@ -43,7 +42,7 @@ TWall_l = TWall
 !mp
 !.0 read input
 
-call IniReord_t3(NvGrp,wrksize)
+call IniReord_t3(NvGrp)
 
 !.0.1 generate name convention for blocked integrals and T2 files
 

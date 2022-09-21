@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3loopa(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,lastcall,scored,jjj,enx)
+subroutine t3loopa(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,enx)
 !mp subroutine t3loopa(oeh,oep,t1a,t1b,g,nga,ngb,ngc,vblock,energ,
 ! implemented integer offsets, PV, 16 may 2004.
 
@@ -21,9 +21,8 @@ real*8 energ(*), oeh(*), oep(*), enx, t1a(*), t1b(*)
 integer nug
 integer isp, vblock, n, lu(*), nga, ngb, ngc, adim, bdim, cdim
 integer iasblock(3), aset, bset, cset
-logical ifvo, lastcall, scored
+logical ifvo, scored
 integer IUHF
-integer jjj
 #include "uhf.fh"
 #include "ioind.fh"
 integer ka, kb, kc, la, lb, lc, t3a, t3b, voa, vob, voc, mi, mij
@@ -96,35 +95,35 @@ if (nga == ngc) then
 
   !mp call t3_bt_aaa(nug,g(ka),g(ka),g(ka),g(la),g(mi),g(mij),adim,N,noab(isp),nuab(isp),nnoab(iuhf),lu,iasblock,nga,oeh, &
   !mp                oep(aset+1),enx,g(voa),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),g(t3a),g(t3b),ifvo)
-  call t3_bt_aaa(nug,Work(ka),Work(ka),Work(ka),Work(la),Work(mi),Work(mij),adim,N,noab(isp),nuab(isp),nnoab(iuhf),lu,iasblock, &
-                 nga,oeh,oep(aset+1),enx,Work(voa),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),Work(t3a),Work(t3b),ifvo)
+  call t3_bt_aaa(nug,Work(ka),Work(la),adim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,oeh,oep(aset+1),enx,Work(voa), &
+                 t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),Work(t3a),Work(t3b),ifvo)
 
 else if (nga == ngb) then
   !mp call t3_bt_aac(nug,g(ka),g(kb),g(kc),g(la),g(lc),g(mi),g(mij),adim,cdim,N,noab(isp),nuab(isp),nnoab(iuhf),lu,iasblock,nga, &
   !mp                ngc,oeh,oep(aset+1),oep(cset+1),enx,g(voa),g(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1), &
   !mp                t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),g(t3a),g(t3b),ifvo)
-  call t3_bt_aac(nug,Work(ka),Work(kb),Work(kc),Work(la),Work(lc),Work(mi),Work(mij),adim,cdim,N,noab(isp),nuab(isp),nnoab(iuhf), &
-                 lu,iasblock,nga,ngc,oeh,oep(aset+1),oep(cset+1),enx,Work(voa),Work(voc),t1a(noab(isp)*aset+1), &
-                 t1b(noab(isp)*aset+1),t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),Work(t3a),Work(t3b),ifvo)
+  call t3_bt_aac(nug,Work(ka),Work(kc),Work(la),Work(lc),adim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,ngc,oeh, &
+                 oep(aset+1),oep(cset+1),enx,Work(voa),Work(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1), &
+                 t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),Work(t3a),Work(t3b),ifvo)
 else if (ngb == ngc) then
   !mp call t3_bt_acc(nug,g(ka),g(kb),g(kc),g(la),g(lc),g(mi),g(mij),adim,cdim,N,noab(isp),nuab(isp),nnoab(iuhf),lu,iasblock,nga, &
   !mp                ngc,oeh,oep(aset+1),oep(cset+1),enx,g(voa),g(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1), &
   !mp                t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),g(t3a),g(t3b),ifvo)
-  call t3_bt_acc(nug,Work(ka),Work(kb),Work(kc),Work(la),Work(lc),Work(mi),Work(mij),adim,cdim,N,noab(isp),nuab(isp),nnoab(iuhf), &
-                 lu,iasblock,nga,ngc,oeh,oep(aset+1),oep(cset+1),enx,Work(voa),Work(voc),t1a(noab(isp)*aset+1), &
-                 t1b(noab(isp)*aset+1),t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),Work(t3a),Work(t3b),ifvo)
+  call t3_bt_acc(nug,Work(ka),Work(kc),Work(la),Work(lc),adim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,ngc,oeh,oep(aset+1), &
+                 oep(cset+1),enx,Work(voa),Work(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),t1a(noab(isp)*cset+1), &
+                 t1b(noab(isp)*cset+1),Work(t3a),Work(t3b),ifvo)
 else
   !mp call t3_bt_abc(nug,g(ka),g(kb),g(kc),g(la),g(lb),g(lc),g(mi),g(mij),adim,bdim,cdim,N,noab(isp),nuab(isp),nnoab(iuhf),lu, &
   !mp                iasblock,nga,ngb,ngc,oeh,oep(aset+1),oep(bset+1),oep(cset+1),enx,g(voa),g(vob),g(voc),t1a(noab(isp)*aset+1), &
   !mp                t1b(noab(isp)*aset+1),t1a(noab(isp)*bset+1),t1b(noab(isp)*bset+1),t1a(noab(isp)*cset+1), &
   !mp                t1b(noab(isp)*cset+1),g(t3a),g(t3b),ifvo)
-  call t3_bt_abc(nug,Work(ka),Work(kb),Work(kc),Work(la),Work(lb),Work(lc),Work(mi),Work(mij),adim,bdim,cdim,N,noab(isp), &
-                 nuab(isp),nnoab(iuhf),lu,iasblock,nga,ngb,ngc,oeh,oep(aset+1),oep(bset+1),oep(cset+1),enx,Work(voa),Work(vob), &
-                 Work(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),t1a(noab(isp)*bset+1),t1b(noab(isp)*bset+1), &
-                 t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),Work(t3a),Work(t3b),ifvo)
+  call t3_bt_abc(nug,Work(ka),Work(kb),Work(kc),Work(la),Work(lb),Work(lc),adim,bdim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga, &
+                 ngb,ngc,oeh,oep(aset+1),oep(bset+1),oep(cset+1),enx,Work(voa),Work(vob),Work(voc),t1a(noab(isp)*aset+1), &
+                 t1b(noab(isp)*aset+1),t1a(noab(isp)*bset+1),t1b(noab(isp)*bset+1),t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1), &
+                 Work(t3a),Work(t3b),ifvo)
 end if   ! cases
 energ(isp) = energ(isp)+enx
-!mp write(6,'(A,i5,x,3(i3,1x),f21.19)') 'Tsk, nga, ngb, ngc, inc = ',jjj,nga,ngb,ngc,enx
+!mp write(6,'(A,3(i3,1x),f21.19)') 'nga, ngb, ngc, inc = ',nga,ngb,ngc,enx
 !mp
 !mp !!!end if  ! lastcall
 !mp write(6,*)
@@ -147,10 +146,5 @@ end if
 call GetMem('loopa_ka','Free','Real',ka,noab(isp)*vblock*vblock*n)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(lastcall)
-  call Unused_integer(jjj)
-end if
 
 end subroutine t3loopa

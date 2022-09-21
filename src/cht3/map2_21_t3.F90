@@ -15,8 +15,8 @@ subroutine Map2_21_t3(A,B,d1,d2)
 
 implicit none
 integer d1, d2
-real*8 A(1:d1,1:d2)
-real*8 B(1:d2,1:d1)
+real*8 A(d1,d2)
+real*8 B(d2,d1)
 ! help variables
 integer i1, i2
 

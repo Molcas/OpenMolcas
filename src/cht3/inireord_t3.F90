@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine IniReord_t3(NaGrp,wrksize)
+subroutine IniReord_t3(NaGrp)
 ! nacitanie vsupu a inicializacia premnennych
 ! a tlac primitivnej hlavicky pre Reord procesz
 
@@ -21,7 +21,6 @@ implicit none
 #include "cholesky.fh"
 #include "ccsd_t3compat.fh"
 integer NaGrp
-integer wrksize
 integer nOrb(8), nOcc(8)
 integer ndelvirt
 integer LuSpool
@@ -291,7 +290,5 @@ write(6,*) '--------------------------------------------------'
 write(6,*)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(wrksize)
 
 end subroutine IniReord_t3

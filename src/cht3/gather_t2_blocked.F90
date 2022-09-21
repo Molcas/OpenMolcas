@@ -24,9 +24,9 @@ integer a, b, dima, dimb
 integer length
 integer lasta, lastb
 integer length1, length2
-real*8 t2(1:(length1*length2*no*no))
-real*8 tmp(1:(maxdim*maxdim*no*no))
-real*8 t2_tmp(1:(maxdim*maxdim*no*no))
+real*8 t2(length1*length2*no*no)
+real*8 tmp(maxdim*maxdim*no*no)
+real*8 t2_tmp(maxdim*maxdim*no*no)
 integer a_tmp, b_tmp
 logical sym
 logical switch
@@ -73,9 +73,9 @@ do a=ngaf,ngal
 
     if (a == b) then ! expand and map
       call expand4_12(tmp,t2_tmp,dima,no,no)
-      call grow_t2_blocked(t2,t2_tmp,dima,dimb,nv,no,lasta,lastb,length1,length2,a,b,sym,switch)
+      call grow_t2_blocked(t2,t2_tmp,dima,dimb,no,lasta,lastb,length1,length2,sym,switch)
     else
-      call grow_t2_blocked(t2,tmp,dima,dimb,nv,no,lasta,lastb,length1,length2,a,b,sym,switch)
+      call grow_t2_blocked(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2,sym,switch)
     end if
 
   end do

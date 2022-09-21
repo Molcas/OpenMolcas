@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3_bta_aac(nuga,nugc,kab,kca,kac,kc,la,lxa,lxc,mi,mij,adim,cdim,N,noab_a,nuab_a,noab_b,nuab_b,lu,iasblock,nga,ngc,oehi, &
-                      oehk,oepa,oepc,enx,vab,vca,t1aa,t1ba,t1ac,t1bc,t3a,t3b,ifvo)
+subroutine t3_bta_aac(nuga,nugc,kab,kca,kac,kc,la,lxa,lxc,mi,mij,adim,cdim,N,noab_a,noab_b,lu,iasblock,nga,ngc,oehi,oehk,oepa, &
+                      oepc,enx,vab,vca,t1aa,t1ba,t1ac,t1bc,t3a,t3b,ifvo)
 
 implicit none
 real*8 one, zero, den, dena, denb, denc, enx, xx, yy
 parameter(one=1.d0,zero=0.d0)
 integer nadim, adim, ncdim, cdim, i, j, k, iasblock(5), lu(6), N
-integer noab_a, nuab_a, noab_b, nuab_b, nuga, nno_a, nnoab, nugc, ngab_offset, ngca_offset, ngac_offset, nuga_offset, nugc_offset
+integer noab_a, noab_b, nuga, nno_a, nnoab, nugc, ngab_offset, ngca_offset, ngac_offset, nuga_offset, nugc_offset
 integer ias, jk, ij, ik, kj, ki, nga, ngc, a, b, c, ab, abb, bab
 integer iasabi, iascai, iasack
 real*8 kca(adim*cdim,N,*), kac(adim*cdim,N,*), kab(adim*(adim-1)/2,N,*), kc(*), la(N*adim,*), lxa(N*adim,*), lxc(N*cdim,*)
@@ -168,10 +168,5 @@ do k=1,noab_b
 end do !k
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nuab_a)
-  call Unused_integer(nuab_b)
-end if
 
 end subroutine t3_bta_aac

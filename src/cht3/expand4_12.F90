@@ -16,7 +16,7 @@ subroutine expand4_12(AA,BB,d1,d2,d3)
 
 implicit none
 integer d1, d2, d3, a, b, i, j, ab
-real*8 AA(1:(d1*(d1+1))/2,d2,d3), BB(1:d1,1:d1,1:d2,1:d3)
+real*8 AA(d1*(d1+1)/2,d2,d3), BB(d1,d1,d2,d3)
 
 ab = 0
 do a=1,d1

@@ -14,7 +14,7 @@
 !1.1        maximal # of Groups - in cht3_ccsd1.fh
 !
 !1.2        Dimensions of groups (a,b)
-        integer DimGrpaR(1:maxGrp)
+        integer DimGrpaR(maxGrp)
 !
         common /cht3_reord1/ DimGrpaR
 !

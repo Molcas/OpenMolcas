@@ -18,8 +18,8 @@ implicit none
 integer a, b, c, dima, dimb, dimc, lasta, lastb, lastc, ab, nv
 integer a_point, b_point
 integer d2
-real*8 w3(1:(nv*(nv+1))/2,1:d2)
-real*8 AA(1:dima,1:dimb,1:dimc)
+real*8 w3(nv*(nv+1)/2,d2)
+real*8 AA(dima,dimb,dimc)
 integer a_old, b_old
 
 if ((dima == 0) .or. (dimb == 0)) then

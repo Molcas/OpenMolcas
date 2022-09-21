@@ -8,16 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine grow_t2anti_blocked1(t2,tmp,dima,dimb,nv,no,lasta,lastb,length1,length2,grpa,grpb)
+subroutine grow_t2anti_blocked1(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2)
 
 implicit none
-integer a, b, dima, dimb, nv, no, i, j, ij
+integer a, b, dima, dimb, no, i, j, ij
 integer lasta, lastb
-integer grpa, grpb
 integer length1, length2
-!mp real*8 t2(1:nv,1:nv,1:no,1:no)
-real*8 t2(1:length1,1:length2,1:(((no-1)*no)/2))
-real*8 tmp(1:dima,1:dimb,1:no,1:no)
+!mp real*8 t2(nv,nv,no,no)
+real*8 t2(length1,length2,(no-1)*no/2)
+real*8 tmp(dima,dimb,no,no)
 
 !mp write(6,*) 'lasta+dima, length1 ',lasta+dima,length1
 !mp write(6,*) 'lastb+dimb, length2 ',lastb+dimb,length2
@@ -40,11 +39,5 @@ do i=2,no
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nv)
-  call Unused_integer(grpa)
-  call Unused_integer(grpb)
-end if
 
 end subroutine grow_t2anti_blocked1

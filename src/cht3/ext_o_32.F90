@@ -16,7 +16,7 @@ subroutine ext_o_32(A,B,nc,no,dima,occ_ind)
 
 implicit none
 integer i1, i2, occ_ind, dima, nc, no
-real*8 A(1:nc,1:no,1:dima), B(1:nc,1:dima)
+real*8 A(nc,no,dima), B(nc,dima)
 
 do i2=1,dima
   do i1=1,nc

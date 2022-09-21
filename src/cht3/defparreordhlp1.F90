@@ -19,8 +19,8 @@ integer i, j
 character*2 Schem
 character*6 Nomen
 ! help variables
-character*1 Chr(1:6)
-character*2 digit(1:64)
+character*1 Chr(6)
+character*2 digit(64)
 character*2 ichr, jchr
 character*2 baza
 character*6 meno

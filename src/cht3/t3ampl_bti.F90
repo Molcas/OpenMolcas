@@ -44,7 +44,7 @@ real*8 OEH(*), OEP(*), ddot_, ccsdt, ccsdt4, energ(4), tccsd, times(10), times_p
 character FN*6
 logical ifvo
 integer la, t1a, t1b
-logical lastcall, scored, skip
+logical scored, skip
 !integer maxspace
 integer nla, nlb
 real*8 enx1
@@ -281,11 +281,9 @@ do isp=1,1+iuhf
   !!if (iuhf /= 0) then   ! open-shell stuff.
   !!  call create_klvaa_t3(w(la),vblock,isp)
   !!end if
-  FN(5:5) = ich(isp)
-  FN(6:6) = ich(isp)
-  FN(1:4) = 'KMAT'
+  FN = 'KMAT'//ich(isp)//ich(isp)
   call multi_opendir(FN,LU(1))
-  FN(1:4) = 'LMAT'
+  FN = 'LMAT'//ich(isp)//ich(isp)
   call multi_opendir(FN,LU(2))
 
   ! parallelization: files KMATxx LMATxx are assumed to be available
@@ -354,7 +352,6 @@ do isp=1,1+iuhf
     write(6,*)
     write(6,*) '# of tasks to be parallelized in t3loop a = ',i
     id = 666
-    lastcall = .false.
     scored = .false.
     call init_tsk(id,i)
     do while (rsv_tsk(id,j))
@@ -368,7 +365,7 @@ do isp=1,1+iuhf
       !mp write(6,*) 'maxspace before ',maxspace
       !mp
       call t3loopa(oeh(noab(1)*(isp-1)+1),oep(nuab(1)*(isp-1)+1),Work(t1a+noab(1)*nuab(1)*(isp-1)), &
-                   Work(t1b+noab(1)*nuab(1)*(isp-1)),nga,ngb,ngc,vblock,energ,isp,LU,ifvo,lastcall,scored,j,enx1)
+                   Work(t1b+noab(1)*nuab(1)*(isp-1)),nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,enx1)
       !mp
       ! update 5th order terms
 
@@ -445,19 +442,15 @@ do isp=1,1+iuhf
   ! alpha-alpha-beta or beta-beta-alpha only UHF
   !!if (IUHF /= 0)then
   !mp!!call gettim(cpu0,wall0)
-  FN(5:5) = ich(3-isp)
-  FN(6:6) = ich(isp)
-  FN(1:4) = 'KMAT'
+  FN = 'KMAT'//ich(3-isp)//ich(isp)
   call multi_opendir(FN,LU(3))
-  FN(1:4) = 'LMAT'
+  FN = 'LMAT'//ich(3-isp)//ich(isp)
   call multi_opendir(FN,LU(5))
 
   if (IUHF /= 0) then ! open-shell stuff
-    FN(5:5) = ich(isp)
-    FN(6:6) = ich(3-isp)
-    FN(1:4) = 'KMAT'
+    FN = 'KMAT'//ich(isp)//ich(3-isp)
     call multi_opendir(FN,LU(4))
-    FN(1:4) = 'LMAT'
+    FN = 'LMAT'//ich(isp)//ich(3-isp)
     call multi_opendir(FN,LU(6))
   else
     LU(4) = LU(3)
@@ -514,7 +507,6 @@ do isp=1,1+iuhf
   write(6,*)
   write(6,*) '# of tasks to be parallelized in t3loopb = ',i
   id = 667
-  lastcall = .false.
   scored = .false.
   call init_tsk(id,i)
   do while (rsv_tsk(id,j))
@@ -528,7 +520,7 @@ do isp=1,1+iuhf
     !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
     !mp write(6,*) 'maxspace before ',maxspace
     !mp
-    call t3loopb(oeh,oep,Work(t1a),Work(t1b),nga,ngb,ngc,vblock,energ(3),isp,LU,ifvo,lastcall,scored,j,enx1)
+    call t3loopb(oeh,oep,Work(t1a),Work(t1b),nga,ngb,ngc,vblock,energ(3),isp,LU,ifvo,scored,enx1)
 
     !mp??? call vadd(Work(t1a),1,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1,noab(1)*nuab(1))
     call daxpy_((noab(1)*nuab(1)),1.0d0,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)

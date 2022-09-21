@@ -8,8 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine t3_bta_abc(nuga,nugc,kab,kcb,kca,kac,kbc,kc,la,lb,lxa,lxb,lxc,mi,mij,adim,bdim,cdim,N,noab_a,nuab_a,noab_b,nuab_b,lu, &
-                      iasblock,nga,ngb,ngc,oehi,oehk,oepa,oepb,oepc,enx,vab,vcb,vca,t1aa,t1ba,t1ab,t1bb,t1ac,t1bc,t3a,t3b,ifvo)
+
+subroutine t3_bta_abc(nuga,nugc,kab,kcb,kca,kac,kbc,kc,la,lb,lxa,lxb,lxc,mi,mij,adim,bdim,cdim,N,noab_a,noab_b,lu,iasblock,nga, &
+                      ngb,ngc,oehi,oehk,oepa,oepb,oepc,enx,vab,vcb,vca,t1aa,t1ba,t1ab,t1bb,t1ac,t1bc,t3a,t3b,ifvo)
 
 implicit none
 !integer imm
@@ -17,8 +18,8 @@ real*8 one, zero, den, dena, denb, denc, enx, xx, yy
 !real*8 sumt3
 parameter(one=1.d0,zero=0.d0)
 integer nadim, adim, ncdim, cdim, bdim, nbdim, i, j, k, iasblock(5), lu(6), N
-integer noab_a, nuab_a, noab_b, nuab_b, nuga, nno_a, nnoab, nugc, ngab_offset, ngca_offset, ngac_offset, nuga_offset, nugc_offset, &
-        ngcb_offset, ngbc_offset
+integer noab_a, noab_b, nuga, nno_a, nnoab, nugc, ngab_offset, ngca_offset, ngac_offset, nuga_offset, nugc_offset, ngcb_offset, &
+        ngbc_offset
 integer ias, jk, ij, ik, kj, ki, nga, ngb, ngc, a, b, c, ab, ba
 integer iasabi, iascai, iasack, iascbi, iasbck
 real*8 kab(adim*bdim,N,*), kcb(cdim*bdim,N,*), kca(cdim*adim,N,*), kac(cdim*adim,N), kbc(cdim*bdim,N), kc(*), lxb(N*bdim,*)
@@ -245,10 +246,5 @@ do k=1,noab_b
 end do !k
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nuab_a)
-  call Unused_integer(nuab_b)
-end if
 
 end subroutine t3_bta_abc

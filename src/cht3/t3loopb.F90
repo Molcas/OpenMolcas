@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3loopb(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,lastcall,scored,jjj,enx)
+subroutine t3loopb(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,enx)
 !mp subroutine t3loopb(oeh,oep,t1a,t1b,g,nga,ngb,ngc,vblock,energ,
 ! implemented integer offsets, PV, 16 may 2004.
 
@@ -18,13 +18,12 @@ implicit none
 #include "WrkSpc.fh"
 !mp real*8 g(*), energ(*), oeh(*), oep(*), enx, t1a(*), t1b(*)
 real*8 energ(*), oeh(*), oep(*), enx, t1a(*), t1b(*)
-logical ifvo, lastcall, scored
+logical ifvo, scored
 integer isp, vblock, n, lu(6), nga, ngb, ngc, adim, bdim, cdim
 integer en_offset_ah, en_offset_bh, en_offset_ap, en_offset_bp
 integer t1_offset_a, t1_offset_b
 integer nuga, nugc
 integer iasblock(5), aset, bset, cset
-integer jjj
 #include "uhf.fh"
 #include "ioind.fh"
 integer kab, kca, kcb, kac, kbc, kc, la, lb, lxa, lxb, lxc, t3a, t3b, vab, vbc, vac, mij, mi
@@ -147,8 +146,8 @@ if (nga == ngb) then
   !mp                 t1b(noab(isp)*aset+t1_offset_a+1),t1a(noab(3-isp)*cset+t1_offset_b+1),t1b(noab(3-isp)*cset+t1_offset_b+1), &
   !mp                 g(t3a),g(t3b),ifvo)
   call t3_bta_aac(nuga,nugc,Work(kab),Work(kca),Work(kac),Work(kc),Work(la),Work(lxa),Work(lxc),Work(mi),Work(mij),adim,cdim,N, &
-                  noab(isp),nuab(isp),noab(3-isp),nuab(3-isp),lu,iasblock,nga,ngc,oeh(en_offset_ah+1),oeh(en_offset_bh+1), &
-                  oep(aset+en_offset_ap+1),oep(cset+en_offset_bp+1),enx,Work(vab),Work(vac),t1a(noab(isp)*aset+t1_offset_a+1), &
+                  noab(isp),noab(3-isp),lu,iasblock,nga,ngc,oeh(en_offset_ah+1),oeh(en_offset_bh+1),oep(aset+en_offset_ap+1), &
+                  oep(cset+en_offset_bp+1),enx,Work(vab),Work(vac),t1a(noab(isp)*aset+t1_offset_a+1), &
                   t1b(noab(isp)*aset+t1_offset_a+1),t1a(noab(3-isp)*cset+t1_offset_b+1),t1b(noab(3-isp)*cset+t1_offset_b+1), &
                   Work(t3a),Work(t3b),ifvo)
 else
@@ -160,15 +159,15 @@ else
   !mp                 t1a(noab(isp)*bset+t1_offset_a+1),t1b(noab(isp)*bset+t1_offset_a+1),t1a(noab(3-isp)*cset+t1_offset_b+1), &
   !mp                 t1b(noab(3-isp)*cset+t1_offset_b+1),g(t3a),g(t3b),ifvo)
   call t3_bta_abc(nuga,nugc,Work(kab),Work(kcb),Work(kca),Work(kac),Work(kbc),Work(kc),Work(la),Work(lb),Work(lxa),Work(lxb), &
-                  Work(lxc),Work(mi),Work(mij),adim,bdim,cdim,N,noab(isp),nuab(isp),noab(3-isp),nuab(3-isp),lu,iasblock,nga,ngb, &
-                  ngc,oeh(en_offset_ah+1),oeh(en_offset_bh+1),oep(aset+en_offset_ap+1),oep(bset+en_offset_ap+1), &
-                  oep(cset+en_offset_bp+1),enx,Work(vab),Work(vbc),Work(vac),t1a(noab(isp)*aset+t1_offset_a+1), &
-                  t1b(noab(isp)*aset+t1_offset_a+1),t1a(noab(isp)*bset+t1_offset_a+1),t1b(noab(isp)*bset+t1_offset_a+1), &
-                  t1a(noab(3-isp)*cset+t1_offset_b+1),t1b(noab(3-isp)*cset+t1_offset_b+1),Work(t3a),Work(t3b),ifvo)
+                  Work(lxc),Work(mi),Work(mij),adim,bdim,cdim,N,noab(isp),noab(3-isp),lu,iasblock,nga,ngb,ngc,oeh(en_offset_ah+1), &
+                  oeh(en_offset_bh+1),oep(aset+en_offset_ap+1),oep(bset+en_offset_ap+1),oep(cset+en_offset_bp+1),enx,Work(vab), &
+                  Work(vbc),Work(vac),t1a(noab(isp)*aset+t1_offset_a+1),t1b(noab(isp)*aset+t1_offset_a+1), &
+                  t1a(noab(isp)*bset+t1_offset_a+1),t1b(noab(isp)*bset+t1_offset_a+1),t1a(noab(3-isp)*cset+t1_offset_b+1), &
+                  t1b(noab(3-isp)*cset+t1_offset_b+1),Work(t3a),Work(t3b),ifvo)
 end if   ! cases
 !mpn write(6,*) 'isp, energ(isp), enx = ',isp,energ(isp),enx
 energ(isp) = energ(isp)+enx
-!mp !!!write(6,'(A,i5,x,3(i5,2x),f21.19)') 'Tsk, nga, ngb, ngc, inc = ',jjj,nga,ngb,ngc,enx
+!mp !!!write(6,'(A,3(i5,2x),f21.19)') 'nga, ngb, ngc, inc = ',nga,ngb,ngc,enx
 !mp !!!end if  ! lastcall
 !mp write(6,*)
 !mp write(6,*) 'deallocating arrays in t3loob'
@@ -204,10 +203,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(lastcall)
-  call Unused_integer(jjj)
-end if
 
 end subroutine t3loopb

@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3_bt_abc(nug,ka,kb,kc,la,lb,lc,mi,mij,adim,bdim,cdim,N,noab,nuab,nnoab,lu,iasblock,nga,ngb,ngc,oeh,oepa,oepb,oepc,enx, &
-                     voa,vob,voc,t1aa,t1ba,t1ab,t1bb,t1ac,t1bc,t3a,t3b,ifvo)
+subroutine t3_bt_abc(nug,ka,kb,kc,la,lb,lc,adim,bdim,cdim,N,noab,nnoab,lu,iasblock,nga,ngb,ngc,oeh,oepa,oepb,oepc,enx,voa,vob,voc, &
+                     t1aa,t1ba,t1ab,t1bb,t1ac,t1bc,t3a,t3b,ifvo)
 
 implicit none
 real*8 one, zero, ddot_, enx, den, dena, denb, denc
 parameter(one=1.d0,zero=0.d0)
 logical ifvo
-integer nadim, adim, bdim, nbdim, cdim, ncdim, noab, nuab, i, j, k
+integer nadim, adim, bdim, nbdim, cdim, ncdim, noab, i, j, k
 integer nga, ngb, ngc, N, iasblock(3), lu(2), jk, ij, ik, ac, ca, a, b, c
 integer ias, iasai, iasbi, iasci
 !integer iasaj, iasak, iascj, iasck
@@ -24,8 +24,8 @@ integer nga_offset, ngb_offset, ngc_offset, nug_offset, nug, nnoab
 real*8 ka(adim*bdim,N,*), kb(bdim*cdim,N,*), kc(adim*cdim,N,*)
 real*8 la(N*adim,nnoab), lb(N*bdim,nnoab), lc(N*cdim,nnoab)
 real*8 t1aa(noab,*), t1ba(noab,*), t1ab(noab,*), t1bb(noab,*)
-real*8 mi(*), t1ac(noab,*), t1bc(noab,*)
-real*8 mij(*), voa(adim*bdim,*), vob(bdim*cdim,*), voc(adim*cdim,*)
+real*8 t1ac(noab,*), t1bc(noab,*)
+real*8 voa(adim*bdim,*), vob(bdim*cdim,*), voc(adim*cdim,*)
 real*8 oeh(noab), oepa(adim), oepb(bdim), oepc(cdim), t3a(*), t3b(*)
 
 !!write(6,*) 'enter_abc enx,nga,ngb,ngc',nga,ngb,ngc,enx
@@ -155,11 +155,5 @@ do i=3,noab
 end do !i
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(mi)
-  call Unused_real_array(mij)
-  call Unused_integer(nuab)
-end if
 
 end subroutine t3_bt_abc

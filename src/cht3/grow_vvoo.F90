@@ -17,7 +17,7 @@ subroutine grow_vvoo(A,B,no,nv,dima,dimb,lasta,lastb)
 implicit none
 integer i1, i2, i3, i4, dima, dimb, no, nv
 integer lasta, lastb
-real*8 A(1:nv,1:nv,1:no,1:no), B(1:dima,1:no,1:dimb,1:no)
+real*8 A(nv,nv,no,no), B(dima,no,dimb,no)
 
 !!write(6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb
 

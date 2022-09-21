@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine klvaa_vvv(ix,ig,iscr,vblock,N,nug,lu,last,iasblock,K,ias)
+subroutine klvaa_vvv(ix,ig,vblock,N,nug,lu,last,iasblock,K,ias)
 !mp subroutine klvaa_vvv(G,ix,it,ig,iscr,vblock,N,nug,lu,last,iasblock,K,ias)
 !mpn subroutine klvaa_vvv(ix,it,ig,iscr,vblock,N,nug,lu,last,iasblock,K,ias)
 !
 !  creates K(alpha>alpha,alpha-alpha) or K(beta>beta,beta,beta)
 !  DA files KMATICH(ISP)ICH(ISP)     ISP=A
 !  generates antisymmetrized integrals from abab (T2) or bbaa (vvvo)
-!  ix, it, ig iscr allocated in create_klvab_t3
+!  ix, it, ig  allocated in create_klvab_t3
 !  K,ias defined in create_klvab_t3.f
 !
 !  parallelization (seems to be) irrelevant at the moment
@@ -40,7 +40,7 @@ integer a_tmp, b1_tmp, j_tmp
 logical switch
 !real*8 ddot_
 !mpn integer it, ix, ig, iscr, KADT, IJS, RAD, AADT
-integer ix, ig, iscr, KADT, IJS, AADT
+integer ix, ig, KADT, IJS, AADT
 integer isp, ias, vblock, n, i, j, k, lu, iasblock, indab
 integer A, A1, A2, B1, B2, NSTEP, ADIM, NUG, NGA, NGB, R, MAXDIMM, B
 integer KI, last
@@ -61,8 +61,7 @@ if (printkey >= 11) then
   !mp write(6,*) ddot_(nnoab(3)*nnuab(3),G(it),1,G(it),1)
 end if
 !!do K=1,noab(isp)
-!!  FN(1:5) = 'VVVOI'
-!!  FN(6:6) = ICH(ISP)
+!!  FN = 'VVVOI'//ICH(ISP)
 !!  call GET3DM(FN,G(ig),NNUAB(isp),NUAB(ISP),K)
 !!  call delf(FN,K,K)  ! all done in create_klvab_t3.f
 do nga=1,nug
@@ -282,7 +281,5 @@ call xflush(6)
 !!stop
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iscr)
 
 end subroutine klvaa_vvv

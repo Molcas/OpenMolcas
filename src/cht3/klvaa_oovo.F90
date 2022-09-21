@@ -61,8 +61,7 @@ nno = (noab(isp)+1)*noab(isp)/2
 !!call w_alloc(ix,nnoab(ISP)*vblock*n,'IX klvaao')
 !!call w_alloc(ig,noab(isp)*nuab(isp)*nnoab(isp),'IG klvaao')
 !!call w_alloc(iscr,nuab(isp)*nuab(isp)*nnoab(isp),'ISCR klvaao')
-!FN(1:5) = 'OOVOI'
-!FN(6:6) = ICH(ISP)
+!FN = 'OOVOI'//ICH(ISP)
 !!call GET3DM(FN,G(ig),NUAB(ISP)*NOAB(ISP),NNOAB(ISP),0)
 
 !call EXPA1_UHF(G(IT),nnoab(isp),NUAB(ISP),-1,G(ISCR))
@@ -129,7 +128,7 @@ do A1=1,NUAB(ISP),vblock
   call GetMem('it2_tmp','Allo','Real',it2_tmp,maxdim*maxdim*no*no)
   call GetMem('itmp2','Allo','Real',itmp2,maxdim*maxdim*no*no)
 
-  call gather_t2anti_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,Work(it_exp),Work(it2_tmp),Work(itmp2))
+  call gather_t2anti_blocked(length1,length2,ngbf,ngbl,Work(it_exp),Work(it2_tmp),Work(itmp2))
 
   call GetMem('itmp2','Free','Real',itmp2,maxdim*maxdim*no*no)
   call GetMem('it2_tmp','Free','Real',it2_tmp,maxdim*maxdim*no*no)
@@ -223,9 +222,8 @@ call GetMem('c2_ix','Free','Real',ix,noab(1)*noab(1)*vblock*n)
 call GetMem('klv_oo_ix','Allo','Real',ix,nnoab(isp)*vblock*vblock)
 !mp
 ! starts <aa||oo> integrals
-!FN(1:5) = 'VVOOI'
-!!FN(6:6) = ich(isp)
-!FN(6:6) = ich(3)
+!FN = 'VVOOI'//ich(3)
+!!FN = 'VVOOI'//ich(isp)
 !mp !call GET3DM(FN,G(it),NNUAB(3),NNOAB(3),0)
 !mp
 !mp !call w_alloc(il1,nc*no*maxdim,'IL1 klvaa-v')
@@ -262,9 +260,7 @@ iasblock = vblock*vblock*nnoab(isp)/nblock
 if ((iasblock*nblock) < (vblock*vblock*nnoab(isp)))iasblock = iasblock+1
 !!write(6,*) 'create_aa vvoo   iasblock',iasblock
 
-!!FN(1:4) = 'VMAT'
-!!FN(6:6) = ich(isp)
-!!FN(5:5) = ich(isp)
+!!FN = 'VMAT'//ich(isp)//ich(isp)
 !!call multi_opendir(FN,LU)
 ! currently using 3-dim (big field) - will be replaced after changing
 ! stepiv and the rest
@@ -434,8 +430,7 @@ call GetMem('klv_oo_ix','Allo','Real',ix,nnoab(3)*vblock*vblock)
 ! from now on as for uhf
 iasblock = nnoab(3)*vblock*vblock/nblock
 if ((iasblock*nblock) < (nnoab(3)*(vblock**2))) iasblock = iasblock+1
-!!FN(1:5) = 'VVOOI'
-!!FN(6:6) = ICH(3)
+!!FN = 'VVOOI'//ICH(3)
 !!CALL GET3DM(FN,G(IG),NNUAB(3),NNOAB(3),0)
 ! (c>d|AK)
 

@@ -14,7 +14,7 @@ subroutine calc_MP2(w,e,no,nv)
 
 implicit none
 integer i, j, a, b, no, nv
-real*8 e(1:(no+nv)), w(1:nv,1:no,1:nv,1:no)
+real*8 e(no+nv), w(nv,no,nv,no)
 real*8 e2, integral, denom
 
 e2 = 0.0d0

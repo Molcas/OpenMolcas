@@ -9,17 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine grow_vvoo_blocked(AA,BB,no,nv,dima,dimb,lasta,lastb,length1,length2,a,b,sym)
+subroutine grow_vvoo_blocked(AA,BB,no,dima,dimb,lasta,lastb,length1,length2,sym)
 ! this routine does:
 !
 ! grow A(1324)/(vvoo) from the blocked cholesky vectors B(1234)/(vovo)
 
 implicit none
-integer i1, i2, i3, i4, dima, dimb, no, nv
+integer i1, i2, i3, i4, dima, dimb, no
 integer lasta, lastb
-integer length1, length2, a, b
-real*8 AA(1:length1,1:length2,1:no,1:no)
-real*8 BB(1:dima,1:no,1:dimb,1:no)
+integer length1, length2
+real*8 AA(length1,length2,no,no)
+real*8 BB(dima,no,dimb,no)
 logical sym
 
 !mp write(6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb
@@ -40,11 +40,5 @@ do i4=1,no
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nv)
-  call Unused_integer(a)
-  call Unused_integer(b)
-end if
 
 end subroutine grow_vvoo_blocked

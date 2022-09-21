@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gather_t2anti_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2,t2_tmp,tmp)
+subroutine gather_t2anti_blocked(length1,length2,ngbf,ngbl,t2,t2_tmp,tmp)
 ! length1 = length of the 1st VO index (nv)
 ! length2 = length of the 2nd VO index (=< vblock)
 !
@@ -22,7 +22,7 @@ implicit none
 #include "cht3_reord.fh"
 #include "files.fh"
 #include "ccsd_t3compat.fh"
-integer ngaf, ngal, ngbf, ngbl
+integer ngbf, ngbl
 integer a, b, dima, dimb
 integer length
 integer lasta, lastb
@@ -79,12 +79,12 @@ do a=1,NvGrp
 
     if (aa == bb) then ! expand tmp
       call expand4_12(tmp,t2_tmp,dima,no,no)
-      call grow_t2anti_blocked1(t2,t2_tmp,dima,dimb,nv,no,lasta,lastb,length1,length2,a,b)
+      call grow_t2anti_blocked1(t2,t2_tmp,dima,dimb,no,lasta,lastb,length1,length2)
     else
       if (.not. switch) then
-        call grow_t2anti_blocked1(t2,tmp,dima,dimb,nv,no,lasta,lastb,length1,length2,a,b)
+        call grow_t2anti_blocked1(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2)
       else
-        call grow_t2anti_blocked2(t2,tmp,dima,dimb,nv,no,lasta,lastb,length1,length2,a,b)
+        call grow_t2anti_blocked2(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2)
       end if
     end if
 
@@ -92,10 +92,5 @@ do a=1,NvGrp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(ngaf)
-  call Unused_integer(ngal)
-end if
 
 end subroutine gather_t2anti_blocked

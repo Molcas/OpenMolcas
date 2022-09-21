@@ -9,20 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3_bt_acc(nug,ka,kb,kc,la,lc,mi,mij,adim,cdim,N,noab,nuab,nnoab,lu,iasblock,nga,ngc,oeh,oepa,oepc,enx,voa,voc,t1aa, &
-                     t1ba,t1ac,t1bc,t3a,t3b,ifvo)
+subroutine t3_bt_acc(nug,ka,kc,la,lc,adim,cdim,N,noab,nnoab,lu,iasblock,nga,ngc,oeh,oepa,oepc,enx,voa,voc,t1aa,t1ba,t1ac,t1bc,t3a, &
+                     t3b,ifvo)
 
 implicit none
 real*8 one, zero, sumt3
 parameter(one=1.d0,zero=0.d0)
 logical ifvo
-integer nadim, adim, noab, nuab, i, j, k, nga, iasblock(3), lu(2), N
+integer nadim, adim, noab, i, j, k, nga, iasblock(3), lu(2), N
 integer ias, nga_offset, ngc_offset, nug_offset, jk, ij, ik, ncdim, cdim
 integer a, b, c, bc, abc, nug, nnoab, ngc, iasci, iasai
-real*8 ka(adim*cdim,N,*), kc(cdim*(cdim-1)/2,N,*), kb(*)
+real*8 ka(adim*cdim,N,*), kc(cdim*(cdim-1)/2,N,*)
 real*8 t3a(cdim,cdim,*), t3b(*), t1ac(noab,*), t1bc(noab,*)
 real*8 lc(N*cdim,nnoab), la(N*adim,nnoab)
-real*8 mi(*), mij(*), voa(adim*cdim,*), voc(cdim*(cdim-1)/2,*)
+real*8 voa(adim*cdim,*), voc(cdim*(cdim-1)/2,*)
 real*8 t1aa(noab,*), t1ba(noab,*), enx, oeh(noab), oepa(adim)
 real*8 oepc(cdim), den, dena, denb, denc, xx, yy
 
@@ -115,12 +115,5 @@ do i=3,noab
 end do !i
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(kb)
-  call Unused_real_array(mi)
-  call Unused_real_array(mij)
-  call Unused_integer(nuab)
-end if
 
 end subroutine t3_bt_acc

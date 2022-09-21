@@ -84,7 +84,7 @@ LU = 98
 !mpn call GetMem('create_it','Allo','Real',it,NNOAB(3)*NNUAB(3))
 call GetMem('c1_ix','Allo','Real',ix,vblock*vblock*n)
 !mp
-!!FN(1:6) = 'T2OLDC'
+!!FN = 'T2OLDC'
 !!call GET3DM(FN,G(it),NNUAB(3),NNRED,0)
 !mp
 
@@ -117,9 +117,7 @@ if ((iasblock*nblock) < (vblock*vblock*N)) iasblock = iasblock+1
 
 do isp=1,IUHF+1
   is2 = 3-isp
-  FN(1:4) = 'KMAT'
-  FN(6:6) = ich(isp)
-  FN(5:5) = ich(3-isp)
+  FN = 'KMAT'//ich(3-isp)//ich(isp)
   write(6,*) 'FN,LU=',FN,LU
   call multi_opendir(FN,LU)
   ndup = ndup+1
@@ -160,8 +158,7 @@ do isp=1,IUHF+1
     !!  KADT = 0
     !!end if
 
-    !mp !FN(1:5) = 'VVVAI'
-    !mp !FN(6:6) = ICH(ISP)
+    !mp !FN = 'VVVAI'//ICH(ISP)
     !mp !call GET3DM(FN,G(IG),NNU,NUAB(ISP),K)
     if (printkey > 1) then
       write(6,*) 'Regenerating VVVo integrals for o = ',K
@@ -186,7 +183,7 @@ do isp=1,IUHF+1
     call GetMem('cc_il1_1','Free','Real',il1_1,nc*maxdim)
     !mp
     call delf(FN,K,K)
-    if (iuhf == 0) call klvaa_vvv(ix,ig,iscr,vblock,N,nug,LU+1,last_aa,iasblock,K,ias_aa)
+    if (iuhf == 0) call klvaa_vvv(ix,ig,vblock,N,nug,LU+1,last_aa,iasblock,K,ias_aa)
     !mpn if (iuhf == 0) call klvaa_vvv(ix,it,ig,iscr,vblock,N,nug,LU+1,last_aa,iasblock,K,ias_aa)
     !mp if (iuhf == 0) call klvaa_vvv(G,ix,it,ig,iscr,vblock,N,nug,LU+1,last_aa,iasblock,K,ias_aa)
 
@@ -418,9 +415,7 @@ do isp=1,IUHF+1
   is2 = 3-isp
   iasblock = nnoab(3)*vblock*N/nblock
   if ((iasblock*nblock) < (nnoab(3)*vblock*N)) iasblock = iasblock+1
-  FN(1:4) = 'LMAT'
-  FN(5:5) = ich(3-isp)
-  FN(6:6) = ich(isp)
+  FN = 'LMAT'//ich(3-isp)//ich(isp)
   call multi_opendir(FN,LU)
   ndup = ndup+1
   if (ndup > ndupmx) then
@@ -430,8 +425,7 @@ do isp=1,IUHF+1
   !write(6,*) FN,isp,ndup
   dupfil(ndup) = FN
 
-  FN(1:5) = 'OOVAI'
-  FN(6:6) = ICH(ISP)
+  FN = 'OOVAI'//ICH(ISP)
   !mp call w_alloc(ix,noab(isp)*noab(IS2)*vblock*n,'IX klvabo')
   call GetMem('c2_ix','Allo','Real',ix,noab(isp)*noab(IS2)*vblock*n)
   nno = noab(is2)*(noab(is2)+1)/2
@@ -514,7 +508,7 @@ do isp=1,IUHF+1
     call GetMem('it2_tmp','Allo','Real',it2_tmp,maxdim*maxdim*no*no)
     call GetMem('itmp2','Allo','Real',itmp2,maxdim*maxdim*no*no)
 
-    call gather_t2_fblocked(length1,length2,ngaf,ngal,ngbf,ngbl,Work(it_exp),Work(it2_tmp),Work(itmp2))
+    call gather_t2_fblocked(length1,length2,ngbf,ngbl,Work(it_exp),Work(it2_tmp),Work(itmp2))
 
     call GetMem('itmp2','Free','Real',itmp2,maxdim*maxdim*no*no)
     call GetMem('it2_tmp','Free','Real',it2_tmp,maxdim*maxdim*no*no)
@@ -588,9 +582,7 @@ do isp=1,IUHF+1
   !write(6,*) FN,isp,IAS
   dupblk(ndup) = last
   if (IUHF == 0) then
-    FN(1:4) = 'LMAT'
-    FN(6:6) = ich(isp)
-    FN(5:5) = ich(isp)
+    FN = 'LMAT'//ich(isp)//ich(isp)
     call multi_opendir(FN,LU)
     ndup = ndup+1
     if (ndup > ndupmx) then

@@ -18,8 +18,8 @@ subroutine grow_t2neq(t2,tmp,dima,dimb,nv,no,lasta,lastb)
 implicit none
 integer a, b, dima, dimb, nv, no, i, j
 integer lasta, lastb
-real*8 t2(1:nv,1:nv,1:no,1:no)
-real*8 tmp(1:dima,1:dimb,1:no,1:no)
+real*8 t2(nv,nv,no,no)
+real*8 tmp(dima,dimb,no,no)
 
 !mp write(6,*) 'grow_t2neq dima , dimb  ',dima,dimb
 !mp write(6,*) 'grow_t2neq lasta, lastb ',lasta,lastb

@@ -16,8 +16,8 @@ subroutine grow_l1(l1,tmp,dima,nc,no,nv,last)
 
 implicit none
 integer a, dima, nc, nv, no, i, m, last
-real*8 l1(1:nc,1:no,1:nv)
-real*8 tmp(1:nc,1:no,1:dima)
+real*8 l1(nc,no,nv)
+real*8 tmp(nc,no,dima)
 
 !mp write(6,*) 'grow_l1i ',dima
 

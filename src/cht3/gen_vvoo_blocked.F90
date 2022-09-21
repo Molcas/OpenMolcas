@@ -86,7 +86,7 @@ do a=ngaf,ngal
     !8 grow w(A',B',I,J) <- tmp(A',I,B',J)
 
     !mp write(6,'(A,6(i4,x))') 'BB1 dima, dimb, lasta, lastb ',dima,dimb,lasta,lastb,a,b
-    call grow_vvoo_blocked(w,tmp,no,nv,dima,dimb,lasta,lastb,length1,length2,a,b,sym)
+    call grow_vvoo_blocked(w,tmp,no,dima,dimb,lasta,lastb,length1,length2,sym)
 
     !? if (a /= b) then
     !?

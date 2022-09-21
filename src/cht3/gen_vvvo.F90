@@ -31,7 +31,7 @@ implicit none
 integer a, b, c, dima, dimb, dimc, occ_ind
 integer length
 integer lasta, lastb, lastc
-real*8 w3(1:(nv*(nv+1))/2,1:nv)
+real*8 w3(nv*(nv+1)/2,nv)
 real*8 tmp(*), l1_1(*), l2_1(*)
 integer a_tmp, b_tmp, c_tmp
 

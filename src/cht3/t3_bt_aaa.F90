@@ -9,21 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3_bt_aaa(nug,ka,kb,kc,la,mi,mij,adim,N,noab,nuab,nnoab,lu,iasblock,nga,oeh,oep,enx,voa,t1a,t1b,t3a,t3b,ifvo)
+subroutine t3_bt_aaa(nug,ka,la,adim,N,noab,nnoab,lu,iasblock,nga,oeh,oep,enx,voa,t1a,t1b,t3a,t3b,ifvo)
 
 implicit none
 real*8 one, zero
 parameter(one=1.d0,zero=0.d0)
 integer a, b, c, aa, ab, bc, ac
 real*8 XX, YY, enx, den, dena, denb, denc
-integer ndim, adim, noab, nuab, i, j, k, nga, iasblock(3), lu(2), N
+integer ndim, adim, noab, i, j, k, nga, iasblock(3), lu(2), N
 integer ias, nga_offset, nug_offset, jk, ij, ik, nug, nnoab
 logical ifvo
-real*8 ka(adim*(adim-1)/2,N,*), kb(*), kc(*)
-real*8 la(N*adim,nnoab), mi(*), mij(*)
+real*8 ka(adim*(adim-1)/2,N,*)
+real*8 la(N*adim,nnoab)
 !!real*8 lb(N,adim,nnoab), lc(N,adim,nnoab)
 real*8 t3a(adim*(adim-1)/2,adim), t3b(adim*(adim-1)/2,adim)
-!!real*8 mi(adim*(adim-1)/2, adim,noab), mij(*)
+!!real*8 mi(adim*(adim-1)/2,adim,noab), mij(*)
 real*8 voa(adim*(adim-1)/2,nnoab)
 real*8 t1a(noab,*), t1b(noab,*), oeh(noab), oep(adim)
 
@@ -92,13 +92,5 @@ do i=3,noab
 end do !i
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(kb)
-  call Unused_real_array(kc)
-  call Unused_real_array(mi)
-  call Unused_real_array(mij)
-  call Unused_integer(nuab)
-end if
 
 end subroutine t3_bt_aaa
