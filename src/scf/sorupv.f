@@ -12,7 +12,7 @@
 *               2017, Roland Lindh                                     *
 *               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      SubRoutine SOrUpV(V,HDiag,lvec,W,Mode,UpTp)
+      SubRoutine SOrUpV(V,lvec,W,Mode,UpTp)
 ************************************************************************
 *     for Ref., see T.H. Fischer and J. Almloef, JPC 96, 9768 (1992)   *
 *               doi:10.1021/j100203a036                                *
@@ -64,6 +64,7 @@
 *     only tentatively this Module
       use InfSO
       use InfSCF
+      use SCF_Arrays, only: HDiag
       Implicit Real*8 (a-h,o-z)
 #include "file.fh"
 #include "real.fh"
@@ -71,7 +72,7 @@
 *
 *     declaration subroutine parameters
       Integer lvec
-      Real*8 W(lVec), HDiag(lVec), V(lvec)
+      Real*8 W(lVec), V(lvec)
       Character*4 Mode, UpTp
 *
 *     declaration local variables

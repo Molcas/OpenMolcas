@@ -96,7 +96,7 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO
-      use SCF_Arrays, only: HDiag, EOrb, CMO, Fock
+      use SCF_Arrays, only: EOrb, CMO, Fock
       use InfSCF
       Implicit Real*8 (a-h,o-z)
       External Seconds
@@ -600,7 +600,7 @@
 *-------    compute new displacement vector delta
 *           dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 *
-            Call SOrUpV(Grd1,HDiag,mOV,Disp,'DISP','BFGS')
+            Call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
             Disp(:)=-Disp(:)
 !
 !           from this, compute new orb rot parameter X(n+1)

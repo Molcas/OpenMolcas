@@ -23,7 +23,6 @@
 ************************************************************************
       use InfSCF
       use LnkLst, only: LLGrad
-      use SCF_Arrays, only: HDiag
       Implicit Real*8 (a-h,o-z)
 *
       Integer lvec
@@ -51,7 +50,7 @@
 *
         Call mma_allocate(Grad,lvec,Label='Grad')
         Call iVPtr(Grad,lvec,inode)
-        Call SOrUpV(Grad,HDiag,lvec,ErrVec,'DISP','BFGS')
+        Call SOrUpV(Grad,lvec,ErrVec,'DISP','BFGS')
         Call mma_deallocate(Grad)
 *
       Else

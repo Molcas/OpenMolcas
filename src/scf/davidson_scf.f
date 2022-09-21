@@ -82,7 +82,7 @@
              Do i = 1, m
                 Vec(:)=0.0D0
                 Vec(i)=1.0D0
-                Call SOrUpV(Vec(:),HDiag,m,HM(:,i),'GRAD','BFGS')
+                Call SOrUpV(Vec(:),m,HM(:,i),'GRAD','BFGS')
              End Do
 *            Call RecPrt('HM',' ',HM,m,m)
 
@@ -314,7 +314,7 @@
 *
 *          Pick up the contribution for the updated Hessian (BFGS update)
 *
-           Call SOrUpV(Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD','BFGS')
+           Call SOrUpV(Sub(1,j+1),m,Ab(1,j+1),'GRAD','BFGS')
 !          Call RecPrt('Ab(0)',' ',Ab(1,j+1),1,n)
            Call DScal_(m,One/Fact,Ab(1,j+1),1)
 *

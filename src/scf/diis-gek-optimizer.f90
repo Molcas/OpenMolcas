@@ -188,7 +188,7 @@ Do j = 1, nDIIS
 End Do
 #else
 Do j = 1, nDIIS
-   Call SOrUpV(g(:,j),HDiag,mOV,dq,'DISP','BFGS')
+   Call SOrUpV(g(:,j),mOV,dq,'DISP','BFGS')
    Probe(:) = Probe(:) + dq(:)**2
 End Do
 #endif
