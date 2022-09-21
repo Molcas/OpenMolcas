@@ -156,7 +156,7 @@ C     ==============
          IF (RSTCHO) THEN
             WRITE(LUPRI,'(//,10X,A,A,A,//)')
      &      '***** ',SECNAM,': restarted calculation converged. *****'
-            CALL CHO_DZERO(TIMSEC(1,ISEC),4)
+            CALL FZERO(TIMSEC(1,ISEC),4)
          ELSE
             WRITE(LUPRI,'(A,A)')
      &      SECNAM,': logical error: converged but not restart?!?!'
@@ -225,7 +225,7 @@ C     ===============
 
       ISEC = 4
       IF (LCONV) THEN
-         CALL CHO_DZERO(TIMSEC(1,ISEC),4)
+         CALL FZERO(TIMSEC(1,ISEC),4)
       ELSE
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(1,ISEC),TIMSEC(3,ISEC))
@@ -285,7 +285,7 @@ C     ================
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER INTEGRAL CHECK]')
 #endif
       ELSE
-         CALL CHO_DZERO(TIMSEC(1,ISEC),4)
+         CALL FZERO(TIMSEC(1,ISEC),4)
       END IF
 
 C     REORDER VECTORS.
@@ -318,7 +318,7 @@ C     ================
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER VECTOR REORDERING]')
 #endif
       ELSE
-         CALL CHO_DZERO(TIMSEC(1,ISEC),4)
+         CALL FZERO(TIMSEC(1,ISEC),4)
       END IF
 
 C     FAKE PARALLEL: DISTRIBUTE VECTORS.
@@ -347,7 +347,7 @@ C     ==================================================
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_PFAKE_VDIST]')
 #endif
       ELSE
-         CALL CHO_DZERO(TIMSEC(1,ISEC),4)
+         CALL FZERO(TIMSEC(1,ISEC),4)
       END IF
 
 C     FINALIZATIONS.

@@ -30,7 +30,7 @@ C
       Do iAtomPair=1,NumberOfAtomPairs
          l=LDF_nBasAux_Pair(iAtomPair)
          ip=iWork(ip_Blocks-1+iAtomPair)
-         Call Cho_dZero(Work(ip),l)
+         Call FZero(Work(ip),l)
       End Do
 
       End

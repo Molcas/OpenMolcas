@@ -134,7 +134,7 @@ C
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       SHA=dShell
       SHC=dShell
       If (A.eq.B) Then
@@ -336,7 +336,7 @@ C
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       SHA=dShell
       Do klS=1,l_2CList_2
          kShell=i2CList(1,klS)
@@ -491,7 +491,7 @@ C
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       If (AB.eq.CD) Then
          Do klS=0,l_CD_2CList_2-1
             kShell=iWork(ip_CD_2CList+3*klS)

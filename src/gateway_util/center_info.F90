@@ -268,8 +268,8 @@ end subroutine Center_Info_Free
 ! Define dc_cptr2loff, dc_mma_allo_1D, dc_mma_allo_1D_lim, dc_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(Distinct_centers)
-#  define _FUNC_NAME_ dc_cptr2loff
 #  define _NO_GARBLE_
+#  define _FUNC_NAME_ dc_cptr2loff
 #  include "cptr2loff_template.fh"
 #  undef _FUNC_NAME_
 #  define _SUBR_NAME_ dc_mma

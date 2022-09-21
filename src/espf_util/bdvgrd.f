@@ -8,26 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine BdVGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine BdVGrd(                                                &
+#define _FIXED_FORMAT_
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
+      use Index_Functions, only: nTri_Elem1
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
+#include "grd_interface.fh"
 #include "espf.fh"
 *
       External TNAI1, Fake, XCff2D
 #include "print.fh"
 #include "disp.fh"
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(4,*),
-     &       Array(nZeta*nArr), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2),ESPFexist
+      Integer iDCRT(0:7)
+      Logical ESPFexist
       Character*180 Key,Get_Ln
       External Get_Ln
 *
@@ -131,13 +127,13 @@
 *
       iDum=0
       Do iPnt = 1, nGrdPt
-         ZFd(1)=CCoor(4,iPnt)
+         ZFd(1)=CCoor((iPnt-1)*4+4)
          NoLoop = ZFd(1).eq.Zero
          If (NoLoop) Go To 111
 *------- Pick up the center coordinates
-         C(1)=CCoor(1,iPnt)
-         C(2)=CCoor(2,iPnt)
-         C(3)=CCoor(3,iPnt)
+         C(1)=CCoor((iPnt-1)*4+1)
+         C(2)=CCoor((iPnt-1)*4+2)
+         C(3)=CCoor((iPnt-1)*4+3)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
@@ -243,9 +239,9 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-        Call Unused_real_array(Final)
-        Call Unused_integer(nRys)
+        Call Unused_real_array(rFinal)
+        Call Unused_integer(nHer)
         Call Unused_integer(nOrdOp)
-        Call Unused_integer_array(lOper)
+        Call Unused_integer(nComp)
       End If
       End

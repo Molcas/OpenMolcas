@@ -234,7 +234,7 @@ C
                Call dCopy_(nuv,C(1,I),1,C(1,J),1)
             End If
          End Do
-         !Call Cho_dZero(C(1,MM+1),nuv*(M-MM))
+         !Call FZero(C(1,MM+1),nuv*(M-MM))
          Call LDF_SetIndxG(iAtomPair)
          iAtom=AP_Atoms(1,iAtomPair)
          jAtom=AP_Atoms(2,iAtomPair)

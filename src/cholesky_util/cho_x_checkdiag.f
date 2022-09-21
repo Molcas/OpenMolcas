@@ -68,7 +68,7 @@ C     ----------------
 
       irc = 0
       If (nnBstRT(1) .lt. 1) Then
-         Call Cho_dZero(Err,4)
+         Call FZero(Err,4)
          Return
       End If
 

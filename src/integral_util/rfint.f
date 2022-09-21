@@ -23,7 +23,7 @@
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
 *                                                                      *
-*             Roland Lindh, Dept. of Theoratical Chemistry, University *
+*             Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             Modified to reaction field calculations July '92         *
 ************************************************************************

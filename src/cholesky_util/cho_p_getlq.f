@@ -42,7 +42,7 @@ C ---      "synchronization" would be needed
          If (nQSP .gt. 1) Then
             Call Cho_Quit('Oops! Bug detected in '//SecNam,103)
          End If
-         Call Cho_dZero(QVec,l_Qvec)
+         Call FZero(QVec,l_Qvec)
          Call Cho_p_QualSwp()
          Call Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
          Call Cho_p_QualSwp()

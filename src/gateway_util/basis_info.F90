@@ -931,8 +931,8 @@ end subroutine Basis_Info_Free
 ! Define dbsc_cptr2loff, dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim, dbsc_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(Distinct_Basis_set_centers)
-#  define _FUNC_NAME_ dbsc_cptr2loff
 #  define _NO_GARBLE_
+#  define _FUNC_NAME_ dbsc_cptr2loff
 #  include "cptr2loff_template.fh"
 #  undef _FUNC_NAME_
 #  define _SUBR_NAME_ dbsc_mma
@@ -948,8 +948,8 @@ end subroutine Basis_Info_Free
 ! Define shell_cptr2loff, shell_mma_allo_1D, shell_mma_allo_1D_lim, shell_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(Shell_Info)
-#  define _FUNC_NAME_ shell_cptr2loff
 #  define _NO_GARBLE_
+#  define _FUNC_NAME_ shell_cptr2loff
 #  include "cptr2loff_template.fh"
 #  undef _FUNC_NAME_
 #  define _SUBR_NAME_ shell_mma

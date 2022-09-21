@@ -49,18 +49,17 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: i, iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nDens, nFock, nOrdOp
+integer(kind=iwp) :: i, iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nCompf, nDens, nFock, nOrdOp, nOrdOpf
 real(kind=wp) :: Fact, TCpu1, TCpu2, TWall1, TWall2
 character(len=80) :: Label
 character(len=8) :: Method
 logical(kind=iwp) :: DiffOp, lECP, lFAIEMP, lPP
-integer(kind=iwp), allocatable :: lOper(:)
-real(kind=wp), allocatable :: Coor(:,:), D_Var(:), Fock(:)
+integer(kind=iwp), allocatable :: lOper(:), lOperf(:)
+real(kind=wp), allocatable :: Coor(:,:), Coorf(:,:), D_Var(:), Fock(:)
 #ifdef _NEXTFFIELD_
 !AOM<
-integer(kind=iwp) :: ncmp, nCompf, nextfld, nOrdOpf
+integer(kind=iwp) :: ncmp, nextfld
 character(len=30) :: fldname
-integer(kind=iwp), allocatable :: lOperf(:)
 !AOM>
 #endif
 external :: COSGrd, FragPGrd, FragPMmG, KneGrd, KneMmG, M1Grd, M1MmG, M2Grd, M2MmG, MltGrd, MltMmG, NAGrd, NAMmG, OvrGrd, OvrMmG, &
@@ -299,14 +298,12 @@ end if
 
 if (.not. HF_Force) then
   if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
-    call mma_deallocate(lOper)
-    call mma_deallocate(Coor)
 
     ! The Kirkwood model
 
-    nOrdOp = lMax
-    nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-    call mma_allocate(lOper,nComp,Label='lOper')
+    nOrdOpf = lMax
+    nCompf = (lMax+1)*(lMax+2)*(lMax+3)/6
+    call mma_allocate(lOperf,nCompf,Label='lOperf')
 
     ! Store permutation symmetry of components of the EF
 
@@ -333,19 +330,22 @@ if (.not. HF_Force) then
           !  ixyz = 4
           !  iSymZ = 2**IrrFnc(ixyz)
           !end if
-          !lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
+          !lOperf(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
           ! Compute only total symmetric contributions
-          lOper(iComp) = 1
+          lOperf(iComp) = 1
           iComp = iComp+1
         end do
       end do
     end do
-    call mma_allocate(Coor,3,nComp,Label='Coor')
-    Coor(:,:) = Zero
+    call mma_allocate(Coorf,3,nCompf,Label='Coorf')
+    Coorf(:,:) = Zero
     DiffOp = .true.
     Label = ' The Electronic Reaction Field Contribution'
-    call OneEl_g(RFGrd,RFMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+    call OneEl_g(RFGrd,RFMmG,Temp,nGrad,DiffOp,Coorf,D_Var,nDens,lOperf,nCompf,nOrdOpf,Label)
     Grad(:) = Grad(:)+Temp(:)
+
+    call mma_deallocate(lOperf)
+    call mma_deallocate(Coorf)
 
   else if (lRF .and. PCM) then
     iCOSMO = 0

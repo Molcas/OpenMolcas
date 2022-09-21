@@ -63,14 +63,14 @@ mOp(2) = nOp(2)
 DiffCnt = IfGrad(iDCar,1) .or. IfGrad(iDCar,2)
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' In SROGrd: A',' ',A,1,3)
-call RecPrt(' In SROGrd: RB',' ',RB,1,3)
-!call RecPrt(' In SROGrd: P',' ',P,nZeta,3)
-call RecPrt(' In SROGrd: Alpha',' ',Alpha,nAlpha,1)
-call RecPrt(' In SROGrd: Beta',' ',Beta,nBeta,1)
-write(u6,*) ' In SROGrd: la,lb=',' ',la,lb
-write(u6,*) ' In SROGrd: Diffs=',' ',IfGrad(iDCar,1),IfGrad(iDCar,2)
-write(u6,*) ' In SROGrd: Center=',' ',iDCNT
+call RecPrt(' In SROGrd_McK: A',' ',A,1,3)
+call RecPrt(' In SROGrd_McK: RB',' ',RB,1,3)
+!call RecPrt(' In SROGrd_McK: P',' ',P,nZeta,3)
+call RecPrt(' In SROGrd_McK: Alpha',' ',Alpha,nAlpha,1)
+call RecPrt(' In SROGrd_McK: Beta',' ',Beta,nBeta,1)
+write(u6,*) ' In SROGrd_McK: la,lb=',' ',la,lb
+write(u6,*) ' In SROGrd_McK: Diffs=',' ',IfGrad(iDCar,1),IfGrad(iDCar,2)
+write(u6,*) ' In SROGrd_McK: Center=',' ',iDCNT
 #endif
 
 kdc = 0

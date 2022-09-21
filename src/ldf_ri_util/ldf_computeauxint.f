@@ -218,11 +218,11 @@ C
 *                                                                      *
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       ipInt=1
       Do jS=1,LDF_nAuxShell_Atom(A)
          jShell=iWork(ipS+jS)
-         Call Cho_dZero(Work(ip_SOInt),nBasSh(jShell))
+         Call FZero(Work(ip_SOInt),nBasSh(jShell))
          Call OneEl_IJ(iShell,jShell,iPrint,Do_PGamma,
      &                 Work(ip_xZeta),Work(ip_xZI),Work(ip_xKappa),
      &                 Work(ip_xPCoor),
@@ -464,7 +464,7 @@ C
 *                                                                      *
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       iCount=0
       Do ijS=1,l_2CList_2
          iShell=AP_2CList(1,ijS)
@@ -472,7 +472,7 @@ C
          SPAB=AP_2CList(3,ijS)
          SHA=iShell
          SHB=jShell
-         Call Cho_dZero(Work(ip_SOInt),nBasSh(iShell)*nBasSh(jShell))
+         Call FZero(Work(ip_SOInt),nBasSh(iShell)*nBasSh(jShell))
          Call OneEl_IJ(iShell,jShell,iPrint,Do_PGamma,
      &                 Work(ip_xZeta),Work(ip_xZI),Work(ip_xKappa),
      &                 Work(ip_xPCoor),

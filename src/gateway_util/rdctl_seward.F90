@@ -28,7 +28,7 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
                         lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
                         Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
-use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_nacCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
                           iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 #ifdef _FDE_
@@ -125,7 +125,7 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
                                             'RMER','RMQC','RMDI','RMEQ','RMBP','GIAO','NOCH','CHOL','FCD ','THRC','1CCD','1C-C', &
                                             'CHOI','RP-C','SADD','CELL','SPAN','SPRE','LOW ','MEDI','HIGH','DIAG','RIC ','RIJ ', &
                                             'RIJK','RICD','XRIC','NOGU','RELA','RLOC','FOOC','CDTH','SHAC','KHAC','ACD ','FAT-', &
-                                            'ACCD','SLIM','NACC','DOFM','NOAM','RPQM','CONS','NGEX','LOCA','LDF ','LDF1','LDF2', &
+                                            'ACCD','SLIM','    ','DOFM','NOAM','RPQM','CONS','NGEX','LOCA','LDF ','LDF1','LDF2', &
                                             'TARG','THRL','APTH','CHEC','VERI','OVER','CLDF','UNCO','WRUC','UNIQ','NOUN','RLDF', &
                                             'NOAL','WEIG','ALIG','TINK','ORIG','HYPE','ZCON','SCAL','DOAN','GEOE','OLDZ','OPTH', &
                                             'NOON','GEO ','MXTC','FRGM','TRAN','ROT ','ZONL','BASL','NUME','VART','VARR','SHAK', &
@@ -2203,16 +2203,6 @@ do
         ! Generate a acCD basis.
 
         Do_acCD_Basis = .true.
-        GWInput = .true.
-
-      case (KeyW(135))
-        !                                                              *
-        !**** NACC *****************************************************
-        !                                                              *
-        ! Generate a nacCD basis.
-
-        Do_acCD_Basis = .false.
-        Do_nacCD_Basis = .true.
         GWInput = .true.
 
       case (KeyW(136))

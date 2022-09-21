@@ -89,7 +89,7 @@ C
          Call LDF_Quit(1)
       End If
       ! Init integral array
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
 
       ! Set number of shells on atoms A and B
       nShell_A=LDF_nShell_Atom(A)

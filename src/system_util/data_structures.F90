@@ -25,8 +25,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-public :: Alloc1DArray_Type, Alloc2DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, Integer_Pointer, L_Full_Type, &
-          Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+public :: Alloc1DiArray_Type, Alloc1DArray_Type, Alloc2DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, &
+          Integer_Pointer, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
 ! temporary subroutines for interface with old code
 public :: Map_to_DSBA, Map_to_SBA, Map_to_twxy
 
@@ -77,7 +77,7 @@ type DSBA_Type
   logical(kind=iwp) :: Fake = .false.
   logical(kind=iwp) :: Active = .false.
   real(kind=wp), allocatable :: A00(:)
-  real(kind=wp), contiguous, pointer :: A0(:)
+  real(kind=wp), contiguous, pointer :: A0(:) => null()
   type(DSB_Type) :: SB(8)
 end type DSBA_Type
 
@@ -130,26 +130,31 @@ type Alloc2DArray_Type
   real(kind=wp), allocatable :: A(:,:)
 end type Alloc2DArray_Type
 
+type Alloc1DiArray_Type
+  integer(kind=iwp), allocatable :: A(:)
+end type Alloc1DiArray_Type
+
 ! Allocate/deallocate data types
 interface Allocate_DT
   module procedure :: Allocate_DSBA, Allocate_SBA, Allocate_twxy, Allocate_NDSBA, Allocate_G2, Allocate_L_Full, Allocate_Lab, &
-                      Alloc_Alloc1DArray, Alloc2D_Alloc1DArray, Alloc_Alloc2DArray
+                      Alloc_Alloc_DSBA, Alloc_Alloc1DArray, Alloc2D_Alloc1DArray, Alloc_Alloc2DArray
 end interface Allocate_DT
 interface Deallocate_DT
   module procedure :: Deallocate_DSBA, Deallocate_SBA, Deallocate_twxy, Deallocate_NDSBA, Deallocate_G2, Deallocate_L_Full, &
-                      Deallocate_Lab, Free_Alloc1DArray, Free2D_Alloc1DArray, Free_Alloc2DArray
+                      Deallocate_Lab, Free_Alloc_DSBA, Free_Alloc1DArray, Free2D_Alloc1DArray, Free_Alloc2DArray
 end interface Deallocate_DT
 
 ! Private extensions to mma interfaces
 interface cptr2loff
-  module procedure :: lfp_cptr2loff, v1_cptr2loff, a1da_cptr2loff, a2da_cptr2loff
+  module procedure :: lfp_cptr2loff, v1_cptr2loff, dsba_cptr2loff, a1da_cptr2loff, a2da_cptr2loff
 end interface
 interface mma_allocate
-  module procedure :: lfp_mma_allo_3D, lfp_mma_allo_3D_lim, v1_mma_allo_3D, v1_mma_allo_3D_lim, a1da_mma_allo_1D, &
-                      a1da_mma_allo_1D_lim, a1da_mma_allo_2D, a1da_mma_allo_2D_lim, a2da_mma_allo_1D, a2da_mma_allo_1D_lim
+  module procedure :: lfp_mma_allo_3D, lfp_mma_allo_3D_lim, v1_mma_allo_3D, v1_mma_allo_3D_lim, dsba_mma_allo_1D, &
+                      dsba_mma_allo_1D_lim, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_allo_2D, a1da_mma_allo_2D_lim, &
+                      a2da_mma_allo_1D, a2da_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure :: lfp_mma_free_3D, v1_mma_free_3D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
+  module procedure :: lfp_mma_free_3D, v1_mma_free_3D, dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
 end interface
 
 contains
@@ -1101,7 +1106,49 @@ subroutine Deallocate_Lab(Lab)
 
 end subroutine Deallocate_Lab
 
+subroutine Alloc_Alloc_DSBA(Array,n_Array,n,m,nSym,aCase,Label)
+
+  type(DSBA_Type), allocatable, intent(out) :: Array(:)
+  integer(kind=iwp), intent(in) :: n_Array, nSym, n(nSym), m(nSym)
+  character(len=3), intent(in), optional :: aCase
+  character(len=*), intent(in), optional :: Label
+  integer(kind=iwp) :: i
+
+  if (present(Label)) then
+    call mma_allocate(Array,n_Array,label=Label)
+  else
+    call mma_allocate(Array,n_Array,label='DSBA(:)')
+  end if
+
+  if (present(aCase)) then
+    do i=1,n_Array
+      call Allocate_DT(Array(i),n,m,nSym,aCase)
+    end do
+  else
+    do i=1,n_Array
+      call Allocate_DT(Array(i),n,m,nSym)
+    end do
+  end if
+
+# include "macros.fh"
+  unused_proc(mma_allocate(Array,[0,0]))
+
+end subroutine Alloc_Alloc_DSBA
+
+subroutine Free_Alloc_DSBA(Array)
+
+  type(DSBA_Type), allocatable, intent(inout) :: Array(:)
+  integer(kind=iwp) :: i
+
+  do i=lbound(Array,1),ubound(Array,1)
+    call Deallocate_DT(Array(i))
+  end do
+  call mma_deallocate(Array)
+
+end subroutine Free_Alloc_DSBA
+
 subroutine Alloc_Alloc1DArray(Array,N,Label)
+
   type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:)
   integer(kind=iwp), intent(in) :: N(2)
   character(len=*), intent(in) :: Label
@@ -1114,6 +1161,7 @@ subroutine Alloc_Alloc1DArray(Array,N,Label)
   end interface
   integer(kind=iwp) :: i
 # endif
+
   call mma_allocate(Array,N,label=Label)
 # ifdef _GARBLE_
   ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
@@ -1128,6 +1176,7 @@ subroutine Alloc_Alloc1DArray(Array,N,Label)
 end subroutine Alloc_Alloc1DArray
 
 subroutine Alloc2D_Alloc1DArray(Array,N1,N2,Label)
+
   type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:,:)
   integer(kind=iwp), intent(in) :: N1(2), N2(2)
   character(len=*), intent(in) :: Label
@@ -1140,6 +1189,7 @@ subroutine Alloc2D_Alloc1DArray(Array,N1,N2,Label)
   end interface
   integer(kind=iwp) :: i, j
 # endif
+
   call mma_allocate(Array,N1,N2,label=Label)
 # ifdef _GARBLE_
   ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
@@ -1156,6 +1206,7 @@ subroutine Alloc2D_Alloc1DArray(Array,N1,N2,Label)
 end subroutine Alloc2D_Alloc1DArray
 
 subroutine Alloc_Alloc2DArray(Array,N,Label)
+
   type(Alloc2DArray_Type), allocatable, intent(inout) :: Array(:)
   integer(kind=iwp), intent(in) :: N(2)
   character(len=*), intent(in) :: Label
@@ -1168,6 +1219,7 @@ subroutine Alloc_Alloc2DArray(Array,N,Label)
   end interface
   integer(kind=iwp) :: i
 # endif
+
   call mma_allocate(Array,N,label=Label)
 # ifdef _GARBLE_
   ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
@@ -1183,36 +1235,47 @@ subroutine Alloc_Alloc2DArray(Array,N,Label)
 end subroutine Alloc_Alloc2DArray
 
 subroutine Free_Alloc1DArray(Array)
+
   type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:)
   integer(kind=iwp) :: i
+
   do i=lbound(Array,1),ubound(Array,1)
     if (allocated(Array(i)%A)) call mma_deallocate(Array(i)%A)
   end do
   call mma_deallocate(Array)
+
 end subroutine Free_Alloc1DArray
 
 subroutine Free2D_Alloc1DArray(Array)
+
   type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:,:)
   integer(kind=iwp) :: i, j
+
   do j=lbound(Array,2),ubound(Array,2)
     do i=lbound(Array,1),ubound(Array,1)
       if (allocated(Array(i,j)%A)) call mma_deallocate(Array(i,j)%A)
     end do
   end do
   call mma_deallocate(Array)
+
 end subroutine Free2D_Alloc1DArray
 
 subroutine Free_Alloc2DArray(Array)
+
   type(Alloc2DArray_Type), allocatable, intent(inout) :: Array(:)
   integer(kind=iwp) :: i
+
   do i=lbound(Array,1),ubound(Array,1)
     if (allocated(Array(i)%A)) call mma_deallocate(Array(i)%A)
   end do
   call mma_deallocate(Array)
+
 end subroutine Free_Alloc2DArray
 
 ! Define lfp_cptr2loff, lfp_mma_allo_3D, lfp_mma_allo_3D_lim, lfp_mma_free_3D
-!        a1da_cptr2loff, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_free_1D
+!        v1_cptr2loff, v1_mma_allo_3D, v1_mma_allo_3D_lim, v1_mma_free_3D
+!        dsba_cptr2loff, dsba_mma_allo_1D, dsba_mma_allo_1D_lim, dsba_mma_free_1D
+!        a1da_cptr2loff, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_free_1D,
 !                        a1da_mma_allo_2D, a1da_mma_allo_2D_lim, a1da_mma_free_2D
 !        a2da_cptr2loff, a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a2da_mma_free_1D
 #define _TYPE_ type(L_Full_Pointers)
@@ -1234,11 +1297,27 @@ end subroutine Free_Alloc2DArray
 #  undef _FUNC_NAME_
 #  define _SUBR_NAME_ v1_mma
 #  define _DIMENSIONS_ 3
-#  define _DEF_LABEL_ 'lfp_mma'
+#  define _DEF_LABEL_ 'v1_mma'
 #  include "mma_allo_template.fh"
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
+#undef _TYPE_
+
+! (using _NO_GARBLE_ because all members are initialized)
+#define _TYPE_ type(DSBA_Type)
+#  define _NO_GARBLE_
+#  define _FUNC_NAME_ dsba_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ dsba_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'dsba_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#  undef _NO_GARBLE_
 #undef _TYPE_
 
 #define _TYPE_ type(Alloc1DArray_Type)

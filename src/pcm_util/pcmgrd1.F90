@@ -48,8 +48,8 @@ external :: Fake, TNAI1, XCff2D
 #include "macros.fh"
 unused_var(rFinal)
 unused_var(nHer)
-unused_var(Ccoor)
-unused_var(lOper)
+unused_var(Ccoor(1))
+unused_var(nComp)
 
 iRout = 151
 iPrint = nPrint(iRout)
@@ -83,15 +83,15 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = nOrdOp
 iAnga(4) = 0
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A
+Coori(:,2) = RB
 
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -172,9 +172,9 @@ do iTs=1,1
     lOp(3) = NrOpr(iDCRT(lDCRT))
     lOp(4) = lOp(3)
     call OA(iDCRT(lDCRT),C,TC)
-    call dcopy_(3,TC,1,CoorAC(1,2),1)
-    call dcopy_(3,TC,1,Coori(1,3),1)
-    call dcopy_(3,TC,1,Coori(1,4),1)
+    CoorAC(:,2) = TC
+    Coori(:,3) = TC
+    Coori(:,4) = TC
 
     Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*Q*pack(DAO,.true.)
 
@@ -186,7 +186,7 @@ do iTs=1,1
     call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
-    !call RecPrt(' In PCMgrd:Grad',' ',Grad,nGrad,1)
+    !call RecPrt(' In PCMgrd1:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs
 
 end do     ! End loop over centers in the external field

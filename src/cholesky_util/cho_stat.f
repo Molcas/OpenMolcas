@@ -610,7 +610,7 @@ C     ------------------------------------------------------------
                         CALL CHO_SUBSCR_DIA(KRDVEC,NUMV,ISYM,ILOC,
      &                                      SSNORM)
                         XT = 0.0D0
-                        CALL CHO_DZERO(XC,NTAU)
+                        CALL FZERO(XC,NTAU)
                         DO ISHAB = 1,NNSHL
                            IF (NNBSTRSH(ISYM,ISHAB,ILOC) .GT. 0) THEN
                               DO ISHGD = ISHAB,NNSHL

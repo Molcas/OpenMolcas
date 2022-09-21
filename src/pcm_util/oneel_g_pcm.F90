@@ -284,7 +284,7 @@ do ijS=1,nTasks
       ! trace the result.
 
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
-                  MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,lOper,nComp,iStabM,nStabM)
+                  MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,nComp,iStabM,nStabM)
       if (iPrint >= 49) call PrGrad_pcm(' In Oneel',Grad,nGrad,ChDisp,5)
 
     end do

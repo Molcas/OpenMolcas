@@ -175,10 +175,10 @@ C     ------------------
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
-            Call Cho_dZero(Z(ip_Z(iTri(kBlock,kBlock),iSym)),
+            Call FZero(Z(ip_Z(iTri(kBlock,kBlock),iSym)),
      &                     nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2)
             Do jBlock=kBlock+1,nBlock(iSym)
-               Call Cho_dZero(Z(ip_Z(iTri(jBlock,kBlock),iSym)),
+               Call FZero(Z(ip_Z(iTri(jBlock,kBlock),iSym)),
      &                        nV(jBlock,iSym)*nV(kBlock,iSym))
             End Do
          End Do

@@ -91,7 +91,7 @@ C           --------------------------------------------------------
             If (jBatch.eq.iBatch .and. ChoAlg.eq.2) Then
 
                kMabij = kXaibj  ! rename pointer
-               Call Cho_dZero(Wrk(kMabij),LnT2am) ! initialize
+               Call FZero(Wrk(kMabij),LnT2am) ! initialize
 
 C              Loop over Cholesky vector symmetries.
 C              -------------------------------------

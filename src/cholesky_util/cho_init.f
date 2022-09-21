@@ -111,12 +111,12 @@ C     ---------------------------------------------
 C     Initialize timings etc.
 C     -----------------------
 
-      CALL CHO_DZERO(TDECDRV,2)
-      CALL CHO_DZERO(TINTEG,2*NINTEG)
-      CALL CHO_DZERO(TDECOM,2*NDECOM)
-      CALL CHO_DZERO(TMISC,2*NMISC)
-      CALL CHO_IZERO(ICHKQ,4*(NCHKQ+1))
-      CALL CHO_IZERO(NVECRS1,NSYM)
+      CALL FZERO(TDECDRV,2)
+      CALL FZERO(TINTEG,2*NINTEG)
+      CALL FZERO(TDECOM,2*NDECOM)
+      CALL FZERO(TMISC,2*NMISC)
+      CALL IZERO(ICHKQ,4*(NCHKQ+1))
+      CALL IZERO(NVECRS1,NSYM)
 
       DID_DECDRV = .FALSE.
 

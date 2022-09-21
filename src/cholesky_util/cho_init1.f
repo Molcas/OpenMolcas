@@ -37,14 +37,14 @@ C        -------------------------
 C        Initialize vector info and counters.
 C        ------------------------------------
 
-         CALL CHO_IZERO(INFVEC,SIZE(INFVEC))
-         CALL CHO_IZERO(NUMCHO,NSYM)
+         CALL IZERO(INFVEC,SIZE(INFVEC))
+         CALL IZERO(NUMCHO,NSYM)
          NUMCHT = 0
 
 C        Initialize reduced set info.
 C        ----------------------------
 
-         CALL CHO_IZERO(INFRED,SIZE(INFRED))
+         CALL IZERO(INFRED,SIZE(INFRED))
 
 C        Initialize global integral pass counter.
 C        ----------------------------------------
@@ -56,6 +56,6 @@ C        ----------------------------------------
 C     Parallel init.
 C     --------------
 
-      IF (Cho_Real_Par) CALL CHO_IZERO(MYNUMCHO,NSYM)
+      IF (Cho_Real_Par) CALL IZERO(MYNUMCHO,NSYM)
 
       END

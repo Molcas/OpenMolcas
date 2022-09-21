@@ -33,8 +33,8 @@ C
 
       If (.not.Cho_Real_Par) Return ! not truely parallel...
 
-      Call Cho_iZero(iQuAB_L,SIZE(iQuAB_L))
-      Call Cho_iZero(iQL2G,SIZE(iQL2G))
+      Call iZero(iQuAB_L,SIZE(iQuAB_L))
+      Call iZero(iQL2G,SIZE(iQL2G))
       Do iSym = 1,nSym
          nQL = 0
          Do iQ = 1,nQual(iSym)

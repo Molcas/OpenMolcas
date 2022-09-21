@@ -122,7 +122,7 @@ C
                End If
             End If
             If (nAB.lt.1) Then
-               Call Cho_dZero(Work(ip_Stat),l_Stat)
+               Call FZero(Work(ip_Stat),l_Stat)
                Nrm=0.0d0
                RMS=0.0d0
                Sm=0.0d0

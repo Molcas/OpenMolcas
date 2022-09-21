@@ -59,7 +59,7 @@ C---------------------------------------------------------------------
          l=nBas_Valence**2
       End IF
       Call GetMem('F__','Allo','Real',ip,l)
-      Call Cho_dZero(Work(ip),l)
+      Call FZero(Work(ip),l)
       Call LDF_Blocked2Full(ip_FBlocks,PackedF,Work(ip))
       iCount=0
       Do i=1,l
