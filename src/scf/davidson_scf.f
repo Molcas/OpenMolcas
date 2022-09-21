@@ -36,10 +36,11 @@
 *> @param[in,out] Vec    Lowest eigenvectors
 *> @param[out]    iRC    Return code (0 if converged)
 ************************************************************************
-      SUBROUTINE Davidson_SCF(HDiag,g,m,k,Fact,Eig,Vec,iRC)
+      SUBROUTINE Davidson_SCF(g,m,k,Fact,Eig,Vec,iRC)
+      Use SCF_Arrays, only: HDiag
       IMPLICIT NONE
       INTEGER m,n,k,iRC
-      REAL*8  HDiag(m),g(m),Eig(k),Vec(m+1,k), Fact
+      REAL*8  g(m),Eig(k),Vec(m+1,k), Fact
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: Sub, Ab
       REAL*8, DIMENSION(:), ALLOCATABLE :: Eig_old, EVec, Proj, EVal
       INTEGER, DIMENSION(:), ALLOCATABLE :: Index_D

@@ -119,7 +119,7 @@
 #ifdef _DEBUGCode_
          Call Plain_rs_rfo()
 #else
-         Call Davidson_SCF(HDiag,g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
+         Call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
          If (iStatus.gt.0) Then
             Call SysWarnMsg('RS_RFO',
      &       'Davidson procedure did not converge','')
