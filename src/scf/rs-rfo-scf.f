@@ -11,7 +11,7 @@
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-      Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,
+      Subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,
      &                      StepMax_Seed,Step_Trunc)
 !***********************************************************************
 !                                                                      *
@@ -29,11 +29,12 @@
 !     Remove references to work, Roland Lindh, Harvard, Cambridge      *
 !     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
 !***********************************************************************
+      Use SCF_Arrays, only: HDiag
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter
-      Real*8 HDiag(nInter), g(nInter), dq(nInter)
+      Real*8 g(nInter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
       Real*8 dqdq, dqHdq
 *     Local variables

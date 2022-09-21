@@ -657,7 +657,7 @@
             Select Case(iOpt)
             Case(3)
                dqHdq=Zero
-               Call rs_rfo_scf(HDiag,Grd1,mOV,Disp,AccCon(1:6),dqdq,
+               Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                         dqHdq,StepMax,AccCon(9:9))
             Case(4)
                Call DIIS_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),
