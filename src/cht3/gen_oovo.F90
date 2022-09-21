@@ -18,14 +18,11 @@ subroutine gen_oovo(w,l0,l1,tmp)
 !       L0(m,IJ)    L0vctr  I>=J
 !       L1(m,I ,A') L1vcxx xx - Group of A'
 
+use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no, nv, NvGrp
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: w(*), l0(*), l1(*), tmp(*)
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
-#include "files.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: a, a_tmp, dima, last, length
 
 !1 read tmp(m,IJ)

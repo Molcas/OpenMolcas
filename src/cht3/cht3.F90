@@ -12,15 +12,13 @@
 subroutine cht3(ireturn)
 ! main driver for (T)
 
+use ChT3_global, only: maxdim, nfr, no, nv, NvGrp, printkey, TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ireturn
 #include "WrkSpc.fh"
-#include "cht3_casy.fh"
-#include "cht3_ccsd1.fh"
-#include "ccsd_t3compat.fh"
-integer(kind=iwp) :: i, iOE, ioeh, ioep, isize, maxspace, nBas(8), nOrb(8), nOrbE !, il1_1, ioff, itmp, iW2
+integer(kind=iwp) :: i, iOE, ioeh, ioep, isize, maxspace, nBas(8), nOrb(8), nOrbE
 character(len=24) :: Label
 logical(kind=iwp) :: Found
 real(kind=wp), parameter :: kb = 1024.0_wp
@@ -31,8 +29,6 @@ call CWTime(TCpu,TWall)
 TCpu0 = TCpu
 TWall0 = TWall
 TCpu_l = TCpu
-TCpu_l = TCpu
-TWall_l = TWall
 TWall_l = TWall
 !mp
 !.0 read input
@@ -46,7 +42,7 @@ if (printkey >= 10) write(u6,*) 'Maxdim of virtual segment from CCSD = ',maxdim
 
 !.0.2 def commons for DIRCC
 
-call defcommon(nfr,no,nv)
+call defcommon(no,nv)
 
 !.2.2 regenerate integrals from the Cholesky vectors (L1) L1(m,I ,A'')
 

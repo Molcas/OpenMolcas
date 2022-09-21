@@ -17,15 +17,12 @@ subroutine gather_t2anti_blocked(length1,length2,ngbf,ngbl,t2,t2_tmp,tmp)
 !
 ! T2 = t2(a,b,j<i) - t2(b,a,j<i) finaly : <a,b,(i<j) >  ;  a in nv, b in vblock
 
+use ChT3_global, only: DimGrpaR, LunAux, no, NvGrp, T2Name
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: length1, length2, ngbf, ngbl
 real(kind=wp) :: t2(*), t2_tmp(*), tmp(*)
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
-#include "files.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) ::a, a_tmp, aa, b, b_tmp, bb, dima, dimb, lasta, lastb, length
 logical(kind=iwp) :: switch
 

@@ -20,16 +20,12 @@ subroutine klvaa_oovo(ix,ig,iscr,vblock,N,nug,LU,last,ias)
 ! parallelization (seems to be) irrelevant at the moment
 ! implemented integer offsets, PV, 14 may 2004.
 
+use ChT3_global, only: DimGrpaR, maxdim, nblock, nc, NNOAB, NNUAB, no, NOAB, NUAB, printkey
 use Index_Functions, only: iTri
 use Definitions, only: iwp, u6
 
 implicit none
 #include "WrkSpc.fh"
-#include "ndisk.fh"
-#include "cht3_ccsd1.fh"
-#include "ccsd_t3compat.fh"
-#include "cht3_reord.fh"
-#include "uhf.fh"
 integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B1, b1_tmp, B2, b2_chk, i, i_blk, ias, iasblock, ig, IJS, il1, il2, IS2, iscr, &
                      isp, it2_tmp, it_exp, itmp, itmp2, ix, j, j_blk, j_tmp, k, KADT, KI, last, length, length1, length2, lu, &
                      MAXDIM2, n, NGA, ngaa, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, nind_ngbf, nind_ngbl, nno, NSTEP, &

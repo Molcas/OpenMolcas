@@ -13,7 +13,9 @@ subroutine IniReord_t3(NaGrp)
 ! nacitanie vsupu a inicializacia premnennych
 ! a tlac primitivnej hlavicky pre Reord procesz
 
+use ChT3_global, only: gen_files, LunAux, nc, nfr, no, nv, printkey, run_triples, t3_starta, t3_startb, t3_stopa, t3_stopb
 #ifdef _MOLCAS_MPP_
+use ChT3_global, only: NChLoc
 use Para_Info, only: MyRank, nProcs
 #endif
 use Constants, only: Zero
@@ -21,10 +23,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: NaGrp
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
 #include "cholesky.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: LuSpool, ndelvirt, nOcc(8), nOrb(8), rc
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: jal1, jal2
@@ -69,11 +68,11 @@ call Cho_X_final(rc)
 
 ndelvirt = 0
 LunAux = 13
-mhkey = 1
-generkey = 1
+!mhkey = 1
+!generkey = 1
 !mp !NaGrp = 1
 call get_iScalar('CHCCLarge',NaGrp)
-restkey = 0
+!restkey = 0
 printkey = 1
 
 ! t3 specific keywords
@@ -135,16 +134,16 @@ do
     !mp !case ('LUNA') !... toto sa nikdy nevyuzivalo
     !mp !  read(LuSpool,*) LunAux
 
-    case ('MHKE') ! MHKEy
-      read(LuSpool,*) mhkey
-      if ((mhkey < 0) .or. (mhkey > 2)) then
-        mhkey = 1
-        write(u6,*)
-        write(u6,*) ' Warning!!! ',' MHKEy out of range, changed to 1'
-      end if
+    !case ('MHKE') ! MHKEy
+    !  read(LuSpool,*) mhkey
+    !  if ((mhkey < 0) .or. (mhkey > 2)) then
+    !    mhkey = 1
+    !    write(u6,*)
+    !    write(u6,*) ' Warning!!! ',' MHKEy out of range, changed to 1'
+    !  end if
 
     case ('REST') ! RESTart
-      restkey = 1
+      !restkey = 1
       write(u6,*)
       write(u6,*) 'RESTart option is temporary disabled'
       write(u6,*) 'No Restart possible (... yet).'
@@ -279,12 +278,12 @@ end if
 write(u6,*) '--------------------------------------------------'
 
 write(u6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',LunAux
-write(u6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',mhkey
+!write(u6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',mhkey
 
-msg = 'No'
-if (restkey == 1) msg = 'Yes'
+!msg = 'No'
+!if (restkey == 1) msg = 'Yes'
 
-write(u6,'(A,A10)') ' Start from RstFil ?               : ',msg
+!write(u6,'(A,A10)') ' Start from RstFil ?               : ',msg
 write(u6,'(A,i9)') ' Print level                       : ',printkey
 
 write(u6,*) '--------------------------------------------------'

@@ -11,12 +11,12 @@
 
 subroutine v_size_t3(vblock,nprocs,krem,printkey)
 
+use ChT3_global, only: NNOAB, NNUAB, NOAB, NUAB
 use Constants, only: One, Three
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: vblock, nprocs, krem, printkey
-#include "uhf.fh"
 integer(kind=iwp) :: isp, maxnu, N, nuga, nugc, rest, t3_size, t3_size_a, tmp, vblock_isp(2)
 
 ! number of elementary subprocesses: nugc*nuga*(nuga+1)/2

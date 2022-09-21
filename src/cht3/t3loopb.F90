@@ -13,6 +13,7 @@ subroutine t3loopb(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,e
 !mp subroutine t3loopb(oeh,oep,t1a,t1b,g,nga,ngb,ngc,vblock,energ,
 ! implemented integer offsets, PV, 16 may 2004.
 
+use ChT3_global, only: nblock, NNOAB, NNUAB, NOAB, NUAB
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -21,8 +22,6 @@ real(kind=wp) :: oeh(*), oep(*), t1a(*), t1b(*), energ(*), enx
 integer(kind=iwp) :: nga, ngb, ngc, vblock, isp, lu(6)
 logical(kind=iwp) :: ifvo, scored
 #include "WrkSpc.fh"
-#include "ndisk.fh"
-#include "uhf.fh"
 integer(kind=iwp) :: adim, aset, bdim, bset, cdim, cset, en_offset_ah, en_offset_ap, en_offset_bh, en_offset_bp, iasblock(5), kab, &
                      kac, kbc, kc, kca, kcb, la, lb, lxa, lxb, lxc, mi, mij, n, nuga, nugc, t1_offset_a, t1_offset_b, t3a, t3b, &
                      vab, vac, vbc

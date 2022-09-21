@@ -22,6 +22,7 @@ subroutine klvaa_vvv(ix,ig,vblock,N,nug,lu,last,iasblock,K,ias)
 !  parallelization (seems to be) irrelevant at the moment
 !  implemented integer offsets, PV, 14 may 2004.
 
+use ChT3_global, only: DimGrpaR, maxdim, no, NOAB, NUAB, printkey
 use Index_Functions, only: iTri
 use Constants, only: One
 use Definitions, only: iwp, u6
@@ -29,10 +30,6 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: ix, ig, vblock, N, nug, lu, last, iasblock, K, ias
 #include "WrkSpc.fh"
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
-#include "ccsd_t3compat.fh"
-#include "uhf.fh"
 integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B, B1, b1_tmp, B2, b2_chk, i_blk, IJS, isp, it2_tmp, it_exp, itmp, j_blk, &
                      j_tmp, KADT, KI, length, length1, length2, MAXDIMM, NGA, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, &
                      nind_ngbf, nind_ngbl, NNU, NSTEP, R

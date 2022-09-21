@@ -14,13 +14,12 @@ subroutine multi_wridir(G,lg,ifile,ias,last)
 !
 ! PV/LAOG, 22 may 2003.
 
+use ChT3_global, only: IOPT, nblock
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lg, ifile, ias, last
 real(kind=wp) :: G(lg)
-#include "ndisk.fh"
-#include "ioind.fh"
 integer(kind=iwp) :: iloc, irest, k, kas
 
 iloc = 1
@@ -29,10 +28,10 @@ kas = ias
 
 do while (irest > 0)
   k = min(irest,nblock)
-  if (kas <= iopt(27)) then
+  if (kas <= iopt(2)) then
     write(ifile,rec=kas) G(iloc:iloc+k-1)
   else
-    write(ifile+1,rec=kas-iopt(27)) G(iloc:iloc+k-1)
+    write(ifile+1,rec=kas-iopt(2)) G(iloc:iloc+k-1)
   end if
   iloc = iloc+k
   irest = irest-k

@@ -33,6 +33,8 @@ subroutine T3AMPL_BTI(OEH,OEP)
 !     Implemented integer offsets, PV, 14 may 2004.
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
+use ChT3_global, only: gen_files, ICH, IOPT, IT, ndup, NOAB, NUAB, printkey, run_triples, t3_starta, t3_startb, t3_stopa, &
+                       t3_stopb, TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, r8
@@ -40,12 +42,6 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 real(kind=wp) :: OEH(*), OEP(*)
 #include "WrkSpc.fh"
-#include "param_cht3.fh"
-#include "ioind.fh"
-#include "uhf.fh"
-#include "cht3_casy.fh"
-#include "dupfiles.fh"
-#include "cht3_ccsd1.fh"
 integer(kind=iwp) :: i, id, imy_tsk, isp, it1, itmp, IUHF, j, krem, la, LU(6), nga, ngb, ngc, nla, nlb, nuga, nugc, t1a, t1b, vblock
 real(kind=wp) :: ccsdt, ccsdt4, cpu0_aaa, cpu0_aab, e_ccsd, e_scf, energ(4), enx1, tccsd, timerel, times(10), times_parr(10), &
                  totcpu, totwal, wall0_aaa, wall0_aab
@@ -148,7 +144,7 @@ if (nprocs > 1) write(u6,*) ' Node Number ',MyRank
 call v_size_t3(vblock,nprocs,krem,printkey)
 
 IUHF = 1 ! open-shell stuff
-if (IOPT(76) == 0) IUHF = 0
+if (IOPT(1) == 0) IUHF = 0
 
 if (printkey >= 10) write(u6,'(A,i1)') ' Closed-Shell calculation, IUHF = ',iuhf
 

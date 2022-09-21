@@ -14,12 +14,11 @@ subroutine GetRest_t3(t1,t1_tmp,E2old)
 !                2) E1old,E2old,niter
 ! from RstFil file
 
+use ChT3_global, only: LunAux, no, nv, printkey
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: t1(*), t1_tmp(*), E2old
-#include "cht3_ccsd1.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: i, length
 real(kind=wp) :: E1old
 

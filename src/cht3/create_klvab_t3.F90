@@ -21,19 +21,14 @@ subroutine create_klvab_t3(vblock)
 !  parallelization irrelevant at the moment
 !  implemented integer offsets, PV, 14 may 2004.
 
+use ChT3_global, only: DimGrpaR, dupblk, dupfil, ICH, IOPT, maxdim, nblock, nc, ndup, ndupmx, NNOAB, no, NOAB, NUAB, nv, NvGrp, &
+                       printkey
 use Constants, only: One
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: vblock
 #include "WrkSpc.fh"
-#include "ndisk.fh"
-#include "dupfiles.fh"
-#include "cht3_ccsd1.fh"
-#include "ccsd_t3compat.fh"
-#include "cht3_reord.fh"
-#include "uhf.fh"
-#include "ioind.fh"
 integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, adim, B1, b1_tmp, b2_chk, i, i_blk, IADR, ias, ias_aa, iasblock, ig, IJS, il0, il1, &
                      il1_1, il2_1, is2, iscr, isp, ISPA, ISTEP, it2_tmp, it_exp, itmp, itmp2, IUHF, ix, j, j_blk, j_tmp, k, last, &
                      last_aa, length, length1, length2, lu, n, nga, ngaf, ngal, ngb, ngbf, ngbl, nind_ngaf, nind_ngal, nind_ngbf, &
@@ -57,7 +52,7 @@ call check_create_klvab_t3_mem(vblock)
 N = noab(1)+nuab(1)
 !NNRED = NOAB(1)*(NOAB(1)+1)/2
 IUHF = 0
-if (IOPT(76) /= 0) then
+if (IOPT(1) /= 0) then
   IUHF = 1
   !NNRED = NNOAB(3)
 end if

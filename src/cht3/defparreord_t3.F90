@@ -11,19 +11,17 @@
 
 subroutine DefParReord_t3(NaGrpR,maxdim)
 ! This routine does:
-! define parameters in cht3_reord.fh using NaGrpR,maxdim
+! define parameters in cht3_global using NaGrpR,maxdim
 !
 ! I/O parameter description:
 ! NxGrpR   - # of groups in a (=b) set (I)
 ! maxdim   - # maximal dimension of a (=b) Groups(O)
 
+use ChT3_global, only: DimGrpaR, L1name, L2Name, maxGrp, nv, T2Name
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NaGrpR, maxdim
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
-#include "files.fh"
 integer i, j, Low(MaxGrp), Up(MaxGrp)
 real(kind=wp) :: rdim
 
@@ -57,28 +55,15 @@ do i=1,NaGrpR
   end if
 end do
 
-!3.1 def L2Name, T2Name, I2Name,I3Name
-
-do i=1,MaxGrp
-  do j=1,MaxGrp
-    write(L2Name(i,j),'(A2,I0.2,I0.2)') 'L2',i,j
-    write(T2Name(i,j),'(A2,I0.2,I0.2)') 'T2',i,j
-    write(I2Name(i,j),'(A2,I0.2,I0.2)') 'I2',i,j
-    write(I3Name(i,j),'(A2,I0.2,I0.2)') 'I3',i,j
-  end do
-end do
-
-!3.2 def L1Name,I1Name
+!3 def L1Name, L2Name, T2Name
 
 do i=1,MaxGrp
   write(L1Name(i),'(A4,I0.2)') 'L1vc',i
-  write(I1Name(i),'(A4,I0.2)') 'I1in',i
+  do j=1,MaxGrp
+    write(L2Name(i,j),'(A2,I0.2,I0.2)') 'L2',i,j
+    write(T2Name(i,j),'(A2,I0.2,I0.2)') 'T2',i,j
+  end do
 end do
-
-!3.3 def L0Name,I0Name
-
-L0Name = 'L0vctr'
-I0Name = 'I0intg'
 
 return
 

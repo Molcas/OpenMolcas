@@ -21,14 +21,11 @@ subroutine gen_vvoo(w,l1,tmp,l2)
 !
 !       L1(m,I,A')
 
+use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no, nv, NvGrp
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: w(*), l1(*), tmp(*), l2(*)
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
-#include "files.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 
 do a=1,NvGrp

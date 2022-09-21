@@ -23,15 +23,12 @@ subroutine gen_vvvo(occ_ind,w3,l1_1,l2_1,tmp)
 !       L2(m,A'B')  L2xxyy xx - Group of A', A'>=B'
 !                          yy - Group of B'
 
+use ChT3_global, only: DimGrpaR, L1Name, L2Name, LunAux, nc, no, nv, NvGrp
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: occ_ind
-#include "cht3_ccsd1.fh"
 real(kind=wp) :: w3(nv*(nv+1)/2,nv), l1_1(*), l2_1(*), tmp(*)
-#include "cht3_reord.fh"
-#include "files.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, c, c_tmp, dima, dimb, dimc, lasta, lastb, lastc, length
 
 ! algoritmus je dobry ak maxdim > no

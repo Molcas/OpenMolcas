@@ -13,16 +13,13 @@ subroutine gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2,t2_tmp,tmp,s
 ! length1 = length of the 1st VO index (=< vblock)
 ! length2 = length of the 2nd VO index (=< vblock)
 
+use ChT3_global, only: DimGrpaR, LunAux, maxdim, no, T2Name
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: length1, length2, ngaf, ngal, ngbf, ngbl
-#include "cht3_ccsd1.fh"
-#include "ccsd_t3compat.fh"
 real(kind=wp) :: t2(length1*length2*no*no), t2_tmp(maxdim*maxdim*no*no), tmp(maxdim*maxdim*no*no)
 logical(kind=iwp) :: switch
-#include "cht3_reord.fh"
-#include "files.fh"
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 logical(kind=iwp) :: sym
 

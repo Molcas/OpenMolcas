@@ -21,15 +21,12 @@ subroutine gen_vvoo_blocked(w,l1,tmp,l2,length1,length2,ngaf,ngal,ngbf,ngbl)
 !
 !       L1(m,I,A')
 
+use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: w(*), l1(*), tmp(*), l2(*)
 integer(kind=iwp) :: length1, length2, ngaf, ngal, ngbf, ngbl
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
-#include "files.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 logical(kind=iwp) :: sym
 

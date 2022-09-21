@@ -13,13 +13,11 @@ subroutine my_block(vblock,vblock_my)
 ! this subroutine calculates maximum overlap between juzek's
 ! vblock segmentation and palo's dimgrp
 
+use ChT3_global, only: DimGrpaR, nv, NvGrp
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: vblock, vblock_my
-#include "cht3_ccsd1.fh"
-#include "ccsd_t3compat.fh"
-#include "cht3_reord.fh"
 integer(kind=iwp) :: i, i_f, i_l, i_tmp, j, poss, vblock_my_tmp
 logical(kind=iwp) :: found
 

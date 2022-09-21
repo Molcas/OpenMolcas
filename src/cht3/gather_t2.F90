@@ -18,14 +18,11 @@ subroutine gather_t2(t2,t2_tmp,tmp)
 ! cycle through T2XY files and gather them into on T2 array
 ! T2(nv_beta,nv_alpha,no_beta,no_alpha)
 
+use ChT3_global, only: DimGrpaR, LunAux, no, nv, NvGrp, T2Name
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: t2(*), t2_tmp(*), tmp(*)
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
-#include "files.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 
 !mp write(u6,*)

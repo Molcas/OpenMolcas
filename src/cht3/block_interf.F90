@@ -25,13 +25,11 @@ subroutine block_interf(ind1f,ind1l,ind2f,ind2l,b1f,b1l,nind_b1f,nind_b1l,b2f,b2
 ! nind_b1l  - # of VOs in b1f before ind1
 ! nind_b2l  - # of VOs in b2f before ind2
 
+use ChT3_global, only: DimGrpaR, NvGrp
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ind1f, ind1l, ind2f, ind2l, b1f, b1l, nind_b1f, nind_b1l, b2f, b2l, nind_b2f, nind_b2l
-#include "cht3_ccsd1.fh"
-#include "cht3_reord.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: i, isum
 logical(kind=iwp) :: found1, found2, found3, found4
 

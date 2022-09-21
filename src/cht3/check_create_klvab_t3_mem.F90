@@ -13,19 +13,18 @@ subroutine check_create_klvab_t3_mem(vblock)
 ! this routine finds the upper estimate of the memory
 ! requirements of the most demanding step in create_klvab_t3
 
+use ChT3_global, only: maxdim, nc, no, nv, printkey
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: vblock
-#include "cht3_ccsd1.fh"
-#include "ccsd_t3compat.fh"
 integer(kind=iwp) :: mem, mem_avail, mem_trial, vblock_my
 real(kind=wp), parameter :: kb = 1024.0_wp
 
 !.0 - calculate vblock_my
 
 call my_block(vblock,vblock_my)
-!
+
 if (printkey >= 10) then
   write(u6,*)
   write(u6,*) 'check_create_klvab_t3_mem '

@@ -155,17 +155,17 @@ The input for each module is preceded by its name like: ::
               </HELP>
               </KEYWORD>
 
-:kword:`MHKEy`
-  Integer on the following line specifies if library BLAS (MHKEy=1) or hard-coded
-  fortran vector-vector, matrix-vector and matrix-matrix manipulation is used.
-  This keyword is *optional*. (Default=1)
+  .. :kword:`MHKEy`
+       Integer on the following line specifies if library BLAS (MHKEy=1) or hard-coded
+       fortran vector-vector, matrix-vector and matrix-matrix manipulation is used.
+       This keyword is *optional*. (Default=1)
 
-  .. xmldoc:: <KEYWORD MODULE="CHT3" NAME="MHKE" APPEAR="Use BLAS" KIND="INT" LEVEL="BASIC" MIN_VALUE="0" MAX_VALUE="1" DEFAULT_VALUE="1">
-              %%Keyword: MHKEy <basic>
-              <HELP>
-              Specifies if BLAS libraries (=1) or hard-code fortran is used.
-              </HELP>
-              </KEYWORD>
+       .. xmldoc:: <KEYWORD MODULE="CHT3" NAME="MHKE" APPEAR="Use BLAS" KIND="INT" LEVEL="BASIC" MIN_VALUE="0" MAX_VALUE="1" DEFAULT_VALUE="1">
+                   %%Keyword: MHKEy <basic>
+                   <HELP>
+                   Specifies if BLAS libraries (=1) or hard-code fortran is used.
+                   </HELP>
+                   </KEYWORD>
 
 :kword:`NOGEnerate`
   This keyword specifies that the pre-(T) steps (generation of integrals from

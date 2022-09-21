@@ -27,17 +27,16 @@ subroutine multi_readir(G,lg,ifile,ias)
 !    lg       Buffer length
 !    ifile    file unit
 !    ias      direct access record to start with
-!    (nblock  direct access record length, defined in include file)
+!    (nblock  direct access record length, defined in module)
 !
 ! PV/LAOG, 22 may 2003.
 
+use ChT3_global, only: IOPT, nblock
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lg, ifile, ias
 real(kind=wp) :: G(lg)
-#include "ndisk.fh"
-#include "ioind.fh"
 integer(kind=iwp) :: iloc, irest, k, kas
 
 iloc = 1
@@ -46,10 +45,10 @@ kas = ias
 
 do while (irest > 0)
   k = min(irest,nblock)
-  if (kas <= iopt(27)) then
+  if (kas <= iopt(2)) then
     read(ifile,rec=kas) G(iloc:iloc+k-1)
   else
-    read(ifile+1,rec=kas-iopt(27)) G(iloc:iloc+k-1)
+    read(ifile+1,rec=kas-iopt(2)) G(iloc:iloc+k-1)
   end if
   iloc = iloc+k
   irest = irest-k

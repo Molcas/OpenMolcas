@@ -13,6 +13,7 @@ subroutine t3loopa(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,e
 !mp subroutine t3loopa(oeh,oep,t1a,t1b,g,nga,ngb,ngc,vblock,energ,
 ! implemented integer offsets, PV, 16 may 2004.
 
+use ChT3_global, only: nblock, NNOAB, NOAB, NUAB
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -21,8 +22,6 @@ real(kind=wp) :: oeh(*), oep(*), t1a(*), t1b(*), energ(*), enx
 integer(kind=iwp) :: nga, ngb, ngc, vblock, isp, LU(*)
 logical(kind=iwp) :: ifvo, scored
 #include "WrkSpc.fh"
-#include "ndisk.fh"
-#include "uhf.fh"
 integer(kind=iwp) :: adim, aset, bdim, bset, cdim, cset, iasblock(3), IUHF, ka, la, lb, lc, mi, mij, n, nug, t3a, t3b, voa, vob, voc
 integer(kind=iwp), save :: kb, kc
 
@@ -36,9 +35,9 @@ scored = .true.
 ! this is a first entry - initialization (makes no harm if repeated)
 nug = nuab(isp)/vblock
 if ((nug*vblock) < nuab(isp)) nug = nug+1
-!mp write(u6,*) 'first,nug,vblock',nug,vblock,iopt(76)
+!mp write(u6,*) 'first,nug,vblock',nug,vblock,iopt(1)
 IUHF = isp
-!!if (IOPT(76) == 0) IUHF = 3
+!!if (IOPT(1) == 0) IUHF = 3
 iasblock(1) = vblock*vblock*N/nblock
 if ((iasblock(1)*nblock) < (vblock*vblock*N)) iasblock(1) = iasblock(1)+1
 iasblock(2) = nnoab(iuhf)*vblock*N/nblock

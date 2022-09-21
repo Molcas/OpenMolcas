@@ -16,12 +16,12 @@ subroutine multi_opendir(FNAM,iunit)
 !
 ! PV/LAOG, 22 may 2003.
 
+use ChT3_global, only: nblock
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*) :: FNAM
 integer(kind=iwp) :: iunit
-#include "ndisk.fh"
 integer(kind=iwp) :: iost
 logical(kind=iwp) is_error
 
