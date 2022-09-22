@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nv, d2, dima, dimb, dimc, lasta, lastb, lastc
 real(kind=wp) :: w3(nTri_Elem(nv),d2), AA(dima,dimb,dimc)
-integer(kind=iwp) :: a, a_old, a_point, ab, b, b_old, b_point, c
+integer(kind=iwp) :: a, a_old, a_point, ab, b, b_old, b_point
 
 if ((dima == 0) .or. (dimb == 0)) then
   write(u6,*) 'dima, dimb = ',dima,dimb
@@ -58,9 +58,7 @@ do a=1,nv
         end if
 
         !mp if (lastc == 0) write(u6,'(A,5(i5))') 'ab, a, b, a_point, b_point = ',ab,a,b,a_point,b_point
-        do c=1,dimc
-          w3(ab,lastc+c) = AA(a_point,b_point,c)
-        end do
+        w3(ab,lastc+1:lastc+dimc) = AA(a_point,b_point,:)
 
       end if
     end if

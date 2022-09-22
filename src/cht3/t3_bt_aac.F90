@@ -76,8 +76,7 @@ do i=3,noab
       do a=2,adim
         do b=1,a-1
           ab = ab+1
-          call daxpy_(cdim,-One,t3b(1,a,b),1,t3a(1,ab),1)
-          call daxpy_(cdim,One,t3b(1,b,a),1,t3a(1,ab),1)
+          t3a(:,ab) = t3a(:,ab)-t3b(:,a,b)+t3b(:,b,a)
         end do
       end do
       den = oeh(i)+oeh(j)+oeh(k)

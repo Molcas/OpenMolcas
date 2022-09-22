@@ -20,18 +20,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: d1, d2
 real(kind=wp) :: A(d1,nTri_Elem(d2)), B(d2,d2,d1)
-integer(kind=iwp) :: i1, i2, i23, i3
+integer(kind=iwp) :: i2, i23, i3
 
 i23 = 0
 do i2=1,d2
   do i3=1,i2
     i23 = i23+1
-    do i1=1,d1
-
-      B(i2,i3,i1) = A(i1,i23)
-      B(i3,i2,i1) = A(i1,i23)
-
-    end do
+    B(i2,i3,:) = A(:,i23)
+    B(i3,i2,:) = A(:,i23)
   end do
 end do
 

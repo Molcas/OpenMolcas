@@ -42,7 +42,7 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 real(kind=wp) :: OEH(*), OEP(*)
-integer(kind=iwp) :: i, id, isp, it1, IUHF, j, krem, LU(6), nga, ngb, ngc, nla, nlb, nuga, nugc, vblock
+integer(kind=iwp) :: i, id, isp, it1, IUHF, j, krem, LU(6), n, nga, ngb, ngc, nla, nlb, nuga, nugc, vblock
 real(kind=wp) :: ccsdt, ccsdt4, cpu0_aaa, cpu0_aab, e_ccsd, e_scf, energ(4), enx1, tccsd, timerel, times(10), times_parr(10), &
                  totcpu, totwal, wall0_aaa, wall0_aab
 #ifdef _MOLCAS_MPP_
@@ -90,8 +90,8 @@ do I=1,6
   LU(I) = 90+I
 end do
 
-call zeroma(times,1,10)
-call zeroma(energ,1,4)
+times(:) = Zero
+energ(:) = Zero
 
 ! calculate the T2-T3 contraction?  ifvo is the answer ! open-shell stuff !
 !mp call get3dm('FOC-VO',w,noab(1)*nuab(1)+noab(2)*nuab(2),1,0)
@@ -338,11 +338,9 @@ do isp=1,1+iuhf
       !mp
       ! update 5th order terms
 
-      !mp call vadd(t1a,1,t1a(noab(1)*nuab(1)+1),1,t1a,1,noab(1)*nuab(1))
-
-      call daxpy_((noab(1)*nuab(1)),One,t1a(noab(1)*nuab(1)+1),1,t1a,1)
-      ccsdt = Two*ddot_(noab(1)*nuab(1),la,1,t1a,1)
-      call daxpy_((noab(1)*nuab(1)),-One,t1a(noab(1)*nuab(1)+1),1,t1a,1)
+      n = noab(1)*nuab(1)
+      !mp t1a(1:n) = t1a(1:n)+t1a(n+1:2*n)
+      ccsdt = Two*(ddot_(n,la,1,t1a,1)+ddot_(n,la,1,t1a(n+1),1))
 
       !mp
       call CWTime(TCpu,TWall)
@@ -490,10 +488,9 @@ do isp=1,1+iuhf
     !mp
     call t3loopb(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ(3),isp,LU,ifvo,scored,enx1)
 
-    !mp??? call vadd(t1a,1,t1a(noab(1)*nuab(1)+1),1,t1a,1,noab(1)*nuab(1))
-    call daxpy_((noab(1)*nuab(1)),One,t1a(noab(1)*nuab(1)+1),1,t1a,1)
-    ccsdt = Two*ddot_(noab(1)*nuab(1),la,1,t1a,1)
-    call daxpy_((noab(1)*nuab(1)),-One,t1a(noab(1)*nuab(1)+1),1,t1a,1)
+    n = noab(1)*nuab(1)
+    !mp??? t1a(1:n) = t1a(1:n)+t1a(n+1:2*n)
+    ccsdt = Two*(ddot_(n,la,1,t1a,1)+ddot_(n,la,1,t1a(n+1),1))
 
     !mp
     call CWTime(TCpu,TWall)
@@ -554,9 +551,7 @@ if (.not. skip) then
   !mp
 end if
 
-do i=1,10
-  times_parr(i) = times(i)
-end do
+times_parr(:) = times
 
 #ifdef _MOLCAS_MPP_
 
@@ -586,8 +581,9 @@ end if
 tccsd = energ(1)+energ(2)+energ(3)+energ(4)
 
 !mp !if (IUHF == 0) then ! open-shell stuff
-!mp !  call vadd(t1a,1,t1a(noab(1)*nuab(1)+1),1,t1a,1,noab(1)*nuab(1))
-!mp !  ccsdt = Two*ddot_(noab(1)*nuab(1),la,1,t1a,1)
+!mp !  call n = noab(1)*nuab(1)
+!mp !  t1a(1:n) = t1a(1:n)+t1a(n+1:2*n)
+!mp !  ccsdt = Two*ddot_(n,la,1,t1a,1)
 !mp !else
 !mp !  ccsdt = ddot_(noab(1)*nuab(1)+noab(2)*nuab(2),la,1,t1a,1)
 !mp !  write(u6,*) 'ze co do ... ?'
@@ -628,14 +624,8 @@ end if
 ! bba           4        8
 
 ! Master has only to sum up the results
-do i=1,10
-  times(i) = times(i)/60.0_wp ! now in minutes
-end do
-if (nprocs > 1) then
-  do i=1,10
-    times_parr(i) = times_parr(i)/60.0_wp
-  end do
-end if
+times(:) = times/60.0_wp ! now in minutes
+if (nprocs > 1) times_parr(:) = times_parr/60.0_wp
 
 ccsdt4 = Zero
 if (ifvo) then
@@ -647,7 +637,8 @@ if (ifvo) then
   !mp !call map2_21_t3(w(noab(1)*nuab(1)+la),w(t1a+noab(1)*nuab(1)),nuab(2),noab(2))
   ! E4 T2FT3
   !mp !if (IUHF == 0) then
-  !mp !  call vadd(w(t1b),1,w(t1b+noab(1)*nuab(1)),1,w(t1b),1,noab(1)*nuab(1))
+  !mp !  n = noab(1)*nuab(1)
+  !mp !  w(t1b:t1b+n-1) = w(t1b:t1b+n-1)+w(t1b+n:n1b+2*n-1)
   !mp !  ccsdt4 = Two*ddot_(noab(1)*nuab(1),w(t1a),1,w(t1b),1)
   !mp !else
   !mp !  ccsdt4 = ddot_(noab(1)*nuab(1)+noab(2)*nuab(2),w(t1a),1,w(t1b),1)

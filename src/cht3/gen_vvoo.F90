@@ -22,6 +22,7 @@ subroutine gen_vvoo(w,l1,tmp,l2)
 !       L1(m,I,A')
 
 use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no, nv, NvGrp
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -54,7 +55,7 @@ do a=1,NvGrp
 
     ! zero tmp
 
-    call zeroma(tmp,1,dima*no*dimb*no)
+    tmp(1:dima*no*dimb*no) = Zero
 
     !7 mult tmp(A',I,B',J) <- l1 (A',I,m) . l2(m,B',J)
 

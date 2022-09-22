@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: vblock, vblock_my
-integer(kind=iwp) :: i, i_f, i_l, i_tmp, j, poss, vblock_my_tmp
+integer(kind=iwp) :: i, i_f, i_l, i_tmp, j, pos, vblock_my_tmp
 logical(kind=iwp) :: found
 
 vblock_my = 0
@@ -27,16 +27,16 @@ i_f = 0
 
 do i=1,nv,vblock
 
-  ! - find initial possition of the i-th juzek's block
+  ! - find initial position of the i-th juzek's block
 
-  poss = 0
+  pos = 0
   found = .false.
   do j=1,NvGrp
-    poss = poss+DimGrpaR(j)
-    if ((i <= poss) .and. (.not. found)) then
+    pos = pos+DimGrpaR(j)
+    if ((i <= pos) .and. (.not. found)) then
       i_f = j
       found = .true.
-      !mp write(u6,'(A,3(i5,x))') 'i,i_f,poss     = ',i,i_f,poss
+      !mp write(u6,'(A,3(i5,x))') 'i,i_f,pos     = ',i,i_f,pos
     end if
   end do
 
@@ -47,16 +47,16 @@ do i=1,nv,vblock
   end if
   !mp write(u6,'(A,2(i5,x))') 'i,i_tmp        = ',i,i_tmp
 
-  ! - find terminal possition of the i-th juzek's block
+  ! - find terminal position of the i-th juzek's block
 
-  poss = 0
+  pos = 0
   found = .false.
   do j=1,NvGrp
-    poss = poss+DimGrpaR(j)
-    if ((i_tmp <= poss) .and. (.not. found)) then
+    pos = pos+DimGrpaR(j)
+    if ((i_tmp <= pos) .and. (.not. found)) then
       i_l = j
       found = .true.
-      !mp write(u6,'(A,3(i5,x))') 'i_tmp,i_l,poss = ',i_tmp,i_l,poss
+      !mp write(u6,'(A,3(i5,x))') 'i_tmp,i_l,pos = ',i_tmp,i_l,pos
     end if
   end do
 

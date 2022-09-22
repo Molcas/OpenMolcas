@@ -88,7 +88,7 @@ do i=3,noab
         do c=1,cdim
           ac = ac+bdim
           ca = ca+nadim
-          call daxpy_(bdim,One,t3a(ca),1,t3b(ac),1)
+          t3b(ac:ac+bdim-1) = t3b(ac:ac+bdim-1)+t3a(ca:ca+bdim-1)
         end do
       end do
       ! K_cb^ir x L_ra^jk   ! in the matrix as b,c,a
@@ -107,7 +107,7 @@ do i=3,noab
           ca = ca+1
         end do
       end do
-      call dcopy_(cdim*bdim*adim,t3b,1,t3a,1)
+      t3a(1:cdim*bdim*adim) = t3b(1:cdim*bdim*adim)
       ac = 0
       do a=1,adim
         dena = den-oepa(a)

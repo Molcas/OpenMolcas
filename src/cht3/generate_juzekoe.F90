@@ -23,17 +23,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: no, nv
 real(kind=wp) :: oe(no+nv), oeh(2*no), oep(2*nv)
-integer(kind=iwp) :: i
 
-do i=1,no
-  oeh(i) = oe(i)
-  oeh(i+no) = oe(i)
-end do
+oeh(1:no) = oe(1:no)
+oeh(no+1:2*no) = oe(1:no)
 
-do i=1,nv
-  oep(i) = oe(no+i)
-  oep(i+nv) = oe(no+i)
-end do
+oep(1:nv) = oe(no+1:no+nv)
+oep(nv+1:2*nv) = oe(no+1:no+nv)
 
 return
 

@@ -45,17 +45,16 @@ if (NO > 2) then
   do I=NO,2,-1
     IJ = nTri_Elem(I-1)+1
     IJO = (I-1)*no+1
-    call DCOPY_(IDM*I,W(1,IJ),1,W(1,IJO),1)
+    W(:,IJO:IJO+I-1) = W(:,IJ:IJ+I-1)
   end do
 else if (NO == 2) then
-  call DCOPY_(IDM,W(1,3),1,W(1,4),1)
-  call DCOPY_(IDM,W(1,2),1,W(1,3),1)
+  W(:,3:4) = W(:,2:3)
 end if
 do I=2,no
   do J=1,I-1
     IJO = (I-1)*no+J
     JIO = (J-1)*no+I
-    call map2_21_t3(W(1,IJO),W(1,JIO),NF,NF)
+    call map2_21_t3(W(:,IJO),W(:,JIO),NF,NF)
   end do
 end do
 !stop

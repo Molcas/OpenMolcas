@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp) :: no, dima, dimb, lasta, lastb, length1, length2
 real(kind=wp) :: AA(length1,length2,no,no), BB(dima,no,dimb,no)
 logical(kind=iwp) :: sym
-integer(kind=iwp) :: i1, i2, i3, i4
+integer(kind=iwp) :: i2, i3, i4
 
 !mp write(u6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb
 !mp write(u6,'(A,2(i9,x))') 'chk_a ',lasta+dima,length1
@@ -28,13 +28,11 @@ integer(kind=iwp) :: i1, i2, i3, i4
 
 do i4=1,no
   do i3=1,no
-    do i1=1,dima
-      do i2=1,dimb
-        AA(lasta+i1,lastb+i2,i3,i4) = BB(i1,i3,i2,i4)
+    do i2=1,dimb
+      AA(lasta+1:lasta+dima,lastb+i2,i3,i4) = BB(:,i3,i2,i4)
 
-        if (sym) AA(lastb+i2,lasta+i1,i4,i3) = BB(i1,i3,i2,i4)
+      if (sym) AA(lastb+i2,lasta+1:lasta+dima,i4,i3) = BB(:,i3,i2,i4)
 
-      end do
     end do
   end do
 end do

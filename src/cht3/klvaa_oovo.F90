@@ -56,7 +56,7 @@ nno = nTri_Elem(noab(isp))
 !mpn     KADT = IT+(i-1)*noab(isp)*nnuab(3)+(j-1)*nnuab(3)
 !mpn     !!call dcopy_(NNUAB(3),G(KADT),1,G(IJS),1)
 !mpncmp  !call vneg_cht3(G(KADT),1,G(IJS),1,NNUAB(3))
-!mpn     call vneg_cht3(Work(KADT),1,Work(IJS),1,NNUAB(3))
+!mpn     Work(IJS:IJS+NNUAB(3)-1) = -Work(KADT:KADT+NNUAB(3)-1)
 !mpncmp  !call TRANSM_A(G(KADT),G(IJS),NUAB(ISP),NUAB(ISP))
 !mpn     call TRANSM_A(Work(KADT),Work(IJS),NUAB(ISP),NUAB(ISP))
 !mpn     IJS = IJS+NNUAB(3)
@@ -157,7 +157,7 @@ do A1=1,NUAB(ISP),vblock
 
       do a=A1,A2
         !mp call dcopy_(NUAB(isp),G(KADT),1,G(IJS),1)
-        call dcopy_(NUAB(isp),t2_exp(KADT),1,x(IJS),1)
+        x(IJS:IJS+NUAB(isp)-1) = t2_exp(KADT:KADT+NUAB(isp)-1)
         !mp write(u6,*) (t2_exp(KADT+a_tmp),a_tmp=0,NUAB(isp)-1)
         !!write(u6,'(A,2I3,11D10.4)')'OT',K,a,(G(r),r=IJS-noab(isp),IJS+nuab(isp)-1)
 
@@ -356,7 +356,7 @@ do nga=1,nug
             ! address and block for the A1-A2x B1-B2
             !!KADT = KADT+nTri_Elem(a-2)+B1+IT-1
             ! VO >>> G(IX)
-            !mpn call dcopy_(NSTEP,t2_exp(KADT),1,x2(IJS),1)
+            !mpn x2(IJS:IJS+NSTEP-1) = t2_exp(KADT:KADT+NSTEP-1)
             !mpn R = (I-1)*noab(isp)+J
             !mpn KADT = (R-1)*NNUAB(3)
             !mpn KADT = KADT+(a-1)*NUAB(ISP)+B1+IT-1
@@ -368,7 +368,7 @@ do nga=1,nug
 
             end do
             !mpn
-            !mpn call daxpy_(NSTEP,-One,t2_exp(KADT),1,x2(IJS),1)
+            !mpn x2(IJS:IJS+NSTEP-1) = x2(IJS:IJS+NSTEP-1)-t2_exp(KADT:KADT+NSTEP-1)
             !!write(u6,'(A,2I3,8D15.8)')'T',nTri_Elem(I-2)+j,a,(G(r),r=IJS,IJS+NSTEP-1)
             IJS = IJS+maxdim2
           end do       ! RI
@@ -554,7 +554,7 @@ do A1=1,NUAB(ISP),vblock
             end do
           end if
           !mpn
-          !mpn call dcopy_(NSTEP,t2_exp(AADT),ISTEP,x2(RAD),1)
+          !mpn x2(RAD:RAD+NSTEP-1) = t2_exp(AADT:AADT+NSTEP-1)
 
         end do    ! A
       end do      ! I

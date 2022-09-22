@@ -20,6 +20,7 @@ subroutine gen_oovo(w,l0,l1,tmp)
 
 use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no, nv, NvGrp
 use Index_Functions, only: nTri_Elem
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -82,7 +83,7 @@ call Map3_132_t3(l1,tmp,nc,no,nv)
 
 !7.1 zero w
 
-call zeroma(w,1,nTri_Elem(no)*nv*no)
+w(1:nTri_Elem(no)*nv*no) = Zero
 
 !8  mult w(IJ,A,I)  <- l0(IJ,m) . tmp(m,A,I)
 

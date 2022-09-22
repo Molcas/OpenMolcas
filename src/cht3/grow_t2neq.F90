@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, nv, no, lasta, lastb
 real(kind=wp) :: t2(nv,nv,no,no), tmp(dima,dimb,no,no)
-integer(kind=iwp) :: a, b, i, j
+integer(kind=iwp) :: b, i, j
 
 !mp write(u6,*) 'grow_t2neq dima , dimb  ',dima,dimb
 !mp write(u6,*) 'grow_t2neq lasta, lastb ',lasta,lastb
@@ -44,11 +44,9 @@ integer(kind=iwp) :: a, b, i, j
 do j=1,no
   do i=1,no
     do b=1,dimb
-      do a=1,dima
-        t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
-        !mp t2(lastb+b,lasta+a,j,i) = -tmp(b,a,j,i)
-        t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
-      end do
+      t2(lasta+1:lasta+dima,lastb+b,i,j) = tmp(:,b,i,j)
+      !mp t2(lastb+b,lasta+1:lasta+dima,j,i) = -tmp(b,1:dima,j,i)
+      t2(lastb+b,lasta+1:lasta+dima,j,i) = tmp(:,b,i,j)
     end do
   end do
 end do

@@ -26,7 +26,7 @@ real(kind=wp) :: den, dena, denb, denc, XX, YY
 if (adim == 1) return
 !mp write(u6,*) 'enter_aaa enx,nga,',nga,enx
 ndim = nTri_Elem(adim-1)
-call zeroma(t3b,1,ndim*adim)
+t3b(:,:) = Zero
 nug_offset = iasblock(1)*nTri_Elem(nug)
 ias = iasblock(2)*(nga-1)+1
 call multi_readir(la,nnoab*adim*N,lu(2),ias)

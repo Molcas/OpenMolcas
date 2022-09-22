@@ -19,14 +19,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nc, no, dima, occ_ind
 real(kind=wp) :: A(nc,no,dima), B(nc,dima)
-integer(kind=iwp) :: i1, i2
+integer(kind=iwp) :: i2
 
 do i2=1,dima
-  do i1=1,nc
-
-    B(i1,i2) = A(i1,occ_ind,i2)
-
-  end do
+  B(:,i2) = A(:,occ_ind,i2)
 end do
 
 return

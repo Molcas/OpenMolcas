@@ -19,16 +19,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: no, nv, dima, dimb, lasta, lastb
 real(kind=wp) :: A(nv,nv,no,no), B(dima,no,dimb,no)
-integer(kind=iwp) :: i1, i2, i3, i4
+integer(kind=iwp) :: i2, i3, i4
 
 !!write(u6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb
 
 do i4=1,no
   do i3=1,no
-    do i1=1,dima
-      do i2=1,dimb
-        A(lasta+i1,lastb+i2,i3,i4) = B(i1,i3,i2,i4)
-      end do
+    do i2=1,dimb
+      A(lasta+1:lasta+dima,lastb+i2,i3,i4) = B(:,i3,i2,i4)
     end do
   end do
 end do

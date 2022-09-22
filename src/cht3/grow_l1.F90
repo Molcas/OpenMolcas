@@ -19,17 +19,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, nc, no, nv, last
 real(kind=wp) :: l1(nc,no,nv), tmp(nc,no,dima)
-integer(kind=iwp) :: a, i, m
 
 !mp write(u6,*) 'grow_l1i ',dima
 
-do a=1,dima
-  do i=1,no
-    do m=1,nc
-      l1(m,i,last+a) = tmp(m,i,a)
-    end do
-  end do
-end do
+l1(:,:,last+1:last+dima) = tmp
 
 return
 

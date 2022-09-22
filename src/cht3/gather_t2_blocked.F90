@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2,t2_tmp,tmp,switch)
+subroutine gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2,t2_tmp,tmp)
 ! length1 = length of the 1st VO index (=< vblock)
 ! length2 = length of the 2nd VO index (=< vblock)
 
@@ -20,7 +20,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: length1, length2, ngaf, ngal, ngbf, ngbl
 real(kind=wp) :: t2(length1*length2*no*no), t2_tmp(maxdim*maxdim*no*no), tmp(maxdim*maxdim*no*no)
-logical(kind=iwp) :: switch
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 logical(kind=iwp) :: sym
 
@@ -66,9 +65,9 @@ do a=ngaf,ngal
 
     if (a == b) then ! expand and map
       call expand4_12(tmp,t2_tmp,dima,no,no)
-      call grow_t2_blocked(t2,t2_tmp,dima,dimb,no,lasta,lastb,length1,length2,sym,switch)
+      call grow_t2_blocked(t2,t2_tmp,dima,dimb,no,lasta,lastb,length1,length2,sym)
     else
-      call grow_t2_blocked(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2,sym,switch)
+      call grow_t2_blocked(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2,sym)
     end if
 
   end do

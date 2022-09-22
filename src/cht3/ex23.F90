@@ -22,7 +22,7 @@ IJ = 1
 do J=1,J2
   do L=1,I2
     do I=1,J1
-      call DCOPY_(I1,Y(1,L,I,J),1,X(IJ),1)
+      X(IJ:IJ+I1-1) = Y(:,L,I,J)
       IJ = IJ+I1
     end do
   end do

@@ -12,26 +12,27 @@
 subroutine EXPA2_UHF(ARR1,IDM,LI,NSP,ARR2)
 ! THIS SUBROUTINE EXPANDS THE SECOND INDEX OF A MATRIX ARR1
 
+use Index_Functions, only: nTri_Elem
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IDM, LI, NSP
-real(kind=wp) :: ARR1(IDM,*), ARR2(IDM,LI,*)
+real(kind=wp) :: ARR1(IDM,nTri_Elem(LI-1)), ARR2(IDM,LI,LI)
 integer(kind=iwp) :: I, IJ, J
 
 IJ = 0
-call ZEROMA(ARR2(1,1,1),1,IDM)
-do I=2,LI
+do I=1,LI
   do J=1,I-1
     IJ = IJ+1
-    call DCOPY_(IDM,ARR1(1,IJ),1,ARR2(1,I,J),1)
-    call DCOPY_(IDM,ARR1(1,IJ),1,ARR2(1,J,I),1)
+    ARR2(:,I,J) = ARR1(:,IJ)
+    ARR2(:,J,I) = ARR1(:,IJ)
   end do
-  call ZEROMA(ARR2(1,I,I),1,IDM)
+  ARR2(:,I,I) = Zero
 end do
 if (NSP < 0) then
   do I=1,LI
-    call VNEG_CHT3(ARR2(1,1,I),1,ARR2(1,1,I),1,IDM*I)
+    ARR2(:,1:I,I) = -ARR2(:,1:I,I)
   end do
 end if
 

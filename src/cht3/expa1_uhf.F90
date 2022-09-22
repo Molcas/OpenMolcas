@@ -20,28 +20,25 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: IDM, LI, NSP
 real(kind=wp) :: ARR1(*), ARR2(LI,LI,*)
-integer(kind=iwp) :: I, IJ, J, K
+integer(kind=iwp) :: I, IJ, K
 
 if (NSP > 0) then
   IJ = 1
   do K=1,IDM
     do I=1,LI
-      call DCOPY_(I,ARR1(IJ),1,ARR2(I,1,K),LI)
-      call DCOPY_(I,ARR1(IJ),1,ARR2(1,I,K),1)
+      ARR2(I,1:I,K) = ARR1(IJ:IJ+I-1)
+      ARR2(1:I,I,K) = ARR1(IJ:IJ+I-1)
       IJ = IJ+I
     end do
   end do
 else
   IJ = 1
   do K=1,IDM
-    ARR2(1,1,K) = Zero
-    do I=2,LI
+    do I=1,LI
+      ARR2(I,1:I-1,K) = ARR1(IJ:IJ+I-2)
+      ARR2(1:I-1,I,K) = -ARR1(IJ:IJ+I-2)
       ARR2(I,I,K) = Zero
-      call DCOPY_(I-1,ARR1(IJ),1,ARR2(I,1,K),LI)
-      do J=1,I-1
-        ARR2(J,I,K) = -ARR1(IJ)
-        IJ = IJ+1
-      end do
+      IJ = IJ+I-1
     end do
   end do
 end if

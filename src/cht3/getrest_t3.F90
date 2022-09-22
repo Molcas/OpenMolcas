@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: t1(*), t1_tmp(*), E2old
-integer(kind=iwp) :: i, length
+integer(kind=iwp) :: length
 real(kind=wp) :: E1old
 
 !open(unit=LunAux,File='RstFil',form='unformatted')
@@ -30,12 +30,10 @@ read(LunAux) t1(1:length)
 
 call Map2_21_t3(t1,t1_tmp,nv,no)
 
-do i=1,length
-  t1(i+length) = t1_tmp(i)
-  t1(i) = t1_tmp(i)
-end do
+t1(1:length) = t1_tmp(1:length)
+t1(length+1:2*length) = t1_tmp(1:length)
 
-read(LunAux) E1old,E2old,i
+read(LunAux) E1old,E2old,length
 
 if (printkey > 1) write(u6,'(A,2(f15.12,1x))') 'Results from CCSD : E1, E2 ',E1old,E2old
 

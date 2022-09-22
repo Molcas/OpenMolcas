@@ -25,7 +25,7 @@ subroutine klvaa_vvv(x,g,vblock,N,nug,lu,last,iasblock,K,ias)
 use ChT3_global, only: DimGrpaR, maxdim, no, NOAB, NUAB, printkey
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -34,7 +34,6 @@ integer(kind=iwp) :: vblock, N, nug, lu, last, iasblock, K, ias
 integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B, B1, b1_tmp, B2, b2_chk, i_blk, IJS, isp, j_blk, j_tmp, KADT, KI, length, &
                      length1, length2, MAXDIMM, NGA, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, nind_ngbf, nind_ngbl, NNU, &
                      NSTEP, R
-logical(kind=iwp) :: switch
 real(kind=wp), allocatable :: t2_exp(:), t2_tmp(:), tmp(:)
 
 ISP = 1
@@ -60,7 +59,7 @@ do nga=1,nug
     else
       maxdimm = adim*vblock
     end if
-    call zeroma(x,1,N*maxdimm)
+    x(1:N*maxdimm) = Zero
     !mp call zeroma(G(IX),1,N*maxdim)
     B1 = (ngb-1)*vblock+1
 
@@ -120,13 +119,13 @@ do nga=1,nug
     call mma_allocate(t2_tmp,maxdim*maxdim*no*no,label='t2_tmp')
     call mma_allocate(tmp,maxdim*maxdim*no*no,label='tmp')
 
-    switch = .false.
-    call gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2_exp,t2_tmp,tmp,switch)
+    !switch = .false.
+    call gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2_exp,t2_tmp,tmp)
 
     call mma_deallocate(tmp)
     call mma_deallocate(t2_tmp)
 
-    call dscal_(length,-One,t2_exp,1)
+    t2_exp(:) = -t2_exp
 
     !mp
     do a=a1,a2
@@ -168,12 +167,12 @@ do nga=1,nug
           end do
 
           !mp call vsub(G(KADT),1,G(AADT),1,G(IJS),1,NSTEP)
-          !mpn call vsub(t2_exp(KADT),1,t2_exp(AADT),1,x(IJS),1,NSTEP)
+          !mpn x(IJS:IJS+NSTEP-1) = t2_exp(AADT:AADT+NSTEP-1)-t2_exp(KADT:KADT+NSTEP-1)
           !!write(u6,'(A,3I3,8D15.8)') 'T',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
           IJS = IJS+maxdimm
         end do      ! R
-          !mp call zeroma(G(IJS),1,NSTEP)
-        call zeroma(x(IJS),1,NSTEP)
+        !mp call zeroma(G(IJS),1,NSTEP)
+        x(IJS:IJS+NSTEP-1) = Zero
         IJS = IJS+maxdimm
         ! T2 >>> K  (transposed)
         ! copies (b1..b2,a,r,k)-(b1..b2,a,k,r)
@@ -209,7 +208,7 @@ do nga=1,nug
           end do
 
           !mp call vsub(G(KADT),1,G(AADT),1,G(IJS),1,NSTEP)
-          !mpn call vsub(t2_exp(KADT),1,t2_exp(AADT),1,x(IJS),1,NSTEP)
+          !mpn x(IJS:IJS+NSTEP-1) = t2_exp(AADT:AADT+NSTEP-1)-t2_exp(KADT:KADT+NSTEP-1)
           !!write(u6,'(A,3I3,8D15.8)') 'T',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
           !!call daxpy_(NSTEP,-One,G(KADT),1,G(IJS),1)
           IJS = IJS+maxdimm

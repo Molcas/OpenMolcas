@@ -50,9 +50,7 @@ end do
 
 maxdim = DimGrpaR(1)
 do i=1,NaGrpR
-  if (DimGrpaR(i) > maxdim) then
-    maxdim = DimGrpaR(i)
-  end if
+  if (DimGrpaR(i) > maxdim) maxdim = DimGrpaR(i)
 end do
 
 !3 def L1Name, L2Name, T2Name

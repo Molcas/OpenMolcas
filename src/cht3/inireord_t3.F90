@@ -46,9 +46,7 @@ call Cho_X_init(rc,FracMem) ! initialize cholesky info
 ! take local # of Cholesky Vectors on this node
 #ifdef _MOLCAS_MPP_
 
-do jal1=0,Nprocs-1
-  NChLoc(jal1) = 0
-end do
+NChLoc(0:Nprocs-1) = 0
 
 NChLoc(MyRank) = NumCho(1)
 

@@ -76,8 +76,7 @@ do k=1,noab_b
       abb = (a-1)*cdim+1
       bab = (a-1)*ncdim+1
       do b=1,a-1
-        call daxpy_(cdim,-One,t3b(abb),1,mi(ab,i),1)
-        call daxpy_(cdim,One,t3b(bab),1,mi(ab,i),1)
+        mi(ab:ab+cdim-1,i) = mi(ab:ab+cdim-1,i)-t3b(abb:abb+cdim-1)+t3b(bab:bab+cdim-1)
         ab = ab+cdim
         abb = abb+ncdim
         bab = bab+cdim
@@ -106,8 +105,8 @@ do k=1,noab_b
         ab = ab+ncdim
       end do
       ! K_ab^ir x L_rc^jk -K_ab^jr x L_rc^ik
-      call vsub(kab(1,1,j),1,kab(1,1,i),1,kc,1,N*nadim)
-      call vadd(lxc(1,jk),1,lxc(1,ik),1,mij,1,N*cdim)
+      kc(1:N*nadim) = pack(kab(:,:,i)-kab(:,:,j),.true.)
+      mij(1:N*cdim) = lxc(:,jk)+lxc(:,ik)
       call DGEMM_('T','T',cdim,nadim,N,one,mij,N,kc,nadim,zero,t3a,cdim)
       ! K_ab^ir x L_rc^jk
       !!call DGEMM_('T','T',cdim,nadim,N,one,lxc(1,jk),N,ka,nadim,zero,t3a,cdim)
@@ -115,8 +114,8 @@ do k=1,noab_b
       !!call DGEMM_('T','T',cdim,nadim,N,-one,lxc(1,ik),N,kb,nadim,one,t3a,cdim)
 
       ! K_bc^ir x L_ra^kj -K_bc^jr x L_ra^ki
-      call vsub(kca(1,1,j),1,kca(1,1,i),1,kc,1,N*ncdim)
-      call vadd(lxa(1,kj),1,lxa(1,ki),1,mij,1,N*adim)
+      kc(1:N*ncdim) = pack(kca(:,:,i)-kca(:,:,j),.true.)
+      mij(1:N*adim) = lxa(:,kj)+lxa(:,ki)
       call DGEMM_('N','N',ncdim,adim,N,one,kc,ncdim,mij,N,one,t3b,ncdim)
       ! K_bc^ir x L_ra^kj
       !!call DGEMM_('N','N',ncdim,adim,N,one,ka,ncdim,lxa(1,kj),N,one,t3b,ncdim)
@@ -127,16 +126,14 @@ do k=1,noab_b
         abb = (a-1)*cdim+1
         bab = (a-1)*ncdim+1
         do b=1,a-1
-          call daxpy_(cdim,-One,t3b(abb),1,t3a(ab),1)
-          call daxpy_(cdim,One,t3b(bab),1,t3a(ab),1)
+          t3a(ab:ab+cdim-1) = t3a(ab:ab+cdim-1)-t3b(abb:abb+cdim-1)+t3b(bab:bab+cdim-1)
           ab = ab+cdim
           abb = abb+ncdim
           bab = bab+cdim
         end do
       end do
 
-      call daxpy_(nadim*cdim,-One,mi(1,i),1,t3a,1)
-      call daxpy_(nadim*cdim,One,mi(1,j),1,t3a,1)
+      t3a(1:nadim*cdim) = t3a(1:nadim*cdim)-mi(:,i)+mi(:,j)
       den = oehi(i)+oehi(j)+oehk(k)
       ab = 0
       do a=2,adim

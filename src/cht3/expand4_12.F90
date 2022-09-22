@@ -20,19 +20,19 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: d1, d2, d3
 real(kind=wp) :: AA(nTri_Elem(d1),d2,d3), BB(d1,d1,d2,d3)
-integer(kind=iwp) :: a, ab, b, i, j
+integer(kind=iwp) :: a, ab, b, i
 
 ab = 0
 do a=1,d1
-  do b=1,a
+  do b=1,a-1
     ab = ab+1
+    BB(a,b,:,:) = AA(ab,:,:)
     do i=1,d2
-      do j=1,d3
-        BB(a,b,i,j) = AA(ab,i,j)
-        if (a /= b) BB(b,a,j,i) = AA(ab,i,j)
-      end do
+      BB(b,a,:,i) = AA(ab,i,:)
     end do
   end do
+  ab = ab+1
+  BB(a,a,:,:) = AA(ab,:,:)
 end do
 
 return

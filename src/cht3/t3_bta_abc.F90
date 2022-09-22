@@ -112,7 +112,7 @@ do k=1,noab_b
     do a=1,adim
       ba = (a-1)*cdim+1
       do b=1,bdim
-        call daxpy_(cdim,-One,t3b(ba),1,mi(ab,i),1)
+        mi(ab:ab+cdim-1,i) = mi(ab:ab+cdim-1,i)-t3b(ba:ba+cdim-1)
         ab = ab+cdim
         ba = ba+ncdim
       end do
@@ -150,9 +150,9 @@ do k=1,noab_b
       call map2_21_t3(t3b,t3a,nadim,cdim)
       ! cba in t3a
       ! K_ab^ir x L_rc^jk  -K_ab^jr x L_rc^ik
-      call vsub(kab(1,1,j),1,kab(1,1,i),1,kc,1,N*nadim)
-      !call daxpy_(N*nadim,-one,kb,1,ka,1)
-      call vadd(lxc(1,jk),1,lxc(1,ik),1,mij,1,N*cdim)
+      !call ka(1:N*nadim) = ka(1:N*nadim)-kb(1:N*nadim)
+      kc(1:N*nadim) = pack(kab(:,:,i)-kab(:,:,j),.true.)
+      mij(1:N*cdim) = lxc(:,jk)+lxc(:,ik)
       call DGEMM_('T','T',cdim,nadim,N,one,mij,N,kc,nadim,one,t3a,cdim)
       ! K_ab^ir x L_rc^jk
       !!call DGEMM_('T','T',cdim,nadim,N,one,lxc(1,jk),N,ka,nadim,one,t3a,cdim)
@@ -160,16 +160,16 @@ do k=1,noab_b
       !!call DGEMM_('T','T',cdim,nadim,N,-one,lxc(1,ik),N,kb,nadim,one,t3a,cdim)
 
       ! K_bc^ir x L_ra^kj -K_bc^jr x L_ra^ki         cba
-      call vsub(kcb(1,1,j),1,kcb(1,1,i),1,kc,1,N*nbdim)
-      call vadd(lxa(1,kj),1,lxa(1,ki),1,mij,1,N*adim)
+      kc(1:N*nbdim) = pack(kcb(:,:,i)-kcb(:,:,j),.true.)
+      mij(1:N*adim) = lxa(:,kj)+lxa(:,ki)
       call DGEMM_('N','N',nbdim,adim,N,one,kc,nbdim,mij,N,one,t3a,nbdim)
       ! K_bc^ir x L_ra^kj          cba
       !!call DGEMM_('N','N',nbdim,adim,N,one,ka,nbdim,lxa(1,kj),N,one,t3a,nbdim)
       ! -K_bc^jr x L_ra^ki         cba
       !!call DGEMM_('N','N',nbdim,adim,N,-one,kb,nbdim,lxa(1,ki),N,one,t3a,nbdim)
       ! K_ac^ir x L_rb^kj  -K_ac^jr x L_rb^ki      cab
-      call vsub(kca(1,1,j),1,kca(1,1,i),1,kc,1,N*ncdim)
-      call vadd(lxb(1,kj),1,lxb(1,ki),1,mij,1,N*bdim)
+      kc(1:N*ncdim) = pack(kca(:,:,i)-kca(:,:,j),.true.)
+      mij(1:N*bdim) = lxb(:,kj)+lxb(:,ki)
       call DGEMM_('N','N',ncdim,bdim,N,one,kc,ncdim,mij,N,zero,t3b,ncdim)
       ! K_ac^ir x L_rb^kj      cab
       !!call DGEMM_('N','N',ncdim,bdim,N,one,ka,ncdim,lxb(1,kj),N,zero,t3b,ncdim)
@@ -180,7 +180,7 @@ do k=1,noab_b
       do a=1,adim
         ba = (a-1)*cdim+1
         do b=1,bdim
-          call daxpy_(cdim,-One,t3b(ba),1,t3a(ab),1)
+          t3a(ab:ab+cdim-1) = t3a(ab:ab+cdim-1)-t3b(ba:ba+cdim-1)
           ab = ab+cdim
           ba = ba+ncdim
         end do
@@ -196,8 +196,7 @@ do k=1,noab_b
       !mp   end do
       !mp end do
 
-      call daxpy_(nadim*cdim,-One,mi(1,i),1,t3a,1)
-      call daxpy_(nadim*cdim,One,mi(1,j),1,t3a,1)
+      t3a(1:nadim*cdim) = t3a(1:nadim*cdim)-mi(:,i)+mi(:,j)
       den = oehi(i)+oehi(j)+oehk(k)
       ab = 0
       do a=1,adim

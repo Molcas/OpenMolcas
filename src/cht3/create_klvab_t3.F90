@@ -26,7 +26,6 @@ use ChT3_global, only: DimGrpaR, dupblk, dupfil, ICH, IOPT, maxdim, nblock, nc, 
 use ChT3_procedures, only: klvaa_oovo
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -35,7 +34,6 @@ integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, adim, B1, b1_tmp, b2_chk, i, i_blk,
                      ISTEP, IUHF, j, j_blk, j_tmp, k, last, last_aa, length, length1, length2, lu, n, nga, ngaf, ngal, ngb, ngbf, &
                      ngbl, nind_ngaf, nind_ngal, nind_ngbf, nind_ngbl, NNO, NNU, NSTEP, nug, RAD
 character(len=6) :: FN
-logical(kind=iwp) :: switch
 real(kind=wp), allocatable :: g(:), l0(:), l1(:), l1_1(:), l2_1(:), scr(:), t2_exp(:), t2_tmp(:), tmp(:), tmp2(:), x(:)
 
 if (printkey >= 10) then
@@ -87,7 +85,7 @@ call mma_allocate(x,vblock*vblock*n,label='c1_ix')
 !
 !mp call dscal_(NNUAB(3)*NNRED,-One,G(it),1)
 !mp call dscal_(NNUAB(3)*NNOAB(3),-One,G(it),1)
-!mpn call dscal_(NNUAB(3)*NNOAB(3),-One,t,1)
+!mpn t(:) = -t
 !mp if (IUHF == 0) call decomp2ind(G(it),NNUAB(3),noab(1),NUAB(1))
 !!write(u6,*) ddot_(nnoab(3)*nnuab(3),G(it),1,G(it),1)
 
@@ -198,10 +196,10 @@ do isp=1,IUHF+1
 
         !mpn write(u6,'(A,4(i5,2x))') 'a1,a2,b1,b2_chk = ',a1,a2,b1,b2_chk
 
-        switch = .false.
+        !switch = .false.
         if (nga < ngb) then
           !mpn write(u6,*) 'switching nga, ngb',ngb,nga
-          switch = .true.
+          !switch = .true.
 
           call block_interf(b1,b2_chk,a1,a2,ngaf,ngal,nind_ngaf,nind_ngal,ngbf,ngbl,nind_ngbf,nind_ngbl)
 
@@ -246,12 +244,12 @@ do isp=1,IUHF+1
         call mma_allocate(t2_tmp,maxdim*maxdim*no*no,label='cd_it2tmp')
         call mma_allocate(tmp,maxdim*maxdim*no*no,label='cd_itmp')
 
-        call gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2_exp,t2_tmp,tmp,switch)
+        call gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2_exp,t2_tmp,tmp)
 
         call mma_deallocate(tmp)
         call mma_deallocate(t2_tmp)
 
-        call dscal_(length,-One,t2_exp,1)
+        t2_exp(:) = -t2_exp
 
         do A=A1,A2
           !mp call EXPA1_UHF(G(IJS),1,NUAB(IS2),1,G(ISCR))
@@ -332,7 +330,7 @@ do isp=1,IUHF+1
           RAD = noab(is2)*adim*nstep+(A-A1)*nstep+1
           do IADR=B1,NUAB(IS2)*NUAB(IS2),NUAB(IS2)
             !mp call dcopy_(NSTEP,G(IADR),1,G(RAD),1)
-            call dcopy_(NSTEP,scr(IADR),1,x(RAD),1)
+            x(RAD:RAD+NSTEP-1) = scr(IADR:IADR+NSTEP-1)
             RAD = RAD+adim*nstep
           end do      ! IADR
         end do        ! A
@@ -378,7 +376,7 @@ do isp=1,IUHF+1
 end do     ! ISP
 
 !mp call dscal_(NNUAB(3)*NNOAB(3),-One,G(it),1)
-!mpn call dscal_(NNUAB(3)*NNOAB(3),-One,t,1)
+!mpn t(:) = -t
 !mp??
 call mma_deallocate(x)
 !mp??
@@ -528,7 +526,7 @@ do isp=1,IUHF+1
           RAD = 1+(A-1)*n+(J-1)*nstep*N+(K-1)*noab(is2)*nstep*N
           IADR = 1+(A-1)*noab(is2)*noab(is2)+(j-1)*noab(is2)
           !mp call dcopy_(noab(is2),G(IADR),1,G(RAD),1)
-          call dcopy_(noab(is2),scr(IADR),1,x(RAD),1)
+          x(RAD:RAD+noab(is2)-1) = scr(IADR:IADR+noab(is2)-1)
         end do     ! A
       end do       ! J
     end do         ! K

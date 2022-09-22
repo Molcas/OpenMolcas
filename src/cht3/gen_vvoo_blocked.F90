@@ -22,6 +22,7 @@ subroutine gen_vvoo_blocked(w,l1,tmp,l2,length1,length2,ngaf,ngal,ngbf,ngbl)
 !       L1(m,I,A')
 
 use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -60,7 +61,7 @@ do a=ngaf,ngal
 
     ! zero tmp
 
-    call zeroma(tmp,1,dima*no*dimb*no)
+    tmp(1:dima*no*dimb*no) = Zero
 
     !7 mult tmp(A',I,B',J) <- l1 (A',I,m) . l2(m,B',J)
 

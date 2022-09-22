@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, no, lasta, lastb, length1, length2
 real(kind=wp) :: t2(length1,length2,no,no), tmp(dima,dimb,no,no)
-integer(kind=iwp) :: a, b, i, j
+integer(kind=iwp) :: b, i, j
 
 !mp write(u6,*) 'lasta+dima, length1 ',lasta+dima,length1
 !mp write(u6,*) 'lastb+dimb, length2 ',lastb+dimb,length2
@@ -31,12 +31,10 @@ integer(kind=iwp) :: a, b, i, j
 do i=1,no
   do j=1,no
     do b=1,dimb
-      do a=1,dima
 
-        !mp t2(lasta+a,lastb+b,ij) = tmp(a,b,i,j)-tmp(a,b,j,i)
-        t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
+      !mp t2(lasta+1:lasta+dima,lastb+b,ij) = tmp(:,b,i,j)-tmp(:,b,j,i)
+      t2(lasta+1:lasta+dima,lastb+b,i,j) = tmp(:,b,i,j)
 
-      end do
     end do
   end do
 end do

@@ -19,14 +19,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nc, nv, dima, dimb, lasta, lastb
 real(kind=wp) :: A(nv,nv,nc), B(dima,dimb,nc)
-integer(kind=iwp) :: i1, i2, i3
+integer(kind=iwp) :: i2, i3
 
 do i3=1,nc
-  do i1=1,dima
-    do i2=1,dimb
-      A(lasta+i1,lastb+i2,i3) = B(i1,i2,i3)
-      A(lastb+i2,lasta+i1,i3) = B(i1,i2,i3)
-    end do
+  do i2=1,dimb
+    A(lasta+1:lasta+dima,lastb+i2,i3) = B(:,i2,i3)
+    A(lastb+i2,lasta+1:lasta+dima,i3) = B(:,i2,i3)
   end do
 end do
 

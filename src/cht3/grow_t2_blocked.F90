@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine grow_t2_blocked(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2,sym,switch)
+subroutine grow_t2_blocked(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2,sym)
 
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dima, dimb, no, lasta, lastb, length1, length2
 real(kind=wp) :: t2(length1,length2,no,no), tmp(dima,dimb,no,no)
-logical(kind=iwp) :: sym, switch
-integer(kind=iwp) :: a, b, i, j
+logical(kind=iwp) :: sym
+integer(kind=iwp) :: b, i, j
 
 !mp write(u6,*) 'grow_t2neq dima , dimb  ',dima,dimb
 !mp write(u6,*) 'grow_t2neq lasta, lastb ',lasta,lastb
@@ -41,18 +41,15 @@ integer(kind=iwp) :: a, b, i, j
 do j=1,no
   do i=1,no
     do b=1,dimb
-      do a=1,dima
-        if (.not. switch) then
-          t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
-        else
-          !mp !t2(lasta+a,lastb+b,i,j) = tmp(a,b,j,i)
-          t2(lasta+a,lastb+b,i,j) = tmp(a,b,i,j)
-        end if
-        !mpn t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
+      !if (switch) then
+      !  !mp !t2(lasta+1:lasta+dima,lastb+b,i,j) = tmp(:,b,j,i)
+      !  t2(lasta+1:lasta+dima,lastb+b,i,j) = tmp(:,b,i,j)
+      !else
+      t2(lasta+1:lasta+dima,lastb+b,i,j) = tmp(:,b,i,j)
+      !end if
+      !mpn t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
 
-        if (sym) t2(lastb+b,lasta+a,j,i) = tmp(a,b,i,j)
-
-      end do
+      if (sym) t2(lastb+b,lasta+1:lasta+dima,j,i) = tmp(:,b,i,j)
     end do
   end do
 end do

@@ -25,6 +25,7 @@ subroutine gen_vvvo(occ_ind,w3,l1_1,l2_1,tmp)
 
 use ChT3_global, only: DimGrpaR, L1Name, L2Name, LunAux, nc, no, nv, NvGrp
 use Index_Functions, only: nTri_Elem
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -119,7 +120,7 @@ do a=1,NvGrp
 
       !3.2.1 zero tmp
 
-      call zeroma(tmp,1,dima*dimb*dimc)
+      tmp(1:dima*dimb*dimc) = Zero
 
       !3.3 mult tmp (a',b',c') <- L2_1 (a',b',m) l1_1 (m,c')
 
