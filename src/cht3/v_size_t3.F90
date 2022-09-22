@@ -12,6 +12,7 @@
 subroutine v_size_t3(vblock,nprocs,krem,printkey)
 
 use ChT3_global, only: NNOAB, NNUAB, NOAB, NUAB
+use Index_Functions, only: nTri_Elem
 use Constants, only: One, Three
 use Definitions, only: iwp, u6
 
@@ -19,8 +20,8 @@ implicit none
 integer(kind=iwp) :: vblock, nprocs, krem, printkey
 integer(kind=iwp) :: isp, maxnu, N, nuga, nugc, rest, t3_size, t3_size_a, tmp, vblock_isp(2)
 
-! number of elementary subprocesses: nugc*nuga*(nuga+1)/2
-!                                   + nuga*nugc*(nugc+1)/2
+! number of elementary subprocesses: nugc*nTri_Elem(nuga)
+!                                   + nuga*nTri_Elem(nugc)
 !                                   + nugc**3/6
 !                                   + nuga**3/6
 ! check this:
@@ -31,7 +32,7 @@ vblock_isp(1) = maxnu/nprocs
 tmp = 1
 if (maxnu >= 100) tmp = int((2*nprocs)**(One/Three))
 
-do while ((tmp*(tmp*(tmp+1))/2) < nprocs)
+do while (tmp*nTri_Elem(tmp) < nprocs)
   tmp = tmp+1
 end do
 vblock_isp(1) = maxnu/tmp

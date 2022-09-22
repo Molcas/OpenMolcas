@@ -15,6 +15,7 @@ subroutine defcommon(no,nv)
 ! define commons needed in DIRCC routines
 
 use ChT3_global, only: IOPT, IT, NNOAB, NNUAB, NOAB, NUAB
+use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp
 
 implicit none
@@ -25,15 +26,15 @@ integer(kind=iwp) :: no, nv
 noab(1) = no
 noab(2) = no
 
-nnoab(1) = noab(1)*(noab(1)-1)/2
-nnoab(2) = noab(2)*(noab(2)-1)/2
+nnoab(1) = nTri_Elem(noab(1)-1)
+nnoab(2) = nTri_Elem(noab(2)-1)
 nnoab(3) = noab(1)*noab(2)
 
 nuab(1) = nv
 nuab(2) = nv
 
-nnuab(1) = (nuab(1)*(nuab(1)-1))/2
-nnuab(2) = (nuab(2)*(nuab(2)-1))/2
+nnuab(1) = nTri_Elem(nuab(1)-1)
+nnuab(2) = nTri_Elem(nuab(2)-1)
 nnuab(3) = nuab(1)*nuab(2)
 
 ! ----  PARAM ----

@@ -14,6 +14,7 @@ subroutine gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2,t2_tmp,tmp,s
 ! length2 = length of the 2nd VO index (=< vblock)
 
 use ChT3_global, only: DimGrpaR, LunAux, maxdim, no, T2Name
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -40,7 +41,7 @@ do a=ngaf,ngal
     dimb = DimGrpaR(b)
 
     if (a == b) then  ! a=b
-      length = (dima*(dima+1)*no*no)/2
+      length = nTri_Elem(dima)*no*no
       call GetX_t3(tmp,length,LunAux,T2Name(a,b),1,1)
     else ! a>b
       length = dima*dimb*no*no

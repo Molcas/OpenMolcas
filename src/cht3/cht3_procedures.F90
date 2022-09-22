@@ -9,32 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine expand4_12(AA,BB,d1,d2,d3)
-! this routine does:
-!
-! A(ab,i,j) -> A(a,b,i,j)
-
-use Index_Functions, only: nTri_Elem
-use Definitions, only: wp, iwp
+! This module contains procedures that need an interface
+module ChT3_procedures
 
 implicit none
-integer(kind=iwp) :: d1, d2, d3
-real(kind=wp) :: AA(nTri_Elem(d1),d2,d3), BB(d1,d1,d2,d3)
-integer(kind=iwp) :: a, ab, b, i, j
+private
 
-ab = 0
-do a=1,d1
-  do b=1,a
-    ab = ab+1
-    do i=1,d2
-      do j=1,d3
-        BB(a,b,i,j) = AA(ab,i,j)
-        if (a /= b) BB(b,a,j,i) = AA(ab,i,j)
-      end do
-    end do
-  end do
-end do
+public :: klvaa_oovo
 
-return
+contains
 
-end subroutine expand4_12
+#define _IN_MODULE_
+#include "klvaa_oovo.F90"
+
+end module ChT3_procedures

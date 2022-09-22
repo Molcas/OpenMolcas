@@ -19,6 +19,7 @@ subroutine gather_t2(t2,t2_tmp,tmp)
 ! T2(nv_beta,nv_alpha,no_beta,no_alpha)
 
 use ChT3_global, only: DimGrpaR, LunAux, no, nv, NvGrp, T2Name
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -46,7 +47,7 @@ do a=1,NvGrp
       dimb = dima
 
       !mp write(u6,*) 'dima = ',dima
-      length = (dima*(dima+1)*no*no)/2
+      length = nTri_Elem(dima)*no*no
       !mp write(u6,*) 'length = ',length
       !mp !write(u6,*) 'file size (g77) = ',16+length*8
       !mp write(u6,*) 'file size (ifort) = ',8+length*8

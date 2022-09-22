@@ -12,15 +12,16 @@
 subroutine t3_bta_aac(nuga,nugc,kab,kca,kac,kc,la,lxa,lxc,mi,mij,adim,cdim,N,noab_a,noab_b,lu,iasblock,nga,ngc,oehi,oehk,oepa, &
                       oepc,enx,vab,vca,t1aa,t1ba,t1ac,t1bc,t3a,t3b,ifvo)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nuga, nugc, adim, cdim, N, noab_a, noab_b, lu(6), iasblock(5), nga, ngc
-real(kind=wp) :: kab(adim*(adim-1)/2,N,*), kca(adim*cdim,N,*), kac(adim*cdim,N,*), kc(*), la(N*adim,*), lxa(N*adim,*), &
-                 lxc(N*cdim,*), mi(cdim*adim*(adim-1)/2,*), mij(*), oehi(*), oehk(*), oepa(*), oepc(*), enx, &
-                 vab(adim*(adim-1)/2,*), vca(adim*cdim,*), t1aa(noab_a,*), t1ba(noab_a,*), t1ac(noab_b,*), t1bc(noab_b,*), t3a(*), &
-                 t3b(*)
+real(kind=wp) :: kab(nTri_Elem(adim-1),N,*), kca(adim*cdim,N,*), kac(adim*cdim,N,*), kc(*), la(N*adim,*), lxa(N*adim,*), &
+                 lxc(N*cdim,*), mi(cdim*nTri_Elem(adim-1),*), mij(*), oehi(*), oehk(*), oepa(*), oepc(*), enx, &
+                 vab(nTri_Elem(adim-1),*), vca(adim*cdim,*), t1aa(noab_a,*), t1ba(noab_a,*), t1ac(noab_b,*), t1bc(noab_b,*), &
+                 t3a(*), t3b(*)
 logical(kind=iwp) :: ifvo
 integer(kind=iwp) :: a, ab, abb, b, bab, c, i, ias, iasabi, iasack, iascai, ij, ik, j, jk, k, ki, kj, nadim, ncdim, ngab_offset, &
                      ngac_offset, ngca_offset, nno_a, nnoab, nuga_offset, nugc_offset
@@ -28,11 +29,11 @@ real(kind=wp) :: den, dena, denb, denc, xx, yy
 
 ! iasblock(1) > ka,kb,kc   iasblock(2) > la,lb iasblock(3) > lxa,lxc,lxb
 if (adim == 1) return
-nno_a = noab_a*(noab_a-1)/2
+nno_a = nTri_Elem(noab_a-1)
 nnoab = noab_a*noab_b
-nadim = adim*(adim-1)/2
+nadim = nTri_Elem(adim-1)
 ncdim = adim*cdim
-nuga_offset = iasblock(1)*nuga*(nuga+1)/2
+nuga_offset = iasblock(1)*nTri_Elem(nuga)
 nugc_offset = iasblock(1)*nuga*nugc
 ias = iasblock(2)*(nga-1)+1
 call multi_readir(la,nno_a*adim*N,lu(2),ias)
@@ -41,15 +42,15 @@ call multi_readir(lxa,nnoab*adim*N,lu(5),ias)
 ias = iasblock(3)*(ngc-1)+1
 call multi_readir(lxc,nnoab*cdim*N,lu(6),ias)
 ! vvoo ints reading
-ngab_offset = iasblock(4)*(nga*(nga-1)/2+nga-1)+1
+ngab_offset = iasblock(4)*(nTri_Elem(nga-1)+nga-1)+1
 ias = iasblock(2)*nuga+ngab_offset
 call multi_readir(vab,nno_a*nadim,lu(2),ias)
 ngca_offset = iasblock(5)*(nugc*(nga-1)+ngc-1)+1
-ias = iasblock(2)*nuga+iasblock(4)*nuga*(nuga+1)/2+ngca_offset
+ias = iasblock(2)*nuga+iasblock(4)*nTri_Elem(nuga)+ngca_offset
 call multi_readir(vca,nnoab*adim*cdim,lu(2),ias)
 !!ngac_offset = iasblock(5)*(nuga*(ngc-1)+nga-1)+1
 ! end readin vvoo ints
-ngab_offset = iasblock(1)*(nga*(nga-1)/2+nga-1)+1
+ngab_offset = iasblock(1)*(nTri_Elem(nga-1)+nga-1)+1
 ngac_offset = iasblock(1)*(nuga*(ngc-1)+nga-1)+1
 ngca_offset = iasblock(1)*(nugc*(nga-1)+ngc-1)+1
 

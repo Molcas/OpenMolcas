@@ -11,6 +11,7 @@
 
 subroutine decomp2ind(W,IDM,no,NF)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
@@ -29,7 +30,7 @@ real(kind=wp) :: DD
 
 !write(u6,*) 'decomp2ind:',IDM,no,NF
 do I=1,no
-  II = I*(I+1)/2
+  II = nTri_Elem(I)
   do K=2,NF
     do L=1,K-1
       KL = (K-1)*NF+L
@@ -42,7 +43,7 @@ do I=1,no
 end do
 if (NO > 2) then
   do I=NO,2,-1
-    IJ = I*(I-1)/2+1
+    IJ = nTri_Elem(I-1)+1
     IJO = (I-1)*no+1
     call DCOPY_(IDM*I,W(1,IJ),1,W(1,IJO),1)
   end do

@@ -14,6 +14,7 @@ subroutine t3loopa(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,e
 ! implemented integer offsets, PV, 16 may 2004.
 
 use ChT3_global, only: nblock, NNOAB, NOAB, NUAB
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -21,9 +22,9 @@ implicit none
 real(kind=wp) :: oeh(*), oep(*), t1a(*), t1b(*), energ(*), enx
 integer(kind=iwp) :: nga, ngb, ngc, vblock, isp, LU(*)
 logical(kind=iwp) :: ifvo, scored
-#include "WrkSpc.fh"
-integer(kind=iwp) :: adim, aset, bdim, bset, cdim, cset, iasblock(3), IUHF, ka, la, lb, lc, mi, mij, n, nug, t3a, t3b, voa, vob, voc
-integer(kind=iwp), save :: kb, kc
+integer(kind=iwp) :: adim, aset, bdim, bset, cdim, cset, iasblock(3), IUHF, n, nug
+real(kind=wp), allocatable :: ka(:), la(:), lb(:), lc(:), t3a(:), t3b(:), voa(:), vob(:), voc(:)
+real(kind=wp), allocatable, save :: kb(:), kc(:)
 
 N = noab(isp)+nuab(isp)
 enx = Zero
@@ -48,35 +49,33 @@ if ((iasblock(3)*nblock) < (nnoab(iuhf)*vblock*vblock)) iasblock(3) = iasblock(3
 !mp call w_free(g,0,'G3loopa')
 ! allocations
 !mp call w_alloc(ka,noab(isp)*vblock*vblock*n,'kaT3loopa')
-call GetMem('loopa_ka','Allo','Real',ka,noab(isp)*vblock*vblock*n)
+call mma_allocate(ka,noab(isp)*vblock*vblock*n,label='loopa_ka')
 if (nug /= 1) then
   !mp call w_alloc(kb,noab(isp)*vblock*vblock*n,'kbT3loopa')
-  call GetMem('loopa_kb','Allo','Real',kb,noab(isp)*vblock*vblock*n)
+  call mma_allocate(kb,noab(isp)*vblock*vblock*n,label='loopa_kb')
   !mp call w_alloc(kc,noab(isp)*vblock*vblock*n,'kcT3loopa')
-  call GetMem('loopa_kc','Allo','Real',kc,noab(isp)*vblock*vblock*n)
+  call mma_allocate(kc,noab(isp)*vblock*vblock*n,label='loopa_kc')
 end if
 !mp call w_alloc(la,nnoab(IUHF)*vblock*n,'laT3loopa')
-call GetMem('loopa_la','Allo','Real',la,nnoab(IUHF)*vblock*n)
+call mma_allocate(la,nnoab(IUHF)*vblock*n,label='loopa_la')
 !mp call w_alloc(lb,nnoab(IUHF)*vblock*n,'lbT3loopa')
-call GetMem('loopa_lb','Allo','Real',lb,nnoab(IUHF)*vblock*n)
+call mma_allocate(lb,nnoab(IUHF)*vblock*n,label='loopa_lb')
 !mp call w_alloc(lc,nnoab(IUHF)*vblock*n,'lcT3loopa')
-call GetMem('loopa_lc','Allo','Real',lc,nnoab(IUHF)*vblock*n)
+call mma_allocate(lc,nnoab(IUHF)*vblock*n,label='loopa_lc')
 !mp call w_alloc(t3a,vblock*vblock*vblock,'t3aT3loopa')
-call GetMem('loopa_t3a','Allo','Real',t3a,vblock*vblock*vblock)
+call mma_allocate(t3a,vblock*vblock*vblock,label='loopa_t3a')
 !mp call w_alloc(t3b,vblock*vblock*vblock,'t3bT3loopa')
-call GetMem('loopa_t3b','Allo','Real',t3b,vblock*vblock*vblock)
+call mma_allocate(t3b,vblock*vblock*vblock,label='loopa_t3b')
 !mp call w_alloc(voa,vblock*vblock*nnoab(IUHF),'voaT3loopa')
-call GetMem('loopa_voa','Allo','Real',voa,vblock*vblock*nnoab(IUHF))
+call mma_allocate(voa,vblock*vblock*nnoab(IUHF),label='loopa_voa')
 !mp call w_alloc(vob,vblock*vblock*nnoab(IUHF),'vobT3loopa')
-call GetMem('loopa_vob','Allo','Real',vob,vblock*vblock*nnoab(IUHF))
+call mma_allocate(vob,vblock*vblock*nnoab(IUHF),label='loopa_vob')
 !mp call w_alloc(voc,vblock*vblock*nnoab(IUHF),'vocT3loopa')
-call GetMem('loopa_voc','Allo','Real',voc,vblock*vblock*nnoab(IUHF))
+call mma_allocate(voc,vblock*vblock*nnoab(IUHF),label='loopa_voc')
 ! this is necessary
 ! prefactors currently a formal allocation
 !mp ? call w_alloc(mi,1,'miT3loopa')
 !mp ? call w_alloc(mij,1,'T3loopa')
-call GetMem('loopa_mi','Allo','Real',mi,1)
-call GetMem('loopa_mij','Allo','Real',mij,1)
 
 !mp !!!end if     ! energ - initialization
 aset = (nga-1)*vblock
@@ -92,32 +91,29 @@ if (nga == ngc) then
 
   !mp call t3_bt_aaa(nug,g(ka),g(ka),g(ka),g(la),g(mi),g(mij),adim,N,noab(isp),nuab(isp),nnoab(iuhf),lu,iasblock,nga,oeh, &
   !mp                oep(aset+1),enx,g(voa),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),g(t3a),g(t3b),ifvo)
-  call t3_bt_aaa(nug,Work(ka),Work(la),adim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,oeh,oep(aset+1),enx,Work(voa), &
-                 t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),Work(t3a),Work(t3b),ifvo)
+  call t3_bt_aaa(nug,ka,la,adim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,oeh,oep(aset+1),enx,voa,t1a(noab(isp)*aset+1), &
+                 t1b(noab(isp)*aset+1),t3a,t3b,ifvo)
 
 else if (nga == ngb) then
   !mp call t3_bt_aac(nug,g(ka),g(kb),g(kc),g(la),g(lc),g(mi),g(mij),adim,cdim,N,noab(isp),nuab(isp),nnoab(iuhf),lu,iasblock,nga, &
   !mp                ngc,oeh,oep(aset+1),oep(cset+1),enx,g(voa),g(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1), &
   !mp                t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),g(t3a),g(t3b),ifvo)
-  call t3_bt_aac(nug,Work(ka),Work(kc),Work(la),Work(lc),adim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,ngc,oeh, &
-                 oep(aset+1),oep(cset+1),enx,Work(voa),Work(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1), &
-                 t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),Work(t3a),Work(t3b),ifvo)
+  call t3_bt_aac(nug,ka,kc,la,lc,adim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,ngc,oeh,oep(aset+1),oep(cset+1),enx,voa,voc, &
+                 t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),t3a,t3b,ifvo)
 else if (ngb == ngc) then
   !mp call t3_bt_acc(nug,g(ka),g(kb),g(kc),g(la),g(lc),g(mi),g(mij),adim,cdim,N,noab(isp),nuab(isp),nnoab(iuhf),lu,iasblock,nga, &
   !mp                ngc,oeh,oep(aset+1),oep(cset+1),enx,g(voa),g(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1), &
   !mp                t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),g(t3a),g(t3b),ifvo)
-  call t3_bt_acc(nug,Work(ka),Work(kc),Work(la),Work(lc),adim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,ngc,oeh,oep(aset+1), &
-                 oep(cset+1),enx,Work(voa),Work(voc),t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),t1a(noab(isp)*cset+1), &
-                 t1b(noab(isp)*cset+1),Work(t3a),Work(t3b),ifvo)
+  call t3_bt_acc(nug,ka,kc,la,lc,adim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,ngc,oeh,oep(aset+1),oep(cset+1),enx,voa,voc, &
+                 t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),t3a,t3b,ifvo)
 else
   !mp call t3_bt_abc(nug,g(ka),g(kb),g(kc),g(la),g(lb),g(lc),g(mi),g(mij),adim,bdim,cdim,N,noab(isp),nuab(isp),nnoab(iuhf),lu, &
   !mp                iasblock,nga,ngb,ngc,oeh,oep(aset+1),oep(bset+1),oep(cset+1),enx,g(voa),g(vob),g(voc),t1a(noab(isp)*aset+1), &
   !mp                t1b(noab(isp)*aset+1),t1a(noab(isp)*bset+1),t1b(noab(isp)*bset+1),t1a(noab(isp)*cset+1), &
   !mp                t1b(noab(isp)*cset+1),g(t3a),g(t3b),ifvo)
-  call t3_bt_abc(nug,Work(ka),Work(kb),Work(kc),Work(la),Work(lb),Work(lc),adim,bdim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga, &
-                 ngb,ngc,oeh,oep(aset+1),oep(bset+1),oep(cset+1),enx,Work(voa),Work(vob),Work(voc),t1a(noab(isp)*aset+1), &
-                 t1b(noab(isp)*aset+1),t1a(noab(isp)*bset+1),t1b(noab(isp)*bset+1),t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1), &
-                 Work(t3a),Work(t3b),ifvo)
+  call t3_bt_abc(nug,ka,kb,kc,la,lb,lc,adim,bdim,cdim,N,noab(isp),nnoab(iuhf),lu,iasblock,nga,ngb,ngc,oeh,oep(aset+1),oep(bset+1), &
+                 oep(cset+1),enx,voa,vob,voc,t1a(noab(isp)*aset+1),t1b(noab(isp)*aset+1),t1a(noab(isp)*bset+1), &
+                 t1b(noab(isp)*bset+1),t1a(noab(isp)*cset+1),t1b(noab(isp)*cset+1),t3a,t3b,ifvo)
 end if   ! cases
 energ(isp) = energ(isp)+enx
 !mp write(u6,'(A,3(i3,1x),f21.19)') 'nga, ngb, ngc, inc = ',nga,ngb,ngc,enx
@@ -126,21 +122,19 @@ energ(isp) = energ(isp)+enx
 !mp write(u6,*)
 !mp write(u6,*) 'deallocating arrays in t3loopa'
 !mp write(u6,*)
-call GetMem('loopa_mij','Free','Real',mij,1)
-call GetMem('loopa_mi','Free','Real',mi,1)
-call GetMem('loopa_voc','Free','Real',voc,vblock*vblock*nnoab(IUHF))
-call GetMem('loopa_vob','Free','Real',vob,vblock*vblock*nnoab(IUHF))
-call GetMem('loopa_voa','Free','Real',voa,vblock*vblock*nnoab(IUHF))
-call GetMem('loopa_t3b','Free','Real',t3b,vblock*vblock*vblock)
-call GetMem('loopa_t3a','Free','Real',t3a,vblock*vblock*vblock)
-call GetMem('loopa_lc','Free','Real',lc,nnoab(IUHF)*vblock*n)
-call GetMem('loopa_lb','Free','Real',lb,nnoab(IUHF)*vblock*n)
-call GetMem('loopa_la','Free','Real',la,nnoab(IUHF)*vblock*n)
+call mma_deallocate(voc)
+call mma_deallocate(vob)
+call mma_deallocate(voa)
+call mma_deallocate(t3a)
+call mma_deallocate(t3b)
+call mma_deallocate(lc)
+call mma_deallocate(lb)
+call mma_deallocate(la)
 if (nug /= 1) then
-  call GetMem('loopa_kc','Free','Real',kc,noab(isp)*vblock*vblock*n)
-  call GetMem('loopa_kb','Free','Real',kb,noab(isp)*vblock*vblock*n)
+  call mma_deallocate(kc)
+  call mma_deallocate(kb)
 end if
-call GetMem('loopa_ka','Free','Real',ka,noab(isp)*vblock*vblock*n)
+call mma_deallocate(ka)
 
 return
 

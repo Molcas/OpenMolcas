@@ -11,28 +11,29 @@
 
 subroutine t3_bt_aaa(nug,ka,la,adim,N,noab,nnoab,lu,iasblock,nga,oeh,oep,enx,voa,t1a,t1b,t3a,t3b,ifvo)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nug, adim, N, noab, nnoab, lu(2), iasblock(3), nga
-real(kind=wp) :: ka(adim*(adim-1)/2,N,*), la(N*adim,nnoab), oeh(noab), oep(adim), enx, voa(adim*(adim-1)/2,nnoab), t1a(noab,*), &
-                 t1b(noab,*), t3a(adim*(adim-1)/2,adim), t3b(adim*(adim-1)/2,adim)
+real(kind=wp) :: ka(nTri_Elem(adim-1),N,*), la(N*adim,nnoab), oeh(noab), oep(adim), enx, voa(nTri_Elem(adim-1),nnoab), &
+                 t1a(noab,*), t1b(noab,*), t3a(nTri_Elem(adim-1),adim), t3b(nTri_Elem(adim-1),adim)
 logical(kind=iwp) :: ifvo
 integer(kind=iwp) :: a, aa, ab, ac, b, bc, c, i, ias, ij, ik, j, jk, k, ndim, nga_offset, nug_offset
 real(kind=wp) :: den, dena, denb, denc, XX, YY
 
 if (adim == 1) return
 !mp write(u6,*) 'enter_aaa enx,nga,',nga,enx
-ndim = adim*(adim-1)/2
+ndim = nTri_Elem(adim-1)
 call zeroma(t3b,1,ndim*adim)
-nug_offset = iasblock(1)*nug*(nug+1)/2
+nug_offset = iasblock(1)*nTri_Elem(nug)
 ias = iasblock(2)*(nga-1)+1
 call multi_readir(la,nnoab*adim*N,lu(2),ias)
-ias = iasblock(2)*nug+iasblock(3)*(nga*(nga+1)/2-1)+1
+ias = iasblock(2)*nug+iasblock(3)*(nTri_Elem(nga)-1)+1
 call multi_readir(voa,nnoab*ndim,lu(2),ias)
 
-nga_offset = iasblock(1)*(nga*(nga+1)/2-1)+1
+nga_offset = iasblock(1)*(nTri_Elem(nga)-1)+1
 do i=1,noab
   ias = (i-1)*nug_offset+nga_offset
   call multi_readir(ka(1,1,i),N*ndim,lu(1),ias)
@@ -40,8 +41,8 @@ end do
 do i=3,noab
   jk = 0
   do j=2,i-1
-    ij = (i-1)*(i-2)/2+j
-    ik = (i-1)*(i-2)/2
+    ij = nTri_Elem(i-2)+j
+    ik = nTri_Elem(i-2)
     do k=1,j-1
       jk = jk+1
       ik = ik+1
@@ -53,7 +54,7 @@ do i=3,noab
       call DGEMM_('N','N',ndim,adim,N,-one,ka(1,1,j),ndim,la(1,ik),N,one,t3a,ndim)
       den = oeh(i)+oeh(j)+oeh(k)
       do a=3,adim
-        aa = (a-1)*(a-2)/2
+        aa = nTri_Elem(a-2)
         dena = den-oep(a)
         bc = 0
         do b=2,a-1

@@ -13,14 +13,15 @@ subroutine cht3(ireturn)
 ! main driver for (T)
 
 use ChT3_global, only: maxdim, nfr, no, nv, NvGrp, printkey, TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ireturn
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iOE, ioeh, ioep, isize, maxspace, nBas(8), nOrb(8), nOrbE
+integer(kind=iwp) :: i, maxspace, nBas(8), nOrb(8), nOrbE
 character(len=24) :: Label
 logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: OE(:), oeh(:), oep(:)
 real(kind=wp), parameter :: kb = 1024.0_wp
 
 !mp
@@ -51,12 +52,12 @@ call defcommon(no,nv)
 !isize = nc*no*nv
 !!write(u6,*) 'size for l1_1 ',isize
 !!write(u6,*) 'size for l1_2 ',isize
-!call GetMem('cht3_l1_1','Allo','Real',il1_1,isize)
-!call GetMem('cht3_itmp','Allo','Real',itmp,isize)
+!call mma_allocate(l1_1,isize,label='cht3_l1_1')
+!call mma_allocate(tmp,isize,label='cht3_itmp')
 !isize = nv*nv*no*no
 !!write(u6,*) 'size for W2 ',isize
-!call GetMem('cht3_W2','Allo','Real',iW2,isize)
-!call gen_vvoo(Work(iW2),Work(il1_1),Work(itmp))
+!call mma_allocate(W2,isize,label='cht3_W2')
+!call gen_vvoo(W2,l1_1,tmp)
 
 !.2.2.2 get orbital energies
 
@@ -65,21 +66,19 @@ call defcommon(no,nv)
 call Get_iArray('nBas',nBas,1)
 call Get_iArray('nOrb',nOrb,1)
 
-isize = nBas(1)
+if (printkey >= 10) write(u6,*) 'Allocating memory for (tmp) OE files',nBas(1)
 
-if (printkey >= 10) write(u6,*) 'Allocating memory for (tmp) OE files',isize
-
-call GetMem('cht3_oe','Allo','Real',iOE,isize)
+call mma_allocate(OE,nBas(1),label='cht3_oe')
 
 Label = 'OrbE'
 call qpg_dArray(Label,Found,nOrbE)
 if (nOrbE /= nBas(1)) write(u6,*) 'Warning! in cht3 : (nOrbE /= nBas)!'
 if ((.not. Found) .or. (nOrbE == 0)) call SysAbendMsg('get_orbe','Did not find:',Label)
 if (printkey >= 10) then
-  write(u6,*) 'isize = ',isize
+  write(u6,*) 'nbas(1) = ',nBas(1)
   write(u6,*) 'norbe = ',norbe
 end if
-call Get_dArray(Label,Work(iOE),nOrbE)
+call Get_dArray(Label,OE,nOrbE)
 
 ! write out the orbital energies
 
@@ -88,27 +87,25 @@ if (printkey >= 10) then
   write(u6,*) 'Orbital energies for nfr+no+nv'
   write(u6,*)
   do i=1,nfr+no+nv
-    write(u6,'(A,2x,i5,2x,f18.10)') 'Orbital Energy ',i,Work(iOE+i-1)
+    write(u6,'(A,2x,i5,2x,f18.10)') 'Orbital Energy ',i,OE(i)
   end do
 end if
 
 !2.2.3 make OEH, OEP
 
-isize = 2*no
-call GetMem('cht3_oeh','Allo','Real',ioeh,isize)
-isize = 2*nv
-call GetMem('cht3_oeh','Allo','Real',ioep,isize)
+call mma_allocate(oeh,2*no,label='cht3_oeh')
+call mma_allocate(oep,2*nv,label='cht3_oep')
 
-call generate_juzekOE(Work(ioe+nfr),Work(ioeh),Work(ioep),no,nv)
+call generate_juzekOE(OE(nfr+1),oeh,oep,no,nv)
 
 !.2.3 Checkpoint. Calculate MP2 energy
 
-!call calc_MP2(Work(iW2),Work(iOE+nfr),no,nv)
+!call calc_MP2(W2,OE(nfr+1),no,nv)
 !call abend()
 
 !.3 start (T) calculation
 
-call GetMem('(T)','Max','Real',maxspace,maxspace)
+call mma_maxDBLE(maxspace)
 
 write(u6,*)
 write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Memory available for (T) calc = ',maxspace-1,' in r*8 Words', &
@@ -131,25 +128,20 @@ write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Memory available for (T) calc = ',maxspace
 !mp write(u6,*) ' kvir1 = ',kvir1
 !mp write(u6,*) ' kvir2 = ',kvir2
 
-!mp call T3AMPL_BTI(Work(ioff),Work(ioeh),Work(ioep))
+!mp call T3AMPL_BTI(Work(ioff),oeh,oep)
 
-call T3AMPL_BTI(Work(ioeh),Work(ioep))
+call T3AMPL_BTI(oeh,oep)
 
 !.2.4 Free the unnecessary memory
 
 !mp isize = nfr+no+nv
 !mp isize = nOrb(1)
-isize = nBas(1)
-call GetMem('cht3_oeh','Free','Real',iOE,isize)
+call mma_deallocate(OE)
 
-isize = 2*no
-call GetMem('cht3_oeh','Free','Real',ioeh,isize)
-isize = 2*nv
-call GetMem('cht3_oeh','Free','Real',ioep,isize)
+call mma_deallocate(oeh)
+call mma_deallocate(oep)
 !mp ioff = ioff-1
 !mp call GetMem('t3_ampl_bti','Free','Real',ioff,1)
-
-!!call GetMem('t3_ampl_bti','Free','Real',ioff,maxspace)
 
 !Call EndGlb()
 

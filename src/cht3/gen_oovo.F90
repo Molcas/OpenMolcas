@@ -19,6 +19,7 @@ subroutine gen_oovo(w,l0,l1,tmp)
 !       L1(m,I ,A') L1vcxx xx - Group of A'
 
 use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no, nv, NvGrp
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -27,7 +28,7 @@ integer(kind=iwp) :: a, a_tmp, dima, last, length
 
 !1 read tmp(m,IJ)
 
-length = nc*(no*(no+1))/2
+length = nc*nTri_Elem(no)
 
 !mp !write(u6,'(A,A6)') 'L0vcrt ','L0vcrt'
 !mp !write(u6,*) 'length = ',length
@@ -37,7 +38,7 @@ call GetX_t3(tmp,length,LunAux,'L0vctr',1,1)
 
 !2 map l0(IJ,m)   <- tmp(m,IJ)
 
-call Map2_21_t3(tmp,l0,nc,(no*(no+1)/2))
+call Map2_21_t3(tmp,l0,nc,nTri_Elem(no))
 
 !3 loop over A'
 
@@ -81,11 +82,11 @@ call Map3_132_t3(l1,tmp,nc,no,nv)
 
 !7.1 zero w
 
-call zeroma(w,1,((no*(no+1))/2)*nv*no)
+call zeroma(w,1,nTri_Elem(no)*nv*no)
 
 !8  mult w(IJ,A,I)  <- l0(IJ,m) . tmp(m,A,I)
 
-call mc0c1a3b((no*(no+1))/2,nc,nc,nv*no,(no*(no+1))/2,nv*no,(no*(no+1))/2,nc,nv*no,l0,tmp,w)
+call mc0c1a3b(nTri_Elem(no),nc,nc,nv*no,nTri_Elem(no),nv*no,nTri_Elem(no),nc,nv*no,l0,tmp,w)
 
 return
 

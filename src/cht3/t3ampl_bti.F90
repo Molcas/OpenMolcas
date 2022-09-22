@@ -36,13 +36,13 @@ subroutine T3AMPL_BTI(OEH,OEP)
 use ChT3_global, only: gen_files, ICH, IOPT, IT, ndup, NOAB, NUAB, printkey, run_triples, t3_starta, t3_startb, t3_stopa, &
                        t3_stopb, TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
 use Para_Info, only: MyRank, nProcs
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 real(kind=wp) :: OEH(*), OEP(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, id, imy_tsk, isp, it1, itmp, IUHF, j, krem, la, LU(6), nga, ngb, ngc, nla, nlb, nuga, nugc, t1a, t1b, vblock
+integer(kind=iwp) :: i, id, isp, it1, IUHF, j, krem, LU(6), nga, ngb, ngc, nla, nlb, nuga, nugc, vblock
 real(kind=wp) :: ccsdt, ccsdt4, cpu0_aaa, cpu0_aab, e_ccsd, e_scf, energ(4), enx1, tccsd, timerel, times(10), times_parr(10), &
                  totcpu, totwal, wall0_aaa, wall0_aab
 #ifdef _MOLCAS_MPP_
@@ -50,6 +50,8 @@ real(kind=wp) :: real_buffer(1)
 #endif
 logical(kind=iwp) :: ifvo, scored, skip
 character(len=6) :: FN
+integer(kind=iwp), allocatable :: my_tsk(:,:)
+real(kind=wp), allocatable :: la(:), t1a(:), t1b(:), tmp(:)
 logical(kind=iwp), external :: rsv_tsk
 real(kind=r8), external :: ddot_
 
@@ -102,20 +104,20 @@ ifvo = .false.
 
 it1 = NUAB(1)*NOAB(1)+NUAB(2)*NOAB(2)
 
-call GetMem('t3_t1a','Allo','Real',t1a,it1)
-call GetMem('t3_t1b','Allo','Real',t1b,it1)
+call mma_allocate(t1a,it1,label='t3_t1a')
+call mma_allocate(t1b,it1,label='t3_t1b')
 
-call zeroma(Work(t1a),1,it1)
-call zeroma(Work(t1b),1,it1)
+t1a(:) = Zero
+t1b(:) = Zero
 
-call GetMem('t3_t1','Allo','Real',itmp,noab(1)*nuab(1))
-call GetMem('t3_la','Allo','Real',la,it1)
+call mma_allocate(tmp,noab(1)*nuab(1),label='t3_t1')
+call mma_allocate(la,it1,label='t3_la')
 
 !mp ! read t1 amplitudes
 if (printkey >= 10) write(u6,*) 'Reading ',it1,' t1_alpha, t1_beta amplitudes'
-call GetRest_t3(Work(la),Work(itmp),e_ccsd)
+call GetRest_t3(la,tmp,e_ccsd)
 
-!mp !write(u6,*) 'Ze t1 = ',ddot_(it1,Work(la),1,Work(la),1)
+!mp !write(u6,*) 'Ze t1 = ',ddot_(it1,la,1,la,1)
 
 ! t1a and t1b always remain in the memory -- small fields
 
@@ -123,7 +125,7 @@ call GetRest_t3(Work(la),Work(itmp),e_ccsd)
 
 ! Remaining space can be used for the blocking in-core algorithms
 
-call GetMem('t3_la','Max','Real',krem,krem)
+call mma_maxDBLE(krem)
 
 if (printkey >= 10) then
   write(u6,*)
@@ -271,46 +273,42 @@ do isp=1,1+iuhf
     write(u6,*)
   else
 
-    i = 0
-    do nga=1,nuga
-      do ngb=1,nga
-        do ngc=1,ngb
-          i = i+1
-        end do
-      end do
-    end do
-
-    if (t3_starta < 0) then
-      call GetMem('Imy_tsk','Allo','Inte',imy_tsk,3*i)
-    else
-      call GetMem('Imy_tsk','Allo','Inte',imy_tsk,(t3_stopa-t3_starta+1)*3)
-    end if
-
     if (t3_starta < 0) then
       i = 0
       do nga=1,nuga
         do ngb=1,nga
           do ngc=1,ngb
             i = i+1
-            iWork(imy_tsk-3+3*i) = nga
-            iWork(imy_tsk-3+3*i+1) = ngb
-            iWork(imy_tsk-3+3*i+2) = ngc
           end do
         end do
       end do
     else
-      i = 0
+      i = t3_stopa-t3_starta+1
+    end if
+    call mma_allocate(my_tsk,3,i,label='my_tsk')
+
+    i = 0
+    if (t3_starta < 0) then
       do nga=1,nuga
         do ngb=1,nga
           do ngc=1,ngb
             i = i+1
-
+            my_tsk(1,i) = nga
+            my_tsk(2,i) = ngb
+            my_tsk(3,i) = ngc
+          end do
+        end do
+      end do
+    else
+      do nga=1,nuga
+        do ngb=1,nga
+          do ngc=1,ngb
+            i = i+1
             if ((i >= t3_starta) .and. (i <= t3_stopa)) then
-              iWork(imy_tsk-3+3*(i-t3_starta+1)) = nga
-              iWork(imy_tsk-3+3*(i-t3_starta+1)+1) = ngb
-              iWork(imy_tsk-3+3*(i-t3_starta+1)+2) = ngc
+              my_tsk(1,i-t3_starta) = nga
+              my_tsk(2,i-t3_starta) = ngb
+              my_tsk(3,i-t3_starta) = ngc
             end if
-
           end do
         end do
       end do
@@ -327,24 +325,24 @@ do isp=1,1+iuhf
     call init_tsk(id,i)
     do while (rsv_tsk(id,j))
 
-      nga = iWork(imy_tsk-3+3*j)
-      ngb = iWork(imy_tsk-3+3*j+1)
-      ngc = iWork(imy_tsk-3+3*j+2)
+      nga = my_tsk(1,j)
+      ngb = my_tsk(2,j)
+      ngc = my_tsk(3,j)
 
       !mp
-      !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
+      !mp call mma_maxDBLE(maxspace)
       !mp write(u6,*) 'maxspace before ',maxspace
       !mp
-      call t3loopa(oeh(noab(1)*(isp-1)+1),oep(nuab(1)*(isp-1)+1),Work(t1a+noab(1)*nuab(1)*(isp-1)), &
-                   Work(t1b+noab(1)*nuab(1)*(isp-1)),nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,enx1)
+      call t3loopa(oeh(noab(1)*(isp-1)+1),oep(nuab(1)*(isp-1)+1),t1a(noab(1)*nuab(1)*(isp-1)+1), &
+                   t1b(noab(1)*nuab(1)*(isp-1)+1),nga,ngb,ngc,vblock,energ,isp,LU,ifvo,scored,enx1)
       !mp
       ! update 5th order terms
 
-      !mp call vadd(Work(t1a),1,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1,noab(1)*nuab(1))
+      !mp call vadd(t1a,1,t1a(noab(1)*nuab(1)+1),1,t1a,1,noab(1)*nuab(1))
 
-      call daxpy_((noab(1)*nuab(1)),One,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
-      ccsdt = Two*ddot_(noab(1)*nuab(1),Work(la),1,Work(t1a),1)
-      call daxpy_((noab(1)*nuab(1)),-One,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
+      call daxpy_((noab(1)*nuab(1)),One,t1a(noab(1)*nuab(1)+1),1,t1a,1)
+      ccsdt = Two*ddot_(noab(1)*nuab(1),la,1,t1a,1)
+      call daxpy_((noab(1)*nuab(1)),-One,t1a(noab(1)*nuab(1)+1),1,t1a,1)
 
       !mp
       call CWTime(TCpu,TWall)
@@ -360,7 +358,7 @@ do isp=1,1+iuhf
       TCpu_l = TCpu
       TWall_l = TWall
       !mp
-      !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
+      !mp call mma_maxDBLE(maxspace)
       !mp write(u6,*) 'maxspace after ',maxspace
       !mp
 
@@ -368,7 +366,7 @@ do isp=1,1+iuhf
     write(u6,*) 't3loopa finished'
     write(u6,*)
     call Free_tsk(id)
-    call GetMem('Imy_tsk','Free','Inte',imy_tsk,3*i)
+    call mma_deallocate(my_tsk)
 
     !mp !call gettim(cpu1,wall1)            ! dorob timingy !!!!!!
     call CWTime(TCpu,TWall)
@@ -430,19 +428,18 @@ do isp=1,1+iuhf
 
   !mp
   i = 0
-  do nga=1,nuga
-    do ngb=1,nga
-      do ngc=1,nugc
-        i = i+1
+  if (t3_startb < 0) then
+    do nga=1,nuga
+      do ngb=1,nga
+        do ngc=1,nugc
+          i = i+1
+        end do
       end do
     end do
-  end do
-
-  if (t3_startb < 0) then
-    call GetMem('Imy_tsk','Allo','Inte',imy_tsk,3*i)
   else
-    call GetMem('Imy_tsk','Allo','Inte',imy_tsk,(t3_stopb-t3_startb+1)*3)
+    i = t3_stopb-t3_startb+1
   end if
+  call mma_allocate(my_tsk,3,i,label='my_tsk')
 
   i = 0
   if (t3_startb < 0) then
@@ -450,9 +447,9 @@ do isp=1,1+iuhf
       do ngb=1,nga
         do ngc=1,nugc
           i = i+1
-          iWork(imy_tsk-3+3*i) = nga
-          iWork(imy_tsk-3+3*i+1) = ngb
-          iWork(imy_tsk-3+3*i+2) = ngc
+          my_tsk(1,i) = nga
+          my_tsk(2,i) = ngb
+          my_tsk(3,i) = ngc
         end do
       end do
     end do
@@ -462,9 +459,9 @@ do isp=1,1+iuhf
         do ngc=1,nugc
           i = i+1
           if ((i >= t3_startb) .and. (i <= t3_stopb)) then
-            iWork(imy_tsk-3+3*(i-t3_startb+1)) = nga
-            iWork(imy_tsk-3+3*(i-t3_startb+1)+1) = ngb
-            iWork(imy_tsk-3+3*(i-t3_startb+1)+2) = ngc
+            my_tsk(1,i-t3_startb) = nga
+            my_tsk(2,i-t3_startb) = ngb
+            my_tsk(3,i-t3_startb) = ngc
           end if
         end do
       end do
@@ -482,21 +479,21 @@ do isp=1,1+iuhf
   call init_tsk(id,i)
   do while (rsv_tsk(id,j))
 
-    nga = iWork(imy_tsk-3+3*j)
-    ngb = iWork(imy_tsk-3+3*j+1)
-    ngc = iWork(imy_tsk-3+3*j+2)
+    nga = my_tsk(1,j)
+    ngb = my_tsk(2,j)
+    ngc = my_tsk(3,j)
     !mp write(u6,'(A,4(i5,2x))') 'Tsk, nga, ngb, ngc = ',j,nga,ngb,ngc
 
     !mp
-    !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
+    !mp call mma_maxDBLE(maxspace)
     !mp write(u6,*) 'maxspace before ',maxspace
     !mp
-    call t3loopb(oeh,oep,Work(t1a),Work(t1b),nga,ngb,ngc,vblock,energ(3),isp,LU,ifvo,scored,enx1)
+    call t3loopb(oeh,oep,t1a,t1b,nga,ngb,ngc,vblock,energ(3),isp,LU,ifvo,scored,enx1)
 
-    !mp??? call vadd(Work(t1a),1,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1,noab(1)*nuab(1))
-    call daxpy_((noab(1)*nuab(1)),One,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
-    ccsdt = Two*ddot_(noab(1)*nuab(1),Work(la),1,Work(t1a),1)
-    call daxpy_((noab(1)*nuab(1)),-One,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1)
+    !mp??? call vadd(t1a,1,t1a(noab(1)*nuab(1)+1),1,t1a,1,noab(1)*nuab(1))
+    call daxpy_((noab(1)*nuab(1)),One,t1a(noab(1)*nuab(1)+1),1,t1a,1)
+    ccsdt = Two*ddot_(noab(1)*nuab(1),la,1,t1a,1)
+    call daxpy_((noab(1)*nuab(1)),-One,t1a(noab(1)*nuab(1)+1),1,t1a,1)
 
     !mp
     call CWTime(TCpu,TWall)
@@ -513,7 +510,7 @@ do isp=1,1+iuhf
     TWall_l = TWall
 
     !mp
-    !mp call GetMem('(T)','Max','Real',maxspace,maxspace)
+    !mp call mma_maxDBLE(maxspace)
     !mp write(u6,*) 'maxspace before ',maxspace
     !mp
 
@@ -521,7 +518,7 @@ do isp=1,1+iuhf
   write(u6,*) 't3loopb finished'
   write(u6,*)
   call Free_tsk(id)
-  call GetMem('Imy_tsk','Free','Inte',imy_tsk,3*i)
+  call mma_deallocate(my_tsk)
   !mp write(u6,*) ' energ = ',energ
   !mp
   ! - deallocate arrays in t3loopb
@@ -589,10 +586,10 @@ end if
 tccsd = energ(1)+energ(2)+energ(3)+energ(4)
 
 !mp !if (IUHF == 0) then ! open-shell stuff
-!mp !  call vadd(Work(t1a),1,Work(t1a+noab(1)*nuab(1)),1,Work(t1a),1,noab(1)*nuab(1))
-!mp !  ccsdt = Two*ddot_(noab(1)*nuab(1),Work(la),1,Work(t1a),1)
+!mp !  call vadd(t1a,1,t1a(noab(1)*nuab(1)+1),1,t1a,1,noab(1)*nuab(1))
+!mp !  ccsdt = Two*ddot_(noab(1)*nuab(1),la,1,t1a,1)
 !mp !else
-!mp !  ccsdt = ddot_(noab(1)*nuab(1)+noab(2)*nuab(2),Work(la),1,Work(t1a),1)
+!mp !  ccsdt = ddot_(noab(1)*nuab(1)+noab(2)*nuab(2),la,1,t1a,1)
 !mp !  write(u6,*) 'ze co do ... ?'
 !mp !  stop
 !mp !end if
@@ -647,7 +644,7 @@ if (ifvo) then
 
   !mp !call get3dm('FOC-VO',w(la),noab(1)*nuab(1)+noab(2)*nuab(2),1,0)
   !mp !call map2_21_t3(w(la),w(t1a),nuab(1),noab(1))
-  !mp !call map2_21_t3(w(noab(1)*nuab(1)+la),w(noab(1)*nuab(1)+t1a),nuab(2),noab(2))
+  !mp !call map2_21_t3(w(noab(1)*nuab(1)+la),w(t1a+noab(1)*nuab(1)),nuab(2),noab(2))
   ! E4 T2FT3
   !mp !if (IUHF == 0) then
   !mp !  call vadd(w(t1b),1,w(t1b+noab(1)*nuab(1)),1,w(t1b),1,noab(1)*nuab(1))
@@ -756,10 +753,11 @@ end if
 !mp call w_debug(.false.,.false.,'Triply done')
 !? nprocs = nprocs0
 
-call GetMem('t3_la','Free','Real',la,NUAB(1)*NOAB(1)+NUAB(2)*NOAB(2))
-call GetMem('t3_t1','Free','Real',itmp,noab(1)*nuab(1))
-call GetMem('t3_t1a','Free','Real',t1a,it1)
-call GetMem('t3_t1b','Free','Real',t1b,it1)
+call mma_deallocate(la)
+call mma_deallocate(tmp)
+call mma_deallocate(t1a)
+call mma_deallocate(t1b)
+
 return
 
 9993 format(/1X,'T2-W-T3 contribution from current amplitudes ',D18.10)

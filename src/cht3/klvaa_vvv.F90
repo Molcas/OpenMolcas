@@ -9,36 +9,38 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine klvaa_vvv(ix,ig,vblock,N,nug,lu,last,iasblock,K,ias)
+subroutine klvaa_vvv(x,g,vblock,N,nug,lu,last,iasblock,K,ias)
 !mp subroutine klvaa_vvv(G,ix,it,ig,iscr,vblock,N,nug,lu,last,iasblock,K,ias)
 !mpn subroutine klvaa_vvv(ix,it,ig,iscr,vblock,N,nug,lu,last,iasblock,K,ias)
 !
 !  creates K(alpha>alpha,alpha-alpha) or K(beta>beta,beta,beta)
 !  DA files KMATICH(ISP)ICH(ISP)     ISP=A
 !  generates antisymmetrized integrals from abab (T2) or bbaa (vvvo)
-!  ix, it, ig  allocated in create_klvab_t3
-!  K,ias defined in create_klvab_t3.f
+!  x, g  allocated in create_klvab_t3
+!  K, ias defined in create_klvab_t3.f
 !
 !  parallelization (seems to be) irrelevant at the moment
 !  implemented integer offsets, PV, 14 may 2004.
 
 use ChT3_global, only: DimGrpaR, maxdim, no, NOAB, NUAB, printkey
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
-use Definitions, only: iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ix, ig, vblock, N, nug, lu, last, iasblock, K, ias
-#include "WrkSpc.fh"
-integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B, B1, b1_tmp, B2, b2_chk, i_blk, IJS, isp, it2_tmp, it_exp, itmp, j_blk, &
-                     j_tmp, KADT, KI, length, length1, length2, MAXDIMM, NGA, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, &
-                     nind_ngbf, nind_ngbl, NNU, NSTEP, R
+real(kind=wp) :: x(*), g(*)
+integer(kind=iwp) :: vblock, N, nug, lu, last, iasblock, K, ias
+integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B, B1, b1_tmp, B2, b2_chk, i_blk, IJS, isp, j_blk, j_tmp, KADT, KI, length, &
+                     length1, length2, MAXDIMM, NGA, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, nind_ngbf, nind_ngbl, NNU, &
+                     NSTEP, R
 logical(kind=iwp) :: switch
+real(kind=wp), allocatable :: t2_exp(:), t2_tmp(:), tmp(:)
 
 ISP = 1
 nug = nuab(isp)/vblock
 if ((vblock*nug) /= nuab(isp)) nug = nug+1
-NNU = NUAB(1)*(NUAB(1)+1)/2
+NNU = nTri_Elem(NUAB(1))
 if (printkey >= 11) then
   write(u6,'(A,10I5)') 'entering klvaa_vvv',vblock,N,nug,lu,last,iasblock,K,ias
   !mpn write(u6,*) ddot_(nnoab(3)*nnuab(3),Work(it),1,Work(it),1)
@@ -54,11 +56,11 @@ do nga=1,nug
   A2 = A1+adim-1
   do ngb=1,nga
     if (nga == ngb) then
-      maxdimm = adim*(adim-1)/2
+      maxdimm = nTri_Elem(adim-1)
     else
       maxdimm = adim*vblock
     end if
-    call zeroma(Work(IX),1,N*maxdimm)
+    call zeroma(x,1,N*maxdimm)
     !mp call zeroma(G(IX),1,N*maxdim)
     B1 = (ngb-1)*vblock+1
 
@@ -111,20 +113,20 @@ do nga=1,nug
     ! - setup memory
 
     !mp !write(u6,*) 'allocating t2_exp = ',length
-    call GetMem('it1_exp','Allo','Real',it_exp,length)
+    call mma_allocate(t2_exp,length,label='t2_exp')
 
     ! - read pertinent files and store them in the new blocked structure
 
-    call GetMem('c1_it2tmp','Allo','Real',it2_tmp,maxdim*maxdim*no*no)
-    call GetMem('c1_itmp','Allo','Real',itmp,maxdim*maxdim*no*no)
+    call mma_allocate(t2_tmp,maxdim*maxdim*no*no,label='t2_tmp')
+    call mma_allocate(tmp,maxdim*maxdim*no*no,label='tmp')
 
     switch = .false.
-    call gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,Work(it_exp),Work(it2_tmp),Work(itmp),switch)
+    call gather_t2_blocked(length1,length2,ngaf,ngal,ngbf,ngbl,t2_exp,t2_tmp,tmp,switch)
 
-    call GetMem('c1_itmp','Free','Real',itmp,maxdim*maxdim*no*no)
-    call GetMem('c1_it2tmp','Free','Real',it2_tmp,maxdim*maxdim*no*no)
+    call mma_deallocate(tmp)
+    call mma_deallocate(t2_tmp)
 
-    call dscal_(length,-One,Work(it_exp),1)
+    call dscal_(length,-One,t2_exp,1)
 
     !mp
     do a=a1,a2
@@ -133,17 +135,17 @@ do nga=1,nug
       !mp !write(u6,*) 'NSTEP = ',NSTEP
       if (nstep /= 0) then
         if (nga == ngb) then
-          IJS = (a-a1-1)*(a-a1)/2+IX
-          !!IJS = (a-a1-2+1)*(a-a1-1+1)/2+1
+          IJS = nTri_Elem(a-a1-1)+1
+          !!IJS = nTri_Elem(a-a1-1)+1
         else
-          IJS = (a-a1)*vblock+IX
+          IJS = (a-a1)*vblock+1
         end if
         do R=1,K-1
           ! copies (b1..b2,a,r,k)-(b1..b2,a,k,r)
-          !!KADT = (K-2)*(K-1)/2+R
+          !!KADT = nTri_Elem(K-2)+R
           !!KADT = (KADT-1)*NNUAB(ISP)
           ! address and block for the A1-A2x B1-B2
-          !!KADT = KADT+(a-1)*(a-2)/2 +B1 +IT -1
+          !!KADT = KADT+nTri_Elem(a-2)+B1+IT-1
           ! T2 >>> K
           !!call dcopy_(NSTEP,G(KADT),1,G(IJS),1)
           !mpn KADT = (k-1)*noab(1)*NNUAB(3)+(r-1)*NNUAB(3)+(a-1)*nuab(1)+B1+IT-1
@@ -156,22 +158,22 @@ do nga=1,nug
 
           do j_tmp=0,NSTEP-1
 
-            KADT = (r-1)*noab(1)*length1*length2+(k-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp+it_exp-1
+            KADT = (r-1)*noab(1)*length1*length2+(k-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp
 
-            AADT = (k-1)*noab(1)*length1*length2+(r-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp+it_exp-1
+            AADT = (k-1)*noab(1)*length1*length2+(r-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp
 
-            Work(IJS+j_tmp) = Work(AADT)-Work(KADT)
-            !mp !write(u6,'(A,2(i5,2x),3(f18.10,2x))') 'XXXN = ',a_tmp,b1_tmp+j_tmp-1,Work(IJS+j_tmp),Work(AADT),Work(KADT)
+            x(IJS+j_tmp) = t2_exp(AADT)-t2_exp(KADT)
+            !mp !write(u6,'(A,2(i5,2x),3(f18.10,2x))') 'XXXN = ',a_tmp,b1_tmp+j_tmp-1,x(IJS+j_tmp),t2_exp(AADT),t2_exp(KADT)
 
           end do
 
           !mp call vsub(G(KADT),1,G(AADT),1,G(IJS),1,NSTEP)
-          !mpn call vsub(Work(KADT),1,Work(AADT),1,Work(IJS),1,NSTEP)
+          !mpn call vsub(t2_exp(KADT),1,t2_exp(AADT),1,x(IJS),1,NSTEP)
           !!write(u6,'(A,3I3,8D15.8)') 'T',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
           IJS = IJS+maxdimm
         end do      ! R
           !mp call zeroma(G(IJS),1,NSTEP)
-        call zeroma(Work(IJS),1,NSTEP)
+        call zeroma(x(IJS),1,NSTEP)
         IJS = IJS+maxdimm
         ! T2 >>> K  (transposed)
         ! copies (b1..b2,a,r,k)-(b1..b2,a,k,r)
@@ -182,9 +184,9 @@ do nga=1,nug
 
         !mpn
         do R=K+1,NOAB(ISP)
-          !!KADT = (R-2)*(R-1)/2+K
+          !!KADT = nTri_Elem(R-2)+K
           !!KADT = (KADT-1)*NNUAB(ISP)
-          !!KADT = KADT+(a-1)*(a-2)/2+B1+IT-1
+          !!KADT = KADT+nTri_Elem(a-2)+B1+IT-1
           !!call vneg_cht3(G(KADT),1,G(IJS),1,NSTEP)
 
           !mpn KADT = (k-1)*noab(1)*NNUAB(3)+(r-1)*nnUab(3)+(a-1)*nuab(1)+B1+IT-1
@@ -197,17 +199,17 @@ do nga=1,nug
 
           do j_tmp=0,NSTEP-1
 
-            KADT = (r-1)*noab(1)*length1*length2+(k-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp+it_exp-1
+            KADT = (r-1)*noab(1)*length1*length2+(k-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp
 
-            AADT = (k-1)*noab(1)*length1*length2+(r-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp+it_exp-1
+            AADT = (k-1)*noab(1)*length1*length2+(r-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp
 
-            Work(IJS+j_tmp) = Work(AADT)-Work(KADT)
-            !mp write(u6,'(A,2(i5,2x),3(f18.10,2x))') 'XXXN = ',a_tmp,b1_tmp+j_tmp-1,Work(IJS+j_tmp),Work(AADT),Work(KADT)
+            x(IJS+j_tmp) = t2_exp(AADT)-t2_exp(KADT)
+            !mp write(u6,'(A,2(i5,2x),3(f18.10,2x))') 'XXXN = ',a_tmp,b1_tmp+j_tmp-1,x(IJS+j_tmp),t2_exp(AADT),t2_exp(KADT)
 
           end do
 
           !mp call vsub(G(KADT),1,G(AADT),1,G(IJS),1,NSTEP)
-          !mpn call vsub(Work(KADT),1,Work(AADT),1,Work(IJS),1,NSTEP)
+          !mpn call vsub(t2_exp(KADT),1,t2_exp(AADT),1,x(IJS),1,NSTEP)
           !!write(u6,'(A,3I3,8D15.8)') 'T',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
           !!call daxpy_(NSTEP,-One,G(KADT),1,G(IJS),1)
           IJS = IJS+maxdimm
@@ -216,19 +218,19 @@ do nga=1,nug
         ! (VV|VO( >>> K now          aabb needed (AR|BK)-(BR|AK)
 
         !!call EXPA1_UHF(G(IJS),1,NUAB(IS2),1,G(ISCR))
-        !!KADT = IG-1+(a-1)*(a-2)/2 +B1
-        KADT = IG-1+(B1-1)*NNU
-        AADT = IG-1+(A-1)*NNU
+        !!KADT = IG-1+nTri_Elem(a-2)+B1
+        KADT = (B1-1)*NNU
+        AADT = (A-1)*NNU
         do R=1,NUAB(ISP)
           !!call dcopy_(NSTEP,G(KADT),1,G(IJS),1)
           ! first (AR|BK)
           !mp call dcopy_(NSTEP,G(KADT+iTri(a,r)),NNU,G(IJS),1)
-          call dcopy_(NSTEP,Work(KADT+iTri(a,r)),NNU,Work(IJS),1)
+          call dcopy_(NSTEP,g(KADT+iTri(a,r)),NNU,x(IJS),1)
           ! now  -(BR|AK)
           KI = IJS
           do B=B1,B2
             !mp G(KI) = G(KI)-G(AADT+iTri(B,R))
-            Work(KI) = Work(KI)-Work(AADT+iTri(B,R))
+            x(KI) = x(KI)-g(AADT+iTri(B,R))
             KI = KI+1
           end do
           !!write(u6,'(A,3I3,8D15.8)') 'V',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
@@ -238,29 +240,28 @@ do nga=1,nug
       end if     ! nstep == 0
     end do       !A
     !  <VV|VO> >>> K
-    !mp !write(u6,'(A,5I5,4x,5D15.10)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,maxdim,ddot_(N*maxdim,Work(IX),1,Work(IX),1), &
-    !                                   (Work(I),I=IX,IX+3)
+    !mp !write(u6,'(A,5I5,4x,5D15.10)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,maxdim,ddot_(N*maxdim,x,1,x,1),x(1:4)
     !mp !write(u6,'(A,5I5,4x,5D15.10)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,maxdim,ddot_(N*maxdim,G(IX),1,G(IX),1), &
     !                                   (G(I),I=IX,IX+3)
     !mp  call multi_wridir(G(IX),N*maxdim,LU,IAS, last)
     !mp
-    !mp !!do jjj=0,N*maxdimm-1
-    !mp !!  if (abs(Work(ix+jjj)) > 1.0e5_wp) then
-    !mp !!    write(u6,*) 'prasa 3 ',jjj,Work(ix+jjj)
+    !mp !!do jjj=1,N*maxdimm
+    !mp !!  if (abs(x(jjj)) > 1.0e5_wp) then
+    !mp !!    write(u6,*) 'prasa 3 ',jjj,x(jjj)
     !mp !!    stop
     !mp !!  end if
     !mp !!end do
     !mp
-    call multi_wridir(Work(IX),N*maxdimm,LU,IAS,last)
+    call multi_wridir(x,N*maxdimm,LU,IAS,last)
     ias = ias+iasblock
     !mpn
     !mp write(u6,*) 'deallocating t2_exp = ',length
-    call GetMem('it1_exp','Free','Real',it_exp,length)
+    call mma_deallocate(t2_exp)
     !mpn
   end do       ! ngb
 end do         ! nga
 !!end do         ! K
-!mp !write(u6,'(A,10I5)')'leaving klvaa_vvv',vblock,N,nug,lu,last,iasblock,K,ias
+!mp !write(u6,'(A,10I5)') 'leaving klvaa_vvv',vblock,N,nug,lu,last,iasblock,K,ias
 call xflush(u6)
 !!stop
 

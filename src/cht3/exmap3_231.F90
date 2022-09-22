@@ -14,11 +14,12 @@ subroutine exMap3_231(A,B,d1,d2)
 !
 ! A (a,bc) -> B(b,c,a)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: d1, d2
-real(kind=wp) :: A(d1,d2*(d2+1)/2), B(d2,d2,d1)
+real(kind=wp) :: A(d1,nTri_Elem(d2)), B(d2,d2,d1)
 integer(kind=iwp) :: i1, i2, i23, i3
 
 i23 = 0

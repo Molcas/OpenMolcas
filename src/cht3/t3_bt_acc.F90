@@ -13,12 +13,13 @@ subroutine t3_bt_acc(nug,ka,kc,la,lc,adim,cdim,N,noab,nnoab,lu,iasblock,nga,ngc,
                      t3b,ifvo)
 
 use Constants, only: Zero, One
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nug, adim, cdim, N, noab, nnoab, lu(2), iasblock(3), nga, ngc
-real(kind=wp) :: ka(adim*cdim,N,*), kc(cdim*(cdim-1)/2,N,*), la(N*adim,nnoab), lc(N*cdim,nnoab), oeh(noab), oepa(adim), &
-                 oepc(cdim), enx, voa(adim*cdim,*), voc(cdim*(cdim-1)/2,*), t1aa(noab,*), t1ba(noab,*), t1ac(noab,*), &
+real(kind=wp) :: ka(adim*cdim,N,*), kc(nTri_Elem(cdim-1),N,*), la(N*adim,nnoab), lc(N*cdim,nnoab), oeh(noab), oepa(adim), &
+                 oepc(cdim), enx, voa(adim*cdim,*), voc(nTri_Elem(cdim-1),*), t1aa(noab,*), t1ba(noab,*), t1ac(noab,*), &
                  t1bc(noab,*), t3a(cdim,cdim,*), t3b(*)
 logical(kind=iwp) :: ifvo
 integer(kind=iwp) :: a, abc, b, bc, c, i, ias, iasai, iasci, ij, ik, j, jk, k, nadim, ncdim, nga_offset, ngc_offset, nug_offset
@@ -26,23 +27,23 @@ real(kind=wp) :: den, dena, denb, denc, sumt3, xx, yy
 
 sumt3 = Zero
 if (cdim == 1) return
-ncdim = cdim*(cdim-1)/2
+ncdim = nTri_Elem(cdim-1)
 nadim = adim*cdim
-nug_offset = iasblock(1)*nug*(nug+1)/2
+nug_offset = iasblock(1)*nTri_Elem(nug)
 ias = iasblock(2)*(nga-1)+1
 call multi_readir(la,nnoab*adim*N,lu(2),ias)
 ias = iasblock(2)*(ngc-1)+1
 call multi_readir(lc,nnoab*cdim*N,lu(2),ias)
 ! reads vvoo
-nga_offset = iasblock(3)*(nga*(nga-1)/2+ngc-1)+1
-ngc_offset = iasblock(3)*(ngc*(ngc-1)/2+ngc-1)+1
+nga_offset = iasblock(3)*(nTri_Elem(nga-1)+ngc-1)+1
+ngc_offset = iasblock(3)*(nTri_Elem(ngc-1)+ngc-1)+1
 ias = iasblock(2)*nug+nga_offset
 call multi_readir(voa,nnoab*nadim,lu(2),ias)
 ias = iasblock(2)*nug+ngc_offset
 call multi_readir(voc,nnoab*ncdim,lu(2),ias)
 
-nga_offset = iasblock(1)*(nga*(nga-1)/2+ngc-1)+1
-ngc_offset = iasblock(1)*(ngc*(ngc-1)/2+ngc-1)+1
+nga_offset = iasblock(1)*(nTri_Elem(nga-1)+ngc-1)+1
+ngc_offset = iasblock(1)*(nTri_Elem(ngc-1)+ngc-1)+1
 do i=1,noab
   iasci = (i-1)*nug_offset+ngc_offset
   call multi_readir(kc(1,1,i),N*ncdim,lu(1),iasci)
@@ -52,8 +53,8 @@ end do
 do i=3,noab
   jk = 0
   do j=2,i-1
-    ij = (i-1)*(i-2)/2+j
-    ik = (i-1)*(i-2)/2
+    ij = nTri_Elem(i-2)+j
+    ik = nTri_Elem(i-2)
     do k=1,j-1
       jk = jk+1
       ik = ik+1

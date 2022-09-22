@@ -24,11 +24,12 @@ subroutine gen_vvvo(occ_ind,w3,l1_1,l2_1,tmp)
 !                          yy - Group of B'
 
 use ChT3_global, only: DimGrpaR, L1Name, L2Name, LunAux, nc, no, nv, NvGrp
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: occ_ind
-real(kind=wp) :: w3(nv*(nv+1)/2,nv), l1_1(*), l2_1(*), tmp(*)
+real(kind=wp) :: w3(nTri_Elem(nv),nv), l1_1(*), l2_1(*), tmp(*)
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, c, c_tmp, dima, dimb, dimc, lasta, lastb, lastc, length
 
 ! algoritmus je dobry ak maxdim > no
@@ -59,7 +60,7 @@ do a=1,NvGrp
 
       !mp !write(u6,*) 'dima = ',dima
       dimb = dima
-      length = (dima*(dima+1)*nc)/2
+      length = nTri_Elem(dima)*nc
       !mp !write(u6,*) 'length L2Name(a,b) = ',L2Name(a,b),length
       !mp !write(u6,*) 'file size (g77) = ',16+length*8
       !mp !write(u6,*) 'file size L2Name(a,b) (ifort) = ',L2Name(a,b),8+length*8

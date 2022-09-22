@@ -11,11 +11,12 @@
 
 subroutine grow_t2anti_blocked2(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dima, dimb, no, lasta, lastb, length1, length2
-real(kind=wp) :: t2(length1,length2,(no-1)*no/2), tmp(dima,dimb,no,no)
+real(kind=wp) :: t2(length1,length2,nTri_Elem(no-1)), tmp(dima,dimb,no,no)
 integer(kind=iwp) :: a, b, i, ij, j
 
 !mp write(u6,*) 'lasta+dima, length1 ',lasta+dima,length1

@@ -9,7 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine klvaa_oovo(ix,ig,iscr,vblock,N,nug,LU,last,ias)
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifdef _IN_MODULE_
+
+subroutine klvaa_oovo(x,g,vblock,N,nug,LU,last,ias)
 !mp !subroutine klvaa_oovo(G,ix,it,ig,iscr,vblock,N,nug,LU,last,ias)
 !mpn subroutine klvaa_oovo(ix,it,ig,iscr,vblock,N,nug,LU,last,ias)
 !
@@ -21,22 +24,24 @@ subroutine klvaa_oovo(ix,ig,iscr,vblock,N,nug,LU,last,ias)
 ! implemented integer offsets, PV, 14 may 2004.
 
 use ChT3_global, only: DimGrpaR, maxdim, nblock, nc, NNOAB, NNUAB, no, NOAB, NUAB, printkey
-use Index_Functions, only: iTri
-use Definitions, only: iwp, u6
+use Index_Functions, only: iTri, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "WrkSpc.fh"
-integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B1, b1_tmp, B2, b2_chk, i, i_blk, ias, iasblock, ig, IJS, il1, il2, IS2, iscr, &
-                     isp, it2_tmp, it_exp, itmp, itmp2, ix, j, j_blk, j_tmp, k, KADT, KI, last, length, length1, length2, lu, &
-                     MAXDIM2, n, NGA, ngaa, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, nind_ngbf, nind_ngbl, nno, NSTEP, &
-                     NUG, R, RAD, RAD_tmp, vblock
+real(kind=wp), allocatable :: x(:), g(:)
+integer(kind=iwp) :: vblock, N, nug, LU, last, ias
+integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B1, b1_tmp, B2, b2_chk, i, i_blk, iasblock, IJS, IS2, isp, j, j_blk, j_tmp, k, &
+                     KADT, KI, length, length1, length2, MAXDIM2, NGA, ngaa, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, &
+                     nind_ngbf, nind_ngbl, nno, NSTEP, R, RAD
+real(kind=wp), allocatable :: l1(:), l2(:), t2_exp(:), t2_tmp(:), tmp(:), tmp2(:), x2(:)
 
 !mp write(u6,*) 'Entering klvaa_oovo'
 
 ISP = 1
 iasblock = NNOAB(ISP)*vblock*N/nblock
 if ((iasblock*nblock) < (NNOAB(ISP)*vblock*N)) iasblock = iasblock+1
-nno = (noab(isp)+1)*noab(isp)/2
+nno = nTri_Elem(noab(isp))
 !!call w_alloc(ix,nnoab(ISP)*vblock*n,'IX klvaao')
 !!call w_alloc(ig,noab(isp)*nuab(isp)*nnoab(isp),'IG klvaao')
 !!call w_alloc(iscr,nuab(isp)*nuab(isp)*nnoab(isp),'ISCR klvaao')
@@ -94,23 +99,23 @@ do A1=1,NUAB(ISP),vblock
   !mp write(u6,*) 'length1, NUAB   = ',length1,NUAB(1)
   !mp write(u6,*) 'length2, vblock = ',length2,vblock
 
-  length = length1*length2*(((no-1)*no)/2)
+  length = length1*length2*nTri_Elem(no-1)
   !mp write(u6,*) 'length for blocked T2 amplitudes = ',length
 
   ! - setup memory
 
   !mp write(u6,*) 'allocating t2_exp = ',length
-  call GetMem('it4_exp','Allo','Real',it_exp,length)
+  call mma_allocate(t2_exp,length,label='t2_length')
 
   ! - read pertinent files and store them in the new blocked structure
 
-  call GetMem('it2_tmp','Allo','Real',it2_tmp,maxdim*maxdim*no*no)
-  call GetMem('itmp2','Allo','Real',itmp2,maxdim*maxdim*no*no)
+  call mma_allocate(t2_tmp,maxdim*maxdim*no*no,label='t2_tmp')
+  call mma_allocate(tmp2,maxdim*maxdim*no*no,label='tmp2')
 
-  call gather_t2anti_blocked(length1,length2,ngbf,ngbl,Work(it_exp),Work(it2_tmp),Work(itmp2))
+  call gather_t2anti_blocked(length1,length2,ngbf,ngbl,t2_exp,t2_tmp,tmp2)
 
-  call GetMem('itmp2','Free','Real',itmp2,maxdim*maxdim*no*no)
-  call GetMem('it2_tmp','Free','Real',it2_tmp,maxdim*maxdim*no*no)
+  call mma_deallocate(tmp2)
+  call mma_deallocate(t2_tmp)
 
   !mpn
   ! copies oovo
@@ -120,20 +125,20 @@ do A1=1,NUAB(ISP),vblock
     do J=1,I-1
       K = K+1
       !!do K = 1,NNOAB(ISP)
-      IJS = IX+(K-1)*adim*n
-      !!KADT = (a1-1)*noab(isp)+IG+(K-1)*noab(isp)*nuab(isp)
+      IJS = (K-1)*adim*n
+      !!KADT = (a1-1)*noab(isp)+(K-1)*noab(isp)*nuab(isp)+1
       do a=A1,A2
-        KADT = (J-1)*nno*nuab(isp)+(A-1)*nno+IG-1
+        KADT = (J-1)*nno*nuab(isp)+(A-1)*nno
         do r=1,noab(isp)
           ! <ra|ij>
-          !mp G(IJS+r-1) = G(KADT+iTri(r,i))
-          Work(IJS+r-1) = Work(KADT+iTri(r,i))
+          !mp G(IJS+r) = G(KADT+iTri(r,i))
+          x(IJS+r) = g(KADT+iTri(r,i))
         end do
-        KADT = (I-1)*nno*nuab(isp)+(A-1)*nno+IG-1
+        KADT = (I-1)*nno*nuab(isp)+(A-1)*nno
         do r=1,noab(isp)
           ! -<ra|ji>
-          !mp G(IJS+r-1) = G(IJS+r-1)-G(KADT+iTri(r,j))
-          Work(IJS+r-1) = Work(IJS+r-1)-Work(KADT+iTri(r,j))
+          !mp G(IJS+r) = G(IJS+r)-G(KADT+iTri(r,j))
+          x(IJS+r) = x(IJS+r)-g(KADT+iTri(r,j))
         end do
         !!call dcopy_(noab(isp),G(KADT),1,G(IJS),1)
         IJS = IJS+N
@@ -143,17 +148,17 @@ do A1=1,NUAB(ISP),vblock
       !mpn
       !!KADT = ISCR+(K-1)*NUAB(ISP)*NUAB(ISP)+(A1-1)*NUAB(ISP)
       !mp KADT = IT+(K-1)*NUAB(ISP)*NUAB(ISP)+(A1-1)*NUAB(ISP)
-      IJS = NOAB(ISP)+IX+(K-1)*adim*n
+      IJS = 1+NOAB(ISP)+(K-1)*adim*n
 
       a_tmp = a1-nind_ngbf
       !mp write(u6,*) 'K, a1, a_tmp',k,a1,a_tmp
 
-      KADT = it_exp+(K-1)*NUAB(ISP)*length2+(a_tmp-1)*NUAB(ISP)
+      KADT = 1+(K-1)*NUAB(ISP)*length2+(a_tmp-1)*NUAB(ISP)
 
       do a=A1,A2
         !mp call dcopy_(NUAB(isp),G(KADT),1,G(IJS),1)
-        call dcopy_(NUAB(isp),Work(KADT),1,Work(IJS),1)
-        !mp write(u6,*) (Work(KADT+a_tmp),a_tmp=0,NUAB(isp)-1)
+        call dcopy_(NUAB(isp),t2_exp(KADT),1,x(IJS),1)
+        !mp write(u6,*) (t2_exp(KADT+a_tmp),a_tmp=0,NUAB(isp)-1)
         !!write(u6,'(A,2I3,11D10.4)')'OT',K,a,(G(r),r=IJS-noab(isp),IJS+nuab(isp)-1)
 
         KADT = KADT+NUAB(ISP)
@@ -162,22 +167,22 @@ do A1=1,NUAB(ISP),vblock
     end do       !J
   end do         !I
   !!enddo          !K
-  !!write(u6,'(A,2I5,4x,5D15.10)') 'block-m:a1,IAS,ddot',a1,ias,ddot_(N*adim*nnoab(ISP),G(IX),1,g(ix),1),(G(I),I=IX,IX+3)
+  !!write(u6,'(A,2I5,4x,5D15.10)') 'block-m:a1,IAS,ddot',a1,ias,ddot_(N*adim*nnoab(ISP),G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
   !mp call multi_wridir(G(IX),n*adim*nnoab(isp),LU,IAS, last)
   !mp
-  !mpn do jjj=0,n*adim*nnoab(isp)-1
-  !mpn   if (abs(Work(ix+jjj)) > 1.0e5_wp) then
+  !mpn do jjj=1,n*adim*nnoab(isp)
+  !mpn   if (abs(x(jjj)) > 1.0e5_wp) then
   !mpn     write(u6,*) 'fucko 2'
-  !mpn     write(u6,*) jjj,Work(ix+jjj)
+  !mpn     write(u6,*) jjj,x(jjj)
   !mpn     stop
   !mpn   end if
   !mpn end do
   !mp
-  call multi_wridir(Work(IX),n*adim*nnoab(isp),LU,IAS,last)
+  call multi_wridir(x,n*adim*nnoab(isp),LU,IAS,last)
   IAS = IAS+iasblock
 
   !mp
-  call GetMem('it4_exp','Free','Real',it_exp,length)
+  call mma_deallocate(t2_exp)
   !mp
 end do     ! A1
   !mp write(u6,*) 'cast 1 ok'
@@ -190,15 +195,15 @@ IS2 = 3-ISP
 !mp write(u6,*) 'test 2 na ig ',noab(1)*nuab(1)*nno
 !mp write(u6,*) 'test 2 na ix ',noab(1)*noab(1)*vblock*n
 !mp write(u6,*) 'nno (2) = ',nno
-call GetMem('c2_iscr','Free','Real',iscr,vblock*noab(1)*noab(1))
-call GetMem('c2_ig','Free','Real',ig,noab(1)*nuab(1)*nno)
-call GetMem('c2_ix','Free','Real',ix,noab(1)*noab(1)*vblock*n)
+!call GetMem('c2_iscr','Free','Real',iscr,vblock*noab(1)*noab(1))
+call mma_deallocate(g)
+call mma_deallocate(x)
 !mp write(u6,*) 'n (2) = ',n
 !mp call w_memchk('IX klvaa ')
 !mp call w_free(g(ix),0,'klvaaix')
 !mp call w_alloc(ix,nnoab(isp)*vblock*vblock,'Ix klvaa-v')
 !mp
-call GetMem('klv_oo_ix','Allo','Real',ix,nnoab(isp)*vblock*vblock)
+call mma_allocate(x2,nnoab(isp)*vblock*vblock,label='klv_oo_ix')
 !mp
 ! starts <aa||oo> integrals
 !FN = 'VVOOI'//ich(3)
@@ -206,14 +211,14 @@ call GetMem('klv_oo_ix','Allo','Real',ix,nnoab(isp)*vblock*vblock)
 !mp !call GET3DM(FN,G(it),NNUAB(3),NNOAB(3),0)
 !mp
 !mp !call w_alloc(il1,nc*no*maxdim,'IL1 klvaa-v')
-!mpn call GetMem('klv_oo_il1','Allo','Real',il1,nc*no*maxdim)
+!mpn call mma_allocate(l1,nc*no*maxdim,label='klv_oo_il1')
 !mp !call w_alloc(itmp,max(nc*no*maxdim,maxdim*maxdim*no*no),'IL2 klvaa-v')
-!mpn call GetMem('klv_oo_itmp','Allo','Real',itmp,max(nc*no*maxdim,maxdim*maxdim*no*no))
+!mpn call mma_allocate(tmp,max(nc*no*maxdim,maxdim*maxdim*no*no),label='klv_oo_itmp')
 !mp !call w_alloc(il2,max(nc*no*maxdim,maxdim*maxdim*no*no),'IL2 klvaa-v')
-!mpn call GetMem('klv_oo_il2','Allo','Real',il2,max(nc*no*maxdim,maxdim*maxdim*no*no))
+!mpn call mma_allocate(l2,max(nc*no*maxdim,maxdim*maxdim*no*no),label='klv_oo_il2')
 
 !mp !call gen_vvoo(G(it),G(il1),G(itmp),G(il2))
-!mpn call gen_vvoo(Work(it),Work(il1),Work(itmp),Work(il2))
+!mpn call gen_vvoo(Work(it),l1,tmp,l2)
 
 !mp !open(unit=36,file='vvoo_moje')
 !mp !do i=0,NNUAB(3)*NNOAB(3)-1
@@ -223,9 +228,9 @@ call GetMem('klv_oo_ix','Allo','Real',ix,nnoab(isp)*vblock*vblock)
 !mp !close (36)
 
 !mp !call w_free(G(il1),0,'IL1 klvaa-v')
-!mpn call GetMem('klv_oo_il2','Free','Real',il2,max(nc*no*maxdim,maxdim*maxdim*no*no))
-!mpn call GetMem('klv_oo_itmp','Free','Real',itmp,max(nc*no*maxdim,maxdim*maxdim*no*no))
-!mpn call GetMem('klv_oo_il1','Free','Real',il1,nc*no*maxdim)
+!mpn call mma_deallocate(l2)
+!mpn call mma_deallocate(tmp)
+!mpn call mma_deallocate(l1)
 
 !mp write(u6,*) ddot_(nnoab(3)*nnuab(3),G(it),1,G(it),1)
 
@@ -249,7 +254,7 @@ do nga=1,nug
   A2 = A1+adim-1
   do ngb=1,nga
     if (nga == ngb) then
-      maxdim2 = adim*(adim-1)/2
+      maxdim2 = nTri_Elem(adim-1)
     else
       maxdim2 = adim*vblock
     end if
@@ -302,28 +307,28 @@ do nga=1,nug
     ! - setup memory
 
     !mp write(u6,*) 'allocating t2_exp = ',length
-    call GetMem('it5_exp','Allo','Real',it_exp,length)
+    call mma_allocate(t2_exp,length,label='t2_exp')
 
     ! - read pertinent files and generate block of vvoo integrals
 
-    call GetMem('vvooil1','Allo','Real',il1,nc*no*maxdim)
-    call GetMem('vvooitmp','Allo','Real',itmp,max(nc*no*maxdim,maxdim*maxdim*no*no))
-    call GetMem('vvooil2','Allo','Real',il2,max(nc*no*maxdim,maxdim*maxdim*no*no))
+    call mma_allocate(l1,nc*no*maxdim,label='vvooil1')
+    call mma_allocate(tmp,max(nc*no*maxdim,maxdim*maxdim*no*no),label='vvooitmp')
+    call mma_allocate(l2,max(nc*no*maxdim,maxdim*maxdim*no*no),label='vvooil2')
     !mp
-    call gen_vvoo_blocked(Work(it_exp),Work(il1),Work(itmp),Work(il2),length1,length2,ngaf,ngal,ngbf,ngbl)
+    call gen_vvoo_blocked(t2_exp,l1,tmp,l2,length1,length2,ngaf,ngal,ngbf,ngbl)
     !mp
-    call GetMem('vvooil2','Free','Real',il2,max(nc*no*maxdim,maxdim*maxdim*no*no))
-    call GetMem('vvooitmp','Free','Real',itmp,max(nc*no*maxdim,maxdim*maxdim*no*no))
-    call GetMem('vvooil1','Free','Real',il1,nc*no*maxdim)
+    call mma_deallocate(l2)
+    call mma_deallocate(tmp)
+    call mma_deallocate(l1)
     !mpn
     do a=a1,a2
       B2 = B1-1+min(vblock,A-B1)
       NSTEP = B2-B1+1
       if (nstep /= 0) then
         if (nga == ngb) then
-          IJS = (a-a1-1)*(a-a1)/2+IX
+          IJS = nTri_Elem(a-a1-1)+1
         else
-          IJS = (a-a1)*vblock+IX
+          IJS = (a-a1)*vblock+1
         end if
         R = 0
         do I=2,NOAB(ISP)
@@ -342,29 +347,29 @@ do nga=1,nug
             !mp write(u6,'(A,5(i4,x))') 'a_tmp,b1_tmp   ',a_tmp,b1_tmp
             do j_tmp=0,nstep-1
 
-              KADT = (i-1)*noab(isp)*length1*length2+(j-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp+it_exp-1
+              KADT = (i-1)*noab(isp)*length1*length2+(j-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp
 
-              Work(IJS+j_tmp) = Work(KADT)
+              x2(IJS+j_tmp) = t2_exp(KADT)
 
             end do
 
             ! address and block for the A1-A2x B1-B2
-            !!KADT = KADT+(a-1)*(a-2)/2+B1+IT-1
+            !!KADT = KADT+nTri_Elem(a-2)+B1+IT-1
             ! VO >>> G(IX)
-            !mpn call dcopy_(NSTEP,Work(KADT),1,Work(IJS),1)
+            !mpn call dcopy_(NSTEP,t2_exp(KADT),1,x2(IJS),1)
             !mpn R = (I-1)*noab(isp)+J
             !mpn KADT = (R-1)*NNUAB(3)
             !mpn KADT = KADT+(a-1)*NUAB(ISP)+B1+IT-1
             do j_tmp=0,nstep-1
 
-              KADT = (j-1)*noab(isp)*length1*length2+(i-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp+it_exp-1
+              KADT = (j-1)*noab(isp)*length1*length2+(i-1)*length1*length2+(b1_tmp+j_tmp-1)*length1+a_tmp
 
-              Work(IJS+j_tmp) = Work(IJS+j_tmp)-Work(KADT)
+              x2(IJS+j_tmp) = x2(IJS+j_tmp)-t2_exp(KADT)
 
             end do
             !mpn
-            !mpn call daxpy_(NSTEP,-One,Work(KADT),1,Work(IJS),1)
-            !!write(u6,'(A,2I3,8D15.8)')'T',(I-1)*(I-2)/2+j,a,(G(r),r=IJS,IJS+NSTEP-1)
+            !mpn call daxpy_(NSTEP,-One,t2_exp(KADT),1,x2(IJS),1)
+            !!write(u6,'(A,2I3,8D15.8)')'T',nTri_Elem(I-2)+j,a,(G(r),r=IJS,IJS+NSTEP-1)
             IJS = IJS+maxdim2
           end do       ! RI
         end do         ! RJ
@@ -377,19 +382,19 @@ do nga=1,nug
     end if
     !mp call multi_wridir(G(IX),nnoab(isp)*maxdim2,LU,IAS, last)
     !mp
-    !mpn do jjj=0,nnoab(isp)*maxdim2-1
-    !mpn   if (abs(Work(ix+jjj)) > 1.0e5_wp) then
+    !mpn do jjj=1,nnoab(isp)*maxdim2
+    !mpn   if (abs(x2(jjj)) > 1.0e5_wp) then
     !mpn     write(u6,*) 'fucko 3'
-    !mpn     write(u6,*) jjj,Work(ix+jjj)
+    !mpn     write(u6,*) jjj,x2(jjj)
     !mpn     stop
     !mpn   end if
     !mpn end do
     !mp
-    call multi_wridir(Work(IX),nnoab(isp)*maxdim2,LU,IAS,last)
+    call multi_wridir(x2,nnoab(isp)*maxdim2,LU,IAS,last)
     ias = ias+iasblock
 
     !mp write(u6,*) 'deallocating t2_exp = ',length
-    call GetMem('it5_exp','Free','Real',it_exp,length)
+    call mma_deallocate(t2_exp)
 
   end do    ! ngb
 end do      ! nga
@@ -397,12 +402,12 @@ end do      ! nga
 !mp call w_memchk('all klvaa ')
 !mp call w_free(g(ix),0,'klvaa ')
 !mp
-call GetMem('klv_oo_ix','Free','Real',ix,nnoab(isp)*vblock*vblock)
+call mma_deallocate(x2)
 !mp
 !!call w_free(g(it),0,'klvaa ')
 !mp call w_alloc(ix,nnoab(3)*vblock*vblock,'ix-vvoo')
 !mp
-call GetMem('klv_oo_ix','Allo','Real',ix,nnoab(3)*vblock*vblock)
+call mma_allocate(x2,nnoab(3)*vblock*vblock,label='klv_oo_ix')
 !mp
 !!call w_alloc(ig,nnoab(3)*nnuab(3),'ig-vvoo')
 !mpn ig = it
@@ -485,19 +490,19 @@ do A1=1,NUAB(ISP),vblock
     ! - setup memory
 
     !mp write(u6,*) 'allocating t2_exp = ',length
-    call GetMem('it6_exp','Allo','Real',it_exp,length)
+    call mma_allocate(t2_exp,length,label='t2_exp')
 
     ! - read pertinent files and generate block of vvoo integrals
 
-    call GetMem('vvooil1','Allo','Real',il1,nc*no*maxdim)
-    call GetMem('vvooitmp','Allo','Real',itmp,max(nc*no*maxdim,maxdim*maxdim*no*no))
-    call GetMem('vvooil2','Allo','Real',il2,max(nc*no*maxdim,maxdim*maxdim*no*no))
+    call mma_allocate(l1,nc*no*maxdim,label='vvooil1')
+    call mma_allocate(tmp,max(nc*no*maxdim,maxdim*maxdim*no*no),label='tmp')
+    call mma_allocate(l2,max(nc*no*maxdim,maxdim*maxdim*no*no),label='vvooil2')
     !mp
-    call gen_vvoo_blocked(Work(it_exp),Work(il1),Work(itmp),Work(il2),length1,length2,ngaf,ngal,ngbf,ngbl)
+    call gen_vvoo_blocked(t2_exp,l1,tmp,l2,length1,length2,ngaf,ngal,ngbf,ngbl)
     !mp
-    call GetMem('vvooil2','Free','Real',il2,max(nc*no*maxdim,maxdim*maxdim*no*no))
-    call GetMem('vvooitmp','Free','Real',itmp,max(nc*no*maxdim,maxdim*maxdim*no*no))
-    call GetMem('vvooil1','Free','Real',il1,nc*no*maxdim)
+    call mma_deallocate(l2)
+    call mma_deallocate(tmp)
+    call mma_deallocate(l1)
     !mpn
     !!bdim = NSTEP
     ! mv T2(B,A,I,K) >> G(ix)
@@ -521,7 +526,7 @@ do A1=1,NUAB(ISP),vblock
           !mpn AADT = IADT+KADT+BADT+A*(ISP-1)+(2-ISP)*(A-1)*NUAB(2)+IG-1
           ! T2 <A,B,J,K> for isp=1 T2 <B,A,K,J> for isp=2
 
-          RAD = (KI-1)*adim*nstep+(A-A1)*nstep+IX
+          RAD = (KI-1)*adim*nstep+(A-A1)*nstep+1
           !mpn ISTEP = (ISP-1)*NUAB(2)+2-ISP
           !mpn
           if (nga >= ngb) then ! nga> ngb
@@ -530,11 +535,9 @@ do A1=1,NUAB(ISP),vblock
             ! T2(B1,A,I,K) =? T2(A,B1,K,I)
             do j_tmp=0,NSTEP-1  ! istep je 1 ak dobre tusim
 
-              AADT = (I-1)*length1*length2*NOAB(2)+(K-1)*length1*length2+(b1_tmp-1+j_tmp)*length1+a_tmp+it_exp-1
+              AADT = (I-1)*length1*length2*NOAB(2)+(K-1)*length1*length2+(b1_tmp-1+j_tmp)*length1+a_tmp
 
-              RAD_tmp = RAD+j_tmp
-
-              Work(RAD_tmp) = Work(AADT)
+              x2(RAD+j_tmp) = t2_exp(AADT)
 
             end do
 
@@ -544,16 +547,14 @@ do A1=1,NUAB(ISP),vblock
             ! T2(B1,A,I,K)
             do j_tmp=0,NSTEP-1  ! istep je 1 ak dobre tusim
 
-              AADT = (k-1)*length1*length2*NOAB(2)+(i-1)*length1*length2+(a_tmp-1)*length1+b1_tmp+j_tmp+it_exp-1
+              AADT = (k-1)*length1*length2*NOAB(2)+(i-1)*length1*length2+(a_tmp-1)*length1+b1_tmp+j_tmp
 
-              RAD_tmp = RAD+j_tmp
-
-              Work(RAD_tmp) = Work(AADT)
+              x2(RAD+j_tmp) = t2_exp(AADT)
 
             end do
           end if
           !mpn
-          !mpn call dcopy_(NSTEP,Work(AADT),ISTEP,Work(RAD),1)
+          !mpn call dcopy_(NSTEP,t2_exp(AADT),ISTEP,x2(RAD),1)
 
         end do    ! A
       end do      ! I
@@ -562,18 +563,18 @@ do A1=1,NUAB(ISP),vblock
     !!                               ddot_(NNOAB(3)*adim*nstep,G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
     !mp call multi_wridir(G(IX),NNOAB(3)*adim*nstep,LU,IAS, last)
     !mp
-    !mpn do jjj=0,NNOAB(3)*adim*nstep-1
-    !mpn   if (abs(Work(ix+jjj)) > 1.0e5_wp) then
+    !mpn do jjj=1,NNOAB(3)*adim*nstep
+    !mpn   if (abs(x2(jjj)) > 1.0e5_wp) then
     !mpn     write(u6,*) 'fucko 1'
-    !mpn     write(u6,*) jjj,Work(ix+jjj)
+    !mpn     write(u6,*) jjj,x2(jjj)
     !mpn     stop
     !mpn   end if
     !mpn end do
     !mp
-    call multi_wridir(Work(IX),NNOAB(3)*adim*nstep,LU,IAS,last)
+    call multi_wridir(x2,NNOAB(3)*adim*nstep,LU,IAS,last)
     ias = ias+iasblock
     !mpn
-    call GetMem('it6_exp','Free','Real',it_exp,length)
+    call mma_deallocate(t2_exp)
     !mpn
   end do    ! B1
 end do      ! A1
@@ -584,7 +585,7 @@ end do      ! A1
 !mp call w_memchk('all klvaa ')
 !!call w_free(g(ix),0,'IT klvaa ')   in calling routine
 !mp
-call GetMem('klv_oo_ix','Free','Real',ix,nnoab(3)*vblock*vblock)
+call mma_deallocate(x2)
 !mp
 !mpn
 if (printkey > 1) write(u6,*) 'VVOO integrals regenerated from MOLCAS'
@@ -596,3 +597,5 @@ call xflush(u6)
 return
 
 end subroutine klvaa_oovo
+
+#endif

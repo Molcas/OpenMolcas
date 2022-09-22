@@ -18,6 +18,7 @@ subroutine gather_t2anti_blocked(length1,length2,ngbf,ngbl,t2,t2_tmp,tmp)
 ! T2 = t2(a,b,j<i) - t2(b,a,j<i) finaly : <a,b,(i<j) >  ;  a in nv, b in vblock
 
 use ChT3_global, only: DimGrpaR, LunAux, no, NvGrp, T2Name
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -48,7 +49,7 @@ do a=1,NvGrp
     dimb = DimGrpaR(bb)
 
     if (aa == bb) then  ! aa=bb
-      length = (dima*(dima+1)*no*no)/2
+      length = nTri_Elem(dima)*no*no
       call GetX_t3(tmp,length,LunAux,T2Name(aa,bb),1,1)
     else ! aa>bb
       length = dima*dimb*no*no

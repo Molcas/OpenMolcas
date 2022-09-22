@@ -14,11 +14,12 @@ subroutine grow_w3(w3,AA,nv,d2,dima,dimb,dimc,lasta,lastb,lastc)
 !
 ! add the block contribution AA(a',b',c') to w3(a>=b,c)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nv, d2, dima, dimb, dimc, lasta, lastb, lastc
-real(kind=wp) :: w3(nv*(nv+1)/2,d2), AA(dima,dimb,dimc)
+real(kind=wp) :: w3(nTri_Elem(nv),d2), AA(dima,dimb,dimc)
 integer(kind=iwp) :: a, a_old, a_point, ab, b, b_old, b_point, c
 
 if ((dima == 0) .or. (dimb == 0)) then

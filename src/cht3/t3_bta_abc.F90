@@ -12,6 +12,7 @@
 subroutine t3_bta_abc(nuga,nugc,kab,kcb,kca,kac,kbc,kc,la,lb,lxa,lxb,lxc,mi,mij,adim,bdim,cdim,N,noab_a,noab_b,lu,iasblock,nga, &
                       ngb,ngc,oehi,oehk,oepa,oepb,oepc,enx,vab,vcb,vca,t1aa,t1ba,t1ab,t1bb,t1ac,t1bc,t3a,t3b,ifvo)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -28,12 +29,12 @@ real(kind=wp) :: den, dena, denb, denc, xx, yy
 
 ! iasblock(1) > ka,kb,kc   iasblock(2) > la,lb iasblock(3) > lxa,lxc,lxb
 !!sumt3 = Zero
-nno_a = noab_a*(noab_a-1)/2
+nno_a = nTri_Elem(noab_a-1)
 nnoab = noab_a*noab_b
 nadim = adim*bdim
 nbdim = bdim*cdim
 ncdim = adim*cdim
-nuga_offset = iasblock(1)*nuga*(nuga+1)/2
+nuga_offset = iasblock(1)*nTri_Elem(nuga)
 nugc_offset = iasblock(1)*nuga*nugc
 ias = iasblock(2)*(nga-1)+1
 call multi_readir(la,nno_a*adim*N,lu(2),ias)
@@ -47,18 +48,18 @@ ias = iasblock(3)*(ngc-1)+1
 call multi_readir(lxc,nnoab*cdim*N,lu(6),ias)
 
 ! vvoo ints reading
-ngab_offset = iasblock(4)*(nga*(nga-1)/2+ngb-1)+1
+ngab_offset = iasblock(4)*(nTri_Elem(nga-1)+ngb-1)+1
 ias = iasblock(2)*nuga+ngab_offset
 call multi_readir(vab,nno_a*nadim,lu(2),ias)
 ngca_offset = iasblock(5)*(nugc*(nga-1)+ngc-1)+1
-ias = iasblock(2)*nuga+iasblock(4)*nuga*(nuga+1)/2+ngca_offset
+ias = iasblock(2)*nuga+iasblock(4)*nTri_Elem(nuga)+ngca_offset
 call multi_readir(vca,nnoab*ncdim,lu(2),ias)
 ngcb_offset = iasblock(5)*(nugc*(ngb-1)+ngc-1)+1
-ias = iasblock(2)*nuga+iasblock(4)*nuga*(nuga+1)/2+ngcb_offset
+ias = iasblock(2)*nuga+iasblock(4)*nTri_Elem(nuga)+ngcb_offset
 call multi_readir(vcb,nnoab*nbdim,lu(2),ias)
 ! end readin vvoo ints
 
-ngab_offset = iasblock(1)*(nga*(nga-1)/2+ngb-1)+1
+ngab_offset = iasblock(1)*(nTri_Elem(nga-1)+ngb-1)+1
 ngac_offset = iasblock(1)*(nuga*(ngc-1)+nga-1)+1
 ngbc_offset = iasblock(1)*(nuga*(ngc-1)+ngb-1)+1
 ngca_offset = iasblock(1)*(nugc*(nga-1)+ngc-1)+1
