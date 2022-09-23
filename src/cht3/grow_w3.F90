@@ -18,8 +18,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nv, d2, dima, dimb, dimc, lasta, lastb, lastc
-real(kind=wp) :: w3(nTri_Elem(nv),d2), AA(dima,dimb,dimc)
+integer(kind=iwp), intent(in) :: nv, d2, dima, dimb, dimc, lasta, lastb, lastc
+real(kind=wp), intent(inout) :: w3(nTri_Elem(nv),d2)
+real(kind=wp), intent(in) :: AA(dima,dimb,dimc)
 integer(kind=iwp) :: a, a_old, a_point, ab, b, b_old, b_point
 
 if ((dima == 0) .or. (dimb == 0)) then

@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IDM, LI, NSP
-real(kind=wp) :: ARR1(*), ARR2(LI,LI,*)
+real(kind=wp), intent(in) :: ARR1(*)
+integer(kind=iwp), intent(in) :: IDM, LI, NSP
+real(kind=wp), intent(out) :: ARR2(LI,LI,IDM)
 integer(kind=iwp) :: I, IJ, K
 
 if (NSP > 0) then

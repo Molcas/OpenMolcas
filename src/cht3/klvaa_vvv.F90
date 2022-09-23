@@ -28,9 +28,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: x(*), g(*)
-integer(kind=iwp) :: vblock, N, nug, lu, last, iasblock, K, ias
+real(kind=wp), intent(_OUT_) :: x(*)
+real(kind=wp), intent(in) :: g(*)
+integer(kind=iwp), intent(in) :: vblock, N, lu, iasblock, K
+integer(kind=iwp), intent(out) :: nug
+integer(kind=iwp), intent(inout) :: last, ias
 integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B, B1, b1_tmp, B2, b2_chk, i_blk, IJS, isp, j_blk, j_tmp, KADT, KI, length, &
                      length1, length2, MAXDIMM, NGA, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, nind_ngbf, nind_ngbl, NNU, &
                      NSTEP, R

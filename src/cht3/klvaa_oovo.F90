@@ -28,9 +28,13 @@ use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp), allocatable :: x(:), g(:)
-integer(kind=iwp) :: vblock, N, nug, LU, last, ias
+real(kind=wp), allocatable, intent(_OUT_) :: x(:)
+real(kind=wp), allocatable, intent(inout) :: g(:)
+integer(kind=iwp), intent(in) :: vblock, N, nug, LU
+integer(kind=iwp), intent(out) :: last, ias
 integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, ADIM, B1, b1_tmp, B2, b2_chk, i, i_blk, iasblock, IJS, IS2, isp, j, j_blk, j_tmp, k, &
                      KADT, KI, length, length1, length2, MAXDIM2, NGA, ngaa, ngaf, ngal, NGB, ngbf, ngbl, nind_ngaf, nind_ngal, &
                      nind_ngbf, nind_ngbl, nno, NSTEP, R, RAD
@@ -125,7 +129,7 @@ do A1=1,NUAB(ISP),vblock
     do J=1,I-1
       K = K+1
       !!do K = 1,NNOAB(ISP)
-      IJS = (K-1)*adim*n
+      IJS = (K-1)*adim*N
       !!KADT = (a1-1)*noab(isp)+(K-1)*noab(isp)*nuab(isp)+1
       do a=A1,A2
         KADT = (J-1)*nno*nuab(isp)+(A-1)*nno
@@ -148,7 +152,7 @@ do A1=1,NUAB(ISP),vblock
       !mpn
       !!KADT = ISCR+(K-1)*NUAB(ISP)*NUAB(ISP)+(A1-1)*NUAB(ISP)
       !mp KADT = IT+(K-1)*NUAB(ISP)*NUAB(ISP)+(A1-1)*NUAB(ISP)
-      IJS = 1+NOAB(ISP)+(K-1)*adim*n
+      IJS = 1+NOAB(ISP)+(K-1)*adim*N
 
       a_tmp = a1-nind_ngbf
       !mp write(u6,*) 'K, a1, a_tmp',k,a1,a_tmp
@@ -168,7 +172,7 @@ do A1=1,NUAB(ISP),vblock
   end do         !I
   !!enddo          !K
   !!write(u6,'(A,2I5,4x,5D15.10)') 'block-m:a1,IAS,ddot',a1,ias,ddot_(N*adim*nnoab(ISP),G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
-  !mp call multi_wridir(G(IX),n*adim*nnoab(isp),LU,IAS, last)
+  !mp call multi_wridir(G(IX),n*adim*nnoab(isp),LU,IAS,last)
   !mp
   !mpn do jjj=1,n*adim*nnoab(isp)
   !mpn   if (abs(x(jjj)) > 1.0e5_wp) then
@@ -178,7 +182,7 @@ do A1=1,NUAB(ISP),vblock
   !mpn   end if
   !mpn end do
   !mp
-  call multi_wridir(x,n*adim*nnoab(isp),LU,IAS,last)
+  call multi_wridir(x,N*adim*nnoab(isp),LU,IAS,last)
   IAS = IAS+iasblock
 
   !mp
@@ -241,7 +245,7 @@ call mma_allocate(x2,nnoab(isp)*vblock*vblock,label='klv_oo_ix')
 ! number of blocks written in a single multiwrite
 
 iasblock = vblock*vblock*nnoab(isp)/nblock
-if ((iasblock*nblock) < (vblock*vblock*nnoab(isp)))iasblock = iasblock+1
+if (iasblock*nblock < vblock*vblock*nnoab(isp)) iasblock = iasblock+1
 !!write(u6,*) 'create_aa vvoo   iasblock',iasblock
 
 !!FN = 'VMAT'//ich(isp)//ich(isp)
@@ -380,7 +384,7 @@ do nga=1,nug
     if (maxdim2 == 0) then
       maxdim2 = 1
     end if
-    !mp call multi_wridir(G(IX),nnoab(isp)*maxdim2,LU,IAS, last)
+    !mp call multi_wridir(G(IX),nnoab(isp)*maxdim2,LU,IAS,last)
     !mp
     !mpn do jjj=1,nnoab(isp)*maxdim2
     !mpn   if (abs(x2(jjj)) > 1.0e5_wp) then
@@ -413,7 +417,7 @@ call mma_allocate(x2,nnoab(3)*vblock*vblock,label='klv_oo_ix')
 !mpn ig = it
 ! from now on as for uhf
 iasblock = nnoab(3)*vblock*vblock/nblock
-if ((iasblock*nblock) < (nnoab(3)*(vblock**2))) iasblock = iasblock+1
+if (iasblock*nblock < nnoab(3)*vblock**2) iasblock = iasblock+1
 !!FN = 'VVOOI'//ICH(3)
 !!CALL GET3DM(FN,G(IG),NNUAB(3),NNOAB(3),0)
 ! (c>d|AK)
@@ -561,7 +565,7 @@ do A1=1,NUAB(ISP),vblock
     end do        ! K
     !!write(u6,'(A,3I5,4x,5D15.10)') 'block-v: a1,b1,IAS,ddot',a1/vblock+1,b1/vblock+1,ias, &
     !!                               ddot_(NNOAB(3)*adim*nstep,G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
-    !mp call multi_wridir(G(IX),NNOAB(3)*adim*nstep,LU,IAS, last)
+    !mp call multi_wridir(G(IX),NNOAB(3)*adim*nstep,LU,IAS,last)
     !mp
     !mpn do jjj=1,NNOAB(3)*adim*nstep
     !mpn   if (abs(x2(jjj)) > 1.0e5_wp) then

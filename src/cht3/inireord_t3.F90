@@ -22,7 +22,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NaGrp
+integer(kind=iwp), intent(out) :: NaGrp
 #include "cholesky.fh"
 integer(kind=iwp) :: LuSpool, ndelvirt, nOcc(8), nOrb(8), rc
 #ifdef _MOLCAS_MPP_

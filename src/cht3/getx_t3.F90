@@ -22,8 +22,8 @@ subroutine GetX_t3(X,length,Lun,LunName,keyopen,keyclose)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: X(*)
-integer(kind=iwp) :: length, Lun, keyopen, keyclose
+integer(kind=iwp), intent(in) :: length, Lun, keyopen, keyclose
+real(kind=wp), intent(out) :: X(length)
 character(len=6) :: LunName
 
 !1
@@ -41,7 +41,7 @@ else if (keyopen == 3) then
 end if
 
 !2
-read(Lun) X(1:length)
+read(Lun) X(:)
 
 !3
 if (keyclose == 1) then

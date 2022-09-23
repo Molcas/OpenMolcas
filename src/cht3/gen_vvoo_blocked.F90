@@ -25,9 +25,12 @@ use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: w(*), l1(*), tmp(*), l2(*)
-integer(kind=iwp) :: length1, length2, ngaf, ngal, ngbf, ngbl
+real(kind=wp), intent(inout) :: w(*)
+real(kind=wp), intent(_OUT_) :: l1(*), tmp(*), l2(*)
+integer(kind=iwp), intent(in) :: length1, length2, ngaf, ngal, ngbf, ngbl
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 logical(kind=iwp) :: sym
 
@@ -49,7 +52,7 @@ do a=ngaf,ngal
 
   ! ----- read tmp(m,I,B')
 
-  do b=ngbf,min0(a,ngbl)
+  do b=ngbf,min(a,ngbl)
 
     dimb = DimGrpaR(b)
     length = nc*no*dimb

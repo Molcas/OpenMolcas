@@ -19,9 +19,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: oeh(*), oep(*), t1a(*), t1b(*), energ(*), enx
-integer(kind=iwp) :: nga, ngb, ngc, vblock, isp, lu(6)
-logical(kind=iwp) :: ifvo, scored
+real(kind=wp), intent(in) :: oeh(*), oep(*)
+real(kind=wp), intent(inout) :: t1a(*), t1b(*), energ(*)
+integer(kind=iwp), intent(in) :: nga, ngb, ngc, vblock, isp, lu(6)
+logical(kind=iwp), intent(in) :: ifvo
+logical(kind=iwp), intent(out) :: scored
+real(kind=wp), intent(out) :: enx
 integer(kind=iwp) :: adim, aset, bdim, bset, cdim, cset, en_offset_ah, en_offset_ap, en_offset_bh, en_offset_bp, iasblock(5), n, &
                      nuga, nugc, t1_offset_a, t1_offset_b
 real(kind=wp), allocatable :: kab(:), kac(:), kbc(:), kc(:), kca(:), kcb(:), la(:), lb(:), lxa(:), lxb(:), lxc(:), mi(:), mij(:), &
@@ -51,19 +54,19 @@ if ((nugc*vblock) < nuab(3-isp)) nugc = nugc+1
 !!write(u6,*) 'first,nugc,vblock',nugc,vblock
 
 iasblock(1) = vblock*vblock*N/nblock
-if ((iasblock(1)*nblock) < (vblock*vblock*N)) iasblock(1) = iasblock(1)+1
+if (iasblock(1)*nblock < vblock*vblock*N) iasblock(1) = iasblock(1)+1
 
 iasblock(2) = nnoab(isp)*vblock*N/nblock
-if ((iasblock(2)*nblock) < (nnoab(isp)*vblock*N)) iasblock(2) = iasblock(2)+1
+if (iasblock(2)*nblock < nnoab(isp)*vblock*N) iasblock(2) = iasblock(2)+1
 
 iasblock(3) = nnoab(3)*vblock*N/nblock
-if ((iasblock(3)*nblock) < (nnoab(3)*vblock*N)) iasblock(3) = iasblock(3)+1
+if (iasblock(3)*nblock < nnoab(3)*vblock*N) iasblock(3) = iasblock(3)+1
 
 iasblock(4) = nnoab(isp)*vblock*vblock/nblock
-if ((iasblock(4)*nblock) < (nnoab(isp)*vblock*vblock)) iasblock(4) = iasblock(4)+1
+if (iasblock(4)*nblock < nnoab(isp)*vblock*vblock) iasblock(4) = iasblock(4)+1
 
 iasblock(5) = nnoab(3)*vblock*vblock/nblock
-if ((iasblock(5)*nblock) < (nnoab(3)*vblock*vblock)) iasblock(5) = iasblock(5)+1
+if (iasblock(5)*nblock < nnoab(3)*vblock*vblock) iasblock(5) = iasblock(5)+1
 
 !mp call w_rescope(G,'GT3loopb')
 !mp call w_free(g,0,'GT3loopb')

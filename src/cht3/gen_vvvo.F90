@@ -28,9 +28,12 @@ use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: occ_ind
-real(kind=wp) :: w3(nTri_Elem(nv),nv), l1_1(*), l2_1(*), tmp(*)
+integer(kind=iwp), intent(in) :: occ_ind
+real(kind=wp), intent(inout) :: w3(nTri_Elem(nv),nv)
+real(kind=wp), intent(_OUT_) :: l1_1(*), l2_1(*), tmp(*)
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, c, c_tmp, dima, dimb, dimc, lasta, lastb, lastc, length
 
 ! algoritmus je dobry ak maxdim > no

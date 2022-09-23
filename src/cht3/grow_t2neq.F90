@@ -18,8 +18,9 @@ subroutine grow_t2neq(t2,tmp,dima,dimb,nv,no,lasta,lastb)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, nv, no, lasta, lastb
-real(kind=wp) :: t2(nv,nv,no,no), tmp(dima,dimb,no,no)
+integer(kind=iwp), intent(in) :: dima, dimb, nv, no, lasta, lastb
+real(kind=wp), intent(inout) :: t2(nv,nv,no,no)
+real(kind=wp), intent(in) :: tmp(dima,dimb,no,no)
 integer(kind=iwp) :: b, i, j
 
 !mp write(u6,*) 'grow_t2neq dima , dimb  ',dima,dimb

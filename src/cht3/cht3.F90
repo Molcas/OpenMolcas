@@ -17,7 +17,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: i, maxspace, nBas(8), nOrb(8), nOrbE
 character(len=24) :: Label
 logical(kind=iwp) :: Found

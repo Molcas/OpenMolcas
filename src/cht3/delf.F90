@@ -14,8 +14,8 @@ subroutine DELF(FNAM,INUM1,INUM2)
 use Definitions, only: iwp
 
 implicit none
-character(len=6) :: FNAM
-integer(kind=iwp) :: INUM1, INUM2
+character(len=6), intent(in) :: FNAM
+integer(kind=iwp), intent(in) :: INUM1, INUM2
 integer(kind=iwp) :: I, LU
 character(len=8) :: FN
 integer(kind=iwp), external :: IsFreeUnit

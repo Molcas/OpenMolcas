@@ -14,8 +14,8 @@ subroutine check_mat(mat,dima,dimb)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dima, dimb
-real(kind=wp) :: mat(dima,dimb)
+integer(kind=iwp), intent(in) :: dima, dimb
+real(kind=wp), intent(in) :: mat(dima,dimb)
 integer(kind=iwp) :: i, j
 
 do i=1,dima

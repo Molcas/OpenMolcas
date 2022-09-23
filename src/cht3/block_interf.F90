@@ -29,7 +29,8 @@ use ChT3_global, only: DimGrpaR, NvGrp
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ind1f, ind1l, ind2f, ind2l, b1f, b1l, nind_b1f, nind_b1l, b2f, b2l, nind_b2f, nind_b2l
+integer(kind=iwp), intent(in) :: ind1f, ind1l, ind2f, ind2l
+integer(kind=iwp), intent(out) :: b1f, b1l, nind_b1f, nind_b1l, b2f, b2l, nind_b2f, nind_b2l
 integer(kind=iwp) :: i, isum
 logical(kind=iwp) :: found1, found2, found3, found4
 

@@ -17,8 +17,9 @@ subroutine ext_o_32(A,B,nc,no,dima,occ_ind)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nc, no, dima, occ_ind
-real(kind=wp) :: A(nc,no,dima), B(nc,dima)
+integer(kind=iwp), intent(in) :: nc, no, dima, occ_ind
+real(kind=wp), intent(in) :: A(nc,no,dima)
+real(kind=wp), intent(out) :: B(nc,dima)
 integer(kind=iwp) :: i2
 
 do i2=1,dima

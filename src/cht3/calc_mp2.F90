@@ -16,8 +16,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: no, nv
-real(kind=wp) :: w(nv,no,nv,no), e(no+nv)
+integer(kind=iwp), intent(in) :: no, nv
+real(kind=wp), intent(in) :: w(nv,no,nv,no), e(no+nv)
 integer(kind=iwp) :: a, b, i, j
 real(kind=wp) :: denom, e2, integral
 
@@ -31,7 +31,7 @@ do j=1,no
         denom = e(no+a)+e(no+b)-e(i)-e(j)
         !mp write(u6,'(4(i3,2x),A,3(f17.10,2x))') a,i,b,j,'w1, w2, denom ',w(a,i,b,j),w(a,j,b,i),denom
 
-        integral = -w(a,i,b,j)*Two*w(a,i,b,j)-w(a,j,b,i)
+        integral = -Two*w(a,i,b,j)**2-w(a,j,b,i)
 
         !write(u6,*) integral
 

@@ -17,8 +17,9 @@ subroutine grow_l2(A,B,nc,nv,dima,dimb,lasta,lastb)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nc, nv, dima, dimb, lasta, lastb
-real(kind=wp) :: A(nv,nv,nc), B(dima,dimb,nc)
+integer(kind=iwp), intent(in) :: nc, nv, dima, dimb, lasta, lastb
+real(kind=wp), intent(inout) :: A(nv,nv,nc)
+real(kind=wp), intent(in) :: B(dima,dimb,nc)
 integer(kind=iwp) :: i2, i3
 
 do i3=1,nc

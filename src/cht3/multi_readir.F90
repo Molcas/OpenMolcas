@@ -35,8 +35,8 @@ use ChT3_global, only: IOPT, nblock
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lg, ifile, ias
-real(kind=wp) :: G(lg)
+integer(kind=iwp), intent(in) :: lg, ifile, ias
+real(kind=wp), intent(out) :: G(lg)
 integer(kind=iwp) :: iloc, irest, k, kas
 
 iloc = 1

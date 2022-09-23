@@ -25,8 +25,11 @@ use ChT3_global, only: DimGrpaR, L1Name, LunAux, nc, no, nv, NvGrp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: w(*), l1(*), tmp(*), l2(*)
+real(kind=wp), intent(inout) :: w(*)
+real(kind=wp), intent(_OUT_) :: l1(*), tmp(*), l2(*)
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 
 do a=1,NvGrp

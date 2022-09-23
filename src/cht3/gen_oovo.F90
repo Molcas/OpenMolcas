@@ -23,8 +23,11 @@ use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: w(*), l0(*), l1(*), tmp(*)
+real(kind=wp), intent(_OUT_) :: w(*), l0(*), tmp(*)
+real(kind=wp), intent(inout) :: l1(*)
 integer(kind=iwp) :: a, a_tmp, dima, last, length
 
 !1 read tmp(m,IJ)

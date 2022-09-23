@@ -16,8 +16,8 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IDM, no, NF
-real(kind=wp) :: W(IDM,*)
+integer(kind=iwp), intent(in) :: IDM, no, NF
+real(kind=wp), intent(inout) :: W(IDM,*)
 integer(kind=iwp) :: IJ, I, IJO, II, K, L, KL, LK, J, JIO
 real(kind=wp) :: DD
 

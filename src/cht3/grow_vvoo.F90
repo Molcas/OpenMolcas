@@ -17,8 +17,9 @@ subroutine grow_vvoo(A,B,no,nv,dima,dimb,lasta,lastb)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no, nv, dima, dimb, lasta, lastb
-real(kind=wp) :: A(nv,nv,no,no), B(dima,no,dimb,no)
+integer(kind=iwp), intent(in) :: no, nv, dima, dimb, lasta, lastb
+real(kind=wp), intent(inout) :: A(nv,nv,no,no)
+real(kind=wp), intent(in) :: B(dima,no,dimb,no)
 integer(kind=iwp) :: i2, i3, i4
 
 !!write(u6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb

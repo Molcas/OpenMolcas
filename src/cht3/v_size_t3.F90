@@ -17,7 +17,8 @@ use Constants, only: One, Three
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: vblock, nprocs, krem, printkey
+integer(kind=iwp), intent(out) :: vblock
+integer(kind=iwp), intent(in) :: nprocs, krem, printkey
 integer(kind=iwp) :: isp, maxnu, N, nuga, nugc, rest, t3_size, t3_size_a, tmp, vblock_isp(2)
 
 ! number of elementary subprocesses: nugc*nTri_Elem(nuga)
@@ -129,10 +130,10 @@ do isp=1,2
   vblock_isp(isp) = vblock
   if (isp == 1) t3_size_a = t3_size
 end do
-vblock = min0(vblock_isp(1),vblock_isp(2))
+vblock = min(vblock_isp(1),vblock_isp(2))
 nuga = maxnu/vblock
 if (nuga*vblock < maxnu) nuga = nuga+1
-if (mod(maxnu,vblock) /= 0) vblock = min0(vblock,maxnu/nuga+mod(maxnu,nuga))
+if (mod(maxnu,vblock) /= 0) vblock = min(vblock,maxnu/nuga+mod(maxnu,nuga))
 ! adjusting to reasonably full last block
 rest = mod(maxnu,vblock)
 do while ((rest /= 0) .and. (rest <= vblock-nuga))

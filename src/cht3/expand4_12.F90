@@ -18,8 +18,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: d1, d2, d3
-real(kind=wp) :: AA(nTri_Elem(d1),d2,d3), BB(d1,d1,d2,d3)
+integer(kind=iwp), intent(in) :: d1, d2, d3
+real(kind=wp), intent(in) :: AA(nTri_Elem(d1),d2,d3)
+real(kind=wp), intent(out) :: BB(d1,d1,d2,d3)
 integer(kind=iwp) :: a, ab, b, i
 
 ab = 0

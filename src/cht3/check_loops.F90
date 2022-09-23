@@ -14,7 +14,8 @@ subroutine check_loops(nv,vblock,nla,nlb)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nv, vblock, nla, nlb
+integer(kind=iwp), intent(in) :: nv, vblock
+integer(kind=iwp), intent(out) :: nla, nlb
 integer(kind=iwp) :: nga, ngb, ngc, nuga
 
 nuga = nv/vblock

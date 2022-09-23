@@ -17,9 +17,10 @@ subroutine grow_vvoo_blocked(AA,BB,no,dima,dimb,lasta,lastb,length1,length2,sym)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no, dima, dimb, lasta, lastb, length1, length2
-real(kind=wp) :: AA(length1,length2,no,no), BB(dima,no,dimb,no)
-logical(kind=iwp) :: sym
+integer(kind=iwp), intent(in) :: no, dima, dimb, lasta, lastb, length1, length2
+real(kind=wp), intent(inout) :: AA(length1,length2,no,no)
+real(kind=wp), intent(in) :: BB(dima,no,dimb,no)
+logical(kind=iwp), intent(in) :: sym
 integer(kind=iwp) :: i2, i3, i4
 
 !mp write(u6,'(A,4(i3,x))') 'AA lasta, lastb, dima, dimb ',lasta,lastb,dima,dimb

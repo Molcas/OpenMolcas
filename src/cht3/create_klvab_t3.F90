@@ -29,7 +29,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: vblock
+integer(kind=iwp), intent(in) :: vblock
 integer(kind=iwp) :: A, A1, A2, a_tmp, AADT, adim, B1, b1_tmp, b2_chk, i, i_blk, IADR, ias, ias_aa, iasblock, IJS, is2, isp, ISPA, &
                      ISTEP, IUHF, j, j_blk, j_tmp, k, last, last_aa, length, length1, length2, lu, n, nga, ngaf, ngal, ngb, ngbf, &
                      ngbl, nind_ngaf, nind_ngal, nind_ngbf, nind_ngbl, NNO, NNU, NSTEP, nug, RAD

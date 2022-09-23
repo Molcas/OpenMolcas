@@ -14,8 +14,9 @@ subroutine grow_t2_fblocked2(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, no, lasta, lastb, length1, length2
-real(kind=wp) :: t2(length1,length2,no,no), tmp(dima,dimb,no,no)
+integer(kind=iwp), intent(in) :: dima, dimb, no, lasta, lastb, length1, length2
+real(kind=wp), intent(inout) :: t2(length1,length2,no,no)
+real(kind=wp), intent(in) :: tmp(dima,dimb,no,no)
 integer(kind=iwp) :: b, i, j
 
 !mp write(u6,*) 'lasta+dima, length1 ',lasta+dima,length1

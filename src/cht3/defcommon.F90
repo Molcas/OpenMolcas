@@ -19,7 +19,7 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: no, nv
+integer(kind=iwp), intent(in) :: no, nv
 
 ! ----  UHF -----
 

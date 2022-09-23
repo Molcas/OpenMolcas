@@ -22,8 +22,11 @@ use ChT3_global, only: DimGrpaR, LunAux, no, nv, NvGrp, T2Name
 use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: t2(*), t2_tmp(*), tmp(*)
+real(kind=wp), intent(inout) :: t2(*)
+real(kind=wp), intent(_OUT_) :: t2_tmp(*), tmp(*)
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 
 !mp write(u6,*)

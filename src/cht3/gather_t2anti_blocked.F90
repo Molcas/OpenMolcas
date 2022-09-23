@@ -21,10 +21,13 @@ use ChT3_global, only: DimGrpaR, LunAux, no, NvGrp, T2Name
 use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: length1, length2, ngbf, ngbl
-real(kind=wp) :: t2(*), t2_tmp(*), tmp(*)
-integer(kind=iwp) ::a, a_tmp, aa, b, b_tmp, bb, dima, dimb, lasta, lastb, length
+integer(kind=iwp), intent(in) :: length1, length2, ngbf, ngbl
+real(kind=wp), intent(inout) :: t2(*)
+real(kind=wp), intent(_OUT_) :: t2_tmp(*), tmp(*)
+integer(kind=iwp) :: a, a_tmp, aa, b, b_tmp, bb, dima, dimb, lasta, lastb, length
 logical(kind=iwp) :: switch
 
 !mp write(u6,*)

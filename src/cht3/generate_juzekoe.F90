@@ -21,14 +21,15 @@ subroutine generate_juzekOE(oe,oeh,oep,no,nv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no, nv
-real(kind=wp) :: oe(no+nv), oeh(2*no), oep(2*nv)
+integer(kind=iwp), intent(in) :: no, nv
+real(kind=wp), intent(in) :: oe(no+nv)
+real(kind=wp), intent(out) :: oeh(no,2), oep(nv,2)
 
-oeh(1:no) = oe(1:no)
-oeh(no+1:2*no) = oe(1:no)
+oeh(:,1) = oe(1:no)
+oeh(:,2) = oe(1:no)
 
-oep(1:nv) = oe(no+1:no+nv)
-oep(nv+1:2*nv) = oe(no+1:no+nv)
+oep(:,1) = oe(no+1:no+nv)
+oep(:,2) = oe(no+1:no+nv)
 
 return
 

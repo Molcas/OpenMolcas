@@ -18,7 +18,7 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: vblock
+integer(kind=iwp), intent(in) :: vblock
 integer(kind=iwp) :: mem, mem_avail, mem_trial, vblock_my
 real(kind=wp), parameter :: kb = 1024.0_wp
 

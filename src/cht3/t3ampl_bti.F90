@@ -41,7 +41,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-real(kind=wp) :: OEH(*), OEP(*)
+real(kind=wp), intent(in) :: OEH(*), OEP(*)
 integer(kind=iwp) :: i, id, isp, it1, IUHF, j, krem, LU(6), n, nga, ngb, ngc, nla, nlb, nuga, nugc, vblock
 real(kind=wp) :: ccsdt, ccsdt4, cpu0_aaa, cpu0_aab, e_ccsd, e_scf, energ(4), enx1, tccsd, timerel, times(10), times_parr(10), &
                  totcpu, totwal, wall0_aaa, wall0_aab

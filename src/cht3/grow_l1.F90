@@ -17,8 +17,9 @@ subroutine grow_l1(l1,tmp,dima,nc,no,nv,last)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, nc, no, nv, last
-real(kind=wp) :: l1(nc,no,nv), tmp(nc,no,dima)
+integer(kind=iwp), intent(in) :: dima, nc, no, nv, last
+real(kind=wp), intent(inout) :: l1(nc,no,nv)
+real(kind=wp), intent(in) :: tmp(nc,no,dima)
 
 !mp write(u6,*) 'grow_l1i ',dima
 

@@ -20,8 +20,8 @@ use ChT3_global, only: nblock
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: FNAM
-integer(kind=iwp) :: iunit
+character(len=*), intent(in) :: FNAM
+integer(kind=iwp), intent(in) :: iunit
 integer(kind=iwp) :: iost
 logical(kind=iwp) is_error
 

@@ -18,8 +18,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: length1, length2, ngaf, ngal, ngbf, ngbl
-real(kind=wp) :: t2(length1*length2*no*no), t2_tmp(maxdim*maxdim*no*no), tmp(maxdim*maxdim*no*no)
+integer(kind=iwp), intent(in) :: length1, length2, ngaf, ngal, ngbf, ngbl
+real(kind=wp), intent(inout) :: t2(length1*length2*no*no)
+real(kind=wp), intent(out) :: t2_tmp(maxdim*maxdim*no*no), tmp(maxdim*maxdim*no*no)
 integer(kind=iwp) :: a, a_tmp, b, b_tmp, dima, dimb, lasta, lastb, length
 logical(kind=iwp) :: sym
 
@@ -34,7 +35,7 @@ if ((ngaf == ngbf) .and. (ngal == ngbl)) sym = .true.
 !mp write(u6,*)
 
 do a=ngaf,ngal
-  do b=ngbf,min0(a,ngbl)
+  do b=ngbf,min(a,ngbl)
 
     dima = DimGrpaR(a)
     dimb = DimGrpaR(b)

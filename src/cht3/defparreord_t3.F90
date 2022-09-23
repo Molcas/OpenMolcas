@@ -21,28 +21,27 @@ use ChT3_global, only: DimGrpaR, L1name, L2Name, maxGrp, nv, T2Name
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NaGrpR, maxdim
-integer i, j, Low(MaxGrp), Up(MaxGrp)
+integer(kind=iwp), intent(in) :: NaGrpR
+integer(kind=iwp), intent(out) :: maxdim
+integer(kind=iwp) :: i, j, Low, Up_prev, Up
 real(kind=wp) :: rdim
 
 !1 define parameters of Groups of a set
 
 rdim = real(nv,kind=wp)/real(NaGrpR,kind=wp)
 
+Up_prev = 0
 do i=1,NaGrpR
 
-  if (i == 1) then
-    Up(i) = int(rdim*i)
-    Low(i) = 1
-  else if (i == NaGrpR) then
-    Up(i) = nv
-    Low(i) = Up(i-1)+1
+  Low = Up_prev+1
+  if (i == NaGrpR) then
+    Up = nv
   else
-    Up(i) = int(rdim*i)
-    Low(i) = Up(i-1)+1
+    Up = int(rdim*i)
   end if
+  Up_prev = Up
 
-  DimGrpaR(i) = (Up(i)-Low(i))+1
+  DimGrpaR(i) = Up-Low+1
 
 end do
 

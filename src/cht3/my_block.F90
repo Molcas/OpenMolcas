@@ -17,7 +17,8 @@ use ChT3_global, only: DimGrpaR, nv, NvGrp
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: vblock, vblock_my
+integer(kind=iwp), intent(in) :: vblock
+integer(kind=iwp), intent(out) :: vblock_my
 integer(kind=iwp) :: i, i_f, i_l, i_tmp, j, pos, vblock_my_tmp
 logical(kind=iwp) :: found
 

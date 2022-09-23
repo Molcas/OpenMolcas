@@ -17,8 +17,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IDM, LI, NSP
-real(kind=wp) :: ARR1(IDM,nTri_Elem(LI-1)), ARR2(IDM,LI,LI)
+integer(kind=iwp), intent(in) :: IDM, LI, NSP
+real(kind=wp), intent(in) :: ARR1(IDM,nTri_Elem(LI-1))
+real(kind=wp), intent(out) :: ARR2(IDM,LI,LI)
 integer(kind=iwp) :: I, IJ, J
 
 IJ = 0

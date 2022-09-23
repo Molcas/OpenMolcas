@@ -16,10 +16,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nug, adim, N, noab, nnoab, lu(2), iasblock(3), nga
-real(kind=wp) :: ka(nTri_Elem(adim-1),N,*), la(N*adim,nnoab), oeh(noab), oep(adim), enx, voa(nTri_Elem(adim-1),nnoab), &
-                 t1a(noab,*), t1b(noab,*), t3a(nTri_Elem(adim-1),adim), t3b(nTri_Elem(adim-1),adim)
-logical(kind=iwp) :: ifvo
+integer(kind=iwp), intent(in) :: nug, adim, N, noab, nnoab, lu(2), iasblock(3), nga
+real(kind=wp), intent(out) :: ka(nTri_Elem(adim-1),N,noab), la(N*adim,nnoab), voa(nTri_Elem(adim-1),nnoab), &
+                              t3a(nTri_Elem(adim-1),adim), t3b(nTri_Elem(adim-1),adim)
+real(kind=wp), intent(in) :: oeh(noab), oep(adim)
+real(kind=wp), intent(inout) :: enx, t1a(noab,*), t1b(noab,*)
+logical(kind=iwp), intent(in) :: ifvo
 integer(kind=iwp) :: a, aa, ab, ac, b, bc, c, i, ias, ij, ik, j, jk, k, ndim, nga_offset, nug_offset
 real(kind=wp) :: den, dena, denb, denc, XX, YY
 
@@ -36,7 +38,7 @@ call multi_readir(voa,nnoab*ndim,lu(2),ias)
 nga_offset = iasblock(1)*(nTri_Elem(nga)-1)+1
 do i=1,noab
   ias = (i-1)*nug_offset+nga_offset
-  call multi_readir(ka(1,1,i),N*ndim,lu(1),ias)
+  call multi_readir(ka(:,:,i),N*ndim,lu(1),ias)
 end do
 do i=3,noab
   jk = 0
@@ -47,11 +49,11 @@ do i=3,noab
       jk = jk+1
       ik = ik+1
       ! K_ab^ir x L_rc^jk
-      call DGEMM_('N','N',ndim,adim,N,one,ka(1,1,i),ndim,la(1,jk),N,zero,t3a,ndim)
+      call DGEMM_('N','N',ndim,adim,N,one,ka(:,:,i),ndim,la(:,jk),N,zero,t3a,ndim)
       ! K_ab^kr x L_rc^ij
-      call DGEMM_('N','N',ndim,adim,N,one,ka(1,1,k),ndim,la(1,ij),N,one,t3a,ndim)
+      call DGEMM_('N','N',ndim,adim,N,one,ka(:,:,k),ndim,la(:,ij),N,one,t3a,ndim)
       ! -K_ab^jr x L_rc^ik
-      call DGEMM_('N','N',ndim,adim,N,-one,ka(1,1,j),ndim,la(1,ik),N,one,t3a,ndim)
+      call DGEMM_('N','N',ndim,adim,N,-one,ka(:,:,j),ndim,la(:,ik),N,one,t3a,ndim)
       den = oeh(i)+oeh(j)+oeh(k)
       do a=3,adim
         aa = nTri_Elem(a-2)
@@ -74,14 +76,14 @@ do i=3,noab
         end do
       end do
       ! ccsd(T) part vvoo*t3
-      call DGEMM_('N','N',1,adim,ndim,one,voa(1,ij),1,t3b,ndim,one,t1a(k,1),noab)
-      call DGEMM_('N','N',1,adim,ndim,one,voa(1,jk),1,t3b,ndim,one,t1a(i,1),noab)
-      call DGEMM_('N','N',1,adim,ndim,-one,voa(1,ik),1,t3b,ndim,one,t1a(j,1),noab)
+      call DGEMM_('N','N',1,adim,ndim,one,voa(:,ij),1,t3b,ndim,one,t1a(k,1),noab)
+      call DGEMM_('N','N',1,adim,ndim,one,voa(:,jk),1,t3b,ndim,one,t1a(i,1),noab)
+      call DGEMM_('N','N',1,adim,ndim,-one,voa(:,ik),1,t3b,ndim,one,t1a(j,1),noab)
       ! ccsd(T) part t2*t3
       if (ifvo) then
-        call DGEMM_('N','N',1,adim,ndim,one,ka(1,i,j),1,t3b,ndim,one,t1b(k,1),noab)
-        call DGEMM_('N','N',1,adim,ndim,one,ka(1,j,k),1,t3b,ndim,one,t1b(i,1),noab)
-        call DGEMM_('N','N',1,adim,ndim,-one,ka(1,i,k),1,t3b,ndim,one,t1b(j,1),noab)
+        call DGEMM_('N','N',1,adim,ndim,one,ka(:,i,j),1,t3b,ndim,one,t1b(k,1),noab)
+        call DGEMM_('N','N',1,adim,ndim,one,ka(:,j,k),1,t3b,ndim,one,t1b(i,1),noab)
+        call DGEMM_('N','N',1,adim,ndim,-one,ka(:,i,k),1,t3b,ndim,one,t1b(j,1),noab)
       end if
     end do !k
   end do !j

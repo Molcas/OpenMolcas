@@ -16,13 +16,16 @@ use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nuga, nugc, adim, cdim, N, noab_a, noab_b, lu(6), iasblock(5), nga, ngc
-real(kind=wp) :: kab(nTri_Elem(adim-1),N,*), kca(adim*cdim,N,*), kac(adim*cdim,N,*), kc(*), la(N*adim,*), lxa(N*adim,*), &
-                 lxc(N*cdim,*), mi(cdim*nTri_Elem(adim-1),*), mij(*), oehi(*), oehk(*), oepa(*), oepc(*), enx, &
-                 vab(nTri_Elem(adim-1),*), vca(adim*cdim,*), t1aa(noab_a,*), t1ba(noab_a,*), t1ac(noab_b,*), t1bc(noab_b,*), &
-                 t3a(*), t3b(*)
-logical(kind=iwp) :: ifvo
+integer(kind=iwp), intent(in) :: nuga, nugc, adim, cdim, N, noab_a, noab_b, lu(6), iasblock(5), nga, ngc
+real(kind=wp), intent(_OUT_) :: kab(nTri_Elem(adim-1),N,*), kca(adim*cdim,N,*), kac(adim*cdim,N,*), kc(*), la(N*adim,*), &
+                                lxa(N*adim,*), lxc(N*cdim,*), mi(cdim*nTri_Elem(adim-1),*), mij(*), vab(nTri_Elem(adim-1),*), &
+                                vca(adim*cdim,*), t3a(*), t3b(*)
+real(kind=wp), intent(in) :: oehi(*), oehk(*), oepa(*), oepc(*)
+real(kind=wp), intent(inout) :: enx, t1aa(noab_a,*), t1ba(noab_a,*), t1ac(noab_b,*), t1bc(noab_b,*)
+logical(kind=iwp), intent(in) :: ifvo
 integer(kind=iwp) :: a, ab, abb, b, bab, c, i, ias, iasabi, iasack, iascai, ij, ik, j, jk, k, ki, kj, nadim, ncdim, ngab_offset, &
                      ngac_offset, ngca_offset, nno_a, nnoab, nuga_offset, nugc_offset
 real(kind=wp) :: den, dena, denb, denc, xx, yy
@@ -56,21 +59,21 @@ ngca_offset = iasblock(1)*(nugc*(nga-1)+ngc-1)+1
 
 do i=1,noab_a
   iasabi = (i-1)*nuga_offset+ngab_offset
-  call multi_readir(kab(1,1,i),N*nadim,lu(1),iasabi)
+  call multi_readir(kab(:,:,i),N*nadim,lu(1),iasabi)
 end do
 do i=1,noab_a
   iascai = (i-1)*nugc_offset+ngca_offset
-  call multi_readir(kca(1,1,i),N*ncdim,lu(3),iascai)
+  call multi_readir(kca(:,:,i),N*ncdim,lu(3),iascai)
 end do
 do k=1,noab_b
   do i=1,noab_a
     ik = (k-1)*noab_a+i
     ki = (i-1)*noab_b+k
     ! K_ab^ir x L_rc^ik     cba
-    call DGEMM_('T','T',cdim,nadim,N,one,lxc(1,ik),N,kab(1,1,i),nadim,zero,mi(1,i),cdim)
+    call DGEMM_('T','T',cdim,nadim,N,one,lxc(:,ik),N,kab(:,:,i),nadim,zero,mi(:,i),cdim)
 
     ! K_ac^ir x L_rb^ki     cab
-    call DGEMM_('N','N',ncdim,adim,N,one,kca(1,1,i),ncdim,lxa(1,ki),N,zero,t3b,ncdim)
+    call DGEMM_('N','N',ncdim,adim,N,one,kca(:,:,i),ncdim,lxa(:,ki),N,zero,t3b,ncdim)
     ab = 1
     do a=2,adim
       abb = (a-1)*cdim+1
@@ -97,7 +100,7 @@ do k=1,noab_b
       kj = kj+noab_b
       jk = jk+1
       ! K_bc^kr x L_ra^ij
-      call DGEMM_('N','N',ncdim,adim,N,one,kac,ncdim,la(1,ij),N,zero,t3a,ncdim)
+      call DGEMM_('N','N',ncdim,adim,N,one,kac,ncdim,la(:,ij),N,zero,t3a,ncdim)
       ! transpose the first two inicesd
       ab = 1
       do a=1,adim
@@ -147,19 +150,19 @@ do k=1,noab_b
             yy = xx/denc
             enx = enx+yy*xx
             t3a(ab) = yy
-            !! t1aa(j,a)=t1aa(j,a)-yy*vca((a-1)*cdim+c,ki)
+            !! t1aa(j,a) = t1aa(j,a)-yy*vca((a-1)*cdim+c,ki)
           end do
         end do
       end do
       call expa2_uhf(t3a,cdim,adim,-1,t3b)
-      call DGEMM_('N','T',1,cdim,nadim,one,vab(1,ij),1,t3a,cdim,one,t1ac(k,1),noab_b)
-      call DGEMM_('N','N',1,adim,ncdim,one,vca(1,kj),1,t3b,ncdim,one,t1aa(i,1),noab_a)
-      call DGEMM_('N','N',1,adim,ncdim,-one,vca(1,ki),1,t3b,ncdim,one,t1aa(j,1),noab_a)
+      call DGEMM_('N','T',1,cdim,nadim,one,vab(:,ij),1,t3a,cdim,one,t1ac(k,1),noab_b)
+      call DGEMM_('N','N',1,adim,ncdim,one,vca(:,kj),1,t3b,ncdim,one,t1aa(i,1),noab_a)
+      call DGEMM_('N','N',1,adim,ncdim,-one,vca(:,ki),1,t3b,ncdim,one,t1aa(j,1),noab_a)
       ! ccsd(T) part t2*t3
       if (ifvo) then
-        call DGEMM_('N','T',1,cdim,nadim,one,kab(1,i,j),1,t3a,cdim,one,t1bc(k,1),noab_b)
-        call DGEMM_('N','N',1,adim,ncdim,-one,kca(1,k,j),1,t3b,ncdim,one,t1ba(i,1),noab_a)
-        call DGEMM_('N','N',1,adim,ncdim,one,kca(1,k,i),1,t3b,ncdim,one,t1ba(j,1),noab_a)
+        call DGEMM_('N','T',1,cdim,nadim,one,kab(:,i,j),1,t3a,cdim,one,t1bc(k,1),noab_b)
+        call DGEMM_('N','N',1,adim,ncdim,-one,kca(:,k,j),1,t3b,ncdim,one,t1ba(i,1),noab_a)
+        call DGEMM_('N','N',1,adim,ncdim,one,kca(:,k,i),1,t3b,ncdim,one,t1ba(j,1),noab_a)
       end if
     end do !j
   end do !i
