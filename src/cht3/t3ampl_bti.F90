@@ -33,8 +33,8 @@ subroutine T3AMPL_BTI(OEH,OEP)
 !     Implemented integer offsets, PV, 14 may 2004.
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-use ChT3_global, only: gen_files, ICH, IOPT, IT, ndup, NOAB, NUAB, printkey, run_triples, t3_starta, t3_startb, t3_stopa, &
-                       t3_stopb, TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
+use ChT3_global, only: gen_files, ICH, IOPT, IT, NOAB, NUAB, printkey, run_triples, t3_starta, t3_startb, t3_stopa, t3_stopb, &
+                       TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
 use Para_Info, only: MyRank, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -151,7 +151,7 @@ if (IOPT(1) == 0) IUHF = 0
 if (printkey >= 10) write(u6,'(A,i1)') ' Closed-Shell calculation, IUHF = ',iuhf
 
 ! create K(beta-alpha,beta-alpha) and L(alpha-beta,beta-alpha)
-ndup = 0 !?????
+!ndup = 0 !?????
 
 !mp - print information on number of steps in loopa and loopb
 
@@ -244,6 +244,7 @@ call CWTime(TCpu,TWall)
 times(9) = times(9)+TCpu-TCpu0
 times(10) = times(10)+TWall-TWall0
 
+skip = .false.
 do isp=1,1+iuhf
 
   nuga = nuab(isp)/vblock
@@ -402,8 +403,6 @@ do isp=1,1+iuhf
     write(u6,*)
     skip = .true.
     exit
-  else
-    skip = .false.
   end if
 
   ! alpha-alpha-beta or beta-beta-alpha only UHF

@@ -15,8 +15,8 @@ subroutine IniReord_t3(NaGrp)
 
 use ChT3_global, only: gen_files, LunAux, nc, nfr, no, nv, printkey, run_triples, t3_starta, t3_startb, t3_stopa, t3_stopb
 #ifdef _MOLCAS_MPP_
-use ChT3_global, only: NChLoc
 use Para_Info, only: MyRank, nProcs
+use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -27,6 +27,7 @@ integer(kind=iwp), intent(out) :: NaGrp
 integer(kind=iwp) :: LuSpool, ndelvirt, nOcc(8), nOrb(8), rc
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: jal1, jal2
+integer(kind=iwp), allocatable :: NChLoc(:)
 #endif
 real(kind=wp) FracMem
 character(len=80) :: LINE
@@ -46,16 +47,19 @@ call Cho_X_init(rc,FracMem) ! initialize cholesky info
 ! take local # of Cholesky Vectors on this node
 #ifdef _MOLCAS_MPP_
 
-NChLoc(0:Nprocs-1) = 0
+call mma_allocate(NChLoc,NProcs,label='NChLoc')
+NChLoc(:) = 0
 
-NChLoc(MyRank) = NumCho(1)
+NChLoc(MyRank+1) = NumCho(1)
 
-call gaigop(NChLoc(0),NProcs,'+')
+call gaigop(NChLoc,NProcs,'+')
 
 jal2 = 0
-do jal1=0,NProcs-1
+do jal1=1,NProcs
   jal2 = jal2+NChLoc(jal1)
 end do
+
+call mma_deallocate(NChLoc)
 
 nc = jal2
 #else

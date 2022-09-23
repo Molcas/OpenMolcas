@@ -17,7 +17,8 @@ subroutine DefParReord_t3(NaGrpR,maxdim)
 ! NxGrpR   - # of groups in a (=b) set (I)
 ! maxdim   - # maximal dimension of a (=b) Groups(O)
 
-use ChT3_global, only: DimGrpaR, L1name, L2Name, maxGrp, nv, T2Name
+use ChT3_global, only: DimGrpaR, L1Name, L2Name, nv, T2Name
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -25,6 +26,11 @@ integer(kind=iwp), intent(in) :: NaGrpR
 integer(kind=iwp), intent(out) :: maxdim
 integer(kind=iwp) :: i, j, Low, Up_prev, Up
 real(kind=wp) :: rdim
+
+call mma_allocate(DimGrpaR,NaGrpR,label='DimGrpaR')
+call mma_allocate(L1Name,NaGrpR,label='L1Name')
+call mma_allocate(L2Name,NaGrpR,NaGrpR,label='L2Name')
+call mma_allocate(T2Name,NaGrpR,NaGrpR,label='T2Name')
 
 !1 define parameters of Groups of a set
 
@@ -54,9 +60,9 @@ end do
 
 !3 def L1Name, L2Name, T2Name
 
-do i=1,MaxGrp
+do i=1,NaGrpR
   write(L1Name(i),'(A4,I0.2)') 'L1vc',i
-  do j=1,MaxGrp
+  do j=1,NaGrpR
     write(L2Name(i,j),'(A2,I0.2,I0.2)') 'L2',i,j
     write(T2Name(i,j),'(A2,I0.2,I0.2)') 'T2',i,j
   end do

@@ -21,8 +21,7 @@ subroutine create_klvab_t3(vblock)
 !  parallelization irrelevant at the moment
 !  implemented integer offsets, PV, 14 may 2004.
 
-use ChT3_global, only: DimGrpaR, dupblk, dupfil, ICH, IOPT, maxdim, nblock, nc, ndup, ndupmx, NNOAB, no, NOAB, NUAB, nv, NvGrp, &
-                       printkey
+use ChT3_global, only: DimGrpaR, ICH, IOPT, maxdim, nblock, nc, NNOAB, no, NOAB, NUAB, nv, NvGrp, printkey
 use ChT3_procedures, only: klvaa_oovo
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -99,23 +98,23 @@ do isp=1,IUHF+1
   FN = 'KMAT'//ich(3-isp)//ich(isp)
   write(u6,*) 'FN,LU=',FN,LU
   call multi_opendir(FN,LU)
-  ndup = ndup+1
-  if (ndup > ndupmx) then
-    write(u6,*) 'create_klvab_t3 -- ndupmx exceeded'
-    call abend()
-  end if
+  !ndup = ndup+1
+  !if (ndup > ndupmx) then
+  !  write(u6,*) 'create_klvab_t3 -- ndupmx exceeded'
+  !  call abend()
+  !end if
   !!write(u6,*) FN,isp,ndup
-  dupfil(ndup) = FN
+  !dupfil(ndup) = FN
   if (IUHF == 0) then
     FN(5:6) = ich(isp)//ich(isp)
     call multi_opendir(FN,LU+1)
     !!ndup = ndup+1
-    if (ndup > ndupmx) then
-      write(u6,*) 'create_klvab_t3 -- ndupmx exceeded'
-      call abend()
-    end if
+    !if (ndup > ndupmx) then
+    !  write(u6,*) 'create_klvab_t3 -- ndupmx exceeded'
+    !  call abend()
+    !end if
     !!write(u6,*) FN,isp,ndup+1
-    dupfil(ndup+1) = FN
+    !dupfil(ndup+1) = FN
   end if
   ! currently using 3-dim (big field) - will be replaced after changing
   ! stepiv and the rest
@@ -360,11 +359,11 @@ do isp=1,IUHF+1
   end if
   !mp
   close(LU)
-  dupblk(ndup) = last
+  !dupblk(ndup) = last
   if (IUHF == 0) then
     close(LU+1)
-    ndup = ndup+1
-    dupblk(ndup) = last_aa
+    !ndup = ndup+1
+    !dupblk(ndup) = last_aa
   end if
   !write(u6,*) FN,isp,IAS
   !mp call w_memchk('IG klvab ')
@@ -389,13 +388,13 @@ do isp=1,IUHF+1
   if ((iasblock*nblock) < (nnoab(3)*vblock*N)) iasblock = iasblock+1
   FN = 'LMAT'//ich(3-isp)//ich(isp)
   call multi_opendir(FN,LU)
-  ndup = ndup+1
-  if (ndup > ndupmx) then
-    write(u6,*) 'create_klvab_t3 -- ndupmx exceeded'
-    call abend()
-  end if
+  !ndup = ndup+1
+  !if (ndup > ndupmx) then
+  !  write(u6,*) 'create_klvab_t3 -- ndupmx exceeded'
+  !  call abend()
+  !end if
   !write(u6,*) FN,isp,ndup
-  dupfil(ndup) = FN
+  !dupfil(ndup) = FN
 
   FN = 'OOVAI'//ICH(ISP)
   !mp call w_alloc(ix,noab(isp)*noab(IS2)*vblock*n,'IX klvabo')
@@ -551,17 +550,17 @@ do isp=1,IUHF+1
   close(LU)
   call mma_deallocate(scr)
   !write(u6,*) FN,isp,IAS
-  dupblk(ndup) = last
+  !dupblk(ndup) = last
   if (IUHF == 0) then
     FN = 'LMAT'//ich(isp)//ich(isp)
     call multi_opendir(FN,LU)
-    ndup = ndup+1
-    if (ndup > ndupmx) then
-      write(u6,*) 'create_klvab_t3 -- ndupmx exceeded'
-      call abend()
-    end if
+    !ndup = ndup+1
+    !if (ndup > ndupmx) then
+    !  write(u6,*) 'create_klvab_t3 -- ndupmx exceeded'
+    !  call abend()
+    !end if
     !write(u6,*) FN,isp,ndup
-    dupfil(ndup) = FN
+    !dupfil(ndup) = FN
     ! this is to ensure correct copy to slaves
     IAS_AA = 1
     !mp write(u6,*) 'test 1 na iscr ',vblock*noab(IS2)*noab(IS2)
@@ -574,8 +573,8 @@ do isp=1,IUHF+1
     !mp write(u6,*) 'klvaa_oovo finished'
     !mp
     close(LU)
-    ndup = ndup
-    dupblk(ndup) = last_aa
+    !ndup = ndup
+    !dupblk(ndup) = last_aa
   end if
 end do     ! ISP
 !mp call w_memchk('all klvab ')

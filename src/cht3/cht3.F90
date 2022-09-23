@@ -12,7 +12,8 @@
 subroutine cht3(ireturn)
 ! main driver for (T)
 
-use ChT3_global, only: maxdim, nfr, no, nv, NvGrp, printkey, TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
+use ChT3_global, only: DimGrpaR, L1Name, L2Name, maxdim, nfr, no, nv, NvGrp, printkey, T2Name, TCpu, TCpu_l, TCpu0, TWall, &
+                       TWall_l, TWall0
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -142,6 +143,11 @@ call mma_deallocate(oeh)
 call mma_deallocate(oep)
 !mp ioff = ioff-1
 !mp call GetMem('t3_ampl_bti','Free','Real',ioff,1)
+
+call mma_deallocate(DimGrpaR)
+call mma_deallocate(L1Name)
+call mma_deallocate(L2Name)
+call mma_deallocate(T2Name)
 
 !Call EndGlb()
 
