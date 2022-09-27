@@ -158,7 +158,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine OLagFro1(DPT2,OLag,trf)
+      Subroutine OLagFro1(DPT2,OLag)
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -167,7 +167,6 @@ C
 #include "WrkSpc.fh"
 C
       Dimension DPT2(*),OLag(*)
-      dimension trf(12,12)
 C
       Call GetMem('EPS','Allo','Real',ipEPS,nBasT)
       Call Get_dArray('RASSCF OrbE',Work(ipEPS),nBasT)
@@ -188,7 +187,7 @@ C     end do
           ! nBasI = nBas(iSym)
           !! Make sure that the frozen orbital of the orbital Lagrangian
           !! is zero
-          Call dcopy_(nOrbI*nFroI,[0.0D+00],0,OLag,1)
+          Call DCopy_(nOrbI*nFroI,[0.0D+00],0,OLag,1)
           Do iOrb = 1, nFroI
             Do jOrb = nFroI+1, nFroI+nIshI
 C         write(6,*) iorb,jorb,OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
@@ -196,82 +195,14 @@ C         write(6,*) work(ipeps+iorb-1),work(ipeps+jorb-1)
               Tmp = -0.5D+00*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
      *                       -OLag(iMO+jOrb-1+nOrbI*(iOrb-1)))
      *            /(Work(ipEPS+iOrb-1)-Work(ipEPS+jOrb-1))
+C    *            /(Work(ipFIFA+iOrb-1+nBasI*(iOrb-1))-EPSI(jOrb-nFroI))
 C         write(6,*) tmp
-C      write(6,*) "wrong"
               DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
      *          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + Tmp
               DPT2(iMO+jOrb-1+nOrbI*(iOrb-1))
      *          = DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) + Tmp
             End Do
           End Do
-          IF (BSHIFT.NE.0.0D+00.and..false.) THEN
-      Call GetMem('WRK1','ALLO','Real',ipWRK1,25)
-      Call GetMem('WRK2','ALLO','Real',ipWRK2,25)
-      Call GetMem('WRK3','ALLO','Real',ipWRK3,25)
-      Call GetMem('WRK4','ALLO','Real',ipWRK4,25)
-      do iorb=6,10
-      do jorb=6,10
-        work(ipwrk1+iorb-6+5*(jorb-6)) = olag(iorb+12*(jorb-1))
-        work(ipwrk2+iorb-6+5*(jorb-6)) = trf(iorb,jorb)
-      end do
-      end do
-      write(6,*) "olag before"
-      call sqprt(work(ipwrk1),5)
-      call dgemm_('N','N',5,5,5,
-     *           1.0d+00,work(ipwrk2),5,work(ipwrk1),5,
-     *           0.0d+00,work(ipwrk3),5)
-      call dgemm_('N','T',5,5,5,
-     *           1.0d+00,work(ipwrk3),5,work(ipwrk2),5,
-     *           0.0d+00,work(ipwrk4),5)
-      write(6,*) "olag after"
-      call sqprt(work(ipwrk4),5)
-      do iorb=1,5
-      write(6,*) iorb,eps(3+iorb)
-      work(ipwrk1+iorb-1+5*(iorb-1)) = 0.0d+00
-      do jorb=1,iorb-1
-              Tmp = (Work(ipwrk4+jOrb-1+5*(iOrb-1))
-     *             - Work(ipwrk4+iOrb-1+5*(jOrb-1)))
-     *            /(EPS(3+iorb)-EPS(3+jorb))
-             work(ipwrk1+iorb-1+5*(jorb-1)) = tmp
-             work(ipwrk1+jorb-1+5*(iorb-1)) = tmp
-      end do
-      end do
-      call sqprt(work(ipwrk1),5)
-      call dgemm_('T','N',5,5,5,
-     *           1.0d+00,work(ipwrk2),5,work(ipwrk1),5,
-     *           0.0d+00,work(ipwrk3),5)
-      call dgemm_('N','N',5,5,5,
-     *           1.0d+00,work(ipwrk3),5,work(ipwrk2),5,
-     *           0.0d+00,work(ipwrk4),5)
-      call sqprt(work(ipwrk4),5)
-      do iorb=1, 5
-      do jorb=1,5
-        dpt2(5+iorb+12*(5+jorb-1))
-     *  = dpt2(5+iorb+12*(5+jorb-1))
-     +  + work(ipwrk4+iorb-1+5*(jorb-1))*0.0d+00
-      end do
-      end do
-C     call sqprt(olag,12)
-C     call sqprt(trf,12)
-C     call sqprt(work(ipwrk1),5)
-C     call sqprt(work(ipwrk2),5)
-      Call GetMem('WRK1','FREE','Real',ipWRK1,25)
-      Call GetMem('WRK2','FREE','Real',ipWRK2,25)
-      Call GetMem('WRK3','FREE','Real',ipWRK3,25)
-      Call GetMem('WRK3','FREE','Real',ipWRK4,25)
-C         nAshI = nAsh(iSym)
-C         Do iOrb = nFroI+nIshI+1, nFroI+nIshI+nAshI
-C           Do jOrb = nFroI+nIshI+1, iOrb-1
-C             Tmp = (OLag(iMO+jOrb-1+nOrbI*(iOrb-1))
-C    *             - OLag(iMO+iOrb-1+nOrbI*(jOrb-1)))
-C    *            /(EPS(iOrb-nFroI)-EPS(jOrb-nFroI))
-C             DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
-C    *          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + Tmp*0.5d+00
-C             DPT2(iMO+jOrb-1+nOrbI*(iOrb-1))
-C    *          = DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) + Tmp*0.5d+00
-C           End Do
-C         End Do
-          END IF
         End If
         iMO  = iMO  + nOrbI*nOrbI
       End Do

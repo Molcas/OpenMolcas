@@ -550,7 +550,7 @@ C         call sqprt(work(ipdpt),nbast)
           Call DCopy_(nDPTAO,Work(ipDPT),1,Work(ipWRK1),1)
 C
           !! Now, compute pseudo-density using orbital Lagrangian
-          Call OLagFro1(Work(ipDPT),Work(ipOLag),Work(ipTrf))
+          Call OLagFro1(Work(ipDPT),Work(ipOLag))
 C
           !! Subtract the orbital Lagrangian added above.
           !! It is computed again in EigDer
