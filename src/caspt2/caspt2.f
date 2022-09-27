@@ -186,6 +186,7 @@ C
       !! rotation vector is computed. In the second step (iStpGrd=2),
       !! quantities needed for gradient are computed
       nStpGrd = 1
+      IFGRDT0 = .FALSE.
       IFGRDT0 = IFGRDT
       ! Why do we need to do this here?
       If (IFGRDT.AND.IfChol) CALL CNSTFIFAFIMO(0)
