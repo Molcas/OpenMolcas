@@ -669,8 +669,8 @@ C End of long loop over groups
 9000  CONTINUE
 
       !! Finishing for gradient calculation
-      IF (IFGRDT) Then
-        Call GrdCls(UEFFSav,U0Sav,H0)
+      IF (IFGRDT0) Then
+        Call GrdCls(IRETURN,UEFFSav,U0Sav,H0)
         CALL MMA_DEALLOCATE(UeffSav)
         CALL MMA_DEALLOCATE(U0Sav)
         IF (IFMSCOUP) Then

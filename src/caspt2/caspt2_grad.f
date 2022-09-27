@@ -144,7 +144,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine GrdCls(UEFF,U0,H0)
+      Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
       use output_caspt2, only:iPrGlb,usual
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -161,6 +161,10 @@ C
 C
       Dimension HEFF1(nState,nState),WRK1(nState,nState),
      *          WRK2(nState,nState)
+C
+      !! In case convergence of CASPT2 equation failed
+      !! Call this subroutine just deallocate memory
+      If (IRETURN.NE.0) GO TO 9000
 C
       !! Add XMS specific terms
       !! Note that ipCLagFull is in natural CSF basis,
@@ -395,6 +399,8 @@ C
         Write (LuPT2,*) Work(ipDPT2CAO+i-1)
       End Do
       Close (LuPT2)
+C
+ 9000 CONTINUE
 C
       Call GETMEM('DPT2   ','FREE','REAL',ipDPT2   ,nBasSq)
       Call GETMEM('DPT2C  ','FREE','REAL',ipDPT2C  ,nBasSq)
