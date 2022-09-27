@@ -851,12 +851,17 @@ C
           !! We first need to construct the density averaged over all
           !! roots involved in SCF.
           Call DCopy_(nDRef,[0.0D+00],0,Work(ipWRK1),1)
+          Call GetMem('LCI','ALLO','REAL',LCI,nConf)
+          Wgt  = 1.0D+00/nState
           Do iState = 1, nState
-C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
-            Wgt  = 1.0D+00/nState
-            Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-     *                  Work(ipWRK1),1)
+C           Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
+C    *                  Work(ipWRK1),1)
+            Call LoadCI(WORK(LCI),iState)
+            call POLY1(WORK(LCI))
+            call GETDREF(WORK(ipWRK2))
+            Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
           End Do
+          Call GetMem('LCI','FREE','REAL',LCI,nConf)
           !! Work(ipWRK2) is the SCF density (for nstate=nroots)
           Call SQUARE(Work(ipWRK1),Work(ipWRK2),1,nAshT,nAshT)
           Call DaXpY_(nAshT**2,-1.0D+00,Work(ipWRK2),1,Work(ipRDMSA),1)

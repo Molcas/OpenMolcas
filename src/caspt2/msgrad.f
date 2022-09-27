@@ -1028,11 +1028,17 @@ C
       !! Construct always state-averaged density; XMS basis is always
       !! generated with the state-averaged density.
       Call DCopy_(nDRef,[0.0D+00],0,Work(ipWRK1),1)
+      Call GetMem('LCI','ALLO','REAL',LCI,nConf)
       Wgt  = 1.0D+00/nState
       Do iState = 1, nState
-        Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-     *              Work(ipWRK1),1)
+C       Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
+C    *              Work(ipWRK1),1)
+        Call LoadCI(WORK(LCI),iState)
+        call POLY1(WORK(LCI))
+        call GETDREF(WORK(ipWRK2))
+        Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
       End Do
+      Call GetMem('LCI','FREE','REAL',LCI,nConf)
       Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
 C
       nOrbI = nBas(1) - nDel(1) !! nOrb(1)
@@ -1139,9 +1145,12 @@ C     END DO
       EINACT=2.0D0*TRC
       !! This EINACT may be wrong. Perhaps, WORK(LFIFA) has to be
       !! back-transformed to natural orbital basis. However, this does
-      !! not contribute to the final gradient.
+      !! not contribute to the final gradient as long as all the
+      !! (internal) CI vectors are orthogonal.
 C
       !! c: Finally, compute explicit CI derivative
+      !! y_{I,T} = w_{ST} <I|f|S>
+      !! Here, ipG1 is FIFA = ftu
 C     write (*,*) einact
 C     call sqprt(work(ipg1),nasht)
 C     do i = 1, nstate*(nstate+1)/2
