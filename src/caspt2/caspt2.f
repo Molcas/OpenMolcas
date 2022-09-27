@@ -99,7 +99,7 @@ C
 
 * Gradient stuff
       REAL*8, ALLOCATABLE :: UeffSav(:,:),U0Sav(:,:),H0Sav(:,:),ESav(:)
-      LOGICAL :: IFGRDT0
+      LOGICAL :: IFGRDT0 = .False.
 
       Call StatusLine('CASPT2:','Just starting')
 
@@ -186,7 +186,6 @@ C
       !! rotation vector is computed. In the second step (iStpGrd=2),
       !! quantities needed for gradient are computed
       nStpGrd = 1
-      IFGRDT0 = .FALSE.
       IFGRDT0 = IFGRDT
       ! Why do we need to do this here?
       If (IFGRDT.AND.IfChol) CALL CNSTFIFAFIMO(0)
