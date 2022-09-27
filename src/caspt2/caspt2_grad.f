@@ -169,6 +169,7 @@ C
       !! Add XMS specific terms
       !! Note that ipCLagFull is in natural CSF basis,
       !! so everything in this subroutine has to be done in natural
+      Call DCopy_(nSLag,[0.0D+00],0,Work(ipSLag),1)
       If (IFDW) Then
         !! Construct Heff[1] in XMS basis
         Call DCopy_(nState*nState,[0.0D+00],0,HEFF1,1)
@@ -186,48 +187,30 @@ C
         !! It is transformed with U0, so the contribution has to be
         !! considered when we construct the auxiliary density in the
         !! XMS-specific term
-        Do ilStat = 1, nState
-          iloc = ilStat+nState*(ilStat-1)
-          Ebeta = HEFF1(ilStat,ilStat)
-          Do jlStat = 1, nState
-            jloc = jlStat+nState*(jlStat-1)
-            Ealpha = HEFF1(jlStat,jlStat)
-            OMGDER = Work(ipOMGDER+ilStat-1+nState*(jlStat-1))
-            Factor = 0.0d+00
-            Do klStat = 1, nState
-              Egamma = HEFF1(klStat,klStat)
-              Factor = Factor + exp(-zeta*(Ealpha - Egamma)**2)
-            End Do
-            !! derivative of alpha-beta
-            DERAB = EXP(-ZETA*(Ealpha-Ebeta)**2)/Factor
-            Scal = -2.0D+00*ZETA*DERAB*(Ealpha-Ebeta)*OMGDER
-            Work(ipSLag+jloc-1) = Work(ipSLag+jloc-1) + Scal
-            Work(ipSLag+iloc-1) = Work(ipSLag+iloc-1) - Scal
-            !! derivative of alpha-gamma
-            Do klStat = 1, nState
-              kloc = klStat+nState*(klStat-1)
-              Egamma = HEFF1(klStat,klStat)
-              DERAC =  EXP(-ZETA*(Ealpha-Ebeta)**2)/(Factor*Factor)
-     *                *EXP(-ZETA*(Ealpha-Egamma)**2)
-              Scal = 2.0D+00*ZETA*DERAC*(Ealpha-Egamma)*OMGDER
-              Work(ipSLag+jloc-1) = Work(ipSLag+jloc-1) + Scal
-              Work(ipSLag+kloc-1) = Work(ipSLag+kloc-1) - Scal
-            End Do
-          End Do
-        End Do
+        Call DWDER(Work(ipOMGDER),HEFF1,Work(ipSLag))
         Call DGEMM_('N','N',nState,nState,nState,
      *              1.0D+00,U0,nState,Work(ipSLag),nState,
      *              0.0D+00,WRK2,nState)
         Call DGEMM_('N','T',nState,nState,nState,
      *              1.0D+00,WRK2,nState,U0,nState,
      *              0.0D+00,WRK1,nState)
+C
+        Call DCopy_(nState*nState,[0.0D+00],0,WRK2,1)
         Do ilStat = 1, nState
           iloc = ilStat+nState*(ilStat-1)
-          WRK2(ilStat,1) = Work(ipSLag+iloc-1)
+C         WRK2(ilStat,1) = Work(ipSLag+iloc-1)
+          If (DWTYPE.EQ.1) Then
+            WRK2(ilStat,ilStat) = Work(ipSLag+iloc-1)
+          Else If (DWTYPE.EQ.2.OR.DWTYPE.EQ.3) Then
+            Do jlStat = 1, nState
+              ijloc = ilStat+nState*(jlStat-1)
+              WRK2(ilStat,jlStat) = Work(ipSLag+ijloc-1)
+            End Do
+          End If
           If (.not.isNAC) Then
             Do jlStat = 1, ilStat-1
              WRK1(ilStat,jlStat)=WRK1(ilStat,jlStat)+WRK1(jlStat,ilStat)
-              WRK1(jlStat,ilSTat) = 0.0d+00
+              WRK1(jlStat,ilStat) = 0.0d+00
             End Do
           End If
         End Do
