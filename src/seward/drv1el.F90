@@ -53,8 +53,8 @@ integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2,
                      iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, &
                      iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, iSymxLx, &
                      iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, iSymzLz, &
-                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz,  kCnttpPAM_, lOper, LuTmp, mCnt, mComp, &
-                     mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
+                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, mComp, mDMS, &
+                     mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
 real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt
 logical(kind=iwp) :: lECPnp, lECP, lPAM2np, lPAM2, lPP, lFAIEMP
 character(len=8) :: Label
@@ -84,7 +84,7 @@ external :: embPotKernel, embPotMem
 #endif
 #ifdef _GEN1INT_
 integer(kind=iwp) :: nAtoms, jCnt
-real(kind=wp) :: XTCInt, XTCMem !XTCInt and XTCMem are dummy names
+external :: DumInt, DumMem ! These won't actually be called, but need to be passed around
 #endif
 
 iRout = 131
@@ -1573,34 +1573,34 @@ if (lMXTC.and.DKroll.and.Primitive_Pass) then
   ! Assume symmetric
   rHrmt = One
   nComp = 9
-  Call Get_nAtoms_All(nAtoms)
-  Do iCnt = 1, nAtoms
-    Do jCnt = 1, 2
-      if (jCnt.eq.1) then
-        !     Label for lower triangular portion
-        Write (Label,'(A,I3)') 'MAGXP', iCnt
-        Write (PLabel,'(A6)') 'MagInt'
+  call Get_nAtoms_All(nAtoms)
+  do iCnt = 1, nAtoms
+    do jCnt = 1, 2
+      if (jCnt == 1) then
+        ! Label for lower triangular portion
+        write(Label,'(A,I3)') 'MAGXP',iCnt
+        write(PLabel,'(A6)') 'MagInt'
       else
-        !     Label for upper triangular portion
-        Write (Label,'(A,I3)') 'MAGPX', iCnt
-        Write (PLabel,'(A6)') 'MagInt'
-      endif
-      Call Allocate_Auxiliary()
-      !     Dummy symmetry indices
+        ! Label for upper triangular portion
+        write(Label,'(A,I3)') 'MAGPX',iCnt
+        write(PLabel,'(A6)') 'MagInt'
+      end if
+      call Allocate_Auxiliary()
+      ! Dummy symmetry indices
       do i=1,nComp
         OperI(i) = 255
         OperC(i) = 0
-      enddo
-      !     Zero nuclear contribution
-      Call dcopy_(nComp,[Zero],0,Nuc,1)
-      !     Compute one electron integrals
-      Call OneEl(XTCInt,XTCMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
-      Call Deallocate_Auxiliary()
-    enddo
-  enddo
+      end do
+      ! Zero nuclear contribution
+      call dcopy_(nComp,[Zero],0,Nuc,1)
+      ! Compute one electron integrals
+      call OneEl(DumInt,DumMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call Deallocate_Auxiliary()
+    end do
+  end do
 # else
-  Call WarningMessage(2,'Drv1El: NO Gen1int interface available!')
-  Call Abend()
+  call WarningMessage(2,'Drv1El: NO Gen1int interface available!')
+  call Abend()
 # endif
 end if ! lMXTC
 !***********************************************************************
