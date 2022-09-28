@@ -34,7 +34,7 @@
         RDiag(I)=Mat((I-1)*nDim+I)
        END DO
 
-       CALL FindMax(RDiag,MaxElem,nDim)
+       MaxElem=maxval(RDiag)
 
 *       write(6,*) 'maximum of diagonal elements',MaxElem
 *       CALL RecPrt(' ',' ',RDiag,1,nDim)
@@ -51,19 +51,3 @@
 
        RETURN
        End Subroutine
-
-
-       Subroutine FindMax(Array,AMax,nDim)
-       INTEGER nDim,I
-       Real*8 AMax
-       Real*8 Array(nDim)
-
-       amax=Array(1)
-
-       DO I=2,nDim
-        If(Array(I).gt.amax) amax=Array(I)
-       END DO
-
-       RETURN
-       End Subroutine
-
