@@ -54,7 +54,6 @@
       Integer, Dimension(:,:), Allocatable:: Map, Irp
       Real*8 Sum_el(2)
       Integer nOrb_AS(2), mOrb_AS(2)
-      Integer nEOr
 *
 *     These uccupation number vectors are used to determine if we have
 *     convergence.
