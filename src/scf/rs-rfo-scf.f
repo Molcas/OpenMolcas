@@ -29,7 +29,10 @@
 !     Remove references to work, Roland Lindh, Harvard, Cambridge      *
 !     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
 !***********************************************************************
+*#define _DEBUGCode_
+#ifdef _DEBUGCode_
       Use SCF_Arrays, only: HDiag
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -69,8 +72,6 @@
 !#endif
 
 #ifdef _DEBUGPRINT_
-*     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
-*     Call RecPrt('rs-rfo: g',' ',g,1,nInter)
       Write (Lu,*)
       Write (Lu,*) '***************************************************'
       Write (Lu,*) '********* S T A R T  O F  R S - R F O *************'
@@ -115,7 +116,6 @@
 *        which computes Hc, where c is a trial vector, from an initial
 *        Hessian based on a diagonal approximation and a BFGS update.
 *
-*#define _DEBUGCode_
 #ifdef _DEBUGCode_
          Call Plain_rs_rfo()
 #else
