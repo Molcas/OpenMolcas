@@ -9,33 +9,32 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine grow_t2anti_blocked2(t2,tmp,dima,dimb,no,lasta,lastb,length1,length2)
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: dima, dimb, no, lasta, lastb, length1, length2
+real(kind=wp), intent(inout) :: t2(length1,length2,nTri_Elem(no-1))
+real(kind=wp), intent(in) :: tmp(dima,dimb,no,no)
+integer(kind=iwp) :: b, i, ij, j
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
+!mp write(u6,*) 'lasta+dima, length1 ',lasta+dima,length1
+!mp write(u6,*) 'lastb+dimb, length2 ',lastb+dimb,length2
+!mp write(u6,*) 'lasta, lastb ',lasta,lastb
+!mp write(u6,*) 'dima, dimb ',dima,dimb
+
+ij = 0
+do i=2,no
+  do j=1,i-1
+    ij = ij+1
+    do b=1,dima
+      t2(lasta+1:lasta+dimb,lastb+b,ij) = tmp(b,:,j,i)-tmp(b,:,i,j)
+    end do
   end do
 end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine grow_t2anti_blocked2

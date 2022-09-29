@@ -9,33 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine GetRest_t3(t1,t1_tmp,E2old)
+! this file read 1) T1o
+!                2) E1old,E2old,niter
+! from RstFil file
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use ChT3_global, only: LunAux, no, nv, printkey
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+real(kind=wp), intent(out) :: t1(nv*no,2), t1_tmp(nv*no), E2old
+integer(kind=iwp) :: dum
+real(kind=wp) :: E1old
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
-  end do
-end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+!open(unit=LunAux,File='RstFil',form='unformatted')
+call MOLCAS_BinaryOpen_Vanilla(LunAux,'RstFil')
+!mp write(u6,*) 'no, nv, length = ',no,nv,length
+read(LunAux) t1(:,1)
+
+call Map2_21_t3(t1,t1_tmp,nv,no)
+
+t1(:,1) = t1_tmp
+t1(:,2) = t1_tmp
+
+read(LunAux) E1old,E2old,dum
+#include "macros.fh"
+unused_var(dum)
+
+if (printkey > 1) write(u6,'(A,2(f15.12,1x))') 'Results from CCSD : E1, E2 ',E1old,E2old
+
+close(LunAux)
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine GetRest_t3

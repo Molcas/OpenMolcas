@@ -9,33 +9,29 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine DumMem( &
+#                 define _CALLING_
+#                 include "mem_interface.fh"
+                 )
+!***********************************************************************
+!                                                                      *
+! Object: dummy routine that should never be actually called.          *
+!                                                                      *
+!***********************************************************************
 
-use gugadrt_global, only: ja, jb, max_node
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+#include "mem_interface.fh"
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
-  end do
-end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+#include "macros.fh"
+nHer = 0
+Mem = 0
+unused_var(la)
+unused_var(lb)
+unused_var(lr)
 
-return
+call WarningMessage(2,'DumInt should never be called')
+call Abend()
 
-end subroutine gugadrt_check_rcas3
+end subroutine DumMem

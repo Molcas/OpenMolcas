@@ -9,33 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine multi_opendir(FNAM,iunit)
+! Direct fortran I/O with irregular data records
+!
+! Assume here RECL in byte units  (Same assumption in t3smat.f).
+!
+! PV/LAOG, 22 may 2003.
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use ChT3_global, only: nblock
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+character(len=*), intent(in) :: FNAM
+integer(kind=iwp), intent(in) :: iunit
+integer(kind=iwp) :: iost
+logical(kind=iwp) is_error
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
-  end do
-end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+!open(unit=iunit,file=FNAM,access='direct',form='unformatted',status='unknown',recl=nblock*8)
+call MOLCAS_Open_Ext2(iUnit,FNam,'direct','unformatted',iost,.true.,nblock*8,'unknown',is_error)
+if ((iost > 0) .or. is_error) write(u6,*) 'Multi_OpenDir: Error opening file!'
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine multi_opendir

@@ -9,33 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine check_mat(mat,dima,dimb)
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: dima, dimb
+real(kind=wp), intent(in) :: mat(dima,dimb)
+integer(kind=iwp) :: i, j
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
+do i=1,dima
+  do j=1,dimb
+    if (abs(mat(i,j)) > 1.0e5_wp) write(u6,*) 'i,j,mat(i,j) ',i,j,mat(i,j)
   end do
 end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine check_mat

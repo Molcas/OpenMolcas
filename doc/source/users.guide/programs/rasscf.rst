@@ -292,7 +292,7 @@ Two files are produced by the :program:`RASSCF` module at each MCSCF macro-itera
 .. class:: filelist
 
 :file:`FCIINP`
-  The :file:`$Project.FciInp` (or :file:`FCIINP`) file contains input keywords for the :progam:`NECI` code.
+  The :file:`$Project.FciInp` (or :file:`FCIINP`) file contains input keywords for the :program:`NECI` code.
   These keywords need to be adjusted depending on the chemical system under investigation for an optimal FCIQMC dynamics.
 
 :file:`FCIDMP`

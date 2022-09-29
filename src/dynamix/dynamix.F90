@@ -48,7 +48,7 @@ call Init_Dynamix()
 write(u6,*) ' Dynamix back from Init_Dynamix.'
 #endif
 
-!     Read the input
+! Read the input
 
 #ifdef _HDF5_
 call cre_dyn()

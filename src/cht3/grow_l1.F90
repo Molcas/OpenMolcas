@@ -9,33 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine grow_l1(l1,tmp,dima,nc,no,nv,last)
+! this routine does:
+!
+! grow Cholesky vectors L1(m,i,a) by the segment in tmp
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: dima, nc, no, nv, last
+real(kind=wp), intent(inout) :: l1(nc,no,nv)
+real(kind=wp), intent(in) :: tmp(nc,no,dima)
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
-  end do
-end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+!mp write(u6,*) 'grow_l1i ',dima
+
+l1(:,:,last+1:last+dima) = tmp
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine grow_l1

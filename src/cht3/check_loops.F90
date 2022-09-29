@@ -9,33 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine check_loops(nv,vblock,nla,nlb)
 
-use gugadrt_global, only: ja, jb, max_node
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: nv, vblock
+integer(kind=iwp), intent(out) :: nla, nlb
+integer(kind=iwp) :: nga, ngb, ngc, nuga
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
+nuga = nv/vblock
+!mp! pridavok
+if ((nuga*vblock) < nv) nuga = nuga+1
+
+nla = 0
+do nga=1,nuga
+  do ngb=1,nga
+    do ngc=1,ngb
+      nla = nla+1
+    end do
   end do
 end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+
+nlb = 0
+do nga=1,nuga
+  do ngb=1,nga
+    do ngc=1,nuga
+      nlb = nlb+1
+    end do
+  end do
+end do
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine check_loops

@@ -9,33 +9,41 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine EXPA1_UHF(ARR1,IDM,LI,NSP,ARR2)
+! THIS SUBROUTINE EXPANDS THE FIRST INDEX OF A MATRIX ARR1
+!
+! LI*(LI+1)/2
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+real(kind=wp), intent(in) :: ARR1(*)
+integer(kind=iwp), intent(in) :: IDM, LI, NSP
+real(kind=wp), intent(out) :: ARR2(LI,LI,IDM)
+integer(kind=iwp) :: I, IJ, K
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
+if (NSP > 0) then
+  IJ = 1
+  do K=1,IDM
+    do I=1,LI
+      ARR2(I,1:I,K) = ARR1(IJ:IJ+I-1)
+      ARR2(1:I,I,K) = ARR1(IJ:IJ+I-1)
+      IJ = IJ+I
+    end do
   end do
-end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+else
+  IJ = 1
+  do K=1,IDM
+    do I=1,LI
+      ARR2(I,1:I-1,K) = ARR1(IJ:IJ+I-2)
+      ARR2(1:I-1,I,K) = -ARR1(IJ:IJ+I-2)
+      ARR2(I,I,K) = Zero
+      IJ = IJ+I-1
+    end do
+  end do
+end if
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine EXPA1_UHF

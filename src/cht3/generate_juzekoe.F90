@@ -9,33 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine generate_juzekOE(oe,oeh,oep,no,nv)
+! this routine does:
+!
+! modifies standard oe record to one used by DIRCC
+!
+! oeh = ( oe_occ(alpha) ... oe_occ(beta) )   (alpha=beta for this implementation)
+!
+! oep = ( oe_virt(alpha) ... oe_virt(beta) ) (alpha=beta for this implementation)
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: no, nv
+real(kind=wp), intent(in) :: oe(no+nv)
+real(kind=wp), intent(out) :: oeh(no,2), oep(nv,2)
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
-  end do
-end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+oeh(:,1) = oe(1:no)
+oeh(:,2) = oe(1:no)
+
+oep(:,1) = oe(no+1:no+nv)
+oep(:,2) = oe(no+1:no+nv)
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine generate_juzekOE

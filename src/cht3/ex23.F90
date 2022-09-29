@@ -9,33 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine EX23(Y,X,I1,I2,J1,J2)
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: I1, I2, J1, J2
+real(kind=wp), intent(in) :: Y(I1,I2,J1,J2)
+real(kind=wp), intent(out) :: X(I1,J1,I2,J2)
+integer(kind=iwp) :: I, J, L
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
+do J=1,J2
+  do L=1,I2
+    do I=1,J1
+      X(:,I,L,J) = Y(:,L,I,J)
+    end do
   end do
 end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine EX23

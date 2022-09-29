@@ -9,33 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine ext_o_32(A,B,nc,no,dima,occ_ind)
+! this routine does:
+!
+! extract B (m,a')_i <- A (m,i,a')
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: nc, no, dima, occ_ind
+real(kind=wp), intent(in) :: A(nc,no,dima)
+real(kind=wp), intent(out) :: B(nc,dima)
+integer(kind=iwp) :: i2
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
+do i2=1,dima
+  B(:,i2) = A(:,occ_ind,i2)
 end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
-  end do
-end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine ext_o_32

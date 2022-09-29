@@ -460,3 +460,5 @@ test:mpi:
   needs:
     - build:mpi
   parallel: 8
+  tags:
+    - saas-linux-medium-amd64

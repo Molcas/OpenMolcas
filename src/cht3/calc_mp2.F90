@@ -9,33 +9,41 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine calc_MP2(w,e,no,nv)
+! this is primitive checking routine to calculate 2nd order energy
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: no, nv
+real(kind=wp), intent(in) :: w(nv,no,nv,no), e(no+nv)
+integer(kind=iwp) :: a, b, i, j
+real(kind=wp) :: denom, e2, integral
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
+e2 = Zero
+
+do j=1,no
+  do i=1,no
+    do b=1,nv
+      do a=1,nv
+
+        denom = e(no+a)+e(no+b)-e(i)-e(j)
+        !mp write(u6,'(4(i3,2x),A,3(f17.10,2x))') a,i,b,j,'w1, w2, denom ',w(a,i,b,j),w(a,j,b,i),denom
+
+        integral = -Two*w(a,i,b,j)**2-w(a,j,b,i)
+
+        !write(u6,*) integral
+
+        e2 = e2+integral/denom
+
+      end do
+    end do
   end do
 end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+
+write(u6,*) 'Druhy rad je asi = ',e2
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine calc_MP2

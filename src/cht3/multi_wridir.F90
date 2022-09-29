@@ -9,33 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine multi_wridir(G,lg,ifile,ias,last)
+! See multi_readir
+!
+! PV/LAOG, 22 may 2003.
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use ChT3_global, only: IOPT, nblock
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: lg, ifile, ias
+real(kind=wp), intent(in) :: G(lg)
+integer(kind=iwp), intent(out) :: last
+integer(kind=iwp) :: iloc, irest, k, kas
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
+iloc = 1
+irest = lg
+kas = ias
+
+do while (irest > 0)
+  k = min(irest,nblock)
+  if (kas <= iopt(2)) then
+    write(ifile,rec=kas) G(iloc:iloc+k-1)
+  else
+    write(ifile+1,rec=kas-iopt(2)) G(iloc:iloc+k-1)
+  end if
+  iloc = iloc+k
+  irest = irest-k
+  kas = kas+1
 end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
-  end do
-end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
+last = kas-1
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine multi_wridir

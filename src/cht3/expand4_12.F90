@@ -9,33 +9,33 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine expand4_12(AA,BB,d1,d2,d3)
+! this routine does:
+!
+! A(ab,i,j) -> A(a,b,i,j)
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: d1, d2, d3
+real(kind=wp), intent(in) :: AA(nTri_Elem(d1),d2,d3)
+real(kind=wp), intent(out) :: BB(d1,d1,d2,d3)
+integer(kind=iwp) :: a, ab, b, i
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
+ab = 0
+do a=1,d1
+  do b=1,a-1
+    ab = ab+1
+    BB(a,b,:,:) = AA(ab,:,:)
+    do i=1,d2
+      BB(b,a,:,i) = AA(ab,i,:)
+    end do
   end do
+  ab = ab+1
+  BB(a,a,:,:) = AA(ab,:,:)
 end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine expand4_12

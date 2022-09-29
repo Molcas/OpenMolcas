@@ -9,33 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
+subroutine grow_l2(A,B,nc,nv,dima,dimb,lasta,lastb)
+! this routine does:
+!
+! grow A(A,B,m) from the blocked cholesky vectors B(a',b',m)
 
-use gugadrt_global, only: ja, jb, max_node
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
-integer(kind=iwp), intent(out) :: inb
-integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+integer(kind=iwp), intent(in) :: nc, nv, dima, dimb, lasta, lastb
+real(kind=wp), intent(inout) :: A(nv,nv,nc)
+real(kind=wp), intent(in) :: B(dima,dimb,nc)
+integer(kind=iwp) :: i2, i3
 
-inb = 0
-nsumel = 0
-do i=1,8
-  lsym(i) = ind(i,jk)
-  nsumel = nsumel+lsym(i)
-end do
-do i=1,ndj
-  iexcit(i) = 0
-  do m=1,8
-    iex = lsym(m)-locu(m,i)
-    if (iex > 0) then
-      iexcit(i) = iexcit(i)+iex
-    end if
+do i3=1,nc
+  do i2=1,dimb
+    A(lasta+1:lasta+dima,lastb+i2,i3) = B(:,i2,i3)
+    A(lastb+i2,lasta+1:lasta+dima,i3) = B(:,i2,i3)
   end do
 end do
-inb = minval(iexcit)+ja(jk)*2+jb(jk)
 
 return
 
-end subroutine gugadrt_check_rcas3
+end subroutine grow_l2
