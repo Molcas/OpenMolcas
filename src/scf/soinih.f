@@ -11,8 +11,7 @@
 * Copyright (C) 1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
-*               2017, Roland Lindh                                     *
-*               2022, Roland Lindh                                     *
+*               2017, 2022, Roland Lindh                               *
 ************************************************************************
       SubRoutine SOiniH()
 ************************************************************************
