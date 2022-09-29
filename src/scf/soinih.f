@@ -38,7 +38,7 @@
 #include "real.fh"
 *
 *     declaration local variables
-      Integer nEOrb,nH, nD
+      Integer nD
       Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
 *
 *----------------------------------------------------------------------*
@@ -49,15 +49,13 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
-      nEOrb=Size(EOrb,1)
       nD   =Size(EOrb,2)
-      nH   =Size(HDiag)
       HDiag(:)=1.0D+99
 *
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
-      Write (6,*) 'nH=',nH
+      Write (6,*) 'nH=',Size(HDiag)
       Write (6,*) 'kOV(:)=',kOV(:)
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
@@ -109,6 +107,6 @@
           End Do ! iSym
       End Do ! iD
 *
-*     Call RecPrt('HDiag',' ',HDiag(:),1,nH)
+*     Call RecPrt('HDiag',' ',HDiag(:),1,Size(HDiag))
       Return
       End
