@@ -186,7 +186,7 @@ C       MOVE D TO TRIANGULAR FORM
         ntud=istd+itri(ioff+1)
         DO NT=1,ngssh(igas,isym)
          ntud=ntud+ioff
-C YM: change ntt --> nttr for the confict if include rctfld.fh
+C YM: change ntt --> nttr for the conflict if include rctfld.fh
          nttr=nt+nio+ioff
          DO NU=1,NT
           nut=nu+nio+ioff
