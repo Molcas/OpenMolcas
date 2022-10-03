@@ -10,18 +10,19 @@
 *                                                                      *
 * Copyright (C) Per-Olof Widmark                                       *
 ************************************************************************
-      Subroutine MkEorb(Fock,nFck,CMO,nCMO,Eorb,nEorb,nSym,nBas,nOrb,nD)
+      Subroutine Mk_EOrb()
+      Use SCF_Arrays, only: Fock, CMO, EOrb
+      use InfSCF, only: nSym, nBas, nOrb
       Implicit None
-      Integer nFck, nCMO, nEOrb, nD
-      Real*8 Fock(nFck,nD)
-      Real*8 CMO(nCMO,nD)
-      Real*8 EOrb(nEOrb,nD)
-      Integer nSym
-      Integer nBas(nSym)
-      Integer nOrb(nSym)
 *
+      Integer nFck, nCMO, nEOrb, nD
       Integer iD
 *
+      nFck =SIZE(Fock,1)
+      nCMO =SIZE(CMO, 1)
+      nEOrb=SIZE(EOrb,1)
+      nD   =SIZE(Fock,2)
+
       Do iD = 1, nD
          Call MkEorb_(Fock(1,iD),nFck,CMO(1,iD),nCMO,Eorb(1,iD),nEorb,
      &                nSym,nBas,nOrb)
@@ -103,10 +104,6 @@
          If(nOrb(iSym).gt.0) Then
             Call Square(Fock(1+iOffTri),FckSqr,
      &         1,nBas(iSym),nBas(iSym))
-*           Call RecPrt('mkeor: Fock matrix','(20F10.4)',
-*    &         FckSqr,nBas(iSym),nBas(iSym))
-*           Call RecPrt('mkeor: CMO','(20F10.4)',
-*    &         CMO(1+iOffCMO),nBas(iSym),nOrb(iSym))
             Do iOrb=1,nOrb(iSym)
                t=0.0d0
                indF=1

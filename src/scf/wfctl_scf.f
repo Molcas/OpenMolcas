@@ -1018,7 +1018,7 @@ c     Call Scf_XML(0)
 *
 *---- Compute correct orbital energies
 *
-      Call MkEorb(Fock,nBT,CMO,nBB,EOrb,nnB,nSym,nBas,nOrb,nD)
+      Call Mk_Eorb()
 *
 *     Put orbital coefficients and energies on the runfile.
 *
