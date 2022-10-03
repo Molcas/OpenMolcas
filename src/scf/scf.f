@@ -97,9 +97,7 @@
 
       FstItr=.True.
 
-      If(.not.OnlyProp) Then
-         Call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
-      End If
+      If(.not.OnlyProp) Call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
 
 *     so that iPsLst is right in case of nIter==0
       If (nIter(nIterP).eq.0) iter0=-1

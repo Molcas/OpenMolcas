@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994, Martin Schuetz                                   *
-*               2017, Roland Lindh                                     *
+*               2017,2022, Roland Lindh                                *
 ************************************************************************
       SubRoutine TraFck(Fock,nFock,CMO,nCMO,canorb,
      &                  FOVMax,EOrb,nEOrb,Ovrlp,nD)
@@ -83,10 +83,9 @@
       Do iD = 1, nD
 *
 *---- modify Fock matrix
-      call dcopy_(nBT,Fock(1,iD),1,FckM,1)
+      FckM(:)=Fock(:,iD)
       If (nnFr.gt.0) then
-        Call ModFck(FckM,Ovrlp,nBT,CMO(1,iD),nBO,
-     &              nOcc(1,iD))
+        Call ModFck(FckM,Ovrlp,nBT,CMO(1,iD),nBO,nOcc(1,iD))
       endif
 *
       ioFckM=1
@@ -101,173 +100,176 @@
      &               nBas(iSym),nOrb(iSym))
          jCMO=iCMO
 #endif
-        nOrbmF=nOrb(iSym)-nFro(iSym)
-        nOccmF=nOcc(iSym,iD)-nFro(iSym)
-        nVrt=nOrb(iSym)-nOcc(iSym,iD)
-*------ find the proper pointer to CMO
-        iCMO=iCMO+nBas(iSym)*nFro(iSym)
-        If (nOrbmF.gt.0) Then
-*         allocate memory for half-transformed Fock matrix
-          Call mma_allocate(HlfF,nBas(iSym)*nOrbmF,Label='HlfF')
-*-------- transform Fock matrix into new MO space
-          Call Square(FckM(ioFckM),FckS,1,
-     &                nBas(iSym),nBas(iSym))
-          Call DGEMM_('N','N',
-     &                nBas(iSym),nOrbmF,nBas(iSym),
-     &                1.0d0,FckS,nBas(iSym),
-     &                CMO(iCMO,iD),nBas(iSym),
-     &                0.0d0,HlfF,nBas(iSym))
-          Call DGEMM_Tri('T','N',nOrbmF,nOrbmF,nBas(iSym),
-     &                  One,CMO(iCMO,iD),nBas(iSym),
-     &                      HlfF,nBas(iSym),
-     &                  Zero,FckS,nOrbmF)
-*debug
-c         Write(6,*) 'transformed Fck in trafck:'
-c         Call TriPrt(' ',' ',FckS,nOrbmF)
-*debug
-*         dispose memory of half-transformed Fock matrix
-          Call mma_deallocate(HlfF)
-          If ((nOccmF.gt.0).AND.(nVrt.gt.0)) Then
-             iptr=1+nOccmF*(nOccmF+1)/2
+         nOrbmF=nOrb(iSym)-nFro(iSym)
+         nOccmF=nOcc(iSym,iD)-nFro(iSym)
+         nVrt=nOrb(iSym)-nOcc(iSym,iD)
+*------  find the proper pointer to CMO
+         iCMO=iCMO+nBas(iSym)*nFro(iSym)
+         If (nOrbmF.gt.0) Then
+*           allocate memory for half-transformed Fock matrix
+            Call mma_allocate(HlfF,nBas(iSym)*nOrbmF,Label='HlfF')
+*--------   transform Fock matrix into new MO space
+            Call Square(FckM(ioFckM),FckS,1,
+     &                  nBas(iSym),nBas(iSym))
+            Call DGEMM_('N','N',nBas(iSym),nOrbmF,nBas(iSym),
+     &                  One,FckS,nBas(iSym),
+     &                  CMO(iCMO,iD),nBas(iSym),
+     &                  Zero,HlfF,nBas(iSym))
+            Call DGEMM_Tri('T','N',nOrbmF,nOrbmF,nBas(iSym),
+     &                     One,CMO(iCMO,iD),nBas(iSym),
+     &                     HlfF,nBas(iSym),
+     &                     Zero,FckS,nOrbmF)
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'transformed Fck in trafck:'
+            Call TriPrt(' ',' ',FckS,nOrbmF)
+#endif
+*           dispose memory of half-transformed Fock matrix
+            Call mma_deallocate(HlfF)
+
+            If ((nOccmF.gt.0).AND.(nVrt.gt.0)) Then
+               iptr=1+nOccmF*(nOccmF+1)/2
 *
-*            get max Fock Matrix Element in OV block...
+*              get max Fock Matrix Element in OV block...
 *
-             Do ia=1,nVrt
-                Fia=abs(FckS(iptr+IDAMAX_(nOccmF,FckS(iptr),1)-1))
-                FOVMax=Max(Fia,FOVMax)
-                iptr=iptr+nOccmF+ia
-             End Do
-          End If
-*
-*-------- eventually diagonalize occ/occ & virt/virt Block separately
-*-------- to form canonical orbitals
-*
-          If (canorb) Then
-*           allocate space for Eigenvectors of occ/occ & virt/virt block
-            Call mma_allocate(EigV,Max(nOccmF,nVrt)**2,Label='EigV')
-*           allocate space for temporary CMO (for MatMul)
-            Call mma_allocate(CTmp,Max(nOccmF,nVrt)*nBas(iSym),
-     &                        Label='CTmpX')
-            If (.NOT.FckAuf) Then
-                Call mma_allocate(CMOOld,nOccmF*nBas(iSym),
-     &                            Label='CMOOld')
-                Call DCopy_(nOccmF*nBas(iSym),CMO(iCMO,iD),1,CMOOld,1)
-                Call mma_allocate(Scrt,nBas(iSym)**2,Label='Scrt')
-                Call mma_allocate(COvrlp,nBas(iSym)*nOccmF,
-     &                            Label='COvrlp')
+               Do ia=1,nVrt
+                  Fia=abs(FckS(iptr+IDAMAX_(nOccmF,FckS(iptr),1)-1))
+                  FOVMax=Max(Fia,FOVMax)
+                  iptr=iptr+nOccmF+ia
+               End Do
             End If
 *
-            If (nOccmF.gt.0) Then
+*--------   eventually diagonalize occ/occ & virt/virt Block separately
+*--------   to form canonical orbitals
 *
-*------------ diagonalize occ/occ first
-*             find the proper pointer to EOr
+            If (canorb) Then
+*              allocate space for Eigenvectors of occ/occ & virt/virt
+*              block
+               Call mma_allocate(EigV,Max(nOccmF,nVrt)**2,Label='EigV')
+*              allocate space for temporary CMO (for MatMul)
+               Call mma_allocate(CTmp,Max(nOccmF,nVrt)*nBas(iSym),
+     &                        Label='CTmpX')
+               If (.NOT.FckAuf) Then
+                   Call mma_allocate(CMOOld,nOccmF*nBas(iSym),
+     &                               Label='CMOOld')
+                   Call DCopy_(nOccmF*nBas(iSym),CMO(iCMO,iD),1,
+     &                                           CMOOld,1)
+                   Call mma_allocate(Scrt,nBas(iSym)**2,Label='Scrt')
+                   Call mma_allocate(COvrlp,nBas(iSym)*nOccmF,
+     &                               Label='COvrlp')
+               End If
 *
-              jEOr=jEOr+nFro(iSym)
-              Call mma_allocate(Scratch,nOccmF**2,Label='Scratch')
-              Dummy=0.0D0
-              iDum=0
-              nOccmF=nOccmF-nConstr(iSym)
+               If (nOccmF.gt.0) Then
 *
-              Call Diag_Driver('V','A','L',nOccmF,FckS,
-     &                         Scratch,nOccmF,Dummy,Dummy,iDum,
-     &                         iDum,EOrb(jEOr,iD),EigV,nOccmF,
-     &                         1,0,'J',nFound,iErr)
+*------------  diagonalize occ/occ first find the proper pointer to EOr
 *
-              If (nConstr(iSym).gt.0) Then
-                 Call FZero(Scratch,(nOccmF+nConstr(iSym))**2)
-                 Do j=1,nOccmF
-                    iiEigV=1+nOccmF*(j-1)
-                    iiScratch=1+(nOccmF+nConstr(iSym))*(j-1)
-                    call dcopy_(nOccmF,EigV(iiEigV),1,
-     &                                 Scratch(iiScratch),1)
-                 End Do
-                 Do j=nOccmF+1,nOccmF+nConstr(iSym)
-                    iiScratch=1+(nOccmF+nConstr(iSym))*(j-1)+j-1
-                    Scratch(iiScratch)=1.0d0
-                 End Do
-                 call dcopy_((nOccmF+nConstr(iSym))**2,Scratch,1,
+               jEOr=jEOr+nFro(iSym)
+               Call mma_allocate(Scratch,nOccmF**2,Label='Scratch')
+               Dummy=0.0D0
+               iDum=0
+               nOccmF=nOccmF-nConstr(iSym)
+*
+               Call Diag_Driver('V','A','L',nOccmF,FckS,
+     &                          Scratch,nOccmF,Dummy,Dummy,iDum,
+     &                          iDum,EOrb(jEOr,iD),EigV,nOccmF,
+     &                          1,0,'J',nFound,iErr)
+*
+               If (nConstr(iSym).gt.0) Then
+                  Call FZero(Scratch,(nOccmF+nConstr(iSym))**2)
+                  Do j=1,nOccmF
+                     iiEigV=1+nOccmF*(j-1)
+                     iiScratch=1+(nOccmF+nConstr(iSym))*(j-1)
+                     call dcopy_(nOccmF,EigV(iiEigV),1,
+     &                                  Scratch(iiScratch),1)
+                  End Do
+                  Do j=nOccmF+1,nOccmF+nConstr(iSym)
+                     iiScratch=1+(nOccmF+nConstr(iSym))*(j-1)+j-1
+                     Scratch(iiScratch)=One
+                  End Do
+                  call dcopy_((nOccmF+nConstr(iSym))**2,Scratch,1,
      &                                                EigV,1)
-              EndIf
-              nOccmF=nOccmF+nConstr(iSym)
-              Call mma_deallocate(Scratch)
-              n2zero=nOccmF
-              If (Do_SpinAV) n2zero=n2zero+nConstr(iSym)
-              Call dCopy_(n2zero*(n2zero+1)/2,[Zero],0,FckS,1)
+               End If
+               nOccmF=nOccmF+nConstr(iSym)
+               Call mma_deallocate(Scratch)
+               n2zero=nOccmF
+               If (Do_SpinAV) n2zero=n2zero+nConstr(iSym)
+               Call dCopy_(n2zero*(n2zero+1)/2,[Zero],0,FckS,1)
 *
-              iDiag = 0
-              Do i = 1, n2zero
-                iDiag = iDiag + i
-                FckS(iDiag) = EOrb(jEOr+i-1,iD)
-              End Do
+               iDiag = 0
+               Do i = 1, n2zero
+                  iDiag = iDiag + i
+                  FckS(iDiag) = EOrb(jEOr+i-1,iD)
+               End Do
 *
-*------------ rotate MOs to diagonalize occ/occ block
-*             Call RecPrt('Old CMO',' ',CMO(iCMO,iD),nBas(iSym),nOccmF)
-              Do ii=0,nOccmF-1
-                call dcopy_(nBas(iSym),CMO(iCMO+nBas(iSym)*ii,iD),1,
-     &                                 CTmp(1+nBas(iSym)*ii),1)
-              End Do
-              Call DGEMM_('N','N',
-     &                    nBas(iSym),nOccmF,nOccmF,
-     &                    1.0d0,Ctmp,nBas(iSym),
-     &                          EigV,nOccmF,
-     &                    0.0d0,CMO(iCMO,iD),nBas(iSym))
-*             Call RecPrt('New CMO',' ',CMO(iCMO,iD),nBas(iSym),nOccmF)
+*------------  rotate MOs to diagonalize occ/occ block
+*              Call RecPrt('Old CMO',' ',CMO(iCMO,iD),nBas(iSym),nOccmF)
+               Do ii=0,nOccmF-1
+                  call dcopy_(nBas(iSym),CMO(iCMO+nBas(iSym)*ii,iD),1,
+     &                                   CTmp(1+nBas(iSym)*ii),1)
+               End Do
+               Call DGEMM_('N','N',
+     &                     nBas(iSym),nOccmF,nOccmF,
+     &                     One,Ctmp,nBas(iSym),
+     &                           EigV,nOccmF,
+     &                     Zero,CMO(iCMO,iD),nBas(iSym))
+*               Call RecPrt('New CMO',' ',CMO(iCMO,iD),nBas(iSym),
+*    &                                                 nOccmF)
 *
-*             Fix standard phase pf the orbitals
+*               Fix standard phase pf the orbitals
 *
-              Do i = 1, nOccmF
-                 call VecPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))
-              End Do
+                Do i = 1, nOccmF
+                   call VecPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),
+     &                                          nBas(iSym))
+                End Do
 *
-*             Order the occupied orbitals by maximum overlap with
-*             the old MOs.
+*               Order the occupied orbitals by maximum overlap with
+*               the old MOs.
 *
-              If (.NOT.FckAuf) Then
+                If (.NOT.FckAuf) Then
 *
-                 Call FZero(COvrlp,nOccmF*nBas(iSym))
-                 Call Square(Ovrlp(ioFckM),Scrt,1,nBas(iSym),
-     &                       nBas(iSym))
-                 Call DGEMM_('T','N',
-     &                       nOccmF,nBas(iSym),nBas(iSym),
-     &                       1.0D0,CMO(iCMO,iD),nBas(iSym),
-     &                             Scrt,nBas(iSym),
-     &                       0.0D0,COvrlp,nOccmF)
+                   Call FZero(COvrlp,nOccmF*nBas(iSym))
+                   Call Square(Ovrlp(ioFckM),Scrt,1,nBas(iSym),
+     &                         nBas(iSym))
+                   Call DGEMM_('T','N',
+     &                         nOccmF,nBas(iSym),nBas(iSym),
+     &                         One,CMO(iCMO,iD),nBas(iSym),
+     &                               Scrt,nBas(iSym),
+     &                         Zero,COvrlp,nOccmF)
 *
-                 Do iOcc = 1, nOccmF-1  !  Loop over the new MOs
+                   Do iOcc = 1, nOccmF-1  !  Loop over the new MOs
 *
-                    iOff = (iOcc-1)*nBas(iSym) + iCMO
-                    kOcc=0
-                    Tmp0=0.0D0
-                    Do jOcc = 1, nOccmF !  Loop over the new MOs
-                       Tmp1=Abs(DDot_(nBas(iSym),COvrlp(jOcc),nOccmF,
-     &                                           CMO(iOff,iD),1))
-                       If (Tmp1.gt.Tmp0) Then
-                          Tmp0=Tmp1
-                          kOcc=jOcc
-                       End If
-                    End Do
+                      iOff = (iOcc-1)*nBas(iSym) + iCMO
+                      kOcc=0
+                      Tmp0=Zero
+                      Do jOcc = 1, nOccmF !  Loop over the new MOs
+                         Tmp1=Abs(DDot_(nBas(iSym),COvrlp(jOcc),nOccmF,
+     &                                             CMO(iOff,iD),1))
+                         If (Tmp1.gt.Tmp0) Then
+                            Tmp0=Tmp1
+                            kOcc=jOcc
+                         End If
+                      End Do
 *
-                    If (iOcc.ne.kOcc) Then
-                       ii = iOcc + jEOr - 1
-                       kk = kOcc + jEOr - 1
-                       tmp = EOrb(ii,iD)
-                       EOrb(ii,iD) = EOrb(kk,iD)
-                       EOrb(kk,iD) = tmp
-                       kOff = (kOcc-1)*nBas(iSym) + iCMO
-                       Call DSwap_(nBas(iSym),CMO(iOff,iD),1,
-     &                                        CMO(kOff,iD),1)
-                    End If
-                 End Do
+                      If (iOcc.ne.kOcc) Then
+                         ii = iOcc + jEOr - 1
+                         kk = kOcc + jEOr - 1
+                         tmp = EOrb(ii,iD)
+                         EOrb(ii,iD) = EOrb(kk,iD)
+                         EOrb(kk,iD) = tmp
+                         kOff = (kOcc-1)*nBas(iSym) + iCMO
+                         Call DSwap_(nBas(iSym),CMO(iOff,iD),1,
+     &                                          CMO(kOff,iD),1)
+                      End If
+                   End Do
 *
-                 iDiag = 0
-                 Do i = 1, n2zero
-                   iDiag = iDiag + i
-                   FckS(iDiag) = EOrb(jEOr+i-1,iD)
-                 End Do
+                   iDiag = 0
+                   Do i = 1, n2zero
+                      iDiag = iDiag + i
+                      FckS(iDiag) = EOrb(jEOr+i-1,iD)
+                   End Do
 *
-              End If
-*             Call RecPrt('New CMO(2)',' ',CMO(iCMO,iD),nBas(iSym),
-*    &                    nOccmF)
+                End If
+*               Call RecPrt('New CMO(2)',' ',CMO(iCMO,iD),nBas(iSym),
+*    &                                                    nOccmF)
             End If
 #ifdef _SPECIAL_DEBUGPRINT_
             If (iD.eq.1.and.nD.eq.1) Then
@@ -284,60 +286,60 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
 *
             If (nVrt.gt.0) Then
 *
-*------------ now diagonalize virt/virt block
-*             setup virt/virt block in triangular Fock Matrix
+*------------  now diagonalize virt/virt block
+*              setup virt/virt block in triangular Fock Matrix
 *
-              iptr=1+nOccmF*(nOccmF+3)/2
-              iptr2=1
-              Do ia=1,nVrt
-                call dcopy_(ia,FckS(iptr),1,FckS(iptr2),1)
-                iptr=iptr+nOccmF+ia
-                iptr2=iptr2+ia
-              End Do
-              Call mma_allocate(Scratch,nVrt**2,Label='Scratch')
-              If (Do_SpinAV) Then
-                 nVrt=nVrt-nConstr(iSym)
-                 jEOr = jEOr + nConstr(iSym)
-                 iptr=1+nOccmF*(nOccmF+3)/2
-                 Do ia=1,nConstr(iSym)
-                    iptr=iptr+nOccmF+ia
-                    FckS(iptr)=-0.666d3*dble(1000-ia)
-                 End Do
-              EndIf
-                Dummy=0.0D0
-                iDum=0
-              Call Diag_Driver('V','A','L',nVrt,FckS,
-     &                         Scratch,nVrt,Dummy,Dummy,iDum,
-     &                         iDum,EOrb(jEOr+nOccmF,iD),EigV,
-     &                         nVrt,1,0,'J',nFound,iErr)
-              If (Do_SpinAV) Then
-                 nVrt=nVrt+nConstr(iSym)
-                 jEOr = jEOr - nConstr(iSym)
-                 Call FZero(Scratch,nVrt**2)
-                 Do j=1,nVrt-nConstr(iSym)
-                    iiEigV=1+(nVrt-nConstr(iSym))*(j-1)
-                    iiScratch=1+nVrt*(nConstr(iSym)+j-1)
-                    call dcopy_(nVrt-nConstr(iSym),EigV(iiEigV),1,
-     &                                         Scratch(iiScratch),1)
-                 End Do
-                 Do j=1,nConstr(iSym)
-                    iiScratch=1+nVrt*(j-1)+j-1
-                    Scratch(iiScratch)=1.0d0
-                 End Do
-                 call dcopy_(nVrt**2,Scratch,1,EigV,1)
-              EndIf
-              Call mma_deallocate(Scratch)
-*------------ rotate MOs to diagonalize virt/virt block
-              iptr=iCMO+nOccmF*nBas(iSym)
-              Do ia=0,nVrt-1
-                call dcopy_(nBas(iSym),CMO(iptr+nBas(iSym)*ia,iD),1,
-     &                     CTmp(1+nBas(iSym)*ia),1)
-              End Do
-              Call DGEMM_('N','N',
-     &                    nBas(iSym),nVrt,nVrt,
-     &                    1.0d0,Ctmp,nBas(iSym),
-     &                    EigV,nVrt,
-     &                    0.0d0,CMO(iptr,iD),nBas(iSym))
+               iptr=1+nOccmF*(nOccmF+3)/2
+               iptr2=1
+               Do ia=1,nVrt
+                  call dcopy_(ia,FckS(iptr),1,FckS(iptr2),1)
+                  iptr=iptr+nOccmF+ia
+                  iptr2=iptr2+ia
+               End Do
+               Call mma_allocate(Scratch,nVrt**2,Label='Scratch')
+               If (Do_SpinAV) Then
+                  nVrt=nVrt-nConstr(iSym)
+                  jEOr = jEOr + nConstr(iSym)
+                  iptr=1+nOccmF*(nOccmF+3)/2
+                  Do ia=1,nConstr(iSym)
+                     iptr=iptr+nOccmF+ia
+                     FckS(iptr)=-0.666d3*dble(1000-ia)
+                  End Do
+               End If
+               Dummy=Zero
+               iDum=0
+               Call Diag_Driver('V','A','L',nVrt,FckS,
+     &                          Scratch,nVrt,Dummy,Dummy,iDum,
+     &                          iDum,EOrb(jEOr+nOccmF,iD),EigV,
+     &                          nVrt,1,0,'J',nFound,iErr)
+               If (Do_SpinAV) Then
+                  nVrt=nVrt+nConstr(iSym)
+                  jEOr = jEOr - nConstr(iSym)
+                  Call FZero(Scratch,nVrt**2)
+                  Do j=1,nVrt-nConstr(iSym)
+                     iiEigV=1+(nVrt-nConstr(iSym))*(j-1)
+                     iiScratch=1+nVrt*(nConstr(iSym)+j-1)
+                     call dcopy_(nVrt-nConstr(iSym),EigV(iiEigV),1,
+     &                                             Scratch(iiScratch),1)
+                  End Do
+                  Do j=1,nConstr(iSym)
+                     iiScratch=1+nVrt*(j-1)+j-1
+                     Scratch(iiScratch)=One
+                  End Do
+                  call dcopy_(nVrt**2,Scratch,1,EigV,1)
+               End If
+               Call mma_deallocate(Scratch)
+*------------  rotate MOs to diagonalize virt/virt block
+               iptr=iCMO+nOccmF*nBas(iSym)
+               Do ia=0,nVrt-1
+                  call dcopy_(nBas(iSym),CMO(iptr+nBas(iSym)*ia,iD),1,
+     &                                   CTmp(1+nBas(iSym)*ia),1)
+               End Do
+               Call DGEMM_('N','N',
+     &                     nBas(iSym),nVrt,nVrt,
+     &                     One, Ctmp,nBas(iSym),
+     &                          EigV,nVrt,
+     &                     Zero,CMO(iptr,iD),nBas(iSym))
             End If
 #ifdef _SPECIAL_DEBUGPRINT_
             If (iD.eq.1.and.nD.eq.1) Then
@@ -383,31 +385,32 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
             End If
 #endif
 *
-*           dispose memory
-            If (.NOT.FckAuf) Then
-               Call mma_deallocate(COvrlp)
-               Call mma_deallocate(Scrt)
-               Call mma_deallocate(CMOOld)
-            End If
-            Call mma_deallocate(CTmp)
-            Call mma_deallocate(EigV)
-          End If
+*             dispose memory
+              If (.NOT.FckAuf) Then
+                 Call mma_deallocate(COvrlp)
+                 Call mma_deallocate(Scrt)
+                 Call mma_deallocate(CMOOld)
+              End If
+              Call mma_deallocate(CTmp)
+              Call mma_deallocate(EigV)
+           End If
         End If
 *------ Update pointers
         iCMO=iCMO+nOrbmF*nBas(iSym)
         ioFckM=ioFckM+nBas(iSym)*(nBas(iSym)+1)/2
         jEOr=jEOr+nOrbmF
 #ifdef _DEBUGPRINT_
-         Call RecPrt('TraFck: New CMO',' ',CMO(jCMO,iD),
+        Call RecPrt('TraFck: New CMO',' ',CMO(jCMO,iD),
      &               nBas(iSym),nOrb(iSym))
 #endif
-      End Do
+      End Do ! iSym
+
       If (canorb) Then
 *------ Check orthogonality
         Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
       End If
 *
-      End Do
+      End Do ! iD
 *
 *---- Deallocate memory
       Call mma_deallocate(FckS)

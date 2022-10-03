@@ -410,29 +410,6 @@
                iOpt=2
             End If
 
-            If (QNR1st) Then
-               iter_Ref = iter
-!------        1st QNR step, reset kOptim to 1
-
-               kOptim = 1
-               CInter(1,1) = One
-               CInter(1,nD) = One
-
-!              init 1st orb rot parameter X1 (set it to zero)
-               Call mma_allocate(Xn,mOV,Label='Xn')
-               Xn(:)=Zero
-!              and store it on appropriate LList
-               Call PutVec(Xn,mOV,iter,'NOOP',LLx)
-               Call mma_deallocate(Xn)
-*
-*---           compute initial diagonal Hessian, Hdiag
-*
-               Call SOIniH()
-               AccCon(8:8)='H'
-            Else
-               AccCon(8:8)=' '
-*
-            End If
          End If
 *                                                                      *
 ************************************************************************
@@ -441,7 +418,6 @@
          Select Case(iOpt)
 
          Case(0)
-
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -540,7 +516,7 @@
 *           or
 *
 *           Quasi-2nd order scheme (rational function optimization)
-*           with  restricted.step.
+*           with restricted.step.
 *
 *           In this section we operate directly on the anti-symmetric X
 *           matrix.
@@ -560,6 +536,29 @@
 *
 *           Initiate if the first QNR step
 *
+            If (QNR1st) Then
+               iter_Ref = iter
+!------        1st QNR step, reset kOptim to 1
+
+               kOptim = 1
+               CInter(1,1) = One
+               CInter(1,nD) = One
+
+!              init 1st orb rot parameter X1 (set it to zero)
+               Call mma_allocate(Xn,mOV,Label='Xn')
+               Xn(:)=Zero
+!              and store it on appropriate LList
+               Call PutVec(Xn,mOV,iter,'NOOP',LLx)
+               Call mma_deallocate(Xn)
+*
+*---           compute initial diagonal Hessian, Hdiag
+*
+               Call SOIniH()
+               AccCon(8:8)='H'
+            Else
+               AccCon(8:8)=' '
+            End If
+
             Call GrdClc(QNR1st)
 *
             Call dGrd()
@@ -585,9 +584,12 @@
             Call mma_allocate(Grd1,mOV,Label='Grd1')
             Call mma_allocate(Disp,mOV,Label='Disp')
             Call mma_allocate(Xnp1,mOV,Label='Xnp1')
+
          Select Case(iOpt)
+
          Case(2)
 *                                                                      *
+************************************************************************
 ************************************************************************
 ************************************************************************
 *
@@ -621,9 +623,12 @@
 *                                                                      *
 ************************************************************************
 ************************************************************************
+************************************************************************
 *                                                                      *
          Case(3,4)
+
 *                                                                      *
+************************************************************************
 ************************************************************************
 ************************************************************************
 *                                                                      *
@@ -654,15 +659,23 @@
                StepMax=Max(StepMax*0.75D0,0.8D-3)
             End If
 
+************************************************************************
+*                                                                      *
             Select Case(iOpt)
+
             Case(3)
+
                dqHdq=Zero
                Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                         dqHdq,StepMax,AccCon(9:9))
+
             Case(4)
+*                                                                      *
                Call DIIS_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),
      &                                               AccCon(9:9))
             End Select
+*                                                                      *
+************************************************************************
 
 *           Pick up X(n) and compute X(n+1)=X(n)+dX(n)
 
@@ -671,8 +684,11 @@
             Xnp1(:)=Xnp1(:)+Disp(:)
 
          End Select
-
-*
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
 *           Store X(n+1) and dX(n)
 *
             Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
@@ -704,7 +720,7 @@
 *                                                                      *
 *----    Update DIIS interpolation depth kOptim
 *
-         If (iOpt.ne.3) Then
+         If (iOpt<=3) Then
             If (idKeep.eq.0) Then
                kOptim = 1
             Else If (idKeep.eq.1) Then
@@ -729,7 +745,7 @@
 *                                                                      *
 *======================================================================*
 *                                                                      *
-*                         A U F B A U  section                         *
+*        A U F B A U  section                                          *
 *                                                                      *
 *======================================================================*
 *                                                                      *
