@@ -13,23 +13,20 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GrdClc(FstItr)
+      SubRoutine GrdClc(Do_all)
       use SCF_Arrays
       use InfSCF
       Implicit Real*8 (a-h,o-z)
-      Logical FstItr
+      Logical Do_All
 #include "real.fh"
 *
       nD = iUHF + 1
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call GrdClc_(FstItr,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
+      Call GrdClc_(Do_All,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
      &             nBB,Ovrlp,CMO, CMO_Ref)
 *
       Return
       End
-      SubRoutine GrdClc_(FstItr,Dens,TwoHam,Vxc,mBT,mDens,nD,OneHam,
+      SubRoutine GrdClc_(Do_All,Dens,TwoHam,Vxc,mBT,mDens,nD,OneHam,
      &                   mBB,Ovrlp,CMO, CMO_Ref)
 ************************************************************************
 *                                                                      *
@@ -37,7 +34,7 @@
 *                                                                      *
 *                                                                      *
 *     input:                                                           *
-*       FstItr  : variable telling what gradients compute: .true. -    *
+*       Do_All  : variable telling what gradients compute: .true. -    *
 *                 all gradients, .False. - last gradient               *
 *                                                                      *
 *     called from: Wfctl_scf                                           *
@@ -71,7 +68,7 @@
      &       CMO_Ref(mBB,nD)
       Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
-      Logical FstItr
+      Logical Do_All
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -89,21 +86,21 @@
       Call mma_allocate(AuxV,nBT,nD,Label='AuxV')
 
 *--- Find the beginning of the loop
-      If (FstItr) Then
+      If (Do_All) Then
          LpStrt = iter_ref
-         kOptim_=iter
-         FstItr=.False.
+         LpEnd  = iter
          CMO_Ref(:,:)=CMO(:,:)
+         Do_All=.False.
       Else
-         LpStrt = kOptim
-         kOptim_= kOptim
+         LpStrt = iter
+         LpEnd  = iter
       End If
 
 *--- Compute all gradients / last gradient
 *
       iter_d=iter-iter0
-      Do iOpt = LpStrt, kOptim_
-         iDT = iter_d - kOptim_ + iOpt
+      Do iOpt = LpStrt, LpEnd
+         iDT = iter_d - LpEnd + iOpt
 *
          GrdOV(:)=Zero
 *
