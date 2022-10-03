@@ -136,7 +136,6 @@
       Dimension Dummy(1),iDummy(7,8)
       External DNRM2_
       Integer iSym
-      Logical Do_All
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

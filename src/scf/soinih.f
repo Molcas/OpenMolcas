@@ -34,12 +34,12 @@
       use Orb_Type
       use InfSCF
       use SCF_Arrays, only: EOrb, HDiag
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #include "real.fh"
       Logical Set_H
 *
 *     declaration local variables
-      Integer nD
+      Integer iD,nD
       Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
 *
 *----------------------------------------------------------------------*
@@ -53,19 +53,20 @@
       If (.Not.Set_H) Return
       Set_H = .False.
 
+*     Compute the diagonal values of the Fock matrix, stored in EOrb.
+      Call Mk_EOrb()
+
       nD   =Size(EOrb,2)
       HDiag(:)=1.0D+99
 *
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
-      Write (6,*) 'nH=',Size(HDiag)
       Write (6,*) 'kOV(:)=',kOV(:)
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
          Write (6,'(A,8I3)') 'nOcc',(nOcc(iSym,iD),iSym=1,nSym)
       End Do
-      Write (6,'(A,8I3)') 'nFro',(nFro(iSym),iSym=1,nSym)
       Write (6,'(A,8I3)') 'nOrb',(nOrb(iSym),iSym=1,nSym)
 #endif
       iHoffs=1
