@@ -1,97 +1,97 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2003, Per-Olof Widmark                                 *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine put array integer data to the runfile.                  *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University                                             *
-*          Sweden                                                      *
-* Written: August 2003                                                 *
-*                                                                      *
-************************************************************************
-*  Put_iArray
-*
-*> @brief
-*>   Add/update array data in runfile
-*> @author Per-Olof Widmark
-*>
-*> @details
-*> This routine is used to put array data of type
-*> ``Integer`` into the runfile. The data items are
-*> identified by the label. Below is a list of the
-*> data items that are recognized. The labels are
-*> case insensitive and significant to 16 characters.
-*>
-*> For development purposes you can use an unsupported
-*> label. Whenever such a field is accessed a warning
-*> message is printed in the output, to remind the
-*> developer to update this routine.
-*>
-*> List of known labels:
-*>
-*> - '``Center Index``'
-*> - '``Ctr Index Prim``'       Idem with primitive basis set.
-*> - '``nAsh``'                 The number of active orbitals per irreducible representation.
-*> - '``nBas``'                 The number of basis functions per irreducible representation.
-*> - '``nDel``'                 The number of deleted orbitals per irreducible representation.
-*> - '``nFro``'                 The number of frozen orbitals per irreducible representation, i.e. orbitals that are not optimized.
-*> - '``nIsh``'                 The number of inactive orbitals per irreducible representation.
-*> - '``nIsh beta``'
-*> - '``nOrb``'                 The total number of orbitals per irreducible representation.
-*> - '``Orbital Type``'
-*> - '``Slapaf Info 1``'        Misc. information for module SLAPAF.
-*> - '``Symmetry operations``'  The symmetry operations of the point group.
-*> - '``Non valence orbitals``' The total number of non valence orbitals per irreducible representation.
-*> - '``MkNemo.hDisp``'         The hash matrix for displacements as specified in the mknemo module.
-*>
-*> @param[in] Label Name of field
-*> @param[in] Data  Data to put on runfile
-*> @param[in] nData Length of array
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2003, Per-Olof Widmark                                 *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine put array integer data to the runfile.                  *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University                                             *
+!          Sweden                                                      *
+! Written: August 2003                                                 *
+!                                                                      *
+!***********************************************************************
+!  Put_iArray
+!
+!> @brief
+!>   Add/update array data in runfile
+!> @author Per-Olof Widmark
+!>
+!> @details
+!> This routine is used to put array data of type
+!> ``Integer`` into the runfile. The data items are
+!> identified by the label. Below is a list of the
+!> data items that are recognized. The labels are
+!> case insensitive and significant to 16 characters.
+!>
+!> For development purposes you can use an unsupported
+!> label. Whenever such a field is accessed a warning
+!> message is printed in the output, to remind the
+!> developer to update this routine.
+!>
+!> List of known labels:
+!>
+!> - '``Center Index``'
+!> - '``Ctr Index Prim``'       Idem with primitive basis set.
+!> - '``nAsh``'                 The number of active orbitals per irreducible representation.
+!> - '``nBas``'                 The number of basis functions per irreducible representation.
+!> - '``nDel``'                 The number of deleted orbitals per irreducible representation.
+!> - '``nFro``'                 The number of frozen orbitals per irreducible representation, i.e. orbitals that are not optimized.
+!> - '``nIsh``'                 The number of inactive orbitals per irreducible representation.
+!> - '``nIsh beta``'
+!> - '``nOrb``'                 The total number of orbitals per irreducible representation.
+!> - '``Orbital Type``'
+!> - '``Slapaf Info 1``'        Misc. information for module SLAPAF.
+!> - '``Symmetry operations``'  The symmetry operations of the point group.
+!> - '``Non valence orbitals``' The total number of non valence orbitals per irreducible representation.
+!> - '``MkNemo.hDisp``'         The hash matrix for displacements as specified in the mknemo module.
+!>
+!> @param[in] Label Name of field
+!> @param[in] Data  Data to put on runfile
+!> @param[in] nData Length of array
+!***********************************************************************
       Subroutine Put_iArray(Label,Data,nData)
       Implicit None
 #include "pg_ia_info.fh"
-*----------------------------------------------------------------------*
-* Arguments                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Arguments                                                            *
+!----------------------------------------------------------------------*
       Character*(*) Label
       Integer       nData
       Integer       Data(nData)
-*----------------------------------------------------------------------*
-* Define local variables                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define local variables                                               *
+!----------------------------------------------------------------------*
       Character*16 RecLab(nTocIA)
       Integer      RecIdx(nTocIA)
       Integer      RecLen(nTocIA)
       Save         RecLab
       Save         RecIdx
       Save         RecLen
-*
+!
       Character*16 CmpLab1
       Character*16 CmpLab2
       Integer      nTmp
       Integer      item
       Integer      iTmp
       Integer      i
-*----------------------------------------------------------------------*
-* Initialize local variables                                           *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-* Do setup if this is the first call.                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Initialize local variables                                           *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Do setup if this is the first call.                                  *
+!----------------------------------------------------------------------*
       Call ffRun('iArray labels',nTmp,iTmp)
       If(nTmp.eq.0) Then
          Do i=1,nTocIA
@@ -99,10 +99,10 @@
             RecIdx(i)=sNotUsed
             RecLen(i)=0
          End Do
-*
-*        Observe that label is at most 16 characters!
-*
-*                     1234567890123456
+!
+!        Observe that label is at most 16 characters!
+!
+!                     1234567890123456
          RecLab(  1)='Center Index    '
          RecLab(  2)='nAsh            '
          RecLab(  3)='nBas            '
@@ -198,10 +198,10 @@
          RecLab( 94)='iDmp            '
          RecLab( 95)='iDmp:S          '
          Reclab( 96)='NSTAT_SINGLE    '
-*                     1234567890123456
+!                     1234567890123456
 
-* Do not go beyond 128 without changing the length of RecLab in include
-* file too!
+! Do not go beyond 128 without changing the length of RecLab in include
+! file too!
          Call cWrRun('iArray labels',RecLab,16*nTocIA)
          Call iWrRun('iArray indices',RecIdx,nTocIA)
          Call iWrRun('iArray lengths',RecLen,nTocIA)
@@ -210,9 +210,9 @@
          Call iRdRun('iArray indices',RecIdx,nTocIA)
          Call iRdRun('iArray lengths',RecLen,nTocIA)
       End If
-*----------------------------------------------------------------------*
-* Locate item                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Locate item                                                          *
+!----------------------------------------------------------------------*
       item=-1
       CmpLab1=Label
       Call UpCase(CmpLab1)
@@ -221,9 +221,9 @@
          Call UpCase(CmpLab2)
          If(CmpLab1.eq.CmpLab2) item=i
       End Do
-*
-* Do we create a new temporary field?
-*
+!
+! Do we create a new temporary field?
+!
       If(item.eq.-1) Then
          Do i=1,nTocIA
             If(RecLab(i).eq.' ') item=i
@@ -235,9 +235,9 @@
             Call iWrRun('iArray indices',RecIdx,nTocIA)
          End If
       End If
-*
-* Is this a temporary field?
-*
+!
+! Is this a temporary field?
+!
       If(item.ne.-1) Then
          If(Recidx(item).eq.sSpecialField) Then
             Write(6,*) '***'
@@ -249,9 +249,9 @@
 #endif
          End If
       End If
-*----------------------------------------------------------------------*
-* Write data to disk.                                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Write data to disk.                                                  *
+!----------------------------------------------------------------------*
       If(item.eq.-1) Then
          Call SysAbendMsg('put_iArray','Could not locate',Label)
       End If
@@ -264,8 +264,8 @@
          RecLen(item)=nData
          Call iWrRun('iArray lengths',RecLen,nTocIA)
       End If
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
       End

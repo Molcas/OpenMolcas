@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Roland Lindh                                           *
-*               2018, Ignacio Fdez. Galvan                             *
-************************************************************************
-*  Get_Mass_All
-*
-*> @brief
-*>   Get atomic masses from RUNFILE
-*> @author Ignacio Fdez. Galn&aacute;n
-*>
-*> @details
-*> Place atomic masses (in a.u.) into array \p Mass_All(*).
-*>
-*> @param[out] Mass_All   Array of masses
-*> @param[in]  nAtoms_All Number of atoms
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Roland Lindh                                           *
+!               2018, Ignacio Fdez. Galvan                             *
+!***********************************************************************
+!  Get_Mass_All
+!
+!> @brief
+!>   Get atomic masses from RUNFILE
+!> @author Ignacio Fdez. Galn&aacute;n
+!>
+!> @details
+!> Place atomic masses (in a.u.) into array \p Mass_All(*).
+!>
+!> @param[out] Mass_All   Array of masses
+!> @param[in]  nAtoms_All Number of atoms
+!***********************************************************************
       Subroutine Get_Mass_All(Mass_All,nAtoms_All)
       use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
       Implicit None
@@ -40,7 +40,7 @@
          Call Symmetry_Info_Get()
          Active=1
       End If
-*     Obtain symmetry-unique masses
+!     Obtain symmetry-unique masses
       Call Get_nAtoms_All(nAtoms_Allx)
       If (nAtoms_All.ne.nAtoms_Allx) Then
          Write (6,*) 'Get_Coord_All: nAtoms_All.ne.nAtoms_Allx'
@@ -52,7 +52,7 @@
       Call mma_allocate(Mass,nAtoms)
       Call Get_Mass(Mass,nAtoms)
 
-*     Replicate masses
+!     Replicate masses
       Call mma_allocate(CU,3,nAtoms)
       Call Get_dArray('Unique Coordinates',CU,3*nAtoms)
       nGen=0

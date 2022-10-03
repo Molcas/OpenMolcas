@@ -1,98 +1,98 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Per-Olof Widmark                                       *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine put scalar integer data to the runfile.                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University                                             *
-*          Sweden                                                      *
-* Written: August 2003                                                 *
-*                                                                      *
-************************************************************************
-*  Put_iScalar
-*
-*> @brief
-*>   Add/update scalar data in runfile
-*> @author Per-Olof Widmark
-*>
-*> @details
-*> This routine is used to put scalar data of type
-*> ``Integer`` into the runfile. The data items are
-*> identified by the \p label. Below is a list of the
-*> data items that are recognized. The labels are
-*> case insensitive and significant to 16 characters.
-*>
-*> For development purposes you can use an unsupported
-*> label. Whenever such a field is accessed a warning
-*> message is printed in the output, to remind the
-*> developer to update this routine.
-*>
-*> List of known labels:
-*>
-*> - '``Multiplicity``'               The spin multiplicity of the last SCF or RASSCF calculation.
-*> - '``nMEP``'                       Number of points on the minimum energy path.
-*> - '``No of Internal coordinates``' The number of internal coordinates for the molecule that is allowed within the given point group.
-*> - '``nSym``'                       The number of irreducible representations of the molecule.
-*> - '``PCM info length``'            Length of the block containing misc. info for the PCM model.
-*> - '``Relax CASSCF root``'          Signals which root to perform geometry optimization for in a state average CASSCF geometry optimization.
-*> - '``SA ready``'                   Signals that SA wavefunction is ready for gradient calculations.
-*> - '``System BitSwitch``'           A bit switch controlling various functions. Will be replaced!
-*> - '``Unique atoms``'
-*> - '``nActel``'                     The number of active electrons in CASSCF calculation.
-*> - '``MkNemo.nMole``'               The number of molecules as specified in the mknemo module.
-*> - '``nLambda``'                    The number of constraints in the PCO.
-*> - '``DNG``'                        Force numerical gradients.
-*> - '``HessIter``'                   Last iteration where the analytical Hessian was computed.
-*> - '``TS Search``'                  Flag to mark if a TS search has been activated.
-*> - '``CHCCLarge``'                  Segmentation of VOs in CHCC.
-*> - '``Seed``'                       The seed number for random number generator used in surface hoping.
-*>
-*> @param[in] Label Name of field
-*> @param[in] Data  Data to put on runfile
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Per-Olof Widmark                                       *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine put scalar integer data to the runfile.                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University                                             *
+!          Sweden                                                      *
+! Written: August 2003                                                 *
+!                                                                      *
+!***********************************************************************
+!  Put_iScalar
+!
+!> @brief
+!>   Add/update scalar data in runfile
+!> @author Per-Olof Widmark
+!>
+!> @details
+!> This routine is used to put scalar data of type
+!> ``Integer`` into the runfile. The data items are
+!> identified by the \p label. Below is a list of the
+!> data items that are recognized. The labels are
+!> case insensitive and significant to 16 characters.
+!>
+!> For development purposes you can use an unsupported
+!> label. Whenever such a field is accessed a warning
+!> message is printed in the output, to remind the
+!> developer to update this routine.
+!>
+!> List of known labels:
+!>
+!> - '``Multiplicity``'               The spin multiplicity of the last SCF or RASSCF calculation.
+!> - '``nMEP``'                       Number of points on the minimum energy path.
+!> - '``No of Internal coordinates``' The number of internal coordinates for the molecule that is allowed within the given point group.
+!> - '``nSym``'                       The number of irreducible representations of the molecule.
+!> - '``PCM info length``'            Length of the block containing misc. info for the PCM model.
+!> - '``Relax CASSCF root``'          Signals which root to perform geometry optimization for in a state average CASSCF geometry optimization.
+!> - '``SA ready``'                   Signals that SA wavefunction is ready for gradient calculations.
+!> - '``System BitSwitch``'           A bit switch controlling various functions. Will be replaced!
+!> - '``Unique atoms``'
+!> - '``nActel``'                     The number of active electrons in CASSCF calculation.
+!> - '``MkNemo.nMole``'               The number of molecules as specified in the mknemo module.
+!> - '``nLambda``'                    The number of constraints in the PCO.
+!> - '``DNG``'                        Force numerical gradients.
+!> - '``HessIter``'                   Last iteration where the analytical Hessian was computed.
+!> - '``TS Search``'                  Flag to mark if a TS search has been activated.
+!> - '``CHCCLarge``'                  Segmentation of VOs in CHCC.
+!> - '``Seed``'                       The seed number for random number generator used in surface hoping.
+!>
+!> @param[in] Label Name of field
+!> @param[in] Data  Data to put on runfile
+!***********************************************************************
       Subroutine Put_iScalar(Label,Data)
       Implicit None
 #include "pg_is_info.fh"
-*----------------------------------------------------------------------*
-* Arguments                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Arguments                                                            *
+!----------------------------------------------------------------------*
       Character*(*) Label
       Integer       Data
-*----------------------------------------------------------------------*
-* Define local variables                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define local variables                                               *
+!----------------------------------------------------------------------*
       Integer      RecVal(nTocIS)
       Character*16 RecLab(nTocIS)
       Integer      RecIdx(nTocIS)
       Save         RecVal
       Save         RecLab
       Save         RecIdx
-*
+!
       Character*16 CmpLab1
       Character*16 CmpLab2
       Integer      nData
       Integer      item
       Integer      iTmp
       Integer      i
-*----------------------------------------------------------------------*
-* Initialize local variables                                           *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-* Do setup if this is the first call.                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Initialize local variables                                           *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Do setup if this is the first call.                                  *
+!----------------------------------------------------------------------*
       Call ffRun('iScalar labels',nData,iTmp)
       If(nData.eq.0) Then
          Do i=1,nTocIS
@@ -100,10 +100,10 @@
             RecVal(i)=0
             RecIdx(i)=sNotUsed
          End Do
-*
-*        Observe that label is at most 16 characters!
-*
-*                     1234567890123456
+!
+!        Observe that label is at most 16 characters!
+!
+!                     1234567890123456
          RecLab(  1)='Multiplicity    '
          RecLab(  2)='nMEP            '
          RecLab(  3)='No of Internal c' !oordinates
@@ -162,7 +162,7 @@
          RecLab( 55)='nLambda         '
          RecLab( 56)='DNG             '
          RecLab( 57)='HessIter        '
-c         RecLab( 58)='GEO_nConnect    '
+!         RecLab( 58)='GEO_nConnect    '
          RecLab( 58)='CHCCLarge       ' ! Segmentation of VOs in CHCC
          RecLab( 59)='TS Search       '
          RecLab( 60)='Number of Hops  '
@@ -185,14 +185,14 @@ c         RecLab( 58)='GEO_nConnect    '
          RecLab( 74)='Unique centers  '
          RecLab( 75)='nXF             '
          RecLab( 76)='CSPF            '
-*        For MS-PDFT gradient
+!        For MS-PDFT gradient
          RecLab( 77)='NCONF           '
          RecLab( 78)='SH RASSI run    '
-*                     1234567890123456
-*
-*        Note, when the counter here exceeds 128 update this line
-*        and the nTocIS parameter in pg_is_info.fh!
-*
+!                     1234567890123456
+!
+!        Note, when the counter here exceeds 128 update this line
+!        and the nTocIS parameter in pg_is_info.fh!
+!
          Call cWrRun('iScalar labels',RecLab,16*nTocIS)
          Call iWrRun('iScalar values',RecVal,nTocIS)
          Call iWrRun('iScalar indices',RecIdx,nTocIS)
@@ -201,9 +201,9 @@ c         RecLab( 58)='GEO_nConnect    '
          Call iRdRun('iScalar values',RecVal,nTocIS)
          Call iRdRun('iScalar indices',RecIdx,nTocIS)
       End If
-*----------------------------------------------------------------------*
-* Locate item                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Locate item                                                          *
+!----------------------------------------------------------------------*
       item=-1
       CmpLab1=Label
       Call UpCase(CmpLab1)
@@ -212,9 +212,9 @@ c         RecLab( 58)='GEO_nConnect    '
          Call UpCase(CmpLab2)
          If(CmpLab1.eq.CmpLab2) item=i
       End Do
-*
-* Do we create a new temporary field?
-*
+!
+! Do we create a new temporary field?
+!
       If(item.eq.-1) Then
          Do i=1,nTocIS
             If(RecLab(i).eq.' ') item=i
@@ -226,9 +226,9 @@ c         RecLab( 58)='GEO_nConnect    '
             Call iWrRun('iScalar indices',RecIdx,nTocIS)
          End If
       End If
-*
-* Is this a temporary field?
-*
+!
+! Is this a temporary field?
+!
       If(item.ne.-1) Then
          If(Recidx(item).eq.sSpecialField) Then
             Write(6,*) '***'
@@ -240,9 +240,9 @@ c         RecLab( 58)='GEO_nConnect    '
 #endif
          End If
       End If
-*----------------------------------------------------------------------*
-* Write data to disk.                                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Write data to disk.                                                  *
+!----------------------------------------------------------------------*
       If(item.eq.-1) Then
          Call SysAbendMsg('put_iScalar','Could not locate',Label)
       End If
@@ -252,9 +252,9 @@ c         RecLab( 58)='GEO_nConnect    '
          RecIdx(item)=sRegularField
          Call iWrRun('iScalar indices',RecIdx,nTocIS)
       End If
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Do i=1,num_IS_init
          If(iLbl_IS_inmem(i).eq.CmpLab1) Then
              i_IS_inmem(i)=Data

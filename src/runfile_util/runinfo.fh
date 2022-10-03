@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-************************************************************************
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Implicit None
-*----------------------------------------------------------------------*
-* Define various constants                                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define various constants                                             *
+!----------------------------------------------------------------------*
       Integer NulPtr
       Parameter ( NulPtr = -1 )
-*----------------------------------------------------------------------*
-* Define RunFile header                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define RunFile header                                                *
+!----------------------------------------------------------------------*
       Integer ipID
       Integer ipVer
       Integer ipNext
@@ -41,9 +41,9 @@
       Parameter ( ipDaTyp = ipDaMaxLen  + 1 )
       Parameter ( nHdrSz  = 128          )
       Integer RunHdr(nHdrSz)
-*----------------------------------------------------------------------*
-* Define RunFile TOC                                                   *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define RunFile TOC                                                   *
+!----------------------------------------------------------------------*
       Integer      nToc
       Parameter    ( nToc = 1024 )
       Character*16 TocLab(nToc)
@@ -51,45 +51,45 @@
       Integer      TocLen(nToc)
       Integer      TocMaxLen(nToc)
       Integer      TocTyp(nToc)
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Character*8  RunName
       Character*8  RnNmStk(4)
-*----------------------------------------------------------------------*
-* Put all relevant fields into common.                                 *
-*----------------------------------------------------------------------*
-      Common /RunFile/ RunHdr,TocLab,TocPtr,TocLen,TocMaxLen,TocTyp,
+!----------------------------------------------------------------------*
+! Put all relevant fields into common.                                 *
+!----------------------------------------------------------------------*
+      Common /RunFile/ RunHdr,TocLab,TocPtr,TocLen,TocMaxLen,TocTyp,    &
      &   RunName,RnNmStk
       Save /RunFile/
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Integer icWr
       Integer icRd
       Parameter ( icWr = 1 )
       Parameter ( icRd = 2 )
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Integer IDrun
       Integer VNrun
       Parameter(iDrun=34676777)
       Parameter(VNrun=4096)
-c #ifdef _I8_
-c #if defined(_NECSX_) || defined(NAGFOR)
-c      Data IDrun /8hRunFile /
-c      Data VNrun /8hv1.0    /
-c #else
-c      Parameter ( IDrun = 8hRunFile  )
-c      Parameter ( VNrun = 8hv1.0     )
-c #endif
-c #else
-c #if defined(_NECSX_) || defined(NAGFOR)
-c      Data IDrun /4hRunF/
-c      Data VNrun /4hv1.0/
-c #else
-c       Parameter ( IDrun = 4hRunF )
-c       Parameter ( VNrun = 4hv1.0 )
-c #endif
-c #endif
+! #ifdef _I8_
+! #if defined(_NECSX_) || defined(NAGFOR)
+!      Data IDrun /8hRunFile /
+!      Data VNrun /8hv1.0    /
+! #else
+!      Parameter ( IDrun = 8hRunFile  )
+!      Parameter ( VNrun = 8hv1.0     )
+! #endif
+! #else
+! #if defined(_NECSX_) || defined(NAGFOR)
+!      Data IDrun /4hRunF/
+!      Data VNrun /4hv1.0/
+! #else
+!       Parameter ( IDrun = 4hRunF )
+!       Parameter ( VNrun = 4hv1.0 )
+! #endif
+! #endif

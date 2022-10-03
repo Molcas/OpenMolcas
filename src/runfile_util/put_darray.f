@@ -1,150 +1,150 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2003, Per-Olof Widmark                                 *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine put array double data to the runfile.                   *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University                                             *
-*          Sweden                                                      *
-* Written: August 2003                                                 *
-*                                                                      *
-************************************************************************
-*  Put_dArray
-*
-*> @brief
-*>   Add/update array data in runfile
-*> @author Per-Olof Widmark
-*>
-*> @details
-*> This routine is used to put array data of type
-*> ``Real*8`` into the runfile. The data items are
-*> identified by the \p label. Below is a list of the
-*> data items that are recognized. The labels are
-*> case insensitive and significant to 16 characters.
-*> (May change to 24 characters.)
-*>
-*> @warning
-*> Naming convention is under development
-*> and labels may change to the next version.
-*>
-*> For development purposes you can use an unsupported
-*> label. Whenever such a field is accessed a warning
-*> message is printed in the output, to remind the
-*> developer to update this routine.
-*>
-*> List of known labels:
-*>
-*> - '``Analytic Hessian``'         Analytic Hessian.
-*> - '``Center of Charge``'         Nuclear center of charge.
-*> - '``Center of Mass``'           Nuclear center of mass.
-*> - '``CMO_ab``'
-*> - '``D1ao``'                     One particle density matrix, AO basis.
-*> - '``D1ao_ab``'
-*> - '``D1aoVar``'                  Generalized one particle density matrix, AO basis.
-*> - '``D1av``'                     Average one particle density matrix, AO basis.
-*> - '``D1mo``'                     One particle density matrix, MO basis.
-*> - '``D1sao``'                    One particle spin density matrix, AO basis.
-*> - '``D1activeao``'               One particle density matrix, AO basis, active orbitals
-*> - '``D2av``'                     Average two particle density matrix for the active space, AO basis.
-*> - '``dExcdRa``'                  The potential of the exchange-correlation functional.
-*> - '``DLAO``'
-*> - '``DLMO``'
-*> - '``Effective nuclear Charge``' Effective nuclear charge for each unique atom.
-*> - '``FockO_ab``'
-*> - '``FockOcc``'                  Generalized Fock matrix, AO basis.
-*> - '``GeoNew``'                   Next guess for Cartesian coordinates for the unique atoms.
-*> - '``GeoNewPC``'                 Next guess for Cartesian coordinates for the unique point charges.
-*> - '``GRAD``'                     Gradient with respect to nuclear displacements, for all unique atoms.
-*> - '``Hess``'
-*> - '``HF-forces``'                Hellmann--Feynman forces.
-*> - '``Last orbitals``'            Last set of orbital computed.
-*> - '``LCMO``'
-*> - '``MEP-Coor``'                 List of nuclear coordinates along a minimum energy path, for unique atoms.
-*> - '``MEP-Energies``'             List of energies along a minimum energy path.
-*> - '``MEP-Grad``'                 List of nuclear gradients along a minimum energy path.
-*> - '``MP2 restart``'              Information for restarting direct MP2 calculations.
-*> - '``Mulliken Charge``'          Mulliken population charges for each unique atom.
-*> - '``NEMO TPC``'
-*> - '``Nuclear charge``'           Actual nuclear charge for each unique atom.
-*> - '``OrbE``'                     SCF orbital energies.
-*> - '``OrbE_ab``'
-*> - '``P2MO``'
-*> - '``PCM Charges``'              Charges for each tessera in the PCM model.
-*> - '``PCM Info``'                 Misc. information needed for the PCM model.
-*> - '``PLMO``'
-*> - '``RASSCF orbitals``'          Last orbitals generated by the RASSCF module.
-*> - '``Reaction field``'           Misc. information needed for the Kirkwood model.
-*> - '``SCFInfoR``'                 Misc. information needed by the SCF module.
-*> - '``SCF orbitals``'             Last orbitals generated by the SCF module.
-*> - '``Slapaf Info 2``'            Misc. information needed by the SLAPAF module.
-*> - '``Unique Coordinates``'       Cartesian coordinates for the symmetry unique atoms.
-*> - '``Last energies``'            Energies for all roots in the last calculation.
-*> - '``Dipole moment``'            The last computed dipole moment.
-*> - '``MkNemo.vDisp``'             The displacements matrix as specified in the mknemo module.
-*> - '``MkNemo.tqCluster``'         The transformation matrix for clusters as specified in the mknemo module.
-*> - '``MkNemo.Energies``'          The energies of super-system and clusters as specified in the mknemo module.
-*> - '``RASSCF OrbE``'              RASSCF orbital energies.
-*> - '``GRD1``'                     MR-CISD gradient state1.
-*> - '``GRD2``'                     MR-CISD gradient state2.
-*> - '``NADC``'                     MR-CISD NADC vector state1/state2.
-*> - '``MR-CISD energy``'           MR-CISD energies state1,state2.
-*> - '``NOSEHOOVER``'               Extra-degrees of fredom needed to generated canonical ensemble.
-*> - '``T-Matrix``'                 T-Matrix associated with PCO.
-*> - '``rInt0``'                    Stored constrained values.
-*> - '``Weights``'                  Weights used for alignment and hypersphere constraint.
-*> - '``MEP-Lengths``'              Lengths of the MEP steps.
-*> - '``MEP-Curvatures``'           Curvatures of the MEP steps.
-*> - '``D1ao-``'                    Antisymmetric transition density matrix, in AO
-*> - '``P2MOT``'                    "Fake" two-body density needed for MC-PDFT gradient calculations
-*>
-*> @param[in] Label Name of field
-*> @param[in] Data  Data to put on runfile
-*> @param[in] nData Length of array
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2003, Per-Olof Widmark                                 *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine put array double data to the runfile.                   *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University                                             *
+!          Sweden                                                      *
+! Written: August 2003                                                 *
+!                                                                      *
+!***********************************************************************
+!  Put_dArray
+!
+!> @brief
+!>   Add/update array data in runfile
+!> @author Per-Olof Widmark
+!>
+!> @details
+!> This routine is used to put array data of type
+!> ``Real*8`` into the runfile. The data items are
+!> identified by the \p label. Below is a list of the
+!> data items that are recognized. The labels are
+!> case insensitive and significant to 16 characters.
+!> (May change to 24 characters.)
+!>
+!> @warning
+!> Naming convention is under development
+!> and labels may change to the next version.
+!>
+!> For development purposes you can use an unsupported
+!> label. Whenever such a field is accessed a warning
+!> message is printed in the output, to remind the
+!> developer to update this routine.
+!>
+!> List of known labels:
+!>
+!> - '``Analytic Hessian``'         Analytic Hessian.
+!> - '``Center of Charge``'         Nuclear center of charge.
+!> - '``Center of Mass``'           Nuclear center of mass.
+!> - '``CMO_ab``'
+!> - '``D1ao``'                     One particle density matrix, AO basis.
+!> - '``D1ao_ab``'
+!> - '``D1aoVar``'                  Generalized one particle density matrix, AO basis.
+!> - '``D1av``'                     Average one particle density matrix, AO basis.
+!> - '``D1mo``'                     One particle density matrix, MO basis.
+!> - '``D1sao``'                    One particle spin density matrix, AO basis.
+!> - '``D1activeao``'               One particle density matrix, AO basis, active orbitals
+!> - '``D2av``'                     Average two particle density matrix for the active space, AO basis.
+!> - '``dExcdRa``'                  The potential of the exchange-correlation functional.
+!> - '``DLAO``'
+!> - '``DLMO``'
+!> - '``Effective nuclear Charge``' Effective nuclear charge for each unique atom.
+!> - '``FockO_ab``'
+!> - '``FockOcc``'                  Generalized Fock matrix, AO basis.
+!> - '``GeoNew``'                   Next guess for Cartesian coordinates for the unique atoms.
+!> - '``GeoNewPC``'                 Next guess for Cartesian coordinates for the unique point charges.
+!> - '``GRAD``'                     Gradient with respect to nuclear displacements, for all unique atoms.
+!> - '``Hess``'
+!> - '``HF-forces``'                Hellmann--Feynman forces.
+!> - '``Last orbitals``'            Last set of orbital computed.
+!> - '``LCMO``'
+!> - '``MEP-Coor``'                 List of nuclear coordinates along a minimum energy path, for unique atoms.
+!> - '``MEP-Energies``'             List of energies along a minimum energy path.
+!> - '``MEP-Grad``'                 List of nuclear gradients along a minimum energy path.
+!> - '``MP2 restart``'              Information for restarting direct MP2 calculations.
+!> - '``Mulliken Charge``'          Mulliken population charges for each unique atom.
+!> - '``NEMO TPC``'
+!> - '``Nuclear charge``'           Actual nuclear charge for each unique atom.
+!> - '``OrbE``'                     SCF orbital energies.
+!> - '``OrbE_ab``'
+!> - '``P2MO``'
+!> - '``PCM Charges``'              Charges for each tessera in the PCM model.
+!> - '``PCM Info``'                 Misc. information needed for the PCM model.
+!> - '``PLMO``'
+!> - '``RASSCF orbitals``'          Last orbitals generated by the RASSCF module.
+!> - '``Reaction field``'           Misc. information needed for the Kirkwood model.
+!> - '``SCFInfoR``'                 Misc. information needed by the SCF module.
+!> - '``SCF orbitals``'             Last orbitals generated by the SCF module.
+!> - '``Slapaf Info 2``'            Misc. information needed by the SLAPAF module.
+!> - '``Unique Coordinates``'       Cartesian coordinates for the symmetry unique atoms.
+!> - '``Last energies``'            Energies for all roots in the last calculation.
+!> - '``Dipole moment``'            The last computed dipole moment.
+!> - '``MkNemo.vDisp``'             The displacements matrix as specified in the mknemo module.
+!> - '``MkNemo.tqCluster``'         The transformation matrix for clusters as specified in the mknemo module.
+!> - '``MkNemo.Energies``'          The energies of super-system and clusters as specified in the mknemo module.
+!> - '``RASSCF OrbE``'              RASSCF orbital energies.
+!> - '``GRD1``'                     MR-CISD gradient state1.
+!> - '``GRD2``'                     MR-CISD gradient state2.
+!> - '``NADC``'                     MR-CISD NADC vector state1/state2.
+!> - '``MR-CISD energy``'           MR-CISD energies state1,state2.
+!> - '``NOSEHOOVER``'               Extra-degrees of fredom needed to generated canonical ensemble.
+!> - '``T-Matrix``'                 T-Matrix associated with PCO.
+!> - '``rInt0``'                    Stored constrained values.
+!> - '``Weights``'                  Weights used for alignment and hypersphere constraint.
+!> - '``MEP-Lengths``'              Lengths of the MEP steps.
+!> - '``MEP-Curvatures``'           Curvatures of the MEP steps.
+!> - '``D1ao-``'                    Antisymmetric transition density matrix, in AO
+!> - '``P2MOT``'                    "Fake" two-body density needed for MC-PDFT gradient calculations
+!>
+!> @param[in] Label Name of field
+!> @param[in] Data  Data to put on runfile
+!> @param[in] nData Length of array
+!***********************************************************************
       Subroutine Put_dArray(Label,Data,nData)
       Implicit None
 #include "pg_da_info.fh"
-*----------------------------------------------------------------------*
-* Arguments                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Arguments                                                            *
+!----------------------------------------------------------------------*
       Character*(*) Label
       Integer       nData
       Real*8        Data(nData)
-*----------------------------------------------------------------------*
-* Define local variables                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define local variables                                               *
+!----------------------------------------------------------------------*
       Character*16 RecLab(nTocDA)
       Integer      RecIdx(nTocDA)
       Integer      RecLen(nTocDA)
       Save         RecLab
       Save         RecIdx
       Save         RecLen
-*
+!
       Character*16 CmpLab1
       Character*16 CmpLab2
       Integer      nTmp
       Integer      item
       Integer      iTmp
       Integer      i
-*----------------------------------------------------------------------*
-* Initialize local variables                                           *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-* Do setup if this is the first call.                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Initialize local variables                                           *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Do setup if this is the first call.                                  *
+!----------------------------------------------------------------------*
       Call ffRun('dArray labels',nTmp,iTmp)
       If(nTmp.eq.0) Then
          Do i=1,nTocDA
@@ -152,10 +152,10 @@
             RecIdx(i)=sNotUsed
             RecLen(i)=0
          End Do
-*
-*        Observe that label is at most 16 characters!
-*
-*                     1234567890123456
+!
+!        Observe that label is at most 16 characters!
+!
+!                     1234567890123456
          RecLab(  1)='Analytic Hessian'
          RecLab(  2)='Center of Charge'
          RecLab(  3)='Center of Mass  '
@@ -200,7 +200,7 @@
          RecLab( 42)='Slapaf Info 2   '
          RecLab( 43)='Unique Coordinat' !es
          RecLab( 44)='Vxc_ref         '
-c mess started here :)
+! mess started here :)
          RecLab( 45)='PotNuc00        '
          RecLab( 46)='h1_raw          '
          RecLab( 47)='h1    XX        '
@@ -351,7 +351,7 @@ c mess started here :)
          Reclab(192)='ESO_LOW         '
          Reclab(193)='SFS_HAM         '
          Reclab(194)='SFS_OVLP        '
-*Arrays 195-207 for computing MS-PDFT gradient
+!Arrays 195-207 for computing MS-PDFT gradient
          RecLab(195)='FocMS           '
          RecLab(196)='MSPDFTD5        '
          RecLab(197)='MSPDFTD6        '
@@ -366,9 +366,9 @@ c mess started here :)
          RecLab(206)='F2MS            '
          RecLab(207)='FxyMS           '
          RecLab(208)='SH_Ovlp_Save    '
-*                     1234567890123456
-*
-*        If you go beyond 256: update pg_da_info.fh and this line!
+!                     1234567890123456
+!
+!        If you go beyond 256: update pg_da_info.fh and this line!
          Call cWrRun('dArray labels',RecLab,16*nTocDA)
          Call iWrRun('dArray indices',RecIdx,nTocDA)
          Call iWrRun('dArray lengths',RecLen,nTocDA)
@@ -377,9 +377,9 @@ c mess started here :)
          Call iRdRun('dArray indices',RecIdx,nTocDA)
          Call iRdRun('dArray lengths',RecLen,nTocDA)
       End If
-*----------------------------------------------------------------------*
-* Locate item                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Locate item                                                          *
+!----------------------------------------------------------------------*
       item=-1
       CmpLab1=Label
       Call UpCase(CmpLab1)
@@ -388,9 +388,9 @@ c mess started here :)
          Call UpCase(CmpLab2)
          If(CmpLab1.eq.CmpLab2) item=i
       End Do
-*
-* Do we create a new temporary field?
-*
+!
+! Do we create a new temporary field?
+!
       If(item.eq.-1) Then
          Do i=1,nTocDA
             If(RecLab(i).eq.' ') item=i
@@ -402,9 +402,9 @@ c mess started here :)
             Call iWrRun('dArray indices',RecIdx,nTocDA)
          End If
       End If
-*
-* Is this a temporary field?
-*
+!
+! Is this a temporary field?
+!
       If(item.ne.-1) Then
          If(Recidx(item).eq.sSpecialField) Then
             Write(6,*) '***'
@@ -416,14 +416,14 @@ c mess started here :)
 #endif
          End If
       End If
-*----------------------------------------------------------------------*
-* Write data to disk.                                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Write data to disk.                                                  *
+!----------------------------------------------------------------------*
       If(item.eq.-1) Then
          Call SysAbendMsg('put_dArray','Could not locate',Label)
       End If
       Call dWrRun(RecLab(item),Data,ndata)
-*     Write(6,*) Data
+!     Write(6,*) Data
       If(RecIdx(item).eq.0) Then
          RecIdx(item)=sRegularField
          Call iWrRun('dArray indices',RecIdx,nTocDA)
@@ -432,8 +432,8 @@ c mess started here :)
          RecLen(item)=nData
          Call iWrRun('dArray lengths',RecLen,nTocDA)
       End If
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
       End

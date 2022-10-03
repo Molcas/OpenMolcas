@@ -1,52 +1,52 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2003, Per-Olof Widmark                                 *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine get scalar double data from the runfile.                *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University                                             *
-*          Sweden                                                      *
-* Written: August 2003                                                 *
-*                                                                      *
-************************************************************************
-*  Get_dScalar
-*
-*> @brief
-*>   Get scalar data form runfile
-*> @author Per-Olof Widmark
-*>
-*> @details
-*> This routine gets scalar double data from the runfile.
-*>
-*> @param[in]  Label Name of field
-*> @param[out] Data  Data to get from runfile
-*>
-*> @see ::Put_dScalar
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2003, Per-Olof Widmark                                 *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine get scalar double data from the runfile.                *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University                                             *
+!          Sweden                                                      *
+! Written: August 2003                                                 *
+!                                                                      *
+!***********************************************************************
+!  Get_dScalar
+!
+!> @brief
+!>   Get scalar data form runfile
+!> @author Per-Olof Widmark
+!>
+!> @details
+!> This routine gets scalar double data from the runfile.
+!>
+!> @param[in]  Label Name of field
+!> @param[out] Data  Data to get from runfile
+!>
+!> @see ::Put_dScalar
+!***********************************************************************
       Subroutine Get_dScalar(Label,Data)
       Implicit None
 #include "pg_ds_info.fh"
-*----------------------------------------------------------------------*
-* Arguments                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Arguments                                                            *
+!----------------------------------------------------------------------*
       Character*(*) Label
       Real*8        Data
-*----------------------------------------------------------------------*
-* Define local variables                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define local variables                                               *
+!----------------------------------------------------------------------*
       Character*16 CmpLab
 
       Integer      dfirst,i
@@ -96,34 +96,34 @@
       Subroutine Get_dScalar_(Label,Data)
       Implicit None
 #include "pg_ds_info.fh"
-*----------------------------------------------------------------------*
-* Arguments                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Arguments                                                            *
+!----------------------------------------------------------------------*
       Character*(*) Label
       Real*8        Data
-*----------------------------------------------------------------------*
-* Define local variables                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define local variables                                               *
+!----------------------------------------------------------------------*
       Real*8       RecVal(nTocDS)
       Character*16 RecLab(nTocDS)
       Integer      RecIdx(nTocDS)
-*
+!
       Character*16 CmpLab1
       Character*16 CmpLab2
       Integer      item
       Integer      i
-*----------------------------------------------------------------------*
-* Initialize local variables                                           *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-* Read info from runfile.                                              *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Initialize local variables                                           *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Read info from runfile.                                              *
+!----------------------------------------------------------------------*
       Call cRdRun('dScalar labels',RecLab,16*nTocDS)
       Call dRdRun('dScalar values',RecVal,nTocDS)
       Call iRdRun('dScalar indices',RecIdx,nTocDS)
-*----------------------------------------------------------------------*
-* Locate item                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Locate item                                                          *
+!----------------------------------------------------------------------*
       item=-1
       CmpLab1=Label
       Call UpCase(CmpLab1)
@@ -144,9 +144,9 @@
 #endif
          End If
       End If
-*----------------------------------------------------------------------*
-* Transfer data to arguments                                           *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Transfer data to arguments                                           *
+!----------------------------------------------------------------------*
       i_run_DS_used(item)=i_run_DS_used(item)+1
       If(item.eq.-1) Then
          Call SysAbendMsg('get_dScalar','Could not locate: ',Label)
@@ -155,8 +155,8 @@
          Call SysAbendMsg('get_dScalar','Data not defined: ',Label)
       End If
       Data=RecVal(item)
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
       End

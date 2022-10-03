@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2003, Per-Olof Widmark                                 *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine sets the name for the runfile.                          *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund university, Sweden                                     *
-* Written: August 2003                                                 *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2003, Per-Olof Widmark                                 *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine sets the name for the runfile.                          *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund university, Sweden                                     *
+! Written: August 2003                                                 *
+!                                                                      *
+!***********************************************************************
       Subroutine NameRun(Name)
 #include "runinfo.fh"
       Character*(*) Name
-*     Integer       iRc
-*     Integer       iOpt
+!     Integer       iRc
+!     Integer       iOpt
 
       If(Name.eq.'#Pop') Then
          RunName=RnNmStk(1)
@@ -41,12 +41,12 @@
       End If
 
       Call ClrRunCache()
-*
-* Do not create the run file when naming it, patch 6.7.263
-*
-*     iRc=0
-*     iOpt=1
-*     Call MkRun(iRc,iOpt)
+!
+! Do not create the run file when naming it, patch 6.7.263
+!
+!     iRc=0
+!     iOpt=1
+!     Call MkRun(iRc,iOpt)
 
       Return
       End

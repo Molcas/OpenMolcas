@@ -1,53 +1,53 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2003, Per-Olof Widmark                                 *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine get scalar integer data from the runfile.               *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University                                             *
-*          Sweden                                                      *
-* Written: August 2003                                                 *
-*                                                                      *
-************************************************************************
-*  Get_iScalar
-*
-*> @brief
-*>   Get scalar data from runfile
-*> @author Per-Olof Widmark
-*>
-*> @details
-*> This routine gets scalar integer data from the runfile.
-*>
-*> @param[in]  Label Name of field
-*> @param[out] Data  Data to get from runfile
-*>
-*> @see ::Put_iScalar
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2003, Per-Olof Widmark                                 *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine get scalar integer data from the runfile.               *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University                                             *
+!          Sweden                                                      *
+! Written: August 2003                                                 *
+!                                                                      *
+!***********************************************************************
+!  Get_iScalar
+!
+!> @brief
+!>   Get scalar data from runfile
+!> @author Per-Olof Widmark
+!>
+!> @details
+!> This routine gets scalar integer data from the runfile.
+!>
+!> @param[in]  Label Name of field
+!> @param[out] Data  Data to get from runfile
+!>
+!> @see ::Put_iScalar
+!***********************************************************************
       Subroutine Get_iScalar(Label,Data)
 #include "pg_is_info.fh"
-*----------------------------------------------------------------------*
-* Arguments                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Arguments                                                            *
+!----------------------------------------------------------------------*
       Character*(*) Label
       Integer       Data
-*----------------------------------------------------------------------*
-* Define local variables                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define local variables                                               *
+!----------------------------------------------------------------------*
       Integer      ifirst,i
-*
+!
       Character*16 CmpLab
       DATA ifirst /0/
       SAVE ifirst
@@ -95,34 +95,34 @@
       Subroutine Get_iScalar_(Label,Data)
       Implicit None
 #include "pg_is_info.fh"
-*----------------------------------------------------------------------*
-* Arguments                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Arguments                                                            *
+!----------------------------------------------------------------------*
       Character*(*) Label
       Integer       Data
-*----------------------------------------------------------------------*
-* Define local variables                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Define local variables                                               *
+!----------------------------------------------------------------------*
       Integer      RecVal(nTocIS)
       Character*16 RecLab(nTocIS)
       Integer      RecIdx(nTocIS)
-*
+!
       Character*16 CmpLab1
       Character*16 CmpLab2
       Integer      item
       Integer      i
-*----------------------------------------------------------------------*
-* Initialize local variables                                           *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-* Read info from runfile.                                              *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Initialize local variables                                           *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Read info from runfile.                                              *
+!----------------------------------------------------------------------*
       Call cRdRun('iScalar labels',RecLab,16*nTocIS)
       Call iRdRun('iScalar values',RecVal,nTocIS)
       Call iRdRun('iScalar indices',RecIdx,nTocIS)
-*----------------------------------------------------------------------*
-* Locate item                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Locate item                                                          *
+!----------------------------------------------------------------------*
       item=-1
       CmpLab1=Label
       Call UpCase(CmpLab1)
@@ -143,9 +143,9 @@
 #endif
          End If
       End If
-*----------------------------------------------------------------------*
-* Transfer data to arguments                                           *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Transfer data to arguments                                           *
+!----------------------------------------------------------------------*
       i_run_IS_used(item)=i_run_IS_used(item)+1
       If(item.eq.-1) Then
          Call SysAbendMsg('get_iScalar','Could not locate: ',Label)
@@ -154,8 +154,8 @@
          Call SysAbendMsg('get_iScalar','Data not defined: ',Label)
       End If
       Data=RecVal(item)
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
       End

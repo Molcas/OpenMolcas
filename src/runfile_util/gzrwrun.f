@@ -1,41 +1,41 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2009, Per-Olof Widmark                                 *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine reads or writes a record from/to the runfile.           *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund university, Sweden                                     *
-* Written: December 2009                                               *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2009, Per-Olof Widmark                                 *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine reads or writes a record from/to the runfile.           *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund university, Sweden                                     *
+! Written: December 2009                                               *
+!                                                                      *
+!***********************************************************************
       Subroutine gzRWRun(Lu,icXX,Data,nData,iDisk,RecTyp)
 #include "runinfo.fh"
 #include "runtypes.fh"
-*----------------------------------------------------------------------*
-* Declare arguments                                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Declare arguments                                                    *
+!----------------------------------------------------------------------*
       Integer       Lu
       Integer       icXX
       Character     Data(*)
       Integer       nData
       Integer       iDisk
       Integer       RecTyp
-*----------------------------------------------------------------------*
-* Read/write data from/to runfile.                                     *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Read/write data from/to runfile.                                     *
+!----------------------------------------------------------------------*
       If(RecTyp.eq.TypInt) Then
          Call c_iDaFile(Lu,icXX,Data,nData,iDisk)
       Else If(RecTyp.eq.TypDbl) Then
@@ -43,20 +43,20 @@
       Else If(RecTyp.eq.TypStr) Then
          Call cDaFile(Lu,icXX,Data,nData,iDisk)
       Else If(RecTyp.eq.TypLgl) Then
-         Call SysAbendMsg('gzRWRun',
-     &                    'Records of logical type not implemented',
+         Call SysAbendMsg('gzRWRun',                                    &
+     &                    'Records of logical type not implemented',    &
      &                    'Aborting')
       Else
-         Call SysAbendMsg('gzRWRun',
-     &                    'Argument RecTyp is of wrong type',
+         Call SysAbendMsg('gzRWRun',                                    &
+     &                    'Argument RecTyp is of wrong type',           &
      &                    'Aborting')
       End If
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       SubRoutine c_iDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
       Use Iso_C_Binding
@@ -76,5 +76,5 @@
       Call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
       Nullify(pBuf)
       End SubRoutine c_dDaFile
-*
+!
       End

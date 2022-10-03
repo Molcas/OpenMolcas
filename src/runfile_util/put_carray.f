@@ -1,92 +1,92 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2003, Per-Olof Widmark                                 *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine put array character data to the runfile.                *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University                                             *
-*          Sweden                                                      *
-* Written: August 2003                                                 *
-*                                                                      *
-************************************************************************
-*  Put_cArray
-*
-*> @brief
-*>   Add/update array data in runfile
-*> @author Per-Olof Widmark
-*>
-*> @details
-*> This routine is used to put array data of type
-*> ``Character`` into the runfile. The data items are
-*> identified by the \p label. Below is a list of the
-*> data items that are recognized. The labels are
-*> case insensitive and significant to 16 characters.
-*>
-*> For development purposes you can use an unsupported
-*> label. Whenever such a field is accessed a warning
-*> message is printed in the output, to remind the
-*> developer to update this routine.
-*>
-*> List of known labels:
-*>
-*> '``DFT functional``'     Name of the functional used for the KS-DFT calculation.
-*> '``Irreps``'             Names of the irreducible representations.
-*> '``Relax Method``'       Name of the method used for geometry optimizations.
-*> '``Seward Title``'       The title of the calculation as specified in module SEWARD.
-*> '``Slapaf Info 3``'      Misc. information for module SLAPAF.
-*> '``Unique Atom Names``'  List of the names of the symmetry unique atoms.
-*> '``Unique Basis Names``' List of the basis function names.
-*> '``MkNemo.lMole``'       The labels of molecules as specified in mknemo module.
-*> '``MkNemo.lCluster``'    The labels of clusters as specified in mknemo module.
-*> '``MkNemo.lEnergy``'     The labels of energies as specified in mknemo module.
-*>
-*> @param[in] Label Name of field
-*> @param[in] Data  Data to put on runfile
-*> @param[in] nData Length of array
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2003, Per-Olof Widmark                                 *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine put array character data to the runfile.                *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University                                             *
+!          Sweden                                                      *
+! Written: August 2003                                                 *
+!                                                                      *
+!***********************************************************************
+!  Put_cArray
+!
+!> @brief
+!>   Add/update array data in runfile
+!> @author Per-Olof Widmark
+!>
+!> @details
+!> This routine is used to put array data of type
+!> ``Character`` into the runfile. The data items are
+!> identified by the \p label. Below is a list of the
+!> data items that are recognized. The labels are
+!> case insensitive and significant to 16 characters.
+!>
+!> For development purposes you can use an unsupported
+!> label. Whenever such a field is accessed a warning
+!> message is printed in the output, to remind the
+!> developer to update this routine.
+!>
+!> List of known labels:
+!>
+!> '``DFT functional``'     Name of the functional used for the KS-DFT calculation.
+!> '``Irreps``'             Names of the irreducible representations.
+!> '``Relax Method``'       Name of the method used for geometry optimizations.
+!> '``Seward Title``'       The title of the calculation as specified in module SEWARD.
+!> '``Slapaf Info 3``'      Misc. information for module SLAPAF.
+!> '``Unique Atom Names``'  List of the names of the symmetry unique atoms.
+!> '``Unique Basis Names``' List of the basis function names.
+!> '``MkNemo.lMole``'       The labels of molecules as specified in mknemo module.
+!> '``MkNemo.lCluster``'    The labels of clusters as specified in mknemo module.
+!> '``MkNemo.lEnergy``'     The labels of energies as specified in mknemo module.
+!>
+!> @param[in] Label Name of field
+!> @param[in] Data  Data to put on runfile
+!> @param[in] nData Length of array
+!***********************************************************************
       Subroutine Put_cArray(Label,Data,nData)
       Implicit None
 #include "pg_ca_info.fh"
-*----------------------------------------------------------------------*
-* Arguments                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Arguments                                                            *
+!----------------------------------------------------------------------*
       Character*(*) Label
       Character*16  myLabel
       Integer       nData
       Character*(*) Data
-cvv      Character*(*) Data(nData)
-*----------------------------------------------------------------------*
-* Define local variables                                               *
-*----------------------------------------------------------------------*
+!vv      Character*(*) Data(nData)
+!----------------------------------------------------------------------*
+! Define local variables                                               *
+!----------------------------------------------------------------------*
       Character*16 RecLab(nTocCA)
       Integer      RecIdx(nTocCA)
       Integer      RecLen(nTocCA)
       Save         RecLab
       Save         RecIdx
       Save         RecLen
-*
+!
       Character*16 CmpLab1
       Character*16 CmpLab2
       Integer      nTmp
       Integer      item
       Integer      iTmp
       Integer      i, ilen
-*----------------------------------------------------------------------*
-* Do setup if this is the first call.                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Do setup if this is the first call.                                  *
+!----------------------------------------------------------------------*
       myLabel=' '
       ilen=len(Label)
       ilen=min(ilen,16)
@@ -98,10 +98,10 @@ cvv      Character*(*) Data(nData)
             RecIdx(i)=sNotUsed
             RecLen(i)=0
          End Do
-*
-*        Observe that label is at most 16 characters!
-*
-*                     1234567890123456
+!
+!        Observe that label is at most 16 characters!
+!
+!                     1234567890123456
          RecLab(  1)='DFT functional  '
          RecLab(  2)='Irreps          '
          RecLab(  3)='Relax Method    '
@@ -131,7 +131,7 @@ cvv      Character*(*) Data(nData)
          RecLab( 27)='SewardXTitle    '
          RecLab( 28)='Align_Weights   '
          RecLab( 29)='Quad_c          '
-*                     1234567890123456
+!                     1234567890123456
          Call cWrRun('cArray labels',RecLab,16*nTocCA)
          Call iWrRun('cArray indices',RecIdx,nTocCA)
          Call iWrRun('cArray lengths',RecLen,nTocCA)
@@ -140,9 +140,9 @@ cvv      Character*(*) Data(nData)
          Call iRdRun('cArray indices',RecIdx,nTocCA)
          Call iRdRun('cArray lengths',RecLen,nTocCA)
       End If
-*----------------------------------------------------------------------*
-* Locate item                                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Locate item                                                          *
+!----------------------------------------------------------------------*
       item=-1
       CmpLab1=myLabel
       Call UpCase(CmpLab1)
@@ -151,9 +151,9 @@ cvv      Character*(*) Data(nData)
          Call UpCase(CmpLab2)
          If(CmpLab1.eq.CmpLab2) item=i
       End Do
-*
-* Do we create a new temporary field?
-*
+!
+! Do we create a new temporary field?
+!
       If(item.eq.-1) Then
          Do i=1,nTocCA
             If(RecLab(i).eq.' ') item=i
@@ -165,9 +165,9 @@ cvv      Character*(*) Data(nData)
             Call iWrRun('cArray indices',RecIdx,nTocCA)
          End If
       End If
-*
-* Is this a temporary field?
-*
+!
+! Is this a temporary field?
+!
       If(item.ne.-1) Then
          If(Recidx(item).eq.sSpecialField) Then
             Write(6,*) '***'
@@ -179,9 +179,9 @@ cvv      Character*(*) Data(nData)
 #endif
          End If
       End If
-*----------------------------------------------------------------------*
-* Write data to disk.                                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Write data to disk.                                                  *
+!----------------------------------------------------------------------*
       If(item.eq.-1) Then
          Call SysAbendMsg('put_cArray','Could not locate',myLabel)
       End If
@@ -194,8 +194,8 @@ cvv      Character*(*) Data(nData)
          RecLen(item)=nData
          Call iWrRun('cArray lengths',RecLen,nTocCA)
       End If
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
       End
