@@ -115,50 +115,6 @@
             nOrbmF = nOrb(iSym)-nFro(iSym)
 *
             If (nOrb(iSym).gt.0) Then
-*define _ALTERNATIVE_CODE_
-#ifdef _ALTERNATIVE_CODE_
-*
-*              This is an alternative section to compute the gradients.
-*              In this section you have an early difference followed
-*              by a late purification to guarantee G is stricktly
-*              anti-symmetric.
-*
-*              Observations so far is only minute changes on very small
-*              gradients.
-*
-*----------    Square Fock matrix
-               Call Square(FckM(ij,iD),Aux1,1,nBs,nBs)
-*----------    Square density matrix
-               Call DSq(D(ij,iD),Aux2,1,nBs,nBs)
-*----------    Perform FD
-               Call DGEMM_('N','N',
-     &                     nBs,nBs,nBs,
-     &                     1.0D0,Aux1,nBs,
-     &                           Aux2,nBs,
-     &                     0.0D0,Aux3,nBs)
-*----------    Square overlap matrix and perform FDS
-               Call Square(S(ij),Aux1,1,nBs,nBs)
-               Call DGEMM_('N','N',
-     &                     nBs,nBs,nBs,
-     &                     1.0D0,Aux3,nBs,
-     &                           Aux1,nBs,
-     &                     0.0D0,Aux2,nBs)
-*----------    Form FDS-SDF
-               Call Asym(Aux2,Aux3,nBs)
-*----------    Perform C(T)(FDS-SDF)
-               Call DGEMM_('T','N',
-     &                     nOr,nBs,nBs,
-     &                     1.0d0,C(it,iD),nBs,
-     &                           Aux3,nBs,
-     &                     0.0d0,Aux1,nOr)
-*----------    Perform C(T)(FDS-SDF)C
-               Call DGEMM_('N','N',
-     &                     nOr,nOr,nBs,
-     &                     1.0d0,Aux1,nOr,
-     &                           C(it,iD),nBs,
-     &                     0.0d0,G(ig,iD),nOr)
-               Call Purify(G(ig,iD),nOr)
-#else
 *
 *----------    Square Fock matrix and perform C(T)F
                Call Square(FckM(ij,iD),Aux2,1,nBs,nBs)
@@ -191,7 +147,6 @@
      &                     0.0d0,Aux2,nOr)
 *
                Call Asym(Aux2,G(ig,iD),nOr)
-#endif
 *
 *              At this point enforce that the gradient is exactly zero
 *              for elements corresponding to orbitals of different
@@ -296,18 +251,3 @@
 *
       Return
       End
-#ifdef _NEW_CODE_
-      Subroutine Purify(A,n)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 A(n,n)
-*
-      Do i = 1, n
-         Do j = 1, n
-            tmp = A(i,j) - A(j,i)
-            A(i,j) = 0.5D0*tmp
-            A(j,i) = -A(i,j)
-         End Do
-      End Do
-      Return
-      End
-#endif
