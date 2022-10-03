@@ -553,10 +553,6 @@
 !              and store it on appropriate LList
                Call PutVec(Xn,mOV,iter,'NOOP',LLx)
                Call mma_deallocate(Xn)
-*
-*---           compute initial diagonal Hessian, Hdiag
-*
-               Call SOIniH(Set_H)
                AccCon(8:8)='H'
             Else
                AccCon(8:8)=' '
@@ -577,9 +573,11 @@
             Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
      &                  EOrb,nnO,Ovrlp,nD)
 *
-*---        update QNR iteration counter
+*---        compute initial diagonal Hessian, Hdiag
 *
-            iterso=iterso+1
+            Call SOIniH(Set_H)
+
+            iterso=iterso+1    ! update the QNR iteration counter
 
 *           Allocate memory for the current gradient and
 *           displacement vector.
