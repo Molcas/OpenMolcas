@@ -13,7 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               1995,1996, Martin Schuetz                              *
 *               2003, Valera Veryazov                                  *
-*               2016,2017, Roland Lindh                                *
+*               2016,2017,2022, Roland Lindh                           *
 ************************************************************************
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
       use SCF_Arrays
@@ -122,7 +122,7 @@
 
 *---  Define local variables
       Real*8 ::  StepMax=0.100D0
-      Logical QNR1st,FstItr
+      Logical :: QNR1st, FstItr, Set_H, FrstDs
       Logical :: Converged=.False.
       Character Meth*(*), Meth_*10
       Character*72 Note
@@ -136,6 +136,7 @@
       Dimension Dummy(1),iDummy(7,8)
       External DNRM2_
       Integer iSym
+      Logical Do_All
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -169,6 +170,8 @@
 *
       iOpt=0
       QNR1st=.TRUE.
+      Set_H=.TRUE.
+      FrstDs=.TRUE.
 *
 *     START INITIALIZATION
 *
@@ -553,7 +556,7 @@
 *
 *---           compute initial diagonal Hessian, Hdiag
 *
-               Call SOIniH()
+               Call SOIniH(Set_H)
                AccCon(8:8)='H'
             Else
                AccCon(8:8)=' '

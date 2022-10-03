@@ -11,9 +11,9 @@
 * Copyright (C) 1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
-*               2017, 2022, Roland Lindh                               *
+*               2017,2022, Roland Lindh                                *
 ************************************************************************
-      SubRoutine SOiniH()
+      SubRoutine SOiniH(Set_H)
 ************************************************************************
 *                                                                      *
 *     purpose: generate initial Hessian (diagonal) from                *
@@ -36,6 +36,7 @@
       use SCF_Arrays, only: EOrb, HDiag
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
+      Logical Set_H
 *
 *     declaration local variables
       Integer nD
@@ -49,6 +50,9 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
+      If (.Not.Set_H) Return
+      Set_H = .False.
+
       nD   =Size(EOrb,2)
       HDiag(:)=1.0D+99
 *

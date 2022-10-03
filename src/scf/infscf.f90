@@ -218,7 +218,6 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
 !----------------------------------------------------------------------*
 ! Allocate logical variables                                       *
 !----------------------------------------------------------------------*
-! FrstDs     - T   = Optimization by Diis is done for the first time   *
 ! DSCF       - T   = Perform direct SCF (see Subroutine OpnFls)        *
 ! DoCholesky - T   = Perform Cholesky SCF                              *
 ! DoLDF      - T   = Use Local DF fitting coefficients to construct    *
@@ -251,8 +250,7 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
 ! Falcon     - T   = Fock matrix is stored in Runfile                  *
 ! RSRFO      - F   = Use RS-RFO instead of DIIS extrapolation          *
 !----------------------------------------------------------------------*
-Logical FrstDs,DSCF,lRel,                                               &
-        PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,Teee,            &
+Logical DSCF,lRel,PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,Teee,  &
         Damping,Diis,One_Grid,DoCholesky,DDnOFF,Two_Thresholds,         &
         PmTime,EmConv,WarnCfg,DoHLgap,AddFragments,WarnPocc,            &
         DoFMM,LKon,OnlyProp,DoLDF,NoExchange,WarnSlow,NoProp,           &
