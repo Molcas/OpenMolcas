@@ -44,8 +44,7 @@
       Use InfSCF, only: iDisk, iter, iter0, iter_Ref, kOV, mOV, nBO,
      &                  nBT, nOO, MapDns
       use LnkLst, only: LLGrad
-      use SCF_Arrays, Only: Dens, TwoHam, Vxc, OneHam, CMO, CMO_Ref,
-     &                      Ovrlp
+      use SCF_Arrays, Only: Dens, TwoHam, Vxc, OneHam, CMO_Ref,Ovrlp
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
@@ -78,7 +77,6 @@
       If (Do_All) Then
          LpStrt = iter_ref
          LpEnd  = iter
-         CMO_Ref(:,:)=CMO(:,:)
          Do_All=.False.
       Else
          LpStrt = iter
