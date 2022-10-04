@@ -151,5 +151,5 @@
       CHARACTER(500)   diceocc(20)
       Common /DICE/    dice_eps1,dice_eps2,                             &
      &                 nref_dice,dice_sampleN,dice_iter,                &
-     &                 dice_stoc,dice_restart,diceocc                   &
+     &                 dice_stoc,dice_restart,diceocc
 #endif
