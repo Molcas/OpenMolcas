@@ -162,6 +162,7 @@ Real*8 E1,E2,EKin,PotNuc,EneV,E1V,E2V,EKinV,                      &
 Integer, Parameter :: nStOpt = 8
 Integer :: kOptim_Max=5
 Integer :: Iter_Start=1
+Integer :: Iter_Ref  =1
 
 Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
         nFro(MxSym),nFrz(MxSym),nDel(MxSym),nSym,nAufb(2),              &
@@ -174,7 +175,7 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
         MaxOrO,nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,      &
         nOFT,nDisc,nCore,iPrForm,MaxFlip,iterprlv,                      &
         UHF_Size,nSkip(MxSym),iAu_ab,LstVec(nStOpt),                    &
-        iDummy_run, iTer2run, iter_ref
+        iDummy_run, Iter2run
 
       Character(LEN=LENIN8), Allocatable::  Name(:)
       Character(LEN=LENIN ), Allocatable::  Atom(:)

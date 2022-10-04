@@ -13,7 +13,7 @@
 *
       Subroutine dGrd()
       use LnkLst, only: SCF_V, LLGrad, LLdGrd
-      use InfSCF, only: iter, iter_ref, mOV
+      use InfSCF, only: iter, Iter_Start, mOV
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
@@ -24,7 +24,9 @@
 
       Call mma_allocate(Scr,mOV,Label='Scr')
 
-      Do i = iter_ref+1, iter
+!     Loop over all iterations starting at Iter_Start+1
+
+      Do i = Iter_Start+1, iter
 
 !        dg(i-1)=g(i)-g(i-1)
 

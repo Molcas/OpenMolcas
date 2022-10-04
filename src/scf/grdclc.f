@@ -41,7 +41,7 @@
 *                                                                      *
 ************************************************************************
       Use Interfaces_SCF, Only: vOO2OV
-      Use InfSCF, only: iDisk, iter, iter0, iter_Ref, kOV, mOV, nBO,
+      Use InfSCF, only: iDisk, Iter, Iter0, Iter_Start, kOV, mOV, nBO,
      &                  nBT, nOO, MapDns
       use LnkLst, only: LLGrad
       use SCF_Arrays, Only: Dens, TwoHam, Vxc, OneHam, CMO_Ref,Ovrlp
@@ -55,7 +55,7 @@
 ! Local variables
       Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
-      Integer nD, iDT, iOpt, iter_d, jDT, LpStrt, LpEnd
+      Integer nD, iDT, iOpt, Iter_d, jDT, LpStrt, LpEnd
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -75,17 +75,17 @@
 
 *--- Find the beginning of the loop
       If (Do_All) Then
-         LpStrt = iter_ref
-         LpEnd  = iter
+         LpStrt = Iter_Start
+         LpEnd  = Iter
          Do_All=.False.
       Else
-         LpStrt = iter
-         LpEnd  = iter
+         LpStrt = Iter
+         LpEnd  = Iter
       End If
 
 *--- Compute all gradients / last gradient
 *
-      iter_d=iter-iter0
+      Iter_d=Iter-Iter0
       Do iOpt = LpStrt, LpEnd
          iDT = iter_d - LpEnd + iOpt
 *

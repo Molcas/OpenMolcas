@@ -505,7 +505,8 @@
 *           Fock matrix.
 *
             If (FrstDs) Then
-               iter_ref=1
+               Iter_Ref=1
+               Iter_Start=1
                CMO_Ref(:,:)=CMO(:,:)
             End If
             Call GrdClc(FrstDs)
@@ -560,13 +561,19 @@
 *           Initiate if the first QNR step
 *
             If (QNR1st) Then
-               iter_Ref = iter
-               CMO_Ref(:,:)=CMO(:,:)
+
 !------        1st QNR step, reset kOptim to 1
 
                kOptim = 1
                CInter(1,1) = One
                CInter(1,nD) = One
+
+               Iter_Start=Iter
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!  Set the reference set of parameters and the correspoding CMOs
+               Iter_Ref = Iter
+               CMO_Ref(:,:)=CMO(:,:)
 
 !              init 1st orb rot parameter X1 (set it to zero)
                Call mma_allocate(Xn,mOV,Label='Xn')
@@ -574,13 +581,32 @@
 !              and store it on appropriate LList
                Call PutVec(Xn,mOV,iter,'NOOP',LLx)
                Call mma_deallocate(Xn)
+
+! This code will have to be generalized to have an arbitrary
+! reference which is not the first parameter set (Iter_Start).
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
                AccCon(8:8)='H'
             Else
                AccCon(8:8)=' '
             End If
 
+!           Compute the gradient(s). Note that these gradients depends
+!           CMO_Ref. As we progressively move the reference point along
+!           all the gradients have to be recomputed.
             Call GrdClc(QNR1st)
+
+!           As all gradients have change we have to recompute the list
+!           of gradients differences.
             Call dGrd()
+
+!           We have to update the parameter sets so that the reference
+!           set is assigned X=0
+!           Call XClc()
+
+!           As the reference point slides we have to update the
+!           differences of the parameter set between the iterations.
+!           Call dX()
 *
 *---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
 *           AO basis
