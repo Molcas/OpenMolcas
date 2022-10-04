@@ -17,18 +17,12 @@
 *     purpose: Transform Fock Matrix to get Orbital energies           *
 *                                                                      *
 *     input:                                                           *
-*       CMO     : orthonormal vectors from previous iteration of       *
-*                 length nCMO                                          *
 *       canorb  : Boolean: TRUE, if canonical orbs are desired,        *
 *                          FALSE otherwise                             *
 *                                                                      *
 *     output:                                                          *
 *       FOVMax  : Max Element of occ/virt block in Fock Matrix,        *
 *                 transformed into MO basis                            *
-*       CMO     : canonical orthonormal vectors in last iteration      *
-*                 (only if canorb was set to TRUE)                     *
-*       EOrb    : orbital energies of length nEOrb                     *
-*                 (only if canorb was set to TRUE)                     *
 *                                                                      *
 *     called from: WfCtl                                               *
 *                                                                      *
@@ -54,7 +48,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
 *
-      Integer nFock,nCMO,nEOrb, nD
+      Integer nD
       Real*8 FOVMax
       Logical CanOrb
 *
@@ -71,14 +65,11 @@
       Integer, External:: iDaMax_
       Real*8, External:: DDot_
 *
-      nFock=Size(Fock,1)
       nD   =Size(Fock,2)
-      nCMO =Size(CMO,1)
-      nEOrb=Size(EOrb,1)
 
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Fock,nFock*nD,'TraFck','Fock')
+      Call NrmClc(Fock,SIZE(Fock),'TraFck','Fock')
 #endif
 *---- allocate memory for modified Fock matrix
       Call mma_allocate(FckM,nBT,Label='FckM')
@@ -207,7 +198,7 @@
 ************************************************************************
 *                                                                      *
       Subroutine Mk_CanOrb()
-      Integer :: ii, ia
+      Integer :: ii, ia, i, j, Occ, jOcc
 *                                                                      *
 ************************************************************************
 *                                                                      *
