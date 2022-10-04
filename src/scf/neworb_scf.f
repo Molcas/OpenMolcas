@@ -47,6 +47,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+*#define _DEBUGPRINT_
       use SpinAV, only: Do_SpinAV
       use InfSCF
       Implicit Real*8 (a-h,o-z)
@@ -71,12 +72,6 @@
 ************************************************************************
 *                                                                      *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _SPECIAL_DEBUGPRINT_
-#ifdef _SPECIAL_DEBUGPRINT_
-      Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'NewOrb: CMO old')
-#endif
-
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call NrmClc(Fock,nFock*nD,'NewOrb','Fock')
 #endif
@@ -150,15 +145,15 @@
      &                           HlfF,nBas(iSym),
      &                       Zero,TraF,nOccmF)
 #ifdef _DEBUGPRINT_
-*             Call Triprt('Occupied Fock matrix in MO basis',
-*    &                    '(20F10.4)',TraF,nOccmF)
+              Call Triprt('Occupied Fock matrix in MO basis',
+     &                    '(20F10.4)',TraF,nOccmF)
 #endif
               nOccmF=nOccmF-nConstr(iSym)
               Call NIdiag(TraF,CMO(iCMO,iD),nOccmF,nBas(iSym))
               nOccmF=nOccmF+nConstr(iSym)
 #ifdef _DEBUGPRINT_
-*             Call Triprt('Occupied Fock matrix in MO basis',
-*    &                    '(20F10.4)',TraF,nOccmF)
+              Call Triprt('Occupied Fock matrix in MO basis',
+     &                    '(20F10.4)',TraF,nOccmF)
 #endif
               Do iBas = 1,nOccmF
                  ind=iBas*(iBas+1)/2
@@ -184,13 +179,13 @@
      &                          HlfF,nBas(iSym),
      &                      Zero,TraF,nVrt)
 #ifdef _DEBUGPRINT_
-*             Call Triprt('Virtual Fock matrix in MO basis',
-*    &                    '(20F10.4)',TraF,nVrt)
+              Call Triprt('Virtual Fock matrix in MO basis',
+     &                    '(20F10.4)',TraF,nVrt)
 #endif
               Call NIdiag(TraF,CMO(iCMO,iD),nVrt,nBas(iSym))
 #ifdef _DEBUGPRINT_
-*             Call Triprt('Virtual Fock matrix in MO basis',
-*    &                    '(20F10.4)',TraF,nVrt)
+              Call Triprt('Virtual Fock matrix in MO basis',
+     &                    '(20F10.4)',TraF,nVrt)
 #endif
               Do iBas = 1,nVrt
                  ind=iBas*(iBas+1)/2
@@ -206,14 +201,18 @@
            jEOr = jEOr + nVrt
            ij   = ij   + iiBT
          End Do
-C        Write(6,'(a,F12.6)') 'E(homo)   ',Ehomo
-C        Write(6,'(a,F12.6)') 'E(lumo)   ',Elumo
-C        Write(6,'(a,F12.6)') 'E(gap)    ',Elumo-Ehomo
+#ifdef _DEBUGPRINT_
+         Write(6,'(a,F12.6)') 'E(homo)   ',Ehomo
+         Write(6,'(a,F12.6)') 'E(lumo)   ',Elumo
+         Write(6,'(a,F12.6)') 'E(gap)    ',Elumo-Ehomo
+#endif
          WarnCfg=Elumo-Ehomo.lt.0.0d0.or.WarnCfg
          If(Elumo-Ehomo.lt.HLgap) Then
             iAddGap=1
             GapAdd=HLgap-Elumo+Ehomo
-C           Write(6,'(a,F12.6)') 'E(add)    ',GapAdd
+#ifdef _DEBUGPRINT_
+            Write(6,'(a,F12.6)') 'E(add)    ',GapAdd
+#endif
          End If
       End If
 *---- Diagonalize Fock matrix in non-frozen molecular basis
@@ -241,8 +240,6 @@ C           Write(6,'(a,F12.6)') 'E(add)    ',GapAdd
      &                    One,CMO(iCMO,iD),nBas(iSym),
      &                        HlfF,nBas(iSym),
      &                    Zero,TraF,nOrbmF)
-c             Call Triprt('Case3 Fock matrix in MO basis',
-c    &                    '(20F10.4)',TraF,nOrbmF)
 *
 *--------- Constrained SCF section begins --------------
            kConstr=1
@@ -301,8 +298,6 @@ c400       Continue
            End If
 *
 *--------- Modify Fock matrix to enhance convergence
-c          Call Triprt('Fock matrix in MO basis before modification',
-c    &                 '(20F10.4)',TraF,nOrbmF)
 *
 *--- Add to homo lumo gap
 *
@@ -392,8 +387,8 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
 *
 *
 #ifdef _DEBUGPRINT_
-*          Call Triprt('Fock matrix in MO basis after modification',
-*    &                 '(10F10.4)',TraF,nOrbmF)
+           Call Triprt('Fock matrix in MO basis after modification',
+     &                 '(10F10.4)',TraF,nOrbmF)
 #endif
 
 *
@@ -422,9 +417,6 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
             Call NrmClc(Fcks,nbas(iSym)*nOrb(iSym),'NewOrb','Old CMOs')
             Call NrmClc(CMO(iCMO,iD),nbas(iSym)*nOrb(iSym),
      &                  'NewOrb','New CMOs')
-*           Call RecPrt('Old CMOs',' ',FckS,nBas(iSym),nOrb(iSym))
-*           Call RecPrt('New CMOs',' ',CMO(iCMO,iD),nBas(iSym),
-*    &                                              nOrb(iSym))
 #endif
 *                                                                      *
 ************************************************************************
@@ -554,8 +546,6 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
 #ifdef _DEBUGPRINT_
             Call NrmClc(CMO(iCMO,iD),nbas(iSym)*nOrb(iSym),
      &                  'NewOrb','New CMOs')
-*           Call RecPrt('New CMOs',' ',CMO(iCMO,iD),nBas(iSym),
-*    &                                              nOrb(iSym))
 #endif
  120        Continue
 *                                                                      *
@@ -620,21 +610,18 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
       End If
       If (MxConstr.gt.0) Call mma_deallocate(eConstr)
 *
-#ifdef _SPECIAL_DEBUGPRINT_
-      Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'NewOrb: CMO new')
-#endif
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-*     Do iD = 1, nD
-*        iOff=1
-*        jOff=1
-*        Do iSym = 1, nSym
-*           Call RecPrt('CMO',' ',CMO(jOff,iD),
-*    &                  nBas(iSym),nOrb(iSym))
-*           iOff = iOff + nOrb(iSym)
-*           jOff = jOff + nBas(iSym)*nOrb(iSym)
-*        End Do
-*     End Do
+      Do iD = 1, nD
+         iOff=1
+         jOff=1
+         Do iSym = 1, nSym
+            Call RecPrt('CMO',' ',CMO(jOff,iD),
+     &                  nBas(iSym),nOrb(iSym))
+            iOff = iOff + nOrb(iSym)
+            jOff = jOff + nBas(iSym)*nOrb(iSym)
+         End Do
+      End Do
+      Call RecPrt('NewOrb_scf: EOr',' ',EOrb,1,Size(EOrb))
 #endif
 
       Call Timing(Cpu2,Tim1,Tim2,Tim3)

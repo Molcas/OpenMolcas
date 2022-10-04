@@ -115,7 +115,7 @@
                      indF=indF+1
                   End Do
                End Do
-               Eorb(indE)=t
+               EOrb(indE)=t
                indE=indE+1
             End Do
          End If
@@ -125,14 +125,16 @@
 *----------------------------------------------------------------------*
 * Debug print                                                          *
 *----------------------------------------------------------------------*
-*     indE=1
-*     Do iSym=1,nSym
-*        If(nOrb(iSym).gt.0) Then
-*           Call RecPrt('mkeor: Orbital energies','(20F10.4)',
-*    &                  Eorb(indE),1,nOrb(iSym))
-*        End If
-*        indE=indE+nOrb(iSym)
-*     End Do
+#ifdef _DEBUGPRINT_
+      indE=1
+      Do iSym=1,nSym
+         If(nOrb(iSym).gt.0) Then
+            Call RecPrt('mkeor: Orbital energies','(20F10.4)',
+     &                  Eorb(indE),1,nOrb(iSym))
+         End If
+         indE=indE+nOrb(iSym)
+      End Do
+#endif
 *----------------------------------------------------------------------*
 * Deallocate matrices.                                                 *
 *----------------------------------------------------------------------*

@@ -455,8 +455,7 @@
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,nIter(nIterP),
-     &                  nD)
+            Call UpdFck(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             ScramNeworb=Scrmbl.and.iter.eq.1
@@ -496,8 +495,7 @@
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,nIter(nIterP),
-     &                  nD)
+            Call UpdFck(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             ScramNeworb=Scrmbl.and.iter.eq.1
@@ -558,14 +556,12 @@
             End If
 
             Call GrdClc(QNR1st)
-*
             Call dGrd()
 *
 *---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
 *           AO basis
 *
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,
-     &                  nIter(nIterP),nD)
+            Call UpdFck(nIter(nIterP))
 *
 *---        and transform the Fock matrix into the new MO space,
 *

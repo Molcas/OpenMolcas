@@ -10,17 +10,10 @@
 *                                                                      *
 * Copyright (C) 1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine UpdFck(OneHam,TwoHam,Vxc,nDT,NumDT,Fock,niter_,nD)
+      SubRoutine UpdFck(nIter_)
 ************************************************************************
 *                                                                      *
 *     purpose: Update Fock matrix from actual OneHam & TwoHam matrices *
-*                                                                      *
-*     input:                                                           *
-*       OneHam  : one-electron hamiltonian of length nDT               *
-*       TwoHam  : a few last two-electron hamiltonians (nDT,NumDT)     *
-*                                                                      *
-*     output:                                                          *
-*       Fock    : Fock matrix of length nFO (= OneHam+Optimal TwoHam)  *
 *                                                                      *
 *     called from: WfCtl                                               *
 *                                                                      *
@@ -35,15 +28,19 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
+      Use SCF_Arrays, only: OneHam, TwoHam, Vxc, Fock
+      Implicit None
 #include "real.fh"
 #include "mxdm.fh"
 *
-      Integer nDT,NumDT
-      Real*8 OneHam(nDT),TwoHam(nDT,nD,NumDT),Vxc(nDT,nD,NumDT),
-     &       Fock(nDT,nD)
+      Integer nIter_
+
+      Integer nD,nDT,NumDT,iD,i2Hm
 *
-*
+      NumDT=Size(TwoHam,3)
+      nDT  =Size(Fock,1)
+      nD   =Size(Fock,2)
+
       i2Hm=NumDT
       If (nIter_.eq.1) i2Hm=1
 #ifdef _DEBUGPRINT_

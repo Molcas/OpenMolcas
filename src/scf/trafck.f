@@ -59,8 +59,8 @@
       Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3
       Real*8 Tmp, Tmp0, Tmp1
       Integer ioFckM,iCMO,jEOr,iptr,iptr2,nOrbmF,nOccmF,
-     &        nVrt,ia, iD, iSym, i, iDiag, iDum, iErr, iiCMO,
-     &        iiEigV, iiScratch, iOcc, iOff, j, jjEOr, jOcc, kk,
+     &        nVrt,ia, iD, iSym, iDiag, iDum, iErr, iiCMO,
+     &        iiEigV, iiScratch, iOff, jjEOr, kk,
      &        kOcc, kOff, n2Sort, n2Zero, nFound
       Integer, External:: iDaMax_
       Real*8, External:: DDot_
@@ -198,7 +198,7 @@
 ************************************************************************
 *                                                                      *
       Subroutine Mk_CanOrb()
-      Integer :: ii, ia, i, j, Occ, jOcc
+      Integer :: ii, ia, i, j, iOcc, jOcc
 *                                                                      *
 ************************************************************************
 *                                                                      *
