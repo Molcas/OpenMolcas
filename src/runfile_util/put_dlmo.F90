@@ -11,10 +11,12 @@
 
 subroutine Put_DLMO(DLMO,nDLMO)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 DLMO(nDLMO)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDLMO
+real(kind=wp) :: DLMO(nDLMO)
+character(len=24) :: Label
 
 Label = 'DLMO'
 call Put_dArray(Label,DLMO,nDLMO)

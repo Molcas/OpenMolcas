@@ -44,10 +44,12 @@
 !>
 !> - '``Multiplicity``'               The spin multiplicity of the last SCF or RASSCF calculation.
 !> - '``nMEP``'                       Number of points on the minimum energy path.
-!> - '``No of Internal coordinates``' The number of internal coordinates for the molecule that is allowed within the given point group.
+!> - '``No of Internal coordinates``' The number of internal coordinates for the molecule that is allowed within the given point
+!>                                    group.
 !> - '``nSym``'                       The number of irreducible representations of the molecule.
 !> - '``PCM info length``'            Length of the block containing misc. info for the PCM model.
-!> - '``Relax CASSCF root``'          Signals which root to perform geometry optimization for in a state average CASSCF geometry optimization.
+!> - '``Relax CASSCF root``'          Signals which root to perform geometry optimization for in a state average CASSCF geometry
+!>                                    optimization.
 !> - '``SA ready``'                   Signals that SA wavefunction is ready for gradient calculations.
 !> - '``System BitSwitch``'           A bit switch controlling various functions. Will be replaced!
 !> - '``Unique atoms``'
@@ -61,37 +63,20 @@
 !> - '``Seed``'                       The seed number for random number generator used in surface hoping.
 !>
 !> @param[in] Label Name of field
-!> @param[in] Data  Data to put on runfile
+!> @param[in] iData Data to put on runfile
 !***********************************************************************
 
-subroutine Put_iScalar(Label,data)
+subroutine Put_iScalar(Label,iData)
+
+use Definitions, only: iwp, u6
 
 implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: iData
 #include "pg_is_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-integer data
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-integer RecVal(nTocIS)
-character*16 RecLab(nTocIS)
-integer RecIdx(nTocIS)
-save RecVal
-save RecLab
-save RecIdx
-character*16 CmpLab1
-character*16 CmpLab2
-integer nData
-integer item
-integer iTmp
-integer i
+integer(kind=iwp) :: i, item, iTmp, nData, RecIdx(nTocIS) = 0, RecVal(nTocIS) = 0
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocIS) = ''
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Do setup if this is the first call.                                  *
 !----------------------------------------------------------------------*
@@ -228,10 +213,10 @@ end if
 
 if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, writing temporary iScalar field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, writing temporary iScalar field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif
@@ -241,7 +226,7 @@ end if
 ! Write data to disk.                                                  *
 !----------------------------------------------------------------------*
 if (item == -1) call SysAbendMsg('put_iScalar','Could not locate',Label)
-RecVal(item) = data
+RecVal(item) = iData
 call iWrRun('iScalar values',RecVal,nTocIS)
 if (RecIdx(item) == 0) then
   RecIdx(item) = sRegularField
@@ -252,7 +237,7 @@ end if
 !----------------------------------------------------------------------*
 do i=1,num_IS_init
   if (iLbl_IS_inmem(i) == CmpLab1) then
-    i_IS_inmem(i) = data
+    i_IS_inmem(i) = iData
     IS_init(i) = 1
     return
   end if

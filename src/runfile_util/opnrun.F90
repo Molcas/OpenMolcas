@@ -24,25 +24,15 @@
 
 subroutine OpnRun(iRc,Lu,iOpt)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iRc, Lu, iOpt
 #include "runinfo.fh"
-#include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer iRc
-integer Lu
-integer iOpt
-!----------------------------------------------------------------------*
-! Declare local data                                                   *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-integer iDisk
-logical ok
-!----------------------------------------------------------------------*
-! Declare external entry points                                        *
-!----------------------------------------------------------------------*
-integer isFreeUnit
-external isFreeUnit
+integer(kind=iwp) :: iDisk
+logical(kind=iwp) :: ok
+character(len=64) :: ErrMsg
+integer(kind=iwp), external :: isFreeUnit
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *

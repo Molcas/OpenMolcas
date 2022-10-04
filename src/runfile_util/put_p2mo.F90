@@ -11,10 +11,12 @@
 
 subroutine Put_P2MO(P2MO,nP2MO)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 P2MO(nP2MO)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nP2MO
+real(kind=wp) :: P2MO(nP2MO)
+character(len=24) :: Label
 
 Label = 'P2MO'
 call Put_dArray(Label,P2MO,nP2MO)

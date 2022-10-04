@@ -11,11 +11,14 @@
 
 subroutine Get_PC_Coord_New(Coord,nData)
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-character*24 Label
-logical Found
-real*8, dimension(:), allocatable :: Coord
+use stdalloc, only: mma_allocate
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), allocatable :: Coord(:)
+integer(kind=iwp) :: nData
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'GeoNewPC'
 call qpg_dArray(Label,Found,nData)

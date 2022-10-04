@@ -23,33 +23,25 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine ixWrRun(iRc,Label,data,nData,iOpt)
+subroutine ixWrRun(iRc,Label,iData,nData,iOpt)
 
-#include "runinfo.fh"
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iRc, iData(*), nData, iOpt
+character(len=*) :: Label
 #include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer iRc
-character*(*) Label
-integer data(*)
-integer nData
-integer iOpt
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
-character*64 Errmsg
+character(len=64) :: Errmsg
 
-call ixWrRun_Internal(data)
+call ixWrRun_Internal(iData)
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine ixWrRun_Internal(data)
+subroutine ixWrRun_Internal(iData)
 
-  use iso_c_binding
-
-  integer, target :: data(*)
+  integer(kind=iwp), target :: iData(*)
   character, pointer :: cData(:)
 
   !--------------------------------------------------------------------*
@@ -63,7 +55,7 @@ subroutine ixWrRun_Internal(data)
   !--------------------------------------------------------------------*
   ! Call generic writing routine.                                      *
   !--------------------------------------------------------------------*
-  call c_f_pointer(c_loc(data(1)),cData,[1])
+  call c_f_pointer(c_loc(iData(1)),cData,[1])
   call gxWrRun(iRc,Label,cData,nData,iOpt,TypInt)
   nullify(cData)
   !--------------------------------------------------------------------*

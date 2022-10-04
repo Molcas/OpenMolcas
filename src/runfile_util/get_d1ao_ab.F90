@@ -11,11 +11,13 @@
 
 subroutine Get_D1ao_ab(ipD1ao,nDens)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ipD1ao, nDens
 #include "WrkSpc.fh"
-#include "SysDef.fh"
-character*24 Label
-logical Found
+character(len=24) :: Label
+logical(kind=iwp) :: Found
 
 ! Read the variational 1st order density matrix
 ! density matrix in AO/SO basis

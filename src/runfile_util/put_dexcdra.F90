@@ -11,10 +11,12 @@
 
 subroutine Put_dExcdRa(dExcdRa,ndExcdRa)
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
-real*8 dExcdRa(ndExcdRa)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ndExcdRa
+real(kind=wp) :: dExcdRa(ndExcdRa)
+character(len=24) :: Label
 
 Label = 'dExcdRa'
 call Put_dArray(Label,dExcdRa,ndExcdRa)

@@ -11,10 +11,13 @@
 
 subroutine Put_Grad(Grad,nGrad)
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
-real*8 Grad(nGrad)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp) :: iGO
+character(len=24) :: Label
 
 Label = 'GRAD'
 call Put_dArray(Label,Grad,nGrad)

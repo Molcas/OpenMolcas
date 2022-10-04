@@ -25,11 +25,14 @@
 
 subroutine Put_AnalHess(AnalHess,nAnalHess)
 
-implicit real*8(a-h,o-z)
-real*8 AnalHess(nAnalHess)
-character Label*80
-logical Found
-integer iTmp, iSI1(7)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAnalHess
+real(kind=wp) :: AnalHess(nAnalHess)
+integer(kind=iwp) :: inLoop, irderr, iSI1(7), iTmp
+logical(kind=iwp) :: Found
+character(len=88) :: Label
 
 call Put_dArray('Analytic Hessian',AnalHess,nAnalHess)
 

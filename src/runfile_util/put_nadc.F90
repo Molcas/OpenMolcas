@@ -11,11 +11,13 @@
 
 subroutine Put_nadc(colgradmode,Grad,nGrad)
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
-real*8 Grad(nGrad)
-integer colgradmode
-character*24 Label
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: colgradmode, nGrad
+real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp) :: iGo
+character(len=24) :: Label
 
 select case (colgradmode)
   case (0)
@@ -27,7 +29,7 @@ select case (colgradmode)
   case (3)
     Label = 'NADC'
   case default
-    write(6,*) 'put_nadc: invalid colgradmode',colgradmode
+    write(u6,*) 'put_nadc: invalid colgradmode',colgradmode
     call Abend()
 end select
 call Put_dArray(Label,Grad,nGrad)

@@ -9,14 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Put_lScalar(Label,Log)
+subroutine Put_lScalar(Label,Logc)
 
-character*(*) Label
-logical Log
-integer iLog
+use Definitions, only: iwp
+
+implicit none
+character(len=*) Label
+logical(kind=iwp) :: Logc
+integer(kind=iwp) :: iLog
 
 iLog = 0
-if (Log) iLog = 1
+if (Logc) iLog = 1
 
 call Put_iScalar(Label,iLog)
 

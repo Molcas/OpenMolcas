@@ -111,39 +111,22 @@
 !> - '``P2MOT``'                    "Fake" two-body density needed for MC-PDFT gradient calculations
 !>
 !> @param[in] Label Name of field
-!> @param[in] Data  Data to put on runfile
+!> @param[in] rData Data to put on runfile
 !> @param[in] nData Length of array
 !***********************************************************************
 
-subroutine Put_dArray(Label,data,nData)
+subroutine Put_dArray(Label,rData,nData)
+
+use Definitions, only: wp, iwp, u6
 
 implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: nData
+real(kind=wp) :: rData(nData)
 #include "pg_da_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-integer nData
-real*8 data(nData)
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-character*16 RecLab(nTocDA)
-integer RecIdx(nTocDA)
-integer RecLen(nTocDA)
-save RecLab
-save RecIdx
-save RecLen
-character*16 CmpLab1
-character*16 CmpLab2
-integer nTmp
-integer item
-integer iTmp
-integer i
+integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocDA) = 0, RecLen(nTocDA) = 0
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDA) = ''
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Do setup if this is the first call.                                  *
 !----------------------------------------------------------------------*
@@ -409,10 +392,10 @@ end if
 
 if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, writing temporary dArray field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, writing temporary dArray field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif
@@ -422,8 +405,8 @@ end if
 ! Write data to disk.                                                  *
 !----------------------------------------------------------------------*
 if (item == -1) call SysAbendMsg('put_dArray','Could not locate',Label)
-call dWrRun(RecLab(item),data,ndata)
-!write(6,*) Data
+call dWrRun(RecLab(item),rData,nData)
+!write(u6,*) rData
 if (RecIdx(item) == 0) then
   RecIdx(item) = sRegularField
   call iWrRun('dArray indices',RecIdx,nTocDA)

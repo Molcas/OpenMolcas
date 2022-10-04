@@ -11,9 +11,12 @@
 
 subroutine Put_Coord_Full(Coord,nAtoms)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nAtoms, nAtoms_All
-real*8 Coord(3,nAtoms)
+integer(kind=iwp) :: nAtoms
+real(kind=wp) :: Coord(3,nAtoms)
+integer(kind=iwp) :: nAtoms_All
 
 call Get_nAtoms_All(nAtoms_All)
 call Put_Coord_New(Coord,nAtoms_All)

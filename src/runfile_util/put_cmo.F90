@@ -25,11 +25,12 @@
 
 subroutine Put_CMO(CMO,nCMO)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-real*8 CMO(nCMO)
-character Label*24
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nCMO
+real(kind=wp) :: CMO(nCMO)
+character(len=24) :: Label
 
 Label = 'Last orbitals'
 call Put_dArray(Label,CMO,nCMO)

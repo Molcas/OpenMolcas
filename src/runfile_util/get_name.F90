@@ -11,11 +11,14 @@
 
 subroutine Get_Name(Element)
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+character(len=2) :: Element(*)
 #include "periodic_table.fh"
-character*2 Element(*)
-real*8, allocatable :: Chrg(:)
+integer(kind=iwp) :: i, iElement_Nr, nAtoms
+real(kind=wp), allocatable :: Chrg(:)
 
 call Get_iScalar('Unique atoms',nAtoms)
 call mma_Allocate(Chrg,nAtoms)

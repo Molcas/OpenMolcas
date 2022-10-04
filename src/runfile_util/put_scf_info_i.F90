@@ -11,9 +11,11 @@
 
 subroutine Put_SCF_Info_I(iCase,Arr,nArr)
 
-implicit real*8(A-H,O-Z)
-integer Arr(nArr)
-character*24 Label
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iCase, nArr, Arr(nArr)
+character(len=24) :: Label
 
 Label = 'SCFInfoI'
 if (iCase == 1) Label = 'SCFInfoI_ab'

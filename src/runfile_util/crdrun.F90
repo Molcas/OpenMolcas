@@ -23,27 +23,23 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine cRdRun(Label,data,nData)
+subroutine cRdRun(Label,cData,nData)
 
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-character*(*) Label
-character*1 data(*)
-integer nData
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-integer iRc
-integer iOpt
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: Label
+character :: cData(*)
+integer(kind=iwp) :: nData
+integer(kind=iwp) :: iOpt, iRc
+character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Call extended reading routine.                                       *
 !----------------------------------------------------------------------*
 iRc = 0
 iOpt = 0
-call cxRdRun(iRc,Label,data,nData,iOpt)
+call cxRdRun(iRc,Label,cData,nData,iOpt)
 if (iRc /= 0) then
   write(ErrMsg,'(3a)') 'Error reading field "',Label,'" from runfile'
   call SysAbendMsg('cRdRun',ErrMsg,' ')

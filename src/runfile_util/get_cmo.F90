@@ -25,31 +25,27 @@
 
 subroutine Get_Cmo(CMO,nCMO)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-character Label*24
-integer is_nSym, nSym
-integer is_nBas, nBas(0:7)
-save is_nSym, is_nBas
-data is_nSym/0/,is_nBas/0/
-save nSym, nBas
-logical IfTest, Found
-data IfTest/.false./
-real*8 CMO(nCMO)
+use Definitions, only: wp, iwp, u6
 
+implicit none
+integer(kind=iwp) :: nCMO
+real(kind=wp) :: CMO(nCMO)
+integer(kind=iwp) :: ii, iIrrep, is_nBas = 0, is_nSym = 0, mCMO, nBas(0:7) = 0, nSym = 0
+character(len=24) :: Label
+logical(kind=iwp) :: Found
 #ifdef _DEBUGPRINT_
-IfTest = .true.
+logical(kind=iwp), parameter :: IfTest = .true.
+#else
+logical(kind=iwp), parameter :: IfTest = .false.
 #endif
 
 Label = 'Last orbitals'
 call qpg_dArray(Label,Found,mCmo)
 if (.not. Found) call SysAbendMsg('get_CMO','Could not find',Label)
 if (mCMO /= nCMO) then
-  write(6,*) 'Get_CMO: mCMO/=nCMO'
-  write(6,*) 'nCMO=',nCMO
-  write(6,*) 'mCMO=',mCMO
+  write(u6,*) 'Get_CMO: mCMO/=nCMO'
+  write(u6,*) 'nCMO=',nCMO
+  write(u6,*) 'mCMO=',mCMO
   call Abend()
 end if
 call Get_dArray(Label,CMO,nCMO)
@@ -65,14 +61,14 @@ if (IfTest) then
     call Get_iArray('nBas',nBas,nSym)
     is_nBas = 1
   end if
-  write(6,*) ' Input Orbitals from RUNFILE'
-  write(6,*)
+  write(u6,*) ' Input Orbitals from RUNFILE'
+  write(u6,*)
   ii = 1
   do iIrrep=0,nSym-1
     if (nBas(iIrrep) > 0) then
-      write(6,*) ' Symmetry Block',iIrrep
+      write(u6,*) ' Symmetry Block',iIrrep
       call RecPrt(' ',' ',CMO(ii),nBas(iIrrep),nBas(iIrrep))
-      write(6,*)
+      write(u6,*)
     end if
     ii = ii+nBas(iIrrep)**2
   end do

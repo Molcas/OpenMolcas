@@ -11,10 +11,12 @@
 
 subroutine Put_PC_Coord_New(Coord,nAtoms)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Coord(7,nAtoms)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms
+real(kind=wp) :: Coord(7,nAtoms)
+character(len=24) :: Label
 
 Label = 'GeoNewPC'
 call Put_dArray(Label,Coord,7*nAtoms)

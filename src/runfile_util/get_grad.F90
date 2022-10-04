@@ -11,19 +11,20 @@
 
 subroutine Get_Grad(Grad,nGrad)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer nGrad
-real*8 Grad(nGrad)
-! Local variables
-integer :: mGrad = 0
-character(LEN=24), parameter :: Label = 'GRAD'
-logical :: Found = .false.
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp) :: mGrad
+logical(kind=iwp) :: Found
+character(len=16), parameter :: Label = 'GRAD'
 
 call qpg_dArray(Label,Found,mGrad)
 if ((.not. Found) .or. (nGrad == 0)) call SysAbendmsg('get_grad','Did not find:',Label)
 if (mGrad /= nGrad) then
-  write(6,*) 'mGrad=',mGrad
-  write(6,*) 'nGrad=',nGrad
+  write(u6,*) 'mGrad=',mGrad
+  write(u6,*) 'nGrad=',nGrad
   call SysAbendmsg('get_grad','mGrad/=nGrad:',Label)
 end if
 call Get_dArray(Label,Grad,nGrad)

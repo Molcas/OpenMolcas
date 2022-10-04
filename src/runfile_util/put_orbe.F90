@@ -11,10 +11,12 @@
 
 subroutine Put_OrbE(OrbE,nOrbE)
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
-real*8 OrbE(nOrbE)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nOrbE
+real(kind=wp) :: OrbE(nOrbE)
+character(len=24) :: Label
 
 Label = 'OrbE'
 call Put_dArray(Label,OrbE,nOrbE)

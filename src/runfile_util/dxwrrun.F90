@@ -23,32 +23,27 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine dxWrRun(iRc,Label,data,nData,iOpt)
+subroutine dxWrRun(iRc,Label,rData,nData,iOpt)
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iRc, nData, iOpt
+character(len=*) :: Label
+real(kind=wp) :: rData(*)
 #include "runinfo.fh"
 #include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer iRc
-character*(*) Label
-real*8 data(*)
-integer nData
-integer iOpt
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
+character(len=64) :: ErrMsg
 
-call dxWrRun_Internal(data)
+call dxWrRun_Internal(rData)
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine dxWrRun_Internal(data)
+subroutine dxWrRun_Internal(rData)
 
-  use iso_c_binding
-  real*8, target :: data(*)
+  real(kind=wp), target :: rData(*)
   character, pointer :: cData(:)
 
   !--------------------------------------------------------------------*
@@ -62,7 +57,7 @@ subroutine dxWrRun_Internal(data)
   !--------------------------------------------------------------------*
   ! Call generic writing routine.                                      *
   !--------------------------------------------------------------------*
-  call c_f_pointer(c_loc(data(1)),cData,[nData])
+  call c_f_pointer(c_loc(rData(1)),cData,[nData])
   call gxWrRun(iRc,Label,cData,nData,iOpt,TypDbl)
   nullify(cData)
   !--------------------------------------------------------------------*

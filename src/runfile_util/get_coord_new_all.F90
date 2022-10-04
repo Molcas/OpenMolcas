@@ -25,22 +25,27 @@
 
 subroutine Get_Coord_New_All(Coord_All,nAtoms_All)
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
-real*8 Coord_All(3,nAtoms_All)
-real*8, dimension(:,:), allocatable :: CU
+use stdalloc, only: mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtoms_All
+real(kind=wp) :: Coord_All(3,nAtoms_All)
+integer(kind=iwp) :: nAtoms, nAtoms_Allx
+real(kind=wp), allocatable :: CU(:,:)
 interface
   subroutine Get_Coord_New(CU,nAtoms)
-    real*8, dimension(:,:), allocatable :: CU
-    integer nAtoms
+    import :: wp, iwp
+    real(kind=wp), allocatable :: CU(:,:)
+    integer(kind=iwp) :: nAtoms
   end subroutine
 end interface
 
 call Get_nAtoms_All(nAtoms_Allx)
 if (nAtoms_All /= nAtoms_Allx) then
-  write(6,*) 'Get_Coord_All: nAtoms_All /= nAtoms_Allx'
-  write(6,*) 'nAtoms_All=',nAtoms_All
-  write(6,*) 'nAtoms_Allx=',nAtoms_Allx
+  write(u6,*) 'Get_Coord_All: nAtoms_All /= nAtoms_Allx'
+  write(u6,*) 'nAtoms_All=',nAtoms_All
+  write(u6,*) 'nAtoms_Allx=',nAtoms_Allx
   call Abend()
 end if
 call Get_Coord_New(CU,nAtoms)

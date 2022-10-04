@@ -11,10 +11,12 @@
 
 subroutine Put_D1MO(D1MO,nD1MO)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 D1MO(nD1MO)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nD1MO
+real(kind=wp) :: D1MO(nD1MO)
+character(len=24) :: Label
 
 Label = 'D1mo'
 call Put_dArray(Label,D1MO,nD1MO)

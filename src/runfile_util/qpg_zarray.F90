@@ -11,10 +11,14 @@
 
 subroutine Qpg_zArray(Label,Found,nData)
 
+use Definitions, only: iwp
+
 implicit none
-character*(*) Label
-logical FoundR, FoundI, Found
-integer nData, nDataR, nDataI
+character(len=*) :: Label
+logical(kind=iwp) :: Found
+integer(kind=iwp) :: nData
+integer(kind=iwp) :: nDataI, nDataR
+logical(kind=iwp) :: FoundI, FoundR
 
 call qpg_darray('R'//Label,FoundR,nDataR)
 call qpg_darray('I'//Label,FoundI,nDataI)
@@ -24,7 +28,7 @@ if ((nDataR == nDataI) .and. FoundR .and. FoundI) then
   found = .true.
 else
   found = .false.
-  ndata = 0
+  nData = 0
 end if
 
 return

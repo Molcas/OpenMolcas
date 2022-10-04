@@ -37,22 +37,16 @@
 !> @see ::Put_dScalar
 !***********************************************************************
 
-subroutine Get_dScalar(Label,data)
+subroutine Get_dScalar(Label,rData)
+
+use Definitions, only: wp, iwp
 
 implicit none
+character(len=*) :: Label
+real(kind=wp) :: rData
 #include "pg_ds_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-real*8 data
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-character*16 CmpLab
-integer dfirst, i
-data dfirst/0/
-save dfirst
+character(len=16) :: CmpLab
+integer(kind=iwp) :: dfirst = 0, i
 
 if (dfirst == 0) then
   dfirst = 1
@@ -69,19 +63,19 @@ call UpCase(CmpLab)
 do i=1,num_DS_init
   if (iLbl_DS_inmem(i) == CmpLab) then
     if (DS_init(i) /= 0) then
-      data = i_DS_inmem(i)
+      rData = i_DS_inmem(i)
       return
     end if
   end if
 end do
 
-call Get_dScalar_(Label,data)
+call Get_dScalar_(Label,rData)
 num_DS_init = num_DS_init+1
 
 if (num_DS_init > nTocDS) then
 # ifdef _DEBUGPRINT_
   do i=1,num_DS_init
-    write(6,*) iLbl_DS_inmem(i),DS_init(i),i_DS_inmem(i),CmpLab
+    write(u6,*) iLbl_DS_inmem(i),DS_init(i),i_DS_inmem(i),CmpLab
   end do
 # endif
   call Abend()
@@ -89,7 +83,7 @@ end if
 
 iLbl_DS_inmem(num_DS_init) = CmpLab
 DS_init(num_DS_init) = 1
-i_DS_inmem(num_DS_init) = data
+i_DS_inmem(num_DS_init) = rData
 
 return
 

@@ -23,27 +23,23 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine dWrRun(Label,data,nData)
+subroutine dWrRun(Label,rData,nData)
 
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-character*(*) Label
-real*8 data(*)
-integer nData
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-integer iRc
-integer iOpt
+use Definitions, only: wp, iwp
+
+implicit none
+character(len=*) :: Label
+real(kind=wp) :: rData(*)
+integer(kind=iwp) :: nData
+integer(kind=iwp) :: iOpt, iRc
+character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Call extended writing routine.                                       *
 !----------------------------------------------------------------------*
 iRc = 0
 iOpt = 0
-call dxWrRun(iRc,Label,data,nData,iOpt)
+call dxWrRun(iRc,Label,rData,nData,iOpt)
 if (iRc /= 0) then
   write(ErrMsg,'(3a)') 'Error writing field "',Label,'" into runfile'
   call SysAbendMsg('dWrRun',ErrMsg,' ')

@@ -23,9 +23,12 @@
 
 subroutine Get_nAtoms_Full(nAtoms_Full)
 
+use Definitions, only: iwp
+
 implicit none
-integer nAtoms_Full, nAtom, nAtMM
-logical Found
+integer(kind=iwp) :: nAtoms_Full
+integer(kind=iwp) :: nAtMM, nAtom
+logical(kind=iwp) :: Found
 
 call Get_nAtoms_All(nAtom)
 call Qpg_dArray('MMO Coords',Found,nAtMM)

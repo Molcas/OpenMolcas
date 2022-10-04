@@ -13,7 +13,7 @@
 !***********************************************************************
 !                                                                      *
 ! This routine reads a record from the runfile.                        *
-! Data type is Real*8.                                                 *
+! Data type is Integer.                                                *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -23,27 +23,22 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine iRdRun(Label,data,nData)
+subroutine iRdRun(Label,iData,nData)
 
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-character*(*) Label
-integer data(*)
-integer nData
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-integer iRc
-integer iOpt
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: iData(*), nData
+integer(kind=iwp) :: iOpt, iRc
+character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Call extended reading routine.                                       *
 !----------------------------------------------------------------------*
 iRc = 0
 iOpt = 0
-call ixRdRun(iRc,Label,data,nData,iOpt)
+call ixRdRun(iRc,Label,iData,nData,iOpt)
 if (iRc /= 0) then
   write(ErrMsg,'(3a)') 'Error reading field "',Label,'" from runfile'
   call SysAbendMsg('iRdRun',ErrMsg,' ')

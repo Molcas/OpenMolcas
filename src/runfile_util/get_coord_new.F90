@@ -25,11 +25,15 @@
 
 subroutine Get_Coord_New(CN,nAtoms)
 
-implicit real*8(a-h,o-z)
-real*8, dimension(:,:), allocatable :: CN
-#include "stdalloc.fh"
-character*24 Label
-logical Found
+use stdalloc, only: mma_allocate
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), allocatable :: CN(:,:)
+integer(kind=iwp) :: nAtoms
+integer(kind=iwp) :: nAtoms3
+character(len=24) :: Label
+logical(kind=iwp) :: Found
 
 Label = 'GeoNew'
 call qpg_dArray(Label,Found,nAtoms3)

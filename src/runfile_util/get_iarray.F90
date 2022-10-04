@@ -38,30 +38,18 @@
 !> @see ::Put_iArray
 !***********************************************************************
 
-subroutine Get_iArray(Label,data,nData)
+subroutine Get_iArray(Label,iData,nData)
+
+use Definitions, only: iwp, u6
 
 implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: nData
+integer(kind=iwp) :: iData(nData)
 #include "pg_ia_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-integer nData
-integer data(nData)
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-character*16 RecLab(nTocIA)
-integer RecIdx(nTocIA)
-integer RecLen(nTocIA)
-character*16 CmpLab1
-character*16 CmpLab2
-integer item
-integer i
+integer(kind=iwp) :: i, item, RecIdx(nTocIA), RecLen(nTocIA)
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocIA)
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
@@ -82,10 +70,10 @@ end do
 
 if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, reading temporary iArray field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, reading temporary iArray field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif
@@ -98,7 +86,7 @@ i_run_IA_used(item) = i_run_IA_used(item)+1
 if (item == -1) call SysAbendMsg('get_iArray','Could not locate: ',Label)
 if (RecIdx(item) == 0) call SysAbendMsg('get_iArray','Data not defined: ',Label)
 if (Reclen(item) /= nData) call SysAbendMsg('get_iArray','Data of wrong length: ',Label)
-call iRdRun(RecLab(item),data,nData)
+call iRdRun(RecLab(item),iData,nData)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

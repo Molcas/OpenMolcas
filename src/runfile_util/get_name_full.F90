@@ -11,14 +11,15 @@
 
 subroutine Get_Name_Full(Element)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
+
 implicit none
+character(len=2) :: Element(*)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-character*2 Element(*)
-integer nAtom, nAtMM, i
-logical Found
-character(len=LENIN), allocatable :: LabMM(:)
+integer(kind=iwp) :: i, nAtMM, nAtom
+logical(kind=iwp) :: Found
+character(len=LenIn), allocatable :: LabMM(:)
 
 call Get_nAtoms_All(nAtom)
 call Get_Name_All(Element)

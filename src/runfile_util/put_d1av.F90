@@ -11,10 +11,12 @@
 
 subroutine Put_D1AV(D1AV,nD1AV)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 D1AV(nD1AV)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nD1AV
+real(kind=wp) :: D1AV(nD1AV)
+character(len=24) :: Label
 
 Label = 'D1av'
 call Put_dArray(Label,D1AV,nD1AV)

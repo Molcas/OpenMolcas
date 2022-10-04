@@ -22,31 +22,20 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine gxRdRun(iRc,Label,data,nData,iOpt,RecTyp)
+subroutine gxRdRun(iRc,Label,cData,nData,iOpt,RecTyp)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iRc, nData, iOpt, RecTyp
+character(len=*) :: Label
+character :: cData(*)
 #include "runinfo.fh"
 #include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer iRc
-character*(*) Label
-character data(*)
-integer nData
-integer iOpt
-integer RecTyp
-!----------------------------------------------------------------------*
-! Declare local data                                                   *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-character*16 CmpLab1
-character*16 CmpLab2
-integer Lu
-integer iDisk
-integer DataAdr
-logical ok
-integer item
-integer i
+integer(kind=iwp) :: DataAdr, i, iDisk, item, Lu
+logical(kind=iwp) :: ok
+character(len=64) :: ErrMsg
+character(len=16) :: CmpLab1, CmpLab2
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -106,7 +95,7 @@ DataAdr = TocPtr(item)
 ! Read data from runfile.                                              *
 !----------------------------------------------------------------------*
 iDisk = DataAdr
-call gzRWRun(Lu,icRd,data,nData,iDisk,RecTyp)
+call gzRWRun(Lu,icRd,cData,nData,iDisk,RecTyp)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

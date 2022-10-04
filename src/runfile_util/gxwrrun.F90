@@ -22,31 +22,19 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine gxWrRun(iRc,Label,data,nData,iOpt,RecTyp)
+subroutine gxWrRun(iRc,Label,cData,nData,iOpt,RecTyp)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iRc, nData, iOpt, RecTyp
+character(len=*) :: Label
+character :: cData(*)
 #include "runinfo.fh"
 #include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer iRc
-character*(*) Label
-character data(*)
-integer nData
-integer iOpt
-integer RecTyp
-!----------------------------------------------------------------------*
-! Declare local data                                                   *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-integer Lu
-integer iDisk
-integer DataAdr
-logical ok
-logical remove
-integer item
-integer i
-integer NewLen
+integer(kind=iwp) :: DataAdr, i, iDisk, item, Lu, NewLen
+logical(kind=iwp) :: ok, remove
+character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -107,9 +95,9 @@ if (item /= -1) then
   if (TocTyp(item) /= RecTyp) remove = .true.
   if (TocMaxLen(item) < nData) remove = .true.
   if (remove) then
-    !write (6,*) '*******************************************'
-    !write (6,'(a,a,a,i10)') 'Label=',Label,' expands in RUNFILE with size=',nData
-    !write (6,*) '*******************************************'
+    !write (u6,*) '*******************************************'
+    !write (u6,'(a,a,a,i10)') 'Label=',Label,' expands in RUNFILE with size=',nData
+    !write (u6,*) '*******************************************'
     !call Abend()
     TocLab(item) = 'Empty   '
     TocPtr(item) = NulPtr
@@ -147,7 +135,7 @@ TocMaxLen(item) = max(NewLen,nData)
 TocTyp(item) = RecTyp
 
 iDisk = DataAdr
-call gzRWRun(Lu,icWr,data,nData,iDisk,RecTyp)
+call gzRWRun(Lu,icWr,cData,nData,iDisk,RecTyp)
 
 if (iDisk > RunHdr(ipNext)) RunHdr(ipNext) = iDisk
 iDisk = 0

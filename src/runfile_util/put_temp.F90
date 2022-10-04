@@ -11,10 +11,12 @@
 
 subroutine Put_Temp(Label,Temp,nTemp)
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
-real*8 Temp(nTemp)
-character*(*) Label
+use Definitions, only: wp, iwp
+
+implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: nTemp
+real(kind=wp) :: Temp(nTemp)
 
 call NameRun('.RUNTMP')
 call Put_dArray(Label,Temp,nTemp)

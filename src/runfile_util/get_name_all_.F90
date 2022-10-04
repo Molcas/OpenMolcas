@@ -11,14 +11,15 @@
 
 subroutine Get_Name_All_(Coord_Unique_Atoms,nUnique_Atoms,nAll_Atoms,Element_Unique,Element)
 
-use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
+use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-integer iGen(3), iCoSet(0:7)
-real*8 Coord_Unique_Atoms(3,nUnique_Atoms)
-character*(*) Element(*), Element_Unique(nUnique_Atoms)
-integer, save :: Active = 0
+implicit none
+integer(kind=iwp) :: nUnique_Atoms, nAll_Atoms
+real(kind=wp) :: Coord_Unique_Atoms(3,nUnique_Atoms)
+character(len=*) :: Element_Unique(nUnique_Atoms), Element(*)
+integer(kind=iwp) :: Active = 0, i, iAll_Atom, iChAtom, iCoSet(0:7), iGen(3), iUnique_Atom, nCoSet, nGen
+integer(kind=iwp), external :: iChxyz
 
 !                                                                      *
 !***********************************************************************
@@ -59,7 +60,7 @@ nAll_Atoms = iAll_Atom
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!write(6,*) 'Exit Get_nAtoms_All_'
+!write(u6,*) 'Exit Get_nAtoms_All_'
 
 return
 

@@ -13,12 +13,15 @@
 
 subroutine ClrRunCacheDS()
 
+use Constants, only: Zero
+use Definitions, only: iwp
+
 implicit none
 #include "pg_ds_info.fh"
-integer i
+integer(kind=iwp) :: i
 
 do i=1,num_DS_init
-  i_DS_inmem(i) = 0.d0
+  i_DS_inmem(i) = Zero
   DS_init(i) = 0
   iLbl_DS_inmem(i) = ' '
 end do

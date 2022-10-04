@@ -11,11 +11,14 @@
 
 subroutine Get_Name_All(Element)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Definitions, only: iwp
+
+implicit none
+character(len=2) :: Element(*)
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-character*2 Element(*), Element_Unique(MxAtom)
+integer(kind=iwp) :: ipCoord, nAtoms, nAtoms_all
+character(len=2) :: Element_Unique(MxAtom)
 
 call Get_iScalar('Unique atoms',nAtoms)
 call Allocate_Work(ipCoord,3*nAtoms)

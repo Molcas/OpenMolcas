@@ -11,20 +11,22 @@
 
 subroutine Get_P2MO(P2MO,nP2MO)
 
-implicit real*8(A-H,O-Z)
-#include "WrkSpc.fh"
-character*24 Label
-logical Found
-integer nP2MO
-real*8 P2MO(nP2MO)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nP2MO
+real(kind=wp) :: P2MO(nP2MO)
+integer(kind=iwp) :: mP2MO
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'P2MO'
 call qpg_dArray(Label,Found,mP2MO)
 if ((.not. Found) .or. (mP2MO == 0)) call SysAbendmsg('Get_P2MO','Did not find:',label)
 if (nP2MO /= mP2MO) then
-  write(6,*) 'Get_P2MO: nP2MO/=mP2MO'
-  write(6,*) 'mP2MO=',mP2MO
-  write(6,*) 'nP2MO=',nP2MO
+  write(u6,*) 'Get_P2MO: nP2MO/=mP2MO'
+  write(u6,*) 'mP2MO=',mP2MO
+  write(u6,*) 'nP2MO=',nP2MO
   call Abend()
 end if
 call get_dArray(Label,P2MO,nP2MO)

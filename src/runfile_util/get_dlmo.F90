@@ -11,18 +11,22 @@
 
 subroutine Get_DLMO(DLMO,nDLMO)
 
-implicit real*8(A-H,O-Z)
-real*8 DLMO(nDLMO)
-character(LEN=24) Label
-logical Found
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nDLMO
+real(kind=wp) :: DLMO(nDLMO)
+integer(kind=iwp) :: mDLMO
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'DLMO'
 call qpg_dArray(Label,Found,mDLMO)
 if ((.not. Found) .or. (mDLMO == 0)) call SysAbendMsg('get_dlmo','Did not find:',Label)
 if (mDLMO /= nDLMO) then
-  write(6,*) 'Get_DLMO: nDLMO/=mDLMO'
-  write(6,*) 'nDLMO=',nDLMO
-  write(6,*) 'mDLMO=',mDLMO
+  write(u6,*) 'Get_DLMO: nDLMO/=mDLMO'
+  write(u6,*) 'nDLMO=',nDLMO
+  write(u6,*) 'mDLMO=',mDLMO
   call Abend()
 end if
 call Get_dArray(Label,DLMO,nDLMO)

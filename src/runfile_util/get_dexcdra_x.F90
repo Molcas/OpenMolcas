@@ -11,19 +11,21 @@
 
 subroutine Get_dExcdRa_X(dExcdRa,ndExcdRa)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-character(LEN=24) Label
-logical Found
-integer :: mdExcdRa = -1
-integer, intent(In) :: ndExcdRa
-real*8, intent(Out) :: dExcdRa(ndExcdRa)
+integer(kind=iwp), intent(in) :: ndExcdRa
+real(kind=wp), intent(out) :: dExcdRa(ndExcdRa)
+integer(kind=iwp) :: mdExcdRa
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'dExcdRa'
 call qpg_dArray(Label,Found,mdExcdRa)
 if ((.not. Found) .or. (mdExcdRa == 0)) call SysAbendmsg('Get_dExcdRa','Did not find:',Label)
 if (mdExcdRa /= ndExcdRa) then
-  write(6,*) 'mdExcdRa/=ndExcdRa'
-  write(6,*) mdExcdRa,'/=',ndExcdRa
+  write(u6,*) 'mdExcdRa/=ndExcdRa'
+  write(u6,*) mdExcdRa,'/=',ndExcdRa
   call AbEnd()
 end if
 call Get_dArray(Label,dExcdRa,ndExcdRa)

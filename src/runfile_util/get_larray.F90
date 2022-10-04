@@ -9,15 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_lArray(Label,Log,nLog)
+subroutine Get_lArray(Label,Logc,nLog)
 
-character*(*) Label
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: nLog
+logical(kind=iwp) :: Logc(nLog)
 #include "WrkSpc.fh"
-logical log(nLog)
+integer(kind=iwp) :: ip_Tmp
 
 call Allocate_iWork(ip_Tmp,nLog)
 call Get_iArray(Label,iWork(ip_Tmp),nLog)
-call Int2Log(iWork(ip_Tmp),Log,nLog)
+call Int2Log(iWork(ip_Tmp),Logc,nLog)
 call Free_iWork(ip_Tmp)
 
 return

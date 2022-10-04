@@ -40,28 +40,16 @@
 
 subroutine Qpg_iArray(Label,Found,nData)
 
+use Definitions, only: iwp, u6
+
 implicit none
+character(len=*) :: Label
+logical(kind=iwp) :: Found
+integer(kind=iwp) :: nData
 #include "pg_ia_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-logical Found
-integer nData
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-character*16 RecLab(nTocIA)
-integer RecIdx(nTocIA)
-integer RecLen(nTocIA)
-character*16 CmpLab1
-character*16 CmpLab2
-integer item
-integer nTmp, iTmp
-integer i
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
+integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocIA), RecLen(nTocIA)
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocIA)
+
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
@@ -90,10 +78,10 @@ end do
 
 if (item /= -1) then
   if (RecIdx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, querying temporary iArray field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, querying temporary iArray field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif

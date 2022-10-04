@@ -22,9 +22,12 @@
 
 subroutine Get_nAtoms_All(nAtoms_All)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nAtoms_All
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ipCoord, nAtoms
 
 call Get_iScalar('Unique atoms',nAtoms)
 call Allocate_Work(ipCoord,3*nAtoms)
@@ -32,8 +35,8 @@ call Get_dArray('Unique Coordinates',Work(ipCoord),3*nAtoms)
 call Get_nAtoms_All_(Work(ipCoord),nAtoms,nAtoms_all)
 call Free_Work(ipCoord)
 
-!write(6,*) 'nAtoms_All=',nAtoms_All
-!write(6,*) 'Exit Get_nAtoms_All'
+!write(u6,*) 'nAtoms_All=',nAtoms_All
+!write(u6,*) 'Exit Get_nAtoms_All'
 return
 
 end subroutine Get_nAtoms_All

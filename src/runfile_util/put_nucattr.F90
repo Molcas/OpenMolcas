@@ -11,11 +11,14 @@
 
 subroutine Put_NucAttr()
 
-implicit real*8(a-h,o-z)
+use Constants, only: One
+use Definitions, only: iwp, u6
+
+implicit none
 #include "WrkSpc.fh"
-character*8 Label
-integer nSym, nBas(8)
 #include "embpcharg.fh"
+character(len=8) :: Label
+integer(kind=iwp) :: i, iComp, iOpt, ipAttr, ipXFdInt, irc, iSyLbl, nLT, nLT_, nSym, nBas(8)
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
@@ -36,8 +39,8 @@ iSyLbl = 1
 Label = 'Attract '
 call RdOne(irc,iOpt,Label,iComp,Work(ipAttr),iSyLbl)
 if (irc /= 0) then
-  write(6,*) 'Put_NucAttr: RdOne returned ',irc
-  write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+  write(u6,*) 'Put_NucAttr: RdOne returned ',irc
+  write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
   call SysAbendMsg('Put_NucAttr','I/O error in RdOne',' ')
 end if
 
@@ -49,11 +52,11 @@ if (DoEMPC) then
   Label = 'XFdInt  '
   call RdOne(irc,iOpt,Label,iComp,Work(ipXFdInt),iSyLbl)
   if (irc /= 0) then
-    write(6,*) 'Put_NucAttr: RdOne returned ',irc
-    write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+    write(u6,*) 'Put_NucAttr: RdOne returned ',irc
+    write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
     call SysAbendMsg('Put_NucAttr','I/O error in RdOne',' ')
   end if
-  call daxpy_(nLT_,1.0d0,Work(ipXFdInt),1,Work(ipAttr),1)
+  call daxpy_(nLT_,One,Work(ipXFdInt),1,Work(ipAttr),1)
 end if
 
 call Put_dArray('Nuc Potential',Work(ipAttr),nLT_)

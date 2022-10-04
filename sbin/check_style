@@ -145,7 +145,7 @@ def test_characternfn(line, filename):
   return (not characternfn2.search(l))
 
 # Wrong KIND
-kindfn1 = re.compile(r'\breal\s*\(([^()]|\(.*\))*kind\s*=\s*iwp', re.IGNORECASE)
+kindfn1 = re.compile(r'\b(real|complex)\s*\(([^()]|\(.*\))*kind\s*=\s*iwp', re.IGNORECASE)
 kindfn2 = re.compile(r'\b(int(eger)?|logical)\s*\(([^()]|\(.*\))*kind\s*=\s*wp', re.IGNORECASE)
 kindfn3 = re.compile(r'[^0-9ed.+-][0-9+-]*_wp', re.IGNORECASE)
 def test_kindfn(line, filename):

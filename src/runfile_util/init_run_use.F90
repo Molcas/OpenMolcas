@@ -11,7 +11,11 @@
 
 subroutine init_run_use()
 
+use Definitions, only: iwp
+
+implicit none
 #include "run_use_common.fh"
+integer(kind=iwp) :: i
 
 do i=1,nTocCA
   i_run_CA_used(i) = 0

@@ -61,37 +61,22 @@
 !>   density functional
 !>
 !> @param[in] Label Name of field
-!> @param[in] Data  Data to put on runfile
+!> @param[in] rData Data to put on runfile
 !***********************************************************************
 
-subroutine Put_dScalar(Label,data)
+subroutine Put_dScalar(Label,rData)
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
+character(len=*) :: Label
+real(kind=wp) :: rData
 #include "pg_ds_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-real*8 data
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-real*8 RecVal(nTocDS)
-character*16 RecLab(nTocDS)
-integer RecIdx(nTocDS)
-save RecVal
-save RecLab
-save RecIdx
-character*16 CmpLab1
-character*16 CmpLab2
-integer nData
-integer item
-integer iTmp
-integer i
+integer(kind=iwp) :: i, item, iTmp, nData, RecIdx(nTocDS) = 0
+real(kind=wp) :: RecVal(nTocDS) = Zero
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDS) = ''
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Do setup if this is the first call.                                  *
 !----------------------------------------------------------------------*
@@ -102,7 +87,7 @@ call ffRun('dScalar labels',nData,iTmp)
 if (nData == 0) then
   do i=1,nTocDS
     RecLab(i) = ' '
-    RecVal(i) = 0.0d0
+    RecVal(i) = Zero
     RecIdx(i) = sNotUsed
   end do
 
@@ -188,10 +173,10 @@ end if
 
 if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, writing temporary dScalar field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, writing temporary dScalar field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif
@@ -201,7 +186,7 @@ end if
 ! Write data to disk.                                                  *
 !----------------------------------------------------------------------*
 if (item == -1) call SysAbendMsg('put_dScalar','Could not locate',Label)
-RecVal(item) = data
+RecVal(item) = rData
 call dWrRun('dScalar values',RecVal,nTocDS)
 if (RecIdx(item) == 0) then
   RecIdx(item) = sRegularField
@@ -212,7 +197,7 @@ end if
 !----------------------------------------------------------------------*
 do i=1,num_DS_init
   if (iLbl_DS_inmem(i) == CmpLab1) then
-    i_DS_inmem(i) = data
+    i_DS_inmem(i) = rData
     DS_init(i) = 1
     return
   end if

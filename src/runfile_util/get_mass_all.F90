@@ -26,18 +26,17 @@
 
 subroutine Get_Mass_All(Mass_All,nAtoms_All)
 
-use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
+use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer nAtoms_All, nAtoms_Allx, nAtoms
-real*8 Mass_All(nAtoms_All)
-real*8, dimension(:), allocatable :: Mass
-real*8, dimension(:,:), allocatable :: CU
-integer i, j, nGen, MaxDCR, iChAtom, iCo, nCoSet, nStab
-integer iGen(3), iCoSet(0:7,0:7), iStab(0:7)
-integer, external :: iChxyz
-integer, save :: Active = 0
+integer(kind=iwp) :: nAtoms_All
+real(kind=wp) :: Mass_All(nAtoms_All)
+integer(kind=iwp) :: Active = 0, i, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), j, MaxDCR, nAtoms, nAtoms_Allx, nCoSet, &
+                     nGen, nStab
+real(kind=wp), allocatable :: CU(:,:), Mass(:)
+integer(kind=iwp), external :: iChxyz
 
 if (Active == 0) then
   call Symmetry_Info_Get()
@@ -46,9 +45,9 @@ end if
 ! Obtain symmetry-unique masses
 call Get_nAtoms_All(nAtoms_Allx)
 if (nAtoms_All /= nAtoms_Allx) then
-  write(6,*) 'Get_Coord_All: nAtoms_All /= nAtoms_Allx'
-  write(6,*) 'nAtoms_All=',nAtoms_All
-  write(6,*) 'nAtoms_Allx=',nAtoms_Allx
+  write(u6,*) 'Get_Coord_All: nAtoms_All /= nAtoms_Allx'
+  write(u6,*) 'nAtoms_All=',nAtoms_All
+  write(u6,*) 'nAtoms_Allx=',nAtoms_Allx
   call Abend()
 end if
 call Get_iScalar('Unique atoms',nAtoms)

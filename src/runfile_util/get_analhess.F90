@@ -28,21 +28,25 @@
 
 subroutine Get_AnalHess(Hess,nHess)
 
-implicit real*8(A-H,O-Z)
-real*8 Hess(nHess)
-character*24 Label
-logical Found
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nHess
+real(kind=wp) :: Hess(nHess)
+integer(kind=iwp) :: nAnalHess
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'Analytic Hessian'
 call qpg_dArray(Label,Found,nAnalHess)
 if ((.not. Found) .or. (nAnalHess == 0)) then
-  write(6,*) 'Get_AnalHess: Hessian not found!'
+  write(u6,*) 'Get_AnalHess: Hessian not found!'
   call Abend()
 end if
 if (nAnalHess /= nHess) then
-  write(6,*) 'Get_AnalHess: nAnalHess/=nHess'
-  write(6,*) 'nAnalHess=',nAnalHess
-  write(6,*) 'nHess=',nHess
+  write(u6,*) 'Get_AnalHess: nAnalHess/=nHess'
+  write(u6,*) 'nAnalHess=',nAnalHess
+  write(u6,*) 'nHess=',nHess
   call Abend()
 end if
 call Get_dArray(Label,Hess,nHess)

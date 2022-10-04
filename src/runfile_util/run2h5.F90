@@ -26,32 +26,20 @@ subroutine run2h5_molinfo(fileid)
 !   DESYM_CENTER_COORDINATES, DESYM_BASIS_FUNCTION_IDS,
 !   DESYM_MATRIX, PRIMITIVE_IDS, PRIMITIVES
 
-use mh5, only: mh5_init_attr, mh5_create_dset_str, mh5_create_dset_int, mh5_create_dset_real, mh5_put_dset, mh5_close_dset
+use mh5, only: mh5_close_dset, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, mh5_init_attr, mh5_put_dset
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: fileid
+integer(kind=iwp) :: fileid
 #include "Molcas.fh"
-#include "stdalloc.fh"
-integer :: natoms
-real*8, allocatable :: charges(:), coord(:,:)
-integer, allocatable :: atnums(:)
-integer :: nsym, isym
+integer(kind=iwp) :: dsetid, i, isym, j, mcentr, natoms, nb, nbas(8), nbast, nbast1, nbast2, nPrim, nsym
+real(kind=wp) :: potnuc
 character :: lIrrep(24)
-integer :: nbas(8)
-integer :: nb, nbast, nbast1, nbast2
-real*8 :: potnuc
-character(len=LENIN), allocatable :: atomlbl(:)
-character(len=LENIN4), allocatable :: desym_atomlbl(:)
-integer, allocatable :: basis_ids(:,:)
-integer, allocatable :: desym_basis_ids(:,:)
-integer :: mcentr
-real*8, allocatable :: desym_matrix(:)
-integer :: nPrim
-integer, allocatable :: PrimIDs(:,:)
-real*8, allocatable :: Primitives(:,:)
-integer :: i, j
-integer, allocatable :: QMMap(:)
-integer :: dsetid
+integer(kind=iwp), allocatable :: atnums(:), basis_ids(:,:), desym_basis_ids(:,:), PrimIDs(:,:), QMMap(:)
+real(kind=wp), allocatable :: charges(:), coord(:,:), desym_matrix(:), Primitives(:,:)
+character(len=LenIn4), allocatable :: desym_atomlbl(:)
+character(len=LenIn), allocatable :: atomlbl(:)
 
 ! symmetry information
 call get_iScalar('nSym',nSym)
@@ -81,10 +69,10 @@ call Get_iScalar('Unique centers',nAtoms)
 call mh5_init_attr(fileid,'NATOMS_UNIQUE',nAtoms)
 
 ! atom labels
-dsetid = mh5_create_dset_str(fileid,'CENTER_LABELS',1,[nAtoms],LENIN)
+dsetid = mh5_create_dset_str(fileid,'CENTER_LABELS',1,[nAtoms],LenIn)
 call mh5_init_attr(dsetid,'DESCRIPTION','Unique center labels arranged as one [NATOMS_UNIQUE] block')
 call mma_allocate(atomlbl,nAtoms)
-call Get_cArray('Un_cen Names',atomlbl,LENIN*nAtoms)
+call Get_cArray('Un_cen Names',atomlbl,LenIn*nAtoms)
 call mh5_put_dset(dsetid,atomlbl)
 call mma_deallocate(atomlbl)
 call mh5_close_dset(dsetid)
@@ -133,10 +121,10 @@ if (NSYM > 1) then
   call mh5_init_attr(fileid,'NATOMS_ALL',mCentr)
 
   ! desymmetrized atom labels
-  dsetid = mh5_create_dset_str(fileid,'DESYM_CENTER_LABELS',1,[mcentr],LENIN4)
+  dsetid = mh5_create_dset_str(fileid,'DESYM_CENTER_LABELS',1,[mcentr],LenIn4)
   call mh5_init_attr(dsetid,'DESCRIPTION','Desymmetrized center labels arranged as one [NATOMS_ALL] block')
   call mma_allocate(desym_atomlbl,mcentr)
-  call get_cArray('LP_L',desym_atomlbl,(LENIN4)*mCentr)
+  call get_cArray('LP_L',desym_atomlbl,(LenIn4)*mCentr)
   call mh5_put_dset(dsetid,desym_atomlbl)
   call mma_deallocate(desym_atomlbl)
   call mh5_close_dset(dsetid)

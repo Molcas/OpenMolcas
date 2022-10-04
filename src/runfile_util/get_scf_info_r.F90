@@ -11,10 +11,13 @@
 
 subroutine Get_SCF_Info_R(iCase,ipR,nR)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iCase, ipR, nR
 #include "WrkSpc.fh"
-character*24 Label
-logical Found
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'SCFInfoR'
 if (iCase == 1) Label = 'SCFInfoR_ab'

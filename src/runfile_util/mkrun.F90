@@ -29,27 +29,16 @@
 
 subroutine MkRun(iRc,iOpt)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iRc, iOpt
 #include "runinfo.fh"
 #include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare dummy arguments                                              *
-!----------------------------------------------------------------------*
-integer iRc
-integer iOpt
-!----------------------------------------------------------------------*
-! Declare local data                                                   *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-integer Lu
-integer iDisk
-integer iAllow
-logical ok
-integer i
-!----------------------------------------------------------------------*
-! Declare external entry points                                        *
-!----------------------------------------------------------------------*
-integer isFreeUnit
-external isFreeUnit
+integer(kind=iwp) :: i, iAllow, iDisk, Lu
+logical(kind=iwp) :: ok
+character(len=64) :: ErrMsg
+integer(kind=iwp), external :: isFreeUnit
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -67,11 +56,11 @@ iRc = 0
 if (iand(iOpt,1) /= 0) then
   call f_inquire(RunName,ok)
   if (ok) then
-    !write(6,*) '*** NOT creating runfile ',RunName
+    !write(u6,*) '*** NOT creating runfile ',RunName
     return
   end if
 end if
-!write(6,*) '*** Creating runfile ',RunName
+!write(u6,*) '*** Creating runfile ',RunName
 !----------------------------------------------------------------------*
 ! Create it.                                                           *
 !----------------------------------------------------------------------*

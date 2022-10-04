@@ -10,15 +10,17 @@
 !***********************************************************************
 
 ! complex number in runfile
-subroutine Put_zArray(Label,data,nData)
+subroutine Put_zArray(Label,zData,nData)
+
+use Definitions, only: wp, iwp
 
 implicit none
-character*(*) Label
-integer nData
-complex*16 data(nData)
+character(len=*) :: Label
+integer(kind=iwp) :: nData
+complex(kind=wp) :: zData(nData)
 
-call Put_dArray('R'//Label,real(data),nData)
-call Put_dArray('I'//Label,aimag(data),nData)
+call Put_dArray('R'//Label,real(zData),nData)
+call Put_dArray('I'//Label,aimag(zData),nData)
 
 return
 

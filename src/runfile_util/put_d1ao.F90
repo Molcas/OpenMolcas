@@ -11,10 +11,12 @@
 
 subroutine Put_D1ao(D1ao,nD1ao)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 D1ao(nD1ao)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nD1ao
+real(kind=wp) :: D1ao(nD1ao)
+character(len=24) :: Label
 
 ! Write the variational 1st order density matrix
 ! density matrix in AO/SO basis

@@ -11,12 +11,11 @@
 
 subroutine Get_bastype(BasisTypes,nData)
 
-implicit real*8(A-H,O-Z)
-integer BasisTypes(4), loc_BasisTypes(4)
-integer is_BasisType
-save is_BasisType
-data is_BasisType/0/
-save loc_BasisTypes
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: BasisTypes(4), nData
+integer(kind=iwp) :: i, is_BasisType = 0, loc_BasisTypes(4) = 0
 
 !Label = 'BasType'
 if (is_BasisType == 0) then

@@ -13,9 +13,11 @@
 
 subroutine ClrRunCacheIS()
 
+use Definitions, only: iwp
+
 implicit none
 #include "pg_is_info.fh"
-integer i
+integer(kind=iwp) :: i
 
 do i=1,num_IS_init
   i_IS_inmem(i) = 0

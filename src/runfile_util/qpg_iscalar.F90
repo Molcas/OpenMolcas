@@ -39,28 +39,15 @@
 
 subroutine Qpg_iScalar(Label,Found)
 
-implicit none
-#include "pg_is_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-logical Found
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-integer RecVal(nTocIS)
-character*16 RecLab(nTocIS)
-integer RecIdx(nTocIS)
-character*16 CmpLab1
-character*16 CmpLab2
-integer item
-integer nTmp, iTmp
-integer i
+use Definitions, only: iwp, u6
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
+implicit none
+character(len=*) :: Label
+logical(kind=iwp) :: Found
+#include "pg_is_info.fh"
+integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocIS), RecVal(nTocIS)
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocIS)
+
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
@@ -88,10 +75,10 @@ end do
 
 if (item /= -1) then
   if (RecIdx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, querying temporary iScalar field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, querying temporary iScalar field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif

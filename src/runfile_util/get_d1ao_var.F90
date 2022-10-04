@@ -11,16 +11,17 @@
 
 subroutine Get_D1ao_Var(D1ao,nD1ao)
 
-implicit real*8(A-H,O-Z)
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-character*24 Label
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nD1ao
+real(kind=wp) :: D1ao(nD1ao)
 #ifdef _DEBUGPRINT_
 #include "run_common.fh"
 #endif
-logical Found
-integer nD1ao
-real*8 D1ao(nD1ao)
+integer(kind=iwp) :: nDens
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 ! Read the variational 1st order density matrix
 ! density matrix in AO/SO basis
@@ -34,9 +35,9 @@ if ((.not. Found) .or. (nDens == 0)) then
 else if (nDens == nD1ao) then
   call get_dArray(Label,D1ao,nD1ao)
 else
-  write(6,*) 'Get_D1ao_Var: nDens/=nD1ao'
-  write(6,*) 'nDens=',nDens
-  write(6,*) 'nD1ao=',nD1ao
+  write(u6,*) 'Get_D1ao_Var: nDens/=nD1ao'
+  write(u6,*) 'nDens=',nDens
+  write(u6,*) 'nD1ao=',nD1ao
   call Abend()
 end if
 !                                                                      *
@@ -51,11 +52,11 @@ if (is_nBas == 0) then
   call Get_iArray('nBas',nBas,nSym)
   is_nBas = 1
 end if
-write(6,*) 'variational 1st order density matrix'
+write(u6,*) 'variational 1st order density matrix'
 ii = 1
 do iIrrep=0,nSym-1
   if (nBas(iIrrep) > 0) then
-    write(6,*) 'symmetry block',iIrrep
+    write(u6,*) 'symmetry block',iIrrep
     call TriPrt(' ',' ',D1ao(ii),nBas(iIrrep))
     ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
   end if

@@ -58,39 +58,21 @@
 !> - '``MkNemo.hDisp``'         The hash matrix for displacements as specified in the mknemo module.
 !>
 !> @param[in] Label Name of field
-!> @param[in] Data  Data to put on runfile
+!> @param[in] iData Data to put on runfile
 !> @param[in] nData Length of array
 !***********************************************************************
 
-subroutine Put_iArray(Label,data,nData)
+subroutine Put_iArray(Label,iData,nData)
+
+use Definitions, only: iwp, u6
 
 implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: nData, iData(nData)
 #include "pg_ia_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-integer nData
-integer data(nData)
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-character*16 RecLab(nTocIA)
-integer RecIdx(nTocIA)
-integer RecLen(nTocIA)
-save RecLab
-save RecIdx
-save RecLen
-character*16 CmpLab1
-character*16 CmpLab2
-integer nTmp
-integer item
-integer iTmp
-integer i
+integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocIA) = 0, RecLen(nTocIA) = 0
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocIA) = ''
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Do setup if this is the first call.                                  *
 !----------------------------------------------------------------------*
@@ -241,10 +223,10 @@ end if
 
 if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, writing temporary iArray field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, writing temporary iArray field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif
@@ -254,7 +236,7 @@ end if
 ! Write data to disk.                                                  *
 !----------------------------------------------------------------------*
 if (item == -1) call SysAbendMsg('put_iArray','Could not locate',Label)
-call iWrRun(RecLab(item),data,nData)
+call iWrRun(RecLab(item),iData,nData)
 if (RecIdx(item) == 0) then
   RecIdx(item) = sRegularField
   call iWrRun('iArray indices',RecIdx,nTocIA)

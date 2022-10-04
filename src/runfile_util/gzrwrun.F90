@@ -22,30 +22,26 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine gzRWRun(Lu,icXX,data,nData,iDisk,RecTyp)
+subroutine gzRWRun(Lu,icXX,cData,nData,iDisk,RecTyp)
 
-#include "runinfo.fh"
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: Lu, icXX, nData, iDisk, RecTyp
+character :: cData(*)
 #include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer Lu
-integer icXX
-character data(*)
-integer nData
-integer iDisk
-integer RecTyp
 
 !----------------------------------------------------------------------*
 ! Read/write data from/to runfile.                                     *
 !----------------------------------------------------------------------*
 select case (RecTyp)
   case (TypInt)
-    call c_iDaFile(Lu,icXX,data,nData,iDisk)
+    call c_iDaFile(Lu,icXX,cData,nData,iDisk)
   case (TypDbl)
-    call c_dDaFile(Lu,icXX,data,nData,iDisk)
+    call c_dDaFile(Lu,icXX,cData,nData,iDisk)
   case (TypStr)
-    call cDaFile(Lu,icXX,data,nData,iDisk)
+    call cDaFile(Lu,icXX,cData,nData,iDisk)
   case (TypLgl)
     call SysAbendMsg('gzRWRun','Records of logical type not implemented','Aborting')
   case default
@@ -61,11 +57,9 @@ contains
 
 subroutine c_iDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  use iso_c_binding
-
-  integer Lu, iOpt, lBuf_, iDisk_
+  integer(kind=iwp) Lu, iOpt, lBuf_, iDisk_
   character, target :: Buf(*)
-  integer, pointer :: pBuf(:)
+  integer(kind=iwp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf(1)),pBuf,[lBuf_])
   call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
@@ -75,11 +69,9 @@ end subroutine c_iDaFile
 
 subroutine c_dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  use iso_c_binding
-
-  integer Lu, iOpt, lBuf_, iDisk_
+  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
   character, target :: Buf(*)
-  real*8, pointer :: pBuf(:)
+  real(kind=wp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf(1)),pBuf,[lBuf_])
   call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)

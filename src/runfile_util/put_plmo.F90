@@ -11,10 +11,12 @@
 
 subroutine Put_PLMO(PLMO,nPLMO)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 PLMO(nPLMO)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nPLMO
+real(kind=wp) :: PLMO(nPLMO)
+character(len=24) :: Label
 
 Label = 'PLMO'
 call Put_dArray(Label,PLMO,nPLMO)

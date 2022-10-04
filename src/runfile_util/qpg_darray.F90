@@ -40,29 +40,16 @@
 
 subroutine Qpg_dArray(Label,Found,nData)
 
-implicit none
-#include "pg_da_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-logical Found
-integer nData
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-character*16 RecLab(nTocDA)
-integer RecIdx(nTocDA)
-integer RecLen(nTocDA)
-character*16 CmpLab1
-character*16 CmpLab2
-integer item
-integer nTmp, iTmp
-integer i
+use Definitions, only: iwp, u6
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
+implicit none
+character(len=*) :: Label
+logical(kind=iwp) :: Found
+integer(kind=iwp) :: nData
+#include "pg_da_info.fh"
+integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocDA), RecLen(nTocDA)
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDA)
+
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
@@ -91,10 +78,10 @@ end do
 
 if (item /= -1) then
   if (RecIdx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, querying temporary dArray field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, querying temporary dArray field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif

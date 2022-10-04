@@ -22,14 +22,13 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine NameRun(Name)
+subroutine NameRun(fName)
 
+implicit none
+character(len=*) :: fName
 #include "runinfo.fh"
-character*(*) Name
-!integer iRc
-!integer iOpt
 
-if (Name == '#Pop') then
+if (fName == '#Pop') then
   RunName = RnNmStk(1)
   RnNmStk(1) = RnNmStk(2)
   RnNmStk(2) = RnNmStk(3)
@@ -39,7 +38,7 @@ else
   RnNmStk(3) = RnNmStk(2)
   RnNmStk(2) = RnNmStk(1)
   RnNmStk(1) = RunName
-  RunName = Name
+  RunName = fName
 end if
 
 call ClrRunCache()

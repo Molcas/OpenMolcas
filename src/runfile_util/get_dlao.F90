@@ -11,18 +11,22 @@
 
 subroutine Get_DLAO(DLAO,nDLAO)
 
-implicit real*8(A-H,O-Z)
-character*24 Label
-logical Found
-real*8 DLAO(nDLAO)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nDLAO
+real(kind=wp) :: DLAO(nDLAO)
+integer(kind=iwp) :: mDLAO
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'DLAO'
 call qpg_dArray(Label,Found,mDLAO)
 if ((.not. Found) .or. (mDLAO == 0)) call SysAbendMsg('get_dlao','Did not find:',Label)
 if (nDLAO /= mDLAO) then
-  write(6,*) 'Get_DLAO: nDLAO/=mDLAO'
-  write(6,*) 'nDLAO=',nDLAO
-  write(6,*) 'mDLAO=',mDLAO
+  write(u6,*) 'Get_DLAO: nDLAO/=mDLAO'
+  write(u6,*) 'nDLAO=',nDLAO
+  write(u6,*) 'mDLAO=',mDLAO
   call Abend()
 end if
 

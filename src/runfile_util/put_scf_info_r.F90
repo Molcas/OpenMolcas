@@ -11,10 +11,12 @@
 
 subroutine Put_SCF_Info_R(iCase,Arr,nArr)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 Arr(nArr)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iCase, nArr
+real(kind=wp) :: Arr(nArr)
+character(len=24) :: Label
 
 Label = 'SCFInfoR'
 if (iCase == 1) Label = 'SCFInfoR_ab'

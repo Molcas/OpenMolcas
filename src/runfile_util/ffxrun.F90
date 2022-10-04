@@ -24,28 +24,18 @@
 
 subroutine ffxRun(iRc,Label,nData,RecTyp,iOpt)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iRc, nData, RecTyp, iOpt
+character(len=*) :: Label
 #include "runinfo.fh"
 #include "runtypes.fh"
 #include "runrc.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer iRc
-character*(*) Label
-integer nData
-integer RecTyp
-integer iOpt
-!----------------------------------------------------------------------*
-! Declare local data                                                   *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-character*16 CmpLab1
-character*16 CmpLab2
-integer Lu
-integer iDisk
-logical ok
-integer item
-integer i
+integer(kind=iwp) :: i, iDisk, item, Lu
+logical(kind=iwp) :: ok
+character(len=64) :: ErrMsg
+character(len=16) :: CmpLab1, CmpLab2
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -65,7 +55,7 @@ call f_inquire(RunName,ok)
 
 !if (.not. ok) call SysAbendMsg('ffxRun','RunFile does not exist',' ')
 if (.not. ok) then
-  !write(6,*) ' Warning! In ffxRun: runfile does not exist!'
+  !write(u6,*) ' Warning! In ffxRun: runfile does not exist!'
   iRc = rcNotFound
   nData = 0
   RecTyp = TypUnk

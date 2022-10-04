@@ -11,30 +11,18 @@
 ! Copyright (C) 2003, Per-Olof Widmark                                 *
 !***********************************************************************
 
-subroutine Get_dScalar_(Label,data)
+subroutine Get_dScalar_(Label,rData)
+
+use Definitions, only: wp, iwp, u6
 
 implicit none
+character(len=*) :: Label
+real(kind=wp) :: rData
 #include "pg_ds_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-real*8 data
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-real*8 RecVal(nTocDS)
-character*16 RecLab(nTocDS)
-integer RecIdx(nTocDS)
-!
-character*16 CmpLab1
-character*16 CmpLab2
-integer item
-integer i
+integer(kind=iwp) :: i, item, RecIdx(nTocDS)
+real(kind=wp) :: RecVal(nTocDS)
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDS)
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
@@ -55,10 +43,10 @@ end do
 
 if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, reading temporary dScalar field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, reading temporary dScalar field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif
@@ -70,7 +58,7 @@ end if
 i_run_DS_used(item) = i_run_DS_used(item)+1
 if (item == -1) call SysAbendMsg('get_dScalar','Could not locate: ',Label)
 if (RecIdx(item) == 0) call SysAbendMsg('get_dScalar','Data not defined: ',Label)
-data = RecVal(item)
+rData = RecVal(item)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

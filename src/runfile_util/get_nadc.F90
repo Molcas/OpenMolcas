@@ -11,11 +11,13 @@
 
 subroutine Get_nadc(Grad1,Grad2,NADC,nGrad)
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
 
-real*8 Grad1(nGrad), Grad2(nGrad), NADC(nGrad)
-character*24 Label
+implicit none
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad1(nGrad), Grad2(nGrad), NADC(nGrad)
+character(len=16) :: Label
+
 Label = 'Grad State1'
 call Get_dArray(Label,Grad1,nGrad)
 Label = 'Grad State2'

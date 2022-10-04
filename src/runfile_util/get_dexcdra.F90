@@ -11,10 +11,13 @@
 
 subroutine Get_dExcdRa(ipdExcdRa,ndExcdRa)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ipdExcdRa, ndExcdRa
 #include "WrkSpc.fh"
-character(LEN=24) Label
-logical Found
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'dExcdRa'
 call qpg_dArray(Label,Found,ndExcdRa)

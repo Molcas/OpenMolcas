@@ -24,21 +24,16 @@
 
 subroutine ffRun(Label,nData,RecTyp)
 
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: nData, RecTyp
 #include "runinfo.fh"
 #include "runtypes.fh"
 #include "runrc.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-character*(*) Label
-integer nData
-integer RecTyp
-!----------------------------------------------------------------------*
-! Declare local data                                                   *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-integer iRc
-integer iOpt
+integer(kind=iwp) :: iOpt, iRc
+character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Call extended version routine.                                       *

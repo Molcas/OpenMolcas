@@ -11,10 +11,12 @@
 
 subroutine Put_DLAO(DLAO,nDLAO)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 DLAO(nDLAO)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nDLAO
+real(kind=wp) :: DLAO(nDLAO)
+character(len=24) :: Label
 
 Label = 'DLAO'
 call Put_dArray(Label,DLAO,nDLAO)

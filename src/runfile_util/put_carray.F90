@@ -54,37 +54,20 @@
 !> '``MkNemo.lEnergy``'     The labels of energies as specified in mknemo module.
 !>
 !> @param[in] Label Name of field
-!> @param[in] Data  Data to put on runfile
+!> @param[in] cData Data to put on runfile
 !> @param[in] nData Length of array
 !***********************************************************************
 
-subroutine Put_cArray(Label,data,nData)
+subroutine Put_cArray(Label,cData,nData)
+
+use Definitions, only: iwp, u6
 
 implicit none
+character(len=*) :: Label, cData !vv cData(nData)
+integer(kind=iwp) :: nData
 #include "pg_ca_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-character*16 myLabel
-integer nData
-character*(*) data
-!vv character*(*) Data(nData)
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-character*16 RecLab(nTocCA)
-integer RecIdx(nTocCA)
-integer RecLen(nTocCA)
-save RecLab
-save RecIdx
-save RecLen
-character*16 CmpLab1
-character*16 CmpLab2
-integer nTmp
-integer item
-integer iTmp
-integer i, ilen
+integer(kind=iwp) :: i, ilen, item, iTmp, nTmp, RecIdx(nTocCA) = 0, RecLen(nTocCA) = 0
+character(len=16) :: CmpLab1, CmpLab2, myLabel, RecLab(nTocCA) = ''
 
 !----------------------------------------------------------------------*
 ! Do setup if this is the first call.                                  *
@@ -172,10 +155,10 @@ end if
 
 if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, writing temporary cArray field'
-    write(6,*) '***   Field: ',myLabel
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, writing temporary cArray field'
+    write(u6,*) '***   Field: ',myLabel
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif
@@ -185,7 +168,7 @@ end if
 ! Write data to disk.                                                  *
 !----------------------------------------------------------------------*
 if (item == -1) call SysAbendMsg('put_cArray','Could not locate',myLabel)
-call cWrRun(RecLab(item),data,nData)
+call cWrRun(RecLab(item),cData,nData)
 if (RecIdx(item) == 0) then
   RecIdx(item) = sRegularField
   call iWrRun('cArray indices',RecIdx,nTocCA)

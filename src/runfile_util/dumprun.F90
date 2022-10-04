@@ -24,20 +24,14 @@
 
 subroutine DumpRun(iRc,iOpt)
 
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: iRc, iOpt
 #include "runinfo.fh"
 #include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer iRc
-integer iOpt
-!----------------------------------------------------------------------*
-! Declare local data                                                   *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
-integer Lu
-integer iDisk
-integer i
+integer(kind=iwp) :: i, iDisk, Lu
+character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -67,17 +61,17 @@ call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
 !----------------------------------------------------------------------*
 ! Print record information.                                            *
 !----------------------------------------------------------------------*
-write(6,*)
-write(6,'(2a)') '------------------------------------------------------'
-write(6,'(a)') 'Contents in RunFile'
-write(6,'(2a)') '------------------------------------------------------'
-write(6,'(2a)') '  Slot        Label       Disk loc.   Field len.  Type'
-write(6,'(2a)') '  ----  ----------------  ----------  ----------  ----'
+write(u6,*)
+write(u6,'(2a)') '------------------------------------------------------'
+write(u6,'(a)') 'Contents in RunFile'
+write(u6,'(2a)') '------------------------------------------------------'
+write(u6,'(2a)') '  Slot        Label       Disk loc.   Field len.  Type'
+write(u6,'(2a)') '  ----  ----------------  ----------  ----------  ----'
 do i=1,nToc
-  if (TocPtr(i) /= NulPtr) write(6,'(i6,2x,a16,i12,2i12,i6)') i,TocLab(i),TocPtr(i),TocLen(i),TocMaxLen(i),TocTyp(i)
+  if (TocPtr(i) /= NulPtr) write(u6,'(i6,2x,a16,i12,2i12,i6)') i,TocLab(i),TocPtr(i),TocLen(i),TocMaxLen(i),TocTyp(i)
 end do
-write(6,'(2a)') '------------------------------------------------------'
-write(6,*)
+write(u6,'(2a)') '------------------------------------------------------'
+write(u6,*)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

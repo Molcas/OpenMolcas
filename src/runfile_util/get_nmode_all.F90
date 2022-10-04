@@ -11,17 +11,22 @@
 
 subroutine Get_NMode_All(Vectors,nVectors,nFreq,nUnique_Atoms,Vectors_All,nAll_Atoms,mDisp)
 
-use Symmetry_Info, only: iChTbl, nIrrep, iOper, Symmetry_Info_Get
+use Symmetry_Info, only: iChTbl, iOper, nIrrep, Symmetry_Info_Get
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: nVectors, nFreq, nUnique_Atoms, nAll_Atoms, mDisp(0:7)
+real(kind=wp) :: Vectors(nVectors), Vectors_All(3*nAll_Atoms*nFreq)
 #include "WrkSpc.fh"
-real*8 Vectors(nVectors), Vectors_All(3*nAll_Atoms*nFreq)
-integer iGen(3), iCoSet(0:7,0:7), mDisp(0:7), iChCar(3), nDisp(0:7), iStab(0:7)
+integer(kind=iwp) :: Active = 0, iCar, iChAtom, iChCar(3), iCo, iComp, iCoSet(0:7,0:7), iFreq, iGen(3), iIrrep, iMode, ipCoor, &
+                     iStab(0:7), ipTmp, iUnique_Atom, iVec, iVector, iVector_all, kOp, MaxDCR, mUnique_Atoms, nCoSet, nDisp(0:7), &
+                     nGen, nStab
+real(kind=wp) :: Vec, XR, XY
 #ifdef _DEBUGPRINT_
-logical Temp
+logical(kind=iwp) :: Temp
 #endif
-integer, save :: Active = 0
+integer(kind=iwp), external :: iChxyz, iPrmt, NrOpr
 
 !                                                                      *
 !***********************************************************************
@@ -48,8 +53,8 @@ if (nGen >= 1) iGen(1) = iOper(1)
 if (nGen >= 2) iGen(2) = iOper(2)
 if (nGen == 3) iGen(3) = iOper(4)
 #ifdef _DEBUGPRINT_
-write(6,*) 'nGen=',nGen
-write(6,*) 'iGen=',(iGen(i),i=1,nGen)
+write(u6,*) 'nGen=',nGen
+write(u6,*) 'iGen=',(iGen(i),i=1,nGen)
 #endif
 call ChCar(iChCar,iGen,nGen)
 !                                                                      *
@@ -59,14 +64,14 @@ call ChCar(iChCar,iGen,nGen)
 
 call Get_iScalar('Unique atoms',mUnique_Atoms)
 if (mUnique_Atoms /= nUnique_Atoms) then
-  write(6,*) 'Get_NMode_All: mUnique_Atoms /= nUnique_Atoms'
+  write(u6,*) 'Get_NMode_All: mUnique_Atoms /= nUnique_Atoms'
   call Abend()
 end if
 call Allocate_Work(ipCoor,3*mUnique_Atoms)
 call Get_dArray('Unique Coordinates',Work(ipCoor),3*mUnique_Atoms)
 #ifdef _DEBUGPRINT_
-write(6,*) 'nVectors,nAll_Atoms,nFreq=',nVectors,nAll_Atoms,nFreq
-write(6,*)
+write(u6,*) 'nVectors,nAll_Atoms,nFreq=',nVectors,nAll_Atoms,nFreq
+write(u6,*)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -76,41 +81,41 @@ write(6,*)
 MaxDCR = 0
 do iIrrep=0,nIrrep-1
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'iIrrep=',iIrrep
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'iIrrep=',iIrrep
+  write(u6,*)
 # endif
   nDisp(iIrrep) = 0
   ipTmp = ipCoor
   do iUnique_Atom=1,nUnique_Atoms
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iUnique_Atom=',iUnique_Atom
+    write(u6,*) 'iUnique_Atom=',iUnique_Atom
 #   endif
     iChAtom = iChxyz(Work(ipTmp),iGen,nGen)
     ipTmp = ipTmp+3
     call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
     nCoSet = nIrrep/nStab
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'nCoSet=',nCoSet
-    write(6,*) 'iCoSet=',(iCoSet(i,0),i=0,nCoset-1)
-    write(6,*) 'iChAtom=',iChAtom
+    write(u6,*) 'nCoSet=',nCoSet
+    write(u6,*) 'iCoSet=',(iCoSet(i,0),i=0,nCoset-1)
+    write(u6,*) 'iChAtom=',iChAtom
 #   endif
     do iCar=0,2
       iComp = 2**iCar
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'iComp=',iComp
+      write(u6,*) 'iComp=',iComp
       Temp = TF(iIrrep,iComp)
-      write(6,*) 'TF(iIrrep,iComp)=',Temp
+      write(u6,*) 'TF(iIrrep,iComp)=',Temp
 #     endif
       if (TF(iIrrep,iComp)) nDisp(iIrrep) = nDisp(iIrrep)+1
     end do
   end do
 end do
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Grand Total'
-write(6,*) 'nDisp=',(nDisp(i),i=0,nIrrep-1)
-write(6,*)
+write(u6,*)
+write(u6,*) 'Grand Total'
+write(u6,*) 'nDisp=',(nDisp(i),i=0,nIrrep-1)
+write(u6,*)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -122,13 +127,13 @@ iVector_all = 0
 iFreq = 0
 outer: do iIrrep=0,nIrrep-1
 # ifdef _DEBUGPRINT_
-  write(6,*) 'iIrrep,nDisp(iIrrep)=',iIrrep,nDisp(iIrrep)
+  write(u6,*) 'iIrrep,nDisp(iIrrep)=',iIrrep,nDisp(iIrrep)
 # endif
 
   do iMode=1,mDisp(iIrrep)
     iFreq = iFreq+1
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iMode=',iMode
+    write(u6,*) 'iMode=',iMode
 #   endif
 
     ! Loop over symmetry unique centers
@@ -137,44 +142,44 @@ outer: do iIrrep=0,nIrrep-1
     do iUnique_Atom=1,nUnique_Atoms
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'iUnique_Atom=',iUnique_Atom
+      write(u6,*) 'iUnique_Atom=',iUnique_Atom
 #     endif
       ! Get permutational character of the center
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) Work(ipTmp),Work(ipTmp+1),Work(ipTmp+2)
+      write(u6,*) Work(ipTmp),Work(ipTmp+1),Work(ipTmp+2)
 #     endif
       iChAtom = iChxyz(Work(ipTmp),iGen,nGen)
       ipTmp = ipTmp+3
       call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
       nCoSet = nIrrep/nStab
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'nCoSet=',nCoSet
-      write(6,*) 'iCoSet=',(iCoSet(i,0),i=0,nCoset-1)
-      write(6,*) 'iChAtom=',iChAtom
+      write(u6,*) 'nCoSet=',nCoSet
+      write(u6,*) 'iCoSet=',(iCoSet(i,0),i=0,nCoset-1)
+      write(u6,*) 'iChAtom=',iChAtom
 #     endif
 
       iVec = 0 ! dummy initialize
       do iCo=0,nCoSet-1
         kOp = iCoSet(iCo,0)
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'iVector_All=',iVector_All
-        write(6,*) 'iVector=',iVector
-        write(6,*) 'iCo,kOp=',iCo,kOp
+        write(u6,*) 'iVector_All=',iVector_All
+        write(u6,*) 'iVector=',iVector
+        write(u6,*) 'iCo,kOp=',iCo,kOp
 #       endif
         iVec = 0
         do iCar=0,2
           iComp = 2**iCar
           iVector_All = iVector_All+1
 #         ifdef _DEBUGPRINT_
-          write(6,*) 'iCar=',iCar
-          write(6,*) 'iVector_All=',iVector_All
-          write(6,*) 'iComp=',iComp
+          write(u6,*) 'iCar=',iCar
+          write(u6,*) 'iVector_All=',iVector_All
+          write(u6,*) 'iComp=',iComp
           Temp = TF(iIrrep,iComp)
-          !write(6,*) 'TF(iIrrep,iComp)=',Temp
+          !write(u6,*) 'TF(iIrrep,iComp)=',Temp
 #         endif
           if (TF(iIrrep,iComp)) then
-            !write(6,*) 'Belong!'
+            !write(u6,*) 'Belong!'
             iVec = iVec+1
 
             ! In some cases we only want the normal modes of the first irrep!
@@ -182,15 +187,15 @@ outer: do iIrrep=0,nIrrep-1
 
             if (iVector+iVec > nVectors) exit outer
             Vec = Vectors(iVector+iVec)
-            XR = dble(iPrmt(NrOpr(kOp),iComp))
-            XY = dble(iChTbl(iIrrep,NrOpr(kOp)))
+            XR = real(iPrmt(NrOpr(kOp),iComp),kind=wp)
+            XY = real(iChTbl(iIrrep,NrOpr(kOp)),kind=wp)
             Vectors_All(iVector_All) = Vec*XR*XY
           else
-            !write(6,*) 'Doesn''t belong!'
+            !write(u6,*) 'Doesn''t belong!'
             Vectors_All(iVector_All) = Zero
           end if
 #         ifdef _DEBUGPRINT_
-          write(6,*) 'iVec=',iVec
+          write(u6,*) 'iVec=',iVec
 #         endif
         end do  ! iCar
       end do  ! iCo
@@ -214,10 +219,14 @@ return
 
 contains
 
-logical function TF(iIrrep,iComp)
-  implicit real*8(a-h,o-z)
-  logical, external :: TstFnc
+function TF(iIrrep,iComp)
+
+  logical(kind=iwp) :: TF
+  integer(kind=iwp) :: iIrrep, iComp
+  logical(kind=iwp), external :: TstFnc
+
   TF = TstFnc(iCoSet,iIrrep,iComp,nIrrep/nCoSet)
+
 end function TF
 
 end subroutine Get_NMode_All

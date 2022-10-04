@@ -23,22 +23,17 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine cxRdRun(iRc,Label,data,nData,iOpt)
+subroutine cxRdRun(iRc,Label,cData,nData,iOpt)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iRc, nData, iOpt
+character(len=*) :: Label
+character :: cData(*)
 #include "runinfo.fh"
 #include "runtypes.fh"
-!----------------------------------------------------------------------*
-! Declare arguments                                                    *
-!----------------------------------------------------------------------*
-integer iRc
-character*(*) Label
-character*1 data(*)
-integer nData
-integer iOpt
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-character*64 ErrMsg
+character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -51,7 +46,7 @@ iRc = 0
 !----------------------------------------------------------------------*
 ! Call generic reading routine.                                        *
 !----------------------------------------------------------------------*
-call gxRdRun(iRc,Label,data,nData,iOpt,TypStr)
+call gxRdRun(iRc,Label,cData,nData,iOpt,TypStr)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

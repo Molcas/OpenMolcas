@@ -39,27 +39,16 @@
 
 subroutine Qpg_dScalar(Label,Found)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
+character(len=*) :: Label
+logical(kind=iwp) :: Found
 #include "pg_ds_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-logical Found
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-real*8 RecVal(nTocDS)
-character*16 RecLab(nTocDS)
-integer RecIdx(nTocDS)
-character*16 CmpLab1
-character*16 CmpLab2
-integer item
-integer nTmp, iTmp
-integer i
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
+integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocDS)
+real(kind=wp) :: RecVal(nTocDS)
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDS)
+
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
@@ -87,10 +76,10 @@ end do
 
 if (item /= -1) then
   if (RecIdx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, querying temporary dScalar field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, querying temporary dScalar field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif

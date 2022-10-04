@@ -26,28 +26,31 @@
 
 subroutine Get_Grad_Full(Grad_Full,nAtoms_Full)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer nAtoms_Full, nAtoms_Fullx, nAtoms_All, nGrad, nGradMM
-real*8 Grad_Full(3,nAtoms_Full)
-logical Found
+integer(kind=iwp) :: nAtoms_Full
+real(kind=wp) :: Grad_Full(3,nAtoms_Full)
+integer(kind=iwp) :: nAtoms_All, nAtoms_Fullx, nGrad, nGradMM
+logical(kind=iwp) :: Found
 
 call Get_nAtoms_Full(nAtoms_Fullx)
 if (nAtoms_Full /= nAtoms_Fullx) then
-  write(6,*) 'Get_Grad_Full: nAtoms_Full /= nAtoms_Fullx'
-  write(6,*) 'nAtoms_Full=',nAtoms_Full
-  write(6,*) 'nAtoms_Fullx=',nAtoms_Fullx
+  write(u6,*) 'Get_Grad_Full: nAtoms_Full /= nAtoms_Fullx'
+  write(u6,*) 'nAtoms_Full=',nAtoms_Full
+  write(u6,*) 'nAtoms_Fullx=',nAtoms_Fullx
   call Abend()
 end if
 call Get_nAtoms_All(nAtoms_All)
 if (nAtoms_Full < nAtoms_All) then
-  write(6,*) 'Get_Coord_Full: nAtoms_Full < nAtoms_All'
-  write(6,*) 'nAtoms_Full=',nAtoms_Full
-  write(6,*) 'nAtoms_Fullx=',nAtoms_All
+  write(u6,*) 'Get_Coord_Full: nAtoms_Full < nAtoms_All'
+  write(u6,*) 'nAtoms_Full=',nAtoms_Full
+  write(u6,*) 'nAtoms_Fullx=',nAtoms_All
   call Abend()
 end if
 call Qpg_dArray('GRAD',Found,nGrad)
 if ((.not. Found) .or. (nGrad == 0)) then
-  write(6,*) 'Get_Grad_Full: Did not find GRAD'
+  write(u6,*) 'Get_Grad_Full: Did not find GRAD'
   call Abend()
 end if
 call Get_dArray('GRAD',Grad_Full,nGrad)

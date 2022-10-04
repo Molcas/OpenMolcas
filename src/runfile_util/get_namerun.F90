@@ -9,12 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_NameRun(Name)
+subroutine Get_NameRun(fName)
 
+implicit none
+character(len=*) :: fName
 #include "runinfo.fh"
-character*(*) Name
 
-Name = RunName
+fName = RunName
 
 return
 

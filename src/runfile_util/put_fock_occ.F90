@@ -11,10 +11,12 @@
 
 subroutine Put_Fock_Occ(FockOcc,nFockOcc)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 FockOcc(nFockOcc)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nFockOcc
+real(kind=wp) :: FockOcc(nFockOcc)
+character(len=24) :: Label
 
 Label = 'FockOcc'
 call Put_dArray(Label,FockOcc,nFockOcc)

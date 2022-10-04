@@ -13,18 +13,17 @@
 
 subroutine Get_Nuc_Charge_All_(Coord_Unique,Charges_Unique,nUnique_Atoms,Charges_All,nAll_Atoms)
 
-use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
+use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
+use Definitions, only: wp, iwp
 
 implicit none
-#include "real.fh"
-integer nUnique_Atoms, nAll_Atoms
-real*8 Coord_Unique(3,nUnique_Atoms), Charges_Unique(nUnique_Atoms), Charges_All(nAll_Atoms)
-integer iGen(3), iCoSet(0:7,0:7), iStab(0:7)
-integer nGen, iAll_Atom, MaxDCR, iUnique_Atom, iChAtom, nStab, nCoSet, iCo, iChxyz
-real*8 Charge_Old
-integer, save :: Active = 0
+integer(kind=iwp) :: nUnique_Atoms, nAll_Atoms
+real(kind=wp) :: Coord_Unique(3,nUnique_Atoms), Charges_Unique(nUnique_Atoms), Charges_All(nAll_Atoms)
+integer(kind=iwp) :: Active = 0, iAll_Atom, iChAtom, iChxyz, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), iUnique_Atom, MaxDCR, &
+                     nCoSet, nGen, nStab
+real(kind=wp) :: Charge_Old
 
-!write(6,*) 'Enter Get_Nuc_Charge_All_'
+!write(u6,*) 'Enter Get_Nuc_Charge_All_'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -32,8 +31,8 @@ if (Active == 0) then
   call Symmetry_Info_Get()
   Active = 1
 end if
-!write(6,*) 'Get_Nuc_Charge_All_: nIrrep=',nIrrep
-!write(6,*) 'Get_Nuc_Charge_All_: iOper=',(iOper(i),i=0,nIrrep-1)
+!write(u6,*) 'Get_Nuc_Charge_All_: nIrrep=',nIrrep
+!write(u6,*) 'Get_Nuc_Charge_All_: iOper=',(iOper(i),i=0,nIrrep-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

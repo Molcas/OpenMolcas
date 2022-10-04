@@ -9,15 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_lScalar(Label,Log)
+subroutine Get_lScalar(Label,Logc)
 
-character*(*) Label
-logical Log
-integer iLog
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: Label
+logical(kind=iwp) :: Logc
+integer(kind=iwp) :: iLog
 
 call Get_iScalar(Label,iLog)
 
-Log = iLog == 1
+Logc = iLog == 1
 
 return
 

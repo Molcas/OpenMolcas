@@ -11,10 +11,12 @@
 
 subroutine Put_LCMO(LCMO,nLCMO)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-real*8 LCMO(nLCMO)
-character*24 Label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nLCMO
+real(kind=wp) :: LCMO(nLCMO)
+character(len=24) :: Label
 
 Label = 'LCMO'
 call Put_dArray(Label,LCMO,nLCMO)

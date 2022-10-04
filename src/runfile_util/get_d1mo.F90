@@ -11,20 +11,22 @@
 
 subroutine Get_D1MO(D1MO,nDens)
 
-implicit real*8(A-H,O-Z)
-#include "WrkSpc.fh"
-character*24 Label
-logical Found
-integer nDens
-real*8 D1MO(nDens)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nDens
+real(kind=wp) :: D1MO(nDens)
+integer(kind=iwp) :: mDens
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'D1mo'
 call qpg_dArray(Label,Found,mDens)
 if ((.not. Found) .or. (nDens == 0)) call SysAbendMsg('get_d1mo','Did not find:',Label)
 if (mDens /= nDens) then
-  write(6,*) 'Get_D1MO: mDens/=nDens'
-  write(6,*) 'mDens=',mDens
-  write(6,*) 'nDens=',nDens
+  write(u6,*) 'Get_D1MO: mDens/=nDens'
+  write(u6,*) 'mDens=',mDens
+  write(u6,*) 'nDens=',nDens
   call Abend()
 end if
 call Get_dArray(Label,D1MO,nDens)

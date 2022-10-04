@@ -26,16 +26,19 @@
 
 subroutine Get_Nuc_Charge_All(Charges_All,nAtoms_All)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtoms_All
+real(kind=wp) :: Charges_All(nAtoms_All)
 #include "WrkSpc.fh"
-real*8 Charges_All(nAtoms_All)
+integer(kind=iwp) :: ipCMU, ipCU, nAtoms, nAtoms_Allx
 
 call Get_nAtoms_All(nAtoms_Allx)
 if (nAtoms_All /= nAtoms_Allx) then
-  write(6,*) 'Get_Nuc_Charge_All: nAtoms_All /= nAtoms_Allx'
-  write(6,*) 'nAtoms_All=',nAtoms_All
-  write(6,*) 'nAtoms_Allx=',nAtoms_Allx
+  write(u6,*) 'Get_Nuc_Charge_All: nAtoms_All /= nAtoms_Allx'
+  write(u6,*) 'nAtoms_All=',nAtoms_All
+  write(u6,*) 'nAtoms_Allx=',nAtoms_Allx
   call Abend()
 end if
 

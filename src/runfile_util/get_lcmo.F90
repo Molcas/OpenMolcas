@@ -11,18 +11,22 @@
 
 subroutine Get_LCMO(LCMO,nLCMO)
 
-implicit real*8(A-H,O-Z)
-character*24 Label
-logical Found
-real*8 LCMO(nLCMO)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nLCMO
+real(kind=wp) :: LCMO(nLCMO)
+integer(kind=iwp) :: mLCMO
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'LCMO'
 call qpg_dArray(Label,Found,mLCMO)
 if ((.not. Found) .or. (mLCMO == 0)) call SysAbendMsg('get_lcmo','Did not find:',Label)
 if (nLCMO /= mLCMO) then
-  write(6,*) 'Get_LCMO: nLCMO/=mLCMO'
-  write(6,*) 'nLCMO=',nLCMO
-  write(6,*) 'mLCMO=',mLCMO
+  write(u6,*) 'Get_LCMO: nLCMO/=mLCMO'
+  write(u6,*) 'nLCMO=',nLCMO
+  write(u6,*) 'mLCMO=',mLCMO
   call Abend()
 end if
 call get_dArray(Label,LCMO,nLCMO)

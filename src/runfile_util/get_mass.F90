@@ -25,26 +25,29 @@
 
 subroutine Get_Mass(Mass,nAtoms)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
 implicit none
-#include "stdalloc.fh"
-integer nAtoms, mAtoms, nCent, i
-real*8 Mass(nAtoms)
-integer, dimension(:), allocatable :: AtoB
-real*8, dimension(:), allocatable :: CentMass
-logical Found
+integer(kind=iwp) :: nAtoms
+real(kind=wp) :: Mass(nAtoms)
+integer(kind=iwp) :: i, mAtoms, nCent
+logical(kind=iwp) :: Found
+integer(kind=iwp), allocatable :: AtoB(:)
+real(kind=wp), allocatable :: CentMass(:)
 
 call Get_iScalar('Unique atoms',mAtoms)
 if (mAtoms /= nAtoms) then
-  write(6,*) 'Get_Mass: mAtoms /= nAtoms'
-  write(6,*) 'mAtoms=',mAtoms
-  write(6,*) 'nAtoms=',nAtoms
+  write(u6,*) 'Get_Mass: mAtoms /= nAtoms'
+  write(u6,*) 'mAtoms=',mAtoms
+  write(u6,*) 'nAtoms=',nAtoms
   call Abend()
 end if
 call mma_allocate(AtoB,nAtoms)
 call Get_iArray('Atom -> Basis',AtoB,nAtoms)
 call Qpg_dArray('Isotopes',Found,nCent)
 if (.not. Found) then
-  write(6,*) 'Get_Mass: Isotopes array not found'
+  write(u6,*) 'Get_Mass: Isotopes array not found'
   call Abend()
 end if
 call mma_allocate(CentMass,nCent)

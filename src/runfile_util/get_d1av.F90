@@ -11,18 +11,22 @@
 
 subroutine Get_D1AV(D1AV,nD1AV)
 
-implicit real*8(A-H,O-Z)
-character*24 Label
-logical Found
-real*8 D1AV(nD1AV)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nD1AV
+real(kind=wp) :: D1AV(nD1AV)
+integer(kind=iwp) :: mD1AV
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 Label = 'D1av'
 call qpg_dArray(Label,Found,mD1AV)
 if ((.not. Found) .or. (mD1AV == 0)) call SysAbendMsg('Get_D1AV','Did not find:',Label)
 if (nD1AV /= mD1AV) then
-  write(6,*) 'Get_D1AV: nD1AV/=mD1AV'
-  write(6,*) 'nD1AV=',nD1AV
-  write(6,*) 'mD1AV=',mD1AV
+  write(u6,*) 'Get_D1AV: nD1AV/=mD1AV'
+  write(u6,*) 'nD1AV=',nD1AV
+  write(u6,*) 'mD1AV=',mD1AV
   call Abend()
 end if
 

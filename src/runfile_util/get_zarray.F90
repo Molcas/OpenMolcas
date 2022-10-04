@@ -10,18 +10,24 @@
 !***********************************************************************
 
 ! complex number in runfile
-subroutine Get_zArray(Label,data,nData)
+subroutine Get_zArray(Label,zData,nData)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Onei
+use Definitions, only: wp, iwp
 
 implicit none
-character*(*) Label
-integer nData
-real*8 RData(nData), IData(nData)
-complex*16 data(nData)
+character(len=*) :: Label
+integer(kind=iwp) :: nData
+complex(kind=wp) :: zData(nData)
+real(kind=wp), allocatable :: rData(:)
 
-call Get_dArray('R'//Label,RData,nData)
-call Get_dArray('I'//Label,IData,nData)
-
-data = RData+(0.0,1.0)*IData
+call mma_allocate(rData,nData,label='rData')
+call Get_dArray('R'//Label,rData,nData)
+zData(:) = rData
+call Get_dArray('I'//Label,rData,nData)
+zData(:) = zData+Onei*rData
+call mma_deallocate(rData)
 
 return
 

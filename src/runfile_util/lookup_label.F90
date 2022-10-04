@@ -14,29 +14,22 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine LookUp_label(i,type,Label)
+subroutine LookUp_label(i,dtype,Label)
 
-#include "pg_ca_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) type
-character*16 Label
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-character*16 RecLab(256)
-integer nTmp, iTmp
-integer i
+use Definitions, only: iwp
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
+implicit none
+integer(kind=iwp) :: i
+character(len=*) :: dtype
+character(len=16) :: Label
+integer(kind=iwp) :: iTmp, nTmp
+character(len=16) :: RecLab(256)
+
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-call ffRun(type,nTmp,iTmp)
-call cRdRun(type,RecLab,16*256)
+call ffRun(dtype,nTmp,iTmp)
+call cRdRun(dtype,RecLab,16*256)
 Label = RecLab(i)
 
 return

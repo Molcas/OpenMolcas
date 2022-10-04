@@ -11,11 +11,15 @@
 
 subroutine Get_LblCnt_All(xLblCnt)
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
 #include "Molcas.fh"
-real*8, allocatable :: Coord(:,:)
-character*(LENIN) xLblCnt(*), xLblCnt_Unique(MxAtom)
+character(len=LenIn) :: xLblCnt(*)
+integer(kind=iwp) :: nAtoms, nAtoms_all
+character(len=LenIn) ::  xLblCnt_Unique(MxAtom)
+real(kind=wp), allocatable :: Coord(:,:)
 
 call Get_iScalar('Unique atoms',nAtoms)
 call mma_allocate(Coord,3,nAtoms,Label='Coord')

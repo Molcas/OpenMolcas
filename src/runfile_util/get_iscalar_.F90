@@ -11,29 +11,17 @@
 ! Copyright (C) 2003, Per-Olof Widmark                                 *
 !***********************************************************************
 
-subroutine Get_iScalar_(Label,data)
+subroutine Get_iScalar_(Label,iData)
+
+use Definitions, only: iwp, u6
 
 implicit none
+character(len=*) :: Label
+integer(kind=iwp) :: iData
 #include "pg_is_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-character*(*) Label
-integer data
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-integer RecVal(nTocIS)
-character*16 RecLab(nTocIS)
-integer RecIdx(nTocIS)
-character*16 CmpLab1
-character*16 CmpLab2
-integer item
-integer i
+integer(kind=iwp) :: i, item, RecIdx(nTocIS), RecVal(nTocIS)
+character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocIS)
 
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
@@ -54,10 +42,10 @@ end do
 
 if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
-    write(6,*) '***'
-    write(6,*) '*** Warning, reading temporary iScalar field'
-    write(6,*) '***   Field: ',Label
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Warning, reading temporary iScalar field'
+    write(u6,*) '***   Field: ',Label
+    write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
 #   endif
@@ -69,7 +57,7 @@ end if
 i_run_IS_used(item) = i_run_IS_used(item)+1
 if (item == -1) call SysAbendMsg('get_iScalar','Could not locate: ',Label)
 if (RecIdx(item) == 0) call SysAbendMsg('get_iScalar','Data not defined: ',Label)
-data = RecVal(item)
+iData = RecVal(item)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

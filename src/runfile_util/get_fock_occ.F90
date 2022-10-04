@@ -11,15 +11,17 @@
 
 subroutine Get_Fock_Occ(FockOcc,nFockOcc)
 
-implicit real*8(A-H,O-Z)
-real*8 FockOcc(nFockOcc)
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-character(LEN=24) Label
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nFockOcc
+real(kind=wp) :: FockOcc(nFockOcc)
 #ifdef _DEBUGPRINT_
 #include "run_common.fh"
 #endif
-logical Found
+integer(kind=iwp) :: mFockOcc
+logical(kind=iwp) :: Found
+character(len=24) :: Label
 
 ! Read the generalized Fock matrix
 !                                                                      *
@@ -29,8 +31,8 @@ Label = 'FockOcc'
 call qpg_dArray(Label,Found,mFockOcc)
 if ((.not. Found) .or. (mFockOcc == 0)) call SysAbendMsg('get_fock_occ','Did not find:',Label)
 if (mFockOcc /= nFockOcc) then
-  write(6,*) 'nFockOcc=',nFockOcc
-  write(6,*) 'mFockOcc=',mFockOcc
+  write(u6,*) 'nFockOcc=',nFockOcc
+  write(u6,*) 'mFockOcc=',mFockOcc
   call SysAbendMsg('get_fock_occ','mFockOcc/=nFockOcc:',Label)
 end if
 call Get_dArray(Label,FockOcc,nFockOcc)
@@ -46,11 +48,11 @@ if (is_nBas == 0) then
   call Get_iArray('nBas',nBas,nSym)
   is_nBas = 1
 end if
-write(6,*) 'Fock occ'
+write(u6,*) 'Fock occ'
 ii = 1
 do iIrrep=0,nSym-1
   if (nBas(iIrrep) > 0) then
-    write(6,*) 'symmetry block',iIrrep
+    write(u6,*) 'symmetry block',iIrrep
     call TriPrt(' ',' ',FockOcc(ii),nBas(iIrrep))
     ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
   end if
