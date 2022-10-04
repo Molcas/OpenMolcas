@@ -13,21 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GrdClc(Do_all)
-      use SCF_Arrays
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-      Logical Do_All
-#include "real.fh"
-*
-      nD = iUHF + 1
-      Call GrdClc_(Do_All,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
-     &             nBB,Ovrlp,CMO, CMO_Ref)
-*
-      Return
-      End
-      SubRoutine GrdClc_(Do_All,Dens,TwoHam,Vxc,mBT,mDens,nD,OneHam,
-     &                   mBB,Ovrlp,CMO, CMO_Ref)
+      SubRoutine GrdClc(Do_All)
 ************************************************************************
 *                                                                      *
 *     purpose: Compute gradients and write on disk.                    *
@@ -55,25 +41,28 @@
 *                                                                      *
 ************************************************************************
       Use Interfaces_SCF, Only: vOO2OV
-      Use InfSO
-      Use InfSCF
+      Use InfSCF, only: iDisk, iter, iter0, iter_Ref, kOV, mOV, nBO,
+     &                  nBT, nOO, MapDns
       use LnkLst, only: LLGrad
-      Implicit Real*8 (a-h,o-z)
+      use SCF_Arrays, Only: Dens, TwoHam, Vxc, OneHam, CMO, CMO_Ref,
+     &                      Ovrlp
+      Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 *
-      Real*8 Dens(mBT,nD,mDens), TwoHam(mBT,nD,mDens), CMO(mBB,nD),
-     &       OneHam(mBT), Ovrlp(mBT), Vxc(mBT,nD,mDens),
-     &       CMO_Ref(mBB,nD)
+      Logical Do_All
+
+! Local variables
       Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
-      Logical Do_All
+      Integer nD, iDT, iOpt, iter_d, jDT, LpStrt, LpEnd
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
+      nD =Size(Vxc,2)
 *#define _DEBUGPRINT_
 *
 *--- Allocate memory for gradients and gradient contributions
