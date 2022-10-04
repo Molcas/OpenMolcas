@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2017, 2022, Quan Phung                                 *
+! Copyright (C) 2017, Quan Phung                                       *
 !***********************************************************************
 
 subroutine DICE_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)

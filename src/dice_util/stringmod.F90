@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2022                                                   *
+! Copyright (C) 2022, George Benthien                                  *
 !***********************************************************************
 ! String utilites from George Benthien
 ! Approved for using by George Benthien
