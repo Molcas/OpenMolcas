@@ -94,7 +94,7 @@ end interface
 
 ! list of constants
 real(kind=wp), parameter :: k_B = kBoltzmann/(auTokJ*1.0e3_wp), threshold = 1.0e-6_wp
-integer(kind=iwp) :: ipglob, i_rasscf, runmode, N, Nstate, d, n_freq, ndet_tot, nconftot, lrootstot, maxnconf, maxlroots
+integer(kind=iwp) :: ipglob, i_rasscf, runmode, N, Nstate, d, n_freq, ndet_tot, nconftot, lrootstot, maxnconf, maxlroots, n_sf
 integer(kind=iwp), allocatable :: ispin(:), istates(:), lroots(:), nconf(:), ndet(:)
 real(kind=wp), allocatable :: a_einstein(:,:), CI(:,:,:), DTOC(:,:,:), dysamp(:,:), E(:,:), H_CSF(:,:,:), HTOTRE_CSF(:,:), U_CI(:,:)
 complex(kind=wp), allocatable :: CSF2SO(:,:), dipole(:,:,:), dipole_basis(:,:,:), DM0(:,:), dysamp_bas(:,:), E_SF(:), E_SO(:), &
@@ -143,7 +143,7 @@ real(kind=wp), allocatable :: amp(:), omega(:), phi(:), sigma(:), taushift(:)
 public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, CI, CSF2SO, d, decay, density0, densityt, dgl, &
           dipole, dipole_basis, DM0, DM_basis, dt, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, equation_func, errorthreshold, &
           finaltime, flag_acorrection, flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, &
-          flag_test, H_CSF, hamiltonian, hamiltoniant, HRSO, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, initialtime, int2real, &
+          flag_test, H_CSF, hamiltonian, hamiltoniant, HRSO, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, initialtime, int2real, n_sf, &
           ion_diss, ipglob, ispin, istates, k_b, K_bar_basis, kab_basis, kext, linear_chirp, lroots, lrootstot, lu_csf, lu_dip, &
           lu_pls, lu_sf, lu_so, maxlroots, maxnconf, method, N, n_freq, N_L2, N_L3, N_Populated, N_pulse, nconf, nconftot, ndet, &
           ndet_tot, Nmode, Npop, Nstate, Nstep, Ntime_tmp_dm, Nval, omega, out2_fmt, out3_fmt, out_decay_i, out_decay_r, &

@@ -17,7 +17,8 @@ subroutine read_rassisd()
 !            hamiltonian from the MOLCAS output rassisd file (SO)
 !***********************************************************************
 
-use rhodyn_data, only: dipole, dysamp, E_SF, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, runmode, SO_CI, V_SO
+use rhodyn_data, only: dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
+                       runmode, SO_CI, V_SO, basis
 use rhodyn_utils, only: dashes
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -148,10 +149,38 @@ else
   end if
 end if
 !write(u6,*) 'dysorb has been read'
+
+
+if (basis=='SPH') then
+  if (ipglob > 2) write(u6,*) 'Reading SF energies SFS_ENERGIES'
+  if (mh5_exists_dset(fileid,'SFS_ENERGIES')) then
+    call mma_allocate(tmpe,n_sf)
+    call mh5_fetch_dset(fileid,'SFS_ENERGIES',tmpe)
+    E_SF(:) = tmpe
+    call mma_deallocate(tmpe)
+  else
+    write(u6,*) 'Error in reading RASSI file, no SFS_ENERGIES'
+    call abend()
+  end if
+  ! sf dipole needed
+  call mma_deallocate(dipole)
+  call mma_deallocate(DIPR)
+  call mma_deallocate(DIPI)
+  call mma_allocate(dipole,n_sf,n_sf,3)
+  call mma_allocate(DIPR,n_sf,n_sf,3)
+  call mma_allocate(DIPI,n_sf,n_sf,3)
+  if (mh5_exists_dset(fileid,'SFS_EDIPMOM')) then
+    call mh5_fetch_dset(fileid,'SFS_EDIPMOM',DIPR)
+    DIPI = Zero
+  else
+    write(u6,*) 'Error in reading RASSISD file, no dipole matrix in SF basis'
+    call abend()
+  end if
+endif
+
 dipole(:,:,:) = cmplx(DIPR,DIPI,kind=wp)
 if (allocated(DIPR)) call mma_deallocate(DIPR)
 if (allocated(DIPI)) call mma_deallocate(DIPI)
-
 call mh5_close_file(fileid)
 
 end subroutine read_rassisd

@@ -74,7 +74,7 @@ do
     case ('PROP')
       read(luin,'(A)') basis
       call upCase(basis)
-      if ((basis /= 'DET') .and. (basis /= 'CSF') .and. (basis /= 'SF') .and. (basis /= 'SO')) then
+      if ((basis /= 'DET') .and. (basis /= 'CSF') .and. (basis /= 'SF') .and. (basis /= 'SO') .and. (basis /= 'SPH')) then
         call WarningMessage(2,'Unknown option for PROPagation basis')
         call abend()
       end if
@@ -106,7 +106,7 @@ do
       read(luin,*) method
       call upCase(method)
       if ((method /= 'RKCK') .and. (method /= 'RK45') .and. (method /= 'RK4') .and. (method /= 'RK5') .and. &
-          (method /= 'CLASSIC_RK4')) then
+          (method /= 'CLASSIC_RK4') .and. (method /= 'RK4_SPH')) then
         call WarningMessage(2,'Unknown option for METHod')
         call abend()
       end if

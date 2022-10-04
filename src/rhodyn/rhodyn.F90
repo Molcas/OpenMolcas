@@ -20,7 +20,7 @@ subroutine rhodyn(ireturn)
 
 use rhodyn_data, only: a_einstein, alpha, amp, basis, CI, CSF2SO, d, decay, density0, densityt, dipole, dipole_basis, DM0, &
                        DM_basis, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, flag_decay, flag_diss, flag_dyson, flag_so, &
-                       H_CSF, hamiltonian, hamiltoniant, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, ipglob, ispin, istates, &
+                       H_CSF, hamiltonian, hamiltoniant, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, ipglob, ispin, istates, n_sf, &
                        k_bar_basis, kab_basis, kext, lroots, lrootstot, maxlroots, maxnconf, N, n_freq, nconf, nconftot, ndet, &
                        ndet_tot, Nstate, omega, out_id, p_style, phi, prep_ci, prep_hcsf, prep_id, pulse_vector, rassd_list, &
                        runmode, sigma, sint, SO_CI, taushift, tmp, U_CI, U_CI_compl, V_CSF, V_SO
@@ -50,6 +50,7 @@ call read_input()
 maxnum = maxval(ndet)
 maxnconf = maxval(nconf)
 maxlroots = maxval(lroots)
+n_sf = sum(lroots)
 nconftot = 0
 lrootstot = 0
 if (p_style == 'DET') ndet_tot = sum(ndet)  ! Nr of DETs
@@ -63,6 +64,10 @@ do i=1,N
     nconftot = nconftot+nconf(i)
   end if
 end do
+! determine if number of roots equal to number of CSFs
+!  if (lrootstot<nconftot) then
+!    runmode = 4
+!  endif
 
 call mma_allocate(dipole,lrootstot,lrootstot,3)
 call mma_allocate(dysamp,lrootstot,lrootstot)
@@ -92,6 +97,7 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
     call mma_allocate(CSF2SO,nconftot,lrootstot)
     call mma_allocate(E_SO,lrootstot)
   end if
+  if (basis == 'SPH') call mma_allocate(E_SF, n_sf)
 
   ! Create PREP file for storage of intermediate data
   call cre_prep()
@@ -149,12 +155,10 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
   call read_rassisd()
   if (flag_so) call get_vsoc()
   call get_hcsf()
-  if (flag_so) then
-    ! construct transformation matrices between bases
-    call soci()
-    ! process dipole moment
-    call get_dipole()
-  end if
+  ! construct transformation matrices between bases
+  if (flag_so) call soci()
+  ! process dipole moment
+  if (flag_so .and. basis /= 'SPH') call get_dipole()
   ! construct initial density matrix
   call get_dm0()
 
@@ -181,8 +185,6 @@ else if (runmode == 2) then
 ! only SO hamiltonian from RASSI is read
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 else if (runmode == 4) then
-  ! only SF/SO basis allowed
-  !basis = 'SO'
   call mma_allocate(HSOCX,Nstate,Nstate)
   call mma_allocate(CI,maxnconf,maxlroots,N)
   call mma_allocate(E,maxlroots,N)
@@ -236,6 +238,8 @@ if (runmode /= 3) then
       d = lrootstot
     case ('SO')
       d = lrootstot
+    case ('SPH')
+      d = sum(lroots)
   end select
   call mma_allocate(hamiltonian,d,d)
   call mma_allocate(density0,d,d)
@@ -248,11 +252,19 @@ if (runmode /= 3) then
   if (runmode /= 4) then
     ! prepare density and hamiltonian in required basis to propagate with.
     ! here supposed that these matrices are prepared in CSF basis
-    call hamdens()
+    if (basis /= 'SPH') then
+      call hamdens()
+    else
+      dipole_basis(:,:,:) = dipole
+    endif
   else
     ! charge migration case
     !hamiltonian = HSOCX ! transform Hamiltonian to SO basis
-    if (flag_so) call transform(HSOCX,SO_CI,hamiltonian)
+    if (flag_so) then
+      call transform(HSOCX,SO_CI,hamiltonian)
+    else
+      hamiltonian(:,:) = HSOCX
+    endif
     density0(:,:) = DM0
     dipole_basis(:,:,:) = dipole
     U_CI_compl(:,:) = cmplx(U_CI,kind=wp)
@@ -303,7 +315,12 @@ if (runmode /= 3) then
 
   if (flag_decay .or. flag_dyson) call prepare_decay()
 
-  call propagate()
+  if (basis /= 'SPH') then
+    call propagate()
+  else
+    write(u6,*) 'Propagation in Spherical Tensor basis'
+    call propagate_sph()
+  endif
 
 end if
 
@@ -335,6 +352,7 @@ if (allocated(E)) call mma_deallocate(E)
 if (allocated(U_CI)) call mma_deallocate(U_CI)
 if (allocated(SO_CI)) call mma_deallocate(SO_CI)
 if (allocated(E_SO)) call mma_deallocate(E_SO)
+if (allocated(E_SF)) call mma_deallocate(E_SF)
 if (allocated(HTOTRE_CSF)) call mma_deallocate(HTOTRE_CSF)
 if (allocated(dipole)) call mma_deallocate(dipole)
 if (allocated(dysamp)) call mma_deallocate(dysamp)
@@ -346,7 +364,7 @@ if (allocated(DM0)) call mma_deallocate(DM0)
 if (allocated(HSOCX)) call mma_deallocate(HSOCX)
 
 ! allocated in dynamics part
-if (runmode /= 3) then
+if (runmode /= 3 .and. basis /= 'SPH') then
   if (allocated(U_CI_compl)) call mma_deallocate(U_CI_compl)
   if (allocated(dipole)) call mma_deallocate(dipole)
   if (allocated(hamiltonian)) call mma_deallocate(hamiltonian)

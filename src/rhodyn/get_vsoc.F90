@@ -14,7 +14,8 @@
 subroutine get_vsoc()
 !***********************************************************************
 ! Purpose:  transformation of V(SOC) matrix from the basis
-!           of spin-free states to the basis of CSFs
+!           of spin-free states as it is obtained from RASSI
+!           to the basis of CSFs
 !***********************************************************************
 ! V_SO    : SO-Hamiltonian matrix
 ! REV_SO  : Real part of V_SO
@@ -22,8 +23,8 @@ subroutine get_vsoc()
 ! REV_CSF : U_CI*REV_SO*U_CI**T
 ! IMV_CSF : U_CI*IMV_SO*U_CI**T
 
-use rhodyn_data, only: int2real, ipglob, lrootstot, nconftot, prep_vcsfi, prep_vcsfr, threshold, U_CI, V_CSF, V_SO
-use rhodyn_utils, only: dashes, transform
+use rhodyn_data, only: int2real, ipglob, lrootstot, nconftot, prep_vcsfi, prep_vcsfr, U_CI, V_CSF, V_SO
+use rhodyn_utils, only: dashes, transform, check_hermicity
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -43,23 +44,7 @@ call mma_allocate(IMV_CSF,nconftot,nconftot)
 REV_SO(:,:) = real(V_SO)
 IMV_SO(:,:) = aimag(V_SO)
 
-! check whether V_SO in SF basis is hermitian.
-if (ipglob > 3) then
-  call dashes()
-  write(u6,*) 'Check if Spin-orbit coupling V_SO is hermitain'
-  call dashes()
-  do i=1,lrootstot
-    do j=1,i
-      if ((abs(REV_SO(i,j)-REV_SO(j,i)) >= threshold) .or. (abs(IMV_SO(i,j)+IMV_SO(j,i)) >= threshold)) then
-        write(u6,*) 'ERROR: V_SO is not Hermitian; check element',i,j,REV_SO(i,j),REV_SO(j,i),IMV_SO(i,j),IMV_SO(j,i), &
-                    (REV_SO(i,j)-REV_SO(j,i)),(IMV_SO(i,j)+IMV_SO(j,i))
-      end if
-    end do
-  end do
-  call dashes()
-  write(u6,*) 'If there is no error printout, V_SO is hermitain!'
-  call dashes()
-end if
+if (ipglob > 3) call check_hermicity(V_SO, lrootstot, 'V_SO in SF basis', u6)
 
 if (ipglob > 3) then
   call dashes()
@@ -75,27 +60,9 @@ if (ipglob > 2) write(u6,*) 'Begin transform the SO-Hamiltonian'
 call transform(REV_SO,U_CI,REV_CSF,.false.)
 call transform(IMV_SO,U_CI,IMV_CSF,.false.)
 
-! Check whether V_CSF is hermitian
-if (ipglob > 3) then
-  call dashes()
-  write(u6,*) 'Check whether SO-Hamiltonian in CSF is hermitian'
-  call dashes()
-  do i=1,nconftot
-    do j=i+1,nconftot
-      if (abs(REV_CSF(i,j)-REV_CSF(j,i)) >= threshold) then
-        write(u6,int2real) 'WARNING!!!: REV_CSF is not hermitian:',i,j,REV_CSF(i,j),REV_CSF(j,i)
-      else if (abs(IMV_CSF(i,j)+IMV_CSF(j,i)) >= threshold) then
-        write(u6,int2real) 'WARNING!!!: IMV_CSF is not hermitian:',i,j,IMV_CSF(i,j),IMV_CSF(j,i)
-      end if
-    end do
-  end do
-  call dashes()
-  write(u6,*) 'If there is no WARNING!!! printout'
-  write(u6,*) 'SO-Hamiltonian in CSF basis is hermitian'
-  call dashes()
-end if
-
 V_CSF(:,:) = cmplx(REV_CSF,IMV_CSF,kind=wp)
+
+if (ipglob > 3) call check_hermicity(V_CSF, nconftot, 'V_SO in CSF basis', u6)
 
 ! Store pure SOC matrix in CSF basis to PREP file
 call mh5_put_dset(prep_vcsfr,REV_CSF)

@@ -213,7 +213,10 @@ else
         call abend()
       end if
       DM0_bas(N_Populated,N_Populated) = cOne
-      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      if (runmode/=4) then
+        ! transform DM to CSF basis by default
+        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      endif
 
     case ('SO')
       call dashes()
@@ -244,7 +247,10 @@ else
         write(u6,*) i,(E_SF(i)-E_SF(1))/(k_B*T),exp(-(E_SF(i)-E_SF(1))/(k_B*T)),exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
         DM0_bas(i,i) = exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
       end do
-      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      if (runmode/=4) then
+        ! transform DM to CSF basis by default
+        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      endif
     case default
       write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()

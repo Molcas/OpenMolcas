@@ -98,22 +98,22 @@ do i=1,N_pulse
   else if (pulse_type == 'MONO_R_CIRCLE') then
     E_field(1) = amp(i)*sin(omega(i)*time+phi(i))
     E_field(2) = Amp(1)*cos(omega(i)*time+phi(i))
-    E_field(3) = Zero
+    E_field(3) = cZero
 
   else if (pulse_type == 'MONO_L_CIRCLE') then
     E_field(1) = amp(i)*cos(omega(i)*time+phi(i))
     E_field(2) = amp(i)*sin(omega(i)*time+phi(i))
-    E_field(3) = Zero
+    E_field(3) = cZero
 
   else if (pulse_type == 'GAUSS_R_CIRCLE') then
     E_field(1) = amp(i)*sin(omega(i)*time+phi(i))*exp(-(time-taushift(i))**2/(Two*sigma(i)**2))
     E_field(2) = amp(i)*cos(omega(i)*time+phi(i))*exp(-(time-taushift(i))**2/(Two*sigma(i)**2))
-    E_field(3) = Zero
+    E_field(3) = cZero
 
   else if (pulse_type == 'GAUSS_L_CIRCLE') then
     E_field(1) = amp(i)*cos(omega(i)*time+phi(i))*exp(-(time-taushift(i))**2/(Two*sigma(i)**2))
     E_field(2) = amp(i)*sin(omega(i)*time+phi(i))*exp(-(time-taushift(i))**2/(Two*sigma(i)**2))
-    E_field(3) = Zero
+    E_field(3) = cZero
   end if
 end do
 
@@ -130,7 +130,7 @@ end if
 
 ! update Hamiltonian H0 to Ht adding
 ! scalar product of E_field and dipole moment
-Ht = H0
+Ht(:,:) = H0
 do i=1,3
   Ht(:,:) = Ht(:,:)+dipole_basis(:,:,i)*E_field(i)
 end do

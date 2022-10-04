@@ -13,7 +13,7 @@
 
 subroutine pop(time,popcount,dgl_csf,density_csf)
 !***********************************************************************
-! prints diagonal of the density matrix densityt in reqired basis
+! prints diagonal of the density matrix densityt in required basis
 ! at the current time
 !***********************************************************************
 
@@ -38,7 +38,7 @@ character(len=64) :: sline
 !!! density0 (can't be) used as a temporary storage for dm in required basis
 
 write(sline,'(f10.3)') time*auToFs
-call StatusLine('SpinDyn current time: ',trim(sline))
+call StatusLine('RhoDyn: current time ',trim(sline))
 
 call mh5_put_dset(out_tout,[time*auToFs],[1],[popcount-1])
 

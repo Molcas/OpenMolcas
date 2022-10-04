@@ -16,12 +16,13 @@
 module integrators
 
 use rhodyn_data, only: equation_func, dt, ak1, ak2, ak3, ak4, ak5, ak6, timestep
+use rhodyn_data_spherical, only: equation_func_sph, midk1, midk2, midk3, midk4
 use Definitions, only: wp
 
 implicit none
 private
 
-public :: classic_rk4, rk4, rk5, rk45, rkck
+public :: classic_rk4, rk4, rk5, rk45, rkck, rk4_sph
 
 contains
 
@@ -264,5 +265,25 @@ subroutine rkck(t0,y,err)
   err = maxval(abs(dt*(dc1*ak1+dc3*ak3+dc4*ak4+dc5*ak5+dc6*ak6)))
 
 end subroutine rkck
+
+subroutine rk4_sph(t0,y)
+  !*********************************************************************
+  ! convenient Runge-Kutta method of 4th order
+  ! for integration of set of matrices in ITOs basis
+  !*********************************************************************
+
+  use Constants, only: Six, Half
+
+  real(kind=wp), intent(in) :: t0
+  complex(kind=wp), intent(inout) :: y(:,:,:)
+  procedure(equation_func_sph) :: equation_sph
+
+  call equation_sph(t0,y,midk1)
+  call equation_sph(t0+Half*timestep,y+Half*timestep*midk1,midk2)
+  call equation_sph(t0+Half*timestep,y+Half*timestep*midk2,midk3)
+  call equation_sph(t0+timestep,y+timestep*midk3,midk4)
+  y(:,:,:) = y + timestep/Six*(midk1+2*midk2+2*midk3+midk4)
+
+end subroutine rk4_sph
 
 end module integrators

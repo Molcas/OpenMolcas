@@ -24,7 +24,8 @@ subroutine soci()
 !  SO_eig   : SO_CI^T*CH_SO*SO_CI, diagonalize the Hamiltonian
 !  Hfull    : HTOT_CSF hamiltonian diagonalized
 
-use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, U_CI
+use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, &
+                       U_CI, flag_so
 use rhodyn_utils, only: dashes, mult, transform
 use stdalloc, only: mma_allocate, mma_deallocate
 use mh5, only: mh5_put_dset
@@ -94,7 +95,7 @@ if (ipglob > 4) then
 end if
 
 ! eigenvalue of SO states E_SO
-E_SO(:) = W
+E_SO(:) = W(1:lrootstot)
 
 call mult(Hfull,Hfull,Hfull2,.true.,.false.)
 
@@ -209,8 +210,10 @@ if (ipglob > 4) then
   call dashes()
 end if
 
-call mh5_put_dset(prep_csfsor,real(CSF2SO))
-call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
+if (flag_so) then
+  call mh5_put_dset(prep_csfsor,real(CSF2SO))
+  call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
+endif
 
 if (ipglob > 2) write(u6,*) 'End of soci'
 
