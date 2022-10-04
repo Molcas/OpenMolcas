@@ -33,7 +33,7 @@
 ************************************************************************
       use Orb_Type
       use InfSCF
-      use SCF_Arrays, only: EOrb, HDiag
+      use SCF_Arrays, only: EOrb, HDiag, CMO_Ref
       Implicit None
 #include "real.fh"
       Logical Set_H
@@ -54,7 +54,7 @@
       Set_H = .False.
 
 *     Compute the diagonal values of the Fock matrix, stored in EOrb.
-      Call Mk_EOrb()
+      Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
 
       nD   =Size(EOrb,2)
       HDiag(:)=1.0D+99

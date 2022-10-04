@@ -161,6 +161,7 @@ Real*8 E1,E2,EKin,PotNuc,EneV,E1V,E2V,EKinV,                      &
 
 Integer, Parameter :: nStOpt = 8
 Integer :: kOptim_Max=5
+Integer :: Iter_Start=1
 
 Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
         nFro(MxSym),nFrz(MxSym),nDel(MxSym),nSym,nAufb(2),              &

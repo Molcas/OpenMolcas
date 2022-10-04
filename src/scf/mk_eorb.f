@@ -10,18 +10,18 @@
 *                                                                      *
 * Copyright (C) Per-Olof Widmark                                       *
 ************************************************************************
-      Subroutine Mk_EOrb()
-      Use SCF_Arrays, only: Fock, CMO, EOrb
+      Subroutine Mk_EOrb(CMO,nCMO,nD)
+      Use SCF_Arrays, only: Fock, EOrb
       use InfSCF, only: nSym, nBas, nOrb
       Implicit None
+      Integer nCMO,nD
+      Real*8 CMO(nCMO,nD)
 *
-      Integer nFck, nCMO, nEOrb, nD
+      Integer nFck, nEOrb
       Integer iD
 *
       nFck =SIZE(Fock,1)
-      nCMO =SIZE(CMO, 1)
       nEOrb=SIZE(EOrb,1)
-      nD   =SIZE(Fock,2)
 
       Do iD = 1, nD
          Call MkEorb_(Fock(1,iD),nFck,CMO(1,iD),nCMO,Eorb(1,iD),nEorb,

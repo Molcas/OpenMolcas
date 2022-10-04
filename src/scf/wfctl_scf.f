@@ -16,13 +16,16 @@
 *               2016,2017,2022, Roland Lindh                           *
 ************************************************************************
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
-      use SCF_Arrays
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use SCF_Arrays, only: CInter, OccNo, TrDD, TrDP, TrDH, TrM
+      use InfSCF, only: iUHF, nBB, nBT, nnB
+      Implicit None
 #include "stdalloc.fh"
 #include "mxdm.fh"
-      Logical FstItr
+      Integer iTerm
       Character(LEN=*) Meth
+      Logical FstItr
+      Real*8 SIntTh
+      Integer nD, nCI, nTr
 *
       nD = iUHF + 1
 *                                                                      *
@@ -39,10 +42,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,
-     &                        Dens,Ovrlp,TrDh,TrDP,TrDD,
-     &                        CInter,OccNo,Vxc,TrM,nBT,
-     &                        nDens,nD,nTr,nBB,nCI,nnB
+      Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,
+     &                        TrDh,TrDP,TrDD,
+     &                        CInter,OccNo,TrM,nBT,
+     &                        nD,nTr,nBB,nCI,nnB
      &                       )
 *                                                                      *
 ************************************************************************
@@ -58,9 +61,8 @@
       End Subroutine WFCtl_SCF
       SubRoutine WfCtl_SCF_Internal(
      &                      iTerm,Meth,FstItr,SIntTh,
-     &                      OneHam,TwoHam,Dens,Ovrlp,
      &                      TrDh,TrDP,TrDD,CInter,OccNo,
-     &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB
+     &                      TrM,mBT,nD,nTr,mBB,nCI,mmB
      &                             )
 ************************************************************************
 *                                                                      *
@@ -96,16 +98,14 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO
-      use SCF_Arrays, only: EOrb, CMO, Fock
+      use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
+     &                      Ovrlp, Vxc
       use InfSCF
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
-      Real*8 OneHam(mBT), TwoHam(mBT,nD,mDens), Dens(mBT,nD,mDens),
-     &       Ovrlp(mBT), TrDD(nTr*nTr,nD),
-     &       TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD),
-     &       CInter(nCI,nD), Vxc(mBT,nD,mDens), TrM(mBB,nD),
-     &       OccNo(mmB,nD)
+      Real*8 TrDD(nTr*nTr,nD), TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD),
+     &       CInter(nCI,nD), TrM(mBB,nD), OccNo(mmB,nD)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
@@ -113,7 +113,7 @@
 #include "ldfscf.fh"
 #include "warnings.h"
 #include "mxdm.fh"
-      Real*8, Dimension(:),   Allocatable:: D1Sao
+      Real*8, Dimension(:), Allocatable:: D1Sao
       Real*8, Dimension(:), Allocatable:: Grd1, Disp, Xnp1, Xn
 
 *---  Tolerance for negative two-electron energy
@@ -1011,7 +1011,7 @@ c     Call Scf_XML(0)
 *
 *---- Compute correct orbital energies
 *
-      Call Mk_Eorb()
+      Call Mk_EOrb(CMO,Size(CMO,1),Size(CMO,2))
 *
 *     Put orbital coefficients and energies on the runfile.
 *
