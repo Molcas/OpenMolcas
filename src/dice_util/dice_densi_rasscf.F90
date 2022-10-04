@@ -30,7 +30,6 @@ PS(:) = Zero
 PA(:) = Zero
 
 if (NACTEL <= 1) then
-  ! special case for NACTEL = 1
   write(u6,*) 'Dice does not allow 1 electron.'
   return
 end if
