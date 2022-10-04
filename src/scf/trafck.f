@@ -11,14 +11,12 @@
 * Copyright (C) 1994, Martin Schuetz                                   *
 *               2017,2022, Roland Lindh                                *
 ************************************************************************
-      SubRoutine TraFck(Fock,nFock,CMO,nCMO,canorb,FOVMax,EOrb,nEOrb,
-     &                  Ovrlp,nD)
+      SubRoutine TraFck(canorb,FOVMax)
 ************************************************************************
 *                                                                      *
 *     purpose: Transform Fock Matrix to get Orbital energies           *
 *                                                                      *
 *     input:                                                           *
-*       Fock    : Fock matrix of length nFock                          *
 *       CMO     : orthonormal vectors from previous iteration of       *
 *                 length nCMO                                          *
 *       canorb  : Boolean: TRUE, if canonical orbs are desired,        *
@@ -49,24 +47,35 @@
 ************************************************************************
 *#define _DEBUGPRINT_
       use SpinAV, only: Do_SpinAV
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, FckAuf, nBas,
+     &                  nFro, nConstr, nOcc, nOrb, TimFld
+      use SCF_Arrays, only: Fock, Ovrlp, CMO, EOrb
+      Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
 *
-      Integer nFock,nCMO,nEOrb
-      Real*8 Fock(nFock,nD),CMO(nCMO,nD),FOVMax,EOrb(nEOrb,nD),
-     &       Ovrlp(nFock)
-      Logical canorb
+      Integer nFock,nCMO,nEOrb, nD
+      Real*8 FOVMax
+      Logical CanOrb
 *
       Real*8, Dimension(:), Allocatable:: FckM, FckS, HlfF, EigV,
      &                                    Ctmp, Scratch, CMOOld,
      &                                    Scrt, COvrlp
-      Real*8 Fia
-      Real*8 Cpu1,Tim1,Tim2,Tim3
+      Real*8 Fia, Dummy
+      Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3
+      Real*8 Tmp, Tmp0, Tmp1
       Integer ioFckM,iCMO,jEOr,iptr,iptr2,nOrbmF,nOccmF,
-     &        nVrt,ii,ia
+     &        nVrt,ia, iD, iSym, i, iDiag, iDum, iErr, iiCMO,
+     &        iiEigV, iiScratch, iOcc, iOff, j, jjEOr, jOcc, kk,
+     &        kOcc, kOff, n2Sort, n2Zero, nFound
+      Integer, External:: iDaMax_
+      Real*8, External:: DDot_
 *
+      nFock=Size(Fock,1)
+      nD   =Size(Fock,2)
+      nCMO =Size(CMO,1)
+      nEOrb=Size(EOrb,1)
+
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
       Call NrmClc(Fock,nFock*nD,'TraFck','Fock')

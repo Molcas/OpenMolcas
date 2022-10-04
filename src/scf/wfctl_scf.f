@@ -569,8 +569,7 @@
 *
 *---        and transform the Fock matrix into the new MO space,
 *
-            Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrlp,nD)
+            Call TraFck(.FALSE.,FMOMax)
 *
 *---        compute initial diagonal Hessian, Hdiag
 *
@@ -1006,8 +1005,7 @@ c     Call Scf_XML(0)
 *
 *---    Generate canonical orbitals
 *
-         Call TraFck(Fock,nBT,CMO,nBO,.TRUE.,FMOMax,EOrb,nnO,
-     &               Ovrlp,nD)
+         Call TraFck(.TRUE.,FMOMax)
 *
 *        Transform density matrix to MO basis
 *
