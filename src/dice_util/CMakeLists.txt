@@ -14,7 +14,7 @@ set (sources
      precmod.F90
      molcas2dice.F90
      dicectl.f
-     dice_densi_rasscf.f
+     dice_densi_rasscf.F90
      dice_load2pdm.F90
 )
 
